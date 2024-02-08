@@ -13,6 +13,7 @@
 #include <asm/bug.h>
 #include <asm-generic/module.h>
 
+
 #ifndef __powerpc64__
 /*
  * Thanks to Paul M for explaining this.
@@ -28,6 +29,7 @@ struct ppc_plt_entry {
 	unsigned int jump[4];
 };
 #endif	/* __powerpc64__ */
+
 
 struct mod_arch_specific {
 #ifdef __powerpc64__
@@ -74,6 +76,7 @@ struct mod_arch_specific {
 	asm(".section .ftrace.tramp,\"ax\",@nobits; .align 3; .previous");
 #    endif	/* MODULE */
 #endif
+
 
 struct exception_table_entry;
 void sort_ex_table(struct exception_table_entry *start,

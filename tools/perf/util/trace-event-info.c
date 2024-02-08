@@ -45,6 +45,7 @@
 
 static int output_fd;
 
+
 static const char *find_debugfs(void)
 {
 	const char *path = perf_debugfs_mount(NULL);

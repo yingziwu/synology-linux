@@ -1,6 +1,7 @@
 #ifndef _LINUX_WAIT_H
 #define _LINUX_WAIT_H
 
+
 #include <linux/list.h>
 #include <linux/stddef.h>
 #include <linux/spinlock.h>
@@ -457,6 +458,7 @@ do {									\
 	__ret;								\
 })
 
+
 #define __wait_event_interruptible_locked(wq, condition, exclusive, irq) \
 ({									\
 	int __ret = 0;							\
@@ -485,6 +487,7 @@ do {									\
 	__set_current_state(TASK_RUNNING);				\
 	__ret;								\
 })
+
 
 /**
  * wait_event_interruptible_locked - sleep until a condition gets true
@@ -602,6 +605,8 @@ do {									\
 	((condition)							\
 	 ? 0 : __wait_event_interruptible_locked(wq, condition, 1, 1))
 
+
+
 #define __wait_event_killable(wq, condition, ret)			\
 do {									\
 	DEFINE_WAIT(__wait);						\
@@ -642,6 +647,7 @@ do {									\
 		__wait_event_killable(wq, condition, __ret);		\
 	__ret;								\
 })
+
 
 #define __wait_event_lock_irq(wq, condition, lock, cmd)			\
 do {									\
@@ -715,6 +721,7 @@ do {									\
 		break;							\
 	__wait_event_lock_irq(wq, condition, lock, );			\
 } while (0)
+
 
 #define __wait_event_interruptible_lock_irq(wq, condition,		\
 					    lock, ret, cmd)		\
@@ -860,6 +867,7 @@ do {									\
 					wq, condition, lock, __ret);	\
 	__ret;								\
 })
+
 
 /*
  * These are the old interfaces to sleep waiting for an event.

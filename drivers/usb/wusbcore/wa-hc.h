@@ -120,6 +120,7 @@ struct wa_rpipe {
 	u8 buffer[1];	/* For reads/writes on USB */
 };
 
+
 /**
  * Instance of a HWA Host Controller
  *
@@ -194,9 +195,11 @@ struct wahc {
 	atomic_t xfer_id_count;
 };
 
+
 extern int wa_create(struct wahc *wa, struct usb_interface *iface);
 extern void __wa_destroy(struct wahc *wa);
 void wa_reset_all(struct wahc *wa);
+
 
 /* Miscellaneous constants */
 enum {
@@ -206,6 +209,7 @@ enum {
 	/** Period of time for EPROTO errors (in jiffies) */
 	HWAHC_EPROTO_PERIOD = 4 * HZ,
 };
+
 
 /* Notification endpoint handling */
 extern int wa_nep_create(struct wahc *, struct usb_interface *);
@@ -223,6 +227,7 @@ static inline void wa_nep_disarm(struct wahc *wa)
 {
 	usb_kill_urb(wa->nep_urb);
 }
+
 
 /* RPipes */
 static inline void wa_rpipe_init(struct wahc *wa)
@@ -280,11 +285,13 @@ static inline int rpipe_avail_inc(struct wa_rpipe *rpipe)
 		&& !list_empty(&rpipe->seg_list);
 }
 
+
 /* Transferring data */
 extern int wa_urb_enqueue(struct wahc *, struct usb_host_endpoint *,
 			  struct urb *, gfp_t);
 extern int wa_urb_dequeue(struct wahc *, struct urb *);
 extern void wa_handle_notif_xfer(struct wahc *, struct wa_notif_hdr *);
+
 
 /* Misc
  *
@@ -308,6 +315,7 @@ static inline void wa_put(struct wahc *wa)
 	usb_put_intf(wa->usb_iface);
 }
 
+
 static inline int __wa_feature(struct wahc *wa, unsigned op, u16 feature)
 {
 	return usb_control_msg(wa->usb_dev, usb_sndctrlpipe(wa->usb_dev, 0),
@@ -318,15 +326,18 @@ static inline int __wa_feature(struct wahc *wa, unsigned op, u16 feature)
 			NULL, 0, 1000 /* FIXME: arbitrary */);
 }
 
+
 static inline int __wa_set_feature(struct wahc *wa, u16 feature)
 {
 	return  __wa_feature(wa, 1, feature);
 }
 
+
 static inline int __wa_clear_feature(struct wahc *wa, u16 feature)
 {
 	return __wa_feature(wa, 0, feature);
 }
+
 
 /**
  * Return the status of a Wire Adapter
@@ -352,6 +363,7 @@ s32 __wa_get_status(struct wahc *wa)
 		result = wa->status;
 	return result;
 }
+
 
 /**
  * Waits until the Wire Adapter's status matches @mask/@value
@@ -382,6 +394,7 @@ static inline s32 __wa_wait_status(struct wahc *wa, u32 mask, u32 value)
 	return result;
 }
 
+
 /** Command @hwahc to stop, @returns 0 if ok, < 0 errno code on error */
 static inline int __wa_stop(struct wahc *wa)
 {
@@ -399,5 +412,6 @@ static inline int __wa_stop(struct wahc *wa)
 out:
 	return 0;
 }
+
 
 #endif /* #ifndef __HWAHC_INTERNAL_H__ */

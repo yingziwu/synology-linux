@@ -58,6 +58,7 @@ struct kvm_event_key {
 	key_cmp_fun key;
 };
 
+
 struct perf_kvm_stat;
 
 struct kvm_events_ops {
@@ -100,6 +101,7 @@ struct perf_kvm_stat {
 
 	struct rb_root result;
 };
+
 
 static void exit_event_get_key(struct perf_evsel *evsel,
 			       struct perf_sample *sample,
@@ -308,6 +310,7 @@ struct vcpu_event_record {
 	u64 start_time;
 	struct kvm_event *last_event;
 };
+
 
 static void init_kvm_event_record(struct perf_kvm_stat *kvm)
 {
@@ -991,6 +994,7 @@ int cmd_kvm(int argc, const char **argv, const char *prefix __maybe_unused)
 			   "file", "file saving guest os /proc/modules"),
 		OPT_END()
 	};
+
 
 	const char * const kvm_usage[] = {
 		"perf kvm [<options>] {top|record|report|diff|buildid-list|stat}",

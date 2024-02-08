@@ -77,6 +77,7 @@ static struct us_unusual_dev sddr55_unusual_dev_list[] = {
 
 #undef UNUSUAL_DEV
 
+
 #define short_pack(lsb,msb) ( ((u16)(lsb)) | ( ((u16)(msb))<<8 ) )
 #define LSB_of(s) ((s)&0xFF)
 #define MSB_of(s) ((s)>>8)
@@ -88,6 +89,7 @@ static struct us_unusual_dev sddr55_unusual_dev_list[] = {
 	info->sense_data[12] = asc;	\
 	info->sense_data[13] = ascq;	\
 	} while (0)
+
 
 struct sddr55_card_info {
 	unsigned long	capacity;	/* Size of card in bytes */
@@ -105,6 +107,7 @@ struct sddr55_card_info {
 	unsigned long 	last_access;	/* number of jiffies since we last talked to device */
 	unsigned char   sense_data[18];
 };
+
 
 #define NOT_ALLOCATED		0xffffffff
 #define BAD_BLOCK		0xffff
@@ -186,6 +189,7 @@ static int sddr55_status(struct us_data *us)
 	return (result == USB_STOR_XFER_GOOD ?
 			USB_STOR_TRANSPORT_GOOD : USB_STOR_TRANSPORT_FAILED);
 }
+
 
 static int sddr55_read_data(struct us_data *us,
 		unsigned int lba,
@@ -548,10 +552,12 @@ static int sddr55_read_deviceID(struct us_data *us,
 	return USB_STOR_TRANSPORT_GOOD;
 }
 
+
 static int sddr55_reset(struct us_data *us)
 {
 	return 0;
 }
+
 
 static unsigned long sddr55_get_capacity(struct us_data *us) {
 
@@ -753,6 +759,7 @@ static int sddr55_read_map(struct us_data *us) {
 	return 0;
 }
 
+
 static void sddr55_card_info_destructor(void *extra) {
 	struct sddr55_card_info *info = (struct sddr55_card_info *)extra;
 
@@ -762,6 +769,7 @@ static void sddr55_card_info_destructor(void *extra) {
 	kfree(info->lba_to_pba);
 	kfree(info->pba_to_lba);
 }
+
 
 /*
  * Transport for the Sandisk SDDR-55
@@ -946,6 +954,7 @@ static int sddr55_transport(struct scsi_cmnd *srb, struct us_data *us)
 		}
 	}
 
+
 	if (srb->cmnd[0] == TEST_UNIT_READY) {
 		return USB_STOR_TRANSPORT_GOOD;
 	}
@@ -958,6 +967,7 @@ static int sddr55_transport(struct scsi_cmnd *srb, struct us_data *us)
 
 	return USB_STOR_TRANSPORT_FAILED; // FIXME: sense buffer?
 }
+
 
 static int sddr55_probe(struct usb_interface *intf,
 			 const struct usb_device_id *id)

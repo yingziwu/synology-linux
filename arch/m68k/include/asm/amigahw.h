@@ -39,6 +39,7 @@
 #define AMI_CD32	(14)
 #define AMI_DRACO	(15)
 
+
     /*
      *  Chipsets
      */
@@ -50,6 +51,7 @@ extern unsigned long amiga_chipset;
 #define CS_ECS		(2)
 #define CS_AGA		(3)
 
+
     /*
      *  Miscellaneous
      */
@@ -58,6 +60,7 @@ extern unsigned long amiga_eclock;	/* 700 kHz E Peripheral Clock */
 extern unsigned long amiga_colorclock;	/* 3.5 MHz Color Clock */
 extern unsigned long amiga_chip_size;	/* Chip RAM Size (bytes) */
 extern unsigned char amiga_vblank;	/* VBLANK Frequency */
+
 
 #define AMIGAHW_DECLARE(name)	unsigned name : 1
 #define AMIGAHW_SET(name)	(amiga_hw_present.name = 1)

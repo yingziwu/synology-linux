@@ -222,6 +222,7 @@ static inline void release_thread(struct task_struct *dead_task)
 
 extern int do_work_pending(struct pt_regs *regs, u32 flags);
 
+
 /*
  * Return saved (kernel) PC of a blocked thread.
  * Only used in a printk() in kernel/sched.c, so don't work too hard.

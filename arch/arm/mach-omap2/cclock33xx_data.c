@@ -152,6 +152,7 @@ DEFINE_CLK_DIVIDER(dpll_core_m6_ck, "dpll_core_x2_ck", &dpll_core_x2_ck,
 		   AM33XX_HSDIVIDER_CLKOUT3_DIV_WIDTH,
 		   CLK_DIVIDER_ONE_BASED, NULL);
 
+
 /* DPLL_MPU */
 static struct dpll_data dpll_mpu_dd = {
 	.mult_div1_reg	= AM33XX_CM_CLKSEL_DPLL_MPU,
@@ -653,6 +654,7 @@ static struct clk_hw_omap cpsw_cpts_rft_clk_hw = {
 
 DEFINE_STRUCT_CLK(cpsw_cpts_rft_clk, cpsw_cpts_rft_ck_parents, cpsw_fck_ops);
 
+
 /* gpio */
 static const char *gpio0_ck_parents[] = {
 	"clk_rc32k_ck", "clk_32768_ck", "clkdiv32k_ick",
@@ -701,6 +703,7 @@ DEFINE_CLK_GATE(gpio2_dbclk, "clkdiv32k_ick", &clkdiv32k_ick, 0x0,
 DEFINE_CLK_GATE(gpio3_dbclk, "clkdiv32k_ick", &clkdiv32k_ick, 0x0,
 		AM33XX_CM_PER_GPIO3_CLKCTRL,
 		AM33XX_OPTFCLKEN_GPIO_3_GDBCLK_SHIFT, 0x0, NULL);
+
 
 static const char *pruss_ck_parents[] = {
 	"l3_gclk", "dpll_disp_m2_ck",
@@ -940,6 +943,7 @@ static struct omap_clk am33xx_clks[] = {
 	CLK(NULL,	"timer_32k_ck",		&clkdiv32k_ick),
 	CLK(NULL,	"timer_sys_ck",		&sys_clkin_ck),
 };
+
 
 static const char *enable_init_clks[] = {
 	"dpll_ddr_m2_ck",

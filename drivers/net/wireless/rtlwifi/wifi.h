@@ -1589,6 +1589,7 @@ struct rtl_stats {
 	u32 macid_valid_entry[2];
 };
 
+
 struct rt_link_detect {
 	/* count for roaming */
 	u32 bcn_rx_inperiod;
@@ -2062,6 +2063,7 @@ struct rtl_priv {
 #define rtl_efuse(rtlpriv)	(&((rtlpriv)->efuse))
 #define rtl_psc(rtlpriv)	(&((rtlpriv)->psc))
 
+
 /***************************************
     Bluetooth Co-existence Related
 ****************************************/
@@ -2159,6 +2161,7 @@ struct bt_coexist_info {
 	bool hold_for_bt_operation;
 	u8 lps_counter;
 };
+
 
 /****************************************
 	mem access macro define start

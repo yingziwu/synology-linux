@@ -44,6 +44,7 @@ static inline void rate_control_tx_status(struct ieee80211_local *local,
 	ref->ops->tx_status(ref->priv, sband, ista, priv_sta, skb);
 }
 
+
 static inline void rate_control_rate_init(struct sta_info *sta)
 {
 	struct ieee80211_local *local = sta->sdata->local;
@@ -128,6 +129,7 @@ int ieee80211_init_rate_ctrl_alg(struct ieee80211_local *local,
 				 const char *name);
 void rate_control_deinitialize(struct ieee80211_local *local);
 
+
 /* Rate control algorithms */
 #ifdef CONFIG_MAC80211_RC_PID
 extern int rc80211_pid_init(void);
@@ -167,5 +169,6 @@ static inline void rc80211_minstrel_ht_exit(void)
 {
 }
 #endif
+
 
 #endif /* IEEE80211_RATE_H */

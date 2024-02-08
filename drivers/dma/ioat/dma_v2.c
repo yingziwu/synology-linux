@@ -340,6 +340,7 @@ void ioat2_timer_event(unsigned long data)
 		mod_timer(&chan->timer, jiffies + COMPLETION_TIMEOUT);
 	}
 
+
 	if (ioat2_ring_active(ioat))
 		mod_timer(&chan->timer, jiffies + COMPLETION_TIMEOUT);
 	else {

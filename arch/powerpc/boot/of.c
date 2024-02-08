@@ -22,6 +22,8 @@
 #define RAM_END		(512<<20)	/* Fixme: use OF */
 #define	ONE_MB		0x100000
 
+
+
 static unsigned long claim_base;
 
 static void *of_try_claim(unsigned long size)

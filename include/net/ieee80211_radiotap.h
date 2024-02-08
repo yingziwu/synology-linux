@@ -262,6 +262,7 @@ enum ieee80211_radiotap_type {
 #define IEEE80211_RADIOTAP_F_TX_RTS	0x0004	/* used rts/cts handshake */
 #define IEEE80211_RADIOTAP_F_TX_NOACK	0x0008	/* don't expect an ack */
 
+
 /* For IEEE80211_RADIOTAP_MCS */
 #define IEEE80211_RADIOTAP_MCS_HAVE_BW		0x01
 #define IEEE80211_RADIOTAP_MCS_HAVE_MCS		0x02
@@ -303,6 +304,7 @@ enum ieee80211_radiotap_type {
 #define IEEE80211_RADIOTAP_VHT_FLAG_SGI_NSYM_M10_9		0x08
 #define IEEE80211_RADIOTAP_VHT_FLAG_LDPC_EXTRA_OFDM_SYM		0x10
 #define IEEE80211_RADIOTAP_VHT_FLAG_BEAMFORMED			0x20
+
 
 /* helpers */
 static inline int ieee80211_get_radiotap_len(unsigned char *data)

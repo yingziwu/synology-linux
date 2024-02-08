@@ -56,6 +56,7 @@ static struct radeon_device *radeon_get_rdev(struct ttm_bo_device *bdev)
 	return rdev;
 }
 
+
 /*
  * Global memory.
  */
@@ -828,6 +829,7 @@ int radeon_mmap(struct file *filp, struct vm_area_struct *vma)
 	vma->vm_ops = &radeon_ttm_vm_ops;
 	return 0;
 }
+
 
 #define RADEON_DEBUGFS_MEM_TYPES 2
 

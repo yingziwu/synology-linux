@@ -102,6 +102,7 @@ static const struct cpuid_bit __cpuinitconst cpuid_bits[] = {
 	{ 0, 0, 0, 0, 0 }
 };
 
+
 void __cpuinit init_scattered_cpuid_features(struct cpuinfo_x86 *c)
 {
 	u32 max_level;

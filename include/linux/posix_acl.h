@@ -4,6 +4,7 @@
   (C) 2002 Andreas Gruenbacher, <a.gruenbacher@computer.org>
 */
 
+
 #ifndef __LINUX_POSIX_ACL_H
 #define __LINUX_POSIX_ACL_H
 
@@ -56,6 +57,7 @@ struct posix_acl {
 #define FOREACH_ACL_ENTRY(pa, acl, pe) \
 	for(pa=(acl)->a_entries, pe=pa+(acl)->a_count; pa<pe; pa++)
 
+
 /*
  * Duplicate an ACL handle.
  */
@@ -77,6 +79,7 @@ posix_acl_release(struct posix_acl *acl)
 		kfree_rcu(acl, a_rcu);
 }
 
+
 /* posix_acl.c */
 
 extern void posix_acl_init(struct posix_acl *, int);
@@ -86,6 +89,7 @@ extern int posix_acl_permission(struct inode *, const struct posix_acl *, int);
 extern struct posix_acl *posix_acl_from_mode(umode_t, gfp_t);
 extern int posix_acl_equiv_mode(const struct posix_acl *, umode_t *);
 extern int posix_acl_create(struct posix_acl **, gfp_t, umode_t *);
+extern int posix_acl_update_mode(struct inode *, umode_t *, struct posix_acl **);
 extern int posix_acl_chmod(struct posix_acl **, gfp_t, umode_t);
 
 extern struct posix_acl *get_posix_acl(struct inode *, int);

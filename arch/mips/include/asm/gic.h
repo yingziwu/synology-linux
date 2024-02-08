@@ -53,6 +53,7 @@
 #define GICBIS(reg, bits)	((reg) |= (bits))
 #endif
 
+
 /* GIC Address Space */
 #define SHARED_SECTION_OFS		0x0000
 #define SHARED_SECTION_SIZE		0x8000

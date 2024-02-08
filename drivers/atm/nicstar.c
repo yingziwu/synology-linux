@@ -2824,6 +2824,7 @@ static int ns_parse_mac(char *mac, unsigned char *esi)
 	return 0;
 }
 
+
 static void ns_phy_put(struct atm_dev *dev, unsigned char value,
 		       unsigned long addr)
 {

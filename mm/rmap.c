@@ -1293,6 +1293,7 @@ out:
 out_mlock:
 	pte_unmap_unlock(pte, ptl);
 
+
 	/*
 	 * We need mmap_sem locking, Otherwise VM_LOCKED check makes
 	 * unstable result and race. Plus, We can't wait here because

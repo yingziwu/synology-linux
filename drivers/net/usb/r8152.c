@@ -786,6 +786,7 @@ static void read_bulk_callback(struct urb *urb)
 	if (urb->actual_length < sizeof(*rx_desc))
 		goto goon;
 
+
 	rx_desc = (struct rx_desc *)urb->transfer_buffer;
 	pkt_len = le32_to_cpu(rx_desc->opts1) & RX_LEN_MASK;
 	if (urb->actual_length < sizeof(struct rx_desc) + pkt_len)
@@ -1678,6 +1679,7 @@ static int rtl8152_probe(struct usb_interface *intf,
 
 	usb_set_intfdata(intf, tp);
 	SET_NETDEV_DEV(netdev, &intf->dev);
+
 
 	if (register_netdev(netdev) != 0) {
 		netif_err(tp, probe, netdev, "couldn't register the device");

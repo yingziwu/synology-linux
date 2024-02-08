@@ -157,6 +157,7 @@ static void powernow_k6_set_state(struct cpufreq_policy *policy,
 	return;
 }
 
+
 /**
  * powernow_k6_verify - verifies a new CPUfreq policy
  * @policy: new policy
@@ -168,6 +169,7 @@ static int powernow_k6_verify(struct cpufreq_policy *policy)
 {
 	return cpufreq_frequency_table_verify(policy, &clock_ratio[0]);
 }
+
 
 /**
  * powernow_k6_setpolicy - sets a new CPUFreq policy
@@ -267,6 +269,7 @@ have_busfreq:
 	return 0;
 }
 
+
 static int powernow_k6_cpu_exit(struct cpufreq_policy *policy)
 {
 	unsigned int i;
@@ -333,6 +336,7 @@ static int __init powernow_k6_init(void)
 	return 0;
 }
 
+
 /**
  * powernow_k6_exit - unregisters AMD K6-2+/3+ PowerNow! support
  *
@@ -343,6 +347,7 @@ static void __exit powernow_k6_exit(void)
 	cpufreq_unregister_driver(&powernow_k6_driver);
 	release_region(POWERNOW_IOPORT, 16);
 }
+
 
 MODULE_AUTHOR("Arjan van de Ven, Dave Jones <davej@redhat.com>, "
 		"Dominik Brodowski <linux@brodo.de>");

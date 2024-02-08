@@ -123,6 +123,7 @@ static void __iomem *set_cis_map(struct pcmcia_socket *s,
 	return s->cis_virt;
 }
 
+
 /* Bits in attr field */
 #define IS_ATTR		1
 #define IS_INDIRECT	8
@@ -203,6 +204,7 @@ int pcmcia_read_cis_mem(struct pcmcia_socket *s, int attr, u_int addr,
 	return 0;
 }
 
+
 /**
  * pcmcia_write_cis_mem() - low-level function to write CIS memory
  *
@@ -272,6 +274,7 @@ int pcmcia_write_cis_mem(struct pcmcia_socket *s, int attr, u_int addr,
 	}
 	return 0;
 }
+
 
 /**
  * read_cis_cache() - read CIS memory or its associated cache
@@ -650,6 +653,7 @@ int pccard_get_tuple_data(struct pcmcia_socket *s, tuple_t *tuple)
 	return 0;
 }
 
+
 /* Parsing routines for individual tuples */
 
 static int parse_device(tuple_t *tuple, cistpl_device_t *device)
@@ -712,6 +716,7 @@ static int parse_device(tuple_t *tuple, cistpl_device_t *device)
 	return 0;
 }
 
+
 static int parse_checksum(tuple_t *tuple, cistpl_checksum_t *csum)
 {
 	u_char *p;
@@ -724,6 +729,7 @@ static int parse_checksum(tuple_t *tuple, cistpl_checksum_t *csum)
 	return 0;
 }
 
+
 static int parse_longlink(tuple_t *tuple, cistpl_longlink_t *link)
 {
 	if (tuple->TupleDataLen < 4)
@@ -731,6 +737,7 @@ static int parse_longlink(tuple_t *tuple, cistpl_longlink_t *link)
 	link->addr = get_unaligned_le32(tuple->TupleData);
 	return 0;
 }
+
 
 static int parse_longlink_mfc(tuple_t *tuple, cistpl_longlink_mfc_t *link)
 {
@@ -749,6 +756,7 @@ static int parse_longlink_mfc(tuple_t *tuple, cistpl_longlink_mfc_t *link)
 	}
 	return 0;
 }
+
 
 static int parse_strings(u_char *p, u_char *q, int max,
 			 char *s, u_char *ofs, u_char *found)
@@ -781,6 +789,7 @@ static int parse_strings(u_char *p, u_char *q, int max,
 	return (ns == max) ? 0 : -EINVAL;
 }
 
+
 static int parse_vers_1(tuple_t *tuple, cistpl_vers_1_t *vers_1)
 {
 	u_char *p, *q;
@@ -797,6 +806,7 @@ static int parse_vers_1(tuple_t *tuple, cistpl_vers_1_t *vers_1)
 			vers_1->str, vers_1->ofs, &vers_1->ns);
 }
 
+
 static int parse_altstr(tuple_t *tuple, cistpl_altstr_t *altstr)
 {
 	u_char *p, *q;
@@ -807,6 +817,7 @@ static int parse_altstr(tuple_t *tuple, cistpl_altstr_t *altstr)
 	return parse_strings(p, q, CISTPL_MAX_ALTSTR_STRINGS,
 			altstr->str, altstr->ofs, &altstr->ns);
 }
+
 
 static int parse_jedec(tuple_t *tuple, cistpl_jedec_t *jedec)
 {
@@ -827,6 +838,7 @@ static int parse_jedec(tuple_t *tuple, cistpl_jedec_t *jedec)
 	return 0;
 }
 
+
 static int parse_manfid(tuple_t *tuple, cistpl_manfid_t *m)
 {
 	if (tuple->TupleDataLen < 4)
@@ -835,6 +847,7 @@ static int parse_manfid(tuple_t *tuple, cistpl_manfid_t *m)
 	m->card = get_unaligned_le16(tuple->TupleData + 2);
 	return 0;
 }
+
 
 static int parse_funcid(tuple_t *tuple, cistpl_funcid_t *f)
 {
@@ -846,6 +859,7 @@ static int parse_funcid(tuple_t *tuple, cistpl_funcid_t *f)
 	f->sysinit = p[1];
 	return 0;
 }
+
 
 static int parse_funce(tuple_t *tuple, cistpl_funce_t *f)
 {
@@ -859,6 +873,7 @@ static int parse_funce(tuple_t *tuple, cistpl_funce_t *f)
 		f->data[i-1] = p[i];
 	return 0;
 }
+
 
 static int parse_config(tuple_t *tuple, cistpl_config_t *config)
 {
@@ -924,6 +939,7 @@ static u_char *parse_power(u_char *p, u_char *q, cistpl_power_t *pwr)
 	return p;
 }
 
+
 static u_char *parse_timing(u_char *p, u_char *q, cistpl_timing_t *timing)
 {
 	u_char scale;
@@ -957,6 +973,7 @@ static u_char *parse_timing(u_char *p, u_char *q, cistpl_timing_t *timing)
 	p++;
 	return p;
 }
+
 
 static u_char *parse_io(u_char *p, u_char *q, cistpl_io_t *io)
 {
@@ -1001,6 +1018,7 @@ static u_char *parse_io(u_char *p, u_char *q, cistpl_io_t *io)
 	return p;
 }
 
+
 static u_char *parse_mem(u_char *p, u_char *q, cistpl_mem_t *mem)
 {
 	int i, j, asz, lsz, has_ha;
@@ -1041,6 +1059,7 @@ static u_char *parse_mem(u_char *p, u_char *q, cistpl_mem_t *mem)
 	return p;
 }
 
+
 static u_char *parse_irq(u_char *p, u_char *q, cistpl_irq_t *irq)
 {
 	if (p == q)
@@ -1054,6 +1073,7 @@ static u_char *parse_irq(u_char *p, u_char *q, cistpl_irq_t *irq)
 	}
 	return p;
 }
+
 
 static int parse_cftable_entry(tuple_t *tuple,
 			       cistpl_cftable_entry_t *entry)
@@ -1178,6 +1198,7 @@ static int parse_cftable_entry(tuple_t *tuple,
 	return 0;
 }
 
+
 static int parse_device_geo(tuple_t *tuple, cistpl_device_geo_t *geo)
 {
 	u_char *p, *q;
@@ -1201,6 +1222,7 @@ static int parse_device_geo(tuple_t *tuple, cistpl_device_geo_t *geo)
 	return 0;
 }
 
+
 static int parse_vers_2(tuple_t *tuple, cistpl_vers_2_t *v2)
 {
 	u_char *p, *q;
@@ -1220,6 +1242,7 @@ static int parse_vers_2(tuple_t *tuple, cistpl_vers_2_t *v2)
 	p += 9;
 	return parse_strings(p, q, 2, v2->str, &v2->vendor, NULL);
 }
+
 
 static int parse_org(tuple_t *tuple, cistpl_org_t *org)
 {
@@ -1243,6 +1266,7 @@ static int parse_org(tuple_t *tuple, cistpl_org_t *org)
 	return 0;
 }
 
+
 static int parse_format(tuple_t *tuple, cistpl_format_t *fmt)
 {
 	u_char *p;
@@ -1259,6 +1283,7 @@ static int parse_format(tuple_t *tuple, cistpl_format_t *fmt)
 
 	return 0;
 }
+
 
 int pcmcia_parse_tuple(tuple_t *tuple, cisparse_t *parse)
 {
@@ -1333,6 +1358,7 @@ int pcmcia_parse_tuple(tuple_t *tuple, cisparse_t *parse)
 	return ret;
 }
 EXPORT_SYMBOL(pcmcia_parse_tuple);
+
 
 /**
  * pccard_validate_cis() - check whether card has a sensible CIS
@@ -1435,6 +1461,7 @@ done:
 	return ret;
 }
 
+
 #define to_socket(_dev) container_of(_dev, struct pcmcia_socket, dev)
 
 static ssize_t pccard_extract_cis(struct pcmcia_socket *s, char *buf,
@@ -1505,6 +1532,7 @@ static ssize_t pccard_extract_cis(struct pcmcia_socket *s, char *buf,
 	return ret;
 }
 
+
 static ssize_t pccard_show_cis(struct file *filp, struct kobject *kobj,
 			       struct bin_attribute *bin_attr,
 			       char *buf, loff_t off, size_t count)
@@ -1535,6 +1563,7 @@ static ssize_t pccard_show_cis(struct file *filp, struct kobject *kobj,
 	return count;
 }
 
+
 static ssize_t pccard_store_cis(struct file *filp, struct kobject *kobj,
 				struct bin_attribute *bin_attr,
 				char *buf, loff_t off, size_t count)
@@ -1561,6 +1590,7 @@ static ssize_t pccard_store_cis(struct file *filp, struct kobject *kobj,
 
 	return count;
 }
+
 
 struct bin_attribute pccard_cis_attr = {
 	.attr = { .name = "cis", .mode = S_IRUGO | S_IWUSR },

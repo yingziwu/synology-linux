@@ -149,6 +149,7 @@ extern debug_entry_t *
 debug_sprintf_event(debug_info_t* id,int level,char *string,...)
 	__attribute__ ((format(printf, 3, 4)));
 
+
 static inline debug_entry_t*
 debug_exception(debug_info_t* id, int level, void* data, int length)
 {

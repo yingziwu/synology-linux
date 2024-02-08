@@ -1227,6 +1227,7 @@ void  rtl8192_tx_fill_desc(struct net_device *dev, struct tx_desc *pdesc,
 	pdesc->SecCAMID = 0;
 	pdesc->RATid = cb_desc->RATRIndex;
 
+
 	pdesc->NoEnc = 1;
 	pdesc->SecType = 0x0;
 	if (cb_desc->bHwSec) {
@@ -1445,6 +1446,7 @@ static long rtl8192_signal_scale_mapping(struct r8192_priv *priv, long currsig)
 	return retsig;
 }
 
+
 #define	 rx_hal_is_cck_rate(_pdrvinfo)\
 			((_pdrvinfo->RxRate == DESC90_RATE1M ||\
 			_pdrvinfo->RxRate == DESC90_RATE2M ||\
@@ -1493,6 +1495,7 @@ static void rtl8192_query_rxphystatus(
 			      rFPGA0_XA_HSSIParameter2, 0x200);
 		check_reg824 = 1;
 	}
+
 
 	prxpkt = (u8 *)pdrvinfo;
 
@@ -1608,6 +1611,7 @@ static void rtl8192_query_rxphystatus(
 			}
 		}
 
+
 		rx_pwr_all = (((pofdm_buf->pwdb_all) >> 1) & 0x7f) - 106;
 		pwdb_all = rtl819x_query_rxpwrpercentage(rx_pwr_all);
 
@@ -1640,6 +1644,7 @@ static void rtl8192_query_rxphystatus(
 									& 0xff);
 			}
 		}
+
 
 		rxsc_sgien_exflg = pofdm_buf->rxsc_sgien_exflg;
 		prxsc = (struct phy_ofdm_rx_status_rxsc_sgien_exintfflag *)
@@ -1749,6 +1754,7 @@ static void rtl8192_process_phyinfo(struct r8192_priv *priv, u8 *buffer,
 				 priv->stats.rx_rssi_percentage[rfpath]);
 		}
 	}
+
 
 	if (prev_st->bPacketBeacon) {
 		if (slide_beacon_adc_pwdb_statistics++ >=
@@ -2059,6 +2065,7 @@ bool rtl8192_rx_query_status_desc(struct net_device *dev,
 				 pDrvInfo->FirstAGGR, pDrvInfo->PartAggr);
 		skb_trim(skb, skb->len - 4/*sCrcLng*/);
 
+
 		stats->packetlength = stats->Length-4;
 		stats->fraglength = stats->packetlength;
 		stats->fragoffset = 0;
@@ -2099,6 +2106,7 @@ void rtl8192_halt_adapter(struct net_device *dev, bool reset)
 			write_nic_dword(dev, WFCRC0, 0xffffffff);
 			write_nic_dword(dev, WFCRC1, 0xffffffff);
 			write_nic_dword(dev, WFCRC2, 0xffffffff);
+
 
 			write_nic_byte(dev, PMR, 0x5);
 			write_nic_byte(dev, MacBlkCtrl, 0xa);
@@ -2199,6 +2207,7 @@ rtl8192_InitializeVariables(struct net_device  *dev)
 			    IMR_RDU | IMR_RXFOVW | IMR_TXFOVW |
 			    IMR_BcnInt | IMR_TBDOK | IMR_TBDER);
 
+
 	priv->MidHighPwrTHR_L1 = 0x3B;
 	priv->MidHighPwrTHR_L2 = 0x40;
 	priv->PwrDomainProtect = false;
@@ -2231,6 +2240,7 @@ void rtl8192_ClearInterrupt(struct net_device *dev)
 	write_nic_dword(dev, ISR, tmp);
 }
 
+
 void rtl8192_enable_rx(struct net_device *dev)
 {
 	struct r8192_priv *priv = (struct r8192_priv *)rtllib_priv(dev);
@@ -2249,6 +2259,7 @@ void rtl8192_enable_tx(struct net_device *dev)
 	for (i = 0; i < MAX_TX_QUEUE_COUNT; i++)
 		write_nic_dword(dev, TX_DESC_BASE[i], priv->tx_ring[i].dma);
 }
+
 
 void rtl8192_interrupt_recognized(struct net_device *dev, u32 *p_inta,
 				  u32 *p_intb)
@@ -2298,6 +2309,7 @@ bool rtl8192_HalRxCheckStuck(struct net_device *dev)
 			rx_chk_cnt = 0;
 	}
 
+
 	SlotIndex = (priv->SilentResetRxSlotIndex++)%SilentResetRxSoltNum;
 
 	if (priv->RxCounter == RegRxCounter) {
@@ -2312,6 +2324,7 @@ bool rtl8192_HalRxCheckStuck(struct net_device *dev)
 				TotalRxStuckCount +=
 					 priv->SilentResetRxStuckEvent[i];
 		}
+
 
 	} else {
 		priv->SilentResetRxStuckEvent[SlotIndex] = 0;

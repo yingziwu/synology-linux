@@ -66,6 +66,7 @@ struct cm_req_msg {
 	union ib_gid primary_path_sgid;
 };
 
+
 static void set_local_comm_id(struct ib_mad *mad, u32 cm_id)
 {
 	struct cm_generic_msg *msg = (struct cm_generic_msg *)mad;

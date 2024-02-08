@@ -207,3 +207,5 @@ void _Calculate_D_SwECC(BYTE *buf, BYTE *ecc)
 {
 	calculate_ecc(ecctable, buf, ecc+1, ecc+0, ecc+2);
 }
+
+

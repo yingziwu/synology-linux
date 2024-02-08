@@ -281,6 +281,7 @@ int __cpuinit omap4_hotplug_cpu(unsigned int cpu, unsigned int power_state)
 	return 0;
 }
 
+
 /*
  * Initialise OMAP4 MPUSS
  */

@@ -19,6 +19,7 @@
 #ifndef __OMAP2PLUS_DMA_CHANNEL_H
 #define __OMAP2PLUS_DMA_CHANNEL_H
 
+
 /* DMA channels for 24xx */
 #define OMAP24XX_DMA_NO_DEVICE		0
 #define OMAP24XX_DMA_EXT_DMAREQ0	2	/* S_DMA_1 */

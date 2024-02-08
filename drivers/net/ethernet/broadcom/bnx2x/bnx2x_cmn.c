@@ -163,6 +163,7 @@ static u16 bnx2x_free_tx_pkt(struct bnx2x *bp, struct bnx2x_fp_txdata *txdata,
 
 	tx_start_bd = &txdata->tx_desc_ring[bd_idx].start_bd;
 
+
 	nbd = le16_to_cpu(tx_start_bd->nbd) - 1;
 #ifdef BNX2X_STOP_ON_ERROR
 	if ((nbd - 1) > (MAX_SKB_FRAGS + 2)) {
@@ -744,6 +745,7 @@ static void bnx2x_tpa_stop(struct bnx2x *bp, struct bnx2x_fastpath *fp,
 			dev_kfree_skb_any(skb);
 		}
 
+
 		/* put new data in bin */
 		rx_buf->data = new_data;
 
@@ -1014,6 +1016,7 @@ reuse_rx:
 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
 					       le16_to_cpu(cqe_fp->vlan_tag));
 		napi_gro_receive(&fp->napi, skb);
+
 
 next_rx:
 		rx_buf->data = NULL;
@@ -2439,6 +2442,7 @@ int bnx2x_load_cnic(struct bnx2x *bp)
 	if (bp->state == BNX2X_STATE_OPEN)
 		bnx2x_cnic_notify(bp, CNIC_CTL_START_CMD);
 
+
 	DP(NETIF_MSG_IFUP, "Ending successfully CNIC-related load\n");
 
 	return 0;
@@ -2963,6 +2967,7 @@ int bnx2x_nic_unload(struct bnx2x *bp, int unload_mode, bool keep_link)
 		if (global)
 			bnx2x_set_reset_global(bp);
 	}
+
 
 	/* The last driver must disable a "close the gate" if there is no
 	 * parity attention or "process kill" pending.
@@ -4006,6 +4011,7 @@ int bnx2x_setup_tc(struct net_device *dev, u8 num_tc)
 		   prio, bp->prio_to_cos[prio]);
 	}
 
+
 	/* Use this configuration to diffrentiate tc0 from other COSes
 	   This can be used for ets or pfc, and save the effort of setting
 	   up a multio class queue disc or negotiating DCBX with a switch
@@ -4733,6 +4739,7 @@ int bnx2x_resume(struct pci_dev *pdev)
 
 	return rc;
 }
+
 
 void bnx2x_set_ctx_validation(struct bnx2x *bp, struct eth_context *cxt,
 			      u32 cid)

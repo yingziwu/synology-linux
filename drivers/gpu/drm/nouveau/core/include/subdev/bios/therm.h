@@ -58,4 +58,5 @@ nvbios_therm_sensor_parse(struct nouveau_bios *, enum nvbios_therm_domain,
 int
 nvbios_therm_fan_parse(struct nouveau_bios *, struct nvbios_therm_fan *);
 
+
 #endif

@@ -265,6 +265,7 @@ bail:
 	conn_request_state(tconn, NS(conn, C_PROTOCOL_ERROR), CS_HARD);
 }
 
+
 /**
  * _tl_restart() - Walks the transfer log, and applies an action to all requests
  * @mdev:	DRBD device.
@@ -440,6 +441,7 @@ int drbd_thread_start(struct drbd_thread *thi)
 
 	return true;
 }
+
 
 void _drbd_thread_stop(struct drbd_thread *thi, int restart, int wait)
 {
@@ -1994,6 +1996,7 @@ void drbd_mdev_cleanup(struct drbd_conf *mdev)
 	drbd_set_defaults(mdev);
 }
 
+
 static void drbd_destroy_mempools(void)
 {
 	struct page *page;
@@ -2267,6 +2270,7 @@ void drbd_restart_request(struct drbd_request *req)
 
 	queue_work(retry.wq, &retry.worker);
 }
+
 
 static void drbd_cleanup(void)
 {
@@ -2752,6 +2756,7 @@ int __init drbd_init(void)
 		goto fail;
 	}
 
+
 	register_reboot_notifier(&drbd_notifier);
 
 	/*
@@ -3066,6 +3071,7 @@ err:
 	return -EINVAL;
 }
 
+
 /**
  * drbd_md_read() - Reads in the meta data super block
  * @mdev:	DRBD device.
@@ -3127,6 +3133,7 @@ int drbd_md_read(struct drbd_conf *mdev, struct drbd_backing_dev *bdev)
 		    be32_to_cpu(buffer->bm_bytes_per_bit), BM_BLOCK_SIZE);
 		goto err;
 	}
+
 
 	/* convert to in_core endian */
 	bdev->md.la_size_sect = be64_to_cpu(buffer->la_size_sect);

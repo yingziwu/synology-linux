@@ -44,6 +44,7 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
+
 static void __init ek_init_early(void)
 {
 	/* Initialize processor: 18.432 MHz crystal */
@@ -67,6 +68,7 @@ static struct at91_udc_data __initdata ek_udc_data = {
 	.pullup_pin	= -EINVAL,		/* pull-up driven by UDC */
 };
 
+
 /*
  * SPI devices.
  */
@@ -89,6 +91,7 @@ static struct spi_board_info ek_spi_devices[] = {
 #endif
 };
 
+
 /*
  * MACB Ethernet device
  */
@@ -96,6 +99,7 @@ static struct macb_platform_data __initdata ek_macb_data = {
 	.phy_irq_pin	= AT91_PIN_PA7,
 	.is_rmii	= 0,
 };
+
 
 /*
  * NAND flash
@@ -149,6 +153,7 @@ static void __init ek_add_device_nand(void)
 
 	at91_add_device_nand(&ek_nand_data);
 }
+
 
 /*
  * MCI (SD/MMC)

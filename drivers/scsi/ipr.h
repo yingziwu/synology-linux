@@ -1778,6 +1778,7 @@ struct ipr_ucode_image_header {
 #define ipr_err_separator \
 ipr_err("----------------------------------------------------------\n")
 
+
 /*
  * Inlines
  */

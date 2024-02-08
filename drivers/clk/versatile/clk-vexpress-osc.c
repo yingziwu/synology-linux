@@ -69,6 +69,7 @@ static struct clk_ops vexpress_osc_ops = {
 	.set_rate = vexpress_osc_set_rate,
 };
 
+
 struct clk * __init vexpress_osc_setup(struct device *dev)
 {
 	struct clk_init_data init;

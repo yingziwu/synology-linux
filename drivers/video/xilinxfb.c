@@ -42,6 +42,7 @@
 
 #define DRIVER_NAME		"xilinxfb"
 
+
 /*
  * Xilinx calls it "PLB TFT LCD Controller" though it can also be used for
  * the VGA port on the Xilinx ML40x board. This is a hardware display
@@ -113,6 +114,7 @@ static struct fb_var_screeninfo xilinx_fb_var = {
 
 	.activate =	FB_ACTIVATE_NOW
 };
+
 
 #define PLB_ACCESS_FLAG	0x1		/* 1 = PLB, 0 = DCR */
 

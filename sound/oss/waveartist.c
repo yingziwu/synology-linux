@@ -42,6 +42,7 @@
 #include <linux/spinlock.h>
 #include <linux/bitops.h>
 
+
 #include "sound_config.h"
 #include "waveartist.h"
 
@@ -824,6 +825,7 @@ static struct audio_driver waveartist_audio_driver = {
 	.set_channels		= waveartist_set_channels
 };
 
+
 static irqreturn_t
 waveartist_intr(int irq, void *dev_id)
 {
@@ -1527,6 +1529,7 @@ vnc_volume_slider(wavnc_info *devc)
 	
 	volume = 0x00ffffff - *CSR_TIMER1_VALUE;
 
+
 #ifndef REVERSE
 	volume = 150 - (volume >> 5);
 #else
@@ -1948,6 +1951,7 @@ static int __initdata io = 0;
 static int __initdata irq = 0;
 static int __initdata dma = 0;
 static int __initdata dma2 = 0;
+
 
 static int __init init_waveartist(void)
 {

@@ -3901,6 +3901,7 @@ int __init omap3xxx_hwmod_init(void)
 			return r;
 	}
 
+
 	/*
 	 * Register hwmod links specific to certain ES levels of a
 	 * particular family of silicon (e.g., 34xx ES1.0)

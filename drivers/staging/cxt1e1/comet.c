@@ -28,6 +28,7 @@
 #define STATIC  static
 #endif
 
+
 extern int  cxt1e1_log_level;
 
 #define COMET_NUM_SAMPLES   24  /* Number of entries in the waveform table */
@@ -38,6 +39,7 @@ STATIC void SetPwrLevel (comet_t * comet);
 STATIC void WrtRcvEqualizerTbl (ci_t * ci, comet_t * comet, u_int32_t *table);
 STATIC void WrtXmtWaveformTbl (ci_t * ci, comet_t * comet, u_int8_t table[COMET_NUM_SAMPLES][COMET_NUM_UNITS]);
 
+
 void       *TWV_table[12] = {
     TWVLongHaul0DB, TWVLongHaul7_5DB, TWVLongHaul15DB, TWVLongHaul22_5DB,
     TWVShortHaul0, TWVShortHaul1, TWVShortHaul2, TWVShortHaul3, TWVShortHaul4,
@@ -45,6 +47,7 @@ void       *TWV_table[12] = {
     TWV_E1_75Ohm,    /** PORT POINT - 75 Ohm not supported **/
     TWV_E1_120Ohm
 };
+
 
 static int
 lbo_tbl_lkup (int t1, int lbo)
@@ -59,6 +62,7 @@ lbo_tbl_lkup (int t1, int lbo)
     }
     return (lbo - 1);               /* make index ZERO relative */
 }
+
 
 void
 init_comet (void *ci, comet_t * comet, u_int32_t port_mode, int clockmaster,
@@ -270,6 +274,7 @@ init_comet (void *ci, comet_t * comet, u_int32_t port_mode, int clockmaster,
      * RATE[1:0]=0,0: T1
      ***/
 
+
     /* 0x30: "BRIF cfg"; 0x20 is 'CMODE', 0x03 is (bit) rate */
     /* note "rate bits can only be set once after reset" */
     if (clockmaster)
@@ -334,6 +339,7 @@ init_comet (void *ci, comet_t * comet, u_int32_t port_mode, int clockmaster,
         pci_write_32 ((u_int32_t *) &comet->rlps_alos_thresh, 0x55);    /* ? */
     else
         pci_write_32 ((u_int32_t *) &comet->rlps_alos_thresh, 0x22);    /* ? */
+
 
     /* Set Full Frame mode (NXDSO[1] = 0, NXDSO[0] = 0) */
     /* CMODE=0: Clock slave mode with BTCLK as an input, DE=1: Use rising */
@@ -409,6 +415,7 @@ WrtXmtWaveformTbl (ci_t * ci, comet_t * comet,
     pci_write_32 ((u_int32_t *) &comet->xlpg_cfg, table[COMET_NUM_SAMPLES][0]);
 }
 
+
 /*
 ** Name:        WrtXmtWaveform
 ** Description: Fill in the Receive Equalizer RAM from the desired
@@ -476,6 +483,7 @@ WrtRcvEqualizerTbl (ci_t * ci, comet_t * comet, u_int32_t *table)
                                                                  * periods */
 }
 
+
 /*
 ** Name:        SetPwrLevel
 ** Description: Implement power level setting algorithm described below
@@ -516,6 +524,7 @@ SetPwrLevel (comet_t * comet)
     pci_write_32 ((u_int32_t *) &comet->xlpg_atest_nctl, temp);
     pci_write_32 ((u_int32_t *) &comet->xlpg_fdata_sel, 0x01);  /* XLPG */
 }
+
 
 /*
 ** Name:        SetCometOps

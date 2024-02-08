@@ -393,6 +393,7 @@ struct mlx4_port {
 	int		       slave;
 };
 
+
 static void mlx4_port_release(struct kobject *kobj)
 {
 	struct mlx4_port *p = container_of(kobj, struct mlx4_port, kobj);

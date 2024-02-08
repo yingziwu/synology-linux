@@ -353,6 +353,7 @@ static int udl_fb_open(struct fb_info *info, int user)
 	return 0;
 }
 
+
 /*
  * Assumes caller is holding info->lock mutex (for open and release at least)
  */
@@ -458,6 +459,7 @@ static const struct drm_framebuffer_funcs udlfb_funcs = {
 	.dirty = udl_user_framebuffer_dirty,
 };
 
+
 static int
 udl_framebuffer_init(struct drm_device *dev,
 		     struct udl_framebuffer *ufb,
@@ -472,6 +474,7 @@ udl_framebuffer_init(struct drm_device *dev,
 	ret = drm_framebuffer_init(dev, &ufb->base, &udlfb_funcs);
 	return ret;
 }
+
 
 static int udlfb_create(struct drm_fb_helper *helper,
 			struct drm_fb_helper_surface_size *sizes)
@@ -541,6 +544,7 @@ static int udlfb_create(struct drm_fb_helper *helper,
 		ret = -ENOMEM;
 		goto out_gfree;
 	}
+
 
 	DRM_DEBUG_KMS("allocated %dx%d vmal %p\n",
 		      fb->width, fb->height,

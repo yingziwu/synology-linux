@@ -214,6 +214,7 @@ void omap_pm_dsp_set_min_opp(u8 opp_id)
 	 */
 }
 
+
 u8 omap_pm_dsp_get_opp(void)
 {
 	pr_debug("OMAP PM: DSP requests current DSP OPP ID\n");
@@ -367,3 +368,4 @@ void omap_pm_if_exit(void)
 {
 	/* Deallocate CPUFreq frequency table here */
 }
+

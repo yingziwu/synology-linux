@@ -696,6 +696,7 @@ int edma_alloc_channel(int channel,
 }
 EXPORT_SYMBOL(edma_alloc_channel);
 
+
 /**
  * edma_free_channel - deallocate DMA channel
  * @channel: dma channel returned from edma_alloc_channel()
@@ -796,6 +797,7 @@ void edma_free_slot(unsigned slot)
 	clear_bit(slot, edma_cc[ctlr]->edma_inuse);
 }
 EXPORT_SYMBOL(edma_free_slot);
+
 
 /**
  * edma_alloc_cont_slots- alloc contiguous parameter RAM slots
@@ -1576,6 +1578,7 @@ fail1:
 	return status;
 }
 
+
 static struct platform_driver edma_driver = {
 	.driver.name	= "edma",
 };
@@ -1585,3 +1588,4 @@ static int __init edma_init(void)
 	return platform_driver_probe(&edma_driver, edma_probe);
 }
 arch_initcall(edma_init);
+

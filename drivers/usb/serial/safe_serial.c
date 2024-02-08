@@ -77,6 +77,7 @@
 #include <linux/usb.h>
 #include <linux/usb/serial.h>
 
+
 #ifndef CONFIG_USB_SERIAL_SAFE_PADDED
 #define CONFIG_USB_SERIAL_SAFE_PADDED 0
 #endif
@@ -118,6 +119,7 @@ MODULE_PARM_DESC(padded, "Pad to full wMaxPacketSize On/Off");
 #define LINEO_INTERFACE_SUBCLASS_SAFESERIAL     0x02
 #define LINEO_SAFESERIAL_CRC                    0x01
 #define LINEO_SAFESERIAL_CRC_PADDED             0x02
+
 
 #define MY_USB_DEVICE(vend, prod, dc, ic, isc) \
 	.match_flags = USB_DEVICE_ID_MATCH_DEVICE | \
@@ -212,6 +214,11 @@ static void safe_process_read_urb(struct urb *urb)
 
 	if (!safe)
 		goto out;
+
+	if (length < 2) {
+		dev_err(&port->dev, "malformed packet\n");
+		return;
+	}
 
 	fcs = fcs_compute10(data, length, CRC10_INITFCS);
 	if (fcs) {

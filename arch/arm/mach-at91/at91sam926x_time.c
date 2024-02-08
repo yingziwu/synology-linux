@@ -77,6 +77,7 @@ static struct clocksource pit_clk = {
 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
 };
 
+
 /*
  * Clockevent device:  interrupts every 1/HZ (== pit_cycles * MCK/16)
  */
@@ -136,6 +137,7 @@ static struct clock_event_device pit_clkevt = {
 	.suspend	= at91sam926x_pit_suspend,
 	.resume		= at91sam926x_pit_resume,
 };
+
 
 /*
  * IRQ handler for the timer.

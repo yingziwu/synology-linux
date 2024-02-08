@@ -480,6 +480,7 @@ static void p9_write_work(struct work_struct *work)
 	if (err == -EAGAIN)
 		goto end_clear;
 
+
 	if (err < 0)
 		goto error;
 	else if (err == 0) {

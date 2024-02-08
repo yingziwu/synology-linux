@@ -447,6 +447,7 @@ static netdev_tx_t cc770_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	stats->tx_bytes += dlc;
 
+
 	/*
 	 * HM: We had some cases of repeated IRQs so make sure the
 	 * INT is acknowledged I know it's already further up, but

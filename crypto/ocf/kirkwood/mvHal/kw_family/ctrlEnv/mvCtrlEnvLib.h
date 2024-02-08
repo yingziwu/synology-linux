@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCtrlEnvLibh
 #define __INCmvCtrlEnvLibh
 
@@ -75,6 +76,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlEnv/mvCtrlEnvRegs.h"
 #include "ctrlEnv/mvCtrlEnvAddrDec.h"
 
+
 /* typedefs */
 
 /* This enumerator describes the possible HW cache coherency policies the   */
@@ -85,6 +87,7 @@ typedef enum _mvCachePolicy
     WT_COHERENCY,   /* HW cache coherency supported in Write Through policy */
     WB_COHERENCY    /* HW cache coherency supported in Write Back policy    */
 }MV_CACHE_POLICY;
+
 
 /* The swapping is referred to a 64-bit words (as this is the controller    */
 /* internal data path width). This enumerator describes the possible        */
@@ -110,6 +113,7 @@ typedef enum _mvAccessRights
 	FULL_ACCESS       = 3,  /* Read and Write permission    */
 	MAX_ACC_RIGHTS
 }MV_ACCESS_RIGHTS;
+
 
 /* mcspLib.h API list */
 
@@ -176,5 +180,6 @@ MV_VOID   mvCtrlPwrSaveOff(MV_VOID);
 MV_BOOL	  mvCtrlPwrMemGet(MV_UNIT_ID unitId, MV_U32 index);
 MV_VOID   mvMPPConfigToSPI(MV_VOID);
 MV_VOID   mvMPPConfigToDefault(MV_VOID);
+
 
 #endif /* __INCmvCtrlEnvLibh */

@@ -20,6 +20,7 @@
 #include <asm/tlbflush.h>
 #include <asm/cacheflush.h>
 
+
 static inline void __flush_itlb_all (void)
 {
 	int w, i;
@@ -45,6 +46,7 @@ static inline void __flush_dtlb_all (void)
 	}
 	asm volatile ("isync\n");
 }
+
 
 void flush_tlb_all (void)
 {

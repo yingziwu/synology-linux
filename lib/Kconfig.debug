@@ -308,6 +308,15 @@ config SYNO_DEFAULT_HUNG_TASK_WARNINGS
 	  to determine when a task has become non-responsive and should
 	  be considered hung.
 
+config SYNO_DEFAULT_HUNG_TASK_RESET_PERIOD
+	int "Default reset period of warning call stack count for hung task detection"
+	depends on DETECT_HUNG_TASK
+	default 360
+	help
+	  This option controls the default reset period warning call stack used
+	  to determine when a task has become non-responsive and should
+	  be considered hung.
+
 config BOOTPARAM_HUNG_TASK_PANIC
 	bool "Panic (Reboot) On Hung Tasks"
 	depends on DETECT_HUNG_TASK

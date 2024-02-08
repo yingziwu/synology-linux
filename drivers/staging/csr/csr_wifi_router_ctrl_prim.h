@@ -397,6 +397,7 @@ typedef u8 CsrWifiRouterCtrlTrafficType;
 #define CSR_WIFI_ROUTER_CTRL_TRAFFIC_TYPE_PERIODIC     ((CsrWifiRouterCtrlTrafficType) 0x02)
 #define CSR_WIFI_ROUTER_CTRL_TRAFFIC_TYPE_CONTINUOUS   ((CsrWifiRouterCtrlTrafficType) 0x03)
 
+
 /*******************************************************************************
 
   NAME
@@ -445,6 +446,7 @@ typedef u16 CsrWifiRouterCtrlRequestorInfo;
 
 *******************************************************************************/
 typedef u8 CsrWifiRouterCtrlTrafficStreamId;
+
 
 /*******************************************************************************
 
@@ -580,6 +582,7 @@ typedef struct
     CsrWifiRouterCtrlTrafficFilter customFilter;
 } CsrWifiRouterCtrlTrafficConfig;
 
+
 /* Downstream */
 #define CSR_WIFI_ROUTER_CTRL_PRIM_DOWNSTREAM_LOWEST            (0x0000)
 
@@ -614,6 +617,7 @@ typedef struct
 #define CSR_WIFI_ROUTER_CTRL_WAPI_UNICAST_FILTER_REQ      ((CsrWifiRouterCtrlPrim) (0x001C + CSR_WIFI_ROUTER_CTRL_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_ROUTER_CTRL_WAPI_UNICAST_TX_PKT_REQ      ((CsrWifiRouterCtrlPrim) (0x001D + CSR_WIFI_ROUTER_CTRL_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_ROUTER_CTRL_WAPI_FILTER_REQ              ((CsrWifiRouterCtrlPrim) (0x001E + CSR_WIFI_ROUTER_CTRL_PRIM_DOWNSTREAM_LOWEST))
+
 
 #define CSR_WIFI_ROUTER_CTRL_PRIM_DOWNSTREAM_HIGHEST           (0x001E + CSR_WIFI_ROUTER_CTRL_PRIM_DOWNSTREAM_LOWEST)
 
@@ -2106,3 +2110,4 @@ typedef struct
 } CsrWifiRouterCtrlWapiUnicastTxEncryptInd;
 
 #endif /* CSR_WIFI_ROUTER_CTRL_PRIM_H__ */
+

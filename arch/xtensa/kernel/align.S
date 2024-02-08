@@ -154,6 +154,7 @@
  *	     <  VALID_DOUBLE_EXCEPTION_ADDRESS: regular exception
  */
 
+
 ENTRY(fast_unaligned)
 
 	/* Note: We don't expect the address to be aligned on a word

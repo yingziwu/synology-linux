@@ -339,6 +339,7 @@ struct efx_buffer {
 	unsigned int len;
 };
 
+
 enum efx_rx_alloc_method {
 	RX_ALLOC_METHOD_AUTO = 0,
 	RX_ALLOC_METHOD_SKB = 1,
@@ -1130,6 +1131,7 @@ static inline struct efx_rx_buffer *efx_rx_buffer(struct efx_rx_queue *rx_queue,
 {
 	return &rx_queue->buffer[index];
 }
+
 
 /**
  * EFX_MAX_FRAME_LEN - calculate maximum frame length

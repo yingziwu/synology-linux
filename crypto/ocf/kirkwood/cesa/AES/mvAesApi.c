@@ -11,6 +11,7 @@
 #include "mvAes.h"
 #include "mvAesAlg.h"
 
+
 /*  Defines:
 	Add any additional defines you need
 */
@@ -18,6 +19,7 @@
 #define     MODE_ECB        1    /*  Are we ciphering in ECB mode?   */
 #define     MODE_CBC        2    /*  Are we ciphering in CBC mode?   */
 #define     MODE_CFB1       3    /*  Are we ciphering in 1-bit CFB mode? */
+
 
 int     aesMakeKey(MV_U8 *expandedKey, MV_U8 *keyMaterial, int keyLen, int blockLen)
 {
@@ -104,6 +106,7 @@ int     aesMakeKey(MV_U8 *expandedKey, MV_U8 *keyMaterial, int keyLen, int block
         }
     }
 
+
 	return 0;
 }
 
@@ -135,6 +138,7 @@ int     aesBlockEncrypt128(MV_U8 mode, MV_U8 *IV, MV_U8 *expandedKey, int  keyLe
 	    case 256: rounds = 14; break;
 	    default : return (-3); /* this cannot happen */
 	}
+
 
 	switch (mode)
     {
@@ -224,6 +228,7 @@ int     aesBlockDecrypt128(MV_U8 mode, MV_U8 *IV, MV_U8 *expandedKey, int  keyLe
 	    case 256: rounds = 14; break;
 	    default : return (-3); /* this cannot happen */
 	}
+
 
 	switch (mode)
     {

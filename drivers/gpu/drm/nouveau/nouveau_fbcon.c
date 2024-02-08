@@ -437,6 +437,7 @@ static struct drm_fb_helper_funcs nouveau_fbcon_helper_funcs = {
 	.fb_probe = nouveau_fbcon_create,
 };
 
+
 int
 nouveau_fbcon_init(struct drm_device *dev)
 {

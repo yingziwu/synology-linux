@@ -611,6 +611,7 @@ static int read_pulse(bpctl_dev_t *pbpctl_dev, unsigned int ctrl_ext,
 		ctrl = BP10G_READ_REG(pbpctl_dev_c, ESDP);
 	}
 
+
 	while (i--) {
 		if (pbpctl_dev->bp_10g9) {
 			/*BP10G_WRITE_REG(pbpctl_dev, I2CCTL, ((ctrl_ext|BP10G_MDIO_DATA_OUT9)&~BP10G_MCLK_DATA_OUT9)); */
@@ -1126,6 +1127,7 @@ static int read_reg(bpctl_dev_t *pbpctl_dev, unsigned char addr)
 		BP10G_WRITE_REG(pbpctl_dev, EODSDP,
 				(ctrl_ext | BP10G_MCLK_DATA_OUT |
 				 BP10G_MDIO_DATA_OUT));
+
 
 	}
 	usec_delay(PULSE_TIME);
@@ -3059,6 +3061,7 @@ int bp_hw_reset_dis(bpctl_dev_t *pbpctl_dev)
 	return BP_NOT_CAP;
 }
 
+
 int wdt_exp_mode(bpctl_dev_t *pbpctl_dev, int mode)
 {
 	uint32_t status_reg = 0, status_reg1 = 0;
@@ -3917,6 +3920,7 @@ int tpl_hw_status(bpctl_dev_t *pbpctl_dev)
 	return BP_NOT_CAP;
 }
 
+
 int bp_wait_at_pwup_status(bpctl_dev_t *pbpctl_dev)
 {
 	if (pbpctl_dev->bp_caps & SW_CTL_CAP) {
@@ -3940,6 +3944,7 @@ int bp_hw_reset_status(bpctl_dev_t *pbpctl_dev)
 	}
 	return BP_NOT_CAP;
 }
+
 
 int std_nic_status(bpctl_dev_t *pbpctl_dev)
 {
@@ -5222,6 +5227,7 @@ int get_bp_hw_reset_fn(bpctl_dev_t *pbpctl_dev)
 	return ret;
 }
 
+
 int get_bypass_info_fn(bpctl_dev_t *pbpctl_dev, char *dev_name,
 		       char *add_param)
 {
@@ -6449,6 +6455,7 @@ static bpmod_info_t tx_ctl_pci_tbl[] = {
 
 	{0x8086, PCI_ANY_ID, SILICOM_SVID /*PCI_ANY_ID */ ,
 	 SILICOM_PE2G6BPi35_SSID /*PCI_ANY_ID */ , PE2G6BPi35, "PE2G6BPi35"},
+
 
 	{0x8086, PCI_ANY_ID, SILICOM_SVID /*PCI_ANY_ID */ , 0xaa0, PE2G6BPi35CX,
 	 "PE2G6BPi35CX"},

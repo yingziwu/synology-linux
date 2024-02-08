@@ -819,6 +819,7 @@ void do_page_fault(struct pt_regs *regs, int fault_num,
 	handle_page_fault(regs, fault_num, is_page_fault, address, write);
 }
 
+
 #if CHIP_HAS_TILE_DMA() || CHIP_HAS_SN_PROC()
 /*
  * Check an async_tlb structure to see if a deferred fault is waiting,
@@ -862,6 +863,7 @@ void do_async_page_fault(struct pt_regs *regs)
 #endif
 }
 #endif /* CHIP_HAS_TILE_DMA() || CHIP_HAS_SN_PROC() */
+
 
 void vmalloc_sync_all(void)
 {

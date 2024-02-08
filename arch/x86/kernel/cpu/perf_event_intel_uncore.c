@@ -771,6 +771,7 @@ static struct intel_uncore_type snbep_uncore_qpi = {
 	.format_group	= &snbep_uncore_qpi_format_group,
 };
 
+
 static struct intel_uncore_type snbep_uncore_r2pcie = {
 	.name		= "r2pcie",
 	.num_counters   = 4,

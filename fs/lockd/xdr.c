@@ -18,6 +18,7 @@
 
 #define NLMDBG_FACILITY		NLMDBG_XDR
 
+
 static inline loff_t
 s32_to_loff_t(__s32 offset)
 {
@@ -181,6 +182,7 @@ nlm_encode_testres(__be32 *p, struct nlm_res *resp)
 
 	return p;
 }
+
 
 /*
  * First, the server side XDR functions

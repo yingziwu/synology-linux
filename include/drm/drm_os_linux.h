@@ -79,3 +79,4 @@ static __inline__ int mtrr_del(int reg, unsigned long base, unsigned long size)
 #define MTRR_TYPE_WRCOMB     1
 
 #endif
+

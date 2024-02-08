@@ -249,6 +249,7 @@ static const unsigned int mc13892_pwgtdrv[] = {
 static struct regulator_ops mc13892_gpo_regulator_ops;
 static struct regulator_ops mc13892_sw_regulator_ops;
 
+
 #define MC13892_FIXED_DEFINE(name, reg, voltages)		\
 	MC13xxx_FIXED_DEFINE(MC13892_, name, reg, voltages,	\
 			mc13xxx_fixed_regulator_ops)
@@ -389,6 +390,7 @@ static int mc13892_gpo_regulator_is_enabled(struct regulator_dev *rdev)
 	return (val & mc13892_regulators[id].enable_bit) != 0;
 }
 
+
 static struct regulator_ops mc13892_gpo_regulator_ops = {
 	.enable = mc13892_gpo_regulator_enable,
 	.disable = mc13892_gpo_regulator_disable,
@@ -523,6 +525,7 @@ static unsigned int mc13892_vcam_get_mode(struct regulator_dev *rdev)
 
 	return REGULATOR_MODE_NORMAL;
 }
+
 
 static int mc13892_regulator_probe(struct platform_device *pdev)
 {

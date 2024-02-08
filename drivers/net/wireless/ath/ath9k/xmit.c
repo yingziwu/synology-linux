@@ -34,6 +34,7 @@
 #define NUM_SYMBOLS_PER_USEC(_usec) (_usec >> 2)
 #define NUM_SYMBOLS_PER_USEC_HALFGI(_usec) (((_usec*5)-4)/18)
 
+
 static u16 bits_per_symbol[][2] = {
 	/* 20MHz 40MHz */
 	{    26,   54 },     /*  0: BPSK */
@@ -356,6 +357,7 @@ static void ath_tx_count_frames(struct ath_softc *sc, struct ath_buf *bf,
 		bf = bf->bf_next;
 	}
 }
+
 
 static void ath_tx_complete_aggr(struct ath_softc *sc, struct ath_txq *txq,
 				 struct ath_buf *bf, struct list_head *bf_q,
@@ -1112,6 +1114,7 @@ static void ath_tx_fill_desc(struct ath_softc *sc, struct ath_buf *bf,
 
 	if (bf->bf_state.bfs_paprd)
 		info.flags |= (u32) bf->bf_state.bfs_paprd << ATH9K_TXDESC_PAPRD_S;
+
 
 	while (bf) {
 		struct sk_buff *skb = bf->bf_mpdu;

@@ -323,6 +323,7 @@ static int ip22_is_gr2(unsigned long addr)
 	return 0;
 }
 
+
 static void ip22_check_gio(int slotno, unsigned long addr)
 {
 	const char *name = "Unknown";

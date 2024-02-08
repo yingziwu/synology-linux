@@ -58,6 +58,7 @@ static int  mct_u232_tiocmset(struct tty_struct *tty,
 static void mct_u232_throttle(struct tty_struct *tty);
 static void mct_u232_unthrottle(struct tty_struct *tty);
 
+
 /*
  * All of the device info needed for the MCT USB-RS232 converter.
  */
@@ -504,6 +505,7 @@ static void mct_u232_close(struct usb_serial_port *port)
 	usb_serial_generic_close(port);
 } /* mct_u232_close */
 
+
 static void mct_u232_read_int_callback(struct urb *urb)
 {
 	struct usb_serial_port *port = urb->context;
@@ -693,6 +695,7 @@ static void mct_u232_break_ctl(struct tty_struct *tty, int break_state)
 
 	mct_u232_set_line_ctrl(port, lcr);
 } /* mct_u232_break_ctl */
+
 
 static int mct_u232_tiocmget(struct tty_struct *tty)
 {

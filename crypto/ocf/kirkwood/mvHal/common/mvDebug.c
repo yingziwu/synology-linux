@@ -62,6 +62,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
+
 /* includes */
 #include "mvOs.h"
 #include "mv802_3.h"
@@ -260,6 +262,7 @@ void    mvDebugPrintMacAddr(const MV_U8* pMacAddr)
     }
     /* mvOsPrintf("\n");*/
 }
+
 
 /******* There are three functions deals with MV_DEBUG_TIMES structure ********/
 

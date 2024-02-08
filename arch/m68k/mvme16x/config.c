@@ -55,8 +55,10 @@ int bcd2int (unsigned char b);
 
 static irq_handler_t tick_handler;
 
+
 unsigned short mvme16x_config;
 EXPORT_SYMBOL(mvme16x_config);
+
 
 int mvme16x_parse_bootinfo(const struct bi_record *bi)
 {
@@ -87,6 +89,7 @@ static void mvme16x_get_model(char *model)
 
     sprintf(model, "Motorola MVME%x%s", p->brdno, suf);
 }
+
 
 static void mvme16x_get_hardware_list(struct seq_file *m)
 {
@@ -400,6 +403,7 @@ void mvme16x_sched_init (irq_handler_t timer_routine)
 	panic ("Couldn't register abort int");
 }
 
+
 /* This is always executed with interrupts disabled.  */
 u32 mvme16x_gettimeoffset(void)
 {
@@ -431,3 +435,4 @@ int mvme16x_set_clock_mmss (unsigned long nowtime)
 {
 	return 0;
 }
+

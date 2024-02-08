@@ -78,3 +78,5 @@ void __attribute__((weak)) CsrSdioSuspendAcknowledge(CsrSdioFunction *function, 
 void __attribute__((weak)) CsrSdioResumeAcknowledge(CsrSdioFunction *function, CsrResult result)
 {
 }
+
+

@@ -11,6 +11,7 @@
 #ifndef CSR_WIFI_HIP_CHIPHELPER_PRIVATE_H__
 #define CSR_WIFI_HIP_CHIPHELPER_PRIVATE_H__
 
+
 #include "csr_wifi_hip_chiphelper.h"
 
 /* This GP stuff should be somewhere else? */
@@ -33,6 +34,7 @@
 #define MAKE_GP(R, O)  (((UNIFI_ ## R) << 24) | (O))
 #define GP_OFFSET(GP)  ((GP) & 0xFFFFFF)
 #define GP_SPACE(GP)   (((GP) >> 24) & 0xFF)
+
 
 /* Address value pairs */
 struct val_array_t

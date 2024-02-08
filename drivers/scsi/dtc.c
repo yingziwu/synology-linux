@@ -7,6 +7,7 @@
 		 NDEBUG_SELECTION+NDEBUG_ARBITRATION)
 #define DMA_WORKS_RIGHT
 
+
 /*
  * DTC 3180/3280 driver, by
  *	Ray Van Tassle	rayvt@comm.mot.com
@@ -70,6 +71,7 @@
 #define rtrc(i) {}
 #endif
 
+
 #include <linux/module.h>
 #include <linux/signal.h>
 #include <linux/blkdev.h>
@@ -84,6 +86,7 @@
 #include "dtc.h"
 #define AUTOPROBE_IRQ
 #include "NCR5380.h"
+
 
 #define DTC_PUBLIC_RELEASE 2
 
@@ -110,8 +113,10 @@
 #define CSR_GATED_5380_IRQ     0x01	/* ro  Last block xferred */
 #define CSR_INT_BASE (CSR_SCSI_BUFF_INTR | CSR_5380_INTR)
 
+
 #define DTC_BLK_CNT		0x101	/* rw 
 					 * # of 128-byte blocks to transfer */
+
 
 #define D_CR_ACCESS             0x80	/* ro set=can access 3280 registers */
 
@@ -336,6 +341,7 @@ static int dtc_biosparam(struct scsi_device *sdev, struct block_device *dev,
 	ip[2] = size >> 11;
 	return 0;
 }
+
 
 /****************************************************************
  * Function : int NCR5380_pread (struct Scsi_Host *instance, 

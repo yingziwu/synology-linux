@@ -133,6 +133,7 @@ stop_watchdog(void)
 #endif	
 }
 
+
 /*
  * timer_interrupt() needs to keep up the real-time clock,
  * as well as call the "xtime_update()" routine every clocktick

@@ -89,6 +89,7 @@ struct em28xx_dvb {
 	int			lna_gpio;
 };
 
+
 static inline void print_err_status(struct em28xx *dev,
 				     int packet, int status)
 {
@@ -263,6 +264,8 @@ static int em28xx_stop_feed(struct dvb_demux_feed *feed)
 	mutex_unlock(&dvb->lock);
 	return err;
 }
+
+
 
 /* ------------------------------------------------------------------ */
 static int em28xx_dvb_bus_ctrl(struct dvb_frontend *fe, int acquire)
@@ -785,6 +788,7 @@ static struct tda18271_config c3tech_duo_tda18271_config = {
 	.gate    = TDA18271_GATE_DIGITAL,
 	.small_i2c = TDA18271_03_BYTE_CHUNK_INIT,
 };
+
 
 /* ------------------------------------------------------------------ */
 

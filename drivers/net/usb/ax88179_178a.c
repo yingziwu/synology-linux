@@ -574,6 +574,7 @@ static int ax88179_set_settings(struct net_device *net, struct ethtool_cmd *cmd)
 	return mii_ethtool_sset(&dev->mii, cmd);
 }
 
+
 static int ax88179_ioctl(struct net_device *net, struct ifreq *rq, int cmd)
 {
 	struct usbnet *dev = netdev_priv(net);

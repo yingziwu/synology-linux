@@ -22,6 +22,7 @@
 #include "sn9c102_sensor.h"
 #include "sn9c102_devtable.h"
 
+
 static int ov7660_init(struct sn9c102_device* cam)
 {
 	int err = 0;
@@ -269,6 +270,7 @@ static int ov7660_init(struct sn9c102_device* cam)
 	return err;
 }
 
+
 static int ov7660_get_ctrl(struct sn9c102_device* cam,
 			   struct v4l2_control* ctrl)
 {
@@ -321,6 +323,7 @@ static int ov7660_get_ctrl(struct sn9c102_device* cam,
 	return err ? -EIO : 0;
 }
 
+
 static int ov7660_set_ctrl(struct sn9c102_device* cam,
 			   const struct v4l2_control* ctrl)
 {
@@ -359,6 +362,7 @@ static int ov7660_set_ctrl(struct sn9c102_device* cam,
 	return err ? -EIO : 0;
 }
 
+
 static int ov7660_set_crop(struct sn9c102_device* cam,
 			   const struct v4l2_rect* rect)
 {
@@ -372,6 +376,7 @@ static int ov7660_set_crop(struct sn9c102_device* cam,
 
 	return err;
 }
+
 
 static int ov7660_set_pix_format(struct sn9c102_device* cam,
 				 const struct v4l2_pix_format* pix)
@@ -392,6 +397,7 @@ static int ov7660_set_pix_format(struct sn9c102_device* cam,
 
 	return err;
 }
+
 
 static const struct sn9c102_sensor ov7660 = {
 	.name = "OV7660",
@@ -509,6 +515,7 @@ static const struct sn9c102_sensor ov7660 = {
 	},
 	.set_pix_format = &ov7660_set_pix_format
 };
+
 
 int sn9c102_probe_ov7660(struct sn9c102_device* cam)
 {

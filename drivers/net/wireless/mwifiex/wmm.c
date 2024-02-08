@@ -25,8 +25,10 @@
 #include "wmm.h"
 #include "11n.h"
 
+
 /* Maximum value FW can accept for driver delay in packet transmission */
 #define DRV_PKT_DELAY_TO_FW_MAX   512
+
 
 #define WMM_QUEUED_PACKET_LOWER_LIMIT   180
 

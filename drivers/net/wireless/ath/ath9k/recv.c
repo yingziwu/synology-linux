@@ -1340,6 +1340,7 @@ int ath_rx_tasklet(struct ath_softc *sc, int flush, bool hp)
 			skb = hdr_skb;
 		}
 
+
 		if (ah->caps.hw_caps & ATH9K_HW_CAP_ANT_DIV_COMB) {
 
 			/*

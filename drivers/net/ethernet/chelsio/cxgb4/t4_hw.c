@@ -2890,6 +2890,7 @@ int t4_fw_upgrade(struct adapter *adap, unsigned int mbox,
 	return t4_fw_restart(adap, mbox, reset);
 }
 
+
 /**
  *	t4_fw_config_file - setup an adapter via a Configuration File
  *	@adap: the adapter

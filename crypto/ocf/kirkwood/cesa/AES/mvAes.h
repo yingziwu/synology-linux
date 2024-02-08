@@ -26,6 +26,7 @@ IMPLEMENTATION SPECIFIC INFORMATION.
 
 #include "mvOs.h"
 
+
 /*  Error Codes - CHANGE POSSIBLE: inclusion of additional error codes  */
 
 /*  Key direction is invalid, e.g., unknown value */
@@ -44,6 +45,7 @@ IMPLEMENTATION SPECIFIC INFORMATION.
 #define     AES_BAD_CIPHER_STATE   -5
 
 #define     AES_BAD_CIPHER_INSTANCE   -7
+
 
 /*  Function protoypes  */
 /*  CHANGED: makeKey(): parameter blockLen added

@@ -5291,6 +5291,7 @@ reg_and_or:
 	}
 }
 
+
 void XGI_UnLockCRT2(struct xgi_hw_device_info *HwDeviceExtension,
 		struct vb_device_info *pVBInfo)
 {

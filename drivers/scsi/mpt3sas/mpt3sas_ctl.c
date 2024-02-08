@@ -59,8 +59,10 @@
 #include "mpt3sas_base.h"
 #include "mpt3sas_ctl.h"
 
+
 static struct fasync_struct *async_queue;
 static DECLARE_WAIT_QUEUE_HEAD(ctl_poll_wait);
+
 
 /**
  * enum block_state - blocking state
@@ -1325,6 +1327,7 @@ _ctl_diag_capability(struct MPT3SAS_ADAPTER *ioc, u8 buffer_type)
 	return rc;
 }
 
+
 /**
  * _ctl_diag_register_2 - wrapper for registering diag buffer support
  * @ioc: per adapter object
@@ -2125,6 +2128,8 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 	return rc;
 }
 
+
+
 #ifdef CONFIG_COMPAT
 /**
  * _ctl_compat_mpt_command - convert 32bit pointers to 64bit.
@@ -2208,6 +2213,7 @@ _ctl_ioctl_main(struct file *file, unsigned int cmd, void __user *arg,
 			return -EAGAIN;
 	} else if (mutex_lock_interruptible(&ioc->ctl_cmds.mutex))
 		return -ERESTARTSYS;
+
 
 	switch (cmd) {
 	case MPT3IOCINFO:
@@ -2823,6 +2829,7 @@ _ctl_host_trace_buffer_store(struct device *cdev, struct device_attribute *attr,
 static DEVICE_ATTR(host_trace_buffer, S_IRUGO | S_IWUSR,
 	_ctl_host_trace_buffer_show, _ctl_host_trace_buffer_store);
 
+
 /*****************************************/
 
 /**
@@ -2965,6 +2972,7 @@ _ctl_diag_trigger_master_store(struct device *cdev,
 static DEVICE_ATTR(diag_trigger_master, S_IRUGO | S_IWUSR,
 	_ctl_diag_trigger_master_show, _ctl_diag_trigger_master_store);
 
+
 /**
  * _ctl_diag_trigger_event_show - show the diag_trigger_event attribute
  * @cdev - pointer to embedded class device
@@ -3018,6 +3026,7 @@ _ctl_diag_trigger_event_store(struct device *cdev,
 static DEVICE_ATTR(diag_trigger_event, S_IRUGO | S_IWUSR,
 	_ctl_diag_trigger_event_show, _ctl_diag_trigger_event_store);
 
+
 /**
  * _ctl_diag_trigger_scsi_show - show the diag_trigger_scsi attribute
  * @cdev - pointer to embedded class device
@@ -3069,6 +3078,7 @@ _ctl_diag_trigger_scsi_store(struct device *cdev,
 }
 static DEVICE_ATTR(diag_trigger_scsi, S_IRUGO | S_IWUSR,
 	_ctl_diag_trigger_scsi_show, _ctl_diag_trigger_scsi_store);
+
 
 /**
  * _ctl_diag_trigger_scsi_show - show the diag_trigger_mpi attribute
@@ -3124,6 +3134,8 @@ static DEVICE_ATTR(diag_trigger_mpi, S_IRUGO | S_IWUSR,
 	_ctl_diag_trigger_mpi_show, _ctl_diag_trigger_mpi_store);
 
 /*********** diagnostic trigger suppport *** END ****************************/
+
+
 
 /*****************************************/
 

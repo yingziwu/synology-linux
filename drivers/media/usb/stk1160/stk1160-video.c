@@ -301,6 +301,7 @@ static void stk1160_process_isoc(struct stk1160 *dev, struct urb *urb)
 	}
 }
 
+
 /*
  * IRQ callback, called by URB callback
  */
@@ -537,3 +538,4 @@ free_i_bufs:
 	stk1160_free_isoc(dev);
 	return -ENOMEM;
 }
+

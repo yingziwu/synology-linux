@@ -421,6 +421,7 @@ static struct platform_device *stamp_devices[] __initdata = {
 	&smc91x_device,
 #endif
 
+
 #if defined(CONFIG_SPI_BFIN5XX) || defined(CONFIG_SPI_BFIN5XX_MODULE)
 	&bfin_spi0_device,
 #endif

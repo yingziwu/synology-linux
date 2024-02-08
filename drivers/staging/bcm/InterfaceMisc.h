@@ -13,6 +13,7 @@ InterfaceWRM(struct bcm_interface_adapter *psIntfAdapter,
 			PVOID buff,
 			INT len);
 
+
 int InterfaceFileDownload( PVOID psIntfAdapter,
                         struct file *flp,
                         unsigned int on_chip_loc);
@@ -20,6 +21,7 @@ int InterfaceFileDownload( PVOID psIntfAdapter,
 int InterfaceFileReadbackFromChip( PVOID psIntfAdapter,
                         struct file *flp,
                         unsigned int on_chip_loc);
+
 
 int BcmRDM(PVOID arg,
 			UINT addr,

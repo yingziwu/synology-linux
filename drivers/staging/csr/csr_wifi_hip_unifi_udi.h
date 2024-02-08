@@ -23,6 +23,7 @@
 #include "csr_wifi_hip_unifi.h"
 #include "csr_wifi_hip_signals.h"
 
+
 /*
  * Support for tracing the wire protocol.
  */
@@ -39,6 +40,7 @@ typedef void (*udi_func_t)(void *ospriv, u8 *sigdata,
 
 CsrResult unifi_set_udi_hook(card_t *card, udi_func_t udi_fn);
 CsrResult unifi_remove_udi_hook(card_t *card, udi_func_t udi_fn);
+
 
 /*
  * Function to print current status info to a string.

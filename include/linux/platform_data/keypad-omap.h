@@ -47,4 +47,6 @@ struct omap_kp_platform_data {
 #error Group bits in conflict with keynum bits
 #endif
 
+
 #endif
+

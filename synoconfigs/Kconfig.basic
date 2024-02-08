@@ -160,6 +160,10 @@ config SYNO_GPIO
 	  bool "Employ refactored GPIO-functions"
 	  default n
 
+config SYNO_DATA_CORRECTION
+	bool "Framework of data correction"
+	default n
+
 config SYNO_DISK_EH_FLAG
 	bool "report to userspace if kernel is in SCSI error handling"
 	default y
@@ -167,6 +171,15 @@ config SYNO_DISK_EH_FLAG
 config SYNO_LOAD_AVERAGE
 	bool "Split load average into cpu and io part"
 	default y
+
+config SYNO_SWAP_FLAG
+	bool "Avoid misuse Swapon / Swapoff"
+	default y
+
+config SYNO_DROP_CACHE_MEM_COMPACT
+	bool "Drop cache and compact memory"
+	default y
+	depends on COMPACTION
 
 endmenu #System Features
 
@@ -271,13 +284,13 @@ config SYNO_FIX_SMPBOOT_RACE
 	default y if SYNO_KVMX64
 	default n if !SYNO_KVMX64
 
+config SYNO_KWORK_STAT
+	bool "Enable work function stat accounting for kworkers"
+	default y
+	depends on TASK_IO_ACCOUNTING
+
 config SYNO_WARN_ALLOC_FAILED_RATELIMIT
 	bool "Set harder rate limit for warn_alloc_failed()"
 	default y
-
-config SYNO_HARDLOCKUP_THRESH_EXTENSION
-	bool "Extend hard lockup threshold."
-	default n
-	depends on HARDLOCKUP_DETECTOR
 
 endmenu #Kernel Core Enhancements

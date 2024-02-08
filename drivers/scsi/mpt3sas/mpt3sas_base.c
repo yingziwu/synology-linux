@@ -59,9 +59,11 @@
 #include <linux/kthread.h>
 #include <linux/aer.h>
 
+
 #include "mpt3sas_base.h"
 
 static MPT_CALLBACK	mpt_callbacks[MPT_MAX_CALLBACKS];
+
 
 #define FAULT_POLLING_INTERVAL 1000 /* in milliseconds */
 
@@ -80,9 +82,11 @@ static int msix_disable = -1;
 module_param(msix_disable, int, 0);
 MODULE_PARM_DESC(msix_disable, " disable msix routed interrupts (default=0)");
 
+
 static int mpt3sas_fwfault_debug;
 MODULE_PARM_DESC(mpt3sas_fwfault_debug,
 	" enable detection of firmware fault and halt firmware - (default=0)");
+
 
 /**
  * _scsih_set_fwfault_debug - global setting of ioc->fwfault_debug.
@@ -143,6 +147,7 @@ _base_fault_reset_work(struct work_struct *work)
 	u32 doorbell;
 	int rc;
 	struct task_struct *p;
+
 
 	spin_lock_irqsave(&ioc->ioc_reset_in_progress_lock, flags);
 	if (ioc->shost_recovery)
@@ -1089,6 +1094,7 @@ mpt3sas_base_initialize_callback_handler(void)
 		mpt3sas_base_release_callback_handler(cb_idx);
 }
 
+
 /**
  * _base_build_zero_len_sge - build zero length sg entry
  * @ioc: per adapter object
@@ -1128,6 +1134,7 @@ _base_add_sg_single_32(void *paddr, u32 flags_length, dma_addr_t dma_addr)
 	sgel->FlagsLength = cpu_to_le32(flags_length);
 	sgel->Address = cpu_to_le32(dma_addr);
 }
+
 
 /**
  * _base_add_sg_single_64 - Place a simple 64 bit SGE at address pAddr.
@@ -1176,6 +1183,7 @@ _base_get_chain_buffer_tracker(struct MPT3SAS_ADAPTER *ioc, u16 smid)
 	spin_unlock_irqrestore(&ioc->scsi_lookup_lock, flags);
 	return chain_req;
 }
+
 
 /**
  * _base_build_sg - build generic sg
@@ -1384,6 +1392,7 @@ _base_build_sg_scmd_ieee(struct MPT3SAS_ADAPTER *ioc,
 		chain = chain_req->chain_buffer;
 		chain_dma = chain_req->chain_buffer_dma;
 	} while (1);
+
 
  fill_in_last_segment:
 
@@ -1784,6 +1793,7 @@ mpt3sas_base_map_resources(struct MPT3SAS_ADAPTER *ioc)
 		return -ENODEV;
 	}
 
+
 	if (pci_request_selected_regions(pdev, ioc->bars,
 	    MPT3SAS_DRIVER_NAME)) {
 		pr_warn(MPT3SAS_FMT "pci_request_selected_regions: failed\n",
@@ -1796,6 +1806,7 @@ mpt3sas_base_map_resources(struct MPT3SAS_ADAPTER *ioc)
 	pci_enable_pcie_error_reporting(pdev);
 
 	pci_set_master(pdev);
+
 
 	if (_base_config_dma_addressing(ioc, pdev) != 0) {
 		pr_warn(MPT3SAS_FMT "no suitable DMA mask for %s\n",
@@ -2111,6 +2122,7 @@ mpt3sas_base_put_smid_scsi_io(struct MPT3SAS_ADAPTER *ioc, u16 smid, u16 handle)
 	Mpi2RequestDescriptorUnion_t descriptor;
 	u64 *request = (u64 *)&descriptor;
 
+
 	descriptor.SCSIIO.RequestFlags = MPI2_REQ_DESCRIPT_FLAGS_SCSI_IO;
 	descriptor.SCSIIO.MSIxIndex =  _base_get_msix_index(ioc);
 	descriptor.SCSIIO.SMID = cpu_to_le16(smid);
@@ -2189,6 +2201,8 @@ mpt3sas_base_put_smid_default(struct MPT3SAS_ADAPTER *ioc, u16 smid)
 	_base_writeq(*request, &ioc->chip->RequestDescriptorPostLow,
 	    &ioc->scsi_lookup_lock);
 }
+
+
 
 /**
  * _base_display_ioc_capabilities - Disply IOC's capabilities.
@@ -2557,6 +2571,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc,  int sleep_flag)
 	dinitprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
 
+
 	retry_sz = 0;
 	facts = &ioc->facts;
 
@@ -2632,6 +2647,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc,  int sleep_flag)
 		ioc->reply_post_queue_depth += 16 -
 		(ioc->reply_post_queue_depth % 16);
 
+
 	if (ioc->reply_post_queue_depth >
 	    facts->MaxReplyDescriptorPostQueueDepth) {
 		ioc->reply_post_queue_depth =
@@ -2658,6 +2674,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc,  int sleep_flag)
 	dinitprintk(ioc, pr_info(MPT3SAS_FMT
 		"scsi host: can_queue depth (%d)\n",
 		ioc->name, ioc->shost->can_queue));
+
 
 	/* contiguous pool for request and chains, 16 byte align, one extra "
 	 * "frame for smid=0
@@ -3647,6 +3664,7 @@ _base_send_ioc_init(struct MPT3SAS_ADAPTER *ioc, int sleep_flag)
 	mpi_request.ReplyDescriptorPostQueueAddress =
 	    cpu_to_le64((u64)ioc->reply_post_free_dma);
 
+
 	/* This time stamp specifies number of milliseconds
 	 * since epoch ~ midnight January 1, 1970.
 	 */
@@ -4239,6 +4257,7 @@ _base_make_ioc_operational(struct MPT3SAS_ADAPTER *ioc, int sleep_flag)
 		kfree(delayed_tr);
 	}
 
+
 	list_for_each_entry_safe(delayed_tr, delayed_tr_next,
 	    &ioc->delayed_tr_volume_list, list) {
 		list_del(&delayed_tr->list);
@@ -4339,6 +4358,7 @@ _base_make_ioc_operational(struct MPT3SAS_ADAPTER *ioc, int sleep_flag)
 	if (sleep_flag == CAN_SLEEP)
 		_base_static_config_pages(ioc);
 
+
 	if (ioc->is_driver_loading) {
 		ioc->wait_for_discovery_to_complete =
 		    _base_determine_wait_on_discovery(ioc);
@@ -4415,6 +4435,7 @@ mpt3sas_base_attach(struct MPT3SAS_ADAPTER *ioc)
 	r = mpt3sas_base_map_resources(ioc);
 	if (r)
 		goto out_free_resources;
+
 
 	pci_set_drvdata(ioc->pdev, ioc->shost);
 	r = _base_get_ioc_facts(ioc, CAN_SLEEP);
@@ -4577,6 +4598,7 @@ mpt3sas_base_attach(struct MPT3SAS_ADAPTER *ioc)
 	ioc->pfacts = NULL;
 	return r;
 }
+
 
 /**
  * mpt3sas_base_detach - remove controller instance

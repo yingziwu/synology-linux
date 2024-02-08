@@ -17,6 +17,7 @@
  *
  */
 
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/poll.h>
@@ -44,6 +45,7 @@ static struct sockaddr_nl addr;
 #ifndef SOL_NETLINK
 #define SOL_NETLINK 270
 #endif
+
 
 static int vss_do_freeze(char *dir, unsigned int cmd, char *fs_op)
 {
@@ -161,6 +163,7 @@ int main(void)
 	addr.nl_pad = 0;
 	addr.nl_pid = 0;
 	addr.nl_groups = 0;
+
 
 	error = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 	if (error < 0) {

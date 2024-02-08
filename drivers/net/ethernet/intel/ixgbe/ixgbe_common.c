@@ -3775,3 +3775,4 @@ s32 ixgbe_init_thermal_sensor_thresh_generic(struct ixgbe_hw *hw)
 out:
 	return status;
 }
+

@@ -649,6 +649,7 @@ static int i915_gem_seqno_info(struct seq_file *m, void *data)
 	return 0;
 }
 
+
 static int i915_interrupt_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = m->private;
@@ -1280,8 +1281,10 @@ static int vlv_drpc_info(struct seq_file *m)
 	seq_printf(m, "Forcewake Render Count = %u\n", fw_rendercount);
 	seq_printf(m, "Forcewake Media Count = %u\n", fw_mediacount);
 
+
 	return 0;
 }
+
 
 static int gen6_drpc_info(struct seq_file *m)
 {
@@ -3729,6 +3732,7 @@ static ssize_t wm_latency_write(struct file *file, const char __user *ubuf,
 
 	return len;
 }
+
 
 static ssize_t pri_wm_latency_write(struct file *file, const char __user *ubuf,
 				    size_t len, loff_t *offp)

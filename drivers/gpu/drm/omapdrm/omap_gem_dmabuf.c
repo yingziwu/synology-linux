@@ -77,6 +77,7 @@ static void omap_gem_dmabuf_release(struct dma_buf *buffer)
 	drm_gem_object_unreference_unlocked(obj);
 }
 
+
 static int omap_gem_dmabuf_begin_cpu_access(struct dma_buf *buffer,
 		size_t start, size_t len, enum dma_data_direction dir)
 {
@@ -98,6 +99,7 @@ static void omap_gem_dmabuf_end_cpu_access(struct dma_buf *buffer,
 	struct drm_gem_object *obj = buffer->priv;
 	omap_gem_put_pages(obj);
 }
+
 
 static void *omap_gem_dmabuf_kmap_atomic(struct dma_buf *buffer,
 		unsigned long page_num)

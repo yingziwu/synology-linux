@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	Linux Magic System Request Key Hacks
  *
@@ -48,6 +51,11 @@
 #include <asm/ptrace.h>
 #include <asm/irq_regs.h>
 
+#if defined(MY_ABC_HERE)
+bool gBlSynoSysrqB = false;
+EXPORT_SYMBOL(gBlSynoSysrqB);
+#endif /* defined(MY_ABC_HERE) */
+
 /* Whether we react on sysrq keys or just ignore them */
 static int __read_mostly sysrq_enabled = SYSRQ_DEFAULT_ENABLE;
 static bool __read_mostly sysrq_always_enabled;
@@ -79,6 +87,7 @@ static int __init sysrq_always_enabled_setup(char *str)
 }
 
 __setup("sysrq_always_enabled", sysrq_always_enabled_setup);
+
 
 static void sysrq_handle_loglevel(int key)
 {
@@ -145,6 +154,9 @@ static struct sysrq_key_op sysrq_crash_op = {
 
 static void sysrq_handle_reboot(int key)
 {
+#if defined(MY_ABC_HERE)
+	gBlSynoSysrqB = true;
+#endif /* defined(MY_ABC_HERE) */
 	lockdep_off();
 	local_irq_enable();
 	emergency_restart();
@@ -155,6 +167,22 @@ static struct sysrq_key_op sysrq_reboot_op = {
 	.action_msg	= "Resetting",
 	.enable_mask	= SYSRQ_ENABLE_BOOT,
 };
+
+#ifdef MY_ABC_HERE
+static void sysrq_handle_cf9_reboot(int key)
+{
+	lockdep_off();
+	local_irq_enable();
+	reboot_type = BOOT_CF9;
+	emergency_restart();
+}
+static struct sysrq_key_op sysrq_cf9_reboot_op = {
+	.handler        = sysrq_handle_cf9_reboot,
+	.help_msg       = "cf9 reboot(g)",
+	.action_msg     = "CF9 Resetting",
+	.enable_mask    = SYSRQ_ENABLE_BOOT,
+};
+#endif
 
 static void sysrq_handle_sync(int key)
 {
@@ -430,7 +458,11 @@ static struct sysrq_key_op *sysrq_key_table[36] = {
 	&sysrq_term_op,			/* e */
 	&sysrq_moom_op,			/* f */
 	/* g: May be registered for the kernel debugger */
+#ifdef MY_ABC_HERE
+	&sysrq_cf9_reboot_op,           /* g */
+#else
 	NULL,				/* g */
+#endif /* MY_ABC_HERE */
 	NULL,				/* h - reserved for help */
 	&sysrq_kill_op,			/* i */
 #ifdef CONFIG_BLOCK
@@ -880,8 +912,8 @@ static const struct input_device_id sysrq_ids[] = {
 	{
 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
 				INPUT_DEVICE_ID_MATCH_KEYBIT,
-		.evbit = { BIT_MASK(EV_KEY) },
-		.keybit = { BIT_MASK(KEY_LEFTALT) },
+		.evbit = { [BIT_WORD(EV_KEY)] = BIT_MASK(EV_KEY) },
+		.keybit = { [BIT_WORD(KEY_LEFTALT)] = BIT_MASK(KEY_LEFTALT) },
 	},
 	{ },
 };

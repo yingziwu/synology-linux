@@ -134,6 +134,7 @@ int drm_fb_helper_add_one_connector(struct drm_fb_helper *fb_helper, struct drm_
 		fb_helper->connector_info = temp;
 	}
 
+
 	fb_helper_connector = kzalloc(sizeof(struct drm_fb_helper_connector), GFP_KERNEL);
 	if (!fb_helper_connector)
 		return -ENOMEM;
@@ -1048,6 +1049,7 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 		if (fb_helper->crtc_info[i].mode_set.num_connectors)
 			fb_helper->crtc_info[i].mode_set.fb = fb_helper->fb;
 
+
 	info->var.pixclock = 0;
 	if (register_framebuffer(info) < 0)
 		return -EINVAL;
@@ -1596,6 +1598,7 @@ static void drm_setup_crtcs(struct drm_fb_helper *fb_helper)
 		DRM_ERROR("Memory allocation failed\n");
 		goto out;
 	}
+
 
 	drm_enable_connectors(fb_helper, enabled);
 

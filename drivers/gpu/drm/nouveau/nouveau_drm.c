@@ -229,6 +229,7 @@ nouveau_accel_init(struct nouveau_drm *drm)
 		}
 	}
 
+
 	nouveau_bo_move_init(drm);
 }
 
@@ -586,6 +587,7 @@ static int nouveau_pmops_thaw(struct device *dev)
 
 	return nouveau_do_resume(drm_dev);
 }
+
 
 static int
 nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)

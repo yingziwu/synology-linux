@@ -233,6 +233,7 @@ static __init struct i2c_client *add_i2c_device(const char *name,
 				       addr_list);
 }
 
+
 static struct i2c_client __init *add_smbus_device(const char *name,
 						  struct i2c_board_info *info)
 {
@@ -269,6 +270,7 @@ static int __init setup_atmel_1664s_ts(const struct dmi_system_id *id)
 				   &atmel_1664s_device, addr_list);
 	return 0;
 }
+
 
 static int __init setup_isl29018_als(const struct dmi_system_id *id)
 {

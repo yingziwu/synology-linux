@@ -130,6 +130,7 @@ static CsrResult signal_buffer_init(unifi_priv_t * priv, int size)
     return 0;
 }
 
+
 static void signal_buffer_free(unifi_priv_t * priv, int size)
 {
     int i;
@@ -201,6 +202,7 @@ uf_register_netdev(unifi_priv_t *priv, int interfaceTag)
     return 0;
 } /* uf_register_netdev */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  uf_unregister_netdev
@@ -249,6 +251,7 @@ uf_unregister_netdev(unifi_priv_t *priv)
     priv->totalInterfaceCount = 0;
 } /* uf_unregister_netdev() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  register_unifi_sdio
@@ -291,6 +294,7 @@ register_unifi_sdio(CsrSdioFunction *sdio_dev, int bus_id, struct device *dev)
                 bus_id);
         goto failed0;
     }
+
 
     /* Allocate device private and net_device structs */
     priv = uf_alloc_netdevice(sdio_dev, bus_id);
@@ -461,6 +465,7 @@ failed0:
     return NULL;
 } /* register_unifi_sdio() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  ask_unifi_sdio_cleanup
@@ -494,6 +499,7 @@ ask_unifi_sdio_cleanup(unifi_priv_t *priv)
 
 } /* ask_unifi_sdio_cleanup() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  cleanup_unifi_sdio
@@ -526,6 +532,7 @@ cleanup_unifi_sdio(unifi_priv_t *priv)
      * the priv struct
      */
     remove_proc_entry(priv->proc_entry_name, 0);
+
 
     /* Unregister netdev as a client. */
     if (priv->netdev_client) {
@@ -605,6 +612,7 @@ cleanup_unifi_sdio(unifi_priv_t *priv)
     unifi_trace(NULL, UDBG5, "cleanup_unifi_sdio: DONE.\n");
 
 } /* cleanup_unifi_sdio() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -687,6 +695,7 @@ unregister_unifi_sdio(int bus_id)
 
 } /* unregister_unifi_sdio() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  uf_find_instance
@@ -708,6 +717,7 @@ uf_find_instance(int inst)
     }
     return Unifi_instances[inst];
 } /* uf_find_instance() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -834,6 +844,7 @@ uf_put_instance(int inst)
     up(&Unifi_instance_mutex);
 }
 
+
 /*
  * ---------------------------------------------------------------------------
  *  uf_proc_show
@@ -903,6 +914,9 @@ static int uf_proc_show(struct seq_file *m, void *v)
 }
 #endif
 
+
+
+
 static void
 uf_lx_suspend(CsrSdioFunction *sdio_ctx)
 {
@@ -969,12 +983,14 @@ uf_sdio_inserted(CsrSdioFunction *sdio_ctx)
 	CsrSdioInsertedAcknowledge(sdio_ctx, CSR_RESULT_SUCCESS);
 } /* uf_sdio_inserted() */
 
+
 static void
 uf_sdio_removed(CsrSdioFunction *sdio_ctx)
 {
 	unregister_unifi_sdio(active_slot);
 	CsrSdioRemovedAcknowledge(sdio_ctx);
 } /* uf_sdio_removed() */
+
 
 static void
 uf_sdio_dsr_handler(CsrSdioFunction *sdio_ctx)
@@ -1006,6 +1022,9 @@ uf_sdio_int_handler(CsrSdioFunction *sdio_ctx)
 	return uf_sdio_dsr_handler;
 } /* uf_sdio_int_handler() */
 
+
+
+
 static CsrSdioFunctionId unifi_ids[] =
 {
 	{
@@ -1022,6 +1041,7 @@ static CsrSdioFunctionId unifi_ids[] =
 	}
 };
 
+
 /*
  * Structure to register with the glue layer.
  */
@@ -1036,6 +1056,7 @@ static CsrSdioFunctionDriver unifi_sdioFunction_drv =
 	.ids = unifi_ids,
 	.idsCount = sizeof(unifi_ids) / sizeof(unifi_ids[0])
 };
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1067,8 +1088,11 @@ uf_sdio_load(void)
 	return 0;
 } /* uf_sdio_load() */
 
+
+
 void __exit
 uf_sdio_unload(void)
 {
 	CsrSdioFunctionDriverUnregister(&unifi_sdioFunction_drv);
 } /* uf_sdio_unload() */
+

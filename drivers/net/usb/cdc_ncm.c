@@ -509,6 +509,7 @@ advance:
 		dev_info(&dev->udev->dev, "MAC-Address: %pM\n", dev->net->dev_addr);
 	}
 
+
 	dev->in = usb_rcvbulkpipe(dev->udev,
 		ctx->in_ep->desc.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK);
 	dev->out = usb_sndbulkpipe(dev->udev,

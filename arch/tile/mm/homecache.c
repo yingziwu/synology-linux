@@ -42,6 +42,7 @@
 
 #include "migrate.h"
 
+
 #if CHIP_HAS_COHERENT_LOCAL_CACHE()
 
 /*
@@ -62,6 +63,7 @@ early_param("noallocl2", set_noallocl2);
 #define noallocl2 0
 
 #endif
+
 
 /*
  * Update the irq_stat for cpus that we are going to interrupt
@@ -281,6 +283,7 @@ pte_t pte_set_home(pte_t pte, int home)
 	if (hv_pte_get_mode(pte) == HV_PTE_MODE_MMIO)
 		return pte;
 #endif
+
 
 	/*
 	 * Only immutable pages get NC mappings.  If we have a

@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 /* includes */
 #define MV_ASMLANGUAGE
 #include "ctrlEnv/mvCtrlEnvSpec.h"
@@ -76,6 +77,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* defines */
 /* defines  */
+
 
         .data
         .global _i2cInit
@@ -126,6 +128,7 @@ _i2cInit:
 
         /* Let the slow TWSI machine get used to the idea that it is enabled  */
         bl      _twsiDelay
+
 
         mov     PC, r9         /* r9 is saved link register */
 
@@ -258,6 +261,7 @@ testStatus:
         cmp     r6, #0x18
         bne     loop_5
 
+
         /* check if the offset is bigger than 256 byte*/
         tst     r7, #0x80000000
         bne     great_than_256
@@ -299,10 +303,13 @@ loop_7_1:
         cmp     r6, #0x28
         bne     loop_7_1
 
+
         mov     r10, r7
         and     r10, r10, #0xff
         /* Write the offset1 to be read from the  EEPROM */
         MV_REG_WRITE_ASM (r10, r1, TWSI_DATA_REG(I2C_CH))
+
+
 
 after_offset:
 
@@ -338,6 +345,7 @@ loop_7:
         MV_REG_READ_ASM (r6, r1, TWSI_CONTROL_REG(I2C_CH))
         orr     r6, r6, #TWSI_CONTROL_START_BIT
         MV_REG_WRITE_ASM (r6, r1, TWSI_CONTROL_REG(I2C_CH))
+
 
         /* Clear the interrupt flag ==> the start bit will be transmitted. */
         bl      _twsiDelay
@@ -430,6 +438,7 @@ loop_15:
         MV_REG_READ_ASM (r6, r1, TWSI_CONTROL_REG(I2C_CH))
         orr     r6, r6, #TWSI_CONTROL_STOP_BIT
         MV_REG_WRITE_ASM (r6, r1, TWSI_CONTROL_REG(I2C_CH))
+
 
         /* Clear the interrupt flag  */
         bl      _twsiDelay

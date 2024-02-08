@@ -22,7 +22,6 @@ static struct {
 static __u16 smb2_dialects_array[] = {
 	SMB20_PROT_ID,
 	SMB21_PROT_ID,
-#ifdef CONFIG_CRYPTO_CMAC
 	/**
 	 *  SMB3 or above need cmac.ko to do smb signing
 	 *  If CMAC not enable, the SMB3 will fail when packets need signing.
@@ -30,7 +29,6 @@ static __u16 smb2_dialects_array[] = {
 	 */ 
 	SMB30_PROT_ID,
 	SMB302_PROT_ID,
-#endif /* CONFIG_CRYPTO_CMAC */
 	BAD_PROT_ID
 };
 
@@ -302,11 +300,9 @@ syno_print_stats(struct seq_file *m, struct cifs_tcon *tcon)
 static void
 syno_dump_share_caps(struct seq_file *m, struct cifs_tcon *tcon)
 {
-#ifdef CONFIG_CRYPTO_CMAC
 	if (tcon && tcon->ses && tcon->ses->server && SMB30_PROT_ID <= tcon->ses->server->dialect) {
 		smb30_operations.dump_share_caps(m, tcon);
 	}
-#endif /* CONFIG_CRYPTO_CMAC */
 }
 
 //	int (*check_message)(char *, unsigned int);
@@ -480,19 +476,17 @@ syno_check_smb2_nego_rsp(struct cifs_ses *ses, struct smb2_negotiate_rsp *rsp)
 	} else if (rsp->DialectRevision == cpu_to_le16(SMB21_PROT_ID)) {
 		cifs_dbg(FYI, "negotiated smb2.1 dialect\n");
 		server->vals = &smb21_values;
-#ifdef CONFIG_CRYPTO_CMAC
 	} else if (rsp->DialectRevision == cpu_to_le16(SMB30_PROT_ID)) {
 		cifs_dbg(FYI, "negotiated smb3.0 dialect\n");
 		server->vals = &smb30_values;
 	} else if (rsp->DialectRevision == cpu_to_le16(SMB302_PROT_ID)) {
 		cifs_dbg(FYI, "negotiated smb3.02 dialect\n");
 		server->vals = &smb302_values;
-#endif /* CONFIG_CRYPTO_CMAC */
-#if defined(CONFIG_CIFS_SMB311) && defined(CONFIG_CRYPTO_CMAC)
+#ifdef CONFIG_CIFS_SMB311
 	} else if (rsp->DialectRevision == cpu_to_le16(SMB311_PROT_ID)) {
 		cifs_dbg(FYI, "negotiated smb3.1.1 dialect\n");
 		server->vals = &smb311_values;
-#endif /* SMB311 && CONFIG_CRYPTO_CMAC */
+#endif /* SMB311 */
 	} else if (rsp->DialectRevision == cpu_to_le16(0x02ff)) {
 		cifs_dbg(FYI, "negotiated smb2.FF dialect\n");
 	} else {
@@ -549,6 +543,7 @@ static int
 small_smb1_nego_init(__le16 smb_command, void **request_buf)
 {
 	int rc = 0;
+
 
 	/* BB eventually switch this to SMB2 specific small buf size */
 	*request_buf = cifs_small_buf_get();
@@ -842,10 +837,8 @@ syno_qfs_tcon(const unsigned int xid, struct cifs_tcon *tcon)
 	if (tcon && tcon->ses && tcon->ses->server) {
 		if (SMB20_PROT_ID > tcon->ses->server->dialect) {
 			return smb1_operations.qfs_tcon(xid, tcon);
-#ifdef CONFIG_CRYPTO_CMAC
 		} else if (SMB30_PROT_ID <= tcon->ses->server->dialect) {
 			return smb30_operations.qfs_tcon(xid, tcon);
-#endif /* CONFIG_CRYPTO_CMAC */
 		}
 	}
 	return smb20_operations.qfs_tcon(xid, tcon);
@@ -1478,11 +1471,9 @@ syno_new_lease_key(struct cifs_fid *fid)
 static int
 syno_generate_signingkey(struct cifs_ses *ses)
 {
-#ifdef CONFIG_CRYPTO_CMAC
 	if (ses && ses->server && SMB30_PROT_ID <= ses->server->dialect) {
 		return smb30_operations.generate_signingkey(ses);
 	}
-#endif /* CONFIG_CRYPTO_CMAC */
 	return -EOPNOTSUPP;
 }
 
@@ -1496,11 +1487,7 @@ syno_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 	} else if (SMB30_PROT_ID > server->dialect) {
 		return smb20_operations.calc_signature(rqst, server);
 	}
-#ifdef CONFIG_CRYPTO_CMAC
 	return smb30_operations.calc_signature(rqst, server);
-#else
-	return -EOPNOTSUPP;
-#endif /* CONFIG_CRYPTO_CMAC */
 }
 
 //	int (*set_integrity)(const unsigned int, struct cifs_tcon *tcon, struct cifsFileInfo *src_file);
@@ -1508,12 +1495,10 @@ static int
 syno_set_integrity(const unsigned int xid, struct cifs_tcon *tcon,
 		   struct cifsFileInfo *cfile)
 {
-#ifdef CONFIG_CRYPTO_CMAC
 	// this function call by ioctl only. not support protocol also return -EOPNOTSUPP
 	if (tcon && tcon->ses && tcon->ses->server && SMB30_PROT_ID <= tcon->ses->server->dialect) {
 		return smb30_operations.set_integrity(xid, tcon, cfile);
 	}
-#endif /* CONFIG_CRYPTO_CMAC */
 	return -EOPNOTSUPP;
 }
 
@@ -1527,10 +1512,8 @@ syno_query_mf_symlink(unsigned int xid, struct cifs_tcon *tcon,
 	if (tcon && tcon->ses && tcon->ses->server) {
 		if (SMB20_PROT_ID > tcon->ses->server->dialect) {
 			return smb1_operations.query_mf_symlink(xid, tcon, cifs_sb, path, pbuf, pbytes_read);
-#ifdef CONFIG_CRYPTO_CMAC
 		} else if (SMB30_PROT_ID <= tcon->ses->server->dialect) {
 			return smb30_operations.query_mf_symlink(xid, tcon, cifs_sb, path, pbuf, pbytes_read);
-#endif /* CONFIG_CRYPTO_CMAC */
 		}
 	}
 	return -ENOSYS;
@@ -1546,10 +1529,8 @@ syno_create_mf_symlink(unsigned int xid, struct cifs_tcon *tcon,
 	if (tcon && tcon->ses && tcon->ses->server) {
 		if (SMB20_PROT_ID > tcon->ses->server->dialect) {
 			return smb1_operations.create_mf_symlink(xid, tcon, cifs_sb, path, pbuf, pbytes_written);
-#ifdef CONFIG_CRYPTO_CMAC
 		} else if (SMB30_PROT_ID <= tcon->ses->server->dialect) {
 			return smb30_operations.create_mf_symlink(xid, tcon, cifs_sb, path, pbuf, pbytes_written);
-#endif /* CONFIG_CRYPTO_CMAC */
 		}
 	}
 	return -EOPNOTSUPP;
@@ -1580,10 +1561,8 @@ syno_set_oplock_level(struct cifsInodeInfo *cinode, __u32 oplock,
 			smb20_operations.set_oplock_level(cinode, oplock, epoch, purge_cache);
 		} else if (SMB21_PROT_ID == tcon->ses->server->dialect) {
 			smb21_operations.set_oplock_level(cinode, oplock, epoch, purge_cache);
-#ifdef CONFIG_CRYPTO_CMAC
 		} else if (SMB30_PROT_ID <= tcon->ses->server->dialect) {
 			smb30_operations.set_oplock_level(cinode, oplock, epoch, purge_cache);
-#endif /* CONFIG_CRYPTO_CMAC */
 		}
 	}
 }
@@ -1598,11 +1577,7 @@ syno_create_lease_buf(struct TCP_Server_Info *server, u8 *lease_key, u8 oplock)
 	} else if (SMB30_PROT_ID > server->dialect) {
 		return smb20_operations.create_lease_buf(server, lease_key, oplock);
 	}
-#ifdef CONFIG_CRYPTO_CMAC
 	return smb30_operations.create_lease_buf(server, lease_key, oplock);
-#else
-	return NULL;
-#endif /* CONFIG_CRYPTO_CMAC */
 }
 
 //	__u8 (*parse_lease_buf)(void *, unsigned int *);
@@ -1615,11 +1590,7 @@ syno_parse_lease_buf(struct TCP_Server_Info *server, void *buf, unsigned int *ep
 	} else if (SMB30_PROT_ID > server->dialect) {
 		return smb20_operations.parse_lease_buf(server, buf, epoch);
 	}
-#ifdef CONFIG_CRYPTO_CMAC
 	return smb30_operations.parse_lease_buf(server, buf, epoch);
-#else
-	return -EOPNOTSUPP;
-#endif /* CONFIG_CRYPTO_CMAC */
 }
 
 //	int (*clone_range)(const unsigned int, struct cifsFileInfo *src_file, struct cifsFileInfo *target_file, u64 src_off, u64 len, u64 dest_off);
@@ -1644,13 +1615,11 @@ syno_duplicate_extents(const unsigned int xid,
 			struct cifsFileInfo *trgtfile, u64 src_off,
 			u64 len, u64 dest_off)
 {
-#ifdef CONFIG_CRYPTO_CMAC
 	// this function call by ioctl.c. and not support protcol return -EOPNOTSUPP
 	struct cifs_tcon *tcon = tlink_tcon(trgtfile->tlink);
 	if (tcon && tcon->ses && tcon->ses->server && SMB30_PROT_ID <= tcon->ses->server->dialect) {
 		return smb30_operations.duplicate_extents(xid, srcfile, trgtfile, src_off, len, dest_off);
 	}
-#endif /* CONFIG_CRYPTO_CMAC */
 	return -EOPNOTSUPP;
 }
 
@@ -1658,12 +1627,10 @@ syno_duplicate_extents(const unsigned int xid,
 static int
 syno_validate_negotiate(const unsigned int xid, struct cifs_tcon *tcon)
 {
-#ifdef CONFIG_CRYPTO_CMAC
 	//this function call by SMB2_tcon. if not supported protocol will keep return value (0)
 	if (tcon && tcon->ses && tcon->ses->server && SMB30_PROT_ID == tcon->ses->server->dialect) {
 		return smb30_operations.validate_negotiate(xid, tcon);
 	}
-#endif /* CONFIG_CRYPTO_CMAC */
 	return 0;
 }
 //only SMB1 with XATTR config
@@ -1699,12 +1666,10 @@ syno_dir_needs_close(struct cifsFileInfo *cfile)
 static long syno_fallocate(struct file *file, struct cifs_tcon *tcon, int mode,
 			   loff_t off, loff_t len)
 {
-#ifdef CONFIG_CRYPTO_CMAC
 	// this function used by cifs_fallocate. if protocol no this function return -EOPNOTSUPP
 	if (tcon && tcon->ses && tcon->ses->server && SMB30_PROT_ID <= tcon->ses->server->dialect) {
 		return smb30_operations.fallocate(file, tcon, mode, off, len);
 	}
-#endif /* CONFIG_CRYPTO_CMAC */
 	return -EOPNOTSUPP;
 }
 

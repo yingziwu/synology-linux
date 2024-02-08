@@ -52,6 +52,7 @@ static inline struct iblock_dev *IBLOCK_DEV(struct se_device *dev)
 	return container_of(dev, struct iblock_dev, dev);
 }
 
+
 static struct se_subsystem_api iblock_template;
 
 /*	iblock_attach_hba(): (Part of se_subsystem_api_t template)

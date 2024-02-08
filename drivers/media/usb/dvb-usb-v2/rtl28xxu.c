@@ -625,6 +625,7 @@ static int rtl2832u_fc0012_tuner_callback(struct dvb_usb_device *d,
 		else
 			val |= 0x40; /* set GPIO6 high */
 
+
 		ret = rtl28xx_wr_reg(d, SYS_GPIO_OUT_VAL, val);
 		if (ret)
 			goto err;

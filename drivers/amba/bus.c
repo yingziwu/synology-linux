@@ -442,6 +442,7 @@ void amba_driver_unregister(struct amba_driver *drv)
 	driver_unregister(&drv->drv);
 }
 
+
 static void amba_device_release(struct device *dev)
 {
 	struct amba_device *d = to_amba_device(dev);
@@ -610,6 +611,7 @@ amba_ahb_device_add_res(struct device *parent, const char *name,
 }
 EXPORT_SYMBOL_GPL(amba_ahb_device_add_res);
 
+
 static void amba_device_initialize(struct amba_device *dev, const char *name)
 {
 	device_initialize(&dev->dev);
@@ -692,6 +694,7 @@ void amba_device_unregister(struct amba_device *dev)
 {
 	device_unregister(&dev->dev);
 }
+
 
 struct find_data {
 	struct amba_device *dev;

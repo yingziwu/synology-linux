@@ -412,6 +412,7 @@ pxa3xx_gcu_misc_write(struct file *file, const char *buff,
 
 	spin_unlock_irqrestore(&priv->spinlock, flags);
 
+
 	/* Copy data from user into buffer */
 	ret = copy_from_user(buffer->ptr, buff, words * 4);
 	if (ret) {
@@ -450,6 +451,7 @@ pxa3xx_gcu_misc_write(struct file *file, const char *buff,
 
 	return words * 4;
 }
+
 
 static long
 pxa3xx_gcu_misc_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
@@ -502,6 +504,7 @@ pxa3xx_gcu_misc_mmap(struct file *file, struct vm_area_struct *vma)
 
 	return -EINVAL;
 }
+
 
 #ifdef PXA3XX_GCU_DEBUG_TIMER
 static struct timer_list pxa3xx_gcu_debug_timer;

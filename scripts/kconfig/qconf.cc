@@ -97,6 +97,7 @@ bool ConfigSettings::writeSizes(const QString& key, const Q3ValueList<int>& valu
 	return writeEntry(key, stringList);
 }
 
+
 /*
  * set the new data
  * TODO check the value

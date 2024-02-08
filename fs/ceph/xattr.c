@@ -168,6 +168,7 @@ static size_t ceph_vxattrcb_dir_rctime(struct ceph_inode_info *ci, char *val,
 			(long)ci->i_rctime.tv_nsec);
 }
 
+
 #define CEPH_XATTR_NAME(_type, _name)	XATTR_CEPH_PREFIX #_type "." #_name
 #define CEPH_XATTR_NAME2(_type, _name, _name2)	\
 	XATTR_CEPH_PREFIX #_type "." #_name "." #_name2
@@ -674,6 +675,7 @@ ssize_t ceph_getxattr(struct dentry *dentry, const char *name, void *value,
 	if (!ceph_is_valid_xattr(name))
 		return -ENODATA;
 
+
 	/* let's see if a virtual xattr was requested */
 	vxattr = ceph_match_vxattr(inode, name);
 	if (vxattr && !(vxattr->exists_cb && !vxattr->exists_cb(ci))) {
@@ -1050,3 +1052,4 @@ do_sync_unlocked:
 out:
 	return err;
 }
+

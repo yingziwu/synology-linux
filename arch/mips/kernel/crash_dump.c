@@ -13,6 +13,7 @@ static int __init parse_savemaxmem(char *p)
 }
 __setup("savemaxmem=", parse_savemaxmem);
 
+
 static void *kdump_buf_page;
 
 /**

@@ -55,6 +55,7 @@ typedef enum _lpfc_iocb_type {
 	LPFC_ABORT_IOCB
 } lpfc_iocb_type;
 
+
 /* Provide function prototypes local to this module. */
 static int lpfc_sli_issue_mbox_s4(struct lpfc_hba *, LPFC_MBOXQ_t *,
 				  uint32_t);
@@ -814,6 +815,7 @@ lpfc_cleanup_wt_rrqs(struct lpfc_hba *phba)
 		mod_timer(&phba->rrq_tmr, next_time);
 }
 
+
 /**
  * lpfc_test_rrq_active - Test RRQ bit in xri_bitmap.
  * @phba: Pointer to HBA context object.
@@ -1041,6 +1043,7 @@ __lpfc_sli_release_iocbq_s4(struct lpfc_hba *phba, struct lpfc_iocbq *iocbq)
 		list_del_init(&iocbq->list);
 	}
 
+
 	if (sglq)  {
 		if ((iocbq->iocb_flag & LPFC_EXCHANGE_BUSY) &&
 			(sglq->state != SGL_XRI_ABORTED)) {
@@ -1062,6 +1065,7 @@ __lpfc_sli_release_iocbq_s4(struct lpfc_hba *phba, struct lpfc_iocbq *iocbq)
 		}
 	}
 
+
 	/*
 	 * Clean all volatile data fields, preserve iotag and node struct.
 	 */
@@ -1070,6 +1074,7 @@ __lpfc_sli_release_iocbq_s4(struct lpfc_hba *phba, struct lpfc_iocbq *iocbq)
 	iocbq->sli4_xritag = NO_XRI;
 	list_add_tail(&iocbq->list, &phba->lpfc_iocb_list);
 }
+
 
 /**
  * __lpfc_sli_release_iocbq_s3 - Release iocb to the iocb pool
@@ -1359,6 +1364,7 @@ lpfc_sli_ringtxcmpl_put(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
 				msecs_to_jiffies(1000 * (phba->fc_ratov << 1)));
 	}
 
+
 	return 0;
 }
 
@@ -1534,6 +1540,7 @@ lpfc_sli_submit_iocb(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
 	 * Set up an iotag
 	 */
 	nextiocb->iocb.ulpIoTag = (nextiocb->iocb_cmpl) ? nextiocb->iotag : 0;
+
 
 	if (pring->ringno == LPFC_ELS_RING) {
 		lpfc_debugfs_slow_ring_trc(phba,
@@ -2176,6 +2183,7 @@ lpfc_sli_wake_mbox_wait(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmboxq)
 	spin_unlock_irqrestore(&phba->hbalock, drvr_flag);
 	return;
 }
+
 
 /**
  * lpfc_sli_def_mbox_cmpl - Default mailbox completion handler
@@ -2931,6 +2939,7 @@ void lpfc_poll_eratt(unsigned long ptr)
 			  msecs_to_jiffies(1000 * LPFC_ERATT_POLL_INTERVAL));
 	return;
 }
+
 
 /**
  * lpfc_sli_handle_fast_ring_event - Handle ring events on FCP ring
@@ -4528,6 +4537,7 @@ do_prep_failed:
 	mempool_free(pmb, phba->mbox_mem_pool);
 	return rc;
 }
+
 
 /**
  * lpfc_sli_hba_setup - SLI intialization function
@@ -6583,6 +6593,7 @@ lpfc_mbox_timeout(unsigned long ptr)
 	return;
 }
 
+
 /**
  * lpfc_mbox_timeout_handler - Worker thread function to handle mailbox timeout
  * @phba: Pointer to HBA context object.
@@ -7721,6 +7732,7 @@ __lpfc_sli_issue_iocb_s3(struct lpfc_hba *phba, uint32_t ring_number,
 		return IOCB_ERROR;
 	}
 
+
 	/* If the PCI channel is in offline state, do not post iocbs. */
 	if (unlikely(pci_channel_offline(phba->pcidev)))
 		return IOCB_ERROR;
@@ -8829,6 +8841,7 @@ lpfc_sli_async_event_handler(struct lpfc_hba * phba,
 	}
 }
 
+
 /**
  * lpfc_sli_setup - SLI ring setup function
  * @phba: Pointer to HBA context object.
@@ -9219,6 +9232,7 @@ lpfc_sli_pcimem_bcopy(void *srcp, void *destp, uint32_t cnt)
 		dest++;
 	}
 }
+
 
 /**
  * lpfc_sli_bemem_bcopy - SLI memory copy function
@@ -14975,6 +14989,7 @@ lpfc_sli4_post_rpi_hdr(struct lpfc_hba *phba, struct lpfc_rpi_hdr *rpi_page)
 			 sizeof(struct lpfc_sli4_cfg_mhdr),
 			 LPFC_SLI4_MBX_EMBED);
 
+
 	/* Post the physical rpi to the port for this rpi header. */
 	bf_set(lpfc_mbx_post_hdr_tmpl_rpi_offset, hdr_tmpl,
 	       rpi_page->start_rpi);
@@ -15641,6 +15656,7 @@ next_priority:
 		next_fcf_index = find_next_bit(phba->fcf.fcf_rr_bmask,
 					       LPFC_SLI4_FCF_TBL_INDX_MAX, 0);
 	}
+
 
 	/* Check roundrobin failover list empty condition */
 	if (next_fcf_index >= LPFC_SLI4_FCF_TBL_INDX_MAX ||

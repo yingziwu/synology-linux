@@ -279,6 +279,7 @@ static bool loss_event(struct netem_sched_data *q)
 	return false;	/* not reached */
 }
 
+
 /* tabledist - return a pseudo-randomly distributed value with mean mu and
  * std deviation sigma.  Uses table lookup to approximate the desired
  * distribution, and a uniformly-distributed pseudo-random source.
@@ -998,6 +999,7 @@ static struct Qdisc_ops netem_qdisc_ops __read_mostly = {
 	.dump		=	netem_dump,
 	.owner		=	THIS_MODULE,
 };
+
 
 static int __init netem_module_init(void)
 {

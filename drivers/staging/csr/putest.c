@@ -20,6 +20,7 @@
 
 #define UNIFI_PROC_BOTH 3
 
+
 int unifi_putest_cmd52_read(unifi_priv_t *priv, unsigned char *arg)
 {
     struct unifi_putest_cmd52 cmd52_params;
@@ -93,6 +94,7 @@ int unifi_putest_cmd52_read(unifi_priv_t *priv, unsigned char *arg)
 
     return 0;
 }
+
 
 int unifi_putest_cmd52_write(unifi_priv_t *priv, unsigned char *arg)
 {
@@ -276,6 +278,7 @@ int unifi_putest_set_sdio_clock(unifi_priv_t *priv, unsigned char *arg)
     return 0;
 }
 
+
 int unifi_putest_start(unifi_priv_t *priv, unsigned char *arg)
 {
     int r;
@@ -330,6 +333,7 @@ int unifi_putest_start(unifi_priv_t *priv, unsigned char *arg)
     return 0;
 }
 
+
 int unifi_putest_stop(unifi_priv_t *priv, unsigned char *arg)
 {
     int r = 0;
@@ -372,6 +376,7 @@ int unifi_putest_stop(unifi_priv_t *priv, unsigned char *arg)
 
     return r;
 }
+
 
 int unifi_putest_dl_fw(unifi_priv_t *priv, unsigned char *arg)
 {
@@ -458,6 +463,7 @@ free_fw:
     return CsrHipResultToStatus(csrResult);
 }
 
+
 int unifi_putest_dl_fw_buff(unifi_priv_t *priv, unsigned char *arg)
 {
     unsigned int fw_length;
@@ -535,6 +541,7 @@ free_fw:
 
     return CsrHipResultToStatus(csrResult);
 }
+
 
 int unifi_putest_coredump_prepare(unifi_priv_t *priv, unsigned char *arg)
 {

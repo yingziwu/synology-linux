@@ -79,6 +79,7 @@
 #include <linux/export.h>
 #include "i2400m.h"
 
+
 #define D_SUBMODULE netdev
 #include "debug-levels.h"
 
@@ -94,6 +95,7 @@ enum {
 	 */
 	I2400M_TX_QLEN = 20,
 };
+
 
 static
 int i2400m_open(struct net_device *net_dev)
@@ -115,6 +117,7 @@ int i2400m_open(struct net_device *net_dev)
 	return result;
 }
 
+
 static
 int i2400m_stop(struct net_device *net_dev)
 {
@@ -126,6 +129,7 @@ int i2400m_stop(struct net_device *net_dev)
 	d_fnend(3, dev, "(net_dev %p [i2400m %p]) = 0\n", net_dev, i2400m);
 	return 0;
 }
+
 
 /*
  * Wake up the device and transmit a held SKB, then restart the net queue
@@ -203,6 +207,7 @@ out_put:
 		ws, i2400m, skb, result);
 }
 
+
 /*
  * Prepare the data payload TX header
  *
@@ -219,6 +224,8 @@ void i2400m_tx_prep_header(struct sk_buff *skb)
 	pl_hdr = (struct i2400m_pl_data_hdr *) skb_push(skb, sizeof(*pl_hdr));
 	pl_hdr->reserved = 0;
 }
+
+
 
 /*
  * Cleanup resources acquired during i2400m_net_wake_tx()
@@ -251,6 +258,7 @@ void i2400m_net_wake_stop(struct i2400m *i2400m)
 
 	d_fnend(3, dev, "(i2400m %p) = void\n", i2400m);
 }
+
 
 /*
  * TX an skb to an idle device
@@ -307,6 +315,7 @@ int i2400m_net_wake_tx(struct i2400m *i2400m, struct net_device *net_dev,
 	return result;
 }
 
+
 /*
  * Transmit a packet to the base station on behalf of the network stack.
  *
@@ -335,6 +344,7 @@ int i2400m_net_tx(struct i2400m *i2400m, struct net_device *net_dev,
 		i2400m, net_dev, skb, result);
 	return result;
 }
+
 
 /*
  * Transmit a packet to the base station on behalf of the network stack
@@ -384,6 +394,7 @@ drop:
 	return NETDEV_TX_OK;
 }
 
+
 static
 int i2400m_change_mtu(struct net_device *net_dev, int new_mtu)
 {
@@ -402,6 +413,7 @@ int i2400m_change_mtu(struct net_device *net_dev, int new_mtu)
 	return result;
 }
 
+
 static
 void i2400m_tx_timeout(struct net_device *net_dev)
 {
@@ -414,6 +426,7 @@ void i2400m_tx_timeout(struct net_device *net_dev)
 	 */
 	net_dev->stats.tx_errors++;
 }
+
 
 /*
  * Create a fake ethernet header
@@ -434,6 +447,7 @@ void i2400m_rx_fake_eth_header(struct net_device *net_dev,
 	       sizeof(eth_hdr->h_source));
 	eth_hdr->h_proto = protocol;
 }
+
 
 /*
  * i2400m_net_rx - pass a network packet to the stack
@@ -512,6 +526,7 @@ error_skb_realloc:
 	d_fnend(2, dev, "(i2400m %p buf %p buf_len %d) = void\n",
 		i2400m, buf, buf_len);
 }
+
 
 /*
  * i2400m_net_erx - pass a network packet to the stack (extended version)
@@ -621,3 +636,4 @@ void i2400m_netdev_setup(struct net_device *net_dev)
 	d_fnend(3, NULL, "(net_dev %p) = void\n", net_dev);
 }
 EXPORT_SYMBOL_GPL(i2400m_netdev_setup);
+

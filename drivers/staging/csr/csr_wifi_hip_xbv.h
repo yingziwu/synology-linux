@@ -26,6 +26,7 @@
 #include "csr_wifi_hip_unifi.h"
 #endif
 
+
 struct VMEQ
 {
     u32 addr;
@@ -105,6 +106,7 @@ typedef struct
     struct PTDL ptdl[MAX_PTDL];
     s16    num_ptdl;
 }  xbv1_t;
+
 
 typedef s32 (*fwreadfn_t)(void *ospriv, void *dlpriv, u32 offset, void *buf, u32 len);
 

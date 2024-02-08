@@ -16,9 +16,11 @@
 #include "csr_wifi_hip_unifi.h"
 #include "unifi_priv.h"
 
+
 #define MAX_INIT_ATTEMPTS        4
 
 extern int led_mask;
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -102,3 +104,5 @@ uf_init_hw(unifi_priv_t *priv)
     return CsrHipResultToStatus(csrResult);
 
 } /* uf_init_hw */
+
+

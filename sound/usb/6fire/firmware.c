@@ -414,3 +414,4 @@ int usb6fire_fw_init(struct usb_interface *intf)
 	}
 	return 0;
 }
+

@@ -73,6 +73,8 @@ static const struct fb_cmap default_16_colors = {
     .len=16, .red=red16, .green=green16, .blue=blue16
 };
 
+
+
 /**
  *	fb_alloc_cmap - allocate a colormap
  *	@cmap: frame buffer colormap structure
@@ -161,17 +163,18 @@ void fb_dealloc_cmap(struct fb_cmap *cmap)
 
 int fb_copy_cmap(const struct fb_cmap *from, struct fb_cmap *to)
 {
-	int tooff = 0, fromoff = 0;
-	int size;
+	unsigned int tooff = 0, fromoff = 0;
+	size_t size;
 
 	if (to->start > from->start)
 		fromoff = to->start - from->start;
 	else
 		tooff = from->start - to->start;
-	size = to->len - tooff;
-	if (size > (int) (from->len - fromoff))
-		size = from->len - fromoff;
-	if (size <= 0)
+	if (fromoff >= from->len || tooff >= to->len)
+		return -EINVAL;
+
+	size = min_t(size_t, to->len - tooff, from->len - fromoff);
+	if (size == 0)
 		return -EINVAL;
 	size *= sizeof(u16);
 
@@ -185,17 +188,18 @@ int fb_copy_cmap(const struct fb_cmap *from, struct fb_cmap *to)
 
 int fb_cmap_to_user(const struct fb_cmap *from, struct fb_cmap_user *to)
 {
-	int tooff = 0, fromoff = 0;
-	int size;
+	unsigned int tooff = 0, fromoff = 0;
+	size_t size;
 
 	if (to->start > from->start)
 		fromoff = to->start - from->start;
 	else
 		tooff = from->start - to->start;
-	size = to->len - tooff;
-	if (size > (int) (from->len - fromoff))
-		size = from->len - fromoff;
-	if (size <= 0)
+	if (fromoff >= from->len || tooff >= to->len)
+		return -EINVAL;
+
+	size = min_t(size_t, to->len - tooff, from->len - fromoff);
+	if (size == 0)
 		return -EINVAL;
 	size *= sizeof(u16);
 
@@ -318,6 +322,7 @@ const struct fb_cmap *fb_default_cmap(int len)
     return &default_16_colors;
 }
 
+
 /**
  *	fb_invert_cmaps - invert all defaults colormaps
  *
@@ -350,6 +355,7 @@ void fb_invert_cmaps(void)
 	blue16[i] = ~blue16[i];
     }
 }
+
 
     /*
      *  Visible symbols for modules

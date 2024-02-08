@@ -4,6 +4,7 @@
 #ifndef _LINUX_STAT_H
 #define _LINUX_STAT_H
 
+
 #include <asm/stat.h>
 #include <uapi/linux/stat.h>
 
@@ -41,8 +42,17 @@ struct kstat {
 #ifdef MY_ABC_HERE
 	struct timespec syno_create_time;
 #endif
+#ifdef MY_ABC_HERE
+	unsigned long syno_compressed;
+#endif
 	unsigned long	blksize;
 	unsigned long long	blocks;
+#ifdef MY_ABC_HERE
+	bool            is_inline;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	unsigned int	syno_flags;
+#endif
 };
 
 #endif

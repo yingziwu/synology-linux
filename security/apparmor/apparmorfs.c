@@ -111,6 +111,7 @@ static char *aa_simple_write_to_buffer(int op, const char __user *userbuf,
 	return data;
 }
 
+
 /* .load file hook fn to load policy */
 static ssize_t profile_load(struct file *f, const char __user *buf, size_t size,
 			    loff_t *pos)
@@ -650,6 +651,7 @@ static void *p_start(struct seq_file *f, loff_t *pos)
 	loff_t l = *pos;
 	f->private = aa_get_namespace(root);
 
+
 	/* find the first profile */
 	mutex_lock(&root->lock);
 	profile = __first_profile(root, root);
@@ -743,6 +745,7 @@ static const struct file_operations aa_fs_profiles_fops = {
 	.llseek = seq_lseek,
 	.release = profiles_release,
 };
+
 
 /** Base file system setup **/
 static struct aa_fs_entry aa_fs_entry_file[] = {

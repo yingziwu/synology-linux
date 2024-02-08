@@ -1459,6 +1459,7 @@ bad:
 	return rc;
 }
 
+
 /*
  * Read a MLS level structure from a policydb binary
  * representation file.

@@ -288,6 +288,7 @@ static void xenvbd_sysfs_delif(struct xenbus_device *dev)
 	device_remove_file(&dev->dev, &dev_attr_physical_device);
 }
 
+
 static void xen_vbd_free(struct xen_vbd *vbd)
 {
 	if (vbd->bdev)
@@ -486,6 +487,7 @@ fail:
 	return err;
 }
 
+
 /*
  * Callback received when the hotplug scripts have placed the physical-device
  * node.  Read it and the mode node, and create a vbd.  If the frontend is
@@ -574,6 +576,7 @@ static void backend_changed(struct xenbus_watch *watch,
 	}
 }
 
+
 /*
  * Callback received when the frontend's state changes.
  */
@@ -638,7 +641,9 @@ static void frontend_changed(struct xenbus_device *dev,
 	}
 }
 
+
 /* ** Connection ** */
+
 
 /*
  * Write the physical details regarding the block device to the store, and
@@ -716,6 +721,7 @@ again:
 	xenbus_transaction_end(xbt, 1);
 }
 
+
 static int connect_ring(struct backend_info *be)
 {
 	struct xenbus_device *dev = be->dev;
@@ -775,18 +781,22 @@ static int connect_ring(struct backend_info *be)
 	return 0;
 }
 
+
 /* ** Driver Registration ** */
+
 
 static const struct xenbus_device_id xen_blkbk_ids[] = {
 	{ "vbd" },
 	{ "" }
 };
 
+
 static DEFINE_XENBUS_DRIVER(xen_blkbk, ,
 	.probe = xen_blkbk_probe,
 	.remove = xen_blkbk_remove,
 	.otherend_changed = frontend_changed
 );
+
 
 int xen_blkif_xenbus_init(void)
 {

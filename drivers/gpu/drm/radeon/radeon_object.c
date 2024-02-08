@@ -36,6 +36,7 @@
 #include "radeon.h"
 #include "radeon_trace.h"
 
+
 int radeon_ttm_init(struct radeon_device *rdev);
 void radeon_ttm_fini(struct radeon_device *rdev);
 static void radeon_bo_clear_surface_reg(struct radeon_bo *bo);
@@ -624,6 +625,7 @@ int radeon_bo_wait(struct radeon_bo *bo, u32 *mem_type, bool no_wait)
 	ttm_bo_unreserve(&bo->tbo);
 	return r;
 }
+
 
 /**
  * radeon_bo_reserve - reserve bo

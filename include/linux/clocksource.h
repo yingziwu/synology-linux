@@ -277,6 +277,7 @@ static inline s64 clocksource_cyc2ns(cycle_t cycles, u32 mult, u32 shift)
 	return ((u64) cycles * mult) >> shift;
 }
 
+
 extern int clocksource_register(struct clocksource*);
 extern void clocksource_unregister(struct clocksource*);
 extern void clocksource_touch_watchdog(void);
@@ -318,6 +319,7 @@ static inline void __clocksource_updatefreq_khz(struct clocksource *cs, u32 khz)
 {
 	__clocksource_updatefreq_scale(cs, 1000, khz);
 }
+
 
 extern void timekeeping_notify(struct clocksource *clock);
 

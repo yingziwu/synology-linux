@@ -79,6 +79,7 @@
 #define MMIO_PPR_HEAD_OFFSET	0x2030
 #define MMIO_PPR_TAIL_OFFSET	0x2038
 
+
 /* Extended Feature Bits */
 #define FEATURE_PREFETCH	(1ULL<<0)
 #define FEATURE_PPR		(1ULL<<1)
@@ -368,6 +369,7 @@ extern struct kmem_cache *amd_iommu_irq_cache;
 #define APERTURE_MAX_RANGES	32	/* allows 4GB of DMA address space */
 #define APERTURE_RANGE_INDEX(a)	((a) >> APERTURE_RANGE_SHIFT)
 #define APERTURE_PAGE_INDEX(a)	(((a) >> 21) & 0x3fULL)
+
 
 /*
  * This struct is used to pass information about

@@ -666,6 +666,7 @@ static int get_dev_entry_bit(u16 devid, u8 bit)
 	return (amd_iommu_dev_table[devid].data[i] & (1UL << _bit)) >> _bit;
 }
 
+
 void amd_iommu_apply_erratum_63(u16 devid)
 {
 	int sysmgt;
@@ -808,6 +809,7 @@ static int __init init_iommu_from_acpi(struct amd_iommu *iommu,
 	struct ivhd_entry *e;
 	int ret;
 
+
 	ret = add_early_maps();
 	if (ret)
 		return ret;
@@ -822,6 +824,7 @@ static int __init init_iommu_from_acpi(struct amd_iommu *iommu,
 	 */
 	p += sizeof(struct ivhd_header);
 	end += h->length;
+
 
 	while (p < end) {
 		e = (struct ivhd_entry *)p;
