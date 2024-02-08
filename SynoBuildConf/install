@@ -56,8 +56,9 @@ IPV6_COMMON_LIST="ipv6 ip_tunnel tunnel4 sit"
 CRYPTO_MODULES_X86_64_COMMON_LIST="cbc md5 cts ansi_cprng des_generic authenc aes-x86_64 ecb sha256_generic cryptd crc32c-intel arc4"
 CRYPTO_MODULES_ARM_64_COMMON_LIST="cbc md5 cts ansi_cprng des_generic authenc ecb sha256_generic cryptd ablk_helper gf128mul aes-ce-blk aes-neon-blk arc4"
 CPUFREQ_MODULES_X86_64_COMMON_LIST="cpufreq_stats processor acpi-cpufreq cpufreq_performance cpufreq_powersave"
-MISC_MODULES_COMMON_LIST="hmac md4 hfsplus llc p8022 psnap crc-ccitt crc-itu-t dm-bufio dm-snapshot sg loop"
-USB_MODULES_COMMON_LIST="usb-common usbcore xhci-hcd usb-storage"
+MISC_MODULES_X86_64_COMMON_LIST="hmac md4 hfsplus llc p8022 psnap crc-ccitt crc-itu-t dm-bufio dm-snapshot sg loop dm-crypt"
+MISC_MODULES_ARM_64_COMMON_LIST="hmac md4 hfsplus llc p8022 psnap crc-ccitt crc-itu-t dm-bufio dm-snapshot sg loop"
+USB_MODULES_COMMON_LIST="usb-common usbcore xhci-hcd"
 
 if [ -f "$ConfDir/_modules" ]; then
 	# get platform $ModuleList
@@ -76,7 +77,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -99,7 +100,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -115,7 +116,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CRYPTO_MODULES_LIST=${CRYPTO_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
 
-			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST} zlib_deflate"
+			MISC_MODULES_LIST="${MISC_MODULES_X86_64_COMMON_LIST} zlib_deflate"
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -131,7 +132,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CRYPTO_MODULES_LIST=${CRYPTO_MODULES_ARM_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
 
-			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST} zlib_deflate"
+			MISC_MODULES_LIST="${MISC_MODULES_ARM_64_COMMON_LIST} zlib_deflate"
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} dwc3 ehci-hcd ehci-pci uhci-hcd"
@@ -150,7 +151,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -169,7 +170,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} uhci-hcd etxhci-hcd"
@@ -188,7 +189,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} uhci-hcd etxhci-hcd"
@@ -207,7 +208,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} uhci-hcd etxhci-hcd"
@@ -227,7 +228,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST}"
+			MISC_MODULES_LIST="${MISC_MODULES_X86_64_COMMON_LIST}"
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci uhci-hcd"
@@ -243,7 +244,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CRYPTO_MODULES_LIST=${CRYPTO_MODULES_ARM_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
 
-			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST} zlib_deflate"
+			MISC_MODULES_LIST="${MISC_MODULES_ARM_64_COMMON_LIST} zlib_deflate"
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci ehci-orion uhci-hcd"
@@ -262,7 +263,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -278,7 +279,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CRYPTO_MODULES_LIST=${CRYPTO_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
 
-			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST} zlib_deflate"
+			MISC_MODULES_LIST="${MISC_MODULES_X86_64_COMMON_LIST} zlib_deflate"
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -301,7 +302,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -320,7 +321,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -343,7 +344,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -363,7 +364,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
-			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
 			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
@@ -382,6 +383,29 @@ if [ -f "$ConfDir/_modules" ]; then
 			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
 
+			MISC_MODULES_LIST=${MISC_MODULES_X86_64_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
+
+			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci etxhci-hcd uhci-hcd"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
+
+			VXLAN_MODULES="ip_tunnel udp_tunnel ip6_udp_tunnel vxlan"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${VXLAN_MODULES}" "69-docker-vxlan.conf"
+			;;
+		GEMINILAKEVS)
+			# Auto generate video driver conf into /lib/modules-load.d/video.conf
+			VIDEO_DRIVER_LIST="i2c-algo-bit button backlight video fbdev fb drm_panel_orientation_quirks drm cfbimgblt cfbcopyarea cfbfillrect fb_sys_fops sysimgblt sysfillrect syscopyarea drm_kms_helper i915"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${VIDEO_DRIVER_LIST}" "70-video-kernel.conf"
+
+			IPV6_LIST=${IPV6_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${IPV6_LIST}" "70-ipv6-kernel.conf"
+
+			CRYPTO_MODULES_LIST=${CRYPTO_MODULES_X86_64_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
+
+			CPUFREQ_MODULES_LIST=${CPUFREQ_MODULES_X86_64_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
+
 			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
@@ -391,6 +415,7 @@ if [ -f "$ConfDir/_modules" ]; then
 			VXLAN_MODULES="ip_tunnel udp_tunnel ip6_udp_tunnel vxlan"
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${VXLAN_MODULES}" "69-docker-vxlan.conf"
 			;;
+
 		*)
 			;;
 	esac

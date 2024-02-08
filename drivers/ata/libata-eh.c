@@ -182,6 +182,12 @@ static const unsigned long ata_eh_identify_timeouts[] = {
 	ULONG_MAX,
 };
 
+static const unsigned long ata_eh_revalidate_timeouts[] = {
+	15000,	/* Some drives are slow to read log pages when waking-up */
+	15000,  /* combined time till here is enough even for media access */
+	ULONG_MAX,
+};
+
 static const unsigned long ata_eh_flush_timeouts[] = {
 	15000,	/* be generous with flush */
 	15000,  /* ditto */
@@ -223,6 +229,8 @@ static const struct ata_eh_cmd_timeout_ent
 ata_eh_cmd_timeout_table[ATA_EH_CMD_TIMEOUT_TABLE_SIZE] = {
 	{ .commands = CMDS(ATA_CMD_ID_ATA, ATA_CMD_ID_ATAPI),
 	  .timeouts = ata_eh_identify_timeouts, },
+	{ .commands = CMDS(ATA_CMD_READ_LOG_EXT, ATA_CMD_READ_LOG_DMA_EXT),
+	  .timeouts = ata_eh_revalidate_timeouts, },
 	{ .commands = CMDS(ATA_CMD_READ_NATIVE_MAX, ATA_CMD_READ_NATIVE_MAX_EXT),
 	  .timeouts = ata_eh_other_timeouts, },
 	{ .commands = CMDS(ATA_CMD_SET_MAX, ATA_CMD_SET_MAX_EXT),
@@ -753,7 +761,7 @@ END:
 	return;
 }
 
-#if defined(MY_DEF_HERE)
+#if defined(MY_ABC_HERE)
 /* Only internal port would trigger this event */
 void SendLinkDownEvent(struct work_struct *work)
 {
@@ -778,7 +786,7 @@ void SendLinkDownEvent(struct work_struct *work)
 END:
 	return;
 }
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 #endif /* MY_ABC_HERE */
 
@@ -855,9 +863,17 @@ void SendDiskRetryEvent(struct work_struct *work)
 {
 	struct ata_port *ap = container_of(work, struct ata_port, SendDiskRetryEventTask);
 
+#ifdef MY_DEF_HERE
+	if (funcSYNODiskRetryReport) {
+		// eunit is not support
+		// syno_libata_numeric_diskname_number_get return -1 when the sata device is in eunit
+		funcSYNODiskRetryReport(syno_libata_numeric_diskname_number_get(&ap->link), ap->nr_pmp_links);
+	}
+#else /* MY_DEF_HERE */
 	if (funcSYNODiskRetryReport) {
 		funcSYNODiskRetryReport(syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0), ap->nr_pmp_links);
 	}
+#endif /* MY_DEF_HERE */
 
 	return;
 }
@@ -1683,9 +1699,9 @@ acquire_repeat:
 		if (0 == iDetectTries) {
 #endif /* MY_ABC_HERE */
 			ata_port_printk(ap, KERN_ERR, "==== port retry failed ====\n");
-#if defined(MY_DEF_HERE)
+#if defined(MY_ABC_HERE)
 			syno_ata_present_print(ap, "port retry failed");
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 			schedule_work(&(ap->SendPortRetryFailedEventTask));
 #endif /* MY_ABC_HERE */
@@ -1838,9 +1854,9 @@ acquire_repeat:
 	spin_unlock_irqrestore(ap->lock, flags);
 	if (ap->pflags & ATA_PFLAG_FROZEN && 0 == host->host_eh_scheduled) {
 		ata_port_printk(ap, KERN_ERR, "send port disabled event\n");
-#if defined(MY_DEF_HERE)
+#if defined(MY_ABC_HERE)
 		syno_ata_present_print(ap, "send port disabled");
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 		/* send event */
 		schedule_work(&(ap->SendPortDisEventTask));
 	}
@@ -5246,6 +5262,14 @@ static int ata_eh_handle_dev_fail(struct ata_device *dev, int err)
 		ehc->tries[dev->devno] = min(ehc->tries[dev->devno], 1);
 	case -EIO:
 		if (ehc->tries[dev->devno] == 1) {
+
+#ifdef MY_ABC_HERE
+			if (dev->link->ap->pflags & ATA_PFLAG_SYNO_DS_WAKING) {
+				ata_link_warn(dev->link, "Waking up from deep sleep, don't downgrade link speed");
+				break;
+			}
+#endif /* MY_ABC_HERE */
+
 			/* This is the last chance, better to slow
 			 * down than lose it.
 			 */

@@ -336,6 +336,10 @@ static int hiddev_open(struct inode *inode, struct file *file)
 	return 0;
 bail_unlock:
 	mutex_unlock(&hiddev->existancelock);
+
+	spin_lock_irq(&list->hiddev->list_lock);
+	list_del(&list->node);
+	spin_unlock_irq(&list->hiddev->list_lock);
 bail:
 	file->private_data = NULL;
 	vfree(list);
@@ -556,12 +560,16 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd, 
 
 		switch (cmd) {
 		case HIDIOCGUSAGE:
+			if (uref->usage_index >= field->report_count)
+				goto inval;
 			uref->value = field->value[uref->usage_index];
 			if (copy_to_user(user_arg, uref, sizeof(*uref)))
 				goto fault;
 			goto goodreturn;
 
 		case HIDIOCSUSAGE:
+			if (uref->usage_index >= field->report_count)
+				goto inval;
 			field->value[uref->usage_index] = uref->value;
 			goto goodreturn;
 
@@ -931,10 +939,10 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
 			if (hid->collection[i].type == HID_COLLECTION_APPLICATION) {
 				if ((((hid->collection[i].usage & 0xffff) == 2) ||
 					 ((hid->collection[i].usage & 0xffff) == 6)) &&
-					!(hid->name && !memcmp(hid->name, "Raytac Corporation "
-							"Wireless USB Device (2.4G)", 45)) &&
-					!(hid->name && !memcmp(hid->name,
-							"Synology Incorporated", 21))) {
+					memcmp(hid->name, "Raytac Corporation "
+							"Wireless USB Device (2.4G)", 45) &&
+					memcmp(hid->name,
+							"Synology Incorporated", 21)) {
 					continue;
 				}
 				break;
@@ -948,8 +956,8 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
 	if ((hid->collection[i].usage & HID_USAGE_PAGE) == HID_UP_GENDESK &&
 		(((hid->collection[i].usage & 0xffff) == 2) ||
 		 ((hid->collection[i].usage & 0xffff) == 6)) &&
-		(hid->name && !memcmp(hid->name,
-				"Raytac Corporation Wireless USB Device (2.4G)", 45))) {
+		!memcmp(hid->name,
+				"Raytac Corporation Wireless USB Device (2.4G)", 45)) {
 		/*
 		 * The ((hid->collection[i].usage & 0xffff) == 2) is Mouse and
 		 * ((hid->collection[i].usage & 0xffff) == 6) is Keyboard
@@ -963,7 +971,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
 		 */
 		minor_offset = 5;
 	} else if (((hid->collection[i].usage & 0xffff) == 6) &&
-               (hid->name && !memcmp(hid->name, "Synology Incorporated", 21))) {
+               !memcmp(hid->name, "Synology Incorporated", 21)) {
 		minor_offset = 5;
 	} else if (hid->collection[i].usage == UPS_USAGE ||
 		   hid->collection[i].usage == POWER_USAGE) {
@@ -1024,9 +1032,9 @@ void hiddev_disconnect(struct hid_device *hid)
 	hiddev->exist = 0;
 
 	if (hiddev->open) {
-		mutex_unlock(&hiddev->existancelock);
 		usbhid_close(hiddev->hid);
 		wake_up_interruptible(&hiddev->wait);
+		mutex_unlock(&hiddev->existancelock);
 	} else {
 		mutex_unlock(&hiddev->existancelock);
 		kfree(hiddev);

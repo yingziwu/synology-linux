@@ -16,6 +16,9 @@
 #ifdef MY_DEF_HERE
 #include <linux/of.h>
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#include <linux/genhd.h>
+#endif /* MY_DEF_HERE */
 
 #ifdef  MY_ABC_HERE
 extern int gSynoDebugFlag;
@@ -144,6 +147,9 @@ int syno_get_mv_14xx_remap_idx(int origin_idx);
 #define DT_EUNIT "eunit"
 #define DT_I2C_BUS "i2c_bus"
 #define DT_PCIID_LIST "pciid_list"
+#define DT_PHY_ID "phy_id"
+#define DT_MODEL_NAME "model_name"
+#define DT_SAS "sas"
 
 #ifdef MY_ABC_HERE
 #define DT_AHCI_INTERNAL_MODE "internal_mode"
@@ -158,6 +164,11 @@ int syno_get_mv_14xx_remap_idx(int origin_idx);
 #define DT_SYNO_HDD_SMBUS_TYPE "syno_smbus_hdd_type"
 #define DT_SYNO_HDD_SMBUS_ADAPTER "syno_smbus_hdd_adapter"
 #define DT_SYNO_HDD_SMBUS_ADDRESS "syno_smbus_hdd_address"
+
+#define SMBUS_SWITCH_MAX_COUNT 16
+#define DT_SYNO_SMBUS_SWITCH_ADAPTERS "syno_smbus_switch_adapters"
+#define DT_SYNO_SMBUS_SWITCH_ADDRS "syno_smbus_switch_addrs"
+#define DT_SYNO_SMBUS_SWITCH_VALS "syno_smbus_switch_vals"
 #endif /* MY_ABC_HERE */
 
 #define DT_SYNO_PMBUS_ADAPTER "syno_pmbus_adapter"
@@ -346,5 +357,12 @@ void syno_del_eunit_led_remap(struct pci_dev* pdev);
 #ifdef MY_ABC_HERE
 #define SYNO_ATMEGA_NUM_MAX 2
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_DEF_HERE
+struct syno_device_list {
+	char disk_name[DISK_NAME_LEN];
+	struct list_head device_list;
+};
+#endif /* MY_DEF_HERE */
 
 #endif //__SYNOLIB_H_

@@ -815,6 +815,31 @@ out:
 	return ret;
 }
 
+static int syno_rbd_meta_file_mapping_count(struct inode *inode,
+				      struct syno_rbd_meta_ioctl_args __user * argp)
+{
+	int ret;
+	struct syno_rbd_meta_ioctl_args args;
+
+	if (copy_from_user(&args, argp, sizeof(args)))
+		return -EFAULT;
+
+	if (!inode->i_op->syno_rbd_meta_file_mapping)
+		return -EOPNOTSUPP;
+
+	ret = inode->i_op->syno_rbd_meta_file_mapping(inode, &args);
+	if (ret)
+		goto out;
+
+	if (copy_to_user(argp, &args, sizeof(args))) {
+		ret = -EFAULT;
+		goto out;
+	}
+	ret = 0;
+out:
+	return ret;
+}
+
 static int ioctl_syno_rbd_meta(struct file *filp, unsigned int __user *argp)
 {
 	struct syno_rbd_meta_ioctl_args stack;
@@ -842,6 +867,9 @@ static int ioctl_syno_rbd_meta(struct file *filp, unsigned int __user *argp)
 		return -EOPNOTSUPP;
 	case SYNO_RBD_META_MAPPING:
 		return syno_rbd_meta_file_mapping(inode, stack.size,
+			(struct syno_rbd_meta_ioctl_args __user *) argp);
+	case SYNO_RBD_META_MAPPING_COUNT:
+		return syno_rbd_meta_file_mapping_count(inode,
 			(struct syno_rbd_meta_ioctl_args __user *) argp);
 	case SYNO_RBD_META_CLEANUP_ALL:
 		if (sb->s_op->syno_rbd_meta_file_cleanup_all)

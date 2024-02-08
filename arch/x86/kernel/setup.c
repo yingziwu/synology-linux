@@ -521,11 +521,11 @@ END:
  * input: index - disk index, 1-based.
  * return: Pin Number,
  */
-#if defined(MY_DEF_HERE)
+#if defined(MY_ABC_HERE)
 u8 SYNO_GET_HDD_PRESENT_PIN(const int index)
-#else /* MY_DEF_HERE */
+#else /* MY_ABC_HERE */
 static u8 SYNO_GET_HDD_PRESENT_PIN(const int index)
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 {
 	u8 ret = GPIO_UNDEF;
 
@@ -754,9 +754,9 @@ END:
 EXPORT_SYMBOL(SYNO_CTRL_HDD_POWERON);
 EXPORT_SYMBOL(SYNO_CHECK_HDD_ENABLE);
 EXPORT_SYMBOL(SYNO_CHECK_HDD_PRESENT);
-#if defined(MY_DEF_HERE)
+#if defined(MY_ABC_HERE)
 EXPORT_SYMBOL(SYNO_GET_HDD_PRESENT_PIN);
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 EXPORT_SYMBOL(SYNO_SUPPORT_HDD_DYNAMIC_ENABLE_POWER);
 #endif /* MY_ABC_HERE && MY_ABC_HERE */
 

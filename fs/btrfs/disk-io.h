@@ -44,6 +44,19 @@ static inline u64 btrfs_sb_offset(int mirror)
 	return BTRFS_SUPER_INFO_OFFSET;
 }
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+struct btrfs_new_fs_root_args {
+#ifdef MY_ABC_HERE
+	/* Preallocated syno delalloc bytes */
+	struct percpu_counter *syno_delalloc_bytes;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	 struct percpu_counter *eb_hit;
+	 struct percpu_counter *eb_miss;
+#endif /* MY_ABC_HERE */
+};
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
+
 struct btrfs_device;
 struct btrfs_fs_devices;
 
@@ -83,7 +96,15 @@ struct btrfs_root *btrfs_read_tree_root(struct btrfs_root *tree_root,
 #endif /* MY_ABC_HERE */
 struct btrfs_root *btrfs_read_fs_root(struct btrfs_root *tree_root,
 				      struct btrfs_key *location);
-int btrfs_init_fs_root(struct btrfs_root *root);
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+void btrfs_free_new_fs_root_args(struct btrfs_new_fs_root_args *args);
+struct btrfs_new_fs_root_args *btrfs_alloc_new_fs_root_args(void);
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
+int btrfs_init_fs_root(struct btrfs_root *root
+#if defined(MY_ABC_HERE)
+					   , struct btrfs_new_fs_root_args *new_fs_root_args
+#endif /* MY_ABC_HERE */
+					   );
 struct btrfs_root *btrfs_lookup_fs_root(struct btrfs_fs_info *fs_info,
 					u64 root_id);
 int btrfs_insert_fs_root(struct btrfs_fs_info *fs_info,
@@ -93,6 +114,12 @@ void btrfs_free_fs_roots(struct btrfs_fs_info *fs_info);
 struct btrfs_root *btrfs_get_fs_root(struct btrfs_fs_info *fs_info,
 				     struct btrfs_key *key,
 				     bool check_ref);
+struct btrfs_root *btrfs_get_new_fs_root(struct btrfs_fs_info *fs_info,
+				     struct btrfs_key *key
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+				     , struct btrfs_new_fs_root_args *new_fs_root_args
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
+				     );
 static inline struct btrfs_root *
 btrfs_read_fs_root_no_name(struct btrfs_fs_info *fs_info,
 			   struct btrfs_key *location)
@@ -157,8 +184,10 @@ static inline struct btrfs_root *btrfs_grab_fs_root(struct btrfs_root *root)
 static inline void btrfs_free_root_eb_monitor(struct btrfs_root *root)
 {
 	if (root) {
-		percpu_counter_destroy(&root->eb_hit);
-		percpu_counter_destroy(&root->eb_miss);
+		if (root->eb_hit)
+			percpu_counter_destroy(root->eb_hit);
+		if (root->eb_miss)
+			percpu_counter_destroy(root->eb_miss);
 	}
 }
 
