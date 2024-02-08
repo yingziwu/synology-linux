@@ -102,8 +102,7 @@ int arch_show_interrupts(struct seq_file *p, int prec)
 	seq_puts(p, "  Rescheduling interrupts\n");
 	seq_printf(p, "%*s: ", prec, "CAL");
 	for_each_online_cpu(j)
-		seq_printf(p, "%10u ", irq_stats(j)->irq_call_count -
-					irq_stats(j)->irq_tlb_count);
+		seq_printf(p, "%10u ", irq_stats(j)->irq_call_count);
 	seq_puts(p, "  Function call interrupts\n");
 	seq_printf(p, "%*s: ", prec, "TLB");
 	for_each_online_cpu(j)
@@ -204,7 +203,6 @@ u64 arch_irq_stat(void)
 	u64 sum = atomic_read(&irq_err_count);
 	return sum;
 }
-
 
 /*
  * do_IRQ handles all normal device IRQ's (the special

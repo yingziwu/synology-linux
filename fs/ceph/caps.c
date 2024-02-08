@@ -40,7 +40,6 @@
  * cluster to release server state.
  */
 
-
 /*
  * Generate readable cap strings for debugging output.
  */
@@ -2030,7 +2029,7 @@ int ceph_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 	if (datasync)
 		goto out;
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 
 	dirty = try_flush_caps(inode, &flush_tid);
 	dout("fsync dirty caps are %s\n", ceph_cap_string(dirty));
@@ -2046,7 +2045,7 @@ int ceph_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 		ret = wait_event_interruptible(ci->i_cap_wq,
 					caps_are_flushed(inode, flush_tid));
 	}
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 out:
 	dout("fsync %p%s result=%d\n", inode, datasync ? " datasync" : "", ret);
 	return ret;
@@ -2184,7 +2183,6 @@ void ceph_early_kick_flushing_caps(struct ceph_mds_client *mdsc,
 			continue;
 		}
 
-
 		/*
 		 * if flushing caps were revoked, we re-send the cap flush
 		 * in client reconnect stage. This guarantees MDS * processes
@@ -2255,7 +2253,6 @@ static void kick_flushing_inode_caps(struct ceph_mds_client *mdsc,
 		spin_unlock(&ci->i_ceph_lock);
 	}
 }
-
 
 /*
  * Take references to capabilities we hold, so that we don't release
@@ -2545,7 +2542,6 @@ void ceph_get_cap_refs(struct ceph_inode_info *ci, int caps)
 	spin_unlock(&ci->i_ceph_lock);
 }
 
-
 /*
  * drop cap_snap that is not associated with any snapshot.
  * we don't need to send FLUSHSNAP message for it.
@@ -2778,7 +2774,6 @@ static void handle_cap_grant(struct ceph_mds_client *mdsc,
 	     inode, cap, mds, seq, ceph_cap_string(newcaps));
 	dout(" size %llu max_size %llu, i_size %llu\n", size, max_size,
 		inode->i_size);
-
 
 	/*
 	 * auth mds of the inode changed. we received the cap export message,

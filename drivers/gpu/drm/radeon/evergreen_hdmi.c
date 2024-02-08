@@ -206,7 +206,7 @@ void evergreen_hdmi_write_sad_regs(struct drm_encoder *encoder,
  * build a AVI Info Frame
  */
 void evergreen_set_avi_packet(struct radeon_device *rdev, u32 offset,
-    unsigned char *buffer, size_t size)
+			      unsigned char *buffer, size_t size)
 {
 	uint8_t *frame = buffer + 3;
 
@@ -384,7 +384,6 @@ void dce4_set_audio_packet(struct drm_encoder *encoder, u32 offset)
 	WREG32_OR(AFMT_AUDIO_PACKET_CONTROL + offset,
 		  AFMT_RESET_FIFO_WHEN_AUDIO_DIS | AFMT_60958_CS_UPDATE);
 }
-
 
 void dce4_set_mute(struct drm_encoder *encoder, u32 offset, bool mute)
 {

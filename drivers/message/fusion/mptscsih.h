@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/drivers/message/fusion/mptscsih.h
  *      High performance SCSI / Fibre Channel SCSI Host device driver.
@@ -90,7 +93,6 @@
 
 #endif
 
-
 typedef struct _internal_cmd {
 	char		*data;		/* data pointer */
 	dma_addr_t	data_dma;	/* data dma address */
@@ -123,6 +125,9 @@ extern int mptscsih_dev_reset(struct scsi_cmnd * SCpnt);
 extern int mptscsih_bus_reset(struct scsi_cmnd * SCpnt);
 extern int mptscsih_host_reset(struct scsi_cmnd *SCpnt);
 extern int mptscsih_bios_param(struct scsi_device * sdev, struct block_device *bdev, sector_t capacity, int geom[]);
+#if defined(MY_DEF_HERE) && defined(MY_DEF_HERE)
+extern int mptscsih_index_get(struct Scsi_Host *host, uint channel, uint id, uint lun);
+#endif /* MY_DEF_HERE && MY_DEF_HERE */
 extern int mptscsih_io_done(MPT_ADAPTER *ioc, MPT_FRAME_HDR *mf, MPT_FRAME_HDR *r);
 extern int mptscsih_taskmgmt_complete(MPT_ADAPTER *ioc, MPT_FRAME_HDR *mf, MPT_FRAME_HDR *r);
 extern int mptscsih_scandv_complete(MPT_ADAPTER *ioc, MPT_FRAME_HDR *mf, MPT_FRAME_HDR *r);

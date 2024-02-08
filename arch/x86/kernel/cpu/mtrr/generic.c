@@ -349,7 +349,7 @@ static void get_fixed_ranges(mtrr_type *frs)
 
 void mtrr_save_fixed_ranges(void *info)
 {
-	if (cpu_has_mtrr)
+	if (boot_cpu_has(X86_FEATURE_MTRR))
 		get_fixed_ranges(mtrr_state.fixed_ranges);
 }
 
@@ -715,7 +715,6 @@ static unsigned long set_mtrr_state(void)
 
 	return change_mask;
 }
-
 
 static unsigned long cr4;
 static DEFINE_RAW_SPINLOCK(set_atomicity_lock);

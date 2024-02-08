@@ -1329,8 +1329,6 @@ static inline int usage_match(struct lock_list *entry, void *bit)
 	return entry->class->usage_mask & (1 << (enum lock_usage_bit)bit);
 }
 
-
-
 /*
  * Find a node in the forwards-direction dependency sub-graph starting
  * at @root->class that matches @bit.
@@ -3666,11 +3664,13 @@ void lockdep_set_current_reclaim_state(gfp_t gfp_mask)
 {
 	current->lockdep_reclaim_gfp = gfp_mask;
 }
+EXPORT_SYMBOL_GPL(lockdep_set_current_reclaim_state);
 
 void lockdep_clear_current_reclaim_state(void)
 {
 	current->lockdep_reclaim_gfp = 0;
 }
+EXPORT_SYMBOL_GPL(lockdep_clear_current_reclaim_state);
 
 #ifdef CONFIG_LOCK_STAT
 static int

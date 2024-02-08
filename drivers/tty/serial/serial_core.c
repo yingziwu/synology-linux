@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Driver core for serial ports
  *
@@ -747,7 +750,6 @@ static int uart_set_info(struct tty_struct *tty, struct tty_port *port,
 			ASYNC_CLOSING_WAIT_NONE :
 			msecs_to_jiffies(new_info->closing_wait * 10);
 
-
 	change_irq  = !(uport->flags & UPF_FIXED_PORT)
 		&& new_info->irq != uport->irq;
 
@@ -1217,7 +1219,6 @@ uart_ioctl(struct tty_struct *tty, unsigned int cmd,
 	struct tty_port *port = &state->port;
 	void __user *uarg = (void __user *)arg;
 	int ret = -ENOIOCTLCMD;
-
 
 	/*
 	 * These ioctls don't rely on the hardware to be present.
@@ -2553,7 +2554,6 @@ static ssize_t uart_get_attr_xmit_fifo_size(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d\n", tmp.xmit_fifo_size);
 }
 
-
 static ssize_t uart_get_attr_close_delay(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
@@ -2563,7 +2563,6 @@ static ssize_t uart_get_attr_close_delay(struct device *dev,
 	uart_get_info(port, &tmp);
 	return snprintf(buf, PAGE_SIZE, "%d\n", tmp.close_delay);
 }
-
 
 static ssize_t uart_get_attr_closing_wait(struct device *dev,
 	struct device_attribute *attr, char *buf)
@@ -2615,6 +2614,21 @@ static ssize_t uart_get_attr_iomem_reg_shift(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d\n", tmp.iomem_reg_shift);
 }
 
+#ifdef MY_ABC_HERE
+#define UART_MSR              0x6
+static ssize_t uart_get_attr_msr_read(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	struct tty_port *port = dev_get_drvdata(dev);
+	struct uart_state *state = container_of(port, struct uart_state, port);
+	struct uart_port *uport = state->uart_port;
+	unsigned int msr = 0;
+
+	msr = uport->serial_in(uport, UART_MSR);
+	return snprintf(buf, PAGE_SIZE, "%x\n", msr);
+}
+#endif /* MY_ABC_HERE */
+
 static DEVICE_ATTR(type, S_IRUSR | S_IRGRP, uart_get_attr_type, NULL);
 static DEVICE_ATTR(line, S_IRUSR | S_IRGRP, uart_get_attr_line, NULL);
 static DEVICE_ATTR(port, S_IRUSR | S_IRGRP, uart_get_attr_port, NULL);
@@ -2628,6 +2642,9 @@ static DEVICE_ATTR(custom_divisor, S_IRUSR | S_IRGRP, uart_get_attr_custom_divis
 static DEVICE_ATTR(io_type, S_IRUSR | S_IRGRP, uart_get_attr_io_type, NULL);
 static DEVICE_ATTR(iomem_base, S_IRUSR | S_IRGRP, uart_get_attr_iomem_base, NULL);
 static DEVICE_ATTR(iomem_reg_shift, S_IRUSR | S_IRGRP, uart_get_attr_iomem_reg_shift, NULL);
+#ifdef MY_ABC_HERE
+static DEVICE_ATTR(msr, S_IRUSR | S_IRGRP, uart_get_attr_msr_read, NULL);
+#endif /* MY_ABC_HERE */
 
 static struct attribute *tty_dev_attrs[] = {
 	&dev_attr_type.attr,
@@ -2643,6 +2660,9 @@ static struct attribute *tty_dev_attrs[] = {
 	&dev_attr_io_type.attr,
 	&dev_attr_iomem_base.attr,
 	&dev_attr_iomem_reg_shift.attr,
+#ifdef MY_ABC_HERE
+	&dev_attr_msr.attr,
+#endif /* MY_ABC_HERE */
 	NULL,
 	};
 

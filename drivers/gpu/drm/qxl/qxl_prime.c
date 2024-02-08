@@ -38,7 +38,6 @@ void qxl_gem_prime_unpin(struct drm_gem_object *obj)
 	WARN_ONCE(1, "not implemented");
 }
 
-
 struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj)
 {
 	WARN_ONCE(1, "not implemented");
@@ -68,5 +67,5 @@ int qxl_gem_prime_mmap(struct drm_gem_object *obj,
 		       struct vm_area_struct *area)
 {
 	WARN_ONCE(1, "not implemented");
-	return ENOSYS;
+	return -ENOSYS;
 }

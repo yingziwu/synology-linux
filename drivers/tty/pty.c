@@ -767,7 +767,6 @@ static int ptmx_open(struct inode *inode, struct file *filp)
 	if (index < 0)
 		goto out_put_ref;
 
-
 	mutex_lock(&tty_mutex);
 	tty = tty_init_dev(ptm_driver, index);
 	/* The tty returned here is locked so we can safely

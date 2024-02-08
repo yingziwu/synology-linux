@@ -339,8 +339,8 @@ static struct dma_buf_ops vb2_vmalloc_dmabuf_ops = {
 	.detach = vb2_vmalloc_dmabuf_ops_detach,
 	.map_dma_buf = vb2_vmalloc_dmabuf_ops_map,
 	.unmap_dma_buf = vb2_vmalloc_dmabuf_ops_unmap,
-	.kmap = vb2_vmalloc_dmabuf_ops_kmap,
-	.kmap_atomic = vb2_vmalloc_dmabuf_ops_kmap,
+	.map = vb2_vmalloc_dmabuf_ops_kmap,
+	.map_atomic = vb2_vmalloc_dmabuf_ops_kmap,
 	.vmap = vb2_vmalloc_dmabuf_ops_vmap,
 	.mmap = vb2_vmalloc_dmabuf_ops_mmap,
 	.release = vb2_vmalloc_dmabuf_ops_release,
@@ -370,7 +370,6 @@ static struct dma_buf *vb2_vmalloc_get_dmabuf(void *buf_priv, unsigned long flag
 	return dbuf;
 }
 #endif /* CONFIG_HAS_DMA */
-
 
 /*********************************************/
 /*       callbacks for DMABUF buffers        */
@@ -421,7 +420,6 @@ static void *vb2_vmalloc_attach_dmabuf(void *alloc_ctx, struct dma_buf *dbuf,
 
 	return buf;
 }
-
 
 const struct vb2_mem_ops vb2_vmalloc_memops = {
 	.alloc		= vb2_vmalloc_alloc,

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * mm/page-writeback.c
  *
@@ -429,6 +432,9 @@ void global_dirty_limits(unsigned long *pbackground, unsigned long *pdirty)
 	*pbackground = gdtc.bg_thresh;
 	*pdirty = gdtc.thresh;
 }
+#ifdef MY_ABC_HERE
+EXPORT_SYMBOL(global_dirty_limits);
+#endif /* MY_ABC_HERE */
 
 /**
  * zone_dirty_limit - maximum number of dirty pages allowed in a zone
@@ -2816,7 +2822,11 @@ EXPORT_SYMBOL(mapping_tagged);
  */
 void wait_for_stable_page(struct page *page)
 {
+#ifdef MY_ABC_HERE
+	if (bdi_cap_stable_pages_required(&syno_backing_dev_info) || bdi_cap_stable_pages_required(inode_to_bdi(page->mapping->host)))
+#else /* MY_ABC_HERE */
 	if (bdi_cap_stable_pages_required(inode_to_bdi(page->mapping->host)))
+#endif /* MY_ABC_HERE */
 		wait_on_page_writeback(page);
 }
 EXPORT_SYMBOL_GPL(wait_for_stable_page);

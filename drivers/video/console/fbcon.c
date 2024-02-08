@@ -135,7 +135,7 @@ static char fontname[40];
 static int info_idx = -1;
 
 /* console rotation */
-static int initial_rotation;
+static int initial_rotation = -1;
 static int fbcon_has_sysfs;
 
 static const struct consw fb_con;
@@ -345,7 +345,6 @@ static int get_color(struct vc_data *vc, struct fb_info *info,
 		color &= 7;
 		break;
 	}
-
 
 	return color;
 }
@@ -688,7 +687,6 @@ static int fbcon_invalid_charcount(struct fb_info *info, unsigned charcount)
 
 #endif /* CONFIG_MISC_TILEBLITTING */
 
-
 static int con2fb_acquire_newinfo(struct vc_data *vc, struct fb_info *info,
 				  int unit, int oldidx)
 {
@@ -843,7 +841,6 @@ static int set_con2fb_map(int unit, int newidx, int user)
 	if (!err && !found)
  		err = con2fb_acquire_newinfo(vc, info, unit, oldidx);
 
-
 	/*
 	 * If old fb is not mapped to any of the consoles,
 	 * fbcon should release it.
@@ -960,6 +957,9 @@ static const char *fbcon_startup(void)
 	ops->cur_blink_jiffies = HZ / 5;
 	info->fbcon_par = ops;
 	p->con_rotate = initial_rotation;
+    if (p->con_rotate == -1)
+		p->con_rotate = info->fbcon_rotate_hint;
+
 	set_blitting_type(vc, info);
 
 	if (info->fix.type != FB_TYPE_TEXT) {
@@ -1097,6 +1097,9 @@ static void fbcon_init(struct vc_data *vc, int init)
 	ops = info->fbcon_par;
 	ops->cur_blink_jiffies = msecs_to_jiffies(vc->vc_cur_blink_ms);
 	p->con_rotate = initial_rotation;
+	if (p->con_rotate == -1)
+		p->con_rotate = info->fbcon_rotate_hint;
+
 	set_blitting_type(vc, info);
 
 	cols = vc->vc_cols;
@@ -2004,7 +2007,6 @@ static int fbcon_scroll(struct vc_data *vc, int t, int b, int dir,
 	return 0;
 }
 
-
 static void fbcon_bmove(struct vc_data *vc, int sy, int sx, int dy, int dx,
 			int height, int width)
 {
@@ -2317,7 +2319,6 @@ static void fbcon_generic_blank(struct vc_data *vc, struct fb_info *info,
 		fbcon_clear(vc, 0, 0, vc->vc_rows, vc->vc_cols);
 		vc->vc_video_erase_char = oldc;
 	}
-
 
 	if (!lock_fb_info(info))
 		return;

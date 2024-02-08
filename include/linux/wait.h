@@ -197,6 +197,8 @@ wait_queue_head_t *bit_waitqueue(void *, int);
 	(!__builtin_constant_p(state) ||				\
 		state == TASK_INTERRUPTIBLE || state == TASK_KILLABLE)	\
 
+extern void init_wait_entry(wait_queue_t *__wait, int flags);
+
 /*
  * The below macro ___wait_event() has an explicit shadow of the __ret
  * variable when used from the wait_event_*() macros.
@@ -215,12 +217,7 @@ wait_queue_head_t *bit_waitqueue(void *, int);
 	wait_queue_t __wait;						\
 	long __ret = ret;	/* explicit shadow */			\
 									\
-	INIT_LIST_HEAD(&__wait.task_list);				\
-	if (exclusive)							\
-		__wait.flags = WQ_FLAG_EXCLUSIVE;			\
-	else								\
-		__wait.flags = 0;					\
-									\
+	init_wait_entry(&__wait, exclusive ? WQ_FLAG_EXCLUSIVE : 0);	\
 	for (;;) {							\
 		long __int = prepare_to_wait_event(&wq, &__wait, state);\
 									\
@@ -229,12 +226,7 @@ wait_queue_head_t *bit_waitqueue(void *, int);
 									\
 		if (___wait_is_interruptible(state) && __int) {		\
 			__ret = __int;					\
-			if (exclusive) {				\
-				abort_exclusive_wait(&wq, &__wait,	\
-						     state, NULL);	\
-				goto __out;				\
-			}						\
-			break;						\
+			goto __out;					\
 		}							\
 									\
 		cmd;							\
@@ -549,7 +541,6 @@ do {									\
 	__ret;								\
 })
 
-
 #define __wait_event_freezable_exclusive(wq, condition)			\
 	___wait_event(wq, condition, TASK_INTERRUPTIBLE, 1, 0,		\
 			schedule(); try_to_freeze())
@@ -562,7 +553,6 @@ do {									\
 		__ret = __wait_event_freezable_exclusive(wq, condition);\
 	__ret;								\
 })
-
 
 #define __wait_event_interruptible_locked(wq, condition, exclusive, irq) \
 ({									\
@@ -592,7 +582,6 @@ do {									\
 	__set_current_state(TASK_RUNNING);				\
 	__ret;								\
 })
-
 
 /**
  * wait_event_interruptible_locked - sleep until a condition gets true
@@ -710,7 +699,6 @@ do {									\
 	((condition)							\
 	 ? 0 : __wait_event_interruptible_locked(wq, condition, 1, 1))
 
-
 #define __wait_event_killable(wq, condition)				\
 	___wait_event(wq, condition, TASK_KILLABLE, 0, 0, schedule())
 
@@ -737,7 +725,6 @@ do {									\
 		__ret = __wait_event_killable(wq, condition);		\
 	__ret;								\
 })
-
 
 #define __wait_event_lock_irq(wq, condition, lock, cmd)			\
 	(void)___wait_event(wq, condition, TASK_UNINTERRUPTIBLE, 0, 0,	\
@@ -802,7 +789,6 @@ do {									\
 		break;							\
 	__wait_event_lock_irq(wq, condition, lock, );			\
 } while (0)
-
 
 #define __wait_event_interruptible_lock_irq(wq, condition, lock, cmd)	\
 	___wait_event(wq, condition, TASK_INTERRUPTIBLE, 0, 0,		\
@@ -925,7 +911,6 @@ void prepare_to_wait(wait_queue_head_t *q, wait_queue_t *wait, int state);
 void prepare_to_wait_exclusive(wait_queue_head_t *q, wait_queue_t *wait, int state);
 long prepare_to_wait_event(wait_queue_head_t *q, wait_queue_t *wait, int state);
 void finish_wait(wait_queue_head_t *q, wait_queue_t *wait);
-void abort_exclusive_wait(wait_queue_head_t *q, wait_queue_t *wait, unsigned int mode, void *key);
 long wait_woken(wait_queue_t *wait, unsigned mode, long timeout);
 int woken_wake_function(wait_queue_t *wait, unsigned mode, int sync, void *key);
 int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync, void *key);
@@ -958,7 +943,6 @@ int wake_bit_function(wait_queue_t *wait, unsigned mode, int sync, void *key);
 		INIT_LIST_HEAD(&(wait)->task_list);			\
 		(wait)->flags = 0;					\
 	} while (0)
-
 
 extern int bit_wait(struct wait_bit_key *, int);
 extern int bit_wait_io(struct wait_bit_key *, int);

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (c) 2003-2006, Cluster File Systems, Inc, info@clusterfs.com
  * Written by Alex Tomas <alex@clusterfs.com>
@@ -481,8 +484,18 @@ static int __ext4_ext_check(const char *function, unsigned int line,
 	if (ext_depth(inode) != depth &&
 	    !ext4_extent_block_csum_verify(inode, eh)) {
 		error_msg = "extent tree corrupted";
+#ifdef MY_ABC_HERE
+		ext4_msg(inode->i_sb, KERN_CRIT,
+			" %s:%d: inode#%lu: bad header/extent: %s - magic %x, "
+			"entries %u, max %u(%u), depth %u(%u)",
+			function, line, inode->i_ino,
+			error_msg, le16_to_cpu(eh->eh_magic),
+			le16_to_cpu(eh->eh_entries), le16_to_cpu(eh->eh_max),
+			max, le16_to_cpu(eh->eh_depth), depth);
+#else
 		err = -EFSBADCRC;
 		goto corrupted;
+#endif /* MY_ABC_HERE */
 	}
 	return 0;
 
@@ -740,7 +753,6 @@ ext4_ext_binsearch_idx(struct inode *inode,
 {
 	struct ext4_extent_header *eh = path->p_hdr;
 	struct ext4_extent_idx *r, *l, *m;
-
 
 	ext_debug("binsearch for %u(idx):  ", block);
 
@@ -2137,7 +2149,6 @@ merge:
 	if (!(gb_flags & EXT4_GET_BLOCKS_PRE_IO))
 		ext4_ext_try_to_merge(handle, inode, path, nearex);
 
-
 	/* time to correct all indexes above */
 	err = ext4_ext_correct_indexes(handle, inode, path);
 	if (err)
@@ -2579,7 +2590,6 @@ static int ext4_remove_blocks(handle_t *handle, struct inode *inode,
 			   from, to, le32_to_cpu(ex->ee_block), ee_len);
 	return 0;
 }
-
 
 /*
  * ext4_ext_rm_leaf() Removes the extents associated with the
@@ -4261,7 +4271,6 @@ static int get_implied_cluster_alloc(struct super_block *sb,
 	return 0;
 }
 
-
 /*
  * Block allocation/map/preallocation routine for extents based files
  *
@@ -4329,7 +4338,6 @@ int ext4_ext_map_blocks(handle_t *handle, struct inode *inode,
 		ext4_lblk_t ee_block = le32_to_cpu(ex->ee_block);
 		ext4_fsblk_t ee_start = ext4_ext_pblock(ex);
 		unsigned short ee_len;
-
 
 		/*
 		 * unwritten extents are treated as holes, except that
@@ -4807,7 +4815,7 @@ static long ext4_zero_range(struct file *file, loff_t offset,
 	else
 		max_blocks -= lblk;
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 
 	/*
 	 * Indirect files do not support unwritten extnets
@@ -4910,7 +4918,7 @@ static long ext4_zero_range(struct file *file, loff_t offset,
 out_dio:
 	ext4_inode_resume_unlocked_dio(inode);
 out_mutex:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	return ret;
 }
 
@@ -4981,7 +4989,7 @@ long ext4_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
 	if (mode & FALLOC_FL_KEEP_SIZE)
 		flags |= EXT4_GET_BLOCKS_KEEP_SIZE;
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 
 	/*
 	 * We only support preallocation for extent-based files only
@@ -5014,7 +5022,7 @@ long ext4_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
 						EXT4_I(inode)->i_sync_tid);
 	}
 out:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	trace_ext4_fallocate_exit(inode, offset, max_blocks, ret);
 	return ret;
 }
@@ -5509,7 +5517,7 @@ int ext4_collapse_range(struct inode *inode, loff_t offset, loff_t len)
 			return ret;
 	}
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	/*
 	 * There is no need to overlap collapse range with EOF, in which case
 	 * it is effectively a truncate operation
@@ -5604,7 +5612,7 @@ out_mmap:
 	up_write(&EXT4_I(inode)->i_mmap_sem);
 	ext4_inode_resume_unlocked_dio(inode);
 out_mutex:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	return ret;
 }
 
@@ -5655,7 +5663,7 @@ int ext4_insert_range(struct inode *inode, loff_t offset, loff_t len)
 			return ret;
 	}
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	/* Currently just for extent based files */
 	if (!ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)) {
 		ret = -EOPNOTSUPP;
@@ -5777,7 +5785,7 @@ out_mmap:
 	up_write(&EXT4_I(inode)->i_mmap_sem);
 	ext4_inode_resume_unlocked_dio(inode);
 out_mutex:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	return ret;
 }
 
@@ -5812,8 +5820,8 @@ ext4_swap_extents(handle_t *handle, struct inode *inode1,
 
 	BUG_ON(!rwsem_is_locked(&EXT4_I(inode1)->i_data_sem));
 	BUG_ON(!rwsem_is_locked(&EXT4_I(inode2)->i_data_sem));
-	BUG_ON(!mutex_is_locked(&inode1->i_mutex));
-	BUG_ON(!mutex_is_locked(&inode2->i_mutex));
+	BUG_ON(!inode_is_locked(inode1));
+	BUG_ON(!inode_is_locked(inode2));
 
 	*erp = ext4_es_remove_extent(inode1, lblk1, count);
 	if (unlikely(*erp))

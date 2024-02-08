@@ -29,6 +29,7 @@
 
 #include <drm/drmP.h>
 #include <drm/drm_crtc.h>
+#include <drm/drm_encoder.h>
 
 /**
  * struct drm_encoder_slave_funcs - Entry points exposed by a slave encoder driver
@@ -95,7 +96,7 @@ struct drm_encoder_slave_funcs {
 struct drm_encoder_slave {
 	struct drm_encoder base;
 
-	struct drm_encoder_slave_funcs *slave_funcs;
+	const struct drm_encoder_slave_funcs *slave_funcs;
 	void *slave_priv;
 	void *bus_priv;
 };
@@ -105,7 +106,6 @@ int drm_i2c_encoder_init(struct drm_device *dev,
 			 struct drm_encoder_slave *encoder,
 			 struct i2c_adapter *adap,
 			 const struct i2c_board_info *info);
-
 
 /**
  * struct drm_i2c_encoder_driver
@@ -159,7 +159,6 @@ static inline void drm_i2c_encoder_unregister(struct drm_i2c_encoder_driver *dri
 
 void drm_i2c_encoder_destroy(struct drm_encoder *encoder);
 
-
 /*
  * Wrapper fxns which can be plugged in to drm_encoder_helper_funcs:
  */
@@ -177,6 +176,5 @@ enum drm_connector_status drm_i2c_encoder_detect(struct drm_encoder *encoder,
 	    struct drm_connector *connector);
 void drm_i2c_encoder_save(struct drm_encoder *encoder);
 void drm_i2c_encoder_restore(struct drm_encoder *encoder);
-
 
 #endif

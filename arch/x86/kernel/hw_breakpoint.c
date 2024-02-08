@@ -57,7 +57,6 @@ static DEFINE_PER_CPU(unsigned long, cpu_debugreg[HBP_NUM]);
  */
 static DEFINE_PER_CPU(struct perf_event *, bp_per_reg[HBP_NUM]);
 
-
 static inline unsigned long
 __encode_dr7(int drnum, unsigned int len, unsigned int type)
 {
@@ -232,7 +231,6 @@ int arch_bp_generic_fields(int x86_len, int x86_type,
 	return 0;
 }
 
-
 static int arch_build_bp_info(struct perf_event *bp)
 {
 	struct arch_hw_breakpoint *info = counter_arch_bp(bp);
@@ -300,6 +298,10 @@ static int arch_build_bp_info(struct perf_event *bp)
 			return -EINVAL;
 		if (bp->attr.bp_addr & (bp->attr.bp_len - 1))
 			return -EINVAL;
+
+		if (!boot_cpu_has(X86_FEATURE_BPEXT))
+			return -EOPNOTSUPP;
+
 		/*
 		 * It's impossible to use a range breakpoint to fake out
 		 * user vs kernel detection because bp_len - 1 can't
@@ -307,8 +309,6 @@ static int arch_build_bp_info(struct perf_event *bp)
 		 * breakpoints, then we'll have to check for kprobe-blacklisted
 		 * addresses anywhere in the range.
 		 */
-		if (!cpu_has_bpext)
-			return -EOPNOTSUPP;
 		info->mask = bp->attr.bp_len - 1;
 		info->len = X86_BREAKPOINT_LEN_1;
 	}
@@ -324,7 +324,6 @@ int arch_validate_hwbkpt_settings(struct perf_event *bp)
 	struct arch_hw_breakpoint *info = counter_arch_bp(bp);
 	unsigned int align;
 	int ret;
-
 
 	ret = arch_build_bp_info(bp);
 	if (ret)

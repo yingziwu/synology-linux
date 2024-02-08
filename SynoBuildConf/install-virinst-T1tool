@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cpufreq_modules="freq_table cpufreq_stats cpufreq thermal_sys processor mperf acpi-cpufreq cpufreq_ondemand cpufreq_performance cpufreq_powersave cpufreq_conservative"
+
+for module_name in $cpufreq_modules; do
+	module="`find . -name ${module_name}.ko`"
+	[ -e "${module}" ] && install -Dm644 "${module}" "${TmpInstDir}/lib/modules/${module_name}.ko"
+done
