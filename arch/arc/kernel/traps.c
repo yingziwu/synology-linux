@@ -110,6 +110,7 @@ void do_machine_check_fault(unsigned long cause, unsigned long address,
 	die("Machine Check Exception", regs, address, cause);
 }
 
+
 /*
  * Entry point for traps induced by ARCompact TRAP_S <n> insn
  * This is same family as TRAP0/SWI insn (use the same vector).

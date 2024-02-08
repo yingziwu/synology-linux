@@ -46,6 +46,7 @@
 #define AL_CRYPTO_HASH_MAX_BLOCK_SIZE	SHA512_BLOCK_SIZE
 #define AL_CRYPTO_HASH_MAX_DIGEST_SIZE	SHA512_DIGEST_SIZE
 
+
 static int ahash_init(struct ahash_request *req);
 
 static int ahash_update(struct ahash_request *req);

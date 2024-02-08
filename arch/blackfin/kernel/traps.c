@@ -36,6 +36,7 @@
 # define CHK_DEBUGGER_TRAP_MAYBE() do { } while (0)
 #endif
 
+
 #ifdef CONFIG_DEBUG_VERBOSE
 #define verbose_printk(fmt, arg...) \
 	printk(fmt, ##arg)
@@ -534,6 +535,7 @@ asmlinkage void double_fault_c(struct pt_regs *fp)
 	panic("Double Fault - unrecoverable event");
 
 }
+
 
 void panic_cplb_error(int cplb_panic, struct pt_regs *fp)
 {

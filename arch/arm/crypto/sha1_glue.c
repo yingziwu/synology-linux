@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Cryptographic API.
  * Glue code for the SHA1 Secure Hash Algorithm assembler implementation
@@ -22,12 +25,12 @@
 #include <linux/cryptohash.h>
 #include <linux/types.h>
 #include <crypto/sha.h>
-#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+#if defined(MY_DEF_HERE)
 #include <crypto/sha1_base.h>
-#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#endif /* MY_DEF_HERE */
 #include <asm/byteorder.h>
 
-#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+#if defined(MY_DEF_HERE)
 #include "sha1.h"
 
 asmlinkage void sha1_block_data_order(u32 *digest,
@@ -58,7 +61,7 @@ int sha1_finup_arm(struct shash_desc *desc, const u8 *data,
 	return sha1_final(desc, out);
 }
 EXPORT_SYMBOL_GPL(sha1_finup_arm);
-#else /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#else /* MY_DEF_HERE */
 struct SHA1_CTX {
 	uint32_t h0,h1,h2,h3,h4;
 	u64 count;
@@ -67,6 +70,7 @@ struct SHA1_CTX {
 
 asmlinkage void sha1_block_data_order(struct SHA1_CTX *digest,
 		const unsigned char *data, unsigned int rounds);
+
 
 static int sha1_init(struct shash_desc *desc)
 {
@@ -79,6 +83,7 @@ static int sha1_init(struct shash_desc *desc)
 	sctx->h4 = SHA1_H4;
 	return 0;
 }
+
 
 static int __sha1_update(struct SHA1_CTX *sctx, const u8 *data,
 			       unsigned int len, unsigned int partial)
@@ -103,6 +108,7 @@ static int __sha1_update(struct SHA1_CTX *sctx, const u8 *data,
 	return 0;
 }
 
+
 static int sha1_update(struct shash_desc *desc, const u8 *data,
 			     unsigned int len)
 {
@@ -119,6 +125,7 @@ static int sha1_update(struct shash_desc *desc, const u8 *data,
 	res = __sha1_update(sctx, data, len, partial);
 	return res;
 }
+
 
 /* Add padding and return the message digest. */
 static int sha1_final(struct shash_desc *desc, u8 *out)
@@ -152,6 +159,7 @@ static int sha1_final(struct shash_desc *desc, u8 *out)
 	return 0;
 }
 
+
 static int sha1_export(struct shash_desc *desc, void *out)
 {
 	struct SHA1_CTX *sctx = shash_desc_ctx(desc);
@@ -159,23 +167,25 @@ static int sha1_export(struct shash_desc *desc, void *out)
 	return 0;
 }
 
+
 static int sha1_import(struct shash_desc *desc, const void *in)
 {
 	struct SHA1_CTX *sctx = shash_desc_ctx(desc);
 	memcpy(sctx, in, sizeof(*sctx));
 	return 0;
 }
-#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#endif /* MY_DEF_HERE */
+
 
 static struct shash_alg alg = {
 	.digestsize	=	SHA1_DIGEST_SIZE,
-#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+#if defined(MY_DEF_HERE)
 	.init		=	sha1_base_init,
 	.update		=	sha1_update_arm,
 	.final		=	sha1_final,
 	.finup		=	sha1_finup_arm,
 	.descsize	=	sizeof(struct sha1_state),
-#else /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#else /* MY_DEF_HERE */
 	.init		=	sha1_init,
 	.update		=	sha1_update,
 	.final		=	sha1_final,
@@ -183,7 +193,7 @@ static struct shash_alg alg = {
 	.import		=	sha1_import,
 	.descsize	=	sizeof(struct SHA1_CTX),
 	.statesize	=	sizeof(struct SHA1_CTX),
-#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#endif /* MY_DEF_HERE */
 	.base		=	{
 		.cra_name	=	"sha1",
 		.cra_driver_name=	"sha1-asm",
@@ -194,15 +204,18 @@ static struct shash_alg alg = {
 	}
 };
 
+
 static int __init sha1_mod_init(void)
 {
 	return crypto_register_shash(&alg);
 }
 
+
 static void __exit sha1_mod_fini(void)
 {
 	crypto_unregister_shash(&alg);
 }
+
 
 module_init(sha1_mod_init);
 module_exit(sha1_mod_fini);

@@ -51,6 +51,7 @@ struct nfqnl_instance {
 	unsigned int queue_dropped;
 	unsigned int queue_user_dropped;
 
+
 	u_int16_t queue_num;			/* number of this queue */
 	u_int8_t copy_mode;
 	u_int32_t flags;			/* Set using NFQA_CFG_FLAGS */
@@ -342,6 +343,7 @@ nfqnl_build_packet_message(struct nfqnl_instance *queue,
 		data_len = ACCESS_ONCE(queue->copy_range);
 		if (data_len == 0 || data_len > entskb->len)
 			data_len = entskb->len;
+
 
 		if (!entskb->head_frag ||
 		    skb_headlen(entskb) < L1_CACHE_BYTES ||

@@ -55,6 +55,7 @@ met:
 #include "al_init_eth_kr.h"
 #include "al_hal_serdes.h"
 
+
 /* TODO: fix with more reasonable numbers */
 /* timeout in mSec before auto-negotiation will be terminated */
 #define AL_ETH_KR_AN_TIMEOUT		(500)
@@ -267,11 +268,13 @@ void al_eth_coeff_req_handle(struct al_eth_kr_data *kr_data,
 		__func__, report->c_zero, report->c_plus, report->c_minus);
 }
 
+
 void al_eth_kr_lt_receiver_task_init(struct al_eth_kr_data *kr_data)
 {
 	al_memset(&kr_data->last_lpcoeff, 0, sizeof(struct al_eth_kr_coef_up_data));
 	al_memset(&kr_data->status_report, 0, sizeof(struct al_eth_kr_status_report_data));
 }
+
 
 static al_bool al_eth_lp_coeff_up_change(struct al_eth_kr_data *kr_data,
 					 struct al_eth_kr_coef_up_data *lpcoeff)
@@ -317,6 +320,7 @@ int al_eth_kr_lt_receiver_task_run(struct al_eth_kr_data *kr_data)
 	return 0;
 }
 
+
 /******************************** transmitter side ***************************/
 int al_eth_kr_lt_transmitter_task_init(struct al_eth_kr_data *kr_data)
 {
@@ -349,6 +353,7 @@ int al_eth_kr_lt_transmitter_task_init(struct al_eth_kr_data *kr_data)
 
 	return 0;
 }
+
 
 static al_bool al_eth_kr_lt_all_not_updated(
 			struct al_eth_kr_status_report_data *report)
@@ -510,6 +515,7 @@ int al_eth_kr_lt_transmitter_task_run(struct al_eth_kr_data *kr_data)
 				al_eth_kr_lt_coef_set(&ldcoeff,
 						      kr_data->curr_coeff,
 						      AL_PHY_KR_COEF_UP_DEC);
+
 
 				nextstate = DO_NEXT_TRY;
 			}

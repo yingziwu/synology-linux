@@ -1452,4 +1452,5 @@ static inline void cil_pcd_resume(dwc_otg_core_if_t *core_if)
 		core_if->pcd_cb->resume_wakeup(core_if->pcd_cb->p);
 }
 
+
 #endif

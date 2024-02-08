@@ -106,3 +106,4 @@ struct read_retry_t hinfc610_samsung_read_retry = {
 	.get_rr_param = NULL,
 	.reset_rr_param = hinfc610_samsung_reset_rr_param,
 };
+

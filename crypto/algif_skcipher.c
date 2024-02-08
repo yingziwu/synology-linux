@@ -92,8 +92,10 @@ static int skcipher_alloc_sgl(struct sock *sk)
 		sg_init_table(sgl->sg, MAX_SGL_ENTS + 1);
 		sgl->cur = 0;
 
-		if (sg)
+		if (sg) {
 			scatterwalk_sg_chain(sg, MAX_SGL_ENTS + 1, sgl->sg);
+			sg_unmark_end(sg + (MAX_SGL_ENTS - 1));
+		}
 
 		list_add_tail(&sgl->list, &ctx->tsgl);
 	}
@@ -505,6 +507,7 @@ unlock:
 
 	return copied ?: err;
 }
+
 
 static unsigned int skcipher_poll(struct file *file, struct socket *sock,
 				  poll_table *wait)

@@ -350,6 +350,7 @@ csio_rss_glb_config(struct csio_hw *hw, struct csio_mb *mbp,
 	}
 }
 
+
 /*
  * csio_mb_pfvf - FW Write PF/VF capabilities command helper.
  * @hw: The HW structure

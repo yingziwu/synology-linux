@@ -527,6 +527,7 @@ static void __exit xor_cleanup_module(void)
 module_init(xor_init_module);
 module_exit(xor_cleanup_module);
 
+
 int xor_memxor(unsigned int src_count, unsigned int bytes, void *dest,
 		void **srcs)
 {

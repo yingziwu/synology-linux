@@ -15,6 +15,7 @@
 #include <linux/namei.h>
 #include <linux/poll.h>
 
+
 static loff_t bad_file_llseek(struct file *file, loff_t offset, int whence)
 {
 	return -EIO;
@@ -292,6 +293,7 @@ static const struct inode_operations bad_inode_ops =
 	.listxattr	= bad_inode_listxattr,
 	.removexattr	= bad_inode_removexattr,
 };
+
 
 /*
  * When a filesystem is unable to read an inode due to an I/O error in

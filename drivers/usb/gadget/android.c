@@ -490,6 +490,7 @@ static struct android_usb_function acm_function = {
 	.attributes	= acm_function_attributes,
 };
 
+
 static int
 mtp_function_init(struct android_usb_function *f,
 		struct usb_composite_dev *cdev)
@@ -551,6 +552,7 @@ static struct android_usb_function ptp_function = {
 	.cleanup	= ptp_function_cleanup,
 	.bind_config	= ptp_function_bind_config,
 };
+
 
 struct rndis_function_config {
 	u8      ethaddr[ETH_ALEN];
@@ -743,6 +745,7 @@ static struct android_usb_function rndis_function = {
 	.attributes	= rndis_function_attributes,
 };
 
+
 struct mass_storage_function_config {
 	struct fsg_config fsg;
 	struct fsg_common *common;
@@ -831,6 +834,7 @@ static struct android_usb_function mass_storage_function = {
 	.bind_config	= mass_storage_function_bind_config,
 	.attributes	= mass_storage_function_attributes,
 };
+
 
 static int accessory_function_init(struct android_usb_function *f,
 					struct usb_composite_dev *cdev)
@@ -937,6 +941,7 @@ static struct android_usb_function *supported_functions[] = {
 	&audio_source_function,
 	NULL
 };
+
 
 static int android_init_functions(struct android_usb_function **functions,
 				  struct usb_composite_dev *cdev)
@@ -1149,6 +1154,7 @@ static ssize_t enable_store(struct device *pdev, struct device_attribute *attr,
 	struct android_usb_function *f;
 	int enabled = 0;
 
+
 	if (!cdev)
 		return -ENODEV;
 
@@ -1245,6 +1251,7 @@ field ## _store(struct device *dev, struct device_attribute *attr,	\
 	return strlcpy(buffer, buf, sizeof(buffer));			\
 }									\
 static DEVICE_ATTR(field, S_IRUGO | S_IWUSR, field ## _show, field ## _store);
+
 
 DESCRIPTOR_ATTR(idVendor, "%04x\n")
 DESCRIPTOR_ATTR(idProduct, "%04x\n")
@@ -1449,6 +1456,7 @@ static int android_create_device(struct android_dev *dev)
 	}
 	return 0;
 }
+
 
 static int __init init(void)
 {

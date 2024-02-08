@@ -121,6 +121,7 @@ spufs_setattr(struct dentry *dentry, struct iattr *attr)
 	return 0;
 }
 
+
 static int
 spufs_new_file(struct super_block *sb, struct dentry *dentry,
 		const struct file_operations *fops, umode_t mode,
@@ -554,6 +555,7 @@ static int spufs_create_gang(struct inode *inode,
 	return ret;
 }
 
+
 static struct file_system_type spufs_type;
 
 long spufs_create(struct path *path, struct dentry *dentry,
@@ -802,3 +804,4 @@ module_exit(spufs_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Arnd Bergmann <arndb@de.ibm.com>");
+

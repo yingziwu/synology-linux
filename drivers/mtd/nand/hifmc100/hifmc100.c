@@ -1041,3 +1041,4 @@ int hifmc100_spi_nand_init(struct nand_chip *chip)
 
 	return 0;
 }
+

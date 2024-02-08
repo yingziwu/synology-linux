@@ -607,6 +607,7 @@ static bool vxlan_snoop(struct net_device *dev,
 	return false;
 }
 
+
 /* See if multicast group is already in use by other ID */
 static bool vxlan_group_used(struct vxlan_net *vn,
 			     const struct vxlan_dev *this)
@@ -654,6 +655,7 @@ static int vxlan_join_group(struct net_device *dev)
 
 	return err;
 }
+
 
 /* kernel equivalent to IP_DROP_MEMBERSHIP */
 static int vxlan_leave_group(struct net_device *dev)
@@ -1384,7 +1386,7 @@ static int vxlan_validate(struct nlattr *tb[], struct nlattr *data[])
 
 	if (data[IFLA_VXLAN_ID]) {
 		__u32 id = nla_get_u32(data[IFLA_VXLAN_ID]);
-		if (id >= VXLAN_VID_MASK)
+		if (id >= VXLAN_N_VID)
 			return -ERANGE;
 	}
 

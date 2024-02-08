@@ -22,6 +22,7 @@
 
 #include "ak4671.h"
 
+
 /* codec private data */
 struct ak4671_priv {
 	enum snd_soc_control_type control_type;

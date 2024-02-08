@@ -2030,6 +2030,7 @@ static struct led_info adp8870_leds[] = {
 	},
 };
 
+
 static struct adp8870_backlight_platform_data adp8870_pdata = {
 	.bl_led_assign = ADP8870_BL_D1 | ADP8870_BL_D2 | ADP8870_BL_D3 |
 			 ADP8870_BL_D4 | ADP8870_BL_D5 | ADP8870_BL_D6,	/* 1 = Backlight 0 = Individual LED */
@@ -3043,6 +3044,7 @@ static int __init stamp_init(void)
 }
 
 arch_initcall(stamp_init);
+
 
 static struct platform_device *stamp_early_devices[] __initdata = {
 #if defined(CONFIG_SERIAL_BFIN_CONSOLE) || defined(CONFIG_EARLY_PRINTK)

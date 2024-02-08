@@ -1,6 +1,7 @@
 #ifndef __SND_STM_AUD_TELSS_GLUE_H
 #define __SND_STM_AUD_TELSS_GLUE_H
 
+
 /*
  * Register access macros
  */
@@ -10,6 +11,7 @@
 #define set__AUD_TELSS_REG(ip, offset, shift, mask, value) \
 	writel(((readl(ip->base + offset) & ~(mask << shift)) |	\
 		(((value) & mask) << shift)), ip->base + offset)
+
 
 /*
  * TELSS_IT_PRESCALER
@@ -35,6 +37,7 @@
 		offset__AUD_TELSS_IT_PRESCALER(ip), \
 		shift__AUD_TELSS_IT_PRESCALE__PRESCALE_VAL(ip), \
 		mask__AUD_TELSS_IT_PRESCALE__PRESCALE_VAL(IP), value)
+
 
 /*
  * TELSS_IT_NOISE_SUPP_WID
@@ -131,6 +134,7 @@
 		shift__AUD_CODEC_SLIC_RST_N__ZDS_RST_N(ip), \
 		mask__AUD_CODEC_SLIC_RST_N__ZDS_RST_N(IP), 1)
 
+
 /*
  * TELSS_EXT_CS_N
  */
@@ -200,6 +204,7 @@
 		offset__AUD_TELSS_EXT_CS_N(ip), \
 		shift__AUD_TELSS_EXT_CS_N__ZDS_CS_N(ip), \
 		mask__AUD_TELSS_EXT_CS_N__ZDS_CS_N(IP), 1)
+
 
 /*
  * TELSS_TDM_CTRL
@@ -351,6 +356,7 @@
 		shift__AUD_TELSS_TDM_CTRL__EXT_TDM_DATA_IN_DEL(ip), \
 		mask__AUD_TELSS_TDM_CTRL__EXT_TDM_DATA_IN_DEL(IP), 1)
 
+
 /*
  * TELSS_TDM_DEBUG
  */
@@ -395,5 +401,6 @@
 		offset__AUD_TELSS_TDM_DEBUG(ip), \
 		shift__AUD_TELSS_TDM_DEBUG__TDM_LOOPBACK(ip), \
 		mask__AUD_TELSS_TDM_DEBUG__TDM_LOOPBACK(IP), 0)
+
 
 #endif

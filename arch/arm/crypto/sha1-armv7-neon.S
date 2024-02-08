@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* sha1-armv7-neon.S - ARM/NEON accelerated SHA-1 transform function
  *
  * Copyright © 2013-2014 Jussi Kivilinna <jussi.kivilinna@iki.fi>
@@ -17,6 +20,7 @@
 
 .text
 
+
 /* Context structure */
 
 #define state_h0 0
@@ -24,6 +28,7 @@
 #define state_h2 8
 #define state_h3 12
 #define state_h4 16
+
 
 /* Constants */
 
@@ -37,6 +42,7 @@
 .LK2:	.long K2, K2, K2, K2
 .LK3:	.long K3, K3, K3, K3
 .LK4:	.long K4, K4, K4, K4
+
 
 /* Register macros */
 
@@ -144,6 +150,7 @@
 
 #define dummy(...)
 
+
 /* Input expansion macros. */
 
 /********* Precalc macros for rounds 0-15 *************************************/
@@ -203,6 +210,7 @@
 #define WPRECALC_00_15_12(i,W,W_m04,W_m08,W_m12,W_m16,W_m20,W_m24,W_m28) \
 	vst1.32   {tmp2, tmp3}, [RWK];				\
 
+
 /********* Precalc macros for rounds 16-31 ************************************/
 
 #define WPRECALC_16_31_0(i,W,W_m04,W_m08,W_m12,W_m16,W_m20,W_m24,W_m28) \
@@ -247,6 +255,7 @@
 #define WPRECALC_16_31_11(i,W,W_m04,W_m08,W_m12,W_m16,W_m20,W_m24,W_m28) \
 	vst1.32   {tmp0}, [RWK];
 
+
 /********* Precalc macros for rounds 32-79 ************************************/
 
 #define WPRECALC_32_79_0(i,W,W_m04,W_m08,W_m12,W_m16,W_m20,W_m24,W_m28) \
@@ -279,11 +288,11 @@
 #define WPRECALC_32_79_9(i,W,W_m04,W_m08,W_m12,W_m16,W_m20,W_m24,W_m28) \
 	vst1.32 {tmp0}, [RWK];
 
-#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+#if defined(MY_DEF_HERE)
 #ifdef push
 #undef push
 #endif
-#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#endif /* MY_DEF_HERE */
 
 /*
  * Transform nblks*64 bytes (nblks*16 32-bit words) at DATA.

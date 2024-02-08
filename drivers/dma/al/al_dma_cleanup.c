@@ -47,6 +47,7 @@ static inline void al_dma_cleanup_single_xor_val(
 	struct al_dma_sw_desc	*desc,
 	uint32_t		comp_status);
 
+
 static void al_dma_cleanup_unmap(
 	struct al_dma_chan	*chan,
 	struct al_dma_sw_desc	*desc);

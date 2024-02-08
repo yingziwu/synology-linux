@@ -89,6 +89,7 @@ typedef enum _mvPCIIfMode
 	PCI_IF_MODE_DEVICE
 }PCI_IF_MODE;
 
+
 /* Global Functions prototypes */
 
 /* mvPciIfInit - Initialize PCI interfaces*/

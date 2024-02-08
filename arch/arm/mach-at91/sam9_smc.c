@@ -18,6 +18,7 @@
 
 #include "sam9_smc.h"
 
+
 #define AT91_SMC_CS(id, n)	(smc_base_addr[id] + ((n) * 0x10))
 
 static void __iomem *smc_base_addr[2];

@@ -1394,6 +1394,7 @@ mem_alloc_fail:
 	return -ENOMEM;
 }
 
+
 static void mceusb_dev_disconnect(struct usb_interface *intf)
 {
 	struct usb_device *dev = interface_to_usbdev(intf);

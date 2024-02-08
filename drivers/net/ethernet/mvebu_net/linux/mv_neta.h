@@ -122,4 +122,5 @@ struct mv_neta_pdata {
 #endif
 };
 
+
 #endif  /* LINUX_MV_NETA_H */

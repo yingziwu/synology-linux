@@ -883,6 +883,7 @@ int subsys_cgroup_allow_attach(struct cgroup *cgrp,
 			       struct cgroup_taskset *tset);
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 
+
 #else /* !CONFIG_CGROUPS */
 
 static inline int cgroup_init_early(void) { return 0; }

@@ -108,6 +108,7 @@ void al_print_crc_xaction(struct al_crc_transaction *xaction) {
 	al_dbg(" XOR Valid: %d XOR in: %x XOR out: %x\n",
 			xaction->xor_valid, xaction->in_xor, xaction->res_xor);
 
+
 }
 #else
 #define al_print_desc(x)
@@ -175,6 +176,7 @@ static INLINE void al_crc_memcpy_prep_one_tx_desc(struct al_udma_q *tx_udma_q,
 	tx_desc->tx.buf_ptr = swap64_to_le(buf->addr | vmid_shifted);
 	al_print_desc(tx_desc);
 }
+
 
 /**
  * Get number of rx submission descriptors needed for crc transaction
@@ -273,6 +275,7 @@ void al_crc_memcpy_set_memcpy_rx_descs(struct al_udma_q *rx_udma_q,
 	}
 
 }
+
 
 /**
  * Fill the crc/checksum rx submission descriptors

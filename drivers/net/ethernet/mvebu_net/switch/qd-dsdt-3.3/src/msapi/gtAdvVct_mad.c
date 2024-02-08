@@ -107,6 +107,7 @@ GT_STATUS gvctGetAdvCableDiag_mad
       return GT_FALSE;
     }
 
+
     if(ppuEn != GT_FALSE)
     {
         if(gsysSetPPUEn(dev,ppuEn) != GT_OK)
@@ -119,6 +120,7 @@ GT_STATUS gvctGetAdvCableDiag_mad
     gtSemGive(dev,dev->phyRegsSem);
     return status;
 }
+
 
 /*******************************************************************************
 * gvctGetAdvExtendedStatus_mad

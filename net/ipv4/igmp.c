@@ -117,6 +117,7 @@
 #define IGMP_Query_Response_Interval		(10*HZ)
 #define IGMP_Unsolicited_Report_Count		2
 
+
 #define IGMP_Initial_Report_Delay		(1)
 
 /* IGMP_Initial_Report_Delay is not from IGMP specs!
@@ -195,9 +196,14 @@ static void igmp_start_timer(struct ip_mc_list *im, int max_delay)
 static void igmp_gq_start_timer(struct in_device *in_dev)
 {
 	int tv = net_random() % in_dev->mr_maxdelay;
+	unsigned long exp = jiffies + tv + 2;
+
+	if (in_dev->mr_gq_running &&
+	    time_after_eq(exp, (in_dev->mr_gq_timer).expires))
+		return;
 
 	in_dev->mr_gq_running = 1;
-	if (!mod_timer(&in_dev->mr_gq_timer, jiffies+tv+2))
+	if (!mod_timer(&in_dev->mr_gq_timer, exp))
 		in_dev_hold(in_dev);
 }
 
@@ -226,11 +232,13 @@ static void igmp_mod_timer(struct ip_mc_list *im, int max_delay)
 	spin_unlock_bh(&im->lock);
 }
 
+
 /*
  *	Send an IGMP report.
  */
 
 #define IGMP_SIZE (sizeof(struct igmphdr)+sizeof(struct iphdr)+4)
+
 
 static int is_in(struct ip_mc_list *pmc, struct ip_sf_list *psf, int type,
 	int gdeleted, int sdeleted)
@@ -730,6 +738,7 @@ static void igmp_ifc_event(struct in_device *in_dev)
 	igmp_ifc_start_timer(in_dev, 1);
 }
 
+
 static void igmp_timer_expire(unsigned long data)
 {
 	struct ip_mc_list *im=(struct ip_mc_list *)data;
@@ -842,6 +851,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
 	__be32			group = ih->group;
 	int			max_delay;
 	int			mark = 0;
+
 
 	if (len == 8) {
 		if (ih->code == 0) {
@@ -1005,6 +1015,7 @@ drop:
 }
 
 #endif
+
 
 /*
  *	Add a filter to a device
@@ -1206,9 +1217,11 @@ static void igmp_group_added(struct ip_mc_list *im)
 #endif
 }
 
+
 /*
  *	Multicast list managers
  */
+
 
 /*
  *	A socket has joined a multicast group on device dev.
@@ -1462,6 +1475,7 @@ static struct in_device *ip_mc_find_dev(struct net *net, struct ip_mreqn *imr)
  */
 int sysctl_igmp_max_memberships __read_mostly = IP_MAX_MEMBERSHIPS;
 int sysctl_igmp_max_msf __read_mostly = IP_MAX_MSF;
+
 
 static int ip_mc_del1_src(struct ip_mc_list *pmc, int sfmode,
 	__be32 *psfsrc)
@@ -1772,6 +1786,7 @@ static void ip_mc_clear_src(struct ip_mc_list *pmc)
 	pmc->sfcount[MCAST_EXCLUDE] = 1;
 }
 
+
 /*
  * Join a multicast group
  */
@@ -1864,7 +1879,7 @@ int ip_mc_leave_group(struct sock *sk, struct ip_mreqn *imr)
 
 	rtnl_lock();
 	in_dev = ip_mc_find_dev(net, imr);
-	if (!in_dev) {
+	if (!imr->imr_ifindex && !imr->imr_address.s_addr && !in_dev) {
 		ret = -ENODEV;
 		goto out;
 	}
@@ -1885,8 +1900,10 @@ int ip_mc_leave_group(struct sock *sk, struct ip_mreqn *imr)
 
 		*imlp = iml->next_rcu;
 
-		ip_mc_dec_group(in_dev, group);
+		if (in_dev)
+			ip_mc_dec_group(in_dev, group);
 		rtnl_unlock();
+
 		/* decrease mem now to avoid the memleak warning */
 		atomic_sub(sizeof(*iml), &sk->sk_omem_alloc);
 		kfree_rcu(iml, rcu);

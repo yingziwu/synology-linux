@@ -203,6 +203,7 @@ TRACE_EVENT(kvm_s390_stop_request,
 		      __entry->action_bits)
 	);
 
+
 /*
  * Trace point for enabling channel I/O instruction support.
  */
@@ -221,6 +222,7 @@ TRACE_EVENT(kvm_s390_enable_css,
 	    TP_printk("enabling channel I/O support (kvm @ %p)\n",
 		      __entry->kvm)
 	);
+
 
 #endif /* _TRACE_KVMS390_H */
 

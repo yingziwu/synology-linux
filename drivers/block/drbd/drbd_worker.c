@@ -40,6 +40,7 @@
 
 static int w_make_ov_request(struct drbd_work *w, int cancel);
 
+
 /* endio handlers:
  *   drbd_md_io_complete (defined here)
  *   drbd_request_endio (defined here)
@@ -52,6 +53,7 @@ static int w_make_ov_request(struct drbd_work *w, int cancel);
  * Try to get the locking right :)
  *
  */
+
 
 /* About the global_state_lock
    Each state transition on an device holds a read lock. In case we have
@@ -218,6 +220,7 @@ void drbd_request_endio(struct bio *bio, int error)
 		 * but do not return any error?! */
 		error = -EIO;
 	}
+
 
 	/* If this request was aborted locally before,
 	 * but now was completed "successfully",

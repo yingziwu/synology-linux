@@ -88,6 +88,7 @@ extern "C" {
 #define AL_REG_BIT_CLEAR(reg, shift)				\
 	AL_REG_BIT_VAL_SET(reg, shift, 0)
 
+
 #define AL_BIT_MASK(n)						\
 	(AL_BIT(n) - 1)
 
@@ -101,6 +102,7 @@ extern "C" {
 /** set bits specified by clear_mask */
 #define AL_REG_MASK_SET(reg, clear_mask)			\
 	((reg) = (((reg) | (clear_mask))))
+
 
 /** clear bits specified by clear_mask, and set bits specified by set_mask */
 #define AL_REG_CLEAR_AND_SET(reg, clear_mask, set_mask)			\
@@ -131,6 +133,7 @@ static inline void al_reg_write8_masked(uint8_t __iomem *reg, uint8_t mask
 	al_reg_write8(reg, AL_MASK_VAL(mask, data, temp));
 }
 
+
 /**
  * 16 bits register masked write
  *
@@ -148,6 +151,7 @@ static inline void al_reg_write16_masked(uint16_t __iomem *reg, uint16_t mask
 	temp = al_reg_read16(reg);
 	al_reg_write16(reg, AL_MASK_VAL(mask, data, temp));
 }
+
 
 /**
  * 32 bits register masked write

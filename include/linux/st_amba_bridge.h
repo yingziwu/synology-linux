@@ -113,6 +113,7 @@ void st_amba_bridge_init(struct st_amba_bridge *plug);
 	.type2.read_ahead	=	st_amba_read_ahead_enabled,	\
 	.type2.threshold	=	32
 
+
 /*
  * Same for USB, though different SOCs seem to use different threshold
  * values. Again they can be overridden.

@@ -231,6 +231,7 @@ static int telss_glue_remove(struct platform_device *pdev)
 	return 0;
 }
 
+
 /*
  * Module initialization.
  */

@@ -121,3 +121,4 @@ static int spi_gd25qxxx_qe_enable(struct hisfc_spi *spi)
 
 	return 0;
 }
+

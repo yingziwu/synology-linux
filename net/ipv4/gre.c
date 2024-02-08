@@ -24,6 +24,7 @@
 #include <net/protocol.h>
 #include <net/gre.h>
 
+
 static const struct gre_protocol __rcu *gre_proto[GREPROTO_MAX] __read_mostly;
 static DEFINE_SPINLOCK(gre_proto_lock);
 
@@ -249,3 +250,4 @@ module_exit(gre_exit);
 MODULE_DESCRIPTION("GRE over IPv4 demultiplexer driver");
 MODULE_AUTHOR("D. Kozlov (xeb@mail.ru)");
 MODULE_LICENSE("GPL");
+

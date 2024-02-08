@@ -125,6 +125,7 @@ static struct syscfg_reset_controller_data stih407_picophyreset_controller = {
 	.channels = stih407_picophyresets,
 };
 
+
 static struct of_device_id stih407_reset_match[] = {
 	{.compatible = "st,stih407-powerdown",
 	 .data = &stih407_powerdown_controller,},

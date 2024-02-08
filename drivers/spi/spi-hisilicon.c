@@ -449,6 +449,7 @@ static int hi_spi_setup(struct spi_device *spi)
 	return 0;
 }
 
+
 static int hi_spi_transfer_one_message(struct spi_master *master,
 		struct spi_message *msg)
 {
@@ -554,6 +555,7 @@ static int hi_spi_unprepare_transfer(struct spi_master *spi)
 {
 	return 0;
 }
+
 
 static int hi_spi_hw_init_cfg(struct hi_spi_driver_data *sdd)
 {
@@ -715,6 +717,7 @@ static int hi_spi_resume(struct platform_device *pdev)
 #define hi_spi_suspend	NULL
 #define	hi_spi_resume	NULL
 #endif /* CONFIG_PM */
+
 
 static struct platform_driver hi_spi_platform_driver = {
 	.probe		= hi_spi_probe,

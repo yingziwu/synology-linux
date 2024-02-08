@@ -8,6 +8,14 @@
 
 struct reset_controller_dev;
 
+/**
+ * struct reset_control_ops
+ *
+ * @reset: for self-deasserting resets, does all necessary
+ *         things to reset the device
+ * @assert: manually assert the reset line, if supported
+ * @deassert: manually deassert the reset line, if supported
+ */
 struct reset_control_ops {
 	int (*reset)(struct reset_controller_dev *rcdev, unsigned long id);
 	int (*assert)(struct reset_controller_dev *rcdev, unsigned long id);
@@ -15,12 +23,24 @@ struct reset_control_ops {
 #if defined (MY_DEF_HERE)
 	int (*is_asserted)(struct reset_controller_dev *rcdev,
 			   unsigned long id);
-#endif  
+#endif /* MY_DEF_HERE */
 };
 
 struct module;
 struct device_node;
 
+/**
+ * struct reset_controller_dev - reset controller entity that might
+ *                               provide multiple reset controls
+ * @ops: a pointer to device specific struct reset_control_ops
+ * @owner: kernel module of the reset controller driver
+ * @list: internal list of reset controller devices
+ * @of_node: corresponding device tree node as phandle target
+ * @of_reset_n_cells: number of cells in reset line specifiers
+ * @of_xlate: translation function to translate from specifier as found in the
+ *            device tree to id as given to the reset control ops
+ * @nr_resets: number of reset controls in this reset controller device
+ */
 struct reset_controller_dev {
 	struct reset_control_ops *ops;
 	struct module *owner;

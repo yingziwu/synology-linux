@@ -925,6 +925,7 @@ static int rtd_ai_cmdtest(struct comedi_device *dev,
 	if (err)
 		return 3;
 
+
 	/* step 4: fix up any arguments */
 
 	if (cmd->chanlist_len > RTD_MAX_CHANLIST) {
@@ -1208,6 +1209,7 @@ static int rtd_ao_rinsn(struct comedi_device *dev,
 
 	for (i = 0; i < insn->n; i++)
 		data[i] = devpriv->ao_readback[chan];
+
 
 	return i;
 }

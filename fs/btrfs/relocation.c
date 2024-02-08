@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2009 Oracle.  All rights reserved.
  *
@@ -523,6 +526,7 @@ static int update_backref_cache(struct btrfs_trans_handle *trans,
 	return 1;
 }
 
+
 static int should_ignore_root(struct btrfs_root *root)
 {
 	struct btrfs_root *reloc_root;
@@ -574,6 +578,12 @@ static int is_cowonly_root(u64 root_objectid)
 	    root_objectid == BTRFS_TREE_LOG_OBJECTID ||
 	    root_objectid == BTRFS_CSUM_TREE_OBJECTID ||
 	    root_objectid == BTRFS_UUID_TREE_OBJECTID ||
+#ifdef MY_ABC_HERE
+	    root_objectid == BTRFS_USRQUOTA_TREE_OBJECTID ||
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	    root_objectid == BTRFS_BLOCK_GROUP_CACHE_TREE_OBJECTID ||
+#endif /* MY_ABC_HERE */
 	    root_objectid == BTRFS_QUOTA_TREE_OBJECTID ||
 	    root_objectid == BTRFS_FREE_SPACE_TREE_OBJECTID)
 		return 1;
@@ -708,8 +718,8 @@ struct backref_node *build_backref_tree(struct reloc_control *rc,
 		err = -ENOMEM;
 		goto out;
 	}
-	path1->reada = 1;
-	path2->reada = 2;
+	path1->reada = READA_FORWARD;
+	path2->reada = READA_FORWARD;
 
 	node = alloc_backref_node(cache);
 	if (!node) {
@@ -1686,7 +1696,12 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
 		ret = btrfs_inc_extent_ref(trans, root, new_bytenr,
 					   num_bytes, parent,
 					   btrfs_header_owner(leaf),
-					   key.objectid, key.offset, 1);
+					   key.objectid, key.offset,
+					   1
+#ifdef MY_ABC_HERE
+					   ,0
+#endif /* MY_ABC_HERE */
+					   );
 		if (ret) {
 			btrfs_abort_transaction(trans, root, ret);
 			break;
@@ -1694,7 +1709,12 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
 
 		ret = btrfs_free_extent(trans, root, bytenr, num_bytes,
 					parent, btrfs_header_owner(leaf),
-					key.objectid, key.offset, 1);
+					key.objectid, key.offset,
+					1
+#ifdef MY_ABC_HERE
+					,0
+#endif /* MY_ABC_HERE */
+					);
 		if (ret) {
 			btrfs_abort_transaction(trans, root, ret);
 			break;
@@ -1870,22 +1890,38 @@ again:
 		ret = btrfs_inc_extent_ref(trans, src, old_bytenr, blocksize,
 					path->nodes[level]->start,
 					src->root_key.objectid, level - 1, 0,
-					1);
+					1
+#ifdef MY_ABC_HERE
+					,0
+#endif /* MY_ABC_HERE */
+					);
 		BUG_ON(ret);
 		ret = btrfs_inc_extent_ref(trans, dest, new_bytenr, blocksize,
-					0, dest->root_key.objectid, level - 1,
-					0, 1);
+					0, dest->root_key.objectid, level - 1, 0,
+					1
+#ifdef MY_ABC_HERE
+					,0
+#endif /* MY_ABC_HERE */
+					);
 		BUG_ON(ret);
 
 		ret = btrfs_free_extent(trans, src, new_bytenr, blocksize,
 					path->nodes[level]->start,
 					src->root_key.objectid, level - 1, 0,
-					1);
+					1
+#ifdef MY_ABC_HERE
+					,0
+#endif /* MY_ABC_HERE */
+					);
 		BUG_ON(ret);
 
 		ret = btrfs_free_extent(trans, dest, old_bytenr, blocksize,
-					0, dest->root_key.objectid, level - 1,
-					0, 1);
+					0, dest->root_key.objectid, level - 1, 0,
+					1
+#ifdef MY_ABC_HERE
+					,0
+#endif /* MY_ABC_HERE */
+					);
 		BUG_ON(ret);
 
 		btrfs_unlock_up_safe(path, 0);
@@ -2101,7 +2137,7 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
 	path = btrfs_alloc_path();
 	if (!path)
 		return -ENOMEM;
-	path->reada = 1;
+	path->reada = READA_FORWARD;
 
 	reloc_root = root->reloc_root;
 	root_item = &reloc_root->root_item;
@@ -2714,7 +2750,12 @@ static int do_relocation(struct btrfs_trans_handle *trans,
 						node->eb->start, blocksize,
 						upper->eb->start,
 						btrfs_header_owner(upper->eb),
-						node->level, 0, 1);
+						node->level, 0,
+						1
+#ifdef MY_ABC_HERE
+						,0
+#endif /* MY_ABC_HERE */
+						);
 			BUG_ON(ret);
 
 			ret = btrfs_drop_subtree(trans, root, eb, upper->eb);
@@ -3509,7 +3550,7 @@ static int find_data_references(struct reloc_control *rc,
 	path = btrfs_alloc_path();
 	if (!path)
 		return -ENOMEM;
-	path->reada = 1;
+	path->reada = READA_FORWARD;
 
 	root = read_fs_root(rc->extent_root->fs_info, ref_root);
 	if (IS_ERR(root)) {
@@ -3906,7 +3947,7 @@ static noinline_for_stack int relocate_block_group(struct reloc_control *rc)
 	path = btrfs_alloc_path();
 	if (!path)
 		return -ENOMEM;
-	path->reada = 1;
+	path->reada = READA_FORWARD;
 
 	ret = prepare_to_relocate(rc);
 	if (ret) {
@@ -4184,6 +4225,7 @@ static struct reloc_control *alloc_reloc_control(struct btrfs_fs_info *fs_info)
  */
 int btrfs_relocate_block_group(struct btrfs_root *extent_root, u64 group_start)
 {
+	struct btrfs_block_group_cache *bg;
 	struct btrfs_fs_info *fs_info = extent_root->fs_info;
 	struct reloc_control *rc;
 	struct inode *inode;
@@ -4192,14 +4234,23 @@ int btrfs_relocate_block_group(struct btrfs_root *extent_root, u64 group_start)
 	int rw = 0;
 	int err = 0;
 
+	bg = btrfs_lookup_block_group(fs_info, group_start);
+	if (!bg)
+		return -ENOENT;
+
+	if (btrfs_pinned_by_swapfile(fs_info, bg)) {
+		btrfs_put_block_group(bg);
+		return -ETXTBSY;
+	}
+
 	rc = alloc_reloc_control(fs_info);
-	if (!rc)
+	if (!rc) {
+		btrfs_put_block_group(bg);
 		return -ENOMEM;
+	}
 
 	rc->extent_root = extent_root;
-
-	rc->block_group = btrfs_lookup_block_group(fs_info, group_start);
-	BUG_ON(!rc->block_group);
+	rc->block_group = bg;
 
 	if (!rc->block_group->ro) {
 		ret = btrfs_set_block_group_ro(extent_root, rc->block_group);
@@ -4331,7 +4382,7 @@ int btrfs_recover_relocation(struct btrfs_root *root)
 	path = btrfs_alloc_path();
 	if (!path)
 		return -ENOMEM;
-	path->reada = -1;
+	path->reada = READA_BACK;
 
 	key.objectid = BTRFS_TREE_RELOC_OBJECTID;
 	key.type = BTRFS_ROOT_ITEM_KEY;

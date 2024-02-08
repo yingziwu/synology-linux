@@ -151,3 +151,4 @@ int stmnand_test_empty_page(uint8_t *ecc_stored, uint8_t *ecc_calc,
 			    int pagesize, int oobsize, int max_bit_errors);
 
 #endif /* ifndef STM_NAND_ECC_H */
+

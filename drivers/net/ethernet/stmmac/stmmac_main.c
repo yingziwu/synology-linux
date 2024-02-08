@@ -1399,6 +1399,8 @@ static int stmmac_open(struct net_device *dev)
 	priv->poll_timer.expires = jiffies + STMMAC_POLL_TIMER;
 	add_timer(&priv->poll_timer);
 
+
+
 	init_timer(&priv->check_timer);
 	priv->check_timer.function = stmmac_check_func;
 	priv->check_timer.data = (unsigned long)dev;
@@ -2472,6 +2474,7 @@ int stmmac_eth_mac_addr(struct net_device *dev, void *p)
 	if (hitoe)
 		/* Update the TOE engine also */
 		tnkhw_macaddress_set(dev->dev_addr, priv->id);
+
 
 	return 0;
 }

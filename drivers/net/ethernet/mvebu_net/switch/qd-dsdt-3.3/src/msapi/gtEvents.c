@@ -78,6 +78,7 @@ GT_STATUS eventSetActive
         len = 7;
     }
 
+
     if(data & ~intMask)
     {
         DBG_INFO(("Invalid event type.\n"));
@@ -207,6 +208,7 @@ GT_STATUS eventGetIntStatus
     return retVal;
 }
 
+
 /*******************************************************************************
 * gvtuGetIntStatus
 *
@@ -329,6 +331,7 @@ GT_STATUS gatuGetIntStatus
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * geventGetDevIntStatus
@@ -472,6 +475,7 @@ GT_STATUS geventGetDevIntStatus
     return retVal;
 }
 
+
 /*******************************************************************************
 * geventSetAgeIntEn
 *
@@ -602,6 +606,7 @@ GT_STATUS geventGetAgeIntEn
     return retVal;
 }
 
+
 /*******************************************************************************
 * geventSetAgeOutIntEn
 *
@@ -728,6 +733,7 @@ GT_STATUS geventGetAgeOutIntEn
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * geventSetOverLimitInt
@@ -1095,6 +1101,7 @@ GT_STATUS eventSetDevInt
     return retVal;
 }
 
+
 /*******************************************************************************
 * gwdSetEvent
 *
@@ -1178,6 +1185,7 @@ GT_STATUS gwdSetEvent
     return retVal;
 }
 
+
 /*******************************************************************************
 * gwdSetSWResetOnWD
 *
@@ -1244,6 +1252,7 @@ GT_STATUS gwdSetSWResetOnWD
     return retVal;
 }
 
+
 /*******************************************************************************
 * gwdGetSWResetOnWD
 *
@@ -1309,6 +1318,7 @@ GT_STATUS gwdGetSWResetOnWD
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gwdGetHistory
@@ -1388,6 +1398,7 @@ GT_STATUS gwdGetHistory
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gwdSetRMUTimeOut
 *
@@ -1450,6 +1461,7 @@ GT_STATUS gwdSetRMUTimeOut
     return retVal;
 }
 
+
 /*******************************************************************************
 * gwdGetRMUTimeOut
 *
@@ -1511,6 +1523,7 @@ GT_STATUS gwdGetRMUTimeOut
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gwdGetEgressWDEvent

@@ -208,6 +208,8 @@ static ssize_t intcp_get_build(struct device *dev,
 static struct device_attribute intcp_build_attr =
 	__ATTR(build,  S_IRUGO, intcp_get_build,  NULL);
 
+
+
 void integrator_init_sysfs(struct device *parent, u32 id)
 {
 	integrator_id = id;

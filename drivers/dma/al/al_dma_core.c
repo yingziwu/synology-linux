@@ -287,6 +287,7 @@ int al_dma_core_init(
 	return err;
 }
 
+
 /******************************************************************************
  ***************************** Fast DMA **************************************/
 #define FAST_DMA_NUM_OF_QUEUES		4
@@ -693,6 +694,7 @@ static inline uint32_t _al_dma_read_reg(const volatile void __iomem *address, in
 		local_irq_restore(flags);
 	}
 
+
 	switch (size) {
 	case sizeof(uint8_t):
 		val_8 = __raw_readb(address);
@@ -748,6 +750,7 @@ uint8_t al_dma_read_reg8(const volatile void __iomem *address)
 	return _al_dma_read_reg(address, sizeof(uint8_t));
 }
 EXPORT_SYMBOL(al_dma_read_reg8);
+
 
 void al_dma_write_reg32(volatile void __iomem *address, u32 val)
 {

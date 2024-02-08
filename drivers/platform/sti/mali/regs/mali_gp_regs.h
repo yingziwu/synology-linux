@@ -62,6 +62,7 @@ typedef enum {
 	MALI400GP_REG_VAL_CMD_SOFT_RESET		= (1<<10), /* only valid for Mali-300 and later */
 } mgp_contr_reg_val_cmd;
 
+
 /**  @defgroup MALIGP2_IRQ
  * Interrupt status of geometry processor.
  *  @see MALIGP2_CTRL_REG_INT_RAWSTAT, MALIGP2_REG_ADDR_MGMT_INT_CLEAR,
@@ -147,6 +148,7 @@ typedef enum {
 #define MALIGP2_REG_VAL_STATUS_MASK_ACTIVE (\
 	MALIGP2_REG_VAL_STATUS_VS_ACTIVE|\
 	MALIGP2_REG_VAL_STATUS_PLBU_ACTIVE)
+
 
 #define MALIGP2_REG_VAL_STATUS_MASK_ERROR (\
 	MALIGP2_REG_VAL_STATUS_BUS_ERROR |\

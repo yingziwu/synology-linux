@@ -3342,6 +3342,7 @@ int uniperif_player_init(struct platform_device *pdev,
 				struct snd_info_entry *snd_info_root);
 int uniperif_player_remove(struct platform_device *pdev);
 
+
 /* uniperiph reader */
 int uniperif_reader_init(struct platform_device *pdev,
 				struct uniperif **uni_reader,

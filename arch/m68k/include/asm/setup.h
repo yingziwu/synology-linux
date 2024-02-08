@@ -24,6 +24,7 @@
 
 #include <uapi/asm/setup.h>
 
+
 #define CL_SIZE COMMAND_LINE_SIZE
 
 #ifndef __ASSEMBLY__
@@ -172,6 +173,7 @@ extern unsigned long m68k_machtype;
 #  define MACH_TYPE (m68k_machtype)
 #endif
 
+
 #ifndef __ASSEMBLY__
 extern unsigned long m68k_cputype;
 extern unsigned long m68k_fputype;
@@ -286,6 +288,7 @@ extern int m68k_is040or060;
 #else
 #  define FPU_IS_EMU (0)
 #endif
+
 
     /*
      *  Miscellaneous

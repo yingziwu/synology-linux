@@ -70,4 +70,5 @@ struct screen_info {
 
 #define VIDEO_CAPABILITY_SKIP_QUIRKS	(1 << 0)
 
+
 #endif /* _UAPI_SCREEN_INFO_H */

@@ -34,6 +34,7 @@
 #include <linux/slab.h>
 #include <linux/workqueue.h>
 
+
 #include <net/tcp.h>
 #include <net/tnkdrv.h>
 
@@ -459,6 +460,7 @@ int tnk_tcp_close(struct sock *sk, int graceful)
 	int err = 0;
 	unsigned long flags;
 	struct tnk_tcp_close_work *work = NULL;
+
 
 	TNK_DBG("%s begin\n", __func__);
 
@@ -1937,6 +1939,7 @@ int tnk_tcp_update(struct sock *sk, int len)
 
 	/* total descriptor needed is more than total descriptor*/
 	WARN_ON(total_nr_frags > TNK_DMA_TX_SIZE);
+
 
 	if (tcp_send_head(sk)) {
 		TNK_DBG("%s: Setting tcp_send_head to NULL\n", __func__);

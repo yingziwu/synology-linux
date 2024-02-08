@@ -401,7 +401,6 @@ static inline int crypto_requires_sync(u32 type, u32 mask)
 	return (type ^ CRYPTO_ALG_ASYNC) & mask & CRYPTO_ALG_ASYNC;
 }
 
-#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
 noinline unsigned long __crypto_memneq(const void *a, const void *b, size_t size);
 
 /**
@@ -418,6 +417,5 @@ static inline int crypto_memneq(const void *a, const void *b, size_t size)
 {
 	return __crypto_memneq(a, b, size) != 0UL ? 1 : 0;
 }
-#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
 
 #endif	/* _CRYPTO_ALGAPI_H */

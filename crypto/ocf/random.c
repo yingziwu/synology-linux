@@ -260,6 +260,7 @@ random_proc(void *arg)
 			schedule();
 		}
 
+
 #ifdef CONFIG_OCF_FIPS
 		if (bufcnt > 0 && rndtest_buf((unsigned char *) &buf[0])) {
 			dprintk("crypto: buffer had fips errors, discarding\n");
@@ -313,3 +314,4 @@ bad_alloc:
 
 	return retval;
 }
+

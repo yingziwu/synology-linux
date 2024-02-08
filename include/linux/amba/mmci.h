@@ -17,6 +17,7 @@ struct embedded_sdio_data {
 };
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 
+
 /*
  * These defines is places here due to access is needed from machine
  * configuration files. The ST Micro version does not have ROD and

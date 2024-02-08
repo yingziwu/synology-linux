@@ -148,12 +148,14 @@ static ssize_t mttsample_read(struct file *filp, char __user *buffer,
 
 	kpprintf("Received Read request... ");
 
+
 	/* ==MTT== in this hypothetical use-case, we trace the value of an irq
 	 * counter before blocking, and after blocking. This fakes tracing the
 	 * blocking read of a sound driver for instance.
 	 * The read is resumed upon completion of a DMA channel.
 	 */
 	val = nb_irqs & 0xFF;
+
 
 	kptrace_write_record("wait_event");
 	wait_event_interruptible_timeout(wq, got_irq, timeout);

@@ -126,4 +126,5 @@ enum mali200_wb_unit_regs {
 #define MALI400_PP_PRODUCT_ID 0xCD07
 #define MALI450_PP_PRODUCT_ID 0xCF07
 
+
 #endif /* _MALI200_REGS_H_ */

@@ -143,6 +143,7 @@ static ssize_t al_crypto_chan_rd_stats_gen(
 	return size;
 }
 
+
 #define al_crypto_chan_init_attr(_name, _group)				\
 static struct al_crypto_chan_attr al_crypto_chan_##_name = {		\
 	.attr	= { .name = __stringify(_name), .mode = S_IRUGO },	\

@@ -54,6 +54,7 @@ static LIST_HEAD(pdev_bus_registered_devices);
 static LIST_HEAD(pdev_bus_removed_devices);
 static DECLARE_WORK(pdev_bus_worker, goldfish_pdev_worker);
 
+
 static void goldfish_pdev_worker(struct work_struct *work)
 {
 	int ret;
@@ -152,23 +153,26 @@ static int goldfish_new_pdev(void)
 static irqreturn_t goldfish_pdev_bus_interrupt(int irq, void *dev_id)
 {
 	irqreturn_t ret = IRQ_NONE;
+
 	while (1) {
 		u32 op = readl(pdev_bus_base + PDEV_BUS_OP);
-		switch (op) {
-		case PDEV_BUS_OP_DONE:
-			return IRQ_NONE;
 
+		switch (op) {
 		case PDEV_BUS_OP_REMOVE_DEV:
 			goldfish_pdev_remove();
+			ret = IRQ_HANDLED;
 			break;
 
 		case PDEV_BUS_OP_ADD_DEV:
 			goldfish_new_pdev();
+			ret = IRQ_HANDLED;
 			break;
+
+		case PDEV_BUS_OP_DONE:
+		default:
+			return ret;
 		}
-		ret = IRQ_HANDLED;
 	}
-	return ret;
 }
 
 static int goldfish_pdev_bus_probe(struct platform_device *pdev)

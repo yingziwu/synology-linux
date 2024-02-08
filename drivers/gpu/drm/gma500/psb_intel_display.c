@@ -453,6 +453,7 @@ static bool psb_intel_crtc_mode_fixup(struct drm_crtc *crtc,
 	return true;
 }
 
+
 /**
  * Return the pipe currently connected to the panel fitter,
  * or -1 if the panel fitter is not present or not in use
@@ -580,6 +581,7 @@ static int psb_intel_crtc_mode_set(struct drm_crtc *crtc,
 	dspcntr |= DISPLAY_PLANE_ENABLE;
 	pipeconf |= PIPEACONF_ENABLE;
 	dpll |= DPLL_VCO_ENABLE;
+
 
 	/* Disable the panel fitter if it was on our pipe */
 	if (psb_intel_panel_fitter_pipe(dev) == pipe)
@@ -953,6 +955,7 @@ static int psb_intel_crtc_cursor_move(struct drm_crtc *crtc, int x, int y)
 	int pipe = psb_intel_crtc->pipe;
 	uint32_t temp = 0;
 	uint32_t addr;
+
 
 	if (x < 0) {
 		temp |= (CURSOR_POS_SIGN << CURSOR_X_SHIFT);

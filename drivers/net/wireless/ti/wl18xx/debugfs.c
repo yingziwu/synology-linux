@@ -32,6 +32,7 @@
 #define WL18XX_DEBUGFS_FWSTATS_FILE_ARRAY(a, b, c) \
 	DEBUGFS_FWSTATS_FILE_ARRAY(a, b, c, wl18xx_acx_statistics)
 
+
 WL18XX_DEBUGFS_FWSTATS_FILE(debug, debug1, "%u");
 WL18XX_DEBUGFS_FWSTATS_FILE(debug, debug2, "%u");
 WL18XX_DEBUGFS_FWSTATS_FILE(debug, debug3, "%u");
@@ -116,6 +117,7 @@ WL18XX_DEBUGFS_FWSTATS_FILE(pwr, connection_out_of_sync, "%u");
 WL18XX_DEBUGFS_FWSTATS_FILE_ARRAY(pwr, cont_miss_bcns_spread,
 				  PWR_STAT_MAX_CONT_MISSED_BCNS_SPREAD);
 WL18XX_DEBUGFS_FWSTATS_FILE(pwr, rcvd_awake_bcns_cnt, "%u");
+
 
 WL18XX_DEBUGFS_FWSTATS_FILE(ps_poll, ps_poll_timeouts, "%u");
 WL18XX_DEBUGFS_FWSTATS_FILE(ps_poll, upsd_timeouts, "%u");

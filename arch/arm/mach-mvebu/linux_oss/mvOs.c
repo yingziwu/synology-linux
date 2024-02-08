@@ -100,6 +100,7 @@ static MV_U32 read_p15_c1(void);
 #define ARM_FEATURE_THUMBEE_OFFS	12
 #define ARM_FEATURE_THUMBEE_MASK	(0xf << ARM_FEATURE_THUMBEE_OFFS)
 
+
 void *mvOsIoCachedMalloc(void *osHandle, MV_U32 size, MV_ULONG *pPhyAddr,
 			  MV_U32 *memHandle)
 {

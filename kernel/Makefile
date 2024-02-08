@@ -26,6 +26,10 @@ obj-y     = fork.o exec_domain.o panic.o \
 	    syno_bootargs.o
 endif # CONFIG_SYNO_LSP_HI3536
 
+ifdef CONFIG_SYNO_KWORK_STAT
+obj-y += workstat.o
+endif
+
 ifdef CONFIG_FUNCTION_TRACER
 # Do not trace debug files and internal ftrace files
 CFLAGS_REMOVE_lockdep.o = -pg

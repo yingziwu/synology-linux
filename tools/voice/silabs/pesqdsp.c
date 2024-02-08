@@ -78,6 +78,7 @@ The user may:
             commercial use other than making said contribution to the ITU.
             Said permission will be provided on a case-by-case basis.
 
+
 ANY OTHER USE OR APPLICATION OF THE PESQ SOFTWARE AND/OR THE PESQ
 ALGORITHM WILL REQUIRE A PESQ LICENCE AGREEMENT, WHICH MAY BE OBTAINED
 FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
@@ -85,6 +86,7 @@ FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
 EACH COMPANY OFFERS OEM LICENSE AGREEMENTS, WHICH COMBINE OEM
 IMPLEMENTATIONS OF THE PESQ ALGORITHM TOGETHER WITH A PESQ PATENT LICENSE
 AGREEMENT. PESQ PATENT-ONLY LICENSE AGREEMENTS MAY BE OBTAINED FROM OPTICOM.
+
 
 ***********************************************************************
 *  OPTICOM GmbH                    *  Psytechnics Limited             *
@@ -186,6 +188,7 @@ float interpolate (float    freq,
     return (float) result;
 }
 
+
 void apply_filter ( float * data, long maxNsamples, int number_of_points, double filter_curve_db [][2] )
 {
     long    n           = maxNsamples - 2 * SEARCHBUFFER * Downsample + DATAPADDING_MSECS  * (Fs / 1000);
@@ -209,6 +212,7 @@ void apply_filter ( float * data, long maxNsamples, int number_of_points, double
     RealFFT (x, pow_of_2);
 
     freq_resolution = (float) Fs / (float) pow_of_2;
+
 
     for (i = 0; i <= pow_of_2/2; i++) {
         factorDb = interpolate (i * freq_resolution, filter_curve_db, number_of_points) - overallGainFilter;

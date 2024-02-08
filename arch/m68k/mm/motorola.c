@@ -303,3 +303,4 @@ void __init paging_init(void)
 			node_set_state(i, N_NORMAL_MEMORY);
 	}
 }
+

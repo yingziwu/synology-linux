@@ -122,7 +122,8 @@ GLOBAL(ftrace_graph_call)
 	jmp ftrace_stub
 #endif
 
-GLOBAL(ftrace_stub)
+/* This is weak to keep gas from relaxing the jumps */
+WEAK(ftrace_stub)
 	retq
 END(ftrace_caller)
 
@@ -193,6 +194,7 @@ ftrace_restore_flags:
 	jmp  ftrace_stub
 
 END(ftrace_regs_caller)
+
 
 #else /* ! CONFIG_DYNAMIC_FTRACE */
 
@@ -272,6 +274,7 @@ GLOBAL(return_to_handler)
 	jmp *%rdi
 #endif
 
+
 #ifndef CONFIG_PREEMPT
 #define retint_kernel retint_restore_args
 #endif
@@ -282,6 +285,7 @@ ENTRY(native_usergs_sysret64)
 	sysretq
 ENDPROC(native_usergs_sysret64)
 #endif /* CONFIG_PARAVIRT */
+
 
 .macro TRACE_IRQS_IRETQ offset=ARGOFFSET
 #ifdef CONFIG_TRACE_IRQFLAGS
@@ -1328,6 +1332,7 @@ zeroentry coprocessor_error do_coprocessor_error
 errorentry alignment_check do_alignment_check
 zeroentry simd_coprocessor_error do_simd_coprocessor_error
 
+
 	/* Reload gs selector with exception handling */
 	/* edi:  new selector */
 ENTRY(native_load_gs_index)
@@ -1628,6 +1633,7 @@ error_bad_iret:
 	jmp error_sti
 	CFI_ENDPROC
 END(error_entry)
+
 
 /* ebx:	no swapgs flag (1: don't need swapgs, 0: need it) */
 ENTRY(error_exit)

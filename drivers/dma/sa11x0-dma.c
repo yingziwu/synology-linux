@@ -390,6 +390,7 @@ static void sa11x0_dma_tasklet(unsigned long arg)
 	dev_dbg(d->slave.dev, "tasklet exit\n");
 }
 
+
 static int sa11x0_dma_alloc_chan_resources(struct dma_chan *chan)
 {
 	return 0;

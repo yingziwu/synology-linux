@@ -2921,6 +2921,7 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
 	else
 		s->flags &= ~__OBJECT_POISON;
 
+
 	/*
 	 * If we are Redzoning then check if there is some space between the
 	 * end of the object and the free pointer. If not then add an

@@ -106,6 +106,7 @@
 
 #define TA_WAIT_BCON(m) max_t(int, (m)->a_wait_bcon, OTG_TIME_A_WAIT_BCON)
 
+
 #define DRIVER_AUTHOR "Mentor Graphics, Texas Instruments, Nokia"
 #define DRIVER_DESC "Inventra Dual-Role USB Controller Driver"
 
@@ -120,6 +121,7 @@ MODULE_DESCRIPTION(DRIVER_INFO);
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:" MUSB_DRIVER_NAME);
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -315,6 +317,7 @@ void musb_read_fifo(struct musb_hw_ep *hw_ep, u16 len, u8 *dst)
 #endif
 
 #endif	/* normal PIO */
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -949,6 +952,7 @@ void musb_start(struct musb *musb)
 	musb_writeb(regs, MUSB_DEVCTL, devctl);
 }
 
+
 static void musb_generic_disable(struct musb *musb)
 {
 	void __iomem	*mbase = musb->mregs;
@@ -1015,6 +1019,7 @@ static void musb_shutdown(struct platform_device *pdev)
 	pm_runtime_put(musb->controller);
 	/* FIXME power down */
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1280,6 +1285,7 @@ static int ep_config_from_table(struct musb *musb)
 	printk(KERN_DEBUG "%s: setup fifo_mode %d\n",
 			musb_driver_name, fifo_mode);
 
+
 done:
 	offset = fifo_setup(musb, hw_ep, &ep0_cfg, 0);
 	/* assert(offset > 0) */
@@ -1318,6 +1324,7 @@ done:
 
 	return 0;
 }
+
 
 /*
  * ep_config_from_hw - when MUSB_C_DYNFIFO_DEF is false

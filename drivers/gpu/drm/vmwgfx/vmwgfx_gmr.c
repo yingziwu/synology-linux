@@ -283,6 +283,7 @@ int vmw_gmr_bind(struct vmw_private *dev_priv,
 	return 0;
 }
 
+
 void vmw_gmr_unbind(struct vmw_private *dev_priv, int gmr_id)
 {
 	if (likely(dev_priv->capabilities & SVGA_CAP_GMR2)) {

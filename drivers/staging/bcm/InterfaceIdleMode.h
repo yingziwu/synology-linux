@@ -12,3 +12,4 @@ INT InterfaceWakeUp(struct bcm_mini_adapter *Adapter);
 
 VOID InterfaceHandleShutdownModeWakeup(struct bcm_mini_adapter *Adapter);
 #endif
+

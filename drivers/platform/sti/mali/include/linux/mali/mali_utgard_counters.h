@@ -38,6 +38,7 @@ typedef enum {
 #define MALI_CINSTR_PP_FIRST_COUNTER MALI_CINSTR_COUNTER_SOURCE_PP
 #define MALI_CINSTR_PP_LAST_COUNTER (MALI_CINSTR_COUNTER_SOURCE_PP + 999)
 
+
 typedef enum {
 	/* EGL counters */
 

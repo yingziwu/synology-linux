@@ -317,6 +317,7 @@ void dwc_otg_cil_remove(dwc_otg_core_if_t *core_if)
 	if (core_if->host_if)
 		DWC_FREE(core_if->host_if);
 
+
 	/** Remove ADP Stuff  */
 	dwc_otg_adp_remove(core_if);
 	if (core_if->core_params)
@@ -609,6 +610,7 @@ int dwc_otg_host_hibernation_restore(dwc_otg_core_if_t *core_if,
 
 	if (!rem_wakeup)
 		dwc_udelay(50);
+
 
 	/* Deassert Reset core */
 	gpwrdn.d32 = 0;
@@ -935,6 +937,7 @@ int dwc_otg_restore_global_regs(dwc_otg_core_if_t *core_if)
 	if (!gr)
 		return -DWC_E_INVALID;
 
+
 	DWC_WRITE_REG32(&core_if->core_global_regs->gotgctl, gr->gotgctl_local);
 	DWC_WRITE_REG32(&core_if->core_global_regs->gintmsk, gr->gintmsk_local);
 	DWC_WRITE_REG32(&core_if->core_global_regs->gusbcfg, gr->gusbcfg_local);
@@ -968,6 +971,7 @@ int dwc_otg_restore_dev_regs(dwc_otg_core_if_t *core_if, int rem_wakeup)
 	if (!dr)
 		return -DWC_E_INVALID;
 
+
 	if (!rem_wakeup) {
 		DWC_WRITE_REG32(&core_if->dev_if->dev_global_regs->dctl,
 				dr->dctl);
@@ -1000,6 +1004,7 @@ int dwc_otg_restore_host_regs(dwc_otg_core_if_t *core_if, int reset)
 
 	if (!hr)
 		return -DWC_E_INVALID;
+
 
 	DWC_WRITE_REG32(&core_if->host_if->host_global_regs->hcfg,
 			hr->hcfg_local);
@@ -1317,6 +1322,7 @@ void dwc_otg_core_init(dwc_otg_core_if_t *core_if)
 		else
 			init_devspd(core_if);
 
+
 		if (core_if->core_params->i2c_enable) {
 			DWC_DEBUGPL(DBG_CIL, "FS_PHY Enabling I2c\n");
 			/* Program GUSBCFG.OtgUtmifsSel to I2C */
@@ -1433,6 +1439,7 @@ void dwc_otg_core_init(dwc_otg_core_if_t *core_if)
 
 	if (core_if->core_params->ahb_single)
 		ahbcfg.b.ahbsingle = 1;
+
 
 	ahbcfg.b.dmaenable = core_if->dma_enable;
 	DWC_WRITE_REG32(&global_regs->gahbcfg, ahbcfg.d32);
@@ -1584,6 +1591,7 @@ void dwc_otg_enable_device_interrupts(dwc_otg_core_if_t *core_if)
 	if (core_if->en_multiple_tx_fifo == 0)
 		intr_mask.b.epmismatch = 1;
 
+
 	/* intr_mask.b.incomplisoout = 1; */
 	intr_mask.b.incomplisoin = 1;
 
@@ -1675,11 +1683,13 @@ void dwc_otg_core_dev_init(dwc_otg_core_if_t *core_if)
 	if (core_if->core_params->dev_out_nak)
 		dcfg.b.endevoutnak = 1;
 
+
 	if (core_if->core_params->cont_on_bna) {
 		dctl_data_t dctl = {.d32 = 0 };
 		dctl.b.encontonbna = 1;
 		DWC_MODIFY_REG32(&dev_if->dev_global_regs->dctl, 0, dctl.d32);
 	}
+
 
 	DWC_WRITE_REG32(&dev_if->dev_global_regs->dcfg, dcfg.d32);
 
@@ -3140,6 +3150,7 @@ void dwc_otg_hc_write_packet(dwc_otg_core_if_t *core_if, dwc_hc_t *hc)
 	else
 		byte_count = remaining_count;
 
+
 	dword_count = (byte_count + 3) / 4;
 
 	if ((((unsigned long)data_buff) & 0x3) == 0) {
@@ -3371,6 +3382,7 @@ void dwc_otg_ep_activate(dwc_otg_core_if_t *core_if, dwc_ep_t *ep)
 
 		}
 
+
 		DWC_WRITE_REG32(addr, depctl.d32);
 		DWC_DEBUGPL(DBG_PCDV, "DEPCTL=%08x\n", DWC_READ_REG32(addr));
 	}
@@ -3599,6 +3611,7 @@ void dwc_otg_ep_deactivate(dwc_otg_core_if_t *core_if, dwc_ep_t *ep)
 	DWC_PRINTF("%s depctl after deactivate %08x\n",
 			__func__, depctl.d32);
 
+
 }
 
 /**
@@ -3789,6 +3802,7 @@ void dwc_otg_ep_start_transfer(dwc_otg_core_if_t *core_if, dwc_ep_t *ep)
 			   += (MAX_PKT_CNT * ep->maxpacket < (ep->total_len
 				- ep->xfer_len)) ? MAX_PKT_CNT * ep->maxpacket
 			   : (ep->total_len - ep->xfer_len);
+
 
 		/* Zero Length Packet? */
 		if ((ep->xfer_len - ep->xfer_count) == 0) {

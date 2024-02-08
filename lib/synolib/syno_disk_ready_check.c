@@ -2,15 +2,17 @@
 #include <linux/bug.h>
 #include <linux/jiffies.h>
 
+#define SZ_SYNO_PROC_DISK_READY "syno_disk_ready_check"
+
 atomic_t syno_disk_not_ready_count = ATOMIC_INIT(0);
 
-void syno_disk_not_ready_count_increase(void)
+static void syno_disk_not_ready_count_increase(void)
 {
 	atomic_inc(&syno_disk_not_ready_count);
 }
 EXPORT_SYMBOL(syno_disk_not_ready_count_increase);
 
-void syno_disk_not_ready_count_decrease(void)
+static void syno_disk_not_ready_count_decrease(void)
 {
 	/*
 	 * The counter shouldn't be decreased to a negative number, so we have to
@@ -26,7 +28,7 @@ EXPORT_SYMBOL(syno_disk_not_ready_count_decrease);
  * Return 0 if any of disks aren't ready and timeout isn't over.
  * Otherwise return 1.
  */
-int syno_scsi_disk_ready_check(void)
+static int syno_scsi_disk_ready_check(void)
 {
 	int ret = 0;
 
@@ -36,4 +38,3 @@ int syno_scsi_disk_ready_check(void)
 
 	return ret;
 }
-EXPORT_SYMBOL(syno_scsi_disk_ready_check);

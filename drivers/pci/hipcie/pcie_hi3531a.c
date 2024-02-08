@@ -68,6 +68,7 @@ static void __arch_get_pcie_res(int controller,
 		return;
 	}
 
+
 	*pmem = &pcie_mem[controller];
 	*pio = &pcie_io[controller];
 
@@ -545,3 +546,4 @@ static void __arch_pcie_sys_exit(void)
 	udelay(1000);
 #endif
 }
+

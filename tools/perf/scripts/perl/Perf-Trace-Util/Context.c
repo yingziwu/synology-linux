@@ -62,6 +62,7 @@ XS(XS_Perf__Trace__Context_common_pc)
     XSRETURN(1);
 }
 
+
 XS(XS_Perf__Trace__Context_common_flags); /* prototype to pass -Wmissing-prototypes */
 XS(XS_Perf__Trace__Context_common_flags)
 {
@@ -83,6 +84,7 @@ XS(XS_Perf__Trace__Context_common_flags)
     }
     XSRETURN(1);
 }
+
 
 XS(XS_Perf__Trace__Context_common_lock_depth); /* prototype to pass -Wmissing-prototypes */
 XS(XS_Perf__Trace__Context_common_lock_depth)
@@ -130,3 +132,4 @@ XS(boot_Perf__Trace__Context)
          call_list(PL_scopestack_ix, PL_unitcheckav);
     XSRETURN_YES;
 }
+

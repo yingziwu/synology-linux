@@ -72,8 +72,10 @@ static u32 mali_global_num_l2_cache_cores = 0;
 
 int mali_l2_max_reads = MALI400_L2_MAX_READS_DEFAULT;
 
+
 /* Local helper functions */
 static _mali_osk_errcode_t mali_l2_cache_send_command(struct mali_l2_cache_core *cache, u32 reg, u32 val);
+
 
 static void mali_l2_cache_counter_lock(struct mali_l2_cache_core *cache)
 {
@@ -362,6 +364,7 @@ static void mali_l2_cache_reset_counters_all(void)
 	}
 }
 
+
 struct mali_l2_cache_core *mali_l2_cache_core_get_glob_l2_core(u32 index)
 {
 	if (mali_global_num_l2_cache_cores > index) {
@@ -494,6 +497,7 @@ void mali_l2_cache_unlock_power_state(struct mali_l2_cache_core *cache)
 }
 
 /* -------- local helper functions below -------- */
+
 
 static _mali_osk_errcode_t mali_l2_cache_send_command(struct mali_l2_cache_core *cache, u32 reg, u32 val)
 {

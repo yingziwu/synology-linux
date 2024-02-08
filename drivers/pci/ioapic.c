@@ -98,6 +98,7 @@ static void ioapic_remove(struct pci_dev *dev)
 	kfree(ioapic);
 }
 
+
 static DEFINE_PCI_DEVICE_TABLE(ioapic_devices) = {
 	{ PCI_DEVICE_CLASS(PCI_CLASS_SYSTEM_PIC_IOAPIC, ~0) },
 	{ PCI_DEVICE_CLASS(PCI_CLASS_SYSTEM_PIC_IOXAPIC, ~0) },

@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __mvPp2PmeHw_h__
 #define __mvPp2PmeHw_h__
 
@@ -258,6 +259,7 @@ typedef struct mv_pp2_pme {
 } MV_PP2_PME_ENTRY;
 /*------------------------------------------------------------*/
 
+
 /* TX packet modification APIs */
 void        mvPp2PmeHwRegs(void);
 void        mvPp2PmeHwCntrs(void);
@@ -292,6 +294,7 @@ MV_STATUS   mvPp2PmePppoeProtoSet(int idx, MV_U16 protocol);
 MV_STATUS   mvPp2PmePppoeEtypeSet(MV_U16 ethertype);
 MV_STATUS   mvPp2PmePppoeLengthSet(MV_U16 length);
 MV_STATUS   mvPp2PmeMaxConfig(int maxsize, int maxinstr, int errdrop);
+
 
 #ifdef __cplusplus
 }

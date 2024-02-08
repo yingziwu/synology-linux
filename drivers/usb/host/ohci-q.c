@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * OHCI HCD (Host Controller Driver) for USB.
  *
@@ -42,11 +45,11 @@ __releases(ohci->lock)
 __acquires(ohci->lock)
 {
 #if defined(CONFIG_SYNO_LSP_HI3536)
-#if defined(CONFIG_SYNO_HI3536)
+#if defined(MY_DEF_HERE)
 	// do nothing
-#else /* CONFIG_SYNO_HI3536 */
+#else /* MY_DEF_HERE */
 	struct device *dev = ohci_to_hcd(ohci)->self.controller;
-#endif /* CONFIG_SYNO_HI3536 */
+#endif /* MY_DEF_HERE */
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 	struct usb_host_endpoint *ep = urb->ep;
 	struct urb_priv *urb_priv;
@@ -106,6 +109,7 @@ __acquires(ohci->lock)
 		}
 	}
 }
+
 
 /*-------------------------------------------------------------------------*
  * ED handling functions
@@ -401,6 +405,7 @@ static void ed_deschedule (struct ohci_hcd *ohci, struct ed *ed)
 		break;
 	}
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -932,10 +937,6 @@ rescan_all:
 		int			completed, modified;
 		__hc32			*prev;
 
-		/* Is this ED already invisible to the hardware? */
-		if (ed->state == ED_IDLE)
-			goto ed_idle;
-
 		/* only take off EDs that the HC isn't using, accounting for
 		 * frame counter wraps and EDs with partially retired TDs
 		 */
@@ -966,14 +967,12 @@ skip_ed:
 		}
 
 		/* ED's now officially unlinked, hc doesn't see */
-		ed->state = ED_IDLE;
 		if (quirk_zfmicro(ohci) && ed->type == PIPE_INTERRUPT)
 			ohci->eds_scheduled--;
 		ed->hwHeadP &= ~cpu_to_hc32(ohci, ED_H);
 		ed->hwNextED = 0;
 		wmb();
 		ed->hwINFO &= ~cpu_to_hc32(ohci, ED_SKIP | ED_DEQUEUE);
-ed_idle:
 
 		/* reentrancy:  if we drop the schedule lock, someone might
 		 * have modified this list.  normally it's just prepending
@@ -1044,6 +1043,7 @@ rescan_this:
 		if (list_empty(&ed->td_list)) {
 			*last = ed->ed_next;
 			ed->ed_next = NULL;
+			ed->state = ED_IDLE;
 		} else if (ohci->rh_state == OHCI_RH_RUNNING) {
 			*last = ed->ed_next;
 			ed->ed_next = NULL;
@@ -1096,6 +1096,8 @@ rescan_this:
 		}
 	}
 }
+
+
 
 /*-------------------------------------------------------------------------*/
 

@@ -1315,6 +1315,7 @@ static void vpapi_release(void)
 	VpOptionEventMaskType event_mask;
 	VpStatusType status;
 
+
 	/* Clear all events */
 	memset(&event_mask, 0xff, sizeof(VpOptionEventMaskType));
 

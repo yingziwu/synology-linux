@@ -37,6 +37,7 @@ struct fixed_voltage_data {
 	int microvolts;
 };
 
+
 /**
  * of_get_fixed_voltage_config - extract fixed_voltage_config structure info
  * @dev: device requesting for fixed_voltage_config

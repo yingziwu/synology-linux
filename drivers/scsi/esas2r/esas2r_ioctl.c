@@ -325,6 +325,7 @@ static u8 handle_smp_ioctl(struct esas2r_adapter *a, struct atto_ioctl_smp *si)
 	return handle_buffered_ioctl(&bi);
 }
 
+
 /* CSMI ioctl support */
 static void esas2r_csmi_ioctl_tunnel_comp_cb(struct esas2r_adapter *a,
 					     struct esas2r_request *rq)
@@ -601,6 +602,7 @@ static int csmi_ioctl_callback(struct esas2r_adapter *a,
 	return false;
 }
 
+
 static void csmi_ioctl_done_callback(struct esas2r_adapter *a,
 				     struct esas2r_request *rq, void *context)
 {
@@ -639,6 +641,7 @@ static void csmi_ioctl_done_callback(struct esas2r_adapter *a,
 
 	ci->status = le32_to_cpu(rq->func_rsp.ioctl_rsp.csmi.csmi_status);
 }
+
 
 static u8 handle_csmi_ioctl(struct esas2r_adapter *a, struct atto_csmi *ci)
 {
@@ -1246,6 +1249,7 @@ u8 handle_hba_ioctl(struct esas2r_adapter *a,
 	return handle_buffered_ioctl(&bi);
 }
 
+
 int esas2r_write_params(struct esas2r_adapter *a, struct esas2r_request *rq,
 			struct esas2r_sas_nvram *data)
 {
@@ -1267,6 +1271,7 @@ int esas2r_write_params(struct esas2r_adapter *a, struct esas2r_request *rq,
 	}
 	return result;
 }
+
 
 /* This function only cares about ATTO-specific ioctls (atto_express_ioctl) */
 int esas2r_ioctl_handler(void *hostdata, int cmd, void __user *arg)
@@ -1483,6 +1488,9 @@ int esas2r_ioctl_handler(void *hostdata, int cmd, void __user *arg)
 					      ioctl->data.ioctl_vda.data_length);
 		}
 
+
+
+
 		break;
 
 	case EXPRESS_IOCTL_GET_MOD_INFO:
@@ -1604,6 +1612,7 @@ int esas2r_read_fw(struct esas2r_adapter *a, char *buf, long off, int count)
 			if (a->firmware.header.action == FI_ACT_UP) {
 				if (!allocate_fw_buffers(a, length))
 					return -ENOMEM;
+
 
 				/* copy header over */
 

@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvEthRegsh
 #define __INCmvEthRegsh
 
@@ -70,6 +71,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include "mvNetaRegs.h"
+
 
 #define ETH_MAX_DECODE_WIN              6
 #define ETH_MAX_HIGH_ADDR_REMAP_WIN     4
@@ -136,6 +138,7 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 #define ETH_PROT_WIN_MASK(winNum)           (0x3 << ETH_PROT_WIN_OFFS(winNum))
 /*-----------------------------------------------------------------------------------------------*/
 
+
 /***** Port Configuration reg (PxCR) *****/
 #define ETH_PORT_CONFIG_REG(port)           (ETH_REG_BASE(port) + 0x2400)
 
@@ -198,6 +201,7 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 #define ETH_VLAN_ETHER_TYPE_REG(port)       (ETH_REG_BASE(port) + 0x2410)
 #define ETH_MAC_ADDR_LOW_REG(port)          (ETH_REG_BASE(port) + 0x2414)
 #define ETH_MAC_ADDR_HIGH_REG(port)         (ETH_REG_BASE(port) + 0x2418)
+
 
 /***** Port Sdma Configuration reg (SDCR) *****/
 #define ETH_SDMA_CONFIG_REG(port)           (ETH_REG_BASE(port) + 0x241c)
@@ -386,6 +390,7 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 #endif /* MV_ETH_GMAC_NEW */
 /*-----------------------------------------------------------------------------------------------*/
 
+
 /***** Transmit Queue Command (TxQC) register *****/
 #define ETH_TX_QUEUE_COMMAND_REG(p, txp)    (NETA_TX_REG_BASE((p), (txp)) + 0x0048)
 
@@ -505,6 +510,7 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 #define ETH_MIB_BAD_CRC_EVENT               0x74
 #define ETH_MIB_COLLISION                   0x78
 #define ETH_MIB_LATE_COLLISION              0x7c
+
 
 #ifndef MV_ETH_GMAC_NEW
 /*****************************************************/

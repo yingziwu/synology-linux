@@ -123,6 +123,7 @@ enum al_udma_ring_type {
 void al_udma_ring_print(struct al_udma *udma, uint32_t qid,
 		enum al_udma_ring_type rtype);
 
+
 /* *INDENT-OFF* */
 #ifdef __cplusplus
 }

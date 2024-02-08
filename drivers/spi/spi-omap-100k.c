@@ -73,6 +73,7 @@
 #define WRITE 0
 #define READ  1
 
+
 /* use PIO for small transfers, avoiding DMA setup/teardown overhead and
  * cache operations; better heuristics consider wordsize and bitrate.
  */
@@ -606,6 +607,7 @@ static struct platform_driver omap1_spi100k_driver = {
 	.remove		= omap1_spi100k_remove,
 };
 
+
 static int __init omap1_spi100k_init(void)
 {
 	omap1_spi100k_wq = create_singlethread_workqueue(
@@ -630,3 +632,4 @@ module_exit(omap1_spi100k_exit);
 MODULE_DESCRIPTION("OMAP7xx SPI 100k controller driver");
 MODULE_AUTHOR("Fabrice Crohas <fcrohas@gmail.com>");
 MODULE_LICENSE("GPL");
+

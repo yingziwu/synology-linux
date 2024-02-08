@@ -265,6 +265,7 @@ void st_fdma_telss_free_chan_resources(struct st_fdma_chan *fchan)
 	st_fdma_dreq_free(fchan, fchan->dreq);
 }
 
+
 /*
  * TELSS dmaengine extensions API
  */

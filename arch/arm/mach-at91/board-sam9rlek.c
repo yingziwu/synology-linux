@@ -32,11 +32,13 @@
 #include <mach/hardware.h>
 #include <mach/at91sam9_smc.h>
 
+
 #include "at91_aic.h"
 #include "at91_shdwc.h"
 #include "board.h"
 #include "sam9_smc.h"
 #include "generic.h"
+
 
 static void __init ek_init_early(void)
 {
@@ -51,6 +53,7 @@ static struct usba_platform_data __initdata ek_usba_udc_data = {
 	.vbus_pin	= AT91_PIN_PA8,
 };
 
+
 /*
  * MCI (SD/MMC)
  */
@@ -61,6 +64,7 @@ static struct mci_platform_data __initdata mci0_data = {
 		.wp_pin		= -EINVAL,
 	},
 };
+
 
 /*
  * NAND flash
@@ -116,6 +120,7 @@ static void __init ek_add_device_nand(void)
 	at91_add_device_nand(&ek_nand_data);
 }
 
+
 /*
  * SPI devices
  */
@@ -127,6 +132,7 @@ static struct spi_board_info ek_spi_devices[] = {
 		.bus_num	= 0,
 	},
 };
+
 
 /*
  * LCD Controller
@@ -188,6 +194,7 @@ static struct atmel_lcdfb_info __initdata ek_lcdc_data = {
 static struct atmel_lcdfb_info __initdata ek_lcdc_data;
 #endif
 
+
 /*
  * AC97
  * reset_pin is not connected: NRST
@@ -195,6 +202,7 @@ static struct atmel_lcdfb_info __initdata ek_lcdc_data;
 static struct ac97c_platform_data ek_ac97_data = {
 	.reset_pin	= -EINVAL,
 };
+
 
 /*
  * LEDs
@@ -219,6 +227,7 @@ static struct gpio_led ek_leds[] = {
 	}
 };
 
+
 /*
  * Touchscreen
  */
@@ -227,6 +236,7 @@ static struct at91_tsadcc_data ek_tsadcc_data = {
 	.pendet_debounce	= 0x0f,
 	.ts_sample_hold_time	= 0x03,
 };
+
 
 /*
  * GPIO Buttons
@@ -275,6 +285,7 @@ static void __init ek_add_device_buttons(void)
 #else
 static void __init ek_add_device_buttons(void) {}
 #endif
+
 
 static void __init ek_board_init(void)
 {

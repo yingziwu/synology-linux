@@ -11,6 +11,7 @@
 #define smp_mb__after_atomic() smp_mb()
 #endif
 
+
 /* from include/acpi/acpi_io.h */
 /* We apparently don't want to include linux/acpi_io.h directly as that
  * can cause build problems in our kernel */
@@ -22,6 +23,7 @@ static inline void __iomem *acpi_os_ioremap(acpi_physical_address phys,
 {
        return ioremap_cache(phys, size);
 }
+
 
 #undef dma_buf_export
 #define dma_buf_export(priv, ops, size, flags, resv)	\

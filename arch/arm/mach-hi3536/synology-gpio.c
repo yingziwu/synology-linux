@@ -25,6 +25,7 @@ int syno_gpio_read(int gpio)
 }
 EXPORT_SYMBOL(syno_gpio_read);
 
+
 #define USB3_GPIO_PIN 45
 #define MANUFACTURING_GPIO_PIN 54
 

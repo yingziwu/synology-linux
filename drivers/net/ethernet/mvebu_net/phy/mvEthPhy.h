@@ -69,6 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+
 #define MV_PHY_88E3061  0x1      /* E3061, E3081 */
 #define MV_PHY_88E104X  0x2      /* E1040, E1041, E1042 */
 #define MV_PHY_88E10X0  0x4      /* E1000, E1010, E1020 */

@@ -1809,6 +1809,7 @@ void __init trap_init(void)
 {
 }
 
+
 #ifdef CONFIG_PPC_EMULATED_STATS
 
 #define WARN_EMULATED_SETUP(type)	.type = { .name = #type }

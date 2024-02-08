@@ -209,6 +209,7 @@ static INLINE int mvPp2LogicRxqToPhysRxq(int port, int rxq)
 	return -1;
 }
 
+
 /************************** TXQ: Physical - Logical Mapping ******************************/
 #ifdef MV_PP2_PON_EXIST
 
@@ -309,6 +310,7 @@ static INLINE MV_PP2_AGGR_TXQ_CTRL *mvPp2AggrTxqHndlGet(int cpu)
 {
 	return &mvPp2AggrTxqs[cpu];
 }
+
 
 /* Get pointer to next RX descriptor to be processed by SW */
 static INLINE PP2_RX_DESC *mvPp2RxqNextDescGet(MV_PP2_PHYS_RXQ_CTRL *pRxq)
@@ -477,6 +479,7 @@ static INLINE int mvPp2TxqPendRsrvdDescNumGet(int port, int txp, int txq)
 
 	return (regVal & MV_PP2_TXQ_RSVD_DESC_OFFSET) >> MV_PP2_TXQ_RSVD_DESC_OFFSET;
 }
+
 
 /*
    PPv2.1 field removed, MAS 3.16

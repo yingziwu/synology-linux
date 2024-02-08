@@ -103,6 +103,8 @@
 #define BPA2_RES_PREFIX "bpa2:"
 #define BPA2_RES_PREFIX_LEN 5
 
+
+
 struct bpa2_range {
 	struct bpa2_range *next;
 	unsigned long base; /* base of allocated block */
@@ -128,6 +130,8 @@ struct bpa2_part {
 	char res_name_prefix[BPA2_RES_PREFIX_LEN]; /* resource name prefix */
 	char names[1]; /* will be expanded during allocation */
 };
+
+
 
 static LIST_HEAD(bpa2_parts);
 static struct bpa2_part *bpa2_bigphysarea_part;
@@ -178,6 +182,7 @@ is_mem_low_or_high(unsigned long start,
 
 	return CROSSING_LOGICAL_MEMORY;
 }
+
 
 /* Names form one looong string of fixed-size slots */
 static int bpa2_names_size(int names_cnt)
@@ -499,6 +504,8 @@ static int __init bpa2_parts_setup(char *str)
 }
 __setup("bpa2parts=", bpa2_parts_setup);
 
+
+
 /**
  * bpa2_find_part - find a bpa2 partition based on its name
  * @name: name of the partition to find
@@ -752,6 +759,8 @@ unsigned long bpa2_free_pages(struct bpa2_part *part, unsigned long base)
 }
 EXPORT_SYMBOL(bpa2_free_pages);
 
+
+
 caddr_t	__bigphysarea_alloc_pages(int count, int align, int priority,
 		const char *trace_file, int trace_line)
 {
@@ -777,6 +786,8 @@ void bigphysarea_free_pages(caddr_t mapped_addr)
 	bpa2_free_pages(bpa2_bigphysarea_part, addr);
 }
 EXPORT_SYMBOL(bigphysarea_free_pages);
+
+
 
 #ifdef CONFIG_DEBUG_FS
 
@@ -912,6 +923,8 @@ static int __init bpa2_debugfs_init(void)
 subsys_initcall(bpa2_debugfs_init);
 
 #endif /* CONFIG_DEBUG_FS */
+
+
 
 void bpa2_memory(struct bpa2_part *part, unsigned long *base,
 		 unsigned long *size)

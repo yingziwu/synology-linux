@@ -233,6 +233,7 @@ void set_eosp_transmit_ctrl(unifi_priv_t *priv, struct list_head *txList)
     struct list_head *placeHolder;
     unsigned long lock_flags;
 
+
     unifi_trace(priv, UDBG5, "entering set_eosp_transmit_ctrl\n");
     /* check for list empty */
     if (list_empty(txList)) {
@@ -400,6 +401,8 @@ CsrResult enque_tx_data_pdu(unifi_priv_t *priv, bulk_data_param_t *bulkdata,
         verify_and_accomodate_tx_packet(priv);
     }
 
+
+
     tx_q_item = kmalloc(sizeof(tx_buffered_packets_t), GFP_ATOMIC);
     if (tx_q_item == NULL) {
         unifi_error(priv,
@@ -423,6 +426,8 @@ CsrResult enque_tx_data_pdu(unifi_priv_t *priv, bulk_data_param_t *bulkdata,
     tx_q_item->priority = req->Priority;
     tx_q_item->rate = req->TransmitRate;
     memcpy(tx_q_item->peerMacAddress.a, req->Ra.x, ETH_ALEN);
+
+
 
     if (requeueOnSamePos) {
         list_add(&tx_q_item->q, list);
@@ -862,6 +867,7 @@ void update_tim(unifi_priv_t * priv, u16 aid, u8 setTim, u16 interfaceTag, u32 h
 
     unifi_trace(priv, UDBG5, "entering the update_tim routine\n");
 
+
     if (handle == 0xFFFFFFFF) {
         handle &= CSR_WIFI_BROADCAST_OR_MULTICAST_HANDLE;
         if (setTim == interfacePriv->bcTimSet)
@@ -906,6 +912,7 @@ void update_tim(unifi_priv_t * priv, u16 aid, u8 setTim, u16 interfaceTag, u32 h
     req->VirtualInterfaceIdentifier = uf_get_vif_identifier(interfacePriv->interfaceMode,interfaceTag);
     req->AssociationId = aid;
     req->TimValue = setTim;
+
 
     unifi_trace(priv, UDBG2, "update_tim:AID %x,senderIdLsb = 0x%x, handle = 0x%x, timSetStatus = %x, sender proceesID = %x \n",
                 aid,senderIdLsb, handle, timSetStatus, signal.SignalPrimitiveHeader.SenderProcessId);
@@ -1058,12 +1065,15 @@ void process_peer_active_transition(unifi_priv_t * priv,
     unifi_trace(priv, UDBG5, "leaving process_peer_active_transition\n");
 }
 
+
+
 void uf_process_ma_pkt_cfm_for_ap(unifi_priv_t *priv,u16 interfaceTag, const CSR_MA_PACKET_CONFIRM *pkt_cfm)
 {
     netInterface_priv_t *interfacePriv;
     u8 i;
     CsrWifiRouterCtrlStaInfo_t *staRecord = NULL;
     interfacePriv = priv->interfacePriv[interfaceTag];
+
 
     if(pkt_cfm->HostTag == interfacePriv->multicastPduHostTag) {
          unifi_trace(priv,UDBG2,"CFM for marked Multicast Tag = %x\n",interfacePriv->multicastPduHostTag);
@@ -1158,6 +1168,8 @@ void uf_process_ma_pkt_cfm_for_ap(unifi_priv_t *priv,u16 interfaceTag, const CSR
                     }
 
                     send_auto_ma_packet_confirm(priv, staRecord->interfacePriv, &send_cfm_list);
+
+
 
                     unifi_warning(priv, "uf_process_ma_pkt_cfm_for_ap: Router Disconnected IND Peer (%x-%x-%x-%x-%x-%x)\n",
                                              staRecord->peerMacAddress.a[0],
@@ -1663,6 +1675,7 @@ CsrResult uf_process_ma_packet_req(unifi_priv_t *priv,
     }
     interfacePriv = priv->interfacePriv[interfaceTag];
 
+
     /* fetch the station record for corresponding peer mac address */
     if ((staRecord = CsrWifiRouterCtrlGetStationRecordFromPeerMacAddress(priv, peerMacAddress, interfaceTag))) {
         handle = staRecord->assignedHandle;
@@ -2014,6 +2027,7 @@ u8 send_multicast_frames(unifi_priv_t *priv, u16 interfaceTag)
             buffered_pkt->transmissionControl |= (TRANSMISSION_CONTROL_TRIGGER_MASK);
             moreData = (buffered_pkt->transmissionControl & TRANSMISSION_CONTROL_EOSP_MASK)?FALSE:TRUE;
 
+
             unifi_trace(priv,UDBG2,"DTIM Occurred for interface:sending Mgt packet %d\n",interfaceTag);
 
             if((r=frame_and_send_queued_pdu(priv,buffered_pkt,NULL,moreData,FALSE)) == -ENOSPC) {
@@ -2053,6 +2067,7 @@ u8 send_multicast_frames(unifi_priv_t *priv, u16 interfaceTag)
         while((interfacePriv->dtimActive)&& (buffered_pkt=dequeue_tx_data_pdu(priv,&interfacePriv->genericMulticastOrBroadCastFrames))) {
             buffered_pkt->transmissionControl |= TRANSMISSION_CONTROL_TRIGGER_MASK;
             moreData = (buffered_pkt->transmissionControl & TRANSMISSION_CONTROL_EOSP_MASK)?FALSE:TRUE;
+
 
             if((r=frame_and_send_queued_pdu(priv,buffered_pkt,NULL,moreData,FALSE)) == -ENOSPC) {
                 /* Clear the trigger bit transmission control*/
@@ -2275,6 +2290,7 @@ void uf_send_buffered_data_from_delivery_ac(unifi_priv_t *priv,
         buffered_pkt->transmissionControl &=
                  ~(TRANSMISSION_CONTROL_TRIGGER_MASK | TRANSMISSION_CONTROL_EOSP_MASK);
 
+
         if((staInfo->wmmOrQosEnabled == TRUE)&&(staInfo->uapsdActive == TRUE)) {
 
              buffered_pkt->transmissionControl = TRANSMISSION_CONTROL_TRIGGER_MASK;
@@ -2433,6 +2449,7 @@ void uf_send_buffered_frames(unifi_priv_t *priv,unifi_TrafficQueue q)
 
     if(queue == UNIFI_TRAFFIC_Q_VO) {
 
+
         unifi_trace(priv,UDBG2,"uf_send_buffered_frames : trying mgt from queue=%d\n",queue);
         for(startIndex= 0; startIndex < UNIFI_MAX_CONNECTIONS;startIndex++) {
             staInfo =  CsrWifiRouterCtrlGetStationRecordFromHandle(priv,startIndex,interfaceTag);
@@ -2463,6 +2480,7 @@ void uf_send_buffered_frames(unifi_priv_t *priv,unifi_TrafficQueue q)
         }
     }
 
+
     unifi_trace(priv,UDBG2,"uf_send_buffered_frames : Resume called for Queue=%d\n",queue);
     unifi_trace(priv,UDBG2,"uf_send_buffered_frames : start=%d end=%d\n",startIndex,endIndex);
 
@@ -2487,6 +2505,7 @@ void uf_send_buffered_frames(unifi_priv_t *priv,unifi_TrafficQueue q)
         }
         /* Peer is active or U-APSD is active so send PDUs to the peer */
         unifi_trace(priv,UDBG2,"uf_send_buffered_frames : trying data from queue=%d\n",queue);
+
 
         if((staInfo != NULL)&&(staInfo->currentPeerState == CSR_WIFI_ROUTER_CTRL_PEER_CONNECTED_ACTIVE)
                            &&(staInfo->uapsdActive == FALSE)) {
@@ -2514,6 +2533,7 @@ void uf_send_buffered_frames(unifi_priv_t *priv,unifi_TrafficQueue q)
     resume_suspended_uapsd(priv, interfaceTag);
 }
 
+
 u8 uf_is_more_data_for_non_delivery_ac(CsrWifiRouterCtrlStaInfo_t *staRecord)
 {
     u8 i;
@@ -2535,8 +2555,11 @@ u8 uf_is_more_data_for_non_delivery_ac(CsrWifiRouterCtrlStaInfo_t *staRecord)
      return TRUE;
     }
 
+
+
     return FALSE;
 }
+
 
 int uf_process_station_records_for_sending_data(unifi_priv_t *priv,u16 interfaceTag,
                                                  CsrWifiRouterCtrlStaInfo_t *srcStaInfo,
@@ -2578,6 +2601,7 @@ int uf_process_station_records_for_sending_data(unifi_priv_t *priv,u16 interface
     unifi_trace(priv, UDBG5, "leaving uf_process_station_records_for_sending_data\n");
     return 0;
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -2719,6 +2743,7 @@ void uf_process_wmm_deliver_ac_uapsd(unifi_priv_t * priv,
     unifi_trace(priv, UDBG2, "--uf_process_wmm_deliver_ac_uapsd: uapsdactive?=%x\n", srcStaInfo->uapsdActive);
 }
 
+
 void uf_send_qos_null(unifi_priv_t * priv,u16 interfaceTag, const u8 *da,CSR_PRIORITY priority,CsrWifiRouterCtrlStaInfo_t * srcStaInfo)
 {
     bulk_data_param_t bulkdata;
@@ -2731,6 +2756,7 @@ void uf_send_qos_null(unifi_priv_t * priv,u16 interfaceTag, const u8 *da,CSR_PRI
     CSR_SIGNAL signal;
     u32 priority_q;
     CSR_RATE transmitRate = 0;
+
 
     /* Send a Null Frame to Peer,
      * 32= size of mac header  */
@@ -2860,6 +2886,7 @@ void uf_send_nulldata(unifi_priv_t * priv,u16 interfaceTag, const u8 *da,CSR_PRI
         srcStaInfo->noOfPktQueued++;
         spin_unlock_irqrestore(&priv->staRecord_lock,lock_flags);
 
+
     }
     if(r && r != -ENOSPC){
         unifi_error(priv, "uf_send_nulldata: Failed to send Null frame Error = %d\n",r);
@@ -2910,6 +2937,7 @@ u8 uf_check_broadcast_bssid(unifi_priv_t *priv, const bulk_data_param_t *bulkdat
     }
 }
 
+
 u8 uf_process_pm_bit_for_peer(unifi_priv_t * priv, CsrWifiRouterCtrlStaInfo_t * srcStaInfo,
                                 u8 pmBit,u16 interfaceTag)
 {
@@ -2947,6 +2975,7 @@ u8 uf_process_pm_bit_for_peer(unifi_priv_t * priv, CsrWifiRouterCtrlStaInfo_t * 
             return powerSaveChanged;
         }
     }
+
 
     if(srcStaInfo->currentPeerState == CSR_WIFI_ROUTER_CTRL_PEER_CONNECTED_ACTIVE) {
         unifi_trace(priv,UDBG3, "Peer with AID = %d is active now\n",srcStaInfo->aid);
@@ -3001,6 +3030,8 @@ u8 uf_process_pm_bit_for_peer(unifi_priv_t * priv, CsrWifiRouterCtrlStaInfo_t * 
     unifi_trace(priv, UDBG3, "leaving uf_process_pm_bit_for_peer\n");
     return powerSaveChanged;
 }
+
+
 
 void uf_process_ps_poll(unifi_priv_t *priv,u8* sa,u8* da,u8 pmBit,u16 interfaceTag)
 {
@@ -3243,6 +3274,8 @@ void uf_process_ps_poll(unifi_priv_t *priv,u8* sa,u8* da,u8 pmBit,u16 interfaceT
         unifi_trace(priv, UDBG3, "leaving uf_process_ps_poll\n");
 }
 
+
+
 void add_to_send_cfm_list(unifi_priv_t * priv,
                           tx_buffered_packets_t *tx_q_item,
                           struct list_head *frames_need_cfm_list)
@@ -3307,6 +3340,8 @@ void uf_prepare_send_cfm_list_for_queued_pkts(unifi_priv_t * priv,
     spin_unlock_irqrestore(&priv->tx_q_lock,lock_flags);
 
 }
+
+
 
 void uf_flush_list(unifi_priv_t * priv, struct list_head * list)
 {
@@ -3463,6 +3498,7 @@ void uf_check_inactivity(unifi_priv_t *priv, u16 interfaceTag, u32 currentTime)
         unifi_trace(priv, UDBG3, "Running Inactivity handler Time %xus station's last activity %xus\n",
                 currentTime, staInfo->lastActivity);
 
+
         elapsedTime = (currentTime >= staInfo->lastActivity)?
                 (currentTime - staInfo->lastActivity):
                 (~((u32)0) - staInfo->lastActivity + currentTime);
@@ -3500,6 +3536,7 @@ void uf_update_sta_activity(unifi_priv_t *priv, u16 interfaceTag, const u8 *peer
     }
 
     currentTime = CsrTimeGet(&timeHi);
+
 
     staInfo = CsrWifiRouterCtrlGetStationRecordFromPeerMacAddress(priv, peerMacAddress, interfaceTag);
 

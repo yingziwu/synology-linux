@@ -91,6 +91,7 @@
 #include "include/policy_unpack.h"
 #include "include/resource.h"
 
+
 /* root profile namespace */
 struct aa_namespace *root_ns;
 
@@ -561,6 +562,7 @@ void __init aa_free_root_ns(void)
 	 aa_put_namespace(ns);
 }
 
+
 static void free_replacedby(struct aa_replacedby *r)
 {
 	if (r) {
@@ -568,6 +570,7 @@ static void free_replacedby(struct aa_replacedby *r)
 		kzfree(r);
 	}
 }
+
 
 void aa_free_replacedby_kref(struct kref *kref)
 {
@@ -915,6 +918,22 @@ static int audit_policy(int op, gfp_t gfp, const char *name, const char *info,
 			&sa, NULL);
 }
 
+bool policy_view_capable(void)
+{
+	struct user_namespace *user_ns = current_user_ns();
+	bool response = false;
+
+	if (ns_capable(user_ns, CAP_MAC_ADMIN))
+		response = true;
+
+	return response;
+}
+
+bool policy_admin_capable(void)
+{
+	return policy_view_capable() && !aa_g_lock_policy;
+}
+
 /**
  * aa_may_manage_policy - can the current task manage policy
  * @op: the policy manipulation operation being done
@@ -929,7 +948,7 @@ bool aa_may_manage_policy(int op)
 		return 0;
 	}
 
-	if (!capable(CAP_MAC_ADMIN)) {
+	if (!policy_admin_capable()) {
 		audit_policy(op, GFP_KERNEL, NULL, "not policy admin", -EACCES);
 		return 0;
 	}
@@ -1295,7 +1314,8 @@ ssize_t aa_remove_profiles(char *fqname, size_t size)
 	}
 
 	/* don't fail removal if audit fails */
-#ifndef MY_ABC_HERE
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 	(void) audit_policy(OP_PROF_RM, GFP_KERNEL, name, info, error);
 #endif /* MY_ABC_HERE */
 	aa_put_namespace(ns);

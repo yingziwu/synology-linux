@@ -795,6 +795,7 @@ static void i915_gem_record_fences(struct drm_device *dev,
 	}
 }
 
+
 static void gen8_record_semaphore_state(struct drm_i915_private *dev_priv,
 					struct drm_i915_error_state *error,
 					struct intel_engine_cs *ring,
@@ -947,6 +948,7 @@ static void i915_record_ring_state(struct drm_device *dev,
 		}
 	}
 }
+
 
 static void i915_gem_record_active_context(struct intel_engine_cs *ring,
 					   struct drm_i915_error_state *error,

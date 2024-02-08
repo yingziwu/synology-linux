@@ -1053,6 +1053,7 @@ static struct clksrc_clk clk_sclk_spi1 = {
 	.reg_div = { .reg = S5P_CLK_DIV5, .shift = 4, .size = 4 },
 	};
 
+
 static struct clksrc_clk *clksrc_cdev[] = {
 	&clk_sclk_uart0,
 	&clk_sclk_uart1,

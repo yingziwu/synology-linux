@@ -1,17 +1,22 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/arch/arm/mm/iomap.c
+ *
+ * Map IO port and PCI memory spaces so that {read,write}[bwl] can
+ * be used to access this memory.
+ */
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
 #if defined (MY_DEF_HERE)
 #ifdef MY_DEF_HERE
-#else  
+#else /* MY_DEF_HERE */
 #include <linux/of.h>
-#endif  
-#endif  
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
 
 unsigned long vga_base;
 EXPORT_SYMBOL(vga_base);
@@ -40,14 +45,14 @@ void pci_iounmap(struct pci_dev *dev, void __iomem *addr)
 {
 #if defined (MY_DEF_HERE)
 #ifdef MY_DEF_HERE
-#else  
+#else /* MY_DEF_HERE */
 #ifdef CONFIG_STM_PCIE_TRACKER_BUG
 	if (of_machine_is_compatible("st,stih407")
 	    || of_machine_is_compatible("st,stih410"))
 		addr = __stm_unfrob(addr);
 #endif
-#endif  
-#endif  
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
 	if ((unsigned long)addr >= VMALLOC_START &&
 	    (unsigned long)addr < VMALLOC_END)
 		iounmap(addr);

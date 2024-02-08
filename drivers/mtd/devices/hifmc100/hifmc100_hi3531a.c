@@ -82,3 +82,4 @@ void hifmc_get_nor_best_clock(unsigned int *clock)
 			str[clk_reg]);
 	*clock = clk_reg;
 }
+

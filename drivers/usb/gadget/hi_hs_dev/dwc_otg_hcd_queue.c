@@ -642,6 +642,7 @@ dwc_otg_qtd_t *dwc_otg_hcd_qtd_create(dwc_otg_hcd_urb_t *urb, int atomic_alloc)
 	if (qtd == NULL)
 		return NULL;
 
+
 	dwc_otg_hcd_qtd_init(qtd, urb);
 	return qtd;
 }

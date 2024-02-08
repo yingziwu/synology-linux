@@ -445,3 +445,4 @@ failed_find:
 failed_connector:
 	kfree(psb_intel_encoder);
 }
+

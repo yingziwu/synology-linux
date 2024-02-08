@@ -807,6 +807,7 @@ out:
 	return ret;
 }
 
+
 /**
  * send test command to firmware
  *
@@ -1041,6 +1042,7 @@ int wl12xx_cmd_build_null_data(struct wl1271 *wl, struct wl12xx_vif *wlvif)
 	int size;
 	void *ptr;
 	int ret = -ENOMEM;
+
 
 	if (wlvif->bss_type == BSS_TYPE_IBSS) {
 		size = sizeof(struct wl12xx_null_data_template);
@@ -1532,6 +1534,7 @@ int wl12xx_cmd_add_peer(struct wl1271 *wl, struct wl12xx_vif *wlvif,
 			cmd->psd_type[NUM_ACCESS_CATEGORIES_COPY-1-i] =
 					WL1271_PSD_LEGACY;
 
+
 	sta_rates = sta->supp_rates[wlvif->band];
 	if (sta->ht_cap.ht_supported)
 		sta_rates |=
@@ -1842,6 +1845,7 @@ static int wl12xx_cmd_roc(struct wl1271 *wl, struct wl12xx_vif *wlvif,
 		ret = -EINVAL;
 		goto out_free;
 	}
+
 
 	ret = wl1271_cmd_send(wl, CMD_REMAIN_ON_CHANNEL, cmd, sizeof(*cmd), 0);
 	if (ret < 0) {

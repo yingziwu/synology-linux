@@ -276,6 +276,7 @@ int bspPciConfigWriteReg(unsigned long busNo,
 			 unsigned long regAddr,
 			 unsigned long data);
 
+
 /*******************************************************************************
 * bspPciConfigReadReg
 *
@@ -661,6 +662,7 @@ int bspSmiReadReg(unsigned long devSlvId,
 			unsigned long actSmiAddr,
 			unsigned long regAddr,
 			unsigned long *valuePtr);
+
 
 /*******************************************************************************
 * bspSmiReadRegLionSpecificSet

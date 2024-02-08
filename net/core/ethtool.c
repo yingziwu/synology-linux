@@ -1,7 +1,19 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * net/core/ethtool.c - Ethtool ioctl handler
+ * Copyright (c) 2003 Matthew Wilcox <matthew@wil.cx>
+ *
+ * This file is where we call all the ethtool_ops commands to get
+ * the information ethtool needs.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ */
+
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/capability.h>
@@ -16,6 +28,12 @@
 #include <linux/slab.h>
 #include <linux/rtnetlink.h>
 #include <linux/sched.h>
+
+/*
+ * Some useful ethtool_ops methods that're device independent.
+ * If we find that all drivers want to do the same thing here,
+ * we can turn these into dev_() function calls.
+ */
 
 u32 ethtool_op_get_link(struct net_device *dev)
 {
@@ -33,6 +51,8 @@ int ethtool_op_get_ts_info(struct net_device *dev, struct ethtool_ts_info *info)
 	return 0;
 }
 EXPORT_SYMBOL(ethtool_op_get_ts_info);
+
+/* Handlers for each ethtool command */
 
 #define ETHTOOL_DEV_FEATURE_WORDS	((NETDEV_FEATURE_COUNT + 31) / 32)
 
@@ -78,7 +98,7 @@ static const char netdev_features_strings[NETDEV_FEATURE_COUNT][ETH_GSTRING_LEN]
 	[NETIF_F_RXALL_BIT] =            "rx-all",
 #if defined(MY_ABC_HERE)
         [NETIF_F_MQ_TX_LOCK_OPT_BIT] =   "mq-tx-lock-opt",
-#endif  
+#endif /* MY_ABC_HERE */
 };
 
 static int ethtool_get_features(struct net_device *dev, void __user *useraddr)
@@ -92,6 +112,7 @@ static int ethtool_get_features(struct net_device *dev, void __user *useraddr)
 	u32 copy_size;
 	int i;
 
+	/* in case feature bits run out again */
 	BUILD_BUG_ON(ETHTOOL_DEV_FEATURE_WORDS * sizeof(u32) > sizeof(netdev_features_t));
 
 	for (i = 0; i < ETHTOOL_DEV_FEATURE_WORDS; ++i) {
@@ -180,13 +201,14 @@ static void __ethtool_get_strings(struct net_device *dev,
 		memcpy(data, netdev_features_strings,
 			sizeof(netdev_features_strings));
 	else
-		 
+		/* ops->get_strings is valid because checked earlier */
 		ops->get_strings(dev, stringset, data);
 }
 
 static netdev_features_t ethtool_get_feature_mask(u32 eth_cmd)
 {
-	 
+	/* feature masks of legacy discrete ethtool ops */
+
 	switch (eth_cmd) {
 	case ETHTOOL_GTXCSUM:
 	case ETHTOOL_STXCSUM:
@@ -284,6 +306,7 @@ static int __ethtool_set_flags(struct net_device *dev, u32 data)
 	if (data & ETH_FLAG_NTUPLE)	features |= NETIF_F_NTUPLE;
 	if (data & ETH_FLAG_RXHASH)	features |= NETIF_F_RXHASH;
 
+	/* allow changing only bits set in hw_features */
 	changed = (features ^ dev->features) & ETH_ALL_FEATURES;
 	if (changed & ~dev->hw_features)
 		return (changed & dev->hw_features) ? -EINVAL : -EOPNOTSUPP;
@@ -303,11 +326,13 @@ static void convert_legacy_u32_to_link_mode(unsigned long *dst, u32 legacy_u32)
 	dst[0] = legacy_u32;
 }
 
+/* return false if src had higher bits set. lower bits always updated. */
 static bool convert_link_mode_to_legacy_u32(u32 *legacy_u32,
 					    const unsigned long *src)
 {
 	bool retval = true;
 
+	/* TODO: following test will soon always be true */
 	if (__ETHTOOL_LINK_MODE_MASK_NBITS > 32) {
 		__ETHTOOL_DECLARE_LINK_MODE_MASK(ext);
 
@@ -316,7 +341,7 @@ static bool convert_link_mode_to_legacy_u32(u32 *legacy_u32,
 		bitmap_complement(ext, ext, __ETHTOOL_LINK_MODE_MASK_NBITS);
 		if (bitmap_intersects(ext, src,
 				      __ETHTOOL_LINK_MODE_MASK_NBITS)) {
-			 
+			/* src mask goes beyond bit 31 */
 			retval = false;
 		}
 	}
@@ -324,6 +349,9 @@ static bool convert_link_mode_to_legacy_u32(u32 *legacy_u32,
 	return retval;
 }
 
+/* return false if legacy contained non-0 deprecated fields
+ * transceiver/maxtxpkt/maxrxpkt. rest of ksettings always updated
+ */
 static bool
 convert_legacy_settings_to_link_ksettings(
 	struct ethtool_link_ksettings *link_ksettings,
@@ -333,6 +361,10 @@ convert_legacy_settings_to_link_ksettings(
 
 	memset(link_ksettings, 0, sizeof(*link_ksettings));
 
+	/* This is used to tell users that driver is still using these
+	 * deprecated legacy fields, and they should not use
+	 * %ETHTOOL_GLINKSETTINGS/%ETHTOOL_SLINKSETTINGS
+	 */
 	if (legacy_settings->transceiver ||
 	    legacy_settings->maxtxpkt ||
 	    legacy_settings->maxrxpkt)
@@ -366,6 +398,9 @@ convert_legacy_settings_to_link_ksettings(
 	return retval;
 }
 
+/* return false if ksettings link modes had higher bits
+ * set. legacy_settings always updated (best effort)
+ */
 static bool
 convert_link_ksettings_to_legacy_settings(
 	struct ethtool_cmd *legacy_settings,
@@ -374,7 +409,12 @@ convert_link_ksettings_to_legacy_settings(
 	bool retval = true;
 
 	memset(legacy_settings, 0, sizeof(*legacy_settings));
-	 
+	/* this also clears the deprecated fields in legacy structure:
+	 * __u8		transceiver;
+	 * __u32	maxtxpkt;
+	 * __u32	maxrxpkt;
+	 */
+
 	retval &= convert_link_mode_to_legacy_u32(
 		&legacy_settings->supported,
 		link_ksettings->link_modes.supported);
@@ -402,9 +442,11 @@ convert_link_ksettings_to_legacy_settings(
 	return retval;
 }
 
+/* number of 32-bit words to store the user's link mode bitmaps */
 #define __ETHTOOL_LINK_MODE_MASK_NU32			\
 	DIV_ROUND_UP(__ETHTOOL_LINK_MODE_MASK_NBITS, 32)
 
+/* layout of the struct passed from/to userland */
 struct ethtool_link_usettings {
 	struct ethtool_link_settings base;
 	struct {
@@ -414,6 +456,16 @@ struct ethtool_link_usettings {
 	} link_modes;
 };
 
+/* Internal kernel helper to query a device ethtool_link_settings.
+ *
+ * Backward compatibility note: for compatibility with legacy drivers
+ * that implement only the ethtool_cmd API, this has to work with both
+ * drivers implementing get_link_ksettings API and drivers
+ * implementing get_settings API. When drivers implement get_settings
+ * and report ethtool_cmd deprecated fields
+ * (transceiver/maxrxpkt/maxtxpkt), these fields are silently ignored
+ * because the resulting struct ethtool_link_settings does not report them.
+ */
 int __ethtool_get_link_ksettings(struct net_device *dev,
 				 struct ethtool_link_ksettings *link_ksettings)
 {
@@ -428,6 +480,10 @@ int __ethtool_get_link_ksettings(struct net_device *dev,
 							    link_ksettings);
 	}
 
+	/* driver doesn't support %ethtool_link_ksettings API. revert to
+	 * legacy %ethtool_cmd API, unless it's not supported either.
+	 * TODO: remove when ethtool_ops::get_settings disappears internally
+	 */
 	if (!dev->ethtool_ops->get_settings)
 		return -EOPNOTSUPP;
 
@@ -437,11 +493,16 @@ int __ethtool_get_link_ksettings(struct net_device *dev,
 	if (err < 0)
 		return err;
 
+	/* we ignore deprecated fields transceiver/maxrxpkt/maxtxpkt
+	 */
 	convert_legacy_settings_to_link_ksettings(link_ksettings, &cmd);
 	return err;
 }
 EXPORT_SYMBOL(__ethtool_get_link_ksettings);
 
+/* convert ethtool_link_usettings in user space to a kernel internal
+ * ethtool_link_ksettings. return 0 on success, errno on error.
+ */
 static int load_link_ksettings_from_user(struct ethtool_link_ksettings *to,
 					 const void __user *from)
 {
@@ -467,6 +528,10 @@ static int load_link_ksettings_from_user(struct ethtool_link_ksettings *to,
 	return 0;
 }
 
+/* convert a kernel internal ethtool_link_ksettings to
+ * ethtool_link_usettings in user space. return 0 on success, errno on
+ * error.
+ */
 static int
 store_link_ksettings_for_user(void __user *to,
 			      const struct ethtool_link_ksettings *from)
@@ -493,6 +558,16 @@ store_link_ksettings_for_user(void __user *to,
 	return 0;
 }
 
+/* Query device for its ethtool_link_settings.
+ *
+ * Backward compatibility note: this function must fail when driver
+ * does not implement ethtool::get_link_ksettings, even if legacy
+ * ethtool_ops::get_settings is implemented. This tells new versions
+ * of ethtool that they should use the legacy API %ETHTOOL_GSET for
+ * this driver, so that they can correctly access the ethtool_cmd
+ * deprecated fields (transceiver/maxrxpkt/maxtxpkt), until no driver
+ * implements ethtool_ops::get_settings anymore.
+ */
 static int ethtool_get_link_ksettings(struct net_device *dev,
 				      void __user *useraddr)
 {
@@ -504,21 +579,25 @@ static int ethtool_get_link_ksettings(struct net_device *dev,
 	if (!dev->ethtool_ops->get_link_ksettings)
 		return -EOPNOTSUPP;
 
+	/* handle bitmap nbits handshake */
 	if (copy_from_user(&link_ksettings.base, useraddr,
 			   sizeof(link_ksettings.base)))
 		return -EFAULT;
 
 	if (__ETHTOOL_LINK_MODE_MASK_NU32
 	    != link_ksettings.base.link_mode_masks_nwords) {
-		 
+		/* wrong link mode nbits requested */
 		memset(&link_ksettings, 0, sizeof(link_ksettings));
 		link_ksettings.base.cmd = ETHTOOL_GLINKSETTINGS;
-		 
+		/* send back number of words required as negative val */
 		compiletime_assert(__ETHTOOL_LINK_MODE_MASK_NU32 <= S8_MAX,
 				   "need too many bits for link modes!");
 		link_ksettings.base.link_mode_masks_nwords
 			= -((s8)__ETHTOOL_LINK_MODE_MASK_NU32);
 
+		/* copy the base fields back to user, not the link
+		 * mode bitmaps
+		 */
 		if (copy_to_user(useraddr, &link_ksettings.base,
 				 sizeof(link_ksettings.base)))
 			return -EFAULT;
@@ -526,11 +605,16 @@ static int ethtool_get_link_ksettings(struct net_device *dev,
 		return 0;
 	}
 
+	/* handshake successful: user/kernel agree on
+	 * link_mode_masks_nwords
+	 */
+
 	memset(&link_ksettings, 0, sizeof(link_ksettings));
 	err = dev->ethtool_ops->get_link_ksettings(dev, &link_ksettings);
 	if (err < 0)
 		return err;
 
+	/* make sure we tell the right values to user */
 	link_ksettings.base.cmd = ETHTOOL_GLINKSETTINGS;
 	link_ksettings.base.link_mode_masks_nwords
 		= __ETHTOOL_LINK_MODE_MASK_NU32;
@@ -538,6 +622,16 @@ static int ethtool_get_link_ksettings(struct net_device *dev,
 	return store_link_ksettings_for_user(useraddr, &link_ksettings);
 }
 
+/* Update device ethtool_link_settings.
+ *
+ * Backward compatibility note: this function must fail when driver
+ * does not implement ethtool::set_link_ksettings, even if legacy
+ * ethtool_ops::set_settings is implemented. This tells new versions
+ * of ethtool that they should use the legacy API %ETHTOOL_SSET for
+ * this driver, so that they can correctly update the ethtool_cmd
+ * deprecated fields (transceiver/maxrxpkt/maxtxpkt), until no driver
+ * implements ethtool_ops::get_settings anymore.
+ */
 static int ethtool_set_link_ksettings(struct net_device *dev,
 				      void __user *useraddr)
 {
@@ -549,6 +643,7 @@ static int ethtool_set_link_ksettings(struct net_device *dev,
 	if (!dev->ethtool_ops->set_link_ksettings)
 		return -EOPNOTSUPP;
 
+	/* make sure nbits field has expected value */
 	if (copy_from_user(&link_ksettings.base, useraddr,
 			   sizeof(link_ksettings.base)))
 		return -EFAULT;
@@ -557,18 +652,35 @@ static int ethtool_set_link_ksettings(struct net_device *dev,
 	    != link_ksettings.base.link_mode_masks_nwords)
 		return -EINVAL;
 
+	/* copy the whole structure, now that we know it has expected
+	 * format
+	 */
 	err = load_link_ksettings_from_user(&link_ksettings, useraddr);
 	if (err)
 		return err;
 
+	/* re-check nwords field, just in case */
 	if (__ETHTOOL_LINK_MODE_MASK_NU32
 	    != link_ksettings.base.link_mode_masks_nwords)
 		return -EINVAL;
 
 	return dev->ethtool_ops->set_link_ksettings(dev, &link_ksettings);
 }
-#endif  
+#endif /* MY_ABC_HERE */
 
+#if defined(MY_ABC_HERE)
+/* Internal kernel helper to query a device ethtool_cmd settings.
+ *
+ * Note about transition to ethtool_link_settings API: We do not need
+ * (or want) this function to support "dev" instances that implement
+ * the ethtool_link_settings API as we will update the drivers calling
+ * this function to call __ethtool_get_link_ksettings instead, before
+ * the first drivers implement ethtool_ops::get_link_ksettings.
+ *
+ * TODO 1: at least make this function static when no driver is using it
+ * TODO 2: remove when ethtool_ops::get_settings disappears internally
+ */
+#endif /* MY_ABC_HERE */
 int __ethtool_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
 	ASSERT_RTNL();
@@ -583,7 +695,16 @@ int __ethtool_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 EXPORT_SYMBOL(__ethtool_get_settings);
 
 #if defined(MY_ABC_HERE)
- 
+/* Query device for its ethtool_cmd settings.
+ *
+ * Backward compatibility note: for compatibility with legacy ethtool,
+ * this has to work with both drivers implementing get_link_ksettings
+ * API and drivers implementing get_settings API. When drivers
+ * implement get_link_ksettings and report higher link mode bits, a
+ * kernel warning is logged once (with name of 1st driver/device) to
+ * recommend user to upgrade ethtool, but the command is successful
+ * (only the lower link mode bits reported back to user).
+ */
 static int ethtool_get_settings(struct net_device *dev, void __user *useraddr)
 {
 	struct ethtool_cmd cmd;
@@ -591,7 +712,7 @@ static int ethtool_get_settings(struct net_device *dev, void __user *useraddr)
 	ASSERT_RTNL();
 
 	if (dev->ethtool_ops->get_link_ksettings) {
-		 
+		/* First, use link_ksettings API if it is supported */
 		int err;
 		struct ethtool_link_ksettings link_ksettings;
 
@@ -603,9 +724,13 @@ static int ethtool_get_settings(struct net_device *dev, void __user *useraddr)
 		convert_link_ksettings_to_legacy_settings(&cmd,
 							  &link_ksettings);
 
+		/* send a sensible cmd tag back to user */
 		cmd.cmd = ETHTOOL_GSET;
 	} else {
-		 
+		/* driver doesn't support %ethtool_link_ksettings
+		 * API. revert to legacy %ethtool_cmd API, unless it's
+		 * not supported either.
+		 */
 		int err;
 
 		if (!dev->ethtool_ops->get_settings)
@@ -623,7 +748,7 @@ static int ethtool_get_settings(struct net_device *dev, void __user *useraddr)
 
 	return 0;
 }
-#else  
+#else /* MY_ABC_HERE */
 static int ethtool_get_settings(struct net_device *dev, void __user *useraddr)
 {
 	int err;
@@ -637,10 +762,19 @@ static int ethtool_get_settings(struct net_device *dev, void __user *useraddr)
 		return -EFAULT;
 	return 0;
 }
-#endif  
+#endif /* MY_ABC_HERE */
 
 #if defined(MY_ABC_HERE)
- 
+/* Update device link settings with given ethtool_cmd.
+ *
+ * Backward compatibility note: for compatibility with legacy ethtool,
+ * this has to work with both drivers implementing set_link_ksettings
+ * API and drivers implementing set_settings API. When drivers
+ * implement set_link_ksettings and user's request updates deprecated
+ * ethtool_cmd fields (transceiver/maxrxpkt/maxtxpkt), a kernel
+ * warning is logged once (with name of 1st driver/device) to
+ * recommend user to upgrade ethtool, and the request is rejected.
+ */
 static int ethtool_set_settings(struct net_device *dev, void __user *useraddr)
 {
 	struct ethtool_cmd cmd;
@@ -650,6 +784,7 @@ static int ethtool_set_settings(struct net_device *dev, void __user *useraddr)
 	if (copy_from_user(&cmd, useraddr, sizeof(cmd)))
 		return -EFAULT;
 
+	/* first, try new %ethtool_link_ksettings API. */
 	if (dev->ethtool_ops->set_link_ksettings) {
 		struct ethtool_link_ksettings link_ksettings;
 
@@ -664,12 +799,18 @@ static int ethtool_set_settings(struct net_device *dev, void __user *useraddr)
 							    &link_ksettings);
 	}
 
+	/* legacy %ethtool_cmd API */
+
+	/* TODO: return -EOPNOTSUPP when ethtool_ops::get_settings
+	 * disappears internally
+	 */
+
 	if (!dev->ethtool_ops->set_settings)
 		return -EOPNOTSUPP;
 
 	return dev->ethtool_ops->set_settings(dev, &cmd);
 }
-#else  
+#else /* MY_ABC_HERE */
 static int ethtool_set_settings(struct net_device *dev, void __user *useraddr)
 {
 	struct ethtool_cmd cmd;
@@ -682,7 +823,7 @@ static int ethtool_set_settings(struct net_device *dev, void __user *useraddr)
 
 	return dev->ethtool_ops->set_settings(dev, &cmd);
 }
-#endif  
+#endif /* MY_ABC_HERE */
 
 static noinline_for_stack int ethtool_get_drvinfo(struct net_device *dev,
 						  void __user *useraddr)
@@ -703,6 +844,10 @@ static noinline_for_stack int ethtool_get_drvinfo(struct net_device *dev,
 		return -EOPNOTSUPP;
 	}
 
+	/*
+	 * this method of obtaining string set info is deprecated;
+	 * Use ETHTOOL_GSSET_INFO instead.
+	 */
 	if (ops->get_sset_count) {
 		int rc;
 
@@ -737,10 +882,12 @@ static noinline_for_stack int ethtool_get_sset_info(struct net_device *dev,
 	if (copy_from_user(&info, useraddr, sizeof(info)))
 		return -EFAULT;
 
+	/* store copy of mask, because we zero struct later on */
 	sset_mask = info.sset_mask;
 	if (!sset_mask)
 		return 0;
 
+	/* calculate size of return buffer */
 	n_bits = hweight64(sset_mask);
 
 	memset(&info, 0, sizeof(info));
@@ -750,6 +897,10 @@ static noinline_for_stack int ethtool_get_sset_info(struct net_device *dev,
 	if (!info_buf)
 		return -ENOMEM;
 
+	/*
+	 * fill return buffer based on input bitmask and successful
+	 * get_sset_count return
+	 */
 	for (i = 0; i < 64; i++) {
 		if (!(sset_mask & (1ULL << i)))
 			continue;
@@ -786,6 +937,10 @@ static noinline_for_stack int ethtool_set_rxnfc(struct net_device *dev,
 	if (!dev->ethtool_ops->set_rxnfc)
 		return -EOPNOTSUPP;
 
+	/* struct ethtool_rxnfc was originally defined for
+	 * ETHTOOL_{G,S}RXFH with only the cmd, flow_type and data
+	 * members.  User-space might still be using that
+	 * definition. */
 	if (cmd == ETHTOOL_SRXFH)
 		info_size = (offsetof(struct ethtool_rxnfc, data) +
 			     sizeof(info.data));
@@ -816,6 +971,10 @@ static noinline_for_stack int ethtool_get_rxnfc(struct net_device *dev,
 	if (!ops->get_rxnfc)
 		return -EOPNOTSUPP;
 
+	/* struct ethtool_rxnfc was originally defined for
+	 * ETHTOOL_{G,S}RXFH with only the cmd, flow_type and data
+	 * members.  User-space might still be using that
+	 * definition. */
 	if (cmd == ETHTOOL_GRXFH)
 		info_size = (offsetof(struct ethtool_rxnfc, data) +
 			     sizeof(info.data));
@@ -878,6 +1037,10 @@ static noinline_for_stack int ethtool_get_rxfh_indir(struct net_device *dev,
 			 &dev_size, sizeof(dev_size)))
 		return -EFAULT;
 
+	/* If the user buffer size is 0, this is just a query for the
+	 * device table size.  Otherwise, if it's smaller than the
+	 * device table size it's an error.
+	 */
 	if (user_size < dev_size)
 		return user_size == 0 ? 0 : -EINVAL;
 
@@ -946,6 +1109,7 @@ static noinline_for_stack int ethtool_set_rxfh_indir(struct net_device *dev,
 			goto out;
 		}
 
+		/* Validate ring indices */
 		for (i = 0; i < dev_size; i++) {
 			if (indir[i] >= rx_rings.data) {
 				ret = -EINVAL;
@@ -1114,9 +1278,11 @@ static int ethtool_get_any_eeprom(struct net_device *dev, void __user *useraddr,
 	if (copy_from_user(&eeprom, useraddr, sizeof(eeprom)))
 		return -EFAULT;
 
+	/* Check for wrap and zero */
 	if (eeprom.offset + eeprom.len <= eeprom.offset)
 		return -EINVAL;
 
+	/* Check for exceeding total eeprom len */
 	if (eeprom.offset + eeprom.len > total_len)
 		return -EINVAL;
 
@@ -1175,9 +1341,11 @@ static int ethtool_set_eeprom(struct net_device *dev, void __user *useraddr)
 	if (copy_from_user(&eeprom, useraddr, sizeof(eeprom)))
 		return -EFAULT;
 
+	/* Check for wrap and zero */
 	if (eeprom.offset + eeprom.len <= eeprom.offset)
 		return -EINVAL;
 
+	/* Check for exceeding total eeprom len */
 	if (eeprom.offset + eeprom.len > ops->get_eeprom_len(dev))
 		return -EINVAL;
 
@@ -1409,20 +1577,24 @@ static int ethtool_phys_id(struct net_device *dev, void __user *useraddr)
 	if (rc < 0)
 		return rc;
 
+	/* Drop the RTNL lock while waiting, but prevent reentry or
+	 * removal of the device.
+	 */
 	busy = true;
 	dev_hold(dev);
 	rtnl_unlock();
 
 	if (rc == 0) {
-		 
+		/* Driver will handle this itself */
 		schedule_timeout_interruptible(
 			id.data ? (id.data * HZ) : MAX_SCHEDULE_TIMEOUT);
 	} else {
-		 
+		/* Driver expects to be called at twice the frequency in rc */
 		int n = rc * 2, i, interval = HZ / n;
 
+		/* Count down seconds */
 		do {
-			 
+			/* Count down iterations per second */
 			i = n;
 			do {
 				rtnl_lock();
@@ -1713,6 +1885,8 @@ static int ethtool_get_module_eeprom(struct net_device *dev,
 				      modinfo.eeprom_len);
 }
 
+/* The main entry point in this file.  Called from net/core/dev.c */
+
 int dev_ethtool(struct net *net, struct ifreq *ifr)
 {
 	struct net_device *dev = __dev_get_by_name(net, ifr->ifr_name);
@@ -1727,6 +1901,7 @@ int dev_ethtool(struct net *net, struct ifreq *ifr)
 	if (copy_from_user(&ethcmd, useraddr, sizeof(ethcmd)))
 		return -EFAULT;
 
+	/* Allow some commands to be done by anyone */
 	switch (ethcmd) {
 	case ETHTOOL_GSET:
 	case ETHTOOL_GDRVINFO:
@@ -1760,7 +1935,7 @@ int dev_ethtool(struct net *net, struct ifreq *ifr)
 	case ETHTOOL_GEEE:
 #if defined(MY_ABC_HERE)
 	case ETHTOOL_GLINKSETTINGS:
-#endif  
+#endif /* MY_ABC_HERE */
 		break;
 	default:
 		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
@@ -1949,7 +2124,7 @@ int dev_ethtool(struct net *net, struct ifreq *ifr)
 	case ETHTOOL_SLINKSETTINGS:
 		rc = ethtool_set_link_ksettings(dev, useraddr);
 		break;
-#endif  
+#endif /* MY_ABC_HERE */
 	default:
 		rc = -EOPNOTSUPP;
 	}

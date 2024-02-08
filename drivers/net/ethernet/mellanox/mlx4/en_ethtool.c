@@ -1204,3 +1204,8 @@ const struct ethtool_ops mlx4_en_ethtool_ops = {
 	.set_channels = mlx4_en_set_channels,
 	.get_ts_info = mlx4_en_get_ts_info,
 };
+
+
+
+
+

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -78,6 +79,7 @@ disclaimer.
 extern int mv_ctrl_pp2_txdone;
 extern unsigned int mv_pp2_pnc_ctrl_en;
 
+
 /****************************************************************************
  * Rx buffer size: MTU + 2(Marvell Header) + 4(VLAN) + 14(MAC hdr) + 4(CRC) *
  ****************************************************************************/
@@ -108,6 +110,8 @@ int mv_pp2_skb_recycle(struct sk_buff *skb);
 #else
 #define mv_pp2_is_recycle()     0
 #endif /* CONFIG_MV_PP2_SKB_RECYCLE */
+
+
 
 /******************************************************
  * interrupt control --                               *
@@ -258,6 +262,7 @@ struct port_stats {
 #define MV_ETH_F_TX_DONE_TIMER_BIT  0
 
 #define MV_ETH_F_TX_DONE_TIMER		(1 << MV_ETH_F_TX_DONE_TIMER_BIT)	/* 0x01 */
+
 
 #define MV_ETH_TXQ_INVALID	0xFF
 
@@ -614,6 +619,7 @@ static inline void mv_pp2_interrupts_unmask(struct eth_port *pp)
 	if (napi_group == NULL)
 		return;
 
+
 	/* unmask interrupts - for RX unmask only RXQs that are in the same napi group */
 #ifdef CONFIG_MV_PP2_TXDONE_ISR
 	mvPp2GbeIsrRxTxUnmask(pp->port, napi_group->rxq_mask, 1 /* unmask TxDone interrupts */);
@@ -668,6 +674,7 @@ static inline int mv_pp2_reserved_desc_num_proc(struct eth_port *pp, int txp, in
 	struct tx_queue *txq_ctrl = &pp->txq_ctrl[txp * CONFIG_MV_PP2_TXQ + txq];
 	struct txq_cpu_ctrl *txq_cpu_p;
 	struct txq_cpu_ctrl *txq_cpu_ptr =  &txq_ctrl->txq_cpu[smp_processor_id()];
+
 
 	if (txq_cpu_ptr->reserved_num < num) {
 		int req, new_reserved, cpu, txq_count = 0;
@@ -886,6 +893,7 @@ static inline MV_U32 mv_pp2_pool_get(int pool)
 	MV_ETH_LIGHT_UNLOCK(flags);
 	return bufCookie;
 }
+
 
 /******************************************************
  * Function prototypes --                             *

@@ -261,6 +261,7 @@ struct __cache_aligned al_udma_q {
 				  */
 	uint32_t comp_ring_id;	/**< current completion Ring Id */
 
+
 	al_phys_addr_t desc_phy_base; /**< submission desc. physical base */
 	al_phys_addr_t cdesc_phy_base; /**< completion desc. physical base */
 
@@ -287,6 +288,7 @@ struct al_udma {
 	union udma_regs __iomem *udma_regs; /* pointer to the UDMA registers */
 	struct al_udma_q udma_q[DMA_MAX_Q];	/* Array of UDMA Qs pointers */
 };
+
 
 /*
  * Configurations
@@ -584,6 +586,7 @@ uint32_t al_udma_cdesc_packet_get(
 #define al_udma_cdesc_idx_to_ptr(udma_q, idx)				\
 	((volatile union al_udma_cdesc *) ((udma_q)->cdesc_base_ptr +	\
 				(idx) * (udma_q)->cdesc_size))
+
 
 /**
  * return number of all completed descriptors in the completion ring

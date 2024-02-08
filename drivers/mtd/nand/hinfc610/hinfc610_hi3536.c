@@ -40,3 +40,4 @@ void hinfc610_controller_enable(struct hinfc_host *host, int enable)
 
 	writel(reg_val, (void *)(base + PERI_CRG52));
 }
+

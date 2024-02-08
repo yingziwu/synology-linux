@@ -192,3 +192,4 @@ void hiusb3_stop_hcd(void)
 	local_irq_restore(flags);
 }
 EXPORT_SYMBOL(hiusb3_stop_hcd);
+

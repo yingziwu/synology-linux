@@ -23,6 +23,7 @@
 /* Symbol Look Up Table fingerprint. IDs are in sigs.h */
 #define SLUT_FINGERPRINT        0xD397
 
+
 /* Values of LoaderOperation */
 #define UNIFI_LOADER_IDLE       0x00
 #define UNIFI_LOADER_COPY       0x01
@@ -34,6 +35,7 @@
 #define UNIFI_BOOT_LOADER_PATCH      0x02
 #define UNIFI_BOOT_LOADER_LOAD_STA   0x10
 #define UNIFI_BOOT_LOADER_LOAD_PTEST 0x11
+
 
 /* Memory spaces encoded in top byte of Generic Pointer type */
 #define UNIFI_SH_DMEM   0x01    /* Shared Data Memory */

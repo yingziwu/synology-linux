@@ -47,6 +47,7 @@ unifi_TrafficQueue unifi_frame_priority_to_queue(CSR_PRIORITY priority)
     }
 }
 
+
 CSR_PRIORITY unifi_get_default_downgrade_priority(unifi_TrafficQueue queue)
 {
     switch (queue)
@@ -63,6 +64,7 @@ CSR_PRIORITY unifi_get_default_downgrade_priority(unifi_TrafficQueue queue)
             return CSR_QOS_UP0;
     }
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -271,6 +273,7 @@ static CsrResult send_signal(card_t *card, const u8 *sigptr, u32 siglen,
     return CSR_RESULT_SUCCESS;
 } /*  send_signal() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_send_signal
@@ -354,6 +357,7 @@ CsrResult unifi_send_signal(card_t *card, const u8 *sigptr, u32 siglen,
     return r;
 } /* unifi_send_signal() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_send_resources_available
@@ -407,3 +411,5 @@ CsrResult unifi_send_resources_available(card_t *card, const u8 *sigptr)
 
     return CSR_RESULT_SUCCESS;
 } /* unifi_send_resources_available() */
+
+

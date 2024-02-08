@@ -45,6 +45,7 @@ static void mips_machine_halt(void)
 	__raw_writel(GORESET, softres_reg);
 }
 
+
 static int __init mips_reboot_setup(void)
 {
 	_machine_restart = mips_machine_restart;

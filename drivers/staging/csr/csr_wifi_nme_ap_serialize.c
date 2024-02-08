@@ -24,6 +24,7 @@ void CsrWifiNmeApPfree(void *ptr)
     kfree(ptr);
 }
 
+
 size_t CsrWifiNmeApConfigSetReqSizeof(void *msg)
 {
     CsrWifiNmeApConfigSetReq *primitive = (CsrWifiNmeApConfigSetReq *) msg;
@@ -85,6 +86,7 @@ size_t CsrWifiNmeApConfigSetReqSizeof(void *msg)
     return bufferSize;
 }
 
+
 u8* CsrWifiNmeApConfigSetReqSer(u8 *ptr, size_t *len, void *msg)
 {
     CsrWifiNmeApConfigSetReq *primitive = (CsrWifiNmeApConfigSetReq *)msg;
@@ -144,6 +146,7 @@ u8* CsrWifiNmeApConfigSetReqSer(u8 *ptr, size_t *len, void *msg)
     CsrUint8Ser(ptr, len, (u8) primitive->apMacConfig.apHtParams.dualCtsProtection);
     return(ptr);
 }
+
 
 void* CsrWifiNmeApConfigSetReqDes(u8 *buffer, size_t length)
 {
@@ -213,12 +216,14 @@ void* CsrWifiNmeApConfigSetReqDes(u8 *buffer, size_t length)
     return primitive;
 }
 
+
 void CsrWifiNmeApConfigSetReqSerFree(void *voidPrimitivePointer)
 {
     CsrWifiNmeApConfigSetReq *primitive = (CsrWifiNmeApConfigSetReq *) voidPrimitivePointer;
     kfree(primitive->apMacConfig.macAddressList);
     kfree(primitive);
 }
+
 
 size_t CsrWifiNmeApWpsRegisterReqSizeof(void *msg)
 {
@@ -232,6 +237,7 @@ size_t CsrWifiNmeApWpsRegisterReqSizeof(void *msg)
     return bufferSize;
 }
 
+
 u8* CsrWifiNmeApWpsRegisterReqSer(u8 *ptr, size_t *len, void *msg)
 {
     CsrWifiNmeApWpsRegisterReq *primitive = (CsrWifiNmeApWpsRegisterReq *)msg;
@@ -243,6 +249,7 @@ u8* CsrWifiNmeApWpsRegisterReqSer(u8 *ptr, size_t *len, void *msg)
     CsrMemCpySer(ptr, len, (const void *) primitive->pin, ((u16) (8)));
     return(ptr);
 }
+
 
 void* CsrWifiNmeApWpsRegisterReqDes(u8 *buffer, size_t length)
 {
@@ -258,6 +265,7 @@ void* CsrWifiNmeApWpsRegisterReqDes(u8 *buffer, size_t length)
 
     return primitive;
 }
+
 
 size_t CsrWifiNmeApStartReqSizeof(void *msg)
 {
@@ -344,6 +352,7 @@ size_t CsrWifiNmeApStartReqSizeof(void *msg)
     bufferSize += 1;                                                                                          /* u8 primitive->wpsEnabled */
     return bufferSize;
 }
+
 
 u8* CsrWifiNmeApStartReqSer(u8 *ptr, size_t *len, void *msg)
 {
@@ -432,6 +441,7 @@ u8* CsrWifiNmeApStartReqSer(u8 *ptr, size_t *len, void *msg)
     CsrUint8Ser(ptr, len, (u8) primitive->wpsEnabled);
     return(ptr);
 }
+
 
 void* CsrWifiNmeApStartReqDes(u8 *buffer, size_t length)
 {
@@ -534,6 +544,7 @@ void* CsrWifiNmeApStartReqDes(u8 *buffer, size_t length)
     return primitive;
 }
 
+
 void CsrWifiNmeApStartReqSerFree(void *voidPrimitivePointer)
 {
     CsrWifiNmeApStartReq *primitive = (CsrWifiNmeApStartReq *) voidPrimitivePointer;
@@ -562,6 +573,7 @@ void CsrWifiNmeApStartReqSerFree(void *voidPrimitivePointer)
     kfree(primitive->p2pGoParam.operatingChanList.channelEntryList);
     kfree(primitive);
 }
+
 
 size_t CsrWifiNmeApWmmParamUpdateReqSizeof(void *msg)
 {
@@ -593,6 +605,7 @@ size_t CsrWifiNmeApWmmParamUpdateReqSizeof(void *msg)
     return bufferSize;
 }
 
+
 u8* CsrWifiNmeApWmmParamUpdateReqSer(u8 *ptr, size_t *len, void *msg)
 {
     CsrWifiNmeApWmmParamUpdateReq *primitive = (CsrWifiNmeApWmmParamUpdateReq *)msg;
@@ -622,6 +635,7 @@ u8* CsrWifiNmeApWmmParamUpdateReqSer(u8 *ptr, size_t *len, void *msg)
     }
     return(ptr);
 }
+
 
 void* CsrWifiNmeApWmmParamUpdateReqDes(u8 *buffer, size_t length)
 {
@@ -656,6 +670,7 @@ void* CsrWifiNmeApWmmParamUpdateReqDes(u8 *buffer, size_t length)
     return primitive;
 }
 
+
 size_t CsrWifiNmeApStaRemoveReqSizeof(void *msg)
 {
     size_t bufferSize = 2;
@@ -667,6 +682,7 @@ size_t CsrWifiNmeApStaRemoveReqSizeof(void *msg)
     return bufferSize;
 }
 
+
 u8* CsrWifiNmeApStaRemoveReqSer(u8 *ptr, size_t *len, void *msg)
 {
     CsrWifiNmeApStaRemoveReq *primitive = (CsrWifiNmeApStaRemoveReq *)msg;
@@ -677,6 +693,7 @@ u8* CsrWifiNmeApStaRemoveReqSer(u8 *ptr, size_t *len, void *msg)
     CsrUint8Ser(ptr, len, (u8) primitive->keepBlocking);
     return(ptr);
 }
+
 
 void* CsrWifiNmeApStaRemoveReqDes(u8 *buffer, size_t length)
 {
@@ -692,6 +709,7 @@ void* CsrWifiNmeApStaRemoveReqDes(u8 *buffer, size_t length)
     return primitive;
 }
 
+
 size_t CsrWifiNmeApWpsRegisterCfmSizeof(void *msg)
 {
     size_t bufferSize = 2;
@@ -702,6 +720,7 @@ size_t CsrWifiNmeApWpsRegisterCfmSizeof(void *msg)
     return bufferSize;
 }
 
+
 u8* CsrWifiNmeApWpsRegisterCfmSer(u8 *ptr, size_t *len, void *msg)
 {
     CsrWifiNmeApWpsRegisterCfm *primitive = (CsrWifiNmeApWpsRegisterCfm *)msg;
@@ -711,6 +730,7 @@ u8* CsrWifiNmeApWpsRegisterCfmSer(u8 *ptr, size_t *len, void *msg)
     CsrUint16Ser(ptr, len, (u16) primitive->status);
     return(ptr);
 }
+
 
 void* CsrWifiNmeApWpsRegisterCfmDes(u8 *buffer, size_t length)
 {
@@ -725,6 +745,7 @@ void* CsrWifiNmeApWpsRegisterCfmDes(u8 *buffer, size_t length)
     return primitive;
 }
 
+
 size_t CsrWifiNmeApStartCfmSizeof(void *msg)
 {
     size_t bufferSize = 2;
@@ -737,6 +758,7 @@ size_t CsrWifiNmeApStartCfmSizeof(void *msg)
     return bufferSize;
 }
 
+
 u8* CsrWifiNmeApStartCfmSer(u8 *ptr, size_t *len, void *msg)
 {
     CsrWifiNmeApStartCfm *primitive = (CsrWifiNmeApStartCfm *)msg;
@@ -748,6 +770,7 @@ u8* CsrWifiNmeApStartCfmSer(u8 *ptr, size_t *len, void *msg)
     CsrUint8Ser(ptr, len, (u8) primitive->ssid.length);
     return(ptr);
 }
+
 
 void* CsrWifiNmeApStartCfmDes(u8 *buffer, size_t length)
 {
@@ -764,6 +787,7 @@ void* CsrWifiNmeApStartCfmDes(u8 *buffer, size_t length)
     return primitive;
 }
 
+
 size_t CsrWifiNmeApStopCfmSizeof(void *msg)
 {
     size_t bufferSize = 2;
@@ -774,6 +798,7 @@ size_t CsrWifiNmeApStopCfmSizeof(void *msg)
     return bufferSize;
 }
 
+
 u8* CsrWifiNmeApStopCfmSer(u8 *ptr, size_t *len, void *msg)
 {
     CsrWifiNmeApStopCfm *primitive = (CsrWifiNmeApStopCfm *)msg;
@@ -783,6 +808,7 @@ u8* CsrWifiNmeApStopCfmSer(u8 *ptr, size_t *len, void *msg)
     CsrUint16Ser(ptr, len, (u16) primitive->status);
     return(ptr);
 }
+
 
 void* CsrWifiNmeApStopCfmDes(u8 *buffer, size_t length)
 {
@@ -797,6 +823,7 @@ void* CsrWifiNmeApStopCfmDes(u8 *buffer, size_t length)
     return primitive;
 }
 
+
 size_t CsrWifiNmeApStopIndSizeof(void *msg)
 {
     size_t bufferSize = 2;
@@ -808,6 +835,7 @@ size_t CsrWifiNmeApStopIndSizeof(void *msg)
     return bufferSize;
 }
 
+
 u8* CsrWifiNmeApStopIndSer(u8 *ptr, size_t *len, void *msg)
 {
     CsrWifiNmeApStopInd *primitive = (CsrWifiNmeApStopInd *)msg;
@@ -818,6 +846,7 @@ u8* CsrWifiNmeApStopIndSer(u8 *ptr, size_t *len, void *msg)
     CsrUint16Ser(ptr, len, (u16) primitive->status);
     return(ptr);
 }
+
 
 void* CsrWifiNmeApStopIndDes(u8 *buffer, size_t length)
 {
@@ -833,6 +862,7 @@ void* CsrWifiNmeApStopIndDes(u8 *buffer, size_t length)
     return primitive;
 }
 
+
 size_t CsrWifiNmeApStationIndSizeof(void *msg)
 {
     size_t bufferSize = 2;
@@ -845,6 +875,7 @@ size_t CsrWifiNmeApStationIndSizeof(void *msg)
     return bufferSize;
 }
 
+
 u8* CsrWifiNmeApStationIndSer(u8 *ptr, size_t *len, void *msg)
 {
     CsrWifiNmeApStationInd *primitive = (CsrWifiNmeApStationInd *)msg;
@@ -856,6 +887,7 @@ u8* CsrWifiNmeApStationIndSer(u8 *ptr, size_t *len, void *msg)
     CsrMemCpySer(ptr, len, (const void *) primitive->peerDeviceAddress.a, ((u16) (6)));
     return(ptr);
 }
+
 
 void* CsrWifiNmeApStationIndDes(u8 *buffer, size_t length)
 {
@@ -871,6 +903,7 @@ void* CsrWifiNmeApStationIndDes(u8 *buffer, size_t length)
 
     return primitive;
 }
+
 
 #endif /* CSR_WIFI_NME_ENABLE */
 #endif /* CSR_WIFI_AP_ENABLE */

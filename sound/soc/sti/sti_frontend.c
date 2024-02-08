@@ -246,6 +246,7 @@ static struct snd_soc_platform_driver sti_frontend_platform = {
 	.pcm_new	= sti_frontend_pcm_new,
 };
 
+
 static int sti_frontend_engine_probe(struct platform_device *pdev)
 {
 	int ret;

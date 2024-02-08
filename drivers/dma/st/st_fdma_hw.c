@@ -14,6 +14,7 @@
 
 #include "st_fdma.h"
 
+
 void st_fdma_hw_enable(struct st_fdma_device *fdev)
 {
 	unsigned long irqflags = 0;

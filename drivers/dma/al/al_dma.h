@@ -325,6 +325,8 @@ static inline struct al_dma_chan *to_al_dma_chan(struct dma_chan *c)
 
 /* wrapper around hardware descriptor format + additional software fields */
 
+
+
 #ifdef DEBUG
 #define set_desc_id(desc, i) ((desc)->id = (i))
 #define desc_id(desc) ((desc)->id)

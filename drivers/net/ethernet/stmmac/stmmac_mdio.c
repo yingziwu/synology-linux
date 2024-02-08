@@ -57,6 +57,7 @@
 
 #endif
 
+
 static struct mii_bus *stmmac_mii_bus;
 static int stmmac_mii_bus_refcount;
 
@@ -165,6 +166,7 @@ static int stmmac_mdio_write(struct mii_bus *bus, int phyaddr, int phyreg,
 		MII_WRITE;
 
 	value |= MII_BUSY | ((priv->plat->clk_csr & 7) << 2);
+
 
 	/* Wait until any existing MII operation is complete */
 	do {} while (((readl(priv->mii_ioaddr + mii_address)) & MII_BUSY) == 1);

@@ -10,6 +10,7 @@
  * (at your option) any later version.
  */
 
+
 /* #define VERBOSE_DEBUG */
 
 #include <linux/init.h>
@@ -31,6 +32,7 @@
 
 #include <linux/usb/gadgetfs.h>
 #include <linux/usb/gadget.h>
+
 
 /*
  * The gadgetfs API maps each endpoint to a file descriptor so that you
@@ -71,6 +73,7 @@ static const char shortname [] = "gadgetfs";
 MODULE_DESCRIPTION (DRIVER_DESC);
 MODULE_AUTHOR ("David Brownell");
 MODULE_LICENSE ("GPL");
+
 
 /*----------------------------------------------------------------------*/
 
@@ -254,6 +257,7 @@ static const char *CHIP;
 #define INFO(dev,fmt,args...) \
 	xprintk(dev , KERN_INFO , fmt , ## args)
 
+
 /*----------------------------------------------------------------------*/
 
 /* SYNCHRONOUS ENDPOINT OPERATIONS (bulk/intr/iso)
@@ -359,6 +363,7 @@ ep_io (struct ep_data *epdata, void *buf, unsigned len)
 	}
 	return value;
 }
+
 
 /* handle a synchronous OUT bulk/intr/iso transfer */
 static ssize_t
@@ -1195,7 +1200,7 @@ ep0_write (struct file *fd, const char __user *buf, size_t len, loff_t *ptr)
 	/* data and/or status stage for control request */
 	} else if (dev->state == STATE_DEV_SETUP) {
 
-		/* IN DATA+STATUS caller makes len <= wLength */
+		len = min_t(size_t, len, dev->setup_wLength);
 		if (dev->setup_in) {
 			retval = setup_req (dev->gadget->ep0, dev->req, len);
 			if (retval == 0) {
@@ -1614,6 +1619,7 @@ static void destroy_ep_files (struct dev_data *dev)
 	spin_unlock_irq (&dev->lock);
 }
 
+
 static struct inode *
 gadgetfs_create_file (struct super_block *sb, char const *name,
 		void *data, const struct file_operations *fops,
@@ -1801,6 +1807,7 @@ static struct usb_gadget_driver probe_driver = {
 	},
 };
 
+
 /* DEVICE INITIALIZATION
  *
  *     fd = open ("/dev/gadget/$CHIP", O_RDWR)
@@ -1827,10 +1834,12 @@ static struct usb_gadget_driver probe_driver = {
  * such as configuration notifications.
  */
 
-static int is_valid_config (struct usb_config_descriptor *config)
+static int is_valid_config(struct usb_config_descriptor *config,
+		unsigned int total)
 {
 	return config->bDescriptorType == USB_DT_CONFIG
 		&& config->bLength == USB_DT_CONFIG_SIZE
+		&& total >= USB_DT_CONFIG_SIZE
 		&& config->bConfigurationValue != 0
 		&& (config->bmAttributes & USB_CONFIG_ATT_ONE) != 0
 		&& (config->bmAttributes & USB_CONFIG_ATT_WAKEUP) == 0;
@@ -1847,7 +1856,8 @@ dev_config (struct file *fd, const char __user *buf, size_t len, loff_t *ptr)
 	u32			tag;
 	char			*kbuf;
 
-	if (len < (USB_DT_CONFIG_SIZE + USB_DT_DEVICE_SIZE + 4))
+	if ((len < (USB_DT_CONFIG_SIZE + USB_DT_DEVICE_SIZE + 4)) ||
+	    (len > PAGE_SIZE * 4))
 		return -EINVAL;
 
 	/* we might need to change message format someday */
@@ -1871,7 +1881,8 @@ dev_config (struct file *fd, const char __user *buf, size_t len, loff_t *ptr)
 	/* full or low speed config */
 	dev->config = (void *) kbuf;
 	total = le16_to_cpu(dev->config->wTotalLength);
-	if (!is_valid_config (dev->config) || total >= length)
+	if (!is_valid_config(dev->config, total) ||
+			total > length - USB_DT_DEVICE_SIZE)
 		goto fail;
 	kbuf += total;
 	length -= total;
@@ -1880,10 +1891,13 @@ dev_config (struct file *fd, const char __user *buf, size_t len, loff_t *ptr)
 	if (kbuf [1] == USB_DT_CONFIG) {
 		dev->hs_config = (void *) kbuf;
 		total = le16_to_cpu(dev->hs_config->wTotalLength);
-		if (!is_valid_config (dev->hs_config) || total >= length)
+		if (!is_valid_config(dev->hs_config, total) ||
+				total > length - USB_DT_DEVICE_SIZE)
 			goto fail;
 		kbuf += total;
 		length -= total;
+	} else {
+		dev->hs_config = NULL;
 	}
 
 	/* could support multiple configs, using another encoding! */
@@ -1969,6 +1983,7 @@ static const struct file_operations dev_init_operations = {
  * device configuration then later for event monitoring.
  */
 
+
 /* FIXME PAM etc could set this security policy without mount options
  * if epfiles inherited ownership and permissons from ep0 ...
  */
@@ -1980,6 +1995,7 @@ static unsigned default_perm = S_IRUSR | S_IWUSR;
 module_param (default_uid, uint, 0644);
 module_param (default_gid, uint, 0644);
 module_param (default_perm, uint, 0644);
+
 
 static struct inode *
 gadgetfs_make_inode (struct super_block *sb,
@@ -2136,3 +2152,4 @@ static void __exit cleanup (void)
 	unregister_filesystem (&gadgetfs_type);
 }
 module_exit (cleanup);
+

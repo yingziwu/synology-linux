@@ -51,6 +51,8 @@ extern "C" {
 * Unit Registers
 */
 
+
+
 struct al_ec_gen {
 	/* [0x0] Ethernet controller Version */
 	uint32_t version;
@@ -1058,9 +1060,11 @@ struct al_ec_regs {
 	struct al_ec_crypto crypto;                             /* [0x2790] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** version register ****/
 /* Revision number (Minor) */

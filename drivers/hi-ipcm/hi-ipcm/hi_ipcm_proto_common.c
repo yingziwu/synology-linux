@@ -404,6 +404,7 @@ int ipcm_vdd_check_remote()
 }
 EXPORT_SYMBOL(ipcm_vdd_check_remote);
 
+
 /*
  *	function: close ipc handle
  *	input:    handle:ipc handle
@@ -616,6 +617,7 @@ static int __init ipcm_vdd_init(void)
 		return -1;
 	}
 
+
 	if (sysfs_create_group(hi_ipcm_kobj, &attr_group)) {
 		kobject_put(hi_ipcm_kobj);
 		mcc_trace(IPCM_ERR_LEVEL, "create sysfs file failed!\n");
@@ -675,3 +677,4 @@ module_param(cpuid, uint, 0);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("chendazheng");
 MODULE_DESCRIPTION("IPCM communicate vdd layer for Hisilicon IPCM Communicate Solution");
+

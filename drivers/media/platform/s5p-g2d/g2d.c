@@ -88,6 +88,7 @@ static struct g2d_fmt *find_fmt(struct v4l2_format *f)
 	return NULL;
 }
 
+
 static struct g2d_frame *get_frame(struct g2d_ctx *ctx,
 							enum v4l2_buf_type type)
 {
@@ -137,6 +138,7 @@ static void g2d_buf_queue(struct vb2_buffer *vb)
 	struct g2d_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
 	v4l2_m2m_buf_queue(ctx->m2m_ctx, vb);
 }
+
 
 static struct vb2_ops g2d_qops = {
 	.queue_setup	= g2d_queue_setup,
@@ -286,6 +288,7 @@ static int g2d_release(struct file *file)
 	v4l2_info(&dev->v4l2_dev, "instance closed\n");
 	return 0;
 }
+
 
 static int vidioc_querycap(struct file *file, void *priv,
 				struct v4l2_capability *cap)
@@ -457,6 +460,7 @@ static int vidioc_dqbuf(struct file *file, void *priv, struct v4l2_buffer *buf)
 	struct g2d_ctx *ctx = priv;
 	return v4l2_m2m_dqbuf(file, ctx->m2m_ctx, buf);
 }
+
 
 static int vidioc_streamon(struct file *file, void *priv,
 					enum v4l2_buf_type type)

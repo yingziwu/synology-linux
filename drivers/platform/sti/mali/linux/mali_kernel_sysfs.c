@@ -8,6 +8,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+
 /**
  * @file mali_kernel_sysfs.c
  * Implementation of some sysfs data exports
@@ -880,6 +881,7 @@ static ssize_t utilization_pp_read(struct file *filp, char __user *ubuf, size_t 
 	r = snprintf(buf, 64, "%u\n", uval);
 	return simple_read_from_buffer(ubuf, cnt, ppos, buf, r);
 }
+
 
 static const struct file_operations utilization_gp_pp_fops = {
 	.owner = THIS_MODULE,

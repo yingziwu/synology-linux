@@ -958,6 +958,7 @@ mapped:
 	if (usage->code > max)
 		goto ignore;
 
+
 	if (usage->type == EV_ABS) {
 
 		int a = field->logical_minimum;
@@ -1453,3 +1454,4 @@ void hidinput_disconnect(struct hid_device *hid)
 	}
 }
 EXPORT_SYMBOL_GPL(hidinput_disconnect);
+

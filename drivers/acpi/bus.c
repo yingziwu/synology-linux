@@ -55,6 +55,7 @@ EXPORT_SYMBOL(acpi_root_dir);
 
 #define STRUCT_TO_INT(s)	(*((int*)&s))
 
+
 #ifdef CONFIG_X86
 #ifdef CONFIG_ACPI_CUSTOM_DSDT
 static inline int set_copy_dsdt(const struct dmi_system_id *id)
@@ -99,6 +100,7 @@ static struct dmi_system_id dsdt_dmi_table[] __initdata = {
 int acpi_bus_get_device(acpi_handle handle, struct acpi_device **device)
 {
 	acpi_status status = AE_OK;
+
 
 	if (!device)
 		return -EINVAL;
@@ -411,6 +413,7 @@ int acpi_bus_receive_event(struct acpi_bus_event *event)
 
 	DECLARE_WAITQUEUE(wait, current);
 
+
 	if (!event)
 		return -EINVAL;
 
@@ -603,6 +606,7 @@ static int __init acpi_bus_init_irq(void)
 	struct acpi_object_list arg_list = { 1, &arg };
 	char *message = NULL;
 
+
 	/*
 	 * Let the system know what interrupt model we are using by
 	 * evaluating the \_PIC object, if exists.
@@ -640,6 +644,7 @@ static int __init acpi_bus_init_irq(void)
 }
 
 u8 acpi_gbl_permanent_mmap;
+
 
 void __init acpi_early_init(void)
 {

@@ -70,6 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../common/mvPp2Common.h"
 #include "../gbe/mvPp2GbeRegs.h"
 
+
 /*-------------------------------------------------------------------------------*/
 /*			Classifier C4 Top Registers	    			 */
 /*-------------------------------------------------------------------------------*/
@@ -132,6 +133,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MV_PP2_CLS4_L4INFO_MAX					((1 << MV_PP2_CLS4_FDATA7_L4INFO_BITS) - 1)
 #define MV_PP2_CLS4_L4INFO_MASK					(MV_PP2_CLS4_L4INFO_MAX << MV_PP2_CLS4_FDATA7_L4INFO)
 #define MV_PP2_CLS4_L4INFO_VAL(reg_val)				(((reg_val) & MV_PP2_CLS4_L4INFO_MASK) >> MV_PP2_CLS4_FDATA7_L4INFO)
+
 
 #define MV_PP2_CLS4_FDATA7_MACME				24
 #define MV_PP2_CLS4_FDATA7_MACME_BITS				2
@@ -207,6 +209,7 @@ typedef struct mvPp2ClsC4RuleEntry {
 	} sram;
 } MV_PP2_CLS_C4_ENTRY;
 
+
 int mvPp2ClsC4HwPortToRulesSet(int port, int set, int rules);
 int mvPp2ClsC4HwUniToRulesSet(int uniPort, int set, int rules);
 int mvPp2ClsC4HwPortToRulesGet(int port, int *set, int *rules);
@@ -221,9 +224,11 @@ int mvPp2V1ClsC4HwHitsDump(void);
 int mvPp2ClsC4HwDumpAll(void);
 int mvPp2V1ClsC4HwCntDump(int rule, int set, unsigned int *cnt);
 
+
 /*-------------------------------------------------------------------------------*/
 /*			Classifier C4 engine rules APIs	 			 */
 /*-------------------------------------------------------------------------------*/
+
 
 int mvPp2ClsC4FieldsShortSet(MV_PP2_CLS_C4_ENTRY *C4, int field, unsigned int offs, unsigned short data);
 int mvPp2ClsC4FieldsParamsSet(MV_PP2_CLS_C4_ENTRY *C4, int field, unsigned int id, unsigned int op);
@@ -232,6 +237,7 @@ int mvPp2ClsC4SwPppoeSet(MV_PP2_CLS_C4_ENTRY *C4, int pppoe);
 int mvPp2ClsC4SwMacMeSet(MV_PP2_CLS_C4_ENTRY *C4, int mac);
 int mvPp2ClsC4SwL4InfoSet(MV_PP2_CLS_C4_ENTRY *C4, int info);
 int mvPp2ClsC4SwL3InfoSet(MV_PP2_CLS_C4_ENTRY *C4, int info);
+
 
 /*-------------------------------------------------------------------------------*/
 /*			Classifier C4 engine action table APIs 			 */

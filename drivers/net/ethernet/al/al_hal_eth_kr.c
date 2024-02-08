@@ -504,6 +504,7 @@ void al_eth_kr_an_read_adv(struct al_hal_eth_adapter *adapter,
 
 	al_assert(an_adv != NULL);
 
+
 	reg = al_eth_an_reg_read(adapter, AL_ETH_KR_AN_REM_ADV0);
 
 	an_adv->selector_field = AL_REG_FIELD_GET(reg,
@@ -527,6 +528,7 @@ void al_eth_kr_an_read_adv(struct al_hal_eth_adapter *adapter,
 	an_adv->next_page = AL_REG_BIT_GET(reg,
 					AL_ETH_KR_AN_ADV1_NEXT_PAGE_SHIFT);
 
+
 	reg = al_eth_an_reg_read(adapter, AL_ETH_KR_AN_REM_ADV1);
 
 	an_adv->transmitted_nonce = AL_REG_FIELD_GET(reg,
@@ -536,6 +538,7 @@ void al_eth_kr_an_read_adv(struct al_hal_eth_adapter *adapter,
 	an_adv->technology = AL_REG_FIELD_GET(reg,
 					 AL_ETH_KR_AN_ADV2_TECH_MASK,
 					 AL_ETH_KR_AN_ADV2_TECH_SHIFT);
+
 
 	reg = al_eth_an_reg_read(adapter, AL_ETH_KR_AN_REM_ADV2);
 
@@ -547,6 +550,7 @@ void al_eth_kr_an_read_adv(struct al_hal_eth_adapter *adapter,
 					 AL_ETH_KR_AN_ADV3_FEC_MASK,
 					 AL_ETH_KR_AN_ADV3_FEC_SHIFT);
 }
+
 
 int al_eth_kr_an_init(struct al_hal_eth_adapter *adapter,
 		      struct al_eth_an_adv *an_adv)
@@ -621,6 +625,7 @@ void al_eth_kr_an_status_check(struct al_hal_eth_adapter *adapter,
 	else
 		*an_completed = AL_FALSE;
 }
+
 
 /****************************** KR Link Training *****************************/
 void al_eth_kr_lt_restart(struct al_hal_eth_adapter *adapter)

@@ -52,6 +52,8 @@ extern "C" {
 * Unit Registers
 */
 
+
+
 struct udma_axi_s2m {
 	/* [0x0] Data write master configuration */
 	uint32_t data_wr_cfg_1;
@@ -296,9 +298,11 @@ struct udma_s2m_regs {
 	struct udma_s2m_q s2m_q[4];                      /* [0x1000] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** data_wr_cfg_1 register ****/
 /* AXI write  ID (AWID) */

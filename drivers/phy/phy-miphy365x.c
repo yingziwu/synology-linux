@@ -615,3 +615,5 @@ module_platform_driver(miphy365x_phy_driver);
 MODULE_AUTHOR("Alexandre Torgue <alexandre.torgue@st.com>");
 MODULE_DESCRIPTION("STMicroelectronics miphy365x driver");
 MODULE_LICENSE("GPL v2");
+
+

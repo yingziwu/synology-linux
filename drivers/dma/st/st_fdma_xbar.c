@@ -23,6 +23,7 @@
 #include <linux/platform_data/dma-st-fdma.h>
 #include "st_fdma.h"
 
+
 /*
  * Device type
  */
@@ -35,6 +36,7 @@ struct st_fdma_xbar {
 	int first_fdma_id;
 	int last_fdma_id;
 };
+
 
 /*
  * Routing functions
@@ -56,6 +58,7 @@ static int st_fdma_xbar_route(struct st_fdma_dreq_router *router,
 
 	return 0;
 }
+
 
 /*
  * Platform driver initialise
@@ -138,6 +141,7 @@ static int st_fdma_xbar_remove(struct platform_device *pdev)
 
 	return 0;
 }
+
 
 #ifdef CONFIG_OF
 static struct of_device_id st_fdma_xbar_match[] = {

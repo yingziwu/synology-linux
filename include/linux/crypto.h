@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Scatterlist Cryptographic API.
  *
@@ -94,13 +97,13 @@
  */
 #define CRYPTO_ALG_KERN_DRIVER_ONLY	0x00001000
 
-#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+#if defined(MY_DEF_HERE)
 /*
  * Mark a cipher as a service implementation only usable by another
  * cipher and never by a normal user of the kernel crypto API
  */
 #define CRYPTO_ALG_INTERNAL		0x00002000
-#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#endif /* MY_DEF_HERE */
 
 /*
  * Transform masks and values (for crt_flags).
@@ -289,6 +292,7 @@ struct rng_alg {
 
 	unsigned int seedsize;
 };
+
 
 #define cra_ablkcipher	cra_u.ablkcipher
 #define cra_aead	cra_u.aead
@@ -1312,3 +1316,4 @@ static inline int crypto_comp_decompress(struct crypto_comp *tfm,
 }
 
 #endif	/* _LINUX_CRYPTO_H */
+

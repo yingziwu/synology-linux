@@ -274,6 +274,7 @@ static int reset_uart401(uart401_devc * devc)
 		}
 	}
 
+
 	if (ok)
 	{
 		DEB(printk("Reset UART401 OK\n"));
@@ -438,6 +439,7 @@ static int irq = -1;
 
 module_param(io, int, 0444);
 module_param(irq, int, 0444);
+
 
 static int __init init_uart401(void)
 {

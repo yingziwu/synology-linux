@@ -483,6 +483,7 @@ EXPORT_SYMBOL(smp_call_function);
 unsigned int setup_max_cpus = NR_CPUS;
 EXPORT_SYMBOL(setup_max_cpus);
 
+
 /*
  * Setup routine for controlling SMP activation
  *

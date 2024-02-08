@@ -37,3 +37,4 @@ void s3c_pm_save_core(void)
 {
 	/* nothing here yet */
 }
+

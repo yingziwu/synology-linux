@@ -147,6 +147,7 @@ static INLINE MV_VOID mvGmacPortSumIsrUnmask(int port)
 	MV_REG_WRITE(ETH_PORT_ISR_SUM_MASK_REG(port), ETH_PORT_ISR_SUM_INTERN_MASK);
 }
 
+
 void mvGmacPhyPollEnable(int enable);
 void mvGmacDefaultsSet(int port);
 void mvGmacPortEnable(int port);

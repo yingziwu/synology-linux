@@ -27,6 +27,7 @@
 #define KPROBE_THUMB16_BREAKPOINT_INSTRUCTION	0xde18
 #define KPROBE_THUMB32_BREAKPOINT_INSTRUCTION	0xf7f0a018
 
+
 enum kprobe_insn {
 	INSN_REJECTED,
 	INSN_GOOD,
@@ -53,6 +54,7 @@ void __init arm_kprobe_decode_init(void);
 
 extern kprobe_check_cc * const kprobe_condition_checks[16];
 
+
 #if __LINUX_ARM_ARCH__ >= 7
 
 /* str_pc_offset is architecturally defined from ARMv7 onwards */
@@ -66,6 +68,7 @@ extern int str_pc_offset;
 void __init find_str_pc_offset(void);
 
 #endif
+
 
 /*
  * Update ITSTATE after normal execution of an IT block instruction.
@@ -106,6 +109,7 @@ static inline void __kprobes bx_write_pc(long pcv, struct pt_regs *regs)
 	regs->ARM_pc = pcv;
 }
 
+
 #if __LINUX_ARM_ARCH__ >= 6
 
 /* Kernels built for >= ARMv6 should never run on <= ARMv5 hardware, so... */
@@ -127,6 +131,7 @@ static inline void __kprobes load_write_pc(long pcv, struct pt_regs *regs)
 	else
 		regs->ARM_pc = pcv;
 }
+
 
 #if __LINUX_ARM_ARCH__ >= 7
 
@@ -154,6 +159,7 @@ static inline void __kprobes alu_write_pc(long pcv, struct pt_regs *regs)
 	else
 		regs->ARM_pc = pcv;
 }
+
 
 void __kprobes kprobe_simulate_nop(struct kprobe *p, struct pt_regs *regs);
 void __kprobes kprobe_emulate_none(struct kprobe *p, struct pt_regs *regs);
@@ -328,8 +334,10 @@ union decode_item {
 	kprobe_decode_insn_t	*decoder;
 };
 
+
 #define DECODE_END			\
 	{.bits = DECODE_TYPE_END}
+
 
 struct decode_header {
 	union decode_item	type_regs;
@@ -342,6 +350,7 @@ struct decode_header {
 	{.bits = (_mask)},					\
 	{.bits = (_value)}
 
+
 struct decode_table {
 	struct decode_header	header;
 	union decode_item	table;
@@ -351,6 +360,7 @@ struct decode_table {
 	DECODE_HEADER(DECODE_TYPE_TABLE, _mask, _value, 0),	\
 	{.table = (_table)}
 
+
 struct decode_custom {
 	struct decode_header	header;
 	union decode_item	decoder;
@@ -359,6 +369,7 @@ struct decode_custom {
 #define DECODE_CUSTOM(_mask, _value, _decoder)			\
 	DECODE_HEADER(DECODE_TYPE_CUSTOM, _mask, _value, 0),	\
 	{.decoder = (_decoder)}
+
 
 struct decode_simulate {
 	struct decode_header	header;
@@ -372,6 +383,7 @@ struct decode_simulate {
 #define DECODE_SIMULATE(_mask, _value, _handler)	\
 	DECODE_SIMULATEX(_mask, _value, _handler, 0)
 
+
 struct decode_emulate {
 	struct decode_header	header;
 	union decode_item	handler;
@@ -384,12 +396,14 @@ struct decode_emulate {
 #define DECODE_EMULATE(_mask, _value, _handler)		\
 	DECODE_EMULATEX(_mask, _value, _handler, 0)
 
+
 struct decode_or {
 	struct decode_header	header;
 };
 
 #define DECODE_OR(_mask, _value)				\
 	DECODE_HEADER(DECODE_TYPE_OR, _mask, _value, 0)
+
 
 struct decode_reject {
 	struct decode_header	header;
@@ -398,6 +412,7 @@ struct decode_reject {
 #define DECODE_REJECT(_mask, _value)				\
 	DECODE_HEADER(DECODE_TYPE_REJECT, _mask, _value, 0)
 
+
 #ifdef CONFIG_THUMB2_KERNEL
 extern const union decode_item kprobe_decode_thumb16_table[];
 extern const union decode_item kprobe_decode_thumb32_table[];
@@ -405,7 +420,9 @@ extern const union decode_item kprobe_decode_thumb32_table[];
 extern const union decode_item kprobe_decode_arm_table[];
 #endif
 
+
 int kprobe_decode_insn(kprobe_opcode_t insn, struct arch_specific_insn *asi,
 			const union decode_item *table, bool thumb16);
+
 
 #endif /* _ARM_KERNEL_KPROBES_H */

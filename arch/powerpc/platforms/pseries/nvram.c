@@ -11,6 +11,7 @@
  * This perhaps should live in drivers/char
  */
 
+
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -121,6 +122,7 @@ static ssize_t pSeries_nvram_read(char *buf, size_t count, loff_t *index)
 	unsigned long flags;
 	char *p = buf;
 
+
 	if (nvram_size == 0 || nvram_fetch == RTAS_UNKNOWN_SERVICE)
 		return -ENODEV;
 
@@ -202,6 +204,7 @@ static ssize_t pSeries_nvram_get_size(void)
 {
 	return nvram_size ? nvram_size : -ENODEV;
 }
+
 
 /* nvram_write_os_partition, nvram_write_error_log
  *

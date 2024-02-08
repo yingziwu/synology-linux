@@ -87,6 +87,7 @@
 #define  SMI_READ_DATA_MSB_REGISTER	(0x06)
 #define  SMI_READ_DATA_LSB_REGISTER	(0x07)
 
+
 #define MARVELL_VEN_ID			(0x11AB)
 
 static inline void smiWaitForStatus(unsigned long devSlvId)
@@ -900,6 +901,7 @@ int smiWriteReg(unsigned long devSlvId, unsigned long regAddr, unsigned long val
 	return (MV_OK == ret) ? MV_OK : MV_FAIL;
 }
 
+
 /*******************************************************************************
 * bspSmiReadRegLionSpecificSet
 *
@@ -1036,6 +1038,7 @@ int bspSmiWriteReg(unsigned long devSlvId,
 
 	return MV_OK;
 }
+
 
 /*** TWSI ***/
 /*******************************************************************************
@@ -1597,6 +1600,7 @@ int bspPciFindDevReset(void)
 	STUB_OK;
 }
 
+
 /*******************************************************************************
 * bspWarmRestart
 *
@@ -1621,6 +1625,7 @@ int bspWarmRestart(void)
 {
 	STUB_FAIL;
 }
+
 
 int bspSmiScan(int instance, int noisy)
 {

@@ -239,3 +239,4 @@ const struct file_operations coda_file_operations = {
 	.fsync		= coda_fsync,
 	.splice_read	= coda_file_splice_read,
 };
+

@@ -145,3 +145,4 @@ void spi_feature_op(struct hisnfc_host *host, int op, int addr, unsigned *val);
 /******************************************************************************/
 
 #endif /* HISFC_SPI_IDSH */
+

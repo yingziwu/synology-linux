@@ -52,6 +52,8 @@ extern "C" {
 * Unit Registers
 */
 
+
+
 struct udma_axi_m2s {
 	/* [0x0] Completion write master configuration */
 	uint32_t comp_wr_cfg_1;
@@ -352,9 +354,11 @@ struct udma_m2s_regs {
 	struct udma_m2s_q m2s_q[4];                      /* [0x1000] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** comp_wr_cfg_1 register ****/
 /* AXI write  ID (AWID) */

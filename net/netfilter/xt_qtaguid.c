@@ -44,6 +44,7 @@
 #define XT_SOCKET_SUPPORTED_HOOKS \
 	((1 << NF_INET_PRE_ROUTING) | (1 << NF_INET_LOCAL_IN))
 
+
 static const char *module_procdirname = "xt_qtaguid";
 static struct proc_dir_entry *xt_qtaguid_procdir;
 
@@ -121,6 +122,7 @@ static const char *iface_stat_all_procfilename = "iface_stat_all";
 static struct proc_dir_entry *iface_stat_all_procfile;
 static const char *iface_stat_fmt_procfilename = "iface_stat_fmt";
 static struct proc_dir_entry *iface_stat_fmt_procfile;
+
 
 static LIST_HEAD(iface_stat_list);
 static DEFINE_SPINLOCK(iface_stat_list_lock);
@@ -740,6 +742,7 @@ static int iface_stat_fmt_proc_show(struct seq_file *m, void *v)
 	struct rtnl_link_stats64 dev_stats, *stats;
 	struct rtnl_link_stats64 no_dev_stats = {0};
 
+
 	CT_DEBUG("qtaguid:proc iface_stat_fmt pid=%u tgid=%u uid=%u\n",
 		 current->pid, current->tgid, current_fsuid());
 
@@ -1287,6 +1290,7 @@ static void if_tag_stat_update(const char *ifname, uid_t uid,
 		"uid=%u sk=%p dir=%d proto=%d bytes=%d)\n",
 		 ifname, uid, sk, direction, proto, bytes);
 
+
 	iface_entry = get_iface_entry(ifname);
 	if (!iface_entry) {
 		pr_err_ratelimited("qtaguid: iface_stat: stat_update() "
@@ -1529,6 +1533,7 @@ static int __init iface_stat_init(struct proc_dir_entry *parent_procdir)
 		err = -1;
 		goto err_zap_all_stats_entry;
 	}
+
 
 	err = register_netdevice_notifier(&iface_netdev_notifier_blk);
 	if (err) {
@@ -2858,6 +2863,7 @@ static int qtudev_release(struct inode *inode, struct file *file)
 
 	spin_unlock_bh(&uid_tag_data_tree_lock);
 	spin_unlock_bh(&sock_tag_list_lock);
+
 
 	sock_tag_tree_erase(&st_to_free_tree);
 

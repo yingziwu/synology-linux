@@ -529,6 +529,7 @@ static void lapic_timer_broadcast(const struct cpumask *mask)
 #endif
 }
 
+
 /*
  * The local apic timer can be used for any function which is CPU local.
  */
@@ -1082,6 +1083,7 @@ void lapic_shutdown(void)
 #endif
 		disable_local_APIC();
 
+
 	local_irq_restore(flags);
 }
 
@@ -1579,8 +1581,10 @@ void __init enable_IR_x2apic(void)
 	int ret, x2apic_enabled = 0;
 	int hardware_init_ret;
 
+#ifdef CONFIG_X86_IO_APIC
 	if (skip_ioapic_setup)
 		return;
+#endif
 
 	/* Make sure irq_remap_ops are initialized */
 	setup_irq_remapping_ops();

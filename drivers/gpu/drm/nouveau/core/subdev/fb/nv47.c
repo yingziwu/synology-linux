@@ -53,6 +53,7 @@ nv47_fb_ctor(struct nouveau_object *parent, struct nouveau_object *engine,
 	return nouveau_fb_preinit(&priv->base);
 }
 
+
 struct nouveau_oclass
 nv47_fb_oclass = {
 	.handle = NV_SUBDEV(FB, 0x47),

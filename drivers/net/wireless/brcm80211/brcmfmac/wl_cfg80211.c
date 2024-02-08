@@ -426,6 +426,7 @@ brcmf_find_wpsie(u8 *parse, u32 len)
 	return NULL;
 }
 
+
 static void convert_key_from_CPU(struct brcmf_wsec_key *key,
 				 struct brcmf_wsec_key_le *key_le)
 {
@@ -1238,6 +1239,7 @@ brcmf_cfg80211_join_ibss(struct wiphy *wiphy, struct net_device *ndev,
 		cfg->channel = 0;
 
 	cfg->ibss_starter = false;
+
 
 	err = brcmf_fil_cmd_data_set(ifp, BRCMF_C_SET_SSID,
 				     &join_params, join_params_size);
@@ -3944,6 +3946,7 @@ brcmf_cfg80211_del_station(struct wiphy *wiphy, struct net_device *ndev,
 	return err;
 }
 
+
 static void
 brcmf_cfg80211_mgmt_frame_register(struct wiphy *wiphy,
 				   struct wireless_dev *wdev,
@@ -3961,6 +3964,7 @@ brcmf_cfg80211_mgmt_frame_register(struct wiphy *wiphy,
 	else
 		vif->mgmt_rx_reg &= ~BIT(mgmt_type);
 }
+
 
 static int
 brcmf_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
@@ -4015,6 +4019,11 @@ brcmf_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
 		cfg80211_mgmt_tx_status(wdev, *cookie, buf, len, true,
 					GFP_KERNEL);
 	} else if (ieee80211_is_action(mgmt->frame_control)) {
+		if (len > BRCMF_FIL_ACTION_FRAME_SIZE + DOT11_MGMT_HDR_LEN) {
+			brcmf_err("invalid action frame length\n");
+			err = -EINVAL;
+			goto exit;
+		}
 		af_params = kzalloc(sizeof(*af_params), GFP_KERNEL);
 		if (af_params == NULL) {
 			brcmf_err("unable to allocate frame\n");
@@ -4054,6 +4063,7 @@ brcmf_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
 exit:
 	return err;
 }
+
 
 static int
 brcmf_cfg80211_cancel_remain_on_channel(struct wiphy *wiphy,
@@ -5014,6 +5024,7 @@ dongle_scantime_out:
 	return err;
 }
 
+
 static s32 brcmf_construct_reginfo(struct brcmf_cfg80211_info *cfg, u32 bw_cap)
 {
 	struct brcmf_if *ifp = netdev_priv(cfg_to_ndev(cfg));
@@ -5140,6 +5151,7 @@ exit:
 	return err;
 }
 
+
 static s32 brcmf_update_wiphybands(struct brcmf_cfg80211_info *cfg)
 {
 	struct brcmf_if *ifp = netdev_priv(cfg_to_ndev(cfg));
@@ -5164,6 +5176,7 @@ static s32 brcmf_update_wiphybands(struct brcmf_cfg80211_info *cfg)
 
 	phy = ((char *)&phy_list)[0];
 	brcmf_dbg(INFO, "BRCMF_C_GET_PHYLIST reported: %c phy\n", phy);
+
 
 	err = brcmf_fil_cmd_data_get(ifp, BRCMF_C_GET_BANDLIST,
 				     &band_list, sizeof(band_list));
@@ -5234,6 +5247,7 @@ static s32 brcmf_update_wiphybands(struct brcmf_cfg80211_info *cfg)
 
 	return err;
 }
+
 
 static s32 brcmf_dongle_probecap(struct brcmf_cfg80211_info *cfg)
 {
@@ -5405,3 +5419,4 @@ int brcmf_cfg80211_wait_vif_event_timeout(struct brcmf_cfg80211_info *cfg,
 	return wait_event_timeout(event->vif_wq,
 				  vif_event_equals(event, action), timeout);
 }
+

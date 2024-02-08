@@ -352,6 +352,7 @@ decode_ds_addr(struct net *net, struct xdr_stream *streamp, gfp_t gfp_flags)
 	char *startsep = "";
 	char *endsep = "";
 
+
 	/* r_netid */
 	p = xdr_inline_decode(streamp, 4);
 	if (unlikely(!p))
@@ -789,6 +790,7 @@ static void nfs4_clear_ds_conn_bit(struct nfs4_pnfs_ds *ds)
 	wake_up_bit(&ds->ds_state, NFS4DS_CONNECTING);
 }
 
+
 struct nfs4_pnfs_ds *
 nfs4_fl_prepare_ds(struct pnfs_layout_segment *lseg, u32 ds_idx)
 {
@@ -819,7 +821,8 @@ nfs4_fl_prepare_ds(struct pnfs_layout_segment *lseg, u32 ds_idx)
 		nfs4_wait_ds_connect(ds);
 	}
 out_test_devid:
-	if (filelayout_test_devid_unavailable(devid))
+	if (ret->ds_clp == NULL ||
+	    filelayout_test_devid_unavailable(devid))
 		ret = NULL;
 out:
 	return ret;

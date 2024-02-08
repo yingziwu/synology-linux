@@ -17,6 +17,7 @@
  * wlanfae <wlanfae@realtek.com>
 ******************************************************************************/
 
+
 #ifndef R8190P_DEF_H
 #define R8190P_DEF_H
 
@@ -27,12 +28,14 @@
 #define RX_MPDU_QUEUE				0
 #define RX_CMD_QUEUE				1
 
+
 enum rtl819x_loopback {
 	RTL819X_NO_LOOPBACK = 0,
 	RTL819X_MAC_LOOPBACK = 1,
 	RTL819X_DMA_LOOPBACK = 2,
 	RTL819X_CCK_LOOPBACK = 3,
 };
+
 
 #define RESET_DELAY_8185			20
 
@@ -70,6 +73,7 @@ enum rtl819x_loopback {
 
 #define SHORT_SLOT_TIME				9
 #define NON_SHORT_SLOT_TIME		20
+
 
 #define	MAX_LINES_HWCONFIG_TXT			1000
 #define MAX_BYTES_LINE_HWCONFIG_TXT		128
@@ -124,6 +128,7 @@ enum rtl819x_loopback {
 #define HAL_PRIME_CHNL_OFFSET_LOWER		1
 #define HAL_PRIME_CHNL_OFFSET_UPPER		2
 
+
 enum version_8190_loopback {
 	VERSION_8190_BD = 0x3,
 	VERSION_8190_BE
@@ -138,6 +143,7 @@ enum rf_optype {
 	RF_OP_By_FW,
 	RF_OP_MAX
 };
+
 
 enum power_save_mode {
 	POWER_SAVE_MODE_ACTIVE,
@@ -228,15 +234,19 @@ struct tx_fwinfo_8190pci {
 	u32			Reserved2:1;
 	u32			PacketID:13;
 
+
 };
+
 
 #define TX_DESC_SIZE			32
 
 #define TX_DESC_CMD_SIZE	32
 
+
 #define TX_STATUS_DESC_SIZE	32
 
 #define TX_FWINFO_SIZE	8
+
 
 #define RX_DESC_SIZE	16
 
@@ -288,6 +298,7 @@ struct phy_sts_cck_819xpci {
 	u8	cck_agc_rpt;
 };
 
+
 #define		PHY_RSSI_SLID_WIN_MAX				100
 #define		PHY_Beacon_RSSI_SLID_WIN_MAX		10
 
@@ -328,6 +339,7 @@ struct tx_desc {
 	u32	Reserved6;
 	u32	Reserved7;
 };
+
 
 struct tx_desc_cmd {
 	u16	PktSize;
@@ -372,6 +384,7 @@ struct rx_desc {
 	u32	BufferAddress;
 
 };
+
 
 struct rx_fwinfo {
 	u16			Reserved1:12;

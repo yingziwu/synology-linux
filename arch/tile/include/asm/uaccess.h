@@ -455,6 +455,7 @@ copy_in_user(void __user *to, const void __user *from, unsigned long n)
 }
 #endif
 
+
 /**
  * strlen_user: - Get the size of a string in user space.
  * @str: The string to measure.

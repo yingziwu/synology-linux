@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Glue Code for AVX assembler versions of Serpent Cipher
  *
@@ -91,6 +94,7 @@ void serpent_xts_dec(void *ctx, u128 *dst, const u128 *src, le128 *iv)
 				  GLUE_FUNC_CAST(__serpent_decrypt));
 }
 EXPORT_SYMBOL_GPL(serpent_xts_dec);
+
 
 static const struct common_glue_ctx serpent_enc = {
 	.num_funcs = 2,
@@ -332,13 +336,13 @@ int xts_serpent_setkey(struct crypto_tfm *tfm, const u8 *key,
 		       unsigned int keylen)
 {
 	struct serpent_xts_ctx *ctx = crypto_tfm_ctx(tfm);
-#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+#if defined(MY_DEF_HERE)
 	int err;
 
 	err = xts_check_key(tfm, key, keylen);
 	if (err)
 		return err;
-#else /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#else /* MY_DEF_HERE */
 	u32 *flags = &tfm->crt_flags;
 	int err;
 
@@ -349,7 +353,7 @@ int xts_serpent_setkey(struct crypto_tfm *tfm, const u8 *key,
 		*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
 		return -EINVAL;
 	}
-#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#endif /* MY_DEF_HERE */
 
 	/* first half of xts-key is for crypt */
 	err = __serpent_setkey(&ctx->crypt_ctx, key, keylen / 2);

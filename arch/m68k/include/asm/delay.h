@@ -42,6 +42,7 @@ static inline void __delay(unsigned long loops)
 
 extern void __bad_udelay(void);
 
+
 #ifdef CONFIG_CPU_HAS_NO_MULDIV64
 /*
  * The simpler m68k and ColdFire processors do not have a 32*32->64
@@ -113,6 +114,6 @@ static inline void __udelay(unsigned long usecs)
  */
 #define	HZSCALE		(268435456 / (1000000 / HZ))
 
-#define ndelay(n) __delay(DIV_ROUND_UP((n) * ((((HZSCALE) >> 11) * (loops_per_jiffy >> 11)) >> 6), 1000));
+#define ndelay(n) __delay(DIV_ROUND_UP((n) * ((((HZSCALE) >> 11) * (loops_per_jiffy >> 11)) >> 6), 1000))
 
 #endif /* defined(_M68K_DELAY_H) */

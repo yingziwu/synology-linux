@@ -99,6 +99,7 @@ extern struct drm_plane *drm_primary_helper_create_plane(struct drm_device *dev,
 							 const uint32_t *formats,
 							 int num_formats);
 
+
 int drm_plane_helper_update(struct drm_plane *plane, struct drm_crtc *crtc,
 			    struct drm_framebuffer *fb,
 			    int crtc_x, int crtc_y,

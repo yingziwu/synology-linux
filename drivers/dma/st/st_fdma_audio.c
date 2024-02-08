@@ -32,6 +32,7 @@ struct st_fdma_audio {
 	int park_sub_periods;
 };
 
+
 /*
  * Audio dmaengine extension helper functions
  */
@@ -136,6 +137,7 @@ static int st_fdma_audio_config(struct st_fdma_chan *fchan,
 	return 0;
 }
 
+
 /*
  * Audio dmaengine extension resources functions
  */
@@ -229,6 +231,7 @@ void st_fdma_audio_free_chan_resources(struct st_fdma_chan *fchan)
 	/* Free the dreq */
 	st_fdma_dreq_free(fchan, fchan->dreq);
 }
+
 
 /*
  * Audio dmaengine extensions API

@@ -499,6 +499,7 @@ static mali_bool mali_gp_scheduler_is_suspended(void *data)
 	return ret;
 }
 
+
 #if MALI_STATE_TRACKING
 u32 mali_gp_scheduler_dump_state(char *buf, u32 size)
 {

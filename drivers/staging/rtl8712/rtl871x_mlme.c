@@ -136,6 +136,7 @@ static void _free_network_nolock(struct mlme_priv *pmlmepriv,
 	pmlmepriv->num_of_scanned--;
 }
 
+
 /*
 	return the wlan_network with the matching addr
 	Shall be called under atomic context...
@@ -414,6 +415,7 @@ static void update_scanned_network(struct _adapter *adapter,
 		plist = get_next(plist);
 	}
 
+
 	/* If we didn't find a match, then get a new network slot to initialize
 	 * with this beacon's information */
 	if (end_of_queue_search(phead, plist) == true) {
@@ -678,6 +680,7 @@ void r8712_indicate_connect(struct _adapter *padapter)
 	if (padapter->registrypriv.power_mgnt > PS_MODE_ACTIVE)
 		_set_timer(&pmlmepriv->dhcp_timer, 60000);
 }
+
 
 /*
 *r8712_ind_disconnect: the caller has to lock pmlmepriv->lock

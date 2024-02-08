@@ -276,3 +276,4 @@ extern unsigned char match_page_size_to_type(unsigned int size);
 extern unsigned int match_page_type_to_size(unsigned char type);
 
 #endif /* End of __HINFC_GEN_H__ */
+

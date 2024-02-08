@@ -41,6 +41,7 @@ int batadv_orig_hash_add_if(struct batadv_hard_iface *hard_iface,
 int batadv_orig_hash_del_if(struct batadv_hard_iface *hard_iface,
 			    int max_if_num);
 
+
 /* hashfunction to choose an entry in a hash table of given size
  * hash algorithm from http://en.wikipedia.org/wiki/Hash_table
  */

@@ -67,6 +67,7 @@ extern "C" {
 # include <os_dep.h>
 #endif
 
+
 /** @name Primitive Types and Values */
 
 /** We define a boolean type for consistency.  Can be either YES or NO */
@@ -125,6 +126,7 @@ typedef uint8_t dwc_bool_t;
 #define DWC_E_NO_SPACE		4008
 
 #endif
+
 
 /** @name Tracing/Logging Functions
  *
@@ -301,6 +303,7 @@ extern void __DWC_DEBUG(char *format, ...)
 #endif
 #define dwc_assert DWC_ASSERT
 
+
 /** @name Byte Ordering
  * The following functions are for conversions between processor's byte ordering
  * and specific ordering you want.
@@ -337,6 +340,7 @@ extern uint16_t DWC_LE16_TO_CPU(uint16_t *p);
 /** Converts 16 bit bi endian data to CPU byte ordering. */
 extern uint16_t DWC_BE16_TO_CPU(uint16_t *p);
 #define dwc_be16_to_cpu DWC_BE16_TO_CPU
+
 
 /** @name Register Read/Write
  *
@@ -510,6 +514,7 @@ static inline void dwc_write_##_reg(void *io_ctx, _container_type *container, ui
 
 /** @endcond */
 
+
 #ifdef DWC_CRYPTOLIB
 /** @name Crypto Functions
  *
@@ -532,6 +537,7 @@ extern int DWC_HMAC_SHA256(uint8_t *message, uint32_t messagelen, uint8_t *key, 
 #define dwc_hmac_sha256 DWC_HMAC_SHA256
 
 #endif	/* DWC_CRYPTOLIB */
+
 
 /** @name Memory Allocation
  *
@@ -716,6 +722,7 @@ extern void dwc_memory_debug_report(void);
 #define dwc_dma_free DWC_DMA_FREE
 #endif
 
+
 /** @name Memory and String Processing */
 
 /** memset() clone */
@@ -780,6 +787,7 @@ extern int DWC_UTF8_TO_UTF16LE(uint8_t const *utf8string, uint16_t *utf16string,
 #define dwc_utf8_to_utf16le DWC_UTF8_TO_UTF16LE
 #endif
 
+
 /** @name Wait queues
  *
  * Wait queues provide a means of synchronizing between threads or processes.  A
@@ -828,6 +836,7 @@ extern void DWC_WAITQ_TRIGGER(dwc_waitq_t *wq);
 extern void DWC_WAITQ_ABORT(dwc_waitq_t *wq);
 #define dwc_waitq_abort DWC_WAITQ_ABORT
 
+
 /** @name Threads
  *
  * A thread must be explicitly stopped.  It must check DWC_THREAD_SHOULD_STOP
@@ -872,6 +881,7 @@ extern dwc_bool_t DWC_THREAD_SHOULD_STOP(dwc_thread_t *thread);
 extern void DWC_THREAD_EXIT(dwc_thread_t *thread);
 #define dwc_thread_exit DWC_THREAD_EXIT
 #endif
+
 
 /** @name Work queues
  *
@@ -924,6 +934,7 @@ extern int DWC_WORKQ_PENDING(dwc_workq_t *workq);
 extern int DWC_WORKQ_WAIT_WORK_DONE(dwc_workq_t *workq, int timeout);
 #define dwc_workq_wait_work_done DWC_WORKQ_WAIT_WORK_DONE
 
+
 /** @name Tasklets
  *
  */
@@ -946,6 +957,7 @@ extern void DWC_TASK_FREE(dwc_tasklet_t *task);
 /** Schedules a tasklet to run */
 extern void DWC_TASK_SCHEDULE(dwc_tasklet_t *task);
 #define dwc_task_schedule DWC_TASK_SCHEDULE
+
 
 /** @name Timer
  *
@@ -978,6 +990,7 @@ extern void DWC_TIMER_SCHEDULE(dwc_timer_t *timer, uint32_t time);
 /** Disables the timer from execution. */
 extern void DWC_TIMER_CANCEL(dwc_timer_t *timer);
 #define dwc_timer_cancel DWC_TIMER_CANCEL
+
 
 /** @name Spinlocks
  *
@@ -1040,6 +1053,7 @@ extern void DWC_SPINLOCK(dwc_spinlock_t *lock);
 extern void DWC_SPINUNLOCK(dwc_spinlock_t *lock);
 #define dwc_spinunlock DWC_SPINUNLOCK
 
+
 /** @name Mutexes
  *
  * Unlike spinlocks Mutexes lock only between processes and the work between the
@@ -1089,6 +1103,7 @@ extern int DWC_MUTEX_TRYLOCK(dwc_mutex_t *mutex);
 extern void DWC_MUTEX_UNLOCK(dwc_mutex_t *mutex);
 #define dwc_mutex_unlock DWC_MUTEX_UNLOCK
 
+
 /** @name Time */
 
 /** Microsecond delay.
@@ -1118,6 +1133,9 @@ extern void DWC_MSLEEP(uint32_t msecs);
  */
 extern uint32_t DWC_TIME(void);
 #define dwc_time DWC_TIME
+
+
+
 
 /* @mainpage DWC Portability and Common Library
  *

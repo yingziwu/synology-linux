@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -118,9 +119,11 @@ static ssize_t mv_pp2_3_hex_store(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static DEVICE_ATTR(help,         S_IRUSR, mv_pp2_show, NULL);
 static DEVICE_ATTR(dscp,         S_IWUSR, NULL, mv_pp2_port_store);
 static DEVICE_ATTR(txqDscp,      S_IWUSR, NULL, mv_pp2_3_hex_store);
+
 
 static struct attribute *mv_pp2_attrs[] = {
 	&dev_attr_dscp.attr,

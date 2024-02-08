@@ -152,6 +152,7 @@ END_FW_FTR_SECTION_IFSET(FW_FEATURE_SPLPAR)
 #define REST_32FPRS_TRANSACT(n, base)	REST_16FPRS_TRANSACT(n, base);	\
 					REST_16FPRS_TRANSACT(n+16, base)
 
+
 #define SAVE_VR_TRANSACT(n,b,base)	li b,THREAD_TRANSACT_VR0+(16*(n)); \
 					stvx n,b,base
 #define SAVE_2VRS_TRANSACT(n,b,base)	SAVE_VR_TRANSACT(n,b,base);	\
@@ -177,6 +178,7 @@ END_FW_FTR_SECTION_IFSET(FW_FEATURE_SPLPAR)
 					REST_8VRS_TRANSACT(n+8,b,base)
 #define REST_32VRS_TRANSACT(n,b,base)	REST_16VRS_TRANSACT(n,b,base);	\
 					REST_16VRS_TRANSACT(n+16,b,base)
+
 
 #define SAVE_VSR_TRANSACT(n,b,base)	li b,THREAD_TRANSACT_VSR0+(16*(n)); \
 					STXVD2X(n,R##base,R##b)
@@ -519,6 +521,7 @@ END_FTR_SECTION_NESTED(CPU_FTR_HAS_PPR,CPU_FTR_HAS_PPR,946)
 	bdnz	0b
 #endif
 
+
 #ifdef CONFIG_IBM440EP_ERR42
 #define PPC440EP_ERR42 isync
 #else
@@ -625,6 +628,7 @@ END_FTR_SECTION_NESTED(CPU_FTR_HAS_PPR,CPU_FTR_HAS_PPR,946)
 #define	cr6	6
 #define	cr7	7
 
+
 /*
  * General Purpose Registers (GPRs)
  *
@@ -665,6 +669,7 @@ END_FTR_SECTION_NESTED(CPU_FTR_HAS_PPR,CPU_FTR_HAS_PPR,946)
 #define	r29	%r29
 #define	r30	%r30
 #define	r31	%r31
+
 
 /* Floating Point Registers (FPRs) */
 

@@ -67,6 +67,8 @@ struct mvPpDrvDriverOpen_STC {
 	uint32_t                   id;
 };
 
+
+
 /*
  * enum mvPpDrvDriverIoOps_ENT
  *
@@ -125,6 +127,7 @@ struct mvPpDrvDriverIo_STC {
 	uint32_t                    length;
 	mv_kmod_uintptr_t           dataPtr;
 };
+
 
 /************************ IOCTLs ****************************/
 #define PRESTERA_PP_DRIVER_IOC_MAGIC 'd'

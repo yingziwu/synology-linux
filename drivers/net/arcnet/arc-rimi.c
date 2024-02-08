@@ -36,7 +36,9 @@
 #include <asm/io.h>
 #include <linux/arcdevice.h>
 
+
 #define VERSION "arcnet: RIM I (entirely mem-mapped) support\n"
+
 
 /* Internal function declarations */
 
@@ -75,6 +77,7 @@ static void arcrimi_copy_from_card(struct net_device *dev, int bufnum, int offse
 #define ACOMMAND(cmd)	writeb((cmd),_COMMAND)
 #define AINTMASK(msk)	writeb((msk),_INTMASK)
 #define SETCONF()	writeb(lp->config,_CONFIG)
+
 
 /*
  * We cannot probe for a RIM I card; one reason is I don't know how to reset
@@ -246,6 +249,7 @@ err_free_irq:
 	return -EIO;
 }
 
+
 /*
  * Do a hardware reset on the card, and set up necessary registers.
  *
@@ -306,6 +310,7 @@ static void arcrimi_copy_to_card(struct net_device *dev, int bufnum, int offset,
 	void __iomem *memaddr = lp->mem_start + 0x800 + bufnum * 512 + offset;
 	TIME("memcpy_toio", count, memcpy_toio(memaddr, buf, count));
 }
+
 
 static void arcrimi_copy_from_card(struct net_device *dev, int bufnum, int offset,
 				   void *buf, int count)

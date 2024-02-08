@@ -6,6 +6,7 @@
 #include <linux/libata.h>
 #include "ahci.h"
 
+
 void hi_sata_mem_dump(unsigned int *addr, unsigned int size);
 void hi_sata_phys_mem_dump(unsigned int addr, unsigned int size);
 void hi_ahci_rx_fis_dump(struct ata_link *link, int pmp_port_num);
@@ -41,3 +42,6 @@ do {\
 #endif
 
 #endif /* _HI_SATA_DBG_H */
+
+
+

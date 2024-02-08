@@ -24,6 +24,7 @@
 #include <linux/zutil.h>
 #endif /* CONFIG_ST_ELF_EXTENSIONS */
 
+
 /* Function which returns non-zero if the first range entirely contains the
  * second.
  * Args: start range 1 (inclusive)
@@ -39,6 +40,7 @@ static inline int rangeContainsA(uint32_t s1, uint32_t e1,
 	return 0;
 }
 
+
 /* Function which returns non-zero if the first range entirely contains the
  * second.
  * Args: start range 1 (inclusive)
@@ -53,6 +55,7 @@ static inline int rangeContainsL(uint32_t s1, uint32_t l1,
 		return 1;
 	return 0;
 }
+
 
 #if defined(CONFIG_ST_ELF_EXTENSIONS) || defined(CONFIG_ARM)
 /* Function which returns non-zero if the 2 ranges specified overlap each other.
@@ -70,6 +73,7 @@ static int overlapping(uint32_t s1, uint32_t l1, uint32_t s2, uint32_t l2)
 	return 1;
 }
 #endif /* defined(CONFIG_ST_ELF_EXTENSIONS) || defined(CONFIG_ARM) */
+
 
 /* Function which checks the physical destination addresses are within any
  * allowed ranges for this load (as specified in the loadParams), or if no
@@ -145,6 +149,7 @@ static int allowedRangeCheck(const ElfW(Phdr) *phdr, const uint32_t segNum,
 	return 0;
 }
 
+
 /* Function which returns an IO address from an existing IO mapping (as
  * provided in the loadParams) if the entire segment can be loaded via that
  * mapping.  If a mapping is found, the cached pointer will be set to true or
@@ -173,6 +178,7 @@ static void __iomem *findIOMapping(const ElfW(Addr) pAddr,
 	}
 	return NULL;
 }
+
 
 #if defined(CONFIG_ST_ELF_EXTENSIONS)
 /* Find the PT_LOAD segment associated with a PT_ST_INFO (ST auxiliary)
@@ -204,6 +210,7 @@ static ElfW(Phdr) *findLoadableSegForSTAuxSeg(const struct ELFW(info) *elfinfo,
 	return loadableSeg;
 }
 
+
 /* Find a PT_ST_INFO (ST auxiliary) segment associated with a PT_LOAD segment.
  * Returns NULL if a matching aux segment is not found.
  * If an ST aux segment is found and segIndex is not NULL, the index of the
@@ -231,6 +238,7 @@ static ElfW(Phdr) *findSTAuxSegForLoadable(const struct ELFW(info) *elfinfo,
 	}
 	return stAux;
 }
+
 
 /* Perform a checksum if the relevant checksum flag is present in stAux.
  * Checks can be media checks (of the stored ELF data) or normal checks of the
@@ -296,6 +304,7 @@ static int checksum(struct elf_st_aux *stAux, void *dataIn, uint32_t size,
 	return retVal;
 }
 
+
 /* Performs pre-load processing associated with PT_ST_INFO segments.
  * Returns non-zero for a failure, or 0 if loading may continue.
  */
@@ -328,6 +337,7 @@ static int stInfoPreLoadProc(const struct ELFW(info) *elfinfo,
 	return 0;
 }
 
+
 /* Performs load-time processing associated with PT_ST_INFO segments.
  * Returns non-zero for a failure, or 0 if loading may continue.
  */
@@ -359,6 +369,7 @@ static int stInfoLoadProc(const struct ELFW(info) *elfinfo,
 	return 0;
 }
 #endif /* CONFIG_ST_ELF_EXTENSIONS */
+
 
 /* Perform an ELF load to physical addresses, returning non-zero on failure,
  * else 0.

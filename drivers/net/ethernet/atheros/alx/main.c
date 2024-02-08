@@ -51,6 +51,7 @@
 
 const char alx_drv_name[] = "alx";
 
+
 static void alx_free_txbuf(struct alx_priv *alx, int entry)
 {
 	struct alx_buffer *txb = &alx->txq.bufs[entry];
@@ -737,6 +738,7 @@ static int alx_init_sw(struct alx_priv *alx)
 
 	return err;
 }
+
 
 static netdev_features_t alx_fix_features(struct net_device *netdev,
 					  netdev_features_t features)

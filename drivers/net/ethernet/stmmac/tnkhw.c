@@ -3139,6 +3139,7 @@ int tnkhw_rx_connection(int limit, unsigned int cid)
 		TNK_LRO_DBG("%s: cid=%d, skblen=%d, rcvnxt=%x\n",
 			__func__, cid, skb->len, r->tp_rcv_nxt);
 
+
 		tnk_lro_rxcallback(skb, cid);
 
 		entry = next_entry;

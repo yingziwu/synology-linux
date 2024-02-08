@@ -133,6 +133,7 @@ Outgoing, dev->hard_header==NULL
 Resume
   If dev->hard_header==NULL we are unlikely to restore sensible ll header.
 
+
 On transmit:
 ------------
 
@@ -1489,6 +1490,7 @@ oom:
 	return 0;
 }
 
+
 /*
  *	Output a raw packet to a device layer. This bypasses all the other
  *	protocol layers and you must therefore supply it with a complete frame
@@ -2268,7 +2270,7 @@ static int packet_snd(struct socket *sock,
 	int vnet_hdr_len;
 	struct packet_sock *po = pkt_sk(sk);
 	unsigned short gso_type = 0;
-	int hlen, tlen;
+	int hlen, tlen, linear;
 	int extra_len = 0;
 
 	/*
@@ -2362,7 +2364,9 @@ static int packet_snd(struct socket *sock,
 	err = -ENOBUFS;
 	hlen = LL_RESERVED_SPACE(dev);
 	tlen = dev->needed_tailroom;
-	skb = packet_alloc_skb(sk, hlen + tlen, hlen, len, vnet_hdr.hdr_len,
+	linear = vnet_hdr.hdr_len;
+	linear = max(linear, min_t(int, len, dev->hard_header_len));
+	skb = packet_alloc_skb(sk, hlen + tlen, hlen, len, linear,
 			       msg->msg_flags & MSG_DONTWAIT, &err);
 	if (skb == NULL)
 		goto out_unlock;
@@ -2509,8 +2513,9 @@ static int packet_release(struct socket *sock)
 
 	synchronize_net();
 
-	kfree(f);
-
+	if (f) {
+		kfree(f);
+	}
 	/*
 	 *	Now the socket is dead. No more input will appear.
 	 */
@@ -2639,7 +2644,11 @@ static int packet_bind_spkt(struct socket *sock, struct sockaddr *uaddr,
 
 	if (addr_len != sizeof(struct sockaddr))
 		return -EINVAL;
-	strlcpy(name, uaddr->sa_data, sizeof(name));
+	/* uaddr->sa_data comes from the userspace, it's not guaranteed to be
+	 * zero-terminated.
+	 */
+	memcpy(name, uaddr->sa_data, sizeof(uaddr->sa_data));
+	name[sizeof(uaddr->sa_data)] = 0;
 
 	return packet_do_bind(sk, name, 0, pkt_sk(sk)->num);
 }
@@ -3236,14 +3245,19 @@ packet_setsockopt(struct socket *sock, int level, int optname, char __user *optv
 
 		if (optlen != sizeof(val))
 			return -EINVAL;
-		if (po->rx_ring.pg_vec || po->tx_ring.pg_vec)
-			return -EBUSY;
 		if (copy_from_user(&val, optval, sizeof(val)))
 			return -EFAULT;
 		if (val > INT_MAX)
 			return -EINVAL;
-		po->tp_reserve = val;
-		return 0;
+		lock_sock(sk);
+		if (po->rx_ring.pg_vec || po->tx_ring.pg_vec) {
+			ret = -EBUSY;
+		} else {
+			po->tp_reserve = val;
+			ret = 0;
+		}
+		release_sock(sk);
+		return ret;
 	}
 	case PACKET_LOSS:
 	{
@@ -3391,6 +3405,8 @@ static int packet_getsockopt(struct socket *sock, int level, int optname,
 	case PACKET_HDRLEN:
 		if (len > sizeof(int))
 			len = sizeof(int);
+		if (len < sizeof(int))
+			return -EINVAL;
 		if (copy_from_user(&val, optval, len))
 			return -EFAULT;
 		switch (val) {
@@ -3439,6 +3455,7 @@ static int packet_getsockopt(struct socket *sock, int level, int optname,
 	return 0;
 }
 
+
 static int packet_notifier(struct notifier_block *this, unsigned long msg, void *data)
 {
 	struct sock *sk;
@@ -3466,7 +3483,6 @@ static int packet_notifier(struct notifier_block *this, unsigned long msg, void 
 				}
 				if (msg == NETDEV_UNREGISTER) {
 					packet_cached_dev_reset(po);
-					fanout_release(sk);
 					po->ifindex = -1;
 					if (po->prot_hook.dev)
 						dev_put(po->prot_hook.dev);
@@ -3488,6 +3504,7 @@ static int packet_notifier(struct notifier_block *this, unsigned long msg, void 
 	rcu_read_unlock();
 	return NOTIFY_DONE;
 }
+
 
 static int packet_ioctl(struct socket *sock, unsigned int cmd,
 			unsigned long arg)
@@ -3564,6 +3581,7 @@ static unsigned int packet_poll(struct file *file, struct socket *sock,
 	spin_unlock_bh(&sk->sk_write_queue.lock);
 	return mask;
 }
+
 
 /* Dirty? Well, I still did not learn better way to account
  * for user mmaps.
@@ -3755,7 +3773,7 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
 		 */
 			if (!tx_ring)
 				init_prb_bdqc(po, rb, pg_vec, req_u, tx_ring);
-				break;
+			break;
 		default:
 			break;
 		}
@@ -3766,6 +3784,7 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
 		if (unlikely(req->tp_frame_nr))
 			goto out;
 	}
+
 
 	/* Detach socket from network */
 	spin_lock(&po->bind_lock);
@@ -4026,6 +4045,7 @@ static struct pernet_operations packet_net_ops = {
 	.init = packet_net_init,
 	.exit = packet_net_exit,
 };
+
 
 static void __exit packet_exit(void)
 {

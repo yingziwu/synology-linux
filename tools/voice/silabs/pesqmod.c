@@ -78,6 +78,7 @@ The user may:
             commercial use other than making said contribution to the ITU.
             Said permission will be provided on a case-by-case basis.
 
+
 ANY OTHER USE OR APPLICATION OF THE PESQ SOFTWARE AND/OR THE PESQ
 ALGORITHM WILL REQUIRE A PESQ LICENCE AGREEMENT, WHICH MAY BE OBTAINED
 FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
@@ -85,6 +86,7 @@ FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
 EACH COMPANY OFFERS OEM LICENSE AGREEMENTS, WHICH COMBINE OEM
 IMPLEMENTATIONS OF THE PESQ ALGORITHM TOGETHER WITH A PESQ PATENT LICENSE
 AGREEMENT. PESQ PATENT-ONLY LICENSE AGREEMENTS MAY BE OBTAINED FROM OPTICOM.
+
 
 ***********************************************************************
 *  OPTICOM GmbH                    *  Psytechnics Limited             *
@@ -110,6 +112,8 @@ Further information is also available from www.pesq.org
 
 float Sl, Sp;
 
+
+
 int *nr_of_hz_bands_per_bark_band;
 double *centre_of_band_bark;
 double *centre_of_band_hz;
@@ -117,6 +121,7 @@ double *width_of_band_bark;
 double *width_of_band_hz;
 double *pow_dens_correction_factor;
 double *abs_thresh_power;
+
 
 void input_filter(
     SIGNAL_INFO * ref_info, SIGNAL_INFO * deg_info, float * ftmp )
@@ -413,6 +418,7 @@ void utterance_locate( SIGNAL_INFO * ref_info, SIGNAL_INFO * deg_info,
     utterance_split( ref_info, deg_info, err_info, ftmp );
 }
 
+
 void short_term_fft (int Nf, SIGNAL_INFO *info, float *window, long start_sample, float *hz_spectrum, float *fft_tmp) {
     int n, k;
 
@@ -597,6 +603,7 @@ double pow_of (const float * const x, long start_sample, long stop_sample, long 
     return power;
 }
 
+
 int compute_delay (long              start_sample,
                    long                 stop_sample,
                    long                 search_range,
@@ -677,7 +684,9 @@ int compute_delay (long              start_sample,
     return best_delay;
 }
 
+
 #define NUMBER_OF_PSQM_FRAMES_PER_SYLLABE       20
+
 
 float Lpq_weight (int         start_frame,
                   int         stop_frame,
@@ -750,6 +759,7 @@ float integral_of (float *x, long frames_after_start) {
         result += x [frames_after_start * Nb + band] * width_of_band_bark [band];
     }
     return (float) result;
+
 
     return (float) result;
 }
@@ -1181,6 +1191,8 @@ void pesq_psychoacoustic_model(SIGNAL_INFO    * ref_info,
             number_of_samples_in_bad_interval [bad_interval] =  stop_sample_of_bad_interval [bad_interval] - start_sample_of_bad_interval [bad_interval];
         }
 
+
+
     #define SEARCH_RANGE_IN_TRANSFORM_LENGTH    4
 
         search_range_in_samples= SEARCH_RANGE_IN_TRANSFORM_LENGTH * Nf;
@@ -1341,6 +1353,7 @@ void pesq_psychoacoustic_model(SIGNAL_INFO    * ref_info,
             deg_info->data = untweaked_deg;
         }
     }
+
 
     for (frame = 0; frame <= stop_frame; frame++) {
         float h = 1;

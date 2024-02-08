@@ -17,6 +17,8 @@
 #include "csr_wifi_hip_conversions.h"
 #include <linux/sched/rt.h>
 
+
+
     int
 convert_sme_error(CsrResult error)
 {
@@ -39,6 +41,7 @@ convert_sme_error(CsrResult error)
             return -EIO;
     }
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -94,6 +97,7 @@ sme_log_event(ul_client_t *pcli,
     unifi_trace(priv, UDBG3,
             "sme_log_event: Process signal 0x%.4X\n",
             CSR_GET_UINT16_FROM_LITTLE_ENDIAN(signal));
+
 
     /* If the signal is known, then do any filtering required, otherwise it pass it to the SME. */
     r = read_unpack_signal(signal, &unpacked_signal);
@@ -238,6 +242,7 @@ sme_log_event(ul_client_t *pcli,
             dataref2.length, dataref2.data);
 
 } /* sme_log_event() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -423,6 +428,7 @@ uf_multicast_list_wq(struct work_struct *work)
     kfree(multicast_address_list);
 }
 
+
 int unifi_cfg_power(unifi_priv_t *priv, unsigned char *arg)
 {
     unifi_cfg_power_t cfg_power;
@@ -462,6 +468,7 @@ int unifi_cfg_power(unifi_priv_t *priv, unsigned char *arg)
 
     return 0;
 }
+
 
 int unifi_cfg_power_save(unifi_priv_t *priv, unsigned char *arg)
 {
@@ -508,6 +515,7 @@ int unifi_cfg_power_save(unifi_priv_t *priv, unsigned char *arg)
     return rc;
 }
 
+
 int unifi_cfg_power_supply(unifi_priv_t *priv, unsigned char *arg)
 {
     unifi_cfg_powersupply_t cfg_power_supply;
@@ -545,6 +553,7 @@ int unifi_cfg_power_supply(unifi_priv_t *priv, unsigned char *arg)
 
     return rc;
 }
+
 
 int unifi_cfg_packet_filters(unifi_priv_t *priv, unsigned char *arg)
 {
@@ -611,6 +620,7 @@ int unifi_cfg_packet_filters(unifi_priv_t *priv, unsigned char *arg)
     return rc;
 }
 
+
 int unifi_cfg_wmm_qos_info(unifi_priv_t *priv, unsigned char *arg)
 {
     u8 wmm_qos_info;
@@ -626,6 +636,7 @@ int unifi_cfg_wmm_qos_info(unifi_priv_t *priv, unsigned char *arg)
 
     return rc;
 }
+
 
 int unifi_cfg_wmm_addts(unifi_priv_t *priv, unsigned char *arg)
 {
@@ -679,6 +690,7 @@ int unifi_cfg_wmm_addts(unifi_priv_t *priv, unsigned char *arg)
     kfree(addts_ie);
     return rc;
 }
+
 
 int unifi_cfg_wmm_delts(unifi_priv_t *priv, unsigned char *arg)
 {
@@ -740,6 +752,7 @@ int unifi_cfg_strict_draft_n(unifi_priv_t *priv, unsigned char *arg)
     return rc;
 }
 
+
 int unifi_cfg_enable_okc(unifi_priv_t *priv, unsigned char *arg)
 {
     u8 enable_okc;
@@ -773,6 +786,7 @@ int unifi_cfg_enable_okc(unifi_priv_t *priv, unsigned char *arg)
 
     return rc;
 }
+
 
 int unifi_cfg_get_info(unifi_priv_t *priv, unsigned char *arg)
 {
@@ -880,6 +894,7 @@ int unifi_cfg_get_info(unifi_priv_t *priv, unsigned char *arg)
 #endif
             }
             break;
+
 
         default:
             unifi_error(priv, "unifi_cfg_get_info: Unknown value.\n");
@@ -1008,6 +1023,7 @@ uf_sme_config_wq(struct work_struct *work)
 
 #endif /* CSR_SUPPORT_WEXT */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  uf_ta_ind_wq
@@ -1034,6 +1050,7 @@ uf_ta_ind_wq(struct work_struct *work)
     unifi_priv_t *priv = container_of(ind, unifi_priv_t, ta_ind_work);
     u16 interfaceTag = 0;
 
+
     CsrWifiRouterCtrlTrafficProtocolIndSend(priv->CSR_WIFI_SME_IFACEQUEUE,0,
             interfaceTag,
             ind->packet_type,
@@ -1042,6 +1059,7 @@ uf_ta_ind_wq(struct work_struct *work)
     ind->in_use = 0;
 
 } /* uf_ta_ind_wq() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1106,6 +1124,7 @@ uf_ta_sample_ind_wq(struct work_struct *work)
     ind->in_use = 0;
 
 } /* uf_ta_sample_ind_wq() */
+
 
 /*
  * ---------------------------------------------------------------------------

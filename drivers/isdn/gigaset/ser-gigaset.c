@@ -227,6 +227,7 @@ static void flush_send_queue(struct cardstate *cs)
 		dev_kfree_skb_any(skb);
 }
 
+
 /* Gigaset Driver Interface */
 /* ======================== */
 
@@ -469,6 +470,7 @@ static const struct gigaset_ops ops = {
 	gigaset_m10x_send_skb,	/* asyncdata.c */
 	gigaset_m10x_input,	/* asyncdata.c */
 };
+
 
 /* Line Discipline Interface */
 /* ========================= */
@@ -766,6 +768,7 @@ static struct tty_ldisc_ops gigaset_ldisc = {
 	.write_wakeup	= gigaset_tty_wakeup,
 };
 
+
 /* Initialization / Shutdown */
 /* ========================= */
 
@@ -784,8 +787,10 @@ static int __init ser_gigaset_init(void)
 	driver = gigaset_initdriver(GIGASET_MINOR, GIGASET_MINORS,
 				    GIGASET_MODULENAME, GIGASET_DEVNAME,
 				    &ops, THIS_MODULE);
-	if (!driver)
+	if (!driver) {
+		rc = -ENOMEM;
 		goto error;
+	}
 
 	rc = tty_register_ldisc(N_GIGASET_M101, &gigaset_ldisc);
 	if (rc != 0) {

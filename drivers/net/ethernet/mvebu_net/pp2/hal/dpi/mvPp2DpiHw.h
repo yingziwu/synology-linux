@@ -165,6 +165,7 @@ typedef struct pp2_dpi_res_desc {
 	MV_U8 counter[MV_PP2_DPI_CNTRS];
 } PP2_DPI_RES_DESC;
 
+
 /* Update HW with number of DPI RequestQ descriptors to be processed */
 static INLINE void mvPp2DpiReqPendAdd(int pend)
 {

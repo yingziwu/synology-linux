@@ -908,6 +908,7 @@ static int mvKernelExt_ioctl(
     return 0;
 }
 
+
 /*******************************************************************************
 * mvKernelExt_open
 *
@@ -948,6 +949,7 @@ static int mvKernelExt_open(
 
     return 0;
 }
+
 
 /*******************************************************************************
 * mvKernelExt_release
@@ -998,6 +1000,9 @@ static int mvKernelExt_release(
     return 0;
 }
 
+
+
+
 static struct file_operations mvKernelExt_fops =
 {
     .llseek = mvKernelExt_lseek,
@@ -1047,6 +1052,7 @@ static struct {
     __TBL_ENTRY(mv_ctl)
 };
 #undef  __TBL_ENTRY
+
 
 /*******************************************************************************
 * mv_OverrideSyscalls
@@ -1114,6 +1120,7 @@ mv_RestoreSyscalls(void)
     return 0;
 }
 #endif /* MVKERNELEXT_SYSCALLS */
+
 
 /************************************************************************
 * mvKernelExt_cleanup_common

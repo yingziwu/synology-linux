@@ -283,3 +283,4 @@ struct bcm_iso_header {
 #define FIELD_OFFSET_IN_HEADER(HeaderPointer, Field) ((u8 *)&((HeaderPointer)(NULL))->Field - (u8 *)(NULL))
 
 #endif
+

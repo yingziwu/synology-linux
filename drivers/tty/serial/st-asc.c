@@ -1,7 +1,18 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * st-asc.c: ST Asynchronous serial controller (ASC) driver
+ *
+ * Copyright (C) 2003-2013 STMicroelectronics (R&D) Limited
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ */
+
 #if defined(CONFIG_SERIAL_ST_ASC_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
@@ -28,11 +39,16 @@
 #define DRIVER_NAME "st-asc"
 #if defined(MY_DEF_HERE)
 #define ASC_SERIAL_NAME "ttyS"
-#else  
+#else /* MY_DEF_HERE */
 #define ASC_SERIAL_NAME "ttyAS"
-#endif  
+#endif /* MY_DEF_HERE */
 #define ASC_FIFO_SIZE 16
 #define ASC_MAX_PORTS 8
+
+#ifdef MY_ABC_HERE
+extern int (*syno_test_list)(unsigned char, struct tty_struct *);
+extern int (*funcSYNOMicropGetEvent)(struct tty_struct *);
+#endif /* MY_ABC_HERE */
 
 struct asc_port {
 	struct uart_port port;
@@ -46,6 +62,8 @@ struct asc_port {
 
 static struct asc_port asc_ports[ASC_MAX_PORTS];
 static struct uart_driver asc_uart_driver;
+
+/*---- Inline function definitions ---------------------------*/
 
 static inline struct asc_port *to_asc_port(struct uart_port *port)
 {
@@ -62,11 +80,15 @@ static inline void asc_out(struct uart_port *port, u32 offset, u32 value)
 	writel_relaxed(value, port->membase + offset);
 }
 
+/*
+ * Some simple utility functions to enable and disable interrupts.
+ * Note that these need to be called with interrupts disabled.
+ */
 static inline void asc_disable_tx_interrupts(struct uart_port *port)
 {
 	u32 intenable = asc_in(port, ASC_INTEN) & ~ASC_INTEN_THE;
 	asc_out(port, ASC_INTEN, intenable);
-	(void)asc_in(port, ASC_INTEN);	 
+	(void)asc_in(port, ASC_INTEN);	/* Defeat bus write posting */
 }
 
 static inline void asc_enable_tx_interrupts(struct uart_port *port)
@@ -79,7 +101,7 @@ static inline void asc_disable_rx_interrupts(struct uart_port *port)
 {
 	u32 intenable = asc_in(port, ASC_INTEN) & ~ASC_INTEN_RBE;
 	asc_out(port, ASC_INTEN, intenable);
-	(void)asc_in(port, ASC_INTEN);	 
+	(void)asc_in(port, ASC_INTEN);	/* Defeat bus write posting */
 }
 
 static inline void asc_enable_rx_interrupts(struct uart_port *port)
@@ -103,6 +125,13 @@ static inline const char *asc_port_name(struct uart_port *port)
 	return to_platform_device(port->dev)->name;
 }
 
+/*----------------------------------------------------------------------*/
+
+/*
+ * This section contains code to support the use of the ASC as a
+ * generic serial port.
+ */
+
 static inline unsigned asc_hw_txroom(struct uart_port *port)
 {
 	u32 status = asc_in(port, ASC_STA);
@@ -115,6 +144,11 @@ static inline unsigned asc_hw_txroom(struct uart_port *port)
 	return 0;
 }
 
+/*
+ * Start transmitting chars.
+ * This is called from both interrupt and task level.
+ * Either way interrupts are disabled.
+ */
 static void asc_transmit_chars(struct uart_port *port)
 {
 	struct circ_buf *xmit = &port->state->xmit;
@@ -132,7 +166,10 @@ static void asc_transmit_chars(struct uart_port *port)
 	}
 
 	if (uart_tx_stopped(port)) {
-		 
+		/*
+		 * We should try and stop the hardware here, but I
+		 * don't think the ASC has any way to do that.
+		 */
 		asc_disable_tx_interrupts(port);
 		return;
 	}
@@ -190,7 +227,10 @@ static void asc_receive_chars(struct uart_port *port)
 			} else if (c & ASC_RXBUF_PE) {
 				port->icount.parity++;
 			}
-			 
+			/*
+			 * Reading any data from the RX FIFO clears the
+			 * overflow error condition.
+			 */
 			if (status & ASC_STA_OE) {
 				port->icount.overrun++;
 				c |= ASC_RXBUF_DUMMY_OE;
@@ -209,9 +249,17 @@ static void asc_receive_chars(struct uart_port *port)
 		if (uart_handle_sysrq_char(port, c))
 			continue;
 
+#ifdef MY_ABC_HERE
+		if (NULL != syno_test_list && syno_test_list(c & 0xff, port->state->port.tty)) {
+			continue;
+		} else if (NULL != funcSYNOMicropGetEvent) {
+			funcSYNOMicropGetEvent(port->state->port.tty);
+		}
+#endif /* MY_ABC_HERE */
 		uart_insert_char(port, c, ASC_RXBUF_DUMMY_OE, c & 0xff, flag);
 	}
 
+	/* Tell the rest of the system the news. New characters! */
 	spin_unlock(&port->lock);
 	tty_flip_buffer_push(tport);
 	spin_lock(&port->lock);
@@ -227,13 +275,13 @@ static irqreturn_t asc_interrupt(int irq, void *ptr)
 	status = asc_in(port, ASC_STA);
 
 	if (status & ASC_STA_RBF) {
-		 
+		/* Receive FIFO not empty */
 		asc_receive_chars(port);
 	}
 
 	if ((status & ASC_STA_THE) &&
 	    (asc_in(port, ASC_INTEN) & ASC_INTEN_THE)) {
-		 
+		/* Transmitter FIFO at least half empty */
 		asc_transmit_chars(port);
 	}
 
@@ -242,6 +290,12 @@ static irqreturn_t asc_interrupt(int irq, void *ptr)
 	return IRQ_HANDLED;
 }
 
+/*----------------------------------------------------------------------*/
+
+/*
+ * UART Functions
+ */
+
 static unsigned int asc_tx_empty(struct uart_port *port)
 {
 	return asc_txfifo_is_empty(port) ? TIOCSER_TEMT : 0;
@@ -249,15 +303,24 @@ static unsigned int asc_tx_empty(struct uart_port *port)
 
 static void asc_set_mctrl(struct uart_port *port, unsigned int mctrl)
 {
-	 
+	/*
+	 * This routine is used for seting signals of: DTR, DCD, CTS/RTS
+	 * We use ASC's hardware for CTS/RTS, so don't need any for that.
+	 * Some boards have DTR and DCD implemented using PIO pins,
+	 * code to do this should be hooked in here.
+	 */
 }
 
 static unsigned int asc_get_mctrl(struct uart_port *port)
 {
-	 
+	/*
+	 * This routine is used for geting signals of: DTR, DCD, DSR, RI,
+	 * and CTS/RTS
+	 */
 	return TIOCM_CAR | TIOCM_DSR | TIOCM_CTS;
 }
 
+/* There are probably characters waiting to be transmitted. */
 static void asc_start_tx(struct uart_port *port)
 {
 	struct circ_buf *xmit = &port->state->xmit;
@@ -266,26 +329,33 @@ static void asc_start_tx(struct uart_port *port)
 		asc_enable_tx_interrupts(port);
 }
 
+/* Transmit stop */
 static void asc_stop_tx(struct uart_port *port)
 {
 	asc_disable_tx_interrupts(port);
 }
 
+/* Receive stop */
 static void asc_stop_rx(struct uart_port *port)
 {
 	asc_disable_rx_interrupts(port);
 }
 
+/* Force modem status interrupts on */
 static void asc_enable_ms(struct uart_port *port)
 {
-	 
+	/* Nothing here yet .. */
 }
 
+/* Handle breaks - ignored by us */
 static void asc_break_ctl(struct uart_port *port, int break_state)
 {
-	 
+	/* Nothing here yet .. */
 }
 
+/*
+ * Enable port for reception.
+ */
 static int asc_startup(struct uart_port *port)
 {
 	if (request_irq(port->irq, asc_interrupt, IRQF_NO_SUSPEND,
@@ -323,7 +393,11 @@ static void asc_pm(struct uart_port *port, unsigned int state,
 					ascport->pins_default);
 		break;
 	case UART_PM_STATE_OFF:
-		 
+		/*
+		 * Disable the ASC baud rate generator, which is as close as
+		 * we can come to turning it off. Note this is not called with
+		 * the port spinlock held.
+		 */
 		spin_lock_irqsave(&port->lock, flags);
 		ctl = asc_in(port, ASC_CTL) & ~ASC_CTL_RUN;
 		asc_out(port, ASC_CTL, ctl);
@@ -346,6 +420,7 @@ static void asc_set_termios(struct uart_port *port, struct ktermios *termios,
 	tcflag_t cflag;
 	unsigned long flags;
 
+	/* Update termios to reflect hardware capabilities */
 	termios->c_cflag &= ~(CMSPAR |
 			 (ascport->hw_flow_control ? 0 : CRTSCTS));
 
@@ -356,14 +431,18 @@ static void asc_set_termios(struct uart_port *port, struct ktermios *termios,
 
 	spin_lock_irqsave(&port->lock, flags);
 
+	/* read control register */
 	ctrl_val = asc_in(port, ASC_CTL);
 
+	/* stop serial port and reset value */
 	asc_out(port, ASC_CTL, (ctrl_val & ~ASC_CTL_RUN));
 	ctrl_val = ASC_CTL_RXENABLE | ASC_CTL_FIFOENABLE;
 
+	/* reset fifo rx & tx */
 	asc_out(port, ASC_TXRESET, 1);
 	asc_out(port, ASC_RXRESET, 1);
 
+	/* set character length */
 	if ((cflag & CSIZE) == CS7) {
 		ctrl_val |= ASC_CTL_MODE_7BIT_PAR;
 	} else {
@@ -371,18 +450,29 @@ static void asc_set_termios(struct uart_port *port, struct ktermios *termios,
 						ASC_CTL_MODE_8BIT;
 	}
 
+	/* set stop bit */
 	ctrl_val |= (cflag & CSTOPB) ? ASC_CTL_STOP_2BIT : ASC_CTL_STOP_1BIT;
 
+	/* odd parity */
 	if (cflag & PARODD)
 		ctrl_val |= ASC_CTL_PARITYODD;
 
+	/* hardware flow control */
 	if ((cflag & CRTSCTS))
 		ctrl_val |= ASC_CTL_CTSENABLE;
 
 	if ((baud < 19200) && !ascport->force_m1) {
 		asc_out(port, ASC_BAUDRATE, (port->uartclk / (16 * baud)));
 	} else {
-		 
+		/*
+		 * MODE 1: recommended for high bit rates (above 19.2K)
+		 *
+		 *                   baudrate * 16 * 2^16
+		 * ASCBaudRate =   ------------------------
+		 *                          inputclock
+		 *
+		 * To keep maths inside 64bits, we divide inputclock by 16.
+		 */
 		u64 dividend = (u64)baud * (1 << 16);
 		do_div(dividend, port->uartclk / 16);
 
@@ -398,21 +488,32 @@ static void asc_set_termios(struct uart_port *port, struct ktermios *termios,
 	if (termios->c_iflag & (BRKINT | PARMRK))
 		ascport->port.read_status_mask |= ASC_RXBUF_DUMMY_BE;
 
+	/*
+	 * Characters to ignore
+	 */
 	ascport->port.ignore_status_mask = 0;
 	if (termios->c_iflag & IGNPAR)
 		ascport->port.ignore_status_mask |= ASC_RXBUF_FE | ASC_RXBUF_PE;
 	if (termios->c_iflag & IGNBRK) {
 		ascport->port.ignore_status_mask |= ASC_RXBUF_DUMMY_BE;
-		 
+		/*
+		 * If we're ignoring parity and break indicators,
+		 * ignore overruns too (for real raw support).
+		 */
 		if (termios->c_iflag & IGNPAR)
 			ascport->port.ignore_status_mask |= ASC_RXBUF_DUMMY_OE;
 	}
 
+	/*
+	 * Ignore all characters if CREAD is not set.
+	 */
 	if (!(termios->c_cflag & CREAD))
 		ascport->port.ignore_status_mask |= ASC_RXBUF_DUMMY_RX;
 
+	/* Set the timeout */
 	asc_out(port, ASC_TIMEOUT, 20);
 
+	/* write final value and enable port */
 	asc_out(port, ASC_CTL, (ctrl_val | ASC_CTL_RUN));
 
 	spin_unlock_irqrestore(&port->lock, flags);
@@ -432,6 +533,10 @@ static int asc_request_port(struct uart_port *port)
 	return 0;
 }
 
+/*
+ * Called when the port is opened, and UPF_BOOT_AUTOCONF flag is set
+ * Set type field if successful
+ */
 static void asc_config_port(struct uart_port *port, int flags)
 {
 	if ((flags & UART_CONFIG_TYPE))
@@ -441,12 +546,16 @@ static void asc_config_port(struct uart_port *port, int flags)
 static int
 asc_verify_port(struct uart_port *port, struct serial_struct *ser)
 {
-	 
+	/* No user changeable parameters */
 	return -EINVAL;
 }
 
 #ifdef CONFIG_CONSOLE_POLL
- 
+/*
+ * Console polling routines for writing and reading from the uart while
+ * in an interrupt or debug context (i.e. kgdb).
+ */
+
 static int asc_get_poll_char(struct uart_port *port)
 {
 	if (!(asc_in(port, ASC_STA) & ASC_STA_RBF))
@@ -462,7 +571,9 @@ static void asc_put_poll_char(struct uart_port *port, unsigned char c)
 	asc_out(port, ASC_TXBUF, c);
 }
 
-#endif  
+#endif /* CONFIG_CONSOLE_POLL */
+
+/*---------------------------------------------------------------------*/
 
 static struct uart_ops asc_uart_ops = {
 	.tx_empty	= asc_tx_empty,
@@ -485,7 +596,7 @@ static struct uart_ops asc_uart_ops = {
 #ifdef CONFIG_CONSOLE_POLL
 	.poll_get_char = asc_get_poll_char,
 	.poll_put_char = asc_put_poll_char,
-#endif  
+#endif /* CONFIG_CONSOLE_POLL */
 };
 
 static int asc_init_port(struct asc_port *ascport,
@@ -533,7 +644,7 @@ static int asc_init_port(struct asc_port *ascport,
 
 	if (WARN_ON(IS_ERR(ascport->clk)))
 		return -EINVAL;
-	 
+	/* ensure that clk rate is correct by enabling the clk */
 	clk_prepare_enable(ascport->clk);
 	ascport->port.uartclk = clk_get_rate(ascport->clk);
 	WARN_ON(ascport->port.uartclk == 0);
@@ -619,18 +730,26 @@ static int asc_serial_resume(struct device *dev)
 	return uart_resume_port(&asc_uart_driver, port);
 }
 
-#endif  
+#endif /* CONFIG_PM_SLEEP */
+
+/*----------------------------------------------------------------------*/
 
 #ifdef CONFIG_SERIAL_ST_ASC_CONSOLE
 static void asc_console_putchar(struct uart_port *port, int ch)
 {
 	unsigned int timeout = 1000000;
 
+	/* Wait for upto 1 second in case flow control is stopping us. */
 	while (--timeout && asc_txfifo_is_full(port))
 		udelay(1);
 
 	asc_out(port, ASC_TXBUF, ch);
 }
+
+/*
+ *  Print a string to the serial port trying not to disturb
+ *  any possible real use of the port...
+ */
 
 static void asc_console_write(struct console *co, const char *s, unsigned count)
 {
@@ -640,15 +759,19 @@ static void asc_console_write(struct console *co, const char *s, unsigned count)
 	u32 intenable;
 
 	if (port->sysrq)
-		locked = 0;  
+		locked = 0; /* asc_interrupt has already claimed the lock */
 	else if (oops_in_progress)
 		locked = spin_trylock(&port->lock);
 	else
 		spin_lock(&port->lock);
 
+	/*
+	 * Disable interrupts so we don't get the IRQ line bouncing
+	 * up and down while interrupts are disabled.
+	 */
 	intenable = asc_in(port, ASC_INTEN);
 	asc_out(port, ASC_INTEN, 0);
-	(void)asc_in(port, ASC_INTEN);	 
+	(void)asc_in(port, ASC_INTEN);	/* Defeat bus write posting */
 
 	uart_console_write(port, s, count, asc_console_putchar);
 
@@ -674,6 +797,12 @@ static int asc_console_setup(struct console *co, char *options)
 
 	ascport = &asc_ports[co->index];
 
+	/*
+	 * This driver does not support early console initialization
+	 * (use ARM early printk support instead), so we only expect
+	 * this to be called during the uart port registration when the
+	 * driver gets probed and the port should be mapped at that point.
+	 */
 	if (ascport->port.mapbase == 0 || ascport->port.membase == NULL)
 		return -ENXIO;
 
@@ -697,7 +826,7 @@ static struct console asc_console = {
 
 #else
 #define ASC_SERIAL_CONSOLE NULL
-#endif  
+#endif /* CONFIG_SERIAL_ST_ASC_CONSOLE */
 
 static struct uart_driver asc_uart_driver = {
 	.owner		= THIS_MODULE,

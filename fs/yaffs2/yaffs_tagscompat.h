@@ -16,9 +16,11 @@
 #ifndef __YAFFS_TAGSCOMPAT_H__
 #define __YAFFS_TAGSCOMPAT_H__
 
+
 #include "yaffs_guts.h"
 
 #if 0
+
 
 int yaffs_tags_compat_wr(struct yaffs_dev *dev,
 			 int nand_chunk,
@@ -33,6 +35,7 @@ int yaffs_tags_compat_query_block(struct yaffs_dev *dev,
 				  u32 *seq_number);
 
 #endif
+
 
 void yaffs_tags_compat_install(struct yaffs_dev *dev);
 void yaffs_calc_tags_ecc(struct yaffs_tags *tags);

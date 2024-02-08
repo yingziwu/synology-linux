@@ -407,6 +407,7 @@ static ssize_t ath6kl_fwlog_read(struct file *file, char __user *user_buf,
 			break;
 		}
 
+
 		memcpy(buf + len, skb->data, skb->len);
 		len += skb->len;
 
@@ -472,6 +473,7 @@ static ssize_t ath6kl_fwlog_block_read(struct file *file,
 			__skb_queue_head(&ar->debug.fwlog_queue, skb);
 			break;
 		}
+
 
 		memcpy(buf + len, skb->data, skb->len);
 		len += skb->len;

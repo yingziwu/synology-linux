@@ -85,6 +85,7 @@ static int nop_set_flag(u32 old_flags, u32 bit, int set)
 	return 0;
 }
 
+
 struct tracer nop_trace __read_mostly =
 {
 	.name		= "nop",
@@ -97,3 +98,4 @@ struct tracer nop_trace __read_mostly =
 	.flags		= &nop_flags,
 	.set_flag	= nop_set_flag
 };
+

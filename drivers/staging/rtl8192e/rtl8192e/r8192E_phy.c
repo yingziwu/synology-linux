@@ -156,6 +156,7 @@ static u32 rtl8192_phy_RFSerialRead(struct net_device *dev,
 		rtl8192_setBBreg(dev, rFPGA0_AnalogParameter4, 0x300, 0x3);
 	}
 
+
 	return ret;
 
 }
@@ -326,6 +327,7 @@ static void phy_FwRFSerialWrite(struct net_device *dev,
 	write_nic_dword(dev, QPNR, Data);
 
 }	/* phy_FwRFSerialWrite */
+
 
 void rtl8192_phy_configmac(struct net_device *dev)
 {
@@ -535,6 +537,7 @@ bool rtl8192_phy_checkBBAndRF(struct net_device *dev,
 			break;
 		}
 
+
 		if (dwRegRead != WriteData[i]) {
 			RT_TRACE(COMP_ERR, "====>error=====dwRegRead: %x, "
 				 "WriteData: %x\n", dwRegRead, WriteData[i]);
@@ -587,6 +590,7 @@ static bool rtl8192_BB_Config_ParaFile(struct net_device *dev)
 			dwRegValue = 0x0;
 		rtl8192_setBBreg(dev, rFPGA0_TxGainStage,
 			(bXBTxAGC|bXCTxAGC|bXDTxAGC), dwRegValue);
+
 
 		dwRegValue = priv->CrystalCap;
 		rtl8192_setBBreg(dev, rFPGA0_AnalogParameter1, bXtalCap92x,
@@ -920,6 +924,7 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 			break;
 		}
 
+
 		do {
 			switch (*stage) {
 			case 0:
@@ -1021,6 +1026,7 @@ u8 rtl8192_phy_SwChnl(struct net_device *dev, u8 channel)
 	}
 	if (priv->SwChnlInProgress)
 		return false;
+
 
 	switch (priv->rtllib->mode) {
 	case WIRELESS_MODE_A:
@@ -1175,6 +1181,7 @@ void rtl8192_SetBWModeWorkItem(struct net_device *dev)
 		 "bandwidth\n", priv->CurrentChannelBW == HT_CHANNEL_WIDTH_20 ?
 		 "20MHz" : "40MHz")
 
+
 	if (priv->rf_chip == RF_PSEUDO_11N) {
 		priv->SetBWModeInProgress = false;
 		return;
@@ -1273,6 +1280,7 @@ void rtl8192_SetBWMode(struct net_device *dev, enum ht_channel_width Bandwidth,
 		       enum ht_extchnl_offset Offset)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
+
 
 	if (priv->SetBWModeInProgress)
 		return;
@@ -1475,6 +1483,7 @@ static bool SetRFPowerState8190(struct net_device *dev,
 		case eRfSleep:
 			if (priv->rtllib->eRFPowerState == eRfOff)
 				break;
+
 
 			for (QueueID = 0, i = 0; QueueID < MAX_TX_QUEUE; ) {
 				ring = &priv->tx_ring[QueueID];

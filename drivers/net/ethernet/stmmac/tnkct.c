@@ -2032,6 +2032,7 @@ void tnk_ct_probe_timer(unsigned long data)
 	unsigned int diff = -1;
 	unsigned int window;
 
+
 	if (unlikely(!sk))
 		return;
 	tcp = tcp_sk(sk);
@@ -2074,6 +2075,7 @@ void tnk_check_alive_timer(unsigned long data)
 	struct tnkentry *e = (struct tnkentry *)data;
 	struct sock *sk = e->sk;
 	struct tcp_sock *tcp;
+
 
 	if (unlikely(!sk))
 		return;

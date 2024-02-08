@@ -496,3 +496,4 @@ module_exit(hifmc100_os_module_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("BVT_BSP");
 MODULE_DESCRIPTION("Hisilicon Flash Memory Controller V100 SPI Nand Driver");
+

@@ -16,8 +16,10 @@
 #include <linux/slab.h>
 #include <linux/sched.h>
 
+
 #include <linux/platform_data/dma-st-fdma.h>
 #include "st_fdma.h"
+
 
 static int st_fdma_fw_check_header(struct st_fdma_device *fdev,
 		struct ELF32_info *elfinfo)

@@ -90,6 +90,7 @@
 	ld.ab   r0, [sp, 4]
 .endm
 
+
 /*--------------------------------------------------------------
  * Save callee saved registers (non scratch registers) ( r13 - r25 )
  *  on kernel stack.
@@ -166,6 +167,7 @@
  *  which simply pops the stack w/o touching regs.
  *-------------------------------------------------------------*/
 .macro RESTORE_CALLEE_SAVED_KERNEL
+
 
 #ifdef CONFIG_ARC_CURR_IN_REG
 	add     sp, sp, 8  /* skip callee_reg gutter and user r25 placeholder */
@@ -505,6 +507,7 @@
 	/* orig_r0 and orig_r8 skipped automatically */
 .endm
 
+
 /*--------------------------------------------------------------
  * Save all registers used by interrupt handlers.
  *-------------------------------------------------------------*/
@@ -640,6 +643,7 @@
 
 .endm
 
+
 /* Get CPU-ID of this core */
 .macro  GET_CPU_ID  reg
 	lr  \reg, [identity]
@@ -678,6 +682,7 @@
 #endif
 
 .endm
+
 
 #else   /* Uniprocessor implementation of macros */
 

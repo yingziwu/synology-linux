@@ -147,6 +147,7 @@ struct dma_buf *dma_buf_export_named(void *priv, const struct dma_buf_ops *ops,
 }
 EXPORT_SYMBOL_GPL(dma_buf_export_named);
 
+
 /**
  * dma_buf_fd - returns a file descriptor for the given dma_buf
  * @dmabuf:	[in]	pointer to dma_buf for which fd is required.
@@ -329,6 +330,7 @@ void dma_buf_unmap_attachment(struct dma_buf_attachment *attach,
 }
 EXPORT_SYMBOL_GPL(dma_buf_unmap_attachment);
 
+
 /**
  * dma_buf_begin_cpu_access - Must be called before accessing a dma_buf from the
  * cpu in the kernel context. Calls begin_cpu_access to allow exporter-specific
@@ -447,6 +449,7 @@ void dma_buf_kunmap(struct dma_buf *dmabuf, unsigned long page_num,
 		dmabuf->ops->kunmap(dmabuf, page_num, vaddr);
 }
 EXPORT_SYMBOL_GPL(dma_buf_kunmap);
+
 
 /**
  * dma_buf_mmap - Setup up a userspace mmap with the given vma

@@ -126,6 +126,7 @@ struct al_ddr_addrmap {
 	uint8_t	cs_b0_1[2];
 };
 
+
 /* Data BIST mode */
 enum al_ddr_bist_mode {
 	/**

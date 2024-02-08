@@ -1,20 +1,31 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/drivers/cpufreq/cpufreq_performance.c
+ *
+ *  Copyright (C) 2002 - 2003 Dominik Brodowski <linux@brodo.de>
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ */
+
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #if defined(MY_DEF_HERE)
 #include <linux/cpufreq.h>
 #include <linux/init.h>
 #include <linux/module.h>
-#else  
+#else /* MY_DEF_HERE */
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/cpufreq.h>
 #include <linux/init.h>
 
-#endif  
+#endif /* MY_DEF_HERE */
 
 static int cpufreq_governor_performance(struct cpufreq_policy *policy,
 					unsigned int event)

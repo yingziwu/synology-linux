@@ -1964,6 +1964,7 @@ static void do_autogain(struct gspca_dev *gspca_dev)
 	}
 }
 
+
 static int sd_s_ctrl(struct v4l2_ctrl *ctrl)
 {
 	struct gspca_dev *gspca_dev =

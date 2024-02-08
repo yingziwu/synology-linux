@@ -492,7 +492,9 @@ static void sctp_v6_to_addr(union sctp_addr *addr, struct in6_addr *saddr,
 {
 	addr->sa.sa_family = AF_INET6;
 	addr->v6.sin6_port = port;
+	addr->v6.sin6_flowinfo = 0;
 	addr->v6.sin6_addr = *saddr;
+	addr->v6.sin6_scope_id = 0;
 }
 
 /* Compare addresses exactly.
@@ -1057,6 +1059,7 @@ void sctp_v6_protosw_exit(void)
 	inet6_unregister_protosw(&sctpv6_stream_protosw);
 	proto_unregister(&sctpv6_prot);
 }
+
 
 /* Register with inet6 layer. */
 int sctp_v6_add_protocol(void)

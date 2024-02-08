@@ -43,6 +43,8 @@ struct ppDriverPciData_STC {
 	spinlock_t          hwComplSem;
 };
 
+
+
 static void hwCompletion(
 		struct ppDriverPciData_STC *drv,
 		uint32_t                    regAddr,

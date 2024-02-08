@@ -58,6 +58,7 @@ typedef enum mali_mmu_entry_flags {
 	MALI_MMU_FLAGS_MASK = 0x1FF,
 } mali_mmu_entry_flags;
 
+
 #define MALI_MMU_FLAGS_FORCE_GP_READ_ALLOCATE ( \
 MALI_MMU_FLAGS_PRESENT | \
 	MALI_MMU_FLAGS_READ_PERMISSION |  \
@@ -72,6 +73,7 @@ MALI_MMU_FLAGS_PRESENT | \
 	MALI_MMU_FLAGS_PRESENT | \
 	MALI_MMU_FLAGS_READ_PERMISSION |  \
 	MALI_MMU_FLAGS_WRITE_PERMISSION )
+
 
 struct mali_page_directory {
 	u32 page_directory; /**< Physical address of the memory session's page directory */

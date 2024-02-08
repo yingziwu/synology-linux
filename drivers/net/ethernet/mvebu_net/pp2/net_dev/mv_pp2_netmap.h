@@ -237,6 +237,7 @@ mv_pp2_netmap_txsync(struct ifnet *ifp, u_int ring_nr, int do_lock)
 	return 0;
 }
 
+
 /*
  * Reconcile kernel and user view of the receive ring.
  */
@@ -374,6 +375,7 @@ mv_pp2_netmap_rxsync(struct ifnet *ifp, u_int ring_nr, int do_lock)
 	return 0;
 }
 
+
 /* diagnostic routine to catch errors */
 static void mv_pp2_no_rx_alloc(struct SOFTC_T *a, int n)
 {
@@ -421,6 +423,7 @@ static int pp2_netmap_rxq_init_buffers(struct SOFTC_T *adapter, int rxq)
 	return 0;
 }
 
+
 /*
  * Make the tx ring point to the netmap buffers.
 */
@@ -446,6 +449,7 @@ static int pp2_netmap_txq_init_buffers(struct SOFTC_T *adapter, int txp, int txq
 
 	return 0;
 }
+
 
 static void
 mv_pp2_netmap_attach(struct SOFTC_T *adapter)

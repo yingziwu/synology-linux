@@ -169,6 +169,7 @@ static int intelfb_create(struct drm_fb_helper *helper,
 		      fb->width, fb->height,
 		      obj->gtt_offset, obj);
 
+
 	mutex_unlock(&dev->struct_mutex);
 	vga_switcheroo_client_fb_set(dev->pdev, info);
 	return 0;

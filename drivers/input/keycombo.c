@@ -240,6 +240,7 @@ int keycombo_remove(struct platform_device *pdev)
 	return 0;
 }
 
+
 struct platform_driver keycombo_driver = {
 		.driver.name = KEYCOMBO_NAME,
 		.probe = keycombo_probe,

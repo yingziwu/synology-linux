@@ -481,6 +481,8 @@ out:
 	xfrm_input_resume(skb, err);
 }
 
+
+
 static int ah6_input(struct xfrm_state *x, struct sk_buff *skb)
 {
 	/*
@@ -538,6 +540,7 @@ static int ah6_input(struct xfrm_state *x, struct sk_buff *skb)
 
 	if (!pskb_may_pull(skb, ah_hlen))
 		goto out;
+
 
 	if ((err = skb_cow_data(skb, 0, &trailer)) < 0)
 		goto out;

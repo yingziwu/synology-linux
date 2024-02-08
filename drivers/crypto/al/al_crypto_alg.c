@@ -26,6 +26,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 /*
 #ifndef DEBUG
 #define DEBUG
@@ -50,6 +51,9 @@
 #include "al_hal_ssm_crypto.h"
 
 #define AL_CRYPTO_CRA_PRIORITY	300
+
+
+
 
 static int ablkcipher_setkey_des(struct crypto_ablkcipher *ablkcipher,
 			     const u8 *key, unsigned int keylen);
@@ -593,6 +597,7 @@ static int ablkcipher_setkey_aes(struct crypto_ablkcipher *ablkcipher,
 
 	return 0;
 }
+
 
 /******************************************************************************
  *****************************************************************************/

@@ -11,6 +11,7 @@
 #ifndef CSR_WIFI_HIP_CHIPHELPER_H__
 #define CSR_WIFI_HIP_CHIPHELPER_H__
 
+
 #include <linux/types.h>
 
 /* The age of the BlueCore chip.  This is probably not useful, if

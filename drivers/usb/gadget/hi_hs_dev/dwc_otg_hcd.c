@@ -982,6 +982,7 @@ static void assign_and_init_hc(dwc_otg_hcd_t *hcd, dwc_otg_qh_t *qh)
 	else
 		hc->do_ping = qh->ping_state;
 
+
 	hc->data_pid_start = qh->data_toggle;
 	hc->multi_count = 1;
 
@@ -1049,6 +1050,7 @@ static void assign_and_init_hc(dwc_otg_hcd_t *hcd, dwc_otg_qh_t *qh)
 			}
 			if (hc->ep_is_in)
 				hc->do_ping = 0;
+
 
 			hc->data_pid_start = DWC_OTG_HC_PID_DATA1;
 
@@ -1222,6 +1224,7 @@ dwc_otg_transaction_type_e dwc_otg_hcd_select_transactions(dwc_otg_hcd_t *hcd)
 			ret_val = DWC_OTG_TRANSACTION_NON_PERIODIC;
 		else
 			ret_val = DWC_OTG_TRANSACTION_ALL;
+
 
 		hcd->non_periodic_channels++;
 	}
@@ -2199,6 +2202,7 @@ int dwc_otg_hcd_hub_control(dwc_otg_hcd_t *dwc_otg_hcd,
 		if (dwc_otg_hcd->flags.b.port_reset_change)
 			port_status |= (1 << UHF_C_PORT_RESET);
 
+
 		if (dwc_otg_hcd->flags.b.port_over_current_change) {
 			DWC_WARN("Overcurrent change detected\n");
 			port_status |= (1 << UHF_C_PORT_OVER_CURRENT);
@@ -2858,6 +2862,7 @@ int dwc_otg_hcd_send_lpm(dwc_otg_hcd_t *hcd, uint8_t devaddr, uint8_t hird,
 	if (channel < 0)
 		return channel;
 
+
 	pcgcctl.b.enbl_sleep_gating = 1;
 	DWC_MODIFY_REG32(hcd->core_if->pcgcctl, 0, pcgcctl.d32);
 
@@ -2888,6 +2893,7 @@ int dwc_otg_hcd_is_status_changed(dwc_otg_hcd_t *hcd, int port)
 
 	if (port != 1)
 		return -DWC_E_INVALID;
+
 
 	retval = (hcd->flags.b.port_connect_status_change ||
 		  hcd->flags.b.port_reset_change ||
@@ -2965,6 +2971,7 @@ uint32_t dwc_otg_hcd_is_b_host(dwc_otg_hcd_t *hcd)
 		is_b_host = 1;
 	else
 		is_b_host = 0;
+
 
 	return is_b_host;
 }
@@ -3074,6 +3081,7 @@ int dwc_otg_hcd_is_bandwidth_freed(dwc_otg_hcd_t *hcd, void *ep_handle)
 
 	if (DWC_LIST_EMPTY(&qh->qh_list_entry))
 		freed = 1;
+
 
 	return freed;
 }

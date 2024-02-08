@@ -530,6 +530,7 @@ static struct page *kimage_alloc_crash_control_pages(struct kimage *image,
 	return pages;
 }
 
+
 struct page *kimage_alloc_control_pages(struct kimage *image,
 					 unsigned int order)
 {
@@ -586,6 +587,7 @@ static int kimage_set_destination(struct kimage *image,
 	return result;
 }
 
+
 static int kimage_add_page(struct kimage *image, unsigned long page)
 {
 	int result;
@@ -597,6 +599,7 @@ static int kimage_add_page(struct kimage *image, unsigned long page)
 
 	return result;
 }
+
 
 static void kimage_free_extra_pages(struct kimage *image)
 {
@@ -1233,11 +1236,13 @@ static int __init crash_notes_memory_init(void)
 }
 module_init(crash_notes_memory_init)
 
+
 /*
  * parsing the "crashkernel" commandline
  *
  * this code is intended to be called from architecture specific code
  */
+
 
 /*
  * This function parses command lines in the format

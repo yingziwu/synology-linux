@@ -25,6 +25,7 @@
 #define STATIC  static
 #endif
 
+
 char       *
 sbeid_get_bdname (ci_t * ci)
 {
@@ -67,6 +68,7 @@ sbeid_get_bdname (ci_t * ci)
 
     return np;
 }
+
 
 /* given the presetting of brd_id, set the corresponding hdw_id */
 
@@ -210,5 +212,6 @@ sbeid_set_bdtype (ci_t * ci)
         break;
     }
 }
+
 
 /***  End-of-File  ***/

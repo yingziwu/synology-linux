@@ -21,6 +21,7 @@
 
 #define EFIKA_PLATFORM_NAME "Efika"
 
+
 /* ------------------------------------------------------------------------ */
 /* PCI accesses thru RTAS                                                   */
 /* ------------------------------------------------------------------------ */
@@ -63,6 +64,7 @@ static struct pci_ops rtas_pci_ops = {
 	.read = rtas_read_config,
 	.write = rtas_write_config,
 };
+
 
 static void __init efika_pcisetup(void)
 {
@@ -131,6 +133,8 @@ out_put:
 static void __init efika_pcisetup(void)
 {}
 #endif
+
+
 
 /* ------------------------------------------------------------------------ */
 /* Platform setup                                                           */
@@ -231,3 +235,4 @@ define_machine(efika)
 	.phys_mem_access_prot	= pci_phys_mem_access_prot,
 #endif
 };
+

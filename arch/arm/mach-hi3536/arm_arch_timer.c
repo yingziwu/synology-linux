@@ -42,6 +42,7 @@ enum ppi_nr {
 	MAX_TIMER_PPI
 };
 
+
 static int arch_timer_ppi[MAX_TIMER_PPI];
 
 static struct clock_event_device __percpu *arch_timer_evt;
@@ -436,6 +437,7 @@ static long __init syscnt_get_clock_rate(const char *name)
 
 	return rate;
 }
+
 
 void __init arch_timer_init(void)
 {

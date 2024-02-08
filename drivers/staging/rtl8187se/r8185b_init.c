@@ -55,6 +55,7 @@ static u8 MAC_REG_TABLE[][2] =	{
 	{0xC9, 0x22}, {0xCA, 0x22}, {0xCB, 0x22}, {0xCC, 0x22}, {0xCD, 0x22}, /* lzm add 080826 */
 	{0xe2, 0x00},
 
+
 	/* PAGE 2: */
 	{0x5e, 0x02},
 	{0x0c, 0x04}, {0x4c, 0x30}, {0x4d, 0x08}, {0x50, 0x05}, {0x51, 0xf5},
@@ -68,6 +69,7 @@ static u8 MAC_REG_TABLE[][2] =	{
 	/* PAGA 0: */
 	{0x5e, 0x00}, {0x9f, 0x03}
 	};
+
 
 static u8  ZEBRA_AGC[] = {
 	0,
@@ -223,6 +225,7 @@ static bool HwHSSIThreeWire(struct net_device *dev,
 	else
 		write_nic_byte(dev, SW_3W_CMD1, SW_3W_CMD1_RE);
 
+
 	/* Check if DONE is set. */
 	for (TryCnt = 0; TryCnt < TC_3W_POLL_MAX_TRY_CNT; TryCnt++) {
 		u1bTmp = read_nic_byte(dev, SW_3W_CMD1);
@@ -335,11 +338,13 @@ static void ZEBRA_Config_85BASIC_HardCode(struct net_device *dev)
 	u8			u1b24E;
 	int d_cut = 0;
 
+
 /*
  *===========================================================================
  *	87S_PCIE :: RADIOCFG.TXT
  *===========================================================================
  */
+
 
 	/* Page1 : reg16-reg30 */
 	RF_WriteReg(dev, 0x00, 0x013f);		mdelay(1); /* switch to page1 */
@@ -493,6 +498,8 @@ static void ZEBRA_Config_85BASIC_HardCode(struct net_device *dev)
 	write_nic_byte(dev, OFDM_TXAGC, 0x1B);
 	write_nic_byte(dev, ANTSEL, 0x03);
 
+
+
 	/*
 	 *===========================================================================
 	 *	AGC.txt
@@ -544,6 +551,7 @@ static void ZEBRA_Config_85BASIC_HardCode(struct net_device *dev)
 	/* Config Sw/Hw  Combinational Antenna Diversity. Added by Roger, 2008.02.26.	*/
 	SetAntennaConfig87SE(dev, priv->bDefaultAntenna1, priv->bSwAntennaDiverity);
 }
+
 
 void UpdateInitialGain(struct net_device *dev)
 {
@@ -685,6 +693,7 @@ static void HwConfigureRTL8185(struct net_device *dev)
 	} else {
 		val8 = val8 | 0x01 ;
 	}
+
 
 	write_nic_byte(dev, TXAGC_CTL, val8);
 
@@ -885,6 +894,8 @@ static void MgntDisconnectIBSS(struct net_device *dev)
 
 	for (i = 0; i < 6 ; i++)
 		priv->ieee80211->current_network.bssid[i] = 0x55;
+
+
 
 	priv->ieee80211->state = IEEE80211_NOLINK;
 	/*
@@ -1281,6 +1292,7 @@ void rtl8185b_rx_enable(struct net_device *dev)
 	/* for now we accept data, management & ctl frame*/
 	struct r8180_priv *priv = (struct r8180_priv *)ieee80211_priv(dev);
 
+
 	if (dev->flags & IFF_PROMISC)
 		DMESG("NIC in promisc mode");
 
@@ -1292,6 +1304,7 @@ void rtl8185b_rx_enable(struct net_device *dev)
 
 	if (priv->ieee80211->iw_mode == IW_MODE_MONITOR)
 		priv->ReceiveConfig = priv->ReceiveConfig | RCR_ACF | RCR_APWRMGT | RCR_AICV;
+
 
 	if (priv->crcmon == 1 && priv->ieee80211->iw_mode == IW_MODE_MONITOR)
 		priv->ReceiveConfig = priv->ReceiveConfig | RCR_ACRC32;
@@ -1321,3 +1334,4 @@ void rtl8185b_tx_enable(struct net_device *dev)
 	cmd = read_nic_byte(dev, CMD);
 	write_nic_byte(dev, CMD, cmd | (1<<CMD_TX_ENABLE_SHIFT));
 }
+

@@ -231,6 +231,7 @@ static struct gpio_leds_priv *gpio_leds_create_of(struct platform_device *pdev)
 }
 #endif /* CONFIG_OF_GPIO */
 
+
 static int gpio_led_probe(struct platform_device *pdev)
 {
 	struct gpio_led_platform_data *pdata = pdev->dev.platform_data;

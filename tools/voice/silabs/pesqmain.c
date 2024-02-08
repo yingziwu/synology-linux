@@ -78,6 +78,7 @@ The user may:
             commercial use other than making said contribution to the ITU.
             Said permission will be provided on a case-by-case basis.
 
+
 ANY OTHER USE OR APPLICATION OF THE PESQ SOFTWARE AND/OR THE PESQ
 ALGORITHM WILL REQUIRE A PESQ LICENCE AGREEMENT, WHICH MAY BE OBTAINED
 FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
@@ -85,6 +86,7 @@ FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
 EACH COMPANY OFFERS OEM LICENSE AGREEMENTS, WHICH COMBINE OEM
 IMPLEMENTATIONS OF THE PESQ ALGORITHM TOGETHER WITH A PESQ PATENT LICENSE
 AGREEMENT. PESQ PATENT-ONLY LICENSE AGREEMENTS MAY BE OBTAINED FROM OPTICOM.
+
 
 ***********************************************************************
 *  OPTICOM GmbH                    *  Psytechnics Limited             *
@@ -96,11 +98,15 @@ AGREEMENT. PESQ PATENT-ONLY LICENSE AGREEMENTS MAY BE OBTAINED FROM OPTICOM.
 *  www.opticom.de                  *  www.psytechnics.com             *
 ***********************************************************************
 
+
 Further information is also available from www.pesq.org
 
 *****************************************************************************/
 
 #include "pesqmain.h"
+
+
+
 
 void usage (void) {
     printf ("Usage:\n");
@@ -267,6 +273,7 @@ double align_filter_dB [26] [2] = {{0.,-500},
                                  {6300., -500},
                                  {8000., -500}};
 
+
 double standard_IRS_filter_dB [26] [2] = {{  0., -200},
                                          { 50., -40},
                                          {100., -20},
@@ -293,6 +300,7 @@ double standard_IRS_filter_dB [26] [2] = {{  0., -200},
                                          {5000., -200},
                                          {6300., -200},
                                          {8000., -200}};
+
 
 #define TARGET_AVG_POWER    1E7
 

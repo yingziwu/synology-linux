@@ -414,8 +414,8 @@
 /* Reserve for later
 #define __NR_sched_setattr		(__NR_SYSCALL_BASE+380)
 #define __NR_sched_getattr		(__NR_SYSCALL_BASE+381)
-#define __NR_renameat2			(__NR_SYSCALL_BASE+382)
 */
+#define __NR_renameat2			(__NR_SYSCALL_BASE+382)
 #define __NR_seccomp			(__NR_SYSCALL_BASE+383)
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 #define __NR_copy_file_range		(__NR_SYSCALL_BASE+391)
@@ -440,6 +440,28 @@
 #define __NR_SYNONotifyAddWatch32      (__NR_SYSCALL_BASE+425)
 #define __NR_SYNONotifyRemoveWatch32   (__NR_SYSCALL_BASE+426)
 #define __NR_SYNOArchiveOverwrite      (__NR_SYSCALL_BASE+427)
+
+#define __NR_syno_utime                   (__NR_SYSCALL_BASE+802)
+#define __NR_syno_archive_bit             (__NR_SYSCALL_BASE+803)
+#define __NR_syno_recv_file               (__NR_SYSCALL_BASE+804)
+#define __NR_syno_mtd_alloc               (__NR_SYSCALL_BASE+805)
+#define __NR_syno_caseless_stat64         (__NR_SYSCALL_BASE+806)
+#define __NR_syno_caseless_lstat64        (__NR_SYSCALL_BASE+807)
+#define __NR_syno_ecrypt_name             (__NR_SYSCALL_BASE+810)
+#define __NR_syno_decrypt_name            (__NR_SYSCALL_BASE+811)
+#define __NR_syno_acl_check_perm          (__NR_SYSCALL_BASE+812)
+#define __NR_syno_acl_is_support          (__NR_SYSCALL_BASE+813)
+#define __NR_syno_acl_get_perm            (__NR_SYSCALL_BASE+814)
+#define __NR_syno_flush_aggregate         (__NR_SYSCALL_BASE+815)
+#define __NR_syno_stat64                  (__NR_SYSCALL_BASE+819)
+#define __NR_syno_fstat64                 (__NR_SYSCALL_BASE+820)
+#define __NR_syno_lstat64                 (__NR_SYSCALL_BASE+821)
+#define __NR_syno_notify_init             (__NR_SYSCALL_BASE+822)
+#define __NR_syno_notify_add_watch        (__NR_SYSCALL_BASE+823)
+#define __NR_syno_notify_remove_watch     (__NR_SYSCALL_BASE+824)
+#define __NR_syno_notify_add_watch32      (__NR_SYSCALL_BASE+825)
+#define __NR_syno_notify_remove_watch32   (__NR_SYSCALL_BASE+826)
+#define __NR_syno_archive_overwrite       (__NR_SYSCALL_BASE+827)
 
 /*
  * This may need to be greater than __NR_last_syscall+1 in order to
@@ -482,6 +504,7 @@
 #endif
 #endif
 
+
 #define SYNOUtime(arg1, arg2)                     syscall(__NR_SYNOUtime, arg1, arg2)
 
 #define SYNOArchiveBit(arg1, arg2)                syscall(__NR_SYNOArchiveBit, arg1, arg2)
@@ -517,5 +540,42 @@
 #define SYNONotifyRemoveWatch32(arg1, arg2, arg3) syscall(__NR_SYNONotifyRemoveWatch32, arg1, arg2, arg3)
 
 #define SYNOArchiveOverwrite(arg1, arg2)          syscall(__NR_SYNOArchiveOverwrite, arg1, arg2)
+
+
+#define syno_utime(arg1, arg2)                           syscall(__NR_syno_utime, arg1, arg2)
+
+#define syno_archive_bit(arg1, arg2)                     syscall(__NR_syno_archive_bit, arg1, arg2)
+
+#define syno_recv_file(arg1, arg2, arg3, arg4, arg5)     syscall(__NR_syno_recv_file, arg1, arg2, arg3, arg4, arg5)
+
+#define syno_mtd_alloc(arg1)                             syscall(__NR_syno_mtd_alloc, arg1)
+
+#if !defined(__KERNEL__)
+#define syno_caseless_stat(arg1, arg2)                   syscall(__NR_syno_caseless_stat64, arg1, arg2)
+#define syno_caseless_lstat(arg1, arg2)                  syscall(__NR_syno_caseless_lstat64, arg1, arg2)
+#endif /* !__KERNEL__ */
+
+#define syno_ecrypt_name(arg1, arg2)                     syscall(__NR_syno_ecrypt_name, arg1, arg2)
+#define syno_decrypt_name(arg1, arg2, arg3)              syscall(__NR_syno_decrypt_name, arg1, arg2, arg3)
+
+#define syno_acl_check_perm(arg1, arg2)                  syscall(__NR_syno_acl_check_perm, arg1, arg2)
+#define syno_acl_is_support(arg1, arg2, arg3)            syscall(__NR_syno_acl_is_support, arg1, arg2, arg3)
+#define syno_acl_get_perm(arg1, arg2)                    syscall(__NR_syno_acl_get_perm, arg1, arg2)
+
+#define syno_flush_aggregate(arg1)                       syscall(__NR_syno_flush_aggregate, arg1)
+
+#if !defined(__KERNEL__)
+#define syno_stat(arg1, arg2, arg3)                      syscall(__NR_syno_stat64, arg1, arg2, arg3)
+#define syno_fstat(arg1, arg2, arg3)                     syscall(__NR_syno_fstat64, arg1, arg2, arg3)
+#define syno_lstat(arg1, arg2, arg3)                     syscall(__NR_syno_lstat64, arg1, arg2, arg3)
+#endif /* !__KERNEL__ */
+
+#define syno_notify_init(arg1)                           syscall(__NR_syno_notify_init, arg1)
+#define syno_notify_add_watch(arg1, arg2, arg3)          syscall(__NR_syno_notify_add_watch, arg1, arg2, arg3)
+#define syno_notify_remove_watch(arg1, arg2, arg3)       syscall(__NR_syno_notify_remove_watch, arg1, arg2, arg3)
+#define syno_notify_add_watch32(arg1, arg2, arg3)        syscall(__NR_syno_notify_add_watch32, arg1, arg2, arg3)
+#define syno_notify_remove_watch32(arg1, arg2, arg3)     syscall(__NR_syno_notify_remove_watch32, arg1, arg2, arg3)
+
+#define syno_archive_overwrite(arg1, arg2)               syscall(__NR_syno_archive_overwrite, arg1, arg2)
 
 #endif /* _UAPI__ASM_ARM_UNISTD_H */

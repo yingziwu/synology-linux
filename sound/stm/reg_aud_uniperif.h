@@ -1,6 +1,7 @@
 #ifndef __SND_STM_AUD_UNIPERIF_H
 #define __SND_STM_AUD_UNIPERIF_H
 
+
 /*
  * Register access macros
  */
@@ -38,6 +39,7 @@
 		shift__AUD_UNIPERIF_SOFT_RST__SOFT_RST(ip), \
 		mask__AUD_UNIPERIF_SOFT_RST__SOFT_RST(ip))
 
+
 /*
  * AUD_UNIPERIF_FIFO_DATA
  */
@@ -47,6 +49,7 @@
 	readl(ip->base + offset__AUD_UNIPERIF_FIFO_DATA(ip))
 #define set__AUD_UNIPERIF_FIFO_DATA(ip, value) \
 	writel(value, ip->base + offset__AUD_UNIPERIF_FIFO_DATA(ip))
+
 
 /*
  *  AUD_UNIPERIF_STA
@@ -182,6 +185,7 @@
 	((ip)->ver < SND_STM_UNIPERIF_VERSION_UNI_RDR_1_0 ? \
 		0 : (0x1 << shift__AUD_UNIPERIF_STA__LR_WIDTH_ERR(ip)))
 
+
 /*
  *  AUD_UNIPERIF_ITS
  */
@@ -315,6 +319,7 @@
 #define mask__AUD_UNIPERIF_ITS__LR_WIDTH_ERR(ip) \
 	((ip)->ver < SND_STM_UNIPERIF_VERSION_UNI_RDR_1_0 ? \
 		0 : (0x1 << shift__AUD_UNIPERIF_ITS__LR_WIDTH_ERR(ip)))
+
 
 /*
  *  AUD_UNIPERIF_ITS_BCLR
@@ -506,6 +511,7 @@
 	((ip)->ver < SND_STM_UNIPERIF_VERSION_UNI_RDR_1_0 ? \
 		0 : (0x1 << shift__AUD_UNIPERIF_ITS_BCLR__LR_WIDTH_ERR(ip)))
 
+
 /*
  *  AUD_UNIPERIF_ITS_BSET
  */
@@ -695,6 +701,7 @@
 	((ip)->ver < SND_STM_UNIPERIF_VERSION_UNI_RDR_1_0 ? \
 		0 : (0x1 << shift__AUD_UNIPERIF_ITS_BSET__LR_WIDTH_ERR(ip)))
 
+
 /*
  *  AUD_UNIPERIF_ITM
  */
@@ -828,6 +835,7 @@
 #define mask__AUD_UNIPERIF_ITM__LR_WIDTH_ERR(ip) \
 	((ip)->ver < SND_STM_UNIPERIF_VERSION_UNI_RDR_1_0 ? \
 		0 : (0x1 << shift__AUD_UNIPERIF_ITM__LR_WIDTH_ERR(ip)))
+
 
 /*
  *  AUD_UNIPERIF_ITM_BCLR
@@ -1016,6 +1024,7 @@
 #define mask__AUD_UNIPERIF_ITM_BCLR__LR_WIDTH_ERR(ip) \
 	((ip)->ver < SND_STM_UNIPERIF_VERSION_UNI_RDR_1_0 ? \
 		0 : (0x1 << shift__AUD_UNIPERIF_ITM_BCLR__LR_WIDTH_ERR(ip)))
+
 
 /*
  *  AUD_UNIPERIF_ITM_BSET
@@ -1207,6 +1216,7 @@
 	((ip)->ver < SND_STM_UNIPERIF_VERSION_UNI_RDR_1_0 ? \
 		0 : (0x1 << shift__AUD_UNIPERIF_ITM_BSET__LR_WIDTH_ERR(ip)))
 
+
 /*
  *  UNIPERIF_SPDIF_PA_PB
  */
@@ -1246,6 +1256,7 @@
 		shift__AUD_UNIPERIF_SPDIF_PA_PB__PB(ip), \
 		mask__AUD_UNIPERIF_SPDIF_PA_PB(ip), value)
 
+
 /*
  *  UNIPERIF_SPDIF_PC_PD
  */
@@ -1283,6 +1294,7 @@
 		offset__AUD_UNIPERIF_SPDIF_PC_PD(ip), \
 		shift__AUD_UNIPERIF_SPDIF_PC_PD__PD(ip), \
 		mask__AUD_UNIPERIF_SPDIF_PC_PD(ip), value)
+
 
 /*
  *  UNIPERIF_SPDIF_PAUSE_LAT
@@ -1322,6 +1334,7 @@
 		shift__AUD_UNIPERIF_SPDIF_PAUSE_LAT__LAT(ip), \
 		mask__AUD_UNIPERIF_SPDIF_PAUSE_LAT(ip), value)
 
+
 /*
  *  UNIPERIF_SPDIF_FRAMELEN_BURST
  */
@@ -1360,6 +1373,7 @@
 		shift__AUD_UNIPERIF_SPDIF_FRAMELEN_BURST__PAUSE_BURST(ip), \
 		mask__AUD_UNIPERIF_SPDIF_FRAMELEN_BURST(ip), value)
 
+
 /*
  * UNIPERIF_CONFIG
  */
@@ -1369,6 +1383,7 @@
 	readl(ip->base + offset__AUD_UNIPERIF_CONFIG(ip))
 #define set__AUD_UNIPERIF_CONFIG(ip, value) \
 	writel(value, ip->base + offset__AUD_UNIPERIF_CONFIG(ip))
+
 
 /* PARITY_CNTR */
 #define shift__AUD_UNIPERIF_CONFIG__PARITY_CNTR(ip) 0
@@ -1667,6 +1682,7 @@
 		shift__AUD_UNIPERIF_CONFIG__MSTR_CLKEDGE(ip), \
 		mask__AUD_UNIPERIF_CONFIG__MSTR_CLKEDGE(ip), 0)
 
+
 /*
  * UNIPERIF_CTRL
  */
@@ -1913,6 +1929,7 @@
 		shift__AUD_UNIPERIF_CTRL__UNDERFLOW_REC_WINDOW(ip), \
 		mask__AUD_UNIPERIF_CTRL__UNDERFLOW_REC_WINDOW(ip), value)
 
+
 /*
  * UNIPERIF_I2S_FMT a.k.a UNIPERIF_FORMAT
  */
@@ -2111,6 +2128,7 @@
 		shift__AUD_UNIPERIF_I2S_FMT__NO_OF_SAMPLES_TO_READ(ip), \
 		mask__AUD_UNIPERIF_I2S_FMT__NO_OF_SAMPLES_TO_READ(ip), value)
 
+
 /*
  * UNIPERIF_BIT_CONTROL
  */
@@ -2149,6 +2167,7 @@
 		offset__AUD_UNIPERIF_BIT_CONTROL(ip), \
 		shift__AUD_UNIPERIF_BIT_CONTROL__CHL_STS_UPDATE(ip), \
 		mask__AUD_UNIPERIF_BIT_CONTROL__CHL_STS_UPDATE(ip), 1)
+
 
 /*
  * UNIPERIF_STATUS_1
@@ -2238,6 +2257,7 @@
 		shift__AUD_UNIPERIF_STATUS_1__SAMPLES_PRESENT(ip), \
 		mask__AUD_UNIPERIF_STATUS_1__SAMPLES_PRESENT(ip), value)
 
+
 /*
  * AUD_UNIPERIF_CHANNEL_STA_REGn
  */
@@ -2283,6 +2303,7 @@
 	readl(ip->base + offset__AUD_UNIPERIF_CHANNEL_STA_REG5(ip))
 #define set__AUD_UNIPERIF_CHANNEL_STA_REG5(ip, value) \
 	writel(value, ip->base + offset__AUD_UNIPERIF_CHANNEL_STA_REG5(ip))
+
 
 /*
  * AUD_UNIPERIF_USER_VALIDITY
@@ -2337,6 +2358,7 @@
 		shift__AUD_UNIPERIF_USER_VALIDITY__USER_RIGHT(ip), \
 		mask__AUD_UNIPERIF_USER_VALIDITY__USER_RIGHT(ip), value)
 
+
 /*
  * UNIPERIF_DFV0
  */
@@ -2375,6 +2397,7 @@
 		offset__AUD_UNIPERIF_DFV0(ip), \
 		shift__AUD_UNIPERIF_DFV0__STANDBY_MODE_DEBUG(ip), \
 		mask__AUD_UNIPERIF_DFV0__STANDBY_MODE_DEBUG(ip), 0)
+
 
 /*
  * UNIPERIF_CONTROLABILITY
@@ -2419,6 +2442,7 @@
 		shift__AUD_UNIPERIF_CONTROLABILITY__DAC_CHARACTERIZATION(ip), \
 		mask__AUD_UNIPERIF_CONTROLABILITY__DAC_CHARACTERIZATION(ip), \
 		value)
+
 
 /*
  * UNIPERIF_CRC_CTRL
@@ -2483,6 +2507,7 @@
 		shift__AUD_UNIPERIF_CRC_CONTROL__CLR_CRC_RES(ip), \
 		mask__AUD_UNIPERIF_CRC_CONTROL__CLR_CRC_RES(ip), 1)
 
+
 /*
  * UNIPERIF_CRC_WINDOW
  */
@@ -2507,6 +2532,7 @@
 		shift__AUD_UNIPERIF_CRC_WINDOW__NUM_SAMPLES(ip), \
 		mask__AUD_UNIPERIF_CRC_WINDOW__NUM_SAMPLES(ip), value)
 
+
 /*
  * UNIPERIF_CRC_VALUE_IN
  */
@@ -2517,15 +2543,6 @@
 #define set__AUD_UNIPERIF_CRC_VALUE_IN(ip, value) \
 	writel(value, ip->base + offset__AUD_UNIPERIF_CRC_VALUE_IN(ip))
 
-/*
- * UNIPERIF_CRC_VALUE_OUT
- */
-
-#define offset__AUD_UNIPERIF_CRC_VALUE_OUT(ip) 0x0114
-#define get__AUD_UNIPERIF_CRC_VALUE_OUT(ip) \
-	readl(ip->base + offset__AUD_UNIPERIF_CRC_VALUE_OUT(ip))
-#define set__AUD_UNIPERIF_CRC_VALUE_OUT(ip, value) \
-	writel(value, ip->base + offset__AUD_UNIPERIF_CRC_VALUE_OUT(ip))
 
 /*
  * UNIPERIF_CRC_VALUE_OUT
@@ -2536,6 +2553,18 @@
 	readl(ip->base + offset__AUD_UNIPERIF_CRC_VALUE_OUT(ip))
 #define set__AUD_UNIPERIF_CRC_VALUE_OUT(ip, value) \
 	writel(value, ip->base + offset__AUD_UNIPERIF_CRC_VALUE_OUT(ip))
+
+
+/*
+ * UNIPERIF_CRC_VALUE_OUT
+ */
+
+#define offset__AUD_UNIPERIF_CRC_VALUE_OUT(ip) 0x0114
+#define get__AUD_UNIPERIF_CRC_VALUE_OUT(ip) \
+	readl(ip->base + offset__AUD_UNIPERIF_CRC_VALUE_OUT(ip))
+#define set__AUD_UNIPERIF_CRC_VALUE_OUT(ip, value) \
+	writel(value, ip->base + offset__AUD_UNIPERIF_CRC_VALUE_OUT(ip))
+
 
 /*
  * AUD_UNIPERIF_TDM_ENABLE
@@ -2565,6 +2594,7 @@
 		offset__AUD_UNIPERIF_TDM_ENABLE(ip), \
 		shift__AUD_UNIPERIF_TDM_ENABLE__TDM_ENABLE(ip), \
 		mask__AUD_UNIPERIF_TDM_ENABLE__TDM_ENABLE(ip), 0)
+
 
 /*
  * AUD_UNIPERIF_TDM_FS_REF_FREQ
@@ -2606,6 +2636,7 @@
 		mask__AUD_UNIPERIF_TDM_FS_REF_FREQ__REF_FREQ(ip), \
 		value__AUD_UNIPERIF_TDM_FS_REF_FREQ__32KHZ(ip))
 
+
 /*
  * AUD_UNIPERIF_TDM_FS_REF_DIV
  */
@@ -2629,6 +2660,7 @@
 		offset__AUD_UNIPERIF_TDM_FS_REF_DIV(ip), \
 		shift__AUD_UNIPERIF_TDM_FS_REF_DIV__NUM_TIMESLOT(ip), \
 		mask__AUD_UNIPERIF_TDM_FS_REF_DIV__NUM_TIMESLOT(ip), value)
+
 
 /*
  * AUD_UNIPERIF_TDM_FS01_FREQ
@@ -2662,6 +2694,7 @@
 		shift__AUD_UNIPERIF_TDM_FS01_FREQ__FS01_FREQ(ip), \
 		mask__AUD_UNIPERIF_TDM_FS01_FREQ__FS01_FREQ(ip), \
 		value__AUD_UNIPERIF_TDM_FS01_FREQ__16KHZ(ip))
+
 
 /*
  * AUD_UNIPERIF_TDM_FS01_WIDTH
@@ -2717,6 +2750,7 @@
 		mask__AUD_UNIPERIF_TDM_FS01_WIDTH__FS01_WIDTH(ip), \
 		value__AUD_UNIPERIF_TDM_FS01_WIDTH__32BIT(ip))
 
+
 /*
  * AUD_UNIPERIF_TDM_FS02_FREQ
  */
@@ -2749,6 +2783,7 @@
 		shift__AUD_UNIPERIF_TDM_FS02_FREQ__FS02_FREQ(ip), \
 		mask__AUD_UNIPERIF_TDM_FS02_FREQ__FS02_FREQ(ip), \
 		value__AUD_UNIPERIF_TDM_FS02_FREQ__16KHZ(ip))
+
 
 /*
  * AUD_UNIPERIF_TDM_FS02_WIDTH
@@ -2804,6 +2839,7 @@
 		mask__AUD_UNIPERIF_TDM_FS02_WIDTH__FS02_WIDTH(ip), \
 		value__AUD_UNIPERIF_TDM_FS02_WIDTH__32BIT(ip))
 
+
 /*
  * AUD_UNIPERIF_TDM_FS02_TIMESLOT_DELAY
  */
@@ -2845,6 +2881,7 @@
 		mask__AUD_UNIPERIF_TDM_FS02_TIMESLOT_DELAY__TIMESLOT(ip), \
 		value)
 
+
 /*
  * AUD_UNIPERIF_TDM_DATA_MSBIT_START
  */
@@ -2869,6 +2906,7 @@
 		offset__AUD_UNIPERIF_TDM_DATA_MSBIT_START(ip), \
 		shift__AUD_UNIPERIF_TDM_DATA_MSBIT_START__DELAY(ip), \
 		mask__AUD_UNIPERIF_TDM_DATA_MSBIT_START__DELAY(ip), value)
+
 
 /*
  * AUD_UNIPERIF_TDM_WORD_POS_1_2
@@ -2937,6 +2975,7 @@
 		shift__AUD_UNIPERIF_TDM_WORD_POS_1_2__TS_2_LSB(ip), \
 		mask__AUD_UNIPERIF_TDM_WORD_POS_1_2__TS_2_LSB(ip), value)
 
+
 /*
  * AUD_UNIPERIF_TDM_WORD_POS_3_4
  */
@@ -3003,6 +3042,7 @@
 		offset__AUD_UNIPERIF_TDM_WORD_POS_3_4(ip), \
 		shift__AUD_UNIPERIF_TDM_WORD_POS_3_4__TS_4_LSB(ip), \
 		mask__AUD_UNIPERIF_TDM_WORD_POS_3_4__TS_4_LSB(ip), value)
+
 
 /*
  * AUD_UNIPERIF_TDM_WORD_POS_5_6
@@ -3071,6 +3111,7 @@
 		shift__AUD_UNIPERIF_TDM_WORD_POS_5_6__TS_6_LSB(ip), \
 		mask__AUD_UNIPERIF_TDM_WORD_POS_5_6__TS_6_LSB(ip), value)
 
+
 /*
  * AUD_UNIPERIF_TDM_WORD_POS_7_8
  */
@@ -3138,6 +3179,7 @@
 		shift__AUD_UNIPERIF_TDM_WORD_POS_7_8__TS_8_LSB(ip), \
 		mask__AUD_UNIPERIF_TDM_WORD_POS_7_8__TS_8_LSB(ip), value)
 
+
 /*
  * UNIPERIF_LR_WIDTH_CHK
  */
@@ -3167,6 +3209,7 @@
 		shift__AUD_UNIPERIF_LR_WIDTH_CHK__LR_WIDTH_CHK_EN(ip), \
 		mask__AUD_UNIPERIF_LR_WIDTH_CHK__LR_WIDTH_CHK_EN(ip), 1)
 
+
 /*
  * UNIPERIF_LR_WIDTH_VAL
  */
@@ -3176,5 +3219,6 @@
 	readl(ip->base + offset__AUD_UNIPERIF_LR_WIDTH_VAL(ip))
 #define set__AUD_UNIPERIF_LR_WIDTH_VAL(ip, value) \
 	writel(value, ip->base + offset__AUD_UNIPERIF_LR_WIDTH_VAL(ip))
+
 
 #endif

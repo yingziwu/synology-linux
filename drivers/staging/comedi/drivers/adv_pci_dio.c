@@ -426,6 +426,7 @@ static int pci_dio_insn_bits_di_b(struct comedi_device *dev,
 	for (i = 0; i < d->regs; i++)
 		data[1] |= inb(dev->iobase + d->addr + i) << (8 * i);
 
+
 	return insn->n;
 }
 

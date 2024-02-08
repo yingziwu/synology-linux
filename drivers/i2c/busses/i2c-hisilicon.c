@@ -646,6 +646,7 @@ int dma_to_i2c(unsigned int src, unsigned int dst, unsigned int length)
 	return chan;
 }
 
+
 int i2c_to_dma(unsigned int src, unsigned int dst, unsigned int length)
 {
 	int chan;
@@ -1012,6 +1013,7 @@ static struct platform_device *hi_i2c_devices[] __initdata = {
 static int __init hi_i2c_module_init(void)
 {
 	int ret;
+
 
 	ret = platform_add_devices(hi_i2c_devices, ARRAY_SIZE(hi_i2c_devices));
 	if (ret) {

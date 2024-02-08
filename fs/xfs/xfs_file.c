@@ -876,6 +876,7 @@ out_unlock:
 	return error;
 }
 
+
 STATIC int
 xfs_file_open(
 	struct inode	*inode,

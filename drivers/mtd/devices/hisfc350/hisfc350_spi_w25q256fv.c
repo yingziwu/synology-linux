@@ -51,7 +51,9 @@ static int spi_w25q256fv_entry_4addr(struct hisfc_spi *spi, int enable)
 			HISFC350_CMD_CONFIG_SEL_CS(spi->chipselect)
 			| HISFC350_CMD_CONFIG_START);
 
+
 		HISFC350_CMD_WAIT_CPU_FINISH(host);
+
 
 		hisfc_write(host, HISFC350_CMD_INS, SPI_CMD_SECOND_RESET_4ADDR);
 		hisfc_write(host, HISFC350_CMD_CONFIG,
@@ -75,3 +77,4 @@ static int spi_w25q256fv_entry_4addr(struct hisfc_spi *spi, int enable)
 
 	return 0;
 }
+

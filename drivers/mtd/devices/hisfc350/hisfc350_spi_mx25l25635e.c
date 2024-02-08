@@ -99,5 +99,7 @@ static int spi_mx25l25635e_qe_enable(struct hisfc_spi *spi)
 	}
 #endif /* CONFIG_SYNO_LSP_HI3536_V2060 */
 
+
 	return op;
 }
+

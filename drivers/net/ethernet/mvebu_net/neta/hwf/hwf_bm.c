@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -37,6 +38,7 @@ disclaimer.
 #include "net_dev/mv_netdev.h"
 
 static MV_BM_POOL	hwfBmPool[MV_BM_POOLS];
+
 
 static int mv_eth_hwf_pool_add(MV_BM_POOL *pBmPool, int bufNum)
 {

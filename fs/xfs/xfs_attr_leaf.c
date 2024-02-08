@@ -44,6 +44,7 @@
 #include "xfs_buf_item.h"
 #include "xfs_cksum.h"
 
+
 /*
  * xfs_attr_leaf.c
  *
@@ -292,6 +293,7 @@ xfs_attr_namesp_match(int arg_flags, int ondisk_flags)
 {
 	return XFS_ATTR_NSP_ONDISK(ondisk_flags) == XFS_ATTR_NSP_ARGS_TO_ONDISK(arg_flags);
 }
+
 
 /*========================================================================
  * External routines when attribute fork size < XFS_LITINO(mp).
@@ -763,6 +765,7 @@ xfs_attr_shortform_compare(const void *a, const void *b)
 	}
 }
 
+
 #define XFS_ISRESET_CURSOR(cursor) \
 	(!((cursor)->initted) && !((cursor)->hashval) && \
 	 !((cursor)->blkno) && !((cursor)->offset))
@@ -1115,6 +1118,7 @@ xfs_attr3_leaf_to_node(
 out:
 	return error;
 }
+
 
 /*========================================================================
  * Routines used for growing the Btree.
@@ -1475,6 +1479,7 @@ xfs_attr3_leaf_compact(
 	ichdr_dst->freemap[0].base = xfs_attr3_leaf_hdr_size(leaf_src);
 	ichdr_dst->freemap[0].size = ichdr_dst->firstused -
 						ichdr_dst->freemap[0].base;
+
 
 	/* write the header back to initialise the underlying buffer */
 	xfs_attr3_leaf_hdr_to_disk(leaf_dst, ichdr_dst);
@@ -2466,6 +2471,7 @@ xfs_attr3_leaf_moveents(
 	ASSERT(start_d <= ichdr_d->count);
 	ASSERT(count <= ichdr_s->count);
 
+
 	/*
 	 * Move the entries in the destination leaf up to make a hole?
 	 */
@@ -2758,6 +2764,7 @@ xfs_attr3_leaf_list_int(
 	trace_xfs_attr_list_leaf_end(context);
 	return retval;
 }
+
 
 /*========================================================================
  * Manage the INCOMPLETE flag in a leaf entry

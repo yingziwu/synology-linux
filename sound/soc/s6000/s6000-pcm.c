@@ -1,7 +1,17 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * ALSA PCM interface for the Stetch s6000 family
+ *
+ * Author:      Daniel Gloeckner, <dg@emlix.com>
+ * Copyright:   (C) 2009 emlix GmbH <info@emlix.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/platform_device.h>
@@ -37,13 +47,13 @@ static struct snd_pcm_hardware s6000_pcm_hardware = {
 	.period_bytes_min = 16,
 	.period_bytes_max = 0xfffff0,
 	.periods_min = 2,
-	.periods_max = 1024,  
+	.periods_max = 1024, /* no limit */
 	.fifo_size = 0,
 };
 
 struct s6000_runtime_data {
 	spinlock_t lock;
-	int period;		 
+	int period;		/* current DMA period */
 };
 
 static void s6000_pcm_enqueue_dma(struct snd_pcm_substream *substream)
@@ -189,18 +199,18 @@ static int s6000_pcm_start(struct snd_pcm_substream *substream)
 		dma = par->dma_in;
 	}
 	s6dmac_enable_chan(DMA_MASK_DMAC(dma), DMA_INDEX_CHNL(dma),
-			   1  ,
-			   0  ,
-			   srcinc  ,
-			   srcinc^1  ,
-			   0  ,
-			   0  ,
-			   0  ,
-			   4  ,
-			   -1  ,
-			   0  ,
-			   0  ,
-			   1  );
+			   1 /* priority 1 (0 is max) */,
+			   0 /* peripheral requests w/o xfer length mode */,
+			   srcinc /* source address increment */,
+			   srcinc^1 /* destination address increment */,
+			   0 /* chunksize 0 (skip impossible on this dma) */,
+			   0 /* source skip after chunk (impossible) */,
+			   0 /* destination skip after chunk (impossible) */,
+			   4 /* 16 byte burst size */,
+			   -1 /* don't conserve bandwidth */,
+			   0 /* low watermark irq descriptor threshold */,
+			   0 /* disable hardware timestamps */,
+			   1 /* enable channel */);
 
 	s6000_pcm_enqueue_dma(substream);
 	s6000_pcm_enqueue_dma(substream);
@@ -336,7 +346,7 @@ static int s6000_pcm_open(struct snd_pcm_substream *substream)
 
 	if (par->same_rate) {
 		int rate;
-		spin_lock(&par->lock);  
+		spin_lock(&par->lock); /* needed? */
 		rate = par->rate;
 		spin_unlock(&par->lock);
 		if (rate != -1) {
@@ -438,10 +448,10 @@ static void s6000_pcm_free(struct snd_pcm *pcm)
 }
 
 #if defined(MY_DEF_HERE)
- 
-#else  
+// do nothing
+#else /* MY_DEF_HERE */
 static u64 s6000_pcm_dmamask = DMA_BIT_MASK(32);
-#endif  
+#endif /* MY_DEF_HERE */
 
 static int s6000_pcm_new(struct snd_soc_pcm_runtime *runtime)
 {
@@ -457,12 +467,12 @@ static int s6000_pcm_new(struct snd_soc_pcm_runtime *runtime)
 	res = dma_coerce_mask_and_coherent(card->dev, DMA_BIT_MASK(32));
 	if (res)
 		return res;
-#else  
+#else /* MY_DEF_HERE */
 	if (!card->dev->dma_mask)
 		card->dev->dma_mask = &s6000_pcm_dmamask;
 	if (!card->dev->coherent_dma_mask)
 		card->dev->coherent_dma_mask = DMA_BIT_MASK(32);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	if (params->dma_in) {
 		s6dmac_disable_chan(DMA_MASK_DMAC(params->dma_in),

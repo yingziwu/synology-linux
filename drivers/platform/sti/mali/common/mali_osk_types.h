@@ -156,7 +156,9 @@ typedef _mali_osk_errcode_t (*_mali_osk_irq_ack_t)( void * arg );
  */
 typedef _mali_osk_errcode_t  (*_mali_osk_irq_uhandler_t)( void * arg );
 
+
 /** @} */ /* end group _mali_osk_irq */
+
 
 /** @defgroup _mali_osk_atomic OSK Atomic counters
  * @{ */
@@ -178,8 +180,10 @@ typedef struct {
 } _mali_osk_atomic_t;
 /** @} */ /* end group _mali_osk_atomic */
 
+
 /** @defgroup _mali_osk_lock OSK Mutual Exclusion Locks
  * @{ */
+
 
 /** @brief OSK Mutual Exclusion Lock ordered list
  *
@@ -224,6 +228,7 @@ typedef enum {
 
 	_MALI_OSK_LOCK_ORDER_LAST,
 } _mali_osk_lock_order_t;
+
 
 /** @brief OSK Mutual Exclusion Lock flags type
  *
@@ -371,6 +376,7 @@ typedef struct _mali_osk_notification_t_struct {
 
 /** @} */ /* end group _mali_osk_notification */
 
+
 /** @defgroup _mali_osk_timer OSK Timer Callbacks
  * @{ */
 
@@ -395,6 +401,7 @@ typedef void (*_mali_osk_timer_callback_t)(void * arg);
 /** @brief Private type for Timer Callback Objects */
 typedef struct _mali_osk_timer_t_struct _mali_osk_timer_t;
 /** @} */ /* end group _mali_osk_timer */
+
 
 /** @addtogroup _mali_osk_list OSK Doubly-Linked Circular Lists
  * @{ */

@@ -459,7 +459,7 @@ static int lowpan_header_create(struct sk_buff *skb,
 			hc06_ptr += 3;
 		} else {
 			/* compress nothing */
-			memcpy(hc06_ptr, &hdr, 4);
+			memcpy(hc06_ptr, hdr, 4);
 			/* replace the top byte with new ECN | DSCP format */
 			*hc06_ptr = tmp;
 			hc06_ptr += 4;
@@ -1183,6 +1183,7 @@ static void lowpan_set_lockdep_class_one(struct net_device *dev,
 	lockdep_set_class(&txq->_xmit_lock,
 			  &lowpan_netdev_xmit_lock_key);
 }
+
 
 static int lowpan_dev_init(struct net_device *dev)
 {

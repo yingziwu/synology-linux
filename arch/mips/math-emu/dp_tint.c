@@ -23,6 +23,7 @@
  * ########################################################################
  */
 
+
 #include <linux/kernel.h>
 #include "ieee754dp.h"
 
@@ -106,6 +107,7 @@ int ieee754dp_tint(ieee754dp x)
 	else
 		return xm;
 }
+
 
 unsigned int ieee754dp_tuns(ieee754dp x)
 {

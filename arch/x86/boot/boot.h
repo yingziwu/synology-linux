@@ -307,6 +307,7 @@ static inline int cmdline_find_option_bool(const char *option)
 	return __cmdline_find_option_bool(cmd_line_ptr, option);
 }
 
+
 /* cpu.c, cpucheck.c */
 struct cpu_features {
 	int level;		/* Family, or 64 for x86-64 */

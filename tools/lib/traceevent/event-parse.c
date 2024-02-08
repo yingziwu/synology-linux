@@ -837,6 +837,7 @@ static enum event_type __read_token(char **tok)
 
 	*tok = NULL;
 
+
 	ch = __read_char();
 	if (ch < 0)
 		return EVENT_NONE;
@@ -2602,6 +2603,7 @@ process_paren(struct event_format *event, struct print_arg *arg, char **tok)
 	*tok = NULL;
 	return EVENT_ERROR;
 }
+
 
 static enum event_type
 process_str(struct event_format *event __maybe_unused, struct print_arg *arg,

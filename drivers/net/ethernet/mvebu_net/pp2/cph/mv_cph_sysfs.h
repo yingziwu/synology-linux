@@ -86,6 +86,7 @@ extern "C" {
 #define CPH_SYSFS_FIELD_MAX_LEN   (32)
 #define CPH_SYSFS_FIELD_MAX_ENTRY (64)
 
+
 /* Common DB structure for entries
 ------------------------------------------------------------------------------*/
 struct CPH_SYSFS_RULE_T {
@@ -118,6 +119,7 @@ struct CPH_SYSFS_FRWD_T {
 	enum CPH_APP_FRWD_FIELD_E  frwd_bm;
 	struct CPH_APP_FRWD_T        frwd_value;
 };
+
 
 int cph_sysfs_init(void);
 void cph_sysfs_exit(void);

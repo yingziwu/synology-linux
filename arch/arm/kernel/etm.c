@@ -1059,6 +1059,7 @@ static ssize_t trace_range_store(struct kobject *kobj,
 	return n;
 }
 
+
 static struct kobj_attribute trace_range_attr =
 	__ATTR(trace_range, 0644, trace_range_show, trace_range_store);
 
@@ -1098,6 +1099,7 @@ static ssize_t trace_data_range_store(struct kobject *kobj,
 
 	return n;
 }
+
 
 static struct kobj_attribute trace_data_range_attr =
 	__ATTR(trace_data_range, 0644,
@@ -1383,3 +1385,4 @@ static int __init etm_init(void)
 }
 
 device_initcall(etm_init);
+

@@ -154,3 +154,4 @@ void hi_ahci_st_dump(void __iomem *port_base)
 	__hi_ahci_st_md(phys_to_virt(tmp+0x300));
 }
 EXPORT_SYMBOL_GPL(hi_ahci_st_dump);
+

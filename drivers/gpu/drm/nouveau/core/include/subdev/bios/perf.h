@@ -10,4 +10,5 @@ struct nvbios_perf_fan {
 int
 nvbios_perf_fan_parse(struct nouveau_bios *, struct nvbios_perf_fan *);
 
+
 #endif

@@ -27,6 +27,7 @@
  *  Homepage: http://www.reiner-sct.de/support/treiber_cyberjack.php#linux
  */
 
+
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -45,10 +46,12 @@
 #define DRIVER_AUTHOR "Matthias Bruestle"
 #define DRIVER_DESC "REINER SCT cyberJack pinpad/e-com USB Chipcard Reader Driver"
 
+
 #define CYBERJACK_VENDOR_ID	0x0C4B
 #define CYBERJACK_PRODUCT_ID	0x0100
 
 /* Function prototypes */
+static int cyberjack_attach(struct usb_serial *serial);
 static int cyberjack_port_probe(struct usb_serial_port *port);
 static int cyberjack_port_remove(struct usb_serial_port *port);
 static int  cyberjack_open(struct tty_struct *tty,
@@ -76,6 +79,7 @@ static struct usb_serial_driver cyberjack_device = {
 	.description =		"Reiner SCT Cyberjack USB card reader",
 	.id_table =		id_table,
 	.num_ports =		1,
+	.attach =		cyberjack_attach,
 	.port_probe =		cyberjack_port_probe,
 	.port_remove =		cyberjack_port_remove,
 	.open =			cyberjack_open,
@@ -98,6 +102,14 @@ struct cyberjack_private {
 	short		wrfilled;	/* Overall data size we already got */
 	short		wrsent;		/* Data already sent */
 };
+
+static int cyberjack_attach(struct usb_serial *serial)
+{
+	if (serial->num_bulk_out < serial->num_ports)
+		return -ENODEV;
+
+	return 0;
+}
 
 static int cyberjack_port_probe(struct usb_serial_port *port)
 {

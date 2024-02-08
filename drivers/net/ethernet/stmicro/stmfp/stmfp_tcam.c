@@ -46,6 +46,7 @@ static inline void fpif_write_reg(void __iomem *fp_reg, u32 val)
 	writel(val, fp_reg);
 }
 
+
 static int is_valid_tcam(void *base, int idx)
 {
 	int valid;
@@ -56,6 +57,7 @@ static int is_valid_tcam(void *base, int idx)
 
 	return valid;
 }
+
 
 void remove_tcam(void *base, int idx)
 {
@@ -72,6 +74,7 @@ void remove_tcam(void *base, int idx)
 	return;
 }
 EXPORT_SYMBOL(remove_tcam);
+
 
 void mod_tcam(void *base, struct fp_tcam_info *tcam_info,
 		int idx)
@@ -144,6 +147,7 @@ void mod_tcam(void *base, struct fp_tcam_info *tcam_info,
 }
 EXPORT_SYMBOL(mod_tcam);
 
+
 void add_tcam(void *base, struct fp_tcam_info *tcam_info,
 		     int idx)
 {
@@ -160,6 +164,7 @@ void add_tcam(void *base, struct fp_tcam_info *tcam_info,
 	return;
 }
 EXPORT_SYMBOL(add_tcam);
+
 
 void init_tcam(void *base)
 {
@@ -178,6 +183,7 @@ void init_tcam(void *base)
 	return;
 }
 EXPORT_SYMBOL(init_tcam);
+
 
 void init_tcam_standalonecm(void *base)
 {
@@ -220,6 +226,7 @@ void init_tcam_standalonecm(void *base)
 	return;
 }
 EXPORT_SYMBOL(init_tcam_standalonecm);
+
 
 void remove_tcam_standalonecm(void *base)
 {

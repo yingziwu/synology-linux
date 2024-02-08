@@ -49,6 +49,7 @@ met:
 
 #include <al_hal_udma.h>
 
+
 /* *INDENT-OFF* */
 #ifdef __cplusplus
 extern "C" {
@@ -575,6 +576,7 @@ int al_udma_m2s_max_descs_set(struct al_udma *udma, uint8_t max_descs);
 #define AL_UDMA_S2M_MAX_ALLOWED_DESCS_PER_PACKET	31
 int al_udma_s2m_max_descs_set(struct al_udma *udma, uint8_t max_descs);
 
+
 /* Configure S2M UDMA descriptor prefetch */
 int al_udma_s2m_pref_set(struct al_udma *udma,
 			 struct al_udma_s2m_desc_pref_conf *conf);
@@ -624,6 +626,7 @@ int al_udma_m2s_comp_timeouts_set(struct al_udma *udma,
 				  struct al_udma_m2s_comp_timeouts *conf);
 int al_udma_m2s_comp_timeouts_get(struct al_udma *udma,
 				  struct al_udma_m2s_comp_timeouts *conf);
+
 
 /**
  * S2M UDMA Configure the expected behavior of Rx/S2M UDMA when there are no Rx Descriptors.

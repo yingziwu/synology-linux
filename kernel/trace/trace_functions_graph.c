@@ -471,6 +471,7 @@ print_graph_proc(struct trace_seq *s, pid_t pid)
 	return TRACE_TYPE_HANDLED;
 }
 
+
 static enum print_line_t
 print_graph_lat_fmt(struct trace_seq *s, struct trace_entry *entry)
 {
@@ -1229,6 +1230,7 @@ print_graph_comment(struct trace_seq *s, struct trace_entry *ent,
 	return TRACE_TYPE_HANDLED;
 }
 
+
 enum print_line_t
 print_graph_function_flags(struct trace_iterator *iter, u32 flags)
 {
@@ -1490,6 +1492,7 @@ static struct tracer graph_trace __read_mostly = {
 	.selftest	= trace_selftest_startup_function_graph,
 #endif
 };
+
 
 static ssize_t
 graph_depth_write(struct file *filp, const char __user *ubuf, size_t cnt,
