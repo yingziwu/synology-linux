@@ -280,8 +280,10 @@ struct btrfs_super_block {
 	u8 sys_chunk_array[BTRFS_SYSTEM_CHUNK_ARRAY_SIZE];
 	struct btrfs_root_backup super_roots[BTRFS_NUM_BACKUP_ROOTS];
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || \
-    defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
-	u8 syno_reserved[525];
+    defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || \
+    defined(MY_ABC_HERE)
+	u8 syno_reserved[517];
+	__le64 syno_locker_clock;		/* epoch time in seconds */
 	__le64 syno_rbd_first_mapping_table_offset;
 	__le64 syno_capability_flags;
 	__le64 syno_capability_generation;
@@ -307,9 +309,16 @@ struct btrfs_super_block {
 #define BTRFS_FEATURE_COMPAT_SAFE_SET		0ULL
 #define BTRFS_FEATURE_COMPAT_SAFE_CLEAR		0ULL
 
+#ifdef MY_ABC_HERE
+#define BTRFS_FEATURE_COMPAT_RO_SUPP			\
+	(BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE |	\
+	 BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE_VALID |\
+	 BTRFS_FEATURE_COMPAT_RO_LOCKER)
+#else /* MY_ABC_HERE */
 #define BTRFS_FEATURE_COMPAT_RO_SUPP			\
 	(BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE |	\
 	 BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE_VALID)
+#endif /* MY_ABC_HERE */
 
 #define BTRFS_FEATURE_COMPAT_RO_SAFE_SET	0ULL
 #define BTRFS_FEATURE_COMPAT_RO_SAFE_CLEAR	0ULL
@@ -562,7 +571,6 @@ struct btrfs_free_cluster {
 enum btrfs_caching_type {
 	BTRFS_CACHE_NO,
 	BTRFS_CACHE_STARTED,
-	BTRFS_CACHE_FAST,
 	BTRFS_CACHE_FINISHED,
 	BTRFS_CACHE_ERROR,
 };
@@ -619,6 +627,12 @@ enum btrfs_orphan_cleanup_state {
 	ORPHAN_CLEANUP_STARTED	= 1,
 	ORPHAN_CLEANUP_DONE	= 2,
 };
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+enum {
+	SYNO_PERF_INDICATROT_FLAG_DIRTY_LIMIT_UPDATE,
+};
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 
 void btrfs_init_async_reclaim_work(struct btrfs_fs_info *fs_info);
 
@@ -752,6 +766,21 @@ enum syno_data_correction_suppress_log_status {
 
 #ifdef MY_ABC_HERE
 struct syno_quota_rescan_ctx;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+struct dedupe_info {
+	struct inode *inode;
+	u64 seed;
+	u64 *hash_table;
+	u32 *cuckoo_idx;
+	u32 table_size;
+	u32 cuckoo_size;
+	u32 sample_rate;
+	atomic_t valid;
+	atomic_t modify;
+	atomic_t ref;
+};
 #endif /* MY_ABC_HERE */
 
 struct btrfs_fs_info {
@@ -900,9 +929,6 @@ struct btrfs_fs_info {
 	struct list_head trans_list;
 	struct list_head dead_roots;
 	struct list_head caching_block_groups;
-#ifdef MY_ABC_HERE
-	spinlock_t caching_block_groups_lock;
-#endif /* MY_ABC_HERE */
 
 	spinlock_t delayed_iput_lock;
 	struct list_head delayed_iputs;
@@ -1169,8 +1195,20 @@ struct btrfs_fs_info {
 	spinlock_t eb_leak_lock;
 	struct list_head allocated_ebs;
 #endif
+
 #ifdef MY_ABC_HERE
-	bool syno_orphan_cleanup;
+	struct {
+		bool root_tree_cleanup;
+		bool fs_tree_cleanup;
+		spinlock_t lock;
+		struct list_head roots;
+		bool enable; /* default:on */
+		bool orphan_inode_delayed; /* default:off */
+	} syno_orphan_cleanup;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct dedupe_info dedupe_info;
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -1309,6 +1347,14 @@ struct btrfs_fs_info {
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+	struct timespec64 locker_clock;
+	struct timespec64 locker_prev_raw_clock;
+	struct delayed_work locker_update_work;
+	time64_t locker_update_interval;                /* seconds */
+	spinlock_t locker_lock;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 	struct btrfs_workqueue *syno_cow_async_workers;
 	atomic_t syno_async_submit_nr;
 	u32 syno_async_submit_throttle;
@@ -1319,9 +1365,14 @@ struct btrfs_fs_info {
 	atomic64_t syno_ordered_extent_nr;
 	u64 syno_max_ordered_queue_size;
 	wait_queue_head_t syno_ordered_queue_wait;
+	atomic64_t syno_ordered_extent_processed_nr;
+	u64 syno_ordered_extent_processed_bw;
+	u64 syno_ordered_extent_processed_stamp;
+	unsigned long syno_ordered_extent_processed_bw_time_stamp;    /* last time updated */
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+	struct btrfs_workqueue *syno_cow_endio_workers;
 	struct btrfs_workqueue *syno_nocow_endio_workers;
 	struct btrfs_workqueue *syno_high_priority_endio_workers;
 #endif /* MY_ABC_HERE */
@@ -1333,8 +1384,11 @@ struct btrfs_fs_info {
 	struct btrfs_syno_feat_tree_status syno_feat_tree_status;
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
-	struct list_head pinned_syno_rbd_meta_files;
-	u64 syno_rbd_first_mapping_table_offset;
+	struct {
+		spinlock_t lock;
+		struct list_head pinned_meta_files;
+		u64 first_mapping_table_offset;
+	} syno_rbd;
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -1347,7 +1401,6 @@ struct btrfs_fs_info {
 
 #ifdef MY_ABC_HERE
 	struct work_struct syno_async_metadata_flush_work;
-	atomic_t syno_metadata_throttle_nr;
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -1372,6 +1425,24 @@ struct btrfs_fs_info {
 		bool bg_prefetch_running;
 	} syno_allocator;
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct {
+		atomic64_t eb_disk_read;
+		atomic64_t search_key;
+		atomic64_t search_forward;
+		atomic64_t next_leaf;
+	} syno_meta_statistics;
+#endif /* MY_ABC_HERE */
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	struct {
+		unsigned long flags;
+		unsigned long dirty_thresh;
+		unsigned long dirty_background_thresh;
+		unsigned long dirty_limit_stamp;
+	} syno_perf_indicator;
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 };
 
 #ifdef MY_ABC_HERE
@@ -1587,6 +1658,10 @@ struct btrfs_root {
 	 * root_item_lock.
 	 */
 	int dedupe_in_progress;
+#ifdef MY_ABC_HERE
+	u64 small_extent_size;
+	bool inline_dedupe;
+#endif
 	/* For exclusion of snapshot creation and nocow writes */
 	struct btrfs_drew_lock snapshot_lock;
 
@@ -1616,6 +1691,23 @@ struct btrfs_root {
 #endif
 
 #ifdef MY_ABC_HERE
+	u8 locker_enabled;
+	enum locker_mode locker_mode;
+	enum locker_state locker_default_state;
+	time64_t locker_waittime;
+	time64_t locker_duration;
+	time64_t locker_clock_adjustment;
+	time64_t locker_update_time_floor;
+
+	enum locker_state locker_state;
+	time64_t locker_period_begin;
+	time64_t locker_period_begin_sys;
+	time64_t locker_period_end;
+	time64_t locker_period_end_sys;
+
+	spinlock_t locker_lock;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	struct btrfs_syno_usage_root_status syno_usage_root_status;
 	unsigned long syno_usage_runtime_flags;
 	spinlock_t syno_usage_lock; /* protects the syno_usage_root_status [type,new_type,state,flags,num_bytes,fast_rescan_progress] */
@@ -1638,6 +1730,13 @@ struct btrfs_root {
 #ifdef MY_ABC_HERE
 	bool has_usrquota_limit;
 	bool has_quota_limit;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct {
+		struct list_head root; /* protect with fs_info->syno_orphan_cleanup.lock */
+		int cleanup_in_progress; /* protect with root->root_item_lock */
+	} syno_orphan_cleanup;
 #endif /* MY_ABC_HERE */
 };
 
@@ -3091,6 +3190,10 @@ BTRFS_SETGET_STACK_FUNCS(super_syno_capability_generation, struct btrfs_super_bl
 BTRFS_SETGET_STACK_FUNCS(super_syno_rbd_first_mapping_table_offset, struct btrfs_super_block,
 			 syno_rbd_first_mapping_table_offset, 64);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+BTRFS_SETGET_STACK_FUNCS(super_syno_locker_clock, struct btrfs_super_block,
+			 syno_locker_clock, 64);
+#endif /* MY_ABC_HERE */
 
 int btrfs_super_csum_size(const struct btrfs_super_block *s);
 const char *btrfs_super_csum_name(u16 csum_type);
@@ -3850,18 +3953,31 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 blk_status_t btrfs_lookup_bio_sums(struct inode *inode, struct bio *bio,
 				   u64 offset, u8 *dst);
 #ifdef MY_ABC_HERE
-int btrfs_search_next_file_extent(struct btrfs_key *key,
-				  struct btrfs_root *root,
-				  struct btrfs_path *path);
-int btrfs_file_extent_deduped_clear(struct btrfs_trans_handle *trans,
-				    struct btrfs_inode *inode, u64 file_offset);
-int btrfs_file_extent_deduped_set_range(struct inode *inode, u64 offset,
-					u64 len, bool on_off);
 int btrfs_lookup_file_extent_by_file_offset(struct btrfs_trans_handle *trans,
 					    struct btrfs_root *root,
 					    struct btrfs_path *path,
 					    u64 inode_num, u64 file_offset,
 					    int mod);
+int delayed_backref_count(struct btrfs_fs_info *fs_info, u64 bytenr);
+int get_extent_item_list(struct inode *inode, u64 offset, u64 len,
+				struct ulist *extent_item_list);
+int extent_same_release_size_accounting(struct ulist *dst_extent_item,
+					       struct btrfs_root *root,
+					       u64 *release_size);
+int btrfs_search_next_file_extent(struct btrfs_key *key,
+				  struct btrfs_root *root,
+				  struct btrfs_path *path);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+int btrfs_file_extent_deduped_clear(struct btrfs_trans_handle *trans,
+				    struct btrfs_inode *inode, u64 file_offset);
+int btrfs_file_extent_deduped_set_range(struct inode *inode, u64 offset,
+					u64 len, bool on_off);
+int inline_dedupe_search(struct inode *inode, u64 start, u64 len,
+			u64 *disk_bytenr, u64 *disk_num_bytes, u64 *disk_off,
+			u64 *match_off, u64 *match_len);
+int insert_dedupe_file_extent(struct btrfs_trans_handle *trans, struct inode *inode,
+			     u64 offset, u64 len, u64 disk_bytenr, u64 disk_num_bytes, u64 disk_offset);
 #endif /* MY_ABC_HERE */
 int btrfs_insert_file_extent(struct btrfs_trans_handle *trans,
 			     struct btrfs_root *root,
@@ -4838,6 +4954,48 @@ int btrfs_usrquota_delsnap(struct btrfs_trans_handle *trans,
 int btrfs_usrquota_query(struct btrfs_root *root,
                           struct btrfs_ioctl_usrquota_query_args *uqa);
 #endif /* CONFIG_SYNO_BTRFS_SYNO_SYNO_QUOTA */
+
+#ifdef MY_ABC_HERE
+/* struct btrfs_root_locker_item */
+BTRFS_SETGET_FUNCS(root_locker_enabled, struct btrfs_root_locker_item, enabled, 8);
+BTRFS_SETGET_FUNCS(root_locker_mode, struct btrfs_root_locker_item, mode, 8);
+BTRFS_SETGET_FUNCS(root_locker_default_state, struct btrfs_root_locker_item, default_state, 8);
+BTRFS_SETGET_FUNCS(root_locker_waittime, struct btrfs_root_locker_item, waittime, 64);
+BTRFS_SETGET_FUNCS(root_locker_duration, struct btrfs_root_locker_item, duration, 64);
+BTRFS_SETGET_FUNCS(root_locker_clock_adjustment, struct btrfs_root_locker_item, clock_adjustment, 64);
+BTRFS_SETGET_FUNCS(root_locker_update_time_floor, struct btrfs_root_locker_item, update_time_floor, 64);
+
+BTRFS_SETGET_FUNCS(root_locker_state, struct btrfs_root_locker_item, state, 8);
+BTRFS_SETGET_FUNCS(root_locker_period_begin, struct btrfs_root_locker_item, period_begin, 64);
+BTRFS_SETGET_FUNCS(root_locker_period_begin_sys, struct btrfs_root_locker_item, period_begin_sys, 64);
+BTRFS_SETGET_FUNCS(root_locker_period_end, struct btrfs_root_locker_item, period_end, 64);
+BTRFS_SETGET_FUNCS(root_locker_period_end_sys, struct btrfs_root_locker_item, period_end_sys, 64);
+
+/* syno-locker.c */
+struct timespec64 btrfs_syno_locker_fs_clock_get(struct btrfs_fs_info *fs_info);
+void btrfs_syno_locker_update_work_fn(struct work_struct *work);
+void btrfs_syno_locker_update_work_kick(struct btrfs_fs_info *fs_info);
+bool btrfs_syno_locker_feature_is_support(void);
+int btrfs_syno_locker_feature_disable(void);
+int btrfs_syno_locker_disk_root_read(struct btrfs_root *root);
+int btrfs_syno_locker_disk_root_delete(struct btrfs_trans_handle *trans, struct btrfs_root *root);
+int btrfs_syno_locker_snapshot_clone(struct btrfs_trans_handle *trans,
+				     struct btrfs_root *dest, struct btrfs_root *source);
+int btrfs_syno_locker_may_destroy_subvol(struct btrfs_root *root);
+int btrfs_syno_locker_may_rename(struct inode *old_dir, struct dentry *old_dentry,
+				 struct inode *new_dir, struct dentry *new_dentry,
+				 bool reset);
+int btrfs_syno_locker_disk_inode_update_trans(struct inode *inode);
+int btrfs_syno_locker_disk_inode_read(struct inode *inode);
+int btrfs_syno_locker_mode_get(struct inode *inode, enum locker_mode *mode);
+int btrfs_syno_locker_state_get(struct inode *inode, enum locker_state *state);
+int btrfs_syno_locker_state_set(struct inode *inode, enum locker_state state);
+int btrfs_syno_locker_fillattr(struct inode *inode, struct kstat *stat);
+int btrfs_syno_locker_period_end_set(struct inode *inode, struct timespec64 *time);
+int btrfs_ioctl_syno_locker_get(struct file *file, struct btrfs_ioctl_syno_locker_args __user *argp);
+int btrfs_ioctl_syno_locker_set(struct file *file, struct btrfs_ioctl_syno_locker_args __user *argp);
+int btrfs_xattr_syno_set_locker(struct inode *inode, const void *buffer, size_t size);
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 void btrfs_check_usrquota_limit(struct btrfs_root *root);

@@ -70,21 +70,20 @@ kconfig_debug_mode()
         # Memory Debugging
         #
         CONFIG_DEBUG_PAGEALLOC
+        CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT
+        CONFIG_PAGE_OWNER
         CONFIG_PAGE_POISONING
 
         #CONFIG_DEBUG_OBJECTS
-        #CONFIG_DEBUG_OBJECTS_SELFTEST
         #CONFIG_DEBUG_OBJECTS_FREE
         #CONFIG_DEBUG_OBJECTS_TIMERS
         #CONFIG_DEBUG_OBJECTS_WORK
         #CONFIG_DEBUG_OBJECTS_RCU_HEAD
         #CONFIG_DEBUG_OBJECTS_PERCPU_COUNTER
-        #CONFIG_DEBUG_SLAB
-        #CONFIG_DEBUG_SLAB_LEAK
-        #CONFIG_SLUB_DEBUG_ON
-        #CONFIG_SLUB_STATS
+        CONFIG_SLUB_DEBUG_ON
+        CONFIG_SLUB_STATS
         #CONFIG_DEBUG_KMEMLEAK
-        #CONFIG_DEBUG_STACK_USAGE
+        CONFIG_DEBUG_STACK_USAGE
 
         #CONFIG_DEBUG_VM
         #CONFIG_DEBUG_VM_VMACACHE
@@ -96,12 +95,12 @@ kconfig_debug_mode()
         #CONFIG_DEBUG_PER_CPU_MAPS
         #CONFIG_DEBUG_HIGHMEM
         #CONFIG_DEBUG_STACKOVERFLOW
-        #CONFIG_KMEMCHECK
 
         #
         # Kernel address sanitizer (Kasan)
         #
         CONFIG_KASAN
+        CONFIG_KASAN_OUTLINE
         CONFIG_KASAN_VMALLOC
         #CONFIG_KASAN_INLINE
 
@@ -117,10 +116,11 @@ kconfig_debug_mode()
         #
         CONFIG_DEBUG_SPINLOCK
         CONFIG_DEBUG_MUTEXES
-        #CONFIG_DEBUG_LOCK_ALLOC
-        #CONFIG_PROVE_LOCKING
-        #CONFIG_LOCK_STAT
+        CONFIG_DEBUG_LOCK_ALLOC
+        CONFIG_PROVE_LOCKING
+        CONFIG_LOCK_STAT
         CONFIG_DEBUG_ATOMIC_SLEEP
+        CONFIG_LOCKDEP
 
         #CONFIG_TRACE_IRQFLAGS
         #CONFIG_DEBUG_KOBJECT
@@ -181,7 +181,6 @@ kconfig_debug_mode()
         #CONFIG_BTRFS_FS_REF_VERIFY
     "
     local _disabled="
-        CONFIG_SYNO_KEXEC_TEST
     "
 
     ./scripts/config --set-val CONFIG_CONSOLE_LOGLEVEL_DEFAULT 7
@@ -202,8 +201,20 @@ kconfig_debug_mode()
         fi
 
         INFO "Disable $_cfg"
-        ./scripts/config --enable "$_cfg"
+        ./scripts/config --disable "$_cfg"
     done <<< "$_disabled"
+
+    # disable KASAN for non-x64 platform due to MTD size
+    if [ "$PLATFORM_FAMILY" != "SYNOPLAT_F_X86_64" ]; then
+        ./scripts/config --disable CONFIG_KASAN
+        ./scripts/config --disable CONFIG_DEBUG_SPINLOCK
+        ./scripts/config --disable CONFIG_DEBUG_MUTEXES
+        ./scripts/config --disable CONFIG_DEBUG_LOCK_ALLOC
+        ./scripts/config --disable CONFIG_PROVE_LOCKING
+        ./scripts/config --disable CONFIG_LOCK_STAT
+        ./scripts/config --disable CONFIG_DEBUG_ATOMIC_SLEEP
+        ./scripts/config --disable CONFIG_LOCKDEP
+    fi
 }
 
 kconfig_generate()

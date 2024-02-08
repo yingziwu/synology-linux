@@ -27,6 +27,10 @@ static struct mutex smbus_hdd_powerctl_mutex_spin;
 static DEFINE_MUTEX(smbus_hdd_powerctl_mutex_spin);
 extern char gSynoSmbusHddType[16];
 extern SYNO_SMBUS_HDD_POWERCTL SynoSmbusHddPowerCtl; 
+extern int gSynoSmbusSwitchCount;
+extern int gSynoSmbusSwitchAdapters[SMBUS_SWITCH_MAX_COUNT+1];
+extern int gSynoSmbusSwitchAddrs[SMBUS_SWITCH_MAX_COUNT+1];
+extern int gSynoSmbusSwitchVals[SMBUS_SWITCH_MAX_COUNT+1];
 
 bool gblIsTca9555Init = false;
 bool gbIsTca9555Enabled = false;
@@ -452,7 +456,55 @@ END:
 	return iRet;
 }
 
+void syno_smbus_switch_config(void)
+{
+	int iRet = -1;
+	int i;
+	union i2c_smbus_data data;
+	struct i2c_adapter *pAdapter = NULL;
+
+	mutex_lock(&smbus_hdd_powerctl_mutex_spin);
+	if(0 == gSynoSmbusSwitchCount) {
+		// some model need not to config
+		goto END;
+	}
+	for (i = 0;i < gSynoSmbusSwitchCount;i++){
+		if(0 == gSynoSmbusSwitchAddrs[i]) {
+			// some model need not to config
+			printk(KERN_ERR "gSynoSmbusSwitchAddrs[%d] is 0. End the switch process\n", i);
+			goto END;
+		}
+
+		pAdapter = i2c_get_adapter(gSynoSmbusSwitchAdapters[i]);
+		if (NULL == pAdapter) {
+			printk(KERN_ERR "I2C initial error: failed to get i2c adapter from gSynoSmbusSwitchAdapters[%d], %d\n",
+				i, gSynoSmbusSwitchAdapters[i]
+			);
+			goto END;
+		}
+
+		memset(&data, 0, sizeof(data));
+		iRet = i2c_smbus_xfer(pAdapter, gSynoSmbusSwitchAddrs[i], 0,
+				I2C_SMBUS_WRITE, gSynoSmbusSwitchVals[i],
+				I2C_SMBUS_BYTE, &data);
+		if (0 > iRet) {
+			printk(KERN_ERR "I2C write 0x%2x to 0x%2x fail\n", gSynoSmbusSwitchVals[i], gSynoSmbusSwitchAddrs[i]);
+			if (pAdapter) {
+				i2c_put_adapter(pAdapter);
+			}
+			goto END;
+		}
+		// release the pAdapter
+		if (pAdapter) {
+			i2c_put_adapter(pAdapter);
+		}
+	}
+END:
+	mutex_unlock(&smbus_hdd_powerctl_mutex_spin);
+}
+
 void syno_smbus_hdd_powerctl_init(void){
+	syno_smbus_switch_config();
 	if(0 == strncmp(gSynoSmbusHddType, "tca9555", strlen("tca9555"))){
 		SynoSmbusHddPowerCtl.syno_smbus_hdd_enable_write=syno_tca9555_hdd_enable_write;
 		SynoSmbusHddPowerCtl.syno_smbus_hdd_enable_read=syno_tca9555_hdd_enable_read;

@@ -1464,6 +1464,21 @@ END:
 	return iRes;
 }
 
+u8 syno_pm_with_synology_magic(const struct ata_port *ap)
+{
+	u8 ret = 0;
+
+	if (sata_pmp_gscr_syno(ap->link.device->gscr) != SYNO_HEX ||
+		sata_pmp_gscr_logy(ap->link.device->gscr) != LOGY_HEX) {
+		goto END;
+	}
+
+	ret = 1;
+
+END:
+	return ret;
+}
+
 u8
 syno_is_synology_pm(const struct ata_port *ap)
 {
@@ -2215,7 +2230,11 @@ int sata_pmp_set_lpm(struct ata_link *link, enum ata_lpm_policy policy,
  */
 static int sata_pmp_read_gscr(struct ata_device *dev, u32 *gscr)
 {
+#ifdef MY_ABC_HERE
+	static const int gscr_to_read[] = { 0, 1, 2, 32, 33, 64, 96 , SATA_PMP_GSCR_SYNO, SATA_PMP_GSCR_LOGY};
+#else /* MY_ABC_HERE */
 	static const int gscr_to_read[] = { 0, 1, 2, 32, 33, 64, 96 };
+#endif /* MY_ABC_HERE */
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(gscr_to_read); i++) {
@@ -2226,6 +2245,11 @@ static int sata_pmp_read_gscr(struct ata_device *dev, u32 *gscr)
 		if (err_mask) {
 			ata_dev_err(dev, "failed to read PMP GSCR[%d] (Emask=0x%x)\n",
 				    reg, err_mask);
+#ifdef MY_ABC_HERE
+			if (SATA_PMP_GSCR_SYNO == reg || SATA_PMP_GSCR_LOGY == reg) {
+				continue;
+			}
+#endif /* MY_ABC_HERE */
 			return -EIO;
 		}
 	}

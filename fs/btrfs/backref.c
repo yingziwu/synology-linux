@@ -32,6 +32,9 @@
 struct extent_inode_elem {
 	u64 inum;
 	u64 offset;
+#ifdef MY_ABC_HERE
+	int extent_type;
+#endif /* MY_ABC_HERE */
 	struct extent_inode_elem *next;
 };
 
@@ -68,6 +71,9 @@ static int check_extent_in_eb(const struct btrfs_key *key,
 	e->next = *eie;
 	e->inum = key->objectid;
 	e->offset = key->offset + offset;
+#ifdef MY_ABC_HERE
+	e->extent_type = btrfs_file_extent_type(eb, fi);
+#endif /* MY_ABC_HERE */
 	*eie = e;
 
 	return 0;
@@ -2765,7 +2771,11 @@ static int iterate_leaf_refs(struct btrfs_fs_info *fs_info,
 			    "ref for %llu resolved, key (%llu EXTEND_DATA %llu), root %llu",
 			    extent_item_objectid, eie->inum,
 			    eie->offset, root);
-		ret = iterate(eie->inum, eie->offset, root, ctx);
+		ret = iterate(eie->inum, eie->offset, root, ctx
+#ifdef MY_ABC_HERE
+			      , eie->extent_type
+#endif /* MY_ABC_HERE */
+			      );
 		if (ret) {
 			btrfs_debug(fs_info,
 				    "stopping iteration for %llu due to ret=%d",

@@ -52,6 +52,9 @@
 #include "acl.h"
 #include "pnfs.h"
 #include "trace.h"
+#ifdef MY_ABC_HERE
+#include "syno_io_stat.h"
+#endif /* MY_ABC_HERE */
 
 #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
 #include <linux/security.h>
@@ -190,8 +193,14 @@ do_open_permission(struct svc_rqst *rqstp, struct svc_fh *current_fh, struct nfs
 
 	if (open->op_share_access & NFS4_SHARE_ACCESS_READ)
 		accmode |= NFSD_MAY_READ;
+#ifdef MY_ABC_HERE
+	/* NFSD_MAY_TRUNC is checked later in nfsd_get_write_access() if size is changed. */
+	if (open->op_share_access & NFS4_SHARE_ACCESS_WRITE)
+		accmode |= NFSD_MAY_WRITE;
+#else
 	if (open->op_share_access & NFS4_SHARE_ACCESS_WRITE)
 		accmode |= (NFSD_MAY_WRITE | NFSD_MAY_TRUNC);
+#endif /* MY_ABC_HERE */
 	if (open->op_share_deny & NFS4_SHARE_DENY_READ)
 		accmode |= NFSD_MAY_WRITE;
 
@@ -1581,15 +1590,6 @@ out_err:
 	goto out;
 }
 
-#ifdef MY_ABC_HERE
-static void
-nfsd4_copy_release(union nfsd4_op_u *u)
-{
-	struct nfsd4_copy *copy = &u->copy;
-	kfree(copy->cp_src);
-}
-#endif /* MY_ABC_HERE */
-
 struct nfsd4_copy *
 find_async_copy(struct nfs4_client *clp, stateid_t *stateid)
 {
@@ -1676,16 +1676,6 @@ out:
 	nfs4_put_stid(stid);
 	return status;
 }
-
-#ifdef MY_ABC_HERE
-static void
-nfsd4_copy_notify_release(union nfsd4_op_u *u)
-{
-	struct nfsd4_copy_notify *cn = &u->copy_notify;
-	kfree(cn->cpn_src);
-	kfree(cn->cpn_dst);
-}
-#endif /* MY_ABC_HERE */
 
 static __be32
 nfsd4_fallocate(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
@@ -2361,6 +2351,20 @@ check_if_stalefh_allowed(struct nfsd4_compoundargs *args)
 }
 #endif
 
+#ifdef MY_ABC_HERE
+static void nfsd_store_latency(u64 rpc_lat, u64 vfs_lat, u32 op)
+{
+	enum syno_nfsd_io_stat_type type;
+	if (op != OP_READ && op != OP_WRITE)
+		return;
+	type = (op == OP_READ) ? SYNO_NFSD_IO_READ : SYNO_NFSD_IO_WRITE;
+	syno_nfsd_store_latency_into_histogram(SYNO_NFSD_USEC_TO_SEC(rpc_lat),
+						SYNO_NFSD_USEC_TO_SEC(vfs_lat),
+						SYNO_NFSD_VERSION_4, type);
+}
+#endif /* MY_ABC_HERE */
+
+
 /*
  * COMPOUND call.
  */
@@ -2375,6 +2379,10 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
 	struct svc_fh *save_fh = &cstate->save_fh;
 	struct nfsd_net *nn = net_generic(SVC_NET(rqstp), nfsd_net_id);
 	__be32		status;
+#ifdef MY_ABC_HERE
+	ktime_t stime = ktime_get();
+	s64 latency_us;
+#endif /* MY_ABC_HERE */
 
 	svcxdr_init_encode(rqstp, resp);
 	resp->tagp = resp->xdr.p;
@@ -2416,7 +2424,7 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
 	trace_nfsd_compound(rqstp, args->opcnt);
 	while (!status && resp->opcnt < args->opcnt) {
 #ifdef MY_ABC_HERE
-		ktime_t stime = ktime_get();
+		stime = ktime_get();
 #endif /* MY_ABC_HERE */
 
 		op = &args->ops[resp->opcnt++];
@@ -2469,6 +2477,9 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
 			op->opdesc->op_get_currentstateid(cstate, &op->u);
 		op->status = op->opdesc->op_func(rqstp, cstate, &op->u);
 
+#ifdef MY_ABC_HERE
+		// ignore internal error for udc.
+#endif /* MY_ABC_HERE */
 		/* Only from SEQUENCE */
 		if (cstate->status == nfserr_replay_cache) {
 			dprintk("%s NFS4.1 replay from cache\n", __func__);
@@ -2487,6 +2498,9 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
 				op->status = check_nfsd_access(current_fh->fh_export, rqstp);
 		}
 encode_op:
+#ifdef MY_ABC_HERE
+		syno_nfsd_store_error(be32_to_cpu(op->status), SYNO_NFSD_VERSION_4);
+#endif /* MY_ABC_HERE */
 		if (op->status == nfserr_replay_me) {
 			op->replay = &cstate->replay_owner->so_replay;
 			nfsd4_encode_replay(&resp->xdr, op);
@@ -2502,8 +2516,12 @@ encode_op:
 		nfsd4_cstate_clear_replay(cstate);
 		nfsd4_increment_op_stats(op->opnum);
 #ifdef MY_ABC_HERE
+		latency_us = ktime_to_us(ktime_sub(ktime_get(), stime));
 		if (op->opnum >= FIRST_NFS4_OP && op->opnum <= LAST_NFS4_OP)
-			svc_update_lat(&nfsdstats.nfs4_oplatency[op->opnum], stime);
+			svc_update_lat(&nfsdstats.nfs4_oplatency[op->opnum], latency_us);
+#ifdef MY_ABC_HERE
+		nfsd_store_latency(latency_us, rqstp->vfs_latency_us, op->opnum);
+#endif /* MY_ABC_HERE */
 #endif /* MY_ABC_HERE */
 	}
 
@@ -3222,9 +3240,6 @@ static const struct nfsd4_operation nfsd4_ops[] = {
 	},
 	[OP_COPY] = {
 		.op_func = nfsd4_copy,
-#ifdef MY_ABC_HERE
-		.op_release = nfsd4_copy_release,
-#endif /* MY_ABC_HERE */
 		.op_flags = OP_MODIFIES_SOMETHING,
 		.op_name = "OP_COPY",
 		.op_rsize_bop = nfsd4_copy_rsize,
@@ -3254,9 +3269,6 @@ static const struct nfsd4_operation nfsd4_ops[] = {
 	},
 	[OP_COPY_NOTIFY] = {
 		.op_func = nfsd4_copy_notify,
-#ifdef MY_ABC_HERE
-		.op_release = nfsd4_copy_notify_release,
-#endif /* MY_ABC_HERE */
 		.op_flags = OP_MODIFIES_SOMETHING,
 		.op_name = "OP_COPY_NOTIFY",
 		.op_rsize_bop = nfsd4_copy_notify_rsize,

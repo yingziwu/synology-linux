@@ -28,6 +28,10 @@ enum {
 	EXTENT_FLAG_FILLING,
 	/* filesystem extent mapping type */
 	EXTENT_FLAG_FS_MAPPING,
+#ifdef MY_ABC_HERE
+	/* dedupe processing, don't flush pages */
+	EXTENT_FLAG_DEDUPED,
+#endif /* MY_ABC_HERE */
 };
 
 struct extent_map {

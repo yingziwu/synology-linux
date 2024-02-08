@@ -1293,7 +1293,7 @@ static void syno_sort_deferred_bios(struct syno_r5defer *group,
 		 */
 		if (!ent || (ent->sector != bio->bi_iter.bi_sector &&
 		             ent->sector != bio->bi_iter.bi_sector
-					    - bio->bi_iter.bi_size)) {
+					    - (bio->bi_iter.bi_size >> 9))) {
 			if (ent_cnt == SYNO_MAX_SORT_ENT_CNT) {
 				bio_list_add_head(pending_bios, bio);
 				break;
@@ -3303,7 +3303,7 @@ static int syno_raid5_data_corrupt_disk_get(const struct r5conf *conf, const int
 		struct md_rdev *rdev;
 		rcu_read_lock();
 		rdev = rcu_dereference(conf->disks[d].rdev);
-		if (!rdev || (rdev && !test_bit(In_sync, &rdev->flags))) {
+		if (!(rdev && test_bit(In_sync, &rdev->flags))) {
 			if (num_repair >= conf->max_degraded) {
 				WARN_ON(1);
 				rcu_read_unlock();

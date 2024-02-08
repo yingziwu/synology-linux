@@ -1893,7 +1893,7 @@ static int __fuse_syno_get_archive_bit(struct dentry *dentry,
 }
 
 static int fuse_syno_get_archive_bit(struct dentry *dentry,
-		unsigned int *archive_bit)
+		unsigned int *archive_bit, int may_not_block)
 {
 	int ret;
 	unsigned int tmp_archive_bit;
@@ -1905,6 +1905,9 @@ static int fuse_syno_get_archive_bit(struct dentry *dentry,
 
 		return 0;
 	}
+
+	if (may_not_block)
+		return -ECHILD;
 
 	ret = __fuse_syno_get_archive_bit(dentry, &tmp_archive_bit);
 	if (ret)
@@ -2118,7 +2121,7 @@ static int fuse_syno_getattr(struct dentry *dentry, struct kstat *kst, unsigned 
 		struct inode *inode = dentry->d_inode;
 
 		mutex_lock(&inode->i_archive_bit_mutex);
-		ret = fuse_syno_get_archive_bit(dentry, &tmp_archive_bit);
+		ret = fuse_syno_get_archive_bit(dentry, &tmp_archive_bit, 0);
 		mutex_unlock(&inode->i_archive_bit_mutex);
 		if (ret == -EOPNOTSUPP) {
 			tmp_archive_bit = ALL_SYNO_ARCHIVE;

@@ -2049,10 +2049,16 @@ struct inode_operations {
 	int (*tmpfile) (struct inode *, struct dentry *, umode_t);
 	int (*set_acl)(struct inode *, struct posix_acl *, int);
 #ifdef MY_ABC_HERE
+	int (*syno_locker_mode_get)(struct inode *, enum locker_mode *);
+	int (*syno_locker_state_get)(struct inode *, enum locker_state *);
+	int (*syno_locker_state_set)(struct inode *, enum locker_state);
+	int (*syno_locker_period_end_set)(struct inode *, struct timespec64 *);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	int (*syno_getattr)(struct dentry *, struct kstat *, unsigned int syno_flags);
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
-	int (*syno_get_archive_bit)(struct dentry *, unsigned int *);
+	int (*syno_get_archive_bit)(struct dentry *, unsigned int *, int);
 	int (*syno_set_archive_bit)(struct dentry *, unsigned int);
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
@@ -2243,8 +2249,14 @@ static inline bool sb_rdonly(const struct super_block *sb) { return sb->s_flags 
 #define IS_I_VERSION(inode)	__IS_FLG(inode, SB_I_VERSION)
 
 #define IS_NOQUOTA(inode)	((inode)->i_flags & S_NOQUOTA)
+#ifdef MY_ABC_HERE
+#define IS_APPEND(inode)	((inode)->i_flags & S_APPEND || syno_op_locker_is_appendable(inode))
+#define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE || syno_op_locker_is_immutable(inode))
+#define IS_EXPIRED(inode)	syno_op_locker_is_expired(inode)
+#else
 #define IS_APPEND(inode)	((inode)->i_flags & S_APPEND)
 #define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE)
+#endif /* MY_ABC_HERE */
 #define IS_POSIXACL(inode)	__IS_FLG(inode, SB_POSIXACL)
 
 #define IS_DEADDIR(inode)	((inode)->i_flags & S_DEAD)
@@ -3745,221 +3757,10 @@ static inline int inode_drain_writes(struct inode *inode)
 }
 
 #ifdef MY_ABC_HERE
-static inline int syno_op_get_archive_bit(struct dentry *dentry, unsigned int *archive_bit)
-{
-	int err = 0;
-	struct inode *inode = dentry->d_inode;
-
-	if (inode->i_op->syno_get_archive_bit) {
-		err = inode->i_op->syno_get_archive_bit(dentry, archive_bit);
-		if (-ENODATA == err) {
-			err = 0;
-			*archive_bit= 0;
-		}
-	} else {
-		*archive_bit = inode->i_archive_bit;
-	}
-
-	return err;
-}
-
-static inline int syno_op_set_archive_bit_nolock(struct dentry *dentry, unsigned int archive_bit)
-{
-	int err = 0;
-	struct inode *inode = dentry->d_inode;
-
-	if (inode->i_op->syno_set_archive_bit) {
-		err = inode->i_op->syno_set_archive_bit(dentry, archive_bit);
-	} else {
-		return -EOPNOTSUPP;
-	}
-
-	return err;
-}
-
-static inline int syno_op_set_archive_bit(struct dentry *dentry, unsigned int archive_bit)
-{
-	int err = 0;
-	struct inode *inode = dentry->d_inode;
-
-	mutex_lock(&inode->i_archive_bit_mutex);
-	err = syno_op_set_archive_bit_nolock(dentry, archive_bit);
-	mutex_unlock(&inode->i_archive_bit_mutex);
-	return err;
-}
-
-long syno_archive_bit_set(struct dentry *dentry, unsigned int cmd);
-long syno_archive_bit_overwrite(struct dentry *dentry, unsigned int flags);
-#endif /* MY_ABC_HERE */
-
-#ifdef MY_ABC_HERE
-static inline int syno_op_get_crtime(struct inode *inode, struct timespec64 *time)
-{
-	int error = 0;
-
-	if (!inode->i_op->syno_get_crtime)
-		return -EOPNOTSUPP;
-
-	inode_lock(inode);
-	error = inode->i_op->syno_get_crtime(inode, time);
-	inode_unlock(inode);
-
-	return error;
-}
-
-static inline int syno_op_set_crtime(struct inode *inode, struct timespec64 *time)
-{
-	int error = 0;
-
-	if (!inode->i_op->syno_set_crtime)
-		return -EOPNOTSUPP;
-
-	inode_lock(inode);
-	error = inode->i_op->syno_set_crtime(inode, time);
-	inode_unlock(inode);
-
-	return error;
-}
-#endif /* MY_ABC_HERE */
-
-#ifdef MY_ABC_HERE
-static inline int syno_op_get_sb_archive_version(struct super_block *sb,
-						 u32 *version)
-{
-	int ret = 0;
-
-	if (!sb->s_op->syno_get_sb_archive_version)
-		return -EOPNOTSUPP;
-	down_read(&sb->s_archive_version_rwsem);
-	ret = sb->s_op->syno_get_sb_archive_version(sb, version);
-	up_read(&sb->s_archive_version_rwsem);
-	return ret;
-}
-static inline int syno_op_set_sb_archive_version(struct super_block *sb,
-						 u32 version)
-{
-	int ret = 0;
-
-	if (!sb->s_op->syno_set_sb_archive_version)
-		return -EOPNOTSUPP;
-	down_write(&sb->s_archive_version_rwsem);
-	ret = sb->s_op->syno_set_sb_archive_version(sb, version);
-	up_write(&sb->s_archive_version_rwsem);
-	return ret;
-}
-static inline int syno_op_get_inode_archive_version(struct dentry *dentry,
-						    u32 *version)
-{
-	int ret = 0;
-	struct inode *inode = d_inode(dentry);
-
-	if (!inode->i_op->syno_get_archive_version)
-		return -EOPNOTSUPP;
-	mutex_lock(&inode->i_archive_version_mutex);
-	ret = inode->i_op->syno_get_archive_version(dentry, version);
-	mutex_unlock(&inode->i_archive_version_mutex);
-	return ret;
-}
-static inline int syno_op_set_inode_archive_version(struct dentry *dentry,
-						    u32 version)
-{
-	int ret = 0;
-	struct inode *inode = d_inode(dentry);
-	u32 old_version;
-
-	if (!inode->i_op->syno_set_archive_version)
-		return -EOPNOTSUPP;
-	mutex_lock(&inode->i_archive_version_mutex);
-	if (inode->i_op->syno_get_archive_version) {
-		ret = inode->i_op->syno_get_archive_version(dentry, &old_version);
-		if (!ret && old_version == version)
-			goto out_lock;
-	}
-	ret = inode->i_op->syno_set_archive_version(dentry, version);
-out_lock:
-	mutex_unlock(&inode->i_archive_version_mutex);
-	return ret;
-}
-#endif /* MY_ABC_HERE */
-
-#ifdef MY_ABC_HERE
-static inline int syno_op_getattr(struct dentry *dentry,
-				  struct kstat *stat,
-				  unsigned int syno_flags)
-{
-	struct inode *inode = d_inode(dentry);
-
-	if (!syno_flags)
-		return 0;
-
-	/* all requested fields will be assigned a default value in VFS, and
-	 * be overwritten later in each filesystem or not.
-	 */
-	if (syno_flags & SYNOST_IS_INLINE)
-		stat->is_inline = false;
-	if (syno_flags & SYNOST_COMPRESSION)
-		stat->syno_compressed = 0;
-#ifdef MY_ABC_HERE
-	if (syno_flags & SYNOST_ARCHIVE_BIT)
-		stat->syno_archive_bit = 0;
-#endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
-	if (syno_flags & SYNOST_ARCHIVE_VER)
-		stat->syno_archive_version = 0;
-#endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
-	if (syno_flags & SYNOST_CREATE_TIME) {
-		stat->syno_create_time.tv_sec = 0;
-		stat->syno_create_time.tv_nsec = 0;
-	}
-#endif /* MY_ABC_HERE */
-
-	if (inode->i_op->syno_getattr)
-		return inode->i_op->syno_getattr(dentry, stat, syno_flags);
-
-	return 0;
-}
-#endif /* MY_ABC_HERE */
-
-#ifdef MY_ABC_HERE
-#define IS_SYNOACL_SUPERUSER()      (uid_eq(KUIDT_INIT(0), current_fsuid()))
-
-static inline bool is_syno_archive_bit_enable(struct inode *inode, struct dentry * dentry, unsigned int archive_bit)
-{
-	if (inode->i_op->syno_get_archive_bit) {
-		unsigned int tmp = 0;
-		int err = inode->i_op->syno_get_archive_bit(dentry, &tmp);
-
-		if (!err && (archive_bit & tmp))
-			return true;
-
-		if (-EOPNOTSUPP != err) // err or archive_bit not enabled
-			return false;
-	}
-
-	if (inode->i_archive_bit & archive_bit)
-		return true;
-
-	return false;
-}
-
-#define IS_INODE_SYNOACL(inode, dentry)         is_syno_archive_bit_enable(inode, dentry, S2_SYNO_ACL_SUPPORT)
-#define IS_SMB_READONLY(dentry)                 is_syno_archive_bit_enable(dentry->d_inode, dentry, S2_SMB_READONLY)
-#define IS_SYNOACL_INHERIT(dentry)              is_syno_archive_bit_enable(dentry->d_inode, dentry, S2_SYNO_ACL_INHERIT)
-#define IS_SYNOACL_EXIST(dentry)                is_syno_archive_bit_enable(dentry->d_inode, dentry, S2_SYNO_ACL_EXIST)
-#define HAS_SYNOACL(dentry)                     is_syno_archive_bit_enable(dentry->d_inode, dentry, (S2_SYNO_ACL_EXIST | S2_SYNO_ACL_INHERIT))
-#define IS_SYNOACL_OWNER_IS_GROUP(dentry)       is_syno_archive_bit_enable(dentry->d_inode, dentry, S2_SYNO_ACL_IS_OWNER_GROUP)
-
-#define IS_FS_SYNOACL(inode)                    __IS_FLG(inode, SB_SYNOACL)
-#define IS_SYNOACL(dentry)                      (IS_FS_SYNOACL(dentry->d_inode) && IS_INODE_SYNOACL(dentry->d_inode, dentry))
-#define IS_SYNOACL_INODE(inode, dentry)         (IS_FS_SYNOACL(inode) && IS_INODE_SYNOACL(inode, dentry))
-
-#define is_synoacl_owner(dentry)                IS_SYNOACL_OWNER_IS_GROUP(dentry)?in_group_p(dentry->d_inode->i_gid):(uid_eq(dentry->d_inode->i_uid, current_fsuid()))
-#define is_synoacl_owner_or_capable(dentry)     (is_synoacl_owner(dentry) || capable(CAP_FOWNER))
-#endif /* MY_ABC_HERE */
-
-#ifdef MY_ABC_HERE
 void inode_sync_complete(struct inode *inode);
 #endif /* MY_ABC_HERE */
+
+/* Syno filesystem helpers */
+#include <linux/syno_fs.h>
 
 #endif /* _LINUX_FS_H */

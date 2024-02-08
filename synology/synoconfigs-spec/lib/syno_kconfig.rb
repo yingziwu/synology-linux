@@ -56,7 +56,7 @@ module SynoKconfig
                     if plats.size != platforms.size
                         puts
                         puts "  Coverage: #{plats.size}/#{platforms.size}. Not Covered: "
-                        puts "    #{(platforms.to_a - plats).collect(&:abbr).join(', ')}"
+                        puts "    #{(platforms.collect(&:abbr) - plats).join(', ')}"
                         puts
                         flunk "#{cfg} isn't covered in all platforms."
                     end

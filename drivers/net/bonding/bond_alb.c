@@ -1866,7 +1866,7 @@ void bond_alb_info_show(struct seq_file *seq)
 				   index,
 				   (rclient_info->slave &&
 				   rclient_info->slave->dev &&
-				   rclient_info->slave->dev->name ?
+				   rclient_info->slave->dev->name[0] != '\0' ?
 				   rclient_info->slave->dev->name : "(none)"),
 				   (rclient_info->assigned ? "yes" : "no"),
 				   rclient_info->mac_dst);
@@ -1902,7 +1902,7 @@ void bond_alb_info_show(struct seq_file *seq)
 #else /* MY_ABC_HERE */
 			seq_printf(seq, "  %-8s %3s   %-8u %4s      %10u\n",
 #endif /* MY_ABC_HERE */
-				   (slave->dev->name ?
+				   (slave->dev->name[0] != '\0' ?
 				    slave->dev->name : "none"),
 				   (bond_slave_can_tx(slave) ? "yes" : "no"),
 				   slave->speed,

@@ -371,7 +371,7 @@ irqreturn_t rpc_isr(int irq, void *dev_id)
 		if (itr & (RPC_INT_VS))
 			writel_relaxed(RPC_INT_VS, rpc_int_base + RPC_SB2_INT_ST);
 
-			return IRQ_HANDLED;
+		return IRQ_HANDLED;
 	}
 
 	while ((itr & 1 << 1) || (itr & RPC_INT_VS)) {

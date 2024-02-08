@@ -59,6 +59,10 @@
 #include <linux/syno_acl.h>
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+#include "syno_io_stat.h"
+#endif /* MY_ABC_HERE */
+
 #define NFSDDBG_FACILITY		NFSDDBG_FILEOP
 
 #ifdef MY_ABC_HERE
@@ -375,6 +379,76 @@ out_nfserrno:
 	return nfserrno(host_err);
 }
 
+#ifdef MY_ABC_HERE
+/*
+ * @return: < 0 - failed
+ *          = 0 - no change
+ *          > 0 - lock state changed
+ */
+static int nfsd_syno_locker_set(struct inode *inode, struct iattr *iap)
+{
+	int ret;
+	enum locker_mode mode;
+	enum locker_state state;
+	struct timespec64 sys_clock;
+
+	syno_op_locker_mode_get(inode, &mode);
+	if (mode == LM_NONE)
+		return 0;
+
+	ret = syno_op_locker_state_get(inode, &state);
+	if (ret)
+		return 0;
+
+	/* chmod a-w */
+	if (!(iap->ia_mode & (S_IWUSR|S_IWGRP|S_IWOTH))) {
+		ret = -EINVAL;
+		if (state == LS_OPEN) {
+			ktime_get_real_ts64(&sys_clock);
+			if (0 <= timespec64_compare(&sys_clock, &inode->i_atime)) {
+				pr_err("locker: set #%lu with invalid atime (%lld)\n",
+					 inode->i_ino, inode->i_atime.tv_sec);
+				goto out;
+			}
+
+			ret = syno_op_locker_period_end_set(inode, &inode->i_atime);
+			if (ret)
+				goto out;
+
+			ret = syno_op_locker_state_set(inode, LS_IMMUTABLE);
+			if (ret)
+				goto out;
+
+			ret = 1;
+			pr_info("locker: set #%lu immutable from open\n", inode->i_ino);
+		} else if (state == LS_APPENDABLE) {
+			ret = syno_op_locker_state_set(inode, LS_IMMUTABLE);
+			if (ret)
+				goto out;
+
+			ret = 1;
+			pr_info("locker: set #%lu immutable from appendable\n", inode->i_ino);
+		}
+	}
+
+	/* chmod a+w */
+	else if ((iap->ia_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == (S_IWUSR|S_IWGRP|S_IWOTH)) {
+		ret = -EINVAL;
+		if (state == LS_IMMUTABLE) {
+			ret = syno_op_locker_state_set(inode, LS_APPENDABLE);
+			if (ret)
+				goto out;
+
+			ret = 1;
+			pr_info("locker: set #%lu appendable from immutable\n", inode->i_ino);
+		}
+	}
+
+out:
+	return ret;
+}
+#endif /* MY_ABC_HERE */
+
 /*
  * Set various file attributes.  After this call fhp needs an fh_put.
  */
@@ -413,7 +487,16 @@ nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp, struct iattr *iap,
 	get_write_count = !fhp->fh_dentry;
 
 	/* Get inode */
+#ifdef MY_ABC_HERE
+	/*
+	 * bypass NFSD_MAY_SATTR checking now, and verify it later. this is
+	 * for the situations because we need to change the state (immutable
+	 * --> appendable) on immutable files.
+	 */
+	err = fh_verify(rqstp, fhp, ftype, accmode & ~NFSD_MAY_SATTR);
+#else
 	err = fh_verify(rqstp, fhp, ftype, accmode);
+#endif /* MY_ABC_HERE */
 	if (err)
 		return err;
 	if (get_write_count) {
@@ -424,6 +507,19 @@ nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp, struct iattr *iap,
 
 	dentry = fhp->fh_dentry;
 	inode = d_inode(dentry);
+
+#ifdef MY_ABC_HERE
+	if ((iap->ia_valid & ATTR_MODE) && uid_eq(current_fsuid(), GLOBAL_ROOT_UID)) {
+		host_err = nfsd_syno_locker_set(inode, iap);
+		if (host_err > 0)
+			iap->ia_valid &= ~ATTR_MODE;
+		else if (host_err < 0)
+			goto out;
+	}
+
+	/* delay to check NFSD_MAY_SATTR */
+	err = fh_verify(rqstp, fhp, ftype, accmode);
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	/* Ignore chmod when !bl_unix_pri_enable & the share is ACL share */
@@ -483,6 +579,14 @@ nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp, struct iattr *iap,
 		if ((iap->ia_valid & ~ATTR_MTIME) == 0)
 			goto out_unlock;
 	}
+
+#ifdef MY_ABC_HERE
+	if ((iap->ia_valid & (ATTR_ATIME | ATTR_ATIME_SET)) && !syno_op_locker_is_open(inode)) {
+		host_err = -EPERM;
+		pr_err("locker: failed to update the atime of non-open #%lu\n", inode->i_ino);
+		goto out_unlock;
+	}
+#endif /* MY_ABC_HERE */
 
 	iap->ia_valid |= ATTR_CTIME;
 	host_err = notify_change(dentry, iap, NULL);
@@ -631,7 +735,11 @@ struct accessmap {
 static struct accessmap	nfs3_regaccess[] = {
     {	NFS3_ACCESS_READ,	NFSD_MAY_READ			},
     {	NFS3_ACCESS_EXECUTE,	NFSD_MAY_EXEC			},
+#ifdef MY_ABC_HERE
+    {	NFS3_ACCESS_MODIFY,	NFSD_MAY_WRITE			},
+#else
     {	NFS3_ACCESS_MODIFY,	NFSD_MAY_WRITE|NFSD_MAY_TRUNC	},
+#endif /* MY_ABC_HERE */
     {	NFS3_ACCESS_EXTEND,	NFSD_MAY_WRITE			},
 
 #ifdef CONFIG_NFSD_V4
@@ -769,8 +877,14 @@ __nfsd_open(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
 	 * or any access when mandatory locking enabled
 	 */
 	err = nfserr_perm;
+#ifdef MY_ABC_HERE
+	if (IS_APPEND(inode) && (may_flags & NFSD_MAY_WRITE) && !syno_op_locker_is_appendable(inode))
+		goto out;
+#else
 	if (IS_APPEND(inode) && (may_flags & NFSD_MAY_WRITE))
 		goto out;
+#endif /* MY_ABC_HERE */
+
 	/*
 	 * We must ignore files (but only files) which might have mandatory
 	 * locks on them because there is no way to know if the accesser has
@@ -908,13 +1022,35 @@ static u32 nfsd_eof_on_read(struct file *file, loff_t offset, ssize_t len,
 
 static __be32 nfsd_finish_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
 			       struct file *file, loff_t offset,
-			       unsigned long *count, u32 *eof, ssize_t host_err)
+			       unsigned long *count, u32 *eof, ssize_t host_err
+#ifdef MY_ABC_HERE
+			       , ktime_t rq_io_stime
+#endif /* MY_ABC_HERE */
+			       )
 {
+#ifdef MY_ABC_HERE
+	s64 latency = ktime_to_us(ktime_sub(ktime_get(), rq_io_stime));
+	char buf[RPC_MAX_ADDRBUFLEN];
+
+#ifdef MY_ABC_HERE
+	rqstp->vfs_latency_us = latency;
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
 	if (host_err >= 0) {
 		nfsdstats.io_read += host_err;
 		*eof = nfsd_eof_on_read(file, offset, host_err, *count);
 		*count = host_err;
 		fsnotify_access(file);
+#ifdef MY_ABC_HERE
+		syno_nfsd_account_io_complete(svc_addr(rqstp), rqstp->rq_vers,
+					      SYNO_NFSD_IO_READ, *count,
+					      latency);
+		if (trace_syno_nfsd_read_io_done_enabled())
+			trace_syno_nfsd_read_io_done(
+				rqstp, fhp, offset, *count, latency,
+				svc_print_addr(rqstp, buf, sizeof(buf)));
+#endif /* MY_ABC_HERE */
 		trace_nfsd_read_io_done(rqstp, fhp, offset, *count);
 		return 0;
 	} else {
@@ -934,11 +1070,19 @@ __be32 nfsd_splice_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
 		.u.data		= rqstp,
 	};
 	ssize_t host_err;
+#ifdef MY_ABC_HERE
+	ktime_t rq_io_stime = ktime_get();
+#endif /* MY_ABC_HERE */
 
 	trace_nfsd_read_splice(rqstp, fhp, offset, *count);
 	rqstp->rq_next_page = rqstp->rq_respages + 1;
 	host_err = splice_direct_to_actor(file, &sd, nfsd_direct_splice_actor);
-	return nfsd_finish_read(rqstp, fhp, file, offset, count, eof, host_err);
+
+	return nfsd_finish_read(rqstp, fhp, file, offset, count, eof, host_err
+#ifdef MY_ABC_HERE
+				, rq_io_stime
+#endif /* MY_ABC_HERE */
+				);
 }
 
 __be32 nfsd_readv(struct svc_rqst *rqstp, struct svc_fh *fhp,
@@ -949,11 +1093,18 @@ __be32 nfsd_readv(struct svc_rqst *rqstp, struct svc_fh *fhp,
 	struct iov_iter iter;
 	loff_t ppos = offset;
 	ssize_t host_err;
+#ifdef MY_ABC_HERE
+	ktime_t rq_io_stime = ktime_get();
+#endif /* MY_ABC_HERE */
 
 	trace_nfsd_read_vector(rqstp, fhp, offset, *count);
 	iov_iter_kvec(&iter, READ, vec, vlen, *count);
 	host_err = vfs_iter_read(file, &iter, &ppos, 0);
-	return nfsd_finish_read(rqstp, fhp, file, offset, count, eof, host_err);
+	return nfsd_finish_read(rqstp, fhp, file, offset, count, eof, host_err
+#ifdef MY_ABC_HERE
+				, rq_io_stime
+#endif /* MY_ABC_HERE */
+				);
 }
 
 /*
@@ -1008,8 +1159,20 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct nfsd_file *nf,
 	loff_t			pos = offset;
 	unsigned int		pflags = current->flags;
 	rwf_t			flags = 0;
+#ifdef MY_ABC_HERE
+	ktime_t			rq_io_stime = ktime_get();
+	char			buf[RPC_MAX_ADDRBUFLEN];
+	s64 			latency;
+#endif /* MY_ABC_HERE */
 
 	trace_nfsd_write_opened(rqstp, fhp, offset, *cnt);
+
+#ifdef MY_ABC_HERE
+	/* should be align with generic_write_checks() */
+	if (syno_op_locker_is_appendable(file->f_inode) &&
+	    offset < round_down(i_size_read(file->f_inode), LOCKER_CHUNK_SIZE))
+		return nfserr_perm;
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	update_syno_file_stats(fhp->fh_dentry);
@@ -1068,7 +1231,22 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct nfsd_file *nf,
 	}
 
 out_nfserr:
+#ifdef MY_ABC_HERE
+	latency = ktime_to_us(ktime_sub(ktime_get(), rq_io_stime));
+#ifdef MY_ABC_HERE
+	rqstp->vfs_latency_us = latency;
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 	if (host_err >= 0) {
+#ifdef MY_ABC_HERE
+		syno_nfsd_account_io_complete(svc_addr(rqstp), rqstp->rq_vers,
+					      SYNO_NFSD_IO_WRITE, *cnt,
+					      latency);
+		if (trace_syno_nfsd_write_io_done_enabled())
+			trace_syno_nfsd_write_io_done(
+				rqstp, fhp, offset, *cnt, latency,
+				svc_print_addr(rqstp, buf, sizeof(buf)));
+#endif /* MY_ABC_HERE */
 		trace_nfsd_write_io_done(rqstp, fhp, offset, *cnt);
 		nfserr = nfs_ok;
 	} else {
@@ -1996,6 +2174,11 @@ retry:
 			if (!host_err)
 				host_err = commit_metadata(ffhp);
 		}
+#ifdef MY_ABC_HERE
+		/* translate errno for locker protected directories */
+		if (host_err == -EOPNOTSUPP)
+		    host_err = -ENOTEMPTY;
+#endif /* MY_ABC_HERE */
 	}
  out_dput_new:
 	dput(ndentry);

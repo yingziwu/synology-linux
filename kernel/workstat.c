@@ -15,7 +15,7 @@
 
 #include "workqueue_internal.h"
 
-#define KWORK_STAT_UPDATE_RATE_MS       250
+#define KWORK_IO_STAT_UPDATE_RATE_MS       250
 
 struct workstat {
 	/* corresponding work function */
@@ -28,6 +28,9 @@ struct workstat {
 	atomic64_t read_bytes;
 	atomic64_t write_bytes;
 	atomic64_t cancelled_write_bytes;
+
+	/* timer_sampled_us */
+	atomic64_t timer_sampled_us;
 
 	/* rb tree node */
 	struct rb_node node;
@@ -42,28 +45,31 @@ struct workstat_records {
 static struct workstat_records workstat_records = {0};
 
 /**
- * Copy work_acct from current and init jiffies
+ * Copy work_io_acct from task_io_accounting and init jiffies
  */
-static inline void reset_work_acct(struct work_acct *acct)
+static inline void reset_work_io_acct(struct task_io_accounting *ioac,
+				      struct work_io_acct *acct)
 {
-	acct->read_bytes = current->ioac.read_bytes;
-	acct->write_bytes = current->ioac.write_bytes;
-	acct->cancelled_write_bytes = current->ioac.cancelled_write_bytes;
+	acct->read_bytes = ioac->read_bytes;
+	acct->write_bytes = ioac->write_bytes;
+	acct->cancelled_write_bytes = ioac->cancelled_write_bytes;
 	acct->last_update_jiffies = jiffies;
 }
 
 /**
- * diff = current - acct
+ * diff = ioac - acct
  * Return true if any non-zero value in acct
  */
-static inline bool diff_work_acct(struct work_acct *diff,
-				  const struct work_acct *acct)
+static inline bool diff_work_io_acct(struct work_io_acct *diff,
+				     const struct task_io_accounting *ioac,
+				     const struct work_io_acct *acct)
 {
-	diff->func = acct->func;
-	diff->read_bytes = current->ioac.read_bytes - acct->read_bytes;
-	diff->write_bytes = current->ioac.write_bytes - acct->write_bytes;
-	diff->cancelled_write_bytes = current->ioac.cancelled_write_bytes -
-				      acct->cancelled_write_bytes;
+	diff->read_bytes = ioac->read_bytes
+			 - acct->read_bytes;
+	diff->write_bytes = ioac->write_bytes
+			  - acct->write_bytes;
+	diff->cancelled_write_bytes = ioac->cancelled_write_bytes
+				    - acct->cancelled_write_bytes;
 	return (diff->read_bytes || diff->write_bytes ||
 		diff->cancelled_write_bytes);
 }
@@ -73,18 +79,14 @@ static inline bool diff_work_acct(struct work_acct *diff,
  *
  * Return: Pointer to workstat on success and NULL on failure
  */
-static inline struct workstat *alloc_workstat(work_func_t func,
-					      struct work_acct *acct, gfp_t gfp)
+static inline struct workstat *alloc_workstat(work_func_t func, gfp_t gfp)
 {
-	struct workstat *stat = kmalloc(sizeof(struct workstat), gfp);
+	struct workstat *stat = kzalloc(sizeof(struct workstat), gfp);
 
 	if (!stat)
 		return NULL;
 
 	stat->func = func;
-	atomic64_set(&stat->read_bytes, acct->read_bytes);
-	atomic64_set(&stat->write_bytes, acct->write_bytes);
-	atomic64_set(&stat->cancelled_write_bytes, acct->cancelled_write_bytes);
 
 	return stat;
 }
@@ -142,6 +144,27 @@ workstat_records_insert(struct workstat_records *records, struct workstat *ins)
 	return NULL;
 }
 
+static inline bool try_alloc_insert_workstat(struct workstat_records *records,
+					     work_func_t func, gfp_t gfp)
+{
+	struct workstat *stat;
+	void *exist;
+	unsigned long flags;
+
+	stat = alloc_workstat(func, gfp);
+	if (!stat)
+		return false;
+
+	write_lock_irqsave(&records->lock, flags);
+	exist = workstat_records_insert(records, stat);
+	write_unlock_irqrestore(&records->lock, flags);
+	if (exist) {
+		/* We may race with other insertions */
+		kfree(stat);
+	}
+	return true;
+}
+
 /**
  * CONTEXT: write_lock(workstat_records.lock)
  */
@@ -158,79 +181,57 @@ static void workstat_records_reset(struct workstat_records *records)
 	}
 }
 
-static void update_kwork_stat(struct work_acct *curr_acct, gfp_t gfp)
+static void update_kwork_io_stat(struct task_struct *p, gfp_t gfp)
 {
+	struct work_acct *acct;
 	struct workstat *stat;
-	struct workstat *exist;
-	struct work_acct diff;
+	struct work_io_acct io_diff;
 	unsigned long flags;
 
-	if (!curr_acct || !workstat_records.enable)
+	if (!p || !workstat_records.enable)
 		return;
 
-	if (!diff_work_acct(&diff, curr_acct))
+	acct = p->workacct;
+	if (!acct || !diff_work_io_acct(&io_diff, &p->ioac, &acct->io_acct))
 		return;
-
-retry:
-	read_lock_irqsave(&workstat_records.lock, flags);
 
 	/*
 	 * We will leave some records if we are racing with disabling
 	 * workstat_records. That is safe.
 	 */
-
-	stat = workstat_records_search(&workstat_records, curr_acct->func);
-	if (!stat) {
+	read_lock_irqsave(&workstat_records.lock, flags);
+	stat = workstat_records_search(&workstat_records, acct->func);
+	if (likely(stat)) {
+		/* accumulate workstat */
+		atomic64_add(io_diff.read_bytes, &stat->read_bytes);
+		atomic64_add(io_diff.write_bytes, &stat->write_bytes);
+		atomic64_add(io_diff.cancelled_write_bytes, &stat->cancelled_write_bytes);
 		read_unlock_irqrestore(&workstat_records.lock, flags);
 
-		stat = alloc_workstat(curr_acct->func, &diff, gfp);
+		reset_work_io_acct(&p->ioac, &acct->io_acct);
+	} else {
+		read_unlock_irqrestore(&workstat_records.lock, flags);
 		/*
 		 * It's ok if we alloc memory failed.
-		 * We will have another try if we have I/O next time.
+		 * We will have another try next time.
 		 */
-		if (!stat)
-			goto out_no_update;
+		try_alloc_insert_workstat(&workstat_records, acct->func, gfp);
+	}
+}
 
-		write_lock_irqsave(&workstat_records.lock, flags);
-		exist = workstat_records_insert(&workstat_records, stat);
-		write_unlock_irqrestore(&workstat_records.lock, flags);
-		if (exist) {
-			/* We may race with other insertions */
-			kfree(stat);
-			stat = NULL;
-			goto retry;
-		}
-		goto out;
+void update_kwork_io_stat_ratelimited(struct task_struct *p, gfp_t gfp)
+{
+	if (!p || !p->workacct) {
+		return;
 	}
 
-	/* accumulate workstat */
-	atomic64_add(diff.read_bytes, &stat->read_bytes);
-	atomic64_add(diff.write_bytes, &stat->write_bytes);
-	atomic64_add(diff.cancelled_write_bytes, &stat->cancelled_write_bytes);
-
-	read_unlock_irqrestore(&workstat_records.lock, flags);
-
-out:
-	reset_work_acct(curr_acct);
-
-out_no_update:
-	return;
-}
-
-void update_kwork_stat_ratelimited(gfp_t gfp)
-{
-	struct work_acct *curr_acct = current->workacct;
-
-	if (!curr_acct)
+	if (jiffies_to_msecs(jiffies - p->workacct->io_acct.last_update_jiffies)
+	    < KWORK_IO_STAT_UPDATE_RATE_MS)
 		return;
 
-	if (jiffies_to_msecs(jiffies - curr_acct->last_update_jiffies) <
-	    KWORK_STAT_UPDATE_RATE_MS)
-		return;
-
-	update_kwork_stat(curr_acct, gfp);
+	update_kwork_io_stat(p, gfp);
 }
-EXPORT_SYMBOL(update_kwork_stat_ratelimited);
+EXPORT_SYMBOL(update_kwork_io_stat_ratelimited);
 
 void worker_run_work(struct worker *worker, struct work_struct *work)
 {
@@ -238,8 +239,10 @@ void worker_run_work(struct worker *worker, struct work_struct *work)
 	bool enable = workstat_records.enable;
 
 	if (enable) {
-		reset_work_acct(&acct);
+		reset_work_io_acct(&current->ioac, &acct.io_acct);
 		acct.func = worker->current_func;
+		acct.wq = get_pwq_wq(worker->current_pwq);
+		barrier();
 		/*
 		 * Saving pointer of local variable in current should be safe.
 		 * Please referred to current->plug.
@@ -250,11 +253,36 @@ void worker_run_work(struct worker *worker, struct work_struct *work)
 	worker->current_func(work);
 
 	if (enable)
-		update_kwork_stat(&acct, GFP_KERNEL);
+		update_kwork_io_stat(current, GFP_KERNEL);
 
 	current->workacct = NULL;
 }
 EXPORT_SYMBOL(worker_run_work);
+
+void account_work_time(struct work_acct *acct, u64 us, gfp_t gfp)
+{
+	struct workstat *stat;
+	unsigned long flags;
+
+	if (!acct || !workstat_records.enable)
+		return;
+
+	read_lock_irqsave(&workstat_records.lock, flags);
+	stat = workstat_records_search(&workstat_records, acct->func);
+	if (likely(stat)) {
+		/* accumulate workstat */
+		atomic64_add(us, &stat->timer_sampled_us);
+		read_unlock_irqrestore(&workstat_records.lock, flags);
+	} else {
+		read_unlock_irqrestore(&workstat_records.lock, flags);
+		/*
+		 * It's ok if we alloc memory failed.
+		 * We will have another try next time.
+		 */
+		try_alloc_insert_workstat(&workstat_records, acct->func, gfp);
+	}
+}
+EXPORT_SYMBOL(account_work_time);
 
 /**
  * Interfaces for procfs
@@ -269,11 +297,12 @@ static int workstat_stats_proc_show(struct seq_file *m, void *v)
 	n = rb_first(&workstat_records.tree_root);
 	while (n) {
 		stat = rb_entry(n, struct workstat, node);
-		seq_printf(m, "%ps: %llu %llu %llu\n",
+		seq_printf(m, "%ps: %llu %llu %llu %llu\n",
 			   stat->func,
 			   (u64)atomic64_read(&stat->read_bytes),
 			   (u64)atomic64_read(&stat->write_bytes),
-			   (u64)atomic64_read(&stat->cancelled_write_bytes));
+			   (u64)atomic64_read(&stat->cancelled_write_bytes),
+			   (u64)atomic64_read(&stat->timer_sampled_us));
 		n = rb_next(n);
 	}
 

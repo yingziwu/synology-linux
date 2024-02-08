@@ -3220,9 +3220,7 @@ static void syno_pciepath_enum(struct device *dev, char *buf) {
 		return;
 	}
 
-	if (NULL != sztemp) {
-		snprintf(buf, BLOCK_INFO_SIZE, "%spciepath=%s\n", buf, sztemp);
-	}
+	snprintf(buf, BLOCK_INFO_SIZE, "%spciepath=%s\n", buf, sztemp);
 }
 #endif /* MY_ABC_HERE */
 

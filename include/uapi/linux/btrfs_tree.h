@@ -150,6 +150,13 @@
 #define BTRFS_SYNO_SUBVOL_USAGE_OBJECTID -206ULL
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+/*
+ * objectid of btrfs_root_locker_item in feature-tree
+ */
+#define BTRFS_SYNO_BTRFS_LOCKER_OBJECTID -211ULL
+#endif /* MY_ABC_HERE */
+
 /* dummy objectid represents multiple objectids */
 #define BTRFS_MULTIPLE_OBJECTIDS -255ULL
 
@@ -212,6 +219,10 @@
  * tree used by the super block to find all the other trees
  */
 #define BTRFS_ROOT_ITEM_KEY	132
+
+#ifdef MY_ABC_HERE
+#define BTRFS_ROOT_LOCKER_KEY     138
+#endif /* MY_ABC_HERE */
 
 /*
  * root backrefs tie subvols and snapshots to the directory entries that
@@ -903,6 +914,26 @@ static inline __u32 btrfs_legacy_root_item_size(void)
 {
 	return offsetof(struct btrfs_root_item, generation_v2);
 }
+
+#ifdef MY_ABC_HERE
+struct btrfs_root_locker_item {
+	__u8 enabled;
+	__u8 mode;
+	__u8 default_state;
+	__u8 state;
+	__u8 unused[4];
+	__le64 waittime;
+	__le64 duration;
+	__le64 clock_adjustment;
+	__le64 update_time_floor;
+
+	__le64 period_begin;
+	__le64 period_begin_sys;
+	__le64 period_end;
+	__le64 period_end_sys;
+	__le64 reserved[3];
+} __attribute__ ((__packed__));
+#endif /* MY_ABC_HERE */
 
 /*
  * this is used for both forward and backward root refs

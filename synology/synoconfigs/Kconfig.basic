@@ -72,7 +72,7 @@ config SYNO_VIRTIO_SCSI_DEVICE
 config SYNO_KVMX64_PCI_SLOT_BOOT
 	int "Reserve virtio pci slot for synoboot"
 	default 10
-	depends on (SYNO_KVMX64 || SYNO_NEXTKVMX64)
+	depends on (SYNO_KVMX64 || SYNO_NEXTKVMX64 || SYNO_KVMX64SOFS || SYNO_KVMX64V2)
 
 config SYNO_ECC_NOTIFICATION
 	bool "Add ECC notification support"
@@ -165,7 +165,7 @@ config SYNO_HARDLOCKUP_THRESH_EXTENSION
 config SYNO_KVMX64_MQ_TIMEOUT
 	int "The default seconds before a multi-queue block request timeout"
 	default 1024
-	depends on SYNO_KVMX64
+	depends on (SYNO_KVMX64 || SYNO_KVMX64SOFS || SYNO_KVMX64V2)
 
 config SYNO_PRINT_BACKTRACE_ON_LOCKUP
 	bool "Print backtrace on soft and hard lockup"

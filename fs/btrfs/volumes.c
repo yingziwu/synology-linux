@@ -3337,6 +3337,24 @@ static void reset_balance_state(struct btrfs_fs_info *fs_info)
 
 	BUG_ON(!fs_info->balance_ctl);
 
+#ifdef MY_ABC_HERE
+	if (!fs_info->balance_ctl->fast_key_offset) {
+		spin_lock(&fs_info->balance_lock);
+		fs_info->balance_ctl = NULL;
+		spin_unlock(&fs_info->balance_lock);
+
+		kfree(bctl);
+		ret = del_balance_item(fs_info);
+		if (ret)
+			btrfs_handle_fs_error(fs_info, ret, NULL);
+	} else {
+		spin_lock(&fs_info->balance_lock);
+		fs_info->balance_ctl = NULL;
+		spin_unlock(&fs_info->balance_lock);
+
+		kfree(bctl);
+	}
+#else
 	spin_lock(&fs_info->balance_lock);
 	fs_info->balance_ctl = NULL;
 	spin_unlock(&fs_info->balance_lock);
@@ -3345,6 +3363,7 @@ static void reset_balance_state(struct btrfs_fs_info *fs_info)
 	ret = del_balance_item(fs_info);
 	if (ret)
 		btrfs_handle_fs_error(fs_info, ret, NULL);
+#endif /* MY_ABC_HERE */
 }
 
 /*
@@ -3616,6 +3635,70 @@ static int should_balance_chunk(struct extent_buffer *leaf,
 	return 1;
 }
 
+#ifdef MY_ABC_HERE
+/*
+  * Balance only one block group. The ideal block group is the block group
+  * with minimum space usage. However, searching for the best block group
+  * requires one to search through the whole tree. Hence, instead of
+  * searching through the whole tree, we just search over first 1000 block
+  * groups.
+  */
+u64 get_bg_offset_with_free_space_bytes(struct btrfs_fs_info *fs_info)
+{
+	struct btrfs_block_group *block_group = NULL;
+	struct rb_node *node = NULL;
+	struct btrfs_space_info *space_info = NULL;
+	int visit_cnt = 0;
+	u64 usage = 0, min_usage = (u64)-1, result = 0;
+
+	space_info = btrfs_find_space_info(fs_info, BTRFS_BLOCK_GROUP_DATA);
+	if (!space_info) {
+		btrfs_err(fs_info, "No space info for %llu", BTRFS_BLOCK_GROUP_DATA);
+		return 0;
+	}
+	spin_lock(&space_info->syno_allocator.lock);
+	node = rb_first_cached(&space_info->syno_allocator.free_space_bytes);
+
+	for (; node && visit_cnt < 1000; node = rb_next(node), visit_cnt++) {
+		block_group = rb_entry(node, struct btrfs_block_group, syno_allocator.bytes_index);
+		btrfs_get_block_group(block_group);
+
+		if (unlikely(!block_group->syno_allocator.initialized))
+			goto loop;
+		if (unlikely(block_group->cached == BTRFS_CACHE_ERROR))
+			goto loop;
+		if (unlikely(block_group->ro))
+			goto loop;
+
+		if (block_group->length < block_group->syno_allocator.last_bytes) {
+			btrfs_warn(fs_info, "bg (%llu) with length (%llu) lesser than free space (%llu)",
+						block_group->start, block_group->length,
+						block_group->syno_allocator.last_bytes);
+			goto loop;
+		}
+
+		usage = block_group->length - block_group->syno_allocator.last_bytes;
+
+		// Block groups with usage greater than 3GB are not considered.
+		if (usage >= 3ULL * SZ_1G)
+			goto loop;
+
+		if (usage < min_usage) {
+			btrfs_info(fs_info, "Balance-candidate has changed from %llu(usage=%llu) to %llu(usage=%llu),"
+						" visit_cnt=%d",
+						result, min_usage, block_group->start, usage, visit_cnt);
+			min_usage = usage;
+			result = block_group->start;
+		}
+loop:
+		btrfs_put_block_group(block_group);
+	}
+	spin_unlock(&space_info->syno_allocator.lock);
+
+	return result;
+}
+#endif /* MY_ABC_HERE */
+
 static int __btrfs_balance(struct btrfs_fs_info *fs_info)
 {
 	struct btrfs_balance_control *bctl = fs_info->balance_ctl;
@@ -3666,6 +3749,27 @@ again:
 	key.offset = (u64)-1;
 	key.type = BTRFS_CHUNK_ITEM_KEY;
 
+#ifdef MY_ABC_HERE
+	if (bctl->fast_key_offset == 1) {
+		// Auto select
+		if (!(key.offset = get_bg_offset_with_free_space_bytes(fs_info))) {
+			btrfs_warn(fs_info, "[Quick balance] find no block group to balance");
+			ret = 0;
+			goto error;
+		}
+		key.offset++;
+	} else if (bctl->fast_key_offset != 0) {
+		// Select by user
+		if (bctl->fast_key_offset % 4096) {
+			btrfs_warn(fs_info, "[Quick balance] invalid key offset (%llu)",
+				bctl->fast_key_offset);
+			ret = -EINVAL;
+			goto error;
+		}
+		key.offset = bctl->fast_key_offset + 1;
+	}
+#endif /* MY_ABC_HERE */
+
 	while (1) {
 		if ((!counting && atomic_read(&fs_info->balance_pause_req)) ||
 		    atomic_read(&fs_info->balance_cancel_req)) {
@@ -3703,6 +3807,15 @@ again:
 			mutex_unlock(&fs_info->delete_unused_bgs_mutex);
 			break;
 		}
+
+#ifdef MY_ABC_HERE
+		// In case the block group vanished.
+		if (bctl->fast_key_offset &&
+			found_key.offset != key.offset - 1) {
+			mutex_unlock(&fs_info->delete_unused_bgs_mutex);
+			break;
+		}
+#endif /* MY_ABC_HERE */
 
 		chunk = btrfs_item_ptr(leaf, slot, struct btrfs_chunk);
 		chunk_type = btrfs_chunk_type(leaf, chunk);
@@ -3790,6 +3903,10 @@ again:
 			spin_unlock(&fs_info->balance_lock);
 		}
 loop:
+#ifdef MY_ABC_HERE
+		if (bctl->fast_key_offset)
+			break;
+#endif /* MY_ABC_HERE */
 		if (found_key.offset == 0)
 			break;
 		key.offset = found_key.offset - 1;
@@ -4146,9 +4263,17 @@ int btrfs_balance(struct btrfs_fs_info *fs_info,
 		goto out;
 	}
 
+#ifdef MY_ABC_HERE
+	if (!bctl->fast_key_offset) {
+		ret = insert_balance_item(fs_info, bctl);
+		if (ret && ret != -EEXIST)
+			goto out;
+	}
+#else
 	ret = insert_balance_item(fs_info, bctl);
 	if (ret && ret != -EEXIST)
 		goto out;
+#endif /* MY_ABC_HERE */
 
 	if (!(bctl->flags & BTRFS_BALANCE_RESUME)) {
 		BUG_ON(ret == -EEXIST);
@@ -5114,6 +5239,36 @@ static int decide_stripe_size(struct btrfs_fs_devices *fs_devices,
 	}
 }
 
+#ifdef MY_ABC_HERE
+static u64 find_free_chunk_overflow(struct btrfs_fs_info *fs_info, u64 len)
+{
+	struct extent_map_tree *em_tree;
+	struct extent_map *em;
+	struct rb_node *n;
+	u64 ret = 0;
+
+	em_tree = &fs_info->mapping_tree;
+	read_lock(&em_tree->lock);
+	n = rb_first(&em_tree->map.rb_root);
+	if (n) {
+		em = rb_entry(n, struct extent_map, rb_node);
+		ret = em->start + em->len;
+	}
+	while (n) {
+		n = rb_next(n);
+		if (n) {
+			em = rb_entry(n, struct extent_map, rb_node);
+			if (em->start - ret >= len)
+				break;
+			ret = em->start + em->len;
+		}
+	}
+	read_unlock(&em_tree->lock);
+
+	return ret;
+}
+#endif /* MY_ABC_HERE */
+
 static int create_chunk(struct btrfs_trans_handle *trans,
 			struct alloc_chunk_ctl *ctl,
 			struct btrfs_device_info *devices_info)
@@ -5146,6 +5301,13 @@ static int create_chunk(struct btrfs_trans_handle *trans,
 	map->io_width = BTRFS_STRIPE_LEN;
 	map->type = type;
 	map->sub_stripes = ctl->sub_stripes;
+
+#ifdef MY_ABC_HERE
+	if (start > U64_MAX - (64ULL* SZ_1G)) {
+		start = find_free_chunk_overflow(info, ctl->chunk_size);
+		ctl->start = start;
+	}
+#endif /* MY_ABC_HERE */
 
 	trace_btrfs_chunk_alloc(info, map, start, ctl->chunk_size);
 

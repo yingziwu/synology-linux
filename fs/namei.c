@@ -1938,11 +1938,15 @@ static inline int may_lookup(struct nameidata *nd)
 	if (nd->flags & LOOKUP_RCU) {
 #ifdef MY_ABC_HERE
 		int err;
-		// nd->path.dentry->d_inode may be changed in RCU-walk, use nd->inode for instead.
-		if (IS_FS_SYNOACL(nd->inode) && IS_INODE_SYNOACL(nd->inode, nd->path.dentry))
-			err = -ECHILD;
-		else
+		/*
+		 * 1. nd->path.dentry->d_inode may be changed in RCU-walk, use nd->inode for instead.
+		 * 2. we are only allowed to use RCU walk when checking inode acl will NOT BLOCK and
+		 *    inode acl is NOT supported.
+		 */
+		if (!IS_FS_SYNOACL(nd->inode) || (0 == (err = IS_INODE_SYNOACL_NOBLOCK(nd->inode, nd->path.dentry))))
 			err = inode_permission(nd->inode, MAY_EXEC|MAY_NOT_BLOCK);
+		else if (err == 1)
+			err = -ECHILD;
 #else /* MY_ABC_HERE */
 		int err = inode_permission(nd->inode, MAY_EXEC|MAY_NOT_BLOCK);
 #endif /* MY_ABC_HERE */
@@ -3316,14 +3320,22 @@ static int may_delete(struct inode *dir, struct dentry *victim, bool isdir)
 #ifdef MY_ABC_HERE
 	if (!IS_SYNOACL(victim->d_parent) && check_sticky(dir, inode))
 		return -EPERM;
-	if (IS_APPEND(inode) || IS_IMMUTABLE(inode) || IS_SWAPFILE(inode) ||
-	    HAS_UNMAPPED_ID(inode))
-		return -EPERM;
 #else /* MY_ABC_HERE */
-	if (check_sticky(dir, inode) || IS_APPEND(inode) ||
-	    IS_IMMUTABLE(inode) || IS_SWAPFILE(inode) || HAS_UNMAPPED_ID(inode))
+	if (check_sticky(dir, inode))
 		return -EPERM;
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	/* expired files are still immutable or appendable, but also deletable. */
+	if (!IS_EXPIRED(inode) && (IS_APPEND(inode) || IS_IMMUTABLE(inode)))
+		return -EPERM;
+#else
+	if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
+		return -EPERM;
+#endif /* MY_ABC_HERE */
+
+	if (IS_SWAPFILE(inode) || HAS_UNMAPPED_ID(inode))
+		return -EPERM;
 	if (isdir) {
 		if (!d_is_dir(victim))
 			return -ENOTDIR;
@@ -3527,8 +3539,15 @@ static int may_open(const struct path *path, int acc_mode, int flag)
 	 * An append-only file must be opened in append mode for writing.
 	 */
 	if (IS_APPEND(inode)) {
+#ifdef MY_ABC_HERE
+		/* no O_APPEND is allowed if it's locker appendable */
+		if (!syno_op_locker_is_appendable(inode) &&
+		    (flag & O_ACCMODE) != O_RDONLY && !(flag & O_APPEND))
+			return -EPERM;
+#else
 		if  ((flag & O_ACCMODE) != O_RDONLY && !(flag & O_APPEND))
 			return -EPERM;
+#endif /* MY_ABC_HERE */
 		if (flag & O_TRUNC)
 			return -EPERM;
 	}
@@ -3729,6 +3748,11 @@ static struct dentry *lookup_open(struct nameidata *nd, struct file *file,
 		dentry = atomic_open(nd, dentry, file, open_flag, mode);
 		if (unlikely(create_error) && dentry == ERR_PTR(-ENOENT))
 			dentry = ERR_PTR(create_error);
+#ifdef MY_ABC_HERE
+		if (!IS_ERR_OR_NULL(dentry) && (file->f_mode & FMODE_CREATED) &&
+		    IS_SYNOACL(dentry->d_parent))
+			synoacl_op_init(dentry);
+#endif /* MY_ABC_HERE */
 		return dentry;
 	}
 

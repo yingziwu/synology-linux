@@ -60,6 +60,7 @@
 #include "option_ms.h"
 
 #if IS_ENABLED(CONFIG_USB_UAS)
+#include <linux/usb.h>
 #include "uas-detect.h"
 #endif
 
@@ -78,6 +79,9 @@ static char quirks[128];
 module_param_string(quirks, quirks, sizeof(quirks), S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(quirks, "supplemental list of device IDs and their quirks");
 
+#ifdef MY_ABC_HERE
+extern int syno_all_usb_uas_enabled;
+#endif /* MY_ABC_HERE */
 
 /*
  * The entries in this table correspond, line for line,
@@ -1111,8 +1115,22 @@ static int storage_probe(struct usb_interface *intf,
 
 	/* If uas is enabled and this device can do uas then ignore it. */
 #if IS_ENABLED(CONFIG_USB_UAS)
+#ifdef MY_ABC_HERE
+	/*
+	 * If service key support_uasp equals to "yes", then syno_all_usb_uas_enabled will be 1
+	 * and usb device will use uas driver.
+	 *
+	 * If service key support_uasp equals to "no", then syno_all_usb_uas_enabled will be 0
+	 * and usb device will use usb-storage driver.
+	 */
+	if (0 < syno_all_usb_uas_enabled)
+		if (uas_use_uas_driver(intf, id, NULL))
+			return -ENXIO;
+#else /* MY_ABC_HERE */
 	if (uas_use_uas_driver(intf, id, NULL))
 		return -ENXIO;
+
+#endif /* MY_ABC_HERE */
 #endif
 
 	/*

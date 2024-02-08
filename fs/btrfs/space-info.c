@@ -1200,6 +1200,35 @@ static void btrfs_async_reclaim_data_space(struct work_struct *work)
 }
 
 #ifdef MY_ABC_HERE
+/*
+ * Estimate write bandwidth at 200ms intervals.
+ */
+#define BANDWIDTH_INTERVAL max(HZ/5, 1)
+static void syno_ordered_extent_bw_update(struct btrfs_fs_info *fs_info)
+{
+	unsigned long now = jiffies;
+	unsigned long elapsed = now - fs_info->syno_ordered_extent_processed_bw_time_stamp;
+	u64 processed, bw;
+
+	if (elapsed < BANDWIDTH_INTERVAL)
+		goto out;
+
+	processed = atomic64_read(&fs_info->syno_ordered_extent_processed_nr);
+	bw = processed - min(processed, fs_info->syno_ordered_extent_processed_stamp);
+	bw = bw * HZ;
+	bw = div64_u64(bw, elapsed);
+	bw = fs_info->syno_ordered_extent_processed_bw * 3 + bw;
+	bw = bw >> 2;
+
+	fs_info->syno_ordered_extent_processed_bw = bw;
+	fs_info->syno_ordered_extent_processed_stamp = processed;
+	fs_info->syno_ordered_extent_processed_bw_time_stamp = now;
+out:
+	return;
+}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 static void btrfs_syno_async_data_flush(struct work_struct *work)
 {
 	struct btrfs_fs_info *fs_info;
@@ -1274,11 +1303,23 @@ select_inode:
 	if (!list_empty(&space_info->tickets) ||
 		!list_empty(&space_info->priority_tickets)) {
 		spin_unlock(&space_info->lock);
-		goto again;
+#ifdef MY_ABC_HERE
+		syno_ordered_extent_bw_update(fs_info);
+		if (atomic64_read(&fs_info->syno_ordered_extent_nr) < (fs_info->syno_ordered_extent_processed_bw << 1))
+			goto again;
+#endif /* MY_ABC_HERE */
+		goto sleep;
 	}
 	spin_unlock(&space_info->lock);
-	if (need_do_async_syno_reclaim(fs_info, space_info))
-		goto again;
+
+	if (need_do_async_syno_reclaim(fs_info, space_info)) {
+#ifdef MY_ABC_HERE
+		syno_ordered_extent_bw_update(fs_info);
+		if (atomic64_read(&fs_info->syno_ordered_extent_nr) < (fs_info->syno_ordered_extent_processed_bw << 1))
+			goto again;
+#endif /* MY_ABC_HERE */
+		goto sleep;
+	}
 
 out:
 	return;
@@ -1289,80 +1330,118 @@ sleep:
 }
 #endif /* MY_ABC_HERE */
 
-#ifdef MY_ABC_HERE
-static void btrfs_syno_async_metadata_flush(struct work_struct *work)
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+void syno_perf_indicator_dirty_limit_update(struct btrfs_fs_info *fs_info)
 {
-	struct btrfs_fs_info *fs_info;
-	bool force;
-	unsigned long next_wakeup, cur, delay;
-	struct blk_plug plug;
-	bool first = true;
+	unsigned long now;
+	unsigned long elapsed;
+	unsigned long background_thresh, dirty_thresh;
 
-	fs_info = container_of(work, struct btrfs_fs_info, syno_async_metadata_flush_work);
+	if (!fs_info)
+		goto out;
 
-again:
-	force = atomic_read(&fs_info->syno_metadata_throttle_nr) > 0;
+	if (test_and_set_bit(SYNO_PERF_INDICATROT_FLAG_DIRTY_LIMIT_UPDATE, &fs_info->syno_perf_indicator.flags))
+		goto out;
 
-	if (!force) {
-		if (btrfs_fs_closing(fs_info) || test_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state))
-			goto out;
-		if (__percpu_counter_compare(&fs_info->dirty_metadata_bytes,
-				BTRFS_DIRTY_METADATA_THRESH, fs_info->dirty_metadata_batch) <= 0)
-			goto out;
-		if (!first && !writeback_in_progress(&fs_info->sb->s_bdi->wb))
-			goto out;
-	}
+	now = jiffies;
+	elapsed = now - fs_info->syno_perf_indicator.dirty_limit_stamp;
 
-	next_wakeup = jiffies + msecs_to_jiffies(1000);
+	/* Estimate 1s intervals. */
+	if (elapsed < HZ)
+		goto out_unlock;
 
-	blk_start_plug(&plug);
-	filemap_flush(fs_info->btree_inode->i_mapping);
-	blk_finish_plug(&plug);
-	first = false;
+	global_dirty_limits(&background_thresh, &dirty_thresh);
+	fs_info->syno_perf_indicator.dirty_thresh = dirty_thresh;
+	fs_info->syno_perf_indicator.dirty_background_thresh = background_thresh;
+	fs_info->syno_perf_indicator.dirty_limit_stamp = now;
 
-	cur = jiffies;
-	if (time_after(next_wakeup, cur)) {
-		delay = next_wakeup - cur;
-		delay = min(delay, msecs_to_jiffies(1000));
-		schedule_timeout_interruptible(delay);
-	}
-	cond_resched();
-	goto again;
-
+out_unlock:
+	clear_bit(SYNO_PERF_INDICATROT_FLAG_DIRTY_LIMIT_UPDATE, &fs_info->syno_perf_indicator.flags);
 out:
 	return;
 }
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 
-void btrfs_syno_btree_balance_dirty(struct btrfs_fs_info *fs_info, bool throttle)
+#ifdef MY_ABC_HERE
+static bool btrfs_check_need_async_meta_flush(struct btrfs_fs_info *fs_info, bool worker)
 {
-	unsigned long background_thresh, dirty_thresh;
+	bool ret = false;
 
 	if (btrfs_fs_closing(fs_info) || test_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state))
+		goto out;
+
+	if (!worker && work_busy(&fs_info->syno_async_metadata_flush_work))
+		goto out;
+
+	if (!writeback_in_progress(&fs_info->sb->s_bdi->wb))
 		goto out;
 
 	if (__percpu_counter_compare(&fs_info->dirty_metadata_bytes,
 			BTRFS_DIRTY_METADATA_THRESH, fs_info->dirty_metadata_batch) <= 0)
 		goto out;
 
-	if (writeback_in_progress(&fs_info->sb->s_bdi->wb))
-		goto over_bg_thresh;
+	spin_lock(&fs_info->trans_lock);
+	if (fs_info->running_transaction &&
+		fs_info->running_transaction->state == TRANS_STATE_COMMIT_DOING) {
+		spin_unlock(&fs_info->trans_lock);
+		goto out;
+	}
+	spin_unlock(&fs_info->trans_lock);
 
-	// Refer to over_bground_thresh()
-	global_dirty_limits(&background_thresh, &dirty_thresh);
-	if (global_node_page_state(NR_FILE_DIRTY) + global_node_page_state(NR_WRITEBACK) < background_thresh)
+	syno_perf_indicator_dirty_limit_update(fs_info);
+	if (global_node_page_state(NR_FILE_DIRTY) < fs_info->syno_perf_indicator.dirty_background_thresh)
 		goto out;
 
-over_bg_thresh:
-	queue_work(system_unbound_wq, &fs_info->syno_async_metadata_flush_work);
+	ret = true;
+out:
+	return ret;
+}
+
+static void btrfs_syno_async_metadata_flush(struct work_struct *work)
+{
+	struct btrfs_fs_info *fs_info;
+	struct blk_plug plug;
+	struct writeback_control wbc = {
+		.sync_mode      = WB_SYNC_NONE,
+		.range_cyclic   = 1,
+	};
+
+	fs_info = container_of(work, struct btrfs_fs_info, syno_async_metadata_flush_work);
+
+again:
+	blk_start_plug(&plug);
+	wbc.nr_to_write = BTRFS_DIRTY_METADATA_THRESH >> (PAGE_SHIFT + 1);
+	btree_write_cache_pages(fs_info->btree_inode->i_mapping, &wbc);
+	blk_finish_plug(&plug);
+
+	if (btrfs_check_need_async_meta_flush(fs_info, true)) {
+		schedule_timeout_interruptible(msecs_to_jiffies(100));
+		goto again;
+	}
+	schedule_timeout_interruptible(msecs_to_jiffies(1000));
+
+	return;
+}
+
+void btrfs_syno_btree_balance_dirty(struct btrfs_fs_info *fs_info, bool throttle)
+{
+	bool async_meta_flush = false;
+
+	async_meta_flush = btrfs_check_need_async_meta_flush(fs_info, false);
+	if (async_meta_flush)
+		queue_work(system_unbound_wq, &fs_info->syno_async_metadata_flush_work);
 
 	if (!throttle)
 		goto out;
 
-	atomic_inc(&fs_info->syno_metadata_throttle_nr);
-	queue_work(system_unbound_wq, &fs_info->syno_async_metadata_flush_work);
-	balance_dirty_pages_ratelimited(fs_info->btree_inode->i_mapping);
-	atomic_dec(&fs_info->syno_metadata_throttle_nr);
+	/* if we need async meta flush, we always checked dirty metadata bytes, we skip double check */
+	if (!async_meta_flush) {
+		if (__percpu_counter_compare(&fs_info->dirty_metadata_bytes,
+			BTRFS_DIRTY_METADATA_THRESH, fs_info->dirty_metadata_batch) <= 0)
+			goto out;
+	}
 
+	balance_dirty_pages_ratelimited(fs_info->btree_inode->i_mapping);
 out:
 	return;
 }
@@ -1649,7 +1728,9 @@ static int __reserve_bytes(struct btrfs_fs_info *fs_info,
 				      &space_info->priority_tickets);
 		}
 #ifdef MY_ABC_HERE
-		if (space_info->flags & BTRFS_BLOCK_GROUP_METADATA) {
+		if (space_info->flags & BTRFS_BLOCK_GROUP_METADATA &&
+		    !test_bit(BTRFS_FS_LOG_RECOVERING, &fs_info->flags) &&
+		    need_do_async_reclaim(fs_info, space_info, used)) {
 			if (!work_busy(&fs_info->syno_async_metadata_reclaim_work))
 				queue_work(system_unbound_wq, &fs_info->syno_async_metadata_reclaim_work);
 #ifdef MY_ABC_HERE

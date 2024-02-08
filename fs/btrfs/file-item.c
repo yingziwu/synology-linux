@@ -163,7 +163,9 @@ get_key:
 out:
 	return ret;
 }
+#endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
 static int file_extent_deduped_check(struct btrfs_path *path,
 				     struct btrfs_root *root,
 				     u64 inode_num, u64 offset)

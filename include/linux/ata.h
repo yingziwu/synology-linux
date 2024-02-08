@@ -476,6 +476,10 @@ enum {
 	SATA_PMP_GSCR_PROD_ID	= 0,
 	SATA_PMP_GSCR_REV	= 1,
 	SATA_PMP_GSCR_PORT_INFO	= 2,
+#ifdef MY_ABC_HERE
+	SATA_PMP_GSCR_SYNO	= 30,
+	SATA_PMP_GSCR_LOGY	= 31,
+#endif /* MY_ABC_HERE */
 	SATA_PMP_GSCR_ERROR	= 32,
 	SATA_PMP_GSCR_ERROR_EN	= 33,
 	SATA_PMP_GSCR_FEAT	= 64,
@@ -1177,5 +1181,9 @@ static inline bool is_ata_read_write_cmd(u8 command)
 #define sata_pmp_gscr_devid(gscr)	((gscr)[SATA_PMP_GSCR_PROD_ID] >> 16)
 #define sata_pmp_gscr_rev(gscr)		(((gscr)[SATA_PMP_GSCR_REV] >> 8) & 0xff)
 #define sata_pmp_gscr_ports(gscr)	((gscr)[SATA_PMP_GSCR_PORT_INFO] & 0xf)
+#ifdef MY_ABC_HERE
+#define sata_pmp_gscr_syno(gscr)	((gscr)[SATA_PMP_GSCR_SYNO])
+#define sata_pmp_gscr_logy(gscr)	((gscr)[SATA_PMP_GSCR_LOGY])
+#endif /* MY_ABC_HERE */
 
 #endif /* __LINUX_ATA_H__ */

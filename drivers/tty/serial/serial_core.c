@@ -600,10 +600,6 @@ static int uart_write(struct tty_struct *tty,
 	int c, ret = 0;
 
 #ifdef MY_ABC_HERE
-	static unsigned long last_jiffies = INITIAL_JIFFIES;
-#endif /* MY_ABC_HERE */
-
-#ifdef MY_ABC_HERE
 	/* We need to delay 150 ms avoid micro p buffer queue overflow */
 	if (!strcmp(tty->name, "ttyS1")) {
 		spin_lock(&ttyS1_lock);
@@ -630,12 +626,6 @@ static int uart_write(struct tty_struct *tty,
 
 #ifdef MY_ABC_HERE
 	if (1 == gSynoForbidConsole && !strcmp(tty->name, "ttyS0")) {
-		if (time_after(jiffies, last_jiffies + msecs_to_jiffies(3000))) {
-			if (NULL != func_synobios_event_handler) {
-				func_synobios_event_handler(SYNO_EVENT_CONSOLE_PROHIBIT, 0);
-			}
-			last_jiffies = jiffies;
-		}
 		uart_port_unlock(port, flags);
 		return count;
 	}
@@ -2424,7 +2414,7 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
 	if (port->type != PORT_UNKNOWN) {
 		unsigned long flags;
 
-#ifdef CONFIG_SYNO_TTY_SHORT_TIME_STUCK_FIX
+#ifdef MY_DEF_HERE
 #else
 		uart_report_port(drv, port);
 #endif
@@ -2455,7 +2445,7 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
 		 */
 		if (!uart_console(port))
 			uart_change_pm(state, UART_PM_STATE_OFF);
-#ifdef CONFIG_SYNO_TTY_SHORT_TIME_STUCK_FIX
+#ifdef MY_DEF_HERE
 		uart_report_port(drv, port);
 #endif
 	}
@@ -2896,9 +2886,7 @@ static void syno_pciepath_enum(struct device *dev, char *buf) {
 		return;
 	}
 
-	if (NULL != sztemp) {
-		snprintf(buf, 512, "%spciepath=%s", buf, sztemp);
-	}
+	snprintf(buf, 512, "%spciepath=%s", buf, sztemp);
 }
 
 static ssize_t syno_pcipath_show(struct device *dev,

@@ -1995,7 +1995,14 @@ static __latent_entropy struct task_struct *copy_process(
 	 */
 	retval = -EAGAIN;
 	if (data_race(nr_threads >= max_threads))
+#ifdef MY_ABC_HERE
+	{
+		pr_err_ratelimited("fork over limit, threads-max = %d", max_threads);
 		goto bad_fork_cleanup_count;
+	}
+#else /* MY_ABC_HERE */
+		goto bad_fork_cleanup_count;
+#endif /* MY_ABC_HERE */
 
 	delayacct_tsk_init(p);	/* Must remain after dup_task_struct() */
 	p->flags &= ~(PF_SUPERPRIV | PF_WQ_WORKER | PF_IDLE);

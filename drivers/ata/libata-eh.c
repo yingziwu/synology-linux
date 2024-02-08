@@ -1248,7 +1248,6 @@ void SendSataErrEvent(struct work_struct *work)
 	SYNOBIOS_EVENT_PARM parms = link->diskSataErrEventParm;
 	unsigned long syno_sata_error_lock_flags;
 
-	spin_lock_irqsave(&syno_sata_error_lock, syno_sata_error_lock_flags);
 	if (func_synobios_event_handler) {
 		func_synobios_event_handler(SYNO_EVENT_SATA_ERROR_REPORT, 6, parms.data[0], parms.data[1], parms.data[2], parms.data[3], parms.data[4], parms.data[5]);
 	} else {
@@ -1256,9 +1255,10 @@ void SendSataErrEvent(struct work_struct *work)
 		synobios_action = (SYNOBIOS_EVENT_ACTION_LIST*)kzalloc(sizeof(SYNOBIOS_EVENT_ACTION_LIST), GFP_KERNEL);
 		memcpy(&synobios_action->parms, &parms, sizeof(parms));
 		synobios_action->synobios_event_type = SYNO_EVENT_SATA_ERROR_REPORT;
+		spin_lock_irqsave(&syno_sata_error_lock, syno_sata_error_lock_flags);
 		list_add_tail(&synobios_action->list, &gSynoBiosEventHead);
+		spin_unlock_irqrestore(&syno_sata_error_lock, syno_sata_error_lock_flags);
 	}
-	spin_unlock_irqrestore(&syno_sata_error_lock, syno_sata_error_lock_flags);
 
 	return;
 }
@@ -1268,7 +1268,9 @@ void SendDiskRetryEvent(struct work_struct *work)
 	struct ata_port *ap = container_of(work, struct ata_port, SendDiskRetryEventTask);
 
 	if (func_synobios_event_handler) {
-		func_synobios_event_handler(SYNO_EVENT_DISK_RETRY_REPORT, 2, ap->syno_internal_slot_index, ap->nr_pmp_links);
+		// eunit is not support
+		// syno_libata_numeric_diskname_number_get return -1 when the sata device is in eunit
+		func_synobios_event_handler(SYNO_EVENT_DISK_RETRY_REPORT, 2, syno_libata_numeric_diskname_number_get(&ap->link), ap->nr_pmp_links);
 	}
 
 	return;
@@ -1280,7 +1282,6 @@ void SendDiskTimeoutEvent(struct work_struct *work)
 	SYNOBIOS_EVENT_PARM parms = link->diskTimeoutEventParm;
 	unsigned long syno_sata_error_lock_flags;
 
-	spin_lock_irqsave(&syno_sata_error_lock, syno_sata_error_lock_flags);
 	if (func_synobios_event_handler) {
 		func_synobios_event_handler(SYNO_EVENT_DISK_TIMEOUT_REPORT, 6, parms.data[0], parms.data[1], parms.data[2], parms.data[3], parms.data[4], parms.data[5]);
 	} else {
@@ -1288,9 +1289,10 @@ void SendDiskTimeoutEvent(struct work_struct *work)
 		synobios_action = (SYNOBIOS_EVENT_ACTION_LIST*)kzalloc(sizeof(SYNOBIOS_EVENT_ACTION_LIST), GFP_KERNEL);
 		memcpy(&synobios_action->parms, &parms, sizeof(parms));
 		synobios_action->synobios_event_type = SYNO_EVENT_DISK_TIMEOUT_REPORT;
+		spin_lock_irqsave(&syno_sata_error_lock, syno_sata_error_lock_flags);
 		list_add_tail(&synobios_action->list, &gSynoBiosEventHead);
+		spin_unlock_irqrestore(&syno_sata_error_lock, syno_sata_error_lock_flags);
 	}
-	spin_unlock_irqrestore(&syno_sata_error_lock, syno_sata_error_lock_flags);
 
 	return;
 }
@@ -1301,7 +1303,6 @@ void SendDiskSoftResetFailEvent(struct work_struct *work)
 	SYNOBIOS_EVENT_PARM parms = link->diskSoftResetFailEventParm;
 	unsigned long syno_sata_error_lock_flags;
 
-	spin_lock_irqsave(&syno_sata_error_lock, syno_sata_error_lock_flags);
 	if (func_synobios_event_handler) {
 		func_synobios_event_handler(SYNO_EVENT_DISK_RESET_FAIL_REPORT, 6, parms.data[0], parms.data[1], parms.data[2], parms.data[3], parms.data[4], parms.data[5]);
 	} else {
@@ -1309,9 +1310,10 @@ void SendDiskSoftResetFailEvent(struct work_struct *work)
 		synobios_action = (SYNOBIOS_EVENT_ACTION_LIST*)kzalloc(sizeof(SYNOBIOS_EVENT_ACTION_LIST), GFP_KERNEL);
 		memcpy(&synobios_action->parms, &parms, sizeof(parms));
 		synobios_action->synobios_event_type = SYNO_EVENT_DISK_RESET_FAIL_REPORT;
+		spin_lock_irqsave(&syno_sata_error_lock, syno_sata_error_lock_flags);
 		list_add_tail(&synobios_action->list, &gSynoBiosEventHead);
+		spin_unlock_irqrestore(&syno_sata_error_lock, syno_sata_error_lock_flags);
 	}
-	spin_unlock_irqrestore(&syno_sata_error_lock, syno_sata_error_lock_flags);
 
 	return;
 }
@@ -1322,7 +1324,6 @@ void SendDiskHardResetFailEvent(struct work_struct *work)
 	SYNOBIOS_EVENT_PARM parms = link->diskHardResetFailEventParm;
 	unsigned long syno_sata_error_lock_flags;
 
-	spin_lock_irqsave(&syno_sata_error_lock, syno_sata_error_lock_flags);
 	if (func_synobios_event_handler) {
 		func_synobios_event_handler(SYNO_EVENT_DISK_RESET_FAIL_REPORT, 6, parms.data[0], parms.data[1], parms.data[2], parms.data[3], parms.data[4], parms.data[5]);
 	} else {
@@ -1330,9 +1331,10 @@ void SendDiskHardResetFailEvent(struct work_struct *work)
 		synobios_action = (SYNOBIOS_EVENT_ACTION_LIST*)kzalloc(sizeof(SYNOBIOS_EVENT_ACTION_LIST), GFP_KERNEL);
 		memcpy(&synobios_action->parms, &parms, sizeof(parms));
 		synobios_action->synobios_event_type = SYNO_EVENT_DISK_RESET_FAIL_REPORT;
+		spin_lock_irqsave(&syno_sata_error_lock, syno_sata_error_lock_flags);
 		list_add_tail(&synobios_action->list, &gSynoBiosEventHead);
+		spin_unlock_irqrestore(&syno_sata_error_lock, syno_sata_error_lock_flags);
 	}
-	spin_unlock_irqrestore(&syno_sata_error_lock, syno_sata_error_lock_flags);
 
 	return;
 }
@@ -1349,22 +1351,12 @@ void SendDiskPowerShortBreakEvent(struct work_struct *work)
 		goto END;
 	}
 	get_disk_port_type_and_index_by_ata_port(ap, &diskType, &slotNumber);
-	if (SYSTEM_DEVICE == diskType) {
-		// we've got diskType and slotNumber for system disk, do nothing.
-	} else if (0 < slotNumber) {
-		diskType = INTERNAL_DEVICE;
-	}
 #ifdef MY_ABC_HERE
-	else if (syno_is_synology_pm(ap)) {
-		diskType = EUNIT_DEVICE;
-		slotNumber = syno_external_libata_index_get(ap);
+	if (syno_is_synology_pm(ap)) {
 		iPMSynoEMID = ap->PMSynoEMID;
 	}
 #endif /* MY_ABC_HERE */
-	else {
-		diskType = EXTERNAL_SATA_DEVICE;
-		slotNumber = syno_external_libata_index_get(ap);
-	}
+
 	func_synobios_event_handler(SYNO_EVENT_DSIK_POWER_SHORT_BREAK, 4, diskType, slotNumber, iPMSynoEMID, ap->uSynoPMPErrorPort);
 END:
 
@@ -1465,7 +1457,7 @@ void syno_sata_deep_retry (struct ata_port *ap)
 	/* FIXME:
 	 * I don't know how to refine these code.
 	 *
-	 * MY_DEF_HERE should be not depended on
+	 * SYNO_SATA_WCACHE_DISABLE should be not depended on
 	 * MY_DEF_HERE and vice versa.
 	 *
 	 * So I set default "on" and then overriding the value if
@@ -1682,7 +1674,7 @@ static void check_power_short_break(struct ata_port *ap)
 	/* FIXME:
 	 * I don't know how to refine these code.
 	 *
-	 * MY_DEF_HERE should be not depended on
+	 * SYNO_SATA_WCACHE_DISABLE should be not depended on
 	 * MY_DEF_HERE and vice versa.
 	 *
 	 * So I set default "on" and then overriding the value if
@@ -4968,6 +4960,14 @@ static int ata_eh_handle_dev_fail(struct ata_device *dev, int err)
 		fallthrough;
 	case -EIO:
 		if (ehc->tries[dev->devno] == 1) {
+
+#ifdef MY_ABC_HERE
+			if (dev->link->ap->pflags & ATA_PFLAG_SYNO_DS_WAKING) {
+				ata_link_warn(dev->link, "Waking up from deep sleep, don't downgrade link speed");
+				break;
+			}
+#endif /* MY_ABC_HERE */
+
 			/* This is the last chance, better to slow
 			 * down than lose it.
 			 */

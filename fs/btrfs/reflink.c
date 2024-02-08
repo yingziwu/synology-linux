@@ -925,7 +925,138 @@ out:
 
 	return ret;
 }
+#ifdef MY_ABC_HERE
+int get_extent_item_list(struct inode *inode, u64 offset, u64 len,
+				struct ulist *extent_item_list)
+{
+	int ret = 0;
+	u64 end = offset + len;
+	u64 bytenr, num_bytes;
+	struct btrfs_key key;
+	u64 ino = btrfs_ino(BTRFS_I(inode));
+	struct btrfs_path *path = NULL;
+	struct btrfs_root *root = BTRFS_I(inode)->root;
+	struct extent_buffer *leaf = NULL;
+	struct btrfs_file_extent_item *fi = NULL;
 
+	ulist_reinit(extent_item_list);
+
+	path = btrfs_alloc_path();
+	if (!path)
+		return -ENOMEM;
+
+	ret = btrfs_lookup_file_extent_by_file_offset(NULL, root, path, ino,
+						      offset, 0);
+	if (ret < 0)
+		goto out;
+
+	leaf = path->nodes[0];
+	btrfs_item_key_to_cpu(leaf, &key, path->slots[0]);
+
+	while (key.offset < end) {
+		fi = btrfs_item_ptr(leaf, path->slots[0],
+				    struct btrfs_file_extent_item);
+
+		bytenr = btrfs_file_extent_disk_bytenr(leaf, fi);
+		num_bytes = btrfs_file_extent_disk_num_bytes(leaf, fi);
+		if (bytenr && num_bytes) {
+			ret = ulist_add(extent_item_list, bytenr, num_bytes,
+					GFP_NOFS);
+			if (ret < 0)
+				break;
+			if (extent_item_list->nnodes > ULIST_NODES_MAX) {
+				btrfs_warn_rl(BTRFS_I(inode)->root->fs_info,
+					      "Add too much node, bad release size in syno_extent_same");
+				break;
+			}
+		}
+
+		ret = btrfs_search_next_file_extent(&key, root, path);
+		if (ret)
+			break;
+		leaf = path->nodes[0];
+	}
+	ret = 0;
+
+out:
+	if (ret == -ENOENT)
+		ret = 0;
+	btrfs_free_path(path);
+	return ret;
+}
+
+int delayed_backref_count(struct btrfs_fs_info *fs_info, u64 bytenr)
+{
+	int count = 0;
+	struct btrfs_transaction *trans = NULL;
+	struct btrfs_delayed_ref_head *head = NULL; // the header of delayed ref for the extent item
+	struct btrfs_delayed_ref_root *delayed_refs = NULL; // delayed ref in this trans
+
+	/* Check trans */
+	spin_lock(&fs_info->trans_lock);
+	trans = fs_info->running_transaction;
+	if (trans)
+		refcount_inc(&trans->use_count);
+	spin_unlock(&fs_info->trans_lock);
+	if (!trans)
+		return 0;
+
+	delayed_refs = &trans->delayed_refs;
+	spin_lock(&delayed_refs->lock);
+	head = btrfs_find_delayed_ref_head(delayed_refs, bytenr);
+	if (!head) {
+		spin_unlock(&delayed_refs->lock);
+		goto out;
+	}
+	count = head->ref_mod;
+	spin_unlock(&delayed_refs->lock);
+out:
+	btrfs_put_transaction(trans);
+	return count;
+}
+
+int extent_same_release_size_accounting(struct ulist *dst_extent_item,
+					       struct btrfs_root *root,
+					       u64 *release_size)
+{
+	int ret = 0;
+	int refcount = 0;
+	struct ulist_iterator uiter;
+	struct ulist_node *node = NULL;
+	struct btrfs_key key;
+	struct btrfs_path *path = NULL;
+	struct btrfs_extent_item *ei = NULL;
+
+	path = btrfs_alloc_path();
+	if (!path)
+		return -ENOMEM;
+
+	ULIST_ITER_INIT(&uiter);
+	key.type = BTRFS_EXTENT_ITEM_KEY;
+
+	while ((node = ulist_next(dst_extent_item, &uiter))) {
+		key.objectid = node->val;
+		key.offset = node->aux;
+
+		refcount = delayed_backref_count(root->fs_info, node->val);
+		ret = btrfs_search_slot(NULL, root->fs_info->extent_root, &key,
+					path, 0, 0);
+		if (!ret) {
+			ei = btrfs_item_ptr(path->nodes[0], path->slots[0],
+					    struct btrfs_extent_item);
+			refcount += btrfs_extent_refs(path->nodes[0], ei);
+		}
+		if (refcount <= 0)
+			*release_size += node->aux;
+
+		btrfs_release_path(path);
+	}
+
+	btrfs_free_path(path);
+
+	return 0;
+}
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 /* ported from 4.4.x */
 static struct page *extent_same_get_page(struct inode *inode, pgoff_t index)
@@ -1244,49 +1375,6 @@ static int get_extent_ref_remain(struct btrfs_root *root, struct btrfs_path *pat
 	return ret;
 }
 
-static int delayed_backref_count(struct btrfs_fs_info *fs_info, u64 bytenr)
-{
-	int count = 0;
-	struct btrfs_transaction *trans = NULL;
-	struct btrfs_delayed_ref_node *node = NULL; // delayed ref for the extent item
-	struct btrfs_delayed_ref_head *head = NULL; // the header of delayed ref for the extent item
-	struct btrfs_delayed_ref_root *delayed_refs = NULL; // delayed ref in this trans
-	struct rb_node *n;
-
-	/* Check trans */
-	spin_lock(&fs_info->trans_lock);
-	trans = fs_info->running_transaction;
-	if (trans)
-		refcount_inc(&trans->use_count);
-	spin_unlock(&fs_info->trans_lock);
-	if (!trans)
-		return 0;
-
-	delayed_refs = &trans->delayed_refs;
-	spin_lock(&delayed_refs->lock);
-	head = btrfs_find_delayed_ref_head(delayed_refs, bytenr);
-	if (!head) {
-		spin_unlock(&delayed_refs->lock);
-		goto out;
-	}
-	spin_lock(&head->lock);
-	for (n = rb_first_cached(&head->ref_tree); n; n = rb_next(n)) {
-		node = rb_entry(n, struct btrfs_delayed_ref_node,
-				ref_node);
-		if (BTRFS_EXTENT_DATA_REF_KEY != node->type && BTRFS_SHARED_DATA_REF_KEY != node->type)
-			continue;
-		if (BTRFS_ADD_DELAYED_REF == node->action)
-			count++;
-		if (BTRFS_DROP_DELAYED_REF == node->action)
-			count--;
-	}
-	spin_unlock(&head->lock);
-	spin_unlock(&delayed_refs->lock);
-out:
-	btrfs_put_transaction(trans);
-	return count;
-}
-
 static int inline_backref_count(struct extent_buffer *eb, int slot)
 {
 	int type = 0;
@@ -1343,65 +1431,6 @@ static int get_backref_remain(struct btrfs_fs_info *fs_info, u64 bytenr,
 
 	ret = 0;
 out:
-	btrfs_free_path(path);
-	return ret;
-}
-
-static int get_extent_item_list(struct inode *inode, u64 offset, u64 len,
-				struct ulist *extent_item_list)
-{
-	int ret = 0;
-	u64 end = offset + len;
-	u64 bytenr, num_bytes;
-	struct btrfs_key key;
-	u64 ino = btrfs_ino(BTRFS_I(inode));
-	struct btrfs_path *path = NULL;
-	struct btrfs_root *root = BTRFS_I(inode)->root;
-	struct extent_buffer *leaf = NULL;
-	struct btrfs_file_extent_item *fi = NULL;
-
-	ulist_reinit(extent_item_list);
-
-	path = btrfs_alloc_path();
-	if (!path)
-		return -ENOMEM;
-
-	ret = btrfs_lookup_file_extent_by_file_offset(NULL, root, path, ino,
-						      offset, 0);
-	if (ret < 0)
-		goto out;
-
-	leaf = path->nodes[0];
-	btrfs_item_key_to_cpu(leaf, &key, path->slots[0]);
-
-	while (key.offset < end) {
-		fi = btrfs_item_ptr(leaf, path->slots[0],
-				    struct btrfs_file_extent_item);
-
-		bytenr = btrfs_file_extent_disk_bytenr(leaf, fi);
-		num_bytes = btrfs_file_extent_disk_num_bytes(leaf, fi);
-		if (bytenr && num_bytes) {
-			ret = ulist_add(extent_item_list, bytenr, num_bytes,
-					GFP_NOFS);
-			if (ret < 0)
-				break;
-			if (extent_item_list->nnodes > ULIST_NODES_MAX) {
-				btrfs_warn_rl(BTRFS_I(inode)->root->fs_info,
-					      "Add too much node, bad release size in syno_extent_same");
-				break;
-			}
-		}
-
-		ret = btrfs_search_next_file_extent(&key, root, path);
-		if (ret)
-			break;
-		leaf = path->nodes[0];
-	}
-	ret = 0;
-
-out:
-	if (ret == -ENOENT)
-		ret = 0;
 	btrfs_free_path(path);
 	return ret;
 }
@@ -1528,48 +1557,6 @@ out:
 	btrfs_free_path(path);
 	ulist_free(backref_remain_list);
 	return ret;
-}
-
-static int extent_same_release_size_accounting(struct ulist *dst_extent_item,
-					       struct btrfs_root *root,
-					       u64 *release_size)
-{
-	int ret = 0;
-	int refcount = 0;
-	struct ulist_iterator uiter;
-	struct ulist_node *node = NULL;
-	struct btrfs_key key;
-	struct btrfs_path *path = NULL;
-	struct btrfs_extent_item *ei = NULL;
-
-	path = btrfs_alloc_path();
-	if (!path)
-		return -ENOMEM;
-
-	ULIST_ITER_INIT(&uiter);
-	key.type = BTRFS_EXTENT_ITEM_KEY;
-
-	while ((node = ulist_next(dst_extent_item, &uiter))) {
-		key.objectid = node->val;
-		key.offset = node->aux;
-
-		refcount = delayed_backref_count(root->fs_info, node->val);
-		ret = btrfs_search_slot(NULL, root->fs_info->extent_root, &key,
-					path, 0, 0);
-		if (!ret) {
-			ei = btrfs_item_ptr(path->nodes[0], path->slots[0],
-					    struct btrfs_extent_item);
-			refcount += btrfs_extent_refs(path->nodes[0], ei);
-		}
-		if (refcount <= 0)
-			*release_size += node->aux;
-
-		btrfs_release_path(path);
-	}
-
-	btrfs_free_path(path);
-
-	return 0;
 }
 
 /* copy from btrfs_extent_same() */
@@ -1762,6 +1749,10 @@ static int btrfs_syno_extent_same(struct inode *src, struct inode *dst,
 	/* count how much extent item released */
 	ret = extent_same_release_size_accounting(extent_item_list,
 			BTRFS_I(dst)->root, &same->release_size);
+	if (ret < 0)
+		goto out;
+
+	ret = btrfs_file_extent_deduped_set_range(dst, same->dst_offset, same->length, true);
 
 out:
 	ulist_free(extent_item_list);
@@ -1843,6 +1834,244 @@ out:
 	mnt_drop_write_file(file);
 	kfree(same);
 
+	return ret;
+}
+
+void btrfs_mark_buffer_dirty(struct extent_buffer *buf);
+/* modify from and insert_reserved_file_extent() */
+int insert_dedupe_file_extent(struct btrfs_trans_handle *trans, struct inode *inode,
+			     u64 offset, u64 len, u64 disk_bytenr, u64 disk_num_bytes, u64 disk_offset)
+{
+	struct btrfs_root *root = BTRFS_I(inode)->root;
+	struct btrfs_drop_extents_args drop_args = { 0 };
+	int ret;
+	u64 bytes_to_add = 0;
+	bool release_trans = false;
+	int syno_usage;
+	struct btrfs_ref ref = { 0 };
+	struct btrfs_file_extent_item *fi;
+	struct btrfs_path *path = NULL;
+	struct extent_buffer *leaf;
+	struct btrfs_key ins;
+
+	/*
+	 * Still need to make sure the inode looks like it's been updated so
+	 * that any holes get logged if we fsync.
+	 */
+	if (disk_bytenr == 0 && btrfs_fs_incompat(root->fs_info, NO_HOLES)) {
+		BTRFS_I(inode)->last_trans = root->fs_info->generation;
+		BTRFS_I(inode)->last_sub_trans = root->log_transid;
+		BTRFS_I(inode)->last_log_commit = root->last_log_commit;
+		return 0;
+	}
+
+	if (!trans) {
+		trans = btrfs_join_transaction(root);
+		if (IS_ERR(trans)) {
+			ret = PTR_ERR(trans);
+			goto out;
+		}
+		release_trans = true;
+	}
+
+	path = btrfs_alloc_path();
+	if (!path) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	/*
+	 * we may be replacing one extent in the tree with another.
+	 * The new extent is pinned in the extent map, and we don't want
+	 * to drop it from the cache until it is completely in the btree.
+	 *
+	 * So, tell btrfs_drop_extents to leave this extent in the cache.
+	 * the caller is expected to unpin it and allow it to be merged
+	 * with the others.
+	 */
+	drop_args.path = path;
+	drop_args.start = offset;
+	drop_args.end = offset + len;
+	drop_args.replace_extent = true;
+	drop_args.extent_item_size = sizeof(*fi);
+	ret = btrfs_drop_extents(trans, root, BTRFS_I(inode), &drop_args);
+	if (ret)
+		goto out;
+
+	if (!drop_args.extent_inserted) {
+		ins.objectid = btrfs_ino(BTRFS_I(inode));
+		ins.offset = offset;
+		ins.type = BTRFS_EXTENT_DATA_KEY;
+
+		path->leave_spinning = 1;
+		ret = btrfs_insert_empty_item(trans, root, path, &ins,
+					      sizeof(*fi));
+		if (ret)
+			goto out;
+	}
+	leaf = path->nodes[0];
+	fi = btrfs_item_ptr(leaf, path->slots[0],
+			    struct btrfs_file_extent_item);
+	//TODO:fix compression
+	btrfs_set_file_extent_generation(leaf, fi, trans->transid);
+	btrfs_set_file_extent_type(leaf, fi, BTRFS_FILE_EXTENT_REG);
+	btrfs_set_file_extent_disk_bytenr(leaf, fi, disk_bytenr);
+	btrfs_set_file_extent_disk_num_bytes(leaf, fi, disk_num_bytes);
+	btrfs_set_file_extent_offset(leaf, fi, disk_offset);
+	btrfs_set_file_extent_num_bytes(leaf, fi, len);
+	btrfs_set_file_extent_ram_bytes(leaf, fi, len);
+	btrfs_set_file_extent_compression(leaf, fi, 0);
+	btrfs_set_file_extent_encryption(leaf, fi, 0);
+	btrfs_set_file_extent_other_encoding(leaf, fi, 0);
+	btrfs_set_file_extent_syno_flag(leaf, fi, BTRFS_FILE_EXTENT_DEDUPED);
+
+	btrfs_mark_buffer_dirty(leaf);
+
+	syno_usage = btrfs_syno_usage_ref_check(root, btrfs_ino(BTRFS_I(inode)), offset);
+
+	btrfs_release_path(path);
+
+	if (disk_bytenr)
+		bytes_to_add = len;
+
+	down_read(&root->rescan_lock);
+	btrfs_update_inode_bytes(BTRFS_I(inode), bytes_to_add, drop_args.bytes_found);
+	btrfs_qgroup_syno_accounting(BTRFS_I(inode),
+					bytes_to_add, drop_args.bytes_found, UPDATE_QUOTA);
+	btrfs_usrquota_syno_accounting(BTRFS_I(inode),
+					bytes_to_add, drop_args.bytes_found, UPDATE_QUOTA);
+	up_read(&root->rescan_lock);
+
+	ret = btrfs_inode_set_file_extent_range(BTRFS_I(inode), offset, len);
+	if (ret)
+		goto out;
+
+	btrfs_update_inode(trans, root, inode);
+
+	if (disk_bytenr) {
+		btrfs_init_generic_ref(&ref,
+				BTRFS_ADD_DELAYED_REF,
+				disk_bytenr, disk_num_bytes, 0);
+		btrfs_init_data_ref(&ref,
+				root->root_key.objectid,
+				btrfs_ino(BTRFS_I(inode)),
+				offset - disk_offset
+				, syno_usage
+				);
+		ref.skip_qgroup = true;
+		ret = btrfs_inc_extent_ref(trans, &ref);
+	}
+
+out:
+	if (release_trans) {
+		if (ret)
+			btrfs_abort_transaction(trans, ret);
+		btrfs_end_transaction(trans);
+	}
+	btrfs_free_path(path);
+	return ret;
+}
+
+#define INLINE_DEDUPE_MIN_PAGES 32
+
+static u64 inode_pgoff_hash_get(struct inode *inode, pgoff_t page_off, bool *zero)
+{
+	u64 hash = 0;
+	struct page *page = NULL;
+	char *kaddr = NULL;
+
+	*zero = false;
+
+	page = find_get_page(inode->i_mapping, page_off);
+	if (!page) {
+		printk("find_get_page failed, ino:%llu off:%lu\n", btrfs_ino(BTRFS_I(inode)), page_off << PAGE_SHIFT);
+		goto out;
+	}
+
+	kaddr = kmap_atomic(page);
+	if (!memcmp(kaddr, empty_zero_page, PAGE_SIZE))
+		*zero = true;
+	kunmap_atomic(kaddr);
+
+	put_page(page);
+
+out:
+	return hash;
+}
+
+static u64 inline_dedupe_zero_cmp(struct inode *inode, pgoff_t page_start, u64 check_pgs)
+{
+	bool zero = false;
+	u64 page_cur = page_start;
+	u64 page_end = page_start + check_pgs;
+
+	for (; page_cur < page_end; page_cur++) {
+		inode_pgoff_hash_get(inode, page_cur, &zero);
+		if (!zero)
+			break;
+	}
+	return page_cur - page_start;
+}
+
+static bool __inline_dedupe_search(struct inode *inode, struct inode *src_inode,
+				pgoff_t start_pgoff, u64 check_pages, u64 *match_pgoff, u64 *match_src_pgoff,
+				u64 *match_pages, bool *match_zero)
+{
+	u64 cur = 0;
+	u64 pages = 0;
+	u64 hash = 0;
+	bool zero = false;
+
+	for (cur = 0; cur < check_pages; cur++) {
+		hash = inode_pgoff_hash_get(inode, start_pgoff + cur, &zero);
+		if (zero) {
+			pages = inline_dedupe_zero_cmp(inode, start_pgoff + cur, check_pages - cur);
+			if (pages >= INLINE_DEDUPE_MIN_PAGES || pages == check_pages) {
+				*match_pgoff = start_pgoff + cur;
+				*match_pages = pages;
+				*match_zero = true;
+				return true;
+			}
+			continue;
+		}
+	}
+
+	return false;
+}
+
+/*
+ * return
+ * 0:		could inline dedupe
+ * -ENOENT:	not match
+ * -EINVAL: bad parameter
+ */
+int inline_dedupe_search(struct inode *inode, u64 start, u64 len,
+			u64 *disk_bytenr, u64 *disk_num_bytes, u64 *disk_offset,
+			u64 *match_off, u64 *match_len)
+{
+	int ret = -ENOENT;
+	u64 match_pgoff = 0, src_pgoff = 0, match_pages = 0;
+	bool zero = false;
+
+	if (!inode || start % PAGE_SIZE || !len || !disk_bytenr || !disk_num_bytes || !disk_offset || !match_len)
+		return -EINVAL;
+
+	*disk_bytenr = *disk_num_bytes = *disk_offset = *match_off = *match_len = 0;
+
+	if (!__inline_dedupe_search(inode, NULL, start >> PAGE_SHIFT,
+			len >> PAGE_SHIFT, &match_pgoff, &src_pgoff,
+			&match_pages, &zero)) {
+		goto out;
+	}
+	*match_off = match_pgoff << PAGE_SHIFT;
+
+	if (zero) {
+		*match_len = match_pages << PAGE_SHIFT;
+		ret = insert_dedupe_file_extent(NULL, inode, *match_off, *match_len, 0, 0, 0);
+		goto out;
+	}
+
+out:
 	return ret;
 }
 #endif /* MY_ABC_HERE */
@@ -2233,11 +2462,13 @@ int btrfs_ioctl_syno_clone_range_v2(struct file *dst_file,
 
 #ifdef MY_ABC_HERE
 	/*
-	 * This is a workaround for DSM #81059.
-	 * We allow to clone between compression and no compression dirs,
-	 * if only we do IOC_CLONE_RANGE with whole file.
+	 * There's workarounds for DSM #81059 and DSM#150209. We allow to clone
+	 * between compression and no compression dirs in TWO conditions:
+	 * 1. if we do IOC_CLONE_RANGE with whole file.
+	 * 2. if the args.flag is with the specified flag. (btrfs receive)
 	 */
-	if (!args.src_off && !args.dest_off && !len)
+	if ((args.flag & BTRFS_CLONE_RANGE_V2_SKIP_CHECK_COMPR_DIR) ||
+	    (!args.src_off && !args.dest_off && !len))
 		flags = REMAP_FILE_SKIP_CHECK_COMPR_DIR;
 #endif /* MY_ABC_HERE */
 

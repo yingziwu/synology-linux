@@ -144,6 +144,14 @@ SYNO_SMBUS_HDD_POWERCTL SynoSmbusHddPowerCtl = {
 	.syno_smbus_hdd_present_read = NULL,
 };
 EXPORT_SYMBOL(SynoSmbusHddPowerCtl);
+int gSynoSmbusSwitchCount = 0;
+EXPORT_SYMBOL(gSynoSmbusSwitchCount);
+int gSynoSmbusSwitchAdapters[SMBUS_SWITCH_MAX_COUNT+1];
+EXPORT_SYMBOL(gSynoSmbusSwitchAdapters);
+int gSynoSmbusSwitchAddrs[SMBUS_SWITCH_MAX_COUNT+1];
+EXPORT_SYMBOL(gSynoSmbusSwitchAddrs);
+int gSynoSmbusSwitchVals[SMBUS_SWITCH_MAX_COUNT+1];
+EXPORT_SYMBOL(gSynoSmbusSwitchVals);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE

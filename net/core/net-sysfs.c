@@ -352,9 +352,7 @@ static void syno_pciepath_enum(struct device *dev, char *buf) {
 		return;
 	}
 
-	if (NULL != sztemp) {
-		snprintf(buf, 512, "%spciepath=%s", buf, sztemp);
-	}
+	snprintf(buf, 512, "%spciepath=%s", buf, sztemp);
 }
 
 static void syno_platdev_path_enum(struct device *dev, char *buf) {

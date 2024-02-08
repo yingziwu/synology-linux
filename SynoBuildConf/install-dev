@@ -47,7 +47,7 @@ install_dev_modules()
             continue
         fi
 
-        unset _built_modules["$_mod"]
+        unset "_built_modules[$_mod]"
         _mod_name="$(basename "$_mod")"
 
         install -Dm644 "$_mod" "$DebDevBuild/image/modules/$_mod_name"
@@ -69,6 +69,8 @@ install_dev_kernel_devel()
 
     # for kmsynoacl
     install -Dm644 "fs/syno_acl.h" "$WRKDIR/fs/synoacl_int.h"
+
+    install -Dm644 "include/linux/syno_fs.h" "$WRKDIR/include/linux/syno_fs.h"
 
     install -Dm644 "include/linux/syno_gpio.h" "$WRKDIR/include/linux/syno_gpio.h"
     install -Dm644 "include/linux/syno_fdt.h" "$WRKDIR/include/linux/syno_fdt.h"

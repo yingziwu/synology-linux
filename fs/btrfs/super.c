@@ -2232,6 +2232,21 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 		if (ret)
 			goto restore;
 	} else {
+#ifdef MY_ABC_HERE
+		if (btrfs_super_compat_ro_flags(fs_info->super_copy) & ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
+			btrfs_err(fs_info, "cannot mount read-write because of unsupported optional features");
+			ret = -EINVAL;
+			goto restore;
+		}
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+		if (btrfs_fs_compat_ro(fs_info, LOCKER) &&
+		    !btrfs_syno_locker_feature_is_support()) {
+			btrfs_err(fs_info, "cannot mount read-write because of no locker support");
+			ret = -EINVAL;
+			goto restore;
+		}
+#endif /* MY_ABC_HERE */
 		if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state)) {
 			btrfs_err(fs_info,
 				"Remounting read-write after error is not allowed");
@@ -2665,6 +2680,10 @@ static struct file_system_type btrfs_root_fs_type = {
 	.fs_flags	= FS_REQUIRES_DEV | FS_BINARY_MOUNTDATA,
 };
 
+#ifdef MY_ABC_HERE
+struct file_system_type *__btrfs_root_fs_type = &btrfs_root_fs_type;
+#endif /* MY_ABC_HERE */
+
 MODULE_ALIAS_FS("btrfs");
 
 static int btrfs_control_open(struct inode *inode, struct file *file)
@@ -2992,7 +3011,7 @@ static int btrfs_syno_rbd_set_first_mapping_table_offset(struct super_block *sb,
 	if (IS_ERR(trans))
 		return PTR_ERR(trans);
 
-	fs_info->syno_rbd_first_mapping_table_offset = offset;
+	fs_info->syno_rbd.first_mapping_table_offset = offset;
 
 	return btrfs_commit_transaction(trans);
 }
@@ -3158,6 +3177,12 @@ static int __init init_btrfs_fs(void)
 	if (err)
 		goto free_end_io_wq;
 
+#ifdef MY_ABC_HERE
+	err = qgroup_netlink_init();
+	if (err)
+		goto free_btrfs_interface;
+#endif /* MY_ABC_HERE */
+
 	btrfs_init_lockdep();
 
 	btrfs_print_mod_info();
@@ -3173,6 +3198,10 @@ static int __init init_btrfs_fs(void)
 	return 0;
 
 unregister_ioctl:
+#ifdef MY_ABC_HERE
+	qgroup_netlink_exit();
+free_btrfs_interface:
+#endif /* MY_ABC_HERE */
 	btrfs_interface_exit();
 free_end_io_wq:
 	btrfs_end_io_wq_exit();
@@ -3203,6 +3232,9 @@ free_compress:
 
 static void __exit exit_btrfs_fs(void)
 {
+#ifdef MY_ABC_HERE
+	qgroup_netlink_exit();
+#endif /* MY_ABC_HERE */
 	btrfs_destroy_cachep();
 	btrfs_delayed_ref_exit();
 	btrfs_auto_defrag_exit();

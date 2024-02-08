@@ -198,4 +198,8 @@ static inline void btrfs_mod_total_bytes_pinned(struct btrfs_fs_info *fs_info,
 void btrfs_syno_btree_balance_dirty(struct btrfs_fs_info *fs_info, bool throttle);
 #endif /* MY_ABC_HERE */
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+void syno_perf_indicator_dirty_limit_update(struct btrfs_fs_info *fs_info);
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
+
 #endif /* BTRFS_SPACE_INFO_H */

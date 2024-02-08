@@ -2490,6 +2490,7 @@ extern unsigned int syno_sata_pmp_write_gpio(struct ata_port *, SYNO_PM_PKG *);
 extern unsigned int syno_sata_pmp_read_gpio_core(struct ata_link *, SYNO_PM_PKG *);
 extern unsigned int syno_sata_pmp_write_gpio_core(struct ata_link *, SYNO_PM_PKG *);
 extern u8 syno_is_synology_pm(const struct ata_port *ap);
+extern u8 syno_pm_with_synology_magic(const struct ata_port *ap);
 extern u32 syno_pmp_ports_num(struct ata_port *ap);
 extern void syno_pm_device_info_set(struct ata_port *ap, u8 rw, SYNO_PM_PKG *pm_pkg);
 extern unsigned int syno_pm_gpio_output_disable(struct ata_link *link);

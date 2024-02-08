@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0 OR MIT
 /* Realtek pulse-width-modulation controller driver
  *
@@ -85,6 +88,9 @@ struct rtk_pwm_chip {
 
 #define to_rtk_pwm_chip(d) container_of(d, struct rtk_pwm_chip, chip)
 
+#if defined(MY_DEF_HERE)
+struct rtk_pwm_chip *gSynoPwmChip = NULL;
+#endif /* MY_DEF_HERE */
 int set_real_freq_by_target_freq(struct rtk_pwm_chip *pc, int hwpwm,
 				 int target_freq)
 {
@@ -847,8 +853,38 @@ static int rtk_pwm_probe(struct platform_device *pdev)
 	for (i = 0; i < NUM_PWM; i++)
 		pwm_set_register(pwm, i);
 
+#if defined(MY_DEF_HERE)
+	gSynoPwmChip = pwm;
+#endif /* MY_DEF_HERE */
 	return 0;
 }
+
+#if defined(MY_DEF_HERE)
+int SynoRTKPWMSet(const int id, const int enable, const int clkout_div, const int clksrc_div, const int duty_rate)
+{
+
+	if (0 > id || 3 < id || NULL == gSynoPwmChip) {
+		WARN_ON(1);
+		return -EINVAL;
+	}
+	gSynoPwmChip->clkout_div[id] = clkout_div;
+
+	gSynoPwmChip->clksrc_div[id] = clksrc_div;
+
+	set_real_freq_by_target_div(gSynoPwmChip, id, gSynoPwmChip->clksrc_div[id],
+			gSynoPwmChip->clkout_div[id]);
+
+	gSynoPwmChip->enable[id] = enable;
+
+	set_clk_duty(gSynoPwmChip, id, duty_rate);
+	pr_debug("%s %s - hwpwm=(%d) enable=(%d) duty_rate=(%d) clksrc_div=(%d) clkout_div=(%d)---\n",
+		DEV_NAME, __func__, id, gSynoPwmChip->enable[id], gSynoPwmChip->duty_rate[id],
+		gSynoPwmChip->clksrc_div[id], gSynoPwmChip->clkout_div[id]);
+	pwm_set_register(gSynoPwmChip, id);
+	return 0;
+}
+EXPORT_SYMBOL(SynoRTKPWMSet);
+#endif /* MY_DEF_HERE */
 
 static int rtk_pwm_remove(struct platform_device *pdev)
 {
@@ -861,6 +897,9 @@ static int rtk_pwm_remove(struct platform_device *pdev)
 	}
 	sysfs_remove_group(&pdev->dev.kobj, &pwm_dev_attr_group);
 
+#if defined(MY_DEF_HERE)
+	gSynoPwmChip = NULL;
+#endif /* MY_DEF_HERE */
 	return pwmchip_remove(&pc->chip);
 }
 

@@ -15,3 +15,4 @@ obj-$(CONFIG_SYNO_SATA_PWR_CTRL)+= syno_disk_pwr_ctrl.o
 obj-$(CONFIG_SYNO_SCSI_DISK_SPINDOWN_PARALLELLY)+= syno_disk_wait_for_spindown.o
 obj-$(CONFIG_SYNO_MD_BAD_SECTOR_AUTO_REMAP) += syno_draw_auto_remap_buffer.o
 obj-$(CONFIG_SYNO_SATA_PWR_CTRL_TEST) += syno_hddpwrctl_test.o
+obj-$(CONFIG_SYNO_AHCI_REG_READ_TEST) += syno_ahci_reg_read_test.o

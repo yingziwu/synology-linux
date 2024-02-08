@@ -227,7 +227,7 @@ btrfs_alloc_dummy_block_group(struct btrfs_fs_info *fs_info,
 	INIT_LIST_HEAD(&cache->list);
 	INIT_LIST_HEAD(&cache->cluster_list);
 	INIT_LIST_HEAD(&cache->bg_list);
-	btrfs_init_free_space_ctl(cache);
+	btrfs_init_free_space_ctl(cache, cache->free_space_ctl);
 	mutex_init(&cache->free_space_lock);
 #ifdef MY_ABC_HERE
 	spin_lock_init(&cache->lock);
@@ -301,9 +301,12 @@ int btrfs_run_sanity_tests(void)
 			ret = btrfs_test_inodes(sectorsize, nodesize);
 			if (ret)
 				goto out;
+#ifdef MY_ABC_HERE
+#else
 			ret = btrfs_test_qgroups(sectorsize, nodesize);
 			if (ret)
 				goto out;
+#endif /* MY_ABC_HERE */
 			ret = btrfs_test_free_space_tree(sectorsize, nodesize);
 			if (ret)
 				goto out;

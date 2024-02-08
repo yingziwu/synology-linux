@@ -554,6 +554,10 @@ enum rtl_output_mode {
 	OUTPUT_MAX
 };
 
+enum drv_status {
+	RTL_STATUS_DOWN		= BIT(0),
+};
+
 /* ISO base addr 0x98007000 */
 enum common_iso_registers {
 	ISO_UMSK_ISR			= 0x0004,
@@ -925,6 +929,7 @@ struct rtl8169_private {
 	bool ext_phy;
 	bool pwr_saving;	/* power saving of suspend mode */
 	bool netif_is_running;
+	u32 status;
 };
 
 #define REVISION_A00	0xA00
@@ -4390,6 +4395,8 @@ static void rtl8169_down(struct net_device *dev)
 	rtl8169_rx_clear(tp);
 
 	rtl_pll_power_down(tp);
+
+	tp->status |= RTL_STATUS_DOWN;
 }
 
 static int rtl8169_close(struct net_device *dev)
@@ -4490,8 +4497,10 @@ static int rtl_open(struct net_device *dev)
 
 	napi_enable(&tp->napi);
 
-	if (rtl_phy_read(tp, 0, MII_BMCR) & BMCR_PDOWN)
+	if (tp->status & RTL_STATUS_DOWN) {
+		tp->status &= ~RTL_STATUS_DOWN;
 		rtl8169_init_phy(dev, tp);
+	}
 
 	__rtl8169_set_features(dev, dev->features);
 

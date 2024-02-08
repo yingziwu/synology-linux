@@ -2196,11 +2196,14 @@ static int mmc_rescan_try_freq(struct mmc_host *host, unsigned freq)
 			SDIO_fini = true;
 	}
 #else
-#endif /* MY_DEF_HERE */
 	if (!(host->caps2 & MMC_CAP2_NO_SDIO))
 		if (!mmc_attach_sdio(host))
 			return 0;
-
+#endif /* CONFIG_MMC_SDHCI_OF_RTK */
+#else /* MY_DEF_HERE */
+	if (!(host->caps2 & MMC_CAP2_NO_SDIO))
+		if (!mmc_attach_sdio(host))
+			return 0;
 #endif /* MY_DEF_HERE */
 
 	if (!(host->caps2 & MMC_CAP2_NO_SD))
@@ -2314,7 +2317,10 @@ void mmc_rescan(struct work_struct *work)
 			rtk_sdmmc_close_clk(host);
 	}
 #else
-#endif /* MY_DEF_HERE */
+	if (host->bus_ops && !host->bus_dead)
+		host->bus_ops->detect(host);
+#endif /* CONFIG_MMC_RTK_SDMMC */
+#else /* MY_DEF_HERE */
 	if (host->bus_ops && !host->bus_dead)
 		host->bus_ops->detect(host);
 #endif /* MY_DEF_HERE */

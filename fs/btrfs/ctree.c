@@ -1379,6 +1379,7 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
 			struct tree_mod_elem *tm2;
 
 			btrfs_tree_read_lock(old);
+			btrfs_set_lock_blocking_read(old);
 			eb = btrfs_clone_extent_buffer(old);
 			/*
 			 * After the lookup for the most recent tree mod operation
@@ -1391,7 +1392,7 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
 			 * buffer.
 			 */
 			tm2 = tree_mod_log_search(fs_info, logical, time_seq);
-			btrfs_tree_read_unlock(old);
+			btrfs_tree_read_unlock_blocking(old);
 			free_extent_buffer(old);
 			ASSERT(tm2);
 			ASSERT(tm2 == tm || tm2->seq > tm->seq);
@@ -2984,6 +2985,10 @@ done:
 		btrfs_set_path_blocking(p);
 	if (ret < 0 && !p->skip_release_on_error)
 		btrfs_release_path(p);
+#ifdef MY_ABC_HERE
+	atomic64_inc(&root->fs_info->syno_meta_statistics.search_key);
+	trace_btrfs_syno_meta_statistics_search_key(root->fs_info, root, key);
+#endif /* MY_ABC_HERE */
 	return ret;
 }
 
@@ -3091,6 +3096,10 @@ done:
 		btrfs_set_path_blocking(p);
 	if (ret < 0)
 		btrfs_release_path(p);
+#ifdef MY_ABC_HERE
+	atomic64_inc(&root->fs_info->syno_meta_statistics.search_key);
+	trace_btrfs_syno_meta_statistics_search_key(root->fs_info, root, key);
+#endif /* MY_ABC_HERE */
 
 	return ret;
 }
@@ -5382,6 +5391,10 @@ out:
 		btrfs_set_path_blocking(path);
 		memcpy(min_key, &found_key, sizeof(found_key));
 	}
+#ifdef MY_ABC_HERE
+	atomic64_inc(&root->fs_info->syno_meta_statistics.search_forward);
+	trace_btrfs_syno_meta_statistics_search_forward(root->fs_info, root, min_key);
+#endif /* MY_ABC_HERE */
 	return ret;
 }
 
@@ -5539,6 +5552,10 @@ again:
 		goto done;
 	}
 
+#ifdef MY_ABC_HERE
+	atomic64_inc(&root->fs_info->syno_meta_statistics.next_leaf);
+	trace_btrfs_syno_meta_statistics_next_leaf(root->fs_info, root, &key);
+#endif /* MY_ABC_HERE */
 	while (level < BTRFS_MAX_LEVEL) {
 		if (!path->nodes[level]) {
 			ret = 1;

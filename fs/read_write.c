@@ -1853,6 +1853,20 @@ ssize_t generic_write_checks(struct kiocb *iocb, struct iov_iter *from)
 	if (iocb->ki_flags & IOCB_APPEND)
 		iocb->ki_pos = i_size_read(inode);
 
+#ifdef MY_ABC_HERE
+	/*
+	 * for locker appendable, data is appended to the file in chunk. when data
+	 * is written to bytes n*CHUNK_SIZE+1 of the file, the previous chunk
+	 * becomes locked.
+	 */
+	if (syno_op_locker_is_appendable(inode) &&
+	    iocb->ki_pos < round_down(i_size_read(inode), LOCKER_CHUNK_SIZE)) {
+		pr_warn_ratelimited("locker: append data to %pD at offset 0x%llx before 0x%llx\n",
+				file, iocb->ki_pos, round_down(i_size_read(inode), LOCKER_CHUNK_SIZE));
+		return -EPERM;
+	}
+#endif /* MY_ABC_HERE */
+
 	if ((iocb->ki_flags & IOCB_NOWAIT) && !(iocb->ki_flags & IOCB_DIRECT))
 		return -EINVAL;
 

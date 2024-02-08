@@ -326,6 +326,10 @@ struct btrfs_ioctl_fs_info_args {
  */
 #define BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE_VALID	(1ULL << 1)
 
+#ifdef MY_ABC_HERE
+#define BTRFS_FEATURE_COMPAT_RO_LOCKER		(1ULL << 59)	    // the 17th prime number
+#endif /* MY_ABC_HERE */
+
 #define BTRFS_FEATURE_INCOMPAT_MIXED_BACKREF	(1ULL << 0)
 #define BTRFS_FEATURE_INCOMPAT_DEFAULT_SUBVOL	(1ULL << 1)
 #define BTRFS_FEATURE_INCOMPAT_MIXED_GROUPS	(1ULL << 2)
@@ -354,6 +358,112 @@ struct btrfs_ioctl_feature_flags {
 	__u64 compat_ro_flags;
 	__u64 incompat_flags;
 };
+
+#ifdef MY_ABC_HERE
+#define BTRFS_LOCKER_CLOCK		(1ULL << 0)
+#define BTRFS_LOCKER_CLOCK_DELTA        (1ULL << 1)
+#define BTRFS_LOCKER_ENABLED		(1ULL << 2)
+#define BTRFS_LOCKER_MODE		(1ULL << 3)
+#define BTRFS_LOCKER_DEFAULT_STATE	(1ULL << 4)
+#define BTRFS_LOCKER_WAITTIME		(1ULL << 5)
+#define BTRFS_LOCKER_DURATION		(1ULL << 6)
+#define BTRFS_LOCKER_CLOCK_ADJUSTMENT	(1ULL << 7)
+#define BTRFS_LOCKER_UPDATE_TIME_FLOOR	(1ULL << 8)
+#define BTRFS_LOCKER_LOCKABLE		(1ULL << 9)
+#define BTRFS_LOCKER_STATE		(1ULL << 10)
+#define BTRFS_LOCKER_RAW_STATE		(1ULL << 11)
+#define BTRFS_LOCKER_UPDATE_TIME	(1ULL << 12)
+#define BTRFS_LOCKER_BEGIN		(1ULL << 13)
+#define BTRFS_LOCKER_END		(1ULL << 14)
+#define BTRFS_LOCKER_END_EXT_BEGIN	(1ULL << 15)
+#define BTRFS_LOCKER_END_EXT_END	(1ULL << 16)
+#define BTRFS_LOCKER_END_EXT_CURRENT	(1ULL << 17)
+
+#define BTRFS_LOCKER_FS_PROP_MASK	(\
+	BTRFS_LOCKER_CLOCK		|\
+	BTRFS_LOCKER_CLOCK_DELTA	 \
+)
+
+#define BTRFS_LOCKER_ROOT_PROP_MASK	(\
+	BTRFS_LOCKER_ENABLED		|\
+	BTRFS_LOCKER_MODE		|\
+	BTRFS_LOCKER_DEFAULT_STATE	|\
+	BTRFS_LOCKER_WAITTIME		|\
+	BTRFS_LOCKER_DURATION		|\
+	BTRFS_LOCKER_CLOCK_ADJUSTMENT	|\
+	BTRFS_LOCKER_UPDATE_TIME_FLOOR	 \
+)
+
+#define BTRFS_LOCKER_PERIOD_MASK        (\
+	BTRFS_LOCKER_BEGIN		|\
+	BTRFS_LOCKER_END		|\
+	BTRFS_LOCKER_END_EXT_BEGIN	|\
+	BTRFS_LOCKER_END_EXT_END	|\
+	BTRFS_LOCKER_END_EXT_CURRENT	 \
+)
+
+#define BTRFS_LOCKER_INODE_PROP_MASK	(\
+	BTRFS_LOCKER_LOCKABLE		|\
+	BTRFS_LOCKER_STATE		|\
+	BTRFS_LOCKER_RAW_STATE		|\
+	BTRFS_LOCKER_UPDATE_TIME	|\
+	BTRFS_LOCKER_PERIOD_MASK	 \
+)
+
+#define BTRFS_LOCKER_MASK_ALL		(\
+	BTRFS_LOCKER_FS_PROP_MASK	|\
+	BTRFS_LOCKER_ROOT_PROP_MASK	|\
+	BTRFS_LOCKER_INODE_PROP_MASK	 \
+)
+
+struct btrfs_ioctl_syno_locker_args {
+	__u64 flags;
+
+	/* volume properties */
+	__s64 clock;			//  0: [out] epoch time from 1970/01/01
+	__s64 clock_delta;		//  1: [out] delta = system_clock - volume_clock
+
+	/* subvolume properties */
+	__u16 enabled;			//  2: [in/out]
+	__u16 mode;			//  3: [in/out]
+	__u16 default_state;		//  4: [in/out]
+	__u16 reserved1;
+
+	__s64 waittime;			//  5: [in/out] seconds
+	__s64 duration;			//  6: [in/out] seconds
+	__s64 clock_adjustment;		//  7: [in/out] seconds
+	__s64 update_time_floor;	//  8: [out] epoch time in volume clock
+
+	/* inode properties */
+	__u16 lockable;			//  9: [out]
+	__u16 state;			// 10: [in/out]
+	__u16 raw_state;		// 11: [out]
+	__u16 reserved2;
+
+	__s64 update_time;		// 12: [in/out] epoch time in volume clock
+	__s64 period_begin;		// 13: [in/out] epoch time in volume clock
+	__s64 period_end;		// 14: [in/out] epoch time in volume clock
+
+	__s64 update_time_sys;		// 15: [out] epoch time in system clock
+	__s64 period_begin_sys;		// 16: [out] epoch time in system clock
+	__s64 period_end_sys;		// 17: [out] epoch time in system clock
+
+	/*
+	 * The following flags control the behavior of setting period_end in volume clock.
+	 *
+	 *  BTRFS_LOCKER_END:
+	 *     new period_end = args.period_end as epoch time
+	 *  BTRFS_LOCKER_END_EXT_BEGIN:
+	 *     new period_end = current period_begin + args.period_end
+	 *  BTRFS_LOCKER_END_EXT_END
+	 *     new period_end = current period_end + args.period_end
+	 *  BTRFS_LOCKER_END_EXT_CURRENT
+	 *     new period_end = current volume_clock + args.period_end
+	 */
+
+	__u64 reserved[5];
+};
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 struct btrfs_ioctl_syno_flags {
@@ -501,12 +611,13 @@ struct btrfs_ioctl_balance_args {
 
 	struct btrfs_balance_progress stat;	/* out */
 
-#ifdef MY_ABC_HERE
-	__u64 unused[71];			/* pad to 1k */
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	__u64 unused[70];			/* pad to 1k */
+	__u64 key_offset;				/* out */ /* for quick balance */
 	__u64 total_chunk_used;			/* out */ /* for dry run */
 #else
 	__u64 unused[72];			/* pad to 1k */
-#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 };
 
 #define BTRFS_INO_LOOKUP_PATH_MAX 4080
@@ -645,6 +756,10 @@ struct btrfs_ioctl_clone_range_args {
 #define BTRFS_CLONE_RANGE_V2_AUTO_REWRITE_SRC (1 << 0)
 #define BTRFS_CLONE_RANGE_V2_AUTO_REWRITE_DST (1 << 1)
 
+#ifdef MY_ABC_HERE
+#define BTRFS_CLONE_RANGE_V2_SKIP_CHECK_COMPR_DIR (1 << 2)
+#endif /* MY_ABC_HERE */
+
 struct btrfs_ioctl_syno_clone_range_args_v2 {
 	__s64 src_fd;
 	/*
@@ -680,6 +795,8 @@ struct btrfs_ioctl_syno_clone_range_args_v2 {
 #define BTRFS_DEFRAG_RANGE_PRINT_STDOUT (1ULL << 3)
 #define BTRFS_DEFRAG_RANGE_SKIP_FAST_SNAPSHOT_CHECK  (1ULL << 4)
 #define BTRFS_DEFRAG_RANGE_START_IO_RANGE  (1ULL << 5)
+#define BTRFS_DEFRAG_RANGE_FORCE_RECLAIM  (1ULL << 6)
+#define BTRFS_DEFRAG_RANGE_SKIP_CROSS_REF_CHECK  (1ULL << 7)
 #endif /* MY_ABC_HERE */
 struct btrfs_ioctl_defrag_range_args {
 	/* start of the defrag operation */
@@ -764,6 +881,9 @@ enum btrfs_ioctl_syno_dedupe_cmd_action {
 	DEDUPE_CMD_CLEAR,
 	DEDUPE_CMD_SET_NODEDUPE,
 	DEDUPE_CMD_CLEAR_NODEDUPE,
+	DEDUPE_CMD_SET_SMALL_EXTENT_SIZE,
+	DEDUPE_CMD_SET_INLINE_DEDUPE,
+	DEDUPE_CMD_CLEAR_INLINE_DEDUPE,
 	DEDUPE_CMD_MAX
 };
 
@@ -1592,6 +1712,11 @@ int btrfs_list_hardlinks(struct btrfs_list_hardlinks_args *args);
 				struct btrfs_ioctl_vol_args_v2)
 
 #ifdef MY_ABC_HERE
+#define BTRFS_IOC_SYNO_LOCKER_GET _IOR(BTRFS_IOCTL_MAGIC, 232, struct btrfs_ioctl_syno_locker_args)
+#define BTRFS_IOC_SYNO_LOCKER_SET _IOW(BTRFS_IOCTL_MAGIC, 233, struct btrfs_ioctl_syno_locker_args)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 #define BTRFS_IOC_GET_SYNO_FLAGS _IOR(BTRFS_IOCTL_MAGIC, 234, \
 				struct btrfs_ioctl_syno_flags)
 #define BTRFS_IOC_SET_SYNO_FLAGS _IOW(BTRFS_IOCTL_MAGIC, 234, \
@@ -1679,4 +1804,25 @@ int btrfs_list_hardlinks(struct btrfs_list_hardlinks_args *args);
 #define BTRFS_IOC_SYNO_QUOTA_RESCAN _IOW(BTRFS_IOCTL_MAGIC, 255, \
 			       struct btrfs_ioctl_syno_quota_rescan_args)
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+enum {
+	QGROUP_NL_C_UNSPEC,
+	QGROUP_NL_C_OVER_LIMIT,
+	QGROUP_NL_C_UNDER_LIMIT,
+	__QGROUP_NL_C_MAX,
+};
+#define QGROUP_NL_C_MAX (__QGROUP_NL_C_MAX - 1)
+
+enum {
+	QGROUP_NL_A_FSID,
+	QGROUP_NL_A_SUBVOL_ID,
+	QGROUP_NL_A_QUOTA_LIMIT,
+	QGROUP_NL_A_QUOTA_USED,
+	QGROUP_NL_A_PAD,
+	__QGROUP_NL_A_MAX,
+};
+#define QGROUP_NL_A_MAX (__QGROUP_NL_A_MAX - 1)
+#endif /* MY_ABC_HERE */
+
 #endif /* _UAPI_LINUX_BTRFS_H */

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2021 Synology Inc.  All rights reserved.
  *
@@ -537,6 +540,14 @@ prepare_snapshot_size_ctx(struct btrfs_fs_info *fs_info,
 			ret = -EAGAIN;
 			goto out;
 		}
+#ifdef MY_ABC_HERE
+		if (snap_root->syno_orphan_cleanup.cleanup_in_progress) {
+			spin_unlock(&snap_root->root_item_lock);
+			btrfs_put_root(snap_root);
+			ret = -EAGAIN;
+			goto out;
+		}
+#endif /* MY_ABC_HERE */
 		snap_root->send_in_progress++;
 		spin_unlock(&snap_root->root_item_lock);
 

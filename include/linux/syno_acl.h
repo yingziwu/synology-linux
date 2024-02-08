@@ -100,6 +100,7 @@ static inline void set_cached_syno_acl(struct inode *inode, struct syno_acl *acl
 		syno_acl_release(old);
 }
 
+extern void forget_cached_syno_acl(struct inode *inode);
 extern bool syno_acl_module_get(void);
 extern void syno_acl_module_put(void);
 
@@ -126,4 +127,6 @@ extern int synoacl_mod_acl_xattr_get(struct dentry *, int, void *, size_t);
 extern void synoacl_mod_to_mode(struct dentry *, struct kstat *);
 extern int synoacl_mod_init(struct dentry *, struct inode *);
 
+extern struct syno_acl *syno_acl_from_disk(const void *value, size_t size);
+extern void * syno_acl_to_disk(const struct syno_acl *acl, size_t *size);
 #endif  /* _LINUX_SYNO_ACL_H */

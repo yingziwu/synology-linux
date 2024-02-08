@@ -33,6 +33,9 @@
 #include <linux/export.h>
 #include <linux/syscalls.h>
 #include <linux/uio.h>
+#ifdef MY_ABC_HERE
+#include <linux/fsnotify.h>
+#endif /* MY_ABC_HERE */
 #include <linux/security.h>
 #include <linux/gfp.h>
 #include <linux/socket.h>
@@ -1079,6 +1082,11 @@ long do_splice(struct file *in, loff_t *off_in, struct file *out,
 		ret = do_splice_from(ipipe, out, &offset, len, flags);
 		file_end_write(out);
 
+#ifdef MY_ABC_HERE
+		if (ret > 0)
+			fsnotify_modify(out);
+#endif /* MY_ABC_HERE */
+
 		if (!off_out)
 			out->f_pos = offset;
 		else
@@ -1115,6 +1123,11 @@ long do_splice(struct file *in, loff_t *off_in, struct file *out,
 		pipe_unlock(opipe);
 		if (ret > 0)
 			wakeup_pipe_readers(opipe);
+#ifdef MY_ABC_HERE
+		if (ret > 0)
+			fsnotify_access(in);
+#endif /* MY_ABC_HERE */
+
 		if (!off_in)
 			in->f_pos = offset;
 		else
