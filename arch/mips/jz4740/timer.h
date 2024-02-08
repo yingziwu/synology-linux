@@ -86,7 +86,6 @@ static inline void jz4740_timer_disable(unsigned int timer)
 	writeb(BIT(timer), jz4740_timer_base + JZ_REG_TIMER_ENABLE_CLEAR);
 }
 
-
 static inline void jz4740_timer_set_period(unsigned int timer, uint16_t period)
 {
 	writew(period, jz4740_timer_base + JZ_REG_TIMER_DFR(timer));

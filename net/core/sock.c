@@ -280,7 +280,6 @@ static void sock_disable_timestamp(struct sock *sk, int flag)
 	}
 }
 
-
 int sock_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 {
 	int err;
@@ -526,23 +525,15 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
 		break;
 	case SO_SNDBUF:
 		/* Don't error on this BSD doesn't and if you think
-		   about it this is right. Otherwise apps have to
-		   play 'guess the biggest size' games. RCVBUF/SNDBUF
-		   are treated in BSD as hints */
-
-		if (val > sysctl_wmem_max)
-			val = sysctl_wmem_max;
+		 * about it this is right. Otherwise apps have to
+		 * play 'guess the biggest size' games. RCVBUF/SNDBUF
+		 * are treated in BSD as hints
+		 */
+		val = min_t(u32, val, sysctl_wmem_max);
 set_sndbuf:
 		sk->sk_userlocks |= SOCK_SNDBUF_LOCK;
-		if ((val * 2) < SOCK_MIN_SNDBUF)
-			sk->sk_sndbuf = SOCK_MIN_SNDBUF;
-		else
-			sk->sk_sndbuf = val * 2;
-
-		/*
-		 *	Wake up sending tasks if we
-		 *	upped the value.
-		 */
+		sk->sk_sndbuf = max_t(int, val * 2, SOCK_MIN_SNDBUF);
+		/* Wake up sending tasks if we upped the value. */
 		sk->sk_write_space(sk);
 		break;
 
@@ -555,12 +546,11 @@ set_sndbuf:
 
 	case SO_RCVBUF:
 		/* Don't error on this BSD doesn't and if you think
-		   about it this is right. Otherwise apps have to
-		   play 'guess the biggest size' games. RCVBUF/SNDBUF
-		   are treated in BSD as hints */
-
-		if (val > sysctl_rmem_max)
-			val = sysctl_rmem_max;
+		 * about it this is right. Otherwise apps have to
+		 * play 'guess the biggest size' games. RCVBUF/SNDBUF
+		 * are treated in BSD as hints
+		 */
+		val = min_t(u32, val, sysctl_rmem_max);
 set_rcvbuf:
 		sk->sk_userlocks |= SOCK_RCVBUF_LOCK;
 		/*
@@ -578,10 +568,7 @@ set_rcvbuf:
 		 * returning the value we actually used in getsockopt
 		 * is the most desirable behavior.
 		 */
-		if ((val * 2) < SOCK_MIN_RCVBUF)
-			sk->sk_rcvbuf = SOCK_MIN_RCVBUF;
-		else
-			sk->sk_rcvbuf = val * 2;
+		sk->sk_rcvbuf = max_t(int, val * 2, SOCK_MIN_RCVBUF);
 		break;
 
 	case SO_RCVBUFFORCE:
@@ -746,7 +733,6 @@ set_rcvbuf:
 }
 EXPORT_SYMBOL(sock_setsockopt);
 
-
 void cred_to_ucred(struct pid *pid, const struct cred *cred,
 		   struct ucred *ucred)
 {
@@ -760,6 +746,20 @@ void cred_to_ucred(struct pid *pid, const struct cred *cred,
 	}
 }
 EXPORT_SYMBOL_GPL(cred_to_ucred);
+
+void cred_real_to_ucred(struct pid *pid, const struct cred *cred,
+			struct ucred *ucred)
+{
+	ucred->pid = pid_vnr(pid);
+	ucred->uid = ucred->gid = -1;
+	if (cred) {
+		struct user_namespace *current_ns = current_user_ns();
+
+		ucred->uid = user_ns_map_uid(current_ns, cred, cred->uid);
+		ucred->gid = user_ns_map_gid(current_ns, cred, cred->gid);
+	}
+}
+EXPORT_SYMBOL_GPL(cred_real_to_ucred);
 
 int sock_getsockopt(struct socket *sock, int level, int optname,
 		    char __user *optval, int __user *optlen)
@@ -909,7 +909,7 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
 		break;
 
 	case SO_PASSCRED:
-		v.val = test_bit(SOCK_PASSCRED, &sock->flags) ? 1 : 0;
+		v.val = !!test_bit(SOCK_PASSCRED, &sock->flags);
 		break;
 
 	case SO_PEERCRED:
@@ -944,7 +944,7 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
 		break;
 
 	case SO_PASSSEC:
-		v.val = test_bit(SOCK_PASSSEC, &sock->flags) ? 1 : 0;
+		v.val = !!test_bit(SOCK_PASSSEC, &sock->flags);
 		break;
 
 	case SO_PEERSEC:
@@ -1332,7 +1332,6 @@ void __init sk_init(void)
  *	Simple resource managers for sockets.
  */
 
-
 /*
  * Write buffer destructor automatically called from kfree_skb.
  */
@@ -1372,6 +1371,11 @@ void sock_rfree(struct sk_buff *skb)
 }
 EXPORT_SYMBOL(sock_rfree);
 
+void sock_efree(struct sk_buff *skb)
+{
+	sock_put(skb->sk);
+}
+EXPORT_SYMBOL(sock_efree);
 
 int sock_i_uid(struct sock *sk)
 {
@@ -1485,7 +1489,6 @@ static long sock_wait_for_wmem(struct sock *sk, long timeo)
 	finish_wait(sk_sleep(sk), &wait);
 	return timeo;
 }
-
 
 /*
  *	Generic send/receive buffer handlers
@@ -1762,7 +1765,6 @@ void __sk_mem_reclaim(struct sock *sk)
 		*prot->memory_pressure = 0;
 }
 EXPORT_SYMBOL(__sk_mem_reclaim);
-
 
 /*
  * Set of default routines for initialising struct proto_ops when
@@ -2560,7 +2562,6 @@ static __net_exit void proto_exit_net(struct net *net)
 {
 	proc_net_remove(net, "protocols");
 }
-
 
 static __net_initdata struct pernet_operations proto_net_ops = {
 	.init = proto_init_net,

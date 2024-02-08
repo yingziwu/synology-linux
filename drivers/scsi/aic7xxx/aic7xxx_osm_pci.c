@@ -36,7 +36,7 @@
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
  *
- * $Id: //depot/aic7xxx/linux/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c#47 $
+ * $Id: aic7xxx_osm_pci.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  */
 
 #include "aic7xxx_osm.h"
@@ -319,7 +319,6 @@ ahc_pci_write_config(ahc_dev_softc_t pci, int reg, uint32_t value, int width)
 	}
 }
 
-
 static struct pci_driver aic7xxx_pci_driver = {
 	.name		= "aic7xxx",
 	.probe		= ahc_linux_pci_dev_probe,
@@ -468,4 +467,3 @@ ahc_pci_map_int(struct ahc_softc *ahc)
 	
 	return (-error);
 }
-

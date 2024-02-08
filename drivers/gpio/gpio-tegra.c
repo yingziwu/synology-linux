@@ -74,7 +74,6 @@ struct tegra_gpio_bank {
 #endif
 };
 
-
 static void __iomem *regs;
 static struct tegra_gpio_bank tegra_gpio_banks[7];
 
@@ -328,7 +327,6 @@ static struct irq_chip tegra_gpio_irq_chip = {
 	.irq_set_wake	= tegra_gpio_wake_enable,
 #endif
 };
-
 
 /* This lock class tells lockdep that GPIO irqs are in a different
  * category than their parents, so it won't report false recursion.

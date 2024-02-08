@@ -53,7 +53,7 @@
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
  *
- * $Id: //depot/aic7xxx/linux/drivers/scsi/aic7xxx/aic7xxx_osm.h#151 $
+ * $Id: aic7xxx_osm.h,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  */
 #ifndef _AIC7XXX_LINUX_H_
@@ -369,7 +369,6 @@ struct ahc_platform_data {
 };
 
 void ahc_delay(long);
-
 
 /***************************** Low Level I/O **********************************/
 uint8_t ahc_inb(struct ahc_softc * ahc, long port);

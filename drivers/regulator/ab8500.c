@@ -554,7 +554,6 @@ static struct ab8500_regulator_info
 		.update_val_enable	= 0x04,
 	},
 
-
 };
 
 struct ab8500_reg_init {

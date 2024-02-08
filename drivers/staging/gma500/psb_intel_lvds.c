@@ -61,7 +61,6 @@ struct psb_intel_lvds_priv {
 	uint32_t saveBLC_PWM_CTL;
 };
 
-
 /*
  * Returns the maximum level of the backlight duty cycle field.
  */
@@ -132,7 +131,6 @@ static int psb_lvds_i2c_set_brightness(struct drm_device *dev,
 	dev_err(dev->dev, "I2C transfer error\n");
 	return -1;
 }
-
 
 static int psb_lvds_pwm_set_brightness(struct drm_device *dev, int level)
 {
@@ -673,7 +671,6 @@ const struct drm_connector_funcs psb_intel_lvds_connector_funcs = {
 	.destroy = psb_intel_lvds_destroy,
 };
 
-
 static void psb_intel_lvds_enc_destroy(struct drm_encoder *encoder)
 {
 	drm_encoder_cleanup(encoder);
@@ -682,8 +679,6 @@ static void psb_intel_lvds_enc_destroy(struct drm_encoder *encoder)
 const struct drm_encoder_funcs psb_intel_lvds_enc_funcs = {
 	.destroy = psb_intel_lvds_enc_destroy,
 };
-
-
 
 /**
  * psb_intel_lvds_init - setup LVDS connectors on this device
@@ -851,4 +846,3 @@ failed_blc_i2c:
 	drm_connector_cleanup(connector);
 	kfree(connector);
 }
-

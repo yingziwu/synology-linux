@@ -218,7 +218,6 @@ static void powermate_pulse_led(struct powermate_device *pm, int static_brightne
 	pulse_asleep = !!pulse_asleep;
 	pulse_awake = !!pulse_awake;
 
-
 	spin_lock_irqsave(&pm->lock, flags);
 
 	/* mark state updates which are required */
@@ -304,6 +303,9 @@ static int powermate_probe(struct usb_interface *intf, const struct usb_device_i
 	int error = -ENOMEM;
 
 	interface = intf->cur_altsetting;
+	if (interface->desc.bNumEndpoints < 1)
+		return -EINVAL;
+
 	endpoint = &interface->endpoint[0].desc;
 	if (!usb_endpoint_is_int_in(endpoint))
 		return -EIO;
@@ -389,7 +391,6 @@ static int powermate_probe(struct usb_interface *intf, const struct usb_device_i
 	error = input_register_device(pm->input);
 	if (error)
 		goto fail5;
-
 
 	/* force an update of everything */
 	pm->requires_update = UPDATE_PULSE_ASLEEP | UPDATE_PULSE_AWAKE | UPDATE_PULSE_MODE | UPDATE_STATIC_BRIGHTNESS;

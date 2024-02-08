@@ -45,7 +45,6 @@ static inline
 int msm_dmov_exec_cmd(unsigned id, unsigned int cmdptr) { return -EIO; }
 #endif
 
-
 #define DMOV_SD0(off, ch) (MSM_DMOV_BASE + 0x0000 + (off) + ((ch) << 2))
 #define DMOV_SD1(off, ch) (MSM_DMOV_BASE + 0x0400 + (off) + ((ch) << 2))
 #define DMOV_SD2(off, ch) (MSM_DMOV_BASE + 0x0800 + (off) + ((ch) << 2))
@@ -110,7 +109,6 @@ int msm_dmov_exec_cmd(unsigned id, unsigned int cmdptr) { return -EIO; }
 
 /* no client rate control ifc (eg, ram) */
 #define DMOV_NONE_CRCI        0
-
 
 /* If the CMD_PTR register has CMD_PTR_LIST selected, the data mover
  * is going to walk a list of 32bit pointers as described below.  Each

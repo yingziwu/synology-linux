@@ -24,11 +24,9 @@ DEFINE_PER_CPU(struct bnx2fc_percpu_s, bnx2fc_percpu);
 #define DRV_MODULE_VERSION	BNX2FC_VERSION
 #define DRV_MODULE_RELDATE	"Oct 21, 2011"
 
-
 static char version[] __devinitdata =
 		"Broadcom NetXtreme II FCoE Driver " DRV_MODULE_NAME \
 		" v" DRV_MODULE_VERSION " (" DRV_MODULE_RELDATE ")\n";
-
 
 MODULE_AUTHOR("Bhanu Prakash Gollapudi <bprakash@broadcom.com>");
 MODULE_DESCRIPTION("Broadcom NetXtreme II BCM57710 FCoE Driver");
@@ -475,7 +473,6 @@ static int bnx2fc_l2_rcv_thread(void *arg)
 	__set_current_state(TASK_RUNNING);
 	return 0;
 }
-
 
 static void bnx2fc_recv_frame(struct sk_buff *skb)
 {
@@ -1145,7 +1142,6 @@ static int bnx2fc_vport_disable(struct fc_vport *vport, bool disable)
 	return 0;
 }
 
-
 static int bnx2fc_interface_setup(struct bnx2fc_interface *interface)
 {
 	struct net_device *netdev = interface->netdev;
@@ -1549,7 +1545,6 @@ static int bnx2fc_destroy(struct net_device *netdev)
 		goto netdev_err;
 	}
 
-
 	destroy_workqueue(interface->timer_work_queue);
 	__bnx2fc_destroy(interface);
 
@@ -1620,8 +1615,6 @@ static void bnx2fc_unbind_pcidev(struct bnx2fc_hba *hba)
 		pci_dev_put(hba->pcidev);
 	hba->pcidev = NULL;
 }
-
-
 
 /**
  * bnx2fc_ulp_start - cnic callback to initialize & start adapter instance
@@ -1724,7 +1717,6 @@ static int bnx2fc_fw_init(struct bnx2fc_hba *hba)
 		rc = -1;
 		goto err_unbind;
 	}
-
 
 	set_bit(BNX2FC_FLAG_FW_INIT_DONE, &hba->flags);
 	return 0;
@@ -1834,7 +1826,6 @@ static void bnx2fc_start_disc(struct bnx2fc_interface *interface)
 	fc_fabric_login(lport);
 }
 
-
 /**
  * bnx2fc_ulp_init - Initialize an adapter instance
  *
@@ -1879,7 +1870,6 @@ static void bnx2fc_ulp_init(struct cnic_dev *dev)
 		set_bit(BNX2FC_CNIC_REGISTERED, &hba->reg_with_cnic);
 }
 
-
 static int bnx2fc_disable(struct net_device *netdev)
 {
 	struct bnx2fc_interface *interface;
@@ -1902,7 +1892,6 @@ static int bnx2fc_disable(struct net_device *netdev)
 	rtnl_unlock();
 	return rc;
 }
-
 
 static int bnx2fc_enable(struct net_device *netdev)
 {
@@ -2168,7 +2157,6 @@ static int bnx2fc_fcoe_reset(struct Scsi_Host *shost)
 	return 0;
 }
 
-
 static bool bnx2fc_match(struct net_device *netdev)
 {
 	mutex_lock(&bnx2fc_dev_lock);
@@ -2183,7 +2171,6 @@ static bool bnx2fc_match(struct net_device *netdev)
 	mutex_unlock(&bnx2fc_dev_lock);
 	return false;
 }
-
 
 static struct fcoe_transport bnx2fc_transport = {
 	.name = {"bnx2fc"},
@@ -2233,7 +2220,6 @@ static void bnx2fc_percpu_thread_destroy(unsigned int cpu)
 	spin_lock_bh(&p->fp_work_lock);
 	thread = p->iothread;
 	p->iothread = NULL;
-
 
 	/* Free all work in the list */
 	list_for_each_entry_safe(work, tmp, &p->work_list, list) {

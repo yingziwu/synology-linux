@@ -625,7 +625,6 @@ int sb_dsp_detect(struct address_info *hw_config, int pci, int pciio, struct sb_
 	 * Save device information for sb_dsp_init()
 	 */
 
-
 	detected_devc = kmalloc(sizeof(sb_devc), GFP_KERNEL);
 	if (detected_devc == NULL)
 	{
@@ -1012,7 +1011,6 @@ static int smw_midi_init(sb_devc * devc, struct address_info *hw_config)
 	int mp_base = mpu_base + 4;		/* Microcontroller base */
 	int i;
 	unsigned char control;
-
 
 	/*
 	 *  Reset the microcontroller so that the RAM can be accessed

@@ -105,6 +105,7 @@ config I2C_I801
 	    Panther Point (PCH)
 	    Lynx Point (PCH)
 	    Lynx Point-LP (PCH)
+	    Avoton (SOC)
 
 	  This driver can also be built as a module.  If so, the module
 	  will be called i2c-i801.
@@ -310,6 +311,16 @@ config I2C_AU1550
 	  This driver can also be built as a module.  If so, the module
 	  will be called i2c-au1550.
 
+config I2C_COMCERTO
+	tristate "Comcerto I2C interface"
+	depends on I2C && (ARCH_COMCERTO) && SYNO_COMCERTO
+	help
+		If you say yes to this option, support will be included for the
+		Comcerto I2C interface.
+
+		This driver can also be built as a module.  If so, the module
+		will be called i2c-comcerto.
+
 config I2C_BLACKFIN_TWI
 	tristate "Blackfin TWI I2C support"
 	depends on BLACKFIN
@@ -463,13 +474,21 @@ config I2C_MPC
 
 config I2C_MV64XXX
 	tristate "Marvell mv64xxx I2C Controller"
-	depends on (MV64X60 || PLAT_ORION) && EXPERIMENTAL
+	depends on (MV64X60 || PLAT_ORION || MV88F6281 || PLAT_ARMADA) && EXPERIMENTAL
 	help
 	  If you say yes to this option, support will be included for the
 	  built-in I2C interface on the Marvell 64xxx line of host bridges.
 
 	  This driver can also be built as a module.  If so, the module
 	  will be called i2c-mv64xxx.
+
+config I2C_MV64XXX_BRIDGE
+	bool "Use Marvell mv64xxx I2C Transaction Generator"
+	depends on (I2C_MV64XXX && ARMADA_XP) && SYNO_ARMADA_ARCH_V2
+	default y
+	help
+	  Use I2C Transaction Generator to offload CPU from doing all
+	  I2C transfer stages step by step.
 
 config I2C_MXS
 	tristate "Freescale i.MX28 I2C interface"
@@ -565,6 +584,23 @@ config I2C_PUV3
 
 config I2C_PXA
 	tristate "Intel PXA2XX I2C adapter"
+	depends on ARCH_PXA || ARCH_MMP || (X86_32 && PCI)
+	depends on ARCH_GEN3
+	help
+	  If you have devices in the PXA I2C bus, say yes to this option.
+	  This driver can also be built as a module.  If so, the module
+	  will be called i2c-pxa.
+
+config I2C_PXA_PCI
+	tristate "Intel CE I2C PCI adapter"
+	depends on I2C_PXA && X86_32 && PCI
+	depends on ARCH_GEN3
+	help 
+	  This drivers supports the Intel CEXXXX I2C controller 
+
+config I2C_PXA
+	tristate "Intel PXA2XX I2C adapter"
+	depends on !ARCH_GEN3
 	depends on ARCH_PXA || ARCH_MMP || (X86_32 && PCI && OF)
 	help
 	  If you have devices in the PXA I2C bus, say yes to this option.
@@ -573,6 +609,7 @@ config I2C_PXA
 
 config I2C_PXA_PCI
 	def_bool I2C_PXA && X86_32 && PCI && OF
+	depends on !ARCH_GEN3
 
 config I2C_PXA_SLAVE
 	bool "Intel PXA2XX I2C Slave comms support"

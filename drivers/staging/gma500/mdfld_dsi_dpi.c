@@ -29,7 +29,6 @@
 #include "mdfld_output.h"
 #include "mdfld_dsi_pkg_sender.h"
 
-
 static void mdfld_wait_for_HS_DATA_FIFO(struct drm_device *dev, u32 pipe)
 {
 	u32 gen_fifo_stat_reg = MIPIA_GEN_FIFO_STAT_REG;
@@ -109,7 +108,6 @@ static void mdfld_wait_for_SPL_PKG_SENT(struct drm_device *dev, u32 pipe)
         if (timeout == 20000)
                 dev_warn(dev->dev, "MIPI: SPL_PKT_SENT_INTERRUPT was not sent successfully!\n");
 }
-
 
 /* ************************************************************************* *\
  * FUNCTION: mdfld_dsi_tpo_ic_init
@@ -376,7 +374,6 @@ void mdfld_dsi_dpi_controller_init(struct mdfld_dsi_config *dsi_config, int pipe
 	/*enable all interrupts*/
 	REG_WRITE((MIPIA_INTR_EN_REG + reg_offset), 0xffffffff);
 	
-
 	/*set up func_prg*/
 	val |= lane_count;
 	val |= dsi_config->channel_num << DSI_DPI_VIRT_CHANNEL_OFFSET;
@@ -703,7 +700,6 @@ void mdfld_dsi_dpi_mode_set(struct drm_encoder *encoder,
 	gma_power_end(dev);
 }
 
-
 /*
  * Init DSI DPI encoder. 
  * Allocate an mdfld_dsi_encoder and attach it to given @dsi_connector
@@ -802,4 +798,3 @@ struct mdfld_dsi_encoder *mdfld_dsi_dpi_init(struct drm_device *dev,
 	}
 	return &dpi_output->base;
 }
-

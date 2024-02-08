@@ -2444,7 +2444,6 @@ static int vwsnd_audio_do_ioctl(struct file *file,
 	unsigned long flags;
 	int ival;
 
-	
 	DBGEV("(file=0x%p, cmd=0x%x, arg=0x%lx)\n",
 	      file, cmd, arg);
 	switch (cmd) {

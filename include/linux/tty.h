@@ -34,6 +34,9 @@
 #define N_TI_WL		22	/* for TI's WL BT, FM, GPS combo chips */
 #define N_TRACESINK	23	/* Trace data routing for MIPI P1149.7 */
 #define N_TRACEROUTER	24	/* Trace data routing for MIPI P1149.7 */
+#ifdef CONFIG_ARCH_GEN3
+#define N_PIC		25	
+#endif
 
 #ifdef __KERNEL__
 #include <linux/fs.h>
@@ -45,7 +48,6 @@
 #include <linux/mutex.h>
 
 #include <asm/system.h>
-
 
 /*
  * (Note: the *_driver.minor_start values 1, 64, 128, 192 are
@@ -82,7 +84,6 @@ struct tty_buffer {
  */
 
 #define TTY_BUFFER_PAGE	(((PAGE_SIZE - sizeof(struct tty_buffer)) / 2) & ~0xFF)
-
 
 struct tty_bufhead {
 	struct work_struct work;
@@ -538,7 +539,6 @@ extern void tty_ldisc_begin(void);
 /* This last one is just for the tty layer internals and shouldn't be used elsewhere */
 extern void tty_ldisc_enable(struct tty_struct *tty);
 
-
 /* n_tty.c */
 extern struct tty_ldisc_ops tty_ldisc_N_TTY;
 extern void n_tty_inherit_ops(struct tty_ldisc_ops *ops);
@@ -665,7 +665,6 @@ do {									\
 	}								\
 	finish_wait(&wq, &__wait);					\
 } while (0)
-
 
 #endif /* __KERNEL__ */
 #endif

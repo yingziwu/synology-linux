@@ -64,7 +64,6 @@ static inline void s3c_irqsub_unmask(unsigned int irqno,
 	__raw_writel(mask, S3C2410_INTMSK);
 }
 
-
 static inline void s3c_irqsub_maskack(unsigned int irqno,
 				      unsigned int parentmask,
 				      unsigned int group)

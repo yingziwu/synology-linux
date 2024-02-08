@@ -81,7 +81,6 @@ static bool			sort_has_symbols;
 static bool			dont_use_callchains;
 static char			callchain_default_opt[]		= "fractal,0.5,callee";
 
-
 static int			default_interval		=      0;
 
 static bool			kptr_restrict_warned;

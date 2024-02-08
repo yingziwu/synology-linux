@@ -221,8 +221,6 @@ MODULE_PARM_DESC(linkdown_timeout,
  */
 static int link_transition_timeout;
 
-
-
 static u16 link_modes[] __devinitdata = {
 	BMCR_ANENABLE,			 /* 0 : autoneg */
 	0,				 /* 1 : 10bt half duplex */
@@ -671,7 +669,6 @@ static cas_page_t *cas_page_dequeue(struct cas *cp)
 	return list_entry(entry, cas_page_t, list);
 }
 
-
 static void cas_mif_poll(struct cas *cp, const int enable)
 {
 	u32 cfg;
@@ -874,7 +871,6 @@ static void cas_saturn_firmware_load(struct cas *cp)
 	cas_phy_write(cp, DP83065_MII_REGD, 0x1);
 }
 
-
 /* phy initialization */
 static void cas_phy_init(struct cas *cp)
 {
@@ -1003,7 +999,6 @@ static void cas_phy_init(struct cas *cp)
 		       cp->regs + REG_PCS_SERDES_CTRL);
 	}
 }
-
 
 static int cas_pcs_link_check(struct cas *cp)
 {
@@ -1576,7 +1571,6 @@ static int cas_mac_interrupt(struct net_device *dev, struct cas *cp,
 	return 0;
 }
 
-
 /* Must be invoked under cp->lock. */
 static inline int cas_mdio_link_not_up(struct cas *cp)
 {
@@ -1632,7 +1626,6 @@ static inline int cas_mdio_link_not_up(struct cas *cp)
 	}
 	return 0;
 }
-
 
 /* must be invoked with cp->lock held */
 static int cas_mii_link_check(struct cas *cp, const u16 bmsr)
@@ -1953,7 +1946,6 @@ static void cas_tx(struct net_device *dev, struct cas *cp,
 	}
 }
 
-
 static int cas_rx_process_pkt(struct cas *cp, struct cas_rx_comp *rxc,
 			      int entry, const u64 *words,
 			      struct sk_buff **skbref)
@@ -2004,7 +1996,6 @@ static int cas_rx_process_pkt(struct cas *cp, struct cas_rx_comp *rxc,
 		p += hlen;
 		swivel = 0;
 	}
-
 
 	if (alloclen < (hlen + dlen)) {
 		skb_frag_t *frag = skb_shinfo(skb)->frags;
@@ -2155,7 +2146,6 @@ end_copy_pkt:
 	return len;
 }
 
-
 /* we can handle up to 64 rx flows at a time. we do the same thing
  * as nonreassm except that we batch up the buffers.
  * NOTE: we currently just treat each flow as a bunch of packets that
@@ -2217,7 +2207,6 @@ static void cas_post_page(struct cas *cp, const int ring, const int index)
 		writel(entry, cp->regs + REG_PLUS_RX_KICK1);
 }
 
-
 /* only when things are bad */
 static int cas_post_rxds_ringN(struct cas *cp, int ring, int num)
 {
@@ -2278,7 +2267,6 @@ static int cas_post_rxds_ringN(struct cas *cp, int ring, int num)
 		writel(cluster, cp->regs + REG_PLUS_RX_KICK1);
 	return 0;
 }
-
 
 /* process a completion ring. packets are set up in three basic ways:
  * small packets: should be copied header + data in single buffer.
@@ -2406,7 +2394,6 @@ static int cas_rx_ringN(struct cas *cp, int ring, int budget)
 	return npackets;
 }
 
-
 /* put completion entries back on the ring */
 static void cas_post_rxcs_ringN(struct net_device *dev,
 				struct cas *cp, int ring)
@@ -2432,8 +2419,6 @@ static void cas_post_rxcs_ringN(struct net_device *dev,
 	else if (cp->cas_flags & CAS_FLAG_REG_PLUS)
 		writel(last, cp->regs + REG_PLUS_RX_COMPN_TAIL(ring));
 }
-
-
 
 /* cassini can use all four PCI interrupts for the completion ring.
  * rings 3 and 4 are identical
@@ -2582,7 +2567,6 @@ static irqreturn_t cas_interrupt(int irq, void *dev_id)
 	spin_unlock_irqrestore(&cp->lock, flags);
 	return IRQ_HANDLED;
 }
-
 
 #ifdef USE_NAPI
 static int cas_poll(struct napi_struct *napi, int budget)
@@ -2736,7 +2720,6 @@ static inline int cas_intme(int ring, int entry)
 		return 1;
 	return 0;
 }
-
 
 static void cas_write_txd(struct cas *cp, int ring, int entry,
 			  dma_addr_t mapping, int len, u64 ctrl, int last)
@@ -3019,7 +3002,6 @@ static void cas_clear_mac_err(struct cas *cp)
 	writel(0, cp->regs + REG_MAC_RX_CODE_ERR);
 }
 
-
 static void cas_mac_reset(struct cas *cp)
 {
 	int i;
@@ -3051,7 +3033,6 @@ static void cas_mac_reset(struct cas *cp)
 			   readl(cp->regs + REG_MAC_RX_RESET),
 			   readl(cp->regs + REG_MAC_STATE_MACHINE));
 }
-
 
 /* Must be invoked under cp->lock. */
 static void cas_init_mac(struct cas *cp)
@@ -3177,7 +3158,6 @@ static int cas_vpd_match(const void __iomem *p, const char *str)
 	}
 	return 1;
 }
-
 
 /* get the mac address by reading the vpd information in the rom.
  * also get the phy type and determine if there's an entropy generator.
@@ -3404,7 +3384,6 @@ static void cas_check_pci_invariants(struct cas *cp)
 			cp->cas_flags |= CAS_FLAG_SATURN;
 	}
 }
-
 
 static int cas_check_invariants(struct cas *cp)
 {
@@ -3752,7 +3731,6 @@ static void cas_hard_reset(struct cas *cp)
 	udelay(20);
 	pci_restore_state(cp->pdev);
 }
-
 
 static void cas_global_reset(struct cas *cp, int blkflag)
 {
@@ -4245,7 +4223,6 @@ static int cas_tx_tiny_alloc(struct cas *cp)
 	return 0;
 }
 
-
 static int cas_open(struct net_device *dev)
 {
 	struct cas *cp = netdev_priv(dev);
@@ -4489,7 +4466,6 @@ static struct net_device_stats *cas_get_stats(struct net_device *dev)
 	spin_unlock_irqrestore(&cp->stat_lock[N_TX_RINGS], flags);
 	return stats + N_TX_RINGS;
 }
-
 
 static void cas_set_multicast(struct net_device *dev)
 {
@@ -4997,7 +4973,6 @@ static int __devinit cas_init_one(struct pci_dev *pdev,
 	}
 #endif
 
-
 	/* Configure DMA attributes. */
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		pci_using_dac = 1;
@@ -5159,7 +5134,6 @@ err_out_iounmap:
 	mutex_unlock(&cp->pm_mutex);
 
 	pci_iounmap(pdev, cp->regs);
-
 
 err_out_free_res:
 	pci_release_regions(pdev);

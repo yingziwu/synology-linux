@@ -602,6 +602,7 @@ struct nfs_getaclargs {
 	size_t				acl_len;
 	unsigned int			acl_pgbase;
 	struct page **			acl_pages;
+	struct page *			acl_scratch;
 	struct nfs4_sequence_args 	seq_args;
 };
 
@@ -869,7 +870,6 @@ struct nfs4_link_res {
 	struct nfs_fattr *		dir_attr;
 	struct nfs4_sequence_res	seq_res;
 };
-
 
 struct nfs4_lookup_arg {
 	const struct nfs_fh *		dir_fh;

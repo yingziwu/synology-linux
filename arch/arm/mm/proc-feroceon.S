@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/mm/proc-feroceon.S: MMU functions for Feroceon
  *
@@ -116,11 +119,37 @@ ENTRY(cpu_feroceon_reset)
  *
  * Called with IRQs disabled
  */
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+#ifdef CONFIG_JTAG_DEBUG
+support_wait_for_interrupt_address:
+        .word   support_wait_for_interrupt
+#endif
+#endif
+
 	.align	5
 ENTRY(cpu_feroceon_do_idle)
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+#ifdef CONFIG_JTAG_DEBUG
+        ldr     r0, support_wait_for_interrupt_address
+        ldr     r0, [r0]
+        cmp     r0, #1    /* check if the device doesn't support wait for interrupt */
+        bne     1f        /* if yes, then go out */
+#endif
+#endif
 	mov	r0, #0
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+	mrc	p15, 0, r1, c1, c0, 0		@ Read control register
+#endif
 	mcr	p15, 0, r0, c7, c10, 4		@ Drain write buffer
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+	bic	r2, r1, #1 << 12
+	mcr	p15, 0, r2, c1, c0, 0		@ Disable I cache
+#endif
 	mcr	p15, 0, r0, c7, c0, 4		@ Wait for interrupt
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+	mcr	p15, 0, r1, c1, c0, 0		@ Restore ICache enable
+1:
+#endif
 	mov	pc, lr
 
 /*
@@ -411,6 +440,10 @@ ENTRY(feroceon_dma_unmap_area)
 	mov	pc, lr
 ENDPROC(feroceon_dma_unmap_area)
 
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+	.globl	feroceon_flush_kern_cache_louis
+	.equ	feroceon_flush_kern_cache_louis, feroceon_flush_kern_cache_all
+#endif
 	@ define struct cpu_cache_fns (see <asm/cacheflush.h> and proc-macros.S)
 	define_cache_functions feroceon
 
@@ -427,6 +460,9 @@ ENDPROC(feroceon_dma_unmap_area)
 	range_alias flush_icache_all
 	range_alias flush_user_cache_all
 	range_alias flush_kern_cache_all
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE) 
+	range_alias flush_kern_cache_louis
+#endif
 	range_alias flush_user_cache_range
 	range_alias coherent_kern_range
 	range_alias coherent_user_range

@@ -1,22 +1,7 @@
-/*
- * Copyright (C) 2003-2008 Takahiro Hirofuchi
- *
- * This is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
- * USA.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <asm/byteorder.h>
 #include <linux/file.h>
 #include <linux/fs.h>
@@ -37,7 +22,6 @@ unsigned long usbip_debug_flag;
 #endif
 EXPORT_SYMBOL_GPL(usbip_debug_flag);
 
-/* FIXME */
 struct device_attribute dev_attr_usbip_debug;
 EXPORT_SYMBOL_GPL(dev_attr_usbip_debug);
 
@@ -327,14 +311,13 @@ void usbip_dump_header(struct usbip_header *pdu)
 			 pdu->u.ret_unlink.status);
 		break;
 	default:
-		/* NOT REACHED */
+		 
 		pr_err("unknown command\n");
 		break;
 	}
 }
 EXPORT_SYMBOL_GPL(usbip_dump_header);
 
-/* Send/receive messages over TCP/IP. I refer drivers/block/nbd.c */
 int usbip_xmit(int send, struct socket *sock, char *buf, int size,
 	       int msg_flags)
 {
@@ -343,7 +326,6 @@ int usbip_xmit(int send, struct socket *sock, char *buf, int size,
 	struct kvec iov;
 	int total = 0;
 
-	/* for blocks of if (usbip_dbg_flag_xmit) */
 	char *bp = buf;
 	int osize = size;
 
@@ -445,7 +427,6 @@ struct socket *sockfd_to_socket(unsigned int sockfd)
 }
 EXPORT_SYMBOL_GPL(sockfd_to_socket);
 
-/* there may be more cases to tweak the flags. */
 static unsigned int tweak_transfer_flags(unsigned int flags)
 {
 	flags &= ~URB_NO_TRANSFER_DMA_MAP;
@@ -457,12 +438,8 @@ static void usbip_pack_cmd_submit(struct usbip_header *pdu, struct urb *urb,
 {
 	struct usbip_header_cmd_submit *spdu = &pdu->u.cmd_submit;
 
-	/*
-	 * Some members are not still implemented in usbip. I hope this issue
-	 * will be discussed when usbip is ported to other operating systems.
-	 */
 	if (pack) {
-		/* vhci_tx.c */
+		 
 		spdu->transfer_flags =
 			tweak_transfer_flags(urb->transfer_flags);
 		spdu->transfer_buffer_length	= urb->transfer_buffer_length;
@@ -470,7 +447,7 @@ static void usbip_pack_cmd_submit(struct usbip_header *pdu, struct urb *urb,
 		spdu->number_of_packets		= urb->number_of_packets;
 		spdu->interval			= urb->interval;
 	} else  {
-		/* stub_rx.c */
+		 
 		urb->transfer_flags         = spdu->transfer_flags;
 
 		urb->transfer_buffer_length = spdu->transfer_buffer_length;
@@ -486,16 +463,14 @@ static void usbip_pack_ret_submit(struct usbip_header *pdu, struct urb *urb,
 	struct usbip_header_ret_submit *rpdu = &pdu->u.ret_submit;
 
 	if (pack) {
-		/* stub_tx.c */
-
+		 
 		rpdu->status		= urb->status;
 		rpdu->actual_length	= urb->actual_length;
 		rpdu->start_frame	= urb->start_frame;
 		rpdu->number_of_packets = urb->number_of_packets;
 		rpdu->error_count	= urb->error_count;
 	} else {
-		/* vhci_rx.c */
-
+		 
 		urb->status		= rpdu->status;
 		urb->actual_length	= rpdu->actual_length;
 		urb->start_frame	= rpdu->start_frame;
@@ -515,7 +490,7 @@ void usbip_pack_pdu(struct usbip_header *pdu, struct urb *urb, int cmd,
 		usbip_pack_ret_submit(pdu, urb, pack);
 		break;
 	default:
-		/* NOT REACHED */
+		 
 		pr_err("unknown command\n");
 		break;
 	}
@@ -620,8 +595,17 @@ void usbip_header_correct_endian(struct usbip_header *pdu, int send)
 	case USBIP_RET_UNLINK:
 		correct_endian_ret_unlink(&pdu->u.ret_unlink, send);
 		break;
+#ifdef MY_ABC_HERE
+        case USBIP_RESET_DEV:
+        if(send) {
+            correct_endian_ret_submit(&pdu->u.ret_submit, send);
+        } else {
+            correct_endian_cmd_submit(&pdu->u.cmd_submit, send);
+        }
+        break;
+#endif
 	default:
-		/* NOT REACHED */
+		 
 		pr_err("unknown command\n");
 		break;
 	}
@@ -631,7 +615,7 @@ EXPORT_SYMBOL_GPL(usbip_header_correct_endian);
 static void usbip_iso_packet_correct_endian(
 		struct usbip_iso_packet_descriptor *iso, int send)
 {
-	/* does not need all members. but copy all simply. */
+	 
 	if (send) {
 		iso->offset	= cpu_to_be32(iso->offset);
 		iso->length	= cpu_to_be32(iso->length);
@@ -661,7 +645,6 @@ static void usbip_pack_iso(struct usbip_iso_packet_descriptor *iso,
 	}
 }
 
-/* must free buffer */
 void *usbip_alloc_iso_desc_pdu(struct urb *urb, ssize_t *bufflen)
 {
 	void *buff;
@@ -687,7 +670,6 @@ void *usbip_alloc_iso_desc_pdu(struct urb *urb, ssize_t *bufflen)
 }
 EXPORT_SYMBOL_GPL(usbip_alloc_iso_desc_pdu);
 
-/* some members of urb must be substituted before. */
 int usbip_recv_iso(struct usbip_device *ud, struct urb *urb)
 {
 	void *buff;
@@ -701,10 +683,8 @@ int usbip_recv_iso(struct usbip_device *ud, struct urb *urb)
 	if (!usb_pipeisoc(urb->pipe))
 		return 0;
 
-	/* my Bluetooth dongle gets ISO URBs which are np = 0 */
 	if (np == 0) {
-		/* pr_info("iso np == 0\n"); */
-		/* usbip_dump_urb(urb); */
+		 
 		return 0;
 	}
 
@@ -754,13 +734,6 @@ int usbip_recv_iso(struct usbip_device *ud, struct urb *urb)
 }
 EXPORT_SYMBOL_GPL(usbip_recv_iso);
 
-/*
- * This functions restores the padding which was removed for optimizing
- * the bandwidth during transfer over tcp/ip
- *
- * buffer and iso packets need to be stored and be in propeper endian in urb
- * before calling this function
- */
 void usbip_pad_iso(struct usbip_device *ud, struct urb *urb)
 {
 	int np = urb->number_of_packets;
@@ -770,21 +743,12 @@ void usbip_pad_iso(struct usbip_device *ud, struct urb *urb)
 	if (!usb_pipeisoc(urb->pipe))
 		return;
 
-	/* if no packets or length of data is 0, then nothing to unpack */
 	if (np == 0 || urb->actual_length == 0)
 		return;
 
-	/*
-	 * if actual_length is transfer_buffer_length then no padding is
-	 * present.
-	*/
 	if (urb->actual_length == urb->transfer_buffer_length)
 		return;
 
-	/*
-	 * loop over all packets from last to first (to prevent overwritting
-	 * memory when padding) and move them into the proper place
-	 */
 	for (i = np-1; i > 0; i--) {
 		actualoffset -= urb->iso_frame_desc[i].actual_length;
 		memmove(urb->transfer_buffer + urb->iso_frame_desc[i].offset,
@@ -794,31 +758,38 @@ void usbip_pad_iso(struct usbip_device *ud, struct urb *urb)
 }
 EXPORT_SYMBOL_GPL(usbip_pad_iso);
 
-/* some members of urb must be substituted before. */
 int usbip_recv_xbuff(struct usbip_device *ud, struct urb *urb)
 {
 	int ret;
 	int size;
 
 	if (ud->side == USBIP_STUB) {
-		/* stub_rx.c */
-		/* the direction of urb must be OUT. */
+		 
 		if (usb_pipein(urb->pipe))
 			return 0;
 
 		size = urb->transfer_buffer_length;
 	} else {
-		/* vhci_rx.c */
-		/* the direction of urb must be IN. */
+		 
 		if (usb_pipeout(urb->pipe))
 			return 0;
 
 		size = urb->actual_length;
 	}
 
-	/* no need to recv xbuff */
 	if (!(size > 0))
 		return 0;
+
+	if (size > urb->transfer_buffer_length) {
+		 
+		if (ud->side == USBIP_STUB) {
+			usbip_event_add(ud, SDEV_EVENT_ERROR_TCP);
+			return 0;
+		} else {
+			usbip_event_add(ud, VDEV_EVENT_ERROR_TCP);
+			return -EPIPE;
+		}
+	}
 
 	ret = usbip_xmit(0, ud->tcp_socket, (char *)urb->transfer_buffer,
 			 size, 0);

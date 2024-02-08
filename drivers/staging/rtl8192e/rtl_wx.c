@@ -40,7 +40,6 @@ static int r8192_wx_get_freq(struct net_device *dev,
 	return rtllib_wx_get_freq(priv->rtllib, a, wrqu, b);
 }
 
-
 static int r8192_wx_get_mode(struct net_device *dev, struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
 {
@@ -56,8 +55,6 @@ static int r8192_wx_get_rate(struct net_device *dev,
 	struct r8192_priv *priv = rtllib_priv(dev);
 	return rtllib_wx_get_rate(priv->rtllib, info, wrqu, extra);
 }
-
-
 
 static int r8192_wx_set_rate(struct net_device *dev,
 			     struct iw_request_info *info,
@@ -77,7 +74,6 @@ static int r8192_wx_set_rate(struct net_device *dev,
 
 	return ret;
 }
-
 
 static int r8192_wx_set_rts(struct net_device *dev,
 			     struct iw_request_info *info,
@@ -204,7 +200,6 @@ static int r8192_wx_get_adhoc_peers(struct net_device *dev,
 {
 	return 0;
 }
-
 
 static int r8191se_wx_get_firm_version(struct net_device *dev,
 		struct iw_request_info *info,
@@ -537,7 +532,6 @@ static int r8192_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 	return ret;
 }
 
-
 static int r8192_wx_get_scan(struct net_device *dev, struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
 {
@@ -550,7 +544,6 @@ static int r8192_wx_get_scan(struct net_device *dev, struct iw_request_info *a,
 
 	if (priv->bHwRadioOff == true)
 		return 0;
-
 
 	down(&priv->wx_sem);
 
@@ -657,7 +650,6 @@ static int r8192_wx_get_name(struct net_device *dev,
 	return rtllib_wx_get_name(priv->rtllib, info, wrqu, extra);
 }
 
-
 static int r8192_wx_set_frag(struct net_device *dev,
 			     struct iw_request_info *info,
 			     union iwreq_data *wrqu, char *extra)
@@ -680,7 +672,6 @@ static int r8192_wx_set_frag(struct net_device *dev,
 	return 0;
 }
 
-
 static int r8192_wx_get_frag(struct net_device *dev,
 			     struct iw_request_info *info,
 			     union iwreq_data *wrqu, char *extra)
@@ -693,7 +684,6 @@ static int r8192_wx_get_frag(struct net_device *dev,
 
 	return 0;
 }
-
 
 static int r8192_wx_set_wap(struct net_device *dev,
 			 struct iw_request_info *info,
@@ -721,7 +711,6 @@ static int r8192_wx_set_wap(struct net_device *dev,
 
 }
 
-
 static int r8192_wx_get_wap(struct net_device *dev,
 			    struct iw_request_info *info,
 			    union iwreq_data *wrqu, char *extra)
@@ -730,7 +719,6 @@ static int r8192_wx_get_wap(struct net_device *dev,
 
 	return rtllib_wx_get_wap(priv->rtllib, info, wrqu, extra);
 }
-
 
 static int r8192_wx_get_enc(struct net_device *dev,
 			    struct iw_request_info *info,
@@ -776,7 +764,6 @@ static int r8192_wx_set_enc(struct net_device *dev,
 	RT_TRACE(COMP_SEC, "Setting SW wep key");
 	ret = rtllib_wx_set_encode(priv->rtllib, info, wrqu, key);
 	up(&priv->wx_sem);
-
 
 	if (wrqu->encoding.flags & IW_ENCODE_DISABLED) {
 		ieee->pairwise_key_type = ieee->group_key_type = KEY_TYPE_NA;
@@ -858,8 +845,6 @@ static int r8192_wx_set_scan_type(struct net_device *dev,
 	return 1;
 }
 
-
-
 #define R8192_MAX_RETRY 255
 static int r8192_wx_set_retry(struct net_device *dev,
 				struct iw_request_info *info,
@@ -898,7 +883,6 @@ static int r8192_wx_set_retry(struct net_device *dev,
 		      wrqu->retry.value);
 	}
 
-
 	rtl8192_commit(dev);
 exit:
 	up(&priv->wx_sem);
@@ -911,7 +895,6 @@ static int r8192_wx_get_retry(struct net_device *dev,
 				union iwreq_data *wrqu, char *extra)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
-
 
 	wrqu->retry.disabled = 0; /* can't be disabled */
 
@@ -939,7 +922,6 @@ static int r8192_wx_get_sens(struct net_device *dev,
 	wrqu->sens.value = priv->sens;
 	return 0;
 }
-
 
 static int r8192_wx_set_sens(struct net_device *dev,
 				struct iw_request_info *info,
@@ -1039,7 +1021,6 @@ static int r8192_wx_set_enc_ext(struct net_device *dev,
 			set_swcam(dev, 4, idx, alg, (u8 *)ieee->ap_mac_addr,
 				  0, key, 0);
 		}
-
 
 	}
 
@@ -1155,7 +1136,6 @@ static int r8192_wx_set_PromiscuousMode(struct net_device *dev,
 	return 0;
 }
 
-
 static int r8192_wx_get_PromiscuousMode(struct net_device *dev,
 			       struct iw_request_info *info,
 			       union iwreq_data *wrqu, char *extra)
@@ -1174,7 +1154,6 @@ static int r8192_wx_get_PromiscuousMode(struct net_device *dev,
 
 	return 0;
 }
-
 
 #define IW_IOCTL(x) [(x)-SIOCSIWCOMMIT]
 static iw_handler r8192_wx_handlers[] = {

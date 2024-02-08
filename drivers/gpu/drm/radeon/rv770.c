@@ -208,7 +208,6 @@ void rv770_pcie_gart_fini(struct radeon_device *rdev)
 	radeon_gart_table_vram_free(rdev);
 }
 
-
 void rv770_agp_enable(struct radeon_device *rdev)
 {
 	u32 tmp;
@@ -306,7 +305,6 @@ static void rv770_mc_program(struct radeon_device *rdev)
 	 * to stop it overwriting our objects */
 	rv515_vga_render_disable(rdev);
 }
-
 
 /*
  * CP.

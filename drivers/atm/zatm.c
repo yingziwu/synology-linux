@@ -2,7 +2,6 @@
  
 /* Written 1995-2000 by Werner Almesberger, EPFL LRC/ICA */
 
-
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
@@ -35,7 +34,6 @@
 #include "zeprom.h"
 #include "zatm.h"
 
-
 /*
  * TODO:
  *
@@ -57,19 +55,15 @@
 
 #ifndef CONFIG_ATM_ZATM_DEBUG
 
-
 #define NULLCHECK(x)
 
 #define EVENT(s,a,b)
-
 
 static void event_dump(void)
 {
 }
 
-
 #else
-
 
 /* 
  * NULL pointer checking
@@ -89,7 +83,6 @@ static const char *ev[EV];
 static unsigned long ev_a[EV],ev_b[EV];
 static int ec = 0;
 
-
 static void EVENT(const char *s,unsigned long a,unsigned long b)
 {
 	ev[ec] = s; 
@@ -97,7 +90,6 @@ static void EVENT(const char *s,unsigned long a,unsigned long b)
 	ev_b[ec] = b;
 	ec = (ec+1) % EV;
 }
-
 
 static void event_dump(void)
 {
@@ -112,16 +104,13 @@ static void event_dump(void)
 	printk(KERN_NOTICE "----- event dump ends here -----\n");
 }
 
-
 #endif /* CONFIG_ATM_ZATM_DEBUG */
-
 
 #define RING_BUSY	1	/* indication from do_tx that PDU has to be
 				   backlogged */
 
 static struct atm_dev *zatm_boards = NULL;
 static unsigned long dummy[2] = {0,0};
-
 
 #define zin_n(r) inl(zatm_dev->base+r*4)
 #define zin(r) inl(zatm_dev->base+uPD98401_##r*4)
@@ -134,9 +123,7 @@ static const int mbx_esize[NR_MBX] = { 16,16,4,4 }; /* entry size in bytes */
 
 #define MBX_SIZE(i) (mbx_entries[i]*mbx_esize[i])
 
-
 /*-------------------------------- utilities --------------------------------*/
-
 
 static void zpokel(struct zatm_dev *zatm_dev,u32 value,u32 addr)
 {
@@ -145,7 +132,6 @@ static void zpokel(struct zatm_dev *zatm_dev,u32 value,u32 addr)
 	zout(uPD98401_IND_ACC | uPD98401_IA_BALL |
 	    (uPD98401_IA_TGT_CM << uPD98401_IA_TGT_SHIFT) | addr,CMR);
 }
-
 
 static u32 zpeekl(struct zatm_dev *zatm_dev,u32 addr)
 {
@@ -156,9 +142,7 @@ static u32 zpeekl(struct zatm_dev *zatm_dev,u32 addr)
 	return zin(CER);
 }
 
-
 /*------------------------------- free lists --------------------------------*/
-
 
 /*
  * Free buffer head structure:
@@ -174,7 +158,6 @@ struct rx_buffer_head {
 	u32		link;	/* buffer descriptor link pointer (for SAR) */
 	struct sk_buff	*skb;	/* back pointer to skb (for poll_rx) */
 };
-
 
 static void refill_pool(struct atm_dev *dev,int pool)
 {
@@ -253,12 +236,10 @@ static void refill_pool(struct atm_dev *dev,int pool)
 	}
 }
 
-
 static void drain_free(struct atm_dev *dev,int pool)
 {
 	skb_queue_purge(&ZATM_DEV(dev)->pool[pool]);
 }
-
 
 static int pool_index(int max_pdu)
 {
@@ -272,9 +253,7 @@ static int pool_index(int max_pdu)
 	return i+ZATM_AAL5_POOL_BASE;
 }
 
-
 /* use_pool isn't reentrant */
-
 
 static void use_pool(struct atm_dev *dev,int pool)
 {
@@ -303,7 +282,6 @@ static void use_pool(struct atm_dev *dev,int pool)
 	DPRINTK("pool %d: %d\n",pool,zatm_dev->pool_info[pool].ref_count);
 }
 
-
 static void unuse_pool(struct atm_dev *dev,int pool)
 {
 	if (!(--ZATM_DEV(dev)->pool_info[pool].ref_count))
@@ -311,7 +289,6 @@ static void unuse_pool(struct atm_dev *dev,int pool)
 }
 
 /*----------------------------------- RX ------------------------------------*/
-
 
 #if 0
 static void exception(struct atm_vcc *vcc)
@@ -336,7 +313,6 @@ static void exception(struct atm_vcc *vcc)
 }
 #endif
 
-
 static const char *err_txt[] = {
 	"No error",
 	"RX buf underflow",
@@ -355,7 +331,6 @@ static const char *err_txt[] = {
 	"???",
 	"???"
 };
-
 
 static void poll_rx(struct atm_dev *dev,int mbx)
 {
@@ -479,7 +454,6 @@ printk("dummy: 0x%08lx, 0x%08lx\n",dummy[0],dummy[1]);
 #endif
 }
 
-
 static int open_rx_first(struct atm_vcc *vcc)
 {
 	struct zatm_dev *zatm_dev;
@@ -531,7 +505,6 @@ static int open_rx_first(struct atm_vcc *vcc)
 	return 0;
 }
 
-
 static int open_rx_second(struct atm_vcc *vcc)
 {
 	struct zatm_dev *zatm_dev;
@@ -552,7 +525,6 @@ static int open_rx_second(struct atm_vcc *vcc)
 	spin_unlock_irqrestore(&zatm_dev->lock, flags);
 	return 0;
 }
-
 
 static void close_rx(struct atm_vcc *vcc)
 {
@@ -595,7 +567,6 @@ static void close_rx(struct atm_vcc *vcc)
 	unuse_pool(vcc->dev,zatm_vcc->pool);
 }
 
-
 static int start_rx(struct atm_dev *dev)
 {
 	struct zatm_dev *zatm_dev;
@@ -623,9 +594,7 @@ DPRINTK("start_rx\n");
 	return 0;
 }
 
-
 /*----------------------------------- TX ------------------------------------*/
-
 
 static int do_tx(struct sk_buff *skb)
 {
@@ -706,7 +675,6 @@ printk("NONONONOO!!!!\n");
 	return 0;
 }
 
-
 static inline void dequeue_tx(struct atm_vcc *vcc)
 {
 	struct zatm_vcc *zatm_vcc;
@@ -737,7 +705,6 @@ if (*ZATM_PRV_DSC(skb) != (uPD98401_TXPD_V | uPD98401_TXPD_DP |
 	atomic_inc(&vcc->stats->tx);
 	wake_up(&zatm_vcc->tx_wait);
 }
-
 
 static void poll_tx(struct atm_dev *dev,int mbx)
 {
@@ -778,7 +745,6 @@ NO !
 	}
 	zout(pos & 0xffff,MTA(mbx));
 }
-
 
 /*
  * BUG BUG BUG: Doesn't handle "new-style" rate specification yet.
@@ -847,7 +813,6 @@ static int alloc_shaper(struct atm_dev *dev,int *pcr,int min,int max,int ubr)
 	return shaper;
 }
 
-
 static void dealloc_shaper(struct atm_dev *dev,int shaper)
 {
 	struct zatm_dev *zatm_dev;
@@ -864,7 +829,6 @@ static void dealloc_shaper(struct atm_dev *dev,int shaper)
 	spin_unlock_irqrestore(&zatm_dev->lock, flags);
 	zatm_dev->free_shapers |= 1 << shaper;
 }
-
 
 static void close_tx(struct atm_vcc *vcc)
 {
@@ -908,7 +872,6 @@ static void close_tx(struct atm_vcc *vcc)
 	}
 	kfree(zatm_vcc->ring);
 }
-
 
 static int open_tx_first(struct atm_vcc *vcc)
 {
@@ -968,7 +931,6 @@ static int open_tx_first(struct atm_vcc *vcc)
 	return 0;
 }
 
-
 static int open_tx_second(struct atm_vcc *vcc)
 {
 	struct zatm_dev *zatm_dev;
@@ -991,7 +953,6 @@ static int open_tx_second(struct atm_vcc *vcc)
 	return 0;
 }
 
-
 static int start_tx(struct atm_dev *dev)
 {
 	struct zatm_dev *zatm_dev;
@@ -1011,9 +972,7 @@ static int start_tx(struct atm_dev *dev)
 	return 0;
 }
 
-
 /*------------------------------- interrupts --------------------------------*/
-
 
 static irqreturn_t zatm_int(int irq,void *dev_id)
 {
@@ -1091,9 +1050,7 @@ static irqreturn_t zatm_int(int irq,void *dev_id)
 	return IRQ_RETVAL(handled);
 }
 
-
 /*----------------------------- (E)EPROM access -----------------------------*/
-
 
 static void __devinit eprom_set(struct zatm_dev *zatm_dev,unsigned long value,
     unsigned short cmd)
@@ -1104,7 +1061,6 @@ static void __devinit eprom_set(struct zatm_dev *zatm_dev,unsigned long value,
 		printk(KERN_ERR DEV_LABEL ": PCI write failed (0x%02x)\n",
 		    error);
 }
-
 
 static unsigned long __devinit eprom_get(struct zatm_dev *zatm_dev,
     unsigned short cmd)
@@ -1117,7 +1073,6 @@ static unsigned long __devinit eprom_get(struct zatm_dev *zatm_dev,
 		    error);
 	return value;
 }
-
 
 static void __devinit eprom_put_bits(struct zatm_dev *zatm_dev,
     unsigned long data,int bits,unsigned short cmd)
@@ -1133,7 +1088,6 @@ static void __devinit eprom_put_bits(struct zatm_dev *zatm_dev,
 	}
 }
 
-
 static void __devinit eprom_get_byte(struct zatm_dev *zatm_dev,
     unsigned char *byte,unsigned short cmd)
 {
@@ -1148,7 +1102,6 @@ static void __devinit eprom_get_byte(struct zatm_dev *zatm_dev,
 		eprom_set(zatm_dev,ZEPROM_CS,cmd);
 	}
 }
-
 
 static unsigned char __devinit eprom_try_esi(struct atm_dev *dev,
     unsigned short cmd,int offset,int swap)
@@ -1170,16 +1123,13 @@ static unsigned char __devinit eprom_try_esi(struct atm_dev *dev,
 	return memcmp(dev->esi,"\0\0\0\0\0",ESI_LEN); /* assumes ESI_LEN == 6 */
 }
 
-
 static void __devinit eprom_get_esi(struct atm_dev *dev)
 {
 	if (eprom_try_esi(dev,ZEPROM_V1_REG,ZEPROM_V1_ESI_OFF,1)) return;
 	(void) eprom_try_esi(dev,ZEPROM_V2_REG,ZEPROM_V2_ESI_OFF,0);
 }
 
-
 /*--------------------------------- entries ---------------------------------*/
-
 
 static int __devinit zatm_init(struct atm_dev *dev)
 {
@@ -1256,7 +1206,6 @@ static int __devinit zatm_init(struct atm_dev *dev)
             zin(VER) & uPD98401_MINOR,zatm_dev->khz/1000,zatm_dev->khz % 1000);
 	return uPD98402_init(dev);
 }
-
 
 static int __devinit zatm_start(struct atm_dev *dev)
 {
@@ -1364,7 +1313,6 @@ out:
 	goto done;
 }
 
-
 static void zatm_close(struct atm_vcc *vcc)
 {
         DPRINTK(">zatm_close\n");
@@ -1379,7 +1327,6 @@ static void zatm_close(struct atm_vcc *vcc)
 	vcc->dev_data = NULL;
 	clear_bit(ATM_VF_ADDR,&vcc->flags);
 }
-
 
 static int zatm_open(struct atm_vcc *vcc)
 {
@@ -1428,14 +1375,12 @@ static int zatm_open(struct atm_vcc *vcc)
         return 0;
 }
 
-
 static int zatm_change_qos(struct atm_vcc *vcc,struct atm_qos *qos,int flags)
 {
 	printk("Not yet implemented\n");
 	return -ENOSYS;
 	/* @@@ */
 }
-
 
 static int zatm_ioctl(struct atm_dev *dev,unsigned int cmd,void __user *arg)
 {
@@ -1510,13 +1455,11 @@ static int zatm_ioctl(struct atm_dev *dev,unsigned int cmd,void __user *arg)
 	}
 }
 
-
 static int zatm_getsockopt(struct atm_vcc *vcc,int level,int optname,
     void __user *optval,int optlen)
 {
 	return -EINVAL;
 }
-
 
 static int zatm_setsockopt(struct atm_vcc *vcc,int level,int optname,
     void __user *optval,unsigned int optlen)
@@ -1546,7 +1489,6 @@ static int zatm_send(struct atm_vcc *vcc,struct sk_buff *skb)
 	return 0;
 }
 
-
 static void zatm_phy_put(struct atm_dev *dev,unsigned char value,
     unsigned long addr)
 {
@@ -1559,7 +1501,6 @@ static void zatm_phy_put(struct atm_dev *dev,unsigned char value,
 	    (uPD98401_IA_TGT_PHY << uPD98401_IA_TGT_SHIFT) | addr,CMR);
 }
 
-
 static unsigned char zatm_phy_get(struct atm_dev *dev,unsigned long addr)
 {
 	struct zatm_dev *zatm_dev;
@@ -1571,7 +1512,6 @@ static unsigned char zatm_phy_get(struct atm_dev *dev,unsigned long addr)
 	zwait;
 	return zin(CER) & 0xff;
 }
-
 
 static const struct atmdev_ops ops = {
 	.open		= zatm_open,
@@ -1633,7 +1573,6 @@ out_free:
 	kfree(zatm_dev);
 	goto out;
 }
-
 
 MODULE_LICENSE("GPL");
 

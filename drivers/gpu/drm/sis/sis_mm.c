@@ -40,7 +40,6 @@
 #define VIDEO_TYPE 0
 #define AGP_TYPE 1
 
-
 #if defined(CONFIG_FB_SIS) || defined(CONFIG_FB_SIS_MODULE)
 /* fb management via fb device */
 
@@ -283,7 +282,6 @@ int sis_idle(struct drm_device *dev)
 
 	return 0;
 }
-
 
 void sis_lastclose(struct drm_device *dev)
 {

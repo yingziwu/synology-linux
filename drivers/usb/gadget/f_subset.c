@@ -17,7 +17,6 @@
 
 #include "u_ether.h"
 
-
 /*
  * This function packages a simple "CDC Subset" Ethernet port with no real
  * control mechanisms; just raw data transfer over two bulk endpoints.

@@ -44,7 +44,6 @@ static int doc_erase (struct mtd_info *mtd, struct erase_info *instr);
 
 static struct mtd_info *docmilpluslist = NULL;
 
-
 /* Perform the required delay cycles by writing to the NOP register */
 static void DoC_Delay(void __iomem * docptr, int cycles)
 {
@@ -470,7 +469,7 @@ void DoCMilPlus_init(struct mtd_info *mtd)
 	mtd->size = 0;
 
 	mtd->erasesize = 0;
-	mtd->writesize = 512;
+	mtd->writebufsize = mtd->writesize = 512;
 	mtd->oobsize = 16;
 	mtd->owner = THIS_MODULE;
 	mtd->erase = doc_erase;
@@ -937,7 +936,6 @@ static int doc_write_oob(struct mtd_info *mtd, loff_t ofs,
 
 	/* Millennium Plus bus cycle sequence as per figure 2, section 2.4 */
 	WriteDOC(DOC_FLASH_CE, docptr, Mplus_FlashSelect);
-
 
 	/* Maximum of 16 bytes in the OOB region, so limit write to that */
 	if (len > 16)

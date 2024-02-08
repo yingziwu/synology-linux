@@ -22,16 +22,16 @@
 
 static int jffs2_readdir (struct file *, void *, filldir_t);
 
-static int jffs2_create (struct inode *,struct dentry *,int,
+static int jffs2_create (struct inode *,struct dentry *,umode_t,
 			 struct nameidata *);
 static struct dentry *jffs2_lookup (struct inode *,struct dentry *,
 				    struct nameidata *);
 static int jffs2_link (struct dentry *,struct inode *,struct dentry *);
 static int jffs2_unlink (struct inode *,struct dentry *);
 static int jffs2_symlink (struct inode *,struct dentry *,const char *);
-static int jffs2_mkdir (struct inode *,struct dentry *,int);
+static int jffs2_mkdir (struct inode *,struct dentry *,umode_t);
 static int jffs2_rmdir (struct inode *,struct dentry *);
-static int jffs2_mknod (struct inode *,struct dentry *,int,dev_t);
+static int jffs2_mknod (struct inode *,struct dentry *,umode_t,dev_t);
 static int jffs2_rename (struct inode *, struct dentry *,
 			 struct inode *, struct dentry *);
 
@@ -43,7 +43,6 @@ const struct file_operations jffs2_dir_operations =
 	.fsync =	jffs2_fsync,
 	.llseek =	generic_file_llseek,
 };
-
 
 const struct inode_operations jffs2_dir_inode_operations =
 {
@@ -65,7 +64,6 @@ const struct inode_operations jffs2_dir_inode_operations =
 };
 
 /***********************************************************************/
-
 
 /* We keep the dirent list sorted in increasing order of name hash,
    and we use the same hash function as the dentries. Makes this
@@ -110,7 +108,6 @@ static struct dentry *jffs2_lookup(struct inode *dir_i, struct dentry *target,
 }
 
 /***********************************************************************/
-
 
 static int jffs2_readdir(struct file *filp, void *dirent, filldir_t filldir)
 {
@@ -168,9 +165,8 @@ static int jffs2_readdir(struct file *filp, void *dirent, filldir_t filldir)
 
 /***********************************************************************/
 
-
-static int jffs2_create(struct inode *dir_i, struct dentry *dentry, int mode,
-			struct nameidata *nd)
+static int jffs2_create(struct inode *dir_i, struct dentry *dentry,
+			umode_t mode, struct nameidata *nd)
 {
 	struct jffs2_raw_inode *ri;
 	struct jffs2_inode_info *f, *dir_f;
@@ -233,7 +229,6 @@ static int jffs2_create(struct inode *dir_i, struct dentry *dentry, int mode,
 
 /***********************************************************************/
 
-
 static int jffs2_unlink(struct inode *dir_i, struct dentry *dentry)
 {
 	struct jffs2_sb_info *c = JFFS2_SB_INFO(dir_i->i_sb);
@@ -251,7 +246,6 @@ static int jffs2_unlink(struct inode *dir_i, struct dentry *dentry)
 	return ret;
 }
 /***********************************************************************/
-
 
 static int jffs2_link (struct dentry *old_dentry, struct inode *dir_i, struct dentry *dentry)
 {
@@ -449,8 +443,7 @@ static int jffs2_symlink (struct inode *dir_i, struct dentry *dentry, const char
 	return ret;
 }
 
-
-static int jffs2_mkdir (struct inode *dir_i, struct dentry *dentry, int mode)
+static int jffs2_mkdir (struct inode *dir_i, struct dentry *dentry, umode_t mode)
 {
 	struct jffs2_inode_info *f, *dir_f;
 	struct jffs2_sb_info *c;
@@ -618,7 +611,7 @@ static int jffs2_rmdir (struct inode *dir_i, struct dentry *dentry)
 	return ret;
 }
 
-static int jffs2_mknod (struct inode *dir_i, struct dentry *dentry, int mode, dev_t rdev)
+static int jffs2_mknod (struct inode *dir_i, struct dentry *dentry, umode_t mode, dev_t rdev)
 {
 	struct jffs2_inode_info *f, *dir_f;
 	struct jffs2_sb_info *c;
@@ -871,4 +864,3 @@ static int jffs2_rename (struct inode *old_dir_i, struct dentry *old_dentry,
 
 	return 0;
 }
-

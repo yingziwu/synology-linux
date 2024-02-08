@@ -1,5 +1,5 @@
 /*************************************************************************/
-/* $Id: hfc4s8s_l1.c,v 1.10 2005/02/09 16:31:09 martinb1 Exp $           */
+/* $Id: hfc4s8s_l1.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $           */
 /* HFC-4S/8S low layer interface for Cologne Chip HFC-4S/8S isdn chips   */
 /* The low layer (L1) is implemented as a loadable module for usage with */
 /* the HiSax isdn driver for passive cards.                              */
@@ -71,7 +71,6 @@ static const char hfc4s8s_rev[] = "Revision: 1.10";
 #define L1_TIMER_T4 2		/* minimum in jiffies */
 #define L1_TIMER_T3 (7 * HZ)	/* activation timeout */
 #define L1_TIMER_T1 ((120 * HZ) / 1000)	/* NT mode deactivation timeout */
-
 
 /******************/
 /* types and vars */
@@ -195,8 +194,6 @@ typedef struct _hfc4s8s_hw {
 	} mr;
 } hfc4s8s_hw;
 
-
-
 /***************************/
 /* inline function defines */
 /***************************/
@@ -228,7 +225,6 @@ GetRegAddr(hfc4s8s_hw * a)
 {
 	return (inb((volatile u_int) (a->iobase + 4)));
 }
-
 
 static inline void
 Write_hfc8(hfc4s8s_hw * a, u_char b, u_char c)
@@ -275,7 +271,6 @@ fRead_hfc8(hfc4s8s_hw * a)
 {
 	return (inb((volatile u_int) a->iobase));
 }
-
 
 static inline u_short
 Read_hfc16(hfc4s8s_hw * a, u_char b)
@@ -677,7 +672,6 @@ rx_d_frame(struct hfc4s8s_l1 *l1p, int ech)
 	struct sk_buff *skb;
 	u_char *cp;
 
-
 	if (!l1p->enabled)
 		return;
 	do {
@@ -691,7 +685,6 @@ rx_d_frame(struct hfc4s8s_l1 *l1p, int ech)
 		df = f1 - f2;
 		if ((f1 - f2) < 0)
 			df = f1 - f2 + MAX_F_CNT + 1;
-
 
 		if (!df) {
 			return;	/* no complete frame in fifo */

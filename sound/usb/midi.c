@@ -72,11 +72,9 @@
 #define OUTPUT_URBS 7
 #define INPUT_URBS 7
 
-
 MODULE_AUTHOR("Clemens Ladisch <clemens@ladisch.de>");
 MODULE_DESCRIPTION("USB Audio/MIDI helper module");
 MODULE_LICENSE("Dual BSD/GPL");
-
 
 struct usb_ms_header_descriptor {
 	__u8  bLength;
@@ -1014,7 +1012,6 @@ static struct usb_protocol_ops snd_usbmidi_emagic_ops = {
 	.init_out_endpoint = snd_usbmidi_emagic_init_out,
 	.finish_out_endpoint = snd_usbmidi_emagic_finish_out,
 };
-
 
 static void update_roland_altsetting(struct snd_usb_midi* umidi)
 {
@@ -2252,7 +2249,6 @@ int snd_usbmidi_create(struct snd_card *card,
 	else
 		err = snd_usbmidi_create_endpoints(umidi, endpoints);
 	if (err < 0) {
-		snd_usbmidi_free(umidi);
 		return err;
 	}
 

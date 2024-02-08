@@ -282,7 +282,6 @@ static int __init do_gpage_early_setup(char *param, char *val)
 	return 0;
 }
 
-
 /*
  * This function allocates physical space for pages that are larger than the
  * buddy allocator can handle.  We want to allocate these in highmem because
@@ -297,7 +296,8 @@ void __init reserve_hugetlb_gpages(void)
 	int i;
 
 	strlcpy(cmdline, boot_command_line, COMMAND_LINE_SIZE);
-	parse_args("hugetlb gpages", cmdline, NULL, 0, &do_gpage_early_setup);
+	parse_args("hugetlb gpages", cmdline, NULL, 0, 0, 0,
+			&do_gpage_early_setup);
 
 	/*
 	 * Walk gpage list in reverse, allocating larger page sizes first.
@@ -819,7 +819,6 @@ static int __init hugetlbpage_init(void)
 		HPAGE_SHIFT = mmu_psize_defs[MMU_PAGE_4M].shift;
 	else
 		panic("%s: Unable to set default huge page size\n", __func__);
-
 
 	return 0;
 }

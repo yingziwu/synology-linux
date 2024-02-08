@@ -2366,7 +2366,6 @@ static int snd_pcm_oss_open_file(struct file *file,
 	return 0;
 }
 
-
 static int snd_task_name(struct task_struct *task, char *name, size_t size)
 {
 	unsigned int idx;

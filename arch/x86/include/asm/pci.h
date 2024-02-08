@@ -74,12 +74,10 @@ void pcibios_penalize_isa_irq(int irq, int active);
 struct irq_routing_table *pcibios_get_irq_routing_table(void);
 int pcibios_set_irq_routing(struct pci_dev *dev, int pin, int irq);
 
-
 #define HAVE_PCI_MMAP
 extern int pci_mmap_page_range(struct pci_dev *dev, struct vm_area_struct *vma,
 			       enum pci_mmap_state mmap_state,
 			       int write_combine);
-
 
 #ifdef CONFIG_PCI
 extern void early_quirks(void);
@@ -162,4 +160,23 @@ cpumask_of_pcibus(const struct pci_bus *bus)
 }
 #endif
 
+#ifdef CONFIG_ARCH_GEN3
+#define CE3100_SOC_DEVICE_ID 0x2E50
+#define CE4100_SOC_DEVICE_ID 0x0708
+#define CE4200_SOC_DEVICE_ID 0x0709
+#define CE5300_SOC_DEVICE_ID 0x0C40
+#define CE2600_SOC_DEVICE_ID 0x0931
+int intelce_get_soc_info(unsigned int *id, unsigned int *rev);
+
+int intelce_set_board_type(unsigned int board);
+int intelce_get_board_type(unsigned int *board);
+
+enum ce2600_board_type {
+ HP_BOARD_TYPE = 0,
+ HP_MG_BOARD_TYPE,
+ FM_BOARD_TYPE,
+ CAT_ISLAND_BOARD_TYPE,
+ GS_BOARD_TYPE,
+};
+#endif
 #endif /* _ASM_X86_PCI_H */

@@ -28,7 +28,6 @@ EXPORT_SYMBOL(smp_topology);
 static unsigned long __iomem *ipi_mappings[NR_CPUS];
 #endif
 
-
 /*
  * Top-level send_IPI*() functions to send messages to other cpus.
  */
@@ -87,7 +86,6 @@ void send_IPI_allbutself(int tag)
 	send_IPI_many(&mask, tag);
 }
 
-
 /*
  * Provide smp_call_function_mask, but also run function locally
  * if specified in the mask.
@@ -104,7 +102,6 @@ void on_each_cpu_mask(const struct cpumask *mask, void (*func)(void *),
 	}
 	put_cpu();
 }
-
 
 /*
  * Functions related to starting/stopping cpus.
@@ -131,7 +128,6 @@ void smp_send_stop(void)
 	stopping_cpus = 1;
 	send_IPI_allbutself(MSG_TAG_STOP_CPU);
 }
-
 
 /*
  * Dispatch code called from hv_message_intr() for HV_MSG_TILE hv messages.
@@ -161,7 +157,6 @@ void evaluate_message(int tag)
 	}
 }
 
-
 /*
  * flush_icache_range() code uses smp_call_function().
  */
@@ -184,7 +179,6 @@ void flush_icache_range(unsigned long start, unsigned long end)
 	on_each_cpu(ipi_flush_icache_range, &flush, 1);
 	preempt_enable();
 }
-
 
 /* Called when smp_send_reschedule() triggers IRQ_RESCHEDULE. */
 static irqreturn_t handle_reschedule_ipi(int irq, void *token)

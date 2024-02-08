@@ -16,7 +16,6 @@
 #include <asm/types.h>
 #include <linux/atomic.h>
 
-
 /* Define a way to iterate across irqs. */
 #define for_each_irq(i) \
 	for ((i) = 0; (i) < NR_IRQS; ++(i))
@@ -152,13 +151,11 @@ extern struct irq_host *irq_alloc_host(struct device_node *of_node,
 				       struct irq_host_ops *ops,
 				       irq_hw_number_t inval_irq);
 
-
 /**
  * irq_find_host - Locates a host for a given device node
  * @node: device-tree node of the interrupt controller
  */
 extern struct irq_host *irq_find_host(struct device_node *node);
-
 
 /**
  * irq_set_default_host - Set a "default" host
@@ -171,7 +168,6 @@ extern struct irq_host *irq_find_host(struct device_node *node);
  */
 extern void irq_set_default_host(struct irq_host *host);
 
-
 /**
  * irq_set_virq_count - Set the maximum number of virt irqs
  * @count: number of linux virtual irqs, capped with NR_IRQS
@@ -180,7 +176,6 @@ extern void irq_set_default_host(struct irq_host *host);
  * the virtual irq number in the controller to avoid the reverse mapping
  */
 extern void irq_set_virq_count(unsigned int count);
-
 
 /**
  * irq_create_mapping - Map a hardware interrupt into linux virq space
@@ -194,7 +189,6 @@ extern void irq_set_virq_count(unsigned int count);
  */
 extern unsigned int irq_create_mapping(struct irq_host *host,
 				       irq_hw_number_t hwirq);
-
 
 /**
  * irq_dispose_mapping - Unmap an interrupt
@@ -259,8 +253,6 @@ extern unsigned int irq_radix_revmap_lookup(struct irq_host *host,
 
 extern unsigned int irq_linear_revmap(struct irq_host *host,
 				      irq_hw_number_t hwirq);
-
-
 
 /**
  * irq_alloc_virt - Allocate virtual irq numbers

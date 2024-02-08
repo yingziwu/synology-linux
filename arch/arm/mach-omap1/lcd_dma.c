@@ -448,4 +448,3 @@ static int __init omap_init_lcd_dma(void)
 }
 
 arch_initcall(omap_init_lcd_dma);
-

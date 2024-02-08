@@ -99,7 +99,6 @@ static struct of_device_id p1023_ids[] = {
 	{},
 };
 
-
 static int __init p1023_publish_devices(void)
 {
 	of_platform_bus_probe(NULL, p1023_ids, NULL);
@@ -159,4 +158,3 @@ define_machine(p1023_rds) {
 	.pcibios_fixup_bus	= fsl_pcibios_fixup_bus,
 #endif
 };
-

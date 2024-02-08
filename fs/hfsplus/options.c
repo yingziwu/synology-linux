@@ -1,13 +1,7 @@
-/*
- *  linux/fs/hfsplus/options.c
- *
- * Copyright (C) 2001
- * Brad Boyer (flar@allandria.com)
- * (C) 2003 Ardis Technologies <roman@ardistech.com>
- *
- * Option parsing
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/string.h>
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -44,14 +38,17 @@ static const match_table_t tokens = {
 	{ opt_err, NULL }
 };
 
-/* Initialize an options object to reasonable defaults */
 void hfsplus_fill_defaults(struct hfsplus_sb_info *opts)
 {
 	if (!opts)
 		return;
-
+#ifdef MY_ABC_HERE
+	opts->creator = 0;
+	opts->type = 0;
+#else
 	opts->creator = HFSPLUS_DEF_CR_TYPE;
 	opts->type = HFSPLUS_DEF_CR_TYPE;
+#endif
 	opts->umask = current_umask();
 	opts->uid = current_uid();
 	opts->gid = current_gid();
@@ -59,7 +56,6 @@ void hfsplus_fill_defaults(struct hfsplus_sb_info *opts)
 	opts->session = -1;
 }
 
-/* convert a "four byte character" to a 32 bit int with error checks */
 static inline int match_fourchar(substring_t *arg, u32 *result)
 {
 	if (arg->to - arg->from != 4)
@@ -94,8 +90,6 @@ int hfsplus_parse_options_remount(char *input, int *force)
 	return 1;
 }
 
-/* Parse options from mount. Returns 0 on failure */
-/* input is the options passed to mount() as a string */
 int hfsplus_parse_options(char *input, struct hfsplus_sb_info *sbi)
 {
 	char *p;
@@ -113,59 +107,75 @@ int hfsplus_parse_options(char *input, struct hfsplus_sb_info *sbi)
 		switch (token) {
 		case opt_creator:
 			if (match_fourchar(&args[0], &sbi->creator)) {
-				printk(KERN_ERR "hfs: creator requires a 4 character value\n");
+				pr_err("creator requires a 4 character value\n");
 				return 0;
 			}
 			break;
 		case opt_type:
 			if (match_fourchar(&args[0], &sbi->type)) {
-				printk(KERN_ERR "hfs: type requires a 4 character value\n");
+				pr_err("type requires a 4 character value\n");
 				return 0;
 			}
 			break;
 		case opt_umask:
 			if (match_octal(&args[0], &tmp)) {
-				printk(KERN_ERR "hfs: umask requires a value\n");
+				pr_err("umask requires a value\n");
 				return 0;
 			}
 			sbi->umask = (umode_t)tmp;
 			break;
 		case opt_uid:
 			if (match_int(&args[0], &tmp)) {
-				printk(KERN_ERR "hfs: uid requires an argument\n");
+				pr_err("uid requires an argument\n");
 				return 0;
 			}
+#ifdef MY_ABC_HERE
 			sbi->uid = (uid_t)tmp;
+#else
+			sbi->uid = make_kuid(current_user_ns(), (uid_t)tmp);
+			if (!uid_valid(sbi->uid)) {
+				pr_err("invalid uid specified\n");
+				return 0;
+			}
+#endif
 			break;
 		case opt_gid:
 			if (match_int(&args[0], &tmp)) {
-				printk(KERN_ERR "hfs: gid requires an argument\n");
+				pr_err("gid requires an argument\n");
 				return 0;
 			}
+#ifdef MY_ABC_HERE
 			sbi->gid = (gid_t)tmp;
+#else
+			sbi->gid = make_kgid(current_user_ns(), (gid_t)tmp);
+			if (!gid_valid(sbi->gid)) {
+				pr_err("invalid gid specified\n");
+				return 0;
+			}
+#endif
 			break;
 		case opt_part:
 			if (match_int(&args[0], &sbi->part)) {
-				printk(KERN_ERR "hfs: part requires an argument\n");
+				pr_err("part requires an argument\n");
 				return 0;
 			}
 			break;
 		case opt_session:
 			if (match_int(&args[0], &sbi->session)) {
-				printk(KERN_ERR "hfs: session requires an argument\n");
+				pr_err("session requires an argument\n");
 				return 0;
 			}
 			break;
 		case opt_nls:
 			if (sbi->nls) {
-				printk(KERN_ERR "hfs: unable to change nls mapping\n");
+				pr_err("unable to change nls mapping\n");
 				return 0;
 			}
 			p = match_strdup(&args[0]);
 			if (p)
 				sbi->nls = load_nls(p);
 			if (!sbi->nls) {
-				printk(KERN_ERR "hfs: unable to load "
+				pr_err("unable to load "
 						"nls mapping \"%s\"\n",
 					p);
 				kfree(p);
@@ -195,7 +205,7 @@ int hfsplus_parse_options(char *input, struct hfsplus_sb_info *sbi)
 
 done:
 	if (!sbi->nls) {
-		/* try utf8 first, as this is the old default behaviour */
+		 
 		sbi->nls = load_nls("utf8");
 		if (!sbi->nls)
 			sbi->nls = load_nls_default();
@@ -206,16 +216,29 @@ done:
 	return 1;
 }
 
+#ifdef MY_ABC_HERE
 int hfsplus_show_options(struct seq_file *seq, struct vfsmount *mnt)
+#else
+int hfsplus_show_options(struct seq_file *seq, struct dentry *root)
+#endif
 {
+#ifdef MY_ABC_HERE
 	struct hfsplus_sb_info *sbi = HFSPLUS_SB(mnt->mnt_sb);
+#else
+	struct hfsplus_sb_info *sbi = HFSPLUS_SB(root->d_sb);
+#endif
 
 	if (sbi->creator != HFSPLUS_DEF_CR_TYPE)
 		seq_printf(seq, ",creator=%.4s", (char *)&sbi->creator);
 	if (sbi->type != HFSPLUS_DEF_CR_TYPE)
 		seq_printf(seq, ",type=%.4s", (char *)&sbi->type);
 	seq_printf(seq, ",umask=%o,uid=%u,gid=%u", sbi->umask,
+#ifdef MY_ABC_HERE
 		sbi->uid, sbi->gid);
+#else
+			from_kuid_munged(&init_user_ns, sbi->uid),
+			from_kgid_munged(&init_user_ns, sbi->gid));
+#endif
 	if (sbi->part >= 0)
 		seq_printf(seq, ",part=%u", sbi->part);
 	if (sbi->session >= 0)
@@ -226,5 +249,9 @@ int hfsplus_show_options(struct seq_file *seq, struct vfsmount *mnt)
 		seq_printf(seq, ",nodecompose");
 	if (test_bit(HFSPLUS_SB_NOBARRIER, &sbi->flags))
 		seq_printf(seq, ",nobarrier");
+#ifdef MY_ABC_HERE
+	if (test_bit(HFSPLUS_SB_CASEFOLD, &sbi->flags))
+		seq_printf(seq, ",caseless");
+#endif
 	return 0;
 }

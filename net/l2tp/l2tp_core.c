@@ -122,7 +122,6 @@ static inline struct l2tp_net *l2tp_pernet(struct net *net)
 	return net_generic(net, l2tp_net_id);
 }
 
-
 /* Tunnel reference counts. Incremented per session that is added to
  * the tunnel.
  */
@@ -1547,7 +1546,6 @@ int l2tp_session_delete(struct l2tp_session *session)
 }
 EXPORT_SYMBOL_GPL(l2tp_session_delete);
 
-
 /* We come here whenever a session's send_seq, cookie_len or
  * l2specific_len parameters are set.
  */
@@ -1700,4 +1698,3 @@ MODULE_AUTHOR("James Chapman <jchapman@katalix.com>");
 MODULE_DESCRIPTION("L2TP core");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(L2TP_DRV_VERSION);
-

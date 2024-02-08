@@ -34,7 +34,6 @@
 #include <linux/input/mt.h>
 #include "usbhid/usbhid.h"
 
-
 MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
 MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
 MODULE_DESCRIPTION("HID multitouch panels");
@@ -400,7 +399,6 @@ static void mt_complete_slot(struct mt_device *td)
 	td->num_received++;
 }
 
-
 /*
  * this function is called when a whole packet has been received and processed,
  * so that it can decide what to send to the input layer.
@@ -441,8 +439,6 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
 	input_sync(input);
 	td->num_received = 0;
 }
-
-
 
 static int mt_event(struct hid_device *hid, struct hid_field *field,
 				struct hid_usage *usage, __s32 value)

@@ -1380,7 +1380,6 @@ void s5p_mfc_try_run(struct s5p_mfc_dev *dev)
 	}
 }
 
-
 void s5p_mfc_cleanup_queue(struct list_head *lh, struct vb2_queue *vq)
 {
 	struct s5p_mfc_buf *b;
@@ -1394,4 +1393,3 @@ void s5p_mfc_cleanup_queue(struct list_head *lh, struct vb2_queue *vq)
 		list_del(&b->list);
 	}
 }
-

@@ -512,7 +512,6 @@ static int efx_probe_channel(struct efx_channel *channel)
 	return rc;
 }
 
-
 static void efx_set_channel_names(struct efx_nic *efx)
 {
 	struct efx_channel *channel;
@@ -1814,7 +1813,6 @@ static void efx_watchdog(struct net_device *net_dev)
 
 	efx_schedule_reset(efx, RESET_TYPE_TX_WATCHDOG);
 }
-
 
 /* Context: process, rtnl_lock() held. */
 static int efx_change_mtu(struct net_device *net_dev, int new_mtu)

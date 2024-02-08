@@ -96,9 +96,7 @@ static void s_vCheckKeyTableValid(void *pDeviceHandler,
 
 }
 
-
 /*---------------------  Export Functions  --------------------------*/
-
 
 /*
  * Description: Init Key management table
@@ -149,7 +147,6 @@ void KeyvInitTable(void *pDeviceHandler, PSKeyManagement pTable)
     return;
 }
 
-
 /*
  * Description: Get Key from table
  *
@@ -199,7 +196,6 @@ BOOL KeybGetKey(PSKeyManagement pTable, PBYTE pbyBSSID, DWORD dwKeyIndex,
     }
     return (FALSE);
 }
-
 
 /*
  * Description: Set Key to table
@@ -386,7 +382,6 @@ BOOL KeybSetKey(
     return (FALSE);
 }
 
-
 /*
  * Description: Remove Key from table
  *
@@ -465,9 +460,7 @@ BOOL KeybRemoveKey(
     s_vCheckKeyTableValid(pDevice,pTable);
     return bReturnValue;
 
-
 }
-
 
 /*
  * Description: Remove Key from table
@@ -585,7 +578,6 @@ BOOL KeybGetTransmitKey(PSKeyManagement pTable, PBYTE pbyBSSID, DWORD dwKeyType,
                     }
                     DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO"\n");
 
-
                     return (TRUE);
                 }
                 else {
@@ -626,7 +618,6 @@ BOOL KeybGetTransmitKey(PSKeyManagement pTable, PBYTE pbyBSSID, DWORD dwKeyType,
     DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO"\n");
     return (FALSE);
 }
-
 
 /*
  * Description: Check Pairewise Key
@@ -748,7 +739,6 @@ BOOL KeybSetDefaultKey(
     pKey->dwTSC47_16 = 0;
     pKey->wTSC15_0 = 0;
 
-
     DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO"KeybSetKey(R): \n");
     DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO"pKey->bKeyValid: %d\n", pKey->bKeyValid);
     DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO"pKey->uKeyLength: %d\n", (int)pKey->uKeyLength);
@@ -766,7 +756,6 @@ BOOL KeybSetDefaultKey(
 
     return (TRUE);
 }
-
 
 /*
  * Description: Set Key to table
@@ -802,7 +791,6 @@ BOOL KeybSetAllGroupKey(
 
 	DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO"Enter KeybSetAllGroupKey: %X\n",
 		dwKeyIndex);
-
 
     if ((dwKeyIndex & PAIRWISE_KEY) != 0) {                  // Pairwise key
         return (FALSE);

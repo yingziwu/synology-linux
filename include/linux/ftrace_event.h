@@ -86,7 +86,6 @@ struct trace_iterator {
 	cpumask_var_t		started;
 };
 
-
 struct trace_event;
 
 typedef enum print_line_t (*trace_print_func)(struct trace_iterator *iter,

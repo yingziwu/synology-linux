@@ -34,7 +34,6 @@
 #include "power.h"
 #include <linux/pm_runtime.h>
 
-
 static void cdv_intel_crt_dpms(struct drm_encoder *encoder, int mode)
 {
 	struct drm_device *dev = encoder->dev;
@@ -135,7 +134,6 @@ static void cdv_intel_crt_mode_set(struct drm_encoder *encoder,
 
 	REG_WRITE(adpa_reg, adpa);
 }
-
 
 /**
  * Uses CRT_HOTPLUG_EN and CRT_HOTPLUG_STAT to detect CRT presence.

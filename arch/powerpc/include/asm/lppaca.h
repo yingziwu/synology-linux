@@ -51,7 +51,6 @@
 #define NR_LPPACAS	1
 #endif
 
-
 /* The Hypervisor barfs if the lppaca crosses a page boundary.  A 1k
  * alignment is sufficient to prevent this */
 struct lppaca {
@@ -127,7 +126,6 @@ struct lppaca {
 		} fields;
 	} gpr5_dword;
 
-
 	u8	dtl_enable_mask;	// Dispatch Trace Log mask	x38-x38
 	u8	donate_dedicated_cpu;	// Donate dedicated CPU cycles  x39-x39
 	u8	fpregs_in_use;		// FP regs in use               x3A-x3A
@@ -144,7 +142,6 @@ struct lppaca {
 	u16	slb_count;		// # of SLBs to maintain        x7C-x7D
 	u8	idle;			// Indicate OS is idle          x7E
 	u8	vmxregs_in_use;		// VMX registers in use         x7F
-
 
 //=============================================================================
 // CACHE_LINE_3 0x0100 - 0x017F: This line is shared with other processors

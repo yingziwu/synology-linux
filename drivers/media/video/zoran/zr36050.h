@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2001 Wolfgang Scherr <scherr@net4you.at>
  *
- * $Id: zr36050.h,v 1.1.2.2 2003/01/14 21:18:22 rbultje Exp $
+ * $Id: zr36050.h,v 1.1.1.1 2010/04/15 12:28:01 khchen Exp $
  *
  * ------------------------------------------------------------------------
  *
@@ -149,7 +149,6 @@ struct zr36050 {
 #define ZR050_OP_NSCN_7              0xC0
 #define ZR050_OP_NSCN_8              0xE0
 #define ZR050_OP_OVF                 0x10
-
 
 /* zr36050 markers-enable register bits */
 

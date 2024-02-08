@@ -10,7 +10,6 @@
  * S3C2410 GPIO register definitions
 */
 
-
 #ifndef __ASM_ARCH_REGS_GPIO_H
 #define __ASM_ARCH_REGS_GPIO_H
 
@@ -33,7 +32,6 @@
 
 #define S3C2410_GPIOREG(x) ((x) + S3C24XX_VA_GPIO)
 #define S3C24XX_GPIOREG2(x) ((x) + S3C24XX_VA_GPIO2)
-
 
 /* configure GPIO ports A..G */
 
@@ -599,4 +597,3 @@
 #define S3C2412_SLPCON_ALL_PULL	(0x33333333)
 
 #endif	/* __ASM_ARCH_REGS_GPIO_H */
-

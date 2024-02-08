@@ -22,3 +22,8 @@ obj-$(CONFIG_SND_SOC)	+= s6000/
 obj-$(CONFIG_SND_SOC)	+= sh/
 obj-$(CONFIG_SND_SOC)	+= tegra/
 obj-$(CONFIG_SND_SOC)	+= txx9/
+
+ifeq ($(CONFIG_PLAT_ARMADA),y)
+obj-$(CONFIG_SND_MRVL_AUDIO)  += ../../arch/arm/plat-armada/mv_drivers_lsp/mv_audio_soc/
+endif
+

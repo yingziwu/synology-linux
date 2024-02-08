@@ -1582,7 +1582,6 @@ static struct inode *gfs2_alloc_inode(struct super_block *sb)
 static void gfs2_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(gfs2_inode_cachep, inode);
 }
 
@@ -1606,4 +1605,3 @@ const struct super_operations gfs2_super_ops = {
 	.drop_inode		= gfs2_drop_inode,
 	.show_options		= gfs2_show_options,
 };
-

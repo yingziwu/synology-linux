@@ -91,7 +91,6 @@ struct ceph_fs_client {
 #endif
 };
 
-
 /*
  * File i/o capability.  This tracks shared state with the metadata
  * server that allows us to cache or writeback attributes or to read
@@ -399,7 +398,6 @@ static inline ino_t ceph_translate_ino(struct super_block *sb, ino_t ino)
 }
 #endif
 
-
 /* for printf-style formatting */
 #define ceph_vinop(i) ceph_inode(i)->i_vino.ino, ceph_inode(i)->i_vino.snap
 
@@ -426,7 +424,6 @@ static inline struct inode *ceph_find_inode(struct super_block *sb,
 	ino_t t = ceph_vino_to_ino(vino);
 	return ilookup5(sb, t, ceph_ino_compare, &vino);
 }
-
 
 /*
  * Ceph inode.
@@ -463,7 +460,6 @@ static inline bool ceph_i_test(struct inode *inode, unsigned mask)
 	spin_unlock(&ci->i_ceph_lock);
 	return r;
 }
-
 
 /* find a specific frag @f */
 extern struct ceph_inode_frag *__ceph_find_frag(struct ceph_inode_info *ci,
@@ -562,8 +558,6 @@ extern void ceph_reservation_status(struct ceph_fs_client *client,
 				    int *total, int *avail, int *used,
 				    int *reserved, int *min);
 
-
-
 /*
  * we keep buffered readdir results attached to file->private_data
  */
@@ -589,8 +583,6 @@ struct ceph_file_info {
 	char *dir_info;
 	int dir_info_len;
 };
-
-
 
 /*
  * A "snap realm" describes a subset of the file hierarchy sharing
@@ -658,8 +650,6 @@ static inline int default_congestion_kb(void)
 
 	return congestion_kb;
 }
-
-
 
 /* snap.c */
 struct ceph_snap_realm *ceph_lookup_snap_realm(struct ceph_mds_client *mdsc,
@@ -832,7 +822,6 @@ extern struct inode *ceph_get_dentry_parent_inode(struct dentry *dentry);
  * snapshotted (read-only), or a virtual ".snap" directory.
  */
 int ceph_init_dentry(struct dentry *dentry);
-
 
 /* ioctl.c */
 extern long ceph_ioctl(struct file *file, unsigned int cmd, unsigned long arg);

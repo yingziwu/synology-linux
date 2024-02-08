@@ -109,7 +109,6 @@ static u32 __init allocate_aperture(void)
 	return (u32)addr;
 }
 
-
 /* Find a PCI capability */
 static u32 __init find_cap(int bus, int slot, int func, int cap)
 {

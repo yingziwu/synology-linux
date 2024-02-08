@@ -1,26 +1,7 @@
-/*
- *  Copyright (C) 1995  Linus Torvalds
- *
- *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999
- *
- *  Memory region support
- *	David Parsons <orc@pell.chi.il.us>, July-August 1999
- *
- *  Added E820 sanitization routine (removes overlapping memory regions);
- *  Brian Moyle <bmoyle@mvista.com>, February 2001
- *
- * Moved CPU detection code to cpu/${cpu}.c
- *    Patrick Mochel <mochel@osdl.org>, March 2002
- *
- *  Provisions for empty E820 memory regions (reported by certain BIOSes).
- *  Alex Achenbach <xela@slit.de>, December 2002.
- *
- */
-
-/*
- * This file handles the architecture-dependent parts of initialization
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/sched.h>
 #include <linux/mm.h>
 #include <linux/mmzone.h>
@@ -115,18 +96,100 @@
 #include <asm/alternative.h>
 #include <asm/prom.h>
 
-/*
- * end_pfn only includes RAM, while max_pfn_mapped includes all e820 entries.
- * The direct mapping extends to max_pfn_mapped, so that we can directly access
- * apertures, ACPI and other tables without having to play with fixmaps.
- */
+#ifdef  MY_ABC_HERE
+extern char gszSynoHWRevision[];
+#endif
+
+#ifdef  MY_ABC_HERE
+extern char gszSynoHWVersion[];
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_internal_hd_num;
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_internal_netif_num;
+#endif
+
+#ifdef SYNO_SAS_DISK_NAME
+extern long g_is_sas_model;
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_ahci_switch;
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_sata_led_special;
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_hdd_hotplug;
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszSataPortMap[8];
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszDiskIdxMap[16];
+#endif
+
+#ifdef MY_ABC_HERE
+extern char giDiskSeqReverse[8];
+#endif
+
+#ifdef MY_ABC_HERE
+extern int gSynoHasDynModule;
+#endif
+
+#ifdef MY_ABC_HERE
+extern unsigned char grgbLanMac[SYNO_MAC_MAX_V2][16];
+extern int giVenderFormatVersion;
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszSerialNum[32];
+extern char gszCustomSerialNum[32];
+#endif
+
+#ifdef MY_DEF_HERE
+extern unsigned int gSwitchDev;
+extern char gDevPCIName[SYNO_MAX_SWITCHABLE_NET_DEVICE][SYNO_NET_DEVICE_ENCODING_LENGTH];
+#endif
+
+#ifdef MY_ABC_HERE
+extern int gSynoFactoryUSBFastReset;
+#endif
+
+#ifdef MY_ABC_HERE
+extern int gSynoFactoryUSB3Disable;
+#endif
+
+#ifdef MY_DEF_HERE
+extern int gSynoDualHead;
+#endif
+
+#ifdef MY_DEF_HERE
+extern int gSynoSASWriteConflictPanic;
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszErrorBoot[16];
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszRaidRootUuid[48];
+extern char gszRaidSwapUuid[48];
+#endif
+
 unsigned long max_low_pfn_mapped;
 unsigned long max_pfn_mapped;
 
 #ifdef CONFIG_DMI
 RESERVE_BRK(dmi_alloc, 65536);
 #endif
-
 
 static __initdata unsigned long _brk_start = (unsigned long)__brk_base;
 unsigned long _brk_end = (unsigned long)__brk_base;
@@ -149,9 +212,6 @@ struct boot_params __initdata boot_params;
 struct boot_params boot_params;
 #endif
 
-/*
- * Machine setup..
- */
 static struct resource data_resource = {
 	.name	= "Kernel data",
 	.start	= 0,
@@ -173,11 +233,10 @@ static struct resource bss_resource = {
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
 };
 
-
 #ifdef CONFIG_X86_32
-/* cpu data as detected by the assembly code in head.S */
+ 
 struct cpuinfo_x86 new_cpu_data __cpuinitdata = {0, 0, 0, 0, -1, 1, 0, 0, -1};
-/* common cpu data for all cpus */
+ 
 struct cpuinfo_x86 boot_cpu_data __read_mostly = {0, 0, 0, 0, -1, 1, 0, 0, -1};
 EXPORT_SYMBOL(boot_cpu_data);
 static void set_mca_bus(int x)
@@ -189,7 +248,6 @@ static void set_mca_bus(int x)
 
 unsigned int def_to_bigsmp;
 
-/* for MCA, but anyone else can use it if they want */
 unsigned int machine_id;
 unsigned int machine_submodel_id;
 unsigned int BIOS_revision;
@@ -212,19 +270,14 @@ struct cpuinfo_x86 boot_cpu_data __read_mostly = {
 EXPORT_SYMBOL(boot_cpu_data);
 #endif
 
-
 #if !defined(CONFIG_X86_PAE) || defined(CONFIG_X86_64)
 unsigned long mmu_cr4_features;
 #else
 unsigned long mmu_cr4_features = X86_CR4_PAE;
 #endif
 
-/* Boot loader ID and version as integers, for the benefit of proc_dointvec */
 int bootloader_type, bootloader_version;
 
-/*
- * Setup options
- */
 struct screen_info screen_info;
 EXPORT_SYMBOL(screen_info);
 struct edid_info edid_info;
@@ -248,11 +301,7 @@ struct edd edd;
 #ifdef CONFIG_EDD_MODULE
 EXPORT_SYMBOL(edd);
 #endif
-/**
- * copy_edd() - Copy the BIOS EDD information
- *              from boot_params into a safe place.
- *
- */
+ 
 static inline void __init copy_edd(void)
 {
      memcpy(edd.mbr_signature, boot_params.edd_mbr_sig_buffer,
@@ -286,6 +335,17 @@ void * __init extend_brk(size_t size, size_t align)
 	return ret;
 }
 
+#if defined(MY_ABC_HERE)
+#if defined(CONFIG_ARCH_GEN3)
+#else
+int sys_SYNOMTDAlloc(char blMalloc)
+{
+	printk("%s: Not supported on this platform.\n", __func__);
+	return 0;
+}
+#endif
+#endif
+
 #ifdef CONFIG_X86_64
 static void __init init_gbpages(void)
 {
@@ -308,8 +368,6 @@ static void __init reserve_brk(void)
 	if (_brk_end > _brk_start)
 		memblock_x86_reserve_range(__pa(_brk_start), __pa(_brk_end), "BRK");
 
-	/* Mark brk area as locked down and no longer taking any
-	   new allocations */
 	_brk_start = 0;
 }
 
@@ -318,7 +376,7 @@ static void __init reserve_brk(void)
 #define MAX_MAP_CHUNK	(NR_FIX_BTMAPS << PAGE_SHIFT)
 static void __init relocate_initrd(void)
 {
-	/* Assume only end is not page aligned */
+	 
 	u64 ramdisk_image = boot_params.hdr.ramdisk_image;
 	u64 ramdisk_size  = boot_params.hdr.ramdisk_size;
 	u64 area_size     = PAGE_ALIGN(ramdisk_size);
@@ -327,7 +385,6 @@ static void __init relocate_initrd(void)
 	unsigned long slop, clen, mapaddr;
 	char *p, *q;
 
-	/* We need to move the initrd down into lowmem */
 	ramdisk_here = memblock_find_in_range(0, end_of_lowmem, area_size,
 					 PAGE_SIZE);
 
@@ -335,8 +392,6 @@ static void __init relocate_initrd(void)
 		panic("Cannot find place for new RAMDISK of size %lld\n",
 			 ramdisk_size);
 
-	/* Note: this includes all the lowmem currently occupied by
-	   the initrd, we rely on that fact to keep the data intact. */
 	memblock_x86_reserve_range(ramdisk_here, ramdisk_here + area_size, "NEW RAMDISK");
 	initrd_start = ramdisk_here + PAGE_OFFSET;
 	initrd_end   = initrd_start + ramdisk_size;
@@ -345,7 +400,6 @@ static void __init relocate_initrd(void)
 
 	q = (char *)initrd_start;
 
-	/* Copy any lowmem portion of the initrd */
 	if (ramdisk_image < end_of_lowmem) {
 		clen = end_of_lowmem - ramdisk_image;
 		p = (char *)__va(ramdisk_image);
@@ -355,7 +409,6 @@ static void __init relocate_initrd(void)
 		ramdisk_size  -= clen;
 	}
 
-	/* Copy the highmem portion of the initrd */
 	while (ramdisk_size) {
 		slop = ramdisk_image & ~PAGE_MASK;
 		clen = ramdisk_size;
@@ -369,7 +422,7 @@ static void __init relocate_initrd(void)
 		ramdisk_image += clen;
 		ramdisk_size  -= clen;
 	}
-	/* high pages is not converted by early_res_to_bootmem */
+	 
 	ramdisk_image = boot_params.hdr.ramdisk_image;
 	ramdisk_size  = boot_params.hdr.ramdisk_size;
 	printk(KERN_INFO "Move RAMDISK from %016llx - %016llx to"
@@ -380,7 +433,7 @@ static void __init relocate_initrd(void)
 
 static void __init reserve_initrd(void)
 {
-	/* Assume only end is not page aligned */
+	 
 	u64 ramdisk_image = boot_params.hdr.ramdisk_image;
 	u64 ramdisk_size  = boot_params.hdr.ramdisk_size;
 	u64 ramdisk_end   = PAGE_ALIGN(ramdisk_image + ramdisk_size);
@@ -388,7 +441,7 @@ static void __init reserve_initrd(void)
 
 	if (!boot_params.hdr.type_of_loader ||
 	    !ramdisk_image || !ramdisk_size)
-		return;		/* No initrd provided by bootloader */
+		return;		 
 
 	initrd_start = 0;
 
@@ -402,13 +455,8 @@ static void __init reserve_initrd(void)
 	printk(KERN_INFO "RAMDISK: %08llx - %08llx\n", ramdisk_image,
 			ramdisk_end);
 
-
 	if (ramdisk_end <= end_of_lowmem) {
-		/* All in lowmem, easy case */
-		/*
-		 * don't need to reserve again, already reserved early
-		 * in i386_start_kernel
-		 */
+		 
 		initrd_start = ramdisk_image + PAGE_OFFSET;
 		initrd_end = initrd_start + ramdisk_size;
 		return;
@@ -422,7 +470,7 @@ static void __init reserve_initrd(void)
 static void __init reserve_initrd(void)
 {
 }
-#endif /* CONFIG_BLK_DEV_INITRD */
+#endif  
 
 static void __init parse_setup_data(void)
 {
@@ -452,6 +500,11 @@ static void __init parse_setup_data(void)
 		case SETUP_DTB:
 			add_dtb(pa_data);
 			break;
+#ifdef CONFIG_ARCH_GEN3			
+		case SETUP_BOARD_TYPE:
+			intelce_set_board_type(readl(data->data));
+			break;
+#endif			
 		default:
 			break;
 		}
@@ -504,9 +557,355 @@ static void __init memblock_x86_reserve_range_setup_data(void)
 	}
 }
 
-/*
- * --------- Crashkernel reservation ------------------------------
- */
+#ifdef MY_ABC_HERE
+static int __init early_hw_version(char *p)
+{
+	char *szPtr;
+
+	snprintf(gszSynoHWVersion, 16, "%s", p);
+
+	szPtr = gszSynoHWVersion;
+	while ((*szPtr != ' ') && (*szPtr != '\t') && (*szPtr != '\0')) {
+		szPtr++;
+	}
+	*szPtr = 0;
+	strcat(gszSynoHWVersion, "-j");
+
+	printk("Synology Hardware Version: %s\n", gszSynoHWVersion);
+
+	return 1;
+}
+__setup("syno_hw_version=", early_hw_version);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_hw_revision(char *p)
+{
+	snprintf(gszSynoHWRevision, 4, "%s", p);
+
+	printk("Synology Hardware Revision: %s\n", gszSynoHWRevision);
+
+	return 1;
+}
+__setup("rev=", early_hw_revision);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_internal_hd_num(char *p)
+{
+	g_internal_hd_num = simple_strtol(p, NULL, 10);
+
+	printk("Internal HD num: %d\n", (int)g_internal_hd_num);
+
+    return 1;
+}
+__setup("ihd_num=", early_internal_hd_num);
+#endif
+
+#ifdef  MY_ABC_HERE
+static int __init early_internal_netif_num(char *p)
+{
+	g_internal_netif_num = simple_strtol(p, NULL, 10);
+
+	if ( g_internal_netif_num >= 0 ) {
+		printk("Internal netif num: %d\n", (int)g_internal_netif_num);
+	}
+
+	return 1;
+}
+__setup("netif_num=", early_internal_netif_num);
+#endif
+
+#ifdef SYNO_SAS_DISK_NAME
+static int __init early_SASmodel(char *p)
+{
+	g_is_sas_model = simple_strtol(p, NULL, 10);
+
+	if ( 1 == g_is_sas_model) {
+		printk("SAS model: %d\n", (int)g_is_sas_model);
+	}
+
+	return 1;
+}
+__setup("SASmodel=", early_SASmodel);
+#endif
+
+#ifdef  MY_ABC_HERE
+static int __init early_ahci_switch(char *p)
+{
+        g_ahci_switch = simple_strtol(p, NULL, 10);
+
+        if ( g_ahci_switch >= 0 ) {
+                printk("AHCI: %d\n", (int)g_ahci_switch);
+        }
+
+        return 1;
+}
+__setup("ahci=", early_ahci_switch);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_sataled_special(char *p)
+{
+	g_sata_led_special = simple_strtol(p, NULL, 10);
+
+	if ( g_sata_led_special >= 0 ) {
+		printk("Special Sata LEDs.\n");
+	}
+
+	return 1;
+}
+__setup("SataLedSpecial=", early_sataled_special);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_hdd_hotplug(char *p)
+{
+	g_hdd_hotplug = simple_strtol(p, NULL, 10);
+
+	if ( g_hdd_hotplug > 0 ) {
+		printk("Support HDD Hotplug.\n");
+	}
+
+	return 1;
+}
+__setup("HddHotplug=", early_hdd_hotplug);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_sataport_map(char *p)
+{
+	snprintf(gszSataPortMap, sizeof(gszSataPortMap), "%s", p);
+
+	if(0 != gszSataPortMap[0]) {
+		printk("Sata Port Map: %s\n", gszSataPortMap);
+	}
+
+	return 1;
+}
+__setup("SataPortMap=", early_sataport_map);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_disk_idx_map(char *p)
+{
+	snprintf(gszDiskIdxMap, sizeof(gszDiskIdxMap), "%s", p);
+
+	if('\0' != gszDiskIdxMap[0]) {
+		printk("Disk Index Map: %s\n", gszDiskIdxMap);
+	}
+
+	return 1;
+}
+__setup("DiskIdxMap=", early_disk_idx_map);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_disk_seq_reserve(char *p)
+{
+	snprintf(giDiskSeqReverse, sizeof(giDiskSeqReverse), "%s", p);
+
+	if('\0' != giDiskSeqReverse[0]) {
+		printk("Disk Sequence Reverse: %s\n", giDiskSeqReverse);
+	}
+
+	return 1;
+}
+__setup("DiskSeqReverse=", early_disk_seq_reserve);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_is_dyn_module(char *p)
+{
+	int iLen = 0;
+
+	gSynoHasDynModule = 1;
+	
+	if ((NULL == p) || (0 == (iLen = strlen(p)))) {
+		goto END;
+	}
+
+	if ( 0 == strcmp (p, "n")) {
+		gSynoHasDynModule = 0;
+		printk("Synology Dynamic Module support disabled.\n");
+	}
+
+END:
+	return 1;
+}
+__setup("syno_dyn_module=", early_is_dyn_module);
+#endif  
+
+#ifdef MY_ABC_HERE
+static int __init early_mac1(char *p)
+{
+	snprintf(grgbLanMac[0], sizeof(grgbLanMac[0]), "%s", p);
+
+	printk("Mac1: %s\n", grgbLanMac[0]);
+
+	return 1;
+}
+__setup("mac1=", early_mac1);
+
+static int __init early_mac2(char *p)
+{
+	snprintf(grgbLanMac[1], sizeof(grgbLanMac[1]), "%s", p);
+
+	printk("Mac2: %s\n", grgbLanMac[1]);
+
+	return 1;
+}
+__setup("mac2=", early_mac2);
+
+static int __init early_mac3(char *p)
+{
+	snprintf(grgbLanMac[2], sizeof(grgbLanMac[2]), "%s", p);
+
+	printk("Mac3: %s\n", grgbLanMac[2]);
+
+	return 1;
+}
+__setup("mac3=", early_mac3);
+
+static int __init early_mac4(char *p)
+{
+	snprintf(grgbLanMac[3], sizeof(grgbLanMac[3]), "%s", p);
+
+	printk("Mac4: %s\n", grgbLanMac[3]);
+
+	return 1;
+}
+__setup("mac4=", early_mac4);
+
+static int __init early_macs(char *p)
+{
+	int iMacCount = 0;
+	char *pBegin = p;
+	char *pEnd = strstr(pBegin, ",");
+
+	while (NULL != pEnd && SYNO_MAC_MAX_V2 > iMacCount) {
+		*pEnd = '\0';
+		snprintf(grgbLanMac[iMacCount], sizeof(grgbLanMac[iMacCount]), "%s", pBegin);
+		pBegin = pEnd + 1;
+		pEnd = strstr(pBegin, ",");
+		iMacCount++;
+	}
+
+	if ('\0' != *pBegin && SYNO_MAC_MAX_V2 > iMacCount) {
+		snprintf(grgbLanMac[iMacCount], sizeof(grgbLanMac[iMacCount]), "%s", pBegin);
+	}
+
+	return 1;
+}
+__setup("macs=", early_macs);
+
+static int __init early_vender_format_version(char *p)
+{
+	giVenderFormatVersion = simple_strtol(p, NULL, 10);
+
+	printk("Vender format version: %d\n", giVenderFormatVersion);
+
+	return 1;
+}
+__setup("vender_format_version=", early_vender_format_version);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_sn(char *p)
+{
+        snprintf(gszSerialNum, sizeof(gszSerialNum), "%s", p);
+        printk("Serial Number: %s\n", gszSerialNum);
+        return 1;
+}
+__setup("sn=", early_sn);
+
+static int __init early_custom_sn(char *p)
+{
+        snprintf(gszCustomSerialNum, sizeof(gszCustomSerialNum), "%s", p);
+        printk("Custom Serial Number: %s\n", gszCustomSerialNum);
+        return 1;
+}
+__setup("custom_sn=", early_custom_sn);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_factory_usb_fast_reset(char *p)
+{
+	gSynoFactoryUSBFastReset = simple_strtol(p, NULL, 10);
+
+	printk("Factory USB Fast Reset: %d\n", (int)gSynoFactoryUSBFastReset);
+
+	return 1;
+}
+__setup("syno_usb_fast_reset=", early_factory_usb_fast_reset);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_factory_usb3_disable(char *p)
+{
+	gSynoFactoryUSB3Disable = simple_strtol(p, NULL, 10);
+
+	printk("Factory USB3 Disable: %d\n", (int)gSynoFactoryUSB3Disable);
+
+	return 1;
+}
+__setup("syno_disable_usb3=", early_factory_usb3_disable);
+#endif
+
+#ifdef MY_DEF_HERE
+static int __init early_dual_head(char *p)
+{
+	gSynoDualHead = simple_strtol(p, NULL, 10);
+#ifdef MY_DEF_HERE
+	gSynoSASWriteConflictPanic = gSynoDualHead;
+#endif
+
+	printk("Synology Dual Head: %d\n", gSynoDualHead);
+
+	return 1;
+}
+__setup("dual_head=", early_dual_head);
+#endif
+
+#ifdef MY_DEF_HERE
+static int __init early_sas_reservation_write_conflict(char *p)
+{
+	gSynoSASWriteConflictPanic = simple_strtol(p, NULL, 10);
+
+	printk("Let kernel panic if sas reservation write conflict: %d\n", gSynoSASWriteConflictPanic);
+
+	return 1;
+}
+__setup("sas_reservation_write_conflict=", early_sas_reservation_write_conflict);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_error_boot(char *p)
+{
+        snprintf(gszErrorBoot, sizeof(gszErrorBoot), "%s", p);
+        printk("DS doesn't boot from default boot device: %s\n", gszErrorBoot);
+        return 1;
+}
+__setup("error_boot=", early_error_boot);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_root_uuid(char *p)
+{
+        snprintf(gszRaidRootUuid, sizeof(gszRaidRootUuid), "%s", p);
+        printk("Specify the UUID of root: %s\n", gszRaidRootUuid);
+        return 1;
+}
+__setup("root_uuid=", early_root_uuid);
+
+static int __init early_swap_uuid(char *p)
+{
+        snprintf(gszRaidSwapUuid, sizeof(gszRaidSwapUuid), "%s", p);
+        printk("Specify the UUID of swap: %s\n", gszRaidSwapUuid);
+        return 1;
+}
+__setup("swap_uuid=", early_swap_uuid);
+#endif
 
 #ifdef CONFIG_KEXEC
 
@@ -519,12 +918,6 @@ static inline unsigned long long get_total_mem(void)
 	return total << PAGE_SHIFT;
 }
 
-/*
- * Keep the crash kernel below this limit.  On 32 bits earlier kernels
- * would limit the kernel to the low 512 MiB due to mapping restrictions.
- * On 64 bits, kexec-tools currently limits us to 896 MiB; increase this
- * limit once kexec-tools are fixed.
- */
 #ifdef CONFIG_X86_32
 # define CRASH_KERNEL_ADDR_MAX	(512 << 20)
 #else
@@ -544,13 +937,9 @@ static void __init reserve_crashkernel(void)
 	if (ret != 0 || crash_size <= 0)
 		return;
 
-	/* 0 means: find the address automatically */
 	if (crash_base <= 0) {
-		const unsigned long long alignment = 16<<20;	/* 16M */
+		const unsigned long long alignment = 16<<20;	 
 
-		/*
-		 *  kexec want bzImage is below CRASH_KERNEL_ADDR_MAX
-		 */
 		crash_base = memblock_find_in_range(alignment,
 			       CRASH_KERNEL_ADDR_MAX, crash_size, alignment);
 
@@ -613,7 +1002,6 @@ void __init reserve_standard_io_resources(void)
 {
 	int i;
 
-	/* request I/O space for devices used on all i[345]86 PCs */
 	for (i = 0; i < ARRAY_SIZE(standard_io_resources); i++)
 		request_resource(&ioport_resource, &standard_io_resources[i]);
 
@@ -646,7 +1034,6 @@ static bool __init snb_gfx_workaround_needed(void)
 		0x010a,
 	};
 
-	/* Assume no if something weird is going on with PCI */
 	if (!early_pci_allowed())
 		return false;
 
@@ -663,10 +1050,6 @@ static bool __init snb_gfx_workaround_needed(void)
 	return false;
 }
 
-/*
- * Sandy Bridge graphics has trouble with certain ranges, exclude
- * them from allocation.
- */
 static void __init trim_snb_memory(void)
 {
 	static const __initconst unsigned long bad_pages[] = {
@@ -683,10 +1066,6 @@ static void __init trim_snb_memory(void)
 
 	printk(KERN_DEBUG "reserving inaccessible SNB gfx pages\n");
 
-	/*
-	 * Reserve all memory below the 1 MB mark that has not
-	 * already been reserved.
-	 */
 	memblock_reserve(0, 1<<20);
 	
 	for (i = 0; i < ARRAY_SIZE(bad_pages); i++) {
@@ -696,13 +1075,6 @@ static void __init trim_snb_memory(void)
 	}
 }
 
-/*
- * Here we put platform-specific memory range workarounds, i.e.
- * memory known to be corrupt or otherwise in need to be reserved on
- * specific platforms.
- *
- * If this gets used more widely it could use a real dispatch mechanism.
- */
 static void __init trim_platform_memory_ranges(void)
 {
 	trim_snb_memory();
@@ -710,23 +1082,10 @@ static void __init trim_platform_memory_ranges(void)
 
 static void __init trim_bios_range(void)
 {
-	/*
-	 * A special case is the first 4Kb of memory;
-	 * This is a BIOS owned area, not kernel ram, but generally
-	 * not listed as such in the E820 table.
-	 *
-	 * This typically reserves additional memory (64KiB by default)
-	 * since some BIOSes are known to corrupt low memory.  See the
-	 * Kconfig help text for X86_RESERVE_LOW.
-	 */
+	 
 	e820_update_range(0, ALIGN(reserve_low, PAGE_SIZE),
 			  E820_RAM, E820_RESERVED);
 
-	/*
-	 * special case: Some BIOSen report the PC BIOS
-	 * area (640->1Mb) as ram even though it is not.
-	 * take them out.
-	 */
 	e820_remove_range(BIOS_BEGIN, BIOS_END - BIOS_BEGIN, E820_RAM, 1);
 
 	sanitize_e820_map(e820.map, ARRAY_SIZE(e820.map), &e820.nr_map);
@@ -754,29 +1113,12 @@ static int __init parse_reservelow(char *p)
 
 early_param("reservelow", parse_reservelow);
 
-/*
- * Determine if we were loaded by an EFI loader.  If so, then we have also been
- * passed the efi memmap, systab, etc., so we should use these data structures
- * for initialization.  Note, the efi init code path is determined by the
- * global efi_enabled. This allows the same kernel image to be used on existing
- * systems (with a traditional BIOS) as well as on EFI systems.
- */
-/*
- * setup_arch - architecture-specific boot-time initializations
- *
- * Note: On x86_64, fixmaps are ready for use even before this is called.
- */
-
 void __init setup_arch(char **cmdline_p)
 {
 #ifdef CONFIG_X86_32
 	memcpy(&boot_cpu_data, &new_cpu_data, sizeof(new_cpu_data));
 	visws_early_detect();
 
-	/*
-	 * copy kernel address range established so far and switch
-	 * to the proper swapper page table
-	 */
 	clone_pgd_range(swapper_pg_dir     + KERNEL_PGD_BOUNDARY,
 			initial_page_table + KERNEL_PGD_BOUNDARY,
 			KERNEL_PGD_PTRS);
@@ -787,10 +1129,6 @@ void __init setup_arch(char **cmdline_p)
 	printk(KERN_INFO "Command line: %s\n", boot_command_line);
 #endif
 
-	/*
-	 * If we have OLPC OFW, we might end up relocating the fixmap due to
-	 * reserve_top(), so do this before touching the ioremap area.
-	 */
 	olpc_ofw_detect();
 
 	early_trap_init();
@@ -845,7 +1183,7 @@ void __init setup_arch(char **cmdline_p)
 	iomem_resource.end = (1ULL << boot_cpu_data.x86_phys_bits) - 1;
 	setup_memory_map();
 	parse_setup_data();
-	/* update the e820_saved too */
+	 
 	e820_reserve_setup_data();
 
 	copy_edd();
@@ -869,7 +1207,7 @@ void __init setup_arch(char **cmdline_p)
 	strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
 #else
 	if (builtin_cmdline[0]) {
-		/* append boot loader cmdline to builtin */
+		 
 		strlcat(builtin_cmdline, " ", COMMAND_LINE_SIZE);
 		strlcat(builtin_cmdline, boot_command_line, COMMAND_LINE_SIZE);
 		strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
@@ -880,20 +1218,12 @@ void __init setup_arch(char **cmdline_p)
 	strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
 	*cmdline_p = command_line;
 
-	/*
-	 * x86_configure_nx() is called before parse_early_param() to detect
-	 * whether hardware doesn't support NX (so that the early EHCI debug
-	 * console setup can safely call set_fixmap()). It may then be called
-	 * again from within noexec_setup() during parsing early parameters
-	 * to honor the respective command line option.
-	 */
 	x86_configure_nx();
 
 	parse_early_param();
 
 	x86_report_nx();
 
-	/* after early param, so could get panic from serial */
 	memblock_x86_reserve_range_setup_data();
 
 	if (acpi_mps_check()) {
@@ -915,15 +1245,10 @@ void __init setup_arch(char **cmdline_p)
 
 	dmi_scan_machine();
 
-	/*
-	 * VMware detection requires dmi to be available, so this
-	 * needs to be done after dmi_scan_machine, for the BP.
-	 */
 	init_hypervisor_platform();
 
 	x86_init.resources.probe_roms();
 
-	/* after parse_early_param, so could debug it */
 	insert_resource(&iomem_resource, &code_resource);
 	insert_resource(&iomem_resource, &data_resource);
 	insert_resource(&iomem_resource, &bss_resource);
@@ -941,27 +1266,20 @@ void __init setup_arch(char **cmdline_p)
 	early_gart_iommu_check();
 #endif
 
-	/*
-	 * partially used pages are not usable - thus
-	 * we are rounding upwards:
-	 */
 	max_pfn = e820_end_of_ram_pfn();
 
-	/* update e820 for memory not covered by WB MTRRs */
 	mtrr_bp_init();
 	if (mtrr_trim_uncached_memory(max_pfn))
 		max_pfn = e820_end_of_ram_pfn();
 
 #ifdef CONFIG_X86_32
-	/* max_low_pfn get updated here */
+	 
 	find_low_pfn_range();
 #else
 	num_physpages = max_pfn;
 
 	check_x2apic();
 
-	/* How many end-of-memory variables you have, grandma! */
-	/* need this before calling reserve_initrd */
 	if (max_pfn > (1UL<<(32 - PAGE_SHIFT)))
 		max_low_pfn = e820_end_of_low_ram_pfn();
 	else
@@ -970,18 +1288,10 @@ void __init setup_arch(char **cmdline_p)
 	high_memory = (void *)__va(max_pfn * PAGE_SIZE - 1) + 1;
 #endif
 
-	/*
-	 * Find and reserve possible boot-time SMP configuration:
-	 */
 	find_smp_config();
 
 	reserve_ibft_region();
 
-	/*
-	 * Need to conclude brk, before memblock_x86_fill()
-	 *  it could use memblock_find_in_range, could overlap with
-	 *  brk area.
-	 */
 	reserve_brk();
 
 	cleanup_highmap();
@@ -989,14 +1299,9 @@ void __init setup_arch(char **cmdline_p)
 	memblock.current_limit = get_max_mapped();
 	memblock_x86_fill();
 
-	/*
-	 * The EFI specification says that boot service code won't be called
-	 * after ExitBootServices(). This is, in fact, a lie.
-	 */
 	if (efi_enabled(EFI_MEMMAP))
 		efi_reserve_boot_services();
 
-	/* preallocate 4k for mptable mpc */
 	early_reserve_e820_mpc_new();
 
 #ifdef CONFIG_X86_CHECK_BIOS_CORRUPTION
@@ -1012,7 +1317,6 @@ void __init setup_arch(char **cmdline_p)
 
 	init_gbpages();
 
-	/* max_pfn_mapped is updated here */
 	max_low_pfn_mapped = init_memory_mapping(0, max_low_pfn<<PAGE_SHIFT);
 	max_pfn_mapped = max_low_pfn_mapped;
 
@@ -1033,21 +1337,16 @@ void __init setup_arch(char **cmdline_p)
 				ei->addr + ei->size);
 		}
 
-		/* can we preseve max_low_pfn ?*/
 		max_low_pfn = max_pfn;
 	}
 #endif
 	memblock.current_limit = get_max_mapped();
 
-	/*
-	 * NOTE: On x86-32, only from this point on, fixmaps are ready for use.
-	 */
-
 #ifdef CONFIG_PROVIDE_OHCI1394_DMA_INIT
 	if (init_ohci1394_dma_early)
 		init_ohci1394_dma_on_all_controllers();
 #endif
-	/* Allocate bigger log buffer */
+	 
 	setup_log_buf(1);
 
 	reserve_initrd();
@@ -1058,9 +1357,6 @@ void __init setup_arch(char **cmdline_p)
 
 	io_delay_init();
 
-	/*
-	 * Parse the ACPI tables for possible boot-time SMP configuration.
-	 */
 	acpi_boot_table_init();
 
 	early_acpi_boot_init();
@@ -1077,12 +1373,12 @@ void __init setup_arch(char **cmdline_p)
 	x86_init.paging.pagetable_setup_done(swapper_pg_dir);
 
 	if (boot_cpu_data.cpuid_level >= 0) {
-		/* A CPU has %cr4 if and only if it has CPUID */
+		 
 		mmu_cr4_features = read_cr4();
 	}
 
 #ifdef CONFIG_X86_32
-	/* sync back kernel address range */
+	 
 	clone_pgd_range(initial_page_table + KERNEL_PGD_BOUNDARY,
 			swapper_pg_dir     + KERNEL_PGD_BOUNDARY,
 			KERNEL_PGD_PTRS);
@@ -1098,16 +1394,10 @@ void __init setup_arch(char **cmdline_p)
 
 	early_quirks();
 
-	/*
-	 * Read APIC and some other early information from ACPI tables.
-	 */
 	acpi_boot_init();
 	sfi_init();
 	x86_dtb_init();
 
-	/*
-	 * get boot-time SMP configuration:
-	 */
 	if (smp_found_config)
 		get_smp_config();
 
@@ -1161,4 +1451,4 @@ void __init i386_reserve_resources(void)
 	reserve_standard_io_resources();
 }
 
-#endif /* CONFIG_X86_32 */
+#endif  

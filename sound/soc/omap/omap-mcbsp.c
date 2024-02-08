@@ -571,7 +571,6 @@ static int omap_mcbsp_dai_set_dai_sysclk(struct snd_soc_dai *cpu_dai,
 		regs->pcr0	|= SCLKME;
 		break;
 
-
 	case OMAP_MCBSP_CLKR_SRC_CLKR:
 		if (cpu_class_is_omap1())
 			break;

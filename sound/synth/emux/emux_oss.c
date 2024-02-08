@@ -22,7 +22,6 @@
  * 				midi emulation.
  */
 
-
 #ifdef CONFIG_SND_SEQUENCER_OSS
 
 #include <linux/export.h>
@@ -58,7 +57,6 @@ static struct snd_seq_oss_callback oss_callback = {
 	.reset = snd_emux_reset_seq_oss,
 };
 
-
 /*
  * register OSS synth
  */
@@ -86,7 +84,6 @@ snd_emux_init_seq_oss(struct snd_emux *emu)
 	snd_device_register(emu->card, dev);
 }
 
-
 /*
  * unregister
  */
@@ -98,7 +95,6 @@ snd_emux_detach_seq_oss(struct snd_emux *emu)
 		emu->oss_synth = NULL;
 	}
 }
-
 
 /* use port number as a unique soundfont client number */
 #define SF_CLIENT_NO(p)	((p) + 0x1000)
@@ -153,7 +149,6 @@ snd_emux_open_seq_oss(struct snd_seq_oss_arg *arg, void *closure)
 	return 0;
 }
 
-
 #define DEFAULT_DRUM_FLAGS	((1<<9) | (1<<25))
 
 /*
@@ -174,7 +169,6 @@ reset_port_mode(struct snd_emux_port *port, int midi_mode)
 		port->oss_arg->event_passing = SNDRV_SEQ_OSS_PROCESS_EVENTS;
 	}
 }
-
 
 /*
  * close port
@@ -204,7 +198,6 @@ snd_emux_close_seq_oss(struct snd_seq_oss_arg *arg)
 	mutex_unlock(&emu->register_mutex);
 	return 0;
 }
-
 
 /*
  * load patch
@@ -250,7 +243,6 @@ snd_emux_load_patch_seq_oss(struct snd_seq_oss_arg *arg, int format,
 	return rc;
 }
 
-
 /*
  * ioctl
  */
@@ -284,7 +276,6 @@ snd_emux_ioctl_seq_oss(struct snd_seq_oss_arg *arg, unsigned int cmd, unsigned l
 	return 0;
 }
 
-
 /*
  * reset device
  */
@@ -301,7 +292,6 @@ snd_emux_reset_seq_oss(struct snd_seq_oss_arg *arg)
 	snd_emux_reset_port(p);
 	return 0;
 }
-
 
 /*
  * receive raw events: only SEQ_PRIVATE is accepted.
@@ -334,7 +324,6 @@ snd_emux_event_oss_input(struct snd_seq_event *ev, int direct, void *private_dat
 		gusspec_control(emu, p, cmd, data, atomic, hop);
 	return 0;
 }
-
 
 /*
  * OSS/AWE driver specific h/w controls
@@ -497,7 +486,6 @@ gusspec_control(struct snd_emux *emu, struct snd_emux_port *port, int cmd,
 		return;
 	}
 }
-
 
 /*
  * send an event to midi emulation

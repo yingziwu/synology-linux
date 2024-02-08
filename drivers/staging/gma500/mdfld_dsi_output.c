@@ -271,7 +271,6 @@ void mdfld_dsi_brightness_control(struct drm_device *dev, int pipe, int level)
                                     1,
                                     MDFLD_DSI_SEND_PACKAGE);
 
-
 		/* Enable backlight control */
 		if (level == 0)
 			gen_ctrl_val = 0;
@@ -319,7 +318,6 @@ void mdfld_dsi_controller_shutdown(struct mdfld_dsi_config * dsi_config, int pip
 	/*send shut down package in HS*/
 	REG_WRITE((MIPIA_DPI_CONTROL_REG + reg_offset), DSI_DPI_CTRL_HS_SHUTDOWN);
 	
-	
 	/*
 	 * make sure shut down is sent.
 	 * FIXME: add max retry counter
@@ -349,7 +347,6 @@ void mdfld_dsi_controller_startup(struct mdfld_dsi_config * dsi_config, int pipe
 	struct drm_device * dev;
 	u32 reg_offset = pipe ? MIPIC_REG_OFFSET : 0;
 	int retry = 100;
-	
 	
 	if (!dsi_config) {
 		WARN_ON(1);
@@ -397,7 +394,6 @@ void mdfld_dsi_controller_startup(struct mdfld_dsi_config * dsi_config, int pipe
 startup_out:	
 	gma_power_end(dev);
 }
-
 
 static int mdfld_dsi_get_panel_status(struct mdfld_dsi_config *dsi_config,
 					u8 dcs,

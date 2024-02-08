@@ -171,7 +171,6 @@ static void mlx4_en_cache_mclist(struct net_device *dev)
 	priv->mc_addrs_cnt = mc_addrs_cnt;
 }
 
-
 static void mlx4_en_set_multicast(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
@@ -381,7 +380,6 @@ static void mlx4_en_tx_timeout(struct net_device *dev)
 	queue_work(mdev->workqueue, &priv->watchdog_task);
 }
 
-
 static struct net_device_stats *mlx4_en_get_stats(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
@@ -548,7 +546,6 @@ static void mlx4_en_linkstate(struct work_struct *work)
 	mutex_unlock(&mdev->state_lock);
 }
 
-
 int mlx4_en_start_port(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
@@ -709,7 +706,6 @@ cq_err:
 	return err; /* need to close devices */
 }
 
-
 void mlx4_en_stop_port(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
@@ -792,7 +788,6 @@ static void mlx4_en_restart(struct work_struct *work)
 	mutex_unlock(&mdev->state_lock);
 }
 
-
 static int mlx4_en_open(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
@@ -832,7 +827,6 @@ out:
 	mutex_unlock(&mdev->state_lock);
 	return err;
 }
-
 
 static int mlx4_en_close(struct net_device *dev)
 {
@@ -910,7 +904,6 @@ err:
 	mlx4_qp_release_range(priv->mdev->dev, base_tx_qpn, priv->tx_ring_num);
 	return -ENOMEM;
 }
-
 
 void mlx4_en_destroy_netdev(struct net_device *dev)
 {
@@ -1127,4 +1120,3 @@ out:
 	mlx4_en_destroy_netdev(dev);
 	return err;
 }
-

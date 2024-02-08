@@ -1,4 +1,4 @@
-/* $Id: diva.c,v 1.21.4.1 2004/05/08 14:33:43 armin Exp $ */
+/* $Id: diva.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $ */
 
 #define CARDTYPE_H_WANT_DATA            1
 #define CARDTYPE_H_WANT_IDI_DATA        0
@@ -511,7 +511,6 @@ diva_xdi_read(void *adapter, void *os_handle, void __user *dst,
 
 	return (ret);
 }
-
 
 irqreturn_t diva_os_irq_wrapper(int irq, void *context)
 {

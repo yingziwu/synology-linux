@@ -61,7 +61,6 @@ extern unsigned int dss_debug;
 #define DSSDBGF(format, ...)
 #endif
 
-
 #ifdef DSS_SUBSYS_NAME
 #define DSSERR(format, ...) \
 	printk(KERN_ERR "omapdss " DSS_SUBSYS_NAME " error: " format, \
@@ -398,14 +397,12 @@ void dispc_find_clk_divs(bool is_tft, unsigned long req_pck, unsigned long fck,
 int dispc_calc_clock_rates(unsigned long dispc_fclk_rate,
 		struct dispc_clock_info *cinfo);
 
-
 u32 dispc_ovl_get_fifo_size(enum omap_plane plane);
 u32 dispc_ovl_get_burst_size(enum omap_plane plane);
 int dispc_ovl_setup(enum omap_plane plane, struct omap_overlay_info *oi,
 		bool ilace, enum omap_channel channel, bool replication,
 		u32 fifo_low, u32 fifo_high);
 int dispc_ovl_enable(enum omap_plane plane, bool enable);
-
 
 void dispc_mgr_enable_fifohandcheck(enum omap_channel channel, bool enable);
 void dispc_mgr_set_lcd_size(enum omap_channel channel, u16 width, u16 height);
@@ -516,7 +513,6 @@ static inline void rfbi_uninit_platform_driver(void)
 {
 }
 #endif
-
 
 #ifdef CONFIG_OMAP2_DSS_COLLECT_IRQ_STATS
 static inline void dss_collect_irq_stats(u32 irqstatus, unsigned *irq_arr)

@@ -819,4 +819,3 @@ void dss_uninit_overlays(struct platform_device *pdev)
 
 	num_overlays = 0;
 }
-

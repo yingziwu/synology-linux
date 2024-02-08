@@ -42,7 +42,6 @@ extern int zfcp_cfdc_open_lun_eval(struct scsi_device *,
 				   struct fsf_qtcb_bottom_support *);
 extern void zfcp_cfdc_adapter_access_changed(struct zfcp_adapter *);
 
-
 /* zfcp_dbf.c */
 extern int zfcp_dbf_adapter_register(struct zfcp_adapter *);
 extern void zfcp_dbf_adapter_unregister(struct zfcp_adapter *);

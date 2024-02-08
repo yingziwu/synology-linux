@@ -148,7 +148,6 @@ static inline unsigned long cmpxchg_386(volatile void *ptr, unsigned long old,
 		       : "memory");				\
 	__ret; })
 
-
 #define cmpxchg64_local(ptr, o, n)				\
 ({								\
 	__typeof__(*(ptr)) __ret;				\
@@ -181,7 +180,6 @@ static inline unsigned long cmpxchg_386(volatile void *ptr, unsigned long old,
 		       : "memory");				\
 	__ret; })
 
-
 #define cmpxchg8b_local(ptr, o1, o2, n1, n2)			\
 ({								\
 	char __ret;						\
@@ -196,7 +194,6 @@ static inline unsigned long cmpxchg_386(volatile void *ptr, unsigned long old,
 		         "b" (__new1), "c" (__new2),		\
 		       : "memory");				\
 	__ret; })
-
 
 #define cmpxchg_double(ptr, o1, o2, n1, n2)				\
 ({									\

@@ -23,7 +23,6 @@
 
 #include "et61x251_sensor.h"
 
-
 static int tas5130d1b_init(struct et61x251_device* cam)
 {
 	int err = 0;
@@ -45,7 +44,6 @@ static int tas5130d1b_init(struct et61x251_device* cam)
 
 	return err;
 }
-
 
 static int tas5130d1b_set_ctrl(struct et61x251_device* cam,
 			       const struct v4l2_control* ctrl)
@@ -69,7 +67,6 @@ static int tas5130d1b_set_ctrl(struct et61x251_device* cam,
 
 	return err ? -EIO : 0;
 }
-
 
 static const struct et61x251_sensor tas5130d1b = {
 	.name = "TAS5130D1B",
@@ -124,7 +121,6 @@ static const struct et61x251_sensor tas5130d1b = {
 		.priv = 8,
 	},
 };
-
 
 int et61x251_probe_tas5130d1b(struct et61x251_device* cam)
 {

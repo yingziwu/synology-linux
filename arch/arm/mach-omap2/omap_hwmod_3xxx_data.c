@@ -2549,7 +2549,6 @@ static struct omap_hwmod omap3xxx_mcbsp3_sidetone_hwmod = {
 	.slaves_cnt	= ARRAY_SIZE(omap3xxx_mcbsp3_sidetone_slaves),
 };
 
-
 /* SR common */
 static struct omap_hwmod_sysc_fields omap34xx_sr_sysc_fields = {
 	.clkact_shift	= 20,
@@ -3234,7 +3233,6 @@ static __initdata struct omap_hwmod *omap3xxx_hwmods[] = {
 	&omap3xxx_mcbsp5_hwmod,
 	&omap3xxx_mcbsp2_sidetone_hwmod,
 	&omap3xxx_mcbsp3_sidetone_hwmod,
-
 
 	/* mcspi class */
 	&omap34xx_mcspi1,

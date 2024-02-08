@@ -2157,7 +2157,6 @@ out:
 	return status;
 }
 
-
 /*
  * Section 14.2.34 of RFC 3530 (under the heading "IMPLEMENTATION") has
  * a description of SETCLIENTID_CONFIRM request processing consisting of 4
@@ -2766,7 +2765,6 @@ nfs4_upgrade_open(struct svc_rqst *rqstp, struct nfs4_file *fp, struct svc_fh *c
 
 	return nfs_ok;
 }
-
 
 static void
 nfs4_set_claim_prev(struct nfsd4_open *open)
@@ -3720,7 +3718,6 @@ out:
 	return status;
 }
 
-
 /* 
  * Lock owner state (byte-range locks)
  */
@@ -4375,7 +4372,6 @@ nfs4_find_reclaim_client(clientid_t *clid)
 	unsigned int strhashval;
 	struct nfs4_client *clp;
 	struct nfs4_client_reclaim *crp = NULL;
-
 
 	/* find clientid in conf_id_hashtbl */
 	clp = find_confirmed_client(clid);

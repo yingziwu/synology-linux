@@ -336,7 +336,6 @@ static struct inode *sysv_alloc_inode(struct super_block *sb)
 static void sysv_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(sysv_inode_cachep, SYSV_I(inode));
 }
 
@@ -377,5 +376,10 @@ int __init sysv_init_icache(void)
 
 void sysv_destroy_icache(void)
 {
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
 	kmem_cache_destroy(sysv_inode_cachep);
 }

@@ -26,7 +26,6 @@
 #define MODULE_SYMBOL_PREFIX ""
 #endif
 
-
 /* Are we using CONFIG_MODVERSIONS? */
 int modversions = 0;
 /* Warn about undefined symbols? (do so if we have vmlinux) */
@@ -237,7 +236,6 @@ static struct {
 	{ .str = "(unknown)",                .export = export_unknown },
 };
 
-
 static const char *export_str(enum export ex)
 {
 	return export_list[ex].str;
@@ -444,10 +442,11 @@ static int parse_elf(struct elf_info *info, const char *filename)
 		return 0;
 	}
 
-	if (hdr->e_shnum == SHN_UNDEF) {
+	if (hdr->e_shnum == 0) {
 		/*
 		 * There are more than 64k sections,
 		 * read count from .sh_size.
+		 * note: it doesn't need shndx2secindex()
 		 */
 		info->num_sections = TO_NATIVE(sechdrs[0].sh_size);
 	}
@@ -455,7 +454,8 @@ static int parse_elf(struct elf_info *info, const char *filename)
 		info->num_sections = hdr->e_shnum;
 	}
 	if (hdr->e_shstrndx == SHN_XINDEX) {
-		info->secindex_strings = TO_NATIVE(sechdrs[0].sh_link);
+		info->secindex_strings =
+		    shndx2secindex(TO_NATIVE(sechdrs[0].sh_link));
 	}
 	else {
 		info->secindex_strings = hdr->e_shstrndx;
@@ -511,7 +511,7 @@ static int parse_elf(struct elf_info *info, const char *filename)
 			    sechdrs[i].sh_offset;
 			info->symtab_stop  = (void *)hdr +
 			    sechdrs[i].sh_offset + sechdrs[i].sh_size;
-			sh_link_idx = sechdrs[i].sh_link;
+			sh_link_idx = shndx2secindex(sechdrs[i].sh_link);
 			info->strtab       = (void *)hdr +
 			    sechdrs[sh_link_idx].sh_offset;
 		}
@@ -538,9 +538,11 @@ static int parse_elf(struct elf_info *info, const char *filename)
 
 	if (symtab_shndx_idx != ~0U) {
 		Elf32_Word *p;
-		if (symtab_idx != sechdrs[symtab_shndx_idx].sh_link)
+		if (symtab_idx !=
+		    shndx2secindex(sechdrs[symtab_shndx_idx].sh_link))
 			fatal("%s: SYMTAB_SHNDX has bad sh_link: %u!=%u\n",
-			      filename, sechdrs[symtab_shndx_idx].sh_link,
+			      filename,
+			      shndx2secindex(sechdrs[symtab_shndx_idx].sh_link),
 			      symtab_idx);
 		/* Fix endianness */
 		for (p = info->symtab_shndx_start; p < info->symtab_shndx_stop;
@@ -848,8 +850,6 @@ static void check_section(const char *modname, struct elf_info *elf,
 	}
 }
 
-
-
 #define ALL_INIT_DATA_SECTIONS \
 	".init.setup$", ".init.rodata$", \
 	".devinit.rodata$", ".cpuinit.rodata$", ".meminit.rodata$", \
@@ -895,7 +895,6 @@ static const char *init_exit_sections[] =
 
 /* data section */
 static const char *data_sections[] = { DATA_SECTIONS, NULL };
-
 
 /* symbols in .data that may refer to init/exit sections */
 #define DEFAULT_SYMBOL_WHITE_LIST					\
@@ -1472,7 +1471,7 @@ static unsigned int *reloc_location(struct elf_info *elf,
 				    Elf_Shdr *sechdr, Elf_Rela *r)
 {
 	Elf_Shdr *sechdrs = elf->sechdrs;
-	int section = sechdr->sh_info;
+	int section = shndx2secindex(sechdr->sh_info);
 
 	return (void *)elf->hdr + sechdrs[section].sh_offset +
 		r->r_offset;

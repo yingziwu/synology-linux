@@ -94,9 +94,6 @@ static dpt_sig_S DPTI_sig = {
 	DPT_MONTH, DPT_DAY, DPT_YEAR, "Adaptec Linux I2O RAID Driver"
 };
 
-
-
-
 /*============================================================================
  * Globals
  *============================================================================
@@ -143,7 +140,6 @@ struct adpt_i2o_post_wait_data
 static struct adpt_i2o_post_wait_data *adpt_post_wait_queue = NULL;
 static u32 adpt_post_wait_id = 0;
 static DEFINE_SPINLOCK(adpt_post_wait_lock);
-
 
 /*============================================================================
  * 				Functions
@@ -216,7 +212,6 @@ static int adpt_detect(struct scsi_host_template* sht)
 			adpt_i2o_delete_hba(pHba);
 		}
 	}
-
 
 	/* Active IOPs in HOLD state */
 
@@ -298,7 +293,6 @@ rebuild_sys_tab:
 	return hba_count;
 }
 
-
 /*
  * scsi_unregister will be called AFTER we return.
  */
@@ -310,7 +304,6 @@ static int adpt_release(struct Scsi_Host *host)
 	scsi_unregister(host);
 	return 0;
 }
-
 
 static void adpt_inquiry(adpt_hba* pHba)
 {
@@ -405,7 +398,6 @@ static void adpt_inquiry(adpt_hba* pHba)
 	adpt_i2o_status_get(pHba);
 	return ;
 }
-
 
 static int adpt_slave_configure(struct scsi_device * device)
 {
@@ -544,7 +536,6 @@ static int adpt_bios_param(struct scsi_device *sdev, struct block_device *dev,
 	return 0;
 }
 
-
 static const char *adpt_info(struct Scsi_Host *host)
 {
 	adpt_hba* pHba;
@@ -626,7 +617,6 @@ static int adpt_proc_info(struct Scsi_Host *host, char *buffer, char **start, of
 				len += sprintf(buffer+len,"\t%-24.24s", d->pScsi_dev->vendor);
 				len += sprintf(buffer+len," Rev: %-8.8s\n", d->pScsi_dev->rev);
 				pos = begin + len;
-
 
 				/* CHECKPOINT */
 				if(pos > offset + length) {
@@ -809,7 +799,6 @@ static int adpt_abort(struct scsi_cmnd * cmd)
 	return SUCCESS;
 }
 
-
 #define I2O_DEVICE_RESET 0x27
 // This is the same for BLK and SCSI devices
 // NOTE this is wrong in the i2o.h definitions
@@ -854,7 +843,6 @@ static int adpt_device_reset(struct scsi_cmnd* cmd)
 		return SUCCESS;
 	}
 }
-
 
 #define I2O_HBA_BUS_RESET 0x87
 // This version of bus reset is called by the eh_error handler
@@ -958,7 +946,6 @@ static int adpt_hba_reset(adpt_hba* pHba)
  * 
  *===========================================================================
  */
-
 
 static void adpt_i2o_sys_shutdown(void)
 {
@@ -1162,7 +1149,6 @@ static int adpt_install_hba(struct scsi_host_template* sht, struct pci_dev* pDev
 	return 0;
 }
 
-
 static void adpt_i2o_delete_hba(adpt_hba* pHba)
 {
 	adpt_hba* p1;
@@ -1173,7 +1159,6 @@ static void adpt_i2o_delete_hba(adpt_hba* pHba)
 	int j;
 	struct adpt_device* pDev;
 	struct adpt_device* pNext;
-
 
 	mutex_lock(&adpt_configuration_lock);
 	// scsi_unregister calls our adpt_release which
@@ -1282,7 +1267,6 @@ static struct adpt_device* adpt_find_device(adpt_hba* pHba, u32 chan, u32 id, u3
 	return NULL;
 }
 
-
 static int adpt_i2o_post_wait(adpt_hba* pHba, u32* msg, int len, int timeout)
 {
 	// I used my own version of the WAIT_QUEUE_HEAD
@@ -1369,7 +1353,6 @@ static int adpt_i2o_post_wait(adpt_hba* pHba, u32* msg, int len, int timeout)
 	return status;
 }
 
-
 static s32 adpt_i2o_post_this(adpt_hba* pHba, u32* data, int len)
 {
 
@@ -1399,7 +1382,6 @@ static s32 adpt_i2o_post_this(adpt_hba* pHba, u32* data, int len)
 
 	return 0;
 }
-
 
 static void adpt_i2o_post_wait_complete(u32 context, int status)
 {
@@ -1540,7 +1522,6 @@ static s32 adpt_i2o_reset_hba(adpt_hba* pHba)
 #endif
 	return 0;
 }
-
 
 static int adpt_i2o_parse_lct(adpt_hba* pHba)
 {
@@ -1707,7 +1688,6 @@ static int adpt_i2o_parse_lct(adpt_hba* pHba)
 	return 0;
 }
 
-
 /*
  *	Each I2O controller has a chain of devices on it - these match
  *	the useful parts of the LCT of the board.
@@ -1791,7 +1771,6 @@ static int adpt_close(struct inode *inode, struct file *file)
 
 	return 0;
 }
-
 
 static int adpt_i2o_passthru(adpt_hba* pHba, u32 __user *arg)
 {
@@ -1964,7 +1943,6 @@ static int adpt_i2o_passthru(adpt_hba* pHba, u32 __user *arg)
 			rcode = -EFAULT;
 		}
 	}
-
 
 cleanup:
 	if (rcode != -ETIME && rcode != -EINTR) {
@@ -2423,7 +2401,6 @@ static s32 adpt_scsi_to_i2o(adpt_hba* pHba, struct scsi_cmnd* cmd, struct adpt_d
 	return rcode;
 }
 
-
 static s32 adpt_scsi_host_alloc(adpt_hba* pHba, struct scsi_host_template *sht)
 {
 	struct Scsi_Host *host;
@@ -2453,7 +2430,6 @@ static s32 adpt_scsi_host_alloc(adpt_hba* pHba, struct scsi_host_template *sht)
 
 	return 0;
 }
-
 
 static s32 adpt_i2o_to_scsi(void __iomem *reply, struct scsi_cmnd* cmd)
 {
@@ -2576,7 +2552,6 @@ static s32 adpt_i2o_to_scsi(void __iomem *reply, struct scsi_cmnd* cmd)
 	return cmd->result;
 }
 
-
 static s32 adpt_rescan(adpt_hba* pHba)
 {
 	s32 rcode;
@@ -2593,7 +2568,6 @@ out:	if(pHba->host)
 		spin_unlock_irqrestore(pHba->host->host_lock, flags);
 	return rcode;
 }
-
 
 static s32 adpt_i2o_reparse_lct(adpt_hba* pHba)
 {
@@ -2780,13 +2754,10 @@ static void adpt_fail_posted_scbs(adpt_hba* pHba)
 	}
 }
 
-
 /*============================================================================
  *  Routines from i2o subsystem
  *============================================================================
  */
-
-
 
 /*
  *	Bring an I2O controller into HOLD state. See the spec.
@@ -2989,7 +2960,6 @@ static s32 adpt_i2o_init_outbound_q(adpt_hba* pHba)
 	return 0;
 }
 
-
 /*
  * I2O System Table.  Contains information about
  * all the IOPs in the system.  Used to inform IOPs
@@ -2998,8 +2968,6 @@ static s32 adpt_i2o_init_outbound_q(adpt_hba* pHba)
  * sys_tbl_ver is the CurrentChangeIndicator that is
  * used by IOPs to track changes.
  */
-
-
 
 static s32 adpt_i2o_status_get(adpt_hba* pHba)
 {
@@ -3036,7 +3004,6 @@ static s32 adpt_i2o_status_get(adpt_hba* pHba)
 		schedule_timeout_uninterruptible(1);
 	} while(m==EMPTY_QUEUE);
 
-	
 	msg=(u32 __iomem *)(pHba->msg_addr_virt+m);
 
 	writel(NINE_WORD_MSG_SIZE|SGL_OFFSET_0, &msg[0]);
@@ -3089,7 +3056,6 @@ static s32 adpt_i2o_status_get(adpt_hba* pHba)
 	if (pHba->sg_tablesize > SG_LIST_ELEMENTS) {
 		pHba->sg_tablesize = SG_LIST_ELEMENTS;
 	}
-
 
 #ifdef DEBUG
 	printk("dpti%d: State = ",pHba->unit);
@@ -3173,7 +3139,6 @@ static int adpt_i2o_lct_get(adpt_hba* pHba)
 
 	PDEBUG("%s: Hardware resource table read.\n", pHba->name);
 
-
 	// I2O_DPT_EXEC_IOP_BUFFERS_GROUP_NO;
 	if(adpt_i2o_query_scalar(pHba, 0 , 0x8000, -1, buf, sizeof(buf))>=0) {
 		pHba->FwDebugBufferSize = buf[1];
@@ -3256,7 +3221,6 @@ static int adpt_i2o_build_sys_table(void)
 
 	return 0;
 }
-
 
 /*
  *	 Dump the information block associated with a given unit (TID)
@@ -3366,7 +3330,6 @@ static const char *adpt_i2o_get_class_name(int class)
 }
 #endif
 
-
 static s32 adpt_i2o_hrt_get(adpt_hba* pHba)
 {
 	u32 msg[6];
@@ -3466,7 +3429,6 @@ static int adpt_i2o_query_scalar(adpt_hba* pHba, int tid,
 	return buflen;
 }
 
-
 /*	Issue UTIL_PARAMS_GET or UTIL_PARAMS_SET
  *
  *	This function can be used for all UtilParamsGet/Set operations.
@@ -3511,7 +3473,6 @@ static int adpt_i2o_issue_params(int cmd, adpt_hba* pHba, int tid,
 	 return 4 + ((res[1] & 0x0000FFFF) << 2); /* bytes used in resblk */ 
 }
 
-
 static s32 adpt_i2o_quiesce_hba(adpt_hba* pHba)
 {
 	u32 msg[4];
@@ -3541,7 +3502,6 @@ static s32 adpt_i2o_quiesce_hba(adpt_hba* pHba)
 	adpt_i2o_status_get(pHba);
 	return ret;
 }
-
 
 /* 
  * Enable IOP. Allows the IOP to resume external operations.
@@ -3577,7 +3537,6 @@ static int adpt_i2o_enable_hba(adpt_hba* pHba)
 	adpt_i2o_status_get(pHba);
 	return ret;
 }
-
 
 static int adpt_i2o_systab_send(adpt_hba* pHba)
 {
@@ -3616,12 +3575,10 @@ static int adpt_i2o_systab_send(adpt_hba* pHba)
 	return ret;	
  }
 
-
 /*============================================================================
  *
  *============================================================================
  */
-
 
 #ifdef UARTDELAY 
 

@@ -1,13 +1,7 @@
-/*
- *  linux/fs/hfsplus/bnode.c
- *
- * Copyright (C) 2001
- * Brad Boyer (flar@allandria.com)
- * (C) 2003 Ardis Technologies <roman@ardistech.com>
- *
- * Handle basic btree node operations
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/string.h>
 #include <linux/slab.h>
 #include <linux/pagemap.h>
@@ -17,7 +11,6 @@
 #include "hfsplus_fs.h"
 #include "hfsplus_raw.h"
 
-/* Copy a specified range of bytes from the raw data of a node */
 void hfs_bnode_read(struct hfs_bnode *node, void *buf, int off, int len)
 {
 	struct page **pagep;
@@ -39,10 +32,20 @@ void hfs_bnode_read(struct hfs_bnode *node, void *buf, int off, int len)
 	}
 }
 
+#ifdef MY_ABC_HERE
+u32 hfs_bnode_read_u32(struct hfs_bnode *node, int off)
+{
+	__be32 data;
+	 
+	hfs_bnode_read(node, &data, off, 4);
+	return be32_to_cpu(data);
+}
+#endif
+
 u16 hfs_bnode_read_u16(struct hfs_bnode *node, int off)
 {
 	__be16 data;
-	/* TODO: optimize later... */
+	 
 	hfs_bnode_read(node, &data, off, 2);
 	return be16_to_cpu(data);
 }
@@ -50,7 +53,7 @@ u16 hfs_bnode_read_u16(struct hfs_bnode *node, int off)
 u8 hfs_bnode_read_u8(struct hfs_bnode *node, int off)
 {
 	u8 data;
-	/* TODO: optimize later... */
+	 
 	hfs_bnode_read(node, &data, off, 1);
 	return data;
 }
@@ -62,7 +65,8 @@ void hfs_bnode_read_key(struct hfs_bnode *node, void *key, int off)
 
 	tree = node->tree;
 	if (node->type == HFS_NODE_LEAF ||
-	    tree->attributes & HFS_TREE_VARIDXKEYS)
+	    tree->attributes & HFS_TREE_VARIDXKEYS ||
+	    node->tree->cnid == HFSPLUS_ATTR_CNID)
 		key_len = hfs_bnode_read_u16(node, off) + 2;
 	else
 		key_len = tree->max_key_len + 2;
@@ -96,7 +100,7 @@ void hfs_bnode_write(struct hfs_bnode *node, void *buf, int off, int len)
 void hfs_bnode_write_u16(struct hfs_bnode *node, int off, u16 data)
 {
 	__be16 v = cpu_to_be16(data);
-	/* TODO: optimize later... */
+	 
 	hfs_bnode_write(node, &v, off, 2);
 }
 
@@ -129,7 +133,7 @@ void hfs_bnode_copy(struct hfs_bnode *dst_node, int dst,
 	struct page **src_page, **dst_page;
 	int l;
 
-	dprint(DBG_BNODE_MOD, "copybytes: %u,%u,%u\n", dst, src, len);
+	hfs_dbg(BNODE_MOD, "copybytes: %u,%u,%u\n", dst, src, len);
 	if (!len)
 		return;
 	tree = src_node->tree;
@@ -187,7 +191,7 @@ void hfs_bnode_move(struct hfs_bnode *node, int dst, int src, int len)
 	struct page **src_page, **dst_page;
 	int l;
 
-	dprint(DBG_BNODE_MOD, "movebytes: %u,%u,%u\n", dst, src, len);
+	hfs_dbg(BNODE_MOD, "movebytes: %u,%u,%u\n", dst, src, len);
 	if (!len)
 		return;
 	src += node->page_offset;
@@ -301,34 +305,35 @@ void hfs_bnode_dump(struct hfs_bnode *node)
 	__be32 cnid;
 	int i, off, key_off;
 
-	dprint(DBG_BNODE_MOD, "bnode: %d\n", node->this);
+	hfs_dbg(BNODE_MOD, "bnode: %d\n", node->this);
 	hfs_bnode_read(node, &desc, 0, sizeof(desc));
-	dprint(DBG_BNODE_MOD, "%d, %d, %d, %d, %d\n",
+	hfs_dbg(BNODE_MOD, "%d, %d, %d, %d, %d\n",
 		be32_to_cpu(desc.next), be32_to_cpu(desc.prev),
 		desc.type, desc.height, be16_to_cpu(desc.num_recs));
 
 	off = node->tree->node_size - 2;
 	for (i = be16_to_cpu(desc.num_recs); i >= 0; off -= 2, i--) {
 		key_off = hfs_bnode_read_u16(node, off);
-		dprint(DBG_BNODE_MOD, " %d", key_off);
+		hfs_dbg(BNODE_MOD, " %d", key_off);
 		if (i && node->type == HFS_NODE_INDEX) {
 			int tmp;
 
-			if (node->tree->attributes & HFS_TREE_VARIDXKEYS)
+			if (node->tree->attributes & HFS_TREE_VARIDXKEYS ||
+					node->tree->cnid == HFSPLUS_ATTR_CNID)
 				tmp = hfs_bnode_read_u16(node, key_off) + 2;
 			else
 				tmp = node->tree->max_key_len + 2;
-			dprint(DBG_BNODE_MOD, " (%d", tmp);
+			hfs_dbg_cont(BNODE_MOD, " (%d", tmp);
 			hfs_bnode_read(node, &cnid, key_off + tmp, 4);
-			dprint(DBG_BNODE_MOD, ",%d)", be32_to_cpu(cnid));
+			hfs_dbg_cont(BNODE_MOD, ",%d)", be32_to_cpu(cnid));
 		} else if (i && node->type == HFS_NODE_LEAF) {
 			int tmp;
 
 			tmp = hfs_bnode_read_u16(node, key_off);
-			dprint(DBG_BNODE_MOD, " (%d)", tmp);
+			hfs_dbg_cont(BNODE_MOD, " (%d)", tmp);
 		}
 	}
-	dprint(DBG_BNODE_MOD, "\n");
+	hfs_dbg_cont(BNODE_MOD, "\n");
 }
 
 void hfs_bnode_unlink(struct hfs_bnode *node)
@@ -362,9 +367,8 @@ void hfs_bnode_unlink(struct hfs_bnode *node)
 	} else if (node->type == HFS_NODE_LEAF)
 		tree->leaf_tail = node->prev;
 
-	/* move down? */
 	if (!node->prev && !node->next)
-		dprint(DBG_BNODE_MOD, "hfs_btree_del_level\n");
+		hfs_dbg(BNODE_MOD, "hfs_btree_del_level\n");
 	if (!node->parent) {
 		tree->root = 0;
 		tree->depth = 0;
@@ -384,7 +388,7 @@ struct hfs_bnode *hfs_bnode_findhash(struct hfs_btree *tree, u32 cnid)
 	struct hfs_bnode *node;
 
 	if (cnid >= tree->node_count) {
-		printk(KERN_ERR "hfs: request for non-existent node "
+		pr_err("request for non-existent node "
 				"%d in B*Tree\n",
 			cnid);
 		return NULL;
@@ -407,7 +411,7 @@ static struct hfs_bnode *__hfs_bnode_create(struct hfs_btree *tree, u32 cnid)
 	loff_t off;
 
 	if (cnid >= tree->node_count) {
-		printk(KERN_ERR "hfs: request for non-existent node "
+		pr_err("request for non-existent node "
 				"%d in B*Tree\n",
 			cnid);
 		return NULL;
@@ -423,8 +427,8 @@ static struct hfs_bnode *__hfs_bnode_create(struct hfs_btree *tree, u32 cnid)
 	node->this = cnid;
 	set_bit(HFS_BNODE_NEW, &node->flags);
 	atomic_set(&node->refcnt, 1);
-	dprint(DBG_BNODE_REFS, "new_node(%d:%d): 1\n",
-	       node->tree->cnid, node->this);
+	hfs_dbg(BNODE_REFS, "new_node(%d:%d): 1\n",
+		node->tree->cnid, node->this);
 	init_waitqueue_head(&node->lock_wq);
 	spin_lock(&tree->hash_lock);
 	node2 = hfs_bnode_findhash(tree, cnid);
@@ -454,7 +458,10 @@ static struct hfs_bnode *__hfs_bnode_create(struct hfs_btree *tree, u32 cnid)
 			page_cache_release(page);
 			goto fail;
 		}
+#ifdef MY_ABC_HERE
+#else
 		page_cache_release(page);
+#endif  
 		node->page[i] = page;
 	}
 
@@ -468,7 +475,7 @@ void hfs_bnode_unhash(struct hfs_bnode *node)
 {
 	struct hfs_bnode **p;
 
-	dprint(DBG_BNODE_REFS, "remove_node(%d:%d): %d\n",
+	hfs_dbg(BNODE_REFS, "remove_node(%d:%d): %d\n",
 		node->tree->cnid, node->this, atomic_read(&node->refcnt));
 	for (p = &node->tree->node_hash[hfs_bnode_hash(node->this)];
 	     *p && *p != node; p = &(*p)->next_hash)
@@ -478,7 +485,6 @@ void hfs_bnode_unhash(struct hfs_bnode *node)
 	node->tree->node_hash_cnt--;
 }
 
-/* Load a particular node out of a tree */
 struct hfs_bnode *hfs_bnode_find(struct hfs_btree *tree, u32 num)
 {
 	struct hfs_bnode *node;
@@ -573,6 +579,13 @@ void hfs_bnode_free(struct hfs_bnode *node)
 		if (node->page[i])
 			page_cache_release(node->page[i]);
 #endif
+#ifdef MY_ABC_HERE
+	int i;
+
+	for (i = 0; i < node->tree->pages_per_bnode; i++)
+		if (node->page[i])
+			page_cache_release(node->page[i]);
+#endif  
 	kfree(node);
 }
 
@@ -586,9 +599,14 @@ struct hfs_bnode *hfs_bnode_create(struct hfs_btree *tree, u32 num)
 	node = hfs_bnode_findhash(tree, num);
 	spin_unlock(&tree->hash_lock);
 	if (node) {
-		printk(KERN_CRIT "new node %u already hashed?\n", num);
+#ifdef MY_ABC_HERE
+		tree->sb->s_flags |= MS_RDONLY;
+		return ERR_PTR(-EIO);
+#else
+		pr_crit("new node %u already hashed?\n", num);
 		WARN_ON(1);
 		return node;
+#endif
 	}
 	node = __hfs_bnode_create(tree, num);
 	if (!node)
@@ -618,23 +636,30 @@ void hfs_bnode_get(struct hfs_bnode *node)
 {
 	if (node) {
 		atomic_inc(&node->refcnt);
-		dprint(DBG_BNODE_REFS, "get_node(%d:%d): %d\n",
+		hfs_dbg(BNODE_REFS, "get_node(%d:%d): %d\n",
 			node->tree->cnid, node->this,
 			atomic_read(&node->refcnt));
 	}
 }
 
-/* Dispose of resources used by a node */
 void hfs_bnode_put(struct hfs_bnode *node)
 {
 	if (node) {
 		struct hfs_btree *tree = node->tree;
 		int i;
 
-		dprint(DBG_BNODE_REFS, "put_node(%d:%d): %d\n",
+		hfs_dbg(BNODE_REFS, "put_node(%d:%d): %d\n",
 			node->tree->cnid, node->this,
 			atomic_read(&node->refcnt));
+#ifdef MY_ABC_HERE
+		if (!atomic_read(&node->refcnt)) {
+			printk("hfsplus:node refcnt wrong (%d).\n", atomic_read(&node->refcnt));
+			tree->sb->s_flags |= MS_RDONLY;
+			return;
+		}
+#else
 		BUG_ON(!atomic_read(&node->refcnt));
+#endif
 		if (!atomic_dec_and_lock(&node->refcnt, &tree->hash_lock))
 			return;
 		for (i = 0; i < tree->pages_per_bnode; i++) {
@@ -646,6 +671,8 @@ void hfs_bnode_put(struct hfs_bnode *node)
 		if (test_bit(HFS_BNODE_DELETED, &node->flags)) {
 			hfs_bnode_unhash(node);
 			spin_unlock(&tree->hash_lock);
+			if (hfs_bnode_need_zeroout(tree))
+				hfs_bnode_clear(node, 0, tree->node_size);
 			hfs_bmap_free(node);
 			hfs_bnode_free(node);
 			return;
@@ -654,3 +681,12 @@ void hfs_bnode_put(struct hfs_bnode *node)
 	}
 }
 
+bool hfs_bnode_need_zeroout(struct hfs_btree *tree)
+{
+	struct super_block *sb = tree->inode->i_sb;
+	struct hfsplus_sb_info *sbi = HFSPLUS_SB(sb);
+	const u32 volume_attr = be32_to_cpu(sbi->s_vhdr->attributes);
+
+	return tree->cnid == HFSPLUS_CAT_CNID &&
+		volume_attr & HFSPLUS_VOL_UNUSED_NODE_FIX;
+}

@@ -67,7 +67,6 @@ static void qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
 		struct qeth_qdio_out_buffer *buf,
 		enum qeth_qdio_buffer_states newbufstate);
 
-
 static inline const char *qeth_get_cardname(struct qeth_card *card)
 {
 	if (card->info.guestlan) {
@@ -392,7 +391,6 @@ static inline void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q,
 	}
 }
 
-
 static inline void qeth_qdio_handle_aob(struct qeth_card *card,
 		unsigned long phys_aob_addr) {
 	struct qaob *aob;
@@ -437,7 +435,6 @@ static inline int qeth_is_cq(struct qeth_card *card, unsigned int queue)
 	    queue != 0 &&
 	    queue == card->qdio.no_in_queues - 1;
 }
-
 
 static int qeth_issue_next_read(struct qeth_card *card)
 {
@@ -2318,7 +2315,6 @@ out:
 	return rc;
 }
 
-
 static int qeth_alloc_qdio_buffers(struct qeth_card *card)
 {
 	int i, j;
@@ -3217,7 +3213,6 @@ static int qeth_switch_to_nonpacking_if_needed(struct qeth_qdio_out_q *queue)
 	return flush_count;
 }
 
-
 /*
  * Called to flush a packing buffer if no more pci flags are on the queue.
  * Checks if there is a packing buffer and prepares it to be flushed.
@@ -3400,7 +3395,6 @@ out:
 }
 EXPORT_SYMBOL_GPL(qeth_configure_cq);
 
-
 static void qeth_qdio_cq_handler(struct qeth_card *card,
 		unsigned int qdio_err,
 		unsigned int queue, int first_element, int count) {
@@ -3483,7 +3477,6 @@ void qeth_qdio_input_handler(struct ccw_device *ccwdev, unsigned int qdio_err,
 		qeth_qdio_cq_handler(card, qdio_err, queue, first_elem, count);
 	else if (qdio_err)
 		qeth_schedule_recovery(card);
-
 
 }
 EXPORT_SYMBOL_GPL(qeth_qdio_input_handler);
@@ -4428,7 +4421,6 @@ static void qeth_determine_capabilities(struct qeth_card *card)
 		card->options.cq = QETH_CQ_NOTAVAILABLE;
 	}
 
-
 out_offline:
 	if (ddev_offline == 1)
 		ccw_device_set_offline(ddev);
@@ -4738,7 +4730,6 @@ static inline int qeth_create_skb_frag(struct qeth_qdio_buffer *qethbuffer,
 		(*pskb)->truesize += data_len;
 		(*pfrag)++;
 	}
-
 
 	return 0;
 }

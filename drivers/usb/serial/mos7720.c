@@ -1501,7 +1501,6 @@ static int calc_baud_rate_divisor(int baudrate, int *divisor)
 	__u16 round1;
 	__u16 round;
 
-
 	dbg("%s - %d", __func__, baudrate);
 
 	for (i = 0; i < ARRAY_SIZE(divisor_table); i++) {
@@ -1679,7 +1678,6 @@ static void change_port_settings(struct tty_struct *tty,
 	mos7720_port->shadowLCR &=
 		~(LCR_BITS_MASK | LCR_STOP_MASK | LCR_PAR_MASK);
 	mos7720_port->shadowLCR |= (lData | lParity | lStop);
-
 
 	/* Disable Interrupts */
 	write_mos_reg(serial, port_number, IER, 0x00);
@@ -2087,7 +2085,6 @@ static int mos7720_startup(struct usb_serial *serial)
 		serial->port[1]->interrupt_in_buffer = NULL;
 	}
 
-
 	/* set up serial port private structures */
 	for (i = 0; i < serial->num_ports; ++i) {
 		mos7720_port = kzalloc(sizeof(struct moschip_port), GFP_KERNEL);
@@ -2108,7 +2105,6 @@ static int mos7720_startup(struct usb_serial *serial)
 		dbg("port number is %d", serial->port[i]->number);
 		dbg("serial number is %d", serial->minor);
 	}
-
 
 	/* setting configuration feature to one */
 	usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),

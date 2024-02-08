@@ -22,7 +22,6 @@
 #include <asm/page.h>
 #include <asm/hvcall.h>
 
-
 #define MODULE_VERS "1.0"
 #define MODULE_NAME "pseries_energy"
 

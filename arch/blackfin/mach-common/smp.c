@@ -58,7 +58,6 @@ struct blackfin_flush_data {
 
 void *secondary_stack;
 
-
 struct smp_call_struct {
 	void (*func)(void *info);
 	void *info;

@@ -30,7 +30,6 @@
 
 #include "hv_kvp.h"
 
-
 static void shutdown_onchannelcallback(void *context);
 static struct hv_util_service util_shutdown = {
 	.util_cb = shutdown_onchannelcallback,

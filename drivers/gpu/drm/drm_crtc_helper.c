@@ -455,7 +455,6 @@ done:
 }
 EXPORT_SYMBOL(drm_crtc_helper_set_mode);
 
-
 static int
 drm_crtc_helper_disable(struct drm_crtc *crtc)
 {

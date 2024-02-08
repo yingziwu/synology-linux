@@ -197,16 +197,16 @@ config BCH_CONST_T
 # Textsearch support is select'ed if needed
 #
 config TEXTSEARCH
-	boolean
+	boolean	"Textsearch support"
 
 config TEXTSEARCH_KMP
-	tristate
+	tristate "Textsearch KMP"
 
 config TEXTSEARCH_BM
-	tristate
+	tristate "Textsearch BM"
 
 config TEXTSEARCH_FSM
-	tristate
+	tristate "Textsearch FSM"
 
 config BTREE
 	boolean
@@ -255,6 +255,8 @@ config NLATTR
 #
 config GENERIC_ATOMIC64
        bool
+
+source "lib/synolib/Kconfig"
 
 config LRU_CACHE
 	tristate

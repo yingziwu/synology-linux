@@ -1,0 +1,3 @@
+# UAPI Header export list
+header-y += btrfs.h
+header-y += fuse.h

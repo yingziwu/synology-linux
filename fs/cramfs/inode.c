@@ -33,7 +33,6 @@ static const struct address_space_operations cramfs_aops;
 
 static DEFINE_MUTEX(read_mutex);
 
-
 /* These macros may change in future, to provide better st_ino semantics. */
 #define OFFSET(x)	((x)->i_ino)
 
@@ -378,7 +377,7 @@ static int cramfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 		unsigned long nextoffset;
 		char *name;
 		ino_t ino;
-		mode_t mode;
+		umode_t mode;
 		int namelen, error;
 
 		mutex_lock(&read_mutex);

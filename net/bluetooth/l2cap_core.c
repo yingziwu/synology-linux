@@ -1360,7 +1360,6 @@ static int l2cap_ertm_send(struct l2cap_chan *chan)
 				| (chan->next_tx_seq << L2CAP_CTRL_TXSEQ_SHIFT);
 		put_unaligned_le16(control, tx_skb->data + L2CAP_HDR_SIZE);
 
-
 		if (chan->fcs == L2CAP_FCS_CRC16) {
 			fcs = crc16(0, (u8 *)skb->data, tx_skb->len - 2);
 			put_unaligned_le16(fcs, skb->data + tx_skb->len - 2);
@@ -1881,7 +1880,6 @@ static inline void l2cap_ertm_init(struct l2cap_chan *chan)
 
 	INIT_LIST_HEAD(&chan->srej_l);
 
-
 	sk->sk_backlog_rcv = l2cap_ertm_data_rcv;
 }
 
@@ -2077,7 +2075,6 @@ done:
 		l2cap_add_conf_opt(&ptr, L2CAP_CONF_RFC,
 					sizeof(rfc), (unsigned long) &rfc);
 	}
-
 
 	if (result == L2CAP_CONF_SUCCESS) {
 		/* Configure output options and let the other side know

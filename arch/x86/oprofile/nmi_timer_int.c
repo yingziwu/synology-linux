@@ -32,13 +32,11 @@ static int timer_start(void)
 	return 0;
 }
 
-
 static void timer_stop(void)
 {
 	unregister_nmi_handler(NMI_LOCAL, "oprofile-timer");
 	synchronize_sched();  /* Allow already-started NMIs to complete. */
 }
-
 
 int __init op_nmi_timer_init(struct oprofile_operations *ops)
 {

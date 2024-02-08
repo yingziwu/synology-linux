@@ -406,4 +406,3 @@ static void mISDN_cleanup(void)
 
 module_init(mISDNInit);
 module_exit(mISDN_cleanup);
-

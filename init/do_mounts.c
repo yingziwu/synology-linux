@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/module.h>
 #include <linux/sched.h>
 #include <linux/ctype.h>
@@ -23,7 +26,7 @@
 
 #include "do_mounts.h"
 
-int __initdata rd_doload;	/* 1 = load RAM disk, 0 = don't load */
+int __initdata rd_doload;	 
 
 int root_mountflags = MS_RDONLY | MS_SILENT;
 static char * __initdata root_device_name;
@@ -59,13 +62,7 @@ __setup("ro", readonly);
 __setup("rw", readwrite);
 
 #ifdef CONFIG_BLOCK
-/**
- * match_dev_by_uuid - callback for finding a partition using its uuid
- * @dev:	device passed in by the caller
- * @data:	opaque pointer to a 36 byte char array with a UUID
- *
- * Returns 1 if the device matches, and 0 otherwise.
- */
+ 
 static int match_dev_by_uuid(struct device *dev, void *data)
 {
 	u8 *uuid = data;
@@ -82,20 +79,6 @@ no_match:
 	return 0;
 }
 
-
-/**
- * devt_from_partuuid - looks up the dev_t of a partition by its UUID
- * @uuid:	min 36 byte char array containing a hex ascii UUID
- *
- * The function will return the first partition which contains a matching
- * UUID value in its partition_meta_info struct.  This does not search
- * by filesystem UUIDs.
- *
- * If @uuid is followed by a "/PARTNROFF=%d", then the number will be
- * extracted and used as an offset from the partition identified by the UUID.
- *
- * Returns the matching dev_t on success or 0 on failure.
- */
 static dev_t devt_from_partuuid(char *uuid_str)
 {
 	dev_t res = 0;
@@ -108,10 +91,9 @@ static dev_t devt_from_partuuid(char *uuid_str)
 	if (strlen(uuid_str) < 36)
 		goto done;
 
-	/* Check for optional partition number offset attributes. */
 	if (uuid_str[36]) {
 		char c = 0;
-		/* Explicitly fail on poor PARTUUID syntax. */
+		 
 		if (sscanf(&uuid_str[36],
 			   "/PARTNROFF=%d%c", &offset, &c) != 1) {
 			printk(KERN_ERR "VFS: PARTUUID= is invalid.\n"
@@ -124,7 +106,6 @@ static dev_t devt_from_partuuid(char *uuid_str)
 		}
 	}
 
-	/* Pack the requested UUID in the expected format. */
 	part_pack_uuid(uuid_str, uuid);
 
 	dev = class_find_device(&block_class, NULL, uuid, &match_dev_by_uuid);
@@ -133,7 +114,6 @@ static dev_t devt_from_partuuid(char *uuid_str)
 
 	res = dev->devt;
 
-	/* Attempt to find the partition by offset. */
 	if (!offset)
 		goto no_offset;
 
@@ -151,27 +131,6 @@ done:
 	return res;
 }
 #endif
-
-/*
- *	Convert a name into device number.  We accept the following variants:
- *
- *	1) device number in hexadecimal	represents itself
- *	2) /dev/nfs represents Root_NFS (0xff)
- *	3) /dev/<disk_name> represents the device number of disk
- *	4) /dev/<disk_name><decimal> represents the device number
- *         of partition - device number of disk plus the partition number
- *	5) /dev/<disk_name>p<decimal> - same as the above, that form is
- *	   used when disk name of partitioned disk ends on a digit.
- *	6) PARTUUID=00112233-4455-6677-8899-AABBCCDDEEFF representing the
- *	   unique id of a partition if the partition table provides it.
- *	7) PARTUUID=<UUID>/PARTNROFF=<int> to select a partition in relation to
- *	   a partition with a known unique id.
- *
- *	If name doesn't have fall into the categories above, we return (0,0).
- *	block_class is used to check if something is a disk name. If the disk
- *	name contains slashes, the device name has them replaced with
- *	bangs.
- */
 
 dev_t name_to_dev_t(char *name)
 {
@@ -223,23 +182,17 @@ dev_t name_to_dev_t(char *name)
 	if (res)
 		goto done;
 
-	/*
-	 * try non-existent, but valid partition, which may only exist
-	 * after revalidating the disk, like partitioned md devices
-	 */
 	while (p > s && isdigit(p[-1]))
 		p--;
 	if (p == s || !*p || *p == '0')
 		goto fail;
 
-	/* try disk name without <part number> */
 	part = simple_strtoul(p, NULL, 10);
 	*p = '\0';
 	res = blk_lookup_devt(s, part);
 	if (res)
 		goto done;
 
-	/* try disk name without p<part number> */
 	if (p < s + 2 || !isdigit(p[-2]) || p[-1] != 'p')
 		goto fail;
 	p[-1] = '\0';
@@ -350,10 +303,39 @@ void __init mount_block_root(char *name, int flags)
 	const char *b = name;
 #endif
 
+#ifdef MY_ABC_HERE
+	char *mnt_opts = NULL;
+	size_t len;
+
+	if (!strcmp(name, "/dev/root")) {
+		if (root_mount_data) {
+			len = 1 + strlen(root_mount_data);
+			len += strlen("barrier=1,");
+			mnt_opts = kmalloc(len, GFP_KERNEL);
+			if (mnt_opts) {
+				strcpy(mnt_opts, "barrier=1,");
+				strcat(mnt_opts, root_mount_data);
+			}
+		} else {
+			len = 1 + strlen("barrier=1");
+			mnt_opts = kmalloc(len, GFP_KERNEL);
+			if (mnt_opts) {
+				strcpy(mnt_opts, "barrier=1");
+			}
+		}
+	} else {
+		mnt_opts = root_mount_data;
+	}
+#endif
+
 	get_fs_names(fs_names);
 retry:
 	for (p = fs_names; *p; p += strlen(p)+1) {
+#ifdef MY_ABC_HERE
+		int err = do_mount_root(name, p, flags, mnt_opts);
+#else
 		int err = do_mount_root(name, p, flags, root_mount_data);
+#endif
 		switch (err) {
 			case 0:
 				goto out;
@@ -363,11 +345,7 @@ retry:
 			case -EINVAL:
 				continue;
 		}
-	        /*
-		 * Allow the user to distinguish between failed sys_open
-		 * and bad superblock on root device.
-		 * and give them a list of the available devices
-		 */
+	         
 #ifdef CONFIG_BLOCK
 		__bdevname(ROOT_DEV, b);
 #endif
@@ -394,6 +372,9 @@ retry:
 #endif
 	panic("VFS: Unable to mount root fs on %s", b);
 out:
+#ifdef MY_ABC_HERE
+	kfree(mnt_opts);
+#endif
 	putname(fs_names);
 }
  
@@ -413,11 +394,6 @@ static int __init mount_nfs_root(void)
 	if (err != 0)
 		return 0;
 
-	/*
-	 * The server or network may not be ready, so try several
-	 * times.  Stop after a few tries in case the client wants
-	 * to fall back to other boot methods.
-	 */
 	timeout = NFSROOT_TIMEOUT_MIN;
 	for (try = 1; ; try++) {
 		err = do_mount_root(root_dev, "nfs",
@@ -427,7 +403,6 @@ static int __init mount_nfs_root(void)
 		if (try > NFSROOT_RETRY_MAX)
 			break;
 
-		/* Wait, in case the server refused us immediately */
 		ssleep(timeout);
 		timeout <<= 1;
 		if (timeout > NFSROOT_TIMEOUT_MAX)
@@ -480,7 +455,7 @@ void __init mount_root(void)
 #endif
 #ifdef CONFIG_BLK_DEV_FD
 	if (MAJOR(ROOT_DEV) == FLOPPY_MAJOR) {
-		/* rd_doload is 2 for a dual initrd/ramload setup */
+		 
 		if (rd_doload==2) {
 			if (rd_load_disk(1)) {
 				ROOT_DEV = Root_RAM1;
@@ -496,9 +471,6 @@ void __init mount_root(void)
 #endif
 }
 
-/*
- * Prepare the namespace - decide what/where to mount, load ramdisks, etc.
- */
 void __init prepare_namespace(void)
 {
 	int is_floppy;
@@ -509,13 +481,6 @@ void __init prepare_namespace(void)
 		ssleep(root_delay);
 	}
 
-	/*
-	 * wait for the known devices to complete their probing
-	 *
-	 * Note: this is a potential source of long boot delays.
-	 * For example, it is not atypical to wait 5 seconds here
-	 * for the touchpad of a laptop to initialize.
-	 */
 	wait_for_device_probe();
 
 	md_run_setup();
@@ -535,7 +500,6 @@ void __init prepare_namespace(void)
 	if (initrd_load())
 		goto out;
 
-	/* wait for any asynchronous scanning to complete */
 	if ((ROOT_DEV == 0) && root_wait) {
 		printk(KERN_INFO "Waiting for root device %s...\n",
 			saved_root_name);

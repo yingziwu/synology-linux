@@ -89,4 +89,3 @@
  * PWM Full Duty Cycle OST_PWMDCCR_FDCYCLE
  */
 #define OST_PWMDCCR_FDCYCLE	FIELD(1, 1, 10)
-

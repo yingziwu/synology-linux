@@ -51,7 +51,6 @@
 extern int setup_sigcontext(struct pt_regs *, struct sigcontext __user *);
 extern int restore_sigcontext(struct pt_regs *, struct sigcontext __user *);
 
-
 /* IRIX compatible stack_t  */
 typedef struct sigaltstack32 {
 	s32 ss_sp;
@@ -148,7 +147,6 @@ asmlinkage void sysn32_rt_sigreturn(nabi_no_regargs struct pt_regs regs)
 	set_fs(KERNEL_DS);
 	do_sigaltstack((stack_t __user *)&st, NULL, regs.regs[29]);
 	set_fs(old_fs);
-
 
 	/*
 	 * Don't let your children do this ...

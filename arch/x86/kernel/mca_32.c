@@ -247,7 +247,6 @@ static void *mca_dummy_transform_memory(struct mca_device *mca_dev, void *mem)
 	return mem;
 }
 
-
 static int __init mca_init(void)
 {
 	unsigned int i, j;

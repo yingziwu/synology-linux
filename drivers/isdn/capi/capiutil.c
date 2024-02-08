@@ -1,4 +1,4 @@
-/* $Id: capiutil.c,v 1.13.6.4 2001/09/23 22:24:33 kai Exp $
+/* $Id: capiutil.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * CAPI 2.0 convert capi message to capi message struct
  *
@@ -680,7 +680,6 @@ char *capi_cmd2str(u8 cmd, u8 subcmd)
 	return mnames[command_2_index(cmd, subcmd)];
 }
 
-
 /*-------------------------------------------------------*/
 
 #ifdef CONFIG_CAPI_TRACE
@@ -738,8 +737,6 @@ static char *pnames[] =
     /*2e */ "Reject",
     /*2f */ "Useruserdata"
 };
-
-
 
 #include <stdarg.h>
 
@@ -928,7 +925,6 @@ void cdebbuf_free(_cdebbuf *cdb)
 		kfree(cdb->buf);
 	kfree(cdb);
 }
-
 
 /**
  * capi_message2str() - format CAPI 2.0 message for printing

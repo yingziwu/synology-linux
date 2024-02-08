@@ -44,6 +44,8 @@
 #include <linux/cpu.h>
 #include <asm/pgtable.h>
 
+#include <rdma/ib.h>
+
 #include "ipath_kernel.h"
 #include "ipath_common.h"
 #include "ipath_user_sdma.h"
@@ -975,7 +977,6 @@ bail:
 	return ret;
 }
 
-
 /* common code for the mappings on dma_alloc_coherent mem */
 static int ipath_mmap_mem(struct vm_area_struct *vma,
 	struct ipath_portdata *pd, unsigned len, int write_ok,
@@ -1894,7 +1895,6 @@ done:
 	return ret;
 }
 
-
 static int ipath_do_user_init(struct file *fp,
 			      const struct ipath_user_info *uinfo)
 {
@@ -2238,6 +2238,9 @@ static ssize_t ipath_write(struct file *fp, const char __user *data,
 	struct ipath_cmd cmd;
 	ssize_t ret = 0;
 	void *dest;
+
+	if (WARN_ON_ONCE(!ib_safe_file_access(fp)))
+		return -EACCES;
 
 	if (count < sizeof(cmd.type)) {
 		ret = -EINVAL;

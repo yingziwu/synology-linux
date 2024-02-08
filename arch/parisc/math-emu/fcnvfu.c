@@ -22,7 +22,7 @@
  * BEGIN_DESC
  *
  *  File:
- *	@(#)	pa/spmath/fcnvfu.c		$Revision: 1.1 $
+ *	@(#)	pa/spmath/fcnvfu.c		$Revision: 1.1.1.1 $
  *
  *  Purpose:
  *	Floating-point to Unsigned Fixed-point Converts
@@ -40,7 +40,6 @@
  *
  * END_DESC
 */
-
 
 #include "float.h"
 #include "sgl_float.h"
@@ -533,4 +532,3 @@ dbl_to_dbl_fcnvfu (dbl_floating_point * srcptr, unsigned int *nullptr,
 	}
 	return(NOEXCEPTION);
 }
-

@@ -21,7 +21,6 @@
  *
  */
 
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/poll.h>
@@ -268,7 +267,6 @@ getaddr_done:
 	return error;
 }
 
-
 static int
 kvp_get_domain_name(char *buffer, int length)
 {
@@ -354,7 +352,6 @@ int main(void)
 	addr.nl_pad = 0;
 	addr.nl_pid = 0;
 	addr.nl_groups = CN_KVP_IDX;
-
 
 	error = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 	if (error < 0) {

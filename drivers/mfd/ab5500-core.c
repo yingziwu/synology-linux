@@ -1136,7 +1136,6 @@ static bool page_read_allowed(u8 devid, u8 bank, u8 first_reg, u8 last_reg)
 	if (bankref == NULL || last_reg < first_reg)
 		return false;
 
-
 	/* Find the range (if it exists in the list) that includes first_reg. */
 	for (i = 0; i < bankref->nranges; i++) {
 		if (first_reg < bankref->range[i].first)
@@ -1164,7 +1163,6 @@ static bool reg_read_allowed(u8 devid, u8 bank, u8 reg)
 {
 	return page_read_allowed(devid, bank, reg, reg);
 }
-
 
 /*
  * The exported register access functionality.

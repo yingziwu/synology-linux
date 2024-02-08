@@ -170,7 +170,6 @@ typedef	union _ThreeWire{
 	u16			longData;
 }ThreeWireReg;
 
-
 typedef struct buffer
 {
 	struct buffer *next;

@@ -22,7 +22,7 @@
  * BEGIN_DESC
  *
  *  File:
- *	@(#)	pa/spmath/fcnvuf.c		$Revision: 1.1 $
+ *	@(#)	pa/spmath/fcnvuf.c		$Revision: 1.1.1.1 $
  *
  *  Purpose:
  *	Fixed point to Floating-point Converts
@@ -40,7 +40,6 @@
  *
  * END_DESC
 */
-
 
 #include "float.h"
 #include "sgl_float.h"
@@ -315,4 +314,3 @@ dbl_to_dbl_fcnvuf(
 	Dbl_copytoptr(resultp1,resultp2,dstptr);
 	return(NOEXCEPTION);
 }
-

@@ -1136,7 +1136,6 @@ void efx_nic_remove_eventq(struct efx_channel *channel)
 	efx_free_special_buffer(channel->efx, &channel->eventq);
 }
 
-
 void efx_nic_generate_test_event(struct efx_channel *channel)
 {
 	unsigned int magic = EFX_CHANNEL_MAGIC_TEST(channel);
@@ -1164,7 +1163,6 @@ void efx_nic_generate_fill_event(struct efx_channel *channel)
  * Flush handling
  *
  **************************************************************************/
-
 
 static void efx_poll_flush_events(struct efx_nic *efx)
 {
@@ -1505,7 +1503,6 @@ static irqreturn_t efx_msi_interrupt(int irq, void *dev_id)
 
 	return IRQ_HANDLED;
 }
-
 
 /* Setup RSS indirection table.
  * This maps from the hash value of the packet to RXQ

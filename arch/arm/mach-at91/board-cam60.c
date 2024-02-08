@@ -44,7 +44,6 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
-
 static void __init cam60_init_early(void)
 {
 	/* Initialize processor: 10 MHz crystal */
@@ -63,7 +62,6 @@ static void __init cam60_init_early(void)
 static struct at91_usbh_data __initdata cam60_usbh_data = {
 	.ports		= 1,
 };
-
 
 /*
  * SPI devices.
@@ -111,7 +109,6 @@ static struct spi_board_info cam60_spi_devices[] __initdata = {
 #endif
 };
 
-
 /*
  * MACB Ethernet device
  */
@@ -119,7 +116,6 @@ static struct __initdata at91_eth_data cam60_macb_data = {
 	.phy_irq_pin	= AT91_PIN_PB5,
 	.is_rmii	= 0,
 };
-
 
 /*
  * NAND Flash
@@ -167,7 +163,6 @@ static void __init cam60_add_device_nand(void)
 
 	at91_add_device_nand(&cam60_nand_data);
 }
-
 
 static void __init cam60_board_init(void)
 {

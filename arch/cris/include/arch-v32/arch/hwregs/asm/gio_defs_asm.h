@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:07:47 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/gio_defs_asm.h ../../inst/gio/rtl/gio_regs.r
- *      id: $Id: gio_defs_asm.h,v 1.1 2005/04/24 18:31:04 starvik Exp $
+ *      id: $Id: gio_defs_asm.h,v 1.1.1.1 2010/04/15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -254,7 +254,6 @@
 #define reg_gio_rw_pe_oe___oe___lsb 0
 #define reg_gio_rw_pe_oe___oe___width 18
 #define reg_gio_rw_pe_oe_offset 88
-
 
 /* Constants */
 #define regk_gio_anyedge                          0x00000007

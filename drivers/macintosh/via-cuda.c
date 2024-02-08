@@ -327,7 +327,6 @@ cuda_send_request(struct adb_request *req, int sync)
     return 0;
 }
 
-
 /* Enable/disable autopolling */
 static int
 cuda_adb_autopoll(int devs)

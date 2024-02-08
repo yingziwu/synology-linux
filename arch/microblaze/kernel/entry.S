@@ -460,7 +460,6 @@ TRAP_return:		/* Make global symbol for debugging */
 	rtbd	r14, 0;	/* Instructions to return from an IRQ */
 	nop;
 
-
 /* These syscalls need access to the struct pt_regs on the stack, so we
    implement them in assembly (they're basically all wrappers anyway).  */
 
@@ -901,7 +900,6 @@ DBTRAP_return_user: /* MS: Make global symbol for debugging */
 DBTRAP_return_kernel: /* MS: Make global symbol for debugging */
 	rtbd	r16, 0; /* MS: Instructions to return from a debug trap */
 	nop;
-
 
 ENTRY(_switch_to)
 	/* prepare return value */

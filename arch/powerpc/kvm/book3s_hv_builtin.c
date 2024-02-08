@@ -153,4 +153,3 @@ void kvm_release_rma(struct kvmppc_rma_info *ri)
 	}
 }
 EXPORT_SYMBOL_GPL(kvm_release_rma);
-

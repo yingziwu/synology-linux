@@ -39,7 +39,6 @@
 #include <asm/machdep.h>
 #include <asm/siginfo.h>
 
-
 static const char *vec_names[] = {
 	[VEC_RESETSP]	= "RESET SP",
 	[VEC_RESETPC]	= "RESET PC",
@@ -224,7 +223,6 @@ static inline int do_040writeback1(unsigned short wbs, unsigned long wba,
 
 	/* set_fs can not be moved, otherwise put_user() may oops */
 	set_fs(old_fs);
-
 
 #ifdef DEBUG
 	printk("do_040writeback1, res=%d\n",res);
@@ -457,7 +455,6 @@ static inline void bus_error030 (struct frame *fp)
 			/* not an instruction fault or data fault! BAD */
 			panic ("USER BUSERR w/o instruction or data fault");
 	}
-
 
 	/* First handle the data fault, if any.  */
 	if (ssw & DF) {
@@ -739,7 +736,6 @@ asmlinkage void buserr_c(struct frame *fp)
 	  force_sig(SIGSEGV, current);
 	}
 }
-
 
 static int kstack_depth_to_print = 48;
 

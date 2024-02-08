@@ -217,7 +217,6 @@ static int smack_syslog(int typefrom_file)
 	return rc;
 }
 
-
 /*
  * Superblock Hooks.
  */
@@ -994,7 +993,6 @@ static int smack_inode_getsecurity(const struct inode *inode,
 	return rc;
 }
 
-
 /**
  * smack_inode_listsecurity - list the Smack attributes
  * @inode: the object
@@ -1138,7 +1136,6 @@ static int smack_file_fcntl(struct file *file, unsigned int cmd,
 {
 	struct smk_audit_info ad;
 	int rc = 0;
-
 
 	switch (cmd) {
 	case F_GETLK:
@@ -1346,7 +1343,7 @@ static int smack_file_receive(struct file *file)
 }
 
 /**
- * smack_dentry_open - Smack dentry open processing
+ * smack_file_open - Smack dentry open processing
  * @file: the object
  * @cred: unused
  *
@@ -1354,7 +1351,7 @@ static int smack_file_receive(struct file *file)
  *
  * Returns 0
  */
-static int smack_dentry_open(struct file *file, const struct cred *cred)
+static int smack_file_open(struct file *file, const struct cred *cred)
 {
 	struct inode_smack *isp = file->f_path.dentry->d_inode->i_security;
 
@@ -1388,7 +1385,6 @@ static int smack_cred_alloc_blank(struct cred *cred, gfp_t gfp)
 
 	return 0;
 }
-
 
 /**
  * smack_cred_free - "free" task-level security credentials
@@ -1457,7 +1453,6 @@ static void smack_cred_transfer(struct cred *new, const struct cred *old)
 	new_tsp->smk_forked = old_tsp->smk_task;
 	mutex_init(&new_tsp->smk_rules_lock);
 	INIT_LIST_HEAD(&new_tsp->smk_rules);
-
 
 	/* cbs copy rule list */
 }
@@ -3056,7 +3051,6 @@ static int smack_socket_getpeersec_stream(struct socket *sock,
 	return rc;
 }
 
-
 /**
  * smack_socket_getpeersec_dgram - pull in packet label
  * @sock: the peer socket
@@ -3530,7 +3524,7 @@ struct security_operations smack_ops = {
 	.file_send_sigiotask = 		smack_file_send_sigiotask,
 	.file_receive = 		smack_file_receive,
 
-	.dentry_open =			smack_dentry_open,
+	.file_open =			smack_file_open,
 
 	.cred_alloc_blank =		smack_cred_alloc_blank,
 	.cred_free =			smack_cred_free,
@@ -3619,7 +3613,6 @@ struct security_operations smack_ops = {
 	.inode_setsecctx =		smack_inode_setsecctx,
 	.inode_getsecctx =		smack_inode_getsecctx,
 };
-
 
 static __init void init_smack_know_list(void)
 {

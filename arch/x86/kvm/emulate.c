@@ -259,7 +259,6 @@ struct gprefix {
 			: _y ((ctxt)->src.val), "i" (EFLAGS_MASK));	\
 	} while (0)
 
-
 /* Raw emulation: instruction has two explicit operands. */
 #define __emulate_2op_nobyte(ctxt,_op,_wx,_wy,_lx,_ly,_qx,_qy)		\
 	do {								\
@@ -634,7 +633,6 @@ static int linearize(struct x86_emulate_ctxt *ctxt,
 {
 	return __linearize(ctxt, addr, size, write, false, linear);
 }
-
 
 static int segmented_read_std(struct x86_emulate_ctxt *ctxt,
 			      struct segmented_address addr,
@@ -1628,7 +1626,6 @@ static int emulate_iret_real(struct x86_emulate_ctxt *ctxt)
 		return rc;
 
 	ctxt->_eip = temp_eip;
-
 
 	if (ctxt->op_bytes == 4)
 		ctxt->eflags = ((temp_eflags & mask) | (ctxt->eflags & vm86_mask));
@@ -3863,7 +3860,6 @@ int x86_emulate_insn(struct x86_emulate_ctxt *ctxt)
 
 	if ((ctxt->d & DstMask) == ImplicitOps)
 		goto special_insn;
-
 
 	if ((ctxt->dst.type == OP_MEM) && !(ctxt->d & Mov)) {
 		/* optimisation - avoid slow emulated read if Mov */

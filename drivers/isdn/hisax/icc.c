@@ -1,4 +1,4 @@
-/* $Id: icc.c,v 1.8.2.3 2004/01/13 14:31:25 keil Exp $
+/* $Id: icc.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * ICC specific routines
  *
@@ -44,7 +44,6 @@ ph_command(struct IsdnCardState *cs, unsigned int command)
 		debugl1(cs, "ph_command %x", command);
 	cs->writeisac(cs, ICC_CIX0, (command << 2) | 3);
 }
-
 
 static void
 icc_new_ph(struct IsdnCardState *cs)

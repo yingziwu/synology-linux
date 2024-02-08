@@ -39,7 +39,6 @@ enum work_action {
 	WORK_ACT_DONE,
 };
 
-
 /* utils */
 static inline void ASSERT_WORK_MTX(struct ieee80211_local *local)
 {
@@ -465,7 +464,6 @@ ieee80211_direct_probe(struct ieee80211_work *wk)
 
 	return WORK_ACT_NONE;
 }
-
 
 static enum work_action __must_check
 ieee80211_authenticate(struct ieee80211_work *wk)

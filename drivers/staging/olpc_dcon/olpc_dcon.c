@@ -11,7 +11,6 @@
  * License as published by the Free Software Foundation.
  */
 
-
 #include <linux/kernel.h>
 #include <linux/fb.h>
 #include <linux/console.h>
@@ -108,7 +107,6 @@ static int dcon_hw_init(struct dcon_priv *dcon, int is_init)
 			dcon->disp_mode |= MODE_COL_AA;
 	}
 	dcon_write(dcon, DCON_REG_MODE, dcon->disp_mode);
-
 
 	/* Set the scanline to interrupt on during resume */
 	dcon_write(dcon, DCON_REG_SCAN_INT, resumeline);
@@ -750,7 +748,6 @@ static int dcon_resume(struct i2c_client *client)
 }
 
 #endif
-
 
 irqreturn_t dcon_interrupt(int irq, void *id)
 {

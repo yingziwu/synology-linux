@@ -92,7 +92,6 @@ MODULE_PARM_DESC(enable, "Enable ICE1724 soundcard.");
 module_param_array(model, charp, NULL, 0444);
 MODULE_PARM_DESC(model, "Use the given board model.");
 
-
 /* Both VT1720 and VT1724 have the same PCI IDs */
 static DEFINE_PCI_DEVICE_TABLE(snd_vt1724_ids) = {
 	{ PCI_VDEVICE(ICE, PCI_DEVICE_ID_VT1724), 0 },
@@ -100,7 +99,6 @@ static DEFINE_PCI_DEVICE_TABLE(snd_vt1724_ids) = {
 };
 
 MODULE_DEVICE_TABLE(pci, snd_vt1724_ids);
-
 
 static int PRO_RATE_LOCKED;
 static int PRO_RATE_RESET = 1;
@@ -190,7 +188,6 @@ static unsigned short snd_vt1724_ac97_read(struct snd_ac97 *ac97, unsigned short
 		return ~0;
 	return inw(ICEMT1724(ice, AC97_DATA));
 }
-
 
 /*
  * GPIO operations
@@ -407,7 +404,6 @@ static struct snd_rawmidi_ops vt1724_midi_input_ops = {
 	.close = vt1724_midi_input_close,
 	.trigger = vt1724_midi_input_trigger,
 };
-
 
 /*
  *  Interrupt handler
@@ -1139,7 +1135,6 @@ static int __devinit snd_vt1724_pcm_profi(struct snd_ice1712 *ice, int device)
 	return 0;
 }
 
-
 /*
  * SPDIF PCM
  */
@@ -1284,7 +1279,6 @@ static struct snd_pcm_ops snd_vt1724_capture_spdif_ops = {
 	.pointer =	snd_vt1724_pcm_pointer,
 };
 
-
 static int __devinit snd_vt1724_pcm_spdif(struct snd_ice1712 *ice, int device)
 {
 	char *name;
@@ -1334,7 +1328,6 @@ static int __devinit snd_vt1724_pcm_spdif(struct snd_ice1712 *ice, int device)
 
 	return 0;
 }
-
 
 /*
  * independent surround PCMs
@@ -1418,7 +1411,6 @@ static struct snd_pcm_ops snd_vt1724_playback_indep_ops = {
 	.pointer =	snd_vt1724_pcm_pointer,
 };
 
-
 static int __devinit snd_vt1724_pcm_indep(struct snd_ice1712 *ice, int device)
 {
 	struct snd_pcm *pcm;
@@ -1448,7 +1440,6 @@ static int __devinit snd_vt1724_pcm_indep(struct snd_ice1712 *ice, int device)
 
 	return 0;
 }
-
 
 /*
  *  Mixer section
@@ -1771,7 +1762,6 @@ static struct snd_kcontrol_new snd_vt1724_spdif_switch __devinitdata =
 	.put =		snd_vt1724_spdif_sw_put
 };
 
-
 #if 0 /* NOT USED YET */
 /*
  * GPIO access from extern
@@ -1883,7 +1873,6 @@ static int stdclock_set_spdif_clock(struct snd_ice1712 *ice, int type)
 	outb(i2s_oval & ~VT1724_MT_I2S_MCLK_128X, ICEMT1724(ice, I2S_FORMAT));
 	return 0;
 }
-
 
 static int snd_vt1724_pro_internal_clock_put(struct snd_kcontrol *kcontrol,
 					     struct snd_ctl_elem_value *ucontrol)
@@ -1999,7 +1988,6 @@ static struct snd_kcontrol_new snd_vt1724_pro_rate_reset __devinitdata = {
 	.get = snd_vt1724_pro_rate_reset_get,
 	.put = snd_vt1724_pro_rate_reset_put
 };
-
 
 /*
  * routing
@@ -2132,7 +2120,6 @@ static struct snd_kcontrol_new snd_vt1724_mixer_pro_spdif_route __devinitdata = 
 	.count = 2,
 };
 
-
 static int snd_vt1724_pro_peak_info(struct snd_kcontrol *kcontrol,
 				    struct snd_ctl_elem_info *uinfo)
 {
@@ -2189,7 +2176,6 @@ static struct snd_ice1712_card_info *card_tables[] __devinitdata = {
 	snd_vt1724_qtet_cards,
 	NULL,
 };
-
 
 /*
  */
@@ -2316,8 +2302,6 @@ static int __devinit snd_vt1724_read_eeprom(struct snd_ice1712 *ice,
 	return 0;
 }
 
-
-
 static void snd_vt1724_chip_reset(struct snd_ice1712 *ice)
 {
 	outb(VT1724_RESET , ICEREG1724(ice, CONTROL));
@@ -2394,7 +2378,6 @@ static int __devinit snd_vt1724_spdif_build_controls(struct snd_ice1712 *ice)
 #endif
 	return 0;
 }
-
 
 static int __devinit snd_vt1724_build_controls(struct snd_ice1712 *ice)
 {
@@ -2538,7 +2521,6 @@ static int __devinit snd_vt1724_create(struct snd_card *card,
 	*r_ice1712 = ice;
 	return 0;
 }
-
 
 /*
  *

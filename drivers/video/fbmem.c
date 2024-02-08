@@ -35,7 +35,6 @@
 
 #include <asm/fb.h>
 
-
     /*
      *  Frame buffer device initialization and setup routines
      */
@@ -515,7 +514,6 @@ static int fb_show_logo_line(struct fb_info *info, int rotate,
 	return logo->height;
 }
 
-
 #ifdef CONFIG_FB_LOGO_EXTRA
 
 #define FB_LOGO_EX_NUM_MAX 10
@@ -586,7 +584,6 @@ static inline int fb_show_extra_logos(struct fb_info *info, int y, int rotate)
 
 #endif /* CONFIG_FB_LOGO_EXTRA */
 
-
 int fb_prepare_logo(struct fb_info *info, int rotate)
 {
 	int depth = fb_get_color_depth(&info->var, &info->fix);
@@ -635,7 +632,6 @@ int fb_prepare_logo(struct fb_info *info, int rotate)
 		fb_logo.depth = 4;
 	else
 		fb_logo.depth = 1;
-
 
  	if (fb_logo.depth > 4 && depth > 4) {
  		switch (info->fix.visual) {
@@ -957,7 +953,6 @@ fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
 
 		if (!ret)
 		    fb_delete_videomode(&mode1, &info->modelist);
-
 
 		ret = (ret) ? -EINVAL : 0;
 		goto done;
@@ -1348,15 +1343,12 @@ fb_mmap(struct file *file, struct vm_area_struct * vma)
 {
 	struct fb_info *info = file_fb_info(file);
 	struct fb_ops *fb;
-	unsigned long off;
+	unsigned long mmio_pgoff;
 	unsigned long start;
 	u32 len;
 
 	if (!info)
 		return -ENODEV;
-	if (vma->vm_pgoff > (~0UL >> PAGE_SHIFT))
-		return -EINVAL;
-	off = vma->vm_pgoff << PAGE_SHIFT;
 	fb = info->fbops;
 	if (!fb)
 		return -ENODEV;
@@ -1368,33 +1360,24 @@ fb_mmap(struct file *file, struct vm_area_struct * vma)
 		return res;
 	}
 
-	/* frame buffer memory */
+	/*
+	 * Ugh. This can be either the frame buffer mapping, or
+	 * if pgoff points past it, the mmio mapping.
+	 */
 	start = info->fix.smem_start;
-	len = PAGE_ALIGN((start & ~PAGE_MASK) + info->fix.smem_len);
-	if (off >= len) {
-		/* memory mapped io */
-		off -= len;
-		if (info->var.accel_flags) {
-			mutex_unlock(&info->mm_lock);
-			return -EINVAL;
-		}
+	len = info->fix.smem_len;
+	mmio_pgoff = PAGE_ALIGN((start & ~PAGE_MASK) + len) >> PAGE_SHIFT;
+	if (vma->vm_pgoff >= mmio_pgoff) {
+		vma->vm_pgoff -= mmio_pgoff;
 		start = info->fix.mmio_start;
-		len = PAGE_ALIGN((start & ~PAGE_MASK) + info->fix.mmio_len);
+		len = info->fix.mmio_len;
 	}
 	mutex_unlock(&info->mm_lock);
-	start &= PAGE_MASK;
-	if ((vma->vm_end - vma->vm_start + off) > len)
-		return -EINVAL;
-	off += start;
-	vma->vm_pgoff = off >> PAGE_SHIFT;
-	/* This is an IO map - tell maydump to skip this VMA */
-	vma->vm_flags |= VM_IO | VM_RESERVED;
+
 	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-	fb_pgprotect(file, vma, off);
-	if (io_remap_pfn_range(vma, vma->vm_start, off >> PAGE_SHIFT,
-			     vma->vm_end - vma->vm_start, vma->vm_page_prot))
-		return -EAGAIN;
-	return 0;
+	fb_pgprotect(file, vma, start);
+
+	return vm_iomap_memory(vma, start, len);
 }
 
 static int

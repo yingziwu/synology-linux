@@ -2,7 +2,6 @@
  
 /* Written 1999 by Greg Banks, NEC Australia <gnb@linuxfan.com>. Based on suni.c */
 
-
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
@@ -30,7 +29,6 @@
 #define DPRINTK(format,args...)
 #endif
 
-
 struct idt77105_priv {
 	struct idt77105_stats stats;    /* link diagnostics */
 	struct atm_dev *dev;		/* device back-pointer */
@@ -48,7 +46,6 @@ static DEFINE_SPINLOCK(idt77105_priv_lock);
 
 static void idt77105_stats_timer_func(unsigned long);
 static void idt77105_restart_timer_func(unsigned long);
-
 
 static DEFINE_TIMER(stats_timer, idt77105_stats_timer_func, 0, 0);
 static DEFINE_TIMER(restart_timer, idt77105_restart_timer_func, 0, 0);
@@ -100,7 +97,6 @@ static void idt77105_stats_timer_func(unsigned long dummy)
         if (!start_timer) mod_timer(&stats_timer,jiffies+IDT77105_STATS_TIMER_PERIOD);
 }
 
-
 /*
  * A separate timer func which handles restarting PHY chips which
  * have had the cable re-inserted after being pulled out. This is
@@ -138,7 +134,6 @@ static void idt77105_restart_timer_func(unsigned long dummy)
         if (!start_timer) mod_timer(&restart_timer,jiffies+IDT77105_RESTART_TIMER_PERIOD);
 }
 
-
 static int fetch_stats(struct atm_dev *dev,struct idt77105_stats __user *arg,int zero)
 {
 	unsigned long flags;
@@ -154,7 +149,6 @@ static int fetch_stats(struct atm_dev *dev,struct idt77105_stats __user *arg,int
 	return copy_to_user(arg, &stats,
 		    sizeof(struct idt77105_stats)) ? -EFAULT : 0;
 }
-
 
 static int set_loopback(struct atm_dev *dev,int mode)
 {
@@ -185,7 +179,6 @@ static int set_loopback(struct atm_dev *dev,int mode)
 	return 0;
 }
 
-
 static int idt77105_ioctl(struct atm_dev *dev,unsigned int cmd,void __user *arg)
 {
         printk(KERN_NOTICE "%s(%d) idt77105_ioctl() called\n",dev->type,dev->number);
@@ -207,8 +200,6 @@ static int idt77105_ioctl(struct atm_dev *dev,unsigned int cmd,void __user *arg)
 			return -ENOIOCTLCMD;
 	}
 }
-
-
 
 static void idt77105_int(struct atm_dev *dev)
 {
@@ -257,7 +248,6 @@ static void idt77105_int(struct atm_dev *dev)
 #endif
 }
 
-
 static int idt77105_start(struct atm_dev *dev)
 {
 	unsigned long flags;
@@ -299,7 +289,6 @@ static int idt77105_start(struct atm_dev *dev)
 	    PUT(PRIV(dev)->old_mcr, MCR);
         }
 
-                    
 	idt77105_stats_timer_func(0); /* clear 77105 counters */
 	(void) fetch_stats(dev,NULL,1); /* clear kernel counters */
         
@@ -320,7 +309,6 @@ static int idt77105_start(struct atm_dev *dev)
 	spin_unlock_irqrestore(&idt77105_priv_lock, flags);
 	return 0;
 }
-
 
 static int idt77105_stop(struct atm_dev *dev)
 {
@@ -350,14 +338,12 @@ static int idt77105_stop(struct atm_dev *dev)
 	return 0;
 }
 
-
 static const struct atmphy_ops idt77105_ops = {
 	.start = 	idt77105_start,
 	.ioctl =	idt77105_ioctl,
 	.interrupt =	idt77105_int,
 	.stop =		idt77105_stop,
 };
-
 
 int idt77105_init(struct atm_dev *dev)
 {

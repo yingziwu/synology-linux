@@ -232,7 +232,6 @@ static struct gpio_leds_priv * __devinit gpio_leds_create_of(struct platform_dev
 #define of_gpio_leds_match NULL
 #endif /* CONFIG_OF_GPIO */
 
-
 static int __devinit gpio_led_probe(struct platform_device *pdev)
 {
 	struct gpio_led_platform_data *pdata = pdev->dev.platform_data;

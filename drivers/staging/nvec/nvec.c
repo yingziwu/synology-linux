@@ -657,7 +657,6 @@ static irqreturn_t nvec_interrupt(int irq, void *dev)
 		status & RCVD ? " RCVD" : "",
 		status & RNW ? " RNW" : "");
 
-
 	/*
 	 * TODO: A correct fix needs to be found for this.
 	 *

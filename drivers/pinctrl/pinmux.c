@@ -700,7 +700,6 @@ struct pinmux *pinmux_get(struct device *dev, const char *name)
 		pr_debug("in map, found pctldev %s to handle function %s",
 			 dev_name(&pctldev->dev), map->function);
 
-
 		/*
 		 * If we're looking for a specific named map, this must match,
 		 * else we loop and look for the next.
@@ -738,7 +737,6 @@ struct pinmux *pinmux_get(struct device *dev, const char *name)
 			num_maps++;
 		}
 	}
-
 
 	/* We should have atleast one map, right */
 	if (!num_maps) {

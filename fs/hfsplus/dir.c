@@ -1,13 +1,7 @@
-/*
- *  linux/fs/hfsplus/dir.c
- *
- * Copyright (C) 2001
- * Brad Boyer (flar@allandria.com)
- * (C) 2003 Ardis Technologies <roman@ardistech.com>
- *
- * Handling of directories
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/errno.h>
 #include <linux/fs.h>
 #include <linux/slab.h>
@@ -15,6 +9,11 @@
 
 #include "hfsplus_fs.h"
 #include "hfsplus_raw.h"
+#include "xattr.h"
+
+#ifdef MY_ABC_HERE
+extern struct mutex syno_hfsplus_global_mutex;
+#endif
 
 static inline void hfsplus_instantiate(struct dentry *dentry,
 				       struct inode *inode, u32 cnid)
@@ -23,9 +22,13 @@ static inline void hfsplus_instantiate(struct dentry *dentry,
 	d_instantiate(dentry, inode);
 }
 
-/* Find the entry inside dir named dentry->d_name */
+#ifdef MY_ABC_HERE
 static struct dentry *hfsplus_lookup(struct inode *dir, struct dentry *dentry,
 				     struct nameidata *nd)
+#else
+static struct dentry *hfsplus_lookup(struct inode *dir, struct dentry *dentry,
+				     unsigned int flags)
+#endif
 {
 	struct inode *inode = NULL;
 	struct hfs_find_data fd;
@@ -34,20 +37,52 @@ static struct dentry *hfsplus_lookup(struct inode *dir, struct dentry *dentry,
 	int err;
 	u32 cnid, linkid = 0;
 	u16 type;
+#ifdef MY_ABC_HERE
+	int nfc = 0;
+#endif  
 
+#ifdef MY_ABC_HERE
+	mutex_lock(&syno_hfsplus_global_mutex);
+#endif
+#ifdef MY_ABC_HERE
+	if (dentry->d_name.len > NAME_MAX) {
+#ifdef MY_ABC_HERE
+		mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
+		return ERR_PTR(-ENAMETOOLONG);
+	}
+#endif
 	sb = dir->i_sb;
 
 	dentry->d_fsdata = NULL;
 	err = hfs_find_init(HFSPLUS_SB(sb)->cat_tree, &fd);
 	if (err)
+#ifdef MY_ABC_HERE
+		{
+			mutex_unlock(&syno_hfsplus_global_mutex);
+			return ERR_PTR(err);
+		}
+#else
 		return ERR_PTR(err);
+#endif
+#ifdef MY_ABC_HERE
+NFC:
+	hfsplus_cat_build_key(sb, fd.search_key, dir->i_ino, &dentry->d_name, nfc);
+#else
 	hfsplus_cat_build_key(sb, fd.search_key, dir->i_ino, &dentry->d_name);
+#endif  
 again:
 	err = hfs_brec_read(&fd, &entry, sizeof(entry));
 	if (err) {
 		if (err == -ENOENT) {
+#ifdef MY_ABC_HERE
+			if (!nfc) {
+				nfc = 1;
+				goto NFC;
+			}
+#endif  
 			hfs_find_exit(&fd);
-			/* No such entry */
+			 
 			inode = NULL;
 			goto out;
 		}
@@ -82,10 +117,7 @@ again:
 			char name[32];
 
 			if (dentry->d_fsdata) {
-				/*
-				 * We found a link pointing to another link,
-				 * so ignore it and treat it as regular file.
-				 */
+				 
 				cnid = (unsigned long)dentry->d_fsdata;
 				linkid = 0;
 			} else {
@@ -94,35 +126,58 @@ again:
 					be32_to_cpu(entry.file.permissions.dev);
 				str.len = sprintf(name, "iNode%d", linkid);
 				str.name = name;
+#ifdef MY_ABC_HERE
+				hfsplus_cat_build_key(sb, fd.search_key,
+					HFSPLUS_SB(sb)->hidden_dir->i_ino,
+					&str, 0);
+#else
 				hfsplus_cat_build_key(sb, fd.search_key,
 					HFSPLUS_SB(sb)->hidden_dir->i_ino,
 					&str);
+#endif  
 				goto again;
 			}
 		} else if (!dentry->d_fsdata)
 			dentry->d_fsdata = (void *)(unsigned long)cnid;
 	} else {
-		printk(KERN_ERR "hfs: invalid catalog entry type in lookup\n");
+		pr_err("invalid catalog entry type in lookup\n");
 		err = -EIO;
 		goto fail;
 	}
 	hfs_find_exit(&fd);
 	inode = hfsplus_iget(dir->i_sb, cnid);
 	if (IS_ERR(inode))
+#ifdef MY_ABC_HERE
+		{
+			mutex_unlock(&syno_hfsplus_global_mutex);
+			return ERR_CAST(inode);
+		}
+#else
 		return ERR_CAST(inode);
+#endif
 	if (S_ISREG(inode->i_mode))
 		HFSPLUS_I(inode)->linkid = linkid;
 out:
 	d_add(dentry, inode);
+#ifdef MY_ABC_HERE
+	mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
 	return NULL;
 fail:
 	hfs_find_exit(&fd);
+#ifdef MY_ABC_HERE
+	mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
 	return ERR_PTR(err);
 }
 
 static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 {
+#ifdef MY_ABC_HERE
 	struct inode *inode = filp->f_path.dentry->d_inode;
+#else
+	struct inode *inode = file_inode(filp);
+#endif
 	struct super_block *sb = inode->i_sb;
 	int len, err;
 	char strbuf[HFSPLUS_MAX_STRLEN + 1];
@@ -134,21 +189,36 @@ static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 	if (filp->f_pos >= inode->i_size)
 		return 0;
 
+#ifdef MY_ABC_HERE
+	mutex_lock(&syno_hfsplus_global_mutex);
+#endif
+
 	err = hfs_find_init(HFSPLUS_SB(sb)->cat_tree, &fd);
+#ifdef MY_ABC_HERE
+	if (err) {
+		mutex_unlock(&syno_hfsplus_global_mutex);
+		return err;
+	}
+#else
 	if (err)
 		return err;
+#endif
+#ifdef MY_ABC_HERE
+	hfsplus_cat_build_key(sb, fd.search_key, inode->i_ino, NULL, 0);
+#else
 	hfsplus_cat_build_key(sb, fd.search_key, inode->i_ino, NULL);
-	err = hfs_brec_find(&fd);
+#endif  
+	err = hfs_brec_find(&fd, hfs_find_rec_by_key);
 	if (err)
 		goto out;
 
 	switch ((u32)filp->f_pos) {
 	case 0:
-		/* This is completely artificial... */
+		 
 		if (filldir(dirent, ".", 1, 0, inode->i_ino, DT_DIR))
 			goto out;
 		filp->f_pos++;
-		/* fall through */
+		 
 	case 1:
 		if (fd.entrylength > sizeof(entry) || fd.entrylength < 0) {
 			err = -EIO;
@@ -158,12 +228,12 @@ static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 		hfs_bnode_read(fd.bnode, &entry, fd.entryoffset,
 			fd.entrylength);
 		if (be16_to_cpu(entry.type) != HFSPLUS_FOLDER_THREAD) {
-			printk(KERN_ERR "hfs: bad catalog folder thread\n");
+			pr_err("bad catalog folder thread\n");
 			err = -EIO;
 			goto out;
 		}
 		if (fd.entrylength < HFSPLUS_MIN_THREAD_SZ) {
-			printk(KERN_ERR "hfs: truncated catalog thread\n");
+			pr_err("truncated catalog thread\n");
 			err = -EIO;
 			goto out;
 		}
@@ -171,7 +241,7 @@ static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 			    be32_to_cpu(entry.thread.parentID), DT_DIR))
 			goto out;
 		filp->f_pos++;
-		/* fall through */
+		 
 	default:
 		if (filp->f_pos >= inode->i_size)
 			goto out;
@@ -182,7 +252,7 @@ static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 
 	for (;;) {
 		if (be32_to_cpu(fd.key->cat.parent) != inode->i_ino) {
-			printk(KERN_ERR "hfs: walked past end of dir\n");
+			pr_err("walked past end of dir\n");
 			err = -EIO;
 			goto out;
 		}
@@ -202,7 +272,7 @@ static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 		if (type == HFSPLUS_FOLDER) {
 			if (fd.entrylength <
 					sizeof(struct hfsplus_cat_folder)) {
-				printk(KERN_ERR "hfs: small dir entry\n");
+				pr_err("small dir entry\n");
 				err = -EIO;
 				goto out;
 			}
@@ -215,7 +285,7 @@ static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 				break;
 		} else if (type == HFSPLUS_FILE) {
 			if (fd.entrylength < sizeof(struct hfsplus_cat_file)) {
-				printk(KERN_ERR "hfs: small file entry\n");
+				pr_err("small file entry\n");
 				err = -EIO;
 				goto out;
 			}
@@ -223,7 +293,7 @@ static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 				    be32_to_cpu(entry.file.id), DT_REG))
 				break;
 		} else {
-			printk(KERN_ERR "hfs: bad catalog entry type\n");
+			pr_err("bad catalog entry type\n");
 			err = -EIO;
 			goto out;
 		}
@@ -249,6 +319,9 @@ next:
 	memcpy(&rd->key, fd.key, sizeof(struct hfsplus_cat_key));
 out:
 	hfs_find_exit(&fd);
+#ifdef MY_ABC_HERE
+	mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
 	return err;
 }
 
@@ -279,6 +352,9 @@ static int hfsplus_link(struct dentry *src_dentry, struct inode *dst_dir,
 		return -EPERM;
 	if (!S_ISREG(inode->i_mode))
 		return -EPERM;
+#ifdef MY_ABC_HERE
+	mutex_lock(&syno_hfsplus_global_mutex);
+#endif
 
 	mutex_lock(&sbi->vh_mutex);
 	if (inode->i_ino == (u32)(unsigned long)src_dentry->d_fsdata) {
@@ -301,7 +377,7 @@ static int hfsplus_link(struct dentry *src_dentry, struct inode *dst_dir,
 		res = hfsplus_create_cat(cnid, src_dir,
 			&src_dentry->d_name, inode);
 		if (res)
-			/* panic? */
+			 
 			goto out;
 		sbi->file_count++;
 	}
@@ -316,9 +392,12 @@ static int hfsplus_link(struct dentry *src_dentry, struct inode *dst_dir,
 	inode->i_ctime = CURRENT_TIME_SEC;
 	mark_inode_dirty(inode);
 	sbi->file_count++;
-	dst_dir->i_sb->s_dirt = 1;
+	hfsplus_mark_mdb_dirty(dst_dir->i_sb);
 out:
 	mutex_unlock(&sbi->vh_mutex);
+#ifdef MY_ABC_HERE
+	mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
 	return res;
 }
 
@@ -333,6 +412,9 @@ static int hfsplus_unlink(struct inode *dir, struct dentry *dentry)
 
 	if (HFSPLUS_IS_RSRC(inode))
 		return -EPERM;
+#ifdef MY_ABC_HERE
+	mutex_lock(&syno_hfsplus_global_mutex);
+#endif
 
 	mutex_lock(&sbi->vh_mutex);
 	cnid = (u32)(unsigned long)dentry->d_fsdata;
@@ -376,6 +458,9 @@ static int hfsplus_unlink(struct inode *dir, struct dentry *dentry)
 	mark_inode_dirty(inode);
 out:
 	mutex_unlock(&sbi->vh_mutex);
+#ifdef MY_ABC_HERE
+	mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
 	return res;
 }
 
@@ -387,6 +472,9 @@ static int hfsplus_rmdir(struct inode *dir, struct dentry *dentry)
 
 	if (inode->i_size != 2)
 		return -ENOTEMPTY;
+#ifdef MY_ABC_HERE
+	mutex_lock(&syno_hfsplus_global_mutex);
+#endif
 
 	mutex_lock(&sbi->vh_mutex);
 	res = hfsplus_delete_cat(inode->i_ino, dir, &dentry->d_name);
@@ -398,6 +486,9 @@ static int hfsplus_rmdir(struct inode *dir, struct dentry *dentry)
 	mark_inode_dirty(inode);
 out:
 	mutex_unlock(&sbi->vh_mutex);
+#ifdef MY_ABC_HERE
+	mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
 	return res;
 }
 
@@ -408,6 +499,9 @@ static int hfsplus_symlink(struct inode *dir, struct dentry *dentry,
 	struct inode *inode;
 	int res = -ENOSPC;
 
+#ifdef MY_ABC_HERE
+	mutex_lock(&syno_hfsplus_global_mutex);
+#endif
 	mutex_lock(&sbi->vh_mutex);
 	inode = hfsplus_new_inode(dir->i_sb, S_IFLNK | S_IRWXUGO);
 	if (!inode)
@@ -421,6 +515,15 @@ static int hfsplus_symlink(struct inode *dir, struct dentry *dentry,
 	if (res)
 		goto out_err;
 
+	res = hfsplus_init_inode_security(inode, dir, &dentry->d_name);
+	if (res == -EOPNOTSUPP)
+		res = 0;  
+	else if (res) {
+		 
+		hfsplus_delete_cat(inode->i_ino, dir, &dentry->d_name);
+		goto out_err;
+	}
+
 	hfsplus_instantiate(dentry, inode, inode->i_ino);
 	mark_inode_dirty(inode);
 	goto out;
@@ -431,15 +534,22 @@ out_err:
 	iput(inode);
 out:
 	mutex_unlock(&sbi->vh_mutex);
+#ifdef MY_ABC_HERE
+	mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
 	return res;
 }
 
 static int hfsplus_mknod(struct inode *dir, struct dentry *dentry,
-			 int mode, dev_t rdev)
+			 umode_t mode, dev_t rdev)
 {
 	struct hfsplus_sb_info *sbi = HFSPLUS_SB(dir->i_sb);
 	struct inode *inode;
 	int res = -ENOSPC;
+
+#ifdef MY_ABC_HERE
+	mutex_lock(&syno_hfsplus_global_mutex);
+#endif
 
 	mutex_lock(&sbi->vh_mutex);
 	inode = hfsplus_new_inode(dir->i_sb, mode);
@@ -450,27 +560,46 @@ static int hfsplus_mknod(struct inode *dir, struct dentry *dentry,
 		init_special_inode(inode, mode, rdev);
 
 	res = hfsplus_create_cat(inode->i_ino, dir, &dentry->d_name, inode);
-	if (res) {
-		clear_nlink(inode);
-		hfsplus_delete_inode(inode);
-		iput(inode);
-		goto out;
+	if (res)
+		goto failed_mknod;
+
+	res = hfsplus_init_inode_security(inode, dir, &dentry->d_name);
+	if (res == -EOPNOTSUPP)
+		res = 0;  
+	else if (res) {
+		 
+		hfsplus_delete_cat(inode->i_ino, dir, &dentry->d_name);
+		goto failed_mknod;
 	}
 
 	hfsplus_instantiate(dentry, inode, inode->i_ino);
 	mark_inode_dirty(inode);
+	goto out;
+
+failed_mknod:
+	clear_nlink(inode);
+	hfsplus_delete_inode(inode);
+	iput(inode);
 out:
 	mutex_unlock(&sbi->vh_mutex);
+#ifdef MY_ABC_HERE
+	mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
 	return res;
 }
 
-static int hfsplus_create(struct inode *dir, struct dentry *dentry, int mode,
+#ifdef MY_ABC_HERE
+static int hfsplus_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 			  struct nameidata *nd)
+#else
+static int hfsplus_create(struct inode *dir, struct dentry *dentry, umode_t mode,
+			  bool excl)
+#endif
 {
 	return hfsplus_mknod(dir, dentry, mode, 0);
 }
 
-static int hfsplus_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+static int hfsplus_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	return hfsplus_mknod(dir, dentry, mode | S_IFDIR, 0);
 }
@@ -480,7 +609,6 @@ static int hfsplus_rename(struct inode *old_dir, struct dentry *old_dentry,
 {
 	int res;
 
-	/* Unlink destination if it already exists */
 	if (new_dentry->d_inode) {
 		if (S_ISDIR(new_dentry->d_inode->i_mode))
 			res = hfsplus_rmdir(new_dir, new_dentry);
@@ -490,24 +618,39 @@ static int hfsplus_rename(struct inode *old_dir, struct dentry *old_dentry,
 			return res;
 	}
 
+#ifdef MY_ABC_HERE
+	mutex_lock(&syno_hfsplus_global_mutex);
+#endif
 	res = hfsplus_rename_cat((u32)(unsigned long)old_dentry->d_fsdata,
 				 old_dir, &old_dentry->d_name,
 				 new_dir, &new_dentry->d_name);
 	if (!res)
 		new_dentry->d_fsdata = old_dentry->d_fsdata;
+#ifdef MY_ABC_HERE
+	mutex_unlock(&syno_hfsplus_global_mutex);
+#endif
 	return res;
 }
 
 const struct inode_operations hfsplus_dir_inode_operations = {
-	.lookup		= hfsplus_lookup,
-	.create		= hfsplus_create,
-	.link		= hfsplus_link,
-	.unlink		= hfsplus_unlink,
-	.mkdir		= hfsplus_mkdir,
-	.rmdir		= hfsplus_rmdir,
-	.symlink	= hfsplus_symlink,
-	.mknod		= hfsplus_mknod,
-	.rename		= hfsplus_rename,
+	.lookup			= hfsplus_lookup,
+	.create			= hfsplus_create,
+	.link			= hfsplus_link,
+	.unlink			= hfsplus_unlink,
+	.mkdir			= hfsplus_mkdir,
+	.rmdir			= hfsplus_rmdir,
+	.symlink		= hfsplus_symlink,
+	.mknod			= hfsplus_mknod,
+	.rename			= hfsplus_rename,
+#ifdef MY_ABC_HERE
+	.setxattr		= hfsplus_syno_setxattr,
+	.getxattr		= hfsplus_syno_getxattr,
+#else
+	.setxattr		= generic_setxattr,
+	.getxattr		= generic_getxattr,
+#endif
+	.listxattr		= hfsplus_listxattr,
+	.removexattr		= hfsplus_removexattr,
 };
 
 const struct file_operations hfsplus_dir_operations = {

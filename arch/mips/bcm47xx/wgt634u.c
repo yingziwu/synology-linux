@@ -47,7 +47,6 @@ static struct platform_device wgt634u_gpio_leds = {
 	}
 };
 
-
 /* 8MiB flash. The struct mtd_partition matches original Netgear WGT634U
    firmware. */
 static struct mtd_partition wgt634u_partitions[] = {

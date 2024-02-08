@@ -42,7 +42,6 @@
 
 #include <asm/mrst.h>
 
-
 static inline struct mdfld_dsi_config *
 	mdfld_dsi_get_config(struct mdfld_dsi_connector *connector)
 {

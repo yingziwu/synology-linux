@@ -194,5 +194,4 @@ struct as10x_register_addr {
    uint8_t mode;
 };
 
-
 #endif

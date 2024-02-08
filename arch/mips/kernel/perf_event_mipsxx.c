@@ -130,7 +130,6 @@ static struct mips_pmu mipspmu;
 #endif
 #define M_PERFCTL_EVENT_MASK		0xfe0
 
-
 #ifdef CONFIG_MIPS_MT_SMP
 static int cpu_has_mipsmt_pertccounters;
 
@@ -762,7 +761,6 @@ static void handle_associated_event(struct cpu_hw_events *cpuc,
 		mipsxx_pmu_disable_event(idx);
 }
 
-
 static int __n_counters(void)
 {
 	if (!(read_c0_config1() & M_CONFIG1_PC))
@@ -1083,7 +1081,6 @@ static const struct mips_perf_event mipsxx74Kcore_cache_map
 	},
 },
 };
-
 
 static const struct mips_perf_event octeon_cache_map
 				[PERF_COUNT_HW_CACHE_MAX]
@@ -1521,7 +1518,6 @@ static const struct mips_perf_event *octeon_pmu_map_raw_event(u64 config)
 {
 	unsigned int raw_id = config & 0xff;
 	unsigned int base_id = raw_id & 0x7f;
-
 
 	raw_event.cntr_mask = CNTR_ALL;
 	raw_event.event_id = base_id;

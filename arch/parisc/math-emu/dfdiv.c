@@ -22,7 +22,7 @@
  * BEGIN_DESC
  *
  *  File:
- *	@(#)	pa/spmath/dfdiv.c		$Revision: 1.1 $
+ *	@(#)	pa/spmath/dfdiv.c		$Revision: 1.1.1.1 $
  *
  *  Purpose:
  *	Double Precision Floating-point Divide
@@ -37,7 +37,6 @@
  *
  * END_DESC
 */
-
 
 #include "float.h"
 #include "dbl_float.h"

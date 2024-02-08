@@ -1,17 +1,4 @@
-/*
- * FSL SoC setup code
- *
- * Maintained by Kumar Gala (see MAINTAINERS for contact information)
- *
- * 2006 (c) MontaVista Software, Inc.
- * Vitaly Bordug <vbordug@ru.mvista.com>
- *
- * This program is free software; you can redistribute  it and/or modify it
- * under  the terms of  the GNU General  Public License as published by the
- * Free Software Foundation;  either version 2 of the  License, or (at your
- * option) any later version.
- */
-
+ 
 #include <linux/stddef.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -41,7 +28,10 @@
 #include <sysdev/fsl_soc.h>
 #include <mm/mmu_decl.h>
 #include <asm/cpm2.h>
-#include <asm/fsl_hcalls.h>	/* For the Freescale hypervisor */
+#ifdef CONFIG_SYNO_MPC85XX_COMMON
+#include <asm/fsl_errata.h>
+#endif
+#include <asm/fsl_hcalls.h>	 
 
 extern void init_fcc_ioports(struct fs_platform_info*);
 extern void init_fec_ioports(struct fs_platform_info*);
@@ -128,7 +118,6 @@ u32 get_brgfreq(void)
 		return brgfreq;
 	}
 
-	/* Legacy device binding -- will go away when no users are left. */
 	node = of_find_node_by_type(NULL, "cpm");
 	if (!node)
 		node = of_find_compatible_node(NULL, NULL, "fsl,qe");
@@ -177,7 +166,7 @@ u32 get_baudrate(void)
 }
 
 EXPORT_SYMBOL(get_baudrate);
-#endif /* CONFIG_CPM2 */
+#endif  
 
 #ifdef CONFIG_FIXED_PHY
 static int __init of_add_fixed_phys(void)
@@ -208,7 +197,7 @@ static int __init of_add_fixed_phys(void)
 	return 0;
 }
 arch_initcall(of_add_fixed_phys);
-#endif /* CONFIG_FIXED_PHY */
+#endif  
 
 #if defined(CONFIG_FSL_SOC_BOOKE) || defined(CONFIG_PPC_86xx)
 static __be32 __iomem *rstcr;
@@ -238,12 +227,53 @@ static int __init setup_rstcr(void)
 
 arch_initcall(setup_rstcr);
 
+#ifdef CONFIG_SYNO_MPC85XX_COMMON
+static int __init fsl_sec2_of_init(void)
+{
+	struct device_node *np;
+	unsigned int i;
+	struct platform_device *sec2_dev;
+	int ret;
+
+	printk(KERN_DEBUG "fsl_sec2_of_init: start\n");
+	for (np = NULL, i = 0;
+		 (np = of_find_compatible_node(np, "crypto", "talitos")) != NULL;
+		 i++) {
+		struct resource r[2];
+
+		memset(&r, 0, sizeof(r));
+
+		ret = of_address_to_resource(np, 0, &r[0]);
+		if (ret) {
+			printk(KERN_DEBUG "fsl_sec2_of_init: address");
+			goto err;
+		}
+		r[1].start = irq_of_parse_and_map(np, 0);
+		r[1].end = irq_of_parse_and_map(np, 0);
+		r[1].flags = IORESOURCE_IRQ;
+
+		sec2_dev = platform_device_register_simple("fsl-sec2", i, r, 2);
+		if (IS_ERR(sec2_dev)) {
+			ret = PTR_ERR(sec2_dev);
+			printk(KERN_DEBUG "fsl_sec2_of_init: register");
+			goto err;
+		}
+	}
+	return 0;
+err:
+	printk(KERN_DEBUG " error: %d\n", ret);
+	return ret;
+}
+#endif
+
+arch_initcall(fsl_sec2_of_init);
+
 void fsl_rstcr_restart(char *cmd)
 {
 	local_irq_disable();
 	if (rstcr)
-		/* set reset control register */
-		out_be32(rstcr, 0x2);	/* HRESET_REQ */
+		 
+		out_be32(rstcr, 0x2);	 
 
 	while (1) ;
 }
@@ -254,26 +284,12 @@ struct platform_diu_data_ops diu_ops;
 EXPORT_SYMBOL(diu_ops);
 #endif
 
-/*
- * Restart the current partition
- *
- * This function should be assigned to the ppc_md.restart function pointer,
- * to initiate a partition restart when we're running under the Freescale
- * hypervisor.
- */
 void fsl_hv_restart(char *cmd)
 {
 	pr_info("hv restart\n");
 	fh_partition_restart(-1);
 }
 
-/*
- * Halt the current partition
- *
- * This function should be assigned to the ppc_md.power_off and ppc_md.halt
- * function pointers, to shut down the partition when we're running under
- * the Freescale hypervisor.
- */
 void fsl_hv_halt(void)
 {
 	pr_info("hv exit\n");

@@ -699,6 +699,8 @@ int kvm_set_irq_routing(struct kvm *kvm,
 			unsigned flags);
 void kvm_free_irq_routing(struct kvm *kvm);
 
+int kvm_send_userspace_msi(struct kvm *kvm, struct kvm_msi *msi);
+
 #else
 
 static inline void kvm_free_irq_routing(struct kvm *kvm) {}
@@ -784,4 +786,3 @@ static inline bool kvm_check_request(int req, struct kvm_vcpu *vcpu)
 }
 
 #endif
-

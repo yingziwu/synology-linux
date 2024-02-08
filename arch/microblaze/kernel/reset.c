@@ -96,7 +96,6 @@ err:
 	return;
 }
 
-
 static void gpio_system_reset(void)
 {
 	gpio_set_value(handle, 1 - reset_val);

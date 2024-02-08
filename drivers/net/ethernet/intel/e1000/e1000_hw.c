@@ -107,6 +107,7 @@ u16 e1000_igp_cable_length_table[IGP01E1000_AGC_LENGTH_TABLE_SIZE] = {
 };
 
 static DEFINE_SPINLOCK(e1000_eeprom_lock);
+static DEFINE_SPINLOCK(e1000_phy_lock);
 
 /**
  * e1000_set_phy_type - Set the phy type member in the hw struct.
@@ -136,10 +137,26 @@ static s32 e1000_set_phy_type(struct e1000_hw *hw)
 		break;
 	case RTL8211B_PHY_ID:
 		hw->phy_type = e1000_phy_8211;
+#ifdef CONFIG_ARCH_GEN3
+		if (hw->phy_revision == RTL8211D_PHY_REV_ID)
+        		hw->phy_type = e1000_phy_8211d;
+		else if (hw->phy_revision == RTL8211E_PHY_REV_ID)
+			hw->phy_type = e1000_phy_8211e;
+#endif
 		break;
 	case RTL8201N_PHY_ID:
 		hw->phy_type = e1000_phy_8201;
 		break;
+#ifdef CONFIG_ARCH_GEN3
+	case RTL8201E_PHY_ID:
+		hw->phy_type = e1000_phy_8201e;
+		if (hw->phy_revision == RTL8201FR_PHY_REV_ID)
+			hw->phy_type = e1000_phy_8201fr;
+		break;
+	case LAN8720A_PHY_ID:
+		hw->phy_type = e1000_phy_lan8720a;
+		break;
+#endif
 	default:
 		/* Should never have loaded on this device */
 		hw->phy_type = e1000_phy_undefined;
@@ -989,6 +1006,9 @@ static s32 gbe_dhg_phy_setup(struct e1000_hw *hw)
 {
 	s32 ret_val;
 	u32 ctrl_aux;
+#ifdef CONFIG_ARCH_GEN3
+	u16 phy_data;
+#endif
 
 	switch (hw->phy_type) {
 	case e1000_phy_8211:
@@ -998,6 +1018,34 @@ static s32 gbe_dhg_phy_setup(struct e1000_hw *hw)
 			return ret_val;
 		}
 		break;
+#ifdef CONFIG_ARCH_GEN3
+	case e1000_phy_8211d:
+	case e1000_phy_8211e:
+		/* Set max packet length / WoL reset bit = 0 */
+		e1000_write_phy_reg(hw, 31, 0x0007);
+		e1000_write_phy_reg(hw, 30, 0x006d);
+		e1000_write_phy_reg(hw, 22, 0x9fff);
+
+		/* Set MAC Address on PHY (needed in some WoL applications) */
+		e1000_write_phy_reg(hw, 30, 0x006e);
+		e1000_write_phy_reg(hw, 21,
+			(u16) (hw->mac_addr[1] << 8 | hw->mac_addr[0]));
+		e1000_write_phy_reg(hw, 22,
+			(u16) (hw->mac_addr[3] << 8 | hw->mac_addr[2]));
+		e1000_write_phy_reg(hw, 23,
+			(u16) (hw->mac_addr[5] << 8 | hw->mac_addr[4]));
+
+		/* Switch to Page 0 */
+		e1000_write_phy_reg(hw, 31, 0x0000);
+		msleep(10);
+
+		ret_val = e1000_copper_link_rtl_setup(hw);
+		if(ret_val){
+			printk(" e1000_copper_link_rtl_setup failed!\n");
+			return ret_val;
+		}
+		break;		
+#endif		
 	case e1000_phy_8201:
 		/* Set RMII mode */
 		ctrl_aux = er32(CTL_AUX);
@@ -1018,6 +1066,73 @@ static s32 gbe_dhg_phy_setup(struct e1000_hw *hw)
 			return ret_val;
 		}
 		break;
+#ifdef CONFIG_ARCH_GEN3
+	case e1000_phy_8201e:
+		/* Set RMII mode */
+		ctrl_aux = er32(CTL_AUX);
+		ctrl_aux |= E1000_CTL_AUX_RMII;
+		ew32(CTL_AUX, ctrl_aux);
+		E1000_WRITE_FLUSH();
+		/* Disable the J/K bits requried for recieve */
+		ctrl_aux = er32(CTL_AUX);
+		ctrl_aux |= 0x4;
+		ctrl_aux &= ~0x2;
+		ew32(CTL_AUX, ctrl_aux);
+		E1000_WRITE_FLUSH();
+		ret_val = e1000_copper_link_rtl_setup(hw);
+		if(ret_val){
+			printk(" e1000_copper_link_rtl_setup failed!\n");
+			return ret_val;
+		}
+		/* RMII mode setting in 8201E PHY chip */
+		ret_val = e1000_read_phy_reg(hw, PHY_TEST_REG, &phy_data);
+		if (ret_val)
+		return ret_val;
+
+		phy_data |= RMII_MODE_SET;
+		ret_val = e1000_write_phy_reg(hw, PHY_TEST_REG, phy_data);
+		if (ret_val){
+			printk(" 8201E RMII mode setup failed!\n");
+			return ret_val;
+		}
+		break;
+	case e1000_phy_8201fr:
+		/* Set RMII mode */
+		ctrl_aux = er32(CTL_AUX);
+		ctrl_aux |= E1000_CTL_AUX_RMII;
+		ew32(CTL_AUX, ctrl_aux);
+		E1000_WRITE_FLUSH();
+		/* enable the J/K bits requried for recieve */
+		ctrl_aux = er32(CTL_AUX);
+		ctrl_aux &= ~0x4;
+		ctrl_aux &= ~0x2;
+		ew32(CTL_AUX, ctrl_aux);
+		E1000_WRITE_FLUSH();
+		ret_val = e1000_copper_link_rtl_setup(hw);
+		if(ret_val){
+			printk(" e1000_copper_link_rtl_setup failed!\n");
+			return ret_val;
+		}
+		break;
+	case e1000_phy_lan8720a:
+		/* Set RMII mode */
+		ctrl_aux = er32(CTL_AUX);
+		ctrl_aux |= E1000_CTL_AUX_RMII;
+		ew32(CTL_AUX, ctrl_aux);
+		E1000_WRITE_FLUSH();
+		/* disable the J/K bits requried for recieve */
+		ctrl_aux = er32(CTL_AUX);
+		ctrl_aux |= 0x4;
+		ctrl_aux &= ~0x2;
+		ew32(CTL_AUX, ctrl_aux);
+		E1000_WRITE_FLUSH();
+		ret_val = e1000_copper_link_rtl_setup(hw);
+		if(ret_val){
+			printk(" e1000_copper_link_rtl_setup failed!\n");
+			return ret_val;
+		}
+		break;
+#endif
 	default:
 		e_dbg("Error Resetting the PHY\n");
 		return E1000_ERR_PHY_TYPE;
@@ -1362,7 +1477,12 @@ static s32 e1000_copper_link_autoneg(struct e1000_hw *hw)
 		hw->autoneg_advertised = AUTONEG_ADVERTISE_SPEED_DEFAULT;
 
 	/* IFE/RTL8201N PHY only supports 10/100 */
+#ifdef CONFIG_ARCH_GEN3	
+	if ((hw->phy_type == e1000_phy_8201) || (hw->phy_type == e1000_phy_8201e) || \
+		(hw->phy_type == e1000_phy_8201fr) || (hw->phy_type == e1000_phy_lan8720a)) 
+#else
 	if (hw->phy_type == e1000_phy_8201)
+#endif
 		hw->autoneg_advertised &= AUTONEG_ADVERTISE_10_100_ALL;
 
 	e_dbg("Reconfiguring auto-neg advertisement params\n");
@@ -1510,6 +1630,9 @@ static s32 e1000_setup_copper_link(struct e1000_hw *hw)
 		if (ret_val)
 			return ret_val;
 
+#ifdef CONFIG_ARCH_GEN3		
+		hw->cegbe_is_link_up = ((phy_data & MII_SR_LINK_STATUS) != 0);
+#endif
 		if (phy_data & MII_SR_LINK_STATUS) {
 			/* Config the MAC and PHY after link is up */
 			ret_val = e1000_copper_link_postconfig(hw);
@@ -1546,11 +1669,22 @@ s32 e1000_phy_setup_autoneg(struct e1000_hw *hw)
 		return ret_val;
 
 	/* Read the MII 1000Base-T Control Register (Address 9). */
+#ifdef CONFIG_ARCH_GEN3
+	if ((hw->phy_type == e1000_phy_8201) || (hw->phy_type == e1000_phy_8201e) || \
+		(hw->phy_type == e1000_phy_8201fr) || (hw->phy_type == e1000_phy_lan8720a)) {
+		mii_1000t_ctrl_reg = 0;
+	} else{
+		ret_val = e1000_write_phy_reg(hw, PHY_1000T_CTRL, mii_1000t_ctrl_reg);
+		if (ret_val)
+			return ret_val;
+	}
+#else
 	ret_val = e1000_read_phy_reg(hw, PHY_1000T_CTRL, &mii_1000t_ctrl_reg);
 	if (ret_val)
 		return ret_val;
 	else if (hw->phy_type == e1000_phy_8201)
 		mii_1000t_ctrl_reg &= ~REG9_SPEED_MASK;
+#endif
 
 	/* Need to parse both autoneg_advertised and fc and set up
 	 * the appropriate PHY registers.  First we will parse for
@@ -1663,7 +1797,12 @@ s32 e1000_phy_setup_autoneg(struct e1000_hw *hw)
 
 	e_dbg("Auto-Neg Advertising %x\n", mii_autoneg_adv_reg);
 
+#ifdef CONFIG_ARCH_GEN3
+	if ((hw->phy_type == e1000_phy_8201) || (hw->phy_type == e1000_phy_8201e)|| \
+		(hw->phy_type == e1000_phy_8201fr) || (hw->phy_type == e1000_phy_lan8720a)) {
+#else
 	if (hw->phy_type == e1000_phy_8201) {
+#endif
 		mii_1000t_ctrl_reg = 0;
 	} else {
 		ret_val = e1000_write_phy_reg(hw, PHY_1000T_CTRL,
@@ -1979,6 +2118,23 @@ static s32 e1000_config_mac_to_phy(struct e1000_hw *hw)
 
 		e1000_config_collision_dist(hw);
 		break;
+#ifdef CONFIG_ARCH_GEN3
+	case e1000_phy_8201e:
+	case e1000_phy_8201fr:
+			   ret_val = e1000_read_phy_reg(hw, PHY_CTRL, &phy_data);
+			   if (ret_val)
+				   return ret_val;
+			   if (phy_data & RTL_PHY_CTRL_FD)
+				   ctrl |= E1000_CTRL_FD;
+			   else
+				   ctrl &= ~E1000_CTRL_FD;
+			   if (phy_data & RTL_PHY_CTRL_SPD_100)
+				   ctrl |= E1000_CTRL_SPD_100;
+			   else
+				   ctrl |= E1000_CTRL_SPD_10;
+			   e1000_config_collision_dist(hw);
+			   break;
+#endif
 	default:
 		/* Set up duplex in the Device Control and Transmit Control
 		 * registers depending on negotiated values.
@@ -2465,6 +2621,9 @@ s32 e1000_check_for_link(struct e1000_hw *hw)
 		if (ret_val)
 			return ret_val;
 
+#ifdef CONFIG_ARCH_GEN3		
+		hw->cegbe_is_link_up = (phy_data & MII_SR_LINK_STATUS) != 0;
+#endif
 		if (phy_data & MII_SR_LINK_STATUS) {
 			hw->get_link_status = false;
 			/* Check if there was DownShift, must be checked immediately after
@@ -2818,7 +2977,6 @@ static u16 e1000_shift_in_mdi_bits(struct e1000_hw *hw)
 	return data;
 }
 
-
 /**
  * e1000_read_phy_reg - read a phy register
  * @hw: Struct containing variables accessed by shared code
@@ -2830,19 +2988,25 @@ static u16 e1000_shift_in_mdi_bits(struct e1000_hw *hw)
 s32 e1000_read_phy_reg(struct e1000_hw *hw, u32 reg_addr, u16 *phy_data)
 {
 	u32 ret_val;
+	unsigned long flags;
 
 	e_dbg("e1000_read_phy_reg");
+
+	spin_lock_irqsave(&e1000_phy_lock, flags);
 
 	if ((hw->phy_type == e1000_phy_igp) &&
 	    (reg_addr > MAX_PHY_MULTI_PAGE_REG)) {
 		ret_val = e1000_write_phy_reg_ex(hw, IGP01E1000_PHY_PAGE_SELECT,
 						 (u16) reg_addr);
-		if (ret_val)
+		if (ret_val) {
+			spin_unlock_irqrestore(&e1000_phy_lock, flags);
 			return ret_val;
+		}
 	}
 
 	ret_val = e1000_read_phy_reg_ex(hw, MAX_PHY_REG_ADDRESS & reg_addr,
 					phy_data);
+	spin_unlock_irqrestore(&e1000_phy_lock, flags);
 
 	return ret_val;
 }
@@ -2965,19 +3129,25 @@ static s32 e1000_read_phy_reg_ex(struct e1000_hw *hw, u32 reg_addr,
 s32 e1000_write_phy_reg(struct e1000_hw *hw, u32 reg_addr, u16 phy_data)
 {
 	u32 ret_val;
+	unsigned long flags;
 
 	e_dbg("e1000_write_phy_reg");
+
+	spin_lock_irqsave(&e1000_phy_lock, flags);
 
 	if ((hw->phy_type == e1000_phy_igp) &&
 	    (reg_addr > MAX_PHY_MULTI_PAGE_REG)) {
 		ret_val = e1000_write_phy_reg_ex(hw, IGP01E1000_PHY_PAGE_SELECT,
 						 (u16) reg_addr);
-		if (ret_val)
+		if (ret_val) {
+			spin_unlock_irqrestore(&e1000_phy_lock, flags);
 			return ret_val;
+		}
 	}
 
 	ret_val = e1000_write_phy_reg_ex(hw, MAX_PHY_REG_ADDRESS & reg_addr,
 					 phy_data);
+	spin_unlock_irqrestore(&e1000_phy_lock, flags);
 
 	return ret_val;
 }
@@ -3218,9 +3388,17 @@ static s32 e1000_detect_gig_phy(struct e1000_hw *hw)
 			match = true;
 		break;
 	case e1000_ce4100:
+#ifdef CONFIG_ARCH_GEN3
+		if ((hw->phy_id == RTL8211B_PHY_ID) ||
+		    (hw->phy_id == RTL8201N_PHY_ID) ||
+		    (hw->phy_id == RTL8201E_PHY_ID) ||
+		    (hw->phy_id == RTL8201FR_PHY_ID) ||
+		    (hw->phy_id == M88E1118_E_PHY_ID))
+#else
 		if ((hw->phy_id == RTL8211B_PHY_ID) ||
 		    (hw->phy_id == RTL8201N_PHY_ID) ||
 		    (hw->phy_id == M88E1118_E_PHY_ID))
+#endif
 			match = true;
 		break;
 	case e1000_82541:
@@ -3466,8 +3644,18 @@ s32 e1000_phy_get_info(struct e1000_hw *hw, struct e1000_phy_info *phy_info)
 
 	if (hw->phy_type == e1000_phy_igp)
 		return e1000_phy_igp_get_info(hw, phy_info);
+#ifdef CONFIG_ARCH_GEN3
+	else if ((hw->phy_type == e1000_phy_8211) ||
+			(hw->phy_type == e1000_phy_8201e) ||
+			(hw->phy_type == e1000_phy_lan8720a) ||
+			(hw->phy_type == e1000_phy_8201fr) ||
+			(hw->phy_type == e1000_phy_8211d) ||
+			(hw->phy_type == e1000_phy_8211e) ||
+	         	(hw->phy_type == e1000_phy_8201))
+#else
 	else if ((hw->phy_type == e1000_phy_8211) ||
 	         (hw->phy_type == e1000_phy_8201))
+#endif
 		return E1000_SUCCESS;
 	else
 		return e1000_phy_m88_get_info(hw, phy_info);
@@ -5688,7 +5876,6 @@ static s32 e1000_set_vco_speed(struct e1000_hw *hw)
 
 	return E1000_SUCCESS;
 }
-
 
 /**
  * e1000_enable_mng_pass_thru - check for bmc pass through

@@ -8,7 +8,7 @@
  *     last modfied: Thu Mar  4 12:34:39 2004
  * 
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/config_defs_asm.h ../../rtl/config_regs.r
- *      id: $Id: config_defs_asm.h,v 1.1 2007/02/13 11:55:30 starvik Exp $
+ *      id: $Id: config_defs_asm.h,v 1.1.1.1 2010/04/15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -111,7 +111,6 @@
 #define reg_config_rw_pad_ctrl___phyrst_n___width 1
 #define reg_config_rw_pad_ctrl___phyrst_n___bit 1
 #define reg_config_rw_pad_ctrl_offset 8
-
 
 /* Constants */
 #define regk_config_bw16                          0x00000000

@@ -18,7 +18,6 @@
 #include <net/udp.h>
 #include <net/netfilter/nf_tproxy_core.h>
 
-
 static void
 nf_tproxy_destructor(struct sk_buff *skb)
 {

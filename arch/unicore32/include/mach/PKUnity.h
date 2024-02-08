@@ -95,4 +95,3 @@
 #include "regs-ps2.h"
 #define PKUNITY_SDC_BASE		(PKUNITY_APB_BASE + 0xC00000) /* APB-12 */
 #include "regs-sdc.h"
-

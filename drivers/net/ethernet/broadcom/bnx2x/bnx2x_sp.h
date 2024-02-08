@@ -203,7 +203,6 @@ struct bnx2x_exe_queue_obj {
 	 */
 	exe_q_validate		validate;
 
-
 	/**
 	 * This will try to cancel the current pending commands list
 	 * considering the new command.
@@ -784,7 +783,6 @@ enum bnx2x_q_type {
 #define BNX2X_MULTI_TX_COS_E3B0			3
 #define BNX2X_MULTI_TX_COS			BNX2X_MULTI_TX_COS_E3B0
 
-
 struct bnx2x_queue_init_params {
 	struct {
 		unsigned long	flags;
@@ -1262,7 +1260,6 @@ void bnx2x_init_mac_credit_pool(struct bnx2x *bp,
 void bnx2x_init_vlan_credit_pool(struct bnx2x *bp,
 				 struct bnx2x_credit_pool_obj *p, u8 func_id,
 				 u8 func_num);
-
 
 /****************** RSS CONFIGURATION ****************/
 void bnx2x_init_rss_config_obj(struct bnx2x *bp,

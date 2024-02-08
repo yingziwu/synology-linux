@@ -657,4 +657,3 @@ static int __init etm_init(void)
 }
 
 device_initcall(etm_init);
-

@@ -511,7 +511,6 @@ void ath6kl_cfg80211_connect_event(struct ath6kl *ar, u16 channel,
 
 	chan = ieee80211_get_channel(ar->wdev->wiphy, (int) channel);
 
-
 	if (nw_type & ADHOC_NETWORK) {
 		cfg80211_ibss_joined(ar->net_dev, bssid, GFP_KERNEL);
 		return;

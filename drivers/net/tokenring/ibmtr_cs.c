@@ -68,7 +68,6 @@
 #define PCMCIA
 #include "ibmtr.c"
 
-
 /*====================================================================*/
 
 /* Parameters that can be set with 'insmod' */
@@ -297,7 +296,6 @@ static int __devinit ibmtr_resume(struct pcmcia_device *link)
 
 	return 0;
 }
-
 
 /*====================================================================*/
 

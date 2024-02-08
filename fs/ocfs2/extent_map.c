@@ -994,5 +994,3 @@ int ocfs2_read_virt_blocks(struct inode *inode, u64 v_block, int nr,
 out:
 	return rc;
 }
-
-

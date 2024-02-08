@@ -1,5 +1,5 @@
 /* gdth_proc.c 
- * $Id: gdth_proc.c,v 1.43 2006/01/11 16:15:00 achim Exp $
+ * $Id: gdth_proc.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  */
 
 #include <linux/completion.h>
@@ -185,7 +185,6 @@ static int gdth_get_info(char *buffer,char **start,off_t offset,int length,
 
     TRACE2(("gdth_get_info() ha %d\n",ha->hanum));
 
-    
     /* request is i.e. "cat /proc/scsi/gdth/0" */ 
     /* format: %-15s\t%-10s\t%-15s\t%s */
     /* driver parameters */

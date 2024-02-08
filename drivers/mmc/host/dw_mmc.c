@@ -2024,7 +2024,6 @@ err_dmaunmap:
 		regulator_put(host->vmmc);
 	}
 
-
 err_freehost:
 	kfree(host);
 	return ret;

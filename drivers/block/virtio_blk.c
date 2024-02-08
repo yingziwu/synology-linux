@@ -172,7 +172,7 @@ static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
 		}
 	}
 
-	if (virtqueue_add_buf(vblk->vq, vblk->sg, out, in, vbr) < 0) {
+	if (virtqueue_add_buf(vblk->vq, vblk->sg, out, in, vbr, GFP_ATOMIC)<0) {
 		mempool_free(vbr, vblk->pool);
 		return false;
 	}
@@ -516,7 +516,6 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
 			&opt_io_size);
 	if (!err && opt_io_size)
 		blk_queue_io_opt(q, blk_size * opt_io_size);
-
 
 	add_disk(vblk->disk);
 	err = device_create_file(disk_to_dev(vblk->disk), &dev_attr_serial);

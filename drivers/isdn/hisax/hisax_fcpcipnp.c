@@ -15,7 +15,6 @@
  * for supporting the development of this driver
  */
 
-
 /* TODO:
  *
  * o POWER PC
@@ -513,7 +512,6 @@ static inline void hdlc_xdu_irq(struct fritz_bcs *bcs)
 {
 	struct fritz_adapter *adapter = bcs->adapter;
 	
-
 	/* Here we lost an TX interrupt, so
 	 * restart transmitting the whole frame.
 	 */

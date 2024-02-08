@@ -1,15 +1,7 @@
-/*
- *	Linux ethernet bridge
- *
- *	Authors:
- *	Lennert Buytenhek		<buytenh@gnu.org>
- *
- *	This program is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU General Public License
- *	as published by the Free Software Foundation; either version
- *	2 of the License, or (at your option) any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef _LINUX_IF_BRIDGE_H
 #define _LINUX_IF_BRIDGE_H
 
@@ -105,6 +97,22 @@ extern void brioctl_set(int (*ioctl_hook)(struct net *, unsigned int, void __use
 
 typedef int br_should_route_hook_t(struct sk_buff *skb);
 extern br_should_route_hook_t __rcu *br_should_route_hook;
+
+#if defined(MY_DEF_HERE) && defined(CONFIG_ARCH_COMCERTO)
+struct brevent_fdb_update{
+	char * mac_addr;
+	struct net_device * dev;
+};
+
+enum brevent_notif_type {
+	BREVENT_PORT_DOWN = 1,	 
+	BREVENT_FDB_UPDATE	 
+};
+
+int register_brevent_notifier(struct notifier_block *nb);
+int unregister_brevent_notifier(struct notifier_block *nb);
+int call_brevent_notifiers(unsigned long val, void *v);
+#endif
 
 #endif
 

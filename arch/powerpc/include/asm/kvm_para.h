@@ -155,7 +155,6 @@ static inline long kvm_hypercall4(unsigned int nr, unsigned long p1,
 	return kvm_hypercall(in, out, nr | HC_VENDOR_KVM);
 }
 
-
 static inline unsigned int kvm_arch_para_features(void)
 {
 	unsigned long r;

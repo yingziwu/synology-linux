@@ -743,7 +743,6 @@ static ssize_t comm_addr_list_read(struct dlm_comm *cm, char *buf)
 	/* Taken from ip6_addr_string() defined in lib/vsprintf.c */
 	char buf0[sizeof("AF_INET6	xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:255.255.255.255\n")];
 	
-
 	/* Derived from SIMPLE_ATTR_SIZE of fs/configfs/file.c */
 	allowance = 4096;
 	buf[0] = '\0';
@@ -1062,4 +1061,3 @@ struct dlm_config_info dlm_config = {
 	.ci_waitwarn_us = DEFAULT_WAITWARN_US,
 	.ci_new_rsb_count = DEFAULT_NEW_RSB_COUNT
 };
-

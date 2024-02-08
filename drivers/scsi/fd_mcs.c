@@ -28,7 +28,7 @@
  * Author: Rickard E. Faith, faith@cs.unc.edu
  * Copyright 1992, 1993, 1994, 1995, 1996 Rickard E. Faith
  *
- * $Id: fdomain.c,v 5.45 1996/10/02 15:13:06 root Exp $
+ * $Id: fd_mcs.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -328,7 +328,6 @@ static void print_banner(struct Scsi_Host *shpnt)
 	printk(", HostID %d, %s Chip, IRQ %d, IO 0x%lX\n", shpnt->this_id, chip == tmc18c50 ? "TMC-18C50" : (chip == tmc18c30 ? "TMC-18C30" : (chip == tmc1800 ? "TMC-1800" : "Unknown")), shpnt->irq, shpnt->io_port);
 }
 
-
 static void do_pause(unsigned amount)
 {				/* Pause for amount*10 milliseconds */
 	do {
@@ -421,7 +420,6 @@ static int fd_mcs_detect(struct scsi_host_template * tpnt)
 					continue;
 				}
 
-
 				/* save name */
 				strcpy(adapter_name, fd_mcs_adapters[loop].name);
 
@@ -465,7 +463,6 @@ static int fd_mcs_detect(struct scsi_host_template * tpnt)
 				/* IBM/ANSI scsi scan ordering */
 				/* Stick this back in when the scsi.c changes are there */
 				shpnt->reverse_ordering = 1;
-
 
 				/* saving info */
 				hosts[found++] = shpnt;
@@ -1103,7 +1100,6 @@ static int fd_mcs_queue_lck(Scsi_Cmnd * SCpnt, void (*done) (Scsi_Cmnd *))
 		current_SC->SCp.buffer = NULL;
 		current_SC->SCp.buffers_residual = 0;
 	}
-
 
 	current_SC->SCp.Status = 0;
 	current_SC->SCp.Message = 0;

@@ -312,7 +312,6 @@ static int _add_volume(struct hda_codec *codec, hda_nid_t nid, const char *pfx,
 #define add_in_mono_volume(codec, nid, pfx, chan) \
 	_add_volume(codec, nid, pfx, chan, 1)
 
-
 /*
  * CA0132 specific
  */
@@ -948,7 +947,6 @@ static int ca0132_build_controls(struct hda_codec *codec)
 	return 0;
 }
 
-
 static void ca0132_set_ct_ext(struct hda_codec *codec, int enable)
 {
 	/* Set Creative extension */
@@ -958,7 +956,6 @@ static void ca0132_set_ct_ext(struct hda_codec *codec, int enable)
 			    enable);
 	msleep(20);
 }
-
 
 static void ca0132_config(struct hda_codec *codec)
 {
@@ -1037,7 +1034,6 @@ static int ca0132_init(struct hda_codec *codec)
 	return 0;
 }
 
-
 static void ca0132_free(struct hda_codec *codec)
 {
 	ca0132_set_ct_ext(codec, 0);
@@ -1051,8 +1047,6 @@ static struct hda_codec_ops ca0132_patch_ops = {
 	.init = ca0132_init,
 	.free = ca0132_free,
 };
-
-
 
 static int patch_ca0132(struct hda_codec *codec)
 {

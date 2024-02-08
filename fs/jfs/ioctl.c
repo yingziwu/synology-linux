@@ -18,7 +18,6 @@
 #include "jfs_dinode.h"
 #include "jfs_inode.h"
 
-
 static struct {
 	long jfs_flag;
 	long ext2_flag;
@@ -51,7 +50,6 @@ static long jfs_map_ext2(unsigned long flags, int from)
 	return mapped;
 }
 
-
 long jfs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	struct inode *inode = filp->f_dentry->d_inode;
@@ -68,7 +66,7 @@ long jfs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		unsigned int oldflags;
 		int err;
 
-		err = mnt_want_write(filp->f_path.mnt);
+		err = mnt_want_write_file(filp);
 		if (err)
 			return err;
 
@@ -120,7 +118,7 @@ long jfs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		inode->i_ctime = CURRENT_TIME_SEC;
 		mark_inode_dirty(inode);
 setflags_out:
-		mnt_drop_write(filp->f_path.mnt);
+		mnt_drop_write_file(filp);
 		return err;
 	}
 	default:

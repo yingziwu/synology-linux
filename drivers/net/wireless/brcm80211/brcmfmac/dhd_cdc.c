@@ -80,7 +80,6 @@ struct brcmf_proto_bdc_header {
 	u8 rssi;
 };
 
-
 #define RETRIES 2 /* # of retries to retrieve matching dcmd response */
 #define BUS_HEADER_LEN	(16+BRCMF_SDALIGN) /* Must be atleast SDPCM_RESERVE
 					 * (amount of header tha might be added)

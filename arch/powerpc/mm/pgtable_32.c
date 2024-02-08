@@ -424,7 +424,6 @@ static int change_page_attr(struct page *page, int numpages, pgprot_t prot)
 	return err;
 }
 
-
 void kernel_map_pages(struct page *page, int numpages, int enable)
 {
 	if (PageHighMem(page))

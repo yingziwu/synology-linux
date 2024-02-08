@@ -22,7 +22,7 @@
  * BEGIN_DESC
  *
  *  File:
- *	@(#)	pa/spmath/sfsqrt.c		$Revision: 1.1 $
+ *	@(#)	pa/spmath/sfsqrt.c		$Revision: 1.1.1.1 $
  *
  *  Purpose:
  *	Single Floating-point Square Root
@@ -37,7 +37,6 @@
  *
  * END_DESC
 */
-
 
 #include "float.h"
 #include "sgl_float.h"

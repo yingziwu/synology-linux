@@ -65,7 +65,6 @@ struct workqueue_struct *xfsconvertd_workqueue;
 #define xb_to_km(flags) \
 	 (((flags) & XBF_DONT_BLOCK) ? KM_NOFS : KM_SLEEP)
 
-
 static inline int
 xfs_buf_is_vmapped(
 	struct xfs_buf	*bp)
@@ -866,7 +865,6 @@ xfs_buf_rele(
 	}
 }
 
-
 /*
  *	Lock a buffer object, if it is not already locked.
  *
@@ -1104,7 +1102,6 @@ xfs_bioerror_relse(
 	return EIO;
 }
 
-
 /*
  * All xfs metadata buffers except log state machine buffers
  * get this attached as their b_bdstrat callback function.
@@ -1223,7 +1220,6 @@ next_chunk:
 	bio->bi_sector = sector;
 	bio->bi_end_io = xfs_buf_bio_end_io;
 	bio->bi_private = bp;
-
 
 	for (; size && nr_pages; nr_pages--, map_i++) {
 		int	rbytes, nbytes = PAGE_SIZE - offset;
@@ -1551,7 +1547,6 @@ error:
 	return NULL;
 }
 
-
 /*
  *	Delayed write buffer handling
  */
@@ -1713,7 +1708,7 @@ xfsbufd(
 
 		if (unlikely(freezing(current))) {
 			set_bit(XBT_FORCE_SLEEP, &target->bt_flags);
-			refrigerator();
+			try_to_freeze();
 		} else {
 			clear_bit(XBT_FORCE_SLEEP, &target->bt_flags);
 		}

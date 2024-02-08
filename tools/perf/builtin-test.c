@@ -354,7 +354,6 @@ static int test__open_syscall_event_on_all_cpus(void)
 		goto out_thread_map_delete;
 	}
 
-
 	CPU_ZERO(&cpu_set);
 
 	memset(&attr, 0, sizeof(attr));

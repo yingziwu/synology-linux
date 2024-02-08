@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:06:51 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c --outfile dma_defs.h ../../inst/dma/inst/dma_common/rtl/dma_regdes.r
- *      id: $Id: dma_defs.h,v 1.7 2005/04/24 18:30:58 starvik Exp $
+ *      id: $Id: dma_defs.h,v 1.1.1.1 2010/04/15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -382,7 +382,6 @@ typedef struct {
 } reg_dma_rw_stream_cmd;
 #define REG_RD_ADDR_dma_rw_stream_cmd 156
 #define REG_WR_ADDR_dma_rw_stream_cmd 156
-
 
 /* Constants */
 enum {

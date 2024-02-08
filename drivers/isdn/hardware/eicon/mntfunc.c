@@ -1,4 +1,4 @@
-/* $Id: mntfunc.c,v 1.19.6.4 2005/01/31 12:22:20 armin Exp $
+/* $Id: mntfunc.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * Driver for Eicon DIVA Server ISDN cards.
  * Maint module
@@ -9,7 +9,6 @@
  * This software may be used and distributed according to the terms
  * of the GNU General Public License, incorporated herein by reference.
  */
-
 
 #include "platform.h"
 #include "di_defs.h"

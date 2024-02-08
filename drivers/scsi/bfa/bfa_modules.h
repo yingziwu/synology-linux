@@ -106,7 +106,6 @@ struct bfa_module_s {
 	void (*iocdisable) (struct bfa_s *bfa);
 };
 
-
 struct bfa_s {
 	void			*bfad;		/*  BFA driver instance    */
 	struct bfa_plog_s	*plog;		/*  portlog buffer	    */

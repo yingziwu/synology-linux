@@ -64,7 +64,6 @@
 #define SSCR0_ACS	(1 << 30)	/* Audio clock select */
 #define SSCR0_MOD	(1 << 31)	/* Mode (normal or network) */
 
-
 #define SSCR1_RIE	(1 << 0)	/* Receive FIFO Interrupt Enable */
 #define SSCR1_TIE	(1 << 1)	/* Transmit FIFO Interrupt Enable */
 #define SSCR1_LBM	(1 << 2)	/* Loop-Back Mode */
@@ -104,6 +103,28 @@
 #define SSCR1_TxTresh(x) (((x) - 1) << 6) /* level [1..4] */
 #define SSCR1_RFT	(0x00000c00)	/* Receive FIFO Threshold (mask) */
 #define SSCR1_RxTresh(x) (((x) - 1) << 10) /* level [1..4] */
+#ifdef CONFIG_GEN3_SPI
+/* CE5X00 SSCR0 bit definition */
+#define CE5X00_SSCR0_DSS	((1<<5)-1)	/* Data Size Select (mask) */
+#define CE5X00_SSCR0_DataSize(x)  ((x) - 1)	/* Data Size Select [4..32] */
+#define CE5X00_SSCR0_FRF	(((1<<2)-1) << 5)	/* FRame Format (mask) */
+#define CE5X00_SSCR0_Motorola	(0x0 << 5)	/* Motorola's Serial Peripheral Interface (SPI) */
+#define CE5X00_SSCR0_TI	(0x1 << 5)	/* Texas Instruments' Synchronous Serial Protocol (SSP) */
+#define CE5X00_SSCR0_National	(0x2 << 5)	/* National Microwire */
+
+#define RX_THRESH_CE5X00_DFLT	16
+#define TX_THRESH_CE5X00_DFLT	16
+
+#define CE5X00_SSSR_TFL_MASK	(0x1F << 8)	/* Transmit FIFO Level mask */
+#define CE5X00_SSSR_RFL_MASK	(0x1F << 13)	/* Receive FIFO Level mask */
+
+#define CE5X00_SSCR1_TFT	(((1<<5)-1) << 6)	/* Transmit FIFO Threshold (mask) */
+#define CE5X00_SSCR1_TxTresh(x) (((x) - 1) << 6) /* level [1..32] */
+#define CE5X00_SSCR1_RFT	(((1<<5)-1) << 11)	/* Receive FIFO Threshold (mask) */
+#define CE5X00_SSCR1_RxTresh(x) (((x) - 1) << 11) /* level [1..32] */
+#define CE5X00_SSCR1_STRF       (1 << 17)	/* Select FIFO or EFWR */
+#define CE5X00_SSCR1_EFWR	(1 << 16)	/* Enable FIFO Write/Read */
+#endif
 #endif
 
 /* extra bits in PXA255, PXA26x and PXA27x SSP ports */
@@ -134,7 +155,6 @@
 #define SSSR_TINT		(1 << 19)	/* Receiver Time-out Interrupt */
 #define SSSR_PINT		(1 << 18)	/* Peripheral Trailing Byte Interrupt */
 
-
 #define SSPSP_SCMODE(x)		((x) << 0)	/* Serial Bit Rate Clock Mode */
 #define SSPSP_SFRMP		(1 << 2)	/* Serial Frame Polarity */
 #define SSPSP_ETDS		(1 << 3)	/* End of Transfer data State */
@@ -162,6 +182,9 @@ enum pxa_ssp_type {
 	PXA27x_SSP,
 	PXA168_SSP,
 	CE4100_SSP,
+#ifdef CONFIG_GEN3_SPI
+	CE5X00_SSP,
+#endif
 };
 
 struct ssp_device {

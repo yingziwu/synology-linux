@@ -528,8 +528,6 @@ struct rtl8192_tx_ring {
 	struct sk_buff_head queue;
 };
 
-
-
 struct rtl819x_ops {
 	enum nic_t nic_type;
 	void (*get_eeprom_size)(struct net_device *dev);
@@ -604,7 +602,6 @@ struct r8192_priv {
 	struct log_int_8190 InterruptLog;
 
 	enum rt_customer_id CustomerID;
-
 
 	enum rt_rf_type_819xu rf_chip;
 	enum ic_inferiority_8192s IC_Class;
@@ -811,7 +808,6 @@ struct r8192_priv {
 	u8 EEPROMBluetoothAntNum;
 	u8 EEPROMBluetoothAntIsolation;
 	u8 EEPROMBluetoothRadioShared;
-
 
 	u8 EEPROMSupportWoWLAN;
 	u8 EEPROMBoardType;
@@ -1033,7 +1029,6 @@ struct r8192_priv {
 
 	u8		PwrDomainProtect;
 	u8		H2CTxCmdSeq;
-
 
 };
 

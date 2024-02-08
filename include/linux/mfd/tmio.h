@@ -137,5 +137,4 @@ struct tmio_fb_data {
 	int			width;
 };
 
-
 #endif

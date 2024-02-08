@@ -58,7 +58,6 @@ void	rtl8192_dbgp_flag_init(struct net_device *dev)
 	for (i = 0; i < DBGP_TYPE_MAX; i++)
 		DBGP_Type[i] = 0;
 
-
 }	/* DBGP_Flag_Init */
 
 /* this is only for debugging */
@@ -851,14 +850,11 @@ static int proc_get_stats_tx(char *page, char **start,
 		priv->rtllib->stats.tx_packets,
 		priv->rtllib->stats.tx_bytes
 
-
 		);
 
 	*eof = 1;
 	return len;
 }
-
-
 
 static int proc_get_stats_rx(char *page, char **start,
 			  off_t offset, int count,
@@ -891,12 +887,10 @@ void rtl8192_proc_module_init(void)
 	rtl8192_proc = create_proc_entry(DRV_NAME, S_IFDIR, init_net.proc_net);
 }
 
-
 void rtl8192_proc_module_remove(void)
 {
 	remove_proc_entry(DRV_NAME, init_net.proc_net);
 }
-
 
 void rtl8192_proc_remove_one(struct net_device *dev)
 {
@@ -934,7 +928,6 @@ void rtl8192_proc_remove_one(struct net_device *dev)
 		priv->dir_dev = NULL;
 	}
 }
-
 
 void rtl8192_proc_init_one(struct net_device *dev)
 {
