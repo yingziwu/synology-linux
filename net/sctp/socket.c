@@ -111,7 +111,6 @@ static void sctp_enter_memory_pressure(struct sock *sk)
 	sctp_memory_pressure = 1;
 }
 
-
 /* Get the sndbuf space available at the time on the association.  */
 static inline int sctp_wspace(struct sctp_association *asoc)
 {
@@ -3119,7 +3118,6 @@ static int sctp_setsockopt_maxseg(struct sock *sk, char __user *optval, unsigned
 	return 0;
 }
 
-
 /*
  *  7.1.9 Set Peer Primary Address (SCTP_SET_PEER_PRIMARY_ADDR)
  *
@@ -3604,7 +3602,6 @@ static int sctp_setsockopt_paddr_thresholds(struct sock *sk,
 	if (copy_from_user(&val, (struct sctp_paddrthlds __user *)optval,
 			   sizeof(struct sctp_paddrthlds)))
 		return -EFAULT;
-
 
 	if (sctp_is_any(sk, (const union sctp_addr *)&val.spt_address)) {
 		asoc = sctp_id2assoc(sk, val.spt_assoc_id);
@@ -4286,7 +4283,6 @@ out:
 	return retval;
 }
 
-
 /* 7.2.2 Peer Address Information (SCTP_GET_PEER_ADDR_INFO)
  *
  * Applications can retrieve information about a specific peer address
@@ -4790,7 +4786,6 @@ static int sctp_getsockopt_initmsg(struct sock *sk, int len, char __user *optval
 	return 0;
 }
 
-
 static int sctp_getsockopt_peer_addrs(struct sock *sk, int len,
 				      char __user *optval, int __user *optlen)
 {
@@ -4885,7 +4880,6 @@ static int sctp_copy_laddrs(struct sock *sk, __u16 port, void *to,
 
 	return cnt;
 }
-
 
 static int sctp_getsockopt_local_addrs(struct sock *sk, int len,
 				       char __user *optval, int __user *optlen)
@@ -5062,7 +5056,6 @@ static int sctp_getsockopt_adaptation_layer(struct sock *sk, int len,
  *   specify a default set of parameters that would normally be supplied
  *   through the inclusion of ancillary data.  This socket option allows
  *   such an application to set the default sctp_sndrcvinfo structure.
-
 
  *   The application that wishes to use this socket option simply passes
  *   in to this call the sctp_sndrcvinfo structure defined in Section
@@ -6925,7 +6918,6 @@ void sctp_sock_rfree(struct sk_buff *skb)
 	sk_mem_uncharge(sk, event->rmem_len);
 }
 
-
 /* Helper function to wait for space in the sndbuf.  */
 static int sctp_wait_for_sndbuf(struct sctp_association *asoc, long *timeo_p,
 				size_t msg_len)
@@ -7105,7 +7097,6 @@ static int sctp_wait_for_accept(struct sock *sk, long timeo)
 	DEFINE_WAIT(wait);
 
 	ep = sctp_sk(sk)->ep;
-
 
 	for (;;) {
 		prepare_to_wait_exclusive(sk_sleep(sk), &wait,
@@ -7362,7 +7353,6 @@ static void sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
 	newsk->sk_state = SCTP_SS_ESTABLISHED;
 	release_sock(newsk);
 }
-
 
 /* This proto struct describes the ULP interface for SCTP.  */
 struct proto sctp_prot = {

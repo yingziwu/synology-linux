@@ -329,6 +329,10 @@ int vmw_view_add(struct vmw_cmdbuf_res_manager *man,
 	struct vmw_private *dev_priv = ctx->dev_priv;
 	struct vmw_resource *res;
 	struct vmw_view *view;
+	struct ttm_operation_ctx ttm_opt_ctx = {
+		.interruptible = true,
+		.no_wait_gpu = false
+	};
 	size_t size;
 	int ret;
 
@@ -345,7 +349,7 @@ int vmw_view_add(struct vmw_cmdbuf_res_manager *man,
 
 	size = offsetof(struct vmw_view, cmd) + cmd_size;
 
-	ret = ttm_mem_global_alloc(vmw_mem_glob(dev_priv), size, false, true);
+	ret = ttm_mem_global_alloc(vmw_mem_glob(dev_priv), size, &ttm_opt_ctx);
 	if (ret) {
 		if (ret != -ERESTARTSYS)
 			DRM_ERROR("Out of graphics memory for view"
@@ -513,10 +517,8 @@ const SVGACOTableType vmw_so_cotables[] = {
 	[vmw_so_so] = SVGA_COTABLE_STREAMOUTPUT
 };
 
-
 /* To remove unused function warning */
 static void vmw_so_build_asserts(void) __attribute__((used));
-
 
 /*
  * This function is unused at run-time, and only used to dump various build

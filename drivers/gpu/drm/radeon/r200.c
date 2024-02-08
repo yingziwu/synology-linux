@@ -128,7 +128,6 @@ struct radeon_fence *r200_copy_dma(struct radeon_device *rdev,
 	return fence;
 }
 
-
 static int r200_get_vtx_size_1(uint32_t vtx_fmt_1)
 {
 	int vtx_size, i, tex_size;
@@ -537,8 +536,7 @@ int r200_packet0_check(struct radeon_cs_parser *p,
 		track->tex_dirty = true;
 		break;
 	default:
-		printk(KERN_ERR "Forbidden register 0x%04X in cs at %d\n",
-		       reg, idx);
+		pr_err("Forbidden register 0x%04X in cs at %d\n", reg, idx);
 		return -EINVAL;
 	}
 	return 0;

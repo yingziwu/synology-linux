@@ -51,9 +51,9 @@ static ssize_t efivarfs_file_write(struct file *file,
 		d_delete(file->f_path.dentry);
 		dput(file->f_path.dentry);
 	} else {
-		mutex_lock(&inode->i_mutex);
+		inode_lock(inode);
 		i_size_write(inode, datasize + sizeof(attributes));
-		mutex_unlock(&inode->i_mutex);
+		inode_unlock(inode);
 	}
 
 	bytes = count;
@@ -142,7 +142,6 @@ efivarfs_ioc_setxflags(struct file *file, void __user *arg)
 
 	if (flags & FS_IMMUTABLE_FL)
 		i_flags |= S_IMMUTABLE;
-
 
 	error = mnt_want_write_file(file);
 	if (error)

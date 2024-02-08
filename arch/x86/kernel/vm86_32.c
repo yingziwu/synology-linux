@@ -69,7 +69,6 @@
  * Let's hope these problems do not actually matter for anything.
  */
 
-
 /*
  * 8- and 16-bit register defines..
  */
@@ -190,8 +189,6 @@ out:
 	flush_tlb();
 }
 
-
-
 static int do_vm86_irq_handling(int subfunction, int irqnumber);
 static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus);
 
@@ -199,7 +196,6 @@ SYSCALL_DEFINE1(vm86old, struct vm86_struct __user *, user_vm86)
 {
 	return do_sys_vm86((struct vm86plus_struct __user *) user_vm86, false);
 }
-
 
 SYSCALL_DEFINE2(vm86, unsigned long, cmd, unsigned long, arg)
 {
@@ -222,7 +218,6 @@ SYSCALL_DEFINE2(vm86, unsigned long, cmd, unsigned long, arg)
 	/* we come here only for functions VM86_ENTER, VM86_ENTER_NO_BYPASS */
 	return do_sys_vm86((struct vm86plus_struct __user *) arg, true);
 }
-
 
 static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus)
 {
@@ -357,8 +352,10 @@ static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus)
 	tss = &per_cpu(cpu_tss, get_cpu());
 	/* make room for real-mode segments */
 	tsk->thread.sp0 += 16;
-	if (cpu_has_sep)
+
+	if (static_cpu_has(X86_FEATURE_SEP))
 		tsk->thread.sysenter_cs = 0;
+
 	load_sp0(tss, &tsk->thread);
 	put_cpu();
 
@@ -824,7 +821,6 @@ static inline int get_and_reset_irq(int irqnumber)
 	return ret;
 }
 
-
 static int do_vm86_irq_handling(int subfunction, int irqnumber)
 {
 	int ret;
@@ -858,4 +854,3 @@ static int do_vm86_irq_handling(int subfunction, int irqnumber)
 	}
 	return -EINVAL;
 }
-

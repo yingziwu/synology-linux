@@ -43,7 +43,7 @@ struct gdt_page {
 	struct desc_struct gdt[GDT_ENTRIES];
 } __attribute__((aligned(PAGE_SIZE)));
 
-DECLARE_PER_CPU_PAGE_ALIGNED(struct gdt_page, gdt_page);
+DECLARE_PER_CPU_PAGE_ALIGNED_USER_MAPPED(struct gdt_page, gdt_page);
 
 static inline struct desc_struct *get_cpu_gdt_table(unsigned int cpu)
 {
@@ -150,7 +150,6 @@ static inline void pack_descriptor(struct desc_struct *desc, unsigned long base,
 		((flags & 0xf) << 20);
 	desc->p = 1;
 }
-
 
 static inline void set_tssldt_descriptor(void *d, unsigned long addr, unsigned type, unsigned size)
 {

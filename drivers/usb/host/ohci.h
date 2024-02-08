@@ -7,6 +7,12 @@
  * This file is licenced under the GPL.
  */
 
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_USB_PATCH_ON_RTK
+#include <soc/realtek/rtd129x_lockapi.h>
+#endif
+
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 /*
  * __hc32 and __hc16 are "Host Controller" types, they may be equivalent to
  * __leXX (normally) or __beXX (given OHCI_BIG_ENDIAN), depending on the
@@ -77,7 +83,6 @@ struct ed {
 } __attribute__ ((aligned(16)));
 
 #define ED_MASK	((u32)~0x0f)		/* strip hw status in low addr bits */
-
 
 /*
  * OHCI Transfer Descriptor (TD) ... one per transfer segment
@@ -159,7 +164,6 @@ struct td {
     /* 0x0E, 0x0F reserved for HCD */
 #define TD_NOTACCESSED     0x0F
 
-
 /* map OHCI TD status codes (CC) to errno values */
 static const int cc_to_error [16] = {
 	/* No  Error  */               0,
@@ -179,7 +183,6 @@ static const int cc_to_error [16] = {
 	/* (for HCD)  */               -EALREADY,
 	/* (for HCD)  */               -EALREADY
 };
-
 
 /*
  * The HCCA (Host Controller Communications Area) is a 256 byte
@@ -244,7 +247,6 @@ struct ohci_regs {
 
 } __attribute__ ((aligned(32)));
 
-
 /* OHCI CONTROL AND STATUS REGISTER MASKS */
 
 /*
@@ -291,7 +293,6 @@ struct ohci_regs {
 #define OHCI_INTR_OC	(1 << 30)	/* ownership change */
 #define OHCI_INTR_MIE	(1 << 31)	/* master interrupt enable */
 
-
 /* OHCI ROOT HUB REGISTER MASKS */
 
 /* roothub.portstatus [i] bits */
@@ -329,7 +330,6 @@ struct ohci_regs {
 #define	RH_A_NOCP	(1 << 12)		/* no over current protection */
 #define	RH_A_POTPGT	(0xff << 24)		/* power on to power good time */
 
-
 /* hcd-private per-urb state */
 typedef struct urb_priv {
 	struct ed		*ed;
@@ -343,7 +343,6 @@ typedef struct urb_priv {
 #define TD_HASH_SIZE    64    /* power'o'two */
 // sizeof (struct td) ~= 64 == 2^6 ...
 #define TD_HASH_FUNC(td_dma) ((td_dma ^ (td_dma >> 6)) % TD_HASH_SIZE)
-
 
 /*
  * This is the full ohci controller description
@@ -366,6 +365,12 @@ struct ohci_hcd {
 	 */
 	struct ohci_regs __iomem *regs;
 
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_USB_PATCH_ON_RTK
+	void __iomem *wrap_reg;
+#endif
+
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 	/*
 	 * main memory used to communicate with the HC (dma-consistent).
 	 * hcd adds to schedule for a live hc any time, but removals finish
@@ -396,6 +401,12 @@ struct ohci_hcd {
 	 * driver state
 	 */
 	enum ohci_rh_state	rh_state;
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_USB_PATCH_ON_RTK
+	int 		resuming;
+	struct completion resuming_done;
+#endif
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 	int			num_ports;
 	int			load [NUM_INTS];
 	u32			hc_control;	/* copy of hc control reg */
@@ -560,6 +571,22 @@ static inline struct usb_hcd *ohci_to_hcd (const struct ohci_hcd *ohci)
 static inline unsigned int _ohci_readl (const struct ohci_hcd *ohci,
 					__hc32 __iomem * regs)
 {
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_USB_PATCH_ON_RTK
+#if defined(CONFIG_ARCH_RTD129x)
+	unsigned long flags;
+#endif /* CONFIG_ARCH_RTD129x */
+	rtk_lockapi_lock(flags, __FUNCTION__); /* Add global lock for emmc issue*/
+	if (ohci->wrap_reg && readl(ohci->wrap_reg) == 0x0) {
+		ohci_err(ohci, "%s [USB Workaround] fixed force to enable "
+			    "ohci clock \n", __func__);
+		writel(0x40, ohci->wrap_reg);
+		mdelay(1);
+	}
+	rtk_lockapi_unlock(flags,__FUNCTION__); /* Add global lock for emmc issue*/
+#endif
+
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 #ifdef CONFIG_USB_OHCI_BIG_ENDIAN_MMIO
 	return big_endian_mmio(ohci) ?
 		readl_be (regs) :
@@ -572,6 +599,21 @@ static inline unsigned int _ohci_readl (const struct ohci_hcd *ohci,
 static inline void _ohci_writel (const struct ohci_hcd *ohci,
 				 const unsigned int val, __hc32 __iomem *regs)
 {
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_USB_PATCH_ON_RTK
+#if defined(CONFIG_ARCH_RTD129x)
+	unsigned long flags;
+#endif /* CONFIG_ARCH_RTD129x */
+	rtk_lockapi_lock(flags, __FUNCTION__); /* Add global lock for emmc issue*/
+	if (ohci->wrap_reg && readl(ohci->wrap_reg) == 0x0) {
+		ohci_err(ohci, "%s [USB Workaround] fixed force to enable ohci clock \n", __func__);
+		writel(0x40, ohci->wrap_reg);
+		mdelay(1);
+	}
+	rtk_lockapi_unlock(flags,__FUNCTION__); /* Add global lock for emmc issue*/
+#endif
+
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 #ifdef CONFIG_USB_OHCI_BIG_ENDIAN_MMIO
 	big_endian_mmio(ohci) ?
 		writel_be (val, regs) :
@@ -583,7 +625,6 @@ static inline void _ohci_writel (const struct ohci_hcd *ohci,
 
 #define ohci_readl(o,r)		_ohci_readl(o,r)
 #define ohci_writel(o,v,r)	_ohci_writel(o,v,r)
-
 
 /*-------------------------------------------------------------------------*/
 

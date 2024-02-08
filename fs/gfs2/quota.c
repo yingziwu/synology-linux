@@ -144,7 +144,6 @@ static void gfs2_qd_dispose(struct list_head *list)
 	}
 }
 
-
 static enum lru_status gfs2_qd_isolate(struct list_head *item,
 		struct list_lru_one *lru, spinlock_t *lru_lock, void *arg)
 {
@@ -192,7 +191,6 @@ struct shrinker gfs2_qd_shrinker = {
 	.seeks = DEFAULT_SEEKS,
 	.flags = SHRINKER_NUMA_AWARE,
 };
-
 
 static u64 qd2index(struct gfs2_quota_data *qd)
 {
@@ -261,7 +259,6 @@ static struct gfs2_quota_data *gfs2_qd_search_bucket(unsigned int hash,
 	return NULL;
 }
 
-
 static int qd_get(struct gfs2_sbd *sdp, struct kqid qid,
 		  struct gfs2_quota_data **qdp)
 {
@@ -298,7 +295,6 @@ static int qd_get(struct gfs2_sbd *sdp, struct kqid qid,
 
 	return 0;
 }
-
 
 static void qd_hold(struct gfs2_quota_data *qd)
 {
@@ -855,7 +851,7 @@ static int do_sync(unsigned int num_qd, struct gfs2_quota_data **qda)
 		return -ENOMEM;
 
 	sort(qda, num_qd, sizeof(struct gfs2_quota_data *), sort_qd, NULL);
-	mutex_lock(&ip->i_inode.i_mutex);
+	inode_lock(&ip->i_inode);
 	for (qx = 0; qx < num_qd; qx++) {
 		error = gfs2_glock_nq_init(qda[qx]->qd_gl, LM_ST_EXCLUSIVE,
 					   GL_NOCACHE, &ghs[qx]);
@@ -920,7 +916,7 @@ out_alloc:
 out:
 	while (qx--)
 		gfs2_glock_dq_uninit(&ghs[qx]);
-	mutex_unlock(&ip->i_inode.i_mutex);
+	inode_unlock(&ip->i_inode);
 	kfree(ghs);
 	gfs2_log_flush(ip->i_gl->gl_name.ln_sbd, ip->i_gl, NORMAL_FLUSH);
 	return error;
@@ -1483,7 +1479,6 @@ void gfs2_wake_up_statfs(struct gfs2_sbd *sdp) {
 	}
 }
 
-
 /**
  * gfs2_quotad - Write cached quota changes into the quota file
  * @sdp: Pointer to GFS2 superblock
@@ -1639,7 +1634,7 @@ static int gfs2_set_dqblk(struct super_block *sb, struct kqid qid,
 	if (error)
 		goto out_put;
 
-	mutex_lock(&ip->i_inode.i_mutex);
+	inode_lock(&ip->i_inode);
 	error = gfs2_glock_nq_init(qd->qd_gl, LM_ST_EXCLUSIVE, 0, &q_gh);
 	if (error)
 		goto out_unlockput;
@@ -1704,7 +1699,7 @@ out_i:
 out_q:
 	gfs2_glock_dq_uninit(&q_gh);
 out_unlockput:
-	mutex_unlock(&ip->i_inode.i_mutex);
+	inode_unlock(&ip->i_inode);
 out_put:
 	qd_put(qd);
 	return error;

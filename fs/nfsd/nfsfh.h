@@ -72,7 +72,6 @@ enum fsid_source {
 };
 extern enum fsid_source fsid_source(struct svc_fh *fhp);
 
-
 /*
  * This might look a little large to "inline" but in all calls except
  * one, 'vers' is constant so moste of the function disappears.
@@ -242,7 +241,6 @@ extern void fill_post_wcc(struct svc_fh *);
 #define fill_post_wcc(notused)
 #endif /* CONFIG_NFSD_V3 */
 
-
 /*
  * Lock a file handle/inode
  * NOTE: both fh_lock and fh_unlock are done "by hand" in
@@ -265,7 +263,7 @@ fh_lock_nested(struct svc_fh *fhp, unsigned int subclass)
 	}
 
 	inode = d_inode(dentry);
-	mutex_lock_nested(&inode->i_mutex, subclass);
+	inode_lock_nested(inode, subclass);
 	fill_pre_wcc(fhp);
 	fhp->fh_locked = true;
 }
@@ -284,7 +282,7 @@ fh_unlock(struct svc_fh *fhp)
 {
 	if (fhp->fh_locked) {
 		fill_post_wcc(fhp);
-		mutex_unlock(&d_inode(fhp->fh_dentry)->i_mutex);
+		inode_unlock(d_inode(fhp->fh_dentry));
 		fhp->fh_locked = false;
 	}
 }

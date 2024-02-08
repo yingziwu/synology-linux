@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * kirkwood.h
  *
@@ -18,7 +21,6 @@
 
 #define KIRKWOOD_AUDIO_WIN_BASE_REG(win)	(0xA00 + ((win)<<3))
 #define KIRKWOOD_AUDIO_WIN_CTRL_REG(win)	(0xA04 + ((win)<<3))
-
 
 #define KIRKWOOD_RECCTL			0x1000
 #define KIRKWOOD_RECCTL_SPDIF_EN		(1<<11)
@@ -133,6 +135,10 @@
 
 struct kirkwood_dma_data {
 	void __iomem *io;
+#if defined(MY_DEF_HERE)
+	void __iomem *pll_config;
+	void __iomem *soc_control;
+#endif /* MY_DEF_HERE */
 	struct clk *clk;
 	struct clk *extclk;
 	uint32_t ctl_play;

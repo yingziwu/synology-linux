@@ -104,6 +104,13 @@ SECTIONS
 		IRQENTRY_TEXT
 		*(.fixup)
 		*(.gnu.warning)
+
+#ifdef CONFIG_RETPOLINE
+		__indirect_thunk_start = .;
+		*(.text.__x86.indirect_thunk)
+		__indirect_thunk_end = .;
+#endif
+
 		/* End of text section */
 		_etext = .;
 	} :text = 0x9090
@@ -146,7 +153,6 @@ SECTIONS
 		/* End of data section */
 		_edata = .;
 	} :data
-
 
 	. = ALIGN(PAGE_SIZE);
 	__vvar_page = .;
@@ -194,6 +200,17 @@ SECTIONS
 #ifdef CONFIG_X86_64
 	:init
 #endif
+
+	/*
+	 * Section for code used exclusively before alternatives are run. All
+	 * references to such code must be patched out by alternatives, normally
+	 * by using X86_FEATURE_ALWAYS CPU feature bit.
+	 *
+	 * See static_cpu_has() for an example.
+	 */
+	.altinstr_aux : AT(ADDR(.altinstr_aux) - LOAD_OFFSET) {
+		*(.altinstr_aux)
+	}
 
 	INIT_DATA_SECTION(16)
 
@@ -335,7 +352,6 @@ SECTIONS
 	/DISCARD/ : { *(.eh_frame) }
 }
 
-
 #ifdef CONFIG_X86_32
 /*
  * The ASSERT() sink to . is intentional, for binutils 2.14 compatibility:
@@ -370,4 +386,3 @@ INIT_PER_CPU(irq_stack_union);
 . = ASSERT(kexec_control_code_size <= KEXEC_CONTROL_CODE_MAX_SIZE,
            "kexec control code size is too big");
 #endif
-

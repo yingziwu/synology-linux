@@ -52,8 +52,7 @@ static void rs690_gpu_init(struct radeon_device *rdev)
 	/* FIXME: is this correct ? */
 	r420_pipes_init(rdev);
 	if (rs690_mc_wait_for_idle(rdev)) {
-		printk(KERN_WARNING "Failed to wait MC idle while "
-		       "programming pipes. Bad things might happen.\n");
+		pr_warn("Failed to wait MC idle while programming pipes. Bad things might happen.\n");
 	}
 }
 
@@ -340,7 +339,6 @@ static void rs690_crtc_bandwidth_compute(struct radeon_device *rdev,
 	}
 	a.full = dfixed_const(1);
 	wm->consumption_rate.full = dfixed_div(a, consumption_time);
-
 
 	/* Determine line time
 	 *  LineTime = total time for one line of displayhtotal

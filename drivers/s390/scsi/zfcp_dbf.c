@@ -287,7 +287,6 @@ void zfcp_dbf_rec_trig(char *tag, struct zfcp_adapter *adapter,
 	spin_unlock_irqrestore(&dbf->rec_lock, flags);
 }
 
-
 /**
  * zfcp_dbf_rec_run_lvl - trace event related to running recovery
  * @level: trace level to be used for event
@@ -679,4 +678,3 @@ void zfcp_dbf_adapter_unregister(struct zfcp_adapter *adapter)
 	adapter->dbf = NULL;
 	zfcp_dbf_unregister(dbf);
 }
-

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  scsi_error.c Copyright (C) 1997 Eric Youngdale
  *
@@ -45,6 +48,13 @@
 #include "scsi_transport_api.h"
 
 #include <trace/events/scsi.h>
+
+#ifdef MY_DEF_HERE
+#ifdef KERN_INFO
+#undef KERN_INFO
+#define KERN_INFO KERN_NOTICE
+#endif
+#endif /* MY_DEF_HERE */
 
 static void scsi_eh_done(struct scsi_cmnd *scmd);
 
@@ -1305,7 +1315,6 @@ static int scsi_eh_test_devices(struct list_head *cmd_list,
 	return list_empty(work_q);
 }
 
-
 /**
  * scsi_eh_abort_cmds - abort pending commands.
  * @work_q:	&list_head for pending commands.
@@ -1445,7 +1454,6 @@ static int scsi_eh_stu(struct Scsi_Host *shost,
 
 	return list_empty(work_q);
 }
-
 
 /**
  * scsi_eh_bus_device_reset - send bdr if needed
