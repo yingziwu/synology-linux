@@ -1,7 +1,7 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
-// Copyright (c) 2000-2016 Synology Inc. All rights reserved.
+// Copyright (c) 2000-2022 Synology Inc. All rights reserved.
 #ifndef __SYNOBIOS_KERNEL_H_
 #define __SYNOBIOS_KERNEL_H_
 
@@ -250,6 +250,7 @@
 #define HW_DS1621p     "DS1621+"       //"DS1621+"
 #define HW_HD6500      "HD6500"        //"HD6500"
 #define HW_SA3200d     "SA3200d"       //"SA3200d"
+#define HW_SA3400d     "SA3400d"       //"SA3400d"
 #define HW_DVA3221     "DVA3221"       //"DVA3221"
 #define HW_AliDSM      "AliDSM"        //"AliDSM"
 #define HW_RS1221p     "RS1221+"       //"RS1221+"
@@ -287,6 +288,12 @@
 #define HW_DS1823xsp   "DS1823xs+"     //"DS1823xs+"
 #define HW_RS1623xsp   "RS1623xs+"     //"RS1623xs+"
 #define HW_DS423p      "DS423+"        //DS423+
+#define HW_DS224p      "DS224+"        //DS224+
+#define HW_RS4024xsp   "RS4024xs+"     //"RS4024xs+"
+#define HW_VS750hd     "VS750hd"	   //VS750hd
+#define HW_DS1623p     "DS1623+"       //"DS1623+"
+#define HW_DS1823p     "DS1823+"       //"DS1823+"
+#define HW_SC2500      "SC2500"        //"SC2500"
 #define HW_UNKNOWN     "DSUnknown"
 
 #define EBOX_INFO_UNIQUE_RX410  "RX410"
@@ -330,6 +337,8 @@
 #define IS_SYNOLOGY_DX1222(x) (x == 0x17)
 #define IS_SYNOLOGY_DX1215II(x) (x == 0x1C)
 #define IS_SYNOLOGY_RX1223RP(x) (x == 0x01)
+#define SYNO_HEX 0x53796E6F //Syno
+#define LOGY_HEX 0x6C6F6779 //logy
 
 #define SYNO_EBOX_UNIQUE_MAX_LEN 16
 struct syno_ebox_unique_id {

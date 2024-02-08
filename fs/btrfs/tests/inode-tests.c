@@ -61,9 +61,9 @@ static void insert_extent(struct btrfs_root *root, u64 start, u64 len,
 	btrfs_set_file_extent_compression(leaf, fi, compression);
 	btrfs_set_file_extent_encryption(leaf, fi, 0);
 	btrfs_set_file_extent_other_encoding(leaf, fi, 0);
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	btrfs_set_file_extent_syno_flag(leaf, fi, 0);
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 }
 
 static void insert_inode_item_key(struct btrfs_root *root)
@@ -242,6 +242,7 @@ static noinline int test_btrfs_get_extent(void)
 		return ret;
 	}
 
+	inode->i_mode = S_IFREG;
 	BTRFS_I(inode)->location.type = BTRFS_INODE_ITEM_KEY;
 	BTRFS_I(inode)->location.objectid = BTRFS_FIRST_FREE_OBJECTID;
 	BTRFS_I(inode)->location.offset = 0;
@@ -947,7 +948,7 @@ static int test_extent_accounting(void)
 
 	/* [BTRFS_MAX_EXTENT_SIZE] */
 	BTRFS_I(inode)->outstanding_extents++;
-	ret = btrfs_set_extent_delalloc(inode, 0, BTRFS_MAX_EXTENT_SIZE - 1,
+	ret = btrfs_set_extent_delalloc(inode, 0, BTRFS_MAX_EXTENT_SIZE - 1, 0,
 					NULL);
 	if (ret) {
 		test_msg("btrfs_set_extent_delalloc returned %d\n", ret);
@@ -963,7 +964,7 @@ static int test_extent_accounting(void)
 	/* [BTRFS_MAX_EXTENT_SIZE][4k] */
 	BTRFS_I(inode)->outstanding_extents++;
 	ret = btrfs_set_extent_delalloc(inode, BTRFS_MAX_EXTENT_SIZE,
-					BTRFS_MAX_EXTENT_SIZE + 4095, NULL);
+					BTRFS_MAX_EXTENT_SIZE + 4095, 0, NULL);
 	if (ret) {
 		test_msg("btrfs_set_extent_delalloc returned %d\n", ret);
 		goto out;
@@ -979,7 +980,7 @@ static int test_extent_accounting(void)
 	ret = clear_extent_bit(&BTRFS_I(inode)->io_tree,
 			       BTRFS_MAX_EXTENT_SIZE >> 1,
 			       (BTRFS_MAX_EXTENT_SIZE >> 1) + 4095,
-			       EXTENT_DELALLOC | EXTENT_DIRTY |
+			       EXTENT_DELALLOC | EXTENT_DELALLOC_NEW | EXTENT_DIRTY |
 			       EXTENT_UPTODATE | EXTENT_DO_ACCOUNTING, 0, 0,
 			       NULL, GFP_KERNEL);
 	if (ret) {
@@ -997,7 +998,7 @@ static int test_extent_accounting(void)
 	BTRFS_I(inode)->outstanding_extents++;
 	ret = btrfs_set_extent_delalloc(inode, BTRFS_MAX_EXTENT_SIZE >> 1,
 					(BTRFS_MAX_EXTENT_SIZE >> 1) + 4095,
-					NULL);
+					0, NULL);
 	if (ret) {
 		test_msg("btrfs_set_extent_delalloc returned %d\n", ret);
 		goto out;
@@ -1019,7 +1020,7 @@ static int test_extent_accounting(void)
 	BTRFS_I(inode)->outstanding_extents += 2;
 	ret = btrfs_set_extent_delalloc(inode, BTRFS_MAX_EXTENT_SIZE + 8192,
 					(BTRFS_MAX_EXTENT_SIZE << 1) + 12287,
-					NULL);
+					0, NULL);
 	if (ret) {
 		test_msg("btrfs_set_extent_delalloc returned %d\n", ret);
 		goto out;
@@ -1034,7 +1035,7 @@ static int test_extent_accounting(void)
 	/* [BTRFS_MAX_EXTENT_SIZE+4k][4k][BTRFS_MAX_EXTENT_SIZE+4k] */
 	BTRFS_I(inode)->outstanding_extents++;
 	ret = btrfs_set_extent_delalloc(inode, BTRFS_MAX_EXTENT_SIZE+4096,
-					BTRFS_MAX_EXTENT_SIZE+8191, NULL);
+					BTRFS_MAX_EXTENT_SIZE+8191, 0, NULL);
 	if (ret) {
 		test_msg("btrfs_set_extent_delalloc returned %d\n", ret);
 		goto out;
@@ -1050,7 +1051,7 @@ static int test_extent_accounting(void)
 	ret = clear_extent_bit(&BTRFS_I(inode)->io_tree,
 			       BTRFS_MAX_EXTENT_SIZE+4096,
 			       BTRFS_MAX_EXTENT_SIZE+8191,
-			       EXTENT_DIRTY | EXTENT_DELALLOC |
+			       EXTENT_DIRTY | EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
 			       EXTENT_DO_ACCOUNTING | EXTENT_UPTODATE, 0, 0,
 			       NULL, GFP_KERNEL);
 	if (ret) {
@@ -1070,7 +1071,7 @@ static int test_extent_accounting(void)
 	 */
 	BTRFS_I(inode)->outstanding_extents++;
 	ret = btrfs_set_extent_delalloc(inode, BTRFS_MAX_EXTENT_SIZE+4096,
-					BTRFS_MAX_EXTENT_SIZE+8191, NULL);
+					BTRFS_MAX_EXTENT_SIZE+8191, 0, NULL);
 	if (ret) {
 		test_msg("btrfs_set_extent_delalloc returned %d\n", ret);
 		goto out;
@@ -1084,7 +1085,7 @@ static int test_extent_accounting(void)
 
 	/* Empty */
 	ret = clear_extent_bit(&BTRFS_I(inode)->io_tree, 0, (u64)-1,
-			       EXTENT_DIRTY | EXTENT_DELALLOC |
+			       EXTENT_DIRTY | EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
 			       EXTENT_DO_ACCOUNTING | EXTENT_UPTODATE, 0, 0,
 			       NULL, GFP_KERNEL);
 	if (ret) {
@@ -1101,7 +1102,7 @@ static int test_extent_accounting(void)
 out:
 	if (ret)
 		clear_extent_bit(&BTRFS_I(inode)->io_tree, 0, (u64)-1,
-				 EXTENT_DIRTY | EXTENT_DELALLOC |
+				 EXTENT_DIRTY | EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
 				 EXTENT_DO_ACCOUNTING | EXTENT_UPTODATE, 0, 0,
 				 NULL, GFP_KERNEL);
 	iput(inode);

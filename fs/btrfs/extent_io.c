@@ -24,6 +24,9 @@
 #include "rcu-string.h"
 #include "backref.h"
 #include "transaction.h"
+#ifdef MY_ABC_HERE
+#include "qgroup.h"
+#endif /* MY_ABC_HERE */
 
 static struct kmem_cache *extent_state_cache;
 static struct kmem_cache *extent_buffer_cache;
@@ -237,6 +240,35 @@ void extent_io_tree_init(struct extent_io_tree *tree,
 	tree->mapping = mapping;
 }
 
+void extent_io_tree_release(struct extent_io_tree *tree)
+{
+	spin_lock(&tree->lock);
+	/*
+	 * Do a single barrier for the waitqueue_active check here, the state
+	 * of the waitqueue should not change once extent_io_tree_release is
+	 * called.
+	 */
+	smp_mb();
+	while (!RB_EMPTY_ROOT(&tree->state)) {
+		struct rb_node *node;
+		struct extent_state *state;
+
+		node = rb_first(&tree->state);
+		state = rb_entry(node, struct extent_state, rb_node);
+		rb_erase(&state->rb_node, &tree->state);
+		RB_CLEAR_NODE(&state->rb_node);
+		/*
+		 * btree io trees aren't supposed to have tasks waiting for
+		 * changes in the flags of extent states ever.
+		 */
+		ASSERT(!waitqueue_active(&state->wq));
+		free_extent_state(state);
+
+		cond_resched_lock(&tree->lock);
+	}
+	spin_unlock(&tree->lock);
+}
+
 static struct extent_state *alloc_extent_state(gfp_t mask)
 {
 	struct extent_state *state;
@@ -435,10 +467,18 @@ static void set_state_cb(struct extent_io_tree *tree,
 }
 
 static void clear_state_cb(struct extent_io_tree *tree,
-			   struct extent_state *state, unsigned *bits)
+			   struct extent_state *state, unsigned *bits
+#ifdef MY_ABC_HERE
+			   , u64 *add_bytes
+#endif /* MY_ABC_HERE */
+			   )
 {
 	if (tree->ops && tree->ops->clear_bit_hook)
-		tree->ops->clear_bit_hook(tree->mapping->host, state, bits);
+		tree->ops->clear_bit_hook(tree->mapping->host, state, bits
+#ifdef MY_ABC_HERE
+				, add_bytes
+#endif /* MY_ABC_HERE */
+				);
 }
 
 static void set_state_bits(struct extent_io_tree *tree,
@@ -545,7 +585,11 @@ static struct extent_state *next_state(struct extent_state *state)
 static struct extent_state *clear_state_bit(struct extent_io_tree *tree,
 					    struct extent_state *state,
 					    unsigned *bits, int wake,
-					    struct extent_changeset *changeset)
+					    struct extent_changeset *changeset
+#ifdef MY_ABC_HERE
+					    , u64 *add_bytes
+#endif /* MY_ABC_HERE */
+					    )
 {
 	struct extent_state *next;
 	unsigned bits_to_clear = *bits & ~EXTENT_CTLBITS;
@@ -555,7 +599,11 @@ static struct extent_state *clear_state_bit(struct extent_io_tree *tree,
 		WARN_ON(range > tree->dirty_bytes);
 		tree->dirty_bytes -= range;
 	}
-	clear_state_cb(tree, state, bits);
+	clear_state_cb(tree, state, bits
+#ifdef MY_ABC_HERE
+				  , add_bytes
+#endif /* MY_ABC_HERE */
+				  );
 	add_extent_changeset(state, bits_to_clear, changeset, 0);
 	state->state &= ~bits_to_clear;
 	if (wake)
@@ -631,6 +679,19 @@ static int __clear_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
 	int clear = 0;
 #ifdef MY_ABC_HERE
 	int retry_count = 0;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	struct inode *inode = NULL;
+	u64 add_bytes = 0;
+
+	if (bits & EXTENT_ADD_INODE_BYTES) {
+		if (tree->ops && tree->ops->clear_bit_hook && tree->mapping)
+			inode = tree->mapping->host;
+		if (inode && btrfs_ino(inode) == BTRFS_BTREE_INODE_OBJECTID)
+			inode = NULL;
+		if (inode && btrfs_is_free_space_inode(inode))
+			inode = NULL;
+	}
 #endif /* MY_ABC_HERE */
 
 	btrfs_debug_check_extent_io_range(tree, start, end);
@@ -731,7 +792,11 @@ hit_next:
 			goto out;
 		if (state->end <= end) {
 			state = clear_state_bit(tree, state, &bits, wake,
-						changeset);
+						changeset
+#ifdef MY_ABC_HERE
+						, inode ? &add_bytes : NULL
+#endif /* MY_ABC_HERE */
+						);
 			goto next;
 		}
 		goto search_again;
@@ -752,13 +817,21 @@ hit_next:
 		if (wake)
 			wake_up(&state->wq);
 
-		clear_state_bit(tree, prealloc, &bits, wake, changeset);
+		clear_state_bit(tree, prealloc, &bits, wake, changeset
+#ifdef MY_ABC_HERE
+						, inode ? &add_bytes : NULL
+#endif /* MY_ABC_HERE */
+						);
 
 		prealloc = NULL;
 		goto out;
 	}
 
-	state = clear_state_bit(tree, state, &bits, wake, changeset);
+	state = clear_state_bit(tree, state, &bits, wake, changeset
+#ifdef MY_ABC_HERE
+						, inode ? &add_bytes : NULL
+#endif /* MY_ABC_HERE */
+						);
 next:
 	if (last_end == (u64)-1)
 		goto out;
@@ -786,6 +859,28 @@ out:
 	if (changeset && changeset->prealloc_ulist_node) {
 		kfree(changeset->prealloc_ulist_node);
 		changeset->prealloc_ulist_node = NULL;
+	}
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	if (add_bytes && inode) {
+		if (bits & EXTENT_ADD_INODE_BYTES) {
+			WARN_ON_ONCE(!gfpflags_allow_blocking(mask));
+			spin_lock(&BTRFS_I(inode)->lock);
+			ASSERT(BTRFS_I(inode)->new_delalloc_bytes >= add_bytes);
+			BTRFS_I(inode)->new_delalloc_bytes -= add_bytes;
+			inode_add_bytes(inode, add_bytes);
+			spin_unlock(&BTRFS_I(inode)->lock);
+
+			btrfs_qgroup_syno_accounting(BTRFS_I(inode),
+					add_bytes, 0, UPDATE_QUOTA);
+			btrfs_usrquota_syno_accounting(BTRFS_I(inode),
+					add_bytes, 0, UPDATE_QUOTA);
+		} else {
+			spin_lock(&BTRFS_I(inode)->lock);
+			ASSERT(BTRFS_I(inode)->new_delalloc_bytes >= add_bytes);
+			BTRFS_I(inode)->new_delalloc_bytes -= add_bytes;
+			spin_unlock(&BTRFS_I(inode)->lock);
+		}
 	}
 #endif /* MY_ABC_HERE */
 
@@ -1174,6 +1269,19 @@ int convert_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
 	u64 last_start;
 	u64 last_end;
 	bool first_iteration = true;
+#ifdef MY_ABC_HERE
+	struct inode *inode = NULL;
+	u64 add_bytes = 0;
+
+	if (clear_bits & EXTENT_ADD_INODE_BYTES) {
+		if (tree->ops && tree->ops->clear_bit_hook && tree->mapping)
+			inode = tree->mapping->host;
+		if (inode && btrfs_ino(inode) == BTRFS_BTREE_INODE_OBJECTID)
+			inode = NULL;
+		if (inode && btrfs_is_free_space_inode(inode))
+			inode = NULL;
+	}
+#endif /* MY_ABC_HERE */
 
 	btrfs_debug_check_extent_io_range(tree, start, end);
 
@@ -1234,7 +1342,11 @@ hit_next:
 	if (state->start == start && state->end <= end) {
 		set_state_bits(tree, state, &bits, NULL);
 		cache_state(state, cached_state);
-		state = clear_state_bit(tree, state, &clear_bits, 0, NULL);
+		state = clear_state_bit(tree, state, &clear_bits, 0, NULL
+#ifdef MY_ABC_HERE
+					, inode ? &add_bytes : NULL
+#endif /* MY_ABC_HERE */
+					);
 		if (last_end == (u64)-1)
 			goto out;
 		start = last_end + 1;
@@ -1276,7 +1388,11 @@ hit_next:
 			set_state_bits(tree, state, &bits, NULL);
 			cache_state(state, cached_state);
 			state = clear_state_bit(tree, state, &clear_bits, 0,
-						NULL);
+						NULL
+#ifdef MY_ABC_HERE
+						, inode ? &add_bytes : NULL
+#endif /* MY_ABC_HERE */
+						);
 			if (last_end == (u64)-1)
 				goto out;
 			start = last_end + 1;
@@ -1338,7 +1454,11 @@ hit_next:
 
 		set_state_bits(tree, prealloc, &bits, NULL);
 		cache_state(prealloc, cached_state);
-		clear_state_bit(tree, prealloc, &clear_bits, 0, NULL);
+		clear_state_bit(tree, prealloc, &clear_bits, 0, NULL
+#ifdef MY_ABC_HERE
+						, inode ? &add_bytes : NULL
+#endif /* MY_ABC_HERE */
+						);
 		prealloc = NULL;
 		goto out;
 	}
@@ -1355,6 +1475,27 @@ out:
 	spin_unlock(&tree->lock);
 	if (prealloc)
 		free_extent_state(prealloc);
+#ifdef MY_ABC_HERE
+	if (add_bytes && inode) {
+		if (clear_bits & EXTENT_ADD_INODE_BYTES) {
+			spin_lock(&BTRFS_I(inode)->lock);
+			ASSERT(BTRFS_I(inode)->new_delalloc_bytes >= add_bytes);
+			BTRFS_I(inode)->new_delalloc_bytes -= add_bytes;
+			inode_add_bytes(inode, add_bytes);
+			spin_unlock(&BTRFS_I(inode)->lock);
+
+			btrfs_qgroup_syno_accounting(BTRFS_I(inode),
+					add_bytes, 0, UPDATE_QUOTA);
+			btrfs_usrquota_syno_accounting(BTRFS_I(inode),
+					add_bytes, 0, UPDATE_QUOTA);
+		} else {
+			spin_lock(&BTRFS_I(inode)->lock);
+			ASSERT(BTRFS_I(inode)->new_delalloc_bytes >= add_bytes);
+			BTRFS_I(inode)->new_delalloc_bytes -= add_bytes;
+			spin_unlock(&BTRFS_I(inode)->lock);
+		}
+	}
+#endif /* MY_ABC_HERE */
 
 	return err;
 }
@@ -1598,6 +1739,11 @@ static noinline u64 find_delalloc_range(struct extent_io_tree *tree,
 		state = rb_entry(node, struct extent_state, rb_node);
 		if (found && (state->start != cur_start ||
 			      (state->state & EXTENT_BOUNDARY))) {
+			goto out;
+		}
+		if (state->start > cur_start) {
+			if (!found)
+				*end = state->start - 1;
 			goto out;
 		}
 		if (!(state->state & EXTENT_DELALLOC)) {
@@ -2077,18 +2223,6 @@ int test_range_bit(struct extent_io_tree *tree, u64 start, u64 end,
 	}
 	spin_unlock(&tree->lock);
 	return bitset;
-}
-
-/*
- * helper function to set a given page up to date if all the
- * extents in the tree for that page are up to date
- */
-static void check_page_uptodate(struct extent_io_tree *tree, struct page *page)
-{
-	u64 start = page_offset(page);
-	u64 end = start + PAGE_CACHE_SIZE - 1;
-	if (test_range_bit(tree, start, end, EXTENT_UPTODATE, 1, NULL))
-		SetPageUptodate(page);
 }
 
 int free_io_failure(struct inode *inode, struct io_failure_record *rec)
@@ -2824,8 +2958,6 @@ endio_readpage_release_extent(struct extent_io_tree *tree, u64 start, u64 len,
 	struct extent_state *cached = NULL;
 	u64 end = start + len - 1;
 
-	if (uptodate && tree->track_uptodate)
-		set_extent_uptodate(tree, start, end, &cached, GFP_ATOMIC);
 	unlock_extent_cached(tree, start, end, &cached, GFP_ATOMIC);
 }
 
@@ -3150,7 +3282,7 @@ readpage_ok:
 
 #ifdef MY_ABC_HERE
 	if (found_cksumfailure) {
-		SynoAutoErrorFsBtrfsReport(fs_info->fsid);
+		SynoAutoErrorFsBtrfsReport(fs_info->fs_devices->fsid);
 	}
 #endif /* MY_ABC_HERE */
 }
@@ -3330,6 +3462,9 @@ static int submit_extent_page(int rw, struct extent_io_tree *tree,
 	bio_add_page(bio, page, page_size, offset);
 	bio->bi_end_io = end_io_func;
 	bio->bi_private = tree;
+#ifdef MY_ABC_HERE
+	bio->bi_rw |= rw;
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	if (unlikely(bio_flags & EXTENT_BIO_RETRY))
 		bio_set_flag(bio, BIO_CORRECTION_RETRY);
@@ -3577,19 +3712,8 @@ static int __do_readpage(struct extent_io_tree *tree,
 			continue;
 		}
 		/* the get_extent function already copied into the page */
-		if (test_range_bit(tree, cur, cur_end,
-				   EXTENT_UPTODATE, 1, NULL)) {
-			check_page_uptodate(tree, page);
-			unlock_extent(tree, cur, cur + iosize - 1);
-			cur = cur + iosize;
-			pg_offset += iosize;
-			continue;
-		}
-		/* we have an inline extent but it didn't get marked up
-		 * to date.  Error out
-		 */
 		if (block_start == EXTENT_MAP_INLINE) {
-			SetPageError(page);
+			SetPageUptodate(page);
 			unlock_extent(tree, cur, cur + iosize - 1);
 			cur = cur + iosize;
 			pg_offset += iosize;
@@ -3745,6 +3869,15 @@ static void update_nr_written(struct page *page, struct writeback_control *wbc,
 	wbc->nr_to_write -= nr_written;
 }
 
+#ifdef MY_ABC_HERE
+u64 btrfs_max_extent_size(struct inode *inode)
+{
+	if (BTRFS_I(inode)->flags & BTRFS_INODE_NODEDUPE)
+		return BTRFS_MAX_EXTENT_SIZE;
+	return BTRFS_I(inode)->root->small_extent_size;
+}
+#endif /* MY_ABC_HERE */
+
 /*
  * helper for __extent_writepage, doing all of the delayed allocation setup.
  *
@@ -3777,7 +3910,11 @@ static noinline_for_stack int writepage_delalloc(struct inode *inode,
 					       page,
 					       &delalloc_start,
 					       &delalloc_end,
+#ifdef MY_ABC_HERE
+						   btrfs_max_extent_size(inode)
+#else
 					       BTRFS_MAX_EXTENT_SIZE
+#endif /* MY_ABC_HERE */
 #ifdef MY_DEF_HERE
 					       , epd
 #endif /* MY_DEF_HERE */
@@ -3884,6 +4021,9 @@ static noinline_for_stack int __extent_writepage_io(struct inode *inode,
 	int ret = 0;
 	int nr = 0;
 	bool compressed;
+#ifdef MY_ABC_HERE
+	bool deduped = false;
+#endif /* MY_ABC_HERE */
 
 	if (tree->ops && tree->ops->writepage_start_hook) {
 		ret = tree->ops->writepage_start_hook(page, start,
@@ -3952,6 +4092,9 @@ static noinline_for_stack int __extent_writepage_io(struct inode *inode,
 		bdev = em->bdev;
 		block_start = em->block_start;
 		compressed = test_bit(EXTENT_FLAG_COMPRESSED, &em->flags);
+#ifdef MY_ABC_HERE
+		deduped = test_bit(EXTENT_FLAG_DEDUPED, &em->flags);
+#endif /* MY_ABC_HERE */
 		free_extent_map(em);
 		em = NULL;
 
@@ -3960,6 +4103,9 @@ static noinline_for_stack int __extent_writepage_io(struct inode *inode,
 		 * paths in the FS
 		 */
 		if (compressed || block_start == EXTENT_MAP_HOLE ||
+#ifdef MY_ABC_HERE
+			deduped ||
+#endif /* MY_ABC_HERE */
 		    block_start == EXTENT_MAP_INLINE) {
 			/*
 			 * end_io notification does not happen here for
@@ -4298,7 +4444,7 @@ static noinline_for_stack int write_one_eb(struct extent_buffer *eb,
 	if (btrfs_header_level(eb) > 0) {
 		end = btrfs_node_key_ptr_offset(nritems);
 
-		memset_extent_buffer(eb, 0, end, eb->len - end);
+		memzero_extent_buffer(eb, end, eb->len - end);
 	} else {
 		/*
 		 * leaf:
@@ -4307,7 +4453,7 @@ static noinline_for_stack int write_one_eb(struct extent_buffer *eb,
 		start = btrfs_item_nr_offset(nritems);
 		end = BTRFS_LEAF_DATA_OFFSET +
 		      leaf_data_end(fs_info->tree_root, eb);
-		memset_extent_buffer(eb, 0, start, end - start);
+		memzero_extent_buffer(eb, start, end - start);
 	}
 
 	for (i = 0; i < num_pages; i++) {
@@ -4436,6 +4582,10 @@ retry:
 			if (!ret) {
 				free_extent_buffer(eb);
 				continue;
+			} else if (ret < 0) {
+				done = 1;
+				free_extent_buffer(eb);
+				break;
 			}
 
 			ret = write_one_eb(eb, fs_info, wbc, &epd);
@@ -4642,6 +4792,14 @@ retry:
 		 */
 		scanned = 1;
 		index = 0;
+
+		/*
+		 * If we're looping we could run into a page that is locked by a
+		 * writer and that writer could be waiting on writeback for a
+		 * page in our current bio, and thus deadlock, so flush the
+		 * write bio here.
+		 */
+		flush_write_bio(data);
 		goto retry;
 	}
 
@@ -4905,12 +5063,12 @@ static int try_release_extent_state(struct extent_map_tree *map,
 		 * or quota reservation would be leaked.
 		 */
 		ret = __clear_extent_bit(tree, start, end,
-				 ~(EXTENT_LOCKED | EXTENT_NODATASUM |
+				 ~(EXTENT_LOCKED | EXTENT_NODATASUM | EXTENT_DELALLOC_NEW |
 					EXTENT_QGROUP_RESERVED),
 			 0, 0, NULL, mask, NULL);
 #else
 		ret = clear_extent_bit(tree, start, end,
-				 ~(EXTENT_LOCKED | EXTENT_NODATASUM),
+				 ~(EXTENT_LOCKED | EXTENT_NODATASUM | EXTENT_DELALLOC_NEW),
 				 0, 0, NULL, mask);
 #endif /* MY_ABC_HERE */
 
@@ -4968,6 +5126,8 @@ int try_release_extent_mapping(struct extent_map_tree *map,
 
 			/* once for us */
 			free_extent_map(em);
+
+			cond_resched(); /* Allow large-extent preemption. */
 		}
 	}
 	return try_release_extent_state(map, tree, page, mask);
@@ -5683,9 +5843,9 @@ struct extent_buffer *btrfs_clone_extent_buffer(struct extent_buffer *src)
 		WARN_ON(PageDirty(p));
 		SetPageUptodate(p);
 		new->pages[i] = p;
+		copy_page(page_address(p), page_address(src->pages[i]));
 	}
 
-	copy_extent_buffer(new, src, 0, 0, src->len);
 	set_bit(EXTENT_BUFFER_UPTODATE, &new->bflags);
 	set_bit(EXTENT_BUFFER_DUMMY, &new->bflags);
 
@@ -5743,25 +5903,28 @@ struct extent_buffer *alloc_dummy_extent_buffer(struct btrfs_fs_info *fs_info,
 static void check_buffer_tree_ref(struct extent_buffer *eb)
 {
 	int refs;
-	/* the ref bit is tricky.  We have to make sure it is set
-	 * if we have the buffer dirty.   Otherwise the
-	 * code to free a buffer can end up dropping a dirty
-	 * page
+	/*
+	 * The TREE_REF bit is first set when the extent_buffer is added
+	 * to the radix tree. It is also reset, if unset, when a new reference
+	 * is created by find_extent_buffer.
 	 *
-	 * Once the ref bit is set, it won't go away while the
-	 * buffer is dirty or in writeback, and it also won't
-	 * go away while we have the reference count on the
-	 * eb bumped.
+	 * It is only cleared in two cases: freeing the last non-tree
+	 * reference to the extent_buffer when its STALE bit is set or
+	 * calling releasepage when the tree reference is the only reference.
 	 *
-	 * We can't just set the ref bit without bumping the
-	 * ref on the eb because free_extent_buffer might
-	 * see the ref bit and try to clear it.  If this happens
-	 * free_extent_buffer might end up dropping our original
-	 * ref by mistake and freeing the page before we are able
-	 * to add one more ref.
+	 * In both cases, care is taken to ensure that the extent_buffer's
+	 * pages are not under io. However, releasepage can be concurrently
+	 * called with creating new references, which is prone to race
+	 * conditions between the calls to check_buffer_tree_ref in those
+	 * codepaths and clearing TREE_REF in try_release_extent_buffer.
 	 *
-	 * So bump the ref count first, then set the bit.  If someone
-	 * beat us to it, drop the ref we added.
+	 * The actual lifetime of the extent_buffer in the radix tree is
+	 * adequately protected by the refcount, but the TREE_REF bit and
+	 * its corresponding reference are not. To protect against this
+	 * class of races, we call check_buffer_tree_ref from the codepaths
+	 * which trigger io after they set eb->io_pages. Note that once io is
+	 * initiated, TREE_REF can no longer be cleared, so that is the
+	 * moment at which any such race is best fixed.
 	 */
 	refs = atomic_read(&eb->refs);
 	if (refs >= 2 && test_bit(EXTENT_BUFFER_TREE_REF, &eb->bflags))
@@ -5830,16 +5993,16 @@ struct extent_buffer *find_extent_buffer(struct btrfs_fs_info *fs_info,
 		}
 		mark_extent_buffer_accessed(eb, NULL);
 #ifdef MY_ABC_HERE
-		if (percpu_counter_initialized(&root->eb_hit))
-			__percpu_counter_add(&root->eb_hit, 1, SZ_128M);
+		if (root->eb_hit && percpu_counter_initialized(root->eb_hit))
+			__percpu_counter_add(root->eb_hit, 1, SZ_128M);
 		__percpu_counter_add(&root->fs_info->eb_hit, 1, SZ_128M);
 #endif /* MY_ABC_HERE */
 		return eb;
 	}
 	rcu_read_unlock();
 #ifdef MY_ABC_HERE
-	if (percpu_counter_initialized(&root->eb_miss))
-		__percpu_counter_add(&root->eb_miss, 1, SZ_128M);
+	if (root->eb_miss && percpu_counter_initialized(root->eb_miss))
+		__percpu_counter_add(root->eb_miss, 1, SZ_128M);
 	__percpu_counter_add(&root->fs_info->eb_miss, 1, SZ_128M);
 #endif /* MY_ABC_HERE */
 
@@ -5858,12 +6021,14 @@ struct extent_buffer *alloc_test_extent_buffer(struct btrfs_fs_info *fs_info,
 		return eb;
 	eb = alloc_dummy_extent_buffer(fs_info, start);
 	if (!eb)
-		return NULL;
+		return ERR_PTR(-ENOMEM);
 	eb->fs_info = fs_info;
 again:
 	ret = radix_tree_preload(GFP_NOFS);
-	if (ret)
+	if (ret) {
+		exists = ERR_PTR(ret);
 		goto free_eb;
+	}
 	spin_lock(&fs_info->buffer_lock);
 	ret = radix_tree_insert(&fs_info->buffer_radix,
 				start >> PAGE_CACHE_SHIFT, eb);
@@ -6311,12 +6476,20 @@ int read_extent_buffer_pages(struct extent_io_tree *tree,
 		correction_get_locked_record(eb->fs_info, eb->start);
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+	atomic64_inc(&eb->fs_info->syno_meta_statistics.eb_disk_read);
+#endif /* MY_ABC_HERE */
 	clear_bit(EXTENT_BUFFER_READ_ERR, &eb->bflags);
 #ifdef MY_ABC_HERE
 #else
 	eb->read_mirror = 0;
 #endif /* MY_ABC_HERE */
 	atomic_set(&eb->io_pages, num_reads);
+	/*
+	 * It is possible for releasepage to clear the TREE_REF bit before we
+	 * set io_pages. See check_buffer_tree_ref for a more detailed comment.
+	 */
+	check_buffer_tree_ref(eb);
 #ifdef MY_ABC_HERE
 	clear_bit(EXTENT_BUFFER_RETRY_ERR, &eb->bflags);
 	if (unlikely(eb->nr_retry && eb->can_retry)) {
@@ -6466,9 +6639,9 @@ void read_extent_buffer(const struct extent_buffer *eb, void *dstv,
 	}
 }
 
-int read_extent_buffer_to_user(const struct extent_buffer *eb,
-			       void __user *dstv,
-			       unsigned long start, unsigned long len)
+int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
+				       void __user *dstv,
+				       unsigned long start, unsigned long len)
 {
 	size_t cur;
 	size_t offset;
@@ -6489,7 +6662,7 @@ int read_extent_buffer_to_user(const struct extent_buffer *eb,
 
 		cur = min(len, (PAGE_CACHE_SIZE - offset));
 		kaddr = page_address(page);
-		if (copy_to_user(dst, kaddr + offset, cur)) {
+		if (probe_user_write(dst, kaddr + offset, cur)) {
 			ret = -EFAULT;
 			break;
 		}
@@ -6630,6 +6803,27 @@ int memcmp_extent_buffer(const struct extent_buffer *eb, const void *ptrv,
 	return ret;
 }
 
+void write_extent_buffer_chunk_tree_uuid(struct extent_buffer *eb,
+		const void *srcv)
+{
+	char *kaddr;
+
+	WARN_ON(!PageUptodate(eb->pages[0]));
+	kaddr = page_address(eb->pages[0]);
+	memcpy(kaddr + offsetof(struct btrfs_header, chunk_tree_uuid), srcv,
+			BTRFS_FSID_SIZE);
+}
+
+void write_extent_buffer_fsid(struct extent_buffer *eb, const void *srcv)
+{
+	char *kaddr;
+
+	WARN_ON(!PageUptodate(eb->pages[0]));
+	kaddr = page_address(eb->pages[0]);
+	memcpy(kaddr + offsetof(struct btrfs_header, fsid), srcv,
+			BTRFS_FSID_SIZE);
+}
+
 void write_extent_buffer(struct extent_buffer *eb, const void *srcv,
 			 unsigned long start, unsigned long len)
 {
@@ -6661,8 +6855,8 @@ void write_extent_buffer(struct extent_buffer *eb, const void *srcv,
 	}
 }
 
-void memset_extent_buffer(struct extent_buffer *eb, char c,
-			  unsigned long start, unsigned long len)
+void memzero_extent_buffer(struct extent_buffer *eb, unsigned long start,
+		unsigned long len)
 {
 	size_t cur;
 	size_t offset;
@@ -6682,12 +6876,26 @@ void memset_extent_buffer(struct extent_buffer *eb, char c,
 
 		cur = min(len, PAGE_CACHE_SIZE - offset);
 		kaddr = page_address(page);
-		memset(kaddr + offset, c, cur);
+		memset(kaddr + offset, 0, cur);
 
 		len -= cur;
 		offset = 0;
 		i++;
 	}
+}
+
+void copy_extent_buffer_full(struct extent_buffer *dst,
+			     struct extent_buffer *src)
+{
+	int i;
+	unsigned num_pages;
+
+	ASSERT(dst->len == src->len);
+
+	num_pages = num_extent_pages(dst->start, dst->len);
+	for (i = 0; i < num_pages; i++)
+		copy_page(page_address(dst->pages[i]),
+				page_address(src->pages[i]));
 }
 
 void copy_extent_buffer(struct extent_buffer *dst, struct extent_buffer *src,

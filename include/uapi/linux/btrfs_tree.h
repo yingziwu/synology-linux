@@ -143,6 +143,13 @@
 #define BTRFS_SYNO_SUBVOL_USAGE_OBJECTID -206ULL
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+/*
+ * objectid of btrfs_root_locker_item in feature-tree
+ */
+#define BTRFS_SYNO_BTRFS_LOCKER_OBJECTID -211ULL
+#endif /* MY_ABC_HERE */
+
 /* dummy objectid represents multiple objectids */
 #define BTRFS_MULTIPLE_OBJECTIDS -255ULL
 
@@ -205,6 +212,10 @@
  * tree used by the super block to find all the other trees
  */
 #define BTRFS_ROOT_ITEM_KEY	132
+
+#ifdef MY_ABC_HERE
+#define BTRFS_ROOT_LOCKER_KEY     138
+#endif /* MY_ABC_HERE */
 
 /*
  * root backrefs tie subvols and snapshots to the directory entries that
@@ -555,6 +566,7 @@ struct btrfs_free_space_header {
 
 #define BTRFS_SUPER_FLAG_SEEDING	(1ULL << 32)
 #define BTRFS_SUPER_FLAG_METADUMP	(1ULL << 33)
+#define BTRFS_SUPER_FLAG_CHANGING_FSID_V2 (1ULL << 36)
 
 #ifdef MY_ABC_HERE
 #define BTRFS_SYNO_USAGE_STATUS_VERSION        1
@@ -858,6 +870,26 @@ struct btrfs_root_item {
 	__le64 reserved[8]; /* for future */
 } __attribute__ ((__packed__));
 
+#ifdef MY_ABC_HERE
+struct btrfs_root_locker_item {
+	__u8 enabled;
+	__u8 mode;
+	__u8 default_state;
+	__u8 state;
+	__u8 unused[4];
+	__le64 waittime;
+	__le64 duration;
+	__le64 clock_adjustment;
+	__le64 update_time_floor;
+
+	__le64 period_begin;
+	__le64 period_begin_sys;
+	__le64 period_end;
+	__le64 period_end_sys;
+	__le64 reserved[3];
+} __attribute__ ((__packed__));
+#endif /* MY_ABC_HERE */
+
 /*
  * this is used for both forward and backward root refs
  */
@@ -952,9 +984,9 @@ enum {
 	BTRFS_NR_FILE_EXTENT_TYPES = 3,
 };
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 #define BTRFS_FILE_EXTENT_DEDUPED	0x1
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 struct btrfs_file_extent_item {
 	/*
@@ -979,7 +1011,7 @@ struct btrfs_file_extent_item {
 	 */
 	__u8 compression;
 	__u8 encryption;
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	__u8 other_encoding; /* spare for later use */
 	/*
 	 * BTRFS_FILE_EXTENT_DEDUPED
@@ -987,7 +1019,7 @@ struct btrfs_file_extent_item {
 	__u8 syno_flag;
 #else
 	__le16 other_encoding; /* spare for later use */
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 	/* are we inline data or a real extent? */
 	__u8 type;
