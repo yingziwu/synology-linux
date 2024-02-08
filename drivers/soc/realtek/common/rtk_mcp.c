@@ -473,6 +473,7 @@ static int _mcp_phy_init(void)
 	unsigned int cur_value;
 #endif
 
+
 	//_mcp_load_otp();
 	SET_MCP_CTRL(MCP_GO, RTK_MCP_BASE); // dessert go bit
 	SET_MCP_EN(0xFE, RTK_MCP_BASE); // disable all interrupts

@@ -82,8 +82,10 @@
 #define PPSMC_MSG_SetSoftMaxVcn                 0x34
 #define PPSMC_Message_Count                     0x35
 
+
 typedef uint16_t PPSMC_Result;
 typedef int      PPSMC_Msg;
+
 
 #pragma pack(pop)
 

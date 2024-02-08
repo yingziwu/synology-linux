@@ -1383,6 +1383,7 @@ static unsigned int raw_rc6_decoder(int *dataRepeat)
 		return symbol;
 	}
 
+
 	raw_bit_sample = readl(ir_dev->ir_reg+SATURN_ISO_IR_RAW_FF_OFF);
 
 	// [decode] PREMBLE (High for 2.6ms / Low for 0.8ms)

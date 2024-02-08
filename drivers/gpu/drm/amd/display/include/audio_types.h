@@ -32,6 +32,7 @@
 #define MAX_HW_AUDIO_INFO_DISPLAY_NAME_SIZE_IN_CHARS 18
 #define MULTI_CHANNEL_SPLIT_NO_ASSO_INFO 0xFFFFFFFF
 
+
 struct audio_crtc_info {
 	uint32_t h_total;
 	uint32_t h_active;

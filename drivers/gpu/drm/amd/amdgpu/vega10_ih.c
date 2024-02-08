@@ -31,6 +31,8 @@
 #include "soc15_common.h"
 #include "vega10_ih.h"
 
+
+
 static void vega10_ih_set_interrupt_funcs(struct amdgpu_device *adev);
 
 /**
@@ -337,6 +339,7 @@ static void vega10_ih_decode_iv(struct amdgpu_device *adev,
 	entry->src_data[1] = dw[5];
 	entry->src_data[2] = dw[6];
 	entry->src_data[3] = dw[7];
+
 
 	/* wptr/rptr are in bytes! */
 	adev->irq.ih.rptr += 32;

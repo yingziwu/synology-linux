@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -48,6 +49,7 @@ int rm_nodes_move(rmctl_t hndl,
 
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
+
 
 	switch (level) {
 	case RM_Q_LVL:
@@ -228,6 +230,7 @@ int rm_nodes_move(rmctl_t hndl,
 	return 0;
 }
 
+
 /**
  */
 int rm_nodes_switch(rmctl_t hndl,
@@ -248,6 +251,7 @@ int rm_nodes_switch(rmctl_t hndl,
 
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
+
 
 	switch (level) {
 	case RM_Q_LVL:
@@ -328,3 +332,4 @@ int rm_nodes_switch(rmctl_t hndl,
 
 	return 0;
 }
+

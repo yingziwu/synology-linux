@@ -21,6 +21,7 @@
 #ifndef _mp_10_0_SH_MASK_HEADER
 #define _mp_10_0_SH_MASK_HEADER
 
+
 // addressBlock: mp_SmuMp0_SmnDec
 //MP0_SMN_C2PMSG_32
 #define MP0_SMN_C2PMSG_32__CONTENT__SHIFT                                                                     0x0
@@ -253,6 +254,7 @@
 #define MP0_SMN_IH_SW_INT_CTRL__SW_INT_ACK__SHIFT                                                             0x8
 #define MP0_SMN_IH_SW_INT_CTRL__SW_TRIG_MASK_MASK                                                             0x00000001L
 #define MP0_SMN_IH_SW_INT_CTRL__SW_INT_ACK_MASK                                                               0x00000100L
+
 
 // addressBlock: mp_SmuMp1_SmnDec
 //MP1_SMN_C2PMSG_32
@@ -490,6 +492,7 @@
 #define MP1_SMN_FPS_CNT__COUNT__SHIFT                                                                         0x0
 #define MP1_SMN_FPS_CNT__COUNT_MASK                                                                           0xFFFFFFFFL
 
+
 // addressBlock: mp_SmuMp0Pub_CruDec
 //MP0_ACTIVE_FCN_ID
 #define MP0_ACTIVE_FCN_ID__VFID__SHIFT                                                                        0x0
@@ -511,6 +514,7 @@
 #define MP0_IH_SW_INT_CTRL__INT_ACK__SHIFT                                                                    0x8
 #define MP0_IH_SW_INT_CTRL__INT_MASK_MASK                                                                     0x00000001L
 #define MP0_IH_SW_INT_CTRL__INT_ACK_MASK                                                                      0x00000100L
+
 
 // addressBlock: mp_SmuMp1Pub_CruDec
 //MP1_FIRMWARE_FLAGS
@@ -877,5 +881,6 @@
 //MP1_FPS_CNT
 #define MP1_FPS_CNT__COUNT__SHIFT                                                                             0x0
 #define MP1_FPS_CNT__COUNT_MASK                                                                               0xFFFFFFFFL
+
 
 #endif

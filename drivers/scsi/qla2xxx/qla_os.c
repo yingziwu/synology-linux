@@ -47,6 +47,7 @@ MODULE_PARM_DESC(ql2xenableclass2,
 		"Specify if Class 2 operations are supported from the very "
 		"beginning. Default is 0 - class 2 not supported.");
 
+
 int ql2xlogintimeout = 20;
 module_param(ql2xlogintimeout, int, S_IRUGO);
 MODULE_PARM_DESC(ql2xlogintimeout,
@@ -683,6 +684,11 @@ qla2xxx_queuecommand(struct Scsi_Host *host, struct scsi_cmnd *cmd)
 	struct scsi_qla_host *base_vha = pci_get_drvdata(ha->pdev);
 	srb_t *sp;
 	int rval;
+
+	if (unlikely(test_bit(UNLOADING, &base_vha->dpc_flags))) {
+		cmd->result = DID_NO_CONNECT << 16;
+		goto qc24_fail_command;
+	}
 
 	if (ha->flags.eeh_busy) {
 		if (ha->flags.pci_channel_io_perm_failure) {
@@ -1323,6 +1329,7 @@ qla2x00_loop_reset(scsi_qla_host_t *vha)
 		}
 	}
 
+
 	if (ha->flags.enable_lip_full_login && !IS_CNA_CAPABLE(ha)) {
 		atomic_set(&vha->loop_state, LOOP_DOWN);
 		atomic_set(&vha->loop_down_timer, LOOP_DOWN_TIME);
@@ -1601,6 +1608,7 @@ mqiobase_exit:
 iospace_error_exit:
 	return (-ENOMEM);
 }
+
 
 static int
 qla83xx_iospace_config(struct qla_hw_data *ha)
@@ -2308,10 +2316,10 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	if (mem_only) {
 		if (pci_enable_device_mem(pdev))
-			goto probe_out;
+			return ret;
 	} else {
 		if (pci_enable_device(pdev))
-			goto probe_out;
+			return ret;
 	}
 
 	/* This may fail but that's ok */
@@ -2321,7 +2329,7 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (!ha) {
 		ql_log_pci(ql_log_fatal, pdev, 0x0009,
 		    "Unable to allocate memory for ha.\n");
-		goto probe_out;
+		goto disable_device;
 	}
 	ql_dbg_pci(ql_dbg_init, pdev, 0x000a,
 	    "Memory allocated for ha=%p.\n", ha);
@@ -2565,6 +2573,7 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	req->max_q_depth = MAX_Q_DEPTH;
 	if (ql2xmaxqdepth != 0 && ql2xmaxqdepth <= 0xffffU)
 		req->max_q_depth = ql2xmaxqdepth;
+
 
 	base_vha = qla2x00_create_host(sht, ha);
 	if (!base_vha) {
@@ -2919,7 +2928,7 @@ iospace_config_failed:
 	kfree(ha);
 	ha = NULL;
 
-probe_out:
+disable_device:
 	pci_disable_device(pdev);
 	return ret;
 }
@@ -4934,8 +4943,9 @@ qla2x00_do_dpc(void *data)
 			}
 		}
 
-		if (test_and_clear_bit(ISP_ABORT_NEEDED,
-						&base_vha->dpc_flags)) {
+		if (test_and_clear_bit
+		    (ISP_ABORT_NEEDED, &base_vha->dpc_flags) &&
+		    !test_bit(UNLOADING, &base_vha->dpc_flags)) {
 
 			ql_dbg(ql_dbg_dpc, base_vha, 0x4007,
 			    "ISP abort scheduled.\n");
@@ -5322,6 +5332,7 @@ qla2x00_timer(scsi_qla_host_t *vha)
 #define FW_FILE_ISP8031	"ql8300_fw.bin"
 #define FW_FILE_ISP27XX	"ql2700_fw.bin"
 
+
 static DEFINE_MUTEX(qla_fw_lock);
 
 static struct fw_blob qla_fw_blobs[FW_BLOBS] = {
@@ -5492,6 +5503,7 @@ qla82xx_error_recovery(scsi_qla_host_t *base_vha)
 		qla2x00_abort_isp_cleanup(base_vha);
 	}
 
+
 	fn = PCI_FUNC(ha->pdev->devfn);
 	while (fn > 0) {
 		fn--;
@@ -5637,6 +5649,7 @@ qla2xxx_pci_slot_reset(struct pci_dev *pdev)
 	if (ha->isp_ops->abort_isp(base_vha) == QLA_SUCCESS)
 		ret =  PCI_ERS_RESULT_RECOVERED;
 	clear_bit(ABORT_ISP_ACTIVE, &base_vha->dpc_flags);
+
 
 exit_slot_reset:
 	ql_dbg(ql_dbg_aer, base_vha, 0x900e,

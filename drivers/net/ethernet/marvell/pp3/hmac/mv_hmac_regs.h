@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -45,6 +46,7 @@ disclaimer.
 #define MV_HMAC_RX_QM_PORT_NUMBER_RQ_QM_HMAC_PORT_NUM_MASK    \
 		(0x00000fff << MV_HMAC_RX_QM_PORT_NUMBER_RQ_QM_HMAC_PORT_NUM_OFFS)
 
+
 /* Hmac_vmid_frame_%m */
 #define MV_HMAC_VMID_FRAME_REG(m)							(0xF0010 + 4*m)
 #define MV_HMAC_VMID_FRAME_CONTEXT_ID_OFFS		0
@@ -63,17 +65,20 @@ disclaimer.
 #define MV_HMAC_VMID_FRAME_AR_QOS_MASK    \
 		(0x00000003 << MV_HMAC_VMID_FRAME_AR_QOS_OFFS)
 
+
 /* Hmac_event_addr_low_%m */
 #define MV_HMAC_EVENT_ADDR_LOW_REG(m)							(0xF0050 + 8*m)
 #define MV_HMAC_EVENT_ADDR_LOW_EVENT_ADDRESS_LOW_OFFS		0
 #define MV_HMAC_EVENT_ADDR_LOW_EVENT_ADDRESS_LOW_MASK    \
 		(0x00ffffff << MV_HMAC_EVENT_ADDR_LOW_EVENT_ADDRESS_LOW_OFFS)
 
+
 /* Hmac_event_addr_high_%m */
 #define MV_HMAC_EVENT_ADDR_HIGH_REG(m)							(0xF0054 + 8*m)
 #define MV_HMAC_EVENT_ADDR_HIGH_EVENT_ADDRESS_HIGH_OFFS		0
 #define MV_HMAC_EVENT_ADDR_HIGH_EVENT_ADDRESS_HIGH_MASK    \
 		(0x000000ff << MV_HMAC_EVENT_ADDR_HIGH_EVENT_ADDRESS_HIGH_OFFS)
+
 
 /* HMAC AXI Interrupt Cause */
 #define MV_HMAC_AXI_INT_CAUSE								(0xF0200)
@@ -133,6 +138,7 @@ disclaimer.
 #define MV_HMAC_OUTSTANDING_LIMIT_OUTSTANDING_LIMIT_0_OFFS		2
 #define MV_HMAC_OUTSTANDING_LIMIT_OUTSTANDING_LIMIT_0_MASK		\
 	(0xF << MV_HMAC_OUTSTANDING_LIMIT_OUTSTANDING_LIMIT_0_OFFS)
+
 
 /* HMAC_REC_Q_TIMEOUT_0 Register */
 #define MV_HMAC_RX_Q_TIMEOUT_REG(m)							(0xF0240 + 4*m)
@@ -237,6 +243,7 @@ disclaimer.
 #define MV_HMAC_SEND_Q_NUM_BPID_BM_ALLOC_COUNT_OFFS		8
 #define MV_HMAC_SEND_Q_NUM_BPID_BM_ALLOC_COUNT_MASK    \
 		(0x00000007 << MV_HMAC_SEND_Q_NUM_BPID_BM_ALLOC_COUNT_OFFS)
+
 
 /* Hmac_%m_send_q_%n_status */
 #define MV_HMAC_SEND_Q_STATUS_REG(n)							(0x10804c + 0x100*n)

@@ -266,6 +266,7 @@ static int rtl_reset_of_xlate(struct reset_controller_dev *rcdev,
     return id;
 }
 
+
 static int __init init_rtk_reset_controller(struct device_node *np)
 {
     struct reset_data * data;
@@ -349,3 +350,4 @@ static int __init rtk_init_reset(void)
     return 0;
 }
 early_initcall(rtk_init_reset);
+

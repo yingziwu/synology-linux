@@ -11,6 +11,7 @@
 #include <linux/sched.h>
 #include <linux/errno.h>
 #include <linux/bootmem.h>
+#include <linux/syscalls.h>
 #include <linux/irq.h>
 #include <linux/list.h>
 #include <linux/of.h>
@@ -148,6 +149,7 @@ pcibios_make_OF_bus_map(void)
 	}
 #endif
 }
+
 
 /*
  * Returns the PCI device matching a given OF node
@@ -303,3 +305,5 @@ long sys_pciconfig_iobase(long which, unsigned long bus, unsigned long devfn)
 
 	return result;
 }
+
+

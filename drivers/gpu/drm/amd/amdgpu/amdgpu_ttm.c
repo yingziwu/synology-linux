@@ -431,6 +431,7 @@ error:
 	return r;
 }
 
+
 static int amdgpu_move_blit(struct ttm_buffer_object *bo,
 			    bool evict, bool no_wait_gpu,
 			    struct ttm_mem_reg *new_mem,

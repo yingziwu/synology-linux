@@ -1065,6 +1065,7 @@ static int mv_pp2x_ethtool_set_rxnfc(struct net_device *dev, struct ethtool_rxnf
 	return ret;
 }
 
+
 static int mv_pp2x_ethtool_get_rxfh(struct net_device *dev, u32 *indir, u8 *key,
 				    u8 *hfunc)
 {

@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -32,6 +33,7 @@ disclaimer.
 #ifndef	TM_CORE_TYPES_H
 #define	TM_CORE_TYPES_H
 
+
 #include "tm_defs.h"
 
 /** Periodic Scheme configuration
@@ -48,6 +50,7 @@ disclaimer.
 #define TM_FIXED_2_5_G_PORT_PERIODIC_SCHEME_PER_INTERVAL	48
 #define TM_FIXED_2_5_G_PORT_SHAPING_PERIODS					1
 #define TM_FIXED_2_5_G_PORT_SHAPING_BURST_SIZE				10
+
 
 /** C level shaping
  */
@@ -73,6 +76,7 @@ disclaimer.
 #define TM_FIXED_10_M_QUEUE_SHAPING_TOKEN_RES					6
 #define TM_FIXED_2_5_G_QUEUE_SHAPING_BURST_SIZE					16
 
+
 /** Internal Constants definitions
  */
 #define TM_NUM_QUEUE_DROP_PROF        16 /* was 2048*/
@@ -87,6 +91,7 @@ disclaimer.
 #define TM_NUM_WRED_PORT_CURVES       4
 #define TM_NUM_DIVIDERS               8
 
+
 /** Registers values
  */
 #define TM_128M 0x7FFFFFF
@@ -94,9 +99,11 @@ disclaimer.
 
 #define TM_1K	1024
 
+
 /** Delay Size Multiplier (used to calculate TD Threshold)
  */
 #define TM_DELAY_SIZE_MULT   1
+
 
 /* Physical port capacity (speed in Kbits) */
 #define TM_1G_SPEED   1000000  /* 1050000000UL */   /* 1G + 5% */
@@ -105,6 +112,7 @@ disclaimer.
 #define TM_40G_SPEED  40000000 /* 42000000000ULL */ /* 40G + 5% */
 #define TM_50G_SPEED  50000000
 #define TM_100G_SPEED 100000000
+
 
 /** WRED CoS number */
 #define TM_WRED_COS              8
@@ -118,6 +126,7 @@ disclaimer.
 #define TM_B_DRP_PROF_PER_ENTRY  8
 #define TM_C_DRP_PROF_PER_ENTRY  8
 
+
 /** Max number of Scrubbing slots */
 #define TM_SCRUB_SLOTS 64
 
@@ -128,6 +137,7 @@ enum tm_max_prob_mode {
 	TM_MAX_PROB_25,        /*  25%  */
 	TM_MAX_PROB_12H       /* 12.5% */
 };
+
 
 /*********************************/
 /* Internal Databases Structures */
@@ -145,7 +155,9 @@ do { \
 	} \
 } while (0)
 
+
 /** Global arrays structures definitions */
+
 
 /** WRED curve
  */
@@ -173,9 +185,11 @@ struct scale_ratio {
 	uint16_t ratio:10;
 };
 
+
 struct dp_ratio {
 	uint8_t ratio:6;
 };
+
 
 /** Range of children nodes in symetric distribution
  */
@@ -208,6 +222,7 @@ struct tm_drop_profile {
 	uint32_t max_th_sw[3];        /**< Max Threshold ratio from RTT in % per color */
 } __ATTRIBUTE_PACKED__;
 
+
 /** Queue data structure
  */
 struct tm_queue {
@@ -217,6 +232,7 @@ struct tm_queue {
 	uint8_t wred_profile_ref;
 	uint8_t elig_prio_func_ptr;
 } __ATTRIBUTE_PACKED__;
+
 
 /** A-node data structure
  */
@@ -230,6 +246,7 @@ struct tm_a_node {
 	uint8_t elig_prio_func_ptr;
 } __ATTRIBUTE_PACKED__;
 
+
 /** B-node data structure
  */
 struct tm_b_node {
@@ -241,6 +258,7 @@ struct tm_b_node {
 	uint8_t wred_profile_ref;
 	uint8_t elig_prio_func_ptr;
 } __ATTRIBUTE_PACKED__;
+
 
 /** C-node data structure
  */
@@ -254,6 +272,7 @@ struct tm_c_node {
 	uint8_t wred_profile_ref[TM_WRED_COS];
 	uint8_t elig_prio_func_ptr;
 } __ATTRIBUTE_PACKED__;
+
 
 /** Port data structure
  */
@@ -296,6 +315,7 @@ struct tm_port {
 	uint8_t elig_prio_func_ptr;
 } __ATTRIBUTE_PACKED__;
 
+
 /* Eligible Priority Functions structures */
 
 struct tm_elig_prio_func_node_entry {
@@ -311,6 +331,7 @@ struct tm_elig_prio_func_node {
 struct tm_elig_prio_func_queue {
 	struct tm_elig_prio_func_node_entry tbl_entry;
 };
+
 
 #ifdef MV_QMTM_NOT_NSS
 /** TM2TM Channel */
@@ -350,6 +371,7 @@ struct tm_aqm_local_params {
 	enum tm_max_prob_mode max_p_mode[4]; /* Max Probability Mode - 100/50/25/12.5% */
 } __ATTRIBUTE_PACKED__;
 
+
 /** TM2TM Ingress AQM mode settings - Channels */
 struct tm_aqm_remote_params {
 	uint8_t configured:1;
@@ -361,6 +383,7 @@ struct dp_unit {
 	struct tm_aqm_local_params local[P_LEVEL+1]; /* per Port/C/B/A/Queue level */
 	struct tm_aqm_remote_params remote[TM2TM_PORT_CH+1]; /* per Port/Node level */
 };
+
 
 /** TM Scheduler Port SMS pBase Attribute structure */
 struct port_sms_attr_pbase {
@@ -375,8 +398,11 @@ struct port_sms_attr_qmap_parsing {
 	uint8_t dcolor;
 };
 
+
+
 /* typedef void *tm_handle; */
 #define tm_handle void *
+
 
 struct tm_ctl {
 	uint32_t magic;
@@ -484,6 +510,8 @@ struct tm_ctl {
 	tm_handle hEnv;
 };
 
+
+
 /** Internal TM control structure
  */
 
@@ -503,6 +531,7 @@ struct tm_ctl {
 */
 
 #define TM_ENV(var)	((var)->hEnv)
+
 
 #endif   /* TM_CORE_TYPES_H */
 #endif /* MY_DEF_HERE */

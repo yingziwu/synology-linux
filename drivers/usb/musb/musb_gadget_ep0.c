@@ -114,15 +114,19 @@ static int service_tx_status_request(
 		}
 
 		is_in = epnum & USB_DIR_IN;
-		if (is_in) {
-			epnum &= 0x0f;
-			ep = &musb->endpoints[epnum].ep_in;
-		} else {
-			ep = &musb->endpoints[epnum].ep_out;
+		epnum &= 0x0f;
+		if (epnum >= MUSB_C_NUM_EPS) {
+			handled = -EINVAL;
+			break;
 		}
+
+		if (is_in)
+			ep = &musb->endpoints[epnum].ep_in;
+		else
+			ep = &musb->endpoints[epnum].ep_out;
 		regs = musb->endpoints[epnum].regs;
 
-		if (epnum >= MUSB_C_NUM_EPS || !ep->desc) {
+		if (!ep->desc) {
 			handled = -EINVAL;
 			break;
 		}
@@ -518,6 +522,7 @@ static void ep0_rxstate(struct musb *musb)
 	} else
 		csr = MUSB_CSR0_P_SVDRXPKTRDY | MUSB_CSR0_P_SENDSTALL;
 
+
 	/* Completion handler may choose to stall, e.g. because the
 	 * message just received holds invalid data.
 	 */
@@ -908,6 +913,7 @@ finish:
 
 	return retval;
 }
+
 
 static int
 musb_g_ep0_enable(struct usb_ep *ep, const struct usb_endpoint_descriptor *desc)

@@ -53,6 +53,7 @@ int clk_pm_init(struct clk *clk, struct clk_pm_data *pm_data,
 	return 0;
 }
 
+
 int clk_pm_data_save(struct clk_pm_data *pm_data)
 {
 	struct clk *clk = pm_data->clk;

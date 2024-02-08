@@ -137,6 +137,7 @@ struct mod_freesync *mod_freesync_create(struct dc *dc)
 	struct core_freesync *core_freesync =
 			kzalloc(sizeof(struct core_freesync), GFP_KERNEL);
 
+
 	struct persistent_data_flag flag;
 
 	int i, data = 0;
@@ -902,6 +903,7 @@ void mod_freesync_update_state(struct mod_freesync *mod_freesync,
 		/* Program freesync according to current state*/
 		set_freesync_on_streams(core_freesync, streams, num_streams);
 }
+
 
 bool mod_freesync_get_state(struct mod_freesync *mod_freesync,
 		struct dc_stream_state *stream,

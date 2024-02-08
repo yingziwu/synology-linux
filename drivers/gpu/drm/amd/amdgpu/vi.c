@@ -221,6 +221,7 @@ static void vi_gc_cac_wreg(struct amdgpu_device *adev, u32 reg, u32 v)
 	spin_unlock_irqrestore(&adev->gc_cac_idx_lock, flags);
 }
 
+
 static const u32 tonga_mgcg_cgcg_init[] =
 {
 	mmCGTT_DRM_CLK_CTRL0, 0xffffffff, 0x00600100,
@@ -1232,6 +1233,7 @@ static void vi_update_drm_light_sleep(struct amdgpu_device *adev,
 		WREG32(0x157a, data);
 }
 
+
 static void vi_update_rom_medium_grain_clock_gating(struct amdgpu_device *adev,
 						    bool enable)
 {
@@ -1313,6 +1315,7 @@ static int vi_common_set_clockgating_state_by_smu(void *handle,
 		if (adev->powerplay.pp_funcs->set_clockgating_by_smu)
 			amdgpu_dpm_set_clockgating_by_smu(adev, msg_id);
 	}
+
 
 	if (adev->cg_flags & AMD_CG_SUPPORT_BIF_LS) {
 		if (state == AMD_CG_STATE_UNGATE)

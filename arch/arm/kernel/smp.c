@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/kernel/smp.c
  *
@@ -50,6 +53,10 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/ipi.h>
+
+#if defined(MY_ABC_HERE)
+extern bool gBlSynoSysrqB;
+#endif /* defined(MY_ABC_HERE) */
 
 /*
  * as from 2.5, kernels no longer have an init_tasks structure
@@ -137,6 +144,7 @@ int __cpu_up(unsigned int cpu, struct task_struct *idle)
 		pr_err("CPU%u: failed to boot: %d\n", cpu, ret);
 	}
 
+
 	memset(&secondary_data, 0, sizeof(secondary_data));
 	return ret;
 }
@@ -217,7 +225,7 @@ int __cpu_disable(void)
 	/*
 	 * OK - migrate IRQs away from this CPU
 	 */
-	migrate_irqs();
+	irq_migrate_all_off_this_cpu();
 
 	/*
 	 * Flush user cache and TLB mappings, and then remove this CPU
@@ -553,7 +561,13 @@ static void ipi_cpu_stop(unsigned int cpu)
 	    system_state == SYSTEM_RUNNING) {
 		raw_spin_lock(&stop_lock);
 		pr_crit("CPU%u: stopping\n", cpu);
+#if defined(MY_ABC_HERE)
+		if (false == gBlSynoSysrqB) {
+			dump_stack();
+		}
+#else /* defined(MY_ABC_HERE) */
 		dump_stack();
+#endif /* defined(MY_ABC_HERE) */
 		raw_spin_unlock(&stop_lock);
 	}
 
@@ -562,8 +576,10 @@ static void ipi_cpu_stop(unsigned int cpu)
 	local_fiq_disable();
 	local_irq_disable();
 
-	while (1)
+	while (1) {
 		cpu_relax();
+		wfe();
+	}
 }
 
 static DEFINE_PER_CPU(struct completion *, cpu_completion);
@@ -686,6 +702,21 @@ void smp_send_stop(void)
 
 	if (num_online_cpus() > 1)
 		pr_warn("SMP: failed to stop secondary CPUs\n");
+}
+
+/* In case panic() and panic() called at the same time on CPU1 and CPU2,
+ * and CPU 1 calls panic_smp_self_stop() before crash_smp_send_stop()
+ * CPU1 can't receive the ipi irqs from CPU2, CPU1 will be always online,
+ * kdump fails. So split out the panic_smp_self_stop() and add
+ * set_cpu_online(smp_processor_id(), false).
+ */
+void panic_smp_self_stop(void)
+{
+	pr_debug("CPU %u will stop doing anything useful since another CPU has paniced\n",
+	         smp_processor_id());
+	set_cpu_online(smp_processor_id(), false);
+	while (1)
+		cpu_relax();
 }
 
 /*

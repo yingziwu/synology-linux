@@ -36,6 +36,7 @@
 #include "../uapi/ion_rtk.h"
 #endif
 
+
 #endif /* CONFIG_SYNO_LSP_RTD1619 */
 struct ion_carveout_heap {
 	struct ion_heap heap;
@@ -186,11 +187,7 @@ struct ion_heap *ion_carveout_heap_create(struct ion_platform_heap *heap_data)
 	if (!carveout_heap)
 		return ERR_PTR(-ENOMEM);
 
-#ifdef MY_DEF_HERE
 	carveout_heap->pool = gen_pool_create(PAGE_SHIFT, -1);
-#else /* MY_DEF_HERE */
-	carveout_heap->pool = gen_pool_create(12, -1);
-#endif /* MY_DEF_HERE */
 	if (!carveout_heap->pool) {
 		kfree(carveout_heap);
 		return ERR_PTR(-ENOMEM);

@@ -33,6 +33,6 @@ void dwc3_trace(void (*trace)(struct va_format *), const char *fmt, ...)
 
 	va_end(args);
 }
-#if defined(MY_DEF_HERE) || defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 EXPORT_SYMBOL_GPL(dwc3_trace);
-#endif /* MY_DEF_HERE || CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE || MY_DEF_HERE */

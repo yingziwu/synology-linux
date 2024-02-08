@@ -503,6 +503,7 @@ static int eip197_hw_init(struct device *dev, struct safexcel_crypto_priv *priv)
 
 	writel(val, EIP197_HIA_AIC(priv) + EIP197_HIA_MST_CTRL);
 
+
 	/* configure wr/rd cache values */
 	val = MST_CTRL_RD_CACHE(RD_CACHE_4BITS) | MST_CTRL_WD_CACHE(WR_CACHE_4BITS);
 	writel(val, EIP197_HIA_GEN_CFG(priv) + EIP197_MST_CTRL);
@@ -1601,6 +1602,7 @@ err_clk:
 	return ret;
 }
 
+
 static int safexcel_remove(struct platform_device *pdev)
 {
 	struct safexcel_crypto_priv *priv = platform_get_drvdata(pdev);
@@ -1640,6 +1642,7 @@ static const struct of_device_id safexcel_of_match_table[] = {
 		.data = (void *)EIP197,
 	},
 };
+
 
 static struct platform_driver  crypto_safexcel = {
 	.probe		= safexcel_probe,

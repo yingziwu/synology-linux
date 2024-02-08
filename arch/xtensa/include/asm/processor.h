@@ -24,7 +24,11 @@
 # error Linux requires the Xtensa Windowed Registers Option.
 #endif
 
-#define ARCH_SLAB_MINALIGN	XCHAL_DATA_WIDTH
+/* Xtensa ABI requires stack alignment to be at least 16 */
+
+#define STACK_ALIGN (XCHAL_DATA_WIDTH > 16 ? XCHAL_DATA_WIDTH : 16)
+
+#define ARCH_SLAB_MINALIGN STACK_ALIGN
 
 /*
  * User space process size: 1 GB.
@@ -141,11 +145,13 @@ struct thread_struct {
 	int align[0] __attribute__ ((aligned(16)));
 };
 
+
 /*
  * Default implementation of macro that returns current
  * instruction pointer ("program counter").
  */
 #define current_text_addr()  ({ __label__ _l; _l: &&_l;})
+
 
 /* This decides where the kernel will search for a free chunk of vm
  * space during mmap's.
@@ -162,6 +168,7 @@ struct thread_struct {
 	bad_uaddr:	0,						\
 	error_code:	0,						\
 }
+
 
 /*
  * Do necessary setup to start up a newly executed thread.

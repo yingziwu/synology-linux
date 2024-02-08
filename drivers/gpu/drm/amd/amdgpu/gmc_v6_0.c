@@ -55,6 +55,7 @@ MODULE_FIRMWARE("radeon/si58_mc.bin");
 #define MC_SEQ_MISC0__MT__HBM    0x60000000
 #define MC_SEQ_MISC0__MT__DDR3   0xB0000000
 
+
 static const u32 crtc_offsets[6] =
 {
 	SI_CRTC0_REGISTER_OFFSET,
@@ -1008,6 +1009,7 @@ static int gmc_v6_0_soft_reset(void *handle)
 		if (gmc_v6_0_wait_for_idle(adev)) {
 			dev_warn(adev->dev, "Wait for GMC idle timed out !\n");
 		}
+
 
 		tmp = RREG32(mmSRBM_SOFT_RESET);
 		tmp |= srbm_soft_reset;

@@ -475,6 +475,7 @@ static inline int rtk_cpufreq_set_prop_name(struct device *dev)
 	char buf[20];
 	int ret;
 
+
 	ret = __dss_to_prop_name(buf, sizeof(buf));
 	if (ret)
 		return ret;

@@ -106,3 +106,4 @@ void dml_init_instance(struct display_mode_lib *lib, enum dml_project project)
 		lib->project = project;
 	}
 }
+

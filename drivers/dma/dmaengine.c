@@ -571,6 +571,7 @@ struct dma_chan *dma_get_slave_channel(struct dma_chan *chan)
 
 	mutex_unlock(&dma_list_mutex);
 
+
 	return chan;
 }
 EXPORT_SYMBOL_GPL(dma_get_slave_channel);
@@ -1022,12 +1023,14 @@ static struct dmaengine_unmap_pool *__get_unmap_pool(int nr)
 	switch (order) {
 	case 0 ... 1:
 		return &unmap_pool[0];
+#if IS_ENABLED(CONFIG_DMA_ENGINE_RAID)
 	case 2 ... 4:
 		return &unmap_pool[1];
 	case 5 ... 7:
 		return &unmap_pool[2];
 	case 8:
 		return &unmap_pool[3];
+#endif
 	default:
 		BUG();
 		return NULL;
@@ -1205,3 +1208,5 @@ static int __init dma_bus_init(void)
 	return class_register(&dma_devclass);
 }
 arch_initcall(dma_bus_init);
+
+

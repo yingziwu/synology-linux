@@ -195,6 +195,7 @@ static struct jffs2_tmp_dnode_info *jffs2_lookup_tn(struct rb_root *tn_root, uin
 	return tn;
 }
 
+
 static void jffs2_kill_tn(struct jffs2_sb_info *c, struct jffs2_tmp_dnode_info *tn)
 {
 	jffs2_mark_node_obsolete(c, tn->fn->raw);
@@ -1225,6 +1226,7 @@ static int jffs2_do_read_inode_internal(struct jffs2_sb_info *c,
 		}
 		break;
 
+
 	case S_IFREG:
 		/* If it was a regular file, truncate it to the latest node's isize */
 		new_size = jffs2_truncate_fragtree(c, &f->fragtree, je32_to_cpu(latest_node->isize));
@@ -1411,11 +1413,6 @@ void jffs2_do_clear_inode(struct jffs2_sb_info *c, struct jffs2_inode_info *f)
 	}
 
 	jffs2_kill_fragtree(&f->fragtree, deleted?c:NULL);
-
-	if (f->target) {
-		kfree(f->target);
-		f->target = NULL;
-	}
 
 	fds = f->dents;
 	while(fds) {

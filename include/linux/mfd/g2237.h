@@ -141,4 +141,5 @@
 #define G2237_LDO1_SLPVOLT_SHIFT        (0)
 #define G2237_LDO1_SLPVOLT_WIDTH        (4)
 
+
 #endif /* __LINUX_MFD_G2237_H */

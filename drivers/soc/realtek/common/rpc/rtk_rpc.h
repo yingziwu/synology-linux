@@ -268,6 +268,7 @@ typedef struct RPC_DEV { /*size should be 64 bytes*/
 	uint32_t reserved1[7];
 } RPC_DEV;
 
+
 #else
 
 typedef struct RPC_DEV { /*size should be 64 bytes*/

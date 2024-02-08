@@ -333,11 +333,11 @@ static struct pdiv_map pllu_p[] = {
 };
 
 static struct tegra_clk_pll_freq_table pll_u_freq_table[] = {
-	{ 12000000, 480000000, 960, 12, 0, 12},
-	{ 13000000, 480000000, 960, 13, 0, 12},
-	{ 16800000, 480000000, 400, 7,  0, 5},
-	{ 19200000, 480000000, 200, 4,  0, 3},
-	{ 26000000, 480000000, 960, 26, 0, 12},
+	{ 12000000, 480000000, 960, 12, 2, 12 },
+	{ 13000000, 480000000, 960, 13, 2, 12 },
+	{ 16800000, 480000000, 400,  7, 2,  5 },
+	{ 19200000, 480000000, 200,  4, 2,  3 },
+	{ 26000000, 480000000, 960, 26, 2, 12 },
 	{ 0, 0, 0, 0, 0, 0 },
 };
 
@@ -1063,7 +1063,7 @@ static void __init tegra30_super_clk_init(void)
 	 * U71 divider of cclk_lp.
 	 */
 	clk = tegra_clk_register_divider("pll_p_out3_cclklp", "pll_p_out3",
-				clk_base + SUPER_CCLKG_DIVIDER, 0,
+				clk_base + SUPER_CCLKLP_DIVIDER, 0,
 				TEGRA_DIVIDER_INT, 16, 8, 1, NULL);
 	clk_register_clkdev(clk, "pll_p_out3_cclklp", NULL);
 
@@ -1224,6 +1224,7 @@ static void tegra30_cpu_out_of_reset(u32 cpu)
 	wmb();
 }
 
+
 static void tegra30_enable_cpu_clock(u32 cpu)
 {
 	unsigned int reg;
@@ -1371,6 +1372,7 @@ static struct tegra_clk_init_table init_table[] __initdata = {
 	{TEGRA30_CLK_GR2D, TEGRA30_CLK_PLL_C, 300000000, 0},
 	{TEGRA30_CLK_GR3D, TEGRA30_CLK_PLL_C, 300000000, 0},
 	{TEGRA30_CLK_GR3D2, TEGRA30_CLK_PLL_C, 300000000, 0},
+	{ TEGRA30_CLK_PLL_U, TEGRA30_CLK_CLK_MAX, 480000000, 0 },
 	{TEGRA30_CLK_CLK_MAX, TEGRA30_CLK_CLK_MAX, 0, 0}, /* This MUST be the last entry. */
 };
 
@@ -1439,6 +1441,7 @@ static void __init tegra30_clock_init(struct device_node *np)
 			       ARRAY_SIZE(tegra30_input_freq), 1, &input_freq,
 			       NULL) < 0)
 		return;
+
 
 	tegra_fixed_clk_init(tegra30_clks);
 	tegra30_pll_init();

@@ -24,6 +24,7 @@
 #ifndef _POLARIS10_SMUMANAGER_H
 #define _POLARIS10_SMUMANAGER_H
 
+
 #include <pp_endian.h>
 #include "smu74.h"
 #include "smu74_discrete.h"
@@ -61,5 +62,6 @@ struct polaris10_smumgr {
 	uint32_t               activity_target[SMU74_MAX_LEVELS_GRAPHICS];
 	uint32_t               bif_sclk_table[SMU74_MAX_LEVELS_LINK];
 };
+
 
 #endif

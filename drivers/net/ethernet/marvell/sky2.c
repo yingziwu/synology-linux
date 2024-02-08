@@ -46,6 +46,7 @@
 #include <linux/mii.h>
 #include <linux/of_device.h>
 #include <linux/of_net.h>
+#include <linux/dmi.h>
 
 #include <asm/irq.h>
 
@@ -93,7 +94,7 @@ static int copybreak __read_mostly = 128;
 module_param(copybreak, int, 0);
 MODULE_PARM_DESC(copybreak, "Receive copy threshold");
 
-static int disable_msi = 0;
+static int disable_msi = -1;
 module_param(disable_msi, int, 0);
 MODULE_PARM_DESC(disable_msi, "Disable Message Signaled Interrupt (MSI)");
 
@@ -219,6 +220,7 @@ static inline u16 gm_phy_read(struct sky2_hw *hw, unsigned port, u16 reg)
 	return v;
 }
 
+
 static void sky2_power_on(struct sky2_hw *hw)
 {
 	/* switch power to VCC (WA for VAUX problem) */
@@ -330,6 +332,7 @@ static const u16 gm_fc_disable[] = {
 	[FC_RX]	  = GM_GPCR_FC_TX_DIS,
 	[FC_BOTH] = 0,
 };
+
 
 static void sky2_phy_init(struct sky2_hw *hw, unsigned port)
 {
@@ -1141,6 +1144,7 @@ static inline void sky2_put_idx(struct sky2_hw *hw, unsigned q, u16 idx)
 	mmiowb();
 }
 
+
 static inline struct sky2_rx_le *sky2_next_rx(struct sky2_port *sky2)
 {
 	struct sky2_rx_le *le = sky2->rx_le + sky2->rx_put;
@@ -1212,6 +1216,7 @@ static void sky2_rx_submit(struct sky2_port *sky2,
 	for (i = 0; i < skb_shinfo(re->skb)->nr_frags; i++)
 		sky2_rx_add(sky2, OP_BUFFER, re->frag_addr[i], PAGE_SIZE);
 }
+
 
 static int sky2_rx_map_skb(struct pci_dev *pdev, struct rx_ring_info *re,
 			    unsigned size)
@@ -1740,6 +1745,7 @@ static int sky2_setup_irq(struct sky2_hw *hw, const char *name)
 	return err;
 }
 
+
 /* Bring up network interface. */
 static int sky2_open(struct net_device *dev)
 {
@@ -1939,6 +1945,7 @@ static netdev_tx_t sky2_xmit_frame(struct sk_buff *skb,
 	le->length = cpu_to_le16(len);
 	le->ctrl = ctrl;
 	le->opcode = mss ? (OP_LARGESEND | HW_OWNER) : (OP_PACKET | HW_OWNER);
+
 
 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
 		const skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
@@ -3136,6 +3143,7 @@ static inline u32 sky2_clk2us(const struct sky2_hw *hw, u32 clk)
 {
 	return clk / sky2_mhz(hw);
 }
+
 
 static int sky2_init(struct sky2_hw *hw)
 {
@@ -4440,6 +4448,7 @@ static const struct ethtool_ops sky2_ethtool_ops = {
 
 static struct dentry *sky2_debug;
 
+
 /*
  * Read and parse the first part of Vital Product Data
  */
@@ -4672,6 +4681,7 @@ static int sky2_device_event(struct notifier_block *unused,
 static struct notifier_block sky2_notifier = {
 	.notifier_call = sky2_device_event,
 };
+
 
 static __init void sky2_debug_init(void)
 {
@@ -4914,6 +4924,24 @@ static const char *sky2_name(u8 chipid, char *buf, int sz)
 	return buf;
 }
 
+static const struct dmi_system_id msi_blacklist[] = {
+	{
+		.ident = "Dell Inspiron 1545",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 1545"),
+		},
+	},
+	{
+		.ident = "Gateway P-79",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Gateway"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "P-79"),
+		},
+	},
+	{}
+};
+
 static int sky2_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	struct net_device *dev, *dev1;
@@ -4970,6 +4998,7 @@ static int sky2_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		}
 	}
 
+
 #ifdef __BIG_ENDIAN
 	/* The sk98lin vendor driver uses hardware byte swapping but
 	 * this driver uses software swapping.
@@ -5024,6 +5053,9 @@ static int sky2_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto err_out_free_pci;
 	}
 
+	if (disable_msi == -1)
+		disable_msi = !!dmi_check_system(msi_blacklist);
+
 	if (!disable_msi && pci_enable_msi(pdev) == 0) {
 		err = sky2_test_msi(hw);
 		if (err) {
@@ -5069,7 +5101,7 @@ static int sky2_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	INIT_WORK(&hw->restart_work, sky2_restart);
 
 	pci_set_drvdata(pdev, hw);
-	pdev->d3_delay = 150;
+	pdev->d3_delay = 300;
 
 	return 0;
 

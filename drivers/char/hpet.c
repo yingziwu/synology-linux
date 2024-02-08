@@ -49,6 +49,7 @@
 
 #define HPET_RANGE_SIZE		1024	/* from HPET spec */
 
+
 /* WARNING -- don't get confused.  These macros are never used
  * to write the (single) counter, and rarely to read it.
  * They're badly named; to fix, someday.
@@ -120,6 +121,7 @@ static struct hpets *hpets;
 #define	HPET_IE			0x0002	/* interrupt enabled */
 #define	HPET_PERIODIC		0x0004
 #define	HPET_SHARED_IRQ		0x0008
+
 
 #ifndef readq
 static inline unsigned long long readq(void __iomem *addr)
@@ -374,7 +376,7 @@ static __init int hpet_mmap_enable(char *str)
 	pr_info("HPET mmap %s\n", hpet_mmap_enabled ? "enabled" : "disabled");
 	return 1;
 }
-__setup("hpet_mmap", hpet_mmap_enable);
+__setup("hpet_mmap=", hpet_mmap_enable);
 
 static int hpet_mmap(struct file *file, struct vm_area_struct *vma)
 {

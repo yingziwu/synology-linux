@@ -271,6 +271,7 @@ static inline struct fixed31_32 dal_fixed31_32_sub_int(struct fixed31_32 arg1,
 				  dal_fixed31_32_from_int(arg2));
 }
 
+
 /*
  * @brief
  * Binary multiplicative operators
@@ -283,6 +284,7 @@ static inline struct fixed31_32 dal_fixed31_32_sub_int(struct fixed31_32 arg1,
 struct fixed31_32 dal_fixed31_32_mul(
 	struct fixed31_32 arg1,
 	struct fixed31_32 arg2);
+
 
 /*
  * @brief
@@ -460,6 +462,7 @@ uint32_t dal_fixed31_32_u2d19(
 
 uint32_t dal_fixed31_32_u0d19(
 	struct fixed31_32 arg);
+
 
 uint32_t dal_fixed31_32_clamp_u0d14(
 	struct fixed31_32 arg);

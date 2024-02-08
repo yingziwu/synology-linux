@@ -1236,13 +1236,14 @@ static int nfs_check_inode_attributes(struct inode *inode, struct nfs_fattr *fat
 	loff_t cur_size, new_isize;
 	unsigned long invalid = 0;
 
+
 	if (nfs_have_delegated_attributes(inode))
 		return 0;
 	/* Has the inode gone and changed behind our back? */
 	if ((fattr->valid & NFS_ATTR_FATTR_FILEID) && nfsi->fileid != fattr->fileid)
-		return -EIO;
+		return -ESTALE;
 	if ((fattr->valid & NFS_ATTR_FATTR_TYPE) && (inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
-		return -EIO;
+		return -ESTALE;
 
 	if ((fattr->valid & NFS_ATTR_FATTR_CHANGE) != 0 &&
 			inode->i_version != fattr->change_attr)
@@ -1607,6 +1608,7 @@ int nfs_post_op_update_inode_force_wcc(struct inode *inode, struct nfs_fattr *fa
 }
 EXPORT_SYMBOL_GPL(nfs_post_op_update_inode_force_wcc);
 
+
 static inline bool nfs_fileid_valid(struct nfs_inode *nfsi,
 				    struct nfs_fattr *fattr)
 {
@@ -1749,6 +1751,7 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
 				| NFS_INO_REVAL_FORCED);
 		cache_revalidated = false;
 	}
+
 
 	if (fattr->valid & NFS_ATTR_FATTR_ATIME)
 		memcpy(&inode->i_atime, &fattr->atime, sizeof(inode->i_atime));

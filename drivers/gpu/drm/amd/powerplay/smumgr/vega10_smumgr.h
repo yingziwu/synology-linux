@@ -67,3 +67,4 @@ int vega10_restore_vft_table(struct pp_hwmgr *hwmgr, uint8_t *avfs_table);
 int vega10_set_tools_address(struct pp_hwmgr *hwmgr);
 
 #endif
+

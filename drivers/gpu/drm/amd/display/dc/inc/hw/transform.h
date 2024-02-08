@@ -274,6 +274,7 @@ const uint16_t *get_filter_6tap_64p(struct fixed31_32 ratio);
 const uint16_t *get_filter_7tap_64p(struct fixed31_32 ratio);
 const uint16_t *get_filter_8tap_64p(struct fixed31_32 ratio);
 
+
 /* Defines the pixel processing capability of the DSCL */
 enum dscl_data_processing_format {
 	DSCL_DATA_PRCESSING_FIXED_FORMAT,	/* The DSCL processes pixel data in fixed format */
@@ -300,5 +301,6 @@ struct dpp_caps {
 			int *num_part_y,
 			int *num_part_c);
 };
+
 
 #endif

@@ -298,6 +298,7 @@ static int smiapp_pll_update(struct smiapp_sensor *sensor)
 	return 0;
 }
 
+
 /*
  *
  * V4L2 Controls handling
@@ -980,7 +981,7 @@ static int smiapp_read_nvm(struct smiapp_sensor *sensor,
 		if (rval)
 			goto out;
 
-		for (i = 0; i < 1000; i++) {
+		for (i = 1000; i > 0; i--) {
 			rval = smiapp_read(
 				sensor,
 				SMIAPP_REG_U8_DATA_TRANSFER_IF_1_STATUS, &s);
@@ -991,11 +992,10 @@ static int smiapp_read_nvm(struct smiapp_sensor *sensor,
 			if (s & SMIAPP_DATA_TRANSFER_IF_1_STATUS_RD_READY)
 				break;
 
-			if (--i == 0) {
-				rval = -ETIMEDOUT;
-				goto out;
-			}
-
+		}
+		if (!i) {
+			rval = -ETIMEDOUT;
+			goto out;
 		}
 
 		for (i = 0; i < SMIAPP_NVM_PAGE_SIZE; i++) {

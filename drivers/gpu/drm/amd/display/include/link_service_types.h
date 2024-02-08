@@ -150,6 +150,7 @@ union dpcd_training_lane_set {
 	uint8_t raw;
 };
 
+
 /* DP MST stream allocation (payload bandwidth number) */
 struct dp_mst_stream_allocation {
 	uint8_t vcp_id;

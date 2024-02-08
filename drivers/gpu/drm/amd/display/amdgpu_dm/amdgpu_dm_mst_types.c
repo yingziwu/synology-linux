@@ -495,3 +495,4 @@ void amdgpu_dm_initialize_dp_connector(struct amdgpu_display_manager *dm,
 		4,
 		aconnector->connector_id);
 }
+

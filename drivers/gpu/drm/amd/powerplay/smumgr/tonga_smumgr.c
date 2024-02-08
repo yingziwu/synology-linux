@@ -55,12 +55,14 @@
 #include "dce/dce_10_0_d.h"
 #include "dce/dce_10_0_sh_mask.h"
 
+
 #define VOLTAGE_SCALE 4
 #define POWERTUNE_DEFAULT_SET_MAX    1
 #define VOLTAGE_VID_OFFSET_SCALE1   625
 #define VOLTAGE_VID_OFFSET_SCALE2   100
 #define MC_CG_ARB_FREQ_F1           0x0b
 #define VDDC_VDDCI_DELTA            200
+
 
 static const struct tonga_pt_defaults tonga_power_tune_data_set_array[POWERTUNE_DEFAULT_SET_MAX] = {
 /* sviLoadLIneEn, SviLoadLineVddC, TDC_VDDC_ThrottleReleaseLimitPerc,  TDC_MAWt,
@@ -165,6 +167,7 @@ static int tonga_start_in_non_protection_mode(struct pp_hwmgr *hwmgr)
 	cgs_write_ind_register(hwmgr->device, CGS_IND_REG__SMC,
 		ixFIRMWARE_FLAGS, 0);
 
+
 	PHM_WRITE_VFPF_INDIRECT_FIELD(hwmgr->device, CGS_IND_REG__SMC,
 		SMC_SYSCON_RESET_CNTL, rst_reg, 1);
 
@@ -175,6 +178,7 @@ static int tonga_start_in_non_protection_mode(struct pp_hwmgr *hwmgr)
 
 	/* Set smc instruct start point at 0x0 */
 	smu7_program_jump_on_start(hwmgr);
+
 
 	PHM_WRITE_VFPF_INDIRECT_FIELD(hwmgr->device, CGS_IND_REG__SMC,
 		SMC_SYSCON_CLOCK_CNTL_0, ck_disable, 0);
@@ -235,6 +239,7 @@ static int tonga_smu_init(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 static int tonga_get_dependency_volt_by_clk(struct pp_hwmgr *hwmgr,
 	phm_ppt_v1_clock_voltage_dependency_table *allowed_clock_voltage_table,
 	uint32_t clock, SMU_VoltageLevel *voltage, uint32_t *mvdd)
@@ -265,6 +270,7 @@ static int tonga_get_dependency_volt_by_clk(struct pp_hwmgr *hwmgr,
 				voltage->Vddci =
 					phm_get_voltage_id(&data->vddci_voltage_table,
 						allowed_clock_voltage_table->entries[i].vddc - VDDC_VDDCI_DELTA);
+
 
 			if (allowed_clock_voltage_table->entries[i].mvdd)
 				*mvdd = (uint32_t) allowed_clock_voltage_table->entries[i].mvdd;
@@ -752,6 +758,7 @@ static int tonga_populate_all_graphic_levels(struct pp_hwmgr *hwmgr)
 		mid_pcie_level_enabled = (lowest_pcie_level_enabled+1+count) < highest_pcie_level_enabled ?
 			(lowest_pcie_level_enabled+1+count) : highest_pcie_level_enabled;
 
+
 		/* set pcieDpmLevel to highest_pcie_level_enabled*/
 		for (i = 2; i < dpm_table->sclk_table.count; i++)
 			smu_data->smc_state_table.GraphicsLevel[i].pcieDpmLevel = highest_pcie_level_enabled;
@@ -940,6 +947,7 @@ static uint8_t tonga_get_ddr3_mclk_frequency_ratio(uint32_t memory_clock)
 
 	return mc_para_index;
 }
+
 
 static int tonga_populate_single_memory_level(
 		struct pp_hwmgr *hwmgr,
@@ -1149,6 +1157,7 @@ static int tonga_populate_mvdd_value(struct pp_hwmgr *hwmgr,
 	return 0;
 }
 
+
 static int tonga_populate_smc_acpi_level(struct pp_hwmgr *hwmgr,
 	SMU72_Discrete_DpmTable *table)
 {
@@ -1201,6 +1210,7 @@ static int tonga_populate_smc_acpi_level(struct pp_hwmgr *hwmgr,
 	table->ACPILevel.SpllSpreadSpectrum2 = data->clock_registers.vCG_SPLL_SPREAD_SPECTRUM_2;
 	table->ACPILevel.CcPwrDynRm = 0;
 	table->ACPILevel.CcPwrDynRm1 = 0;
+
 
 	/* For various features to be enabled/disabled while this level is active.*/
 	CONVERT_FROM_HOST_TO_SMC_UL(table->ACPILevel.Flags);
@@ -1645,6 +1655,7 @@ static int tonga_populate_clock_stretcher_data_table(struct pp_hwmgr *hwmgr)
 	/* Populate Stretch amount */
 	smu_data->smc_state_table.ClockStretcherAmount = stretch_amount;
 
+
 	/* Populate Sclk_CKS_masterEn0_7 and Sclk_voltageOffset */
 	for (i = 0; i < sclk_table->count; i++) {
 		smu_data->smc_state_table.Sclk_CKS_masterEn0_7 |=
@@ -1850,6 +1861,7 @@ static int tonga_init_arb_table_index(struct pp_hwmgr *hwmgr)
 	return smu7_write_smc_sram_dword(hwmgr,
 			smu_data->smu7_data.arb_table_start, tmp, SMC_RAM_END);
 }
+
 
 static int tonga_populate_bapm_parameters_in_dpm_table(struct pp_hwmgr *hwmgr)
 {
@@ -2189,12 +2201,14 @@ static int tonga_update_and_upload_mc_reg_table(struct pp_hwmgr *hwmgr)
 	if (0 == (data->need_update_smu7_dpm_table & DPMTABLE_OD_UPDATE_MCLK))
 		return 0;
 
+
 	memset(&smu_data->mc_regs, 0, sizeof(SMU72_Discrete_MCRegisters));
 
 	result = tonga_convert_mc_reg_table_to_smc(hwmgr, &(smu_data->mc_regs));
 
 	if (result != 0)
 		return result;
+
 
 	address = smu_data->smu7_data.mc_reg_table_start +
 			(uint32_t)offsetof(SMU72_Discrete_MCRegisters, data[0]);
@@ -2292,6 +2306,7 @@ static int tonga_init_smc_table(struct pp_hwmgr *hwmgr)
 	uint8_t i;
 	pp_atomctrl_gpio_pin_assignment gpio_pin_assignment;
 
+
 	memset(&(smu_data->smc_state_table), 0x00, sizeof(smu_data->smc_state_table));
 
 	tonga_initialize_power_tune_defaults(hwmgr);
@@ -2302,6 +2317,7 @@ static int tonga_init_smc_table(struct pp_hwmgr *hwmgr)
 	if (phm_cap_enabled(hwmgr->platform_descriptor.platformCaps,
 			PHM_PlatformCaps_AutomaticDCTransition))
 		table->SystemFlags |= PPSMC_SYSTEMFLAG_GPIO_DC;
+
 
 	if (phm_cap_enabled(hwmgr->platform_descriptor.platformCaps,
 			PHM_PlatformCaps_StepVddc))
@@ -2615,6 +2631,7 @@ static int tonga_thermal_setup_fan_table(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 static int tonga_program_mem_timing_parameters(struct pp_hwmgr *hwmgr)
 {
 	struct smu7_hwmgr *data = (struct smu7_hwmgr *)(hwmgr->backend);
@@ -2778,6 +2795,7 @@ static int tonga_update_vce_smc_table(struct pp_hwmgr *hwmgr)
 	struct phm_ppt_v1_information *table_info =
 			(struct phm_ppt_v1_information *)(hwmgr->pptable);
 
+
 	smu_data->smc_state_table.VceBootLevel =
 		(uint8_t) (table_info->mm_dep_table->count - 1);
 
@@ -2874,6 +2892,7 @@ static int tonga_process_firmware_header(struct pp_hwmgr *hwmgr)
 	}
 
 	error |= (result != 0);
+
 
 	result = smu7_read_smc_sram_dword(hwmgr,
 				SMU72_FIRMWARE_HEADER_LOCATION +

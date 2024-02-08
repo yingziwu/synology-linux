@@ -210,6 +210,7 @@ static int elan_i2c_set_mode(struct i2c_client *client, u8 mode)
 	return elan_i2c_write_cmd(client, ETP_I2C_SET_CMD, mode);
 }
 
+
 static int elan_i2c_calibrate(struct i2c_client *client)
 {
 	return elan_i2c_write_cmd(client, ETP_I2C_CALIBRATE_CMD, 1);
@@ -556,7 +557,14 @@ static int elan_i2c_finish_fw_update(struct i2c_client *client,
 	long ret;
 	int error;
 	int len;
-	u8 buffer[ETP_I2C_INF_LENGTH];
+	u8 buffer[ETP_I2C_REPORT_LEN];
+
+	len = i2c_master_recv(client, buffer, ETP_I2C_REPORT_LEN);
+	if (len != ETP_I2C_REPORT_LEN) {
+		error = len < 0 ? len : -EIO;
+		dev_warn(dev, "failed to read I2C data after FW WDT reset: %d (%d)\n",
+			error, len);
+	}
 
 	reinit_completion(completion);
 	enable_irq(client->irq);

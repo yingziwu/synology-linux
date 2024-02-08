@@ -28,6 +28,7 @@
 
 #include "mem_input.h"
 
+
 enum cursor_pitch {
 	CURSOR_PITCH_64_PIXELS = 0,
 	CURSOR_PITCH_128_PIXELS,
@@ -54,6 +55,7 @@ struct hubp {
 	struct dc_cursor_attributes curs_attr;
 	bool power_gated;
 };
+
 
 struct hubp_funcs {
 	void (*hubp_setup)(

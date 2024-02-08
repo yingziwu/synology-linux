@@ -113,6 +113,7 @@
 #define SET_DBG_EN                      (3 << 0)
 #define CLR_DBG_EN                      (2 << 0)
 
+
 struct device;
 struct device_node;
 
@@ -122,6 +123,7 @@ struct sb2_data {
 	int offset;
 	int irq;
 };
+
 
 #ifdef CONFIG_RTK_SB2_SECURITY_DEBG
 #define SB2_USE_SMCCALL                (1)

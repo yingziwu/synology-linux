@@ -70,7 +70,7 @@ config PINCTRL_SUNRISEPOINT
 config SYNO_PINCTRL_LEWISBURG
 	tristate "Intel Lweisburg pinctrl and GPIO driver"
 	depends on ACPI
-	depends on SYNO_PURLEY
+	depends on (SYNO_PURLEY || SYNO_SKYLAKED)
 	select PINCTRL_INTEL
 	help
 	  LEWISBURG pinctrl driver provides an interface that allows

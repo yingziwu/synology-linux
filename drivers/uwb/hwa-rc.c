@@ -87,6 +87,7 @@ struct hwarc {
 	void *rd_buffer;		/* NEEP read buffer */
 };
 
+
 /* Beacon received notification (WUSB 1.0 [8.6.3.2]) */
 struct uwb_rc_evt_beacon_WUSB_0100 {
 	struct uwb_rceb rceb;
@@ -155,6 +156,7 @@ int hwarc_filter_evt_beacon_WUSB_0100(struct uwb_rc *rc,
 	return 1;  /* calling function will free memory */
 }
 
+
 /* DRP Availability change notification (WUSB 1.0 [8.6.3.8]) */
 struct uwb_rc_evt_drp_avail_WUSB_0100 {
 	struct uwb_rceb rceb;
@@ -180,6 +182,7 @@ int hwarc_filter_evt_drp_avail_WUSB_0100(struct uwb_rc *rc,
 	struct uwb_ie_hdr *ie_hdr;
 	size_t bytes_left, ielength;
 	struct device *dev = &rc->uwb_dev.dev;
+
 
 	da = container_of(*header, struct uwb_rc_evt_drp_avail_WUSB_0100, rceb);
 	bytes_left = buf_size;
@@ -219,6 +222,7 @@ int hwarc_filter_evt_drp_avail_WUSB_0100(struct uwb_rc *rc,
 	*new_size = sizeof(*newda);
 	return 1; /* calling function will free memory */
 }
+
 
 /* DRP notification (WUSB 1.0 [8.6.3.9]) */
 struct uwb_rc_evt_drp_WUSB_0100 {
@@ -283,6 +287,7 @@ int hwarc_filter_evt_drp_WUSB_0100(struct uwb_rc *rc,
 	return 1; /* calling function will free memory */
 }
 
+
 /* Scan Command (WUSB 1.0 [8.6.2.5]) */
 struct uwb_rc_cmd_scan_WUSB_0100 {
 	struct uwb_rccb rccb;
@@ -315,6 +320,7 @@ int hwarc_filter_cmd_scan_WUSB_0100(struct uwb_rc *rc,
 	*size -= 2;
 	return 0;
 }
+
 
 /* SET DRP IE command (WUSB 1.0 [8.6.2.7]) */
 struct uwb_rc_cmd_set_drp_ie_WUSB_0100 {
@@ -360,6 +366,7 @@ int hwarc_filter_cmd_set_drp_ie_WUSB_0100(struct uwb_rc *rc,
 	return 1; /* calling function will free memory */
 }
 
+
 /**
  * Filter data from WHCI driver to WUSB device
  *
@@ -402,6 +409,7 @@ int hwarc_filter_cmd_WUSB_0100(struct uwb_rc *rc, struct uwb_rccb **header,
 	return result;
 }
 
+
 /**
  * Filter data from WHCI driver to WUSB device
  *
@@ -421,6 +429,7 @@ int hwarc_filter_cmd(struct uwb_rc *rc, struct uwb_rccb **header,
 		result = hwarc_filter_cmd_WUSB_0100(rc, header, size);
 	return result;
 }
+
 
 /**
  * Compute return value as sum of incoming value and value at given offset
@@ -455,11 +464,13 @@ out:
 	return size;
 }
 
+
 /* Beacon slot change notification (WUSB 1.0 [8.6.3.5]) */
 struct uwb_rc_evt_bp_slot_change_WUSB_0100 {
 	struct uwb_rceb rceb;
 	u8 bSlotNumber;
 } __attribute__((packed));
+
 
 /**
  * Filter data from WUSB device to WHCI driver
@@ -574,6 +585,7 @@ int hwarc_filter_event(struct uwb_rc *rc, struct uwb_rceb **header,
 			rc, header, buf_size, _real_size, _new_size);
 	return result;
 }
+
 
 /**
  * Execute an UWB RC command on HWA
@@ -714,6 +726,7 @@ error_rd_buffer:
 	return -ENOMEM;
 }
 
+
 /** Clean up all the notification endpoint resources */
 static void hwarc_neep_release(struct uwb_rc *rc)
 {
@@ -814,6 +827,8 @@ static int hwarc_probe(struct usb_interface *iface,
 
 	if (iface->cur_altsetting->desc.bNumEndpoints < 1)
 		return -ENODEV;
+	if (!usb_endpoint_xfer_int(&iface->cur_altsetting->endpoint[0].desc))
+		return -ENODEV;
 
 	result = -ENOMEM;
 	uwb_rc = uwb_rc_alloc();
@@ -860,6 +875,7 @@ error_get_version:
 error_rc_add:
 	usb_put_intf(iface);
 	usb_put_dev(hwarc->usb_dev);
+	kfree(hwarc);
 error_alloc:
 	uwb_rc_put(uwb_rc);
 error_rc_alloc:

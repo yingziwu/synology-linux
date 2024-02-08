@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -165,6 +166,8 @@ int set_hw_deq_status(tm_handle hndl, enum tm_level lvl, uint32_t index);
 
 int set_hw_disable_ports(tm_handle hndl, uint32_t total_ports);
 
+
+
 int set_hw_q_elig_prio_func_entry(tm_handle hndl, uint16_t func_offset);
 int set_hw_a_lvl_elig_prio_func_entry(tm_handle hndl, uint16_t func_offset);
 int set_hw_b_lvl_elig_prio_func_entry(tm_handle hndl, uint16_t func_offset);
@@ -176,6 +179,8 @@ int set_hw_elig_prio_func_tbl_a_level(tm_handle hndl);
 int set_hw_elig_prio_func_tbl_b_level(tm_handle hndl);
 int set_hw_elig_prio_func_tbl_c_level(tm_handle hndl);
 int set_hw_elig_prio_func_tbl_p_level(tm_handle hndl);
+
+
 
 int set_hw_port_deficit_clear(tm_handle hndl, uint8_t index);
 
@@ -201,6 +206,7 @@ int set_hw_queue_cos(tm_handle hndl, uint32_t index);
 
 int set_hw_register_db_default(tm_handle hndl);
 
+
 int get_hw_queue_elig_prio_func_ptr(tm_handle hndl, uint32_t ind, uint8_t *pfunc);
 int get_hw_a_node_elig_prio_func_ptr(tm_handle hndl, uint32_t ind, uint8_t *pfunc);
 int get_hw_b_node_elig_prio_func_ptr(tm_handle hndl, uint32_t ind, uint8_t *pfunc);
@@ -208,6 +214,7 @@ int get_hw_c_node_elig_prio_func_ptr(tm_handle hndl, uint32_t ind, uint8_t *pfun
 int get_hw_port_elig_prio_func_ptr(tm_handle hndl, uint32_t ind, uint8_t *pfunc);
 
 int get_hw_elig_prio_func(tm_handle hndl, enum tm_level level, uint16_t func_offset, uint16_t *table);
+
 
 int get_hw_port_status(tm_handle hndl,
 					 uint8_t index,
@@ -246,6 +253,8 @@ int check_hw_drop_path(tm_handle hndl, uint32_t timeout, uint8_t full_path);
 
 int show_hw_elig_prio_func(tm_handle hndl, enum tm_level level, uint16_t func_offset);
 
+
+
 int set_hw_queue_map_directly(tm_handle hndl, uint32_t queue_index, uint32_t parent);
 
 int set_hw_a_node_map_directly(tm_handle hndl,
@@ -253,5 +262,6 @@ int set_hw_a_node_map_directly(tm_handle hndl,
 				 uint32_t parent,
 				 uint32_t first_child,
 				 uint32_t last_child);
+
 
 #endif   /* SET_HW_REGISTERS_H */

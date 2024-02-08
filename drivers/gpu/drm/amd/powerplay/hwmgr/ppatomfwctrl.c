@@ -25,6 +25,7 @@
 #include "atomfirmware.h"
 #include "pp_debug.h"
 
+
 static const union atom_voltage_object_v4 *pp_atomfwctrl_lookup_voltage_type_v4(
 		const struct atom_voltage_objects_info_v4_1 *voltage_object_info_table,
 		uint8_t voltage_type, uint8_t voltage_mode)
@@ -158,6 +159,7 @@ int pp_atomfwctrl_get_voltage_table_v4(struct pp_hwmgr *hwmgr,
 	return result;
 }
 
+ 
 static struct atom_gpio_pin_lut_v2_1 *pp_atomfwctrl_get_gpio_lookup_table(
 		struct pp_hwmgr *hwmgr)
 {

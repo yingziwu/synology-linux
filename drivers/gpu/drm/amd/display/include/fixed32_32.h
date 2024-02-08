@@ -23,6 +23,7 @@
  *
  */
 
+
 #ifndef __DAL_FIXED32_32_H__
 #define __DAL_FIXED32_32_H__
 

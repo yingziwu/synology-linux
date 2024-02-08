@@ -320,6 +320,7 @@ static void meson_venci_cvbs_clock_config(struct meson_drm *priv)
 				CTS_VDAC_EN, CTS_VDAC_EN);
 }
 
+
 /* PLL	O1 O2 O3 VP DV     EN TX */
 /* 4320 /4 /4 /1 /5 /1  => /2 /2 */
 #define MESON_VCLK_HDMI_ENCI_54000	1

@@ -35,6 +35,7 @@
 #include "gpio-rtd16xx.h"
 #include "gpio-rtd16xx-suspend.h"
 
+
 #define GPIO_REG_OFST(id)       (id >> 5) /* (id/32)*/
 #define GPIO_REG_BIT(id)        (id & 0x1F)	/* id % 32*/
 #define GPIO_DEB_OFST(id)       (id >> 3) /* (id/8)*/
@@ -360,6 +361,7 @@ static void gpio_irq_handler(struct irq_desc *desc)
 		}
 	}
 
+
 	RTK_GPIO_DBG("[%s] irq_had_fired = %d", __func__, irq_had_fired);
 	writel(event, p_rtk_gpio_ctl->reg_isr);
 	if (!irq_had_fired)
@@ -557,6 +559,7 @@ static int rtk_gpio_direction_out(struct gpio_chip *chip,
 	rtk_gpio_set(chip, offset, value);
 	return __rtk_gpio_direction(chip, offset, GP_DIROUT);
 }
+
 
 static int rtk_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
 {
@@ -907,6 +910,7 @@ static void rtk_gpio_shutdown(struct platform_device *pdev)
 
 	pr_info("[GPIO] Exit %s\n", __func__);
 }
+
 
 static struct platform_driver rtk_gpio_driver = {
 	.driver = {

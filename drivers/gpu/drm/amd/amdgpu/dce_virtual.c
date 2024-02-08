@@ -39,6 +39,7 @@
 
 #define DCE_VIRTUAL_VBLANK_PERIOD 16666666
 
+
 static void dce_virtual_set_display_funcs(struct amdgpu_device *adev);
 static void dce_virtual_set_irq_funcs(struct amdgpu_device *adev);
 static int dce_virtual_connector_encoder_init(struct amdgpu_device *adev,
@@ -161,6 +162,7 @@ static void dce_virtual_crtc_dpms(struct drm_crtc *crtc, int mode)
 	}
 }
 
+
 static void dce_virtual_crtc_prepare(struct drm_crtc *crtc)
 {
 	dce_virtual_crtc_dpms(crtc, DRM_MODE_DPMS_OFF);
@@ -216,6 +218,7 @@ static bool dce_virtual_crtc_mode_fixup(struct drm_crtc *crtc,
 {
 	return true;
 }
+
 
 static int dce_virtual_crtc_set_base(struct drm_crtc *crtc, int x, int y,
 				  struct drm_framebuffer *old_fb)
@@ -755,6 +758,7 @@ static void dce_virtual_set_crtc_vblank_interrupt_state(struct amdgpu_device *ad
 	adev->mode_info.crtcs[crtc]->vsync_timer_enabled = state;
 	DRM_DEBUG("[FM]set crtc %d vblank interrupt state %d\n", crtc, state);
 }
+
 
 static int dce_virtual_set_crtc_irq_state(struct amdgpu_device *adev,
 					  struct amdgpu_irq_src *source,

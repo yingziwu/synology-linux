@@ -64,6 +64,7 @@ typedef u_char mac_addr[ETH_ALEN];	/* Hardware address */
 #include "rayctl.h"
 #include "ray_cs.h"
 
+
 /** Prototypes based on PCMCIA skeleton driver *******************************/
 static int ray_config(struct pcmcia_device *link);
 static void ray_release(struct pcmcia_device *link);
@@ -246,7 +247,10 @@ static const UCHAR b4_default_startup_parms[] = {
 	0x04, 0x08,		/* Noise gain, limit offset */
 	0x28, 0x28,		/* det rssi, med busy offsets */
 	7,			/* det sync thresh */
-	0, 2, 2			/* test mode, min, max */
+	0, 2, 2,		/* test mode, min, max */
+	0,			/* rx/tx delay */
+	0, 0, 0, 0, 0, 0,	/* current BSS id */
+	0			/* hop set */
 };
 
 /*===========================================================================*/
@@ -315,6 +319,7 @@ static int ray_probe(struct pcmcia_device *p_dev)
 	local->wireless_data.spy_data = &local->spy_data;
 	dev->wireless_data = &local->wireless_data;
 #endif /* WIRELESS_SPY */
+
 
 	dev_dbg(&p_dev->dev, "ray_cs ray_attach calling ether_setup.)\n");
 	netif_stop_queue(dev);
@@ -596,7 +601,7 @@ static void init_startup_params(ray_dev_t *local)
 	 *    a_beacon_period = hops    a_beacon_period = KuS
 	 *//* 64ms = 010000 */
 	if (local->fw_ver == 0x55) {
-		memcpy((UCHAR *) &local->sparm.b4, b4_default_startup_parms,
+		memcpy(&local->sparm.b4, b4_default_startup_parms,
 		       sizeof(struct b4_startup_params));
 		/* Translate sane kus input values to old build 4/5 format */
 		/* i = hop time in uS truncated to 3 bytes */
@@ -733,6 +738,7 @@ static void join_net(u_long data)
 	}
 	local->card_status = CARD_DOING_ACQ;
 }
+
 
 static void ray_release(struct pcmcia_device *link)
 {
@@ -1842,6 +1848,7 @@ static irqreturn_t ray_interrupt(int irq, void *dev_id)
 	UCHAR cmd;
 	UCHAR status;
 	UCHAR memtmp[ESSID_SIZE + 1];
+
 
 	if (dev == NULL)	/* Note that we want interrupts with dev->start == 0 */
 		return IRQ_NONE;

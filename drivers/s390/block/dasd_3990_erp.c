@@ -16,6 +16,7 @@
 #include "dasd_int.h"
 #include "dasd_eckd.h"
 
+
 struct DCTL_data {
 	unsigned char subcommand;  /* e.g Inhibit Write, Enable Write,... */
 	unsigned char modifier;	   /* Subcommand modifier */
@@ -1455,6 +1456,7 @@ static struct dasd_ccw_req *dasd_3990_erp_inspect_alias(
 		return NULL;
 }
 
+
 /*
  * DASD_3990_ERP_INSPECT_24
  *
@@ -2741,6 +2743,16 @@ dasd_3990_erp_action(struct dasd_ccw_req * cqr)
 		erp = dasd_3990_erp_handle_match_erp(cqr, erp);
 	}
 
+
+	/*
+	 * For path verification work we need to stick with the path that was
+	 * originally chosen so that the per path configuration data is
+	 * assigned correctly.
+	 */
+	if (test_bit(DASD_CQR_VERIFY_PATH, &erp->flags) && cqr->lpm) {
+		erp->lpm = cqr->lpm;
+	}
+
 	if (device->features & DASD_FEATURE_ERPLOG) {
 		/* print current erp_chain */
 		dev_err(&device->cdev->dev,
@@ -2761,6 +2773,8 @@ dasd_3990_erp_action(struct dasd_ccw_req * cqr)
 		/* add erp request before the cqr */
 		list_add_tail(&erp->blocklist, &cqr->blocklist);
 	}
+
+
 
 	return erp;
 

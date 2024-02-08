@@ -197,6 +197,7 @@ const uint16_t *find_color_matrix(enum dc_color_space color_space,
 	return val;
 }
 
+
 void color_space_to_black_color(
 	const struct dc *dc,
 	enum dc_color_space colorspace,

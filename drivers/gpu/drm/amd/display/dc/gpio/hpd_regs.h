@@ -35,6 +35,7 @@
 #define ONE_MORE_4 5
 #define ONE_MORE_5 6
 
+
 #define HPD_GPIO_REG_LIST_ENTRY(type,cd,id) \
 	.type ## _reg =  REG(DC_GPIO_HPD_## type),\
 	.type ## _mask =  DC_GPIO_HPD_ ## type ## __DC_GPIO_HPD ## id ## _ ## type ## _MASK,\
@@ -73,5 +74,6 @@ struct hpd_sh_mask {
 	uint32_t DC_HPD_CONNECT_INT_DELAY;
 	uint32_t DC_HPD_DISCONNECT_INT_DELAY;
 };
+
 
 #endif /* DRIVERS_GPU_DRM_AMD_DC_DEV_DC_GPIO_HPD_REGS_H_ */

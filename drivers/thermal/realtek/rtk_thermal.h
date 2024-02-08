@@ -10,6 +10,7 @@
 #define THERMAL_ERROR(format, ...) printk(KERN_ERR "[THERMAL ERR]" format "\n", ## __VA_ARGS__)
 #define THERMAL_INFO(format, ...) printk(KERN_WARNING "[THERMAL]" format "\n", ## __VA_ARGS__)
 
+
 #define wr_reg(x,y)                     writel(y,(volatile unsigned int*)(x))
 #define rd_reg(x)                       readl((volatile unsigned int*)(x))
 

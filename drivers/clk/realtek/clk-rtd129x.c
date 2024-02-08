@@ -748,6 +748,7 @@ static inline int realtek_clk_factor_type_code(const char *type)
     return -EINVAL;
 }
 
+
 static int __init init_clk_factor(struct device_node *np)
 {
     struct clk_factor *clk_f;
@@ -1052,6 +1053,7 @@ static int __init init_clk_gates(struct device_node *np)
     int last_bit;
     struct dentry __maybe_unused *dir;
 
+
 #ifdef CONFIG_COMMON_CLK_RTD129X_DEBUGFS
     do {
         const char *str = strrchr(np->full_name, '/');
@@ -1175,3 +1177,4 @@ static int __init rtk_init_clk(void)
     return 0;
 }
 pure_initcall(rtk_init_clk);
+

@@ -10,6 +10,7 @@
 
 #include <linux/i2c.h>
 
+
 #define MAX_NAME_LENGTH     32
 
 typedef struct
@@ -33,6 +34,8 @@ typedef struct
 	int (*set_speed) (void* dev_id, int KHz);
 
 }i2c_venus_algo;
+
+
 
 int i2c_venus_add_bus(struct i2c_adapter *);
 int i2c_venus_del_bus(struct i2c_adapter *);

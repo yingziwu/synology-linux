@@ -76,6 +76,7 @@ enum SYNO_GPIO_INDEX
 #define HDD_ACT_LED_PIN(index)                 syno_led_pin_get(DT_INTERNAL_SLOT, index, DT_HDD_ACT_LED, SYNO_GPIO_PIN) /* Deprecated, see HDD_ACT_LED_PIN_BY_SLOT */
 #define HDD_DETECT_PIN(index)                  syno_disk_gpio_pin_get(index, DT_DETECT_PIN_GPIO, SYNO_GPIO_PIN)
 #define HDD_ENABLE_PIN(index)                  syno_disk_gpio_pin_get(index, DT_POWER_PIN_GPIO, SYNO_GPIO_PIN)
+#define HDD_SWITCH_NO(index)                   syno_disk_gpio_pin_get(index, DT_SWITCH_NO, 0) /* only one value for switch no */
 /* Get led pin# of "name@index" */
 #define HDD_FAIL_LED_PIN_BY_SLOT(name, index)          syno_led_pin_get(name, index, DT_HDD_ORANGE_LED, SYNO_GPIO_PIN)
 #define HDD_PRESENT_LED_PIN_BY_SLOT(name, index)       syno_led_pin_get(name, index, DT_HDD_GREEN_LED, SYNO_GPIO_PIN)

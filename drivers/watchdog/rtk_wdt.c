@@ -32,7 +32,9 @@
 #define TCWNMI 0x8
 #define TCWOV 0xc
 
+
 #define MSK_ISR	0x0c
+
 
 #define TCWOV_RSTB_CNT 0x40
 #define TCWOV_RSTB_PAD 0x44
@@ -219,6 +221,7 @@ static irqreturn_t rtk_wdt_irq(int irq, void *devid)
 	writel(0x01, base + TCWTR);
 	writel((0x0 * ISO_WDT_1MS_CNT), base + TCWOV);
 	writel(0x000000FF, base + TCWCR);
+
 
         return IRQ_HANDLED;
 }

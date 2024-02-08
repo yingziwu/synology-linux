@@ -287,6 +287,7 @@ void vmw_cmdbuf_header_free(struct vmw_cmdbuf_header *header)
 	spin_unlock(&man->lock);
 }
 
+
 /**
  * vmw_cmbuf_header_submit: Submit a command buffer to hardware.
  *
@@ -1117,6 +1118,7 @@ void vmw_cmdbuf_commit(struct vmw_cmdbuf_man *man, size_t size,
 	vmw_cmdbuf_cur_unlock(man);
 }
 
+
 /**
  * vmw_cmdbuf_send_device_command - Send a command through the device context.
  *
@@ -1175,6 +1177,7 @@ static int vmw_cmdbuf_preempt(struct vmw_cmdbuf_man *man, u32 context)
 
 	return vmw_cmdbuf_send_device_command(man, &cmd, sizeof(cmd));
 }
+
 
 /**
  * vmw_cmdbuf_startstop - Send a start / stop command through the device

@@ -171,6 +171,7 @@ enum mode_access {
 
 #endif /* _LINUX_RTLTOOL_H */
 
+
 /* write/read MMIO register */
 #define RTL_W8(reg, val8)	writeb ((val8), ioaddr + (reg))
 #define RTL_W16(reg, val16)	writew ((val16), ioaddr + (reg))
@@ -797,6 +798,7 @@ struct rtl8169_stats {
 	struct u64_stats_sync	syncp;
 };
 
+
 #ifdef RTL_PROC
 static struct proc_dir_entry *rtw_proc;
 static u8 wol_enable=0;
@@ -933,14 +935,14 @@ MODULE_FIRMWARE(FIRMWARE_8106E_2);
 MODULE_FIRMWARE(FIRMWARE_8168G_2);
 MODULE_FIRMWARE(FIRMWARE_8168G_3);
 
-#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 static DEFINE_RATELIMIT_STATE(syno_log_ratelimit_state, 10 * HZ, 1);
 #define printk_syno_ratelimited(fmt, ...)	\
 ({												\
 	if (__ratelimit(&syno_log_ratelimit_state))	\
 		printk(fmt, ##__VA_ARGS__);				\
 })
-#endif /* MY_ABC_HERE || MY_DEF_HERE */
+#endif /* MY_DEF_HERE || MY_DEF_HERE */
 
 static void rtl8169_down(struct net_device *dev);
 static int rtl8169_init_ring(struct net_device *dev);
@@ -1598,11 +1600,11 @@ static void __rtl8169_check_link_status(struct net_device *dev,
 					void __iomem *ioaddr, bool pm)
 {
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	const char *speed_str;
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	if (RTL_R8(PHYstatus) & _1000bpsF)
 		speed_str = "1 Gbps";
 	else if (RTL_R8(PHYstatus) & _100bps)
@@ -1611,7 +1613,8 @@ static void __rtl8169_check_link_status(struct net_device *dev,
 		speed_str = "10 Mbps";
 	else
 		speed_str = "unknown";
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
+
 
 	if (tp->link_ok(ioaddr)) {
 		rtl_link_chg_patch(tp);
@@ -1620,15 +1623,27 @@ static void __rtl8169_check_link_status(struct net_device *dev,
 			pm_request_resume(&tp->pdev->dev);
 		netif_carrier_on(dev);
 		if (net_ratelimit()){
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
+#ifdef MY_DEF_HERE
+			netif_notice(tp, ifup, dev, "link up %s\n", speed_str);
+#else /* MY_DEF_HERE */
 			netif_info(tp, ifup, dev, "link up %s\n", speed_str);
-#else /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
+#else /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+			netif_notice(tp, ifup, dev, "link up\n");
+#else /* MY_DEF_HERE */
 			netif_info(tp, ifup, dev, "link up\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
 		}
 	} else {
 		netif_carrier_off(dev);
+#ifdef MY_DEF_HERE
+		netif_notice(tp, ifdown, dev, "link down\n");
+#else /* MY_DEF_HERE */
 		netif_info(tp, ifdown, dev, "link down\n");
+#endif /* MY_DEF_HERE */
 		if (pm)
 			pm_schedule_suspend(&tp->pdev->dev, 5000);
 	}
@@ -1867,6 +1882,8 @@ int rtl8169tool_ioctl(struct rtl8169_private *tp, struct ifreq *ifr)
 
         return ret;
 }
+
+
 
 #define WAKE_ANY (WAKE_PHY | WAKE_MAGIC | WAKE_UCAST | WAKE_BCAST | WAKE_MCAST)
 
@@ -2139,6 +2156,7 @@ static int rtl8169_set_features(struct net_device *dev,
 
 	return 0;
 }
+
 
 static inline u32 rtl8169_tx_vlan_tag(struct sk_buff *skb)
 {
@@ -3661,6 +3679,7 @@ static void rtl8411_hw_phy_config(struct rtl8169_private *tp)
 		{ 0x1f, 0x0000 }
 	};
 
+
 	rtl_apply_firmware(tp);
 
 	rtl8168f_hw_phy_config(tp);
@@ -4256,9 +4275,9 @@ static void rtl_phy_work(struct rtl8169_private *tp)
         if(tp->cur_tx > tp->dirty_tx)
                 if(tp->last_dirty_tx==tp->dirty_tx){
                         if (tp->tx_reset_count>3){
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
                             printk(KERN_ERR "r8169_reset_task: reset with tx hang\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 				rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 				tp->tx_reset_count=0;
                         }
@@ -4279,9 +4298,9 @@ static void rtl_phy_work(struct rtl8169_private *tp)
 
 		if(tp->last_cur_rx == tp->cur_rx){
 			if(tp->rx_reset_count>3){
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
                             printk(KERN_ERR "r8169_reset_task: reset with rx hang\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 				rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 				tp->rx_reset_count=0;
 			}
@@ -4315,6 +4334,7 @@ static void rtl_phy_work(struct rtl8169_private *tp)
 	gphy_status = gphy_status & 0x0F00;
 	gphy_status = gphy_status >>8;
 
+
 	if((gphy_status>=3)&&(gphy_code==0x6329))
 	{
 		goto out_mod_timer;
@@ -4332,6 +4352,7 @@ static void rtl_phy_work(struct rtl8169_private *tp)
 	j=readl(IOMEM(0xFE007088));
 	j = j & 0xfffff9ff;
 	writel(j,IOMEM(0xFE007088));
+
 
 	i=readl(IOMEM(0xFE000000));
 	i = i | 0x00004000;
@@ -4368,6 +4389,7 @@ out_mod_timer:*/
 	mod_timer(timer, jiffies + timeout);
 
 }
+
 
 static void rtl8169_phy_timer(unsigned long __opaque)
 {
@@ -4454,6 +4476,7 @@ static void rtl8169_init_phy(struct net_device *dev, struct rtl8169_private *tp)
 	if (rtl_tbi_enabled(tp))
 		netif_info(tp, link, dev, "TBI auto-negotiating\n");
 }
+
 
 static int rtl_set_mac_address(struct net_device *dev, void *p)
 {
@@ -6340,9 +6363,9 @@ static int rtl8169_change_mtu(struct net_device *dev, int new_mtu)
 
 	rx_buf_sz_new = (new_mtu > ETH_DATA_LEN) ? new_mtu + ETH_HLEN + 8 + 1 : RX_BUF_SIZE;
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	printk(KERN_ERR "r8169_reset_task: reset with change mtu\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 
 /*	rtl8169_down(dev);
@@ -6366,6 +6389,7 @@ static int rtl8169_change_mtu(struct net_device *dev, int new_mtu)
         netif_carrier_off(dev);
 	rtl_hw_start(dev);
 	rtl_unlock_work(tp);
+
 
         //rtl8169_set_speed(dev, tp->autoneg, tp->speed, tp->duplex);
 	rtl8169_set_speed(dev, AUTONEG_ENABLE, SPEED_1000, DUPLEX_FULL,
@@ -6665,9 +6689,9 @@ static void rtl_reset_work(struct rtl8169_private *tp)
 		netif_wake_queue(dev);
 		netif_warn(tp, drv, dev, "No memory. Try to restart......\n");
 		msleep(1000);
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 		printk(KERN_ERR "r8169_reset_task: reset when no memory to reset.\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 		rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 		return;
 	}
@@ -6686,9 +6710,9 @@ static void rtl8169_tx_timeout(struct net_device *dev)
 {
 	struct rtl8169_private *tp = netdev_priv(dev);
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	printk(KERN_ERR "r8169_reset_task: reset with tx watchdog timeout\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 }
 
@@ -6930,9 +6954,9 @@ static void rtl8169_pcierr_interrupt(struct net_device *dev)
 
 	rtl8169_hw_reset(tp);
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	printk(KERN_ERR "r8169_reset_task: reset with pcie err intr\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 #endif
 }
@@ -7063,9 +7087,9 @@ static int rtl_rx(struct net_device *dev, struct rtl8169_private *tp, u32 budget
 			if (status & RxCRC)
 				dev->stats.rx_crc_errors++;
 			if (status & RxFOVF) {
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 				printk_syno_ratelimited(KERN_ERR"r8169_reset_task: reset with fifo errors.\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 				rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 				dev->stats.rx_fifo_errors++;
 			}
@@ -7133,6 +7157,7 @@ process_pkt:
 	count = cur_rx - tp->cur_rx;
 	tp->cur_rx = cur_rx;
 
+
 	delta = rtl8168_rx_fill(tp, dev, tp->dirty_rx, tp->cur_rx);
 	//netif_err(tp, drv, tp->dev, "delta =%x \n",delta);
 	tp->dirty_rx += delta;
@@ -7140,9 +7165,9 @@ process_pkt:
 	if (tp->dirty_rx + NUM_RX_DESC == tp->cur_rx){
 #ifdef MY_DEF_HERE
 #else /* MY_DEF_HERE */
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 		printk_syno_ratelimited(KERN_ERR"r8169_reset_task: reset with rx buffers exhausted.\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 		rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 #endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
@@ -7234,9 +7259,9 @@ static void rtl_slow_event_work(struct rtl8169_private *tp)
 				writel(readl(tp->mmio_clkaddr + 0x104) & ~0x00200000, (tp->mmio_clkaddr + 0x104));
 			}
 */
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 			printk(KERN_ERR "r8169_reset_task: reset with slow event.\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 			rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 		}
 		else
@@ -7249,6 +7274,7 @@ static void rtl_slow_event_work(struct rtl8169_private *tp)
 
 */			mod_timer(&tp->timer, jiffies + RTL8169_PHY_TIMEOUT);
 		}
+
 
 		if (gpio_is_valid(nic_gpio_iso)) {
 			if (tp->link_ok(ioaddr)){
@@ -7513,6 +7539,7 @@ rtl8169_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 		stats->rx_bytes	= tp->rx_stats.bytes;
 	} while (u64_stats_fetch_retry_irq(&tp->rx_stats.syncp, start));
 
+
 	do {
 		start = u64_stats_fetch_begin_irq(&tp->tx_stats.syncp);
 		stats->tx_packets = tp->tx_stats.packets;
@@ -7579,6 +7606,7 @@ static int rtl8169_suspend(struct device *dev)
 		printk(KERN_ERR "[RTK_ETN] %s Suspend mode\n", __func__);
 	}
 
+
 	printk(KERN_ERR "[RTK_ETN] Exit %s\n", __func__);
 
 	return 0;
@@ -7602,6 +7630,7 @@ static void __rtl8169_resume(struct net_device *dev)
 	j = j & 0xfffff9ff;
 	writel(j,IOMEM(0xFE007088));
 
+
 	i=readl(IOMEM(0xFE000000));
 	i = i | 0x00004000;
 	writel(i,IOMEM(0xFE000000));
@@ -7624,9 +7653,9 @@ static void __rtl8169_resume(struct net_device *dev)
 	set_bit(RTL_FLAG_TASK_ENABLED, tp->wk.flags);
 	rtl_unlock_work(tp);
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	printk(KERN_ERR "r8169_reset_task: reset with resume\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 }
 
@@ -8044,6 +8073,7 @@ static const struct file_operations proc_fops = {
 .write= write_proc,
 };
 
+
 static int driver_var_read_proc(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -8104,6 +8134,7 @@ static const struct file_operations driver_var_proc_fops = {
 	.release        = single_release,
 };
 
+
 static int tally_read_proc(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -8146,6 +8177,7 @@ static const struct file_operations tally_proc_fops = {
 	.llseek         = seq_lseek,
 	.release        = single_release,
 };
+
 
 static int registers_read_proc(struct seq_file *m, void *v)
 {
@@ -8286,6 +8318,7 @@ rtl_init_one(struct platform_device *pdev)
 		pdev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
 
 	ioaddr = of_iomap(pdev->dev.of_node, 0);
+
 
 	clkaddr = of_iomap(pdev->dev.of_node, 1);
 
@@ -8465,6 +8498,7 @@ rtl_init_one(struct platform_device *pdev)
 			break;
 		}
 
+
 		entry = proc_create_data("wol_enable", S_IFREG | S_IRUGO,
 				   dir_dev, &proc_fops, NULL);
 		if (!entry) {
@@ -8603,6 +8637,7 @@ rtl_init_one(struct platform_device *pdev)
 	if (retry == RETRY_MAX)
 		printk(KERN_ERR "%s get invalid MAC address %pM, give up!\n",
 			rtl_chip_infos[chipset].name, ndev->dev_addr);
+
 
 	ndev->ethtool_ops = &rtl8169_ethtool_ops;
 	ndev->watchdog_timeo = RTL8169_TX_TIMEOUT;

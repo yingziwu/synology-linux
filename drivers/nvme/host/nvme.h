@@ -144,10 +144,10 @@ struct nvme_ctrl {
 	u8 apsta;
 	bool subsystem;
 #ifdef MY_ABC_HERE
-	unsigned syno_force_timeout;
+	unsigned long idle; /* nvme device idle time in jiffies */
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
-	unsigned long idle; /* nvme device idle time in jiffies */
+	unsigned syno_force_timeout;
 #endif /* MY_ABC_HERE */
 #ifdef MY_DEF_HERE
 #define BLOCK_INFO_SIZE        512     /* Largest string for a nvme device block information */
@@ -276,6 +276,7 @@ static inline void nvme_setup_rw(struct nvme_ns *ns, struct request *req,
 	cmnd->rw.dsmgmt = cpu_to_le32(dsmgmt);
 }
 
+
 static inline int nvme_error_status(u16 status)
 {
 	switch (status & 0x7ff) {
@@ -345,7 +346,7 @@ int nvme_get_log_page(struct nvme_ctrl *dev, struct nvme_smart_log **log);
 #ifdef MY_ABC_HERE
 int nvme_get_error_log_page(struct nvme_ctrl *dev,
 		struct nvme_error_log_page **err_log, int *err_entries);
-int nvme_lba_write_zero(struct nvme_ns *ns, u64 lba);
+int nvme_lba_write_pattern(struct nvme_ns *ns, u64 lba);
 #endif /* MY_ABC_HERE */
 int nvme_get_features(struct nvme_ctrl *dev, unsigned fid, unsigned nsid,
 		      void *buffer, size_t buflen, u32 *result);

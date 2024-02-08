@@ -12,6 +12,7 @@ extern int rtk_ir_getkeycode(unsigned int scancode, unsigned int *p_keycode);
 extern void rtk_ir_set_keybit(unsigned long *addr);
 extern void rtk_ir_set_relbit(unsigned long *addr);
 
+
 struct rtk_ir_data {
 	unsigned int irq;
 	struct input_dev *input_dev;

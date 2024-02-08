@@ -168,6 +168,9 @@ setup_efi_state(struct boot_params *params, unsigned long params_load_addr,
 	struct efi_info *current_ei = &boot_params.efi_info;
 	struct efi_info *ei = &params->efi_info;
 
+	if (!efi_enabled(EFI_RUNTIME_SERVICES))
+		return 0;
+
 	if (!current_ei->efi_memmap_size)
 		return 0;
 
@@ -388,6 +391,7 @@ static void *bzImage64_load(struct kimage *image, char *kernel,
 	}
 
 	pr_debug("Loaded purgatory at 0x%lx\n", purgatory_load_addr);
+
 
 	/*
 	 * Load Bootparams and cmdline and space for efi stuff.

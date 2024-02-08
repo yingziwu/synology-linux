@@ -108,6 +108,7 @@ acr_r364_func = {
 	},
 };
 
+
 struct nvkm_acr *
 acr_r364_new(unsigned long managed_falcons)
 {

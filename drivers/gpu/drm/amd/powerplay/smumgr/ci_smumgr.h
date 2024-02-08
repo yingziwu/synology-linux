@@ -75,3 +75,4 @@ struct ci_smumgr {
 };
 
 #endif
+

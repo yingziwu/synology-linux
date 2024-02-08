@@ -26,6 +26,7 @@
 #include <dt-bindings/phy/phy-armada3700-utmi.h>
 #include "phy-armada3700-utmi.h"
 
+
 struct mvebu_a3700_utmi_phy {
 	struct phy *phy;
 	void __iomem *regs;

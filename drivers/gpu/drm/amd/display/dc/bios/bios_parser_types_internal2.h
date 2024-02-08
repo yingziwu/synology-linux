@@ -58,6 +58,7 @@ struct bios_parser {
 	uint32_t object_info_tbl_offset;
 	struct atom_master_data_table_v2_1 *master_data_tbl;
 
+
 	const struct bios_parser_helper *bios_helper;
 
 	const struct command_table_helper *cmd_helper;

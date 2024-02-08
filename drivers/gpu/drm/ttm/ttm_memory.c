@@ -508,6 +508,7 @@ out_unlock:
 	return ret;
 }
 
+
 static int ttm_mem_global_alloc_zone(struct ttm_mem_global *glob,
 				     struct ttm_mem_zone *single_zone,
 				     uint64_t memory,

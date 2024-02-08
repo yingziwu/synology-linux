@@ -8,6 +8,7 @@
  *
  */
 
+
 #include <linux/module.h>
 #include <linux/dlm.h>
 #include <linux/sched.h>
@@ -46,6 +47,7 @@ struct resync_info {
 #define		MD_CLUSTER_WAITING_FOR_NEWDISK		1
 #define		MD_CLUSTER_SUSPEND_READ_BALANCING	2
 #define		MD_CLUSTER_BEGIN_JOIN_CLUSTER		3
+
 
 struct md_cluster_info {
 	/* dlm lock space and resources for clustered raid. */
@@ -237,15 +239,6 @@ static void recover_bitmaps(struct md_thread *thread)
 	while (cinfo->recovery_map) {
 		slot = fls64((u64)cinfo->recovery_map) - 1;
 
-		/* Clear suspend_area associated with the bitmap */
-		spin_lock_irq(&cinfo->suspend_lock);
-		list_for_each_entry_safe(s, tmp, &cinfo->suspend_list, list)
-			if (slot == s->slot) {
-				list_del(&s->list);
-				kfree(s);
-			}
-		spin_unlock_irq(&cinfo->suspend_lock);
-
 		snprintf(str, 64, "bitmap%04d", slot);
 		bm_lockres = lockres_init(mddev, str, NULL, 1);
 		if (!bm_lockres) {
@@ -264,6 +257,16 @@ static void recover_bitmaps(struct md_thread *thread)
 			pr_err("md-cluster: Could not copy data from bitmap %d\n", slot);
 			goto dlm_unlock;
 		}
+
+		/* Clear suspend_area associated with the bitmap */
+		spin_lock_irq(&cinfo->suspend_lock);
+		list_for_each_entry_safe(s, tmp, &cinfo->suspend_list, list)
+			if (slot == s->slot) {
+				list_del(&s->list);
+				kfree(s);
+			}
+		spin_unlock_irq(&cinfo->suspend_lock);
+
 		if (hi > 0) {
 			/* TODO:Wait for current resync to get over */
 			set_bit(MD_RECOVERY_NEEDED, &mddev->recovery);
@@ -375,6 +378,7 @@ static void remove_suspend_info(struct mddev *mddev, int slot)
 	mddev->pers->quiesce(mddev, 2);
 }
 
+
 static void process_suspend_info(struct mddev *mddev,
 		int slot, sector_t lo, sector_t hi)
 {
@@ -423,6 +427,7 @@ static void process_add_new_disk(struct mddev *mddev, struct cluster_msg *cmsg)
 			NEW_DEV_TIMEOUT);
 	clear_bit(MD_CLUSTER_WAITING_FOR_NEWDISK, &cinfo->state);
 }
+
 
 static void process_metadata_update(struct mddev *mddev, struct cluster_msg *msg)
 {
@@ -635,6 +640,7 @@ static int gather_all_resync_info(struct mddev *mddev, int total_slots)
 	char str[64];
 	sector_t lo, hi;
 
+
 	for (i = 0; i < total_slots; i++) {
 		memset(str, '\0', 64);
 		snprintf(str, 64, "bitmap%04d", i);
@@ -747,6 +753,7 @@ static int join(struct mddev *mddev, int nodes)
 	if (dlm_lock_sync(cinfo->no_new_dev_lockres, DLM_LOCK_CR))
 		pr_err("md-cluster: failed to get a sync CR lock on no-new-dev!(%d)\n", ret);
 
+
 	pr_info("md-cluster: Joined cluster %s slot %d\n", str, cinfo->slot_number);
 	snprintf(str, 64, "bitmap%04d", cinfo->slot_number - 1);
 	cinfo->bitmap_lockres = lockres_init(mddev, str, NULL, 1);
@@ -815,6 +822,7 @@ static int leave(struct mddev *mddev)
 	lockres_free(cinfo->no_new_dev_lockres);
 	lockres_free(cinfo->bitmap_lockres);
 	dlm_release_lockspace(cinfo->lockspace, 2);
+	kfree(cinfo);
 	return 0;
 }
 
@@ -938,8 +946,10 @@ static int add_new_disk(struct mddev *mddev, struct md_rdev *rdev)
 	cmsg.raid_slot = cpu_to_le32(rdev->desc_nr);
 	lock_comm(cinfo);
 	ret = __sendmsg(cinfo, &cmsg);
-	if (ret)
+	if (ret) {
+		unlock_comm(cinfo);
 		return ret;
+	}
 	cinfo->no_new_dev_lockres->flags |= DLM_LKF_NOQUEUE;
 	ret = dlm_lock_sync(cinfo->no_new_dev_lockres, DLM_LOCK_EX);
 	cinfo->no_new_dev_lockres->flags &= ~DLM_LKF_NOQUEUE;

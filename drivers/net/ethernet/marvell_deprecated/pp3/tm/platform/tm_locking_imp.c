@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -32,16 +33,19 @@ disclaimer.
 #include "tm_locking_interface.h"
 #include "tm_alias.h"
 
+
 int	tm_create_locking_staff(void * environment_handle)
 {
 	return 0;
 }
+
 
 int	tm_destroy_locking_staff(void * environment_handle)
 {
 
 	return 0;
 }
+
 
 /**
  */
@@ -50,12 +54,14 @@ int tm_glob_lock(void * environment_handle)
 	return 0;
 }
 
+
 /**
  */
 int tm_glob_unlock(void * environment_handle)
 {
 	return 0;
 }
+
 
 /**
  */
@@ -64,6 +70,7 @@ int tm_nodes_lock(void * environment_handle)
 	return 0;
 }
 
+
 /**
  */
 int tm_nodes_unlock(void * environment_handle)
@@ -71,12 +78,14 @@ int tm_nodes_unlock(void * environment_handle)
 	return 0;
 }
 
+
 /**
  */
 int tm_sched_lock(void * environment_handle)
 {
 	return 0;
 }
+
 
 /**
  */

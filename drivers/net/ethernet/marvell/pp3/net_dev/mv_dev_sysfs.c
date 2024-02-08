@@ -16,6 +16,7 @@
 * ***************************************************************************
 */
 
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
@@ -28,6 +29,7 @@
 #include "mv_dev_dbg.h"
 #include "common/mv_hw_if.h"
 #include "mv_dev_sysfs.h"
+
 
 static ssize_t pp3_dev_help(char *b)
 {
@@ -177,6 +179,7 @@ static struct attribute_group pp3_dev_group = {
 	.attrs = pp3_dev_attrs,
 };
 
+
 int mv_pp3_dev_sysfs_init(struct kobject *pp3_kobj)
 {
 	int err;
@@ -240,3 +243,5 @@ int mv_pp3_dev_sysfs_exit(struct kobject *pp3_kobj)
 
 	return 0;
 }
+
+

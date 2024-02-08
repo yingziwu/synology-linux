@@ -12,6 +12,7 @@
 
 //#include <asm/addrspace.h>
 
+
 /*
  * Yamon Prom print address.
  */
@@ -23,6 +24,7 @@
 #define VENUS_ISO_IO_PORT_BASE		0xFE000000
 #define VENUS_MISC_IO_PORT_BASE		0xFE000000
 //#define VENUS_0_SYS_DEBUG		0xB80000AC
+
 
 /*
  * Venus USB registers.
@@ -76,6 +78,7 @@
 #define VENUS_USB_OHCI_RH_STATUS	(VENUS_USB_OHCI_USBBASE+0x50)
 #define VENUS_USB_OHCI_PORT_STATUS_1	(VENUS_USB_OHCI_USBBASE+0x54)
 
+
 // USB Host Registers
 #define VENUS_USB_HOST_BASE		(VENUS_USB_BASE+0x800)
 #define VENUS_USB_HOST_WRAPPER		(VENUS_USB_HOST_BASE+0x00)
@@ -83,6 +86,7 @@
 #define VENUS_USB_HOST_USBIP_INPUT	(VENUS_USB_HOST_BASE+0x08)
 #define VENUS_USB_HOST_RESET_UTMI	(VENUS_USB_HOST_BASE+0x0c)
 #define VENUS_USB_HOST_SELF_LOOP_BACK	(VENUS_USB_HOST_BASE+0x10)
+
 
 /* Define for Venus Ethernet MAC. */
 #define VENUS_ETH_BASE			0xb8016000
@@ -95,16 +99,19 @@
  */
 #define VENUS_ETN_MII_AR		0x1605C
 
+
 /*
  * Venus TV encoder registers.
  */
 #define VENUS_TVE_VIDEO_DAC_CTRL0	0x180D0
 #define VENUS_TVE_VIDEO_DAC_CTRL1	0x180D4
 
+
 /*
  * Venus TV decoder registers.
  */
 #define VENUS_TVD_VIDEO_ADC_DIGITAL_CTRL0	0x190FC
+
 
 /*
  * Venus SB2 registers.
@@ -116,6 +123,7 @@
 
 #define VENUS_SB2_CHIP_ID		0x1A200
 #define VENUS_SB2_CHIP_INFO		0x1A204
+
 
 /*
  * Software Debug registers
@@ -153,11 +161,13 @@
 
 #define SB2_DGB_INT			0x1A4e0
 
+
 /*
  * Venus MISC registers.
  */
 
 #define VENUS_ISO_ISR			0x7000
+
 
 #define VENUS_MIS_PSELH			0x1B000
 #define VENUS_MIS_PSELL			0x1B004
@@ -176,6 +186,7 @@
 #define VENUS_MIS_UMSK_ISR_GP1A		0x1B038
 #define VENUS_MIS_UMSK_ISR_GP1DA	0x1B03C
 
+
 /*
  * Venus GPIO registers.
  */
@@ -190,6 +201,8 @@
 #define VENUS_MIS_GP0DP			0x1B120
 #define VENUS_MIS_GP1DP			0x1B124
 #define VENUS_MIS_GPDEB			0x1B128
+
+
 
 /*
  * Venus UART registers. jjdarwin
@@ -332,6 +345,7 @@
 
 #endif
 
+
 #define VENUS_UART0_CLK			27000000
 #define VENUS_UART1_CLK			432000000
 
@@ -345,6 +359,7 @@
 #define VENUS_MIS_IR_CR			0x1B410
 #define VENUS_MIS_IR_RP			0x1B414
 #define VENUS_MIS_IR_SR			0x1B418
+
 
 /*
  * Venus external timer registers.jjdarwin
@@ -401,6 +416,8 @@
 
 #endif
 
+
+
 /*
  * Venus RTC registers.
  */
@@ -418,6 +435,7 @@
 #define VENUS_MIS_RTCEN			0x1B62C
 #define VENUS_MIS_RTCCR			0x1B630
 
+
 /*
  * Venus VFD registers.
  */
@@ -431,6 +449,7 @@
 #define VENUS_MIS_VFD_ARDKPADL		0x1B71C
 #define VENUS_MIS_VFD_ARDKPADH		0x1B720
 #define VENUS_MIS_VFD_ARDSW		0x1B724
+
 
 /*
  * Defines for the Venus interrupt controller.
@@ -455,6 +474,7 @@
 
 #define VENUS_INT_TIMER			(VENUS_INT_BASE+5)
 #define VENUS_INT_RTC			(VENUS_INT_BASE+5)
+
 
 #define REG_CLOCK_ENABLE1				(0xb800000c)
 #define REG_MUXPAD7							(0xb800036c)
@@ -510,6 +530,8 @@
 #define	REG_DBG									( REG_NF_BASE_ADDR + 0x344 )
 #define	REG_SPR_DDR_CTL					( REG_NF_BASE_ADDR + 0x348 )
 #define	REG_CP_LEN							( REG_NF_BASE_ADDR + 0x34C )
+
+
 
 /*
  * Defines for the CP.

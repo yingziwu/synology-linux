@@ -968,6 +968,7 @@ out:
 	return 0;
 }
 
+
 static int dwc3_rtk_type_c_resume(struct device *dev) {
 	struct type_c_data *type_c = dev_get_drvdata(dev);
 	unsigned long		flags;

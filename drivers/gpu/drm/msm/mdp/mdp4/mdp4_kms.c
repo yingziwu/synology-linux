@@ -15,6 +15,7 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "msm_drv.h"
 #include "msm_gem.h"
 #include "msm_mmu.h"
@@ -223,6 +224,7 @@ int mdp4_enable(struct mdp4_kms *mdp4_kms)
 
 	return 0;
 }
+
 
 static int mdp4_modeset_init_intf(struct mdp4_kms *mdp4_kms,
 				  int intf_type)

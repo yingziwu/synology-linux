@@ -247,6 +247,7 @@ static const struct dce110_link_enc_hpd_registers link_enc_hpd_regs[] = {
 		hpd_regs(5)
 };
 
+
 #define link_regs(id)\
 [id] = {\
 	LE_DCE110_REG_LIST(id)\
@@ -328,6 +329,7 @@ static const struct dce_aduio_mask audio_mask = {
 };
 
 /* AG TBD Needs to be reduced back to 3 pipes once dce10 hw sequencer implemented. */
+
 
 #define clk_src_regs(id)\
 [id] = {\
@@ -489,6 +491,7 @@ static const struct dce_mem_input_mask mi_masks = {
 		MI_DCE11_MASK_SH_LIST(_MASK),
 		.ENABLE = MC_HUB_RDREQ_DMIF_LIMIT__ENABLE_MASK
 };
+
 
 static struct mem_input *dce110_mem_input_create(
 	struct dc_context *ctx,
@@ -682,6 +685,7 @@ static void destruct(struct dce110_resource_pool *pool)
 		dal_irq_service_destroy(&pool->base.irqs);
 	}
 }
+
 
 static void get_pixel_clock_parameters(
 	const struct pipe_ctx *pipe_ctx,
@@ -919,6 +923,7 @@ static enum dc_status dce110_add_stream_to_ctx(
 	if (result == DC_OK)
 		result = resource_map_clock_resources(dc, new_ctx, dc_stream);
 
+
 	if (result == DC_OK)
 		result = build_mapped_resource(dc, new_ctx, dc_stream);
 
@@ -1026,6 +1031,7 @@ static void dce110_destroy_resource_pool(struct resource_pool **pool)
 	kfree(dce110_pool);
 	*pool = NULL;
 }
+
 
 static const struct resource_funcs dce110_res_pool_funcs = {
 	.destroy = dce110_destroy_resource_pool,
@@ -1296,6 +1302,8 @@ static bool construct(
 
 #if defined(CONFIG_DRM_AMD_DC_FBC)
 	dc->fbc_compressor = dce110_compressor_create(ctx);
+
+
 
 #endif
 	if (!underlay_create(ctx, &pool->base))

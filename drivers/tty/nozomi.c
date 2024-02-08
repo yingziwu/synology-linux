@@ -60,6 +60,7 @@
 
 #include <linux/delay.h>
 
+
 #define VERSION_STRING DRIVER_DESC " 2.1d"
 
 /*    Macros definitions */
@@ -133,6 +134,7 @@ static int debug;
 /* Size of tmp send buffer to card */
 #define SEND_BUF_MAX		1024
 #define RECEIVE_BUF_MAX		4
+
 
 #define R_IIR		0x0000	/* Interrupt Identity Register */
 #define R_FCR		0x0000	/* Flow Control Register */
@@ -821,7 +823,7 @@ static int receive_data(enum port_type index, struct nozomi *dc)
 	struct tty_struct *tty = tty_port_tty_get(&port->port);
 	int i, ret;
 
-	read_mem32((u32 *) &size, addr, 4);
+	size = __le32_to_cpu(readl(addr));
 	/*  DBG1( "%d bytes port: %d", size, index); */
 
 	if (tty && test_bit(TTY_THROTTLED, &tty->flags)) {
@@ -1175,6 +1177,7 @@ static irqreturn_t interrupt_handler(int irq, void *dev_id)
 
 	if (read_iir == 0)
 		goto none;
+
 
 	DBG4("%s irq:0x%04X, prev:0x%04X", interrupt2str(read_iir), read_iir,
 		dc->last_ier);

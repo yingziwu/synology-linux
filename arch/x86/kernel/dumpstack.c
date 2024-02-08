@@ -18,6 +18,7 @@
 
 #include <asm/stacktrace.h>
 
+
 int panic_on_unrecovered_nmi;
 int panic_on_io_nmi;
 unsigned int code_bytes = 64;
@@ -134,7 +135,8 @@ print_context_stack_bp(struct thread_info *tinfo,
 		if (!__kernel_text_address(addr))
 			break;
 
-		ops->address(data, addr, 1);
+		if (ops->address(data, addr, 1))
+			break;
 		frame = frame->next_frame;
 		ret_addr = &frame->return_address;
 		print_ftrace_graph_addr(addr, data, ops, tinfo, graph);
@@ -153,10 +155,11 @@ static int print_trace_stack(void *data, char *name)
 /*
  * Print one address/symbol entries per line.
  */
-static void print_trace_address(void *data, unsigned long addr, int reliable)
+static int print_trace_address(void *data, unsigned long addr, int reliable)
 {
 	touch_nmi_watchdog();
 	printk_stack_address(addr, reliable, data);
+	return 0;
 }
 
 static const struct stacktrace_ops print_trace_ops = {

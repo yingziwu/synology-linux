@@ -72,7 +72,7 @@ send_socklist(struct mISDN_sock_list *sl, struct sk_buff *skb)
 		if (sk->sk_state != MISDN_BOUND)
 			continue;
 		if (!cskb)
-			cskb = skb_copy(skb, GFP_KERNEL);
+			cskb = skb_copy(skb, GFP_ATOMIC);
 		if (!cskb) {
 			printk(KERN_WARNING "%s no skb\n", __func__);
 			break;
@@ -428,6 +428,7 @@ connect_layer1(struct mISDNdevice *dev, struct mISDNchannel *ch,
 	struct mISDN_sock	*msk = container_of(ch, struct mISDN_sock, ch);
 	struct channel_req	rq;
 	int			err;
+
 
 	if (*debug &  DEBUG_CORE_FUNC)
 		printk(KERN_DEBUG "%s: %s proto(%x) adr(%d %d %d %d)\n",

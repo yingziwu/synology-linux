@@ -71,11 +71,12 @@
  * only support SPI for 12xx - this code should be reworked when 18xx
  * support is introduced
  */
-#define SPI_AGGR_BUFFER_SIZE (4 * PAGE_SIZE)
+#define SPI_AGGR_BUFFER_SIZE (4 * SZ_4K)
 
 /* Maximum number of SPI write chunks */
 #define WSPI_MAX_NUM_OF_CHUNKS \
 	((SPI_AGGR_BUFFER_SIZE / WSPI_MAX_CHUNK_SIZE) + 1)
+
 
 struct wl12xx_spi_glue {
 	struct device *dev;
@@ -406,6 +407,7 @@ static int wl1271_remove(struct spi_device *spi)
 
 	return 0;
 }
+
 
 static struct spi_driver wl1271_spi_driver = {
 	.driver = {

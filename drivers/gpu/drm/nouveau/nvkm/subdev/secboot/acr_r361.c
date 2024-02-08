@@ -172,6 +172,7 @@ acr_r361_ls_sec2_func = {
 	.post_run = acr_ls_sec2_post_run,
 };
 
+
 const struct acr_r352_func
 acr_r361_func = {
 	.fixup_hs_desc = acr_r352_fixup_hs_desc,

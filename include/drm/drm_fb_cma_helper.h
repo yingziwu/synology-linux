@@ -44,3 +44,4 @@ dma_addr_t drm_fb_cma_get_gem_addr(struct drm_framebuffer *fb,
 				   unsigned int plane);
 
 #endif
+

@@ -81,6 +81,7 @@ static int port_cost(struct net_device *dev)
 	return 100;	/* assume old 10Mbps */
 }
 
+
 /* Check for port carrier transitions. */
 void br_port_carrier_check(struct net_bridge_port *p)
 {
@@ -475,8 +476,8 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
 	if (dev->netdev_ops->ndo_start_xmit == br_dev_xmit)
 		return -ELOOP;
 
-	/* Device is already being bridged */
-	if (br_port_exists(dev))
+	/* Device has master upper dev */
+	if (netdev_master_upper_dev_get(dev))
 		return -EBUSY;
 
 	/* No bridging devices that dislike that (e.g. wireless) */
@@ -490,13 +491,15 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
 	call_netdevice_notifiers(NETDEV_JOIN, dev);
 
 	err = dev_set_allmulti(dev, 1);
-	if (err)
-		goto put_back;
+	if (err) {
+		kfree(p);	/* kobject not yet init'd, manually free */
+		goto err1;
+	}
 
 	err = kobject_init_and_add(&p->kobj, &brport_ktype, &(dev->dev.kobj),
 				   SYSFS_BRIDGE_PORT_ATTR);
 	if (err)
-		goto err1;
+		goto err2;
 
 	err = br_sysfs_addif(p);
 	if (err)
@@ -530,16 +533,11 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
 	if (br_fdb_insert(br, p, dev->dev_addr, 0))
 		netdev_err(dev, "failed insert local address bridge forwarding table\n");
 
-#if defined(MY_DEF_HERE)
 	err = nbp_vlan_init(p);
 	if (err) {
 		netdev_err(dev, "failed to initialize vlan filtering on this port\n");
 		goto err6;
 	}
-#else /* MY_DEF_HERE */
-	if (nbp_vlan_init(p))
-		netdev_err(dev, "failed to initialize vlan filtering on this port\n");
-#endif /* MY_DEF_HERE */
 
 	spin_lock_bh(&br->lock);
 	changed_addr = br_stp_recalculate_bridge_id(br);
@@ -560,13 +558,11 @@ int br_add_if(struct net_bridge *br, struct net_device *dev)
 
 	return 0;
 
-#if defined(MY_DEF_HERE)
 err6:
 	list_del_rcu(&p->list);
 	br_fdb_delete_by_port(br, p, 0, 1);
 	nbp_update_port_count(br);
 	netdev_upper_dev_unlink(dev, br->dev);
-#endif /* MY_DEF_HERE */
 
 err5:
 	dev->priv_flags &= ~IFF_BRIDGE_PORT;
@@ -577,12 +573,9 @@ err3:
 	sysfs_remove_link(br->ifobj, p->dev->name);
 err2:
 	kobject_put(&p->kobj);
-	p = NULL; /* kobject_put frees */
-err1:
 	dev_set_allmulti(dev, -1);
-put_back:
+err1:
 	dev_put(dev);
-	kfree(p);
 	return err;
 }
 

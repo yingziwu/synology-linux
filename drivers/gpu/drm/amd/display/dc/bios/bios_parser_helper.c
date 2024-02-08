@@ -62,11 +62,13 @@ bool bios_is_accelerated_mode(
 	return (acc_mode == 1);
 }
 
+
 void bios_set_scratch_acc_mode_change(
 	struct dc_bios *bios)
 {
 	REG_UPDATE(BIOS_SCRATCH_6, S6_ACC_MODE, 1);
 }
+
 
 void bios_set_scratch_critical_state(
 	struct dc_bios *bios,
@@ -75,3 +77,6 @@ void bios_set_scratch_critical_state(
 	uint32_t critial_state = state ? 1 : 0;
 	REG_UPDATE(BIOS_SCRATCH_6, S6_CRITICAL_STATE, critial_state);
 }
+
+
+

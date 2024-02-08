@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -30,6 +31,7 @@ disclaimer.
 
 #include "rm_interface.h"
 
+
 /** Create list.
  *
  *   @param[in]		hndl			  Resource Manager handle.
@@ -42,6 +44,7 @@ disclaimer.
  *   @retval -ENOMEM if no free space.
  */
 int rm_list_create(rmctl_t hndl, struct rm_list **list);
+
 
 /** Add index to list.
  *
@@ -60,6 +63,7 @@ int rm_list_create(rmctl_t hndl, struct rm_list **list);
 int rm_list_add_index(rmctl_t hndl, struct rm_list *list,
 						uint32_t index,
 						uint8_t level);
+
 
 /** Next index in the list.
  *
@@ -82,6 +86,7 @@ int rm_list_next_index(rmctl_t hndl, struct rm_list *list,
 						uint32_t *index,
 						uint8_t *level);
 
+
 /** Reset the pointer of next index in the list to start of the list.
  *
  *   @param[in]		hndl			  Resource Manager handle.
@@ -96,6 +101,7 @@ int rm_list_next_index(rmctl_t hndl, struct rm_list *list,
  *   @retval -EFAULT if list is an invalid pointer.
  */
 int rm_list_reset_to_start(rmctl_t hndl, struct rm_list *list, uint32_t *index, uint8_t *level);
+
 
 /** Delete index from the list.
  *
@@ -115,6 +121,7 @@ int rm_list_del_index(rmctl_t hndl, struct rm_list *list,
 						uint32_t index,
 						uint8_t level);
 
+
 /** Forced delete of the list.
  *
  *   @param[in]		hndl			  Resource Manager handle.
@@ -127,5 +134,6 @@ int rm_list_del_index(rmctl_t hndl, struct rm_list *list,
  *   @retval -EFAULT if list is an invalid pointer.
  */
 int rm_list_delete(rmctl_t hndl, struct rm_list *list);
+
 
 #endif   /* RM_LIST_H */

@@ -460,10 +460,11 @@ out:
  */
 void svc_reserve(struct svc_rqst *rqstp, int space)
 {
+	struct svc_xprt *xprt = rqstp->rq_xprt;
+
 	space += rqstp->rq_res.head[0].iov_len;
 
-	if (space < rqstp->rq_reserved) {
-		struct svc_xprt *xprt = rqstp->rq_xprt;
+	if (xprt && space < rqstp->rq_reserved) {
 		atomic_sub((rqstp->rq_reserved - space), &xprt->xpt_reserved);
 		rqstp->rq_reserved = space;
 
@@ -958,7 +959,7 @@ static void call_xpt_users(struct svc_xprt *xprt)
 	spin_lock(&xprt->xpt_lock);
 	while (!list_empty(&xprt->xpt_users)) {
 		u = list_first_entry(&xprt->xpt_users, struct svc_xpt_user, list);
-		list_del(&u->list);
+		list_del_init(&u->list);
 		u->callback(u);
 	}
 	spin_unlock(&xprt->xpt_lock);
@@ -1183,6 +1184,7 @@ static int svc_deferred_recv(struct svc_rqst *rqstp)
 	return (dr->argslen<<2) - dr->xprt_hlen;
 }
 
+
 static struct svc_deferred_req *svc_deferred_dequeue(struct svc_xprt *xprt)
 {
 	struct svc_deferred_req *dr = NULL;
@@ -1303,6 +1305,7 @@ int svc_xprt_names(struct svc_serv *serv, char *buf, const int buflen)
 	return totlen;
 }
 EXPORT_SYMBOL_GPL(svc_xprt_names);
+
 
 /*----------------------------------------------------------------------------*/
 

@@ -23,6 +23,7 @@
  *          Alon Levy
  */
 
+
 #ifndef QXL_DRV_H
 #define QXL_DRV_H
 
@@ -143,6 +144,7 @@ struct qxl_mode_info {
 	/* pointer to fbdev info structure */
 	struct qxl_fbdev *qfbdev;
 };
+
 
 struct qxl_memslot {
 	uint8_t		generation;
@@ -395,6 +397,7 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
 int qxl_mode_dumb_mmap(struct drm_file *filp,
 		       struct drm_device *dev,
 		       uint32_t handle, uint64_t *offset_p);
+
 
 /* qxl ttm */
 int qxl_ttm_init(struct qxl_device *qdev);

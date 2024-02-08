@@ -15,6 +15,7 @@
 #ifndef _EXYNOS_DRM_CRTC_H_
 #define _EXYNOS_DRM_CRTC_H_
 
+
 #include "exynos_drm_drv.h"
 
 struct exynos_drm_crtc *exynos_drm_crtc_create(struct drm_device *drm_dev,

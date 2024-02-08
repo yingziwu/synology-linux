@@ -393,6 +393,7 @@ static int kvmgt_get_vfio_device(void *p_vgpu)
 	return 0;
 }
 
+
 static int kvmgt_set_opregion(void *p_vgpu)
 {
 	struct intel_vgpu *vgpu = (struct intel_vgpu *)p_vgpu;
@@ -690,6 +691,7 @@ static ssize_t intel_vgpu_rw(struct mdev_device *mdev, char *buf,
 	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
 	uint64_t pos = *ppos & VFIO_PCI_OFFSET_MASK;
 	int ret = -EINVAL;
+
 
 	if (index >= VFIO_PCI_NUM_REGIONS + vgpu->vdev.num_regions) {
 		gvt_vgpu_err("invalid index: %u\n", index);

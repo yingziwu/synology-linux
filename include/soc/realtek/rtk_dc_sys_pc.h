@@ -99,6 +99,7 @@ struct dcsys_pc_global_data {
 
 int dcsys_pc_global_get_data(int idx, struct dcsys_pc_global_data *data);
 
+
 struct dcsys_pc;
 
 struct dcsys_pc *dcsys_pc_simple_get(struct device *dev);

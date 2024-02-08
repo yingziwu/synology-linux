@@ -239,6 +239,7 @@ int vega10_fan_ctrl_start_smc_fan_control(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 int vega10_fan_ctrl_stop_smc_fan_control(struct pp_hwmgr *hwmgr)
 {
 	struct vega10_hwmgr *data = (struct vega10_hwmgr *)(hwmgr->backend);
@@ -488,6 +489,7 @@ int vega10_thermal_disable_alert(struct pp_hwmgr *hwmgr)
 		if (!data->smu_features[GNLD_FW_CTF].enabled)
 			printk("[Thermal_EnableAlert] FW CTF Already disabled!\n");
 
+
 		PP_ASSERT_WITH_CODE(!vega10_enable_smc_features(hwmgr,
 			false,
 			data->smu_features[GNLD_FW_CTF].smu_feature_bitmap),
@@ -603,6 +605,7 @@ int vega10_thermal_start_smc_fan_control(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 int vega10_start_thermal_controller(struct pp_hwmgr *hwmgr,
 				struct PP_TemperatureRange *range)
 {
@@ -630,6 +633,9 @@ int vega10_start_thermal_controller(struct pp_hwmgr *hwmgr,
 
 	return 0;
 };
+
+
+
 
 int vega10_thermal_ctrl_uninitialize_thermal_controller(struct pp_hwmgr *hwmgr)
 {

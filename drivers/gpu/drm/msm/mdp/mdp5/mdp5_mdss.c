@@ -125,6 +125,7 @@ static const struct irq_domain_ops mdss_hw_irqdomain_ops = {
 	.xlate = irq_domain_xlate_onecell,
 };
 
+
 static int mdss_irq_domain_init(struct msm_mdss *mdss)
 {
 	struct device *dev = mdss->dev->dev;

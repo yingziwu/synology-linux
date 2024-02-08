@@ -38,6 +38,7 @@
  * use restrictions.
  */
 
+
 /**
  * DOC: Device registration
  *
@@ -932,9 +933,9 @@ enum rate_info_flags {
  * @RATE_INFO_BW_160: 160 MHz bandwidth
  */
 enum rate_info_bw {
+	RATE_INFO_BW_20 = 0,
 	RATE_INFO_BW_5,
 	RATE_INFO_BW_10,
-	RATE_INFO_BW_20,
 	RATE_INFO_BW_40,
 	RATE_INFO_BW_80,
 	RATE_INFO_BW_160,
@@ -1685,6 +1686,7 @@ struct cfg80211_bss {
  * Return: %NULL if not found.
  */
 const u8 *ieee80211_bss_get_ie(struct cfg80211_bss *bss, u8 ie);
+
 
 /**
  * struct cfg80211_auth_request - Authentication request data
@@ -2530,6 +2532,7 @@ struct cfg80211_ops {
 	int	(*change_beacon)(struct wiphy *wiphy, struct net_device *dev,
 				 struct cfg80211_beacon_data *info);
 	int	(*stop_ap)(struct wiphy *wiphy, struct net_device *dev);
+
 
 	int	(*add_station)(struct wiphy *wiphy, struct net_device *dev,
 			       const u8 *mac,
@@ -3722,6 +3725,7 @@ ieee80211_radiotap_iterator_init(struct ieee80211_radiotap_iterator *iterator,
 int
 ieee80211_radiotap_iterator_next(struct ieee80211_radiotap_iterator *iterator);
 
+
 extern const unsigned char rfc1042_header[6];
 extern const unsigned char bridge_tunnel_header[6];
 
@@ -4715,6 +4719,7 @@ void cfg80211_remain_on_channel_expired(struct wireless_dev *wdev, u64 cookie,
 					struct ieee80211_channel *chan,
 					gfp_t gfp);
 
+
 /**
  * cfg80211_new_sta - notify userspace about station
  *
@@ -4804,6 +4809,7 @@ bool cfg80211_rx_mgmt(struct wireless_dev *wdev, int freq, int sig_dbm,
 void cfg80211_mgmt_tx_status(struct wireless_dev *wdev, u64 cookie,
 			     const u8 *buf, size_t len, bool ack, gfp_t gfp);
 
+
 /**
  * cfg80211_cqm_rssi_notify - connection quality monitoring rssi event
  * @dev: network device
@@ -4878,6 +4884,7 @@ void cfg80211_radar_event(struct wiphy *wiphy,
 void cfg80211_cac_event(struct net_device *netdev,
 			const struct cfg80211_chan_def *chandef,
 			enum nl80211_radar_event event, gfp_t gfp);
+
 
 /**
  * cfg80211_gtk_rekey_notify - notify userspace about driver rekeying
