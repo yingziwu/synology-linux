@@ -244,8 +244,6 @@ static struct mm_struct *get_mem_context(struct cxl_context *ctx)
 	return mm;
 }
 
-
-
 void cxl_handle_fault(struct work_struct *fault_work)
 {
 	struct cxl_context *ctx =

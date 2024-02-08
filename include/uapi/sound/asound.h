@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Advanced Linux Sound Architecture - ALSA - Driver
  *  Copyright (c) 1994-2003 by Jaroslav Kysela <perex@perex.cz>,
@@ -280,8 +283,6 @@ typedef int __bitwise snd_pcm_subformat_t;
 
 #define SNDRV_PCM_INFO_DRAIN_TRIGGER	0x40000000		/* internal kernel flag - trigger in drain */
 #define SNDRV_PCM_INFO_FIFO_IN_FRAMES	0x80000000	/* internal kernel flag - FIFO size is in frames */
-
-
 
 typedef int __bitwise snd_pcm_state_t;
 #define	SNDRV_PCM_STATE_OPEN		((__force snd_pcm_state_t) 0) /* stream is open */
@@ -582,6 +583,15 @@ enum {
 #define SNDRV_PCM_IOCTL_READN_FRAMES	_IOR('A', 0x53, struct snd_xfern)
 #define SNDRV_PCM_IOCTL_LINK		_IOW('A', 0x60, int)
 #define SNDRV_PCM_IOCTL_UNLINK		_IO('A', 0x61)
+#if defined(MY_DEF_HERE) || defined(CONFIG_RTK_PLATFORM) && defined(CONFIG_SYNO_LSP_RTD1619)
+#define SNDRV_PCM_IOCTL_VOLUME_SET   _IOW('A', 0xE0, int)
+#define SNDRV_PCM_IOCTL_VOLUME_GET   _IOR('A', 0xE1, int)
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#define SNDRV_PCM_IOCTL_EQ_SET       _IOW('A', 0xE2, struct AUDIO_RPC_EQUALIZER_MODE)
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
+#define SNDRV_PCM_IOCTL_GET_LATENCY  _IOR('A', 0xF0, int)
+#define SNDRV_PCM_IOCTL_GET_FW_DELAY _IOR('A', 0xF1, snd_pcm_sframes_t)
+#endif /* MY_DEF_HERE || CONFIG_RTK_PLATFORM && CONFIG_SYNO_LSP_RTD1619 */
 
 /*****************************************************************************
  *                                                                           *

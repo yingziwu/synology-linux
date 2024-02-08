@@ -242,7 +242,6 @@ static const struct {
 	{ .str = "(unknown)",                .export = export_unknown },
 };
 
-
 static const char *export_str(enum export ex)
 {
 	return export_list[ex].str;
@@ -861,8 +860,6 @@ static void check_section(const char *modname, struct elf_info *elf,
 	}
 }
 
-
-
 #define ALL_INIT_DATA_SECTIONS \
 	".init.setup", ".init.rodata", ".meminit.rodata", \
 	".init.data", ".meminit.data"
@@ -917,7 +914,6 @@ static const char *const text_sections[] = { ALL_TEXT_SECTIONS, NULL };
 
 /* data section */
 static const char *const data_sections[] = { DATA_SECTIONS, NULL };
-
 
 /* symbols in .data that may refer to init/exit sections */
 #define DEFAULT_SYMBOL_WHITE_LIST					\
@@ -2128,6 +2124,14 @@ static void add_intree_flag(struct buffer *b, int is_intree)
 		buf_printf(b, "\nMODULE_INFO(intree, \"Y\");\n");
 }
 
+/* Cannot check for assembler */
+static void add_retpoline(struct buffer *b)
+{
+	buf_printf(b, "\n#ifdef RETPOLINE\n");
+	buf_printf(b, "MODULE_INFO(retpoline, \"Y\");\n");
+	buf_printf(b, "#endif\n");
+}
+
 static void add_staging_flag(struct buffer *b, const char *name)
 {
 	static const char *staging_dir = "drivers/staging";
@@ -2472,6 +2476,7 @@ int main(int argc, char **argv)
 
 		add_header(&buf, mod);
 		add_intree_flag(&buf, !external_module);
+		add_retpoline(&buf);
 		add_staging_flag(&buf, mod->name);
 		err |= add_versions(&buf, mod);
 		add_depends(&buf, mod, modules);

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * linux/net/sunrpc/svc_xprt.c
  *
@@ -340,6 +343,9 @@ void svc_xprt_do_enqueue(struct svc_xprt *xprt)
 		goto out;
 	}
 
+#ifdef MY_ABC_HERE
+	xprt->xpt_eqtime = ktime_get();
+#endif
 	cpu = get_cpu();
 	pool = svc_pool_for_cpu(xprt->xpt_server, cpu);
 
@@ -434,7 +440,7 @@ static struct svc_xprt *svc_xprt_dequeue(struct svc_pool *pool)
 		svc_xprt_get(xprt);
 
 		dprintk("svc: transport %p dequeued, inuse=%d\n",
-			xprt, atomic_read(&xprt->xpt_ref.refcount));
+			xprt, kref_read(&xprt->xpt_ref));
 	}
 	spin_unlock_bh(&pool->sp_lock);
 out:
@@ -766,7 +772,7 @@ static int svc_handle_xprt(struct svc_rqst *rqstp, struct svc_xprt *xprt)
 		/* XPT_DATA|XPT_DEFERRED case: */
 		dprintk("svc: server %p, pool %u, transport %p, inuse=%d\n",
 			rqstp, rqstp->rq_pool->sp_id, xprt,
-			atomic_read(&xprt->xpt_ref.refcount));
+			kref_read(&xprt->xpt_ref));
 		rqstp->rq_deferred = svc_deferred_dequeue(xprt);
 		if (rqstp->rq_deferred)
 			len = svc_deferred_recv(rqstp);
@@ -818,6 +824,9 @@ int svc_recv(struct svc_rqst *rqstp, long timeout)
 		goto out;
 	}
 
+#ifdef MY_ABC_HERE
+	rqstp->rq_stime = xprt->xpt_eqtime;
+#endif
 	len = svc_handle_xprt(rqstp, xprt);
 
 	/* No data, incomplete (TCP) read, or accept() */
@@ -886,6 +895,10 @@ int svc_send(struct svc_rqst *rqstp)
 		len = -ENOTCONN;
 	else
 		len = xprt->xpt_ops->xpo_sendto(rqstp);
+#ifdef MY_ABC_HERE
+	if (rqstp->rq_procinfo)
+		svc_update_lat(&rqstp->rq_procinfo->pc_latency, rqstp->rq_stime);
+#endif
 	mutex_unlock(&xprt->xpt_mutex);
 	rpc_wake_up(&xprt->xpt_bc_pending);
 	svc_xprt_release(rqstp);
@@ -923,7 +936,7 @@ static void svc_age_temp_xprts(unsigned long closure)
 		 * through, close it. */
 		if (!test_and_set_bit(XPT_OLD, &xprt->xpt_flags))
 			continue;
-		if (atomic_read(&xprt->xpt_ref.refcount) > 1 ||
+		if (kref_read(&xprt->xpt_ref) > 1 ||
 		    test_bit(XPT_BUSY, &xprt->xpt_flags))
 			continue;
 		list_del_init(le);
@@ -1170,7 +1183,6 @@ static int svc_deferred_recv(struct svc_rqst *rqstp)
 	return (dr->argslen<<2) - dr->xprt_hlen;
 }
 
-
 static struct svc_deferred_req *svc_deferred_dequeue(struct svc_xprt *xprt)
 {
 	struct svc_deferred_req *dr = NULL;
@@ -1291,7 +1303,6 @@ int svc_xprt_names(struct svc_serv *serv, char *buf, const int buflen)
 	return totlen;
 }
 EXPORT_SYMBOL_GPL(svc_xprt_names);
-
 
 /*----------------------------------------------------------------------------*/
 

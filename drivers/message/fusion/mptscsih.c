@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/drivers/message/fusion/mptscsih.c
  *      For use with LSI PCI chip/adapter(s)
@@ -119,7 +122,6 @@ int 		mptscsih_resume(struct pci_dev *pdev);
 #endif
 
 #define SNS_LEN(scp)	SCSI_SENSE_BUFFERSIZE
-
 
 /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 /*
@@ -339,7 +341,6 @@ nextSGEset:
 		}
 
 		sges_left -= sg_done;
-
 
 		/* NOTE: psge points to the beginning of the chain element
 		 * in current buffer. Get a chain buffer.
@@ -866,7 +867,6 @@ mptscsih_io_done(MPT_ADAPTER *ioc, MPT_FRAME_HDR *mf, MPT_FRAME_HDR *mr)
 				}
 			}
 
-
 			dreplyprintk(ioc, printk(MYIOC_s_DEBUG_FMT
 			    "  sc->underflow={report ERR if < %02xh bytes xfer'd}\n",
 			    ioc->name, sc->underflow));
@@ -1377,7 +1377,6 @@ mptscsih_qcmd(struct scsi_cmnd *SCpnt)
 	} else
 		scsictl = scsidir | MPI_SCSIIO_CONTROL_UNTAGGED;
 
-
 	/* Use the above information to set up the message frame
 	 */
 	pScsiReq->TargetID = (u8) vdevice->vtarget->id;
@@ -1856,7 +1855,6 @@ mptscsih_dev_reset(struct scsi_cmnd * SCpnt)
 		return FAILED;
 }
 
-
 /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 /**
  *	mptscsih_bus_reset - Perform a SCSI BUS_RESET!	new_eh variant
@@ -2122,6 +2120,14 @@ mptscsih_bios_param(struct scsi_device * sdev, struct block_device *bdev,
 	return 0;
 }
 
+#if defined(MY_ABC_HERE) && defined(MY_ABC_HERE)
+int
+mptscsih_index_get(struct Scsi_Host *host, uint channel, uint id, uint lun)
+{
+	return id >= 1 ? id - 1 : 0;
+}
+#endif /* MY_ABC_HERE && MY_ABC_HERE */
+
 /* Search IOC page 3 to determine if this is hidden physical disk
  *
  */
@@ -2181,7 +2187,6 @@ mptscsih_is_phys_disk(MPT_ADAPTER *ioc, u8 channel, u8 id)
 		}
 		kfree(phys_disk);
 	}
-
 
 	/*
 	 * Check inactive list for matching phys disks
@@ -2665,7 +2670,6 @@ mptscsih_scandv_complete(MPT_ADAPTER *ioc, MPT_FRAME_HDR *req,
 	complete(&ioc->internal_cmds.done);
 	return 1;
 }
-
 
 /**
  *	mptscsih_get_completion_code - get completion code from MPT request
@@ -3257,6 +3261,9 @@ EXPORT_SYMBOL(mptscsih_dev_reset);
 EXPORT_SYMBOL(mptscsih_bus_reset);
 EXPORT_SYMBOL(mptscsih_host_reset);
 EXPORT_SYMBOL(mptscsih_bios_param);
+#if defined(MY_ABC_HERE) && defined(MY_ABC_HERE)
+EXPORT_SYMBOL(mptscsih_index_get);
+#endif /* MY_ABC_HERE && MY_ABC_HERE */
 EXPORT_SYMBOL(mptscsih_io_done);
 EXPORT_SYMBOL(mptscsih_taskmgmt_complete);
 EXPORT_SYMBOL(mptscsih_scandv_complete);

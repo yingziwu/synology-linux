@@ -411,7 +411,6 @@ acpi_i2c_space_handler(u32 function, acpi_physical_address command,
 	return ret;
 }
 
-
 static int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
 {
 	acpi_handle handle;
@@ -522,7 +521,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
 
 	return 0;
 }
-
 
 /* uevent helps with hotplug: modprobe -q $(MODALIAS) */
 static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
@@ -832,7 +830,6 @@ static struct device_type i2c_client_type = {
 	.release	= i2c_client_dev_release,
 };
 
-
 /**
  * i2c_verify_client - return parameter as i2c_client, or NULL
  * @dev: device, probably from some driver model iterator
@@ -849,7 +846,6 @@ struct i2c_client *i2c_verify_client(struct device *dev)
 			: NULL;
 }
 EXPORT_SYMBOL(i2c_verify_client);
-
 
 /* Return a unique address which takes the flags of the client into account */
 static unsigned short i2c_encode_flags_to_addr(struct i2c_client *client)
@@ -958,10 +954,13 @@ static int i2c_check_addr_busy(struct i2c_adapter *adapter, int addr)
 }
 
 /**
- * i2c_lock_adapter - Get exclusive access to an I2C bus segment
+ * i2c_adapter_lock_bus - Get exclusive access to an I2C bus segment
  * @adapter: Target I2C bus segment
+ * @flags: I2C_LOCK_ROOT_ADAPTER locks the root i2c adapter, I2C_LOCK_SEGMENT
+ *	locks only this branch in the adapter tree
  */
-void i2c_lock_adapter(struct i2c_adapter *adapter)
+static void i2c_adapter_lock_bus(struct i2c_adapter *adapter,
+				 unsigned int flags)
 {
 	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
 
@@ -970,27 +969,32 @@ void i2c_lock_adapter(struct i2c_adapter *adapter)
 	else
 		rt_mutex_lock(&adapter->bus_lock);
 }
-EXPORT_SYMBOL_GPL(i2c_lock_adapter);
 
 /**
- * i2c_trylock_adapter - Try to get exclusive access to an I2C bus segment
+ * i2c_adapter_trylock_bus - Try to get exclusive access to an I2C bus segment
  * @adapter: Target I2C bus segment
+ * @flags: I2C_LOCK_ROOT_ADAPTER trylocks the root i2c adapter, I2C_LOCK_SEGMENT
+ *	trylocks only this branch in the adapter tree
  */
-static int i2c_trylock_adapter(struct i2c_adapter *adapter)
+static int i2c_adapter_trylock_bus(struct i2c_adapter *adapter,
+				   unsigned int flags)
 {
 	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
 
 	if (parent)
-		return i2c_trylock_adapter(parent);
+		return parent->trylock_bus(parent, flags);
 	else
 		return rt_mutex_trylock(&adapter->bus_lock);
 }
 
 /**
- * i2c_unlock_adapter - Release exclusive access to an I2C bus segment
+ * i2c_adapter_unlock_bus - Release exclusive access to an I2C bus segment
  * @adapter: Target I2C bus segment
+ * @flags: I2C_LOCK_ROOT_ADAPTER unlocks the root i2c adapter, I2C_LOCK_SEGMENT
+ *	unlocks only this branch in the adapter tree
  */
-void i2c_unlock_adapter(struct i2c_adapter *adapter)
+static void i2c_adapter_unlock_bus(struct i2c_adapter *adapter,
+				   unsigned int flags)
 {
 	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
 
@@ -999,7 +1003,6 @@ void i2c_unlock_adapter(struct i2c_adapter *adapter)
 	else
 		rt_mutex_unlock(&adapter->bus_lock);
 }
-EXPORT_SYMBOL_GPL(i2c_unlock_adapter);
 
 static void i2c_dev_set_name(struct i2c_adapter *adap,
 			     struct i2c_client *client)
@@ -1091,7 +1094,6 @@ out_err_silent:
 }
 EXPORT_SYMBOL_GPL(i2c_new_device);
 
-
 /**
  * i2c_unregister_device - reverse effect of i2c_new_device()
  * @client: value returned from i2c_new_device()
@@ -1104,7 +1106,6 @@ void i2c_unregister_device(struct i2c_client *client)
 	device_unregister(&client->dev);
 }
 EXPORT_SYMBOL_GPL(i2c_unregister_device);
-
 
 static const struct i2c_device_id dummy_id[] = {
 	{ "dummy", 0 },
@@ -1543,6 +1544,12 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
 		pr_err("i2c-core: Attempt to register adapter '%s' with "
 		       "no algo!\n", adap->name);
 		return -EINVAL;
+	}
+
+	if (!adap->lock_bus) {
+		adap->lock_bus = i2c_adapter_lock_bus;
+		adap->trylock_bus = i2c_adapter_trylock_bus;
+		adap->unlock_bus = i2c_adapter_unlock_bus;
 	}
 
 	rt_mutex_init(&adap->bus_lock);
@@ -2254,16 +2261,16 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 #endif
 
 		if (in_atomic() || irqs_disabled()) {
-			ret = i2c_trylock_adapter(adap);
+			ret = adap->trylock_bus(adap, I2C_LOCK_SEGMENT);
 			if (!ret)
 				/* I2C activity is ongoing. */
 				return -EAGAIN;
 		} else {
-			i2c_lock_adapter(adap);
+			i2c_lock_bus(adap, I2C_LOCK_SEGMENT);
 		}
 
 		ret = __i2c_transfer(adap, msgs, num);
-		i2c_unlock_adapter(adap);
+		i2c_unlock_bus(adap, I2C_LOCK_SEGMENT);
 
 		return ret;
 	} else {
@@ -3038,7 +3045,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
 	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
 
 	if (adapter->algo->smbus_xfer) {
-		i2c_lock_adapter(adapter);
+		i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
 
 		/* Retry automatically on arbitration loss */
 		orig_jiffies = jiffies;
@@ -3052,7 +3059,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
 				       orig_jiffies + adapter->timeout))
 				break;
 		}
-		i2c_unlock_adapter(adapter);
+		i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
 
 		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
 			goto trace;

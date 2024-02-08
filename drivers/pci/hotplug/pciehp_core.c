@@ -114,6 +114,9 @@ static int init_slot(struct controller *ctrl)
 	if (ATTN_LED(ctrl)) {
 		ops->get_attention_status = get_attention_status;
 		ops->set_attention_status = set_attention_status;
+	} else if (ctrl->pcie->port->hotplug_user_indicators) {
+		ops->get_attention_status = pciehp_get_raw_indicator_status;
+		ops->set_attention_status = pciehp_set_raw_indicator_status;
 	}
 
 	/* register this slot with the hotplug pci core */
@@ -153,14 +156,12 @@ static int set_attention_status(struct hotplug_slot *hotplug_slot, u8 status)
 	return 0;
 }
 
-
 static int enable_slot(struct hotplug_slot *hotplug_slot)
 {
 	struct slot *slot = hotplug_slot->private;
 
 	return pciehp_sysfs_enable_slot(slot);
 }
-
 
 static int disable_slot(struct hotplug_slot *hotplug_slot)
 {

@@ -40,6 +40,7 @@
 #include <linux/ramfs.h>
 #include <linux/percpu-refcount.h>
 #include <linux/mount.h>
+#include <linux/nospec.h>
 
 #include <asm/kmap_types.h>
 #include <asm/uaccess.h>
@@ -60,7 +61,6 @@ struct aio_ring {
 	unsigned	compat_features;
 	unsigned	incompat_features;
 	unsigned	header_length;	/* size of aio_ring */
-
 
 	struct io_event		io_events[0];
 }; /* 128 bytes + ring size */
@@ -1048,7 +1048,8 @@ static struct kioctx *lookup_ioctx(unsigned long ctx_id)
 	if (!table || id >= table->nr)
 		goto out;
 
-	ctx = table->table[id];
+	id = array_index_nospec(id, table->nr);
+	ctx = rcu_dereference(table->table[id]);
 	if (ctx && ctx->user_id == ctx_id) {
 		percpu_ref_get(&ctx->users);
 		ret = ctx;

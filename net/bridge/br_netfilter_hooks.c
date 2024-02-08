@@ -515,7 +515,6 @@ static unsigned int br_nf_pre_routing(void *priv,
 	return NF_STOLEN;
 }
 
-
 /* PF_BRIDGE/FORWARD *************************************************/
 static int br_nf_forward_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
@@ -545,7 +544,6 @@ static int br_nf_forward_finish(struct net *net, struct sock *sk, struct sk_buff
 		       in, skb->dev, br_forward_finish, 1);
 	return 0;
 }
-
 
 /* This is the 'purely bridged' case.  For IP, we pass the packet to
  * netfilter with indev and outdev set to the bridge device,

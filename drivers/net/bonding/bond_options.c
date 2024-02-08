@@ -77,7 +77,6 @@ static int bond_option_ad_actor_system_set(struct bonding *bond,
 static int bond_option_ad_user_port_key_set(struct bonding *bond,
 					    const struct bond_opt_value *newval);
 
-
 static const struct bond_opt_value bond_mode_tbl[] = {
 	{ "balance-rr",    BOND_MODE_ROUNDROBIN,   BOND_VALFLAG_DEFAULT},
 	{ "active-backup", BOND_MODE_ACTIVEBACKUP, 0},
@@ -393,7 +392,7 @@ static const struct bond_option bond_opts[BOND_OPT_LAST] = {
 		.id = BOND_OPT_TLB_DYNAMIC_LB,
 		.name = "tlb_dynamic_lb",
 		.desc = "Enable dynamic flow shuffling",
-		.unsuppmodes = BOND_MODE_ALL_EX(BIT(BOND_MODE_TLB)),
+		.unsuppmodes = BOND_MODE_ALL_EX(BIT(BOND_MODE_TLB) | BIT(BOND_MODE_ALB)),
 		.values = bond_tlb_dynamic_lb_tbl,
 		.flags = BOND_OPTFLAG_IFDOWN,
 		.set = bond_option_tlb_dynamic_lb_set,

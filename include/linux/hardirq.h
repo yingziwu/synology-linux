@@ -7,7 +7,6 @@
 #include <linux/vtime.h>
 #include <asm/hardirq.h>
 
-
 extern void synchronize_irq(unsigned int irq);
 extern bool synchronize_hardirq(unsigned int irq);
 
@@ -61,6 +60,7 @@ extern void irq_exit(void);
 
 #define nmi_enter()						\
 	do {							\
+		printk_nmi_enter();				\
 		lockdep_off();					\
 		ftrace_nmi_enter();				\
 		BUG_ON(in_nmi());				\
@@ -77,6 +77,7 @@ extern void irq_exit(void);
 		preempt_count_sub(NMI_OFFSET + HARDIRQ_OFFSET);	\
 		ftrace_nmi_exit();				\
 		lockdep_on();					\
+		printk_nmi_exit();				\
 	} while (0)
 
 #endif /* LINUX_HARDIRQ_H */

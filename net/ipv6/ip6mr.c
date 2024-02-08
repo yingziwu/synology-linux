@@ -72,6 +72,8 @@ struct mr6_table {
 #endif
 };
 
+#include <linux/nospec.h>
+
 struct ip6mr_rule {
 	struct fib_rule		common;
 };
@@ -346,7 +348,6 @@ struct ipmr_mfc_iter {
 	struct list_head *cache;
 	int ct;
 };
-
 
 static struct mfc6_cache *ipmr_mfc_seq_idx(struct net *net,
 					   struct ipmr_mfc_iter *it, loff_t pos)
@@ -857,7 +858,6 @@ static void ip6mr_destroy_unres(struct mr6_table *mrt, struct mfc6_cache *c)
 
 	ip6mr_cache_free(c);
 }
-
 
 /* Timer process for all the unresolved queue. */
 
@@ -1870,6 +1870,7 @@ int ip6mr_ioctl(struct sock *sk, int cmd, void __user *arg)
 			return -EFAULT;
 		if (vr.mifi >= mrt->maxvif)
 			return -EINVAL;
+		vr.mifi = array_index_nospec(vr.mifi, mrt->maxvif);
 		read_lock(&mrt_lock);
 		vif = &mrt->vif6_table[vr.mifi];
 		if (MIF_EXISTS(mrt, vr.mifi)) {
@@ -1944,6 +1945,7 @@ int ip6mr_compat_ioctl(struct sock *sk, unsigned int cmd, void __user *arg)
 			return -EFAULT;
 		if (vr.mifi >= mrt->maxvif)
 			return -EINVAL;
+		vr.mifi = array_index_nospec(vr.mifi, mrt->maxvif);
 		read_lock(&mrt_lock);
 		vif = &mrt->vif6_table[vr.mifi];
 		if (MIF_EXISTS(mrt, vr.mifi)) {
@@ -2170,7 +2172,6 @@ dont_forward:
 	kfree_skb(skb);
 }
 
-
 /*
  *	Multicast packets for forwarding arrive here
  */
@@ -2228,7 +2229,6 @@ int ip6_mr_input(struct sk_buff *skb)
 
 	return 0;
 }
-
 
 static int __ip6mr_fill_mroute(struct mr6_table *mrt, struct sk_buff *skb,
 			       struct mfc6_cache *c, struct rtmsg *rtm)
