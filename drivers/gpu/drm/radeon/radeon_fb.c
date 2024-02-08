@@ -82,6 +82,7 @@ static struct fb_ops radeonfb_ops = {
 	.fb_imageblit = drm_fb_helper_cfb_imageblit,
 };
 
+
 int radeon_align_pitch(struct radeon_device *rdev, int width, int cpp, bool tiled)
 {
 	int aligned = width;
@@ -175,6 +176,7 @@ static int radeonfb_create_pinned_object(struct radeon_fbdev *rfbdev,
 		if (ret)
 			dev_err(rdev->dev, "FB failed to set tiling flags\n");
 	}
+
 
 	ret = radeon_bo_reserve(rbo, false);
 	if (unlikely(ret != 0))

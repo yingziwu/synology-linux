@@ -83,6 +83,7 @@ static void init_device_slot_control(unsigned char *dest_desc,
 	dest_desc[3] &= 0x3c;
 }
 
+
 static int ses_recv_diag(struct scsi_device *sdev, int page_code,
 			 void *buf, int bufflen)
 {
@@ -489,6 +490,9 @@ static int ses_enclosure_find_by_addr(struct enclosure_device *edev,
 	struct efd *efd = data;
 	int i;
 	struct ses_component *scomp;
+#ifdef MY_DEF_HERE
+	int edev_host_num = 0, efd_host_num = 0;
+#endif
 
 	if (!edev->component[0].scratch)
 		return 0;
@@ -498,6 +502,15 @@ static int ses_enclosure_find_by_addr(struct enclosure_device *edev,
 		if (scomp->addr != efd->addr)
 			continue;
 
+#ifdef MY_DEF_HERE
+		if (1 != sscanf(dev_name(&(edev->edev)), "%d", &edev_host_num) ||
+			1 != sscanf(dev_name(efd->dev), "%d", &efd_host_num)) {
+			continue;
+		}
+		if (edev_host_num != efd_host_num) {
+			continue;
+		}
+#endif
 		if (enclosure_add_device(edev, i, efd->dev) == 0)
 			kobject_uevent(&efd->dev->kobj, KOBJ_CHANGE);
 		return 1;
@@ -587,7 +600,6 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
 					ecomp = &edev->component[components++];
 
 				if (!IS_ERR(ecomp)) {
-					ses_get_power_status(edev, ecomp);
 					if (addl_desc_ptr)
 						ses_process_descriptor(
 							ecomp,
@@ -665,6 +677,9 @@ static int ses_intf_add(struct device *cdev,
 	int num_enclosures;
 	struct enclosure_device *edev;
 	struct ses_component *scomp = NULL;
+#ifdef MY_DEF_HERE
+	int retry_count = SES_RETRIES;
+#endif
 
 	if (!scsi_device_enclosure(sdev)) {
 		/* not an enclosure, but might be in one */
@@ -693,7 +708,17 @@ static int ses_intf_add(struct device *cdev,
 	if (!hdr_buf || !ses_dev)
 		goto err_init_free;
 
+#ifdef MY_DEF_HERE
+	retry_count = SES_RETRIES;
+	do {
+		result = ses_recv_diag(sdev, 1, hdr_buf, INIT_ALLOC_SIZE);
+		if (result) {
+			sdev_printk(KERN_ERR, sdev, "result(%x), page1 retry_count(%d)\n", result, retry_count);
+		}
+	} while (result && ((--retry_count) >= 0));
+#else
 	result = ses_recv_diag(sdev, 1, hdr_buf, INIT_ALLOC_SIZE);
+#endif
 	if (result)
 		goto recv_failed;
 
@@ -702,7 +727,17 @@ static int ses_intf_add(struct device *cdev,
 	if (!buf)
 		goto err_free;
 
+#ifdef MY_DEF_HERE
+	retry_count = SES_RETRIES;
+	do {
+		result = ses_recv_diag(sdev, 1, buf, len);
+		if (result) {
+			sdev_printk(KERN_ERR, sdev, "result(%x), page1 retry_count(%d)\n", result, retry_count);
+		}
+	} while (result && ((--retry_count) >= 0));
+#else
 	result = ses_recv_diag(sdev, 1, buf, len);
+#endif
 	if (result)
 		goto recv_failed;
 
@@ -737,7 +772,17 @@ static int ses_intf_add(struct device *cdev,
 	ses_dev->page1_len = len;
 	buf = NULL;
 
+#ifdef MY_DEF_HERE
+	retry_count = SES_RETRIES;
+	do {
+		result = ses_recv_diag(sdev, 2, hdr_buf, INIT_ALLOC_SIZE);
+		if (result) {
+			sdev_printk(KERN_ERR, sdev, "result(%x), page2 retry_count(%d)\n", result, retry_count);
+		}
+	} while (result && ((--retry_count) >= 0));
+#else
 	result = ses_recv_diag(sdev, 2, hdr_buf, INIT_ALLOC_SIZE);
+#endif
 	if (result)
 		goto recv_failed;
 
@@ -745,9 +790,19 @@ static int ses_intf_add(struct device *cdev,
 	buf = kzalloc(len, GFP_KERNEL);
 	if (!buf)
 		goto err_free;
-
+#ifdef MY_DEF_HERE
+	retry_count = SES_RETRIES;
+	do {
+		/* make sure getting page 2 actually works */
+		result = ses_recv_diag(sdev, 2, buf, len);
+		if (result) {
+			sdev_printk(KERN_ERR, sdev, "result(%x), page2 retry_count(%d)\n", result, retry_count);
+		}
+	} while (result && ((--retry_count) >= 0));
+#else
 	/* make sure getting page 2 actually works */
 	result = ses_recv_diag(sdev, 2, buf, len);
+#endif
 	if (result)
 		goto recv_failed;
 	ses_dev->page2 = buf;
@@ -756,7 +811,14 @@ static int ses_intf_add(struct device *cdev,
 
 	/* The additional information page --- allows us
 	 * to match up the devices */
+#ifdef MY_DEF_HERE
+	retry_count = SES_RETRIES;
+	do {
+		result = ses_recv_diag(sdev, 10, hdr_buf, INIT_ALLOC_SIZE);
+	} while (result && ((--retry_count) >= 0));
+#else
 	result = ses_recv_diag(sdev, 10, hdr_buf, INIT_ALLOC_SIZE);
+#endif
 	if (!result) {
 
 		len = (hdr_buf[2] << 8) + hdr_buf[3] + 4;
@@ -764,7 +826,17 @@ static int ses_intf_add(struct device *cdev,
 		if (!buf)
 			goto err_free;
 
+#ifdef MY_DEF_HERE
+		retry_count = SES_RETRIES;
+		do {
+			result = ses_recv_diag(sdev, 10, buf, len);
+			if (result) {
+				sdev_printk(KERN_ERR, sdev, "result(%x), page10 retry_count(%d)\n", result, retry_count);
+			}
+		} while (result && ((--retry_count) >= 0));
+#else
 		result = ses_recv_diag(sdev, 10, buf, len);
+#endif
 		if (result)
 			goto recv_failed;
 		ses_dev->page10 = buf;

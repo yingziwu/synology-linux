@@ -9,6 +9,7 @@
  * Copyright (C) 1995, 1996 Olaf Kirch <okir@monad.swb.de>
  */
 
+
 #ifndef SUNRPC_SVC_H
 #define SUNRPC_SVC_H
 
@@ -315,13 +316,15 @@ struct svc_rqst {
 	struct svc_cacherep *	rq_cacherep;	/* cache info */
 	struct task_struct	*rq_task;	/* service thread */
 	spinlock_t		rq_lock;	/* per-request lock */
-
+	struct net		*rq_bc_net;	/* pointer to backchannel's
+						 * net namespace
+						 */
 #ifdef MY_ABC_HERE
 	ktime_t			rq_stime;	/* start time */
 #endif
 };
 
-#define SVC_NET(svc_rqst)	(svc_rqst->rq_xprt->xpt_net)
+#define SVC_NET(rqst) (rqst->rq_xprt ? rqst->rq_xprt->xpt_net : rqst->rq_bc_net)
 
 /*
  * Rigorous type checking on sockaddr type conversions

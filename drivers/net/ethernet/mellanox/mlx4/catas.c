@@ -40,6 +40,8 @@ enum {
 	MLX4_CATAS_POLL_INTERVAL	= 5 * HZ,
 };
 
+
+
 int mlx4_internal_err_reset = 1;
 module_param_named(internal_err_reset, mlx4_internal_err_reset,  int, 0644);
 MODULE_PARM_DESC(internal_err_reset,
@@ -156,7 +158,7 @@ static int mlx4_reset_slave(struct mlx4_dev *dev)
 	return -ETIMEDOUT;
 }
 
-static int mlx4_comm_internal_err(u32 slave_read)
+int mlx4_comm_internal_err(u32 slave_read)
 {
 	return (u32)COMM_CHAN_EVENT_INTERNAL_ERR ==
 		(slave_read & (u32)COMM_CHAN_EVENT_INTERNAL_ERR) ? 1 : 0;

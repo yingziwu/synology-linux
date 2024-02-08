@@ -311,6 +311,7 @@ static void legacy_fixup_core_id(struct cpuinfo_x86 *c)
 	c->cpu_core_id %= cus_per_node;
 }
 
+
 static void amd_get_topology_early(struct cpuinfo_x86 *c)
 {
 	if (boot_cpu_has(X86_FEATURE_TOPOEXT)) {
@@ -985,6 +986,7 @@ static const int amd_erratum_400[] =
 
 static const int amd_erratum_383[] =
 	AMD_OSVW_ERRATUM(3, AMD_MODEL_RANGE(0x10, 0, 0, 0xff, 0xf));
+
 
 static bool cpu_has_amd_erratum(struct cpuinfo_x86 *cpu, const int *erratum)
 {

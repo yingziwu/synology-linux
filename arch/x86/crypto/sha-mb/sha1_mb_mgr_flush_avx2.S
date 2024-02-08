@@ -54,6 +54,7 @@
 #include <linux/linkage.h>
 #include "sha1_mb_mgr_datastruct.S"
 
+
 .extern sha1_x8_avx2
 
 # LINUX register definitions
@@ -84,6 +85,7 @@
 
 #define extra_blocks    %arg2
 #define p               %arg2
+
 
 # STACK_SPACE needs to be an odd multiple of 8
 _XMM_SAVE_SIZE  = 10*16
@@ -172,8 +174,8 @@ LABEL skip_ %I
 .endr
 
 	# Find min length
-	vmovdqa _lens+0*16(state), %xmm0
-	vmovdqa _lens+1*16(state), %xmm1
+	vmovdqu _lens+0*16(state), %xmm0
+	vmovdqu _lens+1*16(state), %xmm1
 
 	vpminud %xmm1, %xmm0, %xmm2     # xmm2 has {D,C,B,A}
 	vpalignr $8, %xmm2, %xmm3, %xmm3   # xmm3 has {x,x,D,C}
@@ -193,13 +195,14 @@ LABEL skip_ %I
 	vpsubd  %xmm2, %xmm0, %xmm0
 	vpsubd  %xmm2, %xmm1, %xmm1
 
-	vmovdqa %xmm0, _lens+0*16(state)
-	vmovdqa %xmm1, _lens+1*16(state)
+	vmovdqu %xmm0, _lens+0*16(state)
+	vmovdqu %xmm1, _lens+1*16(state)
 
 	# "state" and "args" are the same address, arg1
 	# len is arg2
 	call	sha1_x8_avx2
 	# state and idx are intact
+
 
 len_is_0:
 	# process completed job "idx"
@@ -244,6 +247,7 @@ return_null:
 	jmp     return
 ENDPROC(sha1_mb_mgr_flush_avx2)
 
+
 #################################################################
 
 .align 16
@@ -256,8 +260,8 @@ ENTRY(sha1_mb_mgr_get_comp_job_avx2)
 	jc      .return_null
 
 	# Find min length
-	vmovdqa _lens(state), %xmm0
-	vmovdqa _lens+1*16(state), %xmm1
+	vmovdqu _lens(state), %xmm0
+	vmovdqu _lens+1*16(state), %xmm1
 
 	vpminud %xmm1, %xmm0, %xmm2        # xmm2 has {D,C,B,A}
 	vpalignr $8, %xmm2, %xmm3, %xmm3   # xmm3 has {x,x,D,C}

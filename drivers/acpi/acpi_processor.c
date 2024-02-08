@@ -44,6 +44,7 @@ static int acpi_processor_errata_piix4(struct pci_dev *dev)
 	u8 value1 = 0;
 	u8 value2 = 0;
 
+
 	if (!dev)
 		return -EINVAL;
 
@@ -330,15 +331,6 @@ static int acpi_processor_get_info(struct acpi_device *device)
 		pr->throttling.duty_width = acpi_gbl_FADT.duty_width;
 
 		pr->pblk = object.processor.pblk_address;
-
-		/*
-		 * We don't care about error returns - we just try to mark
-		 * these reserved so that nobody else is confused into thinking
-		 * that this region might be unused..
-		 *
-		 * (In particular, allocating the IO range for Cardbus)
-		 */
-		request_region(pr->throttling.address, 6, "ACPI CPU throttle");
 	}
 
 	/*

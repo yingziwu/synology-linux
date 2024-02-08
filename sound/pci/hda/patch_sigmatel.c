@@ -244,6 +244,7 @@ static const hda_nid_t stac92hd71bxx_pwr_nids[3] = {
 	0x0a, 0x0d, 0x0f
 };
 
+
 /*
  * PCM hooks
  */
@@ -1222,6 +1223,7 @@ static const struct hda_pintbl dell9200_d23_pin_configs[] = {
 	{}
 };
 
+
 /* 
     STAC 9200-32 pin configs for
     102801B5 (Dell Inspiron 630m)
@@ -1358,6 +1360,7 @@ static const struct hda_pintbl oqo9200_pin_configs[] = {
 	{}
 };
 
+
 static void stac9200_fixup_panasonic(struct hda_codec *codec,
 				     const struct hda_fixup *fix, int action)
 {
@@ -1372,6 +1375,7 @@ static void stac9200_fixup_panasonic(struct hda_codec *codec,
 		spec->gen.suppress_auto_mute = 1;
 	}
 }
+
 
 static const struct hda_fixup stac9200_fixups[] = {
 	[STAC_REF] = {
@@ -1533,6 +1537,8 @@ static const struct snd_pci_quirk stac9200_fixup_tbl[] = {
 		      "Dell Inspiron 1501", STAC_9200_DELL_M26),
 	SND_PCI_QUIRK(PCI_VENDOR_ID_DELL, 0x01f6,
 		      "unknown Dell", STAC_9200_DELL_M26),
+	SND_PCI_QUIRK(PCI_VENDOR_ID_DELL, 0x0201,
+		      "Dell Latitude D430", STAC_9200_DELL_M22),
 	/* Panasonic */
 	SND_PCI_QUIRK(0x10f7, 0x8338, "Panasonic CF-74", STAC_9200_PANASONIC),
 	/* Gateway machines needs EAPD to be set on resume */
@@ -4236,6 +4242,7 @@ static const struct hda_model_fixup stac92hd95_models[] = {
 	{}
 };
 
+
 static int stac_parse_auto_config(struct hda_codec *codec)
 {
 	struct sigmatel_spec *spec = codec->spec;
@@ -5016,6 +5023,7 @@ static int patch_stac9872(struct hda_codec *codec)
 
 	return 0;
 }
+
 
 /*
  * patch entries

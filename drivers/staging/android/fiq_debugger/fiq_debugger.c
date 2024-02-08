@@ -213,6 +213,7 @@ static void dump_kernel_log(struct fiq_debugger_state *state)
 	size_t len;
 	struct kmsg_dumper dumper = { .active = true };
 
+
 	kmsg_dump_rewind_nolock(&dumper);
 	while (kmsg_dump_get_line_nolock(&dumper, true, buf,
 					 sizeof(buf) - 1, &len)) {
@@ -337,6 +338,7 @@ void __naked get_mode_regs(struct mode_regs *regs)
 	"msr	cpsr_c, r1\n"
 	"bx	lr\n");
 }
+
 
 static void dump_allregs(struct fiq_debugger_state *state, unsigned *regs)
 {

@@ -399,6 +399,7 @@ out:
 	return err;
 }
 
+
 /* ---------------------------------------------------------------------- */
 
 static int au_wr_dir_cpup(struct dentry *dentry, struct dentry *parent,

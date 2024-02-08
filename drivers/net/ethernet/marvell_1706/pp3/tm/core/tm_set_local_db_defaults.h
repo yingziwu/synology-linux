@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -31,6 +32,7 @@ disclaimer.
 #include "tm_core_types.h"
 #include "rm_internal_types.h"
 
+
 int set_sw_sched_conf_default(void * hndl);
 int set_sw_gen_conf_default(void * hndl);
 
@@ -42,6 +44,7 @@ int set_sw_wred_curve_default(struct tm_wred_curve *curve,
 int set_sw_queue_default(struct tm_queue *array,
 									   uint32_t queue_ind,
 									   struct rmctl *rm);
+
 
 int set_sw_a_node_default(struct tm_a_node *array,
 										uint32_t node_ind,

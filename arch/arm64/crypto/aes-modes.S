@@ -145,6 +145,7 @@ AES_ENTRY(aes_ecb_encrypt)
 	ret
 AES_ENDPROC(aes_ecb_encrypt)
 
+
 AES_ENTRY(aes_ecb_decrypt)
 	FRAME_PUSH
 	cbz		w5, .LecbdecloopNx
@@ -180,6 +181,7 @@ AES_ENTRY(aes_ecb_decrypt)
 	ret
 AES_ENDPROC(aes_ecb_decrypt)
 
+
 	/*
 	 * aes_cbc_encrypt(u8 out[], u8 const in[], u8 const rk[], int rounds,
 	 *		   int blocks, u8 iv[], int first)
@@ -203,6 +205,7 @@ AES_ENTRY(aes_cbc_encrypt)
 	st1		{v0.16b}, [x5]			/* return iv */
 	ret
 AES_ENDPROC(aes_cbc_encrypt)
+
 
 AES_ENTRY(aes_cbc_decrypt)
 	FRAME_PUSH
@@ -257,6 +260,7 @@ AES_ENTRY(aes_cbc_decrypt)
 	st1		{v7.16b}, [x5]			/* return iv */
 	ret
 AES_ENDPROC(aes_cbc_decrypt)
+
 
 	/*
 	 * aes_ctr_encrypt(u8 out[], u8 const in[], u8 const rk[], int rounds,
@@ -361,6 +365,7 @@ AES_ENTRY(aes_ctr_encrypt)
 AES_ENDPROC(aes_ctr_encrypt)
 	.ltorg
 
+
 	/*
 	 * aes_xts_decrypt(u8 out[], u8 const in[], u8 const rk1[], int rounds,
 	 *		   int blocks, u8 const rk2[], u8 iv[], int first)
@@ -450,6 +455,7 @@ AES_ENTRY(aes_xts_encrypt)
 	FRAME_POP
 	ret
 AES_ENDPROC(aes_xts_encrypt)
+
 
 AES_ENTRY(aes_xts_decrypt)
 	FRAME_PUSH

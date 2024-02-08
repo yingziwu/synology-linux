@@ -28,7 +28,7 @@ struct goku_udc_regs {
 #	define INT_EP1DATASET		0x00040
 #	define INT_EP2DATASET		0x00080
 #	define INT_EP3DATASET		0x00100
-#define INT_EPnNAK(n)		(0x00100 < (n))		/* 0 < n < 4 */
+#define INT_EPnNAK(n)		(0x00100 << (n))	/* 0 < n < 4 */
 #	define INT_EP1NAK		0x00200
 #	define INT_EP2NAK		0x00400
 #	define INT_EP3NAK		0x00800
@@ -199,6 +199,7 @@ struct goku_udc_regs {
 #define	MAX_FIFO_SIZE	64
 #define	MAX_EP0_SIZE	8		/* ep0 fifo is bigger, though */
 
+
 /*-------------------------------------------------------------------------*/
 
 /* DRIVER DATA STRUCTURES and UTILITIES */
@@ -288,3 +289,4 @@ struct goku_udc {
 	xprintk(dev , KERN_WARNING , fmt , ## args)
 #define INFO(dev,fmt,args...) \
 	xprintk(dev , KERN_INFO , fmt , ## args)
+

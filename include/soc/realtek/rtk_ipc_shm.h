@@ -38,6 +38,7 @@ struct RTK119X_ipc_shm {
 /*14C*/	volatile uint32_t		gpio_output_change_activity2;		/* [31-24] magic key(0xEA) [10-0] mapping to the number of iso gpio 24~34 , (0) low activity (1) high activity AT SUSPEND TIME */
 };
 
+
 #endif /* MY_DEF_HERE */
 
 #if defined(CONFIG_SYNO_LSP_RTD1619)
@@ -134,6 +135,7 @@ struct avcpu_syslog_struct{
 #define XEN_DOMU_BOOT_ST_STATE_SCPU_SUSPEND		(8)
 #define XEN_DOMU_BOOT_ST_STATE_SCPU_RESUME		(9)
 #define XEN_DOMU_BOOT_ST_STATE_ACPU_ACK			(10)
+
 
 #define XEN_DOMU_BOOT_ST_EXT_SET(reg)			SET_VAL(reg, 8, 0)
 #define XEN_DOMU_BOOT_ST_EXT_GET(reg)			GET_VAL(reg, 8, 0)

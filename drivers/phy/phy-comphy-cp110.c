@@ -1388,6 +1388,7 @@ static int mvebu_cp110_comphy_xfi_power_on(struct mvebu_comphy_priv *priv,
 	data |= 0x1 << SD_EXTERNAL_CONFIG1_RESET_CORE_OFFSET;
 	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG, data, mask);
 
+
 	/* Wait 1ms - until band gap and ref clock ready */
 	mdelay(1);
 

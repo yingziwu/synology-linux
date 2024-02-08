@@ -1310,6 +1310,7 @@ static ssize_t target_pr_res_pr_generation_show(struct config_item *item,
 	return sprintf(page, "0x%08x\n", pr_to_dev(item)->t10_pr.pr_generation);
 }
 
+
 static ssize_t target_pr_res_pr_holder_tg_port_show(struct config_item *item,
 		char *page)
 {
@@ -1344,6 +1345,7 @@ out_unlock:
 	spin_unlock(&dev->dev_reservation_lock);
 	return len;
 }
+
 
 static ssize_t target_pr_res_pr_registered_i_pts_show(struct config_item *item,
 		char *page)
@@ -1648,6 +1650,7 @@ out:
 	kfree(orig);
 	return (ret == 0) ? count : ret;
 }
+
 
 CONFIGFS_ATTR_RO(target_pr_, res_holder);
 CONFIGFS_ATTR_RO(target_pr_, res_pr_all_tgt_pts);
@@ -2866,6 +2869,7 @@ static struct configfs_group_operations target_core_hba_group_ops = {
 	.make_group		= target_core_make_subdev,
 	.drop_item		= target_core_drop_subdev,
 };
+
 
 static inline struct se_hba *to_hba(struct config_item *item)
 {

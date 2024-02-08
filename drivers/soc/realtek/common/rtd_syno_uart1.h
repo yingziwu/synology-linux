@@ -11,11 +11,11 @@
 #define RTK_CLK_EN_UR1_ADDR             0x98000010
 #define RTK_UR1_BASE_ADDR               0x9801b200
 #endif /* MY_DEF_HERE */
-#ifdef CONFIG_SYNO_RTD1619
+#ifdef MY_DEF_HERE
 #define RTK_RSTN_UR1_ADDR               0x98000004
 #define RTK_CLK_EN_UR1_ADDR             0x9800005c
 #define RTK_UR1_BASE_ADDR               0x9801b200
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 // UART cmd
 #define SET8N1							0x03 // set LCR 0x03, transfer mode is 8 bit data

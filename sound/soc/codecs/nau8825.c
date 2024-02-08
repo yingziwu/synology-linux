@@ -27,6 +27,7 @@
 #include <sound/soc.h>
 #include <sound/jack.h>
 
+
 #include "nau8825.h"
 
 #define NAU_FREF_MAX 13500000
@@ -295,6 +296,7 @@ static const struct snd_kcontrol_new nau8825_dacl_mux =
 static const struct snd_kcontrol_new nau8825_dacr_mux =
 	SOC_DAPM_ENUM("DACR Source", nau8825_dacr_enum);
 
+
 static const struct snd_soc_dapm_widget nau8825_dapm_widgets[] = {
 	SND_SOC_DAPM_AIF_OUT("AIFTX", "Capture", 0, NAU8825_REG_I2S_PCM_CTRL2,
 		15, 1),
@@ -540,6 +542,7 @@ int nau8825_enable_jack_detect(struct snd_soc_codec *codec,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(nau8825_enable_jack_detect);
+
 
 static bool nau8825_is_jack_inserted(struct regmap *regmap)
 {
@@ -933,7 +936,8 @@ static void nau8825_fll_apply(struct nau8825 *nau8825,
 			NAU8825_FLL_INTEGER_MASK, fll_param->fll_int);
 	/* FLL pre-scaler */
 	regmap_update_bits(nau8825->regmap, NAU8825_REG_FLL4,
-			NAU8825_FLL_REF_DIV_MASK, fll_param->clk_ref_div);
+			NAU8825_FLL_REF_DIV_MASK,
+			fll_param->clk_ref_div << NAU8825_FLL_REF_DIV_SFT);
 	/* select divided VCO input */
 	regmap_update_bits(nau8825->regmap, NAU8825_REG_FLL5,
 			NAU8825_FLL_FILTER_SW_MASK, 0x0000);

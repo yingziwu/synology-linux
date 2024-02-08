@@ -930,6 +930,7 @@ static uint32_t decide_taps(struct fixed31_32 ratio, uint32_t in_taps, bool chro
 	return taps;
 }
 
+
 bool dce_transform_get_optimal_number_of_taps(
 	struct transform *xfm,
 	struct scaler_data *scl_data,
@@ -1325,6 +1326,8 @@ static void regamma_config_regions_and_segments(struct dce_transform *xfm_dce,
 		  REGAMMA_CNTLA_EXP_REGION1_LUT_OFFSET, curve[1].offset,
 		  REGAMMA_CNTLA_EXP_REGION1_NUM_SEGMENTS, curve[1].segments_num);
 }
+
+
 
 void dce110_opp_program_regamma_pwl(struct transform *xfm,
 				    const struct pwl_params *params)

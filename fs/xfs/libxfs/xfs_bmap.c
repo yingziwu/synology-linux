@@ -46,6 +46,7 @@
 #include "xfs_attr_leaf.h"
 #include "xfs_filestream.h"
 
+
 kmem_zone_t		*xfs_bmap_free_item_zone;
 
 /*
@@ -415,6 +416,7 @@ xfs_bmap_check_leaf_extents(
 	for (;;) {
 		xfs_fsblock_t	nextbno;
 		xfs_extnum_t	num_recs;
+
 
 		num_recs = xfs_btree_get_numrecs(block);
 
@@ -878,6 +880,7 @@ xfs_bmap_local_to_extents_empty(
 	ifp->if_flags |= XFS_IFEXTENTS;
 	XFS_IFORK_FMT_SET(ip, whichfork, XFS_DINODE_FMT_EXTENTS);
 }
+
 
 STATIC int				/* error */
 xfs_bmap_local_to_extents(
@@ -1365,6 +1368,7 @@ error0:
 	xfs_trans_brelse(tp, bp);
 	return -EFSCORRUPTED;
 }
+
 
 /*
  * Search the extent records for the entry containing block bno.
@@ -2175,8 +2179,10 @@ xfs_bmap_add_extent_delay_real(
 		}
 		temp = xfs_bmap_worst_indlen(bma->ip, temp);
 		temp2 = xfs_bmap_worst_indlen(bma->ip, temp2);
-		diff = (int)(temp + temp2 - startblockval(PREV.br_startblock) -
-			(bma->cur ? bma->cur->bc_private.b.allocated : 0));
+		diff = (int)(temp + temp2 -
+			     (startblockval(PREV.br_startblock) -
+			      (bma->cur ?
+			       bma->cur->bc_private.b.allocated : 0)));
 		if (diff > 0) {
 			error = xfs_mod_fdblocks(bma->ip->i_mount,
 						 -((int64_t)diff), false);
@@ -2228,7 +2234,6 @@ xfs_bmap_add_extent_delay_real(
 		temp = da_new;
 		if (bma->cur)
 			temp += bma->cur->bc_private.b.allocated;
-		ASSERT(temp <= da_old);
 		if (temp < da_old)
 			xfs_mod_fdblocks(bma->ip->i_mount,
 					(int64_t)(da_old - temp), false);
@@ -2665,7 +2670,7 @@ xfs_bmap_add_extent_unwritten_real(
 					&i)))
 				goto done;
 			XFS_WANT_CORRUPTED_GOTO(mp, i == 0, done);
-			cur->bc_rec.b.br_state = XFS_EXT_NORM;
+			cur->bc_rec.b.br_state = new->br_state;
 			if ((error = xfs_btree_insert(cur, &i)))
 				goto done;
 			XFS_WANT_CORRUPTED_GOTO(mp, i == 1, done);
@@ -3670,6 +3675,7 @@ xfs_bmap_btalloc(
 		ASSERT(ap->length);
 	}
 
+
 	nullfb = *ap->firstblock == NULLFSBLOCK;
 	fb_agno = nullfb ? NULLAGNUMBER : XFS_FSB_TO_AGNO(mp, *ap->firstblock);
 	if (nullfb) {
@@ -4151,6 +4157,7 @@ xfs_bmapi_reserve_delalloc(
 	if (error)
 		goto out_unreserve_blocks;
 
+
 	ip->i_delayed_blks += alen;
 
 	got->br_startoff = aoff;
@@ -4266,6 +4273,7 @@ xfs_bmapi_delay(
 	*nmap = n;
 	return 0;
 }
+
 
 static int
 xfs_bmapi_allocate(

@@ -392,6 +392,7 @@ CMA_REALLOC:
 		goto CMA_REALLOC;
 	}
 
+
 ERR:
 	pr_err("[%s] alloc failed! request heap=%s size=0x%x align=0x%x flags=0x%x [%16.s] pids:%-5d tgid:%-5d\n",
 			__func__,
@@ -570,6 +571,7 @@ static int ion_carveout_heap_debug_show(struct ion_heap *heap, struct seq_file *
 		USED,
 	};
 
+
 	seq_printf(s,"\n");
 	mutex_lock(&rtk_carveout_heap->poollock);
 	list_for_each_entry(phandler, &rtk_carveout_heap->pool_handlers, list) {
@@ -584,6 +586,7 @@ static int ion_carveout_heap_debug_show(struct ion_heap *heap, struct seq_file *
 			if (page_info->pool_info == phandler)
 				allocSize += page_info->size;
 		}
+
 
 		seq_printf(s,"   [POOL] type=%s base=0x%08X size=0x%08X flags=0x%-2x Free: %lu kB  Alloc: %lu kB Usage:%lu%%\n",
 				(phandler->type == RTK_CARVEOUT_GEN_POOL_TYPE)?"GEN":
@@ -866,6 +869,7 @@ void ion_rtk_carveout_heap_destroy(struct ion_heap *heap)
 	rtk_carveout_heap = NULL;
 }
 
+
 #ifdef CONFIG_SYSFS
 
 #define ION_RTK_CARVEOUT_ATTR(_name) \
@@ -893,6 +897,7 @@ static ssize_t ion_rtk_cached_turbo_store(struct kobject *kobj, struct kobj_attr
 }
 
 static struct kobj_attribute ion_rtk_cached_turbo_attr = ION_RTK_CARVEOUT_ATTR(cached_turbo);
+
 
 static struct attribute *ion_rtk_attrs[] = {
 	&ion_rtk_cached_turbo_attr.attr,

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /**
  * dwc3-rtk.c - Realtek DWC3 Specific Glue layer
  *
@@ -72,9 +75,9 @@ void RTK_dwc3_usb3_phy_toggle(struct device *hcd_dev, bool isConnect, int port)
 		rtk_usb3_phy_toggle(dwc->usb3_phy, isConnect, port);
 #endif
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(RTK_dwc3_usb3_phy_toggle);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 #ifdef CONFIG_RTK_USB2PHY
 extern void rtk_usb2_phy_toggle(struct usb_phy *usb3_phy, bool isConnect,
@@ -99,9 +102,9 @@ int RTK_dwc3_usb2_phy_toggle(struct device *hcd_dev, bool isConnect, int port)
 #endif
 	return 0;
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(RTK_dwc3_usb2_phy_toggle);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 static int dwc3_rtk_register_phys(struct dwc3_rtk *rtk)
 {

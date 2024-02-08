@@ -608,10 +608,12 @@ static void audio_build_desc(struct audio_dev *audio)
 	memcpy(sam_freq, &rate, 3);
 }
 
+
 static int snd_card_setup(struct usb_configuration *c,
 	struct audio_source_config *config);
 static struct audio_source_instance *to_fi_audio_source(
 	const struct usb_function_instance *fi);
+
 
 /* audio function driver setup/binding */
 static int

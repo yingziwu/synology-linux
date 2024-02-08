@@ -116,6 +116,7 @@ static int drm_setup(struct drm_device * dev)
 	if (ret < 0)
 		return ret;
 
+
 	DRM_DEBUG("\n");
 	return 0;
 }

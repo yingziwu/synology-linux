@@ -591,6 +591,7 @@ static int amdgpu_vce_validate_bo(struct amdgpu_cs_parser *p, uint32_t ib_idx,
 	return ttm_bo_validate(&bo->tbo, &bo->placement, &ctx);
 }
 
+
 /**
  * amdgpu_vce_cs_reloc - command submission relocation
  *

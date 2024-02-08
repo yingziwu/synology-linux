@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -31,6 +32,7 @@ disclaimer.
 
 /* unit offset */
 #define MV_PP3_XLG_MAC_UNIT_OFFSET		0x030C0000
+
 
 /* Port Mac Control0 */
 #define MV_XLG_PORT_MAC_CTRL0_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0000 + (port) * 0x1000))
@@ -86,6 +88,7 @@ disclaimer.
 #define MV_XLG_MAC_CTRL0_PFC_CASCADE_PORT_ENABLE_MASK    \
 		(0x00000001 << MV_XLG_MAC_CTRL0_PFC_CASCADE_PORT_ENABLE_OFFS)
 
+
 /* Port Mac Control1 */
 #define MV_XLG_PORT_MAC_CTRL1_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0004 + (port) * 0x1000))
 #define MV_XLG_MAC_CTRL1_FRAMESIZELIMIT_OFFS		0
@@ -103,6 +106,7 @@ disclaimer.
 #define MV_XLG_MAC_CTRL1_LOOPBACKCLOCKSELECT_OFFS		15
 #define MV_XLG_MAC_CTRL1_LOOPBACKCLOCKSELECT_MASK    \
 		(0x00000001 << MV_XLG_MAC_CTRL1_LOOPBACKCLOCKSELECT_OFFS)
+
 
 /* Port Mac Control2 */
 #define MV_XLG_PORT_MAC_CTRL2_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0008 + (port) * 0x1000))
@@ -129,6 +133,7 @@ disclaimer.
 #define MV_XLG_MAC_CTRL2_FC_MODE_OFFS		14
 #define MV_XLG_MAC_CTRL2_FC_MODE_MASK    \
 		(0x00000003 << MV_XLG_MAC_CTRL2_FC_MODE_OFFS)
+
 
 /* Port Status */
 #define MV_XLG_MAC_PORT_STATUS_REG(port)		(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x000c + (port) * 0x1000))
@@ -168,6 +173,7 @@ disclaimer.
 #define MV_XLG_MAC_PORT_STATUS_PFC_SYNC_FIFO_FULL_MASK    \
 		(0x00000001 << MV_XLG_MAC_PORT_STATUS_PFC_SYNC_FIFO_FULL_OFFS)
 
+
 /* Port Fifos Thresholds Configuration */
 #define MV_XLG_PORT_FIFOS_THRS_CFG_REG(port)		(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0010 + (port) * 0x1000))
 #define MV_XLG_MAC_PORT_FIFOS_THRS_CFG_RXFULLTHR_OFFS		0
@@ -181,6 +187,7 @@ disclaimer.
 #define MV_XLG_MAC_PORT_FIFOS_THRS_CFG_TXRDTHR_OFFS		11
 #define MV_XLG_MAC_PORT_FIFOS_THRS_CFG_TXRDTHR_MASK    \
 		(0x0000001f << MV_XLG_MAC_PORT_FIFOS_THRS_CFG_TXRDTHR_OFFS)
+
 
 /* Port Mac Control3 */
 #define MV_XLG_PORT_MAC_CTRL3_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x001c + (port) * 0x1000))
@@ -196,17 +203,20 @@ disclaimer.
 #define MV_XLG_MAC_CTRL3_MACMODESELECT_MASK    \
 		(0x00000007 << MV_XLG_MAC_CTRL3_MACMODESELECT_OFFS)
 
+
 /* Port Per Prio Flow Control Status */
 #define MV_XLG_PORT_PER_PRIO_FLOW_CTRL_STATUS_REG(port)      (MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0020 + (port) * 0x1000))
 #define MV_XLG_MAC_PORT_PER_PRIO_FLOW_CTRL_STATUS_PRIONSTATUS_OFFS		0
 #define MV_XLG_MAC_PORT_PER_PRIO_FLOW_CTRL_STATUS_PRIONSTATUS_MASK    \
 		(0x00000001 << MV_XLG_MAC_PORT_PER_PRIO_FLOW_CTRL_STATUS_PRIONSTATUS_OFFS)
 
+
 /* Debug Bus Status */
 #define MV_XLG_DEBUG_BUS_STATUS_REG(port)		(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0024 + (port) * 0x1000))
 #define MV_XLG_MAC_DEBUG_BUS_STATUS_DEBUG_BUS_OFFS		0
 #define MV_XLG_MAC_DEBUG_BUS_STATUS_DEBUG_BUS_MASK    \
 		(0x0000ffff << MV_XLG_MAC_DEBUG_BUS_STATUS_DEBUG_BUS_OFFS)
+
 
 /* Port Metal Fix */
 #define MV_XLG_PORT_METAL_FIX_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x002c + (port) * 0x1000))
@@ -254,6 +264,7 @@ disclaimer.
 #define MV_XLG_MAC_PORT_METAL_FIX_SPARE_DEF1_BITS_MASK    \
 		(0x00000007 << MV_XLG_MAC_PORT_METAL_FIX_SPARE_DEF1_BITS_OFFS)
 
+
 /* Xg Mib Counters Control */
 #define MV_XLG_MIB_CNTRS_CTRL_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0030 + (port) * 0x1000))
 #define MV_XLG_MAC_XG_MIB_CNTRS_CTRL_XGCAPTURETRIGGER_OFFS		0
@@ -288,11 +299,13 @@ disclaimer.
 #define MV_XLG_MAC_XG_MIB_CNTRS_CTRL_MIB_4_LIMIT_1518_1522_MASK    \
 		(0x00000001 << MV_XLG_MAC_XG_MIB_CNTRS_CTRL_MIB_4_LIMIT_1518_1522_OFFS)
 
+
 /* Cn/ccfc Timer%i */
 #define MV_XLG_CNCCFC_TIMERI_REG(port, t)		(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0038 + (port) * 0x1000 + t*4))
 #define MV_XLG_MAC_CNCCFC_TIMERI_PORTSPEEDTIMER_OFFS	0
 #define MV_XLG_MAC_CNCCFC_TIMERI_PORTSPEEDTIMER_MASK    \
 		(0x0000ffff << MV_XLG_MAC_CNCCFC_TIMERI_PORTSPEEDTIMER_OFFS)
+
 
 /* Ppfc Control */
 #define MV_XLG_MAC_PPFC_CTRL_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0060 + (port) * 0x1000))
@@ -304,11 +317,13 @@ disclaimer.
 #define MV_XLG_MAC_PPFC_CTRL_DIP_BTS_677_EN_MASK    \
 		(0x00000001 << MV_XLG_MAC_PPFC_CTRL_DIP_BTS_677_EN_OFFS)
 
+
 /* Fc Dsa Tag 0 */
 #define MV_XLG_MAC_FC_DSA_TAG_0_REG(port)		(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0068 + (port) * 0x1000))
 #define MV_XLG_MAC_FC_DSA_TAG_0_DSATAGREG0_OFFS		0
 #define MV_XLG_MAC_FC_DSA_TAG_0_DSATAGREG0_MASK    \
 		(0x0000ffff << MV_XLG_MAC_FC_DSA_TAG_0_DSATAGREG0_OFFS)
+
 
 /* Fc Dsa Tag 1 */
 #define MV_XLG_MAC_FC_DSA_TAG_1_REG(port)		(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x006c + (port) * 0x1000))
@@ -316,11 +331,13 @@ disclaimer.
 #define MV_XLG_MAC_FC_DSA_TAG_1_DSATAGREG1_MASK    \
 		(0x0000ffff << MV_XLG_MAC_FC_DSA_TAG_1_DSATAGREG1_OFFS)
 
+
 /* Fc Dsa Tag 2 */
 #define MV_XLG_MAC_FC_DSA_TAG_2_REG(port)		(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0070 + (port) * 0x1000))
 #define MV_XLG_MAC_FC_DSA_TAG_2_DSATAGREG2_OFFS		0
 #define MV_XLG_MAC_FC_DSA_TAG_2_DSATAGREG2_MASK    \
 		(0x0000ffff << MV_XLG_MAC_FC_DSA_TAG_2_DSATAGREG2_OFFS)
+
 
 /* Fc Dsa Tag 3 */
 #define MV_XLG_MAC_FC_DSA_TAG_3_REG(port)		(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0074 + (port) * 0x1000))
@@ -328,11 +345,13 @@ disclaimer.
 #define MV_XLG_MAC_FC_DSA_TAG_3_DSATAGREG3_MASK    \
 		(0x0000ffff << MV_XLG_MAC_FC_DSA_TAG_3_DSATAGREG3_OFFS)
 
+
 /* Dic Budget Compensation */
 #define MV_XLG_MAC_DIC_BUDGET_COMPENSATION_REG(port)	(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0080 + (port) * 0x1000))
 #define MV_XLG_MAC_DIC_BUDGET_COMPENSATION_DIC_COUNTER_TO_ADD_8BYTES_OFFS		0
 #define MV_XLG_MAC_DIC_BUDGET_COMPENSATION_DIC_COUNTER_TO_ADD_8BYTES_MASK    \
 		(0x0000ffff << MV_XLG_MAC_DIC_BUDGET_COMPENSATION_DIC_COUNTER_TO_ADD_8BYTES_OFFS)
+
 
 /* Port Mac Control4 */
 #define MV_XLG_PORT_MAC_CTRL4_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0084 + (port) * 0x1000))
@@ -384,6 +403,7 @@ disclaimer.
 #define MV_XLG_MAC_CTRL4_MAC_MODE_DMA_1G_MASK    \
 		(0x00000001 << MV_XLG_MAC_CTRL4_MAC_MODE_DMA_1G_OFFS)
 
+
 /* Port Mac Control5 */
 #define MV_XLG_PORT_MAC_CTRL5_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0088 + (port) * 0x1000))
 #define MV_XLG_MAC_CTRL5_TXIPGLENGTH_OFFS		0
@@ -405,6 +425,7 @@ disclaimer.
 #define MV_XLG_MAC_CTRL5_RXNUMCRCBYTES_OFFS		13
 #define MV_XLG_MAC_CTRL5_RXNUMCRCBYTES_MASK    \
 		(0x00000007 << MV_XLG_MAC_CTRL5_RXNUMCRCBYTES_OFFS)
+
 
 /* External Control */
 #define MV_XLG_MAC_EXT_CTRL_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0090 + (port) * 0x1000))
@@ -471,6 +492,7 @@ disclaimer.
 #define MV_XLG_MAC_EXT_CTRL_EXT_CTRL_15_OFFS		15
 #define MV_XLG_MAC_EXT_CTRL_EXT_CTRL_15_MASK    \
 		(0x00000001 << MV_XLG_MAC_EXT_CTRL_EXT_CTRL_15_OFFS)
+
 
 /* Macro Control */
 #define MV_XLG_MAC_MACRO_CTRL_REG(port)			(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x0094 + (port) * 0x1000))
@@ -553,5 +575,6 @@ disclaimer.
 #define MV_XLG_EXTERNAL_INTERRUPT_MASK_REG(port)	(MV_PP3_XLG_MAC_UNIT_OFFSET + (0x005C + (port) * 0x1000))
 #define MV_XLG_EXTERNAL_INTERRUPT_LINK_CHANGE_OFFS	1
 #define MV_XLG_EXTERNAL_INTERRUPT_LINK_CHANGE_MASK	(0x1 << MV_XLG_EXTERNAL_INTERRUPT_LINK_CHANGE_OFFS)
+
 
 #endif /* __mv_xlg_mac_regs_h__ */

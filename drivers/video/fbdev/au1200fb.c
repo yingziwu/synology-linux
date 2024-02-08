@@ -63,6 +63,7 @@
 #define print_dbg(f, arg...) do {} while (0)
 #endif
 
+
 #define AU1200_LCD_FB_IOCTL 0x46FF
 
 #define AU1200_LCD_SET_SCREEN 1
@@ -126,6 +127,7 @@ struct au1200_lcd_window_regs_t {
 	unsigned int yscale;
 	unsigned int enable;
 };
+
 
 struct au1200_lcd_iodata_t {
 	unsigned int subcmd;
@@ -879,6 +881,7 @@ static void au1200_setpanel(struct panel_settings *newpanel,
 	lcd->hwc.cursorcolor2 = 0;
 	lcd->hwc.cursorcolor3 = 0;
 
+
 #if 0
 #define D(X) printk("%25s: %08X\n", #X, X)
 	D(lcd->screen);
@@ -950,6 +953,7 @@ static void au1200_setmode(struct au1200fb_device *fbdev)
 	lcd->winenable |= win->w[plane].mode_winenable;
 	wmb(); /* drain writebuffer */
 }
+
 
 /* Inline helpers */
 
@@ -1478,6 +1482,7 @@ static int au1200fb_ioctl(struct fb_info *info, unsigned int cmd,
 	return 0;
 }
 
+
 static struct fb_ops au1200fb_fb_ops = {
 	.owner		= THIS_MODULE,
 	.fb_check_var	= au1200fb_fb_check_var,
@@ -1569,6 +1574,7 @@ static int au1200fb_init_fbinfo(struct au1200fb_device *fbdev)
 }
 
 /*-------------------------------------------------------------------------*/
+
 
 static int au1200fb_setup(struct au1200fb_platdata *pd)
 {
@@ -1674,8 +1680,10 @@ static int au1200fb_drv_probe(struct platform_device *dev)
 
 		fbi = framebuffer_alloc(sizeof(struct au1200fb_device),
 					&dev->dev);
-		if (!fbi)
+		if (!fbi) {
+			ret = -ENOMEM;
 			goto failed;
+		}
 
 		_au1200fb_infos[plane] = fbi;
 		fbdev = fbi->par;
@@ -1693,7 +1701,8 @@ static int au1200fb_drv_probe(struct platform_device *dev)
 		if (!fbdev->fb_mem) {
 			print_err("fail to allocate frambuffer (size: %dK))",
 				  fbdev->fb_len / 1024);
-			return -ENOMEM;
+			ret = -ENOMEM;
+			goto failed;
 		}
 
 		/*

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -30,6 +31,7 @@ disclaimer.
 
 struct tm_alias TM;
 struct tm_alias tm_index_offset;
+
 
 /** Register alias definition for the RevA TM unit.
  */
@@ -337,6 +339,7 @@ void init_tm_init_offset_struct()
 		tm_index_offset.Drop.ClvlREDCurve.CoS[i] = 0x8;
 	}
 
+
 	tm_index_offset.Drop.PortREDCurve = 0x8;
 	tm_index_offset.Drop.PortDropPrfWREDParams = 0x8;
 	tm_index_offset.Drop.PortDropPrfWREDScaleRatio = 0x8;
@@ -602,6 +605,7 @@ void init_tm_init_offset_struct()
 	tm_index_offset.Drop.RespLocalDPSel = 0x00480050;
 	tm_index_offset.Drop.WREDDropProbMode = 0x00480038;
 	tm_index_offset.Drop.WREDMaxProbModePerColor = 0x00480040;
+
 
 	tm_index_offset.Sched.ALevelShaperBucketNeg = 0x0045AC00;
 	tm_index_offset.Sched.ALvltoBlvlAndQueueRangeMap = 0x07690000;

@@ -109,6 +109,7 @@ struct control_regvals {
 
 #define CTRLFB_OFF 16	/* position of pixel 0 in frame buffer */
 
+
 /*
  * Best cmode supported by control
  */
@@ -140,4 +141,7 @@ static struct max_cmodes control_mac_modes[] = {
 	{{ 1, 2}},	/* 1152x870, 75Hz */
 	{{ 0, 1}},	/* 1280x960, 75Hz */
 	{{ 0, 1}},	/* 1280x1024, 75Hz */
+	{{ 1, 2}},	/* 1152x768, 60Hz */
+	{{ 0, 1}},	/* 1600x1024, 60Hz */
 };
+

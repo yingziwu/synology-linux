@@ -281,6 +281,7 @@ static struct dlm_ctxt * __dlm_lookup_domain(const char *domain)
 	return __dlm_lookup_domain_full(domain, strlen(domain));
 }
 
+
 /* returns true on one of two conditions:
  * 1) the domain does not exist
  * 2) the domain exists and it's state is "joined" */
@@ -671,20 +672,6 @@ static void dlm_leave_domain(struct dlm_ctxt *dlm)
 			clear_bit(node, dlm->domain_map);
 	}
 	spin_unlock(&dlm->spinlock);
-}
-
-int dlm_shutting_down(struct dlm_ctxt *dlm)
-{
-	int ret = 0;
-
-	spin_lock(&dlm_domain_lock);
-
-	if (dlm->dlm_state == DLM_CTXT_IN_SHUTDOWN)
-		ret = 1;
-
-	spin_unlock(&dlm_domain_lock);
-
-	return ret;
 }
 
 void dlm_unregister_domain(struct dlm_ctxt *dlm)

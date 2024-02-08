@@ -260,6 +260,7 @@ static const char *pm8xxx_get_group_name(struct pinctrl_dev *pctldev,
 	return pm8xxx_groups[group];
 }
 
+
 static int pm8xxx_get_group_pins(struct pinctrl_dev *pctldev,
 				 unsigned group,
 				 const unsigned **pins,
@@ -535,6 +536,7 @@ static int pm8xxx_mpp_of_xlate(struct gpio_chip *chip,
 
 	return gpio_desc->args[0] - 1;
 }
+
 
 static int pm8xxx_mpp_to_irq(struct gpio_chip *chip, unsigned offset)
 {

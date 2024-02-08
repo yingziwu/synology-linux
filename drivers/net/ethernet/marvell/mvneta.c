@@ -829,6 +829,7 @@ static void mvneta_txq_inc_put(struct mvneta_tx_queue *txq)
 		txq->txq_put_index = 0;
 }
 
+
 /* Clear all MIB counters */
 static void mvneta_mib_counters_clear(struct mvneta_port *pp)
 {
@@ -1006,6 +1007,7 @@ static void mvneta_max_rx_size_set(struct mvneta_port *pp, int max_rx_size)
 	mvreg_write(pp, MVNETA_GMAC_CTRL_0, val);
 }
 
+
 /* Set rx queue offset */
 static void mvneta_rxq_offset_set(struct mvneta_port *pp,
 				  struct mvneta_rx_queue *rxq,
@@ -1020,6 +1022,7 @@ static void mvneta_rxq_offset_set(struct mvneta_port *pp,
 	val |= MVNETA_RXQ_PKT_OFFSET_MASK(offset >> 3);
 	mvreg_write(pp, MVNETA_RXQ_CONFIG_REG(rxq->id), val);
 }
+
 
 /* Tx descriptors helper methods */
 
@@ -1288,6 +1291,7 @@ static void mvneta_port_up(struct mvneta_port *pp)
 	}
 	mvreg_write(pp, MVNETA_TXQ_CMD, q_map);
 
+	q_map = 0;
 	/* Enable all initialized RXQs. */
 #if defined(MY_DEF_HERE)
 	for (queue = 0; queue < rxq_number; queue++) {
@@ -1410,12 +1414,10 @@ static void mvneta_port_disable(struct mvneta_port *pp)
 	val &= ~MVNETA_GMAC0_PORT_ENABLE;
 	mvreg_write(pp, MVNETA_GMAC_CTRL_0, val);
 
-#if defined(MY_DEF_HERE)
 	pp->link = 0;
 	pp->duplex = -1;
 	pp->speed = 0;
 
-#endif /* MY_DEF_HERE */
 	udelay(200);
 }
 
@@ -2421,6 +2423,7 @@ static void mvneta_rxq_drop_pkts(struct mvneta_port *pp,
 #endif /* MY_DEF_HERE */
 }
 
+
 #if defined(MY_DEF_HERE)
 /* Main rx processing when using software buffer management */
 static int mvneta_rx_swbm(struct mvneta_port *pp, int rx_todo,
@@ -2540,12 +2543,12 @@ err_drop_frame:
 			if (err) {
 				/* set refill stop flag */
 				atomic_set(&rxq->refill_stop, 1);
-#ifdef CONFIG_SYNO_ARMADA_REFILL_COUNT
+#ifdef MY_DEF_HERE
 				refill_failed++;
-#else /* CONFIG_SYNO_ARMADA_REFILL_COUNT */
+#else /* MY_DEF_HERE */
 				netdev_dbg(dev, "Linux processing - Can't refill queue %d\n",
 					   rxq->id);
-#endif /* CONFIG_SYNO_ARMADA_REFILL_COUNT*/
+#endif /* MY_DEF_HERE*/
 				/* disable rx_copybreak mode */
 				/* to prevent hidden buffer refill and buffers disorder */
 				rx_copybreak = 0;
@@ -3140,6 +3143,7 @@ out:
 	return NETDEV_TX_OK;
 }
 
+
 /* Free tx resources, when resetting a port */
 static void mvneta_txq_done_force(struct mvneta_port *pp,
 				  struct mvneta_tx_queue *txq)
@@ -3691,6 +3695,7 @@ static int mvneta_txq_init(struct mvneta_port *pp,
 	txq->tx_stop_threshold = txq->size - MVNETA_MAX_SKB_DESCS;
 	txq->tx_wake_threshold = txq->tx_stop_threshold / 2;
 
+
 	/* Allocate memory for TX descriptors */
 	txq->descs = dma_alloc_coherent(pp->dev->dev.parent,
 					txq->size * MVNETA_DESC_ALIGNED_SIZE,
@@ -3797,6 +3802,7 @@ static void mvneta_cleanup_rxqs(struct mvneta_port *pp)
 #endif /* MY_DEF_HERE */
 }
 
+
 /* Init all Rx queues */
 static int mvneta_setup_rxqs(struct mvneta_port *pp)
 {
@@ -3885,7 +3891,7 @@ static void mvneta_start_dev(struct mvneta_port *pp)
 		napi_enable(&pp->napi);
 #else /* MY_DEF_HERE */
 	/* Enable polling on the port */
-	for_each_present_cpu(cpu) {
+	for_each_online_cpu(cpu) {
 		struct mvneta_pcpu_port *port = per_cpu_ptr(pp->ports, cpu);
 
 		napi_enable(&port->napi);
@@ -3930,7 +3936,7 @@ static void mvneta_stop_dev(struct mvneta_port *pp)
 #else /* MY_DEF_HERE */
 	phy_stop(pp->phy_dev);
 
-	for_each_present_cpu(cpu) {
+	for_each_online_cpu(cpu) {
 		struct mvneta_pcpu_port *port = per_cpu_ptr(pp->ports, cpu);
 #endif /* MY_DEF_HERE */
 
@@ -4089,7 +4095,6 @@ static int mvneta_change_mtu(struct net_device *dev, int mtu)
 	on_each_cpu(mvneta_percpu_enable, pp, true);
 #endif /* MY_DEF_HERE */
 	mvneta_start_dev(pp);
-	mvneta_port_up(pp);
 
 	netdev_update_features(dev);
 
@@ -4643,8 +4648,7 @@ static int mvneta_stop(struct net_device *dev)
 	mvneta_stop_dev(pp);
 	mvneta_mdio_remove(pp);
 	unregister_cpu_notifier(&pp->cpu_notifier);
-	for_each_present_cpu(cpu)
-		smp_call_function_single(cpu, mvneta_percpu_disable, pp, true);
+	on_each_cpu(mvneta_percpu_disable, pp, true);
 	free_percpu_irq(dev->irq, pp->ports);
 #endif /* MY_DEF_HERE */
 	mvneta_cleanup_rxqs(pp);
@@ -4797,6 +4801,7 @@ static int mvneta_ethtool_get_coalesce(struct net_device *dev,
 	return 0;
 }
 
+
 static void mvneta_ethtool_get_drvinfo(struct net_device *dev,
 				    struct ethtool_drvinfo *drvinfo)
 {
@@ -4807,6 +4812,7 @@ static void mvneta_ethtool_get_drvinfo(struct net_device *dev,
 	strlcpy(drvinfo->bus_info, dev_name(&dev->dev),
 		sizeof(drvinfo->bus_info));
 }
+
 
 static void mvneta_ethtool_get_ringparam(struct net_device *netdev,
 					 struct ethtool_ringparam *ring)
@@ -4905,11 +4911,11 @@ static void mvneta_ethtool_update_stats(struct mvneta_port *pp)
 			val = (u64)high << 32 | low;
 #endif /* MY_DEF_HERE */
 			break;
-#ifdef CONFIG_SYNO_ARMADA_REFILL_COUNT
+#ifdef MY_DEF_HERE
 		case T_DATA:
 			pp->ethtool_stats[i] = refill_failed;
 			break;
-#endif /* CONFIG_SYNO_ARMADA_REFILL_COUNT*/
+#endif /* MY_DEF_HERE*/
 		}
 #if defined(MY_DEF_HERE)
 //do nothing

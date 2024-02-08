@@ -180,6 +180,7 @@ nvkm_ioctl_mthd(struct nvkm_client *client,
 	return ret;
 }
 
+
 static int
 nvkm_ioctl_rd(struct nvkm_client *client,
 	      struct nvkm_object *object, void *data, u32 size)

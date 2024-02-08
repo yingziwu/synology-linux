@@ -8,6 +8,7 @@ static int __init secure_dvfs_disabled_setup(char *__unused)
 }
 __setup("secure_dvfs_disabled", secure_dvfs_disabled_setup);
 
+
 bool secure_dvfs_is_disabled(void)
 {
 	return secure_dvfs_disabled;

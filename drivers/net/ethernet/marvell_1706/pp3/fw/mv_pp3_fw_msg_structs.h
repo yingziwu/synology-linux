@@ -243,6 +243,7 @@ struct mv_pp3_fw_msg_chan_stat {
 	unsigned int msg_event_cntr;	/* Number of events sent by Firmware on specific channel */
 };
 
+
 #define MV_PP3_PPN_MEM_BUFS	(16)
 /* MV_FW_MEM_REQ_GET request message */
 struct mv_pp3_fw_mem_get {
@@ -255,6 +256,7 @@ struct mv_pp3_fw_mem_set {
 	unsigned short size;		/* single buffer memory size in kbytes */
 	unsigned int buffer[MV_PP3_PPN_MEM_BUFS];	/* pointers to allocated buffers */
 };
+
 
 /* MV_FW_RESET_STATISTICS */
 enum mv_fw_counter_types {

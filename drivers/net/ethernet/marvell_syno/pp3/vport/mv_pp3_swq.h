@@ -49,6 +49,7 @@ struct pp3_tx_swq {
 	int	hwq;		/* connected HWQ */
 };
 
+
 struct pp3_swq {
 	int			frame_num;	/* HMAC frame number */
 	int			swq;		/* HMAC SWQ number [0..15] */

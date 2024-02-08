@@ -101,6 +101,7 @@ static int amdgpu_pp_early_init(void *handle)
 	return ret;
 }
 
+
 static int amdgpu_pp_late_init(void *handle)
 {
 	int ret = 0;
@@ -226,6 +227,7 @@ static int amdgpu_pp_set_powergating_state(void *handle,
 				 adev->powerplay.pp_handle, state);
 	return ret;
 }
+
 
 static bool amdgpu_pp_is_idle(void *handle)
 {

@@ -126,6 +126,7 @@ int vfsub_atomic_open(struct inode *dir, struct dentry *dentry,
 	} else
 		goto out;
 
+
 	if (!err) {
 		/* todo: call VFS:may_open() here */
 		err = open_check_o_direct(file);

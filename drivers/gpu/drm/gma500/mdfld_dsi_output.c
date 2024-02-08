@@ -544,6 +544,7 @@ void mdfld_dsi_output_init(struct drm_device *dev,
 		goto dsi_init_err0;
 	}
 
+
 	connector = &dsi_connector->base.base;
 	dsi_connector->base.save = mdfld_dsi_connector_save;
 	dsi_connector->base.restore = mdfld_dsi_connector_restore;

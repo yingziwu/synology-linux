@@ -58,6 +58,7 @@
 #define mcg_error_group(group, format, arg...) \
 	pr_err("  %16s: " format, (group)->name, ## arg)
 
+
 static union ib_gid mgid0;
 
 static struct workqueue_struct *clean_wq;
@@ -135,6 +136,7 @@ struct mcast_req {
 	struct mcast_group	*group;
 	int			clean;
 };
+
 
 #define safe_atomic_dec(ref) \
 	do {\
@@ -1103,7 +1105,8 @@ static void _mlx4_ib_mcg_port_cleanup(struct mlx4_ib_demux_ctx *ctx, int destroy
 	while ((p = rb_first(&ctx->mcg_table)) != NULL) {
 		group = rb_entry(p, struct mcast_group, node);
 		if (atomic_read(&group->refcount))
-			mcg_warn_group(group, "group refcount %d!!! (pointer %p)\n", atomic_read(&group->refcount), group);
+			mcg_debug_group(group, "group refcount %d!!! (pointer %p)\n",
+					atomic_read(&group->refcount), group);
 
 		force_clean_group(group);
 	}
@@ -1159,6 +1162,7 @@ static void build_leave_mad(struct mcast_req *req)
 
 	mad->mad_hdr.method = IB_SA_METHOD_DELETE;
 }
+
 
 static void clear_pending_reqs(struct mcast_group *group, int vf)
 {
@@ -1242,6 +1246,7 @@ void clean_vf_mcast(struct mlx4_ib_demux_ctx *ctx, int slave)
 	}
 	mutex_unlock(&ctx->mcg_table_lock);
 }
+
 
 int mlx4_ib_mcg_init(void)
 {

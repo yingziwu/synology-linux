@@ -124,6 +124,7 @@ void dce_set_blender_mode(struct dce_hwseq *hws,
 	}
 }
 
+
 static void dce_disable_sram_shut_down(struct dce_hwseq *hws)
 {
 	if (REG(DC_MEM_GLOBAL_PWR_REQ_CNTL))

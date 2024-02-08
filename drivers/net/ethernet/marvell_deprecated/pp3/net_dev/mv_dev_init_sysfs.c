@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -150,6 +151,7 @@ static struct attribute *pp3_dev_init_sysfs_attrs[] = {
 	&dev_attr_rx_cpus.attr,
 	NULL
 };
+
 
 static struct attribute_group pp3_dev_init_sysfs_group = {
 	.name = "init",

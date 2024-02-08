@@ -48,6 +48,7 @@ enum display_output_bit_depth {
 	PANEL_16BIT_COLOR = 5,
 };
 
+
 /* Device type as abstracted by ATOM BIOS */
 enum dal_device_type {
 	DEVICE_TYPE_UNKNOWN = 0,
@@ -178,6 +179,7 @@ struct dc_firmware_info {
 	uint32_t dp_phy_ref_clk; /* in KHz - DCE12 only */
 	uint32_t i2c_engine_ref_clk; /* in KHz - DCE12 only */
 
+
 };
 
 struct step_and_delay_info {
@@ -275,6 +277,7 @@ struct ext_hdmi_settings {
 	unsigned char   reg_num_6g;
 	struct i2c_reg_info      reg_settings_6g[3];
 };
+
 
 /* V6 */
 struct integrated_info {
@@ -432,5 +435,6 @@ struct panel_backlight_boundaries {
 	uint32_t min_signal_level;
 	uint32_t max_signal_level;
 };
+
 
 #endif

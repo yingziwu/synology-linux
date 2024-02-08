@@ -35,9 +35,9 @@
 
 #include "nvme.h"
 
-#ifdef MY_ABC_HERE
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
 #include <linux/synolib.h>
-#endif /* MY_ABC_HERE */
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE)*/
 
 #define NVME_MINORS		(1U << MINORBITS)
 
@@ -475,10 +475,10 @@ int nvme_get_error_log_page(struct nvme_ctrl *dev,
 	return error;
 }
 
-int nvme_lba_write_zero(struct nvme_ns *ns, u64 lba)
+int nvme_lba_write_pattern(struct nvme_ns *ns, u64 lba)
 {
 	struct nvme_command c = { };
-	char *buf = NULL;
+	char *buf = NULL, *p = NULL;
 	unsigned length = 0;
 	int error;
 
@@ -489,14 +489,21 @@ int nvme_lba_write_zero(struct nvme_ns *ns, u64 lba)
 	c.rw.slba = cpu_to_le64(lba);
 	c.rw.length = cpu_to_le16(0);
 
-	buf = kzalloc(length, GFP_KERNEL);
-	if (!buf)
-		return -ENOMEM;
+	buf = kmalloc(length, GFP_KERNEL);
+	if (!buf) {
+		printk("%s:%s(%d) Failed to allocate remap page memory, so use zero page instead.\n", __FILE__, __FUNCTION__,  __LINE__);
+		p = page_address(ZERO_PAGE(0));
+	} else {
+		syno_draw_auto_remap_buffer(buf, length);
+		p = buf;
+	}
 
-	error = nvme_submit_sync_cmd(ns->queue, &c, buf, length);
+	error = nvme_submit_sync_cmd(ns->queue, &c, p, length);
 
-	kfree(buf);
-	buf = NULL;
+	if (buf) {
+		kfree(buf);
+		buf = NULL;
+	}
 
 	return error;
 }
@@ -747,7 +754,7 @@ static int nvme_revalidate_disk(struct gendisk *disk)
 		return -ENODEV;
 	}
 #ifdef MY_ABC_HERE
-	if (is_snv3400_series && 0 > nvme_get_log_page(ns->ctrl, &smart_log)) {
+	if (is_snv3400_series && nvme_get_log_page(ns->ctrl, &smart_log)) {
 		dev_warn(disk_to_dev(ns->disk), "%s: Get smart log failure\n",
 				__func__);
 		return -ENODEV;
@@ -1471,39 +1478,6 @@ static ssize_t nvme_sysfs_reset(struct device *dev,
 static DEVICE_ATTR(reset_controller, S_IWUSR, NULL, nvme_sysfs_reset);
 
 #ifdef MY_ABC_HERE
-static ssize_t syno_show_force_timeout(struct device *dev,
-				struct device_attribute *attr, char *buf)
-{
-	struct nvme_ctrl *ctrl = dev_get_drvdata(dev);
-	ssize_t len = -EFAULT;
-
-	if (NULL == ctrl) {
-		goto END;
-	}
-
-	len = snprintf(buf, sizeof(unsigned), "%u", ctrl->syno_force_timeout);
-END:
-	return len;
-}
-
-static ssize_t syno_store_force_timeout(struct device *dev,
-				struct device_attribute *attr, const char *buf,
-				size_t count)
-{
-	struct nvme_ctrl *ctrl = dev_get_drvdata(dev);
-
-	if (NULL == ctrl) {
-		goto END;
-	}
-
-	sscanf(buf, "%u", &ctrl->syno_force_timeout);
-END:
-	return count;
-}
-static DEVICE_ATTR(syno_force_timeout, S_IWUSR | S_IRUSR, syno_show_force_timeout, syno_store_force_timeout);
-#endif /* MY_ABC_HERE */
-
-#ifdef MY_ABC_HERE
 static ssize_t
 sdev_show_syno_idle_time(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -1539,6 +1513,39 @@ END:
 }
 
 static DEVICE_ATTR(syno_idle_time, S_IRUGO | S_IWUSR, sdev_show_syno_idle_time, sdev_store_syno_idle_time);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+static ssize_t syno_show_force_timeout(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct nvme_ctrl *ctrl = dev_get_drvdata(dev);
+	ssize_t len = -EFAULT;
+
+	if (NULL == ctrl) {
+		goto END;
+	}
+
+	len = snprintf(buf, sizeof(unsigned), "%u", ctrl->syno_force_timeout);
+END:
+	return len;
+}
+
+static ssize_t syno_store_force_timeout(struct device *dev,
+				struct device_attribute *attr, const char *buf,
+				size_t count)
+{
+	struct nvme_ctrl *ctrl = dev_get_drvdata(dev);
+
+	if (NULL == ctrl) {
+		goto END;
+	}
+
+	sscanf(buf, "%u", &ctrl->syno_force_timeout);
+END:
+	return count;
+}
+static DEVICE_ATTR(syno_force_timeout, S_IWUSR | S_IRUSR, syno_show_force_timeout, syno_store_force_timeout);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -1627,10 +1634,10 @@ nvme_show_function(firmware_rev);
 static struct attribute *nvme_dev_attrs[] = {
 	&dev_attr_reset_controller.attr,
 #ifdef MY_ABC_HERE
-	&dev_attr_syno_force_timeout.attr,
+	&dev_attr_syno_idle_time.attr,
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
-	&dev_attr_syno_idle_time.attr,
+	&dev_attr_syno_force_timeout.attr,
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	&dev_attr_syno_block_info.attr,
@@ -1750,6 +1757,7 @@ static void nvme_alloc_ns(struct nvme_ctrl *ctrl, unsigned nsid)
 	ns->ns_id = nsid;
 	ns->disk = disk;
 	ns->lba_shift = 9; /* set to a default value for 512 until disk is validated */
+
 
 	blk_queue_logical_block_size(ns->queue, 1 << ns->lba_shift);
 	nvme_set_queue_limits(ctrl, ns->queue);
@@ -2092,12 +2100,12 @@ int nvme_init_ctrl(struct nvme_ctrl *ctrl, struct device *dev,
 #ifdef MY_ABC_HERE
 	ctrl->quirks |= NVME_QUIRK_NO_APST;
 #endif /* MY_ABC_HERE */
-	INIT_WORK(&ctrl->scan_work, nvme_scan_work);
-	INIT_WORK(&ctrl->async_event_work, nvme_async_event_work);
 
 #ifdef MY_ABC_HERE
 	ctrl->idle = jiffies;
 #endif /* MY_ABC_HERE */
+	INIT_WORK(&ctrl->scan_work, nvme_scan_work);
+	INIT_WORK(&ctrl->async_event_work, nvme_async_event_work);
 
 	ret = nvme_set_instance(ctrl);
 	if (ret)

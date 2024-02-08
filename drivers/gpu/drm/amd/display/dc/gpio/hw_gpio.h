@@ -67,6 +67,7 @@ struct hw_gpio_pin_funcs {
 		struct hw_gpio_pin *pin);
 };
 
+
 struct hw_gpio;
 
 /* Register indices are represented by member variables

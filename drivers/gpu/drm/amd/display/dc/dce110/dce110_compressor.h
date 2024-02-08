@@ -78,3 +78,4 @@ bool dce110_compressor_is_lpt_enabled_in_hw(struct compressor *cp);
 void get_max_support_fbc_buffersize(unsigned int *max_x, unsigned int *max_y);
 
 #endif
+

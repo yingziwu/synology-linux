@@ -22,6 +22,7 @@
 #include <linux/phy.h>
 #include <linux/brcmphy.h>
 
+
 #define BRCM_PHY_MODEL(phydev) \
 	((phydev)->drv->phy_id & (phydev)->drv->phy_id_mask)
 

@@ -204,6 +204,7 @@ static void mv3310_temp_read(struct phy_device *phydev, u32 *value)
 	*value = ((temp & 0xff) - 75) * 1000;
 }
 
+
 static int mv3310_hwmon_config(struct phy_device *phydev, bool enable)
 {
        u16 val;
@@ -269,6 +270,7 @@ static int mv3310_hwmon_probe(struct phy_device *phydev)
 	return 0;
 }
 #endif /* MY_DEF_HERE */
+
 
 static int mv3310_probe(struct phy_device *phydev)
 {

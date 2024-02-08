@@ -960,6 +960,7 @@ static int configure_predefined_video_timings(struct v4l2_subdev *sd,
 		err = -1;
 	}
 
+
 	return err;
 }
 
@@ -1361,6 +1362,7 @@ static int stdi2dv_timings(struct v4l2_subdev *sd,
 		stdi->hs_pol, stdi->vs_pol);
 	return -1;
 }
+
 
 static int read_stdi(struct v4l2_subdev *sd, struct stdi_readback *stdi)
 {
@@ -2854,6 +2856,9 @@ static int adv76xx_parse_dt(struct adv76xx_state *state)
 	state->pdata.alt_data_sat = 1;
 	state->pdata.op_format_mode_sel = ADV7604_OP_FORMAT_MODE0;
 	state->pdata.bus_order = ADV7604_BUS_ORDER_RGB;
+	state->pdata.dr_str_data = ADV76XX_DR_STR_MEDIUM_HIGH;
+	state->pdata.dr_str_clk = ADV76XX_DR_STR_MEDIUM_HIGH;
+	state->pdata.dr_str_sync = ADV76XX_DR_STR_MEDIUM_HIGH;
 
 	return 0;
 }

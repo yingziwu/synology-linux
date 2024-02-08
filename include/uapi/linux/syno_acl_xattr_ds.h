@@ -74,6 +74,7 @@
 		SYNO_ACL_MAY_DEL \
 )
 
+
 /* inherit mode in the e_inherit field */
 #define SYNO_ACL_INHERIT_ONLY			(0x0001)
 #define SYNO_ACL_INHERIT_FILE			(0x0002)

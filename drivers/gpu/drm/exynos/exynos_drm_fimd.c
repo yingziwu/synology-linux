@@ -368,6 +368,7 @@ static void fimd_clear_channels(struct exynos_drm_crtc *crtc)
 	pm_runtime_put(ctx->dev);
 }
 
+
 static int fimd_atomic_check(struct exynos_drm_crtc *crtc,
 		struct drm_crtc_state *state)
 {
@@ -542,6 +543,7 @@ static void fimd_commit(struct exynos_drm_crtc *crtc)
 
 	writel(val, ctx->regs + VIDCON0);
 }
+
 
 static void fimd_win_set_pixfmt(struct fimd_context *ctx, unsigned int win,
 				uint32_t pixel_format, int width)

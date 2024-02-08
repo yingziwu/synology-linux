@@ -111,6 +111,7 @@ static ktime_t tick_init_jiffy_update(void)
 	return period;
 }
 
+
 static void tick_sched_do_timer(ktime_t now)
 {
 	int cpu = smp_processor_id();
@@ -570,6 +571,11 @@ static void tick_nohz_restart(struct tick_sched *ts, ktime_t now)
 		tick_program_event(hrtimer_get_expires(&ts->sched_timer), 1);
 }
 
+static inline bool local_timer_softirq_pending(void)
+{
+	return local_softirq_pending() & BIT(TIMER_SOFTIRQ);
+}
+
 static ktime_t tick_nohz_stop_sched_tick(struct tick_sched *ts,
 					 ktime_t now, int cpu)
 {
@@ -586,8 +592,18 @@ static ktime_t tick_nohz_stop_sched_tick(struct tick_sched *ts,
 	} while (read_seqretry(&jiffies_lock, seq));
 	ts->last_jiffies = basejiff;
 
-	if (rcu_needs_cpu(basemono, &next_rcu) ||
-	    arch_needs_cpu() || irq_work_needs_cpu()) {
+	/*
+	 * Keep the periodic tick, when RCU, architecture or irq_work
+	 * requests it.
+	 * Aside of that check whether the local timer softirq is
+	 * pending. If so its a bad idea to call get_next_timer_interrupt()
+	 * because there is an already expired timer, so it will request
+	 * immeditate expiry, which rearms the hardware timer with a
+	 * minimal delta which brings us back to this place
+	 * immediately. Lather, rinse and repeat...
+	 */
+	if (rcu_needs_cpu(basemono, &next_rcu) || arch_needs_cpu() ||
+	    irq_work_needs_cpu() || local_timer_softirq_pending()) {
 		next_tick = basemono + TICK_NSEC;
 	} else {
 		/*
@@ -784,7 +800,7 @@ static bool can_stop_idle_tick(int cpu, struct tick_sched *ts)
 	return true;
 }
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 static void __tick_nohz_idle_stop_tick(struct tick_sched *ts)
 #else
 static void __tick_nohz_idle_enter(struct tick_sched *ts)
@@ -793,7 +809,7 @@ static void __tick_nohz_idle_enter(struct tick_sched *ts)
 	ktime_t now, expires;
 	int cpu = smp_processor_id();
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	now = ts->idle_entrytime;
 #else
 	now = tick_nohz_start_idle(ts);
@@ -815,12 +831,13 @@ static void __tick_nohz_idle_enter(struct tick_sched *ts)
 	}
 }
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 void tick_nohz_idle_stop_tick(void)
 {
 	__tick_nohz_idle_stop_tick(this_cpu_ptr(&tick_cpu_sched));
 }
 #endif
+
 
 /**
  * tick_nohz_idle_enter - stop the idle tick from the idle task
@@ -852,7 +869,7 @@ void tick_nohz_idle_enter(void)
 
 	ts = this_cpu_ptr(&tick_cpu_sched);
 	ts->inidle = 1;
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	tick_nohz_start_idle(ts);
 #else
 	__tick_nohz_idle_enter(ts);
@@ -874,7 +891,7 @@ void tick_nohz_irq_exit(void)
 	struct tick_sched *ts = this_cpu_ptr(&tick_cpu_sched);
 
 	if (ts->inidle) {
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 		tick_nohz_start_idle(ts);
 #else
 		__tick_nohz_idle_enter(ts);
@@ -917,7 +934,7 @@ static void tick_nohz_account_idle_ticks(struct tick_sched *ts)
 #endif
 }
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 void tick_nohz_idle_restart_tick(void)
 {
 	struct tick_sched *ts = this_cpu_ptr(&tick_cpu_sched);

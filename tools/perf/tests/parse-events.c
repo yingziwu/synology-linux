@@ -333,6 +333,7 @@ static int test__checkevent_breakpoint_modifier(struct perf_evlist *evlist)
 {
 	struct perf_evsel *evsel = perf_evlist__first(evlist);
 
+
 	TEST_ASSERT_VAL("wrong exclude_user", !evsel->attr.exclude_user);
 	TEST_ASSERT_VAL("wrong exclude_kernel", evsel->attr.exclude_kernel);
 	TEST_ASSERT_VAL("wrong exclude_hv", evsel->attr.exclude_hv);
@@ -527,6 +528,7 @@ static int test__checkevent_pmu_events(struct perf_evlist *evlist)
 
 	return 0;
 }
+
 
 static int test__checkevent_pmu_events_mix(struct perf_evlist *evlist)
 {
@@ -1725,15 +1727,14 @@ static int test_pmu_events(void)
 	}
 
 	while (!ret && (ent = readdir(dir))) {
-#define MAX_NAME 100
 		struct evlist_test e;
-		char name[MAX_NAME];
+		char name[2 * NAME_MAX + 1 + 12 + 3];
 
 		if (!strcmp(ent->d_name, ".") ||
 		    !strcmp(ent->d_name, ".."))
 			continue;
 
-		snprintf(name, MAX_NAME, "cpu/event=%s/u", ent->d_name);
+		snprintf(name, sizeof(name), "cpu/event=%s/u", ent->d_name);
 
 		e.name  = name;
 		e.check = test__checkevent_pmu_events;
@@ -1741,11 +1742,10 @@ static int test_pmu_events(void)
 		ret = test_event(&e);
 		if (ret)
 			break;
-		snprintf(name, MAX_NAME, "%s:u,cpu/event=%s/u", ent->d_name, ent->d_name);
+		snprintf(name, sizeof(name), "%s:u,cpu/event=%s/u", ent->d_name, ent->d_name);
 		e.name  = name;
 		e.check = test__checkevent_pmu_events_mix;
 		ret = test_event(&e);
-#undef MAX_NAME
 	}
 
 	closedir(dir);

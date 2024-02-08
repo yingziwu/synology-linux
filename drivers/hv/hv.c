@@ -185,6 +185,7 @@ static struct clocksource hyperv_cs_tsc = {
 };
 #endif
 
+
 /*
  * hv_init - Main initialization routine.
  *
@@ -194,9 +195,7 @@ int hv_init(void)
 {
 	int max_leaf;
 	union hv_x64_msr_hypercall_contents hypercall_msr;
-	union hv_x64_msr_hypercall_contents tsc_msr;
 	void *virtaddr = NULL;
-	void *va_tsc = NULL;
 
 	memset(hv_context.synic_event_page, 0, sizeof(void *) * NR_CPUS);
 	memset(hv_context.synic_message_page, 0,
@@ -242,6 +241,9 @@ int hv_init(void)
 
 #ifdef CONFIG_X86_64
 	if (ms_hyperv.features & HV_X64_MSR_REFERENCE_TSC_AVAILABLE) {
+		union hv_x64_msr_hypercall_contents tsc_msr;
+		void *va_tsc;
+
 		va_tsc = __vmalloc(PAGE_SIZE, GFP_KERNEL, PAGE_KERNEL);
 		if (!va_tsc)
 			goto cleanup;
@@ -307,9 +309,10 @@ void hv_cleanup(bool crash)
 
 		hypercall_msr.as_uint64 = 0;
 		wrmsrl(HV_X64_MSR_REFERENCE_TSC, hypercall_msr.as_uint64);
-		if (!crash)
+		if (!crash) {
 			vfree(hv_context.tsc_page);
-		hv_context.tsc_page = NULL;
+			hv_context.tsc_page = NULL;
+		}
 	}
 #endif
 }
@@ -345,6 +348,7 @@ int hv_post_message(union hv_connection_id connection_id,
 	put_cpu();
 	return status;
 }
+
 
 /*
  * hv_signal_event -
@@ -410,6 +414,7 @@ static void hv_init_clockevent_device(struct clock_event_device *dev, int cpu)
 	dev->set_state_oneshot = hv_ce_set_oneshot;
 	dev->set_next_event = hv_ce_set_next_event;
 }
+
 
 int hv_synic_alloc(void)
 {

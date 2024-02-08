@@ -142,6 +142,7 @@ struct drm_dp_mst_branch {
 	u8 guid[16];
 };
 
+
 /* sideband msg header - not bit struct */
 struct drm_dp_sideband_msg_hdr {
 	u8 lct;
@@ -209,6 +210,7 @@ struct drm_dp_remote_i2c_read_nak_reply {
 struct drm_dp_remote_i2c_write_ack_reply {
 	u8 port_number;
 };
+
 
 struct drm_dp_sideband_msg_rx {
 	u8 chunk[48];
@@ -575,9 +577,12 @@ int drm_dp_mst_topology_mgr_init(struct drm_dp_mst_topology_mgr *mgr,
 
 void drm_dp_mst_topology_mgr_destroy(struct drm_dp_mst_topology_mgr *mgr);
 
+
 int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool mst_state);
 
+
 int drm_dp_mst_hpd_irq(struct drm_dp_mst_topology_mgr *mgr, u8 *esi, bool *handled);
+
 
 enum drm_connector_status drm_dp_mst_detect_port(struct drm_connector *connector, struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
 
@@ -585,22 +590,29 @@ bool drm_dp_mst_port_has_audio(struct drm_dp_mst_topology_mgr *mgr,
 					struct drm_dp_mst_port *port);
 struct edid *drm_dp_mst_get_edid(struct drm_connector *connector, struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
 
+
 int drm_dp_calc_pbn_mode(int clock, int bpp);
+
 
 bool drm_dp_mst_allocate_vcpi(struct drm_dp_mst_topology_mgr *mgr,
 			      struct drm_dp_mst_port *port, int pbn, int slots);
 
 int drm_dp_mst_get_vcpi_slots(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
 
+
 void drm_dp_mst_reset_vcpi_slots(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
+
 
 void drm_dp_mst_deallocate_vcpi(struct drm_dp_mst_topology_mgr *mgr,
 				struct drm_dp_mst_port *port);
 
+
 int drm_dp_find_vcpi_slots(struct drm_dp_mst_topology_mgr *mgr,
 			   int pbn);
 
+
 int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr);
+
 
 int drm_dp_update_payload_part2(struct drm_dp_mst_topology_mgr *mgr);
 

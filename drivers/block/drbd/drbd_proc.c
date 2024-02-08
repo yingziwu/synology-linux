@@ -36,6 +36,7 @@
 static int drbd_proc_open(struct inode *inode, struct file *file);
 static int drbd_proc_release(struct inode *inode, struct file *file);
 
+
 struct proc_dir_entry *drbd_proc;
 const struct file_operations drbd_proc_fops = {
 	.owner		= THIS_MODULE,
@@ -101,6 +102,7 @@ static void drbd_get_syncer_progress(struct drbd_device *device,
 		*per_mil_done = tmp;
 	}
 }
+
 
 /*lge
  * progress bars shamelessly adapted from driver/md/md.c
@@ -286,7 +288,7 @@ static int drbd_seq_show(struct seq_file *seq, void *v)
 			seq_printf(seq, "%2d: cs:Unconfigured\n", i);
 		} else {
 			/* reset device->congestion_reason */
-			bdi_rw_congested(&device->rq_queue->backing_dev_info);
+			bdi_rw_congested(device->rq_queue->backing_dev_info);
 
 			nc = rcu_dereference(first_peer_device(device)->connection->net_conf);
 			wp = nc ? nc->wire_protocol - DRBD_PROT_A + 'A' : ' ';

@@ -163,6 +163,7 @@
 #define VEC_DAC_MISC_LDO_PWRDN		BIT(1)
 #define VEC_DAC_MISC_DAC_RST_N		BIT(0)
 
+
 /* General VEC hardware state. */
 struct vc4_vec {
 	struct platform_device *pdev;
@@ -502,6 +503,7 @@ static void vc4_vec_encoder_enable(struct drm_encoder *encoder)
 		  VEC_DAC_MISC_VID_ACT | VEC_DAC_MISC_DAC_RST_N);
 	VEC_WRITE(VEC_CFG, VEC_CFG_VEC_EN);
 }
+
 
 static bool vc4_vec_encoder_mode_fixup(struct drm_encoder *encoder,
 				       const struct drm_display_mode *mode,

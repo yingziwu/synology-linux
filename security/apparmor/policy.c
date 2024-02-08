@@ -91,6 +91,7 @@
 #include "include/policy_unpack.h"
 #include "include/resource.h"
 
+
 /* root profile namespace */
 struct aa_namespace *root_ns;
 
@@ -561,6 +562,7 @@ void __init aa_free_root_ns(void)
 	 aa_put_namespace(ns);
 }
 
+
 static void free_replacedby(struct aa_replacedby *r)
 {
 	if (r) {
@@ -569,6 +571,7 @@ static void free_replacedby(struct aa_replacedby *r)
 		kzfree(r);
 	}
 }
+
 
 void aa_free_replacedby_kref(struct kref *kref)
 {
@@ -1297,7 +1300,8 @@ ssize_t aa_remove_profiles(char *fqname, size_t size)
 	}
 
 	/* don't fail removal if audit fails */
-#ifndef MY_ABC_HERE
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 	(void) audit_policy(OP_PROF_RM, GFP_KERNEL, name, info, error);
 #endif
 	aa_put_namespace(ns);

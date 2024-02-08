@@ -45,6 +45,7 @@ static void set_hw_cap(struct pp_hwmgr *hwmgr, bool setIt, enum phm_platform_cap
 		phm_cap_unset(hwmgr->platform_descriptor.platformCaps, cap);
 }
 
+
 /**
  * Private Function used during initialization.
  * @param hwmgr Pointer to the hardware manager.
@@ -1180,6 +1181,7 @@ static int ppt_get_num_of_vce_state_table_entries_v1_0(struct pp_hwmgr *hwmgr)
 	const ATOM_Tonga_POWERPLAYTABLE *pp_table = get_powerplay_table(hwmgr);
 	const ATOM_Tonga_VCE_State_Table *vce_state_table;
 
+
 	if (pp_table == NULL)
 		return 0;
 
@@ -1301,3 +1303,4 @@ int get_powerplay_table_entry_v1_0(struct pp_hwmgr *hwmgr,
 
 	return result;
 }
+

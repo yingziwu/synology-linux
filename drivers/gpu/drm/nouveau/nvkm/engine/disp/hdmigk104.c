@@ -68,6 +68,7 @@ gk104_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet,
 		nvkm_mask(device, 0x690100 + hdmi, 0x00000001, 0x00000001);
 	}
 
+
 	/* ??? InfoFrame? */
 	nvkm_mask(device, 0x6900c0 + hdmi, 0x00000001, 0x00000000);
 	nvkm_wr32(device, 0x6900cc + hdmi, 0x00000010);

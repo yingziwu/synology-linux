@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -160,4 +161,6 @@ enum tm_conf_err_codes
 	TM_CONF_MAX_ERROR					   /**<121 */
 };
 
+
 #endif   /* TM_ERRCODES_H */
+

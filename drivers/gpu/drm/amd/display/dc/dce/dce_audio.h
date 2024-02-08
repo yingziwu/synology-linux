@@ -39,9 +39,11 @@
 	SR(DCCG_AUDIO_DTO1_MODULE),\
 	SR(DCCG_AUDIO_DTO1_PHASE)
 
+
  /* set field name */
 #define SF(reg_name, field_name, post_fix)\
 	.field_name = reg_name ## __ ## field_name ## post_fix
+
 
 #define AUD_COMMON_MASK_SH_LIST_BASE(mask_sh)\
 		SF(DCCG_AUDIO_DTO_SOURCE, DCCG_AUDIO_DTO0_SOURCE_SEL, mask_sh),\
@@ -59,6 +61,7 @@
 		AUD_COMMON_MASK_SH_LIST_BASE(mask_sh),\
 		SF(AZALIA_F0_CODEC_ENDPOINT_INDEX, AZALIA_ENDPOINT_REG_INDEX, mask_sh),\
 		SF(AZALIA_F0_CODEC_ENDPOINT_DATA, AZALIA_ENDPOINT_REG_DATA, mask_sh)
+
 
 struct dce_audio_registers {
 	uint32_t AZALIA_F0_CODEC_ENDPOINT_INDEX;

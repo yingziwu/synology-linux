@@ -121,6 +121,7 @@
 #endif
 #include <net/l3mdev.h>
 
+
 /* The inetsw table contains everything that inet_create needs to
  * build a new socket.
  */
@@ -383,6 +384,7 @@ out_rcu_unlock:
 	rcu_read_unlock();
 	goto out;
 }
+
 
 /*
  *	The peer socket should always be NULL (or else). When we call this
@@ -687,6 +689,7 @@ do_err:
 	return err;
 }
 EXPORT_SYMBOL(inet_accept);
+
 
 /*
  *	This does both peername and sockname.
@@ -1011,7 +1014,7 @@ static struct inet_protosw inetsw_array[] =
 		.type =       SOCK_DGRAM,
 		.protocol =   IPPROTO_ICMP,
 		.prot =       &ping_prot,
-		.ops =        &inet_dgram_ops,
+		.ops =        &inet_sockraw_ops,
 		.flags =      INET_PROTOSW_REUSE,
        },
 
@@ -1277,6 +1280,7 @@ static struct sk_buff *inet_gso_segment(struct sk_buff *skb,
 		if (encap)
 			skb_reset_inner_headers(skb);
 		skb->network_header = (u8 *)iph - skb->head;
+		skb_reset_mac_len(skb);
 	} while ((skb = skb->next));
 
 out:
@@ -1863,3 +1867,4 @@ static int __init ipv4_proc_init(void)
 #endif /* CONFIG_PROC_FS */
 
 MODULE_ALIAS_NETPROTO(PF_INET);
+

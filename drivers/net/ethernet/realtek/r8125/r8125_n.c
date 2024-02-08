@@ -465,6 +465,7 @@ static inline unsigned long _kc_msecs_to_jiffies(const unsigned int m)
 }
 #endif  //LINUX_VERSION_CODE < KERNEL_VERSION(2,6,7)
 
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,11)
 
 /* copied from linux kernel 2.6.12.6 /include/linux/pm.h */
@@ -1490,6 +1491,7 @@ static inline u16 map_phy_ocp_addr(u16 PageNum, u8 RegNum)
 
                 OcpPhyAddress = OcpPageNum + OcpRegNum;
         }
+
 
         return OcpPhyAddress;
 }
@@ -2577,6 +2579,7 @@ rtl8125_disable_hw_interrupt(struct rtl8125_private *tp, void __iomem *ioaddr)
                 rtl8125_disable_dash2_interrupt(tp, ioaddr);
 #endif
 }
+
 
 static inline void
 rtl8125_switch_to_hw_interrupt(struct rtl8125_private *tp, void __iomem *ioaddr)
@@ -5111,7 +5114,9 @@ rtl8125_real_set_phy_mcu_8125_2(struct net_device *dev)
 
         rtl8125_acquire_phy_mcu_patch_key_lock(tp);
 
+
         SetEthPhyOcpBit(tp, 0xB820, BIT_7);
+
 
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA016);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x0000);
@@ -5217,6 +5222,7 @@ rtl8125_real_set_phy_mcu_8125_2(struct net_device *dev)
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x0a4f);
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA008);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x3f00);
+
 
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA016);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x0010);
@@ -5436,6 +5442,7 @@ rtl8125_real_set_phy_mcu_8125_2(struct net_device *dev)
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA090);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x007f);
 
+
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA016);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x0020);
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA012);
@@ -5637,6 +5644,7 @@ rtl8125_real_set_phy_mcu_8125_2(struct net_device *dev)
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x06f9);
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA110);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x00ff);
+
 
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xb87c);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x8530);
@@ -5925,7 +5933,9 @@ rtl8125_real_set_phy_mcu_8125_2(struct net_device *dev)
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xb878);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x000f);
 
+
         ClearEthPhyOcpBit(tp, 0xB820, BIT_7);
+
 
         rtl8125_release_phy_mcu_patch_key_lock(tp);
 }
@@ -5949,7 +5959,9 @@ rtl8125_real_set_phy_mcu_8125_3(struct net_device *dev)
 
         rtl8125_acquire_phy_mcu_patch_key_lock(tp);
 
+
         SetEthPhyOcpBit(tp, 0xB820, BIT_7);
+
 
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA016);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x0000);
@@ -6141,6 +6153,7 @@ rtl8125_real_set_phy_mcu_8125_3(struct net_device *dev)
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA008);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0xff00);
 
+
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA016);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x0010);
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA012);
@@ -6190,6 +6203,7 @@ rtl8125_real_set_phy_mcu_8125_3(struct net_device *dev)
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x00eb);
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA090);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x0103);
+
 
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA016);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x0020);
@@ -6439,6 +6453,7 @@ rtl8125_real_set_phy_mcu_8125_3(struct net_device *dev)
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xA110);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x00fc);
 
+
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xb87c);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x8530);
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xb87e);
@@ -6499,7 +6514,9 @@ rtl8125_real_set_phy_mcu_8125_3(struct net_device *dev)
         mdio_direct_write_phy_ocp(tp, 0xA436, 0xb878);
         mdio_direct_write_phy_ocp(tp, 0xA438, 0x0001);
 
+
         ClearEthPhyOcpBit(tp, 0xB820, BIT_7);
+
 
         rtl8125_release_phy_mcu_patch_key_lock(tp);
 }
@@ -6742,6 +6759,7 @@ rtl8125_hw_phy_config(struct net_device *dev)
                 mdio_direct_write_phy_ocp(tp, 0xB87C, 0x809C);
                 mdio_direct_write_phy_ocp(tp, 0xB87E, 0x0153);
 
+
                 mdio_direct_write_phy_ocp(tp, 0xA436, 0x81B3);
                 mdio_direct_write_phy_ocp(tp, 0xA438, 0x0043);
                 mdio_direct_write_phy_ocp(tp, 0xA438, 0x00A7);
@@ -6784,11 +6802,14 @@ rtl8125_hw_phy_config(struct net_device *dev)
                 mdio_direct_write_phy_ocp(tp, 0xA438, 0x0000);
                 mdio_direct_write_phy_ocp(tp, 0xA438, 0x0000);
 
+
                 mdio_direct_write_phy_ocp(tp, 0xA436, 0x8257);
                 mdio_direct_write_phy_ocp(tp, 0xA438, 0x020F);
 
+
                 mdio_direct_write_phy_ocp(tp, 0xA436, 0x80EA);
                 mdio_direct_write_phy_ocp(tp, 0xA438, 0x7843);
+
 
                 rtl8125_set_phy_mcu_patch_request(tp);
 
@@ -6848,7 +6869,9 @@ rtl8125_hw_phy_config(struct net_device *dev)
 
                 rtl8125_clear_phy_mcu_patch_request(tp);
 
+
                 SetEthPhyOcpBit(tp, 0xD068, BIT_13);
+
 
                 mdio_direct_write_phy_ocp(tp, 0xA436, 0x81A2);
                 SetEthPhyOcpBit(tp, 0xA438, BIT_8);
@@ -6857,7 +6880,9 @@ rtl8125_hw_phy_config(struct net_device *dev)
                                         0xFF00,
                                         0xDB00);
 
+
                 ClearEthPhyOcpBit(tp, 0xA454, BIT_0);
+
 
                 SetEthPhyOcpBit(tp, 0xA442, BIT_11);
 
@@ -9027,6 +9052,7 @@ rtl8125_hw_config(struct net_device *dev)
         tp->tx_ip_csum_cmd = TxIPCS_C;
         tp->tx_ipv6_csum_cmd = TxIPV6F_C;
 
+
         //other hw parameters
         rtl8125_hw_clear_timer_int(dev);
 
@@ -9133,6 +9159,7 @@ rtl8125_hw_start(struct net_device *dev)
 
         rtl8125_enable_hw_interrupt(tp, ioaddr);
 }
+
 
 static int
 rtl8125_change_mtu(struct net_device *dev,

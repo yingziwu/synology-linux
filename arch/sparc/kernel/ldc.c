@@ -31,6 +31,7 @@
 #define COOKIE_PGSZ_CODE	0xf000000000000000ULL
 #define COOKIE_PGSZ_CODE_SHIFT	60ULL
 
+
 static char version[] =
 	DRV_MODULE_NAME ".c:v" DRV_MODULE_VERSION " (" DRV_MODULE_RELDATE ")\n";
 #define LDC_PACKET_SIZE		64
@@ -1732,9 +1733,14 @@ static int read_nonraw(struct ldc_channel *lp, void *buf, unsigned int size)
 
 		lp->rcv_nxt = p->seqid;
 
+		/*
+		 * If this is a control-only packet, there is nothing
+		 * else to do but advance the rx queue since the packet
+		 * was already processed above.
+		 */
 		if (!(p->type & LDC_DATA)) {
 			new = rx_advance(lp, new);
-			goto no_data;
+			break;
 		}
 		if (p->stype & (LDC_ACK | LDC_NACK)) {
 			err = data_ack_nack(lp, p);
@@ -1943,6 +1949,7 @@ static u64 make_cookie(u64 index, u64 pgsz_code, u64 page_offset)
 		(index << PAGE_SHIFT) |
 		page_offset);
 }
+
 
 static struct ldc_mtable_entry *alloc_npages(struct ldc_iommu *iommu,
 					     unsigned long npages)
@@ -2158,6 +2165,7 @@ int ldc_map_single(struct ldc_channel *lp,
 	return state.nc;
 }
 EXPORT_SYMBOL(ldc_map_single);
+
 
 static void free_npages(unsigned long id, struct ldc_iommu *iommu,
 			u64 cookie, u64 size)

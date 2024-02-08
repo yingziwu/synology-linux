@@ -97,8 +97,9 @@ void rtl92e_set_reg(struct net_device *dev, u8 variable, u8 *val)
 
 	switch (variable) {
 	case HW_VAR_BSSID:
-		rtl92e_writel(dev, BSSIDR, ((u32 *)(val))[0]);
-		rtl92e_writew(dev, BSSIDR+2, ((u16 *)(val+2))[0]);
+		/* BSSIDR 2 byte alignment */
+		rtl92e_writew(dev, BSSIDR, *(u16 *)val);
+		rtl92e_writel(dev, BSSIDR + 2, *(u32 *)(val + 2));
 		break;
 
 	case HW_VAR_MEDIA_STATUS:
@@ -626,7 +627,7 @@ void rtl92e_get_eeprom_size(struct net_device *dev)
 	struct r8192_priv *priv = rtllib_priv(dev);
 
 	RT_TRACE(COMP_INIT, "===========>%s()\n", __func__);
-	curCR = rtl92e_readl(dev, EPROM_CMD);
+	curCR = rtl92e_readw(dev, EPROM_CMD);
 	RT_TRACE(COMP_INIT, "read from Reg Cmd9346CR(%x):%x\n", EPROM_CMD,
 		 curCR);
 	priv->epromtype = (curCR & EPROM_CMD_9356SEL) ? EEPROM_93C56 :
@@ -963,8 +964,8 @@ static void _rtl92e_net_update(struct net_device *dev)
 	rtl92e_config_rate(dev, &rate_config);
 	priv->dot11CurrentPreambleMode = PREAMBLE_AUTO;
 	 priv->basic_rate = rate_config &= 0x15f;
-	rtl92e_writel(dev, BSSIDR, ((u32 *)net->bssid)[0]);
-	rtl92e_writew(dev, BSSIDR+4, ((u16 *)net->bssid)[2]);
+	rtl92e_writew(dev, BSSIDR, *(u16 *)net->bssid);
+	rtl92e_writel(dev, BSSIDR + 2, *(u32 *)(net->bssid + 2));
 
 	if (priv->rtllib->iw_mode == IW_MODE_ADHOC) {
 		rtl92e_writew(dev, ATIMWND, 2);
@@ -1184,8 +1185,7 @@ void  rtl92e_fill_tx_desc(struct net_device *dev, struct tx_desc *pdesc,
 			  struct cb_desc *cb_desc, struct sk_buff *skb)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
-	dma_addr_t mapping = pci_map_single(priv->pdev, skb->data, skb->len,
-			 PCI_DMA_TODEVICE);
+	dma_addr_t mapping;
 	struct tx_fwinfo_8190pci *pTxFwInfo = NULL;
 
 	pTxFwInfo = (struct tx_fwinfo_8190pci *)skb->data;
@@ -1196,8 +1196,6 @@ void  rtl92e_fill_tx_desc(struct net_device *dev, struct tx_desc *pdesc,
 	pTxFwInfo->Short = _rtl92e_query_is_short(pTxFwInfo->TxHT,
 						  pTxFwInfo->TxRate, cb_desc);
 
-	if (pci_dma_mapping_error(priv->pdev, mapping))
-		netdev_err(dev, "%s(): DMA Mapping error\n", __func__);
 	if (cb_desc->bAMPDUEnable) {
 		pTxFwInfo->AllowAggregation = 1;
 		pTxFwInfo->RxMF = cb_desc->ampdu_factor;
@@ -1232,6 +1230,14 @@ void  rtl92e_fill_tx_desc(struct net_device *dev, struct tx_desc *pdesc,
 	}
 
 	memset((u8 *)pdesc, 0, 12);
+
+	mapping = pci_map_single(priv->pdev, skb->data, skb->len,
+				 PCI_DMA_TODEVICE);
+	if (pci_dma_mapping_error(priv->pdev, mapping)) {
+		netdev_err(dev, "%s(): DMA Mapping error\n", __func__);
+		return;
+	}
+
 	pdesc->LINIP = 0;
 	pdesc->CmdInit = 1;
 	pdesc->Offset = sizeof(struct tx_fwinfo_8190pci) + 8;
@@ -1239,6 +1245,7 @@ void  rtl92e_fill_tx_desc(struct net_device *dev, struct tx_desc *pdesc,
 
 	pdesc->SecCAMID = 0;
 	pdesc->RATid = cb_desc->RATRIndex;
+
 
 	pdesc->NoEnc = 1;
 	pdesc->SecType = 0x0;
@@ -1461,6 +1468,7 @@ static long _rtl92e_signal_scale_mapping(struct r8192_priv *priv, long currsig)
 	return retsig;
 }
 
+
 #define	 rx_hal_is_cck_rate(_pdrvinfo)\
 			((_pdrvinfo->RxRate == DESC90_RATE1M ||\
 			_pdrvinfo->RxRate == DESC90_RATE2M ||\
@@ -1510,6 +1518,7 @@ static void _rtl92e_query_rxphystatus(
 						0x200);
 		check_reg824 = 1;
 	}
+
 
 	prxpkt = (u8 *)pdrvinfo;
 
@@ -1625,6 +1634,7 @@ static void _rtl92e_query_rxphystatus(
 			}
 		}
 
+
 		rx_pwr_all = (((pofdm_buf->pwdb_all) >> 1) & 0x7f) - 106;
 		pwdb_all = rtl92e_rx_db_to_percent(rx_pwr_all);
 
@@ -1657,6 +1667,7 @@ static void _rtl92e_query_rxphystatus(
 									& 0xff);
 			}
 		}
+
 
 		rxsc_sgien_exflg = pofdm_buf->rxsc_sgien_exflg;
 		prxsc = (struct phy_ofdm_rx_status_rxsc_sgien_exintfflag *)
@@ -1763,6 +1774,7 @@ static void _rtl92e_process_phyinfo(struct r8192_priv *priv, u8 *buffer,
 				 priv->stats.rx_rssi_percentage[rfpath]);
 		}
 	}
+
 
 	if (prev_st->bPacketBeacon) {
 		if (slide_beacon_adc_pwdb_statistics++ >=
@@ -2071,6 +2083,7 @@ bool rtl92e_get_rx_stats(struct net_device *dev, struct rtllib_rx_stats *stats,
 			 pDrvInfo->FirstAGGR, pDrvInfo->PartAggr);
 	skb_trim(skb, skb->len - 4/*sCrcLng*/);
 
+
 	stats->packetlength = stats->Length-4;
 	stats->fraglength = stats->packetlength;
 	stats->fragoffset = 0;
@@ -2110,6 +2123,7 @@ void rtl92e_stop_adapter(struct net_device *dev, bool reset)
 			rtl92e_writel(dev, WFCRC0, 0xffffffff);
 			rtl92e_writel(dev, WFCRC1, 0xffffffff);
 			rtl92e_writel(dev, WFCRC2, 0xffffffff);
+
 
 			rtl92e_writeb(dev, PMR, 0x5);
 			rtl92e_writeb(dev, MacBlkCtrl, 0xa);
@@ -2233,6 +2247,7 @@ void rtl92e_clear_irq(struct net_device *dev)
 	rtl92e_writel(dev, ISR, tmp);
 }
 
+
 void rtl92e_enable_rx(struct net_device *dev)
 {
 	struct r8192_priv *priv = (struct r8192_priv *)rtllib_priv(dev);
@@ -2252,6 +2267,7 @@ void rtl92e_enable_tx(struct net_device *dev)
 	for (i = 0; i < MAX_TX_QUEUE_COUNT; i++)
 		rtl92e_writel(dev, TX_DESC_BASE[i], priv->tx_ring[i].dma);
 }
+
 
 void rtl92e_ack_irq(struct net_device *dev, u32 *p_inta, u32 *p_intb)
 {
@@ -2297,6 +2313,7 @@ bool rtl92e_is_rx_stuck(struct net_device *dev)
 		rx_chk_cnt = 0;
 	}
 
+
 	SlotIndex = (priv->SilentResetRxSlotIndex++)%SilentResetRxSoltNum;
 
 	if (priv->RxCounter == RegRxCounter) {
@@ -2311,6 +2328,7 @@ bool rtl92e_is_rx_stuck(struct net_device *dev)
 				TotalRxStuckCount +=
 					 priv->SilentResetRxStuckEvent[i];
 		}
+
 
 	} else {
 		priv->SilentResetRxStuckEvent[SlotIndex] = 0;

@@ -31,6 +31,7 @@ static int nchannels[] = { 2, 4, 6, 8 };
 #define MSM_HDMI_SAMPLE_RATE_192KHZ		6
 #define MSM_HDMI_SAMPLE_RATE_MAX		7
 
+
 struct hdmi_msm_audio_acr {
 	uint32_t n;	/* N parameter for clock regeneration */
 	uint32_t cts;	/* CTS parameter for clock regeneration */
@@ -217,6 +218,7 @@ int msm_hdmi_audio_update(struct hdmi *hdmi)
 			COND(enabled, HDMI_AUD_INT_AUD_SAM_DROP_INT));
 
 	hdmi_write(hdmi, REG_HDMI_AUDIO_CFG, audio_config);
+
 
 	DBG("audio %sabled", enabled ? "en" : "dis");
 

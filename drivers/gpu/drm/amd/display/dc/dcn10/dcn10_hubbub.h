@@ -110,6 +110,7 @@ struct dcn_hubbub_registers {
 #define HUBBUB_SF(reg_name, field_name, post_fix)\
 	.field_name = reg_name ## __ ## field_name ## post_fix
 
+
 #define HUBBUB_MASK_SH_LIST_DCN(mask_sh)\
 		HUBBUB_SF(DCHUBBUB_GLOBAL_TIMER_CNTL, DCHUBBUB_GLOBAL_TIMER_ENABLE, mask_sh), \
 		HUBBUB_SF(DCHUBBUB_ARB_WATERMARK_CHANGE_CNTL, DCHUBBUB_ARB_WATERMARK_CHANGE_REQUEST, mask_sh), \
@@ -147,6 +148,7 @@ struct dcn_hubbub_registers {
 		type SDPIF_AGP_BASE;\
 		type SDPIF_AGP_BOT;\
 		type SDPIF_AGP_TOP
+
 
 struct dcn_hubbub_shift {
 	DCN_HUBBUB_REG_FIELD_LIST(uint8_t);

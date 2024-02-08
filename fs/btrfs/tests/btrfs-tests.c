@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2013 Fusion IO.  All rights reserved.
  *
@@ -112,7 +115,6 @@ struct btrfs_fs_info *btrfs_alloc_dummy_fs_info(void)
 	spin_lock_init(&fs_info->qgroup_op_lock);
 	spin_lock_init(&fs_info->super_lock);
 	spin_lock_init(&fs_info->fs_roots_radix_lock);
-	spin_lock_init(&fs_info->tree_mod_seq_lock);
 	mutex_init(&fs_info->qgroup_ioctl_lock);
 	mutex_init(&fs_info->qgroup_rescan_lock);
 	rwlock_init(&fs_info->tree_mod_log_lock);
@@ -217,6 +219,9 @@ void btrfs_init_dummy_trans(struct btrfs_trans_handle *trans)
 {
 	memset(trans, 0, sizeof(*trans));
 	trans->transid = 1;
+#ifdef MY_ABC_HERE
+#else
 	INIT_LIST_HEAD(&trans->qgroup_ref_list);
+#endif /* MY_ABC_HERE */
 	trans->type = __TRANS_DUMMY;
 }

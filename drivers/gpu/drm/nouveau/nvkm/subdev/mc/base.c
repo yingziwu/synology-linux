@@ -170,6 +170,7 @@ nvkm_mc_enabled(struct nvkm_device *device, enum nvkm_devidx devidx)
 	       ((nvkm_rd32(device, 0x000200) & pmc_enable) == pmc_enable);
 }
 
+
 static int
 nvkm_mc_fini(struct nvkm_subdev *subdev, bool suspend)
 {

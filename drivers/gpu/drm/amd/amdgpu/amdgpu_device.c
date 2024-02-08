@@ -438,6 +438,8 @@ static void amdgpu_device_doorbell_fini(struct amdgpu_device *adev)
 	adev->doorbell.ptr = NULL;
 }
 
+
+
 /*
  * amdgpu_device_wb_*()
  * Writeback is the method by which the GPU updates special pages in memory
@@ -2098,6 +2100,7 @@ void amdgpu_device_fini(struct amdgpu_device *adev)
 	amdgpu_debugfs_regs_cleanup(adev);
 }
 
+
 /*
  * Suspend & resume.
  */
@@ -2832,3 +2835,4 @@ void amdgpu_device_get_pcie_info(struct amdgpu_device *adev)
 		}
 	}
 }
+

@@ -1685,6 +1685,7 @@ ieee80211_bss(struct wiphy *wiphy, struct iw_request_info *info,
 	return current_ev;
 }
 
+
 static int ieee80211_scan_results(struct cfg80211_registered_device *rdev,
 				  struct iw_request_info *info,
 				  char *buf, size_t len)
@@ -1715,6 +1716,7 @@ static int ieee80211_scan_results(struct cfg80211_registered_device *rdev,
 		return err;
 	return current_ev - buf;
 }
+
 
 int cfg80211_wext_giwscan(struct net_device *dev,
 			  struct iw_request_info *info,

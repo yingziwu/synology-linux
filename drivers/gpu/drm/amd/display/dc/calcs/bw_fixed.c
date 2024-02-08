@@ -25,6 +25,7 @@
 #include "dm_services.h"
 #include "bw_fixed.h"
 
+
 #define MIN_I64 \
 	(int64_t)(-(1LL << 63))
 
@@ -187,3 +188,4 @@ struct bw_fixed bw_mul(const struct bw_fixed arg1, const struct bw_fixed arg2)
 		res.value = -res.value;
 	return res;
 }
+

@@ -361,7 +361,7 @@
 	ENTRY_SAME(ni_syscall)	/* 263: reserved for vserver */
 	ENTRY_SAME(add_key)
 	ENTRY_SAME(request_key)		/* 265 */
-	ENTRY_SAME(keyctl)
+	ENTRY_COMP(keyctl)
 	ENTRY_SAME(ioprio_set)
 	ENTRY_SAME(ioprio_get)
 	ENTRY_SAME(inotify_init)
@@ -441,6 +441,7 @@
 	ENTRY_SAME(membarrier)
 	ENTRY_SAME(userfaultfd)
 	ENTRY_SAME(mlock2)		/* 345 */
+
 
 .ifne (. - 90b) - (__NR_Linux_syscalls * (91b - 90b))
 .error "size of syscall table does not fit value of __NR_Linux_syscalls"

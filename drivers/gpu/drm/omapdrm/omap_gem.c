@@ -538,6 +538,7 @@ int omap_gem_fault(struct vm_fault *vmf)
 	else
 		ret = fault_1d(obj, vma, vmf);
 
+
 fail:
 	mutex_unlock(&dev->struct_mutex);
 	switch (ret) {

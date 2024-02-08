@@ -120,6 +120,7 @@ static irqreturn_t md_irq_handler(int irq, struct uio_info *info)
 	return IRQ_HANDLED;
 }
 
+
 static inline void print_uio_mem(struct device *dev, struct uio_info *info,
 	int index)
 {

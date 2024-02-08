@@ -85,6 +85,7 @@ enum {
 	AN_AO_SET_I2S_MODE_SLAVE      = 1,
 };
 
+
 static int __send_rpc(struct ion_client *client,
 	AUDIO_ENUM_AIO_PRIVAETINFO info, unsigned int *data, int size)
 {
@@ -147,6 +148,7 @@ static bool audio_notifier_data_is_empty(struct audio_notifier_data *andata)
 			return false;
 	return true;
 }
+
 
 static int audio_notifier_notify(struct device *dev, struct audio_notifier_data *andata)
 {

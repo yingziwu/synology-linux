@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -31,6 +32,7 @@ disclaimer.
 /* needed for RM_HANDLE  but not nesessary for the code ???*/
 #include "rm_internal_types.h"
 
+
 /**
  */
 int rm_list_create(rmctl_t hndl, struct rm_list **list_ptr)
@@ -48,6 +50,7 @@ int rm_list_create(rmctl_t hndl, struct rm_list **list_ptr)
 
 	return 0;
 }
+
 
 /**
  */
@@ -73,6 +76,7 @@ int rm_list_add_index(rmctl_t hndl, struct rm_list *list, uint32_t index,
 	return 0;
 }
 
+
 /**
  */
 int rm_list_next_index(rmctl_t hndl, struct rm_list *list, uint32_t *index,
@@ -97,6 +101,7 @@ int rm_list_next_index(rmctl_t hndl, struct rm_list *list, uint32_t *index,
 	return 0;
 }
 
+
 /**
  */
 int rm_list_reset_to_start(rmctl_t hndl, struct rm_list *list, uint32_t *index, uint8_t *level)
@@ -116,6 +121,7 @@ int rm_list_reset_to_start(rmctl_t hndl, struct rm_list *list, uint32_t *index, 
 	}
 	return 0;
 }
+
 
 /**
  */
@@ -152,6 +158,7 @@ int rm_list_del_index(rmctl_t hndl, struct rm_list *list, uint32_t index,
 	return 0;
 }
 
+
 /**
  */
 int rm_list_delete(rmctl_t hndl, struct rm_list *list)
@@ -169,3 +176,4 @@ int rm_list_delete(rmctl_t hndl, struct rm_list *list)
 	tm_free(list);
 	return 0;
 }
+

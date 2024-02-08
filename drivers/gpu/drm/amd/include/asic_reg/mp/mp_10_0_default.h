@@ -21,6 +21,7 @@
 #ifndef _mp_10_0_DEFAULT_HEADER
 #define _mp_10_0_DEFAULT_HEADER
 
+
 // addressBlock: mp_SmuMp0_SmnDec
 #define mmMP0_SMN_C2PMSG_32_DEFAULT                                              0x00000000
 #define mmMP0_SMN_C2PMSG_33_DEFAULT                                              0x00000000
@@ -97,6 +98,7 @@
 #define mmMP0_SMN_IH_CREDIT_DEFAULT                                              0x00000000
 #define mmMP0_SMN_IH_SW_INT_DEFAULT                                              0x00000000
 #define mmMP0_SMN_IH_SW_INT_CTRL_DEFAULT                                         0x00000000
+
 
 // addressBlock: mp_SmuMp1_SmnDec
 #define mmMP1_SMN_C2PMSG_32_DEFAULT                                              0x00000000
@@ -175,5 +177,6 @@
 #define mmMP1_SMN_IH_SW_INT_DEFAULT                                              0x00000000
 #define mmMP1_SMN_IH_SW_INT_CTRL_DEFAULT                                         0x00000000
 #define mmMP1_SMN_FPS_CNT_DEFAULT                                                0x00000000
+
 
 #endif

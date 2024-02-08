@@ -26,6 +26,7 @@
 
 #include "dm_services.h"
 
+
 #include "stream_encoder.h"
 #include "resource.h"
 #include "include/irq_service_interface.h"
@@ -136,6 +137,7 @@ static const struct dce110_timing_generator_offsets dce120_tg_offsets[] = {
 
 /* macros to expend register list macro defined in HW object header file
  * end *********************/
+
 
 static const struct dce_dmcu_registers dmcu_regs = {
 		DMCU_DCE110_COMMON_REG_LIST()
@@ -248,6 +250,7 @@ static const struct dce110_link_enc_registers link_enc_regs[] = {
 	link_regs(5),
 	link_regs(6),
 };
+
 
 #define stream_enc_regs(id)\
 [id] = {\
@@ -401,6 +404,7 @@ void dce120_clock_source_destroy(struct clock_source **clk_src)
 	kfree(TO_DCE110_CLK_SRC(*clk_src));
 	*clk_src = NULL;
 }
+
 
 bool dce120_hw_sequencer_create(struct dc *dc)
 {

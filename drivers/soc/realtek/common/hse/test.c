@@ -58,6 +58,7 @@ static __must_check struct hse_test_buf *hse_test_buf_alloc(struct device *dev,
 	if (!bufs)
 		return NULL;
 
+
 	for (i = 0; i < mem_num; i++) {
 		if (secure_en) {
 			bufs[i].type = 1;
@@ -453,6 +454,7 @@ static int hse_copy_verify_result(struct hse_test_buf *dst,
 	return ret;
 }
 
+
 static int hse_copy(struct hse_engine *eng,
 		    struct hse_test_buf *dst,
 		    struct hse_test_buf *src,
@@ -560,6 +562,7 @@ do { \
 		(_hobj)->pass++; \
 } while (0);
 
+
 __maybe_unused
 static void hse_test_engine_rotate(struct hse_test_obj *hobj)
 {
@@ -639,6 +642,7 @@ static void hse_test_engine_yuy2(struct hse_test_obj *hobj)
 	};
 	int ret;
 	int i;
+
 
 	/* prepare data for yuy2_to_nv12 */
 	for (i = 0; i < MEM_SIZE; i++)

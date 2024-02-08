@@ -77,6 +77,7 @@ static const char * const sym_regex_kernel[S_NSYMTYPES] = {
 	"_end)$"
 };
 
+
 static const char * const sym_regex_realmode[S_NSYMTYPES] = {
 /*
  * These symbols are known to be relative, even if the linker marks them
@@ -477,6 +478,7 @@ static void read_symtabs(FILE *fp)
 	}
 }
 
+
 static void read_relocs(FILE *fp)
 {
 	int i,j;
@@ -509,6 +511,7 @@ static void read_relocs(FILE *fp)
 		}
 	}
 }
+
 
 static void print_absolute_symbols(void)
 {
@@ -743,6 +746,7 @@ static int is_percpu_sym(ElfW(Sym) *sym, const char *symname)
 		strncmp(symname, "init_per_cpu_", 13);
 }
 
+
 static int do_reloc64(struct section *sec, Elf_Rel *rel, ElfW(Sym) *sym,
 		      const char *symname)
 {
@@ -765,9 +769,12 @@ static int do_reloc64(struct section *sec, Elf_Rel *rel, ElfW(Sym) *sym,
 		break;
 
 	case R_X86_64_PC32:
+	case R_X86_64_PLT32:
 		/*
 		 * PC relative relocations don't need to be adjusted unless
 		 * referencing a percpu symbol.
+		 *
+		 * NB: R_X86_64_PLT32 can be treated as R_X86_64_PC32.
 		 */
 		if (is_percpu_sym(sym, symname))
 			add_reloc(&relocs32neg, offset);
@@ -988,11 +995,12 @@ static void emit_relocs(int as_text, int use_real_mode)
 		die("Segment relocations found but --realmode not specified\n");
 
 	/* Order the relocations for more efficient processing */
-	sort_relocs(&relocs16);
 	sort_relocs(&relocs32);
 #if ELF_BITS == 64
 	sort_relocs(&relocs32neg);
 	sort_relocs(&relocs64);
+#else
+	sort_relocs(&relocs16);
 #endif
 
 	/* Print the relocations */

@@ -33,6 +33,7 @@
 
 #include "drbd_int.h"
 
+
 /* OPAQUE outside this file!
  * interface defined in drbd_int.h
 
@@ -40,6 +41,7 @@
  * function name drbd_bm_... => used elsewhere, "public".
  * function name      bm_... => internal to implementation, "private".
  */
+
 
 /*
  * LIMITATIONS:
@@ -344,6 +346,7 @@ static void bm_unmap(unsigned long *p_addr)
  * to be able to report device specific.
  */
 
+
 static void bm_free_pages(struct page **pages, unsigned long number)
 {
 	unsigned long i;
@@ -476,8 +479,14 @@ void drbd_bm_cleanup(struct drbd_device *device)
  * this masks out the remaining bits.
  * Returns the number of bits cleared.
  */
+#ifndef BITS_PER_PAGE
 #define BITS_PER_PAGE		(1UL << (PAGE_SHIFT + 3))
 #define BITS_PER_PAGE_MASK	(BITS_PER_PAGE - 1)
+#else
+# if BITS_PER_PAGE != (1UL << (PAGE_SHIFT + 3))
+#  error "ambiguous BITS_PER_PAGE"
+# endif
+#endif
 #define BITS_PER_LONG_MASK	(BITS_PER_LONG - 1)
 static int bm_clear_surplus(struct drbd_bitmap *b)
 {
@@ -1238,6 +1247,7 @@ static unsigned long __bm_find_next(struct drbd_device *device, unsigned long bm
 	unsigned long bit_offset;
 	unsigned i;
 
+
 	if (bm_fo > b->bm_bits) {
 		drbd_err(device, "bm_fo=%lu bm_bits=%lu\n", bm_fo, b->bm_bits);
 		bm_fo = DRBD_END_OF_BITMAP;
@@ -1585,6 +1595,7 @@ int drbd_bm_count_bits(struct drbd_device *device, const unsigned long s, const 
 	spin_unlock_irqrestore(&b->bm_lock, flags);
 	return c;
 }
+
 
 /* inherently racy...
  * return value may be already out-of-date when this function returns.

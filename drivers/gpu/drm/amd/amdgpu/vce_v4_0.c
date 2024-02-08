@@ -762,6 +762,7 @@ static int vce_v4_0_pre_soft_reset(void *handle)
 	return vce_v4_0_suspend(adev);
 }
 
+
 static int vce_v4_0_post_soft_reset(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;

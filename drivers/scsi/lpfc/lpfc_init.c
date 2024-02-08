@@ -168,6 +168,7 @@ lpfc_config_port_prep(struct lpfc_hba *phba)
 		return -ERESTART;
 	}
 
+
 	/*
 	 * The value of rr must be 1 since the driver set the cv field to 1.
 	 * This setting requires the FW to set all revision fields.
@@ -1375,6 +1376,7 @@ lpfc_handle_deferred_eratt(struct lpfc_hba *phba)
 	spin_lock_irq(&phba->hbalock);
 	psli->sli_flag &= ~LPFC_SLI_ACTIVE;
 	spin_unlock_irq(&phba->hbalock);
+
 
 	/*
 	 * Firmware stops when it triggred erratt. That could cause the I/Os
@@ -7265,6 +7267,7 @@ lpfc_sli4_queue_create(struct lpfc_hba *phba)
 		phba->sli4_hba.fcp_wq[idx] = qdesc;
 	}
 
+
 	/*
 	 * Create Slow Path Completion Queues (CQs)
 	 */
@@ -7288,6 +7291,7 @@ lpfc_sli4_queue_create(struct lpfc_hba *phba)
 		goto out_error;
 	}
 	phba->sli4_hba.els_cq = qdesc;
+
 
 	/*
 	 * Create Slow Path Work Queues (WQs)
@@ -8894,6 +8898,7 @@ out:
 	phba->cfg_fcp_io_sched = LPFC_FCP_SCHED_BY_CPU;
 	return 1;
 }
+
 
 /**
  * lpfc_sli4_enable_msix - Enable MSI-X interrupt mode to SLI-4 device

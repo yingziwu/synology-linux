@@ -71,6 +71,7 @@
 #include <linux/serial_core.h>
 #include <linux/serial.h>
 
+
 #define MOD_AUTHOR			"Option Wireless"
 #define MOD_DESCRIPTION			"USB High Speed Option driver"
 #define MOD_LICENSE			"GPL"
@@ -213,6 +214,7 @@ struct hso_tiocmget {
 	u16    prev_UART_state_bitmap;
 	struct uart_icount icount;
 };
+
 
 struct hso_serial {
 	struct hso_device *parent;
@@ -1153,6 +1155,9 @@ static void hso_resubmit_rx_bulk_urb(struct hso_serial *serial, struct urb *urb)
 	}
 }
 
+
+
+
 static void put_rxbuf_data_and_resubmit_bulk_urb(struct hso_serial *serial)
 {
 	int count;
@@ -1192,6 +1197,7 @@ static void put_rxbuf_data_and_resubmit_ctrl_urb(struct hso_serial *serial)
 	} else
 		serial->rx_state = RX_IDLE;
 }
+
 
 /* read callback for Diag and CS port */
 static void hso_std_serial_read_bulk_callback(struct urb *urb)
@@ -1633,6 +1639,7 @@ static int hso_get_count(struct tty_struct *tty,
 	return 0;
 }
 
+
 static int hso_serial_tiocmget(struct tty_struct *tty)
 {
 	int retval;
@@ -1728,6 +1735,7 @@ static int hso_serial_ioctl(struct tty_struct *tty,
 	}
 	return ret;
 }
+
 
 /* starts a transmit */
 static void hso_kick_transmit(struct hso_serial *serial)
@@ -2044,6 +2052,7 @@ static int put_rxbuf_data(struct urb *urb, struct hso_serial *serial)
 
 	return 0;
 }
+
 
 /* Base driver functions */
 
@@ -2816,6 +2825,12 @@ static int hso_get_config_data(struct usb_interface *interface)
 		return -EIO;
 	}
 
+	/* check if we have a valid interface */
+	if (if_num > 16) {
+		kfree(config_data);
+		return -EINVAL;
+	}
+
 	switch (config_data[if_num]) {
 	case 0x0:
 		result = 0;
@@ -2886,10 +2901,18 @@ static int hso_probe(struct usb_interface *interface,
 
 	/* Get the interface/port specification from either driver_info or from
 	 * the device itself */
-	if (id->driver_info)
+	if (id->driver_info) {
+		/* if_num is controlled by the device, driver_info is a 0 terminated
+		 * array. Make sure, the access is in bounds! */
+		for (i = 0; i <= if_num; ++i)
+			if (((u32 *)(id->driver_info))[i] == 0)
+				goto exit;
 		port_spec = ((u32 *)(id->driver_info))[if_num];
-	else
+	} else {
 		port_spec = hso_get_config_data(interface);
+		if (port_spec < 0)
+			goto exit;
+	}
 
 	/* Check if we need to switch to alt interfaces prior to port
 	 * configuration */

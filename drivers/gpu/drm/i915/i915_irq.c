@@ -1255,6 +1255,7 @@ out:
 	spin_unlock_irq(&dev_priv->irq_lock);
 }
 
+
 /**
  * ivybridge_parity_work - Workqueue called when a parity error interrupt
  * occurred.
@@ -1684,6 +1685,7 @@ display_pipe_crc_irq_handler(struct drm_i915_private *dev_priv,
 			     uint32_t crc2, uint32_t crc3,
 			     uint32_t crc4) {}
 #endif
+
 
 static void hsw_pipe_crc_irq_handler(struct drm_i915_private *dev_priv,
 				     enum pipe pipe)
@@ -3539,6 +3541,7 @@ void valleyview_disable_display_irqs(struct drm_i915_private *dev_priv)
 	if (intel_irqs_enabled(dev_priv))
 		vlv_display_irq_reset(dev_priv);
 }
+
 
 static int valleyview_irq_postinstall(struct drm_device *dev)
 {

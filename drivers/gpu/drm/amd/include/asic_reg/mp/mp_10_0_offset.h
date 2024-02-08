@@ -21,6 +21,8 @@
 #ifndef _mp_10_0_OFFSET_HEADER
 #define _mp_10_0_OFFSET_HEADER
 
+
+
 // addressBlock: mp_SmuMp0_SmnDec
 // base address: 0x0
 #define mmMP0_SMN_C2PMSG_32                                                                            0x0060
@@ -173,6 +175,7 @@
 #define mmMP0_SMN_IH_SW_INT_BASE_IDX                                                                   0
 #define mmMP0_SMN_IH_SW_INT_CTRL                                                                       0x00c3
 #define mmMP0_SMN_IH_SW_INT_CTRL_BASE_IDX                                                              0
+
 
 // addressBlock: mp_SmuMp1_SmnDec
 // base address: 0x0
@@ -328,5 +331,6 @@
 #define mmMP1_SMN_IH_SW_INT_CTRL_BASE_IDX                                                              0
 #define mmMP1_SMN_FPS_CNT                                                                              0x02c4
 #define mmMP1_SMN_FPS_CNT_BASE_IDX                                                                     0
+
 
 #endif

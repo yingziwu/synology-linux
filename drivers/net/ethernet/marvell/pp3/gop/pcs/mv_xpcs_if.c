@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -27,6 +28,7 @@ disclaimer.
 #include "common/mv_sw_if.h"
 #include "gop/mv_gop_if.h"
 #include "gop/pcs/mv_xpcs_regs.h"
+
 
 /* print value of unit registers */
 void mv_xpcs_gl_regs_dump(void)
@@ -113,3 +115,4 @@ int mv_xpcs_mode(int num_of_lanes)
 
 	return 0;
 }
+

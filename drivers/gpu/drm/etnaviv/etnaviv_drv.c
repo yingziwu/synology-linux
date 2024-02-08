@@ -80,6 +80,7 @@ u32 etnaviv_readl(const void __iomem *addr)
  * DRM operations:
  */
 
+
 static void load_gpu(struct drm_device *dev)
 {
 	struct etnaviv_drm_private *priv = dev->dev_private;

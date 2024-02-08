@@ -297,6 +297,7 @@ static int dwc3_rtk_suspend(struct device *dev)
 	//For suspend mode
 	dev_info(dev,  "[USB] %s Suspend mode\n", __func__);
 
+
 //hcy removed	clk_disable(rtk->clk);
 
 #if 0

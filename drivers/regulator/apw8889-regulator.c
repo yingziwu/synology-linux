@@ -165,6 +165,7 @@ static unsigned int apw8889_regulator_get_mode_regmap(struct regulator_dev *rdev
 	return REGULATOR_MODE_NORMAL;
 }
 
+
 static int apw8889_set_suspend_enable(struct regulator_dev *rdev)
 {
 	struct apw8889_regulator_data *data = rdev_get_drvdata(rdev);

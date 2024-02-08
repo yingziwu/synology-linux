@@ -26,6 +26,7 @@
 #ifndef __IRQSRCS_DCN_1_0_H__
 #define __IRQSRCS_DCN_1_0_H__
 
+
 #define DCN_1_0__SRCID__DC_I2C_SW_DONE	            1	// DC_I2C SW done	DC_I2C_SW_DONE_INTERRUPT	DISP_INTERRUPT_STATUS	Level	
 #define DCN_1_0__CTXID__DC_I2C_SW_DONE	            0
 
@@ -1128,5 +1129,6 @@
 #define DCN_1_0__SRCID__HUBP5_FLIP_AWAY_INTERRUPT	0x62	// Flip_away interrupt is generated when all data for old surface is returned and old surface is not used again after the surface flip.HUBP5_IHC_FLIP_AWAY_INTERRUPT	DISP_INTERRUPT_STATUS_CONTINUE17	Level / Pulse
 #define DCN_1_0__SRCID__HUBP6_FLIP_AWAY_INTERRUPT	0x63	// Flip_away interrupt is generated when all data for old surface is returned and old surface is not used again after the surface flip.HUBP6_IHC_FLIP_AWAY_INTERRUPT	DISP_INTERRUPT_STATUS_CONTINUE17	Level / Pulse
 #define DCN_1_0__SRCID__HUBP7_FLIP_AWAY_INTERRUPT	0x64	// Flip_away interrupt is generated when all data for old surface is returned and old surface is not used again after the surface flip.HUBP7_IHC_FLIP_AWAY_INTERRUPT	DISP_INTERRUPT_STATUS_CONTINUE17	Level / Pulse
+
 
 #endif // __IRQSRCS_DCN_1_0_H__

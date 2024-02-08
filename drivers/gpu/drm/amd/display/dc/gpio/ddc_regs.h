@@ -92,6 +92,7 @@
 		SF_DDC(DC_GPIO_I2CPAD_MASK, DC_GPIO_SDA_PD_DIS, mask_sh),\
 		SF_DDC(DC_GPIO_I2CPAD_MASK, DC_GPIO_SCL_PD_DIS, mask_sh)
 
+
 struct ddc_registers {
 	struct gpio_registers gpio;
 	uint32_t ddc_setup;
@@ -110,6 +111,8 @@ struct ddc_sh_mask {
 	uint32_t DC_GPIO_SDA_PD_DIS;
 	uint32_t DC_GPIO_SCL_PD_DIS;
 };
+
+
 
 /*** following in dc_resource */
 
@@ -142,5 +145,6 @@ struct ddc_sh_mask {
 {\
 	DDC_I2C_REG_LIST(SCL)\
 }
+
 
 #endif /* DRIVERS_GPU_DRM_AMD_DC_DEV_DC_GPIO_DDC_REGS_H_ */

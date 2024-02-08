@@ -45,6 +45,7 @@
 #include "bios_parser_common.h"
 #define LAST_RECORD_TYPE 0xff
 
+
 struct i2c_id_config_access {
 	uint8_t bfI2C_LineMux:4;
 	uint8_t bfHW_EngineID:3;
@@ -80,6 +81,7 @@ static struct atom_encoder_caps_record *get_encoder_cap_record(
 #define BIOS_IMAGE_SIZE_UNIT 512
 
 #define DATA_TABLES(table) (bp->master_data_tbl->listOfdatatables.table)
+
 
 static void destruct(struct bios_parser *bp)
 {
@@ -176,6 +178,7 @@ static struct graphics_object_id bios_parser_get_connector_id(
 	return object_id;
 }
 
+
 /*  TODO:  GetNumberOfSrc*/
 
 static uint32_t bios_parser_get_dst_number(struct dc_bios *dcb,
@@ -193,6 +196,7 @@ static uint32_t bios_parser_get_dst_number(struct dc_bios *dcb,
 }
 
 /*  removed getSrcObjList, getDestObjList*/
+
 
 static enum bp_result bios_parser_get_src_obj(struct dc_bios *dcb,
 	struct graphics_object_id object_id, uint32_t index,
@@ -293,6 +297,7 @@ static enum bp_result bios_parser_get_dst_obj(struct dc_bios *dcb,
 
 	return bp_result;
 }
+
 
 /* from graphics_object_id, find display path which includes the object_id */
 static struct atom_display_object_path_v2 *get_bios_object(
@@ -1075,6 +1080,7 @@ static enum bp_result bios_parser_get_embedded_panel_info(
 
 	get_atom_data_table_revision(header, &tbl_revision);
 
+
 	switch (tbl_revision.major) {
 	case 2:
 		switch (tbl_revision.minor) {
@@ -1274,6 +1280,7 @@ static bool bios_parser_is_accelerated_mode(
 	return bios_is_accelerated_mode(dcb);
 }
 
+
 /**
  * bios_parser_set_scratch_critical_state
  *
@@ -1401,6 +1408,7 @@ static enum bp_result bios_parser_get_encoder_cap_info(
 
 	return BP_RESULT_OK;
 }
+
 
 static struct atom_encoder_caps_record *get_encoder_cap_record(
 	struct bios_parser *bp,
@@ -1590,6 +1598,7 @@ static enum bp_result get_integrated_info_v11(
 				info_v11->dp3_retimer_set.Hdmi6GhzRegSetting[i].ucI2cRegVal;
 	}
 
+
 	/** TODO - review **/
 	#if 0
 	info->boot_up_engine_clock = le32_to_cpu(info_v11->ulBootUpEngineClock)
@@ -1664,6 +1673,7 @@ static enum bp_result get_integrated_info_v11(
 
 	return BP_RESULT_OK;
 }
+
 
 /*
  * construct_integrated_info
@@ -1787,9 +1797,12 @@ static const struct dc_vbios_funcs vbios_funcs = {
 
 	.is_device_id_supported = bios_parser_is_device_id_supported,
 
+
+
 	.is_accelerated_mode = bios_parser_is_accelerated_mode,
 
 	.set_scratch_critical_state = bios_parser_set_scratch_critical_state,
+
 
 /*	 COMMANDS */
 	.encoder_control = bios_parser_encoder_control,
@@ -1917,3 +1930,5 @@ struct dc_bios *firmware_parser_create(
 	kfree(bp);
 	return NULL;
 }
+
+

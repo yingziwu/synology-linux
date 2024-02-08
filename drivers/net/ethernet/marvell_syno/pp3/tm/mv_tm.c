@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -44,6 +45,7 @@ struct qmtm *qmtm_hndl;
 enum mv_tm_config mv_active_config;
 void __iomem *tm_regs_base;
 const char *tm_prod_str;
+
 
 static const char *tm_config_str(enum mv_tm_config config)
 {
@@ -105,6 +107,7 @@ int tm_open(void)
 	}
 
 	mv_active_config = TM_INVALID_CONFIG;
+
 
 	tm_memset(henv, 0, sizeof(struct qmtm));
 	henv->magic = TM_MAGIC;
@@ -727,6 +730,7 @@ err_out:
 }
 EXPORT_SYMBOL(tm_cfg1);
 
+
 /* 2xPPC scenario configuration */
 int tm_2xppc(void)
 {
@@ -951,6 +955,7 @@ int __tm_create_default_a_node_with_queues(tm_handle hndl, uint16_t b_node_index
 	int rc = 0;
 	/* relative node index in children range under some parent node */
 	uint32_t queue;
+
 
 	a_params.wred_profile_ref = TM_NO_DROP_PROFILE;
 	a_params.elig_prio_func_ptr = TM_ELIG_N_DEFAULT;
@@ -1392,3 +1397,5 @@ err_out:
 	return rc;
 }
 EXPORT_SYMBOL(tm_cfg3_tree);
+
+

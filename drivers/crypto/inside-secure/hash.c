@@ -412,6 +412,7 @@ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
 #endif /* MY_DEF_HERE */
 	spin_unlock_bh(&priv->ring[ctx->base.ring].queue_lock);
 
+
 	if (enq_ret != -EINPROGRESS)
 		*ret = enq_ret;
 
@@ -577,6 +578,7 @@ static int safexcel_ahash_update(struct ahash_request *areq)
 		 */
 		if (!extra)
 			extra = crypto_ahash_blocksize(ahash);
+
 
 		sg_pcopy_to_buffer(areq->src, sg_nents(areq->src),
 				   req->cache_next, extra,

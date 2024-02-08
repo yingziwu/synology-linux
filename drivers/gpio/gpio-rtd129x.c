@@ -335,6 +335,7 @@ static void gpio_irq_handler(struct irq_desc *desc)
         }
     }
 
+
     RTK_GPIO_DBG("[%s] irq_had_fired = %d",__FUNCTION__, irq_had_fired);
     iowrite32(event, p_rtk_gpio_ctl->reg_isr);
     if(!irq_had_fired)

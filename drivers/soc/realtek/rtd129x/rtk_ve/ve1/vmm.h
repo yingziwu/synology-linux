@@ -25,6 +25,7 @@
 #ifndef __RTK_VIDEO_MEMORY_MANAGEMENT_H__
 #define __RTK_VIDEO_MEMORY_MANAGEMENT_H__
 
+
 typedef struct _video_mm_info_struct {
     unsigned long   total_pages;
     unsigned long   alloc_pages;
@@ -46,6 +47,7 @@ typedef struct page_struct {
     int			 first_pageno;
 } page_t;
 
+
 typedef struct avl_node_struct {
     vmem_key_t   key;
     int	 height;
@@ -53,6 +55,7 @@ typedef struct avl_node_struct {
     struct avl_node_struct *left;
     struct avl_node_struct *right;
 } avl_node_t;
+
 
 typedef struct _video_mm_struct {
     avl_node_t *free_tree;
@@ -65,6 +68,8 @@ typedef struct _video_mm_struct {
     int			 alloc_page_count;
 } video_mm_t;
 
+
+
 #define VMEM_P_ALLOC(_x)		 vmalloc(_x)
 #define VMEM_P_FREE(_x)		  vfree(_x)
 
@@ -72,12 +77,15 @@ typedef struct _video_mm_struct {
 }
 #define VMEM_HEIGHT(_tree)	   (_tree == NULL ? -1 : _tree->height)
 
+
 #define MAX(_a, _b)		 (_a >= _b ? _a : _b)
 
 typedef enum {
     LEFT,
     RIGHT
 } rotation_dir_t;
+
+
 
 typedef struct avl_node_data_struct {
     int	 key;
@@ -99,6 +107,7 @@ make_avl_node(
 
     return node;
 }
+
 
 static int
 get_balance_factor(
@@ -148,6 +157,7 @@ rotation_left(
 
     return rchild;
 }
+
 
 /*
  * Reft Rotation
@@ -269,6 +279,7 @@ static avl_node_t
     return do_balance(tree);
 }
 
+
 static avl_node_t
 *avltree_insert(
     avl_node_t *tree,
@@ -374,6 +385,9 @@ avltree_free(
     VMEM_P_FREE(tree);
 }
 
+
+
+
 static avl_node_t
 *remove_approx_value(
     avl_node_t *tree,
@@ -472,6 +486,7 @@ set_blocks_alloc(
 
     mm->alloc_tree = avltree_insert(mm->alloc_tree, MAKE_KEY(page->addr, 0), page);
 }
+
 
 int
 vmem_init(
@@ -587,6 +602,7 @@ vmem_alloc(
     mm->alloc_page_count += npages;
     mm->free_page_count  -= npages;
 
+
     return ptr;
 }
 
@@ -603,6 +619,7 @@ vmem_free(
     int pageno, prev_free_pageno, next_free_pageno;
     int prev_size, next_size;
     int merge_page_no, merge_page_size, free_page_size;
+
 
     if (mm == NULL) {
         printk(KERN_INFO "vmem_free: invalid handle\n");
@@ -698,5 +715,7 @@ vmem_get_info(
 
     return 0;
 }
+
+
 
 #endif /* __RTK_VIDEO_MEMORY_MANAGEMENT_H__ */

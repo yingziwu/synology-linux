@@ -21,6 +21,7 @@
  *
  */
 
+
 #ifndef SMU74_H
 #define SMU74_H
 
@@ -109,6 +110,7 @@ struct Gc_Cac_Weight_Data {
 
 typedef struct Gc_Cac_Weight_Data GcCacWeight_Data;
 
+
 typedef struct {
 	uint32_t high;
 	uint32_t low;
@@ -196,6 +198,7 @@ typedef struct {
 #define CG_BIF_MASK   0x400
 #define CG_BIF_SHIFT  10
 
+
 #define SMU74_DTE_ITERATIONS 5
 #define SMU74_DTE_SOURCES 3
 #define SMU74_DTE_SINKS 1
@@ -206,6 +209,7 @@ typedef struct {
 #define SMU74_DTE_FAN_SCALAR_MAX 0x166
 #define SMU74_DTE_FAN_TEMP_MAX 93
 #define SMU74_DTE_FAN_TEMP_MIN 83
+
 
 #if defined SMU__FUSION_ONLY
 #define SMU7_DTE_ITERATIONS 5
@@ -346,6 +350,7 @@ struct SMU7_VoltageScoreboard {
 
 	uint16_t CurrentVddc;
 	uint16_t CurrentVddci;
+
 
 	uint8_t  ControllerBusy;
 	uint8_t  CurrentVid;
@@ -604,6 +609,7 @@ enum  DisplayConfig {
 	DP324x1
 };
 
+
 #define MC_BLOCK_COUNT 1
 #define CPL_BLOCK_COUNT 5
 #define SE_BLOCK_COUNT 15
@@ -682,6 +688,7 @@ typedef struct SMU7_Local_Cac_Table SMU7_Local_Cac_Table;
 #define CG_GFX_3DLS_MASK              0x00400000
 #define CG_GFX_RLC_LS_MASK            0x00800000
 #define CG_GFX_CP_LS_MASK             0x01000000
+
 
 /* Voltage Regulator Configuration
 VR Config info is contained in dpmTable.VRConfig */
@@ -783,6 +790,7 @@ struct VFT_TABLE_t {
 
 typedef struct VFT_TABLE_t VFT_TABLE_t;
 
+
 /* Total margin, root mean square of Fmax + DC + Platform */
 struct AVFS_Margin_t {
 	VFT_CELL_t Cell[NUM_VFT_COLUMNS];
@@ -821,3 +829,5 @@ struct AVFS_Sclk_Offset_t {
 typedef struct AVFS_Sclk_Offset_t AVFS_Sclk_Offset_t;
 
 #endif
+
+

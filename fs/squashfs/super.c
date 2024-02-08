@@ -75,6 +75,7 @@ static const struct squashfs_decompressor *supported_squashfs_filesystem(short
 	return decompressor;
 }
 
+
 static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 {
 	struct squashfs_sb_info *msblk;
@@ -175,6 +176,7 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 	msblk->inode_table = le64_to_cpu(sblk->inode_table_start);
 	msblk->directory_table = le64_to_cpu(sblk->directory_table_start);
 	msblk->inodes = le32_to_cpu(sblk->inodes);
+	msblk->fragments = le32_to_cpu(sblk->fragments);
 	flags = le16_to_cpu(sblk->flags);
 
 	TRACE("Found valid superblock on %s\n", bdevname(sb->s_bdev, b));
@@ -185,7 +187,7 @@ static int squashfs_fill_super(struct super_block *sb, void *data, int silent)
 	TRACE("Filesystem size %lld bytes\n", msblk->bytes_used);
 	TRACE("Block size %d\n", msblk->block_size);
 	TRACE("Number of inodes %d\n", msblk->inodes);
-	TRACE("Number of fragments %d\n", le32_to_cpu(sblk->fragments));
+	TRACE("Number of fragments %d\n", msblk->fragments);
 	TRACE("Number of ids %d\n", le16_to_cpu(sblk->no_ids));
 	TRACE("sblk->inode_table_start %llx\n", msblk->inode_table);
 	TRACE("sblk->directory_table_start %llx\n", msblk->directory_table);
@@ -272,7 +274,7 @@ allocate_id_index_table:
 	sb->s_export_op = &squashfs_export_ops;
 
 handle_fragments:
-	fragments = le32_to_cpu(sblk->fragments);
+	fragments = msblk->fragments;
 	if (fragments == 0)
 		goto check_directory_table;
 
@@ -348,6 +350,7 @@ failed_mount:
 	return err;
 }
 
+
 static int squashfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
 	struct squashfs_sb_info *msblk = dentry->d_sb->s_fs_info;
@@ -368,12 +371,14 @@ static int squashfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	return 0;
 }
 
+
 static int squashfs_remount(struct super_block *sb, int *flags, char *data)
 {
 	sync_filesystem(sb);
 	*flags |= MS_RDONLY;
 	return 0;
 }
+
 
 static void squashfs_put_super(struct super_block *sb)
 {
@@ -393,13 +398,16 @@ static void squashfs_put_super(struct super_block *sb)
 	}
 }
 
+
 static struct dentry *squashfs_mount(struct file_system_type *fs_type,
 				int flags, const char *dev_name, void *data)
 {
 	return mount_bdev(fs_type, flags, dev_name, data, squashfs_fill_super);
 }
 
+
 static struct kmem_cache *squashfs_inode_cachep;
+
 
 static void init_once(void *foo)
 {
@@ -407,6 +415,7 @@ static void init_once(void *foo)
 
 	inode_init_once(&ei->vfs_inode);
 }
+
 
 static int __init init_inodecache(void)
 {
@@ -417,6 +426,7 @@ static int __init init_inodecache(void)
 	return squashfs_inode_cachep ? 0 : -ENOMEM;
 }
 
+
 static void destroy_inodecache(void)
 {
 	/*
@@ -426,6 +436,7 @@ static void destroy_inodecache(void)
 	rcu_barrier();
 	kmem_cache_destroy(squashfs_inode_cachep);
 }
+
 
 static int __init init_squashfs_fs(void)
 {
@@ -445,11 +456,13 @@ static int __init init_squashfs_fs(void)
 	return 0;
 }
 
+
 static void __exit exit_squashfs_fs(void)
 {
 	unregister_filesystem(&squashfs_fs_type);
 	destroy_inodecache();
 }
+
 
 static struct inode *squashfs_alloc_inode(struct super_block *sb)
 {
@@ -458,6 +471,7 @@ static struct inode *squashfs_alloc_inode(struct super_block *sb)
 
 	return ei ? &ei->vfs_inode : NULL;
 }
+
 
 static void squashfs_i_callback(struct rcu_head *head)
 {
@@ -469,6 +483,7 @@ static void squashfs_destroy_inode(struct inode *inode)
 {
 	call_rcu(&inode->i_rcu, squashfs_i_callback);
 }
+
 
 static struct file_system_type squashfs_fs_type = {
 	.owner = THIS_MODULE,

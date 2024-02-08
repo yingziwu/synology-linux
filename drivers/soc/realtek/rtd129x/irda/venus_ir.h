@@ -152,4 +152,5 @@ struct Venus_IRTx_KeycodeTable {
 	unsigned int irtx_keycode_list[2048];
 };
 
+
 #endif /* __VENUS_IR_RTK__H__ */

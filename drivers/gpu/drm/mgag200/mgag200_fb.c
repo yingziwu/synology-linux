@@ -122,6 +122,7 @@ static void mga_imageblit(struct fb_info *info,
 			 image->height);
 }
 
+
 static struct fb_ops mgag200fb_ops = {
 	.owner = THIS_MODULE,
 	.fb_check_var = drm_fb_helper_check_var,

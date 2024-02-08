@@ -116,6 +116,7 @@ static int polaris10_perform_btc(struct pp_hwmgr *hwmgr)
 	return result;
 }
 
+
 static int polaris10_setup_graphics_level_structure(struct pp_hwmgr *hwmgr)
 {
 	uint32_t vr_config;
@@ -169,6 +170,7 @@ static int polaris10_setup_graphics_level_structure(struct pp_hwmgr *hwmgr)
 
 	return 0;
 }
+
 
 static int
 polaris10_avfs_event_mgr(struct pp_hwmgr *hwmgr, bool SMU_VFT_INTACT)
@@ -239,7 +241,9 @@ static int polaris10_start_smu_in_protection_mode(struct pp_hwmgr *hwmgr)
 	PHM_WRITE_VFPF_INDIRECT_FIELD(hwmgr->device, CGS_IND_REG__SMC,
 					SMC_SYSCON_RESET_CNTL, rst_reg, 0);
 
+
 	PHM_WAIT_VFPF_INDIRECT_FIELD(hwmgr, SMC_IND, RCU_UC_EVENTS, INTERRUPTS_ENABLED, 1);
+
 
 	/* Call Test SMU message with 0x20000 offset to trigger SMU start */
 	smu7_send_msg_to_smc_offset(hwmgr);
@@ -824,6 +828,7 @@ static int polaris10_populate_smc_link_level(struct pp_hwmgr *hwmgr,
 	return 0;
 }
 
+
 static void polaris10_get_sclk_range_table(struct pp_hwmgr *hwmgr,
 				   SMU74_Discrete_DpmTable  *table)
 {
@@ -1045,6 +1050,7 @@ static int polaris10_populate_all_graphic_levels(struct pp_hwmgr *hwmgr)
 	hw_data->dpm_level_enable_mask.sclk_dpm_enable_mask =
 			phm_get_dpm_level_enable_mask_value(&dpm_table->sclk_table);
 
+
 	if (pcie_table != NULL) {
 		PP_ASSERT_WITH_CODE((1 <= pcie_entry_cnt),
 				"There must be 1 or more PCIE levels defined in PPTable.",
@@ -1090,6 +1096,7 @@ static int polaris10_populate_all_graphic_levels(struct pp_hwmgr *hwmgr)
 
 	return result;
 }
+
 
 static int polaris10_populate_single_memory_level(struct pp_hwmgr *hwmgr,
 		uint32_t clock, struct SMU74_Discrete_MemoryLevel *mem_level)
@@ -1263,6 +1270,7 @@ static int polaris10_populate_smc_acpi_level(struct pp_hwmgr *hwmgr,
 	CONVERT_FROM_HOST_TO_SMC_US(table->ACPILevel.SclkSetting.Fcw1_frac);
 	CONVERT_FROM_HOST_TO_SMC_US(table->ACPILevel.SclkSetting.Sclk_ss_slew_rate);
 
+
 	/* Get MinVoltage and Frequency from DPM0, already converted to SMC_UL */
 	table->MemoryACPILevel.MclkFrequency = data->vbios_boot_state.mclk_bootup_value;
 	result = polaris10_get_dependency_volt_by_clk(hwmgr,
@@ -1336,6 +1344,7 @@ static int polaris10_populate_smc_vce_level(struct pp_hwmgr *hwmgr,
 		else
 			vddci = (data->vbios_boot_state.vddci_bootup_value * VOLTAGE_SCALE) << VDDCI_SHIFT;
 
+
 		table->VceLevel[count].MinVoltage |=
 				(vddci * VOLTAGE_SCALE) << VDDCI_SHIFT;
 		table->VceLevel[count].MinVoltage |= 1 << PHASES_SHIFT;
@@ -1354,6 +1363,7 @@ static int polaris10_populate_smc_vce_level(struct pp_hwmgr *hwmgr,
 	}
 	return result;
 }
+
 
 static int polaris10_populate_smc_samu_level(struct pp_hwmgr *hwmgr,
 		SMU74_Discrete_DpmTable *table)
@@ -1420,6 +1430,7 @@ static int polaris10_populate_memory_timing_parameters(struct pp_hwmgr *hwmgr,
 	dram_timing = cgs_read_register(hwmgr->device, mmMC_ARB_DRAM_TIMING);
 	dram_timing2 = cgs_read_register(hwmgr->device, mmMC_ARB_DRAM_TIMING2);
 	burst_time = PHM_READ_FIELD(hwmgr->device, MC_ARB_BURST_TIME, STATE0);
+
 
 	arb_regs->McArbDramTiming  = PP_HOST_TO_SMC_UL(dram_timing);
 	arb_regs->McArbDramTiming2 = PP_HOST_TO_SMC_UL(dram_timing2);
@@ -1696,6 +1707,7 @@ static int polaris10_populate_vr_config(struct pp_hwmgr *hwmgr,
 	return 0;
 }
 
+
 static int polaris10_populate_avfs_parameters(struct pp_hwmgr *hwmgr)
 {
 	struct smu7_hwmgr *data = (struct smu7_hwmgr *)(hwmgr->backend);
@@ -1712,6 +1724,7 @@ static int polaris10_populate_avfs_parameters(struct pp_hwmgr *hwmgr)
 			(struct phm_ppt_v1_information *)hwmgr->pptable;
 	struct phm_ppt_v1_clock_voltage_dependency_table *sclk_table =
 			table_info->vdd_dep_on_sclk;
+
 
 	if (((struct smu7_smumgr *)smu_data)->avfs.avfs_btc_status == AVFS_BTC_NOTSUPPORTED)
 		return result;
@@ -2286,6 +2299,7 @@ static int polaris10_update_samu_smc_table(struct pp_hwmgr *hwmgr)
 	struct polaris10_smumgr *smu_data = (struct polaris10_smumgr *)(hwmgr->smu_backend);
 	uint32_t mm_boot_level_offset, mm_boot_level_value;
 
+
 	smu_data->smc_state_table.SamuBootLevel = 0;
 	mm_boot_level_offset = smu_data->smu7_data.dpm_table_start +
 				offsetof(SMU74_Discrete_DpmTable, SamuBootLevel);
@@ -2306,6 +2320,7 @@ static int polaris10_update_samu_smc_table(struct pp_hwmgr *hwmgr)
 				(uint32_t)(1 << smu_data->smc_state_table.SamuBootLevel));
 	return 0;
 }
+
 
 static int polaris10_update_bif_smc_table(struct pp_hwmgr *hwmgr)
 {

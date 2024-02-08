@@ -120,6 +120,7 @@
 
 #define MPT_MAX_CALLBACKS		32
 
+
 #define	 CAN_SLEEP			1
 #define  NO_SLEEP			0
 
@@ -333,6 +334,7 @@ struct Mpi2ManufacturingPage10_t {
 	U32	Reserved5[18];			/* 24h - 60h*/
 };
 
+
 /* Miscellaneous options */
 struct Mpi2ManufacturingPage11_t {
 	MPI2_CONFIG_PAGE_HEADER Header;		/* 00h */
@@ -368,6 +370,7 @@ struct MPT3SAS_TARGET {
 	struct _sas_device *sdev;
 };
 
+
 /*
  * per device private data
  */
@@ -390,6 +393,7 @@ struct MPT3SAS_TARGET {
  * @eedp_enable: eedp support enable bit
  * @eedp_type: 0(type_1), 1(type_2), 2(type_3)
  * @eedp_block_length: block size
+ * @ata_command_pending: SATL passthrough outstanding for device
  */
 struct MPT3SAS_DEVICE {
 	struct MPT3SAS_TARGET *sas_target;
@@ -398,6 +402,17 @@ struct MPT3SAS_DEVICE {
 	u8	configured_lun;
 	u8	block;
 	u8	tlr_snoop_check;
+	/*
+	 * Bug workaround for SATL handling: the mpt2/3sas firmware
+	 * doesn't return BUSY or TASK_SET_FULL for subsequent
+	 * commands while a SATL pass through is in operation as the
+	 * spec requires, it simply does nothing with them until the
+	 * pass through completes, causing them possibly to timeout if
+	 * the passthrough is a long executing command (like format or
+	 * secure erase).  This variable allows us to do the right
+	 * thing while a SATL command is pending.
+	 */
+	unsigned long ata_command_pending;
 };
 
 #define MPT3_CMD_NOT_USED	0x8000	/* free */
@@ -423,6 +438,8 @@ struct _internal_cmd {
 	u16	status;
 	u16	smid;
 };
+
+
 
 /**
  * struct _sas_device - attached device information
@@ -679,6 +696,7 @@ struct _tr_list {
 	u16	state;
 };
 
+
 /**
  * struct adapter_reply_queue - the reply queue struct
  * @ioc: per adapter object
@@ -712,6 +730,8 @@ typedef void (*MPT_BUILD_SG)(struct MPT3SAS_ADAPTER *ioc, void *psge,
 		dma_addr_t data_in_dma, size_t data_in_sz);
 typedef void (*MPT_BUILD_ZERO_LEN_SGE)(struct MPT3SAS_ADAPTER *ioc,
 		void *paddr);
+
+
 
 /* IOC Facts and Port Facts converted from little endian to cpu */
 union mpi3_version_union {
@@ -1173,6 +1193,7 @@ struct MPT3SAS_ADAPTER {
 typedef u8 (*MPT_CALLBACK)(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 	u32 reply);
 
+
 /* base shared API */
 extern struct list_head mpt3sas_ioc_list;
 extern char    driver_name[MPT_NAME_LENGTH];
@@ -1247,6 +1268,7 @@ void mpt3sas_base_update_missing_delay(struct MPT3SAS_ADAPTER *ioc,
 	u16 device_missing_delay, u8 io_missing_delay);
 
 int mpt3sas_port_enable(struct MPT3SAS_ADAPTER *ioc);
+
 
 /* scsih shared API */
 u8 mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,

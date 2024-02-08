@@ -258,6 +258,7 @@ static const struct intel_device_info intel_sandybridge_d_gt2_info = {
 	.platform = INTEL_SANDYBRIDGE, \
 	.is_mobile = 1
 
+
 static const struct intel_device_info intel_sandybridge_m_gt1_info = {
 	SNB_M_PLATFORM,
 	.gt = 1,
@@ -467,6 +468,7 @@ static const struct intel_device_info intel_skylake_gt2_info = {
 #define SKL_GT3_PLUS_PLATFORM \
 	SKL_PLATFORM, \
 	.ring_mask = RENDER_RING | BSD_RING | BLT_RING | VEBOX_RING | BSD2_RING
+
 
 static const struct intel_device_info intel_skylake_gt3_info = {
 	SKL_GT3_PLUS_PLATFORM,

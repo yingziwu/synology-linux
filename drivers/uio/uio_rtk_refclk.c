@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/device.h>
 #include <linux/file.h>
 #include <linux/fs.h>
@@ -27,11 +30,23 @@ static int rtk_refclk_probe(struct platform_device *pdev)
 	printk("%s:%d\n", __func__, __LINE__);
 
     if(pdev == NULL)
+#ifdef MY_ABC_HERE
+    {
+#endif /* MY_ABC_HERE */
         return -ENODEV;
+#ifdef MY_ABC_HERE
+    }
+#endif /* MY_ABC_HERE */
 
 	info = kzalloc(sizeof(struct uio_info), GFP_KERNEL);
     if(info == NULL)
+#ifdef MY_ABC_HERE
+    {
+#endif /* MY_ABC_HERE */
         return -ENOMEM;
+#ifdef MY_ABC_HERE
+    }
+#endif /* MY_ABC_HERE */
 
 	ret = of_address_to_resource(pdev->dev.of_node, 0, &res);
     info->mem[0].addr = res.start;

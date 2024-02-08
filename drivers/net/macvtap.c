@@ -492,6 +492,7 @@ static struct rtnl_link_ops macvtap_link_ops __read_mostly = {
 	.dellink	= macvtap_dellink,
 };
 
+
 static void macvtap_sock_write_space(struct sock *sk)
 {
 	wait_queue_head_t *wqueue;
@@ -1116,6 +1117,8 @@ static long macvtap_ioctl(struct file *file, unsigned int cmd,
 	case TUNSETSNDBUF:
 		if (get_user(s, sp))
 			return -EFAULT;
+		if (s <= 0)
+			return -EINVAL;
 
 		q->sk.sk_sndbuf = s;
 		return 0;

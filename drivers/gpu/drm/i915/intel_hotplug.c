@@ -383,6 +383,7 @@ static void i915_hotplug_work_func(struct work_struct *work)
 		drm_kms_helper_hotplug_event(dev);
 }
 
+
 /**
  * intel_hpd_irq_handler - main hotplug irq handler
  * @dev_priv: drm_i915_private

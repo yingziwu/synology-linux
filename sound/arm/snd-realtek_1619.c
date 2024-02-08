@@ -104,6 +104,7 @@ int snd_realtek_capture_check_hdmirx_enable(void);
 char *snd_realtek_capture_get_stream_name(void);
 static void snd_card_capture_handle_HDMI_plug_out(snd_pcm_substream_t * substream);
 
+
 static enum hrtimer_restart snd_card_timer_function(struct hrtimer *timer);
 static enum hrtimer_restart snd_card_capture_lpcm_timer_function(struct hrtimer *timer);
 static void snd_card_capture_timer_function(unsigned long data);
@@ -683,6 +684,7 @@ static int snd_realtek_hw_capture_init_PTS_ringheader_of_AI(snd_pcm_runtime_t *r
     return 0;
 }
 
+
 // init ringheader of decoder_outring and AO_inring
 static int snd_realtek_hw_init_ringheader_of_DEC_AO(snd_pcm_runtime_t *runtime)
 {
@@ -878,6 +880,7 @@ int writeInbandCmd(snd_card_RTK_pcm_t *dpcm, void *data, int len)
     //TRACE_CODE("[INBAND RING] writeAddr %x\n", dpcm->decInbandRing.writePtr);
     return len;
 }
+
 
 // ring is big-endian
 int snd_realtek_hw_ring_write(RINGBUFFER_HEADER* ring, void *data, int len, unsigned int offset)
@@ -1242,6 +1245,7 @@ static int snd_realtek_hw_capture_malloc_pts_ring(snd_pcm_runtime_t *runtime)
     bMallocSuccess = 0; //Success
     return bMallocSuccess;
 }
+
 
 // in decoder-AO path, malloc AO in_ring
 static int snd_realtek_hw_malloc_ring(snd_pcm_runtime_t *runtime)
@@ -4007,6 +4011,7 @@ static int ring_check_ptr_valid_32(unsigned int ring_rp, unsigned int ring_wp, u
 	}
 }
 
+
 static unsigned long buf_memcpy2_ring(unsigned long base, unsigned long limit, unsigned long ptr, char* buf, unsigned long size)
 {
 	if (ptr + size <= limit)
@@ -4253,6 +4258,7 @@ static void ring1_to_ring2_general_64(AUDIO_RINGBUF_PTR_64* ring1, AUDIO_RINGBUF
         ring2->wp = ring2->base + (ring2->wp-ring2->limit);
     }
 }
+
 
 static int snd_RTK_volume_put(snd_kcontrol_t * kcontrol, snd_ctl_elem_value_t * ucontrol)
 {

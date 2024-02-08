@@ -197,6 +197,7 @@ static DEFINE_SEMAPHORE(s_vpu_sem);
 static struct list_head s_vbp_head = LIST_HEAD_INIT(s_vbp_head);
 static struct list_head s_inst_list_head = LIST_HEAD_INIT(s_inst_list_head);
 
+
 static vpu_bit_firmware_info_t s_bit_firmware_info[MAX_NUM_VPU_CORE];
 
 #define BIT_BASE            0x0000
@@ -418,6 +419,7 @@ static int vpu_free_instances(struct file *filp)
             DPRINTK("[VPUDRV] vpu_free_instances detect instance crash instIdx=%d, coreIdx=%d, vip_base=%p, instance_pool_size_per_core=%d\n", (int)vil->inst_idx, (int)vil->core_idx, vip_base, (int)instance_pool_size_per_core);
             vip = (vpudrv_instance_pool_t *)vip_base;
             if (vip) {
+
 
                 memset(&vip->codecInstPool[vil->inst_idx], 0x00, 4);	/* only first 4 byte is key point(inUse of CodecInst in vpuapi) to free the corresponding instance. */
 #define PTHREAD_MUTEX_T_HANDLE_SIZE 40 // 4 //size=40 for Android M
@@ -1192,11 +1194,13 @@ static int vpu_release(struct inode *inode, struct file *filp)
     return 0;
 }
 
+
 static int vpu_fasync(int fd, struct file *filp, int mode)
 {
     struct vpu_drv_context_t *dev = (struct vpu_drv_context_t *)filp->private_data;
     return fasync_helper(fd, filp, mode, &dev->async_queue);
 }
+
 
 static int vpu_map_to_register(struct file *fp, struct vm_area_struct *vm)
 {
@@ -1208,6 +1212,7 @@ static int vpu_map_to_register(struct file *fp, struct vm_area_struct *vm)
 
     return remap_pfn_range(vm, vm->vm_start, pfn, vm->vm_end-vm->vm_start, vm->vm_page_prot) ? -EAGAIN : 0;
 }
+
 
 static int vpu_map_to_physical_memory(struct file *fp, struct vm_area_struct *vm)
 {
@@ -1291,6 +1296,7 @@ struct file_operations vpu_fops = {
     .mmap = vpu_mmap,
 };
 
+
 static int vpu_probe(struct platform_device *pdev)
 {
     int err = 0;
@@ -1364,6 +1370,7 @@ static int vpu_probe(struct platform_device *pdev)
     rstc_ve1 = rstc_get("rstn_ve1");
     rstc_ve2 = rstc_get("rstn_ve2");
 
+
 #ifdef VPU_SUPPORT_CLOCK_CONTROL
     vpu_clk_enable(s_vpu_clk_ve1);
     vpu_clk_enable(s_vpu_clk_ve2);
@@ -1390,6 +1397,7 @@ static int vpu_probe(struct platform_device *pdev)
         goto ERROR_PROVE_DEVICE;
     }
 
+
     irq = irq_of_parse_and_map(node, 1);
     if (irq <= 0)
         panic("Can't parse IRQ");
@@ -1410,6 +1418,7 @@ static int vpu_probe(struct platform_device *pdev)
         goto ERROR_PROVE_DEVICE;
     }
 
+
 #ifdef VPU_SUPPORT_RESERVED_VIDEO_MEMORY
     s_video_memory.size = VPU_INIT_VIDEO_MEMORY_SIZE_IN_BYTE;
     s_video_memory.phys_addr = VPU_DRAM_PHYSICAL_BASE;
@@ -1427,6 +1436,7 @@ static int vpu_probe(struct platform_device *pdev)
 #else
     DPRINTK("[VPUDRV] success to probe vpu device with non reserved video memory\n");
 #endif
+
 
     /* RTK clock setting */
     ve1_pll_setting(0x1d0, PLL_CLK_715, 1, 0); // VE2 PLL 715MHz
@@ -1446,6 +1456,7 @@ static int vpu_probe(struct platform_device *pdev)
     ve1_pll_setting(0xc, (1 << ve1_clk_enable_bit), 0, 1); // CLK enable
     ve1_pll_setting(0xc, (1 << ve2_clk_enable_bit), 0, 1); // CLK enable
 
+
     val = ReadVpuRegister(VE_CTRL_REG, 0);
     val |= (ve_cti_en << 1 | ve_idle_en << 6);
     WriteVpuRegister(VE_CTRL_REG, val, 0);
@@ -1458,6 +1469,7 @@ static int vpu_probe(struct platform_device *pdev)
 
     return 0;
 
+
 ERROR_PROVE_DEVICE:
 
     misc_deregister(&s_vpu_dev);
@@ -1469,6 +1481,7 @@ static int vpu_remove(struct platform_device *pdev)
 {
     DPRINTK("[VPUDRV] vpu_remove\n");
 #ifdef VPU_SUPPORT_PLATFORM_DRIVER_REGISTER
+
 
     if (s_instance_pool.base) {
 #ifdef USE_VMALLOC_FOR_INSTANCE_POOL_MEMORY
@@ -1483,6 +1496,7 @@ static int vpu_remove(struct platform_device *pdev)
         vpu_free_dma_buffer(&s_common_memory);
         s_common_memory.base = 0;
     }
+
 
 #ifdef VPU_SUPPORT_RESERVED_VIDEO_MEMORY
     if (s_video_memory.base) {
@@ -1510,6 +1524,7 @@ static int vpu_remove(struct platform_device *pdev)
     vpu_clk_put(s_vpu_clk_ve2);
 
 #endif /*VPU_SUPPORT_PLATFORM_DRIVER_REGISTER*/
+
 
     return 0;
 }

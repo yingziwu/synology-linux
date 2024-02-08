@@ -82,8 +82,8 @@
 
 #define NUMBER_OF_SMB2_COMMANDS	0x0013
 
-/* BB FIXME - analyze following length BB */
-#define MAX_SMB2_HDR_SIZE 0x78 /* 4 len + 64 hdr + (2*24 wct) + 2 bct + 2 pad */
+/* 52 transform hdr + 64 hdr + 88 create rsp */
+#define MAX_SMB2_HDR_SIZE 204
 
 #define SMB2_PROTO_NUMBER cpu_to_le32(0x424d53fe)
 
@@ -687,6 +687,7 @@ struct network_resiliency_req {
 	__le32 Reserved;
 } __packed;
 /* There is no buffer for the response ie no struct network_resiliency_rsp */
+
 
 struct validate_negotiate_info_req {
 	__le32 Capabilities;

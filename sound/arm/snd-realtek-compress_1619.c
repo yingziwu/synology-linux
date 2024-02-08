@@ -250,6 +250,7 @@ void dumptr(rtk_runtime_stream_t *stream , int i)
     outbanwp = (long)ENDIAN_CHANGE(stream->dwnstrmRingHeader.writePtr);
     printk("i %d point Iwp %lx Irp %lx IBwp %lx IBrp %lx Owp %lx Orp %lx OBwp %lx OBrp %lx\n",i , inwp, inrp, banwp, bandrp, outwp, outrp, outbanwp, outbanrp);
 
+
 }
 
 int triggerAudio(rtk_runtime_stream_t *stream, int cmd) {
@@ -2010,6 +2011,7 @@ static struct snd_compr_codec_caps caps_dts = {
     .descriptor[0].min_buffer = 8192,
     .descriptor[0].formats = 0,
 };
+
 
 static struct snd_compr_codec_caps caps_dtsHD = {
     .num_descriptors = 1,

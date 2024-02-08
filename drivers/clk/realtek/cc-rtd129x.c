@@ -148,6 +148,7 @@ static struct clk_fixed_factor clk_sys = {
 	},
 };
 
+
 static struct clk_mmio_mux clk_sys_sb2 = {
 	.mux_offset   = GROUP1_CK_SEL,
 	.mask         = BIT(1) - 1,

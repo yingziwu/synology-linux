@@ -58,4 +58,5 @@ int rv_copy_table_from_smc(struct pp_hwmgr *hwmgr,
 int rv_copy_table_to_smc(struct pp_hwmgr *hwmgr,
 		uint8_t *table, int16_t table_id);
 
+
 #endif

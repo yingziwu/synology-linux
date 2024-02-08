@@ -225,6 +225,7 @@ out:
 	return ret;
 }
 
+
 /**
  * intel_vgpu_reset_mmio - reset virtual MMIO space
  * @vgpu: a vGPU
