@@ -13,6 +13,7 @@
 #include "nl80211.h"
 #include "rdev-ops.h"
 
+
 void __cfg80211_ibss_joined(struct net_device *dev, const u8 *bssid)
 {
 	struct wireless_dev *wdev = dev->ieee80211_ptr;

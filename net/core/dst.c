@@ -158,6 +158,7 @@ const u32 dst_default_metrics[RTAX_MAX + 1] = {
 	[RTAX_MAX] = 0xdeadbeef,
 };
 
+
 void *dst_alloc(struct dst_ops *ops, struct net_device *dev,
 		int initial_ref, int initial_obsolete, unsigned short flags)
 {

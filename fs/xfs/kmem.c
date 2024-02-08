@@ -72,6 +72,7 @@ kmem_zalloc(size_t size, xfs_km_flags_t flags)
 	ptr = kmem_alloc(size, flags);
 	if (ptr)
 		memset((char *)ptr, 0, (int)size);
+
 	return ptr;
 }
 

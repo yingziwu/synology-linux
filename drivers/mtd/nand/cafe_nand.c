@@ -114,6 +114,7 @@ static int cafe_device_ready(struct mtd_info *mtd)
 	return result;
 }
 
+
 static void cafe_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
 {
 	struct cafe_priv *cafe = mtd->priv;
@@ -465,6 +466,7 @@ static uint8_t cafe_mirror_pattern_2048[] = { '1', 't', 'b', 'B' };
 static uint8_t cafe_bbt_pattern_512[] = { 0xBB };
 static uint8_t cafe_mirror_pattern_512[] = { 0xBC };
 
+
 static struct nand_bbt_descr cafe_bbt_main_descr_2048 = {
 	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE
 		| NAND_BBT_2BIT | NAND_BBT_VERSION,
@@ -510,6 +512,7 @@ static struct nand_bbt_descr cafe_bbt_mirror_descr_512 = {
 	.maxblocks = 4,
 	.pattern = cafe_mirror_pattern_512
 };
+
 
 static int cafe_nand_write_page_lowlevel(struct mtd_info *mtd,
 					  struct nand_chip *chip,

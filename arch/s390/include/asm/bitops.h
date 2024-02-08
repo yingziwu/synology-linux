@@ -361,6 +361,7 @@ test_and_change_bit_simple(unsigned long nr, volatile unsigned long *ptr)
 #define test_and_change_bit test_and_change_bit_simple
 #endif
 
+
 /*
  * This routine doesn't need to be atomic.
  */
@@ -511,6 +512,7 @@ static inline unsigned long __ffs_word(unsigned long nr, unsigned long word)
 	}
 	return nr + _sb_findmap[(unsigned char) word];
 }
+
 
 /**
  * __load_ulong_be - load big endian unsigned long

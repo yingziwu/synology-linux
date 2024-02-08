@@ -27,6 +27,7 @@
 #include "../feat.h"
 #include "ccid2.h"
 
+
 #ifdef CONFIG_IP_DCCP_CCID2_DEBUG
 static bool ccid2_debug;
 #define ccid2_pr_debug(format, a...)	DCCP_PR_DEBUG(ccid2_debug, format, ##a)
@@ -748,6 +749,7 @@ static void ccid2_hc_tx_exit(struct sock *sk)
 	for (i = 0; i < hc->tx_seqbufc; i++)
 		kfree(hc->tx_seqbuf[i]);
 	hc->tx_seqbufc = 0;
+	dccp_ackvec_parsed_cleanup(&hc->tx_av_chunks);
 }
 
 static void ccid2_hc_rx_packet_recv(struct sock *sk, struct sk_buff *skb)

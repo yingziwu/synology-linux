@@ -22,6 +22,7 @@
 #include <net/sch_generic.h>
 #include <net/pkt_sched.h>
 
+
 /*	Simple Token Bucket Filter.
 	=======================================
 
@@ -56,6 +57,8 @@
 
 	N(t_* + 0) = N(t_* - 0) - S/R.
 
+
+
 	Actually, QoS requires two TBF to be applied to a data stream.
 	One of them controls steady state burst size, another
 	one with rate P (peak rate) and depth M (equal to link MTU)
@@ -68,6 +71,7 @@
 
 	lat = max ((L-B)/R, (L-M)/P)
 
+
 	NOTES.
 	------
 
@@ -77,6 +81,7 @@
 	If no new packets arrive during this period,
 	or if the device is not awaken by EOI for some previous packet,
 	TBF can stop its activity for 1/HZ.
+
 
 	This means, that with depth B, the maximal rate is
 

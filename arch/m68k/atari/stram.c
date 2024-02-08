@@ -30,6 +30,7 @@
 #include <asm/atari_stram.h>
 #include <asm/io.h>
 
+
 /*
  * The ST-RAM allocator allocates memory from a pool of reserved ST-RAM of
  * configurable size, set aside on ST-RAM init.
@@ -46,6 +47,7 @@ static struct resource stram_pool = {
 
 static unsigned long pool_size = 1024*1024;
 
+
 static int __init atari_stram_setup(char *arg)
 {
 	if (!MACH_IS_ATARI)
@@ -56,6 +58,7 @@ static int __init atari_stram_setup(char *arg)
 }
 
 early_param("stram_pool", atari_stram_setup);
+
 
 /*
  * This init function is called very early by atari/config.c
@@ -83,6 +86,7 @@ void __init atari_stram_init(void)
 	panic("atari_stram_init: no ST-RAM found!");
 }
 
+
 /*
  * This function is called from setup_arch() to reserve the pages needed for
  * ST-RAM management.
@@ -103,6 +107,7 @@ void __init atari_stram_reserve_pages(void *start_mem)
 	pr_debug("atari_stram pool: size = %lu bytes, resource = %pR\n",
 		 pool_size, &stram_pool);
 }
+
 
 void *atari_stram_alloc(unsigned long size, const char *owner)
 {
@@ -132,6 +137,7 @@ void *atari_stram_alloc(unsigned long size, const char *owner)
 	return (void *)res->start;
 }
 EXPORT_SYMBOL(atari_stram_alloc);
+
 
 void atari_stram_free(void *addr)
 {

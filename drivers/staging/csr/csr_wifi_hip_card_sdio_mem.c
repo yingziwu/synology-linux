@@ -22,7 +22,9 @@
 #define SDIO_RETRIES    3
 #define CSR_WIFI_HIP_SDIO_TRACE_DATA_LENGTH 16
 
+
 #define retryable_sdio_error(_csrResult) (((_csrResult) == CSR_SDIO_RESULT_CRC_ERROR) || ((_csrResult) == CSR_SDIO_RESULT_TIMEOUT))
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -125,6 +127,7 @@ static CsrResult retrying_read8(card_t *card, s16 funcnum, u32 addr, u8 *pdata)
     return r;
 } /* retrying_read8() */
 
+
 static CsrResult retrying_write8(card_t *card, s16 funcnum, u32 addr, u8 data)
 {
     CsrSdioFunction *sdio = card->sdio_if;
@@ -197,6 +200,7 @@ static CsrResult retrying_write8(card_t *card, s16 funcnum, u32 addr, u8 data)
     return r;
 } /* retrying_write8() */
 
+
 static CsrResult retrying_read16(card_t *card, s16 funcnum,
                                  u32 addr, u16 *pdata)
 {
@@ -257,6 +261,7 @@ static CsrResult retrying_read16(card_t *card, s16 funcnum,
     return r;
 } /* retrying_read16() */
 
+
 static CsrResult retrying_write16(card_t *card, s16 funcnum,
                                   u32 addr, u16 data)
 {
@@ -315,6 +320,7 @@ static CsrResult retrying_write16(card_t *card, s16 funcnum,
     return r;
 } /* retrying_write16() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  sdio_read_f0
@@ -340,6 +346,7 @@ CsrResult sdio_read_f0(card_t *card, u32 addr, u8 *pdata)
     return retrying_read8(card, 0, addr, pdata);
 } /* sdio_read_f0() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  sdio_write_f0
@@ -364,6 +371,7 @@ CsrResult sdio_write_f0(card_t *card, u32 addr, u8 data)
 #endif
     return retrying_write8(card, 0, addr, data);
 } /* sdio_write_f0() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -393,6 +401,7 @@ CsrResult unifi_read_direct_8_or_16(card_t *card, u32 addr, u8 *pdata)
     return retrying_read8(card, card->function, addr, pdata);
 #endif
 } /* unifi_read_direct_8_or_16() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -430,6 +439,7 @@ CsrResult unifi_write_direct_8_or_16(card_t *card, u32 addr, u8 data)
 #endif
 } /* unifi_write_direct_8_or_16() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_read_direct16
@@ -457,6 +467,7 @@ CsrResult unifi_read_direct16(card_t *card, u32 addr, u16 *pdata)
     return retrying_read16(card, card->function, addr, pdata);
 } /* unifi_read_direct16() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_write_direct16
@@ -483,6 +494,7 @@ CsrResult unifi_write_direct16(card_t *card, u32 addr, u16 data)
 {
     return retrying_write16(card, card->function, addr, data);
 } /* unifi_write_direct16() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -522,6 +534,7 @@ CsrResult unifi_read_direct32(card_t *card, u32 addr, u32 *pdata)
 
     return CSR_RESULT_SUCCESS;
 } /* unifi_read_direct32() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -594,6 +607,7 @@ static CsrResult unifi_read_directn_match(card_t *card, u32 addr, void *pdata, u
     return CSR_RESULT_SUCCESS;
 }
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_read_directn
@@ -623,6 +637,7 @@ CsrResult unifi_read_directn(card_t *card, u32 addr, void *pdata, u16 len)
 
     return unifi_read_directn_match(card, addr, pdata, len, -1, &num);
 } /* unifi_read_directn() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -673,6 +688,7 @@ CsrResult unifi_write_directn(card_t *card, u32 addr, void *pdata, u16 len)
 
     return CSR_RESULT_SUCCESS;
 } /* unifi_write_directn() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -736,6 +752,7 @@ static CsrResult set_dmem_page(card_t *card, u32 dmem_addr, u32 *paddr)
     return CSR_RESULT_SUCCESS;
 } /* set_dmem_page() */
 
+
 static CsrResult set_pmem_page(card_t *card, u32 pmem_addr,
                                enum chip_helper_window_type mem_type, u32 *paddr)
 {
@@ -774,6 +791,7 @@ static CsrResult set_pmem_page(card_t *card, u32 pmem_addr,
 
     return CSR_RESULT_SUCCESS;
 } /* set_pmem_page() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -967,6 +985,7 @@ static CsrResult set_page(card_t *card, u32 generic_addr, u32 *paddr)
     return r;
 } /* set_page() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_set_proc_select
@@ -994,6 +1013,7 @@ CsrResult unifi_set_proc_select(card_t *card, enum unifi_dbg_processors_select s
         case UNIFI_PROC_BOTH:
             break;
 
+
         default:
             return CSR_WIFI_HIP_RESULT_INVALID_VALUE;
     }
@@ -1018,6 +1038,7 @@ CsrResult unifi_set_proc_select(card_t *card, enum unifi_dbg_processors_select s
 
     return CSR_RESULT_SUCCESS;
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1063,6 +1084,7 @@ CsrResult unifi_read_8_or_16(card_t *card, u32 unifi_addr, u8 *pdata)
     return retrying_read8(card, card->function, sdio_addr, pdata);
 #endif
 } /* unifi_read_8_or_16() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1120,6 +1142,7 @@ CsrResult unifi_write_8_or_16(card_t *card, u32 unifi_addr, u8 data)
 #endif
 } /* unifi_write_8_or_16() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_card_read16
@@ -1155,6 +1178,7 @@ CsrResult unifi_card_read16(card_t *card, u32 unifi_addr, u16 *pdata)
 #endif
     return unifi_read_direct16(card, sdio_addr, pdata);
 } /* unifi_card_read16() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1192,6 +1216,7 @@ CsrResult unifi_card_write16(card_t *card, u32 unifi_addr, u16 data)
     return unifi_write_direct16(card, sdio_addr, data);
 } /* unifi_card_write16() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_read32
@@ -1227,6 +1252,7 @@ CsrResult unifi_read32(card_t *card, u32 unifi_addr, u32 *pdata)
 #endif
     return unifi_read_direct32(card, sdio_addr, pdata);
 } /* unifi_read32() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1268,15 +1294,18 @@ CsrResult unifi_readn_match(card_t *card, u32 unifi_addr, void *pdata, u16 len, 
     return r;
 } /* unifi_readn_match() */
 
+
 CsrResult unifi_card_readn(card_t *card, u32 unifi_addr, void *pdata, u16 len)
 {
     return unifi_readn_match(card, unifi_addr, pdata, len, -1);
 } /* unifi_card_readn() */
 
+
 CsrResult unifi_readnz(card_t *card, u32 unifi_addr, void *pdata, u16 len)
 {
     return unifi_readn_match(card, unifi_addr, pdata, len, 0);
 } /* unifi_readnz() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1333,6 +1362,7 @@ s32 unifi_read_shared_count(card_t *card, u32 addr)
     return -1;                  /* this function has changed in WMM mods */
 } /* unifi_read_shared_count() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_writen
@@ -1367,6 +1397,7 @@ CsrResult unifi_writen(card_t *card, u32 unifi_addr, void *pdata, u16 len)
 
     return unifi_write_directn(card, sdio_addr, pdata, len);
 } /* unifi_writen() */
+
 
 static CsrResult csr_sdio_block_rw(card_t *card, s16 funcnum,
                                    u32 addr, u8 *pdata,
@@ -1417,6 +1448,7 @@ static CsrResult csr_sdio_block_rw(card_t *card, s16 funcnum,
 #endif
     return csrResult;  /* CSR SDIO (not HIP) error code */
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1637,6 +1669,7 @@ CsrResult unifi_bulk_rw(card_t *card, u32 handle, void *pdata,
     return CSR_RESULT_SUCCESS;
 } /* unifi_bulk_rw() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_bulk_rw_noretry
@@ -1676,3 +1709,5 @@ CsrResult unifi_bulk_rw_noretry(card_t *card, u32 handle, void *pdata,
 
     return CSR_RESULT_SUCCESS;
 } /* unifi_bulk_rw_noretry() */
+
+

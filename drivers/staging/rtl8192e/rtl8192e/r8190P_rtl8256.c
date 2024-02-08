@@ -70,6 +70,7 @@ void PHY_SetRF8256Bandwidth(struct net_device *dev,
 					 "unknown hardware version\n");
 			}
 
+
 			break;
 		default:
 			RT_TRACE(COMP_ERR, "PHY_SetRF8256Bandwidth(): unknown "
@@ -110,6 +111,7 @@ bool phy_RF8256_Config_ParaFile(struct net_device *dev)
 				continue;
 
 		pPhyReg = &priv->PHYRegDef[eRFPath];
+
 
 		switch (eRFPath) {
 		case RF90_PATH_A:
@@ -253,6 +255,7 @@ void PHY_SetRF8256CCKTxPower(struct net_device *dev, u8	powerlevel)
 		TxAGC = 0x24;
 	rtl8192_setBBreg(dev, rTxAGC_CCK_Mcs32, bTxAGCRateCCK, TxAGC);
 }
+
 
 void PHY_SetRF8256OFDMTxPower(struct net_device *dev, u8 powerlevel)
 {

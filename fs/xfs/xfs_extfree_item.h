@@ -102,6 +102,7 @@ typedef struct xfs_efd_log_format_64 {
 	xfs_extent_64_t		efd_extents[1];	/* array of extents freed */
 } xfs_efd_log_format_64_t;
 
+
 #ifdef __KERNEL__
 
 /*

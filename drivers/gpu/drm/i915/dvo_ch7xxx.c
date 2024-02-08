@@ -223,6 +223,7 @@ static bool ch7xxx_init(struct intel_dvo_device *dvo,
 		goto out;
 	}
 
+
 	if (!ch7xxx_readb(dvo, CH7xxx_REG_DID, &device))
 		goto out;
 

@@ -161,6 +161,7 @@ static void bclink_update_last_sent(struct tipc_node *node, u32 seqno)
 						seqno : node->bclink.last_sent;
 }
 
+
 /**
  * tipc_bclink_retransmit_to - get most recent node to request retransmission
  *
@@ -568,6 +569,7 @@ u32 tipc_bclink_acks_missing(struct tipc_node *n_ptr)
 		(tipc_bclink_get_last_sent() != n_ptr->bclink.acked));
 }
 
+
 /**
  * tipc_bcbearer_send - send a packet through the broadcast pseudo-bearer
  *
@@ -707,6 +709,7 @@ void tipc_bcbearer_sort(void)
 	spin_unlock_bh(&bc_lock);
 }
 
+
 int tipc_bclink_stats(char *buf, const u32 buf_size)
 {
 	int ret;
@@ -799,6 +802,7 @@ void tipc_bclink_stop(void)
 	memset(bclink, 0, sizeof(*bclink));
 	memset(bcbearer, 0, sizeof(*bcbearer));
 }
+
 
 /**
  * tipc_nmap_add - add a node to a node map

@@ -102,6 +102,7 @@ static ssize_t quickstart_pressed_button_show(struct device *dev,
 					(pressed ? pressed->name : "none"));
 }
 
+
 static ssize_t quickstart_pressed_button_store(struct device *dev,
 						struct device_attribute *attr,
 						const char *buf, size_t count)

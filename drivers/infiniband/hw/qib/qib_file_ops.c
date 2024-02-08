@@ -1580,6 +1580,7 @@ done:
 	return ret;
 }
 
+
 static int qib_do_user_init(struct file *fp,
 			    const struct qib_user_info *uinfo)
 {

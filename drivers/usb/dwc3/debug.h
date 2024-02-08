@@ -47,3 +47,4 @@ static inline int dwc3_debugfs_init(struct dwc3 *d)
 static inline void dwc3_debugfs_exit(struct dwc3 *d)
 {  }
 #endif
+

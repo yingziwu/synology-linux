@@ -234,6 +234,7 @@ static void virtio_ccw_del_vqs(struct virtio_device *vdev)
 	if (!ccw)
 		return;
 
+
 	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
 		virtio_ccw_del_vq(vq, ccw);
 
@@ -576,6 +577,7 @@ static struct virtio_config_ops virtio_ccw_config_ops = {
 	.del_vqs = virtio_ccw_del_vqs,
 };
 
+
 /*
  * ccw bus driver related functions
  */
@@ -741,6 +743,7 @@ static int virtio_ccw_offline(struct ccw_device *cdev)
 	dev_set_drvdata(&cdev->dev, NULL);
 	return 0;
 }
+
 
 static int virtio_ccw_online(struct ccw_device *cdev)
 {

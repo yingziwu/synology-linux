@@ -141,6 +141,7 @@ static inline int read_seqcount_retry(const seqcount_t *s, unsigned start)
 	return __read_seqcount_retry(s, start);
 }
 
+
 /*
  * Sequence counter only version assumes that callers are using their
  * own mutexing.

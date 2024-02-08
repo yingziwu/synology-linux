@@ -926,6 +926,7 @@ static int pcmuio_attach(struct comedi_device *dev, struct comedi_devconfig *it)
 		dev_dbg(dev->class_dev, "(IRQ mode disabled)\n");
 	}
 
+
 	return 1;
 }
 

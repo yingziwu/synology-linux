@@ -53,6 +53,7 @@ static inline resource_size_t pnp_resource_len(struct resource *res)
 	return resource_size(res);
 }
 
+
 static inline resource_size_t pnp_port_start(struct pnp_dev *dev,
 					     unsigned int bar)
 {
@@ -98,6 +99,7 @@ static inline resource_size_t pnp_port_len(struct pnp_dev *dev,
 	return 0;
 }
 
+
 static inline resource_size_t pnp_mem_start(struct pnp_dev *dev,
 					    unsigned int bar)
 {
@@ -142,6 +144,7 @@ static inline resource_size_t pnp_mem_len(struct pnp_dev *dev,
 	return 0;
 }
 
+
 static inline resource_size_t pnp_irq(struct pnp_dev *dev, unsigned int bar)
 {
 	struct resource *res = pnp_get_resource(dev, IORESOURCE_IRQ, bar);
@@ -165,6 +168,7 @@ static inline int pnp_irq_valid(struct pnp_dev *dev, unsigned int bar)
 	return pnp_resource_valid(pnp_get_resource(dev, IORESOURCE_IRQ, bar));
 }
 
+
 static inline resource_size_t pnp_dma(struct pnp_dev *dev, unsigned int bar)
 {
 	struct resource *res = pnp_get_resource(dev, IORESOURCE_DMA, bar);
@@ -187,6 +191,7 @@ static inline int pnp_dma_valid(struct pnp_dev *dev, unsigned int bar)
 {
 	return pnp_resource_valid(pnp_get_resource(dev, IORESOURCE_DMA, bar));
 }
+
 
 /*
  * Device Management

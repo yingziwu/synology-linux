@@ -114,6 +114,7 @@ static struct dmi_system_id __cpuinitdata processor_power_dmi_table[] = {
 	{},
 };
 
+
 /*
  * Callers should disable interrupts before the call and enable
  * interrupts after return.
@@ -347,6 +348,7 @@ static int acpi_processor_get_power_info_cst(struct acpi_processor *pr)
 	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
 	union acpi_object *cst;
 
+
 	if (nocst)
 		return -ENODEV;
 
@@ -508,6 +510,7 @@ static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
 	static int bm_check_flag = -1;
 	static int bm_control_flag = -1;
 
+
 	if (!cx->address)
 		return;
 
@@ -625,6 +628,7 @@ static int acpi_processor_get_power_info(struct acpi_processor *pr)
 	unsigned int i;
 	int result;
 
+
 	/* NOTE: the idle thread may not be running while calling
 	 * this function */
 
@@ -740,6 +744,7 @@ static int acpi_idle_enter_c1(struct cpuidle_device *dev,
 
 	return index;
 }
+
 
 /**
  * acpi_idle_play_dead - enters an ACPI state for long-term idle (i.e. off-lining)

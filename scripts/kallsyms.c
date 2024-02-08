@@ -63,6 +63,7 @@ int token_profit[0x10000];
 unsigned char best_table[256][2];
 unsigned char best_table_len[256];
 
+
 static void usage(void)
 {
 	fprintf(stderr, "Usage: kallsyms [--all-symbols] "
@@ -381,6 +382,7 @@ static void write_src(void)
 		printf("\t.short\t%d\n", best_idx[i]);
 	printf("\n");
 }
+
 
 /* table lookup compression functions */
 

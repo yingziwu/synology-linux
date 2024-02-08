@@ -25,6 +25,7 @@
 
 #include <uapi/asm/ptrace.h>
 
+
 #ifdef __powerpc64__
 
 #define STACK_FRAME_OVERHEAD	112	/* size of minimum stack frame */

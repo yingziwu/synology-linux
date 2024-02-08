@@ -91,6 +91,7 @@ bus_reset:
 	return bus_reset_handling == ABORT_ON_BUS_RESET ? -EAGAIN : 0;
 }
 
+
 /**
  * cmp_connection_init - initializes a connection manager
  * @c: the connection manager to initialize
@@ -142,6 +143,7 @@ void cmp_connection_destroy(struct cmp_connection *c)
 	fw_iso_resources_destroy(&c->resources);
 }
 EXPORT_SYMBOL(cmp_connection_destroy);
+
 
 static __be32 ipcr_set_modify(struct cmp_connection *c, __be32 ipcr)
 {
@@ -266,6 +268,7 @@ err_unconnect:
 	return err;
 }
 EXPORT_SYMBOL(cmp_connection_update);
+
 
 static __be32 ipcr_break_modify(struct cmp_connection *c, __be32 ipcr)
 {

@@ -102,6 +102,7 @@ void arch_irq_work_raise(void)
 
 #endif /* CONFIG_IRQ_WORK */
 
+
 static inline __u32 rpcc(void)
 {
     __u32 result;
@@ -153,6 +154,8 @@ void read_persistent_clock(struct timespec *ts)
 	ts->tv_sec = mktime(year, mon, day, hour, min, sec);
 	ts->tv_nsec = 0;
 }
+
+
 
 /*
  * timer_interrupt() needs to keep up the real-time clock,
@@ -297,6 +300,7 @@ validate_cc_value(unsigned long cc)
 	return cc;
 }
 
+
 /*
  * Calibrate CPU clock using legacy 8254 timer/counter. Stolen from
  * arch/i386/time.c.
@@ -425,6 +429,7 @@ time_init(void)
 	   bogomips yet, but this is close on a 500Mhz box.  */
 	__delay(1000000);
 
+
 	if (HZ > (1<<16)) {
 		extern void __you_loose (void);
 		__you_loose();
@@ -451,6 +456,7 @@ time_init(void)
  * BUG: This routine does not handle hour overflow properly; it just
  *      sets the minutes. Usually you won't notice until after reboot!
  */
+
 
 static int
 set_rtc_mmss(unsigned long nowtime)

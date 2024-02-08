@@ -495,6 +495,8 @@ struct dasd_block {
 	struct dasd_profile profile;
 };
 
+
+
 /* reasons why device (ccw_device_start) was stopped */
 #define DASD_STOPPED_NOT_ACC 1         /* not accessible */
 #define DASD_STOPPED_QUIESCE 2         /* Quiesced */
@@ -517,6 +519,7 @@ struct dasd_block {
 #define DASD_FLAG_SUSPENDED	9	/* The device was suspended */
 #define DASD_FLAG_SAFE_OFFLINE	10	/* safe offline processing requested*/
 #define DASD_FLAG_SAFE_OFFLINE_RUNNING	11	/* safe offline running */
+
 
 void dasd_put_device_wake(struct dasd_device *);
 

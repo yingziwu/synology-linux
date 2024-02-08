@@ -95,6 +95,7 @@ void tilcdc_module_init(struct tilcdc_module *mod, const char *name,
 		const struct tilcdc_module_ops *funcs);
 void tilcdc_module_cleanup(struct tilcdc_module *mod);
 
+
 /* Panel config that needs to be set in the crtc, but is not coming from
  * the mode timings.  The display module is expected to call
  * tilcdc_crtc_set_panel_info() to set this during modeset.

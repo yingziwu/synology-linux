@@ -23,6 +23,7 @@
  * PCI DMA mapping code partly based on work by Francois Romieu.
  */
 
+
 #define DEBUG 1
 #define RX_DMA_SKBUFF 1
 #define PKT_COPY_THRESHOLD 512
@@ -55,11 +56,13 @@
 
 #define RUN_AT(x) (jiffies + (x))
 
+
 MODULE_AUTHOR("Jes Sorensen <jes@wildopensource.com>");
 MODULE_DESCRIPTION("Essential RoadRunner HIPPI driver");
 MODULE_LICENSE("GPL");
 
 static char version[] = "rrunner.c: v0.50 11/11/2002  Jes Sorensen (jes@wildopensource.com)\n";
+
 
 static const struct net_device_ops rr_netdev_ops = {
 	.ndo_open 		= rr_open,
@@ -245,6 +248,7 @@ static void rr_remove_one(struct pci_dev *pdev)
 	free_netdev(dev);
 }
 
+
 /*
  * Commands are considered to be slow, thus there is no reason to
  * inline this.
@@ -279,6 +283,7 @@ static void rr_issue_cmd(struct rr_private *rrpriv, struct cmd *cmd)
 	if (readl(&regs->Mode) & FATAL_ERR)
 		printk("error code %02x\n", readl(&regs->Fail1));
 }
+
 
 /*
  * Reset the board in a sensible manner. The NIC is already halted
@@ -392,6 +397,7 @@ static int rr_reset(struct net_device *dev)
 	return 0;
 }
 
+
 /*
  * Read a string from the EEPROM.
  */
@@ -425,6 +431,7 @@ static unsigned int rr_read_eeprom(struct rr_private *rrpriv,
 	return i;
 }
 
+
 /*
  * Shortcut to read one word (4 bytes) out of the EEPROM and convert
  * it to our CPU byte-order.
@@ -439,6 +446,7 @@ static u32 rr_read_eeprom_word(struct rr_private *rrpriv,
 		return be32_to_cpu(word);
 	return 0;
 }
+
 
 /*
  * Write a string to the EEPROM.
@@ -496,6 +504,7 @@ static unsigned int write_eeprom(struct rr_private *rrpriv,
 	return error;
 }
 
+
 static int rr_init(struct net_device *dev)
 {
 	struct rr_private *rrpriv;
@@ -545,6 +554,7 @@ static int rr_init(struct net_device *dev)
 
 	return 0;
 }
+
 
 static int rr_init1(struct net_device *dev)
 {
@@ -709,6 +719,7 @@ static int rr_init1(struct net_device *dev)
 	}
 	return ecode;
 }
+
 
 /*
  * All events are considered to be slow (RX/TX ints do not generate
@@ -917,6 +928,7 @@ static u32 rr_handle_event(struct net_device *dev, u32 prodidx, u32 eidx)
 	return eidx;
 }
 
+
 static void rx_int(struct net_device *dev, u32 rxlimit, u32 index)
 {
 	struct rr_private *rrpriv = netdev_priv(dev);
@@ -1008,6 +1020,7 @@ static void rx_int(struct net_device *dev, u32 rxlimit, u32 index)
 	rrpriv->cur_rx = index;
 	wmb();
 }
+
 
 static irqreturn_t rr_interrupt(int irq, void *dev_id)
 {
@@ -1115,6 +1128,7 @@ static inline void rr_raz_tx(struct rr_private *rrpriv,
 	}
 }
 
+
 static inline void rr_raz_rx(struct rr_private *rrpriv,
 			     struct net_device *dev)
 {
@@ -1162,6 +1176,7 @@ static void rr_timer(unsigned long data)
 	rrpriv->timer.expires = RUN_AT(5*HZ);
 	add_timer(&rrpriv->timer);
 }
+
 
 static int rr_open(struct net_device *dev)
 {
@@ -1249,6 +1264,7 @@ static int rr_open(struct net_device *dev)
 	return ecode;
 }
 
+
 static void rr_dump(struct net_device *dev)
 {
 	struct rr_private *rrpriv;
@@ -1311,6 +1327,7 @@ static void rr_dump(struct net_device *dev)
 
 }
 
+
 static int rr_close(struct net_device *dev)
 {
 	struct rr_private *rrpriv = netdev_priv(dev);
@@ -1321,6 +1338,7 @@ static int rr_close(struct net_device *dev)
 	short i;
 
 	netif_stop_queue(dev);
+
 
 	/*
 	 * Lock to make sure we are not cleaning up while another CPU
@@ -1372,6 +1390,7 @@ static int rr_close(struct net_device *dev)
 
 	return 0;
 }
+
 
 static netdev_tx_t rr_start_xmit(struct sk_buff *skb,
 				 struct net_device *dev)
@@ -1440,6 +1459,7 @@ static netdev_tx_t rr_start_xmit(struct sk_buff *skb,
 
 	return NETDEV_TX_OK;
 }
+
 
 /*
  * Read the firmware out of the EEPROM and put it into the SRAM
@@ -1551,6 +1571,7 @@ out:
 	mb();
 	return 0;
 }
+
 
 static int rr_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {

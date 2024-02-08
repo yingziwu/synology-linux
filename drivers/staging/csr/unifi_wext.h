@@ -46,6 +46,7 @@ struct iw_statistics *unifi_get_wireless_stats(struct net_device *dev);
 
 void uf_sme_wext_set_defaults(unifi_priv_t *priv);
 
+
 /*
  *      wext_events.c
  */
@@ -62,6 +63,7 @@ void wext_send_michaelmicfailure_event(unifi_priv_t *priv,
 void wext_send_pmkid_candidate_event(unifi_priv_t *priv, CsrWifiMacAddress bssid, u8 preauth_allowed, u16 interfaceTag);
 void wext_send_started_event(unifi_priv_t *priv);
 
+
 static inline int
 uf_iwe_stream_add_point(struct iw_request_info *info, char *start, char *stop,
                         struct iw_event *piwe, char *extra)
@@ -74,6 +76,7 @@ uf_iwe_stream_add_point(struct iw_request_info *info, char *start, char *stop,
 
     return (new_start - start);
 }
+
 
 static inline int
 uf_iwe_stream_add_event(struct iw_request_info *info, char *start, char *stop,
@@ -100,5 +103,6 @@ uf_iwe_stream_add_value(struct iw_request_info *info, char *stream, char *start,
 
     return (new_start - start);
 }
+
 
 #endif /* __LINUX_UNIFI_WEXT_H__ */

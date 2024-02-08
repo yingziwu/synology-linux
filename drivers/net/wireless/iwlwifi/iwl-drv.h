@@ -71,6 +71,7 @@
 #define DRV_COPYRIGHT	"Copyright(c) 2003-2013 Intel Corporation"
 #define DRV_AUTHOR     "<ilw@linux.intel.com>"
 
+
 /**
  * DOC: Driver system flows - drv component
  *

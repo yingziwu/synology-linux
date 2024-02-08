@@ -76,3 +76,4 @@ void __init zoom_display_init(void)
 				ARRAY_SIZE(nec_8048_spi_board_info));
 	zoom_lcd_panel_init();
 }
+

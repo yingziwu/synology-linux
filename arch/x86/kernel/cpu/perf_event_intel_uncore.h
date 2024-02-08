@@ -507,6 +507,7 @@ static ssize_t __uncore_##_var##_show(struct kobject *kobj,		\
 static struct kobj_attribute format_attr_##_var =			\
 	__ATTR(_name, 0444, __uncore_##_var##_show, NULL)
 
+
 static ssize_t uncore_event_show(struct kobject *kobj,
 				struct kobj_attribute *attr, char *buf)
 {

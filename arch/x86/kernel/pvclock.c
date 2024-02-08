@@ -189,6 +189,7 @@ int __init pvclock_init_vsyscall(struct pvclock_vsyscall_time_info *i,
 			     PAGE_KERNEL_VVAR);
 	}
 
+
 	register_task_migration_notifier(&pvclock_migrate);
 
 	return 0;

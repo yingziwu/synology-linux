@@ -1511,6 +1511,7 @@ void stp_island_check(void)
 	queue_work(time_sync_wq, &stp_work);
 }
 
+
 static int stp_sync_clock(void *data)
 {
 	static int first;

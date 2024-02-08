@@ -7,6 +7,7 @@
 
 #include <uapi/asm/setup.h>
 
+
 #define PARMAREA		0x10400
 #define MEMORY_CHUNKS		256
 

@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #include "cpu/mvCpu.h"
 #include "ctrlEnv/mvCtrlEnvLib.h"
 #include "ctrlEnv/mvCtrlEnvRegs.h"
@@ -107,6 +108,7 @@ static MV_U32 mvCpu6180PclkGet(MV_VOID)
 
 	return tmpPClkRate;
 }
+
 
 MV_U32 mvCpuPclkGet(MV_VOID)
 {

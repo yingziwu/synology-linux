@@ -73,7 +73,9 @@
 #include <asm/io.h>
 #include "uio.h"
 
+
 #include "m86xxx_spacc.h"
+
 
 //PKA errors code
 char *pka_errmsgs[] = {
@@ -96,6 +98,7 @@ U32 rom_code [sizeof(clue_code)/sizeof(U32)];
 
 extern struct elp_spacc_device _spacc_dev;
 extern elp_pka _pka;
+
 
 //load 32bit microcode
 int clue_load_microcode (U32 * code, int size)
@@ -135,6 +138,7 @@ void clue_clean_data_memory (U32 mmap)
   p = CLUE_REGION_D_START (mmap);
   MEMSET32 (p, 0, (CLUE_D_PAGE_SIZE >> 2));
 }
+
 
 /*********************** PKA *************************************************/
 
@@ -187,6 +191,7 @@ int pka_init (U32 mmap)
 
 	pka_dump_registers();
 
+
 #ifdef CLUE_ENDIAN_BIG
 	CLUE_SET_ENDIAN_SWAP (mmap);
 #endif
@@ -228,6 +233,7 @@ void pka_disable_int (void)
 	ELP_WRITE_UINT(_pka.int_en, 0);
 	ELP_WRITE_UINT(_spacc_dev.reg.irq_enable, ELP_READ_UINT(_spacc_dev.reg.irq_enable) & ~SPACC_IRQ_PKA_EN);
 }
+
 
 //get current register value for s/w DEBUG
 void pka_dump_registers (void)
@@ -294,6 +300,7 @@ int clue_start_engine (int size)
 		DPRINTF(ELP_DBG, "%s: wait_count %d\n", __FUNCTION__, wait_count);
 		DPRINTF(ELP_DBG, "%s: clue_status  %d\n", __FUNCTION__, CLUE_READ_STATUS (_spacc_dev.reg.regmap));
 	}
+
 
 	CLUE_INT_ACK (_spacc_dev.reg.regmap);
 
@@ -432,6 +439,7 @@ unsigned clue_base_and_partial_radix (int size)
 	return radix;
 }
 
+
 //precompute
 // input: n, size (modulus and size)
 // output:
@@ -505,6 +513,7 @@ int clue_bn_precompute (U8 * n, int size)
 	return err;
 }
 
+  
 int clue_bn_r_inv (U8 * m, U8 * c,int size)
 {
 	int err = SPACC_CRYPTO_OK;
@@ -625,6 +634,7 @@ int clue_bn_precompute_ex (U8 * m, U8 * c, int size)
 
 	return SPACC_CRYPTO_OK;
 }
+
 
 //mod exp:  c=a^e mod m
 //intputs:  a (base)
@@ -797,12 +807,14 @@ int clue_bn_modmult (U8 * a, U8 * b, U8 * m, U8 * c, int size, int precomp)
 		MEMCPY32EX_R (p, (U32 *) b, size >> 2);
 		dumpword (p, size, "//b");
 
+
 		if (m != 0) {
 			//D0  <- m
 			p = CLUE_REGION_D_PAGE (_spacc_dev.reg.regmap, clue_page_size (size), 0);
 			MEMCPY32EX_R (p, (U32 *) m, size >> 2);
 			dumpword (p, size, "//m");
 		}
+
 
 		//do operation
 		CLUE_MOD_MULT (_spacc_dev.reg.regmap);
@@ -1076,3 +1088,4 @@ int clue_bn_modred (U8 * a, U8 * m, U8 * c, int size)
 	return ret;
 }
 #endif
+

@@ -87,6 +87,7 @@ static int really_do_swap_account __initdata = 0;
 #define do_swap_account		0
 #endif
 
+
 /*
  * Statistics for memory cgroup.
  */
@@ -772,6 +773,7 @@ mem_cgroup_remove_exceeded(struct mem_cgroup *memcg,
 	__mem_cgroup_remove_exceeded(memcg, mz, mctz);
 	spin_unlock(&mctz->lock);
 }
+
 
 static void mem_cgroup_update_tree(struct mem_cgroup *memcg, struct page *page)
 {
@@ -2588,6 +2590,7 @@ static int __cpuinit memcg_cpu_hotplug_callback(struct notifier_block *nb,
 	return NOTIFY_OK;
 }
 
+
 /* See __mem_cgroup_try_charge() for details */
 enum {
 	CHARGE_OK,		/* success */
@@ -3701,6 +3704,7 @@ void __memcg_kmem_uncharge_pages(struct page *page, int order)
 {
 	struct mem_cgroup *memcg = NULL;
 	struct page_cgroup *pc;
+
 
 	pc = lookup_page_cgroup(page);
 	/*
@@ -5011,6 +5015,7 @@ static int mem_cgroup_force_empty_write(struct cgroup *cont, unsigned int event)
 	return ret;
 }
 
+
 static u64 mem_cgroup_hierarchy_read(struct cgroup *cont, struct cftype *cft)
 {
 	return mem_cgroup_from_cont(cont)->use_hierarchy;
@@ -5054,6 +5059,7 @@ out:
 
 	return retval;
 }
+
 
 static unsigned long mem_cgroup_recursive_stat(struct mem_cgroup *memcg,
 					       enum mem_cgroup_stat_index idx)
@@ -6176,6 +6182,7 @@ static void __mem_cgroup_free(struct mem_cgroup *memcg)
 	else
 		vfree(memcg);
 }
+
 
 /*
  * Helpers for freeing a kmalloc()ed/vzalloc()ed mem_cgroup by RCU,

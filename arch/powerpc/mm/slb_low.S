@@ -68,6 +68,7 @@ _GLOBAL(slb_miss_kernel_load_linear)
 	addis	r9,r9,(MAX_USER_CONTEXT - 0xc + 1)@ha
 	addi	r9,r9,(MAX_USER_CONTEXT - 0xc + 1)@l
 
+
 BEGIN_FTR_SECTION
 	b	slb_finish_load
 END_MMU_FTR_SECTION_IFCLR(MMU_FTR_1T_SEGMENT)
@@ -229,6 +230,7 @@ _GLOBAL(slb_allocate_user)
 
 #endif /* __DISABLED__ */
 
+
 /*
  * Finish loading of an SLB entry and return
  *
@@ -317,3 +319,4 @@ slb_finish_load_1T:
 	/* r3 = EA, r11 = VSID data */
 	clrrdi	r3,r3,SID_SHIFT_1T	/* clear out non-ESID bits */
 	b	7b
+

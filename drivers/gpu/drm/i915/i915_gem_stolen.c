@@ -117,6 +117,7 @@ static unsigned long i915_stolen_to_physical(struct drm_device *dev)
 		}
 	}
 
+
 	/* Verify that nothing else uses this physical address. Stolen
 	 * memory should be reserved by the BIOS and hidden from the
 	 * kernel. So if the region is already marked as busy, something
@@ -380,6 +381,7 @@ static void i915_gem_object_put_pages_stolen(struct drm_i915_gem_object *obj)
 	sg_free_table(obj->pages);
 	kfree(obj->pages);
 }
+
 
 static void
 i915_gem_object_release_stolen(struct drm_i915_gem_object *obj)

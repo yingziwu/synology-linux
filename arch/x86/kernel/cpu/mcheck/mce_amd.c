@@ -51,7 +51,7 @@ static const char * const th_names[] = {
 	"load_store",
 	"insn_fetch",
 	"combined_unit",
-	"",
+	"decode_unit",
 	"northbridge",
 	"execution_unit",
 };
@@ -97,6 +97,7 @@ static const char * const bank4_names(struct threshold_block *b)
 		return "";
 	}
 };
+
 
 static bool lvt_interrupt_supported(unsigned int bank, u32 msr_high_bits)
 {

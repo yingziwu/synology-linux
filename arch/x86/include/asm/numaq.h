@@ -168,3 +168,4 @@ void numaq_tsc_disable(void);
 
 #endif /* CONFIG_X86_NUMAQ */
 #endif /* _ASM_X86_NUMAQ_H */
+

@@ -795,6 +795,7 @@ int iser_post_recvm(struct iser_conn *ib_conn, int count)
 	return ib_ret;
 }
 
+
 /**
  * iser_start_send - Initiate a Send DTO operation
  *
@@ -875,6 +876,7 @@ static int iser_drain_tx_cq(struct iser_device  *device, int cq_index)
 	}
 	return completed_tx;
 }
+
 
 static void iser_cq_tasklet_fn(unsigned long data)
 {

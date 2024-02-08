@@ -1,7 +1,24 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (C) 2007 Oracle.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License v2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 021110-1307, USA.
+ */
+
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
@@ -19,6 +36,7 @@
 #include "volumes.h"
 
 static inline struct btrfs_fs_info *to_fs_info(struct kobject *kobj);
+static inline struct kobject *get_btrfs_kobj(struct kobject *kobj);
 
 static u64 get_features(struct btrfs_fs_info *fs_info,
 			enum btrfs_feature_set set)
@@ -123,6 +141,7 @@ static ssize_t btrfs_feature_attr_store(struct kobject *kobj,
 
 	features = get_features(fs_info, fa->feature_set);
 
+	/* Nothing to do */
 	if ((val && (features & fa->feature_bit)) ||
 	    (!val && !(features & fa->feature_bit)))
 		return count;
@@ -175,10 +194,13 @@ static umode_t btrfs_feature_visible(struct kobject *kobj,
 		if (fa->feature_set == FEAT_COMPAT_RO) {
 			features |= BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE;
 		}
-#endif  
+#endif /* MY_ABC_HERE */
 
 		if (can_modify_feature(fa))
 			mode |= S_IWUSR;
+#ifdef MY_ABC_HERE
+		else if (fa->feature_bit & BTRFS_FEATURE_COMPAT_BLOCK_GROUP_CACHE_TREE) {}
+#endif /* MY_ABC_HERE */
 		else if (!(features & fa->feature_bit))
 			mode = 0;
 	}
@@ -190,24 +212,32 @@ BTRFS_FEAT_ATTR_INCOMPAT(mixed_backref, MIXED_BACKREF);
 BTRFS_FEAT_ATTR_INCOMPAT(default_subvol, DEFAULT_SUBVOL);
 BTRFS_FEAT_ATTR_INCOMPAT(mixed_groups, MIXED_GROUPS);
 BTRFS_FEAT_ATTR_INCOMPAT(compress_lzo, COMPRESS_LZO);
+BTRFS_FEAT_ATTR_INCOMPAT(compress_zstd, COMPRESS_ZSTD);
 BTRFS_FEAT_ATTR_INCOMPAT(big_metadata, BIG_METADATA);
 BTRFS_FEAT_ATTR_INCOMPAT(extended_iref, EXTENDED_IREF);
 BTRFS_FEAT_ATTR_INCOMPAT(raid56, RAID56);
 BTRFS_FEAT_ATTR_INCOMPAT(skinny_metadata, SKINNY_METADATA);
 BTRFS_FEAT_ATTR_INCOMPAT(no_holes, NO_HOLES);
 BTRFS_FEAT_ATTR_COMPAT_RO(free_space_tree, FREE_SPACE_TREE);
+#ifdef MY_ABC_HERE
+BTRFS_FEAT_ATTR_COMPAT(block_group_cache_tree, BLOCK_GROUP_CACHE_TREE);
+#endif /* MY_ABC_HERE */
 
 static struct attribute *btrfs_supported_feature_attrs[] = {
 	BTRFS_FEAT_ATTR_PTR(mixed_backref),
 	BTRFS_FEAT_ATTR_PTR(default_subvol),
 	BTRFS_FEAT_ATTR_PTR(mixed_groups),
 	BTRFS_FEAT_ATTR_PTR(compress_lzo),
+	BTRFS_FEAT_ATTR_PTR(compress_zstd),
 	BTRFS_FEAT_ATTR_PTR(big_metadata),
 	BTRFS_FEAT_ATTR_PTR(extended_iref),
 	BTRFS_FEAT_ATTR_PTR(raid56),
 	BTRFS_FEAT_ATTR_PTR(skinny_metadata),
 	BTRFS_FEAT_ATTR_PTR(no_holes),
 	BTRFS_FEAT_ATTR_PTR(free_space_tree),
+#ifdef MY_ABC_HERE
+	BTRFS_FEAT_ATTR_PTR(block_group_cache_tree),
+#endif /* MY_ABC_HERE */
 	NULL
 };
 
@@ -291,6 +321,58 @@ struct kobj_type btrfs_raid_ktype = {
 	.default_attrs = raid_attributes,
 };
 
+static ssize_t btrfs_space_info_force_chunk_alloc_show(struct kobject *kobj,
+						       struct kobj_attribute *a,
+						       char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "0\n");
+}
+
+static ssize_t btrfs_space_info_force_chunk_alloc(struct kobject *kobj,
+						  struct kobj_attribute *a,
+						  const char *buf, size_t len)
+{
+	struct btrfs_space_info *space_info = to_space_info(kobj);
+	struct btrfs_fs_info *fs_info = to_fs_info(get_btrfs_kobj(kobj));
+	struct btrfs_trans_handle *trans;
+	unsigned long val;
+	int ret;
+
+	if (!fs_info) {
+		printk(KERN_ERR "couldn't get fs_info\n");
+		return -EPERM;
+	}
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+	if (fs_info->sb->s_flags & MS_RDONLY)
+		return -EROFS;
+
+	ret = kstrtoul(buf, 10, &val);
+	if (ret)
+		return ret;
+
+	/*
+	 * We don't really care, but if we echo 0 > force it seems silly to do
+	 * anything.
+	 */
+	if (val == 0)
+		return -EINVAL;
+
+	trans = btrfs_start_transaction(fs_info->extent_root, 0);
+	if (!trans)
+		return PTR_ERR(trans);
+	ret = btrfs_force_chunk_alloc(trans, fs_info->extent_root, space_info->flags);
+	btrfs_end_transaction(trans, fs_info->extent_root);
+	if (ret == 1)
+		return len;
+	return -ENOSPC;
+}
+BTRFS_ATTR_RW(force_chunk_alloc, 0644,
+	      btrfs_space_info_force_chunk_alloc_show,
+	      btrfs_space_info_force_chunk_alloc);
+
 #define SPACE_INFO_ATTR(field)						\
 static ssize_t btrfs_space_info_show_##field(struct kobject *kobj,	\
 					     struct kobj_attribute *a,	\
@@ -330,6 +412,7 @@ static struct attribute *space_info_attrs[] = {
 	BTRFS_ATTR_PTR(disk_used),
 	BTRFS_ATTR_PTR(disk_total),
 	BTRFS_ATTR_PTR(total_bytes_pinned),
+	BTRFS_ATTR_PTR(force_chunk_alloc),
 	NULL,
 };
 
@@ -425,6 +508,115 @@ static ssize_t btrfs_clone_alignment_show(struct kobject *kobj,
 BTRFS_ATTR_RW(clone_alignment, 0444, btrfs_clone_alignment_show, btrfs_no_store);
 
 #ifdef MY_ABC_HERE
+static ssize_t btrfs_mount_path_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	return snprintf(buf, PAGE_SIZE, "%s\n", fs_info->mount_path);
+}
+
+BTRFS_ATTR(mount_path, 0444, btrfs_mount_path_show);
+
+static ssize_t btrfs_correction_suppress_log_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	return snprintf(buf, PAGE_SIZE, "%u\n", fs_info->correction_suppress_log);
+}
+
+static ssize_t btrfs_correction_suppress_log_store(struct kobject *kobj,
+				 struct kobj_attribute *a,
+				 const char *buf, size_t len)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	u8 val;
+	int ret;
+
+	if (len > 2)
+		return -EINVAL;
+	ret = kstrtou8(skip_spaces(buf), 0, &val);
+	if (ret)
+		return ret;
+	if (val == 0 || val == 1 || val == 2) {
+		fs_info->correction_suppress_log = val;
+		return len;
+	}
+	return -EINVAL;
+}
+
+BTRFS_ATTR_RW(correction_suppress_log, 0644, btrfs_correction_suppress_log_show, btrfs_correction_suppress_log_store);
+
+static ssize_t btrfs_correction_disable_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	return snprintf(buf, PAGE_SIZE, "%u\n", fs_info->correction_disable);
+}
+
+static ssize_t btrfs_correction_disable_store(struct kobject *kobj,
+				 struct kobj_attribute *a,
+				 const char *buf, size_t len)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	u8 val;
+	int ret;
+
+	if (len > 2)
+		return -EINVAL;
+	ret = kstrtou8(skip_spaces(buf), 0, &val);
+	if (ret)
+		return ret;
+	if (val == 0 || val == 1) {
+		fs_info->correction_disable = val;
+		return len;
+	}
+	return -EINVAL;
+}
+
+BTRFS_ATTR_RW(correction_disable, 0644, btrfs_correction_disable_show, btrfs_correction_disable_store);
+
+static ssize_t btrfs_correction_record_cnt_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	return snprintf(buf, PAGE_SIZE, "%d\n", !RB_EMPTY_ROOT(&fs_info->correction_record));
+}
+
+static ssize_t btrfs_correction_record_cnt_store(struct kobject *kobj,
+				 struct kobj_attribute *a,
+				 const char *buf, size_t len)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	struct rb_node *n;
+	struct correction_record *record;
+	u8 val;
+	int cnt = 0;
+	int ret;
+
+	if (len > 2)
+		return -EINVAL;
+	ret = kstrtou8(skip_spaces(buf), 0, &val);
+	if (ret)
+		return ret;
+
+	if (val == 1) {
+		spin_lock(&fs_info->correction_record_lock);
+		for (n = rb_first(&fs_info->correction_record); n; n = rb_next(n)) {
+			record = rb_entry(n, struct correction_record, node);
+			printk(KERN_INFO "one correction record, logical = %llu\n", record->logical);
+			cnt++;
+		}
+		spin_unlock(&fs_info->correction_record_lock);
+		printk(KERN_INFO "Btrfs has %d unfinished correction record\n", cnt);
+		return len;
+	}
+	return -EINVAL;
+}
+
+BTRFS_ATTR_RW(correction_record_cnt, 0644, btrfs_correction_record_cnt_show, btrfs_correction_record_cnt_store);
+#endif
+
+#ifdef MY_ABC_HERE
 static ssize_t btrfs_syno_writeback_thread_max_show(struct kobject *kobj,
 				struct kobj_attribute *a, char *buf)
 {
@@ -457,7 +649,7 @@ static ssize_t btrfs_syno_writeback_thread_count_show(struct kobject *kobj,
 }
 
 BTRFS_ATTR(syno_writeback_thread_count, 0444, btrfs_syno_writeback_thread_count_show);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 static ssize_t btrfs_block_group_cnt_show(struct kobject *kobj,
@@ -467,86 +659,7 @@ static ssize_t btrfs_block_group_cnt_show(struct kobject *kobj,
 	return snprintf(buf, PAGE_SIZE, "%u\n", fs_info->block_group_cnt);
 }
 BTRFS_ATTR(block_group_cnt, 0444, btrfs_block_group_cnt_show);
-#endif  
-
-#ifdef MY_ABC_HERE
-static ssize_t btrfs_snapshot_cleaner_show(struct kobject *kobj,
-				struct kobj_attribute *a, char *buf)
-{
-	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
-	return snprintf(buf, PAGE_SIZE, "%u\n", fs_info->snapshot_cleaner);
-}
-
-static ssize_t btrfs_snapshot_cleaner_store(struct kobject *kobj,
-				 struct kobj_attribute *a,
-				 const char *buf, size_t len)
-{
-	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
-	unsigned int val;
-	int ret;
-
-	if (len > 2)
-		return -EINVAL;
-	ret = kstrtouint(skip_spaces(buf), 0, &val);
-	if (ret)
-		return ret;
-	if (val == 0 || val == 1) {
-		fs_info->snapshot_cleaner = val;
-		return len;
-	}
-	return -EINVAL;
-}
-
-BTRFS_ATTR_RW(snapshot_cleaner, 0644, btrfs_snapshot_cleaner_show, btrfs_snapshot_cleaner_store);
-#endif  
-
-#ifdef MY_ABC_HERE
-static ssize_t btrfs_fsync_cnt_show(struct kobject *kobj,
-				struct kobj_attribute *a, char *buf)
-{
-	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
-	return snprintf(buf, PAGE_SIZE, "%d\n", atomic64_read(&fs_info->fsync_cnt));
-}
-BTRFS_ATTR(fsync_cnt, 0444, btrfs_fsync_cnt_show);
-
-static ssize_t btrfs_fsync_full_commit_cnt_show(struct kobject *kobj,
-				struct kobj_attribute *a, char *buf)
-{
-	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
-	return snprintf(buf, PAGE_SIZE, "%d\n", atomic64_read(&fs_info->fsync_full_commit_cnt));
-}
-BTRFS_ATTR(fsync_full_commit_cnt, 0444, btrfs_fsync_full_commit_cnt_show);
-static ssize_t btrfs_commit_time_debug_show(struct kobject *kobj,
-				struct kobj_attribute *a, char *buf)
-{
-	int ret;
-	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
-	ret = snprintf(buf, PAGE_SIZE, "%d\n", fs_info->commit_time_debug);
-	return ret;
-}
-
-static ssize_t btrfs_commit_time_debug_store(struct kobject *kobj,
-				 struct kobj_attribute *a,
-				 const char *buf, size_t len)
-{
-	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
-	u8 val;
-	int ret;
-
-	if (len > 2)
-		return -EINVAL;
-	ret = kstrtou8(skip_spaces(buf), 0, &val);
-	if (ret)
-		return ret;
-	if (val == 0 || val == 1 ) {
-		fs_info->commit_time_debug = val;
-		return len;
-	}
-	return -EINVAL;
-}
-
-BTRFS_ATTR_RW(commit_time_debug, 0644, btrfs_commit_time_debug_show, btrfs_commit_time_debug_store);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 static ssize_t btrfs_syno_async_submit_throttle_show(struct kobject *kobj,
@@ -572,7 +685,7 @@ static ssize_t btrfs_syno_async_submit_throttle_store(struct kobject *kobj,
 }
 
 BTRFS_ATTR_RW(syno_async_submit_throttle, 0644, btrfs_syno_async_submit_throttle_show, btrfs_syno_async_submit_throttle_store);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 static ssize_t btrfs_syno_max_ordered_queue_size_show(struct kobject *kobj,
@@ -609,7 +722,86 @@ static ssize_t btrfs_syno_ordered_extent_nr_show(struct kobject *kobj,
 }
 
 BTRFS_ATTR(syno_ordered_extent_nr, 0444, btrfs_syno_ordered_extent_nr_show);
-#endif  
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+static ssize_t btrfs_snapshot_cleaner_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	return snprintf(buf, PAGE_SIZE, "%u\n", fs_info->snapshot_cleaner);
+}
+
+static ssize_t btrfs_snapshot_cleaner_store(struct kobject *kobj,
+				 struct kobj_attribute *a,
+				 const char *buf, size_t len)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	unsigned int val;
+	int ret;
+
+	if (len > 2)
+		return -EINVAL;
+	ret = kstrtouint(skip_spaces(buf), 0, &val);
+	if (ret)
+		return ret;
+	if (val == 0 || val == 1) {
+		fs_info->snapshot_cleaner = val;
+		return len;
+	}
+	return -EINVAL;
+}
+
+BTRFS_ATTR_RW(snapshot_cleaner, 0644, btrfs_snapshot_cleaner_show, btrfs_snapshot_cleaner_store);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+static ssize_t btrfs_fsync_cnt_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	return snprintf(buf, PAGE_SIZE, "%ld\n", atomic64_read(&fs_info->fsync_cnt));
+}
+BTRFS_ATTR(fsync_cnt, 0444, btrfs_fsync_cnt_show);
+
+static ssize_t btrfs_fsync_full_commit_cnt_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	return snprintf(buf, PAGE_SIZE, "%ld\n", atomic64_read(&fs_info->fsync_full_commit_cnt));
+}
+BTRFS_ATTR(fsync_full_commit_cnt, 0444, btrfs_fsync_full_commit_cnt_show);
+static ssize_t btrfs_commit_time_debug_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	int ret;
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	ret = snprintf(buf, PAGE_SIZE, "%d\n", fs_info->commit_time_debug);
+	return ret;
+}
+
+static ssize_t btrfs_commit_time_debug_store(struct kobject *kobj,
+				 struct kobj_attribute *a,
+				 const char *buf, size_t len)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	u8 val;
+	int ret;
+
+	if (len > 2)
+		return -EINVAL;
+	ret = kstrtou8(skip_spaces(buf), 0, &val);
+	if (ret)
+		return ret;
+	if (val == 0 || val == 1 ) {
+		fs_info->commit_time_debug = val;
+		return len;
+	}
+	return -EINVAL;
+}
+
+BTRFS_ATTR_RW(commit_time_debug, 0644, btrfs_commit_time_debug_show, btrfs_commit_time_debug_store);
+#endif /* MY_ABC_HERE */
 
 static struct attribute *btrfs_attrs[] = {
 BTRFS_ATTR_PTR(label),
@@ -617,27 +809,33 @@ BTRFS_ATTR_PTR(nodesize),
 BTRFS_ATTR_PTR(sectorsize),
 BTRFS_ATTR_PTR(clone_alignment),
 #ifdef MY_ABC_HERE
+BTRFS_ATTR_PTR(mount_path),
+BTRFS_ATTR_PTR(correction_suppress_log),
+BTRFS_ATTR_PTR(correction_disable),
+BTRFS_ATTR_PTR(correction_record_cnt),
+#endif
+#ifdef MY_ABC_HERE
 	BTRFS_ATTR_PTR(syno_writeback_thread_max),
 	BTRFS_ATTR_PTR(syno_writeback_thread_count),
-#endif  
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	BTRFS_ATTR_PTR(block_group_cnt),
-#endif  
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	BTRFS_ATTR_PTR(syno_async_submit_throttle),
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	BTRFS_ATTR_PTR(syno_max_ordered_queue_size),
+	BTRFS_ATTR_PTR(syno_ordered_extent_nr),
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	BTRFS_ATTR_PTR(snapshot_cleaner),
-#endif  
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	BTRFS_ATTR_PTR(fsync_cnt),
 	BTRFS_ATTR_PTR(fsync_full_commit_cnt),
 	BTRFS_ATTR_PTR(commit_time_debug),
-#endif  
-#ifdef MY_ABC_HERE
-	BTRFS_ATTR_PTR(syno_async_submit_throttle),
-#endif  
-#ifdef MY_ABC_HERE
-	BTRFS_ATTR_PTR(syno_max_ordered_queue_size),
-	BTRFS_ATTR_PTR(syno_ordered_extent_nr),
-#endif  
+#endif /* MY_ABC_HERE */
 	NULL,
 };
 
@@ -658,6 +856,16 @@ static inline struct btrfs_fs_info *to_fs_info(struct kobject *kobj)
 	if (kobj->ktype != &btrfs_ktype)
 		return NULL;
 	return container_of(kobj, struct btrfs_fs_info, super_kobj);
+}
+
+static inline struct kobject *get_btrfs_kobj(struct kobject *kobj)
+{
+	while (kobj) {
+		if (kobj->ktype == &btrfs_ktype)
+			return kobj;
+		kobj = kobj->parent;
+	}
+	return NULL;
 }
 
 #define NUM_FEATURE_BITS 64
@@ -744,7 +952,7 @@ failure:
 	btrfs_sysfs_remove_one(fs_info);
 	return error;
 }
-#endif  
+#endif /* MY_ABC_HERE */
 
 static int addrm_unknown_feature_attrs(struct btrfs_fs_info *fs_info, bool add)
 {
@@ -808,7 +1016,7 @@ void btrfs_sysfs_remove_one(struct btrfs_fs_info *fs_info)
 		kobject_del(fs_info->free_space_tree_kobj);
 		kobject_put(fs_info->free_space_tree_kobj);
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
 	kobject_del(fs_info->device_dir_kobj);
 	kobject_put(fs_info->device_dir_kobj);
@@ -826,7 +1034,7 @@ const char * const btrfs_feature_set_names[3] = {
 
 char *btrfs_printable_features(enum btrfs_feature_set set, u64 flags)
 {
-	size_t bufsize = 4096;  
+	size_t bufsize = 4096; /* safe max, 64 names * 64 bytes */
 	int len = 0;
 	int i;
 	char *str;
@@ -949,10 +1157,13 @@ int btrfs_kobj_add_device(struct btrfs_fs_info *fs_info,
 	return error;
 }
 
+/* /sys/fs/btrfs/ entry */
 static struct kset *btrfs_kset;
 
+/* /sys/kernel/debug/btrfs */
 static struct dentry *btrfs_debugfs_root_dentry;
 
+/* Debugging tunables and exported data */
 u64 btrfs_debugfs_test;
 
 int btrfs_sysfs_add_one(struct btrfs_fs_info *fs_info)
@@ -979,7 +1190,7 @@ int btrfs_sysfs_add_one(struct btrfs_fs_info *fs_info)
 		if (error)
 			goto failure;
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
 	error = addrm_unknown_feature_attrs(fs_info, true);
 	if (error)
@@ -1174,7 +1385,7 @@ out:
 		btrfs_debugfs_remove_one(fs_info);
 	return ret;
 }
-#endif  
+#endif /* MY_ABC_HERE */
 
 static int btrfs_init_debugfs(void)
 {
@@ -1189,7 +1400,7 @@ static int btrfs_init_debugfs(void)
 	return 0;
 }
 
-int btrfs_init_sysfs(void)
+int __init btrfs_init_sysfs(void)
 {
 	int ret;
 
@@ -1213,3 +1424,4 @@ void btrfs_exit_sysfs(void)
 	kset_unregister(btrfs_kset);
 	debugfs_remove_recursive(btrfs_debugfs_root_dentry);
 }
+

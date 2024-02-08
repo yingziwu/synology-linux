@@ -506,6 +506,7 @@ static void nfs4_xdr_enc_cb_recall(struct rpc_rqst *req, struct xdr_stream *xdr,
 	encode_cb_nops(&hdr);
 }
 
+
 /*
  * NFSv4.0 and NFSv4.1 XDR decode functions
  *
@@ -855,6 +856,7 @@ static void nfsd4_cb_done(struct rpc_task *task, void *calldata)
 		task->tk_msg.rpc_resp = NULL;
 	}
 }
+
 
 static void nfsd4_cb_recall_done(struct rpc_task *task, void *calldata)
 {

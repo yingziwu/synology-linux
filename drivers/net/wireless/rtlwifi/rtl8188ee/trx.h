@@ -205,12 +205,14 @@
 #define SET_TX_DESC_HWSEQ_EN(__pdesc, __val)			\
 	SET_BITS_TO_LE_4BYTE(__pdesc+12, 31, 1, __val)
 
+
 #define GET_TX_DESC_NEXT_HEAP_PAGE(__pdesc)		\
 	LE_BITS_TO_4BYTE(__pdesc+12, 0, 8)
 #define GET_TX_DESC_TAIL_PAGE(__pdesc)				\
 	LE_BITS_TO_4BYTE(__pdesc+12, 8, 8)
 #define GET_TX_DESC_SEQ(__pdesc)					\
 	LE_BITS_TO_4BYTE(__pdesc+12, 16, 12)
+
 
 #define SET_TX_DESC_RTS_RATE(__pdesc, __val)		\
 	SET_BITS_TO_LE_4BYTE(__pdesc+16, 0, 5, __val)
@@ -383,6 +385,7 @@
 
 #define GET_TX_DESC_TX_BUFFER_SIZE(__pdesc)		\
 	LE_BITS_TO_4BYTE(__pdesc+28, 0, 16)
+
 
 #define SET_TX_DESC_TX_BUFFER_ADDRESS(__pdesc, __val)	\
 	SET_BITS_TO_LE_4BYTE(__pdesc+32, 0, 32, __val)

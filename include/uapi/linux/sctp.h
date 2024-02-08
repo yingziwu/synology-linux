@@ -254,6 +254,7 @@ enum sctp_spc_state {
 	SCTP_ADDR_CONFIRMED,
 };
 
+
 /*
  * 5.3.1.3 SCTP_REMOTE_ERROR
  *
@@ -272,6 +273,7 @@ struct sctp_remote_error {
 	sctp_assoc_t sre_assoc_id;
 	__u8 sre_data[0];
 };
+
 
 /*
  * 5.3.1.4 SCTP_SEND_FAILED
@@ -632,6 +634,7 @@ struct sctp_authkeyid {
 	sctp_assoc_t	scact_assoc_id;
 	__u16		scact_keynumber;
 };
+
 
 /*
  * 7.1.23.  Get or set delayed ack timer (SCTP_DELAYED_SACK)

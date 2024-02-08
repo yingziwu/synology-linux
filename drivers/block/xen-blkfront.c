@@ -488,6 +488,7 @@ static int blkif_queue_request(struct request *req)
 	return 0;
 }
 
+
 static inline void flush_requests(struct blkfront_info *info)
 {
 	int notify;
@@ -589,6 +590,7 @@ static int xlvbd_init_blk_queue(struct gendisk *gd, u16 sector_size)
 
 	return 0;
 }
+
 
 static void xlvbd_flush(struct blkfront_info *info)
 {
@@ -1041,6 +1043,7 @@ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+
 static int setup_blkring(struct xenbus_device *dev,
 			 struct blkfront_info *info)
 {
@@ -1086,6 +1089,7 @@ fail:
 	blkif_free(info, 0);
 	return err;
 }
+
 
 /* Common code used when first setting up, and when resuming. */
 static int talk_to_blkback(struct xenbus_device *dev,
@@ -1239,6 +1243,7 @@ static int blkfront_probe(struct xenbus_device *dev,
 
 	return 0;
 }
+
 
 static int blkif_recover(struct blkfront_info *info)
 {
@@ -1727,6 +1732,7 @@ static const struct block_device_operations xlvbd_block_fops =
 	.ioctl = blkif_ioctl,
 };
 
+
 static const struct xenbus_device_id blkfront_ids[] = {
 	{ "vbd" },
 	{ "" }
@@ -1765,6 +1771,7 @@ static int __init xlblk_init(void)
 	return 0;
 }
 module_init(xlblk_init);
+
 
 static void __exit xlblk_exit(void)
 {

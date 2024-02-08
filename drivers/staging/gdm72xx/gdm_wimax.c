@@ -204,6 +204,7 @@ static void dump_eth_packet(const char *title, u8 *data, int len)
 }
 #endif
 
+
 static inline int gdm_wimax_header(struct sk_buff **pskb)
 {
 	u16 buf[HCI_HEADER_SIZE / sizeof(u16)];

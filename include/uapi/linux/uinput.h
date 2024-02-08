@@ -37,6 +37,7 @@
 
 #define UINPUT_VERSION		3
 
+
 struct uinput_ff_upload {
 	__u32			request_id;
 	__s32			retval;

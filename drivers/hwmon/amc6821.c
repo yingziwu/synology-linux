@@ -21,6 +21,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+
 #include <linux/kernel.h>	/* Needed for KERN_INFO */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -32,12 +33,15 @@
 #include <linux/err.h>
 #include <linux/mutex.h>
 
+
 /*
  * Addresses to scan.
  */
 
 static const unsigned short normal_i2c[] = {0x18, 0x19, 0x1a, 0x2c, 0x2d, 0x2e,
 	0x4c, 0x4d, 0x4e, I2C_CLIENT_END};
+
+
 
 /*
  * Insmod parameters
@@ -48,6 +52,7 @@ module_param(pwminv, int, S_IRUGO);
 
 static int init = 1; /*Power-on initialization.*/
 module_param(init, int, S_IRUGO);
+
 
 enum chips { amc6821 };
 
@@ -142,6 +147,7 @@ static const u8 fan_reg_low[] = {AMC6821_REG_TDATA_LOW,
 			AMC6821_REG_TACH_LLIMITL,
 			AMC6821_REG_TACH_HLIMITL, };
 
+
 static const u8 fan_reg_hi[] = {AMC6821_REG_TDATA_HI,
 			AMC6821_REG_TACH_LLIMITH,
 			AMC6821_REG_TACH_HLIMITH, };
@@ -179,6 +185,7 @@ static struct i2c_driver amc6821_driver = {
 	.address_list = normal_i2c,
 };
 
+
 /*
  * Client data (each client gets its own)
  */
@@ -206,6 +213,7 @@ struct amc6821_data {
 	u8 stat2;
 };
 
+
 static ssize_t get_temp(
 		struct device *dev,
 		struct device_attribute *devattr,
@@ -216,6 +224,8 @@ static ssize_t get_temp(
 
 	return sprintf(buf, "%d\n", data->temp[ix] * 1000);
 }
+
+
 
 static ssize_t set_temp(
 		struct device *dev,
@@ -242,6 +252,9 @@ static ssize_t set_temp(
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+
+
+
 
 static ssize_t get_temp_alarm(
 	struct device *dev,
@@ -280,6 +293,9 @@ static ssize_t get_temp_alarm(
 	else
 		return sprintf(buf, "0");
 }
+
+
+
 
 static ssize_t get_temp2_fault(
 		struct device *dev,
@@ -377,6 +393,7 @@ static ssize_t set_pwm1_enable(
 	return count;
 }
 
+
 static ssize_t get_pwm1_auto_channels_temp(
 		struct device *dev,
 		struct device_attribute *devattr,
@@ -385,6 +402,7 @@ static ssize_t get_pwm1_auto_channels_temp(
 	struct amc6821_data *data = amc6821_update_device(dev);
 	return sprintf(buf, "%d\n", data->pwm1_auto_channels_temp);
 }
+
 
 static ssize_t get_temp_auto_point_temp(
 		struct device *dev,
@@ -409,6 +427,7 @@ static ssize_t get_temp_auto_point_temp(
 	}
 }
 
+
 static ssize_t get_pwm1_auto_point_pwm(
 		struct device *dev,
 		struct device_attribute *devattr,
@@ -418,6 +437,7 @@ static ssize_t get_pwm1_auto_point_pwm(
 	struct amc6821_data *data = amc6821_update_device(dev);
 	return sprintf(buf, "%d\n", data->pwm1_auto_point_pwm[ix]);
 }
+
 
 static inline ssize_t set_slope_register(struct i2c_client *client,
 		u8 reg,
@@ -440,6 +460,8 @@ static inline ssize_t set_slope_register(struct i2c_client *client,
 	}
 	return 0;
 }
+
+
 
 static ssize_t set_temp_auto_point_temp(
 		struct device *dev,
@@ -514,6 +536,8 @@ EXIT:
 	return count;
 }
 
+
+
 static ssize_t set_pwm1_auto_point_pwm(
 		struct device *dev,
 		struct device_attribute *attr,
@@ -566,6 +590,8 @@ static ssize_t get_fan(
 	return sprintf(buf, "%d\n", (int)(6000000 / data->fan[ix]));
 }
 
+
+
 static ssize_t get_fan1_fault(
 		struct device *dev,
 		struct device_attribute *devattr,
@@ -577,6 +603,8 @@ static ssize_t get_fan1_fault(
 	else
 		return sprintf(buf, "0");
 }
+
+
 
 static ssize_t set_fan(
 		struct device *dev,
@@ -609,6 +637,8 @@ EXIT:
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+
+
 
 static ssize_t get_fan1_div(
 		struct device *dev,
@@ -660,6 +690,8 @@ EXIT:
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+
+
 
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO,
 	get_temp, NULL, IDX_TEMP1_INPUT);
@@ -725,6 +757,8 @@ static SENSOR_DEVICE_ATTR_2(temp2_auto_point2_temp, S_IWUSR | S_IRUGO,
 static SENSOR_DEVICE_ATTR_2(temp2_auto_point3_temp, S_IWUSR | S_IRUGO,
 	get_temp_auto_point_temp, set_temp_auto_point_temp, 2, 2);
 
+
+
 static struct attribute *amc6821_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
 	&sensor_dev_attr_temp1_min.dev_attr.attr,
@@ -764,6 +798,8 @@ static struct attribute *amc6821_attrs[] = {
 static struct attribute_group amc6821_attr_grp = {
 	.attrs = amc6821_attrs,
 };
+
+
 
 /* Return 0 if detection is successful, -ENODEV otherwise */
 static int amc6821_detect(
@@ -857,6 +893,7 @@ static int amc6821_remove(struct i2c_client *client)
 	return 0;
 }
 
+
 static int amc6821_init_client(struct i2c_client *client)
 {
 	int config;
@@ -942,6 +979,7 @@ static int amc6821_init_client(struct i2c_client *client)
 	}
 	return 0;
 }
+
 
 static struct amc6821_data *amc6821_update_device(struct device *dev)
 {

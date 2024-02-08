@@ -10,6 +10,7 @@
 #define CREATE_TRACE_POINTS
 #include "trace-events-sample.h"
 
+
 static void simple_thread_func(int cnt)
 {
 	set_current_state(TASK_INTERRUPTIBLE);

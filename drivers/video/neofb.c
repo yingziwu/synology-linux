@@ -111,6 +111,7 @@ MODULE_PARM_DESC(mode_option, "Preferred video mode ('640x480-8@60', etc)");
 
 #endif
 
+
 /* --------------------------------------------------------------------- */
 
 static biosMode bios8[] = {
@@ -341,6 +342,7 @@ static int vgaHWInit(const struct fb_var_screeninfo *var,
 	par->Graphics[7] = 0x0F;
 	par->Graphics[8] = 0xFF;
 
+
 	par->Attribute[0] = 0x00;	/* standard colormap translation */
 	par->Attribute[1] = 0x01;
 	par->Attribute[2] = 0x02;
@@ -469,6 +471,7 @@ static void vgaHWRestore(const struct fb_info *info,
 
 	VGAdisablePalette();
 }
+
 
 /* -------------------- Hardware specific routines ------------------------- */
 
@@ -883,6 +886,7 @@ static int neofb_set_par(struct fb_info *info)
 	par->PanelHorizCenterReg3 = 0x00;
 	par->PanelHorizCenterReg4 = 0x00;
 	par->PanelHorizCenterReg5 = 0x00;
+
 
 	if (par->PanelDispCntlReg1 & 0x02) {
 		if (info->var.xres == par->NeoPanelWidth) {
@@ -1932,6 +1936,7 @@ static int neo_init_hw(struct fb_info *info)
 	par->cursorOff = CursorOff;
 	return videoRam * 1024;
 }
+
 
 static struct fb_info *neo_alloc_fb_info(struct pci_dev *dev,
 					 const struct pci_device_id *id)

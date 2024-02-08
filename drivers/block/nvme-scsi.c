@@ -47,6 +47,7 @@
 #include <scsi/sg.h>
 #include <scsi/scsi.h>
 
+
 static int sg_version_num = 30534;	/* 2 digits for each component */
 
 #define SNTI_TRANSLATION_SUCCESS			0
@@ -351,6 +352,7 @@ MODE_SENSE_LLBAA_MASK) >> MODE_SENSE_LLBAA_SHIFT)
 #define GET_MODE_SENSE_MPH_SIZE(cdb10)				\
 (cdb10 ? MODE_SENSE10_MPH_SIZE : MODE_SENSE6_MPH_SIZE)
 
+
 /* Struct to gather data that needs to be extracted from a SCSI CDB.
    Not conforming to any particular CDB variant, but compatible with all. */
 
@@ -361,7 +363,9 @@ struct nvme_trans_io_cdb {
 	u32 xfer_len;
 };
 
+
 /* Internal Helper Functions */
+
 
 /* Copy data to userspace memory */
 
@@ -2136,6 +2140,7 @@ static int nvme_trans_do_nvme_io(struct nvme_ns *ns, struct sg_io_hdr *hdr,
  out:
 	return res;
 }
+
 
 /* SCSI Command Translation Functions */
 

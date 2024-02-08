@@ -62,6 +62,7 @@ struct nic {
 
 };
 
+
 #if 0
 #define dprintk(fmt, args ...)	printk(KERN_DEBUG " [GDM] " fmt, ## args)
 #else

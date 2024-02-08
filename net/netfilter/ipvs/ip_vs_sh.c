@@ -48,6 +48,7 @@
 
 #include <net/ip_vs.h>
 
+
 /*
  *      IPVS SH bucket
  */
@@ -85,6 +86,7 @@ static inline unsigned int ip_vs_sh_hashkey(int af, const union nf_inet_addr *ad
 	return (ntohl(addr_fold)*2654435761UL) & IP_VS_SH_TAB_MASK;
 }
 
+
 /*
  *      Get ip_vs_dest associated with supplied parameters.
  */
@@ -93,6 +95,7 @@ ip_vs_sh_get(int af, struct ip_vs_sh_state *s, const union nf_inet_addr *addr)
 {
 	return rcu_dereference(s->buckets[ip_vs_sh_hashkey(af, addr)].dest);
 }
+
 
 /*
  *      Assign all the hash buckets of the specified table with the service.
@@ -141,6 +144,7 @@ ip_vs_sh_reassign(struct ip_vs_sh_state *s, struct ip_vs_service *svc)
 	return 0;
 }
 
+
 /*
  *      Flush all the hash buckets of the specified table.
  */
@@ -160,6 +164,7 @@ static void ip_vs_sh_flush(struct ip_vs_sh_state *s)
 		b++;
 	}
 }
+
 
 static int ip_vs_sh_init_svc(struct ip_vs_service *svc)
 {
@@ -181,6 +186,7 @@ static int ip_vs_sh_init_svc(struct ip_vs_service *svc)
 	return 0;
 }
 
+
 static void ip_vs_sh_done_svc(struct ip_vs_service *svc)
 {
 	struct ip_vs_sh_state *s = svc->sched_data;
@@ -194,6 +200,7 @@ static void ip_vs_sh_done_svc(struct ip_vs_service *svc)
 		  sizeof(struct ip_vs_sh_bucket)*IP_VS_SH_TAB_SIZE);
 }
 
+
 static int ip_vs_sh_dest_changed(struct ip_vs_service *svc,
 				 struct ip_vs_dest *dest)
 {
@@ -205,6 +212,7 @@ static int ip_vs_sh_dest_changed(struct ip_vs_service *svc,
 	return 0;
 }
 
+
 /*
  *      If the dest flags is set with IP_VS_DEST_F_OVERLOAD,
  *      consider that the server is overloaded here.
@@ -213,6 +221,7 @@ static inline int is_overloaded(struct ip_vs_dest *dest)
 {
 	return dest->flags & IP_VS_DEST_F_OVERLOAD;
 }
+
 
 /*
  *      Source Hashing scheduling
@@ -246,6 +255,7 @@ ip_vs_sh_schedule(struct ip_vs_service *svc, const struct sk_buff *skb)
 	return dest;
 }
 
+
 /*
  *      IPVS SH Scheduler structure
  */
@@ -263,16 +273,19 @@ static struct ip_vs_scheduler ip_vs_sh_scheduler =
 	.schedule =		ip_vs_sh_schedule,
 };
 
+
 static int __init ip_vs_sh_init(void)
 {
 	return register_ip_vs_scheduler(&ip_vs_sh_scheduler);
 }
+
 
 static void __exit ip_vs_sh_cleanup(void)
 {
 	unregister_ip_vs_scheduler(&ip_vs_sh_scheduler);
 	synchronize_rcu();
 }
+
 
 module_init(ip_vs_sh_init);
 module_exit(ip_vs_sh_cleanup);

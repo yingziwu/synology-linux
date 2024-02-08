@@ -122,6 +122,7 @@ CsrResult unifi_coredump_request_at_next_reset(card_t *card, s8 enable)
     return r;
 }
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_coredump_handle_request
@@ -156,6 +157,7 @@ CsrResult unifi_coredump_handle_request(card_t *card)
 
     return r;
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -198,6 +200,7 @@ CsrResult unifi_coredump_capture(card_t *card, struct unifi_coredump_req *req)
         r = CSR_WIFI_HIP_RESULT_INVALID_VALUE;
         goto done;
     }
+
 
     /*
      * Force a mini-coredump capture right now
@@ -261,6 +264,7 @@ done:
     return r;
 } /* unifi_coredump_capture() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  get_value_from_coredump
@@ -316,6 +320,7 @@ static s32 get_value_from_coredump(const coredump_buffer       *coreDump,
     }
     return r;
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -439,6 +444,7 @@ done:
     return r;
 } /* unifi_coredump_get_value() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_coredump_read_zone
@@ -504,6 +510,7 @@ done:
     return r;
 }
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_coredump_read_zones
@@ -540,6 +547,7 @@ static CsrResult unifi_coredump_read_zones(card_t *card, coredump_buffer *dump_b
     return r;
 }
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_coredump_from_sdio
@@ -569,6 +577,7 @@ static CsrResult unifi_coredump_from_sdio(card_t *card, coredump_buffer *dump_bu
         r = CSR_WIFI_HIP_RESULT_INVALID_VALUE;
         goto done;
     }
+
 
     /* Chip and firmware version */
     unifi_trace(card->ospriv, UDBG4, "Get chip version\n");
@@ -607,6 +616,7 @@ static CsrResult unifi_coredump_from_sdio(card_t *card, coredump_buffer *dump_bu
 done:
     return r;
 } /* unifi_coredump_from_sdio() */
+
 
 #ifndef UNIFI_DISABLE_COREDUMP
 /*
@@ -676,6 +686,7 @@ coredump_buffer* new_coredump_node(void *ospriv, coredump_buffer *prevnode)
 
     return newnode;
 }
+
 
 #endif /* UNIFI_DISABLE_COREDUMP */
 
@@ -767,6 +778,7 @@ fail:
 #endif
 } /* unifi_coreump_init() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_coredump_free
@@ -821,3 +833,5 @@ void unifi_coredump_free(card_t *card)
     card->dump_next_write = NULL;
     card->dump_cur_read = NULL;
 } /* unifi_coredump_free() */
+
+

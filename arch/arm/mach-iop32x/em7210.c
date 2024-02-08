@@ -67,6 +67,7 @@ void __init em7210_map_io(void)
 	iotable_init(em7210_io_desc, ARRAY_SIZE(em7210_io_desc));
 }
 
+
 /*
  * EM7210 PCI
  */
@@ -115,6 +116,7 @@ static int __init em7210_pci_init(void)
 
 subsys_initcall(em7210_pci_init);
 
+
 /*
  * EM7210 Flash
  */
@@ -137,6 +139,7 @@ static struct platform_device em7210_flash_device = {
 	.num_resources	= 1,
 	.resource	= &em7210_flash_resource,
 };
+
 
 /*
  * EM7210 UART
@@ -189,6 +192,7 @@ static void __init em7210_init_machine(void)
 
 	i2c_register_board_info(0, em7210_i2c_devices,
 		ARRAY_SIZE(em7210_i2c_devices));
+
 
 	pm_power_off = em7210_power_off;
 }

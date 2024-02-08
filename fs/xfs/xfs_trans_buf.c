@@ -342,6 +342,7 @@ xfs_trans_read_buf_map(
 			return XFS_ERROR(EIO);
 		}
 
+
 		bip = bp->b_fspriv;
 		bip->bli_recur++;
 
@@ -395,6 +396,7 @@ shutdown_abort:
 	*bpp = NULL;
 	return XFS_ERROR(EIO);
 }
+
 
 /*
  * Release the buffer bp which was previously acquired with one of the
@@ -604,6 +606,7 @@ xfs_trans_log_buf(xfs_trans_t	*tp,
 	bip->bli_flags |= XFS_BLI_LOGGED;
 	xfs_buf_item_log(bip, first, last);
 }
+
 
 /*
  * Invalidate a buffer that is being used within a transaction.

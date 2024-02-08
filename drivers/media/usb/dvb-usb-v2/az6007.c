@@ -536,6 +536,7 @@ static int az6007_ci_poll_slot_status(struct dvb_ca_en50221 *ca, int slot, int o
 	return ret;
 }
 
+
 static void az6007_ci_uninit(struct dvb_usb_device *d)
 {
 	struct az6007_device_state *state;
@@ -556,6 +557,7 @@ static void az6007_ci_uninit(struct dvb_usb_device *d)
 
 	memset(&state->ca, 0, sizeof(state->ca));
 }
+
 
 static int az6007_ci_init(struct dvb_usb_adapter *adap)
 {

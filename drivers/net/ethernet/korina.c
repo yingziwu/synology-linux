@@ -639,6 +639,7 @@ korina_tx_dma_interrupt(int irq, void *dev_id)
 	return retval;
 }
 
+
 static void korina_check_media(struct net_device *dev, unsigned int init_media)
 {
 	struct korina_private *lp = netdev_priv(dev);
@@ -854,6 +855,7 @@ static int korina_init(struct net_device *dev)
 	writel(STATION_ADDRESS_LOW(dev), &lp->eth_regs->ethsal3);
 	writel(STATION_ADDRESS_HIGH(dev), &lp->eth_regs->ethsah3);
 
+
 	/* Frame Length Checking, Pad Enable, CRC Enable, Full Duplex set */
 	writel(ETH_MAC2_PE | ETH_MAC2_CEN | ETH_MAC2_FD,
 			&lp->eth_regs->ethmac2);
@@ -903,9 +905,9 @@ static void korina_restart_task(struct work_struct *work)
 				DMA_STAT_DONE | DMA_STAT_HALT | DMA_STAT_ERR,
 				&lp->rx_dma_regs->dmasm);
 
-	korina_free_ring(dev);
-
 	napi_disable(&lp->napi);
+
+	korina_free_ring(dev);
 
 	if (korina_init(dev) < 0) {
 		printk(KERN_ERR "%s: cannot restart device\n", dev->name);
@@ -1067,11 +1069,11 @@ static int korina_close(struct net_device *dev)
 	tmp = tmp | DMA_STAT_DONE | DMA_STAT_HALT | DMA_STAT_ERR;
 	writel(tmp, &lp->rx_dma_regs->dmasm);
 
-	korina_free_ring(dev);
-
 	napi_disable(&lp->napi);
 
 	cancel_work_sync(&lp->restart_task);
+
+	korina_free_ring(dev);
 
 	free_irq(lp->rx_irq, dev);
 	free_irq(lp->tx_irq, dev);

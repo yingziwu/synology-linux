@@ -430,6 +430,7 @@ void smd_sleep_exit(void)
 	}
 }
 
+
 void smd_kick(smd_channel_t *ch)
 {
 	unsigned long flags;
@@ -780,6 +781,7 @@ int smd_cur_packet_size(smd_channel_t *ch)
 {
 	return ch->current_packet;
 }
+
 
 /* ------------------------------------------------------------------------- */
 

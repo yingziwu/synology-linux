@@ -162,6 +162,7 @@ extern void vga_put(struct pci_dev *pdev, unsigned int rsrc);
 #define vga_put(pdev, rsrc)
 #endif
 
+
 /**
  *     vga_default_device
  *

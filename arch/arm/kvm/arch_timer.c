@@ -171,6 +171,7 @@ static void kvm_timer_init_interrupt(void *info)
 	enable_percpu_irq(timer_irq.irq, 0);
 }
 
+
 static int kvm_timer_cpu_notify(struct notifier_block *self,
 				unsigned long action, void *cpu)
 {

@@ -138,3 +138,4 @@ void cpuidle_unregister_governor(struct cpuidle_governor *gov)
 	list_del(&gov->governor_list);
 	mutex_unlock(&cpuidle_lock);
 }
+

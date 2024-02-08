@@ -109,6 +109,7 @@ struct rndis_device {
 	unsigned char hw_mac_adr[ETH_ALEN];
 };
 
+
 /* Interface */
 int netvsc_device_add(struct hv_device *device, void *additional_info);
 int netvsc_device_remove(struct hv_device *device);
@@ -126,11 +127,14 @@ void rndis_filter_device_remove(struct hv_device *dev);
 int rndis_filter_receive(struct hv_device *dev,
 			struct hv_netvsc_packet *pkt);
 
+
+
 int rndis_filter_send(struct hv_device *dev,
 			struct hv_netvsc_packet *pkt);
 
 int rndis_filter_set_packet_filter(struct rndis_device *dev, u32 new_filter);
 int rndis_filter_set_device_mac(struct hv_device *hdev, char *mac);
+
 
 #define NVSP_INVALID_PROTOCOL_VERSION	((u32)0xFFFFFFFF)
 
@@ -385,6 +389,7 @@ union nvsp_1_message_uber {
 						send_rndis_pkt_complete;
 } __packed;
 
+
 /*
  * Network VSP protocol version 2 messages:
  */
@@ -454,6 +459,7 @@ struct nvsp_message {
 	struct nvsp_message_header hdr;
 	union nvsp_all_messages msg;
 } __packed;
+
 
 #define NETVSC_MTU 65536
 
@@ -800,6 +806,7 @@ struct rcondis_mp_deactivate_vc_complete {
 	u32 status;
 };
 
+
 /* union with all of the RNDIS messages */
 union rndis_message_container {
 	struct rndis_packet pkt;
@@ -839,6 +846,7 @@ struct rndis_message {
 	union rndis_message_container msg;
 };
 
+
 struct rndis_filter_packet {
 	void *completion_ctx;
 	void (*completion)(void *context);
@@ -877,7 +885,10 @@ struct rndis_filter_packet {
 #define RNDIS_MESSAGE_RAW_PTR_TO_MESSAGE_PTR(rndis_msg)	\
 	((void *) rndis_msg)
 
+
 #define __struct_bcount(x)
+
+
 
 #define RNDIS_HEADER_SIZE	(sizeof(struct rndis_message) - \
 				 sizeof(union rndis_message_container))
@@ -894,5 +905,7 @@ struct rndis_filter_packet {
 #define NDIS_PACKET_TYPE_ALL_FUNCTIONAL	0x00000200
 #define NDIS_PACKET_TYPE_FUNCTIONAL	0x00000400
 #define NDIS_PACKET_TYPE_MAC_FRAME	0x00000800
+
+
 
 #endif /* _HYPERV_NET_H */

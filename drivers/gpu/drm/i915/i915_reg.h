@@ -44,6 +44,8 @@
 #define _MASKED_BIT_ENABLE(a)	({ typeof(a) _a = (a); _MASKED_FIELD(_a, _a); })
 #define _MASKED_BIT_DISABLE(a)	(_MASKED_FIELD((a), 0))
 
+
+
 /* PCI config space */
 
 #define HPLLCC	0xc0 /* 855 only */
@@ -85,6 +87,7 @@
 #define   I915_GC_RENDER_CLOCK_333_MHZ	(4 << 0)
 #define GCDGMBUS 0xcc
 #define PCI_LBPC 0xf4 /* legacy/combination backlight modes, also called LBB */
+
 
 /* Graphics reset regs */
 #define I915_GDRST 0xc0 /* PCI config register */
@@ -159,6 +162,7 @@
 #define GEN8_BIOS_RESERVED_SHIFT       7
 #define GEN7_BIOS_RESERVED_MASK        0x1
 #define GEN8_BIOS_RESERVED_MASK        0x3
+
 
 /* VGA stuff */
 
@@ -1087,6 +1091,7 @@ enum punit_power_well {
 #define   SANDYBRIDGE_FENCE_PITCH_SHIFT	32
 #define   GEN7_FENCE_MAX_PITCH_VAL	0x0800
 
+
 /* control register for cpu gtt access */
 #define TILECTL				0x101000
 #define   TILECTL_SWZCTL			(1 << 0)
@@ -1267,6 +1272,7 @@ enum punit_power_well {
 #define   DERRMR_PIPEC_SPR_FLIP_DONE	(1<<20)
 #define   DERRMR_PIPEC_VBLANK		(1<<21)
 #define   DERRMR_PIPEC_HBLANK		(1<<22)
+
 
 /* GM45+ chicken bits -- debug workaround bits that may be required
  * for various sorts of correct behavior.  The top 16 bits of each are
@@ -1655,6 +1661,7 @@ enum punit_power_well {
 #define ILK_DISPLAY_CHICKEN1	0x42000
 #define   ILK_FBCQ_DIS		(1<<22)
 #define	  ILK_PABSTRETCH_DIS	(1<<21)
+
 
 /*
  * Framebuffer compression for Sandybridge
@@ -2665,6 +2672,7 @@ enum punit_power_well {
 #define   ADPA_DPMS_STANDBY	(2<<10)
 #define   ADPA_DPMS_OFF		(3<<10)
 
+
 /* Hotplug control (945+ only) */
 #define PORT_HOTPLUG_EN		(dev_priv->info.display_mmio_offset + 0x61110)
 #define   PORTB_HOTPLUG_INT_EN			(1 << 29)
@@ -2829,6 +2837,7 @@ enum punit_power_well {
 /* CHV SDVO/HDMI bits: */
 #define   SDVO_PIPE_SEL_CHV(pipe)		((pipe) << 24)
 #define   SDVO_PIPE_SEL_MASK_CHV		(3 << 24)
+
 
 /* DVO port control */
 #define DVOA			0x61120
@@ -4219,6 +4228,7 @@ enum punit_power_well {
 /* the unit of memory self-refresh latency time is 0.5us */
 #define  ILK_SRLT_MASK		0x3f
 
+
 /* the address where we get all kinds of latency value */
 #define SSKPD			0x5d10
 #define SSKPD_WM_MASK		0x3f
@@ -4419,6 +4429,7 @@ enum punit_power_well {
 #define _PIPEBFRAMEPIXEL	0x71044
 #define _PIPEB_FRMCOUNT_GM45	(dev_priv->info.display_mmio_offset + 0x71040)
 #define _PIPEB_FLIPCOUNT_GM45	(dev_priv->info.display_mmio_offset + 0x71044)
+
 
 /* Display B control */
 #define _DSPBCNTR		(dev_priv->info.display_mmio_offset + 0x71180)
@@ -4875,6 +4886,7 @@ enum punit_power_well {
 #define  FDI_PLL_FREQ_CHANGE_REQUEST    (1<<24)
 #define  FDI_PLL_FREQ_LOCK_LIMIT_MASK   0xfff00
 #define  FDI_PLL_FREQ_DISABLE_COUNT_LIMIT_MASK  0xff
+
 
 #define _PIPEA_DATA_M1		0x60030
 #define  PIPE_DATA_M1_OFFSET    0
@@ -7036,6 +7048,7 @@ enum punit_power_well {
 #define  DBI_TYPEC_OVERRIDE				(1 << 8)
 #define  DBI_TYPEC_OVERRIDE_COUNTER_SHIFT		0
 #define  DBI_TYPEC_OVERRIDE_COUNTER_MASK		(0xff << 0)
+
 
 /* MIPI adapter registers */
 

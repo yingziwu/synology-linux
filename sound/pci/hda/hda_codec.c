@@ -1476,6 +1476,7 @@ int snd_hda_codec_update_widgets(struct hda_codec *codec)
 }
 EXPORT_SYMBOL_HDA(snd_hda_codec_update_widgets);
 
+
 /**
  * snd_hda_codec_configure - (Re-)configure the HD-audio codec
  * @codec: the HDA codec
@@ -2170,6 +2171,7 @@ int snd_hda_mixer_amp_volume_info(struct snd_kcontrol *kcontrol,
 }
 EXPORT_SYMBOL_HDA(snd_hda_mixer_amp_volume_info);
 
+
 static inline unsigned int
 read_amp_value(struct hda_codec *codec, hda_nid_t nid,
 	       int ch, int dir, int idx, unsigned int ofs)
@@ -2808,6 +2810,7 @@ void snd_hda_sync_vmaster_hook(struct hda_vmaster_mute_hook *hook)
 	snd_ctl_sync_vmaster_hook(hook->sw_kctl);
 }
 EXPORT_SYMBOL_HDA(snd_hda_sync_vmaster_hook);
+
 
 /**
  * snd_hda_mixer_amp_switch_info - Info callback for a standard AMP mixer switch
@@ -3953,6 +3956,7 @@ static void hda_call_codec_resume(struct hda_codec *codec)
 }
 #endif /* CONFIG_PM */
 
+
 /**
  * snd_hda_build_controls - build mixer controls
  * @bus: the BUS
@@ -5070,6 +5074,7 @@ int snd_hda_input_mux_put(struct hda_codec *codec,
 }
 EXPORT_SYMBOL_HDA(snd_hda_input_mux_put);
 
+
 /*
  * process kcontrol info callback of a simple string enum array
  * when @num_items is 0 or @texts is NULL, assume a boolean enum array
@@ -5496,6 +5501,7 @@ int snd_hda_add_imux_item(struct hda_input_mux *imux, const char *label,
 	return 0;
 }
 EXPORT_SYMBOL_HDA(snd_hda_add_imux_item);
+
 
 #ifdef CONFIG_PM
 /*

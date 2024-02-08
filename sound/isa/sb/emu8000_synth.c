@@ -89,6 +89,7 @@ static int snd_emu8000_new_device(struct snd_seq_device *dev)
 	return 0;
 }
 
+
 /*
  * free all resources
  */

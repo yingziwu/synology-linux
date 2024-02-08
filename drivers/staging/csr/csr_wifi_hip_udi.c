@@ -28,6 +28,7 @@
 #include "csr_wifi_hip_unifi.h"
 #include "csr_wifi_hip_card.h"
 
+
 static void unifi_print_unsafe_sdio_status(card_t *card, struct seq_file *m)
 {
 #ifdef CSR_UNSAFE_SDIO_ACCESS

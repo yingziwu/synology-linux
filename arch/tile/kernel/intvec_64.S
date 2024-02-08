@@ -36,6 +36,7 @@
 
 #define PTREGS_OFFSET_SYSCALL PTREGS_OFFSET_REG(TREG_SYSCALL_NR)
 
+
 	.macro  push_reg reg, ptr=sp, delta=-8
 	{
 	 st     \ptr, \reg
@@ -96,6 +97,7 @@
 	 jal    panic
 	}
 	.endm
+
 
 #ifdef __COLLECT_LINKER_FEEDBACK__
 	.pushsection .text.intvec_feedback,"ax"
@@ -173,6 +175,7 @@ intvec_\vecname:
 	 move   r0, sp
 	}
 	.endif
+
 
 	/*
 	 * SYSTEM_SAVE_K_0 holds the cpu number in the low bits, and
@@ -342,6 +345,7 @@ intvec_\vecname:
 #endif
 
 	.endm
+
 
 	/*
 	 * Save the rest of the registers that we didn't save in the actual
@@ -674,6 +678,7 @@ STD_ENTRY(interrupt_return)
 	IRQ_DISABLE(r20, r21)
 	TRACE_IRQS_OFF  /* Note: clobbers registers r0-r29 */
 
+
 	/* Check to see if there is any work to do before returning to user. */
 	{
 	 addi   r29, r32, THREAD_INFO_FLAGS_OFFSET
@@ -745,6 +750,7 @@ STD_ENTRY(interrupt_return)
 	IRQ_ENABLE_APPLY(r20, r21)
 	beqzt   r30, .Lrestore_regs
 3:
+
 
 	/*
 	 * We now commit to returning from this interrupt, since we will be

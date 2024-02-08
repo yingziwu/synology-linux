@@ -168,6 +168,7 @@ int control_packet_handler(struct bcm_mini_adapter *Adapter /* pointer to adapte
 			Adapter->bWakeUpDevice ||
 			kthread_should_stop());
 
+
 		if (kthread_should_stop()) {
 			BCM_DEBUG_PRINT(Adapter, DBG_TYPE_OTHERS, CP_CTRL_PKT,
 				DBG_LVL_ALL, "Exiting\n");
@@ -230,3 +231,5 @@ INT flushAllAppQ(void)
 	}
 	return STATUS_SUCCESS;
 }
+
+

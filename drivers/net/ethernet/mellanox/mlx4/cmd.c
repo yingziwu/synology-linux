@@ -594,6 +594,7 @@ int __mlx4_cmd(struct mlx4_dev *dev, u64 in_param, u64 *out_param,
 }
 EXPORT_SYMBOL_GPL(__mlx4_cmd);
 
+
 static int mlx4_ARM_COMM_CHANNEL(struct mlx4_dev *dev)
 {
 	return mlx4_cmd(dev, 0, 0, 0, MLX4_CMD_ARM_COMM_CHANNEL,
@@ -1447,6 +1448,7 @@ static int mlx4_master_process_vhcr(struct mlx4_dev *dev, int slave,
 		vhcr_cmd->status = mlx4_errno_to_status(err);
 		goto out_status;
 	}
+
 
 	/* Write outbox if command completed successfully */
 	if (cmd->has_outbox && !vhcr_cmd->status) {

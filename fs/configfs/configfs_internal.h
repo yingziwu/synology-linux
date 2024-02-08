@@ -27,6 +27,7 @@
  * configfs Copyright (C) 2005 Oracle.  All rights reserved.
  */
 
+
 #ifdef MY_ABC_HERE
 static inline struct inode *d_inode(const struct dentry *dentry)
 {
@@ -216,3 +217,4 @@ static inline void configfs_put(struct configfs_dirent * sd)
 	if (atomic_dec_and_test(&sd->s_count))
 		release_configfs_dirent(sd);
 }
+

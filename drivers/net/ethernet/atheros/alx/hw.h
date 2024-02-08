@@ -318,6 +318,7 @@ struct alx_rrd {
 #define RRD_UPDATED_MASK	0x0001
 #define RRD_UPDATED_SHIFT	31
 
+
 #define ALX_MAX_SETUP_LNK_CYCLE	50
 
 /* for FlowControl */

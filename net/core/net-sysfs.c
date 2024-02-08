@@ -69,6 +69,7 @@ static ssize_t show_##field(struct device *dev,				\
 	return netdev_show(dev, attr, buf, format_##field);		\
 }
 
+
 /* use same locking and permission rules as SIF* ioctl's */
 static ssize_t netdev_store(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t len,
@@ -470,6 +471,7 @@ static struct attribute *netstat_attrs[] = {
 	NULL
 };
 
+
 static struct attribute_group netstat_group = {
 	.name  = "statistics",
 	.attrs  = netstat_attrs,
@@ -703,6 +705,7 @@ static ssize_t store_rps_dev_flow_table_cnt(struct netdev_rx_queue *queue,
 static struct rx_queue_attribute rps_cpus_attribute =
 	__ATTR(rps_cpus, S_IRUGO | S_IWUSR, show_rps_map, store_rps_map);
 
+
 static struct rx_queue_attribute rps_dev_flow_table_cnt_attribute =
 	__ATTR(rps_flow_cnt, S_IRUGO | S_IWUSR,
 	    show_rps_dev_flow_table_cnt, store_rps_dev_flow_table_cnt);
@@ -718,6 +721,7 @@ static void rx_queue_release(struct kobject *kobj)
 	struct netdev_rx_queue *queue = to_rx_queue(kobj);
 	struct rps_map *map;
 	struct rps_dev_flow_table *flow_table;
+
 
 	map = rcu_dereference_protected(queue->rps_map, 1);
 	if (map) {
@@ -972,6 +976,7 @@ static inline unsigned int get_netdev_queue_index(struct netdev_queue *queue)
 
 	return i;
 }
+
 
 static ssize_t show_xps_map(struct netdev_queue *queue,
 			    struct netdev_queue_attribute *attribute, char *buf)

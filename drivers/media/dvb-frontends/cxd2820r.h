@@ -18,6 +18,7 @@
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 #ifndef CXD2820R_H
 #define CXD2820R_H
 
@@ -63,6 +64,7 @@ struct cxd2820r_config {
 	 */
 	bool spec_inv;
 };
+
 
 #if IS_ENABLED(CONFIG_DVB_CXD2820R)
 extern struct dvb_frontend *cxd2820r_attach(

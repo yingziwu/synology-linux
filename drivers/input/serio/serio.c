@@ -142,6 +142,7 @@ static void serio_find_driver(struct serio *serio)
 			 serio->phys, serio->name, error);
 }
 
+
 /*
  * Serio event processing.
  */
@@ -481,6 +482,7 @@ static struct device_attribute serio_device_attrs[] = {
 	__ATTR_NULL
 };
 
+
 static void serio_release_port(struct device *dev)
 {
 	struct serio *serio = to_serio_port(dev);
@@ -725,6 +727,7 @@ void serio_unregister_child_port(struct serio *serio)
 }
 EXPORT_SYMBOL(serio_unregister_child_port);
 
+
 /*
  * Serio driver operations
  */
@@ -757,6 +760,7 @@ static ssize_t serio_driver_set_bind_mode(struct device_driver *drv, const char 
 
 	return retval;
 }
+
 
 static struct driver_attribute serio_driver_attrs[] = {
 	__ATTR(description, S_IRUGO, serio_driver_show_description, NULL),

@@ -155,6 +155,7 @@ static inline void name(volatile u##size __iomem *addr, u##size val)	\
 	IO_SET_SYNC_FLAG();						\
 }
 
+
 DEF_MMIO_IN_BE(in_8,     8, lbz);
 DEF_MMIO_IN_BE(in_be16, 16, lhz);
 DEF_MMIO_IN_BE(in_be32, 32, lwz);
@@ -200,6 +201,7 @@ extern void _outsl_ns(volatile u32 __iomem *addr, const void *buf, long count);
 #define _insl	_insl_ns
 #define _outsw	_outsw_ns
 #define _outsl	_outsl_ns
+
 
 /*
  * memset_io, memcpy_toio, memcpy_fromio base implementations are out of line
@@ -283,6 +285,7 @@ do {									\
 #else
 #define PCI_FIX_ADDR(addr) (addr)
 #endif
+
 
 /*
  * Non ordered and non-swapping "raw" accessors
@@ -593,6 +596,7 @@ static inline void iosync(void)
 #define iobarrier_r()  eieio()
 #define iobarrier_w()  eieio()
 
+
 /*
  * output pause versions need a delay at least for the
  * w83c105 ide controller in a p610.
@@ -604,7 +608,9 @@ static inline void iosync(void)
 #define inl_p(port)             inl(port)
 #define outl_p(val, port)       (udelay(1), outl((val), (port)))
 
+
 #define IO_SPACE_LIMIT ~(0UL)
+
 
 /**
  * ioremap     -   map bus memory into CPU space

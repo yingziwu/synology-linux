@@ -119,6 +119,7 @@ struct rte_console {
 
 #define BRCMF_FIRSTREAD	(1 << 6)
 
+
 /* SBSDIO_DEVICE_CTL */
 
 /* 1: device will assert busy signal when receiving CMD53 */
@@ -3298,6 +3299,7 @@ static int brcmf_sdbrcm_kso_init(struct brcmf_sdio *bus)
 	return 0;
 }
 
+
 static bool
 brcmf_sdbrcm_download_firmware(struct brcmf_sdio *bus)
 {
@@ -3718,6 +3720,7 @@ brcmf_sdbrcm_probe_attach(struct brcmf_sdio *bus, u32 regsva)
 			 &err);
 	if (err)
 		goto fail;
+
 
 	sdio_release_host(bus->sdiodev->func[1]);
 

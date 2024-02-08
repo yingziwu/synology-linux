@@ -128,6 +128,7 @@ function_stack_trace_call(unsigned long ip, unsigned long parent_ip,
 	local_irq_restore(flags);
 }
 
+
 static struct ftrace_ops trace_ops __read_mostly =
 {
 	.func = function_trace_call,

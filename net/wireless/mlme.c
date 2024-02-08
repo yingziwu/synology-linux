@@ -17,6 +17,7 @@
 #include "nl80211.h"
 #include "rdev-ops.h"
 
+
 void cfg80211_send_rx_auth(struct net_device *dev, const u8 *buf, size_t len)
 {
 	struct wireless_dev *wdev = dev->ieee80211_ptr;
@@ -167,6 +168,7 @@ void __cfg80211_send_disassoc(struct net_device *dev,
 		wdev->current_bss = NULL;
 	} else
 		WARN_ON(1);
+
 
 	reason_code = le16_to_cpu(mgmt->u.disassoc.reason_code);
 
@@ -886,6 +888,7 @@ void cfg80211_dfs_channels_update_work(struct work_struct *work)
 		queue_delayed_work(cfg80211_wq, &rdev->dfs_update_channels_wk,
 				   next_time);
 }
+
 
 void cfg80211_radar_event(struct wiphy *wiphy,
 			  struct cfg80211_chan_def *chandef,

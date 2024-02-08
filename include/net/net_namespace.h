@@ -33,6 +33,7 @@ struct net_generic;
 struct sock;
 struct netns_ipvs;
 
+
 #define NETDEV_HASHBITS    8
 #define NETDEV_HASHENTRIES (1 << NETDEV_HASHBITS)
 
@@ -76,6 +77,7 @@ struct net {
 
 	/* core fib_rules */
 	struct list_head	rules_ops;
+
 
 	struct net_device       *loopback_dev;          /* The loopback */
 	struct netns_core	core;
@@ -147,6 +149,7 @@ static inline struct net *copy_net_ns(unsigned long flags,
 }
 #endif /* CONFIG_NET_NS */
 
+
 extern struct list_head net_namespace_list;
 
 extern struct net *get_net_ns_by_pid(pid_t pid);
@@ -211,6 +214,7 @@ int net_eq(const struct net *net1, const struct net *net2)
 
 #define net_drop_ns NULL
 #endif
+
 
 #ifdef NETNS_REFCNT_DEBUG
 static inline struct net *hold_net(struct net *net)

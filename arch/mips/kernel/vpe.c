@@ -331,6 +331,7 @@ static void layout_sections(struct module *mod, const Elf_Ehdr * hdr,
 	}
 }
 
+
 /* from module-elf32.c, but subverted a little */
 
 struct mips_hi16 {
@@ -595,6 +596,8 @@ static inline void save_gp_address(unsigned int secbase, unsigned int rel)
 	gp_offs = gp_addr - (secbase & 0xffff0000);
 }
 /* end module-elf32.c */
+
+
 
 /* Change all symbols so that sh_value encodes the pointer directly. */
 static void simplify_symbols(Elf_Shdr * sechdrs,

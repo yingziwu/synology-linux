@@ -116,6 +116,8 @@ struct kimage {
 #endif
 };
 
+
+
 /* kexec interface functions */
 extern void machine_kexec(struct kimage *image);
 extern int machine_kexec_prepare(struct kimage *image);

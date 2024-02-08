@@ -163,6 +163,7 @@ static void intel_mst_pre_enable_dp(struct intel_encoder *encoder)
 
 		intel_dp_sink_dpms(intel_dp, DRM_MODE_DPMS_ON);
 
+
 		intel_dp_start_link_train(intel_dp);
 		intel_dp_complete_link_train(intel_dp);
 		intel_dp_stop_link_train(intel_dp);
@@ -174,6 +175,7 @@ static void intel_mst_pre_enable_dp(struct intel_encoder *encoder)
 		DRM_ERROR("failed to allocate vcpi\n");
 		return;
 	}
+
 
 	intel_dp->active_mst_links++;
 	temp = I915_READ(DP_TP_STATUS(port));

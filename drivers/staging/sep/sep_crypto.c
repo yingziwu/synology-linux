@@ -772,6 +772,8 @@ static void sep_make_header(struct this_task_ctx *ta_ctx, u32 *msg_offset,
 	*msg_offset += sizeof(u32);
 }
 
+
+
 /**
  *	sep_read_msg -
  *	@ta_ctx: pointer to struct this_task_ctx
@@ -1296,6 +1298,7 @@ static int sep_crypto_block_data(struct ablkcipher_request *req)
 	return 0;
 }
 
+
 /**
  * This function sets things up for a crypto key submit process
  * This does all preparation, but does not try to grab the
@@ -1415,6 +1418,7 @@ static int sep_crypto_send_key(struct ablkcipher_request *req)
 	/* Parent (caller) is now ready to tell the sep to do ahead */
 	return 0;
 }
+
 
 /* This needs to be run as a work queue as it can be put asleep */
 static void sep_crypto_block(void *data)
@@ -2503,6 +2507,7 @@ static void sep_dequeuer(void *data)
 	struct crypto_ahash *hash_tfm;
 	struct this_task_ctx *ta_ctx;
 
+
 	this_queue = (struct crypto_queue *)data;
 
 	spin_lock_irq(&queue_lock);
@@ -2570,6 +2575,7 @@ static void sep_dequeuer(void *data)
 			pr_debug("sep crypto queue null hash_tfm\n");
 			return;
 		}
+
 
 		sctx = crypto_ahash_ctx(hash_tfm);
 		if (!sctx) {

@@ -58,3 +58,4 @@ void s5p_mfc_release_priv_buf(struct device *dev,
 		b->size = 0;
 	}
 }
+

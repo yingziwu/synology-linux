@@ -6,7 +6,7 @@
 #endif
 
 #include <linux/compiler.h>
-#include <asm/types.h>		/* for BITS_PER_LONG/SHIFT_PER_LONG */
+#include <asm/types.h>
 #include <asm/byteorder.h>
 #include <linux/atomic.h>
 
@@ -16,7 +16,14 @@
  * to include/asm-i386/bitops.h or kerneldoc
  */
 
+#if __BITS_PER_LONG == 64
+#define SHIFT_PER_LONG 6
+#else
+#define SHIFT_PER_LONG 5
+#endif
+
 #define CHOP_SHIFTCOUNT(x) (((unsigned long) (x)) & (BITS_PER_LONG - 1))
+
 
 #define smp_mb__before_clear_bit()      smp_mb()
 #define smp_mb__after_clear_bit()       smp_mb()

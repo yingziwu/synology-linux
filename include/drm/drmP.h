@@ -669,6 +669,7 @@ struct drm_minor {
 	struct drm_mode_group mode_group;
 };
 
+
 struct drm_pending_vblank_event {
 	struct drm_pending_event base;
 	int pipe;
@@ -1010,12 +1011,14 @@ extern int drm_prime_sg_to_page_addr_arrays(struct sg_table *sgt, struct page **
 extern struct sg_table *drm_prime_pages_to_sg(struct page **pages, unsigned int nr_pages);
 extern void drm_prime_gem_destroy(struct drm_gem_object *obj, struct sg_table *sg);
 
+
 extern struct drm_dma_handle *drm_pci_alloc(struct drm_device *dev, size_t size,
 					    size_t align);
 extern void drm_pci_free(struct drm_device *dev, struct drm_dma_handle * dmah);
 
 			       /* sysfs support (drm_sysfs.c) */
 extern void drm_sysfs_hotplug_event(struct drm_device *dev);
+
 
 struct drm_device *drm_dev_alloc(struct drm_driver *driver,
 				 struct device *parent);

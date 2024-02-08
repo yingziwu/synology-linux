@@ -840,6 +840,7 @@ EXPORT_SYMBOL(pci_choose_state);
 
 #define PCI_EXP_SAVE_REGS	7
 
+
 static struct pci_cap_saved_state *pci_find_saved_cap(
 	struct pci_dev *pci_dev, char cap)
 {
@@ -899,6 +900,7 @@ static void pci_restore_pcie_state(struct pci_dev *dev)
 	pcie_capability_write_word(dev, PCI_EXP_SLTCTL2, cap[i++]);
 }
 
+
 static int pci_save_pcix_state(struct pci_dev *dev)
 {
 	int pos;
@@ -934,6 +936,7 @@ static void pci_restore_pcix_state(struct pci_dev *dev)
 
 	pci_write_config_word(dev, pos + PCI_X_CMD, cap[i++]);
 }
+
 
 /**
  * pci_save_state - save the PCI configuration space of a device before suspending
@@ -2649,6 +2652,7 @@ err_out:
 
 	return -EBUSY;
 }
+
 
 /**
  * pci_request_selected_regions - Reserve selected PCI I/O and memory resources

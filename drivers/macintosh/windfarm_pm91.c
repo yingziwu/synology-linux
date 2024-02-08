@@ -90,6 +90,7 @@ static int wf_smu_readjust, wf_smu_skipping;
  *
  */
 
+
 #define WF_SMU_CPU_FANS_INTERVAL	1
 #define WF_SMU_CPU_FANS_MAX_HISTORY	16
 
@@ -102,6 +103,8 @@ struct wf_smu_cpu_fans_state {
 };
 
 static struct wf_smu_cpu_fans_state *wf_smu_cpu_fans;
+
+
 
 /*
  * ****** Drive Fan Control Loop ******
@@ -133,6 +136,7 @@ static struct wf_smu_slots_fans_state *wf_smu_slots_fans;
  * ***** Implementation *****
  *
  */
+
 
 static void wf_smu_create_cpu_fans(void)
 {
@@ -446,6 +450,7 @@ static void wf_smu_slots_fans_tick(struct wf_smu_slots_fans_state *st)
 	}
 }
 
+
 /*
  * ****** Setup / Init / Misc ... ******
  *
@@ -524,6 +529,7 @@ static void wf_smu_tick(void)
 		wf_clear_overtemp();
 }
 
+
 static void wf_smu_new_control(struct wf_control *ct)
 {
 	if (wf_smu_all_controls_ok)
@@ -593,6 +599,7 @@ static void wf_smu_new_sensor(struct wf_sensor *sr)
 	    sensor_hd_temp && sensor_slots_power)
 		wf_smu_all_sensors_ok = 1;
 }
+
 
 static int wf_smu_notify(struct notifier_block *self,
 			       unsigned long event, void *data)
@@ -692,6 +699,7 @@ static struct platform_driver wf_smu_driver = {
 	},
 };
 
+
 static int __init wf_smu_init(void)
 {
 	int rc = -ENODEV;
@@ -718,6 +726,7 @@ static void __exit wf_smu_exit(void)
 
 	platform_driver_unregister(&wf_smu_driver);
 }
+
 
 module_init(wf_smu_init);
 module_exit(wf_smu_exit);

@@ -73,6 +73,7 @@ void __init sun3_init(void)
 	/* This code looks suspicious, because it doesn't subtract
            memory belonging to the kernel from the available space */
 
+
 	memset(sun3_reserved_pmeg, 0, sizeof(sun3_reserved_pmeg));
 
 	/* Reserve important PMEGS */
@@ -127,6 +128,7 @@ static void __init sun3_bootmem_alloc(unsigned long memory_start,
 	free_bootmem(__pa(availmem), memory_end - (availmem));
 }
 
+
 void __init config_sun3(void)
 {
 	unsigned long memory_start, memory_end;
@@ -166,3 +168,4 @@ static void __init sun3_sched_init(irq_handler_t timer_routine)
         sun3_enable_interrupts();
         intersil_clear();
 }
+

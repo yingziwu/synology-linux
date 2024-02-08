@@ -37,6 +37,7 @@ static void usb_api_blocking_completion(struct urb *urb)
 	complete(&ctx->done);
 }
 
+
 /*
  * Starts urb and waits for completion or timeout. Note that this call
  * is NOT interruptible. Many device driver i/o requests should be
@@ -327,6 +328,7 @@ static void sg_complete(struct urb *urb)
 
 	spin_unlock(&io->lock);
 }
+
 
 /**
  * usb_sg_init - initializes scatterlist-based bulk/interrupt I/O request
@@ -1103,6 +1105,7 @@ void usb_reset_endpoint(struct usb_device *dev, unsigned int epaddr)
 }
 EXPORT_SYMBOL_GPL(usb_reset_endpoint);
 
+
 /**
  * usb_disable_interface -- Disable all endpoints for an interface
  * @dev: the device whose interface is being disabled
@@ -1614,6 +1617,7 @@ static struct usb_interface_assoc_descriptor *find_iad(struct usb_device *dev,
 	return retval;
 }
 
+
 /*
  * Internal function to queue a device reset
  *
@@ -1651,6 +1655,7 @@ static void __usb_queue_reset_device(struct work_struct *ws)
 		usb_unlock_device(udev);
 	}
 }
+
 
 /*
  * usb_set_configuration - Makes a particular device setting be current

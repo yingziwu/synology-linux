@@ -40,6 +40,7 @@
 #define ETH_HEADER_OTHER 14
 #define ISS_NET_TIMER_VALUE (2 * HZ)
 
+
 static DEFINE_SPINLOCK(opened_lock);
 static LIST_HEAD(opened);
 
@@ -61,6 +62,7 @@ struct tuntap_info {
 };
 
 /* ------------------------------------------------------------------------- */
+
 
 /* This structure contains out private information for the driver. */
 
@@ -101,6 +103,7 @@ struct iss_net_private {
 
 /* ================================ HELPERS ================================ */
 
+
 static char *split_if_spec(char *str, ...)
 {
 	char **arg, *end;
@@ -121,6 +124,7 @@ static char *split_if_spec(char *str, ...)
 	va_end(ap);
 	return str;
 }
+
 
 #if 0
 /* Adjust SKB. */
@@ -174,6 +178,7 @@ static void inline set_ether_mac(void *d, unsigned char *addr)
 	struct net_device *dev = d;
 	memcpy(dev->dev_addr, addr, ETH_ALEN);
 }
+
 
 /* ======================= TUNTAP TRANSPORT INTERFACE ====================== */
 
@@ -278,6 +283,7 @@ static int tuntap_probe(struct iss_net_private *lp, int index, char *init)
 		lp->tp.info.tuntap.fixed_config = 1;
 	} else
 		strcpy(lp->tp.info.tuntap.dev_name, TRANSPORT_TUNTAP_NAME);
+
 
 #if 0
 	if (setup_etheraddr(mac_str, lp->mac))
@@ -384,6 +390,7 @@ static int iss_net_poll(void)
 	return ret;
 }
 
+
 static void iss_net_timer(unsigned long priv)
 {
 	struct iss_net_private* lp = (struct iss_net_private*) priv;
@@ -396,6 +403,7 @@ static void iss_net_timer(unsigned long priv)
 
 	spin_unlock(&lp->lock);
 }
+
 
 static int iss_net_open(struct net_device *dev)
 {
@@ -491,6 +499,7 @@ static int iss_net_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	return NETDEV_TX_OK;
 }
 
+
 static struct net_device_stats *iss_net_get_stats(struct net_device *dev)
 {
 	struct iss_net_private *lp = netdev_priv(dev);
@@ -555,6 +564,7 @@ static int iss_net_change_mtu(struct net_device *dev, int new_mtu)
 void iss_net_user_timer_expire(unsigned long _conn)
 {
 }
+
 
 static struct platform_driver iss_net_driver = {
 	.driver = {
@@ -764,3 +774,4 @@ static int iss_net_init(void)
 }
 
 module_init(iss_net_init);
+

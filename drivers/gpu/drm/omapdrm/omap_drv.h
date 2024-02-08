@@ -28,6 +28,7 @@
 #include <drm/omap_drm.h>
 #include <linux/platform_data/omap_drm.h>
 
+
 #define DBG(fmt, ...) DRM_DEBUG(fmt"\n", ##__VA_ARGS__)
 #define VERB(fmt, ...) if (0) DRM_DEBUG(fmt, ##__VA_ARGS__) /* verbose debug */
 

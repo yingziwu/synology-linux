@@ -677,6 +677,7 @@ static void atl1e_clean_rx_ring(struct atl1e_adapter *adapter)
 	struct atl1e_rx_page_desc *rx_page_desc = rx_ring->rx_page_desc;
 	u16 i, j;
 
+
 	if (adapter->ring_vir_addr == NULL)
 		return;
 	/* Zero out the descriptor ring */

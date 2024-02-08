@@ -272,6 +272,8 @@ int show_interrupts(struct seq_file *p, void *v)
 	return 0;
 }
 
+
+
 /*
 ** The following form a "set": Virtual IRQ, Transaction Address, Trans Data.
 ** Respectively, these map to IRQ region+EIRR, Processor HPA, EIRR bit.
@@ -336,6 +338,7 @@ int txn_alloc_irq(unsigned int bits_wide)
 	return -1;
 }
 
+
 unsigned long txn_affinity_addr(unsigned int irq, int cpu)
 {
 #ifdef CONFIG_SMP
@@ -345,6 +348,7 @@ unsigned long txn_affinity_addr(unsigned int irq, int cpu)
 
 	return per_cpu(cpu_data, cpu).txn_addr;
 }
+
 
 unsigned long txn_alloc_addr(unsigned int virt_irq)
 {
@@ -363,6 +367,7 @@ unsigned long txn_alloc_addr(unsigned int virt_irq)
 
 	return txn_affinity_addr(virt_irq, next_cpu);
 }
+
 
 unsigned int txn_alloc_data(unsigned int virt_irq)
 {
@@ -391,6 +396,7 @@ DEFINE_PER_CPU(union irq_stack_union, irq_stack_union) = {
 		.slock = { 1,1,1,1 },
 	};
 #endif
+
 
 int sysctl_panic_on_stackoverflow = 1;
 

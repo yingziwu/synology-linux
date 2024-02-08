@@ -42,6 +42,7 @@
 //
 //-----------------------------------------------------------------------*/
 
+
 #ifndef _ELPSPACC_H_
 #define _ELPSPACC_H_
 
@@ -60,6 +61,7 @@
 #define CRYPTO_INVALID_PAD            (S32)-106
 #define CRYPTO_FIFO_FULL              (S32)-107
 #define CRYPTO_INVALID_SEQUENCE       (S32)-108
+
 
 #define SPACC_CRYPTO_OK				(S32)0
 #define SPACC_CRYPTO_FAILED			(S32)-1
@@ -119,6 +121,7 @@
 #define CRYPTO_DES_KEY_LENGTH            8
 #define CRYPTO_DES_KEY_LENGTH_MIN CRYPTO_DES_KEY_LENGTH
 #define CRYPTO_DES_KEY_LENGTH_MAX CRYPTO_DES_KEY_LENGTH
+
 
 #define CRYPTO_DES_IV_LENGTH            8
 #define CRYPTO_DES_MIN_BLOCK_SIZE       8
@@ -197,6 +200,7 @@ enum {
   SPACC_DEQUEUE_UNMAP
 };
 
+
 /*
  * Codes
 */
@@ -222,6 +226,7 @@ enum {
 #define ELP_CIPHER_AES256_CTR	11
 #define ELP_CIPHER_ARC4_40	12
 #define ELP_CIPHER_ARC4_128	13
+
 
 typedef struct ddt_descr_
 {
@@ -296,7 +301,10 @@ typedef struct handle_ctx_
 #define	op_dst_segs	op_dst.segs
 #define	op_dst_mapsize	op_dst.mapsize
 
+
 #define DDT_ENTRY_SIZE (sizeof(ddt_entry)*MAX_DDT_ENTRIES)
+
+
 
 #define	MAX_IOP_SIZE	64	/* words */
 #define	MAX_OOP_SIZE	128
@@ -318,6 +326,7 @@ struct pka_pkq {
 	U32	*pkq_obuf;
 	U32	pkq_result_len;	
 };
+
 
 #define DDT_ENTRY_SIZE (sizeof(ddt_entry)*MAX_DDT_ENTRIES)
 
@@ -490,6 +499,7 @@ S16 clue_ec_load_curve_pver (U16 curve);
 S16 clue_ec_point_verify (U8 * x, U8 * y, U16 size);
 S16 clue_ec_point_mult_base (U8 * k, U8 * rx, U8 * ry, U16 size, U16 ksize);
 
+
 //RSA maximum 4096 bit= 512 bytes
 #define BN_RSA_MAX_RADIX_SIZE  512
 #define BN_RSA_BASE_RADIX_SIZE  256
@@ -528,6 +538,7 @@ void    memcpy32_r(U32 *dst, U32 *src, int len);
 #define MEMCPY32EX(d,s,z)	memcpy32htonl((U32 *)(d),(U32 *)(s),(S16)(z))
 #define MEMCPY32EX_R(d,s,z)	memcpy32htonl_r((U32 *)(d),(U32 *)(s),(z))
 
+
 #ifndef MAX_BUFFERS
 #define MAX_BUFFERS 16
 #endif
@@ -544,6 +555,7 @@ typedef struct spacc_dev_
   int mode;
 
 } spacc_dev;
+
 
 S16 crypto_rand_mode (U16 mode);
 S16 crypto_srand (U8 * seed, S16 size);

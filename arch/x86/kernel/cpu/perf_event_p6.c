@@ -256,5 +256,6 @@ __init int p6_pmu_init(void)
 	memcpy(hw_cache_event_ids, p6_hw_cache_event_ids,
 		sizeof(hw_cache_event_ids));
 
+
 	return 0;
 }

@@ -28,6 +28,7 @@
 #include "routing.h"
 #include "hard-interface.h"
 
+
 static struct sk_buff *
 batadv_frag_merge_packet(struct list_head *head,
 			 struct batadv_frag_packet_list_entry *tfp,

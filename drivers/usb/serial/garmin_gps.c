@@ -59,6 +59,7 @@ static int initial_mode = 1;
 /* error codes returned by the driver */
 #define EINVPKT	1000	/* invalid packet structure */
 
+
 /* size of the header of a packet using the usb protocol */
 #define GARMIN_PKTHDR_LENGTH	12
 
@@ -105,6 +106,7 @@ static int initial_mode = 1;
 #define PRIV_PKTID_RESET_REQ	5
 #define PRIV_PKTID_SET_DEF_MODE	6
 
+
 #define ETX	0x03
 #define DLE	0x10
 #define ACK	0x06
@@ -139,6 +141,7 @@ struct garmin_data {
 	struct list_head pktlist;
 };
 
+
 #define STATE_NEW            0
 #define STATE_INITIAL_DELAY  1
 #define STATE_TIMEOUT        2
@@ -171,6 +174,11 @@ struct garmin_data {
 #define FLAGS_GSP_SKIP            0x1000
 #define FLAGS_GSP_DLESEEN         0x2000
 
+
+
+
+
+
 /* function prototypes */
 static int gsp_next_packet(struct garmin_data *garmin_data_p);
 static int garmin_write_bulk(struct usb_serial_port *port,
@@ -197,6 +205,8 @@ static unsigned char const GARMIN_STOP_TRANSFER_REQ_V2[]
 static unsigned char const PRIVATE_REQ[]
 	=    { 0x4B, 0x6E, 0x10, 0x01,  0xFF, 0, 0, 0, 0xFF, 0, 0, 0 };
 
+
+
 static const struct usb_device_id id_table[] = {
 	/* the same device id seems to be used by all
 	   usb enabled GPS devices */
@@ -204,6 +214,7 @@ static const struct usb_device_id id_table[] = {
 	{ }					/* Terminating entry */
 };
 MODULE_DEVICE_TABLE(usb, id_table);
+
 
 static inline int getLayerId(const __u8 *usbPacket)
 {
@@ -220,6 +231,7 @@ static inline int getDataLength(const __u8 *usbPacket)
 	return __le32_to_cpup((__le32 *)(usbPacket+8));
 }
 
+
 /*
  * check if the usb-packet in buf contains an abort-transfer command.
  * (if yes, all queued data will be dropped)
@@ -235,6 +247,8 @@ static inline int isAbortTrfCmnd(const unsigned char *buf)
 		return 0;
 }
 
+
+
 static void send_to_tty(struct usb_serial_port *port,
 			char *data, unsigned int actual_length)
 {
@@ -244,6 +258,7 @@ static void send_to_tty(struct usb_serial_port *port,
 		tty_flip_buffer_push(&port->port);
 	}
 }
+
 
 /******************************************************************************
  * packet queue handling
@@ -291,6 +306,7 @@ static int pkt_add(struct garmin_data *garmin_data_p,
 	return result;
 }
 
+
 /* get the next pending packet */
 static struct garmin_packet *pkt_pop(struct garmin_data *garmin_data_p)
 {
@@ -306,6 +322,7 @@ static struct garmin_packet *pkt_pop(struct garmin_data *garmin_data_p)
 	return result;
 }
 
+
 /* free up all queued data */
 static void pkt_clear(struct garmin_data *garmin_data_p)
 {
@@ -320,6 +337,7 @@ static void pkt_clear(struct garmin_data *garmin_data_p)
 	}
 	spin_unlock_irqrestore(&garmin_data_p->lock, flags);
 }
+
 
 /******************************************************************************
  * garmin serial protocol handling handling
@@ -359,6 +377,8 @@ static int gsp_send_ack(struct garmin_data *garmin_data_p, __u8 pkt_id)
 	send_to_tty(garmin_data_p->port, pkt, l);
 	return 0;
 }
+
+
 
 /*
  * called for a complete packet received from tty layer
@@ -429,6 +449,8 @@ static int gsp_rec_packet(struct garmin_data *garmin_data_p, int count)
 
 	return count;
 }
+
+
 
 /*
  * Called for data received from tty
@@ -562,6 +584,8 @@ static int gsp_receive(struct garmin_data *garmin_data_p,
 	return count;
 }
 
+
+
 /*
  * Sends a usb packet to the tty
  *
@@ -683,6 +707,7 @@ static int gsp_send(struct garmin_data *garmin_data_p,
 	return i;
 }
 
+
 /*
  * Process the next pending data packet - if there is one
  */
@@ -703,9 +728,12 @@ static int gsp_next_packet(struct garmin_data *garmin_data_p)
 	return result;
 }
 
+
+
 /******************************************************************************
  * garmin native mode
  ******************************************************************************/
+
 
 /*
  * Called for data received from tty
@@ -780,6 +808,7 @@ static int nat_receive(struct garmin_data *garmin_data_p,
 	return result;
 }
 
+
 /******************************************************************************
  * private packets
  ******************************************************************************/
@@ -798,6 +827,7 @@ static void priv_status_resp(struct usb_serial_port *port)
 
 	send_to_tty(port, (__u8 *)pkt, 6 * 4);
 }
+
 
 /******************************************************************************
  * Garmin specific driver functions
@@ -824,6 +854,8 @@ static int process_resetdev_request(struct usb_serial_port *port)
 	return status;
 }
 
+
+
 /*
  * clear all cached data
  */
@@ -842,6 +874,7 @@ static int garmin_clear(struct garmin_data *garmin_data_p)
 
 	return status;
 }
+
 
 static int garmin_init_session(struct usb_serial_port *port)
 {
@@ -885,6 +918,8 @@ static int garmin_init_session(struct usb_serial_port *port)
 	return status;
 }
 
+
+
 static int garmin_open(struct tty_struct *tty, struct usb_serial_port *port)
 {
 	unsigned long flags;
@@ -908,6 +943,7 @@ static int garmin_open(struct tty_struct *tty, struct usb_serial_port *port)
 	return status;
 }
 
+
 static void garmin_close(struct usb_serial_port *port)
 {
 	struct garmin_data *garmin_data_p = usb_get_serial_port_data(port);
@@ -926,6 +962,7 @@ static void garmin_close(struct usb_serial_port *port)
 	if (garmin_data_p->state != STATE_RESET)
 		garmin_data_p->state = STATE_DISCONNECTED;
 }
+
 
 static void garmin_write_bulk_callback(struct urb *urb)
 {
@@ -951,6 +988,7 @@ static void garmin_write_bulk_callback(struct urb *urb)
 	/* free up the transfer buffer, as usb_free_urb() does not do this */
 	kfree(urb->transfer_buffer);
 }
+
 
 static int garmin_write_bulk(struct usb_serial_port *port,
 			      const unsigned char *buf, int count,
@@ -1011,6 +1049,7 @@ static int garmin_write_bulk(struct usb_serial_port *port,
 		   "%s - usb_submit_urb(write bulk) failed with status = %d\n",
 				__func__, status);
 		count = status;
+		kfree(buffer);
 	}
 
 	/* we are done with this urb, so let the host driver
@@ -1091,6 +1130,7 @@ static int garmin_write(struct tty_struct *tty, struct usb_serial_port *port,
 	}
 }
 
+
 static int garmin_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -1100,6 +1140,7 @@ static int garmin_write_room(struct tty_struct *tty)
 	struct garmin_data *garmin_data_p = usb_get_serial_port_data(port);
 	return GPS_OUT_BUFSIZ-garmin_data_p->outsize;
 }
+
 
 static void garmin_read_process(struct garmin_data *garmin_data_p,
 				 unsigned char *data, unsigned data_length,
@@ -1135,6 +1176,7 @@ static void garmin_read_process(struct garmin_data *garmin_data_p,
 		/* ignore system layer packets ... */
 	}
 }
+
 
 static void garmin_read_bulk_callback(struct urb *urb)
 {
@@ -1181,6 +1223,7 @@ static void garmin_read_bulk_callback(struct urb *urb)
 		spin_unlock_irqrestore(&garmin_data_p->lock, flags);
 	}
 }
+
 
 static void garmin_read_int_callback(struct urb *urb)
 {
@@ -1263,6 +1306,7 @@ static void garmin_read_int_callback(struct urb *urb)
 			__func__, retval);
 }
 
+
 /*
  * Sends the next queued packt to the tty port (garmin native mode only)
  * and then sets a timer to call itself again until all queued data
@@ -1289,6 +1333,7 @@ static int garmin_flush_queue(struct garmin_data *garmin_data_p)
 	return 0;
 }
 
+
 static void garmin_throttle(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -1300,6 +1345,7 @@ static void garmin_throttle(struct tty_struct *tty)
 	garmin_data_p->flags |= FLAGS_QUEUING|FLAGS_THROTTLED;
 	spin_unlock_irq(&garmin_data_p->lock);
 }
+
 
 static void garmin_unthrottle(struct tty_struct *tty)
 {
@@ -1340,6 +1386,8 @@ static void timeout_handler(unsigned long data)
 			garmin_flush_queue(garmin_data_p);
 }
 
+
+
 static int garmin_port_probe(struct usb_serial_port *port)
 {
 	int status;
@@ -1367,6 +1415,7 @@ static int garmin_port_probe(struct usb_serial_port *port)
 	return status;
 }
 
+
 static int garmin_port_remove(struct usb_serial_port *port)
 {
 	struct garmin_data *garmin_data_p = usb_get_serial_port_data(port);
@@ -1376,6 +1425,7 @@ static int garmin_port_remove(struct usb_serial_port *port)
 	kfree(garmin_data_p);
 	return 0;
 }
+
 
 /* All of the device info needed */
 static struct usb_serial_driver garmin_device = {

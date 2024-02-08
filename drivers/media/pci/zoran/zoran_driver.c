@@ -73,6 +73,7 @@
 #include "zoran_device.h"
 #include "zoran_card.h"
 
+
 const struct zoran_format zoran_formats[] = {
 	{
 		.name = "15-bit RGB LE",
@@ -1031,6 +1032,7 @@ zoran_close(struct file  *file)
 	return 0;
 }
 
+
 static ssize_t
 zoran_read (struct file *file,
 	    char        __user *data,
@@ -1128,6 +1130,7 @@ static int setup_fbuffer(struct zoran_fh *fh,
 	return 0;
 }
 
+
 static int setup_window(struct zoran_fh *fh,
 			int x,
 			int y,
@@ -1140,6 +1143,7 @@ static int setup_window(struct zoran_fh *fh,
 	struct zoran *zr = fh->zr;
 	struct v4l2_clip *vcp = NULL;
 	int on, end;
+
 
 	if (!zr->vbuf_base) {
 		dprintk(1,
@@ -2782,6 +2786,7 @@ zoran_poll (struct file *file,
 	return res;
 }
 
+
 /*
  * This maps the buffers to user space.
  *
@@ -2831,6 +2836,7 @@ zoran_vm_close (struct vm_area_struct *vma)
 
 	dprintk(3, KERN_INFO "%s: %s - free %s buffers\n", ZR_DEVNAME(zr),
 		__func__, mode_name(fh->map_mode));
+
 
 	if (fh->map_mode == ZORAN_MAP_MODE_RAW) {
 		if (fh->buffers.active != ZORAN_FREE) {
@@ -3082,3 +3088,4 @@ struct video_device zoran_template = {
 	.release = &zoran_vdev_release,
 	.tvnorms = V4L2_STD_NTSC | V4L2_STD_PAL | V4L2_STD_SECAM,
 };
+

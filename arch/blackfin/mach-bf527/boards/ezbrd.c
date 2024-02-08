@@ -195,6 +195,7 @@ static struct platform_device rtc_device = {
 };
 #endif
 
+
 #if defined(CONFIG_BFIN_MAC) || defined(CONFIG_BFIN_MAC_MODULE)
 #include <linux/bfin_mac.h>
 static const unsigned short bfin_mac_peripherals[] = P_RMII0;

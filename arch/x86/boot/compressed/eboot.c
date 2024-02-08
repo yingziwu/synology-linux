@@ -588,6 +588,7 @@ static efi_status_t setup_uga(struct screen_info *si, efi_guid_t *uga_proto,
 	si->rsvd_size = 8;
 	si->rsvd_pos = 24;
 
+
 free_handle:
 	efi_call_phys1(sys_table->boottime->free_pool, uga_handle);
 	return status;

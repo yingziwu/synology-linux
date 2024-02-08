@@ -54,6 +54,7 @@ static const struct sysfs_ops gfs2_attr_ops = {
 	.store = gfs2_attr_store,
 };
 
+
 static struct kset *gfs2_kset;
 
 static ssize_t id_show(struct gfs2_sbd *sdp, char *buf)
@@ -254,6 +255,7 @@ static ssize_t demote_rq_store(struct gfs2_sbd *sdp, const char *buf, size_t len
 	return len;
 }
 
+
 #define GFS2_ATTR(name, mode, show, store) \
 static struct gfs2_attr gfs2_attr_##name = __ATTR(name, mode, show, store)
 
@@ -294,6 +296,7 @@ static struct kobj_type gfs2_ktype = {
 	.default_attrs = gfs2_attrs,
 	.sysfs_ops     = &gfs2_attr_ops,
 };
+
 
 /*
  * lock_module. Originally from lock_dlm
@@ -703,3 +706,4 @@ void gfs2_sys_uninit(void)
 {
 	kset_unregister(gfs2_kset);
 }
+

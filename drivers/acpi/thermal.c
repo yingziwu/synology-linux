@@ -244,6 +244,7 @@ static int acpi_thermal_set_cooling_mode(struct acpi_thermal *tz, int mode)
 	struct acpi_object_list arg_list = { 1, &arg0 };
 	acpi_handle handle = NULL;
 
+
 	if (!tz)
 		return -EINVAL;
 
@@ -754,6 +755,7 @@ static int thermal_get_trend(struct thermal_zone_device *thermal,
 	return 0;
 }
 
+
 static int thermal_notify(struct thermal_zone_device *thermal, int trip,
 			   enum thermal_trip_type trip_type)
 {
@@ -958,6 +960,7 @@ static void acpi_thermal_unregister_thermal_zone(struct acpi_thermal *tz)
 	acpi_detach_data(tz->device->handle, acpi_bus_private_data_handler);
 }
 
+
 /* --------------------------------------------------------------------------
                                  Driver Interface
    -------------------------------------------------------------------------- */
@@ -965,6 +968,7 @@ static void acpi_thermal_unregister_thermal_zone(struct acpi_thermal *tz)
 static void acpi_thermal_notify(struct acpi_device *device, u32 event)
 {
 	struct acpi_thermal *tz = acpi_driver_data(device);
+
 
 	if (!tz)
 		return;
@@ -1030,6 +1034,7 @@ static int acpi_thermal_get_info(struct acpi_thermal *tz)
 {
 	int result = 0;
 
+
 	if (!tz)
 		return -EINVAL;
 
@@ -1083,6 +1088,7 @@ static int acpi_thermal_add(struct acpi_device *device)
 	int result = 0;
 	struct acpi_thermal *tz = NULL;
 
+
 	if (!device)
 		return -EINVAL;
 
@@ -1096,6 +1102,7 @@ static int acpi_thermal_add(struct acpi_device *device)
 	strcpy(acpi_device_class(device), ACPI_THERMAL_CLASS);
 	device->driver_data = tz;
 	mutex_init(&tz->lock);
+
 
 	result = acpi_thermal_get_info(tz);
 	if (result)

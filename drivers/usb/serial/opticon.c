@@ -47,6 +47,7 @@ struct opticon_private {
 	int outstanding_urbs;
 };
 
+
 static void opticon_process_data_packet(struct usb_serial_port *port,
 					const unsigned char *buf, size_t len)
 {
@@ -142,7 +143,7 @@ static int opticon_open(struct tty_struct *tty, struct usb_serial_port *port)
 	usb_clear_halt(port->serial->dev, port->read_urb->pipe);
 
 	res = usb_serial_generic_open(tty, port);
-	if (!res)
+	if (res)
 		return res;
 
 	/* Request CTS line state, sometimes during opening the current

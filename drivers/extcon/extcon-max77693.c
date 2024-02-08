@@ -1178,6 +1178,7 @@ static int max77693_muic_probe(struct platform_device *pdev)
 		goto err_irq;
 	}
 
+
 	/* Initialize MUIC register by using platform data or default data */
 	if (pdata && pdata->muic_data) {
 		init_data = pdata->muic_data->init_data;
