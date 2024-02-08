@@ -3,17 +3,8 @@
 # vim:ft=sh
 
 export ARCH=${ARCH}
-case "$BUILD_TARGET" in
-	X64|BROMOLOW|GRANTLEY|CEDARVIEW|AVOTON|DOCKERX64|BROMOLOWESM|KVMX64|BROADWELL)
-		export CROSS_COMPILE=${ToolChainPrefix64} CC=${CC64}
-		KERNEL_CC=${CC64}
-		;;
-	*)
-		CC=`echo ${CC} | awk -F" " '{print $1}'`
-		export CROSS_COMPILE=${ToolChainPrefix} CC="${CC}"
-		KERNEL_CC="${CC}"
-		;;
-esac
+export CROSS_COMPILE="${ToolChainPrefix}"
+KERNEL_CC="${CC}"
 
 cp -vf "/source/synobios/include/synobios.h" include/linux/synobios.h
 

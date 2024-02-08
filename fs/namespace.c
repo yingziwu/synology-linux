@@ -1385,6 +1385,12 @@ static int do_umount(struct mount *mnt, int flags)
 		}
 	}
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	if (NULL != strstr(sb->s_id, "synoboot"))
+		printk(KERN_NOTICE"%s unmounted, process=%s\n", sb->s_id, current->comm);
+#endif /* MY_ABC_HERE */
+
 	br_write_unlock(&vfsmount_lock);
 	namespace_unlock();
 

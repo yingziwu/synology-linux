@@ -84,7 +84,7 @@ SoftLink7490fanInput()
 	fi
 	/bin/mkdir -p ${adtfanTmpPath}
 	# soft link master adt7490
-	masterfiles=`ls ${ADTMASTER}/*`
+	masterfiles=$(ls -d ${ADTMASTER}/*)
 	for masterfile in ${masterfiles}
 	do
 		ln -s ${masterfile} ${adtfanTmpPath}/

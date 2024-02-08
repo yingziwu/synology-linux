@@ -2874,6 +2874,14 @@ static ssize_t incompat_supp_show(struct ext4_attr *a,
 }
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+static ssize_t compat_ro_supp_show(struct ext4_attr *a,
+				       struct ext4_sb_info *sbi, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%u\n", EXT4_FEATURE_RO_COMPAT_SUPP);
+}
+#endif /* MY_ABC_HERE */
+
 #define EXT4_ATTR_OFFSET(_name,_mode,_show,_store,_elname) \
 static struct ext4_attr ext4_attr_##_name = {			\
 	.attr = {.name = __stringify(_name), .mode = _mode },	\
@@ -2953,6 +2961,9 @@ EXT4_INFO_ATTR(meta_bg_resize);
 #ifdef MY_ABC_HERE
 EXT4_RO_ATTR(incompat_supp);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+EXT4_RO_ATTR(compat_ro_supp);
+#endif /* MY_ABC_HERE */
 
 static struct attribute *ext4_feat_attrs[] = {
 	ATTR_LIST(lazy_itable_init),
@@ -2960,6 +2971,9 @@ static struct attribute *ext4_feat_attrs[] = {
 	ATTR_LIST(meta_bg_resize),
 #ifdef MY_ABC_HERE
 	ATTR_LIST(incompat_supp),
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	ATTR_LIST(compat_ro_supp),
 #endif /* MY_ABC_HERE */
 	NULL,
 };

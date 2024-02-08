@@ -786,7 +786,7 @@ void __init efi_init(void)
 
 	set_bit(EFI_MEMMAP, &x86_efi_facility);
 
-#ifdef MY_DEF_HERE
+#ifdef CONFIG_SYNO_CEDARVIEW_USE_EFI_REBOOT
 	/* Set reboot by EFI */
 	reboot_type = BOOT_EFI;
 #endif

@@ -1285,10 +1285,11 @@ int clear_extent_bits(struct extent_io_tree *tree, u64 start, u64 end,
 }
 
 int set_extent_delalloc(struct extent_io_tree *tree, u64 start, u64 end,
+			unsigned int extra_bits,
 			struct extent_state **cached_state, gfp_t mask)
 {
 	return set_extent_bit(tree, start, end,
-			      EXTENT_DELALLOC | EXTENT_UPTODATE,
+			      EXTENT_DELALLOC | EXTENT_UPTODATE | extra_bits,
 			      NULL, cached_state, mask);
 }
 
@@ -3075,7 +3076,7 @@ readpage_ok:
 
 #ifdef MY_ABC_HERE
 	if (found_cksumfailure) {
-		SynoAutoErrorFsBtrfsReport(fs_info->fsid);
+		SynoAutoErrorFsBtrfsReport(fs_info->fs_devices->fsid);
 	}
 #endif
 }
@@ -3251,6 +3252,9 @@ static int submit_extent_page(int rw, struct extent_io_tree *tree,
 	bio_add_page(bio, page, page_size, offset);
 	bio->bi_end_io = end_io_func;
 	bio->bi_private = tree;
+#ifdef MY_ABC_HERE
+	bio->bi_rw |= rw;
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	if (unlikely(bio_flags & EXTENT_BIO_RETRY))
 		set_bit(BIO_CORRECTION_RETRY, &bio->bi_flags);
@@ -4252,7 +4256,7 @@ static noinline_for_stack int write_one_eb(struct extent_buffer *eb,
 	if (btrfs_header_level(eb) > 0) {
 		end = btrfs_node_key_ptr_offset(nritems);
 
-		memset_extent_buffer(eb, 0, end, eb->len - end);
+		memzero_extent_buffer(eb, end, eb->len - end);
 	} else {
 		/*
 		 * leaf:
@@ -4261,7 +4265,7 @@ static noinline_for_stack int write_one_eb(struct extent_buffer *eb,
 		start = btrfs_item_nr_offset(nritems);
 		end = btrfs_leaf_data(eb) +
 		      leaf_data_end(fs_info->tree_root, eb);
-		memset_extent_buffer(eb, 0, start, end - start);
+		memzero_extent_buffer(eb, start, end - start);
 	}
 
 	for (i = 0; i < num_pages; i++) {
@@ -4789,7 +4793,7 @@ static int try_release_extent_state(struct extent_map_tree *map,
 		 * locked bit and the nodatasum bit
 		 */
 		ret = clear_extent_bit(tree, start, end,
-				 ~(EXTENT_LOCKED | EXTENT_NODATASUM),
+				 ~(EXTENT_LOCKED | EXTENT_NODATASUM | EXTENT_DELALLOC_NEW),
 				 0, 0, NULL, mask);
 
 		/* if clear_extent_bit failed for enomem reasons,
@@ -5601,9 +5605,9 @@ struct extent_buffer *btrfs_clone_extent_buffer(struct extent_buffer *src)
 		WARN_ON(PageDirty(p));
 		SetPageUptodate(p);
 		new->pages[i] = p;
+		copy_page(page_address(p), page_address(src->pages[i]));
 	}
 
-	copy_extent_buffer(new, src, 0, 0, src->len);
 	set_bit(EXTENT_BUFFER_UPTODATE, &new->bflags);
 	set_bit(EXTENT_BUFFER_DUMMY, &new->bflags);
 #ifdef MY_ABC_HERE
@@ -6234,6 +6238,9 @@ int read_extent_buffer_pages(struct extent_io_tree *tree,
 		correction_get_locked_record(eb->fs_info, eb->start);
 #endif
 
+#ifdef MY_ABC_HERE
+	atomic64_inc(&eb->fs_info->syno_meta_statistics.eb_disk_read);
+#endif /* MY_ABC_HERE */
 	clear_bit(EXTENT_BUFFER_READ_ERR, &eb->bflags);
 #ifdef MY_ABC_HERE
 #else
@@ -6557,6 +6564,27 @@ int memcmp_extent_buffer(struct extent_buffer *eb, const void *ptrv,
 	return ret;
 }
 
+void write_extent_buffer_chunk_tree_uuid(struct extent_buffer *eb,
+		const void *srcv)
+{
+	char *kaddr;
+
+	WARN_ON(!PageUptodate(eb->pages[0]));
+	kaddr = page_address(eb->pages[0]);
+	memcpy(kaddr + offsetof(struct btrfs_header, chunk_tree_uuid), srcv,
+			BTRFS_FSID_SIZE);
+}
+
+void write_extent_buffer_fsid(struct extent_buffer *eb, const void *srcv)
+{
+	char *kaddr;
+
+	WARN_ON(!PageUptodate(eb->pages[0]));
+	kaddr = page_address(eb->pages[0]);
+	memcpy(kaddr + offsetof(struct btrfs_header, fsid), srcv,
+			BTRFS_FSID_SIZE);
+}
+
 void write_extent_buffer(struct extent_buffer *eb, const void *srcv,
 			 unsigned long start, unsigned long len)
 {
@@ -6588,8 +6616,8 @@ void write_extent_buffer(struct extent_buffer *eb, const void *srcv,
 	}
 }
 
-void memset_extent_buffer(struct extent_buffer *eb, char c,
-			  unsigned long start, unsigned long len)
+void memzero_extent_buffer(struct extent_buffer *eb, unsigned long start,
+		unsigned long len)
 {
 	size_t cur;
 	size_t offset;
@@ -6609,12 +6637,26 @@ void memset_extent_buffer(struct extent_buffer *eb, char c,
 
 		cur = min(len, PAGE_CACHE_SIZE - offset);
 		kaddr = page_address(page);
-		memset(kaddr + offset, c, cur);
+		memset(kaddr + offset, 0, cur);
 
 		len -= cur;
 		offset = 0;
 		i++;
 	}
+}
+
+void copy_extent_buffer_full(struct extent_buffer *dst,
+			     struct extent_buffer *src)
+{
+	int i;
+	unsigned num_pages;
+
+	ASSERT(dst->len == src->len);
+
+	num_pages = num_extent_pages(dst->start, dst->len);
+	for (i = 0; i < num_pages; i++)
+		copy_page(page_address(dst->pages[i]),
+				page_address(src->pages[i]));
 }
 
 void copy_extent_buffer(struct extent_buffer *dst, struct extent_buffer *src,
