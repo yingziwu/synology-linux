@@ -160,6 +160,7 @@ lpfc_config_port_prep(struct lpfc_hba *phba)
 		return -ERESTART;
 	}
 
+
 	/*
 	 * The value of rr must be 1 since the driver set the cv field to 1.
 	 * This setting requires the FW to set all revision fields.
@@ -1232,6 +1233,7 @@ lpfc_handle_deferred_eratt(struct lpfc_hba *phba)
 	spin_lock_irq(&phba->hbalock);
 	psli->sli_flag &= ~LPFC_SLI_ACTIVE;
 	spin_unlock_irq(&phba->hbalock);
+
 
 	/*
 	 * Firmware stops when it triggred erratt. That could cause the I/Os
@@ -2524,7 +2526,7 @@ lpfc_online(struct lpfc_hba *phba)
 	}
 
 	vports = lpfc_create_vport_work_array(phba);
-	if (vports != NULL)
+	if (vports != NULL) {
 		for (i = 0; i <= phba->max_vports && vports[i] != NULL; i++) {
 			struct Scsi_Host *shost;
 			shost = lpfc_shost_from_vport(vports[i]);
@@ -2536,7 +2538,8 @@ lpfc_online(struct lpfc_hba *phba)
 				vports[i]->fc_flag |= FC_VPORT_NEEDS_INIT_VPI;
 			spin_unlock_irq(shost->host_lock);
 		}
-		lpfc_destroy_vport_work_array(phba, vports);
+	}
+	lpfc_destroy_vport_work_array(phba, vports);
 
 	lpfc_unblock_mgmt_io(phba);
 	return 0;
@@ -4487,6 +4490,7 @@ lpfc_sli4_driver_resource_setup(struct lpfc_hba *phba)
 			lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
 				"2999 Unsupported SLI4 Parameters "
 				"Extents and RPI headers enabled.\n");
+			rc = -EIO;
 			goto out_free_bsmbx;
 		}
 	}
@@ -6341,6 +6345,7 @@ lpfc_sli4_queue_create(struct lpfc_hba *phba)
 		goto out_free_mbx_cq;
 	}
 	phba->sli4_hba.els_cq = qdesc;
+
 
 	/*
 	 * Create fast-path FCP Completion Queue(s), one-to-one with FCP EQs.
@@ -9998,6 +10003,7 @@ static struct pci_driver lpfc_driver = {
 	.id_table	= lpfc_id_table,
 	.probe		= lpfc_pci_probe_one,
 	.remove		= __devexit_p(lpfc_pci_remove_one),
+	.shutdown	= lpfc_pci_remove_one,
 	.suspend        = lpfc_pci_suspend_one,
 	.resume		= lpfc_pci_resume_one,
 	.err_handler    = &lpfc_err_handler,

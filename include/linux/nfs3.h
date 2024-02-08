@@ -93,6 +93,7 @@ struct nfs3_fh {
 
 #define NFS_MNT3_VERSION	3
  
+
 #if defined(__KERNEL__)
 
 /* Number of 32bit words in post_op_attr */

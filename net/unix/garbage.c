@@ -95,6 +95,7 @@ static DECLARE_WAIT_QUEUE_HEAD(unix_gc_wait);
 
 unsigned int unix_tot_inflight;
 
+
 struct sock *unix_get_socket(struct file *filp)
 {
 	struct sock *u_sock = NULL;
@@ -149,6 +150,7 @@ void unix_notinflight(struct user_struct *user, struct file *fp)
 
 	if (s) {
 		struct unix_sock *u = unix_sk(s);
+		BUG_ON(!atomic_long_read(&u->inflight));
 		BUG_ON(list_empty(&u->link));
 		if (atomic_long_dec_and_test(&u->inflight))
 			list_del_init(&u->link);
@@ -190,7 +192,7 @@ static void scan_inflight(struct sock *x, void (*func)(struct unix_sock *),
 					 * have been added to the queues after
 					 * starting the garbage collection
 					 */
-					if (u->gc_candidate) {
+					if (test_bit(UNIX_GC_CANDIDATE, &u->gc_flags)) {
 						hit = true;
 						func(u);
 					}
@@ -259,7 +261,7 @@ static void inc_inflight_move_tail(struct unix_sock *u)
 	 * of the list, so that it's checked even if it was already
 	 * passed over
 	 */
-	if (u->gc_maybe_cycle)
+	if (test_bit(UNIX_GC_MAYBE_CYCLE, &u->gc_flags))
 		list_move_tail(&u->link, &gc_candidates);
 }
 
@@ -320,8 +322,8 @@ void unix_gc(void)
 		BUG_ON(total_refs < inflight_refs);
 		if (total_refs == inflight_refs) {
 			list_move_tail(&u->link, &gc_candidates);
-			u->gc_candidate = 1;
-			u->gc_maybe_cycle = 1;
+			__set_bit(UNIX_GC_CANDIDATE, &u->gc_flags);
+			__set_bit(UNIX_GC_MAYBE_CYCLE, &u->gc_flags);
 		}
 	}
 
@@ -349,11 +351,19 @@ void unix_gc(void)
 
 		if (atomic_long_read(&u->inflight) > 0) {
 			list_move_tail(&u->link, &not_cycle_list);
-			u->gc_maybe_cycle = 0;
+			__clear_bit(UNIX_GC_MAYBE_CYCLE, &u->gc_flags);
 			scan_children(&u->sk, inc_inflight_move_tail, NULL);
 		}
 	}
 	list_del(&cursor);
+
+	/* Now gc_candidates contains only garbage.  Restore original
+	 * inflight counters for these as well, and remove the skbuffs
+	 * which are creating the cycle(s).
+	 */
+	skb_queue_head_init(&hitlist);
+	list_for_each_entry(u, &gc_candidates, link)
+		scan_children(&u->sk, inc_inflight, &hitlist);
 
 	/*
 	 * not_cycle_list contains those sockets which do not make up a
@@ -361,18 +371,9 @@ void unix_gc(void)
 	 */
 	while (!list_empty(&not_cycle_list)) {
 		u = list_entry(not_cycle_list.next, struct unix_sock, link);
-		u->gc_candidate = 0;
+		__clear_bit(UNIX_GC_CANDIDATE, &u->gc_flags);
 		list_move_tail(&u->link, &gc_inflight_list);
 	}
-
-	/*
-	 * Now gc_candidates contains only garbage.  Restore original
-	 * inflight counters for these as well, and remove the skbuffs
-	 * which are creating the cycle(s).
-	 */
-	skb_queue_head_init(&hitlist);
-	list_for_each_entry(u, &gc_candidates, link)
-	scan_children(&u->sk, inc_inflight, &hitlist);
 
 	spin_unlock(&unix_gc_lock);
 

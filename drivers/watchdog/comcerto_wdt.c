@@ -366,6 +366,7 @@ static int __exit comcerto_wdt_remove(struct platform_device *pdev)
 {
 	int res;
 
+
 	clk_disable(clk_axi);
 	clk_put(clk_axi);
 	res = misc_deregister(&comcerto_wdt_miscdev);

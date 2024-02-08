@@ -100,6 +100,7 @@ MV_U32	pexDevBarPrioTable[] =
     TBL_TERM
 };
 
+
 /* PEX Wins registers offsets are inconsecutive. This struct describes WIN	*/
 /* register offsets	and its function where its is located.					*/
 /* Also, PEX address remap registers offsets are inconsecutive. This struct	*/
@@ -125,6 +126,7 @@ static MV_BOOL pexIsWinWithinBar(MV_U32 pexIf,MV_ADDR_WIN *pAddrWin);
 static MV_BOOL pexBarOverlapDetect(MV_U32 pexIf,MV_U32 barNum,
 								   MV_ADDR_WIN *pAddrWin);
 const MV_8* pexBarNameGet( MV_U32 bar );
+
 
 /*******************************************************************************
 * mvPexInit - Initialize PEX interfaces
@@ -219,6 +221,8 @@ MV_STATUS mvPexInit(MV_U32 pexIf, MV_PEX_TYPE pexType)
 	}
 
 	/* Now, go through all bars*/
+
+
 
 /******************************************************************************/
 /*                       Internal registers bar                               */
@@ -519,6 +523,7 @@ MV_STATUS mvPexTargetWinSet(MV_U32 pexIf, MV_U32 winNum,
 	/* get the pex Window registers offsets */
 	pexWinRegInfoGet(pexIf,winNum,&winRegInfo);
 
+
 	if (MV_TRUE == pAddrDecWin->enable)
 	{
 
@@ -538,6 +543,8 @@ MV_STATUS mvPexTargetWinSet(MV_U32 pexIf, MV_U32 winNum,
 		}
 
 	}
+
+
 
 	/* read base register*/
 
@@ -575,6 +582,7 @@ MV_STATUS mvPexTargetWinSet(MV_U32 pexIf, MV_U32 winNum,
 		decRegs.sizeReg &= ~PXWCR_WIN_EN;
 	}
 
+
 	/* clear bit location */
 	decRegs.sizeReg &= ~PXWCR_WIN_BAR_MAP_MASK;
 
@@ -596,6 +604,7 @@ MV_STATUS mvPexTargetWinSet(MV_U32 pexIf, MV_U32 winNum,
 	/* set target ID */
 	decRegs.sizeReg &= ~PXWCR_TARGET_MASK;
 	decRegs.sizeReg |= targetAttribs.targetId << PXWCR_TARGET_OFFS;
+
 
 	/* 3) Write to address decode Base Address Register                   */
 
@@ -620,6 +629,7 @@ MV_STATUS mvPexTargetWinSet(MV_U32 pexIf, MV_U32 winNum,
 
 		MV_REG_WRITE(winRegInfo.sizeRegOffs, decRegs.sizeReg);
 	}
+
 
     return MV_OK;
 
@@ -704,12 +714,14 @@ MV_STATUS mvPexTargetWinGet(MV_U32 pexIf, MV_U32 winNum,
 
 	}
 
+
 	#if 0
     if (-1 == pAddrDecWin->addrWin.size)
 	{
 		return MV_ERROR;
 	}
 	#endif
+
 
 	/* get target bar */
 	if ((decRegs.sizeReg & PXWCR_WIN_BAR_MAP_MASK) == PXWCR_WIN_BAR_MAP_BAR1 )
@@ -736,6 +748,7 @@ MV_STATUS mvPexTargetWinGet(MV_U32 pexIf, MV_U32 winNum,
 	return MV_OK;
 
 }
+
 
 /*******************************************************************************
 * mvPexTargetWinEnable - Enable/disable a PEX BAR window
@@ -778,8 +791,10 @@ MV_STATUS mvPexTargetWinEnable(MV_U32 pexIf,MV_U32 winNum, MV_BOOL enable)
 
 	}
 
+
 	/* get the pex Window registers offsets */
 	pexWinRegInfoGet(pexIf,winNum,&winRegInfo);
+
 
 	/* if the address windows is disabled , we only disable the appropriare
 	pex window and ignore other settings */
@@ -821,6 +836,7 @@ MV_STATUS mvPexTargetWinEnable(MV_U32 pexIf,MV_U32 winNum, MV_BOOL enable)
 			return MV_BAD_PARAM;
 		}
 
+
 		/* this is not relevant to default and expantion rom
 		windows */
 		if (winRegInfo.sizeRegOffs)
@@ -832,11 +848,14 @@ MV_STATUS mvPexTargetWinEnable(MV_U32 pexIf,MV_U32 winNum, MV_BOOL enable)
 			}
 		}
 
+
 	}
 
 	return MV_OK;
 
 }
+
+
 
 /*******************************************************************************
 * mvPexTargetWinRemap - Set PEX to target address window remap.
@@ -904,6 +923,7 @@ MV_STATUS mvPexTargetWinRemap(MV_U32 pexIf, MV_U32 winNum,
 		MV_REG_WRITE(winRegInfo.remapHighRegOffs, pAddrWin->addrWin.baseHigh);
 	}
 
+
 	if (pAddrWin->enable == MV_TRUE)
 	{
 		MV_REG_BIT_SET(winRegInfo.remapLowRegOffs,PXWRR_REMAP_EN);
@@ -950,6 +970,7 @@ MV_STATUS mvPexTargetWinRemapEnable(MV_U32 pexIf, MV_U32 winNum,
 
 	}
 
+
 	pexWinRegInfoGet(pexIf, winNum, &winRegInfo);
 
 	if (enable == MV_TRUE)
@@ -986,6 +1007,7 @@ MV_STATUS mvPexBarSet(MV_U32 pexIf,
 	MV_U32 regBaseLow;
 	MV_U32 regSize,sizeToReg;
 
+
 	/* check parameters */
 	if(pexIf >= mvCtrlPexMaxIfGet())
 	{
@@ -999,11 +1021,13 @@ MV_STATUS mvPexBarSet(MV_U32 pexIf,
 		return MV_BAD_PARAM;
 	}
 
+
 	if (pAddrWin->addrWin.size == 0)
 	{
 		mvOsPrintf("mvPexBarSet: Size zero is Illigal\n" );
 		return MV_BAD_PARAM;
 	}
+
 
 	/* Check if the window complies with PEX spec							*/
 	if (MV_TRUE != pexBarIsValid(pAddrWin->addrWin.baseLow,
@@ -1044,6 +1068,8 @@ MV_STATUS mvPexBarSet(MV_U32 pexIf,
 
 	/* set size */
 
+
+
 	/* Read base address low */
 	regBaseLow = MV_REG_READ(PEX_CFG_DIRECT_ACCESS(pexIf,
 												   PEX_MV_BAR_BASE(barNum)));
@@ -1063,6 +1089,8 @@ MV_STATUS mvPexBarSet(MV_U32 pexIf,
 	/* if we had a previous value that contain the bar type (MeM\IO), we want to
 	restore it */
 	regBaseLow |= PEX_BAR_DEFAULT_ATTRIB;
+
+
 
 	/* write base low */
     MV_REG_WRITE(PEX_CFG_DIRECT_ACCESS(pexIf,PEX_MV_BAR_BASE(barNum)),
@@ -1095,8 +1123,11 @@ MV_STATUS mvPexBarSet(MV_U32 pexIf,
 
 	}
 
+
+
 	return MV_OK;
 }
+
 
 /*******************************************************************************
 *  mvPexBarGet - Get PEX bar address and size
@@ -1134,6 +1165,7 @@ MV_STATUS mvPexBarGet(MV_U32 pexIf,
 	pAddrWin->addrWin.baseLow =
 		MV_REG_READ(PEX_CFG_DIRECT_ACCESS(pexIf,PEX_MV_BAR_BASE(barNum)));
 
+
 	if (PEX_INTER_REGS_BAR == barNum)
 	{
 		pAddrWin->addrWin.baseLow &= PXBIR_BASE_MASK;
@@ -1143,9 +1175,11 @@ MV_STATUS mvPexBarGet(MV_U32 pexIf,
 		pAddrWin->addrWin.baseLow &= PXBR_BASE_MASK;
 	}
 
+
 	/* read base high */
 	pAddrWin->addrWin.baseHigh =
 		MV_REG_READ(PEX_CFG_DIRECT_ACCESS(pexIf,PEX_MV_BAR_BASE_HIGH(barNum)));
+
 
 	/* Read bar size */
 	if (PEX_INTER_REGS_BAR != barNum) /* internal registers have no size */
@@ -1176,6 +1210,7 @@ MV_STATUS mvPexBarGet(MV_U32 pexIf,
 		pAddrWin->enable = MV_TRUE;
 	}
 
+
 	return MV_OK;
 }
 
@@ -1194,6 +1229,7 @@ MV_STATUS mvPexBarGet(MV_U32 pexIf,
 *
 *******************************************************************************/
 
+
 MV_STATUS mvPexBarEnable(MV_U32 pexIf, MV_U32 barNum, MV_BOOL enable)
 {
 
@@ -1205,6 +1241,7 @@ MV_STATUS mvPexBarEnable(MV_U32 pexIf, MV_U32 barNum, MV_BOOL enable)
 		mvOsPrintf("mvPexBarEnable: ERR. Invalid PEX interface %d\n", pexIf);
 		return MV_BAD_PARAM;
 	}
+
 
 	if(barNum >= PEX_MAX_BARS)
 	{
@@ -1223,6 +1260,7 @@ MV_STATUS mvPexBarEnable(MV_U32 pexIf, MV_U32 barNum, MV_BOOL enable)
 			return MV_ERROR;
 		}
 	}
+
 
 	if (MV_FALSE == enable)
 	{
@@ -1260,6 +1298,7 @@ MV_STATUS mvPexBarEnable(MV_U32 pexIf, MV_U32 barNum, MV_BOOL enable)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * pexWinOverlapDetect - Detect address windows overlapping
 *
@@ -1286,6 +1325,7 @@ static MV_BOOL pexWinOverlapDetect(MV_U32 pexIf,
     MV_U32 		   win;
 	MV_PEX_DEC_WIN addrDecWin;
 
+
 	for(win = 0; win < PEX_MAX_TARGET_WIN -2 ; win++)
     {
         /* don't check our target or illegal targets */
@@ -1307,6 +1347,7 @@ static MV_BOOL pexWinOverlapDetect(MV_U32 pexIf,
 		{
 			continue;
 		}
+
 
         if(MV_TRUE == ctrlWinOverlapTest(pAddrWin, &addrDecWin.addrWin))
 		{
@@ -1356,6 +1397,7 @@ static MV_BOOL pexIsWinWithinBar(MV_U32 pexIf,
 			continue;
 		}
 
+
         if(MV_TRUE == ctrlWinWithinWinTest(pAddrWin, &addrDecWin.addrWin))
 		{
 			return MV_TRUE;
@@ -1392,6 +1434,7 @@ static MV_BOOL pexBarOverlapDetect(MV_U32 pexIf,
     MV_U32 		   bar;
 	MV_PEX_BAR barDecWin;
 
+
 	for(bar = 0; bar < PEX_MAX_BARS; bar++)
     {
         /* don't check our target or illegal targets */
@@ -1412,6 +1455,7 @@ static MV_BOOL pexBarOverlapDetect(MV_U32 pexIf,
 		{
 			continue;
 		}
+
 
         if(MV_TRUE == ctrlWinOverlapTest(pAddrWin, &barDecWin.addrWin))
 		{
@@ -1621,6 +1665,7 @@ MV_VOID mvPexAddrDecShow(MV_VOID)
 				}
 				else
 					mvOsOutput( "disable\n" );
+
 
 			}
 		}

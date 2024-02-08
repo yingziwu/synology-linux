@@ -42,6 +42,7 @@
 
 #include "53c700.h"
 
+
 /* Must be enough for both EISA and MCA */
 #define MAX_SLOTS 8
 static __u8 __initdata id_array[MAX_SLOTS] = { [0 ... MAX_SLOTS-1] = 7 };

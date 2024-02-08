@@ -50,6 +50,7 @@ struct ip_tunnel_parm {
 	struct iphdr		iph;
 };
 
+/* SIT-mode i_flags */
 #define	SIT_ISATAP	0x0001
 
 struct ip_tunnel_prl {
@@ -58,9 +59,10 @@ struct ip_tunnel_prl {
 	__u16			__reserved;
 	__u32			datalen;
 	__u32			__reserved2;
-	 
+	/* data follows */
 };
 
+/* PRL flags */
 #define	PRL_DEFAULT		0x0001
 
 struct ip_tunnel_6rd {
@@ -71,7 +73,7 @@ struct ip_tunnel_6rd {
 };
 
 #if defined(MY_ABC_HERE)
-  
+/* ip6 tnl 4rd parm -start  */ 
 struct ip6_tnl_4rd {
        __be32                  prefix;
        struct in6_addr         relay_prefix;
@@ -83,7 +85,7 @@ struct ip6_tnl_4rd {
        __u16                   eabit_len;
        __u16                   entry_num;
 };
-  
+/* ip6 tnl 4rd parm -end  */ 
 #endif
 
 enum {
@@ -103,4 +105,4 @@ enum {
 
 #define IFLA_GRE_MAX	(__IFLA_GRE_MAX - 1)
 
-#endif  
+#endif /* _IF_TUNNEL_H_ */

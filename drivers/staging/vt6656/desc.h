@@ -268,6 +268,7 @@ SRTS_a_FB, *PSRTS_a_FB;
 
 typedef const SRTS_a_FB *PCSRTS_a_FB;
 
+
 //
 // CTS buffer header
 //

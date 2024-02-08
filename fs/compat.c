@@ -1,7 +1,23 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/fs/compat.c
+ *
+ *  Kernel compatibililty routines for e.g. 32 bit syscall support
+ *  on 64 bit kernels.
+ *
+ *  Copyright (C) 2002       Stephen Rothwell, IBM Corporation
+ *  Copyright (C) 1997-2000  Jakub Jelinek  (jakub@redhat.com)
+ *  Copyright (C) 1998       Eddie C. Dost  (ecd@skynet.be)
+ *  Copyright (C) 2001,2002  Andi Kleen, SuSE Labs 
+ *  Copyright (C) 2003       Pavel Machek (pavel@ucw.cz)
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 2 as
+ *  published by the Free Software Foundation.
+ */
+
 #include <linux/stddef.h>
 #include <linux/kernel.h>
 #include <linux/linkage.h>
@@ -67,6 +83,10 @@ int compat_printk(const char *fmt, ...)
 
 #include "read_write.h"
 
+/*
+ * Not all architectures have sys_utime, so implement this in terms
+ * of sys_utimes.
+ */
 asmlinkage long compat_sys_utime(const char __user *filename,
 				 struct compat_utimbuf __user *t)
 {
@@ -217,7 +237,8 @@ static int put_compat_statfs(struct compat_statfs __user *ubuf, struct kstatfs *
 		if ((kbuf->f_blocks | kbuf->f_bfree | kbuf->f_bavail |
 		     kbuf->f_bsize | kbuf->f_frsize) & 0xffffffff00000000ULL)
 			return -EOVERFLOW;
-		 
+		/* f_files and f_ffree may be -1; it's okay
+		 * to stuff that into 32 bits */
 		if (kbuf->f_files != 0xffffffffffffffffULL
 		 && (kbuf->f_files & 0xffffffff00000000ULL))
 			return -EOVERFLOW;
@@ -243,6 +264,10 @@ static int put_compat_statfs(struct compat_statfs __user *ubuf, struct kstatfs *
 	return 0;
 }
 
+/*
+ * The following statfs calls are copies of code from fs/statfs.c and
+ * should be checked against those from time to time
+ */
 asmlinkage long compat_sys_statfs(const char __user *pathname, struct compat_statfs __user *buf)
 {
 	struct kstatfs tmp;
@@ -267,7 +292,8 @@ static int put_compat_statfs64(struct compat_statfs64 __user *ubuf, struct kstat
 		if ((kbuf->f_blocks | kbuf->f_bfree | kbuf->f_bavail |
 		     kbuf->f_bsize | kbuf->f_frsize) & 0xffffffff00000000ULL)
 			return -EOVERFLOW;
-		 
+		/* f_files and f_ffree may be -1; it's okay
+		 * to stuff that into 32 bits */
 		if (kbuf->f_files != 0xffffffffffffffffULL
 		 && (kbuf->f_files & 0xffffffff00000000ULL))
 			return -EOVERFLOW;
@@ -321,6 +347,11 @@ asmlinkage long compat_sys_fstatfs64(unsigned int fd, compat_size_t sz, struct c
 	return error;
 }
 
+/*
+ * This is a copy of sys_ustat, just dealing with a structure layout.
+ * Given how simple this syscall is that apporach is more maintainable
+ * than the various conversion hacks.
+ */
 asmlinkage long compat_sys_ustat(unsigned dev, struct compat_ustat __user *u)
 {
 	struct super_block *sb;
@@ -415,7 +446,17 @@ asmlinkage long compat_sys_fcntl64(unsigned int fd, unsigned int cmd,
 		ret = sys_fcntl(fd, cmd, (unsigned long)&f);
 		set_fs(old_fs);
 		if (cmd == F_GETLK && ret == 0) {
-			 
+			/* GETLK was successful and we need to return the data...
+			 * but it needs to fit in the compat structure.
+			 * l_start shouldn't be too big, unless the original
+			 * start + end is greater than COMPAT_OFF_T_MAX, in which
+			 * case the app was asking for trouble, so we return
+			 * -EOVERFLOW in that case.
+			 * l_len could be too big, in which case we just truncate it,
+			 * and only allow the app to see that part of the conflicting
+			 * lock that might make sense to it anyway
+			 */
+
 			if (f.l_start > COMPAT_OFF_T_MAX)
 				ret = -EOVERFLOW;
 			if (f.l_len > COMPAT_OFF_T_MAX)
@@ -438,7 +479,7 @@ asmlinkage long compat_sys_fcntl64(unsigned int fd, unsigned int cmd,
 				(unsigned long)&f);
 		set_fs(old_fs);
 		if (cmd == F_GETLK64 && ret == 0) {
-			 
+			/* need to return lock information - see above for commentary */
 			if (f.l_start > COMPAT_LOFF_T_MAX)
 				ret = -EOVERFLOW;
 			if (f.l_len > COMPAT_LOFF_T_MAX)
@@ -474,10 +515,10 @@ compat_sys_io_setup(unsigned nr_reqs, u32 __user *ctx32p)
 		return -EFAULT;
 
 	set_fs(KERNEL_DS);
-	 
+	/* The __user pointer cast is valid because of the set_fs() */
 	ret = sys_io_setup(nr_reqs, (aio_context_t __user *) &ctx64);
 	set_fs(oldfs);
-	 
+	/* truncating is ok because it's a user address */
 	if (!ret)
 		ret = put_user((u32) ctx64, ctx32p);
 	return ret;
@@ -511,6 +552,7 @@ out:
 	return ret;
 }
 
+/* A write operation does a read from user space and vice versa */
 #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
 
 ssize_t compat_rw_copy_check_uvector(int type,
@@ -523,6 +565,11 @@ ssize_t compat_rw_copy_check_uvector(int type,
 	ssize_t ret = 0;
 	int seg;
 
+	/*
+	 * SuS says "The readv() function *may* fail if the iovcnt argument
+	 * was less than or equal to 0, or greater than {IOV_MAX}.  Linux has
+	 * traditionally returned zero for zero segments, so...
+	 */
 	if (nr_segs == 0)
 		goto out;
 
@@ -537,6 +584,18 @@ ssize_t compat_rw_copy_check_uvector(int type,
 	}
 	*ret_pointer = iov;
 
+	ret = -EFAULT;
+	if (!access_ok(VERIFY_READ, uvector, nr_segs*sizeof(*uvector)))
+		goto out;
+
+	/*
+	 * Single unix specification:
+	 * We should -EINVAL if an element length is not >= 0 and fitting an
+	 * ssize_t.
+	 *
+	 * In Linux, the total length is limited to MAX_RW_COUNT, there is
+	 * no overflow possibility.
+	 */
 	tot_len = 0;
 	ret = -EINVAL;
 	for (seg = 0; seg < nr_segs; seg++) {
@@ -548,7 +607,7 @@ ssize_t compat_rw_copy_check_uvector(int type,
 			ret = -EFAULT;
 			goto out;
 		}
-		if (len < 0)	 
+		if (len < 0)	/* size_t not fitting in compat_ssize_t .. */
 			goto out;
 		if (check_access &&
 		    !access_ok(vrfy_dir(type), compat_ptr(buf), len)) {
@@ -670,6 +729,7 @@ static void *do_ncp_super_data_conv(void *raw_data)
 	return raw_data;
 }
 
+
 struct compat_nfs_string {
 	compat_uint_t len;
 	compat_uptr_t data;
@@ -711,6 +771,7 @@ static int do_nfs4_super_data_conv(void *raw_data)
 		struct compat_nfs4_mount_data_v1 *raw = raw_data;
 		struct nfs4_mount_data *real = raw_data;
 
+		/* copy the fields backwards */
 		real->auth_flavours = compat_ptr(raw->auth_flavours);
 		real->auth_flavourlen = raw->auth_flavourlen;
 		real->proto = raw->proto;
@@ -748,8 +809,9 @@ asmlinkage long compat_sys_mount(const char __user * dev_name,
 	char *dir_page;
 	int retval;
 
-	retval = copy_mount_string(type, &kernel_type);
-	if (retval < 0)
+	kernel_type = copy_mount_string(type);
+	retval = PTR_ERR(kernel_type);
+	if (IS_ERR(kernel_type))
 		goto out;
 
 	dir_page = getname(dir_name);
@@ -757,8 +819,9 @@ asmlinkage long compat_sys_mount(const char __user * dev_name,
 	if (IS_ERR(dir_page))
 		goto out1;
 
-	retval = copy_mount_string(dev_name, &kernel_dev);
-	if (retval < 0)
+	kernel_dev = copy_mount_string(dev_name);
+	retval = PTR_ERR(kernel_dev);
+	if (IS_ERR(kernel_dev))
 		goto out2;
 
 	retval = copy_mount_options(data, &data_page);
@@ -882,7 +945,7 @@ static int compat_filldir(void *__buf, const char *name, int namlen,
 	int reclen = ALIGN(offsetof(struct compat_linux_dirent, d_name) +
 		namlen + 2, sizeof(compat_long_t));
 
-	buf->error = -EINVAL;	 
+	buf->error = -EINVAL;	/* only used if we fail.. */
 	if (reclen > buf->count)
 		return -EINVAL;
 	d_ino = ino;
@@ -971,7 +1034,7 @@ static int compat_filldir64(void * __buf, const char * name, int namlen, loff_t 
 		sizeof(u64));
 	u64 off;
 
-	buf->error = -EINVAL;	 
+	buf->error = -EINVAL;	/* only used if we fail.. */
 	if (reclen > buf->count)
 		return -EINVAL;
 	dirent = buf->previous;
@@ -1041,7 +1104,7 @@ asmlinkage long compat_sys_getdents64(unsigned int fd,
 out:
 	return error;
 }
-#endif  
+#endif /* ! __ARCH_OMIT_COMPAT_SYS_GETDENTS64 */
 
 static ssize_t compat_do_readv_writev(int type, struct file *file,
 			       const struct compat_iovec __user *uvector,
@@ -1058,17 +1121,12 @@ static ssize_t compat_do_readv_writev(int type, struct file *file,
 	if (!file->f_op)
 		goto out;
 
-	ret = -EFAULT;
-	if (!access_ok(VERIFY_READ, uvector, nr_segs*sizeof(*uvector)))
-		goto out;
-
-	tot_len = compat_rw_copy_check_uvector(type, uvector, nr_segs,
+	ret = compat_rw_copy_check_uvector(type, uvector, nr_segs,
 					       UIO_FASTIOV, iovstack, &iov, 1);
-	if (tot_len == 0) {
-		ret = 0;
+	if (ret <= 0)
 		goto out;
-	}
 
+	tot_len = ret;
 	ret = rw_verify_area(type, file, pos, tot_len);
 	if (ret < 0)
 		goto out;
@@ -1244,6 +1302,10 @@ compat_sys_vmsplice(int fd, const struct compat_iovec __user *iov32,
 	return sys_vmsplice(fd, iov, nr_segs, flags);
 }
 
+/*
+ * Exactly like fs/open.c:sys_open(), except that it doesn't set the
+ * O_LARGEFILE flag.
+ */
 asmlinkage long
 compat_sys_open(const char __user *filename, int flags, int mode)
 {
@@ -1255,6 +1317,10 @@ compat_sys_open(const char __user *filename, int flags, int mode)
 	return do_sys_open(AT_FDCWD, filename, flags, mode);
 }
 
+/*
+ * Exactly like fs/open.c:sys_openat(), except that it doesn't set the
+ * O_LARGEFILE flag.
+ */
 asmlinkage long
 compat_sys_openat(unsigned int dfd, const char __user *filename, int flags, int mode)
 {
@@ -1274,6 +1340,7 @@ static int poll_select_copy_remaining(struct timespec *end_time, void __user *p,
 	if (current->personality & STICKY_TIMEOUTS)
 		goto sticky;
 
+	/* No update for zero timeout */
 	if (!end_time->tv_sec && !end_time->tv_nsec)
 		return ret;
 
@@ -1299,13 +1366,24 @@ static int poll_select_copy_remaining(struct timespec *end_time, void __user *p,
 		if (!copy_to_user(p, &rts, sizeof(rts)))
 			return ret;
 	}
-	 
+	/*
+	 * If an application puts its timeval in read-only memory, we
+	 * don't want the Linux-specific update to the timeval to
+	 * cause a fault after the select has completed
+	 * successfully. However, because we're not updating the
+	 * timeval, we can't restart the system call.
+	 */
+
 sticky:
 	if (ret == -ERESTARTNOHAND)
 		ret = -EINTR;
 	return ret;
 }
 
+/*
+ * Ooo, nasty.  We need here to frob 32-bit unsigned longs to
+ * 64-bit unsigned longs.
+ */
 static
 int compat_get_fd_set(unsigned long nr, compat_ulong_t __user *ufdset,
 			unsigned long *fdset)
@@ -1330,7 +1408,10 @@ int compat_get_fd_set(unsigned long nr, compat_ulong_t __user *ufdset,
 		if (odd && __get_user(*fdset, ufdset))
 			return -EFAULT;
 	} else {
-		 
+		/* Tricky, must clear full unsigned long in the
+		 * kernel fdset at the end, this makes sure that
+		 * actually happens.
+		 */
 		memset(fdset, 0, ((nr + 1) & ~1)*sizeof(compat_ulong_t));
 	}
 	return 0;
@@ -1362,6 +1443,20 @@ int compat_set_fd_set(unsigned long nr, compat_ulong_t __user *ufdset,
 	return 0;
 }
 
+
+/*
+ * This is a virtual copy of sys_select from fs/select.c and probably
+ * should be compared to it from time to time
+ */
+
+/*
+ * We can actually return ERESTARTSYS instead of EINTR, but I'd
+ * like to be certain this leads to no problems. So I return
+ * EINTR just for safety.
+ *
+ * Update: ERESTARTSYS breaks at least the xview clock binary, so
+ * I'm trying ERESTARTNOHAND which restart only when you want to.
+ */
 int compat_core_sys_select(int n, compat_ulong_t __user *inp,
 	compat_ulong_t __user *outp, compat_ulong_t __user *exp,
 	struct timespec *end_time)
@@ -1375,6 +1470,7 @@ int compat_core_sys_select(int n, compat_ulong_t __user *inp,
 	if (n < 0)
 		goto out_nofds;
 
+	/* max_fds can increase, so grab it once to avoid race */
 	rcu_read_lock();
 	fdt = files_fdtable(current->files);
 	max_fds = fdt->max_fds;
@@ -1382,6 +1478,11 @@ int compat_core_sys_select(int n, compat_ulong_t __user *inp,
 	if (n > max_fds)
 		n = max_fds;
 
+	/*
+	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
+	 * since we used fdset we need to allocate memory in units of
+	 * long-words.
+	 */
 	size = FDS_BYTES(n);
 	bits = stack_fds;
 	if (size > sizeof(stack_fds) / 6) {
@@ -1506,7 +1607,11 @@ static long do_compat_pselect(int n, compat_ulong_t __user *inp,
 	ret = poll_select_copy_remaining(&end_time, tsp, 0, ret);
 
 	if (ret == -ERESTARTNOHAND) {
-		 
+		/*
+		 * Don't restore the signal mask yet. Let do_signal() deliver
+		 * the signal on the way back to userspace, before the signal
+		 * mask is restored.
+		 */
 		if (sigmask) {
 			memcpy(&current->saved_sigmask, &sigsaved,
 					sizeof(sigsaved));
@@ -1569,8 +1674,13 @@ asmlinkage long compat_sys_ppoll(struct pollfd __user *ufds,
 
 	ret = do_sys_poll(ufds, nfds, to);
 
+	/* We can restart this syscall, usually */
 	if (ret == -EINTR) {
-		 
+		/*
+		 * Don't restore the signal mask yet. Let do_signal() deliver
+		 * the signal on the way back to userspace, before the signal
+		 * mask is restored.
+		 */
 		if (sigmask) {
 			memcpy(&current->saved_sigmask, &sigsaved,
 				sizeof(sigsaved));
@@ -1584,7 +1694,7 @@ asmlinkage long compat_sys_ppoll(struct pollfd __user *ufds,
 
 	return ret;
 }
-#endif  
+#endif /* HAVE_SET_RESTORE_SIGMASK */
 
 #ifdef CONFIG_EPOLL
 
@@ -1599,6 +1709,10 @@ asmlinkage long compat_sys_epoll_pwait(int epfd,
 	compat_sigset_t csigmask;
 	sigset_t ksigmask, sigsaved;
 
+	/*
+	 * If the caller wants a certain signal mask to be set during the wait,
+	 * we apply it here.
+	 */
 	if (sigmask) {
 		if (sigsetsize != sizeof(compat_sigset_t))
 			return -EINVAL;
@@ -1611,6 +1725,12 @@ asmlinkage long compat_sys_epoll_pwait(int epfd,
 
 	err = sys_epoll_wait(epfd, events, maxevents, timeout);
 
+	/*
+	 * If we changed the signal mask, we need to restore the original one.
+	 * In case we've got a signal while waiting, we do not restore the
+	 * signal mask yet, and we allow do_signal() to deliver the signal on
+	 * the way back to userspace, before the signal mask is restored.
+	 */
 	if (sigmask) {
 		if (err == -EINTR) {
 			memcpy(&current->saved_sigmask, &sigsaved,
@@ -1622,9 +1742,9 @@ asmlinkage long compat_sys_epoll_pwait(int epfd,
 
 	return err;
 }
-#endif  
+#endif /* HAVE_SET_RESTORE_SIGMASK */
 
-#endif  
+#endif /* CONFIG_EPOLL */
 
 #ifdef CONFIG_SIGNALFD
 
@@ -1654,7 +1774,7 @@ asmlinkage long compat_sys_signalfd(int ufd,
 {
 	return compat_sys_signalfd4(ufd, sigmask, sigsetsize, 0);
 }
-#endif  
+#endif /* CONFIG_SIGNALFD */
 
 #ifdef CONFIG_TIMERFD
 
@@ -1695,11 +1815,11 @@ asmlinkage long compat_sys_timerfd_gettime(int ufd,
 	return error;
 }
 
-#endif  
+#endif /* CONFIG_TIMERFD */
 
 #ifdef MY_ABC_HERE
 
-asmlinkage ssize_t compat_sys_recvfile(int fd, int s, loff_t *offset, size_t nbytes, compat_size_t __user *rwbytes32)
+asmlinkage ssize_t compat_sys_syno_recv_file(int fd, int s, loff_t *offset, size_t nbytes, compat_size_t __user *rwbytes32)
 {
 	int err = 0;
 	ssize_t ret;
@@ -1711,9 +1831,11 @@ asmlinkage ssize_t compat_sys_recvfile(int fd, int s, loff_t *offset, size_t nby
 		return -EFAULT;
 
 	set_fs(KERNEL_DS);
-	 
-	ret = sys_recvfile(fd, s, offset, nbytes, (size_t __user *)&rwbytes64);
+	/* The __user pointer cast is valid because of the set_fs() */
+	ret = sys_syno_recv_file(fd, s, offset, nbytes, (size_t __user *)&rwbytes64);
 	set_fs(oldfs);
+
+	/* truncating is ok because it's a user address */
 
 	err = put_user((u32) rwbytes64[0], &rwbytes32[0]);
 	if (err) {
@@ -1726,11 +1848,23 @@ asmlinkage ssize_t compat_sys_recvfile(int fd, int s, loff_t *offset, size_t nby
 
 	return ret;
 }
-#endif  
+asmlinkage ssize_t compat_sys_recvfile(int fd, int s, loff_t *offset, size_t nbytes, compat_size_t __user *rwbytes32)
+{
+	return compat_sys_syno_recv_file(fd, s, offset, nbytes, rwbytes32);
+}
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
- 
-asmlinkage long compat_sys_SYNOUtime(char __user * filename, struct compat_timespec __user *pCtime)
+/**
+ * sys_syno_utime() is used to update create time.
+ *
+ * @param	filename	The file to be changed create time.
+ * 			times	Create time should be stored in 
+ *				actime field.
+ * @return	0	success
+ *			!0	error
+ */
+asmlinkage long compat_sys_syno_utime(char __user * filename, struct compat_timespec __user *pCtime)
 {
 	int error;
 	struct path path;
@@ -1768,7 +1902,10 @@ asmlinkage long compat_sys_SYNOUtime(char __user * filename, struct compat_times
 			if (error) 
 				goto drop_write;
 		} else if (inode->i_op->syno_bypass_is_synoacl) {
-			 
+			/*
+			 * GlusterFS returns false for [IS|HAS]_SYNOACL, but ACL
+			 * attribute could be checked and got from GlusterFS xlator.
+			 */
 			error = inode->i_op->syno_bypass_is_synoacl(path.dentry,
 					        BYPASS_SYNOACL_SYNOUTIME, -EPERM);
 			if (error)
@@ -1791,10 +1928,17 @@ dput_and_out:
 out:
 	return error;
 }
+asmlinkage long compat_sys_SYNOUtime(char __user * filename, struct compat_timespec __user *pCtime)
+{
+	return compat_sys_syno_utime(filename, pCtime);
+}
 #endif
 
 #ifdef CONFIG_FHANDLE
- 
+/*
+ * Exactly like fs/open.c:sys_open_by_handle_at(), except that it
+ * doesn't set the O_LARGEFILE flag.
+ */
 asmlinkage long
 compat_sys_open_by_handle_at(int mountdirfd,
 			     struct file_handle __user *handle, int flags)

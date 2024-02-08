@@ -93,6 +93,7 @@ struct cm_allocate_buffer_data
 	unsigned int thread_switch_buf_size;
 };
 
+
 /* io control code of Hotspot profiler kernel driver */
 #define PX_HS_CMD_START_SAMPLING                       _IOW(PX_MAGIC, 0, bool)
 #define PX_HS_CMD_STOP_PROFILING                       _IO(PX_MAGIC, 1)
@@ -188,6 +189,7 @@ struct add_module_data
 #define KDR_CSS_LAUNCHED_APP_EXIT       0x00000004
 #define KDR_CSS_WAIT_IMAGE_LOADED       0x00000008
 
+
 struct tp_kernel_func_addr
 {
 	unsigned int register_undef_hook_addr;
@@ -236,6 +238,7 @@ struct tp_hook_address
 #define KDR_TP_MODULE_BUFFER_FULL      0x00000002
 #define KDR_TP_LAUNCHED_APP_EXIT       0x00000004
 #define KDR_TP_WAIT_IMAGE_LOADED       0x00000008
+
 
 #define PX_HS_DRV_NAME            "/dev/px_hs_d"
 //#define PX_HS_SAMPLE_DRV_NAME     "/dev/pxhs_sample_d"

@@ -172,3 +172,4 @@ struct irda_usb_cb {
 
 	struct timer_list rx_defer_timer;	/* Wait for Rx error to clear */
 };
+

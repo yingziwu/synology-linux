@@ -127,6 +127,7 @@ static u32 ca91cx42_LERR_irqhandler(struct vme_bridge *ca91cx42_bridge)
 	return CA91CX42_LINT_LERR;
 }
 
+
 static u32 ca91cx42_VIRQ_irqhandler(struct vme_bridge *ca91cx42_bridge,
 	int stat)
 {
@@ -134,6 +135,7 @@ static u32 ca91cx42_VIRQ_irqhandler(struct vme_bridge *ca91cx42_bridge,
 	struct ca91cx42_driver *bridge;
 
 	bridge = ca91cx42_bridge->driver_priv;
+
 
 	for (i = 7; i > 0; i--) {
 		if (stat & (1 << i)) {
@@ -464,7 +466,7 @@ static int ca91cx42_slave_get(struct vme_slave_resource *image, int *enabled,
 	vme_bound = ioread32(bridge->base + CA91CX42_VSI_BD[i]);
 	pci_offset = ioread32(bridge->base + CA91CX42_VSI_TO[i]);
 
-	*pci_base = (dma_addr_t)vme_base + pci_offset;
+	*pci_base = (dma_addr_t)*vme_base + pci_offset;
 	*size = (unsigned long long)((vme_bound - *vme_base) + granularity);
 
 	*enabled = 0;
@@ -590,6 +592,7 @@ static void ca91cx42_free_resource(struct vme_master_resource *image)
 	kfree(image->bus_resource.name);
 	memset(&image->bus_resource, 0, sizeof(struct resource));
 }
+
 
 static int ca91cx42_master_set(struct vme_master_resource *image, int enabled,
 	unsigned long long vme_base, unsigned long long size,
@@ -1873,6 +1876,7 @@ static void ca91cx42_remove(struct pci_dev *pdev)
 	struct vme_bridge *ca91cx42_bridge = pci_get_drvdata(pdev);
 
 	bridge = ca91cx42_bridge->driver_priv;
+
 
 	/* Turn off Ints */
 	iowrite32(0, bridge->base + LINT_EN);

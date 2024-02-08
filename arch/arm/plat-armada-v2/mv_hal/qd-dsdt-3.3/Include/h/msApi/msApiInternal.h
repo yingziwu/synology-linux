@@ -51,6 +51,7 @@ extern "C" {
         (((_dev)->deviceId == GT_88E6035)?(_unit < 6):    \
                                          (_unit < 3)))))
 
+
 /* The following macro converts a binary    */
 /* value (of 1 bit) to a boolean one.       */
 /* 0 --> GT_FALSE                           */
@@ -345,6 +346,7 @@ extern "C" {
     DEV_88E6185 | DEV_88E6108 | DEV_88E6065 | DEV_88E6097_FAMILY | DEV_88E6165_FAMILY | DEV_88E6351_FAMILY| DEV_88E6352_FAMILY )
 #define G1_DEV_PRIORITY_REMAPPING  ( G1_DEV_FE_AVB_FAMILY | G1_DEV_88E6320_FAMILY )
 
+
 #define DEV_802_1Q    ( DEV_88E6021 | DEV_88E6063 | DEV_FH_VPN |     \
               DEV_88E6083 | DEV_88E6183 | DEV_88E6093 |     \
               DEV_88E6095 | DEV_88E6092 | DEV_88E6185_FAMILY |\
@@ -575,6 +577,7 @@ extern "C" {
           DEV_88E6095_FAMILY | DEV_88E6185_FAMILY )
 #define G1_DEV_CASCADE_PORT 0
 
+
 #define DEV_CROSS_CHIP_VLAN        \
         ( DEV_88E6095_FAMILY | DEV_88E6185_FAMILY )
 #define G1_DEV_CROSS_CHIP_VLAN        0
@@ -676,6 +679,7 @@ extern "C" {
 #define G1_DEV_ENHANCED_MULTICAST_2X    \
     ( G1_DEV_FE_AVB_FAMILY | G1_DEV_88E6320_FAMILY )
 
+
 #define DEV_ARP_DEST_SUPPORT    ( DEV_88E6095_FAMILY | DEV_88E6185_FAMILY )
 #define G1_DEV_ARP_DEST_SUPPORT    ( G1_DEV_88E6095_FAMILY | G1_DEV_88E6185_FAMILY )
 #define DEV_MARVELL_TAG_FLOW_CTRL    \
@@ -715,6 +719,7 @@ extern "C" {
       DEV_88E6351_FAMILY | DEV_88E6352_FAMILY)
 #define G1_DEV_RM_ONE_PTAG            \
     ( G1_DEV_FE_AVB_FAMILY | G1_DEV_88E6320_FAMILY )
+
 
 #define DEV_PRIORITY_OVERRIDE    \
     ( DEV_88E6183 | DEV_88E6093 | DEV_88E6095 |     \
@@ -860,6 +865,7 @@ extern "C" {
 #define DEV_UC_STATIC    ( DEV_STATIC_ADDR )
 #define G1_DEV_UC_STATIC    ( G1_DEV_STATIC_ADDR )
 
+
 /* Grouping ATU Entry State for Multicast */
 
 #define DEV_MC_MGM_STATIC_UNLIMITED_RATE        \
@@ -889,6 +895,7 @@ extern "C" {
 
 #define DEV_MC_PRIO_STATIC        ( DEV_STATIC_ADDR & ~DEV_88E6083 )
 #define G1_DEV_MC_PRIO_STATIC        ( G1_DEV_STATIC_ADDR )
+
 
 /* Grouping Devices that support Pause Limit */
 #define DEV_PAUSE_LIMIT        \
@@ -978,6 +985,7 @@ extern "C" {
 #define G1_DEV_DEBUG_COUNTER    (G1_DEV_88E6320_AVB_FAMILY)
 #define DEV_CUT_THROUGH   0
 #define G1_DEV_CUT_THROUGH    (G1_DEV_88E6320_AVB_FAMILY)
+
 
 #define DEV_AVB_POLICY    ( DEV_AVB_FAMILY )
 #define G1_DEV_AVB_POLICY\
@@ -1092,6 +1100,7 @@ extern "C" {
 
 #define GT_GIG_PHY_INT_MASK(dev,_portVct)    ((_portVct) = (_portVct) & 0xF7)
 
+
 #define RECOMMENDED_ESB_LIMIT(dev, _bps)                    \
 	((IS_IN_DEV_GROUP(dev, DEV_PIRL_RESOURCE)) ? 16777200 : 0xFFFFF0)
 
@@ -1125,8 +1134,10 @@ extern "C" {
 	}                                                   \
     }
 
+
 #define TSM_GET_CBS(_rate,_cts)    ((_rate)/((_cts)*8))
 #define TSM_GET_RATE(_cbs,_cts)    ((_cbs)*8*(_cts))
+
 
 #define GT_PTP_BUILD_TIME(_time1, _time2)       (((_time1) << 16) | (_time2))
 #define GT_PTP_L16_TIME(_time1) ((_time1) & 0xFFFF)
@@ -1151,6 +1162,7 @@ typedef enum
     GT_ATU_STATS_NON_STATIC_FID
 }GT_ATU_STATS_OP;
 
+
 /*
  *  typedef: struct GT_ATU_STAT
  *
@@ -1167,6 +1179,7 @@ typedef struct
     GT_ATU_STATS_OP    op;
     GT_U32             DBNum;
 } GT_ATU_STAT;
+
 
 typedef struct _EXTRA_OP_DATA
 {
@@ -1575,6 +1588,7 @@ GT_STATUS gsysGetMissingPointers
 *******************************************************************************/
 void gtDbgPrint(char* format, ...);
 
+
 /*******************************************************************************
 * gtSemRegister
 *
@@ -1600,6 +1614,7 @@ GT_STATUS gtSemRegister
     IN GT_QD_DEV*       dev,
     IN  GT_SEM_ROUTINES* semRoutines
 );
+
 
 /*******************************************************************************
 * gpirlInitialize
@@ -1680,6 +1695,7 @@ GT_STATUS gprtGetPortQueueCtr
 );
 
 #endif
+
 
 /*******************************************************************************
 * lport2port
@@ -1795,6 +1811,7 @@ GT_U8 lport2phy
     IN GT_QD_DEV    *dev,
     IN GT_LPORT     port
 );
+
 
 #ifdef __cplusplus
 }

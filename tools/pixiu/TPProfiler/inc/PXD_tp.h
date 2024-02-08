@@ -118,6 +118,7 @@ typedef enum TPEventType_e
 	TP_EVENT_THREAD_CHANGE_CPU             = 23    /* for PXD32_TP_Thread_Change_CPU */
 }TPEventType;
 
+
 /* All the synchronization object type with busy wait should be smaller than TP_SYNC_OBJ_TYPE_BUSY_WAIT_MAX */
 #define TP_SYNC_OBJ_TYPE_BUSY_WAIT_MIN         1
 #define TP_SYNC_OBJ_TYPE_BUSY_WAIT_MAX         1000
@@ -134,6 +135,7 @@ typedef enum TPSyncObjType_e
 	TP_SYNC_OBJ_TYPE_RW_LOCK               = TP_SYNC_OBJ_TYPE_WAIT_MIN + 4,          /* Read/Write Lock */
 	TP_SYNC_OBJ_TYPE_RW_SEMAPHORE          = TP_SYNC_OBJ_TYPE_WAIT_MIN + 5,          /* Read/Write Semaphore */
 }TPSyncObjType;
+
 
 /* Following macros are for Syncronization Object Subtype, they can be combined when using */
 #define TP_SYNC_OBJ_SUBTYPE_RW_READ            0x1           /* If the type is RW Lock/Semaphore, the operation is read lock/unlock */
@@ -199,6 +201,7 @@ typedef struct PXD32_TP_Thread_Join_Begin_s
 	TP_Event_Context context;           /* context of the event */
 	PXD32_Word       targetTid;         /* Id of the target thread to be waited for */
 }PXD32_TP_Thread_Join_Begin;
+
 
 /* The wait/join/spin function is returned successfully */
 #define WAIT_RETURN_SUCCESS           0
@@ -363,6 +366,8 @@ typedef struct PXD32_TP_Summary_s
 	PXD32_Time startTime;           /* start time */
 	PXD32_Time stopTime;            /* stop time */
 }PXD32_TP_Summary;
+
+
 
 #ifdef _cplusplus
 }

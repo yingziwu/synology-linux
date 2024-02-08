@@ -599,3 +599,4 @@ void __init vtime_init(void)
 	init_cpu_vtimer();
 	cpu_notifier(s390_nohz_notify, 0);
 }
+

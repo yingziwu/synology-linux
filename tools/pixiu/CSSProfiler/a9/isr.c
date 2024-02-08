@@ -409,6 +409,7 @@ static void start_pmu(void * data)
 		pmu_regs.pmcr |= 0x1;
 	}
 
+
 	/* enable the interrupts */
 	A9_Write_INTENSET(pmu_regs.intenset);
 

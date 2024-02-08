@@ -69,6 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cpu/mvCpu.h"
 #include "eth/mvEth.h"
 
+
 /*******************************************************************************
 * mvSysEthInit - Initialize the Eth subsystem
 *
@@ -128,3 +129,4 @@ MV_VOID mvSysEthInit(MV_VOID)
 
 	return;
 }
+

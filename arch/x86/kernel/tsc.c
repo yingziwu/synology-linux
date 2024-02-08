@@ -18,6 +18,7 @@
 #include <asm/hypervisor.h>
 #include <asm/nmi.h>
 #include <asm/x86_init.h>
+#include <asm/geode.h>
 
 unsigned int __read_mostly cpu_khz;	/* TSC clocks / usec, not used here */
 EXPORT_SYMBOL(cpu_khz);
@@ -184,6 +185,7 @@ static unsigned long calc_pmtimer_ref(u64 deltatsc, u64 pm1, u64 pm2)
 #define CAL2_MS		50
 #define CAL2_LATCH	(CLOCK_TICK_RATE / (1000 / CAL2_MS))
 #define CAL2_PIT_LOOPS	5000
+
 
 /*
  * Try to calibrate the TSC against the Programmable
@@ -613,6 +615,7 @@ int recalibrate_cpu_khz(void)
 
 EXPORT_SYMBOL(recalibrate_cpu_khz);
 
+
 /* Accelerators for sched_clock()
  * convert from cycles(64bits) => nanoseconds (64bits)
  *  basic equation:
@@ -834,15 +837,17 @@ EXPORT_SYMBOL_GPL(mark_tsc_unstable);
 
 static void __init check_system_tsc_reliable(void)
 {
-#ifdef CONFIG_MGEODE_LX
-	/* RTSC counts during suspend */
+#if defined(CONFIG_MGEODEGX1) || defined(CONFIG_MGEODE_LX) || defined(CONFIG_X86_GENERIC)
+	if (is_geode_lx()) {
+		/* RTSC counts during suspend */
 #define RTSC_SUSP 0x100
-	unsigned long res_low, res_high;
+		unsigned long res_low, res_high;
 
-	rdmsr_safe(MSR_GEODE_BUSCONT_CONF0, &res_low, &res_high);
-	/* Geode_LX - the OLPC CPU has a very reliable TSC */
-	if (res_low & RTSC_SUSP)
-		tsc_clocksource_reliable = 1;
+		rdmsr_safe(MSR_GEODE_BUSCONT_CONF0, &res_low, &res_high);
+		/* Geode_LX - the OLPC CPU has a very reliable TSC */
+		if (res_low & RTSC_SUSP)
+			tsc_clocksource_reliable = 1;
+	}
 #endif
 	if (boot_cpu_has(X86_FEATURE_TSC_RELIABLE))
 		tsc_clocksource_reliable = 1;
@@ -879,6 +884,7 @@ __cpuinit int unsynchronized_tsc(void)
 
 	return 0;
 }
+
 
 static void tsc_refine_calibration_work(struct work_struct *work);
 static DECLARE_DELAYED_WORK(tsc_irqwork, tsc_refine_calibration_work);
@@ -953,6 +959,7 @@ out:
 	clocksource_register_khz(&clocksource_tsc, tsc_khz);
 }
 
+
 static int __init init_tsc_clocksource(void)
 {
 	if (!cpu_has_tsc || tsc_disabled > 0 || !tsc_khz)
@@ -991,14 +998,17 @@ void __init tsc_init(void)
 
 	x86_init.timers.tsc_pre_init();
 
-	if (!cpu_has_tsc)
+	if (!cpu_has_tsc) {
+		setup_clear_cpu_cap(X86_FEATURE_TSC_DEADLINE_TIMER);
 		return;
+	}
 
 	tsc_khz = x86_platform.calibrate_tsc();
 	cpu_khz = tsc_khz;
 
 	if (!tsc_khz) {
 		mark_tsc_unstable("could not calculate TSC khz");
+		setup_clear_cpu_cap(X86_FEATURE_TSC_DEADLINE_TIMER);
 		return;
 	}
 
@@ -1035,3 +1045,4 @@ void __init tsc_init(void)
 
 	check_system_tsc_reliable();
 }
+

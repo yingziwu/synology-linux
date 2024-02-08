@@ -56,6 +56,7 @@ static void journal_brelse_array(struct buffer_head *b[], int n)
 		brelse (b[n]);
 }
 
+
 /*
  * When reading from the journal, we are going through the block device
  * layer directly and so there is no readahead being done for us.  We
@@ -126,6 +127,7 @@ failed:
 
 #endif /* __KERNEL__ */
 
+
 /*
  * Read a block from the journal
  */
@@ -188,9 +190,7 @@ static int jbd2_descr_block_csum_verify(journal_t *j,
 			sizeof(struct jbd2_journal_block_tail));
 	provided = tail->t_checksum;
 	tail->t_checksum = 0;
-#if !defined(MY_ABC_HERE)
 	calculated = jbd2_chksum(j, j->j_csum_seed, buf, j->j_blocksize);
-#endif /* MY_ABC_HERE */
 	tail->t_checksum = provided;
 
 	provided = be32_to_cpu(provided);
@@ -227,6 +227,7 @@ static int count_tags(journal_t *journal, struct buffer_head *bh)
 
 	return nr;
 }
+
 
 /* Make sure we wrap around the log correctly! */
 #define wrap(journal, var)						\
@@ -389,9 +390,7 @@ static int jbd2_commit_block_csum_verify(journal_t *j, void *buf)
 	h = buf;
 	provided = h->h_chksum[0];
 	h->h_chksum[0] = 0;
-#if !defined(MY_ABC_HERE)
 	calculated = jbd2_chksum(j, j->j_csum_seed, buf, j->j_blocksize);
-#endif /* MY_ABC_HERE */
 	h->h_chksum[0] = provided;
 
 	provided = be32_to_cpu(provided);
@@ -408,11 +407,9 @@ static int jbd2_block_tag_csum_verify(journal_t *j, journal_block_tag_t *tag,
 		return 1;
 
 	sequence = cpu_to_be32(sequence);
-#if !defined(MY_ABC_HERE)
 	csum32 = jbd2_chksum(j, j->j_csum_seed, (__u8 *)&sequence,
 			     sizeof(sequence));
 	csum32 = jbd2_chksum(j, csum32, buf, j->j_blocksize);
-#endif /* MY_ABC_HERE */
 
 	if (JBD2_HAS_INCOMPAT_FEATURE(j, JBD2_FEATURE_INCOMPAT_CSUM_V3))
 		return tag3->t_checksum == cpu_to_be32(csum32);
@@ -527,12 +524,12 @@ static int do_one_pass(journal_t *journal,
 			if (descr_csum_size > 0 &&
 			    !jbd2_descr_block_csum_verify(journal,
 							  bh->b_data)) {
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 				printk(KERN_ERR "JBD: Invalid checksum of desc block\n");
 #else
 				err = -EIO;
 				goto failed;
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 			}
 
 			/* If it is a valid descriptor block, replay it
@@ -831,9 +828,7 @@ static int jbd2_revoke_block_csum_verify(journal_t *j,
 			sizeof(struct jbd2_journal_revoke_tail));
 	provided = tail->r_checksum;
 	tail->r_checksum = 0;
-#if !defined(MY_ABC_HERE)
 	calculated = jbd2_chksum(j, j->j_csum_seed, buf, j->j_blocksize);
-#endif /* MY_ABC_HERE */
 	tail->r_checksum = provided;
 
 	provided = be32_to_cpu(provided);
@@ -847,18 +842,23 @@ static int scan_revoke_records(journal_t *journal, struct buffer_head *bh,
 {
 	jbd2_journal_revoke_header_t *header;
 	int offset, max;
+	__u32 rcount;
 	int record_len = 4;
 
 	header = (jbd2_journal_revoke_header_t *) bh->b_data;
 	offset = sizeof(jbd2_journal_revoke_header_t);
-	max = be32_to_cpu(header->r_count);
+	rcount = be32_to_cpu(header->r_count);
+
+	if (rcount > journal->j_blocksize)
+		return -EINVAL;
+	max = rcount;
 
 	if (!jbd2_revoke_block_csum_verify(journal, header))
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 		printk(KERN_ERR "JBD: Invalid checksum of revoke block\n");
 #else
 		return -EINVAL;
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 	if (JBD2_HAS_INCOMPAT_FEATURE(journal, JBD2_FEATURE_INCOMPAT_64BIT))
 		record_len = 8;

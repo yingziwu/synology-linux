@@ -580,6 +580,7 @@ static void do_reads(struct mirror_set *ms, struct bio_list *reads)
  * NOSYNC:	increment pending, just write to the default mirror
  *---------------------------------------------------------------*/
 
+
 static void write_callback(unsigned long error, void *context)
 {
 	unsigned i, ret = 0;
@@ -599,6 +600,15 @@ static void write_callback(unsigned long error, void *context)
 	 */
 	if (likely(!error)) {
 		bio_endio(bio, ret);
+		return;
+	}
+
+	/*
+	 * If the bio is discard, return an error, but do not
+	 * degrade the array.
+	 */
+	if (bio->bi_rw & REQ_DISCARD) {
+		bio_endio(bio, -EOPNOTSUPP);
 		return;
 	}
 
@@ -1356,8 +1366,9 @@ static char device_status_char(struct mirror *m)
 		(test_bit(DM_RAID1_READ_ERROR, &(m->error_type))) ? 'R' : 'U';
 }
 
-static int mirror_status(struct dm_target *ti, status_type_t type,
-			 char *result, unsigned int maxlen)
+
+static void mirror_status(struct dm_target *ti, status_type_t type,
+			  char *result, unsigned maxlen)
 {
 	unsigned int m, sz = 0;
 	struct mirror_set *ms = (struct mirror_set *) ti->private;
@@ -1392,8 +1403,6 @@ static int mirror_status(struct dm_target *ti, status_type_t type,
 		if (ms->features & DM_RAID1_HANDLE_ERRORS)
 			DMEMIT(" 1 handle_errors");
 	}
-
-	return 0;
 }
 
 static int mirror_iterate_devices(struct dm_target *ti,
@@ -1412,7 +1421,7 @@ static int mirror_iterate_devices(struct dm_target *ti,
 
 static struct target_type mirror_target = {
 	.name	 = "mirror",
-	.version = {1, 12, 1},
+	.version = {1, 12, 2},
 	.module	 = THIS_MODULE,
 	.ctr	 = mirror_ctr,
 	.dtr	 = mirror_dtr,

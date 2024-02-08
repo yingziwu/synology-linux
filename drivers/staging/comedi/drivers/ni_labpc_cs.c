@@ -213,6 +213,7 @@ static int labpc_pcmcia_config_loop(struct pcmcia_device *p_dev,
 	return pcmcia_request_io(p_dev);
 }
 
+
 static void labpc_config(struct pcmcia_device *link)
 {
 	int ret;

@@ -39,6 +39,7 @@
 /* TWI USB1 host device pin */
 #define MSP_PIN_USB1_HOST_DEV		50
 
+
 static void usb_hcd_tdi_set_mode(struct ehci_hcd *ehci)
 {
 	u8 *base;
@@ -106,6 +107,7 @@ static int ehci_msp_setup(struct usb_hcd *hcd)
 
 	return retval;
 }
+
 
 /* configure so an HC device and id are always provided
  * always called with process context; sleeping is OK
@@ -220,6 +222,7 @@ int usb_hcd_msp_probe(const struct hc_driver *driver,
 	ehci->big_endian_mmio = 1;
 	ehci->big_endian_desc = 1;
 
+
 	retval = usb_add_hcd(hcd, res->start, IRQF_SHARED);
 	if (retval == 0)
 		return 0;
@@ -234,6 +237,8 @@ err1:
 
 	return retval;
 }
+
+
 
 /**
  * usb_hcd_msp_remove - shutdown processing for PMC MSP-based HCDs

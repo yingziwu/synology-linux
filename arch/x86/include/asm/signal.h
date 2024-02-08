@@ -125,6 +125,8 @@ typedef unsigned long sigset_t;
 extern void do_notify_resume(struct pt_regs *, void *, __u32);
 # endif /* __KERNEL__ */
 
+#define __ARCH_HAS_SA_RESTORER
+
 #ifdef __i386__
 # ifdef __KERNEL__
 struct old_sigaction {
@@ -210,6 +212,7 @@ static inline void __const_sigaddset(sigset_t *set, int _sig)
 	(__builtin_constant_p(sig)	    \
 	 ? __const_sigdelset((set), (sig))  \
 	 : __gen_sigdelset((set), (sig)))
+
 
 static inline void __gen_sigdelset(sigset_t *set, int _sig)
 {

@@ -94,6 +94,7 @@ static struct irq_chip iic_chip = {
 	.irq_eoi = iic_eoi,
 };
 
+
 static void iic_ioexc_eoi(struct irq_data *d)
 {
 }
@@ -131,6 +132,7 @@ static void iic_ioexc_cascade(unsigned int irq, struct irq_desc *desc)
 	}
 	chip->irq_eoi(&desc->irq_data);
 }
+
 
 static struct irq_chip iic_ioexc_chip = {
 	.name = "CELL-IOEX",
@@ -218,6 +220,7 @@ void iic_request_IPIs(void)
 }
 
 #endif /* CONFIG_SMP */
+
 
 static int iic_host_match(struct irq_host *h, struct device_node *node)
 {

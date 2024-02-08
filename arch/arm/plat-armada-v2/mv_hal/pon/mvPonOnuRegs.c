@@ -354,6 +354,8 @@ S_asicGlobalRegDb asicGlbDb[] =
 	[mvAsicReg_PON_MIB_TX_512_1023_OCT]               =  {mvAsicReg_PON_MIB_TX_512_1023_OCT,              0xCB6C0,                         0xCB6C0,  asicRO,     0xFFFFFFFF,     0,      16,     1,      0,     "PON MAC MIB TX octects between 511 and 1023 bytes"},
 	[mvAsicReg_PON_MIB_TX_1024_OCT]                   =  {mvAsicReg_PON_MIB_TX_1024_OCT,                  0xCB700,                         0xCB700,  asicRO,     0xFFFFFFFF,     0,      16,     1,      0,     "PON MAC MIB TX octects above or equal 1024 bytes"},
 
+
+
 /******************************************************************************/
 /******************************************************************************/
 /* ========================================================================== */

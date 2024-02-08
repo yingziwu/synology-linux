@@ -349,6 +349,7 @@ static int pinctrl_groups_show(struct seq_file *s, void *what)
 		selector++;
 	}
 
+
 	return 0;
 }
 

@@ -53,6 +53,7 @@
 
 #include "buffer_head_io.h"
 
+
 static char *ocfs2_fast_symlink_getlink(struct inode *inode,
 					struct buffer_head **bh)
 {

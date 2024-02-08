@@ -499,6 +499,7 @@ void Consolid_InitializeDevice(MV_PVOID This, MV_U16 Device_Id)
 	MV_ZeroMemory(pConsDevice, sizeof(Consolidate_Device));
 }
 
+
 /*
  * Caller pushes us to send the holding request if any.
  */

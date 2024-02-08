@@ -128,7 +128,6 @@ if [ ! -f "${KernelImage}" ]; then
 	exit 1;
 fi
 
-./scripts/syno_gen_usbmodem_table.sh create-table
 
 # Compare kernel config with re-generated one to see
 # if any changes or new options not reapplied to ${KernelConfig}.

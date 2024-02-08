@@ -69,6 +69,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+
+
 /*
 ** The below macros define the type of the transaction performed by the SFlash
 ** HAL.
@@ -82,6 +84,7 @@ extern "C" {
 #define SYS_SFLASH_TRANS_START		0x1
 #define SYS_SFLASH_TRANS_END		0x2
 #define SYS_SFLASH_TRANS_ATOMIC		0x3
+
 
 /*******************************************************************************
 * mvSysSflashCommandSet
@@ -107,6 +110,7 @@ extern "C" {
 *******************************************************************************/
 MV_STATUS mvSysSflashCommandSet(MV_VOID *flashHandle, MV_U8 *cmdBuff, MV_U32 cmdLen,
 		MV_U8 transType);
+
 
 /*******************************************************************************
 * mvSysSflashDataRead
@@ -135,6 +139,7 @@ MV_STATUS mvSysSflashCommandSet(MV_VOID *flashHandle, MV_U8 *cmdBuff, MV_U32 cmd
 MV_STATUS mvSysSflashDataRead(MV_VOID *flashHandle, MV_U8 *dataBuff, MV_U32 dataLen,
 		MV_U32 dummyBytes, MV_U8 transType);
 
+
 /*******************************************************************************
 * mvSysSflashDataWrite
 *
@@ -159,6 +164,7 @@ MV_STATUS mvSysSflashDataRead(MV_VOID *flashHandle, MV_U8 *dataBuff, MV_U32 data
 *******************************************************************************/
 MV_STATUS mvSysSflashDataWrite(MV_VOID *flashHandle, MV_U8 *dataBuff, MV_U32 dataLen,
 		MV_U8 transType);
+
 
 /*******************************************************************************
 * mvSysSflashFreqSet

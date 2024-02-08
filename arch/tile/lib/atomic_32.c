@@ -159,6 +159,7 @@ unsigned long _atomic_xor(volatile unsigned long *p, unsigned long mask)
 }
 EXPORT_SYMBOL(_atomic_xor);
 
+
 u64 _atomic64_xchg(atomic64_t *v, u64 n)
 {
 	return __atomic64_xchg(&v->counter, __atomic_setup(v), n);
@@ -188,6 +189,7 @@ u64 _atomic64_cmpxchg(atomic64_t *v, u64 o, u64 n)
 	return __atomic64_cmpxchg(&v->counter, __atomic_setup(v), o, n);
 }
 EXPORT_SYMBOL(_atomic64_cmpxchg);
+
 
 static inline int *__futex_setup(int __user *v)
 {
@@ -246,6 +248,7 @@ struct __get_user __atomic_bad_address(int __user *addr)
 		panic("Bad address used for kernel atomic op: %p\n", addr);
 	return (struct __get_user) { .err = -EFAULT };
 }
+
 
 #if CHIP_HAS_CBOX_HOME_MAP()
 static int __init noatomichash(char *str)

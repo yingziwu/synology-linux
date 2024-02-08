@@ -19,3 +19,4 @@ struct ethoc_platform_data {
 };
 
 #endif /* !LINUX_NET_ETHOC_H */
+

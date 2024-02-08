@@ -1120,3 +1120,4 @@ MODULE_AUTHOR("Wan ZongShun <mcuos.com@gmail.com>");
 MODULE_DESCRIPTION("w90p910 MAC driver!");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:nuc900-emc");
+

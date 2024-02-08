@@ -16,6 +16,7 @@
 #include <asm/leds.h>
 #include <mach/devices.h>
 
+
 static inline void ks8695_led_on(unsigned int led)
 {
 	gpio_set_value(led, 0);
@@ -34,6 +35,7 @@ static inline void ks8695_led_toggle(unsigned int led)
 	else
 		ks8695_led_off(led);
 }
+
 
 /*
  * Handle LED events.
@@ -75,6 +77,7 @@ static void ks8695_leds_event(led_event_t evt)
 
 	local_irq_restore(flags);
 }
+
 
 static int __init leds_init(void)
 {

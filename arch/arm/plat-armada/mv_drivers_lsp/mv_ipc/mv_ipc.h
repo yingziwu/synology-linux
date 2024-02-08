@@ -62,8 +62,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __MV_IPC_H__
 #define __MV_IPC_H__
+
 
 #define ipc_attach_chn(chnId, cpu, ret) 	mvIpcAttachChannel(chnId, cpu, ret)
 #define ipc_dettach_chn(chnId) 				mvIpcDettachChannel(chnId)

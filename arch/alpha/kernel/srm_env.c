@@ -79,6 +79,7 @@ static srm_env_t	srm_named_entries[] = {
 };
 static srm_env_t	srm_numbered_entries[256];
 
+
 static int srm_env_proc_show(struct seq_file *m, void *v)
 {
 	unsigned long	ret;

@@ -81,6 +81,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define mvIpcErrPrintf mvOsPrintf
 
+
 //int axp_read_soc_clock(int timer_id);
 
 #define  IPC_BASE_DOORBELL  12
@@ -88,6 +89,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 unsigned int    myCpuId;
 void   		    *queueBaseAddr;
 MV_IPC_CHANNEL  ipcChannels[MAX_IPC_CHANNELS];
+
 
 /***********************************************************************************
 * mvIpcGetQueue

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -123,6 +124,7 @@ struct mvtsu_dev {
 	struct tsu_stat int_stat;
 };
 
+
 /*
  * Local control variables.
  */
@@ -168,6 +170,7 @@ static void mvtsu_tx_timestamp_calc(struct mvtsu_dev *dev)
 	return;
 }
 
+
 /*
  * Calculate the timeout needed between packets.
  */
@@ -186,6 +189,7 @@ static void mvtsu_rd_wr_timeout_calc(struct mvtsu_dev *dev)
 		dev->rd_wr_timeout = 50;
 	return;
 }
+
 
 static void mvtsu_set_defaults(struct mvtsu_dev *dev)
 {
@@ -456,6 +460,7 @@ fail_init:
 	return result;
 }
 
+
 int mvtsu_release (struct inode *inode, struct file *filp)
 {
 	struct mvtsu_dev *dev = (struct mvtsu_dev*)filp->private_data;
@@ -503,6 +508,7 @@ int mvtsu_release (struct inode *inode, struct file *filp)
 	TSU_LEAVE(TSU_DBG_RELEASE, "mvtsu_release");
 	return 0;
 }
+
 
 /*
  * Helper function for retrying read buffer requests.
@@ -552,6 +558,7 @@ static int mvtsu_next_rx_buff_get(struct file *filp, u32 **data_buff,
 	}
 	return 0;
 }
+
 
 /*
  * Helper function for copying timestamp info to user buffer.
@@ -679,6 +686,7 @@ no_data:
 	return status;
 }
 
+
 /*
  * Helper function for retrying write buffer requests.
   * Assume that the device spinlock is held.
@@ -721,6 +729,7 @@ static int mvtsu_next_tx_buff_get(struct file *filp, u32 **data_buff,
 	}
 	return 0;
 }
+
 
 /*
  * TSU data write
@@ -919,6 +928,7 @@ int mvtsu_ioctl (struct inode *inode, struct file *filp, unsigned int cmd,
 	return ret;
 }
 
+
 #ifdef CONFIG_MV_TSU_PROC
 
 /*
@@ -959,6 +969,8 @@ int mvtsu_ioctl (struct inode *inode, struct file *filp, unsigned int cmd,
 		else							\
 			mode = TSU_SIGNAL_KEEP_DEF;			\
 	}
+
+
 
 int mvtsu_proc_write(struct file *file, const char *buffer,unsigned long count,
 		     void *data)
@@ -1184,6 +1196,7 @@ done:
 	return count;
 }
 
+
 int mvtsu_proc_read_port(int port, char *buf)
 {
 	MV_U8	sync_detect, sync_loss;
@@ -1232,6 +1245,7 @@ int mvtsu_proc_read_port(int port, char *buf)
 	return len;
 }
 
+
 int mvtsu_proc_read(char* page, char** start, off_t off, int count,int* eof,
 		    void* data)
 {
@@ -1257,6 +1271,7 @@ int mvtsu_proc_read(char* page, char** start, off_t off, int count,int* eof,
 	return len;
 }
 
+
 /*
  * Create TSU proc entry.
  */
@@ -1274,6 +1289,7 @@ static int mvtsu_proc_init(void)
 }
 
 #endif /* CONFIG_MV_TSU_PROC */
+
 
 /*
  * Parse the TSU command line.
@@ -1320,6 +1336,7 @@ static int mvtsu_parse_core_clk(char **cmdline)
 	return 0;
 }
 
+
 static int mvtsu_parse_pkt_size(char **cmdline)
 {
 	char *str = *cmdline;
@@ -1339,6 +1356,7 @@ static int mvtsu_parse_pkt_size(char **cmdline)
 	return -1;
 }
 
+
 static int mvtsu_parse_mode(char **cmdline)
 {
 	char *str;
@@ -1357,6 +1375,7 @@ static int mvtsu_parse_mode(char **cmdline)
 	}
 	return 0;
 }
+
 
 static int mvtsu_parse_cmdline(void)
 {
@@ -1400,6 +1419,7 @@ set_default:
 success:
 	return 0;
 }
+
 
 struct file_operations mvtsu_fops = {
 	.owner =     THIS_MODULE,
@@ -1506,6 +1526,7 @@ fail_init:
 	return result;
 }
 
+
 /*
  * Cleanup the TSU driver.
  */
@@ -1528,3 +1549,4 @@ void mvtsu_cleanup(void)
 module_init(mvtsu_init);
 module_exit(mvtsu_cleanup);
 MODULE_LICENSE("GPL");
+

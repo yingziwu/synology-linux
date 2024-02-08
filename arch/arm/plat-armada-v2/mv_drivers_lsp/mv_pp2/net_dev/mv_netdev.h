@@ -1,7 +1,33 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*******************************************************************************
+Copyright (C) Marvell International Ltd. and its affiliates
+
+This software file (the "File") is owned and distributed by Marvell
+International Ltd. and/or its affiliates ("Marvell") under the following
+alternative licensing terms.  Once you have made an election to distribute the
+File under one of the following license alternatives, please (i) delete this
+introductory statement regarding license alternatives, (ii) delete the two
+license alternatives that you have not elected to use and (iii) preserve the
+Marvell copyright notice above.
+
+
+********************************************************************************
+Marvell GPL License Option
+
+If you received this File from Marvell, you may opt to use, redistribute and/or
+modify this File in accordance with the terms and conditions of the General
+Public License Version 2, June 1991 (the "GPL License"), a copy of which is
+available along with the File in the license.txt file or by writing to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 or
+on the worldwide web at http://www.gnu.org/licenses/gpl.txt.
+
+THE FILE IS DISTRIBUTED AS-IS, WITHOUT WARRANTY OF ANY KIND, AND THE IMPLIED
+WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY
+DISCLAIMED.  The GPL License provides additional details about this warranty
+disclaimer.
+*******************************************************************************/
 #ifndef __mv_netdev_h__
 #define __mv_netdev_h__
 #include <linux/version.h>
@@ -25,6 +51,9 @@
 # define CONFIG_MV_PON_TCONTS 16
 #endif
 
+/******************************************************
+ * driver statistics control --                       *
+ ******************************************************/
 #ifdef CONFIG_MV_PP2_STAT_ERR
 #define STAT_ERR(c) c
 #else
@@ -52,8 +81,12 @@
 extern int mv_ctrl_pp2_txdone;
 extern unsigned int mv_pp2_pnc_ctrl_en;
 
+/****************************************************************************
+ * Rx buffer size: MTU + 2(Marvell Header) + 4(VLAN) + 14(MAC hdr) + 4(CRC) *
+ ****************************************************************************/
 #define MV_ETH_SKB_SHINFO_SIZE		SKB_DATA_ALIGN(sizeof(struct skb_shared_info))
 
+/* MTU + EtherType + Double VLAN + MAC_SA + MAC_DA + Marvell header */
 #define MV_MAX_PKT_SIZE(mtu)		((mtu) + MV_ETH_MH_SIZE + 2 * VLAN_HLEN + ETH_HLEN)
 
 #define RX_PKT_SIZE(mtu) \
@@ -77,8 +110,13 @@ extern int mv_ctrl_recycle;
 int mv_pp2_skb_recycle(struct sk_buff *skb);
 #else
 #define mv_pp2_is_recycle()     0
-#endif  
+#endif /* CONFIG_MV_PP2_SKB_RECYCLE */
 
+
+
+/******************************************************
+ * interrupt control --                               *
+ ******************************************************/
 #define MV_ETH_TRYLOCK(lock, flags)                           \
 	(in_interrupt() ? spin_trylock((lock)) :              \
 		spin_trylock_irqsave((lock), (flags)))
@@ -107,16 +145,23 @@ int mv_pp2_skb_recycle(struct sk_buff *skb);
 	if (!in_interrupt())                                  \
 		local_irq_restore(flags);
 
+/******************************************************
+ * rx / tx queues --                                  *
+ ******************************************************/
+/*
+ * Debug statistics
+ */
+
 struct txq_stats {
 #ifdef CONFIG_MV_PP2_STAT_ERR
 	u32 txq_err;
-#endif  
+#endif /* CONFIG_MV_PP2_STAT_ERR */
 #ifdef CONFIG_MV_PP2_STAT_DBG
 	u32 txq_tx;
-	u32 txq_reserved_req;    
-	u32 txq_reserved_total;  
+	u32 txq_reserved_req;   /* Number of requests to reserve TX descriptors */
+	u32 txq_reserved_total; /* Accumulated number of reserved TX descriptors */
 	u32 txq_txdone;
-#endif  
+#endif /* CONFIG_MV_PP2_STAT_DBG */
 };
 
 struct port_stats {
@@ -127,7 +172,7 @@ struct port_stats {
 	u32 ext_stack_empty;
 	u32 ext_stack_full;
 	u32 state_err;
-#endif  
+#endif /* CONFIG_MV_PP2_STAT_ERR */
 
 #ifdef CONFIG_MV_PP2_STAT_INF
 	u32 irq[CONFIG_NR_CPUS];
@@ -143,13 +188,13 @@ struct port_stats {
 
 #ifdef CONFIG_MV_PP2_RX_SPECIAL
 	u32 rx_special;
-#endif  
+#endif /* CONFIG_MV_PP2_RX_SPECIAL */
 
 #ifdef CONFIG_MV_PP2_TX_SPECIAL
 	u32 tx_special;
-#endif  
+#endif /* CONFIG_MV_PP2_TX_SPECIAL */
 
-#endif  
+#endif /* CONFIG_MV_PP2_STAT_INF */
 
 #ifdef CONFIG_MV_PP2_STAT_DBG
 	u32 rxq[CONFIG_MV_PP2_RXQ];
@@ -169,21 +214,23 @@ struct port_stats {
 	u32 tx_tso_bytes;
 	u32 ext_stack_put;
 	u32 ext_stack_get;
-#endif  
+#endif /* CONFIG_MV_PP2_STAT_DBG */
 };
 
 #define MV_ETH_TX_DESC_ALIGN		0x1f
 
+/* Used for define type of data saved in shadow: SKB or extended buffer or nothing */
 #define MV_ETH_SHADOW_SKB		0x1
 #define MV_ETH_SHADOW_EXT		0x2
 
+/* Masks used for pp->flags */
 #define MV_ETH_F_STARTED_BIT            0
 #define MV_ETH_F_RX_DESC_PREFETCH_BIT   1
 #define MV_ETH_F_RX_PKT_PREFETCH_BIT    2
-#define MV_ETH_F_CONNECT_LINUX_BIT      5  
+#define MV_ETH_F_CONNECT_LINUX_BIT      5 /* port is connected to Linux netdevice */
 #define MV_ETH_F_LINK_UP_BIT            6
 #define MV_ETH_F_SUSPEND_BIT            12
-#define MV_ETH_F_STARTED_OLD_BIT        13  
+#define MV_ETH_F_STARTED_OLD_BIT        13 /*STARTED_BIT value before suspend */
 #define MV_ETH_F_IFCAP_NETMAP_BIT       15
 
 #define MV_ETH_F_STARTED                (1 << MV_ETH_F_STARTED_BIT)
@@ -196,7 +243,7 @@ struct port_stats {
 #define MV_ETH_F_IFCAP_NETMAP           (1 << MV_ETH_F_IFCAP_NETMAP_BIT)
 
 #ifdef CONFIG_MV_PP2_DEBUG_CODE
- 
+/* Masks used for pp->dbg_flags */
 #define MV_ETH_F_DBG_RX_BIT         0
 #define MV_ETH_F_DBG_TX_BIT         1
 #define MV_ETH_F_DBG_DUMP_BIT       2
@@ -210,23 +257,26 @@ struct port_stats {
 #define MV_ETH_F_DBG_ISR           (1 << MV_ETH_F_DBG_ISR_BIT)
 #define MV_ETH_F_DBG_POLL          (1 << MV_ETH_F_DBG_POLL_BIT)
 #define MV_ETH_F_DBG_BUFF_HDR      (1 << MV_ETH_F_DBG_BUFF_HDR_BIT)
-#endif  
+#endif /* CONFIG_MV_PP2_DEBUG_CODE */
 
+/* Masks used for cpu_ctrl->flags */
 #define MV_ETH_F_TX_DONE_TIMER_BIT  0
 
-#define MV_ETH_F_TX_DONE_TIMER		(1 << MV_ETH_F_TX_DONE_TIMER_BIT)	 
+#define MV_ETH_F_TX_DONE_TIMER		(1 << MV_ETH_F_TX_DONE_TIMER_BIT)	/* 0x01 */
+
 
 #define MV_ETH_TXQ_INVALID	0xFF
 
 #define TOS_TO_DSCP(tos)	((tos >> 2) & 0x3F)
 
+/* Masks used for tx_spec->flags */
 #define MV_ETH_TX_F_NO_PAD	0x0001
 #define MV_ETH_TX_F_MH		0x0002
 #define MV_ETH_TX_F_HW_CMD	0x0004
 
 struct mv_pp2_tx_spec {
 	unsigned long	flags;
-	u32		hw_cmd[3];      
+	u32		hw_cmd[3];     /* tx_desc offset = 0x10, 0x14, 0x18 */
 	u16		tx_mh;
 	u8		txp;
 	u8		txq;
@@ -238,8 +288,8 @@ struct mv_pp2_tx_spec {
 struct txq_cpu_ctrl {
 	int			txq_size;
 	int			txq_count;
-	int			reserved_num;  
-	u32			*shadow_txq;  
+	int			reserved_num; /* PPv2.1 (MAS 3.16)- number of reserved descriptors for this CPU */
+	u32			*shadow_txq; /* can be MV_ETH_PKT* or struct skbuf* */
 	int			shadow_txq_put_i;
 	int			shadow_txq_get_i;
 	struct txq_stats	stats;
@@ -305,7 +355,7 @@ struct cpu_ctrl {
 struct eth_port {
 	int			port;
 	struct mv_pp2_pdata	*plat_data;
-	bool			tagged;  
+	bool			tagged; /* NONE/MH/DSA/EDSA/VLAN */
 	MV_PP2_PORT_CTRL	*port_ctrl;
 	struct rx_queue		*rxq_ctrl;
 	struct tx_queue		*txq_ctrl;
@@ -319,7 +369,7 @@ struct eth_port {
 	struct bm_pool		*hwf_pool_long;
 	struct bm_pool		*hwf_pool_short;
 	struct napi_group_ctrl	*napi_group[MV_PP2_MAX_RXQ];
-	unsigned long		flags;  
+	unsigned long		flags; /* MH, TIMER, etc. */
 	u8			dbg_flags;
 	struct mv_pp2_tx_spec	tx_spec;
 	struct port_stats	stats;
@@ -329,7 +379,7 @@ struct eth_port {
 	int			extBufSize;
 	spinlock_t		extLock;
 	MV_U8			txq_dscp_map[64];
-	 
+	/* Ethtool parameters */
 	__u16			speed_cfg;
 	__u8			duplex_cfg;
 	__u8			autoneg_cfg;
@@ -343,21 +393,21 @@ struct eth_port {
 	__u32			rx_pkts_high_coal_cfg;
 	__u32			pkt_rate_low_cfg;
 	__u32			pkt_rate_high_cfg;
-	__u32			rate_current;  
+	__u32			rate_current; /* unknown (0), low (1), normal (2), high (3) */
 	__u32			rate_sample_cfg;
 	__u32			rx_adaptive_coal_cfg;
 	__u32			wol;
-	 
+	/* Rate calculate */
 	unsigned long		rx_rate_pkts;
 	unsigned long		rx_timestamp;
 #ifdef CONFIG_MV_PP2_RX_SPECIAL
 	int			(*rx_special_proc)(int port, int rxq, struct net_device *dev,
 						struct sk_buff *skb, struct pp2_rx_desc *rx_desc);
-#endif  
+#endif /* CONFIG_MV_PP2_RX_SPECIAL */
 #ifdef CONFIG_MV_PP2_TX_SPECIAL
 	int			(*tx_special_check)(int port, struct net_device *dev, struct sk_buff *skb,
 						struct mv_pp2_tx_spec *tx_spec_out);
-#endif  
+#endif /* CONFIG_MV_PP2_TX_SPECIAL */
 	MV_U32			cpuMask;
 	MV_U32			rx_indir_table[256];
 	struct cpu_ctrl		*cpu_config[CONFIG_NR_CPUS];
@@ -380,12 +430,13 @@ enum eth_pm_mode {
 #define MV_ETH_PRIV(dev)	((struct eth_port *)(netdev_priv(dev)))
 #define MV_DEV_STAT(dev)	(&((dev)->stats))
 
+/* BM specific defines */
 struct pool_stats {
 #ifdef CONFIG_MV_PP2_STAT_ERR
 	u32 skb_alloc_oom;
 	u32 stack_empty;
 	u32 stack_full;
-#endif  
+#endif /* CONFIG_MV_PP2_STAT_ERR */
 
 #ifdef CONFIG_MV_PP2_STAT_DBG
 	u32 no_recycle;
@@ -396,17 +447,26 @@ struct pool_stats {
 	u32 skb_recycled_ok;
 	u32 skb_recycled_err;
 	u32 bm_cookie_err;
-#endif  
+#endif /* CONFIG_MV_PP2_STAT_DBG */
 };
 
+/* BM pool assignment */
 #ifdef CONFIG_MV_PP2_BM_PER_PORT_MODE
- 
+/* #port   SWF long   SWF short   HWF long   HWF short *
+ *   0         0          1           0           1    *
+ *   1         2          3           2           3    *
+ *   2         4          5           4           5    *
+ *   3         6          7           6           7    */
 #define MV_ETH_BM_SWF_LONG_POOL(port)		(port << 1)
 #define MV_ETH_BM_SWF_SHORT_POOL(port)		((port << 1) + 1)
 #define MV_ETH_BM_HWF_LONG_POOL(port)		(MV_ETH_BM_SWF_LONG_POOL(port))
 #define MV_ETH_BM_HWF_SHORT_POOL(port)		(MV_ETH_BM_SWF_SHORT_POOL(port))
-#else  
- 
+#else /* CONFIG_MV_PP2_BM_SWF_HWF_MODE */
+/* #port   SWF long   SWF short   HWF long   HWF short *
+ *   0         0          3           4           7    *
+ *   1         1          3           5           7    *
+ *   2         2          3           6           7    *
+ *   3         2          3           6           7    */
 #define MV_ETH_BM_SWF_LONG_POOL(port)		((port > 2) ? 2 : port)
 #define MV_ETH_BM_SWF_SHORT_POOL(port)		(3)
 #define MV_ETH_BM_HWF_LONG_POOL(port)		((port > 2) ? 6 : (port + 4))
@@ -417,15 +477,16 @@ struct pool_stats {
 #define mv_pp2_pool_bm(p)	(p->bm_pool)
 
 enum mv_pp2_bm_type {
-	MV_ETH_BM_FREE,		 
-	MV_ETH_BM_SWF_LONG,	 
-	MV_ETH_BM_SWF_SHORT,	 
-	MV_ETH_BM_HWF_LONG,	 
-	MV_ETH_BM_HWF_SHORT,	 
-	MV_ETH_BM_MIXED_LONG,	 
-	MV_ETH_BM_MIXED_SHORT	 
+	MV_ETH_BM_FREE,		/* BM pool is not being used by any port		   */
+	MV_ETH_BM_SWF_LONG,	/* BM pool is being used by SWF as long pool		   */
+	MV_ETH_BM_SWF_SHORT,	/* BM pool is being used by SWF as short pool		   */
+	MV_ETH_BM_HWF_LONG,	/* BM pool is being used by HWF as long pool		   */
+	MV_ETH_BM_HWF_SHORT,	/* BM pool is being used by HWF as short pool		   */
+	MV_ETH_BM_MIXED_LONG,	/* BM pool is being used by both HWF and SWF as long pool  */
+	MV_ETH_BM_MIXED_SHORT	/* BM pool is being used by both HWF and SWF as short pool */
 };
 
+/* Macros for using mv_pp2_bm_type */
 #define MV_ETH_BM_POOL_IS_HWF(type)	((type == MV_ETH_BM_HWF_LONG) || (type == MV_ETH_BM_HWF_SHORT))
 #define MV_ETH_BM_POOL_IS_SWF(type)	((type == MV_ETH_BM_SWF_LONG) || (type == MV_ETH_BM_SWF_SHORT))
 #define MV_ETH_BM_POOL_IS_MIXED(type)	((type == MV_ETH_BM_MIXED_LONG) || (type == MV_ETH_BM_MIXED_SHORT))
@@ -434,6 +495,9 @@ enum mv_pp2_bm_type {
 #define MV_ETH_BM_POOL_IS_LONG(type)	((type == MV_ETH_BM_SWF_LONG) || (type == MV_ETH_BM_HWF_LONG)\
 									|| (type == MV_ETH_BM_MIXED_LONG))
 
+/* BM short pool packet size						*/
+/* These values assure that for both HWF and SWF,			*/
+/* the total number of bytes allocated for each buffer will be 512	*/
 #define MV_ETH_BM_SHORT_HWF_PKT_SIZE	RX_HWF_MAX_PKT_SIZE(512)
 #define MV_ETH_BM_SHORT_PKT_SIZE	RX_MAX_PKT_SIZE(512)
 
@@ -452,16 +516,21 @@ struct bm_pool {
 	struct			pool_stats stats;
 };
 
+/* BM cookie (32 bits) definition */
+/* bits[0-7]   - Flags  */
+/*      bit0 - bm_cookie is invalid for SKB recycle */
 #define MV_ETH_BM_COOKIE_F_INVALID_BIT		0
 #define MV_ETH_BM_COOKIE_F_INVALID		(1 << 0)
 
+/*      bit7 - buffer is guaranteed */
 #define MV_ETH_BM_COOKIE_F_GRNTD_BIT		7
 #define MV_ETH_BM_COOKIE_F_GRNTD		(1 << 7)
 
+/* bits[8-15]  - PoolId */
 #define MV_ETH_BM_COOKIE_POOL_OFFS		8
- 
+/* bits[16-23] - Qset   */
 #define MV_ETH_BM_COOKIE_QSET_OFFS		16
- 
+/* bits[24-31] - Cpu    */
 #define MV_ETH_BM_COOKIE_CPU_OFFS		24
 
 static inline int mv_pp2_bm_cookie_grntd_get(__u32 cookie)
@@ -493,6 +562,8 @@ static inline int mv_pp2_bm_cookie_cpu_get(__u32 cookie)
 	return (cookie >> MV_ETH_BM_COOKIE_CPU_OFFS) & 0xFF;
 }
 
+/* Build bm cookie from rx_desc */
+/* Cookie includes information needed to return buffer to bm pool: poolid, qset, etc */
 static inline __u32 mv_pp2_bm_cookie_build(struct pp2_rx_desc *rx_desc)
 {
 	int pool = mvPp2RxBmPoolId(rx_desc);
@@ -545,11 +616,13 @@ static inline void mv_pp2_interrupts_unmask(struct eth_port *pp)
 	if (napi_group == NULL)
 		return;
 
+
+	/* unmask interrupts - for RX unmask only RXQs that are in the same napi group */
 #ifdef CONFIG_MV_PP2_TXDONE_ISR
-	mvPp2GbeIsrRxTxUnmask(pp->port, napi_group->rxq_mask, 1  );
+	mvPp2GbeIsrRxTxUnmask(pp->port, napi_group->rxq_mask, 1 /* unmask TxDone interrupts */);
 #else
-	mvPp2GbeIsrRxTxUnmask(pp->port, napi_group->rxq_mask, 0  );
-#endif  
+	mvPp2GbeIsrRxTxUnmask(pp->port, napi_group->rxq_mask, 0 /* mask TxDone interrupts */);
+#endif /* CONFIG_MV_PP2_TXDONE_ISR */
 }
 
 static inline void mv_pp2_interrupts_mask(struct eth_port *pp)
@@ -568,28 +641,45 @@ static inline int mv_pp2_ctrl_is_tx_enabled(struct eth_port *pp)
 	return 0;
 }
 
+/*
+	Check if there are enough descriptors in physical TXQ.
+
+	return: 1 - not enough descriptors,  0 - enough descriptors
+*/
 static inline int mv_pp2_phys_desc_num_check(struct txq_cpu_ctrl *txq_ctrl, int num)
 {
 
 	if ((txq_ctrl->txq_count + num) > txq_ctrl->txq_size) {
-		 
+		/*
+		printk(KERN_ERR "eth_tx: txq_ctrl->txq=%d - no_resource: txq_count=%d, txq_size=%d, num=%d\n",
+			txq_ctrl->txq, txq_ctrl->txq_count, txq_ctrl->txq_size, num);
+		*/
 		STAT_ERR(txq_ctrl->stats.txq_err++);
 		return 1;
 	}
 	return 0;
 }
 
+/*
+	Check if there are enough reserved descriptors for SWF
+	If not enough, then try to reqest chunk of reserved descriptors and check again.
+
+	return: 1 - not enough descriptors,  0 - enough descriptors
+*/
 static inline int mv_pp2_reserved_desc_num_proc(struct eth_port *pp, int txp, int txq, int num)
 {
 	struct tx_queue *txq_ctrl = &pp->txq_ctrl[txp * CONFIG_MV_PP2_TXQ + txq];
 	struct txq_cpu_ctrl *txq_cpu_p;
 	struct txq_cpu_ctrl *txq_cpu_ptr =  &txq_ctrl->txq_cpu[smp_processor_id()];
 
+
 	if (txq_cpu_ptr->reserved_num < num) {
 		int req, new_reserved, cpu, txq_count = 0;
 
+		/* new chunk is necessary */
+
 		for_each_possible_cpu(cpu) {
-			 
+			/* compute total txq used descriptors */
 			txq_cpu_p = &txq_ctrl->txq_cpu[cpu];
 			txq_count += txq_cpu_p->txq_count;
 			txq_count += txq_cpu_p->reserved_num;
@@ -618,17 +708,25 @@ static inline int mv_pp2_reserved_desc_num_proc(struct eth_port *pp, int txp, in
 
 	return 0;
 }
- 
+/*
+	Check if there are enough descriptors in aggregated TXQ.
+	If not enough, then try to update number of occupied aggr descriptors and check again.
+
+	return: 1 - not enough descriptors,  0 - enough descriptors
+*/
 static inline int mv_pp2_aggr_desc_num_check(struct aggr_tx_queue *aggr_txq_ctrl, int num)
 {
-	 
+	/* Is enough aggregated TX descriptors to send packet */
 	if ((aggr_txq_ctrl->txq_count + num) > aggr_txq_ctrl->txq_size) {
-		 
+		/* update number of available aggregated TX descriptors */
 		aggr_txq_ctrl->txq_count = mvPp2AggrTxqPendDescNumGet(smp_processor_id());
 	}
-	 
+	/* Is enough aggregated descriptors */
 	if ((aggr_txq_ctrl->txq_count + num) > aggr_txq_ctrl->txq_size) {
-		 
+		/*
+		printk(KERN_ERR "eth_tx: txq_ctrl->txq=%d - no_resource: txq_count=%d, txq_size=%d, num=%d\n",
+			txq_ctrl->txq, txq_ctrl->txq_count, txq_ctrl->txq_size, num);
+		*/
 		STAT_ERR(aggr_txq_ctrl->stats.txq_err++);
 		return 1;
 	}
@@ -640,7 +738,7 @@ static inline void mv_pp2_tx_desc_flush(struct eth_port *pp, struct pp2_tx_desc 
 {
 #if defined(MV_CPU_BE)
 	mvPPv2TxqDescSwap(tx_desc);
-#endif  
+#endif /* MV_CPU_BE */
 
 	mvOsCacheLineFlush(pp->dev->dev.parent, tx_desc);
 }
@@ -681,7 +779,7 @@ static inline void mv_pp2_add_tx_done_timer(struct cpu_ctrl *cpuCtrl)
 {
 	if (test_and_set_bit(MV_ETH_F_TX_DONE_TIMER_BIT, &(cpuCtrl->flags)) == 0) {
 
-		cpuCtrl->tx_done_timer.expires = jiffies + ((HZ * CONFIG_MV_PP2_TX_DONE_TIMER_PERIOD) / 1000);  
+		cpuCtrl->tx_done_timer.expires = jiffies + ((HZ * CONFIG_MV_PP2_TX_DONE_TIMER_PERIOD) / 1000); /* ms */
 		STAT_INFO(cpuCtrl->pp->stats.tx_done_timer_add[smp_processor_id()]++);
 		add_timer_on(&cpuCtrl->tx_done_timer, smp_processor_id());
 	}
@@ -727,16 +825,31 @@ static inline void mv_pp2_shadow_push(struct txq_cpu_ctrl *txq_cpu, int val)
 		txq_cpu->shadow_txq_put_i = 0;
 }
 
+/* Free skb pair */
 static inline void mv_pp2_skb_free(struct sk_buff *skb)
 {
 #ifdef CONFIG_MV_PP2_SKB_RECYCLE
 	skb->skb_recycle = NULL;
 	skb->hw_cookie = 0;
-#endif  
+#endif /* CONFIG_MV_PP2_SKB_RECYCLE */
 
 	dev_kfree_skb_any(skb);
 }
 
+/* PPv2.1 new API - pass packet to Qset */
+/*
+static inline void mv_pp2_pool_qset_put(int pool, MV_ULONG phys_addr, MV_ULONG cookie, struct pp2_rx_desc *rx_desc)
+{
+	int qset, is_grntd;
+
+	qset = (rx_desc->bmQset & PP2_RX_BUFF_QSET_NUM_MASK) >> PP2_RX_BUFF_QSET_NUM_OFFS;
+	is_grntd = (rx_desc->bmQset & PP2_RX_BUFF_TYPE_MASK) >> PP2_RX_BUFF_TYPE_OFFS;
+
+	mvBmPoolQsetPut(pool, (MV_ULONG) phys_addr, (MV_ULONG) cookie, qset, is_grntd);
+}
+*/
+
+/* Pass pkt to BM Pool or RXQ ring */
 static inline void mv_pp2_pool_refill(struct bm_pool *ppool, __u32 bm,
 				MV_ULONG phys_addr, MV_ULONG cookie)
 {
@@ -744,12 +857,14 @@ static inline void mv_pp2_pool_refill(struct bm_pool *ppool, __u32 bm,
 	unsigned long flags = 0;
 	int grntd, qset;
 
+	/* Refill BM pool */
 	STAT_DBG(ppool->stats.bm_put++);
 	MV_ETH_LIGHT_LOCK(flags);
 
 	grntd =  mv_pp2_bm_cookie_grntd_get(bm);
 	qset = mv_pp2_bm_cookie_qset_get(bm);
 
+	/* if PPV2.0 HW ignore qset and grntd */
 	mvBmPoolQsetPut(pool, (MV_ULONG) phys_addr, (MV_ULONG) cookie, qset, grntd);
 
 	MV_ETH_LIGHT_UNLOCK(flags);
@@ -766,6 +881,10 @@ static inline MV_U32 mv_pp2_pool_get(int pool)
 	return bufCookie;
 }
 
+
+/******************************************************
+ * Function prototypes --                             *
+ ******************************************************/
 int         mv_pp2_start(struct net_device *dev);
 int         mv_pp2_eth_stop(struct net_device *dev);
 int         mv_pp2_eth_change_mtu(struct net_device *dev, int mtu);
@@ -863,6 +982,8 @@ void        mv_pp2_eth_link_status_print(int port);
 void        mv_pp2_buff_hdr_rx_dump(struct eth_port *pp, struct pp2_rx_desc *rx_desc);
 void        mv_pp2_buff_hdr_rx(struct eth_port *pp, struct pp2_rx_desc *rx_desc);
 
+/* External MAC support (i.e. PON) */
+/* callback functions to be called by netdev (implemented in external MAC module) */
 struct mv_eth_ext_mac_ops {
 	MV_BOOL		(*link_status_get)(int port_id);
 	MV_STATUS	(*max_pkt_size_set)(int port_id, MV_U32 maxEth);
@@ -872,10 +993,12 @@ struct mv_eth_ext_mac_ops {
 	MV_STATUS	(*mib_counters_show)(int port_id);
 };
 
+/* callback functions to be called by external MAC module (implemented in netdev) */
 struct mv_netdev_notify_ops {
 	void		(*link_notify)(int port_id, MV_BOOL state);
 };
 
+/* Called by external MAC module */
 void mv_eth_ext_mac_ops_register(int port_id,
 		struct mv_eth_ext_mac_ops **extern_mac_ops, struct mv_netdev_notify_ops **netdev_ops);
 
@@ -890,12 +1013,12 @@ MV_STATUS mv_pon_disable(void);
 #ifdef CONFIG_MV_PP2_TX_SPECIAL
 void        mv_pp2_tx_special_check_func(int port, int (*func)(int port, struct net_device *dev,
 				  struct sk_buff *skb, struct mv_pp2_tx_spec *tx_spec_out));
-#endif  
+#endif /* CONFIG_MV_PP2_TX_SPECIAL */
 
 #ifdef CONFIG_MV_PP2_RX_SPECIAL
 void        mv_pp2_rx_special_proc_func(int port, int (*func)(int port, int rxq, struct net_device *dev,
 							struct sk_buff *skb, struct pp2_rx_desc *rx_desc));
-#endif  
+#endif /* CONFIG_MV_PP2_RX_SPECIAL */
 
 int  mv_pp2_poll(struct napi_struct *napi, int budget);
 void mv_pp2_link_event(struct eth_port *pp, int print);
@@ -905,6 +1028,9 @@ u32 mv_pp2_txq_done(struct eth_port *pp, struct tx_queue *txq_ctrl);
 u32 mv_pp2_tx_done_gbe(struct eth_port *pp, u32 cause_tx_done, int *tx_todo);
 u32 mv_pp2_tx_done_pon(struct eth_port *pp, int *tx_todo);
 
+/*****************************************
+ *            NAPI Group API             *
+ *****************************************/
 int  mv_pp2_port_napi_group_create(int port, int group);
 int  mv_pp2_port_napi_group_delete(int port, int group);
 int  mv_pp2_napi_set_cpu_affinity(int port, int group, int cpu_mask);
@@ -919,7 +1045,7 @@ void		*mv_pp2_bm_pool_create(int pool, int capacity, MV_ULONG *physAddr);
 #if defined(CONFIG_MV_PP2_HWF)
 MV_STATUS mv_pp2_hwf_bm_create(int port, int mtuPktSize);
 void      mv_hwf_bm_dump(void);
-#endif  
+#endif /* CONFIG_MV_PP2_HWF */
 
 #ifdef CONFIG_MV_PP2_SWF_HWF_CORRUPTION_WA
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 34)
@@ -930,4 +1056,5 @@ extern void dma_cache_maint(const void *, size_t, int);
 void mv_pp2_cache_inv_wa_ctrl(int en);
 #endif
 
-#endif  
+#endif /* __mv_netdev_h__ */
+

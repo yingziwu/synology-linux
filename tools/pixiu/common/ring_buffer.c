@@ -191,6 +191,7 @@ void write_ring_buffer(RingBuffer * buffer,
 	}
 }
 
+
 bool need_flush_ring_buffer(RingBuffer * buffer)
 {
 	unsigned int read_offset_copy;

@@ -90,4 +90,5 @@ struct mv_switch_pdata {
 	int is_speed_2000;
 };
 
+
 #endif  /* LINUX_MV_SWITCH_H */

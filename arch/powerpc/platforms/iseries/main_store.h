@@ -141,6 +141,7 @@ struct __attribute((packed)) IoHriMainStoreArea4 {
 	u32	reserved6;
 };
 
+
 struct IoHriMainStoreSegment5 {
 	u16	reserved1;
 	u8	reserved2;

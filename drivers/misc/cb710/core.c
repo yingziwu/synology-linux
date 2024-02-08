@@ -268,6 +268,7 @@ static int __devinit cb710_probe(struct pci_dev *pdev,
 			return err;
 	} while (err);
 
+
 	dev_info(&pdev->dev, "id %d, IO 0x%p, IRQ %d\n",
 		chip->platform_id, chip->iobase, pdev->irq);
 

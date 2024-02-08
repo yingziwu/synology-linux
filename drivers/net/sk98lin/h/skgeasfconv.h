@@ -43,9 +43,11 @@ extern "C" {
 #define ASF_MAX_STRINGLEN           (ASF_COMMUNITYSTRLEN+1)             // length of a ascii string (with string end marker 0x00)
 #define ASF_MAX_UNICODESTRINGLEN    (ASF_COMMUNITYSTRLEN)               // length of a unicode string (without length information)
 
+
 // tags in strings
 #define ASF_IPSEPARATOR             ('.')                               // separator in ip string
 #define ASF_MACSEPARATOR            ('-')                               // separator in mac address
+
 
 // modes for AsfWmiInternal2External() and AsfWmiExternal2Internal()
 #define ASF_MODE_IPADDR             (10)        // input is a IP address (IPv4 format)
@@ -72,6 +74,7 @@ typedef struct _STR_ASF_UNISTRING
 
 } STR_ASF_UNISTRING;
 
+
 // function prototypes
 SK_I8 AsfMac2Asci( SK_U8 *buf, SK_U32 *len, SK_U8 *mac );
 SK_I8 AsfIp2Asci( SK_U8 *buf, SK_U32 *len, SK_U8 *ip );
@@ -88,3 +91,4 @@ SK_I8 AsfDec2Int( SK_U8 *buf, SK_U8 size, SK_U32 *val );
 #endif  // cpp
 
 #endif  // asfwmi.h
+

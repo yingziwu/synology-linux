@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -201,3 +202,4 @@ module_init(mv_switch_sysfs_init);
 MODULE_AUTHOR("Dima Epshtein");
 MODULE_DESCRIPTION("sysfs for Marvell switch");
 MODULE_LICENSE("GPL");
+

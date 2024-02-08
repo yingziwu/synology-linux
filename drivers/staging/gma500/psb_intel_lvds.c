@@ -61,6 +61,7 @@ struct psb_intel_lvds_priv {
 	uint32_t saveBLC_PWM_CTL;
 };
 
+
 /*
  * Returns the maximum level of the backlight duty cycle field.
  */
@@ -131,6 +132,7 @@ static int psb_lvds_i2c_set_brightness(struct drm_device *dev,
 	dev_err(dev->dev, "I2C transfer error\n");
 	return -1;
 }
+
 
 static int psb_lvds_pwm_set_brightness(struct drm_device *dev, int level)
 {
@@ -671,6 +673,7 @@ const struct drm_connector_funcs psb_intel_lvds_connector_funcs = {
 	.destroy = psb_intel_lvds_destroy,
 };
 
+
 static void psb_intel_lvds_enc_destroy(struct drm_encoder *encoder)
 {
 	drm_encoder_cleanup(encoder);
@@ -679,6 +682,8 @@ static void psb_intel_lvds_enc_destroy(struct drm_encoder *encoder)
 const struct drm_encoder_funcs psb_intel_lvds_enc_funcs = {
 	.destroy = psb_intel_lvds_enc_destroy,
 };
+
+
 
 /**
  * psb_intel_lvds_init - setup LVDS connectors on this device
@@ -787,20 +792,23 @@ void psb_intel_lvds_init(struct drm_device *dev,
 		if (scan->type & DRM_MODE_TYPE_PREFERRED) {
 			mode_dev->panel_fixed_mode =
 			    drm_mode_duplicate(dev, scan);
+			DRM_DEBUG_KMS("Using mode from DDC\n");
 			goto out;	/* FIXME: check for quirks */
 		}
 	}
 
 	/* Failed to get EDID, what about VBT? do we need this? */
-	if (mode_dev->vbt_mode)
+	if (dev_priv->lfp_lvds_vbt_mode) {
 		mode_dev->panel_fixed_mode =
-		    drm_mode_duplicate(dev, mode_dev->vbt_mode);
+			drm_mode_duplicate(dev, dev_priv->lfp_lvds_vbt_mode);
 
-	if (!mode_dev->panel_fixed_mode)
-		if (dev_priv->lfp_lvds_vbt_mode)
-			mode_dev->panel_fixed_mode =
-				drm_mode_duplicate(dev,
-					dev_priv->lfp_lvds_vbt_mode);
+		if (mode_dev->panel_fixed_mode) {
+			mode_dev->panel_fixed_mode->type |=
+				DRM_MODE_TYPE_PREFERRED;
+			DRM_DEBUG_KMS("Using mode from VBT\n");
+			goto out;
+		}
+	}
 
 	/*
 	 * If we didn't get EDID, try checking if the panel is already turned
@@ -817,6 +825,7 @@ void psb_intel_lvds_init(struct drm_device *dev,
 		if (mode_dev->panel_fixed_mode) {
 			mode_dev->panel_fixed_mode->type |=
 			    DRM_MODE_TYPE_PREFERRED;
+			DRM_DEBUG_KMS("Using pre-programmed mode\n");
 			goto out;	/* FIXME: check for quirks */
 		}
 	}
@@ -846,3 +855,4 @@ failed_blc_i2c:
 	drm_connector_cleanup(connector);
 	kfree(connector);
 }
+

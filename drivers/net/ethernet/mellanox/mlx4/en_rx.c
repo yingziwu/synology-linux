@@ -41,6 +41,7 @@
 
 #include "mlx4_en.h"
 
+
 static int mlx4_en_alloc_frag(struct mlx4_en_priv *priv,
 			      struct mlx4_en_rx_desc *rx_desc,
 			      struct page_frag *skb_frags,
@@ -122,6 +123,7 @@ static void mlx4_en_destroy_allocator(struct mlx4_en_priv *priv,
 	}
 }
 
+
 static void mlx4_en_init_rx_desc(struct mlx4_en_priv *priv,
 				 struct mlx4_en_rx_ring *ring, int index)
 {
@@ -149,6 +151,7 @@ static void mlx4_en_init_rx_desc(struct mlx4_en_priv *priv,
 		rx_desc->data[i].addr = 0;
 	}
 }
+
 
 static int mlx4_en_prepare_rx_desc(struct mlx4_en_priv *priv,
 				   struct mlx4_en_rx_ring *ring, int index)
@@ -266,6 +269,7 @@ int mlx4_en_create_rx_ring(struct mlx4_en_priv *priv,
 	int err;
 	int tmp;
 
+
 	ring->prod = 0;
 	ring->cons = 0;
 	ring->size = size;
@@ -324,8 +328,14 @@ int mlx4_en_activate_rx_rings(struct mlx4_en_priv *priv)
 		ring->cqn = priv->rx_cq[ring_ind].mcq.cqn;
 
 		ring->stride = stride;
-		if (ring->stride <= TXBB_SIZE)
+		if (ring->stride <= TXBB_SIZE) {
+			/* Stamp first unused send wqe */
+			__be32 *ptr = (__be32 *)ring->buf;
+			__be32 stamp = cpu_to_be32(1 << STAMP_SHIFT);
+			*ptr = stamp;
+			/* Move pointer to start of rx section */
 			ring->buf += TXBB_SIZE;
+		}
 
 		ring->log_stride = ffs(ring->stride) - 1;
 		ring->buf_size = ring->size * ring->stride;
@@ -395,6 +405,7 @@ void mlx4_en_deactivate_rx_ring(struct mlx4_en_priv *priv,
 	mlx4_en_destroy_allocator(priv, ring);
 }
 
+
 /* Unmap a completed descriptor and free unused pages */
 static int mlx4_en_complete_rx_desc(struct mlx4_en_priv *priv,
 				    struct mlx4_en_rx_desc *rx_desc,
@@ -445,6 +456,7 @@ fail:
 	}
 	return 0;
 }
+
 
 static struct sk_buff *mlx4_en_rx_skb(struct mlx4_en_priv *priv,
 				      struct mlx4_en_rx_desc *rx_desc,
@@ -679,6 +691,7 @@ out:
 	return polled;
 }
 
+
 void mlx4_en_rx_irq(struct mlx4_cq *mcq)
 {
 	struct mlx4_en_cq *cq = container_of(mcq, struct mlx4_en_cq, mcq);
@@ -711,6 +724,7 @@ int mlx4_en_poll_rx_cq(struct napi_struct *napi, int budget)
 	return done;
 }
 
+
 /* Calculate the last offset position that accommodates a full fragment
  * (assuming fagment size = stride-align) */
 static int mlx4_en_last_alloc_offset(struct mlx4_en_priv *priv, u16 stride, u16 align)
@@ -722,6 +736,7 @@ static int mlx4_en_last_alloc_offset(struct mlx4_en_priv *priv, u16 stride, u16 
 			    "res:%d offset:%d\n", stride, align, res, offset);
 	return offset;
 }
+
 
 static int frag_sizes[] = {
 	FRAG_SZ0,
@@ -922,3 +937,8 @@ void mlx4_en_release_rss_steer(struct mlx4_en_priv *priv)
 	}
 	mlx4_qp_release_range(mdev->dev, rss_map->base_qpn, priv->rx_ring_num);
 }
+
+
+
+
+

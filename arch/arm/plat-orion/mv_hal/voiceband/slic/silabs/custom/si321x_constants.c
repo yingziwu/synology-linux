@@ -3,6 +3,7 @@ Copyright (c) 2008 Silicon Laboratories, Inc.
 2008-04-03 17:59:58 */
 /*ProSLIC API Tool Rev0.31 Alpha*/
 
+
 #include "proslic.h"
 #include "si321x.h"
 
@@ -22,6 +23,7 @@ Si321x_PulseMeter_Cfg Si321x_PulseMeter_Presets [] = {
 };
 
 Si321x_Ring_Cfg Si321x_Ring_Presets[] ={
+
 
     /* inputs:  ringtrip ac thresh = 0.036, rt debounce = 0.075*/
     { 0x155, 0x0, 0x0, 0x7EFD, 0x80, 0x3E, 0x0, 0x7D, 0x18, 0xA, 0x320 }

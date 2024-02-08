@@ -96,6 +96,7 @@
 #define LINE_SZ_DEF		640
 #define NUM_LINES_DEF		240
 
+
 /* predefined settings */
 #define FORMAT_NTSC	1
 #define FORMAT_PAL	2
@@ -152,6 +153,7 @@ struct s2255_mode {
 	u32 usb_block;	/* block size. should be 4096 of DEF_USB_BLOCK */
 	u32 restart;	/* if DSP requires restart */
 };
+
 
 #define S2255_READ_IDLE		0
 #define S2255_READ_FRAME	1
@@ -248,6 +250,7 @@ struct s2255_channel {
 	const struct s2255_fmt	*fmt;
 	int idx; /* channel number on device, 0-3 */
 };
+
 
 struct s2255_dev {
 	struct s2255_channel    channel[MAX_CHANNELS];
@@ -459,6 +462,7 @@ static int norm_minh(struct video_device *vdev)
 	    (NUM_LINES_1CIFS_NTSC) : (NUM_LINES_1CIFS_PAL);
 }
 
+
 /*
  * TODO: fixme: move YUV reordering to hardware
  * converts 2255 planar format to yuyv or uyvy
@@ -509,6 +513,7 @@ static void s2255_timer(unsigned long user_data)
 		return;
 	}
 }
+
 
 /* this loads the firmware asynchronously.
    Originally this was done synchroously in probe.
@@ -677,6 +682,7 @@ static void s2255_fillbuff(struct s2255_channel *channel,
 	buf->vb.state = VIDEOBUF_DONE;
 }
 
+
 /* ------------------------------------------------------------------
    Videobuf operations
    ------------------------------------------------------------------*/
@@ -776,6 +782,7 @@ static struct videobuf_queue_ops s2255_video_qops = {
 	.buf_release = buffer_release,
 };
 
+
 static int res_get(struct s2255_fh *fh)
 {
 	struct s2255_channel *channel = fh->channel;
@@ -798,6 +805,7 @@ static int res_check(struct s2255_fh *fh)
 {
 	return fh->resources;
 }
+
 
 static void res_free(struct s2255_fh *fh)
 {
@@ -1796,6 +1804,7 @@ static int s2255_open(struct file *file)
 	return 0;
 }
 
+
 static unsigned int s2255_poll(struct file *file,
 			       struct poll_table_struct *wait)
 {
@@ -2101,6 +2110,7 @@ static int save_frame(struct s2255_dev *dev, struct s2255_pipeinfo *pipe_info)
 
 	/* skip the marker 512 bytes (and offset if out of sync) */
 	psrc = (u8 *)pipe_info->transfer_buffer + offset;
+
 
 	if (frm->lpvbits == NULL) {
 		dprintk(1, "s2255 frame buffer == NULL.%p %p %d %d",

@@ -71,6 +71,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mvCpuIfRegs.h"
 #include "mvCtrlEnvAsm.h"
 
+
 /*******************************************************************************
 * mvCpuIfPreInit - Make early initialization of CPU interface.
 *

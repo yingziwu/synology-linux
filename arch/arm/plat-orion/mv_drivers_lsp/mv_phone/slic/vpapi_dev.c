@@ -148,6 +148,7 @@ typedef struct {
 	VpEventType vp_event;
 } vpapi_event;
 
+
 /* Structs */
 static struct file_operations vpapi_fops = {
     owner:      THIS_MODULE,
@@ -173,6 +174,7 @@ static u8 vpapi_line_status[MAX_LINES];
 static volatile u32 next_event = 0, curr_event = 0;
 static struct timer_list vpapi_timer;
 static u16 total_devs = 0, total_lines = 0;
+
 
 static struct miscdevice vpapi_misc_dev = {
 	.minor = SLICDEV_MINOR,
@@ -371,6 +373,7 @@ static int vpapi_make_line_object(unsigned long arg)
 		printk("%s: copy_to_user failed\n", __func__);
 		return  -EFAULT;
 	}
+
 
 	return 0;
 }
@@ -698,6 +701,7 @@ static int vpapi_set_option(unsigned long arg)
 	else
 		data.status = VpSetOption(VP_NULL, &pDevCtx[deviceId], option, pOptInfo);
 
+
 	kfree(pOptInfo);
 
 	/* Copy status back to user */
@@ -930,6 +934,7 @@ static void vpapi_tick_handler(unsigned long data)
 		}
 #endif
 	}
+
 
 	spin_unlock_irqrestore(&vpapi_lock, flags);
 

@@ -87,6 +87,7 @@
 #include <linux/usb.h>
 #include "i2400m-usb.h"
 
+
 #define D_SUBMODULE rx
 #include "usb-debug-levels.h"
 
@@ -133,6 +134,7 @@ size_t i2400mu_rx_size_grow(struct i2400mu *i2400mu)
 			 rx_size, i2400mu->rx_size);
 	return rx_size;
 }
+
 
 static
 void i2400mu_rx_size_maybe_shrink(struct i2400mu *i2400mu)
@@ -275,7 +277,7 @@ retry:
 		d_printf(1, dev, "RX: size changed to %d, received %d, "
 			 "copied %d, capacity %ld\n",
 			 rx_size, read_size, rx_skb->len,
-			 (long) (skb_end_pointer(new_skb) - new_skb->head));
+			 (long) skb_end_offset(new_skb));
 		goto retry;
 	}
 		/* In most cases, it happens due to the hardware scheduling a
@@ -307,6 +309,7 @@ do_reset:
 	rx_skb = ERR_PTR(result);
 	goto out;
 }
+
 
 /*
  * Kernel thread for USB reception of data
@@ -404,6 +407,7 @@ error_reset:
 	goto out;
 }
 
+
 /*
  * Start reading from the device
  *
@@ -421,6 +425,7 @@ void i2400mu_rx_kick(struct i2400mu *i2400mu)
 	wake_up_all(&i2400mu->rx_wq);
 	d_fnend(3, dev, "(i2400m %p) = void\n", i2400m);
 }
+
 
 int i2400mu_rx_setup(struct i2400mu *i2400mu)
 {
@@ -440,6 +445,7 @@ int i2400mu_rx_setup(struct i2400mu *i2400mu)
 	return result;
 }
 
+
 void i2400mu_rx_release(struct i2400mu *i2400mu)
 {
 	unsigned long flags;
@@ -456,3 +462,4 @@ void i2400mu_rx_release(struct i2400mu *i2400mu)
 	else
 		d_printf(1, dev, "RX: kthread had already exited\n");
 }
+

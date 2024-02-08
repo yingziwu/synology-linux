@@ -746,6 +746,7 @@ static void __exit cpufreq_gov_dbs_exit(void)
 	cpufreq_unregister_governor(&cpufreq_gov_ondemand);
 }
 
+
 MODULE_AUTHOR("Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>");
 MODULE_AUTHOR("Alexey Starikovskiy <alexey.y.starikovskiy@intel.com>");
 MODULE_DESCRIPTION("'cpufreq_ondemand' - A dynamic cpufreq governor for "

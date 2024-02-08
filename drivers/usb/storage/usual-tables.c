@@ -26,6 +26,7 @@
 #include <linux/usb.h>
 #include <linux/usb_usual.h>
 
+
 /*
  * The table of devices
  */
@@ -72,6 +73,7 @@ MODULE_DEVICE_TABLE(usb, usb_storage_usb_ids);
 #undef USUAL_DEV
 #undef UNUSUAL_VENDOR_INTF
 
+
 /*
  * The table of devices to ignore
  */
@@ -107,6 +109,7 @@ static struct ignore_entry ignore_ids[] = {
 };
 
 #undef UNUSUAL_DEV
+
 
 /* Return an error if a device is in the ignore_ids list */
 int usb_usual_ignore_device(struct usb_interface *intf)

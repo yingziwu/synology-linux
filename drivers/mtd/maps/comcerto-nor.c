@@ -48,6 +48,7 @@ static int __devinit comcertoflash_probe(struct platform_device *pdev)
 	struct resource *res = pdev->resource;
 	unsigned long size = res->end - res->start + 1;
 
+
 	info = kmalloc(sizeof(struct comcertoflash_info), GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;

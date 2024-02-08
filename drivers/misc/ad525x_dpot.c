@@ -218,7 +218,7 @@ static s32 dpot_read_i2c(struct dpot_data *dpot, u8 reg)
 			 */
 			value = swab16(value);
 
-			if (dpot->uid == DPOT_UID(AD5271_ID))
+			if (dpot->uid == DPOT_UID(AD5274_ID))
 				value = value >> 2;
 		return value;
 	default:
@@ -429,6 +429,7 @@ static ssize_t sysfs_show_reg(struct device *dev,
 		return sprintf(buf, "%s\n",
 			test_bit(DPOT_RDAC_MASK & reg, data->otp_en_mask) ?
 			"enabled" : "disabled");
+
 
 	mutex_lock(&data->update_lock);
 	value = dpot_read(data, reg);
@@ -763,6 +764,7 @@ __devexit int ad_dpot_remove(struct device *dev)
 	return 0;
 }
 EXPORT_SYMBOL(ad_dpot_remove);
+
 
 MODULE_AUTHOR("Chris Verges <chrisv@cyberswitching.com>, "
 	      "Michael Hennerich <hennerich@blackfin.uclinux.org>");

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Kernel Debugger Architecture Independent Main Code
  *
@@ -123,6 +126,7 @@ static kdbmsg_t kdbmsgs[] = {
 #undef KDBMSG
 
 static const int __nkdb_err = sizeof(kdbmsgs) / sizeof(kdbmsg_t);
+
 
 /*
  * Initial environment.   This is all kept static and local to
@@ -1032,6 +1036,7 @@ int kdb_parse(const char *cmdstr)
 	}
 }
 
+
 static int handle_ctrl_cmd(char *cmd)
 {
 #define CTRL_P	16
@@ -1300,6 +1305,7 @@ do_full_getstr:
 	KDB_DEBUG_STATE("kdb_local 9", diag);
 	return diag;
 }
+
 
 /*
  * kdb_print_state - Print the state data for the current processor
@@ -1975,6 +1981,10 @@ static int kdb_lsmod(int argc, const char **argv)
 
 	kdb_printf("Module                  Size  modstruct     Used by\n");
 	list_for_each_entry(mod, kdb_modules, list) {
+#ifdef MY_DEF_HERE
+		if (mod->state == MODULE_STATE_UNFORMED)
+			continue;
+#endif /* MY_DEF_HERE */
 
 		kdb_printf("%-20s%8u  0x%p ", mod->name,
 			   mod->core_size, (void *)mod);
@@ -2592,7 +2602,7 @@ static int kdb_summary(int argc, const char **argv)
 #define K(x) ((x) << (PAGE_SHIFT - 10))
 	kdb_printf("\nMemTotal:       %8lu kB\nMemFree:        %8lu kB\n"
 		   "Buffers:        %8lu kB\n",
-		   val.totalram, val.freeram, val.bufferram);
+		   K(val.totalram), K(val.freeram), K(val.bufferram));
 	return 0;
 }
 
@@ -2758,6 +2768,7 @@ int kdb_register_repeat(char *cmd,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(kdb_register_repeat);
+
 
 /*
  * kdb_register - Compatibility register function for commands that do

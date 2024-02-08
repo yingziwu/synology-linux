@@ -73,12 +73,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #include <sys/mman.h>
 
+
 #include "mv_tsu_ioctl.h"
+
 
 /*
  Usage:
 	TsuTool <device> <read/write> <file> <options>
 */
+
 
 #define BUFSIZE		2048
 #define TIMESTAMP_SIZE	4
@@ -241,6 +244,7 @@ error:
 	return 0;
 }
 
+
 int check_write_file_device_params(struct tsu_buff_info *buff_info)
 {
 	if(!g_raw_mode) {
@@ -293,6 +297,7 @@ int check_write_file_device_params(struct tsu_buff_info *buff_info)
 	return 0;
 }
 
+
 int single_read_write(int is_read, int fd, char *buf, int count)
 {
 	int tmp = 0;
@@ -313,6 +318,7 @@ int single_read_write(int is_read, int fd, char *buf, int count)
 	return count;
 }
 
+
 int single_fread_fwrite(int is_read, FILE *fd, char *buf, int count)
 {
 	int tmp = 0;
@@ -332,6 +338,7 @@ int single_fread_fwrite(int is_read, FILE *fd, char *buf, int count)
 	}
 	return count;
 }
+
 
 void setup_buffer_timestamps(char *buff, int *s_offs, int *init_tms,int *new_size)
 {
@@ -366,6 +373,7 @@ void setup_buffer_timestamps(char *buff, int *s_offs, int *init_tms,int *new_siz
 	}
 	return;
 }
+
 
 void data_write(int dev_fd, FILE *file_fd)
 {
@@ -640,6 +648,7 @@ done:
 	return;
 }
 
+
 int get_buff_info(int dev_fd)
 {
 	char *tmp;
@@ -685,6 +694,7 @@ int get_buff_info(int dev_fd)
 //	fprintf(stderr,"\tCalculated data-block size: %d Bytes.\n",g_data_blk_sz);
 	return 0;
 }
+
 
 int process_options(int argc, char *argv[],int idx,int dev_fd)
 {

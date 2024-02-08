@@ -100,8 +100,8 @@
  */
 
 /*
- * Xonar Essence ST (Deluxe)/STX
- * -----------------------------
+ * Xonar Essence ST (Deluxe)/STX (II)
+ * ----------------------------------
  *
  * CMI8788:
  *
@@ -193,6 +193,7 @@
 #include "pcm1796.h"
 #include "cs2000.h"
 
+
 #define GPIO_D2X_EXT_POWER	0x0020
 #define GPIO_D2_ALT		0x0080
 #define GPIO_D2_OUTPUT_ENABLE	0x0100
@@ -216,6 +217,7 @@
 
 #define PCM1796_REG_BASE	16
 
+
 struct xonar_pcm179x {
 	struct xonar_generic generic;
 	unsigned int dacs;
@@ -233,6 +235,7 @@ struct xonar_hdav {
 	struct xonar_pcm179x pcm179x;
 	struct xonar_hdmi hdmi;
 };
+
 
 static inline void pcm1796_write_spi(struct oxygen *chip, unsigned int codec,
 				     u8 reg, u8 value)
@@ -760,6 +763,7 @@ static int st_output_switch_get(struct snd_kcontrol *ctl,
 	return 0;
 }
 
+
 static int st_output_switch_put(struct snd_kcontrol *ctl,
 				struct snd_ctl_elem_value *value)
 {
@@ -814,6 +818,7 @@ static int st_hp_volume_offset_get(struct snd_kcontrol *ctl,
 	mutex_unlock(&chip->mutex);
 	return 0;
 }
+
 
 static int st_hp_volume_offset_put(struct snd_kcontrol *ctl,
 				   struct snd_ctl_elem_value *value)
@@ -1129,6 +1134,14 @@ int __devinit get_xonar_pcm179x_model(struct oxygen *chip,
 	case 0x835c:
 		chip->model = model_xonar_st;
 		chip->model.shortname = "Xonar STX";
+		chip->model.init = xonar_stx_init;
+		chip->model.resume = xonar_stx_resume;
+		chip->model.set_dac_params = set_pcm1796_params;
+		break;
+	case 0x85f4:
+		chip->model = model_xonar_st;
+		/* TODO: daughterboard support */
+		chip->model.shortname = "Xonar STX II";
 		chip->model.init = xonar_stx_init;
 		chip->model.resume = xonar_stx_resume;
 		chip->model.set_dac_params = set_pcm1796_params;

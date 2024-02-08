@@ -233,6 +233,8 @@ disclaimer.
 #define MV_NFP_SEC_Q_SIZE		64
 #define MV_NFP_SEC_REQ_Q_SIZE		1000
 
+
+
 /****************************************************************/
 /************* CESA configuration ********************/
 /****************************************************************/
@@ -248,6 +250,8 @@ disclaimer.
 
 /* DRAM cache coherency configuration */
 #define MV_CACHE_COHERENCY  MV_CACHE_COHER_SW
+
+
 
 /****************************************************************/
 /*************** Telephony configuration ************************/
@@ -303,3 +307,4 @@ disclaimer.
 /* Default FPGA Clock */
 #define MV_FPGA_CLK	25000000
 #endif /* __INCmvSysHwConfigh */
+

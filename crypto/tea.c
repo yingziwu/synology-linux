@@ -175,6 +175,7 @@ static void xtea_decrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
 	out[1] = cpu_to_le32(z);
 }
 
+
 static void xeta_encrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
 {
 	u32 y, z, sum = 0;
@@ -298,6 +299,7 @@ static void __exit tea_mod_fini(void)
 	crypto_unregister_alg(&xeta_alg);
 }
 
+MODULE_ALIAS_CRYPTO("tea");
 MODULE_ALIAS_CRYPTO("xtea");
 MODULE_ALIAS_CRYPTO("xeta");
 

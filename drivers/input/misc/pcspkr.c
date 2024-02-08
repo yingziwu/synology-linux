@@ -135,6 +135,7 @@ static struct platform_driver pcspkr_platform_driver = {
 	.shutdown	= pcspkr_shutdown,
 };
 
+
 static int __init pcspkr_init(void)
 {
 	return platform_driver_register(&pcspkr_platform_driver);

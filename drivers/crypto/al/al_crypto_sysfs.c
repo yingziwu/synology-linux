@@ -1,4 +1,25 @@
- 
+/*
+ * Annapurna Labs Crypto Linux driver - sysfs support
+ * Copyright(c) 2013 Annapurna Labs.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU General Public License,
+ * version 2, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * The full GNU General Public License is included in this distribution in
+ * the file called "COPYING".
+ *
+ */
+
 #include <linux/stat.h>
 #include <linux/device.h>
 #include <linux/sysdev.h>
@@ -17,6 +38,8 @@ static void al_crypto_release_channel(struct kobject *kobj)
 	kfree(chan);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 struct al_crypto_chan_attr {
 	struct attribute attr;
 	size_t offset;
@@ -25,6 +48,8 @@ struct al_crypto_chan_attr {
 			const char *buf, size_t size);
 };
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t al_crypto_chan_attr_show(struct kobject *kobj,
 		struct attribute *attr, char *buf)
 {
@@ -40,6 +65,8 @@ static ssize_t al_crypto_chan_attr_show(struct kobject *kobj,
 	return ret;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t al_crypto_chan_attr_store(struct kobject *kobj,
 		struct attribute *attr, const char *buf, size_t size)
 {
@@ -55,11 +82,15 @@ static ssize_t al_crypto_chan_attr_store(struct kobject *kobj,
 	return ret;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static const struct sysfs_ops al_crypto_chan_sysfs_ops = {
 	.show = al_crypto_chan_attr_show,
 	.store = al_crypto_chan_attr_store,
 };
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t al_crypto_chan_rd_stats_prep(
 	struct al_crypto_chan *chan,
 	size_t offset,
@@ -113,6 +144,7 @@ static ssize_t al_crypto_chan_rd_stats_gen(
 	return size;
 }
 
+
 #define al_crypto_chan_init_attr(_name, _group)				\
 static struct al_crypto_chan_attr al_crypto_chan_##_name = {		\
 	.attr	= { .name = __stringify(_name), .mode = S_IRUGO },	\
@@ -121,6 +153,7 @@ static struct al_crypto_chan_attr al_crypto_chan_##_name = {		\
 	.store = NULL,							\
 }
 
+/* Channel attrs */
 al_crypto_chan_init_attr(ablkcipher_encrypt_reqs, prep);
 al_crypto_chan_init_attr(ablkcipher_encrypt_bytes, prep);
 al_crypto_chan_init_attr(ablkcipher_decrypt_reqs, prep);
@@ -232,6 +265,8 @@ enum udma_dump_type {
 	UDMA_DUMP_S2M_Q_POINTERS
 };
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t rd_udma_dump(
 	struct device *dev,
 	struct sysdevice_attribute *attr,
@@ -270,6 +305,8 @@ static ssize_t rd_udma_dump(
 	return rc;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t wr_udma_dump(
 	struct device *dev,
 	struct sysdevice_attribute *attr,
@@ -355,6 +392,7 @@ static ssize_t wr_udma_dump(
 	__ATTR(udma_dump_##_name, S_IRUGO|S_IWUGO, rd_udma_dump, wr_udma_dump),\
 	(void*)_type }
 
+/* Device attrs - udma debug */
 static struct sysdev_ext_attribute dev_attr_udma_debug[] = {
 	UDMA_DUMP_PREP_ATTR(m2s_regs, UDMA_DUMP_M2S_REGS),
 	UDMA_DUMP_PREP_ATTR(m2s_q_struct, UDMA_DUMP_M2S_Q_STRUCT),
@@ -363,12 +401,14 @@ static struct sysdev_ext_attribute dev_attr_udma_debug[] = {
 	UDMA_DUMP_PREP_ATTR(s2m_q_struct, UDMA_DUMP_S2M_Q_STRUCT),
 	UDMA_DUMP_PREP_ATTR(s2m_q_pointers, UDMA_DUMP_S2M_Q_POINTERS)
 };
-#endif  
+#endif /* CONFIG_CRYPTO_DEV_AL_CRYPTO_STATS */
 
 enum al_crypto_config_type {
 	CONFIG_INT_MODERATION
 };
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t al_crypto_rd_config(
 	struct device *dev,
 	struct sysdevice_attribute *attr,
@@ -391,6 +431,8 @@ static ssize_t al_crypto_rd_config(
 	return rc;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t al_crypto_wr_config(
 	struct device *dev,
 	struct sysdevice_attribute *attr,
@@ -424,10 +466,13 @@ static ssize_t al_crypto_wr_config(
 			al_crypto_rd_config, al_crypto_wr_config),\
 	(void*)_type }
 
+/* Device attrs - config */
 static struct sysdev_ext_attribute dev_attr_config[] = {
 	CONFIG_PREP_ATTR(int_moderation, CONFIG_INT_MODERATION),
 };
 
+/******************************************************************************
+ *****************************************************************************/
 void al_crypto_free_channel(struct al_crypto_chan *chan)
 {
 #ifndef CONFIG_CRYPTO_DEV_AL_CRYPTO_STATS
@@ -435,6 +480,8 @@ void al_crypto_free_channel(struct al_crypto_chan *chan)
 #endif
 }
 
+/******************************************************************************
+ *****************************************************************************/
 int al_crypto_sysfs_init(
 	struct al_crypto_device *device)
 {
@@ -485,6 +532,8 @@ int al_crypto_sysfs_init(
 	return rc;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 void al_crypto_sysfs_terminate(
 	struct al_crypto_device *device)
 {

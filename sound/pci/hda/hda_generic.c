@@ -107,6 +107,7 @@ static void snd_hda_generic_free(struct hda_codec *codec)
 	kfree(spec);
 }
 
+
 /*
  * add a new widget node and read its attributes
  */
@@ -197,6 +198,7 @@ static int build_afg_tree(struct hda_codec *codec)
 
 	return 0;
 }
+
 
 /*
  * look for the node record for the given NID
@@ -388,6 +390,7 @@ static struct hda_gnode *parse_output_jack(struct hda_codec *codec,
 	}
 	return NULL;
 }
+
 
 /*
  * parse outputs
@@ -857,6 +860,7 @@ static int build_input_controls(struct hda_codec *codec)
 	return 0;
 }
 
+
 /*
  * parse the nodes recursively until reach to the output PIN.
  *
@@ -1031,6 +1035,7 @@ static int generic_check_power_status(struct hda_codec *codec, hda_nid_t nid)
 	return snd_hda_check_amp_list_power(codec, &spec->loopback, nid);
 }
 #endif
+
 
 /*
  */

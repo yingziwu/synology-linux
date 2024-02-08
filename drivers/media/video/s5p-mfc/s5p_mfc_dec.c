@@ -676,6 +676,7 @@ static int s5p_mfc_dec_g_v_ctrl(struct v4l2_ctrl *ctrl)
 	return 0;
 }
 
+
 static const struct v4l2_ctrl_ops s5p_mfc_dec_ctrl_ops = {
 	.s_ctrl = s5p_mfc_dec_s_ctrl,
 	.g_volatile_ctrl = s5p_mfc_dec_g_v_ctrl,
@@ -918,6 +919,7 @@ static int s5p_mfc_stop_streaming(struct vb2_queue *q)
 	return 0;
 }
 
+
 static void s5p_mfc_buf_queue(struct vb2_buffer *vb)
 {
 	struct vb2_queue *vq = vb->vb2_queue;
@@ -1032,3 +1034,4 @@ void s5p_mfc_dec_ctrls_delete(struct s5p_mfc_ctx *ctx)
 	for (i = 0; i < NUM_CTRLS; i++)
 		ctx->ctrls[i] = NULL;
 }
+

@@ -99,6 +99,7 @@ module_param(dbg_level, int, 0);
 #include "../core/usb.h"
 #include "isp1362.h"
 
+
 #define DRIVER_VERSION	"2005-04-04"
 #define DRIVER_DESC	"ISP1362 USB Host Controller Driver"
 
@@ -469,6 +470,7 @@ static void finish_request(struct isp1362_hcd *isp1362_hcd, struct isp1362_ep *e
 		!(urb->transfer_flags & URB_SHORT_NOT_OK) ?
 		"short_ok" : "", urb->status);
 
+
 	usb_hcd_unlink_urb_from_ep(isp1362_hcd_to_hcd(isp1362_hcd), urb);
 	spin_unlock(&isp1362_hcd->lock);
 	usb_hcd_giveback_urb(isp1362_hcd_to_hcd(isp1362_hcd), urb, status);
@@ -483,6 +485,7 @@ static void finish_request(struct isp1362_hcd *isp1362_hcd, struct isp1362_ep *e
 		list_del_init(&ep->schedule);
 		return;
 	}
+
 
 	if (ep->interval) {
 		/* periodic deschedule */
@@ -1387,6 +1390,7 @@ static int isp1362_urb_enqueue(struct usb_hcd *hcd,
  fail:
 	if (retval)
 		usb_hcd_unlink_urb_from_ep(hcd, urb);
+
 
  fail_not_linked:
 	spin_unlock_irqrestore(&isp1362_hcd->lock, flags);

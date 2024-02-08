@@ -1,7 +1,29 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Synology Armada NAS Board GPIO Setup
+ *
+ * Maintained by:  KueiHuan Chen <khchen@synology.com>
+ *
+ * Copyright 2009-2012 Synology, Inc.  All rights reserved.
+ * Copyright 2009-2012 KueiHuan.Chen
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 #if defined(MY_DEF_HERE)
 
 #include <linux/gpio.h>
@@ -15,6 +37,7 @@
 
 #define GPIO_UNDEF				0xFF
 
+/* copied from synobios.h */
 #define DISK_LED_OFF			0
 #define DISK_LED_GREEN_SOLID	1
 #define DISK_LED_ORANGE_SOLID	2
@@ -157,13 +180,17 @@ MV_STATUS SYNOMppCtrlRegWrite(MV_U32 mppPin, MV_U32 mppVal)
 	MV_U32 origVal;
 	MV_U32 mppGroup;
 
+	/* there are 66 mpp pins only */
 	if(66 < mppPin)
 		return -EINVAL;
 
+	/* get the group the pin belongs to, for addressing */
+	/* 32 bits per register, 4 bits per pin, 8 pins in a group */
 	mppGroup = mppPin / 8;
 	mppVal &= 0x0F;
 	origVal = MV_REG_READ(mvCtrlMppRegGet(mppGroup));
 
+	/* get the corresponding bits */
 	origVal &= ~(0xF << ((mppPin % 8)*4));
 	origVal |= (mppVal << ((mppPin % 8)*4));
 
@@ -192,10 +219,11 @@ SYNO_SOC_HDD_LED_SET(int index, int status)
 	int mode_sata_present;
 	int mode_gpio;
 	int fail_led;
-	int active = 1;  
+	int active = 1; //note: led high active
 
 	WARN_ON(GPIO_UNDEF == generic_gpio.soc_sata_led.hdd1_fail_led);
 
+	/* assign pin info according to hdd */
 	switch (index) {
 		case 1:
 			mpp_pin = 25;
@@ -204,7 +232,8 @@ SYNO_SOC_HDD_LED_SET(int index, int status)
 			fail_led = generic_gpio.soc_sata_led.hdd1_fail_led;
 			break;
 		case 2:
-			 
+			/* WARNING! RS814 use GPP24 as HDD1 faulty led.
+			 * But since reset HDDs using 7042, it's a minor conflict */
 			mpp_pin = 24;
 			mode_sata_present = 0x01;
 			mode_gpio = 0;
@@ -215,16 +244,18 @@ SYNO_SOC_HDD_LED_SET(int index, int status)
 			goto END;
 	}
 
+	/* Since faulty led and present led are combined,
+	   we need to disable present led when light on faulty's */
 	if ( DISK_LED_ORANGE_SOLID == status ||
 		 DISK_LED_ORANGE_BLINK == status )
 	{
-		SYNOMppCtrlRegWrite(mpp_pin, mode_gpio);   
+		SYNOMppCtrlRegWrite(mpp_pin, mode_gpio);  // change MPP to GPIO mode
 		gpio_set_value(mpp_pin, !active);
 		gpio_set_value(fail_led, active);
 	}
 	else if ( DISK_LED_GREEN_SOLID == status )
 	{
-		SYNOMppCtrlRegWrite(mpp_pin, mode_sata_present);   
+		SYNOMppCtrlRegWrite(mpp_pin, mode_sata_present);  // change MPP to sata present mode
 		gpio_set_value(fail_led, !active);
 	}
 	else if (DISK_LED_OFF == status)
@@ -273,7 +304,7 @@ SYNO_CTRL_EXT_CHIP_HDD_LED_SET(int index, int status)
 	case 5:
 		if (generic_gpio.ext_sata_led.hdd5_led_0 == GPIO_UNDEF ||
 			generic_gpio.ext_sata_led.hdd5_led_1 == GPIO_UNDEF) {
-			 
+			//some 4 bay model don't contain such gpio.
 			ret = 0;
 			goto END;
 		}
@@ -281,7 +312,7 @@ SYNO_CTRL_EXT_CHIP_HDD_LED_SET(int index, int status)
 		pin2 = generic_gpio.ext_sata_led.hdd5_led_1;
 		break;
 	case 6:
-		 
+		//for esata
 		ret = 0;
 		goto END;
 	default:
@@ -506,9 +537,14 @@ int SYNO_CTRL_BUZZER_CLEARED_GET(int *pValue)
 	return 0;
 }
 
+/* SYNO_CHECK_HDD_PRESENT
+ * Check HDD present for evansport
+ * input : index - disk index, 1-based.
+ * output: 0 - HDD not present,  1 - HDD present.
+ */
 int SYNO_CHECK_HDD_PRESENT(int index)
 {
-	int iPrzVal = 1;  
+	int iPrzVal = 1; /*defult is persent*/
 
 	switch (index) {
 		case 1:
@@ -535,10 +571,15 @@ int SYNO_CHECK_HDD_PRESENT(int index)
 
 }
 
+/* SYNO_SUPPORT_HDD_DYNAMIC_ENABLE_POWER
+ * Query support HDD dynamic Power .
+ * output: 0 - support, 1 - not support.
+ */
 int SYNO_SUPPORT_HDD_DYNAMIC_ENABLE_POWER(void)
 {
 	int iRet = 0;
 
+	/* if exist at least one hdd has enable pin and present detect pin ret=1*/
 	if ((GPIO_UNDEF != generic_gpio.hdd_pm.hdd1_pm && GPIO_UNDEF != generic_gpio.hdd_detect.hdd1_present_detect) ||
 			(GPIO_UNDEF != generic_gpio.hdd_pm.hdd2_pm && GPIO_UNDEF != generic_gpio.hdd_detect.hdd2_present_detect) ||
 			(GPIO_UNDEF != generic_gpio.hdd_pm.hdd3_pm && GPIO_UNDEF != generic_gpio.hdd_detect.hdd3_present_detect) ||
@@ -890,4 +931,4 @@ void synology_gpio_init(void)
 		break;
 	}
 }
-#endif  
+#endif /* MY_DEF_HERE */

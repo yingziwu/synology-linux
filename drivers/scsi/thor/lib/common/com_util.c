@@ -615,7 +615,9 @@ void List_Del(List_Head *entry)
 //	entry->prev = NULL;
 }
 
+
 #endif
+
 
 void List_Add(List_Head *new_one, List_Head *head)
 {
@@ -652,6 +654,8 @@ void List_AddTail(List_Head *new_one, List_Head *head)
          BUG_ON(!new_one->prev);
 
 }
+
+
 
 struct list_head *List_GetFirst(struct list_head *head)
 {
@@ -726,5 +730,7 @@ struct list_head *List_GetLast(struct list_head *head)
         List_Del(one);
         return one;
 }
+
+
 
 #endif

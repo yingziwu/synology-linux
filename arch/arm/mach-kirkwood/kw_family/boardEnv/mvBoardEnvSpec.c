@@ -159,6 +159,7 @@ MV_BOARD_MPP_INFO	db88f6281AInfoBoardMppConfigValue[] =
 	DB_88F6281A_MPP48_55
 	}}};
 
+
 MV_BOARD_INFO db88f6281AInfo = {
 	"DB-88F6281A-BP",				/* boardName[MAX_BOARD_NAME_LEN] */
 	DB_88F6281A_BOARD_MPP_GROUP_TYPE_NUM,		/* numBoardMppGroupType */
@@ -190,6 +191,7 @@ MV_BOARD_INFO db88f6281AInfo = {
     DB_88F6281A_BOARD_NAND_CONTROL,
 	.portDsaInfo = defaultBoardPortDsaInfo,
 };
+
 
 #define RD_88F6281A_BOARD_TWSI_DEF_NUM		0x2
 #define RD_88F6281A_BOARD_MAC_INFO_NUM		0x2
@@ -307,6 +309,7 @@ MV_BOARD_INFO rd88f6281AInfo = {
     RD_88F6281A_BOARD_NAND_CONTROL,
 	.portDsaInfo = defaultBoardPortDsaInfo,
 };
+
 
 #define DB_88F6192A_BOARD_TWSI_DEF_NUM		    0x7
 #define DB_88F6192A_BOARD_MAC_INFO_NUM		    0x2
@@ -720,6 +723,7 @@ MV_BOARD_INFO db88f6180AInfo = {
 	.portDsaInfo = defaultBoardPortDsaInfo,
 };
 
+
 #define RD_88F6281A_PCAC_BOARD_TWSI_DEF_NUM		0x1
 #define RD_88F6281A_PCAC_BOARD_MAC_INFO_NUM		0x1
 #define RD_88F6281A_PCAC_BOARD_GPP_INFO_NUM		0x0
@@ -811,6 +815,7 @@ MV_BOARD_INFO rd88f6281APcacInfo = {
 	.portDsaInfo = defaultBoardPortDsaInfo,
 };
 
+
 #define DB_88F6280A_BOARD_TWSI_DEF_NUM		    0x7
 #define DB_88F6280A_BOARD_MAC_INFO_NUM		    0x1
 #define DB_88F6280A_BOARD_GPP_INFO_NUM		    0x0
@@ -827,6 +832,7 @@ MV_BOARD_INFO rd88f6281APcacInfo = {
 #define DB_88F6280A_BOARD_NAND_READ_PARAMS		    0x000C0282
 #define DB_88F6280A_BOARD_NAND_WRITE_PARAMS		    0x00010305
 #define DB_88F6280A_BOARD_NAND_CONTROL		        0x01c00541
+
 
 MV_BOARD_TWSI_INFO	db88f6280AInfoBoardTwsiDev[] =
 	/* {{MV_BOARD_DEV_CLASS	devClass, MV_U8	twsiDevAddr, MV_U8 twsiDevAddrType}} */
@@ -876,6 +882,7 @@ MV_BOARD_MPP_INFO	db88f6280AInfoBoardMppConfigValue[] =
 	DB_88F6280A_MPP48_55
 	}}};
 
+
 MV_BOARD_INFO db88f6280AInfo = {
 	"DB-88F6280A-BP",				/* boardName[MAX_BOARD_NAME_LEN] */
 	DB_88F6280A_BOARD_MPP_GROUP_TYPE_NUM,		/* numBoardMppGroupType */
@@ -917,6 +924,7 @@ MV_BOARD_INFO db88f6280AInfo = {
 #define RD_88F6282A_BOARD_NAND_READ_PARAMS	0x000C0282
 #define RD_88F6282A_BOARD_NAND_WRITE_PARAMS	0x00010305
 #define RD_88F6282A_BOARD_NAND_CONTROL		0x01c00541
+
 
 MV_BOARD_TWSI_INFO	rd88f6282aInfoBoardTwsiDev[] =
 	/* {{MV_BOARD_DEV_CLASS	devClass, MV_U8	twsiDevAddr, MV_U8 twsiDevAddrType}} */
@@ -1026,6 +1034,7 @@ MV_BOARD_INFO rd88f6282aInfo = {
 #define DB_88F6282A_BOARD_NAND_WRITE_PARAMS     0x00010305
 #define DB_88F6282A_BOARD_NAND_CONTROL          0x01c00541
 
+
 MV_BOARD_TWSI_INFO	db88f6282AInfoBoardTwsiDev[] =
 	/* {{MV_BOARD_DEV_CLASS	devClass, MV_U8	twsiDevAddr, MV_U8 twsiDevAddrType}} */
 	{
@@ -1081,6 +1090,7 @@ MV_DEV_CS_INFO db88f6282AInfoBoardDeCsInfo[] =
 #else
 	 {{1, N_A, BOARD_DEV_SPI_FLASH, 8}};	   /* SPI DEV */
 #endif
+
 
 #ifdef CONFIG_MV_GTW_DSA_SUPPORT
 MV_BOARD_SWITCH_INFO db88f6282AInfoBoardSwitchInfo[] =
@@ -1247,6 +1257,7 @@ MV_BOARD_INFO xcat98dxInfo = {
 	0,					/* not used */
 	.portDsaInfo = db88f6282ABoardPortDsaInfo,
 };
+
 
 /* 6281 Sheeva Plug*/
 #define SHEEVA_PLUG_BOARD_TWSI_DEF_NUM		        0x0

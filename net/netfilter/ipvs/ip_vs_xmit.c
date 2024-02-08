@@ -272,7 +272,7 @@ __ip_vs_get_out_rt_v6(struct sk_buff *skb, struct ip_vs_dest *dest,
 				return NULL;
 			}
 			rt = (struct rt6_info *) dst;
-			cookie = rt->rt6i_node ? rt->rt6i_node->fn_sernum : 0;
+			cookie = rt6_get_cookie(rt);
 			__ip_vs_dst_set(dest, 0, dst_clone(&rt->dst), cookie);
 			IP_VS_DBG(10, "new dst %pI6, src %pI6, refcnt=%d\n",
 				  &dest->addr.in6, &dest->dst_saddr.in6,
@@ -318,6 +318,7 @@ __ip_vs_get_out_rt_v6(struct sk_buff *skb, struct ip_vs_dest *dest,
 	return rt;
 }
 #endif
+
 
 /*
  *	Release dest->dst_cache before a dest is removed
@@ -372,6 +373,7 @@ do {							\
 		skb_dst(skb)->dev, dst_output);		\
 } while (0)
 
+
 /*
  *      NULL transmitter (do nothing except return NF_ACCEPT)
  */
@@ -382,6 +384,7 @@ ip_vs_null_xmit(struct sk_buff *skb, struct ip_vs_conn *cp,
 	/* we do not touch skb and do not need pskb ptr */
 	IP_VS_XMIT(NFPROTO_IPV4, skb, cp, 1);
 }
+
 
 /*
  *      Bypass transmitter
@@ -739,6 +742,7 @@ tx_error_put:
 }
 #endif
 
+
 /*
  *   IP Tunneling transmitter
  *
@@ -849,7 +853,7 @@ ip_vs_tunnel_xmit(struct sk_buff *skb, struct ip_vs_conn *cp,
 	iph->daddr		=	cp->daddr.ip;
 	iph->saddr		=	saddr;
 	iph->ttl		=	old_iph->ttl;
-	ip_select_ident(iph, &rt->dst, NULL);
+	ip_select_ident(skb, NULL);
 
 	/* Another hack: avoid icmp_send in ip_fragment */
 	skb->local_df = 1;
@@ -992,6 +996,7 @@ tx_error_put:
 }
 #endif
 
+
 /*
  *      Direct Routing transmitter
  *      Used for ANY protocol
@@ -1119,6 +1124,7 @@ tx_error:
 	return NF_STOLEN;
 }
 #endif
+
 
 /*
  *	ICMP packet transmitter

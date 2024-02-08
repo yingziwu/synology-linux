@@ -748,6 +748,7 @@ static void octeon_irq_ciu1_wd_enable_v2(struct irq_data *data)
 	cvmx_write_csr(CVMX_CIU_INTX_EN1_W1S(coreid * 2 + 1), 1ull << coreid);
 }
 
+
 static struct irq_chip octeon_irq_chip_ciu_wd_v2 = {
 	.name = "CIU-W",
 	.irq_enable = octeon_irq_ciu1_wd_enable_v2,

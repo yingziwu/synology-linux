@@ -22,6 +22,7 @@
 
 #include <linux/if_ether.h>
 
+
 #define INTF_HEADER_LEN     4
 
 struct rfc_1042_hdr {

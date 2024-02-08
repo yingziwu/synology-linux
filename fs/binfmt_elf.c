@@ -266,6 +266,7 @@ create_elf_tables(struct linux_binprm *bprm, struct elfhdr *exec,
 	sp = (elf_addr_t __user *)bprm->p;
 #endif
 
+
 	/*
 	 * Grow the stack manually; some architectures have a limit on how
 	 * far ahead a user-space access may be in order to grow the stack.
@@ -367,6 +368,7 @@ static unsigned long total_mapping_size(struct elf_phdr *cmds, int nr)
 	return cmds[last_idx].p_vaddr + cmds[last_idx].p_memsz -
 				ELF_PAGESTART(cmds[first_idx].p_vaddr);
 }
+
 
 /* This is much more generalized than the library routine read function,
    so we keep this separate.  Technically the library read function
@@ -669,16 +671,16 @@ static int load_elf_binary(struct linux_binprm *bprm, struct pt_regs *regs)
 			 */
 			would_dump(bprm, interpreter);
 
-			retval = kernel_read(interpreter, 0, bprm->buf,
-					     BINPRM_BUF_SIZE);
-			if (retval != BINPRM_BUF_SIZE) {
+			/* Get the exec headers */
+			retval = kernel_read(interpreter, 0,
+					     (void *)&loc->interp_elf_ex,
+					     sizeof(loc->interp_elf_ex));
+			if (retval != sizeof(loc->interp_elf_ex)) {
 				if (retval >= 0)
 					retval = -EIO;
 				goto out_free_dentry;
 			}
 
-			/* Get the exec headers */
-			loc->interp_elf_ex = *((struct elfhdr *)bprm->buf);
 			break;
 		}
 		elf_ppnt++;
@@ -811,7 +813,7 @@ static int load_elf_binary(struct linux_binprm *bprm, struct pt_regs *regs)
 			total_size = total_mapping_size(elf_phdata,
 							loc->elf_ex.e_phnum);
 			if (!total_size) {
-				error = -EINVAL;
+				retval = -EINVAL;
 				goto out_free_dentry;
 			}
 		}

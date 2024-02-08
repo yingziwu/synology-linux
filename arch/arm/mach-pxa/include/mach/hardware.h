@@ -262,6 +262,7 @@
 		__cpu_is_pxa955(read_cpuid_id());	\
 	})
 
+
 /*
  * CPUID Core Generation Bit
  * <= 0x2 for pxa21x/pxa25x/pxa26x/pxa27x

@@ -12,6 +12,7 @@
 #ifndef __ASM_ARCH_WDT_H
 #define __ASM_ARCH_WDT_H
 
+
 #if defined(CONFIG_ARCH_M86XXX)
 	#include <mach/comcerto-2000/wdt.h>
 #else

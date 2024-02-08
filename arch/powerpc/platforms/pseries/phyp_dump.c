@@ -75,6 +75,7 @@ static struct phyp_dump_header phdr;
 #define DUMP_TRIGGERED		0x4000
 #define DUMP_PERFORMED		0x8000
 
+
 /**
  * init_dump_header() - initialize the header declaring a dump
  * Returns: length of dump save area.

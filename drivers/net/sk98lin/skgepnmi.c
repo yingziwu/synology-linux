@@ -312,6 +312,7 @@ PNMI_STATIC const SK_PNMI_STATADDR StatAddr[SK_PNMI_MAX_IDX][SK_PNMI_MAC_TYPES] 
 	{{0, SK_FALSE}, {0, SK_FALSE}}
 };
 
+
 /*****************************************************************************
  *
  * Public functions
@@ -1584,6 +1585,7 @@ SK_EVPARA Param)	/* Event dependent parameter */
 	SK_PNMI_CHECKFLAGS("SkPnmiEvent: On return");
 	return (0);
 }
+
 
 /******************************************************************************
  *
@@ -3512,6 +3514,7 @@ SK_U32 NetIndex)	/* NetIndex (0..n), in single net mode always zero */
 				GetStatVal(pAC, IoC, 0, SK_PNMI_HRX_TOO_LONG, NetIndex) +
 				GetStatVal(pAC, IoC, 0, SK_PNMI_HRX_CEXT, NetIndex);
 
+
 			/*
 			 * In some cases the runt and fcs counters are incremented when collisions
 			 * occur. We have to correct those counters here.
@@ -3849,6 +3852,7 @@ SK_U32 NetIndex)	/* NetIndex (0..n), in single net mode always zero */
 		SK_PNMI_STORE_U64(pBuf, Val64);
 		*pLen = sizeof(SK_U64);
 		break;
+
 
 	case OID_SKGE_TX_SW_QUEUE_MAX:
 		/* 2002-09-17 pweber: For XMAC, use the frozen SW counters (BufPort). */
@@ -7798,6 +7802,9 @@ SK_PNMI_VCT	*pvctInfo)
 	}
 }
 
+
+
+
 /*****************************************************************************
  *
  * Vct - OID handler function of OIDs for Virtual Cable Tester (VCT)
@@ -8082,6 +8089,7 @@ SK_U32 NetIndex)	/* NetIndex (0..n), in single net mode always zero */
 
 } /* Vct */
 
+
 /*****************************************************************************
 *
 * VctGetResults
@@ -8218,11 +8226,13 @@ SK_U32		Port)
 		pVctInfo->MdiPairLen[1] = tmp_u32;
 	}
 
+
 	pAC->Pnmi.VctStatus[Port] &= ~SK_PNMI_VCT_PENDING;
 	pAC->Pnmi.VctStatus[Port] |= (SK_PNMI_VCT_NEW_VCT_DATA | SK_PNMI_VCT_TEST_DONE);
 	pAC->Pnmi.VctStatus[Port] &= ~SK_PNMI_VCT_OLD_VCT_DATA;
 
 } /* GetVctResults */
+
 
 PNMI_STATIC void CheckVctStatus(
 SK_AC		*pAC,
@@ -8284,6 +8294,7 @@ SK_U32		PhysPortIndex)
 		}
 	}
 } /* CheckVctStatus */
+
 
 /*****************************************************************************
  *

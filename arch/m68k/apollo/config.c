@@ -63,6 +63,7 @@ int apollo_parse_bootinfo(const struct bi_record *record) {
 
 void dn_setup_model(void) {
 
+
 	printk("Apollo hardware found: ");
 	printk("[%s]\n", apollo_models[apollo_model - APOLLO_DN3000]);
 
@@ -104,6 +105,7 @@ void dn_setup_model(void) {
 			panic("Undefined apollo model");
 			break;
 	}
+
 
 }
 
@@ -210,6 +212,7 @@ unsigned long dn_gettimeoffset(void) {
 
 int dn_dummy_hwclk(int op, struct rtc_time *t) {
 
+
   if(!op) { /* read */
     t->tm_sec=rtc->second;
     t->tm_min=rtc->minute;
@@ -278,3 +281,4 @@ static void dn_heartbeat(int on) {
 	}
 }
 #endif
+

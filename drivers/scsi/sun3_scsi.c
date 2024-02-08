@@ -32,6 +32,7 @@
  * 1+ (800) 334-5454
  */
 
+
 /*
  * This is from mac_scsi.h, but hey, maybe this is useful for Sun3 too! :)
  *
@@ -105,6 +106,7 @@ static void NCR5380_print(struct Scsi_Host *instance);
 /* #define SUPPORT_TAGS */
 
 #define	ENABLE_IRQ()	enable_irq( IRQ_SUN3_SCSI ); 
+
 
 static irqreturn_t scsi_sun3_intr(int irq, void *dummy);
 static inline unsigned char sun3scsi_read(int reg);
@@ -420,6 +422,7 @@ void sun3_sun3_debug (void)
 }
 #endif
 
+
 /* sun3scsi_dma_setup() -- initialize the dma controller for a read/write */
 static unsigned long sun3scsi_dma_setup(void *data, unsigned long count, int write_flag)
 {
@@ -640,6 +643,7 @@ static struct scsi_host_template driver_template = {
 	.cmd_per_lun		= CMD_PER_LUN,
 	.use_clustering		= DISABLE_CLUSTERING
 };
+
 
 #include "scsi_module.c"
 

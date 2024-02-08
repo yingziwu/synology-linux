@@ -35,6 +35,8 @@ static struct class *pyra_class;
 static void profile_activated(struct pyra_device *pyra,
 		unsigned int new_profile)
 {
+	if (new_profile >= ARRAY_SIZE(pyra->profile_settings))
+		return;
 	pyra->actual_profile = new_profile;
 	pyra->actual_cpi = pyra->profile_settings[pyra->actual_profile].y_cpi;
 }
@@ -303,6 +305,10 @@ static ssize_t pyra_sysfs_write_settings(struct file *fp,
 	if (off != 0 || count != sizeof(struct pyra_settings))
 		return -EINVAL;
 
+	if (((struct pyra_settings const *)buf)->startup_profile >=
+	    ARRAY_SIZE(pyra->profile_settings))
+		return -EINVAL;
+
 	mutex_lock(&pyra->pyra_lock);
 	difference = memcmp(buf, &pyra->settings, sizeof(struct pyra_settings));
 	if (difference) {
@@ -327,6 +333,7 @@ static ssize_t pyra_sysfs_write_settings(struct file *fp,
 	mutex_unlock(&pyra->pyra_lock);
 	return sizeof(struct pyra_settings);
 }
+
 
 static ssize_t pyra_sysfs_show_actual_cpi(struct device *dev,
 		struct device_attribute *attr, char *buf)

@@ -441,19 +441,17 @@ static void init_dma_desc_rings(struct net_device *dev)
 	priv->rx_skbuff =
 	    kmalloc(sizeof(struct sk_buff *) * rxsize, GFP_KERNEL);
 	priv->dma_rx =
-	    (struct dma_desc *)dma_alloc_coherent(priv->device,
-						  rxsize *
-						  sizeof(struct dma_desc),
-						  &priv->dma_rx_phy,
-						  GFP_KERNEL);
+	    (struct dma_desc *)dma_zalloc_coherent(priv->device, rxsize *
+						   sizeof(struct dma_desc),
+						   &priv->dma_rx_phy,
+						   GFP_KERNEL);
 	priv->tx_skbuff = kmalloc(sizeof(struct sk_buff *) * txsize,
 				       GFP_KERNEL);
 	priv->dma_tx =
-	    (struct dma_desc *)dma_alloc_coherent(priv->device,
-						  txsize *
-						  sizeof(struct dma_desc),
-						  &priv->dma_tx_phy,
-						  GFP_KERNEL);
+	    (struct dma_desc *)dma_zalloc_coherent(priv->device, txsize *
+						   sizeof(struct dma_desc),
+						   &priv->dma_tx_phy,
+						   GFP_KERNEL);
 
 	if ((priv->dma_rx == NULL) || (priv->dma_tx == NULL)) {
 		pr_err("%s:ERROR allocating the DMA Tx/Rx desc\n", __func__);
@@ -755,6 +753,7 @@ static void stmmac_tx_err(struct stmmac_priv *priv)
 	priv->dev->stats.tx_errors++;
 	netif_wake_queue(priv->dev);
 }
+
 
 static void stmmac_dma_interrupt(struct stmmac_priv *priv)
 {

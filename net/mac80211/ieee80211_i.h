@@ -53,11 +53,25 @@ struct ieee80211_local;
 
 #define TU_TO_EXP_TIME(x)	(jiffies + usecs_to_jiffies((x) * 1024))
 
-#define IEEE80211_DEFAULT_UAPSD_QUEUES \
-	(IEEE80211_WMM_IE_STA_QOSINFO_AC_BK |	\
-	 IEEE80211_WMM_IE_STA_QOSINFO_AC_BE |	\
-	 IEEE80211_WMM_IE_STA_QOSINFO_AC_VI |	\
-	 IEEE80211_WMM_IE_STA_QOSINFO_AC_VO)
+/*
+ * Some APs experience problems when working with U-APSD. Decreasing the
+ * probability of that happening by using legacy mode for all ACs but VO isn't
+ * enough.
+ *
+ * Cisco 4410N originally forced us to enable VO by default only because it
+ * treated non-VO ACs as legacy.
+ *
+ * However some APs (notably Netgear R7000) silently reclassify packets to
+ * different ACs. Since u-APSD ACs require trigger frames for frame retrieval
+ * clients would never see some frames (e.g. ARP responses) or would fetch them
+ * accidentally after a long time.
+ *
+ * It makes little sense to enable u-APSD queues by default because it needs
+ * userspace applications to be aware of it to actually take advantage of the
+ * possible additional powersavings. Implicitly depending on driver autotrigger
+ * frame support doesn't make much sense.
+ */
+#define IEEE80211_DEFAULT_UAPSD_QUEUES 0
 
 #define IEEE80211_DEFAULT_MAX_SP_LEN		\
 	IEEE80211_WMM_IE_STA_QOSINFO_SP_ALL
@@ -72,6 +86,7 @@ struct ieee80211_fragment_entry {
 	int ccmp; /* Whether fragments were encrypted with CCMP */
 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
 };
+
 
 struct ieee80211_bss {
 	/* don't want to look up all the time */
@@ -129,6 +144,7 @@ static inline u8 bss_mesh_id_len(struct ieee80211_bss *bss)
 	return 0;
 }
 
+
 typedef unsigned __bitwise__ ieee80211_tx_result;
 #define TX_CONTINUE	((__force ieee80211_tx_result) 0u)
 #define TX_DROP		((__force ieee80211_tx_result) 1u)
@@ -148,6 +164,7 @@ struct ieee80211_tx_data {
 
 	unsigned int flags;
 };
+
 
 typedef unsigned __bitwise__ ieee80211_rx_result;
 #define RX_CONTINUE		((__force ieee80211_rx_result) 0u)
@@ -705,6 +722,8 @@ struct tpt_led_trigger {
  *	that the scan completed.
  * @SCAN_ABORTED: Set for our scan work function when the driver reported
  *	a scan complete for an aborted scan.
+ * @SCAN_HW_CANCELLED: Set for our scan work function when the scan is being
+ *	cancelled.
  */
 enum {
 	SCAN_SW_SCANNING,
@@ -712,6 +731,7 @@ enum {
 	SCAN_OFF_CHANNEL,
 	SCAN_COMPLETED,
 	SCAN_ABORTED,
+	SCAN_HW_CANCELLED,
 };
 
 /**
@@ -947,6 +967,7 @@ struct ieee80211_local {
 #define I802_DEBUG_INC(c) do { } while (0)
 #endif /* CONFIG_MAC80211_DEBUG_COUNTERS */
 
+
 	int total_ps_buffered; /* total number of all buffered unicast and
 				* multicast packets for power saving stations
 				*/
@@ -1041,11 +1062,13 @@ static inline struct ieee80211_hw *local_to_hw(
 	return &local->hw;
 }
 
+
 static inline int ieee80211_bssid_match(const u8 *raddr, const u8 *addr)
 {
 	return compare_ether_addr(raddr, addr) == 0 ||
 	       is_broadcast_ether_addr(raddr);
 }
+
 
 int ieee80211_hw_config(struct ieee80211_local *local, u32 changed);
 void ieee80211_tx_set_protected(struct ieee80211_tx_data *tx);

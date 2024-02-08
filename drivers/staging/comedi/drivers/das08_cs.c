@@ -156,6 +156,7 @@ static void das08_pcmcia_detach(struct pcmcia_device *link)
 
 }				/* das08_pcmcia_detach */
 
+
 static int das08_pcmcia_config_loop(struct pcmcia_device *p_dev,
 				void *priv_data)
 {

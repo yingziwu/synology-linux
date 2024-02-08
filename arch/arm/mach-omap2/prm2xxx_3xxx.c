@@ -72,6 +72,7 @@ u32 omap2_prm_clear_mod_reg_bits(u32 bits, s16 module, s16 idx)
 	return omap2_prm_rmw_mod_reg_bits(bits, 0x0, module, idx);
 }
 
+
 /**
  * omap2_prm_is_hardreset_asserted - read the HW reset line state of
  * submodules contained in the hwmod module

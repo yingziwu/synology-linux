@@ -34,6 +34,7 @@ extern __wsum csum_partial_copy_nocheck(const void *src,
 					      void *dst, int len,
 					      __wsum sum);
 
+
 #ifdef CONFIG_COLDFIRE
 
 /*
@@ -112,6 +113,7 @@ csum_tcpudp_nofold(__be32 saddr, __be32 daddr, unsigned short len,
 		   "0" (sum));
 	return sum;
 }
+
 
 /*
  * computes the checksum of the TCP/UDP pseudo-header

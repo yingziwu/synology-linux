@@ -36,6 +36,7 @@
 **                                                                        **
 **------------------------------------------------------------------------*/
 
+
 /* MCPCIA ADDRESS BIT DEFINITIONS
  *
  *  3333 3333 3322 2222 2222 1111 1111 11
@@ -192,6 +193,7 @@ struct el_MCPCIA_uncorrected_frame_mcheck {
 	struct el_common_EV5_uncorrectable_mcheck procdata;
 };
 
+
 #ifdef __KERNEL__
 
 #ifndef __EXTERN_INLINE
@@ -330,6 +332,7 @@ __EXTERN_INLINE void mcpcia_iowrite32(u32 b, void __iomem *xaddr)
 
 	*(vuip)addr = b;
 }
+
 
 __EXTERN_INLINE void __iomem *mcpcia_ioportmap(unsigned long addr)
 {

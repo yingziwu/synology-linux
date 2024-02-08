@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -51,6 +52,7 @@ static ssize_t mv_pon_help(char *buf)
 
 	return off;
 }
+
 
 static ssize_t mv_pon_show(struct device *dev,
 			struct device_attribute *attr, char *buf)
@@ -176,3 +178,4 @@ module_init(mv_pon_sysfs_init);
 MODULE_AUTHOR("Dmitri Epshtein");
 MODULE_DESCRIPTION("sysfs for Marvell PON");
 MODULE_LICENSE("GPL");
+

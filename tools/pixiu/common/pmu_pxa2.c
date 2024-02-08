@@ -66,6 +66,7 @@ u32 ReadPMUReg(int reg)
 	return v;
 }
 
+
 // Write the PMU Register
 void WritePMUReg(int reg, u32 value)
 {

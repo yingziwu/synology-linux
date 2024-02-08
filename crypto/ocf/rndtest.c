@@ -86,6 +86,7 @@ rndtest_test(struct rndtest_state *rsp)
 	rsp->rs_discard = (rv != 0);
 }
 
+
 extern int crypto_debug;
 #define rndtest_verbose 2
 #define rndtest_report(rsp, failure, fmt, a...) \
@@ -296,3 +297,4 @@ rndtest_buf(unsigned char *buf)
 	rndtest_test(&rsp);
 	return(rsp.rs_discard);
 }
+

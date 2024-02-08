@@ -112,11 +112,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	} \
 }
 
+
 #define WARN_OOM(cond) if (cond) { mvOsPrintf("%s: out of memory\n", __func__); return NULL; }
+
 
 /*--------------------------------------------------------------------*/
 /*			PP2 COMMON FUNCTIONS			      */
 /*--------------------------------------------------------------------*/
+
 
 int mvPp2RdReg(unsigned int offset);
 
@@ -160,6 +163,7 @@ void mvPp2RegPrintNonZero2(MV_U32 reg_addr, char *reg_name, MV_U32 index);
 	#define HW_BYTE_OFFS(_offs_)		((3 - ((_offs_) % 4)) + (((_offs_) / 4) * 4))
 #endif
 
+
 #define TCAM_DATA_BYTE_OFFS_LE(_offs_)		(((_offs_) - ((_offs_) % 2)) * 2 + ((_offs_) % 2))
 #define TCAM_DATA_MASK_OFFS_LE(_offs_)		(((_offs_) * 2) - ((_offs_) % 2)  + 2)
 
@@ -174,5 +178,8 @@ void mvPp2RegPrintNonZero2(MV_U32 reg_addr, char *reg_name, MV_U32 index);
 */
 #define TCAM_DATA_BYTE(_offs_)			(HW_BYTE_OFFS(TCAM_DATA_BYTE_OFFS_LE(_offs_)))
 #define TCAM_DATA_MASK(_offs_)			(HW_BYTE_OFFS(TCAM_DATA_MASK_OFFS_LE(_offs_)))
+
+
+
 
 #endif /* __MV_PP2_ERR_CODE_H__ */

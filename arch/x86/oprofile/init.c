@@ -42,6 +42,7 @@ int __init oprofile_arch_init(struct oprofile_operations *ops)
 	return ret;
 }
 
+
 void oprofile_arch_exit(void)
 {
 #ifdef CONFIG_X86_LOCAL_APIC

@@ -74,6 +74,7 @@ static void blktrans_dev_put(struct mtd_blktrans_dev *dev)
 	mutex_unlock(&blktrans_ref_mutex);
 }
 
+
 static int do_blktrans_request(struct mtd_blktrans_ops *tr,
 			       struct mtd_blktrans_dev *dev,
 			       struct request *req)
@@ -224,6 +225,7 @@ static int blktrans_open(struct block_device *bdev, fmode_t mode)
 	if (!dev)
 		return -ERESTARTSYS; /* FIXME: busy loop! -arnd*/
 
+	mutex_lock(&mtd_table_mutex);
 	mutex_lock(&dev->lock);
 
 	if (dev->open)
@@ -248,6 +250,7 @@ static int blktrans_open(struct block_device *bdev, fmode_t mode)
 unlock:
 	dev->open++;
 	mutex_unlock(&dev->lock);
+	mutex_unlock(&mtd_table_mutex);
 	blktrans_dev_put(dev);
 	return ret;
 
@@ -258,6 +261,7 @@ error_put:
 	module_put(dev->tr->owner);
 	kref_put(&dev->ref, blktrans_dev_release);
 	mutex_unlock(&dev->lock);
+	mutex_unlock(&mtd_table_mutex);
 	blktrans_dev_put(dev);
 	return ret;
 }
@@ -270,6 +274,7 @@ static int blktrans_release(struct gendisk *disk, fmode_t mode)
 	if (!dev)
 		return ret;
 
+	mutex_lock(&mtd_table_mutex);
 	mutex_lock(&dev->lock);
 
 	if (--dev->open)
@@ -284,6 +289,7 @@ static int blktrans_release(struct gendisk *disk, fmode_t mode)
 	}
 unlock:
 	mutex_unlock(&dev->lock);
+	mutex_unlock(&mtd_table_mutex);
 	blktrans_dev_put(dev);
 	return ret;
 }
@@ -497,6 +503,7 @@ int del_mtd_blktrans_dev(struct mtd_blktrans_dev *old)
 	/* Stop new requests to arrive */
 	del_gendisk(old->disk);
 
+
 	/* Stop the thread */
 	kthread_stop(old->thread);
 
@@ -559,6 +566,7 @@ int register_mtd_blktrans(struct mtd_blktrans_ops *tr)
 	   us over. */
 	if (!blktrans_notifier.list.next)
 		register_mtd_user(&blktrans_notifier);
+
 
 	mutex_lock(&mtd_table_mutex);
 

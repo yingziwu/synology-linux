@@ -50,6 +50,7 @@ enum {
 	INTERCEPT_XSETBV,
 };
 
+
 struct __attribute__ ((__packed__)) vmcb_control_area {
 	u32 intercept_cr;
 	u32 intercept_dr;
@@ -86,6 +87,7 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
 	u8 insn_bytes[15];
 	u8 reserved_6[800];
 };
+
 
 #define TLB_CONTROL_DO_NOTHING 0
 #define TLB_CONTROL_FLUSH_ALL_ASID 1
@@ -347,3 +349,4 @@ struct __attribute__ ((__packed__)) vmcb {
 #define SVM_INVLPGA ".byte 0x0f, 0x01, 0xdf"
 
 #endif
+

@@ -99,6 +99,7 @@ static void dump_clocks(void)
 #define	DEBUG_CLK_DUMP()
 #endif
 
+
 static void mpc5121_clk_put(struct clk *clk)
 {
 	module_put(clk->owner);
@@ -267,6 +268,7 @@ static struct clk ref_clk = {
 	.name = "ref_clk",
 	.calc = ref_clk_calc,
 };
+
 
 static void sys_clk_calc(struct clk *clk)
 {

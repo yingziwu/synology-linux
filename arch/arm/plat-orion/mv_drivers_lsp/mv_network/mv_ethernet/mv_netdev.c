@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -218,6 +219,7 @@ static INLINE mv_eth_priv*     eth_priv_by_port(unsigned int port)
     }
     return mv_eth_ports[port];
 }
+
 
 static void eth_print_link_status( struct net_device *dev )
 {
@@ -571,6 +573,7 @@ static INLINE void  eth_skb_reuse_reset(struct sk_buff *skb)
 }
 #endif /* LINUX_VERSION_CODE < 2.6.24 */
 
+
 static INLINE mv_eth_priv* eth_skb_reusable(struct sk_buff *skb)
 {
     int         i, skb_size;
@@ -625,6 +628,7 @@ static INLINE MV_PKT_INFO* eth_pkt_info_get(mv_eth_priv  *priv)
     }
     return pkt;
 }
+
 
 static INLINE void  eth_skb_free(mv_eth_priv *priv, MV_PKT_INFO* pPktInfo)
 {
@@ -703,6 +707,7 @@ static INLINE void  eth_skb_free(mv_eth_priv *priv, MV_PKT_INFO* pPktInfo)
 
 /**************************************************************************************************************/
 
+
 #ifdef ETH_MV_TX_EN
 void    eth_tx_en_config(int port, int value)
 {
@@ -762,6 +767,8 @@ static INLINE void  eth_tx_enable(mv_eth_priv *priv, int queue)
 }
 #endif /* ETH_MV_TX_EN */
 /**************************************************************************************************************/
+
+
 
 /***********************************************************
  * mv_eth_down_internals --                                 *
@@ -855,6 +862,7 @@ static INLINE int   eth_rx_policy(mv_eth_priv *priv)
     return (fls(rxq_map) - 1);
 }
 
+
 static INLINE int   eth_tx_policy(mv_eth_priv *priv, struct sk_buff *skb)
 {
     int     queue;
@@ -874,6 +882,8 @@ static INLINE int   eth_tx_policy(mv_eth_priv *priv, struct sk_buff *skb)
     return queue;
 }
 /**************************************************************************************************************/
+
+
 
 /***********************************************************
  * eth_tx_done --                                             *
@@ -1576,6 +1586,7 @@ static int eth_poll( struct napi_struct *napi, int budget )
 #endif
 }
 
+
 /* Show network driver configuration */
 void	mv_eth_config_show(void)
 {
@@ -1902,6 +1913,7 @@ int     mv_eth_stop_internals(mv_eth_priv *priv)
     return -1;
 }
 
+
 /***********************************************************
  * mv_eth_change_mtu_internals --                                     *
  *   stop port activity. release skb from rings. set new   *
@@ -1936,6 +1948,7 @@ int     mv_eth_change_mtu_internals( struct net_device *dev, int mtu )
 
     return 0;
 }
+
 
 /***********************************************************
  * mv_netdev_timer_callback --                                *
@@ -2233,6 +2246,7 @@ void   __init mv_eth_priv_cleanup(mv_eth_priv *priv)
         mvStackDelete(priv->txPktInfoPool);
     }
 }
+
 
 #ifdef ETH_INCLUDE_TSO
 /***********************************************************
@@ -2838,6 +2852,7 @@ tx_end:
 #ifdef ETH_TX_DONE_ISR
 #else
 
+
 #ifdef ETH_MV_TX_EN
         if(priv->tx_en)
             eth_tx_enable(priv, queue);
@@ -3137,6 +3152,7 @@ void    mv_eth_netdev_print(struct net_device* dev)
 #endif /* CONFIG_MV_GATEWAY */
     printk("\n");
 }
+
 
 /***********************************************************************************
  ***  noqueue net device
@@ -3511,6 +3527,7 @@ void print_tcph(struct tcphdr* hdr)
             hdr->fin, hdr->syn, hdr->rst, hdr->psh, hdr->ack, hdr->urg, hdr->ece, hdr->cwr);
 }
 
+
 void print_skb(struct sk_buff* skb)
 {
     int i;
@@ -3546,6 +3563,7 @@ void print_skb(struct sk_buff* skb)
     }
     printk("\n");
 }
+
 
 /***********************************************************
  * eth_init_module --                                    *
@@ -3699,6 +3717,7 @@ static int __init mv_eth_init_module( void )
 
 		memcpy(mvMacAddr, mac_addr, 6);
 	}
+
 
 #if defined(CONFIG_MV78200) || defined(CONFIG_MV632X)
         mtu = eth_get_config(port, mac_addr);
@@ -4198,6 +4217,7 @@ void mv_eth_set_multicast_list(struct net_device *dev)
 		mvEthMacAddrSet(priv->hal_priv, dev->dev_addr, queue);
 	}
 }
+
 
 int mv_eth_set_mac_addr(struct net_device *dev, void *addr)
 {

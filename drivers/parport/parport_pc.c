@@ -92,6 +92,7 @@
 #define DPRINTK(stuff...)
 #endif
 
+
 #define NR_SUPERIOS 3
 static struct superio_struct {	/* For Super-IO chips autodetection */
 	int io;
@@ -1049,6 +1050,7 @@ static size_t parport_pc_ecp_read_block_pio(struct parport *port,
 				 PARPORT_CONTROL_AUTOFD,
 				 PARPORT_CONTROL_AUTOFD);
 
+
 	dump_parport_state("rev idle", port);
 	/* Do the transfer. */
 	while (left > fifofull) {
@@ -1169,6 +1171,7 @@ out_no_data:
 #endif /* IEEE 1284 support */
 #endif /* Allowed to use FIFO/DMA */
 
+
 /*
  *	******************************************
  *	INITIALISATION AND MODULE STUFF BELOW HERE
@@ -1223,6 +1226,7 @@ static struct superio_struct *find_free_superio(void)
 			return &superios[i];
 	return NULL;
 }
+
 
 /* Super-IO chipset detection, Winbond, SMSC */
 static void __devinit show_parconfig_smsc37c669(int io, int key)
@@ -1308,6 +1312,7 @@ static void __devinit show_parconfig_smsc37c669(int io, int key)
 		}
 	}
 }
+
 
 static void __devinit show_parconfig_winbond(int io, int key)
 {
@@ -1463,6 +1468,7 @@ static void __devinit decode_smsc(int efer, int key, int devid, int devrev)
 		func(efer, key);
 }
 
+
 static void __devinit winbond_check(int io, int key)
 {
 	int origval, devid, devrev, oldid, x_devid, x_devrev, x_oldid;
@@ -1585,6 +1591,7 @@ out:
 	release_region(io, 3);
 }
 
+
 static void __devinit detect_and_report_winbond(void)
 {
 	if (verbose_probing)
@@ -1667,6 +1674,7 @@ static int get_superio_irq(struct parport *p)
 		return s->irq;
 	return PARPORT_IRQ_NONE;
 }
+
 
 /* --- Mode detection ------------------------------------- */
 
@@ -2830,6 +2838,7 @@ static int __devinit sio_via_probe(struct pci_dev *pdev, int autoirq,
 	return 0;
 }
 
+
 enum parport_pc_sio_types {
 	sio_via_686a = 0,   /* Via VT82C686A motherboard Super I/O */
 	sio_via_8231,	    /* Via VT8231 south bridge integrated Super IO */
@@ -2866,8 +2875,6 @@ enum parport_pc_pci_cards {
 	syba_2p_epp,
 	syba_1p_ecp,
 	titan_010l,
-	titan_1284p1,
-	titan_1284p2,
 	avlab_1p,
 	avlab_2p,
 	oxsemi_952,
@@ -2885,6 +2892,7 @@ enum parport_pc_pci_cards {
 	netmos_9865,
 	quatech_sppxp100,
 };
+
 
 /* each element directly indexed from enum list, above
  * (but offset by last_sio) */
@@ -2925,8 +2933,6 @@ static struct parport_pc_pci {
 	/* syba_2p_epp AP138B */	{ 2, { { 0, 0x078 }, { 0, 0x178 }, } },
 	/* syba_1p_ecp W83787 */	{ 1, { { 0, 0x078 }, } },
 	/* titan_010l */		{ 1, { { 3, -1 }, } },
-	/* titan_1284p1 */              { 1, { { 0, 1 }, } },
-	/* titan_1284p2 */		{ 2, { { 0, 1 }, { 2, 3 }, } },
 	/* avlab_1p		*/	{ 1, { { 0, 1}, } },
 	/* avlab_2p		*/	{ 2, { { 0, 1}, { 2, 3 },} },
 	/* The Oxford Semi cards are unusual: 954 doesn't support ECP,
@@ -2942,8 +2948,8 @@ static struct parport_pc_pci {
 	/* netmos_9705 */               { 1, { { 0, -1 }, } },
 	/* netmos_9715 */               { 2, { { 0, 1 }, { 2, 3 },} },
 	/* netmos_9755 */               { 2, { { 0, 1 }, { 2, 3 },} },
-	/* netmos_9805 */               { 1, { { 0, -1 }, } },
-	/* netmos_9815 */               { 2, { { 0, -1 }, { 2, -1 }, } },
+	/* netmos_9805 */		{ 1, { { 0, 1 }, } },
+	/* netmos_9815 */		{ 2, { { 0, 1 }, { 2, 3 }, } },
 	/* netmos_9901 */               { 1, { { 0, -1 }, } },
 	/* netmos_9865 */               { 1, { { 0, -1 }, } },
 	/* quatech_sppxp100 */		{ 1, { { 0, 1 }, } },
@@ -2987,8 +2993,6 @@ static const struct pci_device_id parport_pc_pci_tbl[] = {
 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, syba_1p_ecp },
 	{ PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_010L,
 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, titan_010l },
-	{ 0x9710, 0x9805, 0x1000, 0x0010, 0, 0, titan_1284p1 },
-	{ 0x9710, 0x9815, 0x1000, 0x0020, 0, 0, titan_1284p2 },
 	/* PCI_VENDOR_ID_AVLAB/Intek21 has another bunch of cards ...*/
 	/* AFAVLAB_TK9902 */
 	{ 0x14db, 0x2120, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_1p},

@@ -22,6 +22,7 @@
 #include <linux/bootmem.h>
 #include <linux/genalloc.h>
 #include <asm/dma-mapping.h>
+#include <linux/module.h>
 
 struct dma_map_ops *dma_ops;
 EXPORT_SYMBOL(dma_ops);
@@ -49,6 +50,7 @@ int dma_set_mask(struct device *dev, u64 mask)
 EXPORT_SYMBOL(dma_set_mask);
 
 static struct gen_pool *coherent_pool;
+
 
 /* Allocates from a pool of uncached memory that was reserved at boot time */
 

@@ -23,6 +23,7 @@
 #define _GNU_SOURCE
 #include <getopt.h>
 
+
 struct ihex_binrec {
 	struct ihex_binrec *next; /* not part of the real data structure */
         uint32_t addr;
@@ -85,6 +86,7 @@ int main(int argc, char **argv)
 		case 'j':
 			include_jump = 1;
 			break;
+		default:
 			return usage();
 		}
 	}

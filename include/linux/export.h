@@ -3,7 +3,16 @@
 #endif
 #ifndef _LINUX_EXPORT_H
 #define _LINUX_EXPORT_H
- 
+/*
+ * Export symbols from the kernel to modules.  Forked from module.h
+ * to reduce the amount of pointless cruft we feed to gcc when only
+ * exporting a simple symbol or two.
+ *
+ * If you feel the need to add #include <linux/foo.h> to this file
+ * then you are doing something wrong and should go away silently.
+ */
+
+/* Some toolchains use a `_' prefix for all user symbols. */
 #ifdef CONFIG_SYMBOL_PREFIX
 #define MODULE_SYMBOL_PREFIX CONFIG_SYMBOL_PREFIX
 #else
@@ -27,7 +36,8 @@ extern struct module __this_module;
 
 #ifndef __GENKSYMS__
 #ifdef CONFIG_MODVERSIONS
- 
+/* Mark the CRC weak since genksyms apparently decides not to
+ * generate a checksums for some symbols */
 #define __CRC_SYMBOL(sym, sec)					\
 	extern void *__crc_##sym __attribute__((weak));		\
 	static const unsigned long __kcrctab_##sym		\
@@ -46,6 +56,7 @@ extern struct module __this_module;
 #endif
 #endif
 
+/* For every exported symbol, place a struct in the __ksymtab section */
 #if defined(MY_ABC_HERE)
 #define __EXPORT_SYMBOL(sym, sec)				\
 	extern typeof(sym) sym;					\
@@ -88,9 +99,9 @@ extern struct module __this_module;
 #define EXPORT_UNUSED_SYMBOL_GPL(sym)
 #endif
 
-#endif	 
+#endif	/* __GENKSYMS__ */
 
-#else  
+#else /* !CONFIG_MODULES... */
 
 #define EXPORT_SYMBOL(sym)
 #define EXPORT_SYMBOL_GPL(sym)
@@ -98,6 +109,6 @@ extern struct module __this_module;
 #define EXPORT_UNUSED_SYMBOL(sym)
 #define EXPORT_UNUSED_SYMBOL_GPL(sym)
 
-#endif  
+#endif /* CONFIG_MODULES */
 
-#endif  
+#endif /* _LINUX_EXPORT_H */

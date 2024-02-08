@@ -160,6 +160,7 @@ static inline void shm_rmid(struct ipc_namespace *ns, struct shmid_kernel *s)
 	ipc_rmid(&shm_ids(ns), &s->shm_perm);
 }
 
+
 /* This is called by fork, once for every shm attach. */
 static void shm_open(struct vm_area_struct *vma)
 {
@@ -305,6 +306,7 @@ void shm_destroy_orphaned(struct ipc_namespace *ns)
 	up_write(&shm_ids(ns).rw_mutex);
 }
 
+
 void exit_shm(struct task_struct *task)
 {
 	struct ipc_namespace *ns = task->nsproxy->ipc_ns;
@@ -448,7 +450,7 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
 	size_t size = params->u.size;
 	int error;
 	struct shmid_kernel *shp;
-	int numpages = (size + PAGE_SIZE -1) >> PAGE_SHIFT;
+	size_t numpages = (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
 	struct file * file;
 	char name[13];
 	int id;
@@ -496,12 +498,6 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
 	if (IS_ERR(file))
 		goto no_file;
 
-	id = ipc_addid(&shm_ids(ns), &shp->shm_perm, ns->shm_ctlmni);
-	if (id < 0) {
-		error = id;
-		goto no_id;
-	}
-
 	shp->shm_cprid = task_tgid_vnr(current);
 	shp->shm_lprid = 0;
 	shp->shm_atim = shp->shm_dtim = 0;
@@ -510,6 +506,13 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
 	shp->shm_nattch = 0;
 	shp->shm_file = file;
 	shp->shm_creator = current;
+
+	id = ipc_addid(&shm_ids(ns), &shp->shm_perm, ns->shm_ctlmni);
+	if (id < 0) {
+		error = id;
+		goto no_id;
+	}
+
 	/*
 	 * shmid gets reported as "inode#" in /proc/pid/maps.
 	 * proc-ps tools use this. Changing this will break them.
@@ -1153,6 +1156,7 @@ SYSCALL_DEFINE1(shmdt, char __user *, shmaddr)
 		 */
 		if ((vma->vm_ops == &shm_vm_ops) &&
 			(vma->vm_start - addr)/PAGE_SIZE == vma->vm_pgoff) {
+
 
 			size = vma->vm_file->f_path.dentry->d_inode->i_size;
 			do_munmap(mm, vma->vm_start, vma->vm_end - vma->vm_start);

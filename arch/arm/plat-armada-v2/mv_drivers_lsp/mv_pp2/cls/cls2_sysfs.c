@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,8 +35,12 @@ disclaimer.
 #include "mvCommon.h"
 #include "cls/mvPp2Cls2Hw.h"
 
+
 static MV_PP2_CLS_C2_QOS_ENTRY		qos_entry;
 static MV_PP2_CLS_C2_ENTRY		act_entry;
+
+
+
 
 static ssize_t mv_cls_help(char *buf)
 {
@@ -110,6 +115,7 @@ static ssize_t mv_cls_help(char *buf)
 	return off;
 }
 
+
 static ssize_t mv_cls_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -138,6 +144,7 @@ static ssize_t mv_cls_show(struct device *dev,
 
 	return off;
 }
+
 
 static ssize_t mv_cls_store(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
@@ -231,6 +238,7 @@ static ssize_t mv_cls_store(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static DEVICE_ATTR(prio_hw_dump,		S_IRUSR, mv_cls_show, NULL);
 static DEVICE_ATTR(dscp_hw_dump,		S_IRUSR, mv_cls_show, NULL);
 static DEVICE_ATTR(qos_sw_dump,			S_IRUSR, mv_cls_show, NULL);
@@ -271,6 +279,7 @@ static DEVICE_ATTR(cnt_clr_all,			S_IWUSR, mv_cls_show, mv_cls_store);
 static DEVICE_ATTR(act_sw_qos,			S_IWUSR, mv_cls_show, mv_cls_store);
 static DEVICE_ATTR(cnt_read,			S_IWUSR, mv_cls_show, mv_cls_store);
 static DEVICE_ATTR(act_sw_flowid,		S_IWUSR, mv_cls_show, mv_cls_store);
+
 
 static struct attribute *cls2_attrs[] = {
 	&dev_attr_prio_hw_dump.attr,

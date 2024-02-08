@@ -149,6 +149,7 @@ test_crypto(int cfd)
 		return 1;
 	}
 
+
 	if (ioctl(cfd, CIOCFSESSION, &sess.ses)) {
 		perror("ioctl(CIOCFSESSION)");
 		return 1;
@@ -291,6 +292,7 @@ test_encrypt_decrypt(int cfd)
 		return 1;
 	}
 
+
 	if (ioctl(cfd, CIOCFSESSION, &sess.ses)) {
 		perror("ioctl(CIOCFSESSION)");
 		return 1;
@@ -351,6 +353,7 @@ test_encrypt_decrypt(int cfd)
 	}
 
 	if (debug) printf("Test passed\n");
+
 
 	/* Finish crypto session */
 	if (ioctl(cfd, CIOCFSESSION, &sess.ses)) {
@@ -431,6 +434,7 @@ test_encrypt_decrypt_error(int cfd, int err)
 		return 1;
 	}
 
+
 	if (ioctl(cfd, CIOCFSESSION, &sess.ses)) {
 		perror("ioctl(CIOCFSESSION)");
 		return 1;
@@ -501,6 +505,7 @@ test_encrypt_decrypt_error(int cfd, int err)
 
 	printf("Test failed\n");
 
+
 	/* Finish crypto session */
 	if (ioctl(cfd, CIOCFSESSION, &sess.ses)) {
 		perror("ioctl(CIOCFSESSION)");
@@ -564,3 +569,4 @@ main(int argc, char** argv)
 
 	return 0;
 }
+

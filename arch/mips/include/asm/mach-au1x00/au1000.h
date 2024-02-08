@@ -34,6 +34,7 @@
 #ifndef _AU1000_H_
 #define _AU1000_H_
 
+
 #ifndef _LANGUAGE_ASSEMBLY
 
 #include <linux/delay.h>
@@ -652,6 +653,7 @@ enum soc_au1200_ints {
 #define AU1000_PCMCIA_ATTR_PHYS_ADDR	0xF40000000ULL /* 01234 */
 #define AU1000_PCMCIA_MEM_PHYS_ADDR	0xF80000000ULL /* 01234 */
 
+
 /* Au1000 SDRAM memory controller register offsets */
 #define AU1000_MEM_SDMODE0		0x0000
 #define AU1000_MEM_SDMODE1		0x0004
@@ -762,6 +764,7 @@ enum soc_au1200_ints {
 #define MEM_STNAND_ADDR 	0x4
 #define MEM_STNAND_DATA 	0x20
 
+
 /* Programmable Counters 0 and 1 */
 #define SYS_BASE		0xB1900000
 #define SYS_COUNTER_CNTRL	(SYS_BASE + 0x14)
@@ -831,6 +834,7 @@ enum soc_au1200_ints {
 #define I2S_CONTROL		0xB1000008
 #  define I2S_CONTROL_D 	(1 << 1)
 #  define I2S_CONTROL_CE	(1 << 0)
+
 
 /* Ethernet Controllers  */
 
@@ -1287,6 +1291,7 @@ enum soc_au1200_ints {
 #define AC97C_CNTRL		0xB0000010
 #  define AC97C_RS		(1 << 1)
 #  define AC97C_CE		(1 << 0)
+
 
 /* The PCI chip selects are outside the 32bit space, and since we can't
  * just program the 36bit addresses into BARs, we have to take a chunk

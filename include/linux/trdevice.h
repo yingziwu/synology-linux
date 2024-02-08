@@ -24,6 +24,7 @@
 #ifndef _LINUX_TRDEVICE_H
 #define _LINUX_TRDEVICE_H
 
+
 #include <linux/if_tr.h>
 
 #ifdef __KERNEL__

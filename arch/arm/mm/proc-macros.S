@@ -118,13 +118,9 @@
  *  100x   1   0   1	r/o	no acc
  *  10x0   1   0   1	r/o	no acc
  *  1011   0   0   1	r/w	no acc
- *  110x   0   1   0	r/w	r/o
- *  11x0   0   1   0	r/w	r/o
- *  1111   0   1   1	r/w	r/w
- *
- * If !CONFIG_CPU_USE_DOMAINS, the following permissions are changed:
  *  110x   1   1   1	r/o	r/o
  *  11x0   1   1   1	r/o	r/o
+ *  1111   0   1   1	r/w	r/w
  */
 	.macro	armv6_mt_table pfx
 \pfx\()_mt_table:
@@ -143,7 +139,7 @@
 	.long	PTE_EXT_TEX(2)					@ L_PTE_MT_DEV_NONSHARED
 	.long	0x00						@ unused
 	.long	0x00						@ unused
-	.long	0x00						@ unused
+	.long	PTE_CACHEABLE | PTE_BUFFERABLE | PTE_EXT_APX	@ L_PTE_MT_VECTORS
 	.endm
 
 	.macro	armv6_set_pte_ext pfx
@@ -179,20 +175,21 @@
 
 	tst	r1, #L_PTE_USER
 	orrne	r3, r3, #PTE_EXT_AP1
-#ifdef CONFIG_CPU_USE_DOMAINS
-	@ allow kernel read/write access to read-only user pages
 	tstne	r3, #PTE_EXT_APX
-	bicne	r3, r3, #PTE_EXT_APX | PTE_EXT_AP0
-#endif
+
+	@ user read-only -> kernel read-only
+	bicne	r3, r3, #PTE_EXT_AP0
 
 	tst	r1, #L_PTE_XN
 	orrne	r3, r3, #PTE_EXT_XN
 
-	orr	r3, r3, r2
+	eor	r3, r3, r2
 
 	tst	r1, #L_PTE_YOUNG
 	tstne	r1, #L_PTE_PRESENT
 	moveq	r3, #0
+	tstne	r1, #L_PTE_NONE
+	movne	r3, #0
 
 	str	r3, [r0]
 #if defined(MY_DEF_HERE)  || defined(MY_DEF_HERE) 
@@ -254,6 +251,7 @@
 	.endm
 #endif
 
+
 /*
  * The ARMv3, ARMv4 and ARMv5 set_pte_ext translation function,
  * covering most CPUs except Xscale and Xscale 3.
@@ -294,6 +292,7 @@
 	.endif
 	str	r2, [r0]		@ hardware version
 	.endm
+
 
 /*
  * Xscale set_pte_ext translation, split into two halves to cope

@@ -14,8 +14,9 @@
 #define IP_NAT_RANGE_4RD_NAPT 16
 #endif
 
+/* The protocol-specific manipulable parts of the tuple. */
 union nf_conntrack_man_proto {
-	 
+	/* Add other protocols here. */
 	__be16 all;
 
 	struct {
@@ -34,22 +35,27 @@ union nf_conntrack_man_proto {
 		__be16 port;
 	} sctp;
 	struct {
-		__be16 key;	 
+		__be16 key;	/* GRE key is 32bit, PPtP only uses 16bit */
 	} gre;
 };
 
+/* Single range specification. */
 struct nf_nat_range {
-	 
+	/* Set to OR of flags above. */
 	unsigned int flags;
 
+	/* Inclusive: network order. */
 	__be32 min_ip, max_ip;
 
+	/* Inclusive: network order */
 	union nf_conntrack_man_proto min, max;
 };
 
+/* For backwards compat: don't use in modern code. */
 struct nf_nat_multi_range_compat {
-	unsigned int rangesize;  
+	unsigned int rangesize; /* Must be 1. */
 
+	/* hangs off end. */
 	struct nf_nat_range range[1];
 };
 

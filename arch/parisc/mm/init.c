@@ -10,6 +10,7 @@
  *
  */
 
+
 #include <linux/module.h>
 #include <linux/mm.h>
 #include <linux/bootmem.h>
@@ -535,6 +536,7 @@ void free_initmem(void)
 		(init_end - init_begin) >> 10);
 }
 
+
 #ifdef CONFIG_DEBUG_RODATA
 void mark_rodata_ro(void)
 {
@@ -544,6 +546,7 @@ void mark_rodata_ro(void)
 		(unsigned long)(__end_rodata - __start_rodata) >> 10);
 }
 #endif
+
 
 /*
  * Just an arbitrary offset to serve as a "hole" between mapping areas
@@ -682,6 +685,8 @@ void show_mem(unsigned int filter)
 
 	printk(KERN_INFO "Mem-info:\n");
 	show_free_areas(filter);
+	if (filter & SHOW_MEM_FILTER_PAGE_COUNT)
+		return;
 #ifndef CONFIG_DISCONTIGMEM
 	i = max_mapnr;
 	while (i-- > 0) {
@@ -723,6 +728,7 @@ void show_mem(unsigned int filter)
 	printk(KERN_INFO "%d reserved pages\n", reserved);
 	printk(KERN_INFO "%d pages shared\n", shared);
 	printk(KERN_INFO "%d pages swap cached\n", cached);
+
 
 #ifdef CONFIG_DISCONTIGMEM
 	{
@@ -987,6 +993,7 @@ void free_sid(unsigned long spaceid)
 
 	spin_unlock(&sid_lock);
 }
+
 
 #ifdef CONFIG_SMP
 static void get_dirty_sids(unsigned long *ndirtyptr,unsigned long *dirty_array)

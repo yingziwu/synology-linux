@@ -662,6 +662,7 @@ static void init_non_isoc_dma_desc(dwc_otg_hcd_t * hcd, dwc_otg_qh_t * qh)
 		}
 		while ((hc->xfer_len > 0) && (n_desc != MAX_DMA_DESC_NUM_GENERIC));
 		
+
 		qtd->in_process = 1;
 
 		if (qh->ep_type == UE_CONTROL)

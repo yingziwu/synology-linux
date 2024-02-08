@@ -2838,6 +2838,7 @@ static ssize_t ixj_write(struct file *file_p, const char __user *buf, size_t cou
 	set_current_state(TASK_INTERRUPTIBLE);
 	mb();
 
+
 	while (!j->write_buffers_empty) {
 		++j->write_wait;
 		if (file_p->f_flags & O_NONBLOCK) {
@@ -3018,6 +3019,7 @@ static short fsk[][6][20] =
 		}
 	}
 };
+
 
 static void ixj_write_cid_bit(IXJ *j, int bit)
 {
@@ -6975,6 +6977,7 @@ static int ixj_selfprobe(IXJ *j)
 			ixj_mixer(0x1000, j);	/*Voice Left and Right out only */
 			ixj_mixer(0x110C, j);
 
+
 			ixj_mixer(0x1200, j);	/*Mono1 switch on mixer left */
 			ixj_mixer(0x1401, j);
 
@@ -7414,6 +7417,7 @@ static int ixj_read_proc(char *page, char **start, off_t off,
         if (len<0) len = 0;
         return len;
 }
+
 
 static void cleanup(void)
 {
@@ -8133,6 +8137,7 @@ static void DAA_Coeff_UK(IXJ *j)
 	j->m_DAAShadowRegs.COP_REGS.COP.Tone2Coeff[0] = 0xB3;
 }
 
+
 static void DAA_Coeff_France(IXJ *j)
 {
 	int i;
@@ -8312,6 +8317,7 @@ static void DAA_Coeff_France(IXJ *j)
 	j->m_DAAShadowRegs.COP_REGS.COP.Tone2Coeff[0] = 0xB3;
 }
 
+
 static void DAA_Coeff_Germany(IXJ *j)
 {
 	int i;
@@ -8490,6 +8496,7 @@ static void DAA_Coeff_Germany(IXJ *j)
 	j->m_DAAShadowRegs.COP_REGS.COP.Tone2Coeff[1] = 0x52;
 	j->m_DAAShadowRegs.COP_REGS.COP.Tone2Coeff[0] = 0xB3;
 }
+
 
 static void DAA_Coeff_Australia(IXJ *j)
 {
@@ -10542,3 +10549,4 @@ static int ixj_init_tone(IXJ *j, IXJ_TONE * ti)
 	}
 	return freq0;
 }
+

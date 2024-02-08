@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -418,3 +419,4 @@ module_init(pnc_sysfs_init);
 MODULE_AUTHOR("Kostya Belezko");
 MODULE_DESCRIPTION("PNC for Marvell NetA MV65xxx");
 MODULE_LICENSE("GPL");
+

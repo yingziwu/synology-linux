@@ -38,6 +38,7 @@
 #include "vxfs_extern.h"
 #include "vxfs_inode.h"
 
+
 static void *	vxfs_immed_follow_link(struct dentry *, struct nameidata *);
 
 static int	vxfs_immed_readpage(struct file *, struct page *);

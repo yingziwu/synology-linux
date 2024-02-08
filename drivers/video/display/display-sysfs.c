@@ -216,3 +216,4 @@ module_exit(display_class_exit);
 MODULE_DESCRIPTION("Display Hardware handling");
 MODULE_AUTHOR("James Simmons <jsimmons@infradead.org>");
 MODULE_LICENSE("GPL");
+

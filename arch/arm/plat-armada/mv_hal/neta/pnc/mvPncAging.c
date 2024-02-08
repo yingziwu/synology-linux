@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -88,6 +89,7 @@ void    mvPncAgingCntrWrite(int tid, MV_U32 w32)
 */
 	MV_MEMIO32_WRITE(va, w32);
 }
+
 
 MV_U32  mvPncAgingCntrRead(int tid)
 {

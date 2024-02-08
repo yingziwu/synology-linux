@@ -41,6 +41,7 @@
  *-----------------------------------------------------------------------------
  */
 
+
 #ifdef CONFIG_PROC_FS
 #ifdef __KERNEL__
 void        sbecom_proc_brd_cleanup (ci_t *);

@@ -507,6 +507,7 @@ static void __devexit chd_pci_release_mem(struct crystalhd_adp *pinfo)
 	pci_release_regions(pinfo->pdev);
 }
 
+
 static void __devexit chd_dec_pci_remove(struct pci_dev *pdev)
 {
 	struct crystalhd_adp *pinfo;

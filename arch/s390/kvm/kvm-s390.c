@@ -311,7 +311,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
 	vcpu->arch.sie_block->ecb   = 6;
 	vcpu->arch.sie_block->eca   = 0xC1002001U;
 	vcpu->arch.sie_block->fac   = (int) (long) facilities;
-	hrtimer_init(&vcpu->arch.ckc_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS);
+	hrtimer_init(&vcpu->arch.ckc_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	tasklet_init(&vcpu->arch.tasklet, kvm_s390_tasklet,
 		     (unsigned long) vcpu);
 	vcpu->arch.ckc_timer.function = kvm_s390_idle_wakeup;
@@ -469,6 +469,8 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
 
 static void __vcpu_run(struct kvm_vcpu *vcpu)
 {
+	int rc;
+
 	memcpy(&vcpu->arch.sie_block->gg14, &vcpu->arch.guest_gprs[14], 16);
 
 	if (need_resched())
@@ -479,21 +481,24 @@ static void __vcpu_run(struct kvm_vcpu *vcpu)
 
 	kvm_s390_deliver_pending_interrupts(vcpu);
 
+	VCPU_EVENT(vcpu, 6, "entering sie flags %x",
+		   atomic_read(&vcpu->arch.sie_block->cpuflags));
+
 	vcpu->arch.sie_block->icptcode = 0;
 	local_irq_disable();
 	kvm_guest_enter();
 	local_irq_enable();
-	VCPU_EVENT(vcpu, 6, "entering sie flags %x",
-		   atomic_read(&vcpu->arch.sie_block->cpuflags));
-	if (sie64a(vcpu->arch.sie_block, vcpu->arch.guest_gprs)) {
+	rc = sie64a(vcpu->arch.sie_block, vcpu->arch.guest_gprs);
+	local_irq_disable();
+	kvm_guest_exit();
+	local_irq_enable();
+
+	if (rc) {
 		VCPU_EVENT(vcpu, 3, "%s", "fault in sie instruction");
 		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
 	}
 	VCPU_EVENT(vcpu, 6, "exit sie icptcode %d",
 		   vcpu->arch.sie_block->icptcode);
-	local_irq_disable();
-	kvm_guest_exit();
-	local_irq_enable();
 
 	memcpy(&vcpu->arch.guest_gprs[14], &vcpu->arch.sie_block->gg14, 16);
 }
@@ -510,16 +515,6 @@ rerun_vcpu:
 	atomic_clear_mask(CPUSTAT_STOPPED, &vcpu->arch.sie_block->cpuflags);
 
 	BUG_ON(vcpu->kvm->arch.float_int.local_int[vcpu->vcpu_id] == NULL);
-
-	switch (kvm_run->exit_reason) {
-	case KVM_EXIT_S390_SIEIC:
-	case KVM_EXIT_UNKNOWN:
-	case KVM_EXIT_INTR:
-	case KVM_EXIT_S390_RESET:
-		break;
-	default:
-		BUG();
-	}
 
 	vcpu->arch.sie_block->gpsw.mask = kvm_run->psw_mask;
 	vcpu->arch.sie_block->gpsw.addr = kvm_run->psw_addr;
@@ -725,6 +720,7 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
 				int user_alloc)
 {
 	int rc;
+
 
 	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
 		mem->guest_phys_addr, mem->memory_size);

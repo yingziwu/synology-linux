@@ -80,6 +80,7 @@ enum {
 	RTP_CHECK_ENABLED
 };
 
+
 /**
  * Defines generic test limit/value/status structure
  */
@@ -100,6 +101,7 @@ typedef struct {
 	uInt8           pcmModeSave;    /**< Store entry PCMMODE value  */
 	uInt8			testResult;		/**< OR of all test results in this structure */
 }proslicPcmLpbkTest;
+
 
 /**
  * Defines structure for DC Feed Test
@@ -130,6 +132,7 @@ typedef struct {
 	proslicTestObj	dcfeedIlongOffhook; /**< Off-hook ILONG test results */
 	uInt8			testResult;		    /**< OR of all test results in this structure */
 }proslicDcFeedTest;
+
 
 /**
  * Defines structure for Ringing Test
@@ -170,6 +173,7 @@ typedef struct {
 	uInt8			testResult;		  /**< OR of all test results in this structure */
 }proslicAudioTest;
 
+
 /**
  * Defines structure for all tests
  */
@@ -182,6 +186,7 @@ typedef struct {
 }proslicTestInObjType;
 
 typedef proslicTestInObjType *proslicTestInObjType_ptr;
+
 
 /**
  * @brief
@@ -214,6 +219,7 @@ int ProSLIC_destroyTestInObj(proslicTestInObjType_ptr *pTstin);
  */
 int ProSLIC_testInPCMLpbkEnable(proslicChanType_ptr pProslic, proslicTestInObjType_ptr pTstin);
 
+
 /**
  * @brief
  *  Disable PCM loopback.
@@ -224,6 +230,7 @@ int ProSLIC_testInPCMLpbkEnable(proslicChanType_ptr pProslic, proslicTestInObjTy
  * @retval int - error from @ref errorCodeType  @ref RC_NONE indicates no error.
  */
 int ProSLIC_testInPCMLpbkDisable(proslicChanType_ptr pProslic, proslicTestInObjType_ptr pTstin);
+
 
 /**
  * @brief
@@ -241,6 +248,7 @@ int ProSLIC_testInPCMLpbkDisable(proslicChanType_ptr pProslic, proslicTestInObjT
  *
  */
 int ProSLIC_testInDCFeed(proslicChanType_ptr pProslic, proslicTestInObjType_ptr pTstin);
+
 
 /**
  * @brief
@@ -351,6 +359,7 @@ int ProSLIC_testInBatterySetup(proslicTestInObjType *pTstin, proslicBatteryTest 
  * @retval int - error from @ref errorCodeType  @ref RC_NONE indicates no error.
  */
 int ProSLIC_testInAudioSetup(proslicTestInObjType *pTstin, proslicAudioTest *audioTest);
+
 
 /**
  * @brief

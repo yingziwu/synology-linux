@@ -383,3 +383,4 @@ int dpi_init(void)
 void dpi_exit(void)
 {
 }
+

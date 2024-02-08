@@ -23,6 +23,7 @@ void __init orion_gpio_init(int gpio_base, int ngpio,
  */
 void orion_gpio_irq_handler(int irqoff);
 
+
 unsigned int  irq_int_type[NR_IRQS];
 #define ENABLED_DOORBELS 	(0xF0FF)
 
@@ -296,3 +297,4 @@ void pmu_free_irq(int irq)
 
 EXPORT_SYMBOL(pmu_free_irq);
 #endif
+

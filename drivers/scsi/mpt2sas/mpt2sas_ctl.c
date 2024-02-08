@@ -2103,6 +2103,7 @@ _ctl_diag_read_buffer(struct MPT2SAS_ADAPTER *ioc, void __user *arg)
 	return rc;
 }
 
+
 #ifdef CONFIG_COMPAT
 /**
  * _ctl_compat_mpt_command - convert 32bit pointers to 64bit.
@@ -2640,6 +2641,7 @@ _ctl_fwfault_debug_store(struct device *cdev,
 static DEVICE_ATTR(fwfault_debug, S_IRUGO | S_IWUSR,
     _ctl_fwfault_debug_show, _ctl_fwfault_debug_store);
 
+
 /**
  * _ctl_ioc_reset_count_show - ioc reset count
  * @cdev - pointer to embedded class device
@@ -3009,3 +3011,4 @@ mpt2sas_ctl_exit(void)
 	}
 	misc_deregister(&ctl_dev);
 }
+

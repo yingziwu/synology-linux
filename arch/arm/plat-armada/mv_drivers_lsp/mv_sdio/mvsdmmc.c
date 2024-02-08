@@ -40,6 +40,7 @@
 #include <linux/proc_fs.h>
 #include <linux/irq.h>
 
+
 #include <asm/dma.h>
 #include <asm/sizes.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
@@ -85,6 +86,7 @@
 #endif
 
 #define DRIVER_NAME	"mvsdmmc"
+
 
 struct mvsdmmc_host_stat {
 
@@ -155,6 +157,7 @@ struct mvsdmmc_host {
 	struct mvsdmmc_host_stat	stat;	/* host statistics */
 };
 
+
 static int maxfreq = MVSDMMC_CLOCKRATE_MAX; 
 static int highspeed = 1;
 static int detect = 1;
@@ -174,6 +177,7 @@ static irqreturn_t mvsdmmc_irq_detect(int irq, void *dev);
 
 #define mvsdmmc_writew(host, offs, val)	\
 		writew((val), (host->base + offs))
+
 
 static inline unsigned short mvsdmmc_readw(struct mvsdmmc_host *host,
 					   unsigned short offs)
@@ -258,6 +262,7 @@ static void mvsdmmc_dump_registers(struct mvsdmmc_host *host,
 	}
 }
 
+
 static inline u32 mvsdmmc_aligned_size(u32 size)
 {
 	return ((size + 3) / 4) * 4;
@@ -287,6 +292,7 @@ static void mvsdmmc_align_tx_data(struct mvsdmmc_host *host,
 	memcpy(end+4-remainder, tmp, remainder);
 }
 
+
 /*
  * Rx alignment. This is a workaround for problems with
  * data sizes which are not 4-bytes aligned.
@@ -310,6 +316,11 @@ static void mvsdmmc_align_rx_data(struct mvsdmmc_host *host,
 	memset(end, 0, 4);
 	memcpy(end, &tmp[4-remainder], remainder);
 }
+
+
+
+
+
 
 static void mvsdmmc_stop_clock(struct mvsdmmc_host *host)
 {
@@ -490,6 +501,7 @@ static void mvsdmmc_start_cmd(struct mvsdmmc_host *host,
 	if (cmd->flags & MMC_RSP_OPCODE)
 		cmdreg |= SDIO_CMD_INDX_CHECK;
 
+
 	if (cmd->flags == MMC_RSP_NONE)
 		cmdreg |= SDIO_CMD_RSP_NONE;
 	else if (cmd->flags & MMC_RSP_BUSY)
@@ -571,11 +583,13 @@ static void mvsdmmc_start_cmd(struct mvsdmmc_host *host,
 
 }
 
+
 static void mvsdmmc_finish_data(struct mvsdmmc_host *host) {
 	char				*virt_addr;
 	struct mmc_data	*data = host->data;
 	u32		blocks_left;
 	unsigned short response[3], resp_indx = 0;
+
 
 	BUG_ON(data == NULL);
 	BUG_ON(!(host->intr_status & SDIO_NOR_AUTOCMD12_DONE) &&
@@ -651,6 +665,7 @@ static void mvsdmmc_finish_data(struct mvsdmmc_host *host) {
 		data->stop->resp[1] = ((response[0] & 0xfc00) >> 10);
 
 	}
+
 
 	if (data->bytes_xfered != host->size) {
 		host->stat.unfinished_dma++;
@@ -818,6 +833,7 @@ static irqreturn_t mvsdmmc_irq(int irq, void *dev)
 
 	/* first make sure if there is an error*/
 	error = mvsdmmc_check_error(host);
+
 
 #if defined(MVSDMMC_DUMP_REGS_ON_CMD)
 	if (host->cmd)  {
@@ -1036,6 +1052,7 @@ static inline void mvsdmmc_dma_to_sg(struct mvsdmmc_host *host,
 	}
 }
 
+
 static int mvsdmmc_dma_init(struct mmc_host *mmc)
 {
 	struct mvsdmmc_host *host = mmc_priv(mmc);
@@ -1072,6 +1089,8 @@ static int mvsdmmc_dma_init(struct mmc_host *mmc)
 		goto kfree;
 	}
 
+
+
 	mvsdmmc_dbg_exit();
 	return 0;
 kfree:
@@ -1095,6 +1114,7 @@ err:
 	return -ENOMEM;
 
 }
+
 
 static void mvsdmmc_request(struct mmc_host *mmc, struct mmc_request *mrq) 
 {
@@ -1148,6 +1168,7 @@ static void mvsdmmc_power_up(struct mmc_host *mmc)
 	unsigned int reg;
 	struct mvsdmmc_host *host = mmc_priv(mmc);
 
+
 	mvsdmmc_dbg_enter();
 
 	reg = mvsdmmc_readw(host, SDIO_HOST_CTRL);
@@ -1177,6 +1198,7 @@ static void mvsdmmc_power_up(struct mmc_host *mmc)
 	mvsdmmc_writew(host, SDIO_SW_RESET, 0x100);
 	msleep(50);
 
+
 	/* enable the clock*/
 	mvsdmmc_bitreset(host, SDIO_XFER_MODE, SDIO_XFER_MODE_STOP_CLK);
 	mvsdmmc_dbg_exit();
@@ -1195,6 +1217,8 @@ static void mvsdmmc_power_down(struct mmc_host *mmc)
 
 	mvsdmmc_dbg_exit();
 }
+
+
 
 static void mvsdmmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 {
@@ -1342,6 +1366,7 @@ static int mvsdmmc_probe(struct platform_device *pdev)
 			printk( DRIVER_NAME ": irq_detect=%d\n", irq_detect);
 	}
 
+
 	mmc = mmc_alloc_host(sizeof(struct mvsdmmc_host), &pdev->dev);
 	if (!mmc) {
 		ret = -ENOMEM;
@@ -1450,6 +1475,7 @@ out:
 			iounmap(host->base);
 		}
 
+
 		if (host->irq != NO_IRQ)
 			free_irq(host->irq, host);
 
@@ -1483,6 +1509,7 @@ static int mvsdmmc_remove(struct platform_device *pdev)
 
 		if (host) {
 			mvsdmmc_stop_clock(host);
+
 
 			if (host->irq != NO_IRQ)
 				free_irq(host->irq, mmc);
@@ -1534,6 +1561,7 @@ static int mvsdmmc_resume(struct platform_device *dev, u32 level)
 #define mvsdmmc_resume	NULL
 #endif
 
+
 static struct platform_driver mvsdmmc_driver = {
 	.probe		= mvsdmmc_probe,
 	.remove		= mvsdmmc_remove,
@@ -1580,6 +1608,7 @@ module_param(dump_on_error, int, 0);
 
 /* support detection removal\insersion (default = 1) */ 
 module_param(detect, int, 0);
+
 
 MODULE_AUTHOR("Maen Suleiman <maen@marvell.com>"); 
 MODULE_DESCRIPTION("Marvell SD,SDIO,MMC Host Controller driver"); 

@@ -27,6 +27,23 @@ config BTRFS_FS
 
 	  If unsure, say N.
 
+config BTRFS_FS_SYNO_ACL
+	bool "Btrfs Synology Access Control Lists"
+	depends on BTRFS_FS
+	depends on !BTRFS_FS_POSIX_ACL
+	select FS_SYNO_ACL
+	help
+	  Synology Access Control Lists (ACLs) support Windows permissions for users and
+	  groups beyond the owner/group/world scheme.
+
+	  If you don't know what Access Control Lists are, say N
+
+config BTRFS_FS_SYNO_USRQUOTA
+	bool "Btrfs sub-volume usrquota"
+	depends on BTRFS_FS
+	help
+	  Enable btrfs sub-volume usrquota
+
 config SYNO_BTRFS_QGROUP_QUERY
 	bool
 	depends on BTRFS_FS

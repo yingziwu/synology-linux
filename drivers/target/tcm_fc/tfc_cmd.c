@@ -353,6 +353,7 @@ static void ft_send_resp_code(struct ft_cmd *cmd,
 			    cmd->req_frame, SAM_STAT_GOOD, code);
 }
 
+
 /*
  * Send error or task management response.
  * Always frees the cmd and associated state.
@@ -511,6 +512,7 @@ busy:
 	ft_sess_put(sess);		/* undo get from lookup */
 }
 
+
 /*
  * Handle incoming FCP frame.
  * Caller has verified that the frame is type FCP.
@@ -593,6 +595,7 @@ static void ft_send_work(struct work_struct *work)
 		default:
 			task_attr = MSG_SIMPLE_TAG;
 		}
+
 
 		task_attr = fcp->fc_pri_ta & FCP_PTA_MASK;
 		data_len = ntohl(fcp->fc_dl);

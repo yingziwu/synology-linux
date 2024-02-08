@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -74,6 +75,7 @@ int mv_eth_read_mii(unsigned int portNumber, unsigned int MIIReg, unsigned int* 
 
     return -1;
 }
+
 
 int mv_eth_write_mii(unsigned int portNumber, unsigned int MIIReg, unsigned int data)
 {
@@ -243,6 +245,7 @@ int mv_eth_stop( struct net_device *dev )
     return 0;
 }
 
+
 int mv_eth_change_mtu( struct net_device *dev, int mtu )
 {
     int old_mtu = dev->mtu;
@@ -355,6 +358,7 @@ void mv_eth_set_multicast_list(struct net_device *dev) {
      }
 }
 
+
 int     mv_eth_set_mac_addr( struct net_device *dev, void *addr )
 {
     if(!netif_running(dev)) {
@@ -382,6 +386,7 @@ int     mv_eth_set_mac_addr( struct net_device *dev, void *addr )
     printk( "%s: set mac addr failed\n", dev->name );
     return -1;
 }
+
 
 /************************************************************ 
  * mv_eth_open -- Restore MAC address and call to   *

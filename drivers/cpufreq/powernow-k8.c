@@ -1410,6 +1410,7 @@ static unsigned int powernowk8_get(unsigned int cpu)
 	else
 		khz = find_khz_freq_from_fid(data->currfid);
 
+
 out:
 	return khz;
 }

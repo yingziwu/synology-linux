@@ -145,6 +145,7 @@
 #define is_ehci_tll_mode(x)	(x == OMAP_EHCI_PORT_MODE_TLL)
 #define is_ehci_hsic_mode(x)	(x == OMAP_EHCI_PORT_MODE_HSIC)
 
+
 struct usbhs_hcd_omap {
 	struct clk			*usbhost_ick;
 	struct clk			*usbhost_hs_fck;
@@ -768,6 +769,7 @@ static int usbhs_enable(struct device *dev)
 				| OMAP_UHH_SYSCONFIG_CACTIVITY
 				| OMAP_UHH_SYSCONFIG_MIDLEMODE);
 		reg &= ~OMAP_UHH_SYSCONFIG_AUTOIDLE;
+
 
 	} else if (is_omap_usbhs_rev2(omap)) {
 		reg &= ~OMAP4_UHH_SYSCONFIG_IDLEMODE_CLEAR;

@@ -62,6 +62,7 @@ void __init mv_pci_preinit(void)
 	mvCpuIfPciRemap(PCI_IF0_IO, &win);
 }
 
+
 /* Currentlly the PCI config read/write are implemented as read modify write
    to 32 bit.
    TBD: adjust it to realy use 1/2/4 byte(partial) read/write, after the pex
@@ -91,6 +92,7 @@ static int mv_pci0_read_config(struct pci_bus *bus, unsigned int devfn, int wher
 
 	if ((func == 0)&&(dev_no < 2))
 		DB(printk("PCI 0 read: bus = %x dev = %x func = %x regOff = %x ",bus_num,dev_no,func,regOff));
+
 
         temp = (u32) mvPciConfigRead(0, bus_num, dev_no, func, regOff);
 

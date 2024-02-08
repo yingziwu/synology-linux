@@ -73,6 +73,7 @@
 extern unsigned long max_pfn;
 static unsigned long io_base, io_base_pfn; 
 
+
 int __attribute__((weak)) phys_mem_access_prot_allowed(struct file *file,
 	unsigned long pfn, unsigned long size, pgprot_t *vma_prot)
 {
@@ -129,6 +130,7 @@ static void mmap_mem_close(struct vm_area_struct *vma)
 			vma->vm_page_prot);
 }
 
+
 static struct vm_operations_struct mmap_mem_ops = {
 	.open  = mmap_mem_open,
 	.close = mmap_mem_close,
@@ -161,6 +163,7 @@ static int mmap_mem(struct file * file, struct vm_area_struct * vma)
 	unsigned long size_of_pfn = (size % PAGE_SIZE) ? ((size >> PAGE_SHIFT) + 1) : (size >> PAGE_SHIFT);
 	if ((vma->vm_pgoff < 0) || (size < 0))
 		return -EINVAL;
+
 
 	/* I/O registers space access without CAP_SYS_RAWIO capability is not allowed. */
 	if ((vma->vm_pgoff + size_of_pfn > io_base_pfn) && !capable(CAP_SYS_RAWIO))

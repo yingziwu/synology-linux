@@ -94,6 +94,7 @@ extern u8 mb_enable_debug;
  */
 #define MB_DEFAULT_GROUP_PREALLOC	512
 
+
 struct ext4_free_data {
 	/* this links the free block information from group_info */
 	struct rb_node node;

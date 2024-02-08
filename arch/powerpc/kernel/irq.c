@@ -477,6 +477,7 @@ void do_softirq(void)
 	local_irq_restore(flags);
 }
 
+
 /*
  * IRQ controller and virtual interrupts
  */

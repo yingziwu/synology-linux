@@ -130,6 +130,8 @@
 /* L2I Debug msgs */
 #define IPC_IA_PRINT_STRING 0xF0
 
+
+
 /* Command Response or Acknowledge message to any IPC message will have
  * same message ID and stream ID information which is sent.
  * There is no specific Ack message ID. The data field is used as response
@@ -139,6 +141,7 @@ enum ackData {
 	IPC_ACK_SUCCESS = 0,
 	IPC_ACK_FAILURE
 };
+
 
 enum sst_error_codes {
 	/* Error code,response to msgId: Description */
@@ -398,6 +401,7 @@ struct snd_sst_control_routing {
 	u8 control; /* 0=start, 1=Stop */
 	u8 reserved[3];	/* Reserved- for 32 bit alignment */
 };
+
 
 struct ipc_post {
 	struct list_head node;

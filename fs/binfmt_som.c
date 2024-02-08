@@ -32,6 +32,7 @@
 #include <asm/uaccess.h>
 #include <asm/pgtable.h>
 
+
 #include <linux/elf.h>
 
 static int load_som_binary(struct linux_binprm * bprm, struct pt_regs * regs);
@@ -177,6 +178,7 @@ out:
 	set_fs(old_fs);
 	return retval;
 }
+
 
 /*
  * These are the functions used to load SOM executables and shared

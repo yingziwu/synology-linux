@@ -60,6 +60,7 @@ const char *usbip_speed_string(int num)
 	return "Unknown Speed";
 }
 
+
 #define DBG_UDEV_INTEGER(name)\
 	dbg("%-20s = %x", to_string(name), (int) udev->name)
 
@@ -79,6 +80,7 @@ void dump_usb_interface(struct usbip_usb_interface *uinf)
 void dump_usb_device(struct usbip_usb_device *udev)
 {
 	char buff[100];
+
 
 	dbg("%-20s = %s", "path",  udev->path);
 	dbg("%-20s = %s", "busid", udev->busid);
@@ -105,6 +107,7 @@ void dump_usb_device(struct usbip_usb_device *udev)
 	DBG_UDEV_INTEGER(busnum);
 	DBG_UDEV_INTEGER(devnum);
 }
+
 
 int read_attr_value(struct sysfs_device *dev, const char *name, const char *format)
 {
@@ -139,6 +142,7 @@ err:
 	return num;
 }
 
+
 int read_attr_speed(struct sysfs_device *dev)
 {
 	char attrpath[SYSFS_PATH_MAX];
@@ -160,7 +164,7 @@ int read_attr_speed(struct sysfs_device *dev)
 		goto err;
 	}
 
-	ret = sscanf(attr->value, "%s\n", speed);
+	ret = sscanf(attr->value, "%99s\n", speed);
 	if (ret < 1) {
 		dbg("sscanf failed");
 		goto err;
@@ -178,6 +182,7 @@ err:
 
 #define READ_ATTR(object, type, dev, name, format)\
 	do { (object)->name = (type) read_attr_value(dev, to_string(name), format); } while (0)
+
 
 int read_usb_device(struct sysfs_device *sdev, struct usbip_usb_device *udev)
 {
@@ -247,6 +252,7 @@ void usbip_names_get_product(char *buff, size_t size, uint16_t vendor, uint16_t 
 	prod = names_product(vendor, product);
 	if (!prod)
 		prod = "unknown product";
+
 
 	vend = names_vendor(vendor);
 	if (!vend)

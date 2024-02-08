@@ -105,6 +105,7 @@ out:
 	return err;
 }
 
+
 static int process_sample_event(union perf_event *event,
 				struct perf_sample *sample,
 				struct perf_evsel *evsel,

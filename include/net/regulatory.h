@@ -18,6 +18,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 /**
  * enum environment_cap - Environment parsed from country IE
  * @ENVIRON_ANY: indicates country IE applies to both indoor and
@@ -91,7 +92,7 @@ struct ieee80211_reg_rule {
 
 struct ieee80211_regdomain {
 	u32 n_reg_rules;
-	char alpha2[2];
+	char alpha2[3];
 	struct ieee80211_reg_rule reg_rules[];
 };
 

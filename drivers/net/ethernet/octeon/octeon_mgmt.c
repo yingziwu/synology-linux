@@ -305,6 +305,7 @@ static u64 octeon_mgmt_dequeue_rx_buffer(struct octeon_mgmt *p,
 	return re.d64;
 }
 
+
 static int octeon_mgmt_receive_one(struct octeon_mgmt *p)
 {
 	int port = p->port;
@@ -316,6 +317,7 @@ static int octeon_mgmt_receive_one(struct octeon_mgmt *p)
 	struct sk_buff *skb_new;
 	union mgmt_port_ring_entry re2;
 	int rc = 1;
+
 
 	re.d64 = octeon_mgmt_dequeue_rx_buffer(p, &skb);
 	if (likely(re.s.code == RING_ENTRY_CODE_DONE)) {
@@ -719,6 +721,7 @@ static int octeon_mgmt_open(struct net_device *netdev)
 	p->tx_next_clean = 0;
 	p->tx_current_fill = 0;
 
+
 	p->rx_ring = kzalloc(ring_size_to_bytes(OCTEON_MGMT_RX_RING_SIZE),
 			     GFP_KERNEL);
 	if (!p->rx_ring)
@@ -838,6 +841,7 @@ static int octeon_mgmt_open(struct net_device *netdev)
 	mix_intena.s.ithena = 1;
 	mix_intena.s.othena = 1;
 	cvmx_write_csr(CVMX_MIXX_INTENA(port), mix_intena.u64);
+
 
 	/* Enable packet I/O. */
 

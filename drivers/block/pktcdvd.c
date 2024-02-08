@@ -102,6 +102,8 @@ static int pkt_setup_dev(dev_t dev, dev_t* pkt_dev);
 static int pkt_remove_dev(dev_t pkt_dev);
 static int pkt_seq_show(struct seq_file *m, void *p);
 
+
+
 /*
  * create and register a pktcdvd kernel object.
  */
@@ -140,6 +142,7 @@ static void pkt_kobj_release(struct kobject *kobj)
 {
 	kfree(to_pktcdvdkobj(kobj));
 }
+
 
 /**********************************************************
  *
@@ -325,6 +328,7 @@ static void pkt_sysfs_dev_remove(struct pktcdvd_device *pd)
 		device_unregister(pd->dev);
 }
 
+
 /********************************************************************
   /sys/class/pktcdvd/
                      add            map block device
@@ -398,6 +402,7 @@ static struct class_attribute class_pktcdvd_attrs[] = {
  __ATTR(device_map,     0444, class_pktcdvd_show_map, NULL),
  __ATTR_NULL
 };
+
 
 static int pkt_sysfs_init(void)
 {
@@ -505,6 +510,7 @@ static void pkt_debugfs_cleanup(void)
 }
 
 /* ----------------------------------------------------------*/
+
 
 static void pkt_bio_finished(struct pktcdvd_device *pd)
 {
@@ -2426,6 +2432,7 @@ static int pkt_close(struct gendisk *disk, fmode_t mode)
 	return ret;
 }
 
+
 static void pkt_end_io_read_cloned(struct bio *bio, int err)
 {
 	struct packet_stacked_data *psd = bio->bi_private;
@@ -2581,6 +2588,8 @@ static void pkt_make_request(struct request_queue *q, struct bio *bio)
 end_io:
 	bio_io_error(bio);
 }
+
+
 
 static int pkt_merge_bvec(struct request_queue *q, struct bvec_merge_data *bmd,
 			  struct bio_vec *bvec)

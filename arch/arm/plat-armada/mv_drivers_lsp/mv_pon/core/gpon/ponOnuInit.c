@@ -266,6 +266,7 @@ MV_STATUS onuGponAsicDelayInit(void)
   MV_U32    snForRandomSeed;
   MV_U8     sn[8];
   
+
   /* TX Delay Register - const */
   constDelay = onuGponDbConstDelayGet();
   rcode      = mvOnuGponMacRxInternalDelaySet(constDelay);
@@ -899,6 +900,7 @@ void onuGponStateAndEventTblInit(void)
 
   onuGponGenTbl_p->onuGponStateAndEventTbl[ONU_GPON_EVENT_MSG_DIS_SN][state]        = (GPONFUNCPTR)onuGponPonMngDisSnMsg;
 
+
   /* =================== */
   /* Alarm event section */
   /* =================== */
@@ -1095,3 +1097,20 @@ MV_STATUS onuPonStart(S_GponIoctlInfo *onuInit)
 
   return(MV_OK);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

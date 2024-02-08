@@ -50,7 +50,6 @@
 struct rfkill {
 	spinlock_t		lock;
 
-	const char		*name;
 	enum rfkill_type	type;
 
 	unsigned long		state;
@@ -74,6 +73,7 @@ struct rfkill {
 	struct delayed_work	poll_work;
 	struct work_struct	uevent_work;
 	struct work_struct	sync_work;
+	char			name[];
 };
 #define to_rfkill(d)	container_of(d, struct rfkill, dev)
 
@@ -90,10 +90,12 @@ struct rfkill_data {
 	bool			input_handler;
 };
 
+
 MODULE_AUTHOR("Ivo van Doorn <IvDoorn@gmail.com>");
 MODULE_AUTHOR("Johannes Berg <johannes@sipsolutions.net>");
 MODULE_DESCRIPTION("RF switch support");
 MODULE_LICENSE("GPL");
+
 
 /*
  * The locking here should be made much smarter, we currently have
@@ -120,6 +122,7 @@ static struct {
 } rfkill_global_states[NUM_RFKILL_TYPES];
 
 static bool rfkill_epo_lock_active;
+
 
 #ifdef CONFIG_RFKILL_LEDS
 static void rfkill_led_trigger_event(struct rfkill *rfkill)
@@ -446,6 +449,7 @@ bool rfkill_get_global_sw_state(const enum rfkill_type type)
 	return rfkill_global_states[type].cur;
 }
 #endif
+
 
 bool rfkill_set_hw_state(struct rfkill *rfkill, bool blocked)
 {
@@ -822,6 +826,7 @@ bool rfkill_blocked(struct rfkill *rfkill)
 }
 EXPORT_SYMBOL(rfkill_blocked);
 
+
 struct rfkill * __must_check rfkill_alloc(const char *name,
 					  struct device *parent,
 					  const enum rfkill_type type,
@@ -843,14 +848,14 @@ struct rfkill * __must_check rfkill_alloc(const char *name,
 	if (WARN_ON(type == RFKILL_TYPE_ALL || type >= NUM_RFKILL_TYPES))
 		return NULL;
 
-	rfkill = kzalloc(sizeof(*rfkill), GFP_KERNEL);
+	rfkill = kzalloc(sizeof(*rfkill) + strlen(name) + 1, GFP_KERNEL);
 	if (!rfkill)
 		return NULL;
 
 	spin_lock_init(&rfkill->lock);
 	INIT_LIST_HEAD(&rfkill->node);
 	rfkill->type = type;
-	rfkill->name = name;
+	strcpy(rfkill->name, name);
 	rfkill->ops = ops;
 	rfkill->data = ops_data;
 
@@ -1060,17 +1065,6 @@ static unsigned int rfkill_fop_poll(struct file *file, poll_table *wait)
 	return res;
 }
 
-static bool rfkill_readable(struct rfkill_data *data)
-{
-	bool r;
-
-	mutex_lock(&data->mtx);
-	r = !list_empty(&data->events);
-	mutex_unlock(&data->mtx);
-
-	return r;
-}
-
 static ssize_t rfkill_fop_read(struct file *file, char __user *buf,
 			       size_t count, loff_t *pos)
 {
@@ -1087,8 +1081,11 @@ static ssize_t rfkill_fop_read(struct file *file, char __user *buf,
 			goto out;
 		}
 		mutex_unlock(&data->mtx);
+		/* since we re-check and it just compares pointers,
+		 * using !list_empty() without locking isn't a problem
+		 */
 		ret = wait_event_interruptible(data->read_wait,
-					       rfkill_readable(data));
+					       !list_empty(&data->events));
 		mutex_lock(&data->mtx);
 
 		if (ret)

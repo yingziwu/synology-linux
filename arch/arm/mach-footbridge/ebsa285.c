@@ -22,3 +22,4 @@ MACHINE_START(EBSA285, "EBSA285")
 	.init_irq	= footbridge_init_irq,
 	.timer		= &footbridge_timer,
 MACHINE_END
+

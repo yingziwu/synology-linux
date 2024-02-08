@@ -65,6 +65,7 @@
 
 #include <linux/types.h>
 
+
 /*
  * Commands from user space to kernel space(IWL_TM_CMD_ID_APP2DEV_XX) and
  * from and kernel space to user space(IWL_TM_CMD_ID_DEV2APP_XX).

@@ -42,6 +42,7 @@
 #include <linux/ioctl.h>
 #include <linux/magic.h>
 
+
 #define NILFS_INODE_BMAP_SIZE	7
 /**
  * struct nilfs_inode - structure of an inode on disk
@@ -133,6 +134,7 @@ struct nilfs_super_root {
 #define NILFS_MOUNT_NORECOVERY		0x4000  /* Disable write access during
 						   mount-time recovery */
 #define NILFS_MOUNT_DISCARD		0x8000  /* Issue DISCARD requests */
+
 
 /**
  * struct nilfs_super_block - structure of super block on disk
@@ -455,7 +457,7 @@ struct nilfs_btree_node {
 /* level */
 #define NILFS_BTREE_LEVEL_DATA          0
 #define NILFS_BTREE_LEVEL_NODE_MIN      (NILFS_BTREE_LEVEL_DATA + 1)
-#define NILFS_BTREE_LEVEL_MAX           14
+#define NILFS_BTREE_LEVEL_MAX           14	/* Max level (exclusive) */
 
 /**
  * struct nilfs_palloc_group_desc - block group descriptor
@@ -581,6 +583,7 @@ nilfs_cpinfo_##name(const struct nilfs_cpinfo *cpinfo)			\
 NILFS_CPINFO_FNS(SNAPSHOT, snapshot)
 NILFS_CPINFO_FNS(INVALID, invalid)
 NILFS_CPINFO_FNS(MINOR, minor)
+
 
 /**
  * struct nilfs_cpfile_header - checkpoint file header

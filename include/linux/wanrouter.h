@@ -191,6 +191,7 @@ typedef struct wan_chdlc_conf
 	unsigned slarp_timer;		/* SLARP request timer */
 } wan_chdlc_conf_t;
 
+
 /*----------------------------------------------------------------------------
  * WAN device configuration. Passed to ROUTER_SETUP IOCTL.
  */
@@ -321,6 +322,7 @@ typedef struct wandev_conf
 /* read mode */
 #define	WANOPT_INTR	0
 #define WANOPT_POLL	1
+
 
 #define WANOPT_TTY_SYNC  0
 #define WANOPT_TTY_ASYNC 1

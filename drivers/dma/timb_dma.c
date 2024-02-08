@@ -66,6 +66,7 @@
 #define TIMBDMA_OFFS_TX_BLR	0x0C
 #define TIMBDMA_OFFS_TX_LR	0x14
 
+
 #define TIMB_DMA_DESC_SIZE	8
 
 struct timb_dma_desc {
@@ -663,6 +664,7 @@ static void td_tasklet(unsigned long data)
 	iowrite32(ier, td->membase + TIMBDMA_IER);
 }
 
+
 static irqreturn_t td_irq(int irq, void *devid)
 {
 	struct timb_dma *td = devid;
@@ -678,6 +680,7 @@ static irqreturn_t td_irq(int irq, void *devid)
 	} else
 		return IRQ_NONE;
 }
+
 
 static int __devinit td_probe(struct platform_device *pdev)
 {

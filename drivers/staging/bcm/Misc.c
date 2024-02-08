@@ -603,6 +603,7 @@ void SendIdleModeResponse(PMINI_ADAPTER Adapter)
 	NVMAccess = down_trylock(&Adapter->NVMRdmWrmLock);
 	lowPwrAbortMsg = down_trylock(&Adapter->LowPowerModeSync);
 
+
 	if ((NVMAccess || lowPwrAbortMsg || atomic_read(&Adapter->TotalPacketCount)) &&
 		(Adapter->ulPowerSaveMode != DEVICE_POWERSAVE_MODE_AS_PROTOCOL_IDLE_MODE)) {
 

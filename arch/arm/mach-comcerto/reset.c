@@ -33,6 +33,7 @@ static char i2cspi_state[2],dus_state[3];
 spinlock_t reset_lock;
 static spinlock_t gpio_lock;
 
+
 void comcerto_rst_cntrl_set(unsigned int dev_rst_cntrl_bit)
 {
 	unsigned long flags;

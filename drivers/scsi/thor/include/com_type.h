@@ -72,6 +72,8 @@ typedef struct _MV_SG_Table MV_SG_Table, *PMV_SG_Table;
 struct _MV_SG_Entry;
 typedef struct _MV_SG_Entry MV_SG_Entry, *PMV_SG_Entry;
 
+
+
 /* SG Table and SG Entry */
 struct _MV_SG_Entry
 {
@@ -301,6 +303,7 @@ struct _MV_XOR_Request {
 	MV_SG_Table Source_SG_Table_List[XOR_SOURCE_SG_COUNT];
 	MV_SG_Table Target_SG_Table_List[XOR_TARGET_SG_COUNT];
 
+
 	XOR_COEF    Coef[XOR_TARGET_SG_COUNT][XOR_SOURCE_SG_COUNT];
 
 	MV_U32 Error_Offset;                 /* byte, not sector */
@@ -419,5 +422,6 @@ struct mod_notif_param {
 #   define OFFSET_OF(type, member)    ((MV_U32)(MV_PTR_INTEGER)&(((type *) 0)->member))
 #   define ALIGN ROUNDING
 #endif /* _OS_LINUX */
+
 
 #endif /* __MV_COM_TYPE_H__ */

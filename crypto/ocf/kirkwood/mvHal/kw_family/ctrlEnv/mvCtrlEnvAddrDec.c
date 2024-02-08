@@ -102,6 +102,8 @@ extern MV_TARGET 	*sampleAtResetTargetArray;
 
 #define CTRL_DEC_WIN_EN			BIT0
 
+
+
 /*******************************************************************************
 * mvCtrlAddrDecToReg - Get address decode register format values
 *
@@ -139,6 +141,7 @@ MV_STATUS mvCtrlAddrDecToReg(MV_ADDR_WIN *pAddrDecWin, MV_DEC_REGS *pAddrDecRegs
 	pAddrDecRegs->sizeReg &= ~CTRL_DEC_SIZE_MASK;
 	pAddrDecRegs->sizeReg |= (sizeToReg << CTRL_DEC_SIZE_OFFS);
 
+
 	return MV_OK;
 
 }
@@ -168,6 +171,7 @@ MV_STATUS mvCtrlRegToAddrDec(MV_DEC_REGS *pAddrDecRegs, MV_ADDR_WIN *pAddrDecWin
 					CTRL_DEC_SIZE_OFFS;
 
 	pAddrDecWin->size = ctrlRegToSize(sizeRegVal, CTRL_DEC_SIZE_ALIGNMENT);
+
 
 	/* Extract base address						*/
 	/* Base register [31:16] ==> baseLow[31:16] 		*/

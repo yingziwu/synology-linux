@@ -46,6 +46,7 @@
 static int ar9003_hw_power_interpolate(int32_t x,
 				       int32_t *px, int32_t *py, u_int16_t np);
 
+
 static const struct ar9300_eeprom ar9300_default = {
 	.eepromVersion = 2,
 	.templateVersion = 2,
@@ -1201,6 +1202,7 @@ static const struct ar9300_eeprom ar9300_x113 = {
 	 }
 };
 
+
 static const struct ar9300_eeprom ar9300_h112 = {
 	.eepromVersion = 2,
 	.templateVersion = 3,
@@ -1777,6 +1779,7 @@ static const struct ar9300_eeprom ar9300_h112 = {
 		},
 	}
 };
+
 
 static const struct ar9300_eeprom ar9300_x112 = {
 	.eepromVersion = 2,
@@ -2932,6 +2935,7 @@ static const struct ar9300_eeprom ar9300_h116 = {
 	 }
 };
 
+
 static const struct ar9300_eeprom *ar9300_eep_templates[] = {
 	&ar9300_default,
 	&ar9300_x112,
@@ -2951,6 +2955,7 @@ static const struct ar9300_eeprom *ar9003_eeprom_struct_find_by_id(int id)
 	return NULL;
 #undef N_LOOP
 }
+
 
 static u16 ath9k_hw_fbin2freq(u8 fbin, bool is2GHz)
 {
@@ -3121,6 +3126,7 @@ static bool ar9300_read_otp(struct ath_hw *ah, int address, u8 *buffer,
 
 	return true;
 }
+
 
 static void ar9300_comp_hdr_unpack(u8 *best, int *code, int *reference,
 				   int *length, int *major, int *minor)
@@ -3574,6 +3580,7 @@ static u16 ar9003_switch_com_spdt_get(struct ath_hw *ah, bool is_2ghz)
 	return le32_to_cpu(val);
 }
 
+
 static u32 ar9003_hw_ant_ctrl_common_get(struct ath_hw *ah, bool is2ghz)
 {
 	struct ar9300_eeprom *eep = &ah->eeprom.ar9300_eep;
@@ -3618,7 +3625,7 @@ static u16 ar9003_hw_ant_ctrl_chain_get(struct ath_hw *ah,
 static void ar9003_hw_ant_ctrl_apply(struct ath_hw *ah, bool is2ghz)
 {
 	int chain;
-	u32 regval;
+	u32 regval, value;
 	u32 ant_div_ctl1;
 	static const u32 switch_chain_reg[AR9300_MAX_CHAINS] = {
 			AR_PHY_SWITCH_CHAIN_0,
@@ -3626,7 +3633,11 @@ static void ar9003_hw_ant_ctrl_apply(struct ath_hw *ah, bool is2ghz)
 			AR_PHY_SWITCH_CHAIN_2,
 	};
 
-	u32 value = ar9003_hw_ant_ctrl_common_get(ah, is2ghz);
+	if (AR_SREV_9485(ah) && (ar9003_hw_get_rx_gain_idx(ah) == 0))
+		ath9k_hw_cfg_output(ah, AR9300_EXT_LNA_CTL_GPIO_AR9485,
+				    AR_GPIO_OUTPUT_MUX_AS_PCIE_ATTENTION_LED);
+
+	value = ar9003_hw_ant_ctrl_common_get(ah, is2ghz);
 
 	if (AR_SREV_9462(ah)) {
 		if (AR_SREV_9462_10(ah)) {
@@ -3638,6 +3649,7 @@ static void ar9003_hw_ant_ctrl_apply(struct ath_hw *ah, bool is2ghz)
 	} else
 		REG_RMW_FIELD(ah, AR_PHY_SWITCH_COM,
 			      AR_SWITCH_TABLE_COM_ALL, value);
+
 
 	/*
 	 *   AR9462 defines new switch table for BT/WLAN,
@@ -3713,6 +3725,7 @@ static void ar9003_hw_ant_ctrl_apply(struct ath_hw *ah, bool is2ghz)
 			REG_WRITE(ah, AR_PHY_MC_GAIN_CTRL, regval);
 		}
 
+
 	}
 
 }
@@ -3784,6 +3797,7 @@ static u16 ar9003_hw_atten_chain_get(struct ath_hw *ah, int chain,
 
 	return 0;
 }
+
 
 static u16 ar9003_hw_atten_chain_get_margin(struct ath_hw *ah, int chain,
 					    struct ath9k_channel *chan)
@@ -4520,6 +4534,7 @@ static int ar9003_hw_power_control_override(struct ath_hw *ah,
 	if (AR_SREV_9462_20(ah))
 		REG_RMW_FIELD(ah, AR_PHY_TPC_19_B1,
 			      AR_PHY_TPC_19_B1_ALPHA_THERM, tempSlope);
+
 
 	REG_RMW_FIELD(ah, AR_PHY_TPC_18, AR_PHY_TPC_18_THERM_CAL_VALUE,
 		      temperature[0]);

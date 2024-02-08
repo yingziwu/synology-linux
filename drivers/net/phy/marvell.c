@@ -1,7 +1,21 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * drivers/net/phy/marvell.c
+ *
+ * Driver for Marvell PHYs
+ *
+ * Author: Andy Fleming
+ *
+ * Copyright (c) 2004 Freescale Semiconductor, Inc.
+ *
+ * This program is free software; you can redistribute  it and/or modify it
+ * under  the terms of  the GNU General  Public License as published by the
+ * Free Software Foundation;  either version 2 of the  License, or (at your
+ * option) any later version.
+ *
+ */
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/errno.h>
@@ -81,6 +95,7 @@
 #define MII_M1011_PHY_STATUS_RESOLVED	0x0800
 #define MII_M1011_PHY_STATUS_LINK	0x0400
 
+
 MODULE_DESCRIPTION("Marvell PHY driver");
 MODULE_AUTHOR("Andy Fleming");
 MODULE_LICENSE("GPL");
@@ -89,6 +104,7 @@ static int marvell_ack_interrupt(struct phy_device *phydev)
 {
 	int err;
 
+	/* Clear the interrupts by reading the reg */
 	err = phy_read(phydev, MII_M1011_IEVENT);
 
 	if (err < 0)
@@ -113,6 +129,48 @@ static int marvell_config_aneg(struct phy_device *phydev)
 {
 	int err;
 
+	err = phy_write(phydev, MII_M1011_PHY_SCR,
+			MII_M1011_PHY_SCR_AUTO_CROSS);
+	if (err < 0)
+		return err;
+
+	err = phy_write(phydev, MII_M1111_PHY_LED_CONTROL,
+			MII_M1111_PHY_LED_DIRECT);
+	if (err < 0)
+		return err;
+
+	err = genphy_config_aneg(phydev);
+	if (err < 0)
+		return err;
+
+	if (phydev->autoneg != AUTONEG_ENABLE) {
+		int bmcr;
+
+		/*
+		 * A write to speed/duplex bits (that is performed by
+		 * genphy_config_aneg() call above) must be followed by
+		 * a software reset. Otherwise, the write has no effect.
+		 */
+		bmcr = phy_read(phydev, MII_BMCR);
+		if (bmcr < 0)
+			return bmcr;
+
+		err = phy_write(phydev, MII_BMCR, bmcr | BMCR_RESET);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+static int m88e1101_config_aneg(struct phy_device *phydev)
+{
+	int err;
+
+	/* This Marvell PHY has an errata which requires
+	 * that certain registers get written in order
+	 * to restart autonegotiation
+	 */
 	err = phy_write(phydev, MII_BMCR, BMCR_RESET);
 
 	if (err < 0)
@@ -138,37 +196,24 @@ static int marvell_config_aneg(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
-	err = phy_write(phydev, MII_M1011_PHY_SCR,
-			MII_M1011_PHY_SCR_AUTO_CROSS);
-	if (err < 0)
-		return err;
-
-	err = phy_write(phydev, MII_M1111_PHY_LED_CONTROL,
-			MII_M1111_PHY_LED_DIRECT);
-	if (err < 0)
-		return err;
-
-	err = genphy_config_aneg(phydev);
-	if (err < 0)
-		return err;
-
-	if (phydev->autoneg != AUTONEG_ENABLE) {
-		int bmcr;
-
-		bmcr = phy_read(phydev, MII_BMCR);
-		if (bmcr < 0)
-			return bmcr;
-
-		err = phy_write(phydev, MII_BMCR, bmcr | BMCR_RESET);
-		if (err < 0)
-			return err;
-	}
-
-	return 0;
+	return marvell_config_aneg(phydev);
 }
 
 #ifdef CONFIG_OF_MDIO
- 
+/*
+ * Set and/or override some configuration registers based on the
+ * marvell,reg-init property stored in the of_node for the phydev.
+ *
+ * marvell,reg-init = <reg-page reg mask value>,...;
+ *
+ * There may be one or more sets of <reg-page reg mask value>:
+ *
+ * reg-page: which register bank to use.
+ * reg: the register.
+ * mask: if non-zero, ANDed with existing register value.
+ * value: ORed with the masked value and written to the regiser.
+ *
+ */
 static int marvell_of_reg_init(struct phy_device *phydev)
 {
 	const __be32 *paddr;
@@ -233,7 +278,7 @@ static int marvell_of_reg_init(struct phy_device *phydev)
 {
 	return 0;
 }
-#endif  
+#endif /* CONFIG_OF_MDIO */
 
 static int m88e1121_config_aneg(struct phy_device *phydev)
 {
@@ -286,7 +331,7 @@ static int m88e1121_config_aneg(struct phy_device *phydev)
 
 	phy_write(phydev, MII_MARVELL_PHY_PAGE, MII_88E1121_PHY_LED_PAGE);
 #if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
-	 
+	/* Fixes power-down issue on RD-88F6282-A board by bypassing WoL logic */
 	val = phy_read(phydev, MII_88E1121_PHY_LED_CTRL);
 	val &= ~0xfff;
 	val |= 0x813;
@@ -331,6 +376,7 @@ static int m88e1111_config_init(struct phy_device *phydev)
 	int err;
 	int temp;
 
+	/* Enable Fiber/Copper auto selection */
 	temp = phy_read(phydev, MII_M1111_PHY_EXT_SR);
 	temp &= ~MII_M1111_HWCFG_FIBER_COPPER_AUTO;
 	phy_write(phydev, MII_M1111_PHY_EXT_SR, temp);
@@ -410,6 +456,7 @@ static int m88e1111_config_init(struct phy_device *phydev)
 		if (err < 0)
 			return err;
 
+		/* soft reset */
 		err = phy_write(phydev, MII_BMCR, BMCR_RESET);
 		if (err < 0)
 			return err;
@@ -459,18 +506,22 @@ static int m88e1118_config_init(struct phy_device *phydev)
 {
 	int err;
 
+	/* Change address */
 	err = phy_write(phydev, MII_MARVELL_PHY_PAGE, 0x0002);
 	if (err < 0)
 		return err;
 
+	/* Enable 1000 Mbit */
 	err = phy_write(phydev, 0x15, 0x1070);
 	if (err < 0)
 		return err;
 
+	/* Change address */
 	err = phy_write(phydev, MII_MARVELL_PHY_PAGE, 0x0003);
 	if (err < 0)
 		return err;
 
+	/* Adjust LED Control */
 	if (phydev->dev_flags & MARVELL_PHY_M1118_DNS323_LEDS)
 		err = phy_write(phydev, 0x10, 0x1100);
 	else
@@ -482,6 +533,7 @@ static int m88e1118_config_init(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
+	/* Reset address */
 	err = phy_write(phydev, MII_MARVELL_PHY_PAGE, 0x0);
 	if (err < 0)
 		return err;
@@ -497,10 +549,12 @@ static int m88e1149_config_init(struct phy_device *phydev)
 {
 	int err;
 
+	/* Change address */
 	err = phy_write(phydev, MII_MARVELL_PHY_PAGE, 0x0002);
 	if (err < 0)
 		return err;
 
+	/* Enable 1000 Mbit */
 	err = phy_write(phydev, 0x15, 0x1048);
 	if (err < 0)
 		return err;
@@ -509,6 +563,7 @@ static int m88e1149_config_init(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
+	/* Reset address */
 	err = phy_write(phydev, MII_MARVELL_PHY_PAGE, 0x0);
 	if (err < 0)
 		return err;
@@ -524,6 +579,7 @@ static int m88e1145_config_init(struct phy_device *phydev)
 {
 	int err;
 
+	/* Take care of errata E0 & E1 */
 	err = phy_write(phydev, 0x1d, 0x001b);
 	if (err < 0)
 		return err;
@@ -561,8 +617,8 @@ static int m88e1145_config_init(struct phy_device *phydev)
 				return temp;
 
 			temp &= 0xf03f;
-			temp |= 2 << 9;	 
-			temp |= 2 << 6;	 
+			temp |= 2 << 9;	/* 36 ohm */
+			temp |= 2 << 6;	/* 39 ohm */
 
 			err = phy_write(phydev, 0x1e, temp);
 			if (err < 0)
@@ -585,6 +641,15 @@ static int m88e1145_config_init(struct phy_device *phydev)
 	return 0;
 }
 
+/* marvell_read_status
+ *
+ * Generic status code does not detect Fiber correctly!
+ * Description:
+ *   Check the link, then figure out the current state
+ *   by comparing what we advertise with what the link partner
+ *   advertises.  Start by checking the gigabit possibilities,
+ *   then move on to 10/100.
+ */
 static int marvell_read_status(struct phy_device *phydev)
 {
 	int adv;
@@ -592,6 +657,8 @@ static int marvell_read_status(struct phy_device *phydev)
 	int lpa;
 	int status = 0;
 
+	/* Update the link, but return if there
+	 * was an error */
 	err = genphy_update_link(phydev);
 	if (err)
 		return err;
@@ -608,8 +675,6 @@ static int marvell_read_status(struct phy_device *phydev)
 		adv = phy_read(phydev, MII_ADVERTISE);
 		if (adv < 0)
 			return adv;
-
-		lpa &= adv;
 
 		if (status & MII_M1011_PHY_STATUS_FULLDUPLEX)
 			phydev->duplex = DUPLEX_FULL;
@@ -680,7 +745,7 @@ static struct phy_driver marvell_drivers[] = {
 		.name = "Marvell 88E1101",
 		.features = PHY_GBIT_FEATURES,
 		.flags = PHY_HAS_INTERRUPT,
-		.config_aneg = &marvell_config_aneg,
+		.config_aneg = &m88e1101_config_aneg,
 		.read_status = &genphy_read_status,
 		.ack_interrupt = &marvell_ack_interrupt,
 		.config_intr = &marvell_config_intr,
@@ -758,7 +823,7 @@ static struct phy_driver marvell_drivers[] = {
 		.features = PHY_GBIT_FEATURES,
 		.flags = PHY_HAS_INTERRUPT,
 		.config_init = &m88e1145_config_init,
-		.config_aneg = &marvell_config_aneg,
+		.config_aneg = &m88e1101_config_aneg,
 		.read_status = &genphy_read_status,
 		.ack_interrupt = &marvell_ack_interrupt,
 		.config_intr = &marvell_config_intr,

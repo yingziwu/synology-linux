@@ -526,6 +526,7 @@ static void mmci_post_request(struct mmc_host *mmc, struct mmc_request *mrq,
 		chan = host->dma_tx_channel;
 	}
 
+
 	/* if config for dma */
 	if (chan) {
 		if (err)

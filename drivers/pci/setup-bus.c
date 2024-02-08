@@ -1072,6 +1072,7 @@ static void pci_bus_dump_resources(struct pci_bus *bus)
 	struct pci_bus *b;
 	struct pci_dev *dev;
 
+
 	pci_bus_dump_res(bus);
 
 	list_for_each_entry(dev, &bus->devices, bus_list) {
@@ -1117,6 +1118,7 @@ static int __init pci_get_max_depth(void)
 	return depth;
 }
 
+
 /*
  * first try will not touch pci bridge res
  * second  and later try will clear small leaf bridge res
@@ -1136,6 +1138,7 @@ pci_assign_unassigned_resources(void)
 	unsigned long failed_type;
 	int max_depth = pci_get_max_depth();
 	int pci_try_num;
+
 
 	head.next = NULL;
 	realloc_list.next = NULL;

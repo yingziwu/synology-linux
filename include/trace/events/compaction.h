@@ -67,6 +67,7 @@ TRACE_EVENT(mm_compaction_migratepages,
 		__entry->nr_failed)
 );
 
+
 #endif /* _TRACE_COMPACTION_H */
 
 /* This part must be outside protection */

@@ -218,6 +218,7 @@ static void __exit max6875_exit(void)
 	i2c_del_driver(&max6875_driver);
 }
 
+
 MODULE_AUTHOR("Ben Gardner <bgardner@wabtec.com>");
 MODULE_DESCRIPTION("MAX6875 driver");
 MODULE_LICENSE("GPL");

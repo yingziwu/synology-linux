@@ -1,7 +1,22 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * net/key/af_key.c	An implementation of PF_KEYv2 sockets.
+ *
+ *		This program is free software; you can redistribute it and/or
+ *		modify it under the terms of the GNU General Public License
+ *		as published by the Free Software Foundation; either version
+ *		2 of the License, or (at your option) any later version.
+ *
+ * Authors:	Maxim Giryaev	<gem@asplinux.ru>
+ *		David S. Miller	<davem@redhat.com>
+ *		Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+ *		Kunihiro Ishiguro <kunihiro@ipinfusion.com>
+ *		Kazunori MIYAZAWA / USAGI Project <miyazawa@linux-ipv6.org>
+ *		Derek Atkins <derek@ihtfp.com>
+ */
+
 #include <linux/capability.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -37,6 +52,7 @@
 #include <net/inet_ecn.h>
 #include <net/ipv6.h>
 
+
 extern struct dst_entry *xfrm_dst_lookup(struct xfrm_state *x, int tos,
 						xfrm_address_t *prev_saddr,
 						xfrm_address_t *prev_daddr,
@@ -44,6 +60,7 @@ extern struct dst_entry *xfrm_dst_lookup(struct xfrm_state *x, int tos,
 extern int xfrm_get_tos(struct flowi *fl, int family);
 extern int ipsec_nlkey_flow(u16 xfrm_nr, u16 *xfrm_handle, 
 		const struct flowi *fl, u16 family, u16 dir);
+
 
 #define	NLKEY_SA_CREATE		0x0A01
 #define NLKEY_SA_DELETE		0x0A02
@@ -67,12 +84,13 @@ extern int ipsec_nlkey_flow(u16 xfrm_nr, u16 *xfrm_handle,
 #define NLKEY_MAX_KEY_LEN	(256 / 8)
 
 struct nlkey_msg {
-	 
+	/* message data */
 	unsigned short fcode;
 	unsigned short length;
 	unsigned short payload[(NLKEY_MSG_LEN /sizeof(unsigned short))];
 };
- 
+/* sizeof(nlkey_msg) = 4 + 256 */
+
 struct nlkey_sa_id {
 	unsigned int spi;
 	unsigned char sa_type;
@@ -86,18 +104,21 @@ struct nlkey_sa_id {
 	unsigned short dev_mtu;
 
 };
- 
+/* sizeof(nlkey_sa_id) = 24 */
+
 struct nlkey_sa_create {
 	unsigned short sagd;
 	unsigned short rsvd;
 	struct nlkey_sa_id said;
 };
- 
+/* sizeof(nlkey_sa_delete) = 28 */
+
 struct nlkey_sa_delete {
 	unsigned short sagd;
 	unsigned short rsvd;
 };
- 
+/* sizeof(nlkey_sa_delete) = 4 */
+
 struct nlkey_sa_set_tunnel {
 	unsigned short sagd;
 	unsigned char rsvd;
@@ -107,28 +128,32 @@ struct nlkey_sa_set_tunnel {
 		struct ipv6hdr ipv6h;
 	} h;
 };
- 
+/* sizeof(nlkey_sa_set_tunnel) = 36 */
+
 struct nlkey_sa_set_natt {
 	unsigned short sagd;
 	unsigned short sport;
 	unsigned short dport;
 	unsigned short rsvd;
 };
- 
+/* sizeof(nlkey_sa_set_natt) = 4 */
+
 struct nlkey_sa_set_state {
 	unsigned short sagd;
 	unsigned short rsvd;
 	unsigned short state;
 	unsigned short rsvd2;
 };
- 
+/* sizeof(nlkey_sa_set_natt) = 8 */
+
 struct nlkey_key_desc {
 	unsigned short key_bits;
 	unsigned char key_alg;
 	unsigned char  key_type;
 	unsigned char key[NLKEY_MAX_KEY_LEN]; 
 };
- 
+/* sizeof(nlkey_key_desc) =  36 */
+
 struct nlkey_sa_set_keys {
 	unsigned short sagd;
 	unsigned short rsvd;	
@@ -136,12 +161,14 @@ struct nlkey_sa_set_keys {
 	unsigned short rsvd2;
 	struct nlkey_key_desc keys[NLKEY_MAX_NUM_KEYS];
 };
- 
+/* sizeof(nlkey_sa_set_keys) =  80 */
+
 struct nlkey_lifetime_desc {
 	unsigned int allocations;
 	unsigned int bytes[2];
 };
- 
+/* sizeof(nlkey_sa_set_lifetime) =  12 */
+
 struct nlkey_sa_set_lifetime {
 	unsigned short sagd;
 	unsigned short rsvd;
@@ -149,7 +176,9 @@ struct nlkey_sa_set_lifetime {
 	struct nlkey_lifetime_desc soft_time;
 	struct nlkey_lifetime_desc current_time;
 };
- 
+/* sizeof(nlkey_sa_set_lifetime) =  40 */
+
+/* SA notifications */
 #define IPSEC_SOFT_EXPIRE 0
 #define IPSEC_HARD_EXPIRE 1
 
@@ -158,14 +187,19 @@ struct nlkey_sa_notify {
 	unsigned short rsvd;
 	unsigned int  action;
 };
- 
+/* sizeof(nlkey_sa_notify) = 8 */
+
+/* SA Info update */
+
 struct nlkey_sa_info {
         unsigned short sagd;
         unsigned short rsvd;
         unsigned long long bytes;
         unsigned long long packets;
 };
- 
+/* sizeof(nlkey_sa_info) =  */
+
+
 static int ipsec_nlkey_send(struct net *net, struct xfrm_state *x, const struct km_event *c);
 static void ipsec_nlkey_rcv(struct sk_buff *skb);
 static void ipsec_nlkey_init(void);
@@ -174,18 +208,20 @@ static struct sk_buff * ipsec_xfrm2nlkey (struct net *net, struct xfrm_state *x,
 					const struct km_event *c, unsigned short *msg_id);
 static int ipsec_nlkey_set_said(struct net *net, struct xfrm_state *x, const struct km_event *c, struct nlkey_sa_id *said);
 
+/* netlink NETLINK_KEY socket */
 struct sock *nlkey_socket = NULL;
 
 #endif
- 
+/************************************************************************************/
 #endif
+
 
 #define _X2KEY(x) ((x) == XFRM_INF ? 0 : (x))
 #define _KEY2X(x) ((x) == 0 ? XFRM_INF : (x))
 
 static int pfkey_net_id __read_mostly;
 struct netns_pfkey {
-	 
+	/* List of all pfkey sockets. */
 	struct hlist_head table;
 	atomic_t socks_nr;
 };
@@ -194,7 +230,7 @@ static DEFINE_MUTEX(pfkey_mutex);
 #define DUMMY_MARK 0
 static struct xfrm_mark dummy_mark = {0, 0};
 struct pfkey_sock {
-	 
+	/* struct sock must be the first member of struct pfkey_sock */
 	struct sock	sk;
 	int		registered;
 	int		promisc;
@@ -210,6 +246,7 @@ struct pfkey_sock {
 		} u;
 		struct sk_buff	*skb;
 	} dump;
+	struct mutex dump_lock;
 };
 
 static inline struct pfkey_sock *pfkey_sk(struct sock *sk)
@@ -286,6 +323,7 @@ static int pfkey_create(struct net *net, struct socket *sock, int protocol,
 {
 	struct netns_pfkey *net_pfkey = net_generic(net, pfkey_net_id);
 	struct sock *sk;
+	struct pfkey_sock *pfk;
 	int err;
 
 	if (!capable(CAP_NET_ADMIN))
@@ -299,6 +337,9 @@ static int pfkey_create(struct net *net, struct socket *sock, int protocol,
 	sk = sk_alloc(net, PF_KEY, GFP_KERNEL, &key_proto);
 	if (sk == NULL)
 		goto out;
+
+	pfk = pfkey_sk(sk);
+	mutex_init(&pfk->dump_lock);
 
 	sock->ops = &pfkey_ops;
 	sock_init_data(sock, sk);
@@ -362,6 +403,7 @@ static int pfkey_broadcast_one(struct sk_buff *skb, struct sk_buff **skb2,
 	return err;
 }
 
+/* Send SKB to all pfkey sockets matching selected criteria.  */
 #define BROADCAST_ALL		0
 #define BROADCAST_ONE		1
 #define BROADCAST_REGISTERED	2
@@ -376,6 +418,9 @@ static int pfkey_broadcast(struct sk_buff *skb, gfp_t allocation,
 	struct sk_buff *skb2 = NULL;
 	int err = -ESRCH;
 
+	/* XXX Do we need something like netlink_overrun?  I think
+	 * XXX PF_KEY socket apps will not mind current behavior.
+	 */
 	if (!skb)
 		return -ENOMEM;
 
@@ -384,9 +429,14 @@ static int pfkey_broadcast(struct sk_buff *skb, gfp_t allocation,
 		struct pfkey_sock *pfk = pfkey_sk(sk);
 		int err2;
 
+		/* Yes, it means that if you are meant to receive this
+		 * pfkey message you receive it twice as promiscuous
+		 * socket.
+		 */
 		if (pfk->promisc)
-			pfkey_broadcast_one(skb, &skb2, allocation, sk);
+			pfkey_broadcast_one(skb, &skb2, GFP_ATOMIC, sk);
 
+		/* the exact target will be processed later */
 		if (sk == one_sk)
 			continue;
 		if (broadcast_flags != BROADCAST_ALL) {
@@ -399,8 +449,10 @@ static int pfkey_broadcast(struct sk_buff *skb, gfp_t allocation,
 				continue;
 		}
 
-		err2 = pfkey_broadcast_one(skb, &skb2, allocation, sk);
+		err2 = pfkey_broadcast_one(skb, &skb2, GFP_ATOMIC, sk);
 
+		/* Error is cleare after succecful sending to at least one
+		 * registered KM */
 		if ((broadcast_flags & BROADCAST_REGISTERED) && err)
 			err = err2;
 	}
@@ -419,13 +471,23 @@ static int pfkey_do_dump(struct pfkey_sock *pfk)
 	struct sadb_msg *hdr;
 	int rc;
 
+	mutex_lock(&pfk->dump_lock);
+	if (!pfk->dump.dump) {
+		rc = 0;
+		goto out;
+	}
+
 	rc = pfk->dump.dump(pfk);
-	if (rc == -ENOBUFS)
-		return 0;
+	if (rc == -ENOBUFS) {
+		rc = 0;
+		goto out;
+	}
 
 	if (pfk->dump.skb) {
-		if (!pfkey_can_dump(&pfk->sk))
-			return 0;
+		if (!pfkey_can_dump(&pfk->sk)) {
+			rc = 0;
+			goto out;
+		}
 
 		hdr = (struct sadb_msg *) pfk->dump.skb->data;
 		hdr->sadb_msg_seq = 0;
@@ -436,6 +498,9 @@ static int pfkey_do_dump(struct pfkey_sock *pfk)
 	}
 
 	pfkey_terminate_dump(pfk);
+
+out:
+	mutex_unlock(&pfk->dump_lock);
 	return rc;
 }
 
@@ -453,6 +518,9 @@ static int pfkey_error(const struct sadb_msg *orig, int err, struct sock *sk)
 	if (!skb)
 		return -ENOBUFS;
 
+	/* Woe be to the platform trying to support PFKEY yet
+	 * having normal errnos outside the 1-255 range, inclusive.
+	 */
 	err = -err;
 	if (err == ERESTARTSYS ||
 	    err == ERESTARTNOHAND ||
@@ -502,6 +570,7 @@ static u8 sadb_ext_min_len[] = {
 	[SADB_X_EXT_KMADDRESS]		= (u8) sizeof(struct sadb_x_kmaddress),
 };
 
+/* Verify sadb_address_{len,prefixlen} against sa_family.  */
 static int verify_address_len(const void *p)
 {
 	const struct sadb_address *sp = p;
@@ -511,6 +580,11 @@ static int verify_address_len(const void *p)
 	const struct sockaddr_in6 *sin6;
 #endif
 	int len;
+
+	if (sp->sadb_address_len <
+	    DIV_ROUND_UP(sizeof(*sp) + offsetofend(typeof(*addr), sa_family),
+			 sizeof(uint64_t)))
+		return -EINVAL;
 
 	switch (addr->sa_family) {
 	case AF_INET:
@@ -528,7 +602,15 @@ static int verify_address_len(const void *p)
 		break;
 #endif
 	default:
-		 
+		/* It is user using kernel to keep track of security
+		 * associations for another protocol, such as
+		 * OSPF/RSVP/RIPV2/MIP.  It is user's job to verify
+		 * lengths.
+		 *
+		 * XXX Actually, association/policy database is not yet
+		 * XXX able to cope with arbitrary sockaddr families.
+		 * XXX When it can, remove this -EINVAL.  -DaveM
+		 */
 		return -EINVAL;
 		break;
 	}
@@ -614,6 +696,9 @@ static int parse_exthdrs(struct sk_buff *skb, const struct sadb_msg *hdr, void *
 		uint16_t ext_type;
 		int ext_len;
 
+		if (len < sizeof(*ehdr))
+			return -EINVAL;
+
 		ext_len  = ehdr->sadb_ext_len;
 		ext_len *= sizeof(uint64_t);
 		ext_type = ehdr->sadb_ext_type;
@@ -664,7 +749,7 @@ pfkey_satype2proto(uint8_t satype)
 	default:
 		return 0;
 	}
-	 
+	/* NOTREACHED */
 }
 
 static uint8_t
@@ -681,8 +766,12 @@ pfkey_proto2satype(uint16_t proto)
 	default:
 		return 0;
 	}
-	 
+	/* NOTREACHED */
 }
+
+/* BTW, this scheme means that there is no way with PFKEY2 sockets to
+ * say specifically 'just raw sockets' as we encode them as 255.
+ */
 
 static uint8_t pfkey_proto_to_xfrm(uint8_t proto)
 {
@@ -749,6 +838,7 @@ static struct  xfrm_state *pfkey_xfrm_state_lookup(struct net *net, const struct
 	if (proto == 0)
 		return NULL;
 
+	/* sadb_address_len should be checked by caller */
 	addr = ext_hdrs[SADB_EXT_ADDRESS_DST - 1];
 	if (addr == NULL)
 		return NULL;
@@ -798,7 +888,7 @@ static inline int pfkey_mode_from_xfrm(int mode)
 static inline int pfkey_mode_to_xfrm(int mode)
 {
 	switch(mode) {
-	case IPSEC_MODE_ANY:	 
+	case IPSEC_MODE_ANY:	/*XXX*/
 	case IPSEC_MODE_TRANSPORT:
 		return XFRM_MODE_TRANSPORT;
 	case IPSEC_MODE_TUNNEL:
@@ -860,10 +950,13 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 	struct xfrm_encap_tmpl *natt = NULL;
 	int mode;
 
+	/* address family check */
 	sockaddr_size = pfkey_sockaddr_size(x->props.family);
 	if (!sockaddr_size)
 		return ERR_PTR(-EINVAL);
 
+	/* base, SA, (lifetime (HSC),) address(SD), (address(P),)
+	   key(AE), (identity(SD),) (sensitivity)> */
 	size = sizeof(struct sadb_msg) +sizeof(struct sadb_sa) +
 		sizeof(struct sadb_lifetime) +
 		((hsc & 1) ? sizeof(struct sadb_lifetime) : 0) +
@@ -877,6 +970,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		size += sizeof(struct sadb_x_sec_ctx) + ctx_size;
 	}
 
+	/* identity & sensitivity */
 	if (xfrm_addr_cmp(&x->sel.saddr, &x->props.saddr, x->props.family))
 		size += sizeof(struct sadb_address) + sockaddr_size;
 
@@ -905,10 +999,12 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 	if (skb == NULL)
 		return ERR_PTR(-ENOBUFS);
 
+	/* call should fill header later */
 	hdr = (struct sadb_msg *) skb_put(skb, sizeof(struct sadb_msg));
-	memset(hdr, 0, size);	 
+	memset(hdr, 0, size);	/* XXX do we need this ? */
 	hdr->sadb_msg_len = size / sizeof(uint64_t);
 
+	/* sa */
 	sa = (struct sadb_sa *)  skb_put(skb, sizeof(struct sadb_sa));
 	sa->sadb_sa_len = sizeof(struct sadb_sa)/sizeof(uint64_t);
 	sa->sadb_sa_exttype = SADB_EXT_SA;
@@ -937,7 +1033,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		struct xfrm_algo_desc *a = xfrm_ealg_get_byname(x->ealg->alg_name, 0);
 		sa->sadb_sa_encrypt = a ? a->desc.sadb_alg_id : 0;
 	}
-	 
+	/* KAME compatible: sadb_sa_encrypt is overloaded with calg id */
 	if (x->calg) {
 		struct xfrm_algo_desc *a = xfrm_calg_get_byname(x->calg->alg_name, 0);
 		sa->sadb_sa_encrypt = a ? a->desc.sadb_alg_id : 0;
@@ -955,6 +1051,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		sa->sadb_sa_flags |= SADB_SAFLAGS_ESN;
 #endif
 
+	/* hard time */
 	if (hsc & 2) {
 		lifetime = (struct sadb_lifetime *)  skb_put(skb,
 							     sizeof(struct sadb_lifetime));
@@ -966,7 +1063,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		lifetime->sadb_lifetime_addtime = x->lft.hard_add_expires_seconds;
 		lifetime->sadb_lifetime_usetime = x->lft.hard_use_expires_seconds;
 	}
-	 
+	/* soft time */
 	if (hsc & 1) {
 		lifetime = (struct sadb_lifetime *)  skb_put(skb,
 							     sizeof(struct sadb_lifetime));
@@ -978,7 +1075,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		lifetime->sadb_lifetime_addtime = x->lft.soft_add_expires_seconds;
 		lifetime->sadb_lifetime_usetime = x->lft.soft_use_expires_seconds;
 	}
-	 
+	/* current time */
 	lifetime = (struct sadb_lifetime *)  skb_put(skb,
 						     sizeof(struct sadb_lifetime));
 	lifetime->sadb_lifetime_len =
@@ -988,14 +1085,16 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 	lifetime->sadb_lifetime_bytes = x->curlft.bytes;
 	lifetime->sadb_lifetime_addtime = x->curlft.add_time;
 	lifetime->sadb_lifetime_usetime = x->curlft.use_time;
-	 
+	/* src address */
 	addr = (struct sadb_address*) skb_put(skb,
 					      sizeof(struct sadb_address)+sockaddr_size);
 	addr->sadb_address_len =
 		(sizeof(struct sadb_address)+sockaddr_size)/
 			sizeof(uint64_t);
 	addr->sadb_address_exttype = SADB_EXT_ADDRESS_SRC;
-	 
+	/* "if the ports are non-zero, then the sadb_address_proto field,
+	   normally zero, MUST be filled in with the transport
+	   protocol's number." - RFC2367 */
 	addr->sadb_address_proto = 0;
 	addr->sadb_address_reserved = 0;
 
@@ -1006,6 +1105,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 	if (!addr->sadb_address_prefixlen)
 		BUG();
 
+	/* dst address */
 	addr = (struct sadb_address*) skb_put(skb,
 					      sizeof(struct sadb_address)+sockaddr_size);
 	addr->sadb_address_len =
@@ -1040,6 +1140,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 				    x->props.family);
 	}
 
+	/* auth key */
 	if (add_keys && auth_key_size) {
 		key = (struct sadb_key *) skb_put(skb,
 						  sizeof(struct sadb_key)+auth_key_size);
@@ -1050,7 +1151,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		key->sadb_key_reserved = 0;
 		memcpy(key + 1, x->aalg->alg_key, (x->aalg->alg_key_len+7)/8);
 	}
-	 
+	/* encrypt key */
 	if (add_keys && encrypt_key_size) {
 		key = (struct sadb_key *) skb_put(skb,
 						  sizeof(struct sadb_key)+encrypt_key_size);
@@ -1063,6 +1164,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		       (x->ealg->alg_key_len+7)/8);
 	}
 
+	/* sa */
 	sa2 = (struct sadb_x_sa2 *)  skb_put(skb, sizeof(struct sadb_x_sa2));
 	sa2->sadb_x_sa2_len = sizeof(struct sadb_x_sa2)/sizeof(uint64_t);
 	sa2->sadb_x_sa2_exttype = SADB_X_EXT_SA2;
@@ -1080,6 +1182,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		struct sadb_x_nat_t_type *n_type;
 		struct sadb_x_nat_t_port *n_port;
 
+		/* type */
 		n_type = (struct sadb_x_nat_t_type*) skb_put(skb, sizeof(*n_type));
 		n_type->sadb_x_nat_t_type_len = sizeof(*n_type)/sizeof(uint64_t);
 		n_type->sadb_x_nat_t_type_exttype = SADB_X_EXT_NAT_T_TYPE;
@@ -1088,12 +1191,14 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		n_type->sadb_x_nat_t_type_reserved[1] = 0;
 		n_type->sadb_x_nat_t_type_reserved[2] = 0;
 
+		/* source port */
 		n_port = (struct sadb_x_nat_t_port*) skb_put(skb, sizeof (*n_port));
 		n_port->sadb_x_nat_t_port_len = sizeof(*n_port)/sizeof(uint64_t);
 		n_port->sadb_x_nat_t_port_exttype = SADB_X_EXT_NAT_T_SPORT;
 		n_port->sadb_x_nat_t_port_port = natt->encap_sport;
 		n_port->sadb_x_nat_t_port_reserved = 0;
 
+		/* dest port */
 		n_port = (struct sadb_x_nat_t_port*) skb_put(skb, sizeof (*n_port));
 		n_port->sadb_x_nat_t_port_len = sizeof(*n_port)/sizeof(uint64_t);
 		n_port->sadb_x_nat_t_port_exttype = SADB_X_EXT_NAT_T_DPORT;
@@ -1101,6 +1206,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 		n_port->sadb_x_nat_t_port_reserved = 0;
 	}
 
+	/* security context */
 	if (xfrm_ctx) {
 		sec_ctx = (struct sadb_x_sec_ctx *) skb_put(skb,
 				sizeof(struct sadb_x_sec_ctx) + ctx_size);
@@ -1116,6 +1222,7 @@ static struct sk_buff *__pfkey_xfrm_state2msg(const struct xfrm_state *x,
 
 	return skb;
 }
+
 
 static inline struct sk_buff *pfkey_xfrm_state2msg(const struct xfrm_state *x)
 {
@@ -1144,6 +1251,7 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 	uint16_t proto;
 	int err;
 
+
 	sa = ext_hdrs[SADB_EXT_SA - 1];
 	if (!sa ||
 	    !present_and_same_family(ext_hdrs[SADB_EXT_ADDRESS_SRC-1],
@@ -1163,8 +1271,21 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 	if (proto == 0)
 		return ERR_PTR(-EINVAL);
 
+	/* default error is no buffer space */
 	err = -ENOBUFS;
 
+	/* RFC2367:
+
+   Only SADB_SASTATE_MATURE SAs may be submitted in an SADB_ADD message.
+   SADB_SASTATE_LARVAL SAs are created by SADB_GETSPI and it is not
+   sensible to add a new SA in the DYING or SADB_SASTATE_DEAD state.
+   Therefore, the sadb_sa_state field of all submitted SAs MUST be
+   SADB_SASTATE_MATURE and the kernel MUST return an error if this is
+   not true.
+
+	   However, KAME setkey always uses SADB_SASTATE_LARVAL.
+	   Hence, we have to _ignore_ sadb_sa_state, which is also reasonable.
+	 */
 	if (sa->sadb_sa_auth > SADB_AALG_MAX ||
 	    (hdr->sadb_msg_satype == SADB_X_SATYPE_IPCOMP &&
 	     sa->sadb_sa_encrypt > SADB_X_CALG_MAX) ||
@@ -1230,6 +1351,7 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 			goto out;
 	}
 
+	err = -ENOBUFS;
 	key = ext_hdrs[SADB_EXT_KEY_AUTH - 1];
 	if (sa->sadb_sa_auth) {
 		int keysize = 0;
@@ -1241,8 +1363,10 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 		if (key)
 			keysize = (key->sadb_key_bits + 7) / 8;
 		x->aalg = kmalloc(sizeof(*x->aalg) + keysize, GFP_KERNEL);
-		if (!x->aalg)
+		if (!x->aalg) {
+			err = -ENOMEM;
 			goto out;
+		}
 		strcpy(x->aalg->alg_name, a->name);
 		x->aalg->alg_key_len = 0;
 		if (key) {
@@ -1251,7 +1375,7 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 		}
 		x->aalg->alg_trunc_len = a->uinfo.auth.icv_truncbits;
 		x->props.aalgo = sa->sadb_sa_auth;
-		 
+		/* x->algo.flags = sa->sadb_sa_flags; */
 	}
 	if (sa->sadb_sa_encrypt) {
 		if (hdr->sadb_msg_satype == SADB_X_SATYPE_IPCOMP) {
@@ -1261,8 +1385,10 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 				goto out;
 			}
 			x->calg = kmalloc(sizeof(*x->calg), GFP_KERNEL);
-			if (!x->calg)
+			if (!x->calg) {
+				err = -ENOMEM;
 				goto out;
+			}
 			strcpy(x->calg->alg_name, a->name);
 			x->props.calgo = sa->sadb_sa_encrypt;
 		} else {
@@ -1276,8 +1402,10 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 			if (key)
 				keysize = (key->sadb_key_bits + 7) / 8;
 			x->ealg = kmalloc(sizeof(*x->ealg) + keysize, GFP_KERNEL);
-			if (!x->ealg)
+			if (!x->ealg) {
+				err = -ENOMEM;
 				goto out;
+			}
 			strcpy(x->ealg->alg_name, a->name);
 			x->ealg->alg_key_len = 0;
 			if (key) {
@@ -1287,7 +1415,8 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 			x->props.ealgo = sa->sadb_sa_encrypt;
 		}
 	}
-	 
+	/* x->algo.flags = sa->sadb_sa_flags; */
+
 	x->props.family = pfkey_sadb_addr2xfrm_addr((struct sadb_address *) ext_hdrs[SADB_EXT_ADDRESS_SRC-1],
 						    &x->props.saddr);
 	if (!x->props.family) {
@@ -1311,6 +1440,7 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 	if (ext_hdrs[SADB_EXT_ADDRESS_PROXY-1]) {
 		const struct sadb_address *addr = ext_hdrs[SADB_EXT_ADDRESS_PROXY-1];
 
+		/* Nobody uses this, but we try. */
 		x->sel.family = pfkey_sadb_addr2xfrm_addr(addr, &x->sel.saddr);
 		x->sel.prefixlen_s = addr->sadb_address_prefixlen;
 	}
@@ -1323,8 +1453,10 @@ static struct xfrm_state * pfkey_msg2xfrm_state(struct net *net,
 		struct xfrm_encap_tmpl *natt;
 
 		x->encap = kmalloc(sizeof(*x->encap), GFP_KERNEL);
-		if (!x->encap)
+		if (!x->encap) {
+			err = -ENOMEM;
 			goto out;
+		}
 
 		natt = x->encap;
 		n_type = ext_hdrs[SADB_X_EXT_NAT_T_TYPE-1];
@@ -1495,7 +1627,7 @@ static inline int event2poltype(int event)
 	case XFRM_MSG_UPDPOLICY:
 		return SADB_X_SPDUPDATE;
 	case XFRM_MSG_POLEXPIRE:
-	 
+	//	return SADB_X_SPDEXPIRE;
 	default:
 		pr_err("pfkey: Unknown policy event %d\n", event);
 		break;
@@ -1523,6 +1655,7 @@ static inline int event2keytype(int event)
 	return 0;
 }
 
+/* ADD/UPD/DEL */
 static int key_notify_sa(struct xfrm_state *x, const struct km_event *c)
 {
 	struct sk_buff *skb;
@@ -1760,8 +1893,8 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
 		return -ENOBUFS;
 	}
 
-	pfkey_broadcast(supp_skb, GFP_KERNEL, BROADCAST_REGISTERED, sk, sock_net(sk));
-
+	pfkey_broadcast(supp_skb, GFP_KERNEL, BROADCAST_REGISTERED, sk,
+			sock_net(sk));
 	return 0;
 }
 
@@ -1779,7 +1912,8 @@ static int unicast_flush_resp(struct sock *sk, const struct sadb_msg *ihdr)
 	hdr->sadb_msg_errno = (uint8_t) 0;
 	hdr->sadb_msg_len = (sizeof(struct sadb_msg) / sizeof(uint64_t));
 
-	return pfkey_broadcast(skb, GFP_ATOMIC, BROADCAST_ONE, sk, sock_net(sk));
+	return pfkey_broadcast(skb, GFP_ATOMIC, BROADCAST_ONE, sk,
+			       sock_net(sk));
 }
 
 static int key_notify_sa_flush(const struct km_event *c)
@@ -1823,7 +1957,7 @@ static int pfkey_flush(struct sock *sk, struct sk_buff *skb, const struct sadb_m
 	err = xfrm_state_flush(net, proto, &audit_info);
 	err2 = unicast_flush_resp(sk, hdr);
 	if (err || err2) {
-		if (err == -ESRCH)  
+		if (err == -ESRCH) /* empty table - go quietly */
 			err = 0;
 		return err ? err : err2;
 	}
@@ -1884,18 +2018,24 @@ static int pfkey_dump(struct sock *sk, struct sk_buff *skb, const struct sadb_ms
 	u8 proto;
 	struct pfkey_sock *pfk = pfkey_sk(sk);
 
-	if (pfk->dump.dump != NULL)
+	mutex_lock(&pfk->dump_lock);
+	if (pfk->dump.dump != NULL) {
+		mutex_unlock(&pfk->dump_lock);
 		return -EBUSY;
+	}
 
 	proto = pfkey_satype2proto(hdr->sadb_msg_satype);
-	if (proto == 0)
+	if (proto == 0) {
+		mutex_unlock(&pfk->dump_lock);
 		return -EINVAL;
+	}
 
 	pfk->dump.msg_version = hdr->sadb_msg_version;
 	pfk->dump.msg_pid = hdr->sadb_msg_pid;
 	pfk->dump.dump = pfkey_dump_sa;
 	pfk->dump.done = pfkey_dump_sa_done;
 	xfrm_state_walk_init(&pfk->dump.u.state, proto);
+	mutex_unlock(&pfk->dump_lock);
 
 	return pfkey_do_dump(pfk);
 }
@@ -1972,7 +2112,7 @@ parse_ipsecrequest(struct xfrm_policy *xp, struct sadb_x_ipsecrequest *rq)
 	if (rq->sadb_x_ipsecrequest_mode == 0)
 		return -EINVAL;
 
-	t->id.proto = rq->sadb_x_ipsecrequest_proto;  
+	t->id.proto = rq->sadb_x_ipsecrequest_proto; /* XXX check proto */
 	if ((mode = pfkey_mode_to_xfrm(rq->sadb_x_ipsecrequest_mode)) < 0)
 		return -EINVAL;
 	t->mode = mode;
@@ -1986,6 +2126,7 @@ parse_ipsecrequest(struct xfrm_policy *xp, struct sadb_x_ipsecrequest *rq)
 			return -ENOBUFS;
 	}
 
+	/* addresses present only in tunnel mode */
 	if (t->mode == XFRM_MODE_TUNNEL) {
 		u8 *sa = (u8 *) (rq + 1);
 		int family, socklen;
@@ -2003,6 +2144,7 @@ parse_ipsecrequest(struct xfrm_policy *xp, struct sadb_x_ipsecrequest *rq)
 	} else
 		t->encap_family = xp->family;
 
+	/* No way to set this via kame pfkey */
 	t->allalgs = 1;
 	xp->xfrm_nr++;
 	return 0;
@@ -2087,9 +2229,11 @@ static int pfkey_xfrm_policy2msg(struct sk_buff *skb, const struct xfrm_policy *
 
 	size = pfkey_xfrm_policy2msg_size(xp);
 
+	/* call should fill header later */
 	hdr = (struct sadb_msg *) skb_put(skb, sizeof(struct sadb_msg));
-	memset(hdr, 0, size);	 
+	memset(hdr, 0, size);	/* XXX do we need this ? */
 
+	/* src address */
 	addr = (struct sadb_address*) skb_put(skb,
 					      sizeof(struct sadb_address)+sockaddr_size);
 	addr->sadb_address_len =
@@ -2105,6 +2249,7 @@ static int pfkey_xfrm_policy2msg(struct sk_buff *skb, const struct xfrm_policy *
 				 xp->family))
 		BUG();
 
+	/* dst address */
 	addr = (struct sadb_address*) skb_put(skb,
 					      sizeof(struct sadb_address)+sockaddr_size);
 	addr->sadb_address_len =
@@ -2119,6 +2264,7 @@ static int pfkey_xfrm_policy2msg(struct sk_buff *skb, const struct xfrm_policy *
 			    (struct sockaddr *) (addr + 1),
 			    xp->family);
 
+	/* hard time */
 	lifetime = (struct sadb_lifetime *)  skb_put(skb,
 						     sizeof(struct sadb_lifetime));
 	lifetime->sadb_lifetime_len =
@@ -2128,7 +2274,7 @@ static int pfkey_xfrm_policy2msg(struct sk_buff *skb, const struct xfrm_policy *
 	lifetime->sadb_lifetime_bytes = _X2KEY(xp->lft.hard_byte_limit);
 	lifetime->sadb_lifetime_addtime = xp->lft.hard_add_expires_seconds;
 	lifetime->sadb_lifetime_usetime = xp->lft.hard_use_expires_seconds;
-	 
+	/* soft time */
 	lifetime = (struct sadb_lifetime *)  skb_put(skb,
 						     sizeof(struct sadb_lifetime));
 	lifetime->sadb_lifetime_len =
@@ -2138,7 +2284,7 @@ static int pfkey_xfrm_policy2msg(struct sk_buff *skb, const struct xfrm_policy *
 	lifetime->sadb_lifetime_bytes = _X2KEY(xp->lft.soft_byte_limit);
 	lifetime->sadb_lifetime_addtime = xp->lft.soft_add_expires_seconds;
 	lifetime->sadb_lifetime_usetime = xp->lft.soft_use_expires_seconds;
-	 
+	/* current time */
 	lifetime = (struct sadb_lifetime *)  skb_put(skb,
 						     sizeof(struct sadb_lifetime));
 	lifetime->sadb_lifetime_len =
@@ -2160,6 +2306,7 @@ static int pfkey_xfrm_policy2msg(struct sk_buff *skb, const struct xfrm_policy *
 			pol->sadb_x_policy_type = IPSEC_POLICY_NONE;
 	}
 	pol->sadb_x_policy_dir = dir+1;
+	pol->sadb_x_policy_reserved = 0;
 	pol->sadb_x_policy_id = xp->index;
 	pol->sadb_x_policy_priority = xp->priority;
 
@@ -2202,6 +2349,7 @@ static int pfkey_xfrm_policy2msg(struct sk_buff *skb, const struct xfrm_policy *
 		}
 	}
 
+	/* security context */
 	if ((xfrm_ctx = xp->security)) {
 		int ctx_size = pfkey_xfrm_policy2sec_ctx_size(xp);
 
@@ -2297,6 +2445,9 @@ static int pfkey_spdadd(struct sock *sk, struct sk_buff *skb, const struct sadb_
 	pfkey_sadb_addr2xfrm_addr(sa, &xp->selector.daddr);
 	xp->selector.prefixlen_d = sa->sadb_address_prefixlen;
 
+	/* Amusing, we set this twice.  KAME apps appear to set same value
+	 * in both addresses.
+	 */
 	xp->selector.proto = pfkey_proto_to_xfrm(sa->sadb_address_proto);
 
 	xp->selector.dport = ((struct sockaddr_in *)(sa+1))->sin_port;
@@ -2514,6 +2665,7 @@ static int ipsecrequests_to_migrate(struct sadb_x_ipsecrequest *rq1, int len,
 	    len < rq1->sadb_x_ipsecrequest_len)
 		return -EINVAL;
 
+	/* old endoints */
 	err = parse_sockaddr_pair((struct sockaddr *)(rq1 + 1),
 				  rq1->sadb_x_ipsecrequest_len,
 				  &m->old_saddr, &m->old_daddr,
@@ -2528,6 +2680,7 @@ static int ipsecrequests_to_migrate(struct sadb_x_ipsecrequest *rq1, int len,
 	    len < rq2->sadb_x_ipsecrequest_len)
 		return -EINVAL;
 
+	/* new endpoints */
 	err = parse_sockaddr_pair((struct sockaddr *)(rq2 + 1),
 				  rq2->sadb_x_ipsecrequest_len,
 				  &m->new_saddr, &m->new_daddr,
@@ -2579,7 +2732,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
 	}
 
 	if (kma) {
-		 
+		/* convert sadb_x_kmaddress to xfrm_kmaddress */
 		k.reserved = kma->sadb_x_kmaddress_reserved;
 		ret = parse_sockaddr_pair((struct sockaddr *)(kma + 1),
 					  8*(kma->sadb_x_kmaddress_len) - sizeof(*kma),
@@ -2593,6 +2746,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
 	dir = pol->sadb_x_policy_dir - 1;
 	memset(&sel, 0, sizeof(sel));
 
+	/* set source address info of selector */
 	sa = ext_hdrs[SADB_EXT_ADDRESS_SRC - 1];
 	sel.family = pfkey_sadb_addr2xfrm_addr(sa, &sel.saddr);
 	sel.prefixlen_s = sa->sadb_address_prefixlen;
@@ -2601,6 +2755,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
 	if (sel.sport)
 		sel.sport_mask = htons(0xffff);
 
+	/* set destination address info of selector */
 	sa = ext_hdrs[SADB_EXT_ADDRESS_DST - 1],
 	pfkey_sadb_addr2xfrm_addr(sa, &sel.daddr);
 	sel.prefixlen_d = sa->sadb_address_prefixlen;
@@ -2611,6 +2766,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
 
 	rq = (struct sadb_x_ipsecrequest *)(pol + 1);
 
+	/* extract ipsecrequests */
 	i = 0;
 	len = pol->sadb_x_policy_len * 8 - sizeof(struct sadb_x_policy);
 
@@ -2644,6 +2800,7 @@ static int pfkey_migrate(struct sock *sk, struct sk_buff *skb,
 	return -ENOPROTOOPT;
 }
 #endif
+
 
 static int pfkey_spdget(struct sock *sk, struct sk_buff *skb, const struct sadb_msg *hdr, void * const *ext_hdrs)
 {
@@ -2737,14 +2894,18 @@ static int pfkey_spddump(struct sock *sk, struct sk_buff *skb, const struct sadb
 {
 	struct pfkey_sock *pfk = pfkey_sk(sk);
 
-	if (pfk->dump.dump != NULL)
+	mutex_lock(&pfk->dump_lock);
+	if (pfk->dump.dump != NULL) {
+		mutex_unlock(&pfk->dump_lock);
 		return -EBUSY;
+	}
 
 	pfk->dump.msg_version = hdr->sadb_msg_version;
 	pfk->dump.msg_pid = hdr->sadb_msg_pid;
 	pfk->dump.dump = pfkey_dump_sp;
 	pfk->dump.done = pfkey_dump_sp_done;
 	xfrm_policy_walk_init(&pfk->dump.u.policy, XFRM_POLICY_TYPE_MAIN);
+	mutex_unlock(&pfk->dump_lock);
 
 	return pfkey_do_dump(pfk);
 }
@@ -2784,7 +2945,7 @@ static int pfkey_spdflush(struct sock *sk, struct sk_buff *skb, const struct sad
 	err = xfrm_policy_flush(net, XFRM_POLICY_TYPE_MAIN, &audit_info);
 	err2 = unicast_flush_resp(sk, hdr);
 	if (err || err2) {
-		if (err == -ESRCH)  
+		if (err == -ESRCH) /* empty table - old silent behavior */
 			return 0;
 		return err;
 	}
@@ -3038,8 +3199,8 @@ static int key_notify_sa_expire(struct xfrm_state *x, const struct km_event *c)
 	out_hdr->sadb_msg_seq = 0;
 	out_hdr->sadb_msg_pid = 0;
 
-	pfkey_broadcast(out_skb, GFP_ATOMIC, BROADCAST_REGISTERED, NULL, xs_net(x));
-
+	pfkey_broadcast(out_skb, GFP_ATOMIC, BROADCAST_REGISTERED, NULL,
+			xs_net(x));
 	return 0;
 }
 
@@ -3051,8 +3212,9 @@ static int pfkey_send_notify(struct xfrm_state *x, const struct km_event *c)
 	if (atomic_read(&net_pfkey->socks_nr) == 0)
 		return 0;
 
+
 #if defined(MY_ABC_HERE) && defined(NLKEY_SUPPORT)
-	 
+	/* send message to the user space through NETLINK_KEY socket*/
 	ipsec_nlkey_send(net, x, c);
 #endif
 
@@ -3065,7 +3227,7 @@ static int pfkey_send_notify(struct xfrm_state *x, const struct km_event *c)
 		return key_notify_sa(x, c);
 	case XFRM_MSG_FLUSHSA:
 		return key_notify_sa_flush(c);
-	case XFRM_MSG_NEWAE:  
+	case XFRM_MSG_NEWAE: /* not yet supported */
 		break;
 	default:
 		pr_err("pfkey: Unknown SA event %d\n", c->event);
@@ -3155,6 +3317,7 @@ static int pfkey_send_acquire(struct xfrm_state *x, struct xfrm_tmpl *t, struct 
 	hdr->sadb_msg_seq = x->km.seq = get_acqseq();
 	hdr->sadb_msg_pid = 0;
 
+	/* src address */
 	addr = (struct sadb_address*) skb_put(skb,
 					      sizeof(struct sadb_address)+sockaddr_size);
 	addr->sadb_address_len =
@@ -3170,6 +3333,7 @@ static int pfkey_send_acquire(struct xfrm_state *x, struct xfrm_tmpl *t, struct 
 	if (!addr->sadb_address_prefixlen)
 		BUG();
 
+	/* dst address */
 	addr = (struct sadb_address*) skb_put(skb,
 					      sizeof(struct sadb_address)+sockaddr_size);
 	addr->sadb_address_len =
@@ -3190,13 +3354,17 @@ static int pfkey_send_acquire(struct xfrm_state *x, struct xfrm_tmpl *t, struct 
 	pol->sadb_x_policy_exttype = SADB_X_EXT_POLICY;
 	pol->sadb_x_policy_type = IPSEC_POLICY_IPSEC;
 	pol->sadb_x_policy_dir = dir+1;
+	pol->sadb_x_policy_reserved = 0;
 	pol->sadb_x_policy_id = xp->index;
+	pol->sadb_x_policy_priority = xp->priority;
 
+	/* Set sadb_comb's. */
 	if (x->id.proto == IPPROTO_AH)
 		dump_ah_combs(skb, t);
 	else if (x->id.proto == IPPROTO_ESP)
 		dump_esp_combs(skb, t);
 
+	/* security context */
 	if (xfrm_ctx) {
 		sec_ctx = (struct sadb_x_sec_ctx *) skb_put(skb,
 				sizeof(struct sadb_x_sec_ctx) + ctx_size);
@@ -3210,7 +3378,8 @@ static int pfkey_send_acquire(struct xfrm_state *x, struct xfrm_tmpl *t, struct 
 		       xfrm_ctx->ctx_len);
 	}
 
-	return pfkey_broadcast(skb, GFP_ATOMIC, BROADCAST_REGISTERED, NULL, xs_net(x));
+	return pfkey_broadcast(skb, GFP_ATOMIC, BROADCAST_REGISTERED, NULL,
+			       xs_net(x));
 }
 
 static struct xfrm_policy *pfkey_compile_policy(struct sock *sk, int opt,
@@ -3269,6 +3438,7 @@ static struct xfrm_policy *pfkey_compile_policy(struct sock *sk, int opt,
 	    (*dir = parse_ipsecrequests(xp, pol)) < 0)
 		goto out;
 
+	/* security context too */
 	if (len >= (pol->sadb_x_policy_len*8 +
 	    sizeof(struct sadb_x_sec_ctx))) {
 		char *p = (char *)pol;
@@ -3277,7 +3447,7 @@ static struct xfrm_policy *pfkey_compile_policy(struct sock *sk, int opt,
 		p += pol->sadb_x_policy_len*8;
 		sec_ctx = (struct sadb_x_sec_ctx *)p;
 		if (len < pol->sadb_x_policy_len*8 +
-		    sec_ctx->sadb_x_sec_len) {
+		    sec_ctx->sadb_x_sec_len*8) {
 			*dir = -EINVAL;
 			goto out;
 		}
@@ -3324,6 +3494,12 @@ static int pfkey_send_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, 
 
 	natt = x->encap;
 
+	/* Build an SADB_X_NAT_T_NEW_MAPPING message:
+	 *
+	 * HDR | SA | ADDRESS_SRC (old addr) | NAT_T_SPORT (old port) |
+	 * ADDRESS_DST (new addr) | NAT_T_DPORT (new port)
+	 */
+
 	size = sizeof(struct sadb_msg) +
 		sizeof(struct sadb_sa) +
 		(sizeof(struct sadb_address) * 2) +
@@ -3344,6 +3520,7 @@ static int pfkey_send_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, 
 	hdr->sadb_msg_seq = x->km.seq = get_acqseq();
 	hdr->sadb_msg_pid = 0;
 
+	/* SA */
 	sa = (struct sadb_sa *) skb_put(skb, sizeof(struct sadb_sa));
 	sa->sadb_sa_len = sizeof(struct sadb_sa)/sizeof(uint64_t);
 	sa->sadb_sa_exttype = SADB_EXT_SA;
@@ -3354,6 +3531,7 @@ static int pfkey_send_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, 
 	sa->sadb_sa_encrypt = 0;
 	sa->sadb_sa_flags = 0;
 
+	/* ADDRESS_SRC (old addr) */
 	addr = (struct sadb_address*)
 		skb_put(skb, sizeof(struct sadb_address)+sockaddr_size);
 	addr->sadb_address_len =
@@ -3369,12 +3547,14 @@ static int pfkey_send_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, 
 	if (!addr->sadb_address_prefixlen)
 		BUG();
 
+	/* NAT_T_SPORT (old port) */
 	n_port = (struct sadb_x_nat_t_port*) skb_put(skb, sizeof (*n_port));
 	n_port->sadb_x_nat_t_port_len = sizeof(*n_port)/sizeof(uint64_t);
 	n_port->sadb_x_nat_t_port_exttype = SADB_X_EXT_NAT_T_SPORT;
 	n_port->sadb_x_nat_t_port_port = natt->encap_sport;
 	n_port->sadb_x_nat_t_port_reserved = 0;
 
+	/* ADDRESS_DST (new addr) */
 	addr = (struct sadb_address*)
 		skb_put(skb, sizeof(struct sadb_address)+sockaddr_size);
 	addr->sadb_address_len =
@@ -3390,13 +3570,15 @@ static int pfkey_send_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, 
 	if (!addr->sadb_address_prefixlen)
 		BUG();
 
+	/* NAT_T_DPORT (new port) */
 	n_port = (struct sadb_x_nat_t_port*) skb_put(skb, sizeof (*n_port));
 	n_port->sadb_x_nat_t_port_len = sizeof(*n_port)/sizeof(uint64_t);
 	n_port->sadb_x_nat_t_port_exttype = SADB_X_EXT_NAT_T_DPORT;
 	n_port->sadb_x_nat_t_port_port = sport;
 	n_port->sadb_x_nat_t_port_reserved = 0;
 
-	return pfkey_broadcast(skb, GFP_ATOMIC, BROADCAST_REGISTERED, NULL, xs_net(x));
+	return pfkey_broadcast(skb, GFP_ATOMIC, BROADCAST_REGISTERED, NULL,
+			       xs_net(x));
 }
 
 #ifdef CONFIG_NET_KEY_MIGRATE
@@ -3429,6 +3611,7 @@ static int set_sadb_address(struct sk_buff *skb, int sasize, int type,
 
 	return 0;
 }
+
 
 static int set_sadb_kmaddress(struct sk_buff *skb, const struct xfrm_kmaddress *k)
 {
@@ -3506,29 +3689,33 @@ static int pfkey_send_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
 		return -EINVAL;
 
 	if (k != NULL) {
-		 
+		/* addresses for KM */
 		size += PFKEY_ALIGN8(sizeof(struct sadb_x_kmaddress) +
 				     pfkey_sockaddr_pair_size(k->family));
 	}
 
+	/* selector */
 	sasize_sel = pfkey_sockaddr_size(sel->family);
 	if (!sasize_sel)
 		return -EINVAL;
 	size += (sizeof(struct sadb_address) + sasize_sel) * 2;
 
+	/* policy info */
 	size_pol += sizeof(struct sadb_x_policy);
 
+	/* ipsecrequests */
 	for (i = 0, mp = m; i < num_bundles; i++, mp++) {
-		 
+		/* old locator pair */
 		size_pol += sizeof(struct sadb_x_ipsecrequest) +
 			    pfkey_sockaddr_pair_size(mp->old_family);
-		 
+		/* new locator pair */
 		size_pol += sizeof(struct sadb_x_ipsecrequest) +
 			    pfkey_sockaddr_pair_size(mp->new_family);
 	}
 
 	size += sizeof(struct sadb_msg) + size_pol;
 
+	/* alloc buffer */
 	skb = alloc_skb(size, GFP_ATOMIC);
 	if (skb == NULL)
 		return -ENOMEM;
@@ -3543,23 +3730,28 @@ static int pfkey_send_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
 	hdr->sadb_msg_seq = 0;
 	hdr->sadb_msg_pid = 0;
 
+	/* Addresses to be used by KM for negotiation, if ext is available */
 	if (k != NULL && (set_sadb_kmaddress(skb, k) < 0))
 		return -EINVAL;
 
+	/* selector src */
 	set_sadb_address(skb, sasize_sel, SADB_EXT_ADDRESS_SRC, sel);
 
+	/* selector dst */
 	set_sadb_address(skb, sasize_sel, SADB_EXT_ADDRESS_DST, sel);
 
+	/* policy information */
 	pol = (struct sadb_x_policy *)skb_put(skb, sizeof(struct sadb_x_policy));
 	pol->sadb_x_policy_len = size_pol / 8;
 	pol->sadb_x_policy_exttype = SADB_X_EXT_POLICY;
 	pol->sadb_x_policy_type = IPSEC_POLICY_IPSEC;
 	pol->sadb_x_policy_dir = dir + 1;
+	pol->sadb_x_policy_reserved = 0;
 	pol->sadb_x_policy_id = 0;
 	pol->sadb_x_policy_priority = 0;
 
 	for (i = 0, mp = m; i < num_bundles; i++, mp++) {
-		 
+		/* old ipsecrequest */
 		int mode = pfkey_mode_from_xfrm(mp->mode);
 		if (mode < 0)
 			goto err;
@@ -3569,6 +3761,7 @@ static int pfkey_send_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
 				     &mp->old_saddr, &mp->old_daddr) < 0)
 			goto err;
 
+		/* new ipsecrequest */
 		if (set_ipsecrequest(skb, mp->proto, mode,
 				     (mp->reqid ? IPSEC_LEVEL_UNIQUE : IPSEC_LEVEL_REQUIRE),
 				     mp->reqid, mp->new_family,
@@ -3576,6 +3769,7 @@ static int pfkey_send_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
 			goto err;
 	}
 
+	/* broadcast migrate message to sockets */
 	pfkey_broadcast(skb, GFP_ATOMIC, BROADCAST_ALL, NULL, &init_net);
 
 	return 0;
@@ -3679,7 +3873,7 @@ out:
 static const struct proto_ops pfkey_ops = {
 	.family		=	PF_KEY,
 	.owner		=	THIS_MODULE,
-	 
+	/* Operations that make no sense on pfkey sockets. */
 	.bind		=	sock_no_bind,
 	.connect	=	sock_no_connect,
 	.socketpair	=	sock_no_socketpair,
@@ -3693,6 +3887,7 @@ static const struct proto_ops pfkey_ops = {
 	.mmap		=	sock_no_mmap,
 	.sendpage	=	sock_no_sendpage,
 
+	/* Now the operations that really occur. */
 	.release	=	pfkey_release,
 	.poll		=	datagram_poll,
 	.sendmsg	=	pfkey_sendmsg,
@@ -3805,6 +4000,7 @@ static struct xfrm_mgr pfkeyv2_mgr =
 	.migrate	= pfkey_send_migrate,
 };
 
+
 #if defined(MY_ABC_HERE) && defined(NLKEY_SUPPORT)
 extern struct xfrm_state *xfrm_state_lookup_byhandle(struct net *net, u16 handle);
 
@@ -3846,14 +4042,18 @@ static void ipsec_nlkey_rcv(struct sk_buff *skb)
 	struct nlkey_sa_notify sa_notify_msg;
 	struct nlkey_sa_info sa_info_msg;
 
+	/* extract message from skb */
 	nlh = (struct nlmsghdr *)skb->data;
 
 	msg = (struct nlkey_msg *)NLMSG_DATA(nlh);
 
+	//printk(KERN_INFO "ipsec_nlkey_rcv fcode: 0x%x length: %d bytes\n",msg->fcode,msg->length);
+
+	/* process command received from user space */
 	switch(msg->fcode)
 	{
 		case NLKEY_FLOW_REMOVE:
-			 
+			//printk(KERN_INFO "ipsec_nlkey_rcv NLKEY_FLOW_REMOVE\n");
 			p = msg->payload;
 			memcpy(&flow, p, sizeof(struct flowi)); p += sizeof(struct flowi)/2;
 			family = *p; p++;
@@ -3862,14 +4062,14 @@ static void ipsec_nlkey_rcv(struct sk_buff *skb)
 			break;
 
 		case NLKEY_SA_NOTIFY:
-			 
+			//printk(KERN_INFO "ipsec_nlkey_rcv NLKEY_SA_NOTIFY\n");
 			memcpy(&sa_notify_msg, msg->payload, sizeof(struct nlkey_sa_notify));
 			x = xfrm_state_lookup_byhandle(&init_net, sa_notify_msg.sagd);
 			if (x) {
 				spin_lock(&x->lock);
 
 				if (sa_notify_msg.action) { 
-					 
+					// hard expired
 					x->km.state = XFRM_STATE_EXPIRED;
 					tasklet_hrtimer_start(&x->mtimer, ktime_set(0,0), HRTIMER_MODE_REL);
 				}
@@ -3898,7 +4098,7 @@ static void ipsec_nlkey_rcv(struct sk_buff *skb)
 			}
 			break;
 		default:
-			 
+			//printk(KERN_INFO "ipsec_nlkey_rcv fcode 0x%x not supported\n", msg->fcode);
 			break;
 	}
 
@@ -3920,14 +4120,15 @@ static int ipsec_nlkey_set_said(struct net *net, struct xfrm_state *x,
 
 	memset(&fl, 0, sizeof(struct flowi));
 
+	/* SPI */
 	said->spi = x->id.spi;
-	 
+	/* SA Type (AH or ESP) */
 	said->sa_type = x->id.proto;
-	 
+	/* Protocol Family (IPv4 or IPv6) */
 	said->proto_family = x->props.family;
-	 
+	/* Replay window */
 	said->replay_window = x->props.replay_window;
-	 
+	/* Destination IP Address */
 	if(x->props.family == AF_INET6) {
 		memcpy(&said->dst_ip, x->id.daddr.a6, sizeof(struct in6_addr));
 		ipv6_addr_copy(&fl.u.ip6.daddr, (struct in6_addr *)x->id.daddr.a6);
@@ -3982,17 +4183,21 @@ static struct sk_buff * ipsec_xfrm2nlkey (struct net *net, struct xfrm_state *x,
 	gfp_t allocation = in_interrupt() ? GFP_ATOMIC : GFP_KERNEL;
 	unsigned char tunnel, keys, natt, state, lifetime;
 
+	/* supported SA informations */
 	keys = 1; state = 1; tunnel = 1; lifetime = 1; natt = 1; 
 
+	/* next message to build */
 	memset(&msg, 0, sizeof(struct nlkey_msg));
 	msg.fcode = *msg_id;
 	
+	//printk(KERN_INFO "\n\nipsec_xfrm2nlkey: processing event 0x%x\n", msg.fcode);
+
 	switch (msg.fcode)
 	{
 		case NLKEY_SA_CREATE:
-			 
+			//printk(KERN_INFO "ipsec_xfrm2nlkey: NLKEY_SA_CREATE\n");
 			if(x) {
-				 
+				/* some check before builing message */
 				if((x->id.proto != IPPROTO_ESP) && (x->id.proto != IPPROTO_AH)) {
 					printk(KERN_ERR "ipsec_xfrm2nlkey: protocol %d not supported\n", x->id.proto);
 					*msg_id = NLKEY_NULL_MSG;
@@ -4000,42 +4205,46 @@ static struct sk_buff * ipsec_xfrm2nlkey (struct net *net, struct xfrm_state *x,
 				}	
 				memset(&sa_create_msg, 0, sizeof(struct nlkey_sa_create));	
 
+				/* SA global handler */
 				sa_create_msg.sagd = x->handle;
 
+				/* SA identifier */
 				if(ipsec_nlkey_set_said(net, x, c, &sa_create_msg.said) < 0)
 				{
 					printk(KERN_ERR "%s: set sa ID failed\n", __func__);
-					*msg_id = NLKEY_NULL_MSG;  
+					*msg_id = NLKEY_NULL_MSG; /* next message */
 					goto exit;
 				}
 				memcpy(msg.payload, &sa_create_msg, sizeof(struct nlkey_sa_create));
 				msg.length = sizeof(struct nlkey_sa_create);
-				*msg_id = NLKEY_SA_SET_KEYS;  
+				*msg_id = NLKEY_SA_SET_KEYS; /* next message */
 			} else {
-				*msg_id = NLKEY_NULL_MSG;  
+				*msg_id = NLKEY_NULL_MSG; /* next message */
 				goto exit;
 			}
 			
 			break;
 
 		case NLKEY_SA_SET_KEYS:
-			 
+			//printk(KERN_INFO "ipsec_xfrm2nlkey: NLKEY_SA_SET_KEYS\n");
 			if(keys) {
 				memset(&sa_set_keys_msg, 0, sizeof(struct nlkey_sa_set_keys));
 
+				/* SA global handler */
 				sa_set_keys_msg.sagd = x->handle; 
 				
+				/* auth key */
 				if(x->aalg) {
 					if (x->aalg->alg_key_len) {
 						sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_bits = x->aalg->alg_key_len;
 						sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_alg = x->props.aalgo;
 						sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_type = 0;
 						memcpy(sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key, x->aalg->alg_key,(sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_bits / 8));
-						 
+						//printk(KERN_INFO "ipsec_xfrm2nlkey: AUTH - algo %d key %d bits\n", sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_alg, sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_bits);
 						sa_set_keys_msg.num_keys++;
 					}
 				}
-				 
+				/* encrypt key */
 				if(x->ealg) {
 					if (x->ealg->alg_key_len) {
 
@@ -4043,26 +4252,28 @@ static struct sk_buff * ipsec_xfrm2nlkey (struct net *net, struct xfrm_state *x,
 						sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_alg = x->props.ealgo;
 						sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_type = 1;
 						memcpy(sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key, x->ealg->alg_key,(sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_bits / 8));
-						 
+						//printk(KERN_INFO "ipsec_xfrm2nlkey: ENCRYPT - algo %d key %d bits\n", sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_alg, sa_set_keys_msg.keys[sa_set_keys_msg.num_keys].key_bits);
 						sa_set_keys_msg.num_keys++;
 					}
 				}
 				memcpy(msg.payload, &sa_set_keys_msg, sizeof(struct nlkey_sa_set_keys));
 				msg.length = sizeof(struct nlkey_sa_set_keys);
-				*msg_id = NLKEY_SA_SET_TUNNEL;  
+				*msg_id = NLKEY_SA_SET_TUNNEL; /* next message */
 			} else {
-				*msg_id = NLKEY_SA_SET_TUNNEL;  
+				*msg_id = NLKEY_SA_SET_TUNNEL; /* next message */
 				goto exit;
 			}
 			break;
 
 		case NLKEY_SA_SET_TUNNEL:
-			 
+			//printk(KERN_INFO "ipsec_xfrm2nlkey: NLKEY_SA_SET_TUNNEL\n");
 			if(tunnel && (x->props.mode == XFRM_MODE_TUNNEL)) {
 				memset(&sa_set_tunnel_msg, 0, sizeof(struct nlkey_sa_set_tunnel));
 
+				/* SA global handler */
 				sa_set_tunnel_msg.sagd = x->handle; 
 
+				/* Tunnel */
 				sa_set_tunnel_msg.proto_family = x->props.family;
 				if(x->props.family == AF_INET6) {
 					struct ipv6hdr *top_iph = &sa_set_tunnel_msg.h.ipv6h;
@@ -4081,7 +4292,9 @@ static struct sk_buff * ipsec_xfrm2nlkey (struct net *net, struct xfrm_state *x,
 					top_iph->hop_limit = 64;
 					memcpy(&top_iph->daddr, x->id.daddr.a6, sizeof(struct in6_addr));
 					memcpy(&top_iph->saddr, x->props.saddr.a6, sizeof(struct in6_addr));
-					 
+					//printk(KERN_INFO "ipsec_xfrm2nlkey: IPv6 tunnel\n");
+					//printk(KERN_INFO "dst: %x %x %x %x\n", x->id.daddr.a6[0], x->id.daddr.a6[1], x->id.daddr.a6[2], x->id.daddr.a6[3]);
+					//(KERN_INFO "src: %x %x %x %x\n", x->props.saddr.a6[0], x->props.saddr.a6[1], x->props.saddr.a6[2], x->props.saddr.a6[3]);
 				}
 				else {
 					struct iphdr *top_iph = &sa_set_tunnel_msg.h.ipv4h;
@@ -4092,109 +4305,119 @@ static struct sk_buff * ipsec_xfrm2nlkey (struct net *net, struct xfrm_state *x,
 					top_iph->ttl = 64;
 					top_iph->saddr = x->props.saddr.a4;
 					top_iph->daddr = x->id.daddr.a4;
-					 
+					//printk(KERN_INFO "ipsec_xfrm2nlkey: IPv4 tunnel dst:%x - src:%x \n", x->id.daddr.a4, x->props.saddr.a4);
 				}
 				memcpy(msg.payload, &sa_set_tunnel_msg, sizeof(struct nlkey_sa_set_tunnel));
 				msg.length = sizeof(struct nlkey_sa_set_tunnel);
-				*msg_id = NLKEY_SA_SET_NATT;  
+				*msg_id = NLKEY_SA_SET_NATT; /* next message */
 			} else {
-				*msg_id = NLKEY_SA_SET_NATT;  
+				*msg_id = NLKEY_SA_SET_NATT; /* next message */
 				goto exit;	
 			} 
 			break;
 
 		case NLKEY_SA_SET_NATT:
-			 
+			//printk(KERN_INFO "ipsec_xfrm2nlkey: NLKEY_SA_SET_NATT\n");
 			if((natt) && (x->encap)){
 				memset(&sa_set_natt_msg, 0, sizeof(struct nlkey_sa_set_natt));
 
+				/* SA global handler */
 				sa_set_natt_msg.sagd = x->handle; 
 				sa_set_natt_msg.sport = x->encap->encap_sport;
 				sa_set_natt_msg.dport = x->encap->encap_dport;
-				 
+				//printk(KERN_INFO "src port: %d  dst port: %d \n", ntohs(sa_set_natt_msg.sport), ntohs( sa_set_natt_msg.dport));
 				memcpy(msg.payload, &sa_set_natt_msg, sizeof(struct nlkey_sa_set_natt));
 				msg.length = sizeof(struct nlkey_sa_set_natt);
-				*msg_id = NLKEY_SA_SET_LIFETIME;  
+				*msg_id = NLKEY_SA_SET_LIFETIME; /* next message */
 			} else {
-				*msg_id = NLKEY_SA_SET_LIFETIME;  
+				*msg_id = NLKEY_SA_SET_LIFETIME; /* next message */
 				goto exit;	
 			}
 			break;
 
 		case NLKEY_SA_SET_LIFETIME:
-			 
+			//printk(KERN_INFO "ipsec_xfrm2nlkey: NLKEY_SA_SET_LIFETIME\n");
 			if(lifetime) {
 				memset(&sa_set_lifetime_msg, 0, sizeof(struct nlkey_sa_set_lifetime));
 
+				/* SA global handler */
 				sa_set_lifetime_msg.sagd = x->handle;
 
+				/* hard time */
 				sa_set_lifetime_msg.hard_time.allocations =  _X2KEY(x->lft.hard_packet_limit);
 				if(_X2KEY(x->lft.hard_byte_limit))
 					memcpy(sa_set_lifetime_msg.hard_time.bytes, &x->lft.hard_byte_limit, sizeof(uint64_t));
 
+				/* soft time */
 				sa_set_lifetime_msg.soft_time.allocations =  _X2KEY(x->lft.soft_packet_limit);
 				if(_X2KEY(x->lft.soft_byte_limit))
 					memcpy(sa_set_lifetime_msg.soft_time.bytes, &x->lft.soft_byte_limit, sizeof(uint64_t));
 
+				/* current time */
 				sa_set_lifetime_msg.current_time.allocations = x->curlft.packets;
 				memcpy(sa_set_lifetime_msg.current_time.bytes, &x->curlft.bytes, sizeof(uint64_t));
 
 				memcpy(msg.payload, &sa_set_lifetime_msg, sizeof(struct nlkey_sa_set_lifetime));
 				msg.length = sizeof(struct nlkey_sa_set_lifetime);
-				*msg_id = NLKEY_SA_SET_STATE;  
+				*msg_id = NLKEY_SA_SET_STATE; /* next message */
 			} else {
-				*msg_id = NLKEY_SA_SET_STATE;  
+				*msg_id = NLKEY_SA_SET_STATE; /* next message */
 				goto exit;	
 			}
 			break;
 
 		case NLKEY_SA_SET_STATE:
-			 
+			//printk(KERN_INFO "ipsec_xfrm2nlkey: NLKEY_SET_STATE\n");
 			if(state) {
 				memset(&sa_set_state_msg, 0, sizeof(struct nlkey_sa_set_state));
 				memset(&sa_id_msg, 0, sizeof(struct nlkey_sa_id));
 
+				/* SA global handler */
 				sa_set_state_msg.sagd = x->handle; 
-				 
+				/* State */
 				sa_set_state_msg.state = x->km.state;
-				 
+				// TODO: set the offloaded state once ack received !
 				x->offloaded = 1;
 				atomic_inc(&flow_cache_genid);
 
 				memcpy(msg.payload, &sa_set_state_msg, sizeof(struct nlkey_sa_set_state));
 				msg.length = sizeof(struct nlkey_sa_set_state);
-				*msg_id = NLKEY_NULL_MSG;  
+				*msg_id = NLKEY_NULL_MSG; /* next message */
 			} else {
-				*msg_id = NLKEY_NULL_MSG;  
+				*msg_id = NLKEY_NULL_MSG; /* next message */
 				goto exit;
 			}
 			break;
 		
 		case NLKEY_SA_DELETE:
-			 
+			//printk(KERN_INFO "ipsec_xfrm2nlkey: NLKEY_SA_DELETE\n");
 			memset(&sa_delete_msg, 0, sizeof(struct nlkey_sa_delete));
 			
+			/* SA global handler */
 			sa_delete_msg.sagd = x->handle;
 			memcpy(msg.payload, &sa_delete_msg, sizeof(struct nlkey_sa_delete));
 			msg.length = sizeof(struct nlkey_sa_delete);
 			atomic_inc(&flow_cache_genid);
 
-			*msg_id = NLKEY_NULL_MSG;  
+
+			*msg_id = NLKEY_NULL_MSG; /* next message */
 			break;
 
 		case NLKEY_SA_FLUSH:
-			 
+			//printk(KERN_INFO "ipsec_xfrm2nlkey: NLKEY_SA_FLUSH\n");
+			/* No data required for flush SA command */
 			atomic_inc(&flow_cache_genid);
 
-			*msg_id = NLKEY_NULL_MSG;  
+			*msg_id = NLKEY_NULL_MSG; /* next message */
 			break;
 
 		default:
 			printk(KERN_ERR "ipsec_xfrm2nlkey: event 0x%x not supported\n", c->event);
-			*msg_id = NLKEY_NULL_MSG;  
+			*msg_id = NLKEY_NULL_MSG; /* next message */
 			break;
 	}
 
+	/* prepare netlink message for kernel to user space direction */
 	if(msg.length > NLKEY_MSG_LEN)
 	{
 		printk(KERN_ERR "ipsec_xfrm2nlkey: maximum message size reached (%d bytes)\n", msg.length);
@@ -4208,8 +4431,10 @@ static struct sk_buff * ipsec_xfrm2nlkey (struct net *net, struct xfrm_state *x,
 	nlh = (struct nlmsghdr *)skb_put(skb, NLMSG_SPACE(NLKEY_HDR_LEN + msg.length));
 	memcpy(NLMSG_DATA(nlh), (unsigned char *)&msg, (NLKEY_HDR_LEN + msg.length));
 	
+	/* whole length of the message i.e. header + payload */
 	nlh->nlmsg_len = NLMSG_SPACE(NLKEY_HDR_LEN + msg.length);
 
+	/* from kernel */
 	nlh->nlmsg_pid = 0;
 	nlh->nlmsg_flags = 0;
         nlh->nlmsg_type = 0;
@@ -4225,11 +4450,12 @@ static int ipsec_nlkey_send(struct net *net, struct xfrm_state *x, const struct 
 	unsigned short msg_type;
 	int rc = 0;
 
+	/* We may generate more than one message when adding new SA (sa_create + sa_set_state + sa_set_tunnel...) */
 	msg_type = ipsec_sacode_to_nlkeycode((unsigned short)c->event);
 
 	while(msg_type != NLKEY_NULL_MSG)
 	{
-		 
+		/* build nlkey message */
 		skb = ipsec_xfrm2nlkey(net, x, c, &msg_type);
 
 		if(skb != NULL)
@@ -4240,6 +4466,7 @@ static int ipsec_nlkey_send(struct net *net, struct xfrm_state *x, const struct 
 	return rc;
 }
 
+
 int ipsec_nlkey_flow(u16 xfrm_nr, u16 *xfrm_handle, const struct flowi *fl, u16 family, u16 dir)
 {
 	struct sk_buff *skb;
@@ -4248,23 +4475,27 @@ int ipsec_nlkey_flow(u16 xfrm_nr, u16 *xfrm_handle, const struct flowi *fl, u16 
 	unsigned short *p;
 	gfp_t allocation = in_interrupt() ? GFP_ATOMIC : GFP_KERNEL;
 
+	//printk(KERN_INFO "ipsec_nlkey_flow \n");
+
+	/* next message to build */
 	memset(&msg, 0, sizeof(struct nlkey_msg));
 	msg.fcode = NLKEY_FLOW_ADD;
 
+	// Number of SA for this flow
 	p = msg.payload;
 	*p++ = xfrm_nr;
 	msg.length += sizeof(unsigned short);
-	 
+	// SA handles list
 	memcpy(p, xfrm_handle, xfrm_nr*sizeof(unsigned short));
 	msg.length += xfrm_nr*sizeof(unsigned short);
 	p+=xfrm_nr;
-	 
+	// flow family
 	*p++ = family;
 	msg.length += sizeof(unsigned short);
-	 
+	// flow family
 	*p++ = dir;
 	msg.length += sizeof(unsigned short);
-	 
+	// flow descriptor
 	memcpy(p, fl, sizeof(struct flowi));
 	msg.length +=sizeof(struct flowi);
 	p+=sizeof(struct flowi) / sizeof(u16);
@@ -4273,11 +4504,14 @@ int ipsec_nlkey_flow(u16 xfrm_nr, u16 *xfrm_handle, const struct flowi *fl, u16 
 	if (skb == NULL)
 		return -ENOMEM;
 
+	/* prepare netlink message for kernel to user space direction */
 	nlh = (struct nlmsghdr *)skb_put(skb, NLMSG_SPACE(NLKEY_HDR_LEN + msg.length));
 	memcpy(NLMSG_DATA(nlh), (unsigned char *)&msg, (NLKEY_HDR_LEN + msg.length));
 
+	/* whole length of the message i.e. header + payload */
 	nlh->nlmsg_len = NLMSG_SPACE(NLKEY_HDR_LEN + msg.length);
 
+	/* from kernel */
 	nlh->nlmsg_pid = 0; 
 	nlh->nlmsg_flags = 0;
         nlh->nlmsg_type = 0;
@@ -4297,17 +4531,21 @@ int ipsec_nlkey_flow_remove(struct flowi *fl, u16 family, u16 dir)
 	unsigned short *p;
 	gfp_t allocation = in_interrupt() ? GFP_ATOMIC : GFP_KERNEL;
 
+	
+	//printk(KERN_INFO "ipsec_nlkey_flow_remove\n");
+
+	/* next message to build */
 	memset(&msg, 0, sizeof(struct nlkey_msg));
 	msg.fcode = NLKEY_FLOW_REMOVE;
 
 	p = msg.payload;
-	 
+	// flow family
 	*p++ = family;
 	msg.length += sizeof(unsigned short);
-	 
+	// flow family
 	*p++ = dir;
 	msg.length += sizeof(unsigned short);
-	 
+	// flow descriptor
 	memcpy(p, fl, sizeof(struct flowi));
 	msg.length +=sizeof(struct flowi);
 	p+=sizeof(struct flowi) / sizeof(u16);
@@ -4316,22 +4554,29 @@ int ipsec_nlkey_flow_remove(struct flowi *fl, u16 family, u16 dir)
 	if (skb == NULL)
 		return -ENOMEM;
 
+	/* prepare netlink message for kernel to user space direction */
 	nlh = (struct nlmsghdr *)skb_put(skb, NLMSG_SPACE(NLKEY_HDR_LEN + msg.length));
 	memcpy(NLMSG_DATA(nlh), (unsigned char *)&msg, (NLKEY_HDR_LEN + msg.length));
 	
+	/* whole length of the message i.e. header + payload */
 	nlh->nlmsg_len = NLMSG_SPACE(NLKEY_HDR_LEN + msg.length);
 
+	/* from kernel */
 	nlh->nlmsg_pid = 0; 
 	nlh->nlmsg_flags = 0;
         nlh->nlmsg_type = 0;
 	NETLINK_CB(skb).pid = 0;
 	NETLINK_CB(skb).dst_group = 1;	
 
+		
         return(netlink_broadcast(nlkey_socket, skb, 0, 1, allocation));
 
+	
 }
 EXPORT_SYMBOL(ipsec_nlkey_flow_remove);
 #endif
+
+
 
 static void ipsec_nlkey_init(void)
 {
@@ -4341,6 +4586,7 @@ static void ipsec_nlkey_init(void)
 				     ipsec_nlkey_rcv, NULL, THIS_MODULE);
 }
 #endif
+
 
 static int __net_init pfkey_net_init(struct net *net)
 {
@@ -4378,7 +4624,7 @@ static void __exit ipsec_pfkey_exit(void)
 	proto_unregister(&key_proto);
 
 #if defined(MY_ABC_HERE) && defined(NLKEY_SUPPORT)
-	 
+	/* release NETLINK_KEY socket */
 	sock_release(nlkey_socket->sk_socket);
 #endif
 }
@@ -4401,7 +4647,7 @@ static int __init ipsec_pfkey_init(void)
 		goto out_sock_unregister;
 
 #if defined(MY_ABC_HERE) && defined(NLKEY_SUPPORT)
-	 
+	/* create NETLINK_KEY socket for IPSec offload on Comcerto */
 	ipsec_nlkey_init();
 #endif
 

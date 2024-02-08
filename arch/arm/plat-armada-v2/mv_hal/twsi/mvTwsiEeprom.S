@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 /* includes */
 #define MV_ASMLANGUAGE
 #include "mvCommon.h"
@@ -76,8 +77,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CPUIF_REGS_BASE		INTER_REGS_BASE + 0x20000
 #define CPU_MAIN_INT_CAUSE_REG  (CPUIF_REGS_BASE + 0x200)
 
+
 /* defines */
 /* defines  */
+
 
         .data
         .global _i2cInit

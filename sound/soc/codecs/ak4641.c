@@ -75,7 +75,7 @@ static int ak4641_put_deemph(struct snd_kcontrol *kcontrol,
 {
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
 	struct ak4641_priv *ak4641 = snd_soc_codec_get_drvdata(codec);
-	int deemph = ucontrol->value.enumerated.item[0];
+	int deemph = ucontrol->value.integer.value[0];
 
 	if (deemph > 1)
 		return -EINVAL;
@@ -91,7 +91,7 @@ static int ak4641_get_deemph(struct snd_kcontrol *kcontrol,
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
 	struct ak4641_priv *ak4641 = snd_soc_codec_get_drvdata(codec);
 
-	ucontrol->value.enumerated.item[0] = ak4641->deemph;
+	ucontrol->value.integer.value[0] = ak4641->deemph;
 	return 0;
 };
 
@@ -99,6 +99,7 @@ static const char *ak4641_mono_out[] = {"(L + R)/2", "Hi-Z"};
 static const char *ak4641_hp_out[] = {"Stereo", "Mono"};
 static const char *ak4641_mic_select[] = {"Internal", "External"};
 static const char *ak4641_mic_or_dac[] = {"Microphone", "Voice DAC"};
+
 
 static const DECLARE_TLV_DB_SCALE(mono_gain_tlv, -1700, 2300, 0);
 static const DECLARE_TLV_DB_SCALE(mic_boost_tlv, 0, 2000, 0);
@@ -109,6 +110,7 @@ static const DECLARE_TLV_DB_SCALE(mic_mono_sidetone_tlv, -400, 400, 0);
 static const DECLARE_TLV_DB_SCALE(capture_tlv, -800, 50, 0);
 static const DECLARE_TLV_DB_SCALE(alc_tlv, -800, 50, 0);
 static const DECLARE_TLV_DB_SCALE(aux_in_tlv, -2100, 300, 0);
+
 
 static const struct soc_enum ak4641_mono_out_enum =
 	SOC_ENUM_SINGLE(AK4641_SIG1, 6, 2, ak4641_mono_out);
@@ -514,6 +516,7 @@ static int ak4641_probe(struct snd_soc_codec *codec)
 	struct ak4641_platform_data *pdata = codec->dev->platform_data;
 	int ret;
 
+
 	if (pdata) {
 		if (gpio_is_valid(pdata->gpio_power)) {
 			ret = gpio_request_one(pdata->gpio_power,
@@ -574,6 +577,7 @@ static int ak4641_remove(struct snd_soc_codec *codec)
 	return 0;
 }
 
+
 static struct snd_soc_codec_driver soc_codec_dev_ak4641 = {
 	.probe			= ak4641_probe,
 	.remove			= ak4641_remove,
@@ -591,6 +595,7 @@ static struct snd_soc_codec_driver soc_codec_dev_ak4641 = {
 	.reg_cache_default	= ak4641_reg,
 	.reg_cache_step		= 1,
 };
+
 
 static int __devinit ak4641_i2c_probe(struct i2c_client *i2c,
 				      const struct i2c_device_id *id)

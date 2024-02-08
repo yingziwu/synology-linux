@@ -27,6 +27,7 @@
 #define TWL_COMMON_REGULATOR_VPLL1	(1 << 4)
 #define TWL_COMMON_REGULATOR_VPLL2	(1 << 5)
 
+
 struct twl4030_platform_data;
 
 void omap_pmic_init(int bus, u32 clkrate, const char *pmic_type, int pmic_irq,

@@ -291,6 +291,7 @@ dma_map_skb(struct ubsec_softc *sc, struct ubsec_dma_alloc* q_map, struct sk_buf
     DPRINTF("%s - map %d done physical addr 0x%x\n", __FUNCTION__, 0, (unsigned int)tmp);
 #endif
 
+
     /* all other data packages */
     for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
 
@@ -425,6 +426,7 @@ ubsec_dmamap_aligned(struct ubsec_softc *sc, const struct ubsec_dma_alloc *q_map
     }
     return (1);
 }
+
 
 #define N(a)    (sizeof(a) / sizeof (a[0]))
 static void
@@ -603,6 +605,7 @@ static void __devexit ubsec_ssb_remove(struct ssb_device *sdev) {
 #endif
 
 }
+
 
 int
 ubsec_attach(struct ssb_device *sdev, const struct ssb_device_id *ent,

@@ -34,6 +34,7 @@ typedef struct stLocalSFAddRequestAlt{
     /// \brief 16bitVCID
     B_UINT16                        u16VCID;
 
+
 	/// \brief structure ParameterSet
     stServiceFlowParamSI              sfParameterSet;
 
@@ -78,6 +79,7 @@ typedef struct stLocalSFAddConfirmationAlt{
     /// \brief structure ActiveSet
     stServiceFlowParamSI              sfActiveSet;
 }stLocalSFAddConfirmationAlt;
+
 
 /// \brief structure stLocalSFChangeRequest
 typedef struct stLocalSFChangeRequestAlt{
@@ -154,6 +156,7 @@ INT FreeAdapterDsxBuffer(PMINI_ADAPTER Adapter);
 ULONG SetUpTargetDsxBuffers(PMINI_ADAPTER Adapter);
 
 BOOLEAN CmControlResponseMessage(PMINI_ADAPTER Adapter,PVOID pvBuffer);
+
 
 #pragma pack (pop)
 

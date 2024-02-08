@@ -38,6 +38,7 @@ static char tag_keepalive = CEPH_MSGR_TAG_KEEPALIVE;
 static struct lock_class_key socket_class;
 #endif
 
+
 static void queue_con(struct ceph_connection *con);
 static void con_work(struct work_struct *);
 static void ceph_fault(struct ceph_connection *con);
@@ -98,7 +99,12 @@ struct workqueue_struct *ceph_msgr_wq;
 
 int ceph_msgr_init(void)
 {
-	ceph_msgr_wq = alloc_workqueue("ceph-msgr", WQ_NON_REENTRANT, 0);
+	/*
+	 * The number of active work items is limited by the number of
+	 * connections, so leave @max_active at default.
+	 */
+	ceph_msgr_wq = alloc_workqueue("ceph-msgr",
+				       WQ_NON_REENTRANT | WQ_MEM_RECLAIM, 0);
 	if (!ceph_msgr_wq) {
 		pr_err("msgr_init failed to create workqueue\n");
 		return -ENOMEM;
@@ -118,6 +124,7 @@ void ceph_msgr_flush(void)
 	flush_workqueue(ceph_msgr_wq);
 }
 EXPORT_SYMBOL(ceph_msgr_flush);
+
 
 /*
  * socket callback functions
@@ -197,6 +204,7 @@ static void set_sock_callbacks(struct socket *sock,
 	sk->sk_write_space = ceph_write_space;
 	sk->sk_state_change = ceph_state_change;
 }
+
 
 /*
  * socket helpers
@@ -279,6 +287,38 @@ static int ceph_tcp_sendmsg(struct socket *sock, struct kvec *iov,
 	if (r == -EAGAIN)
 		r = 0;
 	return r;
+}
+
+static int __ceph_tcp_sendpage(struct socket *sock, struct page *page,
+		     int offset, size_t size, bool more)
+{
+	int flags = MSG_DONTWAIT | MSG_NOSIGNAL | (more ? MSG_MORE : MSG_EOR);
+	int ret;
+
+	ret = kernel_sendpage(sock, page, offset, size, flags);
+	if (ret == -EAGAIN)
+		ret = 0;
+
+	return ret;
+}
+
+static int ceph_tcp_sendpage(struct socket *sock, struct page *page,
+		     int offset, size_t size, bool more)
+{
+	int ret;
+	struct kvec iov;
+
+	/* sendpage cannot properly handle pages with page_count == 0,
+	 * we need to fallback to sendmsg if that's the case */
+	if (page_count(page) >= 1)
+		return __ceph_tcp_sendpage(sock, page, offset, size, more);
+
+	iov.iov_base = kmap(page) + offset;
+	iov.iov_len = size;
+	ret = ceph_tcp_sendmsg(sock, &iov, 1, size, more);
+	kunmap(page);
+
+	return ret;
 }
 
 /*
@@ -421,6 +461,7 @@ void ceph_con_init(struct ceph_messenger *msgr, struct ceph_connection *con)
 }
 EXPORT_SYMBOL(ceph_con_init);
 
+
 /*
  * We maintain a global counter to order connection attempts.  Get
  * a unique seq greater than @gt.
@@ -436,6 +477,7 @@ static u32 get_global_seq(struct ceph_messenger *msgr, u32 gt)
 	spin_unlock(&msgr->global_seq_lock);
 	return ret;
 }
+
 
 /*
  * Prepare footer for currently outgoing message, and finish things
@@ -687,6 +729,7 @@ static int prepare_write_connect(struct ceph_messenger *msgr,
 	return prepare_connect_authorizer(con);
 }
 
+
 /*
  * write as much of pending kvecs to the socket as we can.
  *  1 -> done
@@ -844,18 +887,14 @@ static int write_partial_msg_pages(struct ceph_connection *con)
 				cpu_to_le32(crc32c(tmpcrc, base, len));
 			con->out_msg_pos.did_page_crc = 1;
 		}
-		ret = kernel_sendpage(con->sock, page,
+		ret = ceph_tcp_sendpage(con->sock, page,
 				      con->out_msg_pos.page_pos + page_shift,
-				      len,
-				      MSG_DONTWAIT | MSG_NOSIGNAL |
-				      MSG_MORE);
+				      len, 1);
 
 		if (crc &&
 		    (msg->pages || msg->pagelist || msg->bio || in_trail))
 			kunmap(page);
 
-		if (ret == -EAGAIN)
-			ret = 0;
 		if (ret <= 0)
 			goto out;
 
@@ -955,6 +994,7 @@ static int prepare_read_message(struct ceph_connection *con)
 	return 0;
 }
 
+
 static int read_partial(struct ceph_connection *con,
 			int *to, int size, void *object)
 {
@@ -969,6 +1009,7 @@ static int read_partial(struct ceph_connection *con,
 	}
 	return 1;
 }
+
 
 /*
  * Read all or part of the connect-side handshake on a new connection
@@ -1309,6 +1350,19 @@ static int process_connect(struct ceph_connection *con)
 
 	dout("process_connect on %p tag %d\n", con, (int)con->in_tag);
 
+	if (con->auth_reply_buf) {
+		/*
+		 * Any connection that defines ->get_authorizer()
+		 * should also define ->verify_authorizer_reply().
+		 * See get_connect_authorizer().
+		 */
+		ret = con->ops->verify_authorizer_reply(con, 0);
+		if (ret < 0) {
+			con->error_msg = "bad authorize reply";
+			return ret;
+		}
+	}
+
 	switch (con->in_reply.tag) {
 	case CEPH_MSGR_TAG_FEATURES:
 		pr_err("%s%lld %s feature set mismatch,"
@@ -1448,6 +1502,7 @@ static int process_connect(struct ceph_connection *con)
 	return 0;
 }
 
+
 /*
  * read (part of) an ack
  */
@@ -1458,6 +1513,7 @@ static int read_partial_ack(struct ceph_connection *con)
 	return read_partial(con, &to, sizeof(con->in_temp_ack),
 			    &con->in_temp_ack);
 }
+
 
 /*
  * We can finally discard anything that's been acked.
@@ -1481,6 +1537,9 @@ static void process_ack(struct ceph_connection *con)
 	}
 	prepare_read_tag(con);
 }
+
+
+
 
 static int read_partial_message_section(struct ceph_connection *con,
 					struct kvec *section,
@@ -1509,6 +1568,7 @@ static int read_partial_message_section(struct ceph_connection *con,
 static struct ceph_msg *ceph_alloc_msg(struct ceph_connection *con,
 				struct ceph_msg_header *hdr,
 				int *skip);
+
 
 static int read_partial_message_pages(struct ceph_connection *con,
 				      struct page **pages,
@@ -1786,6 +1846,7 @@ static void process_message(struct ceph_connection *con)
 	prepare_read_tag(con);
 }
 
+
 /*
  * Write something to the socket.  Called in a worker thread when the
  * socket appears to be writeable and we have something ready to send.
@@ -1880,6 +1941,8 @@ out:
 	dout("try_write done on %p ret %d\n", con, ret);
 	return ret;
 }
+
+
 
 /*
  * Read what we can from the socket.
@@ -2005,6 +2068,7 @@ bad_tag:
 	goto out;
 }
 
+
 /*
  * Atomically queue work on a connection.  Bump @con reference to
  * avoid races with connection teardown.
@@ -2097,6 +2161,7 @@ fault:
 	goto done_unlocked;
 }
 
+
 /*
  * Generic error/fault handler.  A retry mechanism is used with
  * exponential backoff
@@ -2175,6 +2240,8 @@ out:
 	if (con->ops->fault)
 		con->ops->fault(con);
 }
+
+
 
 /*
  * create a new messenger instance
@@ -2345,6 +2412,7 @@ void ceph_con_keepalive(struct ceph_connection *con)
 }
 EXPORT_SYMBOL(ceph_con_keepalive);
 
+
 /*
  * construct a new message with given type, size
  * the new msg has a ref count of 1.
@@ -2373,7 +2441,7 @@ struct ceph_msg *ceph_msg_new(int type, int front_len, gfp_t flags,
 	m->footer.middle_crc = 0;
 	m->footer.data_crc = 0;
 	m->footer.flags = 0;
-	m->front_max = front_len;
+	m->front_alloc_len = front_len;
 	m->front_is_vmalloc = false;
 	m->more_to_follow = false;
 	m->ack_stamp = 0;
@@ -2495,6 +2563,7 @@ static struct ceph_msg *ceph_alloc_msg(struct ceph_connection *con,
 	return msg;
 }
 
+
 /*
  * Free a generically kmalloc'd message.
  */
@@ -2543,8 +2612,8 @@ EXPORT_SYMBOL(ceph_msg_last_put);
 
 void ceph_msg_dump(struct ceph_msg *msg)
 {
-	pr_debug("msg_dump %p (front_max %d nr_pages %d)\n", msg,
-		 msg->front_max, msg->nr_pages);
+	pr_debug("msg_dump %p (front_alloc_len %d nr_pages %d)\n", msg,
+		 msg->front_alloc_len, msg->nr_pages);
 	print_hex_dump(KERN_DEBUG, "header: ",
 		       DUMP_PREFIX_OFFSET, 16, 1,
 		       &msg->hdr, sizeof(msg->hdr), true);

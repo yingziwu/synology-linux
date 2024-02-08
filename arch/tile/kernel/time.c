@@ -29,6 +29,7 @@
 #include <arch/interrupts.h>
 #include <arch/spr_def.h>
 
+
 /*
  * Define the cycle counter clock source.
  */
@@ -108,6 +109,7 @@ void __init time_init(void)
 	/* Start up the tile-timer interrupt source on the boot cpu. */
 	setup_tile_timer();
 }
+
 
 /*
  * Define the tile timer clock event device.  The timer is driven by

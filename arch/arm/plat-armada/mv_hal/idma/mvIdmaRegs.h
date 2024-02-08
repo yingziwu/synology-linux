@@ -67,6 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __INCmvIdmaRegsh
 #define __INCmvIdmaRegsh
 
+
 /* defines */
 
 /* IDMA channel rgisters       												*/
@@ -91,7 +92,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define IDMA_MAX_ADDR_DEC_WIN           8	/* Maximum address decode windows		*/
 #define IDMA_MAX_REMAP_WIN              4	/* Maximum address arbiter windows		*/
 
+
 /* DMA register fileds */
+
 
 /* IDMA Channel Byte Count Register (ICBCR) */
 #define ICBCR_BYTECNT_OFFS			0		/* Byte count field offset		*/
@@ -103,6 +106,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ICBCR_DESC_OWNER_MASK		(1 << ICBCR_DESC_OWNER_OFFS)
 #define ICBCR_DESC_OWNER_BY_DMA		(0 << ICBCR_DESC_OWNER_OFFS)
 #define ICBCR_DESC_OWNED_BY_CPU		(1 << ICBCR_DESC_OWNER_OFFS)
+
 
 /* IDMA Channel Control Low Register (ICCLR)								*/
 /* Data Transfer Limit Note: If an IDMA accesses a cache coherent DRAM 		*/
@@ -206,4 +210,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define IESR_ERR_TYPE_OFFS		0
 #define IESR_ERR_TYPE_MASK		(0x1f << IESR_ERR_TYPE_OFFS)
 
+
+
 #endif	/* __INCmvIdmaRegsh */
+

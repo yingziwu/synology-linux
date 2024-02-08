@@ -35,6 +35,7 @@
 #include "util.h"
 #include "glops.h"
 
+
 void gfs2_page_add_databufs(struct gfs2_inode *ip, struct page *page,
 			    unsigned int from, unsigned int to)
 {
@@ -380,6 +381,7 @@ retry:
 	return ret;
 }
 
+
 /**
  * gfs2_jdata_writepages - Write a bunch of dirty pages back to disk
  * @mapping: The mapping to write
@@ -444,6 +446,7 @@ static int stuffed_readpage(struct gfs2_inode *ip, struct page *page)
 
 	return 0;
 }
+
 
 /**
  * __gfs2_readpage - readpage
@@ -1001,6 +1004,8 @@ static int gfs2_ok_for_dio(struct gfs2_inode *ip, int rw, loff_t offset)
 	return 1;
 }
 
+
+
 static ssize_t gfs2_direct_IO(int rw, struct kiocb *iocb,
 			      const struct iovec *iov, loff_t offset,
 			      unsigned long nr_segs)
@@ -1168,3 +1173,4 @@ void gfs2_set_aops(struct inode *inode)
 	else
 		BUG();
 }
+

@@ -796,7 +796,11 @@ int btrfs_add_delayed_tree_ref(struct btrfs_fs_info *fs_info,
 				   for_cow);
 	spin_unlock(&delayed_refs->lock);
 	if (need_ref_seq(for_cow, ref_root))
+#ifdef CONFIG_BTRFS_FS_SYNO_USRQUOTA
+		btrfs_qgroup_record_ref(trans, &ref->node, extent_op, 0, 0);
+#else
 		btrfs_qgroup_record_ref(trans, &ref->node, extent_op);
+#endif
 
 	return 0;
 }
@@ -810,7 +814,11 @@ int btrfs_add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 			       u64 parent, u64 ref_root,
 			       u64 owner, u64 offset, int action,
 			       struct btrfs_delayed_extent_op *extent_op,
+#ifdef CONFIG_BTRFS_FS_SYNO_USRQUOTA
+			       int for_cow, int is_uid_valid, uid_t uid)
+#else
 			       int for_cow)
+#endif
 {
 	struct btrfs_delayed_data_ref *ref;
 	struct btrfs_delayed_ref_head *head_ref;
@@ -844,7 +852,11 @@ int btrfs_add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 				   action, for_cow);
 	spin_unlock(&delayed_refs->lock);
 	if (need_ref_seq(for_cow, ref_root))
+#ifdef CONFIG_BTRFS_FS_SYNO_USRQUOTA
+		btrfs_qgroup_record_ref(trans, &ref->node, extent_op, is_uid_valid, uid);
+#else
 		btrfs_qgroup_record_ref(trans, &ref->node, extent_op);
+#endif
 
 	return 0;
 }

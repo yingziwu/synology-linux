@@ -1,5 +1,6 @@
 /* Hidden APIs */
 
+
 /*******************************************************************************
 * gtaiGetSocClkPer
 *
@@ -63,6 +64,7 @@ GT_STATUS gtaiGetSocClkPer
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtaiSetSocClkPer
@@ -136,6 +138,7 @@ GT_STATUS gtaiSetSocClkPer
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gtaiGetSocClkComp
 *
@@ -199,6 +202,7 @@ GT_STATUS gtaiGetSocClkComp
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtaiSetSocClkComp

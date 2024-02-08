@@ -165,5 +165,6 @@ static INLINE uint32_t al_udma_iofic_read_cause(struct unit_regs __iomem *regs, 
 	return al_iofic_read_cause(&regs->gen.interrupt_regs.main_iofic, group);
 }
 
+
 #endif
 /** @} end of UDMA group */

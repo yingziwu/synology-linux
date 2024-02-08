@@ -46,6 +46,7 @@
  *    Added support for Event Electronics EZ8 card to hoontech.c.
  */
 
+
 #include <linux/io.h>
 #include <linux/delay.h>
 #include <linux/interrupt.h>
@@ -103,6 +104,7 @@ module_param_array(model, charp, NULL, 0444);
 MODULE_PARM_DESC(model, "Use the given board model.");
 module_param_array(dxr_enable, int, NULL, 0444);
 MODULE_PARM_DESC(dxr_enable, "Enable DXR support for Terratec DMX6FIRE.");
+
 
 static DEFINE_PCI_DEVICE_TABLE(snd_ice1712_ids) = {
 	{ PCI_VDEVICE(ICE, PCI_DEVICE_ID_ICE_1712), 0 },   /* ICE1712 */
@@ -224,6 +226,7 @@ static void snd_ice1712_pro_ac97_write(struct snd_ac97 *ac97,
 			break;
 }
 
+
 static unsigned short snd_ice1712_pro_ac97_read(struct snd_ac97 *ac97,
 						unsigned short reg)
 {
@@ -284,6 +287,7 @@ static struct snd_kcontrol_new snd_ice1712_mixer_digmix_route_ac97 __devinitdata
 	.get = snd_ice1712_digmix_route_ac97_get,
 	.put = snd_ice1712_digmix_route_ac97_put,
 };
+
 
 /*
  * gpio operations
@@ -489,6 +493,7 @@ static irqreturn_t snd_ice1712_interrupt(int irq, void *dev_id)
 	return IRQ_RETVAL(handled);
 }
 
+
 /*
  *  PCM part - misc
  */
@@ -681,9 +686,10 @@ static snd_pcm_uframes_t snd_ice1712_playback_pointer(struct snd_pcm_substream *
 	if (!(snd_ice1712_read(ice, ICE1712_IREG_PBK_CTRL) & 1))
 		return 0;
 	ptr = runtime->buffer_size - inw(ice->ddma_port + 4);
+	ptr = bytes_to_frames(substream->runtime, ptr);
 	if (ptr == runtime->buffer_size)
 		ptr = 0;
-	return bytes_to_frames(substream->runtime, ptr);
+	return ptr;
 }
 
 static snd_pcm_uframes_t snd_ice1712_playback_ds_pointer(struct snd_pcm_substream *substream)
@@ -700,9 +706,10 @@ static snd_pcm_uframes_t snd_ice1712_playback_ds_pointer(struct snd_pcm_substrea
 		addr = ICE1712_DSC_ADDR0;
 	ptr = snd_ice1712_ds_read(ice, substream->number * 2, addr) -
 		ice->playback_con_virt_addr[substream->number];
+	ptr = bytes_to_frames(substream->runtime, ptr);
 	if (ptr == substream->runtime->buffer_size)
 		ptr = 0;
-	return bytes_to_frames(substream->runtime, ptr);
+	return ptr;
 }
 
 static snd_pcm_uframes_t snd_ice1712_capture_pointer(struct snd_pcm_substream *substream)
@@ -713,9 +720,10 @@ static snd_pcm_uframes_t snd_ice1712_capture_pointer(struct snd_pcm_substream *s
 	if (!(snd_ice1712_read(ice, ICE1712_IREG_CAP_CTRL) & 1))
 		return 0;
 	ptr = inl(ICEREG(ice, CONCAP_ADDR)) - ice->capture_con_virt_addr;
+	ptr = bytes_to_frames(substream->runtime, ptr);
 	if (ptr == substream->runtime->buffer_size)
 		ptr = 0;
-	return bytes_to_frames(substream->runtime, ptr);
+	return ptr;
 }
 
 static const struct snd_pcm_hardware snd_ice1712_playback = {
@@ -1109,9 +1117,10 @@ static snd_pcm_uframes_t snd_ice1712_playback_pro_pointer(struct snd_pcm_substre
 	if (!(inl(ICEMT(ice, PLAYBACK_CONTROL)) & ICE1712_PLAYBACK_START))
 		return 0;
 	ptr = ice->playback_pro_size - (inw(ICEMT(ice, PLAYBACK_SIZE)) << 2);
+	ptr = bytes_to_frames(substream->runtime, ptr);
 	if (ptr == substream->runtime->buffer_size)
 		ptr = 0;
-	return bytes_to_frames(substream->runtime, ptr);
+	return ptr;
 }
 
 static snd_pcm_uframes_t snd_ice1712_capture_pro_pointer(struct snd_pcm_substream *substream)
@@ -1122,9 +1131,10 @@ static snd_pcm_uframes_t snd_ice1712_capture_pro_pointer(struct snd_pcm_substrea
 	if (!(inl(ICEMT(ice, PLAYBACK_CONTROL)) & ICE1712_CAPTURE_START_SHADOW))
 		return 0;
 	ptr = ice->capture_pro_size - (inw(ICEMT(ice, CAPTURE_SIZE)) << 2);
+	ptr = bytes_to_frames(substream->runtime, ptr);
 	if (ptr == substream->runtime->buffer_size)
 		ptr = 0;
-	return bytes_to_frames(substream->runtime, ptr);
+	return ptr;
 }
 
 static const struct snd_pcm_hardware snd_ice1712_playback_pro = {
@@ -2206,6 +2216,7 @@ static struct snd_kcontrol_new snd_ice1712_mixer_pro_spdif_route __devinitdata =
 	.count = 2,
 };
 
+
 static int snd_ice1712_pro_volume_rate_info(struct snd_kcontrol *kcontrol,
 					    struct snd_ctl_elem_info *uinfo)
 {
@@ -2378,6 +2389,8 @@ static int __devinit snd_ice1712_read_eeprom(struct snd_ice1712 *ice,
 	return 0;
 }
 
+
+
 static int __devinit snd_ice1712_chip_init(struct snd_ice1712 *ice)
 {
 	outb(ICE1712_RESET | ICE1712_NATIVE, ICEREG(ice, CONTROL));
@@ -2451,6 +2464,7 @@ int __devinit snd_ice1712_spdif_build_controls(struct snd_ice1712 *ice)
 	ice->spdif.stream_ctl = kctl;
 	return 0;
 }
+
 
 static int __devinit snd_ice1712_build_controls(struct snd_ice1712 *ice)
 {
@@ -2634,6 +2648,7 @@ static int __devinit snd_ice1712_create(struct snd_card *card,
 	*r_ice1712 = ice;
 	return 0;
 }
+
 
 /*
  *

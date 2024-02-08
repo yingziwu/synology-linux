@@ -294,6 +294,7 @@ static void disable_i2s1_vcxo(void)
 }
 #endif /* CONFIG_MACH_U300_USE_I2S_AS_MASTER */
 
+
 static void syscon_clk_rate_set_mclk(unsigned long rate)
 {
 	u16 val;
@@ -868,6 +869,7 @@ static struct clk ahb_clk = {
 	.lock       = __SPIN_LOCK_UNLOCKED(ahb_clk.lock),
 };
 
+
 /*
  * Clocks on the AHB bridge
  */
@@ -926,6 +928,7 @@ static struct clk emif_clk = {
 	.get_rate   = clk_get_rate_emif_clk,
 	.lock       = __SPIN_LOCK_UNLOCKED(emif_clk.lock),
 };
+
 
 /*
  * Clocks on the FAST bridge
@@ -1066,6 +1069,7 @@ static struct clk uart1_clk = {
 	.lock       = __SPIN_LOCK_UNLOCKED(uart1_clk.lock),
 };
 #endif
+
 
 /*
  * Clocks on the SLOW bridge

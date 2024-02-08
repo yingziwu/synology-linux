@@ -103,6 +103,7 @@ static int tfilter_notify(struct net *net, struct sk_buff *oskb,
 			  struct nlmsghdr *n, struct tcf_proto *tp,
 			  unsigned long fh, int event);
 
+
 /* Select new prio value from the range, managed by kernel. */
 
 static inline u32 tcf_auto_prio(struct tcf_proto *tp)
@@ -136,9 +137,11 @@ static int tc_ctl_tfilter(struct sk_buff *skb, struct nlmsghdr *n, void *arg)
 	unsigned long cl;
 	unsigned long fh;
 	int err;
-	int tp_created = 0;
+	int tp_created;
 
 replay:
+	tp_created = 0;
+
 	t = NLMSG_DATA(n);
 	protocol = TC_H_MIN(t->tcm_info);
 	prio = TC_H_MAJ(t->tcm_info);
@@ -221,6 +224,7 @@ replay:
 		if (n->nlmsg_type != RTM_NEWTFILTER ||
 		    !(n->nlmsg_flags & NLM_F_CREATE))
 			goto errout;
+
 
 		/* Create new proto tcf */
 
@@ -306,7 +310,8 @@ replay:
 		case RTM_DELTFILTER:
 			err = tp->ops->delete(tp, fh);
 			if (err == 0)
-				tfilter_notify(net, skb, n, tp, fh, RTM_DELTFILTER);
+				tfilter_notify(net, skb, n, tp,
+					       t->tcm_handle, RTM_DELTFILTER);
 			goto errout;
 		case RTM_GETTFILTER:
 			err = tfilter_notify(net, skb, n, tp, fh, RTM_NEWTFILTER);
@@ -590,6 +595,7 @@ nla_put_failure: __attribute__ ((unused))
 	return -1;
 }
 EXPORT_SYMBOL(tcf_exts_dump);
+
 
 int tcf_exts_dump_stats(struct sk_buff *skb, struct tcf_exts *exts,
 			const struct tcf_ext_map *map)

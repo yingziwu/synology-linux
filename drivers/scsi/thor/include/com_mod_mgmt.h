@@ -17,6 +17,7 @@ enum {
 	MV_MOD_GONE,
 };
 
+
 /* adapter descriptor */
 struct mv_adp_desc {
 	struct list_head  hba_entry;
@@ -32,6 +33,7 @@ struct mv_adp_desc {
 	MV_U8             id;             /* multi-hba support, start from 0 */
 	MV_U8             pad0;
 	MV_U8             running_mod_num;/* number of up & running modules */
+
 
 	MV_U16            vendor;
 	MV_U16            device;
@@ -57,6 +59,7 @@ struct mv_adp_desc {
 };
 
 struct mv_mod_desc;
+
 
 struct mv_mod_res {
 	struct list_head       res_entry;
@@ -109,6 +112,7 @@ typedef struct _Module_Interface
 		   _ops->module_service_isr      = _isr;                   \
 		   _ops->module_send_xor_request = _xor;                   \
 	   }
+
 
 /* module descriptor */
 struct mv_mod_desc {

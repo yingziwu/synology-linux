@@ -12,3 +12,4 @@
 extern struct policydb policydb;
 
 #endif	/* _SS_SERVICES_H_ */
+

@@ -46,6 +46,7 @@
 #include "musb_core.h"
 #include "musb_host.h"
 
+
 /* MUSB HOST status 22-mar-2006
  *
  * - There's still lots of partial code duplication for fault paths, so
@@ -80,6 +81,7 @@
  *   although ARP RX wins.  (That test was done with a full speed link.)
  */
 
+
 /*
  * NOTE on endpoint usage:
  *
@@ -93,6 +95,7 @@
  * "claimed" until its software queue is no longer refilled.  No multiplexing
  * of transfers between endpoints, or anything clever.
  */
+
 
 static void musb_ep_program(struct musb *musb, u8 epnum,
 			struct urb *urb, int is_out,
@@ -568,14 +571,13 @@ musb_rx_reinit(struct musb *musb, struct musb_qh *qh, struct musb_hw_ep *ep)
 		musb_writew(ep->regs, MUSB_TXCSR, 0);
 
 	/* scrub all previous state, clearing toggle */
-	} else {
-		csr = musb_readw(ep->regs, MUSB_RXCSR);
-		if (csr & MUSB_RXCSR_RXPKTRDY)
-			WARNING("rx%d, packet/%d ready?\n", ep->epnum,
-				musb_readw(ep->regs, MUSB_RXCOUNT));
-
-		musb_h_flush_rxfifo(ep, MUSB_RXCSR_CLRDATATOG);
 	}
+	csr = musb_readw(ep->regs, MUSB_RXCSR);
+	if (csr & MUSB_RXCSR_RXPKTRDY)
+		WARNING("rx%d, packet/%d ready?\n", ep->epnum,
+			musb_readw(ep->regs, MUSB_RXCOUNT));
+
+	musb_h_flush_rxfifo(ep, MUSB_RXCSR_CLRDATATOG);
 
 	/* target addr and (for multipoint) hub addr/port */
 	if (musb->is_multipoint) {
@@ -869,6 +871,7 @@ static void musb_ep_program(struct musb *musb, u8 epnum,
 	}
 }
 
+
 /*
  * Service the default endpoint (ep0) as host.
  * Return true until it's time to start the status stage.
@@ -1068,6 +1071,7 @@ irqreturn_t musb_h_ep0_irq(struct musb *musb)
 done:
 	return retval;
 }
+
 
 #ifdef CONFIG_USB_INVENTRA_DMA
 
@@ -1325,6 +1329,7 @@ void musb_host_tx(struct musb *musb, u8 epnum)
 			MUSB_TXCSR_H_WZC_BITS | MUSB_TXCSR_TXPKTRDY);
 }
 
+
 #ifdef CONFIG_USB_INVENTRA_DMA
 
 /* Host side RX (IN) using Mentor DMA works as follows:
@@ -1379,9 +1384,15 @@ static void musb_bulk_rx_nak_timeout(struct musb *musb, struct musb_hw_ep *ep)
 	musb_ep_select(mbase, ep->epnum);
 	dma = is_dma_capable() ? ep->rx_channel : NULL;
 
-	/* clear nak timeout bit */
+	/*
+	 * Need to stop the transaction by clearing REQPKT first
+	 * then the NAK Timeout bit ref MUSBMHDRC USB 2.0 HIGH-SPEED
+	 * DUAL-ROLE CONTROLLER Programmer's Guide, section 9.2.2
+	 */
 	rx_csr = musb_readw(epio, MUSB_RXCSR);
 	rx_csr |= MUSB_RXCSR_H_WZC_BITS;
+	rx_csr &= ~MUSB_RXCSR_H_REQPKT;
+	musb_writew(epio, MUSB_RXCSR, rx_csr);
 	rx_csr &= ~MUSB_RXCSR_DATAERROR;
 	musb_writew(epio, MUSB_RXCSR, rx_csr);
 
@@ -2057,6 +2068,7 @@ done:
 	}
 	return ret;
 }
+
 
 /*
  * abort a transfer that's at the head of a hardware queue.

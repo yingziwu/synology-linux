@@ -92,6 +92,7 @@ static u64 acpi_lapic_addr __initdata = APIC_DEFAULT_PHYS_BASE;
  */
 enum acpi_irq_model_id acpi_irq_model = ACPI_IRQ_MODEL_PIC;
 
+
 /*
  * ISA irqs by default are the first 16 gsis but can be
  * any gsi as specified by an interrupt source override.
@@ -949,6 +950,14 @@ void __init mp_override_legacy_irq(u8 bus_irq, u8 polarity, u8 trigger, u32 gsi)
 	int ioapic;
 	int pin;
 	struct mpc_intsrc mp_irq;
+
+	/*
+	 * Check bus_irq boundary.
+	 */
+	if (bus_irq >= NR_IRQS_LEGACY) {
+		pr_warn("Invalid bus_irq %u for legacy override\n", bus_irq);
+		return;
+	}
 
 	/*
 	 * Convert 'gsi' to 'ioapic.pin'.

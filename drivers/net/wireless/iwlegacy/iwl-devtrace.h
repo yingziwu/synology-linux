@@ -35,6 +35,7 @@
 static inline void trace_ ## name(proto) {}
 #endif
 
+
 #define PRIV_ENTRY	__field(struct iwl_priv *, priv)
 #define PRIV_ASSIGN	(__entry->priv = priv)
 

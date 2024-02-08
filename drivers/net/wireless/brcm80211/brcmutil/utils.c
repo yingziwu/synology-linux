@@ -65,6 +65,7 @@ void brcmu_pkt_buf_free_skb(struct sk_buff *skb)
 }
 EXPORT_SYMBOL(brcmu_pkt_buf_free_skb);
 
+
 /* copy a buffer into a pkt buffer chain */
 uint brcmu_pktfrombuf(struct sk_buff *p, uint offset, int len,
 		unsigned char *buf)

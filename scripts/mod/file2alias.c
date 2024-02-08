@@ -130,8 +130,8 @@ static void do_usb_entry(struct usb_device_id *id,
 				range_lo < 0x9 ? "[%X-9" : "[%X",
 				range_lo);
 			sprintf(alias + strlen(alias),
-				range_hi > 0xA ? "a-%X]" : "%X]",
-				range_lo);
+				range_hi > 0xA ? "A-%X]" : "%X]",
+				range_hi);
 		}
 	}
 	if (bcdDevice_initial_digits < (sizeof(id->bcdDevice_lo) * 2 - 1))
@@ -548,6 +548,8 @@ static int do_pcmcia_entry(const char *filename,
        return 1;
 }
 
+
+
 static int do_of_entry (const char *filename, struct of_device_id *of, char *alias)
 {
     int len;
@@ -803,6 +805,7 @@ static void dmi_ascii_filter(char *d, const char *s)
 
 	*d = 0;
 }
+
 
 static int do_dmi_entry(const char *filename, struct dmi_system_id *id,
 			char *alias)

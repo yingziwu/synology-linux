@@ -55,6 +55,7 @@ enum {
 	VIAWGET_SET_DISASSOCIATE = 10
 };
 
+
 enum {
 	VIAWGET_ASSOC_MSG = 1,
 	VIAWGET_DISASSOC_MSG = 2,
@@ -63,6 +64,8 @@ enum {
 	VIAWGET_CCKM_ROAM_MSG = 5,
 	VIAWGET_DEVICECLOSE_MSG = 6
 };
+
+
 
 typedef struct viawget_wpa_header {
 	u8 type;

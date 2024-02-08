@@ -162,6 +162,7 @@ int drm_pci_set_busid(struct drm_device *dev, struct drm_master *master)
 	if (master->unique == NULL)
 		return -ENOMEM;
 
+
 	len = snprintf(master->unique, master->unique_len,
 		       "pci:%04x:%02x:%02x.%d",
 		       drm_get_pci_domain(dev),
@@ -249,6 +250,7 @@ int drm_pci_set_unique(struct drm_device *dev,
 err:
 	return ret;
 }
+
 
 static int drm_pci_irq_by_busid(struct drm_device *dev, struct drm_irq_busid *p)
 {

@@ -1408,6 +1408,7 @@ void ieee80211_connection_loss(struct ieee80211_vif *vif)
 }
 EXPORT_SYMBOL(ieee80211_connection_loss);
 
+
 static enum rx_mgmt_action __must_check
 ieee80211_rx_mgmt_deauth(struct ieee80211_sub_if_data *sdata,
 			 struct ieee80211_mgmt *mgmt, size_t len)
@@ -1435,6 +1436,7 @@ ieee80211_rx_mgmt_deauth(struct ieee80211_sub_if_data *sdata,
 
 	return RX_MGMT_CFG80211_DEAUTH;
 }
+
 
 static enum rx_mgmt_action __must_check
 ieee80211_rx_mgmt_disassoc(struct ieee80211_sub_if_data *sdata,
@@ -1465,6 +1467,7 @@ ieee80211_rx_mgmt_disassoc(struct ieee80211_sub_if_data *sdata,
 	mutex_unlock(&sdata->local->mtx);
 	return RX_MGMT_CFG80211_DISASSOC;
 }
+
 
 static bool ieee80211_assoc_success(struct ieee80211_work *wk,
 				    struct ieee80211_mgmt *mgmt, size_t len)
@@ -1670,6 +1673,7 @@ static bool ieee80211_assoc_success(struct ieee80211_work *wk,
 	return true;
 }
 
+
 static void ieee80211_rx_bss_info(struct ieee80211_sub_if_data *sdata,
 				  struct ieee80211_mgmt *mgmt,
 				  size_t len,
@@ -1723,6 +1727,7 @@ static void ieee80211_rx_bss_info(struct ieee80211_sub_if_data *sdata,
 						 bss, rx_status->mactime);
 	}
 }
+
 
 static void ieee80211_rx_mgmt_probe_resp(struct ieee80211_sub_if_data *sdata,
 					 struct sk_buff *skb)
@@ -1835,7 +1840,7 @@ static void ieee80211_rx_mgmt_beacon(struct ieee80211_sub_if_data *sdata,
 
 	if (ifmgd->rssi_min_thold != ifmgd->rssi_max_thold &&
 	    ifmgd->count_beacon_signal >= IEEE80211_SIGNAL_AVE_MIN_COUNT) {
-		int sig = ifmgd->ave_beacon_signal;
+		int sig = ifmgd->ave_beacon_signal / 16;
 		int last_sig = ifmgd->last_ave_beacon_signal;
 
 		/*
@@ -1951,6 +1956,7 @@ static void ieee80211_rx_mgmt_beacon(struct ieee80211_sub_if_data *sdata,
 	changed |= ieee80211_handle_bss_capability(sdata,
 			le16_to_cpu(mgmt->u.beacon.capab_info),
 			erp_valid, erp_value);
+
 
 	if (elems.ht_cap_elem && elems.ht_info_elem && elems.wmm_param &&
 	    !(ifmgd->flags & IEEE80211_STA_DISABLE_11N)) {
@@ -2624,6 +2630,7 @@ int ieee80211_mgd_assoc(struct ieee80211_sub_if_data *sdata,
 		    req->crypto.ciphers_pairwise[i] == WLAN_CIPHER_SUITE_TKIP ||
 		    req->crypto.ciphers_pairwise[i] == WLAN_CIPHER_SUITE_WEP104)
 			ifmgd->flags |= IEEE80211_STA_DISABLE_11N;
+
 
 	if (req->ie && req->ie_len) {
 		memcpy(wk->ie, req->ie, req->ie_len);

@@ -93,6 +93,7 @@
  */
 #define FH_KW_MEM_ADDR_REG		     (FH_MEM_LOWER_BOUND + 0x97C)
 
+
 /**
  * TFD Circular Buffers Base (CBBC) addresses
  *
@@ -110,6 +111,7 @@
 
 /* Find TFD CB base pointer for given queue (range 0-15). */
 #define FH_MEM_CBBC_QUEUE(x)  (FH_MEM_CBBC_LOWER_BOUND + (x) * 0x4)
+
 
 /**
  * Rx SRAM Control and Status Registers (RSCSR)
@@ -206,6 +208,7 @@
  */
 #define FH_RSCSR_CHNL0_RBDCB_WPTR_REG	(FH_MEM_RSCSR_CHNL0 + 0x008)
 #define FH_RSCSR_CHNL0_WPTR        (FH_RSCSR_CHNL0_RBDCB_WPTR_REG)
+
 
 /**
  * Rx Config/Status Registers (RCSR)
@@ -442,6 +445,7 @@ struct iwl_rb_status {
 	__le16 finished_fr_nam;
 	__le32 __unused; /* 3945 only */
 } __packed;
+
 
 #define TFD_QUEUE_SIZE_MAX      (256)
 #define TFD_QUEUE_SIZE_BC_DUP	(64)

@@ -38,6 +38,7 @@
 
 #define PFX "powernow: "
 
+
 struct psb_s {
 	u8 signature[10];
 	u8 tableversion;
@@ -215,6 +216,7 @@ static int get_ranges(unsigned char *pst)
 	return 0;
 }
 
+
 static void change_FID(int fid)
 {
 	union msr_fidvidctl fidvidctl;
@@ -229,6 +231,7 @@ static void change_FID(int fid)
 	}
 }
 
+
 static void change_VID(int vid)
 {
 	union msr_fidvidctl fidvidctl;
@@ -242,6 +245,7 @@ static void change_VID(int vid)
 		wrmsrl(MSR_K7_FID_VID_CTL, fidvidctl.val);
 	}
 }
+
 
 static void change_speed(unsigned int index)
 {
@@ -283,11 +287,13 @@ static void change_speed(unsigned int index)
 		change_FID(fid);
 	}
 
+
 	if (have_a0 == 1)
 		local_irq_enable();
 
 	cpufreq_notify_transition(&freqs, CPUFREQ_POSTCHANGE);
 }
+
 
 #ifdef CONFIG_X86_POWERNOW_K7_ACPI
 
@@ -528,6 +534,7 @@ static int powernow_decode_bios(int maxfid, int startvid)
 	return -ENODEV;
 }
 
+
 static int powernow_target(struct cpufreq_policy *policy,
 			    unsigned int target_freq,
 			    unsigned int relation)
@@ -542,6 +549,7 @@ static int powernow_target(struct cpufreq_policy *policy,
 
 	return 0;
 }
+
 
 static int powernow_verify(struct cpufreq_policy *policy)
 {
@@ -588,6 +596,7 @@ static unsigned int powernow_get(unsigned int cpu)
 
 	return fsb * fid_codes[cfid] / 10;
 }
+
 
 static int __cpuinit acer_cpufreq_pst(const struct dmi_system_id *d)
 {
@@ -720,6 +729,7 @@ static int __init powernow_init(void)
 	return cpufreq_register_driver(&powernow_driver);
 }
 
+
 static void __exit powernow_exit(void)
 {
 	cpufreq_unregister_driver(&powernow_driver);
@@ -734,3 +744,4 @@ MODULE_LICENSE("GPL");
 
 late_initcall(powernow_init);
 module_exit(powernow_exit);
+

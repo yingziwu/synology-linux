@@ -89,6 +89,8 @@ static INT ScaleRateofTransfer(ULONG rate)
 		return MAX_NUM_OF_BLINKS;
 }
 
+
+
 static INT LED_Proportional_Blink(PMINI_ADAPTER Adapter, UCHAR GPIO_Num_tx,
 		UCHAR uiTxLedIndex, UCHAR GPIO_Num_rx, UCHAR uiRxLedIndex, LedEventInfo_t currdriverstate)
 {
@@ -229,6 +231,7 @@ static INT LED_Proportional_Blink(PMINI_ADAPTER Adapter, UCHAR GPIO_Num_tx,
 	return Status;
 }
 
+
 //-----------------------------------------------------------------------------
 // Procedure:   ValidateDSDParamsChecksum
 //
@@ -307,6 +310,7 @@ exit:
 	return Status;
 }
 
+
 //-----------------------------------------------------------------------------
 // Procedure:   ValidateHWParmStructure
 //
@@ -355,6 +359,7 @@ static int ReadLEDInformationFromEEPROM(PMINI_ADAPTER Adapter, UCHAR GPIO_Array[
 
 	BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, LED_DUMP_INFO, DBG_LVL_ALL,"usEEPROMVersion: Minor:0x%X Major:0x%x",usEEPROMVersion&0xFF, ((usEEPROMVersion>>8)&0xFF));
 
+
 	if(((usEEPROMVersion>>8)&0xFF) < EEPROM_MAP5_MAJORVERSION)
 	{
 		BeceemNVMRead(Adapter,(PUINT)&usHwParamData,EEPROM_HW_PARAM_POINTER_ADDRESS,2);
@@ -377,6 +382,7 @@ static int ReadLEDInformationFromEEPROM(PMINI_ADAPTER Adapter, UCHAR GPIO_Array[
 		BeceemNVMRead(Adapter,(PUINT)&dwReadValue,EEPROM_HW_PARAM_POINTER_ADDRRES_MAP5,4);
 		dwReadValue = ntohl(dwReadValue);
 	}
+
 
 	BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, LED_DUMP_INFO, DBG_LVL_ALL,"LED Thread: Start address of HW_PARAM structure = 0x%lx",dwReadValue);
 
@@ -447,6 +453,7 @@ static int ReadLEDInformationFromEEPROM(PMINI_ADAPTER Adapter, UCHAR GPIO_Array[
 		BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, LED_DUMP_INFO, DBG_LVL_ALL,"GPIO's bit map correspond to LED :0x%X",Adapter->gpioBitMap);
 	 return Status;
 }
+
 
 static int ReadConfigFileStructure(PMINI_ADAPTER Adapter, BOOLEAN *bEnableThread)
 {

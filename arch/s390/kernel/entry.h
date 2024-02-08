@@ -5,6 +5,7 @@
 #include <linux/signal.h>
 #include <asm/ptrace.h>
 
+
 extern void (*pgm_check_table[128])(struct pt_regs *, long, unsigned long);
 extern void *restart_stack;
 

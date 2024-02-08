@@ -139,7 +139,7 @@ static const u8 regtempmin[] = { 0x3a, 0x3e, 0x2c, 0x2e, 0x30, 0x32 };
 */
 static inline u8 FAN_TO_REG(long rpm, int div)
 {
-	if (rpm == 0)
+	if (rpm <= 0 || rpm > 1310720)
 		return 0;
 	return SENSORS_LIMIT(1310720 / (rpm * div), 1, 255);
 }
@@ -522,6 +522,7 @@ static ssize_t set_fan_div(struct device *dev, struct device_attribute *attr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+
 
 #define define_fan_sysfs(offset)					\
 static SENSOR_DEVICE_ATTR(fan##offset##_input, S_IRUGO,			\

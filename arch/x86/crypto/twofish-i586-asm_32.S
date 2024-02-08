@@ -60,6 +60,7 @@
 #define R3B    %dl
 #define R3H    %dh
 
+
 /* performs input whitening */
 #define input_whitening(src,context,offset)\
 	xor	w+offset(context),	src;
@@ -282,6 +283,7 @@ twofish_dec_blk:
 	push    %ebx
 	push    %esi
 	push    %edi
+
 
 	mov	ctx + 16(%esp),	%ebp	/* abuse the base pointer: set new base
 					 * pointer to the ctx address */

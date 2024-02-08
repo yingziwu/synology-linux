@@ -1,7 +1,26 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * linux/arch/arm/mach-comcerto/pcie-c2000.c
+ *
+ * Copyright (C) 2004,2005 Mindspeed Technologies, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #include <linux/kernel.h>
 #include <linux/version.h>
 #include <linux/init.h>
@@ -31,7 +50,8 @@
 #include <linux/platform_device.h>
 #include <linux/clk.h>
 #include <mach/comcerto-2000/pm.h>
- 
+//#define COMCERTO_PCIE_DEBUG
+
 #ifdef CONFIG_PCI_MSI
 static DECLARE_BITMAP(msi_irq_in_use[NUM_PCIE_PORTS], PCIE_NUM_MSI_IRQS);
 static int comcerto_msi_init(struct pcie_port *pp);
@@ -59,8 +79,10 @@ static int __init get_pcie_gen_mode(char *str)
 
 __setup("pcie_gen1_only=", get_pcie_gen_mode);
 
+
+/* DWC PCIEe configuration register offsets on APB */
 struct pcie_app_reg app_regs[MAX_PCIE_PORTS] = {
-	 
+	/* PCIe0 */
 	{
 		0x00000000,
 		0x00000004,
@@ -82,7 +104,7 @@ struct pcie_app_reg app_regs[MAX_PCIE_PORTS] = {
 		0x00000108,
 		0x0000010C
 	},
-	 
+	/* PCIe1 */
 	{
 		0x00000020,
 		0x00000024,
@@ -106,7 +128,9 @@ struct pcie_app_reg app_regs[MAX_PCIE_PORTS] = {
 	}
 };
 
+/* Keeping all DDR area of 512MB accesible for inbound transaction */
 #define INBOUND_ADDR_MASK	0x1FFFFFFF
+
 
 #define PCIE_SETUP_iATU_IB_ENTRY( _pp, _view_port, _base, _limit, _ctl1, _ctl2, _target ) \
 {\
@@ -134,7 +158,7 @@ struct pcie_app_reg app_regs[MAX_PCIE_PORTS] = {
 	comcerto_dbi_write_reg(_pp, PCIE_iATU_CTRL2, 4, (u32)(_ctl2 |iATU_CTRL2_ID_EN) ); \
 }
 
-#define MAX_LINK_UP_WAIT_JIFFIES	HZ  
+#define MAX_LINK_UP_WAIT_JIFFIES	HZ /* 1 Second */
 
 static unsigned long pcie_cnf_base_addr[MAX_PCIE_PORTS] =
 		{ COMCERTO_AXI_PCIe0_BASE, COMCERTO_AXI_PCIe1_BASE };
@@ -147,6 +171,7 @@ static int pcie_intx_base[MAX_PCIE_PORTS] =
 static int pcie_irqs[MAX_PCIE_PORTS] =
 		{ IRQ_PCIe0, IRQ_PCIe1 };
 
+
 static struct pcie_port pcie_port[MAX_PCIE_PORTS];
 
 static int pcie_port_is_host( int nr  )
@@ -156,6 +181,9 @@ static int pcie_port_is_host( int nr  )
 	return ( pp->port_mode == PCIE_PORT_MODE_RC ) ? 1 : 0;
 }
 
+/**
+ * This function sets PCIe port mode.
+ */
 static void pcie_port_set_mode( int nr, int mode  )
 {
 	struct pcie_port *pp= &pcie_port[nr];
@@ -163,6 +191,10 @@ static void pcie_port_set_mode( int nr, int mode  )
 	writel( (readl(pp->va_app_base + pp->app_regs->cfg0) & ~0xf) | mode, pp->va_app_base + pp->app_regs->cfg0);
 }
 
+/**
+ * This function returns the given port mode.
+ * @param nr	PCIe Port number.
+ */
 static int pcie_port_get_mode( int nr  )
 {
 	struct pcie_port *pp= &pcie_port[nr];
@@ -171,6 +203,11 @@ static int pcie_port_get_mode( int nr  )
 			DWC_CFG0_DEV_TYPE_MASK );
 }
 
+/**
+ * This function checks whether link is up or not.
+ * Returns true if link is up otherwise returns false.
+ * @param pp	Pointer to PCIe Port control block.
+ */
 static int comcerto_pcie_link_up( struct pcie_port *pp  )
 {
 	unsigned long deadline = jiffies + MAX_LINK_UP_WAIT_JIFFIES;
@@ -186,6 +223,10 @@ static int comcerto_pcie_link_up( struct pcie_port *pp  )
 	return 0;
 }
 
+/**
+ * bus_to_port().
+ *
+ */
 static struct pcie_port *bus_to_port(int bus)
 {
 	int i;
@@ -200,6 +241,10 @@ static struct pcie_port *bus_to_port(int bus)
 
 	return i >= 0 ? pcie_port + i : NULL;
 }
+
+/**
+ * This function is used to read DBI registers.
+ */
 
 static void comcerto_dbi_read_reg(struct pcie_port *pp, int where, int size,
 		u32 *val)
@@ -216,6 +261,9 @@ static void comcerto_dbi_read_reg(struct pcie_port *pp, int where, int size,
 		*val = (*val >> (8 * (where & 3))) & 0xffff;
 }
 
+/**
+ * This function is used to write into DBI registers.
+ */
 static void comcerto_dbi_write_reg(struct pcie_port *pp, int where, int size,
 		u32 val)
 {
@@ -259,10 +307,11 @@ static int comcerto_pcie_rd_conf(struct pcie_port *pp, int bus_nr,
 	u32 address;
 	u32 target_address = (u32)(bus_nr << 24) | (PCI_SLOT(devfn) << 19) | (PCI_FUNC(devfn) << 16);
 
+	/* Initialize iATU */
 	if (bus_nr != pp->root_bus_nr) {
 
 		if (pp->cfg1_prev_taddr != target_address) {
-			 
+			/* Type1 configuration request */
 			PCIE_SETUP_iATU_OB_ENTRY( pp, iATU_ENTRY_CNF1, (u32)iATU_GET_CFG1_BASE(pp->remote_mem_baseaddr),
 				iATU_CFG1_SIZE - 1, (AXI_OP_TYPE_CONFIG_RDRW_TYPE1 & iATU_CTRL1_TYPE_MASK),
 				0, target_address );
@@ -272,7 +321,7 @@ static int comcerto_pcie_rd_conf(struct pcie_port *pp, int bus_nr,
 		address = (u32)pp->va_cfg1_base |(where & 0xFFFC);
 	} else {
 		if (pp->cfg0_prev_taddr != target_address) {
-			 
+			/* Type0 configuration request */
 			PCIE_SETUP_iATU_OB_ENTRY( pp, iATU_ENTRY_CNF0, (u32)iATU_GET_CFG0_BASE(pp->remote_mem_baseaddr),
 				iATU_CFG0_SIZE - 1, (AXI_OP_TYPE_CONFIG_RDRW_TYPE0 & iATU_CTRL1_TYPE_MASK),
 				0, target_address );
@@ -282,8 +331,15 @@ static int comcerto_pcie_rd_conf(struct pcie_port *pp, int bus_nr,
 		address = (u32)pp->va_cfg0_base |(where & 0xFFFC);
 	}
 
+
 	*val = readl_relaxed(address);
 
+	/* Because of the imprecise external abort the processor is not able to get the exact instruction 
+           which caused the abort and hence when the abort handler tries to restore the PC to the next 
+           instruction to resume it is often wrong and it results in skipping few instruction after the 
+           readl_relaxed which has caused abort. So nop instructions are added after readl so that even 
+           if the some instructions are missed out it will miss the nop instruction only.
+	*/
 	nop_delay();
 
 	if (size == 1)
@@ -303,10 +359,15 @@ static int pcie_read_conf(struct pci_bus *bus, u32 devfn, int where, int size, u
 	unsigned long flags;
 	int ret;
 
+
 #ifdef COMCERTO_PCIE_DEBUG
 	printk(KERN_DEBUG "%s: bus:%d dev:%d where:%d, size:%d\n", __func__, bus->number, devfn, where, size);
 #endif
 
+
+	/* Make sure that link is up.
+	 * Filter device numbers, unless it's a type1 access
+	 */
 	if ( (!pp->link_state)||
 			((bus->number == pp->root_bus_nr) && (PCI_SLOT(devfn) > 0)) ) {
 		*val = 0xffffffff;
@@ -315,9 +376,10 @@ static int pcie_read_conf(struct pci_bus *bus, u32 devfn, int where, int size, u
 
 	BUG_ON (((where & 0x3) + size) > 4);
 
+	/* Enter critical section. */
 	spin_lock_irqsave(&pp->conf_lock, flags);
 	ret = comcerto_pcie_rd_conf(pp, bus->number, devfn, where, size, val);
-	 
+	/* Exit critical section. */
 	spin_unlock_irqrestore(&pp->conf_lock, flags);
 
 	return ret;
@@ -330,9 +392,10 @@ static int comcerto_pcie_wr_conf(struct pcie_port *pp, int bus_nr,
 	u32 address;
 	u32 target_address = (u32)(bus_nr << 24) | (PCI_SLOT(devfn) << 19) | (PCI_FUNC(devfn) << 16);
 
+	/* Initialize iATU */
 	if (bus_nr != pp->root_bus_nr) {
 		if (pp->cfg1_prev_taddr != target_address) {
-			 
+			/* Type1 configuration request */
 			PCIE_SETUP_iATU_OB_ENTRY( pp, iATU_ENTRY_CNF1, (u32)iATU_GET_CFG1_BASE(pp->remote_mem_baseaddr),
 				iATU_CFG1_SIZE - 1, (AXI_OP_TYPE_CONFIG_RDRW_TYPE1 & iATU_CTRL1_TYPE_MASK),
 				0, target_address );
@@ -342,7 +405,7 @@ static int comcerto_pcie_wr_conf(struct pcie_port *pp, int bus_nr,
 		address = (u32)pp->va_cfg1_base |(where & 0xFFFC);
 	} else {
 		if (pp->cfg0_prev_taddr != target_address) {
-			 
+			/* Type0 configuration request */
 			PCIE_SETUP_iATU_OB_ENTRY( pp, iATU_ENTRY_CNF0, (u32)iATU_GET_CFG0_BASE(pp->remote_mem_baseaddr),
 				iATU_CFG0_SIZE - 1, (AXI_OP_TYPE_CONFIG_RDRW_TYPE0 & iATU_CTRL1_TYPE_MASK),
 				0, target_address );
@@ -351,6 +414,7 @@ static int comcerto_pcie_wr_conf(struct pcie_port *pp, int bus_nr,
 
 		address = (u32)pp->va_cfg0_base |(where & 0xFFFC);
 	}
+
 
 #ifdef COMCERTO_PCIE_DEBUG
 	printk(KERN_DEBUG "%s: bus:%d dev:%d where:%d, size:%d addr : %x value:%x\n", __func__, bus_nr, devfn, where, size, address, val);
@@ -377,6 +441,9 @@ static int pcie_write_conf(struct pci_bus *bus, u32 devfn, int where, int size, 
 	printk(KERN_DEBUG "%s: bus:%d dev:%d where:%d, size:%d val:%d\n", __func__, bus->number, devfn, where, size, val);
 #endif
 
+	/* Make sure that link is up.
+	 * Filter device numbers, unless it's a type1 access
+	 */
 	if ( (!pp->link_state)||
 			((bus->number == pp->root_bus_nr) && (PCI_SLOT(devfn) > 0)) ) {
 		return PCIBIOS_DEVICE_NOT_FOUND;
@@ -384,11 +451,12 @@ static int pcie_write_conf(struct pci_bus *bus, u32 devfn, int where, int size, 
 
 	BUG_ON (((where & 0x3) + size) > 4);
 
+	/* Enter critical section. */
 	spin_lock_irqsave(&pp->conf_lock, flags);
 	ret = comcerto_pcie_wr_conf(pp, bus->number, devfn, where, size, val);
 	if (where == PCI_COMMAND)
 		pp->cmd_reg_val = val & 0xffff;
-	 
+	/* Exit critical section. */
 	spin_unlock_irqrestore(&pp->conf_lock, flags);
 
 	return ret;
@@ -401,6 +469,7 @@ static int comcerto_pcie_abort_handler(unsigned long addr, unsigned int fsr,
                 regs->ARM_pc += 4;
         return 0;
 }
+
 
 static u8 __init comcerto_pcie_swizzle(struct pci_dev *dev, u8 *pin)
 {
@@ -421,12 +490,14 @@ static int __init comcerto_pcie_setup(int nr, struct pci_sys_data *sys)
 	struct pcie_app_reg *app_reg;
 	u32 val;
 
+
 	if ((nr >= NUM_PCIE_PORTS) || !pcie_port_is_host(nr))
 		return 0;
 
 #ifdef COMCERTO_PCIE_DEBUG
 	printk(KERN_DEBUG "%s:%d nr:%d\n", __func__, __LINE__, nr);
 #endif
+
 
 	pp = &pcie_port[nr];
 
@@ -436,6 +507,7 @@ static int __init comcerto_pcie_setup(int nr, struct pci_sys_data *sys)
 	pp->root_bus_nr = sys->busnr;
 	app_reg = pp->app_regs;
 
+	/* Allocate device memory mapped and IO mapped regions */
 	snprintf(pp->mem_space_name, sizeof(pp->mem_space_name),
 			"PCIe %d MEM", pp->port);
 	pp->mem_space_name[sizeof(pp->mem_space_name) - 1] = 0;
@@ -452,6 +524,7 @@ static int __init comcerto_pcie_setup(int nr, struct pci_sys_data *sys)
 	pp->res[1].end = pp->res[1].start + iATU_IO_SIZE - 1;
 	pp->res[1].flags = IORESOURCE_IO;
 
+
 	if (request_resource(&iomem_resource, &pp->res[0]))
 	{
 		printk(KERN_ERR "%s:can't allocate PCIe Memory space", __func__);
@@ -464,10 +537,17 @@ static int __init comcerto_pcie_setup(int nr, struct pci_sys_data *sys)
 		return 0;
 	}
 
+	/* Generic PCIe unit setup.*/
+
+	/* Enable own BME. It is necessary to enable own BME to do a
+	 * memory transaction on a downstream device
+	 */
 	comcerto_dbi_read_reg(pp, PCI_COMMAND, 2, &val);
 	val |= (PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER
 			| PCI_COMMAND_PARITY | PCI_COMMAND_SERR);
 	comcerto_dbi_write_reg(pp, PCI_COMMAND, 2, val);
+
+	/* Need to come back here*/
 
 	sys->resource[0] = &pp->res[0];
 	sys->resource[1] = &pp->res[1];
@@ -507,8 +587,11 @@ static struct hw_pci comcerto_pcie __initdata = {
 	.scan = comcerto_pcie_scan_bus,
 };
 
+
+
 #ifdef CONFIG_PCI_MSI
- 
+/* MSI int handler
+ */
 static void handle_msi(struct pcie_port *pp)
 {
 	unsigned long val, mask;
@@ -524,7 +607,10 @@ continue_handle:
 		mask0 = 1 << pos;
 
 		if (val & mask0) {
-			 
+			/* FIXME : WA for bz69520
+			 * To avoid race condition during avk the interrupt disabling interrupt before
+			 * Ack and enabling after Ack.
+			 */
 			spin_lock(&pp->intr_lock);
 			mask = readl_relaxed(pp->va_dbi_base + PCIE_MSI_INTR0_ENABLE);
 			writel_relaxed(mask & ~mask0, pp->va_dbi_base + PCIE_MSI_INTR0_ENABLE);
@@ -545,7 +631,10 @@ continue_handle:
 		if (val) {
 			pos = 0;
 			while ((pos = find_next_bit(&val, 32, pos)) != 32) {
-				 
+				/* FIXME : WA for bz69520
+				 * To avoid race condition during avk the interrupt disabling interrupt before
+				 * Ack and enabling after Ack.
+				 */
 				spin_lock(&pp->intr_lock);
 				mask = readl_relaxed(pp->va_dbi_base + PCIE_MSI_INTR0_ENABLE + (i * 12));
 				writel_relaxed(mask & ~(1 << pos), pp->va_dbi_base + PCIE_MSI_INTR0_ENABLE + (i * 12));
@@ -586,15 +675,17 @@ static void comcerto_pcie_int_handler(unsigned int irq, struct irq_desc *desc)
 	for (ii = 0; (ii < PCIE_NUM_INTX_IRQS) && status; ii++) {
 		pos = ii << 1;
 
+		/* Handle INTx Assert */
 		if (status & (INTR_CTRL_INTA_ASSERT << pos)) {
 			status &= ~(INTR_CTRL_INTA_ASSERT << pos);
 			writel_relaxed((INTR_CTRL_INTA_ASSERT << pos), (pp->va_app_base + app_reg->intr_sts));
 			generic_handle_irq(pp->intx_base + ii);
 		}
 
+		/*FIXME : No need to handle DEASSERT, simply clear the interrupt */
 		status &= ~(INTR_CTRL_INTA_DEASSERT << pos);
 #if 0
-		 
+		/* Handle INTx Deasert */
 		if (status & (INTR_CTRL_INTA_DEASSERT << pos)) {
 			status &= ~(INTR_CTRL_INTA_DEASSERT << pos);
 			writel_relaxed((INTR_CTRL_INTA_DEASSERT << pos), (pp->va_app_base + app_reg->intr_sts));
@@ -604,12 +695,13 @@ static void comcerto_pcie_int_handler(unsigned int irq, struct irq_desc *desc)
 
 	if (status) {
 		printk(KERN_INFO "%s:Unhandled interrupt %x\n", __func__, status);
-		 
+		/* FIXME: HP, AER, PME interrupts need to be handled */
 		writel_relaxed(status, (pp->va_app_base + app_reg->intr_sts));
 	}
 
 	chained_irq_exit(chip, desc);
 }
+
 
 static void pcie_nop_intx_irq(struct irq_data *data )
 {
@@ -636,6 +728,10 @@ static void pcie_enable_intx_irq( struct irq_data *data )
 	if( irq_offset >= PCIE_NUM_INTX_IRQS )
 		return;
 
+	/*
+	 * In interrupt sts/mask register each interrupt has two
+	 * consecutive bits, one for assert and another for dessert.
+	 */
 	irq_offset = irq_offset << 1;
 
 	spin_lock_irqsave(&pp->intr_lock, flags);
@@ -664,6 +760,10 @@ static void pcie_disable_intx_irq( struct irq_data *data )
 	if( irq_offset >= PCIE_NUM_INTX_IRQS )
 		return;
 
+	/*
+	 * In interrupt sts/mask register each interrupt has two
+	 * consecutive bits, one for assert and another for dessert.
+	 */
 	irq_offset = irq_offset << 1;
 
 	spin_lock_irqsave(&pp->intr_lock, flags);
@@ -686,6 +786,7 @@ static int comcerto_pcie_intx_init(struct pcie_port *pp)
 	int i, irq;
 	struct pcie_app_reg *app_reg;
 
+	/* Disable INTX interrupt*/
 	app_reg = pp->app_regs;
 
 	writel(readl(pp->va_app_base + app_reg->intr_en) &
@@ -695,6 +796,8 @@ static int comcerto_pcie_intx_init(struct pcie_port *pp)
 				INTR_CTRL_INTD_ASSERT),
 			pp->va_app_base + app_reg->intr_en );
 
+	/* initilize INTX chip here only. MSI chip will be
+	 * initilized dynamically.*/
 	irq = pp->intx_base;
 	for (i = 0; i < PCIE_NUM_INTX_IRQS; i++) {
 		irq_set_chip_data(irq + i, pp);
@@ -706,10 +809,12 @@ static int comcerto_pcie_intx_init(struct pcie_port *pp)
 	irq_set_handler_data(pp->irq, pp);
 	irq_set_chained_handler(pp->irq, comcerto_pcie_int_handler);
 
+	/* FIXME Added for debuging */
 	writel(readl(pp->va_app_base + app_reg->intr_en) &
 			~(INTR_CTRL_AER |  INTR_CTRL_PME |
 			 INTR_CTRL_HP  |  INTR_CTRL_LINK_AUTO_BW ),
 			pp->va_app_base + app_reg->intr_en );
+
 
 	return 0;
 }
@@ -735,10 +840,12 @@ static int find_valid_pos0(int port, int nvec, int pos, int *pos0)
 	do {
 		pos = find_next_zero_bit(msi_irq_in_use[port],
 				PCIE_NUM_MSI_IRQS, pos);
-		 
+		/*if you have reached to the end then get out from here.*/
 		if (pos == PCIE_NUM_MSI_IRQS)
 			return -ENOSPC;
-		 
+		/* Check if this position is at correct offset.nvec is always a
+		 * power of two. pos0 must be nvec bit alligned.
+		 */
 		if (pos % nvec)
 			pos += nvec - (pos % nvec);
 		else
@@ -809,6 +916,7 @@ static void comcerto_msi_mask(struct irq_data *data)
 	return;
 }
 
+
 static void comcerto_msi_enable(struct irq_data *data)
 {
 	struct pcie_port *pp = data->chip_data;
@@ -835,6 +943,7 @@ static void comcerto_msi_enable(struct irq_data *data)
 
 	return;
 }
+
 
 static void comcerto_msi_disable(struct irq_data *data)
 {
@@ -871,6 +980,9 @@ static struct irq_chip comcerto_msi_chip = {
 	.irq_unmask = comcerto_msi_unmask,
 };
 
+/*
+ * Dynamic irq allocate and deallocation
+ */
 static int get_irq(int nvec, struct msi_desc *desc, int *pos)
 {
 	int irq, pos0, pos1, i;
@@ -885,7 +997,7 @@ static int get_irq(int nvec, struct msi_desc *desc, int *pos)
 	if (nvec > 1) {
 		pos1 = find_next_bit(msi_irq_in_use[pp->port],
 				PCIE_NUM_MSI_IRQS, pos0);
-		 
+		/* there must be nvec number of consecutive free bits */
 		while ((pos1 - pos0) < nvec) {
 			if (find_valid_pos0(pp->port, nvec, pos1, &pos0))
 				goto no_valid_irq;
@@ -937,6 +1049,9 @@ static void clean_irq(unsigned int irq)
 	spin_lock_irqsave(&pp->msi_map_lock, flags);
 	clear_bit(pos, msi_irq_in_use[pp->port]);
 
+	/* Disable corresponding interrupt on MSI interrupt
+	 * controller.
+	 */
 	res = (pos / 32) * 12;
 	bit = pos % 32;
 	comcerto_dbi_read_reg(pp, PCIE_MSI_INTR0_ENABLE + res, 4, &val);
@@ -957,11 +1072,15 @@ int arch_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
 	irq = get_irq(1, desc, &pos);
 	spin_unlock_irqrestore(&pp->msi_map_lock, flags);
 
+
 	if (irq < 0)
 		return irq;
 
 	desc->msi_attrib.multiple = 0;
 
+	/* An EP will modify lower 8 bits(max) of msi data while
+	 * sending any msi interrupt
+	 */
 	msg.address_hi = 0x0;
 	msg.address_lo = pp->msi_mbox_handle;
 	msg.data = pos;
@@ -987,7 +1106,7 @@ static int comcerto_msi_init(struct pcie_port *pp)
 
 	comcerto_dbi_write_reg(pp, PCIE_MSI_ADDR_LO, 4, pp->msi_mbox_handle);
 	comcerto_dbi_write_reg(pp, PCIE_MSI_ADDR_HI, 4, 0);
-	 
+	/* Enbale MSI interrupt*/
 	writel(readl(pp->va_app_base + app_reg->intr_en) | INTR_CTRL_MSI,
 			pp->va_app_base + app_reg->intr_en);
 	return 0;
@@ -1002,9 +1121,17 @@ static void comcerto_pcie_rc_init(struct pcie_port *pp)
 	struct pcie_app_reg *app_reg = pp->app_regs;
 	unsigned int val;
 
+
+	//FIXME : Bit:27 definition is not clear from document
+	//	  This register setting is copied from simulation code.
 	writel(readl(pp->va_app_base + app_reg->cfg0) | 0x08007FF0,
 			pp->va_app_base + app_reg->cfg0);
 
+
+	/**
+	 *FIXME : Bit:15 definition is not clear from document
+	 *	  This register setting is copied from simulation code.
+	 */
 	writel(readl(pp->va_app_base + app_reg->cfg4) | 0x00008000,
 			pp->va_app_base + app_reg->cfg4);
 
@@ -1025,11 +1152,13 @@ static void comcerto_pcie_rc_init(struct pcie_port *pp)
 		val |= 0xF1;
 		comcerto_dbi_write_reg(pp, PCIE_G2CTRL_REG, 4, val);
 
+	// instruct pcie to switch to gen2 after init
         comcerto_dbi_read_reg(pp, PCIE_G2CTRL_REG, 4, &val);
         val |= (1 << 17);
         comcerto_dbi_write_reg(pp, PCIE_G2CTRL_REG, 4, val);
 	}
 
+	/*setup iATU for outbound translation */
 	PCIE_SETUP_iATU_OB_ENTRY( pp, iATU_ENTRY_MEM, iATU_GET_MEM_BASE(pp->remote_mem_baseaddr),
 			iATU_MEM_SIZE - 1, 0, 0, pp->remote_mem_baseaddr );
 	PCIE_SETUP_iATU_OB_ENTRY( pp, iATU_ENTRY_IO, iATU_GET_IO_BASE(pp->remote_mem_baseaddr),
@@ -1092,6 +1221,7 @@ static int pcie_app_init(struct pcie_port *pp, int nr, int mode)
 	spin_lock_init(&pp->msi_map_lock);
 	memset(pp->res, 0, sizeof(pp->res));
 
+	/* Get the reference clock to PCIe port*/
 	switch (nr) {
 		case 0:
 			pp->ref_clock = clk_get(NULL, "pcie0");
@@ -1108,6 +1238,7 @@ static int pcie_app_init(struct pcie_port *pp, int nr, int mode)
 		goto err2;
 	}
 
+	/* Enable the PCIE_OCC clock */
 #if defined(CONFIG_COMCERTO_PCIE_OCC_CLOCK)
 	pp->occ_clock = clk_get(NULL,"pcie_occ");
 	if (IS_ERR(pp->occ_clock)) {
@@ -1140,7 +1271,7 @@ err0:
 #define PCIE_DEV_EXT_RESET_ASSERT(_id) \
 	writel(readl(COMCERTO_GPIO_OUTPUT_REG) | (GPIO_PIN_27), COMCERTO_GPIO_OUTPUT_REG);
 #else
- 
+/* Board specific */
 #define PCIE_DEV_EXT_RESET_DEASSERT(_id)
 #define PCIE_DEV_EXT_RESET_ASSERT(_id)
 #endif
@@ -1155,19 +1286,31 @@ static int comcerto_pcie_device_reset(struct pcie_port *pp)
 	if (!pp->link_state)
 		return -1;
 
+	/* On C2KEVM and ASIC same reset is connected to PCIe0/1.
+         * So, device might have kept in reset, using other PCIe host.
+	 */
 	if (!comcerto_pcie_link_up(pp)) {
 		printk(KERN_INFO "%s : Device is already link down state\n", __func__);
 		return 0;
 	}
 
+
+	/*FIXME : Below code might be required if we want to reset pcie device, without
+         *        invoking pcie device supend. If we invoke pcie device suspend it will
+	 *	  take care of saving pcie config space.
+         */
 #if 0
-	 
+	/* Now save the PCIe device configuration space.*/
 	while((pci_dev = pci_get_subsys(PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, pci_dev))) {
 		if (pp->root_bus_nr == pci_dev->bus->number) {
 			pci_save_state(pci_dev);
 		}
 	}
 
+	/* On C2KEVM/ASIC, since same GPIO27 is used to reset PCIe0/PCIe1 devices,
+	 * save configuration of devices on other PCIe also.
+	 * This may not be applicable for other cutomer boards.
+	 */
 #if defined(CONFIG_C2K_EVM) || defined(CONFIG_C2K_ASIC)
 	l_pp = &pcie_port[!pp->port];
 	pci_dev = NULL;
@@ -1182,12 +1325,15 @@ static int comcerto_pcie_device_reset(struct pcie_port *pp)
 #endif
 #endif
 
+	/************** Ready to issue rest *****************/
+	/* De-assert external reset (GPIO-27) */
 	PCIE_DEV_EXT_RESET_DEASSERT(pp->port);
 	printk(KERN_INFO "EXIT: Bringing PCIe%d device reset\n", pp->port);
 
 	return 0;
 
 }
+
 
 static int comcerto_pcie_device_reset_exit(struct pcie_port *pp)
 {
@@ -1199,6 +1345,8 @@ static int comcerto_pcie_device_reset_exit(struct pcie_port *pp)
 	if (!pp->link_state && pp->reset)
 		return -1;
 
+	/* Pull up external reset */
+	/* assert external reset (GPIO-27) */
 	PCIE_DEV_EXT_RESET_ASSERT(pp->port);
 
 	udelay(1000);
@@ -1209,6 +1357,7 @@ static int comcerto_pcie_device_reset_exit(struct pcie_port *pp)
 	udelay(1000);
 	udelay(1000);
 
+	/* Restore the RC configuration */
 	comcerto_dbi_read_reg(pp, PCIE_AFL0L1_REG, 4, &val);
 	val &= ~(0x00FFFF00);
 	val |= 0x00F1F100;
@@ -1227,10 +1376,12 @@ static int comcerto_pcie_device_reset_exit(struct pcie_port *pp)
 		comcerto_dbi_write_reg(pp, PCIE_G2CTRL_REG, 4, val);
 	}
 
+	// instruct pcie to switch to gen2 after init
 	comcerto_dbi_read_reg(pp, PCIE_G2CTRL_REG, 4, &val);
 	val |= (1 << 17);
 	comcerto_dbi_write_reg(pp, PCIE_G2CTRL_REG, 4, val);
 
+	/*setup iATU for outbound translation */
 	PCIE_SETUP_iATU_OB_ENTRY( pp, iATU_ENTRY_MEM, iATU_GET_MEM_BASE(pp->remote_mem_baseaddr),
 			iATU_MEM_SIZE - 1, 0, 0, pp->remote_mem_baseaddr );
 	PCIE_SETUP_iATU_OB_ENTRY( pp, iATU_ENTRY_IO, iATU_GET_IO_BASE(pp->remote_mem_baseaddr),
@@ -1247,6 +1398,11 @@ static int comcerto_pcie_device_reset_exit(struct pcie_port *pp)
 
 	writel_relaxed(0x7, pp->va_app_base + pp->app_regs->cfg5);
 
+	/* Generic PCIe unit setup.*/
+
+	/* Enable own BME. It is necessary to enable own BME to do a
+	 * memory transaction on a downstream device
+	 */
 	comcerto_dbi_read_reg(pp, PCI_COMMAND, 2, &val);
 	val |= (PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER
 			| PCI_COMMAND_PARITY | PCI_COMMAND_SERR);
@@ -1255,9 +1411,14 @@ static int comcerto_pcie_device_reset_exit(struct pcie_port *pp)
 	pp->cfg0_prev_taddr = 0xffffffff;
 	pp->cfg1_prev_taddr = 0xffffffff;
 
+	//udelay(1000);
+
 	if(comcerto_pcie_link_up(pp)) {
 	printk(KERN_INFO " Bringing PCIe%d device out-of-reset : Link Up\n", pp->port);
-	 
+	/*FIXME : Below code might be required if we want to bring pcie device out-of-reset,
+         *	  without invoking pcie device supend. If we invoke pcie device resume it will
+	 *	  take care of restoring, saved pcie config space.
+         */
 #if 0
 		pci_dev = NULL;
 		while((pci_dev = pci_get_subsys(PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, pci_dev))) {
@@ -1299,12 +1460,14 @@ static ssize_t comcerto_pcie_set_reset(struct device *dev, struct device_attribu
 		return count;
 	}
 
+
 	if (reset) {
 		printk(KERN_INFO "ENTER : Putting PCIe%d device into reset\n", pdev->id);
 
 		if (!comcerto_pcie_device_reset(pp)) {
 			int ii = 10;
 
+			/* Wait for link_req_rst_not, to be de-asseted */
 			while (ii--) {
 
 				if (!(readl( pp->va_app_base + pp->app_regs->sts0 ) & STS0_LINK_REQ_RST_NOT)) {
@@ -1319,7 +1482,7 @@ static ssize_t comcerto_pcie_set_reset(struct device *dev, struct device_attribu
 				printk(KERN_WARNING "%s : (PCIe%d) link_req_rst_not is not de-asseted \n", __func__, pp->port);
 
 			pp->reset = 1;
-			 
+			/* Disable LTSSM and initiate linkdown reset */
 			writel((readl(pp->va_app_base + pp->app_regs->cfg5) &
 						~(CFG5_LTSSM_ENABLE)) | CFG5_LINK_DOWN_RST,
 						 pp->va_app_base + pp->app_regs->cfg5);
@@ -1355,6 +1518,7 @@ static ssize_t comcerto_pcie_set_reset(struct device *dev, struct device_attribu
 
 static DEVICE_ATTR(device_reset, 0644, comcerto_pcie_show_reset, comcerto_pcie_set_reset);
 
+
 static ssize_t comcerto_pcie_serdes_pd(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct platform_device *pdev = to_platform_device(dev);
@@ -1386,6 +1550,7 @@ static ssize_t comcerto_pcie_serdes_pd(struct device *dev, struct device_attribu
 
 static DEVICE_ATTR(serdes_pd, 0644, NULL, comcerto_pcie_serdes_pd);
 
+
 #ifdef CONFIG_PM
 static int no_irq_resume ;
 
@@ -1397,16 +1562,20 @@ static int comcerto_pcie_suspend(struct device *dev)
 	printk(KERN_INFO "%s: pcie device %p (id = %d):\n",
 			 __func__, pdev, pdev->id);
 
+	/* Check for the BitMask bit for PCIe, if it is enabled
+	 * then we are not going suspend the PCIe device , as by
+	 * this device , we will wake from System Resume.
+	 */
 	if ( !(host_utilpe_shared_pmu_bitmask & PCIe0_IRQ) || !(host_utilpe_shared_pmu_bitmask & PCIe1_IRQ) ){
- 		 
+ 		/* We will Just return from here */
 		return 0;
 	}
 	if (pcie_port[pdev->id].port_mode != PCIE_PORT_MODE_NONE) {
 		if (comcerto_pcie_link_up(&pcie_port[pdev->id])){
-			 
+			/* Enable PME to root Port */
 			comcerto_dbi_read_reg(&pcie_port[pdev->id], (PCI_CAP_PM + PCI_PM_CTRL), 4, &val);
 			comcerto_dbi_write_reg(&pcie_port[pdev->id], (PCI_CAP_PM + PCI_PM_CTRL), 4, val | PCI_PM_CTRL_STATE_MASK);
-			 
+			/* Required PM Delay */
 			for (i = 0 ; i < 40 ; i++)
 				udelay(500);
 		}
@@ -1422,19 +1591,25 @@ static int comcerto_pcie_resume(struct device *dev)
 	
 	printk(KERN_INFO "%s: pcie device %p (id = %d)\n", 
 		__func__, pdev, pdev->id);
- 	 
+ 	/* Check for the Bit_Mask bit for PCIe, if it is enabled
+ 	 * then we are not going suspend the PCIe device , as by
+	 * this device , we will wake from System Resume.
+ 	*/
 	if ( !(host_utilpe_shared_pmu_bitmask & PCIe0_IRQ) || !(host_utilpe_shared_pmu_bitmask & PCIe1_IRQ) ){
 	
+ 		/* We will Just return
+ 		*/
 		return 0;
 	}
 	if( no_irq_resume == 0)
        	{
 	if(pcie_port[pdev->id].port_mode != PCIE_PORT_MODE_NONE) {	
 			if (comcerto_pcie_link_up(&pcie_port[pdev->id])){
-		    		 
+		    		/* Put In D0 State */
 		    		comcerto_dbi_read_reg(&pcie_port[pdev->id], (PCI_CAP_PM + PCI_PM_CTRL), 4, &val);
 		    		comcerto_dbi_write_reg(&pcie_port[pdev->id], (PCI_CAP_PM + PCI_PM_CTRL), 4, val & (~PCI_PM_CTRL_STATE_MASK));
 
+				/* Required PM Delay */
 		    		for (i = 0 ; i < 40 ; i++)
 			    		udelay(500);
 	}
@@ -1451,16 +1626,21 @@ static int comcerto_pcie_noirq_resume(struct device *dev)
 	printk(KERN_INFO "%s: pcie device %p (id = %d)\n",
 			 __func__, pdev, pdev->id);
 
+	/* Check for the Bit_Mask bit for PCIe, if it is enabled
+	 * then we are not going suspend the PCIe device , as by
+	 * this device , we will wake from System Resume.
+	 */
 	if ( !(host_utilpe_shared_pmu_bitmask & PCIe0_IRQ) || !(host_utilpe_shared_pmu_bitmask & PCIe1_IRQ) ){
-                
+               /* We will Just return
+                */
 		return 0;
 	}
 	if(pcie_port[pdev->id].port_mode != PCIE_PORT_MODE_NONE) {
 		if (comcerto_pcie_link_up(&pcie_port[pdev->id])){
-			 
+			/* Put In D0 State */
 			comcerto_dbi_read_reg(&pcie_port[pdev->id], (PCI_CAP_PM + PCI_PM_CTRL), 4, &val);
 			comcerto_dbi_write_reg(&pcie_port[pdev->id], (PCI_CAP_PM + PCI_PM_CTRL), 4, val & (~PCI_PM_CTRL_STATE_MASK));
-			 
+			/* Required PM Delay */
 			for (i = 0 ; i < 40 ; i++)
 				udelay(500);
 	    	}
@@ -1473,6 +1653,7 @@ static const struct dev_pm_ops pcie_platform_pm_ops = {
 	.resume = comcerto_pcie_resume,
 	.resume_noirq = comcerto_pcie_noirq_resume,
 };
+
 
 static struct platform_driver comcerto_pcie_driver = {
 	.driver = {
@@ -1540,9 +1721,11 @@ static int comcerto_pcie_bsp_link_init(struct pcie_port *pp, int nr, struct serd
 		serdes_component = COMPONENT_SERDES1;
 	}
 
+	//Bring serdes out of reset
 	c2000_block_reset(axi_pcie_component,0);
 	c2000_block_reset(serdes_component,0);
 
+	/* SW select for ck_soc_div_i SOC clock */
 	writel(0xFF3C, COMCERTO_SERDES_DWC_CFG_REG( nr, SD_PHY_CTRL3_REG_OFST ));
 	writel(readl(COMCERTO_SERDES_DWC_CFG_REG( nr, SD_PHY_CTRL2_REG_OFST )) & ~0x3,
 			COMCERTO_SERDES_DWC_CFG_REG( nr, SD_PHY_CTRL2_REG_OFST ));
@@ -1553,6 +1736,7 @@ static int comcerto_pcie_bsp_link_init(struct pcie_port *pp, int nr, struct serd
 		goto err1;
 	}
 
+	/* Enable the PCIE_OCC clock */	
 #if defined(CONFIG_COMCERTO_PCIE_OCC_CLOCK)
 	rc =  clk_enable(pp->occ_clock);
 	if (rc){
@@ -1561,6 +1745,7 @@ static int comcerto_pcie_bsp_link_init(struct pcie_port *pp, int nr, struct serd
 	}
 #endif
 
+	/* Serdes Initialization. */
 	if( serdes_phy_init(nr,  p_pcie_phy_reg_file,
 				serdes_reg_size/ sizeof(serdes_regs_t),
 				SD_DEV_TYPE_PCIE) )
@@ -1570,7 +1755,7 @@ static int comcerto_pcie_bsp_link_init(struct pcie_port *pp, int nr, struct serd
 		goto err_phy_link;
 	}
 
-	mdelay(1);  
+	mdelay(1); //After CMU locks wait for sometime
 
 #if defined(CONFIG_C2K_MFCN_EVM)
 	if(nr == 0){
@@ -1581,14 +1766,16 @@ static int comcerto_pcie_bsp_link_init(struct pcie_port *pp, int nr, struct serd
 
 	mdelay(1);
 #endif
-	 
+	//Bring PCIe out of reset
 	c2000_block_reset(pcie_component,0);
 
+	//Hold the LTSSM in detect state
 	writel(readl(pp->va_app_base + pp->app_regs->cfg5) & ~CFG5_LTSSM_ENABLE,
 			pp->va_app_base + pp->app_regs->cfg5);
 
 	comcerto_pcie_rc_init(pp);
 
+	//Enable LTSSM to start link initialization
 	writel(readl(pp->va_app_base + pp->app_regs->cfg5) | (CFG5_APP_INIT_RST | CFG5_LTSSM_ENABLE),
 			pp->va_app_base + pp->app_regs->cfg5);
 
@@ -1612,7 +1799,7 @@ err_occ_clock:
 #endif
 
 err1:
-	 
+	//Put all to reset
 	c2000_block_reset(axi_pcie_component,1);
 	c2000_block_reset(serdes_component,1);
 	c2000_block_reset(pcie_component,1);
@@ -1631,6 +1818,7 @@ static int comcerto_pcie_bsp_init(struct pcie_port *pp, int nr)
 	int polarity_max = 4;
 	int polarity;
 	int ret;
+
 
 	if (nr >= NUM_PCIE_PORTS) {
 		printk("%s : Invalid PCIe port number\n", __func__);
@@ -1681,7 +1869,7 @@ static int comcerto_pcie_bsp_init(struct pcie_port *pp, int nr)
 			goto linkup;
 
 		if(!pcie_port_is_host(nr))
-			return 0;  
+			return 0; //Endpoint, so no need to change polarity
 
 	}
 	
@@ -1703,12 +1891,15 @@ linkup:
 
 }
 
+
+
 static int __init comcerto_pcie_init(void)
 {
         struct pcie_port *pp;
 	int i, rc;
 	int num_pcie_port = 1;
 	struct pci_dev *pdev = NULL;
+
 
         pp = &pcie_port[0];
 	comcerto_pcie_bsp_init(pp, 0);
@@ -1749,6 +1940,7 @@ static int __init comcerto_pcie_init(void)
 		}
 	}
 
+
 #ifdef CONFIG_PM
 	platform_device_register(&pcie_pwr0);
 
@@ -1774,3 +1966,5 @@ static int __init comcerto_pcie_init(void)
 	return 0;
 }
 subsys_initcall(comcerto_pcie_init);
+
+

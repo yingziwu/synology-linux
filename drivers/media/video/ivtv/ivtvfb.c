@@ -971,6 +971,7 @@ static void ivtvfb_restore(struct ivtv *itv)
 
 /* Initialization */
 
+
 /* Setup our initial video mode */
 static int ivtvfb_init_vidmode(struct ivtv *itv)
 {

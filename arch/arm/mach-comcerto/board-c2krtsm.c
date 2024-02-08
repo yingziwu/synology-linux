@@ -54,6 +54,8 @@
 #include <asm/hardware/gic.h>
 #include <asm/mach/time.h>
 
+
+
 extern void platform_reserve(void);
 extern void device_map_io (void);
 extern void device_irq_init(void);
@@ -90,6 +92,8 @@ static void __init board_gpio_init(void)
 	writel((readl(COMCERTO_GPIO_PIN_SELECT_REG1) & ~NOR_GPIO) | NOR_BUS, COMCERTO_GPIO_PIN_SELECT_REG1);
 #endif
 }
+
+
 
 /* --------------------------------------------------------------------
  *  NOR device
@@ -315,6 +319,7 @@ static struct platform_device comcerto_i2c = {
 };
 #endif
 
+
 static struct comcerto_tdm_data comcerto_tdm_pdata = {
 	.fsoutput = 1, /* Generic Pad Control and Version ID Register[2] */
 	.fspolarity = 0, /* 28 FSYNC_FALL(RISE)_EDGE */
@@ -459,6 +464,7 @@ static struct platform_device *comcerto_devices[] __initdata = {
 		&comcerto_tdm_device,
 		&comcerto_pfe_device,
 	};
+
 
 /************************************************************************
  *  Expansion bus

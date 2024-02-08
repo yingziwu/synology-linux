@@ -406,3 +406,4 @@ module_exit(max8649_exit);
 MODULE_DESCRIPTION("MAXIM 8649 voltage regulator driver");
 MODULE_AUTHOR("Haojian Zhuang <haojian.zhuang@marvell.com>");
 MODULE_LICENSE("GPL");
+

@@ -380,6 +380,7 @@ static ssize_t _otg_attr_name_##_store (struct device *_dev, struct device_attri
 	return count; \
 }
 
+
 #endif
 
 /*
@@ -1178,6 +1179,7 @@ static ssize_t wr_reg_test_show(struct device *_dev,
 	dwc_otg_device_t *otg_dev = dev_get_platdata(_dev);
 #endif
 
+
 	uint32_t reg_val;
 	int i;
 	int time;
@@ -1215,6 +1217,7 @@ static ssize_t lpmresp_show(struct device *_dev,
 	dwc_otg_device_t *otg_dev = dev_get_platdata(_dev);
 #endif
 
+
 	if (!dwc_otg_get_param_lpm_enable(otg_dev->core_if))
 		return sprintf(buf, "** LPM is DISABLED **\n");
 
@@ -1240,6 +1243,7 @@ static ssize_t lpmresp_store(struct device *_dev,
 #else
 	dwc_otg_device_t *otg_dev = dev_get_platdata(_dev);
 #endif
+
 
 	uint32_t val = simple_strtoul(buf, NULL, 16);
 
@@ -1272,6 +1276,7 @@ static ssize_t sleepstatus_show(struct device *_dev,
 	dwc_otg_device_t *otg_dev = dev_get_platdata(_dev);
 #endif
 
+
 	return sprintf(buf, "Sleep Status = %d\n",
 		       dwc_otg_get_lpm_portsleepstatus(otg_dev->core_if));
 }
@@ -1291,6 +1296,7 @@ static ssize_t sleepstatus_store(struct device *_dev,
 #else
 	dwc_otg_device_t *otg_dev = dev_get_platdata(_dev);
 #endif
+
 
 	dwc_otg_core_if_t *core_if = otg_dev->core_if;
 

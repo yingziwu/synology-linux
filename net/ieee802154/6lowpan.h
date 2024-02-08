@@ -87,7 +87,7 @@
 	(memcmp(addr1, addr2, length >> 3) == 0)
 
 /* local link, i.e. FE80::/10 */
-#define is_addr_link_local(a) (((a)->s6_addr16[0]) == 0x80FE)
+#define is_addr_link_local(a) (((a)->s6_addr16[0]) == htons(0xFE80))
 
 /*
  * check whether we can compress the IID to 16 bits,
@@ -172,6 +172,7 @@
 #define LOWPAN_IPHC_TTL_64	0x02
 #define LOWPAN_IPHC_TTL_255	0x03
 #define LOWPAN_IPHC_TTL_I	0x00
+
 
 /* Values of fields within the IPHC encoding second byte */
 #define LOWPAN_IPHC_CID		0x80

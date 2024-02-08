@@ -24,6 +24,7 @@
  * ########################################################################
  */
 
+
 #include "ieee754.h"
 
 #define DP_EBIAS	1023
@@ -43,6 +44,7 @@
 #define SP_MBIT(x)	((u32)1 << (x))
 #define SP_HIDDEN_BIT	SP_MBIT(SP_MBITS)
 #define SP_SIGN_BIT	SP_MBIT(31)
+
 
 #define SPSIGN(sp)	(sp.parts.sign)
 #define SPBEXP(sp)	(sp.parts.bexp)
@@ -65,6 +67,7 @@
 
 #define TSTX()	\
 	(ieee754_csr.cx & ieee754_csr.mx)
+
 
 #define COMPXSP \
   unsigned xm; int xe; int xs __maybe_unused; int xc
@@ -98,6 +101,7 @@
 }
 #define EXPLODEXSP EXPLODESP(x, xc, xs, xe, xm)
 #define EXPLODEYSP EXPLODESP(y, yc, ys, ye, ym)
+
 
 #define COMPXDP \
 u64 xm; int xe; int xs __maybe_unused; int xc

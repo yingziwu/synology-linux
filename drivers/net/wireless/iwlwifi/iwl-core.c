@@ -808,8 +808,11 @@ void iwl_chswitch_done(struct iwl_priv *priv, bool is_success)
 	if (test_bit(STATUS_EXIT_PENDING, &priv->shrd->status))
 		return;
 
-	if (test_and_clear_bit(STATUS_CHANNEL_SWITCH_PENDING,
+	if (!test_and_clear_bit(STATUS_CHANNEL_SWITCH_PENDING,
 				&priv->shrd->status))
+		return;
+
+	if (ctx->vif)
 		ieee80211_chswitch_done(ctx->vif, is_success);
 }
 
@@ -939,6 +942,7 @@ void iwl_apm_stop(struct iwl_priv *priv)
 	iwl_clear_bit(bus(priv), CSR_GP_CNTRL, CSR_GP_CNTRL_REG_FLAG_INIT_DONE);
 }
 
+
 /*
  * Start up NIC's basic functionality after it has been reset
  * (e.g. after platform boot, or shutdown via iwl_apm_stop())
@@ -1020,6 +1024,7 @@ int iwl_apm_init(struct iwl_priv *priv)
 out:
 	return ret;
 }
+
 
 int iwl_set_tx_power(struct iwl_priv *priv, s8 tx_power, bool force)
 {
@@ -1603,6 +1608,7 @@ static void iwl_force_rf_reset(struct iwl_priv *priv)
 	IWL_DEBUG_INFO(priv, "perform radio reset.\n");
 	iwl_internal_short_hw_scan(priv);
 }
+
 
 int iwl_force_reset(struct iwl_priv *priv, int mode, bool external)
 {

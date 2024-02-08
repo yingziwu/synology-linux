@@ -22,3 +22,4 @@ void dlm_lowcomms_commit_buffer(void *mh);
 int dlm_lowcomms_connect_node(int nodeid);
 
 #endif				/* __LOWCOMMS_DOT_H__ */
+

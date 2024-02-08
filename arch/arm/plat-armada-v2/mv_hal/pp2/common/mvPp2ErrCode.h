@@ -68,15 +68,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define  MV_ERR_CODE_BASE						0x80000000
 #define  MV_PP2_ERR_CODE_BASE					(MV_ERR_CODE_BASE | 0x00001000)
 
+
 #define  MV_PP2_PRS						(MV_PP2_ERR_CODE_BASE | 0x00000100)
 #define  MV_PP2_CLS						(MV_PP2_ERR_CODE_BASE | 0x00000200)
 #define  MV_PP2_CLS2						(MV_PP2_ERR_CODE_BASE | 0x00000400)
 #define  MV_PP2_CLS3						(MV_PP2_ERR_CODE_BASE | 0x00000800)
 #define  MV_PP2_CLS4						(MV_PP2_ERR_CODE_BASE | 0x00000800)
 
+
 /*****************************************************************************
 
+
+
 			    E R R O R   C O D E S
+
 
 *****************************************************************************/
 /* #define MV_OK 0  define in mvTypes*/

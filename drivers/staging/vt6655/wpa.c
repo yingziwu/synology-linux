@@ -52,6 +52,7 @@ const unsigned char abyOUI03[4] = { 0x00, 0x50, 0xf2, 0x03 };
 const unsigned char abyOUI04[4] = { 0x00, 0x50, 0xf2, 0x04 };
 const unsigned char abyOUI05[4] = { 0x00, 0x50, 0xf2, 0x05 };
 
+
 /*+
  *
  * Description:
@@ -86,6 +87,7 @@ WPA_ClearRSN (
     pBSSList->sRSNCapObj.wRSNCap = 0;
     pBSSList->bWPAValid = false;
 }
+
 
 /*+
  *
@@ -311,3 +313,4 @@ WPAb_Is_RSN (
     else
         return false;
 }
+

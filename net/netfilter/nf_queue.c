@@ -233,7 +233,7 @@ int nf_queue(struct sk_buff *skb,
 	 * returned by nf_queue.  For instance, callers rely on -ECANCELED to mean
 	 * 'ignore this hook'.
 	 */
-	if (IS_ERR(segs))
+	if (IS_ERR_OR_NULL(segs))
 		return -EINVAL;
 
 	queued = 0;
@@ -383,6 +383,7 @@ static const struct file_operations nfqueue_file_ops = {
 };
 #endif /* PROC_FS */
 
+
 int __init netfilter_queue_init(void)
 {
 #ifdef CONFIG_PROC_FS
@@ -392,3 +393,4 @@ int __init netfilter_queue_init(void)
 #endif
 	return 0;
 }
+

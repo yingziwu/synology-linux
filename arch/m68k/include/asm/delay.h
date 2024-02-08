@@ -42,6 +42,7 @@ static inline void __delay(unsigned long loops)
 
 extern void __bad_udelay(void);
 
+
 #if defined(CONFIG_M68000) || defined(CONFIG_COLDFIRE)
 /*
  * The simpler m68k and ColdFire processors do not have a 32*32->64
@@ -90,5 +91,6 @@ static inline void __udelay(unsigned long usecs)
  */
 #define udelay(n) (__builtin_constant_p(n) ? \
 	((n) > 20000 ? __bad_udelay() : __const_udelay(n)) : __udelay(n))
+
 
 #endif /* defined(_M68K_DELAY_H) */

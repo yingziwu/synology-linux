@@ -358,6 +358,7 @@ static void handle_resume_command(void)
 	return;
 }
 
+
 void cm_sched_in(struct preempt_notifier *pn, int cpu)
 {
 	unsigned int    i;

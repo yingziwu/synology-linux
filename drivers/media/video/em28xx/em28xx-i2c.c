@@ -41,6 +41,7 @@ static unsigned int i2c_debug;
 module_param(i2c_debug, int, 0644);
 MODULE_PARM_DESC(i2c_debug, "enable debug messages [i2c]");
 
+
 #define dprintk1(lvl, fmt, args...)			\
 do {							\
 	if (i2c_debug >= lvl) {				\

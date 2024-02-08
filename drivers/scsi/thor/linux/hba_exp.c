@@ -80,6 +80,7 @@ void hba_map_sg_to_buffer(void *preq)
 	scmd = (struct scsi_cmnd *) req->Org_Req;
 	sg = (struct scatterlist *) mv_rq_bf(scmd);
 
+
 	if (mv_use_sg(scmd)) {
 		if (mv_use_sg(scmd) > 1)
 			MV_DBG(DMSG_SCSI,
@@ -164,6 +165,7 @@ void HBA_TimerRoutine(unsigned long DeviceExtension)
 #endif /* SUPPORT_TIMER */
 }
 
+
 void HBA_RequestTimer(
 	MV_PVOID extension,
 	MV_U32 millisecond,
@@ -195,6 +197,7 @@ void hba_spin_unlock_irq(spinlock_t* plock)
 {
 	spin_unlock_irq(plock);
 }
+
 
 #endif
 

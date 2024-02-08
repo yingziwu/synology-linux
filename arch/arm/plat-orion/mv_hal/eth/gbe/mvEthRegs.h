@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvEthRegsh
 #define __INCmvEthRegsh
 
@@ -83,6 +84,7 @@ extern "C" {
 #define ETH_UNIT_RESERVED(port)             (ETH_REG_BASE(port) + 0x014)
 #define ETH_UNIT_INTR_CAUSE_REG(port)       (ETH_REG_BASE(port) + 0x080)
 #define ETH_UNIT_INTR_MASK_REG(port)        (ETH_REG_BASE(port) + 0x084)
+
 
 #define ETH_UNIT_ERROR_ADDR_REG(port)       (ETH_REG_BASE(port) + 0x094)
 #define ETH_UNIT_INT_ADDR_ERROR_REG(port)   (ETH_REG_BASE(port) + 0x098)
@@ -186,6 +188,7 @@ extern "C" {
 #define ETH_MIB_BAD_CRC_EVENT               0x74
 #define ETH_MIB_COLLISION                   0x78
 #define ETH_MIB_LATE_COLLISION              0x7c
+
 
 /****************************************/
 /*        Ethernet Unit Register BITs   */
@@ -305,6 +308,7 @@ extern "C" {
 #define ETH_QUEUE_DISABLE_OFFSET            8
 #define ETH_QUEUE_DISABLE_ALL_MASK          (0xFF<<ETH_QUEUE_DISABLE_OFFSET)
 #define ETH_QUEUE_DISABLE_MASK(queue)       (1<<((queue)+ETH_QUEUE_DISABLE_OFFSET))
+
 
 /***** BITs of Port Sdma Configuration reg (SDCR) *****/
 #define ETH_RX_FRAME_INTERRUPT_BIT          0
@@ -501,6 +505,7 @@ typedef struct _ethTxDesc
 /* Buffer offset from buffer pointer */
 #define ETH_RX_BUF_OFFSET               0x2
 
+
 /* Tx & Rx descriptor bits */
 #define ETH_ERROR_SUMMARY_BIT               0
 #define ETH_ERROR_SUMMARY_MASK              (1<<ETH_ERROR_SUMMARY_BIT)
@@ -559,6 +564,7 @@ typedef struct _ethTxDesc
 #define ETH_TX_AUTO_MODE_BIT                30
 #define ETH_TX_AUTO_MODE_MASK               (1<<ETH_TX_AUTO_MODE_BIT)
 
+
 /* Rx descriptor bits */
 #define ETH_RX_ERROR_CODE_OFFSET            1
 #define ETH_RX_ERROR_CODE_MASK              (3<<ETH_RX_ERROR_CODE_OFFSET)
@@ -611,6 +617,7 @@ typedef struct _ethTxDesc
 #define ETH_RX_IP_FRAGMENTED_FRAME_MASK     (1<<ETH_RX_IP_FRAGMENTED_FRAME_BIT)
 
 #define ETH_RX_BUFFER_MASK                  0xFFF8
+
 
 /* Ethernet Cause Register BITs */
 #define ETH_CAUSE_RX_READY_SUM_BIT          0
@@ -689,6 +696,7 @@ typedef struct _ethTxDesc
 
 #define ETH_ETHERNET_PAD_CLIB_WR_EN_OFFS        31
 #define ETH_ETHERNET_PAD_CLIB_WR_EN_MASK        (0x1  << ETH_ETHERNET_PAD_CLIB_WR_EN_OFFS)
+
 
 #ifdef __cplusplus
 }

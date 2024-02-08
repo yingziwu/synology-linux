@@ -25,6 +25,7 @@
  *					if no match found.
  */
 
+
 #include <asm/uaccess.h>
 #include <asm/system.h>
 #include <linux/bitops.h>
@@ -683,6 +684,7 @@ static inline int inet_abc_len(__be32 addr)
 
 	return rc;
 }
+
 
 int devinet_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 {
@@ -1616,6 +1618,8 @@ static struct devinet_sysctl_table {
 		DEVINET_SYSCTL_RW_ENTRY(ARP_ACCEPT, "arp_accept"),
 		DEVINET_SYSCTL_RW_ENTRY(ARP_NOTIFY, "arp_notify"),
 		DEVINET_SYSCTL_RW_ENTRY(PROXY_ARP_PVLAN, "proxy_arp_pvlan"),
+		DEVINET_SYSCTL_RW_ENTRY(IGNORE_ROUTES_WITH_LINKDOWN,
+					"ignore_routes_with_linkdown"),
 
 		DEVINET_SYSCTL_FLUSHING_ENTRY(NOXFRM, "disable_xfrm"),
 		DEVINET_SYSCTL_FLUSHING_ENTRY(NOPOLICY, "disable_policy"),
@@ -1844,3 +1848,4 @@ void __init devinet_init(void)
 	rtnl_register(PF_INET, RTM_DELADDR, inet_rtm_deladdr, NULL, NULL);
 	rtnl_register(PF_INET, RTM_GETADDR, NULL, inet_dump_ifaddr, NULL);
 }
+

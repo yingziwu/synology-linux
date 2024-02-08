@@ -147,6 +147,7 @@ struct sigstack {
 #define SA_NOCLDWAIT    0x100u
 #define SA_SIGINFO      0x200u
 
+
 #define SIG_BLOCK          0x01	/* for blocking signals */
 #define SIG_UNBLOCK        0x02	/* for unblocking signals */
 #define SIG_SETMASK        0x04	/* for setting the signal mask */
@@ -190,6 +191,7 @@ struct __old_sigaction {
 	unsigned long		sa_flags;
 	void			(*sa_restorer)(void);  /* not used by Linux/SPARC yet */
 };
+#define __ARCH_HAS_SA_RESTORER
 
 typedef struct sigaltstack {
 	void			__user *ss_sp;

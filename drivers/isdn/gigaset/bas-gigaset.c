@@ -22,6 +22,7 @@
 #define DRIVER_AUTHOR "Tilman Schmidt <tilman@imap.cc>, Hansjoerg Lipp <hjlipp@web.de>, Stefan Eilers"
 #define DRIVER_DESC "USB Driver for Gigaset 307x"
 
+
 /* Module parameters */
 
 static int startmode = SM_ISDN;
@@ -132,6 +133,7 @@ struct bas_cardstate {
 #define BS_ATWRPEND	0x080	/* urb_cmd_out in use */
 #define BS_SUSPEND	0x100	/* USB port suspended */
 #define BS_RESETTING	0x200	/* waiting for HD_RESET_INTERRUPT_PIPE_ACK */
+
 
 static struct gigaset_driver *driver;
 
@@ -2075,6 +2077,7 @@ static int gigaset_brkchars(struct cardstate *cs, const unsigned char buf[6])
 	return -EINVAL;
 }
 
+
 /* Device Initialization/Shutdown */
 /* ============================== */
 
@@ -2310,6 +2313,9 @@ static int gigaset_probe(struct usb_interface *interface,
 			 __func__, hostif->desc.bInterfaceClass);
 		return -ENODEV;
 	}
+
+	if (hostif->desc.bNumEndpoints < 1)
+		return -ENODEV;
 
 	dev_info(&udev->dev,
 		 "%s: Device matched (Vendor: 0x%x, Product: 0x%x)\n",
@@ -2554,6 +2560,7 @@ static int gigaset_post_reset(struct usb_interface *intf)
 	return gigaset_resume(intf);
 }
 
+
 static const struct gigaset_ops gigops = {
 	gigaset_write_cmd,
 	gigaset_write_room,
@@ -2656,6 +2663,7 @@ static void __exit bas_gigaset_exit(void)
 	gigaset_freedriver(driver);
 	driver = NULL;
 }
+
 
 module_init(bas_gigaset_init);
 module_exit(bas_gigaset_exit);

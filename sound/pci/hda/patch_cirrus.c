@@ -167,6 +167,7 @@ static inline void cs_vendor_coef_set(struct hda_codec *codec, unsigned int idx,
 			    AC_VERB_SET_PROC_COEF, coef);
 }
 
+
 #define HP_EVENT	1
 #define MIC_EVENT	2
 
@@ -492,6 +493,7 @@ static int parse_input(struct hda_codec *codec)
 	}
 	return 0;
 }
+
 
 static int parse_digital_output(struct hda_codec *codec)
 {
@@ -1284,6 +1286,7 @@ static const char * const cs420x_models[CS420X_MODELS] = {
 	[CS420X_AUTO] = "auto",
 };
 
+
 static const struct snd_pci_quirk cs420x_cfg_tbl[] = {
 	SND_PCI_QUIRK(0x10de, 0x0ac0, "MacBookPro 5,3", CS420X_MBP53),
 	SND_PCI_QUIRK(0x10de, 0x0d94, "MacBookAir 3,1(2)", CS420X_MBP55),
@@ -1596,6 +1599,7 @@ static void init_cs421x_digital(struct hda_codec *codec)
 	struct cs_spec *spec = codec->spec;
 	struct auto_pin_cfg *cfg = &spec->autocfg;
 	int i;
+
 
 	for (i = 0; i < cfg->dig_outs; i++) {
 		hda_nid_t nid = cfg->dig_out_pins[i];
@@ -1953,6 +1957,7 @@ static int patch_cs421x(struct hda_codec *codec)
 	codec->spec = NULL;
 	return err;
 }
+
 
 /*
  * patch entries

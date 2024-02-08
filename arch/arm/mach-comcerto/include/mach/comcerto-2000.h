@@ -25,6 +25,7 @@
 #ifndef __ASM_ARCH_COMCERTO2000_H__
 #define __ASM_ARCH_COMCERTO2000_H__
 
+
 /*
   * System Clock Frequencies
   */
@@ -33,6 +34,7 @@
 #else
 #define COMCERTO_DEFAULTAXICLK          200000000 /* Hz */
 #endif
+
 
 /*
  * SCU registers 
@@ -55,6 +57,7 @@
 
 #define COMCERTO_L2CC_WR_LAT_SHIFT			8
 #define COMCERTO_L2CC_RD_LAT_SHIFT			4
+
 
 /*
   * Physical address of IO on APB Bus
@@ -80,6 +83,7 @@
 #define COMCERTO_APB_TDMA2_BASE			0x905D0000
 #define COMCERTO_APB_MDMA_BASE			0x905E0000
 #define COMCERTO_APB_A9CS_BASE			0x90600000
+
 
 /*
   * Physical address on AXI Bus
@@ -119,6 +123,7 @@
 #define COMCERTO_DDR_SHARED_SIZE		(SZ_16M + SZ_4M)
 #define COMCERTO_FASTSPI_DDR_BASE              (COMCERTO_AXI_DDR_BASE + 0x2B00000)
 #define COMCERTO_FASTSPI_DDR_SIZE              SZ_64K
+
 
 /* MSP memory map */
 #define COMCERTO_MSP_DDR_BASE			COMCERTO_DDR_SHARED_BASE
@@ -215,6 +220,7 @@
 #define REF_CLK_24MHZ						24000000 /* 24 MHz */
 #define REF_CLK_48MHZ						48000000 /* 48 MHz */
 
+
 /* USB 2.0 */
 #define USB2_PHY_BASE						APB_VADDR(COMCERTO_APB_PCI_SATA_USB_CTRL_BASE)
 
@@ -236,6 +242,7 @@
 #define comcerto_timer4_set(hbound)	__raw_writel((hbound), COMCERTO_TIMER4_HIGH_BOUND)
 
 #define comcerto_timer4_get()		__raw_readl(COMCERTO_TIMER4_CURRENT_COUNT)
+
 
 #define comcerto_timer5_set(lbound, hbound, ctrl)  do {								\
 						      __raw_writel((ctrl) & 0x1, COMCERTO_TIMER5_CTRL);	\

@@ -56,6 +56,7 @@
 #define SWITCH_CHANNEL_DELAY_AL2230 200 //us
 #define AL2230_PWR_IDX_LEN    64
 
+
 #define BY_UW2451_REG_LEN     23
 #define CB_UW2451_INIT_SEQ    6
 #define SWITCH_CHANNEL_DELAY_UW2451 200 //us
@@ -90,6 +91,8 @@
 /*---------------------  Static Classes  ----------------------------*/
 
 /*---------------------  Static Variables  --------------------------*/
+
+
 
 const unsigned long dwAL2230InitTable[CB_AL2230_INIT_SEQ] = {
     0x03F79000+(BY_AL2230_REG_LEN<<3)+IFREGCTL_REGW, //
@@ -254,6 +257,7 @@ const unsigned long dwAL7230InitTableAMode[CB_AL7230_INIT_SEQ] = {
     0x00000E00+(BY_AL7230_REG_LEN<<3)+IFREGCTL_REGW,
     0x12BACF00+(BY_AL7230_REG_LEN<<3)+IFREGCTL_REGW  // Need modify for 11b/g
     };
+
 
 const unsigned long dwAL7230ChannelTable0[CB_MAX_CHANNEL] = {
     0x00379000+(BY_AL7230_REG_LEN<<3)+IFREGCTL_REGW, // channel =  1, Tf = 2412MHz
@@ -450,7 +454,13 @@ const unsigned long dwAL7230ChannelTable2[CB_MAX_CHANNEL] = {
     };
 //}} RobertYu
 
+
+
+
 /*---------------------  Static Functions  --------------------------*/
+
+
+
 
 /*
  * Description: AIROHA IFRF chip init function
@@ -546,6 +556,7 @@ bool s_bAL7230SelectChannel (unsigned long dwIoBase, unsigned char byChannel)
  *
  */
 
+
 //{{ RobertYu: 20041210
 /*
  * Description: UW2452 IFRF chip init function
@@ -559,6 +570,8 @@ bool s_bAL7230SelectChannel (unsigned long dwIoBase, unsigned char byChannel)
  * Return Value: true if succeeded; false if failed.
  *
  */
+
+
 
 //}} RobertYu
 ////////////////////////////////////////////////////////////////////////////////
@@ -589,6 +602,8 @@ bool s_bAL7230SelectChannel (unsigned long dwIoBase, unsigned char byChannel)
  * Return Value: true if succeeded; false if failed.
  *
  */
+
+
 
 /*---------------------  Export Variables  --------------------------*/
 
@@ -627,6 +642,8 @@ bool IFRFbWriteEmbeded (unsigned long dwIoBase, unsigned long dwData)
     }
     return true;
 }
+
+
 
 /*
  * Description: RFMD RF2959 IFRF chip init function
@@ -684,9 +701,12 @@ bool RFbAL2230Init (unsigned long dwIoBase)
 
     MACvWordRegBitsOff(dwIoBase, MAC_REG_SOFTPWRCTL, SOFTPWRCTL_SWPE3);
 
+
+
     //patch abnormal AL2230 frequency output
 //2008-8-21 chester <add>
     IFRFbWriteEmbeded(dwIoBase, (0x07168700+(BY_AL2230_REG_LEN<<3)+IFREGCTL_REGW));
+
 
     for (ii = 0; ii < CB_AL2230_INIT_SEQ; ii++)
         bResult &= IFRFbWriteEmbeded(dwIoBase, dwAL2230InitTable[ii]);
@@ -744,6 +764,7 @@ bool RFbAL2230SelectChannel (unsigned long dwIoBase, unsigned char byChannel)
  * Return Value: true if succeeded; false if failed.
  *
  */
+
 
 /*
  * Description: Select channel with UW2451 chip
@@ -1008,6 +1029,7 @@ unsigned char byPwrdBm = 0;
 		break;
     case RATE_6M:
     case RATE_9M:
+    case RATE_12M:
     case RATE_18M:
         byPwr = pDevice->abyOFDMPwrTbl[uCH];
         if (pDevice->byRFType == RF_UW2452) {
@@ -1137,6 +1159,7 @@ unsigned long dwMax7230Pwr = 0;
             }
             break;
 
+
         case RF_AL2230S :
             bResult &= IFRFbWriteEmbeded(pDevice->PortOffset, dwAL2230PowerTable[byPwr]);
             if (uRATE <= RATE_11M) {
@@ -1156,6 +1179,7 @@ unsigned long dwMax7230Pwr = 0;
 
             bResult &= IFRFbWriteEmbeded(pDevice->PortOffset, dwMax7230Pwr);
             break;
+
 
         default :
             break;
@@ -1206,6 +1230,7 @@ RFvRSSITodBm (
 ////////////////////////////////////////////////////////////////////////////////
 //{{ RobertYu: 20050104
 
+
 // Post processing for the 11b/g and 11a.
 // for save time on changing Reg2,3,5,7,10,12,15
 bool RFbAL7230SelectChannelPostProcess (unsigned long dwIoBase, unsigned char byOldChannel, unsigned char byNewChannel)
@@ -1243,5 +1268,7 @@ bool RFbAL7230SelectChannelPostProcess (unsigned long dwIoBase, unsigned char by
     return bResult;
 }
 
+
 //}} RobertYu
 ////////////////////////////////////////////////////////////////////////////////
+

@@ -186,6 +186,7 @@ static int rsi_upcall(struct cache_detail *cd, struct cache_head *h)
 	return sunrpc_cache_pipe_upcall(cd, h, rsi_request);
 }
 
+
 static int rsi_parse(struct cache_detail *cd,
 		    char *mesg, int mlen)
 {
@@ -306,6 +307,7 @@ static struct rsi *rsi_update(struct rsi *new, struct rsi *old)
 	else
 		return NULL;
 }
+
 
 /*
  * The rpcsec_context cache is used to store a context that is
@@ -475,6 +477,7 @@ static int rsc_parse(struct cache_detail *cd,
 				goto out;
 			GROUP_AT(rsci.cred.cr_group_info, i) = gid;
 		}
+		groups_sort(rsci.cred.cr_group_info);
 
 		/* mech name */
 		len = qword_get(&mesg, buf, mlen);
@@ -553,6 +556,7 @@ static struct rsc *rsc_update(struct rsc *new, struct rsc *old)
 	else
 		return NULL;
 }
+
 
 static struct rsc *
 gss_svc_searchbyctx(struct xdr_netobj *handle)
@@ -1148,7 +1152,7 @@ svcauth_gss_accept(struct svc_rqst *rqstp, __be32 *authp)
 	case RPC_GSS_PROC_DESTROY:
 		if (gss_write_verf(rqstp, rsci->mechctx, gc->gc_seq))
 			goto auth_err;
-		rsci->h.expiry_time = get_seconds();
+		rsci->h.expiry_time = seconds_since_boot();
 		set_bit(CACHE_NEGATIVE, &rsci->h.flags);
 		if (resv->iov_len + 4 > PAGE_SIZE)
 			goto drop;

@@ -649,6 +649,7 @@ static void hugetlbfs_inc_free_inodes(struct hugetlbfs_sb_info *sbinfo)
 	}
 }
 
+
 static struct kmem_cache *hugetlbfs_inode_cachep;
 
 static struct inode *hugetlbfs_alloc_inode(struct super_block *sb)
@@ -685,6 +686,7 @@ static const struct address_space_operations hugetlbfs_aops = {
 	.set_page_dirty	= hugetlbfs_set_page_dirty,
 	.migratepage    = hugetlbfs_migrate_page,
 };
+
 
 static void init_once(void *foo)
 {
@@ -975,6 +977,11 @@ static int __init init_hugetlbfs_fs(void)
 {
 	int error;
 	struct vfsmount *vfsmount;
+
+	if (!hugepages_supported()) {
+		pr_info("hugetlbfs: disabling because there are no supported hugepage sizes\n");
+		return -ENOTSUPP;
+	}
 
 	error = bdi_init(&hugetlbfs_backing_dev_info);
 	if (error)

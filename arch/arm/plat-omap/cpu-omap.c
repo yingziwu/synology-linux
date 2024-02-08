@@ -168,3 +168,4 @@ arch_initcall(omap_cpufreq_init);
  * cpufreq_unregister_driver()
  * cpufreq_frequency_table_put_attr()
  */
+

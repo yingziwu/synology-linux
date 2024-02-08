@@ -386,6 +386,7 @@ static int start_pmu(bool is_start_paused)
 	PJ1_WriteCOR(PJ1_PMU_COR2, pmu_regs.cor[2]);
 	PJ1_WriteCOR(PJ1_PMU_COR3, pmu_regs.cor[3]);
 
+
 	return 0;
 }
 
@@ -395,6 +396,7 @@ static int stop_pmu(void)
 	u32 cor_value[PJ1_PMN_NUM];
 	u32 inten_value;
 	u32 flag_value;
+
 
 	inten_value  = 0x0;
 	flag_value = 0xf;
@@ -414,6 +416,8 @@ static int stop_pmu(void)
 	PJ1_WriteCOR(PJ1_PMU_COR1, cor_value[1]);
 	PJ1_WriteCOR(PJ1_PMU_COR2, cor_value[2]);
 	PJ1_WriteCOR(PJ1_PMU_COR3, cor_value[3]);
+
+
 
 	/* clear overflow flags */
 	PJ1_WriteFLAG(flag_value);

@@ -193,6 +193,7 @@ struct snd_pcm_status32 {
 	unsigned char reserved[60];
 } __attribute__((packed));
 
+
 static int snd_pcm_status_user_compat(struct snd_pcm_substream *substream,
 				      struct snd_pcm_status32 __user *src)
 {
@@ -203,6 +204,8 @@ static int snd_pcm_status_user_compat(struct snd_pcm_substream *substream,
 	if (err < 0)
 		return err;
 
+	if (clear_user(src, sizeof(*src)))
+		return -EFAULT;
 	if (put_user(status.state, &src->state) ||
 	    put_user(status.trigger_tstamp.tv_sec, &src->trigger_tstamp.tv_sec) ||
 	    put_user(status.trigger_tstamp.tv_nsec, &src->trigger_tstamp.tv_nsec) ||
@@ -232,10 +235,15 @@ static int snd_pcm_ioctl_hw_params_compat(struct snd_pcm_substream *substream,
 	if (! (runtime = substream->runtime))
 		return -ENOTTY;
 
-	/* only fifo_size is different, so just copy all */
-	data = memdup_user(data32, sizeof(*data32));
-	if (IS_ERR(data))
-		return PTR_ERR(data);
+	data = kmalloc(sizeof(*data), GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
+
+	/* only fifo_size (RO from userspace) is different, so just copy all */
+	if (copy_from_user(data, data32, sizeof(*data32))) {
+		err = -EFAULT;
+		goto error;
+	}
 
 	if (refine)
 		err = snd_pcm_hw_refine(substream, data);
@@ -258,6 +266,7 @@ static int snd_pcm_ioctl_hw_params_compat(struct snd_pcm_substream *substream,
 	kfree(data);
 	return err;
 }
+
 
 /*
  */
@@ -296,6 +305,7 @@ static int snd_pcm_ioctl_xferi_compat(struct snd_pcm_substream *substream,
 		return -EFAULT;
 	return 0;
 }
+
 
 /* snd_xfern needs remapping of bufs */
 struct snd_xfern32 {
@@ -353,6 +363,7 @@ static int snd_pcm_ioctl_xfern_compat(struct snd_pcm_substream *substream,
 	kfree(bufs);
 	return err;
 }
+
 
 struct snd_pcm_mmap_status32 {
 	s32 state;
@@ -434,6 +445,7 @@ static int snd_pcm_ioctl_sync_ptr_compat(struct snd_pcm_substream *substream,
 
 	return 0;
 }
+
 
 /*
  */

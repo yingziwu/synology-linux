@@ -5,6 +5,8 @@
 ** Si3217x ProSLIC API Configuration Tool Version 2.4.0
 */
 
+
+
 #include "vdaa.h"
 
 vdaa_General_Cfg Vdaa_General_Configuration  = {

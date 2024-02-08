@@ -65,6 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __MV_SYS_CESA_API_H__
 #define __MV_SYS_CESA_API_H__
 
+
 MV_STATUS mvSysCesaInit (int numOfSession, int queueDepth, void *osHandle);
 
 #endif

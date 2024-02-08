@@ -335,6 +335,7 @@
     -   Initial Beta Release.
 *****************************************************************************/
 
+
 #include <linux/module.h>
 
 #include <linux/types.h>
@@ -369,6 +370,7 @@
 #if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_SGI_SN2)
 #include <asm/sn/io.h>
 #endif
+
 
 /*
  * Compile time Options:
@@ -409,11 +411,13 @@
 #define ia64_platform_is(foo)		(!strcmp(x, platform_name))
 #endif
 
+
 #define IS_ISP1040(ha) (ha->pdev->device == PCI_DEVICE_ID_QLOGIC_ISP1020)
 #define IS_ISP1x40(ha) (ha->pdev->device == PCI_DEVICE_ID_QLOGIC_ISP1020 || \
 			ha->pdev->device == PCI_DEVICE_ID_QLOGIC_ISP1240)
 #define IS_ISP1x160(ha)        (ha->pdev->device == PCI_DEVICE_ID_QLOGIC_ISP10160 || \
 				ha->pdev->device == PCI_DEVICE_ID_QLOGIC_ISP12160)
+
 
 static int qla1280_probe_one(struct pci_dev *, const struct pci_device_id *);
 static void qla1280_remove_one(struct pci_dev *);
@@ -463,6 +467,7 @@ static void qla1280_get_target_parameters(struct scsi_qla_host *,
 					   struct scsi_device *);
 static int qla1280_set_target_parameters(struct scsi_qla_host *, int, int);
 
+
 static struct qla_driver_setup driver_setup;
 
 /*
@@ -494,6 +499,7 @@ static void __qla1280_print_scsi_cmd(struct scsi_cmnd * cmd);
 static void __qla1280_dump_buffer(char *, int);
 #endif
 
+
 /*
  * insmod needs to find the variable and make it point to something
  */
@@ -505,6 +511,7 @@ module_param(qla1280, charp, 0);
 #else
 __setup("qla1280=", qla1280_setup);
 #endif
+
 
 /*
  * We use the scsi_pointer structure that's included with each scsi_command
@@ -525,6 +532,7 @@ __setup("qla1280=", qla1280_setup);
 #define SCSI_BUS_32(Cmnd)	Cmnd->device->channel
 #define SCSI_TCN_32(Cmnd)	Cmnd->device->id
 #define SCSI_LUN_32(Cmnd)	Cmnd->device->lun
+
 
 /*****************************************/
 /*   ISP Boards supported by this driver */
@@ -602,6 +610,7 @@ static int ql_debug_level = 1;
 #define ENTER_INTR(x)		dprintk(4, "qla1280 : Entering %s()\n", x);
 #define LEAVE_INTR(x)		dprintk(4, "qla1280 : Leaving %s()\n", x);
 
+
 static int qla1280_read_nvram(struct scsi_qla_host *ha)
 {
 	uint16_t *wptr;
@@ -642,6 +651,7 @@ static int qla1280_read_nvram(struct scsi_qla_host *ha)
 	dprintk(3, "qla1280_read_nvram: NVRAM Magic ID= %c %c %c %02x"
 	       " version %i\n", nv->id0, nv->id1, nv->id2, nv->id3,
 	       nv->version);
+
 
 	if (chksum) {
 		if (!driver_setup.no_nvram)
@@ -754,6 +764,7 @@ enum action {
 	BUS_RESET,
 	ADAPTER_RESET,
 };
+
 
 static void qla1280_mailbox_timeout(unsigned long __data)
 {
@@ -1079,6 +1090,7 @@ qla1280_biosparam(struct scsi_device *sdev, struct block_device *bdev,
 	return 0;
 }
 
+ 
 /* disable risc and host interrupts */
 static inline void
 qla1280_disable_intrs(struct scsi_qla_host *ha)
@@ -1134,6 +1146,7 @@ qla1280_intr_handler(int irq, void *dev_id)
 	return IRQ_RETVAL(handled);
 }
 
+
 static int
 qla1280_set_target_parameters(struct scsi_qla_host *ha, int bus, int target)
 {
@@ -1187,6 +1200,7 @@ qla1280_set_target_parameters(struct scsi_qla_host *ha, int bus, int target)
 		       ha->host_no, bus, target);
 	return status;
 }
+
 
 /**************************************************************************
  *   qla1280_slave_configure
@@ -1250,6 +1264,7 @@ qla1280_slave_configure(struct scsi_device *device)
 	spin_unlock_irqrestore(ha->host->host_lock, flags);
 	return status;
 }
+
 
 /*
  * qla1280_done
@@ -2700,6 +2715,7 @@ qla1280_abort_command(struct scsi_qla_host *ha, struct srb * sp, int handle)
 		sp->flags &= ~SRB_ABORT_PENDING;
 	}
 
+
 	LEAVE("qla1280_abort_command");
 	return status;
 }
@@ -2760,6 +2776,7 @@ qla1280_marker(struct scsi_qla_host *ha, int bus, int id, int lun, u8 type)
 
 	LEAVE("qla1280_marker");
 }
+
 
 /*
  * qla1280_64bit_start_scsi
@@ -3649,6 +3666,7 @@ qla1280_rst_aen(struct scsi_qla_host *ha)
 	LEAVE("qla1280_rst_aen");
 }
 
+
 /*
  *  qla1280_status_entry
  *      Processes received ISP status entry.
@@ -3886,6 +3904,7 @@ qla1280_abort_isp(struct scsi_qla_host *ha)
 	return status;
 }
 
+
 /*
  * qla1280_debounce_register
  *      Debounce register.
@@ -3916,6 +3935,7 @@ qla1280_debounce_register(volatile u16 __iomem * addr)
 
 	return ret;
 }
+
 
 /************************************************************************
  * qla1280_check_for_dead_scsi_bus                                      *
@@ -3960,6 +3980,7 @@ qla1280_get_target_parameters(struct scsi_qla_host *ha,
 	target = device->id;
 	lun = device->lun;
 
+
 	mb[0] = MBC_GET_TARGET_PARAMETERS;
 	mb[1] = (uint16_t) (bus ? target | BIT_7 : target);
 	mb[1] <<= 8;
@@ -3982,6 +4003,7 @@ qla1280_get_target_parameters(struct scsi_qla_host *ha,
 		printk(", Tagged queuing: depth %d", device->queue_depth);
 	printk("\n");
 }
+
 
 #if DEBUG_QLA1280
 static void
@@ -4073,6 +4095,7 @@ ql1280_dump_device(struct scsi_qla_host *ha)
 }
 #endif
 
+
 enum tokens {
 	TOKEN_NVRAM,
 	TOKEN_SYNC,
@@ -4096,6 +4119,7 @@ static struct setup_tokens setup_token[] __initdata =
 	{ "verbose", TOKEN_VERBOSE },
 	{ "debug", TOKEN_DEBUG },
 };
+
 
 /**************************************************************************
  *   qla1280_setup
@@ -4164,6 +4188,7 @@ qla1280_setup(char *s)
 	return 1;
 }
 
+
 static int __init
 qla1280_get_token(char *str)
 {
@@ -4185,6 +4210,7 @@ qla1280_get_token(char *str)
 	return ret;
 }
 
+
 static struct scsi_host_template qla1280_driver_template = {
 	.module			= THIS_MODULE,
 	.proc_name		= "qla1280",
@@ -4203,6 +4229,7 @@ static struct scsi_host_template qla1280_driver_template = {
 	.cmd_per_lun		= 1,
 	.use_clustering		= ENABLE_CLUSTERING,
 };
+
 
 static int __devinit
 qla1280_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
@@ -4372,6 +4399,7 @@ qla1280_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	return error;
 }
 
+
 static void __devexit
 qla1280_remove_one(struct pci_dev *pdev)
 {
@@ -4455,6 +4483,7 @@ qla1280_exit(void)
 
 module_init(qla1280_init);
 module_exit(qla1280_exit);
+
 
 MODULE_AUTHOR("Qlogic & Jes Sorensen");
 MODULE_DESCRIPTION("Qlogic ISP SCSI (qla1x80/qla1x160) driver");

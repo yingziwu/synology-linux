@@ -56,6 +56,7 @@
 #include "dwc_os.h"
 #include "dwc_list.h"
 
+
 /* MISC */
 
 void *DWC_MEMSET(void *dest, uint8_t byte, uint32_t size)
@@ -135,6 +136,7 @@ int DWC_ATOUI(const char *str, uint32_t *value)
 	return -1;
 }
 
+
 #ifdef DWC_UTFLIB
 /* From usbstring.c */
 
@@ -200,6 +202,7 @@ fail:
 	return -1;
 }
 #endif	/* DWC_UTFLIB */
+
 
 /* dwc_debug.h */
 
@@ -297,6 +300,7 @@ void __DWC_DEBUG(char *format, ...)
 }
 #endif
 
+
 /* dwc_mem.h */
 
 #if 0
@@ -375,6 +379,7 @@ void __DWC_FREE(void *mem_ctx, void *addr)
 {
 	kfree(addr);
 }
+
 
 #ifdef DWC_CRYPTOLIB
 /* dwc_crypto.h */
@@ -460,6 +465,7 @@ int DWC_HMAC_SHA256(uint8_t *message, uint32_t messagelen,
 	return 1;
 }
 #endif	/* DWC_CRYPTOLIB */
+
 
 /* Byte Ordering Conversions */
 
@@ -547,6 +553,7 @@ uint16_t DWC_BE16_TO_CPU(uint16_t *p)
 #endif
 }
 
+
 /* Registers */
 
 uint32_t DWC_READ_REG32(uint32_t volatile *reg)
@@ -581,6 +588,7 @@ void DWC_MODIFY_REG64(uint64_t volatile *reg, uint64_t clear_mask, uint64_t set_
 {
 }
 #endif
+
 
 /* Locking */
 
@@ -684,6 +692,7 @@ void DWC_MUTEX_UNLOCK(dwc_mutex_t *mutex)
 	mutex_unlock(m);
 }
 
+
 /* Timing */
 
 void DWC_UDELAY(uint32_t usecs)
@@ -705,6 +714,7 @@ uint32_t DWC_TIME(void)
 {
 	return jiffies_to_msecs(jiffies);
 }
+
 
 /* Timers */
 
@@ -817,6 +827,7 @@ void DWC_TIMER_CANCEL(dwc_timer_t *timer)
 	del_timer(timer->t);
 }
 
+
 /* Wait Queues */
 
 struct dwc_waitq {
@@ -913,6 +924,7 @@ void DWC_WAITQ_ABORT(dwc_waitq_t *wq)
 	wake_up_interruptible(&wq->queue);
 }
 
+
 /* Threading */
 
 dwc_thread_t *DWC_THREAD_RUN(dwc_thread_function_t func, char *name, void *data)
@@ -935,6 +947,7 @@ dwc_bool_t DWC_THREAD_SHOULD_STOP(void)
 {
 	return kthread_should_stop();
 }
+
 
 /* tasklets
  - run in interrupt context (cannot sleep)
@@ -977,6 +990,7 @@ void DWC_TASK_SCHEDULE(dwc_tasklet_t *task)
 {
 	tasklet_schedule(&task->t);
 }
+
 
 /* workqueues
  - run in process context (can sleep)
@@ -1188,6 +1202,7 @@ int DWC_WORKQ_PENDING(dwc_workq_t *wq)
 {
 	return wq->pending;
 }
+
 
 #ifdef DWC_LIBMODULE
 

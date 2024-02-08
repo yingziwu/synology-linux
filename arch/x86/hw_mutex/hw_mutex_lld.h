@@ -33,6 +33,8 @@
 #ifndef KERNEL_HW_MUTEX_LLD_H
 #define KERNEL_HW_MUTEX_LLD_H
 
+
+
 /* Identification Register */
 #define CORE_ID 0x000
 
@@ -57,9 +59,11 @@
 #define HW_MUTEX_INTR 0x028 
 #define 	HW_MUTEX_INTR_IC_BIT(master)	BIT(master)
 
+
 /* MUTEX config register */
 #define HW_MUTEX_CFG 0x02C 
 #define HW_MUTEX_CFG_IP_BIT BIT(0)
+
 
 /* MUTEX control register */
 #define HW_MUTEX_CNTL0 0x030 
@@ -116,5 +120,9 @@ static inline uint32_t hw_mutex_read_reg(void __iomem *reg)
 #define SET_HW_MUTEX_FIFO_INTERRUPT(pMaster) __set_hw_mutex(pMaster, MUTEX_FIFO_SCHE)
 #define SET_HW_MUTEX_NULL_INTERRUPT(pMaster) __set_hw_mutex(pMaster, MUTEX_NULL_SCHE)
 
+
+
 #endif 
 /* end of hw_mutex.h */
+
+

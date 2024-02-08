@@ -94,6 +94,7 @@ typedef enum {
    CONTROL_PROC_TURNOFF_RSP          = 0xFF00
 } control_proc;
 
+
 #pragma pack(1)
 typedef union {
    /* request */
@@ -480,6 +481,7 @@ struct as10x_token_cmd_t {
    struct as10x_cmd_t r;
 };
 #pragma pack()
+
 
 /**************************/
 /* FUNCTION DECLARATION   */

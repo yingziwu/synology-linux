@@ -1,7 +1,17 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * xfrm_output.c - Common IPsec encapsulation code.
+ *
+ * Copyright (c) 2007 Herbert Xu <herbert@gondor.apana.org.au>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version
+ * 2 of the License, or (at your option) any later version.
+ */
+
 #include <linux/errno.h>
 #include <linux/module.h>
 #include <linux/netdevice.h>
@@ -188,6 +198,8 @@ static int xfrm_output_gso(struct sk_buff *skb)
 	kfree_skb(skb);
 	if (IS_ERR(segs))
 		return PTR_ERR(segs);
+	if (segs == NULL)
+		return -EINVAL;
 
 	do {
 		struct sk_buff *nskb = segs->next;

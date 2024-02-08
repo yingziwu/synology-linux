@@ -74,6 +74,10 @@ int sendUDP(char *ipAddress, int settosInt)
   close(s);
 }
 
+
+
+
+
 void *sendThread1(void *arg)
 {
    int *tos_ptr;
@@ -97,6 +101,7 @@ void *sendThread2(void *arg)
 	printf("tos = %d in %s\n", tos, __func__);
 	sendUDP(ipAddress, tos);
 }
+
 
 int main(int argc, char **argv)
 {

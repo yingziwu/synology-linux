@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvDS133xRegh
 #define __INCmvDS133xRegh
 
@@ -94,6 +95,7 @@ extern "C" {
 
 #define FIRST_REG_OFF				RTC_CLOCK_SECONDS
 #define LAST_REG_OFF				RTC_TRICKLE_CHARGE
+
 
 /* RTC_CLOCK_SECONDS   0x0*/
 
@@ -129,6 +131,7 @@ extern "C" {
 #define RTC_CLOCK_HOUR_12_24_MSK		(MSK(1)<<RTC_CLOCK_HOUR_12_24_SHF)
 #define RTC_CLOCK_HOUR_12_24_BIT		BIT6
 
+
 /* RTC_CLOCK_DAY       	0x3*/
 
 #define RTC_CLOCK_DAY_SHF				0
@@ -142,6 +145,7 @@ extern "C" {
 #define RTC_CLOCK_10DATE_SHF			4
 #define RTC_CLOCK_10DATE_MSK			(MSK(2)<<RTC_CLOCK_10DATE_SHF)
 
+
 /* RTC_CLOCK_MONTH_CENTURY    	0x5*/
 
 #define RTC_CLOCK_MONTH_SHF				0
@@ -151,9 +155,11 @@ extern "C" {
 #define RTC_CLOCK_10MONTH_MSK			(MSK(1)<<RTC_CLOCK_10MONTH_SHF)
 #define RTC_CLOCK_10MONTH_BIT			BIT4
 
+
 #define RTC_CLOCK_CENTURY_SHF			7
 #define RTC_CLOCK_CENTURY_MSK			(MSK(1)<<RTC_CLOCK_CENTURY_SHF)
 #define RTC_CLOCK_CENTURY_BIT			BIT7
+
 
 /* RTC_CLOCK_YEAR      	0x6*/
 
@@ -162,6 +168,7 @@ extern "C" {
 
 #define RTC_CLOCK_10YEAR_SHF			4
 #define RTC_CLOCK_10YEAR_MSK			(MSK(4)<<RTC_CLOCK_10YEAR_SHF)
+
 
 /* RTC_ALARM_SECONDS  	0x7*/
 
@@ -174,6 +181,7 @@ extern "C" {
 #define RTC_CLOCK_A1M1_SHF			0
 #define RTC_CLOCK_A1M1_MSK			(MSK(1)<<RTC_CLOCK_A1M1_SHF)
 #define RTC_CLOCK_A1M1_BIT			BIT7
+
 
 /* RTC_ALARM_MINUTES   	0x8*/
 
@@ -208,6 +216,7 @@ extern "C" {
 #define RTC_CLOCK_A1M3_SHF			0
 #define RTC_CLOCK_A1M3_MSK			(MSK(1)<<RTC_CLOCK_A1M3_SHF)
 #define RTC_CLOCK_A1M3_BIT			BIT7
+
 
 /* RTC_ALARM_DAY_DATE  	0xa*/
 
@@ -258,6 +267,7 @@ extern "C" {
 #define RTC_CLOCK_HOUR_ALRM2_12_24_MSK		(MSK(1)<<RTC_CLOCK_HOUR_ALRM2_12_24_SHF)
 #define RTC_CLOCK_HOUR_ALRM2_12_24_BIT		BIT6
 
+
 #define RTC_CLOCK_A2M3_SHF 			0
 #define RTC_CLOCK_A2M3_MSK			(MSK(1)<<RTC_CLOCK_A2M3_SHF)
 #define RTC_CLOCK_A2M3_BIT			BIT7
@@ -276,6 +286,7 @@ extern "C" {
 #define RTC_CLOCK_DY_DT_ALRM2_SHF		6
 #define RTC_CLOCK_DY_DT_ALRM2_MSK		(MSK(1)<<RTC_CLOCK_DY_DT_ALRM2_SHF)
 #define RTC_CLOCK_DY_DT_ALRM2_BIT		BIT6
+
 
 #define RTC_CLOCK_A2M4_SHF			0
 #define RTC_CLOCK_A2M4_MSK			(MSK(1)<<RTC_CLOCK_A2M4_SHF)
@@ -310,6 +321,7 @@ extern "C" {
 #define RTC_CONTROL_EOSC_SHF			7
 #define RTC_CONTROL_EOSC_MSK			(MSK(1)<<RTC_CONTROL_EOSC_SHF)
 #define RTC_CONTROL_EOSC_BIT			BIT7
+
 
 /* RTC_STATUS  			0xf*/
 #define RTC_CONTROL_A1F_SHF				0

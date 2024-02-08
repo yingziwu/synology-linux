@@ -23,6 +23,7 @@
 #include "sn9c102_sensor.h"
 #include "sn9c102_devtable.h"
 
+
 static int pas106b_init(struct sn9c102_device* cam)
 {
 	int err = 0;
@@ -45,6 +46,7 @@ static int pas106b_init(struct sn9c102_device* cam)
 
 	return err;
 }
+
 
 static int pas106b_get_ctrl(struct sn9c102_device* cam,
 			    struct v4l2_control* ctrl)
@@ -94,6 +96,7 @@ static int pas106b_get_ctrl(struct sn9c102_device* cam,
 	}
 }
 
+
 static int pas106b_set_ctrl(struct sn9c102_device* cam,
 			    const struct v4l2_control* ctrl)
 {
@@ -131,6 +134,7 @@ static int pas106b_set_ctrl(struct sn9c102_device* cam,
 	return err ? -EIO : 0;
 }
 
+
 static int pas106b_set_crop(struct sn9c102_device* cam,
 			    const struct v4l2_rect* rect)
 {
@@ -145,6 +149,7 @@ static int pas106b_set_crop(struct sn9c102_device* cam,
 	return err;
 }
 
+
 static int pas106b_set_pix_format(struct sn9c102_device* cam,
 				  const struct v4l2_pix_format* pix)
 {
@@ -157,6 +162,7 @@ static int pas106b_set_pix_format(struct sn9c102_device* cam,
 
 	return err;
 }
+
 
 static const struct sn9c102_sensor pas106b = {
 	.name = "PAS106B",
@@ -264,6 +270,7 @@ static const struct sn9c102_sensor pas106b = {
 	},
 	.set_pix_format = &pas106b_set_pix_format
 };
+
 
 int sn9c102_probe_pas106b(struct sn9c102_device* cam)
 {

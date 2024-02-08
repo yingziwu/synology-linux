@@ -449,6 +449,7 @@ irnet_ctrl_poll(irnet_socket *	ap,
   return mask;
 }
 
+
 /*********************** FILESYSTEM CALLBACKS ***********************/
 /*
  * Implement the usual open, read, write functions that will be called
@@ -518,6 +519,7 @@ dev_irnet_open(struct inode *	inode,
 
   return 0;
 }
+
 
 /*------------------------------------------------------------------*/
 /*

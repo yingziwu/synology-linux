@@ -29,9 +29,11 @@ static u32 edca_setting_DL[HT_IOT_PEER_MAX] =
 static u32 edca_setting_UL[HT_IOT_PEER_MAX] =
 		{ 0x5e4322, 	0xa44f, 	0x5e4322, 	0x604322, 	0x5ea44f, 	0x5ea44f};
 
+
 #define RTK_UL_EDCA 0xa44f
 #define RTK_DL_EDCA 0x5e4322
 /*---------------------------Define Local Constant---------------------------*/
+
 
 /*------------------------Define global variable-----------------------------*/
 // Debug variable ?
@@ -42,14 +44,17 @@ u8		dm_shadow[16][256] = {{0}};
 DRxPathSel	DM_RxPathSelTable;
 /*------------------------Define global variable-----------------------------*/
 
+
 /*------------------------Define local variable------------------------------*/
 /*------------------------Define local variable------------------------------*/
+
 
 /*--------------------Define export function prototype-----------------------*/
 extern	void	init_hal_dm(struct net_device *dev);
 extern	void deinit_hal_dm(struct net_device *dev);
 
 extern void hal_dm_watchdog(struct net_device *dev);
+
 
 extern	void	init_rate_adaptive(struct net_device *dev);
 extern	void	dm_txpower_trackingcallback(struct work_struct *work);
@@ -73,7 +78,9 @@ extern	void dm_fsync_timer_callback(unsigned long data);
 extern	void dm_check_fsync(struct net_device *dev);
 extern	void	dm_shadow_init(struct net_device *dev);
 
+
 /*--------------------Define export function prototype-----------------------*/
+
 
 /*---------------------Define local function prototype-----------------------*/
 // DM --> Rate Adaptive
@@ -88,11 +95,15 @@ static	void	dm_bandwidth_autoswitch(	struct net_device *dev);
 
 static	void	dm_check_txpower_tracking(struct net_device *dev);
 
+
+
 //static	void	dm_txpower_reset_recovery(struct net_device *dev);
+
 
 // DM --> BB init gain restore
 #ifndef RTL8192U
 static	void	dm_bb_initialgain_restore(struct net_device *dev);
+
 
 // DM --> BB init gain backup
 static	void	dm_bb_initialgain_backup(struct net_device *dev);
@@ -120,10 +131,12 @@ static	void	dm_check_rfctrl_gpio(struct net_device *dev);
 // DM --> Check PBC
 static	void dm_check_pbc_gpio(struct net_device *dev);
 
+
 // DM --> Check current RX RF path state
 static	void	dm_check_rx_path_selection(struct net_device *dev);
 static 	void dm_init_rxpath_selection(struct net_device *dev);
 static	void dm_rxpath_sel_byrssi(struct net_device *dev);
+
 
 // DM --> Fsync for broadcom ap
 static void dm_init_fsync(struct net_device *dev);
@@ -137,6 +150,7 @@ static	void	dm_check_txrateandretrycount(struct net_device *dev);
 /*---------------------Define of Tx Power Control For Near/Far Range --------*/   //Add by Jacken 2008/02/18
 static	void	dm_init_dynamic_txpower(struct net_device *dev);
 static	void	dm_dynamic_txpower(struct net_device *dev);
+
 
 // DM --> For rate adaptive and DIG, we must send RSSI to firmware
 static	void dm_send_rssi_tofw(struct net_device *dev);
@@ -181,6 +195,7 @@ extern void deinit_hal_dm(struct net_device *dev)
 	dm_deInit_fsync(dev);
 
 }
+
 
 #ifdef USB_RX_AGGREGATION_SUPPORT
 void dm_CheckRxAggregation(struct net_device *dev) {
@@ -238,6 +253,8 @@ void dm_CheckRxAggregation(struct net_device *dev) {
 }	// dm_CheckEdcaTurbo
 #endif
 
+
+
 extern  void    hal_dm_watchdog(struct net_device *dev)
 {
 	//struct r8192_priv *priv = ieee80211_priv(dev);
@@ -264,6 +281,7 @@ extern  void    hal_dm_watchdog(struct net_device *dev)
 	dm_CheckRxAggregation(dev);
 #endif
 }	//HalDmWatchDog
+
 
 /*
   * Decide Rate Adaptive Set according to distance (signal strength)
@@ -292,6 +310,7 @@ extern void init_rate_adaptive(struct net_device * dev)
 		pra->ping_rssi_enable = 0;
 	pra->ping_rssi_thresh_for_ra = 15;
 
+
 	if (priv->rf_type == RF_2T4R)
 	{
 		// 07/10/08 MH Modify for RA smooth scheme.
@@ -314,6 +333,7 @@ extern void init_rate_adaptive(struct net_device * dev)
 	}
 
 }	// InitRateAdaptive
+
 
 /*-----------------------------------------------------------------------------
  * Function:	dm_check_rate_adaptive()
@@ -341,6 +361,7 @@ static void dm_check_rate_adaptive(struct net_device * dev)
 	bool						bshort_gi_enabled = false;
 	static u8					ping_rssi_state=0;
 
+
 	if(!priv->up)
 	{
 		RT_TRACE(COMP_RATE, "<---- dm_check_rate_adaptive(): driver is going to unload\n");
@@ -364,6 +385,7 @@ static void dm_check_rate_adaptive(struct net_device * dev)
 		//
 		bshort_gi_enabled = (pHTInfo->bCurTxBW40MHz && pHTInfo->bCurShortGI40MHz) ||
 			(!pHTInfo->bCurTxBW40MHz && pHTInfo->bCurShortGI20MHz);
+
 
 		pra->upper_rssi_threshold_ratr =
 				(pra->upper_rssi_threshold_ratr & (~BIT31)) | ((bshort_gi_enabled)? BIT31:0) ;
@@ -482,6 +504,7 @@ static void dm_check_rate_adaptive(struct net_device * dev)
 
 }	// dm_CheckRateAdaptive
 
+
 static void dm_init_bandwidth_autoswitch(struct net_device * dev)
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
@@ -492,6 +515,7 @@ static void dm_init_bandwidth_autoswitch(struct net_device * dev)
 	priv->ieee80211->bandwidth_auto_switch.bautoswitch_enable = false;
 
 }	// dm_init_bandwidth_autoswitch
+
 
 static void dm_bandwidth_autoswitch(struct net_device * dev)
 {
@@ -779,6 +803,7 @@ static void dm_TXPowerTrackingCallback_TSSI(struct net_device * dev)
 			return;
 		}
 
+
 	}
 		write_nic_byte(dev, 0x1ba, 0);
 		Avg_TSSI_Meas_from_driver = 0;
@@ -921,6 +946,7 @@ extern	void	dm_txpower_trackingcallback(struct work_struct *work)
 		dm_TXPowerTrackingCallback_ThermalMeter(dev);
 #endif
 }
+
 
 static void dm_InitializeTXPowerTracking_TSSI(struct net_device *dev)
 {
@@ -1442,6 +1468,7 @@ static void dm_InitializeTXPowerTracking_ThermalMeter(struct net_device *dev)
 	priv->btxpower_trackingInit = FALSE;
 }
 
+
 void dm_initialize_txpower_tracking(struct net_device *dev)
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
@@ -1454,6 +1481,7 @@ void dm_initialize_txpower_tracking(struct net_device *dev)
 		dm_InitializeTXPowerTracking_ThermalMeter(dev);
 #endif
 }// dm_InitializeTXPowerTracking
+
 
 static void dm_CheckTXPowerTracking_TSSI(struct net_device *dev)
 {
@@ -1472,6 +1500,7 @@ static void dm_CheckTXPowerTracking_TSSI(struct net_device *dev)
 	}
 
 }
+
 
 static void dm_CheckTXPowerTracking_ThermalMeter(struct net_device *dev)
 {
@@ -1509,6 +1538,7 @@ static void dm_CheckTXPowerTracking_ThermalMeter(struct net_device *dev)
 	}
 }
 
+
 static void dm_check_txpower_tracking(struct net_device *dev)
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
@@ -1524,6 +1554,7 @@ static void dm_check_txpower_tracking(struct net_device *dev)
 #endif
 
 }	// dm_CheckTXPowerTracking
+
 
 static void dm_CCKTxPowerAdjust_TSSI(struct net_device *dev, bool  bInCH14)
 {
@@ -1571,6 +1602,7 @@ static void dm_CCKTxPowerAdjust_TSSI(struct net_device *dev, bool  bInCH14)
 
 		rtl8192_setBBreg(dev, rCCK0_DebugPort,bMaskLWord, TempVal);
 	}
+
 
 }
 
@@ -1636,6 +1668,8 @@ static void dm_CCKTxPowerAdjust_ThermalMeter(struct net_device *dev,	bool  bInCH
 	}
 }
 
+
+
 extern void dm_cck_txpower_adjust(
 	struct net_device *dev,
 	bool  binch14
@@ -1652,6 +1686,7 @@ extern void dm_cck_txpower_adjust(
 		dm_CCKTxPowerAdjust_ThermalMeter(dev, binch14);
 #endif
 }
+
 
 #ifndef  RTL8192U
 static void dm_txpower_reset_recovery(
@@ -1750,6 +1785,7 @@ static void dm_bb_initialgain_restore(struct net_device *dev)
 
 }	// dm_BBInitialGainRestore
 
+
 extern void dm_backup_dynamic_mechanism_state(struct net_device *dev)
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
@@ -1761,6 +1797,7 @@ extern void dm_backup_dynamic_mechanism_state(struct net_device *dev)
 	dm_bb_initialgain_backup(dev);
 
 }	// DM_BackupDynamicMechanismState
+
 
 static void dm_bb_initialgain_backup(struct net_device *dev)
 {
@@ -1899,6 +1936,7 @@ dm_change_rxpath_selection_setting(
 	struct r8192_priv *priv = ieee80211_priv(dev);
 	prate_adaptive 	pRA = (prate_adaptive)&(priv->rate_adaptive);
 
+
 	if(DM_Type == 0)
 	{
 		if(DM_Value > 1)
@@ -1967,6 +2005,7 @@ dm_change_rxpath_selection_setting(
 	}
 }
 
+
 /*-----------------------------------------------------------------------------
  * Function:	dm_dig_init()
  *
@@ -2013,6 +2052,7 @@ static void dm_dig_init(struct net_device *dev)
 
 }	/* dm_dig_init */
 
+
 /*-----------------------------------------------------------------------------
  * Function:	dm_ctrl_initgain_byrssi()
  *
@@ -2044,6 +2084,7 @@ static void dm_ctrl_initgain_byrssi(struct net_device *dev)
 	else
 		return;
 }
+
 
 static void dm_ctrl_initgain_byrssi_by_driverrssi(
 	struct net_device *dev)
@@ -2163,6 +2204,7 @@ static void dm_ctrl_initgain_byrssi_by_fwfalse_alarm(
 			*/
 			//else if (pAdapter->HardwareType == HARDWARE_TYPE_RTL8192E)
 
+
 			//else
 				//PlatformEFIOWrite1Byte(pAdapter, rOFDM0_RxDetector1, 0x40);
 		}
@@ -2256,6 +2298,7 @@ static void dm_ctrl_initgain_byrssi_by_fwfalse_alarm(
 
 }	/* dm_CtrlInitGainByRssi */
 
+
 /*-----------------------------------------------------------------------------
  * Function:	dm_ctrl_initgain_byrssi_highpwr()
  *
@@ -2345,6 +2388,7 @@ static void dm_ctrl_initgain_byrssi_highpwr(
 	reset_cnt_highpwr = priv->reset_count;
 
 }	/* dm_CtrlInitGainByRssiHighPwr */
+
 
 static void dm_initial_gain(
 	struct net_device * dev)
@@ -2567,6 +2611,7 @@ static	void dm_cs_ratio(
 		reset_cnt = priv->reset_count;
 	}
 
+
 	{
 		if((dm_digtable.precs_ratio_state != dm_digtable.curcs_ratio_state) ||
 			!initialized || force_write)
@@ -2700,6 +2745,7 @@ static void dm_check_edca_turbo(
 		}
 	}
 
+
 dm_CheckEdcaTurbo_EXIT:
 	// Set variables for next time.
 	priv->ieee80211->bis_any_nonbepkts = false;
@@ -2774,6 +2820,7 @@ static void dm_ctstoself(struct net_device *dev)
 	}
 }
 
+
 /*-----------------------------------------------------------------------------
  * Function:	dm_check_rfctrl_gpio()
  *
@@ -2832,6 +2879,7 @@ static	void	dm_check_pbc_gpio(struct net_device *dev)
 #ifdef RTL8192U
 	struct r8192_priv *priv = ieee80211_priv(dev);
 	u8 tmp1byte;
+
 
 	tmp1byte = read_nic_byte(dev,GPI);
 	if(tmp1byte == 0xff)
@@ -2944,6 +2992,7 @@ extern	void	dm_rf_pathcheck_workitemcallback(struct work_struct *work)
        struct net_device *dev =priv->ieee80211->dev;
 	//bool bactually_set = false;
 	u8 rfpath = 0, i;
+
 
 	/* 2008/01/30 MH After discussing with SD3 Jerry, 0xc04/0xd04 register will
 	   always be the same. We only read 0xc04 now. */
@@ -3188,6 +3237,7 @@ static void dm_rxpath_sel_byrssi(struct net_device * dev)
 		}
 	}
 
+
 	// Set CCK Rx path
 	// reg0xA07[3:2]=cck default rx path, reg0xa07[1:0]=cck optional rx path.
 	update_cck_rx_path = 0;
@@ -3267,6 +3317,7 @@ static	void	dm_check_rx_path_selection(struct net_device *dev)
 	queue_delayed_work(priv->priv_wq,&priv->rfpath_check_wq,0);
 }	/* dm_CheckRxRFPath */
 
+
 static void dm_init_fsync (struct net_device *dev)
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
@@ -3289,6 +3340,7 @@ static void dm_init_fsync (struct net_device *dev)
 	priv->fsync_timer.data = (unsigned long)dev;
 	priv->fsync_timer.function = dm_fsync_timer_callback;
 }
+
 
 static void dm_deInit_fsync(struct net_device *dev)
 {
@@ -3654,6 +3706,7 @@ void dm_check_fsync(struct net_device *dev)
 	}
 }
 
+
 /*-----------------------------------------------------------------------------
  * Function:	dm_shadow_init()
  *
@@ -3834,3 +3887,4 @@ static void dm_send_rssi_tofw(struct net_device *dev)
 }
 
 /*---------------------------Define function prototype------------------------*/
+

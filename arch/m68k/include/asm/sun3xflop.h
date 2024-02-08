@@ -90,6 +90,7 @@ static void sun3x_82072_fd_outb(unsigned char value, int port)
 		} else
 			fcr &= ~(FCR_DSEL0 | FCR_MTRON);
 
+
 		if(fcr != sun3x_fdc.fcr) {
 			*(sun3x_fdc.fcr_r) = fcr;
 			sun3x_fdc.fcr = fcr;
@@ -108,6 +109,7 @@ static void sun3x_82072_fd_outb(unsigned char value, int port)
 	};
 	return;
 }
+
 
 asmlinkage irqreturn_t sun3xflop_hardint(int irq, void *dev_id)
 {
@@ -189,6 +191,7 @@ asmlinkage irqreturn_t sun3xflop_hardint(int irq, void *dev_id)
 		floppy_interrupt(irq, dev_id);
 		return IRQ_HANDLED;
 	}
+
 
 #ifdef TRACE_FLPY_INT
 	if(!virtual_dma_count)

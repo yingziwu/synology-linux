@@ -389,13 +389,13 @@ static int crypto_user_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 	    (nlh->nlmsg_flags & NLM_F_DUMP))) {
 		if (link->dump == NULL)
 			return -EINVAL;
-		{
-			struct netlink_dump_control c = {
-				.dump = link->dump,
-				.done = link->done,
-			};
-			return netlink_dump_start(crypto_nlsk, skb, nlh, &c);
-		}
+
+		down_read(&crypto_alg_sem);
+		err = netlink_dump_start(crypto_nlsk, skb, nlh,
+					  link->dump, link->done, 0);
+		up_read(&crypto_alg_sem);
+
+		return err;
 	}
 
 	err = nlmsg_parse(nlh, crypto_msg_min[type], attrs, CRYPTOCFGA_MAX,

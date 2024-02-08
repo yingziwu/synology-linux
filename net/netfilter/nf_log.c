@@ -210,6 +210,7 @@ static const struct file_operations nflog_file_ops = {
 	.release = seq_release,
 };
 
+
 #endif /* PROC_FS */
 
 #ifdef CONFIG_SYSCTL

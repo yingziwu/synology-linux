@@ -525,6 +525,7 @@ int nmk_gpio_get_mode(int gpio)
 }
 EXPORT_SYMBOL(nmk_gpio_get_mode);
 
+
 /* IRQ functions */
 static inline int nmk_gpio_get_bitmask(int gpio)
 {

@@ -216,6 +216,7 @@ static void __init m520x_qspi_init(void)
 }
 #endif /* defined(CONFIG_SPI_COLDFIRE_QSPI) || defined(CONFIG_SPI_COLDFIRE_QSPI_MODULE) */
 
+
 static struct platform_device *m520x_devices[] __initdata = {
 	&m520x_uart,
 	&m520x_fec,

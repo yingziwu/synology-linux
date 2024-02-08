@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+
 #include <linux/hid.h>
 #include <linux/input.h>
 #include <linux/usb.h>
@@ -163,3 +164,4 @@ static void ems_exit(void)
 module_init(ems_init);
 module_exit(ems_exit);
 MODULE_LICENSE("GPL");
+

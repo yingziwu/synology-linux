@@ -37,6 +37,7 @@
 
 #include <asm/uaccess.h>
 
+
 /*
  * This supports access to SPI devices using normal userspace I/O calls.
  * Note that while traditional UNIX/POSIX I/O semantics are half duplex,
@@ -54,6 +55,7 @@
 #define N_SPI_MINORS			32	/* ... up to 256 */
 
 static DECLARE_BITMAP(minors, N_SPI_MINORS);
+
 
 /* Bit masks for spi_device.mode management.  Note that incorrect
  * settings for some settings can cause *lots* of trouble for other
@@ -270,7 +272,10 @@ static int spidev_message(struct spidev_data *spidev,
 		k_tmp->len = u_tmp->len;
 
 		total += k_tmp->len;
-		if (total > bufsiz) {
+		/* Check total length of transfers.  Also check each
+		 * transfer length to avoid arithmetic overflow.
+		 */
+		if (total > bufsiz || k_tmp->len > bufsiz) {
 			status = -EMSGSIZE;
 			goto done;
 		}

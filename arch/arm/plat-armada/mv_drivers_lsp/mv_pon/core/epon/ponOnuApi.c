@@ -450,6 +450,7 @@ MV_STATUS onuEponApiGpmPmGet(S_EponIoctlGpmPm *gpmPm, MV_BOOL clear, MV_U32 macI
     return(status);
   }
 
+
   gpmPm->grantValidCnt                 = inCounters.grantValidCnt                 - g_OnuEponOutPm[macId].gpm.grantValidCnt;                
   gpmPm->grantMaxFutureTimeErrorCnt    = inCounters.grantMaxFutureTimeErrorCnt    - g_OnuEponOutPm[macId].gpm.grantMaxFutureTimeErrorCnt;   
   gpmPm->minProcTimeErrorCnt           = inCounters.minProcTimeErrorCnt           - g_OnuEponOutPm[macId].gpm.minProcTimeErrorCnt;          
@@ -481,3 +482,5 @@ MV_STATUS onuEponApiGpmPmGet(S_EponIoctlGpmPm *gpmPm, MV_BOOL clear, MV_U32 macI
 
   return(MV_OK);
 }
+
+

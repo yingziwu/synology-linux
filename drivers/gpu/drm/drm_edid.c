@@ -68,6 +68,8 @@
 #define EDID_QUIRK_DETAILED_SYNC_PP		(1 << 6)
 /* Force reduced-blanking timings for detailed modes */
 #define EDID_QUIRK_FORCE_REDUCED_BLANKING	(1 << 7)
+/* Force 6bpc */
+#define EDID_QUIRK_FORCE_6BPC			(1 << 10)
 
 struct detailed_mode_closure {
 	struct drm_connector *connector;
@@ -93,6 +95,9 @@ static struct edid_quirk {
 	{ "API", 0x7602, EDID_QUIRK_PREFER_LARGE_60 },
 	/* Unknown Acer */
 	{ "ACR", 2423, EDID_QUIRK_FIRST_DETAILED_PREFERRED },
+
+	/* AEO model 0 reports 8 bpc, but is a 6 bpc panel */
+	{ "AEO", 0, EDID_QUIRK_FORCE_6BPC },
 
 	/* Belinea 10 15 55 */
 	{ "MAX", 1516, EDID_QUIRK_PREFER_LARGE_60 },
@@ -125,6 +130,9 @@ static struct edid_quirk {
 
 	/* ViewSonic VA2026w */
 	{ "VSC", 5020, EDID_QUIRK_FORCE_REDUCED_BLANKING },
+
+	/* Medion MD 30217 PG */
+	{ "MED", 0x7b8, EDID_QUIRK_PREFER_LARGE_75 },
 };
 
 /*** DDC fetch and block validation ***/
@@ -148,6 +156,7 @@ int drm_edid_header_is_valid(const u8 *raw_edid)
 	return score;
 }
 EXPORT_SYMBOL(drm_edid_header_is_valid);
+
 
 /*
  * Sanity check the EDID block (base or extension).  Return 0 if the block
@@ -851,7 +860,7 @@ static struct drm_display_mode *drm_mode_detailed(struct drm_device *dev,
 	unsigned vblank = (pt->vactive_vblank_hi & 0xf) << 8 | pt->vblank_lo;
 	unsigned hsync_offset = (pt->hsync_vsync_offset_pulse_width_hi & 0xc0) << 2 | pt->hsync_offset_lo;
 	unsigned hsync_pulse_width = (pt->hsync_vsync_offset_pulse_width_hi & 0x30) << 4 | pt->hsync_pulse_width_lo;
-	unsigned vsync_offset = (pt->hsync_vsync_offset_pulse_width_hi & 0xc) >> 2 | pt->vsync_offset_pulse_width_lo >> 4;
+	unsigned vsync_offset = (pt->hsync_vsync_offset_pulse_width_hi & 0xc) << 2 | pt->vsync_offset_pulse_width_lo >> 4;
 	unsigned vsync_pulse_width = (pt->hsync_vsync_offset_pulse_width_hi & 0x3) << 4 | (pt->vsync_offset_pulse_width_lo & 0xf);
 
 	/* ignore tiny modes */
@@ -932,6 +941,7 @@ set_size:
 	}
 
 	mode->type = DRM_MODE_TYPE_DRIVER;
+	mode->vrefresh = drm_mode_vrefresh(mode);
 	drm_mode_set_name(mode);
 
 	return mode;
@@ -1746,6 +1756,9 @@ int drm_add_edid_modes(struct drm_connector *connector, struct edid *edid)
 		edid_fixup_preferred(connector, quirks);
 
 	drm_add_display_info(edid, &connector->display_info);
+
+	if (quirks & EDID_QUIRK_FORCE_6BPC)
+		connector->display_info.bpc = 6;
 
 	return num_modes;
 }

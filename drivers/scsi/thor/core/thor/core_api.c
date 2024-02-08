@@ -230,6 +230,7 @@ Core_GetHDConfig(
 		endId = HDId;
 	}
 
+
 	for ( i=startId; i<=endId; i++ )
 	{
 		if ( Core_MapHDId(pCore, i, &portId, &deviceId) )

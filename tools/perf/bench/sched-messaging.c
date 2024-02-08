@@ -111,6 +111,7 @@ again:
 	return NULL;
 }
 
+
 /* One receiver per fd */
 static void *receiver(struct receiver_context* ctx)
 {
@@ -214,6 +215,7 @@ static unsigned int group(pthread_t *pth,
 
 		if (!ctx)
 			barf("malloc()");
+
 
 		/* Create the pipe between client and server */
 		fdpair(fds);

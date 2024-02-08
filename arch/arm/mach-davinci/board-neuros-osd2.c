@@ -146,6 +146,7 @@ static struct platform_device ntosd2_leds_dev = {
 	},
 };
 
+
 static struct platform_device *davinci_ntosd2_devices[] __initdata = {
 	&davinci_fb_device,
 	&ntosd2_leds_dev,
@@ -196,6 +197,7 @@ static struct davinci_mmc_config davinci_ntosd2_mmc_config = {
 	.wires		= 4,
 	.version	= MMC_CTLR_VERSION_1
 };
+
 
 #if defined(CONFIG_BLK_DEV_PALMCHIP_BK3710) || \
 	defined(CONFIG_BLK_DEV_PALMCHIP_BK3710_MODULE)

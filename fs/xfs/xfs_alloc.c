@@ -35,6 +35,7 @@
 #include "xfs_error.h"
 #include "xfs_trace.h"
 
+
 #define XFS_ABSDIFF(a,b)	(((a) <= (b)) ? ((b) - (a)) : ((a) - (b)))
 
 #define	XFSA_FIXUP_BNO_OK	1
@@ -1074,12 +1075,13 @@ restart:
 	 * If we couldn't get anything, give up.
 	 */
 	if (bno_cur_lt == NULL && bno_cur_gt == NULL) {
+		xfs_btree_del_cursor(cnt_cur, XFS_BTREE_NOERROR);
+
 		if (!forced++) {
 			trace_xfs_alloc_near_busy(args);
 			xfs_log_force(args->mp, XFS_LOG_SYNC);
 			goto restart;
 		}
-
 		trace_xfs_alloc_size_neither(args);
 		args->agbno = NULLAGBLOCK;
 		return 0;
@@ -2733,6 +2735,7 @@ out_force_log:
 	spin_lock(&pag->pagb_lock);
 	return false;
 }
+
 
 /*
  * For a given extent [fbno, flen], make sure we can reuse it safely.

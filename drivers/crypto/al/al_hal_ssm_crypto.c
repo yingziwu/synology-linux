@@ -98,6 +98,7 @@ enum al_crypto_buf_type {
 	AL_CRYPT_BUF_AUTH_SIGN = 4
 };
 
+
 /*
  * SA
  */
@@ -123,6 +124,7 @@ enum al_crypto_buf_type {
 															bits of the signature */
 #define CRYPT_SAD_CNTR_SIZE_MASK		(0x3)    /* Counter size */
 #define CRYPT_SAD_CNTR_SIZE_SHIFT	(0)
+
 
 /* Word 1 */
 #define CRYPT_SAD_CCM_CBC_IV_ADD_SWORD	(1)
@@ -153,6 +155,7 @@ enum al_crypto_buf_type {
 #define CRYPT_SAD_HMAC_IV_IN_SIZE	(16)
 #define CRYPT_SAD_HMAC_IV_OUT_SWORD	(44) /* HMAC_IV_out H(k xor opad) */
 #define CRYPT_SAD_HMAC_IV_OUT_SIZE	(16)
+
 
 #define sa_init_field(dest, val, mask, shift, str)\
 	do {\
@@ -425,6 +428,7 @@ void al_crypto_set_rx_descs(struct al_udma_q *rx_udma_q,
 	}
 
 }
+
 
 /**
  * Fill one tx submission descriptor

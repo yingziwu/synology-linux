@@ -132,6 +132,7 @@ static int read_reg(struct cxd *ci, u8 reg, u8 *val)
 	return read_block(ci, reg, val, 1);
 }
 
+
 static int read_pccard(struct cxd *ci, u16 address, u8 *data, u8 n)
 {
 	int status;
@@ -289,6 +290,8 @@ static void cam_mode(struct cxd *ci, int mode)
 	}
 	ci->cammode = mode;
 }
+
+
 
 static int init(struct cxd *ci)
 {
@@ -563,6 +566,7 @@ static int slot_ts_enable(struct dvb_ca_en50221 *ca, int slot)
 	return 0;
 }
 
+
 static int campoll(struct cxd *ci)
 {
 	u8 istat;
@@ -604,6 +608,7 @@ static int campoll(struct cxd *ci)
 	}
 	return 0;
 }
+
 
 static int poll_slot_status(struct dvb_ca_en50221 *ca, int slot, int open)
 {

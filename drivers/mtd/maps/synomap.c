@@ -1,7 +1,13 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * drivers/mtd/maps/synomap.c
+ *
+ * MTD mapping driver for Synology boards
+ *
+ */
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/types.h>
@@ -23,6 +29,7 @@
 
 extern unsigned char __res[];
 
+/* trivial struct to describe partition information */
 struct mtd_part_def
 {
 	int nums;
@@ -37,153 +44,155 @@ static struct mtd_part_def part_banks[FLASH_BANK_MAX];
 static unsigned long num_banks;
 static unsigned long start_scan_addr;
 
+
 #if defined(CONFIG_SYNO_MPC85XX_COMMON)
 extern struct resource physmap_flash_resource;
- 
+/* Partition definition for the first flash bank which is always present. */
 static struct mtd_partition synomtd_partitions[] = {
 	{
-		.name	= "RedBoot",			 
+		.name	= "RedBoot",			/* u-boot		*/
 		.offset	= 0x003C0000,
-		.size	= 0x00040000,		 
+		.size	= 0x00040000,		/* 256KB		*/
 	},
 	{
-		.name	= "zImage",			 
+		.name	= "zImage",			/* linux kernel image	*/
 		.offset	= 0x00000000,
-		.size	= 0x00200000,		 
+		.size	= 0x00200000,		/* 2 MB		*/
 	},
 	{
-		.name	= "rd.gz",			 
+		.name	= "rd.gz",			/* ramdisk image*/
 		.offset	= 0x00200000,
-		.size	= 0x00180000,		 
+		.size	= 0x00180000,		/* 1.5 MB		*/
 	},
 	{
 		.name	= "vendor",
 		.offset	= 0x00380000,
-		.size	= 0x00010000,		 
+		.size	= 0x00010000,		/* 64KB		*/
 	},
 	{
 		.name	= "RedBoot Config",
 		.offset	= 0x00390000,
-		.size	= 0x00020000,		 
+		.size	= 0x00020000,		/* 128KB		*/
 	},
 	{
 		.name	= "FIS directory",
 		.offset	= 0x003B0000,
-		.size	= 0x00010000,		 
+		.size	= 0x00010000,		/* 64KB		*/
 	},
 };
-#elif defined(MY_DEF_HERE)
-#ifdef MY_DEF_HERE
+#elif defined(CONFIG_SYNO_MV88F6281)
+#ifdef SYNO_FLASH_MEMORY_SIZE
 extern long gSynoFlashMemorySize;
 #endif
 extern struct resource physmap_flash_resource;
- 
+/* Partition definition for the first flash bank which is always present. */
 static struct mtd_partition synomtd_partitions_8M[] = {
 	{
-		.name   = "RedBoot",             
+		.name   = "RedBoot",            /* u-boot               */
 		.offset = 0x00000000,
-		.size   = 0x00090000,            
+		.size   = 0x00090000,           /* 576 KB               */
 	},
 	{
-		.name   = "zImage",              
+		.name   = "zImage",             /* linux kernel image   */
 		.offset = 0x00090000,
-		.size   = 0x00300000,            
+		.size   = 0x00300000,           /* 3 MB                 */
 	},
 	{
-		.name   = "rd.gz",               
+		.name   = "rd.gz",              /* ramdisk image        */
 		.offset = 0x00390000,
-		.size   = 0x00440000,            
+		.size   = 0x00440000,           /* 4.2 MB               */
 	},
 	{
-		.name   = "vendor",              
+		.name   = "vendor",             /* vendor specific data */
 		.offset = 0x007D0000,
-		.size   = 0x00010000,            
+		.size   = 0x00010000,           /* 64KB                 */
 	},
 	{
-		.name   = "RedBoot Config",      
+		.name   = "RedBoot Config",     /* configs for u-boot   */
 		.offset = 0x007E0000,
-		.size   = 0x00010000,            
+		.size   = 0x00010000,           /* 64KB                */
 	},
 	{
-		.name   = "FIS directory",       
+		.name   = "FIS directory",      /* flash partition table*/
 		.offset = 0x007F0000,
-		.size   = 0x00010000,            
+		.size   = 0x00010000,           /* 64KB                 */
 	},
 };
 static struct mtd_partition synomtd_partitions[] = {
 	{
-		.name   = "RedBoot",             
+		.name   = "RedBoot",            /* u-boot               */
 		.offset = 0x00000000,
-		.size   = 0x00080000,            
+		.size   = 0x00080000,           /* 512KB                */
 	},
 	{
-		.name   = "zImage",                      
+		.name   = "zImage",                     /* linux kernel image   */
 		.offset = 0x00080000,
-		.size   = 0x00200000,            
+		.size   = 0x00200000,           /* 2 MB                                 */
 	},
 	{
-		.name   = "rd.gz",                       
+		.name   = "rd.gz",                      /* ramdisk image*/
 		.offset = 0x00280000,
-		.size   = 0x00140000,            
+		.size   = 0x00140000,           /* 1.2 MB               */
 	},
 	{
-		.name   = "vendor",                      
+		.name   = "vendor",                     /* vendor specific data */
 		.offset = 0x003C0000,
-		.size   = 0x00010000,            
+		.size   = 0x00010000,           /* 64KB                                 */
 	},
 	{
-		.name   = "RedBoot Config",      
+		.name   = "RedBoot Config",     /* configs for u-boot   */
 		.offset = 0x003D0000,
-		.size   = 0x00020000,            
+		.size   = 0x00020000,           /* 128KB                                */
 	},
 	{
-		.name   = "FIS directory",       
+		.name   = "FIS directory",      /* flash partition table*/
 		.offset = 0x003F0000,
-		.size   = 0x00010000,            
+		.size   = 0x00010000,           /* 64KB                                 */
 	},
 };
 #elif defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 extern struct resource physmap_flash_resource;
- 
+/* Partition definition for the first flash bank which is always present. */
+/* currently used by US3, which has only uboot partition */
 static struct mtd_partition synomtd_partitions[] = {
 	{
-		.name	= "RedBoot",		 
+		.name	= "RedBoot",		/* u-boot		*/
 		.offset	= 0x00000000,
-		.size	= 0x000C0000,		 
+		.size	= 0x000C0000,		/* 768KB		*/
 	},
 };
 #else
- 
+/* Partition definition for the first flash bank which is always present. */
 static struct mtd_partition synomtd_partitions[] = {
 	{
-		.name	= "RedBoot",		 
+		.name	= "RedBoot",		/* u-boot		*/
 		.offset	= 0x00300000,
-		.size	= 0x00040000,		 
+		.size	= 0x00040000,		/* 256KB		*/
 	},
 	{
-		.name	= "zImage",			 
+		.name	= "zImage",			/* linux kernel image	*/
 		.offset	= 0x00000000,
-		.size	= 0x00200000,		 
+		.size	= 0x00200000,		/* 2 MiB		*/
 	},
 	{
-		.name	= "rd.gz",			 
+		.name	= "rd.gz",			/* ramdisk image*/
 		.offset	= 0x00200000,
-		.size	= 0x00100000,		 
+		.size	= 0x00100000,		/* 1 MiB		*/
 	},
 	{
 		.name	= "vendor",
 		.offset	= 0x00340000,
-		.size	= 0x00010000,		 
+		.size	= 0x00010000,		/* 64KB		*/
 	},
 	{
 		.name	= "RedBoot Config",
 		.offset	= 0x00350000,
-		.size	= 0x00020000,		 
+		.size	= 0x00020000,		/* 128KB		*/
 	},
 	{
 		.name	= "FIS directory",
 		.offset	= 0x003f0000,
-		.size	= 0x00010000,		 
+		.size	= 0x00010000,		/* 64KB		*/
 	},
 };
 #endif
@@ -212,6 +221,7 @@ static int __init init_synomtd(void)
 	flash_size = bd->bi_flashsize;
 #endif
 	
+	/* request maximum flash size address space */
 	start_scan_addr = (unsigned long)ioremap(flash_addr, flash_size);
 	if (!start_scan_addr) {
 		printk("%s: Failed to ioremap address: 0x%lx\n",
@@ -252,7 +262,8 @@ static int __init init_synomtd(void)
 			flash_addr + ((idx > 0) ?
 			(mtd_banks[idx-1] ? mtd_banks[idx-1]->size : 0) : 0);
 
-#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+		/* start to probe flash chips */
+#if defined(CONFIG_SYNO_MV88F6281) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 		mtd_banks[idx] = do_map_probe("sflash", map_banks[idx]);
 #else
 		mtd_banks[idx] = do_map_probe("cfi_probe", map_banks[idx]);
@@ -267,6 +278,7 @@ static int __init init_synomtd(void)
 		}
 	}
 
+	/* no supported flash chips found */
 	if (!num_banks) {
 		printk("SYNOMTD: No supported flash chips found!\n");
 		ret = -ENXIO;
@@ -287,12 +299,14 @@ static int __init init_synomtd(void)
 			part_banks[idx].nums = n;
 		}
 		else
-#endif	 
+#endif	/* CONFIG_MTD_REDBOOT_PARTS */
 		{
-			 
+			/*
+			 * Select static partition definitions
+			 */
 			pMtdPartition = &synomtd_partitions;
 			n = ARRAY_SIZE(synomtd_partitions);
-#ifdef MY_DEF_HERE
+#ifdef SYNO_FLASH_MEMORY_SIZE
 			if (8 == gSynoFlashMemorySize) {
 				pMtdPartition = &synomtd_partitions_8M;
 				n = ARRAY_SIZE(synomtd_partitions_8M);
@@ -302,6 +316,7 @@ static int __init init_synomtd(void)
 			part_banks[idx].type	= "static image bank1";
 			part_banks[idx].nums	= n;
 
+			/* update last partition size to cover actual remaining space */
 			pMtdPartition[n - 1].size =
 				mtd_banks[0]->size - pMtdPartition[n - 1].offset;
 		}
@@ -342,12 +357,13 @@ static void __exit cleanup_synomtd(void)
 {
 	unsigned int idx = 0;
 	for(idx = 0 ; idx < num_banks ; idx++) {
-		 
+		/* destroy mtd_info previously allocated */
 		if (mtd_banks[idx]) {
 			del_mtd_partitions(mtd_banks[idx]);
 			map_destroy(mtd_banks[idx]);
 		}
 
+		/* release map_info not used anymore */
 		kfree(map_banks[idx]->name);
 		kfree(map_banks[idx]);
 	}

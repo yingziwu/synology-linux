@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCtrlEnvLibh
 #define __INCmvCtrlEnvLibh
 
@@ -174,6 +175,8 @@ typedef struct {
 	/* register setup for MV_SERDES_MODE - one nibble per SERDES line (serdes register format)	*/
 	MV_U32 serdesSpeed;		/* Bitmap of SRDS_LANE_SPEED - one bit per SERDES line 		*/
 } MV_SERDES_REG_CFG;
+
+
 
 MV_U32 mvCtrlGetCpuNum(MV_VOID);
 MV_BOOL mvCtrlIsValidSatR(MV_VOID);

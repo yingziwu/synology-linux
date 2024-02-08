@@ -216,7 +216,7 @@ static struct mm_struct *mm_access(struct task_struct *task, unsigned int mode)
 
 struct mm_struct *mm_for_maps(struct task_struct *task)
 {
-	return mm_access(task, PTRACE_MODE_READ);
+	return mm_access(task, PTRACE_MODE_READ_FSCREDS);
 }
 
 static int proc_pid_cmdline(struct task_struct *task, char * buffer)
@@ -274,6 +274,7 @@ static int proc_pid_auxv(struct task_struct *task, char *buffer)
 	return res;
 }
 
+
 #ifdef CONFIG_KALLSYMS
 /*
  * Provides a wchan file via kallsyms in a proper one-value-per-file format.
@@ -287,7 +288,7 @@ static int proc_pid_wchan(struct task_struct *task, char *buffer)
 	wchan = get_wchan(task);
 
 	if (lookup_symbol_name(wchan, symname) < 0)
-		if (!ptrace_may_access(task, PTRACE_MODE_READ))
+		if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
 			return 0;
 		else
 			return sprintf(buffer, "%lu", wchan);
@@ -301,7 +302,7 @@ static int lock_trace(struct task_struct *task)
 	int err = mutex_lock_killable(&task->signal->cred_guard_mutex);
 	if (err)
 		return err;
-	if (!ptrace_may_access(task, PTRACE_MODE_ATTACH)) {
+	if (!ptrace_may_access(task, PTRACE_MODE_ATTACH_FSCREDS)) {
 		mutex_unlock(&task->signal->cred_guard_mutex);
 		return -EPERM;
 	}
@@ -543,7 +544,7 @@ static int proc_fd_access_allowed(struct inode *inode)
 	 */
 	task = get_proc_task(inode);
 	if (task) {
-		allowed = ptrace_may_access(task, PTRACE_MODE_READ);
+		allowed = ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS);
 		put_task_struct(task);
 	}
 	return allowed;
@@ -768,7 +769,7 @@ static int mem_open(struct inode* inode, struct file* file)
 	if (!task)
 		return -ESRCH;
 
-	mm = mm_access(task, PTRACE_MODE_ATTACH);
+	mm = mm_access(task, PTRACE_MODE_ATTACH | PTRACE_MODE_FSCREDS);
 	put_task_struct(task);
 
 	if (IS_ERR(mm))
@@ -900,6 +901,7 @@ static ssize_t environ_read(struct file *file, char __user *buf,
 	page = (char *)__get_free_page(GFP_TEMPORARY);
 	if (!page)
 		goto out;
+
 
 	mm = mm_for_maps(task);
 	ret = PTR_ERR(mm);
@@ -1299,6 +1301,7 @@ static const struct file_operations proc_fault_inject_operations = {
 };
 #endif
 
+
 #ifdef CONFIG_SCHED_DEBUG
 /*
  * Print out various scheduling related per-task fields:
@@ -1574,6 +1577,7 @@ static const struct inode_operations proc_pid_link_inode_operations = {
 	.follow_link	= proc_pid_follow_link,
 	.setattr	= proc_setattr,
 };
+
 
 /* building an inode */
 
@@ -2148,6 +2152,7 @@ static const struct inode_operations proc_fdinfo_inode_operations = {
 	.setattr	= proc_setattr,
 };
 
+
 static struct dentry *proc_pident_instantiate(struct inode *dir,
 	struct dentry *dentry, struct task_struct *task, const void *ptr)
 {
@@ -2622,7 +2627,7 @@ static int do_io_accounting(struct task_struct *task, char *buffer, int whole)
 	if (result)
 		return result;
 
-	if (!ptrace_may_access(task, PTRACE_MODE_READ)) {
+	if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS)) {
 		result = -EACCES;
 		goto out_unlock;
 	}

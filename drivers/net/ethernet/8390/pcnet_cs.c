@@ -69,6 +69,7 @@
 
 static const char *if_names[] = { "auto", "10baseT", "10base2"};
 
+
 /*====================================================================*/
 
 /* Module parameters */
@@ -670,6 +671,7 @@ static int pcnet_resume(struct pcmcia_device *link)
 	return 0;
 }
 
+
 /*======================================================================
 
     MII interface support for DL10019 and DL10022 based cards
@@ -1094,6 +1096,7 @@ reschedule:
 }
 
 /*====================================================================*/
+
 
 static int ei_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {

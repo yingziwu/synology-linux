@@ -142,6 +142,7 @@ typedef struct _boardMppTypeInfo
 
 }MV_BOARD_MPP_TYPE_INFO;
 
+
 typedef enum _devBoardClass
 {
 	BOARD_DEV_NOR_FLASH,
@@ -196,6 +197,7 @@ typedef enum _devGppBoardClass
 	BOARD_GPP_OTHER
 }MV_BOARD_GPP_CLASS;
 
+
 typedef struct _devCsInfo
 {
     MV_U8		deviceCS;
@@ -238,6 +240,7 @@ typedef struct _boardGppInfo
 
 }MV_BOARD_GPP_INFO;
 
+
 typedef struct _boardTwsiInfo
 {
 	MV_BOARD_TWSI_CLASS	devClass;
@@ -245,6 +248,7 @@ typedef struct _boardTwsiInfo
 	MV_U8	twsiDevAddrType;
 
 }MV_BOARD_TWSI_INFO;
+
 
 typedef enum _boardMacSpeed
 {

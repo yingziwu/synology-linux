@@ -99,6 +99,7 @@ static struct platform_device pmu_device = {
 	.num_resources	= 1,
 };
 
+
 static struct platform_device *devices[] __initdata = {
 	&nand_device,
 	&pmu_device,

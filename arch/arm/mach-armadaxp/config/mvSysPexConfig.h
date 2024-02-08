@@ -47,3 +47,4 @@ will be used for the workarround window base and size,
 otherwise the following defines will be ignored */
 #define PEX_CONFIG_RW_WA_BASE 0xF3000000
 #define PEX_CONFIG_RW_WA_SIZE _16M
+

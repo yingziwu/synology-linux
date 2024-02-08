@@ -18,6 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 #include <linux/module.h>
 #include <linux/irq.h>
 #include <linux/interrupt.h>
@@ -174,6 +175,7 @@ int clk_enable(struct clk *clk)
 	return ret;
 }
 EXPORT_SYMBOL(clk_enable);
+
 
 /* @ struct clk *
  * API:clk_get_rate used to get clock rate value
@@ -565,6 +567,8 @@ static struct clk clk_pll2 = {
 static struct clk clk_pll3 = {
 	.name   = "pll3",
 };
+
+
 
 static struct clk gemtx_clk = {
 	.name        = "gemtx",

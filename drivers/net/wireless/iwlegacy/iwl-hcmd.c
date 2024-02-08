@@ -36,6 +36,7 @@
 #include "iwl-eeprom.h"
 #include "iwl-core.h"
 
+
 const char *iwl_legacy_get_cmd_string(u8 cmd)
 {
 	switch (cmd) {

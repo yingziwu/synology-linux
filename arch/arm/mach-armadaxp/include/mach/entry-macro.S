@@ -70,6 +70,7 @@
 1001:	
 	.endm
 
+
         /* We assume that irqstat (the raw value of the IRQ acknowledge
          * register) is preserved from the macro above.
          */
@@ -93,6 +94,7 @@
 	str   	\tmp, [\base, #AXP_IN_DOORBELL_CAUSE]	@ clean irq
 1002:
 	.endm
+
 
 	/* As above, this assumes that irqstat and base are preserved.. */
 

@@ -550,6 +550,7 @@ int savage_driver_load(struct drm_device *dev, unsigned long chipset)
 	return 0;
 }
 
+
 /*
  * Initialize mappings. On Savage4 and SavageIX the alignment
  * and size of the aperture is not suitable for automatic MTRR setup

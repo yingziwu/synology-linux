@@ -31,6 +31,7 @@
  *
  */
 
+
 #include <linux/if_vlan.h>
 
 #include <linux/mlx4/device.h>
@@ -38,6 +39,7 @@
 
 #include "en_port.h"
 #include "mlx4_en.h"
+
 
 int mlx4_SET_MCAST_FLTR(struct mlx4_dev *dev, u8 port,
 			u64 mac, u64 clear, u8 mode)
@@ -74,6 +76,7 @@ int mlx4_SET_VLAN_FLTR(struct mlx4_dev *dev, struct mlx4_en_priv *priv)
 	mlx4_free_cmd_mailbox(dev, mailbox);
 	return err;
 }
+
 
 int mlx4_SET_PORT_general(struct mlx4_dev *dev, u8 port, int mtu,
 			  u8 pptx, u8 pfctx, u8 pprx, u8 pfcrx)
@@ -245,11 +248,11 @@ int mlx4_en_DUMP_ETH_STATS(struct mlx4_en_dev *mdev, u8 port, u8 reset)
 			   be64_to_cpu(mlx4_en_stats->MCAST_novlan);
 	stats->collisions = 0;
 	stats->rx_length_errors = be32_to_cpu(mlx4_en_stats->RdropLength);
-	stats->rx_over_errors = be32_to_cpu(mlx4_en_stats->RdropOvflw);
+	stats->rx_over_errors = 0;
 	stats->rx_crc_errors = be32_to_cpu(mlx4_en_stats->RCRC);
 	stats->rx_frame_errors = 0;
 	stats->rx_fifo_errors = be32_to_cpu(mlx4_en_stats->RdropOvflw);
-	stats->rx_missed_errors = be32_to_cpu(mlx4_en_stats->RdropOvflw);
+	stats->rx_missed_errors = 0;
 	stats->tx_aborted_errors = 0;
 	stats->tx_carrier_errors = 0;
 	stats->tx_fifo_errors = 0;
@@ -288,3 +291,4 @@ out:
 	mlx4_free_cmd_mailbox(mdev->dev, mailbox);
 	return err;
 }
+

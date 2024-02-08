@@ -84,6 +84,7 @@ static int ar8x_config_init(struct phy_device *phydev)
 
 }
 
+
 static int ar8x_ack_interrupt(struct phy_device *phydev)
 {
 	int err = 0;

@@ -47,6 +47,7 @@
 #include "cryptlib.h"
 #include "version.h"
 
+
 /* make caop->dst available in scatterlist.
  * (caop->src is assumed to be equal to caop->dst)
  */
@@ -92,6 +93,7 @@ static int get_userbuf_tls(struct csession *ses, struct kernel_crypt_auth_op *kc
 
 	return 0;
 }
+
 
 #define MAX_SRTP_AUTH_DATA_DIFF 256
 
@@ -243,6 +245,7 @@ static int fill_caop_from_kcaop(struct kernel_crypt_auth_op *kcaop, struct fcryp
 	}
 	return 0;
 }
+
 
 int kcaop_from_user(struct kernel_crypt_auth_op *kcaop,
 			struct fcrypt *fcr, void __user *arg)
@@ -682,6 +685,7 @@ free_auth_buf:
 
 	return ret;
 }
+
 
 int crypto_auth_run(struct fcrypt *fcr, struct kernel_crypt_auth_op *kcaop)
 {

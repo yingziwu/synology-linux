@@ -133,6 +133,7 @@ static const void* pmf_next_blob(struct pmf_cmd *cmd, int count)
 		return -1; \
 	} while(0) \
 
+
 static int pmf_parser_write_gpio(struct pmf_cmd *cmd, struct pmf_handlers *h)
 {
 	u8 value = (u8)pmf_next32(cmd);
@@ -176,6 +177,7 @@ static int pmf_parser_read_reg32(struct pmf_cmd *cmd, struct pmf_handlers *h)
 	PMF_PARSE_CALL(read_reg32, cmd, h, offset);
 }
 
+
 static int pmf_parser_write_reg16(struct pmf_cmd *cmd, struct pmf_handlers *h)
 {
 	u32 offset = pmf_next32(cmd);
@@ -196,6 +198,7 @@ static int pmf_parser_read_reg16(struct pmf_cmd *cmd, struct pmf_handlers *h)
 
 	PMF_PARSE_CALL(read_reg16, cmd, h, offset);
 }
+
 
 static int pmf_parser_write_reg8(struct pmf_cmd *cmd, struct pmf_handlers *h)
 {
@@ -283,6 +286,7 @@ static int pmf_parser_write_i2c(struct pmf_cmd *cmd, struct pmf_handlers *h)
 	PMF_PARSE_CALL(write_i2c, cmd, h, bytes, blob);
 }
 
+
 static int pmf_parser_rmw_i2c(struct pmf_cmd *cmd, struct pmf_handlers *h)
 {
 	u32 maskbytes = pmf_next32(cmd);
@@ -310,6 +314,7 @@ static int pmf_parser_read_cfg(struct pmf_cmd *cmd, struct pmf_handlers *h)
 
 	PMF_PARSE_CALL(read_cfg, cmd, h, offset, bytes);
 }
+
 
 static int pmf_parser_write_cfg(struct pmf_cmd *cmd, struct pmf_handlers *h)
 {
@@ -341,6 +346,7 @@ static int pmf_parser_rmw_cfg(struct pmf_cmd *cmd, struct pmf_handlers *h)
 	PMF_PARSE_CALL(rmw_cfg, cmd, h, offset, maskbytes, valuesbytes,
 		       totalbytes, maskblob, valuesblob);
 }
+
 
 static int pmf_parser_read_i2c_sub(struct pmf_cmd *cmd, struct pmf_handlers *h)
 {
@@ -374,6 +380,7 @@ static int pmf_parser_set_i2c_mode(struct pmf_cmd *cmd, struct pmf_handlers *h)
 
 	PMF_PARSE_CALL(set_i2c_mode, cmd, h, mode);
 }
+
 
 static int pmf_parser_rmw_i2c_sub(struct pmf_cmd *cmd, struct pmf_handlers *h)
 {
@@ -488,6 +495,7 @@ static int pmf_parser_mask_and_compare(struct pmf_cmd *cmd,
 	PMF_PARSE_CALL(mask_and_compare, cmd, h,
 		       bytes, maskblob, valuesblob);
 }
+
 
 typedef int (*pmf_cmd_parser_t)(struct pmf_cmd *cmd, struct pmf_handlers *h);
 
@@ -689,6 +697,7 @@ static int pmf_add_functions(struct pmf_device *dev, void *driverdata)
 	return count;
 }
 
+
 int pmf_register_driver(struct device_node *np,
 			struct pmf_handlers *handlers,
 			void *driverdata)
@@ -849,6 +858,7 @@ out:
 	return result;
 }
 
+
 int pmf_register_irq_client(struct device_node *target,
 			    const char *name,
 			    struct pmf_irq_client *client)
@@ -904,6 +914,7 @@ void pmf_unregister_irq_client(struct pmf_irq_client *client)
 }
 EXPORT_SYMBOL_GPL(pmf_unregister_irq_client);
 
+
 void pmf_do_irq(struct pmf_function *func)
 {
 	unsigned long flags;
@@ -922,6 +933,7 @@ void pmf_do_irq(struct pmf_function *func)
 	spin_unlock_irqrestore(&pmf_lock, flags);
 }
 EXPORT_SYMBOL_GPL(pmf_do_irq);
+
 
 int pmf_call_one(struct pmf_function *func, struct pmf_args *args)
 {
@@ -977,6 +989,7 @@ int pmf_do_functions(struct device_node *np, const char *name,
 }
 EXPORT_SYMBOL_GPL(pmf_do_functions);
 
+
 struct pmf_function *pmf_find_function(struct device_node *target,
 				       const char *name)
 {
@@ -1006,3 +1019,4 @@ int pmf_call_function(struct device_node *target, const char *name,
 	return rc;
 }
 EXPORT_SYMBOL_GPL(pmf_call_function);
+

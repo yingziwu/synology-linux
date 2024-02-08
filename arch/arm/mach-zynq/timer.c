@@ -187,6 +187,7 @@ static cycle_t __raw_readl_cycles(struct clocksource *cs)
 				XTTCPSS_COUNT_VAL_OFFSET);
 }
 
+
 /*
  * Instantiate and initialize the clock source structure
  */
@@ -197,6 +198,7 @@ static struct clocksource clocksource_xttcpss = {
 	.mask		= CLOCKSOURCE_MASK(16),
 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
 };
+
 
 /**
  * xttcpss_set_next_event - Sets the time interval for next event

@@ -197,6 +197,7 @@ static void gbe_reset(void)
 	gbe->ctrlstat = 0x300aa000;
 }
 
+
 /*
  * Function:	gbe_turn_off
  * Parameters:	(None)
@@ -733,6 +734,7 @@ static int gbefb_set_par(struct fb_info *info)
 	          [ tile 0 ] -> [ 64KB ]  <- [ 16x 4KB page entries ]     ^
 	             ...           ...              ...       linear virtual FB
 	          [ tile n ] -> [ 64KB ]  <- [ 16x 4KB page entries ]     v
+
 
 	   The GBE hardware is then told that the buffer is 512*tweaked_height,
 	   with tweaked_height = real_width*real_height/pixels_per_tile.

@@ -8,6 +8,9 @@
 #if !defined(MY_DEF_HERE)
 #include <linux/gpio.h>
 #endif
+#ifdef MY_ABC_HERE
+#include <linux/libata.h>
+#endif
 
 MODULE_LICENSE("Proprietary");
 
@@ -94,6 +97,40 @@ END:
 	return iRet;
 }
 
+#ifdef MY_ABC_HERE
+extern int iIsSynoIRQOff(const struct ata_port *ap);
+
+static int syno_hddmon_is_disk_deepsleep(int iDiskIdx, SynoHddMonData_t *pData)
+{
+	struct Scsi_Host *pScsiHost = NULL;
+	struct ata_port  *pAtaPrt = NULL;
+	int iErr = -1;
+
+	if(NULL == pData) {
+		goto END;
+	}
+
+	if(0 > iDiskIdx || pData->iMaxHddNum < iDiskIdx) {
+		iErr = -EINVAL;
+		goto END;
+	}
+
+	if(NULL == (pScsiHost = scsi_host_lookup(iDiskIdx))) {
+		iErr = -ENODEV;
+		goto END;
+	}
+
+	if(NULL == (pAtaPrt = ata_shost_to_port(pScsiHost))) {
+		iErr = -ENODEV;
+		goto END;
+	}
+
+	iErr = iIsSynoIRQOff(pAtaPrt);
+END:
+	return iErr;
+}
+#endif /*#ifdef MY_ABC_HERE*/
+
 static int syno_hddmon_unplug_monitor(void *args)
 {
 	int iRet = -1;
@@ -123,6 +160,7 @@ static int syno_hddmon_unplug_monitor(void *args)
 			if (iPrzPinVal) {
 				continue;
 			}
+
 
 			SYNO_CTRL_HDD_POWERON(iIdx, iPrzPinVal);
 			pData->blHddEnStat[iIdx-1] = iPrzPinVal;
@@ -158,9 +196,15 @@ static void syno_hddmon_task(SynoHddMonData_t *pData)
 		iPrzPinVal = SYNO_CHECK_HDD_PRESENT(iIdx);
 
 		if(pData->blHddEnStat[iIdx-1] != iPrzPinVal) {
+#ifdef MY_ABC_HERE
+			/*if the disk is plugged in while deep-sleep, do nothing*/
+			if(iPrzPinVal && syno_hddmon_is_disk_deepsleep(iIdx-1, pData)) {
+				continue;
+			}
+#endif
 
 			if(iPrzPinVal) {
-				 
+				//while starting a port, monitoring other ports for the disks unplugged
 				pUnplugMonitor = kthread_run(syno_hddmon_unplug_monitor, pData, SYNO_HDDMON_UPLG_STR);
 			}
 
@@ -199,11 +243,15 @@ static void syno_hddmon_sync(SynoHddMonData_t *pData)
 
 		iPrzPinVal = SYNO_CHECK_HDD_PRESENT(iIdx);
 
+		/* HDD Enable pins must be high just after boot-up,
+		 * so turns the pins to low if the hdds do not present.
+		 */
 		if(!iPrzPinVal) {
 			SYNO_CTRL_HDD_POWERON(iIdx, iPrzPinVal);
 			pData->blHddEnStat[iIdx-1] = iPrzPinVal;
 		}
 
+		/*sync the states*/
 		pData->blHddEnStat[iIdx-1] = iPrzPinVal;
 
 	}
@@ -253,6 +301,7 @@ static int __init syno_hddmon_init(void)
 
 	syno_hddmon_sync(&synoHddMonData);
 
+	/* processing */
 	pHddPrzPolling = kthread_create(syno_hddmon_routine, &synoHddMonData, SYNO_HDDMON_STR);
 
 	if (IS_ERR(pHddPrzPolling)) {

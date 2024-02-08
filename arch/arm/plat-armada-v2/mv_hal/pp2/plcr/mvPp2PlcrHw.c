@@ -71,6 +71,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gbe/mvPp2Gbe.h"
 #include "mvPp2PlcrHw.h"
 
+
 void        mvPp2PlcrHwRegs(void)
 {
 	int    i;
@@ -326,6 +327,7 @@ MV_STATUS   mvPp2PlcrHwColorModeSet(int plcr, int enable)
 
 	return MV_OK;
 }
+
 
 MV_STATUS   mvPp2PlcrHwBucketSizeSet(int plcr, int commit, int excess)
 {

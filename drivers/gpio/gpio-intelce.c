@@ -1,7 +1,17 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  GPIO interface for Intel CE SoCs.
+ *
+ *  Copyright (c) 2010, 2012 Intel Corporation
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License 2 as published
+ *  by the Free Software Foundation.
+ *
+ */
+
 #include <linux/errno.h>
 #include <linux/gpio.h>
 #include <linux/init.h>
@@ -91,6 +101,7 @@ static int __devinit intelce_gpio_probe(struct pci_dev *pdev, const struct pci_d
 	int (*gpio_direction_input)(struct gpio_chip *chip, unsigned offset);
 	int (*gpio_irq_setup)(struct intelce_gpio_chip *c, struct pci_dev *pdev);
 	int ret;
+	
 	
 	intelce_get_soc_info(&id, NULL);
 	switch(id) { 
@@ -252,12 +263,13 @@ int intelce_gpio_device_suspend(struct device *dev)
 	struct intelce_gpio_chip *c = pci_get_drvdata(pdev);
 	int ret = 0;
 	
+    /*gpio suspend */
 	if (intelce_gpio_suspend) {
    		ret = intelce_gpio_suspend(c->reg_base, legacy_iobase);
 		if (ret)
 	 	  	 return ret;
 	}
-	 
+	/*pci device save*/
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pci_set_power_state(pdev, PCI_D3hot);
@@ -270,12 +282,13 @@ int intelce_gpio_device_resume(struct device *dev)
 	struct intelce_gpio_chip *c = pci_get_drvdata(pdev);
 	int ret = 0;
 
+	/*pci device restore*/
 	pci_set_power_state(pdev, PCI_D0);
 	pci_restore_state(pdev);
 	ret = pci_enable_device(pdev);
 	if (ret)
 		return ret;
-	 
+	/*gpio resume */
 	if (intelce_gpio_resume) {
 		return intelce_gpio_resume(c->reg_base, legacy_iobase);
 	} else {

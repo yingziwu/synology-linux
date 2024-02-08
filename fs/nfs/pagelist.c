@@ -163,6 +163,7 @@ static void nfs_clear_request(struct nfs_page *req)
 	}
 }
 
+
 /**
  * nfs_release_request - Release the count on an NFS read/write request
  * @req: request to release
@@ -501,3 +502,4 @@ void nfs_destroy_nfspagecache(void)
 {
 	kmem_cache_destroy(nfs_page_cachep);
 }
+

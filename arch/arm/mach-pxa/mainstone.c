@@ -205,6 +205,7 @@ device_initcall(mainstone_irq_device_init);
 
 #endif
 
+
 static struct resource smc91x_resources[] = {
 	[0] = {
 		.start	= (MST_ETH_PHYS + 0x300),
@@ -591,6 +592,7 @@ static void __init mainstone_init(void)
 
 	mainstone_init_keypad();
 }
+
 
 static struct map_desc mainstone_io_desc[] __initdata = {
   	{	/* CPLD */

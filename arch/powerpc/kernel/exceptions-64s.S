@@ -463,7 +463,7 @@ machine_check_common:
 	STD_EXCEPTION_COMMON(0xb00, trap_0b, .unknown_exception)
 	STD_EXCEPTION_COMMON(0xd00, single_step, .single_step_exception)
 	STD_EXCEPTION_COMMON(0xe00, trap_0e, .unknown_exception)
-        STD_EXCEPTION_COMMON(0xe40, emulation_assist, .program_check_exception)
+	STD_EXCEPTION_COMMON(0xe40, emulation_assist, .emulation_assist_interrupt)
         STD_EXCEPTION_COMMON(0xe60, hmi_exception, .unknown_exception)
 	STD_EXCEPTION_COMMON_IDLE(0xf00, performance_monitor, .performance_monitor_exception)
 	STD_EXCEPTION_COMMON(0x1300, instruction_breakpoint, .instruction_breakpoint_exception)
@@ -646,6 +646,7 @@ unrecov_user_slb:
 	b	1b
 
 #endif /* __DISABLED__ */
+
 
 /*
  * r13 points to the PACA, r9 contains the saved CR,
@@ -887,6 +888,7 @@ unrecov_fer:
 1:	addi	r3,r1,STACK_FRAME_OVERHEAD
 	bl	.unrecoverable_exception
 	b	1b
+
 
 /*
  * Hash table stuff

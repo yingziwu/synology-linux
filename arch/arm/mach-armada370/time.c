@@ -168,6 +168,7 @@ static struct irqaction axp_timer_irq = {
 	.handler	= axp_timer_interrupt
 };
 
+
 /*
  * Setup the local clock events for a CPU.
  */

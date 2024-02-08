@@ -74,6 +74,7 @@ static int __init sysrq_always_enabled_setup(char *str)
 
 __setup("sysrq_always_enabled", sysrq_always_enabled_setup);
 
+
 static void sysrq_handle_loglevel(int key)
 {
 	int i;
@@ -762,8 +763,8 @@ static const struct input_device_id sysrq_ids[] = {
 	{
 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
 				INPUT_DEVICE_ID_MATCH_KEYBIT,
-		.evbit = { BIT_MASK(EV_KEY) },
-		.keybit = { BIT_MASK(KEY_LEFTALT) },
+		.evbit = { [BIT_WORD(EV_KEY)] = BIT_MASK(EV_KEY) },
+		.keybit = { [BIT_WORD(KEY_LEFTALT)] = BIT_MASK(KEY_LEFTALT) },
 	},
 	{ },
 };

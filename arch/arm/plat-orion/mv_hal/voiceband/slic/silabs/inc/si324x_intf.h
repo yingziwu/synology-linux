@@ -54,6 +54,7 @@
 */
 int Si324x_Reset (proslicChanType_ptr hProslic);
 
+
 /*
 ** Function: PROSLIC_Init
 **
@@ -157,6 +158,7 @@ int Si324x_VerifyPatch (proslicChanType_ptr hProslic, const proslicPatch *pPatch
 */
 int Si324x_EnableInterrupts (proslicChanType_ptr hProslic);
 int Si324x_DisableInterrupts (proslicChanType_ptr hProslic);
+
 
 int Si324x_SetLoopbackMode (proslicChanType_ptr hProslic, ProslicLoopbackModes newMode);
 
@@ -524,6 +526,7 @@ int Si324x_MWI (proslicChanType *pProslic,uInt8 lampOn);
 */
 int Si324x_ToneGenStart (proslicChanType *pProslic, uInt8 timerEn);
 
+
 /*
 ** Function: PROSLIC_StopTone
 **
@@ -538,6 +541,7 @@ int Si324x_ToneGenStart (proslicChanType *pProslic, uInt8 timerEn);
 */
 int Si324x_ToneGenStop (proslicChanType *pProslic);
 
+
 /*
 ** Function: PROSLIC_StartRing
 **
@@ -551,6 +555,7 @@ int Si324x_ToneGenStop (proslicChanType *pProslic);
 ** none
 */
 int Si324x_RingStart (proslicChanType *pProslic);
+
 
 /*
 ** Function: PROSLIC_StopRing
@@ -625,6 +630,7 @@ int Si324x_CheckCIDBuffer (proslicChanType *pProslic, uInt8 *fsk_buf_avail);
 ** none
 */
 int Si324x_PCMStart (proslicChanType *pProslic);
+
 
 /*
 ** Function: PROSLIC_StopPCM
@@ -736,6 +742,7 @@ int Si324x_GetLBCalResultPacked (proslicChanType *pProslic,int32 *result);
 int Si324x_LoadPreviousLBCal (proslicChanType *pProslic,int32 result1,int32 result2,int32 result3,int32 result4);
 int Si324x_LoadPreviousLBCalPacked (proslicChanType *pProslic,int32 *result);
 
+
 /*
 ** Function: Si3224_dbgSetTXGain
 **
@@ -763,5 +770,7 @@ int Si324x_dbgSetRXGain(proslicChanType *pProslic, int32 gain,
 ** Monitor line voltages and current
 */
 int Si324x_LineMonitor(proslicChanType *pProslic, proslicMonitorType *monitor);
+
+
 
 #endif

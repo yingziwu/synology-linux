@@ -126,6 +126,7 @@ static struct kobj_type ttm_bo_glob_kobj_type  = {
 	.default_attrs = ttm_bo_global_attrs
 };
 
+
 static inline uint32_t ttm_bo_type_flags(unsigned type)
 {
 	return 1 << (type);
@@ -1029,6 +1030,7 @@ int ttm_bo_mem_space(struct ttm_buffer_object *bo,
 		ttm_flag_masked(&cur_flags, placement->busy_placement[i],
 				~TTM_PL_MASK_MEMTYPE);
 
+
 		if (mem_type == TTM_PL_SYSTEM) {
 			mem->mem_type = mem_type;
 			mem->placement = cur_flags;
@@ -1099,24 +1101,32 @@ out_unlock:
 	return ret;
 }
 
-static int ttm_bo_mem_compat(struct ttm_placement *placement,
-			     struct ttm_mem_reg *mem)
+static bool ttm_bo_mem_compat(struct ttm_placement *placement,
+			      struct ttm_mem_reg *mem,
+			      uint32_t *new_flags)
 {
 	int i;
 
 	if (mem->mm_node && placement->lpfn != 0 &&
 	    (mem->start < placement->fpfn ||
 	     mem->start + mem->num_pages > placement->lpfn))
-		return -1;
+		return false;
 
 	for (i = 0; i < placement->num_placement; i++) {
-		if ((placement->placement[i] & mem->placement &
-			TTM_PL_MASK_CACHING) &&
-			(placement->placement[i] & mem->placement &
-			TTM_PL_MASK_MEM))
-			return i;
+		*new_flags = placement->placement[i];
+		if ((*new_flags & mem->placement & TTM_PL_MASK_CACHING) &&
+		    (*new_flags & mem->placement & TTM_PL_MASK_MEM))
+			return true;
 	}
-	return -1;
+
+	for (i = 0; i < placement->num_busy_placement; i++) {
+		*new_flags = placement->busy_placement[i];
+		if ((*new_flags & mem->placement & TTM_PL_MASK_CACHING) &&
+		    (*new_flags & mem->placement & TTM_PL_MASK_MEM))
+			return true;
+	}
+
+	return false;
 }
 
 int ttm_bo_validate(struct ttm_buffer_object *bo,
@@ -1125,6 +1135,7 @@ int ttm_bo_validate(struct ttm_buffer_object *bo,
 			bool no_wait_gpu)
 {
 	int ret;
+	uint32_t new_flags;
 
 	BUG_ON(!atomic_read(&bo->reserved));
 	/* Check that range is valid */
@@ -1135,8 +1146,7 @@ int ttm_bo_validate(struct ttm_buffer_object *bo,
 	/*
 	 * Check whether we need to move buffer.
 	 */
-	ret = ttm_bo_mem_compat(placement, &bo->mem);
-	if (ret < 0) {
+	if (!ttm_bo_mem_compat(placement, &bo->mem, &new_flags)) {
 		ret = ttm_bo_move_buffer(bo, placement, interruptible, no_wait_reserve, no_wait_gpu);
 		if (ret)
 			return ret;
@@ -1145,7 +1155,7 @@ int ttm_bo_validate(struct ttm_buffer_object *bo,
 		 * Use the access and other non-mapping-related flag bits from
 		 * the compatible memory placement flags to the active flags
 		 */
-		ttm_flag_masked(&bo->mem.placement, placement->placement[ret],
+		ttm_flag_masked(&bo->mem.placement, new_flags,
 				~TTM_PL_MASK_MEMTYPE);
 	}
 	/*
@@ -1485,6 +1495,7 @@ out_no_drp:
 }
 EXPORT_SYMBOL(ttm_bo_global_init);
 
+
 int ttm_bo_device_release(struct ttm_bo_device *bdev)
 {
 	int ret = 0;
@@ -1620,6 +1631,7 @@ void ttm_bo_unmap_virtual(struct ttm_buffer_object *bo)
 	ttm_bo_unmap_virtual_locked(bo);
 	ttm_mem_io_unlock(man);
 }
+
 
 EXPORT_SYMBOL(ttm_bo_unmap_virtual);
 
@@ -1795,7 +1807,6 @@ static int ttm_bo_swapout(struct ttm_mem_shrink *shrink)
 	struct ttm_buffer_object *bo;
 	int ret = -EBUSY;
 	int put_count;
-	uint32_t swap_placement = (TTM_PL_FLAG_CACHED | TTM_PL_FLAG_SYSTEM);
 
 	spin_lock(&glob->lru_lock);
 	while (ret == -EBUSY) {
@@ -1848,7 +1859,8 @@ static int ttm_bo_swapout(struct ttm_mem_shrink *shrink)
 	if (unlikely(ret != 0))
 		goto out;
 
-	if ((bo->mem.placement & swap_placement) != swap_placement) {
+	if (bo->mem.mem_type != TTM_PL_SYSTEM ||
+	    bo->ttm->caching_state != tt_cached) {
 		struct ttm_mem_reg evict_mem;
 
 		evict_mem = bo->mem;

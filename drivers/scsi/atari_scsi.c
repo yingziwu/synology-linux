@@ -14,6 +14,7 @@
  *
  */
 
+
 /**************************************************************************/
 /*                                                                        */
 /* Notes for Falcon SCSI:                                                 */
@@ -61,6 +62,8 @@
 /* have not produced any deadlock possibilities!                          */
 /*                                                                        */
 /**************************************************************************/
+
+
 
 #include <linux/module.h>
 
@@ -126,6 +129,7 @@
 	   (unsigned long)tt_scsi_dma.elt##_lmd) << 8) |	\
 	 (unsigned long)tt_scsi_dma.elt##_lo)
 
+
 static inline void SCSI_DMA_SETADR(unsigned long adr)
 {
 	st_dma.dma_lo = (unsigned char)adr;
@@ -166,6 +170,7 @@ static inline void DISABLE_IRQ(void)
 		atari_disable_irq(IRQ_MFP_FSCSI);
 }
 
+
 #define HOSTDATA_DMALEN		(((struct NCR5380_hostdata *) \
 				(atari_scsi_host->hostdata))->dma_len)
 
@@ -201,6 +206,7 @@ static unsigned char atari_scsi_falcon_reg_read(unsigned char reg);
 static void atari_scsi_falcon_reg_write(unsigned char reg, unsigned char value);
 
 /************************* End of Prototypes **************************/
+
 
 static struct Scsi_Host *atari_scsi_host;
 static unsigned char (*atari_scsi_reg_read)(unsigned char reg);
@@ -242,6 +248,7 @@ module_param(setup_use_tagged_queuing, int, 0);
 static int setup_hostid = -1;
 module_param(setup_hostid, int, 0);
 
+
 #if defined(REAL_DMA)
 
 static int scsi_dma_is_ignored_buserr(unsigned char dma_stat)
@@ -264,6 +271,7 @@ static int scsi_dma_is_ignored_buserr(unsigned char dma_stat)
 	}
 	return 0;
 }
+
 
 #if 0
 /* Dead code... wasn't called anyway :-) and causes some trouble, because at
@@ -296,6 +304,7 @@ static void scsi_dma_buserr(int irq, void *dummy)
 #endif
 
 #endif
+
 
 static irqreturn_t scsi_tt_intr(int irq, void *dummy)
 {
@@ -389,6 +398,7 @@ static irqreturn_t scsi_tt_intr(int irq, void *dummy)
 	return IRQ_HANDLED;
 }
 
+
 static irqreturn_t scsi_falcon_intr(int irq, void *dummy)
 {
 #ifdef REAL_DMA
@@ -448,6 +458,7 @@ static irqreturn_t scsi_falcon_intr(int irq, void *dummy)
 	return IRQ_HANDLED;
 }
 
+
 #ifdef REAL_DMA
 static void atari_scsi_fetch_restbytes(void)
 {
@@ -472,6 +483,7 @@ static void atari_scsi_fetch_restbytes(void)
 	}
 }
 #endif /* REAL_DMA */
+
 
 static int falcon_got_lock = 0;
 static DECLARE_WAIT_QUEUE_HEAD(falcon_fairness_wait);
@@ -558,6 +570,7 @@ static void falcon_get_lock(void)
 	if (!falcon_got_lock)
 		panic("Falcon SCSI: someone stole the lock :-(\n");
 }
+
 
 int __init atari_scsi_detect(struct scsi_host_template *host)
 {
@@ -805,6 +818,7 @@ int atari_scsi_bus_reset(Scsi_Cmnd *cmd)
 	return rv;
 }
 
+
 #ifdef CONFIG_ATARI_SCSI_RESET_BOOT
 static void __init atari_scsi_reset_boot(void)
 {
@@ -837,12 +851,14 @@ static void __init atari_scsi_reset_boot(void)
 }
 #endif
 
+
 const char *atari_scsi_info(struct Scsi_Host *host)
 {
 	/* atari_scsi_detect() is verbose enough... */
 	static const char string[] = "Atari native SCSI";
 	return string;
 }
+
 
 #if defined(REAL_DMA)
 
@@ -912,10 +928,12 @@ unsigned long atari_scsi_dma_setup(struct Scsi_Host *instance, void *data,
 	return count;
 }
 
+
 static long atari_scsi_dma_residual(struct Scsi_Host *instance)
 {
 	return atari_dma_residual;
 }
+
 
 #define	CMD_SURELY_BLOCK_MODE	0
 #define	CMD_SURELY_BYTE_MODE	1
@@ -941,6 +959,7 @@ static int falcon_classify_cmd(Scsi_Cmnd *cmd)
 	} else
 		return CMD_MODE_UNKNOWN;
 }
+
 
 /* This function calculates the number of bytes that can be transferred via
  * DMA. On the TT, this is arbitrary, but on the Falcon we have to use the
@@ -1034,7 +1053,9 @@ static unsigned long atari_dma_xfer_len(unsigned long wanted_len,
 	return possible_len;
 }
 
+
 #endif	/* REAL_DMA */
+
 
 /* NCR5380 register access functions
  *
@@ -1065,6 +1086,7 @@ static void atari_scsi_falcon_reg_write(unsigned char reg, unsigned char value)
 	dma_wd.fdc_acces_seccount = (u_short)value;
 }
 
+
 #include "atari_NCR5380.c"
 
 static struct scsi_host_template driver_template = {
@@ -1082,6 +1104,7 @@ static struct scsi_host_template driver_template = {
 	.cmd_per_lun		= 0, /* initialized at run-time */
 	.use_clustering		= DISABLE_CLUSTERING
 };
+
 
 #include "scsi_module.c"
 

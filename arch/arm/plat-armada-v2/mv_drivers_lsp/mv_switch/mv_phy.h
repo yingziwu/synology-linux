@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -26,6 +27,7 @@ disclaimer.
 *******************************************************************************/
 #ifndef __mv_phy_h__
 #define __mv_phy_h__
+
 
 int mv_phy_port_power_state_set(unsigned int lport, GT_BOOL state);
 int mv_phy_port_power_state_get(unsigned int lport, GT_BOOL *state);

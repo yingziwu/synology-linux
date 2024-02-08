@@ -1,7 +1,15 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/* al_eth_sysfs.c: AnnapurnaLabs Unified 1GbE and 10GbE ethernet driver.
+ *
+ * Copyright (c) 2013 AnnapurnaLabs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation.
+ */
+
 #include <linux/version.h>
 #include <linux/sysdev.h>
 #include <linux/device.h>
@@ -355,7 +363,7 @@ struct dev_ext_attribute dev_attr_serdes_params[] = {
 	AL_ETH_SERDES_RX_PARAMS_ATTR(high_freq_agc_boost)
 };
 #endif
-#endif  
+#endif //CONFIG_SYNO_ALPINE_A0
 static ssize_t al_eth_store_max_rx_buff_alloc_size(struct device *dev,
 					      struct device_attribute *attr,
 					      const char *buf, size_t len)
@@ -389,7 +397,7 @@ static struct device_attribute dev_attr_max_rx_buff_alloc_size = {
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,8,0)
 #ifdef CONFIG_SYNO_ALPINE_A0
- 
+//Do nothing
 #else
 #define to_ext_attr(x) container_of(x, struct sysdev_ext_attribute, attr)
 #endif
@@ -418,6 +426,8 @@ static ssize_t wr_udma_dump(
 	const char *buf,
 	size_t count);
 
+
+/* Device attrs - udma debug */
 static struct dev_ext_attribute dev_attr_udma_debug[] = {
 	UDMA_DUMP_PREP_ATTR(m2s_regs, UDMA_DUMP_M2S_REGS),
 	UDMA_DUMP_PREP_ATTR(m2s_q_struct, UDMA_DUMP_M2S_Q_STRUCT),
@@ -427,7 +437,8 @@ static struct dev_ext_attribute dev_attr_udma_debug[] = {
 	UDMA_DUMP_PREP_ATTR(s2m_q_pointers, UDMA_DUMP_S2M_Q_POINTERS)
 };
 #endif
- 
+/******************************************************************************
+ *****************************************************************************/
 int al_eth_sysfs_init(
 	struct device *dev)
 {
@@ -493,6 +504,8 @@ done:
 	return status;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 void al_eth_sysfs_terminate(
 	struct device *dev)
 {
@@ -525,6 +538,9 @@ void al_eth_sysfs_terminate(
 	device_remove_file(dev, &dev_attr_force_1000_base_x);
 #endif
 }
+
+/******************************************************************************
+ *****************************************************************************/
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,8,0)
 static ssize_t rd_udma_dump(
@@ -568,6 +584,8 @@ static ssize_t rd_udma_dump(
 struct al_eth_adapter;
 extern struct al_udma *al_eth_udma_get(struct al_eth_adapter *adapter, int tx);
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t wr_udma_dump(
 	struct device *dev,
 	struct device_attribute *attr,
@@ -618,3 +636,4 @@ static ssize_t wr_udma_dump(
 	return count;
 }
 #endif
+

@@ -65,6 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __MV_SYS_NETA_API_H__
 #define __MV_SYS_NETA_API_H__
 
+
 void mvSysNetaInit(MV_U32 portMask, MV_U32 cpuMask);
 
 #endif /* __MV_SYS_NETA_API_H__ */

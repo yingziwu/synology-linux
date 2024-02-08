@@ -42,6 +42,7 @@
  *-----------------------------------------------------------------------------
  */
 
+
 #if defined(__FreeBSD__) || defined(__NetBSD__)
 #include <sys/types.h>
 #else
@@ -52,6 +53,8 @@
 #endif
 #endif
 
+
+
 typedef int status_t;
 
 #define SBE_DRVR_FAIL     0
@@ -61,6 +64,7 @@ typedef int status_t;
 extern      "C"
 {
 #endif
+
 
 /********************/
 /* PMCC4 memory Map */
@@ -134,7 +138,6 @@ void        sbeid_set_bdtype (ci_t * ci);
 void        sbeid_set_hdwbid (ci_t * ci);
 u_int32_t   sbeCrc (u_int8_t *, u_int32_t, u_int32_t, u_int32_t *);
 
-void        VMETRO_TRACE (void *);       /* put data into 8 LEDs */
 void        VMETRO_TRIGGER (ci_t *, int);       /* Note: int = 0(default)
                                                  * thru 15 */
 

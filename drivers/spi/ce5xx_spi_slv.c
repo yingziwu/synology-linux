@@ -77,6 +77,7 @@ struct spi_slv{
 	 u32 phy_len;
 	 s32 irq;
 
+
 #define SPI_SLV_CIRC_SIZE    (4*1024)
  /* tx/rv circ buf */
  	struct circ_buf tx;
@@ -92,6 +93,7 @@ struct spi_slv{
 
 	 struct completion done;
  
+
 	 int (*transmitter)(struct spi_slv *slv);
 	 int (*receiver)(struct spi_slv *slv);
  
@@ -428,6 +430,7 @@ static void spi_slv_pump_messages(struct work_struct *work)
 
  }
 
+	 
 static struct spi_board_info info[1];
 
 static int __devinit spi_slv_probe(struct pci_dev *pdev,
@@ -521,6 +524,7 @@ static int __devinit spi_slv_probe(struct pci_dev *pdev,
 			 goto out_iounmap;
 	 }
 		 
+ 
 		 /* alloc work queue */
 	 slv->workqueue = create_singlethread_workqueue("spi_slave");
  
@@ -543,6 +547,7 @@ static int __devinit spi_slv_probe(struct pci_dev *pdev,
 	 
 out_destroy_queue:
 	 destroy_workqueue(slv->workqueue);
+	 
 	 
 out_free_irq:
 	 free_irq(slv->irq, slv);
@@ -637,6 +642,7 @@ static void __devexit spi_slv_remove(struct pci_dev *pdev)
  {
 	 return pci_register_driver(&spi_slv_driver);
  }
+ 
  
  static void __exit spi_slv_exit(void)
  {

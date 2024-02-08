@@ -230,6 +230,7 @@ static int armadaxp_cpufreq_cpu_init(struct cpufreq_policy *policy)
 	return cpufreq_frequency_table_cpuinfo(policy, armadaxp_freqs);
 }
 
+
 static int armadaxp_cpufreq_cpu_exit(struct cpufreq_policy *policy)
 {
 	cpufreq_frequency_table_put_attr(policy->cpu);
@@ -240,6 +241,7 @@ static struct freq_attr *armadaxp_freq_attr[] = {
 	&cpufreq_freq_attr_scaling_available_freqs,
 	NULL,
 };
+
 
 static struct cpufreq_driver armadaxp_freq_driver = {
 	.name           = "armadaxp_cpufreq",
@@ -275,6 +277,7 @@ static int mv_cpu_freq_write(struct file *file, const char *buffer,
 
 	return count;
 }
+
 
 static int mv_cpu_freq_read(char *buffer, char **buffer_location, off_t offset,
 		int buffer_length, int *zero, void *ptr)
@@ -314,3 +317,5 @@ static void __exit armadaxp_cpufreq_exit(void)
 }
 
 device_initcall(armadaxp_cpufreq_init);
+
+

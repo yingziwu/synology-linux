@@ -136,6 +136,7 @@ static u64 parse_audio_format_i_type(struct snd_usb_audio *chip,
 	return pcm_formats;
 }
 
+
 /*
  * parse the format descriptor and stores the possible sample rates
  * on the audioformat table (audio class v1).
@@ -225,7 +226,7 @@ static int parse_uac2_sample_rate_range(struct audioformat *fp, int nr_triplets,
 		int min = combine_quad(&data[2 + 12 * i]);
 		int max = combine_quad(&data[6 + 12 * i]);
 		int res = combine_quad(&data[10 + 12 * i]);
-		int rate;
+		unsigned int rate;
 
 		if ((max < 0) || (min < 0) || (res < 0) || (max < min))
 			continue;
@@ -252,6 +253,10 @@ static int parse_uac2_sample_rate_range(struct audioformat *fp, int nr_triplets,
 			fp->rates |= snd_pcm_rate_to_rate_bit(rate);
 
 			nr_rates++;
+			if (nr_rates >= MAX_NR_RATES) {
+				snd_printk(KERN_ERR "invalid uac2 rates\n");
+				break;
+			}
 
 			/* avoid endless loop */
 			if (res == 0)
@@ -507,3 +512,4 @@ int snd_usb_parse_audio_format(struct snd_usb_audio *chip, struct audioformat *f
 #endif
 	return 0;
 }
+

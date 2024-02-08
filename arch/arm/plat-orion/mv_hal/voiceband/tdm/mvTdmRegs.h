@@ -217,6 +217,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CH_TX_DELAY_OFFS	16
 #define CH_TX_DELAY_MASK	(0x3ff<<CH_RX_DELAY_OFFS)
 
+
 /*********************************/
 /*        SPI Register Map       */
 /*********************************/

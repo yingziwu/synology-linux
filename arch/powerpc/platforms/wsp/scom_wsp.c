@@ -22,6 +22,7 @@
 
 #include "wsp.h"
 
+
 static scom_map_t wsp_scom_map(struct device_node *dev, u64 reg, u64 count)
 {
 	struct resource r;

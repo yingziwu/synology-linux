@@ -85,3 +85,4 @@ void __exit stop_aurora_dbg(void)
 }
 module_init(start_aurora_dbg);
 module_exit(stop_aurora_dbg);
+

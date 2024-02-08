@@ -1026,6 +1026,7 @@ brcmf_cfg80211_join_ibss(struct wiphy *wiphy, struct net_device *ndev,
 
 	cfg_priv->ibss_starter = false;
 
+
 	err = brcmf_exec_dcmd(ndev, BRCMF_C_SET_SSID,
 			   &join_params, join_params_size);
 	if (err) {
@@ -2464,7 +2465,7 @@ static s32 brcmf_init_iscan(struct brcmf_cfg80211_priv *cfg_priv)
 	return err;
 }
 
-static void brcmf_delay(u32 ms)
+static __always_inline void brcmf_delay(u32 ms)
 {
 	if (ms < 1000 / HZ) {
 		cond_resched();

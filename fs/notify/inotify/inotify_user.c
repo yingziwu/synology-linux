@@ -344,6 +344,7 @@ static const struct file_operations inotify_fops = {
 	.llseek		= noop_llseek,
 };
 
+
 /*
  * find_inode - resolve a user-given path to a specific inode
  */
@@ -576,7 +577,6 @@ static int inotify_update_existing_watch(struct fsnotify_group *group,
 	int add = (arg & IN_MASK_ADD);
 	int ret;
 
-	/* don't allow invalid bits: we don't want flags set */
 	mask = inotify_arg_to_mask(arg);
 
 	fsn_mark = fsnotify_find_inode_mark(group, inode);
@@ -627,7 +627,6 @@ static int inotify_new_watch(struct fsnotify_group *group,
 	struct idr *idr = &group->inotify_data.idr;
 	spinlock_t *idr_lock = &group->inotify_data.idr_lock;
 
-	/* don't allow invalid bits: we don't want flags set */
 	mask = inotify_arg_to_mask(arg);
 
 	tmp_i_mark = kmem_cache_alloc(inotify_inode_mark_cachep, GFP_KERNEL);
@@ -714,6 +713,7 @@ static struct fsnotify_group *inotify_new_group(unsigned int max_events)
 	return group;
 }
 
+
 /* inotify syscalls */
 SYSCALL_DEFINE1(inotify_init1, int, flags)
 {
@@ -754,6 +754,10 @@ SYSCALL_DEFINE3(inotify_add_watch, int, fd, const char __user *, pathname,
 	struct file *filp;
 	int ret, fput_needed;
 	unsigned flags = 0;
+
+	/* don't allow invalid bits: we don't want flags set */
+	if (unlikely(!(mask & ALL_INOTIFY_BITS)))
+		return -EINVAL;
 
 	filp = fget_light(fd, &fput_needed);
 	if (unlikely(!filp))

@@ -59,6 +59,7 @@ static RADIX_TREE(hwspinlock_tree, GFP_KERNEL);
  */
 static DEFINE_MUTEX(hwspinlock_tree_lock);
 
+
 /**
  * __hwspin_trylock() - attempt to lock a specific hwspinlock
  * @hwlock: an hwspinlock which we want to trylock
@@ -415,6 +416,8 @@ static int __hwspin_lock_request(struct hwspinlock *hwlock)
 	ret = pm_runtime_get_sync(dev);
 	if (ret < 0) {
 		dev_err(dev, "%s: can't power on device\n", __func__);
+		pm_runtime_put_noidle(dev);
+		module_put(dev->driver->owner);
 		return ret;
 	}
 

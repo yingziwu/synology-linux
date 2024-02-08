@@ -748,6 +748,7 @@ program_interrupt:
 		break;
 	}
 
+
 	if (!(r & RESUME_HOST)) {
 		/* To avoid clobbering exit_reason, only check for signals if
 		 * we aren't already exiting to userspace for some other

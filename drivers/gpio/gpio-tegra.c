@@ -74,6 +74,7 @@ struct tegra_gpio_bank {
 #endif
 };
 
+
 static void __iomem *regs;
 static struct tegra_gpio_bank tegra_gpio_banks[7];
 
@@ -229,7 +230,7 @@ static void tegra_gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
 	struct tegra_gpio_bank *bank;
 	int port;
 	int pin;
-	int unmasked = 0;
+	bool unmasked = false;
 	struct irq_chip *chip = irq_desc_get_chip(desc);
 
 	chained_irq_enter(chip, desc);
@@ -249,8 +250,8 @@ static void tegra_gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
 			 * before executing the hander so that we don't
 			 * miss edges
 			 */
-			if (lvl & (0x100 << pin)) {
-				unmasked = 1;
+			if (!unmasked && lvl & (0x100 << pin)) {
+				unmasked = true;
 				chained_irq_exit(chip, desc);
 			}
 
@@ -327,6 +328,7 @@ static struct irq_chip tegra_gpio_irq_chip = {
 	.irq_set_wake	= tegra_gpio_wake_enable,
 #endif
 };
+
 
 /* This lock class tells lockdep that GPIO irqs are in a different
  * category than their parents, so it won't report false recursion.

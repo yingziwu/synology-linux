@@ -113,6 +113,9 @@ static const DWORD s_adwCrc32Table[256] = {
 
 /*---------------------  Export Variables  --------------------------*/
 
+
+
+
 /*+
  *
  * Description:
@@ -143,6 +146,7 @@ DWORD CRCdwCrc32(PBYTE pbyData, unsigned int cbByte, DWORD dwCrcSeed)
 	return dwCrc;
 }
 
+
 /*+
  *
  * Description:
@@ -165,6 +169,7 @@ DWORD CRCdwGetCrc32(PBYTE pbyData, unsigned int cbByte)
 {
     return ~CRCdwCrc32(pbyData, cbByte, 0xFFFFFFFFL);
 }
+
 
 /*+
  *
@@ -190,3 +195,5 @@ DWORD CRCdwGetCrc32Ex(PBYTE pbyData, unsigned int cbByte, DWORD dwPreCRC)
 {
     return CRCdwCrc32(pbyData, cbByte, dwPreCRC);
 }
+
+

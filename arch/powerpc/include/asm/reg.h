@@ -694,6 +694,7 @@
 #define SPRN_BKMK	1020	/* Cell Bookmark Register */
 #define SPRN_PA6T_RPCCR	1021	/* Retire PC Trace Control Register */
 
+
 #else /* 32-bit */
 #define SPRN_MMCR0	952	/* Monitor Mode Control Register 0 */
 #define   MMCR0_FC	0x80000000UL /* freeze counters */
@@ -908,6 +909,8 @@
 #define SPRN_SPRG_SCRATCH1	SPRN_SPRG1
 #endif
 
+
+
 /*
  * An mtfsf instruction with the L bit set. On CPUs that support this a
  * full 64bits of FPSCR is restored and on other CPUs the L bit is ignored.
@@ -1051,7 +1054,9 @@
 				"	.llong 0\n"			\
 				"	.llong 0\n"			\
 				".previous"				\
-			: "=r" (rval) : "i" (CPU_FTR_CELL_TB_BUG)); rval;})
+			: "=r" (rval) \
+			: "i" (CPU_FTR_CELL_TB_BUG) : "cr0"); \
+			rval;})
 #else
 #define mftb()		({unsigned long rval;	\
 			asm volatile("mftb %0" : "=r" (rval)); rval;})

@@ -31,6 +31,7 @@ struct nv31_mpeg_engine {
 	atomic_t refcount;
 };
 
+
 static int
 nv31_mpeg_context_new(struct nouveau_channel *chan, int engine)
 {

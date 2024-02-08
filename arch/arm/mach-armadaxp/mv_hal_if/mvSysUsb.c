@@ -101,3 +101,4 @@ MV_STATUS   mvSysUsbInit(MV_U32 dev, MV_BOOL isHost)
 
 	return status;
 }
+

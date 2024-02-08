@@ -46,3 +46,5 @@ unsigned long omap2xxx_sys_clk_recalc(struct clk *clk)
 {
 	return clk->parent->rate / omap2xxx_get_sysclkdiv();
 }
+
+

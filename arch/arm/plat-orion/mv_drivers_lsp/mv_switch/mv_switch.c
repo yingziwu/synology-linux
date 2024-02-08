@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -170,6 +171,7 @@ static char *mv_str_pause_state(int switch_num, int port)
 	return (pause) ? "Enable" : "Disable";
 }
 
+
 static char *mv_str_egress_mode(GT_EGRESS_MODE mode)
 {
 	switch (mode) {
@@ -237,6 +239,7 @@ int mv_switch_get_free_buffers_num(int switch_num)
 
 	return regVal;
 }
+
 
 #define QD_FMT "%10lu %10lu %10lu %10lu %10lu %10lu %10lu\n"
 #define QD_CNT(c, f) (GT_U32)c[0].f, (GT_U32)c[1].f, (GT_U32)c[2].f, (GT_U32)c[3].f, (GT_U32)c[4].f, (GT_U32)c[5].f, (GT_U32)c[6].f
@@ -318,6 +321,7 @@ void mv_switch_stats_print(int switch_num)
 
 	gstatsFlushAll(qd);
 }
+
 
 void mv_switch_status_print(int switch_num)
 {
@@ -460,6 +464,7 @@ int mv_switch_reg_write(int switch_num, int port, int reg, int type, MV_U16 valu
 	return 0;
 }
 
+
 GT_BOOL readMiiWrap(GT_QD_DEV* dev, unsigned int port, unsigned int MIIReg, unsigned int* value)
 {
     unsigned long   flags;
@@ -477,6 +482,7 @@ GT_BOOL readMiiWrap(GT_QD_DEV* dev, unsigned int port, unsigned int MIIReg, unsi
 
     return GT_FALSE;
 }
+
 
 GT_BOOL writeMiiWrap(GT_QD_DEV* dev, unsigned int port, unsigned int MIIReg, unsigned int data)
 {

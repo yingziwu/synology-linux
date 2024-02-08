@@ -55,6 +55,7 @@
 #include <sound/initval.h>
 #include "hda_codec.h"
 
+
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;
 static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;
@@ -134,6 +135,7 @@ MODULE_PARM_DESC(snoop, "Enable/disable snooping");
 #define hda_snoop		true
 #define azx_snoop(chip)		true
 #endif
+
 
 MODULE_LICENSE("GPL");
 MODULE_SUPPORTED_DEVICE("{{Intel, ICH6},"
@@ -821,6 +823,7 @@ static unsigned int azx_rirb_get_response(struct hda_bus *bus,
 		goto again;
 	}
 
+
 	if (!chip->polling_mode) {
 		snd_printk(KERN_WARNING SFX "azx_get_response timeout, "
 			   "switching to polling mode: last cmd=0x%08x\n",
@@ -1027,6 +1030,7 @@ static int azx_reset(struct azx *chip, int full_reset)
 	return 0;
 }
 
+
 /*
  * Lowlevel interface
  */  
@@ -1112,6 +1116,7 @@ static void azx_stream_stop(struct azx *chip, struct azx_dev *azx_dev)
 	azx_writel(chip, INTCTL,
 		   azx_readl(chip, INTCTL) & ~(1 << azx_dev->index));
 }
+
 
 /*
  * reset and start the controller registers
@@ -1220,6 +1225,7 @@ static void azx_init_pci(struct azx *chip)
         }
 }
 
+
 static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev);
 
 /*
@@ -1285,6 +1291,7 @@ static irqreturn_t azx_interrupt(int irq, void *dev_id)
 	
 	return IRQ_HANDLED;
 }
+
 
 /*
  * set up a BDL entry
@@ -1612,6 +1619,7 @@ static int __devinit azx_codec_configure(struct azx *chip)
 	}
 	return 0;
 }
+
 
 /*
  * PCM support
@@ -2273,6 +2281,7 @@ static int __devinit azx_mixer_create(struct azx *chip)
 	return snd_hda_build_controls(chip->bus);
 }
 
+
 /*
  * initialize SD streams
  */
@@ -2314,6 +2323,7 @@ static int azx_acquire_irq(struct azx *chip, int do_disconnect)
 	pci_intx(chip->pci, !chip->msi);
 	return 0;
 }
+
 
 static void azx_stop_chip(struct azx *chip)
 {
@@ -2426,6 +2436,7 @@ static int azx_resume(struct pci_dev *pci)
 	return 0;
 }
 #endif /* CONFIG_PM */
+
 
 /*
  * reboot notifier for hang-up problem at power-down
@@ -2607,9 +2618,14 @@ static void __devinit check_probe_mask(struct azx *chip, int dev)
  * white/black-list for enable_msi
  */
 static struct snd_pci_quirk msi_black_list[] __devinitdata = {
+	SND_PCI_QUIRK(0x103c, 0x2191, "HP", 0), /* AMD Hudson */
+	SND_PCI_QUIRK(0x103c, 0x2192, "HP", 0), /* AMD Hudson */
+	SND_PCI_QUIRK(0x103c, 0x21f7, "HP", 0), /* AMD Hudson */
+	SND_PCI_QUIRK(0x103c, 0x21fa, "HP", 0), /* AMD Hudson */
 	SND_PCI_QUIRK(0x1043, 0x81f2, "ASUS", 0), /* Athlon64 X2 + nvidia */
 	SND_PCI_QUIRK(0x1043, 0x81f6, "ASUS", 0), /* nvidia */
 	SND_PCI_QUIRK(0x1043, 0x822d, "ASUS", 0), /* Athlon64 X2 + nvidia MCP55 */
+	SND_PCI_QUIRK(0x1179, 0xfb44, "Toshiba Satellite C870", 0), /* AMD Hudson */
 	SND_PCI_QUIRK(0x1849, 0x0888, "ASRock", 0), /* Athlon64 X2 + nvidia */
 	SND_PCI_QUIRK(0xa0a0, 0x0575, "Aopen MZ915-M", 0), /* ICH6 */
 	{}
@@ -2640,6 +2656,7 @@ static void __devinit check_msi(struct azx *chip)
 	}
 }
 
+
 /*
  * constructor
  */
@@ -2650,6 +2667,7 @@ static int __devinit azx_create(struct snd_card *card, struct pci_dev *pci,
 	struct azx *chip;
 	int i, err;
 	unsigned short gcap;
+	unsigned int dma_bits = 64;
 	static struct snd_device_ops ops = {
 		.dev_free = azx_dev_free,
 	};
@@ -2737,9 +2755,14 @@ static int __devinit azx_create(struct snd_card *card, struct pci_dev *pci,
 	gcap = azx_readw(chip, GCAP);
 	snd_printdd(SFX "chipset global capabilities = 0x%x\n", gcap);
 
+	/* AMD devices support 40 or 48bit DMA, take the safe one */
+	if (chip->pci->vendor == PCI_VENDOR_ID_AMD)
+		dma_bits = 40;
+
 	/* disable SB600 64bit support for safety */
 	if (chip->pci->vendor == PCI_VENDOR_ID_ATI) {
 		struct pci_dev *p_smbus;
+		dma_bits = 40;
 		p_smbus = pci_get_device(PCI_VENDOR_ID_ATI,
 					 PCI_DEVICE_ID_ATI_SBX00_SMBUS,
 					 NULL);
@@ -2762,9 +2785,11 @@ static int __devinit azx_create(struct snd_card *card, struct pci_dev *pci,
 		chip->align_buffer_size = 0;
 
 	/* allow 64bit DMA address if supported by H/W */
-	if ((gcap & ICH6_GCAP_64OK) && !pci_set_dma_mask(pci, DMA_BIT_MASK(64)))
-		pci_set_consistent_dma_mask(pci, DMA_BIT_MASK(64));
-	else {
+	if (!(gcap & ICH6_GCAP_64OK))
+		dma_bits = 32;
+	if (!pci_set_dma_mask(pci, DMA_BIT_MASK(dma_bits))) {
+		pci_set_consistent_dma_mask(pci, DMA_BIT_MASK(dma_bits));
+	} else {
 		pci_set_dma_mask(pci, DMA_BIT_MASK(32));
 		pci_set_consistent_dma_mask(pci, DMA_BIT_MASK(32));
 	}
@@ -3020,6 +3045,9 @@ static DEFINE_PCI_DEVICE_TABLE(azx_ids) = {
 	/* AMD Hudson */
 	{ PCI_DEVICE(0x1022, 0x780d),
 	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_ATI_SB },
+	/* AMD Raven */
+	{ PCI_DEVICE(0x1022, 0x15e3),
+	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_ATI_SB },
 	/* ATI HDMI */
 	{ PCI_DEVICE(0x1002, 0x793b),
 	  .driver_data = AZX_DRIVER_ATIHDMI | AZX_DCAPS_PRESET_ATI_HDMI },
@@ -3074,11 +3102,13 @@ static DEFINE_PCI_DEVICE_TABLE(azx_ids) = {
 	  .class = PCI_CLASS_MULTIMEDIA_HD_AUDIO << 8,
 	  .class_mask = 0xffffff,
 	  .driver_data = AZX_DRIVER_CTX | AZX_DCAPS_CTX_WORKAROUND |
+	  AZX_DCAPS_NO_64BIT |
 	  AZX_DCAPS_RIRB_PRE_DELAY | AZX_DCAPS_POSFIX_LPIB },
 #else
 	/* this entry seems still valid -- i.e. without emu20kx chip */
 	{ PCI_DEVICE(0x1102, 0x0009),
 	  .driver_data = AZX_DRIVER_CTX | AZX_DCAPS_CTX_WORKAROUND |
+	  AZX_DCAPS_NO_64BIT |
 	  AZX_DCAPS_RIRB_PRE_DELAY | AZX_DCAPS_POSFIX_LPIB },
 #endif
 	/* Vortex86MX */

@@ -22,6 +22,7 @@
 #define PRINT_USER_FAULTS /* (turn this on if you want user faults to be */
 			 /*  dumped to the console via printk)          */
 
+
 /* Various important other fields */
 #define bit22set(x)		(x & 0x00000200)
 #define bits23_25set(x)		(x & 0x000001c0)
@@ -29,6 +30,7 @@
 				/* extended opcode is 0x6a */
 
 #define BITSSET		0x1c0	/* for identifying LDCW */
+
 
 DEFINE_PER_CPU(struct exception_data, exception_data);
 
@@ -115,6 +117,7 @@ parisc_acctyp(unsigned long code, unsigned int inst)
 #undef isGraphicsFlushRead
 #undef BITSSET
 
+
 #if 0
 /* This is the treewalk to find a vma which is the highest that has
  * a start < addr.  We're using find_vma_prev instead right now, but
@@ -144,6 +147,7 @@ int fixup_exception(struct pt_regs *regs)
 		struct exception_data *d;
 		d = &__get_cpu_var(exception_data);
 		d->fault_ip = regs->iaoq[0];
+		d->fault_gp = regs->gr[27];
 		d->fault_space = regs->isr;
 		d->fault_addr = regs->ior;
 
@@ -207,6 +211,8 @@ good_area:
 		 */
 		if (fault & VM_FAULT_OOM)
 			goto out_of_memory;
+		else if (fault & VM_FAULT_SIGSEGV)
+			goto bad_area;
 		else if (fault & VM_FAULT_SIGBUS)
 			goto bad_area;
 		BUG();

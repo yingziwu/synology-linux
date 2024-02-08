@@ -88,6 +88,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MV_SEMA_BARRIER(cpu)	(50 + cpu)
 
+
 MV_BOOL mvSemaLock(MV_32 num);
 MV_BOOL mvSemaTryLock(MV_32 num);
 MV_BOOL mvSemaUnlock(MV_32 num);

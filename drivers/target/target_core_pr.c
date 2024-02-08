@@ -317,6 +317,7 @@ out:
 	return ret;
 }
 
+
 /*
  * Begin SPC-3/SPC-4 Persistent Reservations emulation support
  *
@@ -3359,6 +3360,7 @@ static int core_scsi3_emulate_pro_preempt(
 
 	return ret;
 }
+
 
 static int core_scsi3_emulate_pro_register_and_move(
 	struct se_cmd *cmd,

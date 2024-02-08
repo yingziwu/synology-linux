@@ -273,6 +273,7 @@
 #define TSI721_DMAC_DSSZ_SIZE_M	0x0000000f
 #define TSI721_DMAC_DSSZ_SIZE(size)	(__fls(size) - 4)
 
+
 #define TSI721_DMAC_DSRP(x)	(0x51038 + (x) * 0x1000)
 #define TSI721_DMAC_DSRP_MASK	0x0007ffff
 

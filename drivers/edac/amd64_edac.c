@@ -607,6 +607,7 @@ static u64 sys_addr_to_input_addr(struct mem_ctl_info *mci, u64 sys_addr)
 	return input_addr;
 }
 
+
 /*
  * @input_addr is an InputAddr associated with the node represented by mci.
  * Translate @input_addr to a DramAddr and return the result.
@@ -1317,7 +1318,7 @@ static u64 f1x_get_norm_dct_addr(struct amd64_pvt *pvt, unsigned range,
 	u64 chan_off;
 	u64 dram_base		= get_dram_base(pvt, range);
 	u64 hole_off		= f10_dhar_offset(pvt);
-	u64 dct_sel_base_off	= (pvt->dct_sel_hi & 0xFFFFFC00) << 16;
+	u64 dct_sel_base_off	= (u64)(pvt->dct_sel_hi & 0xFFFFFC00) << 16;
 
 	if (hi_rng) {
 		/*
@@ -2363,6 +2364,7 @@ static void restore_ecc_error_reporting(struct ecc_settings *s, u8 nid,
 					struct pci_dev *F3)
 {
 	u32 value, mask = 0x3;		/* UECC/CECC enable */
+
 
 	if (!s->nbctl_valid)
 		return;

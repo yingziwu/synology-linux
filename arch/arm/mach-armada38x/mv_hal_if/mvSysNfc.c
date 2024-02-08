@@ -67,6 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlEnv/mvCtrlEnvLib.h"
 #include "nfc/mvNfc.h"
 
+
 /*******************************************************************************
 * mvSysNfcInit - Initialize the NAND Flash Controller subsystem
 *

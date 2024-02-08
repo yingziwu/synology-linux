@@ -72,6 +72,7 @@ ModFirewall=" \
 	${KernelDir}/net/netfilter/xt_limit.ko \
 	${KernelDir}/net/netfilter/xt_iprange.ko \
 	${KernelDir}/net/netfilter/xt_TCPMSS.ko \
+	${KernelDir}/net/netfilter/xt_policy.ko \
 	"
 ModIPv6FW=" \
 	${KernelDir}/net/ipv6/netfilter/ip6_tables.ko \
@@ -113,9 +114,16 @@ ModISCSI=" \
 	${KernelDir}/drivers/scsi/iscsi_tcp.ko \
 	"
 ModNFSD=" \
-	${KernelDir}/fs/exportfs/exportfs.ko \
 	${KernelDir}/fs/nfsd/nfsd.ko \
 	${KernelDir}/net/sunrpc/auth_gss/rpcsec_gss_krb5.ko \
+	"
+ModNFS=" \
+	${KernelDir}/fs/nfs/nfs.ko \
+	${KernelDir}/fs/lockd/lockd.ko \
+	"
+ModSUNRPC="\
+	${KernelDir}/net/sunrpc/sunrpc.ko \
+	${KernelDir}/net/sunrpc/auth_gss/auth_rpcgss.ko \
 	"
 ModCIFS=" \
 	${KernelDir}/fs/cifs/cifs.ko \
@@ -216,6 +224,21 @@ ModNFQ=" \
 	${KernelDir}/net/netfilter/nfnetlink_queue.ko \
 	${KernelDir}/net/netfilter/xt_NFQUEUE.ko \
 	"
+ModRaid=" \
+	${KernelDir}/drivers/md/dm-mod.ko \
+	${KernelDir}/drivers/md/dm-raid.ko \
+	${KernelDir}/drivers/md/linear.ko \
+	${KernelDir}/drivers/md/raid0.ko \
+	${KernelDir}/drivers/md/raid10.ko \
+	${KernelDir}/drivers/md/raid456.ko \
+	${KernelDir}/lib/raid6/raid6_pq.ko \
+	${KernelDir}/crypto/async_tx/async_tx.ko \
+	${KernelDir}/crypto/async_tx/async_memcpy.ko \
+	${KernelDir}/crypto/async_tx/async_xor.ko \
+	${KernelDir}/crypto/async_tx/async_pq.ko \
+	${KernelDir}/crypto/async_tx/async_raid6_recov.ko \
+	${KernelDir}/crypto/xor.ko \
+	"
 ModuleList=" \
 	${ModCrypto} \
 	${ModFS} \
@@ -231,6 +254,8 @@ ModuleList=" \
 	${ModTunnel} \
 	${ModISCSI} \
 	${ModNFSD} \
+	${ModNFS} \
+	${ModSUNRPC} \
 	${ModCIFS} \
 	${ModQuota} \
 	${ModSCSI} \
@@ -239,6 +264,7 @@ ModuleList=" \
 	${ModUSB} \
 	${ModUSBIP} \
 	${ModUSBWimax} \
+	${ModRaid} \
 	"
 ##################################################
 case "$BUILD_TARGET" in
@@ -263,27 +289,6 @@ ModOCF=" \
 	${KernelDir}/crypto/ocf/cryptodev.ko \
 	${KernelDir}/crypto/ocf/cryptosoft.ko \
 	${KernelDir}/crypto/ocf/ocf.ko \
-	"
-ModRaid=" \
-	${KernelDir}/drivers/md/dm-mod.ko \
-	${KernelDir}/drivers/md/linear.ko \
-	${KernelDir}/drivers/md/raid0.ko \
-	${KernelDir}/drivers/md/raid10.ko \
-	${KernelDir}/drivers/md/raid456.ko \
-	${KernelDir}/lib/raid6/raid6_pq.ko \
-	${KernelDir}/crypto/async_tx/async_tx.ko \
-	${KernelDir}/crypto/async_tx/async_memcpy.ko \
-	${KernelDir}/crypto/async_tx/async_xor.ko \
-	${KernelDir}/crypto/async_tx/async_pq.ko \
-	${KernelDir}/crypto/async_tx/async_raid6_recov.ko \
-	${KernelDir}/crypto/xor.ko \
-	"
-
-ModUSBModem=" \
-	${KernelDir}/drivers/usb/serial/usb_wwan_syno.ko \
-	${KernelDir}/drivers/usb/serial/option.ko \
-	${KernelDir}/drivers/usb/class/cdc-acm.ko \
-	${KernelDir}/drivers/usb/serial/sierra.ko \
 	"
 
 ##################################################
@@ -316,40 +321,34 @@ case "$BUILD_TARGET" in
 	MINDSPEED_COMCERTO2K)
 		ModuleList="${ModuleList} ${ModOCF}"
 		ModuleList="${ModuleList} ${KernelDir}/net/ipv4/netfilter/ipt_MASQUERADE.ko"
+		ModuleList="${ModuleList} ${KernelDir}/net/ipv4/inet_lro.ko"
+		ModuleList="${ModuleList} ${KernelDir}/net/ipv4/inet_diag.ko"
+		ModuleList="${ModuleList} ${KernelDir}/net/ipv4/tcp_diag.ko"
 		ModuleList="${ModuleList} ${KernelDir}/lib/zlib_deflate/zlib_deflate.ko"
+		ModuleList="${ModuleList} ${KernelDir}/lib/zlib_inflate/zlib_inflate.ko"
 		ModuleList="${ModuleList} ${KernelDir}/lib/crc-ccitt.ko"
+		ModuleList="${ModuleList} ${KernelDir}/lib/xz/xz_dec.ko"
 		ModuleList="${ModuleList} ${KernelDir}/crypto/arc4.ko"
 		#ModuleList="${ModuleList} ${KernelDir}/drivers/usb/usb-common.ko"
 		#ModuleList="${ModuleList} ${KernelDir}/drivers/usb/core/usbcore.ko"
 		#ModuleList="${ModuleList} ${KernelDir}/drivers/usb/host/ehci-hcd.ko"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/usb/host/xhci-hcd.ko"
 		#ModuleList="${ModuleList} ${KernelDir}/drivers/usb/host/etxhci-hcd.ko"
-		#ModuleList="${ModuleList} ${KernelDir}/drivers/usb/storage/usb-storage.ko"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/usb/storage/usb-storage.ko"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/usb/class/cdc-acm.ko"
 		ModuleList="${ModuleList} ${KernelDir}/crypto/ocf/m86xxx/m86xxx_elp.ko"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/mtd/maps/physmap.ko"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/input/input-core.ko"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/hwmon/syno_hddmon.ko"
 		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${ModRfkill}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModNetlink}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 		ModuleList="${ModuleList} ${ModNFQ}"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/aead.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/chainiv.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/crypto_algapi.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/crypto_blkcipher.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/crypto_hash.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/crypto_wq.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/cryptomgr.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/eseqiv.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/krng.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/pcompress.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/rng.ko"
-		ModuleList="${ModuleList} ${KernelDir}/crypto/crc32c.ko"
-		ModuleList="${ModuleList} ${ModRaid}"
 		ModuleList="${ModuleList} ${KernelDir}/arch/arm/lib/xor-neon.ko"
 
 		;;
@@ -369,7 +368,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModIPsec}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${ModRfkill}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${KernelDir}/crypto/cryptodev-linux/cryptodev.ko"
@@ -379,21 +377,9 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModZram}"
 
 		#Remove some buildin modules
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/aead.ko==g"`
 		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/aes_generic.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/chainiv.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/crypto_algapi.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/crypto_blkcipher.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/crypto_hash.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/crypto_wq.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/cryptomgr.ko==g"`
 		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/des_generic.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/eseqiv.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/krng.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/pcompress.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/rng.ko==g"`
 		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/sha256_generic.ko==g"`
-		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/crc32c.ko==g"`
 		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/ocf/m86xxx/m86xxx_elp.ko==g"`
 		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/ocf/cryptosoft.ko==g"`
 		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/ocf/ocf.ko==g"`
@@ -412,6 +398,8 @@ case "$BUILD_TARGET" in
 			${ModIPv6} \
 			${ModTunnel} \
 			${ModNFSD} \
+			${ModNFS} \
+			${ModSUNRPC} \
 			${ModPPP} \
 			${ModCIFS} \
 			${ModQuota} \
@@ -421,6 +409,7 @@ case "$BUILD_TARGET" in
 			${ModUSB} \
 			${ModUSBIP} \
 			${ModUSBWimax} \
+			${ModRaid} \
 			"
 		ModuleList="${ModuleList} ${ModMvCesa}"
 		ModuleList="${ModuleList} ${ModOCF}"
@@ -463,7 +452,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 		ModuleList="${ModuleList} ${ModNFQ}"
@@ -481,6 +469,8 @@ case "$BUILD_TARGET" in
 			${ModPPP} \
 			${ModTunnel} \
 			${ModNFSD} \
+			${ModNFS} \
+			${ModSUNRPC} \
 			${ModCIFS} \
 			${ModQuota} \
 			${ModSCSI} \
@@ -489,6 +479,7 @@ case "$BUILD_TARGET" in
 			${ModUSB} \
 			${ModUSBIP} \
 			${ModUSBWimax} \
+			${ModRaid} \
 			"
 		ModuleList="${ModuleList} ${ModMvCesa}"
 		ModuleList="${ModuleList} ${ModOCF}"
@@ -530,7 +521,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 		ModuleList="${ModuleList} ${ModNFQ}"
@@ -547,6 +537,8 @@ case "$BUILD_TARGET" in
 			${ModIPv6} \
 			${ModTunnel} \
 			${ModNFSD} \
+			${ModNFS} \
+			${ModSUNRPC} \
 			${ModPPP} \
 			${ModCIFS} \
 			${ModQuota} \
@@ -556,6 +548,7 @@ case "$BUILD_TARGET" in
 			${ModUSB} \
 			${ModUSBIP} \
 			${ModUSBWimax} \
+			${ModRaid} \
 			"
 		ModuleList="${ModuleList} ${ModMvCesa}"
 		ModuleList="${ModuleList} ${ModOCF}"
@@ -599,7 +592,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 		ModuleList="${ModuleList} ${ModNFQ}"
@@ -638,7 +630,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModZram}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
@@ -691,7 +682,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModZram}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
@@ -731,13 +721,36 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModZram}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 
 		;;
 	EVANSPORT)
+		ModuleList=" \
+			${ModCrypto} \
+			${ModFS} \
+			${ModEncFS} \
+			${ModFUSE} \
+			${ModISOFS} \
+			${Mod2Lan} \
+			${ModAppleTalk} \
+			${ModFirewall} \
+			${ModIPv6FW} \
+			${ModIPv6} \
+			${ModPPP} \
+			${ModTunnel} \
+			${ModISCSI} \
+			${ModNFSD} \
+			${ModCIFS} \
+			${ModQuota} \
+			${ModSCSI} \
+			${ModSnapshot} \
+			${ModSound} \
+			${ModUSB} \
+			${ModUSBIP} \
+			${ModUSBWimax} \
+			"
 		ModuleList="${ModuleList} ${KernelDir}/net/ipv4/netfilter/ipt_MASQUERADE.ko"
 		ModuleList="${ModuleList} ${KernelDir}/lib/zlib_deflate/zlib_deflate.ko"
 		ModuleList="${ModuleList} ${KernelDir}/lib/crc-ccitt.ko"
@@ -786,7 +799,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${KernelDir}/drivers/video/backlight/backlight.ko"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/thermal/thermal_sys.ko"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModZram}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
@@ -835,7 +847,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModZram}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
@@ -863,6 +874,14 @@ do
 		echo "Error! file $EACHFILE does not existed!"
 	fi
 done
+
+# For auto generate the list of insert modules.
+KERNEL_MODULES_TABLE=".synotmp-module-list.conf"
+if [ -f ${KERNEL_MODULES_TABLE} ];then
+	rm -f ${KERNEL_MODULES_TABLE}
+fi
+echo "$ModuleList" > ${KERNEL_MODULES_TABLE}
+
 
 case ${BUILD_TARGET} in
 MARVELL_88F6281|MARVELL_ARMADAXP|MARVELL_ARMADA370|MARVELL_ARMADA375|MINDSPEED_COMCERTO2K|ALPINE)

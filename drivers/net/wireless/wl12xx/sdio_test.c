@@ -176,6 +176,7 @@ static void wl1271_sdio_enable_interrupts(struct wl1271 *wl)
 {
 }
 
+
 static struct wl1271_if_operations sdio_ops = {
 	.read		= wl1271_sdio_raw_read,
 	.write		= wl1271_sdio_raw_write,
@@ -539,3 +540,4 @@ module_exit(wl1271_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Roger Quadros <roger.quadros@nokia.com>");
+

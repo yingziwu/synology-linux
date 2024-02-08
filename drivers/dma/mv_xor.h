@@ -1,7 +1,23 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (C) 2007, 2008, Marvell International Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms and conditions of the GNU General Public License,
+ * version 2, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #ifndef MV_XOR_H
 #define MV_XOR_H
 
@@ -17,6 +33,8 @@
 #define XOR_OPERATION_MODE_XOR		0
 #define XOR_OPERATION_MODE_MEMCPY	2
 #define XOR_OPERATION_MODE_MEMSET	4
+#define XOR_DESC_SUCCESS		0x40000000
+
 #ifdef MY_DEF_HERE
 #define XOR_DESCRIPTOR_SWAP            BIT(14)
 #endif
@@ -54,6 +72,15 @@ struct mv_xor_shared_private {
 	void __iomem	*xor_high_base;
 };
 
+
+/**
+ * struct mv_xor_device - internal representation of a XOR device
+ * @pdev: Platform device
+ * @id: HW XOR Device selector
+ * @dma_desc_pool: base of DMA descriptor region (DMA address)
+ * @dma_desc_pool_virt: base of DMA descriptor region (CPU address)
+ * @common: embedded struct dma_device
+ */
 struct mv_xor_device {
 	struct platform_device		*pdev;
 	int				id;
@@ -63,13 +90,32 @@ struct mv_xor_device {
 	struct mv_xor_shared_private	*shared;
 };
 
+/**
+ * struct mv_xor_chan - internal representation of a XOR channel
+#if defined(MY_DEF_HERE)
+#else
+ * @pending: allows batching of hardware operations
+#endif
+ * @completed_cookie: identifier for the most recently completed operation
+ * @lock: serializes enqueue/dequeue operations to the descriptors pool
+ * @mmr_base: memory mapped register base
+ * @idx: the index of the xor channel
+ * @chain: device chain view of the descriptors
+ * @completed_slots: slots completed by HW but still need to be acked
+ * @device: parent device
+ * @common: common dmaengine channel object members
+ * @last_used: place holder for allocation to continue from where it left off
+ * @all_slots: complete domain of slots usable by the channel
+ * @slots_allocated: records the actual size of the descriptor slot pool
+ * @irq_tasklet: bottom half where mv_xor_slot_cleanup runs
+ */
 struct mv_xor_chan {
 #if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 #else
 	int			pending;
 #endif
 	dma_cookie_t		completed_cookie;
-	spinlock_t		lock;  
+	spinlock_t		lock; /* protects the descriptor slot pool */
 	void __iomem		*mmr_base;
 	unsigned int		idx;
 	enum dma_transaction_type	current_type;
@@ -88,6 +134,27 @@ struct mv_xor_chan {
 #endif
 };
 
+/**
+ * struct mv_xor_desc_slot - software descriptor
+ * @slot_node: node on the mv_xor_chan.all_slots list
+ * @chain_node: node on the mv_xor_chan.chain list
+ * @completed_node: node on the mv_xor_chan.completed_slots list
+ * @hw_desc: virtual address of the hardware descriptor chain
+ * @phys: hardware address of the hardware descriptor chain
+#if defined(MY_DEF_HERE)
+#else
+ * @group_head: first operation in a transaction
+#endif
+ * @slot_cnt: total slots used in an transaction (group of operations)
+ * @slots_per_op: number of slots per operation
+ * @idx: pool index
+ * @unmap_src_cnt: number of xor sources
+ * @unmap_len: transaction bytecount
+ * @tx_list: list of slots that make up a multi-descriptor transaction
+ * @async_tx: support for the async_tx api
+ * @xor_check_result: result of zero sum
+ * @crc32_result: result crc calculation
+ */
 struct mv_xor_desc_slot {
 	struct list_head	slot_node;
 	struct list_head	chain_node;
@@ -120,51 +187,59 @@ struct mv_xor_desc_slot {
 };
 
 #ifdef MY_DEF_HERE
- 
+/*
+ * This structure describes XOR descriptor size 64bytes. The
+ * mv_phy_src_idx() macro must be used when indexing the values of the
+ * phy_src_addr[] array. This is due to the fact that the 'descriptor
+ * swap' feature, used on big endian systems, swaps descriptors data
+ * within blocks of 8 bytes. So two consecutive values of the
+ * phy_src_addr[] array are actually swapped in big-endian, which
+ * explains the different mv_phy_src_idx() implementation.
+ */
 #if defined(__LITTLE_ENDIAN)
 struct mv_xor_desc {
-	u32 status;		 
-	u32 crc32_result;	 
-	u32 desc_command;	 
-	u32 phy_next_desc;	 
-	u32 byte_count;		 
-	u32 phy_dest_addr;	 
-	u32 phy_src_addr[8];	 
+	u32 status;		/* descriptor execution status */
+	u32 crc32_result;	/* result of CRC-32 calculation */
+	u32 desc_command;	/* type of operation to be carried out */
+	u32 phy_next_desc;	/* next descriptor address pointer */
+	u32 byte_count;		/* size of src/dst blocks in bytes */
+	u32 phy_dest_addr;	/* destination block address */
+	u32 phy_src_addr[8];	/* source block addresses */
 	u32 reserved0;
 	u32 reserved1;
 };
 #define mv_phy_src_idx(src_idx) (src_idx)
-#else  
+#else // !__LITTLE_ENDIAN
 struct mv_xor_desc {
-	u32 crc32_result;	 
-	u32 status;		 
-	u32 phy_next_desc;	 
-	u32 desc_command;	 
-	u32 phy_dest_addr;	 
-	u32 byte_count;		 
-	u32 phy_src_addr[8];	 
+	u32 crc32_result;	/* result of CRC-32 calculation */
+	u32 status;		/* descriptor execution status */
+	u32 phy_next_desc;	/* next descriptor address pointer */
+	u32 desc_command;	/* type of operation to be carried out */
+	u32 phy_dest_addr;	/* destination block address */
+	u32 byte_count;		/* size of src/dst blocks in bytes */
+	u32 phy_src_addr[8];	/* source block addresses */
 	u32 reserved1;
 	u32 reserved0;
 };
 #define mv_phy_src_idx(src_idx) (src_idx ^ 1)
 #endif 
 #else !MY_DEF_HERE
- 
+/* This structure describes XOR descriptor size 64bytes	*/
 struct mv_xor_desc {
-	u32 status;		 
-	u32 crc32_result;	 
-	u32 desc_command;	 
-	u32 phy_next_desc;	 
-	u32 byte_count;		 
-	u32 phy_dest_addr;	 
-	u32 phy_src_addr[8];	 
+	u32 status;		/* descriptor execution status */
+	u32 crc32_result;	/* result of CRC-32 calculation */
+	u32 desc_command;	/* type of operation to be carried out */
+	u32 phy_next_desc;	/* next descriptor address pointer */
+	u32 byte_count;		/* size of src/dst blocks in bytes */
+	u32 phy_dest_addr;	/* destination block address */
+	u32 phy_src_addr[8];	/* source block addresses */
 	u32 reserved0;
 	u32 reserved1;
 };
-#endif  
+#endif // MY_DEF_HERE
 
 #if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
- 
+/* Stores certain registers during suspend to RAM */
 struct mv_xor_save_regs {
 	int xor_config;
 	int interrupt_mask;
@@ -180,5 +255,6 @@ struct mv_xor_save_regs {
 #define MV_XOR_MIN_BYTE_COUNT	(128)
 #define XOR_MAX_BYTE_COUNT	((16 * 1024 * 1024) - 1)
 #define MV_XOR_MAX_BYTE_COUNT	XOR_MAX_BYTE_COUNT
+
 
 #endif

@@ -389,6 +389,7 @@ static struct regulator_init_data lp3974_ldo14_data = {
 	.consumer_supplies	= &lp3974_ldo14_consumer,
 };
 
+
 static struct regulator_consumer_supply lp3974_ldo15_consumer =
 	REGULATOR_SUPPLY("dig_12", "0-001f");
 
@@ -534,6 +535,7 @@ static struct max8998_platform_data universal_lp3974_pdata = {
 	.wakeup			= true,
 };
 
+
 enum fixed_regulator_id {
 	FIXED_REG_ID_MMC0,
 	FIXED_REG_ID_HDMI_5V,
@@ -619,6 +621,7 @@ static void __init universal_tsp_init(void)
 	s3c_gpio_setpull(gpio, S3C_GPIO_PULL_UP);
 	i2c3_devs[0].irq = gpio_to_irq(gpio);
 }
+
 
 /* GPIO I2C 12 (3 Touchkey) */
 static uint32_t touchkey_keymap[] = {

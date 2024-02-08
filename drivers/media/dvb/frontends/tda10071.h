@@ -64,6 +64,7 @@ struct tda10071_config {
 	u8 pll_multiplier;
 };
 
+
 #if defined(CONFIG_DVB_TDA10071) || \
 	(defined(CONFIG_DVB_TDA10071_MODULE) && defined(MODULE))
 extern struct dvb_frontend *tda10071_attach(

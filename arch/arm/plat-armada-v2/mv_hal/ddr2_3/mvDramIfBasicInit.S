@@ -105,8 +105,10 @@ dramBoot1:
 	#define	STATIC_ZQC_CONFIG		0x00203C18 /*   0x15E4  New - ZQC Config */
 	#define STATIC_DRAM_PHY_CONFIG		0xD8000025 /*   0x15EC  - SBen */
 
+
 	#define	STATIC_MAIN_PADS_CALIB_CTRL	0x3d090009 /*   0X14cc  */
 	#define	STATIC_TRAINING_DEBUG_3		0x3d090009 /*   0X15C8  */
+
 
 	/* T-Domain */
 	#define	STATIC_READ_DATA_SMPL_DLY	0x00000808 /*   0x1538  New */
@@ -157,6 +159,7 @@ _mvDramIfStaticInit:
 	ldr	r6, = STATIC_DDR_DFS
 	MV_32BIT_WRITE_ASM(r6, r5, 0xf1001528)
 
+
 	/* T-Domain */
 	ldr	r6, = STATIC_READ_DATA_SMPL_DLY
 	MV_32BIT_WRITE_ASM(r6, r5, 0xf1001538)
@@ -177,6 +180,7 @@ _mvDramIfStaticInit:
 	MV_32BIT_WRITE_ASM(r6, r5, 0xf10015E4)
 	ldr	r6, = STATIC_DRAM_PHY_CONFIG
 	MV_32BIT_WRITE_ASM(r6, r5, 0xf10015EC)
+
 
 	ldr	r6, = STATIC_PHY_LOCK_MASK
 	MV_32BIT_WRITE_ASM(r6, r5, 0xf1001670)
@@ -259,12 +263,14 @@ _mvDramIfStaticInit:
          cmp    r6, #0
          bne 2b
 
+
 	/* set all dram windows to 0 */
 	mov	r6, #0
 	MV_REG_WRITE_ASM(r6, r5, SDRAM_WIN_CTRL_REG(0))
 	MV_REG_WRITE_ASM(r6, r5, SDRAM_WIN_CTRL_REG(1))
 	MV_REG_WRITE_ASM(r6, r5, SDRAM_WIN_CTRL_REG(2))
 	MV_REG_WRITE_ASM(r6, r5, SDRAM_WIN_CTRL_REG(3))
+
 
 	ldr	r0, =0
 

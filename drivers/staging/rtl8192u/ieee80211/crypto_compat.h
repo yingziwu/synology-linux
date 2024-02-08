@@ -20,6 +20,7 @@ static inline int crypto_cipher_encrypt(struct crypto_tfm *tfm,
 	return tfm->crt_cipher.cit_encrypt(tfm, dst, src, nbytes);
 }
 
+
 static inline int crypto_cipher_decrypt(struct crypto_tfm *tfm,
 					struct scatterlist *dst,
 					struct scatterlist *src,
@@ -55,3 +56,5 @@ static inline int crypto_cipher_decrypt(struct crypto_tfm *tfm,
 }
 //EXPORT_SYMBOL_GPL(crypto_alloc_tfm);
 //EXPORT_SYMBOL_GPL(crypto_free_tfm);
+
+

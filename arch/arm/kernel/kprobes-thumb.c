@@ -14,6 +14,7 @@
 
 #include "kprobes.h"
 
+
 /*
  * True if current instruction is in an IT block.
  */
@@ -705,6 +706,7 @@ static const union decode_item t32_table_1111_1010___1111[] = {
 	/* UXTB			1111 1010 0101 1111 1111 xxxx 1xxx xxxx */
 	DECODE_EMULATEX	(0xff8ff080, 0xfa0ff080, t32_emulate_rd8rn16rm0_rwflags,
 						 REGS(0, 0, NOSPPC, 0, NOSPPC)),
+
 
 	/* ???			1111 1010 1xxx xxxx 1111 xxxx 0x11 xxxx */
 	DECODE_REJECT	(0xff80f0b0, 0xfa80f030),

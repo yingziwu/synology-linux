@@ -12,9 +12,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+
 #ifdef CONFIG_USB_DEBUG
 #define DEBUG 1
 #endif
+
 
 /*
  * Development tools.
@@ -41,5 +43,6 @@
 #else
 #define DEBUG_MESSAGES(x)
 #endif
+
 
 #endif

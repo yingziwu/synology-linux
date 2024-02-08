@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCpuIfRegsh
 #define __INCmvCpuIfRegsh
 
@@ -145,6 +146,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CCR_CLUSTER_ID_OFFS			24
 #define CCR_CLUSTER_ID_MASK			(0xF << CCR_SRAM_LOW_LEAK_OFFS)
 
+
 /* ARM Control and Status register */
 /* CPU_CTRL_STAT_REG (CCSR) */
 #define CCSR_SMP_N_AMP_OFFS			0
@@ -154,6 +156,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CCSR_ENDIAN_STATUS_MASK			(1 << CCSR_ENDIAN_STATUS_OFFS)
 #define CCSR_ENDIAN_STATUS_LITTLE		(0 << CCSR_ENDIAN_STATUS_OFFS)
 #define CCSR_ENDIAN_STATUS_BIG			(1 << CCSR_ENDIAN_STATUS_OFFS)
+
 
 /* RSTOUTn Mask Register */
 /* CPU_RSTOUTN_MASK_REG (CRMR) */
@@ -173,10 +176,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CRMR_PEX_TRST_OUT_ENABLE(bus)		(1 << CRMR_PEX_TRST_OUT_OFFS(bus))
 #define CRMR_PEX_TRST_OUT_DISABLE(bus)		(0 << CRMR_PEX_TRST_OUT_OFFS(bus))
 
+
 /* System Software Reset Register */
 /* CPU_SYS_SOFT_RST_REG (CSSRR) */
 
 #define CSSRR_SYSTEM_SOFT_RST			BIT0
+
 
 /* CPU_L2_CTRL_REG fields */
 
@@ -219,6 +224,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SCR_PEX_ENA_OFFS(pex)			((pex) & 0x3)
 #define SCR_PEX_ENA_MASK(pex)			(1 << pex)
 
+
 /*******************************************/
 /* Main Interrupt Controller Registers Map */
 /*******************************************/
@@ -240,6 +246,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MV_IRQ_NR				116
 
+
 /*******************************************/
 /* ARM Doorbell Registers Map		   */
 /*******************************************/
@@ -248,6 +255,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CPU_HOST_TO_ARM_MASK_REG		(MV_CPUIF_REGS_BASE + 0x87C)
 #define CPU_ARM_TO_HOST_DRBL_REG		(MV_CPUIF_REGS_BASE + 0x870)
 #define CPU_ARM_TO_HOST_MASK_REG		(MV_CPUIF_REGS_BASE + 0x874)
+
 
 /* CPU control register map */
 /* Set bits means value is about to change according to new value */

@@ -49,6 +49,7 @@
 #include <asm/pgtable.h>
 #include <asm/sync_bitops.h>
 
+
 /* External tools reserve first few grant table entries. */
 #define NR_RESERVED_ENTRIES 8
 #define GNTTAB_LIST_END 0xffffffff
@@ -354,9 +355,18 @@ void gnttab_request_free_callback(struct gnttab_free_callback *callback,
 				  void (*fn)(void *), void *arg, u16 count)
 {
 	unsigned long flags;
+	struct gnttab_free_callback *cb;
+
 	spin_lock_irqsave(&gnttab_list_lock, flags);
-	if (callback->next)
-		goto out;
+
+	/* Check if the callback is already on the list */
+	cb = gnttab_free_callback_list;
+	while (cb) {
+		if (cb == callback)
+			goto out;
+		cb = cb->next;
+	}
+
 	callback->fn = fn;
 	callback->arg = arg;
 	callback->count = count;
@@ -400,6 +410,7 @@ static int grow_gnttab_list(unsigned int more_frames)
 		if (!gnttab_list[i])
 			goto grow_nomem;
 	}
+
 
 	for (i = GREFS_PER_GRANT_FRAME * nr_grant_frames;
 	     i < GREFS_PER_GRANT_FRAME * new_nr_grant_frames - 1; i++)

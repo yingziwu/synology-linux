@@ -917,6 +917,7 @@ typedef enum {
 #define VP880_RINGING_BIAS_SCALE    473
 #define VP880_RINGING_BIAS_FACTOR   100000
 
+
 /**< Signal Generator bit definitions */
 #define VP880_RAMP_SLOPE_MASK   0x04
 #define VP880_RAMP_POSITIVE     0x00
@@ -1162,6 +1163,7 @@ typedef enum {
 #define VP880_ICR3_SAT_LIM_25_CTRL      0x10
 #define VP880_ICR3_VREF_CTRL            0x01
 
+
 #define VP880_ICR3_LONG_UNCLAMP         0x40
 #define VP880_ICR3_LONG_UNCLAMP_INDEX   0x02
 #define VP880_ICR3_LONG_FIXED           0x10
@@ -1240,6 +1242,7 @@ typedef enum {
 #define VP880_DC_CAL_BLIM_INDEX 1
 #define VP880_DC_CAL_BLIM       0x08
 
+
 /*
  * In ms, before bias is removed in ground start workaround when the line has
  * been set from Tip Open to any other state.
@@ -1264,11 +1267,14 @@ typedef enum {
  */
 #define VP880_PING_TIME         (30)
 
+
 /* 2ms To adjust for slow onhook detection.  125us increments */
 #define VP880_PULSE_DETECT_ADJUSTMENT   (16)
+
 
 #define VP880_TRACKER_DISABLE_TIME      (70)
 #define VP880_INVERT_BOOST_DISABLE_TIME (150)
 #define VP880_FIXED_TRACK_DISABLE_TIME  (400)
+
 
 #endif  /* Vp880_API_INT_H */

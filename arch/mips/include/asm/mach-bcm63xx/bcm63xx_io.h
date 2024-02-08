@@ -40,6 +40,7 @@
 #define BCM_CB_MEM_END_PA		(BCM_CB_MEM_BASE_PA +		\
 					BCM_CB_MEM_SIZE - 1)
 
+
 /*
  * Internal registers are accessed through KSEG3
  */

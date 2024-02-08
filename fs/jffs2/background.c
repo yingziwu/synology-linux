@@ -19,6 +19,7 @@
 #include <linux/kthread.h>
 #include "nodelist.h"
 
+
 static int jffs2_garbage_collect_thread(void *);
 
 void jffs2_garbage_collect_trigger(struct jffs2_sb_info *c)
@@ -94,6 +95,7 @@ static int jffs2_garbage_collect_thread(void *_c)
 		} else
 			spin_unlock(&c->erase_completion_lock);
 			
+
 		/* Problem - immediately after bootup, the GCD spends a lot
 		 * of time in places like jffs2_kill_fragtree(); so much so
 		 * that userspace processes (like gdm and X) are starved

@@ -47,6 +47,8 @@
 
 /*---------------------  Export Variables  --------------------------*/
 
+
+
 /*
  * Description: Caculate multicast hash value by CRC32
  *
@@ -80,6 +82,7 @@ unsigned char ETHbyGetHashIndexByCrc32 (unsigned char *pbyMultiAddr)
     return (byHash >> 2);
 }
 
+
 /*
  * Description: Check CRC value of the buffer if Ok or not
  *
@@ -103,3 +106,4 @@ bool ETHbIsBufferCrc32Ok (unsigned char *pbyBuffer, unsigned int cbFrameLength)
     }
     return true;
 }
+

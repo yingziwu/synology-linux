@@ -237,3 +237,4 @@ int ics_rtas_init(void)
 
 	return 0;
 }
+

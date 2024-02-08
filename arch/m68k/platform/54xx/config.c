@@ -50,6 +50,7 @@ static struct platform_device *m54xx_devices[] __initdata = {
 	&m54xx_uart,
 };
 
+
 /***************************************************************************/
 
 static void __init m54xx_uart_init_line(int line, int irq)

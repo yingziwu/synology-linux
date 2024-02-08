@@ -114,6 +114,7 @@ static pud_t level3_user_vsyscall[PTRS_PER_PUD] __page_aligned_bss;
 DEFINE_PER_CPU(unsigned long, xen_cr3);	 /* cr3 stored as physaddr */
 DEFINE_PER_CPU(unsigned long, xen_current_cr3);	 /* actual vcpu cr3 */
 
+
 /*
  * Just beyond the highest usermode address.  STACK_TOP_MAX has a
  * redzone above it, so round it up to a PGD boundary.
@@ -181,6 +182,7 @@ void make_lowmem_page_readwrite(void *vaddr)
 	if (HYPERVISOR_update_va_mapping(address, ptev, 0))
 		BUG();
 }
+
 
 static bool xen_page_pinned(void *ptr)
 {
@@ -1064,6 +1066,7 @@ static void xen_dup_mmap(struct mm_struct *oldmm, struct mm_struct *mm)
 	xen_pgd_pin(mm);
 	spin_unlock(&mm->page_table_lock);
 }
+
 
 #ifdef CONFIG_SMP
 /* Another cpu may still have their %cr3 pointing at the pagetable, so
@@ -2076,6 +2079,7 @@ static const struct pv_mmu_ops xen_mmu_ops __initconst = {
 	.lazy_mode = {
 		.enter = paravirt_enter_lazy_mmu,
 		.leave = xen_leave_lazy_mmu,
+		.flush = paravirt_flush_lazy_mmu,
 	},
 
 	.set_fixmap = xen_set_fixmap,

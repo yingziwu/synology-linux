@@ -975,3 +975,4 @@ static void __exit bcm5974_exit(void)
 
 module_init(bcm5974_init);
 module_exit(bcm5974_exit);
+

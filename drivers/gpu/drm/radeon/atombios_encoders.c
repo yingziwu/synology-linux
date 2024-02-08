@@ -35,6 +35,7 @@ extern int atom_debug;
 bool radeon_atom_get_tv_timings(struct radeon_device *rdev, int index,
 				struct drm_display_mode *mode);
 
+
 static inline bool radeon_encoder_is_digital(struct drm_encoder *encoder)
 {
 	struct radeon_encoder *radeon_encoder = to_radeon_encoder(encoder);
@@ -88,6 +89,10 @@ static bool radeon_atom_mode_fixup(struct drm_encoder *encoder,
 	if ((mode->flags & DRM_MODE_FLAG_INTERLACE)
 	    && (mode->crtc_vsync_start < (mode->crtc_vdisplay + 2)))
 		adjusted_mode->crtc_vsync_start = adjusted_mode->crtc_vdisplay + 2;
+
+	/* vertical FP must be at least 1 */
+	if (mode->crtc_vsync_start == mode->crtc_vdisplay)
+		adjusted_mode->crtc_vsync_start++;
 
 	/* get the native mode for LVDS */
 	if (radeon_encoder->active_device & (ATOM_DEVICE_LCD_SUPPORT))
@@ -606,8 +611,6 @@ atombios_dig_encoder_setup(struct drm_encoder *encoder, int action, int panel_mo
 			else
 				args.v1.ucLaneNum = 4;
 
-			if (ENCODER_MODE_IS_DP(args.v1.ucEncoderMode) && (dp_clock == 270000))
-				args.v1.ucConfig |= ATOM_ENCODER_CONFIG_DPLINKRATE_2_70GHZ;
 			switch (radeon_encoder->encoder_id) {
 			case ENCODER_OBJECT_ID_INTERNAL_UNIPHY:
 				args.v1.ucConfig = ATOM_ENCODER_CONFIG_V2_TRANSMITTER1;
@@ -624,6 +627,10 @@ atombios_dig_encoder_setup(struct drm_encoder *encoder, int action, int panel_mo
 				args.v1.ucConfig |= ATOM_ENCODER_CONFIG_LINKB;
 			else
 				args.v1.ucConfig |= ATOM_ENCODER_CONFIG_LINKA;
+
+			if (ENCODER_MODE_IS_DP(args.v1.ucEncoderMode) && (dp_clock == 270000))
+				args.v1.ucConfig |= ATOM_ENCODER_CONFIG_DPLINKRATE_2_70GHZ;
+
 			break;
 		case 2:
 		case 3:
@@ -1384,8 +1391,12 @@ radeon_atom_encoder_dpms_dig(struct drm_encoder *encoder, int mode)
 			atombios_dig_encoder_setup(encoder, ATOM_ENABLE, 0);
 			atombios_dig_transmitter_setup(encoder, ATOM_TRANSMITTER_ACTION_SETUP, 0, 0);
 			atombios_dig_transmitter_setup(encoder, ATOM_TRANSMITTER_ACTION_ENABLE, 0, 0);
-			/* some early dce3.2 boards have a bug in their transmitter control table */
-			if ((rdev->family != CHIP_RV710) && (rdev->family != CHIP_RV730))
+			/* some dce3.x boards have a bug in their transmitter control table.
+			 * ACTION_ENABLE_OUTPUT can probably be dropped since ACTION_ENABLE
+			 * does the same thing and more.
+			 */
+			if ((rdev->family != CHIP_RV710) && (rdev->family != CHIP_RV730) &&
+			    (rdev->family != CHIP_RS780) && (rdev->family != CHIP_RS880))
 				atombios_dig_transmitter_setup(encoder, ATOM_TRANSMITTER_ACTION_ENABLE_OUTPUT, 0, 0);
 		}
 		if (ENCODER_MODE_IS_DP(atombios_get_encoder_mode(encoder)) && connector) {
@@ -1621,8 +1632,11 @@ atombios_set_encoder_crtc_source(struct drm_encoder *encoder)
 					args.v2.ucEncodeMode = ATOM_ENCODER_MODE_CRT;
 				else
 					args.v2.ucEncodeMode = atombios_get_encoder_mode(encoder);
-			} else
+			} else if (radeon_encoder->devices & (ATOM_DEVICE_LCD_SUPPORT)) {
+				args.v2.ucEncodeMode = ATOM_ENCODER_MODE_LVDS;
+			} else {
 				args.v2.ucEncodeMode = atombios_get_encoder_mode(encoder);
+			}
 			switch (radeon_encoder->encoder_id) {
 			case ENCODER_OBJECT_ID_INTERNAL_UNIPHY:
 			case ENCODER_OBJECT_ID_INTERNAL_UNIPHY1:

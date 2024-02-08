@@ -58,6 +58,7 @@ static int debug;
 #define DRIVER_AUTHOR "Utz-Uwe Haus <haus@uuhaus.de>, Johan Hovold <jhovold@gmail.com>"
 #define DRIVER_DESC "KLSI KL5KUSB105 chipset USB->Serial Converter driver"
 
+
 /*
  * Function prototypes
  */
@@ -132,9 +133,11 @@ struct klsi_105_private {
 	spinlock_t			lock;
 };
 
+
 /*
  * Handle vendor specific USB requests
  */
+
 
 #define KLSI_TIMEOUT	 5000 /* default urb timeout */
 
@@ -222,6 +225,7 @@ static int klsi_105_get_line_state(struct usb_serial_port *port,
 	kfree(status_buf);
 	return rc;
 }
+
 
 /*
  * Driver's tty interface functions
@@ -334,7 +338,7 @@ static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port)
 	rc = usb_serial_generic_open(tty, port);
 	if (rc) {
 		retval = rc;
-		goto exit;
+		goto err_free_cfg;
 	}
 
 	rc = usb_control_msg(port->serial->dev,
@@ -349,21 +353,38 @@ static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port)
 	if (rc < 0) {
 		dev_err(&port->dev, "Enabling read failed (error = %d)\n", rc);
 		retval = rc;
+		goto err_generic_close;
 	} else
 		dbg("%s - enabled reading", __func__);
 
 	rc = klsi_105_get_line_state(port, &line_state);
-	if (rc >= 0) {
-		spin_lock_irqsave(&priv->lock, flags);
-		priv->line_state = line_state;
-		spin_unlock_irqrestore(&priv->lock, flags);
-		dbg("%s - read line state 0x%lx", __func__, line_state);
-		retval = 0;
-	} else
+	if (rc < 0) {
 		retval = rc;
+		goto err_disable_read;
+	}
 
-exit:
+	spin_lock_irqsave(&priv->lock, flags);
+	priv->line_state = line_state;
+	spin_unlock_irqrestore(&priv->lock, flags);
+	dev_dbg(&port->dev, "%s - read line state 0x%lx\n", __func__,
+			line_state);
+
+	return 0;
+
+err_disable_read:
+	usb_control_msg(port->serial->dev,
+			     usb_sndctrlpipe(port->serial->dev, 0),
+			     KL5KUSB105A_SIO_CONFIGURE,
+			     USB_TYPE_VENDOR | USB_DIR_OUT,
+			     KL5KUSB105A_SIO_CONFIGURE_READ_OFF,
+			     0, /* index */
+			     NULL, 0,
+			     KLSI_TIMEOUT);
+err_generic_close:
+	usb_serial_generic_close(port);
+err_free_cfg:
 	kfree(cfg);
+
 	return retval;
 }
 
@@ -687,6 +708,7 @@ static int klsi_105_tiocmset(struct tty_struct *tty,
 	return retval;
 }
 
+
 static int __init klsi_105_init(void)
 {
 	int retval;
@@ -712,12 +734,14 @@ static void __exit klsi_105_exit(void)
 	usb_serial_deregister(&kl5kusb105d_device);
 }
 
+
 module_init(klsi_105_init);
 module_exit(klsi_105_exit);
 
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
+
 
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "enable extensive debugging messages");

@@ -97,6 +97,7 @@ static void set_mode (char *buffer)
 		fatal();
 }
 
+
 int main(int argc,char **argv)
 {
 	char *p, *q;

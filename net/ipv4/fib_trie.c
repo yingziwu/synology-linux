@@ -72,7 +72,6 @@
 #include <linux/init.h>
 #include <linux/list.h>
 #include <linux/slab.h>
-#include <linux/prefetch.h>
 #include <linux/export.h>
 #include <net/net_namespace.h>
 #include <net/ip.h>
@@ -333,6 +332,7 @@ static inline int tkey_mismatch(t_key a, int offset, t_key b)
 
   The bits from (n->pos) to (n->pos + n->bits - 1) - "C" - are the index into
   n's child array, and will of course be different for each child.
+
 
   The rest of the bits, from (n->pos + n->bits) onward, are completely unknown
   at this point.
@@ -675,6 +675,7 @@ static struct rt_trie_node *resize(struct trie *t, struct tnode *tn)
 		}
 	}
 
+
 	/* Only one child remains */
 	if (tn->empty_children == tnode_child_length(tn) - 1) {
 one_child:
@@ -694,6 +695,7 @@ one_child:
 	}
 	return (struct rt_trie_node *) tn;
 }
+
 
 static void tnode_clean_free(struct tnode *tn)
 {
@@ -1385,8 +1387,14 @@ static int check_leaf(struct fib_table *tb, struct trie *t, struct leaf *l,
 				continue;
 			for (nhsel = 0; nhsel < fi->fib_nhs; nhsel++) {
 				const struct fib_nh *nh = &fi->fib_nh[nhsel];
+				struct in_device *in_dev = __in_dev_get_rcu(nh->nh_dev);
 
 				if (nh->nh_flags & RTNH_F_DEAD)
+					continue;
+				if (in_dev &&
+					IN_DEV_IGNORE_ROUTES_WITH_LINKDOWN(in_dev) &&
+					nh->nh_flags & RTNH_F_LINKDOWN &&
+					!(fib_flags & FIB_LOOKUP_IGNORE_LINKSTATE))
 					continue;
 				if (flp->flowi4_oif && flp->flowi4_oif != nh->nh_oif)
 					continue;
@@ -1770,10 +1778,8 @@ static struct leaf *leaf_walk_rcu(struct tnode *p, struct rt_trie_node *c)
 			if (!c)
 				continue;
 
-			if (IS_LEAF(c)) {
-				prefetch(rcu_dereference_rtnl(p->child[idx]));
+			if (IS_LEAF(c))
 				return (struct leaf *) c;
-			}
 
 			/* Rescan start scanning in new node */
 			p = (struct tnode *) c;
@@ -1820,6 +1826,7 @@ static struct leaf *trie_leafindex(struct trie *t, int index)
 
 	return l;
 }
+
 
 /*
  * Caller must hold RTNL.
@@ -1974,6 +1981,7 @@ void __init fib_trie_init(void)
 					       sizeof(struct leaf_info)),
 					   0, SLAB_PANIC, NULL);
 }
+
 
 struct fib_table *fib_trie_table(u32 id)
 {
@@ -2181,6 +2189,7 @@ static void fib_table_print(struct seq_file *seq, struct fib_table *tb)
 	else
 		seq_printf(seq, "Id %d:\n", tb->tb_id);
 }
+
 
 static int fib_triestat_seq_show(struct seq_file *seq, void *v)
 {

@@ -68,6 +68,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "twsi/mvTwsi.h"
 #include "ctrlEnv/sys/mvCpuIfRegs.h"
 
+
 /*******************************************************************************
 * mvSysTwsiInterruptEnable
 *
@@ -101,6 +102,7 @@ MV_STATUS mvSysTwsiInterruptEnable(MV_U32 chanNum, MV_BOOL enable)
 	MV_REG_WRITE(CPU_INT_SOURCE_CONTROL_REG(CPU_MAIN_INT_CAUSE_TWSI(chanNum)), val);
 	return MV_OK;
 }
+
 
 /*******************************************************************************
 * mvSysTwsiMainCauseIsSet

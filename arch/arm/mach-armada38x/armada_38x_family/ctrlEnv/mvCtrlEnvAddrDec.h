@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCtrlEnvAddrDech
 #define __INCmvCtrlEnvAddrDech
 
@@ -72,6 +73,7 @@ extern "C" {
 /* includes */
 #include "ctrlEnv/mvCtrlEnvLib.h"
 #include "ctrlEnv/mvCtrlEnvRegs.h"
+
 
 /* defines  */
 /* DUnit attributes */
@@ -114,6 +116,7 @@ extern "C" {
 #define ATMWCR_WIN_LUNIT_BYTE_SWP		(0 << ATMWCR_WIN_LUNIT_BYTE_SWP_OFFS)
 #define ATMWCR_WIN_LUNIT_BYTE_NO_SWP		(1 << ATMWCR_WIN_LUNIT_BYTE_SWP_OFFS)
 
+
 #define ATMWCR_WIN_LUNIT_WORD_SWP_OFFS		1
 #define ATMWCR_WIN_LUNIT_WORD_SWP_MASK		BIT1
 #define ATMWCR_WIN_LUNIT_WORD_SWP		(0 << ATMWCR_WIN_LUNIT_WORD_SWP_OFFS)
@@ -150,6 +153,7 @@ typedef struct _mvTargetAttrib {
 	MV_TARGET_ID 		targetId; 		/* Target Id of this MV_TARGET */
 } MV_TARGET_ATTRIB;
 
+
 /* This structure describes address decode window                           */
 typedef struct _mvDecWin {
     MV_TARGET	target;         /* Target for addr decode window        */
@@ -163,6 +167,7 @@ typedef struct _mvDecWinParams {
     MV_U32          baseAddr;   /* Base address in register format */
     MV_U32          size;       /* Size in register format */
 } MV_DEC_WIN_PARAMS;
+
 
 /* mvCtrlEnvAddrDec API list */
 
@@ -180,8 +185,10 @@ MV_STATUS mvCtrlAddrWinMapBuild(MV_UNIT_WIN_INFO *pAddrWinMap, MV_U32 len);
 
 MV_STATUS mvCtrlAddrWinInfoGet(MV_UNIT_WIN_INFO *pAddrWinInfo, MV_ULONG physAddr);
 
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
 
 #endif /* __INCmvCtrlEnvAddrDech */

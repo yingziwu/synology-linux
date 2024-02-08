@@ -37,3 +37,4 @@ static inline void flush(void)
 }
 
 #endif
+

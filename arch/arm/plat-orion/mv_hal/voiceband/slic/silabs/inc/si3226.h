@@ -25,6 +25,7 @@
 
 #define NUMIRQ 4
 
+
 /*
 ** Defines structure for configuring gpio
 */
@@ -239,6 +240,7 @@ typedef struct {
 	ramData aceq_c3;
 } Si3226_audioGain_Cfg;
 
+
 /*
 ** Defines structure for configuring synthesized impedange
 */
@@ -254,6 +256,8 @@ typedef struct {
 	int16 txgain_db; /*overall gain associated with this configuration*/
 	int16 rxgain_db;
 } Si3226_Impedance_Cfg;
+
+
 
 /*
 ** Defines structure for configuring tone generator
@@ -303,6 +307,8 @@ typedef struct {
     ramData delta_vcm;
     ramData dcdc_rngtype;
 } Si3226_Ring_Cfg;
+
+
 
 /*
 ** This defines names for the interrupts in the ProSLIC

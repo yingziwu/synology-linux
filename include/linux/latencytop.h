@@ -22,6 +22,7 @@ struct latency_record {
 	unsigned long	max;
 };
 
+
 struct task_struct;
 
 extern int latencytop_enabled;

@@ -89,6 +89,7 @@ struct CMCounterConfigs
  */
 #define CM_EXT_SDK_MODE             0x40000000
 
+
 /* profiler setting */
 struct CMProfSettings
 {

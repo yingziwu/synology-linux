@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -78,6 +79,7 @@ int mv_eth1_cmdline_config(char *s)
 	net_config_str[MV_ETH_PORT_1] = s;
 	return 1;
 }
+
 
 /* Local function prototypes */
 static int mv_eth_check_open_bracket(char **p_net_config)
@@ -784,3 +786,5 @@ void    mv_eth_switch_status_print(int port)
 	} else
 		printk(KERN_ERR "ethPort=%d: switch is not connected - pp=%p, flags=0x%lx\n", port, pp, pp->flags);
 }
+
+

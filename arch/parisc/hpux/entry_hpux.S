@@ -543,3 +543,4 @@ ENTRY(hpux_call_table)
 	ENTRY_NAME(hpux_unimplemented_wrapper)
 END(hpux_call_table)
 .end
+

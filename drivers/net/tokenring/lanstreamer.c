@@ -135,6 +135,7 @@
 #error broken on 64-bit: stores pointer to rx_ring->buffer in 32-bit int
 #endif
 
+
 /* I've got to put some intelligence into the version number so that Peter and I know
  * which version of the code somebody has got. 
  * Version Number = a.b.c.d  where a.b.c is the level of code and d is the latest author.
@@ -151,6 +152,7 @@ static DEFINE_PCI_DEVICE_TABLE(streamer_pci_tbl) = {
 	{}	/* terminating entry */
 };
 MODULE_DEVICE_TABLE(pci,streamer_pci_tbl);
+
 
 static char *open_maj_error[] = {
 	"No error", "Lobe Media Test", "Physical Insertion",
@@ -436,6 +438,7 @@ static void __devexit streamer_remove_one(struct pci_dev *pdev)
 	free_netdev(dev);
 	pci_set_drvdata(pdev, NULL);
 }
+
 
 static int streamer_reset(struct net_device *dev)
 {
@@ -815,6 +818,7 @@ static int streamer_open(struct net_device *dev)
 	/* set bus master interrupt event mask */
 	writew(MISR_RX_NOBUF | MISR_RX_EOF, streamer_mmio + MISR_MASK);
 
+
 	/* setup tx ring */
 	streamer_priv->streamer_tx_ring=kmalloc(sizeof(struct streamer_tx_desc)*
 						STREAMER_TX_RING_SIZE,GFP_KERNEL);
@@ -1190,6 +1194,7 @@ static netdev_tx_t streamer_xmit(struct sk_buff *skb,
 	}
 }
 
+
 static int streamer_close(struct net_device *dev)
 {
 	struct streamer_private *streamer_priv =
@@ -1350,6 +1355,7 @@ static void streamer_srb_bh(struct net_device *dev)
 		}		/* switch srb[2] */
 		break;
 
+
 		/* SRB_SET_GROUP_ADDRESS - Multicast group setting 
 		 */
 	case SRB_SET_GROUP_ADDRESS:
@@ -1377,6 +1383,7 @@ static void streamer_srb_bh(struct net_device *dev)
 		}		/* switch srb[2] */
 		break;
 
+
 		/* SRB_RESET_GROUP_ADDRESS - Remove a multicast address from group list
 		 */
 	case SRB_RESET_GROUP_ADDRESS:
@@ -1397,6 +1404,7 @@ static void streamer_srb_bh(struct net_device *dev)
 			break;
 		}		/* switch srb[2] */
 		break;
+
 
 		/* SRB_SET_FUNC_ADDRESS - Called by the set_rx_mode 
 		 */
@@ -1611,6 +1619,7 @@ drop_frame:
 			return;
 			/* Drop out and wait for the bottom half to be run */
 		}
+
 
 		writew(streamer_priv->asb, streamer_mmio + LAPA);
 		writew(htons(ASB_RECEIVE_DATA << 8), streamer_mmio+LAPDINC);

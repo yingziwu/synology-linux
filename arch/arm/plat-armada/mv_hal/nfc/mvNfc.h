@@ -139,6 +139,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ******************************************************************************/
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -209,11 +210,13 @@ typedef enum {
 	MV_NFC_PIO_NONE
 } MV_NFC_PIO_RW_MODE;
 
+
 typedef enum {
 	MV_NFC_IF_1X8,
 	MV_NFC_IF_1X16,
 	MV_NFC_IF_2X8
 } MV_NFC_IF_MODE;
+
 
 /* Flash device CS.			*/
 typedef enum {
@@ -223,6 +226,7 @@ typedef enum {
 	MV_NFC_CS_3,
 	MV_NFC_CS_NONE
 } MV_NFC_CHIP_SEL;
+
 
 /*
  * 	ioMode		The access mode by which the unit will operate (PDMA / PIO).
@@ -256,6 +260,7 @@ typedef struct {
 #endif
 } MV_NFC_INFO;
 
+
 typedef enum {
 	MV_NFC_CMD_READ_ID = 0,
 	MV_NFC_CMD_READ_STATUS,
@@ -284,6 +289,7 @@ typedef enum {
 	MV_NFC_CMD_COUNT	/* This should be the last enum */
 
 } MV_NFC_CMD_TYPE;
+
 
 /*
  * Nand information structure.
@@ -385,6 +391,7 @@ typedef struct {
 	MV_U32		cmdb3;
 } MV_NFC_CMD;
 
+
 /********************************/
 /* Functions API 		*/
 /********************************/
@@ -414,5 +421,6 @@ MV_STATUS mvNfcReset(void);
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif /* __INCMVNFCH */

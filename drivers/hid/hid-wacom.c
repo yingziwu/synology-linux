@@ -473,3 +473,4 @@ static void __exit wacom_exit(void)
 module_init(wacom_init);
 module_exit(wacom_exit);
 MODULE_LICENSE("GPL");
+

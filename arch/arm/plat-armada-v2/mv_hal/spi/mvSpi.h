@@ -93,6 +93,7 @@ typedef struct {
 	MV_BOOL		rxMsbFirst;
 } MV_SPI_IF_PARAMS;
 
+
 typedef struct {
 	MV_U8	tcsh;
 	MV_U8	tmisoSample;
@@ -119,6 +120,7 @@ typedef enum {
 	SPI_TYPE_SLIC_ZSI,
 	SPI_TYPE_SLIC_ISI
 } MV_SPI_TYPE;
+
 
 /* Function Prototypes */
 /* Init */

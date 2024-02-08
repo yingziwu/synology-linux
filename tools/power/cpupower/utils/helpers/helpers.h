@@ -92,6 +92,7 @@ extern int get_cpu_info(unsigned int cpu, struct cpupower_cpu_info *cpu_info);
 extern struct cpupower_cpu_info cpupower_cpu_info;
 /* cpuid and cpuinfo helpers  **************************/
 
+
 /* CPU topology/hierarchy parsing ******************/
 struct cpupower_topology {
 	/* Amount of CPU cores, packages and threads per core in the system */

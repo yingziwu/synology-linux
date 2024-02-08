@@ -41,6 +41,7 @@
 //
 #define BB_MAX_CONTEXT_SIZE 256
 
+
 //
 // Baseband RF pair definition in eeprom (Bits 6..0)
 //
@@ -61,6 +62,7 @@
 #define RATE_AUTO      12
 #define MAX_RATE       12
 
+
 //0:11A 1:11B 2:11G
 #define BB_TYPE_11A    0
 #define BB_TYPE_11B    1
@@ -73,8 +75,10 @@
 #define PK_TYPE_11GA    3
 */
 
+
 #define PREAMBLE_LONG   0
 #define PREAMBLE_SHORT  1
+
 
 #define F5G             0
 #define F2_4G           1
@@ -92,6 +96,7 @@
 #define TOP_RATE_2M         0x00200000
 #define TOP_RATE_1M         0x00100000
 
+
 /*---------------------  Export Types  ------------------------------*/
 
 /*---------------------  Export Macros ------------------------------*/
@@ -105,6 +110,7 @@
 {                                                           \
     BBbWriteEmbeded(dwIoBase, 0xB1, 0x0C);                  \
 }
+
 
 /*---------------------  Export Classes  ----------------------------*/
 

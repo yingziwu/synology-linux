@@ -5,6 +5,7 @@
  *
  */
 
+
 #include <trace/events/workqueue.h>
 #include <linux/list.h>
 #include <linux/percpu.h>
@@ -12,6 +13,7 @@
 #include <linux/kref.h>
 #include "trace_stat.h"
 #include "trace.h"
+
 
 /* A cpu workqueue thread */
 struct cpu_workqueue_stats {
@@ -144,6 +146,7 @@ static struct cpu_workqueue_stats *workqueue_stat_start_cpu(int cpu)
 	unsigned long flags;
 	struct cpu_workqueue_stats *ret = NULL;
 
+
 	spin_lock_irqsave(&workqueue_cpu_stat(cpu)->lock, flags);
 
 	if (!list_empty(&workqueue_cpu_stat(cpu)->list)) {
@@ -239,6 +242,7 @@ struct tracer_stat workqueue_stats __read_mostly = {
 	.stat_release = workqueue_stat_release,
 	.stat_headers = workqueue_stat_headers
 };
+
 
 int __init stat_workqueue_init(void)
 {

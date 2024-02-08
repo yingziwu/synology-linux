@@ -227,6 +227,7 @@ reg 5 --> reg 0
 /* convert bit offset to byte offset */
 #define SRAM_BIT_TO_BYTE(_bit_)			HW_BYTE_OFFS((_bit_) / 8)
 
+
 #define SRAM_RI_OFFS  					0
 #define SRAM_RI_BITS  					32
 #define SRAM_RI_MASK  					((1 << SRAM_RI_BITS) - 1)
@@ -357,6 +358,7 @@ reg 5 --> reg 0
 #define RI_L3_ARP					(6 << RI_L3_PROTO_OFFS)
 #define RI_L3_RESERVED					(7 << RI_L3_PROTO_OFFS)
 
+
 /* bits 15 - 16 */
 #define RI_L3_ADDR_OFFS       				15
 #define RI_L3_ADDR_BITS       				2
@@ -422,6 +424,7 @@ reg 5 --> reg 0
 #define MV_PP2_UDF6_OFFSET				6
 #define MV_PP2_UDF7_OFFSET				7
 
+
 /*-------------------------------------------------------------------------------*/
 /* 				Parser Shadow					 */
 /*-------------------------------------------------------------------------------*/
@@ -437,6 +440,7 @@ typedef struct {
 	unsigned	riMask;
 	MV_BOOL		finish;
 } PRS_SHADOW_ENTRY;
+
 
 void mvPp2PrsShadowSet(int index, int lu, char *text);
 void mvPp2PrsShadowLuSet(int index, int lu);
@@ -458,6 +462,7 @@ int mvPp2PrsShadowLu(int index);
 unsigned char *mvPp2PrsShadowText(int index);
 int mvPp2PrsShadowIsValid(int index);
 int mvPp2PrsTcamFirstFree(int start, int end);
+
 
 /*-------------------------------------------------------------------------------*/
 /* 				Parser SW entry 				 */
@@ -486,11 +491,13 @@ typedef union mvPp2SramEntry {
 	MV_U8  byte[MV_PP2_PRC_SRAM_WORDS * 4];
 } MV_PP2_SRAM_ENTRY;
 
+
 typedef struct mvPp2PrsEntry {
 	unsigned int index;
 	MV_PP2_TCAM_ENTRY tcam;
 	MV_PP2_SRAM_ENTRY sram;
 } MV_PP2_PRS_ENTRY;
+
 
 /*-------------------------------------------------------------------------------*/
 /* 			Parser Public initialization APIs			 */
@@ -746,6 +753,7 @@ int mvPp2PrsSwTcamLuSet(MV_PP2_PRS_ENTRY *pe, unsigned int lu);
 */
 int mvPp2PrsSwTcamLuGet(MV_PP2_PRS_ENTRY *pe, unsigned int *lu, unsigned int *enable);
 
+
 /*
  * mvPp2PrsSwSramRiSetBit - set sram result info bit in prs sw entry.
  * @pe: sw prs entry
@@ -787,6 +795,7 @@ int mvPp2PrsSwSramRiSet(MV_PP2_PRS_ENTRY *pe, unsigned int bits, unsigned int en
 */
 int mvPp2PrsSwSramRiGet(MV_PP2_PRS_ENTRY *pe, unsigned int *bits, unsigned int *enable);
 
+
 /*
  * mvPp2PrsSwSramAiSetBit - set sram AI bit in prs sw entry.
  * @pe: sw prs entry
@@ -821,6 +830,7 @@ int mvPp2PrsSwSramAiUpdate(MV_PP2_PRS_ENTRY *pe, unsigned int bits, unsigned int
 */
 int mvPp2PrsSwSramAiGet(MV_PP2_PRS_ENTRY *pe, unsigned int *bits, unsigned int *enable);
 
+
 /*
  * mvPp2PrsSwSramNextLuSet - set prs sram next lookup id.
  * @pe: sw prs entry
@@ -834,6 +844,7 @@ int mvPp2PrsSwSramNextLuSet(MV_PP2_PRS_ENTRY *pe, unsigned int lu);
  * @lu: get next lookup id
 */
 int mvPp2PrsSwSramNextLuGet(MV_PP2_PRS_ENTRY *pe, unsigned int *lu);
+
 
 /*
  * mvPp2PrsSwSramShiftSet - set prs sram shift.

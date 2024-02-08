@@ -254,6 +254,7 @@ extern "C" {
 
 #define TBL_UNUSED      0       /* Used to mark unused entry */
 
+
 /* This enumerator defines the Marvell Units ID      */
 typedef enum {
 	SLIC_EXTERNAL_ID,

@@ -1,7 +1,12 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * decompress.c
+ *
+ * Detect the decompression method based on magic number
+ */
+
 #include <linux/decompress/generic.h>
 
 #include <linux/decompress/bunzip2.h>
@@ -52,7 +57,7 @@ decompress_fn decompress_method(const unsigned char *inbuf, int len,
 	const struct compress_format *cf;
 
 	if (len < 2)
-		return NULL;	 
+		return NULL;	/* Need at least this much... */
 
 	for (cf = compressed_formats; cf->name; cf++) {
 		if (!memcmp(inbuf, cf->magic, 2))

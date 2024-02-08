@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCtrlEnvLibh
 #define __INCmvCtrlEnvLibh
 
@@ -88,6 +89,7 @@ typedef enum _mvCachePolicy {
     WT_COHERENCY,   /* HW cache coherency supported in Write Through policy */
     WB_COHERENCY    /* HW cache coherency supported in Write Back policy    */
 } MV_CACHE_POLICY;
+
 
 /* The swapping is referred to a 64-bit words (as this is the controller    */
 /* internal data path width). This enumerator describes the possible        */
@@ -145,6 +147,7 @@ typedef struct _boardSerdesConf {
 #define	TSEN_CONF_REF_CAL_MASK			(0x1FF << 11)
 #define	TSEN_CONF_SOFT_RESET_MASK		(0x1 << 1)
 #define	TSEN_CONF_START_CALIB_MASK		(0x1 << 25)
+
 
 /* BIOS Modes related defines */
 

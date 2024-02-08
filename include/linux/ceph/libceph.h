@@ -142,6 +142,8 @@ struct ceph_client {
 #endif
 };
 
+
+
 /*
  * snapshots
  */
@@ -244,5 +246,6 @@ extern int ceph_copy_from_page_vector(struct page **pages,
 extern int ceph_copy_page_vector_to_user(struct page **pages, char __user *data,
 				    loff_t off, size_t len);
 extern void ceph_zero_page_vector_range(int off, int len, struct page **pages);
+
 
 #endif /* _FS_CEPH_SUPER_H */

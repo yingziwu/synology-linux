@@ -452,6 +452,7 @@ static int mrst_crtc_mode_set(struct drm_crtc *crtc,
 
 	dpll |= DPLL_VGA_MODE_DIS;
 
+
 	dpll |= DPLL_VCO_ENABLE;
 
 	if (is_lvds)
@@ -468,6 +469,7 @@ static int mrst_crtc_mode_set(struct drm_crtc *crtc,
 		    (sdvo_pixel_multiply -
 		     1) << SDVO_MULTIPLIER_SHIFT_HIRES;
 	}
+
 
 	/* compute bitmask from p1 value */
 	dpll |= (1 << (clock.p1 - 2)) << 17;
@@ -599,3 +601,4 @@ const struct drm_crtc_helper_funcs mrst_helper_funcs = {
 	.prepare = mrst_crtc_prepare,
 	.commit = mrst_crtc_commit,
 };
+

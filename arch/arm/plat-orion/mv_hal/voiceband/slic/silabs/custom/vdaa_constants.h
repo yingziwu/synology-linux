@@ -5,6 +5,7 @@
 ** Si3217x ProSLIC API Configuration Tool Version 2.4.0
 */
 
+
 #ifndef VDAA_CONSTANTS_H
 #define VDAA_CONSTANTS_H
 

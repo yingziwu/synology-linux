@@ -79,6 +79,7 @@ static void mc_write_reg(int reg, u32 value)
 	writel(value, mc_addr + (reg - PERF_COUNT_CNTRL_0));
 }
 
+
 static unsigned long long mc_read_counter(int counter)
 {
 	unsigned long long value;

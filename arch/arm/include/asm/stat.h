@@ -48,6 +48,7 @@ struct stat {
 	unsigned long  __unused5;
 };
 
+
 /* This matches struct stat64 in glibc2.1, hence the absolutely
  * insane amounts of padding around dev_t's.
  * Note: The kernel zero's the padded region because glibc might read them

@@ -86,6 +86,7 @@ static MV_U32 mvCpu6180PclkGet(MV_VOID)
 	return tmpPClkRate;
 }
 
+
 MV_U32 mvCpuPclkGet(MV_VOID)
 {
 #if defined(PCLCK_AUTO_DETECT)

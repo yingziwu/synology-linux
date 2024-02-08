@@ -119,6 +119,7 @@ DoTxHighPower(
 	//printk("<---- DoTxHighPower()\n");
 }
 
+
 //
 //	Description:
 //		Callback function of UpdateTxPowerWorkItem.
@@ -140,6 +141,7 @@ void rtl8180_tx_pw_wq (struct work_struct *work)
 
 //	printk("<---- UpdateTxPowerWorkItemCallback()\n");
 }
+
 
 //
 //	Description:
@@ -294,6 +296,7 @@ void rtl8180_hw_dig_wq (struct work_struct *work)
 
 	// Read CCK and OFDM False Alarm.
 	priv->FalseAlarmRegValue = read_nic_dword(dev, CCK_FALSE_ALARM);
+
 
 	// Adjust Initial Gain dynamically.
 	DynamicInitGain(dev);
@@ -581,6 +584,7 @@ StaRateAdaptive87SE(
 
 	priv->RateAdaptivePeriod= RATE_ADAPTIVE_TIMER_PERIOD;
 
+
 	CurrRetryCnt	= priv->CurrRetryCnt;
 	CurrTxokCnt	= priv->NumTxOkTotal - priv->LastTxokCnt;
 	CurrRxokCnt	= priv->ieee80211->NumRxOkTotal - priv->LastRxokCnt;
@@ -598,6 +602,7 @@ StaRateAdaptive87SE(
 	{ // It may be serious retry. To distinguish serious retry or no packets modified by Bruce
 		CurrRetryRate = (u16)(CurrRetryCnt*100/1);
 	}
+
 
 	//
 	// Added by Roger, 2007.01.02.
@@ -641,6 +646,7 @@ StaRateAdaptive87SE(
 	{
 		priv->TryupingCountNoData=0; //Reset trying up times.
 	}
+
 
 	//
 	// For Netgear case, I comment out the following signal strength estimation,
@@ -1103,6 +1109,7 @@ StaRateAdaptive87SE(
 	{
 		priv->FailTxRateCount --;
 	}
+
 
 	OfdmTxPwrIdx  = priv->chtxpwr_ofdm[priv->ieee80211->current_network.channel];
 	CckTxPwrIdx  = priv->chtxpwr[priv->ieee80211->current_network.channel];
@@ -1575,6 +1582,7 @@ CheckTxPwrTracking(	struct net_device *dev)
 	return true;
 }
 
+
 //
 //	Description:
 //		Timer callback function of SW Antenna Diversity.
@@ -1618,3 +1626,4 @@ SwAntennaDiversityTimerCallback(
 
 	//printk("-SwAntennaDiversityTimerCallback()\n");
 }
+

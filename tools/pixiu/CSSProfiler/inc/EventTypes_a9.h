@@ -18,6 +18,7 @@
 #ifndef __PX_EVENT_TYPES_A9_H__
 #define __PX_EVENT_TYPES_A9_H__
 
+
 /**
  * OS Timer
  * Supported profilers: counter monitor.
@@ -169,6 +170,7 @@
  */
 #define A9_PMU_UNALIGNED_ACCESS_EXECUTED 0xf
 
+
 /**
  * Mispredicted or not predicted branch speculatively executed:
  *	The counter counts for each correction to the predicted program flow that occurs because of a misprediction from, or no prediction from, the branch prediction resources and that relates to instructions that the branch prediction resources are capable of predicting.
@@ -226,6 +228,7 @@
  * Available counter ids: COUNTER_A9_PMU_PMN0 = 2, COUNTER_A9_PMU_PMN1 = 3, COUNTER_A9_PMU_PMN2 = 4, COUNTER_A9_PMU_PMN3 = 5, COUNTER_A9_PMU_PMN4 = 6, COUNTER_A9_PMU_PMN5 = 7.
  */
 #define A9_PMU_BRANCH_LEVEL_2_DATA_CACHE_ACCESS 0x16
+
 
 /**
  * Level 2 data cache refill:
@@ -719,6 +722,7 @@
 /* L2 Cache Read Miss */
 //#define A9_PMU_L2_CACHE_READ_MISS 0x7a
 
+
 /* L2 Cache Eviction */
 //#define A9_PMU_L2_CACHE_EVICTION 0x7b
 
@@ -761,8 +765,10 @@
 /* Counts any event from external input source PMUEXTIN[1] */
 //#define A9_PMU_COUNT_ANY_EVENT_FROM_EXTERNAL_INPUT_SOURCE_PMUEXTIN1 0x91
 
+
 /* Counts any event from both external input source PMUEXTIN[0] and PMUEXTIN[1]*/
 //#define A9_PMU_COUNT_ANY_EVENT_FROM_EXTERNAL_INPUT_SOURCE_PMUEXTIN0_PMUEXTIN1 0x92
+
 
 /* WMMX2 store FIFO full */
 //#define A9_PMU_WMMX2_STORE_FIFO_FULL 0xc0

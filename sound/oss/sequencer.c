@@ -522,6 +522,7 @@ static void seq_chn_voice_event(unsigned char *event_rec)
 #undef parm
 }
 
+
 static void seq_chn_common_event(unsigned char *event_rec)
 {
 	unsigned char dev = event_rec[1];
@@ -1547,6 +1548,7 @@ unsigned int sequencer_poll(int dev, struct file *file, poll_table * wait)
 	spin_unlock_irqrestore(&lock,flags);
 	return mask;
 }
+
 
 void sequencer_timer(unsigned long dummy)
 {

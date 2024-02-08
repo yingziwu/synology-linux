@@ -38,3 +38,4 @@ __XScale_start:
 		str	r1, [r0, #0x14]
 		str	r1, [r0, #0x18]
 #endif
+

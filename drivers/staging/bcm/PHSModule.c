@@ -21,11 +21,13 @@ static void free_phs_serviceflow_rules(S_SERVICEFLOW_TABLE *psServiceFlowRulesTa
 static int phs_compress(S_PHS_RULE   *phs_members,unsigned char *in_buf,
 						unsigned char *out_buf,unsigned int *header_size,UINT *new_header_size );
 
+
 static int verify_suppress_phsf(unsigned char *in_buffer,unsigned char *out_buffer,
 								unsigned char *phsf,unsigned char *phsm,unsigned int phss,unsigned int phsv,UINT *new_header_size );
 
 static int phs_decompress(unsigned char *in_buf,unsigned char *out_buf,\
 						  S_PHS_RULE   *phs_rules,UINT *header_size);
+
 
 static ULONG PhsCompress(void* pvContext,
 				  B_UINT16 uiVcid,
@@ -42,6 +44,8 @@ static ULONG PhsDeCompress(void* pvContext,
 				  UINT *pInHeaderSize,
 				  UINT *pOutHeaderSize);
 
+
+
 #define IN
 #define OUT
 
@@ -52,6 +56,7 @@ Description:			This routine handle PHS(Payload Header Suppression for Tx path.
 					It extracts a fragment of the NDIS_PACKET containing the header
 					to be suppressed.It then supresses the header by invoking PHS exported compress routine.
 					The header data after supression is copied back to the NDIS_PACKET.
+
 
 Input parameters:		IN PMINI_ADAPTER Adapter         - Miniport Adapter Context
 						IN Packet 				- NDIS packet containing data to be transmitted
@@ -102,6 +107,7 @@ int PHSTransmit(PMINI_ADAPTER Adapter,
 
 	usPacketType=((struct ethhdr *)(Packet->data))->h_proto;
 
+
 	pucPHSPktHdrInBuf = Packet->data + BytesToRemove;
 	//considering data after ethernet header
 	if((*PacketLen - BytesToRemove) < MAX_PHS_LENGTHS)
@@ -118,6 +124,7 @@ int PHSTransmit(PMINI_ADAPTER Adapter,
 		(unPHSPktHdrBytesCopied <= MAX_PHS_LENGTHS))
 	{
 
+
 		// Step 2 Supress Header using PHS and fill into intermediate ucaPHSPktHdrOutBuf.
 	// Suppress only if IP Header and PHS Enabled For the Service Flow
 		if(((usPacketType == ETHERNET_FRAMETYPE_IPV4) ||
@@ -125,6 +132,7 @@ int PHSTransmit(PMINI_ADAPTER Adapter,
 			(bHeaderSuppressionEnabled))
 		{
 				BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, PHS_SEND, DBG_LVL_ALL,"\nTrying to PHS Compress Using Classifier rule 0x%X",uiClassifierRuleID);
+
 
 				unPHSNewPktHeaderLen = unPHSPktHdrBytesCopied;
 				ulPhsStatus = PhsCompress(&Adapter->stBCMPhsContext,
@@ -336,9 +344,12 @@ int phs_init(PPHS_DEVICE_EXTENSION pPhsdeviceExtension,PMINI_ADAPTER Adapter)
 		return -ENOMEM;
 	}
 
+
+
 	BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, PHS_DISPATCH, DBG_LVL_ALL, "\n phs_init Successfull");
 	return STATUS_SUCCESS;
 }
+
 
 int PhsCleanup(IN PPHS_DEVICE_EXTENSION pPHSDeviceExt)
 {
@@ -356,6 +367,8 @@ int PhsCleanup(IN PPHS_DEVICE_EXTENSION pPHSDeviceExt)
 
 	return 0;
 }
+
+
 
 //PHS functions
 /*++
@@ -387,6 +400,8 @@ ULONG PhsUpdateClassifierRule(IN void* pvContext,
 	S_SERVICEFLOW_ENTRY *pstServiceFlowEntry = NULL;
     PMINI_ADAPTER Adapter = GET_BCM_ADAPTER(gblpnetdev);
 
+
+
 	PPHS_DEVICE_EXTENSION pDeviceExtension= (PPHS_DEVICE_EXTENSION)pvContext;
 
 	BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, PHS_DISPATCH, DBG_LVL_ALL,"PHS With Corr2 Changes \n");
@@ -396,6 +411,7 @@ ULONG PhsUpdateClassifierRule(IN void* pvContext,
 		BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, PHS_DISPATCH, DBG_LVL_ALL,"Invalid Device Extension\n");
 		return ERR_PHS_INVALID_DEVICE_EXETENSION;
 	}
+
 
 	if(u8AssociatedPHSI == 0)
 	{
@@ -447,6 +463,7 @@ ULONG PhsDeletePHSRule(IN void* pvContext,IN B_UINT16 uiVcid,IN B_UINT8 u8PHSI)
 	S_SERVICEFLOW_ENTRY *pstServiceFlowEntry = NULL;
 	S_CLASSIFIER_TABLE *pstClassifierRulesTable = NULL;
     PMINI_ADAPTER Adapter = GET_BCM_ADAPTER(gblpnetdev);
+
 
 	PPHS_DEVICE_EXTENSION pDeviceExtension= (PPHS_DEVICE_EXTENSION)pvContext;
 
@@ -632,6 +649,7 @@ ULONG PhsDeleteSFRules(IN void* pvContext,IN B_UINT16 uiVcid)
 	return lStatus;
 }
 
+
 /*++
 PhsCompress
 
@@ -668,7 +686,10 @@ ULONG PhsCompress(IN void* pvContext,
 	ULONG lStatus =0;
     PMINI_ADAPTER Adapter = GET_BCM_ADAPTER(gblpnetdev);
 
+
+
 	PPHS_DEVICE_EXTENSION pDeviceExtension= (PPHS_DEVICE_EXTENSION)pvContext;
+
 
 	if(pDeviceExtension == NULL)
 	{
@@ -679,6 +700,7 @@ ULONG PhsCompress(IN void* pvContext,
 	}
 
 	BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, PHS_SEND, DBG_LVL_ALL,"Suppressing header \n");
+
 
 	//Retrieve the SFID Entry Index for requested Service Flow
 	nSFIndex = GetServiceFlowEntry(pDeviceExtension->pstServiceFlowPhsRulesTable,
@@ -699,6 +721,7 @@ ULONG PhsCompress(IN void* pvContext,
 		lStatus =  STATUS_PHS_NOCOMPRESSION ;
 		return lStatus;
 	}
+
 
 	//get rule from SF id,Cls ID pair and proceed
 	pstPhsRule =  pstClassifierEntry->pstPhsRule;
@@ -808,6 +831,7 @@ ULONG PhsDeCompress(IN void* pvContext,
 	return STATUS_PHS_COMPRESSED;
 }
 
+
 //-----------------------------------------------------------------------------
 // Procedure:   free_phs_serviceflow_rules
 //
@@ -872,6 +896,8 @@ static void free_phs_serviceflow_rules(S_SERVICEFLOW_TABLE *psServiceFlowRulesTa
     psServiceFlowRulesTable = NULL;
 }
 
+
+
 static BOOLEAN ValidatePHSRuleComplete(IN S_PHS_RULE *psPhsRule)
 {
 	if(psPhsRule)
@@ -920,6 +946,7 @@ UINT GetServiceFlowEntry(IN S_SERVICEFLOW_TABLE *psServiceFlowTable,
 	*ppstServiceFlowEntry = NULL;
 	return PHS_INVALID_TABLE_INDEX;
 }
+
 
 UINT GetClassifierEntry(IN S_CLASSIFIER_TABLE *pstClassifierTable,
         IN B_UINT32 uiClsid,E_CLASSIFIER_ENTRY_CONTEXT eClsContext,
@@ -1006,6 +1033,7 @@ UINT CreateSFToClassifierRuleMapping(IN B_UINT16 uiVcid,IN B_UINT16  uiClsId,
 
 	if(!bFreeEntryFound)
 		return ERR_SFTABLE_FULL;
+
 
 	psaClassifiertable = psServiceFlowTable->stSFList[iSfIndex].pstClassifierTable;
 	uiStatus = CreateClassifierPHSRule(uiClsId,psaClassifiertable,psPhsRule,
@@ -1106,6 +1134,8 @@ UINT CreateClassiferToPHSRuleMapping(IN B_UINT16 uiVcid,
 		uiStatus=UpdateClassifierPHSRule( uiClsId,  pstClassifierEntry,
 		      psaClassifiertable,  psPhsRule, u8AssociatedPHSI);
 	}
+
+
 
 	return uiStatus;
 }
@@ -1219,6 +1249,7 @@ static UINT CreateClassifierPHSRule(IN B_UINT16  uiClsId,
 	}
 	return nStatus;
 }
+
 
 static UINT UpdateClassifierPHSRule(IN B_UINT16  uiClsId,
       IN S_CLASSIFIER_ENTRY *pstClassifierEntry,
@@ -1358,6 +1389,7 @@ void DumpPhsRules(PPHS_DEVICE_EXTENSION pDeviceExtension)
 	}
 }
 
+
 //-----------------------------------------------------------------------------
 // Procedure:   phs_decompress
 //
@@ -1390,6 +1422,7 @@ int phs_decompress(unsigned char *in_buf,unsigned char *out_buf,
 
 	if((decomp_phs_rules == NULL ))
 		return 0;
+
 
 	tmp_memb = decomp_phs_rules;
 	//BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, PHS_RECEIVE,DBG_LVL_ALL,"\nDECOMP:In phs_decompress PHSI 1  %d",phsi));
@@ -1434,6 +1467,9 @@ int phs_decompress(unsigned char *in_buf,unsigned char *out_buf,
 	return size;
 }
 
+
+
+
 //-----------------------------------------------------------------------------
 // Procedure:   phs_compress
 //
@@ -1467,6 +1503,7 @@ static int phs_compress(S_PHS_RULE  *phs_rule,unsigned char *in_buf
 		return STATUS_PHS_NOCOMPRESSION;
 	}
 
+
 	if(phs_rule->u8PHSS <= *new_header_size)
 	{
 		*header_size = phs_rule->u8PHSS;
@@ -1492,6 +1529,7 @@ static int phs_compress(S_PHS_RULE  *phs_rule,unsigned char *in_buf
 	}
 	return supress;
 }
+
 
 //-----------------------------------------------------------------------------
 // Procedure:	verify_suppress_phsf
@@ -1521,6 +1559,7 @@ static int verify_suppress_phsf(unsigned char *in_buffer,unsigned char *out_buff
 	int bit,i=0;
     PMINI_ADAPTER Adapter = GET_BCM_ADAPTER(gblpnetdev);
     BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, PHS_SEND, DBG_LVL_ALL,"\nCOMP:In verify_phsf PHSM - 0x%X",*phsm);
+
 
 	if(phss>(*new_header_size))
 	{
@@ -1564,3 +1603,9 @@ static int verify_suppress_phsf(unsigned char *in_buffer,unsigned char *out_buff
 	*new_header_size = size;
 	return STATUS_PHS_COMPRESSED;
 }
+
+
+
+
+
+

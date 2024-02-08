@@ -133,3 +133,4 @@ imx_ssi_fiq_rx_buffer:
 imx_ssi_fiq_tx_buffer:
 		.word 0x0
 imx_ssi_fiq_end:
+

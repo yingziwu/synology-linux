@@ -23,6 +23,7 @@
  * ########################################################################
  */
 
+
 #include "ieee754sp.h"
 
 ieee754sp ieee754sp_sub(ieee754sp x, ieee754sp y)
@@ -65,6 +66,7 @@ ieee754sp ieee754sp_sub(ieee754sp x, ieee754sp y)
 	case CLPAIR(IEEE754_CLASS_QNAN, IEEE754_CLASS_DNORM):
 	case CLPAIR(IEEE754_CLASS_QNAN, IEEE754_CLASS_INF):
 		return x;
+
 
 		/* Infinity handling
 		 */
@@ -124,6 +126,7 @@ ieee754sp ieee754sp_sub(ieee754sp x, ieee754sp y)
 
 	assert(xm & SP_HIDDEN_BIT);
 	assert(ym & SP_HIDDEN_BIT);
+
 
 	/* provide guard,round and stick bit space */
 	xm <<= 3;

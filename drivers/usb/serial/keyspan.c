@@ -94,6 +94,7 @@
       Tested on PPC and x86 architectures, seems to behave...
 */
 
+
 #include <linux/kernel.h>
 #include <linux/jiffies.h>
 #include <linux/errno.h>
@@ -195,6 +196,7 @@ struct keyspan_port_private {
 #include "keyspan_usa90msg.h"
 #include "keyspan_usa67msg.h"
 
+
 /* Functions used by new usb-serial code. */
 static int __init keyspan_init(void)
 {
@@ -259,6 +261,7 @@ static void keyspan_break_ctl(struct tty_struct *tty, int break_state)
 
 	keyspan_send_setup(port, 0);
 }
+
 
 static void keyspan_set_termios(struct tty_struct *tty,
 		struct usb_serial_port *port, struct ktermios *old_termios)
@@ -434,24 +437,28 @@ static void	usa26_indat_callback(struct urb *urb)
 		if ((data[0] & 0x80) == 0) {
 			/* no errors on individual bytes, only
 			   possible overrun err */
-			if (data[0] & RXERROR_OVERRUN)
-				err = TTY_OVERRUN;
-			else
-				err = 0;
+			if (data[0] & RXERROR_OVERRUN) {
+				tty_insert_flip_char(tty, 0, TTY_OVERRUN);
+			}
 			for (i = 1; i < urb->actual_length ; ++i)
-				tty_insert_flip_char(tty, data[i], err);
+				tty_insert_flip_char(tty, data[i], TTY_NORMAL);
 		} else {
 			/* some bytes had errors, every byte has status */
 			dbg("%s - RX error!!!!", __func__);
 			for (i = 0; i + 1 < urb->actual_length; i += 2) {
-				int stat = data[i], flag = 0;
-				if (stat & RXERROR_OVERRUN)
-					flag |= TTY_OVERRUN;
-				if (stat & RXERROR_FRAMING)
-					flag |= TTY_FRAME;
-				if (stat & RXERROR_PARITY)
-					flag |= TTY_PARITY;
+				int stat = data[i];
+				int flag = TTY_NORMAL;
+
+				if (stat & RXERROR_OVERRUN) {
+					tty_insert_flip_char(tty, 0,
+								TTY_OVERRUN);
+				}
 				/* XXX should handle break (0x10) */
+				if (stat & RXERROR_PARITY)
+					flag = TTY_PARITY;
+				else if (stat & RXERROR_FRAMING)
+					flag = TTY_FRAME;
+
 				tty_insert_flip_char(tty, data[i+1], flag);
 			}
 		}
@@ -532,6 +539,7 @@ static void	usa26_instat_callback(struct urb *urb)
 
 	/* Now do something useful with the data */
 
+
 	/* Check port number from message and retrieve private data */
 	if (msg->port >= serial->num_ports) {
 		dbg("%s - Unexpected port number %d", __func__, msg->port);
@@ -566,6 +574,7 @@ static void	usa26_glocont_callback(struct urb *urb)
 {
 	dbg("%s", __func__);
 }
+
 
 static void usa28_indat_callback(struct urb *urb)
 {
@@ -701,6 +710,7 @@ static void	usa28_glocont_callback(struct urb *urb)
 	dbg("%s", __func__);
 }
 
+
 static void	usa49_glocont_callback(struct urb *urb)
 {
 	struct usb_serial *serial;
@@ -826,14 +836,19 @@ static void	usa49_indat_callback(struct urb *urb)
 		} else {
 			/* some bytes had errors, every byte has status */
 			for (i = 0; i + 1 < urb->actual_length; i += 2) {
-				int stat = data[i], flag = 0;
-				if (stat & RXERROR_OVERRUN)
-					flag |= TTY_OVERRUN;
-				if (stat & RXERROR_FRAMING)
-					flag |= TTY_FRAME;
-				if (stat & RXERROR_PARITY)
-					flag |= TTY_PARITY;
+				int stat = data[i];
+				int flag = TTY_NORMAL;
+
+				if (stat & RXERROR_OVERRUN) {
+					tty_insert_flip_char(tty, 0,
+								TTY_OVERRUN);
+				}
 				/* XXX should handle break (0x10) */
+				if (stat & RXERROR_PARITY)
+					flag = TTY_PARITY;
+				else if (stat & RXERROR_FRAMING)
+					flag = TTY_FRAME;
+
 				tty_insert_flip_char(tty, data[i+1], flag);
 			}
 		}
@@ -894,14 +909,19 @@ static void usa49wg_indat_callback(struct urb *urb)
 				 * some bytes had errors, every byte has status
 				 */
 				for (x = 0; x + 1 < len; x += 2) {
-					int stat = data[i], flag = 0;
-					if (stat & RXERROR_OVERRUN)
-						flag |= TTY_OVERRUN;
-					if (stat & RXERROR_FRAMING)
-						flag |= TTY_FRAME;
-					if (stat & RXERROR_PARITY)
-						flag |= TTY_PARITY;
+					int stat = data[i];
+					int flag = TTY_NORMAL;
+
+					if (stat & RXERROR_OVERRUN) {
+						tty_insert_flip_char(tty, 0,
+								     TTY_OVERRUN);
+					}
 					/* XXX should handle break (0x10) */
+					if (stat & RXERROR_PARITY)
+						flag = TTY_PARITY;
+					else if (stat & RXERROR_FRAMING)
+						flag = TTY_FRAME;
+
 					tty_insert_flip_char(tty,
 							data[i+1], flag);
 					i += 2;
@@ -961,25 +981,31 @@ static void usa90_indat_callback(struct urb *urb)
 			if ((data[0] & 0x80) == 0) {
 				/* no errors on individual bytes, only
 				   possible overrun err*/
-				if (data[0] & RXERROR_OVERRUN)
-					err = TTY_OVERRUN;
-				else
-					err = 0;
+				if (data[0] & RXERROR_OVERRUN) {
+					tty_insert_flip_char(tty, 0,
+							     TTY_OVERRUN);
+				}
 				for (i = 1; i < urb->actual_length ; ++i)
 					tty_insert_flip_char(tty, data[i],
-									err);
+							     TTY_NORMAL);
 			}  else {
 			/* some bytes had errors, every byte has status */
 				dbg("%s - RX error!!!!", __func__);
 				for (i = 0; i + 1 < urb->actual_length; i += 2) {
-					int stat = data[i], flag = 0;
-					if (stat & RXERROR_OVERRUN)
-						flag |= TTY_OVERRUN;
-					if (stat & RXERROR_FRAMING)
-						flag |= TTY_FRAME;
-					if (stat & RXERROR_PARITY)
-						flag |= TTY_PARITY;
+					int stat = data[i];
+					int flag = TTY_NORMAL;
+
+					if (stat & RXERROR_OVERRUN) {
+						tty_insert_flip_char(
+								tty, 0,
+								TTY_OVERRUN);
+					}
 					/* XXX should handle break (0x10) */
+					if (stat & RXERROR_PARITY)
+						flag = TTY_PARITY;
+					else if (stat & RXERROR_FRAMING)
+						flag = TTY_FRAME;
+
 					tty_insert_flip_char(tty, data[i+1],
 									flag);
 				}
@@ -995,6 +1021,7 @@ static void usa90_indat_callback(struct urb *urb)
 	if (err != 0)
 		dbg("%s - resubmit read urb failed. (%d)", __func__, err);
 }
+
 
 static void	usa90_instat_callback(struct urb *urb)
 {
@@ -1090,6 +1117,7 @@ static void	usa67_instat_callback(struct urb *urb)
 		return;
 	}
 
+
 	/* Now do something useful with the data */
 	msg = (struct keyspan_usa67_portStatusMessage *)data;
 
@@ -1179,6 +1207,7 @@ static int keyspan_write_room(struct tty_struct *tty)
 	}
 	return 0;
 }
+
 
 static int keyspan_open(struct tty_struct *tty, struct usb_serial_port *port)
 {
@@ -1824,7 +1853,7 @@ static int keyspan_usa26_send_setup(struct usb_serial *serial,
 	d_details = s_priv->device_details;
 	device_port = port->number - port->serial->minor;
 
-	outcont_urb = d_details->outcont_endpoints[port->number];
+	outcont_urb = d_details->outcont_endpoints[device_port];
 	this_urb = p_priv->outcont_urb;
 
 	dbg("%s - endpoint %d", __func__, usb_pipeendpoint(this_urb->pipe));
@@ -2591,6 +2620,7 @@ static void keyspan_send_setup(struct usb_serial_port *port, int reset_port)
 	}
 }
 
+
 /* Gets called by the "real" driver (ie once firmware is loaded
    and renumeration has taken place. */
 static int keyspan_startup(struct usb_serial *serial)
@@ -2610,7 +2640,7 @@ static int keyspan_startup(struct usb_serial *serial)
 	if (d_details == NULL) {
 		dev_err(&serial->dev->dev, "%s - unknown product id %x\n",
 		    __func__, le16_to_cpu(serial->dev->descriptor.idProduct));
-		return 1;
+		return -ENODEV;
 	}
 
 	/* Setup private data for serial driver */
@@ -2739,3 +2769,4 @@ MODULE_FIRMWARE("keyspan/usa49wlc.fw");
 
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "Debug enabled or not");
+

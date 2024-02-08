@@ -323,6 +323,7 @@ static void at91cap9_poweroff(void)
 	at91_sys_write(AT91_SHDW_CR, AT91_SHDW_KEY | AT91_SHDW_SHDW);
 }
 
+
 /* --------------------------------------------------------------------
  *  AT91CAP9 processor initialization
  * -------------------------------------------------------------------- */

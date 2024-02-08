@@ -57,6 +57,7 @@ const char *__strerror[] = {
 	"no more asie notification",
 };
 
+
 /** Return a string matching the given error code */
 const char *uwb_rc_strerror(unsigned code)
 {
@@ -139,6 +140,7 @@ static void uwb_rc_cmd_done(struct uwb_rc *rc, void *arg,
 	complete(&p->completion);
 }
 
+
 /**
  * Generic function for issuing commands to the Radio Control Interface
  *
@@ -198,6 +200,7 @@ ssize_t __uwb_rc_cmd(struct uwb_rc *rc, const char *cmd_name,
 	return params.reply_size;
 }
 
+
 /**
  * Generic function for issuing commands to the Radio Control Interface
  *
@@ -241,6 +244,7 @@ ssize_t uwb_rc_cmd(struct uwb_rc *rc, const char *cmd_name,
 }
 EXPORT_SYMBOL_GPL(uwb_rc_cmd);
 
+
 /**
  * Generic function for issuing commands to the Radio Control
  * Interface that return an unknown amount of data
@@ -271,6 +275,7 @@ ssize_t uwb_rc_vcmd(struct uwb_rc *rc, const char *cmd_name,
 			    expected_type, expected_event, preply);
 }
 EXPORT_SYMBOL_GPL(uwb_rc_vcmd);
+
 
 /**
  * Reset a UWB Host Controller (and all radio settings)

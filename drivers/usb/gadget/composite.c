@@ -156,7 +156,7 @@ int config_ep_by_speed(struct usb_gadget *g,
 
 ep_found:
 	/* commit results */
-	_ep->maxpacket = usb_endpoint_maxp(chosen_desc);
+	_ep->maxpacket = usb_endpoint_maxp(chosen_desc) & 0x7ff;
 	_ep->desc = chosen_desc;
 	_ep->comp_desc = NULL;
 	_ep->maxburst = 0;
@@ -585,6 +585,7 @@ static void reset_config(struct usb_composite_dev *cdev)
 		bitmap_zero(f->endpoints, 32);
 	}
 	cdev->config = NULL;
+	cdev->delayed_status = 0;
 }
 
 static int set_config(struct usb_composite_dev *cdev,
@@ -1000,6 +1001,7 @@ int usb_string_ids_n(struct usb_composite_dev *c, unsigned n)
 	return next + 1;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static void composite_setup_complete(struct usb_ep *ep, struct usb_request *req)
@@ -1124,9 +1126,7 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		value = min(w_length, (u16) 1);
 		break;
 
-	/* function drivers must handle get/set altsetting; if there's
-	 * no get() method, we know only altsetting zero works.
-	 */
+	/* function drivers must handle get/set altsetting */
 	case USB_REQ_SET_INTERFACE:
 		if (ctrl->bRequestType != USB_RECIP_INTERFACE)
 			goto unknown;
@@ -1135,7 +1135,13 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		f = cdev->config->interface[intf];
 		if (!f)
 			break;
-		if (w_value && !f->set_alt)
+
+		/*
+		 * If there's no get_alt() method, we know only altsetting zero
+		 * works. There is no need to check if set_alt() is not NULL
+		 * as we check this in usb_add_function().
+		 */
+		if (w_value && !f->get_alt)
 			break;
 		value = f->set_alt(f, w_index, w_value);
 		if (value == USB_GADGET_DELAYED_STATUS) {
@@ -1640,3 +1646,4 @@ void usb_composite_setup_continue(struct usb_composite_dev *cdev)
 
 	spin_unlock_irqrestore(&cdev->lock, flags);
 }
+

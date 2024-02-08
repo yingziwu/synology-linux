@@ -9,6 +9,7 @@
    license alternatives that you have not elected to use and (iii) preserve the
    Marvell copyright notice above.
 
+
 ********************************************************************************
    Marvell GPL License Option
 
@@ -35,6 +36,7 @@
 #include <linux/init.h>
 #include <linux/platform_device.h>
 #include <linux/mbus.h>
+
 
 #include <asm/io.h>
 #include <asm/irq.h>

@@ -458,6 +458,7 @@ struct xhci_ep_ctx *etxhci_get_ep_ctx(struct xhci_hcd *xhci,
 		(ctx->bytes + (ep_index * CTX_SIZE(xhci->hcc_params)));
 }
 
+
 /***************** Streams structures manipulation *************************/
 
 static void xhci_free_stream_ctx(struct xhci_hcd *xhci,
@@ -834,6 +835,7 @@ void etxhci_free_stream_info(struct xhci_hcd *xhci,
 	kfree(stream_info);
 }
 
+
 /***************** Device context manipulation *************************/
 
 static void xhci_init_endpoint_timer(struct xhci_hcd *xhci,
@@ -1199,6 +1201,7 @@ static unsigned int xhci_parse_microframe_interval(struct usb_device *udev,
 	return xhci_microframes_to_exponent(udev, ep,
 			ep->desc.bInterval, 0, 15);
 }
+
 
 static unsigned int xhci_parse_frame_interval(struct usb_device *udev,
 		struct usb_host_endpoint *ep)

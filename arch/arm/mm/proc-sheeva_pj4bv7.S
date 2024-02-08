@@ -44,6 +44,7 @@
 #define TTB_FLAGS_UP	TTB_IRGN_WB|TTB_RGN_OC_WB
 #define PMD_FLAGS_UP	PMD_SECT_WB
 
+
 /* PTWs cacheable, inner WBWA shareable, outer WBWA not shareable */
 #define TTB_FLAGS_SMP	TTB_IRGN_WBWA|TTB_S|TTB_NOS|TTB_RGN_OC_WBWA
 #define PMD_FLAGS_SMP	PMD_SECT_WBWA|PMD_SECT_S
@@ -530,6 +531,7 @@ ENDPROC(cpu_v7_do_resume)
 #endif
 	__CPUINIT
 
+	
 /*
 ++ *	__pj4bv7_setup
  *
@@ -658,6 +660,7 @@ adr	r12, __pj4bv7_setup_stack		@ the local stack
 	ldr	r10, =0x00000c08		@ Cortex-A8 primary part number
 	teq	r0, r10
 	bne	2f
+
 
 #ifdef CONFIG_ARM_ERRATA_430973
 	teq	r5, #0x00100000			@ only present in r1p*

@@ -189,7 +189,7 @@ static void br_record_config_information(struct net_bridge_port *p,
 	p->designated_age = jiffies + bpdu->message_age;
 
 	mod_timer(&p->message_age_timer, jiffies
-		  + (p->br->max_age - bpdu->message_age));
+		  + (bpdu->max_age - bpdu->message_age));
 }
 
 /* called under bridge lock */
@@ -349,6 +349,7 @@ void br_become_designated_port(struct net_bridge_port *p)
 	p->designated_bridge = br->bridge_id;
 	p->designated_port = p->port_id;
 }
+
 
 /* called under bridge lock */
 static void br_make_blocking(struct net_bridge_port *p)

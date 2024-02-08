@@ -3679,3 +3679,4 @@ MODULE_DESCRIPTION("Cyclades-PC300 cards driver");
 MODULE_AUTHOR(  "Author: Ivan Passos <ivan@cyclades.com>\r\n"
                 "Maintainer: PC300 Maintainer <pc300@cyclades.com");
 MODULE_LICENSE("GPL");
+

@@ -77,6 +77,7 @@ static  GT_U8 tbl_1240[GT_LOOKUP_TABLE_ENTRY] =
                      115,116,117,118,119,120,121,122,123,124,
                      125,126,127,128,129,130};
 
+
 /*******************************************************************************
 * getDetailedAdvVCTResult
 *
@@ -168,6 +169,7 @@ GT_ADV_VCT_STATUS getDetailedAdvVCTResult
                 update = GT_TRUE;
         }
     }
+
 
     switch (result)
     {
@@ -292,6 +294,7 @@ GT_16 analizeAdvVCTNoCrosspairResult
     return dist2fault;
 }
 
+
 static
 GT_16 analizeAdvVCTResult
 (
@@ -406,6 +409,7 @@ GT_16 analizeAdvVCTResult
 
     return dist2fault;
 }
+
 
 /*******************************************************************************
 * runAdvCableTest_1181
@@ -522,6 +526,8 @@ GT_STATUS runAdvCableTest_1181
 
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * getAdvCableStatus_1181
@@ -644,6 +650,7 @@ GT_STATUS getAdvCableStatus_1181
 
     return GT_OK;
 }
+
 
 static
 GT_STATUS runAdvCableTest_1116_set
@@ -955,6 +962,7 @@ GT_STATUS getAdvCableStatus_1116
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gvctGetAdvCableStatus
 *
@@ -1156,6 +1164,7 @@ cableDiagCleanup:
     return status;
 }
 
+
 /*******************************************************************************
 * dspLookup
 *
@@ -1303,6 +1312,7 @@ GT_STATUS getDSPDistance_1111
     return dspLookup(phyInfo,data,cableLen);
 }
 
+
 /*******************************************************************************
 * getDSPDistance_1181
 *
@@ -1376,6 +1386,7 @@ GT_STATUS getDSPDistance_1181
 
     return dspLookup(phyInfo,data,cableLen);
 }
+
 
 /*******************************************************************************
 * getDSPDistance_1240
@@ -1451,6 +1462,8 @@ GT_STATUS getDSPDistance_1240
     return dspLookup(phyInfo,data,cableLen);
 }
 
+
+
 /*******************************************************************************
 * getExStatus_28
 *
@@ -1494,6 +1507,7 @@ static GT_STATUS getExStatus_28
             return retVal;
         }
     }
+
 
     /*
      * get data from 28_5 register for pair swap
@@ -1570,6 +1584,7 @@ static GT_STATUS getExStatus_28
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * getExStatus
@@ -1720,8 +1735,10 @@ static GT_STATUS getExStatus
         extendedStatus->pairSkew[i] = ((u16Data >> i*4) & 0xF) * 8;
     }
 
+
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gvctGetAdvExtendedStatus

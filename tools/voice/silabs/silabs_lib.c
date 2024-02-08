@@ -235,6 +235,7 @@ int silabs_device_init(DeviceFuncType func, int devNum)
 	return data.status;
 }
 
+
 int silabs_channel_init(ChannelFuncType func, int chanNum)
 {
 	SilabsModChannelObjType data;
@@ -407,6 +408,7 @@ bool silabs_get_event(SiEventType *event_p)
 		printf("Device %s is not accessible\n", dev_name);
 		return false;
 	}
+
 
 	if (ioctl(dev_fd, SILABS_MOD_IOX_GET_EVENT, &data) < 0) {
 		printf("ioctl(SILABS_MOD_IOX_GET_EVENT) failed\n");

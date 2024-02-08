@@ -416,6 +416,7 @@ static void reg_w_buf(struct gspca_dev *gspca_dev,
 	}
 }
 
+
 static void reg_w(struct gspca_dev *gspca_dev,
 		  __u8 index,
 		  __u8 value)
@@ -1189,6 +1190,7 @@ static const struct usb_device_id device_table[] = {
 	{USB_DEVICE(0x093a, 0x2620)},
 	{USB_DEVICE(0x093a, 0x2621)},
 	{USB_DEVICE(0x093a, 0x2622), .driver_info = FL_VFLIP},
+	{USB_DEVICE(0x093a, 0x2623), .driver_info = FL_VFLIP},
 	{USB_DEVICE(0x093a, 0x2624), .driver_info = FL_VFLIP},
 	{USB_DEVICE(0x093a, 0x2625)},
 	{USB_DEVICE(0x093a, 0x2626)},

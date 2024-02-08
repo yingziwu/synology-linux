@@ -370,6 +370,9 @@ static void rfbi_print_timings(void)
 static void rfbi_print_timings(void) {}
 #endif
 
+
+
+
 static u32 extif_clk_period;
 
 static inline unsigned long round_to_extif_ticks(unsigned long ps, int div)
@@ -424,6 +427,7 @@ static int calc_extif_timings(struct rfbi_timings *t)
 	DSSERR("can't setup timings\n");
 	return -1;
 }
+
 
 static void rfbi_set_timings(int rfbi_module, struct rfbi_timings *t)
 {
@@ -738,10 +742,12 @@ static int rfbi_configure(int rfbi_module, int bpp, int lines)
 	rfbi_write_reg(RFBI_DATA_CYCLE2(rfbi_module), cycle2);
 	rfbi_write_reg(RFBI_DATA_CYCLE3(rfbi_module), cycle3);
 
+
 	l = rfbi_read_reg(RFBI_CONTROL);
 	l = FLD_MOD(l, rfbi_module+1, 3, 2); /* Select CSx */
 	l = FLD_MOD(l, 0, 1, 1); /* clear bypass */
 	rfbi_write_reg(RFBI_CONTROL, l);
+
 
 	DSSDBG("RFBI config: bpp %d, lines %d, cycles: 0x%x 0x%x 0x%x\n",
 	       bpp, lines, cycle1, cycle2, cycle3);
@@ -874,6 +880,7 @@ int omapdss_rfbi_display_enable(struct omap_dss_device *dssdev)
 
 	rfbi_set_timings(dssdev->phy.rfbi.channel,
 			 &dssdev->ctrl.rfbi_timings);
+
 
 	return 0;
 err1:

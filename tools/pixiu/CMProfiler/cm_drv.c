@@ -401,6 +401,7 @@ static int allocate_process_create_buffer(unsigned int size)
 	return allocate_buffer(&g_process_create_buf_info, size);
 }
 
+
 static int allocate_thread_create_buffer(unsigned int size)
 {
 	return allocate_buffer(&g_thread_create_buf_info, size);
@@ -1251,6 +1252,7 @@ static int px_cm_d_release(struct inode *inode, struct file *fp)
 
 	return 0;
 }
+
 
 #if defined(LINUX_VERSION_CODE) && (LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 35))
 static struct file_operations px_cm_d_fops = {
