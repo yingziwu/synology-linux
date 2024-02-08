@@ -24,6 +24,9 @@
 #include "btrfs_inode.h"
 #include "delayed-ref.h"
 #include "ctree.h"
+#if defined(MY_ABC_HERE)
+#include "disk-io.h"
+#endif /* MY_ABC_HERE */
 
 enum btrfs_trans_state {
 	TRANS_STATE_RUNNING		= 0,
@@ -179,6 +182,10 @@ struct btrfs_pending_snapshot {
 	int error;
 	bool readonly;
 	struct list_head list;
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	/* Preallocated new_fs_root_args */
+	struct btrfs_new_fs_root_args *new_fs_root_args;
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
 };
 
 static inline void btrfs_set_inode_last_trans(struct btrfs_trans_handle *trans,

@@ -21,10 +21,6 @@ static int i2c_probe(struct pcie_device *dev)
 		goto END;
 	}
 	asm2824_device[busno] = platform_device_alloc("asm2824-i2c", busno);
-	if (NULL == asm2824_device) {
-		err = -ENOMEM;
-		goto END;
-	}
 #ifdef MY_ABC_HERE
 	syno_add_eunit_led_remap(dev->port);
 #endif /* MY_ABC_HERE */

@@ -411,7 +411,11 @@ static void kernel_shutdown_prepare(enum system_states state)
 #endif /* MY_DEF_HERE */
 #if defined(MY_ABC_HERE) && defined(MY_ABC_HERE)
 	/* When WOL is set, CPLD will light on phy led as boot if this pin is high, before BIOS initialization. */
-	if (syno_is_hw_version(HW_DS718p) || syno_is_hw_version(HW_DS218p) || syno_is_hw_version(HW_DS220p)) {
+	if (syno_is_hw_version(HW_DS718p) \
+		|| syno_is_hw_version(HW_DS218p) \
+		|| syno_is_hw_version(HW_DS220p) \
+		|| syno_is_hw_version(HW_DS224p)) {
+
 		SYNO_GPIO_WRITE (PHY_LED_CTRL_PIN(), 0);
 	}
 #endif /* MY_ABC_HERE && MY_ABC_HERE */
@@ -725,22 +729,22 @@ static int __init reboot_setup(char *str)
 			break;
 
 		case 's':
-		{
-			int rc;
-
-			if (isdigit(*(str+1))) {
-				rc = kstrtoint(str+1, 0, &reboot_cpu);
-				if (rc)
-					return rc;
-			} else if (str[1] == 'm' && str[2] == 'p' &&
-				   isdigit(*(str+3))) {
-				rc = kstrtoint(str+3, 0, &reboot_cpu);
-				if (rc)
-					return rc;
-			} else
+			if (isdigit(*(str+1)))
+				reboot_cpu = simple_strtoul(str+1, NULL, 0);
+			else if (str[1] == 'm' && str[2] == 'p' &&
+							isdigit(*(str+3)))
+				reboot_cpu = simple_strtoul(str+3, NULL, 0);
+			else
 				reboot_mode = REBOOT_SOFT;
+			if (reboot_cpu >= num_possible_cpus()) {
+				pr_err("Ignoring the CPU number in reboot= option. "
+				       "CPU %d exceeds possible cpu number %d\n",
+				       reboot_cpu, num_possible_cpus());
+				reboot_cpu = 0;
+				break;
+			}
 			break;
-		}
+
 		case 'g':
 			reboot_mode = REBOOT_GPIO;
 			break;

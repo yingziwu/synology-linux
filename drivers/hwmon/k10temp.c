@@ -253,7 +253,7 @@ static bool has_erratum_319(struct pci_dev *pdev)
 	 * and AM3 formats, but that's the best we can do.
 	 */
 	return boot_cpu_data.x86_model < 4 ||
-	       (boot_cpu_data.x86_model == 4 && boot_cpu_data.x86_mask <= 2);
+	       (boot_cpu_data.x86_model == 4 && boot_cpu_data.x86_stepping <= 2);
 }
 
 #ifdef MY_DEF_HERE

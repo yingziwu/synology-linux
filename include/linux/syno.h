@@ -51,6 +51,9 @@
 /**
  * Dsc: Let 6281 soc register before 7042.
  */
+#if defined(CONFIG_ARCH_FEROCEON) || defined(CONFIG_ARCH_KIRKWOOD) || defined(CONFIG_ARCH_ARMADA370)
+#define SYNO_ESATA_7042
+#endif
 
 /******************************* Kernel Core **************************************/
 /**
@@ -382,6 +385,9 @@
  * Dsc: added features to switch the achi led on and off
  * Yet: kernel/sysctl.c include/linux/libata.h drivers/ata/ahci.c drivers/ata/libata-core.c
  */
+#ifdef MY_DEF_HERE
+#define SYNO_ATA_AHCI_LED_SWITCH
+#endif /* CONFIG_SYNO_SATA_AHCI_LED_SWITCH */
 
 /**
  * Fix: #21684
@@ -519,6 +525,9 @@
 /**
  * Dsc: Performance tuning for mv628x.
  */
+#if defined(CONFIG_MV_XOR_MEMCOPY) && defined(MY_ABC_HERE)
+#define SYNO_MV_PERF
+#endif /* CONFIG_MV_XOR_MEMCOPY && MY_ABC_HERE */
 
 /******************************* Misc. ********************************************/
 
@@ -578,7 +587,7 @@
  *      disk active, we have to set the offset 0x104F0 bit 0-1
  *      to 0x00 and bit 2-3 to 1. See data sheet page 282 (Table
  *      232: GPIO port control register), this is for MV BSP driver
- *      MY_DEF_HERE is for open source driver
+ *      SYNO_OSS_SATA_LED is for open source driver
  * IN : mvSata.c
  */
 
