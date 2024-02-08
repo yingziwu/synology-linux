@@ -73,6 +73,7 @@ enum {
 	sym_vvar_start,
 	sym_vvar_page,
 	sym_hpet_page,
+	sym_pvclock_page,
 	sym_VDSO_FAKE_SECTION_TABLE_START,
 	sym_VDSO_FAKE_SECTION_TABLE_END,
 };
@@ -80,6 +81,7 @@ enum {
 const int special_pages[] = {
 	sym_vvar_page,
 	sym_hpet_page,
+	sym_pvclock_page,
 };
 
 struct vdso_sym {
@@ -91,6 +93,7 @@ struct vdso_sym required_syms[] = {
 	[sym_vvar_start] = {"vvar_start", true},
 	[sym_vvar_page] = {"vvar_page", true},
 	[sym_hpet_page] = {"hpet_page", true},
+	[sym_pvclock_page] = {"pvclock_page", true},
 	[sym_VDSO_FAKE_SECTION_TABLE_START] = {
 		"VDSO_FAKE_SECTION_TABLE_START", false
 	},
@@ -143,7 +146,6 @@ extern void bad_put_le(void);
 
 #define PUT_LE(x, val)					\
 	PLE(x, val, 64, PLE(x, val, 32, PLE(x, val, 16, LAST_PLE(x, val))))
-
 
 #define NSYMS (sizeof(required_syms) / sizeof(required_syms[0]))
 

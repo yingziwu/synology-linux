@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	Sysfs attributes of bridge
  *	Linux ethernet bridge
@@ -47,7 +50,6 @@ static ssize_t store_bridge_parm(struct device *d,
 	err = (*set)(br, val);
 	return err ? err : len;
 }
-
 
 static ssize_t forward_delay_show(struct device *d,
 				  struct device_attribute *attr, char *buf)
@@ -128,7 +130,6 @@ static ssize_t stp_state_show(struct device *d,
 	return sprintf(buf, "%d\n", br->stp_enabled);
 }
 
-
 static ssize_t stp_state_store(struct device *d,
 			       struct device_attribute *attr, const char *buf,
 			       size_t len)
@@ -160,7 +161,6 @@ static ssize_t group_fwd_mask_show(struct device *d,
 	struct net_bridge *br = to_bridge(d);
 	return sprintf(buf, "%#x\n", br->group_fwd_mask);
 }
-
 
 static ssize_t group_fwd_mask_store(struct device *d,
 				    struct device_attribute *attr,
@@ -748,6 +748,24 @@ static ssize_t default_pvid_store(struct device *d,
 	return store_bridge_parm(d, buf, len, br_vlan_set_default_pvid);
 }
 static DEVICE_ATTR_RW(default_pvid);
+
+#if defined(MY_DEF_HERE)
+static ssize_t vlan_stats_enabled_show(struct device *d,
+				       struct device_attribute *attr,
+				       char *buf)
+{
+	struct net_bridge *br = to_bridge(d);
+	return sprintf(buf, "%u\n", br->vlan_stats_enabled);
+}
+
+static ssize_t vlan_stats_enabled_store(struct device *d,
+					struct device_attribute *attr,
+					const char *buf, size_t len)
+{
+	return store_bridge_parm(d, buf, len, br_vlan_set_stats);
+}
+static DEVICE_ATTR_RW(vlan_stats_enabled);
+#endif /* MY_DEF_HERE */
 #endif
 
 static struct attribute *bridge_attrs[] = {
@@ -795,6 +813,9 @@ static struct attribute *bridge_attrs[] = {
 	&dev_attr_vlan_filtering.attr,
 	&dev_attr_vlan_protocol.attr,
 	&dev_attr_default_pvid.attr,
+#if defined(MY_DEF_HERE)
+	&dev_attr_vlan_stats_enabled.attr,
+#endif /* MY_DEF_HERE */
 #endif
 	NULL
 };

@@ -1,21 +1,7 @@
-/*
-   linear.c : Multiple Devices driver for Linux
-	      Copyright (C) 1994-96 Marc ZYNGIER
-	      <zyngier@ufr-info-p7.ibp.fr> or
-	      <maz@gloups.fdn.fr>
-
-   Linear mode management functions.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   You should have received a copy of the GNU General Public License
-   (for example /usr/src/linux/COPYING); if not, write to the Free
-   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/blkdev.h>
 #include <linux/raid/md_u.h>
 #include <linux/seq_file.h>
@@ -24,9 +10,6 @@
 #include "md.h"
 #include "linear.h"
 
-/*
- * find which device holds a particular offset
- */
 static inline struct dev_info *which_dev(struct mddev *mddev, sector_t sector)
 {
 	int lo, mid, hi;
@@ -35,10 +18,6 @@ static inline struct dev_info *which_dev(struct mddev *mddev, sector_t sector)
 	lo = 0;
 	hi = mddev->raid_disks - 1;
 	conf = mddev->private;
-
-	/*
-	 * Binary Search
-	 */
 
 	while (hi > lo) {
 
@@ -52,12 +31,6 @@ static inline struct dev_info *which_dev(struct mddev *mddev, sector_t sector)
 	return conf->disks + lo;
 }
 
-/*
- * In linear_congested() conf->raid_disks is used as a copy of
- * mddev->raid_disks to iterate conf->disks[], because conf->raid_disks
- * and conf->disks[] are created in linear_conf(), they are always
- * consitent with each other, but mddev->raid_disks does not.
- */
 static int linear_congested(struct mddev *mddev, int bits)
 {
 	struct linear_conf *conf;
@@ -65,11 +38,29 @@ static int linear_congested(struct mddev *mddev, int bits)
 
 	rcu_read_lock();
 	conf = rcu_dereference(mddev->private);
+#ifdef MY_ABC_HERE
+	if (mddev->degraded) {
+		rcu_read_unlock();
+		return ret;
+	}
 
+	for (i = 0; i < conf->raid_disks && !ret ; i++) {
+		struct md_rdev *rdev = rcu_dereference(conf->disks[i].rdev);
+		struct request_queue *q = NULL;
+
+		if (!rdev) {
+			continue;
+		}
+
+		q = bdev_get_queue(rdev->bdev);
+		ret |= bdi_congested(&q->backing_dev_info, bits);
+	}
+#else  
 	for (i = 0; i < conf->raid_disks && !ret ; i++) {
 		struct request_queue *q = bdev_get_queue(conf->disks[i].rdev->bdev);
 		ret |= bdi_congested(&q->backing_dev_info, bits);
 	}
+#endif  
 
 	rcu_read_unlock();
 	return ret;
@@ -131,9 +122,22 @@ static struct linear_conf *linear_conf(struct mddev *mddev, int raid_disks)
 			discard_supported = true;
 	}
 	if (cnt != raid_disks) {
+#ifdef MY_ABC_HERE
+		 
+		mddev->degraded = mddev->raid_disks - cnt;
+#ifdef MY_ABC_HERE
+		if (MD_CRASHED_ASSEMBLE != mddev->nodev_and_crashed) {
+			mddev->nodev_and_crashed = MD_CRASHED;
+		}
+#endif  
+		printk(KERN_ERR "md/linear:%s: not enough drives present.\n",
+		       mdname(mddev));
+		return conf;
+#else  
 		printk(KERN_ERR "md/linear:%s: not enough drives present. Aborting!\n",
 		       mdname(mddev));
 		goto out;
+#endif  
 	}
 
 	if (!discard_supported)
@@ -141,9 +145,6 @@ static struct linear_conf *linear_conf(struct mddev *mddev, int raid_disks)
 	else
 		queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, mddev->queue);
 
-	/*
-	 * Here we calculate the device offsets.
-	 */
 	conf->disks[0].end_sector = conf->disks[0].rdev->sectors;
 
 	for (i = 1; i < raid_disks; i++)
@@ -151,17 +152,6 @@ static struct linear_conf *linear_conf(struct mddev *mddev, int raid_disks)
 			conf->disks[i-1].end_sector +
 			conf->disks[i].rdev->sectors;
 
-	/*
-	 * conf->raid_disks is copy of mddev->raid_disks. The reason to
-	 * keep a copy of mddev->raid_disks in struct linear_conf is,
-	 * mddev->raid_disks may not be consistent with pointers number of
-	 * conf->disks[] when it is updated in linear_add() and used to
-	 * iterate old conf->disks[] earray in linear_congested().
-	 * Here conf->raid_disks is always consitent with number of
-	 * pointers in conf->disks[] array, and mddev->private is updated
-	 * with rcu_assign_pointer() in linear_addr(), such race can be
-	 * avoided.
-	 */
 	conf->raid_disks = raid_disks;
 
 	return conf;
@@ -178,6 +168,9 @@ static int linear_run (struct mddev *mddev)
 
 	if (md_check_no_bitmap(mddev))
 		return -EINVAL;
+#ifdef MY_ABC_HERE
+	mddev->degraded = 0;
+#endif  
 	conf = linear_conf(mddev, mddev->raid_disks);
 
 	if (!conf)
@@ -195,14 +188,7 @@ static int linear_run (struct mddev *mddev)
 
 static int linear_add(struct mddev *mddev, struct md_rdev *rdev)
 {
-	/* Adding a drive to a linear array allows the array to grow.
-	 * It is permitted if the new drive has a matching superblock
-	 * already on it, with raid_disk equal to raid_disks.
-	 * It is achieved by creating a new linear_private_data structure
-	 * and swapping it in in-place of the current one.
-	 * The current one is never freed until the array is stopped.
-	 * This avoids races.
-	 */
+	 
 	struct linear_conf *newconf, *oldconf;
 
 	if (rdev->saved_raid_disk != mddev->raid_disks)
@@ -216,12 +202,6 @@ static int linear_add(struct mddev *mddev, struct md_rdev *rdev)
 	if (!newconf)
 		return -ENOMEM;
 
-	/* newconf->raid_disks already keeps a copy of * the increased
-	 * value of mddev->raid_disks, WARN_ONCE() is just used to make
-	 * sure of this. It is possible that oldconf is still referenced
-	 * in linear_congested(), therefore kfree_rcu() is used to free
-	 * oldconf until no one uses it anymore.
-	 */
 	mddev_suspend(mddev);
 	oldconf = rcu_dereference(mddev->private);
 	mddev->raid_disks++;
@@ -243,51 +223,130 @@ static void linear_free(struct mddev *mddev, void *priv)
 	kfree(conf);
 }
 
+#ifdef MY_ABC_HERE
+ 
+static void
+SynoLinearEndRequest(struct bio *bio)
+{
+	int bio_error = bio->bi_error;
+	struct mddev *mddev = NULL;
+	struct md_rdev *rdev = NULL;
+	struct bio *orig_bio;
+
+	orig_bio = bio->bi_private;
+
+	rdev = (struct md_rdev *)orig_bio->bi_next;
+	mddev = rdev->mddev;
+	orig_bio->bi_next = bio->bi_next;
+	orig_bio->bi_error = bio->bi_error;
+
+	if (bio_error) {
+#ifdef MY_ABC_HERE
+		if (IsDeviceDisappear(rdev->bdev)) {
+			syno_md_error(mddev, rdev);
+		} else {
+#ifdef MY_ABC_HERE
+#ifdef MY_ABC_HERE
+			if (bio_flagged(bio, BIO_AUTO_REMAP)) {
+				SynoReportBadSector(bio->bi_iter.bi_sector, bio->bi_rw, mddev->md_minor, bio->bi_bdev, __FUNCTION__);
+			}
+#else  
+			SynoReportBadSector(bio->bi_iter.bi_sector, bio->bi_rw, mddev->md_minor, bio->bi_bdev, __FUNCTION__);
+#endif  
+#endif  
+			md_error(mddev, rdev);
+		}
+#else  
+		md_error(mddev, rdev);
+#endif  
+	}
+
+	atomic_dec(&rdev->nr_pending);
+	bio_put(bio);
+	 
+	bio_endio(orig_bio);
+}
+#endif  
+
 static void linear_make_request(struct mddev *mddev, struct bio *bio)
 {
 	char b[BDEVNAME_SIZE];
 	struct dev_info *tmp_dev;
-	struct bio *split;
 	sector_t start_sector, end_sector, data_offset;
+#ifdef MY_ABC_HERE
+	struct bio *cloned_bio, *orig_bio;
+#endif  
+	sector_t bio_sector = bio->bi_iter.bi_sector;
 
 	if (unlikely(bio->bi_rw & REQ_FLUSH)) {
 		md_flush_request(mddev, bio);
 		return;
 	}
 
-	do {
-		tmp_dev = which_dev(mddev, bio->bi_iter.bi_sector);
-		start_sector = tmp_dev->end_sector - tmp_dev->rdev->sectors;
-		end_sector = tmp_dev->end_sector;
-		data_offset = tmp_dev->rdev->data_offset;
-		bio->bi_bdev = tmp_dev->rdev->bdev;
+#ifdef MY_ABC_HERE
+	 
+#ifdef MY_ABC_HERE
+	if (mddev->nodev_and_crashed) {
+#else  
+	if (mddev->degraded) {
+#endif  
+		bio->bi_error = -EIO;
+		bio_endio(bio);
+		return;
+	}
+#endif  
+	tmp_dev = which_dev(mddev, bio_sector);
+	start_sector = tmp_dev->end_sector - tmp_dev->rdev->sectors;
+	end_sector = tmp_dev->end_sector;
+	data_offset = tmp_dev->rdev->data_offset;
 
-		if (unlikely(bio->bi_iter.bi_sector >= end_sector ||
-			     bio->bi_iter.bi_sector < start_sector))
-			goto out_of_bounds;
+	if (unlikely(bio_sector >= end_sector ||
+		     bio_sector < start_sector))
+		goto out_of_bounds;
 
-		if (unlikely(bio_end_sector(bio) > end_sector)) {
-			/* This bio crosses a device boundary, so we have to
-			 * split it.
-			 */
-			split = bio_split(bio, end_sector -
-					  bio->bi_iter.bi_sector,
-					  GFP_NOIO, fs_bio_set);
-			bio_chain(split, bio);
-		} else {
-			split = bio;
+	if (unlikely(bio_end_sector(bio) > end_sector)) {
+		 
+		struct bio *split = bio_split(bio, end_sector - bio_sector,
+					      GFP_NOIO, mddev->bio_set);
+		bio_chain(split, bio);
+#ifdef MY_ABC_HERE
+		bio_set_flag(bio, BIO_SEND_SELF);
+#endif  
+		generic_make_request(bio);
+		bio = split;
+	}
+
+#ifdef MY_ABC_HERE
+	cloned_bio = bio_clone_mddev(bio, GFP_NOIO, mddev);
+
+	if (cloned_bio) {
+		atomic_inc(&tmp_dev->rdev->nr_pending);
+		cloned_bio->bi_end_io = SynoLinearEndRequest;
+		cloned_bio->bi_private = bio;
+
+		orig_bio = bio;
+		orig_bio->bi_next = (void *)tmp_dev->rdev;
+		bio = cloned_bio;
+	}
+#endif  
+
+	bio->bi_bdev = tmp_dev->rdev->bdev;
+	bio->bi_iter.bi_sector = bio->bi_iter.bi_sector -
+		start_sector + data_offset;
+	if (unlikely((bio->bi_rw & REQ_DISCARD) &&
+		!blk_queue_discard(bdev_get_queue(bio->bi_bdev)))) {
+		 
+#ifdef MY_ABC_HERE
+		if (cloned_bio) {
+			atomic_dec(&tmp_dev->rdev->nr_pending);
+			orig_bio->bi_next = bio->bi_next;
+			bio_put(bio);
+			bio = orig_bio;
 		}
-
-		split->bi_iter.bi_sector = split->bi_iter.bi_sector -
-			start_sector + data_offset;
-
-		if (unlikely((split->bi_rw & REQ_DISCARD) &&
-			 !blk_queue_discard(bdev_get_queue(split->bi_bdev)))) {
-			/* Just ignore it */
-			bio_endio(split);
-		} else
-			generic_make_request(split);
-	} while (split != bio);
+#endif  
+		bio_endio(bio);
+	} else
+		generic_make_request(bio);
 	return;
 
 out_of_bounds:
@@ -302,15 +361,146 @@ out_of_bounds:
 	bio_io_error(bio);
 }
 
+#ifdef MY_ABC_HERE
+static void
+syno_linear_status(struct seq_file *seq, struct mddev *mddev)
+{
+	struct linear_conf *conf;
+	struct md_rdev *rdev;
+	int j;
+
+	seq_printf(seq, " %dk rounding", mddev->chunk_sectors / 2);
+	seq_printf(seq, " [%d/%d] [", mddev->raid_disks, mddev->raid_disks - mddev->degraded);
+	rcu_read_lock();
+	conf = rcu_dereference(mddev->private);
+	for (j = 0; j < mddev->raid_disks; j++)
+	{
+		rdev = rcu_dereference(conf->disks[j].rdev);
+#ifdef MY_ABC_HERE
+		if (rdev &&
+			!test_bit(Faulty, &rdev->flags)) {
+#else  
+		if(rdev) {
+#endif  
+#ifdef MY_ABC_HERE
+			seq_printf (seq, "%s", 
+						test_bit(In_sync, &rdev->flags) ? 
+						(test_bit(DiskError, &rdev->flags) ? "E" : "U") : "_");
+#else  
+			seq_printf (seq, "%s", "U");
+#endif  
+		} else {
+			seq_printf (seq, "%s", "_");
+		}
+	}
+	rcu_read_unlock();
+	seq_printf (seq, "]");
+}
+#else  
 static void linear_status (struct seq_file *seq, struct mddev *mddev)
 {
 
 	seq_printf(seq, " %dk rounding", mddev->chunk_sectors / 2);
 }
+#endif  
 
 static void linear_quiesce(struct mddev *mddev, int state)
 {
 }
+
+#ifdef MY_ABC_HERE
+static int
+SynoLinearRemoveDisk(struct mddev *mddev, struct md_rdev *rdev)
+{
+	int err = 0;
+	char nm[20];
+	struct linear_conf *conf = mddev->private;
+	int number = rdev->raid_disk;
+
+	if (!rdev) {
+		goto END;
+	}
+
+	conf->disks[number].rdev = NULL;
+	synchronize_rcu();
+	if (atomic_read(&rdev->nr_pending)) {
+		 
+		err = -EBUSY;
+		conf->disks[number].rdev = rdev;
+		goto END;
+	}
+
+	sprintf(nm,"rd%d", number);
+	sysfs_remove_link(&mddev->kobj, nm);
+	rdev->raid_disk = -1;
+END:
+	return err;
+}
+
+static void
+SynoLinearError(struct mddev *mddev, struct md_rdev *rdev)
+{
+	char b[BDEVNAME_SIZE];
+	printk(KERN_ALERT
+		"md/raid:%s: Disk failure on %s, disabling device.\n",
+		mdname(mddev), bdevname(rdev->bdev, b));
+	if (test_and_clear_bit(In_sync, &rdev->flags)) {
+		if (mddev->degraded < mddev->raid_disks) {
+			SYNO_UPDATE_SB_WORK *update_sb = NULL;
+			mddev->degraded++;
+#ifdef MY_ABC_HERE
+			if (MD_CRASHED_ASSEMBLE != mddev->nodev_and_crashed) {
+				mddev->nodev_and_crashed = MD_CRASHED;
+			}
+#endif  
+			set_bit(Faulty, &rdev->flags);
+#ifdef MY_ABC_HERE
+			clear_bit(DiskError, &rdev->flags);
+#endif  
+
+			if (NULL == (update_sb = kzalloc(sizeof(SYNO_UPDATE_SB_WORK), GFP_ATOMIC))) {
+				WARN_ON(!update_sb);
+				goto END;
+			}
+
+			INIT_WORK(&update_sb->work, SynoUpdateSBTask);
+			update_sb->mddev = mddev;
+			schedule_work(&update_sb->work);
+			set_bit(MD_CHANGE_DEVS, &mddev->flags);
+		}
+	}
+END:
+	return;
+}
+
+static void
+SynoLinearErrorInternal(struct mddev *mddev, struct md_rdev *rdev)
+{
+	char b[BDEVNAME_SIZE];
+	printk(KERN_ALERT
+		"md/raid:%s: Disk failure on %s, disabling device.\n",
+		mdname(mddev), bdevname(rdev->bdev, b));
+#ifdef MY_ABC_HERE
+	if (!test_bit(DiskError, &rdev->flags)) {
+		SYNO_UPDATE_SB_WORK *update_sb = NULL;
+
+		set_bit(DiskError, &rdev->flags);
+		if (NULL == (update_sb = kzalloc(sizeof(SYNO_UPDATE_SB_WORK), GFP_ATOMIC))) {
+			WARN_ON(!update_sb);
+			goto END;
+		}
+
+		INIT_WORK(&update_sb->work, SynoUpdateSBTask);
+		update_sb->mddev = mddev;
+		schedule_work(&update_sb->work);
+		set_bit(MD_CHANGE_DEVS, &mddev->flags);
+	}
+
+END:
+#endif  
+	return;
+}
+#endif  
 
 static struct md_personality linear_personality =
 {
@@ -320,8 +510,17 @@ static struct md_personality linear_personality =
 	.make_request	= linear_make_request,
 	.run		= linear_run,
 	.free		= linear_free,
+#ifdef MY_ABC_HERE
+	.status		= syno_linear_status,
+#else  
 	.status		= linear_status,
+#endif  
 	.hot_add_disk	= linear_add,
+#ifdef MY_ABC_HERE
+	.hot_remove_disk    = SynoLinearRemoveDisk,
+	.error_handler      = SynoLinearErrorInternal,
+	.syno_error_handler = SynoLinearError,
+#endif  
 	.size		= linear_size,
 	.quiesce	= linear_quiesce,
 	.congested	= linear_congested,
@@ -341,6 +540,6 @@ module_init(linear_init);
 module_exit(linear_exit);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Linear device concatenation personality for MD");
-MODULE_ALIAS("md-personality-1"); /* LINEAR - deprecated*/
+MODULE_ALIAS("md-personality-1");  
 MODULE_ALIAS("md-linear");
 MODULE_ALIAS("md-level--1");

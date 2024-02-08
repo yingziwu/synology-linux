@@ -9,6 +9,7 @@
  */
 #undef CONFIG_PARAVIRT
 #undef CONFIG_PARAVIRT_SPINLOCKS
+#undef CONFIG_PAGE_TABLE_ISOLATION
 #undef CONFIG_KASAN
 
 #include <linux/linkage.h>
@@ -63,7 +64,6 @@ static inline void debug_puthex(const char *s)
 int cmdline_find_option(const char *option, char *buffer, int bufsize);
 int cmdline_find_option_bool(const char *option);
 #endif
-
 
 #if CONFIG_RANDOMIZE_BASE
 /* aslr.c */

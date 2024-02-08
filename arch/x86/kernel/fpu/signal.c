@@ -317,11 +317,9 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
 		}
 
 		fpu->fpstate_active = 1;
-		if (use_eager_fpu()) {
-			preempt_disable();
-			fpu__restore(fpu);
-			preempt_enable();
-		}
+		preempt_disable();
+		fpu__restore(fpu);
+		preempt_enable();
 
 		return err;
 	} else {
@@ -400,4 +398,3 @@ void fpu__init_prepare_fx_sw_frame(void)
 		fx_sw_reserved_ia32.extended_size = size + fsave_header_size;
 	}
 }
-

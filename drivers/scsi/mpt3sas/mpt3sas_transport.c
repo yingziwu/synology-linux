@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * SAS Transport Layer for MPT (Message Passing Technology) based controllers
  *
@@ -458,7 +461,6 @@ _transport_expander_report_manufacture(struct MPT3SAS_ADAPTER *ioc,
 	return rc;
 }
 
-
 /**
  * _transport_delete_port - helper function to removing a port
  * @ioc: per adapter object
@@ -867,7 +869,6 @@ mpt3sas_transport_add_host_phy(struct MPT3SAS_ADAPTER *ioc, struct _sas_phy
 	struct sas_phy *phy;
 	int phy_index = mpt3sas_phy->phy_id;
 
-
 	INIT_LIST_HEAD(&mpt3sas_phy->port_siblings);
 	phy = sas_phy_alloc(parent_dev, phy_index);
 	if (!phy) {
@@ -917,7 +918,6 @@ mpt3sas_transport_add_host_phy(struct MPT3SAS_ADAPTER *ioc, struct _sas_phy
 	mpt3sas_phy->phy = phy;
 	return 0;
 }
-
 
 /**
  * mpt3sas_transport_add_expander_phy - report expander phy to transport
@@ -1024,9 +1024,18 @@ mpt3sas_transport_update_links(struct MPT3SAS_ADAPTER *ioc,
 		    &mpt3sas_phy->remote_identify);
 		_transport_add_phy_to_an_existing_port(ioc, sas_node,
 		    mpt3sas_phy, mpt3sas_phy->remote_identify.sas_address);
+#ifdef MY_DEF_HERE
+	} else {
+		mpt3sas_phy->attached_handle = (u16)0;
+		memset(&mpt3sas_phy->remote_identify, 0 , sizeof(struct
+		    sas_identify));
+		_transport_del_phy_from_an_existing_port(ioc, sas_node, mpt3sas_phy);
+	}
+#else /* MY_DEF_HERE */
 	} else
 		memset(&mpt3sas_phy->remote_identify, 0 , sizeof(struct
 		    sas_identify));
+#endif /* MY_DEF_HERE */
 
 	if (mpt3sas_phy->phy)
 		mpt3sas_phy->phy->negotiated_linkrate =

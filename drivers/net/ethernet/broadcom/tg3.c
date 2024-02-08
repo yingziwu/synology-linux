@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * tg3.c: Broadcom Tigon3 ethernet driver.
  *
@@ -14,7 +17,6 @@
  *	data in hexadecimal or equivalent format, provided this copyright
  *	notice is accompanying it.
  */
-
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -451,7 +453,6 @@ static const struct {
 #define TG3_EXT_LOOPB_TEST	6
 #define TG3_INTERRUPT_TEST	7
 
-
 static const struct {
 	const char string[ETH_GSTRING_LEN];
 } ethtool_test_keys[] = {
@@ -466,7 +467,6 @@ static const struct {
 };
 
 #define TG3_NUM_TEST	ARRAY_SIZE(ethtool_test_keys)
-
 
 static void tg3_write32(struct tg3 *tp, u32 off, u32 val)
 {
@@ -1406,7 +1406,11 @@ static void tg3_mdio_config_5785(struct tg3 *tp)
 	u32 val;
 	struct phy_device *phydev;
 
+#if defined(MY_DEF_HERE)
+	phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 	phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 	switch (phydev->drv->phy_id & phydev->drv->phy_id_mask) {
 	case PHY_ID_BCM50610:
 	case PHY_ID_BCM50610M:
@@ -1538,10 +1542,14 @@ static int tg3_mdio_init(struct tg3 *tp)
 	tp->mdio_bus->read     = &tg3_mdio_read;
 	tp->mdio_bus->write    = &tg3_mdio_write;
 	tp->mdio_bus->phy_mask = ~(1 << tp->phy_addr);
+#if defined(MY_DEF_HERE)
+//do nothing
+#else /* MY_DEF_HERE */
 	tp->mdio_bus->irq      = &tp->mdio_irq[0];
 
 	for (i = 0; i < PHY_MAX_ADDR; i++)
 		tp->mdio_bus->irq[i] = PHY_POLL;
+#endif /* MY_DEF_HERE */
 
 	/* The bus registration will look for all the PHYs on the mdio bus.
 	 * Unfortunately, it does not ensure the PHY is powered up before
@@ -1558,7 +1566,11 @@ static int tg3_mdio_init(struct tg3 *tp)
 		return i;
 	}
 
+#if defined(MY_DEF_HERE)
+	phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 	phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 
 	if (!phydev || !phydev->drv) {
 		dev_warn(&tp->pdev->dev, "No PHY devices\n");
@@ -1968,7 +1980,11 @@ static void tg3_setup_flow_control(struct tg3 *tp, u32 lcladv, u32 rmtadv)
 	u32 old_tx_mode = tp->tx_mode;
 
 	if (tg3_flag(tp, USE_PHYLIB))
+#if defined(MY_DEF_HERE)
+		autoneg = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr)->autoneg;
+#else /* MY_DEF_HERE */
 		autoneg = tp->mdio_bus->phy_map[tp->phy_addr]->autoneg;
+#endif /* MY_DEF_HERE */
 	else
 		autoneg = tp->link_config.autoneg;
 
@@ -2004,7 +2020,11 @@ static void tg3_adjust_link(struct net_device *dev)
 	u8 oldflowctrl, linkmesg = 0;
 	u32 mac_mode, lcl_adv, rmt_adv;
 	struct tg3 *tp = netdev_priv(dev);
+#if defined(MY_DEF_HERE)
+	struct phy_device *phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 	struct phy_device *phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 
 	spin_lock_bh(&tp->lock);
 
@@ -2093,11 +2113,20 @@ static int tg3_phy_init(struct tg3 *tp)
 	/* Bring the PHY back to a known state. */
 	tg3_bmcr_reset(tp);
 
+#if defined(MY_DEF_HERE)
+	phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 	phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 
 	/* Attach the MAC to the PHY. */
+#if defined(MY_DEF_HERE)
+	phydev = phy_connect(tp->dev, phydev_name(phydev),
+			     tg3_adjust_link, phydev->interface);
+#else /* MY_DEF_HERE */
 	phydev = phy_connect(tp->dev, dev_name(&phydev->dev),
 			     tg3_adjust_link, phydev->interface);
+#endif /* MY_DEF_HERE */
 	if (IS_ERR(phydev)) {
 		dev_err(&tp->pdev->dev, "Could not attach to PHY\n");
 		return PTR_ERR(phydev);
@@ -2120,13 +2149,21 @@ static int tg3_phy_init(struct tg3 *tp)
 				      SUPPORTED_Asym_Pause);
 		break;
 	default:
+#if defined(MY_DEF_HERE)
+		phy_disconnect(mdiobus_get_phy(tp->mdio_bus, tp->phy_addr));
+#else /* MY_DEF_HERE */
 		phy_disconnect(tp->mdio_bus->phy_map[tp->phy_addr]);
+#endif /* MY_DEF_HERE */
 		return -EINVAL;
 	}
 
 	tp->phy_flags |= TG3_PHYFLG_IS_CONNECTED;
 
 	phydev->advertising = phydev->supported;
+
+#if defined(MY_DEF_HERE)
+	phy_attached_info(phydev);
+#endif /* MY_DEF_HERE */
 
 	return 0;
 }
@@ -2138,7 +2175,11 @@ static void tg3_phy_start(struct tg3 *tp)
 	if (!(tp->phy_flags & TG3_PHYFLG_IS_CONNECTED))
 		return;
 
+#if defined(MY_DEF_HERE)
+	phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 	phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 
 	if (tp->phy_flags & TG3_PHYFLG_IS_LOW_POWER) {
 		tp->phy_flags &= ~TG3_PHYFLG_IS_LOW_POWER;
@@ -2158,13 +2199,21 @@ static void tg3_phy_stop(struct tg3 *tp)
 	if (!(tp->phy_flags & TG3_PHYFLG_IS_CONNECTED))
 		return;
 
+#if defined(MY_DEF_HERE)
+	phy_stop(mdiobus_get_phy(tp->mdio_bus, tp->phy_addr));
+#else /* MY_DEF_HERE */
 	phy_stop(tp->mdio_bus->phy_map[tp->phy_addr]);
+#endif /* MY_DEF_HERE */
 }
 
 static void tg3_phy_fini(struct tg3 *tp)
 {
 	if (tp->phy_flags & TG3_PHYFLG_IS_CONNECTED) {
+#if defined(MY_DEF_HERE)
+		phy_disconnect(mdiobus_get_phy(tp->mdio_bus, tp->phy_addr));
+#else /* MY_DEF_HERE */
 		phy_disconnect(tp->mdio_bus->phy_map[tp->phy_addr]);
+#endif /* MY_DEF_HERE */
 		tp->phy_flags &= ~TG3_PHYFLG_IS_CONNECTED;
 	}
 }
@@ -2241,7 +2290,6 @@ static void tg3_phy_toggle_apd(struct tg3 *tp, bool enable)
 		reg |= MII_TG3_MISC_SHDW_SCR5_DLLAPD;
 
 	tg3_phy_shdw_write(tp, MII_TG3_MISC_SHDW_SCR5_SEL, reg);
-
 
 	reg = MII_TG3_MISC_SHDW_APD_WKTM_84MS;
 	if (enable)
@@ -4048,7 +4096,11 @@ static int tg3_power_down_prepare(struct tg3 *tp)
 			struct phy_device *phydev;
 			u32 phyid, advertising;
 
+#if defined(MY_DEF_HERE)
+			phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 			phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 
 			tp->phy_flags |= TG3_PHYFLG_IS_LOW_POWER;
 
@@ -6637,7 +6689,6 @@ static void tg3_rx_data_free(struct tg3 *tp, struct ring_info *ri, u32 map_sz)
 	ri->data = NULL;
 }
 
-
 /* Returns size of skb allocated or < 0 on error.
  *
  * We only need to fill in the address because the other members
@@ -8036,7 +8087,6 @@ static netdev_tx_t tg3_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	if (pci_dma_mapping_error(tp->pdev, mapping))
 		goto drop;
 
-
 	tnapi->tx_buffers[entry].skb = skb;
 	dma_unmap_addr_set(&tnapi->tx_buffers[entry], mapping, mapping);
 
@@ -9391,7 +9441,6 @@ static void tg3_set_bdinfo(struct tg3 *tp, u32 bdinfo_addr,
 			      (bdinfo_addr + TG3_BDINFO_NIC_ADDR),
 			      nic_addr);
 }
-
 
 static void tg3_coal_tx_init(struct tg3 *tp, struct ethtool_coalesce *ec)
 {
@@ -10773,7 +10822,6 @@ static ssize_t tg3_show_temp(struct device *dev,
 	return sprintf(buf, "%u\n", temperature * 1000);
 }
 
-
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, tg3_show_temp, NULL,
 			  TG3_TEMP_SENSOR_OFFSET);
 static SENSOR_DEVICE_ATTR(temp1_crit, S_IRUGO, tg3_show_temp, NULL,
@@ -10824,7 +10872,6 @@ static void tg3_hwmon_open(struct tg3 *tp)
 		dev_err(&pdev->dev, "Cannot register hwmon device, aborting\n");
 	}
 }
-
 
 #define TG3_STAT_ADD32(PSTAT, REG) \
 do {	u32 __val = tr32(REG); \
@@ -12089,7 +12136,11 @@ static int tg3_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 		struct phy_device *phydev;
 		if (!(tp->phy_flags & TG3_PHYFLG_IS_CONNECTED))
 			return -EAGAIN;
+#if defined(MY_DEF_HERE)
+		phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 		phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 		return phy_ethtool_gset(phydev, cmd);
 	}
 
@@ -12156,7 +12207,11 @@ static int tg3_set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 		struct phy_device *phydev;
 		if (!(tp->phy_flags & TG3_PHYFLG_IS_CONNECTED))
 			return -EAGAIN;
+#if defined(MY_DEF_HERE)
+		phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 		phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 		return phy_ethtool_sset(phydev, cmd);
 	}
 
@@ -12311,7 +12366,11 @@ static int tg3_nway_reset(struct net_device *dev)
 	if (tg3_flag(tp, USE_PHYLIB)) {
 		if (!(tp->phy_flags & TG3_PHYFLG_IS_CONNECTED))
 			return -EAGAIN;
+#if defined(MY_DEF_HERE)
+		r = phy_start_aneg(mdiobus_get_phy(tp->mdio_bus, tp->phy_addr));
+#else /* MY_DEF_HERE */
 		r = phy_start_aneg(tp->mdio_bus->phy_map[tp->phy_addr]);
+#endif /* MY_DEF_HERE */
 	} else {
 		u32 bmcr;
 
@@ -12429,7 +12488,11 @@ static int tg3_set_pauseparam(struct net_device *dev, struct ethtool_pauseparam 
 		u32 newadv;
 		struct phy_device *phydev;
 
+#if defined(MY_DEF_HERE)
+		phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 		phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 
 		if (!(phydev->supported & SUPPORTED_Pause) ||
 		    (!(phydev->supported & SUPPORTED_Asym_Pause) &&
@@ -13939,7 +14002,11 @@ static int tg3_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		struct phy_device *phydev;
 		if (!(tp->phy_flags & TG3_PHYFLG_IS_CONNECTED))
 			return -EAGAIN;
+#if defined(MY_DEF_HERE)
+		phydev = mdiobus_get_phy(tp->mdio_bus, tp->phy_addr);
+#else /* MY_DEF_HERE */
 		phydev = tp->mdio_bus->phy_map[tp->phy_addr];
+#endif /* MY_DEF_HERE */
 		return phy_mii_ioctl(phydev, ifr, cmd);
 	}
 
@@ -14692,7 +14759,6 @@ static void tg3_get_57780_nvram_info(struct tg3 *tp)
 	if (tp->nvram_pagesize != 264 && tp->nvram_pagesize != 528)
 		tg3_flag_set(tp, NO_NVRAM_ADDR_TRANS);
 }
-
 
 static void tg3_get_5717_nvram_info(struct tg3 *tp)
 {
@@ -17339,7 +17405,6 @@ static int tg3_test_dma(struct tg3 *tp)
 
 	tw32(TG3PCI_DMA_RW_CTRL, tp->dma_rwctrl);
 
-
 	if (tg3_asic_rev(tp) != ASIC_REV_5700 &&
 	    tg3_asic_rev(tp) != ASIC_REV_5701)
 		goto out;
@@ -17911,6 +17976,9 @@ static int tg3_init_one(struct pci_dev *pdev,
 		    tg3_bus_string(tp, str),
 		    dev->dev_addr);
 
+#if defined(MY_DEF_HERE)
+	if (!(tp->phy_flags & TG3_PHYFLG_IS_CONNECTED)) {
+#else /* MY_DEF_HERE */
 	if (tp->phy_flags & TG3_PHYFLG_IS_CONNECTED) {
 		struct phy_device *phydev;
 		phydev = tp->mdio_bus->phy_map[tp->phy_addr];
@@ -17918,6 +17986,7 @@ static int tg3_init_one(struct pci_dev *pdev,
 			    "attached PHY driver [%s] (mii_bus:phy_addr=%s)\n",
 			    phydev->drv->name, dev_name(&phydev->dev));
 	} else {
+#endif /* MY_DEF_HERE */
 		char *ethtype;
 
 		if (tp->phy_flags & TG3_PHYFLG_10_100_ONLY)

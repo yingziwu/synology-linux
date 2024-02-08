@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/console.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -21,7 +24,6 @@
 #include <asm/efi.h>
 #include <asm/pci_x86.h>
 
-/* Simple VGA output */
 #define VGABASE		(__ISA_IO_base + 0xb8000)
 
 static int max_ypos = 25, max_xpos = 80;
@@ -34,7 +36,7 @@ static void early_vga_write(struct console *con, const char *str, unsigned n)
 
 	while ((c = *str++) != '\0' && n-- > 0) {
 		if (current_ypos >= max_ypos) {
-			/* scroll 1 line up */
+			 
 			for (k = 1, j = 0; k < max_ypos; k++, j++) {
 				for (i = 0; i < max_xpos; i++) {
 					writew(readw(VGABASE+2*(max_xpos*k+i)),
@@ -75,25 +77,28 @@ static struct console early_vga_console = {
 	.index =	-1,
 };
 
-/* Serial functions loosely based on a similar package from Klaus P. Gerlicher */
-
-static unsigned long early_serial_base = 0x3f8;  /* ttyS0 */
+static unsigned long early_serial_base = 0x3f8;   
 
 #define XMTRDY          0x20
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+#define TEMT		0x40
+#define THRE		XMTRDY
+#define BOTH_EMPTY 	(TEMT | THRE)
+#endif  
 
 #define DLAB		0x80
 
-#define TXR             0       /*  Transmit register (WRITE) */
-#define RXR             0       /*  Receive register  (READ)  */
-#define IER             1       /*  Interrupt Enable          */
-#define IIR             2       /*  Interrupt ID              */
-#define FCR             2       /*  FIFO control              */
-#define LCR             3       /*  Line control              */
-#define MCR             4       /*  Modem control             */
-#define LSR             5       /*  Line Status               */
-#define MSR             6       /*  Modem Status              */
-#define DLL             0       /*  Divisor Latch Low         */
-#define DLH             1       /*  Divisor latch High        */
+#define TXR             0        
+#define RXR             0        
+#define IER             1        
+#define IIR             2        
+#define FCR             2        
+#define LCR             3        
+#define MCR             4        
+#define LSR             5        
+#define MSR             6        
+#define DLL             0        
+#define DLH             1        
 
 static unsigned int io_serial_in(unsigned long addr, int offset)
 {
@@ -132,10 +137,10 @@ static __init void early_serial_hw_init(unsigned divisor)
 {
 	unsigned char c;
 
-	serial_out(early_serial_base, LCR, 0x3);	/* 8n1 */
-	serial_out(early_serial_base, IER, 0);	/* no interrupt */
-	serial_out(early_serial_base, FCR, 0);	/* no fifo */
-	serial_out(early_serial_base, MCR, 0x3);	/* DTR + RTS */
+	serial_out(early_serial_base, LCR, 0x3);	 
+	serial_out(early_serial_base, IER, 0);	 
+	serial_out(early_serial_base, FCR, 0);	 
+	serial_out(early_serial_base, MCR, 0x3);	 
 
 	c = serial_in(early_serial_base, LCR);
 	serial_out(early_serial_base, LCR, c | DLAB);
@@ -181,14 +186,11 @@ static __init void early_serial_init(char *s)
 			baud = DEFAULT_BAUD;
 	}
 
-	/* Convert from baud to divisor value */
 	divisor = 115200 / baud;
 
-	/* These will always be IO based ports */
 	serial_in = io_serial_in;
 	serial_out = io_serial_out;
 
-	/* Set up the HW */
 	early_serial_hw_init(divisor);
 }
 
@@ -196,24 +198,87 @@ static __init void early_serial_init(char *s)
 static void mem32_serial_out(unsigned long addr, int offset, int value)
 {
 	u32 __iomem *vaddr = (u32 __iomem *)addr;
-	/* shift implied by pointer type */
+	 
 	writel(value, vaddr + offset);
 }
 
 static unsigned int mem32_serial_in(unsigned long addr, int offset)
 {
 	u32 __iomem *vaddr = (u32 __iomem *)addr;
-	/* shift implied by pointer type */
+	 
 	return readl(vaddr + offset);
 }
 
-/*
- * early_pci_serial_init()
- *
- * This function is invoked when the early_printk param starts with "pciserial"
- * The rest of the param should be ",B:D.F,baud" where B, D & F describe the
- * location of a PCI device that must be a UART device.
- */
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+static void early_serial_hw_deinit(void)
+{
+	unsigned long timeout_jiffies = jiffies + msecs_to_jiffies(2000);
+	while ((serial_in(early_serial_base, LSR) & BOTH_EMPTY) != BOTH_EMPTY) {
+		if (time_after(jiffies, timeout_jiffies)) {
+			break;
+		}
+	}
+	serial_out(early_serial_base, IER, 0);	 
+	serial_out(early_serial_base, FCR, 0);	 
+}
+#endif  
+
+static struct console early_serial_console = {
+	.name =		"earlyser",
+	.write =	early_serial_write,
+	.flags =	CON_PRINTBUFFER,
+	.index =	-1,
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+	.pcimapaddress = 0,
+	.pcimapsize = 0,
+	.deinit = early_serial_hw_deinit,
+#endif  
+};
+
+#ifdef MY_DEF_HERE
+static __init void early_mmio_serial_init(char *s)
+{
+        unsigned divisor;
+        unsigned long addr;
+        unsigned long baud = 115200;          
+        unsigned long base_clock = 1843200;   
+        char *e;
+
+        if (*s == ',')
+                ++s;
+
+        if (!strncmp(s, "0x", 2)) {
+                addr = simple_strtoul(s, &e, 16);
+        }
+
+        s = e;
+
+        if (*s == ',')
+                ++s;
+
+        baud = simple_strtoul(s, &e, 10);
+
+        s = e;
+
+        if (*s == ',')
+                ++s;
+
+        base_clock = simple_strtoul(s, &e, 10);
+
+        early_serial_base = (unsigned long)early_ioremap(addr, 0x10);
+
+        serial_in = mem32_serial_in;
+        serial_out = mem32_serial_out;
+
+        early_serial_console.pcimapaddress = (void __iomem *)early_serial_base;
+        early_serial_console.pcimapsize = 0x10;
+
+        divisor = (base_clock / 16) / baud;
+
+        early_serial_hw_init(divisor);
+}
+#endif  
+
 static __init void early_pci_serial_init(char *s)
 {
 	unsigned divisor;
@@ -223,10 +288,6 @@ static __init void early_pci_serial_init(char *s)
 	u16 cmdreg;
 	char *e;
 
-
-	/*
-	 * First, part the param to get the BDF values
-	 */
 	if (*s == ',')
 		++s;
 
@@ -246,75 +307,106 @@ static __init void early_pci_serial_init(char *s)
 	func = (u8)simple_strtoul(s, &e, 16);
 	s = e;
 
-	/* A baud might be following */
 	if (*s == ',')
 		s++;
 
-	/*
-	 * Second, find the device from the BDF
-	 */
 	cmdreg = read_pci_config(bus, slot, func, PCI_COMMAND);
 	classcode = read_pci_config(bus, slot, func, PCI_CLASS_REVISION);
 	bar0 = read_pci_config(bus, slot, func, PCI_BASE_ADDRESS_0);
 
-	/*
-	 * Verify it is a UART type device
-	 */
+#ifdef MY_DEF_HERE
+#else
 	if (((classcode >> 16 != PCI_CLASS_COMMUNICATION_MODEM) &&
 	     (classcode >> 16 != PCI_CLASS_COMMUNICATION_SERIAL)) ||
-	   (((classcode >> 8) & 0xff) != 0x02)) /* 16550 I/F at BAR0 */
+	   (((classcode >> 8) & 0xff) != 0x02))  
 		return;
 
-	/*
-	 * Determine if it is IO or memory mapped
-	 */
+#endif
+	 
 	if (bar0 & 0x01) {
-		/* it is IO mapped */
+		 
 		serial_in = io_serial_in;
 		serial_out = io_serial_out;
 		early_serial_base = bar0&0xfffffffc;
 		write_pci_config(bus, slot, func, PCI_COMMAND,
 						cmdreg|PCI_COMMAND_IO);
 	} else {
-		/* It is memory mapped - assume 32-bit alignment */
+		 
 		serial_in = mem32_serial_in;
 		serial_out = mem32_serial_out;
-		/* WARNING! assuming the address is always in the first 4G */
+		 
 		early_serial_base =
 			(unsigned long)early_ioremap(bar0 & 0xfffffff0, 0x10);
 		write_pci_config(bus, slot, func, PCI_COMMAND,
 						cmdreg|PCI_COMMAND_MEMORY);
 	}
 
-	/*
-	 * Lastly, initalize the hardware
-	 */
+#ifdef MY_DEF_HERE
+	early_serial_console.pcimapaddress = (void __iomem *)early_serial_base;
+	 
+	early_serial_console.pcimapsize = 0x10;
+#endif
+	 
 	if (*s) {
 		if (strcmp(s, "nocfg") == 0)
-			/* Sometimes, we want to leave the UART alone
-			 * and assume the BIOS has set it up correctly.
-			 * "nocfg" tells us this is the case, and we
-			 * should do no more setup.
-			 */
+			 
 			return;
 		if (kstrtoul(s, 0, &baud) < 0 || baud == 0)
 			baud = DEFAULT_BAUD;
 	}
 
-	/* Convert from baud to divisor value */
 	divisor = 115200 / baud;
 
-	/* Set up the HW */
 	early_serial_hw_init(divisor);
 }
 #endif
 
-static struct console early_serial_console = {
-	.name =		"earlyser",
-	.write =	early_serial_write,
-	.flags =	CON_PRINTBUFFER,
-	.index =	-1,
-};
+#ifdef MY_ABC_HERE
+static __init void apl_serial_hw_init(unsigned divisor)
+{
+	 
+	serial_out(early_serial_base, LCR, DLAB);
+	serial_out(early_serial_base, DLL, divisor & 0xff);
+	serial_out(early_serial_base, DLH, (divisor >> 8) & 0xff);
+
+	serial_out(early_serial_base, LCR, 0x3 & 0x1f);
+
+	serial_out(early_serial_base, FCR, 1);
+
+	serial_out(early_serial_base, MCR, 1);
+}
+
+#define EARLY_PRINTK_APL_BUS 0
+#define EARLY_PRINTK_APL_SLOT 24
+#define EARLY_PRINTK_APL_FUNC 2
+ 
+static __init void early_apl_serial_init(void)
+{
+	unsigned divisor;
+	unsigned long baud = 115200;
+	u32 classcode, bar0;
+	u16 cmdreg;
+
+	cmdreg = read_pci_config(EARLY_PRINTK_APL_BUS, EARLY_PRINTK_APL_SLOT, EARLY_PRINTK_APL_FUNC, PCI_COMMAND);
+	classcode = read_pci_config(EARLY_PRINTK_APL_BUS, EARLY_PRINTK_APL_SLOT, EARLY_PRINTK_APL_FUNC, PCI_CLASS_REVISION);
+	bar0 = read_pci_config(EARLY_PRINTK_APL_BUS, EARLY_PRINTK_APL_SLOT, EARLY_PRINTK_APL_FUNC, PCI_BASE_ADDRESS_0);
+
+	serial_in = mem32_serial_in;
+	serial_out = mem32_serial_out;
+
+	early_serial_base =
+		(unsigned long)early_ioremap(bar0 & 0xfffffff0, 0x10);
+	write_pci_config(EARLY_PRINTK_APL_BUS, EARLY_PRINTK_APL_SLOT, EARLY_PRINTK_APL_FUNC, PCI_COMMAND,
+			cmdreg|PCI_COMMAND_MEMORY);
+
+	early_serial_console.pcimapaddress = (void __iomem *)early_serial_base;
+	early_serial_console.pcimapsize = 0x10;
+
+	divisor = 115200 / baud;
+
+	apl_serial_hw_init(divisor);
+}
+#endif  
 
 static void early_console_register(struct console *con, int keep_early)
 {
@@ -331,7 +423,11 @@ static void early_console_register(struct console *con, int keep_early)
 	register_console(early_console);
 }
 
+#ifdef MY_DEF_HERE
+int __init setup_early_printk(char *buf)
+#else
 static int __init setup_early_printk(char *buf)
+#endif  
 {
 	int keep;
 
@@ -359,9 +455,16 @@ static int __init setup_early_printk(char *buf)
 		if (!strncmp(buf, "pciserial", 9)) {
 			early_pci_serial_init(buf + 9);
 			early_console_register(&early_serial_console, keep);
-			buf += 9; /* Keep from match the above "serial" */
+			buf += 9;  
 		}
 #endif
+#ifdef MY_DEF_HERE
+		if (!strncmp(buf, "mmio", 4)) {
+			early_mmio_serial_init(buf + 4);
+			early_console_register(&early_serial_console, keep);
+			buf += 4;  
+		}
+#endif  
 		if (!strncmp(buf, "vga", 3) &&
 		    boot_params.screen_info.orig_video_isVGA == 1) {
 			max_xpos = boot_params.screen_info.orig_video_cols;
@@ -381,10 +484,19 @@ static int __init setup_early_printk(char *buf)
 		if (!strncmp(buf, "efi", 3))
 			early_console_register(&early_efi_console, keep);
 #endif
+#ifdef MY_ABC_HERE
+		if (!strncmp(buf, "apl", 3)) {
+			early_apl_serial_init();
+			early_console_register(&early_serial_console, keep);
+		}
+#endif  
 
 		buf++;
 	}
 	return 0;
 }
 
+#ifdef MY_DEF_HERE
+EXPORT_SYMBOL(setup_early_printk);
+#endif  
 early_param("earlyprintk", setup_early_printk);

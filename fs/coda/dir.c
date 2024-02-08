@@ -71,7 +71,6 @@ static struct dentry *coda_lookup(struct inode *dir, struct dentry *entry, unsig
 	return d_splice_alias(inode, entry);
 }
 
-
 int coda_permission(struct inode *inode, int mask)
 {
 	int error;
@@ -97,7 +96,6 @@ int coda_permission(struct inode *inode, int mask)
 
 	return error;
 }
-
 
 static inline void coda_dir_update_mtime(struct inode *dir)
 {
@@ -222,7 +220,6 @@ static int coda_link(struct dentry *source_de, struct inode *dir_inode,
 	inc_nlink(inode);
 	return 0;
 }
-
 
 static int coda_symlink(struct inode *dir_inode, struct dentry *de,
 			const char *symname)
@@ -427,13 +424,13 @@ static int coda_readdir(struct file *coda_file, struct dir_context *ctx)
 	if (host_file->f_op->iterate) {
 		struct inode *host_inode = file_inode(host_file);
 
-		mutex_lock(&host_inode->i_mutex);
+		inode_lock(host_inode);
 		ret = -ENOENT;
 		if (!IS_DEADDIR(host_inode)) {
 			ret = host_file->f_op->iterate(host_file, ctx);
 			file_accessed(host_file);
 		}
-		mutex_unlock(&host_inode->i_mutex);
+		inode_unlock(host_inode);
 		return ret;
 	}
 	/* Venus: we must read Venus dirents from a file */
@@ -496,8 +493,6 @@ static int coda_dentry_delete(const struct dentry * dentry)
 	}
 	return 0;
 }
-
-
 
 /*
  * This is called when we want to check if the inode has

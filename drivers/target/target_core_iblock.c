@@ -51,7 +51,6 @@ static inline struct iblock_dev *IBLOCK_DEV(struct se_device *dev)
 	return container_of(dev, struct iblock_dev, dev);
 }
 
-
 static int iblock_attach_hba(struct se_hba *hba, u32 host_id)
 {
 	pr_debug("CORE_HBA[%d] - TCM iBlock HBA Driver %s on"
@@ -602,9 +601,9 @@ iblock_alloc_bip(struct se_cmd *cmd, struct bio *bio)
 	}
 
 	bip = bio_integrity_alloc(bio, GFP_NOIO, cmd->t_prot_nents);
-	if (!bip) {
+	if (IS_ERR(bip)) {
 		pr_err("Unable to allocate bio_integrity_payload\n");
-		return -ENOMEM;
+		return PTR_ERR(bip);
 	}
 
 	bip->bip_iter.bi_size = (cmd->data_length / dev->dev_attrib.block_size) *

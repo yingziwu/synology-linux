@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
  /*
  *	x86 SMP booting functions
  *
@@ -75,6 +78,7 @@
 #include <asm/i8259.h>
 #include <asm/realmode.h>
 #include <asm/misc.h>
+#include <asm/spec-ctrl.h>
 
 /* Number of siblings per CPU package */
 int smp_num_siblings = 1;
@@ -226,6 +230,8 @@ static void notrace start_secondary(void *unused)
 	 */
 	check_tsc_sync_target();
 
+	speculative_store_bypass_ht_init();
+
 	/*
 	 * Lock vector_lock and initialize the vectors on this cpu
 	 * before setting the cpu online. We must set it online with
@@ -304,13 +310,19 @@ do {									\
 
 static bool match_smt(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
 {
-	if (cpu_has_topoext) {
+	if (boot_cpu_has(X86_FEATURE_TOPOEXT)) {
 		int cpu1 = c->cpu_index, cpu2 = o->cpu_index;
 
 		if (c->phys_proc_id == o->phys_proc_id &&
-		    per_cpu(cpu_llc_id, cpu1) == per_cpu(cpu_llc_id, cpu2) &&
-		    c->compute_unit_id == o->compute_unit_id)
-			return topology_sane(c, o, "smt");
+		    per_cpu(cpu_llc_id, cpu1) == per_cpu(cpu_llc_id, cpu2)) {
+			if (c->cpu_core_id == o->cpu_core_id)
+				return topology_sane(c, o, "smt");
+
+			if ((c->cu_id != 0xff) &&
+			    (o->cu_id != 0xff) &&
+			    (c->cu_id == o->cu_id))
+				return topology_sane(c, o, "smt");
+		}
 
 	} else if (c->phys_proc_id == o->phys_proc_id &&
 		   c->cpu_core_id == o->cpu_core_id) {
@@ -1164,6 +1176,10 @@ static void __init smp_cpu_index_default(void)
 void __init native_smp_prepare_cpus(unsigned int max_cpus)
 {
 	unsigned int i;
+#ifdef MY_DEF_HERE
+	unsigned long flags;
+	unsigned char SynoMemoryTrainFailReason = 0;
+#endif /* MY_DEF_HERE */
 
 	smp_cpu_index_default();
 
@@ -1211,6 +1227,15 @@ void __init native_smp_prepare_cpus(unsigned int max_cpus)
 
 	pr_info("CPU%d: ", 0);
 	print_cpu_info(&cpu_data(0));
+#ifdef MY_DEF_HERE
+	spin_lock_irqsave(&rtc_lock, flags);
+	SynoMemoryTrainFailReason = CMOS_READ(CONFIG_SYNO_MRC_POSTCODE_CMOS_ADDR);
+	CMOS_WRITE(0xff, CONFIG_SYNO_MRC_POSTCODE_CMOS_ADDR);
+	spin_unlock_irqrestore(&rtc_lock, flags);
+	if (0xff != SynoMemoryTrainFailReason) {
+		pr_err("%s: this boot have memory training fail, last reason is 0x%02x\n", __func__, SynoMemoryTrainFailReason);
+	}
+#endif /* MY_DEF_HERE */
 
 	if (is_uv_system())
 		uv_system_init();
@@ -1218,6 +1243,8 @@ void __init native_smp_prepare_cpus(unsigned int max_cpus)
 	set_mtrr_aps_delayed_init();
 
 	smp_quirk_init_udelay();
+
+	speculative_store_bypass_ht_init();
 }
 
 void arch_enable_nonboot_cpus_begin(void)
@@ -1259,7 +1286,6 @@ static int __init _setup_possible_cpus(char *str)
 	return 0;
 }
 early_param("possible_cpus", _setup_possible_cpus);
-
 
 /*
  * cpu_possible_mask should be static, it cannot change as cpu's

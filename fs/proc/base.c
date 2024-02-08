@@ -416,7 +416,6 @@ static int proc_pid_auxv(struct seq_file *m, struct pid_namespace *ns,
 		return PTR_ERR(mm);
 }
 
-
 #ifdef CONFIG_KALLSYMS
 /*
  * Provides a wchan file via kallsyms in a proper one-value-per-file format.
@@ -736,7 +735,6 @@ static bool has_pid_permissions(struct pid_namespace *pid,
 	return ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS);
 }
 
-
 static int proc_pid_permission(struct inode *inode, int mask)
 {
 	struct pid_namespace *pid = inode->i_sb->s_fs_info;
@@ -764,8 +762,6 @@ static int proc_pid_permission(struct inode *inode, int mask)
 	}
 	return generic_permission(inode, mask);
 }
-
-
 
 static const struct inode_operations proc_def_inode_operations = {
 	.setattr	= proc_setattr,
@@ -802,7 +798,6 @@ static const struct file_operations proc_single_file_operations = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
-
 
 struct mm_struct *proc_mem_open(struct inode *inode, unsigned int mode)
 {
@@ -953,6 +948,7 @@ static ssize_t environ_read(struct file *file, char __user *buf,
 	unsigned long src = *ppos;
 	int ret = 0;
 	struct mm_struct *mm = file->private_data;
+	unsigned long env_start, env_end;
 
 	/* Ensure the process spawned far enough to have an environment. */
 	if (!mm || !mm->env_end)
@@ -965,19 +961,25 @@ static ssize_t environ_read(struct file *file, char __user *buf,
 	ret = 0;
 	if (!atomic_inc_not_zero(&mm->mm_users))
 		goto free;
+
+	down_read(&mm->mmap_sem);
+	env_start = mm->env_start;
+	env_end = mm->env_end;
+	up_read(&mm->mmap_sem);
+
 	while (count > 0) {
 		size_t this_len, max_len;
 		int retval;
 
-		if (src >= (mm->env_end - mm->env_start))
+		if (src >= (env_end - env_start))
 			break;
 
-		this_len = mm->env_end - (mm->env_start + src);
+		this_len = env_end - (env_start + src);
 
 		max_len = min_t(size_t, PAGE_SIZE, count);
 		this_len = min(max_len, this_len);
 
-		retval = access_remote_vm(mm, (mm->env_start + src),
+		retval = access_remote_vm(mm, (env_start + src),
 			page, this_len, 0);
 
 		if (retval <= 0) {
@@ -1358,7 +1360,6 @@ static const struct file_operations proc_fault_inject_operations = {
 };
 #endif
 
-
 #ifdef CONFIG_SCHED_DEBUG
 /*
  * Print out various scheduling related per-task fields:
@@ -1630,7 +1631,6 @@ const struct inode_operations proc_pid_link_inode_operations = {
 	.follow_link	= proc_pid_follow_link,
 	.setattr	= proc_setattr,
 };
-
 
 /* building an inode */
 
@@ -1918,7 +1918,11 @@ static int proc_map_files_get_link(struct dentry *dentry, struct path *path)
 	down_read(&mm->mmap_sem);
 	vma = find_exact_vma(mm, vm_start, vm_end);
 	if (vma && vma->vm_file) {
+#ifdef CONFIG_AUFS_FHSM
+		*path = vma_pr_or_file(vma)->f_path;
+#else
 		*path = vma->vm_file->f_path;
+#endif /* CONFIG_AUFS_FHSM */
 		path_get(path);
 		rc = 0;
 	}

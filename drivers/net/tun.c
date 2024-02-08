@@ -2358,7 +2358,6 @@ static const struct ethtool_ops tun_ethtool_ops = {
 	.get_ts_info	= ethtool_op_get_ts_info,
 };
 
-
 static int __init tun_init(void)
 {
 	int ret = 0;

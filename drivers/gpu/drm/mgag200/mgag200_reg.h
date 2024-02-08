@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * MGA Millennium (MGA2064W) functions
  * MGA Mystique (MGA1064SG) functions
@@ -14,7 +15,6 @@
  *			g.desbief@aix.pacwan.net
  *		MGA1064SG Mystique register file
  */
-
 
 #ifndef _MGA_REG_H_
 #define _MGA_REG_H_
@@ -311,7 +311,6 @@
 #define TVP3026_CRC_CTL		0x3e
 #define TVP3026_ID		0x3f
 #define TVP3026_RESET		0xff
-
 
 /* MGA1064 DAC Register file */
 /* MGA1064 direct registers */

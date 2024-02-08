@@ -651,7 +651,6 @@ static int add_memory_block(int base_section_nr)
 	return 0;
 }
 
-
 /*
  * need an interface for the VM to add new memory regions,
  * but without onlining it.

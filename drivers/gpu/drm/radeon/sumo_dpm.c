@@ -21,7 +21,7 @@
  *
  */
 
-#include "drmP.h"
+#include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "sumod.h"
@@ -337,7 +337,6 @@ static void sumo_init_bsp(struct radeon_device *rdev)
 
 	WREG32(CG_BSP_0, pi->psp);
 }
-
 
 static void sumo_program_bsp(struct radeon_device *rdev,
 			     struct radeon_ps *rps)
@@ -787,8 +786,8 @@ static void sumo_program_acpi_power_level(struct radeon_device *rdev)
 	struct atom_clock_dividers dividers;
 	int ret;
 
-        ret = radeon_atom_get_clock_dividers(rdev, COMPUTE_ENGINE_PLL_PARAM,
-                                             pi->acpi_pl.sclk,
+	ret = radeon_atom_get_clock_dividers(rdev, COMPUTE_ENGINE_PLL_PARAM,
+					     pi->acpi_pl.sclk,
 					     false, &dividers);
 	if (ret)
 		return;
@@ -948,7 +947,6 @@ static void sumo_program_ttt(struct radeon_device *rdev)
 
 	WREG32(CG_SCLK_DPM_CTRL_3, cg_sclk_dpm_ctrl_3);
 }
-
 
 static void sumo_enable_voltage_scaling(struct radeon_device *rdev, bool enable)
 {
@@ -1462,7 +1460,7 @@ static int sumo_parse_power_table(struct radeon_device *rdev)
 	struct _NonClockInfoArray *non_clock_info_array;
 	union power_info *power_info;
 	int index = GetIndexIntoMasterTable(DATA, PowerPlayInfo);
-        u16 data_offset;
+	u16 data_offset;
 	u8 frev, crev;
 	u8 *power_state_offset;
 	struct sumo_ps *ps;

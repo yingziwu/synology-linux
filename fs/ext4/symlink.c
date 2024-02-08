@@ -1,22 +1,7 @@
-/*
- *  linux/fs/ext4/symlink.c
- *
- * Only fast symlinks left here - the rest is done by generic code. AV, 1999
- *
- * Copyright (C) 1992, 1993, 1994, 1995
- * Remy Card (card@masi.ibp.fr)
- * Laboratoire MASI - Institut Blaise Pascal
- * Universite Pierre et Marie Curie (Paris VI)
- *
- *  from
- *
- *  linux/fs/minix/symlink.c
- *
- *  Copyright (C) 1991, 1992  Linus Torvalds
- *
- *  ext4 symlink handling code
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/fs.h>
 #include <linux/namei.h>
 #include "ext4.h"
@@ -49,14 +34,13 @@ static const char *ext4_encrypted_follow_link(struct dentry *dentry, void **cook
 		caddr[size] = 0;
 	}
 
-	/* Symlink is encrypted */
 	sd = (struct ext4_encrypted_symlink_data *)caddr;
 	cstr.name = sd->encrypted_path;
 	cstr.len  = le16_to_cpu(sd->len);
 	if ((cstr.len +
 	     sizeof(struct ext4_encrypted_symlink_data) - 1) >
 	    max_size) {
-		/* Symlink data on the disk is corrupted */
+		 
 		res = -EFSCORRUPTED;
 		goto errout;
 	}
@@ -72,7 +56,7 @@ static const char *ext4_encrypted_follow_link(struct dentry *dentry, void **cook
 	res = _ext4_fname_disk_to_usr(inode, NULL, &cstr, &pstr);
 	if (res < 0)
 		goto errout;
-	/* Null-terminate the name */
+	 
 	if (res <= plen)
 		paddr[res] = '\0';
 	if (cpage) {
@@ -90,6 +74,13 @@ errout:
 }
 
 const struct inode_operations ext4_encrypted_symlink_inode_operations = {
+#ifdef MY_ABC_HERE
+	.syno_getattr	= ext4_syno_getattr,
+#endif  
+#ifdef MY_ABC_HERE
+	.syno_get_archive_ver = ext4_syno_get_archive_ver,
+	.syno_set_archive_ver = ext4_syno_set_archive_ver,
+#endif  
 	.readlink	= generic_readlink,
 	.follow_link    = ext4_encrypted_follow_link,
 	.put_link       = kfree_put_link,
@@ -102,6 +93,13 @@ const struct inode_operations ext4_encrypted_symlink_inode_operations = {
 #endif
 
 const struct inode_operations ext4_symlink_inode_operations = {
+#ifdef MY_ABC_HERE
+	.syno_getattr	= ext4_syno_getattr,
+#endif  
+#ifdef MY_ABC_HERE
+	.syno_get_archive_ver = ext4_syno_get_archive_ver,
+	.syno_set_archive_ver = ext4_syno_set_archive_ver,
+#endif  
 	.readlink	= generic_readlink,
 	.follow_link	= page_follow_link_light,
 	.put_link	= page_put_link,
@@ -113,6 +111,13 @@ const struct inode_operations ext4_symlink_inode_operations = {
 };
 
 const struct inode_operations ext4_fast_symlink_inode_operations = {
+#ifdef MY_ABC_HERE
+	.syno_getattr	= ext4_syno_getattr,
+#endif  
+#ifdef MY_ABC_HERE
+	.syno_get_archive_ver = ext4_syno_get_archive_ver,
+	.syno_set_archive_ver = ext4_syno_set_archive_ver,
+#endif  
 	.readlink	= generic_readlink,
 	.follow_link    = simple_follow_link,
 	.setattr	= ext4_setattr,

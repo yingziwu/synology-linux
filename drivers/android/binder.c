@@ -1001,7 +1001,6 @@ static int binder_dec_node(struct binder_node *node, int strong, int internal)
 	return 0;
 }
 
-
 static struct binder_ref *binder_get_ref(struct binder_proc *proc,
 					 u32 desc, bool need_strong_ref)
 {
@@ -1138,7 +1137,6 @@ static int binder_inc_ref(struct binder_ref *ref, int strong,
 	}
 	return 0;
 }
-
 
 static int binder_dec_ref(struct binder_ref *ref, int strong)
 {
@@ -2195,7 +2193,6 @@ retry:
 		thread->return_error = BR_OK;
 		goto done;
 	}
-
 
 	thread->looper |= BINDER_LOOPER_STATE_WAITING;
 	if (wait_for_proc_work)
@@ -3548,7 +3545,6 @@ static void print_binder_proc_stats(struct seq_file *m,
 
 	print_binder_stats(m, "  ", &proc->stats);
 }
-
 
 static int binder_state_show(struct seq_file *m, void *unused)
 {
