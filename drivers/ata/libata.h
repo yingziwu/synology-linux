@@ -193,9 +193,9 @@ extern void SendPortDisEvent(struct work_struct *work);
 #ifdef MY_ABC_HERE
 extern void SendPortRetryFailedEvent(struct work_struct *work);
 
-#if defined(MY_DEF_HERE)
+#if defined(MY_ABC_HERE)
 extern void SendLinkDownEvent(struct work_struct *work);
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 #endif /* MY_ABC_HERE */
 #endif /* MY_ABC_HERE */

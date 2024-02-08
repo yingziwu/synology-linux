@@ -86,7 +86,7 @@ struct device_node* syno_of_i2c_device_match(struct i2c_client *client, const ch
 	for_each_child_of_node(pI2CNode, pI2CDevNode) {
 		device_name = (char *)of_get_property(pI2CDevNode, DT_I2C_DEVICE_NAME, NULL);
 		device_address = (char *)of_get_property(pI2CDevNode, DT_I2C_ADDRESS, NULL);
-		if (NULL != device_address && 0 == kstrtoul(device_address, 16, (unsigned long*) &addr)) {
+		if (NULL != device_address && 0 == kstrtou16(device_address, 16, &addr)) {
 			if ( 0 == strncmp(i2c_dev_name, device_name, SYNO_DTS_PROPERTY_CONTENT_LENGTH)
 					&& client->addr == addr) {
 				return pI2CDevNode;

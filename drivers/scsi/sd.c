@@ -83,6 +83,7 @@
 #ifdef MY_ABC_HERE
 #include "../ata/ahci.h"
 #include <linux/synobios.h>
+#include <linux/usb/uas.h>
 #endif /* MY_ABC_HERE */
 #if defined(MY_DEF_HERE) || defined(MY_ABC_HERE) \
 		|| defined(MY_ABC_HERE)
@@ -2740,8 +2741,10 @@ static int sd_read_protection_type(struct scsi_disk *sdkp, unsigned char *buffer
 	u8 type;
 	int ret = 0;
 
-	if (scsi_device_protection(sdp) == 0 || (buffer[12] & 1) == 0)
+	if (scsi_device_protection(sdp) == 0 || (buffer[12] & 1) == 0) {
+		sdkp->protection_type = 0;
 		return ret;
+	}
 
 	type = ((buffer[12] >> 1) & 7) + 1; /* P_TYPE 0 = Type 1 */
 
@@ -3138,7 +3141,6 @@ sd_read_write_protect_flag(struct scsi_disk *sdkp, unsigned char *buffer)
 	int res;
 	struct scsi_device *sdp = sdkp->device;
 	struct scsi_mode_data data;
-	int disk_ro = get_disk_ro(sdkp->disk);
 	int old_wp = sdkp->write_prot;
 
 	set_disk_ro(sdkp->disk, 0);
@@ -3179,7 +3181,7 @@ sd_read_write_protect_flag(struct scsi_disk *sdkp, unsigned char *buffer)
 			  "Test WP failed, assume Write Enabled\n");
 	} else {
 		sdkp->write_prot = ((data.device_specific & 0x80) != 0);
-		set_disk_ro(sdkp->disk, sdkp->write_prot || disk_ro);
+		set_disk_ro(sdkp->disk, sdkp->write_prot);
 		if (sdkp->first_scan || old_wp != sdkp->write_prot) {
 			sd_printk(KERN_NOTICE, sdkp, "Write Protect is %s\n",
 				  sdkp->write_prot ? "on" : "off");
@@ -3736,9 +3738,11 @@ static int sd_revalidate_disk(struct gendisk *disk)
 	    logical_to_bytes(sdp, sdkp->opt_xfer_blocks) >= PAGE_CACHE_SIZE) {
 		q->limits.io_opt = logical_to_bytes(sdp, sdkp->opt_xfer_blocks);
 		rw_max = logical_to_sectors(sdp, sdkp->opt_xfer_blocks);
-	} else
+	} else {
+		q->limits.io_opt = 0;
 		rw_max = min_not_zero(logical_to_sectors(sdp, dev_max),
 				      (sector_t)BLK_DEF_MAX_SECTORS);
+	}
 
 	/* Do not exceed controller limit */
 	rw_max = min(rw_max, queue_max_hw_sectors(q));
@@ -4145,6 +4149,7 @@ extern int syno_pciepath_dts_pattern_get(struct pci_dev *pdev, char *szPciePath,
 void syno_pciepath_enum(struct device *dev, char *buf) {
 	struct pci_dev *pdev = NULL;
 	char sztemp[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
+	char buftemp[BLOCK_INFO_SIZE] = {'\0'};
 
 	if (NULL == buf || NULL == dev) {
 		return;
@@ -4155,8 +4160,9 @@ void syno_pciepath_enum(struct device *dev, char *buf) {
 		return;
 	}
 
-	if (NULL != sztemp) {
-		snprintf(buf, BLOCK_INFO_SIZE, "%spciepath=%s\n", buf, sztemp);
+	if ('\0' != sztemp[0]) {
+		snprintf(buftemp, sizeof(buftemp), "%s", buf);
+		snprintf(buf, BLOCK_INFO_SIZE, "%spciepath=%s\n", buftemp, sztemp);
 	}
 }
 
@@ -4193,43 +4199,45 @@ END:
 }
 
 void syno_set_block_unique(struct scsi_device *sdev, u8 synoUnique) {
+	char syno_block_info_tmp[BLOCK_INFO_SIZE];
 
 	if (NULL == sdev) {
 		goto END;
 	}
 
+	snprintf(syno_block_info_tmp, sizeof(syno_block_info_tmp), "%s", sdev->syno_block_info);
 	if (IS_SYNOLOGY_RX4(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX4);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_RX4);
 	} else if (IS_SYNOLOGY_DX5(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX5);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_DX5);
 	} else if (IS_SYNOLOGY_DX513(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX513);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_DX513);
 	} else if (IS_SYNOLOGY_DX213(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX213);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_DX213);
 	} else if (IS_SYNOLOGY_DX517(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX517);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_DX517);
 	} else if (IS_SYNOLOGY_RX413(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX413);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_RX413);
 	} else if (IS_SYNOLOGY_RX415(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX415);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_RX415);
 	} else if (IS_SYNOLOGY_RX418(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX418);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_RX418);
 	} else if (IS_SYNOLOGY_DXC(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DXC);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_DXC);
 	} else if (IS_SYNOLOGY_RXC(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RXC);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_RXC);
 	} else if (IS_SYNOLOGY_RX1214(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX1214);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_RX1214);
 	} else if (IS_SYNOLOGY_RX1217(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX1217);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_RX1217);
 	} else if (IS_SYNOLOGY_DX1215(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX1215);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_DX1215);
 	} else if (IS_SYNOLOGY_DX1222(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX1222);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_DX1222);
 	} else if (IS_SYNOLOGY_DX1215II(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX1215II);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_DX1215II);
 	} else if (IS_SYNOLOGY_RX1223RP(synoUnique)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX1223RP);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", syno_block_info_tmp, EBOX_INFO_UNIQUE_RX1223RP);
 	}
 END:
 	return;
@@ -4240,44 +4248,60 @@ EXPORT_SYMBOL (syno_set_block_unique);
 static void syno_ata_info_enum(struct ata_port *ap, struct scsi_device *sdev) {
 	struct ata_device *dev = NULL;
 	const char* form_factor = NULL;
+	char syno_block_info_temp[BLOCK_INFO_SIZE] = {'\0'};
 
 	if (NULL == ap || NULL == sdev || NULL == ap->host) {
 		return;
 	}
 	dev = ata_scsi_find_dev(ap, sdev);
 
-	snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sata_port_no=%u\n", sdev->syno_block_info, ap->port_no);
+	snprintf(syno_block_info_temp, sizeof(syno_block_info_temp), "%s", sdev->syno_block_info);
+	snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sata_port_no=%u\n", syno_block_info_temp, ap->port_no);
 #ifdef MY_ABC_HERE
 	if (syno_is_synology_pm(ap) && NULL != dev && NULL != dev->link) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sis_syno_pmp=1\n", sdev->syno_block_info);
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%spmp_link=%u\n", sdev->syno_block_info, dev->link->pmp);
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sEMID=%u\n", sdev->syno_block_info, ap->PMSynoEMID);
+		snprintf(syno_block_info_temp, sizeof(syno_block_info_temp), sdev->syno_block_info);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sis_syno_pmp=1\npmp_link=%u\nEMID=%u\n", syno_block_info_temp, dev->link->pmp, ap->PMSynoEMID);
 		syno_set_block_unique(sdev, ap->PMSynoUnique);
 	}
 #endif /* MY_ABC_HERE */
 
 	/* Ignore field form_factor if we cannot find definition */
 	if (0 == get_ata_port_property_string(ap, DT_FORM_FACTOR, &form_factor)) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sform_factor=%s\n", sdev->syno_block_info, form_factor);
+		snprintf(syno_block_info_temp, sizeof(syno_block_info_temp), "%s", sdev->syno_block_info);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sform_factor=%s\n", syno_block_info_temp, form_factor);
 	}
 }
 static void syno_usb_info_enum(struct scsi_device *sdev) {
-	struct us_data *us = NULL;
+	struct us_data *usdata = NULL;
+	struct uas_dev_info *uasdevinfo = NULL;
+	struct usb_device *udev = NULL;
+	char syno_block_info_temp[BLOCK_INFO_SIZE] = {'\0'};
 
-	if (NULL == sdev) {
+	if (NULL == sdev || NULL == sdev->host) {
 		return;
 	}
-	us = host_to_us(sdev->host);
 
-	if (NULL == us || NULL == us->pusb_intf) {
-		return;
+	if (strncmp(sdev->host->hostt->name, "usb-storage", 11) == 0) {
+		usdata = host_to_us(sdev->host);
+		if (NULL == usdata || NULL == usdata->pusb_intf){
+			return;
+		}
+		udev = usdata->pusb_dev;
+	} else if (strncmp(sdev->host->hostt->name, "uas", 3) == 0) {
+		uasdevinfo = (struct uas_dev_info *)sdev->host->hostdata;
+		if (NULL == uasdevinfo || NULL == uasdevinfo->intf){
+			return;
+		}
+		udev = uasdevinfo->udev;
 	}
 
-	snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%susb_path=%s\n", sdev->syno_block_info, dev_name(&us->pusb_dev->dev));
+	snprintf(syno_block_info_temp, sizeof(syno_block_info_temp), "%s", sdev->syno_block_info);
+	snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%susb_path=%s\n", syno_block_info_temp, dev_name(&udev->dev));
 }
 
 static void syno_libata_info_enum(struct scsi_device *sdev, struct gendisk *gd) {
 	struct ata_port *ap = NULL;
+	char syno_block_info_temp[BLOCK_INFO_SIZE] = {'\0'};
 
 	ap = ata_shost_to_port(sdev->host);
 
@@ -4295,7 +4319,8 @@ static void syno_libata_info_enum(struct scsi_device *sdev, struct gendisk *gd) 
 			syno_pciepath_enum(ap->dev, sdev->syno_block_info);
 		}
 		syno_ata_info_enum(ap, sdev);
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sdriver=%s\n", sdev->syno_block_info, DT_AHCI);
+		snprintf(syno_block_info_temp, sizeof(syno_block_info_temp), "%s", sdev->syno_block_info);
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sdriver=%s\n", syno_block_info_temp, DT_AHCI);
 	}
 }
 #endif /* MY_ABC_HERE */
@@ -4832,15 +4857,16 @@ SYNO_SKIP_WANT_RETRY:
 #endif /* MY_DEF_HERE */
 
 	device_initialize(&sdkp->dev);
-	sdkp->dev.parent = dev;
+	sdkp->dev.parent = get_device(dev);
 	sdkp->dev.class = &sd_disk_class;
 	dev_set_name(&sdkp->dev, "%s", dev_name(dev));
 
 	error = device_add(&sdkp->dev);
-	if (error)
-		goto out_free_index;
+	if (error) {
+		put_device(&sdkp->dev);
+		goto out;
+	}
 
-	get_device(dev);
 	dev_set_drvdata(dev, sdkp);
 
 	get_device(&sdkp->dev);	/* prevent release before async_schedule */

@@ -22,6 +22,7 @@
 #include "../disk-io.h"
 #include "../transaction.h"
 #include "../print-tree.h"
+#include "../volumes.h"
 #include <linux/syno_cache_protection.h>
 #include "syno-cache-protection-btrfs.h"
 #include "syno-cache-protection-btrfs-command.h"
@@ -156,7 +157,7 @@ static void __verbose_printk(struct file *filp, const char *fmt, ...)
 	va_end(args);
 	write_buf(filp, buf, len);
 }
-#define verbose_printk(...) __verbose_printk(replay_instance->file_stdout, __VA_ARGS__)
+#define verbose_printk(...) __verbose_printk(replay_instance ? replay_instance->file_stdout : NULL, __VA_ARGS__)
 
 static struct syno_cache_protection_replay_mapping *syno_cache_protection_replay_mapping_tree_search(struct rb_root *root,
 					  u64 subvolid, u64 inum)
@@ -582,7 +583,8 @@ out:
 	return ret;
 }
 
-static void btrfs_syno_cache_protection_passive_free_cached_extents(struct btrfs_fs_info *fs_info, struct syno_cache_protection_passive_btrfs_instance *passive_instance)
+static void btrfs_syno_cache_protection_passive_free_cached_extents(struct btrfs_fs_info *fs_info, struct syno_cache_protection_passive_btrfs_instance *passive_instance,
+																	struct syno_cache_protection_replay_instance *replay_instance)
 {
 	int err;
 	struct syno_cache_protection_passive_btrfs_metadata_command *metadata_command;
@@ -633,6 +635,7 @@ static void btrfs_syno_cache_protection_passive_free_cached_extents(struct btrfs
 		if (err)
 			break;
 
+		verbose_printk("Syno Cache Protection Replay add unused pinned extent, start:%llu, end:%llu, len:%llu\n", start, end, end - start + 1);
 		btrfs_syno_cache_add_unused_extent(fs_info, start, end - start + 1);
 		clear_extent_bits(&freed_extents, start, end, EXTENT_UPTODATE);
 		cond_resched();
@@ -669,7 +672,7 @@ int btrfs_syno_cache_protection_passive_replay_prepare(struct btrfs_fs_info *fs_
 		goto out;
 	}
 
-	cache_protection_fs = syno_cache_protection_get_passive_instance(SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fsid);
+	cache_protection_fs = syno_cache_protection_get_passive_instance(SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fs_devices->fsid);
 	if (!cache_protection_fs) {
 		ret = 0;
 		goto out;
@@ -713,12 +716,12 @@ void btrfs_syno_cache_protection_passive_replay_release(struct btrfs_fs_info *fs
 	if (!fs_info)
 		return;
 
-	cache_protection_fs = syno_cache_protection_get_passive_instance(SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fsid);
+	cache_protection_fs = syno_cache_protection_get_passive_instance(SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fs_devices->fsid);
 	if (!cache_protection_fs)
 		return;
 
-	btrfs_syno_cache_protection_passive_free_cached_extents(fs_info, (struct syno_cache_protection_passive_btrfs_instance *)cache_protection_fs->private);
-	syno_cache_protection_clear_passive_instance_with_fs(SYNO_CACHE_PROTECTION_ROLE_PASSIVE, SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fsid);
+	btrfs_syno_cache_protection_passive_free_cached_extents(fs_info, (struct syno_cache_protection_passive_btrfs_instance *)cache_protection_fs->private, NULL);
+	syno_cache_protection_clear_passive_instance_with_fs(SYNO_CACHE_PROTECTION_ROLE_PASSIVE, SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fs_devices->fsid);
 	syno_cache_protection_fs_put(cache_protection_fs);
 }
 
@@ -1004,7 +1007,7 @@ disk_bytenr:%llu disk_len:%llu flags:%llu compress_type:%u i_size:%llu, total_cs
 #endif /* MY_ABC_HERE */
 						);
 	}
-	if (ret)
+	if (ret < 0)
 		goto out_unlock;
 
 	skip_sum = BTRFS_I(inode)->flags & BTRFS_INODE_NODATASUM;
@@ -1677,6 +1680,74 @@ static int replay_xattr(struct btrfs_fs_info *fs_info, struct syno_cache_protect
 	}
 }
 
+static int replay_dirty_pages_prepare(struct btrfs_fs_info *fs_info, struct syno_cache_protection_passive_btrfs_instance *passive_instance,
+								struct syno_cache_protection_replay_instance *replay_instance)
+{
+	int ret;
+	struct rb_node *inode_node, *page_node;
+	struct syno_cache_protection_passive_btrfs_inode *syno_inode;
+	struct syno_cache_protection_passive_btrfs_page *syno_page;
+	char *filename = NULL;
+	size_t cb_filename;
+	u64 subvolid, inum;
+	struct stat statbuf;
+	u64 max_i_size, cur_i_size;
+	loff_t tmp_pos, tmp_len;
+
+	filename = replay_instance->filename_1;
+	cb_filename = sizeof(replay_instance->filename_1);
+	inode_node= rb_first(&passive_instance->inode_tree);
+	while (inode_node) {
+		syno_inode = rb_entry(inode_node, struct syno_cache_protection_passive_btrfs_inode, inode_node);
+
+		subvolid = syno_inode->subvolid;
+		inum = syno_inode->inum;
+		syno_cache_protection_replay_mapping_convert(replay_instance, &subvolid, &inum);
+
+		verbose_printk("Syno Cache Protection Replay dirty inode prepare with subvolid:%llu inode:%llu syno_i_size:%llu\n", subvolid, inum, syno_inode->i_size);
+		ret = build_full_path_with_subvolid_and_inum(fs_info, replay_instance, subvolid, inum, filename, cb_filename, NULL, 0);
+		if (ret) {
+			/* inode maybe deleted with non-blocking write , so ignore it. */
+			if (ret == -ENOENT) {
+				inode_node = rb_next(inode_node);
+				verbose_printk("Syno Cache Protection inode non-exist with subvolid [%llu], inode [%llu]\n", subvolid, inum);
+				continue;
+			}
+			btrfs_warn(fs_info, "Failed to build_full_path_with_subvolid_and_inum with subvolid [%llu] inode [%llu] err [%d]", subvolid, inum, ret);
+			goto out;
+		}
+
+		memset(&statbuf, 0, sizeof(statbuf));
+		ret = syno_newlstat(filename, &statbuf);
+		if (ret)
+			goto out;
+		max_i_size = max(syno_inode->i_size, (u64)statbuf.st_size);
+		cur_i_size = statbuf.st_size;
+
+		page_node = rb_first(&syno_inode->page_tree);
+		while (page_node) {
+			syno_page = rb_entry(page_node, struct syno_cache_protection_passive_btrfs_page, page_node);
+			tmp_pos = syno_page->pg_offset << SYNO_CACHE_PROTECTION_DATA_SHIFT;
+			tmp_len = (max_i_size >= tmp_pos + SYNO_CACHE_PROTECTION_DATA_SIZE) ? SYNO_CACHE_PROTECTION_DATA_SIZE : max_i_size - tmp_pos;
+			cur_i_size = max(cur_i_size, (u64)(tmp_pos + tmp_len));
+			page_node = rb_next(page_node);
+		}
+
+		if ((u64)statbuf.st_size < cur_i_size) {
+			verbose_printk("Syno Cache Protection Replay dirty page pre expand with filename:%s, old_i_size:%llu, new_i_size:%llu\n", filename, (u64)statbuf.st_size, cur_i_size);
+			ret = syno_truncate(filename, cur_i_size);
+			if (ret)
+				goto out;
+		}
+
+		inode_node = rb_next(inode_node);
+	}
+
+	ret = 0;
+out:
+	return ret;
+}
+
 static int replay_dirty_pages(struct btrfs_fs_info *fs_info, struct syno_cache_protection_passive_btrfs_instance *passive_instance,
 								struct syno_cache_protection_replay_instance *replay_instance)
 {
@@ -2042,7 +2113,12 @@ int syno_cache_protection_recover(struct btrfs_fs_info *fs_info, struct syno_cac
 		}
 	}
 
-	btrfs_syno_cache_protection_passive_free_cached_extents(fs_info, passive_instance);
+	/* prepare dirty page replay with pre expand size */
+	ret = replay_dirty_pages_prepare(fs_info, passive_instance, replay_instance);
+	if (ret)
+		goto out;
+
+	btrfs_syno_cache_protection_passive_free_cached_extents(fs_info, passive_instance, replay_instance);
 
 	verbose_printk("Syno Cache Protection Replay Dirty Pages\n");
 	/* replay all dirty page */
@@ -2052,7 +2128,7 @@ int syno_cache_protection_recover(struct btrfs_fs_info *fs_info, struct syno_cac
 
 	ret = 0;
 out:
-	btrfs_syno_cache_protection_passive_free_cached_extents(fs_info, passive_instance);
+	btrfs_syno_cache_protection_passive_free_cached_extents(fs_info, passive_instance, replay_instance);
 	syno_cache_protection_replay_instance_free(replay_instance);
 	return ret;
 }

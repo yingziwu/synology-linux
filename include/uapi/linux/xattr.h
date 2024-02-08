@@ -65,6 +65,13 @@
 #define XATTR_SYNO_CREATE_TIME "create_time"
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+#define XATTR_SYNO_LOCKER_SUFFIX                  "w"
+#define XATTR_SYNO_LOCKER_SUFFIX_LEN              (sizeof(XATTR_SYNO_LOCKER_SUFFIX) - 1)
+#define XATTR_SYNO_LOCKER                         (XATTR_SYNO_PREFIX XATTR_SYNO_LOCKER_SUFFIX)
+#define XATTR_SYNO_LOCKER_LEN                     (sizeof(XATTR_SYNO_LOCKER) - 1)
+#endif /* MY_ABC_HERE */
+
 /* Security namespace */
 #define XATTR_EVM_SUFFIX "evm"
 #define XATTR_NAME_EVM XATTR_SECURITY_PREFIX XATTR_EVM_SUFFIX
