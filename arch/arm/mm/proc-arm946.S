@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/mm/arm946.S: utility functions for ARM946E-S
  *
@@ -306,6 +309,10 @@ ENTRY(arm946_dma_unmap_area)
 	mov	pc, lr
 ENDPROC(arm946_dma_unmap_area)
 
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+	.globl	arm946_flush_kern_cache_louis
+	.equ	arm946_flush_kern_cache_louis, arm946_flush_kern_cache_all
+#endif
 	@ define struct cpu_cache_fns (see <asm/cacheflush.h> and proc-macros.S)
 	define_cache_functions arm946
 
@@ -421,4 +428,3 @@ __arm946_proc_info:
 	.long	0
 	.long	arm946_cache_fns
 	.size	__arm946_proc_info, . - __arm946_proc_info
-

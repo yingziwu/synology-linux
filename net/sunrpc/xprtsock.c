@@ -2752,7 +2752,6 @@ static struct rpc_xprt *xs_setup_tcp(struct xprt_create *args)
 				xprt->address_strings[RPC_DISPLAY_ADDR],
 				xprt->address_strings[RPC_DISPLAY_PROTO]);
 
-
 	if (try_module_get(THIS_MODULE))
 		return xprt;
 	ret = ERR_PTR(-EINVAL);
@@ -2840,7 +2839,6 @@ static struct rpc_xprt *xs_setup_bc_tcp(struct xprt_create *args)
 	 * the xprt status to connected
 	 */
 	xprt_set_connected(xprt);
-
 
 	if (try_module_get(THIS_MODULE))
 		return xprt;
@@ -2993,4 +2991,3 @@ module_param_named(tcp_max_slot_table_entries, xprt_max_tcp_slot_table_entries,
 		   max_slot_table_size, 0644);
 module_param_named(udp_slot_table_entries, xprt_udp_slot_table_entries,
 		   slot_table_size, 0644);
-

@@ -1,18 +1,7 @@
-/*
- *  fs/partitions/check.c
- *
- *  Code extracted from drivers/block/genhd.c
- *  Copyright (C) 1991-1998  Linus Torvalds
- *  Re-organised Feb 1998 Russell King
- *
- *  We now have independent partition support from the
- *  block drivers, which allows all the partition code to
- *  be grouped in one location, and it to be mostly self
- *  contained.
- *
- *  Added needed MAJORS for new pairs, {hdi,hdj}, {hdk,hdl}
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/fs.h>
@@ -43,13 +32,10 @@
 extern void md_autodetect_dev(dev_t dev);
 #endif
 
-int warn_no_part = 1; /*This is ugly: should make genhd removable media aware*/
+int warn_no_part = 1;  
 
 static int (*check_part[])(struct parsed_partitions *) = {
-	/*
-	 * Probe partition formats with tables at disk address 0
-	 * that also have an ADFS boot block at 0xdc0.
-	 */
+	 
 #ifdef CONFIG_ACORN_PARTITION_ICS
 	adfspart_check_ICS,
 #endif
@@ -60,12 +46,6 @@ static int (*check_part[])(struct parsed_partitions *) = {
 	adfspart_check_EESOX,
 #endif
 
-	/*
-	 * Now move on to formats that only have partition info at
-	 * disk address 0xdc0.  Since these may also have stale
-	 * PC/BIOS partition tables, they need to come before
-	 * the msdos entry.
-	 */
 #ifdef CONFIG_ACORN_PARTITION_CUMANA
 	adfspart_check_CUMANA,
 #endif
@@ -74,13 +54,13 @@ static int (*check_part[])(struct parsed_partitions *) = {
 #endif
 
 #ifdef CONFIG_EFI_PARTITION
-	efi_partition,		/* this must come before msdos */
+	efi_partition,		 
 #endif
 #ifdef CONFIG_SGI_PARTITION
 	sgi_partition,
 #endif
 #ifdef CONFIG_LDM_PARTITION
-	ldm_partition,		/* this must come before msdos */
+	ldm_partition,		 
 #endif
 #ifdef CONFIG_MSDOS_PARTITION
 	msdos_partition,
@@ -115,13 +95,6 @@ static int (*check_part[])(struct parsed_partitions *) = {
 	NULL
 };
  
-/*
- * disk_name() is used by partition check code and the genhd driver.
- * It formats the devicename of the indicated disk into
- * the supplied buffer (of size at least 32), and returns
- * a pointer to that same buffer (for convenience).
- */
-
 char *disk_name(struct gendisk *hd, int partno, char *buf)
 {
 	if (!partno)
@@ -136,16 +109,17 @@ char *disk_name(struct gendisk *hd, int partno, char *buf)
 
 const char *bdevname(struct block_device *bdev, char *buf)
 {
+#ifdef MY_ABC_HERE
+	if (!bdev || !bdev->bd_part) {
+		printk(KERN_ERR "bdevname: bdev data should not be NULL\n");
+		return buf;
+	}
+#endif
 	return disk_name(bdev->bd_disk, bdev->bd_part->partno, buf);
 }
 
 EXPORT_SYMBOL(bdevname);
 
-/*
- * There's very little reason to use this, you should really
- * have a struct block_device just about everywhere and use
- * bdevname() instead.
- */
 const char *__bdevname(dev_t dev, char *buffer)
 {
 	scnprintf(buffer, BDEVNAME_SIZE, "unknown-block(%u,%u)",
@@ -183,9 +157,7 @@ check_partition(struct gendisk *hd, struct block_device *bdev)
 		memset(&state->parts, 0, sizeof(state->parts));
 		res = check_part[i++](state);
 		if (res < 0) {
-			/* We have hit an I/O error which we don't report now.
-		 	* But record it, and let the others do their job.
-		 	*/
+			 
 			err = res;
 			res = 0;
 		}
@@ -200,7 +172,7 @@ check_partition(struct gendisk *hd, struct block_device *bdev)
 	if (state->access_beyond_eod)
 		err = -ENOSPC;
 	if (err)
-	/* The partition is unrecognized. So report I/O errors if there were any */
+	 
 		res = err;
 	if (!res)
 		strlcat(state->pp_buf, " unknown partition table\n", PAGE_SIZE);
@@ -294,6 +266,31 @@ ssize_t part_inflight_show(struct device *dev,
 		atomic_read(&p->in_flight[1]));
 }
 
+#ifdef MY_ABC_HERE
+extern void
+PartitionRemapModeSet(struct gendisk *gd,
+							struct hd_struct *phd,
+							unsigned char blAutoRemap);
+ssize_t part_auto_remap_show(struct device *dev,
+			struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", dev_to_part(dev)->auto_remap);
+}
+
+ssize_t part_auto_remap_store(struct device *dev,
+			struct device_attribute *attr,
+			const char *buf, size_t count)
+{
+	unsigned val = 0;
+	struct hd_struct *p = dev_to_part(dev);
+	struct gendisk *disk = part_to_disk(p);
+
+	sscanf(buf, "%d", &val);
+	PartitionRemapModeSet(disk, p, val ? 1 : 0);
+	return count;
+}
+#endif
+
 #ifdef CONFIG_FAIL_MAKE_REQUEST
 ssize_t part_fail_show(struct device *dev,
 		       struct device_attribute *attr, char *buf)
@@ -330,6 +327,9 @@ static DEVICE_ATTR(inflight, S_IRUGO, part_inflight_show, NULL);
 static struct device_attribute dev_attr_fail =
 	__ATTR(make-it-fail, S_IRUGO|S_IWUSR, part_fail_show, part_fail_store);
 #endif
+#ifdef MY_ABC_HERE
+	static DEVICE_ATTR(auto_remap, S_IRUGO|S_IWUSR, part_auto_remap_show, part_auto_remap_store);
+#endif
 
 static struct attribute *part_attrs[] = {
 	&dev_attr_partition.attr,
@@ -342,6 +342,9 @@ static struct attribute *part_attrs[] = {
 	&dev_attr_inflight.attr,
 #ifdef CONFIG_FAIL_MAKE_REQUEST
 	&dev_attr_fail.attr,
+#endif
+#ifdef MY_ABC_HERE
+	&dev_attr_auto_remap.attr,
 #endif
 	NULL
 };
@@ -479,7 +482,6 @@ struct hd_struct *add_partition(struct gendisk *disk, int partno,
 		goto out_free_info;
 	pdev->devt = devt;
 
-	/* delay uevent until 'holders' subdir is created */
 	dev_set_uevent_suppress(pdev, 1);
 	err = device_add(pdev);
 	if (err)
@@ -497,12 +499,14 @@ struct hd_struct *add_partition(struct gendisk *disk, int partno,
 			goto out_del;
 	}
 
-	/* everything is up and running, commence */
 	rcu_assign_pointer(ptbl->part[partno], p);
 
-	/* suppress uevent if the disk suppresses it */
 	if (!dev_get_uevent_suppress(ddev))
 		kobject_uevent(&pdev->kobj, KOBJ_ADD);
+
+#ifdef MY_ABC_HERE
+	PartitionRemapModeSet(disk, p, 0);
+#endif
 
 	hd_ref_init(p);
 	return p;
@@ -581,11 +585,7 @@ rescan:
 	if (!get_capacity(disk) || !(state = check_partition(disk, bdev)))
 		return 0;
 	if (IS_ERR(state)) {
-		/*
-		 * I/O error reading the partition table.  If any
-		 * partition code tried to read beyond EOD, retry
-		 * after unlocking native capacity.
-		 */
+		 
 		if (PTR_ERR(state) == -ENOSPC) {
 			printk(KERN_WARNING "%s: partition table beyond EOD, ",
 			       disk->disk_name);
@@ -594,11 +594,7 @@ rescan:
 		}
 		return -EIO;
 	}
-	/*
-	 * If any partition code tried to read beyond EOD, try
-	 * unlocking native capacity even if partition table is
-	 * successfully read as we could be missing some partitions.
-	 */
+	 
 	if (state->access_beyond_eod) {
 		printk(KERN_WARNING
 		       "%s: partition table partially beyond EOD, ",
@@ -607,20 +603,14 @@ rescan:
 			goto rescan;
 	}
 
-	/* tell userspace that the media / partition table may have changed */
 	kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
 
-	/* Detect the highest partition number and preallocate
-	 * disk->part_tbl.  This is an optimization and not strictly
-	 * necessary.
-	 */
 	for (p = 1, highest = 0; p < state->limit; p++)
 		if (state->parts[p].size)
 			highest = p;
 
 	disk_expand_part_tbl(disk, highest);
 
-	/* add partitions */
 	for (p = 1; p < state->limit; p++) {
 		sector_t size, from;
 		struct partition_meta_info *info = NULL;
@@ -645,15 +635,10 @@ rescan:
 			       disk->disk_name, p, (unsigned long long) size);
 
 			if (disk_unlock_native_capacity(disk)) {
-				/* free state and restart */
+				 
 				goto rescan;
 			} else {
-				/*
-				 * we can not ignore partitions of broken tables
-				 * created by for example camera firmware, but
-				 * we limit them to the end of the disk to avoid
-				 * creating invalid block devices
-				 */
+				 
 				size = get_capacity(disk) - from;
 			}
 		}
@@ -691,7 +676,7 @@ int invalidate_partitions(struct gendisk *disk, struct block_device *bdev)
 	set_capacity(disk, 0);
 	check_disk_size_change(disk, bdev);
 	bdev->bd_invalidated = 0;
-	/* tell userspace that the media / partition table may have changed */
+	 
 	kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
 
 	return 0;

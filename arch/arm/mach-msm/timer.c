@@ -89,7 +89,6 @@ enum {
 	NR_TIMERS,
 };
 
-
 static struct msm_clock msm_clocks[];
 
 static irqreturn_t msm_timer_interrupt(int irq, void *dev_id)

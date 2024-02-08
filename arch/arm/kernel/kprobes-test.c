@@ -205,9 +205,7 @@
 #include "kprobes.h"
 #include "kprobes-test.h"
 
-
 #define BENCHMARKING	1
-
 
 /*
  * Test basic API
@@ -222,7 +220,6 @@ static int kretprobe_handler_called;
 
 #define FUNC_ARG1 0x12345678
 #define FUNC_ARG2 0xabcdef
-
 
 #ifndef CONFIG_THUMB2_KERNEL
 
@@ -273,7 +270,6 @@ static void __used __naked __thumb_kprobes_test_funcs(void)
 }
 
 #endif /* CONFIG_THUMB2_KERNEL */
-
 
 static int call_test_func(long (*func)(long, long), bool check_test_regs)
 {
@@ -466,7 +462,6 @@ static int run_api_tests(long (*func)(long, long))
 	return 0;
 }
 
-
 /*
  * Benchmarking
  */
@@ -518,7 +513,6 @@ static void __naked benchmark_pushpop4(void)
 		"ldmia"wide"	sp!, {r0,pc}"
 	);
 }
-
 
 #ifdef CONFIG_THUMB2_KERNEL
 
@@ -617,7 +611,6 @@ static int run_benchmarks(void)
 
 #endif /* BENCHMARKING */
 
-
 /*
  * Decoding table self-consistency tests
  */
@@ -702,7 +695,6 @@ static int table_test(const union decode_item *table)
 	};
 	return table_iter(args.root_table, table_test_fn, &args);
 }
-
 
 /*
  * Decoding table test coverage analysis
@@ -947,7 +939,6 @@ static void coverage_end(void)
 	kfree(coverage.base);
 }
 
-
 /*
  * Framework for instruction set test cases
  */
@@ -1009,7 +1000,6 @@ void __naked __kprobes_test_case_end_32(void)
 
 #endif
 
-
 int kprobe_test_flags;
 int kprobe_test_cc_position;
 
@@ -1030,7 +1020,6 @@ static uintptr_t current_branch_target;
 
 static uintptr_t current_code_start;
 static kprobe_opcode_t current_instruction;
-
 
 #define TEST_CASE_PASSED -1
 #define TEST_CASE_FAILED -2
@@ -1620,7 +1609,6 @@ end:
 	return 0;
 }
 
-
 /*
  * Top level test functions
  */
@@ -1644,7 +1632,6 @@ static int run_test_cases(void (*tests)(void), const union decode_item *table)
 	coverage_end();
 	return 0;
 }
-
 
 static int __init run_all_tests(void)
 {
@@ -1725,7 +1712,6 @@ out:
 
 	return ret;
 }
-
 
 /*
  * Module setup

@@ -102,7 +102,6 @@ int inet_peer_threshold __read_mostly = 65536 + 128;	/* start to throw entries m
 int inet_peer_minttl __read_mostly = 120 * HZ;	/* TTL under high load: 120 sec */
 int inet_peer_maxttl __read_mostly = 10 * 60 * HZ;	/* usual time to live: 10 min */
 
-
 /* Called from ip_output.c:ip_init  */
 void __init inet_initpeers(void)
 {
@@ -448,7 +447,6 @@ relookup:
 		p->pmtu_expires = 0;
 		p->pmtu_orig = 0;
 		memset(&p->redirect_learned, 0, sizeof(p->redirect_learned));
-
 
 		/* Link the node. */
 		link_to_pool(p, base);

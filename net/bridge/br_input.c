@@ -1,16 +1,7 @@
-/*
- *	Handle incoming frames
- *	Linux ethernet bridge
- *
- *	Authors:
- *	Lennert Buytenhek		<buytenh@gnu.org>
- *
- *	This program is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU General Public License
- *	as published by the Free Software Foundation; either version
- *	2 of the License, or (at your option) any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/slab.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
@@ -19,10 +10,8 @@
 #include <linux/export.h>
 #include "br_private.h"
 
-/* Bridge group multicast address 802.1d (pg 51). */
 const u8 br_group_address[ETH_ALEN] = { 0x01, 0x80, 0xc2, 0x00, 0x00, 0x00 };
 
-/* Hook for brouter */
 br_should_route_hook_t __rcu *br_should_route_hook __read_mostly;
 EXPORT_SYMBOL(br_should_route_hook);
 
@@ -44,7 +33,6 @@ static int br_pass_frame_up(struct sk_buff *skb)
 		       netif_receive_skb);
 }
 
-/* note: already called with rcu_read_lock */
 int br_handle_frame_finish(struct sk_buff *skb)
 {
 	const unsigned char *dest = eth_hdr(skb)->h_dest;
@@ -57,7 +45,6 @@ int br_handle_frame_finish(struct sk_buff *skb)
 	if (!p || p->state == BR_STATE_DISABLED)
 		goto drop;
 
-	/* insert into forwarding database after filtering to avoid spoofing */
 	br = p->br;
 	br_fdb_update(br, p, eth_hdr(skb)->h_source);
 
@@ -65,12 +52,19 @@ int br_handle_frame_finish(struct sk_buff *skb)
 	    br_multicast_rcv(br, p, skb))
 		goto drop;
 
+#if defined(MY_DEF_HERE)
+	if ((p->state == BR_STATE_LEARNING) && skb->protocol != htons(ETH_P_PAE))
+#else
 	if (p->state == BR_STATE_LEARNING)
+#endif
 		goto drop;
 
 	BR_INPUT_SKB_CB(skb)->brdev = br->dev;
 
-	/* The packet skb2 goes to the local host (NULL to skip). */
+#if defined(MY_DEF_HERE) && defined(CONFIG_ARCH_COMCERTO)
+	skb->cb[4] = 0;
+#endif
+
 	skb2 = NULL;
 
 	if (br->dev->flags & IFF_PROMISC)
@@ -78,6 +72,13 @@ int br_handle_frame_finish(struct sk_buff *skb)
 
 	dst = NULL;
 
+#if defined(MY_DEF_HERE)
+	if (skb->protocol == htons(ETH_P_PAE)) {
+		skb2 = skb;
+		 
+		skb = NULL;
+	} else
+#endif
 	if (is_broadcast_ether_addr(dest))
 		skb2 = skb;
 	else if (is_multicast_ether_addr(dest)) {
@@ -94,15 +95,24 @@ int br_handle_frame_finish(struct sk_buff *skb)
 			skb2 = skb;
 
 		br->dev->stats.multicast++;
+#if defined(MY_DEF_HERE)
+	} else if ((p->flags & BR_ISOLATE_MODE) ||
+		   ((dst = __br_fdb_get(br, dest)) && dst->is_local)) {
+#else
 	} else if ((dst = __br_fdb_get(br, dest)) && dst->is_local) {
+#endif
 		skb2 = skb;
-		/* Do not forward the packet since it's local. */
+		 
 		skb = NULL;
 	}
 
 	if (skb) {
 		if (dst) {
 			dst->used = jiffies;
+#if defined(MY_DEF_HERE) && defined(CONFIG_ARCH_COMCERTO)
+			 
+			skb->cb[4] = 1;
+#endif
 			br_forward(dst->dst, skb, skb2);
 		} else
 			br_flood_forward(br, skb, skb2);
@@ -118,18 +128,14 @@ drop:
 	goto out;
 }
 
-/* note: already called with rcu_read_lock */
 static int br_handle_local_finish(struct sk_buff *skb)
 {
 	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
 
 	br_fdb_update(p->br, p, eth_hdr(skb)->h_source);
-	return 0;	 /* process further */
+	return 0;	  
 }
 
-/* Does address match the link local multicast address.
- * 01:80:c2:00:00:0X
- */
 static inline int is_link_local(const unsigned char *dest)
 {
 	__be16 *a = (__be16 *)dest;
@@ -139,10 +145,6 @@ static inline int is_link_local(const unsigned char *dest)
 	return ((a[0] ^ b[0]) | (a[1] ^ b[1]) | ((a[2] ^ b[2]) & m)) == 0;
 }
 
-/*
- * Return NULL if skb is handled
- * note: already called with rcu_read_lock
- */
 rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
 {
 	struct net_bridge_port *p;
@@ -163,43 +165,29 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
 	p = br_port_get_rcu(skb->dev);
 
 	if (unlikely(is_link_local(dest))) {
-		/*
-		 * See IEEE 802.1D Table 7-10 Reserved addresses
-		 *
-		 * Assignment		 		Value
-		 * Bridge Group Address		01-80-C2-00-00-00
-		 * (MAC Control) 802.3		01-80-C2-00-00-01
-		 * (Link Aggregation) 802.3	01-80-C2-00-00-02
-		 * 802.1X PAE address		01-80-C2-00-00-03
-		 *
-		 * 802.1AB LLDP 		01-80-C2-00-00-0E
-		 *
-		 * Others reserved for future standardization
-		 */
+		 
 		switch (dest[5]) {
-		case 0x00:	/* Bridge Group Address */
-			/* If STP is turned off,
-			   then must forward to keep loop detection */
+		case 0x00:	 
+			 
 			if (p->br->stp_enabled == BR_NO_STP)
 				goto forward;
 			break;
 
-		case 0x01:	/* IEEE MAC (Pause) */
+		case 0x01:	 
 			goto drop;
 
 		default:
-			/* Allow selective forwarding for most other protocols */
+			 
 			if (p->br->group_fwd_mask & (1u << dest[5]))
 				goto forward;
 		}
 
-		/* Deliver packet to local host only */
 		if (NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN, skb, skb->dev,
 			    NULL, br_handle_local_finish)) {
-			return RX_HANDLER_CONSUMED; /* consumed by filter */
+			return RX_HANDLER_CONSUMED;  
 		} else {
 			*pskb = skb;
-			return RX_HANDLER_PASS;	/* continue processing */
+			return RX_HANDLER_PASS;	 
 		}
 	}
 
@@ -214,7 +202,7 @@ forward:
 			}
 			dest = eth_hdr(skb)->h_dest;
 		}
-		/* fall through */
+		 
 	case BR_STATE_LEARNING:
 		if (!compare_ether_addr(p->br->dev->dev_addr, dest))
 			skb->pkt_type = PACKET_HOST;

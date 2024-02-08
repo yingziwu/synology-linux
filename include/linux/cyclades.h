@@ -1,4 +1,4 @@
-/* $Revision: 3.0 $$Date: 1998/11/02 14:20:59 $
+/* $Revision: 1.1.1.1 $$Date: 2010/04/15 12:28:23 $
  * linux/include/linux/cyclades.h
  *
  * This file was initially written by
@@ -7,6 +7,9 @@
  *
  * This file contains the general definitions for the cyclades.c driver
  *$Log: cyclades.h,v $
+ *Revision 1.1.1.1  2010/04/15 12:28:23  khchen
+ *log message
+ *
  *Revision 3.1  2002/01/29 11:36:16  henrique
  *added throttle field on struct cyclades_port to indicate whether the
  *port is throttled or not
@@ -139,7 +142,6 @@ struct CYZ_BOOT_CTRL {
         unsigned long   offset;
         unsigned long   data[CYZ_BOOT_NWORDS];
 };
-
 
 #ifndef DP_WINDOW_SIZE
 /*
@@ -412,7 +414,6 @@ struct CH_CTRL {
 	__u32 filler[7];
 };
 
-
 /*
  *	BUF_CTRL - This per channel structure contains
  *	all Tx and Rx buffer control for a given channel.
@@ -584,7 +585,6 @@ struct cyclades_port {
 #define	CLOSING_WAIT_DELAY	30*HZ
 #define CY_CLOSING_WAIT_NONE	ASYNC_CLOSING_WAIT_NONE
 #define CY_CLOSING_WAIT_INF	ASYNC_CLOSING_WAIT_INF
-
 
 #define CyMAX_CHIPS_PER_CARD	8
 #define CyMAX_CHAR_FIFO		12

@@ -24,7 +24,6 @@
 #include <asm/ftrace.h>
 #include <asm/syscall.h>
 
-
 #ifdef CONFIG_DYNAMIC_FTRACE
 static unsigned int
 ftrace_call_replace(unsigned long ip, unsigned long addr, int link)
@@ -214,7 +213,6 @@ __ftrace_make_nop(struct module *mod,
 
 	if (probe_kernel_write((void *)ip, &op, MCOUNT_INSN_SIZE))
 		return -EPERM;
-
 
 	flush_icache_range(ip, ip + 8);
 

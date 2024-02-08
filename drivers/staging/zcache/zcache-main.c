@@ -1310,7 +1310,6 @@ out:
 	return ret;
 }
 
-
 static int zcache_cpu_notifier(struct notifier_block *nb,
 				unsigned long action, void *pcpu)
 {

@@ -94,7 +94,6 @@ void omap243x_map_io(void);
 void omap3_map_io(void);
 void omap4_map_io(void);
 
-
 /**
  * omap_test_timeout - busy-loop, testing a condition
  * @cond: condition to test until it evaluates to true

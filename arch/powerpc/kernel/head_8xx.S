@@ -121,7 +121,6 @@ turn_on_mmu:
 	tophys(r11,r11);	\
 1:	subi	r11,r11,INT_FRAME_SIZE	/* alloc exc. frame */
 
-
 #define EXCEPTION_PROLOG_2	\
 	CLR_TOP32(r11);		\
 	stw	r10,_CCR(r11);		/* save registers */ \
@@ -891,7 +890,6 @@ initial_mmu:
 #endif
 	blr
 
-
 /*
  * Set up to use a given MMU context.
  * r3 is context number, r4 is PGD pointer.
@@ -976,4 +974,3 @@ abatron_pteptrs:
 cpu6_errata_word:
 	.space	16
 #endif
-

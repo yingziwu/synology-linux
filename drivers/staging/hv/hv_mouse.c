@@ -24,7 +24,6 @@
 #include <linux/hiddev.h>
 #include <linux/hyperv.h>
 
-
 struct hv_input_dev_info {
 	unsigned int size;
 	unsigned short vendor;
@@ -47,7 +46,6 @@ struct hv_input_dev_info {
 #define SYNTHHID_INPUT_VERSION_MINOR	0
 #define SYNTHHID_INPUT_VERSION		(SYNTHHID_INPUT_VERSION_MINOR | \
 					 (SYNTHHID_INPUT_VERSION_MAJOR << 16))
-
 
 #pragma pack(push, 1)
 /*
@@ -126,7 +124,6 @@ enum pipe_prot_msg_type {
 	PIPE_MESSAGE_MAXIMUM
 };
 
-
 struct pipe_prt_msg {
 	enum pipe_prot_msg_type type;
 	u32 size;
@@ -163,7 +160,6 @@ struct mousevsc_dev {
 	struct hid_device       *hid_device;
 };
 
-
 static struct mousevsc_dev *alloc_input_device(struct hv_device *device)
 {
 	struct mousevsc_dev *input_dev;
@@ -187,7 +183,6 @@ static void free_input_device(struct mousevsc_dev *device)
 	hv_set_drvdata(device->device, NULL);
 	kfree(device);
 }
-
 
 static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
 				struct synthhid_device_info *device_info)
@@ -324,7 +319,6 @@ static void mousevsc_on_channel_callback(void *context)
 	unsigned char	*buffer = packet;
 	int	bufferlen = packetSize;
 
-
 	do {
 		ret = vmbus_recvpacket_raw(device->channel, buffer,
 					bufferlen, &bytes_recvd, &req_id);
@@ -390,7 +384,6 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
 	struct mousevsc_prt_msg *request;
 	struct mousevsc_prt_msg *response;
 
-
 	request = &input_dev->protocol_req;
 
 	memset(request, 0, sizeof(struct mousevsc_prt_msg));
@@ -401,7 +394,6 @@ static int mousevsc_connect_to_vsp(struct hv_device *device)
 	request->request.header.type = SYNTH_HID_PROTOCOL_REQUEST;
 	request->request.header.size = sizeof(unsigned int);
 	request->request.version_requested.version = SYNTHHID_INPUT_VERSION;
-
 
 	ret = vmbus_sendpacket(device->channel, request,
 				sizeof(struct pipe_prt_msg) -
@@ -520,7 +512,6 @@ static int mousevsc_on_device_add(struct hv_device *device)
 		return ret;
 	}
 
-
 	ret = mousevsc_connect_to_vsp(device);
 
 	if (ret != 0) {
@@ -528,7 +519,6 @@ static int mousevsc_on_device_add(struct hv_device *device)
 		free_input_device(input_dev);
 		return ret;
 	}
-
 
 	/* workaround SA-167 */
 	if (input_dev->report_desc[14] == 0x25)

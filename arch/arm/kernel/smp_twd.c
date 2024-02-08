@@ -1,13 +1,7 @@
-/*
- *  linux/arch/arm/kernel/smp_twd.c
- *
- *  Copyright (C) 2002 ARM Ltd.
- *  All Rights Reserved
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/delay.h>
@@ -22,7 +16,6 @@
 #include <asm/localtimer.h>
 #include <asm/hardware/gic.h>
 
-/* set up by the platform code */
 void __iomem *twd_base;
 
 static unsigned long twd_timer_rate;
@@ -36,13 +29,17 @@ static void twd_set_mode(enum clock_event_mode mode,
 
 	switch (mode) {
 	case CLOCK_EVT_MODE_PERIODIC:
-		/* timer load already set up */
+		 
 		ctrl = TWD_TIMER_CONTROL_ENABLE | TWD_TIMER_CONTROL_IT_ENABLE
 			| TWD_TIMER_CONTROL_PERIODIC;
+#if defined(MY_DEF_HERE)
+		writel_relaxed(twd_timer_rate / HZ, twd_base + TWD_TIMER_LOAD);
+#else
 		__raw_writel(twd_timer_rate / HZ, twd_base + TWD_TIMER_LOAD);
+#endif
 		break;
 	case CLOCK_EVT_MODE_ONESHOT:
-		/* period set, and timer enabled in 'next_event' hook */
+		 
 		ctrl = TWD_TIMER_CONTROL_IT_ENABLE | TWD_TIMER_CONTROL_ONESHOT;
 		break;
 	case CLOCK_EVT_MODE_UNUSED:
@@ -51,32 +48,44 @@ static void twd_set_mode(enum clock_event_mode mode,
 		ctrl = 0;
 	}
 
+#if defined(MY_DEF_HERE)
+	writel_relaxed(ctrl, twd_base + TWD_TIMER_CONTROL);
+#else
 	__raw_writel(ctrl, twd_base + TWD_TIMER_CONTROL);
+#endif
 }
 
 static int twd_set_next_event(unsigned long evt,
 			struct clock_event_device *unused)
 {
+#if defined(MY_DEF_HERE)
+	unsigned long ctrl = readl_relaxed(twd_base + TWD_TIMER_CONTROL);
+#else
 	unsigned long ctrl = __raw_readl(twd_base + TWD_TIMER_CONTROL);
+#endif
 
 	ctrl |= TWD_TIMER_CONTROL_ENABLE;
 
+#if defined(MY_DEF_HERE)
+	writel_relaxed(evt, twd_base + TWD_TIMER_COUNTER);
+	writel_relaxed(ctrl, twd_base + TWD_TIMER_CONTROL);
+#else
 	__raw_writel(evt, twd_base + TWD_TIMER_COUNTER);
 	__raw_writel(ctrl, twd_base + TWD_TIMER_CONTROL);
+#endif
 
 	return 0;
 }
 
-/*
- * local_timer_ack: checks for a local timer interrupt.
- *
- * If a local timer interrupt has occurred, acknowledge and return 1.
- * Otherwise, return 0.
- */
 int twd_timer_ack(void)
 {
+#if defined(MY_DEF_HERE)
+	if (readl_relaxed(twd_base + TWD_TIMER_INTSTAT)) {
+		writel_relaxed(1, twd_base + TWD_TIMER_INTSTAT);
+#else
 	if (__raw_readl(twd_base + TWD_TIMER_INTSTAT)) {
 		__raw_writel(1, twd_base + TWD_TIMER_INTSTAT);
+#endif
 		return 1;
 	}
 
@@ -94,32 +103,36 @@ static void __cpuinit twd_calibrate_rate(void)
 	unsigned long count;
 	u64 waitjiffies;
 
-	/*
-	 * If this is the first time round, we need to work out how fast
-	 * the timer ticks
-	 */
 	if (twd_timer_rate == 0) {
 		printk(KERN_INFO "Calibrating local timer... ");
 
-		/* Wait for a tick to start */
 		waitjiffies = get_jiffies_64() + 1;
 
 		while (get_jiffies_64() < waitjiffies)
 			udelay(10);
 
-		/* OK, now the tick has started, let's get the timer going */
 		waitjiffies += 5;
 
-				 /* enable, no interrupt or reload */
+#if defined(MY_DEF_HERE)
+		writel_relaxed(0x1, twd_base + TWD_TIMER_CONTROL);
+#else
 		__raw_writel(0x1, twd_base + TWD_TIMER_CONTROL);
+#endif
 
-				 /* maximum value */
+#if defined(MY_DEF_HERE)
+		writel_relaxed(0xFFFFFFFFU, twd_base + TWD_TIMER_COUNTER);
+#else
 		__raw_writel(0xFFFFFFFFU, twd_base + TWD_TIMER_COUNTER);
+#endif
 
 		while (get_jiffies_64() < waitjiffies)
 			udelay(10);
 
+#if defined(MY_DEF_HERE)
+		count = readl_relaxed(twd_base + TWD_TIMER_COUNTER);
+#else
 		count = __raw_readl(twd_base + TWD_TIMER_COUNTER);
+#endif
 
 		twd_timer_rate = (0xFFFFFFFFU - count) * (HZ / 5);
 
@@ -140,9 +153,6 @@ static irqreturn_t twd_handler(int irq, void *dev_id)
 	return IRQ_NONE;
 }
 
-/*
- * Setup the local clock events for a CPU.
- */
 void __cpuinit twd_timer_setup(struct clock_event_device *clk)
 {
 	struct clock_event_device **this_cpu_clk;
@@ -166,6 +176,10 @@ void __cpuinit twd_timer_setup(struct clock_event_device *clk)
 	}
 
 	twd_calibrate_rate();
+
+#if defined(MY_DEF_HERE)
+	writel_relaxed(0, twd_base + TWD_TIMER_CONTROL);
+#endif
 
 	clk->name = "local_timer";
 	clk->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT |

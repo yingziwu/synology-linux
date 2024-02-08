@@ -36,7 +36,6 @@
 #include "reg.h"
 #include "debug.h"
 
-
 /*********\
 * Receive *
 \*********/
@@ -107,7 +106,6 @@ int ath5k_hw_set_rxdp(struct ath5k_hw *ah, u32 phys_addr)
 	ath5k_hw_reg_write(ah, phys_addr, AR5K_RXDP);
 	return 0;
 }
-
 
 /**********\
 * Transmit *
@@ -492,7 +490,6 @@ done:
 	return ret;
 }
 
-
 /*******************\
 * Interrupt masking *
 \*******************/
@@ -753,7 +750,6 @@ enum ath5k_int ath5k_hw_set_imr(struct ath5k_hw *ah, enum ath5k_int new_mask)
 
 	return old_mask;
 }
-
 
 /********************\
  Init/Stop functions

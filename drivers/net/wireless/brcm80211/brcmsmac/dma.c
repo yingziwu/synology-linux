@@ -569,7 +569,6 @@ struct dma_pub *dma_attach(char *name, struct si_pub *sih,
 
 	di->msg_level = msg_level ? msg_level : &dma_msg_level;
 
-
 	di->dma64 = ((ai_core_sflags(sih, 0, 0) & SISF_DMA64) == SISF_DMA64);
 
 	/* init dma reg pointer */

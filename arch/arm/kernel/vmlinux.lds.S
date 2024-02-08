@@ -1,9 +1,15 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* ld script to make ARM Linux kernel
  * taken from the i386 version by Russell King
  * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
  */
 
 #include <asm-generic/vmlinux.lds.h>
+#ifdef MY_DEF_HERE
+#include <asm/cache.h>
+#endif
 #include <asm/thread_info.h>
 #include <asm/memory.h>
 #include <asm/page.h>
@@ -88,6 +94,11 @@ SECTIONS
 			*(.exception.text)
 			__exception_text_end = .;
 			IRQENTRY_TEXT
+#ifdef MY_DEF_HERE
+#ifdef CONFIG_FUNC_REORDER
+#include "functionlist"
+#endif
+#endif
 			TEXT_TEXT
 			SCHED_TEXT
 			LOCK_TEXT
@@ -174,7 +185,13 @@ SECTIONS
 	}
 #endif
 
+#ifdef MY_DEF_HERE
+#ifdef CONFIG_SMP
+	PERCPU_SECTION(L1_CACHE_BYTES)
+#endif
+#else
 	PERCPU_SECTION(32)
+#endif
 
 #ifdef CONFIG_XIP_KERNEL
 	__data_loc = ALIGN(4);		/* location in binary */
@@ -205,8 +222,13 @@ SECTIONS
 #endif
 
 		NOSAVE_DATA
+#ifdef MY_DEF_HERE
+		CACHELINE_ALIGNED_DATA(L1_CACHE_BYTES)
+		READ_MOSTLY_DATA(L1_CACHE_BYTES)
+#else
 		CACHELINE_ALIGNED_DATA(32)
 		READ_MOSTLY_DATA(32)
+#endif
 
 		/*
 		 * The exception fixup table (might need resorting at runtime)

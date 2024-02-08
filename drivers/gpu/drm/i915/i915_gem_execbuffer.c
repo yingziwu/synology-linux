@@ -859,7 +859,6 @@ i915_gem_execbuffer_wait_for_flips(struct intel_ring_buffer *ring, u32 flips)
 	return 0;
 }
 
-
 static int
 i915_gem_execbuffer_move_to_gpu(struct intel_ring_buffer *ring,
 				struct list_head *objects)
@@ -943,7 +942,6 @@ i915_gem_execbuffer_move_to_active(struct list_head *objects,
 	list_for_each_entry(obj, objects, exec_list) {
 		  u32 old_read = obj->base.read_domains;
 		  u32 old_write = obj->base.write_domain;
-
 
 		obj->base.read_domains = obj->base.pending_read_domains;
 		obj->base.write_domain = obj->base.pending_write_domain;

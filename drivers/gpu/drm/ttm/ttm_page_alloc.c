@@ -698,7 +698,6 @@ int ttm_get_pages(struct list_head *pages, int flags,
 		return 0;
 	}
 
-
 	/* combine zero flag to pool flags */
 	gfp_flags |= pool->gfp_flags;
 
@@ -731,7 +730,6 @@ int ttm_get_pages(struct list_head *pages, int flags,
 			return r;
 		}
 	}
-
 
 	return 0;
 }

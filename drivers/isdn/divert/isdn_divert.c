@@ -1,4 +1,4 @@
-/* $Id: isdn_divert.c,v 1.6.6.3 2001/09/23 22:24:36 kai Exp $
+/* $Id: isdn_divert.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * DSS1 main diversion supplementary handling for i4l.
  *
@@ -30,7 +30,6 @@ struct call_struc
     struct call_struc *prev;
   };
 
-
 /********************************************/
 /* structure keeping deflection table entry */
 /********************************************/
@@ -38,7 +37,6 @@ struct deflect_struc
   { struct deflect_struc *next,*prev; 
     divert_rule rule; /* used rule */
   };
-
 
 /*****************************************/
 /* variables for main diversion services */
@@ -102,7 +100,6 @@ static void deflect_timer_expire(ulong arg)
 
    } /* switch */
 } /* deflect_timer_func */
-
 
 /*****************************************/
 /* handle call forwarding de/activations */
@@ -197,7 +194,6 @@ int cf_command(int drvid, int mode,
    kfree(cs);
   return(retval); 
 } /* cf_command */
-
 
 /****************************************/
 /* handle a external deflection command */
@@ -534,7 +530,6 @@ static int isdn_divert_icall(isdn_ctrl *ic)
      return(0);
 } /* isdn_divert_icall */
 
-
 void deleteprocs(void)
 { struct call_struc *cs, *cs1; 
   unsigned long flags;
@@ -732,7 +727,6 @@ static int prot_stat_callback(isdn_ctrl *ic)
                            break;
                       } 
 
-
                    break;
  
 		   default:
@@ -778,7 +772,6 @@ static int prot_stat_callback(isdn_ctrl *ic)
 
   return(0);
 } /* prot_stat_callback */
-
 
 /***************************/
 /* status callback from HL */
@@ -834,7 +827,6 @@ static int isdn_divert_stat_callback(isdn_ctrl *ic)
   return(retval); /* not found */
 } /* isdn_divert_stat_callback */ 
 
-
 /********************/
 /* callback from ll */
 /********************/ 
@@ -860,4 +852,3 @@ int ll_callback(isdn_ctrl *ic)
        return(isdn_divert_stat_callback(ic));
    }
 } /* ll_callback */
-

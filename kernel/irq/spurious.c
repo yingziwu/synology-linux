@@ -56,7 +56,6 @@ bool irq_wait_for_poll(struct irq_desc *desc)
 #endif
 }
 
-
 /*
  * Recovery handler for misrouted interrupts.
  */
@@ -93,6 +92,7 @@ static int try_one_irq(int irq, struct irq_desc *desc, bool force)
 		 * Already running: If it is shared get the other
 		 * CPU to go looking for our mystery interrupt too
 		 */
+		irq_compat_set_pending(desc);
 		desc->istate |= IRQS_PENDING;
 		goto out;
 	}

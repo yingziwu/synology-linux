@@ -1,4 +1,4 @@
-/* $Id: l3_1tr6.c,v 2.15.2.3 2004/01/13 14:31:25 keil Exp $
+/* $Id: l3_1tr6.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * German 1TR6 D-channel protocol
  *
@@ -19,7 +19,7 @@
 #include <linux/ctype.h>
 
 extern char *HiSax_getrev(const char *revision);
-static const char *l3_1tr6_revision = "$Revision: 2.15.2.3 $";
+static const char *l3_1tr6_revision = "$Revision: 1.1.1.1 $";
 
 #define MsgHead(ptr, cref, mty, dis) \
 	*ptr++ = dis; \
@@ -420,7 +420,6 @@ l3_1tr6_disc(struct l3_process *pc, u_char pr, void *arg)
 	} else if (pc->st->l3.debug & L3_DEB_CHARGE)
 		l3_debug(pc->st, "charging info not found");
 
-
 	p = skb->data;
 	if ((p = findie(p, skb->len, WE0_cause, 0))) {
 		if (p[1] > 0) {
@@ -446,7 +445,6 @@ l3_1tr6_disc(struct l3_process *pc, u_char pr, void *arg)
 	newl3state(pc, 12);
 	pc->st->l3.l3l4(pc->st, CC_DISCONNECT | INDICATION, pc);
 }
-
 
 static void
 l3_1tr6_connect_ack(struct l3_process *pc, u_char pr, void *arg)

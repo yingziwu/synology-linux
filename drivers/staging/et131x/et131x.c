@@ -605,7 +605,6 @@ static int eeprom_wait_ready(struct pci_dev *pdev, u32 *status)
 	return -ETIMEDOUT;
 }
 
-
 /**
  * eeprom_write - Write a byte to the ET1310's EEPROM
  * @adapter: pointer to our private adapter structure
@@ -5511,4 +5510,3 @@ static void __exit et131x_cleanup_module(void)
 
 module_init(et131x_init_module);
 module_exit(et131x_cleanup_module);
-

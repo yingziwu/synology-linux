@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:12:16 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/marb_defs_asm.h ../../inst/memarb/rtl/guinness/marb_top.r
- *      id: $Id: marb_defs_asm.h,v 1.1 2005/04/24 18:31:04 starvik Exp $
+ *      id: $Id: marb_defs_asm.h,v 1.1.1.1 2010/04/15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -275,7 +275,6 @@
 #define reg_marb_rw_no_snoop_rq___cpud___bit 11
 #define reg_marb_rw_no_snoop_rq_offset 836
 
-
 /* Constants */
 #define regk_marb_cpud                            0x0000000b
 #define regk_marb_cpui                            0x0000000a
@@ -315,7 +314,7 @@
  *     last modfied: Mon Apr 11 16:12:16 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/marb_defs_asm.h ../../inst/memarb/rtl/guinness/marb_top.r
- *      id: $Id: marb_defs_asm.h,v 1.1 2005/04/24 18:31:04 starvik Exp $
+ *      id: $Id: marb_defs_asm.h,v 1.1.1.1 2010/04/15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -569,7 +568,6 @@
 
 /* Register rw_ack, scope marb_bp, type rw */
 #define reg_marb_bp_rw_ack_offset 40
-
 
 /* Constants */
 #define regk_marb_bp_no                           0x00000000

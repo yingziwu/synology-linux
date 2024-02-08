@@ -2059,7 +2059,6 @@ static int alc_build_controls(struct hda_codec *codec)
 	return 0;
 }
 
-
 /*
  * Common callbacks
  */
@@ -4072,7 +4071,6 @@ static int patch_alc880(struct hda_codec *codec)
 	return err;
 }
 
-
 /*
  * ALC260 support
  */
@@ -4201,7 +4199,6 @@ static int patch_alc260(struct hda_codec *codec)
 	alc_free(codec);
 	return err;
 }
-
 
 /*
  * ALC882/883/885/888/889 support
@@ -4426,7 +4423,6 @@ static int patch_alc882(struct hda_codec *codec)
 	return err;
 }
 
-
 /*
  * ALC262 support
  */
@@ -4469,7 +4465,6 @@ static const struct snd_pci_quirk alc262_fixup_tbl[] = {
 	SND_PCI_QUIRK(0x1734, 0x1147, "FSC Celsius H270", PINFIX_FSC_H270),
 	{}
 };
-
 
 #ifdef CONFIG_SND_HDA_POWER_SAVE
 #define alc262_loopbacks	alc880_loopbacks
@@ -5149,7 +5144,6 @@ static const struct alc_model_fixup alc269_fixup_models[] = {
 	{}
 };
 
-
 static int alc269_fill_coef(struct hda_codec *codec)
 {
 	struct alc_spec *spec = codec->spec;
@@ -5311,7 +5305,6 @@ static const struct hda_amp_list alc861_loopbacks[] = {
 	{ } /* end */
 };
 #endif
-
 
 /* Pin config fixes */
 enum {
@@ -5877,7 +5870,6 @@ static const struct alc_model_fixup alc662_fixup_models[] = {
 	{.id = ALC662_FIXUP_ASUS_MODE8, .name = "asus-mode8"},
 	{}
 };
-
 
 /*
  */

@@ -1,4 +1,4 @@
-/* $Id: module.c,v 1.14.6.4 2001/09/23 22:24:32 kai Exp $
+/* $Id: module.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * ISDN lowlevel-module for the IBM ISDN-S0 Active 2000.
  *
@@ -468,7 +468,6 @@ act2000_sendbuf(act2000_card *card, int channel, int ack, struct sk_buff *skb)
         return len;
 }
 
-
 /* Read the Status-replies from the Interface */
 static int
 act2000_readstatus(u_char __user * buf, int len, act2000_card * card)
@@ -562,7 +561,6 @@ if_sendbuf(int id, int channel, int ack, struct sk_buff *skb)
                "act2000: if_sendbuf called with invalid driverId!\n");
         return -ENODEV;
 }
-
 
 /*
  * Allocate a new card-struct, initialize it

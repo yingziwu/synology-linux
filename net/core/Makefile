@@ -19,3 +19,7 @@ obj-$(CONFIG_FIB_RULES) += fib_rules.o
 obj-$(CONFIG_TRACEPOINTS) += net-traces.o
 obj-$(CONFIG_NET_DROP_MONITOR) += drop_monitor.o
 obj-$(CONFIG_NETWORK_PHY_TIMESTAMPING) += timestamping.o
+
+ifeq ($(CONFIG_MV_ETH_NFP),y)
+obj-y += mv_nfp.o
+endif

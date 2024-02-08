@@ -234,7 +234,6 @@ static irqreturn_t s3c2410wdt_irq(int irqno, void *param)
 	return IRQ_HANDLED;
 }
 
-
 #ifdef CONFIG_CPU_FREQ
 
 static int s3c2410wdt_cpufreq_transition(struct notifier_block *nb,
@@ -509,7 +508,6 @@ static struct platform_driver s3c2410wdt_driver = {
 		.of_match_table	= s3c2410_wdt_match,
 	},
 };
-
 
 static char banner[] __initdata =
 	KERN_INFO "S3C2410 Watchdog Timer, (c) 2004 Simtec Electronics\n";

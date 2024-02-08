@@ -1,13 +1,7 @@
-/*
- *  arch/arm/include/asm/proc-fns.h
- *
- *  Copyright (C) 1997-1999 Russell King
- *  Copyright (C) 2000 Deep Blue Solutions Ltd
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef __ASM_PROCFNS_H
 #define __ASM_PROCFNS_H
 
@@ -20,54 +14,34 @@
 
 struct mm_struct;
 
-/*
- * Don't change this structure - ASM code relies on it.
- */
 extern struct processor {
-	/* MISC
-	 * get data abort address/flags
-	 */
+	 
 	void (*_data_abort)(unsigned long pc);
-	/*
-	 * Retrieve prefetch fault address
-	 */
+	 
 	unsigned long (*_prefetch_abort)(unsigned long lr);
-	/*
-	 * Set up any processor specifics
-	 */
+	 
 	void (*_proc_init)(void);
-	/*
-	 * Disable any processor specifics
-	 */
+	 
 	void (*_proc_fin)(void);
-	/*
-	 * Special stuff for a reset
-	 */
+	 
 	void (*reset)(unsigned long addr) __attribute__((noreturn));
-	/*
-	 * Idle the processor
-	 */
+	 
 	int (*_do_idle)(void);
-	/*
-	 * Processor architecture specific
-	 */
-	/*
-	 * clean a virtual address range from the
-	 * D-cache without flushing the cache.
-	 */
+	 
 	void (*dcache_clean_area)(void *addr, int size);
 
-	/*
-	 * Set the page table
-	 */
 	void (*switch_mm)(unsigned long pgd_phys, struct mm_struct *mm);
-	/*
-	 * Set a possibly extended PTE.  Non-extended PTEs should
-	 * ignore 'ext'.
-	 */
+	 
+#if (defined(MY_DEF_HERE) || defined(MY_DEF_HERE)) && defined(CONFIG_ARM_LPAE)
+	void (*set_pte_ext)(pte_t *ptep, pte_t pte);
+#elif defined(MY_DEF_HERE) && defined(CONFIG_ARM_LPAE)
+	void (*set_pte_ext)(pte_t *ptep, pte_t pte);
+#elif defined(MY_DEF_HERE)
+	void (*set_pte_ext)(pte_t *ptep, pteval_t pte, unsigned int ext);
+#else
 	void (*set_pte_ext)(pte_t *ptep, pte_t pte, unsigned int ext);
+#endif
 
-	/* Suspend/resume */
 	unsigned int suspend_size;
 	void (*do_suspend)(void *);
 	void (*do_resume)(void *);
@@ -79,10 +53,18 @@ extern void cpu_proc_fin(void);
 extern int cpu_do_idle(void);
 extern void cpu_dcache_clean_area(void *, int);
 extern void cpu_do_switch_mm(unsigned long pgd_phys, struct mm_struct *mm);
+#if (defined(MY_DEF_HERE) || defined(MY_DEF_HERE)) && defined(CONFIG_ARM_LPAE)
+extern void cpu_set_pte_ext(pte_t *ptep, pte_t pte);
+#elif defined(MY_DEF_HERE) && defined(CONFIG_ARM_LPAE)
+extern void cpu_set_pte_ext(pte_t *ptep, pte_t pte);
+#elif defined(MY_DEF_HERE)
+extern void cpu_set_pte_ext(pte_t *ptep, pteval_t pte, unsigned int ext);
+extern void cpu_uncache_pte_ext(pte_t *ptep);
+#else
 extern void cpu_set_pte_ext(pte_t *ptep, pte_t pte, unsigned int ext);
+#endif
 extern void cpu_reset(unsigned long addr) __attribute__((noreturn));
 
-/* These three are private to arch/arm/kernel/suspend.c */
 extern void cpu_do_suspend(void *);
 extern void cpu_do_resume(void *);
 #else
@@ -92,9 +74,11 @@ extern void cpu_do_resume(void *);
 #define cpu_do_idle			processor._do_idle
 #define cpu_dcache_clean_area		processor.dcache_clean_area
 #define cpu_set_pte_ext			processor.set_pte_ext
+#if defined(MY_DEF_HERE)
+#define cpu_uncache_pte_ext		processor.uncache_pte_ext
+#endif
 #define cpu_do_switch_mm		processor.switch_mm
 
-/* These three are private to arch/arm/kernel/suspend.c */
 #define cpu_do_suspend			processor.do_suspend
 #define cpu_do_resume			processor.do_resume
 #endif
@@ -105,8 +89,34 @@ extern void cpu_resume(void);
 
 #ifdef CONFIG_MMU
 
+#if (defined(MY_DEF_HERE) || defined(MY_DEF_HERE)) && defined(CONFIG_SMP)
+
+#define cpu_switch_mm(pgd,mm)	\
+	({						\
+		unsigned long flags;			\
+		local_irq_save(flags);			\
+		cpu_do_switch_mm(virt_to_phys(pgd),mm);	\
+		local_irq_restore(flags);		\
+	})
+
+#else  
+
 #define cpu_switch_mm(pgd,mm) cpu_do_switch_mm(virt_to_phys(pgd),mm)
 
+#endif
+
+#if (defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)) && defined(CONFIG_ARM_LPAE)
+#define cpu_get_pgd()  \
+       ({                                              \
+               unsigned long pg, pg2;                  \
+               __asm__("mrrc   p15, 0, %0, %1, c2"     \
+                       : "=r" (pg), "=r" (pg2)         \
+                       :                               \
+                       : "cc");                        \
+               pg &= ~(PTRS_PER_PGD*sizeof(pgd_t)-1);  \
+               (pgd_t *)phys_to_virt(pg);              \
+       })
+#else
 #define cpu_get_pgd()	\
 	({						\
 		unsigned long pg;			\
@@ -117,7 +127,8 @@ extern void cpu_resume(void);
 	})
 
 #endif
+#endif
 
-#endif /* __ASSEMBLY__ */
-#endif /* __KERNEL__ */
-#endif /* __ASM_PROCFNS_H */
+#endif  
+#endif  
+#endif  

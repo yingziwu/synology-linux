@@ -1039,5 +1039,3 @@ static void __exit hdmi_exit(void)
 	platform_driver_unregister(&hdmi_driver);
 }
 module_exit(hdmi_exit);
-
-

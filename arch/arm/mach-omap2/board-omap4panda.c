@@ -479,7 +479,6 @@ int __init omap4_panda_dvi_init(void)
 	return r;
 }
 
-
 static void omap4_panda_hdmi_mux_init(void)
 {
 	omap_mux_init_signal("hdmi_cec",

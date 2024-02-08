@@ -142,6 +142,4 @@ struct msm_mddi_bridge_platform_data {
 	struct msm_fb_data fb_data;
 };
 
-
-
 #endif

@@ -396,7 +396,6 @@ int psb_intel_pipe_set_base(struct drm_crtc *crtc,
 	}
 	REG_WRITE(dspcntr_reg, dspcntr);
 
-
 	if (0 /* FIXMEAC - check what PSB needs */) {
 		REG_WRITE(dspbase, offset);
 		REG_READ(dspbase);
@@ -561,7 +560,6 @@ static bool psb_intel_crtc_mode_fixup(struct drm_crtc *crtc,
 	return true;
 }
 
-
 /**
  * Return the pipe currently connected to the panel fitter,
  * or -1 if the panel fitter is not present or not in use
@@ -706,7 +704,6 @@ static int psb_intel_crtc_mode_set(struct drm_crtc *crtc,
 	dspcntr |= DISPLAY_PLANE_ENABLE;
 	pipeconf |= PIPEACONF_ENABLE;
 	dpll |= DPLL_VCO_ENABLE;
-
 
 	/* Disable the panel fitter if it was on our pipe */
 	if (psb_intel_panel_fitter_pipe(dev) == pipe)
@@ -1022,7 +1019,6 @@ static int psb_intel_crtc_cursor_set(struct drm_crtc *crtc,
 		return ret;
 	}
 
-
 	addr = gt->offset;	/* Or resource.start ??? */
 
 	psb_intel_crtc->cursor_addr = addr;
@@ -1056,7 +1052,6 @@ static int psb_intel_crtc_cursor_move(struct drm_crtc *crtc, int x, int y)
 	int pipe = psb_intel_crtc->pipe;
 	uint32_t temp = 0;
 	uint32_t addr;
-
 
 	if (x < 0) {
 		temp |= (CURSOR_POS_SIGN << CURSOR_X_SHIFT);
@@ -1409,12 +1404,10 @@ int psb_intel_connector_clones(struct drm_device *dev, int type_mask)
 	return index_mask;
 }
 
-
 void psb_intel_modeset_cleanup(struct drm_device *dev)
 {
 	drm_mode_config_cleanup(dev);
 }
-
 
 /* current intel driver doesn't take advantage of encoders
    always give back the encoder for the connector
@@ -1426,4 +1419,3 @@ struct drm_encoder *psb_intel_best_encoder(struct drm_connector *connector)
 
 	return &psb_intel_output->enc;
 }
-

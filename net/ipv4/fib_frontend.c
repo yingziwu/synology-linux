@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -691,6 +694,9 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
 	__be32 mask = ifa->ifa_mask;
 	__be32 addr = ifa->ifa_local;
 	__be32 prefix = ifa->ifa_address & mask;
+#ifdef MY_ABC_HERE
+	unsigned int flags = 0;
+#endif
 
 	if (ifa->ifa_flags & IFA_F_SECONDARY) {
 		prim = inet_ifa_byprefix(in_dev, prefix, mask);
@@ -702,8 +708,25 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
 
 	fib_magic(RTM_NEWROUTE, RTN_LOCAL, addr, 32, prim);
 
+#ifdef MY_ABC_HERE
+	flags = dev_get_flags(dev);
+	if (0 == strncmp("tun0", dev->name, 4) || 
+		0 == strncmp("ppp200", dev->name, 6) ||
+		0 == strncmp("ppp300", dev->name, 6) ||
+		0 == strncmp("ntb_eth", dev->name, 7) ||
+		0 == strncmp("docker", dev->name, 6)) {
+		if (!(flags & IFF_UP)) {
+			return;
+		}
+	} else {
+		if (!(flags & IFF_UP) || !(flags & (IFF_RUNNING | IFF_LOWER_UP))) {
+			return;
+		}
+	}
+#else /* MY_ABC_HERE */
 	if (!(dev->flags & IFF_UP))
 		return;
+#endif /* MY_ABC_HERE */
 
 	/* Add broadcast address, if it is explicitly assigned. */
 	if (ifa->ifa_broadcast && ifa->ifa_broadcast != htonl(0xFFFFFFFF))
@@ -763,6 +786,9 @@ void fib_del_ifaddr(struct in_ifaddr *ifa, struct in_ifaddr *iprim)
 			  any, ifa->ifa_prefixlen, prim);
 		subnet = 1;
 	}
+
+	if (in_dev->dead)
+		goto no_promotions;
 
 	/* Deletion is more complicated than add.
 	 * We should take care of not to delete too much :-)
@@ -839,6 +865,7 @@ void fib_del_ifaddr(struct in_ifaddr *ifa, struct in_ifaddr *iprim)
 		}
 	}
 
+no_promotions:
 	if (!(ok & BRD_OK))
 		fib_magic(RTM_DELROUTE, RTN_BROADCAST, ifa->ifa_broadcast, 32, prim);
 	if (subnet && ifa->ifa_prefixlen < 31) {

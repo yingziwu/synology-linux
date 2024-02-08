@@ -531,7 +531,6 @@ static int cx23885_dvb_fe_ioctl_override(struct dvb_frontend *fe,
 	return err;
 };
 
-
 static struct lgs8gxx_config magicpro_prohdtve2_lgs8g75_config = {
 	.prod = LGS8GXX_PROD_LGS8G75,
 	.demod_address = 0x19,
@@ -1291,4 +1290,3 @@ int cx23885_dvb_unregister(struct cx23885_tsport *port)
 
 	return 0;
 }
-

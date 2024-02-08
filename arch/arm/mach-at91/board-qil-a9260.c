@@ -47,7 +47,6 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
-
 static void __init ek_init_early(void)
 {
 	/* Initialize processor: 12.000 MHz crystal */

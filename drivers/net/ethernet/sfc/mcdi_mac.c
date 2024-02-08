@@ -129,14 +129,12 @@ static int efx_mcdi_mac_reconfigure(struct efx_nic *efx)
 	return 0;
 }
 
-
 static bool efx_mcdi_mac_check_fault(struct efx_nic *efx)
 {
 	u32 faults;
 	int rc = efx_mcdi_get_mac_faults(efx, &faults);
 	return (rc != 0) || (faults != 0);
 }
-
 
 const struct efx_mac_operations efx_mcdi_mac_operations = {
 	.reconfigure	= efx_mcdi_mac_reconfigure,

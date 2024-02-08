@@ -114,7 +114,6 @@
 #define	CP_SEM_WAIT_TIMER				0x85BC
 #define	CP_DEBUG					0xC1FC
 
-
 #define	GC_USER_SHADER_PIPE_CONFIG			0x8954
 #define		INACTIVE_QD_PIPES(x)				((x) << 8)
 #define		INACTIVE_QD_PIPES_MASK				0x0000FF00

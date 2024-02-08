@@ -226,7 +226,6 @@ static void __init omap3_vc_init_channel(struct voltagedomain *voltdm)
 	is_initialized = true;
 }
 
-
 /* OMAP4 specific voltage init functions */
 static void __init omap4_vc_init_channel(struct voltagedomain *voltdm)
 {
@@ -364,4 +363,3 @@ void __init omap_vc_init_channel(struct voltagedomain *voltdm)
 	else if (cpu_is_omap44xx())
 		omap4_vc_init_channel(voltdm);
 }
-

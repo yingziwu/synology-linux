@@ -855,4 +855,3 @@ do_sync:
 	err = ceph_send_removexattr(dentry, name);
 	return err;
 }
-

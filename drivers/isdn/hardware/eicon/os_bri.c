@@ -1,4 +1,4 @@
-/* $Id: os_bri.c,v 1.21 2004/03/21 17:26:01 armin Exp $ */
+/* $Id: os_bri.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $ */
 
 #include "platform.h"
 #include "debuglib.h"
@@ -263,7 +263,6 @@ int diva_bri_init_card(diva_os_xdi_adapter_t * a)
 
 	return (0);
 }
-
 
 static int diva_bri_cleanup_adapter(diva_os_xdi_adapter_t * a)
 {

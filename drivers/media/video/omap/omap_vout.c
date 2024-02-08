@@ -650,7 +650,6 @@ vout_isr_err:
 	spin_unlock(&vout->vbq_lock);
 }
 
-
 /* Video buffer call backs */
 
 /*

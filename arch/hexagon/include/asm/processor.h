@@ -80,7 +80,6 @@ static inline void prepare_to_copy(struct task_struct *tsk)
  */
 #define TASK_UNMAPPED_BASE	(PAGE_ALIGN(TASK_SIZE/3))
 
-
 #define task_pt_regs(task) \
 	((struct pt_regs *)(task_stack_page(task) + THREAD_SIZE) - 1)
 

@@ -1,4 +1,4 @@
-/* $Id: isar.c,v 1.22.2.6 2004/02/11 13:21:34 keil Exp $
+/* $Id: isar.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * isar.c   ISAR (Siemens PSB 7110) specific routines
  *
@@ -44,7 +44,6 @@ waitforHIA(struct IsdnCardState *cs, int timeout)
 		printk(KERN_WARNING "HiSax: ISAR waitforHIA timeout\n");
 	return(timeout);
 }
-
 
 static int
 sendmsg(struct IsdnCardState *cs, u_char his, u_char creg, u_char len,
@@ -134,7 +133,6 @@ waitrecmsg(struct IsdnCardState *cs, u_char *len,
 {
 	int timeout = 0;
 	struct isar_reg *ir = cs->bcs[0].hw.isar.reg;
-	
 	
 	while((!(cs->BC_Read_Reg(cs, 0, ISAR_IRQBIT) & ISAR_IRQSTA)) &&
 		(timeout++ < maxdelay))

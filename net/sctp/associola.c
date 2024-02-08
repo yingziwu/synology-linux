@@ -72,7 +72,6 @@ static void sctp_assoc_free_asconf_queue(struct sctp_association *asoc);
  */
 static u32 idr_low = 1;
 
-
 /* 1st Level Abstractions. */
 
 /* Initialize a new association from provided memory. */

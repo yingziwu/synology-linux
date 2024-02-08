@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Compatibility mode system call entry point for x86-64. 
  * 		
@@ -843,13 +846,140 @@ ia32_sys_call_table:
 	.quad compat_sys_recvmmsg
 	.quad sys_fanotify_init
 	.quad sys32_fanotify_mark
-	.quad sys_prlimit64		/* 340 */
+	.quad sys_prlimit64			/* 340 */
 	.quad sys_name_to_handle_at
 	.quad compat_sys_open_by_handle_at
 	.quad compat_sys_clock_adjtime
 	.quad sys_syncfs
-	.quad compat_sys_sendmmsg	/* 345 */
+	.quad compat_sys_sendmmsg /* 345 */
 	.quad sys_setns
 	.quad compat_sys_process_vm_readv
 	.quad compat_sys_process_vm_writev
+#ifdef MY_ABC_HERE
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 350 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 355 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 360 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 365 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 370 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 375 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 380 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 385 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 390 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 395 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+#ifdef MY_ABC_HERE
+	.quad compat_sys_SYNOUtime		/* 402 */
+#else
+	.quad sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+	.quad sys_SYNOArchiveBit	/* 403 */
+#else
+	.quad sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+ .quad compat_sys_recvfile
+#else
+	.quad sys_ni_syscall
+#endif
+	.quad sys_ni_syscall /* 405 */
+#ifdef MY_ABC_HERE
+	.quad sys32_SYNOCaselessStat64 /* 406 */
+	.quad sys32_SYNOCaselessLStat64 /* 407 */
+#else
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+#endif  /* MY_ABC_HERE */
+	.quad sys_ni_syscall		/* 408 */
+	.quad sys_ni_syscall		/* 409 */
+#ifdef MY_ABC_HERE
+	.quad sys_SYNOEcryptName /* 410 */
+	.quad sys_SYNODecryptName /* 411 */
+#else
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+#endif
+#ifdef CONFIG_FS_SYNO_ACL
+	.quad sys_SYNOACLCheckPerm	/* 412 */
+	.quad sys_SYNOACLIsSupport	/* 413 */
+	.quad sys_SYNOACLGetPerm	/* 414 */
+#else
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+#endif
+	.quad sys_ni_syscall
+    .quad sys_ni_syscall        /* 416 */
+    .quad sys_ni_syscall        /* 417 */
+    .quad sys_ni_syscall        /* 418 */
+#ifdef MY_ABC_HERE
+    .quad sys32_SYNOStat64                   /* 419 */
+    .quad sys32_SYNOFStat64                  /* 420 */
+    .quad sys32_SYNOLStat64                  /* 421 */
+#else
+    .quad sys_ni_syscall
+    .quad sys_ni_syscall
+    .quad sys_ni_syscall
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.quad sys_SYNONotifyInit /* 422 */
+	.quad sys_SYNONotifyAddWatch /* 423 */
+	.quad sys_SYNONotifyRemoveWatch /* 424 */
+	.quad sys_SYNONotifyAddWatch32 /* 425 */
+	.quad sys_SYNONotifyRemoveWatch32 /* 426 */
+#else
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.quad sys_SYNOArchiveOverwrite /* 427 */
+#else
+	.quad sys_ni_syscall
+#endif
+#endif
 ia32_syscall_end:

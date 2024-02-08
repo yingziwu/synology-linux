@@ -1,16 +1,20 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_PRIO_TREE_H
 #define _LINUX_PRIO_TREE_H
 
-/*
- * K&R 2nd ed. A8.3 somewhat obliquely hints that initial sequences of struct
- * fields with identical types should end up at the same location. We'll use
- * this until we can scrap struct raw_prio_tree_node.
- *
- * Note: all this could be done more elegantly by using unnamed union/struct
- * fields. However, gcc 2.95.3 and apparently also gcc 3.0.4 don't support this
- * language extension.
- */
-
+#ifdef MY_DEF_HERE
+ 
+#ifdef CONFIG_LFS_ON_32CPU
+#define prio_tree_t  unsigned long long
+#define PRIO_TREE_KEY_MAX_VALUE ULLONG_MAX
+#else
+#define prio_tree_t	unsigned long
+#define PRIO_TREE_KEY_MAX_VALUE	ULONG_MAX
+#endif
+#endif
+ 
 struct raw_prio_tree_node {
 	struct prio_tree_node	*left;
 	struct prio_tree_node	*right;
@@ -21,24 +25,31 @@ struct prio_tree_node {
 	struct prio_tree_node	*left;
 	struct prio_tree_node	*right;
 	struct prio_tree_node	*parent;
+#ifdef MY_DEF_HERE
+	prio_tree_t		start;
+	prio_tree_t		last;	 
+#else
 	unsigned long		start;
-	unsigned long		last;	/* last location _in_ interval */
+	unsigned long		last;	 
+#endif
 };
 
 struct prio_tree_root {
 	struct prio_tree_node	*prio_tree_node;
 	unsigned short 		index_bits;
 	unsigned short		raw;
-		/*
-		 * 0: nodes are of type struct prio_tree_node
-		 * 1: nodes are of type raw_prio_tree_node
-		 */
+		 
 };
 
 struct prio_tree_iter {
 	struct prio_tree_node	*cur;
+#ifdef MY_DEF_HERE
+	prio_tree_t		mask;
+	prio_tree_t		value;
+#else
 	unsigned long		mask;
 	unsigned long		value;
+#endif
 	int			size_level;
 
 	struct prio_tree_root	*root;
@@ -101,7 +112,6 @@ static inline int prio_tree_right_empty(const struct prio_tree_node *node)
 	return node->right == node;
 }
 
-
 struct prio_tree_node *prio_tree_replace(struct prio_tree_root *root,
                 struct prio_tree_node *old, struct prio_tree_node *node);
 struct prio_tree_node *prio_tree_insert(struct prio_tree_root *root,
@@ -117,4 +127,4 @@ struct prio_tree_node *prio_tree_next(struct prio_tree_iter *iter);
 #define raw_prio_tree_remove(root, node) \
 	prio_tree_remove(root, (struct prio_tree_node *) (node))
 
-#endif /* _LINUX_PRIO_TREE_H */
+#endif  

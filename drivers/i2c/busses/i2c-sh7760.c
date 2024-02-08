@@ -236,7 +236,6 @@ out:
 	return IRQ_HANDLED;
 }
 
-
 /* prepare and start a master receive operation */
 static void sh7760_i2c_mrecv(struct cami2c *id)
 {

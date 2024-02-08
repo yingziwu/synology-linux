@@ -215,7 +215,6 @@ static struct iwl_base_params iwl2000_base_params = {
 	.hd_v2 = true,
 };
 
-
 static struct iwl_base_params iwl2030_base_params = {
 	.eeprom_size = OTP_LOW_IMAGE_SIZE,
 	.num_of_queues = IWLAGN_NUM_QUEUES,

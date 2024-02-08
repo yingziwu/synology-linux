@@ -1,4 +1,4 @@
-/* $Id: isdn_audio.c,v 1.1.2.2 2004/01/12 22:37:18 keil Exp $
+/* $Id: isdn_audio.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * Linux ISDN subsystem, audio conversion and compression (linklevel).
  *
@@ -16,7 +16,7 @@
 #include "isdn_audio.h"
 #include "isdn_common.h"
 
-char *isdn_audio_revision = "$Revision: 1.1.2.2 $";
+char *isdn_audio_revision = "$Revision: 1.1.1.1 $";
 
 /*
  * Misc. lookup-tables.
@@ -232,7 +232,6 @@ isdn_audio_alaw2ulaw(unsigned char *buff, unsigned long len)
  * Used by permission of Gert Doering
  */
 
-
 #define ZEROTRAP                /* turn on the trap as per the MIL-STD */
 #undef ZEROTRAP
 #define BIAS 0x84               /* define the add-in bias for 16 bit samples */
@@ -284,7 +283,6 @@ isdn_audio_linear2ulaw(int sample)
 #endif
 	return (ulawbyte);
 }
-
 
 static int Mx[3][8] =
 {

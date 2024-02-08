@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/boot/compressed/head.S
  *
@@ -9,6 +12,21 @@
  * published by the Free Software Foundation.
  */
 #include <linux/linkage.h>
+#if defined(MY_DEF_HERE) && defined(CONFIG_ARCH_ARMADA_XP)
+#include <mach/armadaxp.h>
+#endif
+
+#if defined(MY_DEF_HERE) && defined(CONFIG_ARCH_ARMADA38X) 
+#include <mach/armada38x.h>
+#endif
+
+#if defined(MY_DEF_HERE) && defined(CONFIG_ARCH_ARMADA375)
+#include <mach/armada375.h>
+#endif
+
+#if defined(MY_DEF_HERE) && defined(CONFIG_ARCH_ARMADA370)
+#include <mach/armada370.h>
+#endif
 
 /*
  * Debugging stuff
@@ -123,6 +141,11 @@ start:
 		.rept	7
 		mov	r0, r0
 		.endr
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+#ifdef CONFIG_BE8_ON_LE
+		setend	be
+#endif
+#endif
    ARM(		mov	r0, r0		)
    ARM(		b	1f		)
  THUMB(		adr	r12, BSYM(1f)	)
@@ -132,7 +155,44 @@ start:
 		.word	start			@ absolute load/run zImage address
 		.word	_edata			@ zImage end address
  THUMB(		.thumb			)
+1:
+#if defined(CONFIG_PLAT_ARMADA) && defined(MY_DEF_HERE)
+		bl register_base_fixup
+#endif
+
+#if defined(MY_DEF_HERE)
+1:
+#ifdef CONFIG_PLAT_ARMADA
+/* Update Internal Regs offset in case UBoot is configured
+** to use a different base address.
+*/
+		mrc p15, 0, r0, c5, c0, 0	@ Get the internal registers indication
+		tst r0, #(1 << 11)		@ Check 0xF1000000 indication - bit 11
+		beq 1f				@ If bit 11 is not set (equal):
+						@ AXP - Need to check original Internal regs offset CP15 register
+						@ A370 - U-Boot was using 0xD0000000
+		b 2f				@ Else, bit 11 is set - U-Boot was using 0xF1000000 - Nothing to do
+1:
+#ifdef CONFIG_ARCH_ARMADA_XP
+		mrc p15, 4, r0, c15, c0, 0	@ Get the internal registers base address
+		lsl r0, r0, #13			@ the address is R-shifted, need to recover it
+#else	/* CONFIG_ARCH_ARMADA_370 */
+		ldr r0, =0xD0000000
+#endif
+		ldr r5, =0x20080
+		add r0, r0, r5
+		ldr r6, =INTER_REGS_PHYS_BASE
+#ifdef CONFIG_BE8_ON_LE
+		rev r6, r6
+#endif
+		str r6, [r0]
+2:
+#endif
+
+		mov	r7, r1			@ save architecture ID
+#else
 1:		mov	r7, r1			@ save architecture ID
+#endif
 		mov	r8, r2			@ save atags pointer
 
 #ifndef __ARM_ARCH_2__
@@ -484,6 +544,40 @@ params:		ldr	r0, =0x10000100		@ params_phys for RPC
 		.align
 #endif
 
+#ifdef MY_DEF_HERE
+#ifdef CONFIG_PLAT_ARMADA
+/*
+ * Update internal registers offset.
+ * U-Boot store a flag in CP15 register to indicate which reigster
+ * offset was used 0xF1000000 or 0xD0000000. if 0xF1000000, no change required.
+ * Otherwise update the window 13 ctrl register with 0xF1000000.
+ * Obtaining the current register offset changes between AXP and A370
+ */
+		.align 5
+register_base_fixup:
+		mrc p15, 0, r0, c5, c0, 0
+		tst r0, #(1 << 11)
+		beq 1f		@ Bit is set, go to update
+		b 2f		@ Bit not set, skip update
+1:
+#ifdef CONFIG_ARCH_ARMADA_XP
+		mrc p15, 4, r0, c15, c0, 0	@ Get base from CP15
+		lsl r0, r0, #13
+#else	/* CONFIG_ARCH_ARMADA_370 */
+		ldr r0, =0xD0000000	@ Base assumed to be 0xD0000000
+#endif
+		ldr r5, =0x20080	@ Offset of window 13 register
+		add r0, r0, r5
+		ldr r6, =INTER_REGS_PHYS_BASE
+#ifdef CONFIG_BE8_ON_LE
+		rev r6, r6
+#endif
+		str r6, [r0]
+2:
+		mov pc,lr
+#endif
+#endif
+
 /*
  * Turn on the cache.  We need to setup some page tables so that we
  * can have both the I and D caches on.
@@ -660,6 +754,12 @@ __armv7_mmu_cache_on:
 		mcrne	p15, 0, r3, c2, c0, 0	@ load page table pointer
 		mcrne	p15, 0, r1, c3, c0, 0	@ load domain access control
 #endif
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+		mcr     p15, 0, r0, c7, c5, 4   @ ISB
+#endif
+#ifdef MY_DEF_HERE
+		mcr	p15, 0, r0, c7, c5, 4	@ ISB
+#endif
 		mcr	p15, 0, r0, c1, c0, 0	@ load control register
 		mrc	p15, 0, r0, c1, c0, 0	@ and read it back
 		mov	r0, #0
@@ -694,6 +794,13 @@ __arm6_mmu_cache_on:
 
 __common_mmu_cache_on:
 #ifndef CONFIG_THUMB2_KERNEL
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+#ifdef CONFIG_SHEEVA_ERRATA_ARM_CPU_4948
+		mrc 	p15, 1, r1, c15, c1, 0
+		orr     r1, r1, #1			@ Disable L0 cache.
+		mcr 	p15, 1, r1, c15, c1, 0
+#endif
+#endif
 #ifndef DEBUG
 		orr	r0, r0, #0x000d		@ Write buffer, mmu
 #endif
@@ -883,8 +990,21 @@ proc_types:
 		W(b)	__armv4_mmu_cache_off
 		W(b)	__armv5tej_mmu_cache_flush
 
+#if (defined(MY_DEF_HERE) || defined(MY_DEF_HERE)) && defined(CONFIG_CPU_SHEEVA_PJ4B_V6)
+		.word	0x000f0000		@ Marvell PJ4B ARMv6
+		.word	0x000f0000
+#else
 		.word	0x0007b000		@ ARMv6
 		.word	0x000ff000
+#endif
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+		W(b)	__armv4_mmu_cache_on
+		W(b)	__armv4_mmu_cache_off
+		W(b)	__armv6_mmu_cache_flush
+
+		.word	0x560f5810		@ Marvell PJ4 ARMv6
+		.word	0xff0ffff0
+#endif
 		W(b)	__armv4_mmu_cache_on
 		W(b)	__armv4_mmu_cache_off
 		W(b)	__armv6_mmu_cache_flush

@@ -553,7 +553,6 @@ int iio_sw_buffer_preenable(struct iio_dev *indio_dev)
 }
 EXPORT_SYMBOL(iio_sw_buffer_preenable);
 
-
 /* note NULL used as error indicator as it doesn't make sense. */
 static unsigned long *iio_scan_mask_match(unsigned long *av_masks,
 					  unsigned int masklength,

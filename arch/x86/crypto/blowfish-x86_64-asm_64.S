@@ -387,4 +387,3 @@ blowfish_dec_blk_4way:
 	popq %rbp;
 
 	ret;
-

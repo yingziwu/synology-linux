@@ -370,7 +370,6 @@ struct mfb_info {
 	u8 *edid_data;
 };
 
-
 static struct mfb_info mfb_template[] = {
 	{
 		.index = PLANE0,
@@ -1831,4 +1830,3 @@ MODULE_PARM_DESC(bpp, "Specify bit-per-pixel if not specified in 'mode'");
 module_param_named(monitor, monitor_string, charp, 0);
 MODULE_PARM_DESC(monitor, "Specify the monitor port "
 	"(\"dvi\", \"lvds\", or \"dlvds\") if supported by the platform");
-

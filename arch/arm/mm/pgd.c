@@ -1,15 +1,13 @@
-/*
- *  linux/arch/arm/mm/pgd.c
- *
- *  Copyright (C) 1998-2005 Russell King
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/mm.h>
 #include <linux/gfp.h>
 #include <linux/highmem.h>
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+#include <linux/slab.h>
+#endif
 
 #include <asm/pgalloc.h>
 #include <asm/page.h>
@@ -17,9 +15,16 @@
 
 #include "mm.h"
 
-/*
- * need to get a 16k page for level 1
- */
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+#ifdef CONFIG_ARM_LPAE
+#define __pgd_alloc()	kmalloc(PTRS_PER_PGD * sizeof(pgd_t), GFP_KERNEL)
+#define __pgd_free(pgd)	kfree(pgd)
+#else
+#define __pgd_alloc()	(pgd_t *)__get_free_pages(GFP_KERNEL, 2)
+#define __pgd_free(pgd)	free_pages((unsigned long)pgd, 2)
+#endif
+#endif
+
 pgd_t *pgd_alloc(struct mm_struct *mm)
 {
 	pgd_t *new_pgd, *init_pgd;
@@ -27,26 +32,38 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
 	pmd_t *new_pmd, *init_pmd;
 	pte_t *new_pte, *init_pte;
 
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+	new_pgd = __pgd_alloc();
+#elif defined(MY_DEF_HERE)
+	new_pgd = (pgd_t *)__get_free_pages(GFP_KERNEL, get_order(16384));
+#else
 	new_pgd = (pgd_t *)__get_free_pages(GFP_KERNEL, 2);
+#endif
 	if (!new_pgd)
 		goto no_pgd;
 
 	memset(new_pgd, 0, USER_PTRS_PER_PGD * sizeof(pgd_t));
 
-	/*
-	 * Copy over the kernel and IO PGD entries
-	 */
 	init_pgd = pgd_offset_k(0);
 	memcpy(new_pgd + USER_PTRS_PER_PGD, init_pgd + USER_PTRS_PER_PGD,
 		       (PTRS_PER_PGD - USER_PTRS_PER_PGD) * sizeof(pgd_t));
 
 	clean_dcache_area(new_pgd, PTRS_PER_PGD * sizeof(pgd_t));
 
+#if (defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)) && defined(CONFIG_ARM_LPAE)
+	 
+	new_pud = pud_alloc(mm, new_pgd + pgd_index(MODULES_VADDR),
+			    MODULES_VADDR);
+	if (!new_pud)
+		goto no_pud;
+
+	new_pmd = pmd_alloc(mm, new_pud, 0);
+	if (!new_pmd)
+		goto no_pmd;
+#endif
+
 	if (!vectors_high()) {
-		/*
-		 * On ARM, first page must always be allocated since it
-		 * contains the machine vectors.
-		 */
+		 
 		new_pud = pud_alloc(mm, new_pgd, 0);
 		if (!new_pud)
 			goto no_pud;
@@ -74,7 +91,13 @@ no_pte:
 no_pmd:
 	pud_free(mm, new_pud);
 no_pud:
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+	__pgd_free(new_pgd);
+#elif defined(MY_DEF_HERE)
+	free_pages((unsigned long)new_pgd, get_order(16384));
+#else
 	free_pages((unsigned long)new_pgd, 2);
+#endif
 no_pgd:
 	return NULL;
 }
@@ -111,5 +134,28 @@ no_pud:
 	pgd_clear(pgd);
 	pud_free(mm, pud);
 no_pgd:
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+#ifdef CONFIG_ARM_LPAE
+	 
+	for (pgd = pgd_base; pgd < pgd_base + PTRS_PER_PGD; pgd++) {
+		if (pgd_none_or_clear_bad(pgd))
+			continue;
+		if (pgd_val(*pgd) & L_PGD_SWAPPER)
+			continue;
+		pud = pud_offset(pgd, 0);
+		if (pud_none_or_clear_bad(pud))
+			continue;
+		pmd = pmd_offset(pud, 0);
+		pud_clear(pud);
+		pmd_free(mm, pmd);
+		pgd_clear(pgd);
+		pud_free(mm, pud);
+	}
+#endif
+	__pgd_free(pgd_base);
+#elif defined(MY_DEF_HERE)
+	free_pages((unsigned long) pgd_base, get_order(16384));
+#else
 	free_pages((unsigned long) pgd_base, 2);
+#endif
 }

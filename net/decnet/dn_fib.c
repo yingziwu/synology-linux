@@ -195,7 +195,6 @@ static int dn_fib_get_nhs(struct dn_fib_info *fi, const struct rtattr *rta, cons
 	return 0;
 }
 
-
 static int dn_fib_check_nh(const struct rtmsg *r, struct dn_fib_info *fi, struct dn_fib_nh *nh)
 {
 	int err;
@@ -266,7 +265,6 @@ out:
 
 	return 0;
 }
-
 
 struct dn_fib_info *dn_fib_create_info(const struct rtmsg *r, struct dn_kern_rta *rta, const struct nlmsghdr *nlh, int *errp)
 {
@@ -485,7 +483,6 @@ void dn_fib_select_multipath(const struct flowidn *fld, struct dn_fib_res *res)
 	res->nh_sel = 0;
 	spin_unlock_bh(&dn_fib_multipath_lock);
 }
-
 
 static int dn_fib_check_attr(struct rtmsg *r, struct rtattr **rta)
 {
@@ -709,7 +706,6 @@ static int dn_fib_sync_down(__le16 local, struct net_device *dev, int force)
 	return ret;
 }
 
-
 static int dn_fib_sync_up(struct net_device *dev)
 {
 	int ret = 0;
@@ -756,7 +752,6 @@ void __exit dn_fib_cleanup(void)
 	unregister_dnaddr_notifier(&dn_fib_dnaddr_notifier);
 }
 
-
 void __init dn_fib_init(void)
 {
 	dn_fib_table_init();
@@ -767,5 +762,3 @@ void __init dn_fib_init(void)
 	rtnl_register(PF_DECnet, RTM_NEWROUTE, dn_fib_rtm_newroute, NULL, NULL);
 	rtnl_register(PF_DECnet, RTM_DELROUTE, dn_fib_rtm_delroute, NULL, NULL);
 }
-
-

@@ -273,7 +273,6 @@ _GLOBAL(real_writeb)
 
 #endif /* CONFIG_40x */
 
-
 /*
  * Flush instruction cache.
  * This is a no-op on the 601.

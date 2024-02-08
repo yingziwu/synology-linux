@@ -453,7 +453,6 @@ static s32 igb_write_phy_reg_sgmii_82575(struct e1000_hw *hw, u32 offset,
 {
 	s32 ret_val = -E1000_ERR_PARAM;
 
-
 	if (offset > E1000_MAX_SGMII_PHY_REG_ADDR) {
 		hw_dbg("PHY Address %d is out of range\n", offset);
 		goto out;
@@ -859,7 +858,6 @@ void igb_power_up_serdes_link_82575(struct e1000_hw *hw)
 {
 	u32 reg;
 
-
 	if ((hw->phy.media_type != e1000_media_type_internal_serdes) &&
 	    !igb_sgmii_active_82575(hw))
 		return;
@@ -1161,7 +1159,6 @@ static s32 igb_setup_serdes_link_82575(struct e1000_hw *hw)
 	if ((hw->phy.media_type != e1000_media_type_internal_serdes) &&
 	    !igb_sgmii_active_82575(hw))
 		return ret_val;
-
 
 	/*
 	 * On the 82575, SerDes loopback mode persists until it is
@@ -1607,7 +1604,6 @@ void igb_vmdq_set_loopback_pf(struct e1000_hw *hw, bool enable)
 		break;
 	}
 
-
 }
 
 /**
@@ -1642,7 +1638,6 @@ static s32 igb_read_phy_reg_82580(struct e1000_hw *hw, u32 offset, u16 *data)
 {
 	s32 ret_val;
 
-
 	ret_val = hw->phy.ops.acquire(hw);
 	if (ret_val)
 		goto out;
@@ -1666,7 +1661,6 @@ out:
 static s32 igb_write_phy_reg_82580(struct e1000_hw *hw, u32 offset, u16 data)
 {
 	s32 ret_val;
-
 
 	ret_val = hw->phy.ops.acquire(hw);
 	if (ret_val)
@@ -1731,7 +1725,6 @@ static s32 igb_reset_hw_82580(struct e1000_hw *hw)
 	u16 swmbsw_mask = E1000_SW_SYNCH_MB;
 	u32 ctrl, icr;
 	bool global_device_reset = hw->dev_spec._82575.global_device_reset;
-
 
 	hw->dev_spec._82575.global_device_reset = false;
 
@@ -2098,4 +2091,3 @@ const struct e1000_info e1000_82575_info = {
 	.phy_ops = &e1000_phy_ops_82575,
 	.nvm_ops = &e1000_nvm_ops_82575,
 };
-

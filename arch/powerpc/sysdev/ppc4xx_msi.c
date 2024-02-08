@@ -153,7 +153,6 @@ static int ppc4xx_setup_pcieh_hw(struct platform_device *dev,
 	SDR0_WRITE(sdr_addr, (u64)res.start >> 32);	 /*HIGH addr */
 	SDR0_WRITE(sdr_addr + 1, res.start & 0xFFFFFFFF); /* Low addr */
 
-
 	msi->msi_dev = of_find_node_by_name(NULL, "ppc4xx-msi");
 	if (msi->msi_dev)
 		return -ENODEV;

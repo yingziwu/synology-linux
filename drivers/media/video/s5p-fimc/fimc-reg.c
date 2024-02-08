@@ -17,7 +17,6 @@
 
 #include "fimc-core.h"
 
-
 void fimc_hw_reset(struct fimc_dev *dev)
 {
 	u32 cfg;
@@ -278,7 +277,6 @@ static void fimc_hw_set_scaler(struct fimc_ctx *ctx)
 	if (sc->copy_mode)
 		cfg |= S5P_CISCCTRL_ONE2ONE;
 
-
 	if (ctx->in_path == FIMC_DMA) {
 		if (src_frame->fmt->color == S5P_FIMC_RGB565)
 			cfg |= S5P_CISCCTRL_INRGB_FMT_RGB565;
@@ -482,7 +480,6 @@ void fimc_hw_set_in_dma(struct fimc_ctx *ctx)
 	writel(cfg, dev->regs + S5P_CIDMAPARAM);
 }
 
-
 void fimc_hw_set_input_path(struct fimc_ctx *ctx)
 {
 	struct fimc_dev *dev = ctx->fimc_dev;
@@ -616,7 +613,6 @@ int fimc_hw_set_camera_source(struct fimc_dev *fimc,
 	writel(cfg, fimc->regs + S5P_CISRCFMT);
 	return 0;
 }
-
 
 int fimc_hw_set_camera_offset(struct fimc_dev *fimc, struct fimc_frame *f)
 {

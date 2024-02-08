@@ -12,7 +12,6 @@ struct uio;
 struct xfs_inode;
 struct xfs_iomap;
 
-
 int xfs_setattr_nonsize(struct xfs_inode *ip, struct iattr *vap, int flags);
 int xfs_setattr_size(struct xfs_inode *ip, struct iattr *vap, int flags);
 #define	XFS_ATTR_DMI		0x01	/* invocation from a DMI function */

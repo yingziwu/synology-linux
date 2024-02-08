@@ -33,7 +33,6 @@ enum trace_type {
 	__TRACE_LAST_TYPE,
 };
 
-
 #undef __field
 #define __field(type, item)		type	item;
 
@@ -222,7 +221,6 @@ struct tracer_flags {
 /* Makes more easy to define a tracer opt */
 #define TRACER_OPT(s, b)	.name = #s, .bit = b
 
-
 /**
  * struct tracer - a specific tracer and its callbacks to interact with debugfs
  * @name: the name chosen to select it on the available_tracers file
@@ -276,7 +274,6 @@ struct tracer {
 	int			print_max;
 	int			use_max_tr;
 };
-
 
 /* Only current can touch trace_recursion */
 #define trace_recursion_inc() do { (current)->trace_recursion++; } while (0)
@@ -522,7 +519,6 @@ extern int __trace_graph_entry(struct trace_array *tr,
 extern void __trace_graph_return(struct trace_array *tr,
 				 struct ftrace_graph_ret *trace,
 				 unsigned long flags, int pc);
-
 
 #ifdef CONFIG_DYNAMIC_FTRACE
 /* TODO: make this variable */

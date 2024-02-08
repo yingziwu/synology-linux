@@ -40,7 +40,6 @@
 #include "xfs_bmap.h"
 #include "xfs_trace.h"
 
-
 /*
  * Define xfs inode iolock lockdep classes. We need to ensure that all active
  * inodes are considered the same for lockdep purposes, including inodes that
@@ -107,7 +106,6 @@ xfs_inode_free_callback(
 	struct inode		*inode = container_of(head, struct inode, i_rcu);
 	struct xfs_inode	*ip = XFS_I(inode);
 
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_zone_free(xfs_inode_zone, ip);
 }
 
@@ -196,7 +194,6 @@ xfs_iget_cache_hit(
 		error = EAGAIN;
 		goto out_error;
 	}
-
 
 	/*
 	 * If we are racing with another cache hit that is currently
@@ -303,7 +300,6 @@ out_error:
 	rcu_read_unlock();
 	return error;
 }
-
 
 static int
 xfs_iget_cache_miss(

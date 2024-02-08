@@ -1178,7 +1178,6 @@ static int __perf_remove_from_context(void *info)
 	return 0;
 }
 
-
 /*
  * Remove the event from a task's (or a CPU's) list of events.
  *
@@ -1233,7 +1232,7 @@ retry:
 /*
  * Cross CPU call to disable a performance event
  */
-static int __perf_event_disable(void *info)
+int __perf_event_disable(void *info)
 {
 	struct perf_event *event = info;
 	struct perf_event_context *ctx = event->ctx;
@@ -2587,7 +2586,6 @@ static atomic_t nr_callchain_events;
 static DEFINE_MUTEX(callchain_mutex);
 struct callchain_cpus_entries *callchain_cpus_entries;
 
-
 __weak void perf_callchain_kernel(struct perf_callchain_entry *entry,
 				  struct pt_regs *regs)
 {
@@ -2751,7 +2749,6 @@ static struct perf_callchain_entry *perf_callchain(struct pt_regs *regs)
 {
 	int rctx;
 	struct perf_callchain_entry *entry;
-
 
 	entry = get_callchain_entry(&rctx);
 	if (rctx == -1)
@@ -5164,7 +5161,7 @@ static void sw_perf_event_destroy(struct perf_event *event)
 
 static int perf_swevent_init(struct perf_event *event)
 {
-	int event_id = event->attr.config;
+	u64 event_id = event->attr.config;
 
 	if (event->attr.type != PERF_TYPE_SOFTWARE)
 		return -ENOENT;

@@ -141,7 +141,6 @@ module_param(max_duration, int, 0444);
  */
 #define POLICY_MIN_DIV 20
 
-
 /**
  * we can detect a core multipiler from dir0_lsb
  * from GX1 datasheet p.56,
@@ -160,7 +159,6 @@ static int gx_freq_mult[16] = {
 		4, 10, 4, 6, 9, 5, 7, 8,
 		0, 0, 0, 0, 0, 0, 0, 0
 };
-
 
 /****************************************************************
  *	Low Level chipset interface				*
@@ -250,7 +248,6 @@ static unsigned int gx_validate_speed(unsigned int khz, u8 *on_duration,
 	return old_tmp_freq;
 }
 
-
 /**
  * gx_set_cpuspeed:
  * set cpu speed in khz.
@@ -273,8 +270,6 @@ static void gx_set_cpuspeed(unsigned int khz)
 
 	cpufreq_notify_transition(&freqs, CPUFREQ_PRECHANGE);
 	local_irq_save(flags);
-
-
 
 	if (new_khz != stock_freq) {
 		/* if new khz == 100% of CPU speed, it is special case */
@@ -511,4 +506,3 @@ MODULE_LICENSE("GPL");
 
 module_init(cpufreq_gx_init);
 module_exit(cpufreq_gx_exit);
-

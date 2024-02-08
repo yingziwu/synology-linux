@@ -16,6 +16,7 @@ struct scm_fp_list {
 	struct list_head	list;
 	short			count;
 	short			max;
+	struct user_struct	*user;
 	struct file		*fp[SCM_MAX_FD];
 };
 
@@ -50,7 +51,7 @@ static __inline__ void scm_set_cred(struct scm_cookie *scm,
 {
 	scm->pid  = get_pid(pid);
 	scm->cred = cred ? get_cred(cred) : NULL;
-	cred_to_ucred(pid, cred, &scm->creds);
+	cred_real_to_ucred(pid, cred, &scm->creds);
 }
 
 static __inline__ void scm_destroy_cred(struct scm_cookie *scm)
@@ -126,6 +127,4 @@ static __inline__ void scm_recv(struct socket *sock, struct msghdr *msg,
 	scm_detach_fds(msg, scm);
 }
 
-
 #endif /* __LINUX_NET_SCM_H */
-

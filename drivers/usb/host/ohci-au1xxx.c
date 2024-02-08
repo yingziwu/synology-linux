@@ -23,7 +23,6 @@
 
 #include <asm/mach-au1x00/au1000.h>
 
-
 extern int usb_disabled(void);
 
 static int __devinit ohci_au1xxx_start(struct usb_hcd *hcd)

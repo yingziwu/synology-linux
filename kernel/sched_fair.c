@@ -1281,7 +1281,6 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
 		check_preempt_tick(cfs_rq, curr);
 }
 
-
 /**************************************************
  * CFS bandwidth control machinery
  */
@@ -3189,7 +3188,6 @@ static inline int get_sd_load_idx(struct sched_domain *sd,
 	return load_idx;
 }
 
-
 #if defined(CONFIG_SCHED_MC) || defined(CONFIG_SCHED_SMT)
 /**
  * init_sd_power_savings_stats - Initialize power savings statistics for
@@ -3329,7 +3327,6 @@ static inline int check_power_save_busiest_group(struct sd_lb_stats *sds,
 	return 0;
 }
 #endif /* CONFIG_SCHED_MC || CONFIG_SCHED_SMT */
-
 
 unsigned long default_scale_freq_power(struct sched_domain *sd, int cpu)
 {

@@ -1,7 +1,7 @@
 /*
  * hfc_usb.c
  *
- * $Id: hfc_usb.c,v 2.3.2.24 2007/10/14 08:40:29 mbachem Exp $
+ * $Id: hfc_usb.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * modular HiSax ISDN driver for Colognechip HFC-S USB chip
  *
@@ -45,7 +45,7 @@
 #include "hfc_usb.h"
 
 static const char *hfcusb_revision =
-    "$Revision: 2.3.2.24 $ $Date: 2007/10/14 08:40:29 $ ";
+    "$Revision: 1.1.1.1 $ $Date: 2010/04/15 12:27:50 $ ";
 
 /* Hisax debug support
 *  debug flags defined in hfc_usb.h as HFCUSB_DBG_[*]
@@ -55,7 +55,6 @@ static const char *hfcusb_revision =
 static u_int debug;
 module_param(debug, uint, 0);
 static int hfc_debug;
-
 
 /* private vendor specific data */
 typedef struct {
@@ -204,7 +203,6 @@ typedef struct hfcusb_data {
 	struct timer_list t3_timer;	/* timer 3 for activation/deactivation */
 	struct timer_list t4_timer;	/* timer 4 for activation/deactivation */
 } hfcusb_data;
-
 
 static void collect_rx_frame(usb_fifo * fifo, __u8 * data, int len,
 			     int finish);

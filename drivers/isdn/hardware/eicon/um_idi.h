@@ -1,8 +1,7 @@
-/* $Id: um_idi.h,v 1.6 2004/03/21 17:26:01 armin Exp $ */
+/* $Id: um_idi.h,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $ */
 
 #ifndef __DIVA_USER_MODE_IDI_CORE_H__
 #define __DIVA_USER_MODE_IDI_CORE_H__
-
 
 /*
   interface between UM IDI core and OS dependent part

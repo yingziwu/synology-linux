@@ -1,4 +1,4 @@
-/* $Id: platform.h,v 1.37.4.6 2005/01/31 12:22:20 armin Exp $
+/* $Id: platform.h,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * platform.h
  * 
@@ -9,7 +9,6 @@
  * This software may be used and distributed according to the terms
  * of the GNU General Public License, incorporated herein by reference.
  */
-
 
 #ifndef	__PLATFORM_H__
 #define	__PLATFORM_H__
@@ -50,7 +49,6 @@
 
 #define MEMORY_SPACE_TYPE  0
 #define PORT_SPACE_TYPE    1
-
 
 #include <linux/string.h>
 
@@ -140,7 +138,6 @@ typedef void (* DIVA_DI_PRINTF) (unsigned char *, ...);
 
 #define dtrc(p) DBG_PRV0(p)
 #define dbug(a,p) DBG_PRV1(p)
-
 
 typedef struct e_info_s E_INFO ;
 

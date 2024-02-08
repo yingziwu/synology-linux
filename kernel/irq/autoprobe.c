@@ -70,8 +70,9 @@ unsigned long probe_irq_on(void)
 		raw_spin_lock_irq(&desc->lock);
 		if (!desc->action && irq_settings_can_probe(desc)) {
 			desc->istate |= IRQS_AUTODETECT | IRQS_WAITING;
-			if (irq_startup(desc, false))
+			if (irq_startup(desc,false)) {
 				desc->istate |= IRQS_PENDING;
+			}
 		}
 		raw_spin_unlock_irq(&desc->lock);
 	}
@@ -182,4 +183,3 @@ int probe_irq_off(unsigned long val)
 	return irq_found;
 }
 EXPORT_SYMBOL(probe_irq_off);
-

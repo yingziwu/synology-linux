@@ -30,7 +30,6 @@
 #include "drbd_int.h"
 #include "drbd_req.h"
 
-
 /* Update disk stats at start of I/O request */
 static void _drbd_start_io_acct(struct drbd_conf *mdev, struct drbd_request *req, struct bio *bio)
 {
@@ -902,7 +901,6 @@ allocate_barrier:
 		spin_unlock_irq(&mdev->req_lock);
 		goto allocate_barrier;
 	}
-
 
 	/* Update disk stats */
 	_drbd_start_io_acct(mdev, req, bio);

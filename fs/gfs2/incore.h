@@ -152,7 +152,6 @@ struct lm_lockname {
         (((name1)->ln_number == (name2)->ln_number) && \
          ((name1)->ln_type == (name2)->ln_type))
 
-
 struct gfs2_glock_operations {
 	void (*go_xmote_th) (struct gfs2_glock *gl);
 	int (*go_xmote_bh) (struct gfs2_glock *gl, struct gfs2_holder *gh);
@@ -263,7 +262,6 @@ enum {
 	GIF_ALLOC_FAILED	= 2,
 	GIF_SW_PAGED		= 3,
 };
-
 
 struct gfs2_inode {
 	struct inode i_inode;
@@ -677,4 +675,3 @@ struct gfs2_sbd {
 };
 
 #endif /* __INCORE_DOT_H__ */
-

@@ -498,7 +498,6 @@ static int i915_dispatch_batchbuffer(struct drm_device * dev,
 		ADVANCE_LP_RING();
 	}
 
-
 	if (IS_G4X(dev) || IS_GEN5(dev)) {
 		if (BEGIN_LP_RING(2) == 0) {
 			OUT_RING(MI_FLUSH | MI_NO_WRITE_FLUSH | MI_INVALIDATE_ISP);

@@ -55,7 +55,6 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
-
 #define TIPC_MOD_VER "2.0.0"
 
 struct tipc_msg;	/* msg.h */
@@ -122,7 +121,6 @@ void tipc_msg_dbg(struct print_buf *, struct tipc_msg *, const char *);
 
 #endif
 
-
 /*
  * TIPC-specific error codes
  */
@@ -155,7 +153,6 @@ extern int tipc_mode;
 extern int tipc_random;
 extern const char tipc_alphabet[];
 
-
 /*
  * Routines available to privileged subsystems
  */
@@ -176,7 +173,6 @@ static inline int delimit(int val, int min, int max)
 		return min;
 	return val;
 }
-
 
 /*
  * TIPC timer and signal code
@@ -252,7 +248,6 @@ static inline void k_term_timer(struct timer_list *timer)
 {
 }
 
-
 /*
  * TIPC message buffer code
  *
@@ -270,7 +265,6 @@ struct tipc_skb_cb {
 };
 
 #define TIPC_SKB_CB(__skb) ((struct tipc_skb_cb *)&((__skb)->cb[0]))
-
 
 static inline struct tipc_msg *buf_msg(struct sk_buff *skb)
 {

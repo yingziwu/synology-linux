@@ -1200,7 +1200,6 @@ SMC37c669_CONFIG_REGS * __init SMC37c669_detect( int index )
     return SMC37c669;
 }
 
-
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -1432,7 +1431,6 @@ unsigned int __init SMC37c669_enable_device ( unsigned int func )
     return ret_val;
 }
 
-
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -1636,7 +1634,6 @@ unsigned int __init SMC37c669_disable_device ( unsigned int func )
     return ret_val;
 }
 
-
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -1713,7 +1710,6 @@ unsigned int __init SMC37c669_configure_device (
     return FALSE;
 }
 
-
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -1800,7 +1796,6 @@ static unsigned int __init SMC37c669_is_device_enabled ( unsigned int func )
     return ret_val;
 }
 
-
 #if 0
 /*
 **++
@@ -1872,7 +1867,6 @@ static unsigned int __init SMC37c669_get_device_config (
 }
 #endif
 
-
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -1949,7 +1943,6 @@ void __init SMC37c669_display_device_info ( void )
     }
 }
 
-
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -2060,7 +2053,6 @@ static void __init SMC37c669_write_config(
     wb( &SMC37c669->data_port, data );
 }
 
-
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -2189,7 +2181,6 @@ static void __init SMC37c669_init_local_config ( void )
     local_config[IDE_0].irq = 14;
 }
 
-
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -2288,7 +2279,6 @@ static int __init SMC37c669_xlate_irq ( int irq )
     return translated_irq;
 }
 
-
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:

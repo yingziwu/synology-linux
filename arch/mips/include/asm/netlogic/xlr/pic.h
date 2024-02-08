@@ -94,7 +94,6 @@
 /* XLS */
 #define PIC_NUM_IRTS			32
 
-
 #define PIC_CLOCK_TIMER			7
 
 /* PIC Registers */

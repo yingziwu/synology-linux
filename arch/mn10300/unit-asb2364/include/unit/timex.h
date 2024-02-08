@@ -105,7 +105,6 @@ static inline void reload_jiffies_counter1(u32 cnt)
 
 #endif /* !__ASSEMBLY__ */
 
-
 /*
  * timestamp counter specifications
  */

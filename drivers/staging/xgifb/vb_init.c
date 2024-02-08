@@ -12,7 +12,6 @@
 #include "vb_init.h"
 #include "vb_ext.h"
 
-
 #include <linux/io.h>
 
 static const unsigned short XGINew_DDRDRAM_TYPE340[4][5] = {
@@ -1464,7 +1463,6 @@ unsigned char XGIInitNew(struct pci_dev *pdev)
 	pVideoMemory = (unsigned char *) pVBInfo->ROMAddr;
 
 	/* Newdebugcode(0x99); */
-
 
 	/* if (pVBInfo->ROMAddr == 0) */
 	/* return(0); */

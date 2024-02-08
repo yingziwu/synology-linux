@@ -22,7 +22,6 @@
 #include <drm/drmP.h>
 #include "psb_drv.h"
 
-
 /*
  *	GTT resource allocator - manage page mappings in GTT space
  */

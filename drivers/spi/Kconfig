@@ -35,6 +35,13 @@ config SPI_DEBUG
 	  Say "yes" to enable debug messaging (like dev_dbg and pr_debug),
 	  sysfs, and debugfs support in SPI controller and protocol drivers.
 
+config GEN3_SPI
+        bool "Intel Media SOC SPI support"
+        depends on SPI && ARCH_GEN3
+        default y
+        help
+          This option enables Intel Media SOC SPI support.
+
 #
 # MASTER side ... talking to discrete SPI slave chips including microcontrollers
 #
@@ -73,6 +80,13 @@ config SPI_ATMEL
 	help
 	  This selects a driver for the Atmel SPI Controller, present on
 	  many AT32 (AVR32) and AT91 (ARM) chips.
+
+config SPI_CE5XX_SPI_FLASH
+        tristate "CE5XX SPI FLASH"
+        depends on ARCH_GEN3
+        default y
+        help
+          This selects a driver for CE5XX Serial Flash controler
 
 config SPI_BFIN
 	tristate "SPI controller driver for ADI Blackfin5xx"
@@ -245,7 +259,7 @@ config SPI_OMAP_100K
 
 config SPI_ORION
 	tristate "Orion SPI master (EXPERIMENTAL)"
-	depends on PLAT_ORION && EXPERIMENTAL
+	depends on (PLAT_ORION || ARCH_FEROCEON) && EXPERIMENTAL
 	help
 	  This enables using the SPI master controller on the Orion chips.
 
@@ -273,12 +287,24 @@ config SPI_PXA2XX
 	depends on (ARCH_PXA || (X86_32 && PCI)) && EXPERIMENTAL
 	select PXA_SSP if ARCH_PXA
 	help
-	  This enables using a PXA2xx or Sodaville SSP port as a SPI master
+	  This enables using a PXA2xx or Intel CE4100/CE4200/CE5300 port as a SPI master
 	  controller. The driver can be configured to use any SSP port and
 	  additional documentation can be found a Documentation/spi/pxa2xx.
 
 config SPI_PXA2XX_PCI
-	def_bool SPI_PXA2XX && X86_32 && PCI
+        tristate "Intel CE SPI PCI adapter"
+	depends on SPI_PXA2XX && X86_32 && PCI && GEN3_SPI
+	help
+	  This drivers supports the Intel CE SPI master controller
+
+config SPI_PXA2XX_PCI
+	def_bool SPI_PXA2XX && X86_32 && PCI && !GEN3_SPI 
+
+config SPI_CE5XX_SPI_SLAVE
+	tristate "CE5XX SPI SLAVE"
+	depends on ARCH_GEN3
+	help
+	  This selects a driver for CE5XX SPI Slave controler, it is emudulated into a spi device
 
 config SPI_S3C24XX
 	tristate "Samsung S3C24XX series SPI"
@@ -372,6 +398,22 @@ config SPI_XILINX
 	  Product Specification document (DS464) for hardware details.
 
 	  Or for the DS570, see "XPS Serial Peripheral Interface (SPI) (v2.00b)"
+
+config SPI_MSPD_LOW_SPEED
+	tristate "MSPD SPI low-speed controller module"
+	depends on SYNO_COMCERTO
+	select SPI_DESIGNWARE
+	default SPI_MASTER
+	help
+		This exposes the MSPD SPI low-speed controller.
+
+config SPI_MSPD_HIGH_SPEED
+	tristate "MSPD SPI high-speed controller module"
+	depends on SYNO_COMCERTO
+	select SPI_DESIGNWARE
+	default SPI_MASTER
+	help
+		This exposes the MSPD SPI high-speed controller.
 
 config SPI_NUC900
 	tristate "Nuvoton NUC900 series SPI"

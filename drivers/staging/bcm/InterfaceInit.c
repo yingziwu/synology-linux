@@ -347,7 +347,6 @@ static int device_run(PS_INTERFACE_ADAPTER psIntfAdapter)
 	return 0;
 }
 
-
 static inline int bcm_usb_endpoint_num(const struct usb_endpoint_descriptor *epd)
 {
 	return epd->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;

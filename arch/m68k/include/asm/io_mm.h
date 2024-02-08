@@ -30,11 +30,9 @@
 #include <asm/atarihw.h>
 #endif
 
-
 /*
  * IO/MEM definitions for various ISA bridges
  */
-
 
 #ifdef CONFIG_Q40
 
@@ -62,8 +60,6 @@
 #define MULTI_ISA 1
 #endif
 #endif /* AMIGA_PCMCIA */
-
-
 
 #ifdef CONFIG_ISA
 
@@ -159,7 +155,6 @@ static inline u16 __iomem *isa_mtw(unsigned long addr)
     }
 }
 
-
 #define isa_inb(port)      in_8(isa_itb(port))
 #define isa_inw(port)      (ISA_SEX ? in_be16(isa_itw(port)) : in_le16(isa_itw(port)))
 #define isa_inl(port)      (ISA_SEX ? in_be32(isa_itl(port)) : in_le32(isa_itl(port)))
@@ -215,7 +210,6 @@ static inline void isa_delay(void)
 #define isa_outsl(port, buf, nr)    \
        (ISA_SEX ? raw_outsl(isa_itl(port), (u32 *)(buf), (nr)) :  \
                   raw_outsw_swapw(isa_itw(port), (u16 *)(buf), (nr)<<1))
-
 
 #define inb     isa_inb
 #define inb_p   isa_inb_p

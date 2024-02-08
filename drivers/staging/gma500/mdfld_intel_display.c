@@ -64,8 +64,6 @@ struct mdfld_intel_clock_t {
 	int p;
 };
 
-
-
 #define COUNT_MAX 0x10000000
 
 void mdfldWaitForPipeDisable(struct drm_device *dev, int pipe)
@@ -129,7 +127,6 @@ void mdfldWaitForPipeEnable(struct drm_device *dev, int pipe)
 			break;
 	}
 }
-
 
 static int mdfld_intel_crtc_cursor_set(struct drm_crtc *crtc,
 				 struct drm_file *file_priv,
@@ -213,7 +210,6 @@ static int mdfld_intel_crtc_cursor_set(struct drm_crtc *crtc,
 		dev_err(dev->dev, "Can not pin down handle 0x%x\n", handle);
 		return ret;
 	}
-
 
 	addr = gt->offset;	/* Or resource.start ??? */
 
@@ -768,7 +764,6 @@ static void mdfld_crtc_dpms(struct drm_crtc *crtc, int mode)
 
 	gma_power_end(dev);
 }
-
 
 #define MDFLD_LIMT_DPLL_19	    0
 #define MDFLD_LIMT_DPLL_25	    1

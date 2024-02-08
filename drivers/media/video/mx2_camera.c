@@ -1521,7 +1521,6 @@ static struct platform_driver mx2_camera_driver = {
 	.remove		= __devexit_p(mx2_camera_remove),
 };
 
-
 static int __init mx2_camera_init(void)
 {
 	return platform_driver_probe(&mx2_camera_driver, &mx2_camera_probe);

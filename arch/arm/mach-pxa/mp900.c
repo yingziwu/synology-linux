@@ -99,4 +99,3 @@ MACHINE_START(NEC_MP900, "MobilePro900/C")
 	.handle_irq	= pxa25x_handle_irq,
 	.init_machine	= mp900c_init,
 MACHINE_END
-

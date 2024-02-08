@@ -1,14 +1,7 @@
-/*
- * Copyright (C) 2008, 2009 Provigent Ltd.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * Driver for the ARM PrimeCell(tm) General Purpose Input/Output (PL061)
- *
- * Data sheet: ARM DDI 0190B, September 2000
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/spinlock.h>
 #include <linux/errno.h>
 #include <linux/module.h>
@@ -23,6 +16,9 @@
 #include <linux/amba/bus.h>
 #include <linux/amba/pl061.h>
 #include <linux/slab.h>
+#ifdef MY_DEF_HERE
+#include <linux/of.h>
+#endif
 
 #define GPIODIR 0x400
 #define GPIOIS  0x404
@@ -33,23 +29,17 @@
 #define GPIOMIS 0x418
 #define GPIOIC  0x41C
 
-#define PL061_GPIO_NR	8
+#define PL061_GPIO_NR				8
+#ifdef MY_DEF_HERE
+#define PL061_GPIO_IRQ_BITMAP_SIZE 64
+#endif
 
 struct pl061_gpio {
-	/* We use a list of pl061_gpio structs for each trigger IRQ in the main
-	 * interrupts controller of the system. We need this to support systems
-	 * in which more that one PL061s are connected to the same IRQ. The ISR
-	 * interates through this list to find the source of the interrupt.
-	 */
+	 
 	struct list_head	list;
 
-	/* Each of the two spinlocks protects a different set of hardware
-	 * regiters and data structurs. This decouples the code of the IRQ from
-	 * the GPIO code. This also makes the case of a GPIO routine call from
-	 * the IRQ code simpler.
-	 */
-	spinlock_t		lock;		/* GPIO registers */
-	spinlock_t		irq_lock;	/* IRQ registers */
+	spinlock_t		lock;		 
+	spinlock_t		irq_lock;	 
 
 	void __iomem		*base;
 	unsigned		irq_base;
@@ -90,10 +80,6 @@ static int pl061_direction_output(struct gpio_chip *gc, unsigned offset,
 	gpiodir |= 1 << offset;
 	writeb(gpiodir, chip->base + GPIODIR);
 
-	/*
-	 * gpio value is set again, because pl061 doesn't allow to set value of
-	 * a gpio pin before configuring it in OUT mode.
-	 */
 	writeb(!!value << offset, chip->base + (1 << (offset + 2)));
 	spin_unlock_irqrestore(&chip->lock, flags);
 
@@ -124,9 +110,6 @@ static int pl061_to_irq(struct gpio_chip *gc, unsigned offset)
 	return chip->irq_base + offset;
 }
 
-/*
- * PL061 GPIO IRQ
- */
 static void pl061_irq_disable(struct irq_data *d)
 {
 	struct pl061_gpio *chip = irq_data_get_irq_chip_data(d);
@@ -236,7 +219,11 @@ static int pl061_probe(struct amba_device *dev, const struct amba_id *id)
 	struct pl061_gpio *chip;
 	struct list_head *chip_list;
 	int ret, irq, i;
+#ifdef MY_DEF_HERE
+	static DECLARE_BITMAP(init_irq, PL061_GPIO_IRQ_BITMAP_SIZE);
+#else
 	static DECLARE_BITMAP(init_irq, NR_IRQS);
+#endif
 
 	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
 	if (chip == NULL)
@@ -247,8 +234,20 @@ static int pl061_probe(struct amba_device *dev, const struct amba_id *id)
 		chip->gc.base = pdata->gpio_base;
 		chip->irq_base = pdata->irq_base;
 	} else if (dev->dev.of_node) {
+#ifdef MY_DEF_HERE
+		const void *ptr;
+		unsigned int baseidx = -1;  
+
+		ptr = of_get_property(dev->dev.of_node, "baseidx", NULL);
+		if (ptr)
+			baseidx = be32_to_cpup(ptr);
+		chip->gc.base = baseidx;
+
+		chip->irq_base = irq_alloc_descs(-1, 0, PL061_GPIO_NR, -1);
+#else
 		chip->gc.base = -1;
 		chip->irq_base = NO_IRQ;
+#endif
 	} else {
 		ret = -ENODEV;
 		goto free_mem;
@@ -284,21 +283,17 @@ static int pl061_probe(struct amba_device *dev, const struct amba_id *id)
 	if (ret)
 		goto iounmap;
 
-	/*
-	 * irq_chip support
-	 */
-
 	if (chip->irq_base == NO_IRQ)
 		return 0;
 
-	writeb(0, chip->base + GPIOIE); /* disable irqs */
+	writeb(0, chip->base + GPIOIE);  
 	irq = dev->irq[0];
 	if (irq < 0) {
 		ret = -ENODEV;
 		goto iounmap;
 	}
 	irq_set_chained_handler(irq, pl061_irq_handler);
-	if (!test_and_set_bit(irq, init_irq)) { /* list initialized? */
+	if (!test_and_set_bit(irq, init_irq)) {  
 		chip_list = kmalloc(sizeof(*chip_list), GFP_KERNEL);
 		if (chip_list == NULL) {
 			clear_bit(irq, init_irq);

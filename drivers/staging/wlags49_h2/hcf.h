@@ -79,10 +79,8 @@
 *
 *************************************************************************************************************/
 
-
 #include "hcfcfg.h"	// System Constants to be defined by the MSF-programmer to tailor the HCF
 #include "mdd.h"	// Include file common for HCF, MSF
-
 
 /************************************************************************************************/
 /**************************************  MACROS  ************************************************/
@@ -157,7 +155,6 @@
 #define HFS_LEN					(HFS_ADDR_SRC  + 6)		// 0x003A  0x0046
 #define HFS_DAT					(HFS_LEN       + 2)		// 0x003C  0x0048
 #define HFS_TYPE				(HFS_DAT       + 6)		// 0x0042  0x004E
-
 
 //=============================  D E S C R I P T O R   S T R U C T U R E  ==============================
 //;?MDD.H stuff ;?
@@ -252,7 +249,6 @@ typedef struct  {  //HCF Tallies (IFB substructure)
 #endif // HCF_TALLIES
 #define HCF_TOT_TAL_CNT ( HCF_NIC_TAL_CNT + HCF_NIC_TAL_CNT )
 #endif // HCF_TALLIES_NIC / HCF_TALLIES_HCF
-
 
 /***********************************************************************************************************/
 /********************************** I N T E R F A C E   B L O C K ******************************************/
@@ -368,7 +364,6 @@ typedef struct  {
 
 typedef IFB_STRCT*	IFBP;
 
-
 /***********************************************************************************************************/
 /**********************   W C I    F U N C T I O N S    P R O T O T Y P E S   ******************************/
 /***********************************************************************************************************/
@@ -392,4 +387,3 @@ EXTERN_C void		 msf_assert	 		(unsigned int line_number, hcf_16 trace, hcf_32 qu
 #endif // HCF_ASSERT_LNK_MSF_RTN
 
 #endif  // HCF_H
-

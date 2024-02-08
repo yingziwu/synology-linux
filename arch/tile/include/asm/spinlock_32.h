@@ -28,7 +28,6 @@
  */
 #define TICKET_QUANTUM 2
 
-
 /*
  * SMP ticket spinlocks, allowing only a single CPU anywhere
  *

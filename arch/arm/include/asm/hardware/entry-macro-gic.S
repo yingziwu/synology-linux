@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * arch/arm/include/asm/hardware/entry-macro-gic.S
  *
@@ -11,7 +14,11 @@
 #include <asm/hardware/gic.h>
 
 #ifndef HAVE_GET_IRQNR_PREAMBLE
+#if defined(MY_DEF_HERE)
+	.macro	get_irqnr_preamble, base, pending_intr, tmp
+#else
 	.macro	get_irqnr_preamble, base, tmp
+#endif
 	ldr	\base, =gic_cpu_base_addr
 	ldr	\base, [\base]
 	.endm
@@ -32,17 +39,73 @@
  * valid range for an IRQ (30-1020 inclusive).
  */
 
+#if defined(MY_DEF_HERE)
+	.macro  get_irqnr_and_base, irqnr, irqstat, base, pending_intr, tmp
+#else
 	.macro  get_irqnr_and_base, irqnr, irqstat, base, tmp
+#endif
+
+#if defined(MY_DEF_HERE) && defined(CONFIG_COMCERTO_MSP)
+	ldr     \irqstat, [\base, #GIC_CPU_HIGHPRI]
+	bic     \irqnr, \irqstat, #0x1c00
+	cmp     \irqnr, #33
+	cmpne   \irqnr, #66
+	cmpne   \irqnr, #87
+	cmpeq   \irqnr, \irqnr
+	bne 1001f
+
+	mov \irqnr, \irqnr /* breakpoint here */
+
+	beq 1002f
+
+1001:
+#endif /* MY_DEF_HERE && CONFIG_COMCERTO_MSP */
 
 	ldr     \irqstat, [\base, #GIC_CPU_INTACK]
+#if defined(CONFIG_BE8_ON_LE) && defined(MY_DEF_HERE)
+	rev	\irqstat, \irqstat
+#endif
 	/* bits 12-10 = src CPU, 9-0 = int # */
 
+#if !defined(MY_DEF_HERE)
 	ldr	\tmp, =1021
+#endif
 	bic     \irqnr, \irqstat, #0x1c00
+	
+#if defined(MY_DEF_HERE)
+#ifdef CONFIG_COMCERTO_MSP
+	cmp     \irqnr, #33
+	streq	\irqstat, [\base, #GIC_CPU_EOI]
+	ldreq	\tmp, =0x2	//2 on bit1
+	ldreq	\pending_intr, =COMCERTO_DISTR_INT_SET_PENDING_OFFSET_4
+	streq	\tmp, [\pending_intr]
+	beq	1002f
+
+	cmpne   \irqnr, #66
+	streq	\irqstat, [\base, #GIC_CPU_EOI]
+	ldreq	\tmp, =0x4	//4 on bit 2
+	ldreq	\pending_intr, =COMCERTO_DISTR_INT_SET_PENDING_OFFSET_8
+	streq	\tmp, [\pending_intr]
+	beq	1002f
+
+	cmpne   \irqnr, #87
+	streq	\irqstat, [\base, #GIC_CPU_EOI]
+	ldreq	\tmp, =0x800000	//0x800000 on bit 23
+	ldreq	\pending_intr, =COMCERTO_DISTR_INT_SET_PENDING_OFFSET_8
+	streq	\tmp, [\pending_intr]
+	beq	1002f
+#endif /* CONFIG_COMCERTO_MSP */
+	ldr	\tmp, =1021
+#endif
 	cmp     \irqnr, #15
 	cmpcc	\irqnr, \irqnr
 	cmpne	\irqnr, \tmp
 	cmpcs	\irqnr, \irqnr
+
+#if defined(MY_DEF_HERE) && defined(CONFIG_COMCERTO_MSP)
+1002:
+#endif /* MY_DEF_HERE && CONFIG_COMCERTO_MSP */
+
 	.endm
 
 /* We assume that irqstat (the raw value of the IRQ acknowledge
@@ -55,6 +118,11 @@
 	.macro test_for_ipi, irqnr, irqstat, base, tmp
 	bic	\irqnr, \irqstat, #0x1c00
 	cmp	\irqnr, #16
+#if defined(CONFIG_BE8_ON_LE) && defined(MY_DEF_HERE)
+	rev	\tmp, \irqstat
+	strcc	\tmp, [\base, #GIC_CPU_EOI]
+#else
 	strcc	\irqstat, [\base, #GIC_CPU_EOI]
+#endif
 	cmpcs	\irqnr, \irqnr
 	.endm

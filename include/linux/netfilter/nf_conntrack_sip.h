@@ -1,6 +1,13 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef __NF_CONNTRACK_SIP_H__
 #define __NF_CONNTRACK_SIP_H__
 #ifdef __KERNEL__
+
+#if defined(MY_DEF_HERE)
+#include <linux/types.h>
+#endif
 
 #define SIP_PORT	5060
 #define SIP_TIMEOUT	3600
@@ -8,6 +15,9 @@
 struct nf_ct_sip_master {
 	unsigned int	register_cseq;
 	unsigned int	invite_cseq;
+#if defined(MY_DEF_HERE)
+	__be16		forced_dport;
+#endif
 };
 
 enum sip_expectation_classes {
@@ -175,5 +185,5 @@ extern int ct_sip_get_sdp_header(const struct nf_conn *ct, const char *dptr,
 				 enum sdp_header_types term,
 				 unsigned int *matchoff, unsigned int *matchlen);
 
-#endif /* __KERNEL__ */
-#endif /* __NF_CONNTRACK_SIP_H__ */
+#endif  
+#endif  

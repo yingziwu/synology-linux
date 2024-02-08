@@ -55,7 +55,6 @@ xfs_ail_check(
 	if (&prev_lip->li_ail != &ailp->xa_ail)
 		ASSERT(XFS_LSN_CMP(prev_lip->li_lsn, lip->li_lsn) >= 0);
 
-
 #ifdef XFS_TRANS_DEBUG
 	/*
 	 * Walk the list checking lsn ordering, and that every entry has the

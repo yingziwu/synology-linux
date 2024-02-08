@@ -72,7 +72,6 @@ static int exynos_drm_fbdev_set_par(struct fb_info *info)
 	return drm_fb_helper_set_par(info);
 }
 
-
 static struct fb_ops exynos_drm_fb_ops = {
 	.owner		= THIS_MODULE,
 	.fb_fillrect	= cfb_fillrect,

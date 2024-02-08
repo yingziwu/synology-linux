@@ -74,7 +74,6 @@ struct ethtool_rx_list {
  * will be the next highest multiple of 512 bytes. */
 #define INCREMENTAL_BUFFER_SIZE 512
 
-
 #define MAC_ADDR_LEN 6
 
 #define PHY_INIT_TIMEOUT 100000
@@ -292,7 +291,6 @@ extern const char gfar_driver_version[];
 #define RCTRL_EXTHASH		(RCTRL_GHTX)
 #define RCTRL_VLAN		(RCTRL_PRSDEP_INIT)
 #define RCTRL_PADDING(x)	((x << 16) & RCTRL_PAL_MASK)
-
 
 #define RSTAT_CLEAR_RHALT       0x00800000
 
@@ -650,7 +648,6 @@ struct gfar_stats {
 	u64 extra[GFAR_EXTRA_STATS_LEN];
 	u64 rmon[GFAR_RMON_LEN];
 };
-
 
 struct gfar {
 	u32	tsec_id;	/* 0x.000 - Controller ID register */
@@ -1127,7 +1124,6 @@ struct gfar_private {
 	unsigned int ftp_rqfcr[MAX_FILER_IDX + 1];
 };
 
-
 static inline int gfar_has_errata(struct gfar_private *priv,
 				  enum gfar_errata err)
 {
@@ -1205,7 +1201,6 @@ struct gfar_filer_entry {
 	u32 ctrl;
 	u32 prop;
 };
-
 
 /* The 20 additional entries are a shadow for one extra element */
 struct filer_table {

@@ -185,7 +185,6 @@ static unsigned long calc_pmtimer_ref(u64 deltatsc, u64 pm1, u64 pm2)
 #define CAL2_LATCH	(CLOCK_TICK_RATE / (1000 / CAL2_MS))
 #define CAL2_PIT_LOOPS	5000
 
-
 /*
  * Try to calibrate the TSC against the Programmable
  * Interrupt Timer and return the frequency of the TSC
@@ -216,6 +215,39 @@ static unsigned long pit_calibrate_tsc(u32 latch, unsigned long ms, int loopmin)
 	pitcnt = 0;
 	tscmax = 0;
 	tscmin = ULONG_MAX;
+#ifdef CONFIG_ARCH_GEN3
+/*
+ * The following code is for Intel Media SOC Gen3 B0 and B1 workaround.
+*/
+
+/*
+ * The 8254 timer flop has an issue between the reset and set pin of a flop.
+ * This causes a race condition to happen and the value can change based on
+ * clock sku. The workaround for this silicon issue uses a polling method which
+ * is not affected by race condition. If this workaround is not applied, then the
+ * cpu MHz entry in /proc/cpuinfo may show the wrong information. This workaround
+ * is for errata number 22 in Errata - A Step. 
+*/
+
+	u8 count1;
+	u8 count2;
+	outb(0x80, 0x43);
+	count1 = inb(0x42);
+	count2 = inb(0x42);
+	while (count1 >= 0x20 || count2 != 0) {
+		t2 = get_cycles();
+		delta = t2 - tsc;
+		tsc = t2;
+		if ((unsigned long) delta < tscmin)
+			tscmin = (unsigned int) delta;
+		if ((unsigned long) delta > tscmax)
+			tscmax = (unsigned int) delta;
+		pitcnt++;
+		outb(0x80, 0x43);
+		count1 = inb(0x42);
+		count2 = inb(0x42);
+	}
+#else
 	while ((inb(0x61) & 0x20) == 0) {
 		t2 = get_cycles();
 		delta = t2 - tsc;
@@ -226,6 +258,7 @@ static unsigned long pit_calibrate_tsc(u32 latch, unsigned long ms, int loopmin)
 			tscmax = (unsigned int) delta;
 		pitcnt++;
 	}
+#endif
 
 	/*
 	 * Sanity checks:
@@ -580,7 +613,6 @@ int recalibrate_cpu_khz(void)
 
 EXPORT_SYMBOL(recalibrate_cpu_khz);
 
-
 /* Accelerators for sched_clock()
  * convert from cycles(64bits) => nanoseconds (64bits)
  *  basic equation:
@@ -848,7 +880,6 @@ __cpuinit int unsynchronized_tsc(void)
 	return 0;
 }
 
-
 static void tsc_refine_calibration_work(struct work_struct *work);
 static DECLARE_DELAYED_WORK(tsc_irqwork, tsc_refine_calibration_work);
 /**
@@ -921,7 +952,6 @@ static void tsc_refine_calibration_work(struct work_struct *work)
 out:
 	clocksource_register_khz(&clocksource_tsc, tsc_khz);
 }
-
 
 static int __init init_tsc_clocksource(void)
 {
@@ -1005,4 +1035,3 @@ void __init tsc_init(void)
 
 	check_system_tsc_reliable();
 }
-

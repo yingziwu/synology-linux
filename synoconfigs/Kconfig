@@ -1,0 +1,274 @@
+# description of the syntax of this configuration file,
+# see Documentation/kbuild/kconfig-language.txt.
+#
+
+menu "Synology special config"
+
+config SYNO_LP3943_FEATURES
+	bool "Customized features of LP3943 led dirver for Synology Corp. NAS product"
+	depends on LEDS_LP3943
+	default n
+
+config SYNO_ADT7490_FEATURES
+	bool "Enhance features for adt7490 for Synology Corp. NAS product"
+	depends on SENSORS_ADT7475
+	default n
+
+config SYNO_INCREASE_SIL3132_OUT_SWING
+	bool "SATA Sil3132 OUT SWING to prevent DRDY"
+	depends on SYNO_CEDARVIEW || SYNO_AVOTON
+	default y
+
+config SYNO_DISPLAY_CPUINFO
+    bool "Support display CPU Infomation"
+
+config SYNO_ARMADAXP_CPU_AFFINITY
+	bool "Set default cpu affinity to core 0"
+	depends on ARMADA_XP || ARMADA_375
+	default y
+
+config SYNO_COMCERTO2K_CPU_AFFINITY
+	bool "Set default cpu affinity to core 0"
+	depends on SYNO_COMCERTO
+	default y
+
+config SYNO_FIX_MV_CESA_RACE
+	bool "Fix Marvell's crypto driver race"
+	depends on MV_CESA
+	default y
+
+config SYNO_FIX_OCF_CRYPTODEV_RACE
+	bool "Fix OCF's race in cryptodev interface"
+	depends on OCF_OCF
+	default y
+
+config SYNO_FIX_OCF_CRYPTOSOFT_RACE
+	bool "Fix OCF's race in cryptosoft interface"
+	depends on OCF_OCF
+	default y
+
+config SYNO_C2K_UART
+	bool "support Synology comcerto2k UART0 features"
+	depends on SYNO_COMCERTO
+	default n
+
+config SYNO_C2K_NET
+	bool "Apply Synology comcerto2k network modify"
+	depends on SYNO_COMCERTO
+	default n
+
+config SYNO_C2K_SERIAL_FIX
+    bool "C2K serial workaround"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_SPI_PARTITION
+    bool "apply synology spi partition in c2k"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_GPIO_READ_SHIFT
+	bool "shift the read GPIO value before returning"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_REBOOT_POWEROFF_BY_MICROP
+	bool "Use MicroP to implement the reboot and poweroff"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_WOL_ENABLE
+	bool "Enable WOL function"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_XOR_RWLOCK
+	bool "Ensure XOR driver read/write data is correct"
+	depends on SYNO_COMCERTO && COMCERTO_XOR
+
+config SYNO_C2K_FIX_DWC_OTG_DEADLOCK
+	bool "Fix dwc_otg deadload issue"
+	depends on SYNO_COMCERTO && DWC_OTG
+
+config SYNO_C2K_PCIE_SWITCH_FIX
+	bool "Longer nop delay for avoid PCIE switch blocking"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_USB_VBUS_CONTROL
+	bool "Manually enable/disable the USB vbus power via gpio"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_DWC_OTG_URB_DEQUEUE
+	bool "Avoid NULL pointer accessing when calling dwc_otg_hcd_urb_dequeue()"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_DAC_TERRIBLE_SOUND
+	bool "Terrible sound when playing music with DAC on dwc otg USB2"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_HS_SPI_DMA_READ_ERROR
+	bool "RX flow control should be false(DW_ahb_dmac) , or the read will occur error"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_NOISE_WITH_REMOTE_DAC
+	bool "There is noise when playing music after reading hid device of synology remote"
+	depends on SYNO_COMCERTO
+
+config SYNO_C2K_SPLICE_SB_FREEZING
+	bool "Add Comcerto2k's sb freezing of splice"
+	depends on SYNO_COMCERTO
+
+config SYNO_EFI
+	bool "Enable EFI runtime service"
+	depends on SYNO_BROMOLOW
+	default y
+
+config SYNO_THERMAL_CTRL
+	bool "Enable Thermel control to prevent CPU overheat"
+	depends on ARCH_ARMADA370
+
+config SYNO_FIX_RESIZE_16TB_IN_32BIT
+	bool "Support on-line resize over 16TB on 32-bit platform"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_DM_TO_SECTOR_FIX
+	bool "Fix to_sector can't work with u64 parameter"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_ZRAM_32KB_PAGE_SUPPORT
+	bool "Let zram feature support 32KB page"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_PKMAP_NOT_ENOUGH_FIX
+	bool "Allocate low pages incase pkmap address is not enough"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_NETDMA_BUF_NOT_ENOUGH_FIX
+	bool "Allocate enough management data structure for net DMA operation"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_CRYPTO_ASYNC_RACE_COND_FIX
+	bool "Fix the race condition when using ANPA crypto engine"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_ALPINE_V2_5_3
+	bool "Apply patches from Annapurna with v2.5.3"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_FORCE_EH_FULL_RECOVER_RETRY
+	bool "Force to reset all links of a PMP while retrying EH recover"
+	default y
+
+config SYNO_ALPINE_ADJUST_RX_EQUAL
+	bool "Add an option to turn on/off 10G rx equalization according to sys entry"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_ALPINE_TUNING_NETWORK_PERFORMANCE
+	bool "Adjust network interface settings for tuning performance"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_ALPINE_CHANGE_RJ45_LED_BEHAVIOR
+	bool "Adjust Alpine backplane RJ45 LED behavior"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_ALPINE_BROKEN_PHY_WOL_WORKAROUND
+	bool "Workaround for PHY status error and cannot be woke on lan"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_ALPINE_MALFUNCTIONAL_PHY_WORKAROUND
+	bool "Workaround for RTL8211DN occasionally has error packets or cannot TX"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_SUPPORT_EMMC_ERASE
+	bool "Enable erase capability for Marvell sdio host"
+	depends on ARCH_ARMADA370
+	default y
+
+config SYNO_SCSI_MAX_QUEUE_DEPTH_LOCK
+	bool "Enable irq lock while changing queue_depth"
+	depends on SCSI_MPT2SAS
+	default y
+
+config SYNO_ALPINE_FIX_DMA_RECVFILE
+	bool "Fix issue of checksum error when using NETDMA"
+	depends on SYNO_ALPINE
+	default y
+
+config SYNO_DUAL_HEAD
+	bool "Synology Dual Head Host"
+	depends on SYNO_BROMOLOW
+	default n
+
+config SYNO_LOWER_MD_RESYNC_NICE
+	bool "Lower nice value to MD resync threads"
+	depends on SYNO_ALPINE
+	default n
+
+config SYNO_SAS_RESERVATION_WRITE_CONFLICT_KERNEL_PANIC
+	bool "Let kernel panic if sas reservation write conflict"
+	depends on SYNO_BROMOLOW
+	default n
+
+config SYNO_OOM_DUMP_MODULE
+	bool "Dump modules and occupied memory sizes while OOM"
+	default y
+
+config SYNO_ELEVATE_LOG_LEVEL
+	bool "Elevate log level of kernel log"
+	default y
+
+config SYNO_SATA_PM_DEVICE_GPIO
+	bool "Synology Specific PM Device Support"
+	depends on SATA_PMP
+	default y
+
+config SYNO_SATA_INTEL_SSD_COMPATIBILITY
+    bool "Solution of Intel S4500 3.84TB Hotplug 100% failed on Marvell 88SE9235"
+    default y
+
+config SYNO_NF_NAT_WORKAROUND
+	bool "Fix BUG_ON on nf_nat_setup_info"
+	default y
+
+config SYNO_CIFS_SMB_OPS
+	bool "add vers=syno for switch SMB1~3 from negotiate"
+	default y
+
+config SYNO_OCF_PERMISSION
+	bool "Adjust /dev/crypto permission to 666"
+	depends on OCF_CRYPTODEV
+	default y
+
+config SYNO_CIFS_UTF16_CONVERT_COMPILE_BUG
+	bool "cifs_from_utf16 not optimize for evansport"
+	default n
+
+config SYNO_CIFS_RECONNECT
+	bool "modify cifs reconnect behavior to prevent wait mutex lock cause hung task"
+	default y
+
+config SYNO_DISK_MONITOR_TOOL
+	bool "Disk performance monitor tool"
+	default y
+
+config SYNO_COMCERTO2K_RAID_XORNEON_MODULE
+	bool "To reduce comcerto2k kernel size, modulize raid and xor-neon"
+	depends on KERNEL_MODE_NEON
+	default n
+
+config SYNO_CUSTOM_SCMD_TIMEOUT
+	bool "Customize SCSI commands timeout value per disk"
+	default y
+
+config SYNO_ADD_ROUTE_CHECK
+    bool "check if interface is link up before adding route"
+	default n
+
+endmenu

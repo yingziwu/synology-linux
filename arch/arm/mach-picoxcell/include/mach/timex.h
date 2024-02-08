@@ -22,4 +22,3 @@
 #define CLOCK_TICK_RATE		1000000
 
 #endif /* __TIMEX_H__ */
-

@@ -152,15 +152,12 @@ cmpk_count_txstatistic(
 
 }	/* cmpk_CountTxStatistic */
 
-
-
 static void cmpk_handle_tx_feedback(struct net_device *dev, u8 *pmsg)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
 	struct cmpk_txfb rx_tx_fb;	/* */
 
 	priv->stats.txfeedback++;
-
 
 	memcpy((u8 *)&rx_tx_fb, pmsg, sizeof(struct cmpk_txfb));
 	cmpk_count_txstatistic(dev, &rx_tx_fb);
@@ -192,13 +189,11 @@ static void cmpk_handle_interrupt_status(struct net_device *dev, u8 *pmsg)
 
 	DMESG("---> cmpk_Handle_Interrupt_Status()\n");
 
-
 	rx_intr_status.length = pmsg[1];
 	if (rx_intr_status.length != (sizeof(struct cmpk_intr_sta) - 2)) {
 		DMESG("cmpk_Handle_Interrupt_Status: wrong length!\n");
 		return;
 	}
-
 
 	if (priv->rtllib->iw_mode == IW_MODE_ADHOC) {
 		rx_intr_status.interrupt_status = *((u32 *)(pmsg + 4));
@@ -222,11 +217,9 @@ static void cmpk_handle_interrupt_status(struct net_device *dev, u8 *pmsg)
 
 }	/* cmpk_handle_interrupt_status */
 
-
 static	void cmpk_handle_query_config_rx(struct net_device *dev, u8 *pmsg)
 {
 	cmpk_query_cfg_t	rx_query_cfg;	/* */
-
 
 	rx_query_cfg.cfg_action = (pmsg[4] & 0x80000000)>>31;
 	rx_query_cfg.cfg_type = (pmsg[4] & 0x60) >> 5;
@@ -239,7 +232,6 @@ static	void cmpk_handle_query_config_rx(struct net_device *dev, u8 *pmsg)
 			    (pmsg[14] << 8) | (pmsg[15] << 0);
 
 }	/* cmpk_Handle_Query_Config_Rx */
-
 
 static void cmpk_count_tx_status(struct net_device *dev,
 				 struct cmpk_tx_status *pstx_status)
@@ -266,7 +258,6 @@ static void cmpk_count_tx_status(struct net_device *dev,
 	priv->stats.txretrycount		+= pstx_status->txretry;
 	priv->stats.txfeedbackretry	+= pstx_status->txretry;
 
-
 	priv->stats.txmulticast	+= pstx_status->txmcok;
 	priv->stats.txbroadcast	+= pstx_status->txbcok;
 	priv->stats.txunicast		+= pstx_status->txucok;
@@ -281,8 +272,6 @@ static void cmpk_count_tx_status(struct net_device *dev,
 
 	priv->stats.last_packet_rate		= pstx_status->rate;
 }	/* cmpk_CountTxStatus */
-
-
 
 static	void cmpk_handle_tx_status(struct net_device *dev, u8 *pmsg)
 {
@@ -299,7 +288,6 @@ static	void cmpk_handle_tx_rate_history(struct net_device *dev, u8 *pmsg)
 	u16				length = sizeof(struct cmpk_tx_rahis);
 	u32 *ptemp;
 	struct r8192_priv *priv = rtllib_priv(dev);
-
 
 #ifdef ENABLE_PS
 	pAdapter->HalFunc.GetHwRegHandler(pAdapter, HW_VAR_RF_STATE,
@@ -337,7 +325,6 @@ static	void cmpk_handle_tx_rate_history(struct net_device *dev, u8 *pmsg)
 	}
 
 }
-
 
 u32 cmpk_message_handle_rx(struct net_device *dev,
 			   struct rtllib_rx_stats *pstats)

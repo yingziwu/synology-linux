@@ -1344,7 +1344,6 @@ int txCommit(tid_t tid,		/* transaction identifier */
 	if ((tblk->flag & tblkGC_LAZY) == 0)
 		txUnlock(tblk);
 
-
 	/*
 	 *	reset in-memory object state
 	 */
@@ -2307,7 +2306,6 @@ static void txUpdateMap(struct tblock * tblk)
 
 	maptype = (tblk->xflag & COMMIT_PMAP) ? COMMIT_PMAP : COMMIT_PWMAP;
 
-
 	/*
 	 *	update block allocation map
 	 *
@@ -2800,7 +2798,7 @@ int jfs_lazycommit(void *arg)
 
 		if (freezing(current)) {
 			LAZY_UNLOCK(flags);
-			refrigerator();
+			try_to_freeze();
 		} else {
 			DECLARE_WAITQUEUE(wq, current);
 
@@ -2994,7 +2992,7 @@ int jfs_sync(void *arg)
 
 		if (freezing(current)) {
 			TXN_UNLOCK();
-			refrigerator();
+			try_to_freeze();
 		} else {
 			set_current_state(TASK_INTERRUPTIBLE);
 			TXN_UNLOCK();

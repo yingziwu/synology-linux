@@ -139,7 +139,6 @@ static ssize_t __used \
 	return count; \
 }
 
-
 /* Let's define all possible registers, we'll only hook up the ones
  * that are implemented on the current processor
  */
@@ -153,7 +152,6 @@ static ssize_t __used \
 #define HAS_PPC_PMC_IBM		1
 #define HAS_PPC_PMC_G4		1
 #endif
-
 
 #ifdef HAS_PPC_PMC_CLASSIC
 SYSFS_PMCSETUP(mmcr0, SPRN_MMCR0);
@@ -557,7 +555,6 @@ int cpu_add_sysdev_attr_group(struct attribute_group *attrs)
 }
 EXPORT_SYMBOL_GPL(cpu_add_sysdev_attr_group);
 
-
 void cpu_remove_sysdev_attr(struct sysdev_attribute *attr)
 {
 	int cpu;
@@ -587,7 +584,6 @@ void cpu_remove_sysdev_attr_group(struct attribute_group *attrs)
 	mutex_unlock(&cpu_mutex);
 }
 EXPORT_SYMBOL_GPL(cpu_remove_sysdev_attr_group);
-
 
 /* NUMA stuff */
 

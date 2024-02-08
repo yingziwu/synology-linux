@@ -19,7 +19,6 @@
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 
-
 /**
  * usb_descriptor_fillbuf - fill buffer with descriptors
  * @buf: Buffer to be filled
@@ -53,7 +52,6 @@ usb_descriptor_fillbuf(void *buf, unsigned buflen,
 	}
 	return dest - (u8 *)buf;
 }
-
 
 /**
  * usb_gadget_config_buf - builts a complete configuration descriptor
@@ -155,4 +153,3 @@ usb_copy_descriptors(struct usb_descriptor_header **src)
 
 	return ret;
 }
-

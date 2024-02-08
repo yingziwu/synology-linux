@@ -33,7 +33,6 @@ static struct {
 	struct mutex hdmi_lock;
 } hdmi;
 
-
 static int hdmi_panel_probe(struct omap_dss_device *dssdev)
 {
 	DSSDBG("ENTER hdmi_panel_probe\n");

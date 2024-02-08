@@ -151,6 +151,11 @@ config ARCH_HAS_ILOG2_U32
 config ARCH_HAS_ILOG2_U64
 	bool
 
+config ARCH_LONG_LONG_ATOMIC
+	bool
+	default n
+	depends on SYNO_ALPINE
+
 config ARCH_HAS_CPUFREQ
 	bool
 	help
@@ -265,6 +270,16 @@ config ARCH_INTEGRATOR
 	select NEED_MACH_MEMORY_H
 	help
 	  Support for ARM's Integrator platform.
+
+config ARCH_COMCERTO
+	bool "Mindspeed Comcerto"
+	select ARCH_SUPPORTS_MSI
+	select NEED_MACH_MEMORY_H
+	select ARCH_REQUIRE_GPIOLIB
+	help
+	  This enables support for Mindspeed's Comcerto development boards.
+	  If you would like to build your kernel to run on one of these boards
+	  then you must say 'Y' here. Otherwise say 'N'    
 
 config ARCH_REALVIEW
 	bool "ARM Ltd. RealView family"
@@ -540,6 +555,8 @@ config ARCH_DOVE
 
 config ARCH_KIRKWOOD
 	bool "Marvell Kirkwood"
+	select ARCH_FEROCEON
+	select ARCH_FEROCEON_KW
 	select CPU_FEROCEON
 	select PCI
 	select PCI_QUIRKS
@@ -548,7 +565,7 @@ config ARCH_KIRKWOOD
 	select PLAT_ORION
 	help
 	  Support for the following Marvell Kirkwood series SoCs:
-	  88F6180, 88F6192 and 88F6281.
+	  88F6180, 88F6192, 88F6281 and 88F6282.
 
 config ARCH_LPC32XX
 	bool "NXP LPC32XX"
@@ -562,6 +579,88 @@ config ARCH_LPC32XX
 	select GENERIC_CLOCKEVENTS
 	help
 	  Support for the NXP LPC32XX family of processors
+	  
+config ARCH_ARMADA370
+    bool "Marvell Armada-370"
+    select PCI
+    select ARCH_SUPPORTS_MSI if SYNO_ARMADA_ARCH_V2
+    select ARCH_REQUIRE_GPIOLIB
+    select GENERIC_GPIO
+    select GENERIC_TIME
+    select GENERIC_CLOCKEVENTS
+    select PLAT_ARMADA
+    select HAVE_REGS_AND_STACK_ACCESS_API
+    select COMMON_CLKDEV
+    select NEED_MACH_MEMORY_H
+    help
+      Support for the Marvell Armada-370 SoC Family
+
+config ARCH_ARMADA375
+	bool "Marvell Armada-375"
+	select PCI
+#	select ARCH_HAS_CPUFREQ
+#	select ARCH_SUPPORTS_MSI
+	select CPU_V7
+	select ARCH_REQUIRE_GPIOLIB
+	select GENERIC_GPIO
+	select GENERIC_TIME
+	select GENERIC_CLOCKEVENTS
+	select PLAT_ARMADA
+	select HAVE_REGS_AND_STACK_ACCESS_API
+	select COMMON_CLKDEV
+	select HAVE_SMP
+	select CLKSRC_MMIO
+	select NEED_MACH_IO_H
+	select NEED_MACH_MEMORY_H
+	select DMABOUNCE
+#	select CACHE_L2X0
+	select MIGHT_HAVE_CACHE_L2X0
+	help
+	  Support for the Marvell Armada-375 SoC Family
+
+config ARCH_ARMADA38X
+	bool "Marvell Armada-38x"
+	select PCI
+#	select ARCH_HAS_CPUFREQ
+#	select ARCH_SUPPORTS_MSI
+	select CPU_V7
+	select ARCH_REQUIRE_GPIOLIB
+	select GENERIC_GPIO
+	select GENERIC_TIME
+	select GENERIC_CLOCKEVENTS
+	select PLAT_ARMADA
+	select HAVE_REGS_AND_STACK_ACCESS_API
+	select COMMON_CLKDEV
+	select CLKDEV_LOOKUP
+	select HAVE_SMP
+	select CLKSRC_MMIO
+	select NEED_MACH_IO_H
+	select NEED_MACH_MEMORY_H
+	select DMABOUNCE
+#	select CACHE_L2X0
+	select MIGHT_HAVE_CACHE_L2X0
+	help
+	  Support for the Marvell Armada-38x SoC Family
+
+config ARCH_ARMADA_XP
+	bool "Marvell Armada XP"
+	select PCI
+	select ARCH_HAS_CPUFREQ
+	select ARCH_SUPPORTS_MSI
+	select ARCH_REQUIRE_GPIOLIB
+	select GENERIC_GPIO
+	select GENERIC_TIME
+	select GENERIC_CLOCKEVENTS
+	select PLAT_ARMADA
+#	select PLAT_ORION
+	select HAVE_REGS_AND_STACK_ACCESS_API
+	select COMMON_CLKDEV
+	select CLKSRC_MMIO
+	select CLKDEV_LOOKUP
+	select NEED_MACH_MEMORY_H
+	select DMABOUNCE
+	select ARCH_HAS_HOLES_MEMORYMODEL
+
 
 config ARCH_MV78XX0
 	bool "Marvell MV78xx0"
@@ -967,6 +1066,50 @@ config ARCH_VT8500
 	help
 	  Support for VIA/WonderMedia VT8500/WM85xx System-on-Chip.
 
+config ARCH_ALPINE
+        bool "AnnapurnaLabs Alpine SOCs with Device Tree support"
+        select ARCH_WANT_OPTIONAL_GPIOLIB
+        select ARM_AMBA
+		select SPARSE_IRQ
+        select ARM_TIMER_SP804
+        select ARM_L1_CACHE_SHIFT_6
+        select CLKDEV_LOOKUP
+        select GENERIC_CLOCKEVENTS
+		select GENERIC_IRQ_CHIP
+        select HAVE_CLK
+        select HAVE_SMP 
+        select HAVE_SCHED_CLOCK
+        select ARCH_SCHED_CLOCK
+        select ICST
+        select CPU_V7
+        select ARM_GIC
+        select HAVE_ARCH_TIMERS
+        select COMMON_CLK
+        select PCI
+	select PCI_DOMAINS
+        select ARCH_SUPPORTS_MSI
+	select ARCH_LONG_LONG_ATOMIC
+	select NEED_MACH_MEMORY_H
+	select ARM_HAS_SG_CHAIN
+	select SYNO_ALPINE
+	select SYNO_ALPINE_A0
+	select SYNO_ALPINE_UPDATE_THERMAL
+	select SYNO_ALPINE_FIX_USB_HANG
+        help
+          This enables support for the AnnapurnaLabs SoC Gen1 boards.
+
+config SYNO_ALPINE
+	depends on ARCH_ALPINE
+
+config SYNO_ALPINE_A0
+	depends on ARCH_ALPINE
+
+config SYNO_ALPINE_UPDATE_THERMAL
+	depends on ARCH_ALPINE
+
+config SYNO_ALPINE_FIX_USB_HANG
+	depends on ARCH_ALPINE
+
 config ARCH_ZYNQ
 	bool "Xilinx Zynq ARM Cortex A9 Platform"
 	select CPU_V7
@@ -1020,6 +1163,7 @@ source "arch/arm/mach-ixp2000/Kconfig"
 source "arch/arm/mach-ixp23xx/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
+source "arch/arm/plat-orion/Kconfig"
 
 source "arch/arm/mach-ks8695/Kconfig"
 
@@ -1054,6 +1198,12 @@ source "arch/arm/mach-mmp/Kconfig"
 source "arch/arm/mach-realview/Kconfig"
 
 source "arch/arm/mach-sa1100/Kconfig"
+
+source "arch/arm/mach-armada370/Kconfig"
+source "arch/arm/mach-armada375/Kconfig"
+source "arch/arm/mach-armada38x/Kconfig"
+source "arch/arm/mach-armadaxp/Kconfig"
+source "arch/arm/plat-armada/Kconfig"
 
 source "arch/arm/plat-samsung/Kconfig"
 source "arch/arm/plat-s3c24xx/Kconfig"
@@ -1098,9 +1248,19 @@ source "arch/arm/plat-versatile/Kconfig"
 
 source "arch/arm/mach-vt8500/Kconfig"
 
+source "arch/arm/mach-alpine/Kconfig"
+
 source "arch/arm/mach-w90x900/Kconfig"
 
+source "arch/arm/mach-comcerto/Kconfig"
+
 # Definitions to make life easier
+config PLAT_ARMADA
+	bool
+	select CLKSRC_MMIO
+        select GENERIC_IRQ_CHIP
+        select HAVE_SCHED_CLOCK
+
 config ARCH_ACORN
 	bool
 
@@ -1115,6 +1275,11 @@ config PLAT_ORION
 	select GENERIC_IRQ_CHIP
 	select HAVE_SCHED_CLOCK
 
+config ARCH_FEROCEON_KW
+	bool
+
+config ARCH_FEROCEON
+	bool
 config PLAT_PXA
 	bool
 
@@ -1142,8 +1307,8 @@ config XSCALE_PMU
 	default y
 
 config CPU_HAS_PMU
-	depends on (CPU_V6 || CPU_V6K || CPU_V7 || XSCALE_PMU) && \
-		   (!ARCH_OMAP3 || OMAP3_EMU)
+	depends on (CPU_V6 || CPU_V6K || CPU_V7 || XSCALE_PMU || CPU_PJ4) && \
+		   (!ARCH_OMAP3 || OMAP3_EMU) && !ARCH_ARMADA375 && !ARCH_ARMADA38X
 	default y
 	bool
 
@@ -1375,6 +1540,16 @@ config PL310_ERRATA_769419
 	  on systems with an outer cache, the store buffer is drained
 	  explicitly.
 
+config ARM_ERRATA_775420
+       bool "ARM errata: A data cache maintenance operation which aborts, might lead to deadlock"
+       depends on CPU_V7 && SYNO_COMCERTO
+       help
+	 This option enables the workaround for the 775420 Cortex-A9 (r2p2,
+	 r2p6,r2p8,r2p10,r3p0) erratum. In case a date cache maintenance
+	 operation aborts with MMU exception, it might cause the processor
+	 to deadlock. This workaround puts DSB before executing ISB if
+	 an abort may occur on cache maintenance.
+
 endmenu
 
 source "arch/arm/common/Kconfig"
@@ -1403,7 +1578,7 @@ config ISA_DMA_API
 	bool
 
 config PCI
-	bool "PCI support" if MIGHT_HAVE_PCI
+	bool "PCI support" if ARCH_INTEGRATOR_AP || ARCH_VERSATILE_PB || ARCH_IXP4XX || ARCH_KS8695 || MACH_ARMCORE || MIGHT_HAVE_PCI
 	help
 	  Find out whether you have a PCI motherboard. PCI is the name of a
 	  bus system, i.e. the way the CPU talks to the other stuff inside
@@ -1452,7 +1627,7 @@ config SMP
 	depends on REALVIEW_EB_ARM11MP || REALVIEW_EB_A9MP || \
 		 MACH_REALVIEW_PB11MP || MACH_REALVIEW_PBX || ARCH_OMAP4 || \
 		 ARCH_EXYNOS4 || ARCH_TEGRA || ARCH_U8500 || ARCH_VEXPRESS_CA9X4 || \
-		 ARCH_MSM_SCORPIONMP || ARCH_SHMOBILE || ARCH_HIGHBANK || SOC_IMX6Q
+		 ARCH_MSM_SCORPIONMP || ARCH_SHMOBILE || ARCH_HIGHBANK || SOC_IMX6Q || ARCH_ARMADA_XP || ARCH_COMCERTO || ARCH_ALPINE || ARCH_ARMADA375 || ARCH_ARMADA38X
 	depends on MMU
 	select USE_GENERIC_SMP_HELPERS
 	select HAVE_ARM_SCU if !ARCH_MSM_SCORPIONMP
@@ -1516,6 +1691,11 @@ config HAVE_ARM_SCU
 	help
 	  This option enables support for the ARM system coherency unit
 
+config SCU_SPECULATIVE_LINE_FILLS
+	bool "SCU speculative line fills"
+	depends on HAVE_ARM_SCU && CACHE_PL310
+	default n
+
 config HAVE_ARM_TWD
 	bool
 	depends on SMP
@@ -1533,12 +1713,25 @@ choice
 	  option alone!
 
 	config VMSPLIT_3G
+		depends on !SYNO_COMCERTO || !COMCERTO_HW_KERNEL_PAGETABLE
 		bool "3G/1G user/kernel split"
 	config VMSPLIT_2G
 		bool "2G/2G user/kernel split"
 	config VMSPLIT_1G
+		depends on !SYNO_COMCERTO || !COMCERTO_HW_KERNEL_PAGETABLE
 		bool "1G/3G user/kernel split"
 endchoice
+
+config FUNC_REORDER
+	bool "Function reordering support"
+	default n
+	depends on SYNO_ALPINE
+	help
+	  Support for function reordering based on functionlist found in
+	  arch/arm/kernel/functionlist.
+	  Function reordering can be used to increase locality on the I-cache.
+	  This option add the flag -ffunction-sections to the compilation
+	  flags.
 
 config PAGE_OFFSET
 	hex
@@ -1563,7 +1756,7 @@ config LOCAL_TIMERS
 	bool "Use local timer interrupts"
 	depends on SMP
 	default y
-	select HAVE_ARM_TWD if (!ARCH_MSM_SCORPIONMP && !EXYNOS4_MCT)
+	select HAVE_ARM_TWD if (!ARCH_MSM_SCORPIONMP && !EXYNOS4_MCT && !ARCH_ARMADA_XP)
 	help
 	  Enable support for local timers on SMP platforms, rather then the
 	  legacy IPI broadcast method.  Local timers allows the system
@@ -1710,6 +1903,7 @@ config FORCE_MAX_ZONEORDER
 	int "Maximum zone order" if ARCH_SHMOBILE
 	range 11 64 if ARCH_SHMOBILE
 	default "9" if SA1111
+	default "19" if ARCH_ARMADA370
 	default "11"
 	help
 	  The kernel memory allocator divides physically contiguous memory
@@ -1982,7 +2176,7 @@ endchoice
 
 config XIP_KERNEL
 	bool "Kernel Execute-In-Place from ROM"
-	depends on !ZBOOT_ROM
+	depends on !ZBOOT_ROM && !ARM_LPAE
 	help
 	  Execute-In-Place allows the kernel to run from non-volatile storage
 	  directly addressable by the CPU, such as NOR flash. This saves RAM
@@ -2211,6 +2405,13 @@ config NEON
 	help
 	  Say Y to include support code for NEON, the ARMv7 Advanced SIMD
 	  Extension.
+
+config KERNEL_MODE_NEON
+	bool "Support for NEON in kernel mode"
+	default n
+	depends on NEON
+	help
+	  Say Y to include support for NEON in kernel mode.
 
 endmenu
 

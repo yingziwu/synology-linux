@@ -59,7 +59,6 @@ static __init int set_corruption_check_size(char *arg)
 }
 early_param("memory_corruption_check_size", set_corruption_check_size);
 
-
 void __init setup_bios_corruption_check(void)
 {
 	u64 addr = PAGE_SIZE;	/* assume first page is reserved anyway */
@@ -110,7 +109,6 @@ void __init setup_bios_corruption_check(void)
 		printk(KERN_INFO "Scanning %d areas for low memory corruption\n", num_scan_areas);
 }
 
-
 void check_for_bios_corruption(void)
 {
 	int i;
@@ -160,4 +158,3 @@ static int start_periodic_check_for_corruption(void)
 }
 
 module_init(start_periodic_check_for_corruption);
-

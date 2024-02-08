@@ -37,7 +37,7 @@
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
  *
- * $Id: //depot/aic7xxx/aic7xxx/aic79xx.c#250 $
+ * $Id: aic79xx_core.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  */
 
 #ifdef __linux__
@@ -49,7 +49,6 @@
 #include <dev/aic7xxx/aic79xx_inline.h>
 #include <dev/aic7xxx/aicasm/aicasm_insformat.h>
 #endif
-
 
 /***************************** Lookup Tables **********************************/
 static const char *const ahd_chip_names[] =
@@ -1117,7 +1116,6 @@ ahd_complete_scb(struct ahd_softc *ahd, struct scb *scb)
 	else
 		ahd_done(ahd, scb);
 }
-
 
 /************************* Sequencer Execution Control ************************/
 /*
@@ -4389,7 +4387,6 @@ ahd_scb_devinfo(struct ahd_softc *ahd, struct ahd_devinfo *devinfo,
 			    SCB_GET_LUN(scb), SCB_GET_CHANNEL(ahd, scb), role);
 }
 
-
 /************************ Message Phase Processing ****************************/
 /*
  * When an initiator transaction with the MK_MESSAGE flag either reconnects
@@ -5831,7 +5828,6 @@ ahd_handle_ign_wide_residue(struct ahd_softc *ahd, struct ahd_devinfo *devinfo)
 		}
 	}
 }
-
 
 /*
  * Reinitialize the data pointers for the active transfer
@@ -9863,7 +9859,6 @@ ahd_dump_card_state(struct ahd_softc *ahd)
 	}
 	printk("\n");
 
-	
 	printk("Sequencer DMA-Up and Complete list: ");
 	scb_index = ahd_inw(ahd, COMPLETE_DMA_SCB_HEAD);
 	i = 0;

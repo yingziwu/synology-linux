@@ -119,7 +119,6 @@ static void jfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
 	struct jfs_inode_info *ji = JFS_IP(inode);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(jfs_inode_cachep, ji);
 }
 
@@ -893,6 +892,12 @@ static void __exit exit_jfs_fs(void)
 	jfs_proc_clean();
 #endif
 	unregister_filesystem(&jfs_fs_type);
+
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
 	kmem_cache_destroy(jfs_inode_cachep);
 }
 

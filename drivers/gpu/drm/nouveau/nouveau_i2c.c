@@ -125,7 +125,6 @@ nv50_i2c_getscl(void *data)
 	return !!(nv_rd32(dev, i2c->rd) & 1);
 }
 
-
 static int
 nv50_i2c_getsda(void *data)
 {

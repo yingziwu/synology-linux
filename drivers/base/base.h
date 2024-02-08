@@ -112,8 +112,6 @@ static inline int driver_match_device(struct device_driver *drv,
 	return drv->bus->match ? drv->bus->match(dev, drv) : 1;
 }
 
-extern char *make_class_name(const char *name, struct kobject *kobj);
-
 extern int devres_release_all(struct device *dev);
 
 extern struct kset *devices_kset;

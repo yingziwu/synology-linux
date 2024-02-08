@@ -198,7 +198,6 @@ out:
 	return result;
 }
 
-
 /** Clean it up */
 void uwb_est_destroy(void)
 {
@@ -206,7 +205,6 @@ void uwb_est_destroy(void)
 	uwb_est = NULL;
 	uwb_est_size = uwb_est_used = 0;
 }
-
 
 /**
  * Double the capacity of the EST table
@@ -227,7 +225,6 @@ int uwb_est_grow(void)
 	uwb_est_size *= 2;
 	return 0;
 }
-
 
 /**
  * Register an event size table
@@ -290,7 +287,6 @@ out:
 }
 EXPORT_SYMBOL_GPL(uwb_est_register);
 
-
 /**
  * Unregister an event size table
  *
@@ -331,7 +327,6 @@ found:
 	return 0;
 }
 EXPORT_SYMBOL_GPL(uwb_est_unregister);
-
 
 /**
  * Get the size of an event from a table
@@ -407,7 +402,6 @@ ssize_t uwb_est_get_size(struct uwb_rc *uwb_rc, struct uwb_est *est,
 out:
 	return size;
 }
-
 
 /**
  * Guesses the size of a WA event

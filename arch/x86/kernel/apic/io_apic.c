@@ -184,7 +184,6 @@ static struct irq_pin_list *alloc_irq_pin_list(int node)
 	return kzalloc_node(sizeof(struct irq_pin_list), GFP_KERNEL, node);
 }
 
-
 /* irq_cfg is indexed by the sum of all RTEs in all I/O APICs. */
 static struct irq_cfg irq_cfgx[NR_IRQS_LEGACY];
 
@@ -1322,7 +1321,6 @@ static void ioapic_register_intr(unsigned int irq, struct irq_cfg *cfg,
 				      fasteoi ? "fasteoi" : "edge");
 }
 
-
 static int setup_ir_ioapic_entry(int irq,
 			      struct IR_IO_APIC_route_entry *entry,
 			      unsigned int destination, int vector,
@@ -1931,7 +1929,6 @@ __apicdebuginit(int) print_ICs(void)
 }
 
 late_initcall(print_ICs);
-
 
 /* Where if anywhere is the i8259 connect in external int mode */
 static struct { int pin, apic; } ioapic_i8259 = { -1, -1 };

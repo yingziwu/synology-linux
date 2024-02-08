@@ -1227,6 +1227,10 @@ static void e1000_initialize_hw_bits_82571(struct e1000_hw *hw)
 	case e1000_82572:
 		reg |= (1 << 23) | (1 << 24) | (1 << 25) | (1 << 26);
 		break;
+	case e1000_82574:
+	case e1000_82583:
+		reg |= (1 << 26);
+		break;
 	default:
 		break;
 	}
@@ -1292,7 +1296,6 @@ static void e1000_initialize_hw_bits_82571(struct e1000_hw *hw)
                 reg &= ~E1000_CTRL_EXT_DMA_DYN_CLK_EN;
                 ew32(CTRL_EXT, reg);
         }
-
 
 	/* PCI-Ex Control Registers */
 	switch (hw->mac.type) {
@@ -2111,4 +2114,3 @@ const struct e1000_info e1000_82583_info = {
 	.phy_ops		= &e82_phy_ops_bm,
 	.nvm_ops		= &e82571_nvm_ops,
 };
-

@@ -287,4 +287,3 @@ void radeon_panel_mode_fixup(struct drm_encoder *encoder,
 	adjusted_mode->crtc_vsync_end = adjusted_mode->crtc_vsync_start + vsync_width;
 
 }
-

@@ -1863,7 +1863,6 @@ int iscsi_target_register_configfs(void)
 	return 0;
 }
 
-
 void iscsi_target_deregister_configfs(void)
 {
 	if (!lio_target_fabric_configfs)

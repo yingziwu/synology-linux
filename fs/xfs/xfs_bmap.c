@@ -49,7 +49,6 @@
 #include "xfs_vnodeops.h"
 #include "xfs_trace.h"
 
-
 kmem_zone_t		*xfs_bmap_free_item_zone;
 
 /*
@@ -65,7 +64,6 @@ xfs_bmap_check_leaf_extents(
 #else
 #define xfs_bmap_check_leaf_extents(cur, ip, whichfork)		do { } while (0)
 #endif
-
 
 /*
  * Called from xfs_bmap_add_attrfork to handle extents format files.
@@ -4234,7 +4232,6 @@ xfs_bmap_validate_ret(
 }
 #endif /* DEBUG */
 
-
 /*
  * Trim the returned map to the required bounds
  */
@@ -4501,7 +4498,6 @@ xfs_bmapi_reserve_delalloc(
 	if (error)
 		goto out_unreserve_blocks;
 
-
 	ip->i_delayed_blks += alen;
 
 	got->br_startoff = aoff;
@@ -4616,7 +4612,6 @@ xfs_bmapi_delay(
 	*nmap = n;
 	return 0;
 }
-
 
 STATIC int
 xfs_bmapi_allocate(
@@ -5542,7 +5537,6 @@ xfs_getbmap(
 		return XFS_ERROR(EINVAL);
 	bmvend = bmv->bmv_offset + bmv->bmv_length;
 
-
 	if (bmv->bmv_count > ULONG_MAX / sizeof(struct getbmapx))
 		return XFS_ERROR(ENOMEM);
 	out = kmem_zalloc(bmv->bmv_count * sizeof(struct getbmapx), KM_MAYFAIL);
@@ -5848,7 +5842,6 @@ xfs_bmap_check_leaf_extents(
 	for (;;) {
 		xfs_fsblock_t	nextbno;
 		xfs_extnum_t	num_recs;
-
 
 		num_recs = xfs_btree_get_numrecs(block);
 

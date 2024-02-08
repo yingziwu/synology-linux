@@ -230,7 +230,6 @@ struct mfc_cache {
 
 #endif
 
-
 #define MFC_ASSERT_THRESH (3*HZ)		/* Maximal freq. of asserts */
 
 /*

@@ -928,9 +928,6 @@ bad:
 	return ERR_PTR(err);
 }
 
-
-
-
 /*
  * calculate file layout from given offset, length.
  * fill in correct oid, logical length, and object extent

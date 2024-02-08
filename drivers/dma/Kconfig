@@ -82,12 +82,14 @@ config INTEL_IOP_ADMA
 
 config DW_DMAC
 	tristate "Synopsys DesignWare AHB DMA support"
-	depends on HAVE_CLK
+	depends on HAVE_CLK && !SYNO_COMCERTO
 	select DMA_ENGINE
 	default y if CPU_AT32AP7000
 	help
 	  Support the Synopsys DesignWare AHB DMA controller.  This
 	  can be integrated in chips such as the Atmel AT32ap7000.
+
+source "drivers/dma/dw/Kconfig"
 
 config AT_HDMAC
 	tristate "Atmel AHB DMA support"
@@ -116,11 +118,38 @@ config MPC512X_DMA
 
 config MV_XOR
 	bool "Marvell XOR engine support"
-	depends on PLAT_ORION
+	depends on PLAT_ORION ||  (SYNO_ARMADA_ARCH)  || (SYNO_ARMADA_ARCH_V2 && !ARM_LPAE)
 	select DMA_ENGINE
 	select ASYNC_TX_ENABLE_CHANNEL_SWITCH
 	---help---
 	  Enable support for the Marvell XOR engine.
+
+config MV_MEMCPY
+	bool "Marvell MEMCPY engine support"
+	depends on PLAT_ORION || (SYNO_ARMADA_ARCH_V2 && !ARM_LPAE)
+	select DMA_ENGINE
+	select ASYNC_TX_ENABLE_CHANNEL_SWITCH
+	help
+	  Enable support for the Marvell MEMCPY engine
+	  This driver only supports the memcpy and drops
+	  the support for memset and xor in favor of more
+	  efficient operation.
+
+config COMCERTO_XOR
+	tristate "Mindspeed Comcerto 2000 XOR engine support"
+	depends on ARCH_M86XXX && SYNO_COMCERTO
+	select DMA_ENGINE
+	select ASYNC_TX_ENABLE_CHANNEL_SWITCH
+	---help---
+	  Enable support for the Mindspeed XOR engine.
+
+config COMCERTO_DMA_BASIC
+	tristate "Mindspeed Comcerto 2000 MDMA engine basic support"
+	depends on ARCH_M86XXX && SYNO_COMCERTO
+	select DMA_ENGINE
+	select ASYNC_TX_ENABLE_CHANNEL_SWITCH
+	---help---
+	  Enable support for the Mindspeed mdma engine.
 
 config MX3_IPU
 	bool "MX3x Image Processing Unit support"
@@ -244,6 +273,27 @@ config EP93XX_DMA
 	help
 	  Enable support for the Cirrus Logic EP93xx M2P/M2M DMA controller.
 
+config AL_DMA
+	bool "Annapurna Labs DMA support"
+	depends on ARCH_ALPINE
+	select DMA_ENGINE
+	select ASYNC_TX_ENABLE_CHANNEL_SWITCH
+	help
+	  Enable support for the Annapurna Labs DMA and RAID acceleration 
+	  engine.
+
+config AL_DMA_STATS
+	bool "Annapurna Labs DMA statistics enabled"
+	depends on AL_DMA
+	help
+	  Enable Annapurna Labs DMA and RAID acceleration engine statistics.
+
+config AL_DMA_PCI_IOV
+	bool "Annapurna Labs DMA Virtual Function enabled"
+	depends on AL_DMA
+	help
+	  Enable Annapurna Labs DMA Virtual Function.
+
 config DMA_ENGINE
 	bool
 
@@ -261,9 +311,19 @@ config NET_DMA
 	  Say Y here if you enabled INTEL_IOATDMA or FSL_DMA, otherwise
 	  say N.
 
+config SPLICE_NET_DMA_SUPPORT
+        bool "Net DMA support for splice"
+	depends on NET_DMA && !HIGHMEM
+	default n
+	help
+	  This enables the use of DMA engines in the network stack to
+	  offload splice operations, freeing CPU cycles.
+
+	  If unsure, say N.
+
 config ASYNC_TX_DMA
 	bool "Async_tx: Offload support for the async_tx api"
-	depends on DMA_ENGINE
+	depends on DMA_ENGINE && (!DMA_CACHE_RWFO || AURORA_IO_CACHE_COHERENCY)
 	help
 	  This allows the async_tx api to take advantage of offload engines for
 	  memcpy, memset, xor, and raid6 p+q operations.  If your platform has
@@ -271,6 +331,15 @@ config ASYNC_TX_DMA
 	  MD_RAID456 say Y.
 
 	  If unsure, say N.
+
+config RAID_ZERO_COPY
+        bool "Optimized DMA/XOR offload: reduce raid5 memcpy which offloaded for dma"
+        depends on ASYNC_TX_DMA && SYNO_COMCERTO
+        help
+          This allows the async_tx api try to reduce raid5 memcpy operations for
+          dma. If you have dma device to support memcpy offloading, you can set
+          it as Y, else N.
+
 
 config DMATEST
 	tristate "DMA Test client"

@@ -122,7 +122,6 @@ static void process_queued_ios(struct work_struct *work);
 static void trigger_event(struct work_struct *work);
 static void activate_path(struct work_struct *work);
 
-
 /*-----------------------------------------------
  * Allocation routines
  *-----------------------------------------------*/
@@ -225,7 +224,6 @@ static void free_multipath(struct multipath *m)
 	mempool_destroy(m->mpio_pool);
 	kfree(m);
 }
-
 
 /*-----------------------------------------------
  * Path selection

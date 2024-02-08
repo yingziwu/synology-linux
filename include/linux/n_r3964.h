@@ -11,7 +11,10 @@
  * Author:
  * L. Haag
  *
- * $Log: r3964.h,v $
+ * $Log: n_r3964.h,v $
+ * Revision 1.1.1.1  2010/04/15 12:28:23  khchen
+ * log message
+ *
  * Revision 1.4  2005/12/21 19:54:24  Kurt Huwig <kurt huwig de>
  * Fixed HZ usage on 2.6 kernels
  * Removed unnecessary include
@@ -126,7 +129,6 @@ struct r3964_client_info {
 	int            msg_count;
 };
 
-
 #endif
 
 /* types for msg_id: */
@@ -147,7 +149,6 @@ struct r3964_client_message {
 };
 
 #define R3964_MTU      256
-
 
 #ifdef __KERNEL__
 
@@ -196,7 +197,6 @@ struct r3964_block_header
 #define R3964_BCC   0x4000
 #define R3964_DEBUG 0x8000
 
-
 struct r3964_info {
 	spinlock_t     lock;
 	struct tty_struct *tty;
@@ -217,7 +217,6 @@ struct r3964_info {
 	unsigned char bcc;
         unsigned int  blocks_in_rx_queue;
 	  
-	
 	struct r3964_client_info *firstClient;
 	unsigned int state;
 	unsigned int flags;

@@ -1,9 +1,12 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_UNISTD_32_H
 #define _ASM_X86_UNISTD_32_H
 
-/*
- * This file contains the system call numbers.
- */
+#if 1  
+#include <linux/syno.h>
+#endif
 
 #define __NR_restart_syscall      0
 #define __NR_exit		  1
@@ -81,7 +84,7 @@
 #define __NR_sigpending		 73
 #define __NR_sethostname	 74
 #define __NR_setrlimit		 75
-#define __NR_getrlimit		 76   /* Back compatible 2Gig limited rlimit */
+#define __NR_getrlimit		 76    
 #define __NR_getrusage		 77
 #define __NR_gettimeofday	 78
 #define __NR_settimeofday	 79
@@ -142,7 +145,7 @@
 #define __NR_bdflush		134
 #define __NR_sysfs		135
 #define __NR_personality	136
-#define __NR_afs_syscall	137 /* Syscall for Andrew File System */
+#define __NR_afs_syscall	137  
 #define __NR_setfsuid		138
 #define __NR_setfsgid		139
 #define __NR__llseek		140
@@ -193,10 +196,10 @@
 #define __NR_capset		185
 #define __NR_sigaltstack	186
 #define __NR_sendfile		187
-#define __NR_getpmsg		188	/* some people actually want streams */
-#define __NR_putpmsg		189	/* some people actually want streams */
+#define __NR_getpmsg		188	 
+#define __NR_putpmsg		189	 
 #define __NR_vfork		190
-#define __NR_ugetrlimit		191	/* SuS compliant getrlimit */
+#define __NR_ugetrlimit		191	 
 #define __NR_mmap2		192
 #define __NR_truncate64		193
 #define __NR_ftruncate64	194
@@ -225,10 +228,10 @@
 #define __NR_pivot_root		217
 #define __NR_mincore		218
 #define __NR_madvise		219
-#define __NR_madvise1		219	/* delete when C lib stub is removed */
+#define __NR_madvise1		219	 
 #define __NR_getdents64		220
 #define __NR_fcntl64		221
-/* 223 is unused */
+ 
 #define __NR_gettid		224
 #define __NR_readahead		225
 #define __NR_setxattr		226
@@ -256,7 +259,7 @@
 #define __NR_io_submit		248
 #define __NR_io_cancel		249
 #define __NR_fadvise64		250
-/* 251 is available for reuse (was briefly sys_set_zone_reclaim) */
+ 
 #define __NR_exit_group		252
 #define __NR_lookup_dcookie	253
 #define __NR_epoll_create	254
@@ -290,7 +293,7 @@
 #define __NR_mq_getsetattr	(__NR_mq_open+5)
 #define __NR_kexec_load		283
 #define __NR_waitid		284
-/* #define __NR_sys_setaltroot	285 */
+ 
 #define __NR_add_key		286
 #define __NR_request_key	287
 #define __NR_keyctl		288
@@ -355,9 +358,181 @@
 #define __NR_process_vm_readv	347
 #define __NR_process_vm_writev	348
 
-#ifdef __KERNEL__
+#ifdef MY_ABC_HERE
+#define __NR_SYNOUtime                          402
+#define SYNOUtime(arg1, arg2)                   syscall(__NR_SYNOUtime, arg1, arg2)
+#endif
 
+#ifdef MY_ABC_HERE
+#define __NR_SYNOArchiveBit                     403
+#define SYNOArchiveBit(arg1, arg2)              syscall(__NR_SYNOArchiveBit, arg1, arg2)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_recvfile                           404
+#define recvfile(arg1,arg2,arg3,arg4,arg5)      syscall(__NR_recvfile, arg1, arg2, arg3, arg4, arg5)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_SYNOMTDAlloc                       405
+#define SYNOMTDAlloc(arg1)                      syscall(__NR_SYNOMTDAlloc, arg1)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_SYNOCaselessStat64                 406
+#define __NR_SYNOCaselessLStat64                407
+
+#if !defined(__KERNEL__)
+#if (_FILE_OFFSET_BITS == 64)
+#define SYNOCaselessStat(arg1, arg2)            syscall(__NR_SYNOCaselessStat64, arg1, arg2)
+#define SYNOCaselessLStat(arg1, arg2)           syscall(__NR_SYNOCaselessLStat64, arg1, arg2)
+#endif  
+#endif  
+#endif  
+
+#ifdef MY_ABC_HERE
+#define __NR_SYNOEcryptName                     410
+#define __NR_SYNODecryptName                    411
+#define SYNOEcryptName(arg1, arg2)              syscall(__NR_SYNOEcryptName, arg1, arg2)
+#define SYNODecryptName(arg1, arg2, arg3)       syscall(__NR_SYNODecryptName, arg1, arg2, arg3)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_SYNOACLCheckPerm                   412
+#define SYNOACLSysCheckPerm(arg1, arg2)         syscall(__NR_SYNOACLCheckPerm, arg1, arg2)
+#define __NR_SYNOACLIsSupport                   413
+#define SYNOACLSysIsSupport(arg1, arg2, arg3)   syscall(__NR_SYNOACLIsSupport, arg1, arg2, arg3)
+#define __NR_SYNOACLGetPerm                     414
+#define SYNOACLSysGetPerm(arg1, arg2)           syscall(__NR_SYNOACLGetPerm, arg1, arg2)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_SYNOStat64                         419
+#define __NR_SYNOFStat64                        420
+#define __NR_SYNOLStat64                        421
+
+#if !defined(__KERNEL__)
+ 
+#if (_FILE_OFFSET_BITS == 64)
+#define SYNOStat(arg1, arg2, arg3)              syscall(__NR_SYNOStat64, arg1, arg2, arg3)
+#define SYNOFStat(arg1, arg2, arg3)             syscall(__NR_SYNOFStat64, arg1, arg2, arg3)
+#define SYNOLStat(arg1, arg2, arg3)             syscall(__NR_SYNOLStat64, arg1, arg2, arg3)
+#endif
+#endif  
+#endif  
+
+#ifdef MY_ABC_HERE
+#define __NR_SYNONotifyInit                     422
+#define SYNONotifyInit(arg1)                    syscall(__NR_SYNONotifyInit, arg1)
+#define __NR_SYNONotifyAddWatch                 423
+#define SYNONotifyAddWatch(arg1, arg2, arg3)    syscall(__NR_SYNONotifyAddWatch, arg1, arg2, arg3)
+#define __NR_SYNONotifyRemoveWatch              424
+#define SYNONotifyRemoveWatch(arg1, arg2, arg3) syscall(__NR_SYNONotifyRemoveWatch, arg1, arg2, arg3)
+#define __NR_SYNONotifyAddWatch32               425
+#define SYNONotifyAddWatch32(arg1, arg2, arg3)  syscall(__NR_SYNONotifyAddWatch32, arg1, arg2, arg3)
+#define __NR_SYNONotifyRemoveWatch32            426
+#define SYNONotifyRemoveWatch32(arg1,arg2,arg3) syscall(__NR_SYNONotifyRemoveWatch32, arg1, arg2, arg3)
+#endif  
+
+#ifdef MY_ABC_HERE
+#define __NR_SYNOArchiveOverwrite               427
+#define SYNOArchiveOverwrite(arg1, arg2)        syscall(__NR_SYNOArchiveOverwrite, arg1, arg2)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __syscall_return(type, res) \
+do { \
+	if ((unsigned long)(res) >= (unsigned long)(-(128 + 1))) { \
+		errno = -(res); \
+		res = -1; \
+	} \
+	return (type) (res); \
+} while (0)
+
+#define _syscall0(type,name) \
+type name(void) \
+{ \
+long __res; \
+__asm__ volatile ("int $0x80" \
+	: "=a" (__res) \
+	: "0" (__NR_##name)); \
+__syscall_return(type,__res); \
+}
+
+#define _syscall1(type,name,type1,arg1) \
+type name(type1 arg1) \
+{ \
+long __res; \
+__asm__ volatile ("int $0x80" \
+	: "=a" (__res) \
+	: "0" (__NR_##name),"b" ((long)(arg1)) : "memory"); \
+__syscall_return(type,__res); \
+}
+
+#define _syscall2(type,name,type1,arg1,type2,arg2) \
+type name(type1 arg1,type2 arg2) \
+{ \
+long __res; \
+__asm__ volatile ("int $0x80" \
+	: "=a" (__res) \
+	: "0" (__NR_##name),"b" ((long)(arg1)),"c" ((long)(arg2)) : "memory"); \
+__syscall_return(type,__res); \
+}
+
+#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
+type name(type1 arg1,type2 arg2,type3 arg3) \
+{ \
+long __res; \
+__asm__ volatile ("int $0x80" \
+	: "=a" (__res) \
+	: "0" (__NR_##name),"b" ((long)(arg1)),"c" ((long)(arg2)), \
+		  "d" ((long)(arg3)) : "memory"); \
+__syscall_return(type,__res); \
+}
+
+#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
+{ \
+long __res; \
+__asm__ volatile ("int $0x80" \
+	: "=a" (__res) \
+	: "0" (__NR_##name),"b" ((long)(arg1)),"c" ((long)(arg2)), \
+	  "d" ((long)(arg3)),"S" ((long)(arg4)) : "memory"); \
+__syscall_return(type,__res); \
+} 
+
+#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
+	  type5,arg5) \
+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
+{ \
+long __res; \
+__asm__ volatile ("int $0x80" \
+	: "=a" (__res) \
+	: "0" (__NR_##name),"b" ((long)(arg1)),"c" ((long)(arg2)), \
+	  "d" ((long)(arg3)),"S" ((long)(arg4)),"D" ((long)(arg5)) : "memory"); \
+__syscall_return(type,__res); \
+}
+
+#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
+	  type5,arg5,type6,arg6) \
+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5,type6 arg6) \
+{ \
+long __res; \
+__asm__ volatile ("push %%ebp ; movl %%eax,%%ebp ; movl %1,%%eax ; int $0x80 ; pop %%ebp" \
+	: "=a" (__res) \
+	: "i" (__NR_##name),"b" ((long)(arg1)),"c" ((long)(arg2)), \
+	  "d" ((long)(arg3)),"S" ((long)(arg4)),"D" ((long)(arg5)), \
+	  "0" ((long)(arg6)) : "memory"); \
+__syscall_return(type,__res); \
+}
+#endif
+
+#ifdef __KERNEL__
+#ifdef MY_ABC_HERE
+#define NR_syscalls 420
+#else
 #define NR_syscalls 349
+#endif
 
 #define __ARCH_WANT_IPC_PARSE_VERSION
 #define __ARCH_WANT_OLD_READDIR
@@ -387,15 +562,9 @@
 #define __ARCH_WANT_SYS_RT_SIGACTION
 #define __ARCH_WANT_SYS_RT_SIGSUSPEND
 
-/*
- * "Conditional" syscalls
- *
- * What we want is __attribute__((weak,alias("sys_ni_syscall"))),
- * but it doesn't work on all toolchains, so we just do it by hand
- */
 #ifndef cond_syscall
 #define cond_syscall(x) asm(".weak\t" #x "\n\t.set\t" #x ",sys_ni_syscall")
 #endif
 
-#endif /* __KERNEL__ */
-#endif /* _ASM_X86_UNISTD_32_H */
+#endif  
+#endif  

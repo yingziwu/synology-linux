@@ -22,7 +22,6 @@
 #include <linux/kernel.h>
 #include <linux/utsname.h>
 
-
 #include "u_ether.h"
 
 #define DRIVER_DESC		"NCM Gadget"
@@ -96,7 +95,6 @@ static const struct usb_descriptor_header *otg_desc[] = {
 	(struct usb_descriptor_header *) &otg_descriptor,
 	NULL,
 };
-
 
 /* string IDs are assigned dynamically */
 
@@ -173,7 +171,6 @@ static int __init gncm_bind(struct usb_composite_dev *cdev)
 		device_desc.bcdDevice =
 			cpu_to_le16(0x0300 | 0x0099);
 	}
-
 
 	/* Allocate string descriptor numbers ... note that string
 	 * contents can be overridden by the composite_dev glue.

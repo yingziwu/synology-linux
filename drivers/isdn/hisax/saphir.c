@@ -1,4 +1,4 @@
-/* $Id: saphir.c,v 1.10.2.4 2004/01/13 23:48:39 keil Exp $
+/* $Id: saphir.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * low level stuff for HST Saphir 1
  *
@@ -18,7 +18,7 @@
 #include "hscx.h"
 #include "isdnl1.h"
 
-static char *saphir_rev = "$Revision: 1.10.2.4 $";
+static char *saphir_rev = "$Revision: 1.1.1.1 $";
 
 #define byteout(addr,val) outb(val,addr)
 #define bytein(addr) inb(addr)
@@ -46,7 +46,6 @@ readfifo(unsigned int ale, unsigned int adr, u_char off, u_char * data, int size
 	byteout(ale, off);
 	insb(adr, data, size);
 }
-
 
 static inline void
 writereg(unsigned int ale, unsigned int adr, u_char off, u_char data)
@@ -238,7 +237,6 @@ saphir_card_msg(struct IsdnCardState *cs, int mt, void *arg)
 	}
 	return(0);
 }
-
 
 int __devinit
 setup_saphir(struct IsdnCard *card)

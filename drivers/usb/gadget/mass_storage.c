@@ -12,7 +12,6 @@
  * (at your option) any later version.
  */
 
-
 /*
  * The Mass Storage Gadget acts as a USB Mass Storage device,
  * appearing to the host as a disk drive or as a CD-ROM drive.  In
@@ -27,11 +26,9 @@
  * comments in this file for more detailed description.
  */
 
-
 #include <linux/kernel.h>
 #include <linux/utsname.h>
 #include <linux/usb/ch9.h>
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -85,7 +82,6 @@ static const struct usb_descriptor_header *otg_desc[] = {
 	NULL,
 };
 
-
 /****************************** Configurations ******************************/
 
 static struct fsg_module_parameters mod_data = {
@@ -136,7 +132,6 @@ static struct usb_configuration msg_config_driver = {
 	.bmAttributes		= USB_CONFIG_ATT_SELFPOWER,
 };
 
-
 /****************************** Gadget Bind ******************************/
 
 static int __init msg_bind(struct usb_composite_dev *cdev)
@@ -152,7 +147,6 @@ static int __init msg_bind(struct usb_composite_dev *cdev)
 	set_bit(0, &msg_registered);
 	return 0;
 }
-
 
 /****************************** Some noise ******************************/
 

@@ -568,7 +568,6 @@ static int iwl3945_tx_skb(struct iwl_priv *priv, struct sk_buff *skb)
 	/* Copy MAC header from skb into command buffer */
 	memcpy(tx_cmd->hdr, hdr, hdr_len);
 
-
 	if (info->control.hw_key)
 		iwl3945_build_tx_cmd_hwcrypto(priv, info, out_cmd, skb, sta_id);
 
@@ -628,7 +627,6 @@ static int iwl3945_tx_skb(struct iwl_priv *priv, struct sk_buff *skb)
 	priv->cfg->ops->lib->txq_attach_buf_to_tfd(priv, txq,
 						   txcmd_phys, len, 1, 0);
 
-
 	/* Set up TFD's 2nd entry to point directly to remainder of skb,
 	 * if any (802.11 null frames have no payload). */
 	len = skb->len - hdr_len;
@@ -639,7 +637,6 @@ static int iwl3945_tx_skb(struct iwl_priv *priv, struct sk_buff *skb)
 							   phys_addr, len,
 							   0, U32_PAD(len));
 	}
-
 
 	/* Tell device the write index *just past* this latest filled TFD */
 	q->write_ptr = iwl_legacy_queue_inc_wrap(q->write_ptr, q->n_bd);
@@ -832,7 +829,6 @@ static void iwl3945_rx_card_state_notif(struct iwl_priv *priv,
 	else
 		clear_bit(STATUS_RF_KILL_HW, &priv->status);
 
-
 	iwl_legacy_scan_cancel(priv);
 
 	if ((test_bit(STATUS_RF_KILL_HW, &status) !=
@@ -992,7 +988,6 @@ static void iwl3945_rx_queue_restock(struct iwl_priv *priv)
 	if (rxq->free_count <= RX_LOW_WATERMARK)
 		queue_work(priv->workqueue, &priv->rx_replenish);
 
-
 	/* If we've added more space for the firmware to place data, tell it.
 	 * Increment device's write pointer in multiples of 8. */
 	if ((rxq->write_actual != (rxq->write & ~0x7))
@@ -1127,7 +1122,6 @@ static void iwl3945_rx_replenish_now(struct iwl_priv *priv)
 	iwl3945_rx_queue_restock(priv);
 }
 
-
 /* Assumes that the skb field of the buffers in 'pool' is kept accurate.
  * If an SKB has been detached, the POOL needs to have its SKB set to NULL
  * This free routine walks the list of POOL entries and if SKB is set to
@@ -1153,7 +1147,6 @@ static void iwl3945_rx_queue_free(struct iwl_priv *priv, struct iwl_rx_queue *rx
 	rxq->bd = NULL;
 	rxq->rb_stts  = NULL;
 }
-
 
 /* Convert linear signal-to-noise ratio into dB */
 static u8 ratio2dB[100] = {
@@ -1370,7 +1363,6 @@ void iwl3945_dump_nic_error_log(struct iwl_priv *priv)
 		IWL_ERR(priv, "Not valid error log pointer 0x%08X\n", base);
 		return;
 	}
-
 
 	count = iwl_legacy_read_targ_mem(priv, base);
 
@@ -1721,14 +1713,12 @@ static int iwl3945_verify_inst_full(struct iwl_priv *priv, __le32 *image, u32 le
 		}
 	}
 
-
 	if (!errcnt)
 		IWL_DEBUG_INFO(priv,
 			"ucode image in INSTRUCTION memory is good\n");
 
 	return rc;
 }
-
 
 /**
  * iwl3945_verify_inst_sparse - verify runtime uCode image in card vs. host,
@@ -1766,7 +1756,6 @@ static int iwl3945_verify_inst_sparse(struct iwl_priv *priv, __le32 *image, u32 
 
 	return rc;
 }
-
 
 /**
  * iwl3945_verify_ucode - determine which instruction image is in SRAM,
@@ -1956,7 +1945,6 @@ static int iwl3945_read_ucode(struct iwl_priv *priv)
 	IWL_DEBUG_INFO(priv, "f/w package hdr boot inst size = %u\n",
 		       boot_size);
 
-
 	/* Verify size of file vs. image size info in file's header */
 	if (ucode_raw->size != iwl3945_ucode_get_header_size(api_ver) +
 		inst_size + data_size + init_size +
@@ -2104,7 +2092,6 @@ static int iwl3945_read_ucode(struct iwl_priv *priv)
  error:
 	return ret;
 }
-
 
 /**
  * iwl3945_set_ucode_ptrs - Set uCode address location
@@ -2485,7 +2472,6 @@ static int __iwl3945_up(struct iwl_priv *priv)
 	IWL_ERR(priv, "Unable to initialize device after %d attempts.\n", i);
 	return -EIO;
 }
-
 
 /*****************************************************************************
  *
@@ -3042,7 +3028,6 @@ static int iwl3945_mac_sta_add(struct ieee80211_hw *hw,
 			sta->addr);
 	sta_priv->common.sta_id = IWL_INVALID_STATION;
 
-
 	ret = iwl_legacy_add_station_common(priv,
 				&priv->contexts[IWL_RXON_CTX_BSS],
 				     sta->addr, is_ap, sta, &sta_id);
@@ -3112,7 +3097,6 @@ static void iwl3945_configure_filter(struct ieee80211_hw *hw,
 	*total_flags &= FIF_OTHER_BSS | FIF_ALLMULTI | FIF_PROMISC_IN_BSS |
 			FIF_BCN_PRBRESP_PROMISC | FIF_CONTROL;
 }
-
 
 /*****************************************************************************
  *
@@ -3372,7 +3356,6 @@ static ssize_t iwl3945_show_retry_rate(struct device *d,
 static DEVICE_ATTR(retry_rate, S_IWUSR | S_IRUSR, iwl3945_show_retry_rate,
 		   iwl3945_store_retry_rate);
 
-
 static ssize_t iwl3945_show_channels(struct device *d,
 			     struct device_attribute *attr, char *buf)
 {
@@ -3413,7 +3396,6 @@ static ssize_t iwl3945_store_antenna(struct device *d,
 		iwl3945_mod_params.antenna = (enum iwl3945_antenna)ant;
 	} else
 		IWL_DEBUG_INFO(priv, "Bad antenna select value %d.\n", ant);
-
 
 	return count;
 }
@@ -3946,7 +3928,6 @@ static void __devexit iwl3945_pci_remove(struct pci_dev *pdev)
 
 	ieee80211_free_hw(priv->hw);
 }
-
 
 /*****************************************************************************
  *

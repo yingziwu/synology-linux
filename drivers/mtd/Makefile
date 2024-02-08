@@ -32,3 +32,7 @@ inftl-objs		:= inftlcore.o inftlmount.o
 obj-y		+= chips/ lpddr/ maps/ devices/ nand/ onenand/ tests/
 
 obj-$(CONFIG_MTD_UBI)		+= ubi/
+ifeq ($(CONFIG_PLAT_ARMADA),y)
+obj-$(CONFIG_MTD)		+= ../../arch/arm/plat-armada/mv_drivers_lsp/mv_mtd/
+endif
+

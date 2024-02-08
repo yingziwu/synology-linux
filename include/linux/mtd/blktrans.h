@@ -23,6 +23,9 @@
 #include <linux/mutex.h>
 #include <linux/kref.h>
 #include <linux/sysfs.h>
+#ifdef CONFIG_ARCH_GEN3
+#include <linux/semaphore.h>
+#endif
 
 struct hd_geometry;
 struct mtd_info;
@@ -44,6 +47,9 @@ struct mtd_blktrans_dev {
 	struct gendisk *disk;
 	struct attribute_group *disk_attributes;
 	struct task_struct *thread;
+#ifdef CONFIG_ARCH_GEN3	
+	struct semaphore 	thread_sem;
+#endif	
 	struct request_queue *rq;
 	spinlock_t queue_lock;
 	void *priv;
@@ -88,6 +94,5 @@ extern int deregister_mtd_blktrans(struct mtd_blktrans_ops *tr);
 extern int add_mtd_blktrans_dev(struct mtd_blktrans_dev *dev);
 extern int del_mtd_blktrans_dev(struct mtd_blktrans_dev *dev);
 extern int mtd_blktrans_cease_background(struct mtd_blktrans_dev *dev);
-
 
 #endif /* __MTD_TRANS_H__ */

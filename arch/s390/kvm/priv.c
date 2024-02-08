@@ -349,7 +349,6 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
 		return -EOPNOTSUPP;
 
-
 	/* we must resolve the address without holding the mmap semaphore.
 	 * This is ok since the userspace hypervisor is not supposed to change
 	 * the mapping while the guest queries the memory. Otherwise the guest
@@ -380,4 +379,3 @@ int kvm_s390_handle_e5(struct kvm_vcpu *vcpu)
 		return handle_tprot(vcpu);
 	return -EOPNOTSUPP;
 }
-

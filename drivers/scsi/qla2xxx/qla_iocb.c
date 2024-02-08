@@ -1041,7 +1041,6 @@ qla24xx_walk_and_build_prot_sglist(struct qla_hw_data *ha, srb_t *sp,
 	scsi_qla_host_t *vha = pci_get_drvdata(ha->pdev);
 	uint8_t		*cp;
 
-
 	cmd = sp->cmd;
 	scsi_for_each_prot_sg(cmd, sg, tot_dsds, i) {
 		dma_addr_t	sle_dma;
@@ -1502,7 +1501,6 @@ queuing_error:
 	return QLA_FUNCTION_FAILED;
 }
 
-
 /**
  * qla24xx_dif_start_scsi() - Send a SCSI command to the ISP
  * @sp: command to send to the ISP
@@ -1706,7 +1704,6 @@ queuing_error:
 	spin_unlock_irqrestore(&ha->hardware_lock, flags);
 	return QLA_FUNCTION_FAILED;
 }
-
 
 static void qla25xx_set_que(srb_t *sp, struct rsp_que **rsp)
 {

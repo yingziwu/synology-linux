@@ -706,7 +706,6 @@ netxen_nic_validate_fw(struct netxen_adapter *adapter)
 	return 0;
 }
 
-
 static int
 netxen_nic_validate_product_offs(struct netxen_adapter *adapter)
 {
@@ -1263,7 +1262,6 @@ next:
 	}
 }
 
-
 void
 netxen_release_firmware(struct netxen_adapter *adapter)
 {
@@ -1584,7 +1582,6 @@ netxen_process_rcv(struct netxen_adapter *adapter,
 		skb_put(skb, rds_ring->skb_size);
 	else
 		skb_put(skb, length);
-
 
 	if (pkt_offset)
 		skb_pull(skb, pkt_offset);
@@ -1946,4 +1943,3 @@ void netxen_nic_clear_stats(struct netxen_adapter *adapter)
 {
 	memset(&adapter->stats, 0, sizeof(adapter->stats));
 }
-

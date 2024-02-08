@@ -1,30 +1,7 @@
-/*
- * Synopsys DesignWare I2C adapter driver (master only).
- *
- * Based on the TI DAVINCI I2C adapter driver.
- *
- * Copyright (C) 2006 Texas Instruments.
- * Copyright (C) 2007 MontaVista Software Inc.
- * Copyright (C) 2009 Provigent Ltd.
- *
- * ----------------------------------------------------------------------------
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * ----------------------------------------------------------------------------
- *
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/delay.h>
@@ -34,6 +11,9 @@
 #include <linux/sched.h>
 #include <linux/err.h>
 #include <linux/interrupt.h>
+#ifdef MY_DEF_HERE
+#include <linux/of_i2c.h>
+#endif
 #include <linux/platform_device.h>
 #include <linux/io.h>
 #include <linux/slab.h>
@@ -55,7 +35,6 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
 	struct resource *mem, *ioarea;
 	int irq, r;
 
-	/* NOTE: driver uses the static register mapping */
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!mem) {
 		dev_err(&pdev->dev, "no mem resource?\n");
@@ -65,7 +44,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
 		dev_err(&pdev->dev, "no irq resource?\n");
-		return irq; /* -ENXIO */
+		return irq;  
 	}
 
 	ioarea = request_mem_region(mem->start, resource_size(mem),
@@ -137,6 +116,9 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
 			sizeof(adap->name));
 	adap->algo = &i2c_dw_algo;
 	adap->dev.parent = &pdev->dev;
+#ifdef MY_DEF_HERE
+	adap->dev.of_node = pdev->dev.of_node;
+#endif
 
 	adap->nr = pdev->id;
 	r = i2c_add_numbered_adapter(adap);
@@ -144,6 +126,9 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "failure adding adapter\n");
 		goto err_free_irq;
 	}
+#ifdef MY_DEF_HERE
+	of_i2c_register_devices(adap);
+#endif
 
 	return 0;
 
@@ -187,7 +172,14 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
 	return 0;
 }
 
-/* work with hotplug and coldplug */
+#ifdef MY_DEF_HERE
+static const struct of_device_id dw_i2c_of_match[] = {
+		{ .compatible = "snps,designware-i2c", },
+	{},
+};
+MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+#endif
+ 
 MODULE_ALIAS("platform:i2c_designware");
 
 static struct platform_driver dw_i2c_driver = {
@@ -195,6 +187,9 @@ static struct platform_driver dw_i2c_driver = {
 	.driver		= {
 		.name	= "i2c_designware",
 		.owner	= THIS_MODULE,
+#ifdef MY_DEF_HERE
+		.of_match_table = of_match_ptr(dw_i2c_of_match),
+#endif
 	},
 };
 

@@ -35,7 +35,6 @@
 
 #define IEEE80211_IBSS_MAX_STA_ENTRIES 128
 
-
 static void ieee80211_rx_mgmt_auth_ibss(struct ieee80211_sub_if_data *sdata,
 					struct ieee80211_mgmt *mgmt,
 					size_t len)

@@ -553,7 +553,6 @@ static void transport_lun_remove_cmd(struct se_cmd *cmd)
 	transport_all_task_dev_remove_state(cmd);
 	spin_unlock_irqrestore(&cmd->t_state_lock, flags);
 
-
 check_lun:
 	spin_lock_irqsave(&lun->lun_cmd_lock, flags);
 	if (atomic_read(&cmd->transport_lun_active)) {
@@ -3537,7 +3536,6 @@ static inline sector_t transport_limit_task_sectors(
 
 	return sectors;
 }
-
 
 /*
  * This function can be used by HW target mode drivers to create a linked

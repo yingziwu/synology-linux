@@ -114,7 +114,6 @@ static unsigned int intc_irq_startup(struct irq_data *d)
 	else
 		__raw_writeb(5, MCFINTC0_ICR0 + irq);
 
-
 	intc_irq_unmask(d);
 	return 0;
 }
@@ -186,4 +185,3 @@ void __init init_IRQ(void)
 		irq_set_handler(irq, handle_level_irq);
 	}
 }
-
