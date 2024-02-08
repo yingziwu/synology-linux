@@ -539,10 +539,6 @@ static int uart_write(struct tty_struct *tty,
 	struct circ_buf *circ;
 	unsigned long flags;
 	int c, ret = 0;
-#ifdef MY_ABC_HERE
-	extern void (*funcSYNOConsoleProhibitEvent)(void);
-	static unsigned long last_jiffies = INITIAL_JIFFIES;
-#endif /* MY_ABC_HERE */
 
 #ifdef MY_DEF_HERE
 	/* We need to delay 150 ms avoid micro p buffer queue overflow */
@@ -570,12 +566,6 @@ static int uart_write(struct tty_struct *tty,
 
 #ifdef MY_ABC_HERE
 	if (1 == gSynoForbidConsole && !strcmp(tty->name, "ttyS0")) {
-		if (time_after(jiffies, last_jiffies + msecs_to_jiffies(3000))) {
-			if (NULL != funcSYNOConsoleProhibitEvent) {
-				funcSYNOConsoleProhibitEvent();
-			}
-			last_jiffies = jiffies;
-		}
 		return count;
 	}
 #endif /* MY_ABC_HERE */
@@ -1055,7 +1045,7 @@ static int uart_break_ctl(struct tty_struct *tty, int break_state)
 
 	mutex_lock(&port->mutex);
 
-	if (uport->type != PORT_UNKNOWN)
+	if (uport->type != PORT_UNKNOWN && uport->ops->break_ctl)
 		uport->ops->break_ctl(uport, break_state);
 
 	mutex_unlock(&port->mutex);
@@ -2293,7 +2283,8 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
 		 * We probably don't need a spinlock around this, but
 		 */
 		spin_lock_irqsave(&port->lock, flags);
-		port->ops->set_mctrl(port, port->mctrl & TIOCM_DTR);
+		port->mctrl &= TIOCM_DTR;
+		port->ops->set_mctrl(port, port->mctrl);
 		spin_unlock_irqrestore(&port->lock, flags);
 
 		/*
@@ -2681,6 +2672,7 @@ extern int syno_pciepath_dts_pattern_get(struct pci_dev *pdev, char *szPciePath,
 static void syno_pciepath_enum(struct device *dev, char *buf) {
 	struct pci_dev *pdev = NULL;
 	char sztemp[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
+	char buftemp[512] = {'\0'};
 
 	if (NULL == buf || NULL == dev) {
 		return;
@@ -2691,8 +2683,9 @@ static void syno_pciepath_enum(struct device *dev, char *buf) {
 		return;
 	}
 
-	if (NULL != sztemp) {
-		snprintf(buf, 512, "%spciepath=%s", buf, sztemp);
+	if ('\0' != sztemp[0]) {
+		snprintf(buftemp, sizeof(buftemp), "%s", buf);
+		snprintf(buf, 512, "%spciepath=%s", buftemp, sztemp);
 	}
 }
 
@@ -2812,6 +2805,7 @@ int uart_add_one_port(struct uart_driver *drv, struct uart_port *uport)
 	if (uport->cons && uport->dev)
 		of_console_check(uport->dev->of_node, uport->cons->name, uport->line);
 
+	tty_port_link_device(port, drv->tty_driver, uport->line);
 	uart_configure_port(drv, state, uport);
 
 	num_groups = 2;

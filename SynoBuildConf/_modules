@@ -179,6 +179,9 @@ ModUSBAlsa=" \
 	${KernelDir}/sound/core/snd-rawmidi.ko \
 	${KernelDir}/sound/usb/hiface/snd-usb-hiface.ko \
 	"
+ModUASP=" \
+	${KernelDir}/drivers/usb/storage/uas.ko \
+	"
 ModAlsa=" \
 	${KernelDir}/sound/core/snd-pcm.ko \
 	${KernelDir}/sound/core/seq/snd-seq-device.ko \
@@ -223,6 +226,9 @@ ModHDMIAudio=" \
 	${KernelDir}/sound/pci/hda/snd-hda-codec.ko \
 	${KernelDir}/sound/pci/hda/snd-hda-codec-hdmi.ko \
 	${KernelDir}/sound/pci/hda/snd-hda-intel.ko \
+	"
+ModDMCrypt="\
+	${KernelDir}/drivers/md/dm-crypt.ko \
 	"
 
 BasicModuleList=" \
@@ -327,6 +333,9 @@ ModIPsec=" \
 ModZram=" \
 	${KernelDir}/drivers/block/zram/zram.ko \
 	"
+ModIosf=" \
+	${KernelDir}/arch/x86/platform/intel/iosf_mbi.ko \
+	"
 ModVaapi=" \
 	${KernelDir}/drivers/gpu/drm/drm.ko \
 	${KernelDir}/arch/x86/video/fbdev.ko \
@@ -344,7 +353,6 @@ ModVaapi=" \
 	${KernelDir}/drivers/acpi/video.ko \
 	${KernelDir}/drivers/gpu/drm/i915/i915.ko \
 	${KernelDir}/drivers/video/backlight/generic_bl.ko \
-	${KernelDir}/arch/x86/platform/intel/iosf_mbi.ko \
 	${KernelDir}/drivers/gpu/drm/drm_panel_orientation_quirks.ko \
 	"
 ModVirtualization=" \
@@ -375,9 +383,6 @@ ModATMEGA1608=" \
 	"
 ModI2C=" \
 	${KernelDir}/drivers/i2c/algos/i2c-algo-bit.ko \
-	"
-ModXFS=" \
-	${KernelDir}/fs/xfs/xfs.ko \
 	"
 ModSYNOCacheProtection=" \
 	${KernelDir}/fs/syno_cache_protection/syno_cache_protection.ko \
@@ -506,6 +511,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${KernelDir}/drivers/hwmon/adt7475.ko"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/hwmon/hwmon-vid.ko"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/hwmon/syno_smbus_hddmon.ko"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	APOLLOLAKE)
@@ -521,6 +528,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModEtronUSB}"
 		ModuleList="${ModuleList} ${ModZram}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
+		ModuleList="${ModuleList} ${ModIosf}"
 		ModuleList="${ModuleList} ${ModVaapi}"
 		ModuleList="${ModuleList} ${ModNFQ}"
 		ModuleList="${ModuleList} ${ModVirtualization}"
@@ -529,6 +537,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModDiskPwCtl}"
 		ModuleList="${ModuleList} ${ModNetConsole}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	KVMX64)
@@ -553,6 +562,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVirtio}"
 		ModuleList="${ModuleList} ${KernelDir}/lib/zlib_deflate/zlib_deflate.ko"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	REALTEK_RTD1296)
@@ -597,6 +607,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModNFQ}"
 		ModuleList="${ModuleList} ${ModOpenvswitch}"
 		ModuleList="${ModuleList} ${ModDiskPwCtl}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDockerIngress}"
 
 		;;
 	BROADWELLNK)
@@ -624,6 +636,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModFC}"
 		ModuleList="${ModuleList} ${ModATMEGA1608}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	BROADWELL)
@@ -651,6 +665,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModFC}"
 		ModuleList="${ModuleList} ${ModATMEGA1608}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	BROADWELLNTB)
@@ -678,6 +694,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModNTB}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModFC}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 
@@ -709,6 +727,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModNTBBrd}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModFC}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	PURLEY)
@@ -737,6 +757,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModLP3943}"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/i2c/busses/i2c-asm2824.ko"
 		ModuleList="${ModuleList} ${ModATMEGA1608}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	MARVELL_ARMADA37XX)
@@ -798,6 +820,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${KernelDir}/drivers/net/mdio.ko"
 		ModuleList="${ModuleList} ${ModNetConsole}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	NEXTKVMX64)
@@ -824,6 +848,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVirtio}"
 		ModuleList="${ModuleList} ${KernelDir}/lib/zlib_deflate/zlib_deflate.ko"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	GEMINILAKE)
@@ -840,6 +865,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModEtronUSB}"
 		ModuleList="${ModuleList} ${ModZram}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
+		ModuleList="${ModuleList} ${ModIosf}"
 		ModuleList="${ModuleList} ${ModVaapi}"
 		ModuleList="${ModuleList} ${ModNFQ}"
 		ModuleList="${ModuleList} ${ModVirtualization}"
@@ -849,6 +875,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModNetConsole}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModHDMIAudio}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	REALTEK_RTD1619)
@@ -883,6 +911,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 		ModuleList="${ModuleList} ${ModNFQ}"
 		ModuleList="${ModuleList} ${ModDiskPwCtl}"
+		ModuleList="${ModuleList} ${ModUASP}"
 
 		;;
 	SKYLAKED)
@@ -909,6 +938,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModNFQ}"
 		ModuleList="${ModuleList} ${ModNetConsole}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	V1000)
@@ -944,6 +975,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${KernelDir}/drivers/net/ethernet/amd/xgbe/amd-xgbe.ko"
 		ModuleList="${ModuleList} ${KernelDir}/lib/synolib/syno_uart2spi_logout.ko"
 		ModuleList="${ModuleList} ${ModFC}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	KVMCLOUD)
@@ -966,6 +999,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${KernelDir}/lib/zlib_deflate/zlib_deflate.ko"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModACPI}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	EPYC7002)
@@ -993,6 +1027,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${KernelDir}/arch/x86/kvm/kvm.ko"
 		ModuleList="${ModuleList} ${KernelDir}/arch/x86/kvm/kvm-amd.ko"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/pci/pci-stub.ko"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	R1000)
@@ -1020,6 +1056,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${KernelDir}/arch/x86/kvm/kvm.ko"
 		ModuleList="${ModuleList} ${KernelDir}/arch/x86/kvm/kvm-amd.ko"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/pci/pci-stub.ko"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	ICELAKED)
@@ -1046,6 +1084,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModNetConsole}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModFC}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	BROADWELLNKV2)
@@ -1073,6 +1113,36 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModFC}"
 		ModuleList="${ModuleList} ${ModATMEGA1608}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
+
+		;;
+
+	GEMINILAKEVS)
+		ModuleList="${ModuleList} ${ModBTRFS}"
+		ModuleList="${ModuleList} ${ModCryptoIntel}"
+		ModuleList="${ModuleList} ${ModI2C}"
+		ModuleList="${ModuleList} ${ModLP3943}"
+		ModuleList="${ModuleList} ${ModCPUFreq}"
+		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
+		ModuleList="${ModuleList} ${ModVlan}"
+		ModuleList="${ModuleList} ${ModUSBserial}"
+		ModuleList="${ModuleList} ${ModIPsec}"
+		ModuleList="${ModuleList} ${ModUSBModem}"
+		ModuleList="${ModuleList} ${ModEtronUSB}"
+		ModuleList="${ModuleList} ${ModZram}"
+		ModuleList="${ModuleList} ${ModIPv6Tun}"
+		ModuleList="${ModuleList} ${ModVaapi}"
+		ModuleList="${ModuleList} ${ModNFQ}"
+		ModuleList="${ModuleList} ${ModVirtualization}"
+		ModuleList="${ModuleList} ${ModVFIO}"
+		ModuleList="${ModuleList} ${ModOpenvswitch}"
+		ModuleList="${ModuleList} ${ModDiskPwCtl}"
+		ModuleList="${ModuleList} ${ModNetConsole}"
+		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModHDMIAudio}"
+		ModuleList="${ModuleList} ${ModUASP}"
+		ModuleList="${ModuleList} ${ModDMCrypt}"
 
 		;;
 	*)

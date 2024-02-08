@@ -65,6 +65,11 @@ struct btrfs_device {
 
 	spinlock_t io_lock ____cacheline_aligned;
 	int running_pending;
+	/* When true means this device has pending chunk alloc in
+	 * current transaction. Protected by chunk_mutex.
+	 */
+	bool has_pending_chunks;
+
 	/* regular prio bios */
 	struct btrfs_pending_bios pending_bios;
 	/* WRITE_SYNC bios */
@@ -226,6 +231,8 @@ BTRFS_DEVICE_GETSET_FUNCS(bytes_used);
 
 struct btrfs_fs_devices {
 	u8 fsid[BTRFS_FSID_SIZE]; /* FS specific uuid */
+	u8 metadata_uuid[BTRFS_FSID_SIZE];
+	bool fsid_change;
 
 	u64 num_devices;
 	u64 open_devices;
@@ -233,6 +240,10 @@ struct btrfs_fs_devices {
 	u64 missing_devices;
 	u64 total_rw_bytes;
 	u64 total_devices;
+
+	/* Highest generation number of seen devices */
+	u64 latest_generation;
+
 	struct block_device *latest_bdev;
 
 	/* all of the devices in the FS, protected by a mutex
@@ -337,7 +348,6 @@ struct btrfs_bio {
 	u64 map_type; /* get from map_lookup->type */
 	bio_end_io_t *end_io;
 	struct bio *orig_bio;
-	unsigned long flags;
 	void *private;
 	atomic_t error;
 	int max_errors;
@@ -404,6 +414,10 @@ struct btrfs_balance_control {
 #ifdef MY_ABC_HERE
 	u64 total_chunk_used;
 #endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
+#ifdef MY_ABC_HERE
+	u64 fast_key_offset;         // 0: normal balance; 1: auto select bg; otherwise: bg key offset provided by progs
+#endif /* MY_ABC_HERE */
+
 };
 
 int btrfs_account_dev_extents_size(struct btrfs_device *device, u64 start,

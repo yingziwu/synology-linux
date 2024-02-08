@@ -224,6 +224,7 @@ static void SynoHibernationLogForm(const int iIno ,const char __user *szFileName
 	char szParent[MAX_BUF_SIZE] = {'\0'};
 	char szCurrent[MSG_SIZE] = {'\0'};
 	char szMsg[MSG_SIZE] = {'\0'};
+	char szMsgTemp[MSG_SIZE] = {'\0'};
 	struct task_struct *Parent = current->parent;
 	int iErr = -1;
 
@@ -286,18 +287,23 @@ static void SynoHibernationLogForm(const int iIno ,const char __user *szFileName
 
 	/* start to form the message */
 	memset(szMsg, 0 ,sizeof(szMsg));
+	memset(szMsg, 0 ,sizeof(szMsgTemp));
+
 	snprintf(szMsg, sizeof(szMsg), "[%s]", szFileName);
 
 	if (0 < iIno) {
-		snprintf(szMsg, sizeof(szMsg), "%s (%hu)", szMsg, iIno);
+		snprintf(szMsgTemp, sizeof(szMsgTemp), "%s (%hu)", szMsg, iIno);
+		snprintf(szMsg, sizeof(szMsg), "%s", szMsgTemp);
 	}
 
 	if (NULL != szDevName && strcmp(szDevName, "")) {
-		snprintf(szMsg, sizeof(szMsg), "%s on [%s]", szMsg, szDevName);
+		snprintf(szMsgTemp, sizeof(szMsgTemp), "%s on [%s]", szMsg, szDevName);
+		snprintf(szMsg, sizeof(szMsg), "%s", szMsgTemp);
 	}
 
-	snprintf(szMsg, sizeof(szMsg), "%s - pid %d [%s], ppid %d [%s] \n",
+	snprintf(szMsgTemp, sizeof(szMsgTemp), "%s - pid %d [%s], ppid %d [%s] \n",
 			szMsg, current->pid, szCurrent, Parent->pid, szParent);
+	snprintf(szMsg, sizeof(szMsg), "%s", szMsgTemp);
 
 	/* checking for the latest log message*/
 	if (0 == SynoMsgCheck(szMsg)) {

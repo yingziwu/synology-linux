@@ -100,8 +100,17 @@ void svc_unreg_xprt_class(struct svc_xprt_class *xcl)
 }
 EXPORT_SYMBOL_GPL(svc_unreg_xprt_class);
 
-/*
- * Format the transport list for printing
+/**
+ * svc_print_xprts - Format the transport list for printing
+ * @buf: target buffer for formatted address
+ * @maxlen: length of target buffer
+ *
+ * Fills in @buf with a string containing a list of transport names, each name
+ * terminated with '\n'. If the buffer is too small, some entries may be
+ * missing, but it is guaranteed that all lines in the output buffer are
+ * complete.
+ *
+ * Returns positive length of the filled-in string.
  */
 int svc_print_xprts(char *buf, int maxlen)
 {
@@ -114,9 +123,9 @@ int svc_print_xprts(char *buf, int maxlen)
 	list_for_each_entry(xcl, &svc_xprt_class_list, xcl_list) {
 		int slen;
 
-		sprintf(tmpstr, "%s %d\n", xcl->xcl_name, xcl->xcl_max_payload);
-		slen = strlen(tmpstr);
-		if (len + slen > maxlen)
+		slen = snprintf(tmpstr, sizeof(tmpstr), "%s %d\n",
+				xcl->xcl_name, xcl->xcl_max_payload);
+		if (slen >= sizeof(tmpstr) || len + slen >= maxlen)
 			break;
 		len += slen;
 		strcat(buf, tmpstr);
@@ -826,7 +835,7 @@ int svc_recv(struct svc_rqst *rqstp, long timeout)
 	}
 
 #ifdef MY_ABC_HERE
-	rqstp->rq_stime = xprt->xpt_eqtime;
+	rqstp->rq_xprt_rdtime = xprt->xpt_eqtime;
 #endif
 	len = svc_handle_xprt(rqstp, xprt);
 
@@ -875,6 +884,12 @@ int svc_send(struct svc_rqst *rqstp)
 	struct svc_xprt	*xprt;
 	int		len = -EFAULT;
 	struct xdr_buf	*xb;
+#ifdef MY_ABC_HERE
+	const struct svc_version *vers;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	s64 latency_us;
+#endif /* MY_ABC_HERE */
 
 	xprt = rqstp->rq_xprt;
 	if (!xprt)
@@ -897,9 +912,26 @@ int svc_send(struct svc_rqst *rqstp)
 	else
 		len = xprt->xpt_ops->xpo_sendto(rqstp);
 #ifdef MY_ABC_HERE
+	latency_us = ktime_to_us(ktime_sub(ktime_get(), rqstp->rq_xprt_rdtime));
 	if (rqstp->rq_procinfo)
-		svc_update_lat(&rqstp->rq_procinfo->pc_latency, rqstp->rq_stime);
-#endif
+		svc_update_lat(&rqstp->rq_procinfo->pc_latency, latency_us);
+#ifdef MY_ABC_HERE
+	if (!rqstp->rq_server->sv_program ||
+	    rqstp->rq_vers >= rqstp->rq_server->sv_program->pg_nvers)
+		goto skip_report;
+
+	vers = rqstp->rq_server->sv_program->pg_vers[rqstp->rq_vers];
+	if (!vers || rqstp->rq_proc >= vers->vs_nproc)
+		goto skip_report;
+
+	if (vers->vs_store_latency_to_histogram)
+		vers->vs_store_latency_to_histogram(latency_us, rqstp->vfs_latency_us, rqstp->rq_proc);
+	if (vers->vs_store_resp_error)
+		vers->vs_store_resp_error(rqstp);
+skip_report:
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
 	mutex_unlock(&xprt->xpt_mutex);
 	rpc_wake_up(&xprt->xpt_bc_pending);
 	svc_xprt_release(rqstp);
@@ -1015,7 +1047,7 @@ static int svc_close_list(struct svc_serv *serv, struct list_head *xprt_list, st
 	struct svc_xprt *xprt;
 	int ret = 0;
 
-	spin_lock(&serv->sv_lock);
+	spin_lock_bh(&serv->sv_lock);
 	list_for_each_entry(xprt, xprt_list, xpt_list) {
 		if (xprt->xpt_net != net)
 			continue;
@@ -1023,7 +1055,7 @@ static int svc_close_list(struct svc_serv *serv, struct list_head *xprt_list, st
 		set_bit(XPT_CLOSE, &xprt->xpt_flags);
 		svc_xprt_enqueue(xprt);
 	}
-	spin_unlock(&serv->sv_lock);
+	spin_unlock_bh(&serv->sv_lock);
 	return ret;
 }
 

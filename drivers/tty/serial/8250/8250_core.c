@@ -548,6 +548,7 @@ static void __init serial8250_isa_init_ports(void)
 		 */
 		up->mcr_mask = ~ALPHA_KLUDGE_MCR;
 		up->mcr_force = ALPHA_KLUDGE_MCR;
+		serial8250_set_defaults(up);
 	}
 
 	/* chain base port ops to support Remote Supervisor Adapter */
@@ -605,7 +606,6 @@ static void __init serial8250_isa_init_ports(void)
 		port->membase  = old_serial_port[i].iomem_base;
 		port->iotype   = old_serial_port[i].io_type;
 		port->regshift = old_serial_port[i].iomem_reg_shift;
-		serial8250_set_defaults(up);
 
 		port->irqflags |= irqflag;
 		if (serial8250_isa_config != NULL)
@@ -1170,7 +1170,11 @@ bool dts_uart_port_match(struct uart_port *port, const int uart_index)
 	}
 
 	if (!strcmp(addr_type, "pcie")) {
-		ret = (0 == syno_compare_dts_pciepath(to_pci_dev(port->dev), pSlotNode) ? true : false);
+		if (dev_is_pci(port->dev)) {
+			ret = (0 == syno_compare_dts_pciepath(to_pci_dev(port->dev), pSlotNode) ? true : false);
+		} else {
+			ret = false;
+		}
 	} else if (!strcmp(addr_type, "io")){
 		of_property_read_u32(pSlotNode, "base", &base_addr);
 		ret = (port->iobase == base_addr? true : false);
@@ -1519,8 +1523,10 @@ int serial8250_register_8250_port(struct uart_8250_port *up)
 
 			ret = uart_add_one_port(&serial8250_reg,
 						&uart->port);
-			if (ret == 0)
-				ret = uart->port.line;
+			if (ret)
+				goto err;
+
+			ret = uart->port.line;
 		} else {
 			dev_info(uart->port.dev,
 				"skipping CIR port at 0x%lx / 0x%llx, IRQ %d\n",
@@ -1533,6 +1539,11 @@ int serial8250_register_8250_port(struct uart_8250_port *up)
 	}
 	mutex_unlock(&serial_mutex);
 
+	return ret;
+
+err:
+	uart->port.dev = NULL;
+	mutex_unlock(&serial_mutex);
 	return ret;
 }
 EXPORT_SYMBOL(serial8250_register_8250_port);
