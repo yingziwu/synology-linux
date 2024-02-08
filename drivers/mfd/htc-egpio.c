@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Support for the GPIO/IRQ expander chips present on several HTC phones.
  * These are implemented in CPLD chips present on the board.
@@ -174,7 +177,6 @@ static int egpio_direction_input(struct gpio_chip *chip, unsigned offset)
 	return test_bit(offset, &egpio->is_out) ? -EINVAL : 0;
 }
 
-
 /*
  * Output pins
  */
@@ -254,7 +256,6 @@ static void egpio_write_cache(struct egpio_info *ei)
 	}
 }
 
-
 /*
  * Setup
  */
@@ -321,7 +322,11 @@ static int __init egpio_probe(struct platform_device *pdev)
 		ei->chip[i].dev = &(pdev->dev);
 		chip = &(ei->chip[i].chip);
 		chip->label           = "htc-egpio";
+#if defined(MY_DEF_HERE)
+		chip->parent          = &pdev->dev;
+#else /* MY_DEF_HERE */
 		chip->dev             = &pdev->dev;
+#endif /* MY_DEF_HERE */
 		chip->owner           = THIS_MODULE;
 		chip->get             = egpio_get;
 		chip->set             = egpio_set;
@@ -411,7 +416,6 @@ static int egpio_resume(struct platform_device *pdev)
 #define egpio_suspend NULL
 #define egpio_resume NULL
 #endif
-
 
 static struct platform_driver egpio_driver = {
 	.driver = {

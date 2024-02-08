@@ -26,7 +26,7 @@
 
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
-#include "nouveau_drm.h"
+#include "nouveau_drv.h"
 #include "nouveau_encoder.h"
 #include "nouveau_crtc.h"
 #include "hw.h"
@@ -145,7 +145,6 @@ struct nv17_tv_norm_params nv17_tv_norms[NUM_TV_NORMS] = {
 					0x0, 0xb4, 0x0, 0x15, 0x49, 0x10, 0x0, 0x9b,
 					0xbd, 0x15, 0x5, 0x15, 0x3e, 0x3, 0x0, 0x0
 				} } } },
-
 
 	[TV_NORM_HD480P] = { CTV_ENC_MODE, {
 			.ctv_enc_mode = {

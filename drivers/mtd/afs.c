@@ -162,7 +162,11 @@ afs_read_iis(struct mtd_info *mtd, struct image_info_struct *iis, u_int ptr)
 }
 
 static int parse_afs_partitions(struct mtd_info *mtd,
+#if defined(CONFIG_SYNO_RTD1619)
+				const struct mtd_partition **pparts,
+#else /* CONFIG_SYNO_RTD1619 */
 				struct mtd_partition **pparts,
+#endif /* CONFIG_SYNO_RTD1619 */
 				struct mtd_part_parser_data *data)
 {
 	struct mtd_partition *parts;
@@ -275,7 +279,6 @@ static void __exit afs_parser_exit(void)
 
 module_init(afs_parser_init);
 module_exit(afs_parser_exit);
-
 
 MODULE_AUTHOR("ARM Ltd");
 MODULE_DESCRIPTION("ARM Firmware Suite partition parser");

@@ -27,6 +27,7 @@
 #include "capability.h"
 #include "domain.h"
 #include "file.h"
+#include "net.h"
 #include "resource.h"
 
 extern const char *const aa_profile_mode_names[];
@@ -156,7 +157,6 @@ struct aa_replacedby {
 	struct aa_profile __rcu *profile;
 };
 
-
 /* struct aa_profile - basic confinement data
  * @base - base components of the profile (name, refcount, lists, lock ...)
  * @count: reference count of the obj
@@ -176,6 +176,7 @@ struct aa_replacedby {
  * @policy: general match rules governing policy
  * @file: The set of rules governing basic file access and domain transitions
  * @caps: capabilities for the profile
+ * @net: network controls for the profile
  * @rlimits: rlimits for the profile
  *
  * @dents: dentries for the profiles file entries in apparmorfs
@@ -217,6 +218,7 @@ struct aa_profile {
 	struct aa_policydb policy;
 	struct aa_file_rules file;
 	struct aa_caps caps;
+	struct aa_net net;
 	struct aa_rlimit rlimits;
 
 	unsigned char *hash;
@@ -238,7 +240,6 @@ void aa_free_namespace_kref(struct kref *kref);
 struct aa_namespace *aa_find_namespace(struct aa_namespace *root,
 				       const char *name);
 
-
 void aa_free_replacedby_kref(struct kref *kref);
 struct aa_profile *aa_alloc_profile(const char *name);
 struct aa_profile *aa_new_null_profile(struct aa_profile *parent, int hat);
@@ -255,7 +256,6 @@ ssize_t aa_remove_profiles(char *name, size_t size);
 #define PROF_REPLACE 0
 
 #define unconfined(X) ((X)->mode == APPARMOR_UNCONFINED)
-
 
 static inline struct aa_profile *aa_deref_parent(struct aa_profile *p)
 {

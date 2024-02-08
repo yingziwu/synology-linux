@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
@@ -113,7 +116,11 @@ struct octeon_mdiobus {
 	resource_size_t mdio_phys;
 	resource_size_t regsize;
 	enum octeon_mdiobus_mode mode;
+#if defined(MY_DEF_HERE)
+//do nothing
+#else /* MY_DEF_HERE */
 	int phy_irq[PHY_MAX_ADDR];
+#endif /* MY_DEF_HERE */
 };
 
 #ifdef CONFIG_CAVIUM_OCTEON_SOC
@@ -199,7 +206,6 @@ static int octeon_mdiobus_read(struct mii_bus *bus, int phy_id, int regnum)
 		octeon_mdiobus_set_mode(p, C22);
 	}
 
-
 	smi_cmd.u64 = 0;
 	smi_cmd.s.phy_op = op;
 	smi_cmd.s.phy_adr = phy_id;
@@ -228,7 +234,6 @@ static int octeon_mdiobus_write(struct mii_bus *bus, int phy_id,
 	union cvmx_smix_wr_dat smi_wr;
 	unsigned int op = 0; /* MDIO_CLAUSE_22_WRITE */
 	int timeout = 1000;
-
 
 	if (regnum & MII_ADDR_C45) {
 		int r = octeon_mdiobus_c45_addr(p, phy_id, regnum);
@@ -307,7 +312,11 @@ static int octeon_mdiobus_probe(struct platform_device *pdev)
 	oct_mdio_writeq(smi_en.u64, bus->register_base + SMI_EN);
 
 	bus->mii_bus->priv = bus;
+#if defined(MY_DEF_HERE)
+//do nothing
+#else /* MY_DEF_HERE */
 	bus->mii_bus->irq = bus->phy_irq;
+#endif /* MY_DEF_HERE */
 	bus->mii_bus->name = "mdio-octeon";
 	snprintf(bus->mii_bus->id, MII_BUS_ID_SIZE, "%llx", bus->register_base);
 	bus->mii_bus->parent = &pdev->dev;

@@ -205,7 +205,6 @@ bail:
 	return inode;
 }
 
-
 /*
  * here's how inodes get read from disk:
  * iget5_locked -> find_actor -> OCFS2_FIND_ACTOR
@@ -286,7 +285,6 @@ void ocfs2_populate_inode(struct inode *inode, struct ocfs2_dinode *fe,
 						that is needed. */
 	BUG_ON(!(fe->i_flags & cpu_to_le32(OCFS2_VALID_FL)));
 	BUG_ON(le32_to_cpu(fe->i_fs_generation) != osb->fs_generation);
-
 
 	OCFS2_I(inode)->ip_clusters = le32_to_cpu(fe->i_clusters);
 	OCFS2_I(inode)->ip_attr = le32_to_cpu(fe->i_attr);
@@ -629,10 +627,10 @@ static int ocfs2_remove_inode(struct inode *inode,
 		goto bail;
 	}
 
-	mutex_lock(&inode_alloc_inode->i_mutex);
+	inode_lock(inode_alloc_inode);
 	status = ocfs2_inode_lock(inode_alloc_inode, &inode_alloc_bh, 1);
 	if (status < 0) {
-		mutex_unlock(&inode_alloc_inode->i_mutex);
+		inode_unlock(inode_alloc_inode);
 
 		mlog_errno(status);
 		goto bail;
@@ -679,7 +677,7 @@ bail_commit:
 	ocfs2_commit_trans(osb, handle);
 bail_unlock:
 	ocfs2_inode_unlock(inode_alloc_inode, 1);
-	mutex_unlock(&inode_alloc_inode->i_mutex);
+	inode_unlock(inode_alloc_inode);
 	brelse(inode_alloc_bh);
 bail:
 	iput(inode_alloc_inode);
@@ -750,10 +748,10 @@ static int ocfs2_wipe_inode(struct inode *inode,
 		/* Lock the orphan dir. The lock will be held for the entire
 		 * delete_inode operation. We do this now to avoid races with
 		 * recovery completion on other nodes. */
-		mutex_lock(&orphan_dir_inode->i_mutex);
+		inode_lock(orphan_dir_inode);
 		status = ocfs2_inode_lock(orphan_dir_inode, &orphan_dir_bh, 1);
 		if (status < 0) {
-			mutex_unlock(&orphan_dir_inode->i_mutex);
+			inode_unlock(orphan_dir_inode);
 
 			mlog_errno(status);
 			goto bail;
@@ -802,7 +800,7 @@ bail_unlock_dir:
 		return status;
 
 	ocfs2_inode_unlock(orphan_dir_inode, 1);
-	mutex_unlock(&orphan_dir_inode->i_mutex);
+	inode_unlock(orphan_dir_inode);
 	brelse(orphan_dir_bh);
 bail:
 	iput(orphan_dir_inode);
@@ -1417,7 +1415,6 @@ int ocfs2_read_inode_block(struct inode *inode, struct buffer_head **bh)
 	return ocfs2_read_inode_block_full(inode, bh, 0);
 }
 
-
 static u64 ocfs2_inode_cache_owner(struct ocfs2_caching_info *ci)
 {
 	struct ocfs2_inode_info *oi = cache_info_to_inode(ci);
@@ -1468,4 +1465,3 @@ const struct ocfs2_caching_operations ocfs2_inode_caching_ops = {
 	.co_io_lock		= ocfs2_inode_cache_io_lock,
 	.co_io_unlock		= ocfs2_inode_cache_io_unlock,
 };
-

@@ -163,10 +163,7 @@ static u32 asle_set_backlight(struct drm_device *dev, u32 bclp)
 	if (bclp > 255)
 		return ASLE_BACKLIGHT_FAILED;
 
-	if (config_enabled(CONFIG_BACKLIGHT_CLASS_DEVICE)) {
-		int max = bd->props.max_brightness;
-		gma_backlight_set(dev, bclp * max / 255);
-	}
+	gma_backlight_set(dev, bclp * bd->props.max_brightness / 255);
 
 	asle->cblv = (bclp * 0x64) / 0xff | ASLE_CBLV_VALID;
 
@@ -232,7 +229,6 @@ void psb_intel_opregion_enable_asle(struct drm_device *dev)
 #define ACPI_EV_DISPLAY_SWITCH (1<<0)
 #define ACPI_EV_LID            (1<<1)
 #define ACPI_EV_DOCK           (1<<2)
-
 
 static int psb_intel_opregion_video_event(struct notifier_block *nb,
 					  unsigned long val, void *data)
@@ -354,4 +350,3 @@ err_out:
 	iounmap(base);
 	return err;
 }
-

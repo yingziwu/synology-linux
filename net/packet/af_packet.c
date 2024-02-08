@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -130,7 +133,6 @@ Outgoing, dev->hard_header==NULL
 
 Resume
   If dev->hard_header==NULL we are unlikely to restore sensible ll header.
-
 
 On transmit:
 ------------
@@ -556,9 +558,13 @@ static int prb_calc_retire_blk_tmo(struct packet_sock *po,
 {
 	struct net_device *dev;
 	unsigned int mbits = 0, msec = 0, div = 0, tmo = 0;
+#if defined(MY_ABC_HERE)
+	struct ethtool_link_ksettings ecmd;
+#else /* MY_ABC_HERE */
 	struct ethtool_cmd ecmd;
-	int err;
 	u32 speed;
+#endif /* MY_ABC_HERE */
+	int err;
 
 	rtnl_lock();
 	dev = __dev_get_by_index(sock_net(&po->sk), po->ifindex);
@@ -566,20 +572,35 @@ static int prb_calc_retire_blk_tmo(struct packet_sock *po,
 		rtnl_unlock();
 		return DEFAULT_PRB_RETIRE_TOV;
 	}
+
+#if defined(MY_ABC_HERE)
+	err = __ethtool_get_link_ksettings(dev, &ecmd);
+#else /* MY_ABC_HERE */
 	err = __ethtool_get_settings(dev, &ecmd);
 	speed = ethtool_cmd_speed(&ecmd);
+#endif /* MY_ABC_HERE */
+
 	rtnl_unlock();
 	if (!err) {
 		/*
 		 * If the link speed is so slow you don't really
 		 * need to worry about perf anyways
 		 */
+#if defined(MY_ABC_HERE)
+		if (ecmd.base.speed < SPEED_1000 || ecmd.base.speed == SPEED_UNKNOWN) {
+			return DEFAULT_PRB_RETIRE_TOV;
+		} else {
+			msec = 1;
+			div = ecmd.base.speed / 1000;
+		}
+#else /* MY_ABC_HERE */
 		if (speed < SPEED_1000 || speed == SPEED_UNKNOWN) {
 			return DEFAULT_PRB_RETIRE_TOV;
 		} else {
 			msec = 1;
 			div = speed / 1000;
 		}
+#endif /* MY_ABC_HERE */
 	}
 
 	mbits = (blk_size_in_bytes * 8) / (1024 * 1024);
@@ -1652,10 +1673,6 @@ static int fanout_add(struct sock *sk, u16 id, u16 type_flags)
 
 	mutex_lock(&fanout_mutex);
 
-	err = -EINVAL;
-	if (!po->running)
-		goto out;
-
 	err = -EALREADY;
 	if (po->fanout)
 		goto out;
@@ -1704,7 +1721,10 @@ static int fanout_add(struct sock *sk, u16 id, u16 type_flags)
 		list_add(&match->list, &fanout_list);
 	}
 	err = -EINVAL;
-	if (match->type == type &&
+
+	spin_lock(&po->bind_lock);
+	if (po->running &&
+	    match->type == type &&
 	    match->prot_hook.type == po->prot_hook.type &&
 	    match->prot_hook.dev == po->prot_hook.dev) {
 		err = -ENOSPC;
@@ -1716,6 +1736,13 @@ static int fanout_add(struct sock *sk, u16 id, u16 type_flags)
 			err = 0;
 		}
 	}
+	spin_unlock(&po->bind_lock);
+
+	if (err && !atomic_read(&match->sk_ref)) {
+		list_del(&match->list);
+		kfree(match);
+	}
+
 out:
 	if (err && rollover) {
 		kfree(rollover);
@@ -1836,7 +1863,6 @@ out:
 oom:
 	return 0;
 }
-
 
 /*
  *	Output a raw packet to a device layer. This bypasses all the other
@@ -2650,6 +2676,7 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
 	int vnet_hdr_len;
 	struct packet_sock *po = pkt_sk(sk);
 	unsigned short gso_type = 0;
+	bool has_vnet_hdr = false;
 	int hlen, tlen, linear;
 	int extra_len = 0;
 	ssize_t n;
@@ -2737,6 +2764,7 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
 				goto out_unlock;
 
 		}
+		has_vnet_hdr = true;
 	}
 
 	if (unlikely(sock_flag(sk, SOCK_NOFCS))) {
@@ -2796,7 +2824,7 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
 
 	packet_pick_tx_queue(dev, skb);
 
-	if (po->has_vnet_hdr) {
+	if (has_vnet_hdr) {
 		if (vnet_hdr.flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
 			u16 s = __virtio16_to_cpu(vio_le(), vnet_hdr.csum_start);
 			u16 o = __virtio16_to_cpu(vio_le(), vnet_hdr.csum_offset);
@@ -2938,12 +2966,14 @@ static int packet_do_bind(struct sock *sk, const char *name, int ifindex,
 	int ret = 0;
 	bool unlisted = false;
 
-	if (po->fanout)
-		return -EINVAL;
-
 	lock_sock(sk);
 	spin_lock(&po->bind_lock);
 	rcu_read_lock();
+
+	if (po->fanout) {
+		ret = -EINVAL;
+		goto out_unlock;
+	}
 
 	if (name) {
 		dev = dev_get_by_name_rcu(sock_net(sk), name);
@@ -2970,6 +3000,10 @@ static int packet_do_bind(struct sock *sk, const char *name, int ifindex,
 	if (need_rehook) {
 		if (po->running) {
 			rcu_read_unlock();
+			/* prevents packet_notifier() from calling
+			 * register_prot_hook()
+			 */
+			po->num = 0;
 			__unregister_prot_hook(sk, true);
 			rcu_read_lock();
 			dev_curr = po->prot_hook.dev;
@@ -2978,6 +3012,7 @@ static int packet_do_bind(struct sock *sk, const char *name, int ifindex,
 								 dev->ifindex);
 		}
 
+		BUG_ON(po->running);
 		po->num = proto;
 		po->prot_hook.type = proto;
 
@@ -3626,6 +3661,8 @@ packet_setsockopt(struct socket *sock, int level, int optname, char __user *optv
 			return -EBUSY;
 		if (copy_from_user(&val, optval, sizeof(val)))
 			return -EFAULT;
+		if (val > INT_MAX)
+			return -EINVAL;
 		po->tp_reserve = val;
 		return 0;
 	}
@@ -3855,7 +3892,6 @@ static int packet_getsockopt(struct socket *sock, int level, int optname,
 	return 0;
 }
 
-
 static int packet_notifier(struct notifier_block *this,
 			   unsigned long msg, void *ptr)
 {
@@ -3905,7 +3941,6 @@ static int packet_notifier(struct notifier_block *this,
 	rcu_read_unlock();
 	return NOTIFY_DONE;
 }
-
 
 static int packet_ioctl(struct socket *sock, unsigned int cmd,
 			unsigned long arg)
@@ -3984,7 +4019,6 @@ static unsigned int packet_poll(struct file *file, struct socket *sock,
 	spin_unlock_bh(&sk->sk_write_queue.lock);
 	return mask;
 }
-
 
 /* Dirty? Well, I still did not learn better way to account
  * for user mmaps.
@@ -4138,8 +4172,8 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
 		if (unlikely(!PAGE_ALIGNED(req->tp_block_size)))
 			goto out;
 		if (po->tp_version >= TPACKET_V3 &&
-		    (int)(req->tp_block_size -
-			  BLK_PLUS_PRIV(req_u->req3.tp_sizeof_priv)) <= 0)
+		    req->tp_block_size <=
+			  BLK_PLUS_PRIV((u64)req_u->req3.tp_sizeof_priv))
 			goto out;
 		if (unlikely(req->tp_frame_size < po->tp_hdrlen +
 					po->tp_reserve))
@@ -4149,6 +4183,8 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
 
 		rb->frames_per_block = req->tp_block_size / req->tp_frame_size;
 		if (unlikely(rb->frames_per_block == 0))
+			goto out;
+		if (unlikely(req->tp_block_size > UINT_MAX / req->tp_block_nr))
 			goto out;
 		if (unlikely((rb->frames_per_block * req->tp_block_nr) !=
 					req->tp_frame_nr))
@@ -4177,7 +4213,6 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
 		if (unlikely(req->tp_frame_nr))
 			goto out;
 	}
-
 
 	/* Detach socket from network */
 	spin_lock(&po->bind_lock);
@@ -4438,7 +4473,6 @@ static struct pernet_operations packet_net_ops = {
 	.init = packet_net_init,
 	.exit = packet_net_exit,
 };
-
 
 static void __exit packet_exit(void)
 {

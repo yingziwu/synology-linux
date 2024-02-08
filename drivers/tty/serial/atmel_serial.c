@@ -1024,7 +1024,6 @@ static void atmel_rx_from_dma(struct uart_port *port)
 	enum dma_status dmastat;
 	size_t count;
 
-
 	/* Reset the UART timeout early so that we don't miss one */
 	atmel_uart_writel(port, ATMEL_US_CR, ATMEL_US_STTTO);
 	dmastat = dmaengine_tx_status(chan,
@@ -1464,7 +1463,6 @@ static void atmel_rx_from_ring(struct uart_port *port)
 			else if (status & ATMEL_US_FRAME)
 				flg = TTY_FRAME;
 		}
-
 
 		if (uart_handle_sysrq_char(port, c.ch))
 			continue;
@@ -2018,7 +2016,6 @@ static void atmel_shutdown(struct uart_port *port)
 
 	atmel_uart_writel(port, ATMEL_US_CR, ATMEL_US_RSTSTA);
 	atmel_uart_writel(port, ATMEL_US_IDR, -1);
-
 
 	/*
 	 * Shut-down the DMA.

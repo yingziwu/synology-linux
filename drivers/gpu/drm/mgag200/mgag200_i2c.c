@@ -106,6 +106,7 @@ struct mga_i2c_chan *mgag200_i2c_create(struct drm_device *dev)
 		clock = 2;
 		break;
 	case G200_EH:
+	case G200_EH3:
 	case G200_ER:
 		data = 2;
 		clock = 1;
@@ -154,4 +155,3 @@ void mgag200_i2c_destroy(struct mga_i2c_chan *i2c)
 	i2c_del_adapter(&i2c->adapter);
 	kfree(i2c);
 }
-

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 
 #define NV04_PFB_BOOT_0						0x00100000
 #	define NV04_PFB_BOOT_0_RAM_AMOUNT			0x00000003
@@ -434,7 +435,6 @@
 #define NV40_PGRAPH_TLIMIT1(i)                             (0x00406904 + (i*16))
 #define NV40_PGRAPH_TSIZE1(i)                              (0x00406908 + (i*16))
 #define NV40_PGRAPH_TSTATUS1(i)                            (0x0040690C + (i*16))
-
 
 /* It's a guess that this works on NV03. Confirmed on NV04, though */
 #define NV04_PFIFO_DELAY_0                                 0x00002040

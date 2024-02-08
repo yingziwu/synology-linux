@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* Linux driver for devices based on the DiBcom DiB0700 USB bridge
  *
  *	This program is free software; you can redistribute it and/or modify it
@@ -46,7 +49,6 @@ static struct mt2060_config bristol_mt2060_config[2] = {
 		.i2c_address = 0x61,
 	}
 };
-
 
 static struct dibx000_agc_config bristol_dib3000p_mt2060_agc_config = {
 	.band_caps = BAND_VHF | BAND_UHF,
@@ -292,7 +294,10 @@ static int stk7700P2_frontend_attach(struct dvb_usb_adapter *adap)
 					     stk7700d_dib7000p_mt2266_config)
 		    != 0) {
 			err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n", __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 			dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 			return -ENODEV;
 		}
 	}
@@ -326,7 +331,10 @@ static int stk7700d_frontend_attach(struct dvb_usb_adapter *adap)
 					     stk7700d_dib7000p_mt2266_config)
 		    != 0) {
 			err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n", __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 			dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 			return -ENODEV;
 		}
 	}
@@ -479,7 +487,10 @@ static int stk7700ph_frontend_attach(struct dvb_usb_adapter *adap)
 				     &stk7700ph_dib7700_xc3028_config) != 0) {
 		err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n",
 		    __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 		return -ENODEV;
 	}
 
@@ -1010,7 +1021,10 @@ static int stk7070p_frontend_attach(struct dvb_usb_adapter *adap)
 				     &dib7070p_dib7000p_config) != 0) {
 		err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n",
 		    __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 		return -ENODEV;
 	}
 
@@ -1068,7 +1082,10 @@ static int stk7770p_frontend_attach(struct dvb_usb_adapter *adap)
 				     &dib7770p_dib7000p_config) != 0) {
 		err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n",
 		    __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 		return -ENODEV;
 	}
 
@@ -2362,7 +2379,6 @@ static struct dib0090_config nim9090md_dib0090_config[2] = {
 	}
 };
 
-
 static int stk9090m_frontend_attach(struct dvb_usb_adapter *adap)
 {
 	struct dib0700_adapter_state *state = adap->priv;
@@ -2590,7 +2606,6 @@ static int dib7090p_get_best_sampling(struct dvb_frontend *fe , struct dibx090p_
 		if (!spur)
 			break;
 	}
-
 
 	if (adc->pll_loopdiv == 0 && adc->pll_prediv == 0)
 		return -EINVAL;
@@ -3036,7 +3051,10 @@ static int nim7090_frontend_attach(struct dvb_usb_adapter *adap)
 
 	if (state->dib7000p_ops.i2c_enumeration(&adap->dev->i2c_adap, 1, 0x10, &nim7090_dib7000p_config) != 0) {
 		err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n", __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 		return -ENODEV;
 	}
 	adap->fe_adap[0].fe = state->dib7000p_ops.init(&adap->dev->i2c_adap, 0x80, &nim7090_dib7000p_config);
@@ -3089,7 +3107,10 @@ static int tfe7090pvr_frontend0_attach(struct dvb_usb_adapter *adap)
 	/* initialize IC 0 */
 	if (state->dib7000p_ops.i2c_enumeration(&adap->dev->i2c_adap, 1, 0x20, &tfe7090pvr_dib7000p_config[0]) != 0) {
 		err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n", __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 		return -ENODEV;
 	}
 
@@ -3119,7 +3140,10 @@ static int tfe7090pvr_frontend1_attach(struct dvb_usb_adapter *adap)
 	i2c = state->dib7000p_ops.get_i2c_master(adap->dev->adapter[0].fe_adap[0].fe, DIBX000_I2C_INTERFACE_GPIO_6_7, 1);
 	if (state->dib7000p_ops.i2c_enumeration(i2c, 1, 0x10, &tfe7090pvr_dib7000p_config[1]) != 0) {
 		err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n", __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 		return -ENODEV;
 	}
 
@@ -3194,7 +3218,10 @@ static int tfe7790p_frontend_attach(struct dvb_usb_adapter *adap)
 				1, 0x10, &tfe7790p_dib7000p_config) != 0) {
 		err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n",
 				__func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 		return -ENODEV;
 	}
 	adap->fe_adap[0].fe = state->dib7000p_ops.init(&adap->dev->i2c_adap,
@@ -3208,7 +3235,6 @@ static int tfe7790p_tuner_attach(struct dvb_usb_adapter *adap)
 	struct dib0700_adapter_state *st = adap->priv;
 	struct i2c_adapter *tun_i2c =
 		st->dib7000p_ops.get_i2c_tuner(adap->fe_adap[0].fe);
-
 
 	tfe7790p_dib0090_config.reset = st->dib7000p_ops.tuner_sleep;
 	tfe7790p_dib0090_config.sleep = st->dib7000p_ops.tuner_sleep;
@@ -3289,7 +3315,10 @@ static int stk7070pd_frontend_attach0(struct dvb_usb_adapter *adap)
 				     stk7070pd_dib7000p_config) != 0) {
 		err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n",
 		    __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 		return -ENODEV;
 	}
 
@@ -3364,7 +3393,10 @@ static int novatd_frontend_attach(struct dvb_usb_adapter *adap)
 					     stk7070pd_dib7000p_config) != 0) {
 			err("%s: state->dib7000p_ops.i2c_enumeration failed.  Cannot continue\n",
 			    __func__);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 			dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 			return -ENODEV;
 		}
 	}
@@ -3600,7 +3632,10 @@ static int pctv340e_frontend_attach(struct dvb_usb_adapter *adap)
 
 	if (state->dib7000p_ops.dib7000pc_detection(&adap->dev->i2c_adap) == 0) {
 		/* Demodulator not found for some reason? */
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		dvb_detach(&state->dib7000p_ops);
+#endif /* MY_ABC_HERE */
 		return -ENODEV;
 	}
 
@@ -3704,7 +3739,6 @@ static int mxl5007t_tuner_attach(struct dvb_usb_adapter *adap)
 			  &adap->dev->i2c_adap, 0x60,
 			  &hcw_mxl5007t_config) == NULL ? -ENODEV : 0;
 }
-
 
 /* DVB-USB and USB stuff follows */
 struct usb_device_id dib0700_usb_id_table[] = {

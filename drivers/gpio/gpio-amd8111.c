@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * GPIO driver for AMD 8111 south bridges
  *
@@ -180,7 +183,6 @@ static int __init amd_gpio_init(void)
 	struct pci_dev *pdev = NULL;
 	const struct pci_device_id *ent;
 
-
 	/* We look for our device - AMD South Bridge
 	 * I don't know about a system with two such bridges,
 	 * so we can assume that there is max. one device.
@@ -220,7 +222,11 @@ found:
 		goto out;
 	}
 	gp.pdev = pdev;
+#if defined(MY_DEF_HERE)
+	gp.chip.parent = &pdev->dev;
+#else /* MY_DEF_HERE */
 	gp.chip.dev = &pdev->dev;
+#endif /* MY_DEF_HERE */
 
 	spin_lock_init(&gp.lock);
 

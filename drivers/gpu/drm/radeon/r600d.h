@@ -505,7 +505,6 @@
 #define			SQ_TEX_VTX_VALID_TEXTURE			0x2
 #define			SQ_TEX_VTX_VALID_BUFFER				0x3
 
-
 #define	SX_MISC						0x28350
 #define	SX_MEMORY_EXPORT_BASE				0x9010
 #define	SX_DEBUG_1					0x9054
@@ -1490,6 +1489,7 @@
 #define UVD_GPCOM_VCPU_DATA0				0xef10
 #define UVD_GPCOM_VCPU_DATA1				0xef14
 #define UVD_ENGINE_CNTL					0xef18
+#define UVD_NO_OP					0xeffc
 
 #define UVD_SEMA_CNTL					0xf400
 #define UVD_RB_ARB_CTRL					0xf480

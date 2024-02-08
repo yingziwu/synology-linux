@@ -64,7 +64,6 @@ static __read_mostly int amd_num_counters;
 
 static __read_mostly int intel_num_arch_counters, intel_num_fixed_counters;
 
-
 static void xen_pmu_arch_init(void)
 {
 	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD) {
@@ -187,7 +186,6 @@ static bool xen_intel_pmu_emulate(unsigned int msr, u64 *val, int type,
 	struct xen_pmu_cntr_pair *arch_cntr_pair;
 	struct xen_pmu_data *xenpmu_data = get_xenpmu_data();
 	uint8_t xenpmu_flags = get_xenpmu_flags();
-
 
 	if (!xenpmu_data || !(xenpmu_flags & XENPMU_IRQ_PROCESSING))
 		return false;
@@ -477,7 +475,7 @@ static void xen_convert_regs(const struct xen_pmu_regs *xen_regs,
 irqreturn_t xen_pmu_irq_handler(int irq, void *dev_id)
 {
 	int err, ret = IRQ_NONE;
-	struct pt_regs regs;
+	struct pt_regs regs = {0};
 	const struct xen_pmu_data *xenpmu_data = get_xenpmu_data();
 	uint8_t xenpmu_flags = get_xenpmu_flags();
 
