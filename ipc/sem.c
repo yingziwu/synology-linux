@@ -135,7 +135,6 @@ struct sem_undo_list {
 	struct list_head	list_proc;
 };
 
-
 #define sem_ids(ns)	((ns)->ids[IPC_SEM_IDS])
 
 #define sem_unlock(sma)		ipc_unlock(&(sma)->sem_perm)
@@ -336,7 +335,6 @@ static int newary(struct ipc_namespace *ns, struct ipc_params *params)
 
 	return sma->sem_perm.id;
 }
-
 
 /*
  * Called with sem_ids.rw_mutex and ipcp locked.
@@ -571,7 +569,6 @@ static int check_restart(struct sem_array *sma, struct sem_queue *q)
 	return 0;
 }
 
-
 /**
  * update_queue(sma, semnum): Look for tasks that can be completed.
  * @sma: semaphore array.
@@ -686,7 +683,6 @@ done:
 	if (otime)
 		sma->sem_otime = get_seconds();
 }
-
 
 /* The following counts are associated to each semaphore:
  *   semncnt        number of tasks waiting on semval being nonzero
@@ -1300,7 +1296,6 @@ out:
 	return un;
 }
 
-
 /**
  * get_queue_result - Retrieve the result code from sem_queue
  * @q: Pointer to queue structure
@@ -1325,7 +1320,6 @@ static int get_queue_result(struct sem_queue *q)
 
 	return error;
 }
-
 
 SYSCALL_DEFINE4(semtimedop, int, semid, struct sembuf __user *, tsops,
 		unsigned, nsops, const struct timespec __user *, timeout)
@@ -1510,7 +1504,6 @@ sleep_again:
 	if (IS_ERR(sma)) {
 		goto out_free;
 	}
-
 
 	/*
 	 * If queue.status != -EINTR we are woken up by another process.

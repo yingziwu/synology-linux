@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/mm/cache-v3.S
  *
@@ -127,6 +130,10 @@ ENTRY(v3_dma_map_area)
 ENDPROC(v3_dma_unmap_area)
 ENDPROC(v3_dma_map_area)
 
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+	.globl	v3_flush_kern_cache_louis
+	.equ	v3_flush_kern_cache_louis, v3_flush_kern_cache_all
+#endif
 	__INITDATA
 
 	@ define struct cpu_cache_fns (see <asm/cacheflush.h> and proc-macros.S)

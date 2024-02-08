@@ -1,5 +1,5 @@
 /*
- *  video.c - ACPI Video Driver ($Revision:$)
+ *  video.c - ACPI Video Driver ($Revision: 1.1.1.1 $)
  *
  *  Copyright (C) 2004 Luming Yu <luming.yu@intel.com>
  *  Copyright (C) 2004 Bruno Ducrot <ducrot@poupinou.org>
@@ -325,7 +325,6 @@ acpi_video_device_lcd_query_levels(struct acpi_video_device *device,
 	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
 	union acpi_object *obj;
 
-
 	*levels = NULL;
 
 	status = acpi_evaluate_object(device->dev->handle, "_BCL", NULL, &buffer);
@@ -513,7 +512,6 @@ acpi_video_device_EDID(struct acpi_video_device *device,
 	union acpi_object arg0 = { ACPI_TYPE_INTEGER };
 	struct acpi_object_list args = { 1, &arg0 };
 
-
 	*edid = NULL;
 
 	if (!device)
@@ -571,7 +569,6 @@ acpi_video_bus_DOS(struct acpi_video_bus *video, int bios_flag, int lcd_flag)
 	u64 status = 0;
 	union acpi_object arg0 = { ACPI_TYPE_INTEGER };
 	struct acpi_object_list args = { 1, &arg0 };
-
 
 	if (bios_flag < 0 || bios_flag > 3 || lcd_flag < 0 || lcd_flag > 1) {
 		status = -1;
@@ -1726,7 +1723,6 @@ static int acpi_video_bus_add(struct acpi_device *device)
 static int acpi_video_bus_remove(struct acpi_device *device, int type)
 {
 	struct acpi_video_bus *video = NULL;
-
 
 	if (!device || !acpi_driver_data(device))
 		return -EINVAL;

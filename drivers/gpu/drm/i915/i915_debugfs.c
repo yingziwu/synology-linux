@@ -40,7 +40,6 @@
 
 #define DRM_I915_RING_DEBUG 1
 
-
 #if defined(CONFIG_DEBUG_FS)
 
 enum {
@@ -321,7 +320,6 @@ static int i915_gem_gtt_info(struct seq_file *m, void* data)
 	return 0;
 }
 
-
 static int i915_gem_pageflip_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
@@ -455,7 +453,6 @@ static int i915_gem_seqno_info(struct seq_file *m, void *data)
 
 	return 0;
 }
-
 
 static int i915_interrupt_info(struct seq_file *m, void *data)
 {

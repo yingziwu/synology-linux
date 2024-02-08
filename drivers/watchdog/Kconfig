@@ -272,7 +272,7 @@ config DAVINCI_WATCHDOG
 
 config ORION_WATCHDOG
 	tristate "Orion watchdog"
-	depends on ARCH_ORION5X || ARCH_KIRKWOOD
+	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_FEROCEON_KW
 	help
 	  Say Y here if to include support for the watchdog timer
 	  in the Marvell Orion5x and Kirkwood ARM SoCs.
@@ -342,6 +342,26 @@ config IMX2_WDT
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called imx2_wdt.
+
+config COMCERTO_WATCHDOG
+	tristate "Comcerto Watchdog"
+	depends on SYNO_COMCERTO && ARCH_COMCERTO
+	help
+	  Say Y here if to include support for the watchdog timer in
+	  Comcerto device.
+
+	  This driver can be built as a module by choosing M.
+	  The module will be called comcerto_wdt
+
+config ARMADA_WATCHDOG
+	tristate "Armada SoC watchdog"
+	depends on (ARCH_ARMADA_XP || ARCH_ARMADA370) && SYNO_ARMADA_ARCH_V2
+	help
+	  Say Y here if to include support for the watchdog timer
+	  in the Marvell ArmadaXP ARM SoC.
+	  To compile this driver as a module, choose M here: the
+	  module will be called armada_wdt.
+
 
 # AVR32 Architecture
 

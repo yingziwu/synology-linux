@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/mm/proc-arm1026.S: MMU functions for ARM1026EJ-S
  *
@@ -333,6 +336,10 @@ ENTRY(arm1026_dma_unmap_area)
 	mov	pc, lr
 ENDPROC(arm1026_dma_unmap_area)
 
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+	.globl	arm1026_flush_kern_cache_louis
+	.equ	arm1026_flush_kern_cache_louis, arm1026_flush_kern_cache_all
+#endif
 	@ define struct cpu_cache_fns (see <asm/cacheflush.h> and proc-macros.S)
 	define_cache_functions arm1026
 
@@ -388,7 +395,6 @@ ENTRY(cpu_arm1026_set_pte_ext)
 #endif
 #endif /* CONFIG_MMU */
 	mov	pc, lr
-
 
 	__CPUINIT
 

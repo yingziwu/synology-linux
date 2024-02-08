@@ -96,7 +96,6 @@ static void assabet_lcd_power(int on)
 		ASSABET_BCR_clear(ASSABET_BCR_LCD_ON);
 }
 
-
 /*
  * Assabet flash support code.
  */
@@ -162,7 +161,6 @@ static struct resource assabet_flash_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	}
 };
-
 
 /*
  * Assabet IrDA support code.
@@ -311,7 +309,6 @@ fixup_assabet(struct tag *tags, char **cmdline, struct meminfo *mi)
 		printk("Neponset expansion board detected\n");
 }
 
-
 static void assabet_uart_pm(struct uart_port *port, u_int state, u_int oldstate)
 {
 	if (port->mapbase == _Ser1UTCR0) {
@@ -443,7 +440,6 @@ static void __init assabet_map_io(void)
 	sa1100_register_uart(0, 1);
 	sa1100_register_uart(2, 3);
 }
-
 
 MACHINE_START(ASSABET, "Intel-Assabet")
 	.atag_offset	= 0x100,

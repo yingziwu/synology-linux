@@ -544,7 +544,6 @@ int cleanup_journal_tail(journal_t *journal)
 	return 0;
 }
 
-
 /* Checkpoint list management */
 
 /*

@@ -677,7 +677,6 @@ static unsigned int br_nf_pre_routing(unsigned int hook, struct sk_buff *skb,
 	return NF_STOLEN;
 }
 
-
 /* PF_BRIDGE/LOCAL_IN ************************************************/
 /* The packet is locally destined, which requires a real
  * dst_entry, so detach the fake one.  On the way up, the

@@ -45,7 +45,6 @@ SYSCALL_DEFINE3(sigaltstack, const stack_t __user *, uss,
 	return do_sigaltstack(uss, uoss, regs->sp);
 }
 
-
 /*
  * Do a signal return; undo the signal stack.
  */

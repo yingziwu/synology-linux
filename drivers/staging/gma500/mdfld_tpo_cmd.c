@@ -225,7 +225,6 @@ out_err:
 		dev_err(dev->dev, "failed\n");
 }
 
-
 static void mdfld_dsi_dbi_mode_set(struct drm_encoder *encoder,
 				   struct drm_display_mode *mode,
 				   struct drm_display_mode *adjusted_mode)
@@ -407,7 +406,6 @@ static void mdfld_dsi_dbi_dpms(struct drm_encoder *encoder, int mode)
 	}
 }
 
-
 /*
  * Update the DBI MIPI Panel Frame Buffer.
  */
@@ -481,7 +479,6 @@ static int tpo_cmd_get_panel_info(struct drm_device *dev,
 
 	return 0;
 }
-
 
 /* TPO DBI encoder helper funcs */
 static const struct drm_encoder_helper_funcs mdfld_dsi_dbi_helper_funcs = {

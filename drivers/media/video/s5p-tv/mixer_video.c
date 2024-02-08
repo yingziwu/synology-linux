@@ -225,7 +225,6 @@ static void mxr_geometry_dump(struct mxr_device *mdev, struct mxr_geometry *geo)
 		geo->x_ratio, geo->y_ratio);
 }
 
-
 static const struct mxr_format *find_format_by_fourcc(
 	struct mxr_layer *layer, unsigned long fourcc);
 static const struct mxr_format *find_format_by_index(
@@ -1004,4 +1003,3 @@ static const struct mxr_format *find_format_by_index(
 		return NULL;
 	return layer->fmt_array[index];
 }
-

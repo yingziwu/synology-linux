@@ -302,7 +302,6 @@ int rds_notify_queue_get(struct rds_sock *rs, struct msghdr *msghdr)
 	LIST_HEAD(copy);
 	int err = 0;
 
-
 	/* put_cmsg copies to user space and thus may sleep. We can't do this
 	 * with rs_lock held, so first grab as many notifications as we can stuff
 	 * in the user provided cmsg buffer. We don't try to copy more, to avoid
@@ -409,8 +408,6 @@ int rds_recvmsg(struct kiocb *iocb, struct socket *sock, struct msghdr *msg,
 	timeo = sock_rcvtimeo(sk, nonblock);
 
 	rdsdebug("size %zu flags 0x%x timeo %ld\n", size, msg_flags, timeo);
-
-	msg->msg_namelen = 0;
 
 	if (msg_flags & MSG_OOB)
 		goto out;
@@ -545,6 +542,8 @@ void rds_inc_info_copy(struct rds_incoming *inc,
 		minfo.lport = inc->i_hdr.h_sport;
 		minfo.fport = inc->i_hdr.h_dport;
 	}
+
+	minfo.flags = 0;
 
 	rds_info_copy(iter, &minfo, sizeof(minfo));
 }

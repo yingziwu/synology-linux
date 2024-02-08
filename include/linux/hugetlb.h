@@ -164,7 +164,6 @@ struct hugetlbfs_sb_info {
 	struct hugepage_subpool *spool;
 };
 
-
 struct hugetlbfs_inode_info {
 	struct shared_policy policy;
 	struct inode vfs_inode;

@@ -143,7 +143,6 @@ const struct user_regset_view *task_user_regset_view(struct task_struct *task)
  * in exit.c or in signal.c.
  */
 
-
 /*
  * Called by kernel/ptrace.c when detaching..
  *

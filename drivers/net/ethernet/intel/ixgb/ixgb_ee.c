@@ -566,7 +566,6 @@ ixgb_get_ee_mac_addr(struct ixgb_hw *hw,
 	}
 }
 
-
 /******************************************************************************
  * return the Printed Board Assembly number from EEPROM
  *
@@ -584,7 +583,6 @@ ixgb_get_ee_pba_number(struct ixgb_hw *hw)
 
 	return 0;
 }
-
 
 /******************************************************************************
  * return the Device Id from EEPROM
@@ -604,4 +602,3 @@ ixgb_get_ee_device_id(struct ixgb_hw *hw)
 
 	return 0;
 }
-

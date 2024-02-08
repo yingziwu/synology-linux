@@ -180,7 +180,6 @@ struct shared_phy_params {
 	u32 boardflags2;
 };
 
-
 extern struct shared_phy *wlc_phy_shared_attach(struct shared_phy_params *shp);
 extern struct brcms_phy_pub *wlc_phy_attach(struct shared_phy *sh,
 					    struct d11regs __iomem *regs,
@@ -220,7 +219,6 @@ extern void wlc_phy_set_deaf(struct brcms_phy_pub *ppi, bool user_flag);
 
 extern void wlc_phy_switch_radio(struct brcms_phy_pub *ppi, bool on);
 extern void wlc_phy_anacore(struct brcms_phy_pub *ppi, bool on);
-
 
 extern void wlc_phy_BSSinit(struct brcms_phy_pub *ppi, bool bonlyap, int rssi);
 

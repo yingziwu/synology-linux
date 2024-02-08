@@ -976,7 +976,6 @@ static int iwl_send_cmd_async(struct iwl_trans *trans, struct iwl_host_cmd *cmd)
 	if (WARN_ON(cmd->flags & CMD_WANT_SKB))
 		return -EINVAL;
 
-
 	if (test_bit(STATUS_EXIT_PENDING, &trans->shrd->status))
 		return -EBUSY;
 

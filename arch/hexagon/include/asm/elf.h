@@ -153,8 +153,6 @@ do {					\
 	DEST.badva = pt_badva(REGS);	\
 } while (0);
 
-
-
 /*
  * This is used to ensure we don't load something for the wrong architecture.
  * Checks the machine and ABI type.
@@ -224,6 +222,5 @@ do {					\
 struct linux_binprm;
 extern int arch_setup_additional_pages(struct linux_binprm *bprm,
 				       int uses_interp);
-
 
 #endif

@@ -74,7 +74,6 @@ static struct panel_drv_data {
 	int blizzard_ver;
 } s_drv_data;
 
-
 static inline
 struct panel_n8x0_data *get_board_data(const struct omap_dss_device *dssdev)
 {
@@ -86,7 +85,6 @@ struct panel_drv_data *get_drv_data(const struct omap_dss_device *dssdev)
 {
 	return &s_drv_data;
 }
-
 
 static inline void blizzard_cmd(u8 cmd)
 {

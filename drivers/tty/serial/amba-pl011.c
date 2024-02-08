@@ -66,7 +66,6 @@
 #define UART_DR_ERROR		(UART011_DR_OE|UART011_DR_BE|UART011_DR_PE|UART011_DR_FE)
 #define UART_DUMMY_DR_RX	(1 << 16)
 
-
 #define UART_WA_SAVE_NR 14
 
 static void pl011_lockup_wa(unsigned long data);
@@ -225,7 +224,6 @@ static int pl011_fifo_to_tty(struct uart_amba_port *uap)
 
 	return fifotaken;
 }
-
 
 /*
  * All the DMA operation mode stuff goes inside this ifdef.
@@ -978,7 +976,6 @@ static inline bool pl011_dma_rx_running(struct uart_amba_port *uap)
 	return uap->using_rx_dma && uap->dmarx.running;
 }
 
-
 #else
 /* Blank functions if the DMA engine is not available */
 static inline void pl011_dma_probe(struct uart_amba_port *uap)
@@ -1036,7 +1033,6 @@ static inline bool pl011_dma_rx_running(struct uart_amba_port *uap)
 
 #define pl011_dma_flush_buffer	NULL
 #endif
-
 
 /*
  * pl011_lockup_wa

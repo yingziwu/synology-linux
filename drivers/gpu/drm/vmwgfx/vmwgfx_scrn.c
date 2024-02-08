@@ -27,7 +27,6 @@
 
 #include "vmwgfx_kms.h"
 
-
 #define vmw_crtc_to_sou(x) \
 	container_of(x, struct vmw_screen_object_unit, base.crtc)
 #define vmw_encoder_to_sou(x) \
@@ -59,7 +58,6 @@ static void vmw_sou_destroy(struct vmw_screen_object_unit *sou)
 	vmw_display_unit_cleanup(&sou->base);
 	kfree(sou);
 }
-
 
 /*
  * Screen Object Display Unit CRTC functions
@@ -317,7 +315,6 @@ static int vmw_sou_crtc_set_config(struct drm_mode_set *set)
 
 		return 0;
 	}
-
 
 	/* we now know we want to set a mode */
 	mode = set->mode;

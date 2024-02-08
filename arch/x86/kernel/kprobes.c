@@ -1107,7 +1107,6 @@ int __kprobes longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
 	return 0;
 }
 
-
 #ifdef CONFIG_OPTPROBES
 
 /* Insert a call instruction at address 'from', which calls address 'to'.*/

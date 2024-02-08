@@ -102,7 +102,6 @@ do {								\
 		f_op = FOP;		\
 		goto cond_branch
 
-
 #define SEEN_DATAREF 1 /* might call external helpers */
 #define SEEN_XREG    2 /* ebx is used */
 #define SEEN_MEM     4 /* use mem[] for temporary storage */
@@ -116,7 +115,6 @@ static inline void bpf_flush_icache(void *start, void *end)
 	flush_icache_range((unsigned long)start, (unsigned long)end);
 	set_fs(old_fs);
 }
-
 
 void bpf_jit_compile(struct sk_filter *fp)
 {
@@ -150,7 +148,12 @@ void bpf_jit_compile(struct sk_filter *fp)
 	}
 	cleanup_addr = proglen; /* epilogue address */
 
-	for (pass = 0; pass < 10; pass++) {
+	/* JITed image shrinks with every pass and the loop iterates
+	 * until the image stops shrinking. Very large bpf programs
+	 * may converge on the last pass. In such case do one more
+	 * pass to emit the final image
+	 */
+	for (pass = 0; pass < 10 || image; pass++) {
 		u8 seen_or_pass0 = (pass == 0) ? (SEEN_XREG | SEEN_DATAREF | SEEN_MEM) : seen;
 		/* no prologue/epilogue for trivial filters (RET something) */
 		proglen = 0;

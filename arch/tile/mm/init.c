@@ -188,7 +188,6 @@ static void __init page_table_range_init(unsigned long start,
 }
 #endif /* CONFIG_HIGHMEM */
 
-
 #if CHIP_HAS_CBOX_HOME_MAP()
 
 static int __initdata ktext_hash = 1;  /* .text pages */
@@ -208,7 +207,6 @@ static __initdata struct cpumask kdata_mask;
 static __initdata int kdata_arg_seen;
 
 int __write_once kdata_huge;       /* if no homecaching, small pages */
-
 
 /* Combine a generic pgprot_t with cache home to get a cache-aware pgprot. */
 static pgprot_t __init construct_pgprot(pgprot_t prot, int home)
@@ -380,7 +378,6 @@ static int __init setup_ktext(char *str)
 		pr_info("ktext: using maximal caching neighborhood\n");
 	}
 
-
 	/* Neighborhood ktext pages on specified mask */
 	else if (cpulist_parse(str, &ktext_mask) == 0) {
 		char buf[NR_CPUS * 5];
@@ -402,7 +399,6 @@ static int __init setup_ktext(char *str)
 }
 
 early_param("ktext", setup_ktext);
-
 
 static inline pgprot_t ktext_set_nocache(pgprot_t prot)
 {
@@ -695,7 +691,6 @@ static void __init permanent_kmaps_init(pgd_t *pgd_base)
 }
 #endif /* CONFIG_HIGHMEM */
 
-
 static void __init init_free_pfn_range(unsigned long start, unsigned long end)
 {
 	unsigned long pfn;
@@ -809,7 +804,6 @@ void __init paging_init(void)
 	assign_pmd(pud, alloc_pmd());
 #endif
 }
-
 
 /*
  * Walk the kernel page tables and derive the page_home() from

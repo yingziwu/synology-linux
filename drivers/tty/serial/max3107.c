@@ -232,7 +232,6 @@ static void max3107_handlerx(struct max3107_port *s, u16 rxlvl)
 		tty_flip_buffer_push(s->port.state->port.tty);
 }
 
-
 /* Handle data sending */
 static void max3107_handletx(struct max3107_port *s)
 {
@@ -911,7 +910,6 @@ static void max3107_break_ctl(struct uart_port *port, int break_state)
 	/* We don't support break control, do nothing */
 }
 
-
 /* Port functions */
 static struct uart_ops max3107_ops = {
 	.tx_empty       = max3107_tx_empty,
@@ -942,8 +940,6 @@ static struct uart_driver max3107_uart_driver = {
 
 static int driver_registered = 0;
 
-
-
 /* 'Generic' platform data */
 static struct max3107_plat generic_plat_data = {
 	.loopback               = 0,
@@ -952,7 +948,6 @@ static struct max3107_plat generic_plat_data = {
 	.polled_mode            = 0,
 	.poll_time              = 0,
 };
-
 
 /*******************************************************************/
 
@@ -1120,7 +1115,6 @@ int max3107_remove(struct spi_device *spi)
 	/* Remove port */
 	if (uart_remove_one_port(&max3107_uart_driver, &s->port))
 		dev_warn(&s->spi->dev, "Removing UART port failed\n");
-
 
 	/* Free TxRx buffer */
 	kfree(s->rxbuf);

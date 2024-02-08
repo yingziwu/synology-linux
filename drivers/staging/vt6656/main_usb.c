@@ -97,19 +97,16 @@ MODULE_DESCRIPTION(DEVICE_FULL_DRV_NAM);
 #define RX_DESC_DEF0     64
 DEVICE_PARAM(RxDescriptors0,"Number of receive usb desc buffer");
 
-
 #define TX_DESC_MIN0     16
 #define TX_DESC_MAX0     128
 #define TX_DESC_DEF0     64
 DEVICE_PARAM(TxDescriptors0,"Number of transmit usb desc buffer");
-
 
 #define CHANNEL_MIN     1
 #define CHANNEL_MAX     14
 #define CHANNEL_DEF     6
 
 DEVICE_PARAM(Channel, "Channel number");
-
 
 /* PreambleType[] is the preamble length used for transmit.
    0: indicate allows long preamble type
@@ -120,20 +117,17 @@ DEVICE_PARAM(Channel, "Channel number");
 
 DEVICE_PARAM(PreambleType, "Preamble Type");
 
-
 #define RTS_THRESH_MIN     512
 #define RTS_THRESH_MAX     2347
 #define RTS_THRESH_DEF     2347
 
 DEVICE_PARAM(RTSThreshold, "RTS threshold");
 
-
 #define FRAG_THRESH_MIN     256
 #define FRAG_THRESH_MAX     2346
 #define FRAG_THRESH_DEF     2346
 
 DEVICE_PARAM(FragThreshold, "Fragmentation threshold");
-
 
 #define DATA_RATE_MIN     0
 #define DATA_RATE_MAX     13
@@ -169,7 +163,6 @@ DEVICE_PARAM(OPMode, "Infrastruct, adhoc, AP mode ");
    2: indicate AP mode used
 */
 
-
 /* PSMode[]
    0: indicate disable power saving mode
    1: indicate enable power saving mode
@@ -179,11 +172,9 @@ DEVICE_PARAM(OPMode, "Infrastruct, adhoc, AP mode ");
 
 DEVICE_PARAM(PSMode, "Power saving mode");
 
-
 #define SHORT_RETRY_MIN     0
 #define SHORT_RETRY_MAX     31
 #define SHORT_RETRY_DEF     8
-
 
 DEVICE_PARAM(ShortRetryLimit, "Short frame retry limits");
 
@@ -191,9 +182,7 @@ DEVICE_PARAM(ShortRetryLimit, "Short frame retry limits");
 #define LONG_RETRY_MAX     15
 #define LONG_RETRY_DEF     4
 
-
 DEVICE_PARAM(LongRetryLimit, "long frame retry limits");
-
 
 /* BasebandType[] baseband type selected
    0: indicate 802.11a type
@@ -206,8 +195,6 @@ DEVICE_PARAM(LongRetryLimit, "long frame retry limits");
 
 DEVICE_PARAM(BasebandType, "baseband type");
 
-
-
 /* 80211hEnable[]
    0: indicate disable 802.11h
    1: indicate enable 802.11h
@@ -216,7 +203,6 @@ DEVICE_PARAM(BasebandType, "baseband type");
 #define X80211h_MODE_DEF     0
 
 DEVICE_PARAM(b80211hEnable, "802.11h mode");
-
 
 //
 // Static vars definitions
@@ -236,7 +222,6 @@ static const long frequency_list[] = {
     5260, 5280, 5300, 5320, 5500, 5520, 5540, 5560, 5580, 5600, 5620, 5640, 5660, 5680,
     5700, 5745, 5765, 5785, 5805, 5825
 	};
-
 
 #ifndef IW_ENCODE_NOKEY
 #define IW_ENCODE_NOKEY         0x0800
@@ -286,12 +271,9 @@ static BOOL device_release_WPADEV(PSDevice pDevice);
 
 static void usb_device_reset(PSDevice pDevice);
 
-
-
 /*---------------------  Export Variables  --------------------------*/
 
 /*---------------------  Export Functions  --------------------------*/
-
 
 static void
 device_set_options(PSDevice pDevice) {
@@ -331,7 +313,6 @@ device_set_options(PSDevice pDevice) {
     pDevice->bDiversityRegCtlON = FALSE;
 }
 
-
 static void device_init_diversity_timer(PSDevice pDevice)
 {
     init_timer(&pDevice->TimerSQ3Tmax1);
@@ -351,7 +332,6 @@ static void device_init_diversity_timer(PSDevice pDevice)
 
     return;
 }
-
 
 //
 // Initialiation of MAC & BBP registers
@@ -835,7 +815,6 @@ static void device_free_tx_bufs(PSDevice pDevice)
     return;
 }
 
-
 static void device_free_rx_bufs(PSDevice pDevice)
 {
     PRCB pRCB;
@@ -873,13 +852,11 @@ static void device_free_int_bufs(PSDevice pDevice)
     return;
 }
 
-
 static BOOL device_alloc_bufs(PSDevice pDevice) {
 
     PUSB_SEND_CONTEXT pTxContext;
     PRCB pRCB;
     int ii;
-
 
     for (ii = 0; ii < pDevice->cbTD; ii++) {
 
@@ -905,7 +882,6 @@ static BOOL device_alloc_bufs(PSDevice pDevice) {
         DBG_PRT(MSG_LEVEL_ERR,KERN_ERR "%s : alloc rx usb context failed\n", pDevice->dev->name);
         goto free_tx;
     }
-
 
     pDevice->FirstRecvFreeList = NULL;
     pDevice->LastRecvFreeList = NULL;
@@ -937,7 +913,6 @@ static BOOL device_alloc_bufs(PSDevice pDevice) {
         pDevice->NumRecvFreeList++;
         pRCB++;
     }
-
 
 	pDevice->pControlURB = usb_alloc_urb(0, GFP_ATOMIC);
 	if (pDevice->pControlURB == NULL) {
@@ -971,9 +946,6 @@ free_tx:
 	return FALSE;
 }
 
-
-
-
 static BOOL device_init_defrag_cb(PSDevice pDevice) {
     int i;
     PSDeFragControlBlock pDeF;
@@ -996,8 +968,6 @@ free_frag:
     return FALSE;
 }
 
-
-
 static void device_free_frag_bufs(PSDevice pDevice) {
     PSDeFragControlBlock pDeF;
     int i;
@@ -1011,8 +981,6 @@ static void device_free_frag_bufs(PSDevice pDevice) {
     }
 }
 
-
-
 BOOL device_alloc_frag_buf(PSDevice pDevice, PSDeFragControlBlock pDeF) {
 
     pDeF->skb = dev_alloc_skb((int)pDevice->rx_buf_sz);
@@ -1023,7 +991,6 @@ BOOL device_alloc_frag_buf(PSDevice pDevice, PSDeFragControlBlock pDeF) {
 
     return TRUE;
 }
-
 
 /*-----------------------------------------------------------------*/
 
@@ -1039,7 +1006,6 @@ static int  device_open(struct net_device *dev) {
      pDevice->fWPA_Authened = FALSE;
 
     DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO " device_open...\n");
-
 
     pDevice->rx_buf_sz = MAX_TOTAL_SIZE_WITH_ALL_HEADERS;
 
@@ -1131,7 +1097,6 @@ static int  device_open(struct net_device *dev) {
 	  /* bScheduleCommand((void *) pDevice, WLAN_CMD_SSID, NULL); */
     }
 
-
     netif_stop_queue(pDevice->dev);
     pDevice->flags |= DEVICE_FLAGS_OPENED;
 
@@ -1159,8 +1124,6 @@ free_rx_tx:
     DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO "device_open fail.. \n");
     return -ENOMEM;
 }
-
-
 
 static int  device_close(struct net_device *dev) {
     PSDevice    pDevice=(PSDevice) netdev_priv(dev);
@@ -1536,7 +1499,6 @@ static void device_set_multi(struct net_device *dev) {
     BYTE             byTmpMode = 0;
     int              rc;
 
-
 	spin_lock_irq(&pDevice->lock);
     rc = CONTROLnsRequestIn(pDevice,
                             MESSAGE_TYPE_READ,
@@ -1590,13 +1552,11 @@ static void device_set_multi(struct net_device *dev) {
 
 }
 
-
 static struct net_device_stats *device_get_stats(struct net_device *dev) {
     PSDevice pDevice=(PSDevice) netdev_priv(dev);
 
     return &pDevice->stats;
 }
-
 
 static int  device_ioctl(struct net_device *dev, struct ifreq *rq, int cmd) {
 	PSDevice	        pDevice = (PSDevice)netdev_priv(dev);
@@ -1658,7 +1618,6 @@ static int  device_ioctl(struct net_device *dev, struct ifreq *rq, int cmd) {
 		}
 		break;
 
-
 		// Get current network name (ESSID)
 	case SIOCGIWESSID:
 
@@ -1680,12 +1639,10 @@ static int  device_ioctl(struct net_device *dev, struct ifreq *rq, int cmd) {
 		rc = iwctl_siwap(dev, NULL, &(wrq->u.ap_addr), NULL);
 		break;
 
-
 		// Get current Access Point (BSSID)
 	case SIOCGIWAP:
 		rc = iwctl_giwap(dev, NULL, &(wrq->u.ap_addr), NULL);
 		break;
-
 
 		// Set desired station name
 	case SIOCSIWNICKN:
@@ -1750,7 +1707,6 @@ static int  device_ioctl(struct net_device *dev, struct ifreq *rq, int cmd) {
             char abyKey[WLAN_WEP232_KEYLEN];
 
 			if (wrq->u.encoding.pointer) {
-
 
 				if (wrq->u.encoding.length > WLAN_WEP232_KEYLEN) {
 					rc = -E2BIG;
@@ -1831,12 +1787,10 @@ static int  device_ioctl(struct net_device *dev, struct ifreq *rq, int cmd) {
 		rc = iwctl_giwpower(dev, NULL, &(wrq->u.power), NULL);
 		break;
 
-
 	case SIOCSIWPOWER:
 
 		rc = iwctl_siwpower(dev, NULL, &(wrq->u.power), NULL);
 		break;
-
 
 	case SIOCGIWSENS:
 
@@ -1864,7 +1818,6 @@ static int  device_ioctl(struct net_device *dev, struct ifreq *rq, int cmd) {
             }
         }
 		break;
-
 
 #ifdef WIRELESS_SPY
 		// Set the spy list
@@ -2020,7 +1973,6 @@ static int  device_ioctl(struct net_device *dev, struct ifreq *rq, int cmd) {
 		rc = -EOPNOTSUPP;
         DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO "Ioctl command not support..%x\n", cmd);
 
-
     }
 
     if (pDevice->bCommit) {
@@ -2060,10 +2012,8 @@ static int  device_ioctl(struct net_device *dev, struct ifreq *rq, int cmd) {
       pDevice->bCommit = FALSE;
     }
 
-
     return rc;
 }
-
 
 static int ethtool_ioctl(struct net_device *dev, void *useraddr)
 {
@@ -2086,7 +2036,6 @@ static int ethtool_ioctl(struct net_device *dev, void *useraddr)
 
 	return -EOPNOTSUPP;
 }
-
 
 /*------------------------------------------------------------------*/
 

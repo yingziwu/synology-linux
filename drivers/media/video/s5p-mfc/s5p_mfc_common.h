@@ -514,7 +514,6 @@ struct s5p_mfc_ctx {
 	void *desc_buf;
 	size_t desc_phys;
 
-
 	void *shm_alloc;
 	void *shm;
 	size_t shm_ofs;
@@ -563,7 +562,6 @@ struct mfc_control {
 	__u32			reserved[2];
 	__u8			is_volatile;
 };
-
 
 #define fh_to_ctx(__fh) container_of(__fh, struct s5p_mfc_ctx, fh)
 #define ctrl_to_ctx(__ctrl) \

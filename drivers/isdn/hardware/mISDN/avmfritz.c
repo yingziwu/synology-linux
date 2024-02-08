@@ -29,7 +29,6 @@
 #include <asm/unaligned.h>
 #include "ipac.h"
 
-
 #define AVMFRITZ_REV	"2.1"
 
 static int AVM_cnt;
@@ -298,7 +297,6 @@ write_ctrl(struct bchannel *bch, int which) {
 	}
 }
 
-
 static inline u32
 __read_status_pci(u_long addr, u32 channel)
 {
@@ -312,7 +310,6 @@ __read_status_pciv2(u_long addr, u32 channel)
 	return inl(addr + (channel == 2 ? AVM_HDLC_STATUS_2 :
 		AVM_HDLC_STATUS_1));
 }
-
 
 static u32
 read_status(struct fritzcard *fc, u32 channel)

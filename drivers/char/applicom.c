@@ -1,7 +1,7 @@
 /* Derived from Applicom driver ac.c for SCO Unix                            */
 /* Ported by David Woodhouse, Axiom (Cambridge) Ltd.                         */
 /* dwmw2@infradead.org 30/8/98                                               */
-/* $Id: ac.c,v 1.30 2000/03/22 16:03:57 dwmw2 Exp $			     */
+/* $Id: applicom.c,v 1.1.1.1 2010/04/15 12:27:55 khchen Exp $			     */
 /* This module is for Linux 2.1 and 2.2 series kernels.                      */
 /*****************************************************************************/
 /* J PAGET 18/02/94 passage V2.4.2 ioctl avec code 2 reset to les interrupt  */
@@ -18,7 +18,6 @@
 /* J.PAGET le 19/08/96 copie de la version V2.6 en V2.8.0 sans modification  */
 /* de code autre que le texte V2.6.1 en V2.8.0                               */
 /*****************************************************************************/
-
 
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -38,13 +37,11 @@
 
 #include "applicom.h"
 
-
 /* NOTE: We use for loops with {write,read}b() instead of 
    memcpy_{from,to}io throughout this driver. This is because
    the board doesn't correctly handle word accesses - only
    bytes. 
 */
-
 
 #undef DEBUG
 
@@ -81,7 +78,6 @@ MODULE_LICENSE("GPL");
 MODULE_ALIAS_MISCDEV(AC_MINOR);
 
 MODULE_SUPPORTED_DEVICE("ac");
-
 
 static struct applicom_board {
 	unsigned long PhysIO;
@@ -190,7 +186,7 @@ static int __init applicom_init(void)
 	void __iomem *RamIO;
 	int boardno, ret;
 
-	printk(KERN_INFO "Applicom driver: $Id: ac.c,v 1.30 2000/03/22 16:03:57 dwmw2 Exp $\n");
+	printk(KERN_INFO "Applicom driver: $Id: applicom.c,v 1.1.1.1 2010/04/15 12:27:55 khchen Exp $\n");
 
 	/* No mem and irq given - check for a PCI card */
 
@@ -316,7 +312,6 @@ static int __init applicom_init(void)
 
 			boardname[serial] = 0;
 
-
 			printk(KERN_INFO "Applicom board %d: %s, PROM V%d.%d",
 			       i+1, boardname,
 			       (int)(readb(apbs[i].RamIO + VERS) >> 4),
@@ -351,7 +346,6 @@ out:
 
 module_init(applicom_init);
 module_exit(applicom_exit);
-
 
 static ssize_t ac_write(struct file *file, const char __user *buf, size_t count, loff_t * ppos)
 {
@@ -488,7 +482,6 @@ static int do_ac_read(int IndexCard, char __user *buf,
 
 	st_loc->tic_owner_to_pc = readb(apbs[IndexCard].RamIO + TIC_OWNER_TO_PC);
 	st_loc->numcard_owner_to_pc = readb(apbs[IndexCard].RamIO + NUMCARD_OWNER_TO_PC);
-
 
 	{
 		int c;
@@ -689,8 +682,6 @@ static irqreturn_t ac_interrupt(int vec, void *dev_instance)
 	return IRQ_RETVAL(handled);
 }
 
-
-
 static long ac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
      
 {				/* @ ADG ou ATO selon le cas */
@@ -787,7 +778,7 @@ static long ac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		writeb(1, apbs[IndexCard].RamIO + RAM_IT_FROM_PC);
 		break;
 	case 6:
-		printk(KERN_INFO "APPLICOM driver release .... V2.8.0 ($Revision: 1.30 $)\n");
+		printk(KERN_INFO "APPLICOM driver release .... V2.8.0 ($Revision: 1.1.1.1 $)\n");
 		printk(KERN_INFO "Number of installed boards . %d\n", (int) numboards);
 		printk(KERN_INFO "Segment of board ........... %X\n", (int) mem);
 		printk(KERN_INFO "Interrupt IRQ number ....... %d\n", (int) irq);
@@ -807,7 +798,6 @@ static long ac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			       (int)(readb(apbs[IndexCard].RamIO + VERS) >> 4),
 			       (int)(readb(apbs[IndexCard].RamIO + VERS) & 0xF),
 			       boardname);
-
 
 			serial = (readb(apbs[i].RamIO + SERIAL_NUMBER) << 16) + 
 				(readb(apbs[i].RamIO + SERIAL_NUMBER + 1) << 8) + 
@@ -840,4 +830,3 @@ static long ac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	mutex_unlock(&ac_mutex);
 	return 0;
 }
-

@@ -1,4 +1,4 @@
-/* $Id: b1pci.c,v 1.1.2.2 2004/01/16 21:09:27 keil Exp $
+/* $Id: b1pci.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  * 
  * Module for AVM B1 PCI-card.
  * 
@@ -27,7 +27,7 @@
 
 /* ------------------------------------------------------------- */
 
-static char *revision = "$Revision: 1.1.2.2 $";
+static char *revision = "$Revision: 1.1.1.1 $";
 
 /* ------------------------------------------------------------- */
 
@@ -388,7 +388,6 @@ static int __init b1pci_init(void)
 		   *(p-1) = 0;
 	} else
 		strcpy(rev, "1.0");
-
 
 	err = pci_register_driver(&b1pci_pci_driver);
 	if (!err) {

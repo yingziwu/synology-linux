@@ -1,14 +1,7 @@
-/*
- * Driver for the i2c controller on the Marvell line of host bridges
- * (e.g, gt642[46]0, mv643[46]0, mv644[46]0, and Orion SoC family).
- *
- * Author: Mark A. Greer <mgreer@mvista.com>
- *
- * 2005 (c) MontaVista, Software, Inc.  This file is licensed under
- * the terms of the GNU General Public License version 2.  This program
- * is licensed "as is" without any warranty of any kind, whether express
- * or implied.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/module.h>
@@ -18,8 +11,8 @@
 #include <linux/mv643xx_i2c.h>
 #include <linux/platform_device.h>
 #include <linux/io.h>
+#include <linux/delay.h>
 
-/* Register defines */
 #define	MV64XXX_I2C_REG_SLAVE_ADDR			0x00
 #define	MV64XXX_I2C_REG_DATA				0x04
 #define	MV64XXX_I2C_REG_CONTROL				0x08
@@ -35,7 +28,6 @@
 #define	MV64XXX_I2C_REG_CONTROL_TWSIEN			0x00000040
 #define	MV64XXX_I2C_REG_CONTROL_INTEN			0x00000080
 
-/* Ctlr status values */
 #define	MV64XXX_I2C_STATUS_BUS_ERR			0x00
 #define	MV64XXX_I2C_STATUS_MAST_START			0x08
 #define	MV64XXX_I2C_STATUS_MAST_REPEAT_START		0x10
@@ -54,24 +46,43 @@
 #define	MV64XXX_I2C_STATUS_MAST_RD_ADDR_2_NO_ACK	0xe8
 #define	MV64XXX_I2C_STATUS_NO_STATUS			0xf8
 
-/* Driver states */
+#ifdef MY_ABC_HERE
+ 
+#define	MV64XXX_I2C_REG_TX_DATA_LO			0xC0
+#define	MV64XXX_I2C_REG_TX_DATA_HI			0xC4
+#define	MV64XXX_I2C_REG_RX_DATA_LO			0xC8
+#define	MV64XXX_I2C_REG_RX_DATA_HI			0xCC
+#define	MV64XXX_I2C_REG_BRIDGE_CONTROL			0xD0
+#define	MV64XXX_I2C_REG_BRIDGE_STATUS			0xD4
+#define	MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE		0xD8
+#define	MV64XXX_I2C_REG_BRIDGE_INTR_MASK		0xDC
+#define	MV64XXX_I2C_REG_BRIDGE_TIMING			0xE0
+
+#define	MV64XXX_I2C_BRIDGE_CONTROL_WR			0x00000001
+#define	MV64XXX_I2C_BRIDGE_CONTROL_RD			0x00000002
+#define	MV64XXX_I2C_BRIDGE_CONTROL_ADDR_SHIFT		2
+#define	MV64XXX_I2C_BRIDGE_CONTROL_ADDR_EXT		0x00001000
+#define	MV64XXX_I2C_BRIDGE_CONTROL_TX_SIZE_SHIFT	13
+#define	MV64XXX_I2C_BRIDGE_CONTROL_RX_SIZE_SHIFT	16
+#define	MV64XXX_I2C_BRIDGE_CONTROL_ENABLE		0x00080000
+
+#define	MV64XXX_I2C_BRIDGE_STATUS_ERROR			0x00000001
+#endif
+
 enum {
 	MV64XXX_I2C_STATE_INVALID,
 	MV64XXX_I2C_STATE_IDLE,
 	MV64XXX_I2C_STATE_WAITING_FOR_START_COND,
-	MV64XXX_I2C_STATE_WAITING_FOR_RESTART,
 	MV64XXX_I2C_STATE_WAITING_FOR_ADDR_1_ACK,
 	MV64XXX_I2C_STATE_WAITING_FOR_ADDR_2_ACK,
 	MV64XXX_I2C_STATE_WAITING_FOR_SLAVE_ACK,
 	MV64XXX_I2C_STATE_WAITING_FOR_SLAVE_DATA,
 };
 
-/* Driver actions */
 enum {
 	MV64XXX_I2C_ACTION_INVALID,
 	MV64XXX_I2C_ACTION_CONTINUE,
 	MV64XXX_I2C_ACTION_SEND_START,
-	MV64XXX_I2C_ACTION_SEND_RESTART,
 	MV64XXX_I2C_ACTION_SEND_ADDR_1,
 	MV64XXX_I2C_ACTION_SEND_ADDR_2,
 	MV64XXX_I2C_ACTION_SEND_DATA,
@@ -93,7 +104,6 @@ struct mv64xxx_i2c_data {
 	u32			addr2;
 	u32			bytes_left;
 	u32			byte_posn;
-	u32			send_stop;
 	u32			block;
 	int			rc;
 	u32			freq_m;
@@ -104,15 +114,6 @@ struct mv64xxx_i2c_data {
 	struct i2c_adapter	adapter;
 };
 
-/*
- *****************************************************************************
- *
- *	Finite State Machine & Interrupt Routines
- *
- *****************************************************************************
- */
-
-/* Reset hardware and initialize FSM */
 static void
 mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
 {
@@ -123,55 +124,52 @@ mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
 	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_EXT_SLAVE_ADDR);
 	writel(MV64XXX_I2C_REG_CONTROL_TWSIEN | MV64XXX_I2C_REG_CONTROL_STOP,
 		drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+
+#ifdef MY_ABC_HERE
+#ifdef CONFIG_I2C_MV64XXX_BRIDGE
+	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_CONTROL);
+	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_TIMING);
+	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE);
+	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_INTR_MASK);
+#endif  
+#endif
+
 	drv_data->state = MV64XXX_I2C_STATE_IDLE;
 }
 
 static void
 mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
 {
-	/*
-	 * If state is idle, then this is likely the remnants of an old
-	 * operation that driver has given up on or the user has killed.
-	 * If so, issue the stop condition and go to idle.
-	 */
+	 
 	if (drv_data->state == MV64XXX_I2C_STATE_IDLE) {
 		drv_data->action = MV64XXX_I2C_ACTION_SEND_STOP;
 		return;
 	}
 
-	/* The status from the ctlr [mostly] tells us what to do next */
 	switch (status) {
-	/* Start condition interrupt */
-	case MV64XXX_I2C_STATUS_MAST_START: /* 0x08 */
-	case MV64XXX_I2C_STATUS_MAST_REPEAT_START: /* 0x10 */
+	 
+	case MV64XXX_I2C_STATUS_MAST_START:  
+	case MV64XXX_I2C_STATUS_MAST_REPEAT_START:  
 		drv_data->action = MV64XXX_I2C_ACTION_SEND_ADDR_1;
 		drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_ADDR_1_ACK;
 		break;
 
-	/* Performing a write */
-	case MV64XXX_I2C_STATUS_MAST_WR_ADDR_ACK: /* 0x18 */
+	case MV64XXX_I2C_STATUS_MAST_WR_ADDR_ACK:  
 		if (drv_data->msg->flags & I2C_M_TEN) {
 			drv_data->action = MV64XXX_I2C_ACTION_SEND_ADDR_2;
 			drv_data->state =
 				MV64XXX_I2C_STATE_WAITING_FOR_ADDR_2_ACK;
 			break;
 		}
-		/* FALLTHRU */
-	case MV64XXX_I2C_STATUS_MAST_WR_ADDR_2_ACK: /* 0xd0 */
-	case MV64XXX_I2C_STATUS_MAST_WR_ACK: /* 0x28 */
+		 
+	case MV64XXX_I2C_STATUS_MAST_WR_ADDR_2_ACK:  
+	case MV64XXX_I2C_STATUS_MAST_WR_ACK:  
 		if ((drv_data->bytes_left == 0)
 				|| (drv_data->aborting
 					&& (drv_data->byte_posn != 0))) {
-			if (drv_data->send_stop) {
 				drv_data->action = MV64XXX_I2C_ACTION_SEND_STOP;
 				drv_data->state = MV64XXX_I2C_STATE_IDLE;
 			} else {
-				drv_data->action =
-					MV64XXX_I2C_ACTION_SEND_RESTART;
-				drv_data->state =
-					MV64XXX_I2C_STATE_WAITING_FOR_RESTART;
-			}
-		} else {
 			drv_data->action = MV64XXX_I2C_ACTION_SEND_DATA;
 			drv_data->state =
 				MV64XXX_I2C_STATE_WAITING_FOR_SLAVE_ACK;
@@ -179,23 +177,22 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
 		}
 		break;
 
-	/* Performing a read */
-	case MV64XXX_I2C_STATUS_MAST_RD_ADDR_ACK: /* 40 */
+	case MV64XXX_I2C_STATUS_MAST_RD_ADDR_ACK:  
 		if (drv_data->msg->flags & I2C_M_TEN) {
 			drv_data->action = MV64XXX_I2C_ACTION_SEND_ADDR_2;
 			drv_data->state =
 				MV64XXX_I2C_STATE_WAITING_FOR_ADDR_2_ACK;
 			break;
 		}
-		/* FALLTHRU */
-	case MV64XXX_I2C_STATUS_MAST_RD_ADDR_2_ACK: /* 0xe0 */
+		 
+	case MV64XXX_I2C_STATUS_MAST_RD_ADDR_2_ACK:  
 		if (drv_data->bytes_left == 0) {
 			drv_data->action = MV64XXX_I2C_ACTION_SEND_STOP;
 			drv_data->state = MV64XXX_I2C_STATE_IDLE;
 			break;
 		}
-		/* FALLTHRU */
-	case MV64XXX_I2C_STATUS_MAST_RD_DATA_ACK: /* 0x50 */
+		 
+	case MV64XXX_I2C_STATUS_MAST_RD_DATA_ACK:  
 		if (status != MV64XXX_I2C_STATUS_MAST_RD_DATA_ACK)
 			drv_data->action = MV64XXX_I2C_ACTION_CONTINUE;
 		else {
@@ -208,15 +205,15 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
 			drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_ACK;
 		break;
 
-	case MV64XXX_I2C_STATUS_MAST_RD_DATA_NO_ACK: /* 0x58 */
+	case MV64XXX_I2C_STATUS_MAST_RD_DATA_NO_ACK:  
 		drv_data->action = MV64XXX_I2C_ACTION_RCV_DATA_STOP;
 		drv_data->state = MV64XXX_I2C_STATE_IDLE;
 		break;
 
-	case MV64XXX_I2C_STATUS_MAST_WR_ADDR_NO_ACK: /* 0x20 */
-	case MV64XXX_I2C_STATUS_MAST_WR_NO_ACK: /* 30 */
-	case MV64XXX_I2C_STATUS_MAST_RD_ADDR_NO_ACK: /* 48 */
-		/* Doesn't seem to be a device at other end */
+	case MV64XXX_I2C_STATUS_MAST_WR_ADDR_NO_ACK:  
+	case MV64XXX_I2C_STATUS_MAST_WR_NO_ACK:  
+	case MV64XXX_I2C_STATUS_MAST_RD_ADDR_NO_ACK:  
+		 
 		drv_data->action = MV64XXX_I2C_ACTION_SEND_STOP;
 		drv_data->state = MV64XXX_I2C_STATE_IDLE;
 		drv_data->rc = -ENODEV;
@@ -238,15 +235,6 @@ static void
 mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
 {
 	switch(drv_data->action) {
-	case MV64XXX_I2C_ACTION_SEND_RESTART:
-		drv_data->cntl_bits |= MV64XXX_I2C_REG_CONTROL_START;
-		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
-		writel(drv_data->cntl_bits,
-			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-		drv_data->block = 0;
-		wake_up_interruptible(&drv_data->waitq);
-		break;
-
 	case MV64XXX_I2C_ACTION_CONTINUE:
 		writel(drv_data->cntl_bits,
 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
@@ -292,6 +280,10 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
 		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
 		drv_data->block = 0;
+#if defined(CONFIG_ARMADA_XP_REV_A0) || defined(CONFIG_ARMADA_XP_REV_B0)
+		 
+		udelay(5);
+#endif  
 		wake_up_interruptible(&drv_data->waitq);
 		break;
 
@@ -301,12 +293,13 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
 			"mv64xxx_i2c_do_action: Invalid action: %d\n",
 			drv_data->action);
 		drv_data->rc = -EIO;
-		/* FALLTHRU */
+		 
 	case MV64XXX_I2C_ACTION_SEND_STOP:
 		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
 		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
 		drv_data->block = 0;
+
 		wake_up_interruptible(&drv_data->waitq);
 		break;
 	}
@@ -321,6 +314,19 @@ mv64xxx_i2c_intr(int irq, void *dev_id)
 	irqreturn_t	rc = IRQ_NONE;
 
 	spin_lock_irqsave(&drv_data->lock, flags);
+#ifdef MY_ABC_HERE
+#ifdef CONFIG_I2C_MV64XXX_BRIDGE
+	if (readl(drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE)) {
+		writel(0, drv_data->reg_base +
+					MV64XXX_I2C_REG_BRIDGE_CONTROL);
+		writel(0, drv_data->reg_base +
+					MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE);
+		drv_data->block = 0;
+		wake_up_interruptible(&drv_data->waitq);
+		rc = IRQ_HANDLED;
+	}
+#endif  
+#endif
 	while (readl(drv_data->reg_base + MV64XXX_I2C_REG_CONTROL) &
 						MV64XXX_I2C_REG_CONTROL_IFLG) {
 		status = readl(drv_data->reg_base + MV64XXX_I2C_REG_STATUS);
@@ -333,13 +339,6 @@ mv64xxx_i2c_intr(int irq, void *dev_id)
 	return rc;
 }
 
-/*
- *****************************************************************************
- *
- *	I2C Msg Execution Routines
- *
- *****************************************************************************
- */
 static void
 mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
 	struct i2c_msg *msg)
@@ -377,11 +376,11 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
 		!drv_data->block, drv_data->adapter.timeout);
 
 	spin_lock_irqsave(&drv_data->lock, flags);
-	if (!time_left) { /* Timed out */
+	if (!time_left) {  
 		drv_data->rc = -ETIMEDOUT;
 		abort = 1;
-	} else if (time_left < 0) { /* Interrupted/Error */
-		drv_data->rc = time_left; /* errno value */
+	} else if (time_left < 0) {  
+		drv_data->rc = time_left;  
 		abort = 1;
 	}
 
@@ -405,17 +404,16 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
 }
 
 static int
-mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg,
-				int is_first, int is_last)
+mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg)
 {
 	unsigned long	flags;
 
 	spin_lock_irqsave(&drv_data->lock, flags);
 	mv64xxx_i2c_prepare_for_io(drv_data, msg);
 
-	if (unlikely(msg->flags & I2C_M_NOSTART)) { /* Skip start/addr phases */
+	if (unlikely(msg->flags & I2C_M_NOSTART)) {  
 		if (drv_data->msg->flags & I2C_M_RD) {
-			/* No action to do, wait for slave to send a byte */
+			 
 			drv_data->action = MV64XXX_I2C_ACTION_CONTINUE;
 			drv_data->state =
 				MV64XXX_I2C_STATE_WAITING_FOR_SLAVE_DATA;
@@ -426,18 +424,10 @@ mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg,
 			drv_data->bytes_left--;
 		}
 	} else {
-		if (is_first) {
 			drv_data->action = MV64XXX_I2C_ACTION_SEND_START;
-			drv_data->state =
-				MV64XXX_I2C_STATE_WAITING_FOR_START_COND;
-		} else {
-			drv_data->action = MV64XXX_I2C_ACTION_SEND_ADDR_1;
-			drv_data->state =
-				MV64XXX_I2C_STATE_WAITING_FOR_ADDR_1_ACK;
-		}
+		drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_START_COND;
 	}
 
-	drv_data->send_stop = is_last;
 	drv_data->block = 1;
 	mv64xxx_i2c_do_action(drv_data);
 	spin_unlock_irqrestore(&drv_data->lock, flags);
@@ -446,13 +436,81 @@ mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg,
 	return drv_data->rc;
 }
 
-/*
- *****************************************************************************
- *
- *	I2C Core Support Routines (Interface to higher level I2C code)
- *
- *****************************************************************************
- */
+#ifdef MY_ABC_HERE
+#ifdef CONFIG_I2C_MV64XXX_BRIDGE
+static int
+mv64xxx_i2c_offload_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg)
+{
+	unsigned long data_reg_hi = 0;
+	unsigned long data_reg_lo = 0;
+	unsigned long status_reg;
+	unsigned long ctrl_reg;
+	unsigned long flags;
+	unsigned int i;
+
+	if ((msg->flags & ~(I2C_M_TEN | I2C_M_RD)) != 0)
+		return 1;
+
+	if (msg->len < 1 || msg->len > 8)
+		return 1;
+
+	ctrl_reg = MV64XXX_I2C_BRIDGE_CONTROL_ENABLE |
+		   (msg->addr << MV64XXX_I2C_BRIDGE_CONTROL_ADDR_SHIFT);
+
+	if ((msg->flags & I2C_M_TEN) != 0)
+		ctrl_reg |=  MV64XXX_I2C_BRIDGE_CONTROL_ADDR_EXT;
+
+	if ((msg->flags & I2C_M_RD) == 0) {
+		for (i = 0; i < 4 && i < msg->len; i++)
+			data_reg_lo = data_reg_lo |
+					(msg->buf[i] << ((i & 0x3) * 8));
+
+		for (i = 4; i < 8 && i < msg->len; i++)
+			data_reg_hi = data_reg_hi |
+					(msg->buf[i] << ((i & 0x3) * 8));
+
+		ctrl_reg |= MV64XXX_I2C_BRIDGE_CONTROL_WR |
+		    (msg->len - 1) << MV64XXX_I2C_BRIDGE_CONTROL_TX_SIZE_SHIFT;
+	} else {
+		ctrl_reg |= MV64XXX_I2C_BRIDGE_CONTROL_RD |
+		    (msg->len - 1) << MV64XXX_I2C_BRIDGE_CONTROL_RX_SIZE_SHIFT;
+	}
+
+	spin_lock_irqsave(&drv_data->lock, flags);
+	drv_data->block = 1;
+	writel(data_reg_lo, drv_data->reg_base + MV64XXX_I2C_REG_TX_DATA_LO);
+	writel(data_reg_hi, drv_data->reg_base + MV64XXX_I2C_REG_TX_DATA_HI);
+	writel(ctrl_reg, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_CONTROL);
+	spin_unlock_irqrestore(&drv_data->lock, flags);
+
+	mv64xxx_i2c_wait_for_completion(drv_data);
+
+	spin_lock_irqsave(&drv_data->lock, flags);
+	status_reg = readl(drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_STATUS);
+	data_reg_lo = readl(drv_data->reg_base + MV64XXX_I2C_REG_RX_DATA_LO);
+	data_reg_hi = readl(drv_data->reg_base + MV64XXX_I2C_REG_RX_DATA_HI);
+	spin_unlock_irqrestore(&drv_data->lock, flags);
+
+	if (status_reg & MV64XXX_I2C_BRIDGE_STATUS_ERROR)
+		return -EIO;
+
+	if ((msg->flags & I2C_M_RD) != 0) {
+		for (i = 0; i < 4 && i < msg->len; i++) {
+			msg->buf[i] = data_reg_lo & 0xFF;
+			data_reg_lo >>= 8;
+		}
+
+		for (i = 4; i < 8 && i < msg->len; i++) {
+			msg->buf[i] = data_reg_hi & 0xFF;
+			data_reg_hi >>= 8;
+		}
+	}
+
+	return 0;
+}
+#endif  
+#endif
+ 
 static u32
 mv64xxx_i2c_functionality(struct i2c_adapter *adap)
 {
@@ -465,13 +523,20 @@ mv64xxx_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 	struct mv64xxx_i2c_data *drv_data = i2c_get_adapdata(adap);
 	int	i, rc;
 
-	for (i = 0; i < num; i++) {
-		rc = mv64xxx_i2c_execute_msg(drv_data, &msgs[i],
-						i == 0, i + 1 == num);
+	for (i=0; i<num; i++) {
+#ifdef MY_ABC_HERE
+#ifdef CONFIG_I2C_MV64XXX_BRIDGE
+		rc = mv64xxx_i2c_offload_msg(drv_data, &msgs[i]);
+		if (rc == 0)
+			continue;
 		if (rc < 0)
 			return rc;
-	}
+#endif  
+#endif
 
+		if ((rc = mv64xxx_i2c_execute_msg(drv_data, &msgs[i])) < 0)
+			return rc;
+	}
 	return num;
 }
 
@@ -480,13 +545,6 @@ static const struct i2c_algorithm mv64xxx_i2c_algo = {
 	.functionality = mv64xxx_i2c_functionality,
 };
 
-/*
- *****************************************************************************
- *
- *	Driver Interface & Early Init Routines
- *
- *****************************************************************************
- */
 static int __devinit
 mv64xxx_i2c_map_regs(struct platform_device *pd,
 	struct mv64xxx_i2c_data *drv_data)
@@ -528,7 +586,11 @@ mv64xxx_i2c_probe(struct platform_device *pd)
 	struct mv64xxx_i2c_pdata	*pdata = pd->dev.platform_data;
 	int	rc;
 
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+	if ( (pd->id > 1) || (pd->id < 0) || !pdata)
+#else
 	if ((pd->id != 0) || !pdata)
+#endif
 		return -ENODEV;
 
 	drv_data = kzalloc(sizeof(struct mv64xxx_i2c_data), GFP_KERNEL);

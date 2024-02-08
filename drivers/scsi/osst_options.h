@@ -8,7 +8,7 @@
    Changed (and renamed) for OnStream SCSI drives garloff@suse.de
    2000-06-21
 
-   $Header: /cvsroot/osst/Driver/osst_options.h,v 1.6 2003/12/23 14:22:12 wriede Exp $
+   $Header: /cvs/projects/linux-2.6.32/drivers/scsi/osst_options.h,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
 */
 
 #ifndef _OSST_OPTIONS_H
@@ -59,7 +59,6 @@
    to try to allocate the buffer as one chunk. */
 #define OSST_FIRST_ORDER  (15-PAGE_SHIFT)
 
-
 /* The following lines define defaults for properties that can be set
    separately for each drive using the MTSTOPTIONS ioctl. */
 
@@ -101,6 +100,5 @@
 /* If OSST_SYSV is non-zero, the tape behaves according to the SYS V semantics.
    The default is BSD semantics. */
 #define OSST_SYSV 0
-
 
 #endif

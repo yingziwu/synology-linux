@@ -1214,7 +1214,6 @@ int __devinit ioat3_dma_probe(struct ioatdma_device *device, int dca)
 		dma->device_prep_dma_memset = ioat3_prep_memset_lock;
 	}
 
-
 	if (is_raid_device) {
 		dma->device_tx_status = ioat3_tx_status;
 		device->cleanup_fn = ioat3_cleanup_event;

@@ -14,7 +14,6 @@
  *
  */
 
-
 #include <linux/pci.h>
 #include <linux/kthread.h>
 #include <linux/interrupt.h>
@@ -25,7 +24,6 @@
 #include "mei.h"
 #include "hw.h"
 #include "interface.h"
-
 
 /**
  * mei_interrupt_quick_handler - The ISR of the MEI device
@@ -100,7 +98,6 @@ static void _mei_cmpl_iamthif(struct mei_device *dev, struct mei_cl_cb *cb_pos)
 	dev_dbg(&dev->pdev->dev, "completing amthi call back.\n");
 	wake_up_interruptible(&dev->iamthif_cl.wait);
 }
-
 
 /**
  * mei_irq_thread_read_amthi_message - bottom half read routine after ISR to
@@ -633,7 +630,6 @@ static void mei_client_disconnect_request(struct mei_device *dev,
 	}
 }
 
-
 /**
  * mei_irq_thread_read_bus_message - bottom half read routine after ISR to
  * handle the read bus message cmd processing.
@@ -848,7 +844,6 @@ static void mei_irq_thread_read_bus_message(struct mei_device *dev,
 	}
 }
 
-
 /**
  * _mei_hb_read - processes read related operation.
  *
@@ -887,7 +882,6 @@ static int _mei_irq_thread_read(struct mei_device *dev,	s32 *slots,
 
 	return 0;
 }
-
 
 /**
  * _mei_irq_thread_ioctl - processes ioctl related operation.
@@ -1211,7 +1205,6 @@ end:
 	return ret;
 }
 
-
 /**
  * mei_irq_thread_write_handler - bottom half write routine after
  * ISR to handle the write processing.
@@ -1416,8 +1409,6 @@ static int mei_irq_thread_write_handler(struct mei_io_list *cmpl_list,
 	return 0;
 }
 
-
-
 /**
  * mei_timer - timer function.
  *
@@ -1436,7 +1427,6 @@ void mei_timer(struct work_struct *work)
 
 	struct mei_device *dev = container_of(work,
 					struct mei_device, timer_work.work);
-
 
 	mutex_lock(&dev->device_lock);
 	if (dev->mei_state != MEI_ENABLED) {
@@ -1551,7 +1541,6 @@ irqreturn_t mei_interrupt_thread_handler(int irq, void *dev_id)
 	int rets;
 	bool  bus_message_received;
 
-
 	dev_dbg(&dev->pdev->dev, "function called after ISR to handle the interrupt processing.\n");
 	/* initialize our complete list */
 	mutex_lock(&dev->device_lock);
@@ -1626,7 +1615,6 @@ end:
 	}
 	if (complete_list.status || list_empty(&complete_list.mei_cb.cb_list))
 		return IRQ_HANDLED;
-
 
 	list_for_each_entry_safe(cb_pos, cb_next,
 			&complete_list.mei_cb.cb_list, cb_list) {

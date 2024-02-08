@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * We need constants.h for:
  *  VMA_VM_MM
@@ -91,9 +94,18 @@
 #if L_PTE_SHARED != PTE_EXT_SHARED
 #error PTE shared bit mismatch
 #endif
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+#if !defined (CONFIG_ARM_LPAE) && \
+	(L_PTE_XN+L_PTE_USER+L_PTE_RDONLY+L_PTE_DIRTY+L_PTE_YOUNG+\
+	 L_PTE_FILE+L_PTE_PRESENT) > L_PTE_SHARED
+
+#error Invalid Linux PTE bit settings
+#endif
+#else
 #if (L_PTE_XN+L_PTE_USER+L_PTE_RDONLY+L_PTE_DIRTY+L_PTE_YOUNG+\
      L_PTE_FILE+L_PTE_PRESENT) > L_PTE_SHARED
 #error Invalid Linux PTE bit settings
+#endif
 #endif
 #endif	/* CONFIG_MMU */
 
@@ -137,11 +149,26 @@
 	.macro	armv6_set_pte_ext pfx
 	str	r1, [r0], #2048			@ linux version
 
+#if defined(MY_DEF_HERE) && defined(CONFIG_MV_SUPPORT_64KB_PAGE_SIZE)
+	mov     r3, #0x7C
+	and     r3, r3, r0
+	mov     r3, r3, lsl #4
+	bic     r0, r0, #0x3FC
+	bic     r0, r0, #0x400
+	orr     r0, r0, r3
+#endif
+
 	bic	r3, r1, #0x000003fc
+#if defined(MY_DEF_HERE) && defined(CONFIG_MV_SUPPORT_64KB_PAGE_SIZE)
+	bic	r3, r3, #0x00000F000
+#endif
 	bic	r3, r3, #PTE_TYPE_MASK
 	orr	r3, r3, r2
+#if defined(MY_DEF_HERE) && defined(CONFIG_MV_SUPPORT_64KB_PAGE_SIZE)
+	orr	r3, r3, #PTE_EXT_AP0 | 1
+#else
 	orr	r3, r3, #PTE_EXT_AP0 | 2
-
+#endif
 	adr	ip, \pfx\()_mt_table
 	and	r2, r1, #L_PTE_MT_MASK
 	ldr	r2, [ip, r2]
@@ -168,9 +195,64 @@
 	moveq	r3, #0
 
 	str	r3, [r0]
+#if defined(MY_DEF_HERE)  || defined(MY_ABC_HERE) 
+#if defined(MY_DEF_HERE) && defined(CONFIG_MV_SUPPORT_64KB_PAGE_SIZE)
+	@ Need to duplicate the entry 16 times because of overlapping in PTE index bits.
+	str     r3, [r0, #4]
+	str     r3, [r0, #8]
+	str     r3, [r0, #12]
+	str     r3, [r0, #16]
+	str     r3, [r0, #20]
+	str     r3, [r0, #24]
+	str     r3, [r0, #28]
+	str     r3, [r0, #32]
+	str     r3, [r0, #36]
+	str     r3, [r0, #40]
+	str     r3, [r0, #44]
+	str     r3, [r0, #48]
+	str     r3, [r0, #52]
+	str     r3, [r0, #56]
+	str     r3, [r0, #60]
+#endif /* CONFIG_MV_SUPPORT_64KB_PAGE_SIZE */
+#ifdef CONFIG_SHEEVA_ERRATA_ARM_CPU_4611
+        mrs     r2, cpsr
+        orr     r3, r2, #PSR_F_BIT | PSR_I_BIT
+        msr     cpsr_c, r3                      @ Disable interrupts
+#if __LINUX_ARM_ARCH__ >= 7
+#ifdef CONFIG_SHEEVA_ERRATA_ARM_CPU_6075
+#ifdef CONFIG_ARMADA_XP_A0_WITH_B0
+	a0_with_b0_errata_6075 r3
+#else
+	dsb
+#endif // CONFIG_ARMADA_XP_A0_WITH_B0
+#else
+	dmb					@ ensure ordering with previous memory accesses
+#endif // CONFIG_SHEEVA_ERRATA_ARM_CPU_6075
+#elif __LINUX_ARM_ARCH__ == 6
+        mcr     p15, 0, r0, c7, c10, 5          @ DMB for V6
+#endif // _LINUX_ARM_ARCH__ >= 7
+#endif // CONFIG_SHEEVA_ERRATA_ARM_CPU_4611
+	mcr	p15, 0, r0, c7, c10, 1		@ flush_pte
+#if defined(MY_DEF_HERE) && defined(CONFIG_MV_SUPPORT_64KB_PAGE_SIZE)
+	add	r0, r0, #32
+	mcr	p15, 0, r0, c7, c10, 1		@ flush_pte
+#endif
+
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+#if defined (CONFIG_CACHE_AURORA_L2) && defined (CONFIG_AURORA_L2_OUTER) && !defined (CONFIG_AURORA_L2_PT_WALK)
+#error "armv6_set_pte_ext: calling l2_clean_va corrupts r2. SHOULD BE FIXED"
+	bl	l2_clean_va
+#endif
+#endif
+#ifdef CONFIG_SHEEVA_ERRATA_ARM_CPU_4611
+	msr     cpsr_c, r2                      @ Restore interrupts
+	mcr     p15, 0, r0, c7, c10, 4          @ drain write buffer
+#endif // CONFIG_SHEEVA_ERRATA_ARM_CPU_4611
+	.endm
+#else
 	mcr	p15, 0, r0, c7, c10, 1		@ flush_pte
 	.endm
-
+#endif
 
 /*
  * The ARMv3, ARMv4 and ARMv5 set_pte_ext translation function,
@@ -212,7 +294,6 @@
 	.endif
 	str	r2, [r0]		@ hardware version
 	.endm
-
 
 /*
  * Xscale set_pte_ext translation, split into two halves to cope
@@ -298,6 +379,9 @@ ENTRY(\name\()_processor_functions)
 ENTRY(\name\()_cache_fns)
 	.long	\name\()_flush_icache_all
 	.long	\name\()_flush_kern_cache_all
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+	.long   \name\()_flush_kern_cache_louis
+#endif
 	.long	\name\()_flush_user_cache_all
 	.long	\name\()_flush_user_cache_range
 	.long	\name\()_coherent_kern_range

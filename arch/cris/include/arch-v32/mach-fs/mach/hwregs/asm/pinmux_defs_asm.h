@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:09:11 2005
  * 
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/pinmux_defs_asm.h ../../inst/pinmux/rtl/guinness/pinmux_regs.r
- *      id: $Id: pinmux_defs_asm.h,v 1.1 2007/04/11 11:00:39 ricardw Exp $
+ *      id: $Id: pinmux_defs_asm.h,v 1.1.1.1 2010/04/15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -613,7 +613,6 @@
 #define reg_pinmux_rw_usb_phy___en_usb1___width 1
 #define reg_pinmux_rw_usb_phy___en_usb1___bit 1
 #define reg_pinmux_rw_usb_phy_offset 40
-
 
 /* Constants */
 #define regk_pinmux_no                            0x00000000

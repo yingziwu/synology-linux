@@ -65,4 +65,3 @@ void weird_irq(void)
 	printk("weird irq\n");
 	while(1);
 }
-

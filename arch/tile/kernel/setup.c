@@ -1202,7 +1202,6 @@ static void __init setup_cpu_maps(void)
 #endif
 }
 
-
 static int __init dataplane(char *str)
 {
 	pr_warning("WARNING: dataplane support disabled in this kernel\n");
@@ -1258,7 +1257,6 @@ void __init setup_arch(char **cmdline_p)
 
 	setup_cpu_maps();
 
-
 #ifdef CONFIG_PCI
 	/*
 	 * Initialize the PCI structures.  This is done before memory
@@ -1296,7 +1294,6 @@ void __init setup_arch(char **cmdline_p)
 	setup_clock();
 	load_hv_initrd();
 }
-
 
 /*
  * Set up per-cpu memory.

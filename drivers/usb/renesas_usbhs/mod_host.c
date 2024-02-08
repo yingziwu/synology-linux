@@ -35,7 +35,6 @@
  *    so, software should control DATA0/1 sequence of each devices.
  */
 
-
 /*
  *		image of mod_host
  *
@@ -62,7 +61,6 @@
  *	      |				  |
  *	      +- [uep 2 (bulk)]-----------+
  */
-
 
 /*
  *		struct
@@ -109,7 +107,6 @@ struct usbhsh_hpriv {
 	struct list_head	ureq_link_active;
 	struct list_head	ureq_link_free;
 };
-
 
 static const char usbhsh_hcd_name[] = "renesas_usbhs host";
 

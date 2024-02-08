@@ -53,7 +53,6 @@
 
 #define WINDOW_VECTORS_SIZE   0x180
 
-
 /*
  * User exception vector. (Exceptions with PS.UM == 1, PS.EXCM == 0)
  *
@@ -102,7 +101,6 @@ ENTRY(_KernelExceptionVector)
 	addx4	a0, a0, a3		# find entry in table
 	l32i	a0, a0, EXC_TABLE_FAST_KERNEL	# load handler address
 	jx	a0
-
 
 /*
  * Double exception vector (Exceptions with PS.EXCM == 1)
@@ -338,7 +336,6 @@ ENTRY(_DoubleExceptionVector)
 
 	.end literal_prefix
 
-
 /*
  * Debug interrupt vector
  *
@@ -352,8 +349,6 @@ ENTRY(_DebugInterruptVector)
 	xsr	a0, EXCSAVE + XCHAL_DEBUGLEVEL
 	jx	a0
 
-
-
 /* Window overflow and underflow handlers.
  * The handlers must be 64 bytes apart, first starting with the underflow
  * handlers underflow-4 to underflow-12, then the overflow handlers
@@ -364,7 +359,6 @@ ENTRY(_DebugInterruptVector)
  */
 
 	.section		.WindowVectors.text, "ax"
-
 
 /* 4-Register Window Overflow Vector (Handler) */
 
@@ -377,7 +371,6 @@ _WindowOverflow4:
 	s32e	a3, a5,  -4
 	rfwo
 
-
 /* 4-Register Window Underflow Vector (Handler) */
 
 	.align 64
@@ -388,7 +381,6 @@ _WindowUnderflow4:
 	l32e	a2, a5,  -8
 	l32e	a3, a5,  -4
 	rfwu
-
 
 /* 8-Register Window Overflow Vector (Handler) */
 
@@ -421,7 +413,6 @@ _WindowUnderflow8:
 	l32e	a6, a7, -24
 	l32e	a7, a7, -20
 	rfwu
-
 
 /* 12-Register Window Overflow Vector (Handler) */
 
@@ -464,5 +455,3 @@ _WindowUnderflow12:
 	rfwu
 
 	.text
-
-

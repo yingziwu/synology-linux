@@ -224,7 +224,6 @@ struct bus_type spi_bus_type = {
 };
 EXPORT_SYMBOL_GPL(spi_bus_type);
 
-
 static int spi_drv_probe(struct device *dev)
 {
 	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
@@ -355,7 +354,6 @@ int spi_add_device(struct spi_device *spi)
 	dev_set_name(&spi->dev, "%s.%u", dev_name(&spi->master->dev),
 			spi->chip_select);
 
-
 	/* We need to make sure there's no other device with this
 	 * chipselect **BEFORE** we call setup(), else we'll trash
 	 * its configuration.  Lock against concurrent add() calls.
@@ -481,19 +479,47 @@ static void spi_match_master_to_boardinfo(struct spi_master *master,
  * The board info passed can safely be __initdata ... but be careful of
  * any embedded pointers (platform_data, etc), they're copied as-is.
  */
+#ifdef CONFIG_GEN3_SPI
+int 
+#else
 int __init
+#endif
 spi_register_board_info(struct spi_board_info const *info, unsigned n)
 {
+#ifdef CONFIG_GEN3_SPI
+	struct boardinfo *bi, *temp;
+#else
 	struct boardinfo *bi;
+#endif
 	int i;
 
+#ifdef CONFIG_GEN3_SPI
+	for (i = 0; i < n; i++, info++) {
+#else
 	bi = kzalloc(n * sizeof(*bi), GFP_KERNEL);
 	if (!bi)
 		return -ENOMEM;
 
 	for (i = 0; i < n; i++, bi++, info++) {
+#endif
 		struct spi_master *master;
 
+#ifdef CONFIG_GEN3_SPI
+	    bi = kzalloc(sizeof(*bi), GFP_KERNEL);
+	    if (!bi) {
+            for( --i, --info; i >=0; i--, info--)
+	            mutex_lock(&board_lock);
+	            list_for_each_entry_safe(bi, temp, &board_list, list) {
+	                 if (!memcmp(&bi->board_info, info, sizeof(*info))) {
+	                    list_del(&bi->list);
+	                    kfree(bi);
+                        break;
+	                 }
+	            }
+	            mutex_unlock(&board_lock);
+            return -ENOMEM;
+        }
+#endif
 		memcpy(&bi->board_info, info, sizeof(*info));
 		mutex_lock(&board_lock);
 		list_add_tail(&bi->list, &board_list);
@@ -504,6 +530,30 @@ spi_register_board_info(struct spi_board_info const *info, unsigned n)
 
 	return 0;
 }
+#ifdef CONFIG_GEN3_SPI
+EXPORT_SYMBOL_GPL(spi_register_board_info);
+
+int spi_unregister_board_info(struct spi_board_info  *info, unsigned n)
+{
+	struct boardinfo	*bi,*temp;
+    int i;
+
+	for (i = 0; i < n; i++, info++) {
+	    mutex_lock(&board_lock);
+	    list_for_each_entry_safe(bi, temp, &board_list, list) {
+	        if (!memcmp(&bi->board_info, info, sizeof(*info))) {
+	            list_del(&bi->list);
+	            kfree(bi);
+                break;
+	        }
+	    }
+	    mutex_unlock(&board_lock);
+    }    
+	return 0;
+}
+
+EXPORT_SYMBOL_GPL(spi_unregister_board_info);
+#endif
 
 /*-------------------------------------------------------------------------*/
 
@@ -511,6 +561,9 @@ static void spi_master_release(struct device *dev)
 {
 	struct spi_master *master;
 
+#ifdef CONFIG_GEN3_SPI
+	put_device(dev->parent);
+#endif
 	master = container_of(dev, struct spi_master, dev);
 	kfree(master);
 }
@@ -520,7 +573,6 @@ static struct class spi_master_class = {
 	.owner		= THIS_MODULE,
 	.dev_release	= spi_master_release,
 };
-
 
 /**
  * spi_alloc_master - allocate SPI master controller
@@ -636,7 +688,6 @@ done:
 }
 EXPORT_SYMBOL_GPL(spi_register_master);
 
-
 static int __unregister(struct device *dev, void *null)
 {
 	spi_unregister_device(to_spi_device(dev));
@@ -698,7 +749,6 @@ struct spi_master *spi_busnum_to_master(u16 bus_num)
 	return master;
 }
 EXPORT_SYMBOL_GPL(spi_busnum_to_master);
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -880,7 +930,6 @@ int spi_async_locked(struct spi_device *spi, struct spi_message *message)
 
 }
 EXPORT_SYMBOL_GPL(spi_async_locked);
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -1140,4 +1189,3 @@ err0:
  * include needing to have boardinfo data structures be much more public.
  */
 postcore_initcall(spi_init);
-

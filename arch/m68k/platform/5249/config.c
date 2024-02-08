@@ -221,7 +221,6 @@ static void __init m5249_qspi_init(void)
 }
 #endif /* defined(CONFIG_SPI_COLDFIRE_QSPI) || defined(CONFIG_SPI_COLDFIRE_QSPI_MODULE) */
 
-
 static struct platform_device *m5249_devices[] __initdata = {
 	&m5249_uart,
 #ifdef CONFIG_M5249C3

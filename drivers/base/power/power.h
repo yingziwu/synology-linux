@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/pm_qos.h>
 
 #ifdef CONFIG_PM_RUNTIME
@@ -5,20 +8,18 @@
 extern void pm_runtime_init(struct device *dev);
 extern void pm_runtime_remove(struct device *dev);
 
-#else /* !CONFIG_PM_RUNTIME */
+#else  
 
 static inline void pm_runtime_init(struct device *dev) {}
 static inline void pm_runtime_remove(struct device *dev) {}
 
-#endif /* !CONFIG_PM_RUNTIME */
+#endif  
 
 #ifdef CONFIG_PM_SLEEP
 
-/* kernel/power/main.c */
 extern int pm_async_enabled;
 
-/* drivers/base/power/main.c */
-extern struct list_head dpm_list;	/* The active device list */
+extern struct list_head dpm_list;	 
 
 static inline struct device *to_device(struct list_head *entry)
 {
@@ -32,7 +33,7 @@ extern void device_pm_move_before(struct device *, struct device *);
 extern void device_pm_move_after(struct device *, struct device *);
 extern void device_pm_move_last(struct device *);
 
-#else /* !CONFIG_PM_SLEEP */
+#else  
 
 static inline void device_pm_init(struct device *dev)
 {
@@ -58,13 +59,9 @@ static inline void device_pm_move_after(struct device *deva,
 					struct device *devb) {}
 static inline void device_pm_move_last(struct device *dev) {}
 
-#endif /* !CONFIG_PM_SLEEP */
+#endif  
 
 #ifdef CONFIG_PM
-
-/*
- * sysfs.c
- */
 
 extern int dpm_sysfs_add(struct device *dev);
 extern void dpm_sysfs_remove(struct device *dev);
@@ -72,7 +69,7 @@ extern void rpm_sysfs_remove(struct device *dev);
 extern int wakeup_sysfs_add(struct device *dev);
 extern void wakeup_sysfs_remove(struct device *dev);
 
-#else /* CONFIG_PM */
+#else  
 
 static inline int dpm_sysfs_add(struct device *dev) { return 0; }
 static inline void dpm_sysfs_remove(struct device *dev) {}
@@ -81,3 +78,10 @@ static inline int wakeup_sysfs_add(struct device *dev) { return 0; }
 static inline void wakeup_sysfs_remove(struct device *dev) {}
 
 #endif
+
+#if defined(MY_DEF_HERE) && defined(CONFIG_PM_SYSFS_MANUAL)
+
+extern int dpm_manual_suspend_start(struct device * , pm_message_t );
+extern void dpm_manual_resume_start(struct device * , pm_message_t);
+
+#endif  

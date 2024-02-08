@@ -2177,7 +2177,6 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (ql2xmaxqdepth != 0 && ql2xmaxqdepth <= 0xffffU)
 		req->max_q_depth = ql2xmaxqdepth;
 
-
 	base_vha = qla2x00_create_host(sht, ha);
 	if (!base_vha) {
 		ret = -ENOMEM;
@@ -4084,7 +4083,6 @@ uint32_t qla82xx_error_recovery(scsi_qla_host_t *base_vha)
 		qla2x00_abort_isp_cleanup(base_vha);
 	}
 
-
 	fn = PCI_FUNC(ha->pdev->devfn);
 	while (fn > 0) {
 		fn--;
@@ -4230,7 +4228,6 @@ qla2xxx_pci_slot_reset(struct pci_dev *pdev)
 	if (ha->isp_ops->abort_isp(base_vha) == QLA_SUCCESS)
 		ret =  PCI_ERS_RESULT_RECOVERED;
 	clear_bit(ABORT_ISP_ACTIVE, &base_vha->dpc_flags);
-
 
 exit_slot_reset:
 	ql_dbg(ql_dbg_aer, base_vha, 0x900e,

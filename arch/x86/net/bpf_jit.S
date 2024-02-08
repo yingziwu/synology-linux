@@ -37,7 +37,6 @@ sk_load_word:
 	bswap   %eax  			/* ntohl() */
 	ret
 
-
 sk_load_half_ind:
 	.globl sk_load_half_ind
 
@@ -106,7 +105,6 @@ bpf_error:
 	pop	SKBDATA;			\
 	pop	%r9;				\
 	pop	%rdi
-
 
 bpf_slow_path_word:
 	bpf_slow_path_common(4)

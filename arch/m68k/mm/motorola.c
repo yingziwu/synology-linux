@@ -317,5 +317,3 @@ void free_initmem(void)
 		totalram_pages++;
 	}
 }
-
-

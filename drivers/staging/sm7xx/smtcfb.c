@@ -1021,7 +1021,6 @@ failed_free:
 	return err;
 }
 
-
 /* Jason (08/11/2009) PCI_DRV wrapper essential structs */
 static DEFINE_PCI_DEVICE_TABLE(smtcfb_pci_table) = {
 	{0x126f, 0x710, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
@@ -1029,7 +1028,6 @@ static DEFINE_PCI_DEVICE_TABLE(smtcfb_pci_table) = {
 	{0x126f, 0x720, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
 	{0,}
 };
-
 
 /* Jason (08/14/2009)
  * do some clean up when the driver module is removed

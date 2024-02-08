@@ -1071,6 +1071,8 @@ void nfs4_schedule_stateid_recovery(const struct nfs_server *server, struct nfs4
 {
 	struct nfs_client *clp = server->nfs_client;
 
+	if (test_and_clear_bit(NFS_DELEGATED_STATE, &state->flags))
+		nfs_async_inode_return_delegation(state->inode, &state->stateid);
 	nfs4_state_mark_reclaim_nograce(clp, state);
 	nfs4_schedule_state_manager(clp);
 }
@@ -1100,7 +1102,6 @@ void nfs_inode_find_state_and_recover(struct inode *inode,
 	if (found)
 		nfs4_schedule_state_manager(clp);
 }
-
 
 static int nfs4_reclaim_locks(struct nfs4_state *state, const struct nfs4_state_recovery_ops *ops)
 {
@@ -1764,7 +1765,6 @@ static void nfs4_state_manager(struct nfs_client *clp)
 				goto out_error;
 			continue;
 		}
-
 
 		nfs4_clear_state_manager_bit(clp);
 		/* Did we race with an attempt to give us more work? */

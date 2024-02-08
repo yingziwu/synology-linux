@@ -140,4 +140,3 @@ static inline int gfs2_localflocks(const struct gfs2_sbd *sdp)
 #endif /* CONFIG_GFS2_FS_LOCKING_DLM */
 
 #endif /* __INODE_DOT_H__ */
-

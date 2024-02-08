@@ -1,4 +1,4 @@
-/* $Id: hysdn_init.c,v 1.6.6.6 2001/09/23 22:24:54 kai Exp $
+/* $Id: hysdn_init.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * Linux driver for HYSDN cards, init functions.
  *
@@ -39,7 +39,6 @@ MODULE_LICENSE("GPL");
 static int cardmax;		/* number of found cards */
 hysdn_card *card_root = NULL;	/* pointer to first card */
 static hysdn_card *card_last = NULL;	/* pointer to first card */
-
 
 /****************************************************************************/
 /* The module startup and shutdown code. Only compiled when used as module. */
@@ -184,7 +183,6 @@ hysdn_init(void)
 
 	return 0;		/* no error */
 }				/* init_module */
-
 
 /***********************************************************************/
 /* cleanup_module is called when the module is released by the kernel. */

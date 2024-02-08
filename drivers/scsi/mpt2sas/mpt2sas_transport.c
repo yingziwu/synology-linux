@@ -1,46 +1,4 @@
-/*
- * SAS Transport Layer for MPT (Message Passing Technology) based controllers
- *
- * This code is based on drivers/scsi/mpt2sas/mpt2_transport.c
- * Copyright (C) 2007-2010  LSI Corporation
- *  (mailto:DL-MPTFusionLinux@lsi.com)
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * NO WARRANTY
- * THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
- * CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
- * LIMITATION, ANY WARRANTIES OR CONDITIONS OF TITLE, NON-INFRINGEMENT,
- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. Each Recipient is
- * solely responsible for determining the appropriateness of using and
- * distributing the Program and assumes all risks associated with its
- * exercise of rights under this Agreement, including but not limited to
- * the risks and costs of program errors, damage to or loss of data,
- * programs or equipment, and unavailability or interruption of operations.
-
- * DISCLAIMER OF LIABILITY
- * NEITHER RECIPIENT NOR ANY CONTRIBUTORS SHALL HAVE ANY LIABILITY FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
- * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OR DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
- * HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES
-
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- */
-
+ 
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -59,15 +17,7 @@
 #include <scsi/scsi_dbg.h>
 
 #include "mpt2sas_base.h"
-/**
- * _transport_sas_node_find_by_sas_address - sas node search
- * @ioc: per adapter object
- * @sas_address: sas address of expander or sas host
- * Context: Calling function should acquire ioc->sas_node_lock.
- *
- * Search for either hba phys or expander device based on handle, then returns
- * the sas_node object.
- */
+ 
 static struct _sas_node *
 _transport_sas_node_find_by_sas_address(struct MPT2SAS_ADAPTER *ioc,
     u64 sas_address)
@@ -79,12 +29,6 @@ _transport_sas_node_find_by_sas_address(struct MPT2SAS_ADAPTER *ioc,
 		    sas_address);
 }
 
-/**
- * _transport_convert_phy_link_rate -
- * @link_rate: link rate returned from mpt firmware
- *
- * Convert link_rate from mpi fusion into sas_transport form.
- */
 static enum sas_linkrate
 _transport_convert_phy_link_rate(u8 link_rate)
 {
@@ -121,16 +65,6 @@ _transport_convert_phy_link_rate(u8 link_rate)
 	return rc;
 }
 
-/**
- * _transport_set_identify - set identify for phys and end devices
- * @ioc: per adapter object
- * @handle: device handle
- * @identify: sas identify info
- *
- * Populates sas identify info.
- *
- * Returns 0 for success, non-zero for failure.
- */
 static int
 _transport_set_identify(struct MPT2SAS_ADAPTER *ioc, u16 handle,
     struct sas_identify *identify)
@@ -163,13 +97,13 @@ _transport_set_identify(struct MPT2SAS_ADAPTER *ioc, u16 handle,
 		return -EIO;
 	}
 
-	memset(identify, 0, sizeof(*identify));
+	memset(identify, 0, sizeof(struct sas_identify));
 	device_info = le32_to_cpu(sas_device_pg0.DeviceInfo);
 
-	/* sas_address */
 	identify->sas_address = le64_to_cpu(sas_device_pg0.SASAddress);
 
-	/* device_type */
+	identify->phy_identifier = sas_device_pg0.PhyNum;
+
 	switch (device_info & MPI2_SAS_DEVICE_INFO_MASK_DEVICE_TYPE) {
 	case MPI2_SAS_DEVICE_INFO_NO_DEVICE:
 		identify->device_type = SAS_PHY_UNUSED;
@@ -185,7 +119,6 @@ _transport_set_identify(struct MPT2SAS_ADAPTER *ioc, u16 handle,
 		break;
 	}
 
-	/* initiator_port_protocols */
 	if (device_info & MPI2_SAS_DEVICE_INFO_SSP_INITIATOR)
 		identify->initiator_port_protocols |= SAS_PROTOCOL_SSP;
 	if (device_info & MPI2_SAS_DEVICE_INFO_STP_INITIATOR)
@@ -195,7 +128,6 @@ _transport_set_identify(struct MPT2SAS_ADAPTER *ioc, u16 handle,
 	if (device_info & MPI2_SAS_DEVICE_INFO_SATA_HOST)
 		identify->initiator_port_protocols |= SAS_PROTOCOL_SATA;
 
-	/* target_port_protocols */
 	if (device_info & MPI2_SAS_DEVICE_INFO_SSP_TARGET)
 		identify->target_port_protocols |= SAS_PROTOCOL_SSP;
 	if (device_info & MPI2_SAS_DEVICE_INFO_STP_TARGET)
@@ -208,19 +140,6 @@ _transport_set_identify(struct MPT2SAS_ADAPTER *ioc, u16 handle,
 	return 0;
 }
 
-/**
- * mpt2sas_transport_done -  internal transport layer callback handler.
- * @ioc: per adapter object
- * @smid: system request message index
- * @msix_index: MSIX table index supplied by the OS
- * @reply: reply message frame(lower 32bit addr)
- *
- * Callback handler when sending internal generated transport cmds.
- * The callback index passed is `ioc->transport_cb_idx`
- *
- * Return 1 meaning mf should be freed from _base_interrupt
- *        0 means the mf is freed from this function.
- */
 u8
 mpt2sas_transport_done(struct MPT2SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
     u32 reply)
@@ -243,7 +162,6 @@ mpt2sas_transport_done(struct MPT2SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 	return 1;
 }
 
-/* report manufacture request structure */
 struct rep_manu_request{
 	u8 smp_frame_type;
 	u8 function;
@@ -251,10 +169,9 @@ struct rep_manu_request{
 	u8 request_length;
 };
 
-/* report manufacture reply structure */
 struct rep_manu_reply{
-	u8 smp_frame_type; /* 0x41 */
-	u8 function; /* 0x01 */
+	u8 smp_frame_type;  
+	u8 function;  
 	u8 function_result;
 	u8 response_length;
 	u16 expander_change_count;
@@ -271,16 +188,6 @@ struct rep_manu_reply{
 	u8 vendor_specific[8];
 };
 
-/**
- * _transport_expander_report_manufacture - obtain SMP report_manufacture
- * @ioc: per adapter object
- * @sas_address: expander sas address
- * @edev: the sas_expander_device object
- *
- * Fills in the sas_expander_device object when SMP port is created.
- *
- * Returns 0 for success, non-zero for failure.
- */
 static int
 _transport_expander_report_manufacture(struct MPT2SAS_ADAPTER *ioc,
     u64 sas_address, struct sas_expander_device *edev)
@@ -369,24 +276,21 @@ _transport_expander_report_manufacture(struct MPT2SAS_ADAPTER *ioc,
 	memset(mpi_request, 0, sizeof(Mpi2SmpPassthroughRequest_t));
 	mpi_request->Function = MPI2_FUNCTION_SMP_PASSTHROUGH;
 	mpi_request->PhysicalPort = 0xFF;
-	mpi_request->VF_ID = 0; /* TODO */
+	mpi_request->VF_ID = 0;  
 	mpi_request->VP_ID = 0;
 	mpi_request->SASAddress = cpu_to_le64(sas_address);
 	mpi_request->RequestDataLength =
 	    cpu_to_le16(sizeof(struct rep_manu_request));
 	psge = &mpi_request->SGL;
 
-	/* WRITE sgel first */
 	sgl_flags = (MPI2_SGE_FLAGS_SIMPLE_ELEMENT |
 	    MPI2_SGE_FLAGS_END_OF_BUFFER | MPI2_SGE_FLAGS_HOST_TO_IOC);
 	sgl_flags = sgl_flags << MPI2_SGE_FLAGS_SHIFT;
 	ioc->base_add_sg_single(psge, sgl_flags |
 	    sizeof(struct rep_manu_request), data_out_dma);
 
-	/* incr sgel */
 	psge += ioc->sge_size;
 
-	/* READ sgel last */
 	sgl_flags = (MPI2_SGE_FLAGS_SIMPLE_ELEMENT |
 	    MPI2_SGE_FLAGS_LAST_ELEMENT | MPI2_SGE_FLAGS_END_OF_BUFFER |
 	    MPI2_SGE_FLAGS_END_OF_LIST);
@@ -398,8 +302,8 @@ _transport_expander_report_manufacture(struct MPT2SAS_ADAPTER *ioc,
 	dtransportprintk(ioc, printk(MPT2SAS_INFO_FMT "report_manufacture - "
 	    "send to sas_addr(0x%016llx)\n", ioc->name,
 	    (unsigned long long)sas_address));
-	mpt2sas_base_put_smid_default(ioc, smid);
 	init_completion(&ioc->transport_cmds.done);
+	mpt2sas_base_put_smid_default(ioc, smid);
 	timeleft = wait_for_completion_timeout(&ioc->transport_cmds.done,
 	    10*HZ);
 
@@ -463,13 +367,6 @@ _transport_expander_report_manufacture(struct MPT2SAS_ADAPTER *ioc,
 	return rc;
 }
 
-/**
- * _transport_delete_port - helper function to removing a port
- * @ioc: per adapter object
- * @mpt2sas_port: mpt2sas per port object
- *
- * Returns nothing.
- */
 static void
 _transport_delete_port(struct MPT2SAS_ADAPTER *ioc,
 	struct _sas_port *mpt2sas_port)
@@ -484,21 +381,13 @@ _transport_delete_port(struct MPT2SAS_ADAPTER *ioc,
 
 	ioc->logging_level |= MPT_DEBUG_TRANSPORT;
 	if (device_type == SAS_END_DEVICE)
-		mpt2sas_device_remove(ioc, sas_address);
+		mpt2sas_device_remove_by_sas_address(ioc, sas_address);
 	else if (device_type == SAS_EDGE_EXPANDER_DEVICE ||
 	    device_type == SAS_FANOUT_EXPANDER_DEVICE)
 		mpt2sas_expander_remove(ioc, sas_address);
 	ioc->logging_level &= ~MPT_DEBUG_TRANSPORT;
 }
 
-/**
- * _transport_delete_phy - helper function to removing single phy from port
- * @ioc: per adapter object
- * @mpt2sas_port: mpt2sas per port object
- * @mpt2sas_phy: mpt2sas per phy object
- *
- * Returns nothing.
- */
 static void
 _transport_delete_phy(struct MPT2SAS_ADAPTER *ioc,
 	struct _sas_port *mpt2sas_port, struct _sas_phy *mpt2sas_phy)
@@ -515,14 +404,6 @@ _transport_delete_phy(struct MPT2SAS_ADAPTER *ioc,
 	mpt2sas_phy->phy_belongs_to_port = 0;
 }
 
-/**
- * _transport_add_phy - helper function to adding single phy to port
- * @ioc: per adapter object
- * @mpt2sas_port: mpt2sas per port object
- * @mpt2sas_phy: mpt2sas per phy object
- *
- * Returns nothing.
- */
 static void
 _transport_add_phy(struct MPT2SAS_ADAPTER *ioc, struct _sas_port *mpt2sas_port,
 	struct _sas_phy *mpt2sas_phy)
@@ -539,15 +420,6 @@ _transport_add_phy(struct MPT2SAS_ADAPTER *ioc, struct _sas_port *mpt2sas_port,
 	mpt2sas_phy->phy_belongs_to_port = 1;
 }
 
-/**
- * _transport_add_phy_to_an_existing_port - adding new phy to existing port
- * @ioc: per adapter object
- * @sas_node: sas node object (either expander or sas host)
- * @mpt2sas_phy: mpt2sas per phy object
- * @sas_address: sas address of device/expander were phy needs to be added to
- *
- * Returns nothing.
- */
 static void
 _transport_add_phy_to_an_existing_port(struct MPT2SAS_ADAPTER *ioc,
 struct _sas_node *sas_node, struct _sas_phy *mpt2sas_phy, u64 sas_address)
@@ -574,14 +446,6 @@ struct _sas_node *sas_node, struct _sas_phy *mpt2sas_phy, u64 sas_address)
 
 }
 
-/**
- * _transport_del_phy_from_an_existing_port - delete phy from existing port
- * @ioc: per adapter object
- * @sas_node: sas node object (either expander or sas host)
- * @mpt2sas_phy: mpt2sas per phy object
- *
- * Returns nothing.
- */
 static void
 _transport_del_phy_from_an_existing_port(struct MPT2SAS_ADAPTER *ioc,
 	struct _sas_node *sas_node, struct _sas_phy *mpt2sas_phy)
@@ -608,14 +472,6 @@ _transport_del_phy_from_an_existing_port(struct MPT2SAS_ADAPTER *ioc,
 	}
 }
 
-/**
- * _transport_sanity_check - sanity check when adding a new port
- * @ioc: per adapter object
- * @sas_node: sas node object (either expander or sas host)
- * @sas_address: sas address of device being added
- *
- * See the explanation above from _transport_delete_duplicate_port
- */
 static void
 _transport_sanity_check(struct MPT2SAS_ADAPTER *ioc, struct _sas_node *sas_node,
      u64 sas_address)
@@ -631,17 +487,6 @@ _transport_sanity_check(struct MPT2SAS_ADAPTER *ioc, struct _sas_node *sas_node,
 	}
 }
 
-/**
- * mpt2sas_transport_port_add - insert port to the list
- * @ioc: per adapter object
- * @handle: handle of attached device
- * @sas_address: sas address of parent expander or sas host
- * Context: This function will acquire ioc->sas_node_lock.
- *
- * Adding new port object to the sas_node->sas_port_list.
- *
- * Returns mpt2sas_port.
- */
 struct _sas_port *
 mpt2sas_transport_port_add(struct MPT2SAS_ADAPTER *ioc, u16 handle,
     u64 sas_address)
@@ -747,7 +592,6 @@ mpt2sas_transport_port_add(struct MPT2SAS_ADAPTER *ioc, u16 handle,
 	list_add_tail(&mpt2sas_port->port_list, &sas_node->sas_port_list);
 	spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 
-	/* fill in report manufacture */
 	if (mpt2sas_port->remote_identify.device_type ==
 	    MPI2_SAS_DEVICE_INFO_EDGE_EXPANDER ||
 	    mpt2sas_port->remote_identify.device_type ==
@@ -766,18 +610,6 @@ mpt2sas_transport_port_add(struct MPT2SAS_ADAPTER *ioc, u16 handle,
 	return NULL;
 }
 
-/**
- * mpt2sas_transport_port_remove - remove port from the list
- * @ioc: per adapter object
- * @sas_address: sas address of attached device
- * @sas_address_parent: sas address of parent expander or sas host
- * Context: This function will acquire ioc->sas_node_lock.
- *
- * Removing object and freeing associated memory from the
- * ioc->sas_port_list.
- *
- * Return nothing.
- */
 void
 mpt2sas_transport_port_remove(struct MPT2SAS_ADAPTER *ioc, u64 sas_address,
     u64 sas_address_parent)
@@ -792,9 +624,10 @@ mpt2sas_transport_port_remove(struct MPT2SAS_ADAPTER *ioc, u64 sas_address,
 	spin_lock_irqsave(&ioc->sas_node_lock, flags);
 	sas_node = _transport_sas_node_find_by_sas_address(ioc,
 	    sas_address_parent);
-	spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
-	if (!sas_node)
+	if (!sas_node) {
+		spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 		return;
+	}
 	list_for_each_entry_safe(mpt2sas_port, next, &sas_node->sas_port_list,
 	    port_list) {
 		if (mpt2sas_port->remote_identify.sas_address != sas_address)
@@ -804,8 +637,10 @@ mpt2sas_transport_port_remove(struct MPT2SAS_ADAPTER *ioc, u64 sas_address,
 		goto out;
 	}
  out:
-	if (!found)
+	if (!found) {
+		spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 		return;
+	}
 
 	for (i = 0; i < sas_node->num_phys; i++) {
 		if (sas_node->phy[i].remote_identify.sas_address == sas_address)
@@ -813,6 +648,7 @@ mpt2sas_transport_port_remove(struct MPT2SAS_ADAPTER *ioc, u64 sas_address,
 			    sizeof(struct sas_identify));
 	}
 
+	spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 	list_for_each_entry_safe(mpt2sas_phy, next_phy,
 	    &mpt2sas_port->phy_list, port_siblings) {
 		if ((ioc->logging_level & MPT_DEBUG_TRANSPORT))
@@ -829,22 +665,12 @@ mpt2sas_transport_port_remove(struct MPT2SAS_ADAPTER *ioc, u64 sas_address,
 	kfree(mpt2sas_port);
 }
 
-/**
- * mpt2sas_transport_add_host_phy - report sas_host phy to transport
- * @ioc: per adapter object
- * @mpt2sas_phy: mpt2sas per phy object
- * @phy_pg0: sas phy page 0
- * @parent_dev: parent device class object
- *
- * Returns 0 for success, non-zero for failure.
- */
 int
 mpt2sas_transport_add_host_phy(struct MPT2SAS_ADAPTER *ioc, struct _sas_phy
     *mpt2sas_phy, Mpi2SasPhyPage0_t phy_pg0, struct device *parent_dev)
 {
 	struct sas_phy *phy;
 	int phy_index = mpt2sas_phy->phy_id;
-
 
 	INIT_LIST_HEAD(&mpt2sas_phy->port_siblings);
 	phy = sas_phy_alloc(parent_dev, phy_index);
@@ -895,16 +721,6 @@ mpt2sas_transport_add_host_phy(struct MPT2SAS_ADAPTER *ioc, struct _sas_phy
 	return 0;
 }
 
-
-/**
- * mpt2sas_transport_add_expander_phy - report expander phy to transport
- * @ioc: per adapter object
- * @mpt2sas_phy: mpt2sas per phy object
- * @expander_pg1: expander page 1
- * @parent_dev: parent device class object
- *
- * Returns 0 for success, non-zero for failure.
- */
 int
 mpt2sas_transport_add_expander_phy(struct MPT2SAS_ADAPTER *ioc, struct _sas_phy
     *mpt2sas_phy, Mpi2ExpanderPage1_t expander_pg1, struct device *parent_dev)
@@ -963,16 +779,6 @@ mpt2sas_transport_add_expander_phy(struct MPT2SAS_ADAPTER *ioc, struct _sas_phy
 	return 0;
 }
 
-/**
- * mpt2sas_transport_update_links - refreshing phy link changes
- * @ioc: per adapter object
- * @sas_address: sas address of parent expander or sas host
- * @handle: attached device handle
- * @phy_numberv: phy number
- * @link_rate: new link rate
- *
- * Returns nothing.
- */
 void
 mpt2sas_transport_update_links(struct MPT2SAS_ADAPTER *ioc,
      u64 sas_address, u16 handle, u8 phy_number, u8 link_rate)
@@ -986,20 +792,31 @@ mpt2sas_transport_update_links(struct MPT2SAS_ADAPTER *ioc,
 
 	spin_lock_irqsave(&ioc->sas_node_lock, flags);
 	sas_node = _transport_sas_node_find_by_sas_address(ioc, sas_address);
-	spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
-	if (!sas_node)
+	if (!sas_node) {
+		spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 		return;
+	}
 
 	mpt2sas_phy = &sas_node->phy[phy_number];
 	mpt2sas_phy->attached_handle = handle;
+	spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 	if (handle && (link_rate >= MPI2_SAS_NEG_LINK_RATE_1_5)) {
 		_transport_set_identify(ioc, handle,
 		    &mpt2sas_phy->remote_identify);
 		_transport_add_phy_to_an_existing_port(ioc, sas_node,
 		    mpt2sas_phy, mpt2sas_phy->remote_identify.sas_address);
+#ifdef SYNO_SAS_MPT2_HOTPLUG_PHY
+	} else {
+		mpt2sas_phy->attached_handle = (u16)0;
+		memset(&mpt2sas_phy->remote_identify, 0 , sizeof(struct
+		    sas_identify));
+		_transport_del_phy_from_an_existing_port(ioc, sas_node, mpt2sas_phy);
+	}
+#else
 	} else
 		memset(&mpt2sas_phy->remote_identify, 0 , sizeof(struct
 		    sas_identify));
+#endif
 
 	if (mpt2sas_phy->phy)
 		mpt2sas_phy->phy->negotiated_linkrate =
@@ -1029,22 +846,19 @@ rphy_to_ioc(struct sas_rphy *rphy)
 	return shost_priv(shost);
 }
 
-
-/* report phy error log structure */
 struct phy_error_log_request{
-	u8 smp_frame_type; /* 0x40 */
-	u8 function; /* 0x11 */
+	u8 smp_frame_type;  
+	u8 function;  
 	u8 allocated_response_length;
-	u8 request_length; /* 02 */
+	u8 request_length;  
 	u8 reserved_1[5];
 	u8 phy_identifier;
 	u8 reserved_2[2];
 };
 
-/* report phy error log reply structure */
 struct phy_error_log_reply{
-	u8 smp_frame_type; /* 0x41 */
-	u8 function; /* 0x11 */
+	u8 smp_frame_type;  
+	u8 function;  
 	u8 function_result;
 	u8 response_length;
 	__be16 expander_change_count;
@@ -1057,14 +871,6 @@ struct phy_error_log_reply{
 	__be32 phy_reset_problem;
 };
 
-/**
- * _transport_get_expander_phy_error_log - return expander counters
- * @ioc: per adapter object
- * @phy: The sas phy object
- *
- * Returns 0 for success, non-zero for failure.
- *
- */
 static int
 _transport_get_expander_phy_error_log(struct MPT2SAS_ADAPTER *ioc,
     struct sas_phy *phy)
@@ -1155,24 +961,21 @@ _transport_get_expander_phy_error_log(struct MPT2SAS_ADAPTER *ioc,
 	memset(mpi_request, 0, sizeof(Mpi2SmpPassthroughRequest_t));
 	mpi_request->Function = MPI2_FUNCTION_SMP_PASSTHROUGH;
 	mpi_request->PhysicalPort = 0xFF;
-	mpi_request->VF_ID = 0; /* TODO */
+	mpi_request->VF_ID = 0;  
 	mpi_request->VP_ID = 0;
 	mpi_request->SASAddress = cpu_to_le64(phy->identify.sas_address);
 	mpi_request->RequestDataLength =
 	    cpu_to_le16(sizeof(struct phy_error_log_request));
 	psge = &mpi_request->SGL;
 
-	/* WRITE sgel first */
 	sgl_flags = (MPI2_SGE_FLAGS_SIMPLE_ELEMENT |
 	    MPI2_SGE_FLAGS_END_OF_BUFFER | MPI2_SGE_FLAGS_HOST_TO_IOC);
 	sgl_flags = sgl_flags << MPI2_SGE_FLAGS_SHIFT;
 	ioc->base_add_sg_single(psge, sgl_flags |
 	    sizeof(struct phy_error_log_request), data_out_dma);
 
-	/* incr sgel */
 	psge += ioc->sge_size;
 
-	/* READ sgel last */
 	sgl_flags = (MPI2_SGE_FLAGS_SIMPLE_ELEMENT |
 	    MPI2_SGE_FLAGS_LAST_ELEMENT | MPI2_SGE_FLAGS_END_OF_BUFFER |
 	    MPI2_SGE_FLAGS_END_OF_LIST);
@@ -1184,8 +987,8 @@ _transport_get_expander_phy_error_log(struct MPT2SAS_ADAPTER *ioc,
 	dtransportprintk(ioc, printk(MPT2SAS_INFO_FMT "phy_error_log - "
 	    "send to sas_addr(0x%016llx), phy(%d)\n", ioc->name,
 	    (unsigned long long)phy->identify.sas_address, phy->number));
-	mpt2sas_base_put_smid_default(ioc, smid);
 	init_completion(&ioc->transport_cmds.done);
+	mpt2sas_base_put_smid_default(ioc, smid);
 	timeleft = wait_for_completion_timeout(&ioc->transport_cmds.done,
 	    10*HZ);
 
@@ -1247,13 +1050,6 @@ _transport_get_expander_phy_error_log(struct MPT2SAS_ADAPTER *ioc,
 	return rc;
 }
 
-/**
- * _transport_get_linkerrors - return phy counters for both hba and expanders
- * @phy: The sas phy object
- *
- * Returns 0 for success, non-zero for failure.
- *
- */
 static int
 _transport_get_linkerrors(struct sas_phy *phy)
 {
@@ -1273,7 +1069,6 @@ _transport_get_linkerrors(struct sas_phy *phy)
 	if (phy->identify.sas_address != ioc->sas_hba.sas_address)
 		return _transport_get_expander_phy_error_log(ioc, phy);
 
-	/* get hba phy error logs */
 	if ((mpt2sas_config_get_phy_pg1(ioc, &mpi_reply, &phy_pg1,
 		    phy->number))) {
 		printk(MPT2SAS_ERR_FMT "failure at %s:%d/%s()!\n",
@@ -1297,62 +1092,52 @@ _transport_get_linkerrors(struct sas_phy *phy)
 	return 0;
 }
 
-/**
- * _transport_get_enclosure_identifier -
- * @phy: The sas phy object
- *
- * Obtain the enclosure logical id for an expander.
- * Returns 0 for success, non-zero for failure.
- */
 static int
 _transport_get_enclosure_identifier(struct sas_rphy *rphy, u64 *identifier)
 {
 	struct MPT2SAS_ADAPTER *ioc = rphy_to_ioc(rphy);
 	struct _sas_device *sas_device;
 	unsigned long flags;
+	int rc;
 
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
 	sas_device = mpt2sas_scsih_sas_device_find_by_sas_address(ioc,
 	    rphy->identify.sas_address);
+	if (sas_device) {
+		*identifier = sas_device->enclosure_logical_id;
+		rc = 0;
+	} else {
+		*identifier = 0;
+		rc = -ENXIO;
+	}
 	spin_unlock_irqrestore(&ioc->sas_device_lock, flags);
-
-	if (!sas_device)
-		return -ENXIO;
-
-	*identifier = sas_device->enclosure_logical_id;
-	return 0;
+	return rc;
 }
 
-/**
- * _transport_get_bay_identifier -
- * @phy: The sas phy object
- *
- * Returns the slot id for a device that resides inside an enclosure.
- */
 static int
 _transport_get_bay_identifier(struct sas_rphy *rphy)
 {
 	struct MPT2SAS_ADAPTER *ioc = rphy_to_ioc(rphy);
 	struct _sas_device *sas_device;
 	unsigned long flags;
+	int rc;
 
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
 	sas_device = mpt2sas_scsih_sas_device_find_by_sas_address(ioc,
 	    rphy->identify.sas_address);
+	if (sas_device)
+		rc = sas_device->slot;
+	else
+		rc = -ENXIO;
 	spin_unlock_irqrestore(&ioc->sas_device_lock, flags);
-
-	if (!sas_device)
-		return -ENXIO;
-
-	return sas_device->slot;
+	return rc;
 }
 
-/* phy control request structure */
 struct phy_control_request{
-	u8 smp_frame_type; /* 0x40 */
-	u8 function; /* 0x91 */
+	u8 smp_frame_type;  
+	u8 function;  
 	u8 allocated_response_length;
-	u8 request_length; /* 0x09 */
+	u8 request_length;  
 	u16 expander_change_count;
 	u8 reserved_1[3];
 	u8 phy_identifier;
@@ -1364,10 +1149,9 @@ struct phy_control_request{
 	u8 reserved_3[6];
 };
 
-/* phy control reply structure */
 struct phy_control_reply{
-	u8 smp_frame_type; /* 0x41 */
-	u8 function; /* 0x11 */
+	u8 smp_frame_type;  
+	u8 function;  
 	u8 function_result;
 	u8 response_length;
 };
@@ -1376,14 +1160,6 @@ struct phy_control_reply{
 #define SMP_PHY_CONTROL_HARD_RESET	(0x02)
 #define SMP_PHY_CONTROL_DISABLE		(0x03)
 
-/**
- * _transport_expander_phy_control - expander phy control
- * @ioc: per adapter object
- * @phy: The sas phy object
- *
- * Returns 0 for success, non-zero for failure.
- *
- */
 static int
 _transport_expander_phy_control(struct MPT2SAS_ADAPTER *ioc,
     struct sas_phy *phy, u8 phy_operation)
@@ -1479,24 +1255,21 @@ _transport_expander_phy_control(struct MPT2SAS_ADAPTER *ioc,
 	memset(mpi_request, 0, sizeof(Mpi2SmpPassthroughRequest_t));
 	mpi_request->Function = MPI2_FUNCTION_SMP_PASSTHROUGH;
 	mpi_request->PhysicalPort = 0xFF;
-	mpi_request->VF_ID = 0; /* TODO */
+	mpi_request->VF_ID = 0;  
 	mpi_request->VP_ID = 0;
 	mpi_request->SASAddress = cpu_to_le64(phy->identify.sas_address);
 	mpi_request->RequestDataLength =
 	    cpu_to_le16(sizeof(struct phy_error_log_request));
 	psge = &mpi_request->SGL;
 
-	/* WRITE sgel first */
 	sgl_flags = (MPI2_SGE_FLAGS_SIMPLE_ELEMENT |
 	    MPI2_SGE_FLAGS_END_OF_BUFFER | MPI2_SGE_FLAGS_HOST_TO_IOC);
 	sgl_flags = sgl_flags << MPI2_SGE_FLAGS_SHIFT;
 	ioc->base_add_sg_single(psge, sgl_flags |
 	    sizeof(struct phy_control_request), data_out_dma);
 
-	/* incr sgel */
 	psge += ioc->sge_size;
 
-	/* READ sgel last */
 	sgl_flags = (MPI2_SGE_FLAGS_SIMPLE_ELEMENT |
 	    MPI2_SGE_FLAGS_LAST_ELEMENT | MPI2_SGE_FLAGS_END_OF_BUFFER |
 	    MPI2_SGE_FLAGS_END_OF_LIST);
@@ -1509,8 +1282,9 @@ _transport_expander_phy_control(struct MPT2SAS_ADAPTER *ioc,
 	    "send to sas_addr(0x%016llx), phy(%d), opcode(%d)\n", ioc->name,
 	    (unsigned long long)phy->identify.sas_address, phy->number,
 	    phy_operation));
-	mpt2sas_base_put_smid_default(ioc, smid);
+
 	init_completion(&ioc->transport_cmds.done);
+	mpt2sas_base_put_smid_default(ioc, smid);
 	timeleft = wait_for_completion_timeout(&ioc->transport_cmds.done,
 	    10*HZ);
 
@@ -1564,13 +1338,6 @@ _transport_expander_phy_control(struct MPT2SAS_ADAPTER *ioc,
 	return rc;
 }
 
-/**
- * _transport_phy_reset -
- * @phy: The sas phy object
- * @hard_reset:
- *
- * Returns 0 for success, non-zero for failure.
- */
 static int
 _transport_phy_reset(struct sas_phy *phy, int hard_reset)
 {
@@ -1587,13 +1354,11 @@ _transport_phy_reset(struct sas_phy *phy, int hard_reset)
 	}
 	spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 
-	/* handle expander phys */
 	if (phy->identify.sas_address != ioc->sas_hba.sas_address)
 		return _transport_expander_phy_control(ioc, phy,
 		    (hard_reset == 1) ? SMP_PHY_CONTROL_HARD_RESET :
 		    SMP_PHY_CONTROL_LINK_RESET);
 
-	/* handle hba phys */
 	memset(&mpi_request, 0, sizeof(Mpi2SasIoUnitControlReply_t));
 	mpi_request.Function = MPI2_FUNCTION_SAS_IO_UNIT_CONTROL;
 	mpi_request.Operation = hard_reset ?
@@ -1615,24 +1380,18 @@ _transport_phy_reset(struct sas_phy *phy, int hard_reset)
 	return 0;
 }
 
-/**
- * _transport_phy_enable - enable/disable phys
- * @phy: The sas phy object
- * @enable: enable phy when true
- *
- * Only support sas_host direct attached phys.
- * Returns 0 for success, non-zero for failure.
- */
 static int
 _transport_phy_enable(struct sas_phy *phy, int enable)
 {
 	struct MPT2SAS_ADAPTER *ioc = phy_to_ioc(phy);
 	Mpi2SasIOUnitPage1_t *sas_iounit_pg1 = NULL;
+	Mpi2SasIOUnitPage0_t *sas_iounit_pg0 = NULL;
 	Mpi2ConfigReply_t mpi_reply;
 	u16 ioc_status;
 	u16 sz;
 	int rc = 0;
 	unsigned long flags;
+	int i, discovery_active;
 
 	spin_lock_irqsave(&ioc->sas_node_lock, flags);
 	if (_transport_sas_node_find_by_sas_address(ioc,
@@ -1642,15 +1401,52 @@ _transport_phy_enable(struct sas_phy *phy, int enable)
 	}
 	spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 
-	/* handle expander phys */
 	if (phy->identify.sas_address != ioc->sas_hba.sas_address)
 		return _transport_expander_phy_control(ioc, phy,
 		    (enable == 1) ? SMP_PHY_CONTROL_LINK_RESET :
 		    SMP_PHY_CONTROL_DISABLE);
 
-	/* handle hba phys */
+	sz = offsetof(Mpi2SasIOUnitPage0_t, PhyData) + (ioc->sas_hba.num_phys *
+	    sizeof(Mpi2SasIOUnit0PhyData_t));
+	sas_iounit_pg0 = kzalloc(sz, GFP_KERNEL);
+	if (!sas_iounit_pg0) {
+		printk(MPT2SAS_ERR_FMT "failure at %s:%d/%s()!\n",
+		    ioc->name, __FILE__, __LINE__, __func__);
+		rc = -ENOMEM;
+		goto out;
+	}
+	if ((mpt2sas_config_get_sas_iounit_pg0(ioc, &mpi_reply,
+	    sas_iounit_pg0, sz))) {
+		printk(MPT2SAS_ERR_FMT "failure at %s:%d/%s()!\n",
+		    ioc->name, __FILE__, __LINE__, __func__);
+		rc = -ENXIO;
+		goto out;
+	}
+	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
+	    MPI2_IOCSTATUS_MASK;
+	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+		printk(MPT2SAS_ERR_FMT "failure at %s:%d/%s()!\n",
+		    ioc->name, __FILE__, __LINE__, __func__);
+		rc = -EIO;
+		goto out;
+	}
 
-	/* sas_iounit page 1 */
+	for (i = 0, discovery_active = 0; i < ioc->sas_hba.num_phys ; i++) {
+		if (sas_iounit_pg0->PhyData[i].PortFlags &
+		    MPI2_SASIOUNIT0_PORTFLAGS_DISCOVERY_IN_PROGRESS) {
+			printk(MPT2SAS_ERR_FMT "discovery is active on "
+			    "port = %d, phy = %d: unable to enable/disable "
+			    "phys, try again later!\n", ioc->name,
+			    sas_iounit_pg0->PhyData[i].Port, i);
+			discovery_active = 1;
+		}
+	}
+
+	if (discovery_active) {
+		rc = -EAGAIN;
+		goto out;
+	}
+
 	sz = offsetof(Mpi2SasIOUnitPage1_t, PhyData) + (ioc->sas_hba.num_phys *
 	    sizeof(Mpi2SasIOUnit1PhyData_t));
 	sas_iounit_pg1 = kzalloc(sz, GFP_KERNEL);
@@ -1675,7 +1471,18 @@ _transport_phy_enable(struct sas_phy *phy, int enable)
 		rc = -EIO;
 		goto out;
 	}
-
+	 
+	for (i = 0; i < ioc->sas_hba.num_phys ; i++) {
+		sas_iounit_pg1->PhyData[i].Port =
+		    sas_iounit_pg0->PhyData[i].Port;
+		sas_iounit_pg1->PhyData[i].PortFlags =
+		    (sas_iounit_pg0->PhyData[i].PortFlags &
+		    MPI2_SASIOUNIT0_PORTFLAGS_AUTO_PORT_CONFIG);
+		sas_iounit_pg1->PhyData[i].PhyFlags =
+		    (sas_iounit_pg0->PhyData[i].PhyFlags &
+		    (MPI2_SASIOUNIT0_PHYFLAGS_ZONING_ENABLED +
+		    MPI2_SASIOUNIT0_PHYFLAGS_PHY_DISABLED));
+	}
 	if (enable)
 		sas_iounit_pg1->PhyData[phy->number].PhyFlags
 		    &= ~MPI2_SASIOUNIT1_PHYFLAGS_PHY_DISABLE;
@@ -1685,23 +1492,15 @@ _transport_phy_enable(struct sas_phy *phy, int enable)
 
 	mpt2sas_config_set_sas_iounit_pg1(ioc, &mpi_reply, sas_iounit_pg1, sz);
 
-	/* link reset */
 	if (enable)
 		_transport_phy_reset(phy, 0);
 
  out:
 	kfree(sas_iounit_pg1);
+	kfree(sas_iounit_pg0);
 	return rc;
 }
 
-/**
- * _transport_phy_speed - set phy min/max link rates
- * @phy: The sas phy object
- * @rates: rates defined in sas_phy_linkrates
- *
- * Only support sas_host direct attached phys.
- * Returns 0 for success, non-zero for failure.
- */
 static int
 _transport_phy_speed(struct sas_phy *phy, struct sas_phy_linkrates *rates)
 {
@@ -1733,7 +1532,6 @@ _transport_phy_speed(struct sas_phy *phy, struct sas_phy_linkrates *rates)
 	else if (rates->maximum_linkrate > phy->maximum_linkrate_hw)
 		rates->maximum_linkrate = phy->maximum_linkrate_hw;
 
-	/* handle expander phys */
 	if (phy->identify.sas_address != ioc->sas_hba.sas_address) {
 		phy->minimum_linkrate = rates->minimum_linkrate;
 		phy->maximum_linkrate = rates->maximum_linkrate;
@@ -1741,9 +1539,6 @@ _transport_phy_speed(struct sas_phy *phy, struct sas_phy_linkrates *rates)
 		    SMP_PHY_CONTROL_LINK_RESET);
 	}
 
-	/* handle hba phys */
-
-	/* sas_iounit page 1 */
 	sz = offsetof(Mpi2SasIOUnitPage1_t, PhyData) + (ioc->sas_hba.num_phys *
 	    sizeof(Mpi2SasIOUnit1PhyData_t));
 	sas_iounit_pg1 = kzalloc(sz, GFP_KERNEL);
@@ -1789,10 +1584,8 @@ _transport_phy_speed(struct sas_phy *phy, struct sas_phy_linkrates *rates)
 		goto out;
 	}
 
-	/* link reset */
 	_transport_phy_reset(phy, 0);
 
-	/* read phy page 0, then update the rates in the sas transport phy */
 	if (!mpt2sas_config_get_phy_pg0(ioc, &mpi_reply, &phy_pg0,
 	    phy->number)) {
 		phy->minimum_linkrate = _transport_convert_phy_link_rate(
@@ -1809,17 +1602,6 @@ _transport_phy_speed(struct sas_phy *phy, struct sas_phy_linkrates *rates)
 	return rc;
 }
 
-
-/**
- * _transport_smp_handler - transport portal for smp passthru
- * @shost: shost object
- * @rphy: sas transport rphy object
- * @req:
- *
- * This used primarily for smp_utils.
- * Example:
- *           smp_rep_general /sys/class/bsg/expander-5:0
- */
 static int
 _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
     struct request *req)
@@ -1827,7 +1609,7 @@ _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
 	struct MPT2SAS_ADAPTER *ioc = shost_priv(shost);
 	Mpi2SmpPassthroughRequest_t *mpi_request;
 	Mpi2SmpPassthroughReply_t *mpi_reply;
-	int rc;
+	int rc, i;
 	u16 smid;
 	u32 ioc_state;
 	unsigned long timeleft;
@@ -1836,24 +1618,20 @@ _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
 	u8 issue_reset = 0;
 	dma_addr_t dma_addr_in = 0;
 	dma_addr_t dma_addr_out = 0;
+	dma_addr_t pci_dma_in = 0;
+	dma_addr_t pci_dma_out = 0;
+	void *pci_addr_in = NULL;
+	void *pci_addr_out = NULL;
 	u16 wait_state_count;
 	struct request *rsp = req->next_rq;
+	struct bio_vec *bvec = NULL;
 
 	if (!rsp) {
 		printk(MPT2SAS_ERR_FMT "%s: the smp response space is "
 		    "missing\n", ioc->name, __func__);
 		return -EINVAL;
 	}
-
-	/* do we need to support multiple segments? */
-	if (req->bio->bi_vcnt > 1 || rsp->bio->bi_vcnt > 1) {
-		printk(MPT2SAS_ERR_FMT "%s: multiple segments req %u %u, "
-		    "rsp %u %u\n", ioc->name, __func__, req->bio->bi_vcnt,
-		    blk_rq_bytes(req), rsp->bio->bi_vcnt, blk_rq_bytes(rsp));
-		return -EINVAL;
-	}
-
-	if (ioc->shost_recovery) {
+	if (ioc->shost_recovery || ioc->pci_error_recovery) {
 		printk(MPT2SAS_INFO_FMT "%s: host reset in progress!\n",
 		    __func__, ioc->name);
 		return -EFAULT;
@@ -1871,6 +1649,55 @@ _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
 	}
 	ioc->transport_cmds.status = MPT2_CMD_PENDING;
 
+	if (req->bio->bi_vcnt > 1) {
+		u32 offset = 0;
+
+		pci_addr_out = pci_alloc_consistent(ioc->pdev,
+		    blk_rq_bytes(req), &pci_dma_out);
+		if (!pci_addr_out) {
+			printk(MPT2SAS_INFO_FMT "%s(): PCI Addr out = NULL\n",
+			    ioc->name, __func__);
+			rc = -ENOMEM;
+			goto out;
+		}
+
+		bio_for_each_segment(bvec, req->bio, i) {
+			memcpy(pci_addr_out + offset,
+			    page_address(bvec->bv_page) + bvec->bv_offset,
+			    bvec->bv_len);
+			offset += bvec->bv_len;
+		}
+	} else {
+		dma_addr_out = pci_map_single(ioc->pdev, bio_data(req->bio),
+		    blk_rq_bytes(req), PCI_DMA_BIDIRECTIONAL);
+		if (!dma_addr_out) {
+			printk(MPT2SAS_INFO_FMT "%s(): DMA Addr out = NULL\n",
+			    ioc->name, __func__);
+			rc = -ENOMEM;
+			goto free_pci;
+		}
+	}
+
+	if (rsp->bio->bi_vcnt > 1) {
+		pci_addr_in = pci_alloc_consistent(ioc->pdev, blk_rq_bytes(rsp),
+		    &pci_dma_in);
+		if (!pci_addr_in) {
+			printk(MPT2SAS_INFO_FMT "%s(): PCI Addr in = NULL\n",
+			    ioc->name, __func__);
+			rc = -ENOMEM;
+			goto unmap;
+		}
+	} else {
+		dma_addr_in =  pci_map_single(ioc->pdev, bio_data(rsp->bio),
+		    blk_rq_bytes(rsp), PCI_DMA_BIDIRECTIONAL);
+		if (!dma_addr_in) {
+			printk(MPT2SAS_INFO_FMT "%s(): DMA Addr in = NULL\n",
+			    ioc->name, __func__);
+			rc = -ENOMEM;
+			goto unmap;
+		}
+	}
+
 	wait_state_count = 0;
 	ioc_state = mpt2sas_base_get_iocstate(ioc, 1);
 	while (ioc_state != MPI2_IOC_STATE_OPERATIONAL) {
@@ -1879,7 +1706,7 @@ _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
 			    "%s: failed due to ioc not operational\n",
 			    ioc->name, __func__);
 			rc = -EFAULT;
-			goto out;
+			goto unmap;
 		}
 		ssleep(1);
 		ioc_state = mpt2sas_base_get_iocstate(ioc, 1);
@@ -1896,7 +1723,7 @@ _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
 		printk(MPT2SAS_ERR_FMT "%s: failed obtaining a smid\n",
 		    ioc->name, __func__);
 		rc = -EAGAIN;
-		goto out;
+		goto unmap;
 	}
 
 	rc = 0;
@@ -1906,7 +1733,7 @@ _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
 	memset(mpi_request, 0, sizeof(Mpi2SmpPassthroughRequest_t));
 	mpi_request->Function = MPI2_FUNCTION_SMP_PASSTHROUGH;
 	mpi_request->PhysicalPort = 0xFF;
-	mpi_request->VF_ID = 0; /* TODO */
+	mpi_request->VF_ID = 0;  
 	mpi_request->VP_ID = 0;
 	mpi_request->SASAddress = (rphy) ?
 	    cpu_to_le64(rphy->identify.sas_address) :
@@ -1914,43 +1741,36 @@ _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
 	mpi_request->RequestDataLength = cpu_to_le16(blk_rq_bytes(req) - 4);
 	psge = &mpi_request->SGL;
 
-	/* WRITE sgel first */
 	sgl_flags = (MPI2_SGE_FLAGS_SIMPLE_ELEMENT |
 	    MPI2_SGE_FLAGS_END_OF_BUFFER | MPI2_SGE_FLAGS_HOST_TO_IOC);
 	sgl_flags = sgl_flags << MPI2_SGE_FLAGS_SHIFT;
-	dma_addr_out = pci_map_single(ioc->pdev, bio_data(req->bio),
-		blk_rq_bytes(req), PCI_DMA_BIDIRECTIONAL);
-	if (!dma_addr_out) {
-		mpt2sas_base_free_smid(ioc, smid);
-		goto unmap;
+	if (req->bio->bi_vcnt > 1) {
+		ioc->base_add_sg_single(psge, sgl_flags |
+		    (blk_rq_bytes(req) - 4), pci_dma_out);
+	} else {
+		ioc->base_add_sg_single(psge, sgl_flags |
+		    (blk_rq_bytes(req) - 4), dma_addr_out);
 	}
 
-	ioc->base_add_sg_single(psge, sgl_flags | (blk_rq_bytes(req) - 4),
-	    dma_addr_out);
-
-	/* incr sgel */
 	psge += ioc->sge_size;
 
-	/* READ sgel last */
 	sgl_flags = (MPI2_SGE_FLAGS_SIMPLE_ELEMENT |
 	    MPI2_SGE_FLAGS_LAST_ELEMENT | MPI2_SGE_FLAGS_END_OF_BUFFER |
 	    MPI2_SGE_FLAGS_END_OF_LIST);
 	sgl_flags = sgl_flags << MPI2_SGE_FLAGS_SHIFT;
-	dma_addr_in = pci_map_single(ioc->pdev, bio_data(rsp->bio),
-				     blk_rq_bytes(rsp), PCI_DMA_BIDIRECTIONAL);
-	if (!dma_addr_in) {
-		mpt2sas_base_free_smid(ioc, smid);
-		goto unmap;
+	if (rsp->bio->bi_vcnt > 1) {
+		ioc->base_add_sg_single(psge, sgl_flags |
+		    (blk_rq_bytes(rsp) + 4), pci_dma_in);
+	} else {
+		ioc->base_add_sg_single(psge, sgl_flags |
+		    (blk_rq_bytes(rsp) + 4), dma_addr_in);
 	}
-
-	ioc->base_add_sg_single(psge, sgl_flags | (blk_rq_bytes(rsp) + 4),
-	    dma_addr_in);
 
 	dtransportprintk(ioc, printk(MPT2SAS_INFO_FMT "%s - "
 	    "sending smp request\n", ioc->name, __func__));
 
-	mpt2sas_base_put_smid_default(ioc, smid);
 	init_completion(&ioc->transport_cmds.done);
+	mpt2sas_base_put_smid_default(ioc, smid);
 	timeleft = wait_for_completion_timeout(&ioc->transport_cmds.done,
 	    10*HZ);
 
@@ -1981,6 +1801,26 @@ _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
 		req->resid_len = 0;
 		rsp->resid_len -=
 		    le16_to_cpu(mpi_reply->ResponseDataLength);
+		 
+		if (rsp->bio->bi_vcnt > 1) {
+			u32 offset = 0;
+			u32 bytes_to_copy =
+			    le16_to_cpu(mpi_reply->ResponseDataLength);
+			bio_for_each_segment(bvec, rsp->bio, i) {
+				if (bytes_to_copy <= bvec->bv_len) {
+					memcpy(page_address(bvec->bv_page) +
+					    bvec->bv_offset, pci_addr_in +
+					    offset, bytes_to_copy);
+					break;
+				} else {
+					memcpy(page_address(bvec->bv_page) +
+					    bvec->bv_offset, pci_addr_in +
+					    offset, bvec->bv_len);
+					bytes_to_copy -= bvec->bv_len;
+				}
+				offset += bvec->bv_len;
+			}
+		}
 	} else {
 		dtransportprintk(ioc, printk(MPT2SAS_INFO_FMT
 		    "%s - no reply\n", ioc->name, __func__));
@@ -2001,6 +1841,15 @@ _transport_smp_handler(struct Scsi_Host *shost, struct sas_rphy *rphy,
 	if (dma_addr_in)
 		pci_unmap_single(ioc->pdev, dma_addr_in, blk_rq_bytes(rsp),
 		    PCI_DMA_BIDIRECTIONAL);
+
+ free_pci:
+	if (pci_addr_out)
+		pci_free_consistent(ioc->pdev, blk_rq_bytes(req), pci_addr_out,
+		    pci_dma_out);
+
+	if (pci_addr_in)
+		pci_free_consistent(ioc->pdev, blk_rq_bytes(rsp), pci_addr_in,
+		    pci_dma_in);
 
  out:
 	ioc->transport_cmds.status = MPT2_CMD_NOT_USED;

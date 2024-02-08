@@ -190,7 +190,6 @@ enum em28xx_mode {
 	EM28XX_DIGITAL_MODE,
 };
 
-
 struct em28xx;
 
 struct em28xx_usb_isoc_ctl {

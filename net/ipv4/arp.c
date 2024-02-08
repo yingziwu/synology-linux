@@ -218,7 +218,6 @@ int arp_mc_map(__be32 addr, u8 *haddr, struct net_device *dev, int dir)
 	return -EINVAL;
 }
 
-
 static u32 arp_hash(const void *pkey,
 		    const struct net_device *dev,
 		    __u32 hash_rnd)
@@ -471,7 +470,6 @@ static int arp_set_predefined(int addr_hint, unsigned char *haddr,
 	}
 	return 0;
 }
-
 
 int arp_find(unsigned char *haddr, struct sk_buff *skb)
 {
@@ -937,7 +935,6 @@ static void parp_redo(struct sk_buff *skb)
 	arp_process(skb);
 }
 
-
 /*
  *	Receive an arp request from the device layer.
  */
@@ -1262,7 +1259,6 @@ void arp_ifdown(struct net_device *dev)
 	neigh_ifdown(&arp_tbl, dev);
 }
 
-
 /*
  *	Called once on startup.
  */
@@ -1417,7 +1413,6 @@ static const struct file_operations arp_seq_fops = {
 	.llseek         = seq_lseek,
 	.release	= seq_release_net,
 };
-
 
 static int __net_init arp_net_init(struct net *net)
 {

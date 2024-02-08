@@ -32,7 +32,6 @@
 #include <asm/xcr.h>
 #include <asm/xsave.h>
 
-
 asmlinkage void sha1_transform_ssse3(u32 *digest, const char *data,
 				     unsigned int rounds);
 #ifdef SHA1_ENABLE_AVX_SUPPORT
@@ -41,7 +40,6 @@ asmlinkage void sha1_transform_avx(u32 *digest, const char *data,
 #endif
 
 static asmlinkage void (*sha1_transform_asm)(u32 *, const char *, unsigned int);
-
 
 static int sha1_ssse3_init(struct shash_desc *desc)
 {
@@ -105,7 +103,6 @@ static int sha1_ssse3_update(struct shash_desc *desc, const u8 *data,
 
 	return res;
 }
-
 
 /* Add padding and return the message digest. */
 static int sha1_ssse3_final(struct shash_desc *desc, u8 *out)
@@ -237,4 +234,4 @@ module_exit(sha1_ssse3_mod_fini);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("SHA1 Secure Hash Algorithm, Supplemental SSE3 accelerated");
 
-MODULE_ALIAS("sha1");
+MODULE_ALIAS_CRYPTO("sha1");

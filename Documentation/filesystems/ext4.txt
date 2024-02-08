@@ -203,6 +203,14 @@ inode_readahead_blks=n	This tuning parameter controls the maximum
 			table readahead algorithm will pre-read into
 			the buffer cache.  The default value is 32 blocks.
 
+orlov		(*)	This enables the new Orlov block allocator. It is
+			enabled by default.
+
+oldalloc		This disables the Orlov block allocator and enables
+			the old block allocator.  Orlov should have better
+			performance - we'd like to get some feedback if it's
+			the contrary for you.
+
 nouser_xattr		Disables Extended User Attributes. If you have extended
 			attribute support enabled in the kernel configuration
 			(CONFIG_EXT4_FS_XATTR), extended attribute support
@@ -581,6 +589,13 @@ Table of Ext4 specific ioctls
 			      behaviour may change in the future as it is
 			      not necessary and has been done this way only
 			      for sake of simplicity.
+
+ EXT4_IOC_RESIZE_FS	      Resize the filesystem to a new size.  The number
+			      of blocks of resized filesystem is passed in via
+			      64 bit integer argument.  The kernel allocates
+			      bitmaps and inode table, the userspace tool thus
+			      just passes the new number of blocks.
+
 ..............................................................................
 
 References

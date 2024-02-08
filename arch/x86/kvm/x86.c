@@ -891,7 +891,6 @@ void kvm_enable_efer_bits(u64 mask)
 }
 EXPORT_SYMBOL_GPL(kvm_enable_efer_bits);
 
-
 /*
  * Writes msr value into into the appropriate "register".
  * Returns 0 on success, non-0 otherwise.
@@ -1719,7 +1718,6 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, u32 msr, u64 data)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(kvm_set_msr_common);
-
 
 /*
  * Reads an msr value (of 'msr_index') into 'pdata'.
@@ -2674,8 +2672,6 @@ static int kvm_dev_ioctl_get_supported_cpuid(struct kvm_cpuid2 *cpuid,
 	for (func = 0x80000001; func <= limit && nent < cpuid->nent; ++func)
 		do_cpuid_ent(&cpuid_entries[nent], func, 0,
 			     &nent, cpuid->nent);
-
-
 
 	r = -E2BIG;
 	if (nent >= cpuid->nent)
@@ -4355,7 +4351,6 @@ static int kernel_pio(struct kvm_vcpu *vcpu, void *pd)
 	return r;
 }
 
-
 static int emulator_pio_in_emulated(struct x86_emulate_ctxt *ctxt,
 				    int size, unsigned short port, void *val,
 				    unsigned int count)
@@ -5820,14 +5815,12 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
 		profile_hit(KVM_PROFILING, (void *)rip);
 	}
 
-
 	kvm_lapic_sync_from_vapic(vcpu);
 
 	r = kvm_x86_ops->handle_exit(vcpu);
 out:
 	return r;
 }
-
 
 static int __vcpu_run(struct kvm_vcpu *vcpu)
 {
@@ -6671,7 +6664,6 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
 			memslot->userspace_addr = userspace_addr;
 		}
 	}
-
 
 	return 0;
 }

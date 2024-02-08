@@ -214,7 +214,6 @@
 #define YPbPrMode750p        0x40
 #define YPbPrMode1080i       0x60
 
-
 #define LCDRGB18Bit          0x01               /* CR37 */
 #define LCDNonExpanding      0x10
 #define LCDSync              0x20
@@ -278,7 +277,6 @@
 
 #define CRT2Delay1           0x04 /* XGI301 */
 #define CRT2Delay2           0x0A /* 301B,302 */
-
 
 #define VCLK25_175           0x00
 #define VCLK28_322           0x01

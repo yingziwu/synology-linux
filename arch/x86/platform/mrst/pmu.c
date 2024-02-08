@@ -496,7 +496,6 @@ static int debug_mrst_pmu_show(struct seq_file *s, void *unused)
 
 	seq_printf(s, "GFX: %s\n", graphics_is_off ? "" : "[BLOCKS s0i3]");
 
-
 	for_each_pci_dev(pdev) {
 		int pos;
 		u16 pmcsr;

@@ -247,7 +247,6 @@ struct au1xxx_irqmap au1200_irqmap[] __initdata = {
 	{ -1, },
 };
 
-
 static void au1x_ic0_unmask(struct irq_data *d)
 {
 	unsigned int bit = d->irq - AU1000_INTC0_INT_BASE;
@@ -504,7 +503,6 @@ handle:
 	do_IRQ(off);
 }
 
-
 static inline void ic_init(void __iomem *base)
 {
 	/* initialize interrupt controller to a safe state */
@@ -584,7 +582,6 @@ void __init arch_init_irq(void)
 		break;
 	}
 }
-
 
 static unsigned long alchemy_ic_pmdata[7 * 2];
 

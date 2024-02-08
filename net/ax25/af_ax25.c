@@ -50,8 +50,6 @@
 #include <net/ip.h>
 #include <net/arp.h>
 
-
-
 HLIST_HEAD(ax25_list);
 DEFINE_SPINLOCK(ax25_list_lock);
 
@@ -806,6 +804,9 @@ static int ax25_create(struct net *net, struct socket *sock, int protocol,
 	struct sock *sk;
 	ax25_cb *ax25;
 
+	if (protocol < 0 || protocol > SK_PROTOCOL_MAX)
+		return -EINVAL;
+
 	if (!net_eq(net, &init_net))
 		return -EAFNOSUPPORT;
 
@@ -1134,7 +1135,6 @@ static int __must_check ax25_connect(struct socket *sock,
 		if ((addr_len < sizeof(struct sockaddr_ax25) + sizeof(ax25_address) * 6) ||
 		    (addr_len > sizeof(struct full_sockaddr_ax25)))
 			return -EINVAL;
-
 
 	if (fsa->fsa_ax25.sax25_family != AF_AX25)
 		return -EINVAL;
@@ -1490,7 +1490,6 @@ static int ax25_sendmsg(struct kiocb *iocb, struct socket *sock,
 				goto out;
 			}
 
-
 		if (addr_len > sizeof(struct sockaddr_ax25) && usax->sax25_ndigis != 0) {
 			int ct           = 0;
 			struct full_sockaddr_ax25 *fsa = (struct full_sockaddr_ax25 *)usax;
@@ -1635,11 +1634,11 @@ static int ax25_recvmsg(struct kiocb *iocb, struct socket *sock,
 
 	skb_copy_datagram_iovec(skb, 0, msg->msg_iov, copied);
 
-	if (msg->msg_namelen != 0) {
-		struct sockaddr_ax25 *sax = (struct sockaddr_ax25 *)msg->msg_name;
+	if (msg->msg_name) {
 		ax25_digi digi;
 		ax25_address src;
 		const unsigned char *mac = skb_mac_header(skb);
+		struct sockaddr_ax25 *sax = msg->msg_name;
 
 		ax25_addr_parse(mac + 1, skb->data - mac - 1, &src, NULL,
 				&digi, NULL, NULL);
@@ -1871,7 +1870,6 @@ static int ax25_info_show(struct seq_file *seq, void *v)
 	char buf[11];
 	int k;
 
-
 	/*
 	 * New format:
 	 * magic dev src_addr dest_addr,digi1,digi2,.. st vs vr va t1 t1 t2 t2 t3 t3 idle idle n2 n2 rtt window paclen Snd-Q Rcv-Q inode
@@ -1994,7 +1992,6 @@ out:
 	return rc;
 }
 module_init(ax25_init);
-
 
 MODULE_AUTHOR("Jonathan Naylor G4KLX <g4klx@g4klx.demon.co.uk>");
 MODULE_DESCRIPTION("The amateur radio AX.25 link layer protocol");

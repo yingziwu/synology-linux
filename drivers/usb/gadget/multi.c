@@ -12,11 +12,9 @@
  * (at your option) any later version.
  */
 
-
 #include <linux/kernel.h>
 #include <linux/utsname.h>
 #include <linux/module.h>
-
 
 #if defined USB_ETH_RNDIS
 #  undef USB_ETH_RNDIS
@@ -25,13 +23,11 @@
 #  define USB_ETH_RNDIS y
 #endif
 
-
 #define DRIVER_DESC		"Multifunction Composite Gadget"
 
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR("Michal Nazarewicz");
 MODULE_LICENSE("GPL");
-
 
 /***************************** All the files... *****************************/
 
@@ -61,13 +57,10 @@ MODULE_LICENSE("GPL");
 #endif
 #include "u_ether.c"
 
-
-
 /***************************** Device Descriptor ****************************/
 
 #define MULTI_VENDOR_NUM	0x1d6b	/* Linux Foundation */
 #define MULTI_PRODUCT_NUM	0x0104	/* Multifunction Composite Gadget */
-
 
 enum {
 	__MULTI_NO_CONFIG,
@@ -78,7 +71,6 @@ enum {
 	MULTI_CDC_CONFIG_NUM,
 #endif
 };
-
 
 static struct usb_device_descriptor device_desc = {
 	.bLength =		sizeof device_desc,
@@ -95,7 +87,6 @@ static struct usb_device_descriptor device_desc = {
 	.idProduct =		cpu_to_le16(MULTI_PRODUCT_NUM),
 };
 
-
 static const struct usb_descriptor_header *otg_desc[] = {
 	(struct usb_descriptor_header *) &(struct usb_otg_descriptor){
 		.bLength =		sizeof(struct usb_otg_descriptor),
@@ -109,7 +100,6 @@ static const struct usb_descriptor_header *otg_desc[] = {
 	},
 	NULL,
 };
-
 
 enum {
 #ifdef CONFIG_USB_G_MULTI_RNDIS
@@ -138,9 +128,6 @@ static struct usb_gadget_strings *dev_strings[] = {
 	NULL,
 };
 
-
-
-
 /****************************** Configurations ******************************/
 
 static struct fsg_module_parameters fsg_mod_data = { .stall = 1 };
@@ -149,7 +136,6 @@ FSG_MODULE_PARAMETERS(/* no prefix */, fsg_mod_data);
 static struct fsg_common fsg_common;
 
 static u8 hostaddr[ETH_ALEN];
-
 
 /********** RNDIS **********/
 
@@ -201,7 +187,6 @@ static int rndis_config_register(struct usb_composite_dev *cdev)
 
 #endif
 
-
 /********** CDC ECM **********/
 
 #ifdef CONFIG_USB_G_MULTI_CDC
@@ -252,10 +237,7 @@ static int cdc_config_register(struct usb_composite_dev *cdev)
 
 #endif
 
-
-
 /****************************** Gadget Bind ******************************/
-
 
 static int __ref multi_bind(struct usb_composite_dev *cdev)
 {
@@ -316,7 +298,6 @@ static int __ref multi_bind(struct usb_composite_dev *cdev)
 	fsg_common_put(&fsg_common);
 	return 0;
 
-
 	/* error recovery */
 fail2:
 	fsg_common_put(&fsg_common);
@@ -334,9 +315,7 @@ static int __exit multi_unbind(struct usb_composite_dev *cdev)
 	return 0;
 }
 
-
 /****************************** Some noise ******************************/
-
 
 static struct usb_composite_driver multi_driver = {
 	.name		= "g_multi",
@@ -347,7 +326,6 @@ static struct usb_composite_driver multi_driver = {
 	.iProduct	= DRIVER_DESC,
 	.needs_serial	= 1,
 };
-
 
 static int __init multi_init(void)
 {

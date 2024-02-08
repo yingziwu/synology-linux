@@ -53,14 +53,11 @@
 
 #include <linux/serial_core.h>
 
-
 /* We've been assigned a range on the "Low-density serial ports" major */
 #define SERIAL_PSC_MAJOR	204
 #define SERIAL_PSC_MINOR	148
 
-
 #define ISR_PASS_LIMIT 256	/* Max number of iteration in the interrupt */
-
 
 static struct uart_port mpc52xx_uart_ports[MPC52xx_PSC_MAXNUM];
 	/* Rem: - We use the read_status_mask as a shadow of
@@ -76,14 +73,11 @@ static struct device_node *mpc52xx_uart_nodes[MPC52xx_PSC_MAXNUM];
 
 static void mpc52xx_uart_of_enumerate(void);
 
-
 #define PSC(port) ((struct mpc52xx_psc __iomem *)((port)->membase))
-
 
 /* Forward declaration of the interruption handling routine */
 static irqreturn_t mpc52xx_uart_int(int irq, void *dev_id);
 static irqreturn_t mpc5xxx_uart_process_int(struct uart_port *port);
-
 
 /* Simple macro to test if a port is console or not. This one is taken
  * for serial_core.c and maybe should be moved to serial_core.h ? */
@@ -161,7 +155,6 @@ static int mpc52xx_psc_raw_tx_rdy(struct uart_port *port)
 	return in_be16(&PSC(port)->mpc52xx_psc_status)
 	    & MPC52xx_PSC_SR_TXRDY;
 }
-
 
 static int mpc52xx_psc_rx_rdy(struct uart_port *port)
 {
@@ -779,7 +772,6 @@ mpc52xx_uart_set_termios(struct uart_port *port, struct ktermios *new,
 	} else
 		mr1 |= MPC52xx_PSC_MODE_PARNONE;
 
-
 	mr2 = 0;
 
 	if (new->c_cflag & CSTOPB)
@@ -905,7 +897,6 @@ mpc52xx_uart_verify_port(struct uart_port *port, struct serial_struct *ser)
 	return 0;
 }
 
-
 static struct uart_ops mpc52xx_uart_ops = {
 	.tx_empty	= mpc52xx_uart_tx_empty,
 	.set_mctrl	= mpc52xx_uart_set_mctrl,
@@ -927,7 +918,6 @@ static struct uart_ops mpc52xx_uart_ops = {
 	.config_port	= mpc52xx_uart_config_port,
 	.verify_port	= mpc52xx_uart_verify_port
 };
-
 
 /* ======================================================================== */
 /* Interrupt handling                                                       */
@@ -1169,7 +1159,6 @@ mpc52xx_console_write(struct console *co, const char *s, unsigned int count)
 	psc_ops->cw_restore_ints(port);
 }
 
-
 static int __init
 mpc52xx_console_setup(struct console *co, char *options)
 {
@@ -1241,7 +1230,6 @@ mpc52xx_console_setup(struct console *co, char *options)
 	return uart_set_options(port, co, baud, parity, bits, flow);
 }
 
-
 static struct uart_driver mpc52xx_uart_driver;
 
 static struct console mpc52xx_console = {
@@ -1253,7 +1241,6 @@ static struct console mpc52xx_console = {
 	.index	= -1,	/* Specified on the cmdline (e.g. console=ttyPSC0) */
 	.data	= &mpc52xx_uart_driver,
 };
-
 
 static int __init
 mpc52xx_console_init(void)
@@ -1269,7 +1256,6 @@ console_initcall(mpc52xx_console_init);
 #else
 #define MPC52xx_PSC_CONSOLE NULL
 #endif
-
 
 /* ======================================================================== */
 /* UART Driver                                                              */
@@ -1465,7 +1451,6 @@ static struct platform_driver mpc52xx_uart_of_driver = {
 	},
 };
 
-
 /* ======================================================================== */
 /* Module                                                                   */
 /* ======================================================================== */
@@ -1515,7 +1500,6 @@ mpc52xx_uart_exit(void)
 	platform_driver_unregister(&mpc52xx_uart_of_driver);
 	uart_unregister_driver(&mpc52xx_uart_driver);
 }
-
 
 module_init(mpc52xx_uart_init);
 module_exit(mpc52xx_uart_exit);

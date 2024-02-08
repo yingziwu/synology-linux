@@ -104,7 +104,6 @@ xfs_find_handle(
 	    !S_ISLNK(inode->i_mode))
 		goto out_put;
 
-
 	memcpy(&handle.ha_fsid, ip->i_mount->m_fixedfsid, sizeof(xfs_fsid_t));
 
 	if (cmd == XFS_IOC_PATH_TO_FSHANDLE) {
@@ -302,7 +301,6 @@ do_readlink(
  out:
 	return len;
 }
-
 
 int
 xfs_readlink_by_handle(
@@ -559,23 +557,23 @@ xfs_attrmulti_by_handle(
 					ops[i].am_flags);
 			break;
 		case ATTR_OP_SET:
-			ops[i].am_error = mnt_want_write(parfilp->f_path.mnt);
+			ops[i].am_error = mnt_want_write_file(parfilp);
 			if (ops[i].am_error)
 				break;
 			ops[i].am_error = xfs_attrmulti_attr_set(
 					dentry->d_inode, attr_name,
 					ops[i].am_attrvalue, ops[i].am_length,
 					ops[i].am_flags);
-			mnt_drop_write(parfilp->f_path.mnt);
+			mnt_drop_write_file(parfilp);
 			break;
 		case ATTR_OP_REMOVE:
-			ops[i].am_error = mnt_want_write(parfilp->f_path.mnt);
+			ops[i].am_error = mnt_want_write_file(parfilp);
 			if (ops[i].am_error)
 				break;
 			ops[i].am_error = xfs_attrmulti_attr_remove(
 					dentry->d_inode, attr_name,
 					ops[i].am_flags);
-			mnt_drop_write(parfilp->f_path.mnt);
+			mnt_drop_write_file(parfilp);
 			break;
 		default:
 			ops[i].am_error = EINVAL;
@@ -1030,7 +1028,6 @@ xfs_ioctl_setattr(
 			}
 		}
 	}
-
 
 	if (mask & FSX_XFLAGS) {
 		/*

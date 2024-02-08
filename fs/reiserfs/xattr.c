@@ -54,7 +54,6 @@
 #define PRIVROOT_NAME ".reiserfs_priv"
 #define XAROOT_NAME   "xattrs"
 
-
 /* Helpers for inode ops. We do this so that we don't have all the VFS
  * overhead and also for proper i_mutex annotation.
  * dir->i_mutex must be held for all of them. */
@@ -66,7 +65,7 @@ static int xattr_create(struct inode *dir, struct dentry *dentry, int mode)
 }
 #endif
 
-static int xattr_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+static int xattr_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	BUG_ON(!mutex_is_locked(&dir->i_mutex));
 	return dir->i_op->mkdir(dir, dentry, mode);
@@ -458,7 +457,6 @@ out_dput:
 	return err;
 }
 
-
 /* Generic extended attribute operations that can be used by xa plugins */
 
 /*
@@ -733,7 +731,6 @@ find_xattr_handler_prefix(const struct xattr_handler **handlers,
 
 	return xah;
 }
-
 
 /*
  * Inode operation getxattr()

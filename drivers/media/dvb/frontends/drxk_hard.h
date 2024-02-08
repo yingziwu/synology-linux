@@ -76,7 +76,6 @@ enum DRXPowerMode {
 	DRX_POWER_DOWN = 255
 };
 
-
 /** /brief Intermediate power mode for DRXK, power down OFDM clock domain */
 #ifndef DRXK_POWER_DOWN_OFDM
 #define DRXK_POWER_DOWN_OFDM        DRX_POWER_MODE_1
@@ -91,7 +90,6 @@ enum DRXPowerMode {
 #ifndef DRXK_POWER_DOWN_PLL
 #define DRXK_POWER_DOWN_PLL         DRX_POWER_MODE_10
 #endif
-
 
 enum AGC_CTRL_MODE { DRXK_AGC_CTRL_AUTO = 0, DRXK_AGC_CTRL_USER, DRXK_AGC_CTRL_OFF };
 enum EDrxkState { DRXK_UNINITIALIZED = 0, DRXK_STOPPED, DRXK_DTV_STARTED, DRXK_ATV_STARTED, DRXK_POWERED_DOWN };
@@ -345,4 +343,3 @@ struct drxk_state {
 #define DEMOD_LOCK 2
 #define FEC_LOCK   3
 #define MPEG_LOCK  4
-

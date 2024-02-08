@@ -335,7 +335,6 @@ static void __devexit pci_ni8420_exit(struct pci_dev *dev)
 	iounmap(p);
 }
 
-
 /* MITE registers */
 #define MITE_IOWBSR1	0xc4
 #define MITE_IOWCR1	0xf4
@@ -2418,7 +2417,6 @@ static struct pciserial_board pci_boards[] __devinitdata = {
 		.first_offset	= 0x1000,
 	},
 
-
 	/*
 	 * EKF addition for i960 Boards form EKF with serial port.
 	 * Max 256 ports.
@@ -3875,7 +3873,6 @@ static struct pci_device_id serial_pci_tbl[] = {
 		PCI_VENDOR_ID_MAINPINE, 0x3D00,
 		0, 0, pbn_b0_8_115200 },
 
-
 	/*
 	 * PA Semi PA6T-1682M on-chip UART
 	 */
@@ -4126,10 +4123,13 @@ static struct pci_device_id serial_pci_tbl[] = {
 	{	PCI_VENDOR_ID_NETMOS, PCI_DEVICE_ID_NETMOS_9865,
 		0xA000, 0x3004,
 		0, 0, pbn_b0_bt_4_115200 },
+#ifdef  CONFIG_GEN3_UART
+#else
 	/* Intel CE4100 */
 	{	PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CE4100_UART,
 		PCI_ANY_ID,  PCI_ANY_ID, 0, 0,
 		pbn_ce4100_1_115200 },
+#endif
 
 	/*
 	 * Cronyx Omega PCI

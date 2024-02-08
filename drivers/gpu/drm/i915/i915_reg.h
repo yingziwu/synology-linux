@@ -269,7 +269,6 @@
 #define   PIPE_CONTROL_DEPTH_CACHE_FLUSH		(1<<0)
 #define   PIPE_CONTROL_GLOBAL_GTT (1<<2) /* in addr dword */
 
-
 /*
  * Reset registers
  */
@@ -277,7 +276,6 @@
 #define  DEBUG_RESET_FULL		(1<<7)
 #define  DEBUG_RESET_RENDER		(1<<8)
 #define  DEBUG_RESET_DISPLAY		(1<<9)
-
 
 /*
  * Fence registers
@@ -679,7 +677,6 @@
 #define   ILK_FBCQ_DIS		(1<<22)
 #define	  ILK_PABSTRETCH_DIS	(1<<21)
 
-
 /*
  * Framebuffer compression for Sandybridge
  *
@@ -688,7 +685,6 @@
 #define SNB_DPFC_CTL_SA		0x100100
 #define   SNB_CPU_FENCE_ENABLE	(1<<29)
 #define DPFC_CPU_FENCE_OFFSET	0x100104
-
 
 /*
  * GPIO regs
@@ -1389,7 +1385,6 @@
 #define   ADPA_DPMS_SUSPEND	(1<<10)
 #define   ADPA_DPMS_STANDBY	(2<<10)
 #define   ADPA_DPMS_OFF		(3<<10)
-
 
 /* Hotplug control (945+ only) */
 #define PORT_HOTPLUG_EN		0x61110
@@ -2550,7 +2545,6 @@
 
 #define SNB_FIFO_LINE_SIZE	64
 
-
 /* the address where we get all kinds of latency value */
 #define SSKPD			0x5d10
 #define SSKPD_WM_MASK		0x3f
@@ -2704,7 +2698,6 @@
 #define _PIPEB_FRMCOUNT_GM45	0x71040
 #define _PIPEB_FLIPCOUNT_GM45	0x71044
 
-
 /* Display B control */
 #define _DSPBCNTR		0x71180
 #define   DISPPLANE_ALPHA_TRANS_ENABLE		(1<<15)
@@ -2768,7 +2761,6 @@
 #define  FDI_PLL_FREQ_CHANGE_REQUEST    (1<<24)
 #define  FDI_PLL_FREQ_LOCK_LIMIT_MASK   0xfff00
 #define  FDI_PLL_FREQ_DISABLE_COUNT_LIMIT_MASK  0xff
-
 
 #define _PIPEA_DATA_M1           0x60030
 #define  TU_SIZE(x)             (((x)-1) << 25) /* default size 64 */

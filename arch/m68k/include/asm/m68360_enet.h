@@ -1,5 +1,5 @@
 /***********************************
- * $Id: m68360_enet.h,v 1.1 2002/03/02 15:01:07 gerg Exp $
+ * $Id: m68360_enet.h,v 1.1.1.1 2010/04/15 12:28:12 khchen Exp $
  ***********************************
  *
  ***************************************
@@ -48,7 +48,6 @@
 #define R_OV    0x0002          /* receive overrun */
 #define R_CL    0x0001          /* collision */
 #define ETHER_R_ERROR (R_LG | R_NO | R_SH | R_CR | R_OV | R_CL)
-
 
 /*
  * ethernet interrupts
@@ -151,7 +150,6 @@ typedef struct {
     unsigned char  fcs[CRC_WORD];
 } ETHER_MAX_FRAME;
 
-
 /*
  * Internal ethernet function prototypes
  */
@@ -174,4 +172,3 @@ void ethernet_init(int                       scc_number,
 int  ethernet_tx(int scc_number, void *buf, int length);
 
 #endif
-

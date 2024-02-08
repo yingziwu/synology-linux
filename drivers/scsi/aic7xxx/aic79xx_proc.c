@@ -37,7 +37,7 @@
  * String handling code courtesy of Gerard Roudier's <groudier@club-internet.fr>
  * sym driver.
  *
- * $Id: //depot/aic7xxx/linux/drivers/scsi/aic7xxx/aic79xx_proc.c#19 $
+ * $Id: aic79xx_proc.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  */
 #include "aic79xx_osm.h"
 #include "aic79xx_inline.h"
@@ -92,7 +92,6 @@ ahd_calc_syncsrate(u_int period_factor)
 	 */
 	return (10000000 / (period_factor * 4 * 10));
 }
-
 
 static void
 copy_mem_info(struct info_str *info, char *data, int len)

@@ -1324,7 +1324,6 @@ static void usb_pwc_disconnect(struct usb_interface *intf)
 #endif
 }
 
-
 /*
  * Initialization code & module stuff
  */

@@ -145,7 +145,6 @@ nv40_graph_vs_count(struct drm_device *dev)
 	}
 }
 
-
 enum cp_label {
 	cp_check_load = 1,
 	cp_setup_auto_load,
@@ -659,4 +658,3 @@ nv40_grctx_init(struct nouveau_grctx *ctx)
 	cp_set (ctx, USER_LOAD, NOT_PENDING);
 	cp_out (ctx, CP_END);
 }
-

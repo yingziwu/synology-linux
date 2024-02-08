@@ -121,7 +121,6 @@ static inline int get_event_length(struct iwl_rx_mem_buffer *rxb)
 		return 0;
 }
 
-
 /*
  * This function multicasts the spontaneous messages from the device to the
  * user space. It is invoked whenever there is a received messages
@@ -197,7 +196,6 @@ static void iwl_trace_cleanup(struct iwl_priv *priv)
 	}
 }
 
-
 void iwl_testmode_cleanup(struct iwl_priv *priv)
 {
 	iwl_trace_cleanup(priv);
@@ -241,7 +239,6 @@ static int iwl_testmode_ucode(struct ieee80211_hw *hw, struct nlattr **tb)
 	/* ok, let's submit the command to ucode */
 	return iwl_trans_send_cmd(trans(priv), &cmd);
 }
-
 
 /*
  * This function handles the user application commands for register access.
@@ -323,7 +320,6 @@ nla_put_failure:
 	kfree_skb(skb);
 	return -EMSGSIZE;
 }
-
 
 static int iwl_testmode_cfg_init_calib(struct iwl_priv *priv)
 {
@@ -465,7 +461,6 @@ nla_put_failure:
 	kfree_skb(skb);
 	return -EMSGSIZE;
 }
-
 
 /*
  * This function handles the user application commands for uCode trace
@@ -620,7 +615,6 @@ static int iwl_testmode_ownership(struct ieee80211_hw *hw, struct nlattr **tb)
 	}
 	return 0;
 }
-
 
 /* The testmode gnl message handler that takes the gnl message from the
  * user space and parses it per the policy iwl_testmode_gnl_msg_policy, then

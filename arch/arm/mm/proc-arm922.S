@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/mm/proc-arm922.S: MMU functions for ARM922
  *
@@ -59,7 +62,6 @@
  */
 #define CACHE_DLIMIT	8192
 
-
 	.text
 /*
  * cpu_arm922_proc_init()
@@ -107,7 +109,6 @@ ENTRY(cpu_arm922_reset)
 ENTRY(cpu_arm922_do_idle)
 	mcr	p15, 0, r0, c7, c0, 4		@ Wait for interrupt
 	mov	pc, lr
-
 
 #ifndef CONFIG_CPU_DCACHE_WRITETHROUGH
 
@@ -317,10 +318,13 @@ ENTRY(arm922_dma_unmap_area)
 	mov	pc, lr
 ENDPROC(arm922_dma_unmap_area)
 
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+	.globl	arm922_flush_kern_cache_louis
+	.equ	arm922_flush_kern_cache_louis, arm922_flush_kern_cache_all
+#endif
 	@ define struct cpu_cache_fns (see <asm/cacheflush.h> and proc-macros.S)
 	define_cache_functions arm922
 #endif
-
 
 ENTRY(cpu_arm922_dcache_clean_area)
 #ifndef CONFIG_CPU_DCACHE_WRITETHROUGH

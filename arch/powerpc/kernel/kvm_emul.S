@@ -127,7 +127,6 @@ kvm_emulate_mtmsrd_orig_ins_offs:
 kvm_emulate_mtmsrd_len:
 	.long (kvm_emulate_mtmsrd_end - kvm_emulate_mtmsrd) / 4
 
-
 #define MSR_SAFE_BITS (MSR_EE | MSR_CE | MSR_ME | MSR_RI)
 #define MSR_CRITICAL_BITS ~MSR_SAFE_BITS
 
@@ -210,8 +209,6 @@ kvm_emulate_mtmsr_orig_ins_offs:
 kvm_emulate_mtmsr_len:
 	.long (kvm_emulate_mtmsr_end - kvm_emulate_mtmsr) / 4
 
-
-
 .global kvm_emulate_wrteei
 kvm_emulate_wrteei:
 
@@ -250,7 +247,6 @@ kvm_emulate_wrteei_ee_offs:
 .global kvm_emulate_wrteei_len
 kvm_emulate_wrteei_len:
 	.long (kvm_emulate_wrteei_end - kvm_emulate_wrteei) / 4
-
 
 .global kvm_emulate_mtsrin
 kvm_emulate_mtsrin:

@@ -402,7 +402,6 @@ nv50_graph_nvsw_mthd_page_flip(struct nouveau_channel *chan,
 	return 0;
 }
 
-
 static void
 nv50_graph_tlb_flush(struct drm_device *dev, int engine)
 {

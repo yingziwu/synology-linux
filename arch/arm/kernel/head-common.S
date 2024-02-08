@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/kernel/head-common.S
  *
@@ -48,6 +51,12 @@ __vet_atags:
 	bne	1f
 
 	ldr	r5, [r2, #0]
+
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+#ifdef CONFIG_BE8_ON_LE
+	rev	r5, r5
+#endif
+#endif
 #ifdef CONFIG_OF_FLATTREE
 	ldr	r6, =OF_DT_MAGIC		@ is it a DTB?
 	cmp	r5, r6
@@ -57,6 +66,11 @@ __vet_atags:
 	cmpne	r5, #ATAG_CORE_SIZE_EMPTY
 	bne	1f
 	ldr	r5, [r2, #4]
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+#ifdef CONFIG_BE8_ON_LE
+	rev	r5, r5
+#endif
+#endif
 	ldr	r6, =ATAG_CORE
 	cmp	r5, r6
 	bne	1f

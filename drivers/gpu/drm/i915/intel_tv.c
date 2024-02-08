@@ -348,7 +348,6 @@ static const struct video_levels component_levels = {
 	.blank = 279, .black = 279, .burst = 0,
 };
 
-
 struct tv_mode {
 	const char *name;
 	int clock;
@@ -380,7 +379,6 @@ struct tv_mode {
 	const u32 *filter_table;
 	int max_srcw;
 };
-
 
 /*
  * Sub carrier DDA
@@ -598,7 +596,6 @@ static const struct tv_mode tv_modes[] = {
 
 		.progressive  = false,    .trilevel_sync = false,
 
-
 		.vsync_start_f1	= 6,	   .vsync_start_f2	= 7,
 		.vsync_len	= 6,
 
@@ -614,7 +611,6 @@ static const struct tv_mode tv_modes[] = {
 		.vburst_start_f2 = 8,	    .vburst_end_f2	= 286,
 		.vburst_start_f3 = 9,	    .vburst_end_f3	= 286,
 		.vburst_start_f4 = 9,	    .vburst_end_f4	= 285,
-
 
 		/* desired 4.4336180 actual 4.4336180 clock 107.52 */
 		.dda1_inc       =    135,
@@ -836,7 +832,6 @@ static const struct tv_mode tv_modes[] = {
 		.veq_ena	= true,	    .veq_start_f1	= 4,
 		.veq_start_f2   = 4,	    .veq_len		= 10,
 
-
 		.vi_end_f1      = 21,           .vi_end_f2          = 22,
 		.nbr_end        = 539,
 
@@ -862,7 +857,6 @@ static const struct tv_mode tv_modes[] = {
 		.veq_ena	= true,		    .veq_start_f1	= 4,
 		.veq_start_f2	= 4,		    .veq_len		= 10,
 
-
 		.vi_end_f1      = 21,               .vi_end_f2          = 22,
 		.nbr_end        = 539,
 
@@ -887,7 +881,6 @@ static const struct tv_mode tv_modes[] = {
 
 		.veq_ena	= true,		    .veq_start_f1	= 4,
 		.veq_start_f2	= 4,		.veq_len	  = 10,
-
 
 		.vi_end_f1	= 21,		.vi_end_f2	  = 22,
 		.nbr_end        = 539,
@@ -962,7 +955,6 @@ intel_tv_mode_valid(struct drm_connector *connector,
 
 	return MODE_CLOCK_RANGE;
 }
-
 
 static bool
 intel_tv_mode_fixup(struct drm_encoder *encoder, struct drm_display_mode *mode,
@@ -1339,7 +1331,6 @@ static void intel_tv_find_better_format(struct drm_connector *connector)
 		tv_mode->component_only)
 		return;
 
-
 	for (i = 0; i < sizeof(tv_modes) / sizeof(*tv_modes); i++) {
 		tv_mode = tv_modes + i;
 
@@ -1497,7 +1488,6 @@ intel_tv_destroy(struct drm_connector *connector)
 	drm_connector_cleanup(connector);
 	kfree(connector);
 }
-
 
 static int
 intel_tv_set_property(struct drm_connector *connector, struct drm_property *property,

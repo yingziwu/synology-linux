@@ -301,7 +301,6 @@ static void set_config_filename(const char *config_filename)
 		filename[sizeof(filename)-1] = '\0';
 }
 
-
 static void search_conf(void)
 {
 	struct symbol **sym_arr;
@@ -877,4 +876,3 @@ int main(int ac, char **av)
 
 	return res;
 }
-

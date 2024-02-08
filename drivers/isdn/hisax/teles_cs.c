@@ -1,4 +1,4 @@
-/* $Id: teles_cs.c,v 1.1.2.2 2004/01/25 15:07:06 keil Exp $ */
+/* $Id: teles_cs.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $ */
 /*======================================================================
 
     A teles S0 PCMCIA client driver
@@ -35,7 +35,6 @@
 MODULE_DESCRIPTION("ISDN4Linux: PCMCIA client driver for Teles PCMCIA cards");
 MODULE_AUTHOR("Christof Petig, christof.petig@wtal.de, Karsten Keil, kkeil@suse.de");
 MODULE_LICENSE("GPL");
-
 
 /*====================================================================*/
 
@@ -181,7 +180,6 @@ static int teles_resume(struct pcmcia_device *link)
 
 	return 0;
 }
-
 
 static const struct pcmcia_device_id teles_ids[] = {
 	PCMCIA_DEVICE_PROD_ID12("TELES", "S0/PC", 0x67b50eae, 0xe9e70119),

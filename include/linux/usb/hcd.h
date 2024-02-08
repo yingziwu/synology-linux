@@ -150,7 +150,6 @@ struct usb_hcd {
 	struct usb_hcd		*shared_hcd;
 	struct usb_hcd		*primary_hcd;
 
-
 #define HCD_BUFFER_POOLS	4
 	struct dma_pool		*pool[HCD_BUFFER_POOLS];
 
@@ -167,6 +166,11 @@ struct usb_hcd {
 
 #define	HC_IS_RUNNING(state) ((state) & __ACTIVE)
 #define	HC_IS_SUSPENDED(state) ((state) & __SUSPEND)
+
+	u8		chip_id;
+#define HCD_CHIP_ID_UNKNOWN 0x00
+#define HCD_CHIP_ID_ETRON_EJ168 0x10
+#define HCD_CHIP_ID_ETRON_EJ188 0x20
 
 	/* more shared queuing code would be good; it should support
 	 * smarter scheduling, handle transaction translators, etc;
@@ -198,7 +202,6 @@ struct hcd_timeout {	/* timeouts we allocate */
 };
 
 /*-------------------------------------------------------------------------*/
-
 
 struct hc_driver {
 	const char	*description;	/* "ehci-hcd" etc */
@@ -344,6 +347,9 @@ struct hc_driver {
 		 */
 	int	(*update_device)(struct usb_hcd *, struct usb_device *);
 	int	(*set_usb2_hw_lpm)(struct usb_hcd *, struct usb_device *, int);
+	int (*update_uas_device)(struct usb_hcd *, struct usb_device *, int);
+	void	(*stop_endpoint)(struct usb_hcd *, struct usb_device *,
+				struct usb_host_endpoint *);
 };
 
 extern int usb_hcd_link_urb_to_ep(struct usb_hcd *hcd, struct urb *urb);
@@ -414,6 +420,8 @@ extern irqreturn_t usb_hcd_irq(int irq, void *__hcd);
 
 extern void usb_hc_died(struct usb_hcd *hcd);
 extern void usb_hcd_poll_rh_status(struct usb_hcd *hcd);
+extern void usb_wakeup_notification(struct usb_device *hdev,
+		unsigned int portnum);
 
 /* The D0/D1 toggle bits ... USE WITH CAUTION (they're almost hcd-internal) */
 #define usb_gettoggle(dev, ep, out) (((dev)->toggle[out] >> (ep)) & 1)
@@ -500,7 +508,6 @@ extern void usb_ep0_reinit(struct usb_device *);
 #define SetHubFeature		(0x2000 | USB_REQ_SET_FEATURE)
 #define SetPortFeature		(0x2300 | USB_REQ_SET_FEATURE)
 
-
 /*-------------------------------------------------------------------------*/
 
 /* class requests from USB 3.0 hub spec, table 10-5 */
@@ -518,7 +525,6 @@ extern void usb_ep0_reinit(struct usb_device *);
 
 #define NS_TO_US(ns)	((ns + 500L) / 1000L)
 			/* convert & round nanoseconds to microseconds */
-
 
 /*
  * Full/low speed bandwidth allocation constants/support.
@@ -581,7 +587,6 @@ static inline void usb_hcd_resume_root_hub(struct usb_hcd *hcd)
 	return;
 }
 #endif /* CONFIG_USB_SUSPEND */
-
 
 /*
  * USB device fs stuff
@@ -657,7 +662,6 @@ static inline void usbmon_urb_complete(struct usb_bus *bus, struct urb *urb,
 
 #define	RUN_CONTEXT (in_irq() ? "in_irq" \
 		: (in_interrupt() ? "in_interrupt" : "can sleep"))
-
 
 /* This rwsem is for use only by the hub driver and ehci-hcd.
  * Nobody else should touch it.

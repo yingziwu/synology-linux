@@ -177,7 +177,6 @@ static unsigned long zone_nr_lru_pages(struct zone *zone,
 	return zone_page_state(zone, NR_LRU_BASE + lru);
 }
 
-
 /*
  * Add a shrinker callback to be called from the vm
  */
@@ -3536,7 +3535,6 @@ static ssize_t write_scan_unevictable_node(struct sys_device *dev,
 	warn_scan_unevictable_pages();
 	return 1;
 }
-
 
 static SYSDEV_ATTR(scan_unevictable_pages, S_IRUGO | S_IWUSR,
 			read_scan_unevictable_node,

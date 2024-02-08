@@ -1436,7 +1436,6 @@ static int do_cancel(struct comedi_device *dev, struct comedi_subdevice *s)
 	return ret;
 }
 
-
 static void comedi_vm_open(struct vm_area_struct *area)
 {
 	struct comedi_async *async;

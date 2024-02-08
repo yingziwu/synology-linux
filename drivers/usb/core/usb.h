@@ -1,6 +1,7 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/pm.h>
-
-/* Functions local to drivers/usb/core/ */
 
 extern int usb_create_sysfs_dev_files(struct usb_device *dev);
 extern void usb_remove_sysfs_dev_files(struct usb_device *dev);
@@ -55,6 +56,39 @@ extern int  usb_hub_init(void);
 extern void usb_hub_cleanup(void);
 extern int usb_major_init(void);
 extern void usb_major_cleanup(void);
+
+#if defined(CONFIG_USB_ETRON_HUB)
+extern int usb_is_etron_hcd(struct usb_device *udev);
+extern void ethub_usb_kick_kethubd(struct usb_device *hdev);
+extern int ethub_usb_remove_device(struct usb_device *udev);
+extern int ethub_usb_hub_claim_port(struct usb_device *hdev, unsigned port1, void *owner);
+extern int ethub_usb_hub_release_port(struct usb_device *hdev, unsigned port1, void *owner);
+extern void ethub_usb_hub_release_all_ports(struct usb_device *hdev, void *owner);
+extern bool ethub_usb_device_is_owned(struct usb_device *udev);
+extern void ethub_usb_set_device_state(struct usb_device *udev,
+		enum usb_device_state new_state);
+extern void ethub_usb_disconnect(struct usb_device **pdev);
+extern int ethub_usb_new_device(struct usb_device *udev);
+extern int ethub_usb_deauthorize_device(struct usb_device *usb_dev);
+extern int ethub_usb_authorize_device(struct usb_device *usb_dev);
+extern int ethub_usb_port_suspend(struct usb_device *udev, pm_message_t msg);
+extern int ethub_usb_port_resume(struct usb_device *udev, pm_message_t msg);
+extern void ethub_usb_root_hub_lost_power(struct usb_device *rhdev);
+extern void ethub_usb_ep0_reinit(struct usb_device *udev);
+extern int ethub_usb_reset_device(struct usb_device *udev);
+extern int ethub_init(void);
+extern void ethub_cleanup(void);
+
+#ifdef CONFIG_USB_SUSPEND
+extern int ethub_usb_remote_wakeup(struct usb_device *udev);
+#else
+static inline int ethub_usb_remote_wakeup(struct usb_device *udev)
+{
+	return 0;
+}
+#endif
+
+#endif
 
 #ifdef	CONFIG_PM
 
@@ -128,22 +162,17 @@ static inline int is_usb_endpoint(const struct device *dev)
 	return dev->type == &usb_ep_device_type;
 }
 
-/* Do the same for device drivers and interface drivers. */
-
 static inline int is_usb_device_driver(struct device_driver *drv)
 {
 	return container_of(drv, struct usbdrv_wrap, driver)->
 			for_devices;
 }
 
-/* for labeling diagnostics */
 extern const char *usbcore_name;
 
-/* sysfs stuff */
 extern const struct attribute_group *usb_device_groups[];
 extern const struct attribute_group *usb_interface_groups[];
 
-/* usbfs stuff */
 extern struct mutex usbfs_mutex;
 extern struct usb_driver usbfs_driver;
 extern const struct file_operations usbfs_devices_fops;
@@ -153,9 +182,13 @@ extern void usbfs_conn_disc_event(void);
 extern int usb_devio_init(void);
 extern void usb_devio_cleanup(void);
 
-/* internal notify stuff */
 extern void usb_notify_add_device(struct usb_device *udev);
 extern void usb_notify_remove_device(struct usb_device *udev);
 extern void usb_notify_add_bus(struct usb_bus *ubus);
 extern void usb_notify_remove_bus(struct usb_bus *ubus);
 
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+#ifdef CONFIG_USB_MARVELL_ERRATA_FE_9049667
+extern void ehci_marvell_hs_detect_wa_done(struct usb_device *udev);
+#endif
+#endif

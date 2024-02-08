@@ -1,4 +1,4 @@
-/* $Id: capi.c,v 1.1.2.7 2004/04/28 09:48:59 armin Exp $
+/* $Id: capi.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * CAPI 2.0 Interface for Linux
  *
@@ -186,7 +186,6 @@ static void capiminor_del_all_ack(struct capiminor *mp)
 		mp->nack--;
 	}
 }
-
 
 /* -------- struct capiminor ---------------------------------------- */
 
@@ -1420,7 +1419,6 @@ static void __exit proc_exit(void)
 }
 
 /* -------- init function and module interface ---------------------- */
-
 
 static int __init capi_init(void)
 {

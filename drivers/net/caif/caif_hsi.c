@@ -117,7 +117,6 @@ static int cfhsi_flush_fifo(struct cfhsi *cfhsi)
 	dev_dbg(&cfhsi->ndev->dev, "%s.\n",
 		__func__);
 
-
 	ret = cfhsi->dev->cfhsi_wake_up(cfhsi->dev);
 	if (ret) {
 		dev_warn(&cfhsi->ndev->dev,

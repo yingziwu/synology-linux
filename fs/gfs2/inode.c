@@ -245,7 +245,6 @@ fail_iput:
 	goto fail;
 }
 
-
 struct inode *gfs2_lookup_simple(struct inode *dip, const char *name)
 {
 	struct qstr qstr;
@@ -262,7 +261,6 @@ struct inode *gfs2_lookup_simple(struct inode *dip, const char *name)
 	else
 		return inode;
 }
-
 
 /**
  * gfs2_lookupi - Look up a filename in a directory and return its inode
@@ -333,7 +331,7 @@ out:
  */
 
 static int create_ok(struct gfs2_inode *dip, const struct qstr *name,
-		     unsigned int mode)
+		     umode_t mode)
 {
 	int error;
 
@@ -364,7 +362,7 @@ static int create_ok(struct gfs2_inode *dip, const struct qstr *name,
 	return 0;
 }
 
-static void munge_mode_uid_gid(struct gfs2_inode *dip, unsigned int *mode,
+static void munge_mode_uid_gid(struct gfs2_inode *dip, umode_t *mode,
 			       unsigned int *uid, unsigned int *gid)
 {
 	if (GFS2_SB(&dip->i_inode)->sd_args.ar_suiddir &&
@@ -447,7 +445,7 @@ static void gfs2_init_dir(struct buffer_head *dibh,
  */
 
 static void init_dinode(struct gfs2_inode *dip, struct gfs2_glock *gl,
-			const struct gfs2_inum_host *inum, unsigned int mode,
+			const struct gfs2_inum_host *inum, umode_t mode,
 			unsigned int uid, unsigned int gid,
 			const u64 *generation, dev_t dev, const char *symname,
 			unsigned size, struct buffer_head **bhp)
@@ -516,7 +514,7 @@ static void init_dinode(struct gfs2_inode *dip, struct gfs2_glock *gl,
 }
 
 static int make_dinode(struct gfs2_inode *dip, struct gfs2_glock *gl,
-		       unsigned int mode, const struct gfs2_inum_host *inum,
+		       umode_t mode, const struct gfs2_inum_host *inum,
 		       const u64 *generation, dev_t dev, const char *symname,
 		       unsigned int size, struct buffer_head **bhp)
 {
@@ -659,7 +657,7 @@ static int gfs2_security_init(struct gfs2_inode *dip, struct gfs2_inode *ip,
  */
 
 static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
-			     unsigned int mode, dev_t dev, const char *symname,
+			     umode_t mode, dev_t dev, const char *symname,
 			     unsigned int size, int excl)
 {
 	const struct qstr *name = &dentry->d_name;
@@ -760,7 +758,7 @@ fail:
  */
 
 static int gfs2_create(struct inode *dir, struct dentry *dentry,
-		       int mode, struct nameidata *nd)
+		       umode_t mode, struct nameidata *nd)
 {
 	int excl = 0;
 	if (nd && (nd->flags & LOOKUP_EXCL))
@@ -1016,7 +1014,6 @@ static int gfs2_unlink_inode(struct gfs2_inode *dip,
 	return 0;
 }
 
-
 /**
  * gfs2_unlink - Unlink an inode (this does rmdir as well)
  * @dir: The inode of the directory containing the inode to unlink
@@ -1044,7 +1041,6 @@ static int gfs2_unlink(struct inode *dir, struct dentry *dentry)
 
 	rgd = gfs2_blk2rgrpd(sdp, ip->i_no_addr);
 	gfs2_holder_init(rgd->rd_gl, LM_ST_EXCLUSIVE, 0, ghs + 2);
-
 
 	error = gfs2_glock_nq(ghs); /* parent */
 	if (error)
@@ -1129,7 +1125,7 @@ static int gfs2_symlink(struct inode *dir, struct dentry *dentry,
  * Returns: errno
  */
 
-static int gfs2_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+static int gfs2_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	return gfs2_create_inode(dir, dentry, S_IFDIR | mode, 0, NULL, 0, 0);
 }
@@ -1143,7 +1139,7 @@ static int gfs2_mkdir(struct inode *dir, struct dentry *dentry, int mode)
  *
  */
 
-static int gfs2_mknod(struct inode *dir, struct dentry *dentry, int mode,
+static int gfs2_mknod(struct inode *dir, struct dentry *dentry, umode_t mode,
 		      dev_t dev)
 {
 	return gfs2_create_inode(dir, dentry, mode, dev, NULL, 0, 0);
@@ -1515,7 +1511,6 @@ int gfs2_permission(struct inode *inode, int mask)
 	int error;
 	int unlock = 0;
 
-
 	ip = GFS2_I(inode);
 	if (gfs2_glock_is_locked_by_me(ip->i_gl) == NULL) {
 		if (mask & MAY_NOT_BLOCK)
@@ -1846,4 +1841,3 @@ const struct inode_operations gfs2_symlink_iops = {
 	.fiemap = gfs2_fiemap,
 	.get_acl = gfs2_get_acl,
 };
-

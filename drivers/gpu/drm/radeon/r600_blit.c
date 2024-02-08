@@ -514,7 +514,6 @@ static uint32_t i2f(uint32_t input)
 	return result;
 }
 
-
 static int r600_nomm_get_vb(struct drm_device *dev)
 {
 	drm_radeon_private_t *dev_priv = dev->dev_private;
@@ -559,7 +558,6 @@ r600_prepare_blit_copy(struct drm_device *dev, struct drm_file *file_priv)
 
 	return 0;
 }
-
 
 void
 r600_done_blit_copy(struct drm_device *dev)

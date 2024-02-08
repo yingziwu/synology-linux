@@ -1,4 +1,4 @@
-/* $Id: bkm_ax.h,v 1.5.6.3 2001/09/23 22:24:46 kai Exp $
+/* $Id: bkm_ax.h,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * low level decls for T-Berkom cards A4T and Scitel Quadro (4*S0, passive)
  *
@@ -28,7 +28,6 @@
 
 #define	PLX_SUBVEN		0x2C	/* Offset SubVendor */
 #define	PLX_SUBSYS		0x2E	/* Offset SubSystem */
-
 
 /* Application specific registers I20 (Siemens SZB6120H) */
 typedef	struct {

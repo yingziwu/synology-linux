@@ -39,7 +39,6 @@ static DEFINE_PCI_DEVICE_TABLE(ath_pci_id_table) = {
 	{ 0 }
 };
 
-
 /* return bus cachesize in 4B word units */
 static void ath_pci_read_cachesize(struct ath_common *common, int *csz)
 {
@@ -371,7 +370,6 @@ static const struct dev_pm_ops ath9k_pm_ops = {
 #define ATH9K_PM_OPS	NULL
 
 #endif /* !CONFIG_PM */
-
 
 MODULE_DEVICE_TABLE(pci, ath_pci_id_table);
 

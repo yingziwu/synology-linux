@@ -135,7 +135,6 @@ static inline void start_thread(struct pt_regs *regs,
 	ti->frame = frame0;
 }
 
-
 /* Free all resources held by a thread. */
 extern void release_thread(struct task_struct *);
 

@@ -632,7 +632,6 @@ static struct resource wm831x_dcdc1_resources[] = {
 	},
 };
 
-
 static struct resource wm831x_dcdc2_resources[] = {
 	{
 		.start = WM831X_DC2_CONTROL_1,
@@ -884,7 +883,6 @@ static struct resource wm831x_on_resources[] = {
 		.flags = IORESOURCE_IRQ,
 	},
 };
-
 
 static struct resource wm831x_power_resources[] = {
 	{

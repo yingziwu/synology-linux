@@ -95,7 +95,6 @@
  * power:	0x22	onboard power device (XXX unknown mask bit XXX)
  */
 
-
 /* Code in entry.S needs to get at these register mappings.  */
 struct sun4m_irq_percpu __iomem *sun4m_irq_percpu[SUN4M_NCPUS];
 struct sun4m_irq_global __iomem *sun4m_irq_global;
@@ -244,7 +243,6 @@ static struct irq_chip sun4m_irq = {
 	.irq_unmask	= sun4m_unmask_irq,
 };
 
-
 static unsigned int sun4m_build_device_irq(struct platform_device *op,
 					   unsigned int real_irq)
 {
@@ -317,7 +315,6 @@ struct sun4m_timer_global {
 };
 
 static struct sun4m_timer_global __iomem *timers_global;
-
 
 unsigned int lvl14_resolution = (((1000000/HZ) + 1) << 10);
 

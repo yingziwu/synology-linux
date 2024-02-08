@@ -5,7 +5,6 @@
  * Originally from swsusp.
  */
 
-
 #undef DEBUG
 
 #include <linux/interrupt.h>
@@ -211,4 +210,3 @@ void thaw_kernel_threads(void)
 	schedule();
 	printk("done.\n");
 }
-

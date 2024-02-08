@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef __NETNS_XFRM_H
 #define __NETNS_XFRM_H
 
@@ -16,17 +19,13 @@ struct xfrm_policy_hash {
 
 struct netns_xfrm {
 	struct list_head	state_all;
-	/*
-	 * Hash table to find appropriate SA towards given target (endpoint of
-	 * tunnel or destination of transport mode) allowed by selector.
-	 *
-	 * Main use is finding SA after policy selected tunnel or transport
-	 * mode. Also, it can be used by ah/esp icmp error handler to find
-	 * offending SA.
-	 */
+	 
 	struct hlist_head	*state_bydst;
 	struct hlist_head	*state_bysrc;
 	struct hlist_head	*state_byspi;
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+	struct hlist_head	*state_byh;
+#endif
 	unsigned int		state_hmask;
 	unsigned int		state_num;
 	struct work_struct	state_hash_work;
@@ -42,7 +41,6 @@ struct netns_xfrm {
 	struct xfrm_policy_hash	policy_bydst[XFRM_POLICY_MAX * 2];
 	unsigned int		policy_count[XFRM_POLICY_MAX * 2];
 	struct work_struct	policy_hash_work;
-
 
 	struct sock		*nlsk;
 	struct sock		*nlsk_stash;

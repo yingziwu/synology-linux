@@ -90,7 +90,6 @@ const WORD wFB_Opt1[2][5] = {
         {RATE_6M , RATE_6M,  RATE_12M, RATE_12M, RATE_18M}, // fallback_rate1
     };
 
-
 #define RTSDUR_BB       0
 #define RTSDUR_BA       1
 #define RTSDUR_AA       2
@@ -124,7 +123,6 @@ s_vGetFreeContext(
     PSDevice pDevice
     );
 
-
 static
 void
 s_vGenerateTxParameter(
@@ -141,7 +139,6 @@ s_vGenerateTxParameter(
      PSEthernetHeader psEthHeader
     );
 
-
 static unsigned int s_uFillDataHead(
      PSDevice pDevice,
      BYTE     byPktType,
@@ -155,9 +152,6 @@ static unsigned int s_uFillDataHead(
      unsigned int     uMACfragNum,
      BYTE     byFBOption
     );
-
-
-
 
 static
 void
@@ -200,7 +194,6 @@ static unsigned int s_uGetTxRsvTime(
      WORD     wRate,
      BOOL     bNeedAck
     );
-
 
 static unsigned int s_uGetRTSCTSRsvTime(
      PSDevice pDevice,
@@ -251,7 +244,6 @@ static unsigned int s_uGetDataDuration(
      BYTE     byFBOption
     );
 
-
 static
 unsigned int
 s_uGetRTSCTSDuration (
@@ -263,7 +255,6 @@ s_uGetRTSCTSDuration (
      BOOL bNeedAck,
      BYTE byFBOption
     );
-
 
 /*---------------------  Export Variables  --------------------------*/
 
@@ -292,7 +283,6 @@ s_vGetFreeContext(
     }
     return (void *) pReturnContext;
 }
-
 
 static
 void
@@ -331,8 +321,6 @@ s_vFillTxKey (
     WORD            wValue;
     PS802_11Header  pMACHeader = (PS802_11Header)pbyHdrBuf;
     DWORD           dwRevIVCounter;
-
-
 
     //Fill TXKEY
     if (pTransmitKey == NULL)
@@ -431,7 +419,6 @@ s_vFillTxKey (
     }
 }
 
-
 static
 void
 s_vSWencryption (
@@ -472,9 +459,6 @@ s_vSWencryption (
         //=======================================================================
     }
 }
-
-
-
 
 /*byPktType : PK_TYPE_11A     0
              PK_TYPE_11B     1
@@ -522,7 +506,6 @@ s_uGetRTSCTSRsvTime (
     unsigned int uRrvTime  , uRTSTime, uCTSTime, uAckTime, uDataTime;
 
     uRrvTime = uRTSTime = uCTSTime = uAckTime = uDataTime = 0;
-
 
     uDataTime = BBuGetFrameTime(pDevice->byPreambleType, byPktType, cbFrameLength, wCurrentRate);
     if (byRTSRsvType == 0) { //RTSTxRrvTime_bb
@@ -598,7 +581,6 @@ s_uGetDataDuration (
             }
         }
         break;
-
 
     case DATADUR_A:    //DATADUR_A
         if (((uMACfragNum==1)) || (bLastFrag==1)) {//Non Frag or Last Frag
@@ -718,7 +700,6 @@ s_uGetDataDuration (
 	return 0;
 }
 
-
 //byFreqType: 0=>5GHZ 1=>2.4GHZ
 static
 unsigned int
@@ -733,7 +714,6 @@ s_uGetRTSCTSDuration (
     )
 {
     unsigned int uCTSTime = 0, uDurTime = 0;
-
 
     switch (byDurType) {
 
@@ -815,9 +795,6 @@ s_uGetRTSCTSDuration (
     return uDurTime;
 
 }
-
-
-
 
 static
 unsigned int
@@ -960,9 +937,6 @@ s_uFillDataHead (
     }
     return 0;
 }
-
-
-
 
 static
 void
@@ -1409,7 +1383,6 @@ s_vGenerateTxParameter (
     unsigned int  cbFragmentSize,//Hdr+payoad+FCS
 */
 
-
 BOOL
 s_bPacketToWirelessUsb(
       PSDevice         pDevice,
@@ -1450,9 +1423,6 @@ s_bPacketToWirelessUsb(
     DWORD               dwMICKey0,dwMICKey1,dwMIC_Priority,dwCRC;
     PDWORD              pdwMIC_L,pdwMIC_R;
     BOOL                bSoftWEP = FALSE;
-
-
-
 
     pvRrvTime = pMICHDR = pvRTS = pvCTS = pvTxDataHd = NULL;
     if ((bNeedEncryption) && (pTransmitKey != NULL))  {
@@ -1551,7 +1521,6 @@ s_bPacketToWirelessUsb(
             }
         }
     }
-
 
     if ((bNeedEncryption) && (pTransmitKey != NULL))  {
         if (pTransmitKey->byCipherSuite == KEY_CTL_WEP) {
@@ -1667,7 +1636,6 @@ s_bPacketToWirelessUsb(
     pbyIVHead = (PBYTE)(pbyMacHdr + cbMACHdLen + uPadding);
     pbyPayloadHead = (PBYTE)(pbyMacHdr + cbMACHdLen + uPadding + cbIVlen);
 
-
     //=========================
     //    No Fragmentation
     //=========================
@@ -1675,7 +1643,6 @@ s_bPacketToWirelessUsb(
     byFragType = FRAGCTL_NONFRAG;
     //uDMAIdx = TYPE_AC0DMA;
     //pTxBufHead = (PSTxBufHead) &(pTxBufHead->adwTxKey[0]);
-
 
     //Fill FIFO,RrvTime,RTS,and CTS
     s_vGenerateTxParameter(pDevice, byPktType, wCurrentRate,
@@ -1717,7 +1684,6 @@ s_bPacketToWirelessUsb(
         }
 
     }
-
 
     if (pPacket != NULL) {
         // Copy the Packet into a tx Buffer
@@ -1783,7 +1749,6 @@ s_bPacketToWirelessUsb(
         //DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO"MIC:%lX, %lX\n", *pdwMIC_L, *pdwMIC_R);
     }
 
-
     if (bSoftWEP == TRUE) {
 
         s_vSWencryption(pDevice, pTransmitKey, (pbyPayloadHead), (WORD)(cbFrameBodySize + cbMIClen));
@@ -1814,15 +1779,12 @@ s_bPacketToWirelessUsb(
     *pcbHeaderLen = cbHeaderLength;
     *pcbTotalLen = cbHeaderLength + cbFrameSize ;
 
-
     //Set FragCtl in TxBufferHead
     pTxBufHead->wFragCtl |= (WORD)byFragType;
-
 
     return TRUE;
 
 }
-
 
 /*+
  *
@@ -1925,8 +1887,6 @@ s_vGenerateMACHeader (
     }
 }
 
-
-
 /*+
  *
  * Description:
@@ -1978,8 +1938,6 @@ CMD_STATUS csMgmt_xmit(
     PTX_BUFFER          pTX_Buffer;
     PUSB_SEND_CONTEXT   pContext;
 
-
-
     pContext = (PUSB_SEND_CONTEXT)s_vGetFreeContext(pDevice);
 
     if (NULL == pContext) {
@@ -2012,7 +1970,6 @@ CMD_STATUS csMgmt_xmit(
         RFbSetPower(pDevice, wCurrentRate, pMgmt->uCurrChannel);
     }
     pDevice->wCurrentRate = wCurrentRate;
-
 
     //Set packet type
     if (byPktType == PK_TYPE_11A) {//0000 0000 0000 0000
@@ -2136,7 +2093,6 @@ CMD_STATUS csMgmt_xmit(
     //=========================
     pTxBufHead->wFragCtl |= (WORD)FRAGCTL_NONFRAG;
 
-
     //Fill FIFO,RrvTime,RTS,and CTS
     s_vGenerateTxParameter(pDevice, byPktType, wCurrentRate,  pbyTxBufferAddr, pvRrvTime, pvRTS, pCTS,
                            cbFrameSize, bNeedACK, TYPE_TXDMA0, &sEthHeader);
@@ -2214,7 +2170,6 @@ CMD_STATUS csMgmt_xmit(
         }
     }
 
-
     pTX_Buffer->wTxByteCount = cpu_to_le16((WORD)(cbReqCount));
     pTX_Buffer->byPKTNO = (BYTE) (((wCurrentRate<<4) &0x00F0) | ((pDevice->wSeqCounter - 1) & 0x000F));
     pTX_Buffer->byType = 0x00;
@@ -2233,7 +2188,6 @@ CMD_STATUS csMgmt_xmit(
     PIPEnsSendBulkOut(pDevice,pContext);
     return CMD_STATUS_PENDING;
 }
-
 
 CMD_STATUS
 csBeacon_xmit(
@@ -2255,7 +2209,6 @@ csBeacon_xmit(
     PBYTE               pbyTxBufferAddr;
     PUSB_SEND_CONTEXT   pContext;
     CMD_STATUS          status;
-
 
     pContext = (PUSB_SEND_CONTEXT)s_vGetFreeContext(pDevice);
     if (NULL == pContext) {
@@ -2324,10 +2277,6 @@ csBeacon_xmit(
 
 }
 
-
-
-
-
 void
 vDMA0_tx_80211(PSDevice  pDevice, struct sk_buff *skb) {
 
@@ -2375,7 +2324,6 @@ vDMA0_tx_80211(PSDevice  pDevice, struct sk_buff *skb) {
     PTX_BUFFER          pTX_Buffer;
     PUSB_SEND_CONTEXT   pContext;
 //    PWLAN_IE        pItem;
-
 
     pvRrvTime = pMICHDR = pvRTS = pvCTS = pvTxDataHd = NULL;
 
@@ -2493,7 +2441,6 @@ vDMA0_tx_80211(PSDevice  pDevice, struct sk_buff *skb) {
          }
     }
 
-
     //Set FRAGCTL_MACHDCNT
     pTxBufHead->wFragCtl |= cpu_to_le16((WORD)cbMacHdLen << 10);
 
@@ -2501,7 +2448,6 @@ vDMA0_tx_80211(PSDevice  pDevice, struct sk_buff *skb) {
     // Although spec says MMPDU can be fragmented; In most case,
     // no one will send a MMPDU under fragmentation. With RTS may occur.
     pDevice->bAES = FALSE;  //Set FRAGCTL_WEPTYP
-
 
     if (WLAN_GET_FC_ISWEP(p80211Header->sA4.wFrameCtl) != 0) {
         if (pDevice->eEncryptionStatus == Ndis802_11Encryption1Enabled) {
@@ -2538,7 +2484,6 @@ vDMA0_tx_80211(PSDevice  pDevice, struct sk_buff *skb) {
     }
     //the rest of pTxBufHead->wFragCtl:FragTyp will be set later in s_vFillFragParameter()
 
-
     if (byPktType == PK_TYPE_11GB || byPktType == PK_TYPE_11GA) {//802.11g packet
 
         pvRrvTime = (PSRrvTime_gCTS) (pbyTxBufferAddr + wTxBufSize);
@@ -2570,7 +2515,6 @@ vDMA0_tx_80211(PSDevice  pDevice, struct sk_buff *skb) {
     //    No Fragmentation
     //=========================
     pTxBufHead->wFragCtl |= (WORD)FRAGCTL_NONFRAG;
-
 
     //Fill FIFO,RrvTime,RTS,and CTS
     s_vGenerateTxParameter(pDevice, byPktType, wCurrentRate, pbyTxBufferAddr, pvRrvTime, pvRTS, pvCTS,
@@ -2681,7 +2625,6 @@ vDMA0_tx_80211(PSDevice  pDevice, struct sk_buff *skb) {
     if (pDevice->wSeqCounter > 0x0fff)
         pDevice->wSeqCounter = 0;
 
-
     if (bIsPSPOLL) {
         // The MAC will automatically replace the Duration-field of MAC header by Duration-field
         // of  FIFO control header.
@@ -2714,9 +2657,6 @@ vDMA0_tx_80211(PSDevice  pDevice, struct sk_buff *skb) {
     return ;
 
 }
-
-
-
 
 //TYPE_AC0DMA data tx
 /*
@@ -2756,7 +2696,6 @@ int nsDMA_tx_packet(PSDevice pDevice, unsigned int uDMAIdx, struct sk_buff *skb)
     WORD            wKeepRate = pDevice->wCurrentRate;
     struct net_device_stats* pStats = &pDevice->stats;
      BOOL            bTxeapol_key = FALSE;
-
 
     if (pMgmt->eCurrMode == WMAC_MODE_ESS_AP) {
 
@@ -3116,8 +3055,6 @@ int nsDMA_tx_packet(PSDevice pDevice, unsigned int uDMAIdx, struct sk_buff *skb)
 
 }
 
-
-
 /*
  * Description:
  *      Relay packet send (AC1DMA) from rx dpc.
@@ -3132,7 +3069,6 @@ int nsDMA_tx_packet(PSDevice pDevice, unsigned int uDMAIdx, struct sk_buff *skb)
  *
  * Return Value: Return TRUE if packet is copy to dma1; otherwise FALSE
  */
-
 
 BOOL
 bRelayPacketSend (
@@ -3155,8 +3091,6 @@ bRelayPacketSend (
     PTX_BUFFER      pTX_Buffer;
     unsigned int            status;
     WORD            wKeepRate = pDevice->wCurrentRate;
-
-
 
     pContext = (PUSB_SEND_CONTEXT)s_vGetFreeContext(pDevice);
 
@@ -3262,4 +3196,3 @@ bRelayPacketSend (
 
     return TRUE;
 }
-

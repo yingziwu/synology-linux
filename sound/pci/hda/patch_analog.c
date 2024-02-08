@@ -692,7 +692,6 @@ static const struct hda_codec_ops ad198x_patch_ops = {
 	.reboot_notify = ad198x_shutup,
 };
 
-
 /*
  * EAPD control
  * the private value = nid
@@ -737,7 +736,6 @@ static int ad198x_ch_mode_get(struct snd_kcontrol *kcontrol,
 static int ad198x_ch_mode_put(struct snd_kcontrol *kcontrol,
 			      struct snd_ctl_elem_value *ucontrol);
 
-
 /*
  * AD1986A specific
  */
@@ -766,7 +764,6 @@ static const struct hda_input_mux ad1986a_capture_source = {
 		{ "Phone", 0x7 },
 	},
 };
-
 
 static const struct hda_bind_ctls ad1986a_bind_pcm_vol = {
 	.ops = &snd_hda_bind_vol,
@@ -1054,7 +1051,6 @@ static const struct snd_kcontrol_new ad1986a_automute_master_mixers[] = {
 	{ } /* end */
 };
 
-
 /*
  * initialization verbs
  */
@@ -1203,7 +1199,6 @@ static int ad1986a_samsung_p50_init(struct hda_codec *codec)
 	ad1986a_automic(codec);
 	return 0;
 }
-
 
 /* models */
 enum {
@@ -1617,7 +1612,6 @@ static int patch_ad1983(struct hda_codec *codec)
 
 	return 0;
 }
-
 
 /*
  * AD1981 HD specific
@@ -2074,7 +2068,6 @@ static int patch_ad1981(struct hda_codec *codec)
 	return 0;
 }
 
-
 /*
  * AD1988
  *
@@ -2159,7 +2152,6 @@ static int patch_ad1981(struct hda_codec *codec)
  *      D internal speaker (with EAPD)
  *      E/F quad mic array
  */
-
 
 /* models */
 enum {
@@ -3438,7 +3430,6 @@ static int patch_ad1988(struct hda_codec *codec)
 	return 0;
 }
 
-
 /*
  * AD1884 / AD1984
  *
@@ -3666,7 +3657,6 @@ static const struct hda_input_mux ad1984_thinkpad_capture_source = {
 	},
 };
 
-
 /*
  * Dell Precision T3400
  */
@@ -3678,7 +3668,6 @@ static const struct hda_input_mux ad1984_dell_desktop_capture_source = {
 		{ "Mix", 0x3 },
 	},
 };
-
 
 static const struct snd_kcontrol_new ad1984_thinkpad_mixers[] = {
 	HDA_CODEC_VOLUME("PCM Playback Volume", 0x04, 0x0, HDA_OUTPUT),
@@ -3882,7 +3871,6 @@ static int patch_ad1984(struct hda_codec *codec)
 	}
 	return 0;
 }
-
 
 /*
  * AD1883 / AD1884A / AD1984A / AD1984B
@@ -4418,7 +4406,6 @@ static const struct snd_kcontrol_new ad1984a_precision_mixers[] = {
 	{ } /* end */
 };
 
-
 /* mute internal speaker if HP is plugged */
 static void ad1984a_precision_automute(struct hda_codec *codec)
 {
@@ -4428,7 +4415,6 @@ static void ad1984a_precision_automute(struct hda_codec *codec)
 	snd_hda_codec_amp_stereo(codec, 0x13, HDA_OUTPUT, 0,
 				 HDA_AMP_MUTE, present ? HDA_AMP_MUTE : 0);
 }
-
 
 /* unsolicited event for HP jack sensing */
 static void ad1984a_precision_unsol_event(struct hda_codec *codec,
@@ -4446,7 +4432,6 @@ static int ad1984a_precision_init(struct hda_codec *codec)
 	ad1984a_precision_automute(codec);
 	return 0;
 }
-
 
 /*
  * HP Touchsmart
@@ -4543,7 +4528,6 @@ static void ad1984a_touchsmart_automic(struct hda_codec *codec)
 				     AC_VERB_SET_CONNECT_SEL, 0x5);
 }
 
-
 /* unsolicited event for HP jack sensing */
 static void ad1984a_touchsmart_unsol_event(struct hda_codec *codec,
 	unsigned int res)
@@ -4566,7 +4550,6 @@ static int ad1984a_touchsmart_init(struct hda_codec *codec)
 	ad1984a_touchsmart_automic(codec);
 	return 0;
 }
-
 
 /*
  */
@@ -4715,7 +4698,6 @@ static int patch_ad1884a(struct hda_codec *codec)
 
 	return 0;
 }
-
 
 /*
  * AD1882 / AD1882A
@@ -4984,7 +4966,6 @@ static const char * const ad1882_models[AD1986A_MODELS] = {
 	[AD1882_6STACK]		= "6stack",
 };
 
-
 static int patch_ad1882(struct hda_codec *codec)
 {
 	struct ad198x_spec *spec;
@@ -5055,7 +5036,6 @@ static int patch_ad1882(struct hda_codec *codec)
 
 	return 0;
 }
-
 
 /*
  * patch entries

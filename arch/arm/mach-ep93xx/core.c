@@ -46,7 +46,6 @@
 
 #include <asm/hardware/vic.h>
 
-
 /*************************************************************************
  * Static I/O mappings that are needed for all EP93xx platforms
  *************************************************************************/
@@ -68,7 +67,6 @@ void __init ep93xx_map_io(void)
 {
 	iotable_init(ep93xx_io_desc, ARRAY_SIZE(ep93xx_io_desc));
 }
-
 
 /*************************************************************************
  * Timer handling for EP93xx
@@ -172,7 +170,6 @@ struct sys_timer ep93xx_timer = {
 	.offset		= ep93xx_gettimeoffset,
 };
 
-
 /*************************************************************************
  * EP93xx IRQ handling
  *************************************************************************/
@@ -181,7 +178,6 @@ void __init ep93xx_init_irq(void)
 	vic_init(EP93XX_VIC1_BASE, 0, EP93XX_VIC1_VALID_IRQ_MASK, 0);
 	vic_init(EP93XX_VIC2_BASE, 32, EP93XX_VIC2_VALID_IRQ_MASK, 0);
 }
-
 
 /*************************************************************************
  * EP93xx System Controller Software Locked register handling
@@ -321,7 +317,6 @@ static struct amba_device uart3_device = {
 	.periphid	= 0x00041010,
 };
 
-
 static struct resource ep93xx_rtc_resource[] = {
 	{
 		.start		= EP93XX_RTC_PHYS_BASE,
@@ -337,7 +332,6 @@ static struct platform_device ep93xx_rtc_device = {
 	.resource	= ep93xx_rtc_resource,
 };
 
-
 static struct resource ep93xx_ohci_resources[] = {
 	[0] = {
 		.start	= EP93XX_USB_PHYS_BASE,
@@ -351,7 +345,6 @@ static struct resource ep93xx_ohci_resources[] = {
 	},
 };
 
-
 static struct platform_device ep93xx_ohci_device = {
 	.name		= "ep93xx-ohci",
 	.id		= -1,
@@ -362,7 +355,6 @@ static struct platform_device ep93xx_ohci_device = {
 	.num_resources	= ARRAY_SIZE(ep93xx_ohci_resources),
 	.resource	= ep93xx_ohci_resources,
 };
-
 
 /*************************************************************************
  * EP93xx physmap'ed flash
@@ -399,7 +391,6 @@ void __init ep93xx_register_flash(unsigned int width,
 
 	platform_device_register(&ep93xx_flash);
 }
-
 
 /*************************************************************************
  * EP93xx ethernet peripheral handling
@@ -446,7 +437,6 @@ void __init ep93xx_register_eth(struct ep93xx_eth_data *data, int copy_addr)
 	ep93xx_eth_data = *data;
 	platform_device_register(&ep93xx_eth_device);
 }
-
 
 /*************************************************************************
  * EP93xx i2c peripheral handling
@@ -571,7 +561,6 @@ static struct platform_device ep93xx_leds = {
 	},
 };
 
-
 /*************************************************************************
  * EP93xx pwm peripheral handling
  *************************************************************************/
@@ -656,7 +645,6 @@ void ep93xx_pwm_release_gpio(struct platform_device *pdev)
 }
 EXPORT_SYMBOL(ep93xx_pwm_release_gpio);
 
-
 /*************************************************************************
  * EP93xx video peripheral handling
  *************************************************************************/
@@ -697,7 +685,6 @@ void __init ep93xx_register_fb(struct ep93xxfb_mach_info *data)
 	platform_device_register(&ep93xx_fb_device);
 	platform_device_register(&ep93xx_bl_device);
 }
-
 
 /*************************************************************************
  * EP93xx matrix keypad peripheral handling

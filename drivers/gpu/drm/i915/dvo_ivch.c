@@ -148,13 +148,11 @@
 # define VR8F_POWER_MASK		(0x3c)
 # define VR8F_POWER_POS			(2)
 
-
 struct ivch_priv {
 	bool quiet;
 
 	uint16_t width, height;
 };
-
 
 static void ivch_dump_regs(struct intel_dvo_device *dvo);
 

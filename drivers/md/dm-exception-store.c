@@ -172,11 +172,18 @@ int dm_exception_store_set_chunk_size(struct dm_exception_store *store,
 		return -EINVAL;
 	}
 
+	// DSM #62671 - for Time Backup to support 4K HDD.
+	// Although this bug can be fixed by changing the attribute of the dmsetup caller in Time Backup,
+	// we do not want to release another version of Time Backup. So we workaround here.
 	/* Validate the chunk size against the device block size */
-	if (chunk_size %
+	while (chunk_size %
 	    (bdev_logical_block_size(dm_snap_cow(store->snap)->bdev) >> 9) ||
 	    chunk_size %
 	    (bdev_logical_block_size(dm_snap_origin(store->snap)->bdev) >> 9)) {
+		if (4 == chunk_size) {
+			chunk_size = 8;
+			continue;
+		}
 		*error = "Chunk size is not a multiple of device blocksize";
 		return -EINVAL;
 	}
@@ -205,12 +212,14 @@ int dm_exception_store_create(struct dm_target *ti, int argc, char **argv,
 
 	if (argc < 2) {
 		ti->error = "Insufficient exception store arguments";
+		DMERR("Insufficient exception store arguments"); //print err here in case above ti->error will be overwritten by caller
 		return -EINVAL;
 	}
 
 	tmp_store = kmalloc(sizeof(*tmp_store), GFP_KERNEL);
 	if (!tmp_store) {
 		ti->error = "Exception store allocation failed";
+		DMERR("Exception store allocation failed"); //print err here in case above ti->error will be overwritten by caller
 		return -ENOMEM;
 	}
 
@@ -221,12 +230,14 @@ int dm_exception_store_create(struct dm_target *ti, int argc, char **argv,
 		type = get_type("N");
 	else {
 		ti->error = "Persistent flag is not P or N";
+		DMERR("Persistent flag is not P or N"); //print err here in case above ti->error will be overwritten by caller
 		r = -EINVAL;
 		goto bad_type;
 	}
 
 	if (!type) {
 		ti->error = "Exception store type not recognised";
+		DMERR("Exception store type not recognised"); //print err here in case above ti->error will be overwritten by caller
 		r = -EINVAL;
 		goto bad_type;
 	}
@@ -241,6 +252,7 @@ int dm_exception_store_create(struct dm_target *ti, int argc, char **argv,
 	r = type->ctr(tmp_store, 0, NULL);
 	if (r) {
 		ti->error = "Exception store type constructor failed";
+		DMERR("Exception store type constructor failed"); //print err here in case above ti->error will be overwritten by caller
 		goto bad;
 	}
 

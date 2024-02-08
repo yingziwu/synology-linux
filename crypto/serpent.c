@@ -214,7 +214,6 @@ struct serpent_ctx {
 	u32 expkey[SERPENT_EXPKEY_WORDS];
 };
 
-
 static int serpent_setkey(struct crypto_tfm *tfm, const u8 *key,
 			  unsigned int keylen)
 {
@@ -584,4 +583,5 @@ module_exit(serpent_mod_fini);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Serpent and tnepres (kerneli compatible serpent reversed) Cipher Algorithm");
 MODULE_AUTHOR("Dag Arne Osvik <osvik@ii.uib.no>");
-MODULE_ALIAS("tnepres");
+MODULE_ALIAS_CRYPTO("tnepres");
+MODULE_ALIAS_CRYPTO("serpent");

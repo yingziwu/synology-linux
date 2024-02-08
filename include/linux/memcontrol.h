@@ -317,7 +317,6 @@ mem_cgroup_zone_nr_lru_pages(struct mem_cgroup *memcg, int nid, int zid,
 	return 0;
 }
 
-
 static inline struct zone_reclaim_stat*
 mem_cgroup_get_reclaim_stat(struct mem_cgroup *memcg, struct zone *zone)
 {
@@ -388,4 +387,3 @@ mem_cgroup_print_bad_page(struct page *page)
 #endif
 
 #endif /* _LINUX_MEMCONTROL_H */
-

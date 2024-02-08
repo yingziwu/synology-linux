@@ -33,7 +33,6 @@
 
 #define VMWGFX_NUM_DISPLAY_UNITS 8
 
-
 #define vmw_framebuffer_to_vfb(x) \
 	container_of(x, struct vmw_framebuffer, base)
 
@@ -52,7 +51,6 @@ struct vmw_framebuffer {
 	uint32_t user_handle;
 };
 
-
 #define vmw_crtc_to_du(x) \
 	container_of(x, struct vmw_display_unit, crtc)
 
@@ -68,7 +66,6 @@ int vmw_cursor_update_dmabuf(struct vmw_private *dev_priv,
 			     u32 hotspotX, u32 hotspotY);
 void vmw_cursor_update_position(struct vmw_private *dev_priv,
 				bool show, int x, int y);
-
 
 /**
  * Base class display unit.
@@ -115,7 +112,6 @@ struct vmw_display_unit {
 #define vmw_connector_to_du(x) \
 	container_of(x, struct vmw_display_unit, connector)
 
-
 /*
  * Shared display unit functions - vmwgfx_kms.c
  */
@@ -138,7 +134,6 @@ int vmw_du_connector_fill_modes(struct drm_connector *connector,
 int vmw_du_connector_set_property(struct drm_connector *connector,
 				  struct drm_property *property,
 				  uint64_t val);
-
 
 /*
  * Legacy display unit functions - vmwgfx_ldu.c

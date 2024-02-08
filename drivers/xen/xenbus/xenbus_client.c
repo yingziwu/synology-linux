@@ -95,7 +95,6 @@ int xenbus_watch_path(struct xenbus_device *dev, const char *path,
 }
 EXPORT_SYMBOL_GPL(xenbus_watch_path);
 
-
 /**
  * xenbus_watch_pathfmt - register a watch on a sprintf-formatted path
  * @dev: xenbus device
@@ -229,7 +228,6 @@ static char *error_path(struct xenbus_device *dev)
 	return kasprintf(GFP_KERNEL, "error/%s", dev->nodename);
 }
 
-
 static void xenbus_va_dev_error(struct xenbus_device *dev, int err,
 				const char *fmt, va_list ap)
 {
@@ -268,7 +266,6 @@ fail:
 	kfree(printf_buffer);
 	kfree(path_buffer);
 }
-
 
 /**
  * xenbus_dev_error
@@ -347,7 +344,6 @@ int xenbus_grant_ring(struct xenbus_device *dev, unsigned long ring_mfn)
 }
 EXPORT_SYMBOL_GPL(xenbus_grant_ring);
 
-
 /**
  * Allocate an event channel for the given xenbus_device, assigning the newly
  * created local port to *port.  Return 0 on success, or -errno on error.  On
@@ -372,7 +368,6 @@ int xenbus_alloc_evtchn(struct xenbus_device *dev, int *port)
 	return err;
 }
 EXPORT_SYMBOL_GPL(xenbus_alloc_evtchn);
-
 
 /**
  * Bind to an existing interdomain event channel in another domain. Returns 0
@@ -400,7 +395,6 @@ int xenbus_bind_evtchn(struct xenbus_device *dev, int remote_port, int *port)
 }
 EXPORT_SYMBOL_GPL(xenbus_bind_evtchn);
 
-
 /**
  * Free an existing event channel. Returns 0 on success or -errno on error.
  */
@@ -418,7 +412,6 @@ int xenbus_free_evtchn(struct xenbus_device *dev, int port)
 	return err;
 }
 EXPORT_SYMBOL_GPL(xenbus_free_evtchn);
-
 
 /**
  * xenbus_map_ring_valloc
@@ -471,7 +464,6 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, int gnt_ref, void **vaddr)
 }
 EXPORT_SYMBOL_GPL(xenbus_map_ring_valloc);
 
-
 /**
  * xenbus_map_ring
  * @dev: xenbus device
@@ -509,7 +501,6 @@ int xenbus_map_ring(struct xenbus_device *dev, int gnt_ref,
 	return op.status;
 }
 EXPORT_SYMBOL_GPL(xenbus_map_ring);
-
 
 /**
  * xenbus_unmap_ring_vfree
@@ -568,7 +559,6 @@ int xenbus_unmap_ring_vfree(struct xenbus_device *dev, void *vaddr)
 }
 EXPORT_SYMBOL_GPL(xenbus_unmap_ring_vfree);
 
-
 /**
  * xenbus_unmap_ring
  * @dev: xenbus device
@@ -598,7 +588,6 @@ int xenbus_unmap_ring(struct xenbus_device *dev,
 	return op.status;
 }
 EXPORT_SYMBOL_GPL(xenbus_unmap_ring);
-
 
 /**
  * xenbus_read_driver_state

@@ -181,7 +181,6 @@ nvc0_graph_create_context_mmio_list(struct nouveau_channel *chan)
 	if (ret)
 		return ret;
 
-
 	nv_wo32(grch->mmio, i++ * 4, 0x00408004);
 	nv_wo32(grch->mmio, i++ * 4, grch->unk408004->linst >> 8);
 	nv_wo32(grch->mmio, i++ * 4, 0x00408008);

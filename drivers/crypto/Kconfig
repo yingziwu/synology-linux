@@ -219,6 +219,8 @@ config CRYPTO_DEV_TALITOS
 	select CRYPTO_ALGAPI
 	select CRYPTO_AUTHENC
 	select HW_RANDOM
+	select DMA_ENGINE
+	select ASYNC_XOR
 	depends on FSL_SOC
 	help
 	  Say 'Y' here to use the Freescale Security Engine (SEC)
@@ -293,5 +295,7 @@ config CRYPTO_DEV_S5P
 	  This option allows you to have support for S5P crypto acceleration.
 	  Select this to offload Samsung S5PV210 or S5PC110 from AES
 	  algorithms execution.
+
+source drivers/crypto/al/Kconfig
 
 endif # CRYPTO_HW

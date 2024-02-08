@@ -7,7 +7,6 @@
  *
  */
 
-
 #include <linux/module.h>
 
 #include <linux/kernel.h>
@@ -1086,7 +1085,6 @@ e100_tx_timeout(struct net_device *dev)
 	spin_unlock_irqrestore(&np->lock, flags);
 }
 
-
 /* This will only be invoked if the driver is _not_ in XOFF state.
  * What this means is that we need not check it, and that this
  * invariant will hold if we make sure that the netif_*_queue()
@@ -1451,7 +1449,7 @@ static void e100_get_drvinfo(struct net_device *dev,
 			     struct ethtool_drvinfo *info)
 {
 	strncpy(info->driver, "ETRAX 100LX", sizeof(info->driver) - 1);
-	strncpy(info->version, "$Revision: 1.31 $", sizeof(info->version) - 1);
+	strncpy(info->version, "$Revision: 1.1.1.1 $", sizeof(info->version) - 1);
 	strncpy(info->fw_version, "N/A", sizeof(info->fw_version) - 1);
 	strncpy(info->bus_info, "N/A", sizeof(info->bus_info) - 1);
 }

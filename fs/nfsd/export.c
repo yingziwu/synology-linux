@@ -295,7 +295,6 @@ svc_expkey_update(struct svc_expkey *new, struct svc_expkey *old)
 		return NULL;
 }
 
-
 #define	EXPORT_HASHBITS		8
 #define	EXPORT_HASHMAX		(1<< EXPORT_HASHBITS)
 
@@ -762,7 +761,6 @@ svc_export_update(struct svc_export *new, struct svc_export *old)
 		return NULL;
 }
 
-
 static struct svc_expkey *
 exp_find_key(svc_client *clp, int fsid_type, u32 *fsidv, struct cache_req *reqp)
 {
@@ -784,7 +782,6 @@ exp_find_key(svc_client *clp, int fsid_type, u32 *fsidv, struct cache_req *reqp)
 		return ERR_PTR(err);
 	return ek;
 }
-
 
 static svc_export *exp_get_by_name(svc_client *clp, const struct path *path,
 				     struct cache_req *reqp)
@@ -825,8 +822,6 @@ static struct svc_export *exp_parent(svc_client *clp, struct path *path)
 	path->dentry = saved;
 	return exp;
 }
-
-
 
 /*
  * Obtain the root fh on behalf of a client.
@@ -1041,7 +1036,6 @@ static void *e_start(struct seq_file *m, loff_t *pos)
 	hash = n >> 32;
 	export = n & ((1LL<<32) - 1);
 
-	
 	for (ch=export_table[hash]; ch; ch=ch->next)
 		if (!export--)
 			return ch;
@@ -1215,7 +1209,6 @@ const struct seq_operations nfs_exports_op = {
 	.stop	= e_stop,
 	.show	= e_show,
 };
-
 
 /*
  * Initialize the exports module.

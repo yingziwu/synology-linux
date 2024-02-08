@@ -94,7 +94,6 @@ STD_ENTRY(__put_user_8)
 	.word 2b, put_user_fault
 	.popsection
 
-
 /*
  * strnlen_user_asm takes the pointer in r0, and the length bound in r1.
  * It returns the length, including the terminating NUL, or zero on exception.

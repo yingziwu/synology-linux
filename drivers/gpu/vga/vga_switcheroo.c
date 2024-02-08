@@ -489,4 +489,3 @@ err:
 	return err;
 }
 EXPORT_SYMBOL(vga_switcheroo_process_delayed_switch);
-

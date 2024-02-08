@@ -80,7 +80,6 @@
 #define H_RESCINDEND    -46
 #define H_MULTI_THREADS_ACTIVE -9005
 
-
 /* Long Busy is a condition that can be returned by the firmware
  * when a call cannot be completed now, but the identical call
  * should be retried later.  This prevents calls blocking in the

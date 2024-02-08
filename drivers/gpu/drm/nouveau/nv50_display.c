@@ -201,7 +201,6 @@ nv50_display_init(struct drm_device *dev)
 	if (!nv_wait(dev, 0x640004, 0xffffffff, evo->dma.put << 2))
 		NV_ERROR(dev, "evo pushbuf stalled\n");
 
-
 	return 0;
 }
 

@@ -13,7 +13,6 @@
  * than regular operations.
  */
 
-
 #define ATOMIC_INIT(i)		{ (i) }
 #define ATOMIC64_INIT(i)	{ (i) }
 
@@ -88,7 +87,6 @@ static __inline__ void atomic64_sub(long i, atomic64_t * v)
 	:"=&r" (temp), "=m" (v->counter)
 	:"Ir" (i), "m" (v->counter));
 }
-
 
 /*
  * Same as above, but return the result value
@@ -198,7 +196,6 @@ static __inline__ int __atomic_add_unless(atomic_t *v, int a, int u)
 	}
 	return c;
 }
-
 
 /**
  * atomic64_add_unless - add unless the number is a given value

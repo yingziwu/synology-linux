@@ -9,7 +9,7 @@
  * Reed Solomon code lifted from reed solomon library written by Phil Karn
  * Copyright 2002 Phil Karn, KA9Q
  *
- * $Id: rslib.c,v 1.7 2005/11/07 11:14:59 gleixner Exp $
+ * $Id: reed_solomon.c,v 1.1.1.1 2010/04/15 12:28:17 khchen Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -161,7 +161,6 @@ errrs:
 	kfree(rs);
 	return NULL;
 }
-
 
 /**
  *  free_rs - Free the rs control structure, if it is no longer used
@@ -381,4 +380,3 @@ EXPORT_SYMBOL_GPL(free_rs);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Reed Solomon encoder/decoder");
 MODULE_AUTHOR("Phil Karn, Thomas Gleixner");
-

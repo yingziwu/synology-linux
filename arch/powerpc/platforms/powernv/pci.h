@@ -44,5 +44,4 @@ extern void pnv_pci_setup_iommu_table(struct iommu_table *tbl,
 				      u64 dma_offset);
 extern void pnv_pci_init_p5ioc2_hub(struct device_node *np);
 
-
 #endif /* __POWERNV_PCI_H */

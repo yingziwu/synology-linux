@@ -135,7 +135,6 @@ static int sn95031_initialize_adc(struct snd_soc_codec *sn95031_codec)
 	return chnl_addr;
 }
 
-
 /* reads the ADC registers and gets the mic bias value in mV. */
 static unsigned int sn95031_get_mic_bias(struct snd_soc_codec *codec)
 {
@@ -220,7 +219,6 @@ static int sn95031_set_vaud_bias(struct snd_soc_codec *codec,
 			snd_soc_write(codec, SN95031_AUDPLLCTRL, 0);
 		}
 		break;
-
 
 	case SND_SOC_BIAS_OFF:
 		pr_debug("vaud_bias _OFF doing rail shutdown\n");
@@ -566,7 +564,6 @@ static const struct snd_soc_dapm_route sn95031_audio_map[] = {
 	{ "AMIC2Bias", NULL, "AMIC2"},
 	{ "MIC2 Enable", NULL, "AMIC2Bias"},
 	{ "Mic_InputR Capture Route", "AMIC", "MIC2 Enable"},
-
 
 	/* Linein */
 	{ "LineIn Enable Left", NULL, "LINEINL"},

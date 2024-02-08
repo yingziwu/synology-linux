@@ -15,7 +15,6 @@
 
 #include "ssb_private.h"
 
-
 /* Clock sources */
 enum ssb_clksrc {
 	/* PCI clock */
@@ -25,7 +24,6 @@ enum ssb_clksrc {
 	/* Low power oscillator */
 	SSB_CHIPCO_CLKSRC_LOPWROS,
 };
-
 
 static inline u32 chipco_write32_masked(struct ssb_chipcommon *cc, u16 offset,
 					u32 mask, u32 value)

@@ -22,4 +22,3 @@ extern int uvc_bind_config(struct usb_configuration *c,
 			   const struct uvc_descriptor_header * const *hs_streaming);
 
 #endif /* _F_UVC_H_ */
-

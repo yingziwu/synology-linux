@@ -1330,7 +1330,6 @@ static bool send_my_tt_response(struct bat_priv *bat_priv,
 		tt_request->ttvn,
 		(tt_request->flags & TT_FULL_TABLE ? 'F' : '.'));
 
-
 	my_ttvn = (uint8_t)atomic_read(&bat_priv->ttvn);
 	req_ttvn = tt_request->ttvn;
 

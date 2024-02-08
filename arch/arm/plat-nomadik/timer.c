@@ -223,7 +223,6 @@ void __init nmdk_timer_init(void)
 
 	nmdk_cycle = (rate + HZ/2) / HZ;
 
-
 	/* Timer 0 is the free running clocksource */
 	nmdk_clksrc_reset();
 

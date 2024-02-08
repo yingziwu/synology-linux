@@ -859,7 +859,6 @@ static void domain_flush_complete(struct protection_domain *domain)
 	}
 }
 
-
 /*
  * This function flushes the DTEs for all devices in domain
  */
@@ -1580,7 +1579,6 @@ static struct dma_ops_domain *dma_ops_domain_alloc(void)
 	 */
 	dma_dom->aperture[0]->bitmap[0] = 1;
 	dma_dom->next_address = 0;
-
 
 	return dma_dom;
 

@@ -22,7 +22,7 @@
  * BEGIN_DESC
  *
  *  File:
- *	@(#)	pa/fp/fpudispatch.c		$Revision: 1.1 $
+ *	@(#)	pa/fp/fpudispatch.c		$Revision: 1.1.1.1 $
  *
  *  Purpose:
  *	<<please update with a synopsis of the functionality provided by this file>>
@@ -282,7 +282,6 @@ emfpudispatch(u_int ir, u_int dummy1, u_int dummy2, u_int fpregs[])
 	}
 }
 	
-
 static u_int
 decode_0c(u_int ir, u_int class, u_int subop, u_int fpregs[])
 {
@@ -1108,7 +1107,6 @@ u_int fpregs[];
 	return(MAJOR_0E_EXCP);
 }
 
-
 /*
  * routine to decode the 06 (FMPYADD and FMPYCFXT) instruction
  */
@@ -1127,7 +1125,6 @@ u_int fpregs[];
 		float flt;
 		struct { u_int i1; u_int i2; } ints;
 	} mtmp, atmp;
-
 
 	status = fpregs[0];		/* use a local copy of status reg */
 	fpu_type_flags=fpregs[FPU_TYPE_FLAG_POS];  /* get fpu type flags */
@@ -1266,7 +1263,6 @@ u_int fpregs[];
 		float flt;
 		struct { u_int i1; u_int i2; } ints;
 	} mtmp, atmp;
-
 
 	status = fpregs[0];
 	fmt = extru(ir, fpmultifmt, 1);	/* get sgl/dbl flag */

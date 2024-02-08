@@ -256,7 +256,6 @@ static inline void list_splice_init_rcu(struct list_head *list,
 		&pos->member != (head); \
 		pos = list_entry_rcu(pos->member.next, typeof(*pos), member))
 
-
 /**
  * list_for_each_continue_rcu
  * @pos:	the &struct list_head to use as a loop cursor.
@@ -487,7 +486,6 @@ static inline void hlist_add_after_rcu(struct hlist_node *prev,
 	     pos &&							\
 	     ({ tpos = hlist_entry(pos, typeof(*tpos), member); 1; });  \
 	     pos = rcu_dereference_bh(pos->next))
-
 
 #endif	/* __KERNEL__ */
 #endif

@@ -2073,5 +2073,4 @@ union uv1h_lb_target_physical_apic_id_mask_u {
 	} s1;
 };
 
-
 #endif /* _ASM_X86_UV_UV_MMRS_H */

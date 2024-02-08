@@ -323,4 +323,3 @@ MACHINE_START(INCOME, "Income s.r.o. SH-Dmaster PXA270 SBC")
 	.handle_irq	= pxa27x_handle_irq,
 	.timer		= &pxa_timer,
 MACHINE_END
-

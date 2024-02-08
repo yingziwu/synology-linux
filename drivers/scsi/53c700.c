@@ -166,7 +166,6 @@ MODULE_LICENSE("GPL");
 /* This is the script */
 #include "53c700_d.h"
 
-
 STATIC int NCR_700_queuecommand(struct Scsi_Host *h, struct scsi_cmnd *);
 STATIC int NCR_700_abort(struct scsi_cmnd * SCpnt);
 STATIC int NCR_700_bus_reset(struct scsi_cmnd * SCpnt);
@@ -523,10 +522,8 @@ find_empty_slot(struct NCR_700_Host_Parameters *hostdata)
 		/* should panic! */
 		printk(KERN_ERR "BUSY SLOT ON FREE LIST!!!\n");
 		
-
 	hostdata->free_list = slot->ITL_forw;
 	slot->ITL_forw = NULL;
-
 
 	/* NOTE: set the state to busy here, not queued, since this
 	 * indicates the slot is in use and cannot be run by the IRQ
@@ -557,7 +554,6 @@ free_slot(struct NCR_700_command_slot *slot,
 	hostdata->free_list = slot;
 	hostdata->command_slot_count--;
 }
-
 
 /* This routine really does very little.  The command is indexed on
    the ITL and (if tagged) the ITLQ lists in _queuecommand */
@@ -633,7 +629,6 @@ NCR_700_scsi_done(struct NCR_700_Host_Parameters *hostdata,
 		printk(KERN_ERR "53c700: SCSI DONE HAS NULL SCp\n");
 	}
 }
-
 
 STATIC void
 NCR_700_internal_bus_reset(struct Scsi_Host *host)
@@ -1170,8 +1165,6 @@ process_script_interrupt(__u32 dsps, __u32 dsp, struct scsi_cmnd *SCp,
 			dma_cache_sync(hostdata->dev, slot->cmnd->cmnd,
 				       slot->cmnd->cmd_len, DMA_TO_DEVICE);
 
-
-			
 		}
 	} else if(dsps == A_RESELECTED_DURING_SELECTION) {
 
@@ -1386,7 +1379,6 @@ NCR_700_flush_fifo(struct Scsi_Host *host) {
 	}
 }
 
-
 /* The queue lock with interrupts disabled must be held on entry to
  * this function */
 STATIC int
@@ -1444,7 +1436,6 @@ NCR_700_start_command(struct scsi_cmnd *SCp)
 	}
 
 	script_patch_16(hostdata->dev, hostdata->script, MessageCount, count);
-
 
 	script_patch_ID(hostdata->dev, hostdata->script,
 			Device_ID, 1<<scmd_id(SCp));
@@ -1679,7 +1670,6 @@ NCR_700_intr(int irq, void *dev_id)
 			NCR_700_scsi_done(hostdata, SCp, DID_ERROR<<16);
 		}
 
-		
 		/* NOTE: selection interrupt processing MUST occur
 		 * after script interrupt processing to correctly cope
 		 * with the case where we process a disconnect and
@@ -2175,4 +2165,3 @@ static void __exit NCR_700_exit(void)
 
 module_init(NCR_700_init);
 module_exit(NCR_700_exit);
-

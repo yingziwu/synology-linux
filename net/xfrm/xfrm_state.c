@@ -1,18 +1,7 @@
-/*
- * xfrm_state.c
- *
- * Changes:
- *	Mitsuru KANDA @USAGI
- * 	Kazunori MIYAZAWA @USAGI
- * 	Kunihiro Ishiguro <kunihiro@ipinfusion.com>
- * 		IPv6 support
- * 	YOSHIFUJI Hideaki @USAGI
- * 		Split up af-specific functions
- *	Derek Atkins <derek@ihtfp.com>
- *		Add UDP Encapsulation
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/workqueue.h>
 #include <net/xfrm.h>
 #include <linux/pfkeyv2.h>
@@ -28,16 +17,13 @@
 
 #include "xfrm_hash.h"
 
-/* Each xfrm_state may be linked to two tables:
-
-   1. Hash table by (spi,daddr,ah/esp) to find SA by SPI. (input,ctl)
-   2. Hash table by (daddr,family,reqid) to find what SAs exist for given
-      destination/tunnel endpoint. (output)
- */
-
 static DEFINE_SPINLOCK(xfrm_state_lock);
 
 static unsigned int xfrm_state_hashmax __read_mostly = 1 * 1024 * 1024;
+
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+static unsigned short xfrm_state_handle;
+#endif
 
 static struct xfrm_state_afinfo *xfrm_state_get_afinfo(unsigned int family);
 static void xfrm_state_put_afinfo(struct xfrm_state_afinfo *afinfo);
@@ -66,11 +52,20 @@ xfrm_spi_hash(struct net *net, const xfrm_address_t *daddr,
 	return __xfrm_spi_hash(daddr, spi, proto, family, net->xfrm.state_hmask);
 }
 
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+static void xfrm_hash_transfer(struct hlist_head *list,
+			       struct hlist_head *ndsttable,
+			       struct hlist_head *nsrctable,
+			       struct hlist_head *nspitable,
+			       struct hlist_head *nhtable,
+			       unsigned int nhashmask)
+#else
 static void xfrm_hash_transfer(struct hlist_head *list,
 			       struct hlist_head *ndsttable,
 			       struct hlist_head *nsrctable,
 			       struct hlist_head *nspitable,
 			       unsigned int nhashmask)
+#endif
 {
 	struct hlist_node *entry, *tmp;
 	struct xfrm_state *x;
@@ -94,6 +89,11 @@ static void xfrm_hash_transfer(struct hlist_head *list,
 					    nhashmask);
 			hlist_add_head(&x->byspi, nspitable+h);
 		}
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+		if (x->handle) {
+			hlist_add_head(&x->byh, nhtable+(x->handle & nhashmask));
+		}
+#endif
 	}
 }
 
@@ -108,6 +108,9 @@ static void xfrm_hash_resize(struct work_struct *work)
 {
 	struct net *net = container_of(work, struct net, xfrm.state_hash_work);
 	struct hlist_head *ndst, *nsrc, *nspi, *odst, *osrc, *ospi;
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+	struct hlist_head *nh, *oh;
+#endif
 	unsigned long nsize, osize;
 	unsigned int nhashmask, ohashmask;
 	int i;
@@ -129,22 +132,41 @@ static void xfrm_hash_resize(struct work_struct *work)
 		xfrm_hash_free(nsrc, nsize);
 		goto out_unlock;
 	}
-
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+	nh = xfrm_hash_alloc(nsize);
+	if (!nh) {
+		xfrm_hash_free(ndst, nsize);
+		xfrm_hash_free(nsrc, nsize);
+		xfrm_hash_free(nspi, nsize);
+		goto out_unlock;
+	}
+#endif
 	spin_lock_bh(&xfrm_state_lock);
 
 	nhashmask = (nsize / sizeof(struct hlist_head)) - 1U;
 	for (i = net->xfrm.state_hmask; i >= 0; i--)
-		xfrm_hash_transfer(net->xfrm.state_bydst+i, ndst, nsrc, nspi,
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+		xfrm_hash_transfer(net->xfrm.state_bydst+i, ndst, nsrc, nspi, nh,
 				   nhashmask);
+#else
+		xfrm_hash_transfer(net->xfrm.state_bydst+i, ndst, nsrc, nspi,
+				   nhashmask);	
+#endif
 
 	odst = net->xfrm.state_bydst;
 	osrc = net->xfrm.state_bysrc;
 	ospi = net->xfrm.state_byspi;
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+	oh   = net->xfrm.state_byh;
+#endif
 	ohashmask = net->xfrm.state_hmask;
 
 	net->xfrm.state_bydst = ndst;
 	net->xfrm.state_bysrc = nsrc;
 	net->xfrm.state_byspi = nspi;
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+	net->xfrm.state_byh   = nh;
+#endif
 	net->xfrm.state_hmask = nhashmask;
 
 	spin_unlock_bh(&xfrm_state_lock);
@@ -153,6 +175,9 @@ static void xfrm_hash_resize(struct work_struct *work)
 	xfrm_hash_free(odst, osize);
 	xfrm_hash_free(osrc, osize);
 	xfrm_hash_free(ospi, osize);
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+	xfrm_hash_free(oh,   osize);
+#endif
 
 out_unlock:
 	mutex_unlock(&hash_resize_mutex);
@@ -494,6 +519,9 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
 		INIT_HLIST_NODE(&x->bydst);
 		INIT_HLIST_NODE(&x->bysrc);
 		INIT_HLIST_NODE(&x->byspi);
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+		INIT_HLIST_NODE(&x->byh);
+#endif
 		tasklet_hrtimer_init(&x->mtimer, xfrm_timer_handler, CLOCK_REALTIME, HRTIMER_MODE_ABS);
 		setup_timer(&x->rtimer, xfrm_replay_timer_handler,
 				(unsigned long)x);
@@ -504,6 +532,12 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
 		x->lft.hard_packet_limit = XFRM_INF;
 		x->replay_maxage = 0;
 		x->replay_maxdiff = 0;
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+		x->handle = xfrm_state_handle++;
+		if (x->handle == 0)
+			x->handle = xfrm_state_handle++;
+		hlist_add_head(&x->byh, net->xfrm.state_byh+(x->handle & net->xfrm.state_hmask));
+#endif
 		x->inner_mode = NULL;
 		x->inner_mode_iaf = NULL;
 		spin_lock_init(&x->lock);
@@ -538,13 +572,13 @@ int __xfrm_state_delete(struct xfrm_state *x)
 		hlist_del(&x->bysrc);
 		if (x->id.spi)
 			hlist_del(&x->byspi);
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+		if (x->handle)
+			hlist_del(&x->byh);
+#endif
 		net->xfrm.state_num--;
 		spin_unlock(&xfrm_state_lock);
 
-		/* All xfrm_state objects are created by xfrm_state_alloc.
-		 * The xfrm_state_alloc call gives a reference, and that
-		 * is what we are dropping here.
-		 */
 		xfrm_state_put(x);
 		err = 0;
 	}
@@ -752,17 +786,7 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
 			       struct xfrm_state **best, int *acq_in_progress,
 			       int *error)
 {
-	/* Resolution logic:
-	 * 1. There is a valid state with matching selector. Done.
-	 * 2. Valid state with inappropriate selector. Skip.
-	 *
-	 * Entering area of "sysdeps".
-	 *
-	 * 3. If state is not valid, selector is temporary, it selects
-	 *    only session which triggered previous resolution. Key
-	 *    manager will do something to install a state with proper
-	 *    selector.
-	 */
+	 
 	if (x->km.state == XFRM_STATE_VALID) {
 		if ((x->sel.family &&
 		     !xfrm_selector_match(&x->sel, fl, x->sel.family)) ||
@@ -849,8 +873,7 @@ found:
 			error = -ENOMEM;
 			goto out;
 		}
-		/* Initialize temporary state matching only
-		 * to current session. */
+		 
 		xfrm_init_tempstate(x, fl, tmpl, daddr, saddr, family);
 		memcpy(&x->mark, &pol->mark, sizeof(x->mark));
 
@@ -923,7 +946,6 @@ xfrm_stateonly_find(struct net *net, u32 mark,
 		xfrm_state_hold(rx);
 	spin_unlock(&xfrm_state_lock);
 
-
 	return rx;
 }
 EXPORT_SYMBOL(xfrm_stateonly_find);
@@ -960,7 +982,6 @@ static void __xfrm_state_insert(struct xfrm_state *x)
 	xfrm_hash_grow_check(net, x->bydst.next != NULL);
 }
 
-/* xfrm_state_lock is held */
 static void __xfrm_state_bump_genids(struct xfrm_state *xnew)
 {
 	struct net *net = xs_net(xnew);
@@ -991,7 +1012,6 @@ void xfrm_state_insert(struct xfrm_state *x)
 }
 EXPORT_SYMBOL(xfrm_state_insert);
 
-/* xfrm_state_lock is held */
 static struct xfrm_state *__find_acq_core(struct net *net, struct xfrm_mark *m,
 					  unsigned short family, u8 mode,
 					  u32 reqid, u8 proto,
@@ -1209,7 +1229,6 @@ out:
 	return NULL;
 }
 
-/* xfrm_state_lock is held */
 struct xfrm_state * xfrm_migrate_state_find(struct xfrm_migrate *m)
 {
 	unsigned int h;
@@ -1267,10 +1286,8 @@ struct xfrm_state * xfrm_state_migrate(struct xfrm_state *x,
 	memcpy(&xc->id.daddr, &m->new_daddr, sizeof(xc->id.daddr));
 	memcpy(&xc->props.saddr, &m->new_saddr, sizeof(xc->props.saddr));
 
-	/* add state */
 	if (!xfrm_addr_cmp(&x->id.daddr, &m->new_daddr, m->new_family)) {
-		/* a care is needed when the destination address of the
-		   state is to be updated as it is a part of triplet */
+		 
 		xfrm_state_insert(xc);
 	} else {
 		if ((err = xfrm_state_add(xc)) < 0)
@@ -1408,6 +1425,37 @@ xfrm_state_lookup_byaddr(struct net *net, u32 mark,
 }
 EXPORT_SYMBOL(xfrm_state_lookup_byaddr);
 
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+struct xfrm_state *__xfrm_state_lookup_byhandle(struct net *net, u16 handle)
+{
+	unsigned int h = (handle & net->xfrm.state_hmask);
+	struct xfrm_state *x;
+	struct hlist_node *entry;
+
+	hlist_for_each_entry(x, entry, net->xfrm.state_byh+h, byh) {
+		if (x->handle != handle)
+			continue;
+	
+		xfrm_state_hold(x);
+		return x;
+	}
+
+	return NULL;
+}
+
+struct xfrm_state *
+xfrm_state_lookup_byhandle(struct net *net, u16 handle)
+{
+	struct xfrm_state *x;
+
+	spin_lock_bh(&xfrm_state_lock);
+	x = __xfrm_state_lookup_byhandle(net, handle);
+	spin_unlock_bh(&xfrm_state_lock);
+	return x;
+}
+EXPORT_SYMBOL(xfrm_state_lookup_byhandle);
+#endif
+
 struct xfrm_state *
 xfrm_find_acq(struct net *net, struct xfrm_mark *mark, u8 mode, u32 reqid, u8 proto,
 	      const xfrm_address_t *daddr, const xfrm_address_t *saddr,
@@ -1460,8 +1508,6 @@ xfrm_state_sort(struct xfrm_state **dst, struct xfrm_state **src, int n,
 }
 EXPORT_SYMBOL(xfrm_state_sort);
 #endif
-
-/* Silly enough, but I'm lazy to build resolution list */
 
 static struct xfrm_state *__xfrm_find_acq_byseq(struct net *net, u32 mark, u32 seq)
 {
@@ -1680,10 +1726,7 @@ void km_state_expired(struct xfrm_state *x, int hard, u32 pid)
 }
 
 EXPORT_SYMBOL(km_state_expired);
-/*
- * We send to all registered managers regardless of failure
- * We are happy with one success
-*/
+ 
 int km_query(struct xfrm_state *x, struct xfrm_tmpl *t, struct xfrm_policy *pol)
 {
 	int err = -EINVAL, acqret;
@@ -1886,7 +1929,6 @@ static void xfrm_state_put_afinfo(struct xfrm_state_afinfo *afinfo)
 	read_unlock(&xfrm_state_afinfo_lock);
 }
 
-/* Temporarily located here until net/xfrm/xfrm_tunnel.c is created */
 void xfrm_state_delete_tunnel(struct xfrm_state *x)
 {
 	if (x->tunnel) {
@@ -2026,6 +2068,12 @@ int __net_init xfrm_state_init(struct net *net)
 	net->xfrm.state_byspi = xfrm_hash_alloc(sz);
 	if (!net->xfrm.state_byspi)
 		goto out_byspi;
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+	net->xfrm.state_byh = xfrm_hash_alloc(sz);
+	if (!net->xfrm.state_byh)
+		goto out_byh;
+	get_random_bytes(&xfrm_state_handle, sizeof(xfrm_state_handle));
+#endif
 	net->xfrm.state_hmask = ((sz / sizeof(struct hlist_head)) - 1);
 
 	net->xfrm.state_num = 0;
@@ -2035,6 +2083,10 @@ int __net_init xfrm_state_init(struct net *net)
 	init_waitqueue_head(&net->xfrm.km_waitq);
 	return 0;
 
+#if defined(MY_DEF_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+out_byh:
+	xfrm_hash_free(net->xfrm.state_byspi, sz);
+#endif
 out_byspi:
 	xfrm_hash_free(net->xfrm.state_bysrc, sz);
 out_bysrc:
@@ -2155,8 +2207,7 @@ void xfrm_audit_state_replay_overflow(struct xfrm_state *x,
 	if (audit_buf == NULL)
 		return;
 	xfrm_audit_helper_pktinfo(skb, x->props.family, audit_buf);
-	/* don't record the sequence number because it's inherent in this kind
-	 * of audit message */
+	 
 	spi = ntohl(x->id.spi);
 	audit_log_format(audit_buf, " spi=%u(0x%x)", spi, spi);
 	audit_log_end(audit_buf);
@@ -2228,4 +2279,4 @@ void xfrm_audit_state_icvfail(struct xfrm_state *x,
 	audit_log_end(audit_buf);
 }
 EXPORT_SYMBOL_GPL(xfrm_audit_state_icvfail);
-#endif /* CONFIG_AUDITSYSCALL */
+#endif  
