@@ -267,6 +267,9 @@ struct map_lookup {
 
 #define BTRFS_BALANCE_FORCE		(1ULL << 3)
 #define BTRFS_BALANCE_RESUME		(1ULL << 4)
+#ifdef MY_DEF_HERE
+#define BTRFS_BALANCE_DRY_RUN		(1ULL << 15)
+#endif
 
 /*
  * Balance filters
@@ -298,6 +301,9 @@ struct btrfs_balance_control {
 	u64 flags;
 
 	struct btrfs_balance_progress stat;
+#ifdef MY_DEF_HERE
+	u64 total_chunk_used;
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 };
 
 int btrfs_account_dev_extents_size(struct btrfs_device *device, u64 start,

@@ -151,6 +151,11 @@ config SYNO_MD_DATA_CORRECTION
 	default n
 	depends on SYNO_DATA_CORRECTION
 
+config SYNO_MD_DUMMY_READ
+	bool "Read parity chunk to enhance sequential read performance"
+	default n
+	depends on SYNO_MD_DATA_CORRECTION
+
 config SYNO_MD_RAID5D_PROXY
 	bool "run proxy thread when raid5 finish reshaping"
 	default y
@@ -176,8 +181,16 @@ config SYNO_MD_RAID1_FLUSH_THRESHOLD
         default y
 	depends on SYNO_MD_RAID1_SYSFS_INTERFACE
 
+config SYNO_MD_RAID5_PERF_ENHANCE_BY_DEFERIO
+	bool "Enhance raid5 series performance by split I/O part from original kernel thread"
+	default y
+
 config SYNO_MD_FORCE_SB_EVENT_INCREASED
 	bool "Forcely increase sb event during starting and stopping array."
+	default y
+
+config SYNO_MD_RAID5_FIX_MAX_LATENCY_HIGH
+	bool "Fix raid5 max latency high issue"
 	default y
 
 config SYNO_MD_RAID1_ADD_DISK_CHECK
@@ -197,6 +210,16 @@ config SYNO_MD_UNUSED_HINT
 	bool "Feature: Infrastructure for Fast Rebuild"
 	default y
 
+config SYNO_MD_FAST_REBUILD
+	bool "Enable Fast Rebuild func"
+	depends on SYNO_MD_UNUSED_HINT
+	default y
+
+config SYNO_MD_FAST_SCRUBBING
+	bool "Enable Fast Scrubbing func"
+	depends on SYNO_MD_FAST_REBUILD
+	default y
+
 config SYNO_MD_SKIP_RESYNC_WHEN_SB_NOT_CLEAN
 	bool "Skip resync after assemble md when super block is not clean"
 	default y
@@ -207,6 +230,14 @@ config SYNO_MD_ALLOW_MD_RUN_WHEN_RESHAPE_POSITION_IS_ZERO
 
 config SYNO_MD_DM_DUMMY_CACHE_NOCLONE_BIO
 	bool "Do not clone bio when bio send to a dummy cache"
+	default y
+
+config SYNO_MD_RAID5_FLUSH_PLUG
+	bool "Flush plug if queued too many stripes in raid5_plug_cb"
+	default y
+
+config SYNO_MD_RAID5_ACTIVE_STRIPE_THRESHOLD
+	bool "Add threshold to get active stripe throttling"
 	default y
 
 config SYNO_MD_RAID0_LAYOUT_IN_MERGEABLE_BVEC
@@ -238,12 +269,32 @@ config SYNO_MD_RAID1_FIX_ASSEMBLE_CRASHED_HANG
 	bool "Fix null pointer dereference after assembling crashed raid1"
 	default y
 
+config SYNO_MD_FULL_STRIPE_MERGE
+	bool "full stripe merge"
+	default y
+
+config SYNO_MD_RAID5_FIX_RETRY_ALIGNED_READ
+	bool "avoid retry align read causing soft lockup"
+	default y
+
+config SYNO_MD_RAID_FAIL_FAST_ON_WRITE
+	bool "directly fail device when write error happen"
+	default y
+
 endmenu #MD
 
 menu "Block"
 
 config SYNO_BLOCK_BLKTRACE_FIX
 	bool "Make all block layers to have corrent complete and queue blktrace event"
+	default y
+
+config SYNO_BLOCK_BLKTRACE_AFFINITY_FIX
+	bool "Lock blktrace to avoid pinning threads on cpu in user space"
+	default y
+
+config SYNO_BLOCK_USE_NOIO_FLAG
+	bool "Use noio flag for make_request_fn / submit_bio hook"
 	default y
 
 endmenu #Block

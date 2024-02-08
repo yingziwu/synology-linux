@@ -248,7 +248,7 @@ static int __btrfs_add_ordered_extent(struct inode *inode, u64 file_offset,
 		      &root->ordered_extents);
 	root->nr_ordered_extents++;
 #ifdef MY_DEF_HERE
-	atomic_inc(&root->fs_info->syno_ordered_extent_nr);
+	atomic64_inc(&root->fs_info->syno_ordered_extent_nr);
 #endif /* MY_DEF_HERE */
 	if (root->nr_ordered_extents == 1) {
 		spin_lock(&root->fs_info->ordered_root_lock);
@@ -378,6 +378,10 @@ int btrfs_dec_test_first_ordered_pending(struct inode *inode,
 		btrfs_crit(BTRFS_I(inode)->root->fs_info,
 			"bad ordered accounting left %llu size %llu",
 			entry->bytes_left, to_dec);
+#ifdef MY_DEF_HERE
+		/* avoid underflow */
+		to_dec = entry->bytes_left;
+#endif /* MY_DEF_HERE */
 	}
 	entry->bytes_left -= to_dec;
 	if (!uptodate)
@@ -442,6 +446,10 @@ have_entry:
 		btrfs_crit(BTRFS_I(inode)->root->fs_info,
 			   "bad ordered accounting left %llu size %llu",
 		       entry->bytes_left, io_size);
+#ifdef MY_DEF_HERE
+		/* avoid underflow */
+		io_size = entry->bytes_left;
+#endif /* MY_DEF_HERE */
 	}
 	entry->bytes_left -= io_size;
 	if (!uptodate)
@@ -516,7 +524,7 @@ void btrfs_remove_ordered_extent(struct inode *inode,
 	list_del_init(&entry->root_extent_list);
 	root->nr_ordered_extents--;
 #ifdef MY_DEF_HERE
-	atomic_dec(&root->fs_info->syno_ordered_extent_nr);
+	atomic64_dec(&root->fs_info->syno_ordered_extent_nr);
 #endif /* MY_DEF_HERE */
 
 	trace_btrfs_ordered_extent_remove(inode, entry);
@@ -658,6 +666,7 @@ void btrfs_start_ordered_extent(struct inode *inode,
 		if (test_bit(BTRFS_ORDERED_WORK_INITIALIZED, &entry->flags) && work_pending(&entry->work.normal_work) &&
 			!test_and_set_bit(BTRFS_ORDERED_HIGH_PRIORITY, &entry->flags)) {
 			if (cancel_work_sync(&entry->work.normal_work)) {
+				btrfs_set_work_high_priority(&entry->work);
 				btrfs_queue_work(BTRFS_I(inode)->root->fs_info->syno_high_priority_endio_workers, &entry->work);
 			}
 		}
@@ -846,6 +855,7 @@ int btrfs_ordered_update_i_size(struct inode *inode, u64 offset,
 	struct rb_node *prev = NULL;
 	struct btrfs_ordered_extent *test;
 	int ret = 1;
+	u64 orig_offset = offset;
 
 	spin_lock_irq(&tree->lock);
 	if (ordered) {
@@ -859,9 +869,19 @@ int btrfs_ordered_update_i_size(struct inode *inode, u64 offset,
 	}
 	disk_i_size = BTRFS_I(inode)->disk_i_size;
 
-	/* truncate file */
-	if (disk_i_size > i_size) {
-		BTRFS_I(inode)->disk_i_size = i_size;
+	/*
+	 * truncate file.
+	 * If ordered is not NULL, then this is called from endio and
+	 * disk_i_size will be updated by either truncate itself or any
+	 * in-flight IOs which are inside the disk_i_size.
+	 *
+	 * Because btrfs_setsize() may set i_size with disk_i_size if truncate
+	 * fails somehow, we need to make sure we have a precise disk_i_size by
+	 * updating it as usual.
+	 *
+	 */
+	if (!ordered && disk_i_size > i_size) {
+		BTRFS_I(inode)->disk_i_size = orig_offset;
 		ret = 0;
 		goto out;
 	}

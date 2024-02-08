@@ -1014,7 +1014,11 @@ int btrfs_add_qgroup_relation(struct btrfs_trans_handle *trans,
 	mutex_lock(&fs_info->qgroup_ioctl_lock);
 	quota_root = fs_info->quota_root;
 	if (!quota_root) {
+#ifdef MY_DEF_HERE
+		ret = -ESRCH;
+#else
 		ret = -EINVAL;
+#endif /* MY_DEF_HERE */
 		goto out;
 	}
 	member = find_qgroup_rb(fs_info, src);
@@ -1063,7 +1067,11 @@ int btrfs_del_qgroup_relation(struct btrfs_trans_handle *trans,
 	mutex_lock(&fs_info->qgroup_ioctl_lock);
 	quota_root = fs_info->quota_root;
 	if (!quota_root) {
+#ifdef MY_DEF_HERE
+		ret = -ESRCH;
+#else
 		ret = -EINVAL;
+#endif /* MY_DEF_HERE */
 		goto out;
 	}
 
@@ -1105,7 +1113,11 @@ int btrfs_create_qgroup(struct btrfs_trans_handle *trans,
 	mutex_lock(&fs_info->qgroup_ioctl_lock);
 	quota_root = fs_info->quota_root;
 	if (!quota_root) {
+#ifdef MY_DEF_HERE
+		ret = -ESRCH;
+#else
 		ret = -EINVAL;
+#endif /* MY_DEF_HERE */
 		goto out;
 	}
 	qgroup = find_qgroup_rb(fs_info, qgroupid);
@@ -1133,14 +1145,17 @@ out:
 /*
  * struct btrfs_ioctl_qgroup_query_args should be initialized to zero
  */
-void btrfs_qgroup_query(struct btrfs_fs_info *fs_info, u64 qgroupid,
+int btrfs_qgroup_query(struct btrfs_fs_info *fs_info, u64 qgroupid,
                         struct btrfs_ioctl_qgroup_query_args *qqa)
 {
 	struct btrfs_qgroup *qgroup;
+	int ret = 0;
 
 	mutex_lock(&fs_info->qgroup_ioctl_lock);
-	if (!fs_info->quota_enabled)
+	if (!fs_info->quota_enabled) {
+		ret = -ESRCH;
 		goto unlock;
+	}
 
 	qgroup = find_qgroup_rb(fs_info, qgroupid);
 	if (!qgroup)
@@ -1166,6 +1181,7 @@ void btrfs_qgroup_query(struct btrfs_fs_info *fs_info, u64 qgroupid,
 #endif
 unlock:
 	mutex_unlock(&fs_info->qgroup_ioctl_lock);
+	return ret;
 }
 #endif /* MY_DEF_HERE */
 
@@ -1179,7 +1195,11 @@ int btrfs_remove_qgroup(struct btrfs_trans_handle *trans,
 	mutex_lock(&fs_info->qgroup_ioctl_lock);
 	quota_root = fs_info->quota_root;
 	if (!quota_root) {
+#ifdef MY_DEF_HERE
+		ret = -ESRCH;
+#else
 		ret = -EINVAL;
+#endif /* MY_DEF_HERE */
 		goto out;
 	}
 
@@ -1216,7 +1236,11 @@ int btrfs_limit_qgroup(struct btrfs_trans_handle *trans,
 	mutex_lock(&fs_info->qgroup_ioctl_lock);
 	quota_root = fs_info->quota_root;
 	if (!quota_root) {
+#ifdef MY_DEF_HERE
+		ret = -ESRCH;
+#else
 		ret = -EINVAL;
+#endif /* MY_DEF_HERE */
 		goto out;
 	}
 
@@ -2838,7 +2862,11 @@ qgroup_rescan_init(struct btrfs_fs_info *fs_info, u64 progress_objectid,
 		if (fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_RESCAN)
 			ret = -EINPROGRESS;
 		else if (!(fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_ON))
+#ifdef MY_DEF_HERE
+			ret = -ESRCH;
+#else
 			ret = -EINVAL;
+#endif /* MY_DEF_HERE */
 
 		if (ret) {
 			spin_unlock(&fs_info->qgroup_lock);
@@ -2960,3 +2988,46 @@ btrfs_qgroup_rescan_resume(struct btrfs_fs_info *fs_info)
 		btrfs_queue_work(fs_info->qgroup_rescan_workers,
 				 &fs_info->qgroup_rescan_work);
 }
+
+#ifdef MY_DEF_HERE
+int btrfs_syno_quota_status(struct btrfs_root *root,
+			struct btrfs_ioctl_syno_quota_status_args *sa)
+{
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	int ret = 0;
+	bool query_vol_progress = false;
+	bool query_subvol_progress = false;
+
+	if (sa->cmd & BTRFS_QUOTA_STATUS_RESCAN_VOL_PROGRESS)
+		query_vol_progress = true;
+	if (sa->cmd & BTRFS_QUOTA_STATUS_RESCAN_SUBVOL_PROGRESS)
+		query_subvol_progress = true;
+
+	// We'll return sa to user, so zero it first.
+	memset(sa, 0, sizeof(*sa));
+
+	if (query_vol_progress && query_subvol_progress)
+		return -EINVAL;
+
+	mutex_lock(&fs_info->qgroup_ioctl_lock);
+	if (!fs_info->quota_root) {
+		sa->status |= BTRFS_QUOTA_STATUS_VOL_DISABLED;
+		sa->status |= BTRFS_QUOTA_STATUS_SUBVOL_DISABLED;
+		goto out;
+	}
+
+	if (fs_info->quota_enabled) {
+		sa->status |= BTRFS_QUOTA_STATUS_VOL_SYNO_V1_ENABLED;
+		sa->status |= BTRFS_QUOTA_STATUS_SUBVOL_ENABLED;
+	}
+
+	if (fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT)
+		sa->status |= BTRFS_QUOTA_STATUS_INCONSISTENT;
+	if (fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_INCONSISTENT)
+		sa->status |= BTRFS_USRQUOTA_STATUS_INCONSISTENT;
+
+out:
+	mutex_unlock(&fs_info->qgroup_ioctl_lock);
+	return ret;
+}
+#endif /* MY_DEF_HERE */

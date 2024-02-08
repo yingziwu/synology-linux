@@ -584,6 +584,10 @@ static int is_cowonly_root(u64 root_objectid)
 #ifdef MY_DEF_HERE
 	    root_objectid == BTRFS_BLOCK_GROUP_CACHE_TREE_OBJECTID ||
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	    root_objectid == BTRFS_SYNO_USAGE_TREE_OBJECTID ||
+	    root_objectid == BTRFS_SYNO_EXTENT_USAGE_TREE_OBJECTID ||
+#endif /* MY_DEF_HERE */
 	    root_objectid == BTRFS_QUOTA_TREE_OBJECTID ||
 	    root_objectid == BTRFS_FREE_SPACE_TREE_OBJECTID)
 		return 1;
@@ -1621,6 +1625,9 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
 	int ret = 0;
 	int first = 1;
 	int dirty = 0;
+#ifdef MY_DEF_HERE
+	int syno_usage;
+#endif /* MY_DEF_HERE */
 
 	if (rc->stage != UPDATE_DATA_PTRS)
 		return 0;
@@ -1692,6 +1699,10 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
 		btrfs_set_file_extent_disk_bytenr(leaf, fi, new_bytenr);
 		dirty = 1;
 
+#ifdef MY_DEF_HERE
+		syno_usage = btrfs_syno_usage_ref_check(root, key.objectid, key.offset);
+#endif /* MY_DEF_HERE */
+
 		key.offset -= btrfs_file_extent_offset(leaf, fi);
 		ret = btrfs_inc_extent_ref(trans, root, new_bytenr,
 					   num_bytes, parent,
@@ -1700,6 +1711,9 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
 					   1
 #ifdef MY_DEF_HERE
 					   ,0
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+					   ,syno_usage
 #endif /* MY_DEF_HERE */
 					   );
 		if (ret) {
@@ -1713,6 +1727,9 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
 					1
 #ifdef MY_DEF_HERE
 					,0
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+					,syno_usage
 #endif /* MY_DEF_HERE */
 					);
 		if (ret) {
@@ -1894,11 +1911,17 @@ again:
 #ifdef MY_DEF_HERE
 					,0
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+					,0
+#endif /* MY_DEF_HERE */
 					);
 		BUG_ON(ret);
 		ret = btrfs_inc_extent_ref(trans, dest, new_bytenr, blocksize,
 					0, dest->root_key.objectid, level - 1, 0,
 					1
+#ifdef MY_DEF_HERE
+					,0
+#endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 					,0
 #endif /* MY_DEF_HERE */
@@ -1912,12 +1935,18 @@ again:
 #ifdef MY_DEF_HERE
 					,0
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+					,0
+#endif /* MY_DEF_HERE */
 					);
 		BUG_ON(ret);
 
 		ret = btrfs_free_extent(trans, dest, old_bytenr, blocksize,
 					0, dest->root_key.objectid, level - 1, 0,
 					1
+#ifdef MY_DEF_HERE
+					,0
+#endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 					,0
 #endif /* MY_DEF_HERE */
@@ -2752,6 +2781,9 @@ static int do_relocation(struct btrfs_trans_handle *trans,
 						btrfs_header_owner(upper->eb),
 						node->level, 0,
 						1
+#ifdef MY_DEF_HERE
+						,0
+#endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 						,0
 #endif /* MY_DEF_HERE */

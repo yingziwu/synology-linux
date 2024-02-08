@@ -36,17 +36,6 @@ struct synoacl_mod_info {
 	struct module *owner;
 };
 
-int synoacl_mod_archive_change_ok(struct dentry *, unsigned int , int , int );
-int synoacl_mod_may_delete(struct dentry *, struct inode *);
-int synoacl_mod_setattr_post(struct dentry *, struct iattr *);
-int synoacl_mod_init_acl(struct dentry *, struct inode *);
-int synoacl_mod_inode_change_ok(struct dentry *, struct iattr *);
-int synoacl_mod_access(struct dentry *, int, int);
-void synoacl_mod_to_mode(struct dentry *, struct kstat *);
-int synoacl_mod_exec_permission(struct dentry *);
-int synoacl_mod_permission(struct dentry *, int);
-int synoacl_mod_get_acl_xattr(struct dentry *, int, void *, size_t);
-
 /**  Inode Operation of SYNOACL **/
 static inline int synoacl_op_perm(struct dentry * dentry, int perm)
 {

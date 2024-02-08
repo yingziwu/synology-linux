@@ -150,6 +150,12 @@ struct btrfs_trans_handle {
 	struct btrfs_delayed_ref_throttle_ticket *syno_delayed_ref_throttle_ticket;
 	bool check_throttle;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	bool syno_usage;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	bool cleaner;
+#endif /* MY_DEF_HERE */
 };
 
 struct btrfs_pending_snapshot {

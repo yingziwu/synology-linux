@@ -1153,6 +1153,10 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file *file,
 	inode = dentry->d_inode;
 	exp   = fhp->fh_export;
 
+#ifdef MY_ABC_HERE
+	update_syno_file_stats(dentry);
+#endif /* MY_ABC_HERE */
+
 	use_wgather = (rqstp->rq_vers == 2) && EX_WGATHER(exp);
 
 	if (!EX_ISSYNC(exp))

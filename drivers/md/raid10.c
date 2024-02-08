@@ -103,6 +103,9 @@ static int max_queued_requests = 1024;
 
 static void allow_barrier(struct r10conf *conf);
 static void lower_barrier(struct r10conf *conf);
+#ifdef MY_ABC_HERE
+static sector_t choose_data_offset(struct r10bio *r10_bio, struct md_rdev *rdev);
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 static unsigned char
@@ -448,12 +451,12 @@ static void raid10_end_read_request(struct bio *bio, int error)
 		if (!IsDeviceDisappear(conf->mirrors[dev].rdev->bdev)) {
 #ifdef MY_ABC_HERE
 			if (bio_flagged(bio, BIO_AUTO_REMAP)) {
-				SynoReportBadSector(bio->bi_sector, READ,
-								conf->mddev->md_minor, conf->mirrors[dev].rdev->bdev, __FUNCTION__);
+				SynoReportBadSector(r10_bio->devs[slot].addr + choose_data_offset(r10_bio, rdev),
+					READ, conf->mddev->md_minor, conf->mirrors[dev].rdev->bdev, __FUNCTION__);
 			}
 #else /* MY_ABC_HERE */
-			SynoReportBadSector(bio->bi_sector, READ,
-								conf->mddev->md_minor, conf->mirrors[dev].rdev->bdev, __FUNCTION__);
+			SynoReportBadSector(r10_bio->devs[slot].addr + choose_data_offset(r10_bio, rdev),
+				READ, conf->mddev->md_minor, conf->mirrors[dev].rdev->bdev, __FUNCTION__);
 #endif /* MY_ABC_HERE */
 		}
 #endif /* MY_ABC_HERE */
@@ -543,8 +546,8 @@ static void raid10_end_write_request(struct bio *bio, int error)
 		else {
 #ifdef MY_ABC_HERE
 			if (!IsDeviceDisappear(conf->mirrors[dev].rdev->bdev)) {
-				SynoReportBadSector(bio->bi_sector, WRITE, conf->mddev->md_minor,
-									conf->mirrors[dev].rdev->bdev, __FUNCTION__);
+				SynoReportBadSector(r10_bio->devs[slot].addr + choose_data_offset(r10_bio, rdev),
+					WRITE, conf->mddev->md_minor, conf->mirrors[dev].rdev->bdev, __FUNCTION__);
 			}
 #endif /* MY_ABC_HERE */
 			set_bit(WriteErrorSeen,	&rdev->flags);
@@ -553,6 +556,10 @@ static void raid10_end_write_request(struct bio *bio, int error)
 					&rdev->mddev->recovery);
 			set_bit(R10BIO_WriteError, &r10_bio->state);
 			dec_rdev = 0;
+#ifdef MY_ABC_HERE
+			if (rdev->badblocks.shift < 0)
+				md_error(rdev->mddev, rdev);
+#endif /* MY_ABC_HERE */
 		}
 	} else {
 		/*
@@ -1326,6 +1333,13 @@ static void syno_raid10_self_heal_set_and_submit_read_bio(struct r10conf *conf, 
 		goto ERR;
 	}
 
+	read_bio = bio_clone_mddev(master_bio, GFP_NOIO, mddev);
+	if (!read_bio) {
+		pr_err("%s: [Self Heal] Retry sector [%llu] round [%d/%d] error: Failed to clone bio master bio\n",
+				mdname(mddev), (u64)master_bio->bi_sector, heal_record->retry_cnt, heal_record->max_retry_cnt);
+		goto ERR;
+	}
+
 	raid10_find_phys(conf, r10_bio);
 
 	rcu_read_lock();
@@ -1366,14 +1380,6 @@ static void syno_raid10_self_heal_set_and_submit_read_bio(struct r10conf *conf, 
 			disk, syno_raid10_get_bdevname(rdev, d_buf));
 	r10_bio->read_slot = slot;
 
-	read_bio = bio_clone_mddev(master_bio, GFP_NOIO, mddev);
-	if (!read_bio) {
-		pr_err("%s: [Self Heal] Retry sector [%llu] round [%d/%d] error: Failed to clone bio master bio\n",
-				mdname(mddev), (u64)master_bio->bi_sector, heal_record->retry_cnt, heal_record->max_retry_cnt);
-		rcu_read_unlock();
-		goto ERR;
-	}
-
 	r10_bio->devs[slot].bio = read_bio;
 	r10_bio->devs[slot].rdev = rdev;
 
@@ -1390,6 +1396,8 @@ static void syno_raid10_self_heal_set_and_submit_read_bio(struct r10conf *conf, 
 
 	return;
 ERR:
+	if (read_bio)
+		bio_put(read_bio);
 	set_bit(BIO_CORRECTION_ERR, &master_bio->bi_flags);
 	syno_self_heal_find_and_del_record(mddev, master_bio);
 	bio_endio(master_bio, 0);
@@ -2534,12 +2542,19 @@ static void end_sync_read(struct bio *bio, int error)
 	struct r10bio *r10_bio = bio->bi_private;
 	struct r10conf *conf = r10_bio->mddev->private;
 	int d;
+#ifdef MY_ABC_HERE
+	int slot = -1;
+#endif /* MY_ABC_HERE */
 
 	if (bio == r10_bio->master_bio) {
 		/* this is a reshape read */
 		d = r10_bio->read_slot; /* really the read dev */
 	} else
+#ifdef MY_ABC_HERE
+		d = find_bio_disk(conf, r10_bio, bio, &slot, NULL);
+#else /* MY_ABC_HERE */
 		d = find_bio_disk(conf, r10_bio, bio, NULL, NULL);
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	if (bio_flagged(bio, BIO_AUTO_REMAP)) {
@@ -2553,7 +2568,11 @@ static void end_sync_read(struct bio *bio, int error)
 #ifdef MY_ABC_HERE
 	{
 		if (!IsDeviceDisappear(conf->mirrors[d].rdev->bdev)) {
-			SynoReportBadSector(bio->bi_sector, READ,
+			sector_t report_sector = (slot >= 0 ?
+				r10_bio->devs[slot].addr + choose_data_offset(r10_bio, conf->mirrors[d].rdev) :
+				bio->bi_sector);
+
+			SynoReportBadSector(report_sector, READ,
 					conf->mddev->md_minor, conf->mirrors[d].rdev->bdev, __FUNCTION__);
 		}
 		atomic_add(r10_bio->sectors,
@@ -2643,8 +2662,8 @@ static void end_sync_write(struct bio *bio, int error)
 					/**
 					 * A really bad I/O
 					 */
-					SynoReportBadSector(bio->bi_sector, WRITE,
-										conf->mddev->md_minor, conf->mirrors[d].rdev->bdev, __FUNCTION__);
+					SynoReportBadSector(r10_bio->devs[slot].addr + choose_data_offset(r10_bio, rdev),
+						WRITE, conf->mddev->md_minor, conf->mirrors[d].rdev->bdev, __FUNCTION__);
 					set_bit(WriteErrorSeen, &rdev->flags);
 					if (!test_and_set_bit(WantReplacement, &rdev->flags))
 						set_bit(MD_RECOVERY_NEEDED,
@@ -3265,6 +3284,11 @@ static void fix_read_error(struct r10conf *conf, struct mddev *mddev, struct r10
 					       sect +
 					       choose_data_offset(r10_bio, rdev)),
 				       bdevname(rdev->bdev, b));
+#ifdef MY_ABC_HERE
+				SynoReportCorrectBadSector(
+					r10_bio->devs[sl].addr + sect + choose_data_offset(r10_bio, rdev),
+					mddev->md_minor, rdev->bdev, __FUNCTION__);
+#endif /* MY_ABC_HERE */
 				atomic_add(s, &rdev->corrected_errors);
 			}
 
@@ -3354,10 +3378,7 @@ static void handle_read_error(struct mddev *mddev, struct r10bio *r10_bio)
 	 * frozen.
 	 */
 	bio = r10_bio->devs[slot].bio;
-#ifdef MY_ABC_HERE
-#else /* MY_ABC_HERE */
 	bdevname(bio->bi_bdev, b);
-#endif /* MY_ABC_HERE */
 	bio_put(bio);
 	r10_bio->devs[slot].bio = NULL;
 
@@ -3386,17 +3407,10 @@ read_more:
 					(unsigned long long)r10_bio->sector);
 		} else
 #endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
-		printk(KERN_ALERT "md/raid10:%s: unrecoverable I/O"
-		       " read error for block %llu\n",
-		       mdname(mddev),
-		       (unsigned long long)r10_bio->sector);
-#else /* MY_ABC_HERE */
 		printk(KERN_ALERT "md/raid10:%s: %s: unrecoverable I/O"
 		       " read error for block %llu\n",
 		       mdname(mddev), b,
 		       (unsigned long long)r10_bio->sector);
-#endif /* MY_ABC_HERE */
 		raid_end_bio_io(r10_bio);
 		return;
 	}
@@ -3646,6 +3660,42 @@ static int init_resync(struct r10conf *conf)
 	return 0;
 }
 
+#ifdef MY_ABC_HERE
+static void raid10_align_chunk_addr_virt_to_dev(struct mddev *mddev,
+    sector_t virt_start, sector_t virt_end, sector_t* dev_start,
+    sector_t* dev_end)
+{
+	struct r10conf *conf = mddev->private;
+	sector_t chunk;
+	sector_t stripe;
+	int dev;
+
+	if (!dev_start && !dev_end)
+		return;
+
+	if (conf->geo.far_copies != 1)
+		return;
+
+	if (dev_start) {
+		chunk = virt_start >> conf->geo.chunk_shift;
+		chunk *= conf->geo.near_copies;
+		stripe = chunk;
+		dev = sector_div(stripe, conf->geo.raid_disks);
+		if (dev || (virt_start & conf->geo.chunk_mask))
+			stripe++;
+		*dev_start = stripe << conf->geo.chunk_shift;
+	}
+
+	if (dev_end) {
+		chunk = virt_end >> conf->geo.chunk_shift;
+		chunk *= conf->geo.near_copies;
+		stripe = chunk;
+		sector_div(stripe, conf->geo.raid_disks);
+		*dev_end = stripe << conf->geo.chunk_shift;
+	}
+}
+#endif /* MY_ABC_HERE */
+
 /*
  * perform a "sync" on one "block"
  *
@@ -3694,6 +3744,9 @@ static sector_t sync_request(struct mddev *mddev, sector_t sector_nr,
 	sector_t sectors_skipped = 0;
 	int chunks_skipped = 0;
 	sector_t chunk_mask = conf->geo.chunk_mask;
+#ifdef MY_ABC_HERE
+	sector_t skipped_sectors = 0;
+#endif /* MY_ABC_HERE */
 
 	if (!conf->r10buf_pool)
 		if (init_resync(conf))
@@ -3845,6 +3898,14 @@ static sector_t sync_request(struct mddev *mddev, sector_t sector_nr,
 		/* recovery... the complicated one */
 		int j;
 		r10_bio = NULL;
+
+#ifdef MY_ABC_HERE
+		skipped_sectors = md_speedup_rebuild(mddev, sector_nr);
+		if (skipped_sectors) {
+			*skipped = 1;
+			return skipped_sectors;
+		}
+#endif /* MY_ABC_HERE */
 
 		for (i = 0 ; i < conf->geo.raid_disks; i++) {
 			int still_degraded;
@@ -4538,6 +4599,9 @@ static int run(struct mddev *mddev)
 		       "raid10: failed to create sysfs attributes for %s\n",
 		       mdname(mddev));
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	mddev->syno_allow_fast_rebuild = (conf->geo.far_copies == 1);
+#endif /* MY_ABC_HERE */
 
 	mddev->thread = conf->thread;
 	conf->thread = NULL;
@@ -4604,6 +4668,9 @@ static int run(struct mddev *mddev)
 		else
 			queue_flag_clear_unlocked(QUEUE_FLAG_DISCARD,
 						  mddev->queue);
+#ifdef MY_ABC_HERE
+		queue_flag_set_unlocked(QUEUE_FLAG_UNUSED_HINT, mddev->queue);
+#endif /* MY_ABC_HERE */
 	}
 	/* need to check that every block has at least one working mirror */
 #if defined(MY_ABC_HERE)
@@ -5671,6 +5738,9 @@ static struct md_personality raid10_personality =
 	.check_reshape	= raid10_check_reshape,
 	.start_reshape	= raid10_start_reshape,
 	.finish_reshape	= raid10_finish_reshape,
+#ifdef MY_ABC_HERE
+	.align_chunk_addr_virt_to_dev = raid10_align_chunk_addr_virt_to_dev,
+#endif /* MY_ABC_HERE */
 };
 
 static int __init raid_init(void)

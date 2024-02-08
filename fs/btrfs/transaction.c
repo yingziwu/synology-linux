@@ -262,6 +262,10 @@ loop:
 #ifdef MY_DEF_HERE
 	cur_trans->delayed_refs.num_pending_csums_leafs = 0;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	cur_trans->delayed_refs.num_syno_usage_heads_ready = 0;
+	atomic_set(&cur_trans->delayed_refs.num_syno_usage_entries, 0);
+#endif /* MY_DEF_HERE */
 
 	/*
 	 * although the tree mod log is per file system and not per transaction,
@@ -589,6 +593,12 @@ again:
 	h->syno_delayed_ref_throttle_ticket = NULL;
 	h->check_throttle = false;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	h->syno_usage = false;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	h->cleaner = false;
+#endif /* MY_DEF_HERE */
 
 	smp_mb();
 	if (cur_trans->state >= TRANS_STATE_BLOCKED &&
@@ -800,7 +810,11 @@ void btrfs_throttle(struct btrfs_root *root)
 static int should_end_transaction(struct btrfs_trans_handle *trans,
 				  struct btrfs_root *root)
 {
-	if (btrfs_check_space_for_delayed_refs(trans, root))
+	if (btrfs_check_space_for_delayed_refs(trans, root
+#ifdef MY_DEF_HERE
+		, false
+#endif /* MY_DEF_HERE */
+		))
 		return 1;
 
 	return !!btrfs_block_rsv_check(root, &root->fs_info->global_block_rsv, 5);
@@ -859,7 +873,7 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
 	trans->delayed_ref_updates = 0;
 	if (!trans->sync) {
 #ifdef MY_DEF_HERE
-		unsigned long sync_cur = cur;
+		unsigned long sync_cur = cur * 2;
 #endif /* MY_DEF_HERE */
 		must_run_delayed_refs =
 			btrfs_should_throttle_delayed_refs(trans, root);
@@ -1295,6 +1309,14 @@ static noinline int commit_cowonly_roots(struct btrfs_trans_handle *trans,
 	if (ret)
 		return ret;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	ret = btrfs_syno_usage_global_type_update(trans, root->fs_info);
+	if (ret)
+		return ret;
+	ret = btrfs_syno_usage_status_update(trans, root->fs_info);
+	if (ret)
+		return ret;
+#endif /* MY_DEF_HERE */
 
 	ret = btrfs_setup_space_cache(trans, root);
 	if (ret)
@@ -1348,6 +1370,9 @@ again:
  */
 void btrfs_add_dead_root(struct btrfs_root *root)
 {
+#ifdef MY_DEF_HERE
+	WARN_ON_ONCE(!test_bit(BTRFS_ROOT_IN_RADIX, &root->state));
+#endif /* MY_DEF_HERE */
 	spin_lock(&root->fs_info->trans_lock);
 	if (list_empty(&root->root_list))
 		list_add_tail(&root->root_list, &root->fs_info->dead_roots);
@@ -1357,6 +1382,9 @@ void btrfs_add_dead_root(struct btrfs_root *root)
 #if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 void btrfs_add_dead_root_head(struct btrfs_root *root)
 {
+#ifdef MY_DEF_HERE
+	WARN_ON_ONCE(!test_bit(BTRFS_ROOT_IN_RADIX, &root->state));
+#endif /* MY_DEF_HERE */
 	spin_lock(&root->fs_info->trans_lock);
 	if (list_empty(&root->root_list))
 		list_add(&root->root_list, &root->fs_info->dead_roots);
@@ -1392,7 +1420,6 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans,
 
 			btrfs_free_log(trans, root);
 			btrfs_update_reloc_root(trans, root);
-			btrfs_orphan_commit_root(trans, root);
 
 			btrfs_save_ino_cache(root, trans);
 
@@ -1411,6 +1438,10 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans,
 						&root->root_key,
 						&root->root_item);
 
+#ifdef MY_DEF_HERE
+			if (!err && root->syno_usage_enabled && is_fstree(root->objectid) && root->objectid <= BTRFS_LAST_FREE_OBJECTID)
+				err = btrfs_syno_usage_root_status_update(trans, fs_info, root->objectid, &root->syno_usage_root_status);
+#endif /* MY_DEF_HERE */
 			spin_lock(&fs_info->fs_roots_radix_lock);
 			if (err)
 				break;
@@ -1489,6 +1520,9 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	u64 objectid;
 	u64 root_flags;
 	uuid_le new_uuid;
+#ifdef MY_DEF_HERE
+	struct btrfs_syno_usage_root_status syno_usage_root_status;
+#endif /* MY_DEF_HERE */
 
 	ASSERT(pending->path);
 	path = pending->path;
@@ -1556,6 +1590,14 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		btrfs_abort_transaction(trans, root, ret);
 		goto fail;
 	}
+
+#ifdef MY_DEF_HERE
+	ret = btrfs_run_delayed_refs(trans, root, (unsigned long)-1);
+	if (ret) {
+		btrfs_abort_transaction(trans, root, ret);
+		goto fail;
+	}
+#endif /* MY_DEF_HERE */
 
 	record_root_in_trans(trans, root);
 	btrfs_set_root_last_snapshot(&root->root_item, trans->transid);
@@ -1665,6 +1707,37 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		goto fail;
 	}
 
+#ifdef MY_DEF_HERE
+	if (fs_info->syno_usage_enabled && root->syno_usage_enabled && is_fstree(objectid) && objectid <= BTRFS_LAST_FREE_OBJECTID) {
+		memset(&syno_usage_root_status, 0, sizeof(syno_usage_root_status));
+		syno_usage_root_status.type = SYNO_USAGE_TYPE_NONE;
+		syno_usage_root_status.new_type = SYNO_USAGE_TYPE_NONE;
+		syno_usage_root_status.state = SYNO_USAGE_ROOT_STATE_RESCAN;
+		syno_usage_root_status.flags = root->syno_usage_root_status.flags & ~BTRFS_SYNO_USAGE_ROOT_FLAG_RESET_MASK;
+		if (pending->readonly)
+			syno_usage_root_status.flags |= BTRFS_SYNO_USAGE_ROOT_FLAG_READONLY;
+		syno_usage_root_status.flags |= BTRFS_SYNO_USAGE_ROOT_FLAG_FAST_RESCAN;
+		syno_usage_root_status.num_bytes = root->syno_usage_root_status.num_bytes;
+		syno_usage_root_status.drop_progress.objectid = 0;
+		syno_usage_root_status.drop_progress.type = 0;
+		syno_usage_root_status.drop_progress.offset = 0;
+		syno_usage_root_status.fast_rescan_progress.objectid = 0;
+		syno_usage_root_status.fast_rescan_progress.type = 0;
+		syno_usage_root_status.fast_rescan_progress.offset = 0;
+		syno_usage_root_status.full_rescan_progress = root->syno_usage_root_status.full_rescan_progress;
+		syno_usage_root_status.cur_full_rescan_size = root->syno_usage_root_status.cur_full_rescan_size;
+		syno_usage_root_status.total_full_rescan_size = root->syno_usage_root_status.total_full_rescan_size;
+		syno_usage_root_status.total_syno_subvol_usage_items = root->syno_usage_root_status.total_syno_subvol_usage_items;
+		ret = btrfs_syno_usage_root_status_update(trans, fs_info, objectid, &syno_usage_root_status);
+		if (ret)
+			goto fail;
+		if (!(syno_usage_root_status.flags & BTRFS_SYNO_USAGE_ROOT_FLAG_READONLY)) {
+			spin_lock(&fs_info->syno_usage_lock);
+			fs_info->syno_usage_status.total_syno_subvol_usage_items += syno_usage_root_status.total_syno_subvol_usage_items;
+			spin_unlock(&fs_info->syno_usage_lock);
+		}
+	}
+#endif /* MY_DEF_HERE */
 
 	key.offset = (u64)-1;
 	pending->snap = btrfs_read_fs_root_no_name(root->fs_info, &key);
@@ -1985,6 +2058,9 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	struct timespec commit_start, commit_wait_lock, commit_done;
 	struct timespec commit_interval1, commit_interval2;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	unsigned long pre_run_delayed_refs_count;
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
 	if (root->fs_info->commit_time_debug) {
@@ -2002,7 +2078,16 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	/* make a pass through all the delayed refs we have so far
 	 * any runnings procs may add more while we are here
 	 */
-	ret = btrfs_run_delayed_refs(trans, root, 0);
+#ifdef MY_DEF_HERE
+	pre_run_delayed_refs_count = min_t(unsigned long, atomic_read(&trans->transaction->delayed_refs.num_entries) * 2, 512);
+#endif /* MY_DEF_HERE */
+	ret = btrfs_run_delayed_refs(trans, root
+#ifdef MY_DEF_HERE
+				, pre_run_delayed_refs_count
+#else /* MY_DEF_HERE */
+				, 0
+#endif /* MY_DEF_HERE */
+				);
 	if (ret) {
 		btrfs_end_transaction(trans, root);
 		return ret;
@@ -2027,7 +2112,16 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	if (!list_empty(&trans->new_bgs))
 		btrfs_create_pending_block_groups(trans, root);
 
-	ret = btrfs_run_delayed_refs(trans, root, 0);
+#ifdef MY_DEF_HERE
+	pre_run_delayed_refs_count = min_t(unsigned long, atomic_read(&trans->transaction->delayed_refs.num_entries) * 2, 512);
+#endif /* MY_DEF_HERE */
+	ret = btrfs_run_delayed_refs(trans, root
+#ifdef MY_DEF_HERE
+				, pre_run_delayed_refs_count
+#else /* MY_DEF_HERE */
+				, 0
+#endif /* MY_DEF_HERE */
+				);
 	if (ret) {
 		btrfs_end_transaction(trans, root);
 		return ret;

@@ -13,6 +13,7 @@
 #include <linux/highmem.h>
 #include <linux/log2.h>
 #include <linux/hash.h>
+#include <linux/vmalloc.h>
 #include <net/checksum.h>
 
 #include "nfsd.h"
@@ -178,8 +179,11 @@ int nfsd_reply_cache_init(void)
 		goto out_nomem;
 
 	drc_hashtbl = kcalloc(hashsize, sizeof(*drc_hashtbl), GFP_KERNEL);
-	if (!drc_hashtbl)
-		goto out_nomem;
+	if (!drc_hashtbl) {
+		drc_hashtbl = vzalloc(hashsize * sizeof(*drc_hashtbl));
+		if (!drc_hashtbl)
+			goto out_nomem;
+	}
 
 	return 0;
 out_nomem:
@@ -200,7 +204,7 @@ void nfsd_reply_cache_shutdown(void)
 		nfsd_reply_cache_free_locked(rp);
 	}
 
-	kfree (drc_hashtbl);
+	kvfree(drc_hashtbl);
 	drc_hashtbl = NULL;
 
 	if (drc_slab) {

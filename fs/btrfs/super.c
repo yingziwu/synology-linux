@@ -363,6 +363,15 @@ enum {
 #ifdef MY_DEF_HERE
 	Opt_no_quota_tree,
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	Opt_drop_log_tree,
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	Opt_skip_cleaner, Opt_no_skip_cleaner,
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	Opt_syno_allocator, Opt_clear_syno_allocator,
+#endif /* MY_DEF_HERE */
 	Opt_err,
 };
 
@@ -439,6 +448,17 @@ static match_table_t tokens = {
 #ifdef MY_DEF_HERE
 	{Opt_no_quota_tree, "no_quota_tree"},
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	{Opt_drop_log_tree, "drop_log_tree"},
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	{Opt_skip_cleaner, "skip_cleaner"},
+	{Opt_no_skip_cleaner, "noskip_cleaner"},
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	{Opt_syno_allocator, "syno_allocator"},
+	{Opt_clear_syno_allocator, "clear_syno_allocator"},
+#endif /* MY_DEF_HERE */
 	{Opt_err, NULL},
 };
 
@@ -462,6 +482,10 @@ int btrfs_parse_options(struct btrfs_root *root, char *options,
 	char *compress_type;
 	bool compress_force = false;
 	bool compress = false;
+#ifdef MY_DEF_HERE
+	struct list_head *space_info_head = &info->space_info;
+	struct btrfs_space_info *space_info_found;
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
 #else
@@ -909,6 +933,32 @@ int btrfs_parse_options(struct btrfs_root *root, char *options,
 				goto out;
 			}
 			btrfs_set_opt(info->mount_opt, NO_QUOTA_TREE);
+			break;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		case Opt_drop_log_tree:
+			btrfs_set_opt(info->mount_opt, DROP_LOG_TREE);
+			break;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		case Opt_skip_cleaner:
+			btrfs_set_opt(info->mount_opt, SKIP_CLEANER);
+			break;
+		case Opt_no_skip_cleaner:
+			btrfs_clear_opt(info->mount_opt, SKIP_CLEANER);
+			break;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		case Opt_syno_allocator:
+			rcu_read_lock();
+			list_for_each_entry_rcu(space_info_found, space_info_head, list) {
+				space_info_found->syno_allocator.force_cluster_disable = true;
+			}
+			rcu_read_unlock();
+			btrfs_set_opt(info->mount_opt, SYNO_ALLOCATOR);
+			break;
+		case Opt_clear_syno_allocator:
+			btrfs_clear_opt(info->mount_opt, SYNO_ALLOCATOR);
 			break;
 #endif /* MY_DEF_HERE */
 		case Opt_err:
@@ -1362,7 +1412,18 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
 	if (btrfs_test_opt(root, NO_QUOTA_TREE))
 		seq_puts(seq, ",no_quota_tree");
 #endif /* MY_DEF_HERE */
-
+#ifdef MY_DEF_HERE
+	if (btrfs_test_opt(root, DROP_LOG_TREE))
+		seq_puts(seq, ",drop_log_tree");
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	if (btrfs_test_opt(root, SKIP_CLEANER))
+		seq_puts(seq, ",skip_cleaner");
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	if (btrfs_test_opt(root, SYNO_ALLOCATOR))
+		seq_puts(seq, ",syno_allocator");
+#endif /* MY_DEF_HERE */
 	return 0;
 }
 
@@ -1638,6 +1699,9 @@ static void btrfs_resize_thread_pool(struct btrfs_fs_info *fs_info,
 	btrfs_workqueue_set_max(fs_info->readahead_workers, new_pool_size);
 	btrfs_workqueue_set_max(fs_info->scrub_wr_completion_workers,
 				new_pool_size);
+#ifdef MY_DEF_HERE
+	btrfs_workqueue_set_max(fs_info->syno_allocator.caching_workers, new_pool_size);
+#endif /* MY_DEF_HERE */
 }
 
 static inline void btrfs_remount_prepare(struct btrfs_fs_info *fs_info)
@@ -1739,6 +1803,15 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 		 * the filesystem is busy.
 		 */
 		cancel_work_sync(&fs_info->async_reclaim_work);
+#ifdef MY_DEF_HERE
+		cancel_work_sync(&fs_info->async_data_flush_work);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		cancel_work_sync(&fs_info->async_metadata_flush_work);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		cancel_work_sync(&fs_info->async_metadata_cache_work);
+#endif /* MY_DEF_HERE */
 
 		/* wait for the uuid_scan task to finish */
 		down(&fs_info->uuid_tree_rescan_sem);
@@ -1750,6 +1823,14 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 		btrfs_dev_replace_suspend_for_unmount(fs_info);
 		btrfs_scrub_cancel(fs_info);
 		btrfs_pause_balance(fs_info);
+#ifdef MY_DEF_HERE
+		cancel_work_sync(&fs_info->syno_usage_rescan_work);
+		cancel_work_sync(&fs_info->syno_usage_fast_rescan_work);
+		cancel_work_sync(&fs_info->syno_usage_full_rescan_work);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		cancel_work_sync(&fs_info->syno_allocator.bg_prefetch_work);
+#endif /* MY_DEF_HERE */
 
 		ret = btrfs_commit_super(root);
 		if (ret)
@@ -1812,6 +1893,14 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 		sb->s_flags &= ~MS_RDONLY;
 
 		fs_info->open = 1;
+
+#ifdef MY_DEF_HERE
+		btrfs_syno_usage_rescan_resume(fs_info);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		if (btrfs_test_opt(root, SYNO_ALLOCATOR))
+			queue_work(system_unbound_wq, &fs_info->syno_allocator.bg_prefetch_work);
+#endif /* MY_DEF_HERE */
 	}
 out:
 	wake_up_process(fs_info->transaction_kthread);

@@ -162,9 +162,6 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
 
 	if (conf->nr_strip_zones == 1) {
 		conf->layout = RAID0_ORIG_LAYOUT;
-#ifdef MY_ABC_HERE
-		mddev->has_raid0_layout_feature = 0;
-#endif /* MY_ABC_HERE */
 	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
 		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
 		conf->layout = mddev->layout;
@@ -333,6 +330,12 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
 		queue_flag_clear_unlocked(QUEUE_FLAG_DISCARD, mddev->queue);
 	else
 		queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, mddev->queue);
+#ifdef MY_ABC_HERE
+	if (conf->nr_strip_zones == 1) {
+		mddev->has_raid0_layout_feature = 0;
+		mddev->layout = -1;
+	}
+#endif /* MY_ABC_HERE */
 
 	pr_debug("md/raid0:%s: done.\n", mdname(mddev));
 	*private_conf = conf;
@@ -606,12 +609,35 @@ static void Raid0EndRequest(struct bio *bio, int error)
 		} else {
 			/* Let raid0 could keep read.(md_error would let it become read-only) */
 #ifdef MY_ABC_HERE
+			sector_t mapped_sector, orig_sector, report_sector;
+			struct strip_zone *zone;
+			struct r0conf *conf = mddev->private;
+			struct md_rdev *tmp_dev = NULL;
+
+			mapped_sector = orig_sector = orig_bio->bi_sector;
+			zone = find_zone(conf, &mapped_sector);
+			switch (conf->layout) {
+				case RAID0_ORIG_LAYOUT:
+					tmp_dev = map_sector(mddev, zone, orig_sector, &mapped_sector);
+					break;
+				case RAID0_ALT_MULTIZONE_LAYOUT:
+					tmp_dev = map_sector(mddev, zone, mapped_sector, &mapped_sector);
+					break;
+				default:
+					break;
+			}
+
+			if (likely(tmp_dev))
+				report_sector = mapped_sector + zone->dev_start + tmp_dev->data_offset;
+			else
+				report_sector = bio->bi_sector;
+
 #ifdef MY_ABC_HERE
 			if (bio_flagged(bio, BIO_AUTO_REMAP)) {
-				SynoReportBadSector(bio->bi_sector, bio->bi_rw, mddev->md_minor, bio->bi_bdev, __FUNCTION__);
+				SynoReportBadSector(report_sector, bio->bi_rw, mddev->md_minor, bio->bi_bdev, __FUNCTION__);
 			}
 #else /* MY_ABC_HERE */
-			SynoReportBadSector(bio->bi_sector, bio->bi_rw, mddev->md_minor, bio->bi_bdev, __FUNCTION__);
+			SynoReportBadSector(report_sector, bio->bi_rw, mddev->md_minor, bio->bi_bdev, __FUNCTION__);
 #endif /* MY_ABC_HERE */
 #endif /* MY_ABC_HERE */
 			md_error(mddev, rdev);

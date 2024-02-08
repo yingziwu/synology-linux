@@ -205,7 +205,9 @@
 #define HW_DS218j      "DS218j"        //"DS218j"
 #define HW_RS1219p     "RS1219+"       //"RS1219+"
 #define HW_SA3400      "SA3400"        //"SA3400"
+#define HW_SA3410      "SA3410"        //"SA3410"
 #define HW_SA3600      "SA3600"        //"SA3600"
+#define HW_SA3610      "SA3610"        //"SA3610"
 #define HW_DS419slim   "DS419slim"     //DS419slim
 #define HW_RS1219      "RS1219"        //"RS1219"
 #define HW_FS3400      "FS3400"        //"FS3400"
@@ -214,7 +216,12 @@
 #define HW_DS3617xsII  "DS3617xsII"    //"DS3617xsII"
 #define HW_FS2500      "FS2500"        //"FS2500"
 #define HW_FS2500T     "FS2500T"       //"FS2500T"
-#define HW_DS3622xsp   "DS3622xs+"     //"DS3622xs+"
+#define HW_DS3622xsp   "DS3622xs+"     //"DS3622xs+
+#define HW_RS4023xsp   "RS4023xs+"     //"RS4023xs+""
+#define HW_FS3410      "FS3410"        //"FS3410"
+#define HW_RS3621xsp   "RS3621xs+"     //"RS3621xs+"
+#define HW_RS3621rpxs  "RS3621rpxs"    //"RS3621rpxs"
+#define HW_RS4021xsp   "RS4021xs+"     //"RS4021xs+"
 #define HW_UNKNOWN     "DSUnknown"
 
 #define EBOX_INFO_UNIQUE_RX410  "RX410"
@@ -237,6 +244,7 @@
 #define EBOX_INFO_UNIQUE_DX517  "DX517"
 #define EBOX_INFO_UNIQUE_RX418  "RX418"
 #define EBOX_INFO_UNIQUE_DX1222 "DX1222"
+#define EBOX_INFO_UNIQUE_RX1223RP "RX1223rp"
 
 #define SYNO_UNIQUE(x)     (x>>2)
 #define IS_SYNOLOGY_RX4(x) (SYNO_UNIQUE(x) == 0x15 || SYNO_UNIQUE(x) == 0xd) // 0x54 ~ 0x57
@@ -388,6 +396,7 @@ typedef enum {
  * But userspace didn't have a common define like MY_ABC_HERE include
  * kernel space. So we can't define it inside some define */
 #define EBOX_GPIO_KEY           "gpio"
+#define EBOX_I2C_KEY            "i2c"
 #define EBOX_INFO_DEV_LIST_KEY  "syno_device_list"
 #define EBOX_INFO_VENDOR_KEY    "vendorid"
 #define EBOX_INFO_DEVICE_KEY    "deviceid"
