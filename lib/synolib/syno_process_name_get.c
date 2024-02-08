@@ -136,7 +136,7 @@ void syno_do_hibernation_filename_log(const char __user *szUserFileName)
 	struct kstatfs Statfs;
 	struct path FilePath;
 	int iIno = 0;
-	char szFileName[MSG_SIZE];
+	char szFileName[MSG_SIZE] = {'\0'};
 
 	if (NULL == szUserFileName) {
 		goto END;
@@ -145,9 +145,8 @@ void syno_do_hibernation_filename_log(const char __user *szUserFileName)
 	if (copy_from_user(szFileName, szUserFileName, MSG_SIZE)) {
 		goto END;
 	}
-	if (MSG_SIZE > strlen(szFileName)) {
-		strncpy(szFileName, szFileName, strlen(szFileName));
-	} else {
+
+	if (MSG_SIZE <= strlen(szFileName)) {
 		szFileName[MSG_SIZE-1] = '\0';
 	}
 

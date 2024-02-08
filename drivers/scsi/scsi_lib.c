@@ -2280,6 +2280,9 @@ static void syno_disk_hiternation_cmd_printk(struct scsi_device *sdp, struct scs
 
 #ifdef MY_DEF_HERE
 extern int g_is_sas_model;
+#ifdef MY_DEF_HERE
+extern struct gendisk* SynoScsiDeviceToGendisk(struct scsi_device *psdev);
+#endif
 static int scsi_white_list_cmd_in_hibernation(struct scsi_cmnd *cmd)
 {
 	int ret = 0;
@@ -2304,7 +2307,82 @@ static int scsi_white_list_cmd_in_hibernation(struct scsi_cmnd *cmd)
 
 	return ret;
 }
-#endif
+void SynoScsiSasSataStandbyFlagSet(struct scsi_device *sdev)
+{
+	if (!sdev) {
+		return;
+	}
+	set_bit(0, &sdev->sas_sata_standby_flag);
+}
+EXPORT_SYMBOL(SynoScsiSasSataStandbyFlagSet);
+
+void SynoScsiSasSataStandbyFlagClear(struct scsi_device *sdev)
+{
+	if (!sdev) {
+		return;
+	}
+	clear_bit(0, &sdev->sas_sata_standby_flag);
+}
+EXPORT_SYMBOL(SynoScsiSasSataStandbyFlagClear);
+
+#ifdef MY_DEF_HERE
+static void SynoScsiAltSasSataStandbyFlagControl(struct scsi_device *sdev, int control)
+{
+	struct gendisk *disk = NULL, *dm_disk = NULL;
+	struct syno_mulitpath_coherent_work *coherent_work = NULL;
+	bool valid_mp_slave_device = false;
+
+	if (!sdev) {
+		return;
+	}
+
+	if (NULL != (disk = SynoScsiDeviceToGendisk(sdev))) {
+		if (disk->mpath_info) {
+			spin_lock(&disk->mpath_info->mpath_info_lock);
+			if ((dm_disk = disk->mpath_info->dm_disk) &&
+				dm_disk->syno_ops && dm_disk->syno_ops->multipath_dm_coherent_work_send) {
+				valid_mp_slave_device = true;
+			}
+			spin_unlock(&disk->mpath_info->mpath_info_lock);
+			if (valid_mp_slave_device) {
+				if (NULL !=
+					(coherent_work = kzalloc(sizeof(struct syno_mulitpath_coherent_work), GFP_ATOMIC))) {
+					coherent_work->dm_disk = dm_disk;
+					coherent_work->initiating_disk = disk;
+					if (control) {
+						coherent_work->action = MPATH_COHERENT_ACTION_DISK_STANDBY_SET;
+					} else {
+						coherent_work->action = MPATH_COHERENT_ACTION_DISK_STANDBY_CLEAR;
+					}
+					if (-1 == dm_disk->syno_ops->multipath_dm_coherent_work_send(coherent_work)) {
+						kfree(coherent_work);
+					}
+				}
+			}
+		}
+	}
+}
+void SynoScsiAltSasSataStandbyFlagSet(struct scsi_device *sdev)
+{
+	if (!sdev) {
+		return;
+	}
+	SynoScsiAltSasSataStandbyFlagControl(sdev, 1);
+}
+EXPORT_SYMBOL(SynoScsiAltSasSataStandbyFlagSet);
+
+void SynoScsiAltSasSataStandbyFlagClear(struct scsi_device *sdev)
+{
+	if (!sdev) {
+		return;
+	}
+	SynoScsiAltSasSataStandbyFlagControl(sdev, 0);
+}
+EXPORT_SYMBOL(SynoScsiAltSasSataStandbyFlagClear);
+
+#endif //MY_DEF_HERE
+
+#endif //MY_DEF_HERE
 
 /**
  * scsi_dispatch_command - Dispatch a command to the low-level driver.
@@ -2353,7 +2431,10 @@ static int scsi_dispatch_cmd(struct scsi_cmnd *cmd)
 		(cmd->device->spinup_queue)) {
 		if ((START_STOP == cmd->cmnd[0] && (0 == (cmd->cmnd[4] & 0x01)))/*sas standby cmd*/ ||
 			((ATA_16 == cmd->cmnd[0]) && (0xe0 == cmd->cmnd[14]))/*ata passthrough standby immediate*/) {
-			set_bit(0, &cmd->device->sas_sata_standby_flag);
+			SynoScsiSasSataStandbyFlagSet(cmd->device);
+#ifdef MY_DEF_HERE
+			SynoScsiAltSasSataStandbyFlagSet(cmd->device);
+#endif
 			atomic_set(&cmd->device->spinup_retry_times, 5);
 		}
 
