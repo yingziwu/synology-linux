@@ -37,6 +37,7 @@ extern "C" {
 #ifndef _VIA_DEFINES_
 #define _VIA_DEFINES_
 
+
 #define VIA_NR_SAREA_CLIPRECTS		8
 #define VIA_NR_XVMC_PORTS               10
 #define VIA_NR_XVMC_LOCKS               5

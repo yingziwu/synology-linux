@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ static struct mv_pp3_emac_ctrl *pp3_emac;
 /*--------------------------------------------------------------*/
 /*--------------------- EMAC globals ---------------------------*/
 /*--------------------------------------------------------------*/
+
 
 u32 mv_pp3_emac_reg_read(int port, u32 reg)
 {
@@ -108,6 +110,7 @@ void mv_pp3_emac_debug(int port, int en)
 		pp3_emac[port].flags |= MV_PP3_EMAC_F_DEBUG;
 	else
 		pp3_emac[port].flags &= ~MV_PP3_EMAC_F_DEBUG;
+
 
 }
 
@@ -215,6 +218,7 @@ void mv_pp3_emac_regs(int port)
 	mv_pp3_emac_reg_print(port, "DBG_FIFO_FILL_LVL1", MV_EMAC_DBG_FIFO_FILL_LVL1_REG);
 	mv_pp3_emac_reg_print(port, "DBG_FIFO_FILL_LVL2", MV_EMAC_DBG_FIFO_FILL_LVL2_REG);
 }
+
 
 /* dump emac status */
 void mv_pp3_emac_status(int port)
@@ -451,6 +455,7 @@ void mv_pp3_emac_counters_show(int port)
 	pr_info("  %-32s: %-8u\n", "ENQ_DRP_PKT_CNT", drop);
 	pr_info("  %-32s: %-8u\n", "ENQ_XOFF_CNT", xoff);
 }
+
 
 void mv_pp3_emac_pfc_regs(int port)
 {

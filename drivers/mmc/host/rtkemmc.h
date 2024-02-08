@@ -76,6 +76,7 @@ do {                                \
 #define CYAN_BOLD_ITALIC "\033[36;1;3m"
 #define RESET "\033[0;m"
 
+
 struct rtkemmc_host {
 	struct mmc_host     *mmc;           /* MMC structure */
 	u32                 rtflags;        /* Driver states */
@@ -253,6 +254,7 @@ struct backupRegs {
 #define EMMC_CLOCK_SPEED_GAP    (0x03<<EMMC_CLKSEL_SHT)
 #define SD_CLOCK_SPEED_GAP      (0x03<<SD_CLKSEL_SHT)
 
+
 static const char *const clk_tlb_B[8] = {
 	"12MHz",
 	"16MHz",
@@ -320,6 +322,7 @@ static const u32 map_reg_to_clk[8] = {0x02,0x03,0x04,0x05,0xFF,0x00,0x01,0xFF};
 /* CRT_SYS_SRST3 setting bit *** */
 #define RSTN_SD (0x01<<16)      //for card reader
 /* CRT_SYS_SRST3 setting bit &&& */
+
 
 /* CRT_SYS_CLKEN2 setting bit *** */
 #define CLKEN_CR (0x01<<23)      //for eMMC
@@ -595,6 +598,7 @@ int rtkemmc_send_cmd25(struct rtkemmc_host *emmc_port,int,unsigned long, int,int
 int rtkemmc_send_cmd18(struct rtkemmc_host *emmc_port,int,unsigned long);
 int rtkemmc_send_cmd24(struct rtkemmc_host *emmc_port);
 int rtkemmc_send_cmd17(struct rtkemmc_host *emmc_port);
+
 
 //int rtkemmc_send_cmd8(struct rtkemmc_host *emmc_port,unsigned int bIgnore);
 int rtkemmc_send_cmd8(struct rtkemmc_host *emmc_port, unsigned int bIgnore);

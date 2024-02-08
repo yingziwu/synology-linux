@@ -22,6 +22,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
+
 #include <linux/dmi.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -130,9 +131,6 @@ static void do_prt_fixups(struct acpi_prt_entry *entry,
 		quirk = &prt_quirks[i];
 
 		/* All current quirks involve link devices, not GSIs */
-		if (!prt->source)
-			continue;
-
 		if (dmi_check_system(quirk->system) &&
 		    entry->id.segment == quirk->segment &&
 		    entry->id.bus == quirk->bus &&

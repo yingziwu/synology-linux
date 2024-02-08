@@ -100,6 +100,7 @@
 #define MEMTESTER_RSV_PHYS (0x22000000)
 #define MEMTESTER_RSV_SIZE (0x04000000)
 
+
 #if defined(CONFIG_ARCH_RTD139x) || defined(CONFIG_ARCH_RTD16xx)
 /* 0x14200000 ~ 0x1effffff */
 #define MEM_SLOT_PHYS_2 (0x16200000)
@@ -173,6 +174,7 @@
 #define MEM_SLOT_FLAG_BY(_nr, req_size) (MEM_SLOT_FLAG_##_nr##)
 #define MEM_SLOT(_nr, _type, req_size) \
 	MEM_SLOT_##_type##_BY(_nr, req_size)
+
 
 /* legacy : 184 M */
 #define ION_MEDIA_HEAP_PHYS1 (MEM_SLOT(0, PHYS, 0x0b800000))

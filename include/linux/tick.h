@@ -109,7 +109,7 @@ extern ktime_t tick_nohz_get_sleep_length(void);
 extern u64 get_cpu_idle_time_us(int cpu, u64 *last_update_time);
 extern u64 get_cpu_iowait_time_us(int cpu, u64 *last_update_time);
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 extern void tick_nohz_idle_stop_tick(void);
 extern void tick_nohz_idle_restart_tick(void);
 static inline void tick_nohz_idle_stop_tick_protected(void)
@@ -134,7 +134,7 @@ static inline ktime_t tick_nohz_get_sleep_length(void)
 static inline u64 get_cpu_idle_time_us(int cpu, u64 *unused) { return -1; }
 static inline u64 get_cpu_iowait_time_us(int cpu, u64 *unused) { return -1; }
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 static inline void tick_nohz_idle_stop_tick(void) { }
 static inline void tick_nohz_idle_restart_tick(void) { }
 static inline void tick_nohz_idle_stop_tick_protected(void) { }

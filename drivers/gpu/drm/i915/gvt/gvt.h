@@ -548,6 +548,7 @@ struct intel_gvt_ops {
 				     unsigned int);
 };
 
+
 enum {
 	GVT_FAILSAFE_UNSUPPORTED_GUEST,
 	GVT_FAILSAFE_INSUFFICIENT_RESOURCE,
@@ -631,6 +632,7 @@ int intel_gvt_debugfs_add_vgpu(struct intel_vgpu *vgpu);
 void intel_gvt_debugfs_remove_vgpu(struct intel_vgpu *vgpu);
 int intel_gvt_debugfs_init(struct intel_gvt *gvt);
 void intel_gvt_debugfs_clean(struct intel_gvt *gvt);
+
 
 #include "trace.h"
 #include "mpt.h"

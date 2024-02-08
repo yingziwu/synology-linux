@@ -92,6 +92,7 @@ static __maybe_unused void __rtk_usb_set_hw_pm_enable(struct manager_data *data)
         __power_control_set_power("pctrl_l4_icg_usb_p3", false);
 }
 
+
 /* set usb charger power */
 static __maybe_unused void __rtk_usb_set_charger_power(struct manager_data *data, bool power_on)
 {

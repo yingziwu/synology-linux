@@ -9,12 +9,14 @@
  * option) any later version.
  */
 
+
 #ifndef _RTK_GPIO_H_
 #define _RTK_GPIO_H_
 
 #include <linux/io.h>
 #include <linux/spinlock.h>
 #include <asm-generic/gpio.h>
+
 
 /*#define RTK_GPIO_DEBUG*/
 #ifdef RTK_GPIO_DEBUG
@@ -58,6 +60,7 @@ enum {
 	GP_REG_DP
 };
 
+
 struct rtk_gpio_groups {
 	const char	*group_name;
 	u32		group_index;
@@ -77,6 +80,7 @@ struct rtk_gpio_groups {
 	u32	reg_dp_off[GPIO_REG_ARRAY_SIZE];
 	u32	reg_deb_off[GPIO_DEB_ARRAY_SIZE];
 };
+
 
 struct rtk_gpio_controller {
 	struct gpio_chip	chip;

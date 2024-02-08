@@ -1119,8 +1119,10 @@ static int usb_pwc_probe(struct usb_interface *intf, const struct usb_device_id 
 
 	return 0;
 
+#ifdef CONFIG_USB_PWC_INPUT_EVDEV
 err_video_unreg:
 	video_unregister_device(&pdev->vdev);
+#endif
 err_unregister_v4l2_dev:
 	v4l2_device_unregister(&pdev->v4l2_dev);
 err_free_controls:
@@ -1156,6 +1158,7 @@ static void usb_pwc_disconnect(struct usb_interface *intf)
 
 	v4l2_device_put(&pdev->v4l2_dev);
 }
+
 
 /*
  * Initialization code & module stuff

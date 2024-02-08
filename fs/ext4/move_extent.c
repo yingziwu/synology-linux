@@ -187,7 +187,7 @@ mext_page_mkuptodate(struct page *page, unsigned from, unsigned to)
 	if (PageUptodate(page))
 		return 0;
 
-	blocksize = 1 << inode->i_blkbits;
+	blocksize = i_blocksize(inode);
 	if (!page_has_buffers(page))
 		create_empty_buffers(page, blocksize, 0);
 
@@ -465,6 +465,7 @@ mext_check_arguments(struct inode *orig_inode,
 	orig_eof = (i_size_read(orig_inode) + blocksize - 1) >> blkbits;
 	donor_eof = (i_size_read(donor_inode) + blocksize - 1) >> blkbits;
 
+
 	if (donor_inode->i_mode & (S_ISUID|S_ISGID)) {
 		ext4_debug("ext4 move extent: suid or sgid is set"
 			   " to donor file [ino:orig %lu, donor %lu]\n",
@@ -525,9 +526,13 @@ mext_check_arguments(struct inode *orig_inode,
 			orig_inode->i_ino, donor_inode->i_ino);
 		return -EINVAL;
 	}
-	if (orig_eof < orig_start + *len - 1)
+	if (orig_eof <= orig_start)
+		*len = 0;
+	else if (orig_eof < orig_start + *len - 1)
 		*len = orig_eof - orig_start;
-	if (donor_eof < donor_start + *len - 1)
+	if (donor_eof <= donor_start)
+		*len = 0;
+	else if (donor_eof < donor_start + *len - 1)
 		*len = donor_eof - donor_start;
 	if (!*len) {
 		ext4_debug("ext4 move extent: len should not be 0 "

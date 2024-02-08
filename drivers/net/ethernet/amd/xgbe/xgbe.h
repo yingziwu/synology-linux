@@ -183,9 +183,15 @@ extern bool convert_link_mode_to_legacy_u32(u32 *legacy_u32,
 #define XGBE_DMA_SYS_AWCR	0x30303030
 
 /* DMA cache settings - PCI device */
+#if defined(MY_ABC_HERE)
+#define XGBE_DMA_PCI_ARCR	0x000f0f0f
+#define XGBE_DMA_PCI_AWCR	0x0f0f0f0f
+#define XGBE_DMA_PCI_AWARCR	0x00000f0f
+#else /* MY_ABC_HERE */
 #define XGBE_DMA_PCI_ARCR	0x00000003
 #define XGBE_DMA_PCI_AWCR	0x13131313
 #define XGBE_DMA_PCI_AWARCR	0x00000313
+#endif /* MY_ABC_HERE */
 
 /* DMA channel interrupt modes */
 #define XGBE_IRQ_MODE_EDGE	0
@@ -887,8 +893,6 @@ struct xgbe_phy_impl_if {
 #if defined(MY_ABC_HERE)
 	/* WOL setting Enable */
 	void (*wol_enable)(struct xgbe_prv_data *);
-	void (*force_1g)(struct xgbe_prv_data *);
-	void (*resume_autoneg)(struct xgbe_prv_data *);
 #endif /* MY_ABC_HERE */
 };
 
@@ -1246,7 +1250,6 @@ struct xgbe_prv_data {
 	struct tasklet_struct tasklet_i2c;
 	struct tasklet_struct tasklet_an;
 
-#ifdef CONFIG_DEBUG_FS
 	struct dentry *xgbe_debugfs;
 
 	unsigned int debugfs_xgmac_reg;
@@ -1260,7 +1263,6 @@ struct xgbe_prv_data {
 
 	bool debugfs_an_cdr_workaround;
 	bool debugfs_an_cdr_track_early;
-#endif
 
 #if defined(MY_ABC_HERE)
 	int wol_flag;

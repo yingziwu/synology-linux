@@ -281,6 +281,7 @@ void configfs_undepend_item(struct config_item *target);
 int configfs_depend_item_unlocked(struct configfs_subsystem *caller_subsys,
 				  struct config_item *target);
 
+
 static inline void configfs_undepend_item_unlocked(struct config_item *target)
 {
 	configfs_undepend_item(target);

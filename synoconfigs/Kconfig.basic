@@ -195,6 +195,10 @@ config SYNO_PSTATE_CALC
 	bool "Compare P-state ratio only"
 	default y
 
+config SYNO_DATA_CORRECTION
+	bool "Framework of data correction"
+	default n
+
 config SYNO_DMA_COHERENT_POOL_1M
 	bool "increase DMA coherent pool from 256K to 1M"
 	default n
@@ -203,12 +207,20 @@ config SYNO_DISK_EH_FLAG
 	bool "report to userspace if kernel is in SCSI error handling"
 	default y
 
+config SYNO_MICROP_POWEROFF
+	bool "Power off by microP"
+	default n
+
 config SYNO_LOAD_AVERAGE
 	bool "Split load average into cpu and io part"
 	default y
 
 config SYNO_CHECKSUM_DEBUG
 	bool "Checksum debugger"
+	default y
+
+config SYNO_SWAP_FLAG
+	bool "Avoid misuse Swapon / Swapoff"
 	default y
 
 config SYNO_AMD_MCE_PORTING
@@ -220,6 +232,11 @@ config SYNO_AMD_MCE_THRESHOLD_CLEAR
 	bool "Clear MCE overflow bit"
 	default y
 	depends on SYNO_AMD_MCE_PORTING
+
+config SYNO_DROP_CACHE_MEM_COMPACT
+	bool "Drop cache and compact memory"
+	default y
+	depends on COMPACTION
 
 endmenu #System Features
 
@@ -316,10 +333,19 @@ config SYNO_LSP_ARMADA_16_12_MM_REVERT
 	default y
 	depends on SYNO_LSP_ARMADA_16_12
 
+config SYNO_BUILD_WARNING_FIX
+	bool "Fix build time warnings"
+	default y
+
 config SYNO_MQ_TIMEOUT_KVMX64
 	int "The default seconds before a multi-queue block request timeout"
 	default 1024
 	depends on (SYNO_KVMX64 || SYNO_NEXTKVMX64)
+
+config SYNO_KWORK_STAT
+	bool "Enable work function stat accounting for kworkers"
+	default y
+	depends on TASK_IO_ACCOUNTING
 
 config SYNO_WARN_ALLOC_FAILED_RATELIMIT
 	bool "Set harder rate limit for warn_alloc_failed()"
@@ -338,5 +364,9 @@ config SYNO_HARDLOCKUP_THRESH_EXTENSION
 	bool "Extend hard lockup threshold."
 	default n
 	depends on HARDLOCKUP_DETECTOR
+
+config SYNO_ISCSI_DEAD_LOCK_BH_ISSUE
+	bool "Replace spin_lock_bh with spin_lock_irqsave in libiscsi"
+	default y
 
 endmenu #Kernel Core Enhancements

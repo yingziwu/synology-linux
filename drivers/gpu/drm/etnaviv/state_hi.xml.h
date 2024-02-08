@@ -15,6 +15,7 @@ The rules-ng-ng source files this header was generated from are:
 Copyright (C) 2016
 */
 
+
 #define MMU_EXCEPTION_SLAVE_NOT_PRESENT				0x00000001
 #define MMU_EXCEPTION_PAGE_NOT_PRESENT				0x00000002
 #define MMU_EXCEPTION_WRITE_VIOLATION				0x00000003
@@ -432,5 +433,6 @@ Copyright (C) 2016
 #define VIVS_MC_START_COMPOSITION				0x00000554
 
 #define VIVS_MC_128B_MERGE					0x00000558
+
 
 #endif /* STATE_HI_XML */

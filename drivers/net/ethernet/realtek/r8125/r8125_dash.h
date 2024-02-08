@@ -162,6 +162,7 @@ RX_DASH_BUFFER_TYPE_2, *PRX_DASH_BUFFER_TYPE_2;
 #define OCP_REG_DMEMSTA (0x38)
 #define OCP_REG_GPHYAR (0x60)
 
+
 #define OCP_REG_CONFIG0_DASHEN           BIT_15
 #define OCP_REG_CONFIG0_OOBRESET         BIT_14
 #define OCP_REG_CONFIG0_APRDY            BIT_13
@@ -252,5 +253,6 @@ void HandleDashInterrupt(struct net_device *dev);
 int AllocateDashShareMemory(struct net_device *dev);
 void FreeAllocatedDashShareMemory(struct net_device *dev);
 void DashHwInit(struct net_device *dev);
+
 
 #endif /* _LINUX_R8125_DASH_H */

@@ -136,4 +136,5 @@ enum sync_source {
 	SYNC_SOURCE_DUAL_GPU_PIN
 };
 
+
 #endif

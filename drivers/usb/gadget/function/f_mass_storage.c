@@ -193,6 +193,7 @@
  * of the Gadget, USB Mass Storage, and SCSI protocols.
  */
 
+
 /* #define VERBOSE_DEBUG */
 /* #define DUMP_MSGS */
 
@@ -222,6 +223,7 @@
 #include <linux/nospec.h>
 
 #include "configfs.h"
+
 
 /*------------------------------------------------------------------------*/
 
@@ -306,8 +308,6 @@ struct fsg_common {
 	struct completion	thread_notifier;
 	struct task_struct	*thread_task;
 
-	/* Callback functions. */
-	const struct fsg_operations	*ops;
 	/* Gadget's private data. */
 	void			*private_data;
 
@@ -374,6 +374,7 @@ static void set_bulk_out_req_length(struct fsg_common *common,
 	bh->outreq->length = length;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int fsg_set_halt(struct fsg_dev *fsg, struct usb_ep *ep)
@@ -390,6 +391,7 @@ static int fsg_set_halt(struct fsg_dev *fsg, struct usb_ep *ep)
 	return usb_ep_set_halt(ep);
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /* These routines may be called in process context or in_irq */
@@ -397,7 +399,11 @@ static int fsg_set_halt(struct fsg_dev *fsg, struct usb_ep *ep)
 /* Caller must hold fsg->lock */
 static void wakeup_thread(struct fsg_common *common)
 {
-	smp_wmb();	/* ensure the write of bh->state is complete */
+	/*
+	 * Ensure the reading of thread_wakeup_needed
+	 * and the writing of bh->state are completed
+	 */
+	smp_mb();
 	/* Tell the main thread that something has happened */
 	common->thread_wakeup_needed = 1;
 	if (common->thread_task)
@@ -424,6 +430,7 @@ static void raise_exception(struct fsg_common *common, enum fsg_state new_state)
 	spin_unlock_irqrestore(&common->lock, flags);
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int ep0_queue(struct fsg_common *common)
@@ -439,6 +446,7 @@ static int ep0_queue(struct fsg_common *common)
 	}
 	return rc;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -552,6 +560,7 @@ static int fsg_setup(struct usb_function *f,
 	return -EOPNOTSUPP;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /* All the following routines run in process context */
@@ -625,9 +634,15 @@ static int sleep_thread(struct fsg_common *common, bool can_freeze)
 	}
 	__set_current_state(TASK_RUNNING);
 	common->thread_wakeup_needed = 0;
-	smp_rmb();	/* ensure the latest bh->state is visible */
+
+	/*
+	 * Ensure the writing of thread_wakeup_needed
+	 * and the reading of bh->state are completed
+	 */
+	smp_mb();
 	return rc;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -758,6 +773,7 @@ static int do_read(struct fsg_common *common)
 
 	return -EIO;		/* No default reply */
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -948,6 +964,7 @@ static int do_write(struct fsg_common *common)
 	return -EIO;		/* No default reply */
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int do_synchronize_cache(struct fsg_common *common)
@@ -962,6 +979,7 @@ static int do_synchronize_cache(struct fsg_common *common)
 		curlun->sense_data = SS_WRITE_ERROR;
 	return 0;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1073,6 +1091,7 @@ static int do_verify(struct fsg_common *common)
 	}
 	return 0;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1409,6 +1428,7 @@ static int do_mode_select(struct fsg_common *common, struct fsg_buffhd *bh)
 	return -EINVAL;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int halt_bulk_in_endpoint(struct fsg_dev *fsg)
@@ -1666,6 +1686,7 @@ static int send_status(struct fsg_common *common)
 	common->next_buffhd_to_fill = bh->next;
 	return 0;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -2090,6 +2111,7 @@ unknown_cmnd:
 	return 0;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int received_cbw(struct fsg_dev *fsg, struct fsg_buffhd *bh)
@@ -2202,6 +2224,7 @@ static int get_next_command(struct fsg_common *common)
 	return rc;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int alloc_request(struct fsg_common *common, struct usb_ep *ep,
@@ -2308,6 +2331,7 @@ reset:
 	return rc;
 }
 
+
 /****************************** ALT CONFIGS ******************************/
 
 static int fsg_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
@@ -2324,6 +2348,7 @@ static void fsg_disable(struct usb_function *f)
 	fsg->common->new_fsg = NULL;
 	raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -2473,11 +2498,13 @@ static void handle_exception(struct fsg_common *common)
 	}
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int fsg_main_thread(void *common_)
 {
 	struct fsg_common	*common = common_;
+	int			i;
 
 	/*
 	 * Allow the thread to be killed by a signal, but set the signal mask
@@ -2539,25 +2566,21 @@ static int fsg_main_thread(void *common_)
 	common->thread_task = NULL;
 	spin_unlock_irq(&common->lock);
 
-	if (!common->ops || !common->ops->thread_exits
-	 || common->ops->thread_exits(common) < 0) {
-		int i;
+	/* Eject media from all LUNs */
 
-		down_write(&common->filesem);
-		for (i = 0; i < ARRAY_SIZE(common->luns); --i) {
-			struct fsg_lun *curlun = common->luns[i];
-			if (!curlun || !fsg_lun_is_open(curlun))
-				continue;
+	down_write(&common->filesem);
+	for (i = 0; i < ARRAY_SIZE(common->luns); i++) {
+		struct fsg_lun *curlun = common->luns[i];
 
+		if (curlun && fsg_lun_is_open(curlun))
 			fsg_lun_close(curlun);
-			curlun->unit_attention_data = SS_MEDIUM_NOT_PRESENT;
-		}
-		up_write(&common->filesem);
 	}
+	up_write(&common->filesem);
 
 	/* Let fsg_unbind() know the thread has exited */
 	complete_and_exit(&common->thread_notifier, 0);
 }
+
 
 /*************************** DEVICE ATTRIBUTES ***************************/
 
@@ -2757,13 +2780,6 @@ void fsg_common_remove_luns(struct fsg_common *common)
 	_fsg_common_remove_luns(common, ARRAY_SIZE(common->luns));
 }
 EXPORT_SYMBOL_GPL(fsg_common_remove_luns);
-
-void fsg_common_set_ops(struct fsg_common *common,
-			const struct fsg_operations *ops)
-{
-	common->ops = ops;
-}
-EXPORT_SYMBOL_GPL(fsg_common_set_ops);
 
 void fsg_common_free_buffers(struct fsg_common *common)
 {
@@ -2985,6 +3001,7 @@ static void fsg_common_release(struct kref *ref)
 	if (common->free_storage_on_release)
 		kfree(common);
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -3522,6 +3539,7 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michal Nazarewicz");
 
 /************************* Module parameters *************************/
+
 
 void fsg_config_from_params(struct fsg_config *cfg,
 		       const struct fsg_module_parameters *params,

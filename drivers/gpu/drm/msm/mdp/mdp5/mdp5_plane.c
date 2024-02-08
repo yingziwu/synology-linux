@@ -418,6 +418,7 @@ static int mdp5_plane_atomic_check_with_state(struct drm_crtc_state *crtc_state,
 				 */
 				mdp5_state->r_hwpipe = NULL;
 
+
 			mdp5_pipe_release(state->state, old_hwpipe);
 			mdp5_pipe_release(state->state, old_right_hwpipe);
 		}

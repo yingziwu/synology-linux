@@ -31,6 +31,7 @@
 
 #include "atom.h"
 
+
 #define TO_DCE_ABM(abm)\
 	container_of(abm, struct dce_abm, base)
 
@@ -49,6 +50,7 @@
 #define MCP_BL_SET 0x67
 
 #define MCP_DISABLE_ABM_IMMEDIATELY 255
+
 
 static unsigned int get_current_backlight_16_bit(struct dce_abm *abm_dce)
 {

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -33,6 +34,7 @@ disclaimer.
 #include "rm_internal_types.h"
 #include "rm_status.h"
 
+
 /*#define SHIFT_TABLE */
 #define STRUCTS
 
@@ -48,6 +50,7 @@ disclaimer.
 
 #include "tm_registers_processing.h"
 #include "tm_errcodes.h"
+
 
 #define COMPLETE_HW_WRITE								\
 	do {												\
@@ -89,6 +92,7 @@ disclaimer.
 		index, TM_REGISTER_VAR_ADDR(register_name));                \
 	} while (0);
 
+
 int set_hw_fixed_port_periodic_scheme(tm_handle hndl)
 {
 	int rc = -EFAULT;
@@ -115,6 +119,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 int set_hw_fixed_c_level_periodic_scheme(tm_handle hndl)
 {
@@ -144,6 +149,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_fixed_b_level_periodic_scheme(tm_handle hndl)
 {
 	int rc = -EFAULT;
@@ -171,6 +177,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 int set_hw_fixed_a_level_periodic_scheme(tm_handle hndl)
 {
@@ -200,6 +207,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_fixed_queue_periodic_scheme(tm_handle hndl)
 {
 	int rc = -EFAULT;
@@ -228,6 +236,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_fixed_port_shaping_status(tm_handle hndl, uint8_t shaping_status)
 {
 	int rc = -ERANGE;
@@ -243,6 +252,7 @@ int set_hw_fixed_port_shaping_status(tm_handle hndl, uint8_t shaping_status)
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 #ifdef MV_QMTM_NSS_A0
 /**
@@ -312,6 +322,7 @@ int set_hw_max_dp_mode(tm_handle hndl)
 	return rc;
 }
 
+
 /**
  */
 int __set_hw_queues_wred_curve(tm_handle hndl, uint8_t *prob_array, uint8_t curve_ind)
@@ -340,6 +351,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_queues_wred_curve(tm_handle hndl, uint8_t curve_ind)
 {
 	int rc = -ERANGE;
@@ -356,12 +368,14 @@ int set_hw_queues_wred_curve(tm_handle hndl, uint8_t curve_ind)
 	return rc;
 }
 
+
 int set_hw_queues_default_wred_curve(tm_handle hndl, uint8_t *prob_array)
 {
 	return __set_hw_queues_wred_curve(hndl, prob_array, 0);
 }
 
 /*****************************/
+
 
 int __set_hw_a_nodes_wred_curve(tm_handle hndl, uint8_t *prob_array, uint8_t curve_ind)
 {
@@ -390,6 +404,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_a_nodes_wred_curve(tm_handle hndl, uint8_t curve_ind)
 {
 	int rc = -ERANGE;
@@ -414,6 +429,7 @@ int set_hw_a_nodes_default_wred_curve(tm_handle hndl, uint8_t *prob_array)
 
 /*****************************/
 
+
 int __set_hw_b_nodes_wred_curve(tm_handle hndl, uint8_t *prob_array, uint8_t curve_ind)
 {
 	int rc = -ERANGE;
@@ -433,6 +449,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 int set_hw_b_nodes_wred_curve(tm_handle hndl, uint8_t curve_ind)
 {
@@ -455,6 +472,7 @@ int set_hw_b_nodes_default_wred_curve(tm_handle hndl, uint8_t *prob_array)
 {
 	return __set_hw_b_nodes_wred_curve(hndl, prob_array, 0);
 }
+
 
 /**
  */
@@ -479,6 +497,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 int set_hw_c_nodes_wred_curve(tm_handle hndl, uint8_t cos, uint8_t curve_ind)
 {
@@ -524,6 +543,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_ports_wred_curve(tm_handle hndl, uint8_t curve_ind)
 {
 	int rc = -EFAULT;
@@ -539,10 +559,12 @@ int set_hw_ports_wred_curve(tm_handle hndl, uint8_t curve_ind)
 	return rc;
 }
 
+
 int set_hw_ports_default_wred_curve(tm_handle hndl, uint8_t *prob_array)
 {
 	return	__set_hw_ports_wred_curve(hndl,prob_array);
 }
+
 
 int __set_hw_ports_wred_curve_cos(tm_handle hndl, uint8_t *prob_array, uint8_t cos)
 {
@@ -564,6 +586,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_ports_wred_curve_cos(tm_handle hndl, uint8_t cos, uint8_t curve_ind)
 {
 	int rc = -EFAULT;
@@ -579,10 +602,12 @@ int set_hw_ports_wred_curve_cos(tm_handle hndl, uint8_t cos, uint8_t curve_ind)
 	return rc;
 }
 
+
 int set_hw_ports_default_wred_curve_cos(tm_handle hndl, uint8_t cos, uint8_t *prob_array)
 {
 	return __set_hw_ports_wred_curve_cos( hndl, prob_array, cos);
 }
+
 
 /**
  */
@@ -642,6 +667,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_queue_drop_profile(tm_handle hndl, uint32_t prof_ind)
 {
 	int rc = -EFAULT;
@@ -658,6 +684,7 @@ int set_hw_queue_drop_profile(tm_handle hndl, uint32_t prof_ind)
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 int set_hw_queue_default_drop_profile(tm_handle hndl, struct tm_drop_profile *profile)
 {
@@ -727,6 +754,7 @@ int set_hw_a_nodes_drop_profile(tm_handle hndl, uint32_t prof_ind)
 	int rc = -EFAULT;
 	struct tm_drop_profile *profile;
 
+
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
 
@@ -742,6 +770,7 @@ int set_hw_a_nodes_default_drop_profile(tm_handle hndl, struct tm_drop_profile *
 {
 	return __set_hw_a_nodes_drop_profile(hndl, profile, 0);
 }
+
 
 /**
  */
@@ -818,10 +847,12 @@ int set_hw_b_nodes_drop_profile(tm_handle hndl, uint32_t prof_ind)
 	return rc;
 }
 
+
 int set_hw_b_nodes_default_drop_profile(tm_handle hndl, struct tm_drop_profile *profile)
 {
 	return __set_hw_b_nodes_drop_profile(hndl, profile, 0);
 }
+
 
 /**
  */
@@ -884,6 +915,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_c_nodes_drop_profile(tm_handle hndl, uint8_t cos, uint32_t prof_ind)
 {
 	int rc = -EFAULT;
@@ -901,10 +933,12 @@ int set_hw_c_nodes_drop_profile(tm_handle hndl, uint8_t cos, uint32_t prof_ind)
 	return rc;
 }
 
+
 int set_hw_c_nodes_default_drop_profile(tm_handle hndl, struct tm_drop_profile *profile, uint8_t cos)
 {
 	return __set_hw_c_nodes_drop_profile(hndl, profile, cos, 0);
 }
+
 
 /**
  */
@@ -965,6 +999,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_ports_drop_profile(tm_handle hndl, uint32_t prof_ind, uint8_t port_ind)
 {
 	int rc = -EFAULT;
@@ -982,10 +1017,12 @@ int set_hw_ports_drop_profile(tm_handle hndl, uint32_t prof_ind, uint8_t port_in
 	return rc;
 }
 
+
 int set_hw_ports_default_drop_profile(tm_handle hndl, struct tm_drop_profile *profile, uint8_t port_ind)
 {
 	return __set_hw_ports_drop_profile(hndl, profile, 0, port_ind);
 }
+
 
 /**
  */
@@ -1047,6 +1084,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_ports_drop_profile_cos(tm_handle hndl, uint8_t cos, uint32_t prof_ind, uint8_t port_ind)
 {
 	int rc = -EFAULT;
@@ -1065,11 +1103,13 @@ int set_hw_ports_drop_profile_cos(tm_handle hndl, uint8_t cos, uint32_t prof_ind
 	return rc;
 }
 
+
 int set_hw_ports_default_drop_profile_cos(tm_handle hndl, struct tm_drop_profile *profile,
 	uint8_t cos, uint8_t port_ind)
 {
 	return __set_hw_ports_drop_profile_cos(hndl, profile, cos, port_ind);
 }
+
 
 /****************************************************************************************************
 * common macros for shaping functions
@@ -1244,6 +1284,7 @@ int set_hw_b_node_shaping_def(tm_handle hndl, uint32_t node_ind)
 	return set_hw_b_node_shaping_ex(hndl, node_ind, 10000, 10000, NULL, NULL);
 }
 
+
 int __set_hw_c_node_shaping(tm_handle hndl, uint32_t index,
 							uint32_t cbw, uint32_t ebw, uint32_t cbs, uint32_t ebs)
 {
@@ -1271,6 +1312,7 @@ int set_hw_c_node_shaping_def(tm_handle hndl, uint32_t node_ind)
 {
 	return set_hw_c_node_shaping_ex(hndl, node_ind, 10000, 10000, NULL, NULL);
 }
+
 
 int get_hw_queue_shaping(tm_handle hndl, uint32_t index,
 						uint32_t *pcbw, uint32_t *pebw, uint32_t *pcbs, uint32_t *pebs)
@@ -1356,6 +1398,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_drop_color_num(tm_handle hndl)
@@ -1389,6 +1432,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 /**
  */
@@ -1447,6 +1491,7 @@ int set_hw_map(tm_handle hndl, enum tm_level lvl, uint32_t index)
 	return rc;
 }
 
+
 /**
  */
 int set_hw_queue(tm_handle hndl, uint32_t queue_ind)
@@ -1500,6 +1545,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 /**
  */
@@ -1558,6 +1604,7 @@ int get_hw_queue(tm_handle hndl, uint32_t index, struct tm_queue *queue)
 	}
 	return rc;
 }
+
 
 /**
  */
@@ -1624,6 +1671,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int get_hw_a_node(tm_handle hndl, uint32_t index, struct tm_a_node *node)
@@ -1689,6 +1737,7 @@ int get_hw_a_node(tm_handle hndl, uint32_t index, struct tm_a_node *node)
 	}
 	return rc;
 }
+
 
 /**
  */
@@ -1759,6 +1808,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int get_hw_b_node(tm_handle hndl, uint32_t index, struct tm_b_node *node)
@@ -1824,6 +1874,7 @@ int get_hw_b_node(tm_handle hndl, uint32_t index, struct tm_b_node *node)
 	}
 	return rc;
 }
+
 
 /**
  */
@@ -1905,6 +1956,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 /**
  */
@@ -1994,6 +2046,7 @@ int get_hw_c_node(tm_handle hndl, uint32_t index, struct tm_c_node *node)
 	return rc;
 }
 
+
 /**
  */
 int set_hw_queue_elig_prio_func_ptr(tm_handle hndl, uint32_t ind)
@@ -2017,6 +2070,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 /**
  */
@@ -2042,6 +2096,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_b_node_elig_prio_func_ptr(tm_handle hndl, uint32_t ind)
@@ -2065,6 +2120,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 /**
  */
@@ -2090,6 +2146,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_port_elig_prio_func_ptr(tm_handle hndl, uint8_t port_ind)
@@ -2113,6 +2170,8 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
+
 
 #define GET_ELIG_PRIO_HW_MAC(level, max_nodes)	\
 	do {\
@@ -2155,6 +2214,7 @@ int get_hw_port_elig_prio_func_ptr(tm_handle hndl, uint32_t ind, uint8_t *pfunc)
 {
 	GET_ELIG_PRIO_HW_MAC(Port, ((struct rmctl *) (ctl->rm))->rm_total_ports);
 }
+
 
 /**
  */
@@ -2212,6 +2272,7 @@ int set_hw_port_shaping_def(tm_handle hndl, uint8_t port_ind)
 {
 	int rc = -EFAULT;
 	struct tm_port *port = NULL;
+
 
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
@@ -2293,6 +2354,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_port_drop(tm_handle hndl, uint8_t port_ind)
@@ -2310,6 +2372,7 @@ int set_hw_port_drop(tm_handle hndl, uint8_t port_ind)
 	return rc;
 }
 
+
 int set_hw_port_drop_cos(tm_handle hndl, uint8_t port_ind, uint8_t cos)
 {
 	int rc = 0;
@@ -2322,6 +2385,7 @@ int set_hw_port_drop_cos(tm_handle hndl, uint8_t port_ind, uint8_t cos)
 	}
 	return rc;
 }
+
 
 /**
  */
@@ -2354,6 +2418,7 @@ int set_hw_port(tm_handle hndl, uint8_t port_ind)
 out:
 	return rc;
 }
+
 
 /**
  */
@@ -2414,6 +2479,7 @@ int get_hw_port(tm_handle hndl, uint8_t index, struct tm_port *port)
 	return rc;
 }
 
+
 /**
  */
 int set_hw_tree_deq_status(tm_handle hndl)
@@ -2433,6 +2499,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 #ifdef MV_QMTM_NSS_A0
 /**
@@ -2456,6 +2523,7 @@ out:
 	return rc;
 }
 #endif
+
 
 /**
  */
@@ -2503,6 +2571,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_disable_ports(tm_handle hndl, uint32_t total_ports)
@@ -2528,6 +2597,9 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
+
+
 
 /**
 *  Configure user Q level Eligible Priority Function
@@ -2681,6 +2753,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_elig_prio_func_tbl_q_level(tm_handle hndl)
@@ -2696,6 +2769,7 @@ int set_hw_elig_prio_func_tbl_q_level(tm_handle hndl)
 	return rc;
 }
 
+
 /**
  */
 int set_hw_elig_prio_func_tbl_a_level(tm_handle hndl)
@@ -2709,6 +2783,7 @@ int set_hw_elig_prio_func_tbl_a_level(tm_handle hndl)
 	}
 	return rc;
 }
+
 
 /**
  */
@@ -2786,6 +2861,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_c_node_deficit_clear(tm_handle hndl, uint32_t index)
@@ -2807,6 +2883,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 /**
  */
@@ -2830,6 +2907,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_a_node_deficit_clear(tm_handle hndl, uint32_t index)
@@ -2850,6 +2928,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 /**
  */
@@ -2873,6 +2952,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_dp_local_resp(tm_handle hndl, uint8_t port_dp, enum tm_level local_lvl)
@@ -2895,6 +2975,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 /**
  */
@@ -2927,6 +3008,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int set_hw_port_sms_attr_qmap_pars(tm_handle hndl, uint8_t index)
@@ -2958,6 +3040,9 @@ out:
 	return rc;
 }
 
+
+
+
 int set_hw_dp_source(tm_handle hndl)
 {
 	int rc;
@@ -2984,6 +3069,7 @@ out:
 	return rc;
 }
 
+
 int set_hw_queue_cos(tm_handle hndl, uint32_t index)
 {
 	int rc = -EFAULT;
@@ -3006,6 +3092,7 @@ int set_hw_queue_cos(tm_handle hndl, uint32_t index)
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 /**
  */
@@ -3534,6 +3621,7 @@ int set_hw_register_db_default(tm_handle hndl)
 	if (rc)
 		goto out;
 
+
 	/* Sched */
 	/* A level */
 	max_entries = get_tm_a_nodes_count();
@@ -3601,6 +3689,7 @@ int set_hw_register_db_default(tm_handle hndl)
 	if (rc)
 		goto out;
 
+
 	/* B level */
 	max_entries = get_tm_b_nodes_count();
 	for (i = 0; i < max_entries; i++) {
@@ -3666,6 +3755,7 @@ int set_hw_register_db_default(tm_handle hndl)
 	TM_WRITE_REGISTER(TM.Sched.BlvlPerRateShpPrmsInt, TM_Sched_BlvlPerRateShpPrmsInt)/*NEW*/
 	if (rc)
 		goto out;
+
 
 	/* C level */
 	max_entries = get_tm_c_nodes_count();
@@ -3738,6 +3828,7 @@ int set_hw_register_db_default(tm_handle hndl)
 	TM_WRITE_REGISTER(TM.Sched.ClvlPerRateShpPrmsInt, TM_Sched_ClvlPerRateShpPrmsInt)/*NEW*/
 	if (rc)
 		goto out;
+
 
 	/* Port level */
 	max_entries = get_tm_port_count();
@@ -3909,6 +4000,7 @@ int set_hw_register_db_default(tm_handle hndl)
 	if (rc)
 		goto out;
 
+
 	/* General */
 	TM_WRITE_REGISTER(TM.Sched.ScrubDisable, TM_Sched_ScrubDisable)
 	if (rc)
@@ -3987,6 +4079,7 @@ int get_hw_port_status(tm_handle hndl,
 	return rc;
 }
 
+
 /**
  */
 int get_hw_c_node_status(tm_handle hndl,
@@ -4013,6 +4106,7 @@ int get_hw_c_node_status(tm_handle hndl,
 	TM_REGISTER_GET(TM_Sched_CLvlDef, Deficit, tm_status->deficit, (uint32_t));
 	return rc;
 }
+
 
 /**
  */
@@ -4041,6 +4135,7 @@ int get_hw_b_node_status(tm_handle hndl,
 	return rc;
 }
 
+
 /**
  */
 int get_hw_a_node_status(tm_handle hndl,
@@ -4068,6 +4163,7 @@ int get_hw_a_node_status(tm_handle hndl,
 	return rc;
 }
 
+
 /**
  */
 int get_hw_queue_status(tm_handle hndl,
@@ -4094,6 +4190,7 @@ int get_hw_queue_status(tm_handle hndl,
 	TM_REGISTER_GET(TM_Sched_QueueDef, Deficit, tm_status->deficit, (uint32_t));
 	return rc;
 }
+
 
 /**
  */
@@ -4148,6 +4245,7 @@ int get_hw_queue_length(tm_handle hndl,
 	return rc;
 }
 
+
 /**
  */
 int get_hw_sched_errors(tm_handle hndl, struct tm_error_info *info)
@@ -4156,6 +4254,7 @@ int get_hw_sched_errors(tm_handle hndl, struct tm_error_info *info)
 
 	TM_REGISTER_VAR(TM_Sched_ErrCnt)
 	TM_REGISTER_VAR(TM_Sched_ExcCnt)
+
 
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
@@ -4172,6 +4271,7 @@ int get_hw_sched_errors(tm_handle hndl, struct tm_error_info *info)
 
 	return rc;
 }
+
 
 /**
  */
@@ -4196,6 +4296,7 @@ int get_hw_drop_errors(tm_handle hndl, struct tm_error_info *info)
 	TM_REGISTER_GET(TM_Drop_ExcCnt, Cnt, info->exception_counter, (uint16_t)); /* casting to uint16_t */
 	return rc;
 }
+
 
 #define READ_ELIG_PRIO_FUN_TABLE_MAC(level)	\
 do {\
@@ -4226,6 +4327,7 @@ int get_hw_elig_prio_func(tm_handle hndl, enum tm_level level, uint16_t func_off
 	TM_REGISTER_VAR(TM_Sched_PortEligPrioFunc)
 
 	TM_REGISTER_VAR(TM_Sched_QueueEligPrioFunc)
+
 
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
@@ -4261,6 +4363,7 @@ out:
 	COMPLETE_HW_WRITE
 	return rc;
 }
+
 
 int show_hw_elig_prio_func(tm_handle hndl, enum tm_level level, uint16_t func_offset)
 {
@@ -4354,6 +4457,7 @@ int show_hw_elig_prio_func(tm_handle hndl, enum tm_level level, uint16_t func_of
 	}
 	pr_info("---------------------------------------\n");
 
+
 #if 0
 	TM_REGISTER_VAR(TM_Sched_AlvlEligPrioFunc)
 	TM_REGISTER_VAR(TM_Sched_BlvlEligPrioFunc)
@@ -4361,6 +4465,7 @@ int show_hw_elig_prio_func(tm_handle hndl, enum tm_level level, uint16_t func_of
 	TM_REGISTER_VAR(TM_Sched_PortEligPrioFunc)
 
 	TM_REGISTER_VAR(TM_Sched_QueueEligPrioFunc)
+
 
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
@@ -4539,6 +4644,7 @@ out:
 	return rc;
 }
 
+
 int tm_dump_port_hw(tm_handle hndl, uint32_t portIndex)
 {
 	uint32_t                   portFirstChild;
@@ -4649,6 +4755,7 @@ int tm_dump_port_hw(tm_handle hndl, uint32_t portIndex)
 	return rc;
 }
 
+
 int set_hw_elig_per_queue_range(tm_handle hndl, uint32_t startInd, uint32_t endInd, uint8_t elig)
 {
 	int rc = -EFAULT;
@@ -4743,6 +4850,7 @@ int check_hw_drop_path(tm_handle hndl, uint32_t timeout, uint8_t full_path)
 		k += 20; /* adding ~10 for reading length of Qs*/
 	}
 
+
 	/* Restore debug printing state */
 	if (debug_flag == TM_ENABLE)
 		tm_debug_on = TM_ENABLE;
@@ -4758,6 +4866,7 @@ int check_hw_drop_path(tm_handle hndl, uint32_t timeout, uint8_t full_path)
 
 	return rc;
 }
+
 
 int set_hw_queue_map_directly(tm_handle hndl, uint32_t queue_index, uint32_t parent)
 {

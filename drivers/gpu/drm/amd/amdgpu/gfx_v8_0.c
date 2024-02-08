@@ -871,6 +871,7 @@ err1:
 	return r;
 }
 
+
 static void gfx_v8_0_free_microcode(struct amdgpu_device *adev)
 {
 	release_firmware(adev->gfx.pfp_fw);
@@ -1695,6 +1696,7 @@ static int gfx_v8_0_do_edc_gpr_workarounds(struct amdgpu_device *adev)
 	tmp = REG_SET_FIELD(tmp, CC_GC_EDC_CONFIG, DIS_EDC, 0) | 1;
 	WREG32(mmCC_GC_EDC_CONFIG, tmp);
 
+
 	/* read back registers to clear the counters */
 	for (i = 0; i < ARRAY_SIZE(sec_ded_counter_registers); i++)
 		RREG32(sec_ded_counter_registers[i]);
@@ -1940,6 +1942,7 @@ static int gfx_v8_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
 	if (r)
 		return r;
 
+
 	return 0;
 }
 
@@ -2029,6 +2032,7 @@ static int gfx_v8_0_sw_init(void *handle)
 		if (r)
 			return r;
 	}
+
 
 	/* set up the compute queues - allocate horizontally across pipes */
 	ring_id = 0;
@@ -4145,6 +4149,7 @@ static int gfx_v8_0_rlc_resume(struct amdgpu_device *adev)
 	gfx_v8_0_rlc_reset(adev);
 	gfx_v8_0_init_pg(adev);
 
+
 	if (adev->firmware.load_type == AMDGPU_FW_LOAD_DIRECT) {
 		/* legacy rlc firmware loading */
 		r = gfx_v8_0_rlc_load_microcode(adev);
@@ -5435,6 +5440,7 @@ static void gfx_v8_0_read_wave_sgprs(struct amdgpu_device *adev, uint32_t simd,
 		start + SQIND_WAVE_SGPRS_OFFSET, size, dst);
 }
 
+
 static const struct amdgpu_gfx_funcs gfx_v8_0_gfx_funcs = {
 	.get_gpu_clock_counter = &gfx_v8_0_get_gpu_clock_counter,
 	.select_se_sh = &gfx_v8_0_select_se_sh,
@@ -6223,6 +6229,7 @@ static void gfx_v8_0_ring_emit_vgt_flush(struct amdgpu_ring *ring)
 	amdgpu_ring_write(ring, EVENT_TYPE(VGT_FLUSH) |
 		EVENT_INDEX(0));
 }
+
 
 static void gfx_v8_0_ring_emit_hdp_invalidate(struct amdgpu_ring *ring)
 {

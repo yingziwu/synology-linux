@@ -380,30 +380,16 @@ static int xgbe_set_link_ksettings(struct net_device *netdev,
 	}
 
 	ret = 0;
-#if defined(MY_ABC_HERE)
-	pdata->phy.autoneg = AUTONEG_ENABLE;
-#else /* MY_ABC_HERE */
 	pdata->phy.autoneg = cmd->base.autoneg;
-#endif /* MY_ABC_HERE */
 	pdata->phy.speed = speed;
 	pdata->phy.duplex = cmd->base.duplex;
 	bitmap_copy(lks->link_modes.advertising, advertising,
 		    __ETHTOOL_LINK_MODE_MASK_NBITS);
 
-#if defined(MY_ABC_HERE)
-	XGBE_SET_ADV(lks, Autoneg);
-
-	if (cmd->base.autoneg == AUTONEG_DISABLE && speed == SPEED_1000) {
-		pdata->phy_if.phy_impl.force_1g(pdata);
-	} else {
-		pdata->phy_if.phy_impl.resume_autoneg(pdata);
-	}
-#else /* MY_ABC_HERE */
 	if (cmd->base.autoneg == AUTONEG_ENABLE)
 		XGBE_SET_ADV(lks, Autoneg);
 	else
 		XGBE_CLR_ADV(lks, Autoneg);
-#endif /* MY_ABC_HERE */
 
 	if (netif_running(netdev))
 		ret = pdata->phy_if.phy_config_aneg(pdata);

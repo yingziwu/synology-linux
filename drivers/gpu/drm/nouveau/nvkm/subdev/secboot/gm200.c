@@ -20,6 +20,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+
 #include "acr.h"
 #include "gm200.h"
 
@@ -159,6 +160,7 @@ gm200_secboot_dtor(struct nvkm_secboot *sb)
 	return gsb;
 }
 
+
 static const struct nvkm_secboot_func
 gm200_secboot = {
 	.dtor = gm200_secboot_dtor,
@@ -193,6 +195,7 @@ gm200_secboot_new(struct nvkm_device *device, int index,
 
 	return 0;
 }
+
 
 MODULE_FIRMWARE("nvidia/gm200/acr/bl.bin");
 MODULE_FIRMWARE("nvidia/gm200/acr/ucode_load.bin");

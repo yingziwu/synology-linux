@@ -30,6 +30,7 @@
  * interface to PPLIB/SMU to setup clocks and pstate requirements on SoC
  */
 
+
 struct pp_smu {
 	struct dc_context *ctx;
 };

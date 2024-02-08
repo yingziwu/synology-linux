@@ -30,9 +30,11 @@
 
 #include "dce110/irq_service_dce110.h"
 
+
 #include "dce80/irq_service_dce80.h"
 
 #include "dce120/irq_service_dce120.h"
+
 
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
 #include "dcn10/irq_service_dcn10.h"
@@ -40,6 +42,8 @@
 
 #include "reg_helper.h"
 #include "irq_service.h"
+
+
 
 #define CTX \
 		irq_service->ctx

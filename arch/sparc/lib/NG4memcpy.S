@@ -60,6 +60,7 @@
 #define EX_ST_FP(x,y)	x
 #endif
 
+
 #ifndef LOAD
 #define LOAD(type,addr,dest)	type [addr], dest
 #endif
@@ -272,6 +273,7 @@ FUNC_NAME:	/* %o0=dst, %o1=src, %o2=len */
 	and		%g1, 0x7, %g1
 	brz,pt		%g1, 51f
 	 sub		%o2, %g1, %o2
+
 
 1:	EX_LD(LOAD(ldub, %o1 + 0x00, %g2), NG4_retl_o2_plus_g1)
 	add		%o1, 1, %o1

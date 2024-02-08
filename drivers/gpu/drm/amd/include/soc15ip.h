@@ -99,6 +99,7 @@
 #define MAX_INSTANCE                                       5
 #define MAX_SEGMENT                                        5
 
+
 struct IP_BASE_INSTANCE 
 {
     unsigned int segment[MAX_SEGMENT];
@@ -108,6 +109,7 @@ struct IP_BASE
 {
     struct IP_BASE_INSTANCE instance[MAX_INSTANCE];
 };
+
 
 static const struct IP_BASE NBIF_BASE			= { { { { 0x00000000, 0x00000014, 0x00000D20, 0x00010400, 0 } }, 
 										{ { 0, 0, 0, 0, 0 } }, 
@@ -284,6 +286,7 @@ static const struct IP_BASE FUSE_BASE			= { { { { 0x00017400, 0, 0, 0, 0 } },
 										{ { 0, 0, 0, 0, 0 } },
 										{ { 0, 0, 0, 0, 0 } }, 
 										{ { 0, 0, 0, 0, 0 } } } };
+
 
 #define NBIF_BASE__INST0_SEG0                     0x00000000
 #define NBIF_BASE__INST0_SEG1                     0x00000014
@@ -1335,4 +1338,6 @@ static const struct IP_BASE FUSE_BASE			= { { { { 0x00017400, 0, 0, 0, 0 } },
 #define FUSE_BASE__INST4_SEG3                     0
 #define FUSE_BASE__INST4_SEG4                     0
 
+
 #endif
+

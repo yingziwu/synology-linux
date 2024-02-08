@@ -40,6 +40,7 @@
 #include "gca/gfx_8_0_d.h"
 #include "gca/gfx_8_0_sh_mask.h"
 
+
 #define GRBM_GFX_INDEX__VCE_INSTANCE__SHIFT	0x04
 #define GRBM_GFX_INDEX__VCE_INSTANCE_MASK	0x10
 #define GRBM_GFX_INDEX__VCE_ALL_PIPE		0x07
@@ -685,6 +686,7 @@ static int vce_v3_0_pre_soft_reset(void *handle)
 
 	return vce_v3_0_suspend(adev);
 }
+
 
 static int vce_v3_0_post_soft_reset(void *handle)
 {

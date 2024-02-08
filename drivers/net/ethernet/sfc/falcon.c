@@ -1187,6 +1187,7 @@ static void falcon_reconfigure_xgxs_core(struct efx_nic *efx)
 	efx_writeo(efx, &reg, FR_AB_XX_SD_CTL);
 }
 
+
 /* Try to bring up the Falcon side of the Falcon-Phy XAUI link */
 static bool falcon_xmac_link_ok_retry(struct efx_nic *efx, int tries)
 {
@@ -2795,6 +2796,11 @@ const struct efx_nic_type falcon_a1_nic_type = {
 	.timer_period_max =  1 << FRF_AB_TC_TIMER_VAL_WIDTH,
 	.offload_features = NETIF_F_IP_CSUM,
 	.mcdi_max_ver = -1,
+#ifdef CONFIG_SFC_SRIOV
+	.vswitching_probe = efx_port_dummy_op_int,
+	.vswitching_restore = efx_port_dummy_op_int,
+	.vswitching_remove = efx_port_dummy_op_void,
+#endif
 };
 
 const struct efx_nic_type falcon_b0_nic_type = {
@@ -2896,4 +2902,9 @@ const struct efx_nic_type falcon_b0_nic_type = {
 	.offload_features = NETIF_F_IP_CSUM | NETIF_F_RXHASH | NETIF_F_NTUPLE,
 	.mcdi_max_ver = -1,
 	.max_rx_ip_filters = FR_BZ_RX_FILTER_TBL0_ROWS,
+#ifdef CONFIG_SFC_SRIOV
+	.vswitching_probe = efx_port_dummy_op_int,
+	.vswitching_restore = efx_port_dummy_op_int,
+	.vswitching_remove = efx_port_dummy_op_void,
+#endif
 };

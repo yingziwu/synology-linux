@@ -718,6 +718,7 @@ static int get_dcefclk_voltage_dependency_table(
 	else
 		num_entries = clk_dep_table->ucNumEntries;
 
+
 	table_size = sizeof(uint32_t) +
 			sizeof(phm_ppt_v1_clock_voltage_dependency_record) *
 			num_entries;

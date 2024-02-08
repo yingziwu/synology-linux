@@ -559,7 +559,7 @@ struct i2c_init_data {
 	u8 hsscll_12;
 };
 
-static const struct i2c_init_data const omap4_i2c_timing_data[] __initconst = {
+static const struct i2c_init_data omap4_i2c_timing_data[] __initconst = {
 	{
 		.load = 50,
 		.loadbits = 0x3,
@@ -671,6 +671,8 @@ static void __init omap4_vc_i2c_timing_init(struct voltagedomain *voltdm)
 	/* Write setup times to I2C config register */
 	voltdm->write(val, OMAP4_PRM_VC_CFG_I2C_CLK_OFFSET);
 }
+
+
 
 /**
  * omap_vc_i2c_init - initialize I2C interface to PMIC
@@ -838,3 +840,4 @@ void __init omap_vc_init_channel(struct voltagedomain *voltdm)
 	else if (cpu_is_omap44xx())
 		omap4_vc_init_channel(voltdm);
 }
+

@@ -44,3 +44,4 @@ struct resource_pool *dce83_create_resource_pool(
 	struct dc *dc);
 
 #endif /* __DC_RESOURCE_DCE80_H__ */
+

@@ -640,7 +640,11 @@ static irqreturn_t xgbe_dma_isr(int irq, void *data)
 			disable_irq_nosync(channel->dma_irq);
 
 		/* Turn on polling */
+#ifdef MY_ABC_HERE
+		__napi_schedule(&channel->napi);
+#else /* MY_ABC_HERE */
 		__napi_schedule_irqoff(&channel->napi);
+#endif /* MY_ABC_HERE */
 	}
 
 	/* Clear Tx/Rx signals */
@@ -1840,12 +1844,59 @@ static int xgbe_change_mtu(struct net_device *netdev, int mtu)
 	return 0;
 }
 
+#ifdef MY_ABC_HERE
+static int xgbe_tx_poll(struct xgbe_channel *channel);
+
+static int syno_xgbe_fake_tx_timeout_check(struct net_device *netdev)
+{
+	struct xgbe_prv_data *pdata = netdev_priv(netdev);
+	int queue = 0;
+	struct xgbe_ring *ring = NULL;
+	struct xgbe_channel *channel = NULL;
+	struct netdev_queue *txq = NULL;
+	unsigned long trans_start = 0;
+
+	for (queue = 0 ; queue < pdata->tx_q_count ; queue++) {
+		txq = netdev_get_tx_queue(netdev, queue);
+		trans_start = txq->trans_start ? : netdev->trans_start;
+		if (netif_xmit_stopped(txq) &&
+				time_after(jiffies, (trans_start + netdev->watchdog_timeo))) {
+
+			ring = pdata->channel[queue]->tx_ring;
+			channel = pdata->channel[queue];
+
+			/* Clear tx descriptor if possible */
+			xgbe_disable_rx_tx_int(pdata, channel);
+			xgbe_tx_poll(channel);
+
+			if (ring->dirty != ring->cur) {
+				/* tx hang */
+				return 1;
+			} else {
+				xgbe_enable_rx_tx_int(pdata, channel);
+				netdev_warn(netdev, "fake tx timeout, clear the tx descriptor \n");
+			}
+		}
+	}
+	return 0;
+}
+#endif /* MY_ABC_HERE */
+
 static void xgbe_tx_timeout(struct net_device *netdev)
 {
 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
+#ifdef MY_ABC_HERE 
+	int ret = 0;
 
+	ret = syno_xgbe_fake_tx_timeout_check(netdev);
+	if (ret) {
+		netdev_warn(netdev, "tx timeout, device restarting\n");
+		schedule_work(&pdata->restart_work);
+	}
+#else /* MY_ABC_HERE */
 	netdev_warn(netdev, "tx timeout, device restarting\n");
 	schedule_work(&pdata->restart_work);
+#endif /* MY_ABC_HERE */
 }
 
 static struct rtnl_link_stats64 *xgbe_get_stats64(struct net_device *netdev,
@@ -1867,7 +1918,10 @@ static struct rtnl_link_stats64 *xgbe_get_stats64(struct net_device *netdev,
 	s->multicast = pstats->rxmulticastframes_g;
 	s->rx_length_errors = pstats->rxlengtherror;
 	s->rx_crc_errors = pstats->rxcrcerror;
+#if defined(MY_ABC_HERE)
+#else /* MY_ABC_HERE */
 	s->rx_fifo_errors = pstats->rxfifooverflow;
+#endif /* MY_ABC_HERE */
 
 	s->tx_packets = pstats->txframecount_gb;
 	s->tx_bytes = pstats->txoctetcount_gb;

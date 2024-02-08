@@ -58,11 +58,13 @@ int wusbhc_sec_create(struct wusbhc *wusbhc)
 	return 0;
 }
 
+
 /* Called when the HC is destroyed */
 void wusbhc_sec_destroy(struct wusbhc *wusbhc)
 {
 	destroy_workqueue(wusbhc->wq_security);
 }
+
 
 /**
  * wusbhc_next_tkid - generate a new, currently unused, TKID
@@ -143,6 +145,7 @@ void wusbhc_sec_stop(struct wusbhc *wusbhc)
 	cancel_work_sync(&wusbhc->gtk_rekey_work);
 }
 
+
 /** @returns encryption type name */
 const char *wusb_et_name(u8 x)
 {
@@ -207,6 +210,7 @@ static int wusb_dev_set_gtk(struct wusbhc *wusbhc, struct wusb_dev *wusb_dev)
 		USB_CTRL_SET_TIMEOUT);
 }
 
+
 /* FIXME: prototype for adding security */
 int wusb_dev_sec_add(struct wusbhc *wusbhc,
 		     struct usb_device *usb_dev, struct wusb_dev *wusb_dev)
@@ -226,7 +230,7 @@ int wusb_dev_sec_add(struct wusbhc *wusbhc,
 
 	result = usb_get_descriptor(usb_dev, USB_DT_SECURITY,
 				    0, secd, sizeof(*secd));
-	if (result < sizeof(*secd)) {
+	if (result < (int)sizeof(*secd)) {
 		dev_err(dev, "Can't read security descriptor or "
 			"not enough data: %d\n", result);
 		goto out;

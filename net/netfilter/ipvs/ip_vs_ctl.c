@@ -66,8 +66,10 @@ int ip_vs_get_debug_level(void)
 }
 #endif
 
+
 /*  Protos */
 static void __ip_vs_del_service(struct ip_vs_service *svc, bool cleanup);
+
 
 #ifdef CONFIG_IP_VS_IPV6
 /* Taken from rt6_fill_node() in net/ipv6/route.c, is there a better way? */
@@ -213,6 +215,7 @@ static void update_defense_level(struct netns_ipvs *ipvs)
 	local_bh_enable();
 }
 
+
 /*
  *	Timer for checking the defense
  */
@@ -242,6 +245,7 @@ ip_vs_use_count_dec(void)
 	module_put(THIS_MODULE);
 }
 
+
 /*
  *	Hash table: for virtual service lookups
  */
@@ -253,6 +257,7 @@ ip_vs_use_count_dec(void)
 static struct hlist_head ip_vs_svc_table[IP_VS_SVC_TAB_SIZE];
 /* the service table hashed by fwmark */
 static struct hlist_head ip_vs_svc_fwm_table[IP_VS_SVC_TAB_SIZE];
+
 
 /*
  *	Returns hash value for virtual service
@@ -321,6 +326,7 @@ static int ip_vs_svc_hash(struct ip_vs_service *svc)
 	return 1;
 }
 
+
 /*
  *	Unhashes a service from svc_table / svc_fwm_table.
  *	Should be called with locked tables.
@@ -345,6 +351,7 @@ static int ip_vs_svc_unhash(struct ip_vs_service *svc)
 	atomic_dec(&svc->refcnt);
 	return 1;
 }
+
 
 /*
  *	Get service by {netns, proto,addr,port} in the service table.
@@ -372,6 +379,7 @@ __ip_vs_service_find(struct netns_ipvs *ipvs, int af, __u16 protocol,
 
 	return NULL;
 }
+
 
 /*
  *	Get service by {fwmark} in the service table.
@@ -446,6 +454,7 @@ ip_vs_service_find(struct netns_ipvs *ipvs, int af, __u32 fwmark, __u16 protocol
 	return svc;
 }
 
+
 static inline void
 __ip_vs_bind_svc(struct ip_vs_dest *dest, struct ip_vs_service *svc)
 {
@@ -480,6 +489,7 @@ static void __ip_vs_svc_put(struct ip_vs_service *svc, bool do_delay)
 			ip_vs_service_free(svc);
 	}
 }
+
 
 /*
  *	Returns hash value for real service
@@ -843,6 +853,7 @@ __ip_vs_update_dest(struct ip_vs_service *svc, struct ip_vs_dest *dest,
 	}
 }
 
+
 /*
  *	Create a destination for the given service
  */
@@ -912,6 +923,7 @@ err_alloc:
 	return -ENOMEM;
 }
 
+
 /*
  *	Add a destination into an existing service
  */
@@ -975,6 +987,7 @@ ip_vs_add_dest(struct ip_vs_service *svc, struct ip_vs_dest_user_kern *udest)
 
 	return ret;
 }
+
 
 /*
  *	Edit a destination in the given service
@@ -1044,6 +1057,7 @@ static void __ip_vs_del_dest(struct netns_ipvs *ipvs, struct ip_vs_dest *dest,
 	ip_vs_dest_put(dest);
 }
 
+
 /*
  *	Unlink a destination from the given service
  */
@@ -1070,6 +1084,7 @@ static void __ip_vs_unlink_dest(struct ip_vs_service *svc,
 			sched->del_dest(svc, dest);
 	}
 }
+
 
 /*
  *	Delete a destination server in the given service
@@ -1203,6 +1218,7 @@ ip_vs_add_service(struct netns_ipvs *ipvs, struct ip_vs_service_user_kern *u,
 		u64_stats_init(&ip_vs_stats->syncp);
 	}
 
+
 	/* I'm the first user of the service */
 	atomic_set(&svc->refcnt, 0);
 
@@ -1252,6 +1268,7 @@ ip_vs_add_service(struct netns_ipvs *ipvs, struct ip_vs_service_user_kern *u,
 	ipvs->enable = 1;
 	return 0;
 
+
  out_err:
 	if (svc != NULL) {
 		ip_vs_unbind_scheduler(svc, sched);
@@ -1265,6 +1282,7 @@ ip_vs_add_service(struct netns_ipvs *ipvs, struct ip_vs_service_user_kern *u,
 
 	return ret;
 }
+
 
 /*
  *	Edit a service and bind it with a new scheduler
@@ -1426,6 +1444,7 @@ static int ip_vs_del_service(struct ip_vs_service *svc)
 
 	return 0;
 }
+
 
 /*
  *	Flush all the virtual services
@@ -1870,6 +1889,7 @@ static inline const char *ip_vs_fwd_name(unsigned int flags)
 	}
 }
 
+
 /* Get the Nth entry in the two lists */
 static struct ip_vs_service *ip_vs_info_array(struct seq_file *seq, loff_t pos)
 {
@@ -1911,6 +1931,7 @@ static void *ip_vs_info_seq_start(struct seq_file *seq, loff_t *pos)
 	rcu_read_lock();
 	return *pos ? ip_vs_info_array(seq, *pos - 1) : SEQ_START_TOKEN;
 }
+
 
 static void *ip_vs_info_seq_next(struct seq_file *seq, void *v, loff_t *pos)
 {
@@ -1966,6 +1987,7 @@ static void ip_vs_info_seq_stop(struct seq_file *seq, void *v)
 	rcu_read_unlock();
 }
 
+
 static int ip_vs_info_seq_show(struct seq_file *seq, void *v)
 {
 	if (v == SEQ_START_TOKEN) {
@@ -1977,12 +1999,16 @@ static int ip_vs_info_seq_show(struct seq_file *seq, void *v)
 		seq_puts(seq,
 			 "  -> RemoteAddress:Port Forward Weight ActiveConn InActConn\n");
 	} else {
+		struct net *net = seq_file_net(seq);
+		struct netns_ipvs *ipvs = net_ipvs(net);
 		const struct ip_vs_service *svc = v;
 		const struct ip_vs_iter *iter = seq->private;
 		const struct ip_vs_dest *dest;
 		struct ip_vs_scheduler *sched = rcu_dereference(svc->scheduler);
 		char *sched_name = sched ? sched->name : "none";
 
+		if (svc->ipvs != ipvs)
+			return 0;
 		if (iter->table == ip_vs_svc_table) {
 #ifdef CONFIG_IP_VS_IPV6
 			if (svc->af == AF_INET6)
@@ -2192,6 +2218,18 @@ static int ip_vs_set_timeout(struct netns_ipvs *ipvs, struct ip_vs_timeout_user 
 		  u->udp_timeout);
 
 #ifdef CONFIG_IP_VS_PROTO_TCP
+	if (u->tcp_timeout < 0 || u->tcp_timeout > (INT_MAX / HZ) ||
+	    u->tcp_fin_timeout < 0 || u->tcp_fin_timeout > (INT_MAX / HZ)) {
+		return -EINVAL;
+	}
+#endif
+
+#ifdef CONFIG_IP_VS_PROTO_UDP
+	if (u->udp_timeout < 0 || u->udp_timeout > (INT_MAX / HZ))
+		return -EINVAL;
+#endif
+
+#ifdef CONFIG_IP_VS_PROTO_TCP
 	if (u->tcp_timeout) {
 		pd = ip_vs_proto_data_get(ipvs, IPPROTO_TCP);
 		pd->timeout_table[IP_VS_TCP_S_ESTABLISHED]
@@ -2323,14 +2361,12 @@ do_ip_vs_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
 			struct ipvs_sync_daemon_cfg cfg;
 
 			memset(&cfg, 0, sizeof(cfg));
-			strlcpy(cfg.mcast_ifn, dm->mcast_ifn,
-				sizeof(cfg.mcast_ifn));
+			ret = -EINVAL;
+			if (strscpy(cfg.mcast_ifn, dm->mcast_ifn,
+				    sizeof(cfg.mcast_ifn)) <= 0)
+				goto out_dec;
 			cfg.syncid = dm->syncid;
-			rtnl_lock();
-			mutex_lock(&ipvs->sync_mutex);
 			ret = start_sync_thread(ipvs, &cfg, dm->state);
-			mutex_unlock(&ipvs->sync_mutex);
-			rtnl_unlock();
 		} else {
 			mutex_lock(&ipvs->sync_mutex);
 			ret = stop_sync_thread(ipvs, dm->state);
@@ -2366,12 +2402,19 @@ do_ip_vs_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
 		}
 	}
 
+	if ((cmd == IP_VS_SO_SET_ADD || cmd == IP_VS_SO_SET_EDIT) &&
+	    strnlen(usvc.sched_name, IP_VS_SCHEDNAME_MAXLEN) ==
+	    IP_VS_SCHEDNAME_MAXLEN) {
+		ret = -EINVAL;
+		goto out_unlock;
+	}
+
 	/* Check for valid protocol: TCP or UDP or SCTP, even for fwmark!=0 */
 	if (usvc.protocol != IPPROTO_TCP && usvc.protocol != IPPROTO_UDP &&
 	    usvc.protocol != IPPROTO_SCTP) {
-		pr_err("set_ctl: invalid protocol: %d %pI4:%d %s\n",
+		pr_err("set_ctl: invalid protocol: %d %pI4:%d\n",
 		       usvc.protocol, &usvc.addr.ip,
-		       ntohs(usvc.port), usvc.sched_name);
+		       ntohs(usvc.port));
 		ret = -EFAULT;
 		goto out_unlock;
 	}
@@ -2430,6 +2473,7 @@ do_ip_vs_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
 
 	return ret;
 }
+
 
 static void
 ip_vs_copy_service(struct ip_vs_service_entry *dst, struct ip_vs_service *src)
@@ -2759,6 +2803,7 @@ out:
 	return ret;
 }
 
+
 static struct nf_sockopt_ops ip_vs_sockopts = {
 	.pf		= PF_INET,
 	.set_optmin	= IP_VS_BASE_CTL,
@@ -2798,7 +2843,7 @@ static const struct nla_policy ip_vs_cmd_policy[IPVS_CMD_ATTR_MAX + 1] = {
 static const struct nla_policy ip_vs_daemon_policy[IPVS_DAEMON_ATTR_MAX + 1] = {
 	[IPVS_DAEMON_ATTR_STATE]	= { .type = NLA_U32 },
 	[IPVS_DAEMON_ATTR_MCAST_IFN]	= { .type = NLA_NUL_STRING,
-					    .len = IP_VS_IFNAME_MAXLEN },
+					    .len = IP_VS_IFNAME_MAXLEN - 1 },
 	[IPVS_DAEMON_ATTR_SYNC_ID]	= { .type = NLA_U32 },
 	[IPVS_DAEMON_ATTR_SYNC_MAXLEN]	= { .type = NLA_U16 },
 	[IPVS_DAEMON_ATTR_MCAST_GROUP]	= { .type = NLA_U32 },
@@ -2816,7 +2861,7 @@ static const struct nla_policy ip_vs_svc_policy[IPVS_SVC_ATTR_MAX + 1] = {
 	[IPVS_SVC_ATTR_PORT]		= { .type = NLA_U16 },
 	[IPVS_SVC_ATTR_FWMARK]		= { .type = NLA_U32 },
 	[IPVS_SVC_ATTR_SCHED_NAME]	= { .type = NLA_NUL_STRING,
-					    .len = IP_VS_SCHEDNAME_MAXLEN },
+					    .len = IP_VS_SCHEDNAME_MAXLEN - 1 },
 	[IPVS_SVC_ATTR_PE_NAME]		= { .type = NLA_NUL_STRING,
 					    .len = IP_VS_PENAME_MAXLEN },
 	[IPVS_SVC_ATTR_FLAGS]		= { .type = NLA_BINARY,
@@ -3188,6 +3233,7 @@ static int ip_vs_genl_dump_dests(struct sk_buff *skb,
 			IPVS_CMD_ATTR_MAX, ip_vs_cmd_policy))
 		goto out_err;
 
+
 	svc = ip_vs_genl_find_service(ipvs, attrs[IPVS_CMD_ATTR_SERVICE]);
 	if (IS_ERR(svc) || svc == NULL)
 		goto out_err;
@@ -3406,12 +3452,8 @@ static int ip_vs_genl_new_daemon(struct netns_ipvs *ipvs, struct nlattr **attrs)
 	if (ipvs->mixed_address_family_dests > 0)
 		return -EINVAL;
 
-	rtnl_lock();
-	mutex_lock(&ipvs->sync_mutex);
 	ret = start_sync_thread(ipvs, &c,
 				nla_get_u32(attrs[IPVS_DAEMON_ATTR_STATE]));
-	mutex_unlock(&ipvs->sync_mutex);
-	rtnl_unlock();
 	return ret;
 }
 
@@ -3697,6 +3739,7 @@ out:
 	return ret;
 }
 
+
 static const struct genl_ops ip_vs_genl_ops[] = {
 	{
 		.cmd	= IPVS_CMD_NEW_SERVICE,
@@ -3921,7 +3964,6 @@ static struct notifier_block ip_vs_dst_notifier = {
 
 int __net_init ip_vs_control_net_init(struct netns_ipvs *ipvs)
 {
-	struct net *net = ipvs->net;
 	int i, idx;
 
 	/* Initialize rs_table */
@@ -3948,9 +3990,9 @@ int __net_init ip_vs_control_net_init(struct netns_ipvs *ipvs)
 
 	spin_lock_init(&ipvs->tot_stats.lock);
 
-	proc_create("ip_vs", 0, net->proc_net, &ip_vs_info_fops);
-	proc_create("ip_vs_stats", 0, net->proc_net, &ip_vs_stats_fops);
-	proc_create("ip_vs_stats_percpu", 0, net->proc_net,
+	proc_create("ip_vs", 0, ipvs->net->proc_net, &ip_vs_info_fops);
+	proc_create("ip_vs_stats", 0, ipvs->net->proc_net, &ip_vs_stats_fops);
+	proc_create("ip_vs_stats_percpu", 0, ipvs->net->proc_net,
 		    &ip_vs_stats_percpu_fops);
 
 	if (ip_vs_control_net_init_sysctl(ipvs))
@@ -3965,13 +4007,11 @@ err:
 
 void __net_exit ip_vs_control_net_cleanup(struct netns_ipvs *ipvs)
 {
-	struct net *net = ipvs->net;
-
 	ip_vs_trash_cleanup(ipvs);
 	ip_vs_control_net_cleanup_sysctl(ipvs);
-	remove_proc_entry("ip_vs_stats_percpu", net->proc_net);
-	remove_proc_entry("ip_vs_stats", net->proc_net);
-	remove_proc_entry("ip_vs", net->proc_net);
+	remove_proc_entry("ip_vs_stats_percpu", ipvs->net->proc_net);
+	remove_proc_entry("ip_vs_stats", ipvs->net->proc_net);
+	remove_proc_entry("ip_vs", ipvs->net->proc_net);
 	free_percpu(ipvs->tot_stats.cpustats);
 }
 
@@ -4026,6 +4066,7 @@ int __init ip_vs_control_init(void)
 	LeaveFunction(2);
 	return 0;
 }
+
 
 void ip_vs_control_cleanup(void)
 {

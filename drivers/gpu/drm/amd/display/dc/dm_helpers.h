@@ -101,4 +101,5 @@ enum dc_edid_status dm_helpers_read_local_edid(
 		struct dc_link *link,
 		struct dc_sink *sink);
 
+
 #endif /* __DM_HELPERS__ */

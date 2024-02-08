@@ -35,6 +35,7 @@
 
 /*-------------------------------------------------------------------------*/
 
+
 /* read GIC ODMI Event Pending Register in GICP unit */
 static inline u32 a390_gic_odmi_epr_read(int frame, int event_group)
 {

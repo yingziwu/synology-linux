@@ -45,6 +45,7 @@
 
 #define EPROM_PAGE_SIZE		64
 
+
 /* different hardware types */
 #define HARDWARE_TYPE_930	0
 #define HARDWARE_TYPE_TIUMP	1
@@ -64,6 +65,7 @@
 #define EDGE_READ_URB_STOPPED	2
 
 #define EDGE_CLOSING_WAIT	4000	/* in .01 sec */
+
 
 /* Product information read from the Edgeport */
 struct product_info {
@@ -128,6 +130,7 @@ struct edgeport_serial {
 	int fw_version;
 	bool use_heartbeat;
 };
+
 
 /* Devices that this driver supports */
 static const struct usb_device_id edgeport_1port_id_table[] = {
@@ -2346,8 +2349,11 @@ static void change_port_settings(struct tty_struct *tty,
 	if (!baud) {
 		/* pick a default, any default... */
 		baud = 9600;
-	} else
+	} else {
+		/* Avoid a zero divisor. */
+		baud = min(baud, 461550);
 		tty_encode_baud_rate(tty, baud, baud);
+	}
 
 	edge_port->baud_rate = baud;
 	config->wBaudRate = (__u16)((461550L + baud/2) / baud);
@@ -2447,6 +2453,7 @@ static int edge_tiocmget(struct tty_struct *tty)
 		  | ((msr & EDGEPORT_MSR_CD)	? TIOCM_CAR: 0)   /* 0x040 */
 		  | ((msr & EDGEPORT_MSR_RI)	? TIOCM_RI:  0)   /* 0x080 */
 		  | ((msr & EDGEPORT_MSR_DSR)	? TIOCM_DSR: 0);  /* 0x100 */
+
 
 	dev_dbg(&port->dev, "%s -- %x\n", __func__, result);
 	spin_unlock_irqrestore(&edge_port->ep_lock, flags);

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * BCM63XX CFE image tag parser
  *
@@ -68,11 +71,11 @@ static int bcm63xx_detect_cfe(struct mtd_info *master)
 }
 
 static int bcm63xx_parse_cfe_partitions(struct mtd_info *master,
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 					const struct mtd_partition **pparts,
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 					struct mtd_partition **pparts,
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 					struct mtd_part_parser_data *data)
 {
 	/* CFE, NVRAM and global Linux are always present */

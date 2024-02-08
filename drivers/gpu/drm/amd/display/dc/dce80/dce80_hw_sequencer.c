@@ -114,3 +114,4 @@ void dce80_hw_sequencer_construct(struct dc *dc)
 	dc->hwss.pipe_control_lock = dce_pipe_control_lock;
 	dc->hwss.set_bandwidth = dce100_set_bandwidth;
 }
+

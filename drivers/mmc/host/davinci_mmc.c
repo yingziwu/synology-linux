@@ -1147,7 +1147,7 @@ static inline void mmc_davinci_cpufreq_deregister(struct mmc_davinci_host *host)
 {
 }
 #endif
-static void __init init_mmcsd_host(struct mmc_davinci_host *host)
+static void init_mmcsd_host(struct mmc_davinci_host *host)
 {
 
 	mmc_davinci_reset_ctrl(host, 1);
@@ -1479,3 +1479,4 @@ MODULE_AUTHOR("Texas Instruments India");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("MMC/SD driver for Davinci MMC controller");
 MODULE_ALIAS("platform:davinci_mmc");
+

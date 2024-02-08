@@ -141,9 +141,19 @@ static int mcs_set_reg(struct mcs_cb *mcs, __u16 reg, __u16 val)
 static int mcs_get_reg(struct mcs_cb *mcs, __u16 reg, __u16 * val)
 {
 	struct usb_device *dev = mcs->usbdev;
-	int ret = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0), MCS_RDREQ,
-				  MCS_RD_RTYPE, 0, reg, val, 2,
-				  msecs_to_jiffies(MCS_CTRL_TIMEOUT));
+	void *dmabuf;
+	int ret;
+
+	dmabuf = kmalloc(sizeof(__u16), GFP_KERNEL);
+	if (!dmabuf)
+		return -ENOMEM;
+
+	ret = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0), MCS_RDREQ,
+			      MCS_RD_RTYPE, 0, reg, dmabuf, 2,
+			      msecs_to_jiffies(MCS_CTRL_TIMEOUT));
+
+	memcpy(val, dmabuf, sizeof(__u16));
+	kfree(dmabuf);
 
 	return ret;
 }
@@ -486,6 +496,7 @@ static void mcs_unwrap_fir(struct mcs_cb *mcs, __u8 *buf, int len)
 	mcs->netdev->stats.rx_packets++;
 	mcs->netdev->stats.rx_bytes += new_len;
 }
+
 
 /* Allocates urbs for both receive and transmit.
  * If alloc fails return error code 0 (fail) otherwise
@@ -913,6 +924,7 @@ static int mcs_probe(struct usb_interface *intf,
 	mcs->qos.baud_rate.bits &=
 	    IR_2400 | IR_9600 | IR_19200 | IR_38400 | IR_57600 | IR_115200
 		| IR_576000 | IR_1152000 | (IR_4000000 << 8);
+
 
 	mcs->qos.min_turn_time.bits &= qos_mtt_bits;
 	irda_qos_bits_to_value(&mcs->qos);

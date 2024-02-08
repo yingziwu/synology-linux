@@ -29,6 +29,8 @@
 #define smu_lower_32_bits(n) ((uint32_t)(n))
 #define smu_upper_32_bits(n) ((uint32_t)(((n)>>16)>>16))
 
+
+
 enum AVFS_BTC_STATUS {
 	AVFS_BTC_BOOT = 0,
 	AVFS_BTC_BOOT_STARTEDSMU,
@@ -80,6 +82,7 @@ enum SMU_MEMBER {
 	DRAM_LOG_BUFF_SIZE,
 };
 
+
 enum SMU_MAC_DEFINITION {
 	SMU_MAX_LEVELS_GRAPHICS = 0,
 	SMU_MAX_LEVELS_MEMORY,
@@ -130,5 +133,6 @@ extern int smum_populate_requested_graphic_levels(struct pp_hwmgr *hwmgr,
 		struct amd_pp_profile *request);
 
 extern bool smum_is_hw_avfs_present(struct pp_hwmgr *hwmgr);
+
 
 #endif

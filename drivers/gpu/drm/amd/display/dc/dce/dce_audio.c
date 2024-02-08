@@ -435,6 +435,7 @@ void dce_aud_az_configure(
 	/* todo: according to reg spec LFE_PLAYBACK_LEVEL is read only.
 	 *  why are we writing to it?  DCE8 does not write this */
 
+
 	set_reg_field_value(value,
 		0,
 		AZALIA_F0_CODEC_PIN_CONTROL_CHANNEL_SPEAKER,
@@ -941,3 +942,4 @@ struct audio *dce_audio_create(
 
 	return &audio->base;
 }
+

@@ -72,4 +72,5 @@ void power_control_put_internal(struct power_control *pwrctrl);
 int __power_control_notify_power_off_start(struct power_control *pwrctrl);
 int __power_control_notify_power_off_done(struct power_control *pwrctrl);
 
+
 #endif

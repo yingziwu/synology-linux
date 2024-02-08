@@ -24,6 +24,7 @@
 #define RPC_SB2_INT         0x0
 #define RPC_SB2_INT_EN      0x4
 
+
 #define RPC_INT_WRITE_1 1
 
 #define RPC_INT_AS  (1 << 3)
@@ -648,6 +649,7 @@ int RPC_DESTROY_AUDIO_FLOW(int pid);
 #define RPC_AUDIO_FEEDBACK_NOTIFY       (__cpu_to_be32(1U << 9))
 #define AUDIO_RPC_SET_NOTIFY            (__cpu_to_be32(1U << 24)) /* ACPU write */
 #define AUDIO_RPC_FEEDBACK_NOTIFY       (__cpu_to_be32(1U << 25))
+
 
 #define DC_HAS_BIT(addr, bit)           (readl(addr) & bit)
 #define DC_SET_BIT(addr,bit)            (writel((readl(addr)|bit), addr))

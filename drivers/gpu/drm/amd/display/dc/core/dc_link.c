@@ -1641,6 +1641,7 @@ static void write_i2c_default_retimer_setting(
 		/* Write failure */
 		ASSERT(i2c_success);
 
+
 	if (is_vga_mode) {
 		/* Program additional settings if using 640x480 resolution */
 
@@ -1848,6 +1849,7 @@ static bool dp_active_dongle_validate_timing(
 		return false;
 	}
 
+
 	/* Check Color Depth and Pixel Clock */
 	if (timing->pixel_encoding == PIXEL_ENCODING_YCBCR420)
 		required_pix_clk /= 2;
@@ -1920,6 +1922,7 @@ enum dc_status dc_link_validate_mode_timing(
 
 	return DC_OK;
 }
+
 
 bool dc_link_set_backlight_level(const struct dc_link *link, uint32_t level,
 		uint32_t frame_ramp, const struct dc_stream_state *stream)
@@ -2323,3 +2326,4 @@ void core_link_set_avmute(struct pipe_ctx *pipe_ctx, bool enable)
 
 	core_dc->hwss.set_avmute(pipe_ctx, enable);
 }
+

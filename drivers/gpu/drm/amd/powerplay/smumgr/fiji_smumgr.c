@@ -47,6 +47,7 @@
 #include "hwmgr.h"
 #include "smu7_hwmgr.h"
 
+
 #define AVFS_EN_MSB                                        1568
 #define AVFS_EN_LSB                                        1568
 
@@ -395,6 +396,7 @@ static int fiji_get_dependency_volt_by_clk(struct pp_hwmgr *hwmgr,
 	struct smu7_hwmgr *data = (struct smu7_hwmgr *)(hwmgr->backend);
 	*voltage = *mvdd = 0;
 
+
 	/* clock - voltage dependency table is empty table */
 	if (dep_table->count == 0)
 		return -EINVAL;
@@ -449,6 +451,7 @@ static int fiji_get_dependency_volt_by_clk(struct pp_hwmgr *hwmgr,
 
 	return 0;
 }
+
 
 static uint16_t scale_fan_gain_settings(uint16_t raw_setting)
 {
@@ -599,6 +602,7 @@ static int fiji_populate_bapm_parameters_in_dpm_table(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 static int fiji_populate_svi_load_line(struct pp_hwmgr *hwmgr)
 {
 	struct fiji_smumgr *smu_data = (struct fiji_smumgr *)(hwmgr->smu_backend);
@@ -611,6 +615,7 @@ static int fiji_populate_svi_load_line(struct pp_hwmgr *hwmgr)
 
 	return 0;
 }
+
 
 static int fiji_populate_tdc_limit(struct pp_hwmgr *hwmgr)
 {
@@ -1007,6 +1012,7 @@ static int fiji_populate_single_graphic_level(struct pp_hwmgr *hwmgr,
 		level->DeepSleepDivId = smu7_get_sleep_divider_id_from_clock(clock,
 								hwmgr->display_config.min_core_set_clock_in_sr);
 
+
 	/* Default to slow, highest DPM level will be
 	 * set to PPSMC_DISPLAY_WATERMARK_LOW later.
 	 */
@@ -1118,6 +1124,7 @@ static int fiji_populate_all_graphic_levels(struct pp_hwmgr *hwmgr)
 
 	return result;
 }
+
 
 /**
  * MCLK Frequency Ratio
@@ -2339,6 +2346,7 @@ static int fiji_thermal_setup_fan_table(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 static int fiji_thermal_avfs_enable(struct pp_hwmgr *hwmgr)
 {
 	int ret;
@@ -2468,6 +2476,7 @@ static uint32_t fiji_get_mac_definition(uint32_t value)
 	return 0;
 }
 
+
 static int fiji_update_uvd_smc_table(struct pp_hwmgr *hwmgr)
 {
 	struct fiji_smumgr *smu_data = (struct fiji_smumgr *)(hwmgr->smu_backend);
@@ -2536,6 +2545,7 @@ static int fiji_update_samu_smc_table(struct pp_hwmgr *hwmgr)
 {
 	struct fiji_smumgr *smu_data = (struct fiji_smumgr *)(hwmgr->smu_backend);
 	uint32_t mm_boot_level_offset, mm_boot_level_value;
+
 
 	smu_data->smc_state_table.SamuBootLevel = 0;
 	mm_boot_level_offset = smu_data->smu7_data.dpm_table_start +

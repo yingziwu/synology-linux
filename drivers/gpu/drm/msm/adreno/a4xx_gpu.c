@@ -113,6 +113,7 @@ static void a4xx_enable_hwcg(struct msm_gpu *gpu)
 	gpu_write(gpu, REG_A4XX_RBBM_CLOCK_CTL2, 0);
 }
 
+
 static bool a4xx_me_init(struct msm_gpu *gpu)
 {
 	struct msm_ringbuffer *ring = gpu->rb[0];
@@ -252,6 +253,7 @@ static int a4xx_hw_init(struct msm_gpu *gpu)
 	/* CP registers */
 	gpu_write(gpu, REG_A4XX_CP_PROTECT(6), 0x67000800);
 	gpu_write(gpu, REG_A4XX_CP_PROTECT(7), 0x64001600);
+
 
 	/* RB registers */
 	gpu_write(gpu, REG_A4XX_CP_PROTECT(8), 0x60003300);

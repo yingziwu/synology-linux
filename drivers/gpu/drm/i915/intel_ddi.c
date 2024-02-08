@@ -1151,6 +1151,7 @@ static int skl_calc_wrpll_link(struct drm_i915_private *dev_priv,
 	else
 		p1 = 1;
 
+
 	switch (p0) {
 	case DPLL_CFGCR2_PDIV_1:
 		p0 = 1;
@@ -1206,6 +1207,7 @@ static int cnl_calc_wrpll_link(struct drm_i915_private *dev_priv,
 			DPLL_CFGCR1_QDIV_RATIO_SHIFT;
 	else
 		p1 = 1;
+
 
 	switch (p0) {
 	case DPLL_CFGCR1_PDIV_2:

@@ -56,8 +56,10 @@ void core_pr_dump_initiator_port(
 	char *buf,
 	u32 size)
 {
-	if (!pr_reg->isid_present_at_reg)
+	if (!pr_reg->isid_present_at_reg) {
 		buf[0] = '\0';
+		return;
+	}
 
 	snprintf(buf, size, ",i,0x%s", pr_reg->pr_reg_isid);
 }
@@ -305,6 +307,7 @@ out:
 		target_complete_cmd(cmd, GOOD);
 	return ret;
 }
+
 
 /*
  * Begin SPC-3/SPC-4 Persistent Reservations emulation support
@@ -3149,6 +3152,7 @@ core_scsi3_emulate_pro_preempt(struct se_cmd *cmd, int type, int scope,
 		return TCM_INVALID_CDB_FIELD;
 	}
 }
+
 
 static sense_reason_t
 core_scsi3_emulate_pro_register_and_move(struct se_cmd *cmd, u64 res_key,

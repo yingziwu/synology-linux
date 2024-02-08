@@ -36,3 +36,4 @@ struct resource_pool *dce120_create_resource_pool(
 	struct dc *dc);
 
 #endif /* __DC_RESOURCE_DCE120_H__ */
+

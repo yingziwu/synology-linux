@@ -272,6 +272,7 @@ unsigned long vmalloc_to_pfn(const void *vmalloc_addr)
 }
 EXPORT_SYMBOL(vmalloc_to_pfn);
 
+
 /*** Global kva allocator ***/
 
 #define VM_LAZY_FREE	0x01
@@ -450,7 +451,11 @@ nocache:
 	}
 
 found:
-	if (addr + size > vend)
+	/*
+	 * Check also calculated address against the vstart,
+	 * because it can be 0 because of big align request.
+	 */
+	if (addr + size > vend || addr < vstart)
 		goto overflow;
 
 	va->va_start = addr;
@@ -750,6 +755,7 @@ static void free_unmap_vmap_area_addr(unsigned long addr)
 	BUG_ON(!va);
 	free_unmap_vmap_area(va);
 }
+
 
 /*** Per cpu kva allocator ***/
 
@@ -1485,7 +1491,7 @@ static void __vunmap(const void *addr, int deallocate_pages)
 			addr))
 		return;
 
-	area = remove_vm_area(addr);
+	area = find_vmap_area((unsigned long)addr)->vm;
 	if (unlikely(!area)) {
 		WARN(1, KERN_ERR "Trying to vfree() nonexistent vm area (%p)\n",
 				addr);
@@ -1495,6 +1501,7 @@ static void __vunmap(const void *addr, int deallocate_pages)
 	debug_check_no_locks_freed(addr, get_vm_area_size(area));
 	debug_check_no_obj_freed(addr, get_vm_area_size(area));
 
+	remove_vm_area(addr);
 	if (deallocate_pages) {
 		int i;
 
@@ -1754,6 +1761,7 @@ static inline void *__vmalloc_node_flags(unsigned long size,
 	return __vmalloc_node(size, 1, flags, PAGE_KERNEL,
 					node, __builtin_return_address(0));
 }
+
 
 void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
 				  void *caller)
@@ -2192,7 +2200,7 @@ int remap_vmalloc_range_partial(struct vm_area_struct *vma, unsigned long uaddr,
 	if (!(area->flags & VM_USERMAP))
 		return -EINVAL;
 
-	if (kaddr + size > area->addr + area->size)
+	if (kaddr + size > area->addr + get_vm_area_size(area))
 		return -EINVAL;
 
 	do {
@@ -2244,6 +2252,7 @@ EXPORT_SYMBOL(remap_vmalloc_range);
 void __weak vmalloc_sync_all(void)
 {
 }
+
 
 static int f(pte_t *pte, pgtable_t table, unsigned long addr, void *data)
 {
@@ -2720,3 +2729,4 @@ static int __init proc_vmalloc_init(void)
 module_init(proc_vmalloc_init);
 
 #endif
+

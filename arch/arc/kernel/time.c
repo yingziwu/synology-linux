@@ -198,6 +198,7 @@ static void arc_timer_event_setup(unsigned int cycles)
 	write_aux_reg(ARC_REG_TIMER0_CTRL, TIMER_CTRL_IE | TIMER_CTRL_NH);
 }
 
+
 static int arc_clkevent_set_next_event(unsigned long delta,
 				       struct clock_event_device *dev)
 {

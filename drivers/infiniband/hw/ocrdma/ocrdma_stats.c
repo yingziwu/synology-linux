@@ -504,6 +504,7 @@ static char *ocrdma_driver_dbg_stats(struct ocrdma_dev *dev)
 {
 	char *stats = dev->stats_mem.debugfs_mem, *pcur;
 
+
 	memset(stats, 0, (OCRDMA_MAX_DBGFS_MEM));
 
 	pcur = stats;
@@ -642,7 +643,7 @@ static ssize_t ocrdma_dbgfs_ops_write(struct file *filp,
 	struct ocrdma_stats *pstats = filp->private_data;
 	struct ocrdma_dev *dev = pstats->dev;
 
-	if (count > 32)
+	if (*ppos != 0 || count == 0 || count > sizeof(tmp_str))
 		goto err;
 
 	if (copy_from_user(tmp_str, buffer, count))
@@ -799,6 +800,7 @@ void ocrdma_add_port_stats(struct ocrdma_dev *dev)
 				 &dev->db_err_stats, &ocrdma_dbg_ops))
 		goto err;
 
+
 	dev->tx_qp_err_stats.type = OCRDMA_TXQP_ERRSTATS;
 	dev->tx_qp_err_stats.dev = dev;
 	if (!debugfs_create_file("tx_qp_err_stats", S_IRUSR, dev->dir,
@@ -810,6 +812,7 @@ void ocrdma_add_port_stats(struct ocrdma_dev *dev)
 	if (!debugfs_create_file("rx_qp_err_stats", S_IRUSR, dev->dir,
 				 &dev->rx_qp_err_stats, &ocrdma_dbg_ops))
 		goto err;
+
 
 	dev->tx_dbg_stats.type = OCRDMA_TX_DBG_STATS;
 	dev->tx_dbg_stats.dev = dev;
@@ -831,7 +834,7 @@ void ocrdma_add_port_stats(struct ocrdma_dev *dev)
 
 	dev->reset_stats.type = OCRDMA_RESET_STATS;
 	dev->reset_stats.dev = dev;
-	if (!debugfs_create_file("reset_stats", S_IRUSR, dev->dir,
+	if (!debugfs_create_file("reset_stats", 0200, dev->dir,
 				&dev->reset_stats, &ocrdma_dbg_ops))
 		goto err;
 

@@ -21,6 +21,7 @@
 #ifndef _mmhub_1_0_DEFAULT_HEADER
 #define _mmhub_1_0_DEFAULT_HEADER
 
+
 // addressBlock: mmhub_dagbdec
 #define mmDAGB0_RDCLI0_DEFAULT                                                   0xfe5fe0f9
 #define mmDAGB0_RDCLI1_DEFAULT                                                   0xfe5fe0f9
@@ -278,6 +279,7 @@
 #define mmDAGB1_RESERVE15_DEFAULT                                                0x00000000
 #define mmDAGB1_RESERVE16_DEFAULT                                                0x00000000
 #define mmDAGB1_RESERVE17_DEFAULT                                                0x00000000
+
 
 // addressBlock: mmhub_ea_mmeadec
 #define mmMMEA0_DRAM_RD_CLI2GRP_MAP0_DEFAULT                                     0x55555555
@@ -571,6 +573,7 @@
 #define mmMMEA1_ERR_STATUS_DEFAULT                                               0x00000000
 #define mmMMEA1_MISC2_DEFAULT                                                    0x00000000
 
+
 // addressBlock: mmhub_pctldec
 #define mmPCTL_MISC_DEFAULT                                                      0x00000889
 #define mmPCTL_MMHUB_DEEPSLEEP_DEFAULT                                           0x00000000
@@ -605,6 +608,7 @@
 #define mmPCTL2_STCTRL_REGISTER_SAVE_EXCL_SET_DEFAULT                            0xffffffff
 #define mmPCTL2_STCTRL_REGISTER_SAVE_EXCL_SET1_DEFAULT                           0xffffffff
 
+
 // addressBlock: mmhub_l1tlb_vml1dec
 #define mmMC_VM_MX_L1_TLB0_STATUS_DEFAULT                                        0x00000000
 #define mmMC_VM_MX_L1_TLB1_STATUS_DEFAULT                                        0x00000000
@@ -615,6 +619,7 @@
 #define mmMC_VM_MX_L1_TLB6_STATUS_DEFAULT                                        0x00000000
 #define mmMC_VM_MX_L1_TLB7_STATUS_DEFAULT                                        0x00000000
 
+
 // addressBlock: mmhub_l1tlb_vml1pldec
 #define mmMC_VM_MX_L1_PERFCOUNTER0_CFG_DEFAULT                                   0x00000000
 #define mmMC_VM_MX_L1_PERFCOUNTER1_CFG_DEFAULT                                   0x00000000
@@ -622,9 +627,11 @@
 #define mmMC_VM_MX_L1_PERFCOUNTER3_CFG_DEFAULT                                   0x00000000
 #define mmMC_VM_MX_L1_PERFCOUNTER_RSLT_CNTL_DEFAULT                              0x04000000
 
+
 // addressBlock: mmhub_l1tlb_vml1prdec
 #define mmMC_VM_MX_L1_PERFCOUNTER_LO_DEFAULT                                     0x00000000
 #define mmMC_VM_MX_L1_PERFCOUNTER_HI_DEFAULT                                     0x00000000
+
 
 // addressBlock: mmhub_utcl2_atcl2dec
 #define mmATC_L2_CNTL_DEFAULT                                                    0x000001c9
@@ -638,6 +645,7 @@
 #define mmATC_L2_MISC_CG_DEFAULT                                                 0x00000200
 #define mmATC_L2_MEM_POWER_LS_DEFAULT                                            0x00000208
 #define mmATC_L2_CGTT_CLK_CTRL_DEFAULT                                           0x00000080
+
 
 // addressBlock: mmhub_utcl2_vml2pfdec
 #define mmVM_L2_CNTL_DEFAULT                                                     0x00080602
@@ -668,6 +676,7 @@
 #define mmVM_L2_BANK_SELECT_RESERVED_CID2_DEFAULT                                0x00000000
 #define mmVM_L2_CACHE_PARITY_CNTL_DEFAULT                                        0x00000000
 #define mmVM_L2_CGTT_CLK_CTRL_DEFAULT                                            0x00000080
+
 
 // addressBlock: mmhub_utcl2_vml2vcdec
 #define mmVM_CONTEXT0_CNTL_DEFAULT                                               0x007ffe80
@@ -874,6 +883,7 @@
 #define mmVM_CONTEXT15_PAGE_TABLE_END_ADDR_LO32_DEFAULT                          0x00000000
 #define mmVM_CONTEXT15_PAGE_TABLE_END_ADDR_HI32_DEFAULT                          0x00000000
 
+
 // addressBlock: mmhub_utcl2_vml2pldec
 #define mmMC_VM_L2_PERFCOUNTER0_CFG_DEFAULT                                      0x00000000
 #define mmMC_VM_L2_PERFCOUNTER1_CFG_DEFAULT                                      0x00000000
@@ -885,9 +895,11 @@
 #define mmMC_VM_L2_PERFCOUNTER7_CFG_DEFAULT                                      0x00000000
 #define mmMC_VM_L2_PERFCOUNTER_RSLT_CNTL_DEFAULT                                 0x04000000
 
+
 // addressBlock: mmhub_utcl2_vml2prdec
 #define mmMC_VM_L2_PERFCOUNTER_LO_DEFAULT                                        0x00000000
 #define mmMC_VM_L2_PERFCOUNTER_HI_DEFAULT                                        0x00000000
+
 
 // addressBlock: mmhub_utcl2_vmsharedhvdec
 #define mmMC_VM_FB_SIZE_OFFSET_VF0_DEFAULT                                       0x00000000
@@ -952,6 +964,7 @@
 #define mmVM_PCIE_ATS_CNTL_VF_15_DEFAULT                                         0x00000000
 #define mmUTCL2_CGTT_CLK_CTRL_DEFAULT                                            0x00000080
 
+
 // addressBlock: mmhub_utcl2_vmsharedpfdec
 #define mmMC_VM_NB_MMIOBASE_DEFAULT                                              0x00000000
 #define mmMC_VM_NB_MMIOLIMIT_DEFAULT                                             0x00000000
@@ -973,6 +986,7 @@
 #define mmMC_VM_LOCAL_HBM_ADDRESS_END_DEFAULT                                    0x000fffff
 #define mmMC_VM_LOCAL_HBM_ADDRESS_LOCK_CNTL_DEFAULT                              0x00000000
 
+
 // addressBlock: mmhub_utcl2_vmsharedvcdec
 #define mmMC_VM_FB_LOCATION_BASE_DEFAULT                                         0x00000000
 #define mmMC_VM_FB_LOCATION_TOP_DEFAULT                                          0x00000000
@@ -983,9 +997,11 @@
 #define mmMC_VM_SYSTEM_APERTURE_HIGH_ADDR_DEFAULT                                0x00000000
 #define mmMC_VM_MX_L1_TLB_CNTL_DEFAULT                                           0x00002501
 
+
 // addressBlock: mmhub_utcl2_atcl2pfcntrdec
 #define mmATC_L2_PERFCOUNTER_LO_DEFAULT                                          0x00000000
 #define mmATC_L2_PERFCOUNTER_HI_DEFAULT                                          0x00000000
+
 
 // addressBlock: mmhub_utcl2_atcl2pfcntldec
 #define mmATC_L2_PERFCOUNTER0_CFG_DEFAULT                                        0x00000000

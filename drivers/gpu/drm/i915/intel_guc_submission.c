@@ -203,6 +203,7 @@ static void __destroy_doorbell(struct intel_guc_client *client)
 	struct guc_doorbell_info *doorbell;
 	u16 db_id = client->doorbell_id;
 
+
 	doorbell = __get_doorbell(client);
 	doorbell->db_status = GUC_DOORBELL_DISABLED;
 	doorbell->cookie = 0;

@@ -154,6 +154,7 @@ enum si_stat_indexes {
 	/* Number of asynchronous messages received. */
 	SI_STAT_incoming_messages,
 
+
 	/* This *must* remain last, add new values above this. */
 	SI_NUM_STATS
 };
@@ -237,6 +238,9 @@ struct smi_info {
 
 	/* The timer for this si. */
 	struct timer_list   si_timer;
+
+	/* This flag is set, if the timer can be set */
+	bool		    timer_can_start;
 
 	/* This flag is set, if the timer is running (timer_pending() isn't enough) */
 	bool		    timer_running;
@@ -413,6 +417,8 @@ static enum si_sm_result start_next_msg(struct smi_info *smi_info)
 
 static void smi_mod_timer(struct smi_info *smi_info, unsigned long new_val)
 {
+	if (!smi_info->timer_can_start)
+		return;
 	smi_info->last_timeout_jiffies = jiffies;
 	mod_timer(&smi_info->si_timer, new_val);
 	smi_info->timer_running = true;
@@ -432,21 +438,18 @@ static void start_new_msg(struct smi_info *smi_info, unsigned char *msg,
 	smi_info->handlers->start_transaction(smi_info->si_sm, msg, size);
 }
 
-static void start_check_enables(struct smi_info *smi_info, bool start_timer)
+static void start_check_enables(struct smi_info *smi_info)
 {
 	unsigned char msg[2];
 
 	msg[0] = (IPMI_NETFN_APP_REQUEST << 2);
 	msg[1] = IPMI_GET_BMC_GLOBAL_ENABLES_CMD;
 
-	if (start_timer)
-		start_new_msg(smi_info, msg, 2);
-	else
-		smi_info->handlers->start_transaction(smi_info->si_sm, msg, 2);
+	start_new_msg(smi_info, msg, 2);
 	smi_info->si_state = SI_CHECKING_ENABLES;
 }
 
-static void start_clear_flags(struct smi_info *smi_info, bool start_timer)
+static void start_clear_flags(struct smi_info *smi_info)
 {
 	unsigned char msg[3];
 
@@ -455,10 +458,7 @@ static void start_clear_flags(struct smi_info *smi_info, bool start_timer)
 	msg[1] = IPMI_CLEAR_MSG_FLAGS_CMD;
 	msg[2] = WDT_PRE_TIMEOUT_INT;
 
-	if (start_timer)
-		start_new_msg(smi_info, msg, 3);
-	else
-		smi_info->handlers->start_transaction(smi_info->si_sm, msg, 3);
+	start_new_msg(smi_info, msg, 3);
 	smi_info->si_state = SI_CLEARING_FLAGS;
 }
 
@@ -493,11 +493,11 @@ static void start_getting_events(struct smi_info *smi_info)
  * Note that we cannot just use disable_irq(), since the interrupt may
  * be shared.
  */
-static inline bool disable_si_irq(struct smi_info *smi_info, bool start_timer)
+static inline bool disable_si_irq(struct smi_info *smi_info)
 {
 	if ((smi_info->irq) && (!smi_info->interrupt_disabled)) {
 		smi_info->interrupt_disabled = true;
-		start_check_enables(smi_info, start_timer);
+		start_check_enables(smi_info);
 		return true;
 	}
 	return false;
@@ -507,7 +507,7 @@ static inline bool enable_si_irq(struct smi_info *smi_info)
 {
 	if ((smi_info->irq) && (smi_info->interrupt_disabled)) {
 		smi_info->interrupt_disabled = false;
-		start_check_enables(smi_info, true);
+		start_check_enables(smi_info);
 		return true;
 	}
 	return false;
@@ -525,7 +525,7 @@ static struct ipmi_smi_msg *alloc_msg_handle_irq(struct smi_info *smi_info)
 
 	msg = ipmi_alloc_smi_msg();
 	if (!msg) {
-		if (!disable_si_irq(smi_info, true))
+		if (!disable_si_irq(smi_info))
 			smi_info->si_state = SI_NORMAL;
 	} else if (enable_si_irq(smi_info)) {
 		ipmi_free_smi_msg(msg);
@@ -541,7 +541,7 @@ static void handle_flags(struct smi_info *smi_info)
 		/* Watchdog pre-timeout */
 		smi_inc_stat(smi_info, watchdog_pretimeouts);
 
-		start_clear_flags(smi_info, true);
+		start_clear_flags(smi_info);
 		smi_info->msg_flags &= ~WDT_PRE_TIMEOUT_INT;
 		if (smi_info->intf)
 			ipmi_smi_watchdog_pretimeout(smi_info->intf);
@@ -924,7 +924,7 @@ static enum si_sm_result smi_event_handler(struct smi_info *smi_info,
 		 * disable and messages disabled.
 		 */
 		if (smi_info->supports_event_msg_buff || smi_info->irq) {
-			start_check_enables(smi_info, true);
+			start_check_enables(smi_info);
 		} else {
 			smi_info->curr_msg = alloc_msg_handle_irq(smi_info);
 			if (!smi_info->curr_msg)
@@ -1053,6 +1053,7 @@ static inline int ipmi_thread_busy_wait(enum si_sm_result smi_result,
 	return 1;
 }
 
+
 /*
  * A busy-waiting loop for speeding up IPMI operation.
  *
@@ -1107,6 +1108,7 @@ static int ipmi_thread(void *data)
 	}
 	return 0;
 }
+
 
 static void poll(void *send_info)
 {
@@ -1229,6 +1231,7 @@ static int smi_start_processing(void       *send_info,
 
 	/* Set up the timer that drives the interface. */
 	setup_timer(&new_smi->si_timer, smi_timeout, (long)new_smi);
+	new_smi->timer_can_start = true;
 	smi_mod_timer(new_smi, jiffies + SI_TIMEOUT_JIFFIES);
 
 	/* Try to claim any interrupts. */
@@ -1425,6 +1428,7 @@ MODULE_PARM_DESC(kipmid_max_busy_us,
 		 "Max time (in microseconds) to busy-wait for IPMI data before"
 		 " sleeping. 0 (default) means to wait forever. Set to 100-500"
 		 " if kipmid is using up a lot of CPU time.");
+
 
 static void std_irq_cleanup(struct smi_info *info)
 {
@@ -3430,10 +3434,12 @@ static void check_for_broken_irqs(struct smi_info *smi_info)
 	check_set_rcv_irq(smi_info);
 }
 
-static inline void wait_for_timer_and_thread(struct smi_info *smi_info)
+static inline void stop_timer_and_thread(struct smi_info *smi_info)
 {
 	if (smi_info->thread != NULL)
 		kthread_stop(smi_info->thread);
+
+	smi_info->timer_can_start = false;
 	if (smi_info->timer_running)
 		del_timer_sync(&smi_info->si_timer);
 }
@@ -3631,7 +3637,7 @@ static int try_smi_init(struct smi_info *new_smi)
 	 * Start clearing the flags before we enable interrupts or the
 	 * timer to avoid racing with the timer.
 	 */
-	start_clear_flags(new_smi, false);
+	start_clear_flags(new_smi);
 
 	/*
 	 * IRQ is defined to be set when non-zero.  req_events will
@@ -3709,7 +3715,7 @@ static int try_smi_init(struct smi_info *new_smi)
 	return 0;
 
  out_err_stop_timer:
-	wait_for_timer_and_thread(new_smi);
+	stop_timer_and_thread(new_smi);
 
  out_err:
 	new_smi->interrupt_disabled = true;
@@ -3915,7 +3921,7 @@ static void cleanup_one_si(struct smi_info *to_clean)
 	 */
 	if (to_clean->irq_cleanup)
 		to_clean->irq_cleanup(to_clean);
-	wait_for_timer_and_thread(to_clean);
+	stop_timer_and_thread(to_clean);
 
 	/*
 	 * Timeouts are stopped, now make sure the interrupts are off
@@ -3926,7 +3932,7 @@ static void cleanup_one_si(struct smi_info *to_clean)
 		poll(to_clean);
 		schedule_timeout_uninterruptible(1);
 	}
-	disable_si_irq(to_clean, false);
+	disable_si_irq(to_clean);
 	while (to_clean->curr_msg || (to_clean->si_state != SI_NORMAL)) {
 		poll(to_clean);
 		schedule_timeout_uninterruptible(1);

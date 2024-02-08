@@ -30,6 +30,7 @@
  * Command Buffer helper:
  */
 
+
 static inline void OUT(struct etnaviv_cmdbuf *buffer, u32 data)
 {
 	u32 *vaddr = (u32 *)buffer->vaddr;

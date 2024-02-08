@@ -306,6 +306,7 @@ extern const struct aty_dac_ops aty_dac_att21c498; /* AT&T 21C498 */
 extern const struct aty_dac_ops aty_dac_unsupported; /* unsupported */
 extern const struct aty_dac_ops aty_dac_ct; /* Integrated */
 
+
     /*
      *  Clock operations
      */
@@ -327,8 +328,12 @@ extern const struct aty_pll_ops aty_pll_ibm514; /* IBM RGB514 */
 extern const struct aty_pll_ops aty_pll_unsupported; /* unsupported */
 extern const struct aty_pll_ops aty_pll_ct; /* Integrated */
 
+
 extern void aty_set_pll_ct(const struct fb_info *info, const union aty_pll *pll);
 extern u8 aty_ld_pll_ct(int offset, const struct atyfb_par *par);
+
+extern const u8 aty_postdividers[8];
+
 
     /*
      *  Hardware cursor support
@@ -355,8 +360,8 @@ static inline void wait_for_idle(struct atyfb_par *par)
 
 extern void aty_reset_engine(const struct atyfb_par *par);
 extern void aty_init_engine(struct atyfb_par *par, struct fb_info *info);
-extern u8   aty_ld_pll_ct(int offset, const struct atyfb_par *par);
 
 void atyfb_copyarea(struct fb_info *info, const struct fb_copyarea *area);
 void atyfb_fillrect(struct fb_info *info, const struct fb_fillrect *rect);
 void atyfb_imageblit(struct fb_info *info, const struct fb_image *image);
+

@@ -115,6 +115,7 @@ void amdgpu_dpm_print_ps_status(struct amdgpu_device *adev,
 	pr_cont("\n");
 }
 
+
 u32 amdgpu_dpm_get_vblank_time(struct amdgpu_device *adev)
 {
 	struct drm_device *dev = adev->ddev;

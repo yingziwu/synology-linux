@@ -24,6 +24,7 @@
 #include <linux/pm_opp.h>
 #include <linux/devfreq.h>
 
+
 /*
  * Power Management:
  */
@@ -354,6 +355,7 @@ static void recover_worker(struct work_struct *work)
 		}
 		rcu_read_unlock();
 	}
+
 
 	/*
 	 * Update all the rings with the latest and greatest fence.. this
@@ -756,9 +758,11 @@ int msm_gpu_init(struct drm_device *drm, struct platform_device *pdev,
 	INIT_WORK(&gpu->retire_work, retire_worker);
 	INIT_WORK(&gpu->recover_work, recover_worker);
 
+
 	timer_setup(&gpu->hangcheck_timer, hangcheck_handler, 0);
 
 	spin_lock_init(&gpu->perf_lock);
+
 
 	/* Map registers: */
 	gpu->mmio = msm_ioremap(pdev, config->ioname, name);

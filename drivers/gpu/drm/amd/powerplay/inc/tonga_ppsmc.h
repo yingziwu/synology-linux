@@ -45,6 +45,7 @@
 #define PPSMC_SYSTEMFLAG_REGULATOR_HOT_ANALOG           0x20
 #define PPSMC_SYSTEMFLAG_12CHANNEL                      0x40
 
+
 #define PPSMC_EXTRAFLAGS_AC2DC_ACTION_MASK              0x07
 #define PPSMC_EXTRAFLAGS_AC2DC_DONT_WAIT_FOR_VBLANK     0x08
 
@@ -96,6 +97,7 @@ enum FAN_CONTROL {
 typedef uint16_t PPSMC_Result;
 
 #define PPSMC_isERROR(x) ((uint16_t)0x80 & (x))
+
 
 #define PPSMC_MSG_Halt                      ((uint16_t)0x10)
 #define PPSMC_MSG_Resume                    ((uint16_t)0x11)
@@ -412,6 +414,7 @@ typedef uint16_t PPSMC_Msg;
 #define PPSMC_EVENT_STATUS_REGULATORHOT     0x00000002
 #define PPSMC_EVENT_STATUS_DC               0x00000004
 #define PPSMC_EVENT_STATUS_GPIO17           0x00000008
+
 
 #pragma pack(pop)
 #endif

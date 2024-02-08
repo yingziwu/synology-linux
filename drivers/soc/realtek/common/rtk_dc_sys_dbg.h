@@ -524,6 +524,7 @@ struct module_id module_table[MODULE_NUM] = {
 };
 #endif /* CONFIG_ARCH_RTD13xx */
 
+
 #define INT2SCPU 0x0
 #define INT2ACPU 0x1
 #define INT2VCPU 0x2

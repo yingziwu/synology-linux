@@ -49,3 +49,4 @@ void dal_i2caux_destruct_engine(
 {
 	/* nothing to do */
 }
+

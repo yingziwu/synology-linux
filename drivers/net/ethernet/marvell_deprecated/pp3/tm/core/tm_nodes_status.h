@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ disclaimer.
 
 #include "tm_core_types.h"
 
+
 /**  Read Port status.
  *
  *   @param[in]     hndl        TM lib handle.
@@ -50,6 +52,7 @@ disclaimer.
  */
 int tm_read_port_status(tm_handle hndl, uint8_t port_id,
 						struct tm_port_status *status);
+
 
 /**  Read C-node status.
  *
@@ -68,6 +71,7 @@ int tm_read_port_status(tm_handle hndl, uint8_t port_id,
 int tm_read_c_node_status(tm_handle hndl, uint32_t c_node_ind,
 						  struct tm_node_status *status);
 
+
 /**  Read B-node status.
  *
  *   @param[in]     hndl        TM lib handle.
@@ -84,6 +88,7 @@ int tm_read_c_node_status(tm_handle hndl, uint32_t c_node_ind,
  */
 int tm_read_b_node_status(tm_handle hndl, uint32_t b_node_ind,
 						  struct tm_node_status *status);
+
 
 /**  Read A-node status.
  *
@@ -102,6 +107,7 @@ int tm_read_b_node_status(tm_handle hndl, uint32_t b_node_ind,
 int tm_read_a_node_status(tm_handle hndl, uint32_t a_node_ind,
 						  struct tm_node_status *status);
 
+
 /**  Read Queue status.
  *
  *   @param[in]     hndl        TM lib handle.
@@ -118,6 +124,7 @@ int tm_read_a_node_status(tm_handle hndl, uint32_t a_node_ind,
  */
 int tm_read_queue_status(tm_handle hndl, uint32_t queue_ind,
 						 struct tm_node_status *status);
+
 
 /**  Read Queue drop length.
  *
@@ -139,6 +146,7 @@ int tm_drop_get_queue_length(tm_handle hndl,
 							 enum tm_level lvl,
 							 uint32_t index,
 							 uint32_t *av_queue_length);
+
 
 #endif   /* TM_NODES_STATUS_H */
 

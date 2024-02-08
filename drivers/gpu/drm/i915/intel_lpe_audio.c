@@ -306,6 +306,7 @@ void intel_lpe_audio_teardown(struct drm_i915_private *dev_priv)
 	irq_free_desc(dev_priv->lpe_audio.irq);
 }
 
+
 /**
  * intel_lpe_audio_notify() - notify lpe audio event
  * audio driver and i915

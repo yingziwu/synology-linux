@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  rtk-usb-manager.c RTK Manager Driver for All USB.
  *
@@ -238,9 +241,9 @@ int rtk_usb_manager_schedule_work(struct device *usb_dev,
     dev_dbg(data->dev, "%s Exit ..\n", __func__);
 	return 0;
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(rtk_usb_manager_schedule_work);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 /* enable hw_pm (L4 ICG)
  *   The hw_pm function will be reset after doing soft_reset, so
@@ -599,9 +602,9 @@ int rtk_usb_set_type_c_switch_gpio(struct device *type_c_dev, bool high)
 	dev = data->dev;
 	return __port0_switch_gpio(data, high);
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(rtk_usb_set_type_c_switch_gpio);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 static int __port0_gpio_on_off(struct manager_data *data, bool on);
 
@@ -636,9 +639,9 @@ int rtk_usb_type_c_power_on_off(struct device *type_c_dev, bool on) {
 
 	return ret;
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(rtk_usb_type_c_power_on_off);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 static int __port0_gpio_on_off(struct manager_data *data, bool on)
 {
@@ -951,9 +954,9 @@ int rtk_usb_init_gpio_power_on(struct device *usb_dev) {
 	mutex_unlock(&data->lock);
 	return 0;
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(rtk_usb_init_gpio_power_on);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 int rtk_usb_host_gpio_power_on(void)
 {

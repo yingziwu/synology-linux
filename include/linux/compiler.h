@@ -111,7 +111,7 @@ void ftrace_likely_update(struct ftrace_branch_data *f, int val, int expect);
 #define unlikely_notrace(x)	__builtin_expect(!!(x), 0)
 
 #define __branch_check__(x, expect) ({					\
-			int ______r;					\
+			long ______r;					\
 			static struct ftrace_branch_data		\
 				__attribute__((__aligned__(4)))		\
 				__attribute__((section("_ftrace_annotated_branch"))) \
@@ -427,6 +427,7 @@ static __always_inline void __write_once_size(volatile void *p, void *res, int s
 #ifndef __assume_aligned
 #define __assume_aligned(a, ...)
 #endif
+
 
 /* Are two types/vars the same type (ignoring qualifiers)? */
 #ifndef __same_type

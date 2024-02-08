@@ -730,6 +730,7 @@ static int clcdfb_of_vram_mmap(struct clcd_fb *fb, struct vm_area_struct *vma)
 {
 	unsigned long off, user_size, kernel_size;
 
+
 	off = vma->vm_pgoff << PAGE_SHIFT;
 	user_size = vma->vm_end - vma->vm_start;
 	kernel_size = fb->fb.fix.smem_len;
@@ -758,8 +759,8 @@ static int clcdfb_of_dma_setup(struct clcd_fb *fb)
 	if (err)
 		return err;
 
-	framesize = fb->panel->mode.xres * fb->panel->mode.yres *
-			fb->panel->bpp / 8;
+	framesize = PAGE_ALIGN(fb->panel->mode.xres * fb->panel->mode.yres *
+			fb->panel->bpp / 8);
 	fb->fb.screen_base = dma_alloc_coherent(&fb->dev->dev, framesize,
 			&dma, GFP_KERNEL);
 	if (!fb->fb.screen_base)

@@ -31,16 +31,20 @@
 #include <linux/spinlock.h>
 #include "pcie-rtd16xx.h"
 
+
 spinlock_t rtk_pcie_16xx_lock;
 #define PCIE_IO_2K_MASK  0xFFFFF800
 #define PCIE_IO_4K_MASK  0xFFFFF000
 #define PCIE_IO_64K_MASK 0xFFFF0000
 
+
 static void __iomem *PCIE_CTRL_BASE;
 static void __iomem *PCIE_CFG_BASE;
 
+
 static void __iomem *SYSTEM_BASE1;
 static void __iomem *SYSTEM_BASE2;
+
 
 static u32 PCIE_MMIO_PHY_ADDR;
 static u32 PCIE_MMIO_PHY_ADDR_LEN;
@@ -49,6 +53,7 @@ static u32 pcie_gpio;
 static u32 pcie_gpio_iso;
 
 static u32 speed_mode;
+
 
 #define cfg_direct_access false
 
@@ -108,6 +113,7 @@ static u8 rtk_pcie_16xx_direct_cfg_read_byte(unsigned long addr)
 	u8 val = readb(addr + PCIE_CFG_BASE);
 	return val;
 }
+
 
 u32 rtk_pcie_16xx_mmio_start(void)
 {
@@ -421,6 +427,7 @@ static int rtk_pcie_16xx_rd_conf(struct pci_bus *bus, unsigned int devfn,
 	u32 val = 0;
 	u8 retry = 5;
 
+
 again:
 	if (bus->number == 1 && PCI_SLOT(devfn) == 0 && PCI_FUNC(devfn) == 0) {
 		if (cfg_direct_access) {
@@ -543,12 +550,14 @@ static int rtk_pcie_16xx_hw_initial(struct device *dev)
 		return -EINVAL;
 	}
 
+
 	rtk_pcie_16xx_ctrl_write(0xC00, 0x00140010);
 
 	if (speed_mode == 0) {
 		rtk_pcie_16xx_ctrl_write(0x0A0,
 			(rtk_pcie_16xx_ctrl_read(0x0A0)&0xFFFFFFF0)|0x00000001);
 	}
+
 
 	/*phy mdio setting*/
 	size = of_property_count_u32_elems(dev->of_node, "phys");
@@ -569,6 +578,7 @@ static int rtk_pcie_16xx_hw_initial(struct device *dev)
 	ret = gpio_direction_output(pcie_gpio, 0);
 	mdelay(100);
 	ret = gpio_direction_output(pcie_gpio, 1);
+
 
 	/* set to MMIO */
 	if (cfg_direct_access)
@@ -611,6 +621,7 @@ static int rtk_pcie_16xx_hw_initial(struct device *dev)
 		return -ENODEV;
 	}
 
+
 	/* make sure DBI is working */
 	rtk_pcie_16xx_ctrl_write(0x04, 0x00000007);
 
@@ -632,6 +643,7 @@ static int rtk_pcie_16xx_hw_initial(struct device *dev)
 
 	/* #translate for MMIO R/W */
 	rtk_pcie_16xx_ctrl_write(0xD04, 0x00000000);
+
 
 #if defined(CONFIG_R8125) || defined(CONFIG_R8125_MODULE)
 	/*pcie timeout extend to 500us*/
@@ -690,6 +702,7 @@ static int rtk_pcie_16xx_probe(struct platform_device *pdev)
 		PCIE_MMIO_PHY_ADDR_LEN = resource_size(&pcie_mmio_res);
 	}
 
+
 	SYSTEM_BASE1 = of_iomap(pdev->dev.of_node, 2);
 	if (!SYSTEM_BASE1) {
 		dev_err(&pdev->dev, "pcie no base1 address\n");
@@ -701,6 +714,8 @@ static int rtk_pcie_16xx_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "pcie no base2 address\n");
 		return -EINVAL;
 	}
+
+
 
 	pcie_gpio = of_get_gpio_flags(pdev->dev.of_node, 0, NULL);
 	if (gpio_is_valid(pcie_gpio)) {
@@ -785,6 +800,7 @@ static int rtk_pcie_16xx_probe(struct platform_device *pdev)
 	reset_control_assert(rstn_pcie_phy_mdio);
 	reset_control_assert(rstn_pcie_sgmii_mdio);
 
+
 	if (rtk_pcie_16xx_hw_initial(&pdev->dev) < 0) {
 		dev_err(&pdev->dev, "rtk_pcie_16xx_hw_initial fail\n");
 		return -EINVAL;
@@ -818,6 +834,7 @@ static int rtk_pcie_16xx_probe(struct platform_device *pdev)
 static int rtk_pcie_16xx_suspend(struct device *dev)
 {
 	dev_info(dev, "suspend enter ...\n");
+
 
 	if (RTK_PM_STATE == PM_SUSPEND_STANDBY) {
 		rtk_pcie_16xx_ctrl_write(0x178, 0xA3FF0001);
@@ -907,6 +924,7 @@ static int rtk_pcie_16xx_resume(struct device *dev)
 			return -EINVAL;
 		}
 
+
 		if (cfg_direct_access)
 			rtk_pcie_16xx_ctrl_write(0xC00, 0x00BE0002);
 		else
@@ -946,6 +964,7 @@ static void rtk_pcie_16xx_shutdown(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "shutdown exit ...\n");
 }
+
 
 static const struct dev_pm_ops rtk_pcie_16xx_pm_ops = {
 	.suspend_noirq = rtk_pcie_16xx_suspend,

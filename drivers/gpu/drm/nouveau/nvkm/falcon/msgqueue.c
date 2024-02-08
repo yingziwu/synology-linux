@@ -26,6 +26,7 @@
 
 #include <subdev/secboot.h>
 
+
 #define HDR_SIZE sizeof(struct nvkm_msgqueue_hdr)
 #define QUEUE_ALIGNMENT 4
 /* max size of the messages we can receive */
@@ -570,5 +571,6 @@ nvkm_msgqueue_ctor(const struct nvkm_msgqueue_func *func,
 		queue->seq[i].id = i;
 
 	init_completion(&queue->init_done);
+
 
 }

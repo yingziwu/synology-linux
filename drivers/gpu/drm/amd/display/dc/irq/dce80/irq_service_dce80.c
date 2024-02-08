@@ -84,6 +84,7 @@ static const struct irq_source_info_funcs vblank_irq_info_funcs = {
 	.ack = NULL
 };
 
+
 #define hpd_int_entry(reg_num)\
 	[DC_IRQ_SOURCE_INVALID + reg_num] = {\
 		.enable_reg = mmDC_HPD ## reg_num ## _INT_CONTROL,\
@@ -177,6 +178,7 @@ static const struct irq_source_info_funcs vblank_irq_info_funcs = {
 
 #define dc_underflow_int_entry(reg_num) \
 	[DC_IRQ_SOURCE_DC ## reg_num ## UNDERFLOW] = dummy_irq_entry()
+
 
 static const struct irq_source_info_funcs dummy_irq_info_funcs = {
 	.set = dal_irq_service_dummy_set,
@@ -297,3 +299,5 @@ struct irq_service *dal_irq_service_dce80_create(
 	construct(irq_service, init_data);
 	return irq_service;
 }
+
+

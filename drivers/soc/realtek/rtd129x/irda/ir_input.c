@@ -12,6 +12,7 @@ extern int venus_ir_getkeycode(unsigned int scancode, unsigned int *p_keycode);
 extern void	venus_ir_set_keybit(unsigned long *addr);
 extern void	venus_ir_set_relbit(unsigned long *addr);
 
+
 struct venus_ir_data {
 	unsigned int irq;
 	struct input_dev *input_dev;

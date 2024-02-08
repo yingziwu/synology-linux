@@ -289,6 +289,7 @@ static void nfs_end_page_writeback(struct nfs_page *req)
 		clear_bdi_congested(&nfss->backing_dev_info, BLK_RW_ASYNC);
 }
 
+
 /* nfs_page_group_clear_bits
  *   @req - an nfs request
  * clears all page group related bits from @req
@@ -302,6 +303,7 @@ nfs_page_group_clear_bits(struct nfs_page *req)
 	clear_bit(PG_WB_END, &req->wb_flags);
 	clear_bit(PG_REMOVE, &req->wb_flags);
 }
+
 
 /*
  * nfs_unroll_locks_and_wait -  unlock all newly locked reqs and wait on @req
@@ -1364,6 +1366,7 @@ void nfs_pageio_reset_write_mds(struct nfs_pageio_descriptor *pgio)
 }
 EXPORT_SYMBOL_GPL(nfs_pageio_reset_write_mds);
 
+
 void nfs_commit_prepare(struct rpc_task *task, void *calldata)
 {
 	struct nfs_commit_data *data = calldata;
@@ -1528,6 +1531,7 @@ static void nfs_writeback_result(struct rpc_task *task,
 		rpc_restart_call_prepare(task);
 	}
 }
+
 
 static int nfs_commit_set_lock(struct nfs_inode *nfsi, int may_wait)
 {
@@ -1742,6 +1746,8 @@ static void nfs_commit_release_pages(struct nfs_commit_data *data)
 		set_bit(NFS_CONTEXT_RESEND_WRITES, &req->wb_context->flags);
 	next:
 		nfs_unlock_and_release_request(req);
+		/* Latency breaker */
+		cond_resched();
 	}
 	nfss = NFS_SERVER(data->inode);
 	if (atomic_long_read(&nfss->writeback) < NFS_CONGESTION_OFF_THRESH)

@@ -662,3 +662,4 @@ module_platform_driver(mvebu_utmi_driver);
 MODULE_AUTHOR("Evan Wang <xswang@marvell.com>");
 MODULE_DESCRIPTION("Marvell EBU UTMI PHY driver");
 MODULE_LICENSE("GPL");
+

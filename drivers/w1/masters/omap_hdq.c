@@ -99,6 +99,7 @@ static u8 omap_w1_read_byte(void *_hdq);
 static void omap_w1_write_byte(void *_hdq, u8 byte);
 static u8 omap_w1_reset_bus(void *_hdq);
 
+
 static struct w1_bus_master omap_w1_master = {
 	.read_byte	= omap_w1_read_byte,
 	.write_byte	= omap_w1_write_byte,
@@ -783,6 +784,8 @@ static int omap_hdq_remove(struct platform_device *pdev)
 
 	/* remove module dependency */
 	pm_runtime_disable(&pdev->dev);
+
+	w1_remove_master_device(&omap_w1_master);
 
 	return 0;
 }

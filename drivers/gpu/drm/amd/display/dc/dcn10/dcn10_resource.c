@@ -81,6 +81,7 @@
 	#define mmDP6_DP_DPHY_INTERNAL_CTRL_BASE_IDX	2
 #endif
 
+
 enum dcn10_clk_src_array_id {
 	DCN10_CLK_SRC_PLL0,
 	DCN10_CLK_SRC_PLL1,
@@ -106,6 +107,7 @@ enum dcn10_clk_src_array_id {
 #define SRI(reg_name, block, id)\
 	.reg_name = BASE(mm ## block ## id ## _ ## reg_name ## _BASE_IDX) + \
 					mm ## block ## id ## _ ## reg_name
+
 
 #define SRII(reg_name, block, id)\
 	.reg_name[id] = BASE(mm ## block ## id ## _ ## reg_name ## _BASE_IDX) + \
@@ -135,6 +137,7 @@ enum dcn10_clk_src_array_id {
 
 /* macros to expend register list macro defined in HW object header file
  * end *********************/
+
 
 static const struct dce_dmcu_registers dmcu_regs = {
 		DMCU_DCN10_REG_LIST()
@@ -360,6 +363,7 @@ static const struct dcn_optc_mask tg_mask = {
 	TG_COMMON_MASK_SH_LIST_DCN1_0(_MASK)
 };
 
+
 static const struct bios_registers bios_regs = {
 		NBIO_SR(BIOS_SCRATCH_6)
 };
@@ -368,6 +372,7 @@ static const struct bios_registers bios_regs = {
 [id] = {\
 	HUBP_REG_LIST_DCN10(id)\
 }
+
 
 static const struct dcn_mi_registers hubp_regs[] = {
 	hubp_regs(0),
@@ -383,6 +388,7 @@ static const struct dcn_mi_shift hubp_shift = {
 static const struct dcn_mi_mask hubp_mask = {
 		HUBP_MASK_SH_LIST_DCN10(_MASK)
 };
+
 
 static const struct dcn_hubbub_registers hubbub_reg = {
 		HUBBUB_REG_LIST_DCN10(0)
@@ -415,6 +421,7 @@ static const struct dce110_clk_src_shift cs_shift = {
 static const struct dce110_clk_src_mask cs_mask = {
 		CS_COMMON_MASK_SH_LIST_DCN1_0(_MASK)
 };
+
 
 static const struct resource_caps res_cap = {
 		.num_timing_generator = 4,
@@ -491,6 +498,7 @@ static struct input_pixel_processor *dcn10_ipp_create(
 			&ipp_regs[inst], &ipp_shift, &ipp_mask);
 	return &ipp->base;
 }
+
 
 static struct output_pixel_processor *dcn10_opp_create(
 	struct dc_context *ctx, uint32_t inst)
@@ -896,6 +904,7 @@ enum dc_status dcn10_add_stream_to_ctx(
 	if (result == DC_OK)
 		result = resource_map_phy_clock_resources(dc, new_ctx, dc_stream);
 
+
 	if (result == DC_OK)
 		result = build_mapped_resource(dc, new_ctx, dc_stream);
 
@@ -1188,6 +1197,7 @@ static bool get_dcc_compression_cap(const struct dc *dc,
 	return true;
 }
 
+
 static void dcn10_destroy_resource_pool(struct resource_pool **pool)
 {
 	struct dcn10_resource_pool *dcn10_pool = TO_DCN10_RES_POOL(*pool);
@@ -1344,6 +1354,7 @@ static bool construct(
 		dc->debug.disable_dmcu = true;
 		dc->dcn_soc->fabric_and_dram_bandwidth_vmax0p9 = 41.60f;
 	}
+
 
 	dc->dcn_soc->number_of_channels = dc->ctx->asic_id.vram_width / ddr4_dram_width;
 	ASSERT(dc->dcn_soc->number_of_channels < 3);

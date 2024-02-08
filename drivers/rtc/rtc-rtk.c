@@ -70,6 +70,7 @@ static void rtk_rtc_check_rtcacr(struct device *dev)
 	val = readl(rtk_rtc_base + REG_RTCACR);
 	dev_info(dev, "rtk_rtc rtcacr = 0x%x\n", val);
 
+
 	if ((val & 0x80) == 0x80)
 		goto err;
 

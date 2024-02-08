@@ -46,3 +46,4 @@ struct resource_pool *dce110_create_resource_pool(
 	struct hw_asic_id asic_id);
 
 #endif /* __DC_RESOURCE_DCE110_H__ */
+

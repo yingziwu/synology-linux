@@ -301,6 +301,7 @@ void amdgpu_virt_free_mm_table(struct amdgpu_device *adev)
 	adev->virt.mm_table.gpu_addr = 0;
 }
 
+
 int amdgpu_virt_fw_reserve_get_checksum(void *obj,
 					unsigned long obj_size,
 					unsigned int key,
@@ -373,3 +374,5 @@ void amdgpu_virt_init_data_exchange(struct amdgpu_device *adev)
 		}
 	}
 }
+
+

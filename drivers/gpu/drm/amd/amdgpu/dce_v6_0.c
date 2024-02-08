@@ -465,6 +465,7 @@ static void dce_v6_0_program_fmt(struct drm_encoder *encoder)
 	if (bpc == 0)
 		return;
 
+
 	switch (bpc) {
 	case 6:
 		if (dither == AMDGPU_FMT_DITHER_ENABLE)
@@ -1086,6 +1087,7 @@ static u32 dce_v6_0_line_buffer_adjust(struct amdgpu_device *adev,
 	/* controller not enabled, so no lb used */
 	return 0;
 }
+
 
 /**
  *
@@ -2127,6 +2129,7 @@ static void dce_v6_0_crtc_load_lut(struct drm_crtc *crtc)
 	/* XXX match this to the depth of the crtc fmt block, move to modeset? */
 	WREG32(0x1a50 + amdgpu_crtc->crtc_offset, 0);
 
+
 }
 
 static int dce_v6_0_pick_dig_encoder(struct drm_encoder *encoder)
@@ -2217,6 +2220,7 @@ static void dce_v6_0_hide_cursor(struct drm_crtc *crtc)
 	WREG32_IDX(mmCUR_CONTROL + amdgpu_crtc->crtc_offset,
 		   (CURSOR_24_8_PRE_MULT << CUR_CONTROL__CURSOR_MODE__SHIFT) |
 		   (CURSOR_URGENT_1_2 << CUR_CONTROL__CURSOR_URGENT_CONTROL__SHIFT));
+
 
 }
 

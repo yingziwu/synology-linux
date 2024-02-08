@@ -2,27 +2,12 @@
 # Copyright (c) 2000-2020 Synology Inc. All rights reserved.
 # vim:ft=sh
 
-export ARCH=${ARCH}
+export ARCH="$ARCH"
+export CROSS_COMPILE="$ToolChainPrefix"
+export EXTRA_CFLAGS="-fdiagnostics-color=always"
 source "$ConfDir/_debug"
 
-case "$BUILD_TARGET" in
-	APOLLOLAKE|DENVERTON|KVMX64|BROADWELLNK|PURLEY|COFFEELAKE|BROADWELLNTB|NEXTKVMX64|GEMINILAKE|V1000|BROADWELLNTBAP|KVMCLOUD)
-		export CROSS_COMPILE=${ToolChainPrefix64} CC=${CC64}
-		KERNEL_CC=${CC64}
-		;;
-	*)
-		CC=`echo ${CC} | awk -F" " '{print $1}'`
-		export CROSS_COMPILE=${ToolChainPrefix} CC="${CC}"
-		KERNEL_CC="${CC}"
-		;;
-esac
-
-case "$BUILD_TARGET" in
-	*)
-		cp -f synoconfigs/$PLATFORM_ABBR .config
-		;;
-esac
-
+cp -f "synoconfigs/$PLATFORM_ABBR" .config
 if [ -f ".debug" ]; then
 	INFO ".debug detected. Configured as debug mode."
 	config_debug_mode
@@ -33,7 +18,7 @@ fi
 
 # Install kernel headers
 make prepare
-make CROSS_COMPILE="$ToolChainPrefix32" headers_install
+make headers_install
 
 cp -fa include/linux/syno_autoconf.h usr/include/linux/syno_autoconf.h
 install -Dm644 include/linux/synobios.h usr/include/linux/synobios.h

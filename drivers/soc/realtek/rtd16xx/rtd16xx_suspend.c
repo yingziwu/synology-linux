@@ -65,9 +65,9 @@ void __iomem *RTK_CRT_BASE;
 void __iomem *RTK_ISO_BASE;
 void __iomem *RTK_SB2_BASE;
 
-#ifdef CONFIG_SYNO_RTD1619
+#ifdef MY_DEF_HERE
 void *restart_dummy = NULL;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 extern void rtk_ddr_calibration_save(void); /* save ddr rx calibration */
 extern void rtk_ddr_calibration_restore(void); /* restore ddr rx calibration */
@@ -153,19 +153,19 @@ static void setup_restart_action(RESET_ACTION action)
 {
 	// FIXME
 	unsigned int reset_action = RESET_MAGIC;
-#ifdef CONFIG_SYNO_RTD1619
+#ifdef MY_DEF_HERE
 	void *dummy = NULL;
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	void *dummy = ioremap(0x98007640, 0x4);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
-#ifdef CONFIG_SYNO_RTD1619
+#ifdef MY_DEF_HERE
 	if (restart_dummy) {
 		dummy = restart_dummy;
 	} else {
 		dummy = ioremap(0x98007640, 0x4);
 	}
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 	if (!dummy) {
 		pr_err("%s: unable to map register\n", __func__);
@@ -448,9 +448,9 @@ int __init rtk_suspend_init(void)
 	pm_power_off = rtk_power_off;
 	arm_pm_restart = rtk_sys_reset;
 
-#ifdef CONFIG_SYNO_RTD1619
+#ifdef MY_DEF_HERE
 	restart_dummy = ioremap(0x98007640, 0x4);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	return 0;
 }
 

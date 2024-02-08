@@ -907,6 +907,7 @@ static int nci_dep_link_down(struct nfc_dev *nfc_dev)
 	return 0;
 }
 
+
 static int nci_transceive(struct nfc_dev *nfc_dev, struct nfc_target *target,
 			  struct sk_buff *skb,
 			  data_exchange_cb_t cb, void *cb_context)
@@ -1083,8 +1084,7 @@ struct nci_dev *nci_allocate_device(struct nci_ops *ops,
 	return ndev;
 
 free_nfc:
-	kfree(ndev->nfc_dev);
-
+	nfc_free_device(ndev->nfc_dev);
 free_nci:
 	kfree(ndev);
 	return NULL;

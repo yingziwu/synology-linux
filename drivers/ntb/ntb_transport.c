@@ -94,19 +94,30 @@ MODULE_VERSION(NTB_TRANSPORT_VER);
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Intel Corporation");
 
+#ifdef MY_DEF_HERE
+#else
 static unsigned long max_mw_size;
 module_param(max_mw_size, ulong, 0644);
 MODULE_PARM_DESC(max_mw_size, "Limit size of large memory windows");
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE /* MY_DEF_HERE */
 static unsigned int transport_mtu = 30026;
 #else
 static unsigned int transport_mtu = 0x10000;
 #endif /* MY_DEF_HERE */
+
 #ifdef MY_DEF_HERE
-static unsigned int transport_qp_max_mbsize = 4;
-module_param(transport_qp_max_mbsize, uint, 0644);
-MODULE_PARM_DESC(transport_qp_max_mbsize, "Maximum size of NTB transport qp size (MB)");
+#define TRANSPORT_QP_MW_SIZE SZ_16M
+#define TRANSPORT_QP_SIZE SZ_4M
+#define TRANSPORT_QP_MAX_COUNT_PER_MW 4
+/*
+ * qp : total 16 MB, each 4MB
+ *     0 : ntb_netdev (0-4MB)
+ *     2-3 : reserved (8-16MB)
+ * block deive
+ *     0 : md bitmap 32 MB (16-48MB)
+ */
 #endif /* MY_DEF_HERE */
 
 module_param(transport_mtu, uint, 0644);
@@ -172,6 +183,9 @@ struct ntb_transport_qp {
 	bool client_ready;
 	bool link_is_up;
 	bool active;
+#ifdef MY_DEF_HERE
+	bool remote_ready;
+#endif /* MY_DEF_HERE */
 
 	u8 qp_num;	/* Only 64 QP's are allowed.  0-63 */
 	u64 qp_bit;
@@ -188,6 +202,9 @@ struct ntb_transport_qp {
 	unsigned int tx_index;
 	unsigned int tx_max_entry;
 	unsigned int tx_max_frame;
+#ifdef MY_DEF_HERE
+	spinlock_t ntb_tx_index_lock;
+#endif /* MY_DEF_HERE */
 
 	void (*rx_handler)(struct ntb_transport_qp *qp, void *qp_data,
 			   void *data, int len);
@@ -226,7 +243,12 @@ struct ntb_transport_qp {
 	u64 tx_err_no_buf;
 	u64 tx_memcpy;
 	u64 tx_async;
+
+#ifdef MY_DEF_HERE
+	u32 remote_syno_conf_ver;
+#endif /* MY_DEF_HERE */
 };
+
 
 struct ntb_transport_mw {
 	phys_addr_t phys_addr;
@@ -238,6 +260,9 @@ struct ntb_transport_mw {
 	size_t buff_size;
 	void *virt_addr;
 	dma_addr_t dma_addr;
+#ifdef MY_DEF_HERE
+	u64 remote_mw_size;
+#endif /* MY_DEF_HERE */
 };
 
 struct ntb_transport_client_dev {
@@ -269,12 +294,9 @@ struct ntb_transport_ctx {
 	bool blRxArise;
 #endif /* MY_DEF_HERE */
 	struct dentry *debugfs_node_dir;
-
 #ifdef MY_DEF_HERE
-	// MW size between two nodes not match, so force ntb_brd access their local memory.
-	bool ntb_brd_force_local;
-	u64 ntb_brd_used_size;
-	void (*ntb_brd_event_handler)(int status);
+	spinlock_t ntb_transport_raw_block_lock;
+	struct list_head ntb_transport_raw_blocks;
 #endif /* MY_DEF_HERE */
 };
 
@@ -299,7 +321,10 @@ enum {
 //cause NTB have more than one's bar, we should keep at last two sets
 #ifdef MY_DEF_HERE
 	HEARTBEAT =10,
-#endif /* MY_DEF_HERE */	
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	SYNO_CONF_VER = 11,
+#endif /* MY_DEF_HERE */
 };
 
 #ifdef MY_DEF_HERE
@@ -338,6 +363,7 @@ static int ntb_async_tx_submit(struct ntb_transport_qp *qp,
 static void ntb_memcpy_tx(struct ntb_queue_entry *entry, void __iomem *offset);
 static int ntb_async_rx_submit(struct ntb_queue_entry *entry, void *offset);
 static void ntb_memcpy_rx(struct ntb_queue_entry *entry, void *offset);
+
 
 static int ntb_transport_bus_match(struct device *dev,
 				   struct device_driver *drv)
@@ -688,9 +714,6 @@ static int ntb_transport_setup_qp_mw(struct ntb_transport_ctx *nt,
 	unsigned int mw_num, mw_count, qp_count;
 	unsigned int i;
 	int node;
-#ifdef MY_DEF_HERE
-	unsigned int xlat_size;
-#endif /* MY_DEF_HERE */
 
 	mw_count = nt->mw_count;
 	qp_count = nt->qp_count;
@@ -707,11 +730,8 @@ static int ntb_transport_setup_qp_mw(struct ntb_transport_ctx *nt,
 		num_qps_mw = qp_count / mw_count;
 
 #ifdef MY_DEF_HERE
-	if (mw->xlat_size < 1024ULL * 1024 * transport_qp_max_mbsize)
-		xlat_size = mw->xlat_size;
-	else
-		xlat_size = 1024ULL * 1024 * transport_qp_max_mbsize;
-	rx_size = xlat_size / num_qps_mw;
+	BUILD_BUG_ON(TRANSPORT_QP_SIZE * TRANSPORT_QP_MAX_COUNT_PER_MW > TRANSPORT_QP_MW_SIZE);
+	rx_size = TRANSPORT_QP_SIZE;
 #else
 	rx_size = (unsigned int)mw->xlat_size / num_qps_mw;
 #endif /* MY_DEF_HERE */
@@ -724,6 +744,9 @@ static int ntb_transport_setup_qp_mw(struct ntb_transport_ctx *nt,
 	qp->rx_max_frame = min(transport_mtu, rx_size / 2);
 	qp->rx_max_entry = rx_size / qp->rx_max_frame;
 	qp->rx_index = 0;
+#ifdef MY_DEF_HERE
+	iowrite32((qp->rx_max_entry - 1), &qp->rx_info->entry);
+#endif /* MY_DEF_HERE */
 
 	/*
 	 * Checking to see if we have more entries than the default.
@@ -780,10 +803,7 @@ static int ntb_set_mw(struct ntb_transport_ctx *nt, int num_mw,
 	struct ntb_transport_mw *mw = &nt->mw_vec[num_mw];
 	struct pci_dev *pdev = nt->ndev->pdev;
 	size_t xlat_size, buff_size;
-#ifdef MY_DEF_HERE
-#else
 	int rc;
-#endif /* MY_DEF_HERE */
 
 	if (!size)
 		return -EINVAL;
@@ -794,6 +814,11 @@ static int ntb_set_mw(struct ntb_transport_ctx *nt, int num_mw,
 	/* No need to re-setup */
 	if (mw->xlat_size == xlat_size)
 		return 0;
+
+#ifdef MY_DEF_HERE
+	if (mw->buff_size)
+		return 0;
+#endif /* MY_DEF_HERE */
 
 	if (mw->buff_size)
 		ntb_free_mw(nt, num_mw);
@@ -830,8 +855,6 @@ static int ntb_set_mw(struct ntb_transport_ctx *nt, int num_mw,
 		return -ENOMEM;
 	}
 
-#ifdef MY_DEF_HERE
-#else
 	/* Notify HW the memory location of the receive buffer */
 	rc = ntb_mw_set_trans(nt->ndev, PIDX, num_mw, mw->dma_addr,
 			      mw->xlat_size);
@@ -840,7 +863,6 @@ static int ntb_set_mw(struct ntb_transport_ctx *nt, int num_mw,
 		ntb_free_mw(nt, num_mw);
 		return -EIO;
 	}
-#endif /* MY_DEF_HERE */
 
 	return 0;
 }
@@ -906,6 +928,10 @@ static void ntb_transport_link_cleanup(struct ntb_transport_ctx *nt)
 	struct ntb_transport_qp *qp;
 	u64 qp_bitmap_alloc;
 	unsigned int i, count;
+#ifdef MY_DEF_HERE
+	unsigned long flags;
+	struct ntb_transport_raw_block *tmp_block;
+#endif /* MY_DEF_HERE */
 
 	qp_bitmap_alloc = nt->qp_bitmap & ~nt->qp_bitmap_free;
 
@@ -913,6 +939,9 @@ static void ntb_transport_link_cleanup(struct ntb_transport_ctx *nt)
 	for (i = 0; i < nt->qp_count; i++)
 		if (qp_bitmap_alloc & BIT_ULL(i)) {
 			qp = &nt->qp_vec[i];
+#ifdef MY_DEF_HERE
+			qp->remote_ready = false;
+#endif /* MY_DEF_HERE */
 			ntb_qp_link_cleanup(qp);
 			cancel_work_sync(&qp->link_cleanup);
 			cancel_delayed_work_sync(&qp->link_work);
@@ -930,6 +959,17 @@ static void ntb_transport_link_cleanup(struct ntb_transport_ctx *nt)
 #ifdef MY_DEF_HERE
 	cancel_delayed_work_sync(&nt->ntb_irq_check_delay_work);
 #endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+	spin_lock_irqsave(&nt->ntb_transport_raw_block_lock, flags);
+	list_for_each_entry(tmp_block, &nt->ntb_transport_raw_blocks, list) {
+		tmp_block->link_is_up = false;
+		if (tmp_block->event_handler && tmp_block->client_dev)
+			tmp_block->event_handler(tmp_block, NTB_BRD_LINK_DOWN);
+	}
+	spin_unlock_irqrestore(&nt->ntb_transport_raw_block_lock, flags);
+#endif /* MY_DEF_HERE */
+
 	/* The scratchpad registers keep the values if the remote side
 	 * goes down, blast them now to give them a sane value the next
 	 * time they are accessed
@@ -973,11 +1013,6 @@ static void ntb_transport_event_callback(void *data)
 		}
 	}
 #endif /* MY_DEF_HERE */
-
-#ifdef MY_DEF_HERE
-	if (nt->ntb_brd_event_handler && (ntb_link_is_up(nt->ndev, NULL, NULL) == 0))
-		nt->ntb_brd_event_handler(NTB_BRD_LINK_DOWN);
-#endif /*MY_DEF_HERE */
 }
 
 static void ntb_transport_link_work(struct work_struct *work)
@@ -993,13 +1028,36 @@ static void ntb_transport_link_work(struct work_struct *work)
 	int uncerrsts_offset = 0;
 	int corerrsts_offset = 0;
 #endif /* MY_DEF_HERE */
-	
+#ifdef MY_DEF_HERE
+	u32 remote_qp_count;
+#ifdef MY_DEF_HERE
+	u32 remote_syno_conf_ver = ~(u32)0;
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	unsigned long flags;
+	struct ntb_transport_raw_block *tmp_block;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+	/* initialized QP_LINKS */
+	ntb_spad_write(ndev, QP_LINKS, 0);
+	ntb_peer_spad_write(ndev, PIDX, QP_LINKS, 0);
+#ifdef MY_DEF_HERE
+	/* initialized SYNO_CONF_VER */
+	ntb_peer_spad_write(ndev, PIDX, SYNO_CONF_VER, SYNO_NTB_CONFIG_VER);
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
+
 	/* send the local info, in the opposite order of the way we read it */
 	for (i = 0; i < nt->mw_count; i++) {
 		size = nt->mw_vec[i].phys_size;
 
+#ifdef MY_DEF_HERE
+#else
 		if (max_mw_size && size > max_mw_size)
 			size = max_mw_size;
+#endif /* MY_DEF_HERE */
 
 		spad = MW0_SZ_HIGH + (i * 2);
 		ntb_peer_spad_write(ndev, PIDX, spad, upper_32_bits(size));
@@ -1022,8 +1080,19 @@ static void ntb_transport_link_work(struct work_struct *work)
 
 	val = ntb_spad_read(ndev, NUM_QPS);
 	dev_dbg(&pdev->dev, "Remote max number of qps = %d\n", val);
+#ifdef MY_DEF_HERE
+	if (val < nt->qp_count)
+		ntb_peer_spad_write(ndev, PIDX, NUM_QPS, val);
+	remote_qp_count = val;
+#else
 	if (val != nt->qp_count)
 		goto out;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+	remote_syno_conf_ver = ntb_spad_read(ndev, SYNO_CONF_VER);
+	dev_dbg(&pdev->dev, "Remote Syno Conf version = %d\n", remote_syno_conf_ver);
+#endif /* MY_DEF_HERE */
 
 	val = ntb_spad_read(ndev, NUM_MWS);
 	dev_dbg(&pdev->dev, "Remote number of mws = %d\n", val);
@@ -1041,24 +1110,12 @@ static void ntb_transport_link_work(struct work_struct *work)
 
 		dev_dbg(&pdev->dev, "Remote MW%d size = %#llx\n", i, val64);
 
-#ifdef MY_DEF_HERE
-		if (val64 != nt->mw_vec[i].phys_size) {
-			dev_err(&pdev->dev, "Remote MW%d phys_size %llu not match local %llu, "
-					"force ntb_brd to local access\n",
-					i, val64, nt->mw_vec[i].phys_size);
-			nt->ntb_brd_force_local = true;
-		}
-		/* Notify HW the memory location of the receive buffer */
-		rc = ntb_mw_set_trans(nt->ndev, PIDX, i, nt->mw_vec[i].dma_addr,
-				nt->mw_vec[i].xlat_size);
-		if (rc) {
-			dev_err(&pdev->dev, "Unable to set mw%d translation", i);
-			goto out1;
-		}
-#else
 		rc = ntb_set_mw(nt, i, val64);
 		if (rc)
 			goto out1;
+
+#ifdef MY_DEF_HERE
+		nt->mw_vec[i].remote_mw_size = val64;
 #endif /* MY_DEF_HERE */
 	}
 
@@ -1066,10 +1123,10 @@ static void ntb_transport_link_work(struct work_struct *work)
 
 #ifdef MY_DEF_HERE
 
-#if defined(CONFIG_SYNO_BROADWELLNTB) || defined(MY_DEF_HERE)
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 	uncerrsts_offset = XEON_UNCERRSTS_OFFSET;
 	corerrsts_offset = XEON_CORERRSTS_OFFSET;
-#endif /* defined(CONFIG_SYNO_BROADWELLNTB) || defined(MY_DEF_HERE)  */
+#endif /* defined(MY_DEF_HERE) || defined(MY_DEF_HERE)  */
 	if (uncerrsts_offset) {
 		rc = pci_write_config_dword(pdev, uncerrsts_offset,
 				0xffffffff);
@@ -1093,28 +1150,46 @@ static void ntb_transport_link_work(struct work_struct *work)
 	}
 #endif /* MY_DEF_HERE */
 
+#ifdef MY_DEF_HERE
+	for (i = 0; i < remote_qp_count && i < nt->qp_count; i++) {
+#else
 	for (i = 0; i < nt->qp_count; i++) {
+#endif /* MY_DEF_HERE */
 		struct ntb_transport_qp *qp = &nt->qp_vec[i];
 
 		ntb_transport_setup_qp_mw(nt, i);
+#ifdef MY_DEF_HERE
+#ifdef MY_DEF_HERE
+		qp->remote_syno_conf_ver = remote_syno_conf_ver;
+#endif /* MY_DEF_HERE */
+		qp->remote_ready = true;
+#endif /* MY_DEF_HERE */
 
 		if (qp->client_ready)
 			schedule_delayed_work(&qp->link_work, 0);
 	}
 
 #ifdef MY_DEF_HERE
-	if (nt->ntb_brd_event_handler) {
-		if (nt->ntb_brd_force_local == false)
-			nt->ntb_brd_event_handler(NTB_BRD_LINK_UP);
-		else
-			nt->ntb_brd_event_handler(NTB_BRD_LINK_UP_FORCE_LOCAL);
+	if (nt->mw_count > 0) {
+		spin_lock_irqsave(&nt->ntb_transport_raw_block_lock, flags);
+		list_for_each_entry(tmp_block, &nt->ntb_transport_raw_blocks, list) {
+			if (nt->mw_vec[0].remote_mw_size >= TRANSPORT_QP_MW_SIZE + tmp_block->offset + tmp_block->size) {
+				tmp_block->link_is_up = true;
+				if (tmp_block->event_handler && tmp_block->client_dev)
+					tmp_block->event_handler(tmp_block, NTB_BRD_LINK_UP);
+			}
+		}
+		spin_unlock_irqrestore(&nt->ntb_transport_raw_block_lock, flags);
 	}
 #endif /* MY_DEF_HERE */
 	return;
 
 out1:
+#ifdef MY_DEF_HERE
+#else
 	for (i = 0; i < nt->mw_count; i++)
 		ntb_free_mw(nt, i);
+#endif /* MY_DEF_HERE */
 
 	/* if there's an actual failure, we should just bail */
 	if (rc < 0)
@@ -1231,7 +1306,11 @@ static void ntb_qp_link_work(struct work_struct *work)
 
 	WARN_ON(!nt->link_is_up);
 
+#ifdef MY_DEF_HERE
+	val = ntb_peer_spad_read(nt->ndev, PIDX, QP_LINKS);
+#else
 	val = ntb_spad_read(nt->ndev, QP_LINKS);
+#endif /* MY_DEF_HERE */
 
 	ntb_peer_spad_write(nt->ndev, PIDX, QP_LINKS, val | BIT(qp->qp_num));
 
@@ -1239,8 +1318,15 @@ static void ntb_qp_link_work(struct work_struct *work)
 	dev_dbg_ratelimited(&pdev->dev, "Remote QP link status = %x\n", val);
 
 	/* See if the remote side is up */
+#ifdef MY_DEF_HERE
+	val = ntb_spad_read(nt->ndev, QP_LINKS);
+#endif /* MY_DEF_HERE */
 	if (val & BIT(qp->qp_num)) {
 		dev_info(&pdev->dev, "qp %d: Link Up\n", qp->qp_num);
+#ifdef MY_DEF_HERE
+		qp->remote_rx_info->entry = qp->rx_max_entry - 1;
+		iowrite32((qp->rx_max_entry - 1), &qp->rx_info->entry);
+#endif /* MY_DEF_HERE */
 		qp->link_is_up = true;
 		qp->active = true;
 
@@ -1275,6 +1361,9 @@ static int ntb_transport_init_queue(struct ntb_transport_ctx *nt,
 	qp->ndev = nt->ndev;
 	qp->client_ready = false;
 	qp->event_handler = NULL;
+#ifdef MY_DEF_HERE
+	qp->remote_ready = false;
+#endif /* MY_DEF_HERE */
 	ntb_qp_link_down_reset(qp);
 
 	if (mw_num < qp_count % mw_count)
@@ -1285,11 +1374,14 @@ static int ntb_transport_init_queue(struct ntb_transport_ctx *nt,
 	mw_base = nt->mw_vec[mw_num].phys_addr;
 	mw_size = nt->mw_vec[mw_num].phys_size;
 #ifdef MY_DEF_HERE
-	if (mw_size > 1024ULL * 1024 * transport_qp_max_mbsize)
-		mw_size = 1024ULL * 1024 * transport_qp_max_mbsize;
-#endif /* MY_DEF_HERE */
+	BUILD_BUG_ON(TRANSPORT_QP_SIZE * TRANSPORT_QP_MAX_COUNT_PER_MW > TRANSPORT_QP_MW_SIZE);
+	tx_size = TRANSPORT_QP_SIZE;
+#else
+	if (max_mw_size && mw_size > max_mw_size)
+		mw_size = max_mw_size;
 
 	tx_size = (unsigned int)mw_size / num_qps_mw;
+#endif /* MY_DEF_HERE */
 	qp_offset = tx_size * (qp_num / mw_count);
 
 	qp->tx_mw = nt->mw_vec[mw_num].vbase + qp_offset;
@@ -1327,6 +1419,9 @@ static int ntb_transport_init_queue(struct ntb_transport_ctx *nt,
 
 	spin_lock_init(&qp->ntb_rx_q_lock);
 	spin_lock_init(&qp->ntb_tx_free_q_lock);
+#ifdef MY_DEF_HERE
+	spin_lock_init(&qp->ntb_tx_index_lock);
+#endif /* MY_DEF_HERE */
 
 	INIT_LIST_HEAD(&qp->rx_post_q);
 	INIT_LIST_HEAD(&qp->rx_pend_q);
@@ -1347,6 +1442,9 @@ static int ntb_transport_probe(struct ntb_client *self, struct ntb_dev *ndev)
 	u64 qp_bitmap;
 	int node;
 	int rc, i;
+#ifdef MY_DEF_HERE
+	unsigned int max_qp_count_per_mw = TRANSPORT_QP_MAX_COUNT_PER_MW;
+#endif /* MY_DEF_HERE */
 
 	mw_count = ntb_peer_mw_count(ndev);
 
@@ -1377,7 +1475,8 @@ static int ntb_transport_probe(struct ntb_client *self, struct ntb_dev *ndev)
 	gndev = ndev;
 #endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
-	nt->ntb_brd_used_size = (u64)transport_qp_max_mbsize * 1024 * 1024;
+	INIT_LIST_HEAD(&nt->ntb_transport_raw_blocks);
+	spin_lock_init(&nt->ntb_transport_raw_block_lock);
 #endif /* MY_DEF_HERE */
 
 	/* Limit the MW's based on the availability of scratchpads */
@@ -1423,6 +1522,11 @@ static int ntb_transport_probe(struct ntb_client *self, struct ntb_dev *ndev)
 		mw->dma_addr = 0;
 
 #ifdef MY_DEF_HERE
+		if (mw->phys_size / TRANSPORT_QP_SIZE < max_qp_count_per_mw)
+			max_qp_count_per_mw = mw->phys_size / TRANSPORT_QP_SIZE;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
 		rc = ntb_set_mw(nt, i, mw->phys_size);
 		if (rc)
 			goto err1;
@@ -1434,8 +1538,13 @@ static int ntb_transport_probe(struct ntb_client *self, struct ntb_dev *ndev)
 	qp_count = ilog2(qp_bitmap);
 	if (max_num_clients && max_num_clients < qp_count)
 		qp_count = max_num_clients;
+#ifdef MY_DEF_HERE
+	else if (max_qp_count_per_mw * nt->mw_count < qp_count)
+		qp_count = max_qp_count_per_mw * nt->mw_count;
+#else
 	else if (nt->mw_count < qp_count)
 		qp_count = nt->mw_count;
+#endif /* MY_DEF_HERE */
 
 	qp_bitmap &= BIT_ULL(qp_count) - 1;
 
@@ -1491,11 +1600,6 @@ err1:
 	while (i--) {
 		mw = &nt->mw_vec[i];
 		iounmap(mw->vbase);
-#ifdef MY_DEF_HERE
-		if (mw->virt_addr)
-			dma_free_coherent(&ndev->pdev->dev, mw->buff_size,
-					mw->virt_addr, mw->dma_addr);
-#endif /* MY_DEF_HERE */
 	}
 	kfree(nt->mw_vec);
 err:
@@ -1509,6 +1613,10 @@ static void ntb_transport_free(struct ntb_client *self, struct ntb_dev *ndev)
 	struct ntb_transport_qp *qp;
 	u64 qp_bitmap_alloc;
 	int i;
+#ifdef MY_DEF_HERE
+	struct ntb_transport_raw_block *tmp_block;
+	unsigned long flags;
+#endif /* MY_DEF_HERE */
 
 	ntb_transport_link_cleanup(nt);
 	cancel_work_sync(&nt->link_cleanup);
@@ -1529,6 +1637,16 @@ static void ntb_transport_free(struct ntb_client *self, struct ntb_dev *ndev)
 			ntb_transport_free_queue(qp);
 		debugfs_remove_recursive(qp->debugfs_dir);
 	}
+#ifdef MY_DEF_HERE
+	spin_lock_irqsave(&nt->ntb_transport_raw_block_lock, flags);
+	while (!list_empty(&nt->ntb_transport_raw_blocks)) {
+		tmp_block = list_first_entry(&nt->ntb_transport_raw_blocks,
+					 struct ntb_transport_raw_block, list);
+		list_del_init(&tmp_block->list);
+		kfree(tmp_block);
+	}
+	spin_unlock_irqrestore(&nt->ntb_transport_raw_block_lock, flags);
+#endif /* MY_DEF_HERE */
 
 	ntb_link_disable(ndev);
 	ntb_clear_ctx(ndev);
@@ -1972,21 +2090,35 @@ err:
 	return -ENXIO;
 }
 
+#ifdef MY_DEF_HERE
+static void ntb_async_tx(struct ntb_transport_qp *qp,
+			 struct ntb_queue_entry *entry, unsigned int tx_index, u64 tx_pkts)
+#else
 static void ntb_async_tx(struct ntb_transport_qp *qp,
 			 struct ntb_queue_entry *entry)
+#endif /* MY_DEF_HERE */
 {
 	struct ntb_payload_header __iomem *hdr;
 	struct dma_chan *chan = qp->tx_dma_chan;
 	void __iomem *offset;
 	int res;
 
+#ifdef MY_DEF_HERE
+	entry->tx_index = tx_index;
+	offset = qp->tx_mw + qp->tx_max_frame * tx_index;
+#else
 	entry->tx_index = qp->tx_index;
 	offset = qp->tx_mw + qp->tx_max_frame * entry->tx_index;
+#endif /* MY_DEF_HERE */
 	hdr = offset + qp->tx_max_frame - sizeof(struct ntb_payload_header);
 	entry->tx_hdr = hdr;
 
 	iowrite32(entry->len, &hdr->len);
+#ifdef MY_DEF_HERE
+	iowrite32((u32)tx_pkts, &hdr->ver);
+#else
 	iowrite32((u32)qp->tx_pkts, &hdr->ver);
+#endif /* MY_DEF_HERE */
 
 	if (!chan)
 		goto err;
@@ -2011,10 +2143,19 @@ err:
 static int ntb_process_tx(struct ntb_transport_qp *qp,
 			  struct ntb_queue_entry *entry)
 {
+#ifdef MY_DEF_HERE
+	unsigned int tx_index;
+	u64 tx_pkts;
+	unsigned long flags;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+#else
 	if (qp->tx_index == qp->remote_rx_info->entry) {
 		qp->tx_ring_full++;
 		return -EAGAIN;
 	}
+#endif /* MY_DEF_HERE */
 
 	if (entry->len > qp->tx_max_frame - sizeof(struct ntb_payload_header)) {
 		if (qp->tx_handler)
@@ -2025,12 +2166,30 @@ static int ntb_process_tx(struct ntb_transport_qp *qp,
 		return 0;
 	}
 
+#ifdef MY_DEF_HERE
+	spin_lock_irqsave(&qp->ntb_tx_index_lock, flags);
+	if (qp->tx_index == qp->remote_rx_info->entry) {
+		qp->tx_ring_full++;
+		spin_unlock_irqrestore(&qp->ntb_tx_index_lock, flags);
+		return -EAGAIN;
+	}
+	tx_index = qp->tx_index;
+	qp->tx_index++;
+	qp->tx_index %= qp->tx_max_entry;
+
+	tx_pkts = qp->tx_pkts;
+	qp->tx_pkts++;
+	spin_unlock_irqrestore(&qp->ntb_tx_index_lock, flags);
+
+	ntb_async_tx(qp, entry, tx_index, tx_pkts);
+#else
 	ntb_async_tx(qp, entry);
 
 	qp->tx_index++;
 	qp->tx_index %= qp->tx_max_entry;
 
 	qp->tx_pkts++;
+#endif /* MY_DEF_HERE */
 
 	return 0;
 }
@@ -2088,9 +2247,15 @@ static bool ntb_dma_filter_fn(struct dma_chan *chan, void *node)
  *
  * RETURNS: pointer to newly created ntb_queue, NULL on error.
  */
+#ifdef MY_DEF_HERE
+struct ntb_transport_qp *
+__ntb_transport_create_queue(void *data, struct device *client_dev, int idx,
+			   const struct ntb_queue_handlers *handlers)
+#else
 struct ntb_transport_qp *
 ntb_transport_create_queue(void *data, struct device *client_dev,
 			   const struct ntb_queue_handlers *handlers)
+#endif /* MY_DEF_HERE */
 {
 	struct ntb_dev *ndev;
 	struct pci_dev *pdev;
@@ -2109,12 +2274,27 @@ ntb_transport_create_queue(void *data, struct device *client_dev,
 
 	node = dev_to_node(&ndev->dev);
 
+#ifdef MY_DEF_HERE
+	if (idx >= 0) {
+		if (!(BIT_ULL(idx) & nt->qp_bitmap_free)) {
+			dev_err(&pdev->dev, "ntb: QP%d unable to create, err:%d\n", idx, -EBUSY);
+			goto err;
+		}
+		free_queue = idx;
+		goto skip_find_free_queue;
+	}
+#endif /* MY_DEF_HERE */
+
 	free_queue = ffs(nt->qp_bitmap_free);
 	if (!free_queue)
 		goto err;
 
 	/* decrement free_queue to make it zero based */
 	free_queue--;
+
+#ifdef MY_DEF_HERE
+skip_find_free_queue:
+#endif /* MY_DEF_HERE */
 
 	qp = &nt->qp_vec[free_queue];
 	qp_bit = BIT_ULL(qp->qp_num);
@@ -2195,7 +2375,43 @@ err1:
 err:
 	return NULL;
 }
+#ifdef MY_DEF_HERE
+#else
 EXPORT_SYMBOL_GPL(ntb_transport_create_queue);
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+struct ntb_transport_qp *
+ntb_transport_create_queue(void *data, struct device *client_dev,
+			   const struct ntb_queue_handlers *handlers)
+{
+	return __ntb_transport_create_queue(data, client_dev, -1, handlers);
+}
+EXPORT_SYMBOL_GPL(ntb_transport_create_queue);
+
+/**
+ * ntb_transport_create_queue_by_idx - Create a new NTB transport layer queue by idx
+ * @rx_handler: receive callback function
+ * @tx_handler: transmit callback function
+ * @event_handler: event callback function
+ *
+ * Create a new NTB transport layer queue and provide the queue with a callback
+ * routine for both transmit and receive.  The receive callback routine will be
+ * used to pass up data when the transport has received it on the queue.   The
+ * transmit callback routine will be called when the transport has completed the
+ * transmission of the data on the queue and the data is ready to be freed.
+ *
+ * RETURNS: pointer to newly created ntb_queue, NULL on error.
+ */
+struct ntb_transport_qp *
+ntb_transport_create_queue_by_idx(void *data, struct device *client_dev, int idx,
+			   const struct ntb_queue_handlers *handlers)
+{
+	return __ntb_transport_create_queue(data, client_dev, idx, handlers);
+}
+EXPORT_SYMBOL_GPL(ntb_transport_create_queue_by_idx);
+#endif /* MY_DEF_HERE */
+
 
 /**
  * ntb_transport_free_queue - Frees NTB transport queue
@@ -2281,42 +2497,97 @@ void ntb_transport_free_queue(struct ntb_transport_qp *qp)
 EXPORT_SYMBOL_GPL(ntb_transport_free_queue);
 
 #ifdef MY_DEF_HERE
-int ntb_transport_map_block(struct device *client_dev, u64 size,
-		void **tx_buf, void **rx_buf,
-		void (*event_handler)(int status))
+struct ntb_transport_raw_block *
+ntb_transport_create_block(struct device *client_dev, int idx,
+	void (*event_handler)(struct ntb_transport_raw_block *block, int status))
 {
+	int err;
+	struct ntb_dev *ndev;
 	struct ntb_transport_ctx *nt;
 	struct ntb_transport_mw *mw;
-	u64 used_size;
+	struct ntb_transport_raw_block *tmp_block, *block = NULL;
+	int node;
+	unsigned long flags;
+	u64 size;
+	u64 offset;
 
-	nt = dev_ntb(client_dev->parent)->ctx;
+	if (!client_dev || idx >= NTB_RAW_BLOCK_ID_MAX) {
+		err = -EINVAL;
+		goto out;
+	}
+
+	ndev = dev_ntb(client_dev->parent);
+	nt = ndev->ctx;
+	node = dev_to_node(&ndev->dev);
+
+	size = ntb_raw_block_mapping[idx].size;
+	offset = ntb_raw_block_mapping[idx].offset;
 
 	// For now we only have one mw.
+	if (nt->mw_count < 1) {
+		err = -ENOSPC;
+		goto out;
+	}
 	mw = &nt->mw_vec[0];
-	used_size = nt->ntb_brd_used_size;
-	if (mw->phys_size - used_size < size)
-		return -ENOSPC;
+	if (mw->phys_size < TRANSPORT_QP_MW_SIZE + offset + size) {
+		err = -ENOSPC;
+		goto out;
+	}
 
-	if (nt->ntb_brd_force_local == true)
-		*tx_buf = NULL;
-	else
-		*tx_buf = nt->mw_vec[0].vbase + used_size;
-	*rx_buf = nt->mw_vec[0].virt_addr + used_size;
-	nt->ntb_brd_used_size += size;
-	nt->ntb_brd_event_handler = event_handler;
-	return 0;
+	block = kzalloc_node(sizeof(*block), GFP_KERNEL, node);
+	if (!block) {
+		err = -ENOMEM;
+		goto out;
+	}
+
+	INIT_LIST_HEAD(&block->list);
+	block->nt = nt;
+	block->idx = idx;
+	block->offset = offset;
+	block->size = size;
+	block->tx_buff = mw->vbase + TRANSPORT_QP_MW_SIZE + offset;
+	block->rx_buff = mw->virt_addr + TRANSPORT_QP_MW_SIZE + offset;
+	block->event_handler = event_handler;
+
+	if ((ntb_link_is_up(nt->ndev, NULL, NULL) == 1) &&
+		mw->remote_mw_size >= TRANSPORT_QP_MW_SIZE + offset + size) {
+		block->link_is_up = true;
+	}
+
+	spin_lock_irqsave(&nt->ntb_transport_raw_block_lock, flags);
+	list_for_each_entry(tmp_block, &nt->ntb_transport_raw_blocks, list) {
+		if (tmp_block->idx == block->idx) {
+			spin_unlock_irqrestore(&nt->ntb_transport_raw_block_lock, flags);
+			err = -EEXIST;
+			goto out;
+		}
+	}
+	list_add_tail(&block->list, &nt->ntb_transport_raw_blocks);
+	spin_unlock_irqrestore(&nt->ntb_transport_raw_block_lock, flags);
+
+	return block;
+
+out:
+	kfree(block);
+	return ERR_PTR(err);
 }
-EXPORT_SYMBOL(ntb_transport_map_block);
+EXPORT_SYMBOL(ntb_transport_create_block);
 
-void ntb_transport_unmap_all(struct device *client_dev)
+void ntb_transport_free_block(struct ntb_transport_raw_block *block)
 {
 	struct ntb_transport_ctx *nt;
+	unsigned long flags;
 
-	nt = dev_ntb(client_dev->parent)->ctx;
-	nt->ntb_brd_used_size = transport_qp_max_mbsize;
-	nt->ntb_brd_event_handler = NULL;
+	if (!block)
+		return;
+
+	nt = block-> nt;
+	spin_lock_irqsave(&nt->ntb_transport_raw_block_lock, flags);
+	list_del_init(&block->list);
+	spin_unlock_irqrestore(&nt->ntb_transport_raw_block_lock, flags);
+	kfree(block);
 }
-EXPORT_SYMBOL(ntb_transport_unmap_all);
+EXPORT_SYMBOL(ntb_transport_free_block);
 #endif /* MY_DEF_HERE */
 
 /**
@@ -2449,7 +2720,11 @@ void ntb_transport_link_up(struct ntb_transport_qp *qp)
 
 	qp->client_ready = true;
 
+#ifdef MY_DEF_HERE
+	if (qp->transport->link_is_up && qp->remote_ready)
+#else
 	if (qp->transport->link_is_up)
+#endif /* MY_DEF_HERE */
 		schedule_delayed_work(&qp->link_work, 0);
 }
 EXPORT_SYMBOL_GPL(ntb_transport_link_up);
@@ -2471,12 +2746,23 @@ void ntb_transport_link_down(struct ntb_transport_qp *qp)
 
 	qp->client_ready = false;
 
+#ifdef MY_DEF_HERE
+	val = ntb_peer_spad_read(qp->ndev, PIDX, QP_LINKS);
+#else
 	val = ntb_spad_read(qp->ndev, QP_LINKS);
+#endif /* MY_DEF_HERE */
 
 	ntb_peer_spad_write(qp->ndev, PIDX, QP_LINKS, val & ~BIT(qp->qp_num));
 
 	if (qp->link_is_up)
+#ifdef MY_DEF_HERE
+	{
+#endif /* MY_DEF_HERE */
 		ntb_send_link_down(qp);
+#ifdef MY_DEF_HERE
+		iowrite32((qp->rx_max_entry - 1), &qp->rx_info->entry);
+	}
+#endif /* MY_DEF_HERE */
 	else
 		cancel_delayed_work_sync(&qp->link_work);
 }
@@ -2498,6 +2784,16 @@ bool ntb_transport_link_query(struct ntb_transport_qp *qp)
 	return qp->link_is_up;
 }
 EXPORT_SYMBOL_GPL(ntb_transport_link_query);
+
+#ifdef MY_DEF_HERE
+u32 ntb_transport_remote_syno_conf_ver(struct ntb_transport_qp *qp)
+{
+	if (!qp)
+		return ~(u32)0;
+	return qp->remote_syno_conf_ver;
+}
+EXPORT_SYMBOL_GPL(ntb_transport_remote_syno_conf_ver);
+#endif /* MY_DEF_HERE */
 
 /**
  * ntb_transport_qp_num - Query the qp number

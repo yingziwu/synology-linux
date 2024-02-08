@@ -2239,6 +2239,7 @@ void intel_edp_panel_on(struct intel_dp *intel_dp)
 	pps_unlock(intel_dp);
 }
 
+
 static void edp_panel_off(struct intel_dp *intel_dp)
 {
 	struct drm_i915_private *dev_priv = to_i915(intel_dp_to_dev(intel_dp));
@@ -3770,6 +3771,7 @@ intel_edp_init_dpcd(struct intel_dp *intel_dp)
 
 	return true;
 }
+
 
 static bool
 intel_dp_get_dpcd(struct intel_dp *intel_dp)

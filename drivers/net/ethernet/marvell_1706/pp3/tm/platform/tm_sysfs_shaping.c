@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -94,3 +95,4 @@ int tm_sysfs_read_shaping(void)
 
 	TM_WRAPPER_END(tm_hndl);
 }
+

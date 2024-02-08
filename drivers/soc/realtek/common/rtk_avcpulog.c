@@ -286,6 +286,7 @@ again:
 		goto again;
 	}
 
+
 	/* Only emit log if no error or DROP happened */
 	/* Ok, now there is valid log inside log buffer. Try to read
 	   as much as we could */

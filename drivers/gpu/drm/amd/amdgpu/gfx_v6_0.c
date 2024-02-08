@@ -1517,6 +1517,7 @@ static u32 gfx_v6_0_get_cu_enabled(struct amdgpu_device *adev)
 	return ~REG_GET_FIELD(data, CC_GC_SHADER_ARRAY_CONFIG, INACTIVE_CUS) & mask;
 }
 
+
 static void gfx_v6_0_setup_spi(struct amdgpu_device *adev)
 {
 	int i, j, k;
@@ -1755,6 +1756,7 @@ static void gfx_v6_0_gpu_init(struct amdgpu_device *adev)
 
 	udelay(50);
 }
+
 
 static void gfx_v6_0_scratch_init(struct amdgpu_device *adev)
 {
@@ -2399,6 +2401,7 @@ static void gfx_v6_0_ring_emit_vm_flush(struct amdgpu_ring *ring,
 	}
 }
 
+
 static void gfx_v6_0_rlc_fini(struct amdgpu_device *adev)
 {
 	amdgpu_bo_free_kernel(&adev->gfx.rlc.save_restore_obj, NULL, NULL);
@@ -2575,6 +2578,7 @@ static int gfx_v6_0_rlc_resume(struct amdgpu_device *adev)
 	const struct rlc_firmware_header_v1_0 *hdr;
 	const __le32 *fw_data;
 	u32 fw_size;
+
 
 	if (!adev->gfx.rlc_fw)
 		return -EINVAL;
@@ -3031,6 +3035,7 @@ static void gfx_v6_ring_emit_cntxcntl(struct amdgpu_ring *ring, uint32_t flags)
 	amdgpu_ring_write(ring, 0x80000000);
 	amdgpu_ring_write(ring, 0);
 }
+
 
 static uint32_t wave_read_ind(struct amdgpu_device *adev, uint32_t simd, uint32_t wave, uint32_t address)
 {

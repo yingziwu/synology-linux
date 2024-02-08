@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Generic OPP Interface
  *
@@ -13,18 +16,18 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 #include <linux/clk.h>
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 #include <linux/errno.h>
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/device.h>
 #include <linux/of.h>
 #include <linux/export.h>
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 #include <linux/regulator/consumer.h>
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 #include "opp.h"
 
@@ -235,7 +238,7 @@ unsigned long dev_pm_opp_get_max_clock_latency(struct device *dev)
 }
 EXPORT_SYMBOL_GPL(dev_pm_opp_get_max_clock_latency);
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 /**
  * dev_pm_opp_get_max_volt_latency() - Get max voltage latency in nanoseconds
  * @dev: device for which we do this operation
@@ -312,7 +315,7 @@ unsigned long dev_pm_opp_get_max_transition_latency(struct device *dev)
 }
 EXPORT_SYMBOL_GPL(dev_pm_opp_get_max_transition_latency);
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 /**
  * dev_pm_opp_get_suspend_opp() - Get suspend opp
  * @dev:	device for which we do this operation
@@ -535,7 +538,7 @@ struct dev_pm_opp *dev_pm_opp_find_freq_floor(struct device *dev,
 }
 EXPORT_SYMBOL_GPL(dev_pm_opp_find_freq_floor);
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 /*
  * The caller needs to ensure that device_opp (and hence the clk) isn't freed,
  * while clk returned here is used.
@@ -712,7 +715,7 @@ restore_voltage:
 }
 EXPORT_SYMBOL_GPL(dev_pm_opp_set_rate);
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 /* List-dev Helpers */
 static void _kfree_list_dev_rcu(struct rcu_head *head)
 {
@@ -725,9 +728,9 @@ static void _kfree_list_dev_rcu(struct rcu_head *head)
 static void _remove_list_dev(struct device_list_opp *list_dev,
 			     struct device_opp *dev_opp)
 {
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	opp_debug_unregister(list_dev, dev_opp);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	list_del(&list_dev->node);
 	call_srcu(&dev_opp->srcu_head.srcu, &list_dev->rcu_head,
 		  _kfree_list_dev_rcu);
@@ -737,9 +740,9 @@ struct device_list_opp *_add_list_dev(const struct device *dev,
 				      struct device_opp *dev_opp)
 {
 	struct device_list_opp *list_dev;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	int ret;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 	list_dev = kzalloc(sizeof(*list_dev), GFP_KERNEL);
 	if (!list_dev)
@@ -749,14 +752,14 @@ struct device_list_opp *_add_list_dev(const struct device *dev,
 	list_dev->dev = dev;
 	list_add_rcu(&list_dev->node, &dev_opp->dev_list);
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	/* Create debugfs entries for the dev_opp */
 	ret = opp_debug_register(list_dev, dev_opp);
 	if (ret)
 		dev_err(dev, "%s: Failed to register opp debugfs (%d)\n",
 			__func__, ret);
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	return list_dev;
 }
 
@@ -773,10 +776,10 @@ static struct device_opp *_add_device_opp(struct device *dev)
 {
 	struct device_opp *dev_opp;
 	struct device_list_opp *list_dev;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	struct device_node *np;
 	int ret;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 	/* Check for existing list for 'dev' first */
 	dev_opp = _find_device_opp(dev);
@@ -799,7 +802,7 @@ static struct device_opp *_add_device_opp(struct device *dev)
 		return NULL;
 	}
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	/*
 	 * Only required for backward compatibility with v1 bindings, but isn't
 	 * harmful for other cases. And so we do it unconditionally.
@@ -824,7 +827,7 @@ static struct device_opp *_add_device_opp(struct device *dev)
 				ret);
 	}
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	srcu_init_notifier_head(&dev_opp->srcu_head);
 	INIT_LIST_HEAD(&dev_opp->opp_list);
 
@@ -857,7 +860,7 @@ static void _remove_device_opp(struct device_opp *dev_opp)
 	if (!list_empty(&dev_opp->opp_list))
 		return;
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	if (dev_opp->supported_hw)
 		return;
 
@@ -871,7 +874,7 @@ static void _remove_device_opp(struct device_opp *dev_opp)
 	if (!IS_ERR(dev_opp->clk))
 		clk_put(dev_opp->clk);
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	list_dev = list_first_entry(&dev_opp->dev_list, struct device_list_opp,
 				    node);
 
@@ -917,9 +920,9 @@ static void _opp_remove(struct device_opp *dev_opp,
 	 */
 	if (notify)
 		srcu_notifier_call_chain(&dev_opp->srcu_head, OPP_EVENT_REMOVE, opp);
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	opp_debug_remove_one(opp);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	list_del_rcu(&opp->node);
 	call_srcu(&dev_opp->srcu_head.srcu, &opp->rcu_head, _kfree_opp_rcu);
 
@@ -992,7 +995,7 @@ static struct dev_pm_opp *_allocate_opp(struct device *dev,
 	return opp;
 }
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 static bool _opp_supported_by_regulators(struct dev_pm_opp *opp,
 					 struct device_opp *dev_opp)
 {
@@ -1009,15 +1012,15 @@ static bool _opp_supported_by_regulators(struct dev_pm_opp *opp,
 	return true;
 }
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 static int _opp_add(struct device *dev, struct dev_pm_opp *new_opp,
 		    struct device_opp *dev_opp)
 {
 	struct dev_pm_opp *opp;
 	struct list_head *head = &dev_opp->opp_list;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	int ret;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 	/*
 	 * Insert new OPP in order of increasing frequency and discard if
@@ -1048,7 +1051,7 @@ static int _opp_add(struct device *dev, struct dev_pm_opp *new_opp,
 	new_opp->dev_opp = dev_opp;
 	list_add_rcu(&new_opp->node, head);
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	ret = opp_debug_create_one(new_opp, dev_opp);
 	if (ret)
 		dev_err(dev, "%s: Failed to register opp to debugfs (%d)\n",
@@ -1060,7 +1063,7 @@ static int _opp_add(struct device *dev, struct dev_pm_opp *new_opp,
 			 __func__, new_opp->rate);
 	}
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	return 0;
 }
 
@@ -1096,9 +1099,9 @@ static int _opp_add_v1(struct device *dev, unsigned long freq, long u_volt,
 {
 	struct device_opp *dev_opp;
 	struct dev_pm_opp *new_opp;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	unsigned long tol;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	int ret;
 
 	/* Hold our list modification lock here */
@@ -1112,14 +1115,14 @@ static int _opp_add_v1(struct device *dev, unsigned long freq, long u_volt,
 
 	/* populate the opp table */
 	new_opp->rate = freq;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	tol = u_volt * dev_opp->voltage_tolerance_v1 / 100;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	new_opp->u_volt = u_volt;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	new_opp->u_volt_min = u_volt - tol;
 	new_opp->u_volt_max = u_volt + tol;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	new_opp->available = true;
 	new_opp->dynamic = dynamic;
 
@@ -1144,17 +1147,17 @@ unlock:
 }
 
 /* TODO: Support multiple regulators */
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 static int opp_parse_supplies(struct dev_pm_opp *opp, struct device *dev,
 			      struct device_opp *dev_opp)
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 static int opp_parse_supplies(struct dev_pm_opp *opp, struct device *dev)
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 {
 	u32 microvolt[3] = {0};
 	u32 val;
 	int count, ret;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	struct property *prop = NULL;
 	char name[NAME_MAX];
 
@@ -1164,9 +1167,9 @@ static int opp_parse_supplies(struct dev_pm_opp *opp, struct device *dev)
 			 dev_opp->prop_name);
 		prop = of_find_property(opp->np, name, NULL);
 	}
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	if (!prop) {
 		/* Search for "opp-microvolt" */
 		sprintf(name, "opp-microvolt");
@@ -1176,53 +1179,53 @@ static int opp_parse_supplies(struct dev_pm_opp *opp, struct device *dev)
 		if (!prop)
 			return 0;
 	}
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	/* Missing property isn't a problem, but an invalid entry is */
 	if (!of_find_property(opp->np, "opp-microvolt", NULL))
 		return 0;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	count = of_property_count_u32_elems(opp->np, name);
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	count = of_property_count_u32_elems(opp->np, "opp-microvolt");
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	if (count < 0) {
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 		dev_err(dev, "%s: Invalid %s property (%d)\n",
 			__func__, name, count);
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 		dev_err(dev, "%s: Invalid opp-microvolt property (%d)\n",
 			__func__, count);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 		return count;
 	}
 
 	/* There can be one or three elements here */
 	if (count != 1 && count != 3) {
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 		dev_err(dev, "%s: Invalid number of elements in %s property (%d)\n",
 			__func__, name, count);
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 		dev_err(dev, "%s: Invalid number of elements in opp-microvolt property (%d)\n",
 			__func__, count);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 		return -EINVAL;
 	}
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	ret = of_property_read_u32_array(opp->np, name, microvolt, count);
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	ret = of_property_read_u32_array(opp->np, "opp-microvolt", microvolt,
 					 count);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	if (ret) {
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 		dev_err(dev, "%s: error parsing %s: %d\n", __func__, name, ret);
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 		dev_err(dev, "%s: error parsing opp-microvolt: %d\n", __func__,
 			ret);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 		return -EINVAL;
 	}
 
@@ -1236,7 +1239,7 @@ static int opp_parse_supplies(struct dev_pm_opp *opp, struct device *dev)
 		opp->u_volt_max = microvolt[2];
 	}
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	/* Search for "opp-microamp-<name>" */
 	prop = NULL;
 	if (dev_opp->prop_name) {
@@ -1252,15 +1255,15 @@ static int opp_parse_supplies(struct dev_pm_opp *opp, struct device *dev)
 	}
 
 	if (prop && !of_property_read_u32(opp->np, name, &val))
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	if (!of_property_read_u32(opp->np, "opp-microamp", &val))
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 		opp->u_amp = val;
 
 	return 0;
 }
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 /**
  * dev_pm_opp_set_supported_hw() - Set supported platforms
  * @dev: Device for which supported-hw has to be set.
@@ -1613,7 +1616,7 @@ static bool _opp_is_supported(struct device *dev, struct device_opp *dev_opp,
 	return true;
 }
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 /**
  * _opp_add_static_v2() - Allocate static OPPs (As per 'v2' DT bindings)
  * @dev:	device for which we do this operation
@@ -1660,14 +1663,14 @@ static int _opp_add_static_v2(struct device *dev, struct device_node *np)
 		goto free_opp;
 	}
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	/* Check if the OPP supports hardware's hierarchy of versions or not */
 	if (!_opp_is_supported(dev, dev_opp, np)) {
 		dev_dbg(dev, "OPP not supported by hardware: %llu\n", rate);
 		goto free_opp;
 	}
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	/*
 	 * Rate is defined as an unsigned long in clk API, and so casting
 	 * explicitly to its type. Must be fixed once rate is 64 bit
@@ -1683,11 +1686,11 @@ static int _opp_add_static_v2(struct device *dev, struct device_node *np)
 	if (!of_property_read_u32(np, "clock-latency-ns", &val))
 		new_opp->clock_latency_ns = val;
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	ret = opp_parse_supplies(new_opp, dev, dev_opp);
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	ret = opp_parse_supplies(new_opp, dev);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	if (ret)
 		goto free_opp;
 
@@ -1697,24 +1700,24 @@ static int _opp_add_static_v2(struct device *dev, struct device_node *np)
 
 	/* OPP to select on device suspend */
 	if (of_property_read_bool(np, "opp-suspend")) {
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 		if (dev_opp->suspend_opp) {
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 		if (dev_opp->suspend_opp)
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 			dev_warn(dev, "%s: Multiple suspend OPPs found (%lu %lu)\n",
 				 __func__, dev_opp->suspend_opp->rate,
 				 new_opp->rate);
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 		} else {
 			new_opp->suspend = true;
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 		else
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 			dev_opp->suspend_opp = new_opp;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 		}
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	}
 
 	if (new_opp->clock_latency_ns > dev_opp->clock_latency_ns_max)
@@ -2019,6 +2022,7 @@ static int _of_add_opp_table_v2(struct device *dev, struct device_node *opp_np)
 		if (ret) {
 			dev_err(dev, "%s: Failed to add OPP, %d\n", __func__,
 				ret);
+			of_node_put(np);
 			goto free_table;
 		}
 	}

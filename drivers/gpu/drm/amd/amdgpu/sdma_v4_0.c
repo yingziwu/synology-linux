@@ -419,6 +419,7 @@ static void sdma_v4_0_ring_emit_fence(struct amdgpu_ring *ring, u64 addr, u64 se
 	amdgpu_ring_write(ring, SDMA_PKT_TRAP_INT_CONTEXT_INT_CONTEXT(0));
 }
 
+
 /**
  * sdma_v4_0_gfx_stop - stop the gfx async dma engines
  *
@@ -980,6 +981,7 @@ err0:
 	return r;
 }
 
+
 /**
  * sdma_v4_0_vm_copy_pte - update PTEs by copying them from the GART
  *
@@ -1090,6 +1092,7 @@ static void sdma_v4_0_ring_pad_ib(struct amdgpu_ring *ring, struct amdgpu_ib *ib
 				SDMA_PKT_HEADER_OP(SDMA_OP_NOP);
 }
 
+
 /**
  * sdma_v4_0_ring_emit_pipeline_sync - sync the pipeline
  *
@@ -1114,6 +1117,7 @@ static void sdma_v4_0_ring_emit_pipeline_sync(struct amdgpu_ring *ring)
 	amdgpu_ring_write(ring, SDMA_PKT_POLL_REGMEM_DW5_RETRY_COUNT(0xfff) |
 			  SDMA_PKT_POLL_REGMEM_DW5_INTERVAL(4)); /* retry count, poll interval */
 }
+
 
 /**
  * sdma_v4_0_ring_emit_vm_flush - vm flush using sDMA
@@ -1179,6 +1183,7 @@ static int sdma_v4_0_early_init(void *handle)
 
 	return 0;
 }
+
 
 static int sdma_v4_0_sw_init(void *handle)
 {
@@ -1393,6 +1398,7 @@ static int sdma_v4_0_process_illegal_inst_irq(struct amdgpu_device *adev,
 	return 0;
 }
 
+
 static void sdma_v4_0_update_medium_grain_clock_gating(
 		struct amdgpu_device *adev,
 		bool enable)
@@ -1456,6 +1462,7 @@ static void sdma_v4_0_update_medium_grain_clock_gating(
 		}
 	}
 }
+
 
 static void sdma_v4_0_update_medium_grain_light_sleep(
 		struct amdgpu_device *adev,

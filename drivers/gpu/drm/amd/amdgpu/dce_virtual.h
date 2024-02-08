@@ -27,3 +27,4 @@
 extern const struct amdgpu_ip_block_version dce_virtual_ip_block;
 
 #endif
+

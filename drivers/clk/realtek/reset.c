@@ -313,6 +313,7 @@ static int rtk_reset_probe(struct platform_device *pdev)
 	int offset = 0;
 	int ret;
 
+
 	priv = devm_kzalloc(&pdev->dev, sizeof(struct reset_priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
@@ -383,3 +384,4 @@ static int __init rtk_reset_init(void)
 	return platform_driver_register(&rtk_reset_driver);
 }
 core_initcall(rtk_reset_init);
+

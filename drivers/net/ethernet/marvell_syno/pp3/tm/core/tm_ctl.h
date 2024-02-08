@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -30,6 +31,7 @@ disclaimer.
 
 #include "tm_core_types.h"	 /* in order to define tm_handle */
 
+
 /** Initialize TM configuration library.
  *
  *   @param[in]		cProductName	Product Name.
@@ -46,6 +48,7 @@ disclaimer.
  */
 int tm_lib_open(const char * cProductName, tm_handle hEnv, tm_handle *htm);
 
+
 /**
  * @brief   Initiate TM related H/W resources.
  *
@@ -60,6 +63,7 @@ int tm_lib_open(const char * cProductName, tm_handle hEnv, tm_handle *htm);
  */
 int tm_lib_init_hw(tm_handle hndl);
 
+
 /** Close TM configuration library.
  *
  *   @param[in]		hndl		TM lib handle
@@ -69,6 +73,7 @@ int tm_lib_init_hw(tm_handle hndl);
  *   @retval -EBADF if hndl is an invalid handle.
  */
 int tm_lib_close(tm_handle hndl);
+
 
 /**
  * @brief   Initiate TM H/W resources to default.
@@ -84,4 +89,6 @@ int tm_lib_close(tm_handle hndl);
  */
 int tm_lib_init_hw_def(tm_handle hndl);
 
+
 #endif   /* TM_CTL_H */
+

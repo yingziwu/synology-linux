@@ -325,6 +325,7 @@ err1:
         return r;
 }
 
+
 static void gfx_v9_0_free_microcode(struct amdgpu_device *adev)
 {
 	release_firmware(adev->gfx.pfp_fw);
@@ -457,6 +458,7 @@ static int gfx_v9_0_init_microcode(struct amdgpu_device *adev)
 	cp_hdr = (const struct gfx_firmware_header_v1_0 *)adev->gfx.mec_fw->data;
 	adev->gfx.mec_fw_version = le32_to_cpu(cp_hdr->header.ucode_version);
 	adev->gfx.mec_feature_version = le32_to_cpu(cp_hdr->ucode_feature_version);
+
 
 	snprintf(fw_name, sizeof(fw_name), "amdgpu/%s_mec2.bin", chip_name);
 	err = request_firmware(&adev->gfx.mec2_fw, fw_name, adev->dev);
@@ -1227,6 +1229,7 @@ static int gfx_v9_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
 	if (r)
 		return r;
 
+
 	return 0;
 }
 
@@ -1375,6 +1378,7 @@ static int gfx_v9_0_sw_init(void *handle)
 	return 0;
 }
 
+
 static int gfx_v9_0_sw_fini(void *handle)
 {
 	int i;
@@ -1407,6 +1411,7 @@ static int gfx_v9_0_sw_fini(void *handle)
 
 	return 0;
 }
+
 
 static void gfx_v9_0_tiling_mode_table_init(struct amdgpu_device *adev)
 {
@@ -2267,6 +2272,7 @@ static int gfx_v9_0_cp_gfx_resume(struct amdgpu_device *adev)
 	WREG32_SOC15(GC, 0, mmCP_RB_DOORBELL_RANGE_UPPER,
 		       CP_RB_DOORBELL_RANGE_UPPER__DOORBELL_RANGE_UPPER_MASK);
 
+
 	/* start the ring */
 	gfx_v9_0_cp_gfx_start(adev);
 	ring->ready = true;
@@ -2934,6 +2940,7 @@ static int gfx_v9_0_kcq_disable(struct amdgpu_ring *kiq_ring,struct amdgpu_ring 
 	return r;
 }
 
+
 static int gfx_v9_0_hw_fini(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
@@ -3028,6 +3035,7 @@ static int gfx_v9_0_soft_reset(void *handle)
 	if (REG_GET_FIELD(tmp, GRBM_STATUS2, RLC_BUSY))
 		grbm_soft_reset = REG_SET_FIELD(grbm_soft_reset,
 						GRBM_SOFT_RESET, SOFT_RESET_RLC, 1);
+
 
 	if (grbm_soft_reset) {
 		/* stop the rlc */

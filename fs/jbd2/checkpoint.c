@@ -254,8 +254,8 @@ restart:
 		bh = jh2bh(jh);
 
 		if (buffer_locked(bh)) {
-			spin_unlock(&journal->j_list_lock);
 			get_bh(bh);
+			spin_unlock(&journal->j_list_lock);
 			wait_on_buffer(bh);
 			/* the journal_head may have gone by now */
 			BUFFER_TRACE(bh, "brelse");
@@ -336,8 +336,8 @@ restart2:
 		jh = transaction->t_checkpoint_io_list;
 		bh = jh2bh(jh);
 		if (buffer_locked(bh)) {
-			spin_unlock(&journal->j_list_lock);
 			get_bh(bh);
+			spin_unlock(&journal->j_list_lock);
 			wait_on_buffer(bh);
 			/* the journal_head may have gone by now */
 			BUFFER_TRACE(bh, "brelse");
@@ -409,6 +409,7 @@ int jbd2_cleanup_journal_tail(journal_t *journal)
 
 	return __jbd2_update_log_tail(journal, first_tid, blocknr);
 }
+
 
 /* Checkpoint list management */
 

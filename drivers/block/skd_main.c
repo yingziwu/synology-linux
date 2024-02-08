@@ -349,6 +349,7 @@ struct skd_device {
 
 	u32 timo_slot;
 
+
 	struct work_struct completion_worker;
 };
 
@@ -402,6 +403,7 @@ static inline void skd_reg_write64(struct skd_device *skdev, u64 val,
 			 skdev->name, __func__, __LINE__, offset, val);
 	}
 }
+
 
 #define SKD_IRQ_DEFAULT SKD_IRQ_MSI
 static int skd_isr_type = SKD_IRQ_DEFAULT;
@@ -2212,6 +2214,9 @@ static void skd_send_fitmsg(struct skd_device *skdev,
 		 */
 		qcmd |= FIT_QCMD_MSGSIZE_64;
 
+	/* Make sure skd_msg_buf is written before the doorbell is triggered. */
+	smp_wmb();
+
 	SKD_WRITEQ(skdev, qcmd, FIT_Q_COMMAND);
 
 }
@@ -2257,6 +2262,9 @@ static void skd_send_special_fitmsg(struct skd_device *skdev,
 	 */
 	qcmd = skspcl->mb_dma_address;
 	qcmd |= FIT_QCMD_QID_NORMAL + FIT_QCMD_MSGSIZE_128;
+
+	/* Make sure skd_msg_buf is written before the doorbell is triggered. */
+	smp_wmb();
 
 	SKD_WRITEQ(skdev, qcmd, FIT_Q_COMMAND);
 }
@@ -2680,6 +2688,7 @@ static void skd_process_scsi_inq(struct skd_device *skdev,
 	if (buf)
 		skd_do_driver_inq(skdev, skcomp, skerr, scsi_req->cdb, buf);
 }
+
 
 static int skd_isr_completion_posted(struct skd_device *skdev,
 					int limit, int *enqueued)
@@ -4676,15 +4685,16 @@ static void skd_free_disk(struct skd_device *skdev)
 {
 	struct gendisk *disk = skdev->disk;
 
-	if (disk != NULL) {
-		struct request_queue *q = disk->queue;
+	if (disk && (disk->flags & GENHD_FL_UP))
+		del_gendisk(disk);
 
-		if (disk->flags & GENHD_FL_UP)
-			del_gendisk(disk);
-		if (q)
-			blk_cleanup_queue(q);
-		put_disk(disk);
+	if (skdev->queue) {
+		blk_cleanup_queue(skdev->queue);
+		skdev->queue = NULL;
+		disk->queue = NULL;
 	}
+
+	put_disk(disk);
 	skdev->disk = NULL;
 }
 
@@ -4692,6 +4702,7 @@ static void skd_destruct(struct skd_device *skdev)
 {
 	if (skdev == NULL)
 		return;
+
 
 	pr_debug("%s:%s:%d disk\n", skdev->name, __func__, __LINE__);
 	skd_free_disk(skdev);
@@ -4755,6 +4766,7 @@ static const struct block_device_operations skd_blockdev_ops = {
 	.ioctl		= skd_bdev_ioctl,
 	.getgeo		= skd_bdev_getgeo,
 };
+
 
 /*
  *****************************************************************************
@@ -4861,6 +4873,7 @@ static int skd_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	} else
 		skdev->pcie_error_reporting_is_enabled = 1;
 
+
 	pci_set_drvdata(pdev, skdev);
 
 	skdev->disk->driverfs_dev = &pdev->dev;
@@ -4915,6 +4928,7 @@ static int skd_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 			rc = -ENXIO;
 		goto err_out_timer;
 	}
+
 
 #ifdef SKD_VMK_POLL_HANDLER
 	if (skdev->irq_type == SKD_IRQ_MSIX) {

@@ -94,6 +94,7 @@ enum fbc_idle_force {
 	FBC_IDLE_FORCE_CG_STATIC_SCREEN_IS_INACTIVE = 0x20000000,
 };
 
+
 static uint32_t align_to_chunks_number_per_line(uint32_t pixels)
 {
 	return 256 * ((pixels + 255) / 256);
@@ -128,6 +129,7 @@ static void wait_for_fbc_state_changed(
 			cp110->base.ctx->logger, LOG_SYNC,
 			"FBC status changed to %d", enabled);
 	}
+
 
 }
 
@@ -188,6 +190,7 @@ void dce110_compressor_enable_fbc(
 
 		uint32_t addr;
 		uint32_t value, misc_value;
+
 
 		addr = mmFBC_CNTL;
 		value = dm_read_reg(compressor->ctx, addr);
@@ -274,6 +277,7 @@ bool dce110_compressor_is_fbc_enabled_in_hw(
 	}
 	return false;
 }
+
 
 void dce110_compressor_program_compressed_surface_address_and_pitch(
 	struct compressor *compressor,
@@ -428,6 +432,7 @@ bool dce110_get_required_compressed_surfacesize(struct fbc_input_info fbc_input_
 	return result;
 }
 
+
 void get_max_support_fbc_buffersize(unsigned int *max_x, unsigned int *max_y)
 {
 	*max_x = FBC_MAX_X;
@@ -440,6 +445,7 @@ void get_max_support_fbc_buffersize(unsigned int *max_x, unsigned int *max_y)
 	 * }
 	 */
 }
+
 
 unsigned int controller_id_to_index(enum controller_id controller_id)
 {
@@ -464,6 +470,7 @@ unsigned int controller_id_to_index(enum controller_id controller_id)
 	return index;
 }
 
+
 static const struct compressor_funcs dce110_compressor_funcs = {
 	.power_up_fbc = dce110_compressor_power_up_fbc,
 	.enable_fbc = dce110_compressor_enable_fbc,
@@ -472,6 +479,7 @@ static const struct compressor_funcs dce110_compressor_funcs = {
 	.surface_address_and_pitch = dce110_compressor_program_compressed_surface_address_and_pitch,
 	.is_fbc_enabled_in_hw = dce110_compressor_is_fbc_enabled_in_hw
 };
+
 
 void dce110_compressor_construct(struct dce110_compressor *compressor,
 	struct dc_context *ctx)
@@ -488,6 +496,7 @@ void dce110_compressor_construct(struct dce110_compressor *compressor,
 	 * check if this system has more than 1 dram channel; if only 1 then lpt
 	 * should not be supported
 	 */
+
 
 	compressor->base.options.bits.CLK_GATING_DISABLED = false;
 
@@ -510,3 +519,4 @@ void dce110_compressor_construct(struct dce110_compressor *compressor,
 
 #endif
 }
+

@@ -178,6 +178,8 @@
 		 * 1 - TC/L2
 		 */
 
+
+
 #define	PACKET3_PREAMBLE_CNTL				0x4A
 #              define PACKET3_PREAMBLE_BEGIN_CLEAR_STATE     (2 << 28)
 #              define PACKET3_PREAMBLE_END_CLEAR_STATE       (3 << 28)
@@ -349,6 +351,7 @@
 /* CONTROL2b */
 #              define PACKET3_QUERY_STATUS_DOORBELL_OFFSET(x)  ((x) << 2)
 #              define PACKET3_QUERY_STATUS_ENG_SEL(x)          ((x) << 25)
+
 
 #define VCE_CMD_NO_OP		0x00000000
 #define VCE_CMD_END		0x00000001

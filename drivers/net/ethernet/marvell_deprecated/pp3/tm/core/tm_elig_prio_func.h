@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -60,6 +61,7 @@ int tm_elig_prio_func_config(tm_handle hndl,
 							 enum tm_level level,
 							 union tm_elig_prio_func *func_out_arr);
 
+
 /** Configure the Eligible Priority Function according
 *   to the User Application parameters
 *
@@ -87,6 +89,7 @@ int tm_elig_prio_func_config_all_levels(tm_handle hndl,
 										uint16_t elig_prio_func_ptr,
 										union tm_elig_prio_func *func_out_arr);
 
+
 /** Configure the Eligible Priority Function to Node
 *
 *	@param[in]	hndl					TM lib handle
@@ -105,6 +108,7 @@ int tm_elig_prio_func_config_all_levels(tm_handle hndl,
 */
 int tm_node_elig_set(tm_handle hndl, enum tm_level level, uint32_t index, uint8_t prio);
 
+
 /** Configure the Eligible Priority Function to Queue
 *
 *	@param[in]	hndl					TM lib handle
@@ -121,6 +125,7 @@ int tm_node_elig_set(tm_handle hndl, enum tm_level level, uint32_t index, uint8_
 *	@retval TM_HW_ELIG_PRIO_FUNC_FAILED when the configuration to the HW failed
 */
 int tm_queue_elig_set(tm_handle hndl, uint32_t index, uint8_t prio);
+
 
 /** Configure the Eligible Node Priority as propagated priority (without shaping)
 *
@@ -140,13 +145,17 @@ int tm_queue_elig_set(tm_handle hndl, uint32_t index, uint8_t prio);
 
 int tm_node_elig_set_propagated(tm_handle hndl, enum tm_level level, uint32_t index);
 
+
 int tm_get_node_elig_prio_fun_info(tm_handle hndl, enum tm_level level, uint32_t index, uint8_t *prio, uint8_t *mask);
+
+
 
 int is_queue_elig_fun_uses_shaper(struct tm_elig_prio_func_queue *queue_func_table,
 									uint8_t func_index);
 
 int is_node_elig_fun_uses_shaper(struct tm_elig_prio_func_node *node_func_table,
 									uint8_t func_index);
+
 
 /* Auxiliary function
 uint16_t convert_elig_func_to_value(struct tm_elig_prio_func_out *elig_func);

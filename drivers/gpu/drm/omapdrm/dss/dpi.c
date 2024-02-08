@@ -180,6 +180,7 @@ static bool dpi_calc_dispc_cb(int lckd, int pckd, unsigned long lck,
 	return true;
 }
 
+
 static bool dpi_calc_hsdiv_cb(int m_dispc, unsigned long dispc,
 		void *data)
 {
@@ -191,6 +192,7 @@ static bool dpi_calc_hsdiv_cb(int m_dispc, unsigned long dispc,
 	return dispc_div_calc(dispc, ctx->pck_min, ctx->pck_max,
 			dpi_calc_dispc_cb, ctx);
 }
+
 
 static bool dpi_calc_pll_cb(int n, int m, unsigned long fint,
 		unsigned long clkdco,
@@ -281,6 +283,8 @@ static bool dpi_dss_clk_calc(unsigned long pck, struct dpi_clk_calc_ctx *ctx)
 
 	return false;
 }
+
+
 
 static int dpi_set_pll_clk(struct dpi_data *dpi, enum omap_channel channel,
 		unsigned long pck_req, unsigned long *fck, int *lck_div,

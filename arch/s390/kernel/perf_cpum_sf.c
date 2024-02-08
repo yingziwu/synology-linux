@@ -550,6 +550,7 @@ static void extend_sampling_buffer(struct sf_buffer *sfb,
 				    sfb_pending_allocs(sfb, hwc));
 }
 
+
 /* Number of perf events counting hardware events */
 static atomic_t num_events;
 /* Used to avoid races in calling reserve/release_cpumf_hardware */
@@ -743,6 +744,10 @@ static int __hw_perf_event_init(struct perf_event *event)
 	 */
 	rate = 0;
 	if (attr->freq) {
+		if (!attr->sample_freq) {
+			err = -EINVAL;
+			goto out;
+		}
 		rate = freq_to_sample_rate(&si, attr->sample_freq);
 		rate = hw_limit_rate(&si, rate);
 		attr->freq = 0;
@@ -978,12 +983,15 @@ static int perf_push_sample(struct perf_event *event, struct sf_raw_sample *sfr)
 	struct pt_regs regs;
 	struct perf_sf_sde_regs *sde_regs;
 	struct perf_sample_data data;
-	struct perf_raw_record raw;
+	struct perf_raw_record raw = {
+		.frag = {
+			.size = sfr->size,
+			.data = sfr,
+		},
+	};
 
 	/* Setup perf sample */
 	perf_sample_data_init(&data, 0, event->hw.last_period);
-	raw.size = sfr->size;
-	raw.data = sfr;
 	data.raw = &raw;
 
 	/* Setup pt_regs to look like an CPU-measurement external interrupt

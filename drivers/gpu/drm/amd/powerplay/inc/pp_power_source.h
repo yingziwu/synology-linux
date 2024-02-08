@@ -32,4 +32,5 @@ enum pp_power_source {
 	PP_PowerSource_Max
 };
 
+
 #endif

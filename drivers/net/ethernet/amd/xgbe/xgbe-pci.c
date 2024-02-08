@@ -390,6 +390,7 @@ static int xgbe_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	/* Set the DMA coherency values */
 	pdata->coherent = 1;
+
 	pdata->arcr = XGBE_DMA_PCI_ARCR;
 	pdata->awcr = XGBE_DMA_PCI_AWCR;
 	pdata->awarcr = XGBE_DMA_PCI_AWARCR;
@@ -540,10 +541,15 @@ MODULE_DEVICE_TABLE(pci, xgbe_pci_table);
 static void syno_xgbe_pci_shutdown(struct pci_dev *pdev)
 {
 	struct xgbe_prv_data *pdata = pci_get_drvdata(pdev);
+	struct net_device *netdev = pdata->netdev;
+	int ret = 0;
 
 	if (pdata->wol_flag & WAKE_MAGIC) {
 		pdata->phy_if.phy_impl.wol_enable(pdata);
 	} else {
+		if (netif_running(netdev))
+			ret = xgbe_powerdown(netdev, XGMAC_DRIVER_CONTEXT);
+
 		pdata->phy_if.phy_stop(pdata);
 	}
 }

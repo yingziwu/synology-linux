@@ -226,6 +226,7 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
 		buf[4], buf[5], buf[6], buf[7],
 		buf[8]);
 
+
 	tm->tm_sec = bcd2bin(buf[PCF8563_REG_SC] & 0x7F);
 	tm->tm_min = bcd2bin(buf[PCF8563_REG_MN] & 0x7F);
 	tm->tm_hour = bcd2bin(buf[PCF8563_REG_HR] & 0x3F); /* rtc hr 0-23 */
@@ -426,7 +427,7 @@ static unsigned long pcf8563_clkout_recalc_rate(struct clk_hw *hw,
 		return 0;
 
 	buf &= PCF8563_REG_CLKO_F_MASK;
-	return clkout_rates[ret];
+	return clkout_rates[buf];
 }
 
 static long pcf8563_clkout_round_rate(struct clk_hw *hw, unsigned long rate,

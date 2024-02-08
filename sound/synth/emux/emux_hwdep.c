@@ -80,6 +80,7 @@ snd_emux_hwdep_misc_mode(struct snd_emux *emu, void __user *arg)
 	return 0;
 }
 
+
 /*
  * ioctl
  */
@@ -113,6 +114,7 @@ snd_emux_hwdep_ioctl(struct snd_hwdep * hw, struct file *file,
 	return 0;
 }
 
+
 /*
  * register hwdep device
  */
@@ -139,6 +141,7 @@ snd_emux_init_hwdep(struct snd_emux *emu)
 
 	return 0;
 }
+
 
 /*
  * unregister

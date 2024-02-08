@@ -29,6 +29,7 @@ int power_control_power_on(struct power_control *pctrl)
 }
 EXPORT_SYMBOL(power_control_power_on);
 
+
 int power_control_power_off(struct power_control *pctrl)
 {
     int ret = 0;
@@ -138,3 +139,4 @@ void power_control_unregister(struct power_control *pctrl)
     kfree(pctrl->owner);
 }
 EXPORT_SYMBOL(power_control_unregister);
+

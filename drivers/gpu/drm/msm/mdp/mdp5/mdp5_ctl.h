@@ -81,4 +81,6 @@ u32 mdp5_ctl_commit(struct mdp5_ctl *ctl, struct mdp5_pipeline *pipeline,
 		    u32 flush_mask);
 u32 mdp5_ctl_get_commit_status(struct mdp5_ctl *ctl);
 
+
+
 #endif /* __MDP5_CTL_H__ */

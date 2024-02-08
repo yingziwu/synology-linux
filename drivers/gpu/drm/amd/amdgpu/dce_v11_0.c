@@ -645,6 +645,7 @@ static void dce_v11_0_program_fmt(struct drm_encoder *encoder)
 	WREG32(mmFMT_BIT_DEPTH_CONTROL + amdgpu_crtc->crtc_offset, tmp);
 }
 
+
 /* display watermark setup */
 /**
  * dce_v11_0_line_buffer_adjust - Set up the line buffer
@@ -2946,6 +2947,7 @@ static int dce_v11_0_sw_init(void *handle)
 
 	adev->ddev->mode_config.max_width = 16384;
 	adev->ddev->mode_config.max_height = 16384;
+
 
 	/* allocate crtcs */
 	for (i = 0; i < adev->mode_info.num_crtc; i++) {

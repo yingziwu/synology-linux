@@ -97,6 +97,7 @@ struct enclosure_component_callbacks {
 	int (*show_id)(struct enclosure_device *, char *buf);
 };
 
+
 struct enclosure_component {
 	void *scratch;
 	struct device cdev;

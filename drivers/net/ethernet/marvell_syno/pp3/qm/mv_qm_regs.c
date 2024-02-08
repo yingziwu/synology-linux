@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -60,6 +61,7 @@ void qm_reg_address_alias_init(u32 siliconBase)
 	qm.ql.xoff_when_bm_empty_en = qm.ql.base + 0x0000600;
 	qm.ql.xoff_mac_qnum        = qm.ql.base + 0x0000604;
 	qm.ql.xoff_hmac_qs         = qm.ql.base + 0x0000620;
+
 
 	/* PFE registers addresses */
 	qm.pfe.qece_dram_base_address_hi         = qm.pfe.base + 0x00000000;
@@ -404,3 +406,5 @@ void qm_reg_offset_alias_init(void)
 	qm_reg_offset.reorder.ru_host_cmd        =  8;
 	qm_reg_offset.reorder.ru_task_permission =  8;
 }
+
+

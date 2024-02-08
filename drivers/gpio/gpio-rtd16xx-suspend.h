@@ -68,6 +68,7 @@
 #define GPIO_WAKEUP_ACT3_MASK(val) SET_VAL(val, GPIO_WAKEUP_ACT3_BITS, GPIO_WAKEUP_ACT3_SHIFFT)
 #define GPIO_WAKEUP_ACT3_GET(reg) GET_VAL(reg, GPIO_WAKEUP_ACT3_BITS, GPIO_WAKEUP_ACT3_SHIFFT)
 
+
 #define GPIO_OUTPUT_CHANGE_EN3_SHIFFT 0
 #define GPIO_OUTPUT_CHANGE_EN3_BITS 22
 #define GPIO_OUTPUT_CHANGE_EN3_MASK(val) SET_VAL(val, GPIO_OUTPUT_CHANGE_EN_BITS, GPIO_OUTPUT_CHANGE_EN_SHIFFT)
@@ -81,5 +82,6 @@
 void rtk_suspend_gpio_output_change_suspend(void);
 void rtk_suspend_gpio_output_change_resume(void);
 void rtk_gpio_suspend_init(struct device_node *node);
+
 
 #endif /* RTD16XX_GPIO_SUSPEND_H_ */

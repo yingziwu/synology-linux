@@ -478,3 +478,4 @@ bool bw_calcs(
 	struct dce_bw_output *calcs_output);
 
 #endif /* __BANDWIDTH_CALCS_H__ */
+

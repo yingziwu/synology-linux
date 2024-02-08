@@ -38,6 +38,7 @@
 	#define	TMDS_CNTL__TMDS_COLOR_FORMAT__SHIFT       0x00000008
 #endif
 
+
 #define SE_COMMON_REG_LIST_DCE_BASE(id) \
 	SE_COMMON_REG_LIST_BASE(id),\
 	SRI(AFMT_AVI_INFO0, DIG, id), \
@@ -704,6 +705,7 @@ void dce110_stream_encoder_construct(
 	const struct dce110_stream_enc_registers *regs,
 	const struct dce_stream_encoder_shift *se_shift,
 	const struct dce_stream_encoder_mask *se_mask);
+
 
 void dce110_se_audio_mute_control(
 	struct stream_encoder *enc, bool mute);

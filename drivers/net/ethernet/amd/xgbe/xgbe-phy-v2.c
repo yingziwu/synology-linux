@@ -3345,106 +3345,6 @@ static int xgbe_phy_init(struct xgbe_prv_data *pdata)
 }
 
 #if defined(MY_ABC_HERE)
-static void syno_force_1g(struct xgbe_prv_data *pdata)
-{
-	int reg;
-	struct xgbe_phy_data *phy_data = pdata->phy_data;
-	int temp_m, temp_c;
-
-	reg = xgbe_phy_get_comm_ownership(pdata);
-	if (reg){
-		printk("get ownership fail \n");
-		return ;
-	}
-
-	temp_c = phy_data->conn_type;
-	temp_m = phy_data->phydev_mode;
-
-	phy_data->phydev_mode = XGBE_MDIO_MODE_CL45;
-	phy_data->conn_type = XGBE_CONN_TYPE_MDIO;
-
-	/* Do not advertise PHY as 10G */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0020);
-	reg &= ~0x1000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0020, reg);
-
-	/* Disable extended next pages */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0000);
-	reg &= ~0x2000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0000, reg);
-
-	/* Extended next page not capable */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0010);
-	reg &= ~0x1000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0010, reg);
-
-	/* Speed Select 1000 Mbps */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_PMAPMD << 16) | 0x0000);
-	reg &= ~0x2000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_PMAPMD << 16) | 0x0000, reg);
-
-	/* Softreset to effect above change */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf001);
-	reg |= 0x8000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf001, reg);
-	msleep(500);
-
-	xgbe_phy_put_comm_ownership(pdata);
-
-	phy_data->phydev_mode = temp_m;
-	phy_data->conn_type = temp_c;
-}
-
-static void syno_resume_autoneg(struct xgbe_prv_data *pdata)
-{
-	int reg;
-	struct xgbe_phy_data *phy_data = pdata->phy_data;
-	int temp_m, temp_c;
-
-	reg = xgbe_phy_get_comm_ownership(pdata);
-	if (reg){
-		printk("get ownership fail \n");
-		return ;
-	}
-
-	temp_c = phy_data->conn_type;
-	temp_m = phy_data->phydev_mode;
-
-	phy_data->phydev_mode = XGBE_MDIO_MODE_CL45;
-	phy_data->conn_type = XGBE_CONN_TYPE_MDIO;
-
-	/* Advertise PHY as 10G */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0020);
-	reg |= 0x1000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0020, reg);
-
-	/* Enable extended next pages */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0000);
-	reg |= 0x2000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0000, reg);
-
-	/* Extended next page capable */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0010);
-	reg |= 0x1000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0010, reg);
-
-	/* Speed Select 10 Gbps */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_PMAPMD << 16) | 0x0000);
-	reg |= 0x2000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_PMAPMD << 16) | 0x0000, reg);
-
-	/* Softreset to effect above change */
-	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf001);
-	reg |= 0x8000;
-	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf001, reg);
-	msleep(500);
-
-	xgbe_phy_put_comm_ownership(pdata);
-
-	phy_data->phydev_mode = temp_m;
-	phy_data->conn_type = temp_c;
-}
-
 static void syno_xgbe_wol_enable(struct xgbe_prv_data *pdata)
 {
 	int ret;
@@ -3498,7 +3398,5 @@ void xgbe_init_function_ptrs_phy_v2(struct xgbe_phy_if *phy_if)
 	phy_impl->kr_training_post	= xgbe_phy_kr_training_post;
 #if defined(MY_ABC_HERE)
 	phy_impl->wol_enable		= syno_xgbe_wol_enable;
-	phy_impl->force_1g		= syno_force_1g;
-	phy_impl->resume_autoneg	= syno_resume_autoneg;
 #endif /* MY_ABC_HERE */
 }

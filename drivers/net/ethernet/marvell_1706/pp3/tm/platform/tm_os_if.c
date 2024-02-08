@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -55,6 +56,7 @@ void *tm_memcpy(void *dest, const void *src, unsigned int n)
 	return memcpy(dest, src, n);
 }
 
+
 /**
  */
 int tm_abs(int x)
@@ -63,3 +65,4 @@ int tm_abs(int x)
 		return -x;
 	return x;
 }
+

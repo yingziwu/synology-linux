@@ -38,6 +38,7 @@
 #define DDI_PHY_GEN_STATUS_VAL(phyID)   (1 << ((3 - ((phyID & 0x07)/2))*8 + (phyID & 0x01)*4))
 #define IS_PHY_ID_USED_BY_PLL(PhyID)    (((0xF3 & (1 << PhyID)) & 0xFF) ? true : false)
 
+
 int cz_phm_set_asic_block_gating(struct pp_hwmgr *hwmgr, enum PHM_AsicBlock block, enum PHM_ClockGateSetting gating)
 {
 	int ret = 0;
@@ -60,10 +61,12 @@ int cz_phm_set_asic_block_gating(struct pp_hwmgr *hwmgr, enum PHM_AsicBlock bloc
 	return ret;
 }
 
+
 bool cz_phm_is_safe_for_asic_block(struct pp_hwmgr *hwmgr, const struct pp_hw_power_state *state, enum PHM_AsicBlock block)
 {
 	return true;
 }
+
 
 int cz_phm_enable_disable_gfx_power_gating(struct pp_hwmgr *hwmgr, bool enable)
 {
@@ -143,6 +146,7 @@ int cz_enable_disable_vce_dpm(struct pp_hwmgr *hwmgr, bool enable)
 	return 0;
 }
 
+
 void cz_dpm_powergate_uvd(struct pp_hwmgr *hwmgr, bool bgate)
 {
 	struct cz_hwmgr *cz_hwmgr = (struct cz_hwmgr *)(hwmgr->backend);
@@ -202,3 +206,4 @@ void cz_dpm_powergate_vce(struct pp_hwmgr *hwmgr, bool bgate)
 		cz_enable_disable_vce_dpm(hwmgr, true);
 	}
 }
+

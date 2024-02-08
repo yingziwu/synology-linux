@@ -305,6 +305,7 @@ struct amdgpu_display_funcs {
 				     struct drm_property *property,
 				     uint64_t val);
 
+
 };
 
 struct amdgpu_framebuffer {

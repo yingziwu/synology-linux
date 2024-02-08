@@ -256,6 +256,7 @@ struct smu7_hwmgr {
 	bool                           enable_pkg_pwr_tracking_feature;
 	bool                           disable_uvd_power_tune_feature;
 
+
 	uint32_t                       dte_tj_offset;
 	uint32_t                       fast_watermark_threshold;
 
@@ -342,3 +343,4 @@ uint32_t smu7_get_xclk(struct pp_hwmgr *hwmgr);
 uint8_t smu7_get_sleep_divider_id_from_clock(uint32_t clock,
 		uint32_t clock_insr);
 #endif
+

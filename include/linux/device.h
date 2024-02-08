@@ -281,6 +281,7 @@ struct device_driver {
 	struct driver_private *p;
 };
 
+
 extern int __must_check driver_register(struct device_driver *drv);
 extern void driver_unregister(struct device_driver *drv);
 
@@ -288,6 +289,7 @@ extern struct device_driver *driver_find(const char *name,
 					 struct bus_type *bus);
 extern int driver_probe_done(void);
 extern void wait_for_device_probe(void);
+
 
 /* sysfs interface for exporting driver attributes */
 
@@ -366,6 +368,7 @@ int subsys_virtual_register(struct bus_type *subsys,
  * @suspend:	Used to put the device to sleep mode, usually to a low power
  *		state.
  * @resume:	Used to bring the device from the sleep mode.
+ * @shutdown:	Called at shut-down time to quiesce the device.
  * @ns_type:	Callbacks so sysfs can detemine namespaces.
  * @namespace:	Namespace of the device belongs to this class.
  * @pm:		The default device power management operations of this class.
@@ -394,6 +397,7 @@ struct class {
 
 	int (*suspend)(struct device *dev, pm_message_t state);
 	int (*resume)(struct device *dev);
+	int (*shutdown)(struct device *dev);
 
 	const struct kobj_ns_type_operations *ns_type;
 	const void *(*namespace)(struct device *dev);
@@ -1069,6 +1073,7 @@ extern int (*platform_notify)(struct device *dev);
 
 extern int (*platform_notify_remove)(struct device *dev);
 
+
 /*
  * get_device - atomically increment the reference count for the device.
  *
@@ -1091,6 +1096,7 @@ extern void device_shutdown(void);
 
 /* debugging and troubleshooting/diagnostic helpers. */
 extern const char *dev_driver_string(const struct device *dev);
+
 
 #ifdef CONFIG_PRINTK
 
@@ -1266,8 +1272,11 @@ do {									\
 		dev_printk(KERN_DEBUG, dev, fmt, ##__VA_ARGS__);	\
 } while (0)
 #else
-#define dev_dbg_ratelimited(dev, fmt, ...)			\
-	no_printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
+#define dev_dbg_ratelimited(dev, fmt, ...)				\
+do {									\
+	if (0)								\
+		dev_printk(KERN_DEBUG, dev, fmt, ##__VA_ARGS__);	\
+} while (0)
 #endif
 
 #ifdef VERBOSE_DEBUG

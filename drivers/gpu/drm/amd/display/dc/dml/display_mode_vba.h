@@ -112,6 +112,7 @@ bool Calculate256BBlockSizes(
 		unsigned int *BlockWidth256BytesY,
 		unsigned int *BlockWidth256BytesC);
 
+
 struct vba_vars_st {
 	ip_params_st	ip;
 	soc_bounding_box_st	soc;
@@ -218,6 +219,7 @@ struct vba_vars_st {
 	double FinalFillLevel;
 	double RemainingFillLevel;
 	double TFinalxFill;
+
 
 	//
 	// SOC Bounding Box Parameters

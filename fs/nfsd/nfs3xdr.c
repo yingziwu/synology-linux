@@ -15,6 +15,7 @@
 
 #define NFSDDBG_FACILITY		NFSDDBG_XDR
 
+
 /*
  * Mapping of S_IF* types to NFS file types
  */
@@ -357,6 +358,7 @@ nfs3svc_decode_writeargs(struct svc_rqst *rqstp, __be32 *p,
 {
 	unsigned int len, v, hdr, dlen;
 	u32 max_blocksize = svc_max_payload(rqstp);
+	struct kvec *head = rqstp->rq_arg.head;
 
 	p = decode_fh(p, &args->fh);
 	if (!p)
@@ -366,7 +368,7 @@ nfs3svc_decode_writeargs(struct svc_rqst *rqstp, __be32 *p,
 	args->count = ntohl(*p++);
 	args->stable = ntohl(*p++);
 	len = args->len = ntohl(*p++);
-	if ((void *)p > rqstp->rq_arg.head[0].iov_base + rqstp->rq_arg.head[0].iov_len)
+	if ((void *)p > head->iov_base + head->iov_len)
 		return 0;
 	/*
 	 * The count must equal the amount of data passed.
@@ -378,9 +380,8 @@ nfs3svc_decode_writeargs(struct svc_rqst *rqstp, __be32 *p,
 	 * Check to make sure that we got the right number of
 	 * bytes.
 	 */
-	hdr = (void*)p - rqstp->rq_arg.head[0].iov_base;
-	dlen = rqstp->rq_arg.head[0].iov_len + rqstp->rq_arg.page_len
-		- hdr;
+	hdr = (void*)p - head->iov_base;
+	dlen = head->iov_len + rqstp->rq_arg.page_len - hdr;
 	/*
 	 * Round the length of the data which was specified up to
 	 * the next multiple of XDR units and then compare that
@@ -397,7 +398,7 @@ nfs3svc_decode_writeargs(struct svc_rqst *rqstp, __be32 *p,
 		len = args->len = max_blocksize;
 	}
 	rqstp->rq_vec[0].iov_base = (void*)p;
-	rqstp->rq_vec[0].iov_len = rqstp->rq_arg.head[0].iov_len - hdr;
+	rqstp->rq_vec[0].iov_len = head->iov_len - hdr;
 	v = 0;
 	while (len > rqstp->rq_vec[v].iov_len) {
 		len -= rqstp->rq_vec[v].iov_len;
@@ -897,6 +898,7 @@ encode_entry(struct readdir_cd *ccd, const char *name, int namlen,
 		} else {
 			xdr_encode_hyper(cd->offset, offset64);
 		}
+		cd->offset = NULL;
 	}
 
 	/*

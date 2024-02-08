@@ -172,7 +172,7 @@ static bool i40e_clean_tx_irq(struct i40e_ring *tx_ring, int budget)
 			break;
 
 		/* prevent any other reads prior to eop_desc */
-		read_barrier_depends();
+		smp_rmb();
 
 		/* we have caught up to head, no work left to do */
 		if (tx_head == tx_desc)
@@ -1548,6 +1548,7 @@ static void i40e_tx_enable_csum(struct sk_buff *skb, u32 *tx_flags,
 			*tx_flags &= ~I40E_TX_FLAGS_IPV4;
 			*tx_flags |= I40E_TX_FLAGS_IPV6;
 		}
+
 
 		if ((tx_ring->flags & I40E_TXR_FLAGS_OUTER_UDP_CSUM) &&
 		    (l4_tunnel == I40E_TXD_CTX_UDP_TUNNELING)        &&

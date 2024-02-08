@@ -25,6 +25,7 @@
 #include "dm_services.h"
 #include "custom_float.h"
 
+
 static bool build_custom_float(
 	struct fixed31_32 value,
 	const struct custom_float_format *format,
@@ -192,3 +193,5 @@ bool convert_to_custom_float_format(
 	setup_custom_float(
 		format, negative, mantissa, exponenta, result);
 }
+
+

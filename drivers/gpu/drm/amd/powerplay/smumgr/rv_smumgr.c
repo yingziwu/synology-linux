@@ -47,6 +47,7 @@
 
 #define smnMP1_FIRMWARE_FLAGS       0x3010028
 
+
 bool rv_is_smc_ram_running(struct pp_hwmgr *hwmgr)
 {
 	uint32_t mp1_fw_flags, reg;
@@ -129,6 +130,7 @@ int rv_send_msg_to_smc(struct pp_hwmgr *hwmgr, uint16_t msg)
 	return 0;
 }
 
+
 int rv_send_msg_to_smc_with_parameter(struct pp_hwmgr *hwmgr,
 		uint16_t msg, uint32_t parameter)
 {
@@ -145,6 +147,7 @@ int rv_send_msg_to_smc_with_parameter(struct pp_hwmgr *hwmgr,
 	cgs_write_register(hwmgr->device, reg, parameter);
 
 	rv_send_msg_to_smc_without_waiting(hwmgr, msg);
+
 
 	if (rv_wait_for_response(hwmgr) == 0)
 		printk("Failed to send Message %x.\n", msg);
@@ -399,3 +402,5 @@ const struct pp_smumgr_func rv_smu_funcs = {
 	.download_pptable_settings = NULL,
 	.upload_pptable_settings = NULL,
 };
+
+

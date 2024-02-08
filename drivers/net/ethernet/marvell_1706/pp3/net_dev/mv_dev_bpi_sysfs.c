@@ -19,6 +19,7 @@
 #include "mv_netdev.h"
 #include "mv_dev_vq.h"
 
+
 static ssize_t pp3_dev_bpi_help(char *b)
 {
 	int o = 0;
@@ -61,6 +62,7 @@ static ssize_t pp3_dev_bpi_show(struct device *dev,
 	}
 	return off;
 }
+
 
 static ssize_t pp3_dev_bpi_store(struct device *dev,
 				   struct device_attribute *attr, const char *buf, size_t len)
@@ -122,6 +124,7 @@ static DEVICE_ATTR(tx_vq_emac,		S_IWUSR, NULL, pp3_dev_bpi_store);
 static DEVICE_ATTR(tx_bpi_thresh,	S_IWUSR, NULL, pp3_dev_bpi_store);
 static DEVICE_ATTR(tx_vq_del,		S_IWUSR, NULL, pp3_dev_bpi_store);
 
+
 static struct attribute *pp3_dev_bpi_attrs[] = {
 	&dev_attr_help.attr,
 	&dev_attr_tx_bpi_show.attr,
@@ -130,6 +133,7 @@ static struct attribute *pp3_dev_bpi_attrs[] = {
 	&dev_attr_tx_vq_del.attr,
 	NULL
 };
+
 
 static struct attribute_group pp3_dev_bpi_group = {
 	.name = "bpi",

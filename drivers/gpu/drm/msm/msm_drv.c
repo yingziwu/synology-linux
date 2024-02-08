@@ -23,6 +23,7 @@
 #include "msm_gpu.h"
 #include "msm_kms.h"
 
+
 /*
  * MSM driver version:
  * - 1.0.0 - initial interface
@@ -789,6 +790,7 @@ unlock:
 	return ret;
 }
 
+
 static int msm_ioctl_submitqueue_new(struct drm_device *dev, void *data,
 		struct drm_file *file)
 {
@@ -800,6 +802,7 @@ static int msm_ioctl_submitqueue_new(struct drm_device *dev, void *data,
 	return msm_submitqueue_create(dev, file->driver_priv, args->prio,
 		args->flags, &args->id);
 }
+
 
 static int msm_ioctl_submitqueue_close(struct drm_device *dev, void *data,
 		struct drm_file *file)
