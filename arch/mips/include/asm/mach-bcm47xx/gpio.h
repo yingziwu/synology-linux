@@ -68,6 +68,7 @@ static inline int gpio_is_valid(unsigned gpio)
 	return gpio < (BCM47XX_EXTIF_GPIO_LINES + BCM47XX_CHIPCO_GPIO_LINES);
 }
 
+
 static inline int gpio_direction_input(unsigned gpio)
 {
 	switch (bcm47xx_bus_type) {
@@ -149,5 +150,6 @@ static inline int gpio_polarity(unsigned gpio, int value)
 	}
 	return -EINVAL;
 }
+
 
 #endif /* __BCM47XX_GPIO_H */

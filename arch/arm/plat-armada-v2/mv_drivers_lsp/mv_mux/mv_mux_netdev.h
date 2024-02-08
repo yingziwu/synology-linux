@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -61,6 +62,7 @@ struct mux_netdev {
 
 #define MV_MUX_PRIV(dev)        ((struct mux_netdev *)(netdev_priv(dev)))
 
+
 struct mv_mux_eth_port {
 	int    tag_type;
 	struct net_device *switch_dev;
@@ -83,6 +85,7 @@ struct mv_mux_switch_port {
 	int    mtu;
 	bool   attach;
 };
+
 
 /* operations requested by switch device from mux device */
 struct mv_switch_mux_ops {
@@ -127,5 +130,6 @@ void mv_mux_switch_attach(int gbe_port, int preset, int vid, int tag, int switch
 void mv_mux_eth_detach(int port);
 int mv_mux_switch_ops_set(const struct mv_mux_switch_ops *switch_ops_ptr);
 int mv_mux_netdev_find(unsigned int dev_idx);
+
 
 #endif /* __mv_tag_netdev_h__ */

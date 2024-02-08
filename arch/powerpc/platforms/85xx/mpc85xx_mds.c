@@ -396,6 +396,7 @@ static void __init mpc85xx_mds_setup_arch(void)
 #endif
 }
 
+
 static int __init board_fixups(void)
 {
 	char phy_id[20];
@@ -565,3 +566,4 @@ define_machine(p1021_mds) {
 	.pcibios_fixup_bus	= fsl_pcibios_fixup_bus,
 #endif
 };
+

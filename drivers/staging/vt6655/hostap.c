@@ -48,6 +48,7 @@
 #define HOSTAP_CRYPT_ERR_TX_KEY_SET_FAILED 6
 #define HOSTAP_CRYPT_ERR_CARD_CONF_FAILED 7
 
+
 /*---------------------  Static Definitions -------------------------*/
 
 /*---------------------  Static Classes  ----------------------------*/
@@ -58,7 +59,11 @@ static int          msglevel                =MSG_LEVEL_INFO;
 
 /*---------------------  Static Functions  --------------------------*/
 
+
+
+
 /*---------------------  Export Variables  --------------------------*/
+
 
 /*
  * Description:
@@ -162,6 +167,7 @@ KeyvInitTable(&pDevice->sKey,pDevice->PortOffset);
 	return 0;
 }
 
+
 /*
  * Description:
  *      Set enable/disable hostapd mode
@@ -192,6 +198,7 @@ int vt6655_hostap_set_hostapd(PSDevice pDevice, int val, int rtnl_locked)
 		return hostap_disable_hostapd(pDevice, rtnl_locked);
 }
 
+
 /*
  * Description:
  *      remove station function supported for hostap deamon
@@ -209,6 +216,7 @@ static int hostap_remove_sta(PSDevice pDevice,
 				     struct viawget_hostapd_param *param)
 {
 	unsigned int uNodeIndex;
+
 
     if (BSSDBbIsSTAInNodeDB(pDevice->pMgmt, param->sta_addr, &uNodeIndex)) {
         BSSvRemoveOneNode(pDevice, uNodeIndex);
@@ -237,6 +245,7 @@ static int hostap_add_sta(PSDevice pDevice,
 {
     PSMgmtObject    pMgmt = pDevice->pMgmt;
 	unsigned int uNodeIndex;
+
 
     if (!BSSDBbIsSTAInNodeDB(pMgmt, param->sta_addr, &uNodeIndex)) {
         BSSvCreateOneNode((PSDevice)pDevice, &uNodeIndex);
@@ -374,6 +383,8 @@ static int hostap_set_flags_sta(PSDevice pDevice,
 	return 0;
 }
 
+
+
 /*
  * Description:
  *      set generic element (wpa ie)
@@ -391,6 +402,8 @@ static int hostap_set_generic_element(PSDevice pDevice,
 					struct viawget_hostapd_param *param)
 {
     PSMgmtObject    pMgmt = pDevice->pMgmt;
+
+
 
     memcpy( pMgmt->abyWPAIE,
             param->u.generic_elem.data,
@@ -469,6 +482,7 @@ static int hostap_set_encryption(PSDevice pDevice,
 	bool bKeyTableFull = false;
 	unsigned short wKeyCtl = 0;
 
+
 	param->u.crypt.err = 0;
 /*
 	if (param_len !=
@@ -479,6 +493,7 @@ static int hostap_set_encryption(PSDevice pDevice,
 
 	if (param->u.crypt.alg > WPA_ALG_CCMP)
 		return -EINVAL;
+
 
 	if ((param->u.crypt.idx > 3) || (param->u.crypt.key_len > MAX_KEY_LEN)) {
 		param->u.crypt.err = HOSTAP_CRYPT_ERR_KEY_SET_FAILED;
@@ -615,6 +630,7 @@ static int hostap_set_encryption(PSDevice pDevice,
         pMgmt->byCSSGK = KEY_CTL_CCMP;
     }
 
+
     if (iNodeIndex == 0) {
        KeybSetDefaultKey(&(pDevice->sKey),
                            dwKeyIndex,
@@ -679,6 +695,8 @@ static int hostap_set_encryption(PSDevice pDevice,
 	return ret;
 }
 
+
+
 /*
  * Description:
  *      get each stations encryption key
@@ -701,6 +719,7 @@ static int hostap_get_encryption(PSDevice pDevice,
 	int     ii;
 	int     iNodeIndex =0;
 
+
 	param->u.crypt.err = 0;
 
 	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
@@ -722,6 +741,7 @@ static int hostap_get_encryption(PSDevice pDevice,
 
 	return ret;
 }
+
 
 /*
  * Description:
@@ -831,6 +851,7 @@ int vt6655_hostap_ioctl(PSDevice pDevice, struct iw_point *p)
 		break;
 	}
 
+
 	if ((ret == 0) && ap_ioctl) {
 		if (copy_to_user(p->pointer, param, p->length)) {
 			ret = -EFAULT;
@@ -843,3 +864,4 @@ int vt6655_hostap_ioctl(PSDevice pDevice, struct iw_point *p)
 
 	return ret;
 }
+

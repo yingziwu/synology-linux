@@ -34,6 +34,7 @@
 
 #include <linux/configfs.h>
 
+
 static inline struct config_item * to_item(struct list_head * entry)
 {
 	return container_of(entry,struct config_item,ci_entry);

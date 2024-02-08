@@ -229,6 +229,7 @@ static struct v4l2_queryctrl controls[] = {
 };
 #define NUM_CONTROLS (ARRAY_SIZE(controls))
 
+
 /******************************************************************************
  *
  *  cpia2_open
@@ -339,6 +340,7 @@ static ssize_t cpia2_v4l_read(struct file *file, char __user *buf, size_t count,
 	return cpia2_read(cam, buf, count, noblock);
 }
 
+
 /******************************************************************************
  *
  *  cpia2_v4l_poll
@@ -359,6 +361,7 @@ static unsigned int cpia2_v4l_poll(struct file *filp, struct poll_table_struct *
 
 	return cpia2_poll(cam, filp, wait);
 }
+
 
 static int sync(struct camera_data *cam, int frame_nr)
 {
@@ -1277,6 +1280,7 @@ static int cpia2_dqbuf(struct file *file, void *fh, struct v4l2_buffer *buf)
 		frame = cb->num;
 	}
 
+
 	buf->index = frame;
 	buf->bytesused = cam->buffers[buf->index].length;
 	buf->flags = V4L2_BUF_FLAG_MAPPED | V4L2_BUF_FLAG_DONE;
@@ -1543,6 +1547,7 @@ static void __init check_parameters(void)
 
 /************   Module Stuff ***************/
 
+
 /******************************************************************************
  *
  * cpia2_init/module_init
@@ -1556,6 +1561,7 @@ static int __init cpia2_init(void)
 	cpia2_usb_init();
 	return 0;
 }
+
 
 /******************************************************************************
  *

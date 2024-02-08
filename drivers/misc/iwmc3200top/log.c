@@ -39,6 +39,7 @@
 u8 iwmct_logdefs[LOG_SRC_MAX];
 static u8 iwmct_fw_logdefs[FW_LOG_SRC_MAX];
 
+
 static int _log_set_log_filter(u8 *logdefs, int size, u8 src, u8 logmask)
 {
 	int i;
@@ -54,16 +55,19 @@ static int _log_set_log_filter(u8 *logdefs, int size, u8 src, u8 logmask)
 	return 0;
 }
 
+
 int iwmct_log_set_filter(u8 src, u8 logmask)
 {
 	return _log_set_log_filter(iwmct_logdefs, LOG_SRC_MAX, src, logmask);
 }
+
 
 int iwmct_log_set_fw_filter(u8 src, u8 logmask)
 {
 	return _log_set_log_filter(iwmct_fw_logdefs,
 				   FW_LOG_SRC_MAX, src, logmask);
 }
+
 
 static int log_msg_format_hex(char *str, int slen, u8 *ibuf,
 			      int ilen, char *pref)
@@ -341,3 +345,4 @@ exit:
 	kfree(str_buf);
 	return ret;
 }
+

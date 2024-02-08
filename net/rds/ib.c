@@ -306,6 +306,7 @@ static void rds_ib_ic_info(struct socket *sock, unsigned int len,
 				sizeof(struct rds_info_rdma_connection));
 }
 
+
 /*
  * Early RDS/IB was built to only bind to an address if there is an IPoIB
  * device with that address set.
@@ -337,7 +338,8 @@ static int rds_ib_laddr_check(__be32 addr)
 	ret = rdma_bind_addr(cm_id, (struct sockaddr *)&sin);
 	/* due to this, we will claim to support iWARP devices unless we
 	   check node_type. */
-	if (ret || cm_id->device->node_type != RDMA_NODE_IB_CA)
+	if (ret || !cm_id->device ||
+	    cm_id->device->node_type != RDMA_NODE_IB_CA)
 		ret = -EADDRNOTAVAIL;
 
 	rdsdebug("addr %pI4 ret %d node type %d\n",
@@ -430,3 +432,4 @@ out:
 }
 
 MODULE_LICENSE("GPL");
+

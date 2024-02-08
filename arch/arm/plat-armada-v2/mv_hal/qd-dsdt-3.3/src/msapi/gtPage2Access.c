@@ -107,6 +107,7 @@ GT_STATUS gtP2GetAccessRMUPage2
         return GT_NOT_SUPPORTED;
     }
 
+
     /* Get Page 2 access state.            */
     retVal = hwReadPortReg(dev,0x17, 0x1a,&data);
 
@@ -164,6 +165,8 @@ static GT_STATUS statsReadRealtimeCounter
     IN   GT_U32            counter,
     OUT  GT_U32            *statsData
 );
+
+
 
 /*******************************************************************************
 * gstatsPg2GetPortCounter
@@ -325,6 +328,7 @@ GT_STATUS gstatsPg2GetPortCounterClear
 
 }
 
+
 /*******************************************************************************
 * gstatsPg2GetPortAllCounters
 *
@@ -481,6 +485,7 @@ GT_STATUS gstatsPg2GetPortAllCountersClear
 
 }
 
+
 /*******************************************************************************
 * gstatsPg2GetRealtimePortCounter
 *
@@ -557,6 +562,7 @@ GT_STATUS gstatsPg2GetRealtimePortCounter
     return GT_OK;
 
 }
+
 
 /****************************************************************************/
 /* Internal use functions.                                                  */
@@ -752,6 +758,7 @@ static GT_STATUS statsOperationPerform
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * statsCapture
 *
@@ -910,6 +917,7 @@ static GT_STATUS statsCaptureClear
 
 }
 
+
 /*******************************************************************************
 * statsReadCounter
 *
@@ -1034,6 +1042,7 @@ static GT_STATUS statsReadCounter
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * statsReadRealtimeCounter
@@ -1161,5 +1170,6 @@ static GT_STATUS statsReadRealtimeCounter
 }
 
 /* Page 2 ATU APIs */
+
 
 /* Page 2 SMI APIs */

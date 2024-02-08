@@ -211,6 +211,7 @@ static inline unsigned qpn_hash(struct qib_ibdev *dev, u32 qpn)
 		(dev->qp_table_size - 1);
 }
 
+
 /*
  * Put the QP into the hash table.
  * The hash table holds a reference to the QP.

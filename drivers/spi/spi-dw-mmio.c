@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Memory-mapped interface driver for DW SPI Core
+ *
+ * Copyright (c) 2010, Octasic semiconductor.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU General Public License,
+ * version 2, as published by the Free Software Foundation.
+ */
+
 #include <linux/clk.h>
 #include <linux/err.h>
 #include <linux/interrupt.h>
@@ -42,6 +51,7 @@ static int __devinit dw_spi_mmio_probe(struct platform_device *pdev)
 
 	dws = &dwsmmio->dws;
 
+	/* Get basic io resource and map it */
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!mem) {
 		dev_err(&pdev->dev, "no mem resource?\n");
@@ -67,7 +77,7 @@ static int __devinit dw_spi_mmio_probe(struct platform_device *pdev)
 	dws->irq = platform_get_irq(pdev, 0);
 	if (dws->irq < 0) {
 		dev_err(&pdev->dev, "no irq resource?\n");
-		ret = dws->irq;  
+		ret = dws->irq; /* -ENXIO */
 		goto err_unmap;
 	}
 
@@ -146,7 +156,7 @@ static int __devexit dw_spi_mmio_remove(struct platform_device *pdev)
 #ifdef MY_DEF_HERE
 static struct of_device_id dw_spi_mmio_of_match[] = {
 		{ .compatible = "snps,dw-spi-mmio", },
-		{  }
+		{ /* sentinel */}
 };
 MODULE_DEVICE_TABLE(of, dw_spi_mmio_of_match);
 #endif

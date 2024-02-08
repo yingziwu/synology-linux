@@ -103,8 +103,10 @@ GT_STATUS sampleMinimizeCPUTraffic1(GT_QD_DEV *dev, GT_U8* macAddr)
         return status;
     }
 
+
     return GT_OK;
 }
+
 
 /*
     For the devices that support gprtSetARPtoCPU API:
@@ -147,6 +149,7 @@ GT_STATUS sampleMinimizeCPUTraffic2(GT_QD_DEV *dev, GT_U8* macAddr)
         MSG_PRINT(("gprtSetEgressFlood return Failed\n"));
         return status;
     }
+
 
     /*
      *    Add CPU's MAC into address table.

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -38,6 +39,7 @@ struct tsu_tmstmp_info {
 	unsigned char enable_tms;
 };
 
+
 enum tsu_aggr_mode {
 	aggrModeDisabled,
 	aggrMode1,
@@ -54,12 +56,14 @@ struct tsu_buff_info {
 	int pkt_size;
 };
 
+
 struct tsu_stat {
 	unsigned int ts_if_err;
 	unsigned int fifo_ovfl;
 	unsigned int ts_conn_err;
 	unsigned int clk_sync_exp;
 };
+
 
 #define MVTSU_IOC_MAGIC  'T'
 

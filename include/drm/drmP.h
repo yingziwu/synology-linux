@@ -430,6 +430,11 @@ struct drm_file {
 	void *driver_priv;
 
 	int is_master; /* this file private is a master for a minor */
+	/*
+	 * This client is allowed to gain master privileges for @master.
+	 * Protected by struct drm_device::struct_mutex.
+	 */
+	unsigned allowed_master:1;
 	struct drm_master *master; /* master this node is currently associated with
 				      N.B. not always minor->master */
 	struct list_head fbs;
@@ -536,6 +541,7 @@ struct drm_sigdata {
 	int context;
 	struct drm_hw_lock *lock;
 };
+
 
 /**
  * Kernel side of a mapping
@@ -934,6 +940,7 @@ struct drm_driver {
 #define DRM_MINOR_CONTROL 2
 #define DRM_MINOR_RENDER 3
 
+
 /**
  * debugfs node list. This structure represents a debugfs file to
  * be created by the drm core
@@ -1011,6 +1018,7 @@ struct drm_cmdline_mode {
 	bool margins;
 	enum drm_connector_force force;
 };
+
 
 struct drm_pending_vblank_event {
 	struct drm_pending_event base;
@@ -1184,6 +1192,7 @@ static inline int drm_dev_to_irq(struct drm_device *dev)
 	return dev->driver->bus->get_irq(dev);
 }
 
+
 #if __OS_HAS_AGP
 static inline int drm_core_has_AGP(struct drm_device *dev)
 {
@@ -1250,6 +1259,7 @@ extern int drm_fasync(int fd, struct file *filp, int on);
 extern ssize_t drm_read(struct file *filp, char __user *buffer,
 			size_t count, loff_t *offset);
 extern int drm_release(struct inode *inode, struct file *filp);
+extern int drm_new_set_master(struct drm_device *dev, struct drm_file *fpriv);
 
 				/* Mapping support (drm_vm.h) */
 extern int drm_mmap(struct file *filp, struct vm_area_struct *vma);
@@ -1684,6 +1694,7 @@ extern void drm_pci_exit(struct drm_driver *driver, struct pci_driver *pdriver);
 extern int drm_get_pci_dev(struct pci_dev *pdev,
 			   const struct pci_device_id *ent,
 			   struct drm_driver *driver);
+
 
 /* platform section */
 extern int drm_platform_init(struct drm_driver *driver, struct platform_device *platform_device);

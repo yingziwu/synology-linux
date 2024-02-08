@@ -54,6 +54,7 @@
  *       IS-NIC driver.
  */
 
+
 #define KLUDGE_FOR_4GB_BOUNDARY         1
 #define DEBUG_MICROCODE                 1
 #define DBG                             1
@@ -165,6 +166,7 @@ static void slic_assert_fail(void)
 	}								\
 } while (0)
 #endif
+
 
 #define SLIC_GET_SLIC_HANDLE(_adapter, _pslic_handle)                   \
 {                                                                       \
@@ -1488,7 +1490,7 @@ static struct slic_rspbuf *slic_rspqueue_getnext(struct adapter *adapter)
 		slic_reg64_write(adapter, &adapter->slic_regs->slic_rbar64,
 			(rspq->paddr[rspq->pageindex] | SLIC_RSPQ_BUFSINPAGE),
 			&adapter->slic_regs->slic_addr_upper, 0, DONT_FLUSH);
-		rspq->pageindex = (++rspq->pageindex) % rspq->num_pages;
+		rspq->pageindex = (rspq->pageindex + 1) % rspq->num_pages;
 		rspq->offset = 0;
 		rspq->rspbuf = (struct slic_rspbuf *)
 						rspq->vaddr[rspq->pageindex];
@@ -2966,6 +2968,7 @@ xmit_fail:
 	goto xmit_done;
 }
 
+
 static void slic_adapter_freeresources(struct adapter *adapter)
 {
 	slic_init_cleanup(adapter);
@@ -3897,6 +3900,7 @@ static int __devinit slic_entry_probe(struct pci_dev *pcidev,
 
 	mmio_start = pci_resource_start(pcidev, 0);
 	mmio_len = pci_resource_len(pcidev, 0);
+
 
 /*	memmapped_ioaddr =  (u32)ioremap_nocache(mmio_start, mmio_len);*/
 	memmapped_ioaddr = ioremap(mmio_start, mmio_len);

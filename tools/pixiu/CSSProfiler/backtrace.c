@@ -75,6 +75,7 @@ const int WRITE_CALL_STACK_ERR = -1;
 #define POP_WITH_PC_THUMB_INSTR(inst)         ((inst & 0xff00) == 0xbd00)                      // THUMB: POP {Rx, ..., pc}
 #define MOV_PC_Rm_THUMB_INSTR(inst)           ((inst & 0xff87) == 0x4687)                      // THUMB: MOV PC, Rm
 
+
 bool ldm_stm_inst_update_base_reg(u32 inst)
 {
 	return (inst & 0x00200000);
@@ -155,6 +156,7 @@ static inline int valid_user_stack(struct frame_tail_1 *tail, struct pt_regs *re
 		&& ((unsigned long) tail >= regs->ARM_sp)
 		&& access_ok(VERIFY_READ, tail, sizeof(struct frame_tail_1) * 2);
 }
+
 
 /* Check if the interruptted instruction is in the prologue of a function
  * where call frame has not been pushed on to the stack.

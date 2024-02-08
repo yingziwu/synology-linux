@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -112,10 +113,12 @@ static ssize_t mv_switch_netdev_store(struct device *dev, struct device_attribut
 	/* Read arguments */
 	sscanf(buf, "%d %d", &port, &group);
 
+
 	if (!strcmp(name, "port_add"))
 		err = mv_switch_port_add(port, group);
 	else if (!strcmp(name, "port_del"))
 		err = mv_switch_port_del(port);
+
 
 	if (err)
 		printk(KERN_ERR " - FAILED, err=%d\n", err);

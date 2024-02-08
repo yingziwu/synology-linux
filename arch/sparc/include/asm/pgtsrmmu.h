@@ -248,6 +248,7 @@ static inline void srmmu_flush_tlb_region(unsigned long addr)
 
 }
 
+
 static inline void srmmu_flush_tlb_segment(unsigned long addr)
 {
 	addr &= SRMMU_REAL_PMD_MASK;

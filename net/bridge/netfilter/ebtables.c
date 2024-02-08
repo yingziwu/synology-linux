@@ -47,6 +47,8 @@
 #define COUNTER_BASE(c, n, cpu) ((struct ebt_counter *)(((char *)c) + \
    COUNTER_OFFSET(n) * cpu))
 
+
+
 static DEFINE_MUTEX(ebt_mutex);
 
 #ifdef CONFIG_COMPAT
@@ -68,6 +70,7 @@ static int ebt_standard_compat_to_user(void __user *dst, const void *src)
 	return copy_to_user(dst, &cv, sizeof(cv)) ? -EFAULT : 0;
 }
 #endif
+
 
 static struct xt_target ebt_standard_target = {
 	.name       = "standard",
@@ -1041,10 +1044,9 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
 	if (repl->num_counters &&
 	   copy_to_user(repl->counters, counterstmp,
 	   repl->num_counters * sizeof(struct ebt_counter))) {
-		ret = -EFAULT;
+		/* Silent error, can't fail, new table is already in place */
+		net_warn_ratelimited("ebtables: counters copy to user failed while replacing table\n");
 	}
-	else
-		ret = 0;
 
 	/* decrease module count and free resources */
 	EBT_ENTRY_ITERATE(table->entries, table->entries_size,
@@ -1755,6 +1757,7 @@ static int compat_calc_entry(const struct ebt_entry *e,
 	return 0;
 }
 
+
 static int compat_table_info(const struct ebt_table_info *info,
 			     struct compat_ebt_replace *newinfo)
 {
@@ -2116,6 +2119,7 @@ static int compat_copy_entries(unsigned char *data, unsigned int size_user,
 	WARN_ON(size_remaining);
 	return state->buf_kern_offset;
 }
+
 
 static int compat_copy_ebt_replace_from_user(struct ebt_replace *repl,
 					    void __user *user, unsigned int len)

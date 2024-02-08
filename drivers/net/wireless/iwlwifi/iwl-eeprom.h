@@ -80,6 +80,7 @@ struct iwl_priv;
 #define IWL_EEPROM_SEM_TIMEOUT 		10   /* microseconds */
 #define IWL_EEPROM_SEM_RETRY_LIMIT	1000 /* number of attempts (not time) */
 
+
 /*
  * Regulatory channel usage flags in EEPROM struct iwl4965_eeprom_channel.flags.
  *
@@ -175,6 +176,7 @@ struct iwl_eeprom_calib_hdr {
 #define EEPROM_KELVIN_TEMPERATURE	((2*0x12A) | EEPROM_CALIB_ALL)
 #define EEPROM_RAW_TEMPERATURE		((2*0x12B) | EEPROM_CALIB_ALL)
 
+
 /* agn links */
 #define EEPROM_LINK_HOST             (2*0x64)
 #define EEPROM_LINK_GENERAL          (2*0x65)
@@ -245,6 +247,7 @@ struct iwl_eeprom_calib_hdr {
 #define EEPROM_6035_TX_POWER_VERSION    (6)
 #define EEPROM_6035_EEPROM_VERSION	(0x753)
 
+
 /* OTP */
 /* lower blocks contain EEPROM image and calibration data */
 #define OTP_LOW_IMAGE_SIZE		(2 * 512 * sizeof(u16)) /* 2 KB */
@@ -299,6 +302,7 @@ struct iwl_eeprom_ops {
 	const u32 regulatory_bands[7];
 	void (*update_enhanced_txpower) (struct iwl_priv *priv);
 };
+
 
 int iwl_eeprom_init(struct iwl_priv *priv, u32 hw_rev);
 void iwl_eeprom_free(struct iwl_priv *priv);

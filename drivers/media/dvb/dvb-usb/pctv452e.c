@@ -53,10 +53,12 @@ DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 #define I2C_ADDR_24C16   (0xa0 >> 1)
 #define I2C_ADDR_24C64   (0xa2 >> 1)
 
+
 /* pctv452e sends us this amount of data for each issued usb-command */
 #define PCTV_ANSWER_LEN 64
 /* Wait up to 1000ms for device  */
 #define PCTV_TIMEOUT 1000
+
 
 #define PCTV_LED_GPIO   STB0899_GPIO01
 #define PCTV_LED_GREEN  0x82
@@ -78,6 +80,7 @@ enum {
 	TT3650_CMD_CI_RESET,
 	TT3650_CMD_CI_SET_VIDEO_PORT
 };
+
 
 static struct stb0899_postproc pctv45e_postproc[] = {
 	{ PCTV_LED_GPIO, STB0899_GPIOPULLUP },
@@ -865,6 +868,7 @@ static struct stb6100_config stb6100_config = {
 	.tuner_address = I2C_ADDR_STB6100,
 	.refclock      = 27000000
 };
+
 
 static struct i2c_algorithm pctv452e_i2c_algo = {
 	.master_xfer   = pctv452e_i2c_xfer,

@@ -197,6 +197,7 @@
 #define HW_FS2017      "FS2017"        //"FS2017"
 #define HW_RS818p      "RS818+"        //"RS818+"
 #define HW_RS818rpp    "RS818rp+"      //"RS818rp+"
+#define HW_DS3622xsp   "DS3622xs+"     //"DS3622xs+"
 #define HW_UNKNOWN     "DSUnknown"
 
 #define EBOX_INFO_UNIQUE_RX410  "RX410"
@@ -218,7 +219,7 @@
 #define EBOX_INFO_UNIQUE_DX1215II "DX1215II"
 #define EBOX_INFO_UNIQUE_DX517  "DX517"
 #define EBOX_INFO_UNIQUE_RX418  "RX418"
-#define EBOX_INFO_UNIQUE_DX1221 "DX1221"
+#define EBOX_INFO_UNIQUE_DX1222 "DX1222"
 
 #define SYNO_UNIQUE(x)     (x>>2)
 #define IS_SYNOLOGY_RX4(x) (SYNO_UNIQUE(x) == 0x15 || SYNO_UNIQUE(x) == 0xd) // 0x54 ~ 0x57

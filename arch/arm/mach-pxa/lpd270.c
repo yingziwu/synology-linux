@@ -156,6 +156,7 @@ static void __init lpd270_init_irq(void)
 	irq_set_irq_type(IRQ_GPIO(0), IRQ_TYPE_EDGE_FALLING);
 }
 
+
 #ifdef CONFIG_PM
 static void lpd270_irq_resume(void)
 {
@@ -177,6 +178,7 @@ static int __init lpd270_irq_device_init(void)
 
 device_initcall(lpd270_irq_device_init);
 #endif
+
 
 static struct resource smc91x_resources[] = {
 	[0] = {
@@ -473,6 +475,7 @@ static void __init lpd270_init(void)
 
 	pxa_set_ohci_info(&lpd270_ohci_platform_data);
 }
+
 
 static struct map_desc lpd270_io_desc[] __initdata = {
 	{

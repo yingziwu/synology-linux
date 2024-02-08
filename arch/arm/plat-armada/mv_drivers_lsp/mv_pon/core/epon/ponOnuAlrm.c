@@ -171,3 +171,4 @@ void onuEponAlarmGet(MV_U32 *alarm)
   alarm[0] = ((onuEponCurrentAlarm & ONU_EPON_XVR_SD_MASK)    != 0) ? (1) : (0); 
   alarm[1] = ((onuEponCurrentAlarm & ONU_EPON_SERDES_SD_MASK) != 0) ? (1) : (0);
 }
+

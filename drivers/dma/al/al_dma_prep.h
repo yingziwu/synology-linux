@@ -85,3 +85,4 @@ struct dma_async_tx_descriptor *al_dma_prep_xor_val_lock(
 	unsigned long		flags);
 
 #endif
+

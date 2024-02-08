@@ -20,6 +20,7 @@
 #include <gtVct.h>
 #include <gtSem.h>
 
+
 /*******************************************************************************
 * gprtGetSerdesMode
 *
@@ -52,6 +53,7 @@ GT_STATUS gprtGetSerdesMode
     GT_U16          u16Data;           /* The register's read data.    */
     GT_U8           hwPort;         /* the physical port number     */
 
+
     DBG_INFO(("gprtGetSerdesMode Called.\n"));
 
     if(!IS_IN_DEV_GROUP(dev,DEV_SERDES_CORE))
@@ -62,6 +64,7 @@ GT_STATUS gprtGetSerdesMode
     /* check if input is logical port number */
     hwPort = GT_LPORT_2_PORT(port);
     GT_GET_SERDES_PORT(dev,&hwPort);
+
 
     gtSemTake(dev,dev->phyRegsSem,OS_WAIT_FOREVER);
 
@@ -78,6 +81,7 @@ GT_STATUS gprtGetSerdesMode
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtSetSerdesMode
@@ -141,6 +145,8 @@ GT_STATUS gprtSetSerdesMode
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
+
 
 #if 0
 /*******************************************************************************
@@ -276,5 +282,6 @@ GT_STATUS gprtSetSerdesReg
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
+
 
 #endif

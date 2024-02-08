@@ -1,4 +1,8 @@
- 
+/*
+ * linux/fs/synoacl_api.c
+ *
+ * Copyright (c) 2000-2010 Synology Inc.
+ */
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <asm/atomic.h>
@@ -12,83 +16,58 @@
 
 #include "synoacl_int.h"
 
-#define VFS_MODULE	psynoacl_vfs_op
-#define SYSCALL_MODULE	psynoacl_syscall_op
+#define SYSCALL_OPS             synoacl_mod_info->syscall_ops
+#define VFS_OPS                 synoacl_mod_info->vfs_ops
 
-#define IS_VFS_ACL_READY(x) (VFS_MODULE && VFS_MODULE->x)
-#define IS_SYSCALL_ACL_READY(x) (SYSCALL_MODULE && SYSCALL_MODULE->x)
-#define DO_VFS(x, ...) VFS_MODULE->x(__VA_ARGS__)
-#define DO_SYSCALL(x, ...) SYSCALL_MODULE->x(__VA_ARGS__)
+#define IS_MOD_INFO_READY       (synoacl_mod_info && SYSCALL_OPS && VFS_OPS)
+#define IS_SYSCALL_ACL_READY(x) (IS_MOD_INFO_READY && SYSCALL_OPS->x)
+#define IS_VFS_ACL_READY(x)     (IS_MOD_INFO_READY && VFS_OPS->x)
 
-struct synoacl_vfs_operations *VFS_MODULE = NULL;
-struct synoacl_syscall_operations *SYSCALL_MODULE = NULL;
+#define DO_SYSCALL(x, ...)      SYSCALL_OPS->x(__VA_ARGS__)
+#define DO_VFS(x, ...)          VFS_OPS->x(__VA_ARGS__)
 
-int SYNOACLModuleStatusGet(const char *szModName)
+struct synoacl_mod_info *synoacl_mod_info = NULL;
+EXPORT_SYMBOL(synoacl_mod_info);
+
+bool syno_acl_module_get(void)
 {
-	int st = -1;
-	struct module *mod = NULL;
-
-	mutex_lock(&module_mutex);
-
-	if (NULL == (mod = find_module(szModName))){
-		goto Err;
+	/* If synoacl_vfs.ko wasn't loaded earlier then load it now.
+	 * When synoacl_vfs is built into vmlinux the module's __init
+	 * function will populate synoacl_mod_info.
+	 */
+	if (!synoacl_mod_info) {
+		request_module("synoacl_vfs");
+		if (!synoacl_mod_info) {
+			pr_err("synoacl_vfs request_module failed.\n");
+			return false;
+		}
 	}
 
-	st = mod->state;
-Err:
-	mutex_unlock(&module_mutex);
-
-	return st;
-}
-EXPORT_SYMBOL(SYNOACLModuleStatusGet);
-
-void UseACLModule(const char *szModName, int isGet)
-{
-	struct module *mod = NULL;
-
-	mutex_lock(&module_mutex);
-
-	if (NULL == (mod = find_module(szModName))){
-		printk("synoacl module [%s] is not loaded \n", szModName);
-		goto Err;
+	/* And grab the reference, so the module doesn't disappear while the
+	 * kernel is interacting with the kernel module.
+	 */
+	if (!try_module_get(synoacl_mod_info->owner)) {
+		pr_err("synoacl_vfs try_module_get failed.\n");
+		return false;
 	}
-
-	if (isGet) {
-		try_module_get(mod);
-	} else {
-		module_put(mod);
-	}
-Err:
-	mutex_unlock(&module_mutex);
+	return true;
 }
-EXPORT_SYMBOL(UseACLModule);
+EXPORT_SYMBOL(syno_acl_module_get);
 
-int synoacl_vfs_register(struct synoacl_vfs_operations *pvfs, struct synoacl_syscall_operations *psys)
+void syno_acl_module_put(void)
 {
-	if (!pvfs || !psys) {
-		return -1;
-	}
-
-	VFS_MODULE = pvfs;
-	SYSCALL_MODULE = psys;
-
-	return 0;
+	if (synoacl_mod_info)
+		module_put(synoacl_mod_info->owner);
 }
-EXPORT_SYMBOL(synoacl_vfs_register);
+EXPORT_SYMBOL(syno_acl_module_put);
 
-void synoacl_vfs_unregister(void)
-{
-	VFS_MODULE = NULL;
-	SYSCALL_MODULE = NULL;
-}
-EXPORT_SYMBOL(synoacl_vfs_unregister);
-
+/* --------------- VFS API ---------------- */
 int synoacl_mod_archive_change_ok(struct dentry *d, unsigned int cmd, int tag, int mask)
 {
 	if (IS_VFS_ACL_READY(archive_change_ok)) {
 		return DO_VFS(archive_change_ok, d, cmd, tag, mask);
 	}
-	return 0;  
+	return 0; //is settable
 }
 EXPORT_SYMBOL(synoacl_mod_archive_change_ok);
 
@@ -171,8 +150,8 @@ int synoacl_mod_init_acl(struct dentry *dentry, struct inode *inode)
 	return -EOPNOTSUPP;
 }
 EXPORT_SYMBOL(synoacl_mod_init_acl);
- 
-asmlinkage long sys_SYNOACLIsSupport(const char *name, int fd, int tag)
+/* --------------- System Call API ---------------- */
+asmlinkage long sys_syno_acl_is_support(const char *name, int fd, int tag)
 {
 	int is_path_get = 0;
 	struct path path;
@@ -226,8 +205,12 @@ out:
 
 	return error;
 }
+asmlinkage long sys_SYNOACLIsSupport(const char *name, int fd, int tag)
+{
+	return sys_syno_acl_is_support(name, fd, tag);
+}
 
-asmlinkage long sys_SYNOACLCheckPerm(const char *name, int mask)
+asmlinkage long sys_syno_acl_check_perm(const char *name, int mask)
 {
 	int is_path_get = 0;
 	struct path path;
@@ -264,8 +247,12 @@ out:
 	}
 	return error;
 }
+asmlinkage long sys_SYNOACLCheckPerm(const char *name, int mask)
+{
+	return sys_syno_acl_check_perm(name, mask);
+}
 
-asmlinkage long sys_SYNOACLGetPerm(const char *name, int __user *out_perm)
+asmlinkage long sys_syno_acl_get_perm(const char *name, int __user *out_perm)
 {
 	int is_path_get = 0;
 	unsigned int perm_allow = 0;
@@ -315,3 +302,11 @@ err:
 
 	return error;
 }
+asmlinkage long sys_SYNOACLGetPerm(const char *name, int __user *out_perm)
+{
+	return sys_syno_acl_get_perm(name, out_perm);
+}
+
+
+
+

@@ -246,6 +246,7 @@ restart:
 		goto restart;
 	}
 
+
 	msmfb->frame_requested++;
 	/* if necessary, update the y offset, if this is the
 	 * first full update on resume, set the sleeping state */
@@ -320,6 +321,7 @@ error:
 	mutex_unlock(&msmfb->panel_init_lock);
 }
 
+
 static int msmfb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 {
 	if ((var->xres != info->var.xres) ||
@@ -373,6 +375,7 @@ static void msmfb_imageblit(struct fb_info *p, const struct fb_image *image)
 		     image->dy + image->height);
 }
 
+
 static int msmfb_blit(struct fb_info *info,
 		      void __user *p)
 {
@@ -395,6 +398,7 @@ static int msmfb_blit(struct fb_info *info,
 	}
 	return 0;
 }
+
 
 DEFINE_MUTEX(mdp_ppp_lock);
 
@@ -432,6 +436,8 @@ static struct fb_ops msmfb_ops = {
 };
 
 static unsigned PP[16];
+
+
 
 #define BITS_PER_PIXEL 16
 
@@ -575,6 +581,7 @@ static int msmfb_probe(struct platform_device *pdev)
 	hrtimer_init(&msmfb->fake_vsync, CLOCK_MONOTONIC,
 		     HRTIMER_MODE_REL);
 
+
 	msmfb->fake_vsync.function = msmfb_fake_vsync;
 
 	ret = register_framebuffer(fb);
@@ -597,6 +604,7 @@ static struct platform_driver msm_panel_driver = {
 	.probe = msmfb_probe,
 	.driver = {.name = "msm_panel"},
 };
+
 
 static int msmfb_add_mdp_device(struct device *dev,
 				struct class_interface *class_intf)

@@ -284,6 +284,7 @@ typedef enum {
 	mvAsicReg_GPON_UTM_REPORT_MAP_0               = 197,    /* UtmReportMap0                   */
 	mvAsicReg_GPON_UTM_REPORT_MAP_1               = 198,    /* UtmReportMap1                   */
 
+
 	/* SGL Registers */
 	/* ============= */
 	mvAsicReg_GPON_SGL_SW_RESET                   = 200,    /* SglSwResetReg                   */
@@ -336,6 +337,7 @@ typedef enum {
 	mvAsicReg_PON_MIB_TX_256_511_OCT	      = 253,
 	mvAsicReg_PON_MIB_TX_512_1023_OCT	      = 254,
 	mvAsicReg_PON_MIB_TX_1024_OCT	              = 255,
+
 
 /******************************************************************************/
 /******************************************************************************/

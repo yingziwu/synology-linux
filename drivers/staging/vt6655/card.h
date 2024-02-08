@@ -41,6 +41,7 @@
 #define CARD_LB_MAC             MAKEWORD(MAC_LB_INTERNAL, 0)   // PHY must ISO, avoid MAC loopback packet go out
 #define CARD_LB_PHY             MAKEWORD(MAC_LB_EXT, 0)
 
+
 #define DEFAULT_MSDU_LIFETIME           512  // ms
 #define DEFAULT_MSDU_LIFETIME_RES_64us  8000 // 64us
 
@@ -77,6 +78,8 @@ typedef enum _CARD_OP_MODE {
     OP_MODE_AP,
     OP_MODE_UNKNOWN
 } CARD_OP_MODE, *PCARD_OP_MODE;
+
+
 
 /*---------------------  Export Classes  ----------------------------*/
 
@@ -123,6 +126,7 @@ bool CARDbSetTxDataRate(
     void *pDeviceHandler,
     unsigned short wDataRate
     );
+
 
 bool CARDbRemoveKey (void *pDeviceHandler, unsigned char *pbyBSSID);
 
@@ -189,3 +193,6 @@ CARDbyGetTransmitPower (
     );
 
 #endif // __CARD_H__
+
+
+

@@ -111,6 +111,7 @@
 		cmp	\irqstat,#1<<1
 		addhs	\irqnr,\irqnr,#1
 
+
 /* is irqstat not zero */
 
 1002:
@@ -118,3 +119,4 @@
 		teq	\irqstat,#0
 1003:
 		.endm
+

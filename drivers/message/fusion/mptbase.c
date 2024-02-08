@@ -325,6 +325,7 @@ mpt_is_discovery_complete(MPT_ADAPTER *ioc)
 	return rc;
 }
 
+
 /**
  *  mpt_remove_dead_ioc_func - kthread context to remove dead ioc
  * @arg: input argument, used to derive ioc
@@ -348,6 +349,8 @@ static int mpt_remove_dead_ioc_func(void *arg)
 	return 0;
 }
 
+
+
 /**
  *	mpt_fault_reset_work - work performed on workq after ioc fault
  *	@work: input argument, used to derive ioc
@@ -366,6 +369,7 @@ mpt_fault_reset_work(struct work_struct *work)
 
 	if (ioc->ioc_reset_in_progress || !ioc->active)
 		goto out;
+
 
 	ioc_raw_state = mpt_GetIocState(ioc, 0);
 	if ((ioc_raw_state & MPI_IOC_STATE_MASK) == MPI_IOC_STATE_MASK) {
@@ -433,6 +437,7 @@ mpt_fault_reset_work(struct work_struct *work)
 			msecs_to_jiffies(MPT_POLLING_INTERVAL));
 	spin_unlock_irqrestore(&ioc->taskmgmt_lock, flags);
 }
+
 
 /*
  *  Process turbo (context) reply...
@@ -870,6 +875,7 @@ mpt_device_driver_deregister(u8 cb_idx)
 
 	MptDeviceDriverHandlers[cb_idx] = NULL;
 }
+
 
 /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 /**
@@ -1827,6 +1833,7 @@ mpt_attach(struct pci_dev *pdev, const struct pci_device_id *id)
 	ioc->req_sz = MPT_DEFAULT_FRAME_SIZE;		/* avoid div by zero! */
 	ioc->reply_sz = MPT_REPLY_FRAME_SIZE;
 
+
 	spin_lock_init(&ioc->taskmgmt_lock);
 	mutex_init(&ioc->internal_cmds.mutex);
 	init_completion(&ioc->internal_cmds.done);
@@ -1859,6 +1866,7 @@ mpt_attach(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	/* Find lookup slot. */
 	INIT_LIST_HEAD(&ioc->list);
+
 
 	/* Initialize workqueue */
 	INIT_DELAYED_WORK(&ioc->fault_reset_work, mpt_fault_reset_work);
@@ -1947,6 +1955,7 @@ mpt_attach(struct pci_dev *pdev, const struct pci_device_id *id)
 		ioc->bus_type = SAS;
 		break;
 	}
+
 
 	switch (ioc->bus_type) {
 
@@ -2336,6 +2345,7 @@ mpt_do_ioc_recovery(MPT_ADAPTER *ioc, u32 reason, int sleepFlag)
 			break;
 	}
 
+
 	if (ii == 5) {
 		dinitprintk(ioc, printk(MYIOC_s_DEBUG_FMT
 		    "Retry IocFacts failed rc=%x\n", ioc->name, rc));
@@ -2506,6 +2516,7 @@ mpt_do_ioc_recovery(MPT_ADAPTER *ioc, u32 reason, int sleepFlag)
 			ioc->alt_ioc->active = 1;
 		}
 	}
+
 
 	/*	Add additional "reason" check before call to GetLanConfigPages
 	 *	(combined with GetIoUnitPage2 call).  This prevents a somewhat
@@ -2692,6 +2703,7 @@ mpt_adapter_disable(MPT_ADAPTER *ioc)
 			printk(MYIOC_s_ERR_FMT "%s:  IOC msg unit reset "
 			    "failed!\n", ioc->name, __func__);
 	}
+
 
 	/* Disable adapter interrupts! */
 	synchronize_irq(ioc->pcidev->irq);
@@ -3626,6 +3638,7 @@ mpt_do_upload(MPT_ADAPTER *ioc, int sleepFlag)
 	}
 	dinitprintk(ioc, printk(MYIOC_s_DEBUG_FMT ": do_upload cmdStatus=%d \n",
 			ioc->name, cmdStatus));
+
 
 	if (cmdStatus) {
 		ddlprintk(ioc, printk(MYIOC_s_DEBUG_FMT "fw upload failed, "
@@ -5931,6 +5944,7 @@ mpt_raid_phys_disk_pg1(MPT_ADAPTER *ioc, u8 phys_disk_num,
 }
 EXPORT_SYMBOL(mpt_raid_phys_disk_pg1);
 
+
 /**
  *	mpt_findImVolumes - Identify IDs of hidden disks and RAID Volumes
  *	@ioc: Pointer to a Adapter Strucutre
@@ -6579,6 +6593,7 @@ mpt_ioc_reset(MPT_ADAPTER *ioc, int reset_phase)
 	return 1;		/* currently means nothing really */
 }
 
+
 #ifdef CONFIG_PROC_FS		/* { */
 /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 /*
@@ -6950,6 +6965,7 @@ mpt_clear_taskmgmt_in_progress_flag(MPT_ADAPTER *ioc)
 }
 EXPORT_SYMBOL(mpt_clear_taskmgmt_in_progress_flag);
 
+
 /**
  *	mpt_halt_firmware - Halts the firmware if it is operational and panic
  *	the kernel
@@ -7201,6 +7217,7 @@ mpt_HardResetHandler(MPT_ADAPTER *ioc, int sleepFlag)
 	if (ioc->alt_ioc)
 		ioc->alt_ioc->ioc_reset_in_progress = 1;
 	spin_unlock_irqrestore(&ioc->taskmgmt_lock, flags);
+
 
 	/* The SCSI driver needs to adjust timeouts on all current
 	 * commands prior to the diagnostic reset being issued.
@@ -7690,6 +7707,7 @@ mpt_display_event_info(MPT_ADAPTER *ioc, EventNotificationReply_t *pEventReply)
 	if (ds)
 		strncpy(evStr, ds, EVENT_DESCR_STR_SZ);
 
+
 	devtprintk(ioc, printk(MYIOC_s_DEBUG_FMT
 	    "MPT event:(%02Xh) : %s\n",
 	    ioc->name, event, evStr));
@@ -7783,6 +7801,7 @@ ProcessEventNotification(MPT_ADAPTER *ioc, EventNotificationReply_t *pEventReply
 
 		ioc->eventContext++;
 	}
+
 
 	/*
 	 *  Call each currently registered protocol event handler.

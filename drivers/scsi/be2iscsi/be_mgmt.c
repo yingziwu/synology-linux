@@ -75,6 +75,7 @@ unsigned int beiscsi_get_session_info(struct beiscsi_hba *phba,
 	sge = nonembedded_sgl(wrb);
 	wrb->tag0 |= tag;
 
+
 	wrb->tag0 |= tag;
 	be_wrb_hdr_prepare(wrb, sizeof(*req), false, 1);
 	be_cmd_hdr_prepare(&req->hdr, CMD_SUBSYSTEM_ISCSI_INI,
@@ -445,3 +446,4 @@ unsigned int be_cmd_get_mac_addr(struct beiscsi_hba *phba)
 	spin_unlock(&ctrl->mbox_lock);
 	return tag;
 }
+

@@ -57,4 +57,5 @@ struct meminfo;
 struct tag;
 extern void __init tag_fixup_mem32(struct tag *, char **, struct meminfo *);
 
+
 #endif

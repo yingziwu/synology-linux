@@ -245,6 +245,7 @@ typedef struct SilabsModChannelLineFeedObj {
 	int						status;
 } SilabsModChannelLineFeedObjType;
 
+
 typedef struct SilabsModChannelSetLoopbackObj {
 	/* Input arg(s) */
 	int						chanNum;
@@ -315,8 +316,10 @@ typedef struct SilabsRegObj {
 	int						status;
 } SilabsRegObjType;
 
+
 /* APIs */
 int silabs_module_init(void);
 void silabs_module_exit(void);
+
 
 #endif /*_SILABS_DEV_H_*/

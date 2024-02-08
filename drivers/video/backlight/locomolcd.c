@@ -107,6 +107,7 @@ void locomolcd_power(int on)
 }
 EXPORT_SYMBOL(locomolcd_power);
 
+
 static int current_intensity;
 
 static int locomolcd_set_intensity(struct backlight_device *bd)
@@ -224,6 +225,7 @@ static struct locomo_driver poodle_lcd_driver = {
 	.suspend = locomolcd_suspend,
 	.resume = locomolcd_resume,
 };
+
 
 static int __init locomolcd_init(void)
 {

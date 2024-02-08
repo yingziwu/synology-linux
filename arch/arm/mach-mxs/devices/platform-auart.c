@@ -62,3 +62,4 @@ struct platform_device *__init mxs_add_auart(
 					res, ARRAY_SIZE(res), NULL, 0,
 					DMA_BIT_MASK(32));
 }
+

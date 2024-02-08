@@ -19,6 +19,7 @@
 #include "vp_api_option.h"
 #include "vp_api_test.h"
 
+
 /******************************************************************************
  *                                DEFINES                                     *
  ******************************************************************************/
@@ -45,6 +46,7 @@
 #define VP_PTABLE_NO_INDEX   (VpProfilePtrType)99
 #define VP_PTABLE_MAX_INDEX VP_PTABLE_INDEX15
 
+
 /*
  *Utility macros:
  */
@@ -68,6 +70,7 @@
   #define MAX12(a, b, c, d, e, f, g, h, i, j, k, l) \
     MAX(MAX(MAX4(a, b, c, d), MAX4(e, f, g, h)), MAX4(i, j, k, l))
 #endif
+
 
 /******************************************************************************
  *                    ENUMERATIONS AND NEW DATA TYPES                         *
@@ -1452,6 +1455,7 @@ VpReadTestBuf(
     uint16 length,
     VpVectorPtrType pData);
 
+
 EXTERN VpStatusType
 VpMapLineId(
     VpLineCtxType *pLineCtx,
@@ -1479,6 +1483,7 @@ VpMemSet(
     void * s,
     int c,
     uint16 count);
+
 
 /*
  * Undocumented external functions:

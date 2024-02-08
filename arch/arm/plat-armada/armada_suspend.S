@@ -323,3 +323,4 @@ ENTRY(armadaxp_powerdown)
 	b .
 
 ENDPROC(armadaxp_powerdown)
+

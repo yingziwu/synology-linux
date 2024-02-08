@@ -183,6 +183,7 @@ static MV_STATUS mvSpi16bitDataTxRx (MV_U16 txData, MV_U16 * pRxData)
     return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvSpi8bitDataTxRx - Transmt and receive data (8bits)
 *
@@ -557,6 +558,7 @@ MV_STATUS mvSpiWrite(MV_U8* pTxBuff, MV_U32 buffSize)
 
 	return MV_OK;
 }
+
 
 /*******************************************************************************
 * mvSpiReadWrite - Read and Write a buffer simultanuosely

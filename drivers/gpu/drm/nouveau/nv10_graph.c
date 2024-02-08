@@ -460,6 +460,7 @@ static void nv10_graph_load_pipe(struct nouveau_channel *chan)
 	nv_wr32(dev, NV10_PGRAPH_PIPE_ADDRESS, 0x00000040);
 	nv_wr32(dev, NV10_PGRAPH_PIPE_DATA, 0x00000008);
 
+
 	PIPE_RESTORE(dev, pipe->pipe_0x0200, 0x0200);
 	nouveau_wait_for_idle(dev);
 

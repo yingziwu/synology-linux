@@ -425,3 +425,4 @@ nv84_instmem_flush(struct drm_device *dev)
 		NV_ERROR(dev, "PRAMIN flush timeout\n");
 	spin_unlock_irqrestore(&dev_priv->vm_lock, flags);
 }
+

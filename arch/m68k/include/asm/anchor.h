@@ -31,6 +31,7 @@
 #define	LREG(a)		((a) >> 2)
 #define	WREG(a)		((a) >> 1)
 
+
 /*
  *	Define base addresses within CO-MEM Lite register address space.
  */
@@ -40,6 +41,7 @@
 #define	COMEM_SHMEM	0x4000		/* Shared memory region */
 
 #define	COMEM_SHMEMSIZE	0x4000		/* Size of shared memory */
+
 
 /*
  *	Define CO-MEM Registers.
@@ -72,6 +74,7 @@
 
 #define	COMEM_LBUSCFG	0x04fc		/* Local bus configuration */
 
+
 /*
  *	Commands and flags for use with Direct Access Register.
  */
@@ -88,6 +91,7 @@
 
 #define	COMEM_DA_OFFSET(a)	((a) & 0x00001fff)
 
+
 /*
  *	The PCI bus will be limited in what slots will actually be used.
  *	Define valid device numbers for different boards.
@@ -102,6 +106,7 @@
 #endif
 
 #define	COMEM_MAXPCI	(COMEM_MAXDEV+1)	/* Maximum PCI devices */
+
 
 /****************************************************************************/
 #endif	/* anchor_h */

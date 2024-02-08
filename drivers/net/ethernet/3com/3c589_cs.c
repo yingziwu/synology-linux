@@ -152,6 +152,7 @@ MODULE_LICENSE("GPL");
 /* Special hook for setting if_port when module is loaded */
 INT_MODULE_PARM(if_port, 0);
 
+
 /*====================================================================*/
 
 static int tc589_config(struct pcmcia_device *link);

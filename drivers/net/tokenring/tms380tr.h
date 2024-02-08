@@ -58,6 +58,8 @@ void tms380tr_wait(unsigned long time);
 /* Get the high word of a long.                     */
 #define HIWORD(l)       ((unsigned short)((unsigned long)(l) >> 16))
 
+
+
 /* Token ring adapter I/O addresses for normal mode. */
 
 /*
@@ -115,6 +117,7 @@ void tms380tr_wait(unsigned long time);
 					 * adapter after hardware reset)
 					 */
 
+
 /* ACL commands (high-low) */
 #define ACL_SWHLDA		0x0800  /* Software hold acknowledge. */
 #define ACL_SWDDIR		0x0400  /* Data transfer direction. */
@@ -144,6 +147,7 @@ void tms380tr_wait(unsigned long time);
 
 #define PS_DMA_MASK		(ACL_SWHRQ | ACL_PSDMAEN)
 
+
 /* SIFSTS register return codes (high-low) */
 #define STS_SYSTEM_IRQ		0x0080	/* Adapter-to-attached-system
 					 * interrupt is valid.
@@ -163,6 +167,7 @@ void tms380tr_wait(unsigned long time);
 					 * pointers 01:0a00 (high-low) have to
 					 * be read after init and before open.
 					 */
+
 
 /* Interrupt Codes (only MAC IRQs) */
 #define STS_IRQ_ADAPTER_CHECK	0x0000	/* unrecoverable hardware or
@@ -185,6 +190,7 @@ void tms380tr_wait(unsigned long time);
 					 */
 #define STS_IRQ_RECEIVE_PENDING	0x000E	/* Not used in MAC-only microcode */
 #define STS_IRQ_MASK		0x000F	/* = STS_ERROR_MASK. */
+
 
 /* TRANSMIT_STATUS completion code: (SSB.Parm[0]) */
 #define COMMAND_COMPLETE	0x0080	/* TRANSMIT command completed
@@ -230,6 +236,7 @@ void tms380tr_wait(unsigned long time);
 					 * greater than one.
 					 */
 #define ILLEGAL_FRAME_FORMAT	0x0200	/* Bit 0 or FC field was set to one. */
+
 
 /*
  * Since we need to support some functions even if the adapter is in a
@@ -327,6 +334,7 @@ void tms380tr_wait(unsigned long time);
 
 #define SPEED_4			4
 #define SPEED_16		16	/* Default transmission speed  */
+
 
 /* Initialization Parameter Block (IPB); word alignment necessary! */
 #define BURST_SIZE	0x0018	/* Default burst size */
@@ -569,6 +577,7 @@ typedef struct {
 } ERRORTAB;	/* Adapter error counters */
 #pragma pack()
 
+
 /*--------------------- Send and Receive definitions -------------------*/
 #pragma pack(1)
 typedef struct {
@@ -615,6 +624,7 @@ typedef struct {
 #define GET_FRAME_STATUS_HIGH_AC(Fs)	  ((unsigned char)(((Fs) & 0xC0) >> 6))
 #define GET_FRAME_STATUS_LOW_AC(Fs)       ((unsigned char)(((Fs) & 0x0C) >> 2))
 #define DIRECTED_FRAME(Context)           (!((Context)->MData[2] & GROUP_BIT))
+
 
 /*--------------------- Send Functions ---------------------------------*/
 /* define TX_CSTAT _REQUEST (R) and _COMPLETE (C) values (high-low) */

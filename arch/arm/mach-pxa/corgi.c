@@ -26,6 +26,7 @@
 #include <linux/i2c.h>
 #include <linux/i2c/pxa-i2c.h>
 #include <linux/io.h>
+#include <linux/regulator/machine.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/ads7846.h>
 #include <linux/spi/corgi_lcd.h>
@@ -449,6 +450,7 @@ static struct pxamci_platform_data corgi_mci_platform_data = {
 	.gpio_power		= CORGI_GPIO_SD_PWR,
 };
 
+
 /*
  * Irda
  */
@@ -456,6 +458,7 @@ static struct pxaficp_platform_data corgi_ficp_platform_data = {
 	.gpio_pwdown		= CORGI_GPIO_IR_ON,
 	.transceiver_cap	= IR_SIRMODE | IR_OFF,
 };
+
 
 /*
  * USB Device Controller
@@ -702,6 +705,8 @@ static void __init corgi_init(void)
 		sharpsl_nand_partitions[1].size = 53 * 1024 * 1024;
 
 	platform_add_devices(devices, ARRAY_SIZE(devices));
+
+	regulator_has_full_constraints();
 }
 
 static void __init fixup_corgi(struct tag *tags, char **cmdline,
@@ -748,3 +753,4 @@ MACHINE_START(HUSKY, "SHARP Husky")
 	.timer		= &pxa_timer,
 MACHINE_END
 #endif
+

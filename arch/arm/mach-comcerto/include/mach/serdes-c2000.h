@@ -27,6 +27,7 @@
  */
 /* SER-DES Address space */
 
+
 typedef struct serdes_regs_s
 {
   unsigned short ofst;
@@ -1662,6 +1663,7 @@ static struct serdes_regs_s pcie_phy_reg_file_100[] =
    	  { 0x000 << 2, 0x07}
         };
 
+
 static struct serdes_regs_s pcie_phy_reg_file_24[] =
 /* PCIe SERDES is using internal clock */
   	{
@@ -1987,3 +1989,5 @@ static struct serdes_regs_s pcie_phy_reg_file_24[] =
  	  { 0xA96 << 2, 0xf8},
    	  { 0x000 << 2, 0x07}
 	};
+
+

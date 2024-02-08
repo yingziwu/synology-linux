@@ -523,6 +523,7 @@ MV_STATUS mvCesaFinish(void)
 		MV_REG_WRITE(MV_CESA_ISR_CAUSE_REG(chan), 0);
 		MV_REG_WRITE(MV_CESA_ISR_MASK_REG(chan), 0);
 
+
 		/* Free all resources: DMA list, etc. */
 		for (req = 0; req < cesaQueueDepth[chan]; req++) {
 			pReq = &pCesaReqFirst[chan][req];
@@ -1093,6 +1094,7 @@ MV_STATUS mvCesaAction(MV_U8 chan, MV_CESA_COMMAND *pCmd)
 				    MV_32BIT_LE(mvCesaVirtToPhys(&pToReq->dmaDescBuf, pToReq->dma[0].pDmaFirst));
 				mvOsCacheFlush(cesaOsHandle, pFromReq->dma[pFromReq->frags.numFrag - 1].pDmaLast,
 				    sizeof(MV_DMA_DESC));
+
 
 				/* align active & next pointers */
 				if (pNextActiveChain[chan]->state != MV_CESA_PENDING)
@@ -2683,6 +2685,7 @@ static void mvCesaFragSha2Complete(MV_U8 chan, MV_CESA_MBUF *pMbuf, int offset,
 		mvSHA256Finish(&ctx, pDigest);
 	}
 }
+
 
 /*******************************************************************************
 * mvCesaFragAuthComplete -

@@ -68,6 +68,7 @@ void sampleDisplayCableTestResult
 	}
 }
 
+
 GT_STATUS sampleCableTest(GT_QD_DEV *dev,GT_LPORT port)
 {
 	GT_STATUS status;

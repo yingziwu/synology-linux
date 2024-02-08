@@ -194,6 +194,8 @@ ieee754dp ieee754dp_trunc(ieee754dp x);
 
 ieee754dp ieee754dp_sqrt(ieee754dp x);
 
+
+
 /* 5 types of floating point number
 */
 #define IEEE754_CLASS_NORM	0x00
@@ -256,6 +258,7 @@ static inline int ieee754sp_gt(ieee754sp x, ieee754sp y)
 	return ieee754sp_cmp(x, y, IEEE754_CGT, 0);
 }
 
+
 static inline int ieee754sp_ge(ieee754sp x, ieee754sp y)
 {
 	return ieee754sp_cmp(x, y, IEEE754_CGT | IEEE754_CEQ, 0);
@@ -292,11 +295,13 @@ static inline int ieee754dp_ge(ieee754dp x, ieee754dp y)
 	return ieee754dp_cmp(x, y, IEEE754_CGT | IEEE754_CEQ, 0);
 }
 
+
 /*
  * Like strtod
  */
 ieee754dp ieee754dp_fstr(const char *s, char **endp);
 char *ieee754dp_tstr(ieee754dp x, int prec, int fmt, int af);
+
 
 /*
  * The control status register

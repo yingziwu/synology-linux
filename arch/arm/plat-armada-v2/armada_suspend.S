@@ -335,3 +335,4 @@ ENTRY(armada_powerdown)
 	b .
 
 ENDPROC(armada_powerdown)
+

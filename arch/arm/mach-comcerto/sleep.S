@@ -31,6 +31,7 @@
 #define SCRATCHPAD_CPU_CONTEXT_LOC_OFFSET 0x70
 #define SCRATCHPAD_CPU_CONTEXT_LOC     SCRATCHPAD_BASE_P + SCRATCHPAD_CPU_CONTEXT_LOC_OFFSET
 
+
 	.text
 /* Function call to get the restore pointer for resume from OFF */
 ENTRY(c2k_get_restore_pointer)
@@ -40,6 +41,9 @@ ENTRY(c2k_get_restore_pointer)
         ldmfd   sp!, {pc}     @ restore regs and return
 ENTRY(get_restore_pointer_sz)
         .word   . - get_restore_pointer_sz
+
+
+
 
 /*
  * ======================
@@ -71,6 +75,7 @@ ENTRY(comcerto_cpu_suspend)
 	 */
 	cmp	r0, #0x0		@ If no context save required,
 	beq	comcerto_do_wfi		@  jump to the WFI
+
 
 	/* Otherwise fall through to the save context code */
 comcerto_save_context_wfi:
@@ -124,6 +129,7 @@ comcerto_save_context_wfi:
 kernel_flush:
 	.word v7_flush_dcache_all
 
+
 /* ===================================
  * == WFI instruction => Enter idle ==
  * ===================================
@@ -142,6 +148,8 @@ ENTRY(comcerto_do_wfi)
 	/*mrs	r4, cpsr
 	mrs	r5, spsr
 	stmia	r7!, {r4-r5}*/
+
+
 
 	/* Saving all the banked registers */
         mrs     r0, cpsr
@@ -242,6 +250,7 @@ ENTRY(comcerto_cpu_restore)
 	mcr	p15, 0, r1, c1, c0, 1
 skipl2reen:
 
+
 	/* Now branch to the common CPU resume function */
 	blx	cpu_resume
 
@@ -254,6 +263,7 @@ skipl2reen:
 l2dis_3630:
 	.word
 
+
 ENTRY(copy_words)
 	cmp	r2, #0
 	beq	f1
@@ -264,6 +274,9 @@ b0:
 	bne	b0
 f1:
 	bx	lr
+
+
+
 
 scratchpad_cpu_context_loc:
         .word   SCRATCHPAD_CPU_CONTEXT_LOC

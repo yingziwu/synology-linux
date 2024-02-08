@@ -26,6 +26,7 @@
 #include <sound/vx_core.h>
 #include "vx_cmd.h"
 
+
 /*
  * write a codec data (24bit)
  */
@@ -95,6 +96,7 @@ static void vx_set_codec_reg(struct vx_core *chip, int codec, int reg, int val)
 	vx_write_codec_reg(chip, codec, data.l);
 }
 
+
 /*
  * vx_set_analog_output_level - set the output attenuation level
  * @codec: the output codec, 0 or 1.  (1 for VXP440 only)
@@ -115,6 +117,7 @@ static void vx_set_analog_output_level(struct vx_core *chip, int codec, int left
 		vx_set_codec_reg(chip, codec, XX_CODEC_LEVEL_RIGHT_REGISTER, right);
 	}
 }
+
 
 /*
  * vx_toggle_dac_mute -  mute/unmute DAC
@@ -185,6 +188,7 @@ static void vx_change_audio_source(struct vx_core *chip, int src)
 	spin_unlock_irqrestore(&chip->lock, flags);
 }
 
+
 /*
  * change the audio source if necessary and possible
  * returns 1 if the source is actually changed.
@@ -198,6 +202,7 @@ int vx_sync_audio_source(struct vx_core *chip)
 	chip->audio_source = chip->audio_source_target;
 	return 1;
 }
+
 
 /*
  * audio level, mute, monitoring
@@ -250,6 +255,7 @@ static int vx_adjust_audio_level(struct vx_core *chip, int audio, int capture,
 	return vx_send_msg(chip, &rmh);
 }
 
+    
 #if 0 // not used
 static int vx_read_audio_level(struct vx_core *chip, int audio, int capture,
 			       struct vx_audio_level *info)
@@ -291,6 +297,7 @@ int vx_set_monitor_level(struct vx_core *chip, int audio, int level, int active)
 	chip->audio_monitor_active[audio] = active;
 	return vx_adjust_audio_level(chip, audio, 0, &info); /* playback only */
 }
+
 
 /*
  * set the mute status of the given audio
@@ -350,6 +357,7 @@ static void vx_reset_audio_levels(struct vx_core *chip)
 	}
 }
 
+
 /*
  * VU, peak meter record
  */
@@ -398,6 +406,7 @@ static int vx_get_audio_vu_meter(struct vx_core *chip, int audio, int capture, s
 	return 0;
 }
    
+
 /*
  * control API entries
  */
@@ -766,6 +775,7 @@ static struct snd_kcontrol_new vx_control_monitor_switch = {
 	.put =          vx_monitor_sw_put
 };
 
+
 /*
  * IEC958 status bits
  */
@@ -833,6 +843,7 @@ static struct snd_kcontrol_new vx_control_iec958 = {
 	.get =          vx_iec958_get,
 	.put =          vx_iec958_put
 };
+
 
 /*
  * VU meter
@@ -913,6 +924,8 @@ static struct snd_kcontrol_new vx_control_saturation = {
 	.info =		vx_saturation_info,
 	.get =		vx_saturation_get,
 };
+
+
 
 /*
  *

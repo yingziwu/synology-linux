@@ -22,6 +22,7 @@
 #include <net/inet_ecn.h>
 #include <net/red.h>
 
+
 /*	Parameters, settable by user:
 	-----------------------------
 
@@ -188,6 +189,8 @@ static int red_change(struct Qdisc *sch, struct nlattr *opt)
 		return -EINVAL;
 
 	ctl = nla_data(tb[TCA_RED_PARMS]);
+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
+		return -EINVAL;
 
 	if (ctl->limit > 0) {
 		child = fifo_create_dflt(sch, &bfifo_qdisc_ops, ctl->limit);

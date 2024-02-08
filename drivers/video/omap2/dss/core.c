@@ -474,6 +474,7 @@ static void reset_device(struct device *dev, int check)
 	dev->platform_data = saved_pdata;
 }
 
+
 static void omap_dss_dev_release(struct device *dev)
 {
 	reset_device(dev, 0);
@@ -584,3 +585,4 @@ device_initcall(omap_dss_init2);
 MODULE_AUTHOR("Tomi Valkeinen <tomi.valkeinen@nokia.com>");
 MODULE_DESCRIPTION("OMAP2/3 Display Subsystem");
 MODULE_LICENSE("GPL v2");
+

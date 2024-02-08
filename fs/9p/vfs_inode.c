@@ -424,6 +424,7 @@ error:
 }
 */
 
+
 /**
  * v9fs_clear_inode - release an inode
  * @inode: inode to release
@@ -433,9 +434,9 @@ void v9fs_evict_inode(struct inode *inode)
 {
 	struct v9fs_inode *v9inode = V9FS_I(inode);
 
-	truncate_inode_pages(inode->i_mapping, 0);
+	truncate_inode_pages(&inode->i_data, 0);
 	end_writeback(inode);
-	filemap_fdatawrite(inode->i_mapping);
+	filemap_fdatawrite(&inode->i_data);
 
 #ifdef CONFIG_9P_FSCACHE
 	v9fs_cache_inode_put_cookie(inode);
@@ -466,6 +467,9 @@ static int v9fs_test_inode(struct inode *inode, void *data)
 		return 0;
 
 	if (v9inode->qid.type != st->qid.type)
+		return 0;
+
+	if (v9inode->qid.path != st->qid.path)
 		return 0;
 	return 1;
 }
@@ -525,8 +529,7 @@ static struct inode *v9fs_qid_iget(struct super_block *sb,
 	unlock_new_inode(inode);
 	return inode;
 error:
-	unlock_new_inode(inode);
-	iput(inode);
+	iget_failed(inode);
 	return ERR_PTR(retval);
 
 }
@@ -1504,3 +1507,4 @@ static const struct inode_operations v9fs_symlink_inode_operations = {
 	.getattr = v9fs_vfs_getattr,
 	.setattr = v9fs_vfs_setattr,
 };
+

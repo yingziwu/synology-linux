@@ -17,6 +17,7 @@
  *   GNU General Public License for more details.
  */
 
+
 #include <linux/kernel.h>
 #include <linux/sched.h>
 #include <linux/semaphore.h>
@@ -32,6 +33,7 @@
 #include "musycc.h"
 #include "sbe_promformat.h"
 #include "comet.h"
+
 
 /* driver state */
 #define SBE_DRVR_INIT        0x0
@@ -51,6 +53,7 @@ struct mdesc
     void       *mem_token;      /* Data */
     struct mdesc *snext;
 };
+
 
 /*************************************************************************
  * Private driver data structures, internal use only.
@@ -160,6 +163,7 @@ struct c4_port_info
     int         fifomap[32];
 };
 typedef struct c4_port_info mpi_t;
+
 
 #define COMET_OFFSET(x) (0x80000+(x)*0x10000)
 #define EEPROM_OFFSET   0xC0000
@@ -278,6 +282,7 @@ struct c4_priv
     int         channum;
     struct sbe_card_info *ci;
 };
+
 
 /*****************************************************************/
 

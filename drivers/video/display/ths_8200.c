@@ -19,6 +19,7 @@ static const struct i2c_device_id ths8200_register_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, ths8200_register_id);
 
+
 static int ths8200_i2c_remove(struct i2c_client *client)
 {
         return 0;
@@ -81,3 +82,4 @@ module_exit(ths8200_exit);
 MODULE_AUTHOR("shadi@marvell.com");
 MODULE_DESCRIPTION("THS8200 D2A converter.");
 MODULE_LICENSE("GPL");
+

@@ -1308,3 +1308,4 @@ module_exit(crypto4xx_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("James Hsiao <jhsiao@amcc.com>");
 MODULE_DESCRIPTION("Driver for AMCC PPC4xx crypto accelerator");
+

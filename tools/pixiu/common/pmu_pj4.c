@@ -86,6 +86,7 @@ void PJ4_Write_CNTENS(u32 value)
 	__asm__ __volatile__ ("mcr  p15, 0, %0, c9, c12, 1" : :"r"(value));
 }
 
+
 u32 PJ4_Read_CNTENC(void)
 {
 	u32 v = 0;

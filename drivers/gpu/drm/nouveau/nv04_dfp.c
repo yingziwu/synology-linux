@@ -276,6 +276,7 @@ static void nv04_dfp_prepare(struct drm_encoder *encoder)
 	}
 }
 
+
 static void nv04_dfp_mode_set(struct drm_encoder *encoder,
 			      struct drm_display_mode *mode,
 			      struct drm_display_mode *adjusted_mode)

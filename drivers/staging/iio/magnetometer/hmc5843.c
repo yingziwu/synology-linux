@@ -165,6 +165,7 @@ static int hmc5843_read_measurement(struct iio_dev *indio_dev,
 	return IIO_VAL_INT;
 }
 
+
 /*
  * From the datasheet
  * 0 - Continuous-Conversion Mode: In continuous-conversion mode, the

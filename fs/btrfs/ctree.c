@@ -1771,6 +1771,7 @@ static inline unsigned int leaf_data_end(struct btrfs_root *root,
 	return btrfs_item_offset_nr(leaf, nr - 1);
 }
 
+
 /*
  * search for key in the extent_buffer.  The items start at offset p,
  * and they are item_size apart.  There are 'max' items in p.
@@ -2381,6 +2382,7 @@ static noinline void reada_for_balance(struct btrfs_root *root,
 	if (block2)
 		readahead_tree_block(root, block2, blocksize, 0);
 }
+
 
 /*
  * when we walk down the tree, it is usually safe to unlock the higher layers

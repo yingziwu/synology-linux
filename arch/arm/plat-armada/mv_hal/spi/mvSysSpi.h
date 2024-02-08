@@ -72,6 +72,7 @@ extern "C" {
 #define SYS_SPI_MPP_ENABLE		0x1
 #define SYS_SPI_MPP_DEFAULT		0x2
 
+
 /*******************************************************************************
 * mvSysSpiMppConfig
 *
@@ -91,6 +92,7 @@ extern "C" {
 *
 *******************************************************************************/
 MV_STATUS mvSysSpiMppConfig(MV_U8 mode);
+
 
 #ifdef __cplusplus
 }

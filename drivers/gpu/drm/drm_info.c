@@ -234,6 +234,7 @@ int drm_clients_info(struct seq_file *m, void *data)
 	return 0;
 }
 
+
 int drm_gem_one_name_info(int id, void *ptr, void *data)
 {
 	struct drm_gem_object *obj = ptr;
@@ -311,3 +312,4 @@ int drm_vma_info(struct seq_file *m, void *data)
 }
 
 #endif
+

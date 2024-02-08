@@ -244,6 +244,7 @@ struct bnad_unmap_q {
 #define BNAD_RF_STATS_TIMER_RUNNING	5
 #define BNAD_RF_TX_PRIO_SET		6
 
+
 /* Define for Fast Path flags */
 /* Defined as bit positions */
 #define BNAD_FP_IN_RX_PATH	      0

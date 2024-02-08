@@ -9,6 +9,7 @@
 #include <linux/string.h>
 #define NONE 0xFFFF
 
+
 //--------------------------------------------------------------------------------
 
 /* TYPE and SUBTYPE
@@ -62,6 +63,7 @@
 //TX_Misc
 #define TX_OSAL_DBG (TX<<17)
 
+
 //--SUBTYPEs for ------INIT & EXIT---------------------
 /*------------ TYPE is DBG_TYPE_INITEXIT -----//
 DriverEntry.c, bcmfwup.c, ChipDetectTask.c, HaltnReset.c, InterfaceDDR.c */
@@ -75,6 +77,7 @@ DriverEntry.c, bcmfwup.c, ChipDetectTask.c, HaltnReset.c, InterfaceDDR.c */
 #define INIT_DISP 	(MP<<6)
 #define RX_INIT  	(MP<<7)
 
+
 //-SUBTYPEs for --RX----------------------------------
 //------------RX  :  TYPE is DBG_TYPE_RX -----//
 // Receive.c
@@ -84,6 +87,7 @@ DriverEntry.c, bcmfwup.c, ChipDetectTask.c, HaltnReset.c, InterfaceDDR.c */
 #define RX_DATA 	(RX<<4)
 #define MP_RETURN 	(RX<<1)
 #define LINK_MSG 	(RX<<2)
+
 
 //-SUBTYPEs for ----OTHER ROUTINES------------------
 //------------OTHERS  :  TYPE is DBG_TYPE_OTHER -----//
@@ -118,6 +122,7 @@ DriverEntry.c, bcmfwup.c, ChipDetectTask.c, HaltnReset.c, InterfaceDDR.c */
 // CmHost.c
 #define CMHOST OTHERS
 
+
 #define SERIAL  		(OTHERS<<12)
 #define IDLE_MODE 		(OTHERS<<13)
 
@@ -144,6 +149,7 @@ DriverEntry.c, bcmfwup.c, ChipDetectTask.c, HaltnReset.c, InterfaceDDR.c */
 #define CONN_MSG    	(CMHOST << 29)
 //#define OTHERS_MISC		(OTHERS << 29)	// ProcSupport.c
 /*-----------------END SUBTYPEs------------------------------------------*/
+
 
 /* Debug level
  * We have 8 debug levels, in (numerical) increasing order of verbosity.
@@ -236,6 +242,7 @@ typedef struct _S_BCM_DEBUG_STATE {
 	}								\
 } while(0)
 
+
 #define BCM_SHOW_DEBUG_BITMAP(Adapter)	do { \
 	int i;									\
 	for (i=0; i<(NUMTYPES*2)+1; i++) {		\
@@ -249,3 +256,4 @@ typedef struct _S_BCM_DEBUG_STATE {
 } while (0)
 
 #endif
+

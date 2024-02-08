@@ -452,7 +452,11 @@ ENTRY(sys_call_table)
     .long sys_ni_syscall
     .long sys_ni_syscall
 #endif
+#ifdef MY_ABC_HERE
+    .long sys_SYNOFlushAggregate		/* 415 */
+#else
     .long sys_ni_syscall
+#endif /* MY_ABC_HERE */
     .long sys_ni_syscall                   /* 416 */
     .long sys_ni_syscall                  /* 417 */
     .long sys_ni_syscall                  /* 418 */
@@ -480,6 +484,460 @@ ENTRY(sys_call_table)
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	.long sys_SYNOArchiveOverwrite	/* 427 */
+#else
+	.long sys_ni_syscall
+#endif
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 430 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 435 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 440 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 445 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 450 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 455 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 460 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 465 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 470 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 475 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 480 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 485 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 490 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 495 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 500 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 505 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 510 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 515 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 520 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 525 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 530 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 535 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 540 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 545 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 550 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 555 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 560 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 565 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 570 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 575 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 580 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 585 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 590 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 595 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 600 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 605 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 610 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 615 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 620 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 625 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 630 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 635 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 640 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 645 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 650 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 655 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 660 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 665 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 670 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 675 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 680 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 685 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 690 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 695 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 700 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 705 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 710 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 715 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 720 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 725 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 730 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 735 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 740 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 745 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 750 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 755 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 760 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 765 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 770 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 775 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 780 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 785 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 790 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 795 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 800 */
+    .long sys_ni_syscall
+#ifdef MY_ABC_HERE
+    .long sys_syno_utime		/* 802 */
+#else
+    .long sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+    .long sys_syno_archive_bit	/* 803 */
+#else
+    .long sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+    .long sys_syno_recv_file		/* 804 */
+#else
+    .long sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+    .long sys_syno_mtd_alloc      /* 805 */
+#else
+    .long sys_ni_syscall        /* 805 */
+#endif
+#ifdef MY_ABC_HERE
+    .long sys_syno_caseless_stat64    /* 806 */
+    .long sys_syno_caseless_lstat64   /* 807 */
+#else
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#endif /* MY_ABC_HERE */
+    .long sys_ni_syscall	/* 808 */
+    .long sys_ni_syscall	/* 809 */
+#ifdef MY_ABC_HERE
+    .long sys_syno_ecrypt_name /* 810 */
+    .long sys_syno_decrypt_name /* 811 */
+#else
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#endif
+#ifdef CONFIG_FS_SYNO_ACL
+    .long sys_syno_acl_check_perm /* 812 */
+    .long sys_syno_acl_is_support /* 813 */
+    .long sys_syno_acl_get_perm /* 814 */
+#else
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+    .long sys_syno_flush_aggregate		/* 815 */
+#else
+    .long sys_ni_syscall
+#endif /* MY_ABC_HERE */
+    .long sys_ni_syscall                   /* 816 */
+    .long sys_ni_syscall                  /* 817 */
+    .long sys_ni_syscall                  /* 818 */
+#ifdef MY_ABC_HERE
+    .long sys_syno_stat64                   /* 819 */
+    .long sys_syno_fstat64                  /* 820 */
+    .long sys_syno_lstat64                  /* 821 */
+#else
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.long sys_syno_notify_init	/* 822 */
+	.long sys_syno_notify_add_watch /* 823 */
+	.long sys_syno_notify_remove_watch /* 824 */
+	.long sys_syno_notify_add_watch32 /* 825 */
+	.long sys_syno_notify_remove_watch32 /* 826 */
+#else
+	.long sys_ni_syscall
+	.long sys_ni_syscall
+	.long sys_ni_syscall
+	.long sys_ni_syscall
+	.long sys_ni_syscall
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.long sys_syno_archive_overwrite	/* 827 */
 #else
 	.long sys_ni_syscall
 #endif

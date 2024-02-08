@@ -73,6 +73,7 @@
 #include "ctrlEnv/mvCtrlEnvRegs.h"
 #include "ctrlEnv/mvCtrlEnvAddrDec.h"
 
+
 /* typedefs */
 typedef MV_STATUS (*MV_WIN_GET_FUNC_PTR)(MV_U32, MV_U32, MV_UNIT_WIN_INFO*);
 
@@ -163,6 +164,8 @@ typedef enum {
 	      SERDES_UNIT_USB_H | 1,	SERDES_UNIT_USB,	    SERDES_UNIT_NA,		SERDES_UNIT_NA},     \
 }
 
+
+
 /* Termal Sensor Registers */
 #define TSEN_STATE_REG						0xE4070
 #define TSEN_STATE_OFFSET					31
@@ -177,6 +180,7 @@ typedef enum {
 #define TSEN_STATUS_READOUT_VALID_MASK				(0x1 << TSEN_STATUS_READOUT_VALID_OFFSET)
 #define TSEN_STATUS_TEMP_OUT_OFFSET				0
 #define TSEN_STATUS_TEMP_OUT_MASK				(0x3FF << TSEN_STATUS_TEMP_OUT_OFFSET)
+
 
 /* BIOS Modes related defines */
 #define SAR_CPU_FAB_GET(cpu, fab)       (((cpu & 0x7) << 21) | ((fab & 0xF) << 24))

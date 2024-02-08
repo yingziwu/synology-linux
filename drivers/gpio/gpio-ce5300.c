@@ -239,6 +239,7 @@ int ce5300_get_multi_function(struct gpio_chip *chip, unsigned offset)
 
 }
 
+
 static int ce5300_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 {
 	struct intelce_gpio_chip *c = irq_data_get_irq_chip_data(d);
@@ -381,6 +382,7 @@ int ce5300_gpio_suspend(void *io_mem, unsigned short io_port)
 	return 0;
 } 
 
+
 /* CE5300 gpio resume routine */
 int ce5300_gpio_resume(void *io_mem, unsigned short io_port)
 {
@@ -409,3 +411,4 @@ int ce5300_gpio_resume(void *io_mem, unsigned short io_port)
 	intelce_gpio_port_write32( _gpio.cgsmi & 0x3FF, io_port + CE5300_CORE_WELL_GPIO_CGSMI);
 	return 0;
 }
+

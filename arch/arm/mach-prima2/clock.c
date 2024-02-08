@@ -297,6 +297,7 @@ static struct clk clk_cpu = {
 	.ops = &cpu_ops,
 };
 
+
 static struct clk_ops msi_ops = {
 	.set_rate = dmn_set_rate,
 	.get_rate = dmn_get_rate,

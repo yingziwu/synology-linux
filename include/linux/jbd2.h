@@ -1,6 +1,3 @@
-#ifndef MY_ABC_HERE
-#define MY_ABC_HERE
-#endif
 /*
  * linux/include/linux/jbd2.h
  *
@@ -34,9 +31,7 @@
 #include <linux/mutex.h>
 #include <linux/timer.h>
 #include <linux/slab.h>
-#if !defined(MY_DEF_HERE)
 #include <crypto/hash.h>
-#endif /* MY_DEF_HERE */
 #endif
 
 #define journal_oom_retry 1
@@ -101,6 +96,7 @@ extern void jbd2_free(void *ptr, size_t size);
  * This is an opaque datatype.
  **/
 typedef struct jbd2_journal_handle handle_t;	/* Atomic operation type */
+
 
 /**
  * typedef journal_t - The journal_t maintains all of the journaling state information for a single filesystem.
@@ -235,6 +231,7 @@ struct jbd2_journal_revoke_tail {
 #define JBD2_FLAG_DELETED	4	/* block deleted by this transaction */
 #define JBD2_FLAG_LAST_TAG	8	/* last tag in this descriptor block */
 
+
 /*
  * The journal superblock.  All fields are in big-endian byte order.
  */
@@ -307,18 +304,11 @@ typedef struct journal_superblock_s
 /* Features known to this kernel version: */
 #define JBD2_KNOWN_COMPAT_FEATURES	JBD2_FEATURE_COMPAT_CHECKSUM
 #define JBD2_KNOWN_ROCOMPAT_FEATURES	0
-
-#ifdef MY_DEF_HERE
-#define JBD2_KNOWN_INCOMPAT_FEATURES	(JBD2_FEATURE_INCOMPAT_REVOKE | \
-					JBD2_FEATURE_INCOMPAT_64BIT | \
-					JBD2_FEATURE_INCOMPAT_ASYNC_COMMIT)
-#else
 #define JBD2_KNOWN_INCOMPAT_FEATURES	(JBD2_FEATURE_INCOMPAT_REVOKE | \
 					JBD2_FEATURE_INCOMPAT_64BIT | \
 					JBD2_FEATURE_INCOMPAT_ASYNC_COMMIT | \
 					JBD2_FEATURE_INCOMPAT_CSUM_V2 | \
 					JBD2_FEATURE_INCOMPAT_CSUM_V3)
-#endif /* MY_DEF_HERE */
 
 #ifdef __KERNEL__
 
@@ -431,6 +421,7 @@ struct jbd2_journal_handle
 	 * (counts only buffers dirtied when !h_cowing) */
 	unsigned int	h_user_credits:14;
 
+
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 	struct lockdep_map	h_lockdep_map;
 #endif
@@ -447,6 +438,7 @@ struct jbd2_journal_handle
 	unsigned int h_cow_excluded; /* blocks set in exclude bitmap */
 #endif
 };
+
 
 /*
  * Some stats for checkpoint phase
@@ -988,10 +980,8 @@ struct journal_s
 	 */
 	void *j_private;
 
-#if !defined(MY_DEF_HERE)
 	/* Reference to checksum algorithm driver via cryptoapi */
 	struct crypto_shash *j_chksum_driver;
-#endif /* MY_DEF_HERE */
 
 	/* Precomputed journal UUID checksum for seeding other checksums */
 	__u32 j_csum_seed;
@@ -1009,6 +999,7 @@ struct journal_s
 #define JBD2_ABORT_ON_SYNCDATA_ERR	0x040	/* Abort the journal on file
 						 * data write error in ordered
 						 * mode */
+#define JBD2_REC_ERR	0x080	/* The errno in the sb has been recorded */
 
 /*
  * Function declarations for the journaling transaction and buffer
@@ -1040,6 +1031,7 @@ int __jbd2_journal_clean_checkpoint_list(journal_t *journal, bool destroy);
 int __jbd2_journal_remove_checkpoint(struct journal_head *);
 void jbd2_journal_destroy_checkpoint(journal_t *journal);
 void __jbd2_journal_insert_checkpoint(struct journal_head *, transaction_t *);
+
 
 /*
  * Triggers
@@ -1226,6 +1218,7 @@ int __jbd2_log_start_commit(journal_t *journal, tid_t tid);
 int jbd2_journal_start_commit(journal_t *journal, tid_t *tid);
 int jbd2_journal_force_commit_nested(journal_t *journal);
 int jbd2_log_wait_commit(journal_t *journal, tid_t tid);
+int jbd2_complete_transaction(journal_t *journal, tid_t tid);
 int jbd2_log_do_checkpoint(journal_t *journal);
 int jbd2_trans_will_send_data_barrier(journal_t *journal, tid_t tid);
 
@@ -1327,7 +1320,6 @@ static inline int jbd_space_needed(journal_t *journal)
 
 extern int jbd_blocks_per_page(struct inode *inode);
 
-#if !defined(MY_DEF_HERE)
 static inline u32 jbd2_chksum(journal_t *journal, u32 crc,
 			      const void *address, unsigned int length)
 {
@@ -1346,7 +1338,6 @@ static inline u32 jbd2_chksum(journal_t *journal, u32 crc,
 
 	return *(u32 *)desc.ctx;
 }
-#endif /* MY_DEF_HERE */
 
 #ifdef __KERNEL__
 

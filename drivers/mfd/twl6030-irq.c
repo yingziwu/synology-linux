@@ -166,6 +166,8 @@ static int twl6030_irq_thread(void *data)
 			continue;
 		}
 
+
+
 		sts.bytes[3] = 0; /* Only 24 bits are valid*/
 
 		/*
@@ -430,3 +432,4 @@ int twl6030_exit_irq(void)
 	}
 	return 0;
 }
+

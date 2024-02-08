@@ -28,6 +28,7 @@
 static DEFINE_CLOCK_DATA(cd);
 static void __iomem *ctr;
 
+
 static void notrace al_update_sched_clock(void)
 {
 	u32 cyc = readl(ctr);

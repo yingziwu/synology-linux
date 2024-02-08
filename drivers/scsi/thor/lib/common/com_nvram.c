@@ -144,6 +144,8 @@ MV_U8	mvCaculateChecksum(MV_PU8	Address, MV_U32 Size)
 
         checkSum = (~checkSum) + 1;
 
+
+
 		return	checkSum;
 }
 

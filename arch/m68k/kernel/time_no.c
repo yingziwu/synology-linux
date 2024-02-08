@@ -66,6 +66,7 @@ static unsigned long read_rtc_mmss(void)
 		hour = min = sec = 0;
 	}
 
+
 	return  mktime(year, mon, day, hour, min, sec);
 }
 

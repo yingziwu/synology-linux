@@ -1126,6 +1126,8 @@ fail:
 	return NULL;
 }
 
+
+
 /**
  * determines if a device is a WL device, and if so, attaches it.
  *
@@ -1279,6 +1281,8 @@ static int __init brcms_module_init(void)
 	error = pci_register_driver(&brcms_pci_driver);
 	if (!error)
 		return 0;
+
+
 
 	return error;
 }

@@ -1208,6 +1208,7 @@ static void be_rx_compl_process(struct be_adapter *adapter,
 	if (adapter->netdev->features & NETIF_F_RXHASH)
 		skb->rxhash = rxcp->rss_hash;
 
+
 	if (rxcp->vlanf)
 		__vlan_hwaccel_put_tag(skb, rxcp->vlan_tag);
 
@@ -1492,7 +1493,7 @@ static u16 be_tx_compl_process(struct be_adapter *adapter,
 		queue_tail_inc(txq);
 	} while (cur_index != last_index);
 
-	kfree_skb(sent_skb);
+	dev_kfree_skb_any(sent_skb);
 	return num_wrbs;
 }
 
@@ -3183,6 +3184,7 @@ pci_map_err:
 	be_unmap_pci_bars(adapter);
 	return -ENOMEM;
 }
+
 
 static void be_ctrl_cleanup(struct be_adapter *adapter)
 {

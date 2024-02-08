@@ -17,3 +17,4 @@
 EXPORT_TRACEPOINT_SYMBOL_GPL(power_start);
 #endif
 EXPORT_TRACEPOINT_SYMBOL_GPL(cpu_idle);
+

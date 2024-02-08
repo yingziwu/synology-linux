@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -223,6 +224,7 @@ static MV_BOOLEAN mvConfigSataDisk(MV_SATA_ADAPTER *pSataAdapter,
                                    ATA_IDENTIFY_INFO   *pIdentifyInfo,
                                    MV_U16_PTR identifyBuffer);
 
+
 static MV_VOID mvAta2HostString(MV_U16 *source, MV_U16 *target,
                                 MV_U32 wordsCount)
 {
@@ -314,6 +316,8 @@ MV_BOOLEAN mvParseIdentifyResult(MV_U16_PTR  iden,
 		((MV_U64)iden[101] << 16) |
 		((MV_U64)iden[100]);
 
+                
+
         mvLogMsg(MV_IAL_COMMON_LOG_ID, MV_DEBUG, "%25s - 0x%x%04x%04x%04x sectors\n",
                  "Number of sectors", iden[103] , iden[102], iden[101],
                  iden[100]);
@@ -330,6 +334,7 @@ MV_BOOLEAN mvParseIdentifyResult(MV_U16_PTR  iden,
                  "Number of sectors",
                  (iden[IDEN_NUM_OF_ADDRESSABLE_SECTORS + 1] << 16) |
                  ((MV_U32)iden[IDEN_NUM_OF_ADDRESSABLE_SECTORS]));
+
 
     }
     /*DMA support*/
@@ -371,6 +376,7 @@ MV_BOOLEAN mvParseIdentifyResult(MV_U16_PTR  iden,
         return MV_FALSE;
     }
 
+
     /*UDMA*/
     if ((iden[IDEN_VALID] & MV_BIT2) == 0)
     {
@@ -378,6 +384,7 @@ MV_BOOLEAN mvParseIdentifyResult(MV_U16_PTR  iden,
                  "able to find UDMA mode\n");
         return MV_FALSE;
     }
+
 
     if ((version >= 7) && (iden[IDEN_UDMA_MODE] & MV_BIT6))
     {
@@ -441,6 +448,7 @@ MV_BOOLEAN mvParseIdentifyResult(MV_U16_PTR  iden,
                  pIdentifyInfo->UdmaMode - MV_ATA_TRANSFER_UDMA_0,
                  " supported but disabled");
     }
+
 
     if ((iden[IDEN_SUPPORTED_COMMANDS1] & MV_BIT13))
     {
@@ -568,6 +576,7 @@ MV_BOOLEAN mvParseIdentifyResult(MV_U16_PTR  iden,
         mvLogMsg(MV_IAL_COMMON_LOG_ID, MV_DEBUG, "%25s - %s\n", "SMART",
                  "Not supported");
     }
+
 
     /* check if REAd/WRITE DMA QUEUE commands supported */
     pIdentifyInfo->DMAQueuedModeDepth = (iden[IDEN_QUEUE_DEPTH] & 0x1f) + 1;
@@ -710,6 +719,7 @@ MV_BOOLEAN mvParseIdentifyPacketResult(MV_U16_PTR  iden,
                  "DMA supported");
     }
 
+
     if ((version >= 7) && (iden[IDEN_UDMA_MODE] & MV_BIT6))
     {
         pIdentifyInfo->UdmaMode = MV_ATA_TRANSFER_UDMA_6;
@@ -773,6 +783,7 @@ MV_BOOLEAN mvParseIdentifyPacketResult(MV_U16_PTR  iden,
                  " supported but disabled");
     }
 
+
     if ((iden[IDEN_SUPPORTED_COMMANDS1] & MV_BIT3))
     {
 
@@ -813,6 +824,8 @@ MV_BOOLEAN mvParseIdentifyPacketResult(MV_U16_PTR  iden,
         mvLogMsg(MV_IAL_COMMON_LOG_ID, MV_DEBUG, "%25s - %s\n", "SMART",
                  "Not supported");
     }
+
+
 
     /*check that the non-UDMA ATA commands supported*/
 
@@ -1095,6 +1108,7 @@ MV_BOOLEAN mvConfigSataDisk(MV_SATA_ADAPTER *pSataAdapter, MV_U8 channelIndex,
         return MV_FALSE;
     }
 
+
     mvLogMsg(MV_IAL_COMMON_LOG_ID, MV_DEBUG, "[%d %d %d]: Set transfer mode"
              " XFER_UDMA_%d\n", pSataAdapter->adapterId, channelIndex, PMPort,
              pIdentifyInfo->UdmaMode & 0xf);
@@ -1256,3 +1270,5 @@ MV_BOOLEAN  mvGetPMDeviceInfo(MV_SATA_ADAPTER   *pSataAdapter,
     mvLogMsg(MV_IAL_COMMON_LOG_ID, MV_DEBUG, "%25s - %02x\n", "Fan-out ports", pPMDeviceInfo->numberOfPorts);
     return MV_TRUE;
 }
+
+

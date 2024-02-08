@@ -90,6 +90,8 @@ int mei_cl_flush_queues(struct mei_cl *cl)
 	return 0;
 }
 
+
+
 /**
  * mei_reset_iamthif_params - initializes mei device iamthif
  *
@@ -130,8 +132,10 @@ struct mei_device *mei_device_init(struct pci_dev *pdev)
 	init_waitqueue_head(&dev->wait_recvd_msg);
 	init_waitqueue_head(&dev->wait_stop_wd);
 	dev->mei_state = MEI_INITIALIZING;
+	dev->reset_count = 0;
 	dev->iamthif_state = MEI_IAMTHIF_IDLE;
 	dev->wd_interface_reg = false;
+
 
 	mei_io_list_init(&dev->read_list);
 	mei_io_list_init(&dev->write_list);
@@ -287,6 +291,14 @@ void mei_reset(struct mei_device *dev, int interrupts_enabled)
 
 	dev->need_reset = false;
 
+	dev->reset_count++;
+	if (dev->reset_count > MEI_MAX_CONSEC_RESET) {
+		dev_err(&dev->pdev->dev, "reset: reached maximal consecutive resets: disabling the device\n");
+		dev->mei_state = MEI_DISABLED;
+		return;
+	}
+
+
 	if (dev->mei_state != MEI_INITIALIZING) {
 		if (dev->mei_state != MEI_DISABLED &&
 		    dev->mei_state != MEI_POWER_DOWN)
@@ -347,6 +359,8 @@ void mei_reset(struct mei_device *dev, int interrupts_enabled)
 		}
 	}
 }
+
+
 
 /**
  * host_start_message - mei host sends start message.
@@ -421,6 +435,7 @@ void mei_host_enum_clients_message(struct mei_device *dev)
 	return ;
 }
 
+
 /**
  * allocate_me_clients_storage - allocates storage for me clients
  *
@@ -439,6 +454,7 @@ void mei_allocate_me_clients_storage(struct mei_device *dev)
 
 	if (dev->me_clients_num <= 0)
 		return ;
+
 
 	if (dev->me_clients != NULL) {
 		kfree(dev->me_clients);
@@ -542,6 +558,7 @@ int mei_find_me_client_index(const struct mei_device *dev, uuid_le cuuid)
 
 	return res;
 }
+
 
 /**
  * mei_find_me_client_update_filext - searches for ME client guid
@@ -648,6 +665,8 @@ struct mei_cl *mei_cl_allocate(struct mei_device *dev)
 
 	return cl;
 }
+
+
 
 /**
  * mei_disconnect_host_client - sends disconnect message to fw from host client.

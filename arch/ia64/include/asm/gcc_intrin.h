@@ -108,6 +108,7 @@ register unsigned long ia64_r13 asm ("r13") __used;
 	}							\
 })
 
+
 /* Integer values for mux1 instruction */
 #define ia64_mux1_brcst 0
 #define ia64_mux1_mix   8
@@ -409,6 +410,7 @@ register unsigned long ia64_r13 asm ("r13") __used;
 
 #define ia64_itcd(addr)	asm volatile ("itc.d %0;;" :: "r"(addr) : "memory")
 
+
 #define ia64_itri(trnum, addr) asm volatile ("itr.i itr[%0]=%1"				\
 					     :: "r"(trnum), "r"(addr) : "memory")
 
@@ -475,6 +477,7 @@ register unsigned long ia64_r13 asm ("r13") __used;
 	ia64_intri_res;								\
 })
 
+
 #define ia64_native_get_pmd(index)						\
 ({										\
 	unsigned long ia64_intri_res;						\
@@ -490,6 +493,7 @@ register unsigned long ia64_r13 asm ("r13") __used;
 })
 
 #define ia64_native_fc(addr)	asm volatile ("fc %0" :: "r"(addr) : "memory")
+
 
 #define ia64_sync_i()	asm volatile (";; sync.i" ::: "memory")
 
@@ -524,6 +528,7 @@ do {										\
 	asm volatile ("ttag %0=%1" : "=r"(ia64_intri_res) : "r" (addr));   \
 	ia64_intri_res;							 \
 })
+
 
 /* Values for lfhint in ia64_lfetch and ia64_lfetch_fault */
 

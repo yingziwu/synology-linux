@@ -190,6 +190,7 @@ extern void outsl (unsigned long port, const void *src, unsigned long count);
 # error processor byte order undefined!
 #endif
 
+
 /*
  * Convert a physical pointer to a virtual kernel pointer for /dev/mem access
  */
@@ -199,6 +200,7 @@ extern void outsl (unsigned long port, const void *src, unsigned long count);
  * Convert a virtual cached pointer to an uncached pointer
  */
 #define xlate_dev_kmem_ptr(p)   p
+
 
 #endif	/* __KERNEL__ */
 

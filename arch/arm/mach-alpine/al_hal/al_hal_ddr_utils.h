@@ -250,3 +250,4 @@ static inline void al_ddr_ctrl_resume(
 /* *INDENT-ON* */
 /** @} end of DDR group */
 #endif
+

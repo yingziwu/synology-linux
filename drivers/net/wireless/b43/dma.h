@@ -5,10 +5,11 @@
 
 #include "b43.h"
 
+
 /* DMA-Interrupt reasons. */
 #define B43_DMAIRQ_FATALMASK	((1 << 10) | (1 << 11) | (1 << 12) \
 					 | (1 << 14) | (1 << 15))
-#define B43_DMAIRQ_NONFATALMASK	(1 << 13)
+#define B43_DMAIRQ_RDESC_UFLOW		(1 << 13)
 #define B43_DMAIRQ_RX_DONE		(1 << 16)
 
 /*** 32-bit DMA Engine. ***/
@@ -176,6 +177,7 @@ struct b43_dmadesc_generic {
 #define B43_DMA_PTR_POISON		((void *)ERR_PTR(-ENOMEM))
 #define b43_dma_ptr_is_poisoned(ptr)	(unlikely((ptr) == B43_DMA_PTR_POISON))
 
+
 struct sk_buff;
 struct b43_private;
 struct b43_txstatus;
@@ -292,6 +294,8 @@ int b43_dma_tx(struct b43_wldev *dev,
 	       struct sk_buff *skb);
 void b43_dma_handle_txstatus(struct b43_wldev *dev,
 			     const struct b43_txstatus *status);
+
+void b43_dma_handle_rx_overflow(struct b43_dmaring *ring);
 
 void b43_dma_rx(struct b43_dmaring *ring);
 

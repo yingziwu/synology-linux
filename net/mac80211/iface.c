@@ -42,6 +42,7 @@
  * by either the RTNL, the iflist_mtx or RCU.
  */
 
+
 static int ieee80211_change_mtu(struct net_device *dev, int new_mtu)
 {
 	int meshhdrlen;
@@ -381,10 +382,12 @@ static void ieee80211_do_stop(struct ieee80211_sub_if_data *sdata,
 	u32 hw_reconf_flags = 0;
 	int i;
 	enum nl80211_channel_type orig_ct;
+	bool cancel_scan;
 
 	clear_bit(SDATA_STATE_RUNNING, &sdata->state);
 
-	if (local->scan_sdata == sdata)
+	cancel_scan = local->scan_sdata == sdata;
+	if (cancel_scan)
 		ieee80211_scan_cancel(local);
 
 	/*
@@ -541,6 +544,9 @@ static void ieee80211_do_stop(struct ieee80211_sub_if_data *sdata,
 	mutex_unlock(&local->mtx);
 
 	ieee80211_recalc_ps(local, -1);
+
+	if (cancel_scan)
+		flush_delayed_work(&local->scan_work);
 
 	if (local->open_count == 0) {
 		if (local->ops->napi_poll)
@@ -842,6 +848,7 @@ static void ieee80211_iface_work(struct work_struct *work)
 	}
 }
 
+
 /*
  * Helper function to initialise an interface to a specific type.
  */
@@ -1032,6 +1039,7 @@ static void ieee80211_assign_perm_addr(struct ieee80211_local *local,
 	if (is_zero_ether_addr(local->hw.wiphy->addr_mask) &&
 	    local->hw.wiphy->n_addresses <= 1)
 		return;
+
 
 	mutex_lock(&local->iflist_mtx);
 
@@ -1238,6 +1246,15 @@ void ieee80211_remove_interfaces(struct ieee80211_local *local)
 	LIST_HEAD(unreg_list);
 
 	ASSERT_RTNL();
+
+	/*
+	 * Close all AP_VLAN interfaces first, as otherwise they
+	 * might be closed while the AP interface they belong to
+	 * is closed, causing unregister_netdevice_many() to crash.
+	 */
+	list_for_each_entry(sdata, &local->interfaces, list)
+		if (sdata->vif.type == NL80211_IFTYPE_AP_VLAN)
+			dev_close(sdata->dev);
 
 	mutex_lock(&local->iflist_mtx);
 	list_for_each_entry_safe(sdata, tmp, &local->interfaces, list) {

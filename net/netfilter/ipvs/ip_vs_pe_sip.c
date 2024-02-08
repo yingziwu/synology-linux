@@ -37,13 +37,9 @@ static int get_callid(const char *dptr, unsigned int dataoff,
 		if (ret > 0)
 			break;
 		if (!ret)
-			return 0;
+			return -EINVAL;
 		dataoff += *matchoff;
 	}
-
-	/* Empty callid is useless */
-	if (!*matchlen)
-		return -EINVAL;
 
 	/* Too large is useless */
 	if (*matchlen > IP_VS_PEDATA_MAXLEN)
@@ -89,7 +85,7 @@ ip_vs_sip_fill_param(struct ip_vs_conn_param *p, struct sk_buff *skb)
 	dptr = skb->data + dataoff;
 	datalen = skb->len - dataoff;
 
-	if (get_callid(dptr, dataoff, datalen, &matchoff, &matchlen))
+	if (get_callid(dptr, 0, datalen, &matchoff, &matchlen))
 		return -EINVAL;
 
 	/* N.B: pe_data is only set on success,

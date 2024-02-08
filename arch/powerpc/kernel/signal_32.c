@@ -445,6 +445,12 @@ static int save_user_regs(struct pt_regs *regs, struct mcontext __user *frame,
 #endif /* CONFIG_ALTIVEC */
 	if (copy_fpr_to_user(&frame->mc_fregs, current))
 		return 1;
+
+	/*
+	 * Clear the MSR VSX bit to indicate there is no valid state attached
+	 * to this context, except in the specific case below where we set it.
+	 */
+	msr &= ~MSR_VSX;
 #ifdef CONFIG_VSX
 	/*
 	 * Copy VSR 0-31 upper half from thread_struct to local
@@ -678,6 +684,7 @@ long compat_sys_rt_sigpending(compat_sigset_t __user *set, compat_size_t sigsets
 	}
 	return ret;
 }
+
 
 int copy_siginfo_to_user32(struct compat_siginfo __user *d, siginfo_t *s)
 {

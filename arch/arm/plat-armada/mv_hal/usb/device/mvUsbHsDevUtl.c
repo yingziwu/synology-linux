@@ -181,6 +181,7 @@ void _usb_dci_vusb20_unstall_endpoint
                     ep_num, direction ? "SEND" : "RECV",
                     (unsigned)USB_32BIT_LE(dev_ptr->REGISTERS.OPERATIONAL_DEVICE_REGISTERS.ENDPTCTRLX[ep_num]));
 
+
 } /* EndBody */
 
 /*FUNCTION*----------------------------------------------------------------
@@ -270,3 +271,4 @@ void _usb_dci_vusb20_set_test_mode
                                     USB_32BIT_LE(temp | ((uint_32)test_mode << 8));
              
 } /* EndBody */
+

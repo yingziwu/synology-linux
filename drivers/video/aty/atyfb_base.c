@@ -48,6 +48,7 @@
 
 ******************************************************************************/
 
+
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/kernel.h>
@@ -544,6 +545,7 @@ static char ram_wram[] __devinitdata = "WRAM";
 static char ram_off[] __devinitdata = "OFF";
 #endif /* CONFIG_FB_ATY_CT */
 
+
 #ifdef CONFIG_FB_ATY_GX
 static char *aty_gx_ram[8] __devinitdata = {
 	ram_dram, ram_vram, ram_vram, ram_dram,
@@ -637,6 +639,7 @@ static void aty_get_crtc(const struct atyfb_par *par, struct crtc *crtc)
 		}
 		crtc->lcd_config_panel = aty_ld_lcd(CNFG_PANEL, par);
 		crtc->lcd_gen_cntl = aty_ld_lcd(LCD_GEN_CNTL, par);
+
 
 		/* switch to non shadow registers */
 		aty_st_lcd(LCD_GEN_CNTL, crtc->lcd_gen_cntl &
@@ -1571,6 +1574,7 @@ static void set_off_pitch(struct atyfb_par *par, const struct fb_info *info)
 		((line_length / bpp) << 22);
 }
 
+
 /*
  * Open/Release the frame buffer device
  */
@@ -1787,6 +1791,7 @@ static int aty_waitforvblank(struct atyfb_par *par, u32 crtc)
 	return 0;
 }
 
+
 #ifdef DEBUG
 #define ATYIO_CLKR		0x41545900	/* ATY\00 */
 #define ATYIO_CLKW		0x41545901	/* ATY\01 */
@@ -1847,7 +1852,7 @@ static int atyfb_ioctl(struct fb_info *info, u_int cmd, u_long arg)
 #if defined(DEBUG) && defined(CONFIG_FB_ATY_CT)
 	case ATYIO_CLKR:
 		if (M64_HAS(INTEGRATED)) {
-			struct atyclk clk;
+			struct atyclk clk = { 0 };
 			union aty_pll *pll = &par->pll;
 			u32 dsp_config = pll->ct.dsp_config;
 			u32 dsp_on_off = pll->ct.dsp_on_off;
@@ -1988,6 +1993,8 @@ static int atyfb_mmap(struct fb_info *info, struct vm_area_struct *vma)
 	return 0;
 }
 #endif /* __sparc__ */
+
+
 
 #if defined(CONFIG_PM) && defined(CONFIG_PCI)
 
@@ -3754,6 +3761,7 @@ static void __devexit atyfb_remove(struct fb_info *info)
 
 	framebuffer_release(info);
 }
+
 
 static void __devexit atyfb_pci_remove(struct pci_dev *pdev)
 {

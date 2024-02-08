@@ -89,6 +89,7 @@ struct ntrig_data {
 	__u16 sensor_physical_height;
 };
 
+
 /*
  * This function converts the 4 byte raw firmware code into
  * a string containing 5 comma separated numbers.
@@ -114,7 +115,8 @@ static inline int ntrig_get_mode(struct hid_device *hdev)
 	struct hid_report *report = hdev->report_enum[HID_FEATURE_REPORT].
 				    report_id_hash[0x0d];
 
-	if (!report)
+	if (!report || report->maxfield < 1 ||
+	    report->field[0]->report_count < 1)
 		return -EINVAL;
 
 	usbhid_submit_report(hdev, report, USB_DIR_IN);
@@ -758,6 +760,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
 
 		nd->reading_mt = 0;
 
+
 		/*
 		 * Activation state machine logic:
 		 *
@@ -898,6 +901,7 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		hid_err(hdev, "hw start failed\n");
 		goto err_free;
 	}
+
 
 	list_for_each_entry(hidinput, &hdev->inputs, list) {
 		if (hidinput->report->maxfield < 1)

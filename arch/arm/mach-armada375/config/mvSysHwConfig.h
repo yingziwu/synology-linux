@@ -229,6 +229,7 @@ disclaimer.
 /* DRAM cache coherency configuration */
 #define MV_CACHE_COHERENCY  MV_CACHE_COHER_SW
 
+
 /****************************************************************/
 /*************** Telephony configuration ************************/
 /****************************************************************/

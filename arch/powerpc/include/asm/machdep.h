@@ -299,6 +299,7 @@ extern sys_ctrler_t sys_ctrler;
 
 #endif /* CONFIG_PPC_PMAC */
 
+
 /* Functions to produce codes on the leds.
  * The SRC code should be unique for the message category and should
  * be limited to the lower 24 bits (the upper 8 are set by these funcs),

@@ -207,4 +207,5 @@ static inline void load_mce_kbd_decode(void) { }
 static inline void load_lirc_codec(void) { }
 #endif
 
+
 #endif /* _RC_CORE_PRIV */

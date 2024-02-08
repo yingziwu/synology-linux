@@ -152,6 +152,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DBGPRINT(x)	printk(x)
 #define DBGLVL		KERN_INFO
 
+
+
 #ifndef MV_NAND_REG_BIT_SET
 #define MV_NAND_REG_BIT_SET	MV_REG_BIT_SET
 #endif
@@ -166,6 +168,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MV_NAND_REG_READ
 #define MV_NAND_REG_READ	MV_REG_READ
 #endif
+
 
 /***********/
 /* Typedef */
@@ -2592,6 +2595,7 @@ static MV_STATUS mvNfcDeviceModeSet(MV_NFC_CTRL *nfcCtrl, MV_NFC_ONFI_MODE mode)
 	return MV_OK;
 }
 
+
 MV_STATUS mvNfcReset(void)
 {
 	MV_U32 reg;
@@ -2958,6 +2962,7 @@ MV_U32 mvNfcBadBlockPageNumber(MV_NFC_CTRL *nfcCtrl)
 {
 	return flashDeviceInfo[nfcCtrl->flashIdx].bb_page;
 }
+
 
 /*******************************************************************************/
 #ifdef MV_CPU_LE

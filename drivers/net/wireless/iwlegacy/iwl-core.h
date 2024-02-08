@@ -69,6 +69,7 @@
 struct iwl_host_cmd;
 struct iwl_cmd;
 
+
 #define IWLWIFI_VERSION "in-tree:"
 #define DRV_COPYRIGHT	"Copyright(c) 2003-2011 Intel Corporation"
 #define DRV_AUTHOR     "<ilw@linux.intel.com>"
@@ -474,6 +475,7 @@ int iwl_legacy_send_cmd_pdu_async(struct iwl_priv *priv, u8 id, u16 len,
 					    struct iwl_rx_packet *pkt));
 
 int iwl_legacy_enqueue_hcmd(struct iwl_priv *priv, struct iwl_host_cmd *cmd);
+
 
 /*****************************************************
  * PCI						     *

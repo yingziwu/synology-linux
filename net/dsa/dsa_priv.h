@@ -177,4 +177,5 @@ netdev_tx_t edsa_xmit(struct sk_buff *skb, struct net_device *dev);
 /* tag_trailer.c */
 netdev_tx_t trailer_xmit(struct sk_buff *skb, struct net_device *dev);
 
+
 #endif

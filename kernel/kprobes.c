@@ -53,9 +53,13 @@
 #include <asm/cacheflush.h>
 #include <asm/errno.h>
 #include <asm/uaccess.h>
+#ifdef CONFIG_RETPOLINE
+#include <asm/nospec-branch.h>
+#endif
 
 #define KPROBE_HASH_BITS 6
 #define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
+
 
 /*
  * Some oddball architectures like 64bit powerpc have function descriptors
@@ -98,6 +102,11 @@ static struct kprobe_blackpoint kprobe_blacklist[] = {
 	{"irq_entries_start",},
 	{"common_interrupt",},
 	{"mcount",},	/* mcount can be called from everywhere */
+#ifdef CONFIG_RETPOLINE
+	{"__indirect_thunk_start",
+	 /* Linker scripts can't set symbol sizes */
+	 .range = (size_t)__indirect_thunk_size},
+#endif
 	{NULL}    /* Terminator */
 };
 
@@ -197,6 +206,7 @@ static kprobe_opcode_t __kprobes *__get_insn_slot(struct kprobe_insn_cache *c)
 	list_add(&kip->list, &c->pages);
 	return kip->insns;
 }
+
 
 kprobe_opcode_t __kprobes *get_insn_slot(void)
 {
@@ -596,7 +606,7 @@ static __kprobes void kprobe_optimizer(struct work_struct *work)
 }
 
 /* Wait for completing optimization and unoptimization */
-static __kprobes void wait_for_kprobe_optimizer(void)
+__kprobes void wait_for_kprobe_optimizer(void)
 {
 	if (delayed_work_pending(&optimizing_work))
 		wait_for_completion(&optimizer_comp);
@@ -1984,7 +1994,7 @@ static int __init init_kprobes(void)
 				&size, &offset, &modname, namebuf);
 		if (!symbol_name)
 			kb->range = 0;
-		else
+		else if (size)
 			kb->range = size;
 	}
 

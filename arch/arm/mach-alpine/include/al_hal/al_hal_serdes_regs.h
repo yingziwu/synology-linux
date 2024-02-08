@@ -33,6 +33,7 @@ met:
 
 *******************************************************************************/
 
+
 #ifndef __AL_serdes_REG_H
 #define __AL_serdes_REG_H
 
@@ -97,9 +98,11 @@ struct al_serdes_regs {
 	struct serdes_lane lane[4];
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** version register ****/
 /*  Revision number (Minor) */
@@ -443,3 +446,7 @@ struct al_serdes_regs {
 #endif
 
 #endif /* __AL_serdes_REG_H */
+
+
+
+

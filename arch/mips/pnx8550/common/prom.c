@@ -29,6 +29,7 @@ typedef struct
 /*    char *val; */
 }t_env_var;
 
+
 char * __init prom_getcmdline(void)
 {
 	return &(arcs_cmdline[0]);

@@ -18,6 +18,7 @@
 #define cpu_has_neon()		(1)
 #endif
 
+
 /*
  * There are 2 reasons these wrappers are kept in a separate compilation unit
  * from the actual implementations in neonN.c (generated from neon.uc by

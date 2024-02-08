@@ -632,6 +632,7 @@ struct dpst_guardband {
 #define SWF31			0x72418
 #define SWF32			0x7241c
 
+
 /*
  * Palette registers
  */
@@ -1177,6 +1178,7 @@ No status bits are changed.
 # define SB_BYTE_ENABLE_SHIFT                   4
 # define SB_BUSY                                (1 << 0)
 
+
 /* 32-bit value read/written from the DPIO reg. */
 #define SB_DATA		0x02104 /* cedarview */
 /* 32-bit address of the DPIO reg to be read/written. */
@@ -1228,5 +1230,6 @@ No status bits are changed.
 
 #define LANE_PLL_MASK		(0x7 << 20)
 #define LANE_PLL_ENABLE		(0x3 << 20)
+
 
 #endif

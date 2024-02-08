@@ -324,6 +324,7 @@ static ssize_t beiscsi_show_boot_eth_info(void *data, int type, char *buf)
 	return rc;
 }
 
+
 static mode_t beiscsi_tgt_get_attr_visibility(void *data, int type)
 {
 	int rc;
@@ -361,6 +362,7 @@ static mode_t beiscsi_ini_get_attr_visibility(void *data, int type)
 	}
 	return rc;
 }
+
 
 static mode_t beiscsi_eth_get_attr_visibility(void *data, int type)
 {
@@ -422,7 +424,6 @@ static struct beiscsi_hba *beiscsi_hba_alloc(struct pci_dev *pcidev)
 			"iscsi_host_alloc failed\n");
 		return NULL;
 	}
-	shost->dma_boundary = pcidev->dma_mask;
 	shost->max_id = BE2_MAX_SESSIONS;
 	shost->max_channel = 0;
 	shost->max_cmd_len = BEISCSI_MAX_CMD_LEN;
@@ -1446,6 +1447,7 @@ hwi_update_async_writables(struct hwi_async_pdu_context *pasync_ctx,
 	unsigned int num_entries, writables = 0;
 	unsigned int *pep_read_ptr, *pwritables;
 
+
 	if (is_header) {
 		pep_read_ptr = &pasync_ctx->async_header.ep_read_ptr;
 		pwritables = &pasync_ctx->async_header.writables;
@@ -2184,6 +2186,7 @@ static void beiscsi_find_mem_req(struct beiscsi_hba *phba)
 						 BE_ISCSI_PDU_HEADER_SIZE;
 	phba->mem_req[HWI_MEM_ADDN_CONTEXT] =
 					    sizeof(struct hwi_context_memory);
+
 
 	phba->mem_req[HWI_MEM_WRB] = sizeof(struct iscsi_wrb)
 	    * (phba->params.wrbs_per_cxn)
@@ -3604,6 +3607,7 @@ put_shost:
 	scsi_host_put(phba->shost);
 free_kset:
 	iscsi_boot_destroy_kset(phba->boot_kset);
+	phba->boot_kset = NULL;
 	return -ENOMEM;
 }
 
@@ -4394,9 +4398,9 @@ free_port:
 hba_free:
 	if (phba->msix_enabled)
 		pci_disable_msix(phba->pcidev);
-	iscsi_host_remove(phba->shost);
 	pci_dev_put(phba->pcidev);
 	iscsi_host_free(phba->shost);
+	pci_set_drvdata(pcidev, NULL);
 disable_pci:
 	pci_disable_device(pcidev);
 	return ret;
@@ -4439,6 +4443,7 @@ static struct pci_driver beiscsi_pci_driver = {
 	.shutdown = beiscsi_shutdown,
 	.id_table = beiscsi_pci_id_table
 };
+
 
 static int __init beiscsi_module_init(void)
 {

@@ -150,6 +150,7 @@ MV_STATUS onuEponOnuMacTblInit(void)
            fixMacAddrs[macId][3], fixMacAddrs[macId][4], fixMacAddrs[macId][5]);
   }
 
+
   return(MV_OK); 
 }
 
@@ -597,6 +598,7 @@ MV_STATUS onuEponDbOnuCfgSet(MV_U32 regReqAutoRes,
   return(MV_OK);
 }
 
+                             
 /*******************************************************************************
 **
 **  onuEponDbOnuCfgGet
@@ -746,6 +748,7 @@ MV_STATUS onuEponDbPktFilterPacketGet(MV_U32 *forwardLlidAll,
   *forwardLlid1FFF = onuEponDb_s.onuEponDataPathTbl_s.onuEponPktFilter.forwardLlid1FFF;
   *forwardLlid0FFF = onuEponDb_s.onuEponDataPathTbl_s.onuEponPktFilter.forwardLlid0FFF;
   *dropLlid1NNN    = onuEponDb_s.onuEponDataPathTbl_s.onuEponPktFilter.dropLlid1NNN;
+
 
   return(MV_OK);
 }

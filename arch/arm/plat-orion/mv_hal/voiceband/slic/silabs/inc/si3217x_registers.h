@@ -136,6 +136,7 @@ PDN2_STAT,
 USERMODE_ENABLE = 126
 };
 
+
 /*
 ** This defines the neumomics for the SI3217X RAM locations (revB)
 */

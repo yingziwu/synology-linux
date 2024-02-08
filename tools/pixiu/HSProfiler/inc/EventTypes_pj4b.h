@@ -18,6 +18,7 @@
 #ifndef __PX_EVENT_TYPES_PJ4B_H__
 #define __PX_EVENT_TYPES_PJ4B_H__
 
+
 /**
  * OS Timer event.
  * Supported profilers:  counter monitor.
@@ -175,6 +176,7 @@
  * Available counter ids: COUNTER_PJ4B_PMU_PMN0 = 2, COUNTER_PJ4B_PMU_PMN1 = 3, COUNTER_PJ4B_PMU_PMN2 = 4, COUNTER_PJ4B_PMU_PMN3 = 5, COUNTER_PJ4B_PMU_PMN4=6, COUNTER_PJ4B_PMU_PMN5=7
  */
 #define PJ4B_PMU_UNALIGNED_ACCESS_EXECUTED 0xf
+
 
 /**
 * Branch mispredicted or not predicted:
@@ -511,6 +513,7 @@
 */
 #define PJ4B_PMU_L2_CACHE_READ_MISS 0x7a
 
+
 /**
 * L2-Cache eviction:
 *	Counts the number of evictions (Castouts) of a line from the L2 cache. Counts events.
@@ -614,8 +617,10 @@
 /* Counts any event from external input source PMUEXTIN[1] */
 // #define PJ4B_PMU_COUNT_ANY_EVENT_FROM_EXTERNAL_INPUT_SOURCE_PMUEXTIN1 0x91
 
+
 /* Counts any event from both external input source PMUEXTIN[0] and PMUEXTIN[1]*/
 // #define PJ4B_PMU_COUNT_ANY_EVENT_FROM_EXTERNAL_INPUT_SOURCE_PMUEXTIN0_PMUEXTIN1 0x92
+
 
 /**
 * WMMX2 store FIFO full:

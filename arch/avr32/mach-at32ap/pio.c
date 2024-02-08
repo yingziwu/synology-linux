@@ -381,6 +381,7 @@ static void pio_bank_show(struct seq_file *s, struct gpio_chip *chip)
 #define pio_bank_show	NULL
 #endif
 
+
 /*--------------------------------------------------------------------------*/
 
 static int __init pio_probe(struct platform_device *pdev)
@@ -434,7 +435,7 @@ void __init at32_init_pio(struct platform_device *pdev)
 	struct resource *regs;
 	struct pio_device *pio;
 
-	if (pdev->id > MAX_NR_PIO_DEVICES) {
+	if (pdev->id >= MAX_NR_PIO_DEVICES) {
 		dev_err(&pdev->dev, "only %d PIO devices supported\n",
 			MAX_NR_PIO_DEVICES);
 		return;

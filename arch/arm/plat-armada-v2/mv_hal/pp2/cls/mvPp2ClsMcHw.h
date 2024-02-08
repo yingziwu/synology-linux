@@ -100,6 +100,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MV_PP2_MC_DATA3_NEXT			16
 #define MV_PP2_MC_DATA3_NEXT_MASK		(MV_PP2_MC_INDEX_MAX << MV_PP2_MC_DATA3_NEXT)
 
+
 typedef struct {
 	int             valid;
 	int		next;
@@ -111,6 +112,7 @@ typedef struct {
 /*-------------------------------------------------------------------------------*/
 #define MV_PP2_MC_TBL_SIZE		256
 #define MV_PP2_MC_WORDS			3
+
 
 typedef struct mvPp2McEntry {
 	unsigned int index;
@@ -134,6 +136,7 @@ int	mvPp2McHwDump(void);
 void	mvPp2McSwClear(MV_PP2_MC_ENTRY *mc);
 void	mvPp2McHwClearAll(void);
 
+
 int	mvPp2McSwModSet(MV_PP2_MC_ENTRY *mc, int data_ptr, int instr_offs);
 int	mvPp2McSwGpidSet(MV_PP2_MC_ENTRY *mc, int gpid, int enable);
 int	mvPp2McSwDscpSet(MV_PP2_MC_ENTRY *mc, int dscp, int enable);
@@ -141,5 +144,6 @@ int	mvPp2McSwPrioSet(MV_PP2_MC_ENTRY *mc, int prio, int enable);
 int	mvPp2McSwQueueSet(MV_PP2_MC_ENTRY *mc, int q);
 int	mvPp2McSwForwardEn(MV_PP2_MC_ENTRY *mc, int enable);
 int	mvPp2McSwNext(MV_PP2_MC_ENTRY *mc, int next);
+
 
 #endif /*__MV_CLS_MC_HW_H__ */

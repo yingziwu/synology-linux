@@ -21,6 +21,7 @@
 #include <net/netlink.h>
 #include <net/pkt_sched.h>
 
+
 /*	Simple Token Bucket Filter.
 	=======================================
 
@@ -55,6 +56,8 @@
 
 	N(t_* + 0) = N(t_* - 0) - S/R.
 
+
+
 	Actually, QoS requires two TBF to be applied to a data stream.
 	One of them controls steady state burst size, another
 	one with rate P (peak rate) and depth M (equal to link MTU)
@@ -67,6 +70,7 @@
 
 	lat = max ((L-B)/R, (L-M)/P)
 
+
 	NOTES.
 	------
 
@@ -76,6 +80,7 @@
 	If no new packets arrive during this period,
 	or if the device is not awaken by EOI for some previous packet,
 	TBF can stop its activity for 1/HZ.
+
 
 	This means, that with depth B, the maximal rate is
 
@@ -311,12 +316,13 @@ static int tbf_init(struct Qdisc *sch, struct nlattr *opt)
 {
 	struct tbf_sched_data *q = qdisc_priv(sch);
 
+	qdisc_watchdog_init(&q->watchdog, sch);
+	q->qdisc = &noop_qdisc;
+
 	if (opt == NULL)
 		return -EINVAL;
 
 	q->t_c = psched_get_time();
-	qdisc_watchdog_init(&q->watchdog, sch);
-	q->qdisc = &noop_qdisc;
 
 	return tbf_change(sch, opt);
 }

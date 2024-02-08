@@ -82,6 +82,7 @@ error:
 	return NULL;
 }
 
+
 /* Free memory returned from module_alloc */
 void module_free(struct module *mod, void *module_region)
 {

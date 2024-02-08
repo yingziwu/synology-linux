@@ -126,6 +126,7 @@ int ce4200_get_multi_function(struct gpio_chip *chip, unsigned offset)
 
 }
 
+
 irqreturn_t ce4200_gpio_irq_handler(int irq, void *data)
 {
 	struct intelce_gpio_chip *c = data;
@@ -342,3 +343,4 @@ int ce4200_gpio_resume(void *io_mem, unsigned short io_port)
 	intelce_gpio_port_write32(_gpio.cgsmi & 0x3FF, io_port + CE4200_CORE_WELL_GPIO_CGSMI);
 	return 0;
 }
+

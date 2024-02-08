@@ -77,6 +77,7 @@ struct fastpart {
 void *smi_alloc_part(struct fastpart *fp);
 void smi_free_part(struct fastpart *fp, void *v);
 
+
 struct fastqueue *smi_queue_init(struct smiqueue *psmiq, unsigned long addr, void (*gen_msp_irq)(void));
 
 static inline void smi_gen_msp_irq(void)

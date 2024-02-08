@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -52,6 +53,7 @@ extern "C" {
 
 /* Defines */
 #define MV_SAL_LOG_ID       1
+
 
 #ifndef IN
 #define IN
@@ -99,6 +101,7 @@ extern "C" {
 #define SCSI_OPCODE_ATA16                   0x85
 #define SCSI_OPCODE_ATA12                   0xA1
 
+
     /* SCSI bus status codes */
 #define MV_SCSI_STATUS_GOOD                  0x00
 #define MV_SCSI_STATUS_CHECK_CONDITION       0x02
@@ -109,6 +112,7 @@ extern "C" {
 #define MV_SCSI_STATUS_RESERVATION_CONFLICT  0x18
 #define MV_SCSI_STATUS_COMMAND_TERMINATED    0x22
 #define MV_SCSI_STATUS_QUEUE_FULL            0x28
+
 
 /* Typedefs */
 
@@ -205,9 +209,11 @@ extern "C" {
 #define SCSI_ADSENSE_PARAMETERS_CHANGED     0x2A
 #define SCSI_ADSENSE_NO_MEDIA_IN_DEVICE 0x3a
 
+
 #define MV_SCSI_RESPONSE_CODE   0x72
 #define MV_SCSI_DIRECT_ACCESS_DEVICE    0x00
 #define MV_MAX_MODE_SENSE_RESULT_LENGTH 50
+
 
 /* Typedefs */
     typedef enum _mvScsiCompletionType
@@ -328,6 +334,7 @@ extern "C" {
         MV_VOID_PTR     IALData;
         /* fields for internal usage for the translation layer*/
 
+
         MV_UDMA_TYPE            udmaType;
         MV_QUEUED_COMMAND_TYPE  commandType;
         /* used for sense buffer */
@@ -370,10 +377,12 @@ extern "C" {
 
     }MV_SAL_ADAPTER_EXTENSION;
 
+
     MV_VOID     mvSataScsiInitAdapterExt(MV_SAL_ADAPTER_EXTENSION *pAdapterExt,
                                          MV_SATA_ADAPTER* pSataAdapter);
 
     MV_VOID     mvSataScsiPostIntService(MV_SAL_ADAPTER_EXTENSION *pAdapterExt);
+
 
     MV_SCSI_COMMAND_STATUS_TYPE mvSataExecuteScsiCommand(MV_SATA_SCSI_CMD_BLOCK *pMvSataScsiCmdBlock);
 

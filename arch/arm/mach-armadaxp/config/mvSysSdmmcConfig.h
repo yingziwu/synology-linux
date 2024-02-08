@@ -34,3 +34,4 @@ disclaimer.
 ** Base address for audio registers.
 */
 #define MV_SDMMC_REGS_BASE		(MV_SDMMC_REGS_OFFSET)
+

@@ -167,6 +167,7 @@ static int dn_process_ack(struct sock *sk, struct sk_buff *skb, int oth)
 	return len;
 }
 
+
 /**
  * dn_check_idf - Check an image data field format is correct.
  * @pptr: Pointer to pointer to image data
@@ -324,6 +325,7 @@ err_out:
 	*reason = ci_err_table[err].reason;
 	return NULL;
 }
+
 
 static void dn_nsp_conn_init(struct sock *sk, struct sk_buff *skb)
 {
@@ -911,3 +913,4 @@ free_out:
 
 	return NET_RX_SUCCESS;
 }
+

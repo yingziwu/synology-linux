@@ -34,6 +34,7 @@ static inline void set_64bit(volatile u64 *ptr, u64 val)
 		         "a"(__old1), "d"(__old2));		\
 	__ret; })
 
+
 #define cmpxchg16b_local(ptr, o1, o2, n1, n2)			\
 ({								\
 	char __ret;						\

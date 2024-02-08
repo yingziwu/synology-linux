@@ -117,6 +117,7 @@ typedef enum
 	IPC_MSG_DETACH_ACK
 }MV_IPC_CTRL_MSG_TYPE;
 
+
 MV_STATUS mvIpcInit(MV_VOID *qbasePtr, MV_BOOL primary);
 MV_STATUS mvIpcClose(MV_VOID);
 MV_STATUS mvIpcOpenChannel(MV_U32 chnId);
@@ -130,5 +131,6 @@ MV_STATUS mvIpcRxMsg(MV_U32 *outChnId, MV_IPC_MSG **outMsg, MV_U32 drblNum);
 MV_STATUS mvIpcReleaseMsg(MV_U32 chnId, MV_IPC_MSG *msg);
 MV_VOID   mvIpcDisableChnRx(MV_U32 irq);
 MV_VOID   mvIpcEnableChnRx(MV_U32 irq);
+
 
 #endif /*__mvIpc_h */

@@ -55,6 +55,7 @@ static void select_timer(void)
 #endif
 #endif
 
+
 /* select timer number */
 #ifdef PJ1_TIMER_NO
 #if PJ1_TIMER_NO == 0
@@ -347,6 +348,7 @@ int start_tbs(bool is_start_paused)
 	return 0;
 #endif
 }
+
 
 int stop_tbs(void)
 {

@@ -43,6 +43,7 @@
 #include "tda18271c2dd.h"
 #include "drxk.h"
 
+
 /****************************************************************************/
 /* Demod/tuner attachment ***************************************************/
 /****************************************************************************/
@@ -82,6 +83,7 @@ static int tuner_attach_stv6110(struct ngene_channel *chan)
 
 	return 0;
 }
+
 
 static int drxk_gate_ctrl(struct dvb_frontend *fe, int enable)
 {
@@ -280,6 +282,7 @@ static int cineS2_probe(struct ngene_channel *chan)
 	return 0;
 }
 
+
 static struct lgdt330x_config aver_m780 = {
 	.demod_address = 0xb2 >> 1,
 	.demod_chip    = LGDT3303,
@@ -311,6 +314,7 @@ static int demod_attach_lg330x(struct ngene_channel *chan)
 /****************************************************************************/
 /* Switch control (I2C gates, etc.) *****************************************/
 /****************************************************************************/
+
 
 static struct stv090x_config fe_cineS2 = {
 	.device         = STV0900,
@@ -424,6 +428,7 @@ static struct ngene_info ngene_info_cineS2v5 = {
 	.msi_supported	= true,
 };
 
+
 static struct ngene_info ngene_info_duoFlex = {
 	.type           = NGENE_SIDEWINDER,
 	.name           = "Digital Devices DuoFlex PCIe or miniPCIe",
@@ -458,6 +463,8 @@ static struct ngene_info ngene_info_m780 = {
 };
 
 /****************************************************************************/
+
+
 
 /****************************************************************************/
 /* PCI Subsystem ID *********************************************************/

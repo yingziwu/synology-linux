@@ -40,3 +40,4 @@ ENDPROC(__strncpy_from_user)
 	mov	r0, #-EFAULT
 	mov	pc, lr
 	.popsection
+

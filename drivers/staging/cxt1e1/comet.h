@@ -44,6 +44,7 @@
 #include <linux/types.h>
 #endif
 
+
 #define VINT32  volatile u_int32_t
 
 struct s_comet_reg

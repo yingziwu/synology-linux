@@ -113,6 +113,7 @@ full_search:
 	}
 }
 
+
 /*
  * You really shouldn't be using read() or write() on /dev/mem.  This
  * might go away in the future.

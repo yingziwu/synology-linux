@@ -1874,6 +1874,7 @@ ql_dump_regs(uint32_t level, scsi_qla_host_t *vha, int32_t id)
 	}
 }
 
+
 void
 ql_dump_buffer(uint32_t level, scsi_qla_host_t *vha, int32_t id,
 	uint8_t *b, uint32_t size)

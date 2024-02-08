@@ -117,6 +117,7 @@ static void sms_board_dvb3_event(struct smsdvb_client_t *client,
 	}
 }
 
+
 static void smsdvb_update_dvb_stats(struct RECEPTION_STATISTICS_S *pReceptionData,
 				   struct SMSHOSTLIB_STATISTICS_ST *p)
 {
@@ -172,6 +173,7 @@ static void smsdvb_update_dvb_stats(struct RECEPTION_STATISTICS_S *pReceptionDat
 	pReceptionData->InBandPwr = p->InBandPwr;
 	pReceptionData->ErrorTSPackets = p->ErrorTSPackets;
 };
+
 
 static void smsdvb_update_isdbt_stats(struct RECEPTION_STATISTICS_S *pReceptionData,
 				    struct SMSHOSTLIB_STATISTICS_ISDBT_ST *p)

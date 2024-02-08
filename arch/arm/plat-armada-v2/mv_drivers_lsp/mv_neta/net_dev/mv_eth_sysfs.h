@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -26,6 +27,7 @@ disclaimer.
 *******************************************************************************/
 #ifndef __mv_eth_sysfs_h__
 #define __mv_eth_sysfs_h__
+
 
 /* Subdirectories of neta menu */
 

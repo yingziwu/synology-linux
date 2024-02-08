@@ -75,6 +75,7 @@ static int al_fabric_pci_device_notifier(struct notifier_block *nb,
 	if (event != BUS_NOTIFY_BIND_DRIVER)
 		return NOTIFY_DONE;
 
+
 	/* Force the PCIE adapter to set AXI attr to match CC*/
 	if(pci_domain_nr(pdev->bus) == 0) {
 		pci_read_config_dword(pdev, 0x110 ,&temp);
@@ -107,6 +108,7 @@ static void sf_irq_handler(unsigned irq, struct irq_desc *desc)
 	struct sys_fabric_irq_struct *chip = irq_desc_get_handler_data(desc);
 	struct irq_chip *irqchip = irq_desc_get_chip(desc);
 	struct al_nb_regs *nb_regs = chip->regs_base;
+
 
 	mask = chip->irq_gc->mask_cache;
 	pending = readl(&nb_regs->global.nb_int_cause) & mask;
@@ -189,6 +191,7 @@ int __init al_fabric_init(void)
 	nb_node = of_find_matching_node(NULL, of_nb_table);
 	ccu_node = of_find_matching_node(NULL, of_ccu_table);
 
+
 	if (!nb_node)
 		return -EINVAL;
 
@@ -250,3 +253,6 @@ int __init al_fabric_init(void)
 
 	return 0;
 }
+
+
+

@@ -91,6 +91,7 @@ enum al_raid_op {
 
 #define AL_RAID_MAX_DST_DESCS	AL_UDMA_DEFAULT_MAX_ACTN_DESCS
 
+
 struct al_raid_transaction {
 	enum al_raid_op op;
 	enum al_ssm_op_flags flags;

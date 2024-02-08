@@ -363,3 +363,4 @@ module_exit(at91_ide_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Stanislaw Gruszka <stf_xl@wp.pl>");
+

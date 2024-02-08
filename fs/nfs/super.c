@@ -260,6 +260,7 @@ static match_table_t nfs_local_lock_tokens = {
 	{ Opt_local_lock_err, NULL }
 };
 
+
 static void nfs_umount_begin(struct super_block *);
 static int  nfs_statfs(struct dentry *, struct kstatfs *);
 static int  nfs_show_options(struct seq_file *, struct vfsmount *);
@@ -1795,6 +1796,7 @@ static int nfs_validate_mount_data(void *options,
 			mntfh->size = NFS2_FHSIZE;
 			args->version = 2;
 		}
+
 
 		memcpy(mntfh->data, data->root.data, mntfh->size);
 		if (mntfh->size < sizeof(mntfh->data))

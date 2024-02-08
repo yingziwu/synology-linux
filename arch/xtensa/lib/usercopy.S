@@ -19,6 +19,7 @@
  *  Copyright (C) 2002 Tensilica Inc.
  */
 
+
 /*
  * size_t __xtensa_copy_user (void *dst, const void *src, size_t len);
  *
@@ -69,6 +70,7 @@
 	.section __ex_table, "a";		\
 	.word	9b, handler;			\
 	.previous
+
 
 	.text
 	.align	4
@@ -281,6 +283,7 @@ __xtensa_copy_user:
 	movi	a2, 0		# return success for len bytes copied
 	retw
 
+
 	.section .fixup, "ax"
 	.align	4
 
@@ -315,3 +318,4 @@ l_fixup:
 	/* Ignore memset return value in a6. */
 	/* a2 still contains bytes not copied. */
 	retw
+

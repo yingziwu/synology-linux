@@ -3329,6 +3329,7 @@ static int ms_write_multiple_pages(struct rts51x_chip *chip, u16 old_blk,
 
 	retval = rts51x_get_rsp(chip, 3, 2000);
 
+
 	if (CHECK_MS_TRANS_FAIL(chip, retval)) {
 		rts51x_clear_ms_error(chip);
 		TRACE_RET(chip, STATUS_FAIL);

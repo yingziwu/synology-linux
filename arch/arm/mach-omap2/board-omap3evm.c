@@ -354,6 +354,7 @@ static struct platform_device leds_gpio = {
 	},
 };
 
+
 static int omap3evm_twl_gpio_setup(struct device *dev,
 		unsigned gpio, unsigned ngpio)
 {

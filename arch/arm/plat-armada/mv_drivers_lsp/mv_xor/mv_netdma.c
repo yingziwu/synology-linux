@@ -1,7 +1,34 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*******************************************************************************
+Copyright (C) Marvell International Ltd. and its affiliates
+
+This software file (the "File") is owned and distributed by Marvell 
+International Ltd. and/or its affiliates ("Marvell") under the following
+alternative licensing terms.  Once you have made an election to distribute the
+File under one of the following license alternatives, please (i) delete this
+introductory statement regarding license alternatives, (ii) delete the two
+license alternatives that you have not elected to use and (iii) preserve the
+Marvell copyright notice above.
+
+
+********************************************************************************
+Marvell GPL License Option
+
+If you received this File from Marvell, you may opt to use, redistribute and/or 
+modify this File in accordance with the terms and conditions of the General 
+Public License Version 2, June 1991 (the "GPL License"), a copy of which is 
+available along with the File in the license.txt file or by writing to the Free 
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 or 
+on the worldwide web at http://www.gnu.org/licenses/gpl.txt. 
+
+THE FILE IS DISTRIBUTED AS-IS, WITHOUT WARRANTY OF ANY KIND, AND THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY 
+DISCLAIMED.  The GPL License provides additional details about this warranty 
+disclaimer.
+*******************************************************************************/
+
 #include <linux/types.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -29,15 +56,27 @@
 #define DPRINTK(s, args...)
 #endif
 
+/* 
+ * Perform integrity test.
+ * Upon completion of xor dma operation, 
+ * each descriptor will be checked to success bit.
+ */
 #define XOR_INTEGRITY
 #undef XOR_INTEGRITY
 
+/* 
+ * Double invalidate WA
+ */
 #ifdef CONFIG_MV_SP_I_FTCH_DB_INV
 #define XOR_UNMAP
 #endif
 
+/* 
+ * Perform benchmark
+ */
 #define XOR_BENCH
 #undef XOR_BENCH
+
 
 #define XOR_STATS
 #undef XOR_STATS
@@ -55,7 +94,7 @@
 #define memcpy asm_memcpy
 #else
 #define asm_memcpy memcpy
-#endif  
+#endif /* MY_ABC_HERE */
 #endif
 
 #define XOR_BUG(c) if (c) {xor_dump(); BUG();}
@@ -63,9 +102,9 @@
 #define CHANNELS    		CONFIG_MV_XOR_CHANNELS
 #define ENGINES    			(CHANNELS >> 1)
 #define XOR_TIMEOUT 		0x8000000
-#define XOR_MIN_COPY_CHUNK 	16		 
-#define NET_DESC 			128		 
-#define DMA_DESC 			2		 
+#define XOR_MIN_COPY_CHUNK 	16		/* A0 specification */
+#define NET_DESC 			128		/* NET DMA descriptors */
+#define DMA_DESC 			2		/* memcpy descriptors */
 
 #define to_dma_channel(dch) container_of(dch, struct xor_dma_channel, common)
 
@@ -91,18 +130,18 @@ typedef MV_XOR_DESC xor_desc_t;
 struct xor_chain {
 	unsigned int 		idx;
 	unsigned int		pending;
-	xor_desc_t*    		desc;			 
-	dma_addr_t     	 	base;			 
-	struct xor_channel*	owner;			 
-	unsigned int		busy;			 
-	unsigned int		cookie_used;	 
-	unsigned int		cookie_done;	 
+	xor_desc_t*    		desc;			/* N descriptors 	*/
+	dma_addr_t     	 	base;			/* phy address  	*/
+	struct xor_channel*	owner;			/* owned by channel	*/
+	unsigned int		busy;			/* busy by cpu		*/
+	unsigned int		cookie_used;	/* last used 		*/
+	unsigned int		cookie_done;	/* last completed 	*/
 };
 
 struct xor_channel {
 	unsigned int 		idx;
 	unsigned int		busy;
-	struct xor_chain* 	chain;			 
+	struct xor_chain* 	chain;			/* busy on chain	*/
 	unsigned int		pad;
 };
 
@@ -170,12 +209,20 @@ struct xor_net_stats* xor_stats;
 
 static unsigned int xor_enabled __read_mostly;
 
+
+
+/*
+ * channel busy test
+ */
 static inline unsigned int xor_is_active(unsigned int i)
 {
 	return MV_REG_READ(XOR_ACTIVATION_REG(XOR_UNIT(i),XOR_CHAN(i))) 
-			 ;
+			/* & XEXACTR_XESTATUS_MASK */;
 }
 
+/*
+ * set dma operation mode for channel i
+ */
 static inline void xor_mode_dma(unsigned int i)
 {
 	unsigned int mode = MV_REG_READ(XOR_CONFIG_REG(XOR_UNIT(i),XOR_CHAN(i)));
@@ -184,6 +231,9 @@ static inline void xor_mode_dma(unsigned int i)
 	MV_REG_WRITE(XOR_CONFIG_REG(XOR_UNIT(i), XOR_CHAN(i)), mode);
 }
 
+/*
+ * set xor operation mode for channel i
+ */
 static inline void xor_mode_xor(unsigned int i)
 {
 	unsigned int mode = MV_REG_READ(XOR_CONFIG_REG(XOR_UNIT(i),XOR_CHAN(i)));
@@ -192,6 +242,9 @@ static inline void xor_mode_xor(unsigned int i)
 	MV_REG_WRITE(XOR_CONFIG_REG(XOR_UNIT(i), XOR_CHAN(i)), mode);
 }
 
+/*
+ * run dma operation on channel
+ */
 static inline void xor_dma(unsigned int i, unsigned int base)
 {
 #ifdef MV_BRIDGE_SYNC_REORDER
@@ -201,6 +254,9 @@ static inline void xor_dma(unsigned int i, unsigned int base)
 	MV_REG_WRITE(XOR_ACTIVATION_REG(XOR_UNIT(i), XOR_CHAN(i)), XEXACTR_XESTART_MASK);
 }
 
+/*
+ * xor engine busy wait
+ */
 static void xor_dump(void);
 #define XOR_CAUSE_DONE_MASK(chan) ((BIT0|BIT1) << (chan * 16))
 void xor_wait(unsigned int chan)
@@ -220,6 +276,9 @@ void xor_wait(unsigned int chan)
 		XOR_BUG(!timeout--);
 }
 
+/*
+ * Second L2 invalidate (WA)
+ */
 #ifdef XOR_UNMAP
 static void xor_chain_unmap(struct xor_chain* chain)
 {
@@ -232,7 +291,7 @@ static void xor_chain_unmap(struct xor_chain* chain)
 
 	while(i--) {
 		va = __phys_to_virt(desc->phyDestAdd);
-		 
+		/* invalidate l2 */
 		__asm__ __volatile__ ("mcr p15, 1, %0, c15, c11, 4" : : "r" (va));
 		__asm__ __volatile__ ("mcr p15, 1, %0, c15, c11, 5" : : "r" (va+desc->byteCnt-1));
 		desc++;
@@ -241,7 +300,9 @@ static void xor_chain_unmap(struct xor_chain* chain)
 	raw_local_irq_restore(flags);
 }
 #endif
- 
+/*
+ * Chain integrity test
+ */
 #ifdef XOR_INTEGRITY
 static void xor_integrity(struct xor_chain* chain)
 {
@@ -362,6 +423,9 @@ static void xor_stat(void)
 #endif       
 }
 
+/*
+ * Allocate chain
+ */
 static inline unsigned int xor_try_chain(struct xor_chain* chain)
 {
 	unsigned long flags=0;
@@ -376,12 +440,18 @@ static inline unsigned int xor_try_chain(struct xor_chain* chain)
 	return 0;
 }
 
+/*
+ * Connect channel to chain
+ */
 static inline void xor_attach(struct xor_chain* chain, struct xor_channel* xch)
 {
 	xch->chain = chain;
 	chain->owner = xch;
 }
 
+/*
+ * Disconnect channel and chain
+ */
 static inline void xor_detach(struct xor_chain* chain, struct xor_channel* xch)
 {
 #ifdef XOR_INTEGRITY
@@ -398,6 +468,9 @@ static inline void xor_detach(struct xor_chain* chain, struct xor_channel* xch)
 	xch->chain = NULL;
 }
 
+/*
+ * Allocate channel
+ */
 static struct xor_channel* xor_get(void)
 {
     static int rr=0;
@@ -439,9 +512,13 @@ static inline void xor_put(struct xor_channel* xch)
 	xch->busy = 0;
 }
 
+/*
+ * Fast clean, dsb() required
+ * The call is intended for multiple calls and when dsb() on commit endpoint
+ */
 static inline void dmac_clean_dcache_line(void* addr)
 {
- 
+//#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
 #if defined CONFIG_SHEEVA_ERRATA_ARM_CPU_6043 || defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_6124) || defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_6076)
 	__asm__ __volatile__ ("mcr p15, 0, %0, c7, c14, 1" : : "r" (addr));
 #else
@@ -449,6 +526,9 @@ static inline void dmac_clean_dcache_line(void* addr)
 #endif
 	__asm__ __volatile__ ("mcr p15, 1, %0, c15, c9, 1" : : "r" (addr));
 
+//#else
+//	dma_cache_maint(addr, 32, DMA_TO_DEVICE);
+//#endif
 }
 
 #ifdef CONFIG_MV_XOR_NET_DMA
@@ -462,6 +542,9 @@ static void xor_free_chan_resources(struct dma_chan *dch)
 	printk("xor: free netdma chain[%d] resources\n", dch->chan_id);
 }
 
+/*
+ *  Start xmit of chain 
+ */
 static struct xor_chain* xor_xmit(struct xor_chain* chain)
 {
 	struct xor_channel* xch;
@@ -482,6 +565,10 @@ static struct xor_chain* xor_xmit(struct xor_chain* chain)
 	xor_dma(xch->idx, chain->base);
 	xor_put(xch);
 
+	/*
+	 * find free chain,
+	 * always succedded since chains >> channels
+	 */
 	i = CHAIN_NETDMA;
 	while(i--) {	
 		if (likely(chain->idx < CHAIN_NETDMA))
@@ -525,6 +612,7 @@ static dma_cookie_t xor_memcpy_buf_to_pg(struct dma_chan *chan,
 		goto out;
 	}
 
+	/* at least two cache lines or XOR minimum */
 	if (n < 96)
 		goto out;
 
@@ -549,9 +637,9 @@ static dma_cookie_t xor_memcpy_buf_to_pg(struct dma_chan *chan,
 	dmac_clean_range((void*)from, (void*)from + n);
 	dmac_inv_range((void*)to, (void*)to + n);
 #else
- 
+//	dma_cache_maint((void*)from, n, DMA_TO_DEVICE);
 	__dma_single_cpu_to_dev((void*)from, n, DMA_TO_DEVICE);
- 
+//	dma_cache_maint((void*)to, n, DMA_FROM_DEVICE);
 	__dma_single_dev_to_cpu((void*)to, n, DMA_FROM_DEVICE);
 #endif
 
@@ -603,7 +691,9 @@ static dma_cookie_t xor_memcpy_pg_to_pg(struct dma_chan *chan,
 
 static dma_cookie_t xor_memcpy_buf_to_buf(struct dma_chan *chan,void *dest, void *src, size_t n)
 {
-	 
+	/* kernel copies (e.g. smbfs) 
+	 * not really tested
+	 */
 	STAT_INC(netdma_b2b);
 	return xor_memcpy_buf_to_pg(chan,
 								page_address(dest),
@@ -611,16 +701,28 @@ static dma_cookie_t xor_memcpy_buf_to_buf(struct dma_chan *chan,void *dest, void
 								src, n);
 }
 
+/*
+ * cookies compare
+ */
 static inline int before(__s32 c1, __s32 c2)
 {
-	 
+	/*
+	 * Cookies are continuous. 
+	 * The distance between cookies should not exceed FFFF,
+	 * otherwise is considered as overflow.
+	 */
 	if (c1 <= c2) 
 		return (c2 - c1) <= 0xFFFF;
     else 
 		return (c1 - c2) > 0xFFFF;
 }
 
-static   dma_cookie_t xor_get_completed(void)
+/*
+ * Find completed cookie across all chains. 
+ * Each one has [done,used] section. If for sections done=used, report max,
+ * otherwise, the minimum 'done' is returned.
+ */
+static /*inline*/ dma_cookie_t xor_get_completed(void)
 {
 	dma_cookie_t min_cookie = 0;
 	dma_cookie_t max_cookie = 0;
@@ -640,11 +742,18 @@ static   dma_cookie_t xor_get_completed(void)
 			}
 
 			if (c_used != c_done) {
-			 		
+			/*
+			 * at least one chain is incomplete. 
+			 * find minimal cookie which is done across all chains
+			 */		
 				if (!min_cookie || before(c_done, min_cookie))
 					min_cookie = c_done;
 			}
 
+			/*
+			 * in the case whether all chains are completed, 
+			 * find their max cookie
+			 */		
 			else if (!c_done)  {
 				;
 			}
@@ -734,7 +843,7 @@ static void xor_memcpy_issue_pending(struct dma_chan *chan)
 	if (!irq)
 		spin_unlock_bh(&dch->lock);
 }
-#endif  
+#endif /* CONFIG_MV_XOR_NET_DMA */
 
 static int xor_proc_write(struct file *file, const char __user *buffer,
 			   unsigned long count, void *data)
@@ -768,6 +877,7 @@ int __init mv_xor_init(void)
 			
 		}
 	
+
 #if defined(CONFIG_MV78200) || defined(CONFIG_MV632X)
 		if (MV_FALSE == mvSocUnitIsMappedToThisCpu(XOR)) {
 			printk(KERN_INFO"XOR engine is not mapped to this CPU\n");
@@ -777,21 +887,27 @@ int __init mv_xor_init(void)
 
 		mvSysXorInit();
 
+		/* stats */
 		va = (u32)kmalloc(32 + (sizeof(struct xor_net_stats)), GFP_KERNEL);
 		va += 32 - (va & 31);
 		xor_stats = (struct xor_net_stats*)va;
 		memset(xor_stats, 0, sizeof(struct xor_net_stats));
 
+		/* channels */
 		va = (u32)kmalloc(32 + (sizeof(struct xor_channel) * CHANNELS), GFP_KERNEL);
 		va += 32 - (va & 31);
 		xor_channels = (struct xor_channel*)va;
 		memset(xor_channels, 0, sizeof(struct xor_channel) * CHANNELS);
 
+		/* chains */
 		va = (u32)kmalloc(32 + (sizeof(struct xor_chain) * CHAINS), GFP_KERNEL);
 		va += 32 - (va & 31);
 		xor_chains = (struct xor_chain*)va;
 		memset(xor_chains, 0, sizeof(struct xor_chain) * CHAINS);
 
+		/*
+		 * init channels
+		 */
 		for(i=0; i<CHANNELS; i++) {
 			xor_channels[i].idx = i;
 			xor_channels[i].busy = 0;
@@ -800,6 +916,9 @@ int __init mv_xor_init(void)
 			xor_mode_dma(i);
 		}
 
+		/*
+		 * init chains
+         */                                 
         i = CHAINS;
 		while(i--) {
 			u32 sz, va=0;	
@@ -821,6 +940,9 @@ int __init mv_xor_init(void)
 			memset(chain->desc, 0, sz);	
 			BUG_ON(63 & (u32)chain->desc);
 
+			/*
+			 * Init next pointer
+             */
 			if (i <= CHAIN_NETDMA) {
 				int d = NET_DESC - 1;
 				while(d--)
@@ -830,8 +952,9 @@ int __init mv_xor_init(void)
 
 		}
     
+
 #ifdef CONFIG_PROC_FS
-		 
+		/* FIXME: /proc/sys/dev/ */
 		proc_e = create_proc_entry("mvxor", 0666, 0);
         proc_e->read_proc = xor_proc_read;
         proc_e->write_proc = xor_proc_write;
@@ -889,6 +1012,8 @@ module_init(mv_xor_init);
 module_exit(mv_xor_exit);
 MODULE_LICENSE(GPL);
 
+
+/* = ====================================================================== */
 #ifdef CONFIG_MV_XOR_MEMCOPY
 void* xor_memcpy(void *_to, const void* _from, __kernel_size_t n)
 {
@@ -926,9 +1051,9 @@ void* xor_memcpy(void *_to, const void* _from, __kernel_size_t n)
 	dmac_clean_range((void*)from, (void*)from + n);
 	dmac_inv_range((void*)to, (void*)to + n);
 #else
- 
+//	dma_cache_maint((void*)from, n, DMA_TO_DEVICE);
 	__dma_single_cpu_to_dev((void*)from, n, DMA_TO_DEVICE);
- 
+//	dma_cache_maint((void*)to, n, DMA_FROM_DEVICE);
 	__dma_single_dev_to_cpu((void*)to, n, DMA_FROM_DEVICE);
 #endif
 
@@ -994,7 +1119,122 @@ out:
 }
 EXPORT_SYMBOL(xor_memcpy);
 
-#endif  
+#ifdef MY_ABC_HERE
+static struct xor_chain* last_chain = NULL;
+static struct xor_chain* penultimate_chain = NULL;
+
+void* syno_xor_dma_memcpy(void* _to, const void* _from, __kernel_size_t n)
+{
+	u32 to = (u32)_to;
+	u32 from = (u32)_from;
+
+	struct xor_chain* chain;
+	struct xor_channel* xch;
+	static u8 chan = CHAIN_MEMCPY;
+	unsigned long flags = 0;
+
+	STAT_INC(memcp);
+	STAT_ADD(memcp_bytes,n);
+
+	DPRINTK("%s:%x<-%x %d bytes\n", __FUNCTION__, to, from, n);
+
+	if (n < 128)
+		goto out;
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
+	dmac_clean_range((void*)from, (void*)from + n);
+	dmac_inv_range((void*)to, (void*)to + n);
+#else
+//	dma_cache_maint((void*)from, n, DMA_TO_DEVICE);
+	__dma_single_cpu_to_dev((void*)from, n, DMA_TO_DEVICE);
+//	dma_cache_maint((void*)to, n, DMA_FROM_DEVICE);
+	__dma_single_dev_to_cpu((void*)to, n, DMA_FROM_DEVICE);
+#endif
+
+	chain = &xor_chains[chan];
+	if (xor_try_chain(chain))
+		goto out;
+
+	DPRINTK("%s: %x<-%x %d bytes\n", __FUNCTION__, da, sa, n);
+	chain->pending = 1;
+	chain->desc->srcAdd0 = virt_to_phys((void*)from);
+	chain->desc->phyDestAdd = virt_to_phys((void*)to);
+	chain->desc->byteCnt = n;
+	chain->desc->phyNextDescPtr = 0;
+	chain->desc->status = BIT31;
+
+	dmac_clean_dcache_line(chain->desc);
+	dsb();
+
+	xch = xor_get();
+	if (!xch)
+		goto out2;
+
+	STAT_INC(memcp_dma);
+	xor_attach(chain, xch);
+	xor_dma(xch->idx, chain->base);
+
+	local_irq_save(flags);
+
+	if (NULL != penultimate_chain) {
+		xor_wait(penultimate_chain->owner->idx);
+		xor_put(penultimate_chain->owner);
+		xor_detach(penultimate_chain, penultimate_chain->owner);
+		penultimate_chain = NULL;
+	}
+
+	penultimate_chain = last_chain;
+	last_chain = chain;
+
+	if  (CHAIN_MEMCPY == chan) {
+		chan = CHAIN_TO_USR;
+	} else if (CHAIN_TO_USR == chan) {
+		chan = CHAIN_FROM_USR;
+	} else {
+		chan = CHAIN_MEMCPY;
+	}
+
+	local_irq_restore(flags);
+
+	return (void*)to;
+
+out2:
+	chain->busy = 0;
+	last_chain = NULL;
+
+out:
+	return asm_memcpy((void*)to, (void*)from, n);
+}
+EXPORT_SYMBOL(syno_xor_dma_memcpy);
+
+void syno_xor_dma_memcpy_complete(void)
+{
+	unsigned long flags = 0;
+
+	local_irq_save(flags);
+
+	if (NULL != penultimate_chain) {
+		xor_wait(penultimate_chain->owner->idx);
+		xor_put(penultimate_chain->owner);
+		xor_detach(penultimate_chain, penultimate_chain->owner);
+		penultimate_chain = NULL;
+	}
+
+	if (NULL != last_chain) {
+		xor_wait(last_chain->owner->idx);
+		xor_put(last_chain->owner);
+		xor_detach(last_chain, last_chain->owner);
+		last_chain = NULL;
+	}
+
+	local_irq_restore(flags);
+
+	return;
+}
+EXPORT_SYMBOL(syno_xor_dma_memcpy_complete);
+#endif /* MY_ABC_HERE */
+
+#endif /* CONFIG_MV_XOR_MEMCOPY */
 
 #ifdef CONFIG_MV_XOR_MEMXOR
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
@@ -1050,6 +1290,7 @@ int xor_memxor(unsigned int count, unsigned int n, void **va)
 	xor_mode_xor(xch->idx);
 	xor_dma(xch->idx, chain->base);
 
+	/* could be useful before busywait, because we already have it clean */
 	dmac_inv_range(va[0], (void*)va[0] + n);
 	xor_wait(xch->idx);
 
@@ -1065,7 +1306,7 @@ out2:
 out:
 	return 1;
 }
-#else  
+#else /* LINUX_VERSION_CODE > KERNEL_VERSION(2,6,26) */
 int xor_memxor(unsigned int src_count, unsigned int bytes, void *dest, void **srcs)
 {
 	struct xor_chain* chain;
@@ -1087,25 +1328,26 @@ int xor_memxor(unsigned int src_count, unsigned int bytes, void *dest, void **sr
 	chain->desc->phyDestAdd = __pa(dest);
 	chain->desc->byteCnt = bytes;
 	chain->desc->phyNextDescPtr = 0;
-	chain->desc->descCommand = (1 << (src_count+1)) - 1;  
+	chain->desc->descCommand = (1 << (src_count+1)) - 1; /* add dest to the count */
 	chain->desc->status = BIT31;
 
 #ifdef MV_CPU_BE
-     
+    /* set the first (srcAdd1) desc to be the dest */
 	chain->desc->srcAdd1 = chain->desc->phyDestAdd;
 	p = &chain->desc->srcAdd0;
 	if ((src_count+1) & 1)
 		p[src_count] = __pa(srcs[src_count-1]);
 #else
-	 
+	/* set the first desc (srcAdd0) to be the dest */
 	chain->desc->srcAdd0 = chain->desc->phyDestAdd;
 	p = &chain->desc->srcAdd1;
 #endif
 
+	//dma_cache_maint(dest, bytes, DMA_TO_DEVICE);
 	__dma_single_cpu_to_dev(dest, bytes, DMA_TO_DEVICE);
     
 	while(src_count--) {
-		 
+		//dma_cache_maint((void*)srcs[src_count], bytes, DMA_TO_DEVICE);
 		__dma_single_cpu_to_dev((void*)srcs[src_count], bytes, DMA_TO_DEVICE);
 		p[src_count] = __pa(srcs[src_count]);
 	}
@@ -1125,6 +1367,8 @@ int xor_memxor(unsigned int src_count, unsigned int bytes, void *dest, void **sr
 	xor_mode_xor(xch->idx);
 	xor_dma(xch->idx, chain->base);
 
+	/* could be useful before busywait, because we already have it clean */
+	//dma_cache_maint(dest, bytes, DMA_FROM_DEVICE);
 	__dma_single_dev_to_cpu(dest, bytes, DMA_FROM_DEVICE);
 	xor_wait(xch->idx);
 
@@ -1143,10 +1387,13 @@ out:
 
 #endif
 EXPORT_SYMBOL(xor_memxor);
-#endif  
+#endif /* CONFIG_MV_XOR_MEMXOR */
+
 
 #if defined(CONFIG_MV_XOR_COPY_TO_USER) || defined(CONFIG_MV_XOR_COPY_FROM_USER)
- 
+/*
+ * Obtain pa address from user va
+ */
 static inline u32 __pa_user(u32 va, int write)
 {
     struct page *page;
@@ -1180,7 +1427,7 @@ static inline u32 __pa_user(u32 va, int write)
 
 	return 0;
 }
-#endif  
+#endif /* COPY_XX_USER */
 
 #ifdef CONFIG_MV_XOR_COPY_TO_USER
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
@@ -1302,9 +1549,9 @@ out:
 }
 EXPORT_SYMBOL(xor_copy_to_user);
 #else
- 
-#endif  
-#endif  
+/* #error "Kernel version >= 2,6,26 does not support XOR copy_to_user" */
+#endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26) */
+#endif /* CONFIG_MV_XOR_COPY_TO_USER */
 
 #ifdef CONFIG_MV_XOR_COPY_FROM_USER
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
@@ -1426,9 +1673,10 @@ out:
 }
 EXPORT_SYMBOL(xor_copy_from_user);
 #else
- 
-#endif  
-#endif  
+/* #error "Kernel version >= 2,6,26 does not support XOR copy_from_user" */
+#endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26) */
+#endif /* CONFIG_MV_XOR_COPY_FROM_USER */
+
 
 #ifdef XOR_BENCH
 void xor_bench(void *to, void *from, unsigned long n)
@@ -1436,7 +1684,9 @@ void xor_bench(void *to, void *from, unsigned long n)
 		unsigned long time;
 		u32 i;
 		u32 t;
-		  
+		 //	
+		 // functions under benchmark, use / to skip.
+         //
 		char* fn[] = {"/", "asm_memzero", "/", 
 						"/xor_memcpy", "/memcpy", 
 						"/xor_memxor", "/xor_block", NULL};
@@ -1467,7 +1717,7 @@ void xor_bench(void *to, void *from, unsigned long n)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
 								dmac_inv_range((void*)va[0], (void*)va[0] + n);
 #else
-								 
+								//dma_cache_maint((void*)va[0], n, DMA_FROM_DEVICE);
 								__dma_single_dev_to_cpu((void*)va[0], n, DMA_FROM_DEVICE);
 #endif
 								memzero(va[0], n); 
@@ -1506,3 +1756,4 @@ void xor_bench(void *to, void *from, unsigned long n)
 		}
 }
 #endif
+

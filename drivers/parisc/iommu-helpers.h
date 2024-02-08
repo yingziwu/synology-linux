@@ -1,3 +1,5 @@
+#include <linux/prefetch.h>
+
 /**
  * iommu_fill_pdir - Insert coalesced scatter/gather chunks into the I/O Pdir.
  * @ioc: The I/O Controller.
@@ -32,6 +34,7 @@ iommu_fill_pdir(struct ioc *ioc, struct scatterlist *startsg, int nents,
 			   (unsigned long)sg_dma_address(startsg), cnt,
 			   sg_virt_addr(startsg), startsg->length
 		);
+
 
 		/*
 		** Look for the start of a new DMA stream
@@ -82,6 +85,7 @@ iommu_fill_pdir(struct ioc *ioc, struct scatterlist *startsg, int nents,
 	return(n_mappings);
 }
 
+
 /*
 ** First pass is to walk the SG list and determine where the breaks are
 ** in the DMA stream. Allocates PDIR entries but does not fill them.
@@ -100,7 +104,11 @@ iommu_coalesce_chunks(struct ioc *ioc, struct device *dev,
 	struct scatterlist *contig_sg;	   /* contig chunk head */
 	unsigned long dma_offset, dma_len; /* start/len of DMA stream */
 	unsigned int n_mappings = 0;
-	unsigned int max_seg_size = dma_get_max_seg_size(dev);
+	unsigned int max_seg_size = min(dma_get_max_seg_size(dev),
+					(unsigned)DMA_CHUNK_SIZE);
+	unsigned int max_seg_boundary = dma_get_seg_boundary(dev) + 1;
+	if (max_seg_boundary)	/* check if the addition above didn't overflow */
+		max_seg_size = min(max_seg_size, max_seg_boundary);
 
 	while (nents > 0) {
 
@@ -135,14 +143,11 @@ iommu_coalesce_chunks(struct ioc *ioc, struct device *dev,
 
 			/*
 			** First make sure current dma stream won't
-			** exceed DMA_CHUNK_SIZE if we coalesce the
+			** exceed max_seg_size if we coalesce the
 			** next entry.
 			*/   
-			if(unlikely(ALIGN(dma_len + dma_offset + startsg->length,
-					    IOVP_SIZE) > DMA_CHUNK_SIZE))
-				break;
-
-			if (startsg->length + dma_len > max_seg_size)
+			if (unlikely(ALIGN(dma_len + dma_offset + startsg->length, IOVP_SIZE) >
+				     max_seg_size))
 				break;
 
 			/*
@@ -171,3 +176,4 @@ iommu_coalesce_chunks(struct ioc *ioc, struct device *dev,
 
 	return n_mappings;
 }
+

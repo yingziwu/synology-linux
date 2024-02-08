@@ -1057,6 +1057,7 @@ void ath9k_hw_init_global_settings(struct ath_hw *ah)
 		ctstimeout += 48 - sifstime - ah->slottime;
 	}
 
+
 	ath9k_hw_set_sifs_time(ah, sifstime);
 	ath9k_hw_setslottime(ah, slottime);
 	ath9k_hw_set_ack_timeout(ah, acktimeout);
@@ -1539,7 +1540,8 @@ int ath9k_hw_reset(struct ath_hw *ah, struct ath9k_channel *chan,
 	if (caldata &&
 	    (chan->channel != caldata->channel ||
 	     (chan->channelFlags & ~CHANNEL_CW_INT) !=
-	     (caldata->channelFlags & ~CHANNEL_CW_INT))) {
+	     (caldata->channelFlags & ~CHANNEL_CW_INT) ||
+	     chan->chanmode != caldata->chanmode)) {
 		/* Operating channel changed, reset channel calibration data */
 		memset(caldata, 0, sizeof(*caldata));
 		ath9k_init_nfcal_hist_buffer(ah, chan);
@@ -2309,6 +2311,7 @@ int ath9k_hw_fill_cap_info(struct ath_hw *ah)
 		if (ah->eep_ops->get_eeprom(ah, EEP_CHAIN_MASK_REDUCE))
 			pCap->hw_caps |= ATH9K_HW_CAP_APM;
 	}
+
 
 	if (AR_SREV_9330(ah) || AR_SREV_9485(ah)) {
 		ant_div_ctl1 = ah->eep_ops->get_eeprom(ah, EEP_ANT_DIV_CTL1);

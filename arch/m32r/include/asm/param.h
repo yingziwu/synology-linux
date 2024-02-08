@@ -20,3 +20,4 @@
 #define MAXHOSTNAMELEN	64	/* max length of hostname */
 
 #endif /* _ASM_M32R_PARAM_H */
+

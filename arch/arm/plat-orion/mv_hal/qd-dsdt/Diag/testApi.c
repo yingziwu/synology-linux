@@ -256,6 +256,7 @@ GT_STATUS testU16Type(GT_QD_DEV *dev, TEST_API* api, int testLimit)
 	return testResult;
 }
 
+
 GT_STATUS testU32Type(GT_QD_DEV *dev, TEST_API* api, int testLimit)
 {
 	GT_STATUS status;
@@ -301,6 +302,7 @@ GT_STATUS testU32Type(GT_QD_DEV *dev, TEST_API* api, int testLimit)
 
 	return testResult;
 }
+
 
 GT_STATUS testMacType(GT_QD_DEV *dev, TEST_API* api)
 {
@@ -427,6 +429,7 @@ GT_STATUS testMacType(GT_QD_DEV *dev, TEST_API* api)
 	return testResult;
 }
 
+
 GT_STATUS testPortBoolType(GT_QD_DEV *dev, TEST_API* api)
 {
 	GT_STATUS status;
@@ -499,6 +502,7 @@ GT_STATUS testPortBoolType(GT_QD_DEV *dev, TEST_API* api)
 	}
 	return testResult;
 }
+
 
 GT_STATUS testPortU8Type(GT_QD_DEV *dev, TEST_API* api, int testLimit)
 {
@@ -1275,6 +1279,7 @@ GT_U32 testSysCtrl(GT_QD_DEV *dev )
 	MSG_PRINT(("Scheduling Mode API test "));
 	testDisplayStatus(status);
 
+
 	/*
 	 *  Testing Max Frame Size API
 	 */
@@ -1287,6 +1292,7 @@ GT_U32 testSysCtrl(GT_QD_DEV *dev )
 	}
 	MSG_PRINT(("MAX Frame Size API test "));
 	testDisplayStatus(status);
+
 
 	/*
 	 *  Testing WatchDog API
@@ -1301,6 +1307,7 @@ GT_U32 testSysCtrl(GT_QD_DEV *dev )
 	MSG_PRINT(("WatchDog API test "));
 	testDisplayStatus(status);
 
+
 	/*
 	 *  Testing PerPortDuplexPauseMac API
 	 */
@@ -1313,6 +1320,7 @@ GT_U32 testSysCtrl(GT_QD_DEV *dev )
 	}
 	MSG_PRINT(("Per Port Duplex Pause Mac API test "));
 	testDisplayStatus(status);
+
 
 #if 0
 	/*
@@ -2256,6 +2264,7 @@ GT_U32 testPort(GT_QD_DEV *dev)
 	MSG_PRINT(("Ingress Mode API test "));
 	testDisplayStatus(status);
 
+
 	/*
 	 *  Muticast Rate Limit
 	 *  This feature is only avalable on 6021/6051/6052
@@ -2378,6 +2387,7 @@ GT_U32 testPortRCforEnhancedFE(GT_QD_DEV *dev)
 	MSG_PRINT(("DA NRL En API test "));
 	testDisplayStatus(status);
 
+
 	/*
 	 *  Egress Limit Mode
 	 */
@@ -2432,6 +2442,7 @@ GT_U32 testPortRateCtrl(GT_QD_DEV *dev)
 	}
 	MSG_PRINT(("Ingress Rate Limit Mode API test "));
 	testDisplayStatus(status);
+
 
 	/*
 	 *  Priority 3 Frames Rate Limit
@@ -2814,6 +2825,7 @@ GT_U32 testPortPAV(GT_QD_DEV *dev)
 	return testResults;
 }
 
+
 GT_U32 testATUSetup(GT_QD_DEV *dev )
 {
 	GT_STATUS status, testResult;
@@ -2835,6 +2847,7 @@ GT_U32 testATUSetup(GT_QD_DEV *dev )
 
 	return testResults;
 }
+
 
 GT_STATUS testDisplayATUList(GT_QD_DEV *dev)
 {
@@ -3594,6 +3607,7 @@ GT_STATUS testAtuDbNum(GT_QD_DEV *dev,int arg, GT_U32 entrySize, GT_U32 maxDbNum
 		}
 
 	}
+
 
 	MSG_PRINT(("Checking Dynamic Count... \n"));
 	/* Get Atu Dynamic Count, which should be dynamicMacs. */
@@ -4355,6 +4369,7 @@ GT_U32 testATU(GT_QD_DEV *dev)
 	return testResults;
 }
 
+
 GT_STATUS testATUStress(GT_QD_DEV *dev)
 {
 	GT_STATUS testResult, status;
@@ -4492,6 +4507,7 @@ GT_STATUS testATUStress(GT_QD_DEV *dev)
 
 	return testResult;
 }
+
 
 /*******************************************************************************
 * testVlan
@@ -4741,6 +4757,7 @@ GT_U32 testSTP(GT_QD_DEV *dev)
 	return testResults;
 }
 
+
 GT_U32 testPhy1(GT_QD_DEV *dev)
 {
 	GT_STATUS status, testResult;
@@ -4794,6 +4811,7 @@ GT_U32 testPhy1(GT_QD_DEV *dev)
 		}
 		else
 			MSG_PRINT(("After Reset, Phy (port %i) Reg 0 : %#x.\n",port,u16Data));
+
 
 		/*
 		 *  Set AutoNego disable, LoopBack enable, 100Mbps, Duplex On,
@@ -4992,6 +5010,7 @@ GT_U32 testPhy1(GT_QD_DEV *dev)
 		else
 			MSG_PRINT(("After Auto, Phy (port %i) Reg 0 : %#x.\n",port,u16Data));
 
+
 		/*
 		 *	Enable PAUSE
 		*/
@@ -5129,6 +5148,7 @@ GT_U32 testPhy1(GT_QD_DEV *dev)
 			}
 		}
 
+
 	}
 	return testResults;
 }
@@ -5186,6 +5206,7 @@ GT_U32 testPhy2(GT_QD_DEV *dev)
 		}
 		else
 			MSG_PRINT(("After Reset, Phy (port %i) Reg 0 : %#x.\n",port,u32Data));
+
 
 		/*
 		 *  Set AutoNego disable, LoopBack enable, 100Mbps, Duplex On,
@@ -5384,6 +5405,7 @@ GT_U32 testPhy2(GT_QD_DEV *dev)
 		else
 			MSG_PRINT(("After Auto, Phy (port %i) Reg 0 : %#x.\n",port,u32Data));
 
+
 		/*
 		 *	Enable PAUSE
 		*/
@@ -5511,6 +5533,7 @@ GT_U32 testPhy2(GT_QD_DEV *dev)
 			}
 		}
 
+
 	}
 	return testResults;
 }
@@ -5599,6 +5622,7 @@ GT_STATUS testBadPkt(GT_QD_DEV *dev)
 	}
 	return GT_OK;
 }
+
 
 GT_U32 testPortStatus(GT_QD_DEV *dev)
 {
@@ -6032,6 +6056,7 @@ GT_U32 testQoSRule(GT_QD_DEV *dev)
 	MSG_PRINT(("ARP QPri Value API test "));
 	testDisplayStatus(status);
 
+
 	return testResults;
 }
 
@@ -6212,6 +6237,7 @@ GT_U32 testQoSMap(GT_QD_DEV *dev)
 	return testResults;
 }
 
+
 GT_U32 testInterrupt(GT_QD_DEV *dev)
 {
 	GT_STATUS status, testResult;
@@ -6325,6 +6351,7 @@ GT_U32 testInterrupt(GT_QD_DEV *dev)
 	else
 		MSG_PRINT(("QD Interrupt Handler returned intCause(%#x).\n",tmpData));
 
+
 	/*
 	 *	Call gprtGetPhyIntPortSummary to get Port Int Summary
 	*/
@@ -6433,6 +6460,7 @@ GT_U32 testInterrupt(GT_QD_DEV *dev)
 	}
 	else
 		MSG_PRINT(("QD Interrupt Handler returned intCause(%#x).\n",tmpData));
+
 
 	/*
 	 *	Call gprtGetPhyIntPortSummary to get Port Int Summary
@@ -8087,6 +8115,7 @@ GT_U32 testPIRL(GT_QD_DEV *dev)
 			return 1 << GT_NOT_SUPPORTED;
 	}
 
+
 	MSG_PRINT(("Try Invalid PIRL API call\n"));
 
 	/* try PIRL APIs without Activating it */
@@ -8119,6 +8148,7 @@ GT_U32 testPIRL(GT_QD_DEV *dev)
 	{
 		MSG_PRINT(("Invalid PIRL API call successed\n"));
 	}
+
 
 	/* Activate PIRL */
 	MSG_PRINT(("Filling up the PIRL Data...\n"));
@@ -8251,6 +8281,7 @@ GT_U32 testPIRL(GT_QD_DEV *dev)
 	return testResults;
 }
 
+
 GT_STATUS testPartialAll(GT_QD_DEV *dev, GT_U32 tests)
 {
 	int i,j;
@@ -8322,6 +8353,7 @@ GT_STATUS testPartialAll(GT_QD_DEV *dev, GT_U32 tests)
 	return testResult;
 }
 
+
 GT_STATUS testAll(GT_QD_DEV *dev)
 {
 	int i,j;
@@ -8382,6 +8414,7 @@ GT_STATUS testAll(GT_QD_DEV *dev)
 	return testResult;
 }
 
+
 /*
  * Start Packet Generator.
  * Input:
@@ -8424,6 +8457,7 @@ GT_STATUS testStartPktGen
 
     return GT_OK;
 }
+
 
 /*
  * Stop Packet Generator.

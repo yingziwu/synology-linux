@@ -6,3 +6,4 @@ struct tsl2563_platform_data {
 };
 
 #endif /* __LINUX_TSL2563_H */
+

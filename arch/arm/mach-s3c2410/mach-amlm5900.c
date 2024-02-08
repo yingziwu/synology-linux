@@ -69,6 +69,8 @@ static struct resource amlm5900_nor_resource = {
 		.flags = IORESOURCE_MEM,
 };
 
+
+
 static struct mtd_partition amlm5900_mtd_partitions[] = {
 	{
 		.name		= "System",
@@ -140,6 +142,7 @@ static struct s3c2410_uartcfg amlm5900_uartcfgs[] = {
 		.ufcon	     = UFCON,
 	}
 };
+
 
 static struct platform_device *amlm5900_devices[] __initdata = {
 #ifdef CONFIG_FB_S3C2410

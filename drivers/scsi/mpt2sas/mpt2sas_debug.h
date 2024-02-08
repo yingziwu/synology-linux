@@ -67,6 +67,7 @@
 
 #define MPT_DEBUG_TARGET_MODE		0x00100000
 
+
 /*
  * CONFIG_SCSI_MPT2SAS_LOGGING - enabled in Kconfig
  */
@@ -80,6 +81,7 @@
 #else
 #define MPT_CHECK_LOGGING(IOC, CMD, BITS)
 #endif /* CONFIG_SCSI_MPT2SAS_LOGGING */
+
 
 /*
  * debug macros

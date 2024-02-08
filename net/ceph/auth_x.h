@@ -24,6 +24,7 @@ struct ceph_x_ticket_handler {
 	unsigned long renew_after, expires;
 };
 
+
 struct ceph_x_authorizer {
 	struct ceph_buffer *buf;
 	unsigned service;
@@ -46,3 +47,4 @@ struct ceph_x_info {
 extern int ceph_x_init(struct ceph_auth_client *ac);
 
 #endif
+

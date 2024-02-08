@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -35,6 +36,7 @@ disclaimer.
 #include "mvTypes.h"
 #include "plcr/mvPp2PlcrHw.h"
 
+
 static ssize_t plcr_help(char *buf)
 {
 	int off = 0;
@@ -47,6 +49,7 @@ static ssize_t plcr_help(char *buf)
 	off += scnprintf(buf + off, PAGE_SIZE - off, "cat             dump      - Dump all policers configuration and status\n");
 	off += scnprintf(buf + off, PAGE_SIZE - off, "echo p        > dump      - Dump policer <p> configuration and status\n");
 	off += scnprintf(buf + off, PAGE_SIZE - off, "echo p        > v1_tb_dump- Dump policer <p> token bucket counters\n");
+
 
 	off += scnprintf(buf + off, PAGE_SIZE - off, "echo period   > period    - Set token update base period\n");
 	off += scnprintf(buf + off, PAGE_SIZE - off, "echo 0|1      > rate      - Enable <1> or Disable <0> addition of tokens to token buckets\n");
@@ -154,6 +157,7 @@ static ssize_t plcr_dec_store(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static DEVICE_ATTR(help,          S_IRUSR, plcr_show, NULL);
 static DEVICE_ATTR(regs,          S_IRUSR, plcr_show, NULL);
 static DEVICE_ATTR(dump,          S_IRUSR | S_IWUSR, plcr_show, plcr_dec_store);
@@ -176,6 +180,7 @@ static DEVICE_ATTR(cpu_v1_tr,     S_IWUSR, NULL,     plcr_dec_store);
 static DEVICE_ATTR(hwf_v1_tr,     S_IWUSR, NULL,     plcr_dec_store);
 static DEVICE_ATTR(rxq_tr,        S_IWUSR, NULL,     plcr_dec_store);
 static DEVICE_ATTR(txq_tr,        S_IWUSR, NULL,     plcr_dec_store);
+
 
 static struct attribute *plcr_attrs[] = {
 	&dev_attr_help.attr,

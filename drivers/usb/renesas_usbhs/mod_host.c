@@ -35,6 +35,7 @@
  *    so, software should control DATA0/1 sequence of each devices.
  */
 
+
 /*
  *		image of mod_host
  *
@@ -61,6 +62,7 @@
  *	      |				  |
  *	      +- [uep 2 (bulk)]-----------+
  */
+
 
 /*
  *		struct
@@ -108,6 +110,7 @@ struct usbhsh_hpriv {
 	struct list_head	ureq_link_free;
 };
 
+
 static const char usbhsh_hcd_name[] = "renesas_usbhs host";
 
 /*
@@ -128,9 +131,9 @@ static const char usbhsh_hcd_name[] = "renesas_usbhs host";
 	__usbhsh_for_each_hpipe(0, pos, hpriv, i)
 
 #define __usbhsh_for_each_udev(start, pos, h, i)	\
-	for (i = start, pos = (h)->udev + i;		\
-	     i < USBHSH_DEVICE_MAX;			\
-	     i++, pos = (h)->udev + i)
+	for ((i) = start;						\
+	     ((i) < USBHSH_DEVICE_MAX) && ((pos) = (h)->udev + (i));	\
+	     (i)++)
 
 #define usbhsh_for_each_udev(pos, hpriv, i)	\
 	__usbhsh_for_each_udev(1, pos, hpriv, i)

@@ -290,6 +290,8 @@ IVc. Errata
 
 */
 
+
+
 enum chip_capability_flags {CanHaveMII=1, };
 
 enum chipset {
@@ -309,6 +311,7 @@ static const struct chip_info {
 } netdrv_tbl[] __devinitdata = {
 	{ "Adaptec Starfire 6915", CanHaveMII },
 };
+
 
 /* Offsets to the device registers.
    Unlike software-only systems, device drivers interact with complex hardware.
@@ -581,6 +584,7 @@ struct netdev_private {
 	void __iomem *base;
 };
 
+
 static int	mdio_read(struct net_device *dev, int phy_id, int location);
 static void	mdio_write(struct net_device *dev, int phy_id, int location, int value);
 static int	netdev_open(struct net_device *dev);
@@ -600,6 +604,7 @@ static int	netdev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
 static int	netdev_close(struct net_device *dev);
 static void	netdev_media_change(struct net_device *dev);
 static const struct ethtool_ops ethtool_ops;
+
 
 #ifdef VLAN_SUPPORT
 static void netdev_vlan_rx_add_vid(struct net_device *dev, unsigned short vid)
@@ -626,6 +631,7 @@ static void netdev_vlan_rx_kill_vid(struct net_device *dev, unsigned short vid)
 	spin_unlock(&np->lock);
 }
 #endif /* VLAN_SUPPORT */
+
 
 static const struct net_device_ops netdev_ops = {
 	.ndo_open		= netdev_open,
@@ -866,6 +872,7 @@ err_out_free_netdev:
 	return -ENODEV;
 }
 
+
 /* Read the MII Management Data I/O (MDIO) interfaces. */
 static int mdio_read(struct net_device *dev, int phy_id, int location)
 {
@@ -883,6 +890,7 @@ static int mdio_read(struct net_device *dev, int phy_id, int location)
 	return result & 0xffff;
 }
 
+
 static void mdio_write(struct net_device *dev, int phy_id, int location, int value)
 {
 	struct netdev_private *np = netdev_priv(dev);
@@ -890,6 +898,7 @@ static void mdio_write(struct net_device *dev, int phy_id, int location, int val
 	writel(value, mdio_addr);
 	/* The busy-wait will occur before a read. */
 }
+
 
 static int netdev_open(struct net_device *dev)
 {
@@ -1089,6 +1098,7 @@ out_init:
 	return retval;
 }
 
+
 static void check_duplex(struct net_device *dev)
 {
 	struct netdev_private *np = netdev_priv(dev);
@@ -1123,6 +1133,7 @@ static void check_duplex(struct net_device *dev)
 	mdio_write(dev, np->phys[0], MII_BMCR, reg0);
 }
 
+
 static void tx_timeout(struct net_device *dev)
 {
 	struct netdev_private *np = netdev_priv(dev);
@@ -1150,6 +1161,7 @@ static void tx_timeout(struct net_device *dev)
 	dev->stats.tx_errors++;
 	netif_wake_queue(dev);
 }
+
 
 /* Initialize the Rx and Tx rings, along with various 'dev' bits. */
 static void init_ring(struct net_device *dev)
@@ -1194,6 +1206,7 @@ static void init_ring(struct net_device *dev)
 	for (i = 0; i < TX_RING_SIZE; i++)
 		memset(&np->tx_info[i], 0, sizeof(np->tx_info[i]));
 }
+
 
 static netdev_tx_t start_tx(struct sk_buff *skb, struct net_device *dev)
 {
@@ -1286,6 +1299,7 @@ static netdev_tx_t start_tx(struct sk_buff *skb, struct net_device *dev)
 
 	return NETDEV_TX_OK;
 }
+
 
 /* The interrupt handler does all of the Rx thread work and cleans up
    after the Tx thread. */
@@ -1410,6 +1424,7 @@ static irqreturn_t intr_handler(int irq, void *dev_instance)
 		       dev->name, (int) readl(ioaddr + IntrStatus));
 	return IRQ_RETVAL(handled);
 }
+
 
 /*
  * This routine is logically part of the interrupt/poll handler, but separated
@@ -1595,6 +1610,7 @@ static void refill_rx_ring(struct net_device *dev)
 		writew(entry, np->base + RxDescQIdx);
 }
 
+
 static void netdev_media_change(struct net_device *dev)
 {
 	struct netdev_private *np = netdev_priv(dev);
@@ -1669,6 +1685,7 @@ static void netdev_media_change(struct net_device *dev)
 	}
 }
 
+
 static void netdev_error(struct net_device *dev, int intr_status)
 {
 	struct netdev_private *np = netdev_priv(dev);
@@ -1694,6 +1711,7 @@ static void netdev_error(struct net_device *dev, int intr_status)
 		printk(KERN_ERR "%s: Something Wicked happened! %#8.8x.\n",
 		       dev->name, intr_status);
 }
+
 
 static struct net_device_stats *get_stats(struct net_device *dev)
 {
@@ -2002,6 +2020,7 @@ static int starfire_resume(struct pci_dev *pdev)
 }
 #endif /* CONFIG_PM */
 
+
 static void __devexit starfire_remove_one (struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -2014,6 +2033,7 @@ static void __devexit starfire_remove_one (struct pci_dev *pdev)
 	if (np->queue_mem)
 		pci_free_consistent(pdev, np->queue_mem_size, np->queue_mem, np->queue_mem_dma);
 
+
 	/* XXX: add wakeup code -- requires firmware for MagicPacket */
 	pci_set_power_state(pdev, PCI_D3hot);	/* go to sleep in D3 mode */
 	pci_disable_device(pdev);
@@ -2025,6 +2045,7 @@ static void __devexit starfire_remove_one (struct pci_dev *pdev)
 	free_netdev(dev);			/* Will also free np!! */
 }
 
+
 static struct pci_driver starfire_driver = {
 	.name		= DRV_NAME,
 	.probe		= starfire_init_one,
@@ -2035,6 +2056,7 @@ static struct pci_driver starfire_driver = {
 #endif /* CONFIG_PM */
 	.id_table	= starfire_pci_tbl,
 };
+
 
 static int __init starfire_init (void)
 {
@@ -2050,13 +2072,16 @@ static int __init starfire_init (void)
 	return pci_register_driver(&starfire_driver);
 }
 
+
 static void __exit starfire_cleanup (void)
 {
 	pci_unregister_driver (&starfire_driver);
 }
 
+
 module_init(starfire_init);
 module_exit(starfire_cleanup);
+
 
 /*
  * Local variables:

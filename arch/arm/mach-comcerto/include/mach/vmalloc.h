@@ -18,6 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 #if defined(CONFIG_ARCH_M86XXX)
 #define VMALLOC_END       (0xF0000000)
 #else

@@ -20,6 +20,8 @@
 #ifndef __ASM_ARCH_DMA_H
 #define __ASM_ARCH_DMA_H
 
+
+
 typedef long I32;
 typedef char I8;
 typedef unsigned char U8;
@@ -67,6 +69,8 @@ typedef enum _retcode
    RETCODE_NAND_BBT_OUT_OF_BOUND
 } retcode;
 
+
+
 /*
   * DW DMA (HS SPI and UART) Block
   */
@@ -75,6 +79,7 @@ typedef enum _retcode
 #define DW_DMA_UART0_BASEADDR				(COMCERTO_AXI_UART_SPI_BASE+0x00300000)
 #define DW_DMA_UART1_BASEADDR				(COMCERTO_AXI_UART_SPI_BASE+0x00400000)
 #define DW_DMA_SSI_BASEADDR					(COMCERTO_AXI_UART_SPI_BASE+0x00500000)
+
 
 /*
   * DW DMA DMAC
@@ -221,6 +226,8 @@ typedef enum _retcode
 #define DW_DMA_DMAC_DMA_COMP_PA_RAMS_1		(DW_DMA_DMAC_BASEADDR+0x3F0)
 #define DW_DMA_DMAC_DMA_COMP_ID_REG			(DW_DMA_DMAC_BASEADDR+0x3F8)
 
+
+
 /*
   * DW DMA UART0
   */
@@ -260,6 +267,9 @@ typedef enum _retcode
 #define DW_DMA_UART0_CPR					(DW_DMA_UART0_BASEADDR+0xF4)
 #define DW_DMA_UART0_UCV					(DW_DMA_UART0_BASEADDR+0xF8)
 #define DW_DMA_UART0_CTR					(DW_DMA_UART0_BASEADDR+0xFC)
+
+
+
 
 /*
   * DW DMA UART1
@@ -301,6 +311,9 @@ typedef enum _retcode
 #define DW_DMA_UART1_UCV					(DW_DMA_UART1_BASEADDR+0xF8)
 #define DW_DMA_UART1_CTR					(DW_DMA_UART1_BASEADDR+0xFC)
 
+
+
+
 /* DMA Channels */
 #define DMA_CHANNEL_0					0x0
 #define DMA_CHANNEL_1					0x1
@@ -324,6 +337,7 @@ typedef enum _retcode
 #define DMA_GLOBAL_ENABLE				0x1
 #define DMA_REG_WE_SHIFT				0x8
 
+
 #define DMA_CHANNEL_REG_SAR_BASE		DW_DMA_DMAC_SAR0
 #define DMA_CHANNEL_REG_DAR_BASE		DW_DMA_DMAC_DAR0
 #define DMA_CHANNEL_REG_LLP_BASE		DW_DMA_DMAC_LLP0
@@ -336,8 +350,10 @@ typedef enum _retcode
 #define DMA_CHANNEL_REG_SGR_BASE		DW_DMA_DMAC_SGR0
 #define DMA_CHANNEL_REG_DSR_BASE		DW_DMA_DMAC_DSR0
 
+
 #define DMA_CHANNEL_REG_COUNT			11
 #define DMA_CHANNEL_REG_SIZE			8
+
 
 /* DMA Control Register for Channel [0-31] */
 
@@ -403,6 +419,7 @@ typedef enum _retcode
 #define DMA_CTL_LLP_SRC_EN_MASK			0x1
 #define DMA_CTL_LLP_SRC_EN_SHIFT		28
 
+
 /* DMA Control Register for Channel [32-63] */
 /* 
  * Single-block Transfer -- without write-back 
@@ -427,6 +444,8 @@ typedef enum _retcode
 #define DMA_CTL_DONE					0x0
 #define DMA_CTL_DONE_MASK				0x1
 #define DMA_CTL_DONE_SHIFT				12
+
+
 
 /* DMA Config Register for Channel [0-31] */
 /* 
@@ -491,6 +510,7 @@ typedef enum _retcode
 #define DMA_CFG_CH_PRIOR_MASK			0x7
 #define DMA_CFG_CH_PRIOR_SHIFT			5
 
+
 /* DMA Config Register for Channel [32-63] */
 /* 
  * Single-block Transfer -- without write-back 
@@ -529,3 +549,4 @@ typedef enum _retcode
 #define DMA_XFER_DLEN					16
 
 #endif /* _ASM_ARCH_DMA_H */
+

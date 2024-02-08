@@ -501,6 +501,7 @@ static void fsi_dma_soft_pop16(struct fsi_priv *fsi, int num)
 
 	start  = (u16 *)fsi_dma_get_area(fsi, SNDRV_PCM_STREAM_CAPTURE);
 
+
 	for (i = 0; i < num; i++)
 		*(start + i) = (u16)(fsi_reg_read(fsi, DIDT) >> 8);
 }
@@ -511,6 +512,7 @@ static void fsi_dma_soft_push32(struct fsi_priv *fsi, int num)
 	int i;
 
 	start  = (u32 *)fsi_dma_get_area(fsi, SNDRV_PCM_STREAM_PLAYBACK);
+
 
 	for (i = 0; i < num; i++)
 		fsi_reg_write(fsi, DODT, *(start + i));
@@ -1094,8 +1096,7 @@ static struct snd_soc_dai_ops fsi_dai_ops = {
 static struct snd_pcm_hardware fsi_pcm_hardware = {
 	.info =		SNDRV_PCM_INFO_INTERLEAVED	|
 			SNDRV_PCM_INFO_MMAP		|
-			SNDRV_PCM_INFO_MMAP_VALID	|
-			SNDRV_PCM_INFO_PAUSE,
+			SNDRV_PCM_INFO_MMAP_VALID,
 	.formats		= FSI_FMTS,
 	.rates			= FSI_RATES,
 	.rate_min		= 8000,

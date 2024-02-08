@@ -37,6 +37,7 @@
 			     PARAMS(print));		       \
 	DEFINE_EVENT(name, name, PARAMS(proto), PARAMS(args));
 
+
 #undef __field
 #define __field(type, item)		type	item;
 
@@ -86,6 +87,7 @@
 	__TRACE_EVENT_FLAGS(name, value)
 
 #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
+
 
 /*
  * Stage 2 of the trace events.
@@ -377,7 +379,8 @@ ftrace_define_fields_##call(struct ftrace_event_call *event_call)	\
 	__data_size += (len) * sizeof(type);
 
 #undef __string
-#define __string(item, src) __dynamic_array(char, item, strlen(src) + 1)
+#define __string(item, src) __dynamic_array(char, item,			\
+		    strlen((src) ? (const char *)(src) : "(null)") + 1)
 
 #undef DECLARE_EVENT_CLASS
 #define DECLARE_EVENT_CLASS(call, proto, args, tstruct, assign, print)	\
@@ -502,7 +505,7 @@ static inline notrace int ftrace_get_offsets_##call(			\
 
 #undef __assign_str
 #define __assign_str(dst, src)						\
-	strcpy(__get_str(dst), src);
+	strcpy(__get_str(dst), (src) ? (const char *)(src) : "(null)");
 
 #undef TP_fast_assign
 #define TP_fast_assign(args...) args
@@ -764,6 +767,7 @@ static inline void perf_test_probe_##call(void)				\
 	check_trace_callback_type_##call(perf_trace_##template);	\
 }
 
+
 #undef DEFINE_EVENT_PRINT
 #define DEFINE_EVENT_PRINT(template, name, proto, args, print)	\
 	DEFINE_EVENT(template, name, PARAMS(proto), PARAMS(args))
@@ -772,3 +776,4 @@ static inline void perf_test_probe_##call(void)				\
 #endif /* CONFIG_PERF_EVENTS */
 
 #undef _TRACE_PROFILE_INIT
+

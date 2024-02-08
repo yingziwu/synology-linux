@@ -208,6 +208,7 @@
 #define __put_user(x,ptr) __put_user_nocheck((x),(ptr),sizeof(*(ptr)))
 #define __get_user(x,ptr) __get_user_nocheck((x),(ptr),sizeof(*(ptr)))
 
+
 extern long __put_user_bad(void);
 
 #define __put_user_nocheck(x,ptr,size)			\
@@ -243,6 +244,7 @@ do {									\
 	}								\
 } while (0)
 
+
 /*
  * Consider a case of a user single load/store would cause both an
  * unaligned exception and an MMU-related exception (unaligned
@@ -276,6 +278,7 @@ do {									\
 	"   _bbci.l %3,  1, 1f		\n"	\
 	"0: movi    %0, %4		\n"	\
 	"   _j      2f			\n"
+
 
 /*
  * We don't tell gcc that we are accessing memory, but this is OK
@@ -338,6 +341,7 @@ do {									\
         }								\
 } while (0)
 
+
 /*
  * WARNING: If you modify this macro at all, verify that the
  * __check_align_* macros still work.
@@ -363,6 +367,7 @@ do {									\
 	:"=r" (err), "=r" (cb), "=r" (x)	\
 	:"r" (addr), "i" (-EFAULT), "0" (err))
 
+
 /*
  * Copy to/from user space
  */
@@ -378,6 +383,7 @@ do {									\
 
 extern unsigned __xtensa_copy_user(void *to, const void *from, unsigned n);
 #define __copy_user(to,from,size) __xtensa_copy_user(to,from,size)
+
 
 static inline unsigned long
 __generic_copy_from_user_nocheck(void *to, const void *from, unsigned long n)
@@ -418,6 +424,7 @@ __generic_copy_from_user(void *to, const void *from, unsigned long n)
 #define __copy_to_user_inatomic __copy_to_user
 #define __copy_from_user_inatomic __copy_from_user
 
+
 /*
  * We need to return the number of bytes not cleared.  Our memset()
  * returns zero if a problem occurs while accessing user-space memory.
@@ -443,6 +450,7 @@ clear_user(void *addr, unsigned long size)
 
 #define __clear_user  __xtensa_clear_user
 
+
 extern long __strncpy_user(char *, const char *, long);
 #define __strncpy_from_user __strncpy_user
 
@@ -453,6 +461,7 @@ strncpy_from_user(char *dst, const char *src, long count)
 		return __strncpy_from_user(dst, src, count);
 	return -EFAULT;
 }
+
 
 #define strlen_user(str) strnlen_user((str), TASK_SIZE - 1)
 
@@ -469,6 +478,7 @@ static inline long strnlen_user(const char *str, long len)
 		return 0;
 	return __strnlen_user(str, len);
 }
+
 
 struct exception_table_entry
 {

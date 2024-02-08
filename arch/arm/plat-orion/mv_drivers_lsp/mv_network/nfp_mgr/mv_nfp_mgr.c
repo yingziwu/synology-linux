@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -184,6 +185,7 @@ int mgr_to_fp_chan, fp_to_mgr_chan;
 
 static void fp_arp_rule_print(const MV_FP_ARP_RULE *rule);
 
+
 static void __exit fp_exit_module(void)
 {
 	fp_rule_db_clear();
@@ -287,6 +289,7 @@ static int ip_in_same_network(u32 ip1, u32 ip2, u32 mask)
 		return 1;
 	return 0;
 }
+
 
 #ifdef CONFIG_MV_ETH_NFP_NAT_SUPPORT
 
@@ -465,6 +468,7 @@ static int fp_db_clear_and_update(void)
 	return status;
 }
 
+
 #ifdef CONFIG_MV_ETH_NFP_DUAL
 static void aging_timer_function(unsigned long data)
 {
@@ -481,6 +485,7 @@ static void aging_timer_function(unsigned long data)
 	static int          current_arp_rule_position = 0;
 	static int          current_rule_position = 0;
 	static int          current_nat_rule_position = 0;
+
 
 	/* Collect ARP information from DB */
 	spin_lock_irqsave(&nfp_mgr_lock, flags);
@@ -913,6 +918,7 @@ int fp_rule_db_clear(void)
 		}
 		mgr_rule_db[i].rule_chain = NULL;
 	}
+
 
 #ifdef CONFIG_MV_ETH_NFP_DUAL
 	status = mvIpcChanMsgSend(mgr_to_fp_chan, MV_SERVICE_NFP_ID, MV_FP_RULE_DB_CLEAR_OPCODE, NULL, 0);
@@ -1983,6 +1989,7 @@ int fp_fdb_db_print(MV_FP_OP_TYPE op)
 }
 
 #endif /* CONFIG_MV_ETH_NFP_FDB_SUPPORT */
+
 
 #ifdef CONFIG_MV_ETH_NFP_PPP
 

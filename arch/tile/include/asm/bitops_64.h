@@ -36,6 +36,7 @@ static inline void clear_bit(unsigned nr, volatile unsigned long *addr)
 #define smp_mb__before_clear_bit()	smp_mb()
 #define smp_mb__after_clear_bit()	smp_mb()
 
+
 static inline void change_bit(unsigned nr, volatile unsigned long *addr)
 {
 	unsigned long old, mask = (1UL << (nr % BITS_PER_LONG));
@@ -48,6 +49,7 @@ static inline void change_bit(unsigned nr, volatile unsigned long *addr)
 					  guess, guess ^ mask);
 	} while (guess != oldval);
 }
+
 
 /*
  * The test_and_xxx_bit() routines require a memory fence before we
@@ -67,6 +69,7 @@ static inline int test_and_set_bit(unsigned nr, volatile unsigned long *addr)
 	return val;
 }
 
+
 static inline int test_and_clear_bit(unsigned nr, volatile unsigned long *addr)
 {
 	int val;
@@ -77,6 +80,7 @@ static inline int test_and_clear_bit(unsigned nr, volatile unsigned long *addr)
 	barrier();
 	return val;
 }
+
 
 static inline int test_and_change_bit(unsigned nr,
 				      volatile unsigned long *addr)

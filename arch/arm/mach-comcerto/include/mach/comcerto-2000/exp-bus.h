@@ -21,6 +21,7 @@
 #ifndef __COMCERTO_EXP_BUS_H__
 #define __COMCERTO_EXP_BUS_H__
 
+
 /***** Registers address *****/
 
 #define COMCERTO_EXP_SW_RST_R			APB_VADDR(COMCERTO_APB_EXPBUS_BASE + 0x000)
@@ -37,6 +38,7 @@
 #define COMCERTO_EXP_WRSM_R			APB_VADDR(COMCERTO_APB_EXPBUS_BASE + 0x108)
 #define COMCERTO_EXP_RDSM_R			APB_VADDR(COMCERTO_APB_EXPBUS_BASE + 0x10C)
 
+	
 /***** Masks *****/
 
 /* EXP_SWRST_R register*/
@@ -65,6 +67,8 @@
 #define EXP_MEM_BUS_SIZE_32		0x00000004
 #define EXP_MEM_BUS_SIZE_16		0x00000002
 #define EXP_MEM_BUS_SIZE_8		0x00000000
+
+
 
 #define EXP_CS0_SEG_SIZE		SZ_128M
 #define EXP_CS1_SEG_SIZE		SZ_1M

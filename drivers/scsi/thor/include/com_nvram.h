@@ -18,6 +18,7 @@ typedef struct _PHY_TUNING {
     MV_U8	Reserved[2];					/* 2 bytes, reserved space */
 } PHY_TUNING, *PPHY_TUNING;
 
+
 /* HBA_FLAG_XX */
 #define HBA_FLAG_INT13_ENABLE				MV_BIT(0)	//int 13h enable/disable
 #define HBA_FLAG_SILENT_MODE_ENABLE			MV_BIT(1)	//silent mode enable/disable

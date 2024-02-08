@@ -107,6 +107,7 @@ long real32_call(unsigned long function, ...);
 #   define mem_pdc_call(args...) real32_call(MEM_PDC, args)
 #endif
 
+
 /**
  * f_extend - Convert PDC addresses to kernel addresses.
  * @address: Address returned from PDC.
@@ -196,6 +197,7 @@ void pdc_emergency_unlock(void)
         if (spin_is_locked(&pdc_lock))
 		spin_unlock(&pdc_lock);
 }
+
 
 /**
  * pdc_add_valid - Verify address can be accessed without causing a HPMC.
@@ -833,6 +835,7 @@ int pdc_get_initiator(struct hardware_path *hwpath, struct pdc_initiator *initia
 }
 EXPORT_SYMBOL(pdc_get_initiator);
 
+
 /**
  * pdc_pci_irt_size - Get the number of entries in the interrupt routing table.
  * @num_entries: The return value.
@@ -882,6 +885,7 @@ int pdc_pci_irt(unsigned long num_entries, unsigned long hpa, void *tbl)
 	return retval;
 }
 
+
 #if 0	/* UNTEST CODE - left here in case someone needs it */
 
 /** 
@@ -905,6 +909,7 @@ unsigned int pdc_pci_config_read(void *hpa, unsigned long cfg_addr)
 
 	return retval ? ~0 : (unsigned int) pdc_result[0];
 }
+
 
 /** 
  * pdc_pci_config_write - read PCI config space.
@@ -1379,6 +1384,7 @@ int pdc_pat_io_pci_cfg_write(unsigned long pci_addr, int pci_size, u32 val)
 }
 #endif /* CONFIG_64BIT */
 
+
 /***************** 32-bit real-mode calls ***********/
 /* The struct below is used
  * to overlay real_stack (real2.S), preparing a 32-bit call frame.
@@ -1486,3 +1492,4 @@ long real64_call(unsigned long fn, ...)
 }
 
 #endif /* CONFIG_64BIT */
+

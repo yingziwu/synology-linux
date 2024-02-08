@@ -112,6 +112,7 @@ VpStatusType vpapi_make_dev_object(VpDeviceType dev_type, VpDeviceIdType dev_id)
 		return VP_STATUS_FAILURE;
 	}
 
+
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_MK_DEV_OBJ, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_MK_DEV_OBJ) failed\n");
 		return VP_STATUS_FAILURE;
@@ -132,6 +133,7 @@ VpStatusType vpapi_make_line_object(VpTermType term_type, VpLineIdType line_id)
 		return VP_STATUS_FAILURE;
 	}
 
+
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_MK_LN_OBJ, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_MK_LN_OBJ) failed\n");
 		return VP_STATUS_FAILURE;
@@ -150,6 +152,7 @@ VpStatusType vpapi_map_line_id(VpLineIdType line_id)
 		printf("Device %s is not accessible\n", dev_name);
 		return VP_STATUS_FAILURE;
 	}
+
 
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_MAP_LN_ID, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_MAP_LN_ID) failed\n");
@@ -171,6 +174,7 @@ VpStatusType vpapi_map_slac_id(VpDeviceIdType dev_id, unsigned char slac_id)
 		return VP_STATUS_FAILURE;
 	}
 
+
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_MAP_SLAC_ID, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_MAP_SLAC_ID) failed\n");
 		return VP_STATUS_FAILURE;
@@ -189,6 +193,7 @@ VpStatusType vpapi_free_line_context(VpLineIdType line_id)
 		printf("Device %s is not accessible\n", dev_name);
 		return VP_STATUS_FAILURE;
 	}
+
 
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_FREE_LN_CTX, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_FREE_LN_CTX) failed\n");
@@ -224,6 +229,7 @@ VpStatusType vpapi_init_device(VpDeviceIdType dev_id, VpProfilePtrType dev_profi
 		return VP_STATUS_FAILURE;
 	}
 
+
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_INIT_DEV, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_INIT_DEV) failed\n");
 		return VP_STATUS_FAILURE;
@@ -242,6 +248,7 @@ VpStatusType vpapi_cal_line(VpLineIdType line_id)
 		printf("Device %s is not accessible\n", dev_name);
 		return VP_STATUS_FAILURE;
 	}
+
 
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_CAL_LN, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_CAL_LN) failed\n");
@@ -262,6 +269,7 @@ VpStatusType vpapi_set_line_state(VpLineIdType line_id, VpLineStateType state)
 		printf("Device %s is not accessible\n", dev_name);
 		return VP_STATUS_FAILURE;
 	}
+
 
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_SET_LN_ST, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_SET_LN_ST) failed\n");
@@ -287,6 +295,7 @@ VpStatusType vpapi_set_option(unsigned char line_request, VpLineIdType line_id,
 		return VP_STATUS_FAILURE;
 	}
 
+
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_SET_OPTION, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_SET_OPTION) failed\n");
 		return VP_STATUS_FAILURE;
@@ -306,6 +315,7 @@ bool vpapi_get_event(VpDeviceIdType dev_id, VpEventType *event_p)
 		printf("Device %s is not accessible\n", dev_name);
 		return false;
 	}
+
 
 	if (ioctl(dev_fd, VPAPI_MOD_IOX_GET_EVENT, &data) < 0) {
 		printf("ioctl(VPAPI_MOD_IOX_GET_EVENT) failed\n");

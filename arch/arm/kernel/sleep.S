@@ -134,6 +134,7 @@ cpu_resume_after_mmu:
 	ldmfd	sp!, {r4 - r11, pc}
 ENDPROC(cpu_resume_after_mmu)
 
+
 #if defined(MY_DEF_HERE) && defined(CONFIG_ARCH_M86XXX)
 scratchpad_cpu_context_loc_dbg:
         .word   SCRATCHPAD_CPU_CONTEXT_LOC_DBG

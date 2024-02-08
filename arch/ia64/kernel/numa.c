@@ -59,6 +59,7 @@ void __cpuinit unmap_cpu_from_node(int cpu, int nid)
 	cpu_clear(cpu, node_to_cpu_mask[nid]);
 }
 
+
 /**
  * build_cpu_to_node_map - setup cpu to node and node to cpumask arrays
  *

@@ -342,6 +342,7 @@ static adapter_tag_info_t aic7xxx_tag_info[] =
   {DEFAULT_TAG_COMMANDS}
 };
 
+
 /*
  * Define an array of board names that can be indexed by aha_type.
  * Don't forget to change this when changing the types!
@@ -612,6 +613,7 @@ struct hw_scatterlist {
  * SEQUENCER CODE IF THIS IS MODIFIED!
  */
 #define AIC7XXX_MAXSCB        255
+
 
 struct aic7xxx_hwscb {
 /* ------------    Begin hardware supported fields    ---------------- */
@@ -957,6 +959,7 @@ struct aic7xxx_host {
 	unsigned char	msg_len;	/* Length of message */
 	unsigned char	msg_index;	/* Index into msg_buf array */
 
+
 	/*
 	 * We put the less frequently used host structure items
 	 * after the more frequently used items to try and ease
@@ -1250,6 +1253,7 @@ module_param(aic7xxx, charp, 0);
 #define VERBOSE_RESET_RETURN   0x8000
 static int aic7xxx_verbose = VERBOSE_NORMAL | VERBOSE_NEGOTIATION |
            VERBOSE_PROBE;                     /* verbose messages */
+
 
 /****************************************************************************
  *
@@ -1591,6 +1595,7 @@ aic7xxx_check_patch(struct aic7xxx_host *p,
   return(1);
 }
 
+
 /*+F*************************************************************************
  * Function:
  *   aic7xxx_download_instr
@@ -1718,6 +1723,7 @@ aic7xxx_download_instr(struct aic7xxx_host *p, int instrptr,
       break;
   }
 }
+
 
 /*+F*************************************************************************
  * Function:
@@ -1970,6 +1976,7 @@ aic7xxx_find_syncrate(struct aic7xxx_host *p, unsigned int *period,
   return (syncrate);
 }
 
+
 /*+F*************************************************************************
  * Function:
  *   aic7xxx_find_period
@@ -2077,6 +2084,7 @@ aic7xxx_set_syncrate(struct aic7xxx_host *p, struct aic7xxx_syncrate *syncrate,
   old_offset = aic_dev->cur.offset;
   old_options = aic_dev->cur.options;
 
+  
   if (type & AHC_TRANS_CUR)
   {
     unsigned int scsirate;
@@ -2831,6 +2839,7 @@ aic7xxx_done(struct aic7xxx_host *p, struct aic7xxx_scb *scb)
     long *ptr;
     int x, i;
 
+
     if (rq_data_dir(cmd->request) == WRITE)
     {
       aic_dev->w_total++;
@@ -3080,6 +3089,7 @@ aic7xxx_scb_on_qoutfifo(struct aic7xxx_host *p, struct aic7xxx_scb *scb)
   return FALSE;
 }
 
+
 /*+F*************************************************************************
  * Function:
  *   aic7xxx_reset_device
@@ -3213,6 +3223,7 @@ aic7xxx_reset_device(struct aic7xxx_host *p, int target, int channel,
       }
     }
   }
+
 
   /*
    * Search waiting for selection list.
@@ -3421,6 +3432,7 @@ aic7xxx_reset_device(struct aic7xxx_host *p, int target, int channel,
   aic_outb(p, active_scb, SCBPTR);
 }
 
+
 /*+F*************************************************************************
  * Function:
  *   aic7xxx_clear_intstat
@@ -3500,6 +3512,7 @@ aic7xxx_reset_channel(struct aic7xxx_host *p, int channel, int initiate_reset)
   if (aic7xxx_verbose & VERBOSE_RESET_PROCESS)
     printk(INFO_LEAD "Reset channel called, %s initiate reset.\n",
       p->host_no, channel, -1, -1, (initiate_reset==TRUE) ? "will" : "won't" );
+
 
   if (channel == 1)
   {
@@ -3620,6 +3633,7 @@ aic7xxx_run_waiting_queues(struct aic7xxx_host *p)
   struct aic7xxx_scb *scb;
   struct aic_dev_data *aic_dev;
   int sent;
+
 
   if (p->waiting_scbs.head == NULL)
     return;
@@ -5498,6 +5512,7 @@ aic7xxx_parse_msg(struct aic7xxx_host *p, struct aic7xxx_scb *scb)
   return(done);
 }
 
+
 /*+F*************************************************************************
  * Function:
  *   aic7xxx_handle_reqinit
@@ -5647,6 +5662,7 @@ aic7xxx_handle_scsiint(struct aic7xxx_host *p, unsigned char intstat)
   {
     scb = NULL;
   }
+
 
   if ((status & SCSIRSTI) != 0)
   {
@@ -6203,6 +6219,7 @@ aic7xxx_check_scbs(struct aic7xxx_host *p, char *buffer)
 }
 #endif
 
+
 /*+F*************************************************************************
  * Function:
  *   aic7xxx_handle_command_completion_intr
@@ -6745,6 +6762,7 @@ aic7xxx_slave_configure(struct scsi_device *SDptr)
       break;
   }
 
+
   return(0);
 }
 
@@ -6836,6 +6854,7 @@ aic7xxx_probe(int slot, int base, ahc_flag_type *flags)
   return (-1);
 }
 #endif /* (__i386__) || (__alpha__) */
+
 
 /*+F*************************************************************************
  * Function:
@@ -8822,6 +8841,7 @@ aic7xxx_load_seeprom(struct aic7xxx_host *p, unsigned char *sxfrctl1)
   if (p->features & AHC_ULTRA)
     p->ultraenb = aic_inb(p, ULTRA_ENB) | (aic_inb(p, ULTRA_ENB + 1) << 8);
 
+  
   scsi_conf = (p->scsi_id & HSCSIID);
 
   if(have_seeprom)
@@ -8936,6 +8956,7 @@ aic7xxx_configure_bugs(struct aic7xxx_host *p)
   return;
 }
 
+
 /*+F*************************************************************************
  * Function:
  *   aic7xxx_detect
@@ -8978,6 +8999,7 @@ aic7xxx_detect(struct scsi_host_template *template)
 
   template->proc_name = "aic7xxx";
   template->sg_tablesize = AIC7XXX_MAX_SG;
+
 
 #ifdef CONFIG_PCI
   /*
@@ -9472,6 +9494,7 @@ aic7xxx_detect(struct scsi_host_template *template)
               break;
           }
           
+
           /*
            * and then we need another switch based on the type in order to
            * make sure the channel B primary flag is set properly on 7895
@@ -10174,6 +10197,7 @@ static void aic7xxx_buildscb(struct aic7xxx_host *p, struct scsi_cmnd *cmd,
 
     scb->sg_length = 0;
 
+
     /*
      * Copy the segments into the SG array.  NOTE!!! - We used to
      * have the first entry both in the data_pointer area and the first
@@ -10485,6 +10509,7 @@ static int aic7xxx_bus_device_reset(struct scsi_cmnd *cmd)
       return rc;
 }
 
+
 /*+F*************************************************************************
  * Function:
  *   aic7xxx_panic_abort
@@ -10743,6 +10768,7 @@ static int aic7xxx_abort(struct scsi_cmnd *cmd)
 
 	return rc;
 }
+
 
 /*+F*************************************************************************
  * Function:
@@ -11074,10 +11100,12 @@ aic7xxx_print_scratch_ram(struct aic7xxx_host *p)
   printk("\n");
 }
 
+
 #include "aic7xxx_old/aic7xxx_proc.c"
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_VERSION(AIC7XXX_H_VERSION);
+
 
 static struct scsi_host_template driver_template = {
 	.proc_info		= aic7xxx_proc_info,

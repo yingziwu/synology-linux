@@ -27,6 +27,7 @@
 
 #define to_drv_attr(_attr) container_of(_attr, struct driver_attribute, attr)
 
+
 static int __must_check bus_rescan_devices_helper(struct device *dev,
 						void *data);
 
@@ -159,6 +160,7 @@ static const struct kset_uevent_ops bus_uevent_ops = {
 
 static struct kset *bus_kset;
 
+
 #ifdef CONFIG_HOTPLUG
 /* Manually detach a device from its associated driver. */
 static ssize_t driver_unbind(struct device_driver *drv,
@@ -238,13 +240,15 @@ static ssize_t store_drivers_probe(struct bus_type *bus,
 				   const char *buf, size_t count)
 {
 	struct device *dev;
+	int err = -EINVAL;
 
 	dev = bus_find_device_by_name(bus, NULL, buf);
 	if (!dev)
 		return -ENODEV;
-	if (bus_rescan_devices_helper(dev, NULL) != 0)
-		return -EINVAL;
-	return count;
+	if (bus_rescan_devices_helper(dev, NULL) == 0)
+		err = count;
+	put_device(dev);
+	return err;
 }
 #endif
 
@@ -680,7 +684,7 @@ int bus_add_driver(struct device_driver *drv)
 
 out_unregister:
 	kobject_put(&priv->kobj);
-	kfree(drv->p);
+	/* drv->p is freed in driver_release()  */
 	drv->p = NULL;
 out_put_bus:
 	bus_put(bus);
@@ -780,6 +784,7 @@ struct bus_type *find_bus(char *name)
 	return k ? to_bus(k) : NULL;
 }
 #endif  /*  0  */
+
 
 /**
  * bus_add_attrs - Add default attributes for this bus.

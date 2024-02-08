@@ -163,7 +163,7 @@ const char *snd_hda_get_jack_type(u32 cfg)
 		"Line Out", "Speaker", "HP Out", "CD",
 		"SPDIF Out", "Digital Out", "Modem Line", "Modem Hand",
 		"Line In", "Aux", "Mic", "Telephony",
-		"SPDIF In", "Digitial In", "Reserved", "Other"
+		"SPDIF In", "Digital In", "Reserved", "Other"
 	};
 
 	return jack_types[(cfg & AC_DEFCFG_DEVICE)
@@ -311,8 +311,10 @@ int snd_hda_get_sub_nodes(struct hda_codec *codec, hda_nid_t nid,
 	unsigned int parm;
 
 	parm = snd_hda_param_read(codec, nid, AC_PAR_NODE_COUNT);
-	if (parm == -1)
+	if (parm == -1) {
+		*start_id = 0;
 		return 0;
+	}
 	*start_id = (parm >> 16) & 0x7fff;
 	return (int)(parm & 0x7fff);
 }
@@ -614,6 +616,9 @@ int snd_hda_queue_unsol_event(struct hda_bus *bus, u32 res, u32 res_ex)
 {
 	struct hda_bus_unsolicited *unsol;
 	unsigned int wp;
+
+	if (!bus || !bus->workq)
+		return 0;
 
 	trace_hda_unsol_event(bus, res, res_ex);
 	unsol = bus->unsol;
@@ -1955,6 +1960,7 @@ int snd_hda_mixer_amp_volume_info(struct snd_kcontrol *kcontrol,
 }
 EXPORT_SYMBOL_HDA(snd_hda_mixer_amp_volume_info);
 
+
 static inline unsigned int
 read_amp_value(struct hda_codec *codec, hda_nid_t nid,
 	       int ch, int dir, int idx, unsigned int ofs)
@@ -2770,7 +2776,7 @@ static unsigned int convert_to_spdif_status(unsigned short val)
 	if (val & AC_DIG1_PROFESSIONAL)
 		sbits |= IEC958_AES0_PROFESSIONAL;
 	if (sbits & IEC958_AES0_PROFESSIONAL) {
-		if (sbits & AC_DIG1_EMPHASIS)
+		if (val & AC_DIG1_EMPHASIS)
 			sbits |= IEC958_AES0_PRO_EMPHASIS_5015;
 	} else {
 		if (val & AC_DIG1_EMPHASIS)
@@ -3377,6 +3383,7 @@ static void hda_call_codec_resume(struct hda_codec *codec)
 	}
 }
 #endif /* CONFIG_PM */
+
 
 /**
  * snd_hda_build_controls - build mixer controls
@@ -4385,6 +4392,7 @@ int snd_hda_input_mux_put(struct hda_codec *codec,
 }
 EXPORT_SYMBOL_HDA(snd_hda_input_mux_put);
 
+
 /*
  * Multi-channel / digital-out PCM helper functions
  */
@@ -4660,6 +4668,7 @@ static int is_in_nid_list(hda_nid_t nid, const hda_nid_t *list)
 	return 0;
 }
 
+
 /*
  * Sort an associated group of pins according to their sequence numbers.
  */
@@ -4683,6 +4692,7 @@ static void sort_pins_by_sequence(hda_nid_t *pins, short *sequences,
 		}
 	}
 }
+
 
 /* add the found input-pin to the cfg->inputs[] table */
 static void add_auto_cfg_input_pin(struct auto_pin_cfg *cfg, hda_nid_t nid,
@@ -5133,6 +5143,7 @@ int snd_hda_add_imux_item(struct hda_input_mux *imux, const char *label,
 	return 0;
 }
 EXPORT_SYMBOL_HDA(snd_hda_add_imux_item);
+
 
 #ifdef CONFIG_PM
 /*

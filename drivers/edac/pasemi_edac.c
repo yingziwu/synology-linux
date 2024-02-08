@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/pci.h>
@@ -69,6 +70,7 @@
 
 static int last_page_in_mmc;
 static int system_mmc_id;
+
 
 static u32 pasemi_edac_get_error_info(struct mem_ctl_info *mci)
 {
@@ -265,6 +267,7 @@ static void __devexit pasemi_edac_remove(struct pci_dev *pdev)
 	edac_mc_free(mci);
 }
 
+
 static const struct pci_device_id pasemi_edac_pci_tbl[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_PASEMI, 0xa00a) },
 	{ }
@@ -300,3 +303,4 @@ MODULE_AUTHOR("Egor Martovetsky <egor@pasemi.com>");
 MODULE_DESCRIPTION("MC support for PA Semi PWRficient memory controller");
 module_param(edac_op_state, int, 0444);
 MODULE_PARM_DESC(edac_op_state, "EDAC Error Reporting state: 0=Poll,1=NMI");
+

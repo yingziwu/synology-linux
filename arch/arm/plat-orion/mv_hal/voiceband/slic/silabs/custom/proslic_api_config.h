@@ -45,6 +45,7 @@
 #define SI3217X
 #endif
 
+
 /** @} PROSLIC_DRIVER_SEL*/
 
 /** @defgroup CODE_OPTS Code feature options
@@ -82,6 +83,7 @@
 
 #define PRINT_TO_STRING 0         /**< Set this to 1 if printing to a string buffer vs. console - you may change/remove this*/
 
+
 /** @defgroup MULTI_BOM Multiple Device/BOM Option Support
  * Assign patch structure names to macros used in device drivers
 * @{ */
@@ -118,6 +120,7 @@
 #define SI3226X_PATCH_B_DEFAULT    RevBPatch
 #define SI3226X_PATCH_C_DEFAULT    RevCPatch
 
+
 /** @} MULTI_BOM */
 #include <linux/kernel.h>
 #if (PRINT_TO_STRING)
@@ -141,6 +144,8 @@ extern char outputBuffer[];
 #define PSTN_DET_DIFF_IV2_SETTLE    1000     /**< Settle time before first I/V measurment in ms */
 
 /** @} PSTN_CFG */
+
+
 
 /** @defgroup SI321X_TONE Tone Generation Options
 * @{ */

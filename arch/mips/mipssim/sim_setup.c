@@ -36,6 +36,7 @@
 #include <asm/mips-boards/simint.h>
 #include <asm/smp-ops.h>
 
+
 static void __init serial_init(void);
 unsigned int _isbonito;
 

@@ -49,6 +49,7 @@ void __user * get_sigframe(struct k_sigaction *ka, struct pt_regs *regs,
         return (void __user *)newsp;
 }
 
+
 /*
  * Restore the user process's signal mask
  */

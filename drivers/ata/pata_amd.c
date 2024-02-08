@@ -183,6 +183,7 @@ static void amd_fifo_setup(struct ata_port *ap)
 	u8 fifo = fifobit[ap->port_no];
 	u8 r;
 
+
 	ata_for_each_dev(adev, &ap->link, ENABLED) {
 		if (adev->class == ATA_DEV_ATAPI)
 			fifo = 0;
@@ -616,6 +617,7 @@ static const struct pci_device_id amd[] = {
 	{ PCI_VDEVICE(NVIDIA,	PCI_DEVICE_ID_NVIDIA_NFORCE_MCP73_IDE),	8 },
 	{ PCI_VDEVICE(NVIDIA,	PCI_DEVICE_ID_NVIDIA_NFORCE_MCP77_IDE),	8 },
 	{ PCI_VDEVICE(AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE),		9 },
+	{ PCI_VDEVICE(AMD,	PCI_DEVICE_ID_AMD_CS5536_DEV_IDE),	9 },
 
 	{ },
 };

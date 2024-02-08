@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -54,6 +55,8 @@ extern "C" {
 #define MV_IAL_WAIT_FOR_RDY_TIMEOUT     10000
 /* typedefs */
 
+
+
 typedef enum mvAdapterState
 {
     ADAPTER_INITIALIZING,
@@ -75,6 +78,7 @@ typedef struct mvDriveSerialNumber
 {
     MV_U8 serial[IDEN_SERIAL_NUM_SIZE];    
 }   MV_DRIVE_SERIAL_NUMBER;
+
 
 typedef struct mvDrivesInfo
 {
@@ -118,6 +122,7 @@ typedef struct mvIALChannelExtension
 #endif
 } MV_IAL_COMMON_CHANNEL_EXTENSION;
 
+
 typedef struct mvIALCommonAdapterExtension
 {
     MV_SATA_ADAPTER   *pSataAdapter;
@@ -125,6 +130,7 @@ typedef struct mvIALCommonAdapterExtension
     MV_CHANNEL_STATE  channelState[MV_SATA_CHANNELS_NUM];
     MV_IAL_COMMON_CHANNEL_EXTENSION IALChannelExt[MV_SATA_CHANNELS_NUM];
 } MV_IAL_COMMON_ADAPTER_EXTENSION;
+
 
 /*Public functions*/
 MV_BOOLEAN mvAdapterStartInitialization(MV_SATA_ADAPTER* pSataAdapter,
@@ -143,6 +149,7 @@ void mvStopChannel(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
 void mvPMHotPlugDetected(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                          MV_U8 channelIndex,
                          MV_SAL_ADAPTER_EXTENSION *scsiAdapterExt);
+
 
 MV_SCSI_COMMAND_STATUS_TYPE mvExecuteScsiCommand(MV_SATA_SCSI_CMD_BLOCK  *pScb,
                                                  MV_BOOLEAN canQueue);
@@ -165,6 +172,7 @@ MV_BOOLEAN IALConfigQueuingMode(MV_SATA_ADAPTER *pSataAdapter,
                                 MV_SATA_SWITCHING_MODE switchingMode,
                                 MV_BOOLEAN  use128Entries);
 
+
 MV_BOOLEAN IALInitChannel(MV_SATA_ADAPTER *pSataAdapter, MV_U8 channelIndex);
 
 void IALReleaseChannel(MV_SATA_ADAPTER *pSataAdapter, MV_U8 channelIndex);
@@ -175,6 +183,7 @@ MV_BOOLEAN IALBusChangeNotifyEx(MV_SATA_ADAPTER *pSataAdapter,
                                 MV_U16 targetsToRemove,
                                 MV_U16 targetsToAdd);
 
+
 extern MV_BOOLEAN disableNCQ;
 extern MV_BOOLEAN disablePM_NCQ;
 
@@ -183,3 +192,4 @@ extern MV_BOOLEAN disablePM_NCQ;
 #endif /* __cplusplus */
 
 #endif /* __INCmvIALCommonh */
+

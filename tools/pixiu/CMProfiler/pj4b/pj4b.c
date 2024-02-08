@@ -387,6 +387,7 @@ static int free_internal_data(void)
 		register_value = NULL;
 	}
 
+
 	return 0;
 }
 

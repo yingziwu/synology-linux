@@ -184,6 +184,7 @@ MODULE_PARM_DESC(txselect, \
 /* Below because most, but not all, fields of IntMask have that full suffix */
 #define INT_MASK_PM(fldname, port) SYM_MASK(IntMask, fldname##Mask##_##port)
 
+
 #define SYM_LSB(regname, fldname) (QIB_7322_##regname##_##fldname##_LSB)
 
 /*
@@ -815,6 +816,7 @@ static inline u64 read_7322_creg(const struct qib_devdata *dd, u16 regno)
 		return 0;
 	return readq(&dd->cspec->cregbase[regno]);
 
+
 }
 
 static inline u32 read_7322_creg32(const struct qib_devdata *dd, u16 regno)
@@ -822,6 +824,7 @@ static inline u32 read_7322_creg32(const struct qib_devdata *dd, u16 regno)
 	if (!dd->cspec->cregbase || !(dd->flags & QIB_PRESENT))
 		return 0;
 	return readl(&dd->cspec->cregbase[regno]);
+
 
 }
 
@@ -937,6 +940,7 @@ static inline u32 read_7322_creg32_port(const struct qib_pportdata *ppd,
 #define QIB_E_RESET ERR_MASK(ResetNegated)
 #define QIB_E_HARDWARE ERR_MASK(HardwareErr)
 #define QIB_E_INVALIDADDR ERR_MASK(InvalidAddrErr)
+
 
 /*
  * Per chip (rather than per-port) errors.  Most either do
@@ -2274,6 +2278,11 @@ static int qib_7322_bringup_serdes(struct qib_pportdata *ppd)
 	ppd->cpspec->ibcctrl_a &= ~SYM_MASK(IBCCtrlA_0, IBLinkEn);
 	qib_write_kreg_port(ppd, krp_ibcctrl_a, ppd->cpspec->ibcctrl_a);
 	qib_write_kreg(dd, kr_scratch, 0ULL);
+
+	/* ensure previous Tx parameters are not still forced */
+	qib_write_kreg_port(ppd, krp_tx_deemph_override,
+		SYM_MASK(IBSD_TX_DEEMPHASIS_OVERRIDE_0,
+		reset_tx_deemphasis_override));
 
 	if (qib_compat_ddr_negotiate) {
 		ppd->cpspec->ibdeltainprog = 1;
@@ -4784,8 +4793,6 @@ static void qib_get_7322_faststats(unsigned long opaque)
 		spin_lock_irqsave(&ppd->dd->eep_st_lock, flags);
 		traffic_wds -= ppd->dd->traffic_wds;
 		ppd->dd->traffic_wds += traffic_wds;
-		if (traffic_wds >= QIB_TRAFFIC_ACTIVE_THRESHOLD)
-			atomic_add(ACTIVITY_TIMER, &ppd->dd->active_time);
 		spin_unlock_irqrestore(&ppd->dd->eep_st_lock, flags);
 		if (ppd->cpspec->qdr_dfe_on && (ppd->link_speed_active &
 						QIB_IB_QDR) &&
@@ -6607,7 +6614,7 @@ static void qib_7322_txchk_change(struct qib_devdata *dd, u32 start,
 	unsigned long flags;
 
 	while (wait) {
-		unsigned long shadow;
+		unsigned long shadow = 0;
 		int cstart, previ = -1;
 
 		/*
@@ -6735,6 +6742,7 @@ static void qib_7322_txchk_change(struct qib_devdata *dd, u32 start,
 	 */
 	qib_read_kreg32(dd, kr_scratch);
 }
+
 
 /* useful for trigger analyzers, etc. */
 static void writescratch(struct qib_devdata *dd, u32 val)

@@ -219,6 +219,7 @@ Vcp2SetCalFlag(
   #include "vp_kernel.h"
 #endif /* VP_CC_KWRAP */
 
+
 /******************************************************************************
  *                        790 Specific FUNCTION PROTOTYPES                    *
  ******************************************************************************/
@@ -365,12 +366,14 @@ Vp880LLSetSysState(
     bool writeToDevice);
 #endif /* VP_CC_880_SERIES */
 
+
 /******************************************************************************
  *                        890 Specific FUNCTION PROTOTYPES                    *
  ******************************************************************************/
 #if defined (VP_CC_890_SERIES)
   #include "vp890_api_int.h"
 #endif /* VP_CC_890_SERIES */
+
 
 /******************************************************************************
  *                        580 Specific FUNCTION PROTOTYPES                    *
@@ -471,6 +474,7 @@ VpStatusType
 VpCSLACClearResults(
     VpDevCtxType *pDevCtx);
 
+
 VpStatusType
 VpCSLACDtmfDigitDetected(
     VpLineCtxType *pLineCtx,
@@ -510,6 +514,7 @@ Vp790SetLineTone(
     VpProfilePtrType pCadProfile,
     VpDtmfToneGenType *pDtmfControl);
 #endif
+
 
 #if defined (VP_CC_580_SERIES)
 VpStatusType

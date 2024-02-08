@@ -19,6 +19,7 @@
 
 #include <plat/cpu-freq.h>
 
+
 static int s3c2443_gate(void __iomem *reg, struct clk *clk, int enable)
 {
 	u32 ctrlbit = clk->ctrlbit;

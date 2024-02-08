@@ -119,3 +119,5 @@ enum pmic_controls {
 };
 
 #endif /* __INTELMID_SND_CTRL_H__ */
+
+

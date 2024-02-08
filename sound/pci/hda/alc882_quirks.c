@@ -464,6 +464,7 @@ static const struct snd_kcontrol_new alc889_acer_aspire_8930g_mixer[] = {
 	{ } /* end */
 };
 
+
 static void alc888_acer_aspire_4930g_setup(struct hda_codec *codec)
 {
 	struct alc_spec *spec = codec->spec;
@@ -513,6 +514,7 @@ static void alc889_acer_aspire_8930g_setup(struct hda_codec *codec)
 #define ALC883_DIGOUT_NID	ALC882_DIGOUT_NID
 #define ALC883_DIGIN_NID	ALC882_DIGIN_NID
 #define ALC1200_DIGOUT_NID	0x10
+
 
 static const struct hda_channel_mode alc882_ch_modes[1] = {
 	{ 8, NULL }
@@ -748,6 +750,7 @@ static const struct hda_channel_mode alc883_3ST_6ch_clevo_modes[3] = {
 	{ 6, alc883_3ST_ch6_clevo_init },
 };
 
+
 /*
  * 6ch mode
  */
@@ -774,6 +777,7 @@ static const struct hda_channel_mode alc882_sixstack_modes[2] = {
 	{ 6, alc882_sixstack_ch6_init },
 	{ 8, alc882_sixstack_ch8_init },
 };
+
 
 /* Macbook Air 2,1 */
 
@@ -908,6 +912,7 @@ static const struct hda_channel_mode alc883_4ST_8ch_modes[4] = {
 	{ 8, alc883_4ST_ch8_init },
 };
 
+
 /*
  * 2ch mode
  */
@@ -1023,6 +1028,7 @@ static const struct hda_channel_mode alc883_sixstack_modes[2] = {
 	{ 8, alc883_sixstack_ch8_init },
 };
 
+
 /* Pin assignment: Front=0x14, Rear=0x15, CLFE=0x16, Side=0x17
  *                 Mic=0x18, Front Mic=0x19, Line-In=0x1a, HP=0x1b
  */
@@ -1058,6 +1064,7 @@ static const struct snd_kcontrol_new alc885_mba21_mixer[] = {
       HDA_BIND_MUTE("Speaker Playback Switch", 0x0c, 0x02, HDA_OUTPUT),
      { }
 };
+
 
 static const struct snd_kcontrol_new alc885_mbp3_mixer[] = {
 	HDA_CODEC_VOLUME("Speaker Playback Volume", 0x0c, 0x00, HDA_OUTPUT),
@@ -1112,6 +1119,7 @@ static const struct snd_kcontrol_new alc885_imac91_mixer[] = {
 	HDA_BIND_MUTE("Speaker Playback Switch", 0x0c, 0x02, HDA_INPUT),
 	{ } /* end */
 };
+
 
 static const struct snd_kcontrol_new alc882_w2jc_mixer[] = {
 	HDA_CODEC_VOLUME("Front Playback Volume", 0x0c, 0x0, HDA_OUTPUT),
@@ -1347,12 +1355,14 @@ static const struct hda_verb alc885_init_input_verbs[] = {
 	{ }
 };
 
+
 /* Unmute Selector 24h and set the default input to front mic */
 static const struct hda_verb alc889_init_input_verbs[] = {
 	{0x24, AC_VERB_SET_CONNECT_SEL, 0x00},
 	{0x24, AC_VERB_SET_AMP_GAIN_MUTE, AMP_OUT_UNMUTE},
 	{ }
 };
+
 
 #define alc883_init_verbs	alc882_base_init_verbs
 
@@ -1517,6 +1527,7 @@ static const struct hda_verb alc885_macmini3_init_verbs[] = {
 	{ }
 };
 
+
 static const struct hda_verb alc885_mba21_init_verbs[] = {
 	/*Internal and HP Speaker Mixer*/
 	{0x0c, AC_VERB_SET_AMP_GAIN_MUTE, AMP_OUT_ZERO},
@@ -1537,6 +1548,7 @@ static const struct hda_verb alc885_mba21_init_verbs[] = {
 
 	{ }
  };
+
 
 /* Macbook Pro rev3 */
 static const struct hda_verb alc885_mbp3_init_verbs[] = {
@@ -1709,6 +1721,8 @@ static void alc885_mba21_setup(struct hda_codec *codec)
 	alc_simple_setup_automute(spec, ALC_AUTOMUTE_AMP);
 }
 
+
+
 static void alc885_mbp3_setup(struct hda_codec *codec)
 {
 	struct alc_spec *spec = codec->spec;
@@ -1822,6 +1836,7 @@ static void alc882_gpio_mute(struct hda_codec *codec, int pin, int muted)
 	gpiodir = snd_hda_codec_read(codec, codec->afg, 0,
 				     AC_VERB_GET_GPIO_DIRECTION, 0);
 	gpiodir |= (1 << pin);
+
 
 	snd_hda_codec_write(codec, codec->afg, 0,
 			    AC_VERB_SET_GPIO_MASK, gpiomask);
@@ -3709,3 +3724,5 @@ static const struct alc_config_preset alc882_presets[] = {
 		.init_hook = alc_hp_automute,
 	},
 };
+
+

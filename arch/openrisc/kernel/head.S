@@ -19,6 +19,7 @@
 #include <linux/threads.h>
 #include <linux/errno.h>
 #include <linux/init.h>
+#include <linux/serial_reg.h>
 #include <asm/processor.h>
 #include <asm/page.h>
 #include <asm/mmu.h>
@@ -37,6 +38,7 @@
 #define LOAD_SYMBOL_2_GPR(gpr,symbol)		\
 	l.movhi gpr,hi(symbol)			;\
 	l.ori   gpr,gpr,lo(symbol)
+
 
 #define UART_BASE_ADD      0x90000000
 
@@ -66,6 +68,7 @@
 #define EMERGENCY_PRINT_STORE_GPR9	l.sw    0x34(r0),r9
 #define EMERGENCY_PRINT_LOAD_GPR9	l.lwz   r9,0x34(r0)
 
+
 /*
  * TLB miss handlers temorary stores
  */
@@ -86,6 +89,7 @@
 
 #define EXCEPTION_STORE_GPR6		l.sw    0x74(r0),r6
 #define EXCEPTION_LOAD_GPR6		l.lwz   r6,0x74(r0)
+
 
 /*
  * EXCEPTION_HANDLE temporary stores
@@ -109,10 +113,12 @@
 
 /* =========================================================[ macros ]=== */
 
+
 #define GET_CURRENT_PGD(reg,t1)					\
 	LOAD_SYMBOL_2_GPR(reg,current_pgd)			;\
 	tophys  (t1,reg)					;\
 	l.lwz   reg,0(t1)
+
 
 /*
  * DSCR: this is a common hook for handling exceptions. it will save
@@ -484,6 +490,7 @@ _start:
 
 	l.ori	r4,r0,0x0
 
+
 	/*
 	 * .data contains initialized data,
 	 * .bss contains uninitialized data - clear it up
@@ -525,6 +532,7 @@ flush_tlb:
 	l.sfeq	r7,r0
 	l.bnf	1b
 	 l.addi	r7,r7,-1
+
 
 /* The MMU needs to be enabled before or32_early_setup is called */
 
@@ -769,6 +777,7 @@ boot_dtlb_miss_handler:
 #define VPN_MASK 0xfffff000
 #define PPN_MASK 0xfffff000
 
+
 	EXCEPTION_STORE_GPR6
 
 #if 0
@@ -859,6 +868,8 @@ boot_itlb_miss_handler:
 #define PPN_MASK 0xffffe000
 */
 
+
+
 	EXCEPTION_STORE_GPR2
 	EXCEPTION_STORE_GPR3
 	EXCEPTION_STORE_GPR4
@@ -872,6 +883,7 @@ boot_itlb_miss_handler:
 	l.bf    exit_with_no_itranslation
 	l.nop
 #endif
+
 
 	l.mfspr r4,r0,SPR_EEAR_BASE        // get the offending EA
 
@@ -1171,6 +1183,7 @@ i_pte_not_present:
 
 /* ==============================================[ boot tlb handlers ]=== */
 
+
 /* =================================================[ debugging aids ]=== */
 
 	.align 64
@@ -1254,6 +1267,7 @@ ENTRY(_immu_trampoline_workaround)
 	l.sh	(TRAMP_SLOT_1+0x2)(r3),r5
 
 	/* falthrough, need to set up new jump offset */
+
 
 0:	// l.j
 	l.slli	r6,r4,6			// original offset shifted left 6 - 2
@@ -1381,6 +1395,7 @@ trampoline_out:
 	l.jr	r9
 	l.nop
 
+
 /*
  * DSCR: prints a string referenced by r3.
  *
@@ -1502,6 +1517,7 @@ ENTRY(_emergency_print_nr)
 	l.jr	r9
 	l.nop
 
+
 /*
  * This should be used for debugging only.
  * It messes up the Linux early serial output
@@ -1515,6 +1531,8 @@ ENTRY(_emergency_print_nr)
  *
  *
  */
+
+
 
 #define SYS_CLK            20000000
 //#define SYS_CLK            1843200
@@ -1563,6 +1581,8 @@ _string_nl:
 	.global	_string_esr_irq_bug
 _string_esr_irq_bug:
 	.string "\n\rESR external interrupt bug, for details look into entry.S\n\r\0"
+
+
 
 /* ========================================[ page aligned structures ]=== */
 

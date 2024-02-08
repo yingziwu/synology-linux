@@ -256,7 +256,7 @@ u64 guest_vhpt_lookup(u64 iha, u64 *pte)
 			"srlz.d;;"
 			"ssm psr.i;;"
 			"srlz.d;;"
-			: "=r"(ret) : "r"(iha), "r"(pte):"memory");
+			: "=&r"(ret) : "r"(iha), "r"(pte) : "memory");
 
 	return ret;
 }
@@ -291,6 +291,7 @@ static void vtlb_purge(struct kvm_vcpu *v, u64 va, u64 ps)
 		}
 	}
 }
+
 
 /*
  *  purge VHPT and machine TLB

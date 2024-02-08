@@ -2,6 +2,7 @@
 #define _ASM_POWERPC_TOPOLOGY_H
 #ifdef __KERNEL__
 
+
 struct sys_device;
 struct device_node;
 

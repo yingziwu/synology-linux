@@ -268,6 +268,7 @@ enum cpu_type_enum {
 	CPU_LAST
 };
 
+
 /*
  * ISA Level encodings
  *
@@ -322,5 +323,6 @@ enum cpu_type_enum {
 #define MIPS_ASE_SMARTMIPS	0x00000008 /* SmartMIPS */
 #define MIPS_ASE_DSP		0x00000010 /* Signal Processing ASE */
 #define MIPS_ASE_MIPSMT		0x00000020 /* CPU supports MIPS MT */
+
 
 #endif /* _ASM_CPU_H */

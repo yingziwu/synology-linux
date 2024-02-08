@@ -190,6 +190,7 @@ int tipc_bearer_congested(struct tipc_bearer *b_ptr, struct link *l_ptr);
 void tipc_bearer_stop(void);
 void tipc_bearer_lock_push(struct tipc_bearer *b_ptr);
 
+
 /**
  * tipc_bearer_send- sends buffer to destination over bearer
  *

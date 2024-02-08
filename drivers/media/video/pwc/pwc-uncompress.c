@@ -129,4 +129,5 @@ int pwc_decompress(struct pwc_device *pdev, struct pwc_frame_buf *fbuf)
 	return 0;
 }
 
+
 /* vim: set cino= formatoptions=croql cindent shiftwidth=8 tabstop=8: */

@@ -46,7 +46,12 @@
 
 /*---------------------  Static Definitions -------------------------*/
 
+
+
+
 /*---------------------  Static Classes  ----------------------------*/
+
+
 
 /*---------------------  Static Variables  --------------------------*/
 //static int          msglevel                =MSG_LEVEL_DEBUG;
@@ -75,7 +80,9 @@ void s_vResetCounter(PKnownNodeDB psNodeDBTable)
 
 /*---------------------  Export Variables  --------------------------*/
 
+
 /*---------------------  Export Functions  --------------------------*/
+
 
 /*+
  *
@@ -108,6 +115,8 @@ DATARATEbyGetRateIdx (
     return 0;
 }
 
+
+
 /*+
  *
  * Routine Description:
@@ -125,6 +134,9 @@ DATARATEbyGetRateIdx (
 -*/
 #define AUTORATE_TXCNT_THRESHOLD        20
 #define AUTORATE_INC_THRESHOLD          30
+
+
+
 
 /*+
  *
@@ -194,6 +206,7 @@ BYTE  byHighSuppRate = 0;
 BYTE  byRate = 0;
 WORD  wOldBasicRate = pDevice->wBasicRate;
 unsigned int  uRateLen;
+
 
     if (pItemRates == NULL)
         return;
@@ -268,6 +281,7 @@ unsigned int  uRateLen;
 
      DBG_PRT(MSG_LEVEL_DEBUG, KERN_INFO"Exit ParseMaxRate\n");
 }
+
 
 /*+
  *
@@ -414,3 +428,4 @@ RATEuSetIE (
     }
     return (BYTE)uRateCnt;
 }
+

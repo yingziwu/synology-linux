@@ -34,6 +34,7 @@
 #include <linux/input/mt.h>
 #include "usbhid/usbhid.h"
 
+
 MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
 MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
 MODULE_DESCRIPTION("HID multitouch panels");
@@ -65,7 +66,7 @@ struct mt_device {
 	unsigned last_field_index;	/* last field index of the report */
 	unsigned last_slot_field;	/* the last field of a slot */
 	int last_mt_collection;	/* last known mt-related collection */
-	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
+	__s16 inputmode;	/* InputMode HID feature, -1 if non-existent */
 	__u8 num_received;	/* how many contacts we received */
 	__u8 num_expected;	/* expected last contact index */
 	__u8 maxcontacts;
@@ -399,6 +400,7 @@ static void mt_complete_slot(struct mt_device *td)
 	td->num_received++;
 }
 
+
 /*
  * this function is called when a whole packet has been received and processed,
  * so that it can decide what to send to the input layer.
@@ -439,6 +441,8 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
 	input_sync(input);
 	td->num_received = 0;
 }
+
+
 
 static int mt_event(struct hid_device *hid, struct hid_field *field,
 				struct hid_usage *usage, __s32 value)

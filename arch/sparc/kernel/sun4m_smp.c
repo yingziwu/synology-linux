@@ -153,6 +153,7 @@ void __init smp4m_smp_done(void)
 	/* Ok, they are spinning and ready to go. */
 }
 
+
 /* Initialize IPIs on the SUN4M SMP machine */
 static void __init smp4m_ipi_init(void)
 {

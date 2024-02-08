@@ -14,3 +14,4 @@ int al_eth_sysfs_init(struct device *dev);
 void al_eth_sysfs_terminate(struct device *dev);
 
 #endif /* __AL_ETH_SYSFS_H__ */
+

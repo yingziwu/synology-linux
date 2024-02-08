@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ disclaimer.
 #include "mv_eth_sysfs.h"
 #include "gbe/mvPp2Gbe.h"
 #include "mv_netdev.h"
+
 
 static ssize_t mv_pp2_help(char *buf)
 {

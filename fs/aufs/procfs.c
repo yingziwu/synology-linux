@@ -161,6 +161,7 @@ int __init au_procfs_init(void)
 	err = 0;
 	goto out; /* success */
 
+
 out_dir:
 	remove_proc_entry(AUFS_PLINK_MAINT_DIR, NULL);
 out:

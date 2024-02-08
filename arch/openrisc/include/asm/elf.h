@@ -25,6 +25,7 @@
 #include <linux/types.h>
 #include <linux/ptrace.h>
 
+
 /* The OR1K relocation types... not all relevant for module loader */
 #define R_OR32_NONE	0
 #define R_OR32_32	1

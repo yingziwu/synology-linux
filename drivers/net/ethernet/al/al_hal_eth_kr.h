@@ -219,6 +219,7 @@ int al_eth_kr_an_init(struct al_hal_eth_adapter *adapter,
 int al_eth_kr_an_start(struct al_hal_eth_adapter *adapter,
 		       al_bool lt_enable);
 
+
 /**
  * Stop Auto-negotiation
  *

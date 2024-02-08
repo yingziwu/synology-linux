@@ -427,6 +427,7 @@ static int init_timing_params(unsigned int new_duty_cycle,
 }
 #endif /* USE_RDTSC */
 
+
 /* return value: space length delta */
 
 static long send_pulse_irdeo(unsigned long length)
@@ -747,6 +748,7 @@ static irqreturn_t irq_handler(int i, void *blah)
 	return IRQ_HANDLED;
 }
 
+
 static int hardware_init_port(void)
 {
 	u8 scratch, scratch2, scratch3;
@@ -773,6 +775,8 @@ static int hardware_init_port(void)
 		       "failed, cannot continue\n");
 		return -EINVAL;
 	}
+
+
 
 	/* Set DLAB 0. */
 	soutp(UART_LCR, sinp(UART_LCR) & (~UART_LCR_DLAB));
@@ -1251,6 +1255,7 @@ static void __exit lirc_serial_exit_module(void)
 	lirc_serial_exit();
 	dprintk("cleaned up module\n");
 }
+
 
 module_init(lirc_serial_init_module);
 module_exit(lirc_serial_exit_module);

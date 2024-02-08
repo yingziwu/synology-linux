@@ -33,6 +33,7 @@
 #include "vis.h"
 #include "hash.h"
 
+
 /* List manipulations on hardif_list have to be rtnl_lock()'ed,
  * list traversals just rcu-locked */
 struct list_head hardif_list;

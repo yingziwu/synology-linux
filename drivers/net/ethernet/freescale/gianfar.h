@@ -74,6 +74,7 @@ struct ethtool_rx_list {
  * will be the next highest multiple of 512 bytes. */
 #define INCREMENTAL_BUFFER_SIZE 512
 
+
 #define MAC_ADDR_LEN 6
 
 #define PHY_INIT_TIMEOUT 100000
@@ -292,6 +293,7 @@ extern const char gfar_driver_version[];
 #define RCTRL_VLAN		(RCTRL_PRSDEP_INIT)
 #define RCTRL_PADDING(x)	((x << 16) & RCTRL_PAL_MASK)
 
+
 #define RSTAT_CLEAR_RHALT       0x00800000
 
 #define TCTRL_IPCSEN		0x00004000
@@ -302,8 +304,16 @@ extern const char gfar_driver_version[];
 #define TCTRL_TFCPAUSE		0x00000008
 #define TCTRL_TXSCHED_MASK	0x00000006
 #define TCTRL_TXSCHED_INIT	0x00000000
+/* priority scheduling */
 #define TCTRL_TXSCHED_PRIO	0x00000002
+/* weighted round-robin scheduling (WRRS) */
 #define TCTRL_TXSCHED_WRRS	0x00000004
+/* default WRRS weight and policy setting,
+ * tailored to the tr03wt and tr47wt registers:
+ * equal weight for all Tx Qs, measured in 64byte units
+ */
+#define DEFAULT_WRRS_WEIGHT	0x18181818
+
 #define TCTRL_INIT_CSUM		(TCTRL_TUCSEN | TCTRL_IPCSEN)
 
 #define IEVENT_INIT_CLEAR	0xffffffff
@@ -648,6 +658,7 @@ struct gfar_stats {
 	u64 extra[GFAR_EXTRA_STATS_LEN];
 	u64 rmon[GFAR_RMON_LEN];
 };
+
 
 struct gfar {
 	u32	tsec_id;	/* 0x.000 - Controller ID register */
@@ -1098,7 +1109,8 @@ struct gfar_private {
 		extended_hash:1,
 		bd_stash_en:1,
 		rx_filer_enable:1,
-		wol_en:1; /* Wake-on-LAN enabled */
+		wol_en:1, /* Wake-on-LAN enabled */
+		prio_sched_en:1; /* Enable priorty based Tx scheduling in Hw */
 	unsigned short padding;
 
 	/* PHY stuff */
@@ -1123,6 +1135,7 @@ struct gfar_private {
 	unsigned int ftp_rqfpr[MAX_FILER_IDX + 1];
 	unsigned int ftp_rqfcr[MAX_FILER_IDX + 1];
 };
+
 
 static inline int gfar_has_errata(struct gfar_private *priv,
 				  enum gfar_errata err)
@@ -1201,6 +1214,7 @@ struct gfar_filer_entry {
 	u32 ctrl;
 	u32 prop;
 };
+
 
 /* The 20 additional entries are a shadow for one extra element */
 struct filer_table {

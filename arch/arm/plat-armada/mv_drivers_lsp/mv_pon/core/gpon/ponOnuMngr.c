@@ -471,3 +471,4 @@ MV_U32 onuGponPonMngrFifoErrCountersGet(MV_U32 *suspiciousCounter)
   *suspiciousCounter = suspected;
   return(decided);
 }
+

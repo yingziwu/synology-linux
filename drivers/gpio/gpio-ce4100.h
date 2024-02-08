@@ -26,6 +26,7 @@
 
 #include "gpio-intelce.h"
 
+
 #define CE4100_PUB_GPIO_OUT				0x00
 #define CE4100_PUB_GPIO_OUT_EN			0x04
 #define CE4100_PUB_GPIO_INPUT			0x08
@@ -40,6 +41,7 @@
 #define CE4100_PUB_GPIOS_PER_BANK        12
 #define CE4100_PUB_GPIO_BANKS            1
 
+
 int ce4100_gpio_get(struct gpio_chip *chip, unsigned offset);
 void ce4100_gpio_set(struct gpio_chip *chip, unsigned offset, int value);
 
@@ -48,6 +50,7 @@ int ce4100_gpio_direction_output(struct gpio_chip *chip, unsigned offset, int va
 
 int ce4100_set_multi_function(struct gpio_chip *chip, unsigned offset,  int fn_num);
 int ce4100_get_multi_function(struct gpio_chip *chip, unsigned offset);
+
 
 int ce4100_gpio_irq_setup(struct intelce_gpio_chip *c, struct pci_dev *pdev);
 int ce4100_gpio_to_irq(struct gpio_chip *chip, unsigned offset);

@@ -446,6 +446,7 @@ static const struct nla_policy choke_policy[TCA_CHOKE_MAX + 1] = {
 	[TCA_CHOKE_STAB]	= { .len = RED_STAB_SIZE },
 };
 
+
 static void choke_free(void *addr)
 {
 	if (addr) {
@@ -477,6 +478,9 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt)
 		return -EINVAL;
 
 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+
+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
+		return -EINVAL;
 
 	if (ctl->limit > CHOKE_MAX_QUEUE)
 		return -EINVAL;

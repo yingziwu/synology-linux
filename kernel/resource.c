@@ -21,6 +21,7 @@
 #include <linux/pfn.h>
 #include <asm/io.h>
 
+
 struct resource ioport_resource = {
 	.name	= "PCI IO",
 	.start	= 0,
@@ -507,6 +508,7 @@ out:
 	return err;
 }
 
+
 /**
  * allocate_resource - allocate empty slot in the resource tree given range & alignment.
  * 	The resource will be reallocated with a new size if it was already allocated
@@ -884,9 +886,10 @@ struct resource * __request_region(struct resource *parent,
 		if (!conflict)
 			break;
 		if (conflict != parent) {
-			parent = conflict;
-			if (!(conflict->flags & IORESOURCE_BUSY))
+			if (!(conflict->flags & IORESOURCE_BUSY)) {
+				parent = conflict;
 				continue;
+			}
 		}
 		if (conflict->flags & flags & IORESOURCE_MUXED) {
 			add_wait_queue(&muxed_resource_wait, &wait);

@@ -18,6 +18,7 @@
 #define	mcfne_h
 /****************************************************************************/
 
+
 /*
  *	Support for NE2000 clones devices in ColdFire based boards.
  *	Not all boards address these parts the same way, some use a
@@ -27,6 +28,7 @@
  */
 #define	BSWAP(w)	(((w) << 8) | ((w) >> 8))
 #define	RSWAP(w)	(w)
+
 
 /*
  *	Define the basic hardware resources of NE2000 boards.
@@ -142,6 +144,7 @@
 #define	insb	ne2000_insb
 #define	insw	ne2000_insw
 
+
 #ifndef COLDFIRE_NE2000_FUNCS
 
 void ne2000_outb(unsigned int val, unsigned int addr);
@@ -161,6 +164,7 @@ void ne2000_outsw(unsigned int addr, void *vbuf, unsigned long len);
  */
 #define	NE2000_PTR(addr)	((addr&0x1)?(NE2000_ODDOFFSET+addr-1):(addr))
 #define	NE2000_DATA_PTR(addr)	(addr)
+
 
 void ne2000_outb(unsigned int val, unsigned int addr)
 {

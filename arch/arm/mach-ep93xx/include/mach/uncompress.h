@@ -62,6 +62,7 @@ static inline void flush(void)
 {
 }
 
+
 /*
  * Some bootloaders don't turn off DMA from the ethernet MAC before
  * jumping to linux, which means that we might end up with bits of RX
@@ -83,6 +84,7 @@ static void ethernet_reset(void)
 	while (__raw_readl(PHYS_ETH_SELF_CTL) & ETH_SELF_CTL_RESET)
 		;
 }
+
 
 static void arch_decomp_setup(void)
 {

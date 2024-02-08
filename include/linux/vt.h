@@ -1,6 +1,7 @@
 #ifndef _LINUX_VT_H
 #define _LINUX_VT_H
 
+
 /*
  * These constants are also useful for user-level apps (e.g., VC
  * resizing).

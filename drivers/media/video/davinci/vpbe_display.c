@@ -1075,6 +1075,7 @@ vpbe_display_s_dv_preset(struct file *file, void *priv,
 
 	v4l2_dbg(1, debug, &vpbe_dev->v4l2_dev, "VIDIOC_S_DV_PRESETS\n");
 
+
 	/* If streaming is started, return error */
 	if (layer->started) {
 		v4l2_err(&vpbe_dev->v4l2_dev, "Streaming is started\n");
@@ -1671,6 +1672,8 @@ static __devinit int register_device(struct vpbe_layer *vpbe_display_layer,
 
 	return 0;
 }
+
+
 
 /*
  * vpbe_display_probe()

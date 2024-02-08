@@ -598,6 +598,7 @@ static int get_dev_entry_bit(u16 devid, u8 bit)
 	return (amd_iommu_dev_table[devid].data[i] & (1 << _bit)) >> _bit;
 }
 
+
 void amd_iommu_apply_erratum_63(u16 devid)
 {
 	int sysmgt;
@@ -747,6 +748,7 @@ static void __init init_iommu_from_acpi(struct amd_iommu *iommu,
 	 */
 	p += sizeof(struct ivhd_header);
 	end += h->length;
+
 
 	while (p < end) {
 		e = (struct ivhd_entry *)p;
@@ -1394,6 +1396,7 @@ static struct syscore_ops amd_iommu_syscore_ops = {
  */
 static int __init amd_iommu_init(void)
 {
+	struct amd_iommu *iommu;
 	int i, ret = 0;
 
 	/*
@@ -1441,9 +1444,6 @@ static int __init amd_iommu_init(void)
 					    get_order(MAX_DOMAIN_ID/8));
 	if (amd_iommu_pd_alloc_bitmap == NULL)
 		goto free;
-
-	/* init the device table */
-	init_device_table();
 
 	/*
 	 * let all alias entries point to itself
@@ -1493,6 +1493,12 @@ static int __init amd_iommu_init(void)
 
 	if (ret)
 		goto free_disable;
+
+	/* init the device table */
+	init_device_table();
+
+	for_each_iommu(iommu)
+		iommu_flush_all_caches(iommu);
 
 	amd_iommu_init_api();
 

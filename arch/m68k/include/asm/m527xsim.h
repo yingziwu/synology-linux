@@ -231,6 +231,7 @@
 #define MCFGPIO_PCLRR_USBL	(MCF_IPSBAR + 0x10006B)
 #define MCFGPIO_PCLRR_UARTH	(MCF_IPSBAR + 0x10006C)
 
+
 /*
  * Generic GPIO support
  */

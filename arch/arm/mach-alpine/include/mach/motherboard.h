@@ -35,6 +35,7 @@
 #define SLR_NB_CPU_RESUME_ADDR(cpu)	\
 	(SLR_NB_CPUN_RESUME_ADDR + ( (cpu) * SLR_NB_CPUN_CFG_STAT_SIZE) )
 
+
 /* Common peripherals relative to LAD. */
 #define SLR_LAD_PER_OFFSET(x)	(x << 12)
 #define SLR_SYSREGS		(SLR_SB_LAD + SLR_LAD_PER_OFFSET(1))
@@ -58,6 +59,7 @@
 
 #define SLR_TIMER2		(SLR_TIMER23 + 0x000)
 #define SLR_TIMER3		(SLR_TIMER23 + 0x020)
+
 
 /*
  * Interrupts.  Those in {} are for AMBA devices

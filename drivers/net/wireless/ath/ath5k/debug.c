@@ -70,11 +70,13 @@
 static unsigned int ath5k_debug;
 module_param_named(debug, ath5k_debug, uint, 0);
 
+
 static int ath5k_debugfs_open(struct inode *inode, struct file *file)
 {
 	file->private_data = inode->i_private;
 	return 0;
 }
+
 
 /* debugfs: registers */
 
@@ -189,6 +191,7 @@ static const struct file_operations fops_registers = {
 	.owner = THIS_MODULE,
 };
 
+
 /* debugfs: beacons */
 
 static ssize_t read_file_beacon(struct file *file, char __user *user_buf,
@@ -267,6 +270,7 @@ static const struct file_operations fops_beacon = {
 	.llseek = default_llseek,
 };
 
+
 /* debugfs: reset */
 
 static ssize_t write_file_reset(struct file *file,
@@ -285,6 +289,7 @@ static const struct file_operations fops_reset = {
 	.owner = THIS_MODULE,
 	.llseek = noop_llseek,
 };
+
 
 /* debugfs: debug level */
 
@@ -364,6 +369,7 @@ static const struct file_operations fops_debug = {
 	.owner = THIS_MODULE,
 	.llseek = default_llseek,
 };
+
 
 /* debugfs: antenna */
 
@@ -530,6 +536,7 @@ static const struct file_operations fops_misc = {
 	.owner = THIS_MODULE,
 };
 
+
 /* debugfs: frameerrors */
 
 static ssize_t read_file_frameerrors(struct file *file, char __user *user_buf,
@@ -644,6 +651,7 @@ static const struct file_operations fops_frameerrors = {
 	.owner = THIS_MODULE,
 	.llseek = default_llseek,
 };
+
 
 /* debugfs: ani */
 
@@ -807,6 +815,7 @@ static const struct file_operations fops_ani = {
 	.llseek = default_llseek,
 };
 
+
 /* debugfs: queues etc */
 
 static ssize_t read_file_queue(struct file *file, char __user *user_buf,
@@ -868,6 +877,7 @@ static ssize_t write_file_queue(struct file *file,
 	return count;
 }
 
+
 static const struct file_operations fops_queue = {
 	.read = read_file_queue,
 	.write = write_file_queue,
@@ -875,6 +885,7 @@ static const struct file_operations fops_queue = {
 	.owner = THIS_MODULE,
 	.llseek = default_llseek,
 };
+
 
 void
 ath5k_debug_init_device(struct ath5k_hw *ah)

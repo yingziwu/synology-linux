@@ -253,6 +253,8 @@ static int conexant_capture_pcm_cleanup(struct hda_pcm_stream *hinfo,
 	return 0;
 }
 
+
+
 static const struct hda_pcm_stream conexant_pcm_analog_playback = {
 	.substreams = 1,
 	.channels_min = 2,
@@ -275,6 +277,7 @@ static const struct hda_pcm_stream conexant_pcm_analog_capture = {
 		.cleanup = conexant_capture_pcm_cleanup
 	},
 };
+
 
 static const struct hda_pcm_stream conexant_pcm_digital_playback = {
 	.substreams = 1,
@@ -658,6 +661,8 @@ static int cxt_eapd_put(struct snd_kcontrol *kcontrol,
 	  .put = cxt_eapd_put, \
 	  .private_value = nid | (mask<<16) }
 
+
+
 static int conexant_ch_mode_info(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_info *uinfo)
 {
@@ -792,6 +797,7 @@ static void cxt5045_hp_automic(struct hda_codec *codec)
 	else
 		snd_hda_sequence_write(codec, mic_jack_off);
 }
+
 
 /* mute internal speaker if HP is plugged */
 static void cxt5045_hp_automute(struct hda_codec *codec)
@@ -1066,6 +1072,7 @@ static const struct hda_verb cxt5045_test_init_verbs[] = {
 };
 #endif
 
+
 /* initialize jack-sensing, too */
 static int cxt5045_init(struct hda_codec *codec)
 {
@@ -1073,6 +1080,7 @@ static int cxt5045_init(struct hda_codec *codec)
 	cxt5045_hp_automute(codec);
 	return 0;
 }
+
 
 enum {
 	CXT5045_LAPTOP_HPSENSE,
@@ -1228,10 +1236,11 @@ static int patch_cxt5045(struct hda_codec *codec)
 	}
 
 	if (spec->beep_amp)
-		snd_hda_attach_beep_device(codec, spec->beep_amp);
+		snd_hda_attach_beep_device(codec, get_amp_nid_(spec->beep_amp));
 
 	return 0;
 }
+
 
 /* Conexant 5047 specific */
 #define CXT5047_SPDIF_OUT	0x11
@@ -1515,6 +1524,7 @@ static const struct hda_verb cxt5047_test_init_verbs[] = {
 };
 #endif
 
+
 /* initialize jack-sensing, too */
 static int cxt5047_hp_init(struct hda_codec *codec)
 {
@@ -1522,6 +1532,7 @@ static int cxt5047_hp_init(struct hda_codec *codec)
 	cxt5047_hp_automute(codec);
 	return 0;
 }
+
 
 enum {
 	CXT5047_LAPTOP,		/* Laptops w/o EAPD support */
@@ -1912,6 +1923,7 @@ static int cxt5051_init(struct hda_codec *codec)
 	return 0;
 }
 
+
 enum {
 	CXT5051_LAPTOP,	 /* Laptops w/ EAPD support */
 	CXT5051_HP,	/* no docking */
@@ -2015,7 +2027,7 @@ static int patch_cxt5051(struct hda_codec *codec)
 	}
 
 	if (spec->beep_amp)
-		snd_hda_attach_beep_device(codec, spec->beep_amp);
+		snd_hda_attach_beep_device(codec, get_amp_nid_(spec->beep_amp));
 
 	conexant_init_jacks(codec);
 	if (spec->auto_mic & AUTO_MIC_PORTB)
@@ -2243,6 +2255,7 @@ static void cxt5066_ideapad_automic(struct hda_codec *codec)
 	}
 }
 
+
 /* toggle input of built-in digital mic and mic jack appropriately */
 static void cxt5066_asus_automic(struct hda_codec *codec)
 {
@@ -2254,6 +2267,7 @@ static void cxt5066_asus_automic(struct hda_codec *codec)
 			    present ? 1 : 0);
 }
 
+
 /* toggle input of built-in digital mic and mic jack appropriately */
 static void cxt5066_hp_laptop_automic(struct hda_codec *codec)
 {
@@ -2264,6 +2278,7 @@ static void cxt5066_hp_laptop_automic(struct hda_codec *codec)
 	snd_hda_codec_write(codec, 0x17, 0, AC_VERB_SET_CONNECT_SEL,
 			    present ? 1 : 3);
 }
+
 
 /* toggle input of built-in digital mic and mic jack appropriately
    order is: external mic -> dock mic -> interal mic */
@@ -2375,6 +2390,7 @@ static void cxt5066_unsol_event(struct hda_codec *codec, unsigned int res)
 		break;
 	}
 }
+
 
 static const struct hda_input_mux cxt5066_analog_mic_boost = {
 	.num_items = 5,
@@ -2965,6 +2981,7 @@ static const struct hda_verb cxt5066_init_verbs_portd_lo[] = {
 	{ } /* end */
 };
 
+
 static const struct hda_verb cxt5066_init_verbs_hp_laptop[] = {
 	{0x14, AC_VERB_SET_CONNECT_SEL, 0x0},
 	{0x19, AC_VERB_SET_UNSOLICITED_ENABLE, AC_USRSP_EN | CONEXANT_HP_EVENT},
@@ -3208,7 +3225,7 @@ static int patch_cxt5066(struct hda_codec *codec)
 	}
 
 	if (spec->beep_amp)
-		snd_hda_attach_beep_device(codec, spec->beep_amp);
+		snd_hda_attach_beep_device(codec, get_amp_nid_(spec->beep_amp));
 
 	return 0;
 }
@@ -4393,6 +4410,7 @@ static int cx_auto_search_adcs(struct hda_codec *codec)
 	return 0;
 }
 
+
 static const struct hda_codec_ops cx_auto_patch_ops = {
 	.build_controls = cx_auto_build_controls,
 	.build_pcms = conexant_build_pcms,
@@ -4477,8 +4495,10 @@ static const struct snd_pci_quirk cxt5066_fixups[] = {
 	SND_PCI_QUIRK(0x17aa, 0x215f, "Lenovo T510", CXT_PINCFG_LENOVO_TP410),
 	SND_PCI_QUIRK(0x17aa, 0x21ce, "Lenovo T420", CXT_PINCFG_LENOVO_TP410),
 	SND_PCI_QUIRK(0x17aa, 0x21cf, "Lenovo T520", CXT_PINCFG_LENOVO_TP410),
+	SND_PCI_QUIRK(0x17aa, 0x390b, "Lenovo G50-80", CXT_FIXUP_STEREO_DMIC),
 	SND_PCI_QUIRK(0x17aa, 0x3975, "Lenovo U300s", CXT_FIXUP_STEREO_DMIC),
 	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_FIXUP_STEREO_DMIC),
+	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo G50-70", CXT_FIXUP_STEREO_DMIC),
 	SND_PCI_QUIRK(0x17aa, 0x397b, "Lenovo S205", CXT_FIXUP_STEREO_DMIC),
 	{}
 };
@@ -4538,7 +4558,7 @@ static int patch_conexant_auto(struct hda_codec *codec)
 	spec->capture_stream = &cx_auto_pcm_analog_capture;
 	codec->patch_ops = cx_auto_patch_ops;
 	if (spec->beep_amp)
-		snd_hda_attach_beep_device(codec, spec->beep_amp);
+		snd_hda_attach_beep_device(codec, get_amp_nid_(spec->beep_amp));
 	return 0;
 }
 
@@ -4580,6 +4600,14 @@ static const struct hda_codec_preset snd_hda_preset_conexant[] = {
 	  .patch = patch_conexant_auto },
 	{ .id = 0x14f150b9, .name = "CX20665",
 	  .patch = patch_conexant_auto },
+	{ .id = 0x14f150f1, .name = "CX20721",
+	  .patch = patch_conexant_auto },
+	{ .id = 0x14f150f2, .name = "CX20722",
+	  .patch = patch_conexant_auto },
+	{ .id = 0x14f150f3, .name = "CX20723",
+	  .patch = patch_conexant_auto },
+	{ .id = 0x14f150f4, .name = "CX20724",
+	  .patch = patch_conexant_auto },
 	{ .id = 0x14f1510f, .name = "CX20751/2",
 	  .patch = patch_conexant_auto },
 	{ .id = 0x14f15110, .name = "CX20751/2",
@@ -4591,6 +4619,8 @@ static const struct hda_codec_preset snd_hda_preset_conexant[] = {
 	{ .id = 0x14f15114, .name = "CX20756",
 	  .patch = patch_conexant_auto },
 	{ .id = 0x14f15115, .name = "CX20757",
+	  .patch = patch_conexant_auto },
+	{ .id = 0x14f151d7, .name = "CX20952",
 	  .patch = patch_conexant_auto },
 	{} /* terminator */
 };
@@ -4612,12 +4642,17 @@ MODULE_ALIAS("snd-hda-codec-id:14f150ab");
 MODULE_ALIAS("snd-hda-codec-id:14f150ac");
 MODULE_ALIAS("snd-hda-codec-id:14f150b8");
 MODULE_ALIAS("snd-hda-codec-id:14f150b9");
+MODULE_ALIAS("snd-hda-codec-id:14f150f1");
+MODULE_ALIAS("snd-hda-codec-id:14f150f2");
+MODULE_ALIAS("snd-hda-codec-id:14f150f3");
+MODULE_ALIAS("snd-hda-codec-id:14f150f4");
 MODULE_ALIAS("snd-hda-codec-id:14f1510f");
 MODULE_ALIAS("snd-hda-codec-id:14f15110");
 MODULE_ALIAS("snd-hda-codec-id:14f15111");
 MODULE_ALIAS("snd-hda-codec-id:14f15113");
 MODULE_ALIAS("snd-hda-codec-id:14f15114");
 MODULE_ALIAS("snd-hda-codec-id:14f15115");
+MODULE_ALIAS("snd-hda-codec-id:14f151d7");
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Conexant HD-audio codec");

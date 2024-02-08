@@ -59,6 +59,7 @@ disclaimer.
 #include "mv_eth_tool.h"
 #include "cpu/mvCpuCntrs.h"
 
+
 #ifdef CONFIG_MV_ETH_NFP_EXT
 int                mv_ctrl_nfp_ext_port[NFP_EXT_NUM];
 int                mv_ctrl_nfp_ext_en[NFP_EXT_NUM];
@@ -176,6 +177,7 @@ int mv_eth_nfp_ext_ctrl(struct net_device *dev, int en)
 }
 EXPORT_SYMBOL(mv_eth_nfp_ext_ctrl);
 #endif /* CONFIG_MV_ETH_NFP_EXT */
+
 
 static inline int mv_eth_frag_build_hdr_desc(struct eth_port *priv, struct tx_queue *txq_ctrl,
 					MV_U8 *pktData, int mac_hdr_len, int ip_hdr_len,
@@ -336,6 +338,7 @@ outNoTxDesc:
 
 	return 0;
 }
+
 
 static MV_STATUS mv_eth_nfp_tx(struct eth_pbuf *pkt, MV_NFP_RESULT *res)
 {
@@ -725,6 +728,7 @@ static int mv_eth_nfp_ext_tx(struct eth_port *pp, struct eth_pbuf *pkt, MV_NFP_R
 	return dev->netdev_ops->ndo_start_xmit(skb, dev);
 }
 
+
 static MV_STATUS mv_eth_nfp_ext_rxd_from_info(MV_EXT_PKT_INFO *pktInfo, struct neta_rx_desc *rxd)
 {
 	if (pktInfo->flags & MV_EXT_VLAN_EXIST_MASK)
@@ -744,6 +748,7 @@ static MV_STATUS mv_eth_nfp_ext_rxd_from_info(MV_EXT_PKT_INFO *pktInfo, struct n
 
 	if (pktInfo->flags & MV_EXT_IP_FRAG_MASK)
 		NETA_RX_IP_SET_FRAG(rxd);
+
 
 	if (!pktInfo->l3_offset || !pktInfo->l3_hdrlen)
 		return -1;
@@ -775,6 +780,7 @@ static MV_STATUS mv_eth_nfp_ext_rxd_from_info(MV_EXT_PKT_INFO *pktInfo, struct n
 
 	return MV_OK;
 }
+
 
 static MV_STATUS mv_eth_nfp_ext_rxd_from_ipv4(int ofs, struct iphdr *iph, struct sk_buff *skb, struct neta_rx_desc *rxd)
 {
@@ -874,6 +880,7 @@ static MV_STATUS mv_eth_nfp_ext_rxd_from_ipv6(int ofs, struct sk_buff *skb, stru
 	}
 	return MV_OK;
 }
+
 
 static MV_STATUS mv_eth_nfp_ext_rxd_build(struct sk_buff *skb, MV_EXT_PKT_INFO *pktInfo, struct neta_rx_desc *rxd)
 {
@@ -981,6 +988,7 @@ void mv_eth_nfp_ext_pkt_info_print(MV_EXT_PKT_INFO *pktInfo)
 
 	printk(KERN_INFO "\n");
 }
+
 
 /* Return values:   0 - packet successfully processed by NFP (transmitted or dropped) */
 /*                  1 - packet can't be processed by NFP  */

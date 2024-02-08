@@ -109,6 +109,7 @@ static long _rtl92se_signal_scale_mapping(struct ieee80211_hw *hw,
 	return retsig;
 }
 
+
 static void _rtl92se_query_rxphystatus(struct ieee80211_hw *hw,
 				       struct rtl_stats *pstats, u8 *pdesc,
 				       struct rx_fwinfo *p_drvinfo,
@@ -581,7 +582,7 @@ bool rtl92se_rx_query_desc(struct ieee80211_hw *hw, struct rtl_stats *stats,
 	}
 
 	/*rx_status->qual = stats->signal; */
-	rx_status->signal = stats->rssi + 10;
+	rx_status->signal = stats->recvsignalpower + 10;
 	/*rx_status->noise = -stats->noise; */
 
 	return true;
@@ -674,6 +675,7 @@ void rtl92se_tx_fill_desc(struct ieee80211_hw *hw,
 		       DESC92_RATE54M) ?
 		       (ptcb_desc->rts_use_shortpreamble ? 1 : 0)
 		       : (ptcb_desc->rts_use_shortgi ? 1 : 0)));
+
 
 		/* Set Bandwidth and sub-channel settings. */
 		if (bw_40) {

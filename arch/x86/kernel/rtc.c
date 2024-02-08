@@ -201,6 +201,7 @@ unsigned long long native_read_tsc(void)
 }
 EXPORT_SYMBOL(native_read_tsc);
 
+
 static struct resource rtc_resources[] = {
 	[0] = {
 		.start	= RTC_PORT(0),

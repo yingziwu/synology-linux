@@ -108,6 +108,7 @@ static long pps_jitcnt;		/* jitter limit exceeded */
 static long pps_stbcnt;		/* stability limit exceeded */
 static long pps_errcnt;		/* calibration errors */
 
+
 /* PPS kernel consumer compensates the whole phase error immediately.
  * Otherwise, reduce the offset by a fixed factor times the time constant.
  */
@@ -401,6 +402,7 @@ int second_overflow(unsigned long secs)
 		break;
 	}
 
+
 	/* Bump the maxerror field */
 	time_maxerror += MAXFREQ / NSEC_PER_USEC;
 	if (time_maxerror > NTP_PHASE_LIMIT) {
@@ -498,6 +500,7 @@ static void notify_cmos_timer(void)
 #else
 static inline void notify_cmos_timer(void) { }
 #endif
+
 
 /*
  * Propagate a new txc->status value into the NTP state:
@@ -602,6 +605,17 @@ int do_adjtimex(struct timex *txc)
 		if (txc->modes & ADJ_TICK &&
 		    (txc->tick <  900000/USER_HZ ||
 		     txc->tick > 1100000/USER_HZ))
+			return -EINVAL;
+	}
+
+	/*
+	 * Check for potential multiplication overflows that can
+	 * only happen on 64-bit systems:
+	 */
+	if ((txc->modes & ADJ_FREQUENCY) && (BITS_PER_LONG == 64)) {
+		if (LLONG_MIN / PPM_SCALE > txc->freq)
+			return -EINVAL;
+		if (LLONG_MAX / PPM_SCALE < txc->freq)
 			return -EINVAL;
 	}
 

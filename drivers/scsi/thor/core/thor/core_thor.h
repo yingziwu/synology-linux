@@ -129,6 +129,7 @@ struct _Domain_Device {
 	MV_U32 Reset_Count;				/* for error handling. If reset too many times, set down this device. */
 	MV_U8 Reserved2[4];
 
+
 	MV_U8 Serial_Number[20];
 	MV_U8 Model_Number[40];
 	MV_U8 Firmware_Revision[8];
@@ -287,6 +288,7 @@ typedef struct _MV_PATA_Command_Header
 #endif /* __MV_BIG_ENDIAN_BITFIELD__ */
 	MV_U16	PRD_Entry_Count;
 
+
 	MV_U32	Reserved0;
 	MV_U32	Table_Address;
 	MV_U32	Table_Address_High;
@@ -368,6 +370,7 @@ typedef struct _MV_Command_Table
 #define	PORT_SLAVE_TF1		0x3c
 #define	PORT_SLAVE_TF2		0x40
 #define	PORT_INTERNAL_STATE_MACHINE	0x48
+
 
 #ifdef AHCI
 	/* PORT_IRQ_{STAT,MASK} bits */
@@ -476,6 +479,7 @@ typedef struct _MV_Command_Table
 #define	PORT_TF_STATUS_BSY	(1L<<7)	/* Task file status: BSY */
 #define	PORT_TF_STATUS_DRQ 	(1L<<3)	/* Task file status: DRQ */
 #define	PORT_TF_STATUS_ERR 	(1L<<0)	/* Task file status: ERR */
+
 
 typedef enum _MV_QUEUE_COMMAND_RESULT
 {

@@ -349,6 +349,7 @@ out:
 static DEVICE_ATTR(sniffer, 0644, qeth_l3_dev_sniffer_show,
 		qeth_l3_dev_sniffer_store);
 
+
 static ssize_t qeth_l3_dev_hsuid_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -451,6 +452,7 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
 
 static DEVICE_ATTR(hsuid, 0644, qeth_l3_dev_hsuid_show,
 		   qeth_l3_dev_hsuid_store);
+
 
 static struct attribute *qeth_l3_device_attrs[] = {
 	&dev_attr_route4.attr,
@@ -748,6 +750,7 @@ static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
 static QETH_DEVICE_ATTR(ipato_invert6, invert6, 0644,
 			qeth_l3_dev_ipato_invert6_show,
 			qeth_l3_dev_ipato_invert6_store);
+
 
 static ssize_t qeth_l3_dev_ipato_add6_show(struct device *dev,
 				struct device_attribute *attr, char *buf)

@@ -262,6 +262,7 @@ _K_enter_trap0:
 _K_enter_machcheck:
 	vm_event_entry(do_machcheck)
 
+
 	.globl ret_from_fork
 ret_from_fork:
 	call schedule_tail

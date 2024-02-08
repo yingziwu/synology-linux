@@ -30,6 +30,7 @@
 #include "drbd_int.h"
 #include "drbd_req.h"
 
+
 /* Update disk stats at start of I/O request */
 static void _drbd_start_io_acct(struct drbd_conf *mdev, struct drbd_request *req, struct bio *bio)
 {
@@ -902,6 +903,7 @@ allocate_barrier:
 		goto allocate_barrier;
 	}
 
+
 	/* Update disk stats */
 	_drbd_start_io_acct(mdev, req, bio);
 
@@ -1182,6 +1184,7 @@ int drbd_merge_bvec(struct request_queue *q, struct bvec_merge_data *bvm, struct
 		struct request_queue * const b =
 			mdev->ldev->backing_bdev->bd_disk->queue;
 		if (b->merge_bvec_fn) {
+			bvm->bi_bdev = mdev->ldev->backing_bdev;
 			backing_limit = b->merge_bvec_fn(b, bvm, bvec);
 			limit = min(limit, backing_limit);
 		}

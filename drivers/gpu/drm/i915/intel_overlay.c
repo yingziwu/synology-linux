@@ -1529,6 +1529,7 @@ static void intel_overlay_unmap_regs_atomic(struct intel_overlay *overlay,
 		io_mapping_unmap_atomic(regs);
 }
 
+
 struct intel_overlay_error_state *
 intel_overlay_capture_error_state(struct drm_device *dev)
 {

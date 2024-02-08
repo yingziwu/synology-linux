@@ -243,6 +243,7 @@ init_error:
 	return -ENOMEM;
 }
 
+
 /*---PHY CONTROL AND CONFIGURATION-----------------------------------------*/
 
 /*
@@ -1489,6 +1490,7 @@ static int __devinit bfin_mac_probe(struct platform_device *pdev)
 		goto out_err_probe_mac;
 	}
 
+
 	/*
 	 * Is it valid? (Did bootloader initialize it?)
 	 * Grab the MAC from the board somehow
@@ -1762,3 +1764,4 @@ static void __exit bfin_mac_cleanup(void)
 }
 
 module_exit(bfin_mac_cleanup);
+

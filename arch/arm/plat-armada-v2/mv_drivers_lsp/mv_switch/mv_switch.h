@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -63,6 +64,7 @@ disclaimer.
 #define MV_SWITCH_PIRL_RESOURCE_BROADCAST    1
 #define MV_SWITCH_PIRL_RESOURCE_MULTICAST    2
 
+
 #ifdef CONFIG_MV_INCLUDE_SWITCH
 /*TPM start*/
 #define SW_IF_NULL(ptr) { \
@@ -84,6 +86,7 @@ enum sw_mirror_mode_t {
 	MV_SWITCH_MIRROR_EGRESS,
 	MV_SWITCH_MIRROR_BOTH
 };
+
 
 /* operations requested by switch device from mux device */
 struct mux_device_ops {

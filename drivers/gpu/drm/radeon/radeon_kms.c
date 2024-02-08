@@ -39,8 +39,12 @@ int radeon_driver_unload_kms(struct drm_device *dev)
 
 	if (rdev == NULL)
 		return 0;
+	if (rdev->rmmio == NULL)
+		goto done_free;
 	radeon_modeset_fini(rdev);
 	radeon_device_fini(rdev);
+
+done_free:
 	kfree(rdev);
 	dev->dev_private = NULL;
 	return 0;
@@ -261,6 +265,7 @@ int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file *filp)
 	return 0;
 }
 
+
 /*
  * Outdated mess for old drm with Xorg being in charge (void function now).
  */
@@ -268,6 +273,7 @@ int radeon_driver_firstopen_kms(struct drm_device *dev)
 {
 	return 0;
 }
+
 
 void radeon_driver_lastclose_kms(struct drm_device *dev)
 {
@@ -406,6 +412,7 @@ KMS_INVALID_IOCTL(radeon_irq_wait_kms)
 KMS_INVALID_IOCTL(radeon_cp_setparam_kms)
 KMS_INVALID_IOCTL(radeon_surface_alloc_kms)
 KMS_INVALID_IOCTL(radeon_surface_free_kms)
+
 
 struct drm_ioctl_desc radeon_ioctls_kms[] = {
 	DRM_IOCTL_DEF_DRV(RADEON_CP_INIT, radeon_cp_init_kms, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),

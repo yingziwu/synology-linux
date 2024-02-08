@@ -1552,6 +1552,7 @@ void mpc_action_send_discontact(unsigned long thischan)
 	return;
 }
 
+
 /*
  * helper function of mpc FSM
  * CTCM_PROTO_MPC only
@@ -2026,6 +2027,7 @@ static void mpc_action_rcvd_xid0(fsm_instance *fsm, int event, void *arg)
 
 }
 
+
 /*
  * MPC Group Station FSM action
  * CTCM_PROTO_MPC only
@@ -2174,3 +2176,4 @@ static int mpc_send_qllc_discontact(struct net_device *dev)
 	return 0;
 }
 /* --- This is the END my friend --- */
+

@@ -18,6 +18,7 @@
 
 #define SI3050REGS_H
 
+
 enum REGISTERS {
 CTRL1						=	1	,	/*	Control    */
 CTRL2						=	2	,	/*	Control  */
@@ -80,5 +81,6 @@ RESVD58					 	=	58	,	/*	Reserved 58  */
 SPRK_QNCH_CTRL				=	59		/*	Spark Quenching Control  */
 
 };
+
 
 #endif

@@ -42,6 +42,7 @@ enum {
 	PWRDM_STATE_PREV,
 };
 
+
 /* pwrdm_list contains all registered struct powerdomains */
 static LIST_HEAD(pwrdm_list);
 

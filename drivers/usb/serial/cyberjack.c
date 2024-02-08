@@ -27,6 +27,7 @@
  *  Homepage: http://www.reiner-sct.de/support/treiber_cyberjack.php#linux
  */
 
+
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -50,6 +51,7 @@ static int debug;
 #define DRIVER_VERSION "v1.01"
 #define DRIVER_AUTHOR "Matthias Bruestle"
 #define DRIVER_DESC "REINER SCT cyberJack pinpad/e-com USB Chipcard Reader Driver"
+
 
 #define CYBERJACK_VENDOR_ID	0x0C4B
 #define CYBERJACK_PRODUCT_ID	0x0100
@@ -119,6 +121,9 @@ static int cyberjack_startup(struct usb_serial *serial)
 	int i;
 
 	dbg("%s", __func__);
+
+	if (serial->num_bulk_out < serial->num_ports)
+		return -ENODEV;
 
 	/* allocate the private data structure */
 	priv = kmalloc(sizeof(struct cyberjack_private), GFP_KERNEL);

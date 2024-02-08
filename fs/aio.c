@@ -173,6 +173,7 @@ static int aio_setup_ring(struct kioctx *ctx)
 	return 0;
 }
 
+
 /* aio_ring_event: returns a pointer to the event at the given index from
  * kmap_atomic(, km).  Release the pointer with put_aio_ring_event();
  */
@@ -925,6 +926,7 @@ static void aio_kick_handler(struct work_struct *work)
 		queue_delayed_work(aio_wq, &ctx->wq, 0);
 }
 
+
 /*
  * Called by kick_iocb to queue the kiocb for retry
  * and if required activate the aio work queue to process
@@ -1100,6 +1102,13 @@ static int aio_read_evt(struct kioctx *ioctx, struct io_event *ent)
 	head = ring->head % info->nr;
 	if (head != ring->tail) {
 		struct io_event *evp = aio_ring_event(info, head, KM_USER1);
+
+		/*
+		 * Ensure that once we've read the current tail pointer, that
+		 * we also see the events that were stored up to the tail.
+		 */
+		smp_rmb();
+
 		*ent = *evp;
 		head = (head + 1) % info->nr;
 		smp_mb(); /* finish reading the event before updatng the head */
@@ -1110,9 +1119,9 @@ static int aio_read_evt(struct kioctx *ioctx, struct io_event *ent)
 	spin_unlock(&info->ring_lock);
 
 out:
-	kunmap_atomic(ring, KM_USER0);
 	dprintk("leaving aio_read_evt: %d  h%lu t%lu\n", ret,
 		 (unsigned long)ring->head, (unsigned long)ring->tail);
+	kunmap_atomic(ring, KM_USER0);
 	return ret;
 }
 

@@ -153,6 +153,7 @@ static int sis_66_cable_detect(struct ata_port *ap)
 	return ATA_CBL_PATA80;
 }
 
+
 /**
  *	sis_pre_reset - probe begin
  *	@link: ATA link
@@ -179,6 +180,7 @@ static int sis_pre_reset(struct ata_link *link, unsigned long deadline)
 	pci_write_config_byte(pdev, 0x4B, 0);
 	return ata_sff_prereset(link, deadline);
 }
+
 
 /**
  *	sis_set_fifo - Set RWP fifo bits for this device
@@ -922,3 +924,4 @@ MODULE_DESCRIPTION("SCSI low-level driver for SiS ATA");
 MODULE_LICENSE("GPL");
 MODULE_DEVICE_TABLE(pci, sis_pci_tbl);
 MODULE_VERSION(DRV_VERSION);
+

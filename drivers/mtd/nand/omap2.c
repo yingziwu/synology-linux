@@ -108,6 +108,7 @@ static struct nand_bbt_descr bb_descrip_flashbased = {
 	.pattern = scan_ff_pattern,
 };
 
+
 struct omap_nand_info {
 	struct nand_hw_control		controller;
 	struct omap_nand_platform_data	*pdata;

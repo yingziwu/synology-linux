@@ -202,6 +202,13 @@ cat << EOF
 #define __IGNORE_SYNOCaselessStat64
 #define __IGNORE_SYNOCaselessLStat64
 
+/* syno_stat and syno_caseless_stat for 32bit application version*/
+#define __IGNORE_syno_stat64
+#define __IGNORE_syno_fstat64
+#define __IGNORE_syno_lstat64
+#define __IGNORE_syno_caseless_stat64
+#define __IGNORE_syno_caseless_lstat64
+
 EOF
 }
 

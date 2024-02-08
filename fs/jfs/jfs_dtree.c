@@ -600,6 +600,7 @@ int dtSearch(struct inode *ip, struct component_name * key, ino_t * data,
 		goto dtSearch_Exit2;
 	}
 
+
 	/* uppercase search key for c-i directory */
 	UniStrcpy(ciKey.name, key->name);
 	ciKey.namlen = key->namlen;
@@ -653,6 +654,7 @@ int dtSearch(struct inode *ip, struct component_name * key, ino_t * data,
 				/* router key is in uppercase */
 
 				cmp = dtCompare(&ciKey, p, stbl[index]);
+
 
 			}
 			if (cmp == 0) {
@@ -805,6 +807,7 @@ int dtSearch(struct inode *ip, struct component_name * key, ino_t * data,
 	return rc;
 }
 
+
 /*
  *	dtInsert()
  *
@@ -911,6 +914,7 @@ int dtInsert(tid_t tid, struct inode *ip,
 
 	return 0;
 }
+
 
 /*
  *	dtSplitUp()
@@ -1053,6 +1057,7 @@ static int dtSplitUp(tid_t tid,
 			}
 		} else if (!DO_INDEX(ip))
 			ip->i_size = lengthPXD(pxd) << sbi->l2bsize;
+
 
 	      extendOut:
 		DT_PUTPAGE(smp);
@@ -1309,6 +1314,7 @@ static int dtSplitUp(tid_t tid,
 
 	return rc;
 }
+
 
 /*
  *	dtSplitPage()
@@ -1621,6 +1627,7 @@ static int dtSplitPage(tid_t tid, struct inode *ip, struct dtsplit * split,
 	return rc;
 }
 
+
 /*
  *	dtExtendPage()
  *
@@ -1846,6 +1853,7 @@ static int dtExtendPage(tid_t tid,
 	return 0;
 }
 
+
 /*
  *	dtSplitRoot()
  *
@@ -2061,6 +2069,7 @@ static int dtSplitRoot(tid_t tid,
 	return 0;
 }
 
+
 /*
  *	dtDelete()
  *
@@ -2213,6 +2222,7 @@ int dtDelete(tid_t tid,
 
 	return rc;
 }
+
 
 /*
  *	dtDeleteUp()
@@ -2807,6 +2817,7 @@ static int dtRelink(tid_t tid, struct inode *ip, dtpage_t * p)
 	return 0;
 }
 
+
 /*
  *	dtInitRoot()
  *
@@ -3036,6 +3047,14 @@ int jfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 
 		dir_index = (u32) filp->f_pos;
 
+		/*
+		 * NFSv4 reserves cookies 1 and 2 for . and .. so the value
+		 * we return to the vfs is one greater than the one we use
+		 * internally.
+		 */
+		if (dir_index)
+			dir_index--;
+
 		if (dir_index > 1) {
 			struct dir_table_slot dirtab_slot;
 
@@ -3075,7 +3094,7 @@ int jfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 			if (p->header.flag & BT_INTERNAL) {
 				jfs_err("jfs_readdir: bad index table");
 				DT_PUTPAGE(mp);
-				filp->f_pos = -1;
+				filp->f_pos = DIREND;
 				return 0;
 			}
 		} else {
@@ -3083,16 +3102,16 @@ int jfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 				/*
 				 * self "."
 				 */
-				filp->f_pos = 0;
-				if (filldir(dirent, ".", 1, 0, ip->i_ino,
+				filp->f_pos = 1;
+				if (filldir(dirent, ".", 1, 1, ip->i_ino,
 					    DT_DIR))
 					return 0;
 			}
 			/*
 			 * parent ".."
 			 */
-			filp->f_pos = 1;
-			if (filldir(dirent, "..", 2, 1, PARENT(ip), DT_DIR))
+			filp->f_pos = 2;
+			if (filldir(dirent, "..", 2, 2, PARENT(ip), DT_DIR))
 				return 0;
 
 			/*
@@ -3112,24 +3131,25 @@ int jfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 		/*
 		 * Legacy filesystem - OS/2 & Linux JFS < 0.3.6
 		 *
-		 * pn = index = 0:	First entry "."
-		 * pn = 0; index = 1:	Second entry ".."
+		 * pn = 0; index = 1:	First entry "."
+		 * pn = 0; index = 2:	Second entry ".."
 		 * pn > 0:		Real entries, pn=1 -> leftmost page
 		 * pn = index = -1:	No more entries
 		 */
 		dtpos = filp->f_pos;
-		if (dtpos == 0) {
+		if (dtpos < 2) {
 			/* build "." entry */
 
+			filp->f_pos = 1;
 			if (filldir(dirent, ".", 1, filp->f_pos, ip->i_ino,
 				    DT_DIR))
 				return 0;
-			dtoffset->index = 1;
+			dtoffset->index = 2;
 			filp->f_pos = dtpos;
 		}
 
 		if (dtoffset->pn == 0) {
-			if (dtoffset->index == 1) {
+			if (dtoffset->index == 2) {
 				/* build ".." entry */
 
 				if (filldir(dirent, "..", 2, filp->f_pos,
@@ -3222,6 +3242,12 @@ int jfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 					}
 					jfs_dirent->position = unique_pos++;
 				}
+				/*
+				 * We add 1 to the index because we may
+				 * use a value of 2 internally, and NFSv4
+				 * doesn't like that.
+				 */
+				jfs_dirent->position++;
 			} else {
 				jfs_dirent->position = dtpos;
 				len = min(d_namleft, DTLHDRDATALEN_LEGACY);
@@ -3315,6 +3341,7 @@ skip_one:
 	return rc;
 }
 
+
 /*
  *	dtReadFirst()
  *
@@ -3380,6 +3407,7 @@ static int dtReadFirst(struct inode *ip, struct btstack * btstack)
 		DT_PUTPAGE(mp);
 	}
 }
+
 
 /*
  *	dtReadNext()
@@ -3556,6 +3584,7 @@ static int dtReadNext(struct inode *ip, loff_t * offset,
 	return 0;
 }
 
+
 /*
  *	dtCompare()
  *
@@ -3628,6 +3657,9 @@ static int dtCompare(struct component_name * key,	/* search key */
 
 	return (klen - namlen);
 }
+
+
+
 
 /*
  *	ciCompare()
@@ -3736,6 +3768,7 @@ static int ciCompare(struct component_name * key,	/* search key */
 	return (klen - namlen);
 }
 
+
 /*
  *	ciGetLeafPrefixKey()
  *
@@ -3776,6 +3809,7 @@ static int ciGetLeafPrefixKey(dtpage_t * lp, int li, dtpage_t * rp,
 	dtGetKey(rp, ri, &rkey, flag);
 	rkey.name[rkey.namlen] = 0;
 
+
 	if ((flag & JFS_OS2) == JFS_OS2)
 		ciToUpper(&rkey);
 
@@ -3804,6 +3838,8 @@ free_names:
 	kfree(rkey.name);
 	return 0;
 }
+
+
 
 /*
  *	dtGetKey()
@@ -3864,6 +3900,7 @@ static void dtGetKey(dtpage_t * p, int i,	/* entry index */
 		si = t->next;
 	}
 }
+
 
 /*
  *	dtInsertEntry()
@@ -4021,6 +4058,7 @@ static void dtInsertEntry(dtpage_t * p, int index, struct component_name * key,
 	/* advance next available entry index of stbl */
 	++p->header.nextindex;
 }
+
 
 /*
  *	dtMoveEntry()
@@ -4219,6 +4257,7 @@ static void dtMoveEntry(dtpage_t * sp, int si, dtpage_t * dp,
 	dp->header.freecnt -= nd;
 }
 
+
 /*
  *	dtDeleteEntry()
  *
@@ -4313,6 +4352,7 @@ static void dtDeleteEntry(dtpage_t * p, int fi, struct dt_lock ** dtlock)
 	p->header.nextindex--;
 }
 
+
 /*
  *	dtTruncateEntry()
  *
@@ -4400,6 +4440,7 @@ static void dtTruncateEntry(dtpage_t * p, int ti, struct dt_lock ** dtlock)
 	p->header.freecnt += freecnt;
 }
 
+
 /*
  *	dtLinelockFreelist()
  */
@@ -4463,6 +4504,7 @@ static void dtLinelockFreelist(dtpage_t * p,	/* directory page */
 
 	*dtlock = dtlck;
 }
+
 
 /*
  * NAME: dtModify

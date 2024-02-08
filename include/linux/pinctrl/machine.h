@@ -89,6 +89,7 @@ struct pinmux_map {
 	{ .name = a, .ctrl_dev_name = "pinctrl.0", .function = b, \
 	  .hog_on_boot = true }
 
+
 #ifdef CONFIG_PINMUX
 
 extern int pinmux_register_mappings(struct pinmux_map const *map,

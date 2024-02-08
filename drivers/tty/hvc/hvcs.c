@@ -789,6 +789,7 @@ static int __devinit hvcs_probe(
 	if (!hvcsd)
 		return -ENODEV;
 
+
 	spin_lock_init(&hvcsd->lock);
 	/* Automatically incs the refcount the first time */
 	kref_init(&hvcsd->kref);

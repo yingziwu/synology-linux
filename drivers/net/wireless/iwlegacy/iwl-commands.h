@@ -77,6 +77,7 @@ struct iwl_priv;
 #define IWL_UCODE_API(ver)	(((ver) & 0x0000FF00) >> 8)
 #define IWL_UCODE_SERIAL(ver)	((ver) & 0x000000FF)
 
+
 /* Tx rates */
 #define IWL_CCK_RATES	4
 #define IWL_OFDM_RATES	8
@@ -208,6 +209,7 @@ struct iwl_cmd_header {
 	/* command or response/notification data follows immediately */
 	u8 data[0];
 } __packed;
+
 
 /**
  * struct iwl3945_tx_power
@@ -431,6 +433,7 @@ struct iwl_init_alive_resp {
 				 * 2 Tx chains */
 } __packed;
 
+
 /**
  * REPLY_ALIVE = 0x1 (response only, not a command)
  *
@@ -551,6 +554,7 @@ enum {
 	RXON_DEV_TYPE_SNIFFER = 6,
 };
 
+
 #define RXON_RX_CHAIN_DRIVER_FORCE_MSK		cpu_to_le16(0x1 << 0)
 #define RXON_RX_CHAIN_DRIVER_FORCE_POS		(0)
 #define RXON_RX_CHAIN_VALID_MSK			cpu_to_le16(0x7 << 1)
@@ -588,6 +592,7 @@ enum {
 /* rx response to host with 8-byte TSF
 * (according to ON_AIR deassertion) */
 #define RXON_FLG_TSF2HOST_MSK           cpu_to_le32(1 << 15)
+
 
 /* HT flags */
 #define RXON_FLG_CTRL_CHANNEL_LOC_POS		(22)
@@ -715,6 +720,7 @@ struct iwl_legacy_rxon_cmd {
 	u8 reserved4;
 	u8 reserved5;
 } __packed;
+
 
 /*
  * REPLY_RXON_ASSOC = 0x11 (command, has simple generic response)
@@ -1059,6 +1065,7 @@ struct iwl_legacy_addsta_cmd {
 	__le16 reserved2;
 } __packed;
 
+
 #define ADD_STA_SUCCESS_MSK		0x1
 #define ADD_STA_NO_ROOM_IN_TABLE	0x2
 #define ADD_STA_NO_BLOCK_ACK_RESOURCE	0x4
@@ -1161,6 +1168,7 @@ struct iwl_wep_cmd {
 #define RX_MPDU_RES_STATUS_TTAK_OK	(1 << 7)
 #define RX_MPDU_RES_STATUS_DEC_DONE_MSK	(0x800)
 
+
 struct iwl3945_rx_frame_stats {
 	u8 phy_count;
 	u8 id;
@@ -1216,6 +1224,7 @@ struct iwl4965_rx_non_cfg_phy {
 	u8 pad[0];
 } __packed;
 
+
 /*
  * REPLY_RX = 0xc3 (response only, not a command)
  * Used only for legacy (non 11n) frames.
@@ -1239,6 +1248,7 @@ struct iwl_rx_mpdu_res_start {
 	__le16 byte_count;
 	__le16 reserved;
 } __packed;
+
 
 /******************************************************************************
  * (5)
@@ -1339,6 +1349,7 @@ struct iwl_rx_mpdu_res_start {
 /* HCCA-AP - disable duration overwriting. */
 #define TX_CMD_FLG_DUR_MSK cpu_to_le32(1 << 25)
 
+
 /*
  * TX command security control
  */
@@ -1433,6 +1444,7 @@ struct iwl3945_tx_resp {
 	__le32 wireless_media_time;
 	__le32 status;		/* TX status */
 } __packed;
+
 
 /*
  * 4965 uCode updates these Tx attempt count values in host DRAM.
@@ -1761,6 +1773,7 @@ struct iwl4965_txpowertable_cmd {
 	struct iwl4965_tx_power_db tx_power;
 } __packed;
 
+
 /**
  * struct iwl3945_rate_scaling_cmd - Rate Scaling Command & Response
  *
@@ -1788,6 +1801,7 @@ struct iwl3945_rate_scaling_cmd {
 	struct iwl3945_rate_scaling_info table[IWL_MAX_RATES];
 } __packed;
 
+
 /*RS_NEW_API: only TLC_RTS remains and moved to bit 0 */
 #define  LINK_QUAL_FLAGS_SET_STA_TLC_RTS_MSK	(1 << 0)
 
@@ -1801,6 +1815,7 @@ struct iwl3945_rate_scaling_cmd {
 #define  LINK_QUAL_ANT_A_MSK (1 << 0)
 #define  LINK_QUAL_ANT_B_MSK (1 << 1)
 #define  LINK_QUAL_ANT_MSK   (LINK_QUAL_ANT_A_MSK|LINK_QUAL_ANT_B_MSK)
+
 
 /**
  * struct iwl_link_qual_general_params
@@ -2116,6 +2131,7 @@ struct iwl_bt_cmd {
 	__le32 kill_ack_mask;
 	__le32 kill_cts_mask;
 } __packed;
+
 
 /******************************************************************************
  * (6)
@@ -2635,6 +2651,7 @@ struct iwl_scancomplete_notification {
 	__le32 tsf_high;
 } __packed;
 
+
 /******************************************************************************
  * (9)
  * IBSS/AP Commands and Notifications:
@@ -2908,6 +2925,7 @@ struct statistics_tx {
 	__le32 reserved1;
 } __packed;
 
+
 struct statistics_div {
 	__le32 tx_on_a;
 	__le32 tx_on_b;
@@ -3027,6 +3045,7 @@ struct iwl_missed_beacon_notif {
 	__le32 num_expected_beacons;
 	__le32 num_recvd_beacons;
 } __packed;
+
 
 /******************************************************************************
  * (11)
@@ -3229,6 +3248,7 @@ struct iwl_sensitivity_cmd {
 	__le16 table[HD_TABLE_SIZE];	/* use HD_* as index */
 } __packed;
 
+
 /**
  * REPLY_PHY_CALIBRATION_CMD = 0xb0 (command, has simple generic response)
  *
@@ -3332,6 +3352,7 @@ struct iwl_led_cmd {
 				 * "0", regardless of "off", turns LED off */
 	u8 reserved;
 } __packed;
+
 
 /******************************************************************************
  * (13)

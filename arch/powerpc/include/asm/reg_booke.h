@@ -589,6 +589,7 @@
 #define SPRN_EPCR_DMIUH		0x00400000	/* Disable MAS Interrupt updates
 						 * for hypervisor */
 
+
 /*
  * The IBM-403 is an even more odd special case, as it is much
  * older than the IBM-405 series.  We put these down here incase someone
@@ -606,6 +607,7 @@
 #define SPRN_PBL2	0x3FE	/* Protection Bound Lower 2 */
 #define SPRN_PBU1	0x3FD	/* Protection Bound Upper 1 */
 #define SPRN_PBU2	0x3FF	/* Protection Bound Upper 2 */
+
 
 /* Bit definitions for the DBCR. */
 #define DBCR_EDM	DBCR0_EDM

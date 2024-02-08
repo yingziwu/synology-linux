@@ -39,6 +39,7 @@
 #include "interface.h"
 #include "mei_version.h"
 
+
 #define MEI_READ_TIMEOUT 45
 #define MEI_DRIVER_NAME	"mei"
 #define MEI_DEV_NAME "mei"
@@ -60,6 +61,7 @@ static int mei_major;
 struct pci_dev *mei_device;
 
 static struct class *mei_class;
+
 
 /* mei_pci_tbl - PCI Device ID Table */
 static DEFINE_PCI_DEVICE_TABLE(mei_pci_tbl) = {
@@ -104,6 +106,27 @@ MODULE_DEVICE_TABLE(pci, mei_pci_tbl);
 static DEFINE_MUTEX(mei_mutex);
 
 /**
+ * mei_quirk_probe - probe for devices that doesn't valid ME interface
+ * @pdev: PCI device structure
+ * @ent: entry into pci_device_table
+ *
+ * returns true if ME Interface is valid, false otherwise
+ */
+static bool __devinit mei_quirk_probe(struct pci_dev *pdev,
+				const struct pci_device_id *ent)
+{
+	u32 reg;
+	if (ent->device == MEI_DEV_ID_PBG_1) {
+		pci_read_config_dword(pdev, 0x48, &reg);
+		/* make sure that bit 9 is up and bit 10 is down */
+		if ((reg & 0x600) == 0x200) {
+			dev_info(&pdev->dev, "Device doesn't have valid ME Interface\n");
+			return false;
+		}
+	}
+	return true;
+}
+/**
  * mei_probe - Device Initialization Routine
  *
  * @pdev: PCI device structure
@@ -118,6 +141,12 @@ static int __devinit mei_probe(struct pci_dev *pdev,
 	int err;
 
 	mutex_lock(&mei_mutex);
+
+	if (!mei_quirk_probe(pdev, ent)) {
+		err = -ENODEV;
+		goto end;
+	}
+
 	if (mei_device) {
 		err = -EEXIST;
 		goto end;
@@ -540,6 +569,7 @@ static int mei_release(struct inode *inode, struct file *file)
 	return rets;
 }
 
+
 /**
  * mei_read - the read function.
  *
@@ -560,6 +590,7 @@ static ssize_t mei_read(struct file *file, char __user *ubuf,
 	int i;
 	int rets;
 	int err;
+
 
 	if (WARN_ON(!cl || !cl->dev))
 		return -ENODEV;
@@ -762,6 +793,7 @@ static ssize_t mei_write(struct file *file, const char __user *ubuf,
 		   !cl->read_pending)
 		*offset = 0;
 
+
 	write_cb = kzalloc(sizeof(struct mei_cl_cb), GFP_KERNEL);
 	if (!write_cb) {
 		mutex_unlock(&dev->device_lock);
@@ -950,6 +982,7 @@ unlock_dev:
 	return rets;
 }
 
+
 /**
  * mei_ioctl - the IOCTL function
  *
@@ -1034,6 +1067,7 @@ static long mei_compat_ioctl(struct file *file,
 }
 #endif
 
+
 /**
  * mei_poll - the poll function
  *
@@ -1057,6 +1091,7 @@ static unsigned int mei_poll(struct file *file, poll_table *wait)
 
 	if (dev->mei_state != MEI_ENABLED)
 		goto out;
+
 
 	if (cl == &dev->iamthif_cl) {
 		mutex_unlock(&dev->device_lock);
@@ -1347,6 +1382,7 @@ static void __exit mei_exit_module(void)
 }
 
 module_exit(mei_exit_module);
+
 
 MODULE_AUTHOR("Intel Corporation");
 MODULE_DESCRIPTION("Intel(R) Management Engine Interface");

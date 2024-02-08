@@ -72,6 +72,7 @@
 
 #define DRV_VERSION     IWLWIFI_VERSION VD
 
+
 MODULE_DESCRIPTION(DRV_DESCRIPTION);
 MODULE_VERSION(DRV_VERSION);
 MODULE_AUTHOR(DRV_COPYRIGHT " " DRV_AUTHOR);
@@ -245,13 +246,17 @@ static void iwl_bg_bt_runtime_config(struct work_struct *work)
 	struct iwl_priv *priv =
 		container_of(work, struct iwl_priv, bt_runtime_config);
 
+	mutex_lock(&priv->shrd->mutex);
 	if (test_bit(STATUS_EXIT_PENDING, &priv->shrd->status))
-		return;
+		goto out;
 
 	/* dont send host command if rf-kill is on */
 	if (!iwl_is_ready_rf(priv->shrd))
-		return;
+		goto out;
+
 	iwlagn_send_advance_bt_config(priv);
+out:
+	mutex_unlock(&priv->shrd->mutex);
 }
 
 static void iwl_bg_bt_full_concurrency(struct work_struct *work)
@@ -310,6 +315,7 @@ static void iwl_bg_statistics_periodic(unsigned long data)
 
 	iwl_send_statistics_request(priv, CMD_ASYNC, false);
 }
+
 
 static void iwl_print_cont_event_trace(struct iwl_priv *priv, u32 base,
 					u32 start_idx, u32 num_events,
@@ -552,6 +558,7 @@ static void iwl_init_context(struct iwl_priv *priv, u32 ucode_flags)
 
 	BUILD_BUG_ON(NUM_IWL_RXON_CTX != 2);
 }
+
 
 struct iwlagn_ucode_capabilities {
 	u32 max_probe_length;
@@ -1223,6 +1230,7 @@ static int iwlagn_send_calib_cfg_rt(struct iwl_priv *priv, u32 cfg)
 	return iwl_trans_send_cmd(trans(priv), &cmd);
 }
 
+
 static int iwlagn_send_tx_ant_config(struct iwl_priv *priv, u8 valid_tx_ant)
 {
 	struct iwl_tx_ant_config_cmd tx_ant_cmd = {
@@ -1293,7 +1301,7 @@ int iwl_alive_start(struct iwl_priv *priv)
 					 BT_COEX_PRIO_TBL_EVT_INIT_CALIB2);
 		if (ret)
 			return ret;
-	} else {
+	} else if (priv->cfg->bt_params) {
 		/*
 		 * default is 2-wire BT coexexistence support
 		 */
@@ -1469,6 +1477,7 @@ static int __iwl_up(struct iwl_priv *priv)
 	IWL_ERR(priv, "Unable to initialize device.\n");
 	return ret;
 }
+
 
 /*****************************************************************************
  *
@@ -1744,6 +1753,7 @@ static int iwlagn_mac_setup_register(struct iwl_priv *priv,
 	return 0;
 }
 
+
 static int iwlagn_mac_start(struct ieee80211_hw *hw)
 {
 	struct iwl_priv *priv = hw->priv;
@@ -1991,7 +2001,7 @@ static void iwlagn_wowlan_program_keys(struct ieee80211_hw *hw,
 			u8 *pn = seq.ccmp.pn;
 
 			ieee80211_get_key_rx_seq(key, i, &seq);
-			aes_sc->pn = cpu_to_le64(
+			aes_sc[i].pn = cpu_to_le64(
 					(u64)pn[5] |
 					((u64)pn[4] << 8) |
 					((u64)pn[3] << 16) |
@@ -2357,6 +2367,7 @@ static int iwlagn_mac_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 			is_default_wep_key =
 				key->hw_key_idx == IWLAGN_HW_KEY_DEFAULT;
 	}
+
 
 	switch (cmd) {
 	case SET_KEY:
@@ -3417,6 +3428,7 @@ void __devexit iwl_remove(struct iwl_priv * priv)
 
 	ieee80211_free_hw(priv->hw);
 }
+
 
 /*****************************************************************************
  *

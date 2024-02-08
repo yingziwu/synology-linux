@@ -141,6 +141,7 @@ static inline s64 timekeeping_get_ns_raw(void)
  */
 __cacheline_aligned_in_smp DEFINE_SEQLOCK(xtime_lock);
 
+
 /*
  * The current time
  * wall_to_monotonic is what we need to add to xtime (or xtime corrected
@@ -191,6 +192,8 @@ static void timekeeping_update(bool clearntp)
 	update_vsyscall(&xtime, &wall_to_monotonic,
 			 timekeeper.clock, timekeeper.mult);
 }
+
+
 
 /* flag for if timekeeping is suspended */
 int __read_mostly timekeeping_suspended;
@@ -404,6 +407,7 @@ int do_settimeofday(const struct timespec *tv)
 
 EXPORT_SYMBOL(do_settimeofday);
 
+
 /**
  * timekeeping_inject_offset - Adds or subtracts from the current time.
  * @tv:		pointer to the timespec variable containing the offset
@@ -516,6 +520,7 @@ void getrawmonotonic(struct timespec *ts)
 	timespec_add_ns(ts, nsecs);
 }
 EXPORT_SYMBOL(getrawmonotonic);
+
 
 /**
  * timekeeping_valid_for_hres - Check if timekeeping is suitable for hres
@@ -655,6 +660,7 @@ static void __timekeeping_inject_sleeptime(struct timespec *delta)
 	update_sleep_time(timespec_add(total_sleep_time, *delta));
 }
 
+
 /**
  * timekeeping_inject_sleeptime - Adds suspend interval to timeekeeping values
  * @delta: pointer to a timespec delta value
@@ -687,6 +693,7 @@ void timekeeping_inject_sleeptime(struct timespec *delta)
 	/* signal hrtimers about time change */
 	clock_was_set();
 }
+
 
 /**
  * timekeeping_resume - Resumes the generic timekeeping subsystem.
@@ -949,6 +956,7 @@ static void timekeeping_adjust(s64 offset)
 				timekeeper.ntp_error_shift;
 }
 
+
 /**
  * logarithmic_accumulation - shifted accumulation of cycles
  *
@@ -1001,6 +1009,7 @@ static cycle_t logarithmic_accumulation(cycle_t offset, int shift)
 
 	return offset;
 }
+
 
 /**
  * update_wall_time - Uses the current clocksource to increment the wall time
@@ -1074,6 +1083,7 @@ static void update_wall_time(void)
 		timekeeper.ntp_error += neg << timekeeper.ntp_error_shift;
 	}
 
+
 	/*
 	 * Store full nanoseconds into xtime after rounding it up and
 	 * add the remainder to the error difference.
@@ -1123,6 +1133,7 @@ void getboottime(struct timespec *ts)
 }
 EXPORT_SYMBOL_GPL(getboottime);
 
+
 /**
  * get_monotonic_boottime - Returns monotonic time since boot
  * @ts:		pointer to the timespec to be set
@@ -1150,7 +1161,7 @@ void get_monotonic_boottime(struct timespec *ts)
 	} while (read_seqretry(&xtime_lock, seq));
 
 	set_normalized_timespec(ts, ts->tv_sec + tomono.tv_sec + sleep.tv_sec,
-			ts->tv_nsec + tomono.tv_nsec + sleep.tv_nsec + nsecs);
+		(s64)ts->tv_nsec + tomono.tv_nsec + sleep.tv_nsec + nsecs);
 }
 EXPORT_SYMBOL_GPL(get_monotonic_boottime);
 

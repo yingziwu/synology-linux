@@ -75,3 +75,4 @@ void __init at91x40_init_interrupts(unsigned int priority[NR_AIC_IRQS])
 
 	at91_aic_init(priority);
 }
+

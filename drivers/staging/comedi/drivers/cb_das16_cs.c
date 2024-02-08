@@ -28,6 +28,7 @@ Author: ds
 Updated: Mon, 04 Nov 2002 20:04:21 -0800
 Status: experimental
 
+
 */
 
 #include <linux/interrupt.h>
@@ -262,6 +263,7 @@ static int das16cs_detach(struct comedi_device *dev)
 
 	if (dev->irq)
 		free_irq(dev->irq, dev);
+
 
 	return 0;
 }
@@ -706,6 +708,7 @@ static void das16cs_pcmcia_detach(struct pcmcia_device *link)
 	/* This points to the parent struct local_info_t struct */
 	kfree(link->priv);
 }				/* das16cs_pcmcia_detach */
+
 
 static int das16cs_pcmcia_config_loop(struct pcmcia_device *p_dev,
 				void *priv_data)

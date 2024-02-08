@@ -154,6 +154,7 @@
  *	     <  VALID_DOUBLE_EXCEPTION_ADDRESS: regular exception
  */
 
+
 ENTRY(fast_unaligned)
 
 	/* Note: We don't expect the address to be aligned on a word
@@ -449,4 +450,6 @@ ENTRY(fast_unaligned)
 1:	movi	a0, _user_exception
 	jx	a0
 
+
 #endif /* XCHAL_UNALIGNED_LOAD_EXCEPTION || XCHAL_UNALIGNED_STORE_EXCEPTION */
+

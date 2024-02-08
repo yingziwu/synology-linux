@@ -129,6 +129,8 @@ static int debug;
 module_param(debug, int, 0);
 MODULE_PARM_DESC(debug, " Default debug msglevel");
 
+
+
 struct workqueue_struct *bnx2x_wq;
 
 enum bnx2x_board_type {
@@ -805,6 +807,7 @@ void bnx2x_panic_dump(struct bnx2x *bp)
 	       sp_sb_data.p_func.vf_valid,
 	       sp_sb_data.state);
 
+
 	for_each_eth_queue(bp, i) {
 		struct bnx2x_fastpath *fp = &bp->fp[i];
 		int loop;
@@ -1181,6 +1184,7 @@ static void bnx2x_tx_hw_flushed(struct bnx2x *bp, u32 poll_count)
 	for (i = 0; i < ARRAY_SIZE(cmd_regs); i++)
 		bnx2x_pbf_pN_cmd_flushed(bp, &cmd_regs[i], poll_count);
 
+
 	/* Verify the transmission buffers are flushed P0, P1, P4 */
 	for (i = 0; i < ARRAY_SIZE(buf_regs); i++)
 		bnx2x_pbf_pN_buf_flushed(bp, &buf_regs[i], poll_count);
@@ -1194,6 +1198,7 @@ static void bnx2x_tx_hw_flushed(struct bnx2x *bp, u32 poll_count)
 
 #define OP_GEN_AGG_VECT(index) \
 	(((index) << SDM_OP_GEN_AGG_VECT_IDX_SHIFT) & SDM_OP_GEN_AGG_VECT_IDX)
+
 
 static inline int bnx2x_send_final_clnup(struct bnx2x *bp, u8 clnup_func,
 					 u32 poll_cnt)
@@ -1251,6 +1256,7 @@ static int bnx2x_poll_hw_usage_counters(struct bnx2x *bp, u32 poll_cnt)
 			"CFC PF usage counter timed out",
 			poll_cnt))
 		return 1;
+
 
 	/* Wait for DQ PF usage-counter to zero (until DQ cleanup) */
 	if (bnx2x_flr_clnup_poll_hw_counter(bp,
@@ -1890,6 +1896,7 @@ int bnx2x_release_hw_lock(struct bnx2x *bp, u32 resource)
 	REG_WR(bp, hw_lock_control_reg, resource_bit);
 	return 0;
 }
+
 
 int bnx2x_get_gpio(struct bnx2x *bp, int gpio_num, u8 port)
 {
@@ -2723,6 +2730,7 @@ static inline unsigned long bnx2x_get_q_flags(struct bnx2x *bp,
 	/* Always set HW VLAN stripping */
 	__set_bit(BNX2X_Q_FLG_VLAN, &flags);
 
+
 	return flags | bnx2x_get_common_flags(bp, fp, true);
 }
 
@@ -2907,6 +2915,7 @@ static void bnx2x_pf_init(struct bnx2x *bp)
 	storm_memset_eq_data(bp, &eq_data, BP_FUNC(bp));
 }
 
+
 static void bnx2x_e1h_disable(struct bnx2x *bp)
 {
 	int port = BP_PORT(bp);
@@ -3041,6 +3050,7 @@ static inline bool bnx2x_is_contextless_ramrod(int cmd, int cmd_type)
 
 }
 
+
 /**
  * bnx2x_sp_post - place a single command on an SP ring
  *
@@ -3109,6 +3119,7 @@ int bnx2x_sp_post(struct bnx2x *bp, int command, int cid,
 		atomic_dec(&bp->eq_spq_left);
 	else
 		atomic_dec(&bp->cq_spq_left);
+
 
 	DP(BNX2X_MSG_SP/*NETIF_MSG_TIMER*/,
 	   "SPQE[%x] (%x:%x)  (cmd, common?) (%d,%d)  hw_cid %x  data (%x:%x) "
@@ -4058,6 +4069,7 @@ bool bnx2x_chk_parity_attn(struct bnx2x *bp, bool *global, bool print)
 	return bnx2x_parity_attn(bp, global, print, attn.sig);
 }
 
+
 static inline void bnx2x_attn_int_deasserted4(struct bnx2x *bp, u32 attn)
 {
 	u32 val;
@@ -4433,10 +4445,12 @@ static void bnx2x_eq_int(struct bnx2x *bp)
 	for (; sw_cons != hw_cons;
 	      sw_prod = NEXT_EQ_IDX(sw_prod), sw_cons = NEXT_EQ_IDX(sw_cons)) {
 
+
 		elem = &bp->eq_ring[EQ_DESC(sw_cons)];
 
 		cid = SW_CID(elem->message.data.cfc_del_event.cid);
 		opcode = elem->message.opcode;
+
 
 		/* handle eq element */
 		switch (opcode) {
@@ -4462,6 +4476,8 @@ static void bnx2x_eq_int(struct bnx2x *bp)
 
 			if (q_obj->complete_cmd(bp, q_obj, BNX2X_Q_CMD_CFC_DEL))
 				break;
+
+
 
 			goto next_spqe;
 
@@ -4642,11 +4658,13 @@ irqreturn_t bnx2x_msix_sp_int(int irq, void *dev_instance)
 
 /* end of slow path */
 
+
 void bnx2x_drv_pulse(struct bnx2x *bp)
 {
 	SHMEM_WR(bp, func_mb[BP_FW_MB_IDX(bp)].drv_pulse_mb,
 		 bp->fw_drv_pulse_wr_seq);
 }
+
 
 static void bnx2x_timer(unsigned long data)
 {
@@ -4793,6 +4811,7 @@ static inline void bnx2x_zero_sp_sb(struct bnx2x *bp)
 
 }
 
+
 static inline
 void bnx2x_setup_ndsb_state_machine(struct hc_status_block_sm *hc_sm,
 					   int igu_sb_id, int igu_seg_id)
@@ -4802,6 +4821,7 @@ void bnx2x_setup_ndsb_state_machine(struct hc_status_block_sm *hc_sm,
 	hc_sm->timer_value = 0xFF;
 	hc_sm->time_to_expire = 0xFFFFFFFF;
 }
+
 
 /* allocates state machine ids. */
 static inline
@@ -5032,6 +5052,7 @@ static void bnx2x_init_eq_ring(struct bnx2x *bp)
 	atomic_set(&bp->eq_spq_left,
 		min_t(int, MAX_SP_DESC_CNT - MAX_SPQ_PENDING, NUM_EQ_DESC) - 1);
 }
+
 
 /* called with netif_addr_lock_bh() */
 void bnx2x_set_q_rx_mode(struct bnx2x *bp, u8 cl_id,
@@ -6015,6 +6036,7 @@ static int bnx2x_init_hw_common(struct bnx2x *bp)
 		REG_WR(bp, PXP2_REG_RQ_DRAM_ALIGN_SEL, 1);
 	}
 
+
 	REG_WR(bp, PXP2_REG_RQ_DISABLE_INPUTS, 0);
 	REG_WR(bp, PXP2_REG_RD_DISABLE_INPUTS, 0);
 
@@ -6057,6 +6079,7 @@ static int bnx2x_init_hw_common(struct bnx2x *bp)
 	bnx2x_read_dmae(bp, USEM_REG_PASSIVE_BUFFER, 3);
 
 	bnx2x_init_block(bp, BLOCK_QM, PHASE_COMMON);
+
 
 	/* QM queues pointers table */
 	bnx2x_qm_init_ptr_table(bp, bp->qm_cid_count, INITOP_SET);
@@ -6340,6 +6363,7 @@ static int bnx2x_init_hw_port(struct bnx2x *bp)
 			    BRB1_REG_MAC_GUARANTIED_1 :
 			    BRB1_REG_MAC_GUARANTIED_0), 40);
 
+
 	bnx2x_init_block(bp, BLOCK_PRS, init_phase);
 	if (CHIP_IS_E3B0(bp))
 		/* Ovlan exists only if we are in multi-function +
@@ -6449,6 +6473,7 @@ static int bnx2x_init_hw_port(struct bnx2x *bp)
 			REG_WR(bp, NIG_REG_PAUSE_ENABLE_0 + port*4, 1);
 		}
 	}
+
 
 	/* If SPIO5 is set to generate interrupts, enable it for this port */
 	val = REG_RD(bp, MISC_REG_SPIO_EVENT_EN);
@@ -6788,6 +6813,7 @@ static int bnx2x_init_hw_func(struct bnx2x *bp)
 	return 0;
 }
 
+
 void bnx2x_free_mem(struct bnx2x *bp)
 {
 	/* fastpath */
@@ -6838,6 +6864,7 @@ static inline int bnx2x_alloc_fw_stats_mem(struct bnx2x *bp)
 	 * 1 for port stats + 1 for PF stats + num_eth_queues */
 	bp->fw_stats_num = 2 + num_queue_stats;
 
+
 	/* Request is built from stats_query_header and an array of
 	 * stats_query_cmd_group each of which contains
 	 * STATS_QUERY_CMD_COUNT rules. The real number or requests is
@@ -6879,6 +6906,7 @@ alloc_mem_err:
 	return -ENOMEM;
 }
 
+
 int bnx2x_alloc_mem(struct bnx2x *bp)
 {
 #ifdef BCM_CNIC
@@ -6893,6 +6921,7 @@ int bnx2x_alloc_mem(struct bnx2x *bp)
 	/* allocate searcher T2 table */
 	BNX2X_PCI_ALLOC(bp->t2, &bp->t2_mapping, SRC_T2_SZ);
 #endif
+
 
 	BNX2X_PCI_ALLOC(bp->def_status_blk, &bp->def_status_blk_mapping,
 			sizeof(struct host_sp_status_block));
@@ -6920,6 +6949,7 @@ int bnx2x_alloc_mem(struct bnx2x *bp)
 	/* EQ */
 	BNX2X_PCI_ALLOC(bp->eq_ring, &bp->eq_mapping,
 			BCM_PAGE_SIZE * NUM_EQ_PAGES);
+
 
 	/* fastpath */
 	/* need to be done at the end, since it's self adjusting to amount
@@ -7249,6 +7279,7 @@ int bnx2x_setup_tx_only(struct bnx2x *bp, struct bnx2x_fastpath *fp,
 	return bnx2x_queue_state_change(bp, q_params);
 }
 
+
 /**
  * bnx2x_setup_queue - setup queue
  *
@@ -7296,6 +7327,7 @@ int bnx2x_setup_queue(struct bnx2x *bp, struct bnx2x_fastpath *fp,
 	}
 
 	DP(BNX2X_MSG_SP, "init complete\n");
+
 
 	/* Now move the Queue to the SETUP state... */
 	memset(setup_params, 0, sizeof(*setup_params));
@@ -7354,6 +7386,7 @@ static int bnx2x_stop_queue(struct bnx2x *bp, int index)
 	/* We want to wait for completion in this context */
 	__set_bit(RAMROD_COMP_WAIT, &q_params.ramrod_flags);
 
+
 	/* close tx-only connections */
 	for (tx_index = FIRST_TX_ONLY_COS_INDEX;
 	     tx_index < fp->max_cos;
@@ -7406,6 +7439,7 @@ static int bnx2x_stop_queue(struct bnx2x *bp, int index)
 	q_params.params.cfc_del.cid_index = FIRST_TX_COS_INDEX;
 	return bnx2x_queue_state_change(bp, &q_params);
 }
+
 
 static void bnx2x_reset_func(struct bnx2x *bp)
 {
@@ -7773,6 +7807,8 @@ void bnx2x_chip_cleanup(struct bnx2x *bp, int unload_mode)
 
 	netif_addr_unlock_bh(bp->dev);
 
+
+
 	/*
 	 * Send the UNLOAD_REQUEST to the MCP. This will return if
 	 * this function should perform FUNC, PORT or COMMON HW
@@ -7829,6 +7865,7 @@ unload_error:
 	rc = bnx2x_reset_hw(bp, reset_code);
 	if (rc)
 		BNX2X_ERR("HW_RESET failed\n");
+
 
 	/* Report UNLOAD_DONE to MCP */
 	bnx2x_send_unload_done(bp);
@@ -8153,6 +8190,7 @@ static int bnx2x_process_kill(struct bnx2x *bp, bool global)
 	u32 val = 0;
 	u32 sr_cnt, blk_cnt, port_is_idle_0, port_is_idle_1, pgl_exp_rom2;
 
+
 	/* Empty the Tetris buffer, wait for 1s */
 	do {
 		sr_cnt  = REG_RD(bp, PXP2_REG_RD_SR_CNT);
@@ -8188,6 +8226,7 @@ static int bnx2x_process_kill(struct bnx2x *bp, bool global)
 	/* Poll for IGU VQs for 57712 and newer chips */
 	if (!CHIP_IS_E1x(bp) && bnx2x_er_poll_igu_vq(bp))
 		return -EAGAIN;
+
 
 	/* TBD: Indicate that "process kill" is in progress to MCP */
 
@@ -8724,6 +8763,8 @@ static void __devinit bnx2x_get_common_hwinfo(struct bnx2x *bp)
 		       bp->common.flash_size, bp->common.flash_size);
 
 	bnx2x_init_shmem(bp);
+
+
 
 	bp->common.shmem2_base = REG_RD(bp, (BP_PATH(bp) ?
 					MISC_REG_GENERIC_CR_1 :
@@ -9656,6 +9697,7 @@ static void __devinit bnx2x_read_fwinfo(struct bnx2x *bp)
 	if (i < 0)
 		goto out_not_found;
 
+
 	block_end = i + PCI_VPD_LRDT_TAG_SIZE +
 		    pci_vpd_lrdt_size(&vpd_data[i]);
 
@@ -9849,6 +9891,7 @@ static int __devinit bnx2x_init_bp(struct bnx2x *bp)
 
 	return rc;
 }
+
 
 /****************************************************************************
 * General service functions
@@ -10045,6 +10088,7 @@ static inline int bnx2x_set_mc_list(struct bnx2x *bp)
 
 	return rc;
 }
+
 
 /* If bp->state is OPEN, should be called with netif_addr_lock_bh() */
 void bnx2x_set_rx_mode(struct net_device *dev)
@@ -10281,6 +10325,10 @@ static int __devinit bnx2x_init_dev(struct pci_dev *pdev,
 	/* clean indirect addresses */
 	pci_write_config_dword(bp->pdev, PCICFG_GRC_ADDRESS,
 			       PCICFG_VENDOR_ID_OFFSET);
+
+	/* Set PCIe reset type to fundamental for EEH recovery */
+	pdev->needs_freset = 1;
+
 	/*
 	 * Clean the following indirect addresses for all functions since it
 	 * is not used by the driver.
@@ -10507,6 +10555,7 @@ int bnx2x_init_firmware(struct bnx2x *bp)
 	struct bnx2x_fw_file_hdr *fw_hdr;
 	int rc;
 
+
 	if (!bp->firmware) {
 		const char *fw_file_name;
 
@@ -10592,6 +10641,7 @@ static void bnx2x_release_firmware(struct bnx2x *bp)
 	release_firmware(bp->firmware);
 	bp->firmware = NULL;
 }
+
 
 static struct bnx2x_func_sp_drv_ops bnx2x_func_sp_drv = {
 	.init_hw_cmn_chip = bnx2x_init_hw_common_chip,
@@ -11147,6 +11197,7 @@ static void bnx2x_cnic_sp_post(struct bnx2x *bp, int count)
 	BUG_ON(bp->cnic_spq_pending < count);
 	bp->cnic_spq_pending -= count;
 
+
 	for (; bp->cnic_kwq_pending; bp->cnic_kwq_pending--) {
 		u16 type =  (le16_to_cpu(bp->cnic_kwq_cons->hdr.type)
 				& SPE_HDR_CONN_TYPE) >>
@@ -11305,6 +11356,7 @@ static void bnx2x_cnic_cfc_comp(struct bnx2x *bp, int cid, u8 err)
 	bnx2x_cnic_sp_post(bp, 0);
 }
 
+
 /* Called with netif_addr_lock_bh() taken.
  * Sets an rx_mode config for an iSCSI ETH client.
  * Doesn't block.
@@ -11344,6 +11396,7 @@ static void bnx2x_set_iscsi_eth_rx_mode(struct bnx2x *bp, bool start)
 				    ramrod_flags);
 	}
 }
+
 
 static int bnx2x_drv_ctl(struct net_device *dev, struct drv_ctl_info *ctl)
 {
@@ -11573,3 +11626,4 @@ struct cnic_eth_dev *bnx2x_cnic_probe(struct net_device *dev)
 EXPORT_SYMBOL(bnx2x_cnic_probe);
 
 #endif /* BCM_CNIC */
+

@@ -21,6 +21,7 @@
  * zlib_wrapper.c
  */
 
+
 #include <linux/mutex.h>
 #include <linux/buffer_head.h>
 #include <linux/slab.h>
@@ -49,6 +50,7 @@ failed:
 	return ERR_PTR(-ENOMEM);
 }
 
+
 static void zlib_free(void *strm)
 {
 	z_stream *stream = strm;
@@ -57,6 +59,7 @@ static void zlib_free(void *strm)
 		vfree(stream->workspace);
 	kfree(stream);
 }
+
 
 static int zlib_uncompress(struct squashfs_sb_info *msblk, void **buffer,
 	struct buffer_head **bh, int b, int offset, int length, int srclength,
@@ -143,3 +146,4 @@ const struct squashfs_decompressor squashfs_zlib_comp_ops = {
 	.name = "zlib",
 	.supported = 1
 };
+

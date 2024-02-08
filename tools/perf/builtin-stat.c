@@ -171,6 +171,8 @@ static struct perf_event_attr very_very_detailed_attrs[] = {
 	(PERF_COUNT_HW_CACHE_RESULT_MISS	<< 16)				},
 };
 
+
+
 struct perf_evlist		*evsel_list;
 
 static bool			system_wide			=  false;
@@ -1159,6 +1161,7 @@ static int add_default_attributes(void)
 			return -1;
 		perf_evlist__add(evsel_list, pos);
 	}
+
 
 	return 0;
 }

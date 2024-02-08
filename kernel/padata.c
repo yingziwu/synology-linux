@@ -369,7 +369,7 @@ static int padata_setup_cpumasks(struct parallel_data *pd,
 
 	cpumask_and(pd->cpumask.pcpu, pcpumask, cpu_active_mask);
 	if (!alloc_cpumask_var(&pd->cpumask.cbcpu, GFP_KERNEL)) {
-		free_cpumask_var(pd->cpumask.cbcpu);
+		free_cpumask_var(pd->cpumask.pcpu);
 		return -ENOMEM;
 	}
 
@@ -574,6 +574,7 @@ int padata_unregister_cpumask_notifier(struct padata_instance *pinst,
 		nblock);
 }
 EXPORT_SYMBOL(padata_unregister_cpumask_notifier);
+
 
 /* If cpumask contains no active cpu, we mark the instance as invalid. */
 static bool padata_validate_cpumask(struct padata_instance *pinst,
@@ -843,6 +844,7 @@ static inline int pinst_has_cpu(struct padata_instance *pinst, int cpu)
 	return cpumask_test_cpu(cpu, pinst->cpumask.pcpu) ||
 		cpumask_test_cpu(cpu, pinst->cpumask.cbcpu);
 }
+
 
 static int padata_cpu_callback(struct notifier_block *nfb,
 			       unsigned long action, void *hcpu)

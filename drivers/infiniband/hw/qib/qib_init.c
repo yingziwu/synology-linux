@@ -765,7 +765,6 @@ static void qib_shutdown_device(struct qib_devdata *dd)
 		dd->f_quiet_serdes(ppd);
 	}
 
-	qib_update_eeprom_log(dd);
 }
 
 /**
@@ -906,6 +905,7 @@ done:
 	qib_sendbuf_done(dd, pbnum);
 	dd->f_set_armlaunch(dd, 1);
 }
+
 
 void qib_free_devdata(struct qib_devdata *dd)
 {

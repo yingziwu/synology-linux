@@ -38,6 +38,7 @@ struct cgroup_subsys net_cls_subsys = {
 	.module		= THIS_MODULE,
 };
 
+
 static inline struct cgroup_cls_state *cgrp_cls_state(struct cgroup *cgrp)
 {
 	return container_of(cgroup_subsys_state(cgrp, net_cls_subsys_id),

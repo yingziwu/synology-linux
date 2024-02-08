@@ -354,6 +354,7 @@
 #define	SLOWPORT_WRTC_SHIFT_SU		0x02
 #define	SLOWPORT_WRTC_SHFIT_PW		0x06
 
+
 /*
  * GPIO registers & GPIO interface.
  */
@@ -403,6 +404,7 @@
 #define	RSTALL				(1 << 16)
 #define	WDT_RESET_ENABLE		0x01000000
 
+
 /*
  * MSF registers.  The IXP2400 and IXP2800 have somewhat different MSF
  * units, but the registers that differ between the two don't overlap,
@@ -444,5 +446,6 @@
 #define IXP2000_MSF_TRAIN_FLOW_CONTROL		IXP2000_MSF_REG(0x00a8)
 #define IXP2000_MSF_TX_CALENDAR_0		IXP2000_MSF_REG(0x1000)
 #define IXP2000_MSF_RX_PORT_CALENDAR_STATUS	IXP2000_MSF_REG(0x1400)
+
 
 #endif				/* _IXP2000_H_ */

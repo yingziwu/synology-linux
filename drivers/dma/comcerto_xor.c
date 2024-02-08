@@ -324,6 +324,7 @@ static void comcerto_xor_register_init(struct comcerto_xor_chan *comcerto_xor_ch
 	comcerto_xor_set_register_io2m_irq_enable(comcerto_xor_ch,value);
 }
 
+
 /* --------------------------- Miscellaneous functions --------------------------------*/
 
 static dma_cookie_t comcerto_xor_run_tx_complete_actions(struct comcerto_xor_desc_slot *slot,
@@ -437,6 +438,7 @@ static void __comcerto_xor_slot_cleanup(struct comcerto_xor_chan *comcerto_xor_c
 		comcerto_xor_ch->completed_cookie = cookie;
 }
 
+
 static void comcerto_xor_slot_cleanup(struct comcerto_xor_chan *comcerto_xor_ch)
 {
 	spin_lock_bh(&comcerto_xor_ch->lock);
@@ -499,6 +501,7 @@ static dma_cookie_t comcerto_desc_assign_cookie(struct comcerto_xor_chan *comcer
 	comcerto_xor_ch->chan.cookie = slot->async_tx.cookie = cookie;
 	return cookie;
 }
+
 
 /*------------------------------- XOR API Function-------------------------------------*/
 
@@ -1181,6 +1184,7 @@ static int __devinit comcerto_xor_probe(struct platform_device *pdev)
 			goto err_free_irq;
 	}
 
+	
 	ret = dma_async_device_register(dma_dev);
 
 	if (ret) {

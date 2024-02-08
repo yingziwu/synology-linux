@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -36,6 +37,7 @@ disclaimer.
 
 static MV_PP2_CLS_LKP_ENTRY	lkp_entry;
 static MV_PP2_CLS_FLOW_ENTRY	flow_entry;
+
 
 static ssize_t mv_cls_help(char *buf)
 {
@@ -111,6 +113,7 @@ static ssize_t mv_cls_help(char *buf)
 	return off;
 }
 
+
 static ssize_t mv_cls_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -141,6 +144,8 @@ static ssize_t mv_cls_show(struct device *dev,
 
 	return off;
 }
+
+
 
 static ssize_t mv_prs_store_unsigned(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
@@ -246,6 +251,7 @@ static ssize_t mv_prs_store_unsigned(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static ssize_t mv_prs_store_signed(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
 {
@@ -321,6 +327,8 @@ static DEVICE_ATTR(hw_over_rxq,			S_IWUSR, mv_cls_show, mv_prs_store_unsigned);
 static DEVICE_ATTR(hw_qh,			S_IWUSR, mv_cls_show, mv_prs_store_unsigned); /*PPv2.1 new feature MAS 3.5*/
 static DEVICE_ATTR(hw_mh,			S_IWUSR, mv_cls_show, mv_prs_store_unsigned); /*PPv2.1 new feature MAS 3.18*/
 static DEVICE_ATTR(hw_sq_size,			S_IWUSR, mv_cls_show, mv_prs_store_unsigned); /*PPv2.1 new feature MAS 3.14*/
+
+
 
 static struct attribute *cls_attrs[] = {
 	&dev_attr_lkp_sw_dump.attr,

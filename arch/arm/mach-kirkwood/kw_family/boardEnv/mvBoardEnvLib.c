@@ -748,6 +748,7 @@ MV_32 mvBoardMppGet(MV_U32 mppGroupNum)
 	return BOARD_INFO(boardId)->pBoardMppConfigValue[0].mppGroup[mppGroupNum];
 }
 
+
 /*******************************************************************************
 * mvBoardMppGroupId - If MPP group type is AUTO then identify it using twsi
 *
@@ -839,6 +840,7 @@ MV_VOID mvBoardMppGroupIdUpdate(MV_VOID)
 			/* Update MPP group type */
 			mvBoardMppGroupTypeSet(devClass, mppGroupType);
 		}
+
 
 		/* Update MPP output voltage for RGMII 1.8V. Set port to GMII for GMII module */
 		if ((mvBoardMppGroupTypeGet(devClass) == MV_BOARD_RGMII))
@@ -1027,6 +1029,8 @@ MV_VOID mvBoardMppMuxSet(MV_VOID)
 	   in next operation */
 	twsiSlave.offset = 2;
 	twsiSlave.moreThen256 = MV_FALSE;
+
+
 
 	if( MV_OK != mvTwsiWrite (0, &twsiSlave, &muxVal, 1) )
 	{
@@ -1308,6 +1312,7 @@ MV_U8 mvBoardTwsiExpAddrGet(MV_U32 index)
 	return (0xFF);
 }
 
+
 /*******************************************************************************
 * mvBoardTwsiSatRAddrTypeGet -
 *
@@ -1457,6 +1462,7 @@ MV_U32 mvBoardIdGet(MV_VOID)
 	return gBoardId;
 }
 
+
 /*******************************************************************************
 * mvBoarModuleTypeGet - mvBoarModuleTypeGet
 *
@@ -1492,6 +1498,8 @@ MV_BOARD_MODULE_ID_CLASS mvBoarModuleTypeGet(MV_BOARD_MPP_GROUP_CLASS devClass)
 	   in next operation */
 	twsiSlave.offset = 0;
 	twsiSlave.moreThen256 = MV_FALSE;
+
+
 
 	if( MV_OK != mvTwsiRead (0, &twsiSlave, &data, 1) )
 	{

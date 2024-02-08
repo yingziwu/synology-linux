@@ -69,6 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+
 /*******************************************************************************
 * mvSysDdrSpdRead
 *
@@ -88,6 +89,7 @@ extern "C" {
 *
 *******************************************************************************/
 MV_STATUS mvSysDdrSpdRead(MV_U8 *data, MV_U32 size);
+
 
 /*******************************************************************************
 * mvSysDdrSpdWrite

@@ -871,6 +871,7 @@ struct nfs4_link_res {
 	struct nfs4_sequence_res	seq_res;
 };
 
+
 struct nfs4_lookup_arg {
 	const struct nfs_fh *		dir_fh;
 	const struct qstr *		name;
@@ -1056,7 +1057,7 @@ struct nfs_impl_id4 {
 	struct nfstime4	date;
 };
 
-#define NFS4_EXCHANGE_ID_LEN	(48)
+#define NFS4_EXCHANGE_ID_LEN	(127)
 struct nfs41_exchange_id_args {
 	struct nfs_client		*client;
 	nfs4_verifier			*verifier;

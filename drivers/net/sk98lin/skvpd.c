@@ -38,6 +38,8 @@ static const char SysKonnectFileId[] =
 #define SPI_Y2_CMD_MASK			(0x07L<<16)		/* SPI EPROM command mask  */
 #define SPI_Y2_RD				(0x09L<<16)		/* SPI EPROM READ INSTRUCTION */
 
+
+
 /*
  * Static functions
  */
@@ -182,6 +184,7 @@ int		addr)	/* VPD address */
 }
 #endif /* SK_DIAG */
 
+
 #ifdef XXX
 /*
 	Write the dword 'data' at address 'addr' into the VPD EEPROM, and
@@ -238,6 +241,7 @@ SK_U32	data)	/* VPD data to write */
 }	/* VpdWriteDWord */
 
 #endif /* XXX */
+
 
 #ifndef SK_SLIM
 /*
@@ -371,6 +375,7 @@ int		Len)	/* number of bytes to read / to write */
 
 	return(Len);
 }
+
 
 /*
  *	Read ore writes 'len' bytes of VPD data, starting at 'addr' from
@@ -694,6 +699,7 @@ SK_IOC	IoC)	/* IO Context */
 	return(0);
 }
 
+
 /*
  *	find the Keyword 'key' in the VPD buffer and fills the
  *	parameter struct 'p' with it's values
@@ -771,6 +777,7 @@ SK_VPD_PARA	*p)		/* parameter description struct */
 	return(0);
 }
 
+
 /*
  *	Move 'n' bytes. Begin with the last byte if 'n' is > 0,
  *	Start with the last byte if n is < 0.
@@ -806,6 +813,7 @@ int		n)			/* number of bytes the memory block has to be moved */
 	}
 }
 
+
 /*
  *	setup the VPD keyword 'key' at 'ip'.
  *
@@ -825,6 +833,7 @@ char	*ip)		/* inseration point */
 	p->p_len = (unsigned char)len;
 	SK_MEMCPY(&p->p_val, buf, len);
 }
+
 
 /*
  *	Setup the VPD end tag "RV" / "RW".
@@ -882,6 +891,7 @@ char	*etp)		/* end pointer input position */
 
 	return(0);
 }
+
 
 /*
  *	Insert a VPD keyword into the VPD buffer.
@@ -1001,6 +1011,7 @@ SK_IOC	IoC)	/* IO Context */
 	}
 	return(&pAC->vpd.v);
 }
+
 
 /*
  *	Read the contents of the VPD EEPROM and copy it to the VPD
@@ -1376,3 +1387,4 @@ char	*msg)	/* error log message */
 	(void)VpdUpdate(pAC, IoC);
 }
 #endif /* !SK_SLIM */
+

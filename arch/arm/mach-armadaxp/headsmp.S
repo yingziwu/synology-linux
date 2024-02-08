@@ -10,6 +10,7 @@
 #include <asm/memory.h>
 #include <mach/hardware.h>
 
+
 #define AXP_COHERENCY_FABRIC_CTL_REG (INTER_REGS_PHYS_BASE + 0x20200)
 #define AXP_COHERENCY_FABRIC_CFG_REG (INTER_REGS_PHYS_BASE + 0x20204)
 
@@ -65,6 +66,7 @@ ENTRY(axp_secondary_startup)
 	cmp	r1, #0
 	bne 1b
 
+
 #ifndef CONFIG_SHEEVA_ERRATA_ARM_CPU_4948
 	/*
 	 * Disable L0 on secondary CPU if flag set
@@ -99,6 +101,7 @@ sp_ena_skip:
 #endif
 
 	b	secondary_startup
+
 
 #ifndef CONFIG_SHEEVA_ERRATA_ARM_CPU_4948
 l0_disable_flag_addr:

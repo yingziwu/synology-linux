@@ -37,6 +37,7 @@
 #define BIGNUM_TOP_BIT   0x80000000UL
 #define BIGNUM_INT_BITS  32
 
+
 static void *snmalloc(void *mem_ctx, size_t n, size_t size)
 {
     void *p;
@@ -467,6 +468,7 @@ Bignum dwc_modpow(void *mem_ctx, Bignum base_in, Bignum exp, Bignum mod)
 
     return result;
 }
+
 
 #ifdef UNITTEST
 

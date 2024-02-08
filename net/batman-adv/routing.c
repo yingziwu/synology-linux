@@ -98,6 +98,15 @@ static void _update_route(struct bat_priv *bat_priv,
 		neigh_node = NULL;
 
 	spin_lock_bh(&orig_node->neigh_list_lock);
+	/* curr_router used earlier may not be the current orig_node->router
+	 * anymore because it was dereferenced outside of the neigh_list_lock
+	 * protected region. After the new best neighbor has replace the current
+	 * best neighbor the reference counter needs to decrease. Consequently,
+	 * the code needs to ensure the curr_router variable contains a pointer
+	 * to the replaced best neighbor.
+	 */
+	curr_router = rcu_dereference_protected(orig_node->router, true);
+
 	rcu_assign_pointer(orig_node->router, neigh_node);
 	spin_unlock_bh(&orig_node->neigh_list_lock);
 
@@ -390,6 +399,7 @@ out:
 		orig_node_free_ref(orig_node);
 	return ret;
 }
+
 
 int recv_icmp_packet(struct sk_buff *skb, struct hard_iface *recv_if)
 {
@@ -997,6 +1007,7 @@ int recv_ucast_frag_packet(struct sk_buff *skb, struct hard_iface *recv_if)
 
 	return route_unicast_packet(skb, recv_if);
 }
+
 
 int recv_bcast_packet(struct sk_buff *skb, struct hard_iface *recv_if)
 {

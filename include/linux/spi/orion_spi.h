@@ -14,4 +14,5 @@ struct orion_spi_info {
 	u32	enable_clock_fix;
 };
 
+
 #endif

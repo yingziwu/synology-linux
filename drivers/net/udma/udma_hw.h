@@ -67,6 +67,7 @@
 		printk(KERN_DEBUG "	   %s " format "\n","UDMA error - ",##arg); \
 	} while (0)
 
+
 /* Total size for registers */
 #define UDMA_PORT_REGS_SPACE_SIZE 				0x88
 
@@ -79,6 +80,7 @@
 #define UDMA_SRCDMA_SIZE						0x018
 #define UDMA_FLAGS_MODE							0x01c
 #define UDMA_OTHER_MODE							0x020
+
 
 /* UDMA FLAGS MODE Register Attributes */
 #define UDMA_DMA_IS_ACTIVE 						(1<<31)
@@ -118,10 +120,13 @@
 #define UDMA_DST_ADDR_MODE_FIXED_CONTINUE		(3<<1)
 #define UDMA_DST_LINK_LIST_EN					(1<<0)
 
+
+
 /* UDMA OTHER MODE Register Attributes */
 #define UDMA_LL_OWNERSHIP_TAGS_EN				(1<<3)
 #define UDMA_LL_PRE_FETCH_DISABLE				(1<<2)
 #define UDMA_STOP								(1<<0)
+
 
 /* Starting a linked-list transfer */
 #define UDMA_FLAG_MODE_START_LL					(UDMA_SRC_ADDR_MODE_LINEAR | UDMA_DST_ADDR_MODE_LINEAR | \
@@ -145,6 +150,7 @@
 												UDMA_SRC_ADDR_MODE_FIXED | UDMA_DST_INT_EN)
 
 #define UDMA_OTHER_MODE_DEFAULT_SETTING  		(UDMA_LL_OWNERSHIP_TAGS_EN | UDMA_LL_PRE_FETCH_DISABLE)
+
 
 /* UDMA Interrupt Request Registers */
 #define UDMA_INTR_MASK							0x80
@@ -186,6 +192,7 @@
 	#define UDMA_DST_INT1_ACT_BIT					(7)
 	#define UDMA_DST_INT0_ACT_BIT					(6)
 
+	
 	#define UDMA_SRC_INT5_ACT						(1<<5)
 	#define UDMA_SRC_INT4_ACT 						(1<<4)
 	#define UDMA_SRC_INT3_ACT 						(1<<3)
@@ -204,6 +211,7 @@
 
 #define UDMA_RX_REG_BASE 							0x00	
 #define UDMA_TX_REG_BASE 							0x40	
+
 
 /* UDMA Port Address Map */
 /*
@@ -228,6 +236,8 @@
 
 /* Debug port */
 #define UDMA_CONTEXT_DUMP_DMA_ADDR					0xFFF00000
+
+
 
 struct __port_regset {
 	u32 rx;
@@ -258,6 +268,8 @@ struct udma_cntx_regset {
 	struct __intr_regset *intr;
 };
 
+
+
 #define UDMA_DEVICE_ID									0x0947
 
 #define UDMA0_NAME "udma0"
@@ -270,6 +282,9 @@ struct udma_cntx_regset {
 //#define UDMA_DESC_MAX_XMIT_SIZE 					(1514)	/* header + data  */
 #define UDMA_MIN_XMIT_SIZE 								(64)
 #define UDMA_RX_MIN_BUFFER_SIZE							(2*1024)
+
+
+
 
 /* UDMA Descriptor based oprations MACRO */
 #define DESC_INITIAL_FLAG								0x00	/* Initial state, sw owns the descriptor */
@@ -301,6 +316,7 @@ struct udma_desc {
 	__le32 flags;										/* Flag mode */
 	dma_addr_t priv;
 }__attribute__((aligned(4)));
+
 
 /* Describe a UDMA port */
 struct udma_hw {
@@ -393,8 +409,15 @@ static inline void udma_clr_bits_nr(struct udma_hw *hw,int reg, u32 nr)
 	__clear_bit(nr,hw->ioaddr + reg);
 }
 
+
+
+
 void udma_desc_dump(struct udma_desc *desc);
 
 void udma_regs_dump(struct udma_hw *hw, bool direction);
 
+
+
+
 #endif /* UDMA_HW_H */
+

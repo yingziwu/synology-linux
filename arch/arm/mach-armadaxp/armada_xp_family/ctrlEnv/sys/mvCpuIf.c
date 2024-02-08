@@ -276,6 +276,7 @@ MV_STATUS mvCpuIfInit(MV_CPU_DEC_WIN *cpuAddrWinMap)
 	return mvCpuIfInitForCpu(whoAmI(), cpuAddrWinMap);
 }
 
+
 /*******************************************************************************
 * mvCpuIfDramInit - Initialize Controller DRAM Fastpath windows
 *
@@ -675,6 +676,7 @@ MV_U32 mvCpuIfTargetWinBaseHighGet(MV_TARGET target)
 	return (addrDecWin.addrWin.baseHigh);
 }
 
+
 /*******************************************************************************
 * mvCpuIfSramWinDisable
 *
@@ -700,6 +702,7 @@ MV_STATUS mvCpuIfSramWinDisable(MV_VOID)
 
 	return MV_OK;
 }
+
 
 #if defined(MV_INCLUDE_PEX)
 /*******************************************************************************

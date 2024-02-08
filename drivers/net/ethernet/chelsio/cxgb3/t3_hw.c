@@ -952,6 +952,7 @@ int t3_check_tpsram_version(struct adapter *adapter)
 	if (adapter->params.rev == T3_REV_A)
 		return 0;
 
+
 	ret = t3_get_tp_version(adapter, &vers);
 	if (ret)
 		return ret;
@@ -3781,3 +3782,4 @@ int t3_replay_prep_adapter(struct adapter *adapter)
 
 return 0;
 }
+

@@ -54,6 +54,7 @@
 
 #include <net/ip_vs.h>
 
+
 EXPORT_SYMBOL(register_ip_vs_scheduler);
 EXPORT_SYMBOL(unregister_ip_vs_scheduler);
 EXPORT_SYMBOL(ip_vs_proto_name);
@@ -139,6 +140,7 @@ ip_vs_in_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
 	}
 }
 
+
 static inline void
 ip_vs_out_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
 {
@@ -168,6 +170,7 @@ ip_vs_out_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
 	}
 }
 
+
 static inline void
 ip_vs_conn_stats(struct ip_vs_conn *cp, struct ip_vs_service *svc)
 {
@@ -183,6 +186,7 @@ ip_vs_conn_stats(struct ip_vs_conn *cp, struct ip_vs_service *svc)
 	s = this_cpu_ptr(ipvs->tot_stats.cpustats);
 	s->ustats.conns++;
 }
+
 
 static inline void
 ip_vs_set_state(struct ip_vs_conn *cp, int direction,
@@ -364,6 +368,7 @@ ip_vs_sched_persist(struct ip_vs_service *svc,
 	return cp;
 }
 
+
 /*
  *  IPVS main scheduling function
  *  It selects a server according to the virtual service, and
@@ -483,6 +488,7 @@ ip_vs_schedule(struct ip_vs_service *svc, struct sk_buff *skb,
 	ip_vs_conn_stats(cp, svc);
 	return cp;
 }
+
 
 /*
  *  Pass or drop the packet.
@@ -656,16 +662,24 @@ static inline int ip_vs_gather_frags_v6(struct sk_buff *skb, u_int32_t user)
 }
 #endif
 
-static int ip_vs_route_me_harder(int af, struct sk_buff *skb)
+static int ip_vs_route_me_harder(int af, struct sk_buff *skb,
+				 unsigned int hooknum)
 {
+	if (!sysctl_snat_reroute(skb))
+		return 0;
+	/* Reroute replies only to remote clients (FORWARD and LOCAL_OUT) */
+	if (NF_INET_LOCAL_IN == hooknum)
+		return 0;
 #ifdef CONFIG_IP_VS_IPV6
 	if (af == AF_INET6) {
-		if (sysctl_snat_reroute(skb) && ip6_route_me_harder(skb) != 0)
+		struct dst_entry *dst = skb_dst(skb);
+
+		if (dst->dev && !(dst->dev->flags & IFF_LOOPBACK) &&
+		    ip6_route_me_harder(skb) != 0)
 			return 1;
 	} else
 #endif
-		if ((sysctl_snat_reroute(skb) ||
-		     skb_rtable(skb)->rt_flags & RTCF_LOCAL) &&
+		if (!(skb_rtable(skb)->rt_flags & RTCF_LOCAL) &&
 		    ip_route_me_harder(skb, RTN_LOCAL) != 0)
 			return 1;
 
@@ -776,7 +790,8 @@ static int handle_response_icmp(int af, struct sk_buff *skb,
 				union nf_inet_addr *snet,
 				__u8 protocol, struct ip_vs_conn *cp,
 				struct ip_vs_protocol *pp,
-				unsigned int offset, unsigned int ihl)
+				unsigned int offset, unsigned int ihl,
+				unsigned int hooknum)
 {
 	unsigned int verdict = NF_DROP;
 
@@ -806,7 +821,7 @@ static int handle_response_icmp(int af, struct sk_buff *skb,
 #endif
 		ip_vs_nat_icmp(skb, pp, cp, 1);
 
-	if (ip_vs_route_me_harder(af, skb))
+	if (ip_vs_route_me_harder(af, skb, hooknum))
 		goto out;
 
 	/* do the statistics and put it back */
@@ -902,7 +917,7 @@ static int ip_vs_out_icmp(struct sk_buff *skb, int *related,
 
 	snet.ip = iph->saddr;
 	return handle_response_icmp(AF_INET, skb, &snet, cih->protocol, cp,
-				    pp, offset, ihl);
+				    pp, offset, ihl, hooknum);
 }
 
 #ifdef CONFIG_IP_VS_IPV6
@@ -979,7 +994,8 @@ static int ip_vs_out_icmp_v6(struct sk_buff *skb, int *related,
 
 	ipv6_addr_copy(&snet.in6, &iph->saddr);
 	return handle_response_icmp(AF_INET6, skb, &snet, cih->nexthdr, cp,
-				    pp, offset, sizeof(struct ipv6hdr));
+				    pp, offset, sizeof(struct ipv6hdr),
+				    hooknum);
 }
 #endif
 
@@ -1012,7 +1028,7 @@ static inline int is_tcp_reset(const struct sk_buff *skb, int nh_len)
  */
 static unsigned int
 handle_response(int af, struct sk_buff *skb, struct ip_vs_proto_data *pd,
-		struct ip_vs_conn *cp, int ihl)
+		struct ip_vs_conn *cp, int ihl, unsigned int hooknum)
 {
 	struct ip_vs_protocol *pp = pd->pp;
 
@@ -1050,7 +1066,7 @@ handle_response(int af, struct sk_buff *skb, struct ip_vs_proto_data *pd,
 	 * if it came from this machine itself.  So re-compute
 	 * the routing information.
 	 */
-	if (ip_vs_route_me_harder(af, skb))
+	if (ip_vs_route_me_harder(af, skb, hooknum))
 		goto drop;
 
 	IP_VS_DBG_PKT(10, af, pp, skb, 0, "After SNAT");
@@ -1163,7 +1179,7 @@ ip_vs_out(unsigned int hooknum, struct sk_buff *skb, int af)
 	cp = pp->conn_out_get(af, skb, &iph, iph.len, 0);
 
 	if (likely(cp))
-		return handle_response(af, skb, pd, cp, iph.len);
+		return handle_response(af, skb, pd, cp, iph.len, hooknum);
 	if (sysctl_nat_icmp_send(net) &&
 	    (pp->protocol == IPPROTO_TCP ||
 	     pp->protocol == IPPROTO_UDP ||
@@ -1470,6 +1486,7 @@ ip_vs_in_icmp_v6(struct sk_buff *skb, int *related, unsigned int hooknum)
 }
 #endif
 
+
 /*
  *	Check if it's for virtual services, look it up,
  *	and send it on its way...
@@ -1705,6 +1722,7 @@ ip_vs_local_request6(unsigned int hooknum, struct sk_buff *skb,
 
 #endif
 
+
 /*
  *	It is hooked at the NF_INET_FORWARD chain, in order to catch ICMP
  *      related packets destined for 0.0.0.0/0.
@@ -1753,6 +1771,7 @@ ip_vs_forward_icmp_v6(unsigned int hooknum, struct sk_buff *skb,
 	return ip_vs_in_icmp_v6(skb, &r, hooknum);
 }
 #endif
+
 
 static struct nf_hook_ops ip_vs_ops[] __read_mostly = {
 	/* After packet filtering, change source only for VS/NAT */
@@ -1984,10 +2003,18 @@ static int __init ip_vs_init(void)
 		goto cleanup_dev;
 	}
 
+	ret = ip_vs_register_nl_ioctl();
+	if (ret < 0) {
+		pr_err("can't register netlink/ioctl.\n");
+		goto cleanup_hooks;
+	}
+
 	pr_info("ipvs loaded.\n");
 
 	return ret;
 
+cleanup_hooks:
+	nf_unregister_hooks(ip_vs_ops, ARRAY_SIZE(ip_vs_ops));
 cleanup_dev:
 	unregister_pernet_device(&ipvs_core_dev_ops);
 cleanup_sub:
@@ -2003,6 +2030,7 @@ exit:
 
 static void __exit ip_vs_cleanup(void)
 {
+	ip_vs_unregister_nl_ioctl();
 	nf_unregister_hooks(ip_vs_ops, ARRAY_SIZE(ip_vs_ops));
 	unregister_pernet_device(&ipvs_core_dev_ops);
 	unregister_pernet_subsys(&ipvs_core_ops);	/* free ip_vs struct */

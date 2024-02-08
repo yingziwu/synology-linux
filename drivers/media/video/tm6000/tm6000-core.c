@@ -670,6 +670,7 @@ int tm6000_set_audio_bitrate(struct tm6000_core *dev, int bitrate)
 		return -EINVAL;
 	}
 
+
 	/* enable I2S, if we use sif or external I2S device */
 	if (dev->dev_type == TM6010) {
 		val = tm6000_set_reg(dev, TM6010_REQ08_R0A_A_I2S_MOD, areg_0a);

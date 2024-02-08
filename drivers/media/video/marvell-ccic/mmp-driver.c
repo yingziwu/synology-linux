@@ -89,6 +89,9 @@ static struct mmp_camera *mmpcam_find_device(struct platform_device *pdev)
 	return NULL;
 }
 
+
+
+
 /*
  * Power-related registers; this almost certainly belongs
  * somewhere else.
@@ -143,6 +146,7 @@ static void mmpcam_power_down(struct mcam_camera *mcam)
 	gpio_set_value(pdata->sensor_reset_gpio, 0);
 }
 
+
 static irqreturn_t mmpcam_irq(int irq, void *data)
 {
 	struct mcam_camera *mcam = data;
@@ -154,6 +158,7 @@ static irqreturn_t mmpcam_irq(int irq, void *data)
 	spin_unlock(&mcam->dev_lock);
 	return IRQ_RETVAL(handled);
 }
+
 
 static int mmpcam_probe(struct platform_device *pdev)
 {
@@ -276,6 +281,7 @@ out_free:
 	return ret;
 }
 
+
 static int mmpcam_remove(struct mmp_camera *cam)
 {
 	struct mcam_camera *mcam = &cam->mcam;
@@ -303,6 +309,7 @@ static int mmpcam_platform_remove(struct platform_device *pdev)
 	return mmpcam_remove(cam);
 }
 
+
 static struct platform_driver mmpcam_driver = {
 	.probe		= mmpcam_probe,
 	.remove		= mmpcam_platform_remove,
@@ -311,6 +318,7 @@ static struct platform_driver mmpcam_driver = {
 		.owner	= THIS_MODULE
 	}
 };
+
 
 static int __init mmpcam_init_module(void)
 {

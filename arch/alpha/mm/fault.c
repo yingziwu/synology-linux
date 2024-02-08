@@ -29,6 +29,7 @@
 
 extern void die_if_kernel(char *,struct pt_regs *,long, unsigned long *);
 
+
 /*
  * Force a new ASN for a task.
  */
@@ -52,6 +53,7 @@ __load_new_mm_context(struct mm_struct *next_mm)
 
 	__reload_thread(pcb);
 }
+
 
 /*
  * This routine handles page faults.  It determines the address,
@@ -148,6 +150,8 @@ do_page_fault(unsigned long address, unsigned long mmcsr,
 	if (unlikely(fault & VM_FAULT_ERROR)) {
 		if (fault & VM_FAULT_OOM)
 			goto out_of_memory;
+		else if (fault & VM_FAULT_SIGSEGV)
+			goto bad_area;
 		else if (fault & VM_FAULT_SIGBUS)
 			goto do_sigbus;
 		BUG();

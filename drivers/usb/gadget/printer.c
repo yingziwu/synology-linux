@@ -44,6 +44,7 @@
 
 #include "gadget_chips.h"
 
+
 /*
  * Kbuild is not very cooperative with respect to linking separately
  * compiled library objects into one module.  So for now we won't use
@@ -1299,6 +1300,7 @@ printer_unbind(struct usb_gadget *gadget)
 	struct printer_dev	*dev = get_gadget_data(gadget);
 	struct usb_request	*req;
 
+
 	DBG(dev, "%s\n", __func__);
 
 	/* Remove sysfs files */
@@ -1356,6 +1358,7 @@ printer_bind(struct usb_gadget *gadget)
 	struct usb_request	*req;
 
 	dev = &usb_printer_gadget;
+
 
 	/* Setup the sysfs files for the printer gadget. */
 	dev->pdev = device_create(usb_gadget_class, NULL, g_printer_devno,

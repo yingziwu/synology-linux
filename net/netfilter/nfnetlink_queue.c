@@ -49,6 +49,7 @@ struct nfqnl_instance {
 	unsigned int queue_dropped;
 	unsigned int queue_user_dropped;
 
+
 	u_int16_t queue_num;			/* number of this queue */
 	u_int8_t copy_mode;
 /*
@@ -263,6 +264,7 @@ nfqnl_build_packet_message(struct nfqnl_instance *queue,
 		size += nla_total_size(data_len);
 		break;
 	}
+
 
 	skb = alloc_skb(size, GFP_ATOMIC);
 	if (!skb)
@@ -713,9 +715,6 @@ nfqnl_recv_verdict(struct sock *ctnl, struct sk_buff *skb,
 	struct nfqnl_instance *queue;
 	unsigned int verdict;
 	struct nf_queue_entry *entry;
-
-	queue = instance_lookup(queue_num);
-	if (!queue)
 
 	queue = verdict_instance_lookup(queue_num, NETLINK_CB(skb).pid);
 	if (IS_ERR(queue))

@@ -13,6 +13,7 @@
 #ifndef __ASM_ARCH_CORGI_H
 #define __ASM_ARCH_CORGI_H  1
 
+
 /*
  * Corgi (Non Standard) GPIO Definitions
  */
@@ -42,6 +43,7 @@
 #define CORGI_GPIO_HSYNC			(44) /* LCD HSync Pulse */
 #define CORGI_GPIO_USB_PULLUP		(45) /* USB show presence to host */
 
+
 /*
  * Corgi Keyboard Definitions
  */
@@ -60,6 +62,7 @@
 #define CORGI_GPIO_KEY_SENSE(a)		(58+(a))
 #define CORGI_GPIO_KEY_STROBE(a)	(66+(a))
 
+
 /*
  * Corgi Interrupts
  */
@@ -75,6 +78,7 @@
 #define CORGI_IRQ_GPIO_CHRG_FULL	IRQ_GPIO(16)	/* Battery fully charged */
 #define CORGI_IRQ_GPIO_CF_IRQ		IRQ_GPIO(17)
 #define CORGI_IRQ_GPIO_KEY_SENSE(a)	IRQ_GPIO(58+(a))	/* Keyboard Sense lines */
+
 
 /*
  * Corgi SCOOP GPIOs and Config
@@ -106,3 +110,4 @@
 #define CORGI_GPIO_MIC_BIAS		(CORGI_SCOOP_GPIO_BASE + 8)
 
 #endif /* __ASM_ARCH_CORGI_H  */
+

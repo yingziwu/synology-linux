@@ -9,6 +9,7 @@
  *
  */
 
+
 #include <linux/kernel.h>
 #include <linux/spinlock.h>
 #include <linux/list.h>
@@ -48,3 +49,4 @@ static inline void kcapi_proc_init(void) { };
 static inline void kcapi_proc_exit(void) { };
 
 #endif
+

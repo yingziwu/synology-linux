@@ -170,3 +170,4 @@ int omap2_reprogram_dpllcore(struct clk *clk, unsigned long rate)
 
 	return 0;
 }
+

@@ -1,7 +1,17 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/fs/hfsplus/catalog.c
+ *
+ * Copyright (C) 2001
+ * Brad Boyer (flar@allandria.com)
+ * (C) 2003 Ardis Technologies <roman@ardistech.com>
+ *
+ * Handling of catalog records
+ */
+
+
 #include "hfsplus_fs.h"
 #include "hfsplus_raw.h"
 
@@ -31,13 +41,14 @@ int hfsplus_cat_bin_cmp_key(const hfsplus_btree_key *k1,
 	return hfsplus_strcmp(&k1->cat.name, &k2->cat.name);
 }
 
+/* Generates key for catalog file/folders record. */
 #ifdef MY_ABC_HERE
 void hfsplus_cat_build_key(struct super_block *sb, hfsplus_btree_key *key,
 			   u32 parent, struct qstr *str, int nfc)
 #else
 void hfsplus_cat_build_key(struct super_block *sb, hfsplus_btree_key *key,
 			   u32 parent, struct qstr *str)
-#endif  
+#endif /* MY_ABC_HERE */
 {
 	int len;
 
@@ -49,7 +60,7 @@ void hfsplus_cat_build_key(struct super_block *sb, hfsplus_btree_key *key,
 #else
 		hfsplus_asc2uni(sb, &key->cat.name, HFSPLUS_MAX_STRLEN,
 					str->name, str->len);
-#endif  
+#endif /* MY_ABC_HERE */
 		len = be16_to_cpu(key->cat.name.length);
 	} else {
 		key->cat.name.length = 0;
@@ -119,7 +130,7 @@ static int hfsplus_cat_build_record(hfsplus_cat_entry *entry,
 			folder->access_date = hfsp_now2mt();
 		hfsplus_cat_set_perms(inode, &folder->permissions);
 		if (inode == sbi->hidden_dir)
-			 
+			/* invisible and namelocked */
 			folder->user_info.frFlags = cpu_to_be16(0x5000);
 		return sizeof(*folder);
 	} else {
@@ -182,10 +193,11 @@ static int hfsplus_fill_cat_thread(struct super_block *sb,
 #else
 	hfsplus_asc2uni(sb, &entry->thread.nodeName, HFSPLUS_MAX_STRLEN,
 				str->name, str->len);
-#endif  
+#endif /* MY_ABC_HERE */
 	return 10 + be16_to_cpu(entry->thread.nodeName.length) * 2;
 }
 
+/* Try to get a catalog entry for given catalog id */
 int hfsplus_find_cat(struct super_block *sb, u32 cnid,
 		     struct hfs_find_data *fd)
 {
@@ -197,7 +209,7 @@ int hfsplus_find_cat(struct super_block *sb, u32 cnid,
 	hfsplus_cat_build_key(sb, fd->search_key, cnid, NULL, 0);
 #else
 	hfsplus_cat_build_key(sb, fd->search_key, cnid, NULL);
-#endif  
+#endif /* MY_ABC_HERE */
 	err = hfs_brec_read(fd, &tmp, sizeof(hfsplus_cat_entry));
 	if (err)
 		return err;
@@ -238,7 +250,7 @@ int hfsplus_create_cat(u32 cnid, struct inode *dir,
 	hfsplus_cat_build_key(sb, fd.search_key, cnid, NULL, 0);
 #else
 	hfsplus_cat_build_key(sb, fd.search_key, cnid, NULL);
-#endif  
+#endif /* MY_ABC_HERE */
 	entry_size = hfsplus_fill_cat_thread(sb, &entry,
 		S_ISDIR(inode->i_mode) ?
 			HFSPLUS_FOLDER_THREAD : HFSPLUS_FILE_THREAD,
@@ -257,11 +269,11 @@ int hfsplus_create_cat(u32 cnid, struct inode *dir,
 	hfsplus_cat_build_key(sb, fd.search_key, dir->i_ino, str, 0);
 #else
 	hfsplus_cat_build_key(sb, fd.search_key, dir->i_ino, str);
-#endif  
+#endif /* MY_ABC_HERE */
 	entry_size = hfsplus_cat_build_record(&entry, cnid, inode);
 	err = hfs_brec_find(&fd, hfs_find_rec_by_key);
 	if (err != -ENOENT) {
-		 
+		/* panic? */
 		if (!err)
 			err = -EEXIST;
 		goto err1;
@@ -282,7 +294,7 @@ err1:
 	hfsplus_cat_build_key(sb, fd.search_key, cnid, NULL, 0);
 #else
 	hfsplus_cat_build_key(sb, fd.search_key, cnid, NULL);
-#endif  
+#endif /* MY_ABC_HERE */
 	if (!hfs_brec_find(&fd, hfs_find_rec_by_key))
 		hfs_brec_remove(&fd);
 err2:
@@ -300,7 +312,7 @@ int hfsplus_delete_cat(u32 cnid, struct inode *dir, struct qstr *str)
 	u16 type;
 #ifdef MY_ABC_HERE
 	int nfc = 0;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	hfs_dbg(CAT_MOD, "delete_cat: %s,%u\n", str ? str->name : NULL, cnid);
 	err = hfs_find_init(HFSPLUS_SB(sb)->cat_tree, &fd);
@@ -314,7 +326,7 @@ int hfsplus_delete_cat(u32 cnid, struct inode *dir, struct qstr *str)
 		hfsplus_cat_build_key(sb, fd.search_key, cnid, NULL, 0);
 #else
 		hfsplus_cat_build_key(sb, fd.search_key, cnid, NULL);
-#endif  
+#endif /* MY_ABC_HERE */
 		err = hfs_brec_find(&fd, hfs_find_rec_by_key);
 		if (err)
 			goto out;
@@ -335,7 +347,7 @@ NFC:
 		hfsplus_cat_build_key(sb, fd.search_key, dir->i_ino, str, nfc);
 #else
 		hfsplus_cat_build_key(sb, fd.search_key, dir->i_ino, str);
-#endif  
+#endif /* MY_ABC_HERE */
 
 	err = hfs_brec_find(&fd, hfs_find_rec_by_key);
 #ifdef MY_ABC_HERE
@@ -349,7 +361,7 @@ NFC:
 #else
 	if (err)
 		goto out;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	type = hfs_bnode_read_u16(fd.bnode, fd.entryoffset);
 	if (type == HFSPLUS_FILE) {
@@ -380,7 +392,7 @@ NFC:
 	hfsplus_cat_build_key(sb, fd.search_key, cnid, NULL, 0);
 #else
 	hfsplus_cat_build_key(sb, fd.search_key, cnid, NULL);
-#endif  
+#endif /* MY_ABC_HERE */
 	err = hfs_brec_find(&fd, hfs_find_rec_by_key);
 	if (err)
 		goto out;
@@ -415,7 +427,7 @@ int hfsplus_rename_cat(u32 cnid,
 	int err;
 #ifdef MY_ABC_HERE
 	int nfc;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	hfs_dbg(CAT_MOD, "rename_cat: %u - %lu,%s - %lu,%s\n",
 		cnid, src_dir->i_ino, src_name->name,
@@ -425,13 +437,14 @@ int hfsplus_rename_cat(u32 cnid,
 		return err;
 	dst_fd = src_fd;
 
+	/* find the old dir entry and read the data */
 #ifdef MY_ABC_HERE
 	nfc = 0;
 NFC1:
 	hfsplus_cat_build_key(sb, src_fd.search_key, src_dir->i_ino, src_name, nfc);
 #else
 	hfsplus_cat_build_key(sb, src_fd.search_key, src_dir->i_ino, src_name);
-#endif  
+#endif /* MY_ABC_HERE */
 	err = hfs_brec_find(&src_fd, hfs_find_rec_by_key);
 #ifdef MY_ABC_HERE
 	if (err) {
@@ -444,7 +457,7 @@ NFC1:
 #else
 	if (err)
 		goto out;
-#endif  
+#endif /* MY_ABC_HERE */
 	if (src_fd.entrylength > sizeof(entry) || src_fd.entrylength < 0) {
 		err = -EIO;
 		goto out;
@@ -453,11 +466,12 @@ NFC1:
 	hfs_bnode_read(src_fd.bnode, &entry, src_fd.entryoffset,
 				src_fd.entrylength);
 
+	/* create new dir entry with the data from the old entry */
 #ifdef MY_ABC_HERE
 	hfsplus_cat_build_key(sb, dst_fd.search_key, dst_dir->i_ino, dst_name, 0);
 #else
 	hfsplus_cat_build_key(sb, dst_fd.search_key, dst_dir->i_ino, dst_name);
-#endif  
+#endif /* MY_ABC_HERE */
 	err = hfs_brec_find(&dst_fd, hfs_find_rec_by_key);
 	if (err != -ENOENT) {
 		if (!err)
@@ -471,13 +485,14 @@ NFC1:
 	dst_dir->i_size++;
 	dst_dir->i_mtime = dst_dir->i_ctime = CURRENT_TIME_SEC;
 
+	/* finally remove the old entry */
 #ifdef MY_ABC_HERE
 	nfc = 0;
 NFC2:
 	hfsplus_cat_build_key(sb, src_fd.search_key, src_dir->i_ino, src_name, nfc);
 #else
 	hfsplus_cat_build_key(sb, src_fd.search_key, src_dir->i_ino, src_name);
-#endif  
+#endif /* MY_ABC_HERE */
 	err = hfs_brec_find(&src_fd, hfs_find_rec_by_key);
 #ifdef MY_ABC_HERE
 	if (err) {
@@ -490,18 +505,19 @@ NFC2:
 #else
 	if (err)
 		goto out;
-#endif  
+#endif /* MY_ABC_HERE */
 	err = hfs_brec_remove(&src_fd);
 	if (err)
 		goto out;
 	src_dir->i_size--;
 	src_dir->i_mtime = src_dir->i_ctime = CURRENT_TIME_SEC;
 
+	/* remove old thread entry */
 #ifdef MY_ABC_HERE
 	hfsplus_cat_build_key(sb, src_fd.search_key, cnid, NULL, 0);
 #else
 	hfsplus_cat_build_key(sb, src_fd.search_key, cnid, NULL);
-#endif  
+#endif /* MY_ABC_HERE */
 	err = hfs_brec_find(&src_fd, hfs_find_rec_by_key);
 	if (err)
 		goto out;
@@ -510,11 +526,12 @@ NFC2:
 	if (err)
 		goto out;
 
+	/* create new thread entry */
 #ifdef MY_ABC_HERE
 	hfsplus_cat_build_key(sb, dst_fd.search_key, cnid, NULL, 0);
 #else
 	hfsplus_cat_build_key(sb, dst_fd.search_key, cnid, NULL);
-#endif  
+#endif /* MY_ABC_HERE */
 	entry_size = hfsplus_fill_cat_thread(sb, &entry, type,
 		dst_dir->i_ino, dst_name);
 	err = hfs_brec_find(&dst_fd, hfs_find_rec_by_key);

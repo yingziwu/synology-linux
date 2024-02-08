@@ -105,6 +105,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VPAPI_MOD_IOCTL_MAX 		14
 #define MAX_SLIC_RDWR_BUFF_SIZE		128
 
+
 /******************** VP-API System Configuration Structs *********************/
 typedef struct VpApiModMkDevObj {
 	/* Input arg(s) */
@@ -114,6 +115,7 @@ typedef struct VpApiModMkDevObj {
 	/* Output arg(s) */
 	VpStatusType		status;
 } VpApiModMkDevObjType;
+
 
 typedef struct VpApiModMkLnObj {
 	/* Input arg(s) */
@@ -149,6 +151,7 @@ typedef struct VpApiModFreeLnCtx {
 	VpStatusType	status;
 } VpApiModFreeLnCtxType;
 
+
 /************************ VP-API Initialization Structs ************************/
 typedef struct VpApiModInitDevice {
     	/* Input arg(s) */
@@ -178,6 +181,7 @@ typedef struct VpApiModCalLn {
 	VpStatusType	status;
 } VpApiModCalLnType;
 
+
 /****************************VP-API Control Structs ***************************/
 typedef struct VpApiModSetLnSt {
 	/* Input arg(s) */
@@ -187,6 +191,7 @@ typedef struct VpApiModSetLnSt {
 	/* Output arg(s) */
 	VpStatusType	status;
 } VpApiModSetLnStType;
+
 
 typedef struct VpApiModSetOption {
 	/* Input arg(s) */
@@ -256,4 +261,6 @@ typedef struct VpModRegOp {
 int vpapi_module_init(void);
 void vpapi_module_exit(void);
 
+
 #endif /*_VPAPI_DEV_H_*/
+

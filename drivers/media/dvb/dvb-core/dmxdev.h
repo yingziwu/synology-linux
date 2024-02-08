@@ -89,6 +89,7 @@ struct dmxdev_filter {
 	u8 secheader[3];
 };
 
+
 struct dmxdev {
 	struct dvb_device *dvbdev;
 	struct dvb_device *dvr_dvbdev;
@@ -109,6 +110,7 @@ struct dmxdev {
 	struct mutex mutex;
 	spinlock_t lock;
 };
+
 
 int dvb_dmxdev_init(struct dmxdev *dmxdev, struct dvb_adapter *);
 void dvb_dmxdev_release(struct dmxdev *dmxdev);

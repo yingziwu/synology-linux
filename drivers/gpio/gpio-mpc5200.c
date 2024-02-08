@@ -365,6 +365,7 @@ static int __init mpc52xx_gpio_init(void)
 	return 0;
 }
 
+
 /* Make sure we get initialised before anyone else tries to use us */
 subsys_initcall(mpc52xx_gpio_init);
 
@@ -373,3 +374,4 @@ subsys_initcall(mpc52xx_gpio_init);
 MODULE_DESCRIPTION("Freescale MPC52xx gpio driver");
 MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de");
 MODULE_LICENSE("GPL v2");
+

@@ -83,14 +83,13 @@ static int create_link(struct config_item *parent_item,
 	ret = -ENOMEM;
 	sl = kmalloc(sizeof(struct configfs_symlink), GFP_KERNEL);
 	if (sl) {
-		sl->sl_target = config_item_get(item);
 		spin_lock(&configfs_dirent_lock);
 		if (target_sd->s_type & CONFIGFS_USET_DROPPING) {
 			spin_unlock(&configfs_dirent_lock);
-			config_item_put(item);
 			kfree(sl);
 			return -ENOENT;
 		}
+		sl->sl_target = config_item_get(item);
 		list_add(&sl->sl_list, &target_sd->s_links);
 		spin_unlock(&configfs_dirent_lock);
 		ret = configfs_create_link(sl, parent_item->ci_dentry,
@@ -107,6 +106,7 @@ static int create_link(struct config_item *parent_item,
 out:
 	return ret;
 }
+
 
 static int get_target(const char *symname, struct path *path,
 		      struct config_item **target)
@@ -129,6 +129,7 @@ static int get_target(const char *symname, struct path *path,
 
 	return ret;
 }
+
 
 int configfs_symlink(struct inode *dir, struct dentry *dentry, const char *symname)
 {
@@ -315,3 +316,4 @@ const struct inode_operations configfs_symlink_inode_operations = {
 	.put_link = configfs_put_link,
 	.setattr = configfs_setattr,
 };
+

@@ -60,6 +60,7 @@
 #include "iwl-4965.h"
 #include "iwl-4965-led.h"
 
+
 /******************************************************************************
  *
  * module boiler plate
@@ -78,6 +79,7 @@
 #endif
 
 #define DRV_VERSION     IWLWIFI_VERSION VD
+
 
 MODULE_DESCRIPTION(DRV_DESCRIPTION);
 MODULE_VERSION(DRV_VERSION);
@@ -866,13 +868,13 @@ static void iwl4965_irq_tasklet(struct iwl_priv *priv)
 		 * is killed. Hence update the killswitch state here. The
 		 * rfkill handler will care about restarting if needed.
 		 */
-		if (!test_bit(STATUS_ALIVE, &priv->status)) {
-			if (hw_rf_kill)
-				set_bit(STATUS_RF_KILL_HW, &priv->status);
-			else
-				clear_bit(STATUS_RF_KILL_HW, &priv->status);
-			wiphy_rfkill_set_hw_state(priv->hw->wiphy, hw_rf_kill);
+		if (hw_rf_kill) {
+			set_bit(STATUS_RF_KILL_HW, &priv->status);
+		} else {
+			clear_bit(STATUS_RF_KILL_HW, &priv->status);
+			iwl_legacy_force_reset(priv, true);
 		}
+		wiphy_rfkill_set_hw_state(priv->hw->wiphy, hw_rf_kill);
 
 		handled |= CSR_INT_BIT_RF_KILL;
 	}
@@ -1005,7 +1007,9 @@ static ssize_t iwl4965_store_debug_level(struct device *d,
 static DEVICE_ATTR(debug_level, S_IWUSR | S_IRUGO,
 			iwl4965_show_debug_level, iwl4965_store_debug_level);
 
+
 #endif /* CONFIG_IWLWIFI_LEGACY_DEBUG */
+
 
 static ssize_t iwl4965_show_temperature(struct device *d,
 				struct device_attribute *attr, char *buf)
@@ -1746,6 +1750,7 @@ static void iwl4965_alive_start(struct iwl_priv *priv)
 		goto restart;
 	}
 
+
 	/* After the ALIVE response, we can send host commands to the uCode */
 	set_bit(STATUS_ALIVE, &priv->status);
 
@@ -1758,6 +1763,9 @@ static void iwl4965_alive_start(struct iwl_priv *priv)
 	ieee80211_wake_queues(priv->hw);
 
 	priv->active_rate = IWL_RATES_MASK;
+
+	iwl_legacy_power_update_mode(priv, true);
+	IWL_DEBUG_INFO(priv, "Updated power mode\n");
 
 	if (iwl_legacy_is_associated_ctx(ctx)) {
 		struct iwl_legacy_rxon_cmd *active_rxon =
@@ -1790,9 +1798,6 @@ static void iwl4965_alive_start(struct iwl_priv *priv)
 
 	IWL_DEBUG_INFO(priv, "ALIVE processing complete.\n");
 	wake_up(&priv->wait_command_queue);
-
-	iwl_legacy_power_update_mode(priv, true);
-	IWL_DEBUG_INFO(priv, "Updated power mode\n");
 
 	return;
 
@@ -2055,6 +2060,7 @@ static int __iwl4965_up(struct iwl_priv *priv)
 	return -EIO;
 }
 
+
 /*****************************************************************************
  *
  * Workqueue callbacks
@@ -2235,6 +2241,7 @@ static int iwl4965_mac_setup_register(struct iwl_priv *priv,
 
 	return 0;
 }
+
 
 int iwl4965_mac_start(struct ieee80211_hw *hw)
 {
@@ -2758,6 +2765,7 @@ void iwl4965_tx_queue_set_status(struct iwl_priv *priv,
 		       scd_retry ? "BA" : "AC", txq_id, tx_fifo_id);
 }
 
+
 static int iwl4965_init_drv(struct iwl_priv *priv)
 {
 	int ret;
@@ -2949,6 +2957,7 @@ iwl4965_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out_pci_disable_device;
 
 	pci_set_drvdata(pdev, priv);
+
 
 	/***********************
 	 * 3. Read REV register
@@ -3159,6 +3168,7 @@ static void __devexit iwl4965_pci_remove(struct pci_dev *pdev)
 	iwl4965_hw_txq_ctx_free(priv);
 
 	iwl_legacy_eeprom_free(priv);
+
 
 	/*netif_stop_queue(dev); */
 	flush_workqueue(priv->workqueue);

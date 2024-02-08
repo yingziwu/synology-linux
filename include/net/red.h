@@ -40,6 +40,7 @@
 	is a negative power of two in order arithmetics to contain
 	only shifts.
 
+
 	Parameters, settable by user:
 	-----------------------------
 
@@ -59,6 +60,7 @@
 	Stab
 
 	Lookup table for log((1-W)^(t/t_ave).
+
 
 	NOTES:
 
@@ -120,6 +122,17 @@ struct red_parms {
 static inline u32 red_rmask(u8 Plog)
 {
 	return Plog < 32 ? ((1 << Plog) - 1) : ~0UL;
+}
+
+static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog)
+{
+	if (fls(qth_min) + Wlog > 32)
+		return false;
+	if (fls(qth_max) + Wlog > 32)
+		return false;
+	if (qth_max < qth_min)
+		return false;
+	return true;
 }
 
 static inline void red_set_parms(struct red_parms *p,

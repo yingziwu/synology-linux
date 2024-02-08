@@ -68,6 +68,7 @@ static void mv_usb_release(struct device *dev)
 	kfree(pdev);
 }
 
+
 static int __init mv_usb2_init(void)
 {
 	int status, dev, num, isHost;
@@ -169,6 +170,7 @@ static int __init mv_usb2_init(void)
 static u64 mv_usb3_dmamask = 0xffffffffUL;
 
 static struct resource mv_usb3_resources[2];
+
 
 static void __init mv_usb3_conf_mbus_windows(void __iomem *base,
 			const struct mbus_dram_target_info *dram)

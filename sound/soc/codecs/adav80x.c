@@ -232,6 +232,7 @@ static int adav80x_dapm_pll_check(struct snd_soc_dapm_widget *source,
 	return adav80x->pll_src == ADAV80X_PLL_SRC_XTAL;
 }
 
+
 static const struct snd_soc_dapm_route adav80x_dapm_routes[] = {
 	{ "DAC Select", "ADC", "ADC" },
 	{ "DAC Select", "Playback", "AIFIN" },
@@ -306,7 +307,7 @@ static int adav80x_put_deemph(struct snd_kcontrol *kcontrol,
 {
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
 	struct adav80x *adav80x = snd_soc_codec_get_drvdata(codec);
-	unsigned int deemph = ucontrol->value.enumerated.item[0];
+	unsigned int deemph = ucontrol->value.integer.value[0];
 
 	if (deemph > 1)
 		return -EINVAL;
@@ -322,7 +323,7 @@ static int adav80x_get_deemph(struct snd_kcontrol *kcontrol,
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
 	struct adav80x *adav80x = snd_soc_codec_get_drvdata(codec);
 
-	ucontrol->value.enumerated.item[0] = adav80x->deemph;
+	ucontrol->value.integer.value[0] = adav80x->deemph;
 	return 0;
 };
 

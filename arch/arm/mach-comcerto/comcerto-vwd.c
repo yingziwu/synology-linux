@@ -19,6 +19,7 @@
  */
 #include <linux/module.h>
 
+
 static int comcerto_wifi_rx_dummy_hdlr(int (*hdlr)(struct sk_buff *skb));
 static int (*vwd_rx_hdlr)(struct sk_buff *) = comcerto_wifi_rx_dummy_hdlr;
 

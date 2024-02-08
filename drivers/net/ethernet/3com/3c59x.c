@@ -28,7 +28,10 @@
  * elimination of all the tests and reduced cache footprint.
  */
 
+
 #define DRV_NAME	"3c59x"
+
+
 
 /* A few values that may be tweaked. */
 /* Keep the ring sizes a power of two for efficiency. */
@@ -98,12 +101,14 @@ static int vortex_debug = 1;
 
 #include <linux/delay.h>
 
+
 static const char version[] __devinitconst =
 	DRV_NAME ": Donald Becker and others.\n";
 
 MODULE_AUTHOR("Donald Becker <becker@scyld.com>");
 MODULE_DESCRIPTION("3Com 3c59x/3c9xx ethernet driver ");
 MODULE_LICENSE("GPL");
+
 
 /* Operational parameter that usually are not changed. */
 
@@ -120,6 +125,8 @@ MODULE_LICENSE("GPL");
 static char mii_preamble_required;
 
 #define PFX DRV_NAME ": "
+
+
 
 /*
 				Theory of Operation
@@ -260,6 +267,7 @@ enum vortex_chips {
 	CH_920B_EMB_WNM,
 };
 
+
 /* note: this array directly indexed by above enums, and MUST
  * be kept in sync with both the enums above, and the PCI device
  * table below
@@ -366,6 +374,7 @@ static struct vortex_chip_info {
 	{NULL,}, /* NULL terminated list. */
 };
 
+
 static DEFINE_PCI_DEVICE_TABLE(vortex_pci_tbl) = {
 	{ 0x10B7, 0x5900, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C590 },
 	{ 0x10B7, 0x5920, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C592 },
@@ -417,6 +426,7 @@ static DEFINE_PCI_DEVICE_TABLE(vortex_pci_tbl) = {
 	{0,}						/* 0 terminated list. */
 };
 MODULE_DEVICE_TABLE(pci, vortex_pci_tbl);
+
 
 /* Operational definitions.
    These are not used by other compilation units and thus are not
@@ -622,7 +632,6 @@ struct vortex_private {
 		pm_state_valid:1,				/* pci_dev->saved_config_space has sane contents */
 		open:1,
 		medialock:1,
-		must_free_region:1,				/* Flag: if zero, Cardbus owns the I/O region */
 		large_frames:1,			/* accept large frames */
 		handling_irq:1;			/* private in_irq indicator */
 	/* {get|set}_wol operations are already serialized by rtnl.
@@ -941,7 +950,7 @@ static int __devexit vortex_eisa_remove(struct device *device)
 
 	unregister_netdev(dev);
 	iowrite16(TotalReset|0x14, ioaddr + EL3_CMD);
-	release_region(dev->base_addr, VORTEX_TOTAL_SIZE);
+	release_region(edev->base_addr, VORTEX_TOTAL_SIZE);
 
 	free_netdev(dev);
 	return 0;
@@ -1002,6 +1011,12 @@ static int __devinit vortex_init_one(struct pci_dev *pdev,
 	if (rc < 0)
 		goto out;
 
+	rc = pci_request_regions(pdev, DRV_NAME);
+	if (rc < 0) {
+		pci_disable_device(pdev);
+		goto out;
+	}
+
 	unit = vortex_cards_found;
 
 	if (global_use_mmio < 0 && (unit >= MAX_UNITS || use_mmio[unit] < 0)) {
@@ -1017,6 +1032,7 @@ static int __devinit vortex_init_one(struct pci_dev *pdev,
 	if (!ioaddr) /* If mapping fails, fall-back to BAR 0... */
 		ioaddr = pci_iomap(pdev, 0, 0);
 	if (!ioaddr) {
+		pci_release_regions(pdev);
 		pci_disable_device(pdev);
 		rc = -ENOMEM;
 		goto out;
@@ -1026,6 +1042,7 @@ static int __devinit vortex_init_one(struct pci_dev *pdev,
 			   ent->driver_data, unit);
 	if (rc < 0) {
 		pci_iounmap(pdev, ioaddr);
+		pci_release_regions(pdev);
 		pci_disable_device(pdev);
 		goto out;
 	}
@@ -1170,11 +1187,6 @@ static int __devinit vortex_probe1(struct device *gendev,
 
 	/* PCI-only startup logic */
 	if (pdev) {
-		/* EISA resources already marked, so only PCI needs to do this here */
-		/* Ignore return value, because Cardbus drivers already allocate for us */
-		if (request_region(dev->base_addr, vci->io_size, print_name) != NULL)
-			vp->must_free_region = 1;
-
 		/* enable bus-mastering if necessary */
 		if (vci->flags & PCI_USES_MASTER)
 			pci_set_master(pdev);
@@ -1212,7 +1224,7 @@ static int __devinit vortex_probe1(struct device *gendev,
 					   &vp->rx_ring_dma);
 	retval = -ENOMEM;
 	if (!vp->rx_ring)
-		goto free_region;
+		goto free_device;
 
 	vp->tx_ring = (struct boom_tx_desc *)(vp->rx_ring + RX_RING_SIZE);
 	vp->tx_ring_dma = vp->rx_ring_dma + sizeof(struct boom_rx_desc) * RX_RING_SIZE;
@@ -1311,6 +1323,7 @@ static int __devinit vortex_probe1(struct device *gendev,
 			eeprom[6]&0xff, eeprom[6]>>8, eeprom[0x14],
 			step, (eeprom[4]>>5) & 15, eeprom[4] & 31, eeprom[4]>>9);
 	}
+
 
 	if (pdev && vci->drv_flags & HAS_CB_FNS) {
 		unsigned short n;
@@ -1476,9 +1489,7 @@ free_ring:
 							+ sizeof(struct boom_tx_desc) * TX_RING_SIZE,
 						vp->rx_ring,
 						vp->rx_ring_dma);
-free_region:
-	if (vp->must_free_region)
-		release_region(dev->base_addr, vci->io_size);
+free_device:
 	free_netdev(dev);
 	pr_err(PFX "vortex_probe1 fails.  Returns %d\n", retval);
 out:
@@ -1631,6 +1642,7 @@ vortex_up(struct net_device *dev)
 	 * Don't reset the PHY - that upsets autonegotiation during DHCP operations.
 	 */
 	issue_and_wait(dev, RxReset|0x04);
+
 
 	iowrite16(SetStatusEnb | 0x00, ioaddr + EL3_CMD);
 
@@ -2086,6 +2098,7 @@ vortex_start_xmit(struct sk_buff *skb, struct net_device *dev)
 		}
 	}
 
+
 	/* Clear the Tx status stack. */
 	{
 		int tx_status;
@@ -2341,6 +2354,7 @@ boomerang_interrupt(int irq, void *dev_id)
 	int work_done = max_interrupt_work;
 
 	ioaddr = vp->ioaddr;
+
 
 	/*
 	 * It seems dopey to put the spinlock this early, but we could race against vortex_tx_timeout
@@ -2897,6 +2911,7 @@ static void vortex_get_ethtool_stats(struct net_device *dev,
 	data[4] = vp->xstats.rx_bad_ssd;
 }
 
+
 static void vortex_get_strings(struct net_device *dev, u32 stringset, u8 *data)
 {
 	switch (stringset) {
@@ -2999,6 +3014,7 @@ static int vortex_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 }
 #endif
 
+
 /* Pre-Cyclone chips have no documented multicast filter, so the only
    multicast setting is to receive all multicast frames.  At least
    the chip has a very clean way to set the mode, unlike many others. */
@@ -3064,6 +3080,7 @@ static void set_8021q_mode(struct net_device *dev, int enable)
 static void set_8021q_mode(struct net_device *dev, int enable)
 {
 }
+
 
 #endif
 
@@ -3202,6 +3219,7 @@ static void acpi_set_WOL(struct net_device *dev)
 	}
 }
 
+
 static void __devexit vortex_remove_one(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -3236,10 +3254,12 @@ static void __devexit vortex_remove_one(struct pci_dev *pdev)
 							+ sizeof(struct boom_tx_desc) * TX_RING_SIZE,
 						vp->rx_ring,
 						vp->rx_ring_dma);
-	if (vp->must_free_region)
-		release_region(dev->base_addr, vp->io_size);
+
+	pci_release_regions(pdev);
+
 	free_netdev(dev);
 }
+
 
 static struct pci_driver vortex_driver = {
 	.name		= "3c59x",
@@ -3249,8 +3269,10 @@ static struct pci_driver vortex_driver = {
 	.driver.pm	= VORTEX_PM_OPS,
 };
 
+
 static int vortex_have_pci;
 static int vortex_have_eisa;
+
 
 static int __init vortex_init(void)
 {
@@ -3266,6 +3288,7 @@ static int __init vortex_init(void)
 
 	return (vortex_have_pci + vortex_have_eisa) ? 0 : -ENODEV;
 }
+
 
 static void __exit vortex_eisa_cleanup(void)
 {
@@ -3291,6 +3314,7 @@ static void __exit vortex_eisa_cleanup(void)
 	}
 }
 
+
 static void __exit vortex_cleanup(void)
 {
 	if (vortex_have_pci)
@@ -3298,6 +3322,7 @@ static void __exit vortex_cleanup(void)
 	if (vortex_have_eisa)
 		vortex_eisa_cleanup();
 }
+
 
 module_init(vortex_init);
 module_exit(vortex_cleanup);

@@ -38,6 +38,7 @@
 #define VP890_DC_FEED_LEN           0x02
 #endif
 
+
 #ifndef VP890_ICR1_LEN
 #define VP890_ICR1_LEN              0x04
 #endif
@@ -388,6 +389,7 @@ typedef enum {
                                          * upon PCLK recovery.
                                          */
 } Vp890DeviceStateIntType;
+
 
 /**< Line Status types to minimize code space in line object (compared to each
  * status being maintined by a uint8 type)
@@ -818,5 +820,6 @@ typedef struct {
     /* For runtime enabling of debug output: */
     uint32 debugSelectMask;
 } Vp890LineObjectType;
+
 
 #endif /* VP890_API_H */

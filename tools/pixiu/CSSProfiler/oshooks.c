@@ -247,6 +247,7 @@ end:
 	return ret;
 }
 
+
 unsigned long long get_sample_count(void)
 {
 	return g_sample_count;
@@ -285,6 +286,7 @@ static void check_launched_app_exit(pid_t pid)
 		launched_app_exit_notif();
 	}
 }
+
 
 static void write_module_info(const char *  module_path,
                               unsigned long name_offset,
@@ -448,6 +450,7 @@ static void enum_modules_for_process(pid_t pid, unsigned long long lsc, const ch
 		mmput(mm);
 	}
 
+
 	if (find == false)
 	{
 		module_load_notif(task->comm, 0, pid,
@@ -484,6 +487,8 @@ static void static_enum_exiting_process_modules(void)
 
 }
 
+
+
 int module_init_notifier(struct notifier_block *self,
                          unsigned long event,
                          void *arg)
@@ -495,6 +500,7 @@ int module_init_notifier(struct notifier_block *self,
 	lsc = get_sample_count();
 
 	name_offset = 0;
+
 
 	if (event == MODULE_STATE_COMING)
 	{
@@ -567,6 +573,7 @@ asmlinkage int px_sys_vfork(struct pt_regs *regs)
 		enum_modules_for_process(ret, lsc, NULL);
 	}
 
+
 	return ret;
 }
 
@@ -630,6 +637,7 @@ asmlinkage int px_sys_execve(const char *filenameei, char ** const argv, char **
 
 	return ret;
 }
+
 
 asmlinkage int px_sys_mmap2(
 		unsigned long addr, unsigned long len,
@@ -817,6 +825,7 @@ asmlinkage long px_sys_kill(int pid, int sig)
 	long ret = 0;
 	sys_kill_t saved_sys_kill = px_original_sys_kill;
 
+
 	ret = saved_sys_kill(pid, sig);
 
 	if (!ret && gb_enable_os_hooks && is_kill_sig(sig))
@@ -832,6 +841,7 @@ asmlinkage long px_sys_tkill(int pid, int sig)
 	long ret = 0;
 	sys_tkill_t saved_sys_tkill = px_original_sys_tkill;
 
+
 	ret = saved_sys_tkill(pid, sig);
 
 	if (!ret && gb_enable_os_hooks && is_kill_sig(sig))
@@ -846,6 +856,7 @@ asmlinkage long px_sys_tgkill(int pid, int tid, int sig)
 {
 	long ret = 0;
 	sys_tgkill_t saved_sys_tgkill = px_original_sys_tgkill;
+
 
 	ret = saved_sys_tgkill(pid, tid, sig);
 

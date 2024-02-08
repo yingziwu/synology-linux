@@ -99,3 +99,4 @@ ENDPROC(native_\op\()_safe_regs)
 
 op_safe_regs rdmsr
 op_safe_regs wrmsr
+

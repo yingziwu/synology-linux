@@ -302,6 +302,7 @@ static void bq27x00_battery_poll(struct work_struct *work)
 	}
 }
 
+
 /*
  * Return the battery temperature in tenths of degree Celsius
  * Or < 0 if something fails.
@@ -423,6 +424,7 @@ static int bq27x00_battery_energy(struct bq27x00_device_info *di,
 
 	return 0;
 }
+
 
 static int bq27x00_simple_value(int value,
 	union power_supply_propval *val)
@@ -550,6 +552,7 @@ static void bq27x00_powersupply_unregister(struct bq27x00_device_info *di)
 
 	mutex_destroy(&di->lock);
 }
+
 
 /* i2c specific code */
 #ifdef CONFIG_BATTERY_BQ27X00_I2C

@@ -197,3 +197,4 @@ struct ccsr_ssi {
 #define CCSR_SSI_SOR_SYNRST 		0x00000001
 
 #endif
+

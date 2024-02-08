@@ -183,6 +183,7 @@ minstrel_tx_status(void *priv, struct ieee80211_supported_band *sband,
 		mi->sample_deferred--;
 }
 
+
 static inline unsigned int
 minstrel_get_retry_count(struct minstrel_rate *mr,
                          struct ieee80211_tx_info *info)
@@ -195,6 +196,7 @@ minstrel_get_retry_count(struct minstrel_rate *mr,
 		retry = max(2U, min(mr->retry_count_cts, retry));
 	return retry;
 }
+
 
 static int
 minstrel_get_next_sample(struct minstrel_sta_info *mi)
@@ -329,6 +331,7 @@ minstrel_get_rate(void *priv, struct ieee80211_sta *sta,
 		ar[i].count = mi->r[mrr_ndx[i - 1]].adjusted_retry_count;
 	}
 }
+
 
 static void
 calc_rate_durations(struct minstrel_sta_info *mi, struct ieee80211_local *local,
@@ -573,3 +576,4 @@ rc80211_minstrel_exit(void)
 {
 	ieee80211_rate_control_unregister(&mac80211_minstrel);
 }
+

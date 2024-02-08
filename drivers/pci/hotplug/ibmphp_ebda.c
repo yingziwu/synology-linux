@@ -249,6 +249,7 @@ int __init ibmphp_access_ebda (void)
 	u16 ebda_seg, num_entries, next_offset, offset, blk_id, sub_addr, re, rc_id, re_id, base;
 	int rc = 0;
 
+
 	rio_complete = 0;
 	hs_complete = 0;
 
@@ -530,6 +531,7 @@ static int combine_wpg_for_expansion (void)
 	return 0;	
 }
 	
+
 /* Since we don't know the max slot number per each chassis, hence go
  * through the list of all chassis to find out the range
  * Arguments: slot_num, 1st slot number of the chassis we think we are on, 
@@ -934,6 +936,7 @@ static int __init ebda_rsrc_controller (void)
 			else
 				tmp_slot->supported_bus_mode = 0;
 
+
 			tmp_slot->bus = hpc_ptr->slots[index].slot_bus_num;
 
 			bus_info_ptr1 = ibmphp_find_same_bus_num (hpc_ptr->slots[index].slot_bus_num);
@@ -1205,3 +1208,4 @@ static int ibmphp_probe (struct pci_dev * dev, const struct pci_device_id *ids)
 	}
 	return -ENODEV;
 }
+

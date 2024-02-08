@@ -136,6 +136,7 @@ int		Port)	/* Port Index (MAC_1 + n) */
 	return;
 }	/* SkHWInitDefSense */
 
+
 #ifdef GENESIS
 /******************************************************************************
  *
@@ -171,6 +172,7 @@ int		Port)	/* Port Index (MAC_1 + n) */
 	return((SK_U8)SK_LMODE_AUTOFULL);
 }	/* SkHWSenseGetNext */
 
+
 /******************************************************************************
  *
  *	SkHWSenseSetNext() - Autosensing Set next mode
@@ -204,6 +206,7 @@ SK_U8	NewMode)	/* New Mode to be written in sense mode */
 	return;
 }	/* SkHWSenseSetNext */
 #endif /* GENESIS */
+
 
 /******************************************************************************
  *
@@ -257,6 +260,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 
 	/* Do NOT start the timer here */
 }	/* SkHWLinkDown */
+
 
 /******************************************************************************
  *
@@ -322,6 +326,7 @@ int		Port)	/* Port Index (MAC_1 + n) */
 	}
 #endif /* !SK_SLIM */
 }	/* SkHWLinkUp */
+
 
 /******************************************************************************
  *
@@ -400,6 +405,7 @@ int		Port)	/* Port Index (MAC_1 + n) */
 		pPrt->PCheckPar = SK_TRUE;
 	}
 }	/* SkMacParity */
+
 
 /******************************************************************************
  *
@@ -1321,6 +1327,7 @@ SK_U32	Istatus)	/* Interrupt status word */
 
 }	/* SkYuk2SirqIsr */
 
+
 #ifdef GENESIS
 /******************************************************************************
  *
@@ -1421,6 +1428,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 		pPrt->PPrevFcs = FcsErrCts;
 	}
 
+
 	if ((Shorts - pPrt->PPrevShorts) > CheckShorts) {
 		SK_DBG_MSG(pAC, SK_DBGMOD_HWM, SK_DBGCAT_IRQ,
 			("Short Event Count Restart Port %d \n", Port));
@@ -1433,6 +1441,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 	return(Rtv);
 }	/* SkGePortCheckShorts */
 #endif /* GENESIS */
+
 
 /******************************************************************************
  *
@@ -1491,6 +1500,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 
 	return(Rtv);
 }	/* SkGePortCheckUp */
+
 
 #ifdef GENESIS
 /******************************************************************************
@@ -1752,6 +1762,7 @@ SK_BOOL	AutoNeg)	/* Is Auto-negotiation used ? */
 	return(SK_HW_PS_NONE);
 }	/* SkGePortCheckUpXmac */
 
+
 /******************************************************************************
  *
  * SkGePortCheckUpBcom() - Check if the link is up on Bcom PHY
@@ -1882,6 +1893,7 @@ SK_BOOL	AutoNeg)	/* Is Auto-negotiation used ? */
 	return(SK_HW_PS_NONE);
 }	/* SkGePortCheckUpBcom */
 #endif /* GENESIS */
+
 
 #ifdef YUKON
 /******************************************************************************
@@ -2122,6 +2134,7 @@ SK_BOOL	AutoNeg)	/* Is Auto-negotiation used ? */
 
 #endif /* YUKON */
 
+
 #ifdef OTHER_PHY
 /******************************************************************************
  *
@@ -2261,6 +2274,7 @@ SK_BOOL	AutoNeg)	/* Is Auto-negotiation used ? */
 	return(SK_HW_PS_NONE);
 }	/* SkGePortCheckUpLone */
 
+
 /******************************************************************************
  *
  * SkGePortCheckUpNat() - Check if the link is up on National PHY
@@ -2280,6 +2294,7 @@ SK_BOOL	AutoNeg)	/* Is Auto-negotiation used ? */
 	return(SK_HW_PS_NONE);
 }	/* SkGePortCheckUpNat */
 #endif /* OTHER_PHY */
+
 
 /******************************************************************************
  *
@@ -2513,6 +2528,7 @@ SK_EVPARA	Para)		/* Event specific Parameter */
 	return(0);
 }	/* SkGeSirqEvent */
 
+
 #ifdef GENESIS
 /******************************************************************************
  *
@@ -2554,6 +2570,7 @@ SK_U16		IStatus)	/* Interrupt Status */
 
 }	/* SkPhyIsrBcom */
 #endif /* GENESIS */
+
 
 #ifdef YUKON
 /******************************************************************************
@@ -2669,6 +2686,7 @@ SK_U16		IStatus)	/* Interrupt Status */
 }	/* SkPhyIsrGmac */
 #endif /* YUKON */
 
+
 #ifdef OTHER_PHY
 /******************************************************************************
  *
@@ -2699,3 +2717,4 @@ SK_U16	IStatus)	/* Interrupt Status */
 #endif /* OTHER_PHY */
 
 /* End of File */
+

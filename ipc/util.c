@@ -56,6 +56,7 @@ static void ipc_memory_notifier(struct work_struct *work)
 
 static DECLARE_WORK(ipc_memory_wq, ipc_memory_notifier);
 
+
 static int ipc_memory_callback(struct notifier_block *self,
 				unsigned long action, void *arg)
 {
@@ -263,6 +264,10 @@ int ipc_addid(struct ipc_ids* ids, struct kern_ipc_perm* new, int size)
 	rcu_read_lock();
 	spin_lock(&new->lock);
 
+	current_euid_egid(&euid, &egid);
+	new->cuid = new->uid = euid;
+	new->gid = new->cgid = egid;
+
 	err = idr_get_new(&ids->ipcs_idr, new, &id);
 	if (err) {
 		spin_unlock(&new->lock);
@@ -271,10 +276,6 @@ int ipc_addid(struct ipc_ids* ids, struct kern_ipc_perm* new, int size)
 	}
 
 	ids->in_use++;
-
-	current_euid_egid(&euid, &egid);
-	new->cuid = new->uid = euid;
-	new->gid = new->cgid = egid;
 
 	new->seq = ids->seq++;
 	if(ids->seq > ids->seq_max)
@@ -410,6 +411,7 @@ retry:
 	return err;
 }
 
+
 /**
  *	ipc_rmid	-	remove an IPC identifier
  *	@ids: IPC identifier set
@@ -483,6 +485,7 @@ struct ipc_rcu_hdr
 	int is_vmalloc;
 	void *data[0];
 };
+
 
 struct ipc_rcu_grace
 {
@@ -636,6 +639,7 @@ int ipcperms(struct ipc_namespace *ns, struct kern_ipc_perm *ipcp, short flag)
  *	for returning to userspace (@out).
  */
  
+
 void kernel_to_ipc64_perm (struct kern_ipc_perm *in, struct ipc64_perm *out)
 {
 	out->key	= in->key;
@@ -801,6 +805,7 @@ out_up:
 }
 
 #ifdef __ARCH_WANT_IPC_PARSE_VERSION
+
 
 /**
  *	ipc_parse_version	-	IPC call version

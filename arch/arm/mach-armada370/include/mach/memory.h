@@ -10,6 +10,7 @@
 /* #define __virt_to_bus(x)	__virt_to_phys(x) */
 /* #define __bus_to_virt(x)	__phys_to_virt(x) */
 
+
 /* Override the ARM default */
 #ifdef CONFIG_FB_AURORA_CONSISTENT_DMA_SIZE
 
@@ -26,5 +27,6 @@
 #ifdef CONFIG_AURORA_IO_CACHE_COHERENCY
 #define arch_is_coherent()  1
 #endif
+
 
 #endif

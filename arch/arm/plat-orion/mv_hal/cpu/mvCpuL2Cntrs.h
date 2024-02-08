@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -29,6 +30,7 @@ disclaimer.
 
 #include "mvTypes.h"
 #include "mvOs.h"
+
 
 #define MV_CPU_L2_CNTRS_NUM         2
 
@@ -59,6 +61,7 @@ typedef struct
 
 } MV_CPU_L2_CNTRS_ENTRY;
 
+
 typedef struct
 {
     char   name[16];
@@ -69,6 +72,7 @@ typedef struct
     MV_U64 counters_sum[MV_CPU_L2_CNTRS_NUM];
 
 } MV_CPU_L2_CNTRS_EVENT;
+
 
 MV_STATUS               mvCpuL2CntrsProgram(int counter, MV_CPU_L2_CNTRS_OPS op,
                                         char* name, MV_U32 overhead);
@@ -122,6 +126,7 @@ static INLINE void mvCpuL2CntrsReadAfter(MV_CPU_L2_CNTRS_EVENT* pEvent)
     pEvent->num_of_measurements++;
 }
 
+
 #ifdef CONFIG_MV_CPU_L2_PERF_CNTRS
 
 #define MV_CPU_L2_CNTRS_READ(counter)   mvCpuL2CntrsRead(counter)
@@ -140,5 +145,6 @@ static INLINE void mvCpuL2CntrsReadAfter(MV_CPU_L2_CNTRS_EVENT* pEvent)
 #define MV_CPU_L2_CNTRS_SHOW(event)
 
 #endif /* CONFIG_MV_CPU_L2_PERF_CNTRS */
+
 
 #endif /* __mvCpuL2Cntrs_h__ */

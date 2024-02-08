@@ -36,6 +36,7 @@ unsigned long clk_get_rate(struct clk *clk)
 }
 EXPORT_SYMBOL(clk_get_rate);
 
+
 void clks_register(struct clk *clks, size_t num)
 {
 }

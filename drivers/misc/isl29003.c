@@ -221,6 +221,7 @@ static ssize_t isl29003_store_range(struct device *dev,
 static DEVICE_ATTR(range, S_IWUSR | S_IRUGO,
 		   isl29003_show_range, isl29003_store_range);
 
+
 /* resolution */
 static ssize_t isl29003_show_resolution(struct device *dev,
 					struct device_attribute *attr,
@@ -279,6 +280,7 @@ static ssize_t isl29003_store_mode(struct device *dev,
 static DEVICE_ATTR(mode, S_IWUSR | S_IRUGO,
 		   isl29003_show_mode, isl29003_store_mode);
 
+
 /* power state */
 static ssize_t isl29003_show_power_state(struct device *dev,
 					 struct device_attribute *attr,
@@ -305,6 +307,7 @@ static ssize_t isl29003_store_power_state(struct device *dev,
 
 static DEVICE_ATTR(power_state, S_IWUSR | S_IRUGO,
 		   isl29003_show_power_state, isl29003_store_power_state);
+
 
 /* lux */
 static ssize_t isl29003_show_lux(struct device *dev,
@@ -469,3 +472,4 @@ MODULE_VERSION(DRIVER_VERSION);
 
 module_init(isl29003_init);
 module_exit(isl29003_exit);
+

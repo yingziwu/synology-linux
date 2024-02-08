@@ -97,3 +97,4 @@ static struct sh_machine_vector mv_se7780 __initmv = {
 	.mv_nr_irqs		= 111,
 	.mv_init_irq	= init_sdk7780_IRQ,
 };
+

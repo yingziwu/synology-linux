@@ -55,6 +55,7 @@ static struct radeon_device *radeon_get_rdev(struct ttm_bo_device *bdev)
 	return rdev;
 }
 
+
 /*
  * Global memory.
  */
@@ -247,8 +248,8 @@ static int radeon_move_blit(struct ttm_buffer_object *bo,
 	if (unlikely(r)) {
 		return r;
 	}
-	old_start = old_mem->start << PAGE_SHIFT;
-	new_start = new_mem->start << PAGE_SHIFT;
+	old_start = (u64)old_mem->start << PAGE_SHIFT;
+	new_start = (u64)new_mem->start << PAGE_SHIFT;
 
 	switch (old_mem->mem_type) {
 	case TTM_PL_VRAM:
@@ -678,6 +679,7 @@ int radeon_mmap(struct file *filp, struct vm_area_struct *vma)
 	return 0;
 }
 
+
 /*
  * TTM backend functions.
  */
@@ -722,6 +724,7 @@ static void radeon_ttm_backend_clear(struct ttm_backend *backend)
 	gtt->populated = false;
 	gtt->bound = false;
 }
+
 
 static int radeon_ttm_backend_bind(struct ttm_backend *backend,
 				   struct ttm_mem_reg *bo_mem)

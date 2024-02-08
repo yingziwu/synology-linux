@@ -66,6 +66,7 @@ typedef u_char mac_addr[ETH_ALEN];	/* Hardware address */
 #include "rayctl.h"
 #include "ray_cs.h"
 
+
 /** Prototypes based on PCMCIA skeleton driver *******************************/
 static int ray_config(struct pcmcia_device *link);
 static void ray_release(struct pcmcia_device *link);
@@ -317,6 +318,7 @@ static int ray_probe(struct pcmcia_device *p_dev)
 	local->wireless_data.spy_data = &local->spy_data;
 	dev->wireless_data = &local->wireless_data;
 #endif /* WIRELESS_SPY */
+
 
 	dev_dbg(&p_dev->dev, "ray_cs ray_attach calling ether_setup.)\n");
 	netif_stop_queue(dev);
@@ -735,6 +737,7 @@ static void join_net(u_long data)
 	}
 	local->card_status = CARD_DOING_ACQ;
 }
+
 
 static void ray_release(struct pcmcia_device *link)
 {
@@ -2423,7 +2426,7 @@ static void rx_authenticate(ray_dev_t *local, struct rcs __iomem *prcs,
 			    unsigned int pkt_addr, int rx_len)
 {
 	UCHAR buff[256];
-	struct rx_msg *msg = (struct rx_msg *)buff;
+	struct ray_rx_msg *msg = (struct ray_rx_msg *) buff;
 
 	del_timer(&local->timer);
 
@@ -2510,7 +2513,7 @@ static void rx_deauthenticate(ray_dev_t *local, struct rcs __iomem *prcs,
 			      unsigned int pkt_addr, int rx_len)
 {
 /*  UCHAR buff[256];
-    struct rx_msg *msg = (struct rx_msg *)buff;
+    struct ray_rx_msg *msg = (struct ray_rx_msg *) buff;
 */
 	pr_debug("Deauthentication frame received\n");
 	local->authentication_state = UNAUTHENTICATED;

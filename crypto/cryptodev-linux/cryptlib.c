@@ -36,6 +36,7 @@
 #include <crypto/aead.h>
 #include "cryptodev_int.h"
 
+
 struct cryptodev_result {
 	struct completion completion;
 	int err;
@@ -373,3 +374,4 @@ int cryptodev_hash_final(struct hash_data *hdata, void* output)
 
 	return waitfor(hdata->async.result, ret);
 }
+

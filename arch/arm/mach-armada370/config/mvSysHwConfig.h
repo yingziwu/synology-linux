@@ -150,6 +150,7 @@ disclaimer.
 #define SHEEVA_ERRATA_ARM_CPU_4611
 #endif
 
+
 /****************************************************************/
 /************* General    configuration ********************/
 /****************************************************************/
@@ -169,6 +170,8 @@ disclaimer.
 #define MV_NFP_SEC_Q_SIZE		64
 #define MV_NFP_SEC_REQ_Q_SIZE		1000
 
+
+
 /****************************************************************/
 /************* CESA configuration ********************/
 /****************************************************************/
@@ -184,6 +187,7 @@ disclaimer.
 
 /* DRAM cache coherency configuration */
 #define MV_CACHE_COHERENCY  MV_CACHE_COHER_SW
+
 
 /* We use the following registers to store DRAM interface pre configuration   */
 /* auto-detection results													  */

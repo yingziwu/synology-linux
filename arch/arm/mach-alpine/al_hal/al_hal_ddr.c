@@ -1055,6 +1055,7 @@ int al_ddr_address_translate_dram2sys(
 			address += ((((al_phys_addr_t)row >> (i + 2)) & 0x1) << (addrmap.row_b0_2_10[2] + i));
 		}
 
+
 	for (i = 0; i < 5; i++)
 		if (addrmap.row_b11_15[i] != AL_DDR_ADDRMAP_NC){
 			address += ((((al_phys_addr_t)row >> (i + 11)) & 0x1) << addrmap.row_b11_15[i]);
@@ -1112,3 +1113,4 @@ unsigned int al_ddr_bits_per_rank_get(
 }
 
 /** @} end of DDR group */
+

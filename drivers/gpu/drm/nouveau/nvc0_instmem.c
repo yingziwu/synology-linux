@@ -220,3 +220,4 @@ nvc0_instmem_takedown(struct drm_device *dev)
 	dev_priv->engine.instmem.priv = NULL;
 	kfree(priv);
 }
+

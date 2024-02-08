@@ -668,6 +668,7 @@ extern char ms7724se_sdram_enter_end;
 extern char ms7724se_sdram_leave_start;
 extern char ms7724se_sdram_leave_end;
 
+
 static int __init arch_setup(void)
 {
 	/* enable I2C device */

@@ -13,6 +13,7 @@
 #ifndef _XTENSA_SIGNAL_H
 #define _XTENSA_SIGNAL_H
 
+
 #define _NSIG		64
 #define _NSIG_BPW	32
 #define _NSIG_WORDS	(_NSIG / _NSIG_BPW)
@@ -132,6 +133,7 @@ struct sigaction {
 	void (*sa_restorer)(void);
 	sigset_t sa_mask;		/* mask last for extensibility */
 };
+#define __ARCH_HAS_SA_RESTORER
 
 struct k_sigaction {
 	struct sigaction sa;

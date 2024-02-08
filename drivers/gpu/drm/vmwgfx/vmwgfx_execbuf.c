@@ -182,6 +182,7 @@ static int vmw_cmd_sid_check(struct vmw_private *dev_priv,
 	return 0;
 }
 
+
 static int vmw_cmd_set_render_target_check(struct vmw_private *dev_priv,
 					   struct vmw_sw_context *sw_context,
 					   SVGA3dCmdHeader *header)
@@ -262,6 +263,7 @@ static int vmw_cmd_present_check(struct vmw_private *dev_priv,
 		SVGA3dCmdHeader header;
 		SVGA3dCmdPresent body;
 	} *cmd;
+
 
 	cmd = container_of(header, struct vmw_sid_cmd, header);
 
@@ -351,6 +353,7 @@ static int vmw_query_bo_switch_prepare(struct vmw_private *dev_priv,
 	}
 	return 0;
 }
+
 
 /**
  * vmw_query_bo_switch_commit - Finalize switching pinned query buffer
@@ -555,13 +558,35 @@ static int vmw_cmd_dma(struct vmw_private *dev_priv,
 	} *cmd;
 	int ret;
 	struct vmw_resource *res;
+	SVGA3dCmdSurfaceDMASuffix *suffix;
+	uint32_t bo_size;
 
 	cmd = container_of(header, struct vmw_dma_cmd, header);
+	suffix = (SVGA3dCmdSurfaceDMASuffix *)((unsigned long) &cmd->dma +
+					       header->size - sizeof(*suffix));
+
+	/* Make sure device and verifier stays in sync. */
+	if (unlikely(suffix->suffixSize != sizeof(*suffix))) {
+		DRM_ERROR("Invalid DMA suffix size.\n");
+		return -EINVAL;
+	}
+
 	ret = vmw_translate_guest_ptr(dev_priv, sw_context,
 				      &cmd->dma.guest.ptr,
 				      &vmw_bo);
 	if (unlikely(ret != 0))
 		return ret;
+
+	/* Make sure DMA doesn't cross BO boundaries. */
+	bo_size = vmw_bo->base.num_pages * PAGE_SIZE;
+	if (unlikely(cmd->dma.guest.ptr.offset > bo_size)) {
+		DRM_ERROR("Invalid DMA offset.\n");
+		return -EINVAL;
+	}
+
+	bo_size -= cmd->dma.guest.ptr.offset;
+	if (unlikely(suffix->maximumOffset > bo_size))
+		suffix->maximumOffset = bo_size;
 
 	bo = &vmw_bo->base;
 	ret = vmw_user_surface_lookup_handle(dev_priv, sw_context->tfile,
@@ -648,6 +673,7 @@ static int vmw_cmd_draw(struct vmw_private *dev_priv,
 	}
 	return 0;
 }
+
 
 static int vmw_cmd_tex_state(struct vmw_private *dev_priv,
 			     struct vmw_sw_context *sw_context,
@@ -803,6 +829,7 @@ static int vmw_cmd_check(struct vmw_private *dev_priv,
 	if (unlikely(cmd_id < SVGA_CMD_MAX))
 		return vmw_cmd_check_not_3d(dev_priv, sw_context, buf, size);
 
+
 	cmd_id = le32_to_cpu(header->id);
 	*size = le32_to_cpu(header->size) + sizeof(SVGA3dCmdHeader);
 
@@ -907,6 +934,7 @@ static int vmw_validate_single_buffer(struct vmw_private *dev_priv,
 {
 	int ret;
 
+
 	/*
 	 * Don't validate pinned buffers.
 	 */
@@ -936,6 +964,7 @@ static int vmw_validate_single_buffer(struct vmw_private *dev_priv,
 	ret = ttm_bo_validate(bo, &vmw_vram_placement, true, false, false);
 	return ret;
 }
+
 
 static int vmw_validate_buffers(struct vmw_private *dev_priv,
 				struct vmw_sw_context *sw_context)
@@ -1121,6 +1150,7 @@ int vmw_execbuf_process(struct drm_file *file_priv,
 		if (unlikely(ret != 0))
 			goto out_unlock;
 
+
 		ret = copy_from_user(sw_context->cmd_bounce,
 				     user_commands, command_size);
 
@@ -1236,6 +1266,7 @@ static void vmw_execbuf_unpin_panic(struct vmw_private *dev_priv)
 	dev_priv->dummy_query_bo_pinned = false;
 }
 
+
 /**
  * vmw_execbuf_release_pinned_bo - Flush queries and unpin the pinned
  * query bo.
@@ -1322,6 +1353,7 @@ out_no_reserve:
 	ttm_bo_unref(&dev_priv->pinned_bo);
 	mutex_unlock(&dev_priv->cmdbuf_mutex);
 }
+
 
 int vmw_execbuf_ioctl(struct drm_device *dev, void *data,
 		      struct drm_file *file_priv)

@@ -107,6 +107,7 @@ typedef struct _diva_strace_context {
 	dword bchannel_trace_mask;
 	dword current_bchannel_trace_mask;
 
+
 	diva_trace_line_state_t lines[30];
 
 	int	parse_entries;
@@ -168,3 +169,4 @@ typedef struct _diva_man_var_header {
 } diva_man_var_header_t;
 
 #endif
+

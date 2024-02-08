@@ -18,6 +18,7 @@
 
 /* this file is part of ehci-hcd.c */
 
+
 /* Display the ports dedicated to the companion controller */
 static ssize_t show_companion(struct device *dev,
 			      struct device_attribute *attr,
@@ -28,7 +29,7 @@ static ssize_t show_companion(struct device *dev,
 	int			count = PAGE_SIZE;
 	char			*ptr = buf;
 
-	ehci = hcd_to_ehci(bus_to_hcd(dev_get_drvdata(dev)));
+	ehci = hcd_to_ehci(dev_get_drvdata(dev));
 	nports = HCS_N_PORTS(ehci->hcs_params);
 
 	for (index = 0; index < nports; ++index) {
@@ -53,7 +54,7 @@ static ssize_t store_companion(struct device *dev,
 	struct ehci_hcd		*ehci;
 	int			portnum, new_owner;
 
-	ehci = hcd_to_ehci(bus_to_hcd(dev_get_drvdata(dev)));
+	ehci = hcd_to_ehci(dev_get_drvdata(dev));
 	new_owner = PORT_OWNER;		/* Owned by companion */
 	if (sscanf(buf, "%d", &portnum) != 1)
 		return -EINVAL;
@@ -73,6 +74,7 @@ static ssize_t store_companion(struct device *dev,
 }
 static DEVICE_ATTR(companion, 0644, show_companion, store_companion);
 
+
 /*
  * Display / Set uframe_periodic_max
  */
@@ -83,10 +85,11 @@ static ssize_t show_uframe_periodic_max(struct device *dev,
 	struct ehci_hcd		*ehci;
 	int			n;
 
-	ehci = hcd_to_ehci(bus_to_hcd(dev_get_drvdata(dev)));
+	ehci = hcd_to_ehci(dev_get_drvdata(dev));
 	n = scnprintf(buf, PAGE_SIZE, "%d\n", ehci->uframe_periodic_max);
 	return n;
 }
+
 
 static ssize_t store_uframe_periodic_max(struct device *dev,
 					struct device_attribute *attr,
@@ -99,7 +102,7 @@ static ssize_t store_uframe_periodic_max(struct device *dev,
 	unsigned long		flags;
 	ssize_t			ret;
 
-	ehci = hcd_to_ehci(bus_to_hcd(dev_get_drvdata(dev)));
+	ehci = hcd_to_ehci(dev_get_drvdata(dev));
 	if (kstrtouint(buf, 0, &uframe_periodic_max) < 0)
 		return -EINVAL;
 
@@ -158,10 +161,14 @@ out_unlock:
 }
 static DEVICE_ATTR(uframe_periodic_max, 0644, show_uframe_periodic_max, store_uframe_periodic_max);
 
+
 static inline int create_sysfs_files(struct ehci_hcd *ehci)
 {
 	struct device	*controller = ehci_to_hcd(ehci)->self.controller;
 	int	i = 0;
+
+	if (dev_get_drvdata(controller) != ehci_to_hcd(ehci))
+		return 0;
 
 	/* with integrated TT there is no companion! */
 	if (!ehci_is_TDI(ehci))
@@ -177,6 +184,9 @@ out:
 static inline void remove_sysfs_files(struct ehci_hcd *ehci)
 {
 	struct device	*controller = ehci_to_hcd(ehci)->self.controller;
+
+	if (dev_get_drvdata(controller) != ehci_to_hcd(ehci))
+		return;
 
 	/* with integrated TT there is no companion! */
 	if (!ehci_is_TDI(ehci))

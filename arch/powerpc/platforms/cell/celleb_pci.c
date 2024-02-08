@@ -121,6 +121,7 @@ static struct celleb_pci_resource *get_resource_start(
 	return private->res[devno][fn];
 }
 
+
 static void celleb_config_read_fake(unsigned char *config, int where,
 				    int size, u32 *val)
 {
@@ -182,6 +183,7 @@ static int celleb_fake_pci_read_config(struct pci_bus *bus,
 
 	return PCIBIOS_SUCCESSFUL;
 }
+
 
 static int celleb_fake_pci_write_config(struct pci_bus *bus,
 		unsigned int devfn, int where, int size, u32 val)

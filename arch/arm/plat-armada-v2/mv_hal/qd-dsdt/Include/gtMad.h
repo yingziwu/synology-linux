@@ -26,6 +26,7 @@ GT_STATUS gvctGetAdvExtendedStatus_mad
 );
 #include <Copyright.h>
 
+
 GT_STATUS gprtPhyReset_mad
 (
     IN GT_QD_DEV *dev,

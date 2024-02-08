@@ -1371,6 +1371,7 @@ static int wm8993_set_tdm_slot(struct snd_soc_dai *dai, unsigned int tx_mask,
 		return -EINVAL;
 	}
 
+
 	switch (tx_mask) {
 	case 3:
 		break;
@@ -1670,6 +1671,7 @@ static void __exit wm8993_exit(void)
 #endif
 }
 module_exit(wm8993_exit);
+
 
 MODULE_DESCRIPTION("ASoC WM8993 driver");
 MODULE_AUTHOR("Mark Brown <broonie@opensource.wolfsonmicro.com>");

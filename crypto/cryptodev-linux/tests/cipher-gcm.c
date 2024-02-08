@@ -88,6 +88,7 @@ struct aes_gcm_vectors_st aes_gcm_vectors[] = {
 	}
 };
 
+
 /* Test against AES-GCM test vectors.
  */
 static int test_crypto(int cfd)
@@ -467,6 +468,7 @@ static int test_encrypt_decrypt_error(int cfd, int err)
 		my_perror("ioctl(CIOCFSESSION)");
 		return 1;
 	}
+
 
 	fprintf(stderr, "Modification to ciphertext was not detected\n");
 	return 1;

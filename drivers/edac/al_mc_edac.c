@@ -28,6 +28,7 @@
 #include "edac_core.h"
 #include "edac_module.h"
 
+
 #define DEVICE_ATTR_FLAGS	S_IRUGO | S_IWUSR
 
 struct inject_addr {
@@ -124,6 +125,7 @@ static void al_mc_uncorr_err_work(struct work_struct *work)
 	al_ddr_ecc_uncorr_int_clear(NULL, drvdata->vbase);
 }
 
+
 /*
  * The following functions implement the sysfs behavior
  */
@@ -180,6 +182,7 @@ static ssize_t al_inject_phys_addr_show(
 
 	return sprintf(data, "0x%llx\n", (unsigned long long)addr);
 }
+
 
 /* Data injection en/disable interface */
 static ssize_t al_inject_enable_store(
@@ -416,6 +419,7 @@ err:
 /*
  * end of sysfs section
  */
+
 
 static int al_mc_probe(struct platform_device *pdev)
 {

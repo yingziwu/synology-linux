@@ -23,6 +23,7 @@
 
 #include "proslic.h"
 
+
 #define SI321X_POWERUP_VOLT_THRESH 0x11
 
 /*
@@ -40,6 +41,7 @@ typedef struct {
 	uInt8 omode1;
 	uInt8 omode2;
 } Si321x_Tone_Cfg;
+
 
 /*
 ** Defines structure for configuring ring generator
@@ -91,6 +93,7 @@ typedef struct {
 	uInt16 pat;  /*Active Timer (Hi & Low byte)*/
 	uInt16 pit;  /*Inactive Timer (Hi & Low byte)*/
 } Si321x_PulseMeter_Cfg;
+
 
 /*
 ** Defines structure for configuring FSK generation
@@ -191,5 +194,6 @@ typedef struct {
 #define DTMF_SI321X 16
 #define INDIRECT_SI321X 17
 #define CM_BAL_SI321X 18
+
 
 #endif

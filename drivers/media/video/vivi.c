@@ -794,6 +794,7 @@ static void vivi_unlock(struct vb2_queue *vq)
 	mutex_unlock(&dev->mutex);
 }
 
+
 static struct vb2_ops vivi_video_qops = {
 	.queue_setup		= queue_setup,
 	.buf_init		= buffer_init,

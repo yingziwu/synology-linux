@@ -176,16 +176,15 @@ static int get_burstcount(struct tpm_chip *chip)
 {
 	unsigned long stop;
 	int burstcnt;
+	u32 value;
 
 	/* wait for burstcount */
 	/* which timeout value, spec has 2 answers (c & d) */
 	stop = jiffies + chip->vendor.timeout_d;
 	do {
-		burstcnt = ioread8(chip->vendor.iobase +
-				   TPM_STS(chip->vendor.locality) + 1);
-		burstcnt += ioread8(chip->vendor.iobase +
-				    TPM_STS(chip->vendor.locality) +
-				    2) << 8;
+		value = ioread32(chip->vendor.iobase +
+				 TPM_STS(chip->vendor.locality));
+		burstcnt = (value >> 8) & 0xFFFF;
 		if (burstcnt)
 			return burstcnt;
 		msleep(TPM_TIMEOUT);
@@ -396,6 +395,36 @@ out_err:
 	return rc;
 }
 
+struct tis_vendor_timeout_override {
+	u32 did_vid;
+	unsigned long timeout_us[4];
+};
+
+static const struct tis_vendor_timeout_override vendor_timeout_overrides[] = {
+	/* Atmel 3204 */
+	{ 0x32041114, { (TIS_SHORT_TIMEOUT*1000), (TIS_LONG_TIMEOUT*1000),
+			(TIS_SHORT_TIMEOUT*1000), (TIS_SHORT_TIMEOUT*1000) } },
+};
+
+static bool tpm_tis_update_timeouts(struct tpm_chip *chip,
+				    unsigned long *timeout_cap)
+{
+	int i;
+	u32 did_vid;
+
+	did_vid = ioread32(chip->vendor.iobase + TPM_DID_VID(0));
+
+	for (i = 0; i != ARRAY_SIZE(vendor_timeout_overrides); i++) {
+		if (vendor_timeout_overrides[i].did_vid != did_vid)
+			continue;
+		memcpy(timeout_cap, vendor_timeout_overrides[i].timeout_us,
+		       sizeof(vendor_timeout_overrides[i].timeout_us));
+		return true;
+	}
+
+	return false;
+}
+
 /*
  * Early probing for iTPM with STS_DATA_EXPECT flaw.
  * Try sending command without itpm flag set and if that
@@ -483,6 +512,7 @@ static struct tpm_vendor_specific tpm_tis = {
 	.recv = tpm_tis_recv,
 	.send = tpm_tis_send,
 	.cancel = tpm_tis_ready,
+	.update_timeouts = tpm_tis_update_timeouts,
 	.req_complete_mask = TPM_STS_DATA_AVAIL | TPM_STS_VALID,
 	.req_complete_val = TPM_STS_DATA_AVAIL | TPM_STS_VALID,
 	.req_canceled = TPM_STS_COMMAND_READY,
@@ -589,6 +619,7 @@ static int tpm_tis_init(struct device *dev, resource_size_t start,
 
 	if (itpm)
 		dev_info(dev, "Intel iTPM workaround enabled\n");
+
 
 	/* Figure out the capabilities */
 	intfcaps =
@@ -755,6 +786,7 @@ static void tpm_tis_reenable_interrupts(struct tpm_chip *chip)
 		  chip->vendor.iobase + TPM_INT_ENABLE(chip->vendor.locality));
 }
 
+
 #ifdef CONFIG_PNP
 static int __devinit tpm_tis_pnp_init(struct pnp_dev *pnp_dev,
 				      const struct pnp_device_id *pnp_id)
@@ -818,6 +850,7 @@ static __devexit void tpm_tis_pnp_remove(struct pnp_dev *dev)
 
 	kfree(chip);
 }
+
 
 static struct pnp_driver tis_pnp_driver = {
 	.name = "tpm_tis",

@@ -461,6 +461,7 @@ static void octeon_wdt_calc_parameters(int t)
 
 	timeout_sec = max_timeout_sec;
 
+
 	/*
 	 * Find the largest interrupt period, that can evenly divide
 	 * the requested heartbeat time.
@@ -651,6 +652,7 @@ static struct miscdevice octeon_wdt_miscdev = {
 static struct notifier_block octeon_wdt_cpu_notifier = {
 	.notifier_call = octeon_wdt_cpu_callback,
 };
+
 
 /**
  * Module/ driver initialization.

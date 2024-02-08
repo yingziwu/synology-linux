@@ -167,6 +167,7 @@ extern "C" {
 #define GPP_OUT_SET_REG_BASE			(MV_GPP_REGS_BASE(0) + 0x30)
 #define GPP_OUT_CLEAR_REG_BASE			(MV_GPP_REGS_BASE(0) + 0x34)
 
+
 #ifdef __cplusplus
 }
 #endif				/* __cplusplus */

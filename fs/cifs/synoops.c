@@ -550,6 +550,7 @@ small_smb1_nego_init(__le16 smb_command, void **request_buf)
 {
 	int rc = 0;
 
+
 	/* BB eventually switch this to SMB2 specific small buf size */
 	*request_buf = cifs_small_buf_get();
 	if (*request_buf == NULL) {

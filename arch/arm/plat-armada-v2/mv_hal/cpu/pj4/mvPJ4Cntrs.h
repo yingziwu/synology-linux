@@ -224,6 +224,7 @@ enum  pj4b_pmu_counters {
 	MRVL_PJ4B_MAX_COUNTERS
 };
 
+
 static INLINE MV_VOID mrvl_pj4b_pmu_intr_disable(MV_U32 val)
 {
 	MV_ASM("mcr p15, 0, %0, c9, c14, 2" : : "r"(val));
@@ -249,6 +250,7 @@ static INLINE MV_VOID mrvl_pj4b_pmu_select_event(MV_U32 cntr, MV_U32 evt)
 	MV_ASM("mcr p15, 0, %0, c9, c12, 5" : : "r"(cntr));
 	MV_ASM("mcr p15, 0, %0, c9, c13, 1" : : "r"(evt));
 }
+
 
 static INLINE MV_VOID mrvl_pj4b_write_pmnc(MV_U32 val)
 {
@@ -313,5 +315,6 @@ static INLINE MV_VOID mvCpuCntrsReset(MV_VOID)
 	reg |= MRVL_PJ4B_PMU_RESET;
 	mrvl_pj4b_write_pmnc(reg);
 }
+
 
 #endif /* __mvPJ4Cntrs_h__ */

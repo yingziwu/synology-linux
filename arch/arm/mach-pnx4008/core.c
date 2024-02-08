@@ -208,6 +208,7 @@ static struct platform_device *devices[] __initdata = {
 	&watchdog_device,
 };
 
+
 extern void pnx4008_uart_init(void);
 
 static void __init pnx4008_init(void)

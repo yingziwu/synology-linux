@@ -104,6 +104,7 @@ int al_iofic_legacy_moder_interval_config(void __iomem *regs_base, int group,
 	return 0;
 }
 
+
 /*
  * configure the moderation timer interval for a given msix vector.
  */
@@ -138,6 +139,7 @@ uint32_t __iomem * al_iofic_unmask_offset_get(void __iomem *regs_base, int group
 
 	return &regs->ctrl[group].int_mask_clear_grp;
 }
+
 
 /*
  * unmask specific interrupts for a given group
@@ -224,6 +226,7 @@ void al_iofic_set_cause(void __iomem *regs_base, int group, uint32_t mask)
 
 	al_reg_write32(&regs->ctrl[group].int_cause_set_grp, mask);
 }
+
 
 /*
  * unmask specific interrupts from aborting the udma a given group

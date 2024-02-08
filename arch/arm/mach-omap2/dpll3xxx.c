@@ -408,6 +408,7 @@ void omap3_noncore_dpll_disable(struct clk *clk)
 	_omap3_noncore_dpll_stop(clk);
 }
 
+
 /* Non-CORE DPLL rate set code */
 
 /**

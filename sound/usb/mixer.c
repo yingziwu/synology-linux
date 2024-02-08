@@ -197,6 +197,10 @@ static void *find_audio_control_unit(struct mixer_build *state, unsigned char un
 static int snd_usb_copy_string_desc(struct mixer_build *state, int index, char *buf, int maxlen)
 {
 	int len = usb_string(state->chip->dev, index, buf, maxlen - 1);
+
+	if (len < 0)
+		return 0;
+
 	buf[len] = 0;
 	return len;
 }
@@ -275,6 +279,7 @@ static int get_abs_value(struct usb_mixer_elem_info *cval, int val)
 		return cval->max;
 	return val;
 }
+
 
 /*
  * retrieve a mixer value
@@ -419,6 +424,7 @@ static int get_cur_mix_value(struct usb_mixer_elem_info *cval,
 	return 0;
 }
 
+
 /*
  * set a mixer value
  */
@@ -513,6 +519,8 @@ static int mixer_vol_tlv(struct snd_kcontrol *kcontrol, int op_flag,
 
 	if (size < sizeof(scale))
 		return -ENOMEM;
+	if (cval->min_mute)
+		scale[0] = SNDRV_CTL_TLVT_DB_MINMAX_MUTE;
 	scale[2] = cval->dBmin;
 	scale[3] = cval->dBmax;
 	if (copy_to_user(_tlv, scale, sizeof(scale)))
@@ -526,6 +534,7 @@ static int mixer_vol_tlv(struct snd_kcontrol *kcontrol, int op_flag,
 
 static int parse_audio_unit(struct mixer_build *state, int unitid);
 
+
 /*
  * check if the input/output channel routing is enabled on the given bitmap.
  * used for mixer unit parser
@@ -535,6 +544,7 @@ static int check_matrix_bitmap(unsigned char *bmap, int ich, int och, int num_ou
 	int idx = ich * num_outs + och;
 	return bmap[idx >> 3] & (0x80 >> (idx & 7));
 }
+
 
 /*
  * add an alsa control element
@@ -560,6 +570,7 @@ int snd_usb_mixer_add_control(struct usb_mixer_interface *mixer,
 	mixer->id_elems[cval->id] = cval;
 	return 0;
 }
+
 
 /*
  * get a terminal name string
@@ -653,6 +664,7 @@ static int get_term_name(struct mixer_build *state, struct usb_audio_term *iterm
 	return 0;
 }
 
+
 /*
  * parse the source unit recursively until it reaches to a terminal
  * or a branched unit.
@@ -705,16 +717,29 @@ static int check_input_term(struct mixer_build *state, int id, struct usb_audio_
 		case UAC2_CLOCK_SELECTOR: {
 			struct uac_selector_unit_descriptor *d = p1;
 			/* call recursively to retrieve the channel info */
-			if (check_input_term(state, d->baSourceID[0], term) < 0)
-				return -ENODEV;
+			err = check_input_term(state, d->baSourceID[0], term);
+			if (err < 0)
+				return err;
 			term->type = d->bDescriptorSubtype << 16; /* virtual type */
 			term->id = id;
 			term->name = uac_selector_unit_iSelector(d);
 			return 0;
 		}
 		case UAC1_PROCESSING_UNIT:
-		case UAC1_EXTENSION_UNIT: {
+		case UAC1_EXTENSION_UNIT:
+		/* UAC2_PROCESSING_UNIT_V2 */
+		/* UAC2_EFFECT_UNIT */
+		case UAC2_EXTENSION_UNIT_V2: {
 			struct uac_processing_unit_descriptor *d = p1;
+
+			if (state->mixer->protocol == UAC_VERSION_2 &&
+				hdr[2] == UAC2_EFFECT_UNIT) {
+				/* UAC2/UAC1 unit IDs overlap here in an
+				 * uncompatible way. Ignore this unit for now.
+				 */
+				return 0;
+			}
+
 			if (d->bNrInPins) {
 				id = d->baSourceID[0];
 				break; /* continue to parse */
@@ -738,6 +763,7 @@ static int check_input_term(struct mixer_build *state, int id, struct usb_audio_
 	}
 	return -ENODEV;
 }
+
 
 /*
  * Feature Unit
@@ -766,12 +792,14 @@ static struct usb_feature_control_info audio_feature_info[] = {
 	{ "Phase Inverter Control",	USB_MIXER_BOOLEAN },
 };
 
+
 /* private_free callback */
 static void usb_mixer_elem_free(struct snd_kcontrol *kctl)
 {
 	kfree(kctl->private_data);
 	kctl->private_data = NULL;
 }
+
 
 /*
  * interface to ALSA control for feature/mixer units
@@ -809,13 +837,20 @@ static void volume_control_quirks(struct usb_mixer_elem_info *cval,
 		}
 		break;
 
+	case USB_ID(0x046d, 0x0807): /* Logitech Webcam C500 */
 	case USB_ID(0x046d, 0x0808):
 	case USB_ID(0x046d, 0x0809):
+	case USB_ID(0x046d, 0x0819): /* Logitech Webcam C210 */
+	case USB_ID(0x046d, 0x081b): /* HD Webcam c310 */
 	case USB_ID(0x046d, 0x081d): /* HD Webcam c510 */
+	case USB_ID(0x046d, 0x0825): /* HD Webcam c270 */
+	case USB_ID(0x046d, 0x0826): /* HD Webcam c525 */
+	case USB_ID(0x046d, 0x08ca): /* Logitech Quickcam Fusion */
 	case USB_ID(0x046d, 0x0991):
+	case USB_ID(0x046d, 0x09a2): /* QuickCam Communicate Deluxe/S7500 */
 	/* Most audio usb devices lie about volume resolution.
 	 * Most Logitech webcams have res = 384.
-	 * Proboly there is some logitech magic behind this number --fishor
+	 * Probably there is some logitech magic behind this number --fishor
 	 */
 		if (!strcmp(kctl->id.name, "Mic Capture Volume")) {
 			snd_printk(KERN_INFO
@@ -1185,6 +1220,8 @@ static void build_feature_ctl(struct mixer_build *state, void *raw_desc,
 		break;
 	}
 
+	snd_usb_mixer_fu_apply_quirk(state->mixer, cval, unitid, kctl);
+
 	range = (cval->max - cval->min) / cval->res;
 	/* Are there devices with volume range more than 255? I use a bit more
 	 * to be sure. 384 is a resolution magic number found on Logitech
@@ -1205,6 +1242,8 @@ static void build_feature_ctl(struct mixer_build *state, void *raw_desc,
 	snd_usb_mixer_add_control(state->mixer, kctl);
 }
 
+
+
 /*
  * parse a feature unit
  *
@@ -1220,6 +1259,12 @@ static int parse_audio_feature_unit(struct mixer_build *state, int unitid, void 
 	__u8 *bmaControls;
 
 	if (state->mixer->protocol == UAC_VERSION_1) {
+		if (hdr->bLength < 7) {
+			snd_printk(KERN_ERR
+				   "usbaudio: unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
+				   unitid);
+			return -EINVAL;
+		}
 		csize = hdr->bControlSize;
 		if (!csize) {
 			snd_printdd(KERN_ERR "usbaudio: unit %u: "
@@ -1236,6 +1281,12 @@ static int parse_audio_feature_unit(struct mixer_build *state, int unitid, void 
 		}
 	} else {
 		struct uac2_feature_unit_descriptor *ftr = _ftr;
+		if (hdr->bLength < 6) {
+			snd_printk(KERN_ERR
+				   "usbaudio: unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
+				   unitid);
+			return -EINVAL;
+		}
 		csize = 4;
 		channels = (hdr->bLength - 6) / 4 - 1;
 		bmaControls = ftr->bmaControls;
@@ -1252,8 +1303,9 @@ static int parse_audio_feature_unit(struct mixer_build *state, int unitid, void 
 		return err;
 
 	/* determine the input source type and name */
-	if (check_input_term(state, hdr->bSourceID, &iterm) < 0)
-		return -EINVAL;
+	err = check_input_term(state, hdr->bSourceID, &iterm);
+	if (err < 0)
+		return err;
 
 	master_bits = snd_usb_combine_bytes(bmaControls, csize);
 	/* master configuration quirks */
@@ -1313,6 +1365,7 @@ static int parse_audio_feature_unit(struct mixer_build *state, int unitid, void 
 
 	return 0;
 }
+
 
 /*
  * Mixer Unit
@@ -1378,6 +1431,7 @@ static void build_mixer_unit_ctl(struct mixer_build *state,
 	snd_usb_mixer_add_control(state->mixer, kctl);
 }
 
+
 /*
  * parse a mixer unit
  */
@@ -1392,11 +1446,6 @@ static int parse_audio_mixer_unit(struct mixer_build *state, int unitid, void *r
 		snd_printk(KERN_ERR "invalid MIXER UNIT descriptor %d\n", unitid);
 		return -EINVAL;
 	}
-	/* no bmControls field (e.g. Maya44) -> ignore */
-	if (desc->bLength <= 10 + input_pins) {
-		snd_printdd(KERN_INFO "MU %d has no bmControls field\n", unitid);
-		return 0;
-	}
 
 	num_ins = 0;
 	ich = 0;
@@ -1404,6 +1453,9 @@ static int parse_audio_mixer_unit(struct mixer_build *state, int unitid, void *r
 		err = parse_audio_unit(state, desc->baSourceID[pin]);
 		if (err < 0)
 			return err;
+		/* no bmControls field (e.g. Maya44) -> ignore */
+		if (desc->bLength <= 10 + input_pins)
+			continue;
 		err = check_input_term(state, desc->baSourceID[pin], &iterm);
 		if (err < 0)
 			return err;
@@ -1425,6 +1477,7 @@ static int parse_audio_mixer_unit(struct mixer_build *state, int unitid, void *r
 	}
 	return 0;
 }
+
 
 /*
  * Processing Unit / Extension Unit
@@ -1477,6 +1530,7 @@ static struct snd_kcontrol_new mixer_procunit_ctl = {
 	.get = mixer_ctl_procunit_get,
 	.put = mixer_ctl_procunit_put,
 };
+
 
 /*
  * predefined data for processing units
@@ -1679,6 +1733,7 @@ static int build_audio_procunit(struct mixer_build *state, int unitid, void *raw
 	return 0;
 }
 
+
 static int parse_audio_processing_unit(struct mixer_build *state, int unitid, void *raw_desc)
 {
 	return build_audio_procunit(state, unitid, raw_desc, procunits, "Processing Unit");
@@ -1690,6 +1745,7 @@ static int parse_audio_extension_unit(struct mixer_build *state, int unitid, voi
 	 * That's ok as the layout is the same */
 	return build_audio_procunit(state, unitid, raw_desc, extunits, "Extension Unit");
 }
+
 
 /*
  * Selector Unit
@@ -1757,6 +1813,7 @@ static struct snd_kcontrol_new mixer_selectunit_ctl = {
 	.put = mixer_ctl_selector_put,
 };
 
+
 /* private free callback.
  * free both private_data and private_value
  */
@@ -1792,7 +1849,8 @@ static int parse_audio_selector_unit(struct mixer_build *state, int unitid, void
 	const struct usbmix_name_map *map;
 	char **namelist;
 
-	if (!desc->bNrInPins || desc->bLength < 5 + desc->bNrInPins) {
+	if (desc->bLength < 5 || !desc->bNrInPins ||
+	    desc->bLength < 5 + desc->bNrInPins) {
 		snd_printk(KERN_ERR "invalid SELECTOR UNIT descriptor %d\n", unitid);
 		return -EINVAL;
 	}
@@ -1865,18 +1923,25 @@ static int parse_audio_selector_unit(struct mixer_build *state, int unitid, void
 	kctl->private_value = (unsigned long)namelist;
 	kctl->private_free = usb_mixer_selector_elem_free;
 
-	nameid = uac_selector_unit_iSelector(desc);
+	/* check the static mapping table at first */
 	len = check_mapped_name(map, kctl->id.name, sizeof(kctl->id.name));
-	if (len)
-		;
-	else if (nameid)
-		snd_usb_copy_string_desc(state, nameid, kctl->id.name, sizeof(kctl->id.name));
-	else {
-		len = get_term_name(state, &state->oterm,
+	if (!len) {
+		/* no mapping ? */
+		/* if iSelector is given, use it */
+		nameid = uac_selector_unit_iSelector(desc);
+		if (nameid)
+			len = snd_usb_copy_string_desc(state, nameid,
+						       kctl->id.name,
+						       sizeof(kctl->id.name));
+		/* ... or pick up the terminal name at next */
+		if (!len)
+			len = get_term_name(state, &state->oterm,
 				    kctl->id.name, sizeof(kctl->id.name), 0);
-		if (! len)
+		/* ... or use the fixed string "USB" as the last resort */
+		if (!len)
 			strlcpy(kctl->id.name, "USB", sizeof(kctl->id.name));
 
+		/* and add the proper suffix */
 		if (desc->bDescriptorSubtype == UAC2_CLOCK_SELECTOR)
 			append_ctl_name(kctl, " Clock Source");
 		else if ((state->oterm.type & 0xff00) == 0x0100)
@@ -1892,6 +1957,7 @@ static int parse_audio_selector_unit(struct mixer_build *state, int unitid, void
 
 	return 0;
 }
+
 
 /*
  * parse an audio unit recursively
@@ -1933,6 +1999,8 @@ static int parse_audio_unit(struct mixer_build *state, int unitid)
 			return parse_audio_extension_unit(state, unitid, p1);
 		else /* UAC_VERSION_2 */
 			return parse_audio_processing_unit(state, unitid, p1);
+	case UAC2_EXTENSION_UNIT_V2:
+		return parse_audio_extension_unit(state, unitid, p1);
 	default:
 		snd_printk(KERN_ERR "usbaudio: unit %u: unexpected type 0x%02x\n", unitid, p1[2]);
 		return -EINVAL;
@@ -1941,6 +2009,9 @@ static int parse_audio_unit(struct mixer_build *state, int unitid)
 
 static void snd_usb_mixer_free(struct usb_mixer_interface *mixer)
 {
+	/* kill pending URBs */
+	snd_usb_mixer_disconnect(&mixer->list);
+
 	kfree(mixer->id_elems);
 	if (mixer->urb) {
 		kfree(mixer->urb->transfer_buffer);
@@ -1999,7 +2070,7 @@ static int snd_usb_mixer_controls(struct usb_mixer_interface *mixer)
 			state.oterm.type = le16_to_cpu(desc->wTerminalType);
 			state.oterm.name = desc->iTerminal;
 			err = parse_audio_unit(&state, desc->bSourceID);
-			if (err < 0)
+			if (err < 0 && err != -EINVAL)
 				return err;
 		} else { /* UAC_VERSION_2 */
 			struct uac2_output_terminal_descriptor *desc = p;
@@ -2011,12 +2082,12 @@ static int snd_usb_mixer_controls(struct usb_mixer_interface *mixer)
 			state.oterm.type = le16_to_cpu(desc->wTerminalType);
 			state.oterm.name = desc->iTerminal;
 			err = parse_audio_unit(&state, desc->bSourceID);
-			if (err < 0)
+			if (err < 0 && err != -EINVAL)
 				return err;
 
 			/* for UAC2, use the same approach to also add the clock selectors */
 			err = parse_audio_unit(&state, desc->bCSourceID);
-			if (err < 0)
+			if (err < 0 && err != -EINVAL)
 				return err;
 		}
 	}
@@ -2287,6 +2358,11 @@ void snd_usb_mixer_disconnect(struct list_head *p)
 	struct usb_mixer_interface *mixer;
 
 	mixer = list_entry(p, struct usb_mixer_interface, list);
-	usb_kill_urb(mixer->urb);
-	usb_kill_urb(mixer->rc_urb);
+	if (mixer->disconnected)
+		return;
+	if (mixer->urb)
+		usb_kill_urb(mixer->urb);
+	if (mixer->rc_urb)
+		usb_kill_urb(mixer->rc_urb);
+	mixer->disconnected = true;
 }

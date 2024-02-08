@@ -99,6 +99,7 @@ acpi_power_get_context(acpi_handle handle,
 	int result = 0;
 	struct acpi_device *device = NULL;
 
+
 	if (!resource)
 		return -ENODEV;
 
@@ -121,6 +122,7 @@ static int acpi_power_get_state(acpi_handle handle, int *state)
 	unsigned long long sta = 0;
 	char node_name[5];
 	struct acpi_buffer buffer = { sizeof(node_name), node_name };
+
 
 	if (!handle || !state)
 		return -EINVAL;
@@ -150,7 +152,7 @@ static int acpi_power_get_list_state(struct acpi_handle_list *list, int *state)
 		return -EINVAL;
 
 	/* The state of the list is 'on' IFF all resources are 'on'. */
-
+	cur_state = 0;
 	for (i = 0; i < list->count; i++) {
 		struct acpi_power_resource *resource;
 		acpi_handle handle = list->handles[i];
@@ -537,6 +539,7 @@ static int acpi_power_add(struct acpi_device *device)
 	struct acpi_power_resource *resource = NULL;
 	union acpi_object acpi_object;
 	struct acpi_buffer buffer = { sizeof(acpi_object), &acpi_object };
+
 
 	if (!device)
 		return -EINVAL;

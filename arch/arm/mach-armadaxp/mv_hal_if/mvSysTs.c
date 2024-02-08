@@ -84,3 +84,4 @@ MV_STATUS mvSysTsuInit(MV_TSU_CORE_CLOCK coreClock, MV_TSU_PORTS_MODE mode,
 		status = mvTsuHalInit(coreClock, mode, osHandle);
 	return status;
 }
+

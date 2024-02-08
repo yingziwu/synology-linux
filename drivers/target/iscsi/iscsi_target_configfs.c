@@ -419,7 +419,7 @@ static ssize_t __iscsi_##prefix##_store_##name(				\
 	if (!capable(CAP_SYS_ADMIN))					\
 		return -EPERM;						\
 									\
-	snprintf(auth->name, PAGE_SIZE, "%s", page);			\
+	snprintf(auth->name, sizeof(auth->name), "%s", page);		\
 	if (!strncmp("NULL", auth->name, 4))				\
 		auth->naf_flags &= ~flags;				\
 	else								\
@@ -1862,6 +1862,7 @@ int iscsi_target_register_configfs(void)
 			" lio_target_fabric_configfs\n");
 	return 0;
 }
+
 
 void iscsi_target_deregister_configfs(void)
 {

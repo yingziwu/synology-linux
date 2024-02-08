@@ -89,17 +89,13 @@ static inline void restore_access_regs(unsigned int *acrs)
 	asm volatile("lam 0,15,%0" : : "Q" (*acrs));
 }
 
-#define switch_to(prev,next,last) do {					\
-	if (prev->mm) {							\
-		save_fp_regs(&prev->thread.fp_regs);			\
-		save_access_regs(&prev->thread.acrs[0]);		\
-	}								\
-	if (next->mm) {							\
-		restore_fp_regs(&next->thread.fp_regs);			\
-		restore_access_regs(&next->thread.acrs[0]);		\
-		update_per_regs(next);					\
-	}								\
-	prev = __switch_to(prev,next);					\
+#define switch_to(prev, next, last) do {				\
+	save_fp_regs(&prev->thread.fp_regs);				\
+	save_access_regs(&prev->thread.acrs[0]);			\
+	restore_fp_regs(&next->thread.fp_regs);				\
+	restore_access_regs(&next->thread.acrs[0]);			\
+	update_per_regs(next);						\
+	prev = __switch_to(prev, next);					\
 } while (0)
 
 extern void account_vtime(struct task_struct *, struct task_struct *);
@@ -148,6 +144,7 @@ extern int copy_from_user_real(void *dest, void __user *src, size_t count);
 #define smp_read_barrier_depends()    read_barrier_depends()
 #define smp_mb__before_clear_bit()     smp_mb()
 #define smp_mb__after_clear_bit()      smp_mb()
+
 
 #define set_mb(var, value)      do { var = value; mb(); } while (0)
 

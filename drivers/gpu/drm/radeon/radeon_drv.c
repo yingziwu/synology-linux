@@ -38,6 +38,7 @@
 #include <linux/console.h>
 #include <linux/module.h>
 
+
 /*
  * KMS wrapper.
  * - 2.0.0 - initial interface
@@ -102,6 +103,7 @@ int radeon_mode_dumb_destroy(struct drm_file *file_priv,
 int radeon_debugfs_init(struct drm_minor *minor);
 void radeon_debugfs_cleanup(struct drm_minor *minor);
 #endif
+
 
 int radeon_no_wb;
 int radeon_modeset = -1;

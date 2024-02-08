@@ -73,6 +73,7 @@ typedef struct PXD32_CMSettings_s {
 /* This process has the same pid as the auto launched application */
 #define CM_MODULE_RECORD_FLAG_AUTO_LAUNCH_PID          0x00000002
 
+
 /* process creation data */
 typedef struct PXD32_CMProcessCreate_s {
 	PXD32_Word recLen;                  /* total record length */

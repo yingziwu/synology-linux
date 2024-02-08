@@ -127,6 +127,7 @@ static void pyr_dsi_dbi_set_power(struct drm_encoder *encoder, bool on)
 		return;
 	}
 
+
 	if (on) {
 		if (dbi_output->dbi_panel_on)
 			goto out_err;

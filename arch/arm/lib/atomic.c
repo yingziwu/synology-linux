@@ -45,3 +45,4 @@ void comcerto_atomic_clear_mask(unsigned long mask, unsigned long *addr)
 	raw_spin_unlock_irqrestore(&atomic_lock, flags);
 }
 EXPORT_SYMBOL(comcerto_atomic_clear_mask);
+

@@ -40,6 +40,7 @@ struct modem_irq {
 	void __iomem *modem_intcon_base;
 };
 
+
 static void setup_modem_intcon(void __iomem *modem_intcon_base)
 {
 	/* IC_DESTINATION_BASE_ARRAY - Which CPU to receive the IRQ */

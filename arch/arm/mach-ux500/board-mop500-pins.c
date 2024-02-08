@@ -140,6 +140,7 @@ static pin_cfg_t mop500_pins_default[] = {
 	GPIO145_SSP0_RXD | PIN_PULL_DOWN,
 	GPIO146_SSP0_TXD,
 
+
 	GPIO217_GPIO	| PIN_INPUT_PULLUP, /* TC35892 IRQ */
 
 	/* SDI0 (MicroSD card) */
@@ -231,6 +232,7 @@ static pin_cfg_t hrefv60_pins[] = {
 
 	/* Proximity Sensor */
 	GPIO217_GPIO		| PIN_INPUT_PULLUP,
+
 
 };
 

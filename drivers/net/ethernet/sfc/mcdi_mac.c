@@ -13,7 +13,7 @@
 #include "mcdi.h"
 #include "mcdi_pcol.h"
 
-static int efx_mcdi_set_mac(struct efx_nic *efx)
+int efx_mcdi_set_mac(struct efx_nic *efx)
 {
 	u32 reject, fcntl;
 	u8 cmdbytes[MC_CMD_SET_MAC_IN_LEN];
@@ -45,6 +45,8 @@ static int efx_mcdi_set_mac(struct efx_nic *efx)
 	}
 	if (efx->wanted_fc & EFX_FC_AUTO)
 		fcntl = MC_CMD_FCNTL_AUTO;
+	if (efx->fc_disable)
+		fcntl = MC_CMD_FCNTL_OFF;
 
 	MCDI_SET_DWORD(cmdbytes, SET_MAC_IN_FCNTL, fcntl);
 
@@ -52,7 +54,7 @@ static int efx_mcdi_set_mac(struct efx_nic *efx)
 			    NULL, 0, NULL);
 }
 
-static int efx_mcdi_get_mac_faults(struct efx_nic *efx, u32 *faults)
+static bool efx_mcdi_mac_check_fault(struct efx_nic *efx)
 {
 	u8 outbuf[MC_CMD_GET_LINK_OUT_LEN];
 	size_t outlength;
@@ -62,16 +64,13 @@ static int efx_mcdi_get_mac_faults(struct efx_nic *efx, u32 *faults)
 
 	rc = efx_mcdi_rpc(efx, MC_CMD_GET_LINK, NULL, 0,
 			  outbuf, sizeof(outbuf), &outlength);
-	if (rc)
-		goto fail;
+	if (rc) {
+		netif_err(efx, hw, efx->net_dev, "%s: failed rc=%d\n",
+			  __func__, rc);
+		return true;
+	}
 
-	*faults = MCDI_DWORD(outbuf, GET_LINK_OUT_MAC_FAULT);
-	return 0;
-
-fail:
-	netif_err(efx, hw, efx->net_dev, "%s: failed rc=%d\n",
-		  __func__, rc);
-	return rc;
+	return MCDI_DWORD(outbuf, GET_LINK_OUT_MAC_FAULT) != 0;
 }
 
 int efx_mcdi_mac_stats(struct efx_nic *efx, dma_addr_t dma_addr,
@@ -129,12 +128,6 @@ static int efx_mcdi_mac_reconfigure(struct efx_nic *efx)
 	return 0;
 }
 
-static bool efx_mcdi_mac_check_fault(struct efx_nic *efx)
-{
-	u32 faults;
-	int rc = efx_mcdi_get_mac_faults(efx, &faults);
-	return (rc != 0) || (faults != 0);
-}
 
 const struct efx_mac_operations efx_mcdi_mac_operations = {
 	.reconfigure	= efx_mcdi_mac_reconfigure,

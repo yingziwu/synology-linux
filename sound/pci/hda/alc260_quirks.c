@@ -135,6 +135,7 @@ static const struct hda_channel_mode alc260_modes[1] = {
 	{ 2, NULL },
 };
 
+
 /* Mixer combinations
  *
  * basic: base_output + input + pc_beep + capture
@@ -964,3 +965,4 @@ static const struct alc_config_preset alc260_presets[] = {
 	},
 #endif
 };
+

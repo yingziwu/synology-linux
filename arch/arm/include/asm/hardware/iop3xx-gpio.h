@@ -72,3 +72,4 @@ static inline int irq_to_gpio(int gpio)
 }
 
 #endif
+

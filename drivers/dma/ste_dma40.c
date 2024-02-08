@@ -1202,6 +1202,7 @@ static void dma_tasklet(unsigned long data)
 	struct d40_chan *d40c = (struct d40_chan *) data;
 	struct d40_desc *d40d;
 	unsigned long flags;
+	bool callback_active;
 	dma_async_tx_callback callback;
 	void *callback_param;
 
@@ -1225,6 +1226,7 @@ static void dma_tasklet(unsigned long data)
 	}
 
 	/* Callback to client */
+	callback_active = !!(d40d->txd.flags & DMA_PREP_INTERRUPT);
 	callback = d40d->txd.callback;
 	callback_param = d40d->txd.callback_param;
 
@@ -1249,7 +1251,7 @@ static void dma_tasklet(unsigned long data)
 
 	spin_unlock_irqrestore(&d40c->lock, flags);
 
-	if (callback && (d40d->txd.flags & DMA_PREP_INTERRUPT))
+	if (callback_active && callback)
 		callback(callback_param);
 
 	return;
@@ -1608,6 +1610,7 @@ static int d40_config_memcpy(struct d40_chan *d40c)
 	return 0;
 }
 
+
 static int d40_free_dma(struct d40_chan *d40c)
 {
 
@@ -1737,6 +1740,7 @@ _exit:
 
 }
 
+
 static u32 stedma40_residue(struct dma_chan *chan)
 {
 	struct d40_chan *d40c =
@@ -1812,6 +1816,7 @@ d40_prep_sg_phy(struct d40_chan *chan, struct d40_desc *desc,
 	return ret < 0 ? ret : 0;
 }
 
+
 static struct d40_desc *
 d40_prep_desc(struct d40_chan *chan, struct scatterlist *sg,
 	      unsigned int sg_len, unsigned long dma_flags)
@@ -1836,6 +1841,7 @@ d40_prep_desc(struct d40_chan *chan, struct scatterlist *sg,
 		chan_err(chan, "Could not allocate lli\n");
 		goto err;
 	}
+
 
 	desc->lli_current = 0;
 	desc->txd.flags = dma_flags;
@@ -1884,6 +1890,7 @@ d40_prep_sg(struct dma_chan *dchan, struct scatterlist *sg_src,
 		chan_err(chan, "Cannot prepare unallocated channel\n");
 		return NULL;
 	}
+
 
 	spin_lock_irqsave(&chan->lock, flags);
 
@@ -2056,6 +2063,7 @@ static void d40_free_chan_resources(struct dma_chan *chan)
 		chan_err(d40c, "Cannot free unallocated channel\n");
 		return;
 	}
+
 
 	spin_lock_irqsave(&d40c->lock, flags);
 

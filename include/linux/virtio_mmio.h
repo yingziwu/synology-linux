@@ -99,6 +99,8 @@
  * the per-driver configuration space - Read Write */
 #define VIRTIO_MMIO_CONFIG		0x100
 
+
+
 /*
  * Interrupt flags (re: interrupt status & acknowledge registers)
  */

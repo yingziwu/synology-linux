@@ -67,6 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cpu/mvCpu.h"
 #include "ctrlEnv/mvSemaphore.h"
 
+
 MV_BOOL mvSemaLock(MV_32 num)
 {
 	MV_U32 tmp;

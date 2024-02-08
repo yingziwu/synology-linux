@@ -317,3 +317,4 @@ trap_setup_user_stack_is_bolixed:
 
 	jmpl	%t_retpc + 0x8, %g0
 	 mov	%t_kstack, %sp
+

@@ -169,6 +169,8 @@ GLOBAL_ENTRY(kvm_asm_mov_from_ar_sn2)
 	;;
 END(kvm_asm_mov_from_ar_sn2)
 
+
+
 // mov r1=rr[r3]
 GLOBAL_ENTRY(kvm_asm_mov_from_rr)
 #ifndef ACCE_MOV_FROM_RR
@@ -198,6 +200,7 @@ kvm_asm_mov_from_rr_back_1:
 	mov b0=r17
 	br.many b0
 END(kvm_asm_mov_from_rr)
+
 
 // mov rr[r3]=r2
 GLOBAL_ENTRY(kvm_asm_mov_to_rr)
@@ -273,6 +276,7 @@ kvm_asm_mov_to_rr_back_2:
 	br.many b0
 END(kvm_asm_mov_to_rr)
 
+
 //rsm
 GLOBAL_ENTRY(kvm_asm_rsm)
 #ifndef ACCE_RSM
@@ -335,6 +339,7 @@ GLOBAL_ENTRY(kvm_asm_rsm)
 	srlz.d
 	br.many kvm_resume_to_guest_with_sync
 END(kvm_asm_rsm)
+
 
 //ssm
 GLOBAL_ENTRY(kvm_asm_ssm)
@@ -408,6 +413,7 @@ kvm_asm_ssm_1:
 	(p6) br.dpnt.few kvm_asm_dispatch_vexirq
 	br.many kvm_resume_to_guest_with_sync
 END(kvm_asm_ssm)
+
 
 //mov psr.l=r2
 GLOBAL_ENTRY(kvm_asm_mov_to_psr)
@@ -509,6 +515,7 @@ kvm_asm_mov_to_psr_1:
 	(p6) br.dpnt.few kvm_asm_dispatch_vexirq
 	br.many kvm_resume_to_guest_with_sync
 END(kvm_asm_mov_to_psr)
+
 
 ENTRY(kvm_asm_dispatch_vexirq)
 //increment iip
@@ -619,6 +626,7 @@ END(kvm_asm_thash)
 	;;			\
 };
 
+
 #define MOV_TO_REG(n)	\
 {;			\
 	mov r##n##=r19;	\
@@ -627,6 +635,7 @@ END(kvm_asm_thash)
 	;;			\
 };
 
+
 #define MOV_FROM_REG(n)	\
 {;				\
 	mov r19=r##n##;		\
@@ -634,6 +643,7 @@ END(kvm_asm_thash)
 	br.sptk.many b0;		\
 	;;				\
 };
+
 
 #define MOV_TO_BANK0_REG(n)			\
 ENTRY_MIN_ALIGN(asm_mov_to_bank0_reg##n##);	\
@@ -656,6 +666,7 @@ ENTRY_MIN_ALIGN(asm_mov_to_bank0_reg##n##);	\
 	;;						\
 };						\
 END(asm_mov_to_bank0_reg##n##)
+
 
 #define MOV_FROM_BANK0_REG(n)			\
 ENTRY_MIN_ALIGN(asm_mov_from_bank0_reg##n##);	\
@@ -684,6 +695,7 @@ ENTRY_MIN_ALIGN(asm_mov_from_bank0_reg##n##);	\
 };						\
 END(asm_mov_from_bank0_reg##n##)
 
+
 #define JMP_TO_MOV_TO_BANK0_REG(n)		\
 {;						\
 	nop.b 0x0;					\
@@ -692,6 +704,7 @@ END(asm_mov_from_bank0_reg##n##)
 	;;						\
 }
 
+
 #define JMP_TO_MOV_FROM_BANK0_REG(n)		\
 {;						\
 	nop.b 0x0;					\
@@ -699,6 +712,7 @@ END(asm_mov_from_bank0_reg##n##)
 	br.sptk.many asm_mov_from_bank0_reg##n##;	\
 	;;						\
 }
+
 
 MOV_FROM_BANK0_REG(16)
 MOV_FROM_BANK0_REG(17)
@@ -716,6 +730,7 @@ MOV_FROM_BANK0_REG(28)
 MOV_FROM_BANK0_REG(29)
 MOV_FROM_BANK0_REG(30)
 MOV_FROM_BANK0_REG(31)
+
 
 // mov from reg table
 ENTRY(asm_mov_from_reg)
@@ -849,6 +864,7 @@ ENTRY(asm_mov_from_reg)
 	MOV_FROM_REG(127)
 END(asm_mov_from_reg)
 
+
 /* must be in bank 0
  * parameter:
  * r31: pr
@@ -922,6 +938,7 @@ ENTRY(kvm_resume_to_guest)
 	;;
 END(kvm_resume_to_guest)
 
+
 MOV_TO_BANK0_REG(16)
 MOV_TO_BANK0_REG(17)
 MOV_TO_BANK0_REG(18)
@@ -938,6 +955,7 @@ MOV_TO_BANK0_REG(28)
 MOV_TO_BANK0_REG(29)
 MOV_TO_BANK0_REG(30)
 MOV_TO_BANK0_REG(31)
+
 
 // mov to reg table
 ENTRY(asm_mov_to_reg)

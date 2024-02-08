@@ -139,6 +139,7 @@ typedef struct {
 
 } MV_CPU_CNTRS_EVENT;
 
+
 extern MV_CPU_CNTRS_ENTRY mvCpuCntrsTbl[];
 
 static INLINE void mvCpuCntrsReadBefore(MV_CPU_CNTRS_EVENT *pEvent)
@@ -235,5 +236,6 @@ MV_CPU_CNTRS_EVENT	*mvCpuCntrsEventCreate(char *name, MV_U32 print_threshold);
 void				mvCpuCntrsEventDelete(MV_CPU_CNTRS_EVENT *event);
 void				mvCpuCntrsShow(MV_CPU_CNTRS_EVENT *pEvent);
 void				mvCpuCntrsEventClear(MV_CPU_CNTRS_EVENT *pEvent);
+
 
 #endif /* __mvCpuCntrs_h__ */

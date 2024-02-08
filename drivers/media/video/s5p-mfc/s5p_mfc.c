@@ -1270,3 +1270,4 @@ module_exit(s5p_mfc_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Kamil Debski <k.debski@samsung.com>");
 MODULE_DESCRIPTION("Samsung S5P Multi Format Codec V4L2 driver");
+

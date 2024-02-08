@@ -126,3 +126,5 @@ struct omap_hwmod_addr_space omap2xxx_mcbsp2_addrs[] = {
 	},
 	{ }
 };
+
+

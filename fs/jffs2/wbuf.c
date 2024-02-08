@@ -1202,6 +1202,7 @@ int jffs2_dataflash_setup(struct jffs2_sb_info *c) {
 	/* Initialize write buffer */
 	init_rwsem(&c->wbuf_sem);
 
+
 	c->wbuf_pagesize =  c->mtd->erasesize;
 
 	/* Find a suitable c->sector_size

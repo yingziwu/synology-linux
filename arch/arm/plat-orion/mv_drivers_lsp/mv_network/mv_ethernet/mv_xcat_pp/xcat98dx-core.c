@@ -637,6 +637,7 @@ void mvPresteraReadPortMibCounters(int port)
 			PRESTERA_MIB_FC_SENT, NULL);
 	printk("FCFramesSent                = %u\n", regValue);
 
+
 	printk("\n\t RX Errors\n");
 
 	regValue = mvPresteraMibCounterRead(dev, portNum,

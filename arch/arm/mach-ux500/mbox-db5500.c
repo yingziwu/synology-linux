@@ -503,6 +503,7 @@ exit:
 }
 EXPORT_SYMBOL(mbox_setup);
 
+
 int __init mbox_probe(struct platform_device *pdev)
 {
 	struct mbox local_mbox;

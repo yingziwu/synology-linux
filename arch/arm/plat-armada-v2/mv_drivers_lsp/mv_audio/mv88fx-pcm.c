@@ -35,6 +35,7 @@
 /*#define AUDIO_REG_BASE	0x0*/
 #include "audio/mvAudioRegs.h"
 
+
 int mv88fx_snd_hw_init(struct mv88fx_snd_chip	*chip);
 int mv88fx_snd_hw_playback_set(struct mv88fx_snd_chip	*chip);
 int mv88fx_snd_hw_capture_set(struct mv88fx_snd_chip	*chip);
@@ -73,6 +74,8 @@ int test_memory(struct mv88fx_snd_chip *chip,
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 */
+
+
 
 void devdma_hw_free(struct device *dev, struct snd_pcm_substream *substream)
 {
@@ -145,6 +148,7 @@ int devdma_mmap(struct device *dev, struct snd_pcm_substream *substream, struct 
 	return dma_mmap_coherent(dev, vma, runtime->dma_area, runtime->dma_addr, runtime->dma_bytes);
 }
 
+
 /*
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -154,6 +158,7 @@ int devdma_mmap(struct device *dev, struct snd_pcm_substream *substream, struct 
 /*
  * hw preparation for spdif
  */
+
 
 static int mv88fx_snd_spdif_mask_info(struct snd_kcontrol *kcontrol,
 				      struct snd_ctl_elem_info *uinfo)
@@ -256,6 +261,7 @@ static struct snd_kcontrol_new mv88fx_snd_spdif_stream  =
 	.put =		mv88fx_snd_spdif_stream_put
 };
 
+
 static int mv88fx_snd_spdif_default_info(struct snd_kcontrol *kcontrol,
 					 struct snd_ctl_elem_info *uinfo)
 {
@@ -310,6 +316,7 @@ static int mv88fx_snd_spdif_default_put(struct snd_kcontrol *kcontrol,
 			MV_AUDIO_SPDIF_PLAY_CH_STATUS_RIGHT_REG(0, word),
 			chip->stream_defaults[PLAYBACK]->spdif_status[word]);
 		 
+		 
 	}
 	if (chip->stream_defaults[PLAYBACK]->spdif_status[0] & 
 				IEC958_AES0_NONAUDIO) {
@@ -327,6 +334,9 @@ static struct snd_kcontrol_new mv88fx_snd_spdif_default __devinitdata =
 	.get =		mv88fx_snd_spdif_default_get,
 	.put =		mv88fx_snd_spdif_default_put
 };
+
+
+
 
 /*
 -----------------------------------------------------------------------------
@@ -376,11 +386,13 @@ static struct snd_kcontrol_new mv88fx_snd_dac_vol =
 	.put =		mv88fx_snd_mixer_vol_put
 };
 
+
 /*
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 */
+
 
 struct mv88fx_snd_mixer_enum {
 	char 	**names;	/* enum names*/
@@ -388,6 +400,7 @@ struct mv88fx_snd_mixer_enum {
 	int 	count;		/* number of elements */
 	void*	rec;		/* field to be updated*/
 };
+
 
 int mv88fx_snd_mixer_enum_info (struct snd_kcontrol * kcontrol, 
 			       struct snd_ctl_elem_info * uinfo)
@@ -456,6 +469,8 @@ int mv88fx_snd_mixer_enum_put (struct snd_kcontrol * kcontrol,
 	return 0;
 }
 
+
+
 #define MV88FX_PCM_MIXER_ENUM(xname, xindex, value)	\
 { .iface = SNDRV_CTL_ELEM_IFACE_MIXER, \
   .name = xname, \
@@ -486,6 +501,9 @@ struct mv88fx_snd_mixer_enum playback_mono_mixer	=
 	.count	= 3,
 };
 
+
+
+
 char *capture_src_mixer_names[] = {"SPDIF","I2S"};
 int capture_src_mixer_values[] = { SPDIF, I2S};
 
@@ -505,6 +523,7 @@ struct mv88fx_snd_mixer_enum capture_mono_mixer	=
 	.values	= capture_mono_mixer_values,
 	.count	= 2,
 };
+
 
 static struct snd_kcontrol_new mv88fx_snd_mixers[] = {
 	MV88FX_PCM_MIXER_ENUM("Playback output type", 0,
@@ -583,8 +602,11 @@ mv88fx_snd_ctrl_new(struct snd_card *card)
 	if (err < 0)
 		return err;
 	
+	
+
 	return err;
 }
+
 
 /*
 -----------------------------------------------------------------------------
@@ -593,6 +615,8 @@ mv88fx_snd_ctrl_new(struct snd_card *card)
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 */
+
+
 
 static struct snd_pcm_hardware mv88fx_snd_capture_hw =
 {
@@ -619,6 +643,8 @@ static struct snd_pcm_hardware mv88fx_snd_capture_hw =
 	.fifo_size =		0,
 
 };
+
+
 
 static int
 mv88fx_snd_capture_open(struct snd_pcm_substream * substream)
@@ -650,6 +676,7 @@ mv88fx_snd_capture_open(struct snd_pcm_substream * substream)
 
 		}
 	}
+	
 	
 	err = snd_pcm_hw_constraint_minmax(substream->runtime,
 					   SNDRV_PCM_HW_PARAM_BUFFER_BYTES,
@@ -734,6 +761,7 @@ mv88fx_snd_capture_prepare(struct snd_pcm_substream * substream)
 	struct mv88fx_snd_stream *audio_stream = 
 		snd_pcm_substream_chip(substream); 
 
+
 	audio_stream->rate = runtime->rate;
         audio_stream->stereo= (runtime->channels == 1) ? 0 : 1;
 
@@ -784,6 +812,7 @@ mv88fx_snd_capture_trigger(struct snd_pcm_substream *substream, int cmd)
 		mv88fx_snd_bitset(chip, MV_AUDIO_INT_MASK_REG(0), 
 				  AICR_RECORD_BYTES_INT);
 
+
 		/* enable dma */
 		if (audio_stream->dig_mode & I2S)
 			mv88fx_snd_bitset(chip, MV_AUDIO_RECORD_CTRL_REG(0),
@@ -797,6 +826,7 @@ mv88fx_snd_capture_trigger(struct snd_pcm_substream *substream, int cmd)
 		mv88fx_snd_bitreset(chip, MV_AUDIO_RECORD_CTRL_REG(0),
 				  ARCR_RECORD_PAUSE_MASK);
 		
+		
 		break;
 	case SNDRV_PCM_TRIGGER_STOP:
 
@@ -808,6 +838,7 @@ mv88fx_snd_capture_trigger(struct snd_pcm_substream *substream, int cmd)
 		mv88fx_snd_bitreset(chip, MV_AUDIO_INT_MASK_REG(0), 
 				  AICR_RECORD_BYTES_INT);
 
+		
 		/* always stop both I2S and SPDIF*/
 		mv88fx_snd_bitreset(chip, MV_AUDIO_RECORD_CTRL_REG(0),
 				    (ARCR_RECORD_I2S_EN_MASK | 
@@ -834,6 +865,7 @@ mv88fx_snd_capture_trigger(struct snd_pcm_substream *substream, int cmd)
 	spin_unlock(&chip->reg_lock);
 	return result;
 }
+
 
 static snd_pcm_uframes_t 
 mv88fx_snd_capture_pointer(struct snd_pcm_substream * substream)
@@ -871,6 +903,8 @@ static struct snd_pcm_ops mv88fx_snd_capture_ops = {
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 */
+
+
 
 struct snd_pcm_hardware mv88fx_snd_playback_hw =
 {
@@ -991,6 +1025,7 @@ mv88fx_snd_playback_close(struct snd_pcm_substream * substream)
 		0, 
 		sizeof(struct mv88fx_snd_stream));
 
+	
 	return 0;
 }
 static int
@@ -1000,6 +1035,7 @@ mv88fx_snd_playback_hw_params(struct snd_pcm_substream * substream,
 	struct mv88fx_snd_stream *audio_stream = 
 		snd_pcm_substream_chip(substream); int err = 0; 
 	
+	
         err = devdma_hw_alloc(audio_stream->dev, substream,
 			      params_buffer_bytes(params));
 
@@ -1008,6 +1044,7 @@ mv88fx_snd_playback_hw_params(struct snd_pcm_substream * substream,
 	//	   frames_to_bytes(substream->runtime, 
 	//			   substream->runtime->buffer_size));
 	
+
 	return err;
 }
 
@@ -1109,6 +1146,7 @@ mv88fx_snd_playback_trigger(struct snd_pcm_substream *substream, int cmd)
 		mv88fx_snd_bitreset(chip, MV_AUDIO_INT_MASK_REG(0), 
 				  AICR_PLAY_BYTES_INT);
 
+
 		/* make sure the dma in pause state*/
 		mv88fx_snd_bitset(chip, MV_AUDIO_PLAYBACK_CTRL_REG(0),
 				  APCR_PLAY_PAUSE_MASK);
@@ -1145,6 +1183,7 @@ mv88fx_snd_playback_trigger(struct snd_pcm_substream *substream, int cmd)
 	return result;
 }
 
+
 static snd_pcm_uframes_t 
 mv88fx_snd_playback_pointer(struct snd_pcm_substream * substream)
 {
@@ -1162,6 +1201,7 @@ mv88fx_snd_playback_mmap(struct snd_pcm_substream *substream,
 	
 }
 
+
 static struct snd_pcm_ops mv88fx_snd_playback_ops = {
 	.open			= mv88fx_snd_playback_open,
 	.close			= mv88fx_snd_playback_close,
@@ -1174,6 +1214,7 @@ static struct snd_pcm_ops mv88fx_snd_playback_ops = {
 	.mmap 			= mv88fx_snd_playback_mmap,
 };
 
+
 /*
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -1181,6 +1222,7 @@ static struct snd_pcm_ops mv88fx_snd_playback_ops = {
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 */
+
 
 static int __init 
 mv88fx_snd_pcm_new(struct snd_card *card)
@@ -1244,6 +1286,7 @@ mv88fx_snd_pcm_new(struct snd_card *card)
 		
 	}
 	
+
 	pcm->private_data = chip;
 	pcm->info_flags = 0;
         strcpy(pcm->name, "Marvell mv88fx_snd IEC958 and I2S");
@@ -1260,6 +1303,7 @@ mv88fx_snd_interrupt(int irq, void *dev_id)
 	struct mv88fx_snd_stream *capture_stream =
 		chip->stream_defaults[CAPTURE];
 	
+			
 	unsigned int status, mask;
 
 	spin_lock(&chip->reg_lock);
@@ -1270,6 +1314,7 @@ mv88fx_snd_interrupt(int irq, void *dev_id)
 
 	do {
 	
+
 		if (status & ~(AICR_RECORD_BYTES_INT|AICR_PLAY_BYTES_INT)) {
 	
 	                spin_unlock(&chip->reg_lock);
@@ -1327,6 +1372,7 @@ mv88fx_snd_free(struct snd_card *card)
 	
 	chip->res = NULL;
 	
+		
 	/* Free memory allocated for streems */
 	if (chip->stream_defaults[PLAYBACK]) {
 		kfree(chip->stream_defaults[PLAYBACK]);
@@ -1357,6 +1403,7 @@ mv88fx_snd_free(struct snd_card *card)
 				chip->stream_defaults[CAPTURE]->area, 
 				chip->stream_defaults[CAPTURE]->addr);	
 
+
 	chip = NULL;
 }
 
@@ -1370,6 +1417,7 @@ static int mv88fx_snd_probe(struct platform_device *dev)
 	};
 	
 	mv88fx_snd_debug("=>%s", __FUNCTION__);
+
 
         card = snd_card_new(-1, "mv88fx_snd", THIS_MODULE, 
 			    sizeof(struct mv88fx_snd_chip));
@@ -1392,6 +1440,7 @@ static int mv88fx_snd_probe(struct platform_device *dev)
 		goto error;
 	}
 
+	
         mv88fx_snd_debug(KERN_ERR "chip->res =0x%x\n", (unsigned int)chip->res);
 	
 	r = request_mem_region(r->start, SZ_16K, DRIVER_NAME);
@@ -1409,6 +1458,7 @@ static int mv88fx_snd_probe(struct platform_device *dev)
 		goto error;
 	}
 
+        
 	mv88fx_snd_debug("%s card = 0x%x card->dev 0x%x\n",__FUNCTION__,
 						(unsigned int)card,
 						(unsigned int)card->dev);
@@ -1428,6 +1478,7 @@ static int mv88fx_snd_probe(struct platform_device *dev)
         strncpy(card->driver, dev->dev.driver->name, 
 		sizeof(card->driver));	
 	
+        
 	/* Allocate memory for our device */
 	chip->stream_defaults[PLAYBACK] = 
 		kzalloc(sizeof(struct mv88fx_snd_stream), GFP_KERNEL);
@@ -1448,6 +1499,7 @@ static int mv88fx_snd_probe(struct platform_device *dev)
 		err = -ENOMEM;
 		goto error;
 	}
+	
 	
 	chip->stream_defaults[CAPTURE] = 
 		kzalloc(sizeof(struct mv88fx_snd_stream), GFP_KERNEL);
@@ -1559,6 +1611,7 @@ static int mv88fx_snd_probe(struct platform_device *dev)
 	strcpy(card->shortname, "Marvell mv88fx_snd");
 	sprintf(card->longname, "Marvell mv88fx_snd ALSA driver");
 
+	
 	if ((err = snd_card_register(card)) < 0) {
 		mv88fx_snd_debug("Card registeration failed.\n");
 		err = -ENOMEM;

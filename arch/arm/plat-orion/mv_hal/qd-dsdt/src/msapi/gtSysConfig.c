@@ -751,6 +751,7 @@ GT_STATUS sysEnable( GT_QD_DEV *dev)
     return driverEnable(dev);
 }
 
+
 /*******************************************************************************
 * qdUnloadDriver
 *
@@ -845,6 +846,7 @@ GT_STATUS qdUnloadDriver
 	gtMemSet(dev,0,sizeof(GT_QD_DEV));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtRegister

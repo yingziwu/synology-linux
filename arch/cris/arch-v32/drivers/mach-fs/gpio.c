@@ -180,6 +180,8 @@ static volatile unsigned long *dir_oe[NUM_PORTS] = {
 #endif
 };
 
+
+
 static unsigned int gpio_poll(struct file *file, struct poll_table_struct *wait)
 {
 	unsigned int mask = 0;
@@ -347,6 +349,7 @@ gpio_pa_interrupt(int irq, void *dev_id)
 	return IRQ_NONE;
 }
 
+
 static ssize_t gpio_write(struct file *file, const char *buf, size_t count,
 	loff_t *off)
 {
@@ -411,6 +414,8 @@ static ssize_t gpio_write(struct file *file, const char *buf, size_t count,
 	}
 	return retval;
 }
+
+
 
 static int
 gpio_open(struct inode *inode, struct file *filp)

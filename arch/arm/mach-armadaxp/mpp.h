@@ -30,4 +30,5 @@ struct aurora_mpp_mode {
 
 void aurora_mpp_conf(struct aurora_mpp_mode *mode);
 
+
 #endif

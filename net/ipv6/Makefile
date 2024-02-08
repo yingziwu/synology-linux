@@ -45,6 +45,7 @@ obj-$(CONFIG_IPV6_ETHERIP) += ethipip6.o
 endif
 
 obj-y += addrconf_core.o exthdrs_core.o
+obj-$(CONFIG_INET) += output_core.o
 
 obj-$(subst m,y,$(CONFIG_IPV6)) += inet6_hashtables.o
 ifeq ($(CONFIG_SYNO_COMCERTO),y)

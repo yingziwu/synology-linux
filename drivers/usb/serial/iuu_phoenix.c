@@ -32,6 +32,7 @@
 #include "iuu_phoenix.h"
 #include <linux/random.h>
 
+
 #ifdef CONFIG_USB_SERIAL_DEBUG
 static int debug = 1;
 #else
@@ -87,6 +88,7 @@ struct iuu_private {
 	u32 clk;
 };
 
+
 static void iuu_free_buf(struct iuu_private *priv)
 {
 	kfree(priv->buf);
@@ -110,7 +112,12 @@ static int iuu_alloc_buf(struct iuu_private *priv)
 
 static int iuu_startup(struct usb_serial *serial)
 {
+	unsigned char num_ports = serial->num_ports;
 	struct iuu_private *priv;
+
+	if (serial->num_bulk_in < num_ports || serial->num_bulk_out < num_ports)
+		return -ENODEV;
+
 	priv = kzalloc(sizeof(struct iuu_private), GFP_KERNEL);
 	dbg("%s- priv allocation success", __func__);
 	if (!priv)
@@ -204,6 +211,7 @@ static void iuu_rxcmd(struct urb *urb)
 		/* error stop all */
 		return;
 	}
+
 
 	memset(port->write_urb->transfer_buffer, IUU_UART_RX, 1);
 	usb_fill_bulk_urb(port->write_urb, port->serial->dev,
@@ -324,7 +332,7 @@ static int bulk_immediate(struct usb_serial_port *port, u8 *buf, u8 count)
 	    usb_bulk_msg(serial->dev,
 			 usb_sndbulkpipe(serial->dev,
 					 port->bulk_out_endpointAddress), buf,
-			 count, &actual, HZ * 1);
+			 count, &actual, 1000);
 
 	if (status != IUU_OPERATION_OK)
 		dbg("%s - error = %2x", __func__, status);
@@ -347,7 +355,7 @@ static int read_immediate(struct usb_serial_port *port, u8 *buf, u8 count)
 	    usb_bulk_msg(serial->dev,
 			 usb_rcvbulkpipe(serial->dev,
 					 port->bulk_in_endpointAddress), buf,
-			 count, &actual, HZ * 1);
+			 count, &actual, 1000);
 
 	if (status != IUU_OPERATION_OK)
 		dbg("%s - error = %2x", __func__, status);
@@ -437,6 +445,8 @@ static void iuu_led_activity_off(struct urb *urb)
 			  iuu_rxcmd, port);
 	result = usb_submit_urb(port->write_urb, GFP_ATOMIC);
 }
+
+
 
 static int iuu_clk(struct usb_serial_port *port, int dwFrq)
 {

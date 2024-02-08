@@ -230,6 +230,7 @@ static void __maybe_unused s3c_pm_show_resume_irqs(int start,
 	}
 }
 
+
 void (*pm_cpu_prep)(void);
 int (*pm_cpu_sleep)(unsigned long);
 

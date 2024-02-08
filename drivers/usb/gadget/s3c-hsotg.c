@@ -2887,6 +2887,7 @@ static void s3c_hsotg_otgreset(struct s3c_hsotg *hsotg)
 	writel(0, S3C_RSTCON);
 }
 
+
 static void s3c_hsotg_init(struct s3c_hsotg *hsotg)
 {
 	u32 cfg4;
@@ -2983,6 +2984,7 @@ static void s3c_hsotg_dump(struct s3c_hsotg *hsotg)
 		 readl(regs + S3C_DVBUSDIS), readl(regs + S3C_DVBUSPULSE));
 #endif
 }
+
 
 /**
  * state_show - debugfs: show overall driver and device state.
@@ -3103,6 +3105,7 @@ static const struct file_operations fifo_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+
 
 static const char *decode_direction(int is_in)
 {
