@@ -1697,7 +1697,7 @@ static int follow_dotdot_rcu(struct nameidata *nd)
 			nd->path.dentry = parent;
 			nd->seq = seq;
 			if (unlikely(!path_connected(&nd->path)))
-				return -ENOENT;
+				return -ECHILD;
 			break;
 		} else {
 			struct mount *mnt = real_mount(nd->path.mnt);
@@ -3263,14 +3263,22 @@ static int may_delete(struct inode *dir, struct dentry *victim, bool isdir)
 	if (!IS_SYNOACL(victim->d_parent) && check_sticky(dir, inode)) {
 		return -EPERM;
 	}
-	if (IS_APPEND(inode) || IS_IMMUTABLE(inode) || IS_SWAPFILE(inode)) {
-		return -EPERM;
-	}
 #else
-	if (check_sticky(dir, inode) || IS_APPEND(inode) ||
-	    IS_IMMUTABLE(inode) || IS_SWAPFILE(inode))
+	if (check_sticky(dir, inode))
 		return -EPERM;
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	/* expired files are still immutable or appendable, but also deletable. */
+	if (!IS_EXPIRED(inode) && (IS_APPEND(inode) || IS_IMMUTABLE(inode)))
+		return -EPERM;
+#else
+	if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
+		return -EPERM;
+#endif /* MY_ABC_HERE */
+
+	if (IS_SWAPFILE(inode))
+		return -EPERM;
 	if (isdir) {
 		if (!d_is_dir(victim))
 			return -ENOTDIR;
@@ -3432,8 +3440,15 @@ static int may_open(struct path *path, int acc_mode, int flag)
 	 * An append-only file must be opened in append mode for writing.
 	 */
 	if (IS_APPEND(inode)) {
+#ifdef MY_ABC_HERE
+		/* no O_APPEND is allowed if it's locker appendable */
+		if (!syno_op_locker_is_appendable(inode) &&
+		    (flag & O_ACCMODE) != O_RDONLY && !(flag & O_APPEND))
+			return -EPERM;
+#else
 		if  ((flag & O_ACCMODE) != O_RDONLY && !(flag & O_APPEND))
 			return -EPERM;
+#endif /* MY_ABC_HERE */
 		if (flag & O_TRUNC)
 			return -EPERM;
 	}
@@ -3741,8 +3756,8 @@ static int do_last(struct nameidata *nd,
 		   int *opened)
 {
 	struct dentry *dir = nd->path.dentry;
-	kuid_t dir_uid = dir->d_inode->i_uid;
-	umode_t dir_mode = dir->d_inode->i_mode;
+	kuid_t dir_uid = nd->inode->i_uid;
+	umode_t dir_mode = nd->inode->i_mode;
 	int open_flag = op->open_flag;
 	bool will_truncate = (open_flag & O_TRUNC) != 0;
 	bool got_write = false;

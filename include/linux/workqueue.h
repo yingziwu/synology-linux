@@ -98,6 +98,11 @@ enum {
 
 	/* maximum string length for set_worker_desc() */
 	WORKER_DESC_LEN		= 24,
+
+#ifdef MY_ABC_HERE
+	/* maximum string length for workqueue name */
+	WQ_NAME_LEN		= 64,
+#endif /* MY_ABC_HERE */
 };
 
 struct work_struct {
@@ -625,7 +630,8 @@ static inline int workqueue_sysfs_register(struct workqueue_struct *wq)
 #endif	/* CONFIG_SYSFS */
 
 #ifdef MY_ABC_HERE
-void update_kwork_stat_ratelimited(gfp_t gfp);
-#endif
+extern void update_kwork_io_stat_ratelimited(struct task_struct *p, gfp_t gfp);
+extern void account_workqueue_time(struct task_struct *p, u64 us, gfp_t gfp);
+#endif /* MY_ABC_HERE */
 
 #endif

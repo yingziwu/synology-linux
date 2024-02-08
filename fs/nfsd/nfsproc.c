@@ -20,6 +20,10 @@
 typedef struct svc_rqst	svc_rqst;
 typedef struct svc_buf	svc_buf;
 
+#ifdef MY_ABC_HERE
+#include "syno_io_stat.h"
+#endif /* MY_ABC_HERE */
+
 #define NFSDDBG_FACILITY		NFSDDBG_PROC
 
 
@@ -985,6 +989,29 @@ static struct svc_procedure		nfsd_procedures2[18] = {
 #endif
 };
 
+#ifdef MY_ABC_HERE
+static void nfsd_store_latency(u64 rpc_lat, u64 vfs_lat, u32 op)
+{
+	enum syno_nfsd_io_stat_type type;
+	if (op != NFSPROC_READ && op != NFSPROC_WRITE)
+		return;
+	type = (op == NFSPROC_READ) ? SYNO_NFSD_IO_READ : SYNO_NFSD_IO_WRITE;
+	syno_nfsd_store_latency_into_histogram(SYNO_NFSD_USEC_TO_SEC(rpc_lat),
+						SYNO_NFSD_USEC_TO_SEC(vfs_lat),
+						SYNO_NFSD_VERSION_2, type);
+}
+
+static void nfsd_store_error(struct svc_rqst *rqstp)
+{
+	const struct syno_nfsd_dummy_status *st;
+	// rq_resp's size is from `rq_server->sv_xdrsize`, so we check on it.
+	if (!rqstp || !rqstp->rq_resp ||
+	    !rqstp->rq_server || rqstp->rq_server->sv_xdrsize < sizeof(struct syno_nfsd_dummy_status))
+		return;
+	st = (const struct syno_nfsd_dummy_status *) rqstp->rq_resp;
+	syno_nfsd_store_error(be32_to_cpu(st->status), SYNO_NFSD_VERSION_2);
+}
+#endif /* MY_ABC_HERE */
 
 struct svc_version	nfsd_version2 = {
 		.vs_vers	= 2,
@@ -1000,6 +1027,10 @@ struct svc_version	nfsd_version2 = {
 		.vs_proc	= nfsd_procedures2,
 		.vs_dispatch	= nfsd_dispatch,
 		.vs_xdrsize	= NFS2_SVC_XDRSIZE,
+#ifdef MY_ABC_HERE
+		.vs_store_latency_to_histogram 	= nfsd_store_latency,
+		.vs_store_resp_error 		= nfsd_store_error,
+#endif /* MY_ABC_HERE */
 };
 
 /*

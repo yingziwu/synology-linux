@@ -81,6 +81,7 @@ obj-$(CONFIG_MMC_SDHCI_ST)		+= sdhci-st.o
 ifeq ($(CONFIG_SYNO_LSP_RTD1619), y)
 obj-$(CONFIG_MMC_SDHCI_RTK)		+= sdhci-rtk.o
 endif # CONFIG_SYNO_LSP_RTD1619
+obj-$(CONFIG_MMC_CQHCI)			+= cqhci.o
 
 ifeq ($(CONFIG_CB710_DEBUG),y)
 	CFLAGS-cb710-mmc	+= -DDEBUG

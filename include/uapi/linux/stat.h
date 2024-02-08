@@ -4,6 +4,9 @@
 #ifndef _UAPI_LINUX_STAT_H
 #define _UAPI_LINUX_STAT_H
 
+#ifndef __KERNEL__
+#include <linux/syno_autoconf.h>
+#endif
 
 #if defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2)
 

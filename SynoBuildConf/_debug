@@ -129,7 +129,7 @@ config_debug_mode()
     while read _cfg; do
         ([ -z "$_cfg" ] || [[ "$_cfg" =~ .*"#".* ]]) && continue
         INFO "Disable $_cfg"
-        ./scripts/config --enable $_cfg
+        ./scripts/config --disable $_cfg
     done <<< "$_disabled"
 
 	# Required if enabling CONFIG_DEBUG_LOCKDEP
