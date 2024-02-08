@@ -16,6 +16,7 @@ btrfs-$(CONFIG_SYNO_BTRFS_WINACL) += syno_acl.o
 btrfs-$(CONFIG_SYNO_BTRFS_USRQUOTA) += usrquota.o
 btrfs-$(CONFIG_BTRFS_FS_CHECK_INTEGRITY) += check-integrity.o
 
+btrfs-$(CONFIG_SYNO_BTRFS_FEATURE_SPACE_USAGE) += syno-extent-usage.o
 btrfs-$(CONFIG_SYNO_BTRFS_FREE_SPACE_ANALYZE) += free-space-analyze.o
 
 btrfs-$(CONFIG_BTRFS_FS_RUN_SANITY_TESTS) += tests/free-space-tests.o \

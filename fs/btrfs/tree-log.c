@@ -609,6 +609,9 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 	struct inode *inode = NULL;
 	unsigned long size;
 	int ret = 0;
+#ifdef MY_ABC_HERE
+	int syno_usage;
+#endif /* MY_ABC_HERE */
 
 	item = btrfs_item_ptr(eb, slot, struct btrfs_file_extent_item);
 	found_type = btrfs_file_extent_type(eb, item);
@@ -720,7 +723,11 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 						0, root->root_key.objectid,
 						key->objectid, offset,
 						0, ram_bytes,
-						inode, i_uid_read(inode));
+						inode, i_uid_read(inode)
+#ifdef MY_ABC_HERE
+						,btrfs_syno_usage_ref_check(root, key->objectid, key->offset)
+#endif /* MY_ABC_HERE */
+						);
 #else
 				ret = btrfs_inc_extent_ref(trans, root,
 						ins.objectid, ins.offset,
@@ -729,6 +736,9 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 						0
 #ifdef MY_ABC_HERE
 						,ram_bytes
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+						,btrfs_syno_usage_ref_check(root, key->objectid, key->offset)
 #endif /* MY_ABC_HERE */
 						);
 #endif /* MY_ABC_HERE */
@@ -745,6 +755,19 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 						key->objectid, offset, &ins, inode, inode->i_uid);
 #else
 						key->objectid, offset, &ins);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+				if (ret)
+					goto out;
+				btrfs_release_path(path);
+				syno_usage = btrfs_syno_usage_ref_check(root, key->objectid, key->offset);
+				if (syno_usage == 1) {
+					ret = btrfs_syno_subvol_usage_add(trans, root->fs_info, root->objectid, ins.objectid, ins.offset, 1);
+					if (ret)
+						goto out;
+				} else if (syno_usage == 2) {
+					ret = btrfs_syno_extent_usage_add(trans, root->fs_info, SYNO_USAGE_TYPE_RO_SNAPSHOT, ins.objectid, ins.offset, 0);
+				}
 #endif /* MY_ABC_HERE */
 			}
 			btrfs_release_path(path);

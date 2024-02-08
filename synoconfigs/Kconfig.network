@@ -81,4 +81,8 @@ config SYNO_ETHER_ADDR_COPY
 	bool "back port ether_addr_copy for rdma from linux-4.4.x"
 	default y
 
+config SYNO_CVE_2021_20322
+	bool "to support CVE-2021-20322"
+	default y
+
 endmenu #Network

@@ -32,6 +32,9 @@
 #ifdef MY_ABC_HERE
 extern bool ramdisk_check_failed;
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#include <linux/synolib.h>
+#endif /* MY_ABC_HERE */
 #include "pnode.h"
 #include "internal.h"
 
@@ -49,8 +52,10 @@ extern void ext4_fill_mount_path(struct super_block *sb, const char *szPath);
 #ifdef MY_ABC_HERE
 int (*funcSYNOSendErrorFsBtrfsEvent)(const u8*) = NULL;
 void (*btrfs_fill_mount_path)(struct super_block *, const char *) = NULL;
+int (*funcSYNOMetaCorruptedEvent)(const u8*, u64 start) = NULL;
 EXPORT_SYMBOL(funcSYNOSendErrorFsBtrfsEvent);
 EXPORT_SYMBOL(btrfs_fill_mount_path);
+EXPORT_SYMBOL(funcSYNOMetaCorruptedEvent);
 #endif
 
 #ifdef MY_ABC_HERE
@@ -2593,12 +2598,20 @@ long do_mount(const char *dev_name, const char *dir_name,
 	else if ((flags & MS_BIND) && ramdisk_check_failed)
 		retval = -EPERM;
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	else if ((flags & MS_BIND) && kexec_test_flags)
+		retval = -EPERM;
+#endif /* MY_ABC_HERE */
 	else if (flags & MS_BIND)
 		retval = do_loopback(&path, dev_name, flags & MS_REC);
 	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
 		retval = do_change_type(&path, flags);
 #ifdef MY_ABC_HERE
 	else if ((flags & MS_MOVE) && ramdisk_check_failed)
+		retval = -EPERM;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	else if ((flags & MS_MOVE) && kexec_test_flags)
 		retval = -EPERM;
 #endif /* MY_ABC_HERE */
 	else if (flags & MS_MOVE)

@@ -87,12 +87,9 @@ void syno_insert_sata_index_remap(unsigned int idx, unsigned int num, unsigned i
 #endif /* MY_ABC_HERE */
 
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+#define SYNOBIOS_EVENTDATA_NUM_MAX 8
 typedef struct _synobios_event_parm_tag {
-	unsigned long long data1;
-	unsigned long long data2;
-	unsigned long long data3;
-	unsigned long long data4;
-	unsigned long long data5;
+	unsigned long long data[SYNOBIOS_EVENTDATA_NUM_MAX];
 } SYNOBIOS_EVENT_PARM;
 
 typedef int (*FUNC_SYNOBIOS_EVENT)(SYNOBIOS_EVENT_PARM parms);
@@ -103,5 +100,28 @@ typedef struct _synobios_evnet_action_tag {
 	struct list_head list;
 } SYNOBIOS_EVENT_ACTION_LIST;
 #endif /* MY_ABC_HERE || MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+/*
+ * Notice
+ * ------
+ *  Before calling syno_kexec_test() or reading kexex_test_flags, please
+ *  ensure that syno_kexec_test_init() has been called.
+ */
+#define KEXEC_TEST_DECOMPRESSION	0	/* Did we skip compressed/head_64.S ? */
+#define KEXEC_TEST_BOOTLOADER		1	/* Is bootloader type 0xD ? */
+#define KEXEC_TEST_E820_TABLE		2	/* Is the minimal start address of usable memory in e820 table 0x100 ? */
+#define KEXEC_TEST_SETUP_DATA		3	/* Did we receive setup_data with type SETUP_NONE or SETUP_EFI ? */
+
+extern unsigned long kexec_test_flags;
+
+/*
+ * Test whether the above KEXEC_TEST_* bits are set.
+ */
+static __always_inline bool syno_kexec_test(int test)
+{
+	return 0 != test_bit(test, &kexec_test_flags);
+}
+#endif /* MY_ABC_HERE */
 
 #endif //__SYNOLIB_H_
