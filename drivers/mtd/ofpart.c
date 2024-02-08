@@ -29,6 +29,7 @@ static int parse_ofpart_partitions(struct mtd_info *master,
 	struct device_node *pp;
 	int nr_parts, i;
 
+
 	if (!data)
 		return 0;
 

@@ -21,6 +21,7 @@ static u32 __cpuinit power2(u32 x)
 	return s >>= 1;
 }
 
+
 /*
  * Set up an actual MCR
  */

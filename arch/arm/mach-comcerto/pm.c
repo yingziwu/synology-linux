@@ -26,6 +26,7 @@
 #include <asm/mach/irq.h>
 #include <linux/console.h>
 
+
 #include <linux/smp.h>
 #include <linux/io.h>
 #include <linux/delay.h>
@@ -65,6 +66,7 @@ void c2k_pm_bitmask_store(unsigned int bitmask_value)
 	*(((volatile unsigned int *)(HOST_UTILPE_SHARED_ADDRESS))+4) = host_utilpe_shared_pmu_bitmask;
 }
 
+
 static int comcerto_do_sram_idle(unsigned long save_state)
 {
 	comcerto_cpu_suspend(save_state);
@@ -96,6 +98,7 @@ typedef struct
     /* 0x54 */  volatile unsigned int ns_access_control;
 } a9_scu_registers;
 
+
 void save_a9_scu(u32 *pointer, unsigned scu_address)
 {
     a9_scu_registers *scu = (a9_scu_registers *)scu_address;
@@ -120,6 +123,7 @@ void restore_a9_scu(u32 *pointer, unsigned scu_address)
     scu->power_status.w = pointer[1];
     scu->control = pointer[0];
 }
+
 
 struct lockdown_regs
 {
@@ -177,6 +181,7 @@ typedef struct
     /* 0xF80 */ volatile unsigned power_ctrl;
 } pl310_registers;
 
+
 typedef struct
 {
     unsigned int aux_control;
@@ -197,6 +202,7 @@ typedef struct
     unsigned int prefetch_ctrl;
     unsigned int power_ctrl;
 } pl310_context;
+
 
 void save_pl310(u32 *pointer, unsigned int pl310_address)
 {
@@ -286,6 +292,7 @@ static void C2k_pm_suspend(void)
 	unsigned int scu_data[SCU_DATA_SIZE];
 	unsigned int pl310_data[L2_DATA_SIZE];
 
+
 	printk(KERN_INFO "PM: C2000 Device is trying to enter Suspend mode ...\n");
 
 	p0 = (unsigned int *) comcerto_cpu_restore;
@@ -371,6 +378,7 @@ static void C2k_pm_finish(void)
 	printk(KERN_INFO "Suspend process is completed, Wait for C2000 device to resume \n");
 }
 
+
 /*
  * Called right prior to thawing processes.
  */
@@ -379,6 +387,7 @@ static void C2k_pm_end(void)
 	printk(KERN_INFO "Resume process is completed, C2000 device is Power on Again \n");
         target_state = PM_SUSPEND_ON;
 }
+
 
 static const struct platform_suspend_ops C2k_pm_ops = {
 	.valid	   = C2k_pm_valid_state,
@@ -396,3 +405,4 @@ static int __init C2k_pm_init(void)
         return 0;
 }
 arch_initcall(C2k_pm_init);
+

@@ -113,6 +113,7 @@ disclaimer.
 #define MV_SPI_BOOT
 #endif
 
+
 /****************************************************************/
 /************* General    configuration ********************/
 /****************************************************************/
@@ -128,6 +129,8 @@ disclaimer.
 /****************************************************************/
 #define MV_NFP_SEC_Q_SIZE		64
 #define MV_NFP_SEC_REQ_Q_SIZE		1000
+
+
 
 /****************************************************************/
 /************* CESA configuration ********************/
@@ -217,6 +220,7 @@ disclaimer.
 #else
  #error "Ethernet-DRAM undefined"
 #endif /* ETHER_DRAM_COHER */
+
 
 /****************************************************************/
 /************* Ethernet driver configuration ********************/
@@ -359,6 +363,7 @@ disclaimer.
 #else
 #define INTER_REGS_BASE	0xF1000000
 #endif
+
 
 /* #define DDR_OPERATION_BASE	(INTER_REGS_BASE | 0x1418) */
 

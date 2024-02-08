@@ -131,6 +131,7 @@ extern "C" {
 #define MV_USB_CORE_STREAM_DISABLE_BIT          4
 #define MV_USB_CORE_STREAM_DISABLE_MASK         (1 << MV_USB_CORE_STREAM_DISABLE_BIT)
 
+
 #define MV_USB_CORE_ENDPT_SETUP_STAT_REG(dev)    (MV_USB_REGS_BASE(dev) + 0x1AC)
 #define MV_USB_CORE_ENDPT_PRIME_REG(dev)         (MV_USB_REGS_BASE(dev) + 0x1B0)
 #define MV_USB_CORE_ENDPT_FLUSH_REG(dev)         (MV_USB_REGS_BASE(dev) + 0x1B4)
@@ -188,6 +189,8 @@ extern "C" {
 #define MV_USB_X3_REGS_BASE(addr)		(MV_USB_REGS_BASE(0) | BIT11 | (((addr) & 0xF) << 6))
 #define MV_USB_PHY_PLL_REG(reg)			(MV_USB_X3_REGS_BASE(0) | ((reg & 0xF) << 2))
 #define MV_USB_PHY_CHANNEL_REG(dev, reg)	(MV_USB_X3_REGS_BASE(dev + 1) | ((reg & 0xF) << 2))
+
+
 
 /*******************************************/
 /* USB Windows Registers		   */

@@ -39,6 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
+
 /***
  *  PMCC4 SAMPLE EEPROM IMAGE
  *
@@ -51,6 +52,7 @@
  *  eeprom[48]:  fe fd fb f7  ef df bf 7f
  *
  ***/
+
 
 /*------------------------------------------------------------------------
  *          Type 1 Format
@@ -88,6 +90,7 @@ extern      "C"
 {
 #endif
 
+
 #define STRUCT_OFFSET(type, symbol)  ((long)&(((type *)0)->symbol))
 
 /*------------------------------------------------------------------------
@@ -100,6 +103,7 @@ extern      "C"
 #define PROM_FORMAT_Unk   (-1)
 #define PROM_FORMAT_TYPE1   1
 #define PROM_FORMAT_TYPE2   2
+
 
 /****** bit fields  for a type 1 formatted seeprom **************************/
     typedef struct
@@ -115,6 +119,7 @@ extern      "C"
         char        Crc32[4];   /* 0x1b-0x1e */
     }           FLD_TYPE1;
 
+
 /****** bit fields  for a type 2 formatted seeprom **************************/
     typedef struct
     {
@@ -129,6 +134,8 @@ extern      "C"
         char        HeatRunIterations[4];       /* 0x19-0x1c */
         char        HeatRunErrors[4];   /* 0x1d-0x20 */
     }           FLD_TYPE2;
+
+
 
 /***** this union allows us to access the seeprom as an array of bytes ***/
 /***** or as individual fields                                         ***/

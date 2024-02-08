@@ -20,6 +20,7 @@
 #ifndef __ASM_ARCH_IO_H
 #define __ASM_ARCH_IO_H
 
+
 #if defined(CONFIG_ARCH_M86XXX)
 	#include <mach/comcerto-2000/io.h>
 #else

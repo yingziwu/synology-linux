@@ -68,6 +68,7 @@ static struct clk *usb2_clk;
 extern void dwc_otg_host_port_suspend(struct usb_hcd *hcd);
 extern void dwc_otg_host_port_resume(struct usb_hcd *hcd);
 
+
 #define DWC_DRIVER_VERSION	"2.94a 27-OCT-2011"
 #define DWC_DRIVER_DESC		"HS OTG USB Controller driver"
 
@@ -554,6 +555,7 @@ static int set_parameters(dwc_otg_core_if_t * core_if)
 	return retval;
 }
 
+
 /**
  * Platform specific initialization for USB 2 PHY
  */
@@ -563,6 +565,7 @@ static void comcerto_usb2_phy_init(void)
 
 #define COMCERTO_USB0_PHY_CTRL_REG0 	(COMCERTO_DWC1_CFG_BASE + 0x000)
 #define COMCERTO_USB0_DWC_CFG_REGF 		(USB2_PHY_BASE + 0x03C)
+
 
 		/* take device out of reset , enable clock. */
 		/* Programming the USB0 PHY CONTROL REGISTER */
@@ -587,12 +590,15 @@ static void comcerto_usb2_phy_init(void)
 		rd_data = ((rd_data & 0xFFFF11FF)| 0x00001100);  //For Host mode.
 		writel (rd_data, COMCERTO_USB0_DWC_CFG_REGF);
 
+
 		/* Programming USB2.0 controller with scale down value. */
 		/* Configuring the usb2 controller in scaledown disable mode */
 		rd_data = readl(COMCERTO_USB0_DWC_CFG_REGF);
 		rd_data = ((rd_data & 0xFFFFFFF0)| 0x0);
 		writel (rd_data, COMCERTO_USB0_DWC_CFG_REGF);
 }
+
+
 
 /**
  * Platform specific initialization for Dwc OTG Controller
@@ -631,6 +637,7 @@ static void comcerto_start_dwc_otg(void)
 	c2000_block_reset(COMPONENT_AXI_USB0, 0);
 }
 
+
 /**
  * Platform specific Shutdown for Dwc OTG Controller
  */
@@ -651,6 +658,7 @@ static void comcerto_stop_dwc_otg(void)
 	/* Release the clock */
 	clk_put(usb2_clk);
 }
+
 
 /**
  * This function is the top level interrupt handler for the Common
@@ -1185,6 +1193,7 @@ int comcerto_usb2_bus_resume(struct platform_device *pd)
 {
 	int error_status = 0;
 	struct usb_hcd *hcd = NULL;
+
 
 	/* Check for the Bit Mask bit for USB2, if not enabled
          * then we are not going suspend the USB2 device , as by

@@ -414,6 +414,7 @@ static int irtty_ioctl(struct tty_struct *tty, struct file *file, unsigned int c
 	return err;
 }
 
+
 /* 
  *  Function irtty_open(tty)
  *
@@ -428,16 +429,6 @@ static int irtty_open(struct tty_struct *tty)
 	int ret = 0;
 
 	/* Module stuff handled via irda_ldisc.owner - Jean II */
-
-	/* First make sure we're not already connected. */
-	if (tty->disc_data != NULL) {
-		priv = tty->disc_data;
-		if (priv && priv->magic == IRTTY_MAGIC) {
-			ret = -EEXIST;
-			goto out;
-		}
-		tty->disc_data = NULL;		/* ### */
-	}
 
 	/* stop the underlying  driver */
 	irtty_stop_receiver(tty, TRUE);
@@ -575,3 +566,4 @@ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
 MODULE_DESCRIPTION("IrDA TTY device driver");
 MODULE_ALIAS_LDISC(N_IRDA);
 MODULE_LICENSE("GPL");
+

@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/arch/arm/kernel/process.c
+ *
+ *  Copyright (C) 1996-2000 Russell King - Converted to ARM.
+ *  Original Copyright (C) 1995  Linus Torvalds
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
 #include <stdarg.h>
 
 #include <linux/export.h>
@@ -88,29 +97,47 @@ __setup("hlt", hlt_setup);
 
 void arm_machine_restart(char mode, const char *cmd)
 {
-	 
+	/* Disable interrupts first */
 	local_irq_disable();
 	local_fiq_disable();
 
+	/*
+	 * Tell the mm system that we are going to reboot -
+	 * we may need it to insert some 1:1 mappings so that
+	 * soft boot works.
+	 */
 	setup_mm_for_reboot(mode);
 
+	/* Clean and invalidate caches */
 	flush_cache_all();
 
+	/* Turn off caching */
 #if !defined(MY_ABC_HERE) || (!defined(CONFIG_ARCH_ARMADA375) && !defined(CONFIG_ARCH_ARMADA38X))
-	 
+	/* Temporrary skip the disabling of the caches for Armada 375 until we resolve the reboot hang issue */
 	cpu_proc_fin();
 #endif
 
+	/* Push out any further dirty data, and ensure cache is empty */
 	flush_cache_all();
 
+	/*
+	 * Now call the architecture specific reboot code.
+	 */
 	arch_reset(mode, cmd);
 
+	/*
+	 * Whoops - the architecture was unable to reboot.
+	 * Tell the user!
+	 */
 	mdelay(1000);
 	printk("Reboot failed -- System halted\n");
 	local_irq_disable();
 	while (1);
 }
 
+/*
+ * Function pointers to optional machine specific functions
+ */
 void (*pm_power_off)(void);
 EXPORT_SYMBOL(pm_power_off);
 
@@ -121,14 +148,26 @@ static void do_nothing(void *unused)
 {
 }
 
+/*
+ * cpu_idle_wait - Used to ensure that all the CPUs discard old value of
+ * pm_idle and update to new pm_idle value. Required while changing pm_idle
+ * handler on SMP systems.
+ *
+ * Caller must have changed pm_idle to the new value before the call. Old
+ * pm_idle value will not be used by any CPU after the return of this function.
+ */
 void cpu_idle_wait(void)
 {
 	smp_mb();
-	 
+	/* kick all the CPUs so that they exit out of pm_idle */
 	smp_call_function(do_nothing, NULL, 1);
 }
 EXPORT_SYMBOL_GPL(cpu_idle_wait);
 
+/*
+ * This is our default idle handler.  We need to disable
+ * interrupts here to ensure we don't miss a wakeup call.
+ */
 static void default_idle(void)
 {
 	if (!need_resched())
@@ -139,10 +178,17 @@ static void default_idle(void)
 void (*pm_idle)(void) = default_idle;
 EXPORT_SYMBOL(pm_idle);
 
+/*
+ * The idle thread, has rather strange semantics for calling pm_idle,
+ * but this is what x86 does and we need to do the same, so that
+ * things like cpuidle get called in the same way.  The only difference
+ * is that we always respect 'hlt_counter' to prevent low power idle.
+ */
 void cpu_idle(void)
 {
 	local_fiq_enable();
 
+	/* endless idle loop with no priority at all */
 	while (1) {
 		tick_nohz_stop_sched_tick(1);
 		leds_event(led_idle_start);
@@ -164,9 +210,18 @@ void cpu_idle(void)
 				if (cpuidle_idle_call())
 					pm_idle();
 				start_critical_timings();
-				 
+				/*
+				 * This will eventually be removed - pm_idle
+				 * functions should always return with IRQs
+				 * enabled.
+				 */
 #ifdef MY_DEF_HERE
-				 
+				/* 
+				*  After disabling irqs above this warn_on checks
+				*  irq are enabled and then at the following
+				*  instruction enables them. This code is redundant
+				*/
+//				WARN_ON(irqs_disabled());
 #else
 				WARN_ON(irqs_disabled());
 #endif
@@ -291,6 +346,9 @@ ATOMIC_NOTIFIER_HEAD(thread_notify_head);
 
 EXPORT_SYMBOL_GPL(thread_notify_head);
 
+/*
+ * Free current thread data structures etc..
+ */
 void exit_thread(void)
 {
 	thread_notify(THREAD_NOTIFY_EXIT, current_thread_info());
@@ -341,12 +399,18 @@ copy_thread(unsigned long clone_flags, unsigned long stack_start,
 	return 0;
 }
 
+/*
+ * Fill in the task's elfregs structure for a core dump.
+ */
 int dump_task_regs(struct task_struct *t, elf_gregset_t *elfregs)
 {
 	elf_core_copy_regs(elfregs, task_pt_regs(t));
 	return 1;
 }
 
+/*
+ * fill in the fpe structure for a core dump...
+ */
 int dump_fpu (struct pt_regs *regs, struct user_fp *fp)
 {
 	struct thread_info *thread = current_thread_info();
@@ -359,6 +423,11 @@ int dump_fpu (struct pt_regs *regs, struct user_fp *fp)
 }
 EXPORT_SYMBOL(dump_fpu);
 
+/*
+ * Shuffle the argument into the correct register before calling the
+ * thread function.  r4 is the thread argument, r5 is the pointer to
+ * the thread function, and r6 points to the exit function.
+ */
 extern void kernel_thread_helper(void);
 asm(	".pushsection .text\n"
 "	.align\n"
@@ -391,6 +460,9 @@ asm(	".pushsection .text\n"
 #define kernel_thread_exit	do_exit
 #endif
 
+/*
+ * Create a kernel thread.
+ */
 pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
 {
 	struct pt_regs regs;
@@ -411,17 +483,20 @@ EXPORT_SYMBOL(kernel_thread);
 unsigned long get_wchan(struct task_struct *p)
 {
 	struct stackframe frame;
+	unsigned long stack_page;
 	int count = 0;
 	if (!p || p == current || p->state == TASK_RUNNING)
 		return 0;
 
 	frame.fp = thread_saved_fp(p);
 	frame.sp = thread_saved_sp(p);
-	frame.lr = 0;			 
+	frame.lr = 0;			/* recovered from the stack */
 	frame.pc = thread_saved_pc(p);
+	stack_page = (unsigned long)task_stack_page(p);
 	do {
-		int ret = unwind_frame(&frame);
-		if (ret < 0)
+		if (frame.sp < stack_page ||
+		    frame.sp >= stack_page + THREAD_SIZE ||
+		    unwind_frame(&frame) < 0)
 			return 0;
 		if (!in_sched_functions(frame.pc))
 			return frame.pc;
@@ -436,7 +511,11 @@ unsigned long arch_randomize_brk(struct mm_struct *mm)
 }
 
 #ifdef CONFIG_MMU
- 
+/*
+ * The vectors page is always readable from user space for the
+ * atomic helpers and the signal restart code. Insert it into the
+ * gate_vma so that it is visible through ptrace and /proc/<pid>/mem.
+ */
 static struct vm_area_struct gate_vma;
 
 static int __init gate_vma_init(void)

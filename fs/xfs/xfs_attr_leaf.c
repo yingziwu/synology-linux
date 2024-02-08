@@ -102,6 +102,7 @@ xfs_attr_namesp_match(int arg_flags, int ondisk_flags)
 	return XFS_ATTR_NSP_ONDISK(ondisk_flags) == XFS_ATTR_NSP_ARGS_TO_ONDISK(arg_flags);
 }
 
+
 /*========================================================================
  * External routines when attribute fork size < XFS_LITINO(mp).
  *========================================================================*/
@@ -571,6 +572,7 @@ xfs_attr_shortform_compare(const void *a, const void *b)
 	}
 }
 
+
 #define XFS_ISRESET_CURSOR(cursor) \
 	(!((cursor)->initted) && !((cursor)->hashval) && \
 	 !((cursor)->blkno) && !((cursor)->offset))
@@ -719,8 +721,10 @@ xfs_attr_shortform_list(xfs_attr_list_context_t *context)
 					sbp->namelen,
 					sbp->valuelen,
 					&sbp->name[sbp->namelen]);
-		if (error)
+		if (error) {
+			kmem_free(sbuf);
 			return error;
+		}
 		if (context->seen_enough)
 			break;
 		cursor->offset++;
@@ -899,6 +903,7 @@ out:
 		xfs_da_buf_done(bp2);
 	return(error);
 }
+
 
 /*========================================================================
  * Routines used for growing the Btree.
@@ -2401,14 +2406,13 @@ xfs_attr_leaf_list_int(xfs_dabuf_t *bp, xfs_attr_list_context_t *context)
 				args.rmtblkno = be32_to_cpu(name_rmt->valueblk);
 				args.rmtblkcnt = XFS_B_TO_FSB(args.dp->i_mount, valuelen);
 				retval = xfs_attr_rmtval_get(&args);
-				if (retval)
-					return retval;
-				retval = context->put_listent(context,
-						entry->flags,
-						name_rmt->name,
-						(int)name_rmt->namelen,
-						valuelen,
-						args.value);
+				if (!retval)
+					retval = context->put_listent(context,
+							entry->flags,
+							name_rmt->name,
+							(int)name_rmt->namelen,
+							valuelen,
+							args.value);
 				kmem_free(args.value);
 			} else {
 				retval = context->put_listent(context,
@@ -2428,6 +2432,7 @@ xfs_attr_leaf_list_int(xfs_dabuf_t *bp, xfs_attr_list_context_t *context)
 	trace_xfs_attr_list_leaf_end(context);
 	return(retval);
 }
+
 
 /*========================================================================
  * Manage the INCOMPLETE flag in a leaf entry

@@ -300,6 +300,7 @@ signal_vsp_instruction(struct vsp_cmd_data *vsp_cmd)
 	return rc;
 }
 
+
 /*
  * Send a 12-byte CE message to the primary partition VSP object
  */

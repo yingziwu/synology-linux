@@ -44,6 +44,7 @@
 
 #include "usb.h"
 
+
 /*-------------------------------------------------------------------------*/
 
 /*
@@ -190,6 +191,7 @@ static const u8 usb11_rh_dev_descriptor [18] = {
 	0x01,       /*  __u8  iSerialNumber; */
 	0x01        /*  __u8  bNumConfigurations; */
 };
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -432,6 +434,7 @@ rh_string(int id, struct usb_hcd const *hcd, u8 *data, unsigned len)
 
 	return ascii2desc(s, data, len);
 }
+
 
 /* Root hub control transfers execute synchronously */
 static int rh_call_control (struct usb_hcd *hcd, struct urb *urb)
@@ -812,6 +815,8 @@ static int usb_rh_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 	return rc;
 }
 
+
+
 /*
  * Show & store the current value of authorized_default
  */
@@ -856,6 +861,7 @@ static DEVICE_ATTR(authorized_default, 0644,
 	    usb_host_authorized_default_show,
 	    usb_host_authorized_default_store);
 
+
 /* Group all the USB bus attributes */
 static struct attribute *usb_bus_attrs[] = {
 		&dev_attr_authorized_default.attr,
@@ -866,6 +872,8 @@ static struct attribute_group usb_bus_attr_group = {
 	.name = NULL,	/* we want them in the same directory */
 	.attrs = usb_bus_attrs,
 };
+
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1008,6 +1016,7 @@ static int register_root_hub(struct usb_hcd *hcd)
 	return retval;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /**
@@ -1055,6 +1064,7 @@ long usb_calc_bus_time (int speed, int is_input, int isoc, int bytecount)
 	}
 }
 EXPORT_SYMBOL_GPL(usb_calc_bus_time);
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1532,6 +1542,7 @@ static int unlink1(struct usb_hcd *hcd, struct urb *urb, int status)
 int usb_hcd_unlink_urb (struct urb *urb, int status)
 {
 	struct usb_hcd		*hcd;
+	struct usb_device	*udev = urb->dev;
 	int			retval = -EIDRM;
 	unsigned long		flags;
 
@@ -1543,20 +1554,19 @@ int usb_hcd_unlink_urb (struct urb *urb, int status)
 	spin_lock_irqsave(&hcd_urb_unlink_lock, flags);
 	if (atomic_read(&urb->use_count) > 0) {
 		retval = 0;
-		usb_get_dev(urb->dev);
+		usb_get_dev(udev);
 	}
 	spin_unlock_irqrestore(&hcd_urb_unlink_lock, flags);
 	if (retval == 0) {
 		hcd = bus_to_hcd(urb->dev->bus);
 		retval = unlink1(hcd, urb, status);
-		usb_put_dev(urb->dev);
+		if (retval == 0)
+			retval = -EINPROGRESS;
+		else if (retval != -EIDRM && retval != -EBUSY)
+			dev_dbg(&udev->dev, "hcd_unlink_urb %pK fail %d\n",
+					urb, retval);
+		usb_put_dev(udev);
 	}
-
-	if (retval == 0)
-		retval = -EINPROGRESS;
-	else if (retval != -EIDRM && retval != -EBUSY)
-		dev_dbg(&urb->dev->dev, "hcd_unlink_urb %p fail %d\n",
-				urb, retval);
 	return retval;
 }
 
@@ -1635,7 +1645,7 @@ rescan:
 		/* kick hcd */
 		unlink1(hcd, urb, -ESHUTDOWN);
 		dev_dbg (hcd->self.controller,
-			"shutdown urb %p ep%d%s%s\n",
+			"shutdown urb %pK ep%d%s%s\n",
 			urb, usb_endpoint_num(&ep->desc),
 			is_in ? "in" : "out",
 			({	char *s;
@@ -1886,6 +1896,8 @@ int usb_alloc_streams(struct usb_interface *interface,
 		return -EINVAL;
 	if (dev->speed != USB_SPEED_SUPER)
 		return -EINVAL;
+	if (dev->state < USB_STATE_CONFIGURED)
+		return -ENODEV;
 
 	/* Streams only apply to bulk endpoints. */
 	for (i = 0; i < num_eps; i++)
@@ -2182,6 +2194,8 @@ void usb_hc_died (struct usb_hcd *hcd)
 	}
 	if (usb_hcd_is_primary_hcd(hcd) && hcd->shared_hcd) {
 		hcd = hcd->shared_hcd;
+		clear_bit(HCD_FLAG_RH_RUNNING, &hcd->flags);
+		set_bit(HCD_FLAG_DEAD, &hcd->flags);
 		if (hcd->rh_registered) {
 			clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
 

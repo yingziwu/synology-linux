@@ -229,6 +229,7 @@ nouveau_gpuobj_new(struct drm_device *dev, struct nouveau_channel *chan,
 		instmem->flush(dev);
 	}
 
+
 	*gpuobj_ret = gpuobj;
 	return 0;
 }
@@ -268,6 +269,7 @@ nouveau_gpuobj_takedown(struct drm_device *dev)
 
 	BUG_ON(!list_empty(&dev_priv->gpuobj_list));
 }
+
 
 static void
 nouveau_gpuobj_del(struct kref *ref)

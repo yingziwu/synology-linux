@@ -334,6 +334,7 @@ struct al_crypto_transaction {
 			When using this feild the auth off and len
 			must contain a valid data */
 
+
 };
 
 /**

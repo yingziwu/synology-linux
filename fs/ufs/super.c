@@ -65,6 +65,7 @@
  * Evgeniy Dushistov <dushistov@mail.ru>, 2007
  */
 
+
 #include <linux/exportfs.h>
 #include <linux/module.h>
 #include <linux/bitops.h>
@@ -660,6 +661,7 @@ static void ufs_put_super_internal(struct super_block *sb)
 	unsigned char * base, * space;
 	unsigned blks, size, i;
 
+	
 	UFSD("ENTER\n");
 
 	ufs_put_cstotal(sb);
@@ -691,6 +693,23 @@ static void ufs_put_super_internal(struct super_block *sb)
 	kfree (base);
 
 	UFSD("EXIT\n");
+}
+
+static u64 ufs_max_bytes(struct super_block *sb)
+{
+	struct ufs_sb_private_info *uspi = UFS_SB(sb)->s_uspi;
+	int bits = uspi->s_apbshift;
+	u64 res;
+
+	if (bits > 21)
+		res = ~0ULL;
+	else
+		res = UFS_NDADDR + (1LL << bits) + (1LL << (2*bits)) +
+			(1LL << (3*bits));
+
+	if (res >= (MAX_LFS_FILESIZE >> uspi->s_bshift))
+		return MAX_LFS_FILESIZE;
+	return res << uspi->s_bshift;
 }
 
 static int ufs_fill_super(struct super_block *sb, void *data, int silent)
@@ -1155,6 +1174,7 @@ magic_found:
 			    "fast symlink size (%u)\n", uspi->s_maxsymlinklen);
 		uspi->s_maxsymlinklen = maxsymlen;
 	}
+	sb->s_maxbytes = ufs_max_bytes(sb);
 
 	inode = ufs_iget(sb, UFS_ROOTINO);
 	if (IS_ERR(inode)) {
@@ -1254,6 +1274,7 @@ static void ufs_put_super(struct super_block *sb)
 	UFSD("EXIT\n");
 	return;
 }
+
 
 static int ufs_remount (struct super_block *sb, int *mount_flags, char *data)
 {

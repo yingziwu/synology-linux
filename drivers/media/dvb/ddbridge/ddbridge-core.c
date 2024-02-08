@@ -144,6 +144,7 @@ static int ddb_i2c_master_xfer(struct i2c_adapter *adapter,
 	return -EIO;
 }
 
+
 static u32 ddb_i2c_functionality(struct i2c_adapter *adap)
 {
 	return I2C_FUNC_SMBUS_EMUL;
@@ -210,6 +211,7 @@ static int ddb_i2c_init(struct ddb *dev)
 		}
 	return stat;
 }
+
 
 /******************************************************************************/
 /******************************************************************************/
@@ -775,6 +777,7 @@ static int stop_feed(struct dvb_demux_feed *dvbdmxfeed)
 	return 0;
 }
 
+
 static void dvb_input_detach(struct ddb_input *input)
 {
 	struct dvb_adapter *adap = &input->adap;
@@ -1034,6 +1037,7 @@ static void output_tasklet(unsigned long data)
 	wake_up(&output->wq);
 	spin_unlock(&output->lock);
 }
+
 
 struct cxd2099_cfg cxd_cfg = {
 	.bitrate =  62000,
@@ -1524,6 +1528,7 @@ static void ddb_device_destroy(struct ddb *dev)
 	device_destroy(ddb_class, MKDEV(ddb_major, 0));
 }
 
+
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
@@ -1534,6 +1539,7 @@ static void ddb_unmap(struct ddb *dev)
 		iounmap(dev->regs);
 	vfree(dev);
 }
+
 
 static void __devexit ddb_remove(struct pci_dev *pdev)
 {
@@ -1556,6 +1562,7 @@ static void __devexit ddb_remove(struct pci_dev *pdev)
 	pci_set_drvdata(pdev, 0);
 	pci_disable_device(pdev);
 }
+
 
 static int __devinit ddb_probe(struct pci_dev *pdev,
 			       const struct pci_device_id *id)
@@ -1682,6 +1689,7 @@ static const struct pci_device_id ddb_id_tbl[] __devinitdata = {
 	{0}
 };
 MODULE_DEVICE_TABLE(pci, ddb_id_tbl);
+
 
 static struct pci_driver ddb_pci_driver = {
 	.name        = "DDBridge",

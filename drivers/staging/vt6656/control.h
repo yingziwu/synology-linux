@@ -58,12 +58,14 @@ void ControlvWriteByte(
      BYTE byData
     );
 
+
 void ControlvReadByte(
      PSDevice pDevice,
      BYTE byRegType,
      BYTE byRegOfs,
      PBYTE pbyData
     );
+
 
 void ControlvMaskByte(
      PSDevice pDevice,

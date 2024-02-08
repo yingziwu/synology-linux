@@ -176,3 +176,4 @@ extern void SkI2cWaitIrq(SK_AC *pAC, SK_IOC IoC);
 extern void SkI2cIsr(SK_AC *pAC, SK_IOC IoC);
 #endif /* !SK_DIAG */
 #endif /* n_SKTWSI_H */
+

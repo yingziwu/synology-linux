@@ -20,6 +20,7 @@
 
 #define UART_LSR	0x14
 
+
 	.macro	addruart, rx, rv, tmp
 	moveq	\rx, #0x96000000	@ physical base address
 	@movne	\rv, #0xf1600000	@ virtual base

@@ -33,9 +33,11 @@
 //#define SNDRV_SEQ_OSS_MAX_TIMEOUT	(unsigned long)(-1)
 #define SNDRV_SEQ_OSS_MAX_TIMEOUT	(HZ * 3600)
 
+
 /*
  * prototypes
  */
+
 
 /*
  * create a read queue
@@ -118,6 +120,35 @@ snd_seq_oss_readq_puts(struct seq_oss_readq *q, int dev, unsigned char *data, in
 }
 
 /*
+ * put MIDI sysex bytes; the event buffer may be chained, thus it has
+ * to be expanded via snd_seq_dump_var_event().
+ */
+struct readq_sysex_ctx {
+	struct seq_oss_readq *readq;
+	int dev;
+};
+
+static int readq_dump_sysex(void *ptr, void *buf, int count)
+{
+	struct readq_sysex_ctx *ctx = ptr;
+
+	return snd_seq_oss_readq_puts(ctx->readq, ctx->dev, buf, count);
+}
+
+int snd_seq_oss_readq_sysex(struct seq_oss_readq *q, int dev,
+			    struct snd_seq_event *ev)
+{
+	struct readq_sysex_ctx ctx = {
+		.readq = q,
+		.dev = dev
+	};
+
+	if ((ev->flags & SNDRV_SEQ_EVENT_LENGTH_MASK) != SNDRV_SEQ_EVENT_LENGTH_VARIABLE)
+		return 0;
+	return snd_seq_dump_var_event(ev, readq_dump_sysex, &ctx);
+}
+
+/*
  * copy an event to input queue:
  * return zero if enqueued
  */
@@ -144,6 +175,7 @@ snd_seq_oss_readq_put_event(struct seq_oss_readq *q, union evrec *ev)
 
 	return 0;
 }
+
 
 /*
  * pop queue
@@ -218,6 +250,7 @@ snd_seq_oss_readq_put_timestamp(struct seq_oss_readq *q, unsigned long curt, int
 	}
 	return 0;
 }
+
 
 #ifdef CONFIG_PROC_FS
 /*

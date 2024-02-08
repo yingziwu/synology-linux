@@ -1419,6 +1419,7 @@ static inline void s3cmci_cpufreq_deregister(struct s3cmci_host *host)
 }
 #endif
 
+
 #ifdef CONFIG_DEBUG_FS
 
 static int s3cmci_state_show(struct seq_file *seq, void *v)
@@ -1459,7 +1460,9 @@ static const struct file_operations s3cmci_fops_state = {
 struct s3cmci_reg {
 	unsigned short	addr;
 	unsigned char	*name;
-} debug_regs[] = {
+};
+
+static const struct s3cmci_reg debug_regs[] = {
 	DBG_REG(CON),
 	DBG_REG(PRE),
 	DBG_REG(CMDARG),
@@ -1481,7 +1484,7 @@ struct s3cmci_reg {
 static int s3cmci_regs_show(struct seq_file *seq, void *v)
 {
 	struct s3cmci_host *host = seq->private;
-	struct s3cmci_reg *rptr = debug_regs;
+	const struct s3cmci_reg *rptr = debug_regs;
 
 	for (; rptr->name; rptr++)
 		seq_printf(seq, "SDI%s\t=0x%08x\n", rptr->name,
@@ -1849,6 +1852,7 @@ static int __devexit s3cmci_remove(struct platform_device *pdev)
 	for (i = S3C2410_GPE(5); i <= S3C2410_GPE(10); i++)
 		gpio_free(i);
 
+
 	iounmap(host->base);
 	release_mem_region(host->mem->start, resource_size(host->mem));
 
@@ -1871,6 +1875,7 @@ static struct platform_device_id s3cmci_driver_ids[] = {
 };
 
 MODULE_DEVICE_TABLE(platform, s3cmci_driver_ids);
+
 
 #ifdef CONFIG_PM
 
@@ -1897,6 +1902,7 @@ static const struct dev_pm_ops s3cmci_pm = {
 #else /* CONFIG_PM */
 #define s3cmci_pm_ops NULL
 #endif /* CONFIG_PM */
+
 
 static struct platform_driver s3cmci_driver = {
 	.driver	= {

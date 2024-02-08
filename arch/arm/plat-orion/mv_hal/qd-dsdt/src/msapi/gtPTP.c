@@ -16,6 +16,7 @@
 #include <gtHwCntl.h>
 #include <gtDrvSwRegs.h>
 
+
 #ifdef CONFIG_AVB_FPGA
 
 #undef USE_SINGLE_READ
@@ -49,6 +50,7 @@
 #define GT_PTP_H16_TIME(_time1)	(((_time1) >> 16) & 0xFFFF)
 #endif
 
+
 /****************************************************************************/
 /* PTP operation function declaration.                                    */
 /****************************************************************************/
@@ -58,6 +60,7 @@ static GT_STATUS ptpOperationPerform
     IN   GT_PTP_OPERATION	ptpOp,
     INOUT GT_PTP_OP_DATA 	*opData
 );
+
 
 /*******************************************************************************
 * gptpSetConfig
@@ -213,6 +216,7 @@ GT_STATUS gptpSetConfig
 
 }
 
+
 /*******************************************************************************
 * gptpGetConfig
 *
@@ -330,6 +334,7 @@ GT_STATUS gptpGetConfig
 	opData.ptpData &= dev->validPortVec;
 	ptpData->ptpArrIntEn = GT_PORTVEC_2_LPORTVEC(opData.ptpData);
 
+
 	/* getting PTPDepIntEn, offset 4 */
 	opData.ptpAddr = 4;
 	if((retVal = ptpOperationPerform(dev, op, &opData)) != GT_OK)
@@ -446,6 +451,7 @@ GT_STATUS gptpSetGlobalConfig
 
 }
 
+
 /*******************************************************************************
 * gptpGlobalGetConfig
 *
@@ -528,6 +534,7 @@ GT_STATUS gptpGetGlobalConfig
 
 }
 
+
 /*******************************************************************************
 * gptpSetPortConfig
 *
@@ -585,6 +592,7 @@ GT_STATUS gptpSetPortConfig
 	if (ptpData->ipJump > 0x3F)	/* 6 bits */
 		return GT_BAD_PARAM;
 
+
 	opData.ptpBlock = 0x0;	/* PTP register space */
 
 	opData.ptpPort = hwPort;
@@ -635,6 +643,7 @@ GT_STATUS gptpSetPortConfig
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetPortConfig
@@ -727,6 +736,7 @@ GT_STATUS gptpGetPortConfig
 
 }
 
+
 /*******************************************************************************
 * gptpSetPTPEn
 *
@@ -813,6 +823,7 @@ GT_STATUS gptpSetPTPEn
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetPTPEn
@@ -1031,6 +1042,7 @@ GT_STATUS gptpGetPortPTPEn
 
 }
 
+
 /*******************************************************************************
 * gptpGetPTPInt
 *
@@ -1098,6 +1110,7 @@ GT_STATUS gptpGetPTPInt
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetPTPGlobalTime
@@ -1193,6 +1206,7 @@ GT_STATUS gptpGetPTPGlobalTime
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetTimeStamped
@@ -1324,6 +1338,7 @@ GT_STATUS gptpGetTimeStamped
 
 }
 
+
 /*******************************************************************************
 * gptpResetTimeStamp
 *
@@ -1419,6 +1434,7 @@ GT_STATUS gptpResetTimeStamp
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetReg
@@ -1559,10 +1575,12 @@ GT_STATUS gptpSetReg
 		return GT_FAIL;
 	}
 
+
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gtaiSetEventConfig
@@ -1643,6 +1661,7 @@ GT_STATUS gtaiSetEventConfig
 
 }
 
+
 /*******************************************************************************
 * gtaiGetEventConfig
 *
@@ -1706,6 +1725,7 @@ GT_STATUS gtaiGetEventConfig
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gtaiGetEventStatus
@@ -1794,6 +1814,7 @@ GT_STATUS gtaiGetEventStatus
 
 }
 
+
 /*******************************************************************************
 * gtaiGetEventInt
 *
@@ -1853,6 +1874,7 @@ GT_STATUS gtaiGetEventInt
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gtaiGetTrigInt
 *
@@ -1911,6 +1933,7 @@ GT_STATUS gtaiGetTrigInt
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtaiSetTrigConfig
@@ -2180,6 +2203,7 @@ GT_STATUS gtaiGetTrigConfig
 
 }
 
+
 /*******************************************************************************
 * gtaiGetTSClkPer
 *
@@ -2245,6 +2269,7 @@ GT_STATUS gtaiGetTSClkPer
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gtaiSetTSClkPer
 *
@@ -2309,6 +2334,7 @@ GT_STATUS gtaiSetTSClkPer
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtaiSetMultiPTPSync
@@ -2422,6 +2448,7 @@ GT_STATUS gtaiSetMultiPTPSync
 
 }
 
+
 /*******************************************************************************
 * gtaiGetMultiPTPSync
 *
@@ -2515,6 +2542,7 @@ GT_STATUS gtaiGetMultiPTPSync
 
 }
 
+
 /*******************************************************************************
 * gtaiGetTimeIncDec
 *
@@ -2593,6 +2621,7 @@ GT_STATUS gtaiGetTimeIncDec
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtaiSetTimeInc
@@ -2693,6 +2722,7 @@ GT_STATUS gtaiSetTimeInc
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gtaiSetTimeDec
 *
@@ -2792,6 +2822,7 @@ GT_STATUS gtaiSetTimeDec
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gavbGetPriority
@@ -2911,6 +2942,7 @@ GT_STATUS gavbGetPriority
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gavbSetPriority
@@ -3046,6 +3078,8 @@ GT_STATUS gavbSetPriority
 	return GT_OK;
 }
 
+
+
 /*******************************************************************************
 * gavbGetAVBHiLimit
 *
@@ -3113,6 +3147,7 @@ GT_STATUS gavbGetAVBHiLimit
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gavbSetAVBHiLimit
 *
@@ -3175,9 +3210,11 @@ GT_STATUS gavbSetAVBHiLimit
 		return GT_FAIL;
 	}
 
+
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gavbGetPtpExtClk
@@ -3243,6 +3280,8 @@ GT_STATUS gavbGetPtpExtClk
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gavbSetPtpExtClk
@@ -3320,6 +3359,7 @@ GT_STATUS gavbSetPtpExtClk
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gavbGetRecClkSel
 *
@@ -3396,6 +3436,7 @@ GT_STATUS gavbGetRecClkSel
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gavbSetRecClkSel
@@ -3486,6 +3527,7 @@ GT_STATUS gavbSetRecClkSel
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gavbGetAvbOuiBytes
@@ -3637,6 +3679,7 @@ GT_STATUS gavbSetAvbOuiBytes
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gavbGetAvbMode
 *
@@ -3704,6 +3747,7 @@ GT_STATUS gavbGetAvbMode
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gavbSetAvbMode
@@ -3856,6 +3900,7 @@ GT_STATUS gavbGetAvbOverride
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gavbSetAvbOverride
 *
@@ -3941,6 +3986,7 @@ GT_STATUS gavbSetAvbOverride
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gavbGetFilterBadAvb
 *
@@ -4010,6 +4056,7 @@ GT_STATUS gavbGetFilterBadAvb
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gavbSetFilterBadAvb
@@ -4095,6 +4142,7 @@ GT_STATUS gavbSetFilterBadAvb
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gavbGetAvbTunnel
 *
@@ -4167,6 +4215,7 @@ GT_STATUS gavbGetAvbTunnel
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gavbSetAvbTunnel
@@ -4254,6 +4303,7 @@ GT_STATUS gavbSetAvbTunnel
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gavbGetAvbFramePolicy
@@ -4434,6 +4484,8 @@ GT_STATUS gavbSetAvbFramePolicy
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
+
 
 /****************************************************************************/
 /* Internal functions.                                                  */
@@ -4722,6 +4774,7 @@ static GT_STATUS ptpOperationPerform
 		return retVal;
 	        }
 
+
 		    gtSemGive(dev,dev->ptpRegsSem);
 			break;
 
@@ -4753,7 +4806,9 @@ static GT_STATUS ptpOperationPerform
     return retVal;
 }
 
+
 #ifdef CONFIG_AVB_FPGA
+
 
 /*******************************************************************************
 * gptpGetFPGAIntStatus
@@ -4883,6 +4938,7 @@ GT_STATUS gptpSetFPGAIntEn
 	{
 		return retVal;
 	}
+
 
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
@@ -5044,6 +5100,7 @@ GT_STATUS gptpGetP9Mode
 
 }
 
+
 /*******************************************************************************
 * gptpSetP9Mode
 *
@@ -5144,10 +5201,12 @@ GT_STATUS gptpReset
 		return retVal;
 	}
 
+
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetCycleAdjustEn
@@ -5193,6 +5252,7 @@ GT_STATUS gptpGetCycleAdjustEn
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpSetCycleAdjustEn
@@ -5247,6 +5307,7 @@ GT_STATUS gptpSetCycleAdjustEn
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetCycleAdjust
@@ -5403,6 +5464,7 @@ GT_STATUS gptpSetCycleAdjust
 
 }
 
+
 /*******************************************************************************
 * gptpGetPLLEn
 *
@@ -5452,6 +5514,7 @@ GT_STATUS gptpGetPLLEn
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpSetPLLEn
@@ -5515,6 +5578,7 @@ GT_STATUS gptpSetPLLEn
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetDDSReg
@@ -5747,6 +5811,7 @@ GT_STATUS gptpSetADFReg
 
 #endif
 
+
 /******************************************************************************
 *
 *
@@ -5911,6 +5976,7 @@ GT_STATUS gqavGetPortQpriXQTSToken
 	return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gqavSetPortQpriXBurstBytes
@@ -6338,6 +6404,7 @@ GT_STATUS gqavGetGlobalAdminMGMT
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gqavSetGlobalIsoPtrThreshold
 *
@@ -6417,6 +6484,7 @@ GT_STATUS gqavSetGlobalIsoPtrThreshold
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gqavGetGlobalIsoPtrThreshold
 *
@@ -6479,6 +6547,7 @@ GT_STATUS gqavGetGlobalIsoPtrThreshold
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gqavSetGlobalDisQSD4MGMT
@@ -6619,6 +6688,8 @@ GT_STATUS gqavGetGlobalDisQSD4MGMT
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gqavSetGlobalInterrupt
@@ -6835,6 +6906,7 @@ GT_STATUS gqavGetGlobalIsoInterruptPort
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gqavSetGlobalIsoDelayLmt
@@ -7201,6 +7273,7 @@ GT_STATUS gqavSetGlobalIsoMonPort
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gqavGetGlobalIsoMonPort
 *
@@ -7400,6 +7473,7 @@ GT_STATUS gqavGetGlobalIsoHiDisCtr
 	DBG_INFO(("OK.\n"));
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gqavSetGlobalIsoLoDisCtr

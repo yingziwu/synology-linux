@@ -37,6 +37,7 @@
  */
 #define INTEL_GMCH_CTRL		0x52
 #define INTEL_GMCH_VGA_DISABLE  (1 << 1)
+#define SNB_GMCH_CTRL		0x50
 
 /* PCI config space */
 
@@ -269,6 +270,7 @@
 #define   PIPE_CONTROL_DEPTH_CACHE_FLUSH		(1<<0)
 #define   PIPE_CONTROL_GLOBAL_GTT (1<<2) /* in addr dword */
 
+
 /*
  * Reset registers
  */
@@ -276,6 +278,7 @@
 #define  DEBUG_RESET_FULL		(1<<7)
 #define  DEBUG_RESET_RENDER		(1<<8)
 #define  DEBUG_RESET_DISPLAY		(1<<9)
+
 
 /*
  * Fence registers
@@ -360,6 +363,7 @@
 #define IPEIR_I965	0x02064
 #define IPEHR_I965	0x02068
 #define INSTDONE_I965	0x0206c
+#define RING_INSTPM(base)      ((base)+0xc0)
 #define INSTPS		0x02070 /* 965+ only */
 #define INSTDONE1	0x0207c /* 965+ only */
 #define ACTHD_I965	0x02074
@@ -456,6 +460,8 @@
 					will not assert AGPBUSY# and will only
 					be delivered when out of C3. */
 #define   INSTPM_FORCE_ORDERING				(1<<7) /* GEN6+ */
+#define   INSTPM_TLB_INVALIDATE	(1<<9)
+#define   INSTPM_SYNC_FLUSH	(1<<5)
 #define ACTHD	        0x020c8
 #define FW_BLC		0x020d8
 #define FW_BLC2		0x020dc
@@ -677,6 +683,7 @@
 #define   ILK_FBCQ_DIS		(1<<22)
 #define	  ILK_PABSTRETCH_DIS	(1<<21)
 
+
 /*
  * Framebuffer compression for Sandybridge
  *
@@ -685,6 +692,7 @@
 #define SNB_DPFC_CTL_SA		0x100100
 #define   SNB_CPU_FENCE_ENABLE	(1<<29)
 #define DPFC_CPU_FENCE_OFFSET	0x100104
+
 
 /*
  * GPIO regs
@@ -1385,6 +1393,7 @@
 #define   ADPA_DPMS_SUSPEND	(1<<10)
 #define   ADPA_DPMS_STANDBY	(2<<10)
 #define   ADPA_DPMS_OFF		(3<<10)
+
 
 /* Hotplug control (945+ only) */
 #define PORT_HOTPLUG_EN		0x61110
@@ -2545,6 +2554,7 @@
 
 #define SNB_FIFO_LINE_SIZE	64
 
+
 /* the address where we get all kinds of latency value */
 #define SSKPD			0x5d10
 #define SSKPD_WM_MASK		0x3f
@@ -2698,6 +2708,7 @@
 #define _PIPEB_FRMCOUNT_GM45	0x71040
 #define _PIPEB_FLIPCOUNT_GM45	0x71044
 
+
 /* Display B control */
 #define _DSPBCNTR		0x71180
 #define   DISPPLANE_ALPHA_TRANS_ENABLE		(1<<15)
@@ -2761,6 +2772,7 @@
 #define  FDI_PLL_FREQ_CHANGE_REQUEST    (1<<24)
 #define  FDI_PLL_FREQ_LOCK_LIMIT_MASK   0xfff00
 #define  FDI_PLL_FREQ_DISABLE_COUNT_LIMIT_MASK  0xff
+
 
 #define _PIPEA_DATA_M1           0x60030
 #define  TU_SIZE(x)             (((x)-1) << 25) /* default size 64 */
@@ -3505,7 +3517,7 @@
 #define EDP_LINK_TRAIN_600MV_0DB_IVB		(0x30 <<22)
 #define EDP_LINK_TRAIN_600MV_3_5DB_IVB		(0x36 <<22)
 #define EDP_LINK_TRAIN_800MV_0DB_IVB		(0x38 <<22)
-#define EDP_LINK_TRAIN_800MV_3_5DB_IVB		(0x33 <<22)
+#define EDP_LINK_TRAIN_800MV_3_5DB_IVB		(0x3e <<22)
 
 /* legacy values */
 #define EDP_LINK_TRAIN_500MV_0DB_IVB		(0x00 <<22)

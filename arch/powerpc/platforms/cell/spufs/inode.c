@@ -99,6 +99,7 @@ spufs_new_inode(struct super_block *sb, int mode)
 	if (!inode)
 		goto out;
 
+	inode->i_ino = get_next_ino();
 	inode->i_mode = mode;
 	inode->i_uid = current_fsuid();
 	inode->i_gid = current_fsgid();
@@ -119,6 +120,7 @@ spufs_setattr(struct dentry *dentry, struct iattr *attr)
 	mark_inode_dirty(inode);
 	return 0;
 }
+
 
 static int
 spufs_new_file(struct super_block *sb, struct dentry *dentry,
@@ -162,7 +164,7 @@ static void spufs_prune_dir(struct dentry *dir)
 	struct dentry *dentry, *tmp;
 
 	mutex_lock(&dir->d_inode->i_mutex);
-	list_for_each_entry_safe(dentry, tmp, &dir->d_subdirs, d_u.d_child) {
+	list_for_each_entry_safe(dentry, tmp, &dir->d_subdirs, d_child) {
 		spin_lock(&dentry->d_lock);
 		if (!(d_unhashed(dentry)) && dentry->d_inode) {
 			dget_dlock(dentry);
@@ -220,7 +222,7 @@ out:
 	 * - free child's inode if possible
 	 * - free child
 	 */
-	list_for_each_entry_safe(dentry, tmp, &dir->d_subdirs, d_u.d_child) {
+	list_for_each_entry_safe(dentry, tmp, &dir->d_subdirs, d_child) {
 		dput(dentry);
 	}
 
@@ -606,6 +608,7 @@ out:
 	return ret;
 }
 
+
 static struct file_system_type spufs_type;
 
 long spufs_create(struct path *path, struct dentry *dentry,
@@ -860,3 +863,4 @@ module_exit(spufs_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Arnd Bergmann <arndb@de.ibm.com>");
+

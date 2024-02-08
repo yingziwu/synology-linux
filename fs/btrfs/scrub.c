@@ -188,6 +188,7 @@ struct scrub_warning {
 	int			scratch_bufsize;
 };
 
+
 static void scrub_pending_bio_inc(struct scrub_ctx *sctx);
 static void scrub_pending_bio_dec(struct scrub_ctx *sctx);
 static void scrub_pending_trans_workers_inc(struct scrub_ctx *sctx);
@@ -258,6 +259,7 @@ static int copy_nocow_pages(struct scrub_ctx *sctx, u64 logical, u64 len,
 static void copy_nocow_pages_worker(struct btrfs_work *work);
 static void __scrub_blocked_if_needed(struct btrfs_fs_info *fs_info);
 static void scrub_blocked_if_needed(struct btrfs_fs_info *fs_info);
+
 
 static void scrub_pending_bio_inc(struct scrub_ctx *sctx)
 {
@@ -2413,6 +2415,7 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
 	if (!IS_ERR(reada2))
 		btrfs_reada_wait(reada2);
 
+
 	/*
 	 * collect all data csums for the stripe to avoid seeking during
 	 * the scrub. This might currently (crc32) end up to be about 1MB
@@ -2973,6 +2976,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 		       SCRUB_MAX_PAGES_PER_BLOCK);
 		return -EINVAL;
 	}
+
 
 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
 	dev = btrfs_find_device(fs_info, devid, NULL, NULL);

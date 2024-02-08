@@ -49,6 +49,7 @@
 
 #include "nsp32.h"
 
+
 /***********************************************************************
  * Module parameters
  */
@@ -71,6 +72,7 @@ MODULE_DESCRIPTION("Workbit NinjaSCSI-32Bi/UDE CardBus/PCI SCSI host bus adapter
 MODULE_LICENSE("GPL");
 
 static const char *nsp32_release_version = "1.2";
+
 
 /****************************************************************************
  * Supported hardware
@@ -137,6 +139,7 @@ static struct pci_device_id nsp32_pci_table[] __devinitdata = {
 MODULE_DEVICE_TABLE(pci, nsp32_pci_table);
 
 static nsp32_hw_data nsp32_data_base;  /* probe <-> detect glue */
+
 
 /*
  * Period/AckWidth speed conversion table
@@ -446,6 +449,7 @@ static void nsp32_start_timer(struct scsi_cmnd *SCpnt, int time)
 }
 #endif
 
+
 /*
  * set SCSI command and other parameter to asic, and start selection phase
  */
@@ -534,6 +538,7 @@ static int nsp32_selection_autopara(struct scsi_cmnd *SCpnt)
 					     AUTO_MSGIN_02          |
 					     AUTO_ATN               );
 
+
 	/* transfer control */
 	s = 0;
 	switch (data->trans_method) {
@@ -574,6 +579,7 @@ static int nsp32_selection_autopara(struct scsi_cmnd *SCpnt)
 
 	return ret;
 }
+
 
 /*
  * Selection with AUTO SCSI (without AUTO PARAMETER)
@@ -744,6 +750,7 @@ static int nsp32_selection_autoscsi(struct scsi_cmnd *SCpnt)
 	return status;
 }
 
+
 /*
  * Arbitration Status Check
  *	
@@ -792,6 +799,7 @@ static int nsp32_arbitration(struct scsi_cmnd *SCpnt, unsigned int base)
 
 	return status;
 }
+
 
 /*
  * reselection
@@ -846,6 +854,7 @@ static int nsp32_reselection(struct scsi_cmnd *SCpnt, unsigned char newlun)
 
 	return TRUE;
 }
+
 
 /*
  * nsp32_setup_sg_table - build scatter gather list for transfer data
@@ -1147,6 +1156,7 @@ static int nsp32hw_init(nsp32_hw_data *data)
 
 	return TRUE;
 }
+
 
 /* interrupt routine */
 static irqreturn_t do_nsp32_isr(int irq, void *dev_id)
@@ -1484,6 +1494,7 @@ static int nsp32_proc_info(struct Scsi_Host *host, char *buffer, char **start,
 	SPRINTF("CurrentSC:             0x%p\n\n",      data->CurrentSC);
 	spin_unlock_irqrestore(&(data->Lock), flags);
 
+
 	SPRINTF("SDTR status\n");
 	for (id = 0; id < ARRAY_SIZE(data->target); id++) {
 
@@ -1518,6 +1529,7 @@ static int nsp32_proc_info(struct Scsi_Host *host, char *buffer, char **start,
 		SPRINTF("\n");
 	}
 
+
 	thislength = pos - (buffer + offset);
 
 	if(thislength < 0) {
@@ -1525,12 +1537,15 @@ static int nsp32_proc_info(struct Scsi_Host *host, char *buffer, char **start,
                 return 0;
         }
 
+
 	thislength = min(thislength, length);
 	*start = buffer + offset;
 
 	return thislength;
 }
 #undef SPRINTF
+
+
 
 /*
  * Reset parameters and call scsi_done for data->cur_lunt.
@@ -1562,6 +1577,7 @@ static void nsp32_scsi_done(struct scsi_cmnd *SCpnt)
 	data->cur_target      = NULL;
 	data->CurrentSC      = NULL;
 }
+
 
 /*
  * Bus Free Occur
@@ -1724,6 +1740,7 @@ static int nsp32_busfree_occur(struct scsi_cmnd *SCpnt, unsigned short execph)
 	return FALSE;
 }
 
+
 /*
  * nsp32_adjust_busfree - adjusting SG table
  *
@@ -1795,6 +1812,7 @@ static void nsp32_adjust_busfree(struct scsi_cmnd *SCpnt, unsigned int s_sacklen
 
 	return;
 }
+
 
 /*
  * It's called MsgOut phase occur.
@@ -1939,6 +1957,7 @@ static void nsp32_restart_autoscsi(struct scsi_cmnd *SCpnt, unsigned short comma
 
 	nsp32_dbg(NSP32_DEBUG_RESTART, "exit");
 }
+
 
 /*
  * cannot run automatically message in occur
@@ -2370,6 +2389,7 @@ static void nsp32_analyze_sdtr(struct scsi_cmnd *SCpnt)
 	return;
 }
 
+
 /*
  * Search config entry number matched in sync_table from given
  * target and speed period value. If failed to search, return negative value.
@@ -2403,6 +2423,7 @@ static int nsp32_search_period_entry(nsp32_hw_data *data,
 	return i;
 }
 
+
 /*
  * target <-> initiator use ASYNC transfer
  */
@@ -2418,6 +2439,7 @@ static void nsp32_set_async(nsp32_hw_data *data, nsp32_target *target)
 
 	nsp32_dbg(NSP32_DEBUG_SYNC, "set async");
 }
+
 
 /*
  * target <-> initiator use maximum SYNC transfer
@@ -2439,6 +2461,7 @@ static void nsp32_set_max_sync(nsp32_hw_data *data,
 	target->offset     = *offset;
 	target->sample_reg = 0;       /* disable SREQ sampling */
 }
+
 
 /*
  * target <-> initiator use entry number speed
@@ -2462,6 +2485,7 @@ static void nsp32_set_sync_entry(nsp32_hw_data *data,
 
 	nsp32_dbg(NSP32_DEBUG_SYNC, "set sync");
 }
+
 
 /*
  * It waits until SCSI REQ becomes assertion or negation state.
@@ -2553,6 +2577,8 @@ static void nsp32_sack_negate(nsp32_hw_data *data)
 	busctrl	&= ~BUSCTL_ACK;
 	nsp32_write1(base, SCSI_BUS_CONTROL, busctrl);
 }
+
+
 
 /*
  * Note: n_io_port is defined as 0x7f because I/O register port is
@@ -2819,6 +2845,7 @@ static const char *nsp32_info(struct Scsi_Host *shpnt)
 	return data->info_str;
 }
 
+
 /****************************************************************************
  * error handler
  */
@@ -2900,7 +2927,7 @@ static void nsp32_do_bus_reset(nsp32_hw_data *data)
 	 * reset SCSI bus
 	 */
 	nsp32_write1(base, SCSI_BUS_CONTROL, BUSCTL_RST);
-	udelay(RESET_HOLD_TIME);
+	mdelay(RESET_HOLD_TIME / 1000);
 	nsp32_write1(base, SCSI_BUS_CONTROL, 0);
 	for(i = 0; i < 5; i++) {
 		intrdat = nsp32_read2(base, IRQ_STATUS); /* dummy read */
@@ -2929,6 +2956,7 @@ static int nsp32_eh_host_reset(struct scsi_cmnd *SCpnt)
 	spin_unlock_irq(SCpnt->device->host->host_lock);
 	return SUCCESS;	/* Host reset is succeeded at any time. */
 }
+
 
 /**************************************************************************
  * EEPROM handler
@@ -2983,6 +3011,7 @@ static int nsp32_getprom_param(nsp32_hw_data *data)
 
 	return ret;
 }
+
 
 /*
  * AT24C01A (Logitec: LHA-600S), AT24C02 (Melco Buffalo: IFC-USLP) data map:
@@ -3077,6 +3106,7 @@ static int nsp32_getprom_at24(nsp32_hw_data *data)
 	return TRUE;
 }
 
+
 /*
  * C16 110 (I-O Data: SC-NBD) data map:
  *
@@ -3143,6 +3173,7 @@ static int nsp32_getprom_c16(nsp32_hw_data *data)
 
 	return TRUE;
 }
+
 
 /*
  * Atmel AT24C01A (drived in 5V) serial EEPROM routines
@@ -3238,6 +3269,7 @@ static int nsp32_prom_get(nsp32_hw_data *data, int bit)
 		return 0;
 	}
 
+
 	tmp = nsp32_index_read1(base, SERIAL_ROM_CTL) & bit;
 
 	if (tmp == 0) {
@@ -3295,6 +3327,7 @@ static int nsp32_prom_read_bit(nsp32_hw_data *data)
 
 	return val;
 }
+
 
 /**************************************************************************
  * Power Management

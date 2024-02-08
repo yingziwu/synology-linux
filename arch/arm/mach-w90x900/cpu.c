@@ -221,3 +221,4 @@ void __init nuc900_init_clocks(void)
 {
 	clkdev_add_table(nuc900_clkregs, ARRAY_SIZE(nuc900_clkregs));
 }
+

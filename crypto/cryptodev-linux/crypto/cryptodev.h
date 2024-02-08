@@ -203,6 +203,7 @@ struct crypt_auth_op {
  *  tag     : Pointer to an address where the authentication tag will be copied.
  */
 
+
 /* struct crypt_op flags */
 
 #define COP_FLAG_NONE		(0 << 0) /* totally no flag */
@@ -217,6 +218,7 @@ struct crypt_auth_op {
 #define COP_FLAG_RESET		(1 << 6) /* multi-update reset the state.
                                           * should be used in combination
                                           * with COP_FLAG_UPDATE */
+
 
 /* Stuff for bignum arithmetic and public key
  * cryptography - not supported yet by linux
@@ -262,6 +264,7 @@ enum cryptodev_crk_op_t {
 #define CRF_DSA_SIGN		(1 << CRK_DSA_SIGN)
 #define CRF_DSA_VERIFY		(1 << CRK_DSA_VERIFY)
 #define CRF_DH_COMPUTE_KEY	(1 << CRK_DH_COMPUTE_KEY)
+
 
 /* ioctl's. Compatible with old linux cryptodev.h
  */

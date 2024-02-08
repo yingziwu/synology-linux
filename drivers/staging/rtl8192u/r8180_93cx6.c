@@ -34,6 +34,7 @@ void eprom_cs(struct net_device *dev, short bit)
 	udelay(EPROM_DELAY);
 }
 
+
 void eprom_ck_cycle(struct net_device *dev)
 {
 	write_nic_byte_E(dev, EPROM_CMD,
@@ -45,6 +46,7 @@ void eprom_ck_cycle(struct net_device *dev)
 	force_pci_posting(dev);
 	udelay(EPROM_DELAY);
 }
+
 
 void eprom_w(struct net_device *dev,short bit)
 {
@@ -59,6 +61,7 @@ void eprom_w(struct net_device *dev,short bit)
 	udelay(EPROM_DELAY);
 }
 
+
 short eprom_r(struct net_device *dev)
 {
 	short bit;
@@ -70,6 +73,7 @@ short eprom_r(struct net_device *dev)
 	return 0;
 }
 
+
 void eprom_send_bits_string(struct net_device *dev, short b[], int len)
 {
 	int i;
@@ -79,6 +83,7 @@ void eprom_send_bits_string(struct net_device *dev, short b[], int len)
 		eprom_ck_cycle(dev);
 	}
 }
+
 
 u32 eprom_read(struct net_device *dev, u32 addr)
 {

@@ -49,6 +49,7 @@ struct resource boot_param_res = {
         .flags = IORESOURCE_BUSY | IORESOURCE_MEM
 };
 
+
 /*
  * Do what every setup is needed on image and the
  * reboot code buffer to allow us to avoid allocations
@@ -156,7 +157,7 @@ void arch_crash_save_vmcoreinfo(void)
 #endif
 #ifdef CONFIG_PGTABLE_3
 	VMCOREINFO_CONFIG(PGTABLE_3);
-#elif  CONFIG_PGTABLE_4
+#elif defined(CONFIG_PGTABLE_4)
 	VMCOREINFO_CONFIG(PGTABLE_4);
 #endif
 }
@@ -165,3 +166,4 @@ unsigned long paddr_vmcoreinfo_note(void)
 {
 	return ia64_tpa((unsigned long)(char *)&vmcoreinfo_note);
 }
+

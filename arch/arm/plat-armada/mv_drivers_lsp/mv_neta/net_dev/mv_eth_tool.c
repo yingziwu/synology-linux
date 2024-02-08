@@ -1,7 +1,34 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*******************************************************************************
+Copyright (C) Marvell International Ltd. and its affiliates
+
+This software file (the "File") is owned and distributed by Marvell
+International Ltd. and/or its affiliates ("Marvell") under the following
+alternative licensing terms.  Once you have made an election to distribute the
+File under one of the following license alternatives, please (i) delete this
+introductory statement regarding license alternatives, (ii) delete the two
+license alternatives that you have not elected to use and (iii) preserve the
+Marvell copyright notice above.
+
+
+********************************************************************************
+Marvell GPL License Option
+
+If you received this File from Marvell, you may opt to use, redistribute and/or
+modify this File in accordance with the terms and conditions of the General
+Public License Version 2, June 1991 (the "GPL License"), a copy of which is
+available along with the File in the license.txt file or by writing to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 or
+on the worldwide web at http://www.gnu.org/licenses/gpl.txt.
+
+THE FILE IS DISTRIBUTED AS-IS, WITHOUT WARRANTY OF ANY KIND, AND THE IMPLIED
+WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY
+DISCLAIMED.  The GPL License provides additional details about this warranty
+disclaimer.
+*******************************************************************************/
+
 #include "mvCommon.h"
 #include <linux/kernel.h>
 #include <linux/version.h>
@@ -22,6 +49,7 @@
 #include "mvSysEthPhyApi.h"
 #include "mvSysNetaApi.h"
 
+
 #include "gbe/mvNeta.h"
 #include "bm/mvBm.h"
 
@@ -33,7 +61,7 @@
 
 #ifdef CONFIG_MV_ETH_PNC
 #include "pnc/mvPnc.h"
-#endif  
+#endif /* CONFIG_MV_ETH_PNC */
 
 #ifdef MY_ABC_HERE
 extern spinlock_t          mii_lock;
@@ -72,6 +100,20 @@ static int syno_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 	return 0;
 }
 
+/******************************************************************************
+* mv_eth_tool_read_phy_reg
+* Description:
+*	Marvell PHY register read (includes page number)
+* INPUT:
+*	phy_addr	PHY address
+*	page		PHY register page (region)
+*	reg		PHY register number (offset)
+* OUTPUT
+*	val		PHY register value
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 #define MV_ETH_TOOL_PHY_PAGE_ADDR_REG	22
 int mv_eth_tool_read_phy_reg(int phy_addr, u16 page, u16 reg, u16 *val)
 {
@@ -79,7 +121,7 @@ int mv_eth_tool_read_phy_reg(int phy_addr, u16 page, u16 reg, u16 *val)
 	MV_STATUS 	status = 0;
 	
 	spin_lock_irqsave(&mii_lock, flags);
-	 
+	/* setup register address page first */
 	if (!mvEthPhyRegWrite(phy_addr, MV_ETH_TOOL_PHY_PAGE_ADDR_REG, page)) {
 		status = mvEthPhyRegRead(phy_addr, reg, val);
 	}
@@ -88,13 +130,28 @@ int mv_eth_tool_read_phy_reg(int phy_addr, u16 page, u16 reg, u16 *val)
 	return status;
 }
 
+/******************************************************************************
+* mv_eth_tool_write_phy_reg
+* Description:
+*	Marvell PHY register write (includes page number)
+* INPUT:
+*	phy_addr	PHY address
+*	page		PHY register page (region)
+*	reg		PHY register number (offset)
+*	data		Data to be written into PHY register
+* OUTPUT
+*	None
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 int mv_eth_tool_write_phy_reg(int phy_addr, u16 page, u16 reg, u16 data)
 {
 	unsigned long   flags;
 	MV_STATUS 	status = 0;
 	
 	spin_lock_irqsave(&mii_lock, flags);
-	 
+	/* setup register address page first */
 	if (!mvEthPhyRegWrite(phy_addr, MV_ETH_TOOL_PHY_PAGE_ADDR_REG,
 						(unsigned int)page)) {
 		status = mvEthPhyRegWrite(phy_addr, reg, data);
@@ -110,6 +167,19 @@ static int isSwitch(struct eth_port *priv)
 	return (priv->flags & (MV_ETH_F_SWITCH | MV_ETH_F_EXT_SWITCH));
 }
 
+
+/******************************************************************************
+* mv_eth_tool_restore_settings
+* Description:
+*	restore saved speed/dublex/an settings
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 int mv_eth_tool_restore_settings(struct net_device *netdev)
 {
 	struct eth_port 	*priv = MV_ETH_PRIV(netdev);
@@ -156,7 +226,7 @@ int mv_eth_tool_restore_settings(struct net_device *netdev)
 		err = mvNetaSpeedDuplexSet(priv->port, MV_ETH_SPEED_AN, MV_ETH_DUPLEX_AN);
 		if (!err)
 			err = mvEthPhyAdvertiseSet(mv_phy_addr, priv->advertise_cfg);
-		 
+		/* Restart AN on PHY enables it */
 		if (!err) {
 
 			err = mvEthPhyRestartAN(mv_phy_addr, MV_ETH_TOOL_AN_TIMEOUT);
@@ -179,6 +249,21 @@ int mv_eth_tool_restore_settings(struct net_device *netdev)
 	return err;
 }
 
+
+
+
+/******************************************************************************
+* mv_eth_tool_get_settings
+* Description:
+*	ethtool get standard port settings
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	cmd		command (settings)
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 int mv_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *cmd)
 {
 	struct eth_port 	*priv = MV_ETH_PRIV(netdev);
@@ -202,7 +287,7 @@ int mv_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *cmd)
 	mvNetaLinkStatus(priv->port, &status);
 
 	if (status.linkup != MV_TRUE) {
-		 
+		/* set to Unknown */
 		cmd->speed  = -1;
 		cmd->duplex = -1;
 	} else {
@@ -228,7 +313,7 @@ int mv_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *cmd)
 	cmd->port = PORT_MII;
 	cmd->phy_address = mv_phy_addr;
 	cmd->transceiver = XCVR_INTERNAL;
-	 
+	/* check if speed and duplex are AN */
 	mvNetaSpeedDuplexGet(priv->port, &speed, &duplex);
 	if (speed == MV_ETH_SPEED_AN && duplex == MV_ETH_DUPLEX_AN) {
 		cmd->lp_advertising = cmd->advertising = 0;
@@ -258,6 +343,20 @@ int mv_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *cmd)
 	return 0;
 }
 
+
+/******************************************************************************
+* mv_eth_tool_set_settings
+* Description:
+*	ethtool set standard port settings
+* INPUT:
+*	netdev		Network device structure pointer
+*	cmd		command (settings)
+* OUTPUT
+*	None
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 int mv_eth_tool_set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
 	struct eth_port *priv = MV_ETH_PRIV(dev);
@@ -288,6 +387,21 @@ int mv_eth_tool_set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 	return err;
 }
 
+
+
+
+/******************************************************************************
+* mv_eth_tool_get_regs_len
+* Description:
+*	ethtool get registers array length
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	registers array length
+*
+*******************************************************************************/
 int mv_eth_tool_get_regs_len(struct net_device *netdev)
 {
 #define MV_ETH_TOOL_REGS_LEN 32
@@ -295,19 +409,49 @@ int mv_eth_tool_get_regs_len(struct net_device *netdev)
 	return (MV_ETH_TOOL_REGS_LEN * sizeof(uint32_t));
 }
 
+
+/******************************************************************************
+* mv_eth_tool_get_drvinfo
+* Description:
+*	ethtool get driver information
+* INPUT:
+*	netdev		Network device structure pointer
+*	info		driver information
+* OUTPUT
+*	info		driver information
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_eth_tool_get_drvinfo(struct net_device *netdev,
 			     struct ethtool_drvinfo *info)
 {
 	strcpy(info->driver, "mv_eth");
-	 
+	/*strcpy(info->version, LSP_VERSION);*/
 	strcpy(info->fw_version, "N/A");
 	strcpy(info->bus_info, "Mbus");
- 
+/*   TBD
+	info->n_stats = MV_ETH_TOOL_STATS_LEN;
+*/
 	info->testinfo_len = 0;
 	info->regdump_len = mv_eth_tool_get_regs_len(netdev);
 	info->eedump_len = 0;
 }
 
+
+/******************************************************************************
+* mv_eth_tool_get_regs
+* Description:
+*	ethtool get registers array
+* INPUT:
+*	netdev		Network device structure pointer
+*	regs		registers information
+* OUTPUT
+*	p		registers array
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_eth_tool_get_regs(struct net_device *netdev,
 			  struct ethtool_regs *regs, void *p)
 {
@@ -323,19 +467,20 @@ void mv_eth_tool_get_regs(struct net_device *netdev,
 
 	regs->version = mvCtrlModelRevGet();
 
+	/* ETH port registers */
 	regs_buff[0]  = MV_REG_READ(ETH_PORT_STATUS_REG(priv->port));
 	regs_buff[1]  = MV_REG_READ(ETH_PORT_SERIAL_CTRL_REG(priv->port));
 	regs_buff[2]  = MV_REG_READ(ETH_PORT_CONFIG_REG(priv->port));
 	regs_buff[3]  = MV_REG_READ(ETH_PORT_CONFIG_EXTEND_REG(priv->port));
 	regs_buff[4]  = MV_REG_READ(ETH_SDMA_CONFIG_REG(priv->port));
- 
+/*	regs_buff[5]  = MV_REG_READ(ETH_TX_FIFO_URGENT_THRESH_REG(priv->port)); */
 	regs_buff[6]  = MV_REG_READ(ETH_RX_QUEUE_COMMAND_REG(priv->port));
-	 
+	/* regs_buff[7]  = MV_REG_READ(ETH_TX_QUEUE_COMMAND_REG(priv->port)); */
 	regs_buff[8]  = MV_REG_READ(ETH_INTR_CAUSE_REG(priv->port));
 	regs_buff[9]  = MV_REG_READ(ETH_INTR_CAUSE_EXT_REG(priv->port));
 	regs_buff[10] = MV_REG_READ(ETH_INTR_MASK_REG(priv->port));
 	regs_buff[11] = MV_REG_READ(ETH_INTR_MASK_EXT_REG(priv->port));
-	 
+	/* ETH Unit registers */
 	regs_buff[16] = MV_REG_READ(ETH_PHY_ADDR_REG(priv->port));
 	regs_buff[17] = MV_REG_READ(ETH_UNIT_INTR_CAUSE_REG(priv->port));
 	regs_buff[18] = MV_REG_READ(ETH_UNIT_INTR_MASK_REG(priv->port));
@@ -344,6 +489,21 @@ void mv_eth_tool_get_regs(struct net_device *netdev,
 
 }
 
+
+
+
+/******************************************************************************
+* mv_eth_tool_nway_reset
+* Description:
+*	ethtool restart auto negotiation
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_eth_tool_nway_reset(struct net_device *netdev)
 {
 	struct eth_port *priv = MV_ETH_PRIV(netdev);
@@ -361,6 +521,18 @@ int mv_eth_tool_nway_reset(struct net_device *netdev)
 	return 0;
 }
 
+/******************************************************************************
+* mv_eth_tool_get_link
+* Description:
+*	ethtool get link status
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	0 if link is down, 1 if link is up
+*
+*******************************************************************************/
 u32 mv_eth_tool_get_link(struct net_device *netdev)
 {
 	struct eth_port     *pp = MV_ETH_PRIV(netdev);
@@ -379,28 +551,54 @@ u32 mv_eth_tool_get_link(struct net_device *netdev)
 #ifdef CONFIG_MV_PON
 	if (MV_PON_PORT(pp->port))
 		return mv_pon_link_status();
-#endif  
+#endif /* CONFIG_MV_PON */
 
 	return mvNetaLinkIsUp(pp->port);
 }
- 
+/******************************************************************************
+* mv_eth_tool_get_coalesce
+* Description:
+*	ethtool get RX/TX coalesce parameters
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	cmd		Coalesce parameters
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_eth_tool_get_coalesce(struct net_device *netdev,
 			     struct ethtool_coalesce *cmd)
 {
 	struct eth_port *pp = MV_ETH_PRIV(netdev);
-	 
+	/* get coal parameters only for rxq=0, txp=txq=0 !!!
+	   notice that if you use ethtool to set coal, then all queues have the same value */
 	cmd->rx_coalesce_usecs = mvNetaRxqTimeCoalGet(pp->port, 0);
 	cmd->rx_max_coalesced_frames = mvNetaRxqPktsCoalGet(pp->port, 0);
 	cmd->tx_max_coalesced_frames = mvNetaTxDonePktsCoalGet(pp->port, 0, 0);
 	return 0;
 }
 
+/******************************************************************************
+* mv_eth_tool_set_coalesce
+* Description:
+*	ethtool set RX/TX coalesce parameters
+* INPUT:
+*	netdev		Network device structure pointer
+*	cmd		Coalesce parameters
+* OUTPUT
+*	None
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_eth_tool_set_coalesce(struct net_device *netdev,
 			     struct ethtool_coalesce *cmd)
 {
 	struct eth_port *pp = MV_ETH_PRIV(netdev);
 	int rxq, txp, txq;
 
+	/* can't set rx coalesce with both 0 pkts and 0 usecs,  tx coalesce supports only pkts */
 	if ((!cmd->rx_coalesce_usecs && !cmd->rx_max_coalesced_frames) || (!cmd->tx_max_coalesced_frames))
 		return -EPERM;
 
@@ -415,12 +613,37 @@ int mv_eth_tool_set_coalesce(struct net_device *netdev,
 	return 0;
 }
 
+
+/******************************************************************************
+* mv_eth_tool_get_ringparam
+* Description:
+*	ethtool get ring parameters
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	ring		Ring paranmeters
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_eth_tool_get_ringparam(struct net_device *netdev,
 				struct ethtool_ringparam *ring)
 {
- 
+/*	printk("in %s \n",__FUNCTION__); */
 }
 
+/******************************************************************************
+* mv_eth_tool_get_pauseparam
+* Description:
+*	ethtool get pause parameters
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	pause		Pause paranmeters
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_eth_tool_get_pauseparam(struct net_device *netdev,
 				struct ethtool_pauseparam *pause)
 {
@@ -452,6 +675,22 @@ void mv_eth_tool_get_pauseparam(struct net_device *netdev,
 		pause->tx_pause = 1;
 }
 
+
+
+
+/******************************************************************************
+* mv_eth_tool_set_pauseparam
+* Description:
+*	ethtool configure pause parameters
+* INPUT:
+*	netdev		Network device structure pointer
+*	pause		Pause paranmeters
+* OUTPUT
+*	None
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_eth_tool_set_pauseparam(struct net_device *netdev,
 				struct ethtool_pauseparam *pause)
 {
@@ -465,20 +704,20 @@ int mv_eth_tool_set_pauseparam(struct net_device *netdev,
 		return -EOPNOTSUPP;
 	}
 
-	if (pause->rx_pause && pause->tx_pause) {  
-		if (pause->autoneg) {  
+	if (pause->rx_pause && pause->tx_pause) { /* Enable FC */
+		if (pause->autoneg) { /* autoneg enable */
 			status = mvNetaFlowCtrlSet(port, MV_ETH_FC_AN_SYM);
-		} else {  
+		} else { /* autoneg disable */
 			status = mvNetaFlowCtrlSet(port, MV_ETH_FC_ENABLE);
 		}
-	} else if (!pause->rx_pause && !pause->tx_pause) {  
-		if (pause->autoneg) {  
+	} else if (!pause->rx_pause && !pause->tx_pause) { /* Disable FC */
+		if (pause->autoneg) { /* autoneg enable */
 			status = mvNetaFlowCtrlSet(port, MV_ETH_FC_AN_NO);
-		} else {  
+		} else { /* autoneg disable */
 			status = mvNetaFlowCtrlSet(port, MV_ETH_FC_DISABLE);
 		}
 	}
-	 
+	/* Only symmetric change for RX and TX flow control is allowed */
 	if (status == MV_OK) {
 		phy_addr = mvBoardPhyAddrGet(priv->port);
 		status = mvEthPhyRestartAN(phy_addr, MV_ETH_TOOL_AN_TIMEOUT);
@@ -489,6 +728,19 @@ int mv_eth_tool_set_pauseparam(struct net_device *netdev,
 	return 0;
 }
 
+
+/******************************************************************************
+* mv_eth_tool_get_rx_csum
+* Description:
+*	ethtool get RX checksum offloading status
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	RX checksum
+*
+*******************************************************************************/
 u32 mv_eth_tool_get_rx_csum(struct net_device *netdev)
 {
 #ifdef CONFIG_MV_ETH_RX_CSUM_OFFLOAD
@@ -500,6 +752,19 @@ u32 mv_eth_tool_get_rx_csum(struct net_device *netdev)
 #endif
 }
 
+/******************************************************************************
+* mv_eth_tool_set_rx_csum
+* Description:
+*	ethtool enable/disable RX checksum offloading
+* INPUT:
+*	netdev		Network device structure pointer
+*	data		Command data
+* OUTPUT
+*	None
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_eth_tool_set_rx_csum(struct net_device *netdev, uint32_t data)
 {
 #ifdef CONFIG_MV_ETH_RX_CSUM_OFFLOAD
@@ -512,6 +777,19 @@ int mv_eth_tool_set_rx_csum(struct net_device *netdev, uint32_t data)
 #endif
 }
 
+/******************************************************************************
+* mv_eth_tool_set_tx_csum
+* Description:
+*	ethtool enable/disable TX checksum offloading
+* INPUT:
+*	netdev		Network device structure pointer
+*	data		Command data
+* OUTPUT
+*	None
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_eth_tool_set_tx_csum(struct net_device *netdev, uint32_t data)
 {
 #ifdef CONFIG_MV_ETH_TX_CSUM_OFFLOAD
@@ -528,9 +806,23 @@ int mv_eth_tool_set_tx_csum(struct net_device *netdev, uint32_t data)
 	return 0;
 #else
 	return -EOPNOTSUPP;
-#endif  
+#endif /* TX_CSUM_OFFLOAD */
 }
 
+
+/******************************************************************************
+* mv_eth_tool_set_tso
+* Description:
+*	ethtool enable/disable TCP segmentation offloading
+* INPUT:
+*	netdev		Network device structure pointer
+*	data		Command data
+* OUTPUT
+*	None
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_eth_tool_set_tso(struct net_device *netdev, uint32_t data)
 {
 #if defined(CONFIG_MV_ETH_TSO)
@@ -544,16 +836,41 @@ int mv_eth_tool_set_tso(struct net_device *netdev, uint32_t data)
 	return -EOPNOTSUPP;
 #endif
 }
- 
+/******************************************************************************
+* mv_eth_tool_get_strings
+* Description:
+*	ethtool get strings (used for statistics and self-test descriptions)
+* INPUT:
+*	netdev		Network device structure pointer
+*	stringset	strings parameters
+* OUTPUT
+*	data		output data
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_eth_tool_get_strings(struct net_device *netdev,
 			     uint32_t stringset, uint8_t *data)
 {
- 
+/*	printk("in %s \n",__FUNCTION__);*/
+
 }
 
+/******************************************************************************
+* mv_eth_tool_get_stats_count
+* Description:
+*	ethtool get statistics count (number of stat. array entries)
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	statistics count
+*
+*******************************************************************************/
 int mv_eth_tool_get_stats_count(struct net_device *netdev)
 {
- 
+/*	printk("in %s \n",__FUNCTION__);*/
 	return 0;
 }
 
@@ -602,6 +919,23 @@ static int mv_eth_tool_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *i
 	return 0;
 }
 
+/******************************************************************************
+* mv_eth_tool_set_rx_ntuple
+* Description:
+*	ethtool set mapping from 2t/5t rule to rxq/drop
+*	ignore mask parameters (assume mask=0xFF for each byte provided)
+*	support only tcp4 / udp4 protocols
+*	support only full 2t/5t rules:
+*		** 2t - must provide src-ip, dst-ip
+*		** 5t - must provide src-ip, dst-ip, src-port, dst-port
+* INPUT:
+*	netdev		Network device structure pointer
+*	ntuple
+* OUTPUT
+*	None
+* RETURN:
+*
+*******************************************************************************/
 static int mv_eth_tool_set_rx_ntuple(struct net_device *dev, struct ethtool_rx_ntuple *ntuple)
 {
 #ifdef CONFIG_MV_ETH_PNC_L3_FLOW
@@ -615,9 +949,9 @@ static int mv_eth_tool_set_rx_ntuple(struct net_device *dev, struct ethtool_rx_n
 		return -EINVAL;
 
 	if (ntuple->fs.flow_type == TCP_V4_FLOW)
-		proto = 6;  
+		proto = 6; /* tcp */
 	else
-		proto = 17;  
+		proto = 17; /* udp */
 
 	sip = ntuple->fs.h_u.tcp_ip4_spec.ip4src;
 	dip = ntuple->fs.h_u.tcp_ip4_spec.ip4dst;
@@ -627,7 +961,7 @@ static int mv_eth_tool_set_rx_ntuple(struct net_device *dev, struct ethtool_rx_n
 		return -EINVAL;
 
 	pp = MV_ETH_PRIV(dev);
-	if (!sport || !dport) {  
+	if (!sport || !dport) { /* 2-tuple */
 		pnc_ip4_2tuple_rxq(pp->port, sip, dip, ntuple->fs.action);
 	} else {
 		ports = (dport << 16) | ((sport << 16) >> 16);
@@ -637,9 +971,23 @@ static int mv_eth_tool_set_rx_ntuple(struct net_device *dev, struct ethtool_rx_n
 	return 0;
 #else
 	return 1;
-#endif  
+#endif /* CONFIG_MV_ETH_PNC_L3_FLOW */
 }
 
+
+/******************************************************************************
+* mv_eth_tool_get_ethtool_stats
+* Description:
+*	ethtool get statistics
+* INPUT:
+*	netdev		Network device structure pointer
+*	stats		stats parameters
+* OUTPUT
+*	data		output data
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_eth_tool_get_ethtool_stats(struct net_device *netdev,
 				   struct ethtool_stats *stats, uint64_t *data)
 {
@@ -681,3 +1029,4 @@ const struct ethtool_ops mv_eth_tool_ops = {
 	.set_wol	= syno_set_wol,
 #endif
 };
+

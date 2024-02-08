@@ -51,6 +51,7 @@
 	PCLK_2_PER_BIT = 1
 }tPHCF;
 
+
 /*
 ** This defines names for the tri bit
 */
@@ -270,6 +271,7 @@
 
 } vdaa_audioGain_Cfg;
 
+
 /*
 ** This defines names for the ring delay setting
 */
@@ -371,6 +373,7 @@ typedef struct {
 	tRPOL rpol;
 } vdaa_Ring_Detect_Cfg;
 
+
 /*
 ** This defines names for the interrupts
 */
@@ -385,6 +388,7 @@ typedef struct {
 	RDTI,
 	CVI		/* Current/Voltage Interrupt REGISTER#44 */
 }vdaaInt;
+
 
 /*
 ** Defines structure of interrupt data
@@ -418,6 +422,7 @@ typedef struct {
 	tDDL digDataLB;
 } vdaa_Loopback_Cfg;
 
+
 /*
 ** This defines names for the interrupt pin modes
 */
@@ -442,6 +447,7 @@ typedef struct {
 	PWM_CONVENTIONAL_16KHZ = 1,
 	PWM_CONVENTIONAL_32KHZ = 2
  }tPwmMode;
+
 
 /*
 ** Defines structure for configuring daa general parameters
@@ -514,6 +520,8 @@ typedef enum {
 	ERR_VDAA_ILOOP_OVERLOAD
 } vdaaErrorCode;
 
+
+
 int Vdaa_createDevice (SiVoiceDeviceType **pDevice);
 int Vdaa_createChannel (vdaaChanType_ptr *pVdaa);
 int Vdaa_destroyChannel (vdaaChanType_ptr *pVdaa);
@@ -541,6 +549,7 @@ int Vdaa_VerifyControlInterface (vdaaChanType *pVdaa);
 */
 int Vdaa_Init (vdaaChanType_ptr *pVdaa,int size);
 
+
 /*
 ** Function: VDAA_EnableInterrupts
 **
@@ -556,6 +565,9 @@ int Vdaa_Init (vdaaChanType_ptr *pVdaa,int size);
 */
 int Vdaa_EnableInterrupts (vdaaChanType *pVdaa);
 
+
+
+
 /*
 ** Function: VDAA_RingDetectSetup
 **
@@ -570,6 +582,7 @@ int Vdaa_EnableInterrupts (vdaaChanType *pVdaa);
 ** none
 */
 int Vdaa_RingDetectSetup (vdaaChanType *pVdaa, int32 preset);
+
 
 /*
 ** Function: VDAA_ImpedanceSetup
@@ -601,6 +614,7 @@ int Vdaa_ImpedanceSetup (vdaaChanType *pVdaa, int32 preset);
 */
 int Vdaa_LoopbackSetup (vdaaChanType *pVdaa, int32 preset);
 
+
 /*
 ** Function: VDAA_AudioGainSetup
 **
@@ -616,6 +630,7 @@ int Vdaa_LoopbackSetup (vdaaChanType *pVdaa, int32 preset);
 */
 int Vdaa_TXAudioGainSetup (vdaaChanType *pVdaa, int32 preset);
 int Vdaa_RXAudioGainSetup (vdaaChanType *pVdaa, int32 preset);
+
 
 /*
 ** Function: VDAA_PCMSetup
@@ -633,6 +648,9 @@ int Vdaa_RXAudioGainSetup (vdaaChanType *pVdaa, int32 preset);
 int Vdaa_PCMSetup (vdaaChanType *pVdaa, int32 preset);
 int Vdaa_PCMTimeSlotSetup (vdaaChanType *pVdaa, uInt16 rxcount, uInt16 txcount);
 
+
+
+
 /*
 ** Function: VDAA_StartPCM
 **
@@ -646,6 +664,7 @@ int Vdaa_PCMTimeSlotSetup (vdaaChanType *pVdaa, uInt16 rxcount, uInt16 txcount);
 ** none
 */
 int Vdaa_PCMStart (vdaaChanType *pVdaa);
+
 
 /*
 ** Function: VDAA_StopPCM

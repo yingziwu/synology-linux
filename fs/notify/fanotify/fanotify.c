@@ -18,6 +18,12 @@ static bool should_merge(struct fsnotify_event *old, struct fsnotify_event *new)
 	    old->tgid == new->tgid) {
 		switch (old->data_type) {
 		case (FSNOTIFY_EVENT_PATH):
+#ifdef CONFIG_FANOTIFY_ACCESS_PERMISSIONS
+			/* dont merge two permission events */
+			if ((old->mask & FAN_ALL_PERM_EVENTS) &&
+			    (new->mask & FAN_ALL_PERM_EVENTS))
+				return false;
+#endif
 			if ((old->path.mnt == new->path.mnt) &&
 			    (old->path.dentry == new->path.dentry))
 				return true;
@@ -40,6 +46,7 @@ static struct fsnotify_event *fanotify_merge(struct list_head *list,
 	struct fsnotify_event *new_event;
 
 	pr_debug("%s: list=%p event=%p\n", __func__, list, event);
+
 
 	list_for_each_entry_reverse(test_holder, list, event_list) {
 		if (should_merge(test_holder->event, event)) {

@@ -109,4 +109,5 @@ struct top_msg {
 	} u;
 } __attribute__((__packed__));
 
+
 #endif /* __FWMSG_H__ */

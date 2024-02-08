@@ -29,3 +29,5 @@ void atmel_register_uart_fns(struct atmel_port_fns *fns);
 #else
 #define atmel_register_uart_fns(fns) do { } while (0)
 #endif
+
+

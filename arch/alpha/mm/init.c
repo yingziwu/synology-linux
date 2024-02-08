@@ -58,6 +58,7 @@ pgd_alloc(struct mm_struct *mm)
 	return ret;
 }
 
+
 /*
  * BAD_PAGE is the page that is used for page faults when linux
  * is out-of-memory. Older versions of linux just did a
@@ -228,6 +229,7 @@ callback_init(void * kernel_end)
 	callback_init_done = 1;
 	return kernel_end;
 }
+
 
 #ifndef CONFIG_DISCONTIGMEM
 /*

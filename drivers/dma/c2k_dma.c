@@ -18,6 +18,7 @@
 #include <linux/circ_buf.h>
 #include <linux/delay.h>
 
+
 #define XOR_MAX_SRC_CNT	6
 
 #define virt_to_xor_dma(pbase, vbase, vaddr)		((pbase + ((unsigned long)vaddr - (unsigned long)vbase)))
@@ -85,6 +86,8 @@ static int dma_owned = 0;
 static int memcpy_processed_ongoing = 0;
 static int memcpy_pending_count = 0;
 
+
+//static int mdma_busy = 0;
 static int mdma_done;
 static spinlock_t mdma_lock;
 
@@ -154,7 +157,7 @@ static void comcerto_xor_set_desc(sw_idx,  hw_idx)
 		printk("%s: input buffers not %d len\n",__func__, (unsigned int)PAGE_SIZE);	
 
 #if defined(CONFIG_COMCERTO_64K_PAGES)
-	block_size = block_size/16;  
+	block_size = block_size/16; //to get 4K
 	split_size = 16;
 #else
 	split_size = 1;
@@ -171,11 +174,11 @@ static void comcerto_xor_set_desc(sw_idx,  hw_idx)
 		addr = (u32)sw_xor_desc[sw_idx].dma_src[src_cnt - 1] + 4096 * split_no;
 		comcerto_xor_set_in_bdesc(hw_idx, src_cnt - 1, addr, block_size | BLAST);
 
-		fstatus0 = 1;  
-		fstatus0 |=  (1 << 1);  
-		fstatus0 |=  (0 << 2);  
-		fstatus0 |=  (src_cnt << 4);  
-		fstatus0 |=  (1 << 9);  
+		fstatus0 = 1; // New Req, reset block counter, block offset, clear scratchpad (overwrite existing data)
+		fstatus0 |=  (1 << 1); // Read SP, return content of scratch pad after processing input data
+		fstatus0 |=  (0 << 2); // Mode, Encode
+		fstatus0 |=  (src_cnt << 4); // Number of blocks to be processed
+		fstatus0 |=  (1 << 9); // Type, XOR
 		fstatus0 |=  (XOR_BLOCK_SIZE_4096 << 11);
 
 		xor_in_fdesc[hw_idx]->fcontrol = 0;
@@ -407,9 +410,11 @@ static void comcerto_xor_timer_fnc(unsigned long data)
 
 }
 
+
 static void comcerto_xor_issue_pending(struct dma_chan *chan)
 {
 	unsigned long           flags;
+
 
 	spin_lock_irqsave(&mdma_lock, flags);
 
@@ -427,6 +432,7 @@ static inline struct comcerto_sw_xor_desc *txd_to_comcerto_desc(struct dma_async
 {
         return container_of(txd, struct comcerto_sw_xor_desc, async_tx);
 }
+
 
 static dma_cookie_t comcerto_xor_tx_submit(struct dma_async_tx_descriptor *tx)
 {
@@ -500,6 +506,7 @@ comcerto_xor_prep_dma_xor(struct dma_chan *chan, dma_addr_t dest, dma_addr_t *sr
 
 }
 
+
 static int comcerto_xor_alloc_chan_resources(struct dma_chan *chan)
 {
 	int i;
@@ -515,7 +522,8 @@ static int comcerto_xor_alloc_chan_resources(struct dma_chan *chan)
 
 static void comcerto_xor_free_chan_resources(struct dma_chan *chan)
 {
-	 
+	//TODO
+
 	printk("*** %s ***\n",__func__);
 
 	return;
@@ -534,6 +542,7 @@ static enum dma_status comcerto_xor_status(struct dma_chan *chan,
 
 	return dma_async_is_complete(cookie, last_complete, last_used);
 }
+
 
 #if defined(CONFIG_COMCERTO_MDMA_PROF)
 
@@ -596,6 +605,7 @@ void comcerto_dma_profiling_start(struct comcerto_dma_sg *sg, unsigned int len) 
 void comcerto_dma_profiling_end(struct comcerto_dma_sg *sg) {}
 #endif
 
+
 static inline dma_addr_t dma_acp_map_page(struct comcerto_dma_sg *sg, void *p, unsigned int len, int dir, int use_acp)
 {
 	dma_addr_t phys_addr = virt_to_phys(p);
@@ -606,10 +616,11 @@ static inline dma_addr_t dma_acp_map_page(struct comcerto_dma_sg *sg, void *p, u
 
 	if ((phys_addr >= sg->low_phys_addr) && (phys_addr + len) < sg->high_phys_addr)
 	{
-		 
+		/* In range, skip mapping */
 		return COMCERTO_AXI_ACP_BASE + phys_addr;
 	}
 
+	/* Try to grow window, if possible */
 	if (phys_addr < sg->low_phys_addr)
 		low = phys_addr & ~(COMCERTO_AXI_ACP_SIZE - 1);
 	else
@@ -628,8 +639,9 @@ static inline dma_addr_t dma_acp_map_page(struct comcerto_dma_sg *sg, void *p, u
 	}
 
 map:
-	return dma_map_single(NULL, p, len, dir);  
+	return dma_map_single(NULL, p, len, dir); //TODO add proper checks
 }
+
 
 int comcerto_dma_sg_add_input(struct comcerto_dma_sg *sg, void *p, unsigned int len, int use_acp)
 {
@@ -653,7 +665,7 @@ int comcerto_dma_sg_add_input(struct comcerto_dma_sg *sg, void *p, unsigned int 
 
 		return 0;
 	}
-	else {  
+	else { /* len = MSPD_MDMA_MAX_BUF_SIZE +1, split it in 2 pieces */
 		if (sg->input_idx >= (MDMA_INBOUND_BUF_DESC - 1))
 			return -1;
 
@@ -695,7 +707,7 @@ int comcerto_dma_sg_add_output(struct comcerto_dma_sg *sg, void *p, unsigned int
 
 		return 0;
 	}
-	else {  
+	else { /* len = MDMA_MAX_BUF_SIZE +1, split it in 2 pieces */
 		if (sg->output_idx >= (MDMA_OUTBOUND_BUF_DESC - 1))
 			return -1;
 
@@ -804,6 +816,7 @@ void comcerto_dma_sg_cleanup(struct comcerto_dma_sg *sg, unsigned int len)
 	if (sg->out_bdesc[i].phys_addr < COMCERTO_AXI_ACP_BASE)
 		dma_unmap_page(NULL, sg->out_bdesc[i].phys_addr, sg->out_bdesc[i].len, DMA_FROM_DEVICE);
 
+
 	comcerto_dma_profiling_end(sg);
 }
 EXPORT_SYMBOL(comcerto_dma_sg_cleanup);
@@ -853,9 +866,10 @@ void comcerto_dma_put(void)
 }
 EXPORT_SYMBOL(comcerto_dma_put);
 
+/* Called once to setup common registers */
 static void comcerto_dma_setup(void)
 {
-	 
+	/* IO2M_IRQ_ENABLE: Enable IRQ_IRQFDON*/
 	writel_relaxed(IRQ_IRQFDON|IRQ_IRQFLEN|IRQ_IRQFTHLD|IRQ_IRQFLST, IO2M_IRQ_ENABLE);
 	writel_relaxed(IRQ_IRQFDON|IRQ_IRQFLEN|IRQ_IRQFTHLD|IRQ_IRQFLST, M2IO_IRQ_ENABLE);
 
@@ -864,6 +878,7 @@ static void comcerto_dma_setup(void)
 	writel_relaxed(FLENEN, IO2M_CONTROL);
 	writel_relaxed(0xf | (0x3ff << 8), IO2M_BURST);
 }
+
 
 void comcerto_dma_start(void)
 {
@@ -879,6 +894,7 @@ void comcerto_dma_start(void)
 	mdma_in_desc->fstatus0 = 0;
 	mdma_in_desc->fstatus1 = 0;
 
+	// outbound
 	mdma_out_desc->next_desc = 0;
 	mdma_out_desc->fcontrol = 0;
 	mdma_out_desc->fstatus0 = 0;
@@ -889,8 +905,10 @@ void comcerto_dma_start(void)
 
 	wmb();
 
+	// Initialize the Outbound Head Pointer
 	writel_relaxed(mdma_out_desc_phy, IO2M_HEAD);
 
+	// Initialize the Inbound Head Pointer
 	writel_relaxed(mdma_in_desc_phy, M2IO_HEAD);
 
 	writel_relaxed(1, M2IO_FLEN);
@@ -899,6 +917,7 @@ void comcerto_dma_start(void)
 	wmb();
 }
 EXPORT_SYMBOL(comcerto_dma_start);
+
 
 void comcerto_dma_wait(void)
 {
@@ -1009,6 +1028,7 @@ static irqreturn_t c2k_dma_handle_interrupt(int irq, void *data)
 		if(!dma_owned)
 			printk(KERN_ALERT " NULL MDMA Ownership !!!\n");
 
+
 		if(dma_owned==OWNER_XOR_BUSY)
 		{
 
@@ -1016,6 +1036,7 @@ static irqreturn_t c2k_dma_handle_interrupt(int irq, void *data)
 				xor_dma_idx = (xor_dma_idx + 1) % XOR_FDESC_COUNT;
 
 			xor_current_batch_count = 0;
+
 
 			if(memcpy_pending_count)
 			{
@@ -1045,7 +1066,7 @@ static irqreturn_t c2k_dma_handle_interrupt(int irq, void *data)
 
 				tasklet_schedule(&comcerto_xor_ch.irq_tasklet);
 			}
-		else  
+		else //memcpy
 		{
 			mdma_done = 1;
 			wake_up(&mdma_done_queue);
@@ -1111,6 +1132,7 @@ static int __devinit comcerto_dma_probe(struct platform_device *pdev)
 	struct dma_device    *dma_dev;
 	int ret = 0;
 
+	/* Retrieve related resources(mem, irq) from platform_device */
 	io = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!io)
 		return -ENODEV;
@@ -1127,6 +1149,7 @@ static int __devinit comcerto_dma_probe(struct platform_device *pdev)
 	if (!virtbase)
 		goto err_free_irq;
 
+	/* Initialize comcerto_xor_device */
 	comcerto_xor_dev = devm_kzalloc(&pdev->dev, sizeof(struct comcerto_xor_device), GFP_KERNEL);
 
 	if(!comcerto_xor_dev)
@@ -1147,6 +1170,7 @@ static int __devinit comcerto_dma_probe(struct platform_device *pdev)
 	dma_dev->max_xor = XOR_MAX_SRC_CNT;
 	platform_set_drvdata(pdev,comcerto_xor_dev);
 
+	/* Initialize comcerto_xor_chan */
 	comcerto_xor_ch.chan.device = dma_dev;
 	list_add_tail(&comcerto_xor_ch.chan.device_node,&dma_dev->channels);
 
@@ -1163,6 +1187,7 @@ static int __devinit comcerto_dma_probe(struct platform_device *pdev)
 
 	spin_lock_init(&mdma_lock);
 
+	//Memcpy descriptor initializing
 	mdma_in_desc = (struct comcerto_memcpy_inbound_fdesc *) (memcpy_pool);
 	memcpy_pool += sizeof(struct comcerto_memcpy_inbound_fdesc);
 	memcpy_pool = (void *)((unsigned long)(memcpy_pool + 15) & ~15);
@@ -1173,6 +1198,7 @@ static int __devinit comcerto_dma_probe(struct platform_device *pdev)
 	mdma_in_desc_phy = virt_to_aram(mdma_in_desc);
 	mdma_out_desc_phy = virt_to_aram(mdma_out_desc);
 
+	//XOR descriptor initializing
 	comcerto_xor_pool_virt = dma_alloc_coherent(NULL, XOR_FDESC_COUNT * (sizeof(struct comcerto_xor_inbound_fdesc) 
 						+  sizeof(struct comcerto_xor_outbound_fdesc)), &comcerto_xor_pool_phy, GFP_KERNEL);
 	xor_pool = comcerto_xor_pool_virt;
@@ -1217,6 +1243,7 @@ out:
 	return ret;
 }
 
+
 static struct platform_driver comcerto_dma_driver = {
 	.probe        = comcerto_dma_probe,
 	.remove       = comcerto_dma_remove,
@@ -1240,3 +1267,4 @@ module_exit(comcerto_dma_exit);
 
 MODULE_DESCRIPTION("DMA engine driver for Mindspeed Comcerto C2000 devices");
 MODULE_LICENSE("GPL");
+

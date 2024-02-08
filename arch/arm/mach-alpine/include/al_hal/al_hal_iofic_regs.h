@@ -33,6 +33,7 @@ met:
 
 *******************************************************************************/
 
+
 #ifndef __AL_HAL_IOFIC_REG_H
 #define __AL_HAL_IOFIC_REG_H
 
@@ -73,9 +74,11 @@ struct al_iofic_regs {
 	struct al_iofic_grp_mod grp_int_mod[0][32];
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** int_control_grp register ****/
 /* When Clear_on_Read =1, All bits of  Cause register  ... */
@@ -105,8 +108,13 @@ struct al_iofic_regs {
 #define INT_MOD_INTV_MASK 0x000000FF
 #define INT_MOD_INTV_SHIFT 0
 
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* __AL_HAL_IOFIC_REG_H */
+
+
+
+

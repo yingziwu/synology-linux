@@ -278,6 +278,7 @@ static void __init tegra_wario_init(void)
 	seaboard_i2c_init();
 }
 
+
 MACHINE_START(SEABOARD, "seaboard")
 	.atag_offset    = 0x100,
 	.map_io         = tegra_map_common_io,

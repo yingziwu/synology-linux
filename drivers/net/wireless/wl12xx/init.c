@@ -575,6 +575,7 @@ out:
 	return ret;
 }
 
+
 int wl1271_hw_init(struct wl1271 *wl)
 {
 	struct conf_tx_ac_category *conf_ac;

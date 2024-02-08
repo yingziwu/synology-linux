@@ -74,6 +74,7 @@
 /* EMIF Configuration Area */
 #define U300_EMIF_CFG_BASE		(U300_AHB_PER_PHYS_BASE+0x4000)
 
+
 /*
  * FAST peripherals
  */
@@ -101,7 +102,7 @@
 
 #ifdef CONFIG_MACH_U300_BS335
 /* Fast UART1 on U335 only */
-#define U300_UART1_BASE			(U300_SLOW_PER_PHYS_BASE+0x7000)
+#define U300_UART1_BASE			(U300_FAST_PER_PHYS_BASE+0x7000)
 #endif
 
 /*
@@ -145,6 +146,7 @@
 
 /* PPM */
 #define U300_PPM_BASE			(U300_SLOW_PER_PHYS_BASE+0xb000)
+
 
 /*
  * REST peripherals

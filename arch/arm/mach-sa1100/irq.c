@@ -21,6 +21,7 @@
 
 #include "generic.h"
 
+
 /*
  * SA1100 GPIO edge detection for IRQs:
  * IRQs are generated on Falling-Edge, Rising-Edge, or both.

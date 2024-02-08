@@ -16,6 +16,7 @@
 #include <gtHwCntl.h>
 #include <gtDrvSwRegs.h>
 
+
 GT_STATUS tcamReadGlobal3Reg
 (
   IN GT_QD_DEV *dev,
@@ -326,6 +327,7 @@ GT_STATUS gtcamPurgyEntry
 
 }
 
+
 /*******************************************************************************
 * gtcamReadTCAMData
 *
@@ -543,6 +545,7 @@ GT_STATUS gtcamDelEntry
     return GT_OK;
 }
 
+
 #endif
 
 /****************************************************************************/
@@ -552,6 +555,7 @@ static GT_STATUS tcamSetPage0Data(GT_QD_DEV *dev, GT_TCAM_DATA *tcamDataP, GT_U8
 {
   GT_STATUS       retVal;    /* Functions return value */
   int i, startLoc, endReg;
+
 
   tcamDataP->rawFrmData[extFrame].frame0.paraFrm.maskType=tcamDataP->frameTypeMask;
   if(extFrame==1)
@@ -693,6 +697,7 @@ static GT_STATUS tcamSetPage2Data(GT_QD_DEV *dev, GT_TCAM_DATA *tcamDataP, GT_U8
   }
   return GT_OK;
 }
+
 
 static GT_STATUS tcamGetPage0Data(GT_QD_DEV *dev, GT_TCAM_DATA *tcamDataP, GT_U8 extFrame)
 {
@@ -861,6 +866,7 @@ static GT_STATUS waitTcamReady(GT_QD_DEV           *dev)
 #endif
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * tcamOperationPerform

@@ -158,6 +158,7 @@ int vid_from_reg(int val, u8 vrm)
 	}
 }
 
+
 /*
  * After this point is the code to automatically determine which
  * VRM/VRD specification should be used depending on the CPU.

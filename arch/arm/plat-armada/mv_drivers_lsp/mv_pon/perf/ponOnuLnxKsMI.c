@@ -720,6 +720,7 @@ int mvPonCdevIoctl(struct inode *inode, struct file *filp, unsigned int cmd,
       ret = 0;
       break;
 
+
     /* ====== MVEPON_IOCTL_FEC_CONFIG ======= */
     case MVEPON_IOCTL_FEC_CONFIG:
       if(copy_from_user(&ioctlFec, (S_EponIoctlFec*)arg, sizeof(S_EponIoctlFec)))
@@ -1049,3 +1050,4 @@ MV_STATUS onuPonMngInterfaceRelease(void)
 
   return(MV_OK);
 }
+

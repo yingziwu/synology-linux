@@ -425,6 +425,7 @@ out:
 	return ret;
 }
 
+
 #ifdef CONFIG_PM
 /* save PCI controller register contents. */
 static int alchemy_pci_suspend(struct device *dev)
@@ -500,6 +501,7 @@ static int __init alchemy_pci_init(void)
 	return 0;
 }
 arch_initcall(alchemy_pci_init);
+
 
 int __init pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
 {

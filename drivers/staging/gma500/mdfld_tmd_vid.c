@@ -125,6 +125,7 @@ static int tmd_vid_get_panel_info(struct drm_device *dev,
  *	does!
  */
 
+
 static void mdfld_dsi_tmd_drv_ic_init(struct mdfld_dsi_config *dsi_config,
 				      int pipe)
 {

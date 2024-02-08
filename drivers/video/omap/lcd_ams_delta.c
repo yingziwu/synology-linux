@@ -36,6 +36,7 @@
 #define AMS_DELTA_MAX_CONTRAST		0x00FF
 #define AMS_DELTA_LCD_POWER		0x0100
 
+
 /* LCD class device section */
 
 static int ams_delta_lcd;
@@ -94,6 +95,7 @@ static struct lcd_ops ams_delta_lcd_ops = {
 };
 #endif
 
+
 /* omapfb panel section */
 
 static int ams_delta_panel_init(struct lcd_panel *panel,
@@ -150,6 +152,7 @@ static struct lcd_panel ams_delta_panel = {
 	.disable	= ams_delta_panel_disable,
 	.get_caps	= ams_delta_panel_get_caps,
 };
+
 
 /* platform driver section */
 

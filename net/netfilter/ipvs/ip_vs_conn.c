@@ -40,6 +40,7 @@
 #include <net/net_namespace.h>
 #include <net/ip_vs.h>
 
+
 #ifndef CONFIG_IP_VS_TAB_BITS
 #define CONFIG_IP_VS_TAB_BITS	12
 #endif
@@ -124,6 +125,7 @@ static inline void ct_write_unlock_bh(unsigned key)
 {
 	write_unlock_bh(&__ip_vs_conntbl_lock_array[key&CT_LOCKARRAY_MASK].l);
 }
+
 
 /*
  *	Returns hash value for IPVS connection entry
@@ -215,6 +217,7 @@ static inline int ip_vs_conn_hash(struct ip_vs_conn *cp)
 	return ret;
 }
 
+
 /*
  *	UNhashes ip_vs_conn from ip_vs_conn_tab.
  *	returns bool success.
@@ -243,6 +246,7 @@ static inline int ip_vs_conn_unhash(struct ip_vs_conn *cp)
 
 	return ret;
 }
+
 
 /*
  *  Gets ip_vs_conn associated with supplied parameters in the ip_vs_conn_tab.
@@ -452,6 +456,7 @@ void ip_vs_conn_put(struct ip_vs_conn *cp)
 	__ip_vs_conn_put(cp);
 }
 
+
 /*
  *	Fill a no_client_port connection with a client port number
  */
@@ -470,6 +475,7 @@ void ip_vs_conn_fill_cport(struct ip_vs_conn *cp, __be16 cport)
 		ip_vs_conn_hash(cp);
 	}
 }
+
 
 /*
  *	Bind a connection entry with the corresponding packet_xmit.
@@ -526,6 +532,7 @@ static inline void ip_vs_bind_xmit_v6(struct ip_vs_conn *cp)
 	}
 }
 #endif
+
 
 static inline int ip_vs_dest_totalconns(struct ip_vs_dest *dest)
 {
@@ -597,6 +604,7 @@ ip_vs_bind_dest(struct ip_vs_conn *cp, struct ip_vs_dest *dest)
 		dest->flags |= IP_VS_DEST_F_OVERLOAD;
 }
 
+
 /*
  * Check if there is a destination for the connection, if so
  * bind the connection to the destination.
@@ -614,6 +622,7 @@ struct ip_vs_dest *ip_vs_try_bind_dest(struct ip_vs_conn *cp)
 	} else
 		return NULL;
 }
+
 
 /*
  *	Unbind a connection entry with its VS destination
@@ -768,7 +777,6 @@ static void ip_vs_conn_expire(unsigned long data)
 			ip_vs_control_del(cp);
 
 		if (cp->flags & IP_VS_CONN_F_NFCT) {
-			ip_vs_conn_drop_conntrack(cp);
 			/* Do not access conntracks during subsys cleanup
 			 * because nf_conntrack_find_get can not be used after
 			 * conntrack cleanup for the net.
@@ -802,11 +810,13 @@ static void ip_vs_conn_expire(unsigned long data)
 	ip_vs_conn_put(cp);
 }
 
+
 void ip_vs_conn_expire_now(struct ip_vs_conn *cp)
 {
 	if (del_timer(&cp->timer))
 		mod_timer(&cp->timer, jiffies);
 }
+
 
 /*
  *	Create a new connection entry and hash it into the ip_vs_conn_tab
@@ -1116,6 +1126,7 @@ static const struct file_operations ip_vs_conn_sync_fops = {
 
 #endif
 
+
 /*
  *      Randomly drop connection entries before running out of memory
  */
@@ -1200,6 +1211,7 @@ void ip_vs_random_dropentry(struct net *net)
 		ct_write_unlock_bh(hash);
 	}
 }
+
 
 /*
  *      Flush all the connection entries in the ip_vs_conn_tab

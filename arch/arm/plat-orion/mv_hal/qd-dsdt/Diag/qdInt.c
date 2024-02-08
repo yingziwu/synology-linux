@@ -101,6 +101,7 @@ GT_STATUS qdIntDisable(GT_QD_DEV *dev)
 	return GT_OK;
 }
 
+
 /*
  *	Assume that the following function, sampleQDIntVector(), is registered
  *	when BSP calls intConnect for QD Interrupt.
@@ -339,6 +340,7 @@ GT_STATUS qdIntVector(GT_QD_DEV *dev)
 		*/
 
 	}
+
 
 	/*
 	 *	Now, all the QuarterDeck related interrupt have been cleared,

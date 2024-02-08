@@ -218,7 +218,7 @@ extern long __user_bad(void);
 
 #define __get_user(x, ptr)						\
 ({									\
-	unsigned long __gu_val;						\
+	unsigned long __gu_val = 0;					\
 	/*unsigned long __gu_ptr = (unsigned long)(ptr);*/		\
 	long __gu_err;							\
 	switch (sizeof(*(ptr))) {					\
@@ -237,6 +237,7 @@ extern long __user_bad(void);
 	x = (__typeof__(*(ptr))) __gu_val;				\
 	__gu_err;							\
 })
+
 
 #define __put_user_asm(insn, __gu_ptr, __gu_val, __gu_err)	\
 ({								\
@@ -352,6 +353,7 @@ extern long __user_bad(void);
 	__gu_err;							\
 })
 
+
 /* copy_to_from_user */
 #define __copy_from_user(to, from, n)	\
 	__copy_tofrom_user((__force void __user *)(to), \
@@ -362,10 +364,13 @@ extern long __user_bad(void);
 static inline long copy_from_user(void *to,
 		const void __user *from, unsigned long n)
 {
+	unsigned long res = n;
 	might_sleep();
-	if (access_ok(VERIFY_READ, from, n))
-		return __copy_from_user(to, from, n);
-	return n;
+	if (likely(access_ok(VERIFY_READ, from, n)))
+		res = __copy_from_user(to, from, n);
+	if (unlikely(res))
+		memset(to + (n - res), 0, res);
+	return res;
 }
 
 #define __copy_to_user(to, from, n)	\

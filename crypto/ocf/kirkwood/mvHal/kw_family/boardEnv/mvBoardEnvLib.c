@@ -94,6 +94,7 @@ static MV_DEV_CS_INFO*  boardGetDevEntry(MV_32 devNum, MV_BOARD_DEV_CLASS devCla
 
 MV_U32 tClkRate   = -1;
 
+
 /*******************************************************************************
 * mvBoardEnvInit - Init board
 *
@@ -629,6 +630,7 @@ MV_U32  mvBoardSysClkGet(MV_VOID)
 #endif
 }
 
+
 /*******************************************************************************
 * mvBoardPexBridgeIntPinGet - Get PEX to PCI bridge interrupt pin number
 *
@@ -740,6 +742,7 @@ MV_VOID mvBoardDebugLed(MV_U32 hexNum)
     }
 }
 
+
 /*******************************************************************************
 * mvBoarGpioPinGet - mvBoarGpioPinGet
 *
@@ -781,6 +784,7 @@ MV_32 mvBoarGpioPinNumGet(MV_BOARD_GPP_CLASS class, MV_U32 index)
 	return MV_ERROR;
 }
 
+
 /*******************************************************************************
 * mvBoardRTCGpioPinGet - mvBoardRTCGpioPinGet
 *
@@ -800,6 +804,7 @@ MV_32 mvBoardRTCGpioPinGet(MV_VOID)
 {
 	return mvBoarGpioPinNumGet(BOARD_GPP_RTC, 0);
 }
+
 
 /*******************************************************************************
 * mvBoardReset - mvBoardReset
@@ -916,6 +921,7 @@ MV_32 mvBoardUSBVbusEnGpioPinGet(MV_32 devId)
 	return mvBoarGpioPinNumGet(BOARD_GPP_USB_VBUS_EN, devId);
 }
 
+
 /*******************************************************************************
 * mvBoardGpioIntMaskGet - Get GPIO mask for interrupt pins
 *
@@ -967,6 +973,7 @@ MV_32 mvBoardGpioIntMaskHighGet(MV_VOID)
 	return BOARD_INFO(boardId)->intsGppMaskHigh;
 }
 
+
 /*******************************************************************************
 * mvBoardMppGet - Get board dependent MPP register value
 *
@@ -1001,6 +1008,7 @@ MV_32 mvBoardMppGet(MV_U32 mppGroupNum)
 
 	return BOARD_INFO(boardId)->pBoardMppConfigValue[0].mppGroup[mppGroupNum];
 }
+
 
 /*******************************************************************************
 * mvBoardMppGroupId - If MPP group type is AUTO then identify it using twsi
@@ -1250,6 +1258,8 @@ MV_VOID mvBoardMppMuxSet(MV_VOID)
 	twsiSlave.offset = 2;
 	twsiSlave.moreThen256 = MV_FALSE;
 
+
+
 	if( MV_OK != mvTwsiWrite (0, &twsiSlave, &muxVal, 1) )
 	{
 		DB(mvOsPrintf("Board: twsi exp out val fail\n"));
@@ -1439,6 +1449,7 @@ MV_VOID mvBoardTdmMppSet(MV_32 chType)
 		return;
 	}
 
+
 	twsiSlave.offset = 2;
 
 	mvTwsiRead(0, &twsiSlave, &twsiVal, 1);
@@ -1451,6 +1462,7 @@ MV_VOID mvBoardTdmMppSet(MV_32 chType)
 	}
 #endif
 	DB(mvOsPrintf("Board: twsi exp out val succeded\n"));
+
 
 }
 /*******************************************************************************
@@ -1746,6 +1758,7 @@ MV_32 mvBoardGetDeviceWinSize(MV_32 devNum, MV_BOARD_DEV_CLASS devClass)
 	return 0xFFFFFFFF;
 }
 
+
 /*******************************************************************************
 * boardGetDevEntry - returns the entry pointer of a device on the board
 *
@@ -1809,6 +1822,7 @@ MV_U32 boardGetDevCSNum(MV_32 devNum, MV_BOARD_DEV_CLASS devClass)
 		return 0xFFFFFFFF;
 
 	}
+
 
 	devEntry = boardGetDevEntry(devNum,devClass);
 	if (devEntry != NULL)
@@ -1982,6 +1996,7 @@ MV_U8 mvBoardTwsiExpAddrGet(MV_U32 index)
 	return (0xFF);
 }
 
+
 /*******************************************************************************
 * mvBoardTwsiSatRAddrTypeGet -
 *
@@ -2131,6 +2146,7 @@ MV_U32 mvBoardIdGet(MV_VOID)
 	return gBoardId;
 }
 
+
 /*******************************************************************************
 * mvBoarModuleTypeGet - mvBoarModuleTypeGet
 *
@@ -2166,6 +2182,8 @@ MV_BOARD_MODULE_ID_CLASS mvBoarModuleTypeGet(MV_BOARD_MPP_GROUP_CLASS devClass)
 	   in next operation */
 	twsiSlave.offset = 0;
 	twsiSlave.moreThen256 = MV_FALSE;
+
+
 
 	if( MV_OK != mvTwsiRead (0, &twsiSlave, &data, 1) )
 	{

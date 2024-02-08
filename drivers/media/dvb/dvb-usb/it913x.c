@@ -43,6 +43,7 @@ static int dvb_usb_it913x_debug;
 		*p, *(p+1), *(p+2), *(p+3), *(p+4), \
 			*(p+5), *(p+6), *(p+7));
 
+
 module_param_named(debug, dvb_usb_it913x_debug, int, 0644);
 MODULE_PARM_DESC(debug, "set debugging level (1=info (or-able))."
 			DVB_USB_DEBUG_STATUS);
@@ -266,6 +267,7 @@ static int it913x_pid_filter(struct dvb_usb_adapter *adap,
 	return 0;
 }
 
+
 static int it913x_return_status(struct usb_device *udev)
 {
 	u32 firm = 0;
@@ -420,10 +422,12 @@ static int it913x_streaming_ctrl(struct dvb_usb_adapter *adap, int onoff)
 	if (!onoff)
 		ret = it913x_wr_reg(adap->dev->udev, pro, PID_RST, 0x1);
 
+
 	mutex_unlock(&adap->dev->i2c_mutex);
 
 	return ret;
 }
+
 
 static int it913x_download_firmware(struct usb_device *udev,
 					const struct firmware *fw)

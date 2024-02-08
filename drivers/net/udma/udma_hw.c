@@ -44,6 +44,7 @@
 char udma_driver_name[] = "udma";
 const char udma_driver_version[] = UDMA_DRV_VERSION;
 
+
 static const struct __cntx_regset udma_cntx_rx_regset = {
 		.cdesc = (UDMA_RX_REG_BASE + UDMA_CURR_DESC),
 		.ndesc = (UDMA_RX_REG_BASE + UDMA_NEXT_DESC),
@@ -68,6 +69,7 @@ static const struct __intr_regset udma_intr_regset = {
 		.int_mask = UDMA_INTR_MASK,
 		.int_stat = UDMA_INTR_STATUS,
 };
+
 
 /* INTR enable register bits */
 static const struct __port_regset udma_port_intr_unmask[] = {
@@ -103,6 +105,10 @@ static const struct udma_cntx_regset udma_cntx_regs = {
 	.tx 	= 	(struct __cntx_regset *)&udma_cntx_tx_regset,
 	.intr 	= 	(struct __intr_regset *)&udma_intr_regset,
 };
+
+
+
+
 
 int  udma_setup_sw(void *dev);
 void  udma_free_sw(void *dev);
@@ -147,6 +153,7 @@ void udma_regs_dump(struct udma_hw *hw, bool direction)
 	udma_info("		INTR MASK(%x) 		0x%x\n", udma_cntx_regs.intr->int_mask, udma_readl(hw,udma_cntx_regs.intr->int_mask));
 	udma_info("		INTR STAT(%x) 		0x%x\n", udma_cntx_regs.intr->int_stat, udma_readl(hw,udma_cntx_regs.intr->int_stat));
 
+
 }
 
 /*
@@ -185,6 +192,7 @@ static  bool udma_hw_tx_is_active(struct udma_hw *hw)
 	return false;
 }
 
+
 static u32 udma_hw_get_curr_rx_desc(struct udma_hw *hw)
 {
 	return udma_readl(hw, udma_cntx_regs.rx->cdesc);
@@ -204,6 +212,8 @@ static  u32 udma_hw_get_next_tx_desc(struct udma_hw *hw)
 {
 	return udma_readl(hw, udma_cntx_regs.tx->ndesc);
 }
+
+
 
 /*
  * udma_hw_irq_mask - mask interrupt
@@ -294,6 +304,7 @@ static int  udma_hw_disable_desc_tx_irq(struct udma_desc *desc)
 	return 0;
 }
 
+
 static int udma_hw_start_rx_transfer(struct udma_hw *hw, u32 desc_dma)
 {
 	udma_writel(hw, udma_cntx_regs.rx->other, UDMA_OTHER_MODE_DEFAULT_SETTING);
@@ -329,6 +340,7 @@ static int udma_hw_stop_tx_transfer(struct udma_hw *hw)
 	udma_writel(hw, udma_cntx_regs.tx->other, UDMA_STOP | value);
 	return 0;
 }
+
 
 static bool udma_hw_rx_is_stopped(struct udma_hw *hw)
 {
@@ -413,6 +425,7 @@ static int udma_hw_init(struct udma_hw *hw)
 	udma_writel(hw, udma_cntx_regs.tx->other, UDMA_OTHER_MODE_DEFAULT_SETTING);
 	udma_writel(hw, udma_cntx_regs.rx->other, UDMA_OTHER_MODE_DEFAULT_SETTING);
 
+
 	return 0;
 }
 
@@ -430,6 +443,7 @@ static int udma_hw_exit(struct udma_hw *hw)
 	udma_writel(hw, udma_cntx_regs.tx->cdesc,0);
 	udma_writel(hw, udma_cntx_regs.tx->ndesc, 0);	
 
+	
 	return 0;
 }
 
@@ -438,6 +452,7 @@ static int udma_hw_exit(struct udma_hw *hw)
  * Initializaton/Exit
  *
 *****************************************************************************/
+
 
 static struct udma_hw_operations udma_hw_ops = {
 	.rx_is_active				=	udma_hw_rx_is_active,
@@ -496,6 +511,7 @@ static int __devinit udma_hw_probe(struct pci_dev *pdev,
 	int ret = -ENODEV;
 	struct udma_hw *hw = NULL;
 
+
 	/* enable device */
 	ret = pci_enable_device(pdev);
 	if (ret) {
@@ -523,11 +539,13 @@ static int __devinit udma_hw_probe(struct pci_dev *pdev,
 	hw->pdev = pdev;	
 	pci_set_drvdata(pdev, hw);
 
+
 	//udma_dbg("udma port %d, ioaddr 0x%x, umdev 0x%x, pdev 0x%x\n", hw->port, hw->ioaddr, hw->private, hw->pdev);
 	udma_hw_init(hw);
 	ret = udma_setup_sw(udma_hw_priv(hw));
 	if (ret)
 		goto free_iomem;
+
 
 	printk(KERN_INFO "Intel(R) UDMA Port %d Device Driver Init Done \n",hw->port);
 
@@ -586,6 +604,7 @@ static int __init udma_drv_init(void)
 	return ret;
 }
 
+
 /**
  * udma_exit - Driver Exit Cleanup Routine
  *
@@ -602,5 +621,8 @@ MODULE_AUTHOR("Intel Corporation");
 MODULE_DESCRIPTION("Intel(R) UDMA Driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(UDMA_DRV_VERSION);
+
+
+
 
 /* udma_hw.c */

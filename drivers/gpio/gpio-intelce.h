@@ -21,6 +21,7 @@
 #include <linux/pci.h>
 #include <linux/platform_device.h>
 
+
 #define INTELCE_GPIO_DRV_NAME		"intelce_gpio"
 #define PCI_INTELCE_GPIO_DEVICE_ID	0x2e67
 

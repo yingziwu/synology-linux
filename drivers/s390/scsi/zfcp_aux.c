@@ -3,7 +3,7 @@
  *
  * Module interface and handling of zfcp data structures.
  *
- * Copyright IBM Corporation 2002, 2010
+ * Copyright IBM Corp. 2002, 2013
  */
 
 /*
@@ -23,6 +23,7 @@
  *            Christof Schmitt
  *            Martin Petermann
  *            Sven Schuetz
+ *            Steffen Maier
  */
 
 #define KMSG_COMPONENT "zfcp"
@@ -139,6 +140,7 @@ static int __init zfcp_module_init(void)
 		goto out_transport;
 	scsi_transport_reserve_device(zfcp_scsi_transport_template,
 				      sizeof(struct zfcp_scsi_dev));
+
 
 	retval = misc_register(&zfcp_cfdc_misc);
 	if (retval) {
@@ -364,6 +366,8 @@ struct zfcp_adapter *zfcp_adapter_enqueue(struct ccw_device *ccw_device)
 	INIT_WORK(&adapter->scan_work, zfcp_fc_scan_ports);
 	INIT_WORK(&adapter->ns_up_work, zfcp_fc_sym_name_update);
 
+	adapter->erp_action.adapter = adapter;
+
 	if (zfcp_qdio_setup(adapter))
 		goto failed;
 
@@ -413,6 +417,8 @@ struct zfcp_adapter *zfcp_adapter_enqueue(struct ccw_device *ccw_device)
 	/* report size limit per scatter-gather segment */
 	adapter->dma_parms.max_segment_size = ZFCP_QDIO_SBALE_LEN;
 	adapter->ccw_device->dev.dma_parms = &adapter->dma_parms;
+
+	adapter->stat_read_buf_num = FSF_STATUS_READS_RECOM;
 
 	if (!zfcp_scsi_adapter_register(adapter))
 		return adapter;
@@ -530,6 +536,9 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
 	port->rport_task = RPORT_NONE;
 	port->dev.parent = &adapter->ccw_device->dev;
 	port->dev.release = zfcp_port_release;
+
+	port->erp_action.adapter = adapter;
+	port->erp_action.port = port;
 
 	if (dev_set_name(&port->dev, "0x%016llx", (unsigned long long)wwpn)) {
 		kfree(port);

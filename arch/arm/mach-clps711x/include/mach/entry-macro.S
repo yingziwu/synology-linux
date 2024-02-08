@@ -54,3 +54,5 @@
 		moveq	\stat, \stat, lsr #1
 		tst	\stat, #1			@ bit 0 should be set
 		.endm
+
+

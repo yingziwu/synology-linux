@@ -129,6 +129,7 @@ struct r3964_client_info {
 	int            msg_count;
 };
 
+
 #endif
 
 /* types for msg_id: */
@@ -149,6 +150,7 @@ struct r3964_client_message {
 };
 
 #define R3964_MTU      256
+
 
 #ifdef __KERNEL__
 
@@ -197,6 +199,7 @@ struct r3964_block_header
 #define R3964_BCC   0x4000
 #define R3964_DEBUG 0x8000
 
+
 struct r3964_info {
 	spinlock_t     lock;
 	struct tty_struct *tty;
@@ -217,6 +220,7 @@ struct r3964_info {
 	unsigned char bcc;
         unsigned int  blocks_in_rx_queue;
 	  
+	
 	struct r3964_client_info *firstClient;
 	unsigned int state;
 	unsigned int flags;

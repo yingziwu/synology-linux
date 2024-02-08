@@ -188,6 +188,7 @@ static void comcerto_enable_hw_ecc(struct mtd_info *mtd, int mode)
 	struct nand_chip *nand_device = (struct nand_chip *)(mtd->priv);
 	uint32_t ecc_gen_cfg_val = 0;
 
+
 	/* CS4 will have the option for ECC calculation */
 	writel_relaxed(ECC_CS4_SEL, ecc_base_addr + ECC_CS_SEL_CFG);
 
@@ -457,6 +458,7 @@ void comcerto_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd->priv;
 
+
 	if (ctrl & NAND_CTRL_CHANGE) {
 		if (ctrl & NAND_NCE)
 			comcerto_gpio_set_0(COMCERTO_NAND_CE);
@@ -648,6 +650,7 @@ static int comcerto_nand_probe(struct platform_device *pdev)
 	}
 	nand_device->ecc.total = nand_device->ecc.steps * nand_device->ecc.bytes;
 
+
 	nand_device->bbt_td = &bbt_main_descr;
 	nand_device->bbt_md = &bbt_mirror_descr;
 	nand_device->badblock_pattern = &c2000_badblock_pattern;
@@ -679,6 +682,7 @@ static int comcerto_nand_probe(struct platform_device *pdev)
                 printk(KERN_ERR "Could not parse partitions\n");
 		return err;
 	}
+
 
 	goto out;
 

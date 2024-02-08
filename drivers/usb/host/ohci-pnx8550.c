@@ -54,10 +54,12 @@ static void pnx8550_stop_hc(struct platform_device *dev)
 	udelay(10);
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /* configure so an HC device and id are always provided */
 /* always called with process context; sleeping is OK */
+
 
 /**
  * usb_hcd_pnx8550_probe - initialize pnx8550-based HCDs
@@ -117,6 +119,7 @@ int usb_hcd_pnx8550_probe (const struct hc_driver *driver,
 	usb_put_hcd(hcd);
 	return retval;
 }
+
 
 /* may be called without controller electrically present */
 /* may be called with controller, bus, and devices active */
@@ -236,3 +239,4 @@ static struct platform_driver ohci_hcd_pnx8550_driver = {
 	.probe		= ohci_hcd_pnx8550_drv_probe,
 	.remove		= ohci_hcd_pnx8550_drv_remove,
 };
+

@@ -621,6 +621,7 @@ MV_32 mvTdmIntLow(MV_TDM_INT_INFO *tdmIntInfo)
 			}
 		}
 
+
 		if (statusAndMask & RX_OVERFLOW_BIT(ch)) {
 			MV_TRC_REC("Rx overflow(ch%d) - checking for root cause...\n", ch);
 			if (tdmEnable) {

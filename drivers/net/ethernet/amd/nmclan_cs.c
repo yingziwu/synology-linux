@@ -116,6 +116,7 @@ Log: nmclan_cs.c,v
 #define DRV_NAME	"nmclan_cs"
 #define DRV_VERSION	"0.16"
 
+
 /* ----------------------------------------------------------------------------
 Conditional Compilation Options
 ---------------------------------------------------------------------------- */
@@ -397,6 +398,7 @@ MODULE_LICENSE("GPL");
 /* 0=auto, 1=10baseT, 2 = 10base2, default=auto */
 INT_MODULE_PARM(if_port, 0);
 
+
 /* ----------------------------------------------------------------------------
 Function Prototypes
 ---------------------------------------------------------------------------- */
@@ -417,6 +419,7 @@ static int mace_rx(struct net_device *dev, unsigned char RxCnt);
 static void restore_multicast_list(struct net_device *dev);
 static void set_multicast_list(struct net_device *dev);
 static const struct ethtool_ops netdev_ethtool_ops;
+
 
 static void nmclan_detach(struct pcmcia_device *p_dev);
 
@@ -622,7 +625,7 @@ static int nmclan_config(struct pcmcia_device *link)
   ret = pcmcia_request_io(link);
   if (ret)
 	  goto failed;
-  ret = pcmcia_request_exclusive_irq(link, mace_interrupt);
+  ret = pcmcia_request_irq(link, mace_interrupt);
   if (ret)
 	  goto failed;
   ret = pcmcia_enable_device(link);
@@ -712,6 +715,7 @@ static int nmclan_resume(struct pcmcia_device *link)
 
 	return 0;
 }
+
 
 /* ----------------------------------------------------------------------------
 nmclan_reset
@@ -951,6 +955,8 @@ static irqreturn_t mace_interrupt(int irq, void *dev_id)
   do {
     /* WARNING: MACE_IR is a READ/CLEAR port! */
     status = inb(ioaddr + AM2150_MACE_BASE + MACE_IR);
+    if (!(status & ~MACE_IMR_DEFAULT) && IntrCnt == MACE_MAX_IR_ITERATIONS)
+      return IRQ_NONE;
 
     pr_debug("mace_interrupt: irq 0x%X status 0x%X.\n", irq, status);
 

@@ -72,6 +72,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gpp/mvGppRegs.h"
 #endif
 
+
 /* TDM Interrupt Service Routine */
 static irqreturn_t tdm_if_isr(int irq, void* dev_id);
 
@@ -325,6 +326,7 @@ MV_STATUS tdm_if_init(tdm_if_register_ops_t* register_ops, tdm_if_params_t* tdm_
 	TRC_REC("<-%s\n", __func__);
 	return MV_OK;
 }
+
 
 void tdm_if_exit(void)
 {

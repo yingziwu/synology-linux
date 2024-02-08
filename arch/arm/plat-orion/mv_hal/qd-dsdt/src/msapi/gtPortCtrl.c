@@ -115,6 +115,8 @@ GT_STATUS gprtSetForceFc
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetForceFc
 *
@@ -189,6 +191,7 @@ GT_STATUS gprtGetForceFc
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetUseCoreTag
 *
@@ -257,6 +260,8 @@ GT_STATUS gprtSetUseCoreTag
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetUseCoreTag
 *
@@ -315,6 +320,7 @@ GT_STATUS gprtGetUseCoreTag
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetTrailerMode
@@ -397,6 +403,8 @@ GT_STATUS gprtSetTrailerMode
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetTrailerMode
 *
@@ -476,6 +484,9 @@ GT_STATUS gprtGetTrailerMode
 
     return retVal;
 }
+
+
+
 
 /*******************************************************************************
 * gprtSetIngressMode
@@ -578,6 +589,8 @@ GT_STATUS gprtSetIngressMode
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetIngressMode
 *
@@ -638,6 +651,7 @@ GT_STATUS gprtGetIngressMode
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetMcRateLimit
 *
@@ -696,6 +710,8 @@ GT_STATUS gprtSetMcRateLimit
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetMcRateLimit
 *
@@ -753,6 +769,7 @@ GT_STATUS gprtGetMcRateLimit
 	}
     return retVal;
 }
+
 
 /* the following two APIs are added to support fullsail and clippership */
 
@@ -819,6 +836,8 @@ GT_STATUS gprtSetIGMPSnoop
 	}
     return retVal;
 }
+
+
 
 /*******************************************************************************
 * gprtGetIGMPSnoop
@@ -960,6 +979,8 @@ GT_STATUS gprtSetHeaderMode
 	}
     return retVal;
 }
+
+
 
 /*******************************************************************************
 * gprtGetHeaderMode
@@ -1314,6 +1335,7 @@ GT_STATUS gprtGetForwardUnknown
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetDropOnLock
 *
@@ -1377,6 +1399,8 @@ GT_STATUS gprtSetDropOnLock
 	}
 	return retVal;
 }
+
+
 
 /*******************************************************************************
 * gprtGetDropOnLock
@@ -1509,6 +1533,8 @@ GT_STATUS gprtSetDoubleTag
 	return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetDoubleTag
 *
@@ -1571,6 +1597,7 @@ GT_STATUS gprtGetDoubleTag
 
 	return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetInterswitchPort
@@ -1636,6 +1663,8 @@ GT_STATUS gprtSetInterswitchPort
 	}
 	return retVal;
 }
+
+
 
 /*******************************************************************************
 * gprtGetInterswithPort
@@ -1763,6 +1792,7 @@ GT_STATUS gprtSetLearnDisable
 	}
 	return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetLearnDisable
@@ -1899,6 +1929,7 @@ GT_STATUS gprtSetIgnoreFCS
 	return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetIgnoreFCS
 *
@@ -1968,6 +1999,7 @@ GT_STATUS gprtGetIgnoreFCS
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetVTUPriOverride
@@ -2086,6 +2118,7 @@ GT_STATUS gprtSetVTUPriOverride
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetVTUPriOverride
 *
@@ -2187,6 +2220,7 @@ GT_STATUS gprtGetVTUPriOverride
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtSetSAPriOverride
@@ -2304,6 +2338,7 @@ GT_STATUS gprtSetSAPriOverride
 	}
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetSAPriOverride
@@ -2524,6 +2559,7 @@ GT_STATUS gprtSetDAPriOverride
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetDAPriOverride
 *
@@ -2626,6 +2662,7 @@ GT_STATUS gprtGetDAPriOverride
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gprtSetCPUPort
 *
@@ -2690,6 +2727,7 @@ GT_STATUS gprtSetCPUPort
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetCPUPort
 *
@@ -2751,6 +2789,7 @@ GT_STATUS gprtGetCPUPort
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetLockedPort
@@ -2819,6 +2858,7 @@ GT_STATUS gprtSetLockedPort
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetLockedPort
 *
@@ -2880,6 +2920,7 @@ GT_STATUS gprtGetLockedPort
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetIgnoreWrongData
@@ -2950,6 +2991,7 @@ GT_STATUS gprtSetIgnoreWrongData
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetIgnoreWrongData
 *
@@ -3011,6 +3053,7 @@ GT_STATUS gprtGetIgnoreWrongData
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetDiscardTagged
@@ -3077,6 +3120,7 @@ GT_STATUS gprtSetDiscardTagged
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetDiscardTagged
 *
@@ -3138,6 +3182,7 @@ GT_STATUS gprtGetDiscardTagged
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetDiscardUntagged
@@ -3203,6 +3248,7 @@ GT_STATUS gprtSetDiscardUntagged
 	}
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetDiscardUntagged
@@ -3333,6 +3379,7 @@ GT_STATUS gprtSetMapDA
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetMapDA
 *
@@ -3394,6 +3441,7 @@ GT_STATUS gprtGetMapDA
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetDefaultForward
@@ -3466,6 +3514,7 @@ GT_STATUS gprtSetDefaultForward
 	}
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetDefaultForward
@@ -3601,6 +3650,7 @@ GT_STATUS gprtSetEgressMonitorSource
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetEgressMonitorSource
 *
@@ -3662,6 +3712,7 @@ GT_STATUS gprtGetEgressMonitorSource
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetIngressMonitorSource
@@ -3728,6 +3779,7 @@ GT_STATUS gprtSetIngressMonitorSource
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetIngressMonitorSource
 *
@@ -3789,6 +3841,7 @@ GT_STATUS gprtGetIngressMonitorSource
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetMessagePort
@@ -3858,6 +3911,7 @@ GT_STATUS gprtSetMessagePort
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetMessagePort
 *
@@ -3924,6 +3978,7 @@ GT_STATUS gprtGetMessagePort
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetTrunkPort
@@ -4117,6 +4172,7 @@ GT_STATUS gprtGetTrunkPort
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetDiscardBCastMode
 *
@@ -4183,6 +4239,7 @@ GT_STATUS gprtGetDiscardBCastMode
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtSetDiscardBCastMode
@@ -4321,6 +4378,7 @@ GT_STATUS gprtGetFCOnRateLimitMode
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gprtSetFCOnRateLimitMode
 *
@@ -4390,6 +4448,7 @@ GT_STATUS gprtSetFCOnRateLimitMode
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtSetSAFiltering
@@ -4464,6 +4523,7 @@ GT_STATUS gprtSetSAFiltering
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetSAFiltering
 *
@@ -4536,6 +4596,7 @@ GT_STATUS gprtGetSAFiltering
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetARPtoCPU
 *
@@ -4602,6 +4663,7 @@ GT_STATUS gprtSetARPtoCPU
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetARPtoCPU
 *
@@ -4665,6 +4727,7 @@ GT_STATUS gprtGetARPtoCPU
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetEgressFlood
@@ -4806,6 +4869,7 @@ GT_STATUS gprtGetEgressFlood
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetPortSched
 *
@@ -4886,6 +4950,7 @@ GT_STATUS gprtSetPortSched
 	return retVal;
 
     }
+
 
 	data = mode;
 
@@ -4996,6 +5061,7 @@ GT_STATUS gprtGetPortSched
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetProviderTag
@@ -5111,6 +5177,7 @@ GT_STATUS gprtGetProviderTag
 	}
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetPauseLimitOut
@@ -5251,6 +5318,7 @@ GT_STATUS gprtGetPauseLimitOut
 	}
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetPauseLimitIn
@@ -5414,6 +5482,7 @@ GT_STATUS gprtGetPauseLimitIn
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetFrameMode
 *
@@ -5569,6 +5638,7 @@ GT_STATUS gprtGetFrameMode
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetHoldAt1
 *
@@ -5634,6 +5704,7 @@ GT_STATUS gprtSetHoldAt1
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetHoldAt1
 *
@@ -5697,6 +5768,7 @@ GT_STATUS gprtGetHoldAt1
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetIntOnAgeOut
@@ -5763,6 +5835,7 @@ GT_STATUS gprtSetIntOnAgeOut
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetIntOnAgeOut
 *
@@ -5826,6 +5899,7 @@ GT_STATUS gprtGetIntOnAgeOut
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetRefreshLocked
@@ -5891,6 +5965,7 @@ GT_STATUS gprtSetRefreshLocked
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetRefreshLocked
 *
@@ -5954,6 +6029,7 @@ GT_STATUS gprtGetRefreshLocked
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetPortEType
 *
@@ -6014,6 +6090,7 @@ GT_STATUS gprtSetPortEType
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetPortEType
 *
@@ -6073,6 +6150,7 @@ GT_STATUS gprtGetPortEType
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gsysSetJumboMode
@@ -6194,6 +6272,7 @@ GT_STATUS gsysGetJumboMode
 
 	return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGet200Base
@@ -6333,6 +6412,7 @@ GT_STATUS gprtSet200Base
 	return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetSwitchReg
 *
@@ -6429,6 +6509,7 @@ GT_STATUS gprtSetSwitchReg
 
 	return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtGetGlobalReg

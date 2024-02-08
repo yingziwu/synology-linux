@@ -14,6 +14,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 #include "mvSysHwConfig.h"
 #include "ctrlEnv/sys/mvCpuIf.h"
 #include "boardEnv/mvBoardEnvLib.h"
@@ -102,10 +103,12 @@ MV_CPU_DEC_WIN SYSMAP_ARMADA_XP[] = {
 	{{TBL_TERM,				TBL_TERM, TBL_TERM	},	TBL_TERM,	TBL_TERM}
 };
 
+
 MV_CPU_DEC_WIN* mv_sys_map(void)
 {
 	return SYSMAP_ARMADA_XP;
 }
+
 
 #if defined(CONFIG_MV_INCLUDE_CESA)
 u32 mv_crypto_phys_base_get(u8 chan)

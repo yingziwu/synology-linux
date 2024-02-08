@@ -133,6 +133,7 @@ PDN,
 PDN_STAT
 };
 
+
 /*
 ** This defines the neumomics for the Si324x RAM locations (revB)
 */
@@ -1173,5 +1174,6 @@ enum {
     CMDAC_FWD = 1476,
     CMDAC_REV
 };
+
 
 #endif

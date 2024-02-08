@@ -159,6 +159,7 @@ int control_packet_handler  (PMINI_ADAPTER Adapter  /**< pointer to adapter obje
 								 kthread_should_stop()
 								);
 
+
 		if(kthread_should_stop())
 		{
 			BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, CP_CTRL_PKT, DBG_LVL_ALL, "Exiting \n");
@@ -217,3 +218,5 @@ INT flushAllAppQ(void)
 	}
 	return STATUS_SUCCESS ;
 }
+
+

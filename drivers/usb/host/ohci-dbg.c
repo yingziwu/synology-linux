@@ -82,6 +82,7 @@ urb_print(struct urb * urb, char * str, int small, int status)
 		ohci_dbg(ohci,format, ## arg ); \
 	} while (0);
 
+
 static void ohci_dump_intr_mask (
 	struct ohci_hcd *ohci,
 	char *label,
@@ -214,6 +215,7 @@ ohci_dump_status (struct ohci_hcd *controller, char **next, unsigned *size)
 		(temp & RH_PS_PES) ? " PES" : "", \
 		(temp & RH_PS_CCS) ? " CCS" : "" \
 		);
+
 
 static void
 ohci_dump_roothub (
@@ -850,3 +852,4 @@ static inline void remove_debug_files (struct ohci_hcd *ohci)
 #endif
 
 /*-------------------------------------------------------------------------*/
+

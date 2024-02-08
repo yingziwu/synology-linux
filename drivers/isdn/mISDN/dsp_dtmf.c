@@ -93,6 +93,7 @@ void dsp_dtmf_hardware(struct dsp *dsp)
 	dsp->dtmf.software = !hardware;
 }
 
+
 /*************************************************************
  * calculate the coefficients of the given sample and decode *
  *************************************************************/
@@ -301,3 +302,5 @@ storedigit:
 
 	goto again;
 }
+
+

@@ -34,6 +34,7 @@
 
 #include "msSample.h"
 
+
 /*****************************************************************************
 * sample802_1qSetup
 *
@@ -158,6 +159,7 @@ GT_STATUS sample802_1qSetup(GT_QD_DEV *dev)
 		return status;
 	}
 
+
 	/*
 	 *	6) Configure the default vid for each port.
 	 *	Port 0 has PVID 1, CPU port has PVID 3, and the rest ports have PVID 2.
@@ -182,6 +184,7 @@ GT_STATUS sample802_1qSetup(GT_QD_DEV *dev)
 	return GT_OK;
 
 }
+
 
 /*****************************************************************************
 * sampleAdmitOnlyTaggedFrame
@@ -229,6 +232,7 @@ GT_STATUS sampleAdmitOnlyTaggedFrame(GT_QD_DEV *dev,GT_LPORT port)
 			return status;
 	}
 
+
 	/*
 	 *	1) Add VLAN ID 0xFFF with the given port as a member.
 	*/
@@ -259,6 +263,7 @@ GT_STATUS sampleAdmitOnlyTaggedFrame(GT_QD_DEV *dev,GT_LPORT port)
 	return GT_OK;
 
 }
+
 
 /*****************************************************************************
 * sampleDisplayVIDTable

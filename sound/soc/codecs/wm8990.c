@@ -161,6 +161,7 @@ static int wm899x_outpga_put_volsw_vu(struct snd_kcontrol *kcontrol,
 	.get = snd_soc_get_volsw, .put = wm899x_outpga_put_volsw_vu, \
 	.private_value = SOC_SINGLE_VALUE(reg, shift, max, invert) }
 
+
 static const char *wm8990_digital_sidetone[] =
 	{"None", "Left ADC", "Right ADC", "Reserved"};
 
@@ -946,6 +947,7 @@ static void pll_factors(struct _pll_div *pll_div, unsigned int target,
 	u64 Kpart;
 	unsigned int K, Ndiv, Nmod;
 
+
 	Ndiv = target / source;
 	if (Ndiv < 6) {
 		source >>= 1;
@@ -1264,6 +1266,8 @@ static int wm8990_set_bias_level(struct snd_soc_codec *codec,
 
 		/* disable POBCTRL, SOFT_ST and BUFDCOPEN */
 		snd_soc_write(codec, WM8990_ANTIPOP2, 0x0);
+
+		codec->cache_sync = 1;
 		break;
 	}
 

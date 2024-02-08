@@ -65,6 +65,7 @@ static void s3c_irq_demux_wdtac97(unsigned int irq,
 	}
 }
 
+
 #define INTMSK_WDT	 (1UL << (IRQ_WDT - IRQ_EINT0))
 
 static void
@@ -122,3 +123,4 @@ static int s3c2440_irq_init(void)
 }
 
 arch_initcall(s3c2440_irq_init);
+

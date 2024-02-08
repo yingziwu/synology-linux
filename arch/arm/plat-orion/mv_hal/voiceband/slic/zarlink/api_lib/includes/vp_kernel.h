@@ -9,6 +9,7 @@
  * $LastChangedDate: 2010-02-12 16:40:10 -0600 (Fri, 12 Feb 2010) $
  */
 
+
 #ifndef _VP_KERNEL_H
 #define _VP_KERNEL_H
 
@@ -19,6 +20,7 @@
 #include <unistd.h>     /* Header file required for close() */
 #include <sys/ioctl.h>  /* Header file required for ioctl() */
 #include <sys/select.h> /* Header file required for poll/select */
+
 
 #include <vpapi_mod.h> /* Header file required for api kernel mod */
 
@@ -144,5 +146,6 @@ EXTERN VpStatusType KWrapSetOption(
     VpDevCtxType        *pDevCtx,
     VpOptionIdType      option,
     void                *pValue);
+
 
 #endif /* _VP_KERNEL_H */

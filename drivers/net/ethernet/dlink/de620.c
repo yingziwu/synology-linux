@@ -205,6 +205,7 @@ static int	de620_rx_intr(struct net_device *);
 static int	adapter_init(struct net_device *);
 static int	read_eeprom(struct net_device *);
 
+
 /*
  * D-Link driver variables:
  */
@@ -501,6 +502,7 @@ static int de620_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	using_txbuf = de620_tx_buffs(dev); /* Peek at the adapter */
 
 	netif_stop_queue(dev);
+
 
 	if ((len = skb->len) < RUNT)
 		len = RUNT;

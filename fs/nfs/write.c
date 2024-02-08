@@ -747,6 +747,9 @@ int nfs_updatepage(struct file *file, struct page *page,
 		file->f_path.dentry->d_name.name, count,
 		(long long)(page_offset(page) + offset));
 
+	if (!count)
+		goto out;
+
 	/* If we're not using byte range locks, and we know the page
 	 * is up to date, it may be more efficient to extend the write
 	 * to cover the entire page in order to avoid fragmentation
@@ -764,7 +767,7 @@ int nfs_updatepage(struct file *file, struct page *page,
 		nfs_set_pageerror(page);
 	else
 		__set_page_dirty_nobuffers(page);
-
+out:
 	dprintk("NFS:       nfs_updatepage returns %d (isize %lld)\n",
 			status, (long long)i_size_read(inode));
 	return status;
@@ -949,6 +952,7 @@ static int nfs_flush_multi(struct nfs_pageio_descriptor *desc, struct list_head 
 	    (desc->pg_moreio || NFS_I(desc->pg_inode)->ncommit ||
 	     desc->pg_count > wsize))
 		desc->pg_ioflags &= ~FLUSH_COND_STABLE;
+
 
 	offset = 0;
 	nbytes = desc->pg_count;
@@ -1235,6 +1239,7 @@ static const struct rpc_call_ops nfs_write_full_ops = {
 	.rpc_release = nfs_writeback_release_full,
 };
 
+
 /*
  * This function is called when the WRITE call is complete.
  */
@@ -1316,6 +1321,7 @@ void nfs_writeback_done(struct rpc_task *task, struct nfs_write_data *data)
 	}
 	return;
 }
+
 
 #if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
 static int nfs_commit_set_lock(struct nfs_inode *nfsi, int may_wait)
@@ -1781,3 +1787,4 @@ void nfs_destroy_writepagecache(void)
 	mempool_destroy(nfs_wdata_mempool);
 	kmem_cache_destroy(nfs_wdata_cachep);
 }
+

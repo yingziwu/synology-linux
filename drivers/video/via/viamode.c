@@ -862,6 +862,7 @@ int NUM_TOTAL_VX855_ModeXregs = ARRAY_SIZE(VX855_ModeXregs);
 int NUM_TOTAL_CLE266_ModeXregs = ARRAY_SIZE(CLE266_ModeXregs);
 int NUM_TOTAL_PATCH_MODE = ARRAY_SIZE(res_patch_table);
 
+
 static struct VideoModeTable *get_modes(struct VideoModeTable *vmt, int n,
 	int hres, int vres)
 {

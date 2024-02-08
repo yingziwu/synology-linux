@@ -331,6 +331,7 @@ MV_STATUS onuPonSerdesInit(void)
 
 #endif /* CONFIG_MV_GPON_MODULE */
 
+
   mvOsDelay(10);
 
   status  = asicOntMiscRegWrite(mvAsicReg_PON_SERDES_PHY_CTRL_0_PU_Pll, 0x0, 0);
@@ -499,3 +500,4 @@ MV_STATUS onuPonSerdesInit(void)
 
   return(MV_OK);
 }
+

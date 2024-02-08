@@ -23,6 +23,7 @@
  * ########################################################################
  */
 
+
 #include "ieee754dp.h"
 
 ieee754dp ieee754dp_scalb(ieee754dp x, int n)
@@ -48,6 +49,7 @@ ieee754dp ieee754dp_scalb(ieee754dp x, int n)
 	}
 	DPNORMRET2(xs, xe + n, xm << 3, "scalb", x, n);
 }
+
 
 ieee754dp ieee754dp_ldexp(ieee754dp x, int n)
 {

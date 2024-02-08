@@ -42,6 +42,7 @@ struct mm_struct;
 
 void set_pte_vaddr_pud(pud_t *pud_page, unsigned long vaddr, pte_t new_pte);
 
+
 static inline void native_pte_clear(struct mm_struct *mm, unsigned long addr,
 				    pte_t *ptep)
 {
@@ -104,9 +105,31 @@ static inline void native_pud_clear(pud_t *pud)
 	native_set_pud(pud, native_make_pud(0));
 }
 
+#ifdef CONFIG_PAGE_TABLE_ISOLATION
+extern pgd_t kaiser_set_shadow_pgd(pgd_t *pgdp, pgd_t pgd);
+
+static inline pgd_t *native_get_shadow_pgd(pgd_t *pgdp)
+{
+#ifdef CONFIG_DEBUG_VM
+	/* linux/mmdebug.h may not have been included at this point */
+	BUG_ON(!kaiser_enabled);
+#endif
+	return (pgd_t *)((unsigned long)pgdp | (unsigned long)PAGE_SIZE);
+}
+#else
+static inline pgd_t kaiser_set_shadow_pgd(pgd_t *pgdp, pgd_t pgd)
+{
+	return pgd;
+}
+static inline pgd_t *native_get_shadow_pgd(pgd_t *pgdp)
+{
+	return NULL;
+}
+#endif /* CONFIG_PAGE_TABLE_ISOLATION */
+
 static inline void native_set_pgd(pgd_t *pgdp, pgd_t pgd)
 {
-	*pgdp = pgd;
+	*pgdp = kaiser_set_shadow_pgd(pgdp, pgd);
 }
 
 static inline void native_pgd_clear(pgd_t *pgd)

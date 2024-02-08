@@ -112,6 +112,7 @@ typedef __be32	rpc_fraghdr;
 #define RPC_CALLHDRSIZE		(6)
 #define RPC_REPHDRSIZE		(4)
 
+
 /*
  * Maximum RPC header size, including authentication,
  * as number of 32bit words (see RFCs 1831, 1832).
@@ -148,9 +149,9 @@ typedef __be32	rpc_fraghdr;
 
 /*
  * Note that RFC 1833 does not put any size restrictions on the
- * netid string, but all currently defined netid's fit in 4 bytes.
+ * netid string, but all currently defined netid's fit in 5 bytes.
  */
-#define RPCBIND_MAXNETIDLEN	(4u)
+#define RPCBIND_MAXNETIDLEN	(5u)
 
 /*
  * Universal addresses are introduced in RFC 1833 and further spelled

@@ -1,32 +1,48 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/fs/msdos/namei.c
+ *
+ *  Written 1992,1993 by Werner Almesberger
+ *  Hidden files 1995 by Albert Cahalan <albert@ccs.neu.edu> <adc@coe.neu.edu>
+ *  Rewritten for constant inumbers 1999 by Al Viro
+ */
+
 #include <linux/module.h>
 #include <linux/time.h>
 #include <linux/buffer_head.h>
 #include "fat.h"
 
+/* Characters that are undesirable in an MS-DOS file name */
 static unsigned char bad_chars[] = "*?<>|\"";
 static unsigned char bad_if_strict[] = "+=,; ";
 
+/***** Formats an MS-DOS file name. Rejects invalid names. */
 static int msdos_format_name(const unsigned char *name, int len,
 			     unsigned char *res, struct fat_mount_options *opts)
-	 
+	/*
+	 * name is the proposed name, len is its length, res is
+	 * the resulting name, opts->name_check is either (r)elaxed,
+	 * (n)ormal or (s)trict, opts->dotsOK allows dots at the
+	 * beginning of name (for hidden files)
+	 */
 {
 	unsigned char *walk;
 	unsigned char c;
 	int space;
 
-	if (name[0] == '.') {	 
+	if (name[0] == '.') {	/* dotfile because . and .. already done */
 		if (opts->dotsOK) {
-			 
+			/* Get rid of dot - test for it elsewhere */
 			name++;
 			len--;
 		} else
 			return -EINVAL;
 	}
-	 
+	/*
+	 * disallow names that _really_ start with a dot
+	 */
 	space = 1;
 	c = 0;
 	for (walk = res; len && walk - res < 8; walk++) {
@@ -40,7 +56,14 @@ static int msdos_format_name(const unsigned char *name, int len,
 			return -EINVAL;
 		if (c < ' ' || c == ':' || c == '\\')
 			return -EINVAL;
-	 
+	/*
+	 * 0xE5 is legal as a first character, but we must substitute
+	 * 0x05 because 0xE5 marks deleted files.  Yes, DOS really
+	 * does this.
+	 * It seems that Microsoft hacked DOS to support non-US
+	 * characters after the 0xE5 character was already in use to
+	 * mark deleted files.
+	 */
 		if ((res == walk) && (c == 0xE5))
 			c = 0x05;
 		if (c == '.')
@@ -95,6 +118,7 @@ static int msdos_format_name(const unsigned char *name, int len,
 	return 0;
 }
 
+/***** Locates a directory entry.  Uses unformatted name. */
 static int msdos_find(struct inode *dir, const unsigned char *name, int len,
 		      struct fat_slot_info *sinfo)
 {
@@ -121,6 +145,12 @@ static int msdos_find(struct inode *dir, const unsigned char *name, int len,
 	return err;
 }
 
+/*
+ * Compute the hash for the msdos name corresponding to the dentry.
+ * Note: if the name is invalid, we leave the hash code unchanged so
+ * that the existing dentry can be used. The msdos fs routines will
+ * return ENOENT or EINVAL as appropriate.
+ */
 static int msdos_hash(const struct dentry *dentry, const struct inode *inode,
 	       struct qstr *qstr)
 {
@@ -134,6 +164,10 @@ static int msdos_hash(const struct dentry *dentry, const struct inode *inode,
 	return 0;
 }
 
+/*
+ * Compare two msdos names. If either of the names are invalid,
+ * we fall back to doing the standard name comparison.
+ */
 static int msdos_cmp(const struct dentry *parent, const struct inode *pinode,
 		const struct dentry *dentry, const struct inode *inode,
 		unsigned int len, const char *str, const struct qstr *name)
@@ -164,6 +198,11 @@ static const struct dentry_operations msdos_dentry_operations = {
 	.d_compare	= msdos_cmp,
 };
 
+/*
+ * AV. Wrappers for FAT sb operations. Is it wise?
+ */
+
+/***** Get inode using directory and name */
 static struct dentry *msdos_lookup(struct inode *dir, struct dentry *dentry,
 				   struct nameidata *nd)
 {
@@ -189,6 +228,7 @@ static struct dentry *msdos_lookup(struct inode *dir, struct dentry *dentry,
 	return d_splice_alias(inode, dentry);
 }
 
+/***** Creates a directory entry (name is already formatted). */
 static int msdos_add_entry(struct inode *dir, const unsigned char *name,
 			   int is_dir, int is_hid, int cluster,
 			   struct timespec *ts, struct fat_slot_info *sinfo)
@@ -226,6 +266,7 @@ static int msdos_add_entry(struct inode *dir, const unsigned char *name,
 	return 0;
 }
 
+/***** Create a file */
 static int msdos_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 			struct nameidata *nd)
 {
@@ -243,7 +284,7 @@ static int msdos_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	if (err)
 		goto out;
 	is_hid = (dentry->d_name.name[0] == '.') && (msdos_name[0] != '.');
-	 
+	/* Have to do it due to foo vs. .foo conflicts */
 	if (!fat_scan(dir, msdos_name, &sinfo)) {
 		brelse(sinfo.bh);
 		err = -EINVAL;
@@ -261,7 +302,8 @@ static int msdos_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		goto out;
 	}
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
-	 
+	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
+
 	d_instantiate(dentry, inode);
 out:
 	unlock_super(sb);
@@ -270,6 +312,7 @@ out:
 	return err;
 }
 
+/***** Remove a directory */
 static int msdos_rmdir(struct inode *dir, struct dentry *dentry)
 {
 	struct super_block *sb = dir->i_sb;
@@ -278,7 +321,10 @@ static int msdos_rmdir(struct inode *dir, struct dentry *dentry)
 	int err;
 
 	lock_super(sb);
-	 
+	/*
+	 * Check whether the directory is not in use, then check
+	 * whether it is empty.
+	 */
 	err = fat_dir_empty(inode);
 	if (err)
 		goto out;
@@ -286,7 +332,7 @@ static int msdos_rmdir(struct inode *dir, struct dentry *dentry)
 	if (err)
 		goto out;
 
-	err = fat_remove_entries(dir, &sinfo);	 
+	err = fat_remove_entries(dir, &sinfo);	/* and releases bh */
 	if (err)
 		goto out;
 	drop_nlink(dir);
@@ -302,6 +348,7 @@ out:
 	return err;
 }
 
+/***** Make a directory */
 static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	struct super_block *sb = dir->i_sb;
@@ -318,7 +365,7 @@ static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	if (err)
 		goto out;
 	is_hid = (dentry->d_name.name[0] == '.') && (msdos_name[0] != '.');
-	 
+	/* foo vs .foo situation */
 	if (!fat_scan(dir, msdos_name, &sinfo)) {
 		brelse(sinfo.bh);
 		err = -EINVAL;
@@ -340,12 +387,13 @@ static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	brelse(sinfo.bh);
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
-		 
+		/* the directory was completed, just return a error */
 		goto out;
 	}
 	set_nlink(inode, 2);
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
-	 
+	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
+
 	d_instantiate(dentry, inode);
 
 	unlock_super(sb);
@@ -359,6 +407,7 @@ out:
 	return err;
 }
 
+/***** Unlink a file */
 static int msdos_unlink(struct inode *dir, struct dentry *dentry)
 {
 	struct inode *inode = dentry->d_inode;
@@ -371,7 +420,7 @@ static int msdos_unlink(struct inode *dir, struct dentry *dentry)
 	if (err)
 		goto out;
 
-	err = fat_remove_entries(dir, &sinfo);	 
+	err = fat_remove_entries(dir, &sinfo);	/* and releases bh */
 	if (err)
 		goto out;
 	clear_nlink(inode);
@@ -422,7 +471,7 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 	err = fat_scan(new_dir, new_name, &sinfo);
 	if (!err) {
 		if (!new_inode) {
-			 
+			/* "foo" -> ".foo" case. just change the ATTR_HIDDEN */
 			if (sinfo.de != old_sinfo.de) {
 				err = -EINVAL;
 				goto out;
@@ -498,7 +547,7 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 			inc_nlink(new_dir);
 	}
 
-	err = fat_remove_entries(old_dir, &old_sinfo);	 
+	err = fat_remove_entries(old_dir, &old_sinfo);	/* and releases bh */
 	old_sinfo.bh = NULL;
 	if (err)
 		goto error_dotdot;
@@ -522,7 +571,7 @@ out:
 	return err;
 
 error_dotdot:
-	 
+	/* data cluster is shared, serious corruption */
 	corrupt = 1;
 
 	if (update_dotdot) {
@@ -541,7 +590,10 @@ error_inode:
 		if (corrupt)
 			corrupt |= fat_sync_inode(new_inode);
 	} else {
-		 
+		/*
+		 * If new entry was not sharing the data cluster, it
+		 * shouldn't be serious corruption.
+		 */
 		int err2 = fat_remove_entries(new_dir, &sinfo);
 		if (corrupt)
 			corrupt |= err2;
@@ -558,6 +610,7 @@ error_inode:
 	goto out;
 }
 
+/***** Rename, a wrapper for rename_same_dir & rename_diff_dir */
 static int msdos_rename(struct inode *old_dir, struct dentry *old_dentry,
 			struct inode *new_dir, struct dentry *new_dentry)
 {

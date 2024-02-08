@@ -48,14 +48,12 @@
 	pr_debug(DRV_PFX "(%s:%d) " fmt ".\n",		\
 		 __func__, __LINE__, ##args)
 
+
 /* Not a real protocol.  Used to generate ring structs which contain
  * the elements common to all protocols only.  This way we get a
  * compiler-checkable way to use common struct elements, so we can
  * avoid using switch(protocol) in a number of places.  */
 struct blkif_common_request {
-	char dummy;
-};
-struct blkif_common_response {
 	char dummy;
 };
 
@@ -82,11 +80,6 @@ struct blkif_x86_32_request {
 		struct blkif_x86_32_request_discard discard;
 	} u;
 };
-struct blkif_x86_32_response {
-	uint64_t        id;              /* copied from request */
-	uint8_t         operation;       /* copied from request */
-	int16_t         status;          /* BLKIF_RSP_???       */
-};
 #pragma pack(pop)
 
 /* x86_64 protocol version */
@@ -111,18 +104,13 @@ struct blkif_x86_64_request {
 		struct blkif_x86_64_request_discard discard;
 	} u;
 };
-struct blkif_x86_64_response {
-	uint64_t       __attribute__((__aligned__(8))) id;
-	uint8_t         operation;       /* copied from request */
-	int16_t         status;          /* BLKIF_RSP_???       */
-};
 
 DEFINE_RING_TYPES(blkif_common, struct blkif_common_request,
-		  struct blkif_common_response);
+		  struct blkif_response);
 DEFINE_RING_TYPES(blkif_x86_32, struct blkif_x86_32_request,
-		  struct blkif_x86_32_response);
+		  struct blkif_response __packed);
 DEFINE_RING_TYPES(blkif_x86_64, struct blkif_x86_64_request,
-		  struct blkif_x86_64_response);
+		  struct blkif_response);
 
 union blkif_back_rings {
 	struct blkif_back_ring        native;
@@ -197,7 +185,10 @@ struct xen_blkif {
 	int			st_wr_sect;
 
 	wait_queue_head_t	waiting_to_free;
+	/* Thread shutdown wait queue. */
+	wait_queue_head_t	shutdown_wq;
 };
+
 
 #define vbd_sz(_v)	((_v)->bdev->bd_part ? \
 			 (_v)->bdev->bd_part->nr_sects : \
@@ -234,11 +225,11 @@ static inline void blkif_get_x86_32_req(struct blkif_request *dst,
 					struct blkif_x86_32_request *src)
 {
 	int i, n = BLKIF_MAX_SEGMENTS_PER_REQUEST;
-	dst->operation = src->operation;
+	dst->operation = ACCESS_ONCE(src->operation);
 	dst->nr_segments = src->nr_segments;
 	dst->handle = src->handle;
 	dst->id = src->id;
-	switch (src->operation) {
+	switch (dst->operation) {
 	case BLKIF_OP_READ:
 	case BLKIF_OP_WRITE:
 	case BLKIF_OP_WRITE_BARRIER:
@@ -263,11 +254,11 @@ static inline void blkif_get_x86_64_req(struct blkif_request *dst,
 					struct blkif_x86_64_request *src)
 {
 	int i, n = BLKIF_MAX_SEGMENTS_PER_REQUEST;
-	dst->operation = src->operation;
+	dst->operation = ACCESS_ONCE(src->operation);
 	dst->nr_segments = src->nr_segments;
 	dst->handle = src->handle;
 	dst->id = src->id;
-	switch (src->operation) {
+	switch (dst->operation) {
 	case BLKIF_OP_READ:
 	case BLKIF_OP_WRITE:
 	case BLKIF_OP_WRITE_BARRIER:

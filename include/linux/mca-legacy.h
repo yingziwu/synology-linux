@@ -24,6 +24,8 @@
  */
 #define MCA_NOTFOUND	(-1)
 
+
+
 /* Returns the slot of the first enabled adapter matching id.  User can
  * specify a starting slot beyond zero, to deal with detecting multiple
  * devices.  Returns MCA_NOTFOUND if id not found.  Also checks the

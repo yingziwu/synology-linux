@@ -342,6 +342,8 @@ XorSGs(
 	}
 }
 
+
+
 #ifdef SIMULATOR
 void _Core_ModuleSendXORRequest(MV_PVOID This, PMV_XOR_Request pXORReq)
 #else	/*SIMULATOR*/
@@ -462,6 +464,7 @@ static void sg_memcpy(
 
 	return;
 }
+
 
 void CopySGs(
 	PCore_Driver_Extension	pCore,

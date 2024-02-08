@@ -511,6 +511,7 @@ static struct scsi_host_template hpsa_driver_template = {
 	.max_sectors = 8192,
 };
 
+
 /* Enqueuing and dequeuing functions for cmdlists. */
 static inline void addQ(struct list_head *list, struct CommandList *c)
 {
@@ -1125,8 +1126,8 @@ static void complete_scsi_command(struct CommandList *cp)
 	scsi_set_resid(cmd, ei->ResidualCnt);
 
 	if (ei->CommandStatus == 0) {
-		cmd->scsi_done(cmd);
 		cmd_free(h, cp);
+		cmd->scsi_done(cmd);
 		return;
 	}
 
@@ -1185,7 +1186,7 @@ static void complete_scsi_command(struct CommandList *cp)
 					"has check condition: aborted command: "
 					"ASC: 0x%x, ASCQ: 0x%x\n",
 					cp, asc, ascq);
-				cmd->result = DID_SOFT_ERROR << 16;
+				cmd->result |= DID_SOFT_ERROR << 16;
 				break;
 			}
 			/* Must be some other type of check condition */
@@ -1208,6 +1209,7 @@ static void complete_scsi_command(struct CommandList *cp)
 					cmd->cmnd[14], cmd->cmnd[15]);
 			break;
 		}
+
 
 		/* Problem was not a check condition
 		 * Pass it up to the upper layers...
@@ -1298,8 +1300,8 @@ static void complete_scsi_command(struct CommandList *cp)
 		dev_warn(&h->pdev->dev, "cp %p returned unknown status %x\n",
 				cp, ei->CommandStatus);
 	}
-	cmd->scsi_done(cmd);
 	cmd_free(h, cp);
+	cmd->scsi_done(cmd);
 }
 
 static int hpsa_scsi_detect(struct ctlr_info *h)
@@ -2097,6 +2099,7 @@ sglist_finished:
 	return 0;
 }
 
+
 static int hpsa_scsi_queue_command_lck(struct scsi_cmnd *cmd,
 	void (*done)(struct scsi_cmnd *))
 {
@@ -2766,7 +2769,7 @@ static int hpsa_big_passthru_ioctl(struct ctlr_info *h, void __user *argp)
 		}
 		if (ioc->Request.Type.Direction == XFER_WRITE) {
 			if (copy_from_user(buff[sg_used], data_ptr, sz)) {
-				status = -ENOMEM;
+				status = -EFAULT;
 				goto cleanup1;
 			}
 		} else
@@ -3093,6 +3096,7 @@ static inline u32 hpsa_tag_to_index(u32 tag)
 {
 	return tag >> DIRECT_LOOKUP_SHIFT;
 }
+
 
 static inline u32 hpsa_tag_discard_error_bits(struct ctlr_info *h, u32 tag)
 {
@@ -4461,7 +4465,7 @@ reinit_after_soft_reset:
 	hpsa_hba_inquiry(h);
 	hpsa_register_scsi(h);	/* hook ourselves into SCSI subsystem */
 	start_controller_lockup_detector(h);
-	return 1;
+	return 0;
 
 clean4:
 	hpsa_free_sg_chain_blocks(h);

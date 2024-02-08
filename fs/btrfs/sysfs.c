@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
  *
@@ -396,8 +399,21 @@ static ssize_t btrfs_label_store(struct kobject *kobj,
 }
 BTRFS_ATTR_RW(label, 0644, btrfs_label_show, btrfs_label_store);
 
+#ifdef MY_ABC_HERE
+static ssize_t btrfs_mount_path_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
+	return snprintf(buf, PAGE_SIZE, "%s\n", fs_info->mount_path);
+}
+BTRFS_ATTR(mount_path, 0444, btrfs_mount_path_show);
+#endif
+
 static struct attribute *btrfs_attrs[] = {
 	BTRFS_ATTR_PTR(label),
+#ifdef MY_ABC_HERE
+	BTRFS_ATTR_PTR(mount_path),
+#endif
 	NULL,
 };
 
@@ -686,3 +702,4 @@ void btrfs_exit_sysfs(void)
 	kset_unregister(btrfs_kset);
 	debugfs_remove_recursive(btrfs_debugfs_root_dentry);
 }
+

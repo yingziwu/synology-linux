@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -394,3 +395,5 @@ int mv_neta_pnc_sysfs_exit(struct kobject *neta_kobj)
 
 	return 0;
 }
+
+

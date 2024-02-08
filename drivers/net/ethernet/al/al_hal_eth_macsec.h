@@ -49,11 +49,13 @@ met:
 #include "al_hal_common.h"
 #include "al_hal_eth.h"
 
+
 /* *INDENT-OFF* */
 #ifdef __cplusplus
 extern "C" {
 #endif
 /* *INDENT-ON* */
+
 
 /*******************************************************************************
 This file defines the API for MAC Security protocol (MacSec), which provides
@@ -69,6 +71,7 @@ in order to help the user achieve maximum performance & security, with minimum
 overhead.  The engine supports AES-128, AES-192 and AES-256 encryption, and
 could be configured for Authentication-mode only or full data protection that
 provides encryption and authentication.
+
 
 Terminology:
 =================
@@ -139,6 +142,7 @@ Terminology:
 	            |  127       |     63      |   1   |
 	 =================================================
 
+
 Common Usage:
 =================
 
@@ -180,6 +184,7 @@ Common Usage:
 		al_eth_macsec_sad_entry_write (adapter, &sa, <some sad index>);
 		al_eth_macsec_sc_map_entry_write (adapter, sa.sci, sci_mask, <some sc index>);
 		// sc_index should be construct as sad_index >> 1/2 (depending on number of AN/SC)
+
 
 	* NOTE1:  index should be constructed as follows
 		  (2 options, dependent on initialization):
@@ -224,6 +229,7 @@ Common Usage:
 
 *******************************************************************************/
 
+
 /** MacSec Constants */
 #define AL_ETH_MACSEC_KEY_NUM_WORDS			  8	/**< 32 Bytes */
 #define AL_ETH_MACSEC_IV_NUM_WORDS			  4	/**< 16 Bytes */
@@ -254,10 +260,13 @@ Common Usage:
 #define AL_ETH_MACSEC_RX_FLAGS_REPLAY_SUCCESS_SHIFT	 13		/**< if asserted, pkt is verified to not be a replay-attack pkt */
 #define AL_ETH_MACSEC_RX_FLAGS_REPLAY_SUCCESS_MASK	AL_BIT(AL_ETH_MACSEC_RX_FLAGS_REPLAY_SUCCESS_SHIFT)
 
+
+
 /** Encryption key size.
  * AES key size (traditionally referring to bit=length)
  */
 enum al_eth_macsec_key_size	{AL_ETH_KEY_SIZE_128, AL_ETH_KEY_SIZE_192, AL_ETH_KEY_SIZE_256};
+
 
 /** MacSec statistics counters.
  * Statistics counters interface
@@ -278,6 +287,7 @@ struct al_eth_macsec_stats_cntr {
 	uint32_t rx_auth_fail_pkts;	/* number of rx pkts processed by the MacSec engine
 					   which failed authentication */
 	};
+
 
 /** MacSec SAD (Security Association Data-Structure).
  * MacSec engine has an internal scratch-pad memory, used to cache security
@@ -318,8 +328,10 @@ struct al_eth_macsec_sa {
 										   */
 };
 
+
 /* forward declaration */
 struct al_hal_eth_adapter;
+
 
 /**
  * @brief	This function initializes and enables the inline MacSec engine.
@@ -351,6 +363,7 @@ void al_eth_macsec_init	(	struct al_hal_eth_adapter	*adapter,
 				uint32_t			pn_threshold,
 				al_bool				enable
 			);
+
 
 /**
  * @brief	this function writes a Security Association (SA) to the
@@ -384,6 +397,7 @@ void al_eth_macsec_sad_entry_write (	struct al_hal_eth_adapter	*adapter,
 					struct al_eth_macsec_sa		*sa,
 					uint8_t				index);
 
+
 /**
  * @brief	this function reads a Security Association (SA) from the
  *		Security Association Data-Structure (SAD).
@@ -400,6 +414,7 @@ void al_eth_macsec_sad_entry_read (	struct al_hal_eth_adapter	*adapter,
 					struct al_eth_macsec_sa		*sa,
 					uint8_t				index);
 
+
 /**
  * @brief	this function checks if a SAD entry (SA) is valid.
  *
@@ -411,6 +426,7 @@ void al_eth_macsec_sad_entry_read (	struct al_hal_eth_adapter	*adapter,
  * @param	index		SAD index to be checked. Legal values are 0-127.
  */
 al_bool al_eth_macsec_sad_entry_is_valid (struct al_hal_eth_adapter *adapter, uint8_t index);
+
 
 /**
  * @brief	this function invalidates a SAD entry (SA).
@@ -424,6 +440,7 @@ al_bool al_eth_macsec_sad_entry_is_valid (struct al_hal_eth_adapter *adapter, ui
  *				Legal values are 0-127.
  */
 void al_eth_macsec_sad_entry_invalidate (struct al_hal_eth_adapter *adapter, uint8_t index);
+
 
 /**
  * @brief	this function writes an entry to the SC map table.
@@ -451,6 +468,7 @@ void al_eth_macsec_sc_map_entry_write (struct al_hal_eth_adapter		*adapter,
 					uint32_t				*sci_mask,
 					uint8_t					sc_index);
 
+
 /**
  * @brief	this function returns the index of the last TX SA which has been exhausted.
  *		It should be called upon receiving a tx_sa_exahusted IRQ.
@@ -464,6 +482,7 @@ void al_eth_macsec_sc_map_entry_write (struct al_hal_eth_adapter		*adapter,
  * @returns	index of the exhausted SA.
  */
 unsigned int al_eth_macsec_read_exhausted_tx_sa_index (struct al_hal_eth_adapter *adapter);
+
 
 /**
  * @brief	this function returns the index of the last SA which has been exhausted.
@@ -479,6 +498,7 @@ unsigned int al_eth_macsec_read_exhausted_tx_sa_index (struct al_hal_eth_adapter
  */
 unsigned int al_eth_macsec_read_exhausted_rx_sa_index (struct al_hal_eth_adapter *adapter);
 
+
 /**
  * @brief	this function reads the MacSec engine's statistics counters
  *
@@ -490,6 +510,7 @@ unsigned int al_eth_macsec_read_exhausted_rx_sa_index (struct al_hal_eth_adapter
  */
 void al_eth_macsec_read_stats_cntr (struct al_hal_eth_adapter *adapter,
 				   struct al_eth_macsec_stats_cntr *stats_cntrs);
+
 
 #ifdef __cplusplus
 }

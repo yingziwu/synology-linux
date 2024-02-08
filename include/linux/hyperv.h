@@ -34,6 +34,7 @@
 #include <linux/device.h>
 #include <linux/mod_devicetable.h>
 
+
 #define MAX_PAGE_BUFFER_COUNT				16
 #define MAX_MULTIPAGE_BUFFER_COUNT			32 /* 128K */
 
@@ -60,6 +61,7 @@ struct hv_multipage_buffer {
 					 MAX_PAGE_BUFFER_COUNT))
 #define MAX_MULTIPAGE_BUFFER_PACKET	(0x18 +			\
 					 sizeof(struct hv_multipage_buffer))
+
 
 #pragma pack(pop)
 
@@ -124,6 +126,7 @@ struct hv_ring_buffer_debug_info {
  * 3.1 - Added completed hv_utils driver. Shutdown/Heartbeat/Timesync
  */
 #define HV_DRV_VERSION           "3.1"
+
 
 /*
  * A revision number of vmbus that is used for ensuring both ends on a
@@ -320,6 +323,7 @@ enum vmbus_packet_type {
 };
 
 #define VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED	1
+
 
 /* Version 1 messages */
 enum vmbus_channel_message_type {
@@ -630,6 +634,7 @@ struct vmbus_channel_packet_multipage_buffer {
 	struct hv_multipage_buffer range;
 } __packed;
 
+
 extern int vmbus_open(struct vmbus_channel *channel,
 			    u32 send_ringbuffersize,
 			    u32 recv_ringbuffersize,
@@ -680,6 +685,7 @@ extern int vmbus_recvpacket_raw(struct vmbus_channel *channel,
 				     u32 *buffer_actual_len,
 				     u64 *requestid);
 
+
 extern void vmbus_get_debug_info(struct vmbus_channel *channel,
 				     struct vmbus_channel_debug_info *debug);
 
@@ -721,6 +727,7 @@ struct hv_device {
 
 	struct vmbus_channel *channel;
 };
+
 
 static inline struct hv_device *device_to_hv_device(struct device *d)
 {

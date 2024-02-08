@@ -58,3 +58,4 @@ int ezusb_set_reset(struct usb_serial *serial, unsigned char reset_bit)
 	return response;
 }
 EXPORT_SYMBOL_GPL(ezusb_set_reset);
+

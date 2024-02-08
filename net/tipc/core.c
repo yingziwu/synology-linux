@@ -42,6 +42,7 @@
 #include "subscr.h"
 #include "config.h"
 
+
 #ifndef CONFIG_TIPC_PORTS
 #define CONFIG_TIPC_PORTS 8191
 #endif
@@ -66,6 +67,7 @@ int tipc_max_subscriptions;
 int tipc_max_publications;
 int tipc_net_id;
 int tipc_remote_management;
+
 
 /**
  * tipc_buf_acquire - creates a TIPC message buffer
@@ -170,6 +172,7 @@ static int tipc_core_start(void)
 
 	return res;
 }
+
 
 static int __init tipc_init(void)
 {

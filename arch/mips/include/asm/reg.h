@@ -12,6 +12,7 @@
 #ifndef __ASM_MIPS_REG_H
 #define __ASM_MIPS_REG_H
 
+
 #if defined(CONFIG_32BIT) || defined(WANT_COMPAT_REG_H)
 
 #define EF_R0			6
@@ -102,6 +103,7 @@
  */
 #define EF_R26			26
 #define EF_R27			27
+
 
 #define EF_R28			28
 #define EF_R29			29

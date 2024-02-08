@@ -27,6 +27,7 @@
 #include <linux/timer.h>
 #include <linux/ieee80211.h>
 
+
 #define MWIFIEX_MAX_BSS_NUM         (1)
 
 #define MWIFIEX_MIN_DATA_HEADER_LEN 36	/* sizeof(mwifiex_txpd)

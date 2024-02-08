@@ -98,6 +98,7 @@ struct qla84_mgmt_param {
 #define IC_PORT_STATISTICS_PORT_NUMBER_FC_PORT0         4
 #define IC_PORT_STATISTICS_PORT_NUMBER_FC_PORT1         5
 
+
 /*
 * context definitions for QLA84_MGMT_INFO_LIF_STAT
 */
@@ -150,6 +151,7 @@ struct qla_port_param {
 	uint16_t mode;
 	uint16_t speed;
 } __attribute__ ((packed));
+
 
 /* FRU VPD */
 

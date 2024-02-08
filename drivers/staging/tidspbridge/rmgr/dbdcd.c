@@ -460,6 +460,7 @@ int dcd_get_object_def(struct dcd_manager *hdcd_mgr,
 		}
 	}
 
+
 	/* Open COFF file. */
 	status = cod_open(dcd_mgr_obj->cod_mgr, dcd_key->path,
 							COD_NOLOAD, &lib);

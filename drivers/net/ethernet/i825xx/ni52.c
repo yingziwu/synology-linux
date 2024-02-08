@@ -159,6 +159,7 @@ sizeof(nop_cmd) = 8;
 
 /**************************************************************************/
 
+
 #define NI52_TOTAL_SIZE 16
 #define NI52_ADDR0 0x02
 #define NI52_ADDR1 0x07
@@ -865,6 +866,7 @@ static void __iomem *alloc_rfa(struct net_device *dev, void __iomem *ptr)
 
 	return ptr;
 }
+
 
 /**************************************************
  * Interrupt Handler ...

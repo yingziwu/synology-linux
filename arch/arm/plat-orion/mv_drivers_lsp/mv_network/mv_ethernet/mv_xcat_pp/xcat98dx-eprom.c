@@ -4111,6 +4111,7 @@ MV_STATUS simulate_PP_EEPROM_DB_xCat2A0_QFP_24GE_2SFP(void)
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x000000f0, 0x00000026);
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x000000f0, 0x00000027);
 
+
     /******************************************************************** */
     /* ********************** xCat2 section ******************* */
     /******************************************************************** */
@@ -4625,6 +4626,7 @@ MV_STATUS simulate_PP_EEPROM_DB_xCat2A0_QFP_24GE_2SFP(void)
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x09803004, 0x00000040);
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x09803404, 0x00000040);
 
+
     /* ********************** 88E1545 PHYs Erratas & Settings ******************* */
     /* ------------- 88E1545 QSGMII Phy configuration on LMS0 ------------- */
     /* Register structure */
@@ -4706,6 +4708,7 @@ MV_STATUS simulate_PP_EEPROM_DB_xCat2A0_QFP_24GE_2SFP(void)
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x04004054, 0x02cf0012);
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x04004054, 0x036f0000);
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x04004054, 0x02cf0000);
+
 
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x05004054, 0x02c40003);
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x05004054, 0x02041177);
@@ -5319,6 +5322,7 @@ MV_STATUS simulate_PP_EEPROM_DB_xCat2A1_QFP_24GE_2SFP(void)
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x04004054 ,0x02cf0012);
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x04004054 ,0x036f0000);
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x04004054 ,0x02cf0000);
+
 
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x05004054 ,0x02c40003);
     mvOsDelay(1); mvPpWriteReg(MV_PP_DEV0, 0x05004054 ,0x02041177);

@@ -1,6 +1,3 @@
-#ifndef MY_ABC_HERE
-#define MY_ABC_HERE
-#endif
 /*
  * linux/fs/jbd2/revoke.c
  *
@@ -108,6 +105,7 @@ struct jbd2_revoke_record_s
 	unsigned long long	  blocknr;
 };
 
+
 /* The revoke table is just a simple hash table of revoke records. */
 struct jbd2_revoke_table_s
 {
@@ -117,6 +115,7 @@ struct jbd2_revoke_table_s
 	int		  hash_shift;
 	struct list_head *hash_table;
 };
+
 
 #ifdef __KERNEL__
 static void write_one_revoke_record(journal_t *, transaction_t *,
@@ -298,6 +297,7 @@ void jbd2_journal_destroy_revoke(journal_t *journal)
 	if (journal->j_revoke_table[1])
 		jbd2_journal_destroy_revoke_table(journal->j_revoke_table[1]);
 }
+
 
 #ifdef __KERNEL__
 
@@ -613,10 +613,8 @@ static void jbd2_revoke_csum_set(journal_t *j,
 			(jh2bh(descriptor)->b_data + j->j_blocksize -
 			sizeof(struct jbd2_journal_revoke_tail));
 	tail->r_checksum = 0;
-#if !defined(MY_DEF_HERE)
 	csum = jbd2_chksum(j, j->j_csum_seed, jh2bh(descriptor)->b_data,
 			   j->j_blocksize);
-#endif /* MY_DEF_HERE */
 	tail->r_checksum = cpu_to_be32(csum);
 }
 

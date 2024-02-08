@@ -93,6 +93,7 @@ static int avic_set_irq_fiq(unsigned int irq, unsigned int type)
 }
 #endif /* CONFIG_FIQ */
 
+
 static struct mxc_extra_irq avic_extra_irq = {
 #ifdef CONFIG_MXC_IRQ_PRIOR
 	.set_priority = avic_irq_set_priority,

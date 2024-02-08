@@ -30,6 +30,7 @@ void __iomem *l2cache_base;
 
 void __iomem *gic_dist_base_addr;
 
+
 void __init gic_init_irq(void)
 {
 	/* Static mapping, never released */

@@ -73,12 +73,9 @@ static inline int TEMP_FROM_REG(s16 reg)
 	return reg / 8 * 625 / 10;
 }
 
-static inline s16 TEMP_TO_REG(int val)
+static inline s16 TEMP_TO_REG(long val)
 {
-	if (val <= -60000)
-		return -60000 * 10 / 625 * 8;
-	if (val >= 160000)
-		return 160000 * 10 / 625 * 8;
+	val = clamp_val(val, -60000, 160000);
 	return val * 10 / 625 * 8;
 }
 
@@ -101,6 +98,7 @@ struct lm92_data {
 	/* registers values */
 	s16 temp1_input, temp1_crit, temp1_min, temp1_max, temp1_hyst;
 };
+
 
 /*
  * Sysfs attributes and callback functions
@@ -191,10 +189,12 @@ static ssize_t set_temp1_crit_hyst(struct device *dev, struct device_attribute *
 	struct lm92_data *data = i2c_get_clientdata(client);
 	long val = simple_strtol(buf, NULL, 10);
 
+	val = clamp_val(val, -120000, 220000);
 	mutex_lock(&data->update_lock);
-	data->temp1_hyst = TEMP_FROM_REG(data->temp1_crit) - val;
+	 data->temp1_hyst =
+		TEMP_TO_REG(TEMP_FROM_REG(data->temp1_crit) - val);
 	i2c_smbus_write_word_swapped(client, LM92_REG_TEMP_HYST,
-				     TEMP_TO_REG(data->temp1_hyst));
+				     data->temp1_hyst);
 	mutex_unlock(&data->update_lock);
 	return count;
 }
@@ -228,6 +228,7 @@ static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
 static SENSOR_DEVICE_ATTR(temp1_crit_alarm, S_IRUGO, show_alarm, NULL, 2);
 static SENSOR_DEVICE_ATTR(temp1_min_alarm, S_IRUGO, show_alarm, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp1_max_alarm, S_IRUGO, show_alarm, NULL, 1);
+
 
 /*
  * Detection and registration
@@ -389,6 +390,7 @@ static int lm92_remove(struct i2c_client *client)
 	kfree(data);
 	return 0;
 }
+
 
 /*
  * Module and driver stuff

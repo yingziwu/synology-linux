@@ -47,6 +47,7 @@ struct rtrack2
 
 static struct rtrack2 rtrack2_card;
 
+
 /* local things */
 
 static void rt_mute(struct rtrack2 *dev)

@@ -17,6 +17,7 @@
  *	PCMCIA service support for Quicknet cards
  */
  
+
 typedef struct ixj_info_t {
 	int ndev;
 	struct ixj *port;

@@ -164,6 +164,7 @@ static inline const char *nfs_server_fscache_state(struct nfs_server *server)
 	return "no ";
 }
 
+
 #else /* CONFIG_NFS_FSCACHE */
 static inline int nfs_fscache_register(void) { return 0; }
 static inline void nfs_fscache_unregister(void) {}

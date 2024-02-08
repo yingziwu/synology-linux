@@ -25,6 +25,7 @@
 
 #include "samsung.h"
 
+
 static int s3c2440_serial_setsource(struct uart_port *port,
 				     struct s3c24xx_uart_clksrc *clk)
 {
@@ -48,6 +49,7 @@ static int s3c2440_serial_setsource(struct uart_port *port,
 	wr_regl(port, S3C2410_UCON, ucon);
 	return 0;
 }
+
 
 static int s3c2440_serial_getsource(struct uart_port *port,
 				    struct s3c24xx_uart_clksrc *clk)

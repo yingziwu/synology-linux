@@ -1,6 +1,7 @@
 #if !defined(CORE_ATA_H)
 #define CORE_ATA_H
 
+
 /*
  * ATA IDE Command definition
  */
@@ -57,6 +58,9 @@
 #define ATA_CMD_SEEK					0x70
 #define ATA_CMD_READ_LOG_EXT			0x2F
 #define ATA_CMD_DOWNLOAD_MICROCODE			0x92
+
+
+
 
 #ifdef SUPPORT_ATA_SECURITY_CMD
 
@@ -142,6 +146,8 @@ enum {
 #define SG_ATA_PROTO_UDMA_OUT	(12 << 1) /* not yet supported in libata */
 
 #endif
+
+
 
 struct _ATA_TaskFile;
 typedef struct _ATA_TaskFile ATA_TaskFile, *PATA_TaskFile;

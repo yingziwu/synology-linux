@@ -26,12 +26,14 @@
 
 *******************************************************************************/
 
+
 #ifndef _UDMA_MAIN_H_
 #define _UDMA_MAIN_H_
 
 #include <linux/interrupt.h>
 #include "udma_hw.h"
 #include <linux/spinlock.h>
+
 
 /*
  * Tx : APPCPU 	--> 		L2SW
@@ -66,6 +68,7 @@ struct udma_ring {
 /* Left 1 slot empty, 256 is the maximum value */
 #define UDMA_TASKLET_THRESHOLD				(UDMA_RING_ENTRY_NUM-1)
 
+
 struct udma_device;
 #define	 UDMA_DEV_IS_OPEN		1;
 #define	 UDMA_DEV_IS_CLOSED		0;
@@ -98,6 +101,7 @@ static inline bool is_ring_full(struct udma_ring *ring)
 
 struct udma_device *udma_devs[UDMA_PORT_NUM_TOTAL] = {NULL, NULL};
 
+
 /* UDMA Ring related operation definitons */
 
 #define TO_DESC_INDEX(i) 					((i)%UDMA_RING_ENTRY_NUM)	
@@ -106,10 +110,13 @@ struct udma_device *udma_devs[UDMA_PORT_NUM_TOTAL] = {NULL, NULL};
 
 #define DESC_INDEX_INC(i) 					TO_DESC_INDEX((i)+1)
 
+
+
 /* Desc DMA address to desc index */
 #define DESC_IS_IN_THE_RING(d,ring) 		((d > ring->dma) && (d <= INDEX_TO_DESC_DMA((ring->count - 1),ring)))
 
 #define DESC_DMA_TO_DESC_INDEX(d,ring) 		(((u32)(d - ring->ring_dma))/sizeof(struct udma_desc))
+
 
 /* Desc index to Desc DMA address */
 #define DESC_INDEX_TO_DESC_DMA(i,ring)		((ring)->ring_dma + (i) * sizeof(struct udma_desc))
@@ -120,11 +127,13 @@ struct udma_device *udma_devs[UDMA_PORT_NUM_TOTAL] = {NULL, NULL};
 /* Ring index to ring pointer */
 #define	INDEX_TO_RING(umdev, r, direction) 	((UDMA_TX == direction)?(umdev)->tx_ring[r]:(umdev)->rx_ring[r])
 
+
 #ifdef DEBUG
 
 #define UDMA_PORT_MAGIC_BASE	100
 #define UDMA_PORT0	100
 #define UDMA_PORT1	101
+
 
 #define UDMA_PROC_FS "udma_dbg"
 
@@ -142,6 +151,9 @@ struct udma_device *udma_devs[UDMA_PORT_NUM_TOTAL] = {NULL, NULL};
 #define UDMA_CLR_TX_RING			131
 #define UDMA_CLR_RX_RING			132
 
+
 #endif
+
+
 
 #endif /* _UDMA_MAIN_H_ */

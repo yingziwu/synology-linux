@@ -108,6 +108,13 @@ SECTIONS
 		IRQENTRY_TEXT
 		*(.fixup)
 		*(.gnu.warning)
+#ifdef CONFIG_RETPOLINE
+		__indirect_thunk_start = .;
+		*(.text.__x86.indirect_thunk)
+		__indirect_thunk_end = .;
+		__indirect_thunk_size = __indirect_thunk_end - __indirect_thunk_start;
+#endif
+
 		/* End of text section */
 		_etext = .;
 	} :text = 0x9090
@@ -338,6 +345,7 @@ SECTIONS
 	/DISCARD/ : { *(.eh_frame) }
 }
 
+
 #ifdef CONFIG_X86_32
 /*
  * The ASSERT() sink to . is intentional, for binutils 2.14 compatibility:
@@ -372,3 +380,4 @@ INIT_PER_CPU(irq_stack_union);
 . = ASSERT(kexec_control_code_size <= KEXEC_CONTROL_CODE_MAX_SIZE,
            "kexec control code size is too big");
 #endif
+

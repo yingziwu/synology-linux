@@ -89,12 +89,14 @@ static MV_U32                   nfpRuleDeleteCount;
 
 MV_U32   fp_ip_jhash_iv = 0;
 
+
 MV_STATUS   mvFpInit(void)
 {
     fp_ip_jhash_iv = mvOsRand();
 
     return MV_OK;
 }
+
 
 /* Initialize NFP Rule Database (Routing + ARP information table) */
 MV_STATUS   mvFpRuleDbInit(MV_U32 dbSize)
@@ -135,6 +137,7 @@ MV_STATUS   mvFpRuleDbClear(void)
 	}
 	return MV_OK;
 }
+
 
 /* Free Rule Database memory */
 void mvFpRuleDbDestroy(void)
@@ -228,6 +231,7 @@ MV_STATUS   mvFpRuleDbPrint(void)
 	return MV_OK;
 }
 
+
 /* Copy all the information from src_rule to new_rule */
 /* Warning - doesn't perform any checks on memory, just copies */
 /* count is set to zero in new_rule */
@@ -290,6 +294,7 @@ MV_STATUS mvFpRuleAwareSet(MV_FP_RULE *pSetRule)
     {
 	    if( (pRule->routingInfo.srcIp == pSetRule->routingInfo.srcIp) &&
 	        (pRule->routingInfo.dstIp == pSetRule->routingInfo.dstIp) ) {
+
 
             pRule->routingInfo.aware_flags = pSetRule->routingInfo.aware_flags;
 #ifdef MV_FP_DEBUG
@@ -929,6 +934,7 @@ int mvFpProcess(MV_U32 ifIndex, MV_PKT_INFO* pPkt, MV_FP_STATS* pFpStats)
     }
 #endif /* CONFIG_MV_ETH_NFP_NAT_SUPPORT */
 
+
     ifIndex = pRt->routingInfo.outIfIndex;
 
 #ifdef CONFIG_MV_ETH_NFP_PPP
@@ -949,6 +955,7 @@ int mvFpProcess(MV_U32 ifIndex, MV_PKT_INFO* pPkt, MV_FP_STATS* pFpStats)
 		pBuf->bufVirtPtr -= ETH_FP_PPPOE_HDR;
 		pBuf->dataSize += ETH_FP_PPPOE_HDR;
 		pEth -= ETH_FP_PPPOE_HDR;
+
 
 		/* -6B aligment from 32B boundary */
 		{

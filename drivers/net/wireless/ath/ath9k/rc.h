@@ -27,6 +27,7 @@ struct ath_softc;
 #define RATE_TABLE_SIZE  72
 #define MAX_TX_RATE_PHY  48
 
+
 #define RC_INVALID	0x0000
 #define RC_LEGACY	0x0001
 #define RC_SS		0x0002
@@ -220,7 +221,7 @@ struct ath_rate_priv {
 	struct ath_rc_stats rcstats[RATE_TABLE_SIZE];
 };
 
-#ifdef CONFIG_ATH9K_RATE_CONTROL
+#ifdef CONFIG_ATH9K_LEGACY_RATE_CONTROL
 int ath_rate_control_register(void);
 void ath_rate_control_unregister(void);
 #else

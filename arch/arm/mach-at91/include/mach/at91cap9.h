@@ -106,6 +106,7 @@
 #define AT91_USART1	AT91CAP9_BASE_US1
 #define AT91_USART2	AT91CAP9_BASE_US2
 
+
 /*
  * Internal Memory.
  */

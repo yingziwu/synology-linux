@@ -189,6 +189,7 @@ static unsigned int dfs_get_cpu_speed(void)
 		return hi_freq;
 }
 
+
 /* Switch CPU speed using slewing GPIOs
  */
 static int gpios_set_cpu_speed(int low_speed)
@@ -478,6 +479,7 @@ static struct cpufreq_driver pmac_cpufreq_driver = {
 	.owner		= THIS_MODULE,
 };
 
+
 static int pmac_cpufreq_init_MacRISC3(struct device_node *cpunode)
 {
 	struct device_node *volt_gpio_np = of_find_node_by_name(NULL,
@@ -713,3 +715,4 @@ out:
 }
 
 module_init(pmac_cpufreq_setup);
+

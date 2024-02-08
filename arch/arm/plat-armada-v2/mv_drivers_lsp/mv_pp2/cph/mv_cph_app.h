@@ -85,11 +85,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+
 /******************************************************************************
 * Type Definition
 ******************************************************************************/
 #define MV_VALID_MH_MASK  0x007F  /* Valid MH filed in CPH */
 #define MV_VALID_GH_MASK  0x0FFF  /* Valid MH filed in CPH */
+
 
 /* CPH application packets parsing field definition
 ------------------------------------------------------------------------------*/
@@ -195,6 +197,7 @@ enum CPH_PON_TYPE_E {
 	CPH_PON_TYPE_MAX
 };
 
+
 /* CPH feature flag
 ------------------------------------------------------------------------------*/
 enum CPH_APP_FEATURE_E {
@@ -205,6 +208,7 @@ enum CPH_APP_FEATURE_E {
 	CPH_APP_FEATURE_UDP,
 };
 
+
 /* CPH parse/modification field definition for bc/igmp
 ------------------------------------------------------------------------------*/
 struct CPH_PACKET_PARSE_T {
@@ -214,6 +218,7 @@ struct CPH_PACKET_PARSE_T {
 	unsigned char          pbits;
 	unsigned char          dscp;
 };
+
 
 struct CPH_PACKET_MOD_T {
 	enum CPH_DIR_E      dir;

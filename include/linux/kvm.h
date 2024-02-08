@@ -83,6 +83,7 @@ struct kvm_debug_guest {
 
 /* *** End of deprecated interfaces *** */
 
+
 /* for KVM_CREATE_MEMORY_REGION */
 struct kvm_memory_region {
 	__u32 slot;
@@ -117,6 +118,7 @@ struct kvm_irq_level {
 	};
 	__u32 level;
 };
+
 
 struct kvm_irqchip {
 	__u32 chip_id;

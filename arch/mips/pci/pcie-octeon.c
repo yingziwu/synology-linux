@@ -995,7 +995,9 @@ static int cvmx_pcie_rc_initialize(int pcie_port)
 	return 0;
 }
 
+
 /* Above was cvmx-pcie.c, below original pcie.c */
+
 
 /**
  * Map a PCI device to the appropriate interrupt line
@@ -1185,6 +1187,8 @@ static int octeon_pcie1_read_config(struct pci_bus *bus, unsigned int devfn,
 	return octeon_pcie_read_config(1, bus, devfn, reg, size, val);
 }
 
+
+
 /**
  * Write a value to PCI configuration space
  *
@@ -1215,9 +1219,6 @@ static inline int octeon_pcie_write_config(int pcie_port, struct pci_bus *bus,
 					devfn & 0x7, reg, val);
 		return PCIBIOS_SUCCESSFUL;
 	}
-#if PCI_CONFIG_SPACE_DELAY
-	udelay(PCI_CONFIG_SPACE_DELAY);
-#endif
 	return PCIBIOS_FUNC_NOT_SUPPORTED;
 }
 
@@ -1274,6 +1275,7 @@ static struct pci_controller octeon_pcie1_controller = {
 	.mem_resource = &octeon_pcie1_mem_resource,
 	.io_resource = &octeon_pcie1_io_resource,
 };
+
 
 /**
  * Initialize the Octeon PCIe controllers

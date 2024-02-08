@@ -80,6 +80,7 @@ struct iwl_priv;
 #define IWL_EEPROM_SEM_TIMEOUT		10   /* microseconds */
 #define IWL_EEPROM_SEM_RETRY_LIMIT	1000 /* number of attempts (not time) */
 
+
 /*
  * Regulatory channel usage flags in EEPROM struct iwl4965_eeprom_channel.flags.
  *
@@ -166,6 +167,7 @@ struct iwl_eeprom_calib_measure {
 	s8 pa_det;		/* Power amp detector level (not used) */
 } __packed;
 
+
 /*
  * measurement set for one channel.  EEPROM contains:
  *
@@ -198,6 +200,7 @@ struct iwl_eeprom_calib_subband_info {
 	struct iwl_eeprom_calib_ch_info ch2;
 } __packed;
 
+
 /*
  * txpower calibration info.  EEPROM contains:
  *
@@ -225,6 +228,7 @@ struct iwl_eeprom_calib_info {
 	struct iwl_eeprom_calib_subband_info
 		band_info[EEPROM_TX_POWER_BANDS];
 } __packed;
+
 
 /* General */
 #define EEPROM_DEVICE_ID                    (2*0x08)	/* 2 bytes */
@@ -324,6 +328,7 @@ struct iwl_eeprom_ops {
 	int (*acquire_semaphore) (struct iwl_priv *priv);
 	void (*release_semaphore) (struct iwl_priv *priv);
 };
+
 
 int iwl_legacy_eeprom_init(struct iwl_priv *priv);
 void iwl_legacy_eeprom_free(struct iwl_priv *priv);

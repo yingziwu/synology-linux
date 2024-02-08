@@ -104,6 +104,7 @@ static void _set_gpio_direction(struct gpio_bank *bank, int gpio, int is_input)
 	__raw_writel(l, reg);
 }
 
+
 /* set data out value using dedicate set/clear register */
 static void _set_gpio_dataout_reg(struct gpio_bank *bank, int gpio, int enable)
 {

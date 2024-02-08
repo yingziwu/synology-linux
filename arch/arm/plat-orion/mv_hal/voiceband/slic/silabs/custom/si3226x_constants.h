@@ -5,6 +5,7 @@
 ** Si3226x ProSLIC API Configuration Tool Version 1.10L
 */
 
+
 #ifndef SI3226X_CONSTANTS_H
 #define SI3226X_CONSTANTS_H
 
@@ -67,5 +68,6 @@ enum {
       GEN_PARAM_TSS,
       GEN_PARAM_TSS_ISO
 };
+
 
 #endif

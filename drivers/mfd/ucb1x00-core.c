@@ -546,6 +546,7 @@ static int ucb1x00_probe(struct mcp *mcp)
 	if (!ucb)
 		goto err_disable;
 
+
 	ucb->dev.class = &ucb1x00_class;
 	ucb->dev.parent = &mcp->attached_device;
 	dev_set_name(&ucb->dev, "ucb1x00");
@@ -591,6 +592,7 @@ static int ucb1x00_probe(struct mcp *mcp)
 	ret = device_register(&ucb->dev);
 	if (ret)
 		goto err_irq;
+
 
 	INIT_LIST_HEAD(&ucb->devs);
 	mutex_lock(&ucb1x00_mutex);

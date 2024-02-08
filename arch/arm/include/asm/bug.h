@@ -1,6 +1,7 @@
 #ifndef _ASMARM_BUG_H
 #define _ASMARM_BUG_H
 
+
 #ifdef CONFIG_BUG
 
 /*
@@ -15,6 +16,7 @@
 #define BUG_INSTR_VALUE 0xe7f001f2
 #define BUG_INSTR_TYPE ".word "
 #endif
+
 
 #define BUG() _BUG(__FILE__, __LINE__, BUG_INSTR_VALUE)
 #define _BUG(file, line, value) __BUG(file, line, value)

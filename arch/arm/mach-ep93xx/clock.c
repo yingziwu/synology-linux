@@ -25,6 +25,7 @@
 
 #include <asm/div64.h>
 
+
 struct clk {
 	struct clk	*parent;
 	unsigned long	rate;
@@ -36,6 +37,7 @@ struct clk {
 	unsigned long	(*get_rate)(struct clk *clk);
 	int		(*set_rate)(struct clk *clk, unsigned long rate);
 };
+
 
 static unsigned long get_uart_rate(struct clk *clk);
 
@@ -471,6 +473,7 @@ int clk_set_rate(struct clk *clk, unsigned long rate)
 	return -EINVAL;
 }
 EXPORT_SYMBOL(clk_set_rate);
+
 
 static char fclk_divisors[] = { 1, 2, 4, 8, 16, 1, 1, 1 };
 static char hclk_divisors[] = { 1, 2, 4, 5, 6, 8, 16, 32 };

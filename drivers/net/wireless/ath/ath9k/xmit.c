@@ -32,6 +32,7 @@
 #define NUM_SYMBOLS_PER_USEC(_usec) (_usec >> 2)
 #define NUM_SYMBOLS_PER_USEC_HALFGI(_usec) (((_usec*5)-4)/18)
 
+
 static u16 bits_per_symbol[][2] = {
 	/* 20MHz 40MHz */
 	{    26,   54 },     /*  0: BPSK */
@@ -350,6 +351,7 @@ static void ath_tx_count_frames(struct ath_softc *sc, struct ath_buf *bf,
 		bf = bf->bf_next;
 	}
 }
+
 
 static void ath_tx_complete_aggr(struct ath_softc *sc, struct ath_txq *txq,
 				 struct ath_buf *bf, struct list_head *bf_q,
@@ -1025,6 +1027,7 @@ static void ath_tx_fill_desc(struct ath_softc *sc, struct ath_buf *bf,
 	if (bf->bf_state.bfs_paprd)
 		info.flags |= (u32) bf->bf_state.bfs_paprd << ATH9K_TXDESC_PAPRD_S;
 
+
 	while (bf) {
 		struct sk_buff *skb = bf->bf_mpdu;
 		struct ath_frame_info *fi = get_frame_info(skb);
@@ -1173,13 +1176,15 @@ void ath_tx_aggr_sleep(struct ieee80211_sta *sta, struct ath_softc *sc,
 	for (tidno = 0, tid = &an->tid[tidno];
 	     tidno < WME_NUM_TID; tidno++, tid++) {
 
-		if (!tid->sched)
-			continue;
-
 		ac = tid->ac;
 		txq = ac->txq;
 
 		spin_lock_bh(&txq->axq_lock);
+
+		if (!tid->sched) {
+			spin_unlock_bh(&txq->axq_lock);
+			continue;
+		}
 
 		buffered = !skb_queue_empty(&tid->buf_q);
 
@@ -1385,7 +1390,7 @@ int ath_cabq_update(struct ath_softc *sc)
 	else if (sc->config.cabqReadytime > ATH9K_READY_TIME_HI_BOUND)
 		sc->config.cabqReadytime = ATH9K_READY_TIME_HI_BOUND;
 
-	qi.tqi_readyTime = (cur_conf->beacon_interval *
+	qi.tqi_readyTime = (TU_TO_USEC(cur_conf->beacon_interval) *
 			    sc->config.cabqReadytime) / 100;
 	ath_txq_update(sc, qnum, &qi);
 
@@ -2227,6 +2232,8 @@ static void ath_tx_complete_poll_work(struct work_struct *work)
 			msecs_to_jiffies(ATH_TX_COMPLETE_POLL_INT));
 }
 
+
+
 void ath_tx_tasklet(struct ath_softc *sc)
 {
 	int i;
@@ -2418,6 +2425,7 @@ void ath_tx_node_init(struct ath_softc *sc, struct ath_node *an)
 	for (acno = 0, ac = &an->ac[acno];
 	     acno < WME_NUM_AC; acno++, ac++) {
 		ac->sched    = false;
+		ac->clear_ps_filter = true;
 		ac->txq = sc->tx.txq_map[acno];
 		INIT_LIST_HEAD(&ac->tid_q);
 	}

@@ -46,6 +46,7 @@ static int ved_poll(struct napi_struct *napi, int budget);
 static int start_ved(struct net_device *dev);
 static int stop_ved(struct net_device *dev);
 
+
 static int ved_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct ved_priv *priv = (struct ved_priv *)netdev_priv(dev);
@@ -190,6 +191,7 @@ static int ved_open(struct net_device *dev)
 	netif_start_queue(dev);
 
 	priv->state = 1;
+
 
 out:
 	release_firmware(fw_entry);
@@ -511,6 +513,7 @@ static int ved_probe(struct platform_device *pdev)
 
 	return 0;
 
+
 err2:
 	platform_set_drvdata(pdev, NULL);
 	free_netdev(dev);
@@ -548,6 +551,7 @@ static void __exit ved_exit(void)
 {
 	platform_driver_unregister(&ved_driver);
 }
+
 
 module_init(ved_init);
 module_exit(ved_exit);

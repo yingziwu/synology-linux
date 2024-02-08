@@ -112,6 +112,7 @@ static const uuid_le
 
 };
 
+
 /**
  * vmbus_prep_negotiate_resp() - Create default response for Hyper-V Negotiate message
  * @icmsghdrp: Pointer to msg header structure
@@ -206,6 +207,8 @@ static void free_channel(struct vmbus_channel *channel)
 	INIT_WORK(&channel->work, release_channel);
 	queue_work(vmbus_connection.work_queue, &channel->work);
 }
+
+
 
 /*
  * vmbus_process_rescind_offer -
@@ -603,7 +606,7 @@ int vmbus_request_offers(void)
 {
 	struct vmbus_channel_message_header *msg;
 	struct vmbus_channel_msginfo *msginfo;
-	int ret, t;
+	int ret;
 
 	msginfo = kmalloc(sizeof(*msginfo) +
 			  sizeof(struct vmbus_channel_message_header),
@@ -611,23 +614,16 @@ int vmbus_request_offers(void)
 	if (!msginfo)
 		return -ENOMEM;
 
-	init_completion(&msginfo->waitevent);
-
 	msg = (struct vmbus_channel_message_header *)msginfo->msg;
 
 	msg->msgtype = CHANNELMSG_REQUESTOFFERS;
+
 
 	ret = vmbus_post_msg(msg,
 			       sizeof(struct vmbus_channel_message_header));
 	if (ret != 0) {
 		pr_err("Unable to request offers - %d\n", ret);
 
-		goto cleanup;
-	}
-
-	t = wait_for_completion_timeout(&msginfo->waitevent, 5*HZ);
-	if (t == 0) {
-		ret = -ETIMEDOUT;
 		goto cleanup;
 	}
 

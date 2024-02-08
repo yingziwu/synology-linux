@@ -161,6 +161,7 @@ DEFINE_REGSET(SP, 0x60);	/* SPDIF out */
 #define ICH_RESETREGS			0x02	/* reset busmaster registers */
 #define ICH_STARTBM			0x01	/* start busmaster operation */
 
+
 /* global block */
 #define ICH_REG_GLOB_CNT		0x2c	/* dword - global control */
 #define   ICH_PCM_SPDIF_MASK	0xc0000000	/* s/pdif pcm slot mask (ICH4) */
@@ -225,6 +226,7 @@ DEFINE_REGSET(SP, 0x60);	/* SPDIF out */
 #define   ICH_LDI_MASK		0x00000003	/* last codec read data input */
 
 #define ICH_MAX_FRAGS		32		/* max hw frags */
+
 
 /*
  * registers for Ali5455
@@ -664,6 +666,7 @@ static void snd_intel8x0_ali_codec_write(struct snd_ac97 *ac97, unsigned short r
 	iputword(chip, ICHREG(ALI_CPR_ADDR), reg);
 	snd_intel8x0_ali_codec_ready(chip, ALI_CSPSR_WRITE_OK);
 }
+
 
 /*
  * DMA I/O
@@ -1679,6 +1682,7 @@ static int __devinit snd_intel8x0_pcm(struct intel8x0 *chip)
 	return 0;
 }
 	
+
 /*
  *  Mixer part
  */
@@ -2351,6 +2355,7 @@ static int __devinit snd_intel8x0_mixer(struct intel8x0 *chip, int ac97_clock,
 	return err;
 }
 
+
 /*
  *
  */
@@ -2853,6 +2858,7 @@ static void __devinit intel8x0_measure_ac97_clock(struct intel8x0 *chip)
 
 static struct snd_pci_quirk intel8x0_clock_list[] __devinitdata = {
 	SND_PCI_QUIRK(0x0e11, 0x008a, "AD1885", 41000),
+	SND_PCI_QUIRK(0x1014, 0x0581, "AD1981B", 48000),
 	SND_PCI_QUIRK(0x1028, 0x00be, "AD1885", 44100),
 	SND_PCI_QUIRK(0x1028, 0x0177, "AD1980", 48000),
 	SND_PCI_QUIRK(0x1028, 0x01ad, "AD1981B", 48000),
@@ -3343,6 +3349,7 @@ static struct pci_driver driver = {
 	.resume = intel8x0_resume,
 #endif
 };
+
 
 static int __init alsa_card_intel8x0_init(void)
 {

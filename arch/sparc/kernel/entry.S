@@ -1177,7 +1177,7 @@ sys_sigreturn:
 	 nop
 
 	call	syscall_trace
-	 nop
+	 mov	1, %o1
 
 1:
 	/* We don't want to muck with user registers like a
@@ -1387,6 +1387,7 @@ linux_syscall_trace2:
 	st	%l1, [%sp + STACKFRAME_SZ + PT_PC]
 	b	ret_trap_entry
 	 st	%l2, [%sp + STACKFRAME_SZ + PT_NPC]
+
 
 /* Saving and restoring the FPU state is best done from lowlevel code.
  *

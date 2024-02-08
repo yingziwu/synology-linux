@@ -21,6 +21,7 @@
 #include <linux/pci.h>
 #include <linux/io.h>
 
+
 /*-------------------------------------------------------------------------*/
 
 static int broken_suspend(struct usb_hcd *hcd)
@@ -268,6 +269,7 @@ static int ohci_pci_reset (struct usb_hcd *hcd)
 	return ret;
 }
 
+
 static int __devinit ohci_pci_start (struct usb_hcd *hcd)
 {
 	struct ohci_hcd	*ohci = hcd_to_ohci (hcd);
@@ -325,6 +327,7 @@ static int ohci_pci_suspend(struct usb_hcd *hcd, bool do_wakeup)
 	return rc;
 }
 
+
 static int ohci_pci_resume(struct usb_hcd *hcd, bool hibernated)
 {
 	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
@@ -338,6 +341,7 @@ static int ohci_pci_resume(struct usb_hcd *hcd, bool hibernated)
 }
 
 #endif	/* CONFIG_PM */
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -391,6 +395,7 @@ static const struct hc_driver ohci_pci_hc_driver = {
 
 /*-------------------------------------------------------------------------*/
 
+
 static const struct pci_device_id pci_ids [] = { {
 	/* handle any USB OHCI controller */
 	PCI_DEVICE_CLASS(PCI_CLASS_SERIAL_USB_OHCI, ~0),
@@ -408,7 +413,7 @@ static struct pci_driver ohci_pci_driver = {
 	.remove =	usb_hcd_pci_remove,
 	.shutdown =	usb_hcd_pci_shutdown,
 
-#ifdef CONFIG_PM_SLEEP
+#ifdef CONFIG_PM
 	.driver =	{
 		.pm =	&usb_hcd_pci_pm_ops
 	},

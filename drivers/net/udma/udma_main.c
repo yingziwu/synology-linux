@@ -91,6 +91,7 @@ static inline u16 __get_using_desc(struct udma_ring *ring)
 	return i;
 }
 
+
 #ifdef DEBUG
 static inline void udma_dump_a_ring(struct udma_device *umdev, struct udma_ring *ring, bool direction);	
 /*
@@ -162,6 +163,7 @@ static inline void udma_dump_a_ring(struct udma_device *umdev, struct udma_ring 
 	udma_info("\n 		cnt 	    %d 		 desc 0x%p     \n", ring->ring_entries, ring->desc);
 
 	udma_info("\n 		clean[%d]	use[%d]	 tail[%d] newtail[%d]\n", ring->to_be_clean, ring->to_be_use, ring->tail,ring->new_tail);
+
 
 	i = 0;
 	while ( i< ring->ring_entries) {
@@ -260,6 +262,7 @@ static void udma_ring_pop(struct udma_device *umdev, struct udma_ring *ring, con
 
 	udma_dbg("Try to Pop -%s-ring  desc [%d] \n",(direction == UDMA_TX)?"Tx":"Rx",i);
 
+	
 	desc = INDEX_TO_DESC(i,ring);
 	user_desc = ring->buffer_desc[i];
 
@@ -285,9 +288,13 @@ static void udma_ring_pop(struct udma_device *umdev, struct udma_ring *ring, con
 	dma_unmap_single(&hw->pdev->dev, (dma_addr_t)desc->priv,
 			  user_desc->len,(direction== UDMA_TX)?DMA_TO_DEVICE:DMA_FROM_DEVICE);
 
+
+
 	/* Clean the descriptor buffer and desc. */
 	hw->ops->clear_desc(desc);
 
+	
+	
 	/* Reclaim the resource */
 	if (direction == UDMA_TX)  
 		umdev->tx_complete(umdev->hw->port,user_desc);
@@ -296,6 +303,7 @@ static void udma_ring_pop(struct udma_device *umdev, struct udma_ring *ring, con
 	ring->buffer_desc[i] = NULL;
 	return ;
 }
+
 
 /**
  * udma_intr - Interrupt Handler
@@ -382,6 +390,7 @@ static int udma_ring_clean_irq(struct udma_device *umdev, struct udma_ring *ring
 	using = ring->to_be_use;
 	spin_unlock_irqrestore(&ring->lock, flags);	
 		
+
 	i = ring->to_be_clean;
 	desc = INDEX_TO_DESC(i,ring);
 
@@ -459,6 +468,7 @@ static void udma_tasklet_clean(unsigned long param)
 *
 ****************************************************************************/
 
+
 /**  udma_send_packet - A buffer is used to send
  * @port - udma port number, could be 0 or 1
  * @buffer_desc - parameter to describe a coming buffer
@@ -467,6 +477,7 @@ static void udma_tasklet_clean(unsigned long param)
  * return UDMA_TX_BUSY, UDMA driver is busy and refuse to take care of the buffer
  * return UDMA_ERR, if error
 */
+
 
 static udma_result_t udma_start_rx_transfer(struct udma_device *umdev)
 {
@@ -489,8 +500,10 @@ static udma_result_t udma_start_rx_transfer(struct udma_device *umdev)
 	rx->tail = rx->new_tail;
 	hw->ops->start_rx_transfer(hw, DESC_INDEX_TO_DESC_DMA(rx->to_be_use,rx));
 
+
 	return UDMA_OK;
 	
+
 }
 static udma_result_t udma_start_tx_transfer(struct udma_device *umdev)
 {
@@ -498,6 +511,7 @@ static udma_result_t udma_start_tx_transfer(struct udma_device *umdev)
 	struct udma_desc *udma_desc_new_tail;
 	struct udma_desc *udma_desc_to_be_use;
 	struct udma_ring *tx = &umdev->tx_ring;
+
 
 	if (tx->tail == tx->new_tail) {
 		return UDMA_EMPTY;
@@ -510,6 +524,7 @@ static udma_result_t udma_start_tx_transfer(struct udma_device *umdev)
 	tx->tail = tx->new_tail;
 	hw->ops->start_tx_transfer(hw, DESC_INDEX_TO_DESC_DMA(tx->to_be_use,tx));
 
+	
 	return UDMA_OK;
 
 }
@@ -532,6 +547,7 @@ udma_result_t udma_send_packet(unsigned char port, udma_buffer_desc_t *buffer_de
 	UDMA_WARN_ON_RETURN((!umdev->tx_complete) || (!umdev->rx_complete),UDMA_UNINITIALIZED);
 	hw = umdev->hw;
 	
+	
 	tx = &umdev->tx_ring;
 	
 	if (is_ring_full(tx)) {
@@ -544,6 +560,7 @@ udma_result_t udma_send_packet(unsigned char port, udma_buffer_desc_t *buffer_de
 		return UDMA_ERR;
 	}
 	
+
 	/* Fill in the buffer info to the descriptor */
 	spin_lock_irqsave(&tx->lock, flags);
 	tx->new_tail = NEXT_TX(tx->new_tail);
@@ -595,6 +612,7 @@ udma_result_t udma_give_free_buffer(unsigned char port, udma_buffer_desc_t *buff
 	UDMA_WARN_ON_RETURN((!umdev->tx_complete) || (!umdev->rx_complete),UDMA_UNINITIALIZED);
 	hw = umdev->hw;
 	
+	
 	rx = &umdev->rx_ring;
 
 	//udma_dump_a_ring_progress(rx);
@@ -608,6 +626,7 @@ udma_result_t udma_give_free_buffer(unsigned char port, udma_buffer_desc_t *buff
 		return UDMA_ERR;
 	}
 	
+
 	/* Fill in the buffer info to the descriptor */
 	spin_lock_irqsave(&rx->lock, flags);
 	rx->new_tail = NEXT_RX(rx->new_tail);
@@ -625,6 +644,7 @@ udma_result_t udma_give_free_buffer(unsigned char port, udma_buffer_desc_t *buff
 	spin_unlock_irqrestore(&rx->lock, flags);
 	return ret;
 }
+
 
 /**  udma_register_handler - register the Tx/Rx callback
  *
@@ -722,6 +742,7 @@ void udma_flush(unsigned char port)
 	
 	hw->ops->clear_tx_irq(hw);
 
+	
 	udma_clean_finished_works(umdev,UDMA_TX,budget);
 	udma_clean_unfinished_works(umdev, UDMA_TX,budget);
 
@@ -732,6 +753,7 @@ void udma_flush(unsigned char port)
 		mdelay(1);
 	}
 	hw->ops->clear_rx_irq(hw);
+
 
 	udma_clean_finished_works(umdev,UDMA_RX,budget);
 	udma_clean_unfinished_works(umdev, UDMA_RX,budget);
@@ -750,6 +772,7 @@ EXPORT_SYMBOL_GPL(udma_send_packet);
 EXPORT_SYMBOL_GPL(udma_give_free_buffer);
 EXPORT_SYMBOL_GPL(udma_register_handler);
 EXPORT_SYMBOL_GPL(udma_flush);
+
 
 /****************************************************************************
 *
@@ -859,6 +882,7 @@ static void udma_dev_exit(struct udma_device *umdev)
 	return ;
 }
 
+
 struct udma_hw *udma_alloc_hw(size_t size)
 {
 	struct udma_device *umdev = NULL;
@@ -887,6 +911,7 @@ static int udma_close(struct inode *inode, struct file *filp)
 {
         return 0;
 }
+
 
 static long udma_unlocked_ioctl(struct file *filp, unsigned int arg, unsigned long cmd)
 {
@@ -971,6 +996,7 @@ int __devinit udma_setup_sw(void *dev)
 	udma_devs[umdev->hw->port] = umdev;
 	udma_dump_all_rings(umdev->hw->port);
 
+
 #ifdef DEBUG
 
 	if (!umdev->hw->port) {
@@ -1008,4 +1034,7 @@ void __devexit udma_free_sw(void *dev)
 EXPORT_SYMBOL_GPL(udma_setup_sw);
 EXPORT_SYMBOL_GPL(udma_free_sw);
 
+
 /* udma_main.c */
+
+

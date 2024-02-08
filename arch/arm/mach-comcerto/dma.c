@@ -11,6 +11,9 @@
 #include <asm/io.h>
 #include <linux/module.h>
 
+
+
+
 /*
  ********************************************
  * dma_ssi_xfer_cmplete_chk ()
@@ -115,6 +118,7 @@ void dma_configure(unsigned int source_add, unsigned int target_add, unsigned in
 	/* DAR Address must be alligned to DMA_CTL_DST_TR_WIDTH boundry */
 	writel(target_add, (DMA_CHANNEL_REG_DAR_BASE + ch_reg_multiplier));
 
+
 	/* configure : Control Register for Channel [32-63] */
 /* The number programmed into BLOCK_TS indicates the total number of single transactions
  * to perform for every block transfer; a single transaction is mapped to a single AMBA beat.
@@ -207,3 +211,4 @@ int fast_uart_write(unsigned int len, const char *str)
 }
 
 EXPORT_SYMBOL(fast_uart_write);
+

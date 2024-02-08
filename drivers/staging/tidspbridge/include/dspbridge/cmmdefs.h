@@ -19,6 +19,7 @@
 #ifndef CMMDEFS_
 #define CMMDEFS_
 
+
 /* Cmm attributes used in cmm_create() */
 struct cmm_mgrattrs {
 	/* Minimum SM allocation; default 32 bytes. */

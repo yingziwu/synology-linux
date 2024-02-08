@@ -48,6 +48,7 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
+
 static void __init ek_init_early(void)
 {
 	/* Initialize processor: 12.00 MHz crystal */
@@ -250,6 +251,7 @@ static void __init ek_add_device_nand(void)
 
 	at91_add_device_nand(&ek_nand_data);
 }
+
 
 /*
  * GPIO Buttons

@@ -209,6 +209,7 @@ typedef struct elf64_sym {
   Elf64_Xword st_size;		/* Associated symbol size */
 } Elf64_Sym;
 
+
 #define EI_NIDENT	16
 
 typedef struct elf32_hdr{
@@ -396,6 +397,7 @@ typedef struct elf64_shdr {
 #define NT_S390_LAST_BREAK	0x306	/* s390 breaking event address */
 #define NT_S390_SYSTEM_CALL	0x307	/* s390 system call restart data */
 #define NT_ARM_VFP	0x400		/* ARM VFP/NEON registers */
+
 
 /* Note header in a PT_NOTE section */
 typedef struct elf32_note {

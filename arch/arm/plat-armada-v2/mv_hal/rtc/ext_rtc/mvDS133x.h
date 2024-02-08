@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvDS133xh
 #define __INCmvDS133xh
 
@@ -100,5 +101,6 @@ MV_VOID mvRtcDS133xAlarmSet(MV_RTC_TIME *time);
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif  /* __INCmvDS133xh */

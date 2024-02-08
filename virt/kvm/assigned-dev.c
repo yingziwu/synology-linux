@@ -678,6 +678,7 @@ out:
 	return r;
 }
 
+
 #ifdef __KVM_HAVE_MSIX
 static int kvm_vm_ioctl_set_msix_nr(struct kvm *kvm,
 				    struct kvm_assigned_msix_nr *entry_nr)
@@ -825,7 +826,7 @@ long kvm_vm_ioctl_assigned_device(struct kvm *kvm, unsigned ioctl,
 		if (copy_from_user(&routing, argp, sizeof(routing)))
 			goto out;
 		r = -EINVAL;
-		if (routing.nr >= KVM_MAX_IRQ_ROUTES)
+		if (routing.nr > KVM_MAX_IRQ_ROUTES)
 			goto out;
 		if (routing.flags)
 			goto out;
@@ -874,3 +875,4 @@ long kvm_vm_ioctl_assigned_device(struct kvm *kvm, unsigned ioctl,
 out:
 	return r;
 }
+

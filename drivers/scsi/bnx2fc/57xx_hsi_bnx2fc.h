@@ -31,6 +31,8 @@ struct b577xx_doorbell {
 #endif
 };
 
+
+
 /*
  * doorbell message sent to the chip
  */
@@ -46,10 +48,12 @@ struct b577xx_doorbell_set_prod {
 #endif
 };
 
+
 struct regpair {
 	__le32 lo;
 	__le32 hi;
 };
+
 
 /*
  * ABTS info $$KEEP_ENDIANNESS$$
@@ -60,6 +64,7 @@ struct fcoe_abts_info {
 	__le32 reserved1;
 };
 
+
 /*
  * Fixed size structure in order to plant it in Union structure
  * $$KEEP_ENDIANNESS$$
@@ -69,6 +74,7 @@ struct fcoe_abts_rsp_union {
 	u8 rsrv[3];
 	__le32 abts_rsp_payload[7];
 };
+
 
 /*
  * 4 regs size $$KEEP_ENDIANNESS$$
@@ -82,6 +88,7 @@ struct fcoe_bd_ctx {
 	__le16 rsrv1;
 };
 
+
 /*
  * FCoE cached sges context $$KEEP_ENDIANNESS$$
  */
@@ -92,6 +99,7 @@ struct fcoe_cached_sge_ctx {
 	struct regpair second_buf_addr;
 };
 
+
 /*
  * Cleanup info $$KEEP_ENDIANNESS$$
  */
@@ -100,6 +108,7 @@ struct fcoe_cleanup_info {
 	__le16 rolled_tx_seq_cnt;
 	__le32 rolled_tx_data_offset;
 };
+
 
 /*
  * Fcp RSP flags $$KEEP_ENDIANNESS$$
@@ -179,6 +188,7 @@ union fcoe_comp_flow_info {
 	__le32 opaque[8];
 };
 
+
 /*
  * External ABTS info $$KEEP_ENDIANNESS$$
  */
@@ -187,6 +197,7 @@ struct fcoe_ext_abts_info {
 	struct fcoe_abts_info ctx;
 };
 
+
 /*
  * External cleanup info $$KEEP_ENDIANNESS$$
  */
@@ -194,6 +205,7 @@ struct fcoe_ext_cleanup_info {
 	__le32 rsrv0[6];
 	struct fcoe_cleanup_info ctx;
 };
+
 
 /*
  * Fcoe FW Tx sequence context $$KEEP_ENDIANNESS$$
@@ -211,6 +223,7 @@ struct fcoe_ext_fw_tx_seq_ctx {
 	__le32 rsrv0[6];
 	struct fcoe_fw_tx_seq_ctx ctx;
 };
+
 
 /*
  * FCoE multiple sges context $$KEEP_ENDIANNESS$$
@@ -230,12 +243,17 @@ struct fcoe_ext_mul_sges_ctx {
 	struct regpair rsrv0;
 };
 
+
 /*
  * FCP CMD payload $$KEEP_ENDIANNESS$$
  */
 struct fcoe_fcp_cmd_payload {
 	__le32 opaque[8];
 };
+
+
+
+
 
 /*
  * Fcp xfr rdy payload $$KEEP_ENDIANNESS$$
@@ -245,6 +263,7 @@ struct fcoe_fcp_xfr_rdy_payload {
 	__le32 data_ro;
 };
 
+
 /*
  * FC frame $$KEEP_ENDIANNESS$$
  */
@@ -252,6 +271,9 @@ struct fcoe_fc_frame {
 	struct fcoe_fc_hdr fc_hdr;
 	__le32 reserved0[2];
 };
+
+
+
 
 /*
  * FCoE KCQ CQE parameters $$KEEP_ENDIANNESS$$
@@ -280,6 +302,8 @@ struct fcoe_kcqe {
 #define FCOE_KCQE_LINKED_WITH_NEXT (0x1<<7)
 #define FCOE_KCQE_LINKED_WITH_NEXT_SHIFT 7
 };
+
+
 
 /*
  * FCoE KWQE header $$KEEP_ENDIANNESS$$
@@ -518,6 +542,21 @@ union fcoe_kwqe {
 	struct fcoe_kwqe_stat statistics;
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
  * TX SGL context $$KEEP_ENDIANNESS$$
  */
@@ -534,6 +573,7 @@ struct fcoe_read_flow_info {
 	union fcoe_sgl_union_ctx sgl_ctx;
 	__le32 rsrv0[3];
 };
+
 
 /*
  * Fcoe stat context $$KEEP_ENDIANNESS$$
@@ -567,6 +607,7 @@ struct fcoe_rx_seq_ctx {
 	__le32 high_exp_ro;
 };
 
+
 /*
  * Fcoe rx_wr union context $$KEEP_ENDIANNESS$$
  */
@@ -575,6 +616,8 @@ union fcoe_rx_wr_union_ctx {
 	union fcoe_comp_flow_info comp_info;
 	__le32 opaque[8];
 };
+
+
 
 /*
  * FCoE SQ element $$KEEP_ENDIANNESS$$
@@ -586,6 +629,8 @@ struct fcoe_sqe {
 #define FCOE_SQE_TOGGLE_BIT (0x1<<15)
 #define FCOE_SQE_TOGGLE_BIT_SHIFT 15
 };
+
+
 
 /*
  * 14 regs $$KEEP_ENDIANNESS$$
@@ -708,6 +753,15 @@ struct fcoe_task_ctx_entry {
 	struct fcoe_tce_rx_only rxwr_only;
 };
 
+
+
+
+
+
+
+
+
+
 /*
  * FCoE XFRQ element $$KEEP_ENDIANNESS$$
  */
@@ -718,6 +772,7 @@ struct fcoe_xfrqe {
 #define FCOE_XFRQE_TOGGLE_BIT (0x1<<15)
 #define FCOE_XFRQE_TOGGLE_BIT_SHIFT 15
 };
+
 
 /*
  * fcoe rx doorbell message sent to the chip $$KEEP_ENDIANNESS$$
@@ -732,6 +787,7 @@ struct b577xx_fcoe_rx_doorbell {
 	__le16 doorbell_cq_cons;
 };
 
+
 /*
  * FCoE CONFQ element $$KEEP_ENDIANNESS$$
  */
@@ -740,6 +796,7 @@ struct fcoe_confqe {
 	__le16 rx_id;
 	__le32 param;
 };
+
 
 /*
  * FCoE conection data base
@@ -756,6 +813,7 @@ struct fcoe_conn_db {
 	struct regpair cq_arm;
 };
 
+
 /*
  * FCoE CQ element $$KEEP_ENDIANNESS$$
  */
@@ -768,6 +826,7 @@ struct fcoe_cqe {
 #define FCOE_CQE_TOGGLE_BIT (0x1<<15)
 #define FCOE_CQE_TOGGLE_BIT_SHIFT 15
 };
+
 
 /*
  * FCoE error/warning reporting entry $$KEEP_ENDIANNESS$$
@@ -786,6 +845,7 @@ struct fcoe_err_report_entry {
 	struct fcoe_partial_err_report_entry data;
 	struct fcoe_fc_hdr fc_hdr;
 };
+
 
 /*
  * FCoE hash table entry (32 bytes) $$KEEP_ENDIANNESS$$
@@ -817,6 +877,7 @@ struct fcoe_hash_table_entry {
 #define FCOE_HASH_TABLE_ENTRY_VALID_SHIFT 31
 };
 
+
 /*
  * FCoE LCQ element $$KEEP_ENDIANNESS$$
  */
@@ -829,6 +890,8 @@ struct fcoe_lcqe {
 #define FCOE_LCQE_RESERVED (0xFF<<24)
 #define FCOE_LCQE_RESERVED_SHIFT 24
 };
+
+
 
 /*
  * FCoE pending work request CQE $$KEEP_ENDIANNESS$$
@@ -843,6 +906,7 @@ struct fcoe_pend_wq_cqe {
 #define FCOE_PEND_WQ_CQE_TOGGLE_BIT_SHIFT 15
 };
 
+
 /*
  * FCoE RX statistics parameters section#0 $$KEEP_ENDIANNESS$$
  */
@@ -851,6 +915,7 @@ struct fcoe_rx_stat_params_section0 {
 	__le32 fcoe_rx_byte_cnt;
 };
 
+
 /*
  * FCoE RX statistics parameters section#1 $$KEEP_ENDIANNESS$$
  */
@@ -858,6 +923,7 @@ struct fcoe_rx_stat_params_section1 {
 	__le32 fcoe_ver_cnt;
 	__le32 fcoe_rx_drop_pkt_cnt;
 };
+
 
 /*
  * FCoE RX statistics parameters section#2 $$KEEP_ENDIANNESS$$
@@ -872,6 +938,7 @@ struct fcoe_rx_stat_params_section2 {
 	__le32 fcp_rx_pkt_cnt;
 	__le32 reserved0;
 };
+
 
 /*
  * FCoE TX statistics parameters $$KEEP_ENDIANNESS$$
@@ -893,6 +960,7 @@ struct fcoe_statistics_params {
 	struct fcoe_rx_stat_params_section2 rx_stat2;
 };
 
+
 /*
  * FCoE t2 hash table entry (64 bytes) $$KEEP_ENDIANNESS$$
  */
@@ -901,6 +969,8 @@ struct fcoe_t2_hash_table_entry {
 	struct regpair next;
 	struct regpair reserved0[3];
 };
+
+
 
 /*
  * FCoE unsolicited CQE $$KEEP_ENDIANNESS$$

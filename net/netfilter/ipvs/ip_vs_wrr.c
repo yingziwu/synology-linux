@@ -39,6 +39,7 @@ struct ip_vs_wrr_mark {
 	int di;			/* decreasing interval */
 };
 
+
 static int ip_vs_wrr_gcd_weight(struct ip_vs_service *svc)
 {
 	struct ip_vs_dest *dest;
@@ -57,6 +58,7 @@ static int ip_vs_wrr_gcd_weight(struct ip_vs_service *svc)
 	return g ? g : 1;
 }
 
+
 /*
  *    Get the maximum weight of the service destinations.
  */
@@ -73,6 +75,7 @@ static int ip_vs_wrr_max_weight(struct ip_vs_service *svc)
 
 	return weight;
 }
+
 
 static int ip_vs_wrr_init_svc(struct ip_vs_service *svc)
 {
@@ -94,6 +97,7 @@ static int ip_vs_wrr_init_svc(struct ip_vs_service *svc)
 	return 0;
 }
 
+
 static int ip_vs_wrr_done_svc(struct ip_vs_service *svc)
 {
 	/*
@@ -103,6 +107,7 @@ static int ip_vs_wrr_done_svc(struct ip_vs_service *svc)
 
 	return 0;
 }
+
 
 static int ip_vs_wrr_update_svc(struct ip_vs_service *svc)
 {
@@ -115,6 +120,7 @@ static int ip_vs_wrr_update_svc(struct ip_vs_service *svc)
 		mark->cw = 0;
 	return 0;
 }
+
 
 /*
  *    Weighted Round-Robin Scheduling
@@ -197,6 +203,7 @@ ip_vs_wrr_schedule(struct ip_vs_service *svc, const struct sk_buff *skb)
 	write_unlock(&svc->sched_lock);
 	return dest;
 }
+
 
 static struct ip_vs_scheduler ip_vs_wrr_scheduler = {
 	.name =			"wrr",

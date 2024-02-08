@@ -67,6 +67,7 @@ ENTRY(v7_invalidate_l1)
 	mov	pc, lr
 ENDPROC(v7_invalidate_l1)
 
+
 ENTRY(comcerto_secondary_startup)
 	mov r0, #0xd3
 	msr cpsr_fsxc, r0
@@ -89,3 +90,4 @@ pen:	ldr	r7, [r6]
 
 1:	.long	.
 	.long	pen_release
+

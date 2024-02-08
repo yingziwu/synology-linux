@@ -75,6 +75,7 @@ struct xiic_i2c {
 	int			rx_pos;
 };
 
+
 #define XIIC_MSB_OFFSET 0
 #define XIIC_REG_OFFSET (0x100+XIIC_MSB_OFFSET)
 
@@ -310,10 +311,8 @@ static void xiic_fill_tx_fifo(struct xiic_i2c *i2c)
 			/* last message in transfer -> STOP */
 			data |= XIIC_TX_DYN_STOP_MASK;
 			dev_dbg(i2c->adap.dev.parent, "%s TX STOP\n", __func__);
-
-			xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
-		} else
-			xiic_setreg8(i2c, XIIC_DTR_REG_OFFSET, data);
+		}
+		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
 	}
 }
 
@@ -686,6 +685,7 @@ static struct i2c_adapter xiic_adapter = {
 	.algo		= &xiic_algorithm,
 };
 
+
 static int __devinit xiic_i2c_probe(struct platform_device *pdev)
 {
 	struct xiic_i2c *i2c;
@@ -792,6 +792,7 @@ static int __devexit xiic_i2c_remove(struct platform_device* pdev)
 
 	return 0;
 }
+
 
 /* work with hotplug and coldplug */
 MODULE_ALIAS("platform:"DRIVER_NAME);

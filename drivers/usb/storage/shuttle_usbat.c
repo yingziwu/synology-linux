@@ -160,6 +160,7 @@ static int usbat_hp8200e_transport(struct scsi_cmnd *srb, struct us_data *us);
 static int init_usbat_cd(struct us_data *us);
 static int init_usbat_flash(struct us_data *us);
 
+
 /*
  * The table of devices
  */
@@ -1670,6 +1671,7 @@ static int usbat_hp8200e_transport(struct scsi_cmnd *srb, struct us_data *us)
 		else
 			len = *status;
 
+
 		result = usbat_read_block(us, scsi_sglist(srb), len,
 			                                   scsi_sg_count(srb));
 	}
@@ -1776,6 +1778,7 @@ static int usbat_flash_transport(struct scsi_cmnd * srb, struct us_data *us)
 		return usbat_flash_write_data(us, info, block, blocks);
 	}
 
+
 	if (srb->cmnd[0] == TEST_UNIT_READY) {
 		US_DEBUGP("usbat_flash_transport: TEST_UNIT_READY.\n");
 
@@ -1843,7 +1846,7 @@ static int usbat_probe(struct usb_interface *intf,
 	us->transport_name = "Shuttle USBAT";
 	us->transport = usbat_flash_transport;
 	us->transport_reset = usb_stor_CB_reset;
-	us->max_lun = 1;
+	us->max_lun = 0;
 
 	result = usb_stor_probe2(us);
 	return result;

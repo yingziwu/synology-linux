@@ -132,6 +132,7 @@ MV_STATUS onuEponPmCountersAdd(void)
   MV_U32 counter;
   MV_U32 macId;
 
+
   /* Rx Counters - One set of counters for all MACs */
   /* ============================================== */
   mvOnuEponMacRxStatsFcsErrorGet(&counter, 0);          /* Count number of received frames with FCS errors */
@@ -459,3 +460,4 @@ MV_U32 onuEponPmGpmValidGrantGet(MV_U32 macId)
 
   return(g_OnuEponPm[macId].gpm.grantValidCnt);
 }
+

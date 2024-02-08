@@ -235,6 +235,7 @@ do_illegal_instruction(struct pt_regs *regs)
 	force_sig(SIGILL, current);
 }
 
+
 /*
  * Handle unaligned memory accesses from user space. Kill task.
  *
@@ -290,6 +291,7 @@ do_debug(struct pt_regs *regs)
 
 	force_sig(SIGTRAP, current);
 }
+
 
 /*
  * Initialize dispatch tables.
@@ -453,6 +455,7 @@ void dump_stack(void)
 
 EXPORT_SYMBOL(dump_stack);
 
+
 void show_code(unsigned int *pc)
 {
 	long i;
@@ -501,3 +504,5 @@ void die(const char * str, struct pt_regs * regs, long err)
 
 	do_exit(err);
 }
+
+

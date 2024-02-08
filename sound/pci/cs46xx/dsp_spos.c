@@ -19,6 +19,7 @@
  * 2002-07 Benny Sjostrand benny@hostmobility.com
  */
 
+
 #include <asm/io.h>
 #include <linux/delay.h>
 #include <linux/pm.h>
@@ -159,6 +160,7 @@ static int add_symbols (struct snd_cs46xx * chip, struct dsp_module_desc * modul
 			snd_printk(KERN_ERR "dsp_spos: symbol table is full\n");
 			return -ENOMEM;
 		}
+
 
 		if (cs46xx_dsp_lookup_symbol(chip,
 					     module->symbol_table.symbols[i].symbol_name,
@@ -452,6 +454,7 @@ cs46xx_dsp_lookup_symbol (struct snd_cs46xx * chip, char * symbol_name, int symb
 	return NULL;
 }
 
+
 #ifdef CONFIG_PROC_FS
 static struct dsp_symbol_entry *
 cs46xx_dsp_lookup_symbol_addr (struct snd_cs46xx * chip, u32 address, int symbol_type)
@@ -470,8 +473,10 @@ cs46xx_dsp_lookup_symbol_addr (struct snd_cs46xx * chip, u32 address, int symbol
 		}
 	}
 
+
 	return NULL;
 }
+
 
 static void cs46xx_dsp_proc_symbol_table_read (struct snd_info_entry *entry,
 					       struct snd_info_buffer *buffer)
@@ -491,6 +496,7 @@ static void cs46xx_dsp_proc_symbol_table_read (struct snd_info_entry *entry,
 			module_str = ins->symbol_table.symbols[i].module->module_name;
 		}
 
+    
 		snd_iprintf(buffer, "%04X <%02X> %s [%s]\n",
 			    ins->symbol_table.symbols[i].address,
 			    ins->symbol_table.symbols[i].symbol_type,
@@ -498,6 +504,7 @@ static void cs46xx_dsp_proc_symbol_table_read (struct snd_info_entry *entry,
 			    module_str);    
 	}
 }
+
 
 static void cs46xx_dsp_proc_modules_read (struct snd_info_entry *entry,
 					  struct snd_info_buffer *buffer)
@@ -663,6 +670,7 @@ static void cs46xx_dsp_proc_sample_dump_read (struct snd_info_entry *entry,
 		snd_iprintf(buffer,"%08X ",readl(dst + i));
 	}
 
+
 	snd_iprintf(buffer,"\nSPDIFO_BUFFER:\n");
 	col = 0;
 	for (i = SPDIFO_IP_OUTPUT_BUFFER1;i < SPDIFO_IP_OUTPUT_BUFFER1 + 0x30; i += sizeof(u32),col ++) {
@@ -693,6 +701,7 @@ static void cs46xx_dsp_proc_sample_dump_read (struct snd_info_entry *entry,
 
 		snd_iprintf(buffer,"%08X ",readl(dst + i));
 	}
+
 
 	snd_iprintf(buffer,"\nOUTPUT_SNOOP:\n");
 	col = 0;
@@ -1031,6 +1040,7 @@ cs46xx_dsp_create_scb (struct snd_cs46xx *chip, char * name, u32 * scb_data, u32
 	return desc;
 }
 
+
 static struct dsp_task_descriptor *
 cs46xx_dsp_create_task_tree (struct snd_cs46xx *chip, char * name, u32 * task_data,
 			     u32 dest, int size)
@@ -1220,6 +1230,7 @@ int cs46xx_dsp_scb_and_task_init (struct snd_cs46xx *chip)
 		cs46xx_dsp_create_task_tree(chip,"FGtaskTreeHdr",(u32 *)&fg_task_tree_hdr,FG_TASK_HEADER_ADDR,0x35);
 	}
 
+
 	{
 		/* setup foreground task tree */
 		static struct dsp_task_tree_control_block bg_task_tree_hdr =  {
@@ -1390,6 +1401,7 @@ int cs46xx_dsp_scb_and_task_init (struct snd_cs46xx *chip)
 							     SCB_ON_PARENT_NEXT_SCB);
 	if (!rear_codec_out_scb) goto _fail_end;
 	
+	
 	/* create the rear PCM channel  mixer SCB */
 	rear_mix_scb = cs46xx_dsp_create_mix_only_scb(chip,"RearMixerSCB",
 						      MIX_SAMPLE_BUF3,
@@ -1408,6 +1420,7 @@ int cs46xx_dsp_scb_and_task_init (struct snd_cs46xx *chip)
 								     rear_codec_out_scb,
 								     SCB_ON_PARENT_NEXT_SCB);
 		if (!clfe_codec_out_scb) goto _fail_end;
+		
 		
 		/* create the rear PCM channel  mixer SCB */
 		ins->center_lfe_mix_scb = cs46xx_dsp_create_mix_only_scb(chip,"CLFEMixerSCB",
@@ -1434,6 +1447,7 @@ int cs46xx_dsp_scb_and_task_init (struct snd_cs46xx *chip)
 							     clfe_codec_out_scb,
 							     SCB_ON_PARENT_NEXT_SCB);
 
+    
 	if (!magic_snoop_scb) goto _fail_end;
 	ins->ref_snoop_scb = magic_snoop_scb;
 

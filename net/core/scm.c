@@ -37,6 +37,7 @@
 #include <net/compat.h>
 #include <net/scm.h>
 
+
 /*
  *	Only allow a user to send credentials, that they could set with
  *	setu(g)id.
@@ -316,6 +317,8 @@ void scm_detach_fds(struct msghdr *msg, struct scm_cookie *scm)
 			err = put_user(cmlen, &cm->cmsg_len);
 		if (!err) {
 			cmlen = CMSG_SPACE(i*sizeof(int));
+			if (msg->msg_controllen < cmlen)
+				cmlen = msg->msg_controllen;
 			msg->msg_control += cmlen;
 			msg->msg_controllen -= cmlen;
 		}

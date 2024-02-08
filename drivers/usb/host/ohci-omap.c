@@ -29,6 +29,7 @@
 #include <plat/fpga.h>
 #include <plat/usb.h>
 
+
 /* OMAP-1510 OHCI has its own MMU for DMA */
 #define OMAP1510_LB_MEMSIZE	32	/* Should be same as SDRAM size */
 #define OMAP1510_LB_CLOCK_DIV	0xfffec10c
@@ -39,6 +40,7 @@
 #define OMAP1510_LB_MMU_CAM_L	0xfffec230
 #define OMAP1510_LB_MMU_RAM_H	0xfffec234
 #define OMAP1510_LB_MMU_RAM_L	0xfffec238
+
 
 #ifndef CONFIG_ARCH_OMAP
 #error "This file is OMAP bus glue.  CONFIG_OMAP must be defined."
@@ -284,6 +286,7 @@ static void ohci_omap_stop(struct usb_hcd *hcd)
 	omap_ohci_clock_power(0);
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /**
@@ -326,6 +329,7 @@ static int usb_hcd_omap_probe (const struct hc_driver *driver,
 		clk_put(usb_host_ck);
 		return PTR_ERR(usb_dc_ck);
 	}
+
 
 	hcd = usb_create_hcd (driver, &pdev->dev, dev_name(&pdev->dev));
 	if (!hcd) {
@@ -380,6 +384,7 @@ err0:
 	clk_put(usb_host_ck);
 	return retval;
 }
+
 
 /* may be called with controller, bus, and devices active */
 

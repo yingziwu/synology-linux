@@ -814,7 +814,7 @@ static int wm8904_get_deemph(struct snd_kcontrol *kcontrol,
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
 	struct wm8904_priv *wm8904 = snd_soc_codec_get_drvdata(codec);
 
-	ucontrol->value.enumerated.item[0] = wm8904->deemph;
+	ucontrol->value.integer.value[0] = wm8904->deemph;
 	return 0;
 }
 
@@ -823,7 +823,7 @@ static int wm8904_put_deemph(struct snd_kcontrol *kcontrol,
 {
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
 	struct wm8904_priv *wm8904 = snd_soc_codec_get_drvdata(codec);
-	int deemph = ucontrol->value.enumerated.item[0];
+	int deemph = ucontrol->value.integer.value[0];
 
 	if (deemph > 1)
 		return -EINVAL;
@@ -1023,6 +1023,7 @@ static int out_pga_event(struct snd_soc_dapm_widget *w,
 		snd_soc_update_bits(codec, reg,
 				    WM8904_HPL_ENA | WM8904_HPR_ENA,
 				    WM8904_HPL_ENA | WM8904_HPR_ENA);
+
 
 		/* Enable the first stage */
 		snd_soc_update_bits(codec, reg,
@@ -1532,6 +1533,7 @@ static struct {
 	{ 480, 20 },
 };
 
+
 static int wm8904_hw_params(struct snd_pcm_substream *substream,
 			    struct snd_pcm_hw_params *params,
 			    struct snd_soc_dai *dai)
@@ -1572,6 +1574,7 @@ static int wm8904_hw_params(struct snd_pcm_substream *substream,
 	default:
 		return -EINVAL;
 	}
+
 
 	dev_dbg(codec->dev, "Target BCLK is %dHz\n", wm8904->bclk);
 
@@ -1658,6 +1661,7 @@ static int wm8904_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+
 static int wm8904_set_sysclk(struct snd_soc_dai *dai, int clk_id,
 			     unsigned int freq, int dir)
 {
@@ -1710,7 +1714,7 @@ static int wm8904_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 
 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
 	case SND_SOC_DAIFMT_DSP_B:
-		aif1 |= WM8904_AIF_LRCLK_INV;
+		aif1 |= 0x3 | WM8904_AIF_LRCLK_INV;
 	case SND_SOC_DAIFMT_DSP_A:
 		aif1 |= 0x3;
 		break;
@@ -1773,6 +1777,7 @@ static int wm8904_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 	return 0;
 }
 
+
 static int wm8904_set_tdm_slot(struct snd_soc_dai *dai, unsigned int tx_mask,
 			       unsigned int rx_mask, int slots, int slot_width)
 {
@@ -1799,6 +1804,7 @@ static int wm8904_set_tdm_slot(struct snd_soc_dai *dai, unsigned int tx_mask,
 	default:
 		return -EINVAL;
 	}
+
 
 	switch (tx_mask) {
 	case 3:
@@ -2356,6 +2362,7 @@ static void wm8904_handle_pdata(struct snd_soc_codec *codec)
 		snd_soc_add_controls(codec, wm8904_eq_controls,
 				     ARRAY_SIZE(wm8904_eq_controls));
 }
+
 
 static int wm8904_probe(struct snd_soc_codec *codec)
 {

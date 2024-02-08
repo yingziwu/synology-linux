@@ -53,6 +53,8 @@ typedef void (*s3c2410_dma_cbfn_t)(struct s3c2410_dma_chan *,
 typedef int  (*s3c2410_dma_opfn_t)(struct s3c2410_dma_chan *,
 				   enum s3c2410_chan_op );
 
+
+
 /* s3c2410_dma_request
  *
  * request a dma channel exclusivley
@@ -60,6 +62,7 @@ typedef int  (*s3c2410_dma_opfn_t)(struct s3c2410_dma_chan *,
 
 extern int s3c2410_dma_request(enum dma_ch channel,
 			       struct s3c2410_dma_client *, void *dev);
+
 
 /* s3c2410_dma_ctrl
  *
@@ -118,5 +121,6 @@ extern int s3c2410_dma_getposition(enum dma_ch channel,
 
 extern int s3c2410_dma_set_opfn(enum dma_ch, s3c2410_dma_opfn_t rtn);
 extern int s3c2410_dma_set_buffdone_fn(enum dma_ch, s3c2410_dma_cbfn_t rtn);
+
 
 #include <plat/dma-ops.h>

@@ -117,6 +117,7 @@ struct streamzap_ir {
 	char			phys[64];
 };
 
+
 /* local function prototypes */
 static int streamzap_probe(struct usb_interface *interface,
 			   const struct usb_device_id *id);
@@ -545,6 +546,7 @@ static void __exit streamzap_exit(void)
 {
 	usb_deregister(&streamzap_driver);
 }
+
 
 module_init(streamzap_init);
 module_exit(streamzap_exit);

@@ -41,6 +41,7 @@ enum bfa_lps_event {
 	BFA_LPS_SM_SET_N2N_PID  = 8,	/* Set assigned PID for n2n */
 };
 
+
 /*
  * !!! Only append to the enums defined here to avoid any versioning
  * !!! needed between trace utility and driver version
@@ -52,6 +53,7 @@ enum {
 	BFA_TRC_FCS_FCPIM	= 4,
 };
 
+
 struct bfa_fcs_s;
 
 #define __fcs_min_cfg(__fcs)       ((__fcs)->min_cfg)
@@ -62,6 +64,8 @@ struct bfa_fcs_s;
 #define	BFA_FCS_RETRY_TIMEOUT 2000
 #define BFA_FCS_PID_IS_WKA(pid)  ((bfa_ntoh3b(pid) > 0xFFF000) ?  1 : 0)
 
+
+
 struct bfa_fcs_lport_ns_s {
 	bfa_sm_t        sm;		/*  state machine */
 	struct bfa_timer_s timer;
@@ -70,6 +74,7 @@ struct bfa_fcs_lport_ns_s {
 	struct bfa_fcxp_wqe_s fcxp_wqe;
 };
 
+
 struct bfa_fcs_lport_scn_s {
 	bfa_sm_t        sm;		/*  state machine */
 	struct bfa_timer_s timer;
@@ -77,6 +82,7 @@ struct bfa_fcs_lport_scn_s {
 	struct bfa_fcxp_s *fcxp;
 	struct bfa_fcxp_wqe_s fcxp_wqe;
 };
+
 
 struct bfa_fcs_lport_fdmi_s {
 	bfa_sm_t        sm;		/*  state machine */
@@ -88,6 +94,7 @@ struct bfa_fcs_lport_fdmi_s {
 	u8	rsvd[3];
 };
 
+
 struct bfa_fcs_lport_ms_s {
 	bfa_sm_t        sm;		/*  state machine */
 	struct bfa_timer_s timer;
@@ -98,6 +105,7 @@ struct bfa_fcs_lport_ms_s {
 	u8         retry_cnt;	/*  retry count */
 	u8	rsvd[3];
 };
+
 
 struct bfa_fcs_lport_fab_s {
 	struct bfa_fcs_lport_ns_s ns;	/*  NS component of port */
@@ -121,11 +129,13 @@ struct bfa_fcs_lport_n2n_s {
 	wwn_t           rem_port_wwn;	/*  Attached port's wwn */
 };
 
+
 union bfa_fcs_lport_topo_u {
 	struct bfa_fcs_lport_fab_s pfab;
 	struct bfa_fcs_lport_loop_s ploop;
 	struct bfa_fcs_lport_n2n_s pn2n;
 };
+
 
 struct bfa_fcs_lport_s {
 	struct list_head         qe;	/*  used by port/vport */
@@ -164,6 +174,7 @@ enum bfa_fcs_fabric_type {
 	BFA_FCS_FABRIC_SWITCHED = 1,
 	BFA_FCS_FABRIC_N2N = 2,
 };
+
 
 struct bfa_fcs_fabric_s {
 	struct list_head   qe;		/*  queue element */
@@ -507,11 +518,13 @@ bfa_fcs_itnim_get_drvport(struct bfa_fcs_itnim_s *itnim)
 	return itnim->rport->port->bfad_port;
 }
 
+
 static inline struct bfa_fcs_lport_s *
 bfa_fcs_itnim_get_port(struct bfa_fcs_itnim_s *itnim)
 {
 	return itnim->rport->port;
 }
+
 
 static inline wwn_t
 bfa_fcs_itnim_get_nwwn(struct bfa_fcs_itnim_s *itnim)
@@ -519,11 +532,13 @@ bfa_fcs_itnim_get_nwwn(struct bfa_fcs_itnim_s *itnim)
 	return itnim->rport->nwwn;
 }
 
+
 static inline wwn_t
 bfa_fcs_itnim_get_pwwn(struct bfa_fcs_itnim_s *itnim)
 {
 	return itnim->rport->pwwn;
 }
+
 
 static inline u32
 bfa_fcs_itnim_get_fcid(struct bfa_fcs_itnim_s *itnim)
@@ -531,11 +546,13 @@ bfa_fcs_itnim_get_fcid(struct bfa_fcs_itnim_s *itnim)
 	return itnim->rport->pid;
 }
 
+
 static inline	u32
 bfa_fcs_itnim_get_maxfrsize(struct bfa_fcs_itnim_s *itnim)
 {
 	return itnim->rport->maxfrsize;
 }
+
 
 static inline	enum fc_cos
 bfa_fcs_itnim_get_cos(struct bfa_fcs_itnim_s *itnim)
@@ -543,11 +560,13 @@ bfa_fcs_itnim_get_cos(struct bfa_fcs_itnim_s *itnim)
 	return itnim->rport->fc_cos;
 }
 
+
 static inline struct bfad_itnim_s *
 bfa_fcs_itnim_get_drvitn(struct bfa_fcs_itnim_s *itnim)
 {
 	return itnim->itnim_drv;
 }
+
 
 static inline struct bfa_itnim_s *
 bfa_fcs_itnim_get_halitn(struct bfa_fcs_itnim_s *itnim)

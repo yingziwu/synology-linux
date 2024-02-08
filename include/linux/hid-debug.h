@@ -36,6 +36,7 @@ void hid_debug_init(void);
 void hid_debug_exit(void);
 void hid_debug_event(struct hid_device *, char *);
 
+
 struct hid_debug_list {
 	char *hid_debug_buf;
 	int head;
@@ -61,3 +62,4 @@ struct hid_debug_list {
 #endif
 
 #endif
+

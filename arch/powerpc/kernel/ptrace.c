@@ -359,6 +359,10 @@ static int fpr_set(struct task_struct *target, const struct user_regset *regset,
 	flush_fp_to_thread(target);
 
 #ifdef CONFIG_VSX
+	for (i = 0; i < 32 ; i++)
+		buf[i] = target->thread.TS_FPR(i);
+	memcpy(&buf[32], &target->thread.fpscr, sizeof(double));
+
 	/* copy to local buffer then write that out */
 	i = user_regset_copyin(&pos, &count, &kbuf, &ubuf, buf, 0, -1);
 	if (i)
@@ -501,10 +505,14 @@ static int vsr_set(struct task_struct *target, const struct user_regset *regset,
 
 	flush_vsx_to_thread(target);
 
+	for (i = 0; i < 32 ; i++)
+		buf[i] = target->thread.fpr[i][TS_VSRLOWOFFSET];
+
 	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
 				 buf, 0, 32 * sizeof(double));
 	for (i = 0; i < 32 ; i++)
 		target->thread.fpr[i][TS_VSRLOWOFFSET] = buf[i];
+
 
 	return ret;
 }
@@ -575,6 +583,7 @@ static int evr_set(struct task_struct *target, const struct user_regset *regset,
 	return ret;
 }
 #endif /* CONFIG_SPE */
+
 
 /*
  * These are our native regset flavors.
@@ -720,6 +729,7 @@ static int gpr32_set(struct task_struct *target,
 			regs[pos++] = reg;
 		}
 
+
 	if (count > 0 && pos == PT_MSR) {
 		if (kbuf)
 			reg = *k++;
@@ -808,6 +818,7 @@ const struct user_regset_view *task_user_regset_view(struct task_struct *task)
 #endif
 	return &user_ppc_native_view;
 }
+
 
 void user_enable_single_step(struct task_struct *task)
 {

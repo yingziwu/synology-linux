@@ -77,3 +77,4 @@ struct sys_timer at91x40_timer = {
 	.init	= at91x40_timer_init,
 	.offset	= at91x40_gettimeoffset,
 };
+

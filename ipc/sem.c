@@ -135,6 +135,7 @@ struct sem_undo_list {
 	struct list_head	list_proc;
 };
 
+
 #define sem_ids(ns)	((ns)->ids[IPC_SEM_IDS])
 
 #define sem_unlock(sma)		ipc_unlock(&(sma)->sem_perm)
@@ -313,14 +314,6 @@ static int newary(struct ipc_namespace *ns, struct ipc_params *params)
 		return retval;
 	}
 
-	id = ipc_addid(&sem_ids(ns), &sma->sem_perm, ns->sc_semmni);
-	if (id < 0) {
-		security_sem_free(sma);
-		ipc_rcu_putref(sma);
-		return id;
-	}
-	ns->used_sems += nsems;
-
 	sma->sem_base = (struct sem *) &sma[1];
 
 	for (i = 0; i < nsems; i++)
@@ -331,10 +324,20 @@ static int newary(struct ipc_namespace *ns, struct ipc_params *params)
 	INIT_LIST_HEAD(&sma->list_id);
 	sma->sem_nsems = nsems;
 	sma->sem_ctime = get_seconds();
+
+	id = ipc_addid(&sem_ids(ns), &sma->sem_perm, ns->sc_semmni);
+	if (id < 0) {
+		security_sem_free(sma);
+		ipc_rcu_putref(sma);
+		return id;
+	}
+	ns->used_sems += nsems;
+
 	sem_unlock(sma);
 
 	return sma->sem_perm.id;
 }
+
 
 /*
  * Called with sem_ids.rw_mutex and ipcp locked.
@@ -569,6 +572,7 @@ static int check_restart(struct sem_array *sma, struct sem_queue *q)
 	return 0;
 }
 
+
 /**
  * update_queue(sma, semnum): Look for tasks that can be completed.
  * @sma: semaphore array.
@@ -683,6 +687,7 @@ done:
 	if (otime)
 		sma->sem_otime = get_seconds();
 }
+
 
 /* The following counts are associated to each semaphore:
  *   semncnt        number of tasks waiting on semval being nonzero
@@ -1296,6 +1301,7 @@ out:
 	return un;
 }
 
+
 /**
  * get_queue_result - Retrieve the result code from sem_queue
  * @q: Pointer to queue structure
@@ -1320,6 +1326,7 @@ static int get_queue_result(struct sem_queue *q)
 
 	return error;
 }
+
 
 SYSCALL_DEFINE4(semtimedop, int, semid, struct sembuf __user *, tsops,
 		unsigned, nsops, const struct timespec __user *, timeout)
@@ -1505,6 +1512,7 @@ sleep_again:
 		goto out_free;
 	}
 
+
 	/*
 	 * If queue.status != -EINTR we are woken up by another process.
 	 * Leave without unlink_queue(), but with sem_unlock().
@@ -1599,16 +1607,27 @@ void exit_sem(struct task_struct *tsk)
 		rcu_read_lock();
 		un = list_entry_rcu(ulp->list_proc.next,
 				    struct sem_undo, list_proc);
-		if (&un->list_proc == &ulp->list_proc)
-			semid = -1;
-		 else
-			semid = un->semid;
+		if (&un->list_proc == &ulp->list_proc) {
+			/*
+			 * We must wait for freeary() before freeing this ulp,
+			 * in case we raced with last sem_undo. There is a small
+			 * possibility where we exit while freeary() didn't
+			 * finish unlocking sem_undo_list.
+			 */
+			spin_unlock_wait(&ulp->lock);
+			rcu_read_unlock();
+			break;
+		}
+		spin_lock(&ulp->lock);
+		semid = un->semid;
+		spin_unlock(&ulp->lock);
 		rcu_read_unlock();
 
+		/* exit_sem raced with IPC_RMID, nothing to do */
 		if (semid == -1)
-			break;
+			continue;
 
-		sma = sem_lock_check(tsk->nsproxy->ipc_ns, un->semid);
+		sma = sem_lock_check(tsk->nsproxy->ipc_ns, semid);
 
 		/* exit_sem raced with IPC_RMID, nothing to do */
 		if (IS_ERR(sma))

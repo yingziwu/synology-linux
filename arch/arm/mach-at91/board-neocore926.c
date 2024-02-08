@@ -50,6 +50,7 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
+
 static void __init neocore926_init_early(void)
 {
 	/* Initialize processor: 20 MHz crystal */
@@ -80,6 +81,7 @@ static struct at91_udc_data __initdata neocore926_udc_data = {
 	.vbus_pin	= AT91_PIN_PA25,
 	.pullup_pin	= 0,		/* pull-up driven by UDC */
 };
+
 
 /*
  * ADS7846 Touchscreen
@@ -139,6 +141,7 @@ static struct spi_board_info neocore926_spi_devices[] = {
 #endif
 };
 
+
 /*
  * MCI (SD/MMC)
  */
@@ -148,6 +151,7 @@ static struct at91_mmc_data __initdata neocore926_mmc_data = {
 	.wp_pin		= AT91_PIN_PE19,
 };
 
+
 /*
  * MACB Ethernet device
  */
@@ -155,6 +159,7 @@ static struct at91_eth_data __initdata neocore926_macb_data = {
 	.phy_irq_pin	= AT91_PIN_PE31,
 	.is_rmii	= 1,
 };
+
 
 /*
  * NAND flash
@@ -213,6 +218,7 @@ static void __init neocore926_add_device_nand(void)
 	at91_add_device_nand(&neocore926_nand_data);
 }
 
+
 /*
  * LCD Controller
  */
@@ -270,6 +276,7 @@ static struct atmel_lcdfb_info __initdata neocore926_lcdc_data = {
 static struct atmel_lcdfb_info __initdata neocore926_lcdc_data;
 #endif
 
+
 /*
  * GPIO Buttons
  */
@@ -318,12 +325,14 @@ static void __init neocore926_add_device_buttons(void)
 static void __init neocore926_add_device_buttons(void) {}
 #endif
 
+
 /*
  * AC97
  */
 static struct ac97c_platform_data neocore926_ac97_data = {
 	.reset_pin	= AT91_PIN_PA13,
 };
+
 
 static void __init neocore926_board_init(void)
 {

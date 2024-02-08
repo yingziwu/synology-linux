@@ -527,6 +527,7 @@ err_hlid:
 	__clear_bit(wl->dev_hlid, wl->links_map);
 	wl->dev_hlid = WL12XX_INVALID_LINK_ID;
 
+
 out_free:
 	kfree(cmd);
 
@@ -848,6 +849,7 @@ out:
 	return ret;
 }
 
+
 /**
  * send test command to firmware
  *
@@ -1056,6 +1058,7 @@ int wl1271_cmd_build_null_data(struct wl1271 *wl)
 	int size;
 	void *ptr;
 	int ret = -ENOMEM;
+
 
 	if (wl->bss_type == BSS_TYPE_IBSS) {
 		size = sizeof(struct wl12xx_null_data_template);
@@ -1633,6 +1636,7 @@ static int wl12xx_cmd_roc(struct wl1271 *wl, u8 role_id)
 		ret = -EINVAL;
 		goto out_free;
 	}
+
 
 	ret = wl1271_cmd_send(wl, CMD_REMAIN_ON_CHANNEL, cmd, sizeof(*cmd), 0);
 	if (ret < 0) {

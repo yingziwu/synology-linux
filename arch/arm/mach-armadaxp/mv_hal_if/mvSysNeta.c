@@ -69,6 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cpu/mvCpu.h"
 #include "neta/gbe/mvNeta.h"
 
+
 /*******************************************************************************
 * mvSysNetaInit - Initialize the Eth subsystem
 *
@@ -144,3 +145,4 @@ void 	mvSysNetaInit(MV_U32 portMask, MV_U32 cpuMask)
 
 	return;
 }
+

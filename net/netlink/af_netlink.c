@@ -1573,6 +1573,7 @@ out_sock_release_nosk:
 }
 EXPORT_SYMBOL(netlink_kernel_create);
 
+
 void
 netlink_kernel_release(struct sock *sk)
 {
@@ -1991,6 +1992,7 @@ static void netlink_seq_stop(struct seq_file *seq, void *v)
 	read_unlock(&nl_table_lock);
 }
 
+
 static int netlink_seq_show(struct seq_file *seq, void *v)
 {
 	if (v == SEQ_START_TOKEN)
@@ -2024,6 +2026,7 @@ static const struct seq_operations netlink_seq_ops = {
 	.stop   = netlink_seq_stop,
 	.show   = netlink_seq_show,
 };
+
 
 static int netlink_seq_open(struct inode *inode, struct file *file)
 {

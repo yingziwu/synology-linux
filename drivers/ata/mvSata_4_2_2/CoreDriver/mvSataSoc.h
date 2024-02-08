@@ -72,8 +72,10 @@ extern "C" /*{*/
 #include "mvOs.h"
 #include "ctrlEnv/mvCtrlEnvSpec.h"
 
+
 MV_BOOL mvSataPhyShutdown(MV_U8 port);
 MV_BOOL mvSataPhyPowerOn(MV_U8 port);
+
 
 #ifdef __cplusplus
 
@@ -81,3 +83,4 @@ MV_BOOL mvSataPhyPowerOn(MV_U8 port);
 #endif /* __cplusplus */
 
 #endif /* __INCmvSatah */
+

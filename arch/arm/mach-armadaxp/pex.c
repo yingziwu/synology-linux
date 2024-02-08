@@ -361,10 +361,12 @@ static int mv_pci_write_config(struct pci_bus *bus, unsigned int devfn,
 	return 0;
 }
 
+
 static struct pci_ops mv_pci_ops = {
 	.read   = mv_pci_read_config,
 	.write  = mv_pci_write_config,
 };
+
 
 int __init mv_pex_setup(int nr, struct pci_sys_data *sys)
 {
@@ -436,6 +438,7 @@ int __init mv_pex_setup(int nr, struct pci_sys_data *sys)
 	return 1;
 }
 
+
 struct pci_bus *mv_pex_scan_bus(int nr, struct pci_sys_data *sys)
 {
 	struct pci_ops *ops = &mv_pci_ops;	
@@ -462,6 +465,7 @@ struct pci_bus *mv_pex_scan_bus(int nr, struct pci_sys_data *sys)
 
 	return bus;
 }
+
 
 static int __init mv_map_irq_0(const struct pci_dev *dev, u8 slot, u8 pin)
 {	

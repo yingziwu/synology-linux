@@ -125,6 +125,7 @@ static void print_overflow_msg(const char *func, const struct xdr_stream *xdr)
 		func, xdr->end - xdr->p);
 }
 
+
 /*
  * Encode/decode NFSv3 basic data types
  *
@@ -819,6 +820,7 @@ static void encode_diropargs3(struct xdr_stream *xdr, const struct nfs_fh *fh,
 	encode_filename3(xdr, name, length);
 }
 
+
 /*
  * NFSv3 XDR encode functions
  *
@@ -1331,7 +1333,7 @@ static void nfs3_xdr_enc_setacl3args(struct rpc_rqst *req,
 	if (args->npages != 0)
 		xdr_write_pages(xdr, args->pages, 0, args->len);
 	else
-		xdr_reserve_space(xdr, NFS_ACL_INLINE_BUFSIZE);
+		xdr_reserve_space(xdr, args->len);
 
 	error = nfsacl_encode(xdr->buf, base, args->inode,
 			    (args->mask & NFS_ACL) ?

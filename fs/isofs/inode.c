@@ -124,8 +124,8 @@ static void destroy_inodecache(void)
 
 static int isofs_remount(struct super_block *sb, int *flags, char *data)
 {
-	/* we probably want a lot more here */
-	*flags |= MS_RDONLY;
+	if (!(*flags & MS_RDONLY))
+		return -EROFS;
 	return 0;
 }
 
@@ -137,6 +137,7 @@ static const struct super_operations isofs_sops = {
 	.remount_fs	= isofs_remount,
 	.show_options	= generic_show_options,
 };
+
 
 static const struct dentry_operations isofs_dentry_ops[] = {
 	{
@@ -720,6 +721,11 @@ static int isofs_fill_super(struct super_block *s, void *data, int silent)
 	pri_bh = NULL;
 
 root_found:
+	/* We don't support read-write mounts */
+	if (!(s->s_flags & MS_RDONLY)) {
+		error = -EACCES;
+		goto out_freebh;
+	}
 
 	if (joliet_level && (pri == NULL || !opt.rock)) {
 		/* This is the case of Joliet with the norock mount flag.
@@ -772,15 +778,6 @@ root_found:
 	 * size of a file system, which is 8 TB.
 	 */
 	s->s_maxbytes = 0x80000000000LL;
-
-	/*
-	 * The CDROM is read-only, has no nodes (devices) on it, and since
-	 * all of the files appear to be owned by root, we really do not want
-	 * to allow suid.  (suid or devices will not show up unless we have
-	 * Rock Ridge extensions)
-	 */
-
-	s->s_flags |= MS_RDONLY /* | MS_NODEV | MS_NOSUID */;
 
 	/* Set this for reference. Its not currently used except on write
 	   which we don't have .. */
@@ -1040,6 +1037,7 @@ int isofs_get_blocks(struct inode *inode, sector_t iblock,
 		printk(KERN_DEBUG "%s: block number too large\n", __func__);
 		goto abort;
 	}
+
 
 	offset = 0;
 	firstext = ei->i_first_extent;

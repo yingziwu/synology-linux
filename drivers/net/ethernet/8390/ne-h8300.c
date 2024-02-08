@@ -81,6 +81,7 @@ static void ne_block_input(struct net_device *dev, int count,
 static void ne_block_output(struct net_device *dev, const int count,
 		const unsigned char *buf, const int start_page);
 
+
 static u32 reg_offset[16];
 
 static int __init init_reg_offset(struct net_device *dev,unsigned long base_addr)
@@ -608,6 +609,7 @@ retry:
 	outb_p(ENISR_RDC, NE_BASE + EN0_ISR);	/* Ack intr. */
 	ei_status.dmaing &= ~0x01;
 }
+
 
 #ifdef MODULE
 #define MAX_NE_CARDS	1	/* Max number of NE cards per module */

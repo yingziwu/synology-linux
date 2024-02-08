@@ -95,11 +95,13 @@ int radeon_cs_parser_init(struct radeon_cs_parser *p, void *data)
 	uint64_t *chunk_array_ptr;
 	unsigned size, i, flags = 0;
 
+	INIT_LIST_HEAD(&p->validated);
+
 	if (!cs->num_chunks) {
 		return 0;
 	}
+
 	/* get chunks */
-	INIT_LIST_HEAD(&p->validated);
 	p->idx = 0;
 	p->chunk_ib_idx = -1;
 	p->chunk_relocs_idx = -1;
@@ -199,6 +201,7 @@ int radeon_cs_parser_init(struct radeon_cs_parser *p, void *data)
 static void radeon_cs_parser_fini(struct radeon_cs_parser *parser, int error)
 {
 	unsigned i;
+
 
 	if (!error && parser->ib)
 		ttm_eu_fence_buffer_objects(&parser->validated,

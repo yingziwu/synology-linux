@@ -26,8 +26,10 @@
  *
  */
 
+
 #ifndef __TTYPE_H__
 #define __TTYPE_H__
+
 
 /******* Common definitions and typedefs ***********************************/
 

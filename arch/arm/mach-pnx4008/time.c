@@ -132,3 +132,4 @@ struct sys_timer pnx4008_timer = {
 	.suspend = pnx4008_timer_suspend,
 	.resume = pnx4008_timer_resume,
 };
+

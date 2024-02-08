@@ -173,6 +173,7 @@ static inline int compute_score(struct sock *sk, struct net *net,
  * wildcarded during the search since they can never be otherwise.
  */
 
+
 struct sock *__inet_lookup_listener(struct net *net,
 				    struct inet_hashinfo *hashinfo,
 				    const __be32 daddr, const unsigned short hnum,
@@ -267,7 +268,7 @@ begintw:
 			}
 			if (unlikely(!INET_TW_MATCH(sk, net, hash, acookie,
 				 saddr, daddr, ports, dif))) {
-				sock_put(sk);
+				inet_twsk_put(inet_twsk(sk));
 				goto begintw;
 			}
 			goto out;

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -232,6 +233,7 @@ void mv_eth_tool_write_mdio(struct net_device *netdev, int addr, int reg, int da
 	mvEthPhyRegWrite(addr, reg, tmp);
 	spin_unlock_irqrestore(&mii_lock, flags);
 }
+
 
 /******************************************************************************
 * mv_eth_tool_read_phy_reg
@@ -615,6 +617,7 @@ u32 mv_eth_tool_get_link(struct net_device *netdev)
 
 	return 0;
 }
+
 
 /******************************************************************************
 * mv_eth_tool_get_coalesce

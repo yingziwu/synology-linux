@@ -397,7 +397,13 @@ static void gfar_init_mac(struct net_device *ndev)
 	if (ndev->features & NETIF_F_IP_CSUM)
 		tctrl |= TCTRL_INIT_CSUM;
 
-	tctrl |= TCTRL_TXSCHED_PRIO;
+	if (priv->prio_sched_en)
+		tctrl |= TCTRL_TXSCHED_PRIO;
+	else {
+		tctrl |= TCTRL_TXSCHED_WRRS;
+		gfar_write(&regs->tr03wt, DEFAULT_WRRS_WEIGHT);
+		gfar_write(&regs->tr47wt, DEFAULT_WRRS_WEIGHT);
+	}
 
 	gfar_write(&regs->tctrl, tctrl);
 
@@ -710,6 +716,7 @@ static int gfar_of_init(struct platform_device *ofdev, struct net_device **pdev)
 		priv->rx_queue[i]->dev = dev;
 		spin_lock_init(&(priv->rx_queue[i]->rxlock));
 	}
+
 
 	stash = of_get_property(np, "bd-stash", NULL);
 
@@ -1156,6 +1163,9 @@ static int gfar_probe(struct platform_device *ofdev)
 	priv->rx_filer_enable = 1;
 	/* Enable most messages by default */
 	priv->msg_enable = (NETIF_MSG_IFUP << 1 ) - 1;
+	/* use pritority h/w tx queue scheduling for single queue devices */
+	if (priv->num_tx_queues == 1)
+		priv->prio_sched_en = 1;
 
 	/* Carrier starts down, phylib will bring it up */
 	netif_carrier_off(dev);
@@ -1442,6 +1452,7 @@ static phy_interface_t gfar_get_interface(struct net_device *dev)
 	return PHY_INTERFACE_MODE_MII;
 }
 
+
 /* Initializes driver's PHY state, and attaches to the PHY.
  * Returns 0 on success.
  */
@@ -1666,6 +1677,7 @@ void stop_gfar(struct net_device *dev)
 	int i;
 
 	phy_stop(priv->phydev);
+
 
 	/* Lock it down */
 	local_irq_save(flags);
@@ -2080,10 +2092,10 @@ static int gfar_start_xmit(struct sk_buff *skb, struct net_device *dev)
 		skb_new = skb_realloc_headroom(skb, GMAC_FCB_LEN);
 		if (!skb_new) {
 			dev->stats.tx_errors++;
-			kfree_skb(skb);
+			dev_kfree_skb_any(skb);
 			return NETDEV_TX_OK;
 		}
-		kfree_skb(skb);
+		dev_kfree_skb_any(skb);
 		skb = skb_new;
 	}
 
@@ -2669,6 +2681,7 @@ static inline void gfar_rx_checksum(struct sk_buff *skb, struct rxfcb *fcb)
 		skb_checksum_none_assert(skb);
 }
 
+
 /* gfar_process_frame() -- handle one incoming packet if skb
  * isn't NULL.  */
 static int gfar_process_frame(struct net_device *dev, struct sk_buff *skb,
@@ -3104,6 +3117,7 @@ static void gfar_set_multi(struct net_device *dev)
 	}
 }
 
+
 /* Clears each of the exact match registers to zero, so they
  * don't interfere with normal reception */
 static void gfar_clear_exact_match(struct net_device *dev)
@@ -3142,6 +3156,7 @@ static void gfar_set_hash_for_addr(struct net_device *dev, u8 *addr)
 	tempval |= value;
 	gfar_write(priv->hash_regs[whichreg], tempval);
 }
+
 
 /* There are multiple MAC Address register pairs on some controllers
  * This function sets the numth pair to a given address
@@ -3287,3 +3302,4 @@ static void __exit gfar_exit(void)
 
 module_init(gfar_init);
 module_exit(gfar_exit);
+

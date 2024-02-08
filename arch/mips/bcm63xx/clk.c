@@ -17,6 +17,7 @@
 
 static DEFINE_MUTEX(clocks_mutex);
 
+
 static void clk_enable_unlocked(struct clk *clk)
 {
 	if (clk->set && (clk->usage++) == 0)
@@ -106,6 +107,7 @@ static void ephy_set(struct clk *clk, int enable)
 	bcm_hwclock_set(CKCTL_6358_EPHY_EN, enable);
 }
 
+
 static struct clk clk_ephy = {
 	.set	= ephy_set,
 };
@@ -166,6 +168,7 @@ static struct clk clk_periph = {
 	.rate	= (50 * 1000 * 1000),
 };
 
+
 /*
  * Linux clock API implementation
  */
@@ -190,6 +193,9 @@ EXPORT_SYMBOL(clk_disable);
 
 unsigned long clk_get_rate(struct clk *clk)
 {
+	if (!clk)
+		return 0;
+
 	return clk->rate;
 }
 

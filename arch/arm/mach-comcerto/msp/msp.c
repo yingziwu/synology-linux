@@ -118,6 +118,7 @@ void update_pfe_status_for_MSP(void)
 	global_msp_info->msp_phys = COMCERTO_MSP_DDR_BASE;
 }
 
+
 /* PFE inform MSP it is stopped */
 void msp_unregister_pfe(void)
 {
@@ -218,9 +219,11 @@ static int msp_ready(struct comcerto_msp *msp, unsigned long timeout)
 
 	return 1;
 
+
 err:
 	return 0;
 }
+
 
 static int msp_start(struct comcerto_msp *msp)
 {
@@ -250,6 +253,7 @@ static int msp_start(struct comcerto_msp *msp)
 	}
 
 	return 0;
+
 
 err:
 	return -1;

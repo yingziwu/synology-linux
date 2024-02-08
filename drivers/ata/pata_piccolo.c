@@ -27,6 +27,8 @@
 #define DRV_NAME "pata_piccolo"
 #define DRV_VERSION "0.0.1"
 
+
+
 static void tosh_set_piomode(struct ata_port *ap, struct ata_device *adev)
 {
 	static const u16 pio[6] = {	/* For reg 0x50 low word & E088 */
@@ -59,6 +61,7 @@ static void tosh_set_dmamode(struct ata_port *ap, struct ata_device *adev)
 	}
 	pci_write_config_dword(pdev, 0x5C, conf);
 }
+
 
 static struct scsi_host_template tosh_sht = {
 	ATA_BMDMA_SHT(DRV_NAME),
@@ -119,10 +122,12 @@ static int __init ata_tosh_init(void)
 	return pci_register_driver(&ata_tosh_pci_driver);
 }
 
+
 static void __exit ata_tosh_exit(void)
 {
 	pci_unregister_driver(&ata_tosh_pci_driver);
 }
+
 
 MODULE_AUTHOR("Alan Cox");
 MODULE_DESCRIPTION("Low level driver for Toshiba Piccolo ATA");
@@ -132,3 +137,4 @@ MODULE_VERSION(DRV_VERSION);
 
 module_init(ata_tosh_init);
 module_exit(ata_tosh_exit);
+

@@ -161,6 +161,7 @@ static int set_attention_status(struct hotplug_slot *hotplug_slot, u8 status)
 	return pciehp_set_attention_status(slot, status);
 }
 
+
 static int enable_slot(struct hotplug_slot *hotplug_slot)
 {
 	struct slot *slot = hotplug_slot->private;
@@ -170,6 +171,7 @@ static int enable_slot(struct hotplug_slot *hotplug_slot)
 
 	return pciehp_sysfs_enable_slot(slot);
 }
+
 
 static int disable_slot(struct hotplug_slot *hotplug_slot)
 {
@@ -234,6 +236,13 @@ static int pciehp_probe(struct pcie_device *dev)
 			 pci_name(dev->port));
 	else if (pciehp_acpi_slot_detection_check(dev->port))
 		goto err_out_none;
+
+	if (!dev->port->subordinate) {
+		/* Can happen if we run out of bus numbers during probe */
+		dev_err(&dev->device,
+			"Hotplug bridge without secondary bus, ignoring\n");
+		goto err_out_none;
+	}
 
 	ctrl = pcie_init(dev);
 	if (!ctrl) {

@@ -161,6 +161,7 @@
 #define PACKED		__attribute__((packed))
 #define ALIGNED(x)	__attribute__((aligned(x)))
 
+
 /* The 14F uses an array of 4-byte ints for its scatter/gather list.
    The data can be unaligned, but need not be.  It's easier to give
    the list normal alignment since it doesn't need to fit into a
@@ -170,6 +171,7 @@ typedef struct {
   u32 address;
   u32 num_bytes;
 } ultrastor_sg_list;
+
 
 /* MailBox SCSI Command Packet.  Basic command structure for communicating
    with controller. */
@@ -200,6 +202,7 @@ struct mscp {
   ultrastor_sg_list sglist[ULTRASTOR_24F_MAX_SG]; /* use larger size for 24F */
 };
 
+
 /* Port addresses (relative to the base address) */
 #define U14F_PRODUCT_ID(port) ((port) + 0x4)
 #define CONFIG(port) ((port) + 0x6)
@@ -209,6 +212,7 @@ struct mscp {
 #define LCL_DOORBELL_INTR(port) ((port) + 0x1)
 #define SYS_DOORBELL_MASK(port) ((port) + 0x2)
 #define SYS_DOORBELL_INTR(port) ((port) + 0x3)
+
 
 /* Used to store configuration info read from config i/o registers.  Most of
    this is not used yet, but might as well save it.
@@ -258,6 +262,7 @@ static struct ultrastor_config
 /* Set this to 1 to reset the SCSI bus on error.  */
 static int ultrastor_bus_reset;
 
+
 /* Allowed BIOS base addresses (NULL indicates reserved) */
 static const void *const bios_segment_table[8] = {
   NULL,	     (void *)0xC4000, (void *)0xC8000, (void *)0xCC000,
@@ -286,6 +291,7 @@ static const unsigned short ultrastor_ports_14f[] = {
 static void ultrastor_interrupt(void *);
 static irqreturn_t do_ultrastor_interrupt(int, void *);
 static inline void build_sg_list(struct mscp *, struct scsi_cmnd *SCpnt);
+
 
 /* Always called with host lock held */
 

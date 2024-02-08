@@ -2355,6 +2355,7 @@ bnx2_init_copper_phy(struct bnx2 *bp, int reset_phy)
 	return 0;
 }
 
+
 static int
 bnx2_init_phy(struct bnx2 *bp, int reset_phy)
 __releases(&bp->phy_lock)
@@ -4089,6 +4090,7 @@ bnx2_release_nvram_lock(struct bnx2 *bp)
 	return 0;
 }
 
+
 static int
 bnx2_enable_nvram_write(struct bnx2 *bp)
 {
@@ -4126,6 +4128,7 @@ bnx2_disable_nvram_write(struct bnx2 *bp)
 	val = REG_RD(bp, BNX2_MISC_CFG);
 	REG_WR(bp, BNX2_MISC_CFG, val & ~BNX2_MISC_CFG_NVM_WR_EN);
 }
+
 
 static void
 bnx2_enable_nvram_access(struct bnx2 *bp)
@@ -4233,6 +4236,7 @@ bnx2_nvram_read_dword(struct bnx2 *bp, u32 offset, u8 *ret_val, u32 cmd_flags)
 
 	return 0;
 }
+
 
 static int
 bnx2_nvram_write_dword(struct bnx2 *bp, u32 offset, u8 *val, u32 cmd_flags)
@@ -8612,3 +8616,6 @@ static void __exit bnx2_cleanup(void)
 
 module_init(bnx2_init);
 module_exit(bnx2_cleanup);
+
+
+

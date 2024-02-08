@@ -101,6 +101,7 @@ static int gpio_leds_ioctl(unsigned int cmd, unsigned long arg);
 static int gpio_pwm_ioctl(struct gpio_private *priv, unsigned int cmd,
 	unsigned long arg);
 
+
 /* linked list of alarms to check for */
 
 static struct gpio_private *alarmlist;
@@ -335,6 +336,7 @@ static void gpio_write_byte(struct gpio_private *priv, unsigned long *port,
 			gpio_write_bit(port, data, i, priv->clk_mask,
 				priv->data_mask);
 }
+
 
 static ssize_t gpio_write(struct file *file, const char __user *buf,
 	size_t count, loff_t *off)

@@ -65,6 +65,7 @@ bool handle_irq(unsigned irq, struct pt_regs *regs)
 	return true;
 }
 
+
 extern void call_softirq(void);
 
 asmlinkage void do_softirq(void)

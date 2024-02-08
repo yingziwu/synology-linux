@@ -54,6 +54,7 @@ static char *radeon_get_mon_name(int type)
 	return pret;
 }
 
+
 #if defined(CONFIG_PPC_OF) || defined(CONFIG_SPARC)
 /*
  * Try to find monitor informations & EDID data out of the Open Firmware
@@ -160,6 +161,7 @@ static int __devinit radeon_probe_OF_head(struct radeonfb_info *rinfo, int head_
         return MT_NONE;
 }
 #endif /* CONFIG_PPC_OF || CONFIG_SPARC */
+
 
 static int __devinit radeon_get_panel_info_BIOS(struct radeonfb_info *rinfo)
 {
@@ -288,6 +290,7 @@ static void __devinit radeon_parse_connector_info(struct radeonfb_info *rinfo)
 		}
 	}
 }
+
 
 /*
  * Probe physical connection of a CRT. This code comes from XFree
@@ -641,6 +644,7 @@ void __devinit radeon_probe_screens(struct radeonfb_info *rinfo,
 		printk(KERN_INFO "radeonfb: EDID probed\n");
 }
 
+
 /*
  * This functions applyes any arch/model/machine specific fixups
  * to the panel info. It may eventually alter EDID block as
@@ -674,6 +678,7 @@ static void radeon_fixup_panel_info(struct radeonfb_info *rinfo)
 	}
 #endif /* CONFIG_PPC_OF */
 }
+
 
 /*
  * Fill up panel infos from a mode definition, either returned by the EDID
@@ -811,6 +816,7 @@ void __devinit radeon_check_modes(struct radeonfb_info *rinfo, const char *mode_
 		rinfo->mon1_dbsize = info->monspecs.modedb_len;
 	}
 
+	
 	/*
 	 * Finally, if we don't have panel infos we need to figure some (or
 	 * we try to read it from card), we try to pick a default mode

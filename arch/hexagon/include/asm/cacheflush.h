@@ -92,6 +92,7 @@ static inline void copy_to_user_page(struct vm_area_struct *vma,
 	}
 }
 
+
 extern void hexagon_inv_dcache_range(unsigned long start, unsigned long end);
 extern void hexagon_clean_dcache_range(unsigned long start, unsigned long end);
 

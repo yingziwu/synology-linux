@@ -672,7 +672,8 @@ static void rtl92c_dm_txpower_tracking_callback_thermalmeter(struct ieee80211_hw
 	u8 thermalvalue, delta, delta_lck, delta_iqk;
 	long ele_a, ele_d, temp_cck, val_x, value32;
 	long val_y, ele_c = 0;
-	u8 ofdm_index[2], cck_index = 0, ofdm_index_old[2], cck_index_old = 0;
+	u8 ofdm_index[2], ofdm_index_old[2] = {0, 0}, cck_index_old = 0;
+	s8 cck_index = 0;
 	int i;
 	bool is2t = IS_92C_SERIAL(rtlhal->version);
 	s8 txpwr_level[2] = {0, 0};
@@ -721,7 +722,7 @@ static void rtl92c_dm_txpower_tracking_callback_thermalmeter(struct ieee80211_hw
 			for (i = 0; i < OFDM_TABLE_LENGTH; i++) {
 				if (ele_d == (ofdmswing_table[i] &
 				    MASKOFDM_D)) {
-
+					ofdm_index_old[1] = (u8) i;
 					RT_TRACE(rtlpriv, COMP_POWER_TRACKING,
 					   DBG_LOUD,
 					   ("Initial pathB ele_d reg0x%x = "
@@ -1228,11 +1229,14 @@ static void rtl92c_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
 			if (rtlhal->interface == INTF_PCI) {
 				rcu_read_lock();
 				sta = ieee80211_find_sta(mac->vif, mac->bssid);
+				if (!sta)
+					goto out_unlock;
 			}
 			rtlpriv->cfg->ops->update_rate_tbl(hw, sta,
 					p_ra->ratr_state);
 
 			p_ra->pre_ratr_state = p_ra->ratr_state;
+		out_unlock:
 			if (rtlhal->interface == INTF_PCI)
 				rcu_read_unlock();
 		}
@@ -1648,6 +1652,7 @@ static void rtl92c_bt_set_normal(struct ieee80211_hw *hw)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_pci_priv *rtlpcipriv = rtl_pcipriv(hw);
 
+
 	if (rtlpcipriv->bt_coexist.bt_service == BT_OTHERBUSY) {
 		rtlpcipriv->bt_coexist.bt_edca_ul = 0x5ea72b;
 		rtlpcipriv->bt_coexist.bt_edca_dl = 0x5ea72b;
@@ -1681,6 +1686,7 @@ static void rtl92c_bt_ant_isolation(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_pci_priv *rtlpcipriv = rtl_pcipriv(hw);
+
 
 	/* Only enable HW BT coexist when BT in "Busy" state. */
 	if (rtlpriv->mac80211.vendor == PEER_CISCO &&

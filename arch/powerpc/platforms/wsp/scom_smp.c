@@ -75,6 +75,7 @@
 #define SCOM_THRCTL_AND		0x31		/* Thread Control and Status */
 #define SCOM_THRCTL_OR		0x32		/* Thread Control and Status */
 
+
 static DEFINE_PER_CPU(scom_map_t, scom_ptrs);
 
 static scom_map_t get_scom(int cpu, struct device_node *np, int *first_thread)

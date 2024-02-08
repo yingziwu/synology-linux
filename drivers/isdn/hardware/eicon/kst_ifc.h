@@ -333,3 +333,4 @@ dword DivaSTraceGetMemotyRequirement (int channels);
 #define DIVA_MAX_LINES     32
 
 #endif
+

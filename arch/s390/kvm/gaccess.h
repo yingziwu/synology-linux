@@ -131,6 +131,7 @@ static inline int put_guest_u8(struct kvm_vcpu *vcpu, unsigned long guestaddr,
 	return put_user(value, (u8 __user *) uptr);
 }
 
+
 static inline int __copy_to_guest_slow(struct kvm_vcpu *vcpu,
 				       unsigned long guestdest,
 				       void *from, unsigned long n)

@@ -287,6 +287,7 @@ struct mlx4_caps {
 	enum mlx4_port_type	possible_type[MLX4_MAX_PORTS + 1];
 	u32			max_counters;
 	u8			ext_port_cap[MLX4_MAX_PORTS + 1];
+	bool			wol_port[MLX4_MAX_PORTS + 1];
 };
 
 struct mlx4_buf_list {
@@ -494,6 +495,7 @@ struct mlx4_init_port_param {
 	for ((port) = 1; (port) <= (dev)->caps.num_ports; (port)++)	\
 		if (((dev)->caps.port_mask & 1 << ((port) - 1)) ||	\
 		    ((dev)->caps.flags & MLX4_DEV_CAP_FLAG_IBOE))
+
 
 int mlx4_buf_alloc(struct mlx4_dev *dev, int size, int max_direct,
 		   struct mlx4_buf *buf);

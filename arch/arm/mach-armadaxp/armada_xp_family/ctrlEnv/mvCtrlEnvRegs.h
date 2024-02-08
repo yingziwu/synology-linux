@@ -82,6 +82,7 @@ extern "C" {
 /* Controler environment registers offsets */
 #define MV_TDM_IRQ_NUM				56
 
+
 /* Coherent Fabric Control and Status */
 #define MV_COHERENCY_FABRIC_CTRL_REG		(MV_COHERENCY_FABRIC_OFFSET + 0x0)
 #define MV_COHERENCY_FABRIC_CFG_REG		(MV_COHERENCY_FABRIC_OFFSET + 0x4)
@@ -244,6 +245,7 @@ extern "C" {
 #define PMC_PMUSTOPMEM_MASK			(7 << PMC_PMUSTOPMEM_OFFS)
 #define PMC_PMUSTOPMEM_EN			(0 << PMC_PMUSTOPMEM_OFFS)
 #define PMC_PMUSTOPMEM_STOP			(1 << PMC_PMUSTOPMEM_OFFS)
+
 
 /*  Power Management Clock Gating Control Register	*/
 #define POWER_MNG_CTRL_REG			0x18220
@@ -463,6 +465,7 @@ extern "C" {
 
 #define TCLK_TO_COUNTER_RATIO   1   /* counters running in Tclk */
 
+
 #define BOOT_TARGETS_NAME_ARRAY {	\
 	BOOT_ROM_CS,			\
 	BOOT_ROM_CS,			\
@@ -536,6 +539,7 @@ typedef enum {
 	{0, 1, -1 , -1, -1, -1, -1, -1}, /* Lane 14 */	\
 	{0, 1, -1 , -1, -1, -1, -1, -1}	 /* Lane 15 */	\
 }
+
 
 /*
 	This enum should reflect the units numbers in register

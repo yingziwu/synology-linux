@@ -157,6 +157,7 @@ extern "C" {
 #define ETH_PHY_SPEC_STATUS_SPEED_100MBPS	(0x1 << ETH_PHY_SPEC_STATUS_SPEED_OFFS)
 #define ETH_PHY_SPEC_STATUS_SPEED_1000MBPS	(0x2 << ETH_PHY_SPEC_STATUS_SPEED_OFFS)
 
+
 #define ETH_PHY_SPEC_STATUS_DUPLEX_BIT		13
 #define ETH_PHY_SPEC_STATUS_DUPLEX_MASK		(0x1 << ETH_PHY_SPEC_STATUS_DUPLEX_BIT)
 
@@ -169,5 +170,6 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif /* __INCethphyregsh */

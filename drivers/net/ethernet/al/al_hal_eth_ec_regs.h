@@ -51,6 +51,8 @@ extern "C" {
 * Unit Registers
 */
 
+
+
 struct al_ec_gen {
 	/* [0x0] Ethernet controller Version */
 	uint32_t version;
@@ -895,9 +897,11 @@ struct al_ec_regs {
 	struct al_ec_roce_qp_db roce_qp_db[16];                 /* [0x2100] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** version register ****/
 /* Revision number (Minor) */
@@ -2881,3 +2885,5 @@ Mask 1 for almost full indication, */
 #endif /* __AL_HAL_EC_REG_H */
 
 /** @} end of ... group */
+
+

@@ -216,6 +216,7 @@ static inline u16 gm_phy_read(struct sky2_hw *hw, unsigned port, u16 reg)
 	return v;
 }
 
+
 static void sky2_power_on(struct sky2_hw *hw)
 {
 	/* switch power to VCC (WA for VAUX problem) */
@@ -327,6 +328,7 @@ static const u16 gm_fc_disable[] = {
 	[FC_RX]	  = GM_GPCR_FC_TX_DIS,
 	[FC_BOTH] = 0,
 };
+
 
 static void sky2_phy_init(struct sky2_hw *hw, unsigned port)
 {
@@ -1064,7 +1066,7 @@ static void sky2_ramset(struct sky2_hw *hw, u16 q, u32 start, u32 space)
 		sky2_write32(hw, RB_ADDR(q, RB_RX_UTHP), tp);
 		sky2_write32(hw, RB_ADDR(q, RB_RX_LTHP), space/2);
 
-		tp = space - 2048/8;
+		tp = space - 8192/8;
 		sky2_write32(hw, RB_ADDR(q, RB_RX_UTPP), tp);
 		sky2_write32(hw, RB_ADDR(q, RB_RX_LTPP), space/4);
 	} else {
@@ -1137,6 +1139,7 @@ static inline void sky2_put_idx(struct sky2_hw *hw, unsigned q, u16 idx)
 	mmiowb();
 }
 
+
 static inline struct sky2_rx_le *sky2_next_rx(struct sky2_port *sky2)
 {
 	struct sky2_rx_le *le = sky2->rx_le + sky2->rx_put;
@@ -1208,6 +1211,7 @@ static void sky2_rx_submit(struct sky2_port *sky2,
 	for (i = 0; i < skb_shinfo(re->skb)->nr_frags; i++)
 		sky2_rx_add(sky2, OP_BUFFER, re->frag_addr[i], PAGE_SIZE);
 }
+
 
 static int sky2_rx_map_skb(struct pci_dev *pdev, struct rx_ring_info *re,
 			    unsigned size)
@@ -1740,6 +1744,7 @@ static int sky2_setup_irq(struct sky2_hw *hw, const char *name)
 	return err;
 }
 
+
 /* Bring up network interface. */
 static int sky2_open(struct net_device *dev)
 {
@@ -1939,6 +1944,7 @@ static netdev_tx_t sky2_xmit_frame(struct sk_buff *skb,
 	le->length = cpu_to_le16(len);
 	le->ctrl = ctrl;
 	le->opcode = mss ? (OP_LARGESEND | HW_OWNER) : (OP_PACKET | HW_OWNER);
+
 
 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
 		const skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
@@ -3112,6 +3118,7 @@ static inline u32 sky2_clk2us(const struct sky2_hw *hw, u32 clk)
 {
 	return clk / sky2_mhz(hw);
 }
+
 
 static int __devinit sky2_init(struct sky2_hw *hw)
 {
@@ -4404,6 +4411,7 @@ static const struct ethtool_ops sky2_ethtool_ops = {
 
 static struct dentry *sky2_debug;
 
+
 /*
  * Read and parse the first part of Vital Product Data
  */
@@ -4636,6 +4644,7 @@ static int sky2_device_event(struct notifier_block *unused,
 static struct notifier_block sky2_notifier = {
 	.notifier_call = sky2_device_event,
 };
+
 
 static __init void sky2_debug_init(void)
 {
@@ -4913,6 +4922,7 @@ static int __devinit sky2_probe(struct pci_dev *pdev,
 		}
 	}
 
+
 #ifdef __BIG_ENDIAN
 	/* The sk98lin vendor driver uses hardware byte swapping but
 	 * this driver uses software swapping.
@@ -5155,6 +5165,19 @@ static SIMPLE_DEV_PM_OPS(sky2_pm_ops, sky2_suspend, sky2_resume);
 
 static void sky2_shutdown(struct pci_dev *pdev)
 {
+	struct sky2_hw *hw = pci_get_drvdata(pdev);
+	int port;
+
+	for (port = 0; port < hw->ports; port++) {
+		struct net_device *ndev = hw->dev[port];
+
+		rtnl_lock();
+		if (netif_running(ndev)) {
+			dev_close(ndev);
+			netif_device_detach(ndev);
+		}
+		rtnl_unlock();
+	}
 	sky2_suspend(&pdev->dev);
 	pci_wake_from_d3(pdev, device_may_wakeup(&pdev->dev));
 	pci_set_power_state(pdev, PCI_D3hot);

@@ -311,3 +311,4 @@ const struct xattr_handler gfs2_xattr_system_handler = {
 	.get    = gfs2_xattr_system_get,
 	.set    = gfs2_xattr_system_set,
 };
+

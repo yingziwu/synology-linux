@@ -77,6 +77,7 @@
 #define DOC_LAYOUT_OOB_BCH_SZ		7
 #define DOC_LAYOUT_OOB_UNUSED_SZ	1
 
+
 #define DOC_CHIPID_G3			0x200
 #define DOC_ERASE_MARK			0xaa
 /*

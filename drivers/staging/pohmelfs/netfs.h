@@ -614,6 +614,7 @@ struct pohmelfs_sb {
 	 */
 	struct pohmelfs_config	*active_state;
 
+
 	wait_queue_head_t	wait;
 
 	/*

@@ -33,6 +33,7 @@ met:
 
 *******************************************************************************/
 
+
 #ifndef __AL_HAL_NB_REGS_H__
 #define __AL_HAL_NB_REGS_H__
 
@@ -42,6 +43,8 @@ extern "C" {
 /*
 * Unit Registers
 */
+
+
 
 struct al_nb_global {
 	/* [0x0]  */
@@ -383,9 +386,11 @@ struct al_nb_regs {
 	union al_nb_pcie_logging pcie_logging;                  /* [0x5000] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** CPUs_Config register ****/
 /* Disable broadcast of barrier onto system bus */
@@ -1372,3 +1377,5 @@ Supports 40-bits memory addressing */
 #endif /* __AL_HAL_NB_REG_H */
 
 /** @} end of ... group */
+
+

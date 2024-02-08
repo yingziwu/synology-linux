@@ -85,6 +85,7 @@ void axp_irq_unmask(struct irq_data *d)
 		printk("%s: Error, invalid irqnr(%u)\n", __func__, irq);
 }
 
+
 static struct irq_chip axp_irq_chip = {
 	.name		= "armada370_irq",
 	.irq_mask	= axp_irq_mask,
@@ -93,6 +94,7 @@ static struct irq_chip axp_irq_chip = {
 	.irq_disable	= axp_irq_mask,
 	.irq_enable	= axp_irq_unmask,
 };
+
 
 void __init axp_init_irq(void)
 {

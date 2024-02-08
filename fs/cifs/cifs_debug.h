@@ -22,6 +22,8 @@
 #ifndef _H_CIFS_DEBUG
 #define _H_CIFS_DEBUG
 
+#include <linux/ratelimit.h>
+
 void cifs_dump_mem(char *label, void *data, int length);
 void cifs_dump_detail(void *);
 void cifs_dump_mids(struct TCP_Server_Info *);

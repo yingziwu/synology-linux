@@ -219,6 +219,7 @@ extern int dwc_otg_set_param_host_rx_fifo_size(dwc_otg_core_if_t * core_if,
 extern int32_t dwc_otg_get_param_host_rx_fifo_size(dwc_otg_core_if_t * core_if);
 #define dwc_param_host_rx_fifo_size_default 776
 
+
 /** Number of 4-byte words in the non-periodic Tx FIFO in host mode
  * when Dynamic FIFO sizing is enabled in the core.
  * 16 to 32768 (default 1024)

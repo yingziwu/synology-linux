@@ -3,6 +3,7 @@
  *              by the GNU Library General Public License Version 2.
  */
 
+
 /* This file is generated from divrem.m4; DO NOT EDIT! */
 /*
  * Division and remainder, from Appendix E of the Sparc Version 8
@@ -39,6 +40,7 @@
  *  different path, as the upper bits of the quotient must be developed
  *  one bit at a time.
  */
+
 
 	.globl .udiv
 	.globl _Udiv

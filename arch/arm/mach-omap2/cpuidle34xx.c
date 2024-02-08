@@ -364,6 +364,7 @@ int __init omap3_idle_init(void)
 	per_pd = pwrdm_lookup("per_pwrdm");
 	cam_pd = pwrdm_lookup("cam_pwrdm");
 
+
 	drv->safe_state_index = -1;
 	dev = &per_cpu(omap3_idle_dev, smp_processor_id());
 

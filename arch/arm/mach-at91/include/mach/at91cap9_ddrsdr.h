@@ -104,4 +104,5 @@
 #define at91_ramc_write(num, reg, value) \
 	at91_sys_write(AT91_DDRSDRC##num + reg, value)
 
+
 #endif

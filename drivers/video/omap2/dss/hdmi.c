@@ -839,6 +839,7 @@ static int hdmi_runtime_resume(struct device *dev)
 	if (r < 0)
 		goto err_get_dispc;
 
+
 	clk_enable(hdmi.sys_clk);
 
 	return 0;

@@ -246,6 +246,7 @@ static int __devinit cpu5wdt_init(void)
 		goto no_misc;
 	}
 
+
 	printk(KERN_INFO PFX "init success\n");
 	return 0;
 

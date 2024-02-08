@@ -127,6 +127,7 @@ static int __init ixdp2400_pci_map_irq(const struct pci_dev *dev, u8 slot,
 	} else return IRQ_IXP2000_PCIB; /* Slave NIC interrupt */
 }
 
+
 static void ixdp2400_pci_postinit(void)
 {
 	struct pci_dev *dev;
@@ -176,3 +177,4 @@ MACHINE_START(IXDP2400, "Intel IXDP2400 Development Platform")
 	.timer		= &ixdp2400_timer,
 	.init_machine	= ixdp2x00_init_machine,
 MACHINE_END
+

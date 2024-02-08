@@ -57,6 +57,7 @@
 
 static const struct hc_driver ehci_omap_hc_driver;
 
+
 static inline void ehci_write(void __iomem *base, u32 reg, u32 val)
 {
 	__raw_writel(val, base + reg);
@@ -250,6 +251,7 @@ err_io:
 	return ret;
 }
 
+
 /**
  * ehci_hcd_omap_remove - shutdown processing for EHCI HCDs
  * @pdev: USB Host Controller being removed
@@ -338,3 +340,4 @@ static const struct hc_driver ehci_omap_hc_driver = {
 MODULE_ALIAS("platform:ehci-omap");
 MODULE_AUTHOR("Texas Instruments, Inc.");
 MODULE_AUTHOR("Felipe Balbi <felipe.balbi@nokia.com>");
+

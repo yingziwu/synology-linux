@@ -103,6 +103,7 @@ MV_BOOL mvSataPhyPowerOn(MV_U8 port)
         /* regVal |= MV_BIT12;*/
         regVal |= 0x009B1000;
 
+
         regVal &= ~(BIT9);
         MV_REG_WRITE (adapterIoBaseAddress +
                             getEdmaRegOffset (port) +
@@ -110,3 +111,4 @@ MV_BOOL mvSataPhyPowerOn(MV_U8 port)
                             regVal);
         return MV_TRUE;
 }
+

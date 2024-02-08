@@ -89,6 +89,7 @@ ssize_t show_##_name(struct kobject *kobj, struct attribute *attr,	\
 	static BAT_ATTR_SHOW_BOOL(_name)				\
 	static BAT_ATTR(_name, _mode, show_##_name, store_##_name)
 
+
 #define BAT_ATTR_STORE_UINT(_name, _min, _max, _post_func)		\
 ssize_t store_##_name(struct kobject *kobj, struct attribute *attr,	\
 			     char *buff, size_t count)			\
@@ -113,6 +114,7 @@ ssize_t show_##_name(struct kobject *kobj, struct attribute *attr,	\
 	static BAT_ATTR_STORE_UINT(_name, _min, _max, _post_func)	\
 	static BAT_ATTR_SHOW_UINT(_name)				\
 	static BAT_ATTR(_name, _mode, show_##_name, store_##_name)
+
 
 static int store_bool_attr(char *buff, size_t count,
 			   struct net_device *net_dev,

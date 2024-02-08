@@ -3,6 +3,7 @@
  *              by the GNU Library General Public License Version 2.
  */
 
+
 /* This file is generated from divrem.m4; DO NOT EDIT! */
 /*
  * Division and remainder, from Appendix E of the Sparc Version 8
@@ -39,6 +40,7 @@
  *  different path, as the upper bits of the quotient must be developed
  *  one bit at a time.
  */
+
 
 	.globl .rem
 	.globl _Rem
@@ -328,6 +330,7 @@ L.4.11:
 	addcc	%o3,%o5,%o3
 	b	9f
 	 add	%o2, (-5*2-1), %o2
+
 
 L.3.13:
 	! remainder is negative

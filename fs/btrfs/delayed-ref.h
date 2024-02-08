@@ -203,7 +203,11 @@ int btrfs_add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 			       u64 parent, u64 ref_root,
 			       u64 owner, u64 offset, int action,
 			       struct btrfs_delayed_extent_op *extent_op,
+#ifdef CONFIG_BTRFS_FS_SYNO_USRQUOTA
+			       int for_cow, int is_uid_valid, uid_t uid);
+#else
 			       int for_cow);
+#endif
 int btrfs_add_delayed_extent_op(struct btrfs_fs_info *fs_info,
 				struct btrfs_trans_handle *trans,
 				u64 bytenr, u64 num_bytes,
@@ -221,6 +225,7 @@ static inline void btrfs_delayed_ref_unlock(struct btrfs_delayed_ref_head *head)
 {
 	mutex_unlock(&head->mutex);
 }
+
 
 struct btrfs_delayed_ref_head *
 btrfs_select_ref_head(struct btrfs_trans_handle *trans);

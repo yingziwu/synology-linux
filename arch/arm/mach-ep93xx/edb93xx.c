@@ -42,6 +42,7 @@
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 
+
 static void __init edb93xx_register_flash(void)
 {
 	if (machine_is_edb9307() || machine_is_edb9312() ||
@@ -55,6 +56,7 @@ static void __init edb93xx_register_flash(void)
 static struct ep93xx_eth_data __initdata edb93xx_eth_data = {
 	.phy_id		= 1,
 };
+
 
 /*************************************************************************
  * EDB93xx i2c peripheral handling
@@ -94,6 +96,7 @@ static void __init edb93xx_register_i2c(void)
 				    ARRAY_SIZE(edb93xx_i2c_board_info));
 	}
 }
+
 
 /*************************************************************************
  * EDB93xx SPI peripheral handling
@@ -153,6 +156,7 @@ static void __init edb93xx_register_spi(void)
 			    ARRAY_SIZE(edb93xx_spi_board_info));
 }
 
+
 /*************************************************************************
  * EDB93xx I2S
  *************************************************************************/
@@ -176,6 +180,7 @@ static void __init edb93xx_register_i2s(void)
 	}
 }
 
+
 /*************************************************************************
  * EDB93xx pwm
  *************************************************************************/
@@ -193,6 +198,7 @@ static void __init edb93xx_register_pwm(void)
 		ep93xx_register_pwm(1, 1);
 	}
 }
+
 
 /*************************************************************************
  * EDB93xx framebuffer
@@ -224,6 +230,7 @@ static void __init edb93xx_register_fb(void)
 	ep93xx_register_fb(&edb93xxfb_info);
 }
 
+
 static void __init edb93xx_init_machine(void)
 {
 	ep93xx_init_devices();
@@ -235,6 +242,7 @@ static void __init edb93xx_init_machine(void)
 	edb93xx_register_pwm();
 	edb93xx_register_fb();
 }
+
 
 #ifdef CONFIG_MACH_EDB9301
 MACHINE_START(EDB9301, "Cirrus Logic EDB9301 Evaluation Board")

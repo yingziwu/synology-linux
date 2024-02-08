@@ -95,6 +95,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define KEY_CTRL_LKP_TYPE_MAX			((1 << KEY_CTRL_LKP_TYPE_BITS) - 1)
 #define KEY_CTRL_LKP_TYPE_MASK			(((1 << KEY_CTRL_LKP_TYPE_BITS) - 1) << KEY_CTRL_LKP_TYPE)
 
+
 #define KEY_CTRL_PRT_ID_TYPE			12
 #define KEY_CTRL_PRT_ID_TYPE_BITS		2
 #define KEY_CTRL_PRT_ID_TYPE_MAX		((1 << KEY_CTRL_PRT_ID_TYPE_BITS) - 1)
@@ -272,6 +273,7 @@ SCAN STATUS
 #define MV_PP2_V0_CLS3_SC_PROP_VAL_DELAY_MASK	(MV_PP2_CLS3_SC_PROP_VAL_DELAY_MAX << MV_PP2_V0_CLS3_SC_PROP_VAL_DELAY)
 #define MV_PP2_V1_CLS3_SC_PROP_VAL_DELAY_MASK	(MV_PP2_CLS3_SC_PROP_VAL_DELAY_MAX << MV_PP2_V1_CLS3_SC_PROP_VAL_DELAY)
 
+
 /*-------------------------------------------------------------------------------*/
 /* PPv2.1 new reg in cls3 */
 #define MV_PP2_CLS3_SC_TH_REG			(MV_PP2_REG_BASE + 0x1D18)
@@ -279,6 +281,8 @@ SCAN STATUS
 #define MV_PP2_CLS3_SC_TH_BITS			20
 #define MV_PP2_CLS3_SC_TH_MAX			((1 << MV_PP2_CLS3_SC_TH_BITS) - 1)
 #define MV_PP2_CLS3_SC_TH_MASK			(((1 << MV_PP2_CLS3_SC_TH_BITS) - 1) << MV_PP2_CLS3_SC_TH)
+
+
 
 /*-------------------------------------------------------------------------------*/
 /* ppv2.1 TIMER REG ADDRESS changed */
@@ -363,6 +367,7 @@ SCAN STATUS
 #define KEY_L4_INFO(ext_mode)			((ext_mode == 1) ? (88) : (96))
 #define KEY_L4_INFO_MASK(ext_mode)		(((1 << KEY_CTRL_L4_BITS) - 1) << (KEY_L4_INFO(ext_mode) % 32))
 
+
 /*-------------------------------------------------------------------------------*/
 /*		Classifier C3 engine Key public APIs		    		 */
 /*-------------------------------------------------------------------------------*/
@@ -423,6 +428,7 @@ typedef struct mvPp2ClsC3Entry {
 		} regs;
 	} sram;
 } MV_PP2_CLS_C3_ENTRY;
+
 
 /*-------------------------------------------------------------------------------*/
 /*			Common utilities				   	 */
@@ -495,6 +501,7 @@ int mvPp2ClsC3HitCntrsReadAll(void);
 int mvPp2ClsC3HitCntrsClear(int lkpType);
 int mvPp2ClsC3HitCntrsMissRead(int lkp_type, MV_U32 *cntr);
 
+
 /*-------------------------------------------------------------------------------*/
 /*	 APIs for Classification C3 hit counters scan fields operation 		 */
 /*-------------------------------------------------------------------------------*/
@@ -510,5 +517,7 @@ int mvPp2ClsC3ScanDelaySet(int time);
 int mvPp2ClsC3ScanResRead(int index, int *addr, int *cnt);
 int mvPp2ClsC3ScanNumOfResGet(int *resNum);
 int mvPp2ClsC3ScanResDump(void);
+
+
 
 #endif /* __MV_CLS3_HW_H__ */

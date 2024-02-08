@@ -34,6 +34,7 @@
 
 #ifdef CONFIG_HYPERTRANSPORT
 
+
 /*
  * This function check if the Hypertransport Link Initialization completed. If
  * it did, then proceed further with scanning bus #2
@@ -77,6 +78,7 @@ static int titan_ht_config_read_dword(struct pci_dev *device,
         return PCIBIOS_SUCCESSFUL;
 }
 
+
 static int titan_ht_config_read_word(struct pci_dev *device,
                                              int offset, u16* val)
 {
@@ -109,6 +111,7 @@ static int titan_ht_config_read_word(struct pci_dev *device,
         return PCIBIOS_SUCCESSFUL;
 }
 
+
 u32 longswap(unsigned long l)
 {
         unsigned char b1, b2, b3, b4;
@@ -120,6 +123,7 @@ u32 longswap(unsigned long l)
 
         return ((b1<<24) + (b2<<16) + (b3<<8) + b4);
 }
+
 
 static int titan_ht_config_read_byte(struct pci_dev *device,
                                              int offset, u8* val)
@@ -161,6 +165,7 @@ static int titan_ht_config_read_byte(struct pci_dev *device,
 
         return PCIBIOS_SUCCESSFUL;
 }
+
 
 static int titan_ht_config_write_dword(struct pci_dev *device,
                                              int offset, u8 val)
@@ -262,6 +267,7 @@ static int titan_ht_config_write_byte(struct pci_dev *device,
         return PCIBIOS_SUCCESSFUL;
 }
 
+
 static void titan_pcibios_set_master(struct pci_dev *dev)
 {
         u16 cmd;
@@ -275,6 +281,7 @@ static void titan_pcibios_set_master(struct pci_dev *dev)
 	if (check_titan_htlink())
             titan_ht_config_write_word(dev, PCI_COMMAND, cmd);
 }
+
 
 int pcibios_enable_resources(struct pci_dev *dev)
 {
@@ -330,6 +337,7 @@ int pcibios_enable_resources(struct pci_dev *dev)
 
 	return 0;
 }
+
 
 int pcibios_enable_device(struct pci_dev *dev, int mask)
 {

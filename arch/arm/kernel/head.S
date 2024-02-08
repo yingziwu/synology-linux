@@ -458,6 +458,8 @@ __secondary_data:
 	.long	__secondary_switched
 #endif /* defined(CONFIG_SMP) */
 
+
+
 /*
  * Setup common bits before finally enabling the MMU.  Essentially
  * this is just loading the page table pointer and domain access
@@ -532,6 +534,7 @@ __turn_mmu_on:
 	mov	pc, r3
 __enable_mmu_end:
 ENDPROC(__turn_mmu_on)
+
 
 #ifdef CONFIG_SMP_ON_UP
 	__INIT

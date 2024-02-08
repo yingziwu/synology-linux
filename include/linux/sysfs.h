@@ -60,6 +60,8 @@ struct attribute_group {
 	struct attribute	**attrs;
 };
 
+
+
 /**
  * Use these macros to make defining attributes easier. See include/linux/device.h
  * for examples..
@@ -77,6 +79,15 @@ struct attribute_group {
 }
 
 #define __ATTR_NULL { .attr = { .name = NULL } }
+
+#define ATTRIBUTE_GROUPS(name)					\
+static const struct attribute_group name##_group = {		\
+	.attrs = name##_attrs,					\
+};								\
+static const struct attribute_group *name##_groups[] = {	\
+	&name##_group,						\
+	NULL,							\
+}
 
 #define attr_name(_attr) (_attr).attr.name
 

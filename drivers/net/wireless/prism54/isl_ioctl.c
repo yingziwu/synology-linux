@@ -1295,6 +1295,7 @@ static int prism54_set_genie(struct net_device *ndev,
 	return ret;
 }
 
+
 static int prism54_get_genie(struct net_device *ndev,
 			     struct iw_request_info *info,
 			     struct iw_point *data, char *extra)
@@ -1640,6 +1641,7 @@ out:
 	return ret;
 }
 
+
 static int prism54_get_encodeext(struct net_device *ndev,
 				 struct iw_request_info *info,
 				 union iwreq_data *wrqu,
@@ -1732,6 +1734,7 @@ static int prism54_get_encodeext(struct net_device *ndev,
 out:
 	return ret;
 }
+
 
 static int
 prism54_reset(struct net_device *ndev, struct iw_request_info *info,
@@ -2546,6 +2549,7 @@ struct prism2_hostapd_param {
                } scan_req;
        } u;
 };
+
 
 static int
 prism2_ioctl_set_encryption(struct net_device *dev,

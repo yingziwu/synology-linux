@@ -728,6 +728,7 @@ u32 pci_gettimeoffset(void)
 	return count * 1000;
 }
 
+
 void __init pci_time_init(void)
 {
 	struct linux_pcic *pcic = &pcic0;
@@ -754,6 +755,7 @@ void __init pci_time_init(void)
 	}
 	local_irq_enable();
 }
+
 
 #if 0
 static void watchdog_reset() {
@@ -864,6 +866,7 @@ unsigned int pcic_build_device_irq(struct platform_device *op,
 out:
 	return irq;
 }
+
 
 static void pcic_load_profile_irq(int cpu, unsigned int limit)
 {

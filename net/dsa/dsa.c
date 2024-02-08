@@ -18,6 +18,7 @@
 
 char dsa_driver_version[] = "0.1";
 
+
 /* switch driver registration ***********************************************/
 static DEFINE_MUTEX(dsa_switch_drivers_mutex);
 static LIST_HEAD(dsa_switch_drivers);
@@ -65,6 +66,7 @@ dsa_switch_probe(struct mii_bus *bus, int sw_addr, char **_name)
 	return ret;
 }
 
+
 /* basic switch operations **************************************************/
 static struct dsa_switch *
 dsa_switch_setup(struct dsa_switch_tree *dst, int index,
@@ -89,6 +91,7 @@ dsa_switch_setup(struct dsa_switch_tree *dst, int index,
 	printk(KERN_INFO "%s[%d]: detected a %s switch\n",
 		dst->master_netdev->name, index, name);
 
+
 	/*
 	 * Allocate and initialise switch state.
 	 */
@@ -101,6 +104,7 @@ dsa_switch_setup(struct dsa_switch_tree *dst, int index,
 	ds->pd = dst->pd->chip + index;
 	ds->drv = drv;
 	ds->master_mii_bus = bus;
+
 
 	/*
 	 * Validate supplied switch configuration.
@@ -127,6 +131,7 @@ dsa_switch_setup(struct dsa_switch_tree *dst, int index,
 		}
 	}
 
+
 	/*
 	 * If the CPU connects to this switch, set the switch tree
 	 * tagging protocol to the preferred tagging format of this
@@ -134,6 +139,7 @@ dsa_switch_setup(struct dsa_switch_tree *dst, int index,
 	 */
 	if (ds->dst->cpu_switch == index)
 		ds->dst->tag_protocol = drv->tag_protocol;
+
 
 	/*
 	 * Do basic register setup.
@@ -156,6 +162,7 @@ dsa_switch_setup(struct dsa_switch_tree *dst, int index,
 	ret = mdiobus_register(ds->slave_mii_bus);
 	if (ret < 0)
 		goto out_free;
+
 
 	/*
 	 * Create network devices for physical switch ports.
@@ -191,6 +198,7 @@ static void dsa_switch_destroy(struct dsa_switch *ds)
 {
 }
 
+
 /* hooks for ethertype-less tagging formats *********************************/
 /*
  * The original DSA tag format and some other tag formats have no
@@ -212,6 +220,7 @@ bool dsa_uses_trailer_tags(void *dsa_ptr)
 
 	return !!(dst->tag_protocol == htons(ETH_P_TRAILER));
 }
+
 
 /* link polling *************************************************************/
 static void dsa_link_poll_work(struct work_struct *ugly)
@@ -237,6 +246,7 @@ static void dsa_link_poll_timer(unsigned long _dst)
 
 	schedule_work(&dst->link_poll_work);
 }
+
 
 /* platform driver init and cleanup *****************************************/
 static int dev_is_class(struct device *dev, void *class)

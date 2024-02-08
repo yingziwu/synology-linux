@@ -114,6 +114,7 @@ u16   NAND_Get_Bad_Block(u32 block)
 	return GOOD_BLOCK;
 }
 
+
 u16 NAND_Flash_Reset(void)
 {
 	u32 i;
@@ -1416,6 +1417,7 @@ void Conv_Spare_Data_Phy2Log_Format(u8 *data)
 	}
 }
 
+
 void Conv_Main_Spare_Data_Log2Phy_Format(u8 *data, u16 page_count)
 {
 	const u32 PageSize = DeviceInfo.wPageSize;
@@ -1664,6 +1666,7 @@ u16 NAND_Pipeline_Read_Ahead(u8 *read_data, u32 block,
 
 	return status;
 }
+
 
 u16 NAND_Write_Page_Main(u8 *write_data, u32 block, u16 page,
 			    u16 page_count)
@@ -2197,6 +2200,7 @@ u16 NAND_Multiplane_Write(u8 *write_data, u32 block, u16 page,
 	return status;
 }
 
+
 #if CMD_DMA
 static irqreturn_t cdma_isr(int irq, void *dev_id)
 {
@@ -2610,3 +2614,6 @@ int nand_release_spectra(void)
 
 	return 0;
 }
+
+
+

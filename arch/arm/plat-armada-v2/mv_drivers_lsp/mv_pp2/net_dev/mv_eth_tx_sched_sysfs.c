@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -106,6 +107,7 @@ static ssize_t mv_eth_port_store(struct device *dev,
 
 	return err ? -EINVAL : len;
 }
+
 
 static DEVICE_ATTR(help,         S_IRUSR, mv_eth_show, NULL);
 static DEVICE_ATTR(txSchedRegs,  S_IWUSR, NULL, mv_eth_port_store);

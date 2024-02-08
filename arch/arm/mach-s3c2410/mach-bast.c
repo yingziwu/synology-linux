@@ -179,6 +179,7 @@ static struct s3c24xx_uart_clksrc bast_serial_clocks[] = {
 	}
 };
 
+
 static struct s3c2410_uartcfg bast_uartcfgs[] __initdata = {
 	[0] = {
 		.hwport	     = 0,

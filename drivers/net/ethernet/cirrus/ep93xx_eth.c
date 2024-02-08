@@ -469,6 +469,9 @@ static void ep93xx_free_buffers(struct ep93xx_priv *ep)
 	struct device *dev = ep->dev->dev.parent;
 	int i;
 
+	if (!ep->descs)
+		return;
+
 	for (i = 0; i < RX_QUEUE_ENTRIES; i++) {
 		dma_addr_t d;
 
@@ -493,6 +496,7 @@ static void ep93xx_free_buffers(struct ep93xx_priv *ep)
 
 	dma_free_coherent(dev, sizeof(struct ep93xx_descs), ep->descs,
 							ep->descs_dma_addr);
+	ep->descs = NULL;
 }
 
 static int ep93xx_alloc_buffers(struct ep93xx_priv *ep)
@@ -774,6 +778,7 @@ static struct net_device *ep93xx_dev_alloc(struct ep93xx_eth_data *data)
 	return dev;
 }
 
+
 static int ep93xx_eth_remove(struct platform_device *pdev)
 {
 	struct net_device *dev;
@@ -875,6 +880,7 @@ err_out:
 	ep93xx_eth_remove(pdev);
 	return err;
 }
+
 
 static struct platform_driver ep93xx_eth_driver = {
 	.probe		= ep93xx_eth_probe,

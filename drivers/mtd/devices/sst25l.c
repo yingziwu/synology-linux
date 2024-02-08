@@ -378,7 +378,7 @@ static int __devinit sst25l_probe(struct spi_device *spi)
 	struct flash_info *flash_info;
 	struct sst25l_flash *flash;
 	struct flash_platform_data *data;
-	int ret, i;
+	int ret;
 
 	flash_info = sst25l_match_device(spi);
 	if (!flash_info)
@@ -417,6 +417,7 @@ static int __devinit sst25l_probe(struct spi_device *spi)
 	      (long long)flash->mtd.size, (long long)(flash->mtd.size >> 20),
 	      flash->mtd.erasesize, flash->mtd.erasesize / 1024,
 	      flash->mtd.numeraseregions);
+
 
 	ret = mtd_device_parse_register(&flash->mtd, NULL, 0,
 			data ? data->parts : NULL,

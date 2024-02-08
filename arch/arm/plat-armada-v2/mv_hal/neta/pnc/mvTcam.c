@@ -75,6 +75,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TCAM_DBG(x...) if (tcam_ctl_flags & TCAM_F_DEBUG) mvOsPrintf(x)
 /*#define TCAM_DBG(x...)*/
 
+
 /*
  * SW control flags
  */
@@ -923,3 +924,4 @@ int tcam_hw_init(void)
 
 	return 0;
 }
+

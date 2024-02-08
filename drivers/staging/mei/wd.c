@@ -40,6 +40,7 @@ const uuid_le mei_wd_guid = UUID_LE(0x05B79A6F, 0x4628, 0x4D7F, 0x89,
 						0x9D, 0xA9, 0x15, 0x14, 0xCB,
 						0x32, 0xAB);
 
+
 void mei_wd_set_start_timeout(struct mei_device *dev, u16 timeout)
 {
 	dev_dbg(&dev->pdev->dev, "timeout=%d.\n", timeout);
@@ -349,3 +350,5 @@ struct watchdog_device amt_wd_dev = {
 		.min_timeout = AMT_WD_MIN_TIMEOUT,
 		.max_timeout = AMT_WD_MAX_TIMEOUT,
 };
+
+

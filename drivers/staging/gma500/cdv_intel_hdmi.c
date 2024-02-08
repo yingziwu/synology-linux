@@ -45,6 +45,7 @@
 /* hdmi-b control bits */
 #define	HDMIB_PIPE_B_SELECT		(1 << 30)
 
+
 struct mid_intel_hdmi_priv {
 	u32 hdmi_reg;
 	u32 save_HDMIB;

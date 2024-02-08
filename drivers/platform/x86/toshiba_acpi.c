@@ -1070,6 +1070,7 @@ static void toshiba_acpi_notify(struct acpi_device *acpi_dev, u32 event)
 	} while (retries && hci_result != HCI_EMPTY);
 }
 
+
 static struct acpi_driver toshiba_acpi_driver = {
 	.name	= "Toshiba ACPI driver",
 	.owner	= THIS_MODULE,

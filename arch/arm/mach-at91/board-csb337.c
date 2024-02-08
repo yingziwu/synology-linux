@@ -42,6 +42,7 @@
 
 #include "generic.h"
 
+
 static void __init csb337_init_early(void)
 {
 	/* Initialize processor: 3.6864 MHz crystal */
@@ -220,6 +221,7 @@ static struct gpio_led csb_leds[] = {
 		.default_trigger	= "ide-disk",
 	}
 };
+
 
 static void __init csb337_board_init(void)
 {

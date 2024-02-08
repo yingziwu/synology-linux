@@ -87,6 +87,7 @@ struct hdmi_spec {
 	const struct hda_pcm_stream *pcm_playback;
 };
 
+
 struct hdmi_audio_infoframe {
 	u8 type; /* 0x84 */
 	u8 ver;  /* 0x01 */
@@ -285,6 +286,7 @@ static struct cea_channel_speaker_allocation channel_allocations[] = {
 { .ca_index = 0x31,  .speakers = { FRW,  FLW,  RR,  RL,  FC,  LFE,  FR,  FL } },
 };
 
+
 /*
  * HDMI routines
  */
@@ -443,6 +445,7 @@ static void hdmi_set_channel_count(struct hda_codec *codec,
 				    AC_VERB_SET_CVT_CHAN_COUNT, chs - 1);
 }
 
+
 /*
  * Channel mapping routines
  */
@@ -509,6 +512,17 @@ static int hdmi_channel_allocation(struct hdmi_eld *eld, int channels)
 		}
 	}
 
+	if (!ca) {
+		/* if there was no match, select the regular ALSA channel
+		 * allocation with the matching number of channels */
+		for (i = 0; i < ARRAY_SIZE(channel_allocations); i++) {
+			if (channels == channel_allocations[i].channels) {
+				ca = channel_allocations[i].ca_index;
+				break;
+			}
+		}
+	}
+
 	snd_print_channel_allocation(eld->spk_alloc, buf, sizeof(buf));
 	snd_printdd("HDMI: select CA 0x%x for %d-channel allocation: %s\n",
 		    ca, channels, buf);
@@ -531,6 +545,7 @@ static void hdmi_debug_channel_mapping(struct hda_codec *codec,
 	}
 #endif
 }
+
 
 static void hdmi_setup_channel_mapping(struct hda_codec *codec,
 				       hda_nid_t pin_nid,
@@ -559,6 +574,7 @@ static void hdmi_setup_channel_mapping(struct hda_codec *codec,
 
 	hdmi_debug_channel_mapping(codec, pin_nid);
 }
+
 
 /*
  * Audio InfoFrame routines
@@ -741,6 +757,7 @@ static void hdmi_setup_audio_infoframe(struct hda_codec *codec, int pin_idx,
 	}
 }
 
+
 /*
  * Unsolicited events
  */
@@ -787,6 +804,7 @@ static void hdmi_non_intrinsic_event(struct hda_codec *codec, unsigned int res)
 	if (cp_ready)
 		;
 }
+
 
 static void hdmi_unsol_event(struct hda_codec *codec, unsigned int res)
 {
@@ -895,7 +913,7 @@ static int hdmi_pcm_open(struct hda_pcm_stream *hinfo,
 	per_cvt->assigned = 1;
 	hinfo->nid = per_cvt->cvt_nid;
 
-	snd_hda_codec_write(codec, per_pin->pin_nid, 0,
+	snd_hda_codec_write_cache(codec, per_pin->pin_nid, 0,
 			    AC_VERB_SET_CONNECT_SEL,
 			    mux_idx);
 	snd_hda_spdif_ctls_assign(codec, pin_idx, per_cvt->cvt_nid);
@@ -1827,6 +1845,7 @@ static const struct hda_codec_ops atihdmi_patch_ops = {
 	.free = simple_playback_free,
 };
 
+
 static int patch_atihdmi(struct hda_codec *codec)
 {
 	struct hdmi_spec *spec;
@@ -1849,6 +1868,7 @@ static int patch_atihdmi(struct hda_codec *codec)
 
 	return 0;
 }
+
 
 /*
  * patch entries
@@ -1888,6 +1908,8 @@ static const struct hda_codec_preset snd_hda_preset_hdmi[] = {
 { .id = 0x10de0042, .name = "GPU 42 HDMI/DP",	.patch = patch_generic_hdmi },
 { .id = 0x10de0043, .name = "GPU 43 HDMI/DP",	.patch = patch_generic_hdmi },
 { .id = 0x10de0044, .name = "GPU 44 HDMI/DP",	.patch = patch_generic_hdmi },
+{ .id = 0x10de0051, .name = "GPU 51 HDMI/DP",	.patch = patch_generic_hdmi },
+{ .id = 0x10de0060, .name = "GPU 60 HDMI/DP",	.patch = patch_generic_hdmi },
 { .id = 0x10de0067, .name = "MCP67 HDMI",	.patch = patch_nvhdmi_2ch },
 { .id = 0x10de8001, .name = "MCP73 HDMI",	.patch = patch_nvhdmi_2ch },
 { .id = 0x80860054, .name = "IbexPeak HDMI",	.patch = patch_generic_hdmi },
@@ -1934,6 +1956,8 @@ MODULE_ALIAS("snd-hda-codec-id:10de0041");
 MODULE_ALIAS("snd-hda-codec-id:10de0042");
 MODULE_ALIAS("snd-hda-codec-id:10de0043");
 MODULE_ALIAS("snd-hda-codec-id:10de0044");
+MODULE_ALIAS("snd-hda-codec-id:10de0051");
+MODULE_ALIAS("snd-hda-codec-id:10de0060");
 MODULE_ALIAS("snd-hda-codec-id:10de0067");
 MODULE_ALIAS("snd-hda-codec-id:10de8001");
 MODULE_ALIAS("snd-hda-codec-id:17e80047");

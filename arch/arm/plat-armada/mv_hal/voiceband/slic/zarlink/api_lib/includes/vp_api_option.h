@@ -311,6 +311,7 @@ typedef struct {
     uint16 standbyTime; /**< Specified in 100ms increments, up to 8 seconds */
 } VpOptionParkModeType;
 
+
 /** Hook detection modes  */
 typedef enum {
     VP_OPTION_HOOKDET_NORMAL         = 0,  /* normal hook detection behavior */

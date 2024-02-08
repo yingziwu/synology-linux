@@ -247,6 +247,7 @@ void __cfg80211_send_disassoc(struct net_device *dev,
 	} else
 		WARN_ON(1);
 
+
 	reason_code = le16_to_cpu(mgmt->u.disassoc.reason_code);
 
 	from_ap = memcmp(mgmt->sa, dev->dev_addr, ETH_ALEN) != 0;

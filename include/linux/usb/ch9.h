@@ -243,6 +243,7 @@ struct usb_descriptor_header {
 	__u8  bDescriptorType;
 } __attribute__ ((packed));
 
+
 /*-------------------------------------------------------------------------*/
 
 /* USB_DT_DEVICE: Device descriptor */
@@ -265,6 +266,7 @@ struct usb_device_descriptor {
 } __attribute__ ((packed));
 
 #define USB_DT_DEVICE_SIZE		18
+
 
 /*
  * Device and/or Interface Class codes
@@ -374,6 +376,7 @@ struct usb_endpoint_descriptor {
 #define USB_DT_ENDPOINT_SIZE		7
 #define USB_DT_ENDPOINT_AUDIO_SIZE	9	/* Audio extension */
 
+
 /*
  * Endpoints
  */
@@ -386,6 +389,11 @@ struct usb_endpoint_descriptor {
 #define USB_ENDPOINT_XFER_BULK		2
 #define USB_ENDPOINT_XFER_INT		3
 #define USB_ENDPOINT_MAX_ADJUSTABLE	0x80
+
+#define USB_EP_MAXP_MULT_SHIFT	11
+#define USB_EP_MAXP_MULT_MASK	(3 << USB_EP_MAXP_MULT_SHIFT)
+#define USB_EP_MAXP_MULT(m) \
+	(((m) & USB_EP_MAXP_MULT_MASK) >> USB_EP_MAXP_MULT_SHIFT)
 
 #define USB_ENDPOINT_SYNCTYPE		0x0c
 #define USB_ENDPOINT_SYNC_NONE		(0 << 2)
@@ -589,6 +597,20 @@ static inline int usb_endpoint_maxp(const struct usb_endpoint_descriptor *epd)
 	return __le16_to_cpu(epd->wMaxPacketSize);
 }
 
+/**
+ * usb_endpoint_maxp_mult - get endpoint's transactional opportunities
+ * @epd: endpoint to be checked
+ *
+ * Return @epd's wMaxPacketSize[12:11] + 1
+ */
+static inline int
+usb_endpoint_maxp_mult(const struct usb_endpoint_descriptor *epd)
+{
+	int maxp = __le16_to_cpu(epd->wMaxPacketSize);
+
+	return USB_EP_MAXP_MULT(maxp) + 1;
+}
+
 /*-------------------------------------------------------------------------*/
 
 /* USB_DT_SS_ENDPOINT_COMP: SuperSpeed Endpoint Companion descriptor */
@@ -641,6 +663,7 @@ struct usb_qualifier_descriptor {
 	__u8  bRESERVED;
 } __attribute__ ((packed));
 
+
 /*-------------------------------------------------------------------------*/
 
 /* USB_DT_OTG (from OTG 1.0a supplement) */
@@ -681,6 +704,8 @@ struct usb_interface_assoc_descriptor {
 	__u8  bFunctionProtocol;
 	__u8  iFunction;
 } __attribute__ ((packed));
+
+#define USB_DT_INTERFACE_ASSOCIATION_SIZE	8
 
 /*-------------------------------------------------------------------------*/
 
@@ -724,6 +749,7 @@ struct usb_encryption_descriptor {
 	__u8  bEncryptionValue;		/* use in SET_ENCRYPTION */
 	__u8  bAuthKeyIndex;
 } __attribute__((packed));
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -773,6 +799,8 @@ struct usb_wireless_cap_descriptor {	/* Ultra Wide Band */
 	__le16 bmBandGroup;
 	__u8  bReserved;
 } __attribute__((packed));
+
+#define USB_DT_USB_WIRELESS_CAP_SIZE	11
 
 /* USB 2.0 Extension descriptor */
 #define	USB_CAP_TYPE_EXT		2

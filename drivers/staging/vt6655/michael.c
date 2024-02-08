@@ -137,6 +137,7 @@ void MIC_vInit (unsigned long dwK0, unsigned long dwK1)
     s_vSetKey(dwK0, dwK1);
 }
 
+
 void MIC_vUnInit (void)
 {
     // Wipe the key material
@@ -177,3 +178,4 @@ void MIC_vGetMIC (unsigned long *pdwL, unsigned long *pdwR)
     // Reset to the empty message.
     s_vClear();
 }
+

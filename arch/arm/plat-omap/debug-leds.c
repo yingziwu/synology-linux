@@ -20,6 +20,7 @@
 
 #include <plat/fpga.h>
 
+
 /* Many OMAP development platforms reuse the same "debug board"; these
  * platforms include H2, H3, H4, and Perseus2.  There are 16 LEDs on the
  * debug board (all green), accessed through FPGA registers.
@@ -36,11 +37,13 @@ static spinlock_t			lock;
 static struct h2p2_dbg_fpga __iomem	*fpga;
 static u16				led_state, hw_led_state;
 
+
 #ifdef	CONFIG_OMAP_DEBUG_LEDS
 #define new_led_api()	1
 #else
 #define new_led_api()	0
 #endif
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -166,6 +169,7 @@ static void h2p2_dbg_leds_event(led_event_t evt)
 		break;
 	}
 
+
 	/*
 	 *  Actually burn the LEDs
 	 */
@@ -247,6 +251,7 @@ static void __init newled_init(struct device *dev)
 	}
 	return;
 }
+
 
 /*-------------------------------------------------------------------------*/
 

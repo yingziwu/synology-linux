@@ -41,6 +41,7 @@
 #define CE5300_PUB_GPIO_INT_MODE_LE	0x14
 #define CE5300_PUB_GPIO_INT_MODE_RF	0x18
 
+
 #define CE5300_PUB_GPIO_MUX_CTL	0x1c
 
 /* Core Well GPIO Group in North brige */
@@ -53,6 +54,7 @@
 #define CE5300_CORE_WELL_GPIO_CGGPE		0x14
 #define CE5300_CORE_WELL_GPIO_CGSMI		0x18
 #define CE5300_CORE_WELL_GPIO_CGTS		0x1C
+
 
 int ce5300_set_multi_function(struct gpio_chip *chip, unsigned offset,  int fn_num);
 int ce5300_get_multi_function(struct gpio_chip *chip, unsigned offset);

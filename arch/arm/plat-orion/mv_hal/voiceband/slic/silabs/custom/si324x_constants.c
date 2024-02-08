@@ -3,6 +3,7 @@ Copyright (c) 2008 Silicon Laboratories, Inc.
 2008-03-26 19:05:19 */
 /*ProSLIC API Tool Rev0.31 Beta*/
 
+
 #include "proslic.h"
 #include "si324x.h"
 Si324x_General_Cfg Si324x_General_Configuration  = {
@@ -47,6 +48,7 @@ Si324x_audioGain_Cfg Si324x_audioGain_Presets [] = {
 
 Si324x_Ring_Cfg Si324x_Ring_Presets[] ={
 
+
     /* inputs:  ringtrip ac thresh = 450.000, dc_thresh = 10.000, rt debounce = 0.075, vov_ring_gnd = 7.000, vov_ring_bat = 10.000*/
     { 0x7EFE000L, 0x1BA000L, 0x1EB3154L, 0x0L, 0x50000L, 0x80, 0x3E, 0x0, 0x7D, 0x58, 0x800000L, 0xC84B5BL, 0xF5E5200EL, 0x0L, 0x0L, 0x51EB8L, 0x6000L, 0x32EDF9EL, 0x6000L, 0x1C71ECL, 0xA3D70AL, 0x72B020L, 0x4CCCCCCL }
 };
@@ -73,6 +75,7 @@ Si324x_Impedance_Cfg Si324x_Impedance_Presets[] = {   /* Default - 600ohms, 30oh
   {0x01454B00L,0x00}, /* RXACGAIN/MUTE */
    0x07B3DA80L,0x184C2600L,0x0767B500L}  /* RXHPF */
 };
+
 
 Si324x_FSK_Cfg Si324x_FSK_Presets[] ={
 

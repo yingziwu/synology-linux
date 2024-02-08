@@ -49,8 +49,10 @@ module_param(init_nr_desc_per_channel, uint, 0644);
 MODULE_PARM_DESC(init_nr_desc_per_channel,
 		 "initial descriptors per channel (default: 64)");
 
+
 /* prototypes */
 static dma_cookie_t atc_tx_submit(struct dma_async_tx_descriptor *tx);
+
 
 /*----------------------------------------------------------------------*/
 
@@ -394,6 +396,7 @@ static void atc_advance_work(struct at_dma_chan *atchan)
 	}
 }
 
+
 /**
  * atc_handle_error - handle errors reported by DMA controller
  * @atchan: channel where error occurs
@@ -519,6 +522,7 @@ static irqreturn_t at_dma_interrupt(int irq, void *dev_id)
 	return ret;
 }
 
+
 /*--  DMA Engine API  --------------------------------------------------*/
 
 /**
@@ -640,6 +644,7 @@ err_desc_get:
 	atc_desc_put(atchan, first);
 	return NULL;
 }
+
 
 /**
  * atc_prep_slave_sg - prepare descriptors for a DMA_SLAVE transaction
@@ -926,6 +931,7 @@ err_out:
 	return NULL;
 }
 
+
 static int atc_control(struct dma_chan *chan, enum dma_ctrl_cmd cmd,
 		       unsigned long arg)
 {
@@ -1172,6 +1178,7 @@ static void atc_free_chan_resources(struct dma_chan *chan)
 
 	dev_vdbg(chan2dev(chan), "free_chan_resources: done\n");
 }
+
 
 /*--  Module Management  -----------------------------------------------*/
 

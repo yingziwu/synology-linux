@@ -658,6 +658,7 @@ static u16 asd_calc_flash_chksum(u16 *p, int size)
 	return chksum;
 }
 
+
 static int asd_find_flash_de(struct asd_flash_dir *flash_dir, u32 entry_type,
 			     u32 *offs, u32 *size)
 {
@@ -858,6 +859,7 @@ static int asd_ms_get_connector_map(struct asd_ha_struct *asd_ha,
 	return 0;
 }
 
+
 /**
  * asd_process_ms - find and extract information from the manufacturing sector
  * @asd_ha: pointer to the host adapter structure
@@ -981,7 +983,7 @@ static int asd_process_ctrl_a_user(struct asd_ha_struct *asd_ha,
 {
 	int err, i;
 	u32 offs, size;
-	struct asd_ll_el *el;
+	struct asd_ll_el *el = NULL;
 	struct asd_ctrla_phy_settings *ps;
 	struct asd_ctrla_phy_settings dflt_ps;
 
@@ -1002,6 +1004,7 @@ static int asd_process_ctrl_a_user(struct asd_ha_struct *asd_ha,
 
 		size = sizeof(struct asd_ctrla_phy_settings);
 		ps = &dflt_ps;
+		goto out_process;
 	}
 
 	if (size == 0)
@@ -1026,7 +1029,7 @@ static int asd_process_ctrl_a_user(struct asd_ha_struct *asd_ha,
 		ASD_DPRINTK("couldn't find ctrla phy settings struct\n");
 		goto out2;
 	}
-
+out_process:
 	err = asd_process_ctrla_phy_settings(asd_ha, ps);
 	if (err) {
 		ASD_DPRINTK("couldn't process ctrla phy settings\n");

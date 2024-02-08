@@ -116,6 +116,7 @@ static INLINE uint_32 USB_BYTE_SWAP_32BIT(uint_32 value)
              ((value & 0xff000000) >> 24));
 }
 
+    
 /* Endianess macros.                                                        */
 #if defined(MV_CPU_LE)
 #   define USB_16BIT_LE(X)  (X) 
@@ -163,6 +164,7 @@ extern USB_IMPORT_FUNCS*            global_import_funcs;
                                         (global_import_funcs->bspPrintf != NULL) )        \
                                         global_import_funcs->bspPrintf(frmt, ##x)
 
+
 #define USB_virt_to_phys(pVirt)     (global_import_funcs->bspVirtToPhys == NULL) ?      \
                                         (uint_32)(pVirt) : global_import_funcs->bspVirtToPhys(NULL, pVirt)
 
@@ -206,6 +208,7 @@ static INLINE void* USB_memalloc(uint_32 size)
 #define USB_reset_complete(dev)     if(global_import_funcs->bspResetComplete)       \
                                         global_import_funcs->bspResetComplete(dev)
 
+
 #if defined(USB_UNDERRUN_WA)
 
 #define USB_SRAM_MAX_PARTS  16  
@@ -232,3 +235,4 @@ extern int              global_wa_threshold;
 #endif /* __mvUsbTypes_h__ */
 
 /* EOF */
+

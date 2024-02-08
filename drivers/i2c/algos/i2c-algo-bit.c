@@ -30,6 +30,7 @@
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
 
+
 /* ----- global defines ----------------------------------------------- */
 
 #ifdef DEBUG
@@ -123,6 +124,7 @@ done:
 	return 0;
 }
 
+
 /* --- other auxiliary functions --------------------------------------	*/
 static void i2c_start(struct i2c_algo_bit_data *adap)
 {
@@ -142,6 +144,7 @@ static void i2c_repstart(struct i2c_algo_bit_data *adap)
 	scllo(adap);
 }
 
+
 static void i2c_stop(struct i2c_algo_bit_data *adap)
 {
 	/* assert: scl is low */
@@ -150,6 +153,8 @@ static void i2c_stop(struct i2c_algo_bit_data *adap)
 	setsda(adap, 1);
 	udelay(adap->udelay);
 }
+
+
 
 /* send a byte without start cond., look for arbitration,
    check ackn. from slave */
@@ -201,6 +206,7 @@ static int i2c_outb(struct i2c_adapter *i2c_adap, unsigned char c)
 	return ack;
 	/* assert: scl is low (sda undef) */
 }
+
 
 static int i2c_inb(struct i2c_adapter *i2c_adap)
 {
@@ -606,6 +612,7 @@ static u32 bit_func(struct i2c_adapter *adap)
 	       I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
 	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
 }
+
 
 /* -----exported algorithm data: -------------------------------------	*/
 

@@ -21,7 +21,7 @@
 
 /* large granularity for statfs utilization stats to facilitate
  * large volume sizes on 32-bit machines. */
-#define CEPH_BLOCK_SHIFT   20  /* 1 MB */
+#define CEPH_BLOCK_SHIFT   22  /* 4 MB */
 #define CEPH_BLOCK         (1 << CEPH_BLOCK_SHIFT)
 
 #define CEPH_MOUNT_OPT_DIRSTAT         (1<<4) /* `cat dirname` for stats */
@@ -90,6 +90,7 @@ struct ceph_fs_client {
 	struct dentry *debugfs_mdsc, *debugfs_mdsmap;
 #endif
 };
+
 
 /*
  * File i/o capability.  This tracks shared state with the metadata
@@ -398,6 +399,7 @@ static inline ino_t ceph_translate_ino(struct super_block *sb, ino_t ino)
 }
 #endif
 
+
 /* for printf-style formatting */
 #define ceph_vinop(i) ceph_inode(i)->i_vino.ino, ceph_inode(i)->i_vino.snap
 
@@ -424,6 +426,7 @@ static inline struct inode *ceph_find_inode(struct super_block *sb,
 	ino_t t = ceph_vino_to_ino(vino);
 	return ilookup5(sb, t, ceph_ino_compare, &vino);
 }
+
 
 /*
  * Ceph inode.
@@ -460,6 +463,7 @@ static inline bool ceph_i_test(struct inode *inode, unsigned mask)
 	spin_unlock(&ci->i_ceph_lock);
 	return r;
 }
+
 
 /* find a specific frag @f */
 extern struct ceph_inode_frag *__ceph_find_frag(struct ceph_inode_info *ci,
@@ -558,6 +562,8 @@ extern void ceph_reservation_status(struct ceph_fs_client *client,
 				    int *total, int *avail, int *used,
 				    int *reserved, int *min);
 
+
+
 /*
  * we keep buffered readdir results attached to file->private_data
  */
@@ -583,6 +589,8 @@ struct ceph_file_info {
 	char *dir_info;
 	int dir_info_len;
 };
+
+
 
 /*
  * A "snap realm" describes a subset of the file hierarchy sharing
@@ -651,6 +659,8 @@ static inline int default_congestion_kb(void)
 	return congestion_kb;
 }
 
+
+
 /* snap.c */
 struct ceph_snap_realm *ceph_lookup_snap_realm(struct ceph_mds_client *mdsc,
 					       u64 ino);
@@ -667,6 +677,8 @@ extern void ceph_queue_cap_snap(struct ceph_inode_info *ci);
 extern int __ceph_finish_cap_snap(struct ceph_inode_info *ci,
 				  struct ceph_cap_snap *capsnap);
 extern void ceph_cleanup_empty_realms(struct ceph_mds_client *mdsc);
+extern int ceph_snap_init(void);
+extern void ceph_snap_exit(void);
 
 /*
  * a cap_snap is "pending" if it is still awaiting an in-progress
@@ -822,6 +834,7 @@ extern struct inode *ceph_get_dentry_parent_inode(struct dentry *dentry);
  * snapshotted (read-only), or a virtual ".snap" directory.
  */
 int ceph_init_dentry(struct dentry *dentry);
+
 
 /* ioctl.c */
 extern long ceph_ioctl(struct file *file, unsigned int cmd, unsigned long arg);

@@ -26,6 +26,7 @@
 
 */
 
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
@@ -33,6 +34,7 @@
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/moduleparam.h>
+#include <linux/sched.h>
 #include <net/pkt_sched.h>
 #include <net/net_namespace.h>
 
@@ -153,6 +155,7 @@ static struct rtnl_link_stats64 *ifb_stats64(struct net_device *dev,
 
 	return stats;
 }
+
 
 static const struct net_device_ops ifb_netdev_ops = {
 	.ndo_open	= ifb_open,
@@ -288,11 +291,17 @@ static int __init ifb_init_module(void)
 
 	rtnl_lock();
 	err = __rtnl_link_register(&ifb_link_ops);
+	if (err < 0)
+		goto out;
 
-	for (i = 0; i < numifbs && !err; i++)
+	for (i = 0; i < numifbs && !err; i++) {
 		err = ifb_init_one(i);
+		cond_resched();
+	}
 	if (err)
 		__rtnl_link_unregister(&ifb_link_ops);
+
+out:
 	rtnl_unlock();
 
 	return err;

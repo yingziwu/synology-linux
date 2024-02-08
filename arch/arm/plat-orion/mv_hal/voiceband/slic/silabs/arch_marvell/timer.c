@@ -28,6 +28,7 @@ void TimerInit (systemTimer_S *pTimerObj)
 
 }
 
+
 /*
 ** Function: SYSTEM_Delay
 */
@@ -36,6 +37,7 @@ int time_DelayWrapper (void *hTimer, int timeInMs)
 	mvOsDelay(timeInMs);
 	return 0;
 }
+
 
 /*
 ** Function: SYSTEM_TimeElapsed

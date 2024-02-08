@@ -95,6 +95,7 @@ EXPORT_SYMBOL_GPL(__mtd_next_device);
 
 static LIST_HEAD(mtd_notifiers);
 
+
 #if defined(CONFIG_MTD_CHAR) || defined(CONFIG_MTD_CHAR_MODULE)
 #define MTD_DEVT(index) MKDEV(MTD_CHAR_MAJOR, (index)*2)
 #else
@@ -558,6 +559,7 @@ int unregister_mtd_user (struct mtd_notifier *old)
 	return 0;
 }
 
+
 /**
  *	get_mtd_device - obtain a validated handle for an MTD device
  *	@mtd: last known address of the required MTD device
@@ -602,6 +604,7 @@ out:
 	mutex_unlock(&mtd_table_mutex);
 	return ret;
 }
+
 
 int __get_mtd_device(struct mtd_info *mtd)
 {

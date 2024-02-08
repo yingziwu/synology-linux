@@ -15,8 +15,13 @@
 #include <asm/ia32_unistd.h>	
 #include <asm/thread_info.h>	
 #include <asm/segment.h>
+#include <asm/pgtable_types.h>
+#include <asm/alternative-asm.h>
+#include <asm/cpufeature.h>
+#include <asm/kaiser.h>
 #include <asm/irqflags.h>
 #include <linux/linkage.h>
+#include <asm/nospec-branch.h>
 
 /* Avoid __ASSEMBLER__'ifying <linux/audit.h> just for this.  */
 #include <linux/elf-em.h>
@@ -123,6 +128,7 @@ ENTRY(ia32_sysenter_target)
 	CFI_DEF_CFA	rsp,0
 	CFI_REGISTER	rsp,rbp
 	SWAPGS_UNSAFE_STACK
+	SWITCH_KERNEL_CR3_NO_STACK
 	movq	PER_CPU_VAR(kernel_stack), %rsp
 	addq	$(KERNEL_STACK_OFFSET),%rsp
 	/*
@@ -158,12 +164,19 @@ ENTRY(ia32_sysenter_target)
 	testl  $_TIF_WORK_SYSCALL_ENTRY,TI_flags(%r10)
 	CFI_REMEMBER_STATE
 	jnz  sysenter_tracesys
-	cmpq	$(IA32_NR_syscalls-1),%rax
-	ja	ia32_badsys
+	cmpq	$(IA32_NR_syscalls),%rax
+	jae	ia32_badsys
 sysenter_do_call:
+	sbb	%r8,%r8				/* array_index_mask_nospec() */
+	and	%r8,%rax
 	IA32_ARG_FIXUP
 sysenter_dispatch:
+#ifdef CONFIG_RETPOLINE
+	movq	ia32_sys_call_table(,%rax,8),%rax
+	call	__x86_indirect_thunk_rax
+#else
 	call	*ia32_sys_call_table(,%rax,8)
+#endif
 	movq	%rax,RAX-ARGOFFSET(%rsp)
 	GET_THREAD_INFO(%r10)
 	DISABLE_INTERRUPTS(CLBR_NONE)
@@ -186,6 +199,7 @@ sysexit_from_sys_call:
 	popq_cfi %rcx				/* User %esp */
 	CFI_REGISTER rsp,rcx
 	TRACE_IRQS_ON
+	SWITCH_USER_CR3
 	ENABLE_INTERRUPTS_SYSEXIT32
 
 #ifdef CONFIG_AUDITSYSCALL
@@ -198,8 +212,10 @@ sysexit_from_sys_call:
 	movl $AUDIT_ARCH_I386,%edi	/* 1st arg: audit arch */
 	call audit_syscall_entry
 	movl RAX-ARGOFFSET(%rsp),%eax	/* reload syscall number */
-	cmpq $(IA32_NR_syscalls-1),%rax
-	ja ia32_badsys
+	cmpq $(IA32_NR_syscalls),%rax
+	jae  ia32_badsys
+	sbb  %r8,%r8			/* array_index_mask_nospec() */
+	and  %r8,%rax
 	movl %ebx,%edi			/* reload 1st syscall arg */
 	movl RCX-ARGOFFSET(%rsp),%esi	/* reload 2nd syscall arg */
 	movl RDX-ARGOFFSET(%rsp),%edx	/* reload 3rd syscall arg */
@@ -251,8 +267,8 @@ sysenter_tracesys:
 	call	syscall_trace_enter
 	LOAD_ARGS32 ARGOFFSET  /* reload args from stack in case ptrace changed it */
 	RESTORE_REST
-	cmpq	$(IA32_NR_syscalls-1),%rax
-	ja	int_ret_from_sys_call /* sysenter_tracesys has set RAX(%rsp) */
+	cmpq	$(IA32_NR_syscalls),%rax
+	jae	int_ret_from_sys_call /* sysenter_tracesys has set RAX(%rsp) */
 	jmp	sysenter_do_call
 	CFI_ENDPROC
 ENDPROC(ia32_sysenter_target)
@@ -284,6 +300,7 @@ ENTRY(ia32_cstar_target)
 	CFI_REGISTER	rip,rcx
 	/*CFI_REGISTER	rflags,r11*/
 	SWAPGS_UNSAFE_STACK
+	SWITCH_KERNEL_CR3_NO_STACK
 	movl	%esp,%r8d
 	CFI_REGISTER	rsp,r8
 	movq	PER_CPU_VAR(kernel_stack),%rsp
@@ -317,12 +334,19 @@ ENTRY(ia32_cstar_target)
 	testl $_TIF_WORK_SYSCALL_ENTRY,TI_flags(%r10)
 	CFI_REMEMBER_STATE
 	jnz   cstar_tracesys
-	cmpq $IA32_NR_syscalls-1,%rax
-	ja  ia32_badsys
+	cmpq $IA32_NR_syscalls,%rax
+	jae  ia32_badsys
 cstar_do_call:
+	sbb  %r8,%r8				/* array_index_mask_nospec() */
+	and  %r8,%rax
 	IA32_ARG_FIXUP 1
 cstar_dispatch:
+#ifdef CONFIG_RETPOLINE
+	movq ia32_sys_call_table(,%rax,8),%rax
+	call __x86_indirect_thunk_rax
+#else
 	call *ia32_sys_call_table(,%rax,8)
+#endif
 	movq %rax,RAX-ARGOFFSET(%rsp)
 	GET_THREAD_INFO(%r10)
 	DISABLE_INTERRUPTS(CLBR_NONE)
@@ -340,6 +364,7 @@ sysretl_from_sys_call:
 	xorq	%r9,%r9
 	xorq	%r8,%r8
 	TRACE_IRQS_ON
+	SWITCH_USER_CR3
 	movl RSP-ARGOFFSET(%rsp),%esp
 	CFI_RESTORE rsp
 	USERGS_SYSRET32
@@ -370,8 +395,8 @@ cstar_tracesys:
 	LOAD_ARGS32 ARGOFFSET, 1  /* reload args from stack in case ptrace changed it */
 	RESTORE_REST
 	xchgl %ebp,%r9d
-	cmpq $(IA32_NR_syscalls-1),%rax
-	ja int_ret_from_sys_call /* cstar_tracesys has set RAX(%rsp) */
+	cmpq $(IA32_NR_syscalls),%rax
+	jae int_ret_from_sys_call /* cstar_tracesys has set RAX(%rsp) */
 	jmp cstar_do_call
 END(ia32_cstar_target)
 				
@@ -412,6 +437,7 @@ ENTRY(ia32_syscall)
 	CFI_REL_OFFSET	rip,RIP-RIP
 	PARAVIRT_ADJUST_EXCEPTION_FRAME
 	SWAPGS
+	SWITCH_KERNEL_CR3_NO_STACK
 	/*
 	 * No need to follow this irqs on/off section: the syscall
 	 * disabled irqs and here we enable it straight after entry:
@@ -427,11 +453,18 @@ ENTRY(ia32_syscall)
 	orl   $TS_COMPAT,TI_status(%r10)
 	testl $_TIF_WORK_SYSCALL_ENTRY,TI_flags(%r10)
 	jnz ia32_tracesys
-	cmpq $(IA32_NR_syscalls-1),%rax
-	ja ia32_badsys
+	cmpq $(IA32_NR_syscalls),%rax
+	jae  ia32_badsys
 ia32_do_call:
+	sbb  %r8,%r8				/* array_index_mask_nospec() */
+	and  %r8,%rax
 	IA32_ARG_FIXUP
+#ifdef CONFIG_RETPOLINE
+	movq ia32_sys_call_table(,%rax,8),%rax
+	call __x86_indirect_thunk_rax
+#else
 	call *ia32_sys_call_table(,%rax,8) # xxx: rip relative
+#endif
 ia32_sysret:
 	movq %rax,RAX-ARGOFFSET(%rsp)
 ia32_ret_from_sys_call:
@@ -446,8 +479,8 @@ ia32_tracesys:
 	call syscall_trace_enter
 	LOAD_ARGS32 ARGOFFSET  /* reload args from stack in case ptrace changed it */
 	RESTORE_REST
-	cmpq $(IA32_NR_syscalls-1),%rax
-	ja  int_ret_from_sys_call	/* ia32_tracesys has set RAX(%rsp) */
+	cmpq $(IA32_NR_syscalls),%rax
+	jae int_ret_from_sys_call	/* ia32_tracesys has set RAX(%rsp) */
 	jmp ia32_do_call
 END(ia32_syscall)
 
@@ -497,7 +530,7 @@ ENTRY(ia32_ptregs_common)
 	CFI_REL_OFFSET	rsp,RSP-ARGOFFSET
 /*	CFI_REL_OFFSET	ss,SS-ARGOFFSET*/
 	SAVE_REST
-	call *%rax
+	CALL_NOSPEC %rax
 	RESTORE_REST
 	jmp  ia32_sysret	/* misbalances the return cache */
 	CFI_ENDPROC
@@ -794,7 +827,7 @@ ia32_sys_call_table:
 	.quad quiet_ni_syscall		/* 285: sys_altroot */
 	.quad sys_add_key
 	.quad sys_request_key
-	.quad sys_keyctl
+	.quad compat_sys_keyctl
 	.quad sys_ioprio_set
 	.quad sys_ioprio_get		/* 290 */
 	.quad sys_inotify_init
@@ -950,7 +983,11 @@ ia32_sys_call_table:
 	.quad sys_ni_syscall
 	.quad sys_ni_syscall
 #endif
+#ifdef MY_ABC_HERE
+	.quad sys_SYNOFlushAggregate /* 415 */
+#else
 	.quad sys_ni_syscall
+#endif /* MY_ABC_HERE */
     .quad sys_ni_syscall        /* 416 */
     .quad sys_ni_syscall        /* 417 */
     .quad sys_ni_syscall        /* 418 */
@@ -978,6 +1015,456 @@ ia32_sys_call_table:
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	.quad sys_SYNOArchiveOverwrite /* 427 */
+#else
+	.quad sys_ni_syscall
+#endif
+	.quad sys_ni_syscall /* 428 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 430 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 435 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 440 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 445 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 450 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 455 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 460 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 465 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 470 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 475 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 480 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 485 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 490 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 495 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 500 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 505 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 510 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 515 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 520 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 525 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 530 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 535 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 540 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 545 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 550 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 555 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 560 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 565 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 570 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 575 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 580 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 585 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 590 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 595 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 600 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 605 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 610 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 615 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 620 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 625 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 630 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 635 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 640 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 645 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 650 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 655 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 660 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 665 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 670 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 675 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 680 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 685 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 690 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 695 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 700 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 705 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 710 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 715 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 720 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 725 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 730 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 735 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 740 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 745 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 750 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 755 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 760 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 765 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 770 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 775 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 780 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 785 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 790 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 795 */
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall /* 800 */
+	.quad sys_ni_syscall
+#ifdef MY_ABC_HERE
+	.quad compat_sys_syno_utime		/* 802 */
+#else
+	.quad sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+	.quad sys_syno_archive_bit	/* 803 */
+#else
+	.quad sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+	.quad compat_sys_syno_recv_file      /* 804 */
+#else
+	.quad sys_ni_syscall
+#endif
+	.quad sys_ni_syscall /* 805 */
+#ifdef MY_ABC_HERE
+	.quad sys32_syno_caseless_stat64 /* 806 */
+	.quad sys32_syno_caseless_lstat64 /* 807 */
+#else
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+#endif  /* MY_ABC_HERE */
+	.quad sys_ni_syscall		/* 808 */
+	.quad sys_ni_syscall		/* 809 */
+#ifdef MY_ABC_HERE
+	.quad sys_syno_ecrypt_name /* 810 */
+	.quad sys_syno_decrypt_name /* 811 */
+#else
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+#endif
+#ifdef CONFIG_FS_SYNO_ACL
+	.quad sys_syno_acl_check_perm	/* 812 */
+	.quad sys_syno_acl_is_support	/* 813 */
+	.quad sys_syno_acl_get_perm	/* 814 */
+#else
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+	.quad sys_syno_flush_aggregate /* 815 */
+#else
+	.quad sys_ni_syscall
+#endif /* MY_ABC_HERE */
+    .quad sys_ni_syscall        /* 816 */
+    .quad sys_ni_syscall        /* 817 */
+    .quad sys_ni_syscall        /* 818 */
+#ifdef MY_ABC_HERE
+    .quad sys32_syno_stat64                   /* 819 */
+    .quad sys32_syno_fstat64                  /* 820 */
+    .quad sys32_syno_lstat64                  /* 821 */
+#else
+    .quad sys_ni_syscall
+    .quad sys_ni_syscall
+    .quad sys_ni_syscall
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.quad sys_syno_notify_init /* 822 */
+	.quad sys_syno_notify_add_watch /* 823 */
+	.quad sys_syno_notify_remove_watch /* 824 */
+	.quad sys_syno_notify_add_watch32 /* 825 */
+	.quad sys_syno_notify_remove_watch32 /* 826 */
+#else
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+	.quad sys_ni_syscall
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.quad sys_syno_archive_overwrite /* 827 */
 #else
 	.quad sys_ni_syscall
 #endif

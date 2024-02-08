@@ -9,6 +9,7 @@
 #ifndef _ASM_ARC_TYPES_H
 #define _ASM_ARC_TYPES_H
 
+
 #ifdef CONFIG_ARC32
 
 typedef char		CHAR;

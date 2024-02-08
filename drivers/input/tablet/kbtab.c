@@ -60,6 +60,7 @@ static void kbtab_irq(struct urb *urb)
 		goto exit;
 	}
 
+
 	input_report_key(dev, BTN_TOOL_PEN, 1);
 
 	input_report_abs(dev, ABS_X, get_unaligned_le16(&data[1]));
@@ -115,6 +116,9 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
 	struct kbtab *kbtab;
 	struct input_dev *input_dev;
 	int error = -ENOMEM;
+
+	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
+		return -ENODEV;
 
 	kbtab = kzalloc(sizeof(struct kbtab), GFP_KERNEL);
 	input_dev = input_allocate_device();

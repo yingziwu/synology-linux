@@ -39,6 +39,7 @@ enum FUNC_CODE
 	FCODE_MAX
 };
 
+
 /* This structure represents a symbol in the module */
 struct module_symbol
 {

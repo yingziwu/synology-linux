@@ -1,7 +1,8 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/* Copyright (c) 2013 Synology Inc. */
+
 #include <stdarg.h>
 
 #include <linux/export.h>
@@ -84,3 +85,4 @@ EXPORT_SYMBOL(force_cpu_idle);
 EXPORT_SYMBOL(get_cpu_time);
 EXPORT_SYMBOL(set_schedule);
 #endif
+

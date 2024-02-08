@@ -26,3 +26,4 @@ static inline int al_msix_init(void)
         return 0;
 }
 #endif
+

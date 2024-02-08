@@ -1,4 +1,38 @@
- 
+/*******************************************************************************
+Copyright (C) 2013 Annapurna Labs Ltd.
+
+This file may be licensed under the terms of the Annapurna Labs Commercial
+License Agreement.
+
+Alternatively, this file can be distributed under the terms of the GNU General
+Public License V2 or V3 as published by the Free Software Foundation and can be
+found at http://www.gnu.org/licenses/gpl-2.0.html
+
+Alternatively, redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following conditions are
+met:
+
+    *     Redistributions of source code must retain the above copyright notice,
+	  this list of conditions and the following disclaimer.
+
+    *     Redistributions in binary form must reproduce the above copyright
+	  notice, this list of conditions and the following disclaimer in
+	  the documentation and/or other materials provided with the
+	  distribution.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*******************************************************************************/
+
 #include "al_hal_serdes.h"
 #include "al_hal_serdes_regs.h"
 #include "al_hal_serdes_internal_regs.h"
@@ -6,35 +40,46 @@
 #define SRDS_CORE_REG_ADDR(page, type, offset)\
 	(((page) << 13) | ((type) << 12) | (offset))
 
+/* Link Training configuration */
 #define AL_SERDES_TX_DEEMPH_SUM_MAX		0x1b
 
+/* c configurations */
 #define AL_SERDES_TX_DEEMPH_C_ZERO_MAX_VAL	0x1b
 #define AL_SERDES_TX_DEEMPH_C_ZERO_MIN_VAL	0
 #define AL_SERDES_TX_DEEMPH_C_ZERO_PRESET	AL_SERDES_TX_DEEMPH_C_ZERO_MAX_VAL
 
+/* c(+1) configurations */
 #define AL_SERDES_TX_DEEMPH_C_PLUS_MAX_VAL	0x9
 #define AL_SERDES_TX_DEEMPH_C_PLUS_MIN_VAL	0
 #define AL_SERDES_TX_DEEMPH_C_PLUS_PRESET	AL_SERDES_TX_DEEMPH_C_PLUS_MIN_VAL
 
+/* c(-1) configurations */
 #define AL_SERDES_TX_DEEMPH_C_MINUS_MAX_VAL	0x6
 #define AL_SERDES_TX_DEEMPH_C_MINUS_MIN_VAL	0
 #define AL_SERDES_TX_DEEMPH_C_MINUS_PRESET	AL_SERDES_TX_DEEMPH_C_MINUS_MIN_VAL
 
 #ifdef CONFIG_SYNO_ALPINE_A0
- 
+/* Rx equal total delay = MDELAY * TRIES */
 #define AL_SERDES_RX_EQUAL_MDELAY		10
 #define AL_SERDES_RX_EQUAL_TRIES		50
 
+/* Rx eye calculation delay = MDELAY * TRIES */
 #define AL_SERDES_RX_EYE_CAL_MDELAY		50
 #define AL_SERDES_RX_EYE_CAL_TRIES		70
 #endif
 
+/**
+ * SERDES core reg read
+ */
 static inline uint8_t al_serdes_grp_reg_read(
 	struct al_serdes_group_info	*grp_info,
 	enum al_serdes_reg_page		page,
 	enum al_serdes_reg_type		type,
 	uint16_t			offset);
 
+/**
+ * SERDES core reg write
+ */
 static inline void al_serdes_grp_reg_write(
 	struct al_serdes_group_info	*grp_info,
 	enum al_serdes_reg_page		page,
@@ -42,6 +87,9 @@ static inline void al_serdes_grp_reg_write(
 	uint16_t			offset,
 	uint8_t				data);
 
+/**
+ * SERDES core masked reg write
+ */
 static inline void al_serdes_grp_reg_masked_write(
 	struct al_serdes_group_info	*grp_info,
 	enum al_serdes_reg_page		page,
@@ -50,6 +98,8 @@ static inline void al_serdes_grp_reg_masked_write(
 	uint8_t				mask,
 	uint8_t				data);
 
+/******************************************************************************/
+/******************************************************************************/
 int al_serdes_handle_init(
 	void __iomem			*serdes_regs_base,
 	struct al_serdes_obj		*obj)
@@ -74,6 +124,8 @@ int al_serdes_handle_init(
 	return 0;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_serdes_reg_read(
 	struct al_serdes_obj	*obj,
 	enum al_serdes_group	grp,
@@ -116,6 +168,8 @@ int al_serdes_reg_read(
 	return status;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_serdes_reg_write(
 	struct al_serdes_obj	*obj,
 	enum al_serdes_group	grp,
@@ -154,6 +208,8 @@ int al_serdes_reg_write(
 	return status;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 #if (SERDES_IREG_FLD_PCSRX_DATAWIDTH_REG_NUM != SERDES_IREG_FLD_PCSTX_DATAWIDTH_REG_NUM)
 #error "Wrong assumption!"
 #endif
@@ -318,6 +374,8 @@ void al_serdes_bist_overrides_enable(
 	}
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_serdes_group_pm_set(
 	struct al_serdes_obj	*obj,
 	enum al_serdes_group	grp,
@@ -358,6 +416,8 @@ void al_serdes_group_pm_set(
 		pm_val);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_serdes_lane_pm_set(
 	struct al_serdes_obj	*obj,
 	enum al_serdes_group	grp,
@@ -431,6 +491,8 @@ void al_serdes_lane_pm_set(
 		tx_pm_val);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_serdes_pma_hard_reset_group(
 	struct al_serdes_obj	*obj,
 	enum al_serdes_group	grp,
@@ -438,6 +500,7 @@ void al_serdes_pma_hard_reset_group(
 {
 	struct al_serdes_group_info *grp_info = &obj->grp_info[grp];
 
+	/* Enable Hard Reset Override */
 	al_serdes_grp_reg_masked_write(
 		grp_info,
 		AL_SRDS_REG_PAGE_4_COMMON,
@@ -446,6 +509,7 @@ void al_serdes_pma_hard_reset_group(
 		SERDES_IREG_FLD_CMNCTLPOR_HARDRSTBYPASSEN_SYNTH_MASK,
 		SERDES_IREG_FLD_CMNCTLPOR_HARDRSTBYPASSEN_SYNTH_VAL_REGS);
 
+	/* Assert/Deassert Hard Reset Override */
 	al_serdes_grp_reg_masked_write(
 		grp_info,
 		AL_SRDS_REG_PAGE_4_COMMON,
@@ -457,6 +521,8 @@ void al_serdes_pma_hard_reset_group(
 		SERDES_IREG_FLD_CMNCTLPOR_HARDRSTBYPASS_SYNTH_VAL_DEASSERT);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_serdes_pma_hard_reset_lane(
 	struct al_serdes_obj	*obj,
 	enum al_serdes_group	grp,
@@ -465,6 +531,7 @@ void al_serdes_pma_hard_reset_lane(
 {
 	struct al_serdes_group_info *grp_info = &obj->grp_info[grp];
 
+	/* Enable Hard Reset Override */
 	al_serdes_grp_reg_masked_write(
 		grp_info,
 		(enum al_serdes_reg_page)lane,
@@ -473,6 +540,7 @@ void al_serdes_pma_hard_reset_lane(
 		SERDES_IREG_FLD_CMNCTLPOR_HARDRSTBYPASSEN_MASK,
 		SERDES_IREG_FLD_CMNCTLPOR_HARDRSTBYPASSEN_VAL_REGS);
 
+	/* Assert/Deassert Hard Reset Override */
 	al_serdes_grp_reg_masked_write(
 		grp_info,
 		(enum al_serdes_reg_page)lane,
@@ -484,6 +552,8 @@ void al_serdes_pma_hard_reset_lane(
 		SERDES_IREG_FLD_CMNCTLPOR_HARDRSTBYPASS_VAL_DEASSERT);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 #if	(SERDES_IREG_FLD_LB_RX2TXUNTIMEDEN_REG_NUM !=\
 	SERDES_IREG_FLD_LB_TX2RXBUFTIMEDEN_REG_NUM) ||\
 	(SERDES_IREG_FLD_LB_TX2RXBUFTIMEDEN_REG_NUM !=\
@@ -538,6 +608,8 @@ void al_serdes_loopback_control(
 		val);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_serdes_bist_pattern_select(
 	struct al_serdes_obj		*obj,
 	enum al_serdes_group		grp,
@@ -579,6 +651,8 @@ void al_serdes_bist_pattern_select(
 		val);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_serdes_bist_tx_enable(
 	struct al_serdes_obj	*obj,
 	enum al_serdes_group	grp,
@@ -596,6 +670,8 @@ void al_serdes_bist_tx_enable(
 		enable ? SERDES_IREG_FLD_PCSTXBIST_EN : 0);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_serdes_bist_tx_err_inject(
 	struct al_serdes_obj	*obj,
 	enum al_serdes_group	grp)
@@ -619,6 +695,8 @@ void al_serdes_bist_tx_err_inject(
 		0);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_serdes_bist_rx_enable(
 	struct al_serdes_obj	*obj,
 	enum al_serdes_group	grp,
@@ -636,6 +714,8 @@ void al_serdes_bist_rx_enable(
 		enable ? SERDES_IREG_FLD_PCSRXBIST_EN : 0);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 #if	(SERDES_IREG_FLD_RXBIST_ERRCOUNT_OVERFLOW_REG_NUM !=\
 	SERDES_IREG_FLD_RXBIST_RXLOCKED_REG_NUM)
 #error Wrong assumption
@@ -683,6 +763,8 @@ void al_serdes_bist_rx_status(
 	*err_cnt = (err_cnt_msb_reg_val << 8) + err_cnt_lsb_reg_val;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 static inline uint8_t al_serdes_grp_reg_read(
 	struct al_serdes_group_info	*grp_info,
 	enum al_serdes_reg_page		page,
@@ -696,6 +778,8 @@ static inline uint8_t al_serdes_grp_reg_read(
 	return al_reg_read32(&grp_info->regs_base->gen.reg_data);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 static inline void al_serdes_grp_reg_write(
 	struct al_serdes_group_info	*grp_info,
 	enum al_serdes_reg_page		page,
@@ -710,6 +794,8 @@ static inline void al_serdes_grp_reg_write(
 	al_reg_write32(&grp_info->regs_base->gen.reg_data, data);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 static inline void al_serdes_grp_reg_masked_write(
 	struct al_serdes_group_info	*grp_info,
 	enum al_serdes_reg_page		page,
@@ -743,6 +829,8 @@ static inline void al_serdes_grp_reg_masked_write(
 #endif
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_serdes_eye_measure_run(
 		struct al_serdes_obj	*obj,
 		enum al_serdes_group	grp,
@@ -783,6 +871,8 @@ int al_serdes_eye_measure_run(
 	return 0;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_serdes_eye_diag_sample(
 		struct al_serdes_obj	*obj,
 		enum al_serdes_group	grp,
@@ -806,6 +896,7 @@ int al_serdes_eye_diag_sample(
 
 	grp_info = &obj->grp_info[grp];
 
+	/* Obtain sample count by reading RXCALROAMEYEMEAS_COUNT */
 	sample_count_orig_msb = al_serdes_grp_reg_read(grp_info,
 		AL_SRDS_REG_PAGE_4_COMMON, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_EYE_DIAG_SAMPLE_CNT_MSB_REG_NUM);
@@ -813,6 +904,7 @@ int al_serdes_eye_diag_sample(
 		AL_SRDS_REG_PAGE_4_COMMON, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_EYE_DIAG_SAMPLE_CNT_LSB_REG_NUM);
 
+	/* Set sample count to ~100000 samples */
 	al_serdes_grp_reg_write(grp_info, AL_SRDS_REG_PAGE_4_COMMON,
 		AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_EYE_DIAG_SAMPLE_CNT_MSB_REG_NUM, 0x13);
@@ -820,6 +912,7 @@ int al_serdes_eye_diag_sample(
 		AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_EYE_DIAG_SAMPLE_CNT_LSB_REG_NUM, 0x88);
 
+	/* BER Contour Overwrite */
 	al_serdes_grp_reg_masked_write(grp_info, page, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN_REG_NUM,
 		SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN,
@@ -833,6 +926,7 @@ int al_serdes_eye_diag_sample(
 		SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN,
 		0);
 
+	/* RXROAM_XORBITSEL = 0x1 or 0x0 */
 	al_serdes_grp_reg_masked_write(grp_info, page, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_RXROAM_XORBITSEL_REG_NUM,
 #ifdef CONFIG_SYNO_ALPINE_A0
@@ -842,18 +936,22 @@ int al_serdes_eye_diag_sample(
 #endif
 		SERDES_IREG_FLD_RXROAM_XORBITSEL_2ND);
 
+	/* Set X */
 	al_serdes_grp_reg_write(grp_info, page, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_RXCALROAMXADJUST_REG_NUM, x);
 
+	/* Set Y */
 	al_serdes_grp_reg_write(grp_info, page, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_RXCALROAMYADJUST_REG_NUM,
 		y < 32 ? 31 - y : y + 1);
 
+	/* Start Measurement by setting RXCALROAMEYEMEASIN_CYCLEEN = 0x1 */
 	al_serdes_grp_reg_masked_write(grp_info, page, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_RXCALROAMEYEMEASIN_CYCLEEN_REG_NUM,
 		SERDES_IREG_FLD_RXCALROAMEYEMEASIN_CYCLEEN_START,
 		SERDES_IREG_FLD_RXCALROAMEYEMEASIN_CYCLEEN_START);
 
+	/* Check RXCALROAMEYEMEASDONE Signal (Polling Until 0x1) */
 	for (i = 0 ; i < timeout ; i++) {
 		if (al_serdes_grp_reg_read(grp_info, page, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALROAMEYEMEASDONE_REG_NUM) &
@@ -866,17 +964,20 @@ int al_serdes_eye_diag_sample(
 		return -ETIMEDOUT;
 	}
 
+	/* Stop Measurement by setting RXCALROAMEYEMEASIN_CYCLEEN = 0x0 */
 	al_serdes_grp_reg_masked_write(grp_info, page, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_RXCALROAMEYEMEASIN_CYCLEEN_REG_NUM,
 		SERDES_IREG_FLD_RXCALROAMEYEMEASIN_CYCLEEN_START,
 		0);
 
+	/* Obtain Error Counts by reading RXCALROAMEYEMEAS_ACC */
 	*value = ((unsigned int)al_serdes_grp_reg_read(grp_info, page,
 		AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_RXCALROAMEYEMEAS_ACC_MSB_REG_NUM)) << 8 |
 		al_serdes_grp_reg_read(grp_info, page, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_RXCALROAMEYEMEAS_ACC_LSB_REG_NUM);
 
+	/* BER Contour Overwrite */
 	al_serdes_grp_reg_masked_write(grp_info, page, AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN_REG_NUM,
 		SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN,
@@ -890,6 +991,7 @@ int al_serdes_eye_diag_sample(
 		SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN,
 		SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN);
 
+	/* Restore sample count */
 	al_serdes_grp_reg_write(grp_info, AL_SRDS_REG_PAGE_4_COMMON,
 		AL_SRDS_REG_TYPE_PMA,
 		SERDES_IREG_FLD_EYE_DIAG_SAMPLE_CNT_MSB_REG_NUM,
@@ -902,6 +1004,8 @@ int al_serdes_eye_diag_sample(
 	return 0;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 static void al_serdes_tx_deemph_set(
 		struct al_serdes_obj	*obj,
 		enum al_serdes_group	grp,
@@ -1926,7 +2030,7 @@ void al_serdes_mode_set_kr(
 	al_serdes_grp_reg_write(grp_info, AL_SRDS_REG_PAGE_4_COMMON,
 		AL_SRDS_REG_TYPE_PMA, 54, 0);
 	al_serdes_grp_reg_write(grp_info, AL_SRDS_REG_PAGE_4_COMMON,
-		AL_SRDS_REG_TYPE_PMA, 55, 149);  
+		AL_SRDS_REG_TYPE_PMA, 55, 149); /*Was 182*/
 	al_serdes_grp_reg_write(grp_info, AL_SRDS_REG_PAGE_4_COMMON,
 		AL_SRDS_REG_TYPE_PMA, 93, 2);
 	al_serdes_grp_reg_write(grp_info, AL_SRDS_REG_PAGE_4_COMMON,
@@ -2042,6 +2146,25 @@ int al_serdes_rx_equalization(
 	int test_score;
 	int i;
 
+	/*
+	 * Make sure Roam Eye mechanism is not overridden
+	 * Lane SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_LOCWREN = 1,
+	 * 	so Rx 4-Point Eye process is not overridden
+	 * Lane SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN = 1,
+	 * 	so Eye Roam latch is not overridden
+	 * Lane SERDES_IREG_FLD_RXCALROAMXADJUST_LOCWREN = 1,
+	 * 	so Eye Roam latch 'X adjust' is not overridden
+	 * Lane SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN = 1,
+	 * 	so Eye Roam latch 'Y adjust' is not overridden
+	 * Lane SERDES_IREG_FLD_RXROAM_XORBITSEL = 0/1,
+	 * 	so Eye Roamlatch works on the right Eye position (XORBITSEL)
+	 * 	For most cases 0 is needed, but sometimes 1 is needed.
+	 * 	I couldn't sort out why is this so the code uses a global
+	 *      XORBITSELmode variable, set by the user (GUI). Default is 0.
+	 * control must be internal. At the end we restore original setting
+	 */
+
+	/* save current values for restoring them later in the end */
 	al_serdes_reg_read(
 			obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCAL_LOCWREN_REG_NUM,
@@ -2060,6 +2183,16 @@ int al_serdes_rx_equalization(
 			SERDES_IREG_FLD_PCSRXEQ_LOCWREN_REG_NUM,
 			&serdes_ireg_fld_pcsrxeq_locwren_val );
 
+	/*
+	 * Set Bits:
+	 * SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_LOCWREN
+	 * SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN
+	 * SERDES_IREG_FLD_RXCALROAMXADJUST_LOCWREN
+	 * to return 4pt-RxEye and EyeRoam Latch to internal logic
+	 *
+	 * clear bit SERDES_IREG_FLD_RX_DRV_OVERRIDE_EN
+	 * AGC/DFE controlled via PMA registers
+	 */
 	temp_val  = serdes_ireg_fld_rxcal_locwren_val;
 	temp_val |= SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_LOCWREN;
 	temp_val |= SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN;
@@ -2071,6 +2204,10 @@ int al_serdes_rx_equalization(
 			SERDES_IREG_FLD_RXCAL_LOCWREN_REG_NUM,
 			temp_val );
 
+	/*
+	 * Set bit SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN
+	 * to return EyeRoam Latch Y to internal logic
+	 */
 	temp_val = serdes_ireg_fld_rxcalroamyadjust_locwren_val |
 			SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN;
 	al_serdes_reg_write(
@@ -2078,6 +2215,10 @@ int al_serdes_rx_equalization(
 			SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN_REG_NUM,
 			temp_val );
 
+	/*
+	 * Clear Bit: SERDES_IREG_FLD_RXROAM_XORBITSEL
+	 * so XORBITSEL=0, needed for the Eye mapping.
+	 */
 	temp_val = serdes_ireg_fld_rxroam_xorbitsel_val &
 			~SERDES_IREG_FLD_RXROAM_XORBITSEL;
 	al_serdes_reg_write(
@@ -2085,6 +2226,11 @@ int al_serdes_rx_equalization(
 			SERDES_IREG_FLD_RXROAM_XORBITSEL_REG_NUM,
 			temp_val );
 
+	/*
+	 * Take Control from int.pin over RxEQ process.
+	 * Clear Bit SERDES_IREG_FLD_PCSRXEQ_LOCWREN
+	 * to override RxEQ via PMA
+	 */
 	temp_val = serdes_ireg_fld_pcsrxeq_locwren_val &
 			~SERDES_IREG_FLD_PCSRXEQ_LOCWREN;
 	al_serdes_reg_write(
@@ -2092,6 +2238,12 @@ int al_serdes_rx_equalization(
 			SERDES_IREG_FLD_PCSRXEQ_LOCWREN_REG_NUM,
 			temp_val );
 
+
+	/*
+	 * Start/Stop RxEQ Cal is via PCSRXEQ_START: 1=START. 0=STOP.
+	 * Clear Bit SERDES_IREG_FLD_PCSRXEQ_START
+	 * to start fresh from Stop
+	 */
 	al_serdes_reg_read(
 			obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_PCSRXEQ_START_REG_NUM,
@@ -2102,12 +2254,15 @@ int al_serdes_rx_equalization(
 			SERDES_IREG_FLD_PCSRXEQ_START_REG_NUM,
 			temp_val );
 
+	/* Set Bit SERDES_IREG_FLD_PCSRXEQ_START
+	 * to begin Rx Eq Cal */
 	temp_val |= SERDES_IREG_FLD_PCSRXEQ_START;
 	al_serdes_reg_write(
 			obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_PCSRXEQ_START_REG_NUM,
 			temp_val );
 
+	/* Poll on RxEq Cal completion. SERDES_IREG_FLD_RXEQ_DONE. 1=Done. */
 	for( i = 0; i < AL_SERDES_RX_EQUAL_TRIES; ++i ) {
 		al_serdes_reg_read(
 				obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
@@ -2115,6 +2270,7 @@ int al_serdes_rx_equalization(
 				&done );
 		done &= SERDES_IREG_FLD_RXEQ_DONE;
 
+		/* Check if RxEQ Cal is done */
 		if (done)
 			break;
 		al_msleep(AL_SERDES_RX_EQUAL_MDELAY);
@@ -2125,12 +2281,13 @@ int al_serdes_rx_equalization(
 		return -1;
 	}
 
+	/* Stop the RxEQ process. */
 	temp_val &= ~SERDES_IREG_FLD_PCSRXEQ_START;
 	al_serdes_reg_write(
 			obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_PCSRXEQ_START_REG_NUM,
 			temp_val );
-	 
+	/* Get score */
 	al_serdes_reg_read(
 			obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_RXEQ_BEST_EYE_MSB_VAL_REG_NUM,
@@ -2142,6 +2299,7 @@ int al_serdes_rx_equalization(
 			&temp_val );
 	test_score += (int)(temp_val & SERDES_IREG_RXEQ_BEST_EYE_LSB_VAL_MASK);
 
+	/* Restore start values */
 	al_serdes_reg_write(
 			obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCAL_LOCWREN_REG_NUM,
@@ -2191,6 +2349,7 @@ int al_serdes_calc_eye_size(
 	uint8_t status;
 	uint8_t reg_value;
 
+	/* Save Registers */
 	al_serdes_reg_read(obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXLOCK2REF_LOCWREN_REG_NUM,
 			&rxlock2ref_locwren_val);
@@ -2225,6 +2384,15 @@ int al_serdes_calc_eye_size(
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_YVALFINE_REG_NUM,
 			&rxcaleyediagfsm_yvalfine_val);
 
+	/*
+	 * Clear Bit:
+	 * 	SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_LOCWREN
+	 * 	to override RxEQ via PMA
+	 * Set Bits:
+	 * 	SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN,
+	 * 	SERDES_IREG_FLD_RXCALROAMXADJUST_LOCWREN
+	 * 	to keep Eye Diag Roam controlled internally
+	 */
 	al_serdes_grp_reg_masked_write(&obj->grp_info[grp],
 			lane,
 			AL_SRDS_REG_TYPE_PMA,
@@ -2234,7 +2402,11 @@ int al_serdes_calc_eye_size(
 			SERDES_IREG_FLD_RXCALROAMXADJUST_LOCWREN,
 			SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN |
 			SERDES_IREG_FLD_RXCALROAMXADJUST_LOCWREN);
-	 
+	/*
+	 * Set Bit:
+	 * 	 SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN
+	 * 	 to keep Eye Diag Roam controlled internally
+	 */
 	al_serdes_grp_reg_masked_write(&obj->grp_info[grp],
 			lane,
 			AL_SRDS_REG_TYPE_PMA,
@@ -2242,6 +2414,14 @@ int al_serdes_calc_eye_size(
 			SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN,
 			SERDES_IREG_FLD_RXCALROAMYADJUST_LOCWREN);
 
+	/*
+	 * Clear Bit:
+	 * 	SERDES_IREG_FLD_RXROAM_XORBITSEL,
+	 * 	so XORBITSEL=0, needed for the Eye mapping
+	 *  Set Bit:
+	 *  SERDES_IREG_FLD_RXLOCK2REF_OVREN,
+	 *  so RXLOCK2REF_OVREN=1, keeping lock to data, preventing data hit
+	 */
 	al_serdes_grp_reg_masked_write(&obj->grp_info[grp],
 			lane,
 			AL_SRDS_REG_TYPE_PMA,
@@ -2250,6 +2430,12 @@ int al_serdes_calc_eye_size(
 			SERDES_IREG_FLD_RXROAM_XORBITSEL,
 			SERDES_IREG_FLD_RXLOCK2REF_OVREN);
 
+
+	/*
+	 * Clear Bit:
+	 * 	SERDES_IREG_FLD_RXLOCK2REF_LOCWREN,
+	 * 	so RXLOCK2REF_LOCWREN=0, to override control
+	 */
 	al_serdes_grp_reg_masked_write(&obj->grp_info[grp],
 				lane,
 				AL_SRDS_REG_TYPE_PMA,
@@ -2257,31 +2443,39 @@ int al_serdes_calc_eye_size(
 				SERDES_IREG_FLD_RXLOCK2REF_LOCWREN,
 				0);
 
+	/* Width Calculation */
+
+	/* Return Value = 0*Y + 1*X */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_X_Y_VALWEIGHT_REG_NUM,
 			0x01);
-	 
+	/* X coarse scan step = 3 */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_XVALCOARSE_REG_NUM,
 			0x03);
-	 
+	/* X fine scan step = 1   */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_XVALFINE_REG_NUM,
 			0x01);
-	 
+	/* Y coarse scan step = 0 */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_YVALCOARSE_REG_NUM,
 			0x00);
-	 
+	/* Y fine scan step = 0   */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_YVALFINE_REG_NUM,
 			0x00);
 
+	/*
+	 * Set Bit:
+	 * 	SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START,
+	 * 	to start Eye measurement
+	 */
 	al_serdes_grp_reg_masked_write(&obj->grp_info[grp],
 				lane,
 				AL_SRDS_REG_TYPE_PMA,
@@ -2290,7 +2484,7 @@ int al_serdes_calc_eye_size(
 				SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START);
 
 	for( i = 0; i < AL_SERDES_RX_EYE_CAL_TRIES; ++i ) {
-		 
+		/* Check if RxEQ Cal is done */
 		al_serdes_reg_read(
 				obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 				SERDES_IREG_FLD_RXCALEYEDIAGFSM_DONE_REG_NUM,
@@ -2310,6 +2504,10 @@ int al_serdes_calc_eye_size(
 		return -1;
 	}
 
+	/*  Read Eye Opening Metrics, Bits:
+	 * 	SERDES_IREG_FLD_RXCALEYEDIAGFSM_EYESUM_LSB,
+	 * 	SERDES_IREG_FLD_RXCALEYEDIAGFSM_EYESUM_LSB
+	 */
 	al_serdes_reg_read(
 			obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_EYESUM_MSB_REG_NUM,
@@ -2321,6 +2519,11 @@ int al_serdes_calc_eye_size(
 			&reg_value );
 	*width =+ reg_value & SERDES_IREG_FLD_RXCALEYEDIAGFSM_EYESUM_LSB_MAKE;
 
+	/*
+	 * Clear Bit:
+	 * 	SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START,
+	 * 	to stop Eye measurement
+	 */
 	al_serdes_grp_reg_masked_write(&obj->grp_info[grp],
 				lane,
 				AL_SRDS_REG_TYPE_PMA,
@@ -2328,31 +2531,39 @@ int al_serdes_calc_eye_size(
 				SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START,
 				0);
 
+	/* Height Calculation */
+
+	/* Return Value = 1*Y + 0*X */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_X_Y_VALWEIGHT_REG_NUM,
 			0x10);
-	 
+	/* X coarse scan step = 0 */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_XVALCOARSE_REG_NUM,
 			0x00);
-	 
+	/* X fine scan step = 0   */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_XVALFINE_REG_NUM,
 			0x00);
-	 
+	/* Y coarse scan step = 3 */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_YVALCOARSE_REG_NUM,
 			0x03);
-	 
+	/* Y fine scan step = 1   */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_YVALFINE_REG_NUM,
 			0x01);
 
+	/*
+	 * Set Bit:
+	 * 	SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START,
+	 * 	to start Eye measurement
+	 */
 	al_serdes_grp_reg_masked_write(&obj->grp_info[grp],
 				lane,
 				AL_SRDS_REG_TYPE_PMA,
@@ -2361,7 +2572,7 @@ int al_serdes_calc_eye_size(
 				SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START);
 
 	for( i = 0; i < AL_SERDES_RX_EYE_CAL_TRIES; ++i ) {
-		 
+		/* Check if RxEQ Cal is done */
 		al_serdes_reg_read(
 				obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 				SERDES_IREG_FLD_RXCALEYEDIAGFSM_DONE_REG_NUM,
@@ -2381,6 +2592,10 @@ int al_serdes_calc_eye_size(
 		return -1;
 	}
 
+	/*  Read Eye Opening Metrics, Bits:
+	 * 	SERDES_IREG_FLD_RXCALEYEDIAGFSM_EYESUM_LSB,
+	 * 	SERDES_IREG_FLD_RXCALEYEDIAGFSM_EYESUM_LSB
+	 */
 	al_serdes_reg_read(
 			obj, grp, lane, AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_EYESUM_MSB_REG_NUM,
@@ -2392,6 +2607,11 @@ int al_serdes_calc_eye_size(
 			&reg_value );
 	*height =+ reg_value & SERDES_IREG_FLD_RXCALEYEDIAGFSM_EYESUM_LSB_MAKE;
 
+	/*
+	 * Clear Bit:
+	 * 	SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START,
+	 * 	to stop Eye measurement
+	 */
 	al_serdes_grp_reg_masked_write(&obj->grp_info[grp],
 				lane,
 				AL_SRDS_REG_TYPE_PMA,
@@ -2399,6 +2619,7 @@ int al_serdes_calc_eye_size(
 				SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START,
 				0);
 
+	/* Restore Registers */
 	al_serdes_reg_write(obj, grp, AL_SRDS_REG_PAGE_4_COMMON,
 			AL_SRDS_REG_TYPE_PMA,
 			SERDES_IREG_FLD_RXCALEYEDIAGFSM_X_Y_VALWEIGHT_REG_NUM,

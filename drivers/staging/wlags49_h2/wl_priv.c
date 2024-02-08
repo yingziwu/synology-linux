@@ -93,12 +93,16 @@ int wvlan_uil_get_info( struct uilreq *urq, struct wl_private *lp );
 int cfg_driver_info( struct uilreq *urq, struct wl_private *lp );
 int cfg_driver_identity( struct uilreq *urq, struct wl_private *lp );
 
+
 /*******************************************************************************
  * global variables
  ******************************************************************************/
 #if DBG
 extern dbg_info_t *DbgInfo;
 #endif  // DBG
+
+
+
 
 /* If USE_UIL is not defined, then none of the UIL Interface code below will
    be included in the build */
@@ -166,6 +170,9 @@ int wvlan_uil( struct uilreq *urq, struct wl_private *lp )
 } // wvlan_uil
 /*============================================================================*/
 
+
+
+
 /*******************************************************************************
  *	wvlan_uil_connect()
  *******************************************************************************
@@ -190,8 +197,10 @@ int wvlan_uil_connect( struct uilreq *urq, struct wl_private *lp )
 	int result = 0;
 	/*------------------------------------------------------------------------*/
 
+
 	DBG_FUNC( "wvlan_uil_connect" );
 	DBG_ENTER( DbgInfo );
+
 
 	if( !( lp->flags & WVLAN2_UIL_CONNECTED )) {
 		lp->flags |= WVLAN2_UIL_CONNECTED;
@@ -206,6 +215,9 @@ int wvlan_uil_connect( struct uilreq *urq, struct wl_private *lp )
 	return result;
 } // wvlan_uil_connect
 /*============================================================================*/
+
+
+
 
 /*******************************************************************************
  *	wvlan_uil_disconnect()
@@ -231,8 +243,10 @@ int wvlan_uil_disconnect( struct uilreq *urq, struct wl_private *lp )
 	int result = 0;
 	/*------------------------------------------------------------------------*/
 
+
 	DBG_FUNC( "wvlan_uil_disconnect" );
 	DBG_ENTER( DbgInfo );
+
 
 	if( urq->hcfCtx == &( lp->hcfCtx )) {
 		if (lp->flags & WVLAN2_UIL_CONNECTED) {
@@ -256,6 +270,9 @@ int wvlan_uil_disconnect( struct uilreq *urq, struct wl_private *lp )
 	return result;
 } // wvlan_uil_disconnect
 /*============================================================================*/
+
+
+
 
 /*******************************************************************************
  *	wvlan_uil_action()
@@ -282,8 +299,10 @@ int wvlan_uil_action( struct uilreq *urq, struct wl_private *lp )
 	ltv_t   *ltv;
 	/*------------------------------------------------------------------------*/
 
+
 	DBG_FUNC( "wvlan_uil_action" );
 	DBG_ENTER( DbgInfo );
+
 
 	if( urq->hcfCtx == &( lp->hcfCtx )) {
 		/* Make sure there's an LTV in the request buffer */
@@ -330,6 +349,9 @@ int wvlan_uil_action( struct uilreq *urq, struct wl_private *lp )
 } // wvlan_uil_action
 /*============================================================================*/
 
+
+
+
 /*******************************************************************************
  *	wvlan_uil_block()
  *******************************************************************************
@@ -356,6 +378,7 @@ int wvlan_uil_block( struct uilreq *urq, struct wl_private *lp )
 	int result = 0;
 	/*------------------------------------------------------------------------*/
 
+
 	DBG_FUNC( "wvlan_uil_block" );
 	DBG_ENTER( DbgInfo );
 
@@ -380,6 +403,9 @@ int wvlan_uil_block( struct uilreq *urq, struct wl_private *lp )
 } // wvlan_uil_block
 /*============================================================================*/
 
+
+
+
 /*******************************************************************************
  *	wvlan_uil_unblock()
  *******************************************************************************
@@ -403,6 +429,7 @@ int wvlan_uil_unblock( struct uilreq *urq, struct wl_private *lp )
 {
 	int result = 0;
 	/*------------------------------------------------------------------------*/
+
 
 	DBG_FUNC( "wvlan_uil_unblock" );
 	DBG_ENTER( DbgInfo );
@@ -429,6 +456,9 @@ int wvlan_uil_unblock( struct uilreq *urq, struct wl_private *lp )
 } // wvlan_uil_unblock
 /*============================================================================*/
 
+
+
+
 /*******************************************************************************
  *	wvlan_uil_send_diag_msg()
  *******************************************************************************
@@ -453,6 +483,7 @@ int wvlan_uil_send_diag_msg( struct uilreq *urq, struct wl_private *lp )
 	int         result = 0;
 	DESC_STRCT  Descp[1];
 	/*------------------------------------------------------------------------*/
+
 
 	DBG_FUNC( "wvlan_uil_send_diag_msg" );
 	DBG_ENTER( DbgInfo );
@@ -513,6 +544,7 @@ int wvlan_uil_send_diag_msg( struct uilreq *urq, struct wl_private *lp )
 } // wvlan_uil_send_diag_msg
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wvlan_uil_put_info()
  *******************************************************************************
@@ -538,6 +570,7 @@ int wvlan_uil_put_info( struct uilreq *urq, struct wl_private *lp )
 	ltv_t                   *pLtv;
 	bool_t                  ltvAllocated = FALSE;
 	ENCSTRCT                sEncryption;
+	size_t			len;
 
 #ifdef USE_WDS
 	hcf_16                  hcfPort  = HCF_PORT_0;
@@ -545,6 +578,7 @@ int wvlan_uil_put_info( struct uilreq *urq, struct wl_private *lp )
 	/*------------------------------------------------------------------------*/
 	DBG_FUNC( "wvlan_uil_put_info" );
 	DBG_ENTER( DbgInfo );
+
 
 	if( urq->hcfCtx == &( lp->hcfCtx )) {
 		if( capable( CAP_NET_ADMIN )) {
@@ -604,6 +638,7 @@ int wvlan_uil_put_info( struct uilreq *urq, struct wl_private *lp )
 				   record data area. */
 				copy_from_user( pLtv, urq->data, urq->len );
 
+
 				/* We need to snoop the commands to see if there is anything we
 				   need to store for the purposes of a reset or start/stop
 				   sequence. Perform endian translation as needed */
@@ -652,7 +687,8 @@ int wvlan_uil_put_info( struct uilreq *urq, struct wl_private *lp )
 					break;
 				case CFG_CNF_OWN_NAME:
 					memset( lp->StationName, 0, sizeof( lp->StationName ));
-					memcpy( (void *)lp->StationName, (void *)&pLtv->u.u8[2], (size_t)pLtv->u.u16[0]);
+					len = min_t(size_t, pLtv->u.u16[0], sizeof(lp->StationName));
+					strlcpy(lp->StationName, &pLtv->u.u8[2], len);
 					pLtv->u.u16[0] = CNV_INT_TO_LITTLE( pLtv->u.u16[0] );
 					break;
 				case CFG_CNF_LOAD_BALANCING:
@@ -1499,6 +1535,10 @@ int wvlan_uil_get_info( struct uilreq *urq, struct wl_private *lp )
 } // wvlan_uil_get_info
 /*============================================================================*/
 
+
+
+
+
 /*******************************************************************************
  *	cfg_driver_info()
  *******************************************************************************
@@ -1523,8 +1563,10 @@ int cfg_driver_info( struct uilreq *urq, struct wl_private *lp )
 	int result = 0;
 	/*------------------------------------------------------------------------*/
 
+
 	DBG_FUNC( "cfg_driver_info" );
 	DBG_ENTER( DbgInfo );
+
 
 	/* Make sure that user buffer can handle the driver information buffer */
 	if( urq->len < sizeof( lp->driverInfo )) {
@@ -1553,6 +1595,9 @@ int cfg_driver_info( struct uilreq *urq, struct wl_private *lp )
 } // cfg_driver_info
 /*============================================================================*/
 
+
+
+
 /*******************************************************************************
  *	cfg_driver_identity()
  *******************************************************************************
@@ -1577,8 +1622,10 @@ int cfg_driver_identity( struct uilreq *urq, struct wl_private *lp )
 	int result = 0;
 	/*------------------------------------------------------------------------*/
 
+
 	DBG_FUNC( "wvlan_driver_identity" );
 	DBG_ENTER( DbgInfo );
+
 
 	/* Make sure that user buffer can handle the driver identity structure. */
 	if( urq->len < sizeof( lp->driverIdentity )) {
@@ -1605,12 +1652,15 @@ int cfg_driver_identity( struct uilreq *urq, struct wl_private *lp )
 } // cfg_driver_identity
 /*============================================================================*/
 
+
 #endif  /* USE_UIL */
+
 
 /* If WIRELESS_EXT is not defined, then the functions that follow will not be
    included in the build. */
 /* NOTE: Are these still even needed? */
 #ifdef WIRELESS_EXT
+
 
 /*******************************************************************************
  *	wvlan_set_netname()
@@ -1641,6 +1691,7 @@ int wvlan_set_netname(struct net_device *dev,
 	int ret = 0;
 	/*------------------------------------------------------------------------*/
 
+
 	DBG_FUNC( "wvlan_set_netname" );
 	DBG_ENTER( DbgInfo );
 
@@ -1657,6 +1708,9 @@ int wvlan_set_netname(struct net_device *dev,
 	return ret;
 } // wvlan_set_netname
 /*============================================================================*/
+
+
+
 
 /*******************************************************************************
  *	wvlan_get_netname()
@@ -1689,6 +1743,7 @@ int wvlan_get_netname(struct net_device *dev,
         wvName_t   *pName;
 	/*------------------------------------------------------------------------*/
 
+
         DBG_FUNC( "wvlan_get_netname" );
         DBG_ENTER( DbgInfo );
 
@@ -1718,6 +1773,9 @@ int wvlan_get_netname(struct net_device *dev,
 } // wvlan_get_netname
 /*============================================================================*/
 
+
+
+
 /*******************************************************************************
  *	wvlan_set_station_nickname()
  *******************************************************************************
@@ -1744,8 +1802,10 @@ int wvlan_set_station_nickname(struct net_device *dev,
 {
         struct wl_private *lp = wl_priv(dev);
         unsigned long flags;
+	size_t len;
         int         ret = 0;
 	/*------------------------------------------------------------------------*/
+
 
         DBG_FUNC( "wvlan_set_station_nickname" );
         DBG_ENTER( DbgInfo );
@@ -1753,8 +1813,8 @@ int wvlan_set_station_nickname(struct net_device *dev,
         wl_lock(lp, &flags);
 
         memset( lp->StationName, 0, sizeof( lp->StationName ));
-
-        memcpy( lp->StationName, extra, wrqu->data.length);
+	len = min_t(size_t, wrqu->data.length, sizeof(lp->StationName));
+	strlcpy(lp->StationName, extra, len);
 
         /* Commit the adapter parameters */
         wl_apply( lp );
@@ -1764,6 +1824,9 @@ int wvlan_set_station_nickname(struct net_device *dev,
         return ret;
 } // wvlan_set_station_nickname
 /*============================================================================*/
+
+
+
 
 /*******************************************************************************
  *	wvlan_get_station_nickname()
@@ -1796,6 +1859,7 @@ int wvlan_get_station_nickname(struct net_device *dev,
 	wvName_t   *pName;
 	/*------------------------------------------------------------------------*/
 
+
         DBG_FUNC( "wvlan_get_station_nickname" );
         DBG_ENTER( DbgInfo );
 
@@ -1824,6 +1888,9 @@ int wvlan_get_station_nickname(struct net_device *dev,
 	return ret;
 } // wvlan_get_station_nickname
 /*============================================================================*/
+
+
+
 
 /*******************************************************************************
  *	wvlan_set_porttype()
@@ -1855,6 +1922,7 @@ int wvlan_set_porttype(struct net_device *dev,
 	hcf_16  portType;
 	/*------------------------------------------------------------------------*/
 
+
         DBG_FUNC( "wvlan_set_porttype" );
         DBG_ENTER( DbgInfo );
 
@@ -1882,6 +1950,7 @@ out_unlock:
 }
 
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wvlan_get_porttype()
@@ -1915,6 +1984,7 @@ int wvlan_get_porttype(struct net_device *dev,
         __u32 *pData = (__u32 *)extra;
 	/*------------------------------------------------------------------------*/
 
+
         DBG_FUNC( "wvlan_get_porttype" );
         DBG_ENTER( DbgInfo );
 
@@ -1944,6 +2014,9 @@ int wvlan_get_porttype(struct net_device *dev,
 
 #endif  // WIRELESS_EXT
 
+
+
+
 #ifdef USE_RTS
 /*******************************************************************************
  *	wvlan_rts()
@@ -1969,8 +2042,10 @@ int wvlan_rts( struct rtsreq *rrq, __u32 io_base )
 	int ioctl_ret = 0;
 	/*------------------------------------------------------------------------*/
 
+
 	DBG_FUNC( "wvlan_rts" );
 	DBG_ENTER( DbgInfo );
+
 
 	DBG_PRINT( "io_base: 0x%08x\n", io_base );
 

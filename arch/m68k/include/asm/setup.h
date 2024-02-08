@@ -23,6 +23,8 @@
 #ifndef _M68K_SETUP_H
 #define _M68K_SETUP_H
 
+
+
     /*
      *  Linux/m68k Architectures
      */
@@ -193,6 +195,7 @@ extern unsigned long m68k_machtype;
 
 #endif /* __KERNEL__ */
 
+
     /*
      *  CPU, FPU and MMU types
      *
@@ -349,6 +352,7 @@ extern int m68k_is040or060;
 #else
 #  define FPU_IS_EMU (0)
 #endif
+
 
     /*
      *  Miscellaneous

@@ -611,6 +611,7 @@ static int iwch_reregister_phys_mem(struct ib_mr *mr,
 	return 0;
 }
 
+
 static struct ib_mr *iwch_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 				      u64 virt, int acc, struct ib_udata *udata)
 {
@@ -794,7 +795,7 @@ static struct ib_mr *iwch_alloc_fast_reg_mr(struct ib_pd *pd, int pbl_depth)
 	struct iwch_mr *mhp;
 	u32 mmid;
 	u32 stag = 0;
-	int ret = 0;
+	int ret = -ENOMEM;
 
 	php = to_iwch_pd(pd);
 	rhp = php->rhp;
@@ -817,7 +818,8 @@ static struct ib_mr *iwch_alloc_fast_reg_mr(struct ib_pd *pd, int pbl_depth)
 	mhp->attr.state = 1;
 	mmid = (stag) >> 8;
 	mhp->ibmr.rkey = mhp->ibmr.lkey = stag;
-	if (insert_handle(rhp, &rhp->mmidr, mhp, mmid))
+	ret = insert_handle(rhp, &rhp->mmidr, mhp, mmid);
+	if (ret)
 		goto err3;
 
 	PDBG("%s mmid 0x%x mhp %p stag 0x%x\n", __func__, mmid, mhp, stag);
@@ -1072,6 +1074,7 @@ static int iwch_ib_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 				IB_ACCESS_REMOTE_WRITE) ? 1 : 0;
 	attrs.enable_bind = (attr->qp_access_flags & IB_ACCESS_MW_BIND) ? 1 : 0;
 
+
 	mask |= (attr_mask & IB_QP_STATE) ? IWCH_QP_ATTR_NEXT_STATE : 0;
 	mask |= (attr_mask & IB_QP_ACCESS_FLAGS) ?
 			(IWCH_QP_ATTR_ENABLE_RDMA_READ |
@@ -1099,6 +1102,7 @@ static struct ib_qp *iwch_get_qp(struct ib_device *dev, int qpn)
 	PDBG("%s ib_dev %p qpn 0x%x\n", __func__, dev, qpn);
 	return (struct ib_qp *)get_qhp(to_iwch_dev(dev), qpn);
 }
+
 
 static int iwch_query_pkey(struct ib_device *ibdev,
 			   u8 port, u16 index, u16 * pkey)

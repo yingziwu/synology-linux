@@ -80,6 +80,8 @@ enum dbgp_flag {
 #define		RX_DEFRAG				BIT6
 #define		RX_ERR_RATE				BIT7
 
+
+
 #define		MEDIA_STS				BIT0
 #define		LINK_STS				BIT1
 
@@ -155,6 +157,7 @@ enum dbgp_flag {
 
 /* 2007/07/13 MH  ------For DeBuG Print modeue------*/
 /*------------------------------Define structure----------------------------*/
+
 
 /*------------------------Export Marco Definition---------------------------*/
 #define		DEBUG_PRINT		1

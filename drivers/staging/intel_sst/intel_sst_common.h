@@ -87,6 +87,7 @@ enum sst_stream_states {
 	STREAM_INIT	= 4,	/* stream init, waiting for data */
 };
 
+
 enum sst_ram_type {
 	SST_IRAM	= 1,
 	SST_DRAM	= 2,
@@ -142,6 +143,7 @@ union sst_pimr_reg {
 	} part;
 	u32 full;
 };
+
 
 struct sst_stream_bufs {
 	struct list_head	node;
@@ -467,6 +469,7 @@ int sst_get_vol(struct snd_sst_vol *set_vol);
 int sst_set_vol(struct snd_sst_vol *set_vol);
 int sst_set_mute(struct snd_sst_mute *set_mute);
 
+
 void sst_post_message(struct work_struct *work);
 void sst_process_message(struct work_struct *work);
 void sst_process_reply(struct work_struct *work);
@@ -585,6 +588,7 @@ static inline void sst_init_stream(struct stream_info *stream,
 	stream->pcm_slot = slot;
 	stream->device = device;
 }
+
 
 /*
  * sst_validate_strid - this function validates the stream id

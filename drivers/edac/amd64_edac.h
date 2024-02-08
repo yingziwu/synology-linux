@@ -173,6 +173,7 @@
 #define PCI_DEVICE_ID_AMD_15H_NB_F1	0x1601
 #define PCI_DEVICE_ID_AMD_15H_NB_F2	0x1602
 
+
 /*
  * Function 1 - Address Map
  */
@@ -200,6 +201,7 @@
 
 #define DRAM_BASE_HI			0x140
 #define DRAM_LIMIT_HI			0x144
+
 
 /*
  * Function 2 - DRAM controller

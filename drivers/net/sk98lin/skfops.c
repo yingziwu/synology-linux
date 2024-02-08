@@ -50,13 +50,18 @@ static const char SysKonnectFileId[] =
 #include <asm/uaccess.h>
 #include <asm/fcntl.h>
 
+
 /********************************************************
 		Local Variables
 ********************************************************/
 
+
+
 /********************************************************
 		Global Variables
 ********************************************************/
+
+
 
 /********************************************************
 		Local Functions
@@ -98,6 +103,8 @@ static struct file * sk_fopen(const char * filename,
 	return ((IS_ERR(file_ret)) ? NULL : file_ret);
 }
 
+
+
 /** 
  *  @brief This function closes a file in kernel mode.
  *  
@@ -129,6 +136,8 @@ static int sk_fclose(struct file * file_ptr)
 
     return (file_ret);
 }
+
+
 
 /** 
  *  @brief This function reads data from files in kernel mode.
@@ -189,6 +198,8 @@ static int sk_fread(struct file * file_ptr, char * buf, int len)
     return (file_ret);
 }
 
+
+
 /********************************************************
 		Global Functions
 ********************************************************/
@@ -238,6 +249,7 @@ SK_BOOL fw_read(	SK_AC *pAC,    /* Pointer to adapter context */
 	return ret;
 }
 
+
 /** 
  *  @brief This function checks whether the file 'name' exists.
  *  
@@ -258,3 +270,4 @@ SK_BOOL fw_file_exists(	SK_AC *pAC,    /* Pointer to adapter context */
 	sk_fclose( fp );
 	return SK_TRUE;
 }
+

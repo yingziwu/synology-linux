@@ -100,3 +100,4 @@ void xhci_init_ej168(struct xhci_hcd *xhci)
 		mdelay(1);
 	}
 }
+

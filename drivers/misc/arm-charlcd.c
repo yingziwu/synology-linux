@@ -86,6 +86,7 @@ static irqreturn_t charlcd_interrupt(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+
 static void charlcd_wait_complete_irq(struct charlcd *lcd)
 {
 	int ret;

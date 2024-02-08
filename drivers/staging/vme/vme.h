@@ -27,6 +27,7 @@ typedef u32 vme_address_t;
 #define VME_A64_MAX	0x10000000000000000ULL
 #define VME_CRCSR_MAX	0x1000000ULL
 
+
 /* VME Cycle Types */
 typedef u32 vme_cycle_t;
 #define VME_SCT		0x1
@@ -180,4 +181,6 @@ int vme_slot_get(struct vme_dev *);
 int vme_register_driver(struct vme_driver *, unsigned int);
 void vme_unregister_driver(struct vme_driver *);
 
+
 #endif /* _VME_H_ */
+

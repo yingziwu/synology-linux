@@ -57,6 +57,7 @@ typedef struct xfs_inobt_rec_incore {
 	xfs_inofree_t	ir_free;	/* free inode mask */
 } xfs_inobt_rec_incore_t;
 
+
 /*
  * Key structure
  */

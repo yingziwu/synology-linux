@@ -688,6 +688,10 @@ int r100_irq_set(struct radeon_device *rdev)
 		tmp |= RADEON_FP2_DETECT_MASK;
 	}
 	WREG32(RADEON_GEN_INT_CNTL, tmp);
+
+	/* read back to post the write */
+	RREG32(RADEON_GEN_INT_CNTL);
+
 	return 0;
 }
 
@@ -935,6 +939,7 @@ void r100_ring_start(struct radeon_device *rdev)
 	radeon_ring_unlock_commit(rdev);
 }
 
+
 /* Load the microcode for the CP */
 static int r100_cp_init_microcode(struct radeon_device *rdev)
 {
@@ -1167,6 +1172,7 @@ void r100_cp_commit(struct radeon_device *rdev)
 	WREG32(RADEON_CP_RB_WPTR, rdev->cp.wptr);
 	(void)RREG32(RADEON_CP_RB_WPTR);
 }
+
 
 /*
  * CS functions
@@ -1982,6 +1988,7 @@ int r100_cs_parse(struct radeon_cs_parser *p)
 	return 0;
 }
 
+
 /*
  * Global GPU functions
  */
@@ -2476,6 +2483,7 @@ void r100_mc_init(struct radeon_device *rdev)
 	radeon_update_bandwidth_info(rdev);
 }
 
+
 /*
  * Indirect registers accessor
  */
@@ -2592,6 +2600,7 @@ static int r100_debugfs_cp_ring_info(struct seq_file *m, void *data)
 	}
 	return 0;
 }
+
 
 static int r100_debugfs_cp_csq_fifo(struct seq_file *m, void *data)
 {
@@ -2756,6 +2765,7 @@ int r100_set_surface_reg(struct radeon_device *rdev, int reg,
 		flags |= pitch / 16;
 	else
 		flags |= pitch / 8;
+
 
 	DRM_DEBUG_KMS("writing surface %d %d %x %x\n", reg, flags, offset, offset+obj_size-1);
 	WREG32(RADEON_SURFACE0_INFO + surf_index, flags);
@@ -3899,6 +3909,12 @@ static int r100_startup(struct radeon_device *rdev)
 		return r;
 
 	/* Enable IRQ */
+	if (!rdev->irq.installed) {
+		r = radeon_irq_kms_init(rdev);
+		if (r)
+			return r;
+	}
+
 	r100_irq_set(rdev);
 	rdev->config.r100.hdp_cntl = RREG32(RADEON_HOST_PATH_CNTL);
 	/* 1M ring buffer */
@@ -4042,9 +4058,6 @@ int r100_init(struct radeon_device *rdev)
 	r100_mc_init(rdev);
 	/* Fence driver */
 	r = radeon_fence_driver_init(rdev);
-	if (r)
-		return r;
-	r = radeon_irq_kms_init(rdev);
 	if (r)
 		return r;
 	/* Memory manager */

@@ -377,6 +377,7 @@ void mvPp2AddrDecodeRegs(void)
 	}
 }
 
+
 void mvPp2TxSchedRegs(int port, int txp)
 {
 	int physTxp, txq;
@@ -460,6 +461,7 @@ void mvPp2V1DropCntrs(int port)
 	MV_PP2_PORT_CTRL *pPortCtrl = mvPp2PortHndlGet(port);
 	int physPort = MV_PPV2_PORT_PHYS(port);
 
+
 	mvOsPrintf("\n[global drop counters]\n");
 	mvPp2RegPrintNonZero(MV_PP2_V1_OVERFLOW_MC_DROP_REG, "MV_PP2_OVERRUN_DROP_REG");
 
@@ -534,6 +536,7 @@ void mvPp2RxFifoRegs(int port)
 	mvOsPrintf("\n[Global RX Fifo regs]\n");
 	mvPp2PrintReg(MV_PP2_RX_MIN_PKT_SIZE_REG, "MV_PP2_RX_MIN_PKT_SIZE_REG");
 }
+
 
 /* Print status of Ethernet port */
 void mvPp2PortStatus(int port)

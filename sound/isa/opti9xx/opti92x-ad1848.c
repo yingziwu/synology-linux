@@ -22,6 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
+
 #include <linux/init.h>
 #include <linux/err.h>
 #include <linux/isa.h>
@@ -172,11 +173,7 @@ MODULE_DEVICE_TABLE(pnp_card, snd_opti9xx_pnpids);
 
 #endif	/* CONFIG_PNP */
 
-#ifdef OPTi93X
-#define DEV_NAME "opti93x"
-#else
-#define DEV_NAME "opti92x"
-#endif
+#define DEV_NAME KBUILD_MODNAME
 
 static char * snd_opti9xx_names[] = {
 	"unknown",
@@ -184,6 +181,7 @@ static char * snd_opti9xx_names[] = {
 	"82C924",	"82C925",
 	"82C930",	"82C931",	"82C933"
 };
+
 
 static long __devinit snd_legacy_find_free_ioport(long *port_table, long size)
 {
@@ -343,9 +341,11 @@ static void snd_opti9xx_write(struct snd_opti9xx *chip, unsigned char reg,
 	spin_unlock_irqrestore(&chip->lock, flags);
 }
 
+
 #define snd_opti9xx_write_mask(chip, reg, value, mask)	\
 	snd_opti9xx_write(chip, reg,			\
 		(snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
+
 
 static int __devinit snd_opti9xx_configure(struct snd_opti9xx *chip,
 					   long port,
@@ -1122,7 +1122,7 @@ static void __devexit snd_opti9xx_pnp_remove(struct pnp_card_link * pcard)
 
 static struct pnp_card_driver opti9xx_pnpc_driver = {
 	.flags		= PNP_DRIVER_RES_DISABLE,
-	.name		= "opti9xx",
+	.name		= DEV_NAME,
 	.id_table	= snd_opti9xx_pnpids,
 	.probe		= snd_opti9xx_pnp_probe,
 	.remove		= __devexit_p(snd_opti9xx_pnp_remove),

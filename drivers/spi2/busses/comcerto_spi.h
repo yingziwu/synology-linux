@@ -29,6 +29,7 @@ struct platform_device {
 
 #define COMCERTO_SPI_DRIVER_NAME	"Comcerto SPI"
 
+
 #define COMCERTO_SPI_CTRLR0               0x00
 #define COMCERTO_SPI_CTRLR1               0x04
 #define COMCERTO_SPI_SSIENR               0x08
@@ -50,6 +51,7 @@ struct platform_device {
 #define COMCERTO_SPI_ICR                  0x48
 #define COMCERTO_SPI_IDR                  0x58
 #define COMCERTO_SPI_DR                   0x60
+
 
 /* SR - status register bits */
 #define BUSY		(1<<0)	/* SSI busy flag, serial transfer in progress */
@@ -76,6 +78,7 @@ struct platform_device {
 #define RXFIR		(1<<4)	/* Receive FIFO full interrupt status */
 #define MSTIR		(1<<5)	/* Multi-Master contention interrupt status */
 
+
 /* Interrupt mask register */
 #define TXEIM		(1<<0)	/* Transmit FIFO empty interrupt status */
 #define TXOIM		(1<<1)	/* Transmit FIFO overflow interrupt status */
@@ -91,5 +94,6 @@ struct comcerto_spi
 	int irq;
 	unsigned long clock_rate;
 };
+
 
 #endif /* _COMCERTO_SPI_H */

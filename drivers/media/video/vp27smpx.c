@@ -35,6 +35,7 @@ MODULE_DESCRIPTION("vp27smpx driver");
 MODULE_AUTHOR("Hans Verkuil");
 MODULE_LICENSE("GPL");
 
+
 /* ----------------------------------------------------------------------- */
 
 struct vp27smpx_state {

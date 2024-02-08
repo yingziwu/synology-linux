@@ -45,6 +45,7 @@ r_base = .
 	mov	%ax, %es
 	mov	%ax, %ss
 
+
 	movl	$0xA5A5A5A5, trampoline_status - r_base
 				# write marker for master knows we're running
 

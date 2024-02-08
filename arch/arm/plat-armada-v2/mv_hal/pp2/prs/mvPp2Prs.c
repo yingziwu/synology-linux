@@ -71,6 +71,7 @@
 
 #define PRS_DBG(X...)
 
+
 /*-------------------------------------------------------------------------------*/
 /*		Static varialbes for internal use				 */
 /*-------------------------------------------------------------------------------*/
@@ -85,6 +86,7 @@ static int mvPrsDblVlanAiShadowSet(int index)
 	mvPrsDblVlanAiShadow[index] = 1;
 	return MV_OK;
 }
+
 
 static int mvPrsDblVlanAiShadowClear(int index)
 {
@@ -112,6 +114,7 @@ static int mvPrsDblVlanAiFreeGet(void)
 
 	return MV_PRS_OUT_OF_RAGE;
 }
+
 
 /******************************************************************************
 * Common utilities
@@ -487,6 +490,7 @@ static MV_BOOL mvPrsMacRangeIntersec(MV_PP2_PRS_ENTRY *pe, MV_U8 *da, MV_U8 *mas
 
 		commonMask = mask[index] & tcamMask;
 
+
 		if ((commonMask & tcamByte) != (commonMask & da[index]))
 			return MV_FALSE;
 	}
@@ -601,6 +605,7 @@ static int mvPrsMacDaRangeAccept(int portMap, MV_U8 *da, MV_U8 *mask, unsigned i
 	return MV_OK;
 }
 
+
 /* delete all port's simple (not range) multicast entries */
 int mvPrsMcastDelAll(int port)
 {
@@ -637,6 +642,7 @@ int mvPrsMcastDelAll(int port)
 
 	return MV_OK;
 }
+
 
 /* TODO: use mvPrsMacDaRangeAccept */
 int mvPrsMacDaAccept(int port, unsigned char *da, int add)
@@ -735,6 +741,7 @@ int mvPrsMacDaAccept(int port, unsigned char *da, int add)
 	mvPp2PrsSwFree(pe);
 	return MV_OK;
 }
+
 
 static int mvPrsMacDaRangeValid(unsigned int portMap, MV_U8 *da, MV_U8 *mask)
 {
@@ -1155,6 +1162,7 @@ static int mvPp2PrsDsaTagEtherTypeSet(int port, int add, int tagged, int extend)
 	return MV_OK;
 }
 
+
 static int mvPp2PrsDsaTagSet(int port, int add, int tagged, int extend)
 {
 	MV_PP2_PRS_ENTRY pe;
@@ -1196,6 +1204,7 @@ static int mvPp2PrsDsaTagSet(int port, int add, int tagged, int extend)
 		mvPp2PrsSwTcamLuSet(&pe, PRS_LU_DSA);
 		pe.index = tid;
 
+
 		/* shift 4 bytes if DSA tag , Skip 8 bytes if extand DSA tag*/
 		mvPp2PrsSwSramShiftSet(&pe, shift, SRAM_OP_SEL_SHIFT_ADD);
 
@@ -1228,6 +1237,8 @@ static int mvPp2PrsDsaTagSet(int port, int add, int tagged, int extend)
 
 	return MV_OK;
 }
+
+
 
 static int mvPp2PrsDsaInit(void)
 {
@@ -1367,6 +1378,7 @@ int mvPp2PrsTagModeSet(int port, int type)
 	return MV_OK;
 
 }
+
 
 /******************************************************************************
  *
@@ -1708,6 +1720,7 @@ int mvPp2PrsDoubleVlanDel(unsigned short tpid1, unsigned short tpid2)
 	MV_PP2_PRS_ENTRY *pe = NULL;
 	unsigned int ai, enable;
 
+
 	pe = mvPrsDoubleVlanFind(tpid1, tpid2);
 
 	if (pe == NULL) {
@@ -1731,6 +1744,7 @@ int mvPp2PrsDoubleVlanDel(unsigned short tpid1, unsigned short tpid2)
 
 }
 
+
 int mvPp2PrsSingleVlan(unsigned short tpid, unsigned int portBmp, int add)
 {
 	if (add)
@@ -1738,6 +1752,7 @@ int mvPp2PrsSingleVlan(unsigned short tpid, unsigned int portBmp, int add)
 	else
 		return mvPp2PrsVlanDel(tpid, SINGLE_VLAN_AI);
 }
+
 
 int mvPp2PrsDoubleVlan(unsigned short tpid1, unsigned short tpid2, unsigned int portBmp, int add)
 {
@@ -1964,6 +1979,7 @@ int mvPrsEthTypeSet(int portMap, unsigned short ethertype, unsigned int ri, unsi
 	if (mvPrsEthTypeValid(portMap, ethertype))
 		return MV_ERROR;
 
+
 	/* step 2 - update TCAM */
 	for (tid = PE_FIRST_FREE_TID ; tid <= PE_LAST_FREE_TID; tid++) {
 		if (!mvPp2PrsShadowIsValid(tid) || (mvPp2PrsShadowLu(tid) != PRS_LU_L2))
@@ -2084,6 +2100,7 @@ static int mvPp2PrsEtypePppoe(void)
 	return MV_OK;
 }
 
+
 /* match ip4 and ihl == 5 */
 static int mvPp2PrsEtypeIp4(void)
 {
@@ -2176,6 +2193,7 @@ static int mvPp2PrsEtypeArp(void)
 		mvOsPrintf("%s: No free TCAM entiry\n", __func__);
 		return MV_ERROR;
 	}
+
 
 	pe = mvPp2PrsSwAlloc(PRS_LU_L2);
 
@@ -2289,6 +2307,7 @@ static int mvPp2PrsEtypeIp6(void)
 
 	return MV_OK;
 }
+
 
 /* unknown ethertype */
 static int mvPp2PrsEtypeUn(void)
@@ -2450,6 +2469,7 @@ static int mvPp2PrsIpv4Pppoe(void)
 
 	mvPp2PrsSwFree(pe);
 
+
 	/** ipV4 over PPPoE with options **/
 
 	/* Go through the all entires from first to last */
@@ -2552,6 +2572,8 @@ static int mvPp2PrsPppeInit(void)
 
 	return MV_OK;
 }
+
+
 
 /******************************************************************************
  *
@@ -2714,6 +2736,7 @@ static int mvPp2PrsIp4Cast(unsigned short l3_cast)
 
 	return MV_OK;
 }
+
 
 static int mvPp2PrsIp4Init(void)
 {

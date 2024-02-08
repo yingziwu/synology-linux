@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCpuIfL2Regsh
 #define __INCmvCpuIfL2Regsh
 
@@ -159,6 +160,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define L2CCR_CPU1_EVENT_ENABLE		(1 << 17)
 #define L2CCR_FPU_EVENT_ENABLE		(1 << 30)
 #define L2CCR_IO_BRIDGE_EVENT_ENABLE	(1 << 31)
+
 
 extern int __init aurora_l2_init(void __iomem *base);
 inline void l2_clean_pa(unsigned int);

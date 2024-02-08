@@ -86,6 +86,7 @@ struct ipt_nfp_info {
 	struct ipt_entry	*entry;
 };
 
+
 static inline void nfp_update_tuple_info(struct ipt_nfp_info *dst, struct ipt_nfp_info *src)
 {
 	/* we copy (override) some of the parameters, but update (accumulate) others */
@@ -137,5 +138,6 @@ static inline void nfp_update_tuple_info(struct ipt_nfp_info *dst, struct ipt_nf
 
 	dst->entry = src->entry;
 }
+
 
 #endif

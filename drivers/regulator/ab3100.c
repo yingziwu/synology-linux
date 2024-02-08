@@ -121,6 +121,7 @@ static const int ldo_k_typ_voltages[] = {
 	1800000,
 };
 
+
 /* The regulator devices */
 static struct ab3100_regulator
 ab3100_regulators[AB3100_NUM_REGULATORS] = {

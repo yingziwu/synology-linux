@@ -571,3 +571,4 @@ struct device_attribute *pm8001_host_attrs[] = {
 	&dev_attr_host_sas_address,
 	NULL,
 };
+

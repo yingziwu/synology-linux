@@ -151,6 +151,7 @@ typedef struct {
 	mbox_t mbox;
 } __attribute__ ((packed)) mbox64_t;
 
+
 /*
  * Passthru definitions
  */
@@ -175,6 +176,7 @@ typedef struct {
 	u32 dataxferaddr;
 	u32 dataxferlen;
 } __attribute__ ((packed)) mega_passthru;
+
 
 /*
  * Extended passthru: support CDB > 10 bytes
@@ -212,6 +214,7 @@ typedef struct {
 	u32 address;
 	u32 length;
 } __attribute__ ((packed)) mega_sglist;
+
 
 /* Queued command data */
 typedef struct {
@@ -355,6 +358,7 @@ typedef struct {
 	u8	pad1k[263];	/* 761 + 263reserved = 1024 bytes total size */
 } __attribute__ ((packed)) mega_inquiry3;
 
+
 /* Structures */
 typedef struct {
 	u8	max_commands;	/* Max concurrent commands supported */
@@ -390,6 +394,7 @@ typedef struct {
 	u8	dec_fault_bus_info;
 } __attribute__ ((packed)) mega_adp_info;
 
+
 typedef struct {
 	u8	num_ldrv;	/* Number of logical drives configured */
 	u8	rsvd[3];
@@ -410,6 +415,7 @@ typedef struct {
 	mega_pdrv_info	pdrv_info;
 } __attribute__ ((packed)) mraid_inquiry;
 
+
 /* RAID extended inquiry: Mailbox command 0x04*/
 typedef struct {
 	mraid_inquiry	raid_inq;
@@ -418,6 +424,7 @@ typedef struct {
 	u8	modem_status;
 	u8	rsvd[2];
 } __attribute__ ((packed)) mraid_ext_inquiry;
+
 
 typedef struct {
 	u8	channel;
@@ -480,6 +487,7 @@ typedef struct {
 	logdrv_8ld	ldrv[MAX_LOGICAL_DRIVES_8LD];
 	phys_drv	pdrv[MAX_PHYSICAL_DRIVES];
 }__attribute__ ((packed)) disk_array_8ld;
+
 
 /*
  * User ioctl structure.
@@ -602,6 +610,7 @@ typedef struct {
 #define GET_CAP		0x40000	/* Get ioctl capabilities */
 #define GET_STATS	0x50000	/* Get statistics, including error info */
 
+
 /*
  * The ioctl structure.
  * MBOX macro converts a nitioctl_t structure to megacmd_t pointer and
@@ -625,6 +634,7 @@ typedef struct {
 					   commands */
 	u32		flags;		/* data direction flags */
 }nitioctl_t;
+
 
 /*
  * I/O statistics for some applications like SNMP agent. The caller must
@@ -652,6 +662,7 @@ typedef struct {
 							   logical drive */
 }megastat_t;
 
+
 struct private_bios_data {
 	u8	geometry:4;	/*
 				 * bits 0-3 - BIOS geometry
@@ -669,6 +680,9 @@ struct private_bios_data {
 	u8	rsvd[12];
 	u16	cksum;	/* 0-(sum of first 13 bytes of this structure) */
 } __attribute__ ((packed));
+
+
+
 
 /*
  * Mailbox and firmware commands and subopcodes used in this driver.
@@ -718,6 +732,7 @@ struct private_bios_data {
 #define BIOS_PVT_DATA		0x40
 #define GET_BIOS_PVT_DATA	0x00
 
+
 /*
  * Commands to support clustering
  */
@@ -731,6 +746,7 @@ struct private_bios_data {
 #define MEGA_RESERVATION_STATUS	0x04
 #define MEGA_RESERVE_PD		0x05
 #define MEGA_RELEASE_PD		0x06
+
 
 /*
  * Module battery status
@@ -754,6 +770,7 @@ struct private_bios_data {
 #define PDRV_RBLD	5
 #define PDRV_HOTSPARE	6
 
+
 /*
  * Raid logical drive states.
  */
@@ -772,6 +789,7 @@ struct private_bios_data {
 #define WRMODE_WRITE_BACK	1
 #define CACHED_IO		0
 #define DIRECT_IO		1
+
 
 #define SCSI_LIST(scp) ((struct list_head *)(&(scp)->SCp))
 
@@ -852,6 +870,7 @@ typedef struct {
 	int	boot_pdrv_ch;		/* boot physical drive channel */
 	int	boot_pdrv_tgt;		/* boot physical drive target */
 
+
 	int	support_random_del;	/* Do we support random deletion of
 					   logdrvs */
 	int	read_ldidmap;	/* set after logical drive deltion. The
@@ -879,10 +898,12 @@ typedef struct {
 	int	has_cluster;	/* cluster support on this HBA */
 }adapter_t;
 
+
 struct mega_hbas {
 	int is_bios_enabled;
 	adapter_t *hostdata_addr;
 };
+
 
 /*
  * For state flag. Do not use LSB(8 bits) which are
@@ -899,6 +920,7 @@ struct mega_hbas {
 
 #define PCI_CONF_AMISIG			0xa0
 #define PCI_CONF_AMISIG64		0xa4
+
 
 #define MEGA_DMA_TYPE_NONE		0xFFFF
 #define MEGA_BULK_DATA			0x0001
@@ -930,6 +952,7 @@ struct mega_hbas {
 #define MBOX_BUSY_BYTE     	0x10
 #define ENABLE_MBOX_BYTE   	0x00
 
+
 /* Setup some port macros here */
 #define issue_command(adapter)	\
 		outb_p(ISSUE_BYTE, (adapter)->base + CMD_PORT)
@@ -947,6 +970,7 @@ struct mega_hbas {
 
 #define irq_disable(adapter)	\
 	outb_p(DISABLE_INTR_BYTE, (adapter)->base + TOGGLE_PORT)
+
 
 /*
  * This is our SYSDEP area. All kernel specific detail should be placed here -

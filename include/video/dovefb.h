@@ -466,6 +466,7 @@ struct dovefb_mach_info {
 	int		ddc_i2c_adapter;
 	int		ddc_i2c_address;
 
+
 	/*
 	 * Dumb panel -- assignment of R/G/B component info to the 24
 	 * available external data lanes.

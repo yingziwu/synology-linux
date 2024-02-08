@@ -16,6 +16,7 @@
  * Assembler-only file
  */
 
+
 support_wait_for_interrupt_address:
         .word   support_wait_for_interrupt
 

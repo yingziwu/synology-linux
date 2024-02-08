@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCPCIH
 #define __INCPCIH
 
@@ -69,6 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mvOs.h"
 #include "ctrlEnv/mvCtrlEnvSpec.h"
 #include "pci/mvPciRegs.h"
+
 
 /* NOTE not supported in this driver:
 
@@ -93,6 +95,7 @@ Registers not supported:
 /* interface is sure to exist.												*/
 #define PCI_DEFAULT_IF	0
 
+
 /* typedefs */
 /* The Marvell controller supports both conventional PCI and PCI-X.         */
 /* This enumeration describes the PCI type.                                 */
@@ -107,6 +110,7 @@ typedef enum _mvPciMod
 	MV_PCI_MOD_HOST,
 	MV_PCI_MOD_DEVICE
 }MV_PCI_MOD;
+
 
 /* The Marvell controller supports both PCI width of 32 and 64 bit.         */
 /* This enumerator describes PCI width                                      */
@@ -174,4 +178,8 @@ MV_STATUS mvPciLocalDevNumSet(MV_U32 pciIf, MV_U32 devNum);
 /* mvPciLocalDevNumGet - Get PCI interface local device number.*/
 MV_U32 mvPciLocalDevNumGet(MV_U32 pciIf);
 
+
 #endif /* #ifndef __INCPCIH */
+
+
+

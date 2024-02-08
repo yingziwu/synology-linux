@@ -200,6 +200,7 @@ static void create_tp_module(const char *  module_path,
 		p_info->flag |= TP_MODULE_RECORD_FLAG_FIRST_MODULE_IN_PROCESS;
 	}
 
+
 	if (p_info->flag & TP_MODULE_RECORD_FLAG_EXE)
 	{
 		is_so = false;
@@ -390,6 +391,7 @@ static void static_enum_kernel_modules(void)
 	                  MODULE_FLAG_GLOBAL, 0);
 }
 
+
 /*
  * enumerate all modules for process
  * pid: process id
@@ -529,6 +531,8 @@ static void static_enum_exiting_process_modules(void)
 
 }
 
+
+
 int module_init_notifier(struct notifier_block *self,
                          unsigned long event,
                          void *arg)
@@ -573,6 +577,7 @@ asmlinkage int px_sys_fork(struct pt_regs *regs)
 	APPEND_STACK_FRAME;
 
 	ts = get_timestamp();
+
 
 	ret = px_original_sys_fork(NULL);
 
@@ -701,6 +706,7 @@ asmlinkage int px_sys_execve(const char *filenameei, char ** const argv, char **
 
 	return ret;
 }
+
 
 asmlinkage int px_sys_mmap2(
 		unsigned long addr, unsigned long len,
@@ -914,6 +920,7 @@ asmlinkage int px_sys_exit_group(int error_code)
 	//mutex_unlock(&fork_mutex);
 
 	ret = saved_sys_exit_group(error_code);
+
 
 	return ret;
 }
@@ -1234,6 +1241,7 @@ static int remove_os_hooks(void)
 
 	gb_enable_os_hooks = false;
 
+
 #if 1
 	system_call_table[__NR_fork - __NR_SYSCALL_BASE] = px_original_sys_fork;
 
@@ -1307,6 +1315,7 @@ static int remove_os_hooks(void)
 
 	// unregister module state change notifier
 	unregister_module_notifier(&nb_init);
+
 
 	mutex_unlock(&fork_mutex);
 

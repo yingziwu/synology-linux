@@ -30,6 +30,7 @@
 
 #include "hv_kvp.h"
 
+
 static void shutdown_onchannelcallback(void *context);
 static struct hv_util_service util_shutdown = {
 	.util_cb = shutdown_onchannelcallback,
@@ -228,10 +229,14 @@ static void heartbeat_onchannelcallback(void *context)
 	struct heartbeat_msg_data *heartbeat_msg;
 	u8 *hbeat_txf_buf = util_heartbeat.recv_buffer;
 
-	vmbus_recvpacket(channel, hbeat_txf_buf,
-			 PAGE_SIZE, &recvlen, &requestid);
+	while (1) {
 
-	if (recvlen > 0) {
+		vmbus_recvpacket(channel, hbeat_txf_buf,
+				 PAGE_SIZE, &recvlen, &requestid);
+
+		if (!recvlen)
+			break;
+
 		icmsghdrp = (struct icmsg_hdr *)&hbeat_txf_buf[
 				sizeof(struct vmbuspipe_hdr)];
 

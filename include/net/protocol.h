@@ -31,6 +31,7 @@
 
 #define MAX_INET_PROTOS	256		/* Must be a power of 2		*/
 
+
 /* This is used to register protocols. */
 struct net_protocol {
 	int			(*handler)(struct sk_buff *skb);

@@ -307,3 +307,4 @@ module_exit(ak4104_exit);
 MODULE_AUTHOR("Daniel Mack <daniel@caiaq.de>");
 MODULE_DESCRIPTION("Asahi Kasei AK4104 ALSA SoC driver");
 MODULE_LICENSE("GPL");
+

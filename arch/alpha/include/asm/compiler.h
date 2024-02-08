@@ -82,6 +82,7 @@
      __kir; })
 #endif
 
+
 /* 
  * Beginning with EGCS 1.1, GCC defines __alpha_bwx__ when the BWX 
  * extension is enabled.  Previous versions did not define anything

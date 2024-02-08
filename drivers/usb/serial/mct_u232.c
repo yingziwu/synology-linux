@@ -113,6 +113,7 @@ static int  mct_u232_get_icount(struct tty_struct *tty,
 static void mct_u232_throttle(struct tty_struct *tty);
 static void mct_u232_unthrottle(struct tty_struct *tty);
 
+
 /*
  * All of the device info needed for the MCT USB-RS232 converter.
  */
@@ -167,8 +168,6 @@ struct mct_u232_private {
 	unsigned char	     last_msr;      /* Modem Status Register */
 	unsigned int	     rx_flags;      /* Throttling flags */
 	struct async_icount  icount;
-	wait_queue_head_t    msr_wait;	/* for handling sleeping while waiting
-						for msr change to happen */
 };
 
 #define THROTTLED		0x01
@@ -252,7 +251,7 @@ static int mct_u232_set_baud_rate(struct tty_struct *tty,
 		return -ENOMEM;
 
 	divisor = mct_u232_calculate_baud_rate(serial, value, &speed);
-	put_unaligned_le32(cpu_to_le32(divisor), buf);
+	put_unaligned_le32(divisor, buf);
 	rc = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
 				MCT_U232_SET_BAUD_RATE_REQUEST,
 				MCT_U232_SET_REQUEST_TYPE,
@@ -386,9 +385,13 @@ static int mct_u232_get_modem_stat(struct usb_serial *serial,
 			MCT_U232_GET_REQUEST_TYPE,
 			0, 0, buf, MCT_U232_GET_MODEM_STAT_SIZE,
 			WDR_TIMEOUT);
-	if (rc < 0) {
+	if (rc < MCT_U232_GET_MODEM_STAT_SIZE) {
 		dev_err(&serial->dev->dev,
 			"Get MODEM STATus failed (error = %d)\n", rc);
+
+		if (rc >= 0)
+			rc = -EIO;
+
 		*msr = 0;
 	} else {
 		*msr = buf[0];
@@ -446,7 +449,7 @@ static int mct_u232_startup(struct usb_serial *serial)
 
 	/* check first to simplify error handling */
 	if (!serial->port[1] || !serial->port[1]->interrupt_in_urb) {
-		dev_err(&port->dev, "expected endpoint missing\n");
+		dev_err(&serial->dev->dev, "expected endpoint missing\n");
 		return -ENODEV;
 	}
 
@@ -454,7 +457,6 @@ static int mct_u232_startup(struct usb_serial *serial)
 	if (!priv)
 		return -ENOMEM;
 	spin_lock_init(&priv->lock);
-	init_waitqueue_head(&priv->msr_wait);
 	usb_set_serial_port_data(serial->port[0], priv);
 
 	init_waitqueue_head(&serial->port[0]->write_wait);
@@ -470,6 +472,7 @@ static int mct_u232_startup(struct usb_serial *serial)
 
 	return 0;
 } /* mct_u232_startup */
+
 
 static void mct_u232_release(struct usb_serial *serial)
 {
@@ -587,6 +590,7 @@ static void mct_u232_close(struct usb_serial_port *port)
 	usb_serial_generic_close(port);
 } /* mct_u232_close */
 
+
 static void mct_u232_read_int_callback(struct urb *urb)
 {
 	struct usb_serial_port *port = urb->context;
@@ -678,7 +682,7 @@ static void mct_u232_read_int_callback(struct urb *urb)
 		tty_kref_put(tty);
 	}
 #endif
-	wake_up_interruptible(&priv->msr_wait);
+	wake_up_interruptible(&port->delta_msr_wait);
 	spin_unlock_irqrestore(&priv->lock, flags);
 exit:
 	retval = usb_submit_urb(urb, GFP_ATOMIC);
@@ -793,6 +797,7 @@ static void mct_u232_break_ctl(struct tty_struct *tty, int break_state)
 	mct_u232_set_line_ctrl(serial, lcr);
 } /* mct_u232_break_ctl */
 
+
 static int mct_u232_tiocmget(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -898,13 +903,17 @@ static int  mct_u232_ioctl(struct tty_struct *tty,
 		cprev = mct_u232_port->icount;
 		spin_unlock_irqrestore(&mct_u232_port->lock, flags);
 		for ( ; ; ) {
-			prepare_to_wait(&mct_u232_port->msr_wait,
+			prepare_to_wait(&port->delta_msr_wait,
 					&wait, TASK_INTERRUPTIBLE);
 			schedule();
-			finish_wait(&mct_u232_port->msr_wait, &wait);
+			finish_wait(&port->delta_msr_wait, &wait);
 			/* see if a signal did it */
 			if (signal_pending(current))
 				return -ERESTARTSYS;
+
+			if (port->serial->disconnected)
+				return -EIO;
+
 			spin_lock_irqsave(&mct_u232_port->lock, flags);
 			cnow = mct_u232_port->icount;
 			spin_unlock_irqrestore(&mct_u232_port->lock, flags);
@@ -970,6 +979,7 @@ failed_usb_register:
 failed_usb_serial_register:
 	return retval;
 }
+
 
 static void __exit mct_u232_exit(void)
 {

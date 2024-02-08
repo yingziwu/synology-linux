@@ -39,6 +39,7 @@ int orig_seq_print_text(struct seq_file *seq, void *offset);
 int orig_hash_add_if(struct hard_iface *hard_iface, int max_if_num);
 int orig_hash_del_if(struct hard_iface *hard_iface, int max_if_num);
 
+
 /* hashfunction to choose an entry in a hash table of given size */
 /* hash algorithm from http://en.wikipedia.org/wiki/Hash_table */
 static inline int choose_orig(const void *data, int32_t size)

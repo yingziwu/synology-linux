@@ -320,3 +320,4 @@ MODULE_VERSION(DRV_VERSION);
 
 module_init(cs5520_init);
 module_exit(cs5520_exit);
+

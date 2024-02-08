@@ -490,6 +490,7 @@ static unsigned long clk_ahb_get_rate(struct clk *clk)
 	return parent_rate / div;
 }
 
+
 static int _clk_ahb_set_rate(struct clk *clk, unsigned long rate)
 {
 	u32 reg, div;
@@ -539,6 +540,7 @@ static unsigned long _clk_ahb_round_rate(struct clk *clk,
 		div++;
 	return parent_rate / div;
 }
+
 
 static int _clk_max_enable(struct clk *clk)
 {

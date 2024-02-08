@@ -41,6 +41,7 @@ void octeon_init_cvmcount(void)
 		f = (0x8000000000000000ull / sdiv) * 2;
 	}
 
+
 	/* Clobber loops so GCC will not unroll the following while loop. */
 	asm("" : "+r" (loops));
 

@@ -288,6 +288,7 @@ void LeisurePSLeave(struct net_device *dev)
 	struct rt_pwr_save_ctrl *pPSC = (struct rt_pwr_save_ctrl *)
 					&(priv->rtllib->PowerSaveControl);
 
+
 	RT_TRACE(COMP_PS, "LeisurePSLeave()...\n");
 	RT_TRACE(COMP_PS, "pPSC->bLeisurePs = %d, ieee->ps = %d\n",
 		pPSC->bLeisurePs, priv->rtllib->ps);

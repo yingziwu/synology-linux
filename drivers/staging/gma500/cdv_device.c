@@ -91,6 +91,7 @@ static int cdv_get_brightness(struct backlight_device *bd)
 	return cdv_brightness;
 }
 
+
 static int cdv_backlight_setup(struct drm_device *dev)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;

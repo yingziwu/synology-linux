@@ -21,6 +21,7 @@
 #include "u_serial.h"
 #include "gadget_chips.h"
 
+
 /*
  * This CDC ACM function support just wraps control functions and
  * notifications around the generic serial-over-usb code.
@@ -103,6 +104,7 @@ acm_iad_descriptor = {
 	.bFunctionProtocol =	USB_CDC_ACM_PROTO_AT_V25TER,
 	/* .iFunction =		DYNAMIC */
 };
+
 
 static struct usb_interface_descriptor acm_control_interface_desc = {
 	.bLength =		USB_DT_INTERFACE_SIZE,
@@ -495,13 +497,15 @@ static int acm_notify_serial_state(struct f_acm *acm)
 {
 	struct usb_composite_dev *cdev = acm->port.func.config->cdev;
 	int			status;
+	__le16			serial_state;
 
 	spin_lock(&acm->lock);
 	if (acm->notify_req) {
 		DBG(cdev, "acm ttyGS%d serial state %04x\n",
 				acm->port_num, acm->serial_state);
+		serial_state = cpu_to_le16(acm->serial_state);
 		status = acm_cdc_notify(acm, USB_CDC_NOTIFY_SERIAL_STATE,
-				0, &acm->serial_state, sizeof(acm->serial_state));
+				0, &serial_state, sizeof(acm->serial_state));
 	} else {
 		acm->pending = true;
 		status = 0;

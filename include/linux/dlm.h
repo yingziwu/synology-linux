@@ -169,3 +169,4 @@ int dlm_unlock(dlm_lockspace_t *lockspace,
 #endif				/* __KERNEL__ */
 
 #endif				/* __DLM_DOT_H__ */
+

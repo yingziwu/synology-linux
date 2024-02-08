@@ -66,3 +66,4 @@ typedef struct _BA_RECORD {
 } BA_RECORD, *PBA_RECORD;
 
 #endif //end _BATYPE_H_
+

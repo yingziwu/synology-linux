@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -70,6 +71,7 @@ static ssize_t mv_prs_high_help(char *b)
 	o += scnprintf(b + o, PAGE_SIZE - o, "\n");
 	return o;
 }
+
 
 static ssize_t mv_prs_high_show(struct device *dev,
 				  struct device_attribute *attr, char *buf)
@@ -134,6 +136,7 @@ static ssize_t mv_prs_high_store_unsigned(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static ssize_t mv_prs_high_store_str(struct device *dev,
 				   struct device_attribute *attr, const char *buf, size_t len)
 {
@@ -184,6 +187,7 @@ static DEVICE_ATTR(tag,			S_IWUSR, mv_prs_high_show, mv_prs_high_store_unsigned)
 static DEVICE_ATTR(etypeMod,		S_IWUSR, mv_prs_high_show, mv_prs_high_store_unsigned);
 static DEVICE_ATTR(etypeDsa,		S_IWUSR, mv_prs_high_show, mv_prs_high_store_unsigned);
 static DEVICE_ATTR(help,		S_IRUSR, mv_prs_high_show, NULL);
+
 
 static struct attribute *prs_high_attrs[] = {
 	&dev_attr_dump.attr,

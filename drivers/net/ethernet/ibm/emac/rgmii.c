@@ -227,6 +227,7 @@ void *rgmii_dump_regs(struct platform_device *ofdev, void *buf)
 	return regs + 1;
 }
 
+
 static int __devinit rgmii_probe(struct platform_device *ofdev)
 {
 	struct device_node *np = ofdev->dev.of_node;

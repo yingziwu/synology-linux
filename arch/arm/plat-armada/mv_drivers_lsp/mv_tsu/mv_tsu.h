@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -28,6 +29,7 @@ disclaimer.
 #ifndef __MV_TSU_H__
 #define __MV_TSU_H__
 
+
 #define MV_TSU_MAJOR		MV_TS_MAJOR
 
 #define TSU_DFLT_AGGR_MODE 	MV_TSU_AGGR_MODE_DISABLED
@@ -37,6 +39,7 @@ disclaimer.
 #define TSU_DFLT_TS_DONEQ_NUM	TSU_DFLT_TS_DESC_NUM * TSU_DFLT_AGGR_PCKT_NUM
 #define TSU_DFLT_DATA_READ_AT_ONCE	0
 #define TSU_DFLT_CLOCK_RATE	20000000
+
 
 #define TSU_DFLT_INT_MASK	(TSU_INT_TS_IF_ERROR |		\
                                  TSU_INT_FIFO_OVFL_ERROR |	\

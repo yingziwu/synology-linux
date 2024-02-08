@@ -185,6 +185,7 @@ unsigned long get_cache_info(unsigned long level, enum CACHE_DETAIL_INFO detail,
 	return CACHE_TYPE_UNKNOWN;
 }
 
+
 unsigned long get_arm_cpu_freq(void) {
 	return UNKNOWN_VALUE;
 }
@@ -237,6 +238,7 @@ unsigned long get_auxiliary_control_register(void)
 	__asm__ __volatile__ ("mrc p15, 0, %0, c1, c0, 1" : "=r"(data));
 	return data;
 }
+
 
 int get_online_cpu_info(int index) {
 	return cpu_online(index);

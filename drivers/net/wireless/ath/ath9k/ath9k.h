@@ -77,10 +77,6 @@ struct ath_config {
 		       sizeof(struct ath_buf_state));		\
 	} while (0)
 
-#define ATH_RXBUF_RESET(_bf) do {		\
-		(_bf)->bf_stale = false;	\
-	} while (0)
-
 /**
  * enum buffer_type - Buffer type flags
  *
@@ -308,6 +304,7 @@ struct ath_rx {
 	struct ath_buf *rx_bufptr;
 	struct ath_rx_edma rx_edma[ATH9K_RX_QUEUE_MAX];
 
+	struct ath_buf *buf_hold;
 	struct sk_buff *frag;
 };
 
@@ -472,6 +469,7 @@ static inline void ath_deinit_leds(struct ath_softc *sc)
 {
 }
 #endif
+
 
 /* Antenna diversity/combining */
 #define ATH_ANT_RX_CURRENT_SHIFT 4
@@ -698,5 +696,6 @@ extern void ath9k_rfkill_poll_state(struct ieee80211_hw *hw);
 void ath9k_calculate_iter_data(struct ieee80211_hw *hw,
 			       struct ieee80211_vif *vif,
 			       struct ath9k_vif_iter_data *iter_data);
+
 
 #endif /* ATH9K_H */

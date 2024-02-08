@@ -80,6 +80,7 @@
 
 #define	ENABLE_HEXDUMP	0	/* Enable if you need it */
 
+
 #ifdef USBVISION_DEBUG
 	#define PDEBUG(level, fmt, args...) { \
 		if (video_debug & (level)) \
@@ -97,6 +98,7 @@
 /* String operations */
 #define rmspace(str)	while (*str == ' ') str++;
 #define goto2next(str)	while (*str != ' ') str++; while (*str == ' ') str++;
+
 
 /* sequential number of usbvision device */
 static int usbvision_nr;
@@ -142,12 +144,14 @@ MODULE_PARM_DESC(power_on_at_open, " Set the default device to power on when dev
 MODULE_PARM_DESC(video_nr, "Set video device number (/dev/videoX).  Default: -1 (autodetect)");
 MODULE_PARM_DESC(radio_nr, "Set radio device number (/dev/radioX).  Default: -1 (autodetect)");
 
+
 /* Misc stuff */
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE(DRIVER_LICENSE);
 MODULE_VERSION(USBVISION_VERSION_STRING);
 MODULE_ALIAS(DRIVER_ALIAS);
+
 
 /*****************************************************************************/
 /* SYSFS Code - Copied from the stv680.c usb module.			     */
@@ -443,6 +447,7 @@ static int usbvision_v4l2_close(struct file *file)
 	PDEBUG(DBG_IO, "success");
 	return 0;
 }
+
 
 /*
  * usbvision_ioctl()
@@ -1102,6 +1107,7 @@ static int usbvision_v4l2_mmap(struct file *file, struct vm_area_struct *vma)
 	return 0;
 }
 
+
 /*
  * Here comes the stuff for radio on usbvision based devices
  *
@@ -1152,6 +1158,7 @@ static int usbvision_radio_open(struct file *file)
 out:
 	return err_code;
 }
+
 
 static int usbvision_radio_close(struct file *file)
 {
@@ -1236,6 +1243,7 @@ static struct video_device usbvision_video_template = {
 	.current_norm   = V4L2_STD_PAL
 };
 
+
 /* Radio template */
 static const struct v4l2_file_operations usbvision_radio_fops = {
 	.owner             = THIS_MODULE,
@@ -1269,6 +1277,7 @@ static struct video_device usbvision_radio_template = {
 	.tvnorms              = USBVISION_NORMS,
 	.current_norm         = V4L2_STD_PAL
 };
+
 
 static struct video_device *usbvision_vdev_init(struct usb_usbvision *usbvision,
 					struct video_device *vdev_template,
@@ -1416,6 +1425,7 @@ static void usbvision_release(struct usb_usbvision *usbvision)
 
 	usbvision_remove_sysfs(usbvision->vdev);
 	usbvision_unregister_video(usbvision);
+	kfree(usbvision->alt_max_pkt_size);
 
 	usb_free_urb(usbvision->ctrl_urb);
 
@@ -1424,6 +1434,7 @@ static void usbvision_release(struct usb_usbvision *usbvision)
 
 	PDEBUG(DBG_PROBE, "success");
 }
+
 
 /*********************** usb interface **********************************/
 
@@ -1476,7 +1487,7 @@ static int __devinit usbvision_probe(struct usb_interface *intf,
 	const struct usb_host_interface *interface;
 	struct usb_usbvision *usbvision = NULL;
 	const struct usb_endpoint_descriptor *endpoint;
-	int model, i;
+	int model, i, ret;
 
 	PDEBUG(DBG_PROBE, "VID=%#04x, PID=%#04x, ifnum=%u",
 				dev->descriptor.idVendor,
@@ -1485,7 +1496,8 @@ static int __devinit usbvision_probe(struct usb_interface *intf,
 	model = devid->driver_info;
 	if (model < 0 || model >= usbvision_device_data_size) {
 		PDEBUG(DBG_PROBE, "model out of bounds %d", model);
-		return -ENODEV;
+		ret = -ENODEV;
+		goto err_usb;
 	}
 	printk(KERN_INFO "%s: %s found\n", __func__,
 				usbvision_device_data[model].model_string);
@@ -1521,18 +1533,21 @@ static int __devinit usbvision_probe(struct usb_interface *intf,
 		    __func__, ifnum);
 		dev_err(&intf->dev, "%s: Endpoint attributes %d",
 		    __func__, endpoint->bmAttributes);
-		return -ENODEV;
+		ret = -ENODEV;
+		goto err_usb;
 	}
 	if (usb_endpoint_dir_out(endpoint)) {
 		dev_err(&intf->dev, "%s: interface %d. has ISO OUT endpoint!\n",
 		    __func__, ifnum);
-		return -ENODEV;
+		ret = -ENODEV;
+		goto err_usb;
 	}
 
 	usbvision = usbvision_alloc(dev, intf);
 	if (usbvision == NULL) {
 		dev_err(&intf->dev, "%s: couldn't allocate USBVision struct\n", __func__);
-		return -ENOMEM;
+		ret = -ENOMEM;
+		goto err_usb;
 	}
 
 	if (dev->descriptor.bNumConfigurations > 1)
@@ -1551,17 +1566,26 @@ static int __devinit usbvision_probe(struct usb_interface *intf,
 	usbvision->alt_max_pkt_size = kmalloc(32 * usbvision->num_alt, GFP_KERNEL);
 	if (usbvision->alt_max_pkt_size == NULL) {
 		dev_err(&intf->dev, "usbvision: out of memory!\n");
-		return -ENOMEM;
+		ret = -ENOMEM;
+		goto err_pkt;
 	}
 
 	for (i = 0; i < usbvision->num_alt; i++) {
-		u16 tmp = le16_to_cpu(uif->altsetting[i].endpoint[1].desc.
+		u16 tmp;
+
+		if (uif->altsetting[i].desc.bNumEndpoints < 2) {
+			ret = -ENODEV;
+			goto err_pkt;
+		}
+
+		tmp = le16_to_cpu(uif->altsetting[i].endpoint[1].desc.
 				      wMaxPacketSize);
 		usbvision->alt_max_pkt_size[i] =
 			(tmp & 0x07ff) * (((tmp & 0x1800) >> 11) + 1);
 		PDEBUG(DBG_PROBE, "Alternate setting %i, max size= %i", i,
 		       usbvision->alt_max_pkt_size[i]);
 	}
+
 
 	usbvision->nr = usbvision_nr++;
 
@@ -1585,7 +1609,14 @@ static int __devinit usbvision_probe(struct usb_interface *intf,
 
 	PDEBUG(DBG_PROBE, "success");
 	return 0;
+
+err_pkt:
+	usbvision_release(usbvision);
+err_usb:
+	usb_put_dev(dev);
+	return ret;
 }
+
 
 /*
  * usbvision_disconnect()

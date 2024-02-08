@@ -198,6 +198,7 @@ MV_STATUS mvAhbToMbusWinSet(MV_U32 winNum, MV_AHB_TO_MBUS_DEC_WIN *pAddrDecWin)
 	else
 		MV_REG_WRITE(AHB_TO_MBUS_WIN_INTEREG_REG, decRegs.baseReg);
 
+
 	/* Internal register space have no size */
 	/* register. Do not perform size register assigment for those targets   */
 	if (winNum != MV_AHB_TO_MBUS_INTREG_WIN) {
@@ -389,6 +390,7 @@ MV_STATUS mvAhbToMbusWinEnable(MV_U32 winNum, MV_BOOL enable)
 	/* Internal registers bar can't be disable or enabled */
 	if (winNum == MV_AHB_TO_MBUS_INTREG_WIN)
 		return (enable ? MV_OK : MV_ERROR);
+
 
 	if (enable == MV_TRUE) {
 		/* enable the window */

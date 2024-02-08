@@ -83,12 +83,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+
 /******************************************************************************
 * Data Type Definition
 ******************************************************************************/
 
 #define TRUE               true
 #define FALSE              false
+
 
 /******************************************************************************
 * Port Index Definition
@@ -235,6 +237,7 @@ enum MV_QUEUE_E {
 #define MV_PBITS_MASK 0x07
 #define MV_PBITS_INVALID_VALUE 0xFF
 
+
 /******************************************************************************
 * WAN Port State Definition
 ******************************************************************************/
@@ -256,6 +259,7 @@ enum MV_GE_PORT_STATE_E {
 #define MV_ICMPV6_TYPE_MLD   (1)
 #define MV_CPH_ETH_TYPE_IPV4 (0x0800)
 #define MV_CPH_ETH_TYPE_IPV6 (0x86DD)
+
 
 /******************************************************************************
 * TPM Source port - used to specify through which port the packet entered the processor

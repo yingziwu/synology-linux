@@ -343,6 +343,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
 		  cap_str_10, cap_str_2);
 
 	set_capacity(vblk->disk, capacity);
+	revalidate_disk(vblk->disk);
 done:
 	mutex_unlock(&vblk->config_lock);
 }
@@ -516,6 +517,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
 			&opt_io_size);
 	if (!err && opt_io_size)
 		blk_queue_io_opt(q, blk_size * opt_io_size);
+
 
 	add_disk(vblk->disk);
 	err = device_create_file(disk_to_dev(vblk->disk), &dev_attr_serial);

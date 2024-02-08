@@ -36,6 +36,7 @@ typedef struct {
 	struct list_head list;
 } udma_buffer_desc_t;
 
+
 typedef enum {
         UDMA_OK            = 0x0, /**< 0x0 */
 		UDMA_BUSY				, /* UDMA is busy to response */
@@ -48,6 +49,7 @@ typedef enum {
 		UDMA_AGAIN				 /* Try again */		
 } udma_result_t;
 
+
 /**  udma_send_packet - A buffer is used to send
  * @port - udma port number, could be 0 or 1
  * @buffer_desc - parameter to describe a coming buffer
@@ -56,6 +58,7 @@ typedef enum {
  * return others for failure
 */
 udma_result_t udma_send_packet( unsigned char  port, udma_buffer_desc_t *buffer_desc);
+
 
 /**  udma_give_free_buffer - Give a free buffer to UDMA driver, the buffer will be used for packet receive
  * @port - udma port number, could be 0 or 1
@@ -86,6 +89,7 @@ udma_result_t udma_give_free_buffer(unsigned char  port, udma_buffer_desc_t *buf
 */
 void udma_flush(unsigned char  port);
 
+
 /**  udma_register_handler - register the Tx/Rx callback
  *
  * @port - udma port number, could be 0 or 1
@@ -105,5 +109,9 @@ void udma_flush(unsigned char  port);
 */
 typedef void (*udma_handle_t )(unsigned char  port, udma_buffer_desc_t *buffer_desc);
 udma_result_t udma_register_handler(unsigned char port, udma_handle_t tx_handle, udma_handle_t rx_handle);
+
+
+
+
 
 #endif

@@ -113,6 +113,7 @@ struct otg_transceiver {
 
 };
 
+
 /* for board-specific init logic */
 extern int otg_set_transceiver(struct otg_transceiver *);
 

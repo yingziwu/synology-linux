@@ -57,6 +57,7 @@
 #define DBG(fmt...)
 #endif
 
+
 /* Store all idle threads, this can be reused instead of creating
 * a new thread. Also avoids complicated thread destroy functionality
 * for idle threads.
@@ -755,6 +756,7 @@ int __cpu_disable(void)
 		of_node_put(np);
 	}
 	of_node_put(l2_cache);
+
 
 	return 0;
 }

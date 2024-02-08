@@ -139,6 +139,7 @@ void regerror(char * s)
  * See regmagic.h for one further detail of program structure.
  */
 
+
 /*
  * Utility definitions.
  */
@@ -191,6 +192,7 @@ STATIC void regc(struct match_globals *g, char b);
 STATIC void reginsert(struct match_globals *g, char op, char *opnd);
 STATIC void regtail(struct match_globals *g, char *p, char *val);
 STATIC void regoptail(struct match_globals *g, char *p, char *val);
+
 
 __kernel_size_t my_strcspn(const char *s1,const char *s2)
 {
@@ -702,6 +704,7 @@ regoptail(struct match_globals *g, char *p, char *val)
  * regexec and friends
  */
 
+
 /*
  * Forwards.
  */
@@ -1076,6 +1079,7 @@ regdump(regexp *r)
 	register char *next;
 	/* extern char *strchr(); */
 
+
 	s = r->program + 1;
 	while (op != END) {	/* While that wasn't END last time... */
 		op = OP(s);
@@ -1189,3 +1193,5 @@ regprop(char *op)
 	return(buf);
 }
 #endif
+
+

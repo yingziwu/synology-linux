@@ -32,6 +32,7 @@
 #include "si_voice_timer_intf.h"
 #include "si_voice.h"
 
+
 /* UNSORTED ADDITIONS - These common parameters have been moved from
    the drivers to here to support simultaneous compile of multiple devices
    */
@@ -103,6 +104,7 @@
 */
 
 #define MAX_PROSLIC_IRQS 32 /**< How many interrupts are supported in the ProSLIC */
+
 
 #define ON_HOOK_TIMEOUT 0x7f /**< Returned by @ref ProSLIC_DialPulseDetect() to
 			          indicate a failure to detect a pulse digit */
@@ -183,6 +185,7 @@ typedef struct {
 } pulseDial_Cfg;
 /** @} PD_DETECT */
 
+
 /** @addtogroup PROSLIC_INTERRUPTS
  * @{
  */
@@ -239,6 +242,7 @@ typedef struct {
 	ProslicInt *irqs; /**< Pointer of an array of size MAX_PROSLIC_IRQS (this is to be allocated by the caller) */
 	uInt8 number; /**< Number of IRQs detected/pending */
 } proslicIntType;
+
 
 /** @} PROSLIC_INTERRUPTS */
 
@@ -315,6 +319,7 @@ enum {
     RXACGAIN_SEL = 1
 };
 
+
 /*
 ** Defines structure for configuring audio gain on the fly
 */
@@ -359,6 +364,9 @@ LF_RING_OPEN      /**< Ring open */
 } ;
 /** @} LINESTATUS */
 
+
+
+
 /*****************************************************************************/
 /** @addtogroup GEN_CFG
  * @{
@@ -390,6 +398,7 @@ typedef struct {
 
 /** @} GEN_CFG */
 
+
 /*****************************************************************************/
 /** @addtogroup RING_CONTROL
  * @{
@@ -419,6 +428,7 @@ typedef struct
       uInt8 amp;                    /**< in terms of 1 volt units */
       uInt8 offset;                 /**< In terms of 1 volt units */
 } ProSLIC_dbgRingCfg;
+
 
 /** @} RING_CONTROL */
 
@@ -557,6 +567,7 @@ typedef struct
 } proslicPSTNCheckObjType;
 
 typedef proslicPSTNCheckObjType* proslicPSTNCheckObjType_ptr;
+
 
 /** Re-Injection line interfaces (differential) */
 typedef struct {
@@ -895,6 +906,7 @@ int ProSLIC_setControlInterfaceSemaphore (controlInterfaceType *pCtrlIntf, ctrl_
 
 int ProSLIC_SWInitChan (proslicChanType_ptr hProslic,int channel,int chipType, ProslicDeviceType*deviceObj,controlInterfaceType *pCtrlIntf);
 
+
 /**
  *
  * @brief
@@ -999,6 +1011,7 @@ int ProSLIC_InitBroadcast (proslicChanType_ptr *hProslic);
 
 int ProSLIC_Reinit (proslicChanType_ptr hProslic, int size);
 
+
 /**
  * @brief
  * Loads registers and RAM in the ProSLICs specicified.
@@ -1025,6 +1038,7 @@ int ProSLIC_LoadRegTables (proslicChanType_ptr *pProslic,ProslicRAMInit *pRamTab
  *
  * @note This function can be disabled by @ref DISABLE_ZSYNTH_SETUP
  */
+
 
 int ProSLIC_ZsynthSetup (proslicChanType_ptr hProslic,int preset);
 
@@ -1755,6 +1769,7 @@ int ProSLIC_SendCID (proslicChanType_ptr hProslic, uInt8 *buffer, uInt8 numBytes
 
 int ProSLIC_ModifyCIDStartBits(proslicChanType_ptr hProslic, uInt8 enable_startStop);
 
+
 /** @} FSK_CONTROL */
 
 /*****************************************************************************/
@@ -2203,6 +2218,7 @@ int ProSLIC_GetLBCalResultPacked (proslicChanType *pProslic,int32 *result);
 int ProSLIC_LoadPreviousLBCalPacked (proslicChanType *pProslic,int32 *result);
 
 /** @} PROSLIC_LB_CALIBRATION */
+
 
 /*****************************************************************************/
 /** @addtogroup DIAGNOSTICS

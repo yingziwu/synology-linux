@@ -29,6 +29,7 @@
 #define CONFIG_SBE_PMCC4_NCOMM  1
 #endif
 
+
 /* FLUSH MACROS - if using ioremap_nocache(), then these can be NOOPS,
  * otherwise a memory barrier needs to be inserted.
  */
@@ -37,6 +38,7 @@
 #define FLUSH_PCI_WRITE()    wmb()
 #define FLUSH_MEM_READ()     rmb()
 #define FLUSH_MEM_WRITE()    wmb()
+
 
 /*
  * System dependent callbacks routines, not inlined...

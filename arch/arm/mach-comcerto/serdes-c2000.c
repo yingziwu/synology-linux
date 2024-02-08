@@ -76,6 +76,7 @@ static int wait_lane_ok(u32 sbphy_num)
 	return 0;
 }
 
+
 /**
  * This function wait for the 'CMU OK' to be signaled by the
  * Snowbush Serdes PHY.
@@ -89,6 +90,7 @@ static int wait_cmu_ok(u32 sbphy_num)
 	unsigned long deadline = jiffies + MAX_CMU_OK_WAIT_JIFFIES;
 
 	CMU_Offset = COMCERTO_SERDES_DWC_CFG_REG( sbphy_num, SD_PHY_STS_REG_OFST );
+
 
 	/* Keep looping until you see the cmu_ok_o of Serdes */
 	do
@@ -112,6 +114,7 @@ static int wait_cmu_ok(u32 sbphy_num)
 
 	return 0;
 }
+
 
 /**
  * This function wait for the specified configured Snowbush PHY
@@ -160,6 +163,7 @@ static int wait_sb_cmu_lane_rdy(u32 sbphy_num, u32 type)
 	return 0;
 }
 
+
 /**
  * This function initialize the Snowbush PHY (Serdes) for operation
  * with the one of the PCIE,SATA or SGMII IP blocks, and then waiting
@@ -183,3 +187,4 @@ int serdes_phy_init(int phy_num, struct serdes_regs_s *regs, int size, int type)
 }
 
 EXPORT_SYMBOL(serdes_phy_init);
+

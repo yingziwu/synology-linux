@@ -35,6 +35,7 @@
 
 #include <linux/i2c/twl.h>
 
+
 /*
  * The GPIO "subchip" supports 18 GPIOs which can be configured as
  * inputs or outputs, with pullups or pulldowns on each pin.  Each
@@ -45,6 +46,7 @@
  *
  * There are also two LED pins used sometimes as output-only GPIOs.
  */
+
 
 static struct gpio_chip twl_gpiochip;
 static int twl4030_gpio_irq_base;

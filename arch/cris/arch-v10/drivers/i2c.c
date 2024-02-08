@@ -120,6 +120,7 @@ static DEFINE_SPINLOCK(i2c_lock); /* Protect directions etc */
 
 /****************** FUNCTION DEFINITION SECTION *************************/
 
+
 /* generate i2c start condition */
 
 void

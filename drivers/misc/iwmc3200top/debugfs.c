@@ -37,10 +37,13 @@
 #include "log.h"
 #include "debugfs.h"
 
+
+
 /*      Constants definition        */
 #define HEXADECIMAL_RADIX	16
 
 /*      Functions definition        */
+
 
 #define DEBUGFS_ADD(name, parent) do {					\
 	dbgfs->dbgfs_##parent##_files.file_##name =			\
@@ -89,6 +92,7 @@ ssize_t iwmct_dbgfs_##name##_write(struct file *file,			\
 		.llseek = generic_file_llseek,				\
 	};
 
+
 /*      Debugfs file ops definitions        */
 
 /*
@@ -130,3 +134,4 @@ void iwmct_dbgfs_unregister(struct iwmct_debugfs *dbgfs)
 	kfree(dbgfs);
 	dbgfs = NULL;
 }
+

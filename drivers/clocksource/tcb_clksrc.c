@@ -11,6 +11,7 @@
 #include <linux/platform_device.h>
 #include <linux/atmel_tc.h>
 
+
 /*
  * We're configured to use a specific TC block, one that's not hooked
  * up to external hardware, to provide a time solution:

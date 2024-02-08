@@ -24,6 +24,7 @@
 #include "ieee80211_i.h"
 #include "wep.h"
 
+
 int ieee80211_wep_init(struct ieee80211_local *local)
 {
 	/* start WEP IV from a random value */
@@ -68,6 +69,7 @@ static inline bool ieee80211_wep_weak_iv(u32 iv, int keylen)
 	return false;
 }
 
+
 static void ieee80211_wep_get_iv(struct ieee80211_local *local,
 				 int keylen, int keyidx, u8 *iv)
 {
@@ -84,6 +86,7 @@ static void ieee80211_wep_get_iv(struct ieee80211_local *local,
 	*iv++ = keyidx << 6;
 }
 
+
 static u8 *ieee80211_wep_add_iv(struct ieee80211_local *local,
 				struct sk_buff *skb,
 				int keylen, int keyidx)
@@ -94,8 +97,7 @@ static u8 *ieee80211_wep_add_iv(struct ieee80211_local *local,
 
 	hdr->frame_control |= cpu_to_le16(IEEE80211_FCTL_PROTECTED);
 
-	if (WARN_ON(skb_tailroom(skb) < WEP_ICV_LEN ||
-		    skb_headroom(skb) < WEP_IV_LEN))
+	if (WARN_ON(skb_headroom(skb) < WEP_IV_LEN))
 		return NULL;
 
 	hdrlen = ieee80211_hdrlen(hdr->frame_control);
@@ -104,6 +106,7 @@ static u8 *ieee80211_wep_add_iv(struct ieee80211_local *local,
 	ieee80211_wep_get_iv(local, keylen, keyidx, newhdr + hdrlen);
 	return newhdr + hdrlen;
 }
+
 
 static void ieee80211_wep_remove_iv(struct ieee80211_local *local,
 				    struct sk_buff *skb,
@@ -116,6 +119,7 @@ static void ieee80211_wep_remove_iv(struct ieee80211_local *local,
 	memmove(skb->data + WEP_IV_LEN, skb->data, hdrlen);
 	skb_pull(skb, WEP_IV_LEN);
 }
+
 
 /* Perform WEP encryption using given key. data buffer must have tailroom
  * for 4-byte ICV. data_len must not include this ICV. Note: this function
@@ -139,6 +143,7 @@ int ieee80211_wep_encrypt_data(struct crypto_cipher *tfm, u8 *rc4key,
 	return 0;
 }
 
+
 /* Perform WEP encryption on given skb. 4 bytes of extra space (IV) in the
  * beginning of the buffer 4 bytes of extra space (ICV) in the end of the
  * buffer will be added. Both IV and ICV will be transmitted, so the
@@ -153,6 +158,9 @@ int ieee80211_wep_encrypt(struct ieee80211_local *local,
 	u8 *iv;
 	size_t len;
 	u8 rc4key[3 + WLAN_KEY_LEN_WEP104];
+
+	if (WARN_ON(skb_tailroom(skb) < WEP_ICV_LEN))
+		return -1;
 
 	iv = ieee80211_wep_add_iv(local, skb, keylen, keyidx);
 	if (!iv)
@@ -172,6 +180,7 @@ int ieee80211_wep_encrypt(struct ieee80211_local *local,
 	return ieee80211_wep_encrypt_data(local->wep_tx_tfm, rc4key, keylen + 3,
 					  iv + WEP_IV_LEN, len);
 }
+
 
 /* Perform WEP decryption using given key. data buffer includes encrypted
  * payload, including 4-byte ICV, but _not_ IV. data_len must not include ICV.
@@ -196,6 +205,7 @@ int ieee80211_wep_decrypt_data(struct crypto_cipher *tfm, u8 *rc4key,
 
 	return 0;
 }
+
 
 /* Perform WEP decryption on given skb. Buffer includes whole WEP part of
  * the frame: IV (4 bytes), encrypted payload (including SNAP header),
@@ -253,6 +263,7 @@ static int ieee80211_wep_decrypt(struct ieee80211_local *local,
 
 	return ret;
 }
+
 
 bool ieee80211_wep_is_weak_iv(struct sk_buff *skb, struct ieee80211_key *key)
 {

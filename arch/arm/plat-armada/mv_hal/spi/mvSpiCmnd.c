@@ -70,6 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mvSpiCmnd.h"
 #include "mvSpi.h"
 
+
 /*#define MV_DEBUG*/
 #ifdef MV_DEBUG
 #define DB(x) x
@@ -78,6 +79,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 extern MV_SPI_TYPE_INFO *currSpiInfo;
+
 
 /*******************************************************************************
 * mvSpiReadAndWrite - Read and Write a buffer simultanuousely

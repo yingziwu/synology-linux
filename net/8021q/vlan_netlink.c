@@ -17,6 +17,7 @@
 #include <net/rtnetlink.h>
 #include "vlan.h"
 
+
 static const struct nla_policy vlan_policy[IFLA_VLAN_MAX + 1] = {
 	[IFLA_VLAN_ID]		= { .type = NLA_U16 },
 	[IFLA_VLAN_FLAGS]	= { .len = sizeof(struct ifla_vlan_flags) },
@@ -27,6 +28,7 @@ static const struct nla_policy vlan_policy[IFLA_VLAN_MAX + 1] = {
 static const struct nla_policy vlan_map_policy[IFLA_VLAN_QOS_MAX + 1] = {
 	[IFLA_VLAN_QOS_MAPPING] = { .len = sizeof(struct ifla_vlan_qos_mapping) },
 };
+
 
 static inline int vlan_validate_qos_map(struct nlattr *attr)
 {
@@ -150,7 +152,7 @@ static size_t vlan_get_size(const struct net_device *dev)
 	struct vlan_dev_info *vlan = vlan_dev_info(dev);
 
 	return nla_total_size(2) +	/* IFLA_VLAN_ID */
-	       sizeof(struct ifla_vlan_flags) + /* IFLA_VLAN_FLAGS */
+	       nla_total_size(sizeof(struct ifla_vlan_flags)) + /* IFLA_VLAN_FLAGS */
 	       vlan_qos_map_size(vlan->nr_ingress_mappings) +
 	       vlan_qos_map_size(vlan->nr_egress_mappings);
 }

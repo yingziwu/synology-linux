@@ -52,6 +52,7 @@
 #include <media/lirc.h>
 #include <media/lirc_dev.h>
 
+
 /* module identification */
 #define DRIVER_VERSION		"0.2"
 #define DRIVER_AUTHOR		\
@@ -92,6 +93,7 @@ static int debug;
 /* times to poll per second */
 #define SAMPLE_RATE	     100
 static int sample_rate = SAMPLE_RATE;
+
 
 /**** Igor's USB Request Codes */
 
@@ -192,6 +194,7 @@ static int sample_rate = SAMPLE_RATE;
  *
  * Answer: byte read from UART bit rate register (UBRR)
  */
+
 
 /* data structure for each usb remote */
 struct igorplug {
@@ -374,6 +377,8 @@ static int igorplugusb_remote_poll(void *data, struct lirc_buffer *buf)
 	return -ENODATA;
 }
 
+
+
 static int igorplugusb_remote_probe(struct usb_interface *intf,
 				    const struct usb_device_id *id)
 {
@@ -496,6 +501,7 @@ mem_failure_switch:
 	usb_set_intfdata(intf, ir);
 	return 0;
 }
+
 
 static void igorplugusb_remote_disconnect(struct usb_interface *intf)
 {

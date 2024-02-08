@@ -1219,6 +1219,7 @@ static void __exit sh_mmcif_exit(void)
 module_init(sh_mmcif_init);
 module_exit(sh_mmcif_exit);
 
+
 MODULE_DESCRIPTION("SuperH on-chip MMC/eMMC interface driver");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:" DRIVER_NAME);

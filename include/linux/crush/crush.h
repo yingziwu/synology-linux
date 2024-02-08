@@ -16,10 +16,13 @@
  * LGPL2
  */
 
+
 #define CRUSH_MAGIC 0x00010000ul   /* for detecting algorithm revisions */
+
 
 #define CRUSH_MAX_DEPTH 10  /* max crush hierarchy depth */
 #define CRUSH_MAX_SET   10  /* max size of a mapping result */
+
 
 /*
  * CRUSH uses user-defined "rules" to describe how inputs should be
@@ -71,6 +74,8 @@ struct crush_rule {
 
 #define crush_rule_size(len) (sizeof(struct crush_rule) + \
 			      (len)*sizeof(struct crush_rule_step))
+
+
 
 /*
  * A bucket is a named container of other items (either devices or
@@ -137,6 +142,8 @@ struct crush_bucket_straw {
 	__u32 *straws;         /* 16-bit fixed point */
 };
 
+
+
 /*
  * CRUSH map includes all buckets, rules, etc.
  */
@@ -158,6 +165,7 @@ struct crush_map {
 	__u32 max_rules;
 	__s32 max_devices;
 };
+
 
 /* crush.c */
 extern int crush_get_bucket_item_weight(struct crush_bucket *b, int pos);

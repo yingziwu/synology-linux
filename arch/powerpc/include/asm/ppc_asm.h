@@ -292,11 +292,16 @@ n:
  *      ld	rY,ADDROFF(name)(rX)
  */
 #ifdef __powerpc64__
+#ifdef HAVE_AS_ATHIGH
+#define __AS_ATHIGH high
+#else
+#define __AS_ATHIGH h
+#endif
 #define LOAD_REG_IMMEDIATE(reg,expr)		\
 	lis     (reg),(expr)@highest;		\
 	ori     (reg),(reg),(expr)@higher;	\
 	rldicr  (reg),(reg),32,31;		\
-	oris    (reg),(reg),(expr)@h;		\
+	oris    reg,reg,(expr)@__AS_ATHIGH;	\
 	ori     (reg),(reg),(expr)@l;
 
 #define LOAD_REG_ADDR(reg,name)			\
@@ -367,6 +372,7 @@ BEGIN_FTR_SECTION			\
 END_FTR_SECTION_IFCLR(CPU_FTR_601)
 #endif
 
+	
 /*
  * This instruction is not implemented on the PPC 603 or 601; however, on
  * the 403GCX and 405GP tlbia IS defined and tlbie is not.
@@ -383,6 +389,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_601)
 	addi	r4,r4,0x1000;			\
 	bdnz	0b
 #endif
+
 
 #ifdef CONFIG_IBM440EP_ERR42
 #define PPC440EP_ERR42 isync
@@ -477,6 +484,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_601)
 #define	cr6	6
 #define	cr7	7
 
+
 /* General Purpose Registers (GPRs) */
 
 #define	r0	0
@@ -511,6 +519,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_601)
 #define	r29	29
 #define	r30	30
 #define	r31	31
+
 
 /* Floating Point Registers (FPRs) */
 

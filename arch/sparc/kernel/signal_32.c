@@ -557,6 +557,7 @@ static void do_signal(struct pt_regs *regs, unsigned long orig_i0)
 		orig_i0 = regs->u_regs[UREG_G6];
 	}
 
+
 	if (signr > 0) {
 		if (restart_syscall)
 			syscall_restart(orig_i0, regs, &ka.sa);

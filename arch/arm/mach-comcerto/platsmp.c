@@ -32,6 +32,7 @@
 #include <asm/smp_scu.h>
 #include <asm/unified.h>
 
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 
@@ -43,6 +44,7 @@
 #include <linux/wait.h>
 #include <linux/workqueue.h>
 #include <linux/pid.h>
+
 
 extern void comcerto_secondary_startup(void);
 
@@ -78,6 +80,7 @@ void __init smp_init_cpus(void)
 
 #define JUMP_TO_KERNEL_START_1		0xe3a00020 	/* mov	r0, #32 */
 #define JUMP_TO_KERNEL_START_2		0xe590f000 	/* ldr	pc, [r0] */
+
 
 void __init platform_smp_prepare_cpus(unsigned int max_cpus)
 {

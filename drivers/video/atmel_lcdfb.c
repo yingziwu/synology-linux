@@ -180,6 +180,7 @@ static void init_contrast(struct atmel_lcdfb_info *sinfo)
 		init_backlight(sinfo);
 }
 
+
 static struct fb_fix_screeninfo atmel_lcdfb_fix __initdata = {
 	.type		= FB_TYPE_PACKED_PIXELS,
 	.visual		= FB_VISUAL_TRUECOLOR,
@@ -311,6 +312,7 @@ static const struct fb_videomode *atmel_lcdfb_choose_mode(struct fb_var_screenin
 		fb_videomode_to_var(var, fbmode);
 	return fbmode;
 }
+
 
 /**
  *      atmel_lcdfb_check_var - Validates a var passed in.
@@ -548,6 +550,7 @@ static int atmel_lcdfb_set_par(struct fb_info *info)
 		dev_dbg(info->device, "  updated pixclk:     %lu KHz\n",
 					PICOS2KHZ(info->var.pixclock));
 	}
+
 
 	/* Initialize control register 2 */
 	value = sinfo->default_lcdcon2;
@@ -813,6 +816,7 @@ static void atmel_lcdfb_stop_clock(struct atmel_lcdfb_info *sinfo)
 	clk_disable(sinfo->lcdc_clk);
 }
 
+
 static int __init atmel_lcdfb_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -885,6 +889,7 @@ static int __init atmel_lcdfb_probe(struct platform_device *pdev)
 		dev_err(dev, "no suitable video mode found\n");
 		goto stop_clk;
 	}
+
 
 	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!regs) {

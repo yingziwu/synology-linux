@@ -46,6 +46,7 @@
 */
 int Si324x_Reset (proslicChanType_ptr hProslic);
 
+
 /*
 ** Function: PROSLIC_Init
 **
@@ -148,6 +149,7 @@ int Si324x_VerifyPatch (proslicChanType_ptr hProslic, const proslicPatch *pPatch
 **
 */
 int Si324x_EnableInterrupts (proslicChanType_ptr hProslic);
+
 
 int Si324x_SetLoopbackMode (proslicChanType_ptr hProslic, ProslicLoopbackModes newMode);
 
@@ -543,6 +545,7 @@ int Si324x_MWI (proslicChanType *pProslic,uInt8 lampOn);
 */
 int Si324x_ToneGenStart (proslicChanType *pProslic, uInt8 timerEn);
 
+
 /*
 ** Function: PROSLIC_StopTone
 **
@@ -557,6 +560,7 @@ int Si324x_ToneGenStart (proslicChanType *pProslic, uInt8 timerEn);
 */
 int Si324x_ToneGenStop (proslicChanType *pProslic);
 
+
 /*
 ** Function: PROSLIC_StartRing
 **
@@ -570,6 +574,7 @@ int Si324x_ToneGenStop (proslicChanType *pProslic);
 ** none
 */
 int Si324x_RingStart (proslicChanType *pProslic);
+
 
 /*
 ** Function: PROSLIC_StopRing
@@ -644,6 +649,7 @@ int Si324x_CheckCIDBuffer (proslicChanType *pProslic, uInt8 *fsk_buf_avail);
 ** none
 */
 int Si324x_PCMStart (proslicChanType *pProslic);
+
 
 /*
 ** Function: PROSLIC_StopPCM

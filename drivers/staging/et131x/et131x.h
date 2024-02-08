@@ -185,6 +185,7 @@ struct global_regs {				/* Location: */
 	u32 watchdog_timer;			/*  0x0038 */
 };
 
+
 /* START OF TXDMA REGISTER ADDRESS MAP */
 
 /*
@@ -291,6 +292,7 @@ struct txdma_regs {			/* Location: */
 
 /* END OF TXDMA REGISTER ADDRESS MAP */
 
+
 /* START OF RXDMA REGISTER ADDRESS MAP */
 
 /*
@@ -314,6 +316,7 @@ struct txdma_regs {			/* Location: */
  * 17: halt_status
  * 18-31: unused
  */
+
 
 /*
  * structure for dma writeback lo reg in rxdma address map
@@ -536,6 +539,7 @@ struct rxdma_regs {					/* Location: */
 };
 
 /* END OF RXDMA REGISTER ADDRESS MAP */
+
 
 /* START OF TXMAC REGISTER ADDRESS MAP */
 
@@ -774,6 +778,7 @@ struct txmac_regs {			/* Location: */
 #define ET_UNI_PF_ADDR2_2_SHIFT 16
 #define ET_UNI_PF_ADDR1_1_SHIFT 8
 
+
 /*
  * structure for Multicast Hash reg in rxmac address map
  * located at address 0x4074 - 0x4080
@@ -902,6 +907,7 @@ struct rxmac_regs {					/* Location: */
 
 /* END OF RXMAC REGISTER ADDRESS MAP */
 
+
 /* START OF MAC REGISTER ADDRESS MAP */
 
 /*
@@ -948,6 +954,7 @@ struct rxmac_regs {					/* Location: */
  * 1: crc enable
  * 0: full duplex
  */
+
 
 /*
  * structure for Interpacket gap reg in mac address map.
@@ -1395,6 +1402,7 @@ struct mmc_regs {		/* Location: */
 
 /* END OF MMC REGISTER ADDRESS MAP */
 
+
 /*
  * JAGCore Address Mapping
  */
@@ -1655,3 +1663,4 @@ struct address_map {
 #define TRUEPHY_ADV_DUPLEX_HALF         0x02
 #define TRUEPHY_ADV_DUPLEX_BOTH     \
 	(TRUEPHY_ADV_DUPLEX_FULL | TRUEPHY_ADV_DUPLEX_HALF)
+

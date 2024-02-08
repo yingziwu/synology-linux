@@ -165,6 +165,7 @@ extern struct bus_attribute pci_bus_attrs[];
 #define pci_bus_attrs	NULL
 #endif
 
+
 /**
  * pci_match_one_device - Tell if a PCI device structure has a matching
  *                        PCI device id structure

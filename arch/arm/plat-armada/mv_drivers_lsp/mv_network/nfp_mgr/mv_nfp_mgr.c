@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -180,6 +181,7 @@ static void fp_arp_rule_print(const MV_FP_ARP_RULE *rule);
 static int fp_nat_db_clear_and_update(void);
 #endif
 
+
 static void __exit fp_exit_module(void)
 {
 	fp_rule_db_clear();
@@ -275,6 +277,7 @@ static int ip_in_same_network(u32 ip1, u32 ip2, u32 mask)
 		return 1;
 	return 0;
 }
+
 
 #ifdef CONFIG_MV_ETH_NFP_NAT
 
@@ -444,6 +447,7 @@ static int fp_db_clear_and_update(void)
 	return status;
 }
 
+
 #ifdef CONFIG_MV_ETH_NFP_DUAL
 static void aging_timer_function(unsigned long data)
 {
@@ -460,6 +464,7 @@ static void aging_timer_function(unsigned long data)
 	static int          current_arp_rule_position = 0;
 	static int          current_rule_position = 0;
 	static int          current_nat_rule_position = 0;
+
 
 	/* Collect ARP information from DB */
 	spin_lock_irqsave(&nfp_mgr_lock, flags);
@@ -1949,6 +1954,7 @@ int fp_fdb_db_print(MV_FP_OP_TYPE op)
 
 #endif /* CONFIG_MV_ETH_NFP_FDB */
 
+
 #ifdef CONFIG_MV_ETH_NFP_PPP
 
 /* Initialize Rule Database */
@@ -1994,6 +2000,7 @@ int fp_ppp_info_set(u32 if_ppp, u32 if_eth, u16 sid, u8 *mac, u32 channel)
 	rule.pppInfo.u.ppp.version  = 0x0011;
 	rule.pppInfo.u.ppp.session = sid;
 	rule.pppInfo.u.ppp.proto = 0x2100;
+
 
 	rule.pppInfo.if_ppp = if_ppp;
 	rule.pppInfo.if_eth = if_eth;
@@ -2071,3 +2078,10 @@ int fp_sec_db_print(MV_FP_OP_TYPE op)
 }
 
 #endif /* CONFIG_MV_ETH_NFP_SEC */
+
+
+
+
+
+
+

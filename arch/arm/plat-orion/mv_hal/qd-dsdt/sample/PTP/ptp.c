@@ -12,6 +12,7 @@
 *******************************************************************************/
 #include "msSample.h"
 
+
 /*
  *  PTP Init routine
  *
@@ -37,6 +38,7 @@ STATUS samplePTPInit(GT_QD_DEV *dev)
 	GT_PTP_CONFIG ptpCfg;
 	GT_LPORT port;
 	GT_STATUS status;
+
 
 	/*
 	 *	1) Setup each port to forward PTP frame to CPU port
@@ -73,6 +75,7 @@ STATUS samplePTPInit(GT_QD_DEV *dev)
 	*/
 	eventSetActive(dev, GT_AVB_INT);
 
+
 	/*
 	 *	3) Configure PTP
 	*/
@@ -90,6 +93,7 @@ STATUS samplePTPInit(GT_QD_DEV *dev)
 	ptpCfg.ptpDepIntEn = 0x3F;
 	ptpCfg.disTSOverwrite = 0;
 
+
 	if ((status = gptpSetConfig(dev, &ptpCfg)) != GT_OK)
 	{
 		MSG_PRINT(("gptpSetConfig return failed\n"));
@@ -103,6 +107,7 @@ STATUS samplePTPInit(GT_QD_DEV *dev)
 
 	return GT_OK;
 }
+
 
 /*
  *  PTP Interrupt Handler

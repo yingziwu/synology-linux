@@ -12,6 +12,8 @@
 * consent.
 *****************************************************************************/
 
+
+
 #ifndef CSP_STRING_H
 #define CSP_STRING_H
 
@@ -27,4 +29,6 @@
 /* ---- Public Variable Externs ------------------------------------------ */
 /* ---- Public Function Prototypes --------------------------------------- */
 
+
 #endif /* CSP_STRING_H */
+

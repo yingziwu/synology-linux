@@ -42,6 +42,7 @@ static void mlx4_en_cq_event(struct mlx4_cq *cq, enum mlx4_event event)
 	return;
 }
 
+
 int mlx4_en_create_cq(struct mlx4_en_priv *priv,
 		      struct mlx4_en_cq *cq,
 		      int entries, int ring, enum cq_type mode)
@@ -57,7 +58,6 @@ int mlx4_en_create_cq(struct mlx4_en_priv *priv,
 
 	cq->ring = ring;
 	cq->is_tx = mode;
-	spin_lock_init(&cq->lock);
 
 	err = mlx4_alloc_hwq_res(mdev->dev, &cq->wqres,
 				cq->buf_size, 2 * PAGE_SIZE);
@@ -179,3 +179,5 @@ int mlx4_en_arm_cq(struct mlx4_en_priv *priv, struct mlx4_en_cq *cq)
 
 	return 0;
 }
+
+

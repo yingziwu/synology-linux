@@ -43,6 +43,7 @@
 
 #define MEMBUF_DRV_NAME		"membuf"
 
+
 #define MEMBUF_GET_SCATTER _IOR('m', 1, struct usr_scatter_list)
 
 struct usr_scatter_list
@@ -70,6 +71,7 @@ static struct membuf_dev
 	struct cdev dev;
 	int devno;
 } membuf_dev;
+
 
 static int membuf_map(struct membuf *buf)
 {
@@ -168,6 +170,7 @@ static int membuf_expand(struct membuf *buf, int size)
 	return 0;
 }
 
+
 static int get_sg_index(struct membuf *buf, int *offset)
 {
 	struct scatterlist *sg;
@@ -184,6 +187,7 @@ static int get_sg_index(struct membuf *buf, int *offset)
 
 	return i;
 }
+
 
 static ssize_t membuf_write(struct file *file, const char __user *data, size_t count, loff_t *off)
 {
@@ -272,6 +276,7 @@ err:
 	return rc;
 }
 
+
 static long membuf_ioctl(struct file *file,
                 unsigned int cmd, unsigned long arg)
 {
@@ -322,6 +327,8 @@ static long membuf_ioctl(struct file *file,
 	return rc;
 }
 
+
+
 static int membuf_open(struct inode *in, struct file *file)
 {
 	struct membuf *buf;
@@ -339,6 +346,7 @@ static int membuf_open(struct inode *in, struct file *file)
 	return 0;
 }
 
+
 static int membuf_release(struct inode *in, struct file *file)
 {
 	struct membuf *buf = (struct membuf *)file->private_data;
@@ -350,6 +358,7 @@ static int membuf_release(struct inode *in, struct file *file)
 
 	return 0;
 }
+
 
 static const struct file_operations membuf_fops = {
 	.owner = THIS_MODULE,
@@ -396,6 +405,7 @@ static void __exit membuf_exit(void)
 
 	unregister_chrdev_region(membuf_dev.devno, MEMBUF_DEV_COUNT);
 }
+
 
 module_init(membuf_init);
 module_exit(membuf_exit);

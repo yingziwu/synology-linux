@@ -165,6 +165,7 @@ extern "C" {
 #define PMC_TDMSTOPCLOCK_EN			(1 << PMC_TDMSTOPCLOCK_OFFS)
 #define PMC_TDMSTOPCLOCK_STOP			(0 << PMC_TDMSTOPCLOCK_OFFS)
 
+
 /* Controler environment registers offsets */
 #define MPP_CONTROL_REG0			0x10000
 #define MPP_CONTROL_REG1			0x10004
@@ -206,6 +207,7 @@ extern "C" {
 #define MSAR_TCLCK_MASK				(0x1 << MSAR_TCLCK_OFFS)
 #define MSAR_TCLCK_166				(0x1 << MSAR_TCLCK_OFFS)
 #define MSAR_TCLCK_200				(0x0 << MSAR_TCLCK_OFFS)
+
 
 #define MSAR_CPUCLCK_EXTRACT(X)     (((X & 0x2) >> 1) | ((X & 0x400000) >> 21) | \
                                     ((X & 0x18) >> 1))
@@ -274,6 +276,7 @@ typedef enum _mvTargetId
     MAX_TARGETS_ID
 }MV_TARGET_ID;
 
+
 /* This enumerator described the possible Controller paripheral targets.    */
 /* Controller peripherals are designated memory/IO address spaces that the  */
 /* controller can access. They are also refered as "targets"                */
@@ -319,6 +322,7 @@ typedef enum _mvTarget
     {0x00, SAGE_TARGET_ID }  						\
 }
 
+
 #define TARGETS_NAME_ARRAY	{	\
     "SDRAM_CS0",    /* SDRAM_CS0 */	\
     "SDRAM_CS1",    /* SDRAM_CS1 */	\
@@ -337,5 +341,6 @@ typedef enum _mvTarget
     "SAGE_UNIT"	   /* SAGE_UNIT */	\
 }
 #endif /* MV_ASMLANGUAGE */
+
 
 #endif

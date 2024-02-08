@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -58,6 +59,7 @@ int SWITCH_PORT_1;
 int SWITCH_PORT_2;
 int SWITCH_PORT_3;
 int SWITCH_PORT_4;
+
 
 /* use this MACRO to find if a certain port (0-7) is actually connected */
 #define SWITCH_IS_PORT_CONNECTED(p)	                            \
@@ -142,6 +144,7 @@ static int mv_gtw_check_comma(char **p_net_config)
     printk("Syntax error: could not find comma\n");
     return -EINVAL;
 }
+
 
 static int mv_gtw_is_digit(char ch)
 {
@@ -366,6 +369,7 @@ GT_BOOL gtwReadMiiWrap(GT_QD_DEV* dev, unsigned int portNumber, unsigned int MII
     return GT_FALSE;
 }
 
+
 GT_BOOL gtwWriteMiiWrap(GT_QD_DEV* dev, unsigned int portNumber, unsigned int MIIReg, unsigned int data)
 {
     unsigned long   flags;
@@ -409,6 +413,7 @@ static int mv_gtw_set_port_based_vlan(unsigned int ports_mask)
     }
     return 0;
 }
+
 
 static int mv_gtw_set_vlan_in_vtu(unsigned short vlan_id,unsigned int ports_mask)
 {
@@ -522,6 +527,7 @@ int mv_gtw_enable_igmp(void)
     return -1;
 }
 #endif /* CONFIG_MV_GTW_IGMP */
+
 
 int __init mv_gtw_net_setup(int port)
 {
@@ -1088,11 +1094,13 @@ void    mv_gtw_set_multicast_list(struct net_device *dev)
     }
 }
  
+
 int mv_gtw_change_mtu(struct net_device *dev, int mtu)
 {
 	printk("mv_gateway does not support changing MTU at runtime.\n"); 
 	return -EPERM;
 } 
+
 
 int mv_gtw_start( struct net_device *dev )
 {
@@ -1146,6 +1154,7 @@ int mv_gtw_start( struct net_device *dev )
     
     return 0;
 }
+
 
 int mv_gtw_stop( struct net_device *dev )
 {
@@ -1326,6 +1335,7 @@ static void mv_gtw_link_timer_function(unsigned long data)
     mv_gtw_link_interrupt_handler(switch_irq, NULL);
 }
 #endif /* CONFIG_MV_GTW_LINK_STATUS */
+
 
 /*********************************************************** 
  * gtw_init_complete --                                    *

@@ -518,6 +518,7 @@ int al_udma_s2m_pref_set(struct al_udma *udma,
 	reg |= conf->a_full_thr & UDMA_S2M_RD_DESC_PREF_CFG_4_A_FULL_THR_MASK;
 	al_reg_write32(&udma->udma_regs->s2m.s2m_rd.desc_pref_cfg_4, reg);
 
+
 	return 0;
 }
 
@@ -1029,3 +1030,4 @@ void al_udma_gen_vmid_msix_conf_set(
 		(conf->access_en ? UDMA_GEN_VMID_CFG_VMID_0_MSIX_VMID_ACCESS_EN : 0) |
 		(conf->sel ? UDMA_GEN_VMID_CFG_VMID_0_MSIX_VMID_SEL : 0));
 }
+

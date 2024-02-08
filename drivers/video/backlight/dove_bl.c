@@ -22,6 +22,8 @@
 #include <video/dovefbreg.h>
 #include <mach/dove_bl.h>
 
+
+
 #define DOVEBL_BL_DIV	     0x146	/* 100Hz */
 
 struct dove_backlight {
@@ -117,6 +119,7 @@ static int dovebl_get_brightness(struct backlight_device *dev)
 	return bl->current_intensity;
 }
 
+
 static struct backlight_ops dovebl_ops = {
 	.get_brightness = dovebl_get_brightness,
 	.update_status  = dovebl_update_status,
@@ -139,6 +142,7 @@ static int dovebl_resume(struct platform_device *pdev)
 {
 	struct backlight_device *bd = platform_get_drvdata(pdev);
 	struct dove_backlight *bl = bl_get_data(bd);
+
 
 	clk_enable(bl->clk);
 

@@ -384,6 +384,7 @@ static int inquiry(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	return TRANSPORT_GOOD;
 }
 
+
 static int start_stop_unit(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 {
 	unsigned int lun = SCSI_LUN(srb);
@@ -419,6 +420,7 @@ static int start_stop_unit(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	TRACE_RET(chip, TRANSPORT_ERROR);
 }
 
+
 static int allow_medium_removal(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 {
 	int prevent;
@@ -434,6 +436,7 @@ static int allow_medium_removal(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	return TRANSPORT_GOOD;
 }
+
 
 static int request_sense(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 {
@@ -2308,6 +2311,7 @@ static int app_cmd(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	return result;
 }
+
 
 static int read_status(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 {

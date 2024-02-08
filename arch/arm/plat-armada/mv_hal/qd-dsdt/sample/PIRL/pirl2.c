@@ -12,6 +12,7 @@
 *******************************************************************************/
 #include "msSample.h"
 
+
 /*
  *  This setup function configures the resource 0 of Port 0 of Marvell SOHO
  *	Switch Device with capability of PIRL to be :
@@ -106,6 +107,8 @@ GT_STATUS samplePIRL2Setup(GT_QD_DEV *dev)
 
 	return status;
 }
+
+
 
 /*
  *	This setup function shows how to configure Ingress Rate of 128Kbps with the

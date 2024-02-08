@@ -773,6 +773,7 @@ static struct platform_device tmu2_device = {
 	},
 };
 
+
 static struct sh_timer_config tmu3_platform_data = {
 	.channel_offset = 0x04,
 	.timer_bit = 0,
@@ -1474,3 +1475,4 @@ static int __init sh7724_sleep_setup(void)
 	return 0;
 }
 arch_initcall(sh7724_sleep_setup);
+

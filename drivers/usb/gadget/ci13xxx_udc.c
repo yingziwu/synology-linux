@@ -67,6 +67,7 @@
 
 #include "ci13xxx_udc.h"
 
+
 /******************************************************************************
  * DEFINE
  *****************************************************************************/
@@ -306,6 +307,7 @@ static int hw_device_reset(struct ci13xxx *udc)
 	hw_cwrite(CAP_USBCMD, USBCMD_RST, USBCMD_RST);
 	while (hw_cread(CAP_USBCMD, USBCMD_RST))
 		udelay(10);             /* not RTOS friendly */
+
 
 	if (udc->udc_driver->notify_event)
 		udc->udc_driver->notify_event(udc,

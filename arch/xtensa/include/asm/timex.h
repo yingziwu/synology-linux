@@ -47,6 +47,7 @@ extern unsigned long nsec_per_ccount;
 #define NSEC_PER_CCOUNT (1000UL / CONFIG_XTENSA_CPU_CLOCK)
 #endif
 
+
 typedef unsigned long long cycles_t;
 
 /*
@@ -56,6 +57,7 @@ typedef unsigned long long cycles_t;
 extern cycles_t cacheflush_time;
 
 #define get_cycles()	(0)
+
 
 /*
  * Register access.

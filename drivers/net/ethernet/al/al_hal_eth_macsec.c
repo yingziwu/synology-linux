@@ -42,9 +42,12 @@ met:
  *
  */
 
+
 #include "al_hal_eth.h"
 #include "al_hal_eth_macsec_regs.h"
 #include "al_hal_eth_ec_regs.h"
+
+
 
 /* MacSec Constants */
 #define AL_ETH_MACSEC_REGS_BASE_OFFSET_FROM_EC			0x3000
@@ -53,6 +56,7 @@ met:
 #define AL_ETH_MACSEC_CIPHER_MODE_GCM				  8
 #define AL_ETH_MACSEC_CIPHER_CNTR_SIZE_32			  1
 #define AL_ETH_MACSEC_EC_GEN_L2_SIZE_802_3_MS_8			 12
+
 
 /* MacSec SAD parameters */
 #define AL_ETH_MACSEC_SA_KEY_LSW				  0
@@ -92,6 +96,7 @@ met:
 #define AL_ETH_MACSEC_SC_MAP_SCI_MASK_LSW			  2
 #define AL_ETH_MACSEC_SC_MAP_SCI_MASK_MSW			  3
 #define AL_ETH_MACSEC_SC_MAP_SC_INDEX_MSW			  4
+
 
 /* internal function for performing write of a prepared SA entry to TX & RX SADs.
  *  This function handles relevant write to control register.
@@ -136,6 +141,7 @@ static INLINE struct al_macsec_regs *al_eth_macsec_get_regfile_base (struct al_h
 {
 	return (struct al_macsec_regs *)((void __iomem*)(adapter->ec_regs_base) + AL_ETH_MACSEC_REGS_BASE_OFFSET_FROM_EC);
 }
+
 
 void al_eth_macsec_init	(	struct al_hal_eth_adapter	*adapter,
 				al_bool				sad_access_mode,
@@ -195,6 +201,7 @@ void al_eth_macsec_init	(	struct al_hal_eth_adapter	*adapter,
 	al_reg_write32(&macsec_regs_base->configuration.conf_macsec_rx, conf);
 }
 
+
 void al_eth_macsec_sad_entry_write (	struct al_hal_eth_adapter	*adapter,
 					struct al_eth_macsec_sa		*sa,
 					uint8_t				index)
@@ -252,6 +259,7 @@ void al_eth_macsec_sad_entry_write (	struct al_hal_eth_adapter	*adapter,
 	/* Perform write to SAD */
 	al_eth_macsec_sad_entry_perform_write(macsec_regs_base, index);
 }
+
 
 void al_eth_macsec_sad_entry_read (	struct al_hal_eth_adapter	*adapter,
 					struct al_eth_macsec_sa		*sa,
@@ -319,6 +327,7 @@ void al_eth_macsec_sad_entry_read (	struct al_hal_eth_adapter	*adapter,
 
 }
 
+
 al_bool al_eth_macsec_sad_entry_is_valid (struct al_hal_eth_adapter *adapter, uint8_t index)
 {
 	uint32_t		params_tx, params_rx;
@@ -336,6 +345,7 @@ al_bool al_eth_macsec_sad_entry_is_valid (struct al_hal_eth_adapter *adapter, ui
 	return ((params_tx & AL_BIT(AL_ETH_MACSEC_SA_PARAMS_ENTRY_VALID_SHIFT)) &&
 		(params_rx & AL_BIT(AL_ETH_MACSEC_SA_PARAMS_ENTRY_VALID_SHIFT))	)	?  AL_TRUE : AL_FALSE;
 }
+
 
 void al_eth_macsec_sad_entry_invalidate (struct al_hal_eth_adapter *adapter, uint8_t index)
 {
@@ -426,3 +436,4 @@ void al_eth_macsec_read_stats_cntr (struct al_hal_eth_adapter *adapter, struct a
 	stats_cntrs->rx_replay_fail_pkts	= al_reg_read32(&macsec_regs_base->statistics.macsec_rx_replay_pkts);
 	stats_cntrs->rx_auth_fail_pkts		= al_reg_read32(&macsec_regs_base->statistics.macsec_rx_auth_fail_pkts);
 }
+

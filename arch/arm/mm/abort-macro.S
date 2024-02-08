@@ -37,3 +37,4 @@ not_thumb:
 	beq	do_DataAbort
 not_ldrd:
 	.endm
+

@@ -101,6 +101,7 @@ static int dovedcon_disable(struct dovedcon_info *ddi)
 	return 0;
 }
 
+
 #ifdef CONFIG_PM
 
 /* suspend and resume support */

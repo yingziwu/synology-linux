@@ -84,6 +84,7 @@ struct multipath {
 	unsigned queue_io;		/* Must we queue all I/O? */
 	unsigned queue_if_no_path;	/* Queue I/O if last path fails? */
 	unsigned saved_queue_if_no_path;/* Saved state during suspension */
+	unsigned pg_init_disabled:1;	/* pg_init is not currently allowed */
 	unsigned pg_init_retries;	/* Number of times to retry pg_init */
 	unsigned pg_init_count;		/* Number of times pg_init called */
 	unsigned pg_init_delay_msecs;	/* Number of msecs before pg_init retry */
@@ -121,6 +122,7 @@ static struct workqueue_struct *kmultipathd, *kmpath_handlerd;
 static void process_queued_ios(struct work_struct *work);
 static void trigger_event(struct work_struct *work);
 static void activate_path(struct work_struct *work);
+
 
 /*-----------------------------------------------
  * Allocation routines
@@ -224,6 +226,7 @@ static void free_multipath(struct multipath *m)
 	mempool_destroy(m->mpio_pool);
 	kfree(m);
 }
+
 
 /*-----------------------------------------------
  * Path selection
@@ -471,7 +474,8 @@ static void process_queued_ios(struct work_struct *work)
 	    (!pgpath && !m->queue_if_no_path))
 		must_queue = 0;
 
-	if (m->pg_init_required && !m->pg_init_in_progress && pgpath)
+	if (m->pg_init_required && !m->pg_init_in_progress && pgpath &&
+	    !m->pg_init_disabled)
 		__pg_init_all_paths(m);
 
 out:
@@ -885,10 +889,20 @@ static void multipath_wait_for_pg_init_completion(struct multipath *m)
 
 static void flush_multipath_work(struct multipath *m)
 {
+	unsigned long flags;
+
+	spin_lock_irqsave(&m->lock, flags);
+	m->pg_init_disabled = 1;
+	spin_unlock_irqrestore(&m->lock, flags);
+
 	flush_workqueue(kmpath_handlerd);
 	multipath_wait_for_pg_init_completion(m);
 	flush_workqueue(kmultipathd);
 	flush_work_sync(&m->trigger_event);
+
+	spin_lock_irqsave(&m->lock, flags);
+	m->pg_init_disabled = 0;
+	spin_unlock_irqrestore(&m->lock, flags);
 }
 
 static void multipath_dtr(struct dm_target *ti)
@@ -1109,7 +1123,7 @@ static int pg_init_limit_reached(struct multipath *m, struct pgpath *pgpath)
 
 	spin_lock_irqsave(&m->lock, flags);
 
-	if (m->pg_init_count <= m->pg_init_retries)
+	if (m->pg_init_count <= m->pg_init_retries && !m->pg_init_disabled)
 		m->pg_init_required = 1;
 	else
 		limit_reached = 1;
@@ -1321,8 +1335,8 @@ static void multipath_resume(struct dm_target *ti)
  *     [priority selector-name num_ps_args [ps_args]*
  *      num_paths num_selector_args [path_dev [selector_args]* ]+ ]+
  */
-static int multipath_status(struct dm_target *ti, status_type_t type,
-			    char *result, unsigned int maxlen)
+static void multipath_status(struct dm_target *ti, status_type_t type,
+			     char *result, unsigned maxlen)
 {
 	int sz = 0;
 	unsigned long flags;
@@ -1425,8 +1439,6 @@ static int multipath_status(struct dm_target *ti, status_type_t type,
 	}
 
 	spin_unlock_irqrestore(&m->lock, flags);
-
-	return 0;
 }
 
 static int multipath_message(struct dm_target *ti, unsigned argc, char **argv)
@@ -1621,7 +1633,7 @@ out:
  *---------------------------------------------------------------*/
 static struct target_type multipath_target = {
 	.name = "multipath",
-	.version = {1, 3, 0},
+	.version = {1, 3, 2},
 	.module = THIS_MODULE,
 	.ctr = multipath_ctr,
 	.dtr = multipath_dtr,
@@ -1646,19 +1658,11 @@ static int __init dm_multipath_init(void)
 	if (!_mpio_cache)
 		return -ENOMEM;
 
-	r = dm_register_target(&multipath_target);
-	if (r < 0) {
-		DMERR("register failed %d", r);
-		kmem_cache_destroy(_mpio_cache);
-		return -EINVAL;
-	}
-
 	kmultipathd = alloc_workqueue("kmpathd", WQ_MEM_RECLAIM, 0);
 	if (!kmultipathd) {
 		DMERR("failed to create workqueue kmpathd");
-		dm_unregister_target(&multipath_target);
-		kmem_cache_destroy(_mpio_cache);
-		return -ENOMEM;
+		r = -ENOMEM;
+		goto bad_alloc_kmultipathd;
 	}
 
 	/*
@@ -1671,15 +1675,29 @@ static int __init dm_multipath_init(void)
 						  WQ_MEM_RECLAIM);
 	if (!kmpath_handlerd) {
 		DMERR("failed to create workqueue kmpath_handlerd");
-		destroy_workqueue(kmultipathd);
-		dm_unregister_target(&multipath_target);
-		kmem_cache_destroy(_mpio_cache);
-		return -ENOMEM;
+		r = -ENOMEM;
+		goto bad_alloc_kmpath_handlerd;
+	}
+
+	r = dm_register_target(&multipath_target);
+	if (r < 0) {
+		DMERR("register failed %d", r);
+		r = -EINVAL;
+		goto bad_register_target;
 	}
 
 	DMINFO("version %u.%u.%u loaded",
 	       multipath_target.version[0], multipath_target.version[1],
 	       multipath_target.version[2]);
+
+	return 0;
+
+bad_register_target:
+	destroy_workqueue(kmpath_handlerd);
+bad_alloc_kmpath_handlerd:
+	destroy_workqueue(kmultipathd);
+bad_alloc_kmultipathd:
+	kmem_cache_destroy(_mpio_cache);
 
 	return r;
 }

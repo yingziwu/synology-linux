@@ -46,6 +46,7 @@
 #define WLAN_RATE_48M   BIT10
 #define WLAN_RATE_54M   BIT11
 
+
 /*---------------------  Export Classes  ----------------------------*/
 
 /*---------------------  Export Variables  --------------------------*/

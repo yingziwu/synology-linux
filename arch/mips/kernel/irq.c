@@ -111,7 +111,7 @@ void __init init_IRQ(void)
 #endif
 }
 
-#ifdef DEBUG_STACKOVERFLOW
+#ifdef CONFIG_DEBUG_STACKOVERFLOW
 static inline void check_stack_overflow(void)
 {
 	unsigned long sp;
@@ -132,6 +132,7 @@ static inline void check_stack_overflow(void)
 #else
 static inline void check_stack_overflow(void) {}
 #endif
+
 
 /*
  * do_IRQ handles all normal device IRQ's (the special

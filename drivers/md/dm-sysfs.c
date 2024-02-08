@@ -1,7 +1,12 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (C) 2008 Red Hat, Inc. All rights reserved.
+ *
+ * This file is released under the GPL.
+ */
+
 #include <linux/sysfs.h>
 #include <linux/dm-ioctl.h>
 #include "dm.h"
@@ -67,7 +72,7 @@ static ssize_t dm_attr_store(struct kobject *kobj, struct attribute *attr, const
 {
 	struct dm_sysfs_attr *dm_attr = NULL;
 	struct mapped_device *md = NULL;
-	char szBuf[2] = {'\0'};  
+	char szBuf[2] = {'\0'}; /* just fix compiler warning, 0 or 1 */
 
 	dm_attr = container_of(attr, struct dm_sysfs_attr, attr);
 	if (!dm_attr->store)
@@ -122,11 +127,20 @@ static const struct sysfs_ops dm_sysfs_ops = {
 #endif
 };
 
+/*
+ * dm kobject is embedded in mapped_device structure
+ * no need to define release function here
+ */
 static struct kobj_type dm_ktype = {
 	.sysfs_ops	= &dm_sysfs_ops,
 	.default_attrs	= dm_attrs,
+	.release	= dm_kobject_release,
 };
 
+/*
+ * Initialize kobj
+ * because nobody using md yet, no need to call explicit dm_get/put
+ */
 int dm_sysfs_init(struct mapped_device *md)
 {
 	return kobject_init_and_add(dm_kobject(md), &dm_ktype,
@@ -134,7 +148,12 @@ int dm_sysfs_init(struct mapped_device *md)
 				    "%s", "dm");
 }
 
+/*
+ * Remove kobj, called after all references removed
+ */
 void dm_sysfs_exit(struct mapped_device *md)
 {
-	kobject_put(dm_kobject(md));
+	struct kobject *kobj = dm_kobject(md);
+	kobject_put(kobj);
+	wait_for_completion(dm_get_completion_from_kobject(kobj));
 }

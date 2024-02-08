@@ -2,6 +2,9 @@
 #ifndef SI321XREGS_H
 #define SI321XREGS_H
 
+
+
+
 #define IDA_LO  28
 #define IDA_HI	29
 
@@ -179,6 +182,7 @@
 #define	FSK_X_01	103	/*	x	sign				fsk_x_01[15:0]												*/
 #define	FSK_X_10	104	/*	x	sign				fsk_x_10[15:0]												*/
 
+
 #define	BIT_CALM1_DR97	0x10	/*	CALM1 Monitor ADC Calibration 1. */
 #define	BIT_CALM2_DR97	0x08	/*	CALM2 Monitor ADC Calibration 2. */
 #define	BIT_CALDAC_DR97	0x04	/*	CALDAC DAC Calibration. */
@@ -197,6 +201,7 @@
 #define CAL_COMPLETE_DR96 0     /*  Value in dr96 after calibration is completed */
 #define MAX_CAL_PERIOD 800		/* The longest period in ms. for a calibration to complete. */
 
+
 #define DISABLE_ALL_DR21 0
 #define DISABLE_ALL_DR22 0
 #define DISABLE_ALL_DR23 0
@@ -204,5 +209,21 @@
 #define ENB2_DR23  1<<2 /* enable interrupt for the balance Cal */
 
 #define	OPEN_DR64	0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

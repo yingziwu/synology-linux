@@ -8,3 +8,4 @@ void nmdk_clkevt_reset(void);
 void nmdk_clksrc_reset(void);
 
 #endif /* __PLAT_MTU_H */
+

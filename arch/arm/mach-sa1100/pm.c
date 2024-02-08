@@ -51,6 +51,7 @@ enum {	SLEEP_SAVE_GPDR, SLEEP_SAVE_GAFR,
 	SLEEP_SAVE_COUNT
 };
 
+
 static int sa11x0_pm_enter(suspend_state_t state)
 {
 	unsigned long gpio, sleep_save[SLEEP_SAVE_COUNT];
@@ -80,6 +81,7 @@ static int sa11x0_pm_enter(suspend_state_t state)
 	/*
 	 * Ensure not to come back here if it wasn't intended
 	 */
+	RCSR = RCSR_SMR;
 	PSPR = 0;
 
 	/*

@@ -802,7 +802,7 @@ static void fill_rx_pool (amb_dev * dev, unsigned char pool,
     }
     // cast needed as there is no %? for pointer differences
     PRINTD (DBG_SKB, "allocated skb at %p, head %p, area %li",
-	    skb, skb->head, (long) (skb_end_pointer(skb) - skb->head));
+	    skb, skb->head, (long) skb_end_offset(skb));
     rx.handle = virt_to_bus (skb);
     rx.host_address = cpu_to_be32 (virt_to_bus (skb->data));
     if (rx_give (dev, &rx, pool))
@@ -1652,6 +1652,7 @@ static unsigned int command_timeouts [] = {
 	[adap_end_download]    = 1
 };
 
+
 static unsigned int command_successes [] = {
 	[host_memory_test]     = COMMAND_PASSED_TEST,
 	[read_adapter_memory]  = COMMAND_READ_DATA_OK,
@@ -2281,6 +2282,7 @@ out_disable:
 	pci_disable_device(pci_dev);
 	goto out;
 }
+
 
 static void __devexit amb_remove_one(struct pci_dev *pci_dev)
 {

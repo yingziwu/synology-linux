@@ -83,6 +83,7 @@
 #define ICH_FLASH_SEG_SIZE_8K		8192
 #define ICH_FLASH_SEG_SIZE_64K		65536
 
+
 #define E1000_ICH_FWSM_RSPCIPHY	0x00000040 /* Reset PHY on PCI Reset */
 /* FW established a valid mode */
 #define E1000_ICH_FWSM_FW_VALID		0x00008000
@@ -656,6 +657,9 @@ out:
  *  Checks to see of the link status of the hardware has changed.  If a
  *  change in link status has been detected, then we read the PHY registers
  *  to get the current speed/duplex if link exists.
+ *
+ *  Returns a negative error code (-E1000_ERR_*) or 0 (link down) or 1 (link
+ *  up).
  **/
 static s32 e1000_check_for_copper_link_ich8lan(struct e1000_hw *hw)
 {
@@ -671,7 +675,7 @@ static s32 e1000_check_for_copper_link_ich8lan(struct e1000_hw *hw)
 	 * Change or Rx Sequence Error interrupt.
 	 */
 	if (!mac->get_link_status) {
-		ret_val = 0;
+		ret_val = 1;
 		goto out;
 	}
 
@@ -760,9 +764,12 @@ static s32 e1000_check_for_copper_link_ich8lan(struct e1000_hw *hw)
 	 * different link partner.
 	 */
 	ret_val = e1000e_config_fc_after_link_up(hw);
-	if (ret_val)
+	if (ret_val) {
 		e_dbg("Error configuring flow control\n");
+		return ret_val;
+	}
 
+	ret_val = 1;
 out:
 	return ret_val;
 }
@@ -1343,6 +1350,7 @@ out:
 
 	return ret_val;
 }
+
 
 /**
  *  e1000_set_mdio_slow_mode_hv - Set slow MDIO access mode

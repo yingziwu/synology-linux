@@ -164,3 +164,4 @@ int __devinit riva_probe_i2c_connector(struct riva_par *par, int conn, u8 **out_
 
 	return 0;
 }
+

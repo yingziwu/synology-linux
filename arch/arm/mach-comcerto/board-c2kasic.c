@@ -112,6 +112,7 @@ static void __init board_gpio_init(void)
         writel((X3 << 6) |(readl(COMCERTO_GPIO_PAD_CONFIG0) & ~(0x3 << 6)), COMCERTO_GPIO_PAD_CONFIG0);
 }
 
+
 /* --------------------------------------------------------------------
  *  NOR device
  * -------------------------------------------------------------------- */
@@ -301,6 +302,7 @@ static struct resource m25p80_flash_resource[] = {
 		.flags  = IORESOURCE_MEM,
 	},
 };
+
 
 static struct spi_flash_platform_data comcerto_spi_flash_data = {
 	.num_resources = ARRAY_SIZE(m25p80_flash_resource),
@@ -529,6 +531,7 @@ static struct platform_device  comcerto_elp_device = {
 };
 #endif
 
+
 static struct comcerto_tdm_data comcerto_tdm_pdata = {
 	.fsoutput = 1, /* Generic Pad Control and Version ID Register[2] */
 	.fspolarity = 0, /* 28 FSYNC_FALL(RISE)_EDGE */
@@ -739,6 +742,7 @@ static struct platform_device *comcerto_devices[] __initdata = {
 	&comcerto_elp_device,
 #endif
 };
+
 
 /************************************************************************
  *  Expansion bus

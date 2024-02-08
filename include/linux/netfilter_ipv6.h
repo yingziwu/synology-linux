@@ -33,6 +33,7 @@
 /* Frag & flags. */
 #define NFC_IP6_FRAG             0x0080
 
+
 /* Per-protocol information: only matters if proto match. */
 /* TCP flags. */
 #define NFC_IP6_TCPFLAGS         0x0100
@@ -56,6 +57,7 @@
 #define NF_IP6_POST_ROUTING	4
 #define NF_IP6_NUMHOOKS		5
 #endif /* ! __KERNEL__ */
+
 
 enum nf_ip6_hook_priorities {
 	NF_IP6_PRI_FIRST = INT_MIN,

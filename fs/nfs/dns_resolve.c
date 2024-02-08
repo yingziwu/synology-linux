@@ -59,6 +59,7 @@ struct nfs_dns_ent {
 	size_t addrlen;
 };
 
+
 static void nfs_dns_ent_update(struct cache_head *cnew,
 		struct cache_head *ckey)
 {

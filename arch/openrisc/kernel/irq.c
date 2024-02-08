@@ -23,6 +23,7 @@
 #include <linux/irq.h>
 #include <linux/seq_file.h>
 #include <linux/kernel_stat.h>
+#include <linux/export.h>
 
 #include <linux/irqflags.h>
 
@@ -39,6 +40,7 @@ void arch_local_irq_restore(unsigned long flags)
 	mtspr(SPR_SR, ((mfspr(SPR_SR) & ~(SPR_SR_IEE|SPR_SR_TEE)) | flags));
 }
 EXPORT_SYMBOL(arch_local_irq_restore);
+
 
 /* OR1K PIC implementation */
 

@@ -163,6 +163,7 @@ static inline void s3c24xx_i2c_enable_irq(struct s3c24xx_i2c *i2c)
 	writel(tmp | S3C2410_IICCON_IRQEN, i2c->regs + S3C2410_IICCON);
 }
 
+
 /* s3c24xx_i2c_message_start
  *
  * put the start of a message onto the bus
@@ -457,6 +458,7 @@ static irqreturn_t s3c24xx_i2c_irq(int irqno, void *dev_id)
  out:
 	return IRQ_HANDLED;
 }
+
 
 /* s3c24xx_i2c_set_master
  *
@@ -1080,10 +1082,10 @@ static int s3c24xx_i2c_resume(struct device *dev)
 	struct platform_device *pdev = to_platform_device(dev);
 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
 
-	i2c->suspended = 0;
 	clk_enable(i2c->clk);
 	s3c24xx_i2c_init(i2c);
 	clk_disable(i2c->clk);
+	i2c->suspended = 0;
 
 	return 0;
 }

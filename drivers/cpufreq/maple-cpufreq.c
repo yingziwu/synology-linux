@@ -188,6 +188,7 @@ static int maple_cpufreq_cpu_init(struct cpufreq_policy *policy)
 		maple_cpu_freqs);
 }
 
+
 static struct cpufreq_driver maple_cpufreq_driver = {
 	.name		= "maple",
 	.owner		= THIS_MODULE,
@@ -303,5 +304,6 @@ bail_cpus:
 }
 
 module_init(maple_cpufreq_init);
+
 
 MODULE_LICENSE("GPL");

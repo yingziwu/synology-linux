@@ -32,6 +32,7 @@
 #include <linux/usb/usbnet.h>
 #include <linux/gfp.h>
 
+
 /*
  * GeneSys GL620USB-A (www.genesyslogic.com.tw)
  *
@@ -84,6 +85,10 @@ static int genelink_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 	struct sk_buff		*gl_skb;
 	u32			size;
 	u32			count;
+
+	/* This check is no longer done by usbnet */
+	if (skb->len < dev->net->hard_header_len)
+		return 0;
 
 	header = (struct gl_header *) skb->data;
 
@@ -241,3 +246,4 @@ module_exit(usbnet_exit);
 MODULE_AUTHOR("Jiun-Jie Huang");
 MODULE_DESCRIPTION("GL620-USB-A Host-to-Host Link cables");
 MODULE_LICENSE("GPL");
+

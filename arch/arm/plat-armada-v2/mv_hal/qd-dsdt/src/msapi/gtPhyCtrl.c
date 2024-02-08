@@ -323,6 +323,7 @@ GT_STATUS phySetAutoMode
     return hwPhyReset(dev,hwPort,0xFF);
 }
 
+
 /*******************************************************************************
 * gprtPhyReset
 *
@@ -400,6 +401,7 @@ GT_STATUS gprtPhyReset
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetPortLoopback
@@ -519,6 +521,7 @@ GT_STATUS gprtSetPortLoopback
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetPortSpeed
 *
@@ -627,6 +630,7 @@ IN GT_PHY_SPEED speed
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtPortAutoNegEnable
 *
@@ -699,6 +703,7 @@ GT_STATUS gprtPortAutoNegEnable
     {
         u16Data = u16Data & (QD_PHY_SPEED | QD_PHY_DUPLEX);
     }
+
 
     DBG_INFO(("Write to phy(%d) register: regAddr 0x%x, data %#x",
               hwPort,QD_PHY_CONTROL_REG,u16Data));
@@ -926,6 +931,7 @@ IN GT_BOOL   dMode
         u16Data = u16Data & (QD_PHY_LOOPBACK | QD_PHY_SPEED | QD_PHY_SPEED_MSB);
     }
 
+
     DBG_INFO(("Write to phy(%d) register: regAddr 0x%x, data %#x",
               hwPort,QD_PHY_CONTROL_REG,u16Data));
 
@@ -934,6 +940,7 @@ IN GT_BOOL   dMode
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetPortAutoMode
@@ -1020,6 +1027,7 @@ GT_STATUS gprtSetPortAutoMode
     return retVal;
 
 }
+
 
 /*******************************************************************************
 * gprtSetPause
@@ -1125,6 +1133,7 @@ IN GT_PHY_PAUSE_MODE state
     return retVal;
 }
 
+
 static
 GT_STATUS dteWorkAround_Phy100M
 (
@@ -1209,6 +1218,7 @@ GT_STATUS dteWorkAround_Phy100M
     {
         return status;
     }
+
 
     return status;
 }
@@ -1536,6 +1546,7 @@ GT_STATUS gprtSetDTEDetect
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetDTEDetectStatus
 *
@@ -1655,6 +1666,7 @@ GT_STATUS gprtGetDTEDetectStatus
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetDTEDetectDropWait
@@ -1795,6 +1807,7 @@ GT_STATUS gprtSetDTEDetectDropWait
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetDTEDetectDropWait
 *
@@ -1916,6 +1929,7 @@ GT_STATUS gprtGetDTEDetectDropWait
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetEnergyDetect
@@ -2060,6 +2074,7 @@ GT_STATUS gprtSetEnergyDetect
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetEnergyDetect
 *
@@ -2194,9 +2209,11 @@ GT_STATUS gprtGetEnergyDetect
 
     }
 
+
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSet1000TMasterMode
@@ -2335,6 +2352,7 @@ GT_STATUS gprtSet1000TMasterMode
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGet1000TMasterMode
@@ -2534,6 +2552,7 @@ GT_STATUS gprtGetPhyLinkStatus
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetPktGenEnable
 *
@@ -2697,6 +2716,7 @@ GT_STATUS gprtSetPktGenEnable
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetSerdesMode
 *
@@ -2771,6 +2791,7 @@ GT_STATUS gprtGetSerdesMode
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtSetSerdesMode
@@ -2849,6 +2870,7 @@ GT_STATUS gprtSetSerdesMode
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetPhyReg
@@ -2968,6 +2990,8 @@ GT_STATUS gprtSetPhyReg
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gprtGetPagedPhyReg

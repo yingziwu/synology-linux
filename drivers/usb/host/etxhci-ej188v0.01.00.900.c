@@ -214,3 +214,4 @@ void xhci_init_ej188_v00100900(struct xhci_hcd *xhci)
 		}
 	}
 }
+

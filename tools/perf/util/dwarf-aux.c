@@ -339,6 +339,7 @@ const char *die_get_call_file(Dwarf_Die *in_die)
 	return dwarf_filesrc(files, idx, NULL, NULL);
 }
 
+
 /**
  * die_find_child - Generic DIE search function in DIE tree
  * @rt_die: a root DIE
@@ -839,3 +840,4 @@ int die_get_varname(Dwarf_Die *vr_die, char *buf, int len)
 	}
 	return ret;
 }
+

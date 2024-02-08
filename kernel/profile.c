@@ -101,6 +101,7 @@ int profile_setup(char *str)
 }
 __setup("profile=", profile_setup);
 
+
 int __ref profile_init(void)
 {
 	int buffer_bytes;
@@ -223,6 +224,7 @@ void unregister_timer_hook(int (*hook)(struct pt_regs *))
 	synchronize_sched();  /* Allow ongoing interrupts to complete. */
 }
 EXPORT_SYMBOL_GPL(unregister_timer_hook);
+
 
 #ifdef CONFIG_SMP
 /*

@@ -310,6 +310,7 @@ static struct clk init_clocks[] = {
 	}
 };
 
+
 static struct clk clk_fout_apll = {
 	.name		= "fout_apll",
 };

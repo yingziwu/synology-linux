@@ -54,11 +54,14 @@
 #define AXI_OP_TYPE_COMPLETION_LOCKED	11
 #define AXI_OP_TYPE_DBI_ELBI_ENABLE	1
 
+
+
 /* CFG5 Register definitions */
 #define 	CFG5_APP_INIT_RST	0x01
 #define 	CFG5_LTSSM_ENABLE	0x02
 #define 	CFG5_APP_RDY_L23	0x04
 #define 	CFG5_LINK_DOWN_RST	0x200
+
 
 /* STS0 Register definitions */
 #define 	STS0_LINK_REQ_RST_NOT	0x0001
@@ -125,6 +128,7 @@
 #define iATU_CTRL1_TC_MASK	0x00E0
 #define iATU_CTRL1_TC_BIT	5
 #define iATU_CTRL1_TD		0x100
+
 
 /* iATU control2 register definitions */
 #define iATU_CTRL2_ID_EN		0x80000000

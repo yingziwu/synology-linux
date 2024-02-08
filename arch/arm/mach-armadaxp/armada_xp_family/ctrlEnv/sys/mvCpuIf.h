@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCpuIfh
 #define __INCmvCpuIfh
 
@@ -72,6 +73,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if defined(MV_INCLUDE_PEX)
 #include "pex/mvPex.h"
 #endif
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,6 +88,7 @@ typedef struct _mvCpuIfDecWin {
 	MV_U32		winNum;		/* Window Number in the AHB To Mbus bridge */
 	MV_BOOL		enable;		/* Address decode window is enabled/disabled */
 } MV_CPU_DEC_WIN;
+
 
 /* mvCpuIfLib.h API list */
 

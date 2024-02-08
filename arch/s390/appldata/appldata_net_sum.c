@@ -19,6 +19,7 @@
 
 #include "appldata.h"
 
+
 /*
  * Network data
  *
@@ -53,6 +54,7 @@ static struct appldata_net_sum_data {
 	u64 tx_dropped;		/* no space available in linux   */
 	u64 collisions;		/* collisions while transmitting */
 } __attribute__((packed)) appldata_net_sum_data;
+
 
 /*
  * appldata_get_net_sum_data()
@@ -115,6 +117,7 @@ static void appldata_get_net_sum_data(void *data)
 	net_data->sync_count_2++;
 }
 
+
 static struct appldata_ops ops = {
 	.name	   = "net_sum",
 	.record_nr = APPLDATA_RECORD_NET_SUM_ID,
@@ -124,6 +127,7 @@ static struct appldata_ops ops = {
 	.owner     = THIS_MODULE,
 	.mod_lvl   = {0xF0, 0xF0},		/* EBCDIC "00" */
 };
+
 
 /*
  * appldata_net_init()
@@ -144,6 +148,7 @@ static void __exit appldata_net_exit(void)
 {
 	appldata_unregister_ops(&ops);
 }
+
 
 module_init(appldata_net_init);
 module_exit(appldata_net_exit);

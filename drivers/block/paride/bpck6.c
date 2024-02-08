@@ -19,6 +19,7 @@
    Version 2.0.2 - fixed version string usage, and made ppc functions static 
 */
 
+
 /* PARAMETERS */
 static int verbose; /* set this to 1 to see debugging messages and whatnot */
 
@@ -34,6 +35,8 @@ static int verbose; /* set this to 1 to see debugging messages and whatnot */
 
 #include "ppc6lnx.c"
 #include "paride.h"
+
+ 
 
 #define PPCSTRUCT(pi) ((Interface *)(pi->private))
 

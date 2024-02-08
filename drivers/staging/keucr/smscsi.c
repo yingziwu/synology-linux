@@ -78,6 +78,7 @@ int SM_SCSI_Inquiry(struct us_data *us, struct scsi_cmnd *srb)
 	return USB_STOR_TRANSPORT_GOOD;
 }
 
+
 /* ----- SM_SCSI_Mode_Sense() -------------------------------------------------- */
 int SM_SCSI_Mode_Sense(struct us_data *us, struct scsi_cmnd *srb)
 {
@@ -88,6 +89,7 @@ int SM_SCSI_Mode_Sense(struct us_data *us, struct scsi_cmnd *srb)
 		usb_stor_set_xfer_buf(us, mediaWP, 12, srb, TO_XFER_BUF);
 	else
 		usb_stor_set_xfer_buf(us, mediaNoWP, 12, srb, TO_XFER_BUF);
+
 
 	return USB_STOR_TRANSPORT_GOOD;
 }
@@ -135,6 +137,7 @@ int SM_SCSI_Read(struct us_data *us, struct scsi_cmnd *srb)
 	DWORD	blenByte = blen * 0x200;
 	void	*buf;
 
+
 	if (bn > us->bl_num)
 		return USB_STOR_TRANSPORT_ERROR;
 
@@ -164,6 +167,7 @@ int SM_SCSI_Write(struct us_data *us, struct scsi_cmnd *srb)
 	DWORD	blenByte = blen * 0x200;
 	void	*buf;
 
+
 	if (bn > us->bl_num)
 		return USB_STOR_TRANSPORT_ERROR;
 
@@ -181,3 +185,4 @@ int SM_SCSI_Write(struct us_data *us, struct scsi_cmnd *srb)
 
 	return USB_STOR_TRANSPORT_GOOD;
 }
+

@@ -313,6 +313,7 @@ static struct pci_ops mv_pci_ops = {
         .write  = mv_pci_write_config,
 };
 
+
 int __init mv_pci_setup(int nr, struct pci_sys_data *sys)
 {
         struct resource *res;
@@ -422,6 +423,7 @@ static int __init mv_map_irq_1(const struct pci_dev *dev, u8 slot, u8 pin)
         return IRQ_AURORA_PCIE1;
 }
 
+
 static struct hw_pci mv_pci __initdata = {
 	.swizzle        	= pci_std_swizzle,
         .map_irq                = mv_map_irq_0,
@@ -448,5 +450,6 @@ static int __init mv_pci_init(void)
 
     return 0;
 }
+
 
 subsys_initcall(mv_pci_init);

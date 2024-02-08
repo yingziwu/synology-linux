@@ -22,6 +22,9 @@
 
 *******************************************************************************/
 
+
+
+
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/module.h>
@@ -52,10 +55,13 @@
 
 #define DRV_VERSION "0.1"
 
+
 #define MAX_TRY_TIMES           	10
+
 
 /* Performance tuning parameter */
 #define PCKT_NUM_GIVEN_ONE_TIME		0
+
 
 /* Get MAC Adress like the same way as e1000 */
 #define CONFIG_RAM_BASE         0x60000
@@ -80,8 +86,11 @@ static void inline __udma_net_kfree_skb(struct sk_buff *skb)
 	dev_kfree_skb_any(skb);
 }
 
+
 //efine UDMA_LDML_DEBUG 1
 #ifdef UDMA_LDML_DEBUG
+
+
 
 #define udma_net_dbg(fmt, args...)  do \
 				     { \
@@ -192,6 +201,7 @@ static int udma_net_give_buffer(struct udma_adapter *adapter, int budget)
 	return done;
 }
 
+
 /**
  * udma_net_tx_callback - Function being called by UDMA Low level Driver when a packet is successfully transmitted
 **/
@@ -228,6 +238,7 @@ static void udma_net_rx_callback(uint8_t port, udma_buffer_desc_t *buffer_desc)
 	struct sk_buff *skb;
 	struct udma_adapter *adapter = netdev_priv(udma_net_dev[port]);
 	udma_net_dbg("In %s function 0x%x\n", __func__, buffer_desc);
+
 
 	if((!buffer_desc) || (port >= UDMA_PORT_NUM_TOTAL) || (buffer_desc->state == UDMA_BUFFER_TX_DONE)){
 		return;
@@ -267,6 +278,7 @@ static void udma_net_rx_callback(uint8_t port, udma_buffer_desc_t *buffer_desc)
 	return;
 }
 
+
 static netdev_tx_t udma_net_xmit(struct sk_buff *skb,
 				    struct net_device *netdev)
 {
@@ -278,10 +290,13 @@ static netdev_tx_t udma_net_xmit(struct sk_buff *skb,
 	udma_result_t ret = UDMA_OK;
 	u32 crc = 0;
 
+
+
 	if (unlikely((!skb) || (skb->len <= 0))) {
 		__udma_net_kfree_skb(skb);
 		return NETDEV_TX_OK;
 	}
+
 
 	port = adapter->udma_port;
 	nr_frags = skb_shinfo(skb)->nr_frags;
@@ -294,10 +309,12 @@ static netdev_tx_t udma_net_xmit(struct sk_buff *skb,
 			return NETDEV_TX_BUSY;
 		}
 
+				
 		len = skb->len;
 		/* Apend CRC to end of the frame per IEEE802.3 requriment */
 	//	crc = ether_crc_le(len,skb->data);	
 
+		
 		/* Padding 0 if size is less than 64 bytes */
 		if (skb->len < ETH_ZLEN) {
 			WARN_ON(skb_pad(skb,ETH_ZLEN + ETH_FCS_LEN - skb->len));				
@@ -310,6 +327,8 @@ static netdev_tx_t udma_net_xmit(struct sk_buff *skb,
 			len += ETH_FCS_LEN;			
 		}
 	//	*(u32 *)(skb->data + skb->len)= crc;
+
+	
 
 		buffer_desc->buf = skb->data;
 		buffer_desc->len = len;
@@ -401,6 +420,7 @@ static netdev_tx_t udma_net_xmit(struct sk_buff *skb,
 
 }
 
+
 /**
  * udma_net_open - Called when a network interface is made active
  * @netdev: network interface device structure
@@ -465,6 +485,7 @@ udma_net_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 	return 0;
 }*/
 
+
 static const struct net_device_ops udma_netdev_ops = {
 	.ndo_open				= udma_net_open,
 	.ndo_stop				= udma_net_close,
@@ -472,6 +493,7 @@ static const struct net_device_ops udma_netdev_ops = {
 	.ndo_change_mtu			= eth_change_mtu,
 	//.ndo_get_stats64	= udma_net_get_stats64,
 };
+
 
 /**
  * udma_net_init - Driver Registration Routine
@@ -533,6 +555,7 @@ static void __exit udma_net_exit(void)
 }
 module_init(udma_net_init);
 module_exit(udma_net_exit);
+
 
 MODULE_AUTHOR("Intel Corporation");
 MODULE_DESCRIPTION("Intel(R) UDMA Network Device Driver");

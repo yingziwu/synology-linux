@@ -1102,6 +1102,7 @@ static int __init docg3_init(void)
 }
 module_init(docg3_init);
 
+
 static void __exit docg3_exit(void)
 {
 	platform_driver_unregister(&g3_driver);

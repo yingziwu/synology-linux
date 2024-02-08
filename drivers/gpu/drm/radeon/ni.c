@@ -474,6 +474,7 @@ static u32 cayman_get_tile_pipe_to_backend_map(struct radeon_device *rdev,
 		}
 	}
 
+
 	memset((uint8_t *)&swizzle_pipe[0], 0, sizeof(u32) * CAYMAN_MAX_PIPES);
 	switch (rdev->family) {
 	case CHIP_CAYMAN:
@@ -880,6 +881,7 @@ static void cayman_gpu_init(struct radeon_device *rdev)
 	WREG32(PA_SC_FIFO_SIZE, (SC_PRIM_FIFO_SIZE(rdev->config.cayman.sc_prim_fifo_size) |
 				 SC_HIZ_TILE_FIFO_SIZE(rdev->config.cayman.sc_hiz_tile_fifo_size) |
 				 SC_EARLYZ_TILE_FIFO_SIZE(rdev->config.cayman.sc_earlyz_tile_fifo_size)));
+
 
 	WREG32(VGT_NUM_INSTANCES, 1);
 
@@ -1351,6 +1353,8 @@ static int cayman_startup(struct radeon_device *rdev)
 	/* enable pcie gen2 link */
 	evergreen_pcie_gen2_enable(rdev);
 
+	evergreen_mc_program(rdev);
+
 	if (!rdev->me_fw || !rdev->pfp_fw || !rdev->rlc_fw || !rdev->mc_fw) {
 		r = ni_init_microcode(rdev);
 		if (r) {
@@ -1368,7 +1372,6 @@ static int cayman_startup(struct radeon_device *rdev)
 	if (r)
 		return r;
 
-	evergreen_mc_program(rdev);
 	r = cayman_pcie_gart_enable(rdev);
 	if (r)
 		return r;
@@ -1387,6 +1390,12 @@ static int cayman_startup(struct radeon_device *rdev)
 		return r;
 
 	/* Enable IRQ */
+	if (!rdev->irq.installed) {
+		r = radeon_irq_kms_init(rdev);
+		if (r)
+			return r;
+	}
+
 	r = r600_irq_init(rdev);
 	if (r) {
 		DRM_ERROR("radeon: IH init failed (%d).\n", r);
@@ -1504,10 +1513,6 @@ int cayman_init(struct radeon_device *rdev)
 	if (r)
 		return r;
 
-	r = radeon_irq_kms_init(rdev);
-	if (r)
-		return r;
-
 	rdev->cp.ring_obj = NULL;
 	r600_ring_init(rdev, 1024 * 1024);
 
@@ -1571,3 +1576,4 @@ void cayman_fini(struct radeon_device *rdev)
 	kfree(rdev->bios);
 	rdev->bios = NULL;
 }
+

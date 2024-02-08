@@ -149,6 +149,7 @@ MODULE_PARM_DESC(epout_first, "First choose of OUT endpoint number");
 extern int              mv_idma_usage_get(int* free_map);
 extern unsigned char*   mv_sram_usage_get(int* sram_size_ptr);
 
+
 #define USB_IDMA_CTRL_LOW_VALUE       ICCLR_DST_BURST_LIM_128BYTE   \
                                     | ICCLR_SRC_BURST_LIM_128BYTE   \
                                     | ICCLR_BLOCK_MODE              \
@@ -177,6 +178,7 @@ MODULE_PARM_DESC(wa_sram_descr, "");
 static int wa_threshold = 64;  
 module_param_named(wa_threshold, wa_threshold, int, S_IRUGO);
 MODULE_PARM_DESC(wa_threshold, "");
+
 
 static char*    sramBase = (char*)NULL;
 static int      sramSize = 0;
@@ -266,6 +268,7 @@ int mv_usb_find_idma_engine(int idma_no)
     return idma;
 }
 #endif /* USB_UNDERRUN_WA */
+
 
 #undef DEBUG
 
@@ -413,6 +416,7 @@ static void   usbDevResetComplete(int devNo)
 
 extern MV_U32   mvUsbGetCapRegAddr(int devNo);
 
+
 USB_IMPORT_FUNCS    usbImportFuncs =
 {
     mvOsPrintf,
@@ -432,6 +436,7 @@ USB_IMPORT_FUNCS    usbImportFuncs =
     usbDevResetComplete
 };
 
+
 static struct mv_usb_dev*   the_controllers[MV_USB_MAX_PORTS] = {NULL};
 
 static const char driver_name [] = "mv_udc";
@@ -442,6 +447,9 @@ static char ep_names [2*ARC_USB_MAX_ENDPOINTS][10] =
     "ep0out", "ep0in", 
 };
  
+
+ 
+
 static struct usb_ep_ops mv_usb_ep_ops;
 
 static void mv_usb_ep_cancel_all_req(struct mv_usb_ep *mv_ep)
@@ -625,6 +633,7 @@ void mv_usb_bus_reset_service(void*      handle,
         mv_usb_start_ep0(mv_dev);
     }
 }
+
 
 void mv_usb_speed_service(void*      handle, 
                            uint_8     type, 
@@ -1303,6 +1312,7 @@ static int  mv_usb_ep_disable (struct usb_ep *_ep)
     return 0;
 }
 
+
 static struct usb_request* mv_usb_ep_alloc_request(struct usb_ep *_ep, gfp_t gfp_flags)
 {
     struct usb_request* req;
@@ -1541,10 +1551,12 @@ static int      mv_usb_ep_set_halt (struct usb_ep *_ep, int value)
     return retval;
 }
 
+
 static void     mv_usb_ep_fifo_flush (struct usb_ep *_ep)
 {
     DBGMSG("%s: ep=%p, ep_name=%s - NOT supported\n", __FUNCTION__, _ep, _ep->name);
 }
+
 
 static struct usb_ep_ops mv_usb_ep_ops = 
 {
@@ -1598,6 +1610,7 @@ static void mv_usb_gadget_release (struct device *_dev)
     /*mvOsPrintf("Call mv_usb_gadget_release \n");*/
     mvOsFree(usb_dev);
 }
+
 
 static int __init mv_usb_gadget_probe(struct platform_device *pDev) 
 {
@@ -1891,6 +1904,7 @@ static int __exit mv_usb_gadget_remove(struct platform_device *pDev)
     return 0;
 }
  
+
 /* global variables from 'regdump' */
 static struct proc_dir_entry *usb_resource_dump;
 static u32  usb_resource_dump_result;
@@ -2008,3 +2022,4 @@ static void __exit cleanup (void)
     platform_driver_unregister(&mv_usb_gadget_driver);
 }
 module_exit (cleanup);
+

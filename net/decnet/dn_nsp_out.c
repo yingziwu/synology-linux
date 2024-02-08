@@ -70,6 +70,7 @@
 #include <net/dn_dev.h>
 #include <net/dn_route.h>
 
+
 static int nsp_backoff[NSP_MAXRXTSHIFT + 1] = { 1, 2, 4, 8, 16, 32, 64, 64, 64, 64, 64, 64, 64 };
 
 static void dn_nsp_send(struct sk_buff *skb)
@@ -106,6 +107,7 @@ try_again:
 	if (!sock_flag(sk, SOCK_DEAD))
 		sk->sk_state_change(sk);
 }
+
 
 /*
  * If sk == NULL, then we assume that we are supposed to be making
@@ -376,6 +378,7 @@ void dn_nsp_queue_xmit(struct sock *sk, struct sk_buff *skb,
 	dn_nsp_clone_and_send(skb, gfp);
 }
 
+
 int dn_nsp_check_xmit_queue(struct sock *sk, struct sk_buff *skb, struct sk_buff_head *q, unsigned short acknum)
 {
 	struct dn_skb_cb *cb = DN_SKB_CB(skb);
@@ -473,6 +476,7 @@ void dn_nsp_send_oth_ack(struct sock *sk)
 	dn_nsp_send(skb);
 }
 
+
 void dn_send_conn_ack (struct sock *sk)
 {
 	struct dn_scp *scp = DN_SK(sk);
@@ -533,11 +537,13 @@ void dn_send_conn_conf(struct sock *sk, gfp_t gfp)
 	if (len > 0)
 		memcpy(skb_put(skb, len), scp->conndata_out.opt_data, len);
 
+
 	dn_nsp_send(skb);
 
 	scp->persist = dn_nsp_persist(sk);
 	scp->persist_fxn = dn_nsp_retrans_conn_conf;
 }
+
 
 static __inline__ void dn_nsp_do_disc(struct sock *sk, unsigned char msgflg,
 			unsigned short reason, gfp_t gfp,
@@ -581,6 +587,7 @@ static __inline__ void dn_nsp_do_disc(struct sock *sk, unsigned char msgflg,
 	dst_output(skb);
 }
 
+
 void dn_nsp_send_disc(struct sock *sk, unsigned char msgflg,
 			unsigned short reason, gfp_t gfp)
 {
@@ -597,6 +604,7 @@ void dn_nsp_send_disc(struct sock *sk, unsigned char msgflg,
 		scp->discdata_out.opt_data, scp->addrrem, scp->addrloc);
 }
 
+
 void dn_nsp_return_disc(struct sk_buff *skb, unsigned char msgflg,
 			unsigned short reason)
 {
@@ -607,6 +615,7 @@ void dn_nsp_return_disc(struct sk_buff *skb, unsigned char msgflg,
 	dn_nsp_do_disc(NULL, msgflg, reason, gfp, skb_dst(skb), ddl,
 			NULL, cb->src_port, cb->dst_port);
 }
+
 
 void dn_nsp_send_link(struct sock *sk, unsigned char lsflags, char fcval)
 {
@@ -708,3 +717,4 @@ void dn_nsp_send_conninit(struct sock *sk, unsigned char msgflg)
 
 	dn_nsp_send(skb);
 }
+

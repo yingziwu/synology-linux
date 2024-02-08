@@ -3,6 +3,7 @@
 
 #include <asm/page.h>   /* for __va, __pa */
 #include <arch/io.h>
+#include <asm-generic/iomap.h>
 #include <linux/kernel.h>
 
 struct cris_io_operations
@@ -120,6 +121,7 @@ static inline void writel(unsigned int b, volatile void __iomem *addr)
 #define memset_io(a,b,c)	memset((void *)(a),(b),(c))
 #define memcpy_fromio(a,b,c)	memcpy((a),(void *)(b),(c))
 #define memcpy_toio(a,b,c)	memcpy((void *)(a),(b),(c))
+
 
 /* I/O port access. Normally there is no I/O space on CRIS but when
  * Cardbus/PCI is enabled the request is passed through the bridge.

@@ -14,6 +14,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 #include <linux/types.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -48,6 +49,7 @@ MV_CPU_CNTRS_EVENT* proc_event = NULL;
 MV_CPU_L2_CNTRS_EVENT* proc_l2_event = NULL;
 #endif
 
+
 #if defined (CONFIG_MV_ETHERNET)
 extern int mv_eth_read_mii(unsigned int portNumber, unsigned int MIIReg, unsigned int* value);
 extern int mv_eth_write_mii(unsigned int portNumber, unsigned int MIIReg, unsigned int data);
@@ -62,7 +64,9 @@ extern GT_BOOL mv_gtw_write_mii(GT_QD_DEV* dev, unsigned int portNumber,
 
 #endif /* CONFIG_MV_ETHERNET */
 
+
 extern u32 mvCpuIfPrintSystemConfig(u8 *buffer, u32 index);
+
 
 /* global variables from 'regdump' */
 static struct proc_dir_entry *evb_resource_dump;
@@ -121,6 +125,7 @@ error:
     return;
 }
 
+
 void mv_proc_show_cntrs(void) {
    if(proc_event != NULL) {
 	MV_CPU_CNTRS_STOP(proc_event);
@@ -153,6 +158,7 @@ error:
     printk("ERROR configuring L2 counter\n");
     return;
 }
+
 
 void mv_proc_show_l2_cntrs(void) {
    if(proc_l2_event != NULL) {
@@ -282,6 +288,7 @@ int evb_resource_dump_write (struct file *file, const char *buffer,
 	printk("debug kernel align %d\n",kernel_align);
   }
 
+
 #if 0
   if(!strncmp (buffer , "ddd", 3)) {
 	unsigned int ii[10];
@@ -348,6 +355,8 @@ int __init start_resource_dump(void)
 }
 
 module_init(start_resource_dump);
+
+
 
 /* global variables from 'regdump' */
 static struct proc_dir_entry *soc_type;

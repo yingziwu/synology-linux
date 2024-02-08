@@ -96,6 +96,7 @@ static void assabet_lcd_power(int on)
 		ASSABET_BCR_clear(ASSABET_BCR_LCD_ON);
 }
 
+
 /*
  * Assabet flash support code.
  */
@@ -161,6 +162,7 @@ static struct resource assabet_flash_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	}
 };
+
 
 /*
  * Assabet IrDA support code.
@@ -309,6 +311,7 @@ fixup_assabet(struct tag *tags, char **cmdline, struct meminfo *mi)
 		printk("Neponset expansion board detected\n");
 }
 
+
 static void assabet_uart_pm(struct uart_port *port, u_int state, u_int oldstate)
 {
 	if (port->mapbase == _Ser1UTCR0) {
@@ -408,6 +411,9 @@ static void __init assabet_map_io(void)
 	 * Its called GPCLKR0 in my SA1110 manual.
 	 */
 	Ser1SDCR0 |= SDCR0_SUS;
+	MSC1 = (MSC1 & ~0xffff) |
+		MSC_NonBrst | MSC_32BitStMem |
+		MSC_RdAcc(2) | MSC_WrAcc(2) | MSC_Rec(0);
 
 	if (machine_has_neponset()) {
 #ifdef CONFIG_ASSABET_NEPONSET
@@ -440,6 +446,7 @@ static void __init assabet_map_io(void)
 	sa1100_register_uart(0, 1);
 	sa1100_register_uart(2, 3);
 }
+
 
 MACHINE_START(ASSABET, "Intel-Assabet")
 	.atag_offset	= 0x100,

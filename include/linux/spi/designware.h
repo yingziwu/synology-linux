@@ -124,3 +124,4 @@ struct designware_spi {
 	struct spi_message	*cur_msg;
 
 };
+

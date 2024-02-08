@@ -269,6 +269,7 @@ static void get_settings(void)
 
 #define PX_TIMER_INIT_VALUE     (OMCR_NOT_OSCR4 | OMCR_MATCH_CONTINUE | OMCR_NO_EXT_SYNC | OMCR_MATCH_RESET)
 
+
 unsigned int timer_int_count = 0;
 static irqreturn_t px_timer_isr(struct pt_regs * const regs,
                                 unsigned int pid,

@@ -42,6 +42,7 @@
 /* Save non-volatile offsets */
 #define STK_REG(i)	(112 + ((i)-14)*8)
 
+
 #ifndef CONFIG_PPC_64K_PAGES
 
 /*****************************************************************************
@@ -49,6 +50,7 @@
  *           4K SW & 4K HW pages implementation                              *
  *                                                                           *
  *****************************************************************************/
+
 
 /*
  * _hash_page_4K(unsigned long ea, unsigned long access, unsigned long vsid,
@@ -315,7 +317,9 @@ htab_pte_insert_failure:
 	li	r3,-1
 	b	htab_bail
 
+
 #else /* CONFIG_PPC_64K_PAGES */
+
 
 /*****************************************************************************
  *                                                                           *
@@ -934,7 +938,9 @@ ht64_pte_insert_failure:
 	li	r3,-1
 	b	ht64_bail
 
+
 #endif /* CONFIG_PPC_HAS_HASH_64K */
+
 
 /*****************************************************************************
  *                                                                           *

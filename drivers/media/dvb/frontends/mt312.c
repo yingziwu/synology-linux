@@ -36,6 +36,7 @@
 #include "mt312_priv.h"
 #include "mt312.h"
 
+
 struct mt312_state {
 	struct i2c_adapter *i2c;
 	/* configuration settings */
@@ -836,3 +837,4 @@ MODULE_DESCRIPTION("Zarlink VP310/MT312/ZL10313 DVB-S Demodulator driver");
 MODULE_AUTHOR("Andreas Oberritter <obi@linuxtv.org>");
 MODULE_AUTHOR("Matthias Schwarzott <zzam@gentoo.org>");
 MODULE_LICENSE("GPL");
+

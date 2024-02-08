@@ -89,6 +89,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MV_ETH_EXTRA_FRAGS_NUM      2
 
+
 typedef enum
 {
     MV_ETH_SPEED_AN,
@@ -171,6 +172,7 @@ typedef enum
 	MV_ETH_ENABLE_HEADER_MODE_PRI_SPID = 3
 } MV_ETH_HEADER_MODE;
 
+
 /* ethernet.h API list */
 void        mvEthHalInit(void);
 void        mvEthMemAttrGet(MV_BOOL* pIsSram, MV_BOOL* pIsSwCoher);
@@ -245,6 +247,7 @@ void        mvEthPortPowerUp(int port);
 /*#define UNCACHED_TX_BUFFERS*/
 /*#define UNCACHED_RX_BUFFERS*/
 
+
 /* Port attributes */
 /* Size of a Tx/Rx descriptor used in chain list data structure */
 #define ETH_RX_DESC_ALIGNED_SIZE        32
@@ -276,6 +279,7 @@ void        mvEthPortPowerUp(int port);
                (ETH_TX_DESC*)((pQueueCtrl)->pLastDescr) :                  \
                (ETH_TX_DESC*)(((MV_ULONG)(pTxDescr)) - ETH_TX_DESC_ALIGNED_SIZE)
 
+
 /* Queue specific information */
 typedef struct
 {
@@ -286,6 +290,7 @@ typedef struct
     int         resource;
     MV_BUF_INFO descBuf;
 } ETH_QUEUE_CTRL;
+
 
 /* Ethernet port specific infomation */
 typedef struct _ethPortCtrl

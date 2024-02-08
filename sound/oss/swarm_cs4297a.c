@@ -319,6 +319,7 @@ static int prog_dmabuf_adc(struct cs4297a_state *s)
 	return 0;
 }
 
+
 static int prog_dmabuf_dac(struct cs4297a_state *s)
 {
 	s->dma_dac.ready = 1;
@@ -553,6 +554,7 @@ static void cs_printioctl(unsigned int x)
 }
 #endif
 
+
 static int ser_init(struct cs4297a_state *s)
 {
         int i;
@@ -781,6 +783,7 @@ static int cs4297a_read_ac97(struct cs4297a_state *s, u32 offset,
         return 0;
 }
 
+
 //****************************************************************************
 // "cs4297a_write_ac97()"-- writes an AC97 register
 //****************************************************************************
@@ -810,6 +813,7 @@ static void stop_dac(struct cs4297a_state *s)
 	spin_unlock_irqrestore(&s->lock, flags);
 }
 
+
 static void start_dac(struct cs4297a_state *s)
 {
 	unsigned long flags;
@@ -834,6 +838,7 @@ static void start_dac(struct cs4297a_state *s)
 		  printk(KERN_INFO "cs4297a: start_dac()-\n"));
 }
 
+
 static void stop_adc(struct cs4297a_state *s)
 {
 	unsigned long flags;
@@ -854,6 +859,7 @@ static void stop_adc(struct cs4297a_state *s)
 	CS_DBGOUT(CS_FUNCTION, 3,
 		  printk(KERN_INFO "cs4297a: stop_adc()-\n"));
 }
+
 
 static void start_adc(struct cs4297a_state *s)
 {
@@ -905,6 +911,7 @@ static void start_adc(struct cs4297a_state *s)
 		  printk(KERN_INFO "cs4297a: start_adc()-\n"));
 
 }
+
 
 // call with spinlock held! 
 static void cs4297a_update_ptr(struct cs4297a_state *s, int intflag)
@@ -1438,6 +1445,7 @@ static int mixer_ioctl(struct cs4297a_state *s, unsigned int cmd,
 #endif
 		return put_user(s->mix.vol[5], (int *) arg);
 
+
 	case SOUND_MIXER_SYNTH:
 		if (get_user(val, (int *) arg))
 			return -EFAULT;
@@ -1471,6 +1479,7 @@ static int mixer_ioctl(struct cs4297a_state *s, unsigned int cmd,
 		s->mix.vol[4] = val;
 #endif
 		return put_user(s->mix.vol[4], (int *) arg);
+
 
 	default:
 		CS_DBGOUT(CS_IOCTL, 4, printk(KERN_INFO
@@ -1514,6 +1523,7 @@ static int mixer_ioctl(struct cs4297a_state *s, unsigned int cmd,
 	}
 }
 
+
 // --------------------------------------------------------------------- 
 
 static int cs4297a_open_mixdev(struct inode *inode, struct file *file)
@@ -1550,6 +1560,7 @@ static int cs4297a_open_mixdev(struct inode *inode, struct file *file)
 	return nonseekable_open(inode, file);
 }
 
+
 static int cs4297a_release_mixdev(struct inode *inode, struct file *file)
 {
 	struct cs4297a_state *s =
@@ -1558,6 +1569,7 @@ static int cs4297a_release_mixdev(struct inode *inode, struct file *file)
 	VALIDATE_STATE(s);
 	return 0;
 }
+
 
 static int cs4297a_ioctl_mixdev(struct file *file,
 			       unsigned int cmd, unsigned long arg)
@@ -1569,6 +1581,7 @@ static int cs4297a_ioctl_mixdev(struct file *file,
 	mutex_unlock(&swarm_cs4297a_mutex);
 	return ret;
 }
+
 
 // ******************************************************************************************
 //   Mixer file operations struct.
@@ -1582,6 +1595,7 @@ static const struct file_operations cs4297a_mixer_fops = {
 };
 
 // --------------------------------------------------------------------- 
+
 
 static int drain_adc(struct cs4297a_state *s, int nonblock)
 {
@@ -1626,6 +1640,7 @@ static int drain_dac(struct cs4297a_state *s, int nonblock)
 	current->state = TASK_RUNNING;
 	return 0;
 }
+
 
 // --------------------------------------------------------------------- 
 
@@ -1751,6 +1766,7 @@ static ssize_t cs4297a_read(struct file *file, char *buffer, size_t count,
 	return ret;
 }
 
+
 static ssize_t cs4297a_write(struct file *file, const char *buffer,
 			    size_t count, loff_t * ppos)
 {
@@ -1868,6 +1884,7 @@ static ssize_t cs4297a_write(struct file *file, const char *buffer,
 	return ret;
 }
 
+
 static unsigned int cs4297a_poll(struct file *file,
 				struct poll_table_struct *wait)
 {
@@ -1927,12 +1944,14 @@ static unsigned int cs4297a_poll(struct file *file,
 	return mask;
 }
 
+
 static int cs4297a_mmap(struct file *file, struct vm_area_struct *vma)
 {
         /* XXXKW currently no mmap support */
         return -EINVAL;
 	return 0;
 }
+
 
 static int cs4297a_ioctl(struct file *file,
 			unsigned int cmd, unsigned long arg)

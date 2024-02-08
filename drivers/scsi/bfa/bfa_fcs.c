@@ -57,6 +57,8 @@ bfa_fcs_exit_comp(void *fcs_cbarg)
 	complete(&bfad->comp);
 }
 
+
+
 /*
  *  fcs_api BFA FCS API
  */
@@ -181,6 +183,7 @@ bfa_fcs_exit(struct bfa_fcs_s *fcs)
 
 	bfa_wc_wait(&fcs->wc);
 }
+
 
 /*
  * Fabric module implementation.
@@ -400,6 +403,7 @@ bfa_fcs_fabric_sm_flogi(struct bfa_fcs_fabric_s *fabric,
 		bfa_sm_fault(fabric->fcs, event);
 	}
 }
+
 
 static void
 bfa_fcs_fabric_sm_flogi_retry(struct bfa_fcs_fabric_s *fabric,
@@ -677,6 +681,8 @@ bfa_fcs_fabric_sm_deleting(struct bfa_fcs_fabric_s *fabric,
 		bfa_sm_fault(fabric->fcs, event);
 	}
 }
+
+
 
 /*
  *  fcs_fabric_private fabric private functions
@@ -1045,6 +1051,7 @@ bfa_fcs_fabric_modstart(struct bfa_fcs_s *fcs)
 	bfa_sm_send_event(fabric, BFA_FCS_FABRIC_SM_START);
 }
 
+
 /*
  *   Link up notification from BFA physical port module.
  */
@@ -1105,6 +1112,7 @@ bfa_fcs_fabric_delvport(struct bfa_fcs_fabric_s *fabric,
 	bfa_wc_down(&fabric->wc);
 }
 
+
 /*
  * Lookup for a vport within a fabric given its pwwn
  */
@@ -1122,6 +1130,7 @@ bfa_fcs_fabric_vport_lookup(struct bfa_fcs_fabric_s *fabric, wwn_t pwwn)
 
 	return NULL;
 }
+
 
 /*
  *  Get OUI of the attached switch.
@@ -1318,6 +1327,7 @@ bfa_fcs_fabric_flogiacc_comp(void *fcsarg, struct bfa_fcxp_s *fcxp, void *cbarg,
 
 	bfa_trc(fabric->fcs, status);
 }
+
 
 /*
  * Send AEN notification
