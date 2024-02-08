@@ -508,10 +508,6 @@ static int uart_write(struct tty_struct *tty,
 	struct circ_buf *circ;
 	unsigned long flags;
 	int c, ret = 0;
-#ifdef MY_ABC_HERE
-	extern void (*funcSYNOConsoleProhibitEvent)(void);
-	static unsigned long last_jiffies = INITIAL_JIFFIES;
-#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	/* We need to delay 150 ms avoid micro p buffer queue overflow */
@@ -539,12 +535,6 @@ static int uart_write(struct tty_struct *tty,
 
 #ifdef MY_ABC_HERE
 	if (1 == gSynoForbidConsole && !strcmp(tty->name, "ttyS0")) {
-		if (time_after(jiffies, last_jiffies + msecs_to_jiffies(3000))) {
-			if (NULL != funcSYNOConsoleProhibitEvent) {
-				funcSYNOConsoleProhibitEvent();
-			}
-			last_jiffies = jiffies;
-		}
 		return count;
 	}
 #endif /* MY_ABC_HERE */

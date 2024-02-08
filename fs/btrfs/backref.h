@@ -33,7 +33,11 @@ struct inode_fs_paths {
 };
 
 typedef int (iterate_extent_inodes_t)(u64 inum, u64 offset, u64 root,
-		void *ctx);
+				      void *ctx
+#ifdef MY_ABC_HERE
+				      , int extent_type
+#endif /* MY_ABC_HERE */
+				      );
 
 int inode_item_info(u64 inum, u64 ioff, struct btrfs_root *fs_root,
 			struct btrfs_path *path);

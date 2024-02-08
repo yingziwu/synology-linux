@@ -413,6 +413,7 @@ static inline unsigned long btrfs_chunk_item_size(int num_stripes)
 
 #define BTRFS_SUPER_FLAG_SEEDING	(1ULL << 32)
 #define BTRFS_SUPER_FLAG_METADUMP	(1ULL << 33)
+#define BTRFS_SUPER_FLAG_CHANGING_FSID_V2 (1ULL << 36)
 
 #define BTRFS_BACKREF_REV_MAX		256
 #define BTRFS_BACKREF_REV_SHIFT		56
@@ -581,9 +582,10 @@ struct btrfs_root_backup {
  * it currently lacks any block count etc etc
  */
 struct btrfs_super_block {
-	u8 csum[BTRFS_CSUM_SIZE];
 	/* the first 4 fields must match struct btrfs_header */
-	u8 fsid[BTRFS_FSID_SIZE];    /* FS specific uuid */
+	u8 csum[BTRFS_CSUM_SIZE];
+	/* FS specific UUID, visible to user */
+	u8 fsid[BTRFS_FSID_SIZE];
 	__le64 bytenr; /* this block number */
 	__le64 flags;
 
@@ -620,8 +622,11 @@ struct btrfs_super_block {
 	__le64 cache_generation;
 	__le64 uuid_tree_generation;
 
+	/* the UUID written into btree blocks */
+	u8 metadata_uuid[BTRFS_FSID_SIZE];
+
 	/* future expansion */
-	__le64 reserved[30];
+	__le64 reserved[28];
 	u8 sys_chunk_array[BTRFS_SYSTEM_CHUNK_ARRAY_SIZE];
 	struct btrfs_root_backup super_roots[BTRFS_NUM_BACKUP_ROOTS];
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
@@ -669,7 +674,8 @@ struct btrfs_super_block {
 	 BTRFS_FEATURE_INCOMPAT_RAID56 |		\
 	 BTRFS_FEATURE_INCOMPAT_EXTENDED_IREF |		\
 	 BTRFS_FEATURE_INCOMPAT_SKINNY_METADATA |	\
-	 BTRFS_FEATURE_INCOMPAT_NO_HOLES)
+	 BTRFS_FEATURE_INCOMPAT_NO_HOLES	|	\
+	 BTRFS_FEATURE_INCOMPAT_METADATA_UUID)
 
 #define BTRFS_FEATURE_INCOMPAT_SAFE_SET			\
 	(BTRFS_FEATURE_INCOMPAT_EXTENDED_IREF)
@@ -1696,6 +1702,7 @@ struct btrfs_block_group_cache {
 		bool ro;
 		bool cache_error;
 		bool removed;
+		bool initialized;
 		atomic_t refs;
 	} syno_allocator;
 #endif /* MY_ABC_HERE */
@@ -1725,6 +1732,12 @@ enum btrfs_check_cross_ref_type {
 	CHECK_CROSS_REF_SKIP_FAST_SNAPSHOT = 1,
 };
 #endif /* MY_ABC_HERE */
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+enum {
+	SYNO_PERF_INDICATROT_FLAG_DIRTY_LIMIT_UPDATE,
+};
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 
 /* used by the raid56 code to lock stripes for read/modify/write */
 struct btrfs_stripe_hash {
@@ -1796,7 +1809,6 @@ struct btrfs_delayed_ref_throttle_ticket {
 #endif /* MY_ABC_HERE */
 
 struct btrfs_fs_info {
-	u8 fsid[BTRFS_FSID_SIZE];
 	u8 chunk_tree_uuid[BTRFS_UUID_SIZE];
 	struct btrfs_root *extent_root;
 	struct btrfs_root *tree_root;
@@ -2041,6 +2053,7 @@ struct btrfs_fs_info {
 	struct btrfs_workqueue *reada_path_workers;
 #endif
 #ifdef MY_ABC_HERE
+	struct btrfs_workqueue *syno_cow_endio_workers;
 	struct btrfs_workqueue *syno_nocow_endio_workers;
 	struct btrfs_workqueue *syno_high_priority_endio_workers;
 #endif /* MY_ABC_HERE */
@@ -2174,6 +2187,10 @@ struct btrfs_fs_info {
 	spinlock_t usrquota_lock;
 	/* protects on-disk usrquota tree */
 	struct mutex usrquota_tree_lock;
+	/*
+	 * Protect user change for usrquota operations. If a transaction is needed,
+	 * it must be started before locking this lock.
+	 */
 	struct mutex usrquota_ioctl_lock;
 
 	/* rescan items */
@@ -2202,6 +2219,10 @@ struct btrfs_fs_info {
 	atomic64_t syno_ordered_extent_nr;
 	u64 syno_max_ordered_queue_size;
 	wait_queue_head_t syno_ordered_queue_wait;
+	atomic64_t syno_ordered_extent_processed_nr;
+	u64 syno_ordered_extent_processed_bw;
+	u64 syno_ordered_extent_processed_stamp;
+	unsigned long syno_ordered_extent_processed_bw_time_stamp;    /* last time updated */
 #endif /* MY_ABC_HERE */
 
 	/*
@@ -2231,7 +2252,10 @@ struct btrfs_fs_info {
 	 */
 	struct ulist *qgroup_ulist;
 
-	/* protect user change for quota operations */
+	/*
+	 * Protect user change for quota operations. If a transaction is needed,
+	 * it must be started before locking this lock.
+	 */
 	struct mutex qgroup_ioctl_lock;
 
 	/* list of dirty qgroups to be written at next commit */
@@ -2360,8 +2384,15 @@ struct btrfs_fs_info {
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	struct work_struct async_metadata_flush_work;
-	atomic_t syno_metadata_throttle_nr;
 #endif /* MY_ABC_HERE */
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	struct {
+		unsigned long flags;
+		unsigned long dirty_thresh;
+		unsigned long dirty_background_thresh;
+		unsigned long dirty_limit_stamp;
+	} syno_perf_indicator;
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 
 #ifdef MY_ABC_HERE
 	struct dentry *btrfs_pervolume_debugfs_root_dentry;
@@ -2426,7 +2457,14 @@ struct btrfs_fs_info {
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
-	bool syno_orphan_cleanup;
+	struct {
+		bool root_tree_cleanup;
+		bool fs_tree_cleanup;
+		spinlock_t lock;
+		struct list_head roots;
+		bool enable; /* default:on */
+		bool orphan_inode_delayed; /* default:off */
+	} syno_orphan_cleanup;
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -2446,6 +2484,15 @@ struct btrfs_fs_info {
 		struct work_struct bg_prefetch_work;
 		bool bg_prefetch_running;
 	} syno_allocator;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct {
+		atomic64_t eb_disk_read;
+		atomic64_t search_key;
+		atomic64_t search_forward;
+		atomic64_t next_leaf;
+	} syno_meta_statistics;
 #endif /* MY_ABC_HERE */
 };
 
@@ -2659,6 +2706,13 @@ struct btrfs_root {
 	 */
 	atomic_t use_refs;
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct {
+		struct list_head root; /* protect with fs_info->syno_orphan_cleanup.lock */
+		int cleanup_in_progress; /* protect with root->root_item_lock */
+	} syno_orphan_cleanup;
+#endif /* MY_ABC_HERE */
 };
 
 #ifdef MY_ABC_HERE
@@ -2717,6 +2771,69 @@ struct btrfs_clone_extent_info {
 	u64 ram_bytes;
 	struct ulist *disko_ulist;
 	bool ulist_overflow;
+#endif /* MY_ABC_HERE */
+};
+
+/* Arguments for btrfs_drop_extents() */
+struct btrfs_drop_extents_args {
+	/* Input parameters */
+
+	/*
+	 * If NULL, btrfs_drop_extents() will allocate and free its own path.
+	 * If 'replace_extent' is true, this must not be NULL. Also the path
+	 * is always released except if 'replace_extent' is true and
+	 * btrfs_drop_extents() sets 'extent_inserted' to true, in which case
+	 * the path is kept locked.
+	 */
+	struct btrfs_path *path;
+	/* Start offset of the range to drop extents from */
+	u64 start;
+	/* End (exclusive, last byte + 1) of the range to drop extents from */
+	u64 end;
+	/* If true drop all the extent maps in the range */
+	bool drop_cache;
+	/*
+	 * If true it means we want to insert a new extent after dropping all
+	 * the extents in the range. If this is true, the 'extent_item_size'
+	 * parameter must be set as well and the 'extent_inserted' field will
+	 * be set to true by btrfs_drop_extents() if it could insert the new
+	 * extent.
+	 * Note: when this is set to true the path must not be NULL.
+	 */
+	bool replace_extent;
+	/*
+	 * Used if 'replace_extent' is true. Size of the file extent item to
+	 * insert after dropping all existing extents in the range
+	 */
+	u32 extent_item_size;
+
+	/* Output parameters */
+
+	/*
+	 * Set to the minimum between the input parameter 'end' and the end
+	 * (exclusive, last byte + 1) of the last dropped extent. This is always
+	 * set even if btrfs_drop_extents() returns an error.
+	 */
+	u64 drop_end;
+	/*
+	 * The number of allocated bytes found in the range. This can be smaller
+	 * than the range's length when there are holes in the range.
+	 */
+	u64 bytes_found;
+	/*
+	 * Only set if 'replace_extent' is true. Set to true if we were able
+	 * to insert a replacement extent after dropping all extents in the
+	 * range, otherwise set to false by btrfs_drop_extents().
+	 * Also, if btrfs_drop_extents() has set this to true it means it
+	 * returned with the path locked, otherwise if it has set this to
+	 * false it has returned with the path released.
+	 */
+	bool extent_inserted;
+
+#ifdef MY_ABC_HERE
+	u64 *first_punch_pos;
+	u64 *last_punch_pos;
+	int *partial_punch;
 #endif /* MY_ABC_HERE */
 };
 
@@ -4667,6 +4784,14 @@ u64 add_new_free_space(struct btrfs_block_group_cache *block_group,
 void btrfs_init_syno_allocator_bg_prefetch_work(struct work_struct *work);
 #endif /* MY_ABC_HERE */
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+void syno_perf_indicator_dirty_limit_update(struct btrfs_fs_info *fs_info);
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
+
+#ifdef MY_ABC_HERE
+u64 get_bg_offset_with_free_space_bytes(struct btrfs_fs_info *fs_info);
+#endif /* MY_ABC_HERE */
+
 /* ctree.c */
 int btrfs_bin_search(struct extent_buffer *eb, struct btrfs_key *key,
 		     int level, int *slot);
@@ -5119,6 +5244,7 @@ int btrfs_start_delalloc_inodes(struct btrfs_root *root, int delay_iput);
 int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, int delay_iput,
 			       int nr);
 int btrfs_set_extent_delalloc(struct inode *inode, u64 start, u64 end,
+			      unsigned int extra_bits,
 			      struct extent_state **cached_state);
 int btrfs_create_subvol_root(struct btrfs_trans_handle *trans,
 			     struct btrfs_root *new_root,
@@ -5173,6 +5299,10 @@ void btrfs_test_inode_set_ops(struct inode *inode);
 void block_dump___btrfs_update_inode(struct inode *inode);
 #endif /* MY_ABC_HERE */
 
+void btrfs_update_inode_bytes(struct btrfs_inode *inode,
+			      const u64 add_bytes,
+			      const u64 del_bytes);
+
 /* ioctl.c */
 long btrfs_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
 void btrfs_update_iflags(struct inode *inode);
@@ -5208,20 +5338,9 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync);
 void btrfs_drop_extent_cache(struct inode *inode, u64 start, u64 end,
 			     int skip_pinned);
 extern const struct file_operations btrfs_file_operations;
-int __btrfs_drop_extents(struct btrfs_trans_handle *trans,
-			 struct btrfs_root *root, struct inode *inode,
-			 struct btrfs_path *path, u64 start, u64 end,
-#ifdef MY_ABC_HERE
-			 u64 *first_punch_pos, u64 *last_punch_pos,
-			 int *partial_punch,
-#endif /* MY_ABC_HERE */
-			 u64 *drop_end, int drop_cache,
-			 int replace_extent,
-			 u32 extent_item_size,
-			 int *key_inserted);
 int btrfs_drop_extents(struct btrfs_trans_handle *trans,
-		       struct btrfs_root *root, struct inode *inode, u64 start,
-		       u64 end, int drop_cache);
+		       struct btrfs_root *root, struct inode *inode,
+		       struct btrfs_drop_extents_args *args);
 int btrfs_punch_hole_range(struct inode *inode, struct btrfs_path *path,
 			   const u64 start, const u64 end,
 			   struct btrfs_clone_extent_info *clone_info,
@@ -5609,6 +5728,7 @@ void btrfs_reloc_pre_snapshot(struct btrfs_trans_handle *trans,
 			      u64 *bytes_to_reserve);
 int btrfs_reloc_post_snapshot(struct btrfs_trans_handle *trans,
 			      struct btrfs_pending_snapshot *pending);
+int btrfs_should_cancel_balance(struct btrfs_fs_info *fs_info);
 
 /* scrub.c */
 int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
@@ -5673,10 +5793,8 @@ void SynoBtrfsMetaCorruptedReport(const u8* fsid, u64 start);
 
 #ifdef MY_ABC_HERE
 /* usrquota.c */
-int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
-                          struct btrfs_fs_info *fs_info);
-int btrfs_usrquota_disable(struct btrfs_trans_handle *trans,
-                           struct btrfs_fs_info *fs_info);
+int btrfs_usrquota_enable(struct btrfs_fs_info *fs_info);
+int btrfs_usrquota_disable(struct btrfs_fs_info *fs_info);
 int btrfs_usrquota_dumptree(struct btrfs_fs_info *fs_info);
 
 int btrfs_usrquota_rescan(struct btrfs_fs_info *fs_info, u64 rootid);

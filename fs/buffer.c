@@ -2998,8 +2998,15 @@ int _submit_bh(int rw, struct buffer_head *bh, unsigned long bio_flags)
 	BUG_ON(!buffer_locked(bh));
 	BUG_ON(!buffer_mapped(bh));
 	BUG_ON(!bh->b_end_io);
+#ifdef MY_ABC_HERE
+	if (WARN_ON(buffer_delay(bh)))
+		clear_buffer_delay(bh);
+	if (WARN_ON(buffer_unwritten(bh)))
+		clear_buffer_unwritten(bh);
+#else
 	BUG_ON(buffer_delay(bh));
 	BUG_ON(buffer_unwritten(bh));
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * Only clear out a write error when rewriting
