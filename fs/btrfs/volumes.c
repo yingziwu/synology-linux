@@ -501,6 +501,69 @@ static noinline int device_list_add(const char *path,
 		ret = 1;
 		device->fs_devices = fs_devices;
 	} else if (!device->name || strcmp(device->name->str, path)) {
+		/*
+		 * When FS is already mounted.
+		 * 1. If you are here and if the device->name is NULL that
+		 *    means this device was missing at time of FS mount.
+		 * 2. If you are here and if the device->name is different
+		 *    from 'path' that means either
+		 *      a. The same device disappeared and reappeared with
+		 *         different name. or
+		 *      b. The missing-disk-which-was-replaced, has
+		 *         reappeared now.
+		 *
+		 * We must allow 1 and 2a above. But 2b would be a spurious
+		 * and unintentional.
+		 *
+		 * Further in case of 1 and 2a above, the disk at 'path'
+		 * would have missed some transaction when it was away and
+		 * in case of 2a the stale bdev has to be updated as well.
+		 * 2b must not be allowed at all time.
+		 */
+
+		/*
+		 * For now, we do allow update to btrfs_fs_device through the
+		 * btrfs dev scan cli after FS has been mounted.  We're still
+		 * tracking a problem where systems fail mount by subvolume id
+		 * when we reject replacement on a mounted FS.
+		 */
+		if (!fs_devices->opened && found_transid < device->generation) {
+			/*
+			 * That is if the FS is _not_ mounted and if you
+			 * are here, that means there is more than one
+			 * disk with same uuid and devid.We keep the one
+			 * with larger generation number or the last-in if
+			 * generation are equal.
+			 */
+			return -EEXIST;
+		}
+
+		/*
+		 * We are going to replace the device path for a given devid,
+		 * make sure it's the same device if the device is mounted
+		 */
+		if (device->bdev) {
+			struct block_device *path_bdev;
+
+			path_bdev = lookup_bdev(path);
+			if (IS_ERR(path_bdev))
+				return PTR_ERR(path_bdev);
+
+			if (device->bdev != path_bdev) {
+				bdput(path_bdev);
+				btrfs_warn_in_rcu(device->dev_root->fs_info,
+			"duplicate device fsid:devid for %pU:%llu old:%s new:%s",
+					disk_super->fsid, devid,
+					rcu_str_deref(device->name), path);
+				return -EEXIST;
+			}
+			bdput(path_bdev);
+			btrfs_info_in_rcu(device->dev_root->fs_info,
+				"device fsid %pU devid %llu moved old:%s new:%s",
+				disk_super->fsid, devid,
+				rcu_str_deref(device->name), path);
+		}
+
 		name = rcu_string_strdup(path, GFP_NOFS);
 		if (!name)
 			return -ENOMEM;
@@ -511,6 +574,15 @@ static noinline int device_list_add(const char *path,
 			device->missing = 0;
 		}
 	}
+
+	/*
+	 * Unmount does not free the btrfs_device struct but would zero
+	 * generation along with most of the other members. So just update
+	 * it back. We need it to pick the disk with largest generation
+	 * (as above).
+	 */
+	if (!fs_devices->opened)
+		device->generation = found_transid;
 
 	if (found_transid > fs_devices->latest_trans) {
 		fs_devices->latest_devid = devid;
@@ -3162,6 +3234,9 @@ static int should_balance_chunk(struct btrfs_root *root,
 static int __btrfs_balance(struct btrfs_fs_info *fs_info)
 {
 	struct btrfs_balance_control *bctl = fs_info->balance_ctl;
+#ifdef MY_DEF_HERE
+	struct btrfs_block_group_cache *cache;
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 	struct btrfs_root *chunk_root = fs_info->chunk_root;
 	struct btrfs_root *dev_root = fs_info->dev_root;
 	struct list_head *devices;
@@ -3287,6 +3362,11 @@ again:
 			spin_lock(&fs_info->balance_lock);
 			bctl->stat.expected++;
 			spin_unlock(&fs_info->balance_lock);
+#ifdef MY_DEF_HERE
+			cache = btrfs_lookup_block_group(fs_info, found_key.offset);
+			bctl->total_chunk_used += btrfs_block_group_used(&cache->item);
+			btrfs_put_block_group(cache);
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 			goto loop;
 		}
 
@@ -3315,7 +3395,11 @@ loop:
 		key.offset = found_key.offset - 1;
 	}
 
+#ifdef MY_DEF_HERE
+	if (counting && !(bctl->flags & BTRFS_BALANCE_DRY_RUN)) {
+#else
 	if (counting) {
+#endif
 		btrfs_release_path(path);
 		counting = false;
 		goto again;
@@ -3593,6 +3677,12 @@ int btrfs_resume_balance_async(struct btrfs_fs_info *fs_info)
 		return 0;
 	}
 	spin_unlock(&fs_info->balance_lock);
+
+#ifdef MY_DEF_HERE
+	btrfs_cancel_balance(fs_info);
+	btrfs_notice(fs_info, "force cancel balance");
+	return 0;
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 
 	if (btrfs_test_opt(fs_info->tree_root, SKIP_BALANCE)) {
 		btrfs_info(fs_info, "force skipping balance");

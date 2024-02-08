@@ -1298,9 +1298,15 @@ int btrfs_clear_free_space_tree(struct btrfs_fs_info *fs_info)
 	if (IS_ERR(trans))
 		return PTR_ERR(trans);
 
+#ifdef MY_DEF_HERE
+	down_write(&fs_info->commit_root_sem);
+#endif /* MY_DEF_HERE */
 	btrfs_clear_fs_compat_ro(fs_info, FREE_SPACE_TREE);
 	btrfs_clear_fs_compat_ro(fs_info, FREE_SPACE_TREE_VALID);
 	fs_info->free_space_root = NULL;
+#ifdef MY_DEF_HERE
+	up_write(&fs_info->commit_root_sem);
+#endif /* MY_DEF_HERE */
 
 	ret = clear_free_space_tree(trans, free_space_root);
 	if (ret)
@@ -1521,6 +1527,9 @@ static int load_free_space_bitmaps(struct btrfs_caching_control *caching_ctl,
 			prev_bit = bit;
 			offset += block_group->sectorsize;
 		}
+#ifdef MY_DEF_HERE
+		cond_resched();
+#endif /* MY_DEF_HERE */
 	}
 	if (prev_bit == 1) {
 		total_found += add_new_free_space(block_group, fs_info,
@@ -1588,6 +1597,9 @@ static int load_free_space_extents(struct btrfs_caching_control *caching_ctl,
 			wake_up(&caching_ctl->wait);
 		}
 		extent_count++;
+#ifdef MY_DEF_HERE
+		cond_resched();
+#endif /* MY_DEF_HERE */
 	}
 
 	if (extent_count != expected_extent_count) {

@@ -5,6 +5,7 @@
 #ifndef __LINUX_SYNO_ACL_H
 #define __LINUX_SYNO_ACL_H
 
+#include <linux/fs.h>
 #include <linux/slab.h>
 #include <uapi/linux/syno_acl_xattr_ds.h>
 
@@ -101,5 +102,16 @@ static inline void set_cached_syno_acl(struct inode *inode, struct syno_acl *acl
 
 extern bool syno_acl_module_get(void);
 extern void syno_acl_module_put(void);
+
+extern int synoacl_mod_archive_change_ok(struct dentry *, unsigned int , int , int );
+extern int synoacl_mod_may_delete(struct dentry *, struct inode *);
+extern int synoacl_mod_setattr_post(struct dentry *, struct iattr *);
+extern int synoacl_mod_init_acl(struct dentry *, struct inode *);
+extern int synoacl_mod_inode_change_ok(struct dentry *, struct iattr *);
+extern int synoacl_mod_access(struct dentry *, int, int);
+extern void synoacl_mod_to_mode(struct dentry *, struct kstat *);
+extern int synoacl_mod_exec_permission(struct dentry *);
+extern int synoacl_mod_permission(struct dentry *, int);
+extern int synoacl_mod_get_acl_xattr(struct dentry *, int, void *, size_t);
 
 #endif  /* __LINUX_SYNO_ACL_H */

@@ -1276,6 +1276,7 @@ int syno_fetch_mountpoint_fullpath(struct vfsmount *mnt, size_t buf_len, char *m
 	struct mount *root_mnt = NULL;
 	struct path root_path;
 	struct path mnt_path;
+	struct task_struct *parent;
 
 	mnt_dentry_path_buf = kmalloc(PATH_MAX, GFP_ATOMIC);
 	if(!mnt_dentry_path_buf) {
@@ -1286,11 +1287,14 @@ int syno_fetch_mountpoint_fullpath(struct vfsmount *mnt, size_t buf_len, char *m
 	}
 
 	if (!nsproxy) {
-		ret = -EINVAL;
-		goto ERR;
-	}
+		rcu_read_lock();
+		parent = rcu_dereference(current->real_parent);
+		if (parent && parent->nsproxy)
+			mnt_space = parent->nsproxy->mnt_ns;
+		rcu_read_unlock();
+	} else
+		mnt_space = nsproxy->mnt_ns;
 
-	mnt_space = nsproxy->mnt_ns;
 	if (!mnt_space || !mnt_space->root) {
 		ret = -EINVAL;
 		goto ERR;
@@ -2200,11 +2204,6 @@ static inline int can_lookup(struct inode *inode)
  *   do a "get_unaligned()" if this helps and is sufficiently
  *   fast.
  *
- * - Little-endian machines (so that we can generate the mask
- *   of low bytes efficiently). Again, we *could* do a byte
- *   swapping load on big-endian architectures if that is not
- *   expensive enough to make the optimization worthless.
- *
  * - non-CONFIG_DEBUG_PAGEALLOC configurations (so that we
  *   do not trap on the (extremely unlikely) case of a page
  *   crossing operation.
@@ -2247,7 +2246,7 @@ unsigned int full_name_hash(const unsigned char *name, unsigned int len)
 		if (!len)
 			goto done;
 	}
-	mask = ~(~0ul << len*8);
+	mask = bytemask_from_count(len);
 	hash += mask & a;
 done:
 	return fold_hash(hash);

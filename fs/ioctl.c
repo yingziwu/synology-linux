@@ -776,6 +776,32 @@ static int ioctl_fsthaw(struct file *filp)
 	return thaw_super(sb);
 }
 
+#ifdef MY_ABC_HERE
+static int ioctl_syno_space_usage(struct file *filp, void __user *argp)
+{
+	int ret;
+	struct syno_space_usage_info info;
+
+	if (copy_from_user(&info, argp, sizeof(info))) {
+		ret = -EFAULT;
+		goto out;
+	}
+
+	ret = vfs_syno_space_usage(filp, &info);
+	if (ret)
+		goto out;
+
+	if (copy_to_user(argp, &info, sizeof(info))) {
+		ret = -EFAULT;
+		goto out;
+	}
+
+	ret = 0;
+out:
+	return ret;
+}
+#endif /* MY_ABC_HERE */
+
 /*
  * When you add any new common ioctls to the switches above and below
  * please update compat_sys_ioctl() too.
@@ -881,6 +907,11 @@ int do_vfs_ioctl(struct file *filp, unsigned int fd, unsigned int cmd,
 
 	case FICLONERANGE:
 		return ioctl_file_clone_range(filp, argp);
+
+#ifdef MY_ABC_HERE
+	case FISPACEUSAGE:
+		return ioctl_syno_space_usage(filp, argp);
+#endif /* MY_ABC_HERE */
 
 	default:
 		if (S_ISREG(inode->i_mode))

@@ -191,6 +191,10 @@ config SYNO_DROP_CACHE_MEM_COMPACT
 	default y
 	depends on COMPACTION
 
+config SYNO_WAIT_ON_PAGE_BIT_TIMEOUT
+	bool "Support wait_on_page_bit_killable_timeout()"
+	default y
+
 endmenu #System Features
 
 menu "Boot Arguments"

@@ -89,14 +89,17 @@ struct btrfs_ioctl_vol_args_v2 {
 	__s64 fd;
 	__u64 transid;
 	__u64 flags;
-#ifdef MY_DEF_HERE
-	__u64 copy_limit_from;
-#endif
 	union {
 		struct {
 			__u64 size;
 			struct btrfs_qgroup_inherit __user *qgroup_inherit;
 		};
+#ifdef MY_DEF_HERE
+		struct {
+			__u64 padding[3];
+			__u64 copy_limit_from;
+		};
+#endif /* MY_DEF_HERE */
 		__u64 unused[4];
 	};
 	char name[BTRFS_SUBVOL_NAME_MAX + 1];
@@ -301,7 +304,12 @@ struct btrfs_ioctl_balance_args {
 
 	struct btrfs_balance_progress stat;	/* out */
 
+#ifdef MY_DEF_HERE
+	__u64 unused[71];			/* pad to 1k */
+	__u64 total_chunk_used;			/* out */ /* for dry run */
+#else
 	__u64 unused[72];			/* pad to 1k */
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 };
 
 #define BTRFS_INO_LOOKUP_PATH_MAX 4080
@@ -565,6 +573,9 @@ struct btrfs_ioctl_get_dev_stats {
 #define BTRFS_USRQUOTA_CTL_ENABLE 1
 #define BTRFS_USRQUOTA_CTL_DISABLE 2
 #define BTRFS_USRQUOTA_CTL_DUMPTREE 3
+#ifdef MY_DEF_HERE
+#define BTRFS_USRQUOTA_V1_CTL_ENABLE  10
+#endif /* MY_DEF_HERE */
 struct btrfs_ioctl_usrquota_ctl_args {
 	__u64 cmd;
 	__u64 status;
@@ -605,6 +616,9 @@ struct btrfs_ioctl_cksumfailed_files_args {
 #define BTRFS_QUOTA_CTL_ENABLE	1
 #define BTRFS_QUOTA_CTL_DISABLE	2
 #define BTRFS_QUOTA_CTL_RESCAN__NOTUSED	3
+#ifdef MY_DEF_HERE
+#define BTRFS_QUOTA_V1_CTL_ENABLE  10
+#endif /* MY_DEF_HERE */
 struct btrfs_ioctl_quota_ctl_args {
 	__u64 cmd;
 	__u64 status;
@@ -615,6 +629,39 @@ struct btrfs_ioctl_quota_rescan_args {
 	__u64   progress;
 	__u64   reserved[6];
 };
+
+#ifdef MY_DEF_HERE
+// "in" parameter for struct btrfs_ioctl_syno_quota_status_args cmd:
+// Query volume rescan progress.
+#define BTRFS_QUOTA_STATUS_RESCAN_VOL_PROGRESS      (1ULL <<  1)
+// Query subvolume rescan progress.
+#define BTRFS_QUOTA_STATUS_RESCAN_SUBVOL_PROGRESS   (1ULL <<  2)
+
+// "out" parameter of struct btrfs_ioctl_syno_quota_status_args status:
+#define BTRFS_QUOTA_STATUS_VOL_DISABLED             (1ULL <<  0)
+#define BTRFS_QUOTA_STATUS_SUBVOL_DISABLED          (1ULL <<  1)
+#define BTRFS_QUOTA_STATUS_VOL_UPSTREAM_ENABLED     (1ULL <<  2)
+#define BTRFS_QUOTA_STATUS_VOL_SYNO_V1_ENABLED      (1ULL <<  3)
+#define BTRFS_QUOTA_STATUS_VOL_SYNO_V2_ENABLED      (1ULL <<  4)
+#define BTRFS_QUOTA_STATUS_SUBVOL_ENABLED           (1ULL <<  5)
+#define BTRFS_QUOTA_STATUS_VOL_RESCAN_DOING         (1ULL <<  6)
+#define BTRFS_QUOTA_STATUS_VOL_RESCAN_PAUSED        (1ULL <<  7)
+#define BTRFS_QUOTA_STATUS_SUBVOL_RESCAN_QUEUED     (1ULL <<  8)
+#define BTRFS_QUOTA_STATUS_SUBVOL_RESCANNING        (1ULL <<  9)
+#define BTRFS_QUOTA_STATUS_INCONSISTENT             (1ULL << 10)
+#define BTRFS_USRQUOTA_STATUS_INCONSISTENT          (1ULL << 11)
+#define BTRFS_QUOTA_STATUS_VOL_PROGRESS_VALID       (1ULL << 12)
+#define BTRFS_QUOTA_STATUS_SUBVOL_PROGRESS_VALID    (1ULL << 13)
+
+struct btrfs_ioctl_syno_quota_status_args {
+	__u64	cmd;
+	__u64	status;
+	__u64	progress;		// 0~10000. Caller can devide it by 100 to get percentage.
+	__u64	next_subvol_id;		// If "this" subvol is in recan list, report next subvol in the list.
+	__u64	scanning_subvol_id;	// Currently scanning subvol. May not be the same as "this" subvol.
+	__u64	reserved[3];
+};
+#endif /* MY_DEF_HERE */
 
 struct btrfs_ioctl_qgroup_assign_args {
 	__u64 assign;
@@ -762,6 +809,77 @@ struct btrfs_ioctl_syno_punch_check_args {
 #endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
+struct btrfs_ioctl_find_next_chunk_info_args {
+	__u64 start;
+	__u64 flags;
+	__u64 size;
+	__u64 stripe_count;
+	__u64 stripe_offset[2];
+	__u64 reserved[4];
+};
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+enum btrfs_syno_usage_state_enum {
+	SYNO_USAGE_STATE_NONE = 0,
+	SYNO_USAGE_STATE_INITIAL,
+	SYNO_USAGE_STATE_RESCAN,
+	SYNO_USAGE_STATE_RESCAN_ERROR,
+	SYNO_USAGE_STATE_RESCAN_PAUSE,
+	SYNO_USAGE_STATE_ENABLE,
+	SYNO_USAGE_STATE_DISABLE,
+};
+
+enum btrfs_syno_usage_root_state_enum {
+	SYNO_USAGE_ROOT_STATE_NORMAL = 0,
+	SYNO_USAGE_ROOT_STATE_RESCAN,
+};
+
+enum btrfs_syno_usage_type_enum {
+	SYNO_USAGE_TYPE_NONE	= 0,
+	SYNO_USAGE_TYPE_RO_SNAPSHOT,
+	SYNO_USAGE_TYPE_MAX = 256,
+};
+
+#define BTRFS_SYNO_USAGE_CTL_ENABLE	1
+#define BTRFS_SYNO_USAGE_CTL_DISABLE	2
+#define BTRFS_SYNO_USAGE_CTL_STATUS	3
+#define BTRFS_SYNO_USAGE_CTL_RESCAN	4
+#define BTRFS_SYNO_USAGE_CTL_RESCAN_PAUSE	5
+#define BTRFS_SYNO_USAGE_CTL_SUBVOL_TYPE_SET	6
+#define BTRFS_SYNO_USAGE_CTL_SUBVOL_TYPE_GET	7
+#define BTRFS_SYNO_USAGE_CTL_USAGE_GET_BY_TYPE	8
+struct btrfs_ioctl_syno_usage_ctl_args {
+	__u64 cmd; // commands
+
+	/* for status */
+	__u64 state;
+	__u64 flags;
+	__u32 pending_fast_rescan_count;
+	__u32 pending_full_rescan_count;
+	__u32 fast_rescan_pid;
+	__u32 full_rescan_pid;
+
+	/*
+	 * for status usage
+	 * for subvol type get/set
+	 */
+	__u8 type;
+
+	/* for rescan */
+	__s32 error_code;
+	__u64 cur_rescan_size;
+	__u64 total_rescan_size;
+
+	/* for status usage */
+	__u64 num_bytes;
+
+	/* for reserve */
+	__u64 reserved[4];
+};
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
 #define BTRFS_FREE_SPACE_ANALYZE_NR_INTERVAL	15
 #define BTRFS_FREE_SPACE_ANALYZE_FLAG_FULL	(1 << 0)
 
@@ -802,10 +920,7 @@ struct btrfs_ioctl_free_space_analyze_args {
  */
 #define BTRFS_SEND_FLAG_OMIT_END_CMD		0x4
 
-#if defined(MY_DEF_HERE) || \
-    defined(MY_DEF_HERE) || \
-	defined(MY_DEF_HERE) || \
-	defined(MY_DEF_HERE)
+#ifdef MY_DEF_HERE
 /*
  * In order to simplify how BTRFS_SEND_FLAG_MASK works with syno defined flags,
  * all syno defined flags are defiend if any of the corresponding config is
@@ -816,14 +931,14 @@ struct btrfs_ioctl_free_space_analyze_args {
  * parent snapshots, or in case of a full send, the total amount of file data
  * we will send.
  */
-#define BTRFS_SEND_FLAG_CALCULATE_DATA_SIZE    0x8
+#define BTRFS_SEND_FLAG_CALCULATE_DATA_SIZE     0x8
 
 /*
  * find_extent_clone in send could take a lot of time but end up find nothing
  * to clone, especially in iSCSI BLun thick provision. This flag is used
  * to indicate send to skip find_extent_clone.
  */
-#define BTRFS_SEND_FLAG_SKIP_FIND_CLONE    0x10
+#define BTRFS_SEND_FLAG_SKIP_FIND_CLONE         0x10
 
 /*
  * Use fallocate command to pre-allocate file extents and punch file holes,
@@ -836,23 +951,42 @@ struct btrfs_ioctl_free_space_analyze_args {
  */
 #define BTRFS_SEND_FLAG_FALLBACK_COMPRESSION    0x40
 
+/*
+ * Support synology btrfs send/recv features by this flag so that DSM kernel
+ * can be compatible with native btrfs cmd stream.
+ */
+#define BTRFS_SEND_FLAG_SYNO_FEATURES           0x80
+
+#define BTRFS_SEND_FLAG_VERBOSE                 0x100
+
+/*
+ * This mask is used to clear syno flags generating cmds customized by synology
+ * if BTRFS_SEND_FLAG_SYNO_FEATURES isn't turned on.
+ */
+#define BTRFS_SEND_GEN_SYNO_CMD_FLAG_MASK \
+	 (BTRFS_SEND_FLAG_SUPPORT_FALLOCATE)
+
+/*
+ * In order to simplify how BTRFS_SEND_FLAG_MASK works with syno defined flags,
+ * all send flags defined by syno config have to depend on
+ * SYNO_BTRFS_SEND_FLAGS_SUPPORT.
+ */
 #define BTRFS_SEND_FLAG_MASK \
 	(BTRFS_SEND_FLAG_NO_FILE_DATA | \
 	 BTRFS_SEND_FLAG_OMIT_STREAM_HEADER | \
+	 BTRFS_SEND_FLAG_OMIT_END_CMD | \
 	 BTRFS_SEND_FLAG_CALCULATE_DATA_SIZE | \
 	 BTRFS_SEND_FLAG_SKIP_FIND_CLONE | \
 	 BTRFS_SEND_FLAG_SUPPORT_FALLOCATE | \
 	 BTRFS_SEND_FLAG_FALLBACK_COMPRESSION | \
-	 BTRFS_SEND_FLAG_OMIT_END_CMD)
-#else
+	 BTRFS_SEND_FLAG_SYNO_FEATURES | \
+	 BTRFS_SEND_FLAG_VERBOSE)
+#else /* MY_DEF_HERE */
 #define BTRFS_SEND_FLAG_MASK \
 	(BTRFS_SEND_FLAG_NO_FILE_DATA | \
 	 BTRFS_SEND_FLAG_OMIT_STREAM_HEADER | \
 	 BTRFS_SEND_FLAG_OMIT_END_CMD)
-#endif /* MY_DEF_HERE || \
-          MY_DEF_HERE || \
-		  MY_DEF_HERE || \
-		  MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
 
 struct btrfs_ioctl_send_args {
 	__s64 send_fd;			/* in */
@@ -862,19 +996,14 @@ struct btrfs_ioctl_send_args {
 	__u64 flags;			/* in */
 #ifdef MY_DEF_HERE
 	__u64 total_data_size;   /* out */
-	__u32 g_verbose;
-#endif
+#endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 	__u64 skip_cmd_count;
 #endif /* MY_DEF_HERE */
 
 #if defined(MY_DEF_HERE) && defined(MY_DEF_HERE)
-	__u32 reserved_u32;
-	__u64 reserved[1];		/* in */
-#elif defined(MY_DEF_HERE)
-	__u32 reserved_u32;
 	__u64 reserved[2];		/* in */
-#elif defined(MY_DEF_HERE)
+#elif defined(MY_DEF_HERE) || defined(MY_DEF_HERE) 
 	__u64 reserved[3];		/* in */
 #else
 	__u64 reserved[4];		/* in */
@@ -941,6 +1070,34 @@ long btrfs_lazy_clone(struct file *file, unsigned long srcfd, u64 off,
 #endif
 #ifdef MY_DEF_HERE
 int btrfs_vfs_ino_to_path(struct inode *inode, u64 inum, char *outpath, int len);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+struct btrfs_list_hardlinks_iter_index {
+	u64 type;			/* INODE_REF/INODE_EXTREF */
+	u64 dir;			/* for INODE_REF */
+	u64 dir_index;		/* for INODE_REF */
+	u64 offset;			/* for INODE_EXTREF */
+	u64 cursor;			/* internal use */
+	u64 free_space;		/* internal use */
+};
+enum btrfs_list_hardlinks_index_type_enum {
+	SYNO_BTRFS_LIST_HARDLINKS_INDEX_TYPE_INODE_REF = 0,
+	SYNO_BTRFS_LIST_HARDLINKS_INDEX_TYPE_INODE_EXTREF,
+};
+struct btrfs_hardlink_entry {
+	u32 record_len;
+	u32 name_len;
+	u64 parent_inum;
+} __attribute__ ((__packed__));
+struct btrfs_list_hardlinks_args {
+	struct inode *inode;	/* in : subvolume dir inode */
+	u64 inum;				/* in */
+	u64 buf_size;			/* in : buffer size */
+	struct btrfs_list_hardlinks_iter_index index; /* in/out */
+	u64 elem_cnt;			/* out */
+	u8 buf[0];				/* out */
+};
+int btrfs_list_hardlinks(struct btrfs_list_hardlinks_args *args);
 #endif /* MY_DEF_HERE */
 #endif
 
@@ -1048,8 +1205,21 @@ int btrfs_vfs_ino_to_path(struct inode *inode, u64 inum, char *outpath, int len)
 				   struct btrfs_ioctl_feature_flags[3])
 
 #ifdef MY_DEF_HERE
+#define BTRFS_IOC_SYNO_QUOTA_STATUS _IOWR(BTRFS_IOCTL_MAGIC, 235, \
+				struct btrfs_ioctl_syno_quota_status_args)
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
 #define BTRFS_IOC_FREE_SPACE_ANALYZE	_IOWR(BTRFS_IOCTL_MAGIC, 240, \
 				   struct btrfs_ioctl_free_space_analyze_args)
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#define BTRFS_IOC_SYNO_USAGE_CTL	_IOWR(BTRFS_IOCTL_MAGIC, 241, \
+				   struct btrfs_ioctl_syno_usage_ctl_args)
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#define BTRFS_IOC_FIND_NEXT_CHUNK_INFO	_IOWR(BTRFS_IOCTL_MAGIC, 242, \
+				   struct btrfs_ioctl_find_next_chunk_info_args)
 #endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 #define BTRFS_IOC_SYNO_PUNCH_CHECK	_IOWR(BTRFS_IOCTL_MAGIC, 243, \

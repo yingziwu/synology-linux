@@ -91,7 +91,7 @@
 #include <linux/virtio_net.h>
 #include <linux/errqueue.h>
 #include <linux/net_tstamp.h>
-
+#include <linux/reciprocal_div.h>
 #ifdef CONFIG_INET
 #include <net/inet_common.h>
 #endif
@@ -539,7 +539,8 @@ static int prb_calc_retire_blk_tmo(struct packet_sock *po,
 			div = speed / 1000;
 		}
 #endif /* MY_ABC_HERE */
-	}
+	} else
+		return DEFAULT_PRB_RETIRE_TOV;
 
 	mbits = (blk_size_in_bytes * 8) / (1024 * 1024);
 
@@ -1195,6 +1196,13 @@ static unsigned int fanout_demux_cpu(struct packet_fanout *f,
 	return smp_processor_id() % num;
 }
 
+static unsigned int fanout_demux_rnd(struct packet_fanout *f,
+				     struct sk_buff *skb,
+				     unsigned int num)
+{
+	return prandom_u32_max(num);
+}
+
 static unsigned int fanout_demux_rollover(struct packet_fanout *f,
 					  struct sk_buff *skb,
 					  unsigned int idx, unsigned int skip,
@@ -1251,6 +1259,9 @@ static int packet_rcv_fanout(struct sk_buff *skb, struct net_device *dev,
 		break;
 	case PACKET_FANOUT_CPU:
 		idx = fanout_demux_cpu(f, skb, num);
+		break;
+	case PACKET_FANOUT_RND:
+		idx = fanout_demux_rnd(f, skb, num);
 		break;
 	case PACKET_FANOUT_ROLLOVER:
 		idx = fanout_demux_rollover(f, skb, 0, (unsigned int) -1, num);
@@ -1325,6 +1336,7 @@ static int fanout_add(struct sock *sk, u16 id, u16 type_flags)
 	case PACKET_FANOUT_HASH:
 	case PACKET_FANOUT_LB:
 	case PACKET_FANOUT_CPU:
+	case PACKET_FANOUT_RND:
 		break;
 	default:
 		return -EINVAL;
@@ -1768,7 +1780,8 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
 	int skb_len = skb->len;
 	unsigned int snaplen, res;
 	unsigned long status = TP_STATUS_USER;
-	unsigned short macoff, netoff, hdrlen;
+	unsigned short macoff, hdrlen;
+	unsigned int netoff;
 	struct sk_buff *copy_skb = NULL;
 	struct timespec ts;
 	__u32 ts_status;
@@ -1811,6 +1824,10 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
 				       (maclen < 16 ? 16 : maclen)) +
 			po->tp_reserve;
 		macoff = netoff - maclen;
+	}
+	if (netoff > USHRT_MAX) {
+		po->stats.stats1.tp_drops++;
+		goto drop_n_restore;
 	}
 	if (po->tp_version <= TPACKET_V2) {
 		if (macoff + snaplen > po->rx_ring.frame_size) {

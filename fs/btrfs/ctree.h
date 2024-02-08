@@ -128,6 +128,17 @@ struct btrfs_ordered_sum;
 #define BTRFS_BLOCK_GROUP_CACHE_TREE_OBJECTID 203ULL
 #endif
 
+#ifdef MY_DEF_HERE
+/*
+ * syno usage tree
+ */
+#define BTRFS_SYNO_USAGE_TREE_OBJECTID 205ULL
+/*
+ * syno extent usage tree
+ */
+#define BTRFS_SYNO_EXTENT_USAGE_TREE_OBJECTID 206ULL
+#endif /* MY_DEF_HERE */
+
 /* for storing balance parameters in the root tree */
 #define BTRFS_BALANCE_OBJECTID -4ULL
 
@@ -157,6 +168,13 @@ struct btrfs_ordered_sum;
  * free ino cache
  */
 #define BTRFS_FREE_INO_OBJECTID -12ULL
+
+#ifdef MY_DEF_HERE
+/*
+ * syno subvol usage objectid in fs_tree
+ */
+#define BTRFS_SYNO_SUBVOL_USAGE_OBJECTID -206ULL
+#endif /* MY_DEF_HERE */
 
 /* dummy objectid represents multiple objectids */
 #define BTRFS_MULTIPLE_OBJECTIDS -255ULL
@@ -404,6 +422,81 @@ static inline unsigned long btrfs_chunk_item_size(int num_stripes)
 #define BTRFS_OLD_BACKREF_REV		0
 #define BTRFS_MIXED_BACKREF_REV		1
 
+#ifdef MY_DEF_HERE
+#define BTRFS_SYNO_USAGE_STATUS_VERSION        1
+
+struct btrfs_syno_extent_usage_item {
+	u8 type;
+	__le64 reserved[1];
+} __attribute__ ((__packed__));
+
+struct btrfs_syno_extent_usage_inline_ref {
+	u8 type;
+	__le32 count;
+	__le64 reserved[1];
+} __attribute__ ((__packed__));
+
+struct btrfs_syno_subvol_usage_item {
+	__le32 refs;
+	__le32 num_bytes;
+	__le64 reserved[1];
+} __attribute__ ((__packed__));
+
+#define BTRFS_SYNO_USAGE_ROOT_FLAG_READONLY	(1ULL << 0)
+#define BTRFS_SYNO_USAGE_ROOT_FLAG_FAST_RESCAN	(1ULL << 1)
+#define BTRFS_SYNO_USAGE_ROOT_FLAG_FULL_RESCAN	(1ULL << 2)
+#define BTRFS_SYNO_USAGE_ROOT_FLAG_RESCAN_PROGRESS_ACCOUNTING	(1ULL << 3)
+#define BTRFS_SYNO_USAGE_ROOT_FLAG_RESCAN_MASK	(BTRFS_SYNO_USAGE_ROOT_FLAG_FAST_RESCAN |	\
+												BTRFS_SYNO_USAGE_ROOT_FLAG_FULL_RESCAN |	\
+												BTRFS_SYNO_USAGE_ROOT_FLAG_RESCAN_PROGRESS_ACCOUNTING)
+#define BTRFS_SYNO_USAGE_ROOT_FLAG_FORCE_EXTENT	(1ULL << 4)
+#define BTRFS_SYNO_USAGE_ROOT_FLAG_RESET_MASK	(BTRFS_SYNO_USAGE_ROOT_FLAG_READONLY |	\
+												BTRFS_SYNO_USAGE_ROOT_FLAG_FAST_RESCAN |	\
+												BTRFS_SYNO_USAGE_ROOT_FLAG_RESCAN_PROGRESS_ACCOUNTING |	\
+												BTRFS_SYNO_USAGE_ROOT_FLAG_FORCE_EXTENT)
+struct btrfs_syno_usage_root_status_item {
+	u8 type;
+	u8 new_type;
+	__le64 state;
+	__le64 flags;
+	__le64 num_bytes;
+	/* for subvol delete */
+	struct btrfs_disk_key drop_progress;
+	/* for rescan */
+	struct btrfs_disk_key fast_rescan_progress;
+	struct btrfs_disk_key full_rescan_progress;
+	__le64 cur_full_rescan_size;
+	__le64 total_full_rescan_size;
+	/* for disable */
+	__le64 total_syno_subvol_usage_items;
+	__le64 reserved[4];
+} __attribute__ ((__packed__));
+
+struct btrfs_syno_usage_global_type_item {
+	__le64 num_bytes;
+	__le64 reserved[4];
+} __attribute__ ((__packed__));
+
+#define BTRFS_SYNO_USAGE_FLAG_INCONSISTENT	(1ULL << 0)
+
+struct btrfs_syno_usage_status_item {
+	__le64 version;
+	__le64 state;
+	__le64 flags;
+	__le64 generation;
+	/* for rescan */
+	struct btrfs_disk_key extent_rescan_progress;
+	__le64 cur_full_rescan_size;
+	__le64 total_full_rescan_size;
+	__le64 extent_tree_cur_rescan_size;
+	__le64 extent_tree_total_rescan_size;
+	/* for disable */
+	__le64 total_syno_extent_tree_items;
+	__le64 total_syno_subvol_usage_items;
+	__le64 reserved[4];
+} __attribute__ ((__packed__));
+#endif /* MY_DEF_HERE */
+
 /*
  * every tree block (leaf or node) starts with this header.
  */
@@ -532,7 +625,8 @@ struct btrfs_super_block {
 	u8 sys_chunk_array[BTRFS_SYSTEM_CHUNK_ARRAY_SIZE];
 	struct btrfs_root_backup super_roots[BTRFS_NUM_BACKUP_ROOTS];
 #if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
-	u8 syno_reserved[549];
+	u8 syno_reserved[525];
+	__le64 syno_rbd_reserved[3]; /* Reserve for synorbd */
 	__le64 log_tree_rsv;
 	__le64 syno_generation;
 #endif
@@ -618,6 +712,70 @@ struct btrfs_node {
 	struct btrfs_key_ptr ptrs[];
 } __attribute__ ((__packed__));
 
+#ifdef MY_DEF_HERE
+/* these are bit numbers for test/set bit */
+#define SYNO_USAGE_ROOT_RUNTIME_FLAG_RESCAN 0
+#define SYNO_USAGE_ROOT_RUNTIME_FLAG_FAST_RESCAN 1
+#define SYNO_USAGE_ROOT_RUNTIME_FLAG_FULL_RESCAN 2
+
+struct btrfs_syno_usage_status {
+	/* on-disk */
+	u64 version;
+	u64 state;
+	u64 flags;
+	struct btrfs_key extent_rescan_progress;
+	u64 cur_full_rescan_size;
+	u64 total_full_rescan_size;
+	u64 extent_tree_cur_rescan_size;
+	u64 extent_tree_total_rescan_size;
+	u64 total_syno_extent_tree_items;
+	u64 total_syno_subvol_usage_items;
+
+	/* in memory */
+	u64 syno_usage_type_num_bytes[SYNO_USAGE_TYPE_MAX];
+	bool syno_usage_type_num_bytes_valid[SYNO_USAGE_TYPE_MAX];
+	s32 error_code;
+} __attribute__ ((__packed__));
+
+struct btrfs_syno_usage_root_status {
+	u8 type;
+	u8 new_type;
+	u64 state;
+	u64 flags;
+	u64 num_bytes;
+	struct btrfs_key drop_progress;
+	struct btrfs_key fast_rescan_progress;
+	struct btrfs_key full_rescan_progress;
+	u64 cur_full_rescan_size;
+	u64 total_full_rescan_size;
+	u64 total_syno_subvol_usage_items;
+} __attribute__ ((__packed__));
+#endif /* MY_DEF_HERE */
+
+/* Read ahead values for struct btrfs_path.reada */
+enum {
+	READA_NONE,
+	READA_BACK,
+	READA_FORWARD,
+	/*
+	 * Similar to READA_FORWARD but unlike it:
+	 *
+	 * 1) It will trigger readahead even for leaves that are not close to
+	 *    each other on disk;
+	 * 2) It also triggers readahead for nodes;
+	 * 3) During a search, even when a node or leaf is already in memory, it
+	 *    will still trigger readahead for other nodes and leaves that follow
+	 *    it.
+	 *
+	 * This is meant to be used only when we know we are iterating over the
+	 * entire tree or a very large part of it.
+	 */
+	READA_FORWARD_ALWAYS,
+#ifdef MY_DEF_HERE
+	READA_FORWARD_FORCE,
+#endif /* MY_DEF_HERE */
+};
+
 /*
  * btrfs_paths remember the path taken from the root down to the leaf.
  * level 0 is always the leaf, and nodes[1...BTRFS_MAX_LEVEL] will point
@@ -626,11 +784,6 @@ struct btrfs_node {
  * The slots array records the index of the item or block pointer
  * used while walking the tree.
  */
-#ifdef MY_DEF_HERE
-enum { READA_NONE = 0, READA_BACK, READA_FORWARD, READA_FORWARD_FORCE };
-#else
-enum { READA_NONE = 0, READA_BACK, READA_FORWARD };
-#endif /* MY_DEF_HERE */
 struct btrfs_path {
 	struct extent_buffer *nodes[BTRFS_MAX_LEVEL];
 	int slots[BTRFS_MAX_LEVEL];
@@ -1318,6 +1471,28 @@ struct btrfs_space_info {
 
 	struct kobject kobj;
 	struct kobject *block_group_kobjs[BTRFS_NR_RAID_TYPES];
+
+#ifdef MY_DEF_HERE
+	struct {
+		spinlock_t lock;
+		/* for trim/bg_ro */
+		struct rw_semaphore allocation_sem;
+		/* for block group */
+		struct rb_root_cached free_space_bytes;
+		struct rb_root_cached free_space_max_length;
+		struct rb_root_cached free_space_max_length_with_extent;
+		struct rb_root_cached preload; /* for auto scan after mount */
+		struct mutex syno_allocator_mutex;
+		bool force_cluster_disable;
+		struct btrfs_block_group_cache *cache_bg;
+		u64 cache_offset;
+#ifdef MY_DEF_HERE
+		u64 log_bg_offset;
+#endif /* MY_DEF_HERE */
+		atomic64_t fallback_relink_count;
+		atomic64_t fallback_full_scan_count;
+	} syno_allocator;
+#endif /* MY_DEF_HERE */
 };
 
 #define	BTRFS_BLOCK_RSV_GLOBAL		1
@@ -1507,6 +1682,23 @@ struct btrfs_block_group_cache {
 	 * Protected by free_space_lock.
 	 */
 	int needs_free_space;
+
+#ifdef MY_DEF_HERE
+	struct {
+		struct btrfs_space_info *space_info;
+		/* protect with space_info->syno_allocator.lock */
+		struct rb_node bytes_index;
+		struct rb_node max_length_index;
+		struct rb_node max_length_with_extent_index;
+		u64 last_bytes, last_max_length, last_max_length_with_extent;
+		struct rb_node preload_index;
+		u64 preload_free_space;
+		bool ro;
+		bool cache_error;
+		bool removed;
+		atomic_t refs;
+	} syno_allocator;
+#endif /* MY_DEF_HERE */
 };
 
 /* delayed seq elem */
@@ -1552,6 +1744,13 @@ struct btrfs_stripe_hash_table {
 #define BTRFS_STRIPE_HASH_TABLE_BITS 11
 
 void btrfs_init_async_reclaim_work(struct work_struct *work);
+#ifdef MY_DEF_HERE
+void btrfs_init_async_data_flush_work(struct work_struct *work);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+void btrfs_init_async_metadata_flush_work(struct work_struct *work);
+void btrfs_syno_btree_balance_dirty(struct btrfs_fs_info *fs_info, bool throttle);
+#endif /* MY_DEF_HERE */
 
 /* fs_info */
 struct reloc_control;
@@ -1658,6 +1857,9 @@ struct btrfs_fs_info {
 	struct btrfs_block_rsv delayed_block_rsv;
 
 	struct btrfs_block_rsv empty_block_rsv;
+#ifdef MY_DEF_HERE
+	struct btrfs_block_rsv cleaner_block_rsv;
+#endif /* MY_DEF_HERE */
 
 	u64 generation;
 	u64 last_trans_committed;
@@ -1766,6 +1968,9 @@ struct btrfs_fs_info {
 	struct list_head trans_list;
 	struct list_head dead_roots;
 	struct list_head caching_block_groups;
+#ifdef MY_DEF_HERE
+	spinlock_t caching_block_groups_lock;
+#endif /* MY_DEF_HERE */
 
 	spinlock_t delayed_iput_lock;
 	struct list_head delayed_iputs;
@@ -1816,9 +2021,6 @@ struct btrfs_fs_info {
 	struct btrfs_workqueue *workers;
 	struct btrfs_workqueue *delalloc_workers;
 	struct btrfs_workqueue *flush_workers;
-#ifdef MY_DEF_HERE
-	struct btrfs_workqueue *flush_meta_workers;
-#endif /* MY_DEF_HERE */
 	struct btrfs_workqueue *endio_workers;
 	struct btrfs_workqueue *endio_meta_workers;
 #ifdef MY_DEF_HERE
@@ -1844,6 +2046,9 @@ struct btrfs_fs_info {
 #endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 	struct btrfs_workqueue *syno_multiple_writeback_workers;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	struct btrfs_workqueue *syno_cow_async_workers;
 #endif /* MY_DEF_HERE */
 
 	/*
@@ -1882,10 +2087,6 @@ struct btrfs_fs_info {
 	struct percpu_counter delalloc_bytes;
 	s32 dirty_metadata_batch;
 	s32 delalloc_batch;
-
-#ifdef MY_DEF_HERE
-	atomic_t btree_flusher;
-#endif /* MY_DEF_HERE */
 
 	struct list_head dirty_cowonly_roots;
 
@@ -1998,8 +2199,8 @@ struct btrfs_fs_info {
 	wait_queue_head_t syno_async_submit_queue_wait;
 #endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
-	atomic_t syno_ordered_extent_nr;
-	int syno_max_ordered_queue_size;
+	atomic64_t syno_ordered_extent_nr;
+	u64 syno_max_ordered_queue_size;
 	wait_queue_head_t syno_ordered_queue_wait;
 #endif /* MY_DEF_HERE */
 
@@ -2153,6 +2354,13 @@ struct btrfs_fs_info {
 	 * because we not support replace disk.
 	 */
 	int dev_replace_may_start;
+#ifdef MY_DEF_HERE
+	struct work_struct async_data_flush_work;
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	struct work_struct async_metadata_flush_work;
+	atomic_t syno_metadata_throttle_nr;
 #endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
@@ -2180,6 +2388,34 @@ struct btrfs_fs_info {
 #endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
+	struct work_struct async_metadata_cache_work;
+	atomic_t syno_metadata_block_group_update_count;
+	int metadata_cache_enable;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+	struct btrfs_root *syno_usage_root;
+	struct btrfs_root *syno_extent_usage_root;
+	unsigned int syno_usage_enabled:1;
+	struct work_struct syno_usage_rescan_work;
+	struct work_struct syno_usage_fast_rescan_work;
+	struct work_struct syno_usage_full_rescan_work;
+	struct list_head syno_usage_pending_fast_rescan_roots;
+	struct list_head syno_usage_pending_full_rescan_roots;
+	pid_t syno_usage_fast_rescan_pid;
+	pid_t syno_usage_full_rescan_pid;
+	atomic_t syno_usage_pending_fast_rescan_count;
+	atomic_t syno_usage_pending_full_rescan_count;
+	spinlock_t syno_usage_fast_rescan_lock;
+	spinlock_t syno_usage_full_rescan_lock;
+	struct mutex syno_usage_ioctl_lock;
+	struct btrfs_syno_usage_status syno_usage_status;
+	spinlock_t syno_usage_lock;
+	int syno_usage_rescan_preload;
+	int syno_usage_rescan_check_all;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
 	atomic64_t fsync_cnt;
 	atomic64_t fsync_full_commit_cnt;
 	unsigned int commit_time_debug:1;
@@ -2195,6 +2431,21 @@ struct btrfs_fs_info {
 
 #ifdef MY_DEF_HERE
 	atomic_t syno_async_delayed_ref_count;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	atomic_t syno_metadata_reserve_pending;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+	struct {
+		atomic_t syno_allocator_refs;
+		wait_queue_head_t syno_allocator_wait;
+		atomic_t legacy_allocator_refs;
+		wait_queue_head_t legacy_allocator_wait;
+		struct btrfs_workqueue *caching_workers;
+		struct work_struct bg_prefetch_work;
+		bool bg_prefetch_running;
+	} syno_allocator;
 #endif /* MY_DEF_HERE */
 };
 
@@ -2310,9 +2561,6 @@ struct btrfs_root {
 	spinlock_t log_extents_lock[2];
 	struct list_head logged_list[2];
 
-	spinlock_t orphan_lock;
-	atomic_t orphan_inodes;
-	struct btrfs_block_rsv *orphan_block_rsv;
 	int orphan_cleanup_state;
 
 	spinlock_t inode_lock;
@@ -2393,6 +2641,15 @@ struct btrfs_root {
 	atomic_t nr_swapfiles;
 
 #ifdef MY_DEF_HERE
+	unsigned int syno_usage_enabled:1;
+	struct btrfs_syno_usage_root_status syno_usage_root_status;
+	unsigned long syno_usage_runtime_flags;
+	spinlock_t syno_usage_lock; /* protects the syno_usage_root_status [type,new_type,state,flags,num_bytes,fast_rescan_progress] */
+	rwlock_t syno_usage_rwlock; /* protects the syno_usage_root_status [full_rescan_progress] */
+	struct list_head syno_usage_rescan_list;
+	struct percpu_counter *syno_delalloc_bytes;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
 	/*
 	 * This refs is to make sure subvolume won't be added to
 	 * dead root until this count reaches zero.
@@ -2428,6 +2685,40 @@ struct btrfs_snapshot_size_ctx {
 	struct btrfs_snapshot_size_entry snaps[0];
 };
 #endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+/* Arguments for btrfs_punch_hole/btrfs_punch_hole_range */
+struct btrfs_punch_hole_args {
+	bool non_blocking; /* in */
+	bool need_restart; /* out */
+	loff_t next_offset; /* out */
+};
+#endif /* MY_DEF_HERE */
+
+struct btrfs_clone_extent_info {
+	u64 disk_offset;
+	u64 disk_len;
+	u64 data_offset;
+	u64 data_len;
+	u64 file_offset;
+	char *extent_buf;
+	u32 item_size;
+
+	/* for original quota */
+	bool same_root;
+
+#ifdef MY_DEF_HERE
+	// Used in syno quota v1.
+	bool quota_enabled;
+	bool same_inode;
+	bool check_backref;
+	bool accounting_reserve;
+	bool set_clone_range_flag;
+	u64 ram_bytes;
+	struct ulist *disko_ulist;
+	bool ulist_overflow;
+#endif /* MY_DEF_HERE */
+};
 
 /*
  * inode items have the data typically returned from stat and store other
@@ -2481,6 +2772,31 @@ struct btrfs_snapshot_size_ctx {
  * directory item in the root that references the subvol
  */
 #define BTRFS_ROOT_REF_KEY	156
+
+#ifdef MY_DEF_HERE
+/*
+ * syno usage tree
+ * syno usage status key : 158
+ * global type key : 159
+ * root status key : 160
+ */
+#define SYNO_BTRFS_USAGE_STATUS_KEY 158
+#define SYNO_BTRFS_USAGE_GLOBAL_TYPE_KEY 159
+#define SYNO_BTRFS_USAGE_ROOT_STATUS_KEY 160
+
+/*
+ * fs tree
+ * syno subvol dummy key 162
+ * syno subvol usage key 163
+ */
+#define SYNO_BTRFS_SUBVOL_DUMMY_KEY 162
+#define SYNO_BTRFS_SUBVOL_USAGE_KEY 163
+
+/*
+ * syno extent usage key
+ */
+#define SYNO_BTRFS_EXTENT_USAGE_KEY 165
+#endif /* MY_DEF_HERE */
 
 /*
  * extent items are in the extent map tree.  These record which blocks
@@ -2695,6 +3011,15 @@ struct btrfs_snapshot_size_ctx {
 #endif /*MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 #define BTRFS_MOUNT_SYNO_ACL        (1ULL << 32)
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#define BTRFS_MOUNT_DROP_LOG_TREE	(1ULL << 33)
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#define BTRFS_MOUNT_SKIP_CLEANER       (1ULL << 34)
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#define BTRFS_MOUNT_SYNO_ALLOCATOR	(1ULL << 36)
 #endif /* MY_DEF_HERE */
 
 #define BTRFS_DEFAULT_COMMIT_INTERVAL	(30)
@@ -3121,6 +3446,86 @@ static inline u32 btrfs_extent_inline_ref_size(int type)
 	BUG();
 	return 0;
 }
+
+#ifdef MY_DEF_HERE
+BTRFS_SETGET_FUNCS(syno_usage_status_version, struct btrfs_syno_usage_status_item, version, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_state, struct btrfs_syno_usage_status_item, state, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_flags, struct btrfs_syno_usage_status_item, flags, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_generation, struct btrfs_syno_usage_status_item, generation, 64);
+static inline void btrfs_syno_usage_status_extent_rescan_progress_key(struct extent_buffer *eb,
+				      struct btrfs_syno_usage_status_item *item,
+				      struct btrfs_disk_key *key)
+{
+	read_eb_member(eb, item, struct btrfs_syno_usage_status_item, extent_rescan_progress, key);
+}
+
+static inline void btrfs_set_syno_usage_status_extent_rescan_progress_key(struct extent_buffer *eb,
+					  struct btrfs_syno_usage_status_item *item,
+					  struct btrfs_disk_key *key)
+{
+	write_eb_member(eb, item, struct btrfs_syno_usage_status_item, extent_rescan_progress, key);
+}
+BTRFS_SETGET_FUNCS(syno_usage_status_cur_full_rescan_size, struct btrfs_syno_usage_status_item, cur_full_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_total_full_rescan_size, struct btrfs_syno_usage_status_item, total_full_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_extent_tree_cur_rescan_size, struct btrfs_syno_usage_status_item, extent_tree_cur_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_extent_tree_total_rescan_size, struct btrfs_syno_usage_status_item, extent_tree_total_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_total_syno_extent_tree_items, struct btrfs_syno_usage_status_item, total_syno_extent_tree_items, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_total_syno_subvol_usage_items, struct btrfs_syno_usage_status_item, total_syno_subvol_usage_items, 64);
+
+BTRFS_SETGET_FUNCS(syno_usage_global_type_num_bytes, struct btrfs_syno_usage_global_type_item, num_bytes, 64);
+
+BTRFS_SETGET_FUNCS(syno_usage_root_status_type, struct btrfs_syno_usage_root_status_item, type, 8);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_new_type, struct btrfs_syno_usage_root_status_item, new_type, 8);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_state, struct btrfs_syno_usage_root_status_item, state, 64);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_flags, struct btrfs_syno_usage_root_status_item, flags, 64);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_num_bytes, struct btrfs_syno_usage_root_status_item, num_bytes, 64);
+static inline void btrfs_syno_usage_root_status_drop_progress_key(struct extent_buffer *eb,
+				      struct btrfs_syno_usage_root_status_item *item,
+				      struct btrfs_disk_key *key)
+{
+	read_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, drop_progress, key);
+}
+static inline void btrfs_set_syno_usage_root_status_drop_progress_key(struct extent_buffer *eb,
+					  struct btrfs_syno_usage_root_status_item *item,
+					  struct btrfs_disk_key *key)
+{
+	write_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, drop_progress, key);
+}
+static inline void btrfs_syno_usage_root_status_fast_rescan_progress_key(struct extent_buffer *eb,
+				      struct btrfs_syno_usage_root_status_item *item,
+				      struct btrfs_disk_key *key)
+{
+	read_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, fast_rescan_progress, key);
+}
+static inline void btrfs_set_syno_usage_root_status_fast_rescan_progress_key(struct extent_buffer *eb,
+					  struct btrfs_syno_usage_root_status_item *item,
+					  struct btrfs_disk_key *key)
+{
+	write_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, fast_rescan_progress, key);
+}
+static inline void btrfs_syno_usage_root_status_full_rescan_progress_key(struct extent_buffer *eb,
+				      struct btrfs_syno_usage_root_status_item *item,
+				      struct btrfs_disk_key *key)
+{
+	read_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, full_rescan_progress, key);
+}
+static inline void btrfs_set_syno_usage_root_status_full_rescan_progress_key(struct extent_buffer *eb,
+					  struct btrfs_syno_usage_root_status_item *item,
+					  struct btrfs_disk_key *key)
+{
+	write_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, full_rescan_progress, key);
+}
+BTRFS_SETGET_FUNCS(syno_usage_root_status_cur_full_rescan_size, struct btrfs_syno_usage_root_status_item, cur_full_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_total_full_rescan_size, struct btrfs_syno_usage_root_status_item, total_full_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_total_syno_subvol_usage_items, struct btrfs_syno_usage_root_status_item, total_syno_subvol_usage_items, 64);
+
+BTRFS_SETGET_FUNCS(syno_extent_usage_type, struct btrfs_syno_extent_usage_item, type, 8);
+BTRFS_SETGET_FUNCS(syno_extent_usage_inline_ref_type, struct btrfs_syno_extent_usage_inline_ref, type, 8);
+BTRFS_SETGET_FUNCS(syno_extent_usage_inline_ref_count, struct btrfs_syno_extent_usage_inline_ref, count, 32);
+
+BTRFS_SETGET_FUNCS(syno_subvol_usage_ref_count, struct btrfs_syno_subvol_usage_item, refs, 32);
+BTRFS_SETGET_FUNCS(syno_subvol_usage_num_bytes, struct btrfs_syno_subvol_usage_item, num_bytes, 32);
+#endif /* MY_DEF_HERE */
 
 BTRFS_SETGET_FUNCS(ref_root_v0, struct btrfs_extent_ref_v0, root, 64);
 BTRFS_SETGET_FUNCS(ref_generation_v0, struct btrfs_extent_ref_v0,
@@ -3983,10 +4388,25 @@ static inline u64 btrfs_calc_trunc_metadata_size(struct btrfs_root *root,
 int btrfs_should_throttle_delayed_refs(struct btrfs_trans_handle *trans,
 				       struct btrfs_root *root);
 int btrfs_check_space_for_delayed_refs(struct btrfs_trans_handle *trans,
-				       struct btrfs_root *root);
+				       struct btrfs_root *root
+#ifdef MY_DEF_HERE
+				       , bool throttle
+#endif /* MY_DEF_HERE */
+				       );
 void btrfs_put_block_group(struct btrfs_block_group_cache *cache);
+#ifdef MY_DEF_HERE
+int btrfs_run_delayed_refs_and_get_processed(struct btrfs_trans_handle *trans,
+			   struct btrfs_root *root, unsigned long count,
+			   unsigned long *processed_count);
+static inline int btrfs_run_delayed_refs(struct btrfs_trans_handle *trans,
+			   struct btrfs_root *root, unsigned long count)
+{
+	return btrfs_run_delayed_refs_and_get_processed(trans, root, count, NULL);
+}
+#else /* MY_DEF_HERE */
 int btrfs_run_delayed_refs(struct btrfs_trans_handle *trans,
 			   struct btrfs_root *root, unsigned long count);
+#endif /* MY_DEF_HERE */
 int btrfs_async_run_delayed_refs(struct btrfs_root *root,
 				 unsigned long count, int wait);
 int btrfs_lookup_data_extent(struct btrfs_root *root, u64 start, u64 len);
@@ -4009,6 +4429,10 @@ int btrfs_cross_ref_exist(struct btrfs_root *root,
 struct btrfs_block_group_cache *btrfs_lookup_block_group(
 						 struct btrfs_fs_info *info,
 						 u64 bytenr);
+#ifdef MY_DEF_HERE
+struct btrfs_block_group_cache *btrfs_lookup_first_block_group(struct btrfs_fs_info *info, u64 bytenr);
+struct btrfs_block_group_cache *next_block_group(struct btrfs_root *root, struct btrfs_block_group_cache *cache);
+#endif /* MY_DEF_HERE */
 void btrfs_put_block_group(struct btrfs_block_group_cache *cache);
 int get_block_group_index(struct btrfs_block_group_cache *cache);
 struct extent_buffer *btrfs_alloc_tree_block(struct btrfs_trans_handle *trans,
@@ -4029,6 +4453,9 @@ int btrfs_alloc_reserved_file_extent(struct btrfs_trans_handle *trans,
 #endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 				     ,struct inode *inode, uid_t uid
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+				     ,int syno_usage
 #endif /* MY_DEF_HERE */
 				     );
 int btrfs_alloc_logged_file_extent(struct btrfs_trans_handle *trans,
@@ -4057,12 +4484,19 @@ int btrfs_free_extent(struct btrfs_trans_handle *trans,
 #ifdef MY_DEF_HERE
 		      ,u64 ram_bytes
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		      ,int syno_usage
+#endif /* MY_DEF_HERE */
 		      );
 #ifdef MY_DEF_HERE
 int btrfs_free_extent_uid(struct btrfs_trans_handle *trans, struct btrfs_root *root,
 			  u64 bytenr, u64 num_bytes, u64 parent, u64 root_objectid,
 			  u64 owner, u64 offset, int for_cow, u64 ram_bytes,
-			  struct inode *inode, uid_t uid);
+			  struct inode *inode, uid_t uid
+#ifdef MY_DEF_HERE
+			  ,int syno_usage
+#endif /* MY_DEF_HERE */
+			  );
 #endif /* MY_DEF_HERE */
 
 int btrfs_free_reserved_extent(struct btrfs_root *root, u64 start, u64 len,
@@ -4081,6 +4515,9 @@ int btrfs_inc_extent_ref(struct btrfs_trans_handle *trans,
 #ifdef MY_DEF_HERE
 			 ,u64 ram_bytes
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+			 ,int syno_usage
+#endif /* MY_DEF_HERE */
 			 );
 #ifdef MY_DEF_HERE
 int btrfs_inc_extent_ref_uid(struct btrfs_trans_handle *trans,
@@ -4088,7 +4525,11 @@ int btrfs_inc_extent_ref_uid(struct btrfs_trans_handle *trans,
 			 u64 bytenr, u64 num_bytes, u64 parent,
 			 u64 root_objectid, u64 owner, u64 offset,
 			 int no_quota, u64 ram_bytes,
-			 struct inode *inode, uid_t uid);
+			 struct inode *inode, uid_t uid
+#ifdef MY_DEF_HERE
+			 ,int syno_usage
+#endif /* MY_DEF_HERE */
+			 );
 #endif /* MY_DEF_HERE */
 
 int btrfs_start_dirty_block_groups(struct btrfs_trans_handle *trans,
@@ -4145,9 +4586,6 @@ void btrfs_free_reserved_data_space(struct inode *inode, u64 bytes);
 void btrfs_trans_release_metadata(struct btrfs_trans_handle *trans,
 				struct btrfs_root *root);
 void btrfs_trans_release_chunk_metadata(struct btrfs_trans_handle *trans);
-int btrfs_orphan_reserve_metadata(struct btrfs_trans_handle *trans,
-				  struct inode *inode);
-void btrfs_orphan_release_metadata(struct inode *inode);
 int btrfs_subvolume_reserve_metadata(struct btrfs_root *root,
 				     struct btrfs_block_rsv *rsv,
 				     int nitems,
@@ -4167,6 +4605,7 @@ struct btrfs_block_rsv *btrfs_alloc_block_rsv(struct btrfs_root *root,
 					      unsigned short type);
 void btrfs_free_block_rsv(struct btrfs_root *root,
 			  struct btrfs_block_rsv *rsv);
+void __btrfs_free_block_rsv(struct btrfs_block_rsv *rsv);
 int btrfs_block_rsv_add(struct btrfs_root *root,
 			struct btrfs_block_rsv *block_rsv, u64 num_bytes,
 			enum btrfs_reserve_flush_enum flush);
@@ -4224,6 +4663,9 @@ void check_system_chunk(struct btrfs_trans_handle *trans,
 			const bool is_allocation);
 u64 add_new_free_space(struct btrfs_block_group_cache *block_group,
 		       struct btrfs_fs_info *info, u64 start, u64 end);
+#ifdef MY_DEF_HERE
+void btrfs_init_syno_allocator_bg_prefetch_work(struct work_struct *work);
+#endif /* MY_DEF_HERE */
 
 /* ctree.c */
 int btrfs_bin_search(struct extent_buffer *eb, struct btrfs_key *key,
@@ -4424,6 +4866,10 @@ static inline void free_fs_info(struct btrfs_fs_info *fs_info)
 	kfree(fs_info->block_group_hint_root);
 	kfree(fs_info->block_group_cache_root);
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	kfree(fs_info->syno_usage_root);
+	kfree(fs_info->syno_extent_usage_root);
+#endif /* MY_DEF_HERE */
 	kfree(fs_info);
 }
 
@@ -4619,6 +5065,9 @@ noinline int can_nocow_extent(struct inode *inode, u64 offset, u64 *len,
 #ifdef MY_ABC_HERE
 int btrfs_quota_query(struct file *file, u64 *used, u64 *reserved, u64 *limit);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+int btrfs_syno_space_usage(struct file *file, struct syno_space_usage_info *info);
+#endif /* MY_ABC_HERE */
 
 /* RHEL and EL kernels have a patch that renames PG_checked to FsMisc */
 #if defined(ClearPageFsMisc) && !defined(ClearPageChecked)
@@ -4704,8 +5153,6 @@ int btrfs_update_inode_fallback(struct btrfs_trans_handle *trans,
 				struct btrfs_root *root, struct inode *inode);
 int btrfs_orphan_add(struct btrfs_trans_handle *trans, struct inode *inode);
 int btrfs_orphan_cleanup(struct btrfs_root *root);
-void btrfs_orphan_commit_root(struct btrfs_trans_handle *trans,
-			      struct btrfs_root *root);
 int btrfs_cont_expand(struct inode *inode, loff_t oldsize, loff_t size);
 void btrfs_invalidate_inodes(struct btrfs_root *root);
 void btrfs_add_delayed_iput(struct inode *inode);
@@ -4721,6 +5168,10 @@ extern const struct dentry_operations btrfs_dentry_operations;
 #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
 void btrfs_test_inode_set_ops(struct inode *inode);
 #endif
+
+#ifdef MY_DEF_HERE
+void block_dump___btrfs_update_inode(struct inode *inode);
+#endif /* MY_DEF_HERE */
 
 /* ioctl.c */
 long btrfs_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
@@ -4771,6 +5222,14 @@ int __btrfs_drop_extents(struct btrfs_trans_handle *trans,
 int btrfs_drop_extents(struct btrfs_trans_handle *trans,
 		       struct btrfs_root *root, struct inode *inode, u64 start,
 		       u64 end, int drop_cache);
+int btrfs_punch_hole_range(struct inode *inode, struct btrfs_path *path,
+			   const u64 start, const u64 end,
+			   struct btrfs_clone_extent_info *clone_info,
+			   struct btrfs_trans_handle **trans_out
+#ifdef MY_DEF_HERE
+			   , struct btrfs_punch_hole_args *args
+#endif /* MY_DEF_HERE */
+			   );
 int btrfs_mark_extent_written(struct btrfs_trans_handle *trans,
 			      struct inode *inode, u64 start, u64 end);
 int btrfs_release_file(struct inode *inode, struct file *file);
@@ -5258,8 +5717,47 @@ int btrfs_usrquota_mksnap(struct btrfs_trans_handle *trans,
                           bool readonly, u64 copy_limit_from);
 int btrfs_usrquota_delsnap(struct btrfs_trans_handle *trans,
                            struct btrfs_fs_info *fs_info, u64 root_id);
-void btrfs_usrquota_query(struct btrfs_fs_info *fs_info, u64 rootid,
+int btrfs_usrquota_query(struct btrfs_fs_info *fs_info, u64 rootid,
                           struct btrfs_ioctl_usrquota_query_args *uqa);
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+/* syno-extent-usage.c */
+int btrfs_create_syno_usage_tree(struct btrfs_fs_info *fs_info);
+int btrfs_clear_syno_usage_tree(struct btrfs_fs_info *fs_info);
+int btrfs_syno_usage_root_status_lookup(struct btrfs_fs_info *fs_info, u64 root_objectid, struct btrfs_syno_usage_root_status *ret_item);
+int btrfs_syno_usage_root_status_remove(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info, u64 root_objectid);
+int btrfs_syno_usage_root_status_update(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info, u64 root_objectid, struct btrfs_syno_usage_root_status *syno_usage_root_status);
+int btrfs_syno_usage_global_type_update(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info);
+int btrfs_read_syno_usage_config(struct btrfs_fs_info *fs_info);
+int btrfs_syno_extent_usage_add(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info, int want,
+				u64 bytenr, u64 num_bytes, int refs_to_add);
+int btrfs_syno_extent_usage_free(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info, int want,
+				u64 bytenr, u64 num_bytes, int refs_to_drop, bool remove);
+int btrfs_create_syno_extent_usage_tree(struct btrfs_fs_info *fs_info);
+int btrfs_clear_syno_extent_usage_tree(struct btrfs_fs_info *fs_info);
+int btrfs_syno_usage_ref_check(struct btrfs_root *root, u64 owner, u64 offset);
+int btrfs_syno_subvol_usage_add(struct btrfs_trans_handle *trans, struct btrfs_fs_info *fs_info,
+				u64 root_objectid, u64 bytenr, u64 num_bytes, int refs_to_add);
+int btrfs_syno_subvol_usage_free(struct btrfs_trans_handle *trans, struct btrfs_fs_info *fs_info,
+				u64 root_objectid, u64 bytenr, u64 num_bytes, int refs_to_drop);
+
+int btrfs_syno_clear_subvol_usage_item_prepare(struct btrfs_root *root);
+int btrfs_syno_clear_subvol_usage_item_doing(struct btrfs_root *root);
+void btrfs_init_syno_usage_rescan_work(struct work_struct *work);
+void btrfs_init_syno_usage_fast_rescan_work(struct work_struct *work);
+void btrfs_init_syno_usage_full_rescan_work(struct work_struct *work);
+void btrfs_syno_usage_rescan_resume(struct btrfs_fs_info *fs_info);
+int btrfs_syno_usage_enable(struct btrfs_fs_info *fs_info);
+int btrfs_syno_usage_disable(struct btrfs_fs_info *fs_info);
+void btrfs_syno_usage_root_initialize(struct btrfs_root *subvol_root);
+int btrfs_syno_usage_status_update(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info);
 #endif /* MY_DEF_HERE */
 
 static inline int btrfs_test_is_dummy_root(struct btrfs_root *root)
@@ -5277,6 +5775,11 @@ int btrfs_free_space_analyze(struct btrfs_fs_info *fs_info,
 		struct btrfs_ioctl_free_space_analyze_args *args);
 int btrfs_free_space_analyze_full(struct btrfs_fs_info *fs_info,
 		struct btrfs_ioctl_free_space_analyze_args *args);
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+int btrfs_syno_quota_status(struct btrfs_root *root,
+			struct btrfs_ioctl_syno_quota_status_args *sa);
 #endif /* MY_DEF_HERE */
 
 #endif

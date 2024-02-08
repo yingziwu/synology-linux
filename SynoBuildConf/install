@@ -43,7 +43,7 @@ SYNOAutoGenerateModulesConfig () {
 
 IPV6_COMMON_LIST="ipv6 ip_tunnel tunnel4 sit"
 CRYPTO_MODULES_ARM_32_COMMON_LIST="md5 cts ansi_cprng ecb sha1_generic arc4"
-MISC_MODULES_COMMON_LIST="llc p8022 psnap crc-ccitt crc-itu-t dm-snapshot md4 hfsplus zlib_deflate sg"
+MISC_MODULES_COMMON_LIST="llc p8022 psnap crc-ccitt crc-itu-t dm-snapshot md4 hfsplus zlib_deflate sg loop"
 USB_MODULES_COMMON_LIST="usb-common usbcore usb-storage"
 
 if [ -f "${KERNEL_MODULES_TABLE}" ]; then
