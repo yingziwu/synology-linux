@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*****************************************************************************/
 
 /*
@@ -675,10 +678,14 @@ static int checkintf(struct usb_dev_state *ps, unsigned int ifnum)
 		return -EINVAL;
 	if (test_bit(ifnum, &ps->ifclaimed))
 		return 0;
+#ifdef MY_ABC_HERE
+	/* to ignore the warning log */
+#else /* MY_ABC_HERE */
 	/* if not yet claimed, claim it for the driver */
 	dev_warn(&ps->dev->dev, "usbfs: process %d (%s) did not claim "
 		 "interface %u before use\n", task_pid_nr(current),
 		 current->comm, ifnum);
+#endif /* MY_ABC_HERE */
 	return claimintf(ps, ifnum);
 }
 

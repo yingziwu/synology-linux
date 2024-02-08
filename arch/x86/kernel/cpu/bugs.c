@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright (C) 1994  Linus Torvalds
  *
@@ -30,6 +33,7 @@
 #include <asm/intel-family.h>
 #include <asm/e820.h>
 
+static void __init spectre_v1_select_mitigation(void);
 static void __init spectre_v2_select_mitigation(void);
 static void __init ssb_select_mitigation(void);
 static void __init l1tf_select_mitigation(void);
@@ -68,6 +72,15 @@ EXPORT_SYMBOL_GPL(mds_idle_clear);
 
 void __init check_bugs(void)
 {
+#ifdef MY_ABC_HERE
+	if (cmdline_find_option_bool(boot_command_line, "SpectreAll_on") ||
+		cmdline_find_option_bool(boot_command_line, "SpectreV2_on") ||
+		cmdline_find_option_bool(boot_command_line, "SSBD_on") ||
+		cmdline_find_option_bool(boot_command_line, "MDS_on") ||
+		cmdline_find_option_bool(boot_command_line, "KPTI_on")) {
+		cpu_mitigations = CPU_MITIGATIONS_AUTO;
+	}
+#endif /* MY_ABC_HERE */
 	identify_boot_cpu();
 
 	if (!IS_ENABLED(CONFIG_SMP)) {
@@ -87,17 +100,11 @@ void __init check_bugs(void)
 	if (boot_cpu_has(X86_FEATURE_STIBP))
 		x86_spec_ctrl_mask |= SPEC_CTRL_STIBP;
 
-	/* Select the proper spectre mitigation before patching alternatives */
+	/* Select the proper CPU mitigations before patching alternatives: */
+	spectre_v1_select_mitigation();
 	spectre_v2_select_mitigation();
-
-	/*
-	 * Select proper mitigation for any exposure to the Speculative Store
-	 * Bypass vulnerability.
-	 */
 	ssb_select_mitigation();
-
 	l1tf_select_mitigation();
-
 	mds_select_mitigation();
 
 	arch_smt_update();
@@ -225,6 +232,14 @@ static void __init mds_select_mitigation(void)
 		mds_mitigation = MDS_MITIGATION_OFF;
 		return;
 	}
+#ifdef MY_ABC_HERE
+	if(cmdline_find_option_bool(boot_command_line, "SpectreAll_on") ||
+			cmdline_find_option_bool(boot_command_line, "MDS_on")) {
+		mds_mitigation = MDS_MITIGATION_FULL;
+	} else {
+		mds_mitigation = MDS_MITIGATION_OFF;
+	}
+#endif
 
 	if (mds_mitigation == MDS_MITIGATION_FULL) {
 		if (!boot_cpu_has(X86_FEATURE_MD_CLEAR))
@@ -250,6 +265,98 @@ static int __init mds_cmdline(char *str)
 	return 0;
 }
 early_param("mds", mds_cmdline);
+
+#undef pr_fmt
+#define pr_fmt(fmt)     "Spectre V1 : " fmt
+
+enum spectre_v1_mitigation {
+	SPECTRE_V1_MITIGATION_NONE,
+	SPECTRE_V1_MITIGATION_AUTO,
+};
+
+static enum spectre_v1_mitigation spectre_v1_mitigation =
+	SPECTRE_V1_MITIGATION_AUTO;
+
+static const char * const spectre_v1_strings[] = {
+	[SPECTRE_V1_MITIGATION_NONE] = "Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers",
+	[SPECTRE_V1_MITIGATION_AUTO] = "Mitigation: usercopy/swapgs barriers and __user pointer sanitization",
+};
+
+/*
+ * Does SMAP provide full mitigation against speculative kernel access to
+ * userspace?
+ */
+static bool smap_works_speculatively(void)
+{
+	if (!boot_cpu_has(X86_FEATURE_SMAP))
+		return false;
+
+	/*
+	 * On CPUs which are vulnerable to Meltdown, SMAP does not
+	 * prevent speculative access to user data in the L1 cache.
+	 * Consider SMAP to be non-functional as a mitigation on these
+	 * CPUs.
+	 */
+	if (boot_cpu_has(X86_BUG_CPU_MELTDOWN))
+		return false;
+
+	return true;
+}
+
+static void __init spectre_v1_select_mitigation(void)
+{
+	if (!boot_cpu_has_bug(X86_BUG_SPECTRE_V1) || cpu_mitigations_off()) {
+		spectre_v1_mitigation = SPECTRE_V1_MITIGATION_NONE;
+		return;
+	}
+
+	if (spectre_v1_mitigation == SPECTRE_V1_MITIGATION_AUTO) {
+		/*
+		 * With Spectre v1, a user can speculatively control either
+		 * path of a conditional swapgs with a user-controlled GS
+		 * value.  The mitigation is to add lfences to both code paths.
+		 *
+		 * If FSGSBASE is enabled, the user can put a kernel address in
+		 * GS, in which case SMAP provides no protection.
+		 *
+		 * [ NOTE: Don't check for X86_FEATURE_FSGSBASE until the
+		 *	   FSGSBASE enablement patches have been merged. ]
+		 *
+		 * If FSGSBASE is disabled, the user can only put a user space
+		 * address in GS.  That makes an attack harder, but still
+		 * possible if there's no SMAP protection.
+		 */
+		if (!smap_works_speculatively()) {
+			/*
+			 * Mitigation can be provided from SWAPGS itself or
+			 * PTI as the CR3 write in the Meltdown mitigation
+			 * is serializing.
+			 *
+			 * If neither is there, mitigate with an LFENCE to
+			 * stop speculation through swapgs.
+			 */
+			if (boot_cpu_has_bug(X86_BUG_SWAPGS) &&
+			    !boot_cpu_has(X86_FEATURE_KAISER))
+				setup_force_cpu_cap(X86_FEATURE_FENCE_SWAPGS_USER);
+
+			/*
+			 * Enable lfences in the kernel entry (non-swapgs)
+			 * paths, to prevent user entry from speculatively
+			 * skipping swapgs.
+			 */
+			setup_force_cpu_cap(X86_FEATURE_FENCE_SWAPGS_KERNEL);
+		}
+	}
+
+	pr_info("%s\n", spectre_v1_strings[spectre_v1_mitigation]);
+}
+
+static int __init nospectre_v1_cmdline(char *str)
+{
+	spectre_v1_mitigation = SPECTRE_V1_MITIGATION_NONE;
+	return 0;
+}
+early_param("nospectre_v1", nospectre_v1_cmdline);
 
 #undef pr_fmt
 #define pr_fmt(fmt)     "Spectre V2 : " fmt
@@ -485,7 +592,18 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
 
 	ret = cmdline_find_option(boot_command_line, "spectre_v2", arg, sizeof(arg));
 	if (ret < 0)
-		return SPECTRE_V2_CMD_AUTO;
+#ifdef MY_ABC_HERE
+	if (ret < 0) {
+		if (cmdline_find_option_bool(boot_command_line, "SpectreAll_on") ||
+			cmdline_find_option_bool(boot_command_line, "SpectreV2_on")) {
+			return SPECTRE_V2_CMD_AUTO;
+		} else {
+			return SPECTRE_V2_CMD_NONE;
+		}
+	}
+#else
+	return SPECTRE_V2_CMD_AUTO;
+#endif
 
 	for (i = 0; i < ARRAY_SIZE(mitigation_options); i++) {
 		if (!match_option(arg, ret, mitigation_options[i].option))
@@ -585,13 +703,17 @@ specv2_set_mode:
 	spectre_v2_enabled = mode;
 	pr_info("%s\n", spectre_v2_strings[mode]);
 
+#ifdef MY_ABC_HERE
+	if (cmdline_find_option_bool(boot_command_line, "SpectreAll_on") ||
+		cmdline_find_option_bool(boot_command_line, "SpectreV2_on")) {
+#endif /* MY_ABC_HERE */
 	/*
 	 * If spectre v2 protection has been enabled, unconditionally fill
 	 * RSB during a context switch; this protects against two independent
 	 * issues:
 	 *
-	 *	- RSB underflow (and switch to BTB) on Skylake+
-	 *	- SpectreRSB variant of spectre v2 on X86_BUG_SPECTRE_V2 CPUs
+	 *  - RSB underflow (and switch to BTB) on Skylake+
+	 *  - SpectreRSB variant of spectre v2 on X86_BUG_SPECTRE_V2 CPUs
 	 */
 	setup_force_cpu_cap(X86_FEATURE_RSB_CTXSW);
 	pr_info("Spectre v2 / SpectreRSB mitigation: Filling RSB on context switch\n");
@@ -614,6 +736,9 @@ specv2_set_mode:
 
 	/* Set up IBPB and STIBP depending on the general spectre V2 command */
 	spectre_v2_user_select_mitigation(cmd);
+#ifdef MY_ABC_HERE
+	}
+#endif /* MY_ABC_HERE */
 }
 
 static void update_stibp_msr(void * __unused)
@@ -744,6 +869,12 @@ static enum ssb_mitigation_cmd __init ssb_parse_cmdline(void)
 	char arg[20];
 	int ret, i;
 
+#ifdef MY_ABC_HERE
+	if (cmdline_find_option_bool(boot_command_line, "SpectreAll_on") ||
+		cmdline_find_option_bool(boot_command_line, "SSBD_on")) {
+		return SPEC_STORE_BYPASS_CMD_ON;
+	}
+#endif /* MY_ABC_HERE */
 	if (cmdline_find_option_bool(boot_command_line, "nospec_store_bypass_disable") ||
 	    cpu_mitigations_off()) {
 		return SPEC_STORE_BYPASS_CMD_NONE;
@@ -1145,7 +1276,7 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
 		break;
 
 	case X86_BUG_SPECTRE_V1:
-		return sprintf(buf, "Mitigation: __user pointer sanitization\n");
+		return sprintf(buf, "%s\n", spectre_v1_strings[spectre_v1_mitigation]);
 
 	case X86_BUG_SPECTRE_V2:
 		return sprintf(buf, "%s%s%s%s%s%s\n", spectre_v2_strings[spectre_v2_enabled],

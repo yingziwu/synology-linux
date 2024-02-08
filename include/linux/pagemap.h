@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_PAGEMAP_H
 #define _LINUX_PAGEMAP_H
 
@@ -328,6 +331,28 @@ static inline struct page *find_or_create_page(struct address_space *mapping,
 					FGP_LOCK|FGP_ACCESSED|FGP_CREAT,
 					gfp_mask);
 }
+
+#ifdef MY_ABC_HERE
+static inline bool task_skip_memcg_account(struct task_struct *p)
+{
+	return p->memcg_skip_account;
+}
+
+static inline struct page *find_or_create_page_no_memcg(struct address_space *mapping,
+					pgoff_t offset, gfp_t gfp_mask)
+{
+	struct page *page;
+
+	current->memcg_skip_account++;
+	page = pagecache_get_page(mapping, offset,
+					FGP_LOCK|FGP_ACCESSED|FGP_CREAT,
+					gfp_mask);
+	current->memcg_skip_account--;
+
+	return page;
+}
+#endif
+
 
 /**
  * grab_cache_page_nowait - returns locked page at given index in given cache

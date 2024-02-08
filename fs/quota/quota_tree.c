@@ -22,15 +22,21 @@ MODULE_LICENSE("GPL");
 
 #define __QUOTA_QT_PARANOIA
 
-static int get_index(struct qtree_mem_dqinfo *info, struct kqid qid, int depth)
+static int __get_index(struct qtree_mem_dqinfo *info, qid_t id, int depth)
 {
 	unsigned int epb = info->dqi_usable_bs >> 2;
-	qid_t id = from_kqid(&init_user_ns, qid);
 
 	depth = info->dqi_qtree_depth - depth - 1;
 	while (depth--)
 		id /= epb;
 	return id % epb;
+}
+
+static int get_index(struct qtree_mem_dqinfo *info, struct kqid qid, int depth)
+{
+	qid_t id = from_kqid(&init_user_ns, qid);
+
+	return __get_index(info, id, depth);
 }
 
 /* Number of entries in one blocks */
@@ -416,6 +422,7 @@ static int free_dqentry(struct qtree_mem_dqinfo *info, struct dquot *dquot,
 		quota_error(dquot->dq_sb, "Quota structure has offset to "
 			"other block (%u) than it should (%u)", blk,
 			(uint)(dquot->dq_off >> info->dqi_blocksize_bits));
+		ret = -EIO;
 		goto out_buf;
 	}
 	ret = read_blk(info, blk, buf);
@@ -481,6 +488,13 @@ static int remove_tree(struct qtree_mem_dqinfo *info, struct dquot *dquot,
 		goto out_buf;
 	}
 	newblk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
+	if (newblk < QT_TREEOFF || newblk >= info->dqi_blocks) {
+		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
+			    newblk, info->dqi_blocks);
+		ret = -EUCLEAN;
+		goto out_buf;
+	}
+
 	if (depth == info->dqi_qtree_depth - 1) {
 		ret = free_dqentry(info, dquot, newblk);
 		newblk = 0;
@@ -580,6 +594,13 @@ static loff_t find_tree_dqentry(struct qtree_mem_dqinfo *info,
 	blk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
 	if (!blk)	/* No reference? */
 		goto out_buf;
+	if (blk < QT_TREEOFF || blk >= info->dqi_blocks) {
+		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
+			    blk, info->dqi_blocks);
+		ret = -EUCLEAN;
+		goto out_buf;
+	}
+
 	if (depth < info->dqi_qtree_depth - 1)
 		ret = find_tree_dqentry(info, dquot, blk, depth+1);
 	else
@@ -668,3 +689,60 @@ int qtree_release_dquot(struct qtree_mem_dqinfo *info, struct dquot *dquot)
 	return 0;
 }
 EXPORT_SYMBOL(qtree_release_dquot);
+
+static int find_next_id(struct qtree_mem_dqinfo *info, qid_t *id,
+			unsigned int blk, int depth)
+{
+	char *buf = getdqbuf(info->dqi_usable_bs);
+	__le32 *ref = (__le32 *)buf;
+	ssize_t ret;
+	unsigned int epb = info->dqi_usable_bs >> 2;
+	unsigned int level_inc = 1;
+	int i;
+
+	if (!buf)
+		return -ENOMEM;
+
+	for (i = depth; i < info->dqi_qtree_depth - 1; i++)
+		level_inc *= epb;
+
+	ret = read_blk(info, blk, buf);
+	if (ret < 0) {
+		quota_error(info->dqi_sb,
+			    "Can't read quota tree block %u", blk);
+		goto out_buf;
+	}
+	for (i = __get_index(info, *id, depth); i < epb; i++) {
+		if (ref[i] == cpu_to_le32(0)) {
+			*id += level_inc;
+			continue;
+		}
+		if (depth == info->dqi_qtree_depth - 1) {
+			ret = 0;
+			goto out_buf;
+		}
+		ret = find_next_id(info, id, le32_to_cpu(ref[i]), depth + 1);
+		if (ret != -ENOENT)
+			break;
+	}
+	if (i == epb) {
+		ret = -ENOENT;
+		goto out_buf;
+	}
+out_buf:
+	kfree(buf);
+	return ret;
+}
+
+int qtree_get_next_id(struct qtree_mem_dqinfo *info, struct kqid *qid)
+{
+	qid_t id = from_kqid(&init_user_ns, *qid);
+	int ret;
+
+	ret = find_next_id(info, &id, QT_TREEOFF, 0);
+	if (ret < 0)
+		return ret;
+	*qid = make_kqid(&init_user_ns, qid->type, id);
+	return 0;
+}
+EXPORT_SYMBOL(qtree_get_next_id);

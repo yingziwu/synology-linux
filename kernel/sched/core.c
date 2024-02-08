@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  kernel/sched/core.c
  *
@@ -222,9 +225,9 @@ sched_feat_write(struct file *filp, const char __user *ubuf,
 
 	/* Ensure the static_key remains in a consistent state */
 	inode = file_inode(filp);
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	i = sched_feat_set(cmp);
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	if (i == __SCHED_FEAT_NR)
 		return -EINVAL;
 
@@ -4989,7 +4992,8 @@ void show_state_filter(unsigned long state_filter)
 	}
 
 #ifdef CONFIG_SCHED_DEBUG
-	sysrq_sched_debug_show();
+	if (!state_filter)
+		sysrq_sched_debug_show();
 #endif
 	rcu_read_unlock();
 	/*
@@ -5224,9 +5228,20 @@ void idle_task_exit(void)
  */
 static void calc_load_migrate(struct rq *rq)
 {
+#ifdef MY_ABC_HERE
+	long delta[3] = {0};
+	calc_load_fold_active(rq, delta);
+	if (delta[0])
+		atomic_long_add(delta[0], &calc_load_tasks);
+	if (delta[1])
+		atomic_long_add(delta[1], &calc_io_load_tasks);
+	if (delta[2])
+		atomic_long_add(delta[2], &calc_cpu_load_tasks);
+#else
 	long delta = calc_load_fold_active(rq);
 	if (delta)
 		atomic_long_add(delta, &calc_load_tasks);
+#endif /* MY_ABC_HERE */
 }
 
 static void put_prev_task_fake(struct rq *rq, struct task_struct *prev)
@@ -7514,6 +7529,10 @@ void __init sched_init(void)
 		raw_spin_lock_init(&rq->lock);
 		rq->nr_running = 0;
 		rq->calc_load_active = 0;
+#ifdef MY_ABC_HERE
+		rq->calc_io_load_active = 0;
+		rq->calc_cpu_load_active = 0;
+#endif /* MY_ABC_HERE */
 		rq->calc_load_update = jiffies + LOAD_FREQ;
 		init_cfs_rq(&rq->cfs);
 		init_rt_rq(&rq->rt);

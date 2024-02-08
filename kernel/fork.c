@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/kernel/fork.c
  *
@@ -254,7 +257,7 @@ void __put_task_struct(struct task_struct *tsk)
 	WARN_ON(tsk == current);
 
 	cgroup_free(tsk);
-	task_numa_free(tsk);
+	task_numa_free(tsk, true);
 	security_task_free(tsk);
 	exit_creds(tsk);
 	delayacct_tsk_free(tsk);
@@ -472,7 +475,11 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
 			struct inode *inode = file_inode(file);
 			struct address_space *mapping = file->f_mapping;
 
+#ifdef CONFIG_AUFS_FHSM
+			vma_get_file(tmp);
+#else
 			get_file(file);
+#endif /* CONFIG_AUFS_FHSM */
 			if (tmp->vm_flags & VM_DENYWRITE)
 				atomic_dec(&inode->i_writecount);
 			i_mmap_lock_write(mapping);
@@ -821,6 +828,29 @@ struct mm_struct *get_task_mm(struct task_struct *task)
 	return mm;
 }
 EXPORT_SYMBOL_GPL(get_task_mm);
+
+#ifdef MY_ABC_HERE
+struct mm_struct *syno_get_task_mm(struct task_struct *task)
+{
+	struct mm_struct *mm;
+
+	task_lock(task);
+	mm = task->mm;
+	if (mm) {
+		atomic_inc(&mm->mm_users);
+	} else {
+		mm = task->active_mm;
+		if (mm) {
+			atomic_inc(&mm->mm_users);
+		} else {
+			mm = NULL;
+		}
+	}
+	task_unlock(task);
+	return mm;
+}
+EXPORT_SYMBOL_GPL(syno_get_task_mm);
+#endif /* MY_ABC_HERE */
 
 struct mm_struct *mm_access(struct task_struct *task, unsigned int mode)
 {
@@ -1511,6 +1541,9 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 #ifdef CONFIG_BLOCK
 	p->plug = NULL;
 #endif
+#ifdef MY_ABC_HERE
+	p->workacct = NULL;
+#endif
 #ifdef CONFIG_FUTEX
 	p->robust_list = NULL;
 #ifdef CONFIG_COMPAT
@@ -1539,14 +1572,9 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	/* ok, now we should be set up.. */
 	p->pid = pid_nr(pid);
 	if (clone_flags & CLONE_THREAD) {
-		p->exit_signal = -1;
 		p->group_leader = current->group_leader;
 		p->tgid = current->tgid;
 	} else {
-		if (clone_flags & CLONE_PARENT)
-			p->exit_signal = current->group_leader->exit_signal;
-		else
-			p->exit_signal = (clone_flags & CSIGNAL);
 		p->group_leader = p;
 		p->tgid = p->pid;
 	}
@@ -1591,9 +1619,14 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
 		p->real_parent = current->real_parent;
 		p->parent_exec_id = current->parent_exec_id;
+		if (clone_flags & CLONE_THREAD)
+			p->exit_signal = -1;
+		else
+			p->exit_signal = current->group_leader->exit_signal;
 	} else {
 		p->real_parent = current;
 		p->parent_exec_id = current->self_exec_id;
+		p->exit_signal = (clone_flags & CSIGNAL);
 	}
 
 	spin_lock(&current->sighand->siglock);

@@ -360,7 +360,7 @@ void nfsd_reset_versions(void)
  */
 static void set_max_drc(void)
 {
-	#define NFSD_DRC_SIZE_SHIFT	10
+	#define NFSD_DRC_SIZE_SHIFT	7
 	nfsd_drc_max_mem = (nr_free_buffer_pages()
 					>> NFSD_DRC_SIZE_SHIFT) * PAGE_SIZE;
 	nfsd_drc_mem_used = 0;
@@ -370,6 +370,9 @@ static void set_max_drc(void)
 
 static int nfsd_get_default_max_blksize(void)
 {
+#if defined(CONFIG_SYNO_NFSD_WRITE_SIZE_MIN)
+	return CONFIG_SYNO_NFSD_WRITE_SIZE_MIN;
+#else /* CONFIG_SYNO_NFSD_WRITE_SIZE_MIN */
 	struct sysinfo i;
 	unsigned long long target;
 	unsigned long ret;
@@ -387,6 +390,7 @@ static int nfsd_get_default_max_blksize(void)
 	while (ret > target && ret >= 8*1024*2)
 		ret /= 2;
 	return ret;
+#endif /*CONFIG_SYNO_NFSD_WRITE_SIZE_MIN*/
 }
 
 static struct svc_serv_ops nfsd_thread_sv_ops = {

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* Driver for USB Mass Storage compliant devices
  *
  * Current development and maintenance by:
@@ -57,6 +60,10 @@
 #include <linux/kthread.h>
 #include <linux/mutex.h>
 #include <linux/utsname.h>
+#if defined(CONFIG_USB_ETRON_HUB)
+#include <linux/usb.h>
+#include <linux/usb/hcd.h>
+#endif /* CONFIG_USB_ETRON_HUB */
 
 #include <scsi/scsi.h>
 #include <scsi/scsi_cmnd.h>
@@ -302,6 +309,22 @@ void fill_inquiry_response(struct us_data *us, unsigned char *data,
 }
 EXPORT_SYMBOL_GPL(fill_inquiry_response);
 
+#if defined(CONFIG_USB_ETRON_HUB)
+static int usb_stor_no_test_unit_ready(struct us_data *us)
+{
+	struct usb_device *udev = us->pusb_dev;
+
+	if (us->srb->cmnd[0] != TEST_UNIT_READY)
+		return -EINVAL;
+
+	if (udev->descriptor.idVendor != cpu_to_le16(0x1759) ||
+		udev->descriptor.idProduct != cpu_to_le16(0x5002))
+		return -EINVAL;
+
+	return 0;
+}
+#endif /* CONFIG_USB_ETRON_HUB */
+
 static int usb_stor_control_thread(void * __us)
 {
 	struct us_data *us = (struct us_data *)__us;
@@ -374,7 +397,12 @@ static int usb_stor_control_thread(void * __us)
 			fill_inquiry_response(us, data_ptr, 36);
 			us->srb->result = SAM_STAT_GOOD;
 		}
-
+#if defined(CONFIG_USB_ETRON_HUB)
+		else if (usb_is_etron_hcd(us->pusb_dev) && !usb_stor_no_test_unit_ready(us)) {
+				usb_stor_dbg(us, "Ignoring TEST_UNIT_READY command\n");
+				us->srb->result = SAM_STAT_GOOD;
+		}
+#endif /* CONFIG_USB_ETRON_HUB */
 		/* we've got a command, let's do it! */
 		else {
 			US_DEBUG(usb_stor_show_command(us, us->srb));
@@ -858,6 +886,12 @@ static void quiesce_and_remove_host(struct us_data *us)
 	if (test_bit(US_FLIDX_SCAN_PENDING, &us->dflags))
 		usb_autopm_put_interface_no_suspend(us->pusb_intf);
 
+#ifdef MY_ABC_HERE
+	scsi_lock(host);
+	usb_stor_stop_transport(us);
+	scsi_unlock(host);
+#endif /* MY_ABC_HERE */
+
 	/* Removing the host will perform an orderly shutdown: caches
 	 * synchronized, disks spun down, etc.
 	 */
@@ -1081,6 +1115,17 @@ EXPORT_SYMBOL_GPL(usb_stor_disconnect);
 
 static struct scsi_host_template usb_stor_host_template;
 
+#if IS_ENABLED(CONFIG_USB_ETRON_UAS)
+static int is_uas_device(struct usb_interface *intf)
+{
+	struct usb_device *udev = interface_to_usbdev(intf);
+
+#define USB_QUIRK_UAS_MODE		0x80000000
+
+	return !!(udev->quirks & USB_QUIRK_UAS_MODE);
+}
+#endif /* IS_ENABLED(CONFIG_USB_ETRON_UAS) */
+
 /* The main probe routine for standard devices */
 static int storage_probe(struct usb_interface *intf,
 			 const struct usb_device_id *id)
@@ -1089,6 +1134,11 @@ static int storage_probe(struct usb_interface *intf,
 	struct us_data *us;
 	int result;
 	int size;
+
+#if IS_ENABLED(CONFIG_USB_ETRON_UAS)
+	if (is_uas_device(intf))
+		return -ENODEV;
+#endif /* IS_ENABLED(CONFIG_USB_ETRON_UAS) */
 
 	/* If uas is enabled and this device can do uas then ignore it. */
 #if IS_ENABLED(CONFIG_USB_UAS)
