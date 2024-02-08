@@ -146,9 +146,10 @@ struct nvme_nvm_command {
 	};
 };
 
+#define NVME_NVM_LP_MLC_PAIRS 886
 struct nvme_nvm_lp_mlc {
 	__u16			num_pairs;
-	__u8			pairs[886];
+	__u8			pairs[NVME_NVM_LP_MLC_PAIRS];
 };
 
 struct nvme_nvm_lp_tbl {
@@ -282,9 +283,14 @@ static int init_grps(struct nvm_id *nvm_id, struct nvme_nvm_id *nvme_nvm_id)
 			memcpy(dst->lptbl.id, src->lptbl.id, 8);
 			dst->lptbl.mlc.num_pairs =
 					le16_to_cpu(src->lptbl.mlc.num_pairs);
-			/* 4 bits per pair */
+
+			if (dst->lptbl.mlc.num_pairs > NVME_NVM_LP_MLC_PAIRS) {
+				pr_err("nvm: number of MLC pairs not supported\n");
+				return -EINVAL;
+			}
+
 			memcpy(dst->lptbl.mlc.pairs, src->lptbl.mlc.pairs,
-						dst->lptbl.mlc.num_pairs >> 1);
+						dst->lptbl.mlc.num_pairs);
 		}
 	}
 
@@ -458,14 +464,16 @@ static inline void nvme_nvm_rqtocmd(struct request *rq, struct nvm_rq *rqd,
 	c->ph_rw.length = cpu_to_le16(rqd->nr_pages - 1);
 
 	if (rqd->opcode == NVM_OP_HBWRITE || rqd->opcode == NVM_OP_HBREAD)
-		c->hb_rw.slba = cpu_to_le64(nvme_block_nr(ns,
-						rqd->bio->bi_iter.bi_sector));
+		/* momentarily hardcode the shift configuration. lba_shift from
+		 * nvm_dev will be available in a follow-up patch */
+		c->hb_rw.slba = cpu_to_le64(rqd->bio->bi_iter.bi_sector >> 3);
 }
 
 static void nvme_nvm_end_io(struct request *rq, int error)
 {
 	struct nvm_rq *rqd = rq->end_io_data;
 
+	rqd->ppa_status = nvme_req(rq)->result.u64;
 	nvm_end_io(rqd, error);
 
 	kfree(rq->cmd);
@@ -480,19 +488,18 @@ static int nvme_nvm_submit_io(struct nvm_dev *dev, struct nvm_rq *rqd)
 	struct bio *bio = rqd->bio;
 	struct nvme_nvm_command *cmd;
 
-	rq = blk_mq_alloc_request(q, bio_rw(bio), 0);
-	if (IS_ERR(rq))
+	cmd = kzalloc(sizeof(struct nvme_nvm_command), GFP_KERNEL);
+	if (!cmd)
 		return -ENOMEM;
 
-	cmd = kzalloc(sizeof(struct nvme_nvm_command), GFP_KERNEL);
-	if (!cmd) {
-		blk_mq_free_request(rq);
+	rq = nvme_alloc_request(q, (struct nvme_command *)cmd, 0, NVME_QID_ANY);
+	if (IS_ERR(rq)) {
+		kfree(cmd);
 		return -ENOMEM;
 	}
+	rq->cmd_flags &= ~REQ_FAILFAST_DRIVER;
 
-	rq->cmd_type = REQ_TYPE_DRV_PRIV;
 	rq->ioprio = bio_prio(bio);
-
 	if (bio_has_data(bio))
 		rq->nr_phys_segments = bio_phys_segments(q, bio);
 
@@ -500,10 +507,6 @@ static int nvme_nvm_submit_io(struct nvm_dev *dev, struct nvm_rq *rqd)
 	rq->bio = rq->biotail = bio;
 
 	nvme_nvm_rqtocmd(rq, rqd, ns, cmd);
-
-	rq->cmd = (unsigned char *)cmd;
-	rq->cmd_len = sizeof(struct nvme_nvm_command);
-	rq->special = (void *)0;
 
 	rq->end_io_data = rqd;
 

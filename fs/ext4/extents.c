@@ -2169,10 +2169,20 @@ cleanup:
 	kfree(npath);
 	return err;
 }
+#ifdef MY_ABC_HERE
+static int rbd_meta_fill_next_extent(struct syno_rbd_meta_ioctl_args *args,
+				     u64 next_start, u64 phys, u64 len,
+				     u32 flags);
+#endif /* MY_ABC_HERE */
+
 
 static int ext4_fill_fiemap_extents(struct inode *inode,
 				    ext4_lblk_t block, ext4_lblk_t num,
-				    struct fiemap_extent_info *fieinfo)
+				    struct fiemap_extent_info *fieinfo,
+#ifdef MY_ABC_HERE
+				    struct syno_rbd_meta_ioctl_args *rbd_meta
+#endif /* MY_ABC_HERE */
+				    )
 {
 	struct ext4_ext_path *path = NULL;
 	struct ext4_extent *ex;
@@ -2297,7 +2307,11 @@ static int ext4_fill_fiemap_extents(struct inode *inode,
 			}
 		}
 
-		if (exists) {
+		if (exists
+#ifdef MY_ABC_HERE
+		    && fieinfo
+#endif /* MY_ABC_HERE */
+		    ) {
 			err = fiemap_fill_next_extent(fieinfo,
 				(__u64)es.es_lblk << blksize_bits,
 				(__u64)es.es_pblk << blksize_bits,
@@ -2310,6 +2324,27 @@ static int ext4_fill_fiemap_extents(struct inode *inode,
 				break;
 			}
 		}
+#ifdef MY_ABC_HERE
+		if (rbd_meta) {
+			if (!exists) {
+				printk(KERN_WARNING
+				"rbd meta file must not have holes\n");
+				err = -EOPNOTSUPP;
+				break;
+			}
+			err = rbd_meta_fill_next_extent(rbd_meta,
+				((__u64)es.es_lblk + (__u64)es.es_len) << blksize_bits,
+				(__u64)es.es_pblk << blksize_bits,
+				(__u64)es.es_len << blksize_bits,
+				flags);
+			if (err < 0)
+				break;
+			if (err == 1) {
+				err = 0;
+				break;
+			}
+		}
+#endif /* MY_ABC_HERE */
 
 		block = es.es_lblk + es.es_len;
 	}
@@ -2318,6 +2353,93 @@ static int ext4_fill_fiemap_extents(struct inode *inode,
 	kfree(path);
 	return err;
 }
+
+#ifdef MY_ABC_HERE
+#define VALID_FIEMAP_FLAG_ON_RBD_META	(FIEMAP_EXTENT_UNWRITTEN | \
+					 FIEMAP_EXTENT_LAST)
+
+static int rbd_meta_fill_next_extent(struct syno_rbd_meta_ioctl_args *args,
+				     u64 next_start, u64 phys, u64 len,
+				     u32 flags)
+{
+	unsigned int idx = args->cnt;
+	unsigned int max_cnt;
+
+	if (flags & ~(VALID_FIEMAP_FLAG_ON_RBD_META)) {
+		printk(KERN_WARNING
+		       "rbd meta with invalid fiemap flag %u\n", flags);
+		return -EINVAL;
+	}
+
+	max_cnt = (args->size - sizeof(struct syno_rbd_meta_ioctl_args)) /
+		  sizeof(struct syno_rbd_meta_file_mapping);
+	if ((idx + 1) > max_cnt)
+		return 1;
+
+	args->mappings[idx].length = len;
+	args->mappings[idx].dev_offset = phys;
+	if (flags & FIEMAP_EXTENT_LAST)
+		args->start = (u64) -1;
+	else
+		args->start = next_start;
+	args->cnt++;
+	return 0;
+}
+
+int ext4_rbd_meta_file_mapping(struct inode *inode,
+			struct syno_rbd_meta_ioctl_args *args)
+{
+	int ret;
+	unsigned int max_cnt;
+	unsigned char blksize_bits = inode->i_sb->s_blocksize_bits;
+	ext4_lblk_t start_blk;
+	ext4_lblk_t len_blks;
+	__u64 last;
+	u64 isize;
+
+	if (args->start == (u64)-1)
+		return -EINVAL;
+
+	max_cnt = (args->size - sizeof(struct syno_rbd_meta_ioctl_args)) /
+		  sizeof(struct syno_rbd_meta_file_mapping);
+
+	if (!max_cnt)
+		return -EINVAL;
+
+	filemap_write_and_wait(inode->i_mapping);
+
+	if (ext4_has_inline_data(inode)) {
+		printk(KERN_WARNING "rbd meta file must not inline\n");
+		return -EINVAL;
+	}
+	if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))) {
+		printk(KERN_WARNING "only support extent inode on rbd meta file\n");
+		return -EOPNOTSUPP;
+	}
+
+	isize = ALIGN_DOWN(inode->i_size, (1ULL << blksize_bits));
+	if (!isize)
+		return -EINVAL;
+	if (args->start >= isize) {
+		args->cnt = 0;
+		args->start = (u64) -1;
+		return 0;
+	}
+
+	start_blk = args->start >> blksize_bits;
+	last = (isize - 1) >> blksize_bits;
+	if (last >= EXT_MAX_BLOCKS)
+		last = EXT_MAX_BLOCKS - 1;
+	len_blks = ((ext4_lblk_t) last) - start_blk + 1;
+
+	args->cnt = 0;
+	ret = ext4_fill_fiemap_extents(inode, start_blk,
+				       len_blks, NULL, args);
+	if (!ret && args->start != (u64) -1 && args->start >= isize)
+		args->start = (u64) -1;
+	return ret;
+}
+#endif /* MY_ABC_HERE */
 
 /*
  * ext4_ext_put_gap_in_cache:
@@ -5247,7 +5369,11 @@ int ext4_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 		 * and pushing extents back to the user.
 		 */
 		error = ext4_fill_fiemap_extents(inode, start_blk,
-						 len_blks, fieinfo);
+						 len_blks, fieinfo,
+#ifdef MY_ABC_HERE
+						 NULL
+#endif /* MY_ABC_HERE */
+						 );
 	}
 	return error;
 }

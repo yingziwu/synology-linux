@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/slab.h>
 #include <linux/pci.h>
 #include <linux/kernel.h>
@@ -33,11 +36,21 @@ int syno_pciepath_dts_pattern_get(struct pci_dev *pdev, char *szPciePath, const 
 		if (NULL == pDevUpstream) {
 			/* pdev is pcie root */
 			if (0 == *szPciePath) {
+#ifdef MY_DEF_HERE
+				snprintf(szPciePath, size, "%04x:%02x:%02x.%x", pci_domain_nr(pdev->bus),
+						pdev->bus->number, (pdev->devfn) >> 3, (pdev->devfn) & 0x7);
+#else /* MY_DEF_HERE */
 				snprintf(szPciePath, size, "%02x:%02x.%x", pdev->bus->number, (pdev->devfn) >> 3, (pdev->devfn) & 0x7);
+#endif /* MY_DEF_HERE */
 			} else {
 				/* Concatenate child pcie function and device */
 				strncpy(szTmp, szPciePath, size);
+#ifdef MY_DEF_HERE
+				snprintf(szPciePath, size, "%04x:%02x:%02x.%x,%s", pci_domain_nr(pdev->bus),
+						pdev->bus->number, (pdev->devfn) >> 3, (pdev->devfn) & 0x7, szTmp);
+#else /* MY_DEF_HERE */
 				snprintf(szPciePath, size, "%02x:%02x.%x,%s", pdev->bus->number, (pdev->devfn) >> 3, (pdev->devfn) & 0x7, szTmp);
+#endif /* MY_DEF_HERE */
 			}
 			break;
 		}

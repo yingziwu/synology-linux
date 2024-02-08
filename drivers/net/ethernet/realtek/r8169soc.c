@@ -1624,26 +1624,18 @@ static void __rtl8169_check_link_status(struct net_device *dev,
 		netif_carrier_on(dev);
 		if (net_ratelimit()){
 #ifdef MY_ABC_HERE
-#ifdef MY_ABC_HERE
 			netif_notice(tp, ifup, dev, "link up %s\n", speed_str);
 #else /* MY_ABC_HERE */
-			netif_info(tp, ifup, dev, "link up %s\n", speed_str);
-#endif /* MY_ABC_HERE */
-#else /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
-			netif_notice(tp, ifup, dev, "link up\n");
-#else /* MY_ABC_HERE */
 			netif_info(tp, ifup, dev, "link up\n");
-#endif /* MY_ABC_HERE */
 #endif /* MY_ABC_HERE */
 		}
 	} else {
 		netif_carrier_off(dev);
-#ifdef MY_ABC_HERE
+#ifdef CONFIG_CONFIG_SYNO_NET_R8169_LINK_LOG_ENHANCE
 		netif_notice(tp, ifdown, dev, "link down\n");
-#else /* MY_ABC_HERE */
+#else /* CONFIG_CONFIG_SYNO_NET_R8169_LINK_LOG_ENHANCE */
 		netif_info(tp, ifdown, dev, "link down\n");
-#endif /* MY_ABC_HERE */
+#endif /* CONFIG_CONFIG_SYNO_NET_R8169_LINK_LOG_ENHANCE */
 		if (pm)
 			pm_schedule_suspend(&tp->pdev->dev, 5000);
 	}

@@ -3955,7 +3955,7 @@ static inline void netif_keep_dst(struct net_device *dev)
 extern struct pernet_operations __net_initdata loopback_net_ops;
 
 #ifdef MY_ABC_HERE
-extern int syno_get_dev_vendor_mac(const char *szDev, char *szMac);
+extern int syno_get_dev_vendor_mac(const char *szDev, char *szMac, int bufSize);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE

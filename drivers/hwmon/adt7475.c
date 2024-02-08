@@ -1936,11 +1936,28 @@ extern int (*funcSYNOReadAdtFanSpeedRpm)(struct _SYNO_HWMON_SENSOR_TYPE *);
 extern int (*funcSYNOReadAdtVoltageSensor)(struct _SYNO_HWMON_SENSOR_TYPE *);
 extern int (*funcSYNOReadAdtThermalSensor)(struct _SYNO_HWMON_SENSOR_TYPE *);
 extern int (*funcSYNOReadAdtPeci)(struct _SynoCpuTemp *);
+extern int (*funcSYNOReadAdtFanSpeedRpmByOrder)(struct _SYNO_HWMON_SENSOR_TYPE *, struct _SYNO_HWMON_FAN_ORDER *);
+
+bool syno_is_host_i2c_adapter(struct i2c_adapter *adap)
+{
+	bool ret = true;
+#ifdef MY_DEF_HERE
+	if (0 == i2c_adapter_id(adap)) {
+		goto END;
+	}
+	ret = false;
+END:
+#endif /* MY_DEF_HERE */
+	return ret;
+}
 static struct i2c_client *syno_find_adt7490_client(void)
 {
         struct i2c_client *client, *_n, *ret = NULL;
 
         list_for_each_entry_safe(client, _n, &adt7475_driver.clients, detected) {
+		if(!syno_is_host_i2c_adapter(client->adapter)) {
+			continue;
+		}
 		if (SYNO_IS_ADT7490(client)) {
 			ret = client;
 			break;
@@ -2044,6 +2061,25 @@ static int syno_parse_adt_fan_speed_rpm(struct _SYNO_HWMON_SENSOR_TYPE *FanSpeed
 	return 0;
 }
 
+static int syno_parse_adt_fan_speed_rpm_by_order(struct _SYNO_HWMON_SENSOR_TYPE *FanSpeedRpm, struct _SYNO_HWMON_FAN_ORDER *FanOrder)
+{
+	struct i2c_client *client;
+	struct adt7475_data *data;
+	int i = 0;
+
+	client = syno_find_adt7490_client();
+	if (NULL == client || NULL == FanSpeedRpm || NULL == FanOrder) {
+		return -ENODEV;
+	}
+
+	data = i2c_get_clientdata(client);
+
+	for (i = 0 ; i < FanSpeedRpm->sensor_num ; i++) {
+		snprintf(FanSpeedRpm->sensor[i].value, sizeof(FanSpeedRpm->sensor[i].value), "%d",  tach2rpm(data->tach[INPUT][FanOrder->fan_order_list[i]]));
+	}
+	return 0;
+}
+
 #endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
@@ -2114,10 +2150,15 @@ static int adt7475_probe(struct i2c_client *client,
 #endif /* MY_DEF_HERE */
 		i2c_smbus_write_byte_data(client, REG_PECI_CONFIG, configPECI);
 
-		funcSYNOReadAdtPeci = syno_parse_adt_peci_input;
-		funcSYNOReadAdtFanSpeedRpm = syno_parse_adt_fan_speed_rpm;
-		funcSYNOReadAdtVoltageSensor = syno_parse_adt_voltage_sensor;
-		funcSYNOReadAdtThermalSensor = syno_parse_adt_thermal_sensor;
+		// assume internal ADT always locate at i2c bus 0
+		// to avoid NVMe expansion set functor
+		if (syno_is_host_i2c_adapter(client->adapter)) {
+			funcSYNOReadAdtPeci = syno_parse_adt_peci_input;
+			funcSYNOReadAdtFanSpeedRpm = syno_parse_adt_fan_speed_rpm;
+			funcSYNOReadAdtVoltageSensor = syno_parse_adt_voltage_sensor;
+			funcSYNOReadAdtThermalSensor = syno_parse_adt_thermal_sensor;
+			funcSYNOReadAdtFanSpeedRpmByOrder = syno_parse_adt_fan_speed_rpm_by_order;
+		}
 #ifdef MY_DEF_HERE
 		for (i = 0; i < ADT7490_PECI_COUNT; ++i) {
 			if (syno_cpu_tjmax(i, &tjmax) < 0) {
@@ -2262,10 +2303,15 @@ static int adt7475_remove(struct i2c_client *client)
 {
 	struct adt7475_data *data = i2c_get_clientdata(client);
 #ifdef MY_DEF_HERE
-	funcSYNOReadAdtPeci = NULL;
-	funcSYNOReadAdtFanSpeedRpm = NULL;
-	funcSYNOReadAdtVoltageSensor = NULL;
-	funcSYNOReadAdtThermalSensor = NULL;
+	// assume internal ADT always locate at i2c bus 0
+	// to avoid NVMe expansion reset functor
+	if (syno_is_host_i2c_adapter(client->adapter)) {
+		funcSYNOReadAdtPeci = NULL;
+		funcSYNOReadAdtFanSpeedRpm = NULL;
+		funcSYNOReadAdtVoltageSensor = NULL;
+		funcSYNOReadAdtThermalSensor = NULL;
+		funcSYNOReadAdtFanSpeedRpmByOrder = NULL;
+	}
 #endif /* MY_DEF_HERE */
 
 	hwmon_device_unregister(data->hwmon_dev);

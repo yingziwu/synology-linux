@@ -141,6 +141,11 @@ static int mv3310_amd_quirk(struct phy_device *phydev)
 	reg &= ~0x0180;
 	phy_write_mmd(phydev, MDIO_MMD_AN, MV_AN_CTRL1_MG, reg);
 
+	/* Do not advertise 100M & 10M */
+	reg = phy_read_mmd(phydev, MDIO_MMD_AN, MDIO_AN_ADVERTISE);
+	reg &= ~0x01e0;
+	phy_write_mmd(phydev, MDIO_MMD_AN, MDIO_AN_ADVERTISE, reg);
+
 	/* reset port to effect above change */
 	reg = phy_read_mmd(phydev, MDIO_MMD_VEND2, MV_V2_PORT_CTRL);
 	reg |= 0x8018;
@@ -584,6 +589,15 @@ static int syno_set_wol(struct phy_device *phydev, struct ethtool_wolinfo *wol)
 	val = phy_read_mmd(phydev, MDIO_MMD_AN, MV_AN_CTRL1_MG);
 	val &= ~0x1000;
 	ret = phy_write_mmd(phydev, MDIO_MMD_AN, MV_AN_CTRL1_MG, val);
+	if (ret) {
+		dev_err(&phydev->mdio.dev,"%s: failed to config advertise\n", __func__);
+		return ret;
+	}
+
+	/* advertise 100M & 10M */
+	val = phy_read_mmd(phydev, MDIO_MMD_AN, MDIO_AN_ADVERTISE);
+	val |= 0x01e0;
+	ret = phy_write_mmd(phydev, MDIO_MMD_AN, MDIO_AN_ADVERTISE, val);
 	if (ret) {
 		dev_err(&phydev->mdio.dev,"%s: failed to config advertise\n", __func__);
 		return ret;

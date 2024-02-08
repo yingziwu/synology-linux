@@ -1,3 +1,9 @@
+BUG ID:<DSM> #149714 - Print AER info of PCIe fatal error
+Commit Hashed:
+	b194a77fcc400
+
+First Ready Kernel version: 5.10
+
 BUG ID:<DSM> #131972 - Btrfs: backport tree-checker.c and integrity check
 Commit Hashed:
 	c06631b0d8a4236fb45667de60880b037863de56

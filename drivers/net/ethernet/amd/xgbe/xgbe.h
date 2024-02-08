@@ -297,11 +297,7 @@ extern bool convert_link_mode_to_legacy_u32(u32 *legacy_u32,
 
 /* Auto-negotiation */
 #define XGBE_AN_MS_TIMEOUT		500
-#if defined(MY_DEF_HERE)
-#define XGBE_LINK_TIMEOUT		10
-#else /* MY_DEF_HERE */
-#define XGBE_LINK_TIMEOUT		5
-#endif /* MY_DEF_HERE */
+#define XGBE_LINK_TIMEOUT		1
 
 #define XGBE_SGMII_AN_LINK_STATUS	BIT(1)
 #define XGBE_SGMII_AN_LINK_SPEED	(BIT(2) | BIT(3))
@@ -889,10 +885,14 @@ struct xgbe_phy_impl_if {
 	/* Pre/Post KR training enablement support */
 	void (*kr_training_pre)(struct xgbe_prv_data *);
 	void (*kr_training_post)(struct xgbe_prv_data *);
+	void (*reset_cdr_delay)(struct xgbe_prv_data *pdata);
 
 #if defined(MY_DEF_HERE)
 	/* WOL setting Enable */
 	void (*wol_enable)(struct xgbe_prv_data *);
+	void (*force_1g)(struct xgbe_prv_data *);
+	void (*resume_autoneg)(struct xgbe_prv_data *);
+	void (*phy_led_test_mode)(struct xgbe_prv_data *, unsigned int);
 #endif /* MY_DEF_HERE */
 };
 
@@ -1005,6 +1005,7 @@ struct xgbe_version_data {
 	unsigned int tx_desc_prefetch;
 	unsigned int rx_desc_prefetch;
 	unsigned int an_cdr_workaround;
+	unsigned int an_kr_workaround;
 };
 
 struct xgbe_prv_data {
@@ -1235,6 +1236,7 @@ struct xgbe_prv_data {
 	unsigned int fec_ability;
 	unsigned long an_start;
 	enum xgbe_an_mode an_mode;
+	unsigned long kr_start_time;
 
 	/* I2C support */
 	struct xgbe_i2c i2c;

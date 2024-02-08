@@ -9,3 +9,4 @@ obj-$(CONFIG_PINCTRL_CANNONLAKE)	+= pinctrl-cannonlake.o
 obj-$(CONFIG_PINCTRL_SUNRISEPOINT)	+= pinctrl-sunrisepoint.o
 obj-$(CONFIG_SYNO_DENVERTON)		+= pinctrl-denverton.o
 obj-$(CONFIG_SYNO_PINCTRL_LEWISBURG) 	+= pinctrl-lewisburg.o
+obj-$(CONFIG_SYNO_PINCTRL_CEDARFORK) 	+= pinctrl-cedarfork.o

@@ -33,6 +33,9 @@
 #ifdef MY_DEF_HERE
 extern bool ramdisk_check_failed;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#include <linux/synolib.h>
+#endif /* MY_DEF_HERE */
 #include "pnode.h"
 #include "internal.h"
 
@@ -47,8 +50,10 @@ extern void ext4_fill_mount_path(struct super_block *sb, const char *szPath);
 #ifdef MY_ABC_HERE
 int (*funcSYNOSendErrorFsBtrfsEvent)(const u8*) = NULL;
 void (*btrfs_fill_mount_path)(struct super_block *, const char *) = NULL;
+int (*funcSYNOMetaCorruptedEvent)(const u8*, u64 start) = NULL;
 EXPORT_SYMBOL(funcSYNOSendErrorFsBtrfsEvent);
 EXPORT_SYMBOL(btrfs_fill_mount_path);
+EXPORT_SYMBOL(funcSYNOMetaCorruptedEvent);
 #endif /* MY_ABC_HERE */
 /* Maximum number of mounts in a mount namespace */
 unsigned int sysctl_mount_max __read_mostly = 100000;
@@ -1914,6 +1919,20 @@ void drop_collected_mounts(struct vfsmount *mnt)
 	namespace_unlock();
 }
 
+static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
+{
+	struct mount *child;
+
+	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
+		if (!is_subdir(child->mnt_mountpoint, dentry))
+			continue;
+
+		if (child->mnt.mnt_flags & MNT_LOCKED)
+			return true;
+	}
+	return false;
+}
+
 /**
  * clone_private_mount - create a private clone of a path
  *
@@ -1928,16 +1947,27 @@ struct vfsmount *clone_private_mount(struct path *path)
 	struct mount *old_mnt = real_mount(path->mnt);
 	struct mount *new_mnt;
 
-	if (IS_MNT_UNBINDABLE(old_mnt))
-		return ERR_PTR(-EINVAL);
-
 	down_read(&namespace_sem);
+	if (IS_MNT_UNBINDABLE(old_mnt))
+		goto invalid;
+
+	if (!check_mnt(old_mnt))
+		goto invalid;
+
+	if (has_locked_children(old_mnt, path->dentry))
+		goto invalid;
+
 	new_mnt = clone_mnt(old_mnt, path->dentry, CL_PRIVATE);
 	up_read(&namespace_sem);
+
 	if (IS_ERR(new_mnt))
 		return ERR_CAST(new_mnt);
 
 	return &new_mnt->mnt;
+
+invalid:
+	up_read(&namespace_sem);
+	return ERR_PTR(-EINVAL);
 }
 EXPORT_SYMBOL_GPL(clone_private_mount);
 
@@ -2254,19 +2284,6 @@ static int do_change_type(struct path *path, int flag)
  out_unlock:
 	namespace_unlock();
 	return err;
-}
-
-static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
-{
-	struct mount *child;
-	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
-		if (!is_subdir(child->mnt_mountpoint, dentry))
-			continue;
-
-		if (child->mnt.mnt_flags & MNT_LOCKED)
-			return true;
-	}
-	return false;
 }
 
 /*
@@ -3050,12 +3067,20 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 	else if ((flags & MS_BIND) && ramdisk_check_failed)
 		retval = -EPERM;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	else if ((flags & MS_BIND) && kexec_test_flags)
+		retval = -EPERM;
+#endif /* MY_DEF_HERE */
 	else if (flags & MS_BIND)
 		retval = do_loopback(&path, dev_name, flags & MS_REC);
 	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
 		retval = do_change_type(&path, flags);
 #ifdef MY_DEF_HERE
 	else if ((flags & MS_MOVE) && ramdisk_check_failed)
+		retval = -EPERM;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	else if ((flags & MS_MOVE) && kexec_test_flags)
 		retval = -EPERM;
 #endif /* MY_DEF_HERE */
 	else if (flags & MS_MOVE)
@@ -3381,8 +3406,8 @@ SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 	/* make certain new is below the root */
 	if (!is_path_reachable(new_mnt, new.dentry, &root))
 		goto out4;
-	root_mp->m_count++; /* pin it so it won't go away */
 	lock_mount_hash();
+	root_mp->m_count++; /* pin it so it won't go away */
 	detach_mnt(new_mnt, &parent_path);
 	detach_mnt(root_mnt, &root_parent);
 	if (root_mnt->mnt.mnt_flags & MNT_LOCKED) {
