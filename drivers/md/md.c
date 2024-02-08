@@ -67,7 +67,13 @@
 #include "bitmap.h"
 #include "md-cluster.h"
 #ifdef MY_ABC_HERE
+#include "md-hint.h"
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 #include <linux/ratelimit.h>
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#include <linux/writeback.h>
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -571,6 +577,45 @@ void md_handle_request(struct mddev *mddev, struct bio *bio)
 }
 EXPORT_SYMBOL(md_handle_request);
 
+#ifdef MY_ABC_HERE
+static bool syno_is_rebuilding(struct mddev *mddev)
+{
+	bool ret = true;
+	struct md_rdev* rdev;
+
+	if (!test_bit(MD_RECOVERY_RUNNING, &mddev->recovery) ||
+	    test_bit(MD_RECOVERY_RESHAPE, &mddev->recovery) ||
+	    test_bit(MD_RECOVERY_SYNC, &mddev->recovery) ||
+	    !test_bit(MD_RECOVERY_RECOVER, &mddev->recovery))
+		ret = false;
+
+	/* Check for replacement */
+	rcu_read_lock();
+	rdev_for_each_rcu(rdev, mddev)
+		if (rdev->raid_disk >= 0 &&
+		    test_bit(WantReplacement, &rdev->flags)) {
+			ret = false;
+			break;
+		}
+	rcu_read_unlock();
+
+	return ret;
+}
+
+#ifdef MY_ABC_HERE
+static bool syno_is_requested_resyncing(struct mddev *mddev)
+{
+	return (test_bit(MD_RECOVERY_RUNNING, &mddev->recovery) &&
+	       !test_bit(MD_RECOVERY_RESHAPE, &mddev->recovery) &&
+	       test_bit(MD_RECOVERY_SYNC, &mddev->recovery) &&
+	       test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery) &&
+	       !test_bit(MD_RECOVERY_CHECK, &mddev->recovery));
+}
+#endif /* MY_ABC_HERE */
+
+static int enable_fast_rebuild = 0;
+#endif /* MY_ABC_HERE */
+
 static blk_qc_t md_make_request(struct request_queue *q, struct bio *bio)
 {
 	const int rw = bio_data_dir(bio);
@@ -619,11 +664,46 @@ static blk_qc_t md_make_request(struct request_queue *q, struct bio *bio)
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+	if (bio->bi_rw & REQ_UNUSED_HINT) {
+		int ret;
+		sector_t start = bio->bi_iter.bi_sector;
+		sector_t len = bio_sectors(bio);
+		sector_t end = start + len;
+		sector_t dev_sector;
+
+		if (!enable_fast_rebuild || len < SYNO_HINT_MIN_LEN)
+			goto endio_exit;
+		if (!syno_is_rebuilding(mddev))
+			goto endio_exit;
+		if (!mddev->pers->align_chunk_addr_virt_to_dev)
+			goto endio_exit;
+		/* Check if we already recover it */
+		mddev->pers->align_chunk_addr_virt_to_dev(mddev, end, 0,
+							  &dev_sector,
+							  NULL);
+		if (dev_sector < mddev->curr_resync)
+			goto endio_exit;
+
+		mutex_lock(&mddev->syno_rh_mutex);
+		if (!mddev->syno_allow_fast_rebuild)
+			goto unlock;
+		ret = syno_hint_add(&mddev->syno_rh_tree, start, end, GFP_KERNEL);
+		if (ret)
+			pr_err("%s: failed to add hint.\n", mdname(mddev));
+unlock:
+		mutex_unlock(&mddev->syno_rh_mutex);
+endio_exit:
+		bio_endio(bio);
+		return BLK_QC_T_NONE;
+	}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 	mdio = mempool_alloc(mddev->syno_mdio_mempool, GFP_NOIO);
 	if (!mdio) {
 		bio->bi_error = -ENOMEM;
 		bio_endio(bio);
-		return BLK_QC_T_NONE;
+		goto exit;
 	}
 
 #ifdef MY_ABC_HERE
@@ -664,6 +744,7 @@ static blk_qc_t md_make_request(struct request_queue *q, struct bio *bio)
 	}
 #endif /* MY_ABC_HERE */
 	sectors = bio_sectors(bio);
+
 	/* bio could be mergeable after passing to underlayer */
 	bio->bi_rw &= ~REQ_NOMERGE;
 
@@ -692,6 +773,9 @@ static blk_qc_t md_make_request(struct request_queue *q, struct bio *bio)
 	part_stat_unlock();
 #endif /* MY_ABC_HERE */
 
+#if defined(MY_ABC_HERE)
+exit:
+#endif
 	return BLK_QC_T_NONE;
 }
 
@@ -970,8 +1054,18 @@ void mddev_init(struct mddev *mddev)
 	mddev->resync_max = MaxSector;
 	mddev->level = LEVEL_NONE;
 #ifdef MY_ABC_HERE
+	syno_hint_tree_init(&mddev->syno_rh_tree);
+	mutex_init(&mddev->syno_rh_mutex);
+#ifdef MY_ABC_HERE
+	syno_hint_tree_init(&mddev->syno_sh_tree);
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	mddev->sb_not_clean = 0;
 #endif /* MY_ABC_HERE */
+#ifdef MY_DEF_HERE
+	mddev->syno_md_thread_fixed_node = -1;
+#endif /* MY_DEF_HERE */
 }
 EXPORT_SYMBOL_GPL(mddev_init);
 
@@ -2240,8 +2334,8 @@ static int super_1_validate(struct mddev *mddev, struct md_rdev *rdev)
 
 		mddev->recovery_cp = le64_to_cpu(sb->resync_offset);
 #ifdef MY_ABC_HERE
-		if (mddev->recovery_cp == le64_to_cpu(MaxSector - 1)){
-			mddev->recovery_cp = le64_to_cpu(MaxSector);
+		if (mddev->recovery_cp == MaxSector - 1){
+			mddev->recovery_cp = MaxSector;
 			mddev->sb_not_clean = 1;
 		}
 #endif /* MY_ABC_HERE */
@@ -5192,6 +5286,74 @@ mismatch_cnt_show(struct mddev *mddev, char *page)
 
 static struct md_sysfs_entry md_mismatches = __ATTR_RO(mismatch_cnt);
 
+#ifdef MY_ABC_HERE
+static ssize_t
+hints_show(struct mddev *mddev, char *page)
+{
+	return sprintf(page, "%lu\n",
+		       syno_hint_count(&mddev->syno_rh_tree));
+}
+
+static struct md_sysfs_entry md_syno_hints = __ATTR_RO(hints);
+
+static ssize_t
+hints_limit_show(struct mddev *mddev, char *page)
+{
+	return sprintf(page, "%lu\n",
+		       syno_hint_max_count(&mddev->syno_rh_tree));
+}
+
+static struct md_sysfs_entry md_syno_hints_limit = __ATTR_RO(hints_limit);
+
+static ssize_t
+skipped_sectors_show(struct mddev *mddev, char *page)
+{
+	return sprintf(page, "%llu\n",
+		       (unsigned long long)mddev->syno_rh_skipped_sectors);
+}
+
+static struct
+md_sysfs_entry md_syno_skipped_sectors = __ATTR_RO(skipped_sectors);
+
+#ifdef MY_ABC_HERE
+static ssize_t
+syno_enable_requested_resync_hints_show(struct mddev *mddev, char *page)
+{
+	return sprintf(page, "%d\n", mddev->syno_enable_requested_resync_hints);
+}
+
+static ssize_t
+syno_enable_requested_resync_hints_store(struct mddev *mddev,
+					 const char *buf,
+					 size_t len)
+{
+	int ret;
+	bool value;
+	struct md_rdev *rdev;
+
+	ret = kstrtobool(buf, &value);
+	if (ret)
+		return ret;
+
+	if (!value) {
+		syno_hint_tree_clear(&mddev->syno_sh_tree);
+		rcu_read_lock();
+		rdev_for_each_rcu(rdev, mddev)
+		    clear_bit(SynoNonFullInsync, &rdev->flags);
+		rcu_read_unlock();
+	}
+
+	mddev->syno_enable_requested_resync_hints = value;
+	return len;
+}
+
+static struct md_sysfs_entry md_syno_enable_requested_resync_hints =
+__ATTR(enable_requested_resync_hints, S_IRUGO|S_IWUSR,
+       syno_enable_requested_resync_hints_show,
+       syno_enable_requested_resync_hints_store);
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
 static ssize_t
 sync_min_show(struct mddev *mddev, char *page)
 {
@@ -5667,6 +5829,11 @@ md_active_store(struct mddev *mddev, const char *page, size_t len)
 	spin_unlock(&mddev->ActLock);
 
 	if (iNeedWake) {
+		if (unlikely(block_dump))
+			pr_warn("ppid:%d(%s), pid:%d(%s), try to wakeup %s\n",
+				task_pid_nr(current->real_parent), current->real_parent->comm,
+				task_pid_nr(current), current->comm,
+				mdname(mddev));
 		SynoMDWakeUpDevices(mddev);
 	}
 
@@ -5675,38 +5842,6 @@ md_active_store(struct mddev *mddev, const char *page, size_t len)
 
 static struct md_sysfs_entry md_active =
 __ATTR(active, S_IRUGO|S_IWUSR, md_active_show, md_active_store);
-#endif /* MY_ABC_HERE */
-
-#ifdef MY_ABC_HERE
-static ssize_t
-enable_rmw_show(struct mddev *mddev, char *page)
-{
-	return sprintf(page, "%d\n", mddev->enable_rmw);
-}
-
-static ssize_t
-enable_rmw_store(struct mddev *mddev, const char *page, size_t len)
-{
-	if (!mddev->pers){
-		len = -EINVAL;
-		goto END;
-	}
-
-	if (cmd_match(page, "1")) {
-		mddev->enable_rmw = 1;
-	} else if (cmd_match(page, "0")) {
-		mddev->enable_rmw = 0;
-	} else {
-		printk("md: %s: enable_rmw, error input\n", mdname(mddev));
-		goto END;
-	}
-
-END:
-	return len;
-}
-
-static struct md_sysfs_entry md_enable_rmw =
-__ATTR(enable_rmw, S_IRUGO|S_IWUSR, enable_rmw_show, enable_rmw_store);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -5912,6 +6047,44 @@ __ATTR(sb_not_clean, S_IRUGO|S_IWUSR, sb_not_clean_show,
 	sb_not_clean_store);
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_DEF_HERE
+static ssize_t
+syno_md_threads_fixed_node_show(struct mddev *mddev, char *page)
+{
+	return sprintf(page, "%d\n", mddev->syno_md_thread_fixed_node);
+}
+
+static ssize_t
+syno_md_threads_fixed_node_store(struct mddev *mddev, const char *page, size_t len)
+{
+	int new;
+
+	if (len >= PAGE_SIZE)
+		return -EINVAL;
+
+	if (kstrtoint(page, 10, &new))
+		return -EINVAL;
+
+	if (-1 != new && !node_online(new))
+		return -EINVAL;
+
+	if (mddev->pers == NULL) {
+		return -EINVAL;
+	}
+
+	mddev->syno_md_thread_fixed_node = new;
+	if (mddev->pers->adjust_md_threads_node)
+		mddev->pers->adjust_md_threads_node(mddev);
+
+	return len;
+}
+
+static struct md_sysfs_entry md_syno_md_threads_fixed_node =
+__ATTR(syno_md_threads_fixed_node, S_IRUGO | S_IWUSR,
+       syno_md_threads_fixed_node_show,
+       syno_md_threads_fixed_node_store);
+#endif /* MY_DEF_HERE */
+
 static struct attribute *md_default_attrs[] = {
 	&md_level.attr,
 	&md_layout.attr,
@@ -5934,14 +6107,14 @@ static struct attribute *md_default_attrs[] = {
 	&md_active.attr,
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
-	&md_enable_rmw.attr,
-#endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
 	&md_sb_not_clean.attr,
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	&md_pattern_debug.attr,
 #endif /* MY_ABC_HERE */
+#ifdef MY_DEF_HERE
+	&md_syno_md_threads_fixed_node.attr,
+#endif /* MY_DEF_HERE */
 	NULL,
 };
 
@@ -5969,6 +6142,14 @@ static struct attribute *md_redundancy_attrs[] = {
 	&md_suspend_hi.attr,
 	&md_bitmap.attr,
 	&md_degraded.attr,
+#ifdef MY_ABC_HERE
+	&md_syno_hints.attr,
+	&md_syno_hints_limit.attr,
+	&md_syno_skipped_sectors.attr,
+#ifdef MY_ABC_HERE
+	&md_syno_enable_requested_resync_hints.attr,
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 	NULL,
 };
 static struct attribute_group md_redundancy_group = {
@@ -6356,7 +6537,8 @@ int md_run(struct mddev *mddev)
 	mddev->nodev_and_crashed = MD_NOT_CRASHED;
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
-	if (0 == strcmp("md0", mdname(mddev)) || 0 == strcmp("md1", mdname(mddev))) {
+	if (0 == strcmp("md0", mdname(mddev)) || 0 == strcmp("md1", mdname(mddev)) ||
+	    0 == strcmp("md500", mdname(mddev))) {
 		mddev->parallel_resync = 1;
 	}
 #endif /* MY_ABC_HERE */
@@ -6663,7 +6845,14 @@ static void __md_stop(struct mddev *mddev)
 #ifdef MY_ABC_HERE
 	md_update_sb(mddev, 1);
 #endif /* MY_ABC_HERE */
-
+#ifdef MY_ABC_HERE
+	mutex_lock(&mddev->syno_rh_mutex);
+	syno_hint_tree_clear(&mddev->syno_rh_tree);
+	mutex_unlock(&mddev->syno_rh_mutex);
+#ifdef MY_ABC_HERE
+	syno_hint_tree_clear(&mddev->syno_sh_tree);
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 }
 
 void md_stop(struct mddev *mddev)
@@ -8357,6 +8546,9 @@ static const struct block_device_operations md_fops =
 static int md_thread(void *arg)
 {
 	struct md_thread *thread = arg;
+#ifdef MY_DEF_HERE
+	int node = -1;
+#endif /* MY_DEF_HERE */
 
 	/*
 	 * md_thread is a 'system-thread', it's priority should be very
@@ -8386,6 +8578,16 @@ static int md_thread(void *arg)
 			 test_bit(THREAD_WAKEUP, &thread->flags)
 			 || kthread_should_stop(),
 			 thread->timeout);
+
+#ifdef MY_DEF_HERE
+		if (node != thread->mddev->syno_md_thread_fixed_node) {
+			node = thread->mddev->syno_md_thread_fixed_node;
+			if (-1 == node)
+				set_cpus_allowed_ptr(current, cpu_online_mask);
+			else if (node_online(node))
+				set_cpus_allowed_ptr(current, cpumask_of_node(node));
+		}
+#endif /* MY_DEF_HERE */
 
 		clear_bit(THREAD_WAKEUP, &thread->flags);
 		if (!kthread_should_stop())
@@ -9080,6 +9282,115 @@ int md_allow_write(struct mddev *mddev)
 }
 EXPORT_SYMBOL_GPL(md_allow_write);
 
+#ifdef MY_ABC_HERE
+sector_t md_speedup_rebuild(struct mddev *mddev, sector_t sector_nr)
+{
+	struct syno_hint *hint;
+	sector_t skipped_sectors = 0;
+	sector_t h_start = 0, h_end = 0, dev_start = 0, dev_end = 0;
+#ifdef MY_ABC_HERE
+	sector_t last_start = mddev->syno_last_rebuild_start;
+#endif /* MY_ABC_HERE */
+
+	if (!mddev->pers) {
+		WARN_ON(1);
+		return 0;
+	}
+
+	if (!syno_is_rebuilding(mddev))
+		return 0;
+
+	if (!mddev->pers->align_chunk_addr_virt_to_dev)
+	    return 0;
+
+	if (!mutex_trylock(&mddev->syno_rh_mutex))
+		return 0;
+
+	hint = syno_hint_first(&mddev->syno_rh_tree);
+	while (hint) {
+		mddev->pers->align_chunk_addr_virt_to_dev(mddev,
+							  hint->h_start,
+							  0,
+							  &dev_start,
+							  NULL);
+		if (sector_nr < dev_start)
+			break;
+
+		h_start = hint->h_start;
+		/* Find the end of all continuous hints */
+		do {
+			h_end = max(h_end, hint->h_end);
+			syno_hint_remove(&mddev->syno_rh_tree, hint);
+			syno_hint_free(hint);
+			hint = syno_hint_first(&mddev->syno_rh_tree);
+		} while (hint && hint->h_start <= h_end);
+	}
+	mutex_unlock(&mddev->syno_rh_mutex);
+
+	mddev->pers->align_chunk_addr_virt_to_dev(mddev,
+						  h_start,
+						  h_end,
+						  &dev_start,
+						  &dev_end);
+	if (dev_start < dev_end && sector_nr < dev_end) {
+		skipped_sectors = dev_end - sector_nr;
+		mddev->syno_rh_skipped_sectors += skipped_sectors;
+#ifdef MY_ABC_HERE
+		if (mddev->syno_enable_requested_resync_hints &&
+		    last_start < sector_nr) {
+			if (syno_hint_add(&mddev->syno_sh_tree, last_start,
+					   sector_nr,
+					   GFP_KERNEL))
+				pr_err("%s: failed to add requested resync hint\n",
+				       mdname(mddev));
+			mddev->syno_last_rebuild_start = dev_end;
+		}
+#endif /* MY_ABC_HERE */
+	}
+
+	return skipped_sectors;
+}
+EXPORT_SYMBOL(md_speedup_rebuild);
+
+#ifdef MY_ABC_HERE
+sector_t md_speedup_requested_resync(struct mddev *mddev, sector_t sector_nr)
+{
+	sector_t skipped_sectors = 0;
+	sector_t dev_end = 0;
+	struct syno_hint *hint;
+
+	if (!mddev->pers) {
+		WARN_ON(1);
+		return 0;
+	}
+
+	if (!syno_is_requested_resyncing(mddev))
+		return 0;
+
+	if (!mddev->syno_enable_requested_resync_hints)
+		return 0;
+
+	if (mddev->resync_max_sectors != mddev->dev_sectors)
+		return 0;
+
+	hint = syno_hint_first(&mddev->syno_sh_tree);
+	while (hint) {
+		if (sector_nr < hint->h_start)
+			break;
+		dev_end = hint->h_end;
+		syno_hint_remove(&mddev->syno_sh_tree, hint);
+		syno_hint_free(hint);
+		hint = syno_hint_first(&mddev->syno_sh_tree);
+	}
+	if (sector_nr < dev_end)
+		skipped_sectors = dev_end - sector_nr;
+
+	return skipped_sectors;
+}
+EXPORT_SYMBOL(md_speedup_requested_resync);
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
 #define SYNC_MARKS	10
 #define	SYNC_MARK_STEP	(3*HZ)
 #define UPDATE_FREQUENCY (5*60*HZ)
@@ -9107,6 +9418,12 @@ void md_do_sync(struct md_thread *thread)
 #ifdef MY_ABC_HERE
 	int old_auto_remap_setting = -1;
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	bool is_rebuilding;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	sector_t tmp_curr_resync;
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	// # Test for DSM #56012. Workaround
@@ -9121,6 +9438,29 @@ void md_do_sync(struct md_thread *thread)
 		return;
 	}
 
+#ifdef MY_ABC_HERE
+	is_rebuilding = syno_is_rebuilding(mddev);
+	if (is_rebuilding) {
+		mutex_lock(&mddev->syno_rh_mutex);
+		if (syno_hint_count(&mddev->syno_rh_tree))
+			pr_err("%s: %lu hints are aborted, because it arrives before rebuild start\n",
+			       mdname(mddev), syno_hint_count(&mddev->syno_rh_tree));
+		syno_hint_tree_clear(&mddev->syno_rh_tree);
+		mddev->syno_rh_skipped_sectors = 0;
+		mutex_unlock(&mddev->syno_rh_mutex);
+#ifdef MY_ABC_HERE
+		syno_hint_tree_clear(&mddev->syno_sh_tree);
+	} else if (!syno_is_requested_resyncing(mddev) &&
+		   !test_bit(MD_RECOVERY_CHECK, &mddev->recovery)) {
+		syno_hint_tree_clear(&mddev->syno_sh_tree);
+		mddev->syno_enable_requested_resync_hints = false;
+		rcu_read_lock();
+		rdev_for_each_rcu(rdev, mddev)
+		    clear_bit(SynoNonFullInsync, &rdev->flags);
+		rcu_read_unlock();
+#endif /* MY_ABC_HERE */
+	}
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	old_auto_remap_setting = SynoRaidAutoRemapAdjust(mddev, MD_AUTO_REMAP_MODE_ISMAXDEGRADE);
 #endif /* MY_ABC_HERE */
@@ -9306,6 +9646,10 @@ void md_do_sync(struct md_thread *thread)
 	md_new_event(mddev);
 	update_time = jiffies;
 
+#ifdef MY_ABC_HERE
+	if (is_rebuilding)
+		mddev->syno_last_rebuild_start = j;
+#endif /* MY_ABC_HERE */
 	blk_start_plug(&plug);
 	while (j < max_sectors) {
 		sector_t sectors;
@@ -9528,8 +9872,35 @@ void md_do_sync(struct md_thread *thread)
 	} else if (test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery))
 		mddev->resync_min = mddev->curr_resync_completed;
 	set_bit(MD_RECOVERY_DONE, &mddev->recovery);
+#ifdef MY_ABC_HERE
+	tmp_curr_resync = mddev->curr_resync;
+#endif /* MY_ABC_HERE */
 	mddev->curr_resync = 0;
+
 	spin_unlock(&mddev->lock);
+#ifdef MY_ABC_HERE
+	if (is_rebuilding) {
+		mutex_lock(&mddev->syno_rh_mutex);
+		syno_hint_tree_clear(&mddev->syno_rh_tree);
+		mutex_unlock(&mddev->syno_rh_mutex);
+#ifdef MY_ABC_HERE
+		if (mddev->syno_enable_requested_resync_hints &&
+		    tmp_curr_resync > mddev->syno_last_rebuild_start &&
+		    syno_hint_add(&mddev->syno_sh_tree,
+				   mddev->syno_last_rebuild_start,
+				   tmp_curr_resync, GFP_KERNEL))
+			pr_err("%s: failed to add requested resync hint\n",
+			       mdname(mddev));
+	} else if (syno_is_requested_resyncing(mddev)) {
+		syno_hint_tree_clear(&mddev->syno_sh_tree);
+		mddev->syno_enable_requested_resync_hints = false;
+		rcu_read_lock();
+		rdev_for_each_rcu(rdev, mddev)
+		    clear_bit(SynoNonFullInsync, &rdev->flags);
+		rcu_read_unlock();
+#endif /* MY_ABC_HERE */
+	}
+#endif /* MY_ABC_HERE */
 
 	wake_up(&resync_wait);
 	md_wakeup_thread(mddev->thread);
@@ -10537,6 +10908,13 @@ static int __init md_init(void)
 {
 	int ret = -ENOMEM;
 
+#ifdef MY_ABC_HERE
+	ret = syno_md_hint_init();
+	if (ret)
+		goto err_syno_md_hint;
+	ret = -ENOMEM;
+#endif /* MY_ABC_HERE */
+
 	md_wq = alloc_workqueue("md", WQ_MEM_RECLAIM, 0);
 	if (!md_wq)
 		goto err_wq;
@@ -10592,6 +10970,10 @@ err_md:
 err_misc_wq:
 	destroy_workqueue(md_wq);
 err_wq:
+#ifdef MY_ABC_HERE
+	syno_md_hint_exit();
+err_syno_md_hint:
+#endif /* MY_ABC_HERE */
 	return ret;
 }
 
@@ -10950,6 +11332,9 @@ static __exit void md_exit(void)
 	}
 	destroy_workqueue(md_misc_wq);
 	destroy_workqueue(md_wq);
+#ifdef MY_ABC_HERE
+	syno_md_hint_exit();
+#endif /* MY_ABC_HERE */
 }
 
 subsys_initcall(md_init);
@@ -10967,6 +11352,10 @@ static int set_ro(const char *val, struct kernel_param *kp)
 module_param_call(start_ro, set_ro, get_ro, NULL, S_IRUSR|S_IWUSR);
 module_param(start_dirty_degraded, int, S_IRUGO|S_IWUSR);
 module_param_call(new_array, add_named_array, NULL, NULL, S_IWUSR);
+#ifdef MY_ABC_HERE
+module_param(enable_fast_rebuild, int, S_IRUGO|S_IWUSR);
+#endif /* MY_ABC_HERE */
+
 
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
 

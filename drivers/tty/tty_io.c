@@ -1259,6 +1259,11 @@ static ssize_t tty_write(struct file *file, const char __user *buf,
 	struct tty_struct *tty = file_tty(file);
  	struct tty_ldisc *ld;
 	ssize_t ret;
+#if defined(MY_DEF_HERE) && defined(MY_ABC_HERE)
+#ifdef MY_DEF_HERE
+	char chFirstChar = '\0';
+#endif
+#endif /* MY_DEF_HERE && MY_ABC_HERE */
 
 	if (tty_paranoia_check(tty, file_inode(file), "tty_write"))
 		return -EIO;
@@ -1276,9 +1281,26 @@ static ssize_t tty_write(struct file *file, const char __user *buf,
 #if defined(MY_DEF_HERE) && defined(MY_ABC_HERE)
 	{
 		if (0 == strcmp(tty->name, "ttyS1"))
-			do_tty_write(ld->ops->write, tty, file, "-", 1);
+#ifdef MY_DEF_HERE
+		{
+			if (access_ok(VERIFY_READ, buf, 1)) {
+				if (copy_from_user(&chFirstChar, buf, 1)) {
+					printk(KERN_DEBUG "error attempted to copy_from_user\n");
+				}
+			} else {
+				memcpy(&chFirstChar, buf, 1);
+			}
 
+			if ('+' != chFirstChar) {
+#endif /* MY_DEF_HERE */
+			do_tty_write(ld->ops->write, tty, file, "-", 1);
+#ifdef MY_DEF_HERE
+			}
+		}
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE && MY_ABC_HERE */
 		ret = do_tty_write(ld->ops->write, tty, file, buf, count);
+#if defined(MY_DEF_HERE) && defined(MY_ABC_HERE)
 	}
 #endif /* MY_DEF_HERE && MY_ABC_HERE */
 	tty_ldisc_deref(ld);

@@ -34,6 +34,7 @@ Supported adapters:
   * Intel Broxton (SOC)
   * Intel Lewisburg (PCH)
   * Intel Gemini Lake (SOC)
+  * Intel Cedar Fork (PCH)
    Datasheets: Publicly available at the Intel website
 
 On Intel Patsburg and later chipsets, both the normal host SMBus controller

@@ -596,6 +596,10 @@ void __bio_clone_fast(struct bio *bio, struct bio *bio_src)
 	if (unlikely(bio_flagged(bio_src, BIO_CORRECTION_ABORT)))
 		bio_set_flag(bio, BIO_CORRECTION_ABORT);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	if (unlikely(bio_flagged(bio_src, BIO_SYNO_FULL_STRIPE_MERGE)))
+		bio_set_flag(bio, BIO_SYNO_FULL_STRIPE_MERGE);
+#endif /* MY_ABC_HERE */
 
 	bio_clone_blkcg_association(bio, bio_src);
 }
@@ -699,6 +703,10 @@ struct bio *bio_clone_bioset(struct bio *bio_src, gfp_t gfp_mask,
 		bio_set_flag(bio, BIO_CORRECTION_RETRY);
 	if (unlikely(bio_flagged(bio_src, BIO_CORRECTION_ABORT)))
 		bio_set_flag(bio, BIO_CORRECTION_ABORT);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	if (unlikely(bio_flagged(bio_src, BIO_SYNO_FULL_STRIPE_MERGE)))
+		bio_set_flag(bio, BIO_SYNO_FULL_STRIPE_MERGE);
 #endif /* MY_ABC_HERE */
 
 	bio_for_each_segment(bv, bio_src, iter)
@@ -1560,7 +1568,7 @@ struct bio *bio_copy_kern(struct request_queue *q, void *data, unsigned int len,
 		if (bytes > len)
 			bytes = len;
 
-		page = alloc_page(q->bounce_gfp | gfp_mask);
+		page = alloc_page(q->bounce_gfp | __GFP_ZERO | gfp_mask);
 		if (!page)
 			goto cleanup;
 

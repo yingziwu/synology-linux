@@ -643,6 +643,10 @@ static int lp3943_probe(struct i2c_client *cl,
 	if (!i2c_check_functionality(cl->adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
 		return -EIO;
 
+#ifdef MY_DEF_HERE
+	pdata = &syno_lp3943_pdata;
+#endif /* MY_DEF_HERE */
+
 	ret = lp3943_validate_platform_data(&cl->dev, pdata);
 	if (ret)
 		return ret;

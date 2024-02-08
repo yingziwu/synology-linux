@@ -730,6 +730,7 @@ struct inode {
 		struct rcu_head		i_rcu;
 	};
 	u64			i_version;
+	atomic64_t		i_sequence; /* see futex */
 #ifdef MY_ABC_HERE
 	__u32			i_archive_bit;
 	struct mutex		i_syno_mutex;   /* i_archive_bit */
@@ -1722,6 +1723,13 @@ int fiemap_fill_next_extent(struct fiemap_extent_info *info, u64 logical,
 			    u64 phys, u64 len, u32 flags);
 int fiemap_check_flags(struct fiemap_extent_info *fieinfo, u32 fs_flags);
 
+#ifdef MY_ABC_HERE
+/*
+ * VFS space_usage helper definitions.
+ */
+extern int vfs_syno_space_usage(struct file *file, struct syno_space_usage_info *info);
+#endif /* MY_ABC_HERE */
+
 /*
  * File types
  *
@@ -1852,6 +1860,9 @@ struct file_operations {
 #ifdef MY_ABC_HERE
 	int (*quota_query) (struct file *file, u64 *used, u64 *reserved, u64 *limit);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	int (*syno_space_usage) (struct file *file, struct syno_space_usage_info *info);
+#endif /* MY_ABC_HERE */
 };
 
 struct inode_operations {
@@ -1923,6 +1934,20 @@ struct inode_operations {
 			   umode_t create_mode, int *opened);
 	int (*tmpfile) (struct inode *, struct dentry *, umode_t);
 	int (*set_acl)(struct inode *, struct posix_acl *, int);
+
+#ifdef MY_ABC_HERE
+	/* fsdev support */
+	int (*fsdev_activate)(struct inode *inode, struct block_device **fs_bdev);
+	void (*fsdev_deactivate)(struct inode *inode);
+	int (*fsdev_mapping)(struct inode *inode, u64 start, u64 end, u64 *dev_start, u64 *dev_end);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	int (*syno_rbd_meta_file_activate)(struct inode *);
+	int (*syno_rbd_meta_file_deactivate)(struct inode *);
+	int (*syno_rbd_meta_file_mapping)(struct inode *,
+			struct syno_rbd_meta_ioctl_args *args);
+#endif /* MY_ABC_HERE */
 } ____cacheline_aligned;
 
 ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
@@ -2019,6 +2044,11 @@ struct super_operations {
 				  struct shrink_control *);
 	long (*free_cached_objects)(struct super_block *,
 				    struct shrink_control *);
+#ifdef MY_ABC_HERE
+	int (*syno_rbd_set_first_mapping_table_offset)(
+			struct super_block *, u64 offset);
+	int (*syno_rbd_meta_file_cleanup_all)(struct inode *);
+#endif /* MY_ABC_HERE */
 };
 
 /*
@@ -3052,6 +3082,11 @@ enum {
 
 	/* inode/fs/bdev does not need truncate protection */
 	DIO_SKIP_DIO_COUNT = 0x08,
+
+#ifdef MY_DEF_HERE
+	/* force aio end_io with defer completion */
+	DIO_AIO_DEFER_COMPLETION = 0x10,
+#endif /* MY_DEF_HERE */
 };
 
 void dio_end_io(struct bio *bio, int error);
