@@ -27,7 +27,6 @@
  * AUTHNULL as for AUTHUNIX, and that is done here.
  */
 
-
 struct unix_domain {
 	struct auth_domain	h;
 	/* other stuff later */
@@ -76,7 +75,6 @@ struct auth_domain *unix_domain_find(char *name)
 	}
 }
 EXPORT_SYMBOL_GPL(unix_domain_find);
-
 
 /**************************************************
  * cache for IP address to unix_domain
@@ -289,7 +287,6 @@ static int ip_map_show(struct seq_file *m,
 	return 0;
 }
 
-
 static struct ip_map *__ip_map_lookup(struct cache_detail *cd, char *class,
 		struct in6_addr *addr)
 {
@@ -345,7 +342,6 @@ static inline int ip_map_update(struct net *net, struct ip_map *ipm,
 	sn = net_generic(net, sunrpc_net_id);
 	return __ip_map_update(sn->ip_map_cache, ipm, udom, expiry);
 }
-
 
 void svcauth_unix_purge(void)
 {
@@ -789,7 +785,6 @@ svcauth_null_release(struct svc_rqst *rqstp)
 	return 0; /* don't drop */
 }
 
-
 struct auth_ops svcauth_null = {
 	.name		= "null",
 	.owner		= THIS_MODULE,
@@ -798,7 +793,6 @@ struct auth_ops svcauth_null = {
 	.release	= svcauth_null_release,
 	.set_client	= svcauth_unix_set_client,
 };
-
 
 static int
 svcauth_unix_accept(struct svc_rqst *rqstp, __be32 *authp)
@@ -864,7 +858,6 @@ svcauth_unix_release(struct svc_rqst *rqstp)
 
 	return 0;
 }
-
 
 struct auth_ops svcauth_unix = {
 	.name		= "unix",

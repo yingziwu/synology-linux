@@ -379,7 +379,6 @@ static int gen_rtc_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
-
 #ifdef CONFIG_PROC_FS
 
 /*
@@ -483,7 +482,6 @@ static int __init gen_rtc_proc_init(void)
 static inline int gen_rtc_proc_init(void) { return 0; }
 #endif /* CONFIG_PROC_FS */
 
-
 /*
  *	The various file operations we support.
  */
@@ -531,7 +529,6 @@ static void __exit rtc_generic_exit(void)
 	remove_proc_entry ("driver/rtc", NULL);
 	misc_deregister(&rtc_gen_dev);
 }
-
 
 module_init(rtc_generic_init);
 module_exit(rtc_generic_exit);

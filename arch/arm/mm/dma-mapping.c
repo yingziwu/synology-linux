@@ -483,6 +483,13 @@ void ___dma_single_cpu_to_dev(const void *kaddr, size_t size,
 }
 EXPORT_SYMBOL(___dma_single_cpu_to_dev);
 
+void hi_dmac_map_area(const void *kaddr, size_t size,
+			enum dma_data_direction dir)
+{
+	dmac_map_area(kaddr, size, dir);
+}
+EXPORT_SYMBOL(hi_dmac_map_area);
+
 void ___dma_single_dev_to_cpu(const void *kaddr, size_t size,
 	enum dma_data_direction dir)
 {

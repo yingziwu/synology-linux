@@ -267,7 +267,6 @@ static int vidioc_subscribe_event(struct v4l2_fh *fh,
 	}
 }
 
-
 /* File system interface */
 static const struct v4l2_file_operations usb_keene_fops = {
 	.owner		= THIS_MODULE,
@@ -424,4 +423,3 @@ static void __exit keene_exit(void)
 
 module_init(keene_init);
 module_exit(keene_exit);
-

@@ -327,7 +327,6 @@ static void __cpuinit link_thread_siblings(int cpu1, int cpu2)
 	cpumask_set_cpu(cpu2, cpu_llc_shared_mask(cpu1));
 }
 
-
 void __cpuinit set_cpu_sibling_map(int cpu)
 {
 	int i;
@@ -1045,7 +1044,6 @@ void __init native_smp_prepare_cpus(unsigned int max_cpus)
 	}
 	set_cpu_sibling_map(0);
 
-
 	if (smp_sanity_check(max_cpus) < 0) {
 		printk(KERN_INFO "SMP disabled\n");
 		disable_smp();
@@ -1152,7 +1150,6 @@ static int __init _setup_possible_cpus(char *str)
 	return 0;
 }
 early_param("possible_cpus", _setup_possible_cpus);
-
 
 /*
  * cpu_possible_mask should be static, it cannot change as cpu's

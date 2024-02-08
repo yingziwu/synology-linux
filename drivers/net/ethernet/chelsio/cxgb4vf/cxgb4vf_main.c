@@ -209,9 +209,6 @@ void t4vf_os_link_changed(struct adapter *adapter, int pidx, int link_ok)
  * ======================
  */
 
-
-
-
 /*
  * Perform the MAC and PHY actions needed to enable a "port" (Virtual
  * Interface).

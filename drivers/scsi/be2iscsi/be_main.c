@@ -324,7 +324,6 @@ static ssize_t beiscsi_show_boot_eth_info(void *data, int type, char *buf)
 	return rc;
 }
 
-
 static umode_t beiscsi_tgt_get_attr_visibility(void *data, int type)
 {
 	umode_t rc;
@@ -362,7 +361,6 @@ static umode_t beiscsi_ini_get_attr_visibility(void *data, int type)
 	}
 	return rc;
 }
-
 
 static umode_t beiscsi_eth_get_attr_visibility(void *data, int type)
 {
@@ -1449,7 +1447,6 @@ hwi_update_async_writables(struct hwi_async_pdu_context *pasync_ctx,
 	unsigned int num_entries, writables = 0;
 	unsigned int *pep_read_ptr, *pwritables;
 
-
 	if (is_header) {
 		pep_read_ptr = &pasync_ctx->async_header.ep_read_ptr;
 		pwritables = &pasync_ctx->async_header.writables;
@@ -2188,7 +2185,6 @@ static void beiscsi_find_mem_req(struct beiscsi_hba *phba)
 						 BE_ISCSI_PDU_HEADER_SIZE;
 	phba->mem_req[HWI_MEM_ADDN_CONTEXT] =
 					    sizeof(struct hwi_context_memory);
-
 
 	phba->mem_req[HWI_MEM_WRB] = sizeof(struct iscsi_wrb)
 	    * (phba->params.wrbs_per_cxn)
@@ -4444,7 +4440,6 @@ static struct pci_driver beiscsi_pci_driver = {
 	.shutdown = beiscsi_shutdown,
 	.id_table = beiscsi_pci_id_table
 };
-
 
 static int __init beiscsi_module_init(void)
 {

@@ -931,7 +931,6 @@ int set_extent_bit(struct extent_io_tree *tree, u64 start, u64 end, int bits,
 				cached_state, mask);
 }
 
-
 /**
  * convert_extent - convert all bits in a given range from one bit to another
  * @tree:	the io tree to search

@@ -419,7 +419,6 @@ badframe:
  * Set up a signal frame.
  */
 
-
 /*
  * Determine which stack to use..
  */
@@ -604,4 +603,3 @@ int handle_signal32(unsigned long sig, struct k_sigaction *ka,
 	block_sigmask(ka, sig);
 	return 0;
 }
-

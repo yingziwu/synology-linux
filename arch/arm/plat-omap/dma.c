@@ -2174,5 +2174,3 @@ static int __init omap_dma_cmdline_reserve_ch(char *str)
 }
 
 __setup("omap_dma_reserve_ch=", omap_dma_cmdline_reserve_ch);
-
-

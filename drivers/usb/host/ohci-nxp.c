@@ -525,4 +525,3 @@ static struct platform_driver usb_hcd_nxp_driver = {
 	.probe = usb_hcd_nxp_probe,
 	.remove = usb_hcd_nxp_remove,
 };
-

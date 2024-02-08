@@ -77,7 +77,6 @@ static const u8 tid_to_ac[] = {
 	IEEE80211_AC_VO
 };
 
-
 /**
  * iwl_trans_txq_update_byte_cnt_tbl - Set up entry in Tx byte-count array
  */
@@ -951,7 +950,6 @@ static int iwl_send_cmd_async(struct iwl_trans *trans, struct iwl_host_cmd *cmd)
 	/* An asynchronous command can not expect an SKB to be set. */
 	if (WARN_ON(cmd->flags & CMD_WANT_SKB))
 		return -EINVAL;
-
 
 	ret = iwl_enqueue_hcmd(trans, cmd);
 	if (ret < 0) {

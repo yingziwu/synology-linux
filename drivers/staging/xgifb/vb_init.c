@@ -12,7 +12,6 @@
 #include "vb_setmode.h"
 #include "vb_init.h"
 
-
 #include <linux/io.h>
 
 static const unsigned short XGINew_DDRDRAM_TYPE340[4][5] = {

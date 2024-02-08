@@ -126,7 +126,6 @@ unsigned long max_pfn_mapped;
 RESERVE_BRK(dmi_alloc, 65536);
 #endif
 
-
 static __initdata unsigned long _brk_start = (unsigned long)__brk_base;
 unsigned long _brk_end = (unsigned long)__brk_base;
 
@@ -172,7 +171,6 @@ static struct resource bss_resource = {
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
 };
 
-
 #ifdef CONFIG_X86_32
 /* cpu data as detected by the assembly code in head.S */
 struct cpuinfo_x86 new_cpu_data __cpuinitdata = {0, 0, 0, 0, -1, 1, 0, 0, -1};
@@ -210,7 +208,6 @@ struct cpuinfo_x86 boot_cpu_data __read_mostly = {
 };
 EXPORT_SYMBOL(boot_cpu_data);
 #endif
-
 
 #if !defined(CONFIG_X86_PAE) || defined(CONFIG_X86_64)
 unsigned long mmu_cr4_features;
@@ -401,7 +398,6 @@ static void __init reserve_initrd(void)
 
 	printk(KERN_INFO "RAMDISK: %08llx - %08llx\n", ramdisk_image,
 			ramdisk_end);
-
 
 	if (ramdisk_end <= end_of_lowmem) {
 		/* All in lowmem, easy case */

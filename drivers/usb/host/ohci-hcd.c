@@ -45,7 +45,6 @@
 #include <asm/unaligned.h>
 #include <asm/byteorder.h>
 
-
 #define DRIVER_AUTHOR "Roman Weissgaerber, David Brownell"
 #define DRIVER_DESC "USB 1.1 'Open' Host Controller (OHCI) Driver"
 
@@ -95,12 +94,10 @@ static inline void sb800_prefetch(struct ohci_hcd *ohci, int on)
 }
 #endif
 
-
 #include "ohci-hub.c"
 #include "ohci-dbg.c"
 #include "ohci-mem.c"
 #include "ohci-q.c"
-
 
 /*
  * On architectures with edge-triggered interrupts we must never return
@@ -111,7 +108,6 @@ static inline void sb800_prefetch(struct ohci_hcd *ohci, int on)
 #else
 #define IRQ_NOTMINE	IRQ_NONE
 #endif
-
 
 /* Some boards misreport power switching/overcurrent */
 static bool distrust_firmware = 1;
@@ -895,8 +891,15 @@ static void ohci_stop (struct usb_hcd *hcd)
 	if (quirk_nec(ohci))
 		flush_work_sync(&ohci->nec_work);
 
-	ohci_usb_reset (ohci);
+	/* When ohci-hcd is shutting down, call ohci_usb_reset reset ohci-hcd,
+	 * the root hub generate an interrupt, but ohci->rh_state is
+	 * OHCI_RH_HALTED, and ohci_irq ignore the interrupt, the kernel
+	 * trigger warning "irq nobody cared". ehci-hcd is first disable
+	 * interrupts, then reset ehci.
+	 */
 	ohci_writel (ohci, OHCI_INTR_MIE, &ohci->regs->intrdisable);
+	ohci_usb_reset(ohci);
+
 	free_irq(hcd->irq, hcd);
 	hcd->irq = 0;
 
@@ -989,6 +992,11 @@ MODULE_AUTHOR (DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE ("GPL");
 
+#ifdef CONFIG_HIUSB_OHCI
+#include "hiusb-ohci.c"
+#define PLATFORM_DRIVER		hiusb_ohci_hcd_driver
+#endif
+
 #ifdef CONFIG_PCI
 #include "ohci-pci.c"
 #define PCI_DRIVER		ohci_pci_driver
@@ -1063,7 +1071,6 @@ MODULE_LICENSE ("GPL");
 #include "ohci-sh.c"
 #define PLATFORM_DRIVER		ohci_hcd_sh_driver
 #endif
-
 
 #ifdef CONFIG_USB_OHCI_HCD_PPC_OF
 #include "ohci-ppc-of.c"
@@ -1144,6 +1151,14 @@ static int __init ohci_hcd_mod_init(void)
 	pr_debug ("%s: block sizes: ed %Zd td %Zd\n", hcd_name,
 		sizeof (struct ed), sizeof (struct td));
 	set_bit(USB_OHCI_LOADED, &usb_hcds_loaded);
+#ifdef CONFIG_HIUSB_OHCI
+	retval = platform_device_register(&hiusb_ohci_platdev);
+	if (retval < 0) {
+		printk(KERN_ERR "%s->%d, platform_device_register fail.\n",
+						 __func__, __LINE__);
+		return -ENODEV;
+	}
+#endif
 
 #ifdef DEBUG
 	ohci_debug_root = debugfs_create_dir("ohci", usb_debug_root);
@@ -1263,6 +1278,10 @@ static int __init ohci_hcd_mod_init(void)
 #endif
 
 	clear_bit(USB_OHCI_LOADED, &usb_hcds_loaded);
+#ifdef CONFIG_HIUSB_OHCI
+	platform_device_unregister(&hiusb_ohci_platdev);
+#endif
+
 	return retval;
 }
 module_init(ohci_hcd_mod_init);
@@ -1300,6 +1319,8 @@ static void __exit ohci_hcd_mod_exit(void)
 	debugfs_remove(ohci_debug_root);
 #endif
 	clear_bit(USB_OHCI_LOADED, &usb_hcds_loaded);
+#ifdef CONFIG_HIUSB_OHCI
+	platform_device_unregister(&hiusb_ohci_platdev);
+#endif
 }
 module_exit(ohci_hcd_mod_exit);
-

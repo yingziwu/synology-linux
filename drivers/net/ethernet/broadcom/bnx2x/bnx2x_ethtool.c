@@ -23,7 +23,6 @@
 #include <linux/sched.h>
 #include <linux/crc32.h>
 
-
 #include "bnx2x.h"
 #include "bnx2x_cmn.h"
 #include "bnx2x_dump.h"
@@ -2267,7 +2266,6 @@ static void bnx2x_get_strings(struct net_device *dev, u32 stringset, u8 *buf)
 				k += BNX2X_NUM_Q_STATS;
 			}
 		}
-
 
 		for (i = 0, j = 0; i < BNX2X_NUM_STATS; i++) {
 			if (IS_MF_MODE_STAT(bp) && IS_PORT_STAT(i))

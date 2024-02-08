@@ -842,5 +842,4 @@ static inline int twl4030charger_usb_en(int enable) { return 0; }
 #define TWL6025_REG_SMPS4	59
 #define TWL6025_REG_VIO		60
 
-
 #endif /* End of __TWL4030_H */

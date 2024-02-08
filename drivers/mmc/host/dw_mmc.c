@@ -1952,7 +1952,6 @@ int dw_mci_probe(struct dw_mci *host)
 	spin_lock_init(&host->lock);
 	INIT_LIST_HEAD(&host->queue);
 
-
 	host->dma_ops = host->pdata->dma_ops;
 	dw_mci_init_dma(host);
 
@@ -2132,8 +2131,6 @@ void dw_mci_remove(struct dw_mci *host)
 
 }
 EXPORT_SYMBOL(dw_mci_remove);
-
-
 
 #ifdef CONFIG_PM_SLEEP
 /*

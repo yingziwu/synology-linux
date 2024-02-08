@@ -43,7 +43,6 @@ static int dvb_usb_it913x_debug;
 		*p, *(p+1), *(p+2), *(p+3), *(p+4), \
 			*(p+5), *(p+6), *(p+7));
 
-
 module_param_named(debug, dvb_usb_it913x_debug, int, 0644);
 MODULE_PARM_DESC(debug, "set debugging level (1=info (or-able))."
 			DVB_USB_DEBUG_STATUS);
@@ -55,7 +54,6 @@ MODULE_PARM_DESC(pid, "set default 0=on 1=off");
 static int dvb_usb_it913x_firmware;
 module_param_named(firmware, dvb_usb_it913x_firmware, int, 0644);
 MODULE_PARM_DESC(firmware, "set firmware 0=auto 1=IT9137 2=IT9135V1");
-
 
 int cmd_counter;
 
@@ -320,7 +318,6 @@ static int it913x_pid_filter(struct dvb_usb_adapter *adap,
 	mutex_unlock(&adap->dev->i2c_mutex);
 	return 0;
 }
-
 
 static int it913x_return_status(struct usb_device *udev)
 {

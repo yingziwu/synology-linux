@@ -13,10 +13,8 @@
 #define COMPATIBILITY_SECTION_LENGTH         42
 #define COMPATIBILITY_SECTION_LENGTH_MAP5    84
 
-
 #define EEPROM_MAP5_MAJORVERSION             5
 #define EEPROM_MAP5_MINORVERSION             0
-
 
 #define MAX_NUM_OF_BLINKS			10
 #define NUM_OF_GPIO_PINS			16
@@ -43,7 +41,6 @@
 #define B_ULONG32 unsigned long
 
 /*******************************************************/
-
 
 typedef enum _LEDColors{
 	RED_LED = 1,
@@ -79,7 +76,6 @@ typedef struct LedStateInfo_t {
 	UCHAR BitPolarity; /* To represent whether H/W is normal polarity or reverse polarity */
 } LEDStateInfo, *pLEDStateInfo;
 
-
 typedef struct _LED_INFO_STRUCT {
 	LEDStateInfo	LEDState[NUM_OF_LEDS];
 	BOOLEAN		bIdleMode_tx_from_host; /* Variable to notify whether driver came out from idlemode due to Host or target*/
@@ -96,7 +92,4 @@ typedef struct _LED_INFO_STRUCT {
 #define BCM_LED_THREAD_RUNNING_ACTIVELY	1 /* LED thread is running. */
 #define BCM_LED_THREAD_RUNNING_INACTIVELY 2 /*LED thread has been put on hold*/
 
-
-
 #endif
-

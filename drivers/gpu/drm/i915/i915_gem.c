@@ -1375,7 +1375,6 @@ i915_gem_mmap_gtt_ioctl(struct drm_device *dev, void *data,
 	return i915_gem_mmap_gtt(file, dev, args->handle, &args->offset);
 }
 
-
 static int
 i915_gem_object_get_pages_gtt(struct drm_i915_gem_object *obj,
 			      gfp_t gfpmask)
@@ -3766,7 +3765,6 @@ void i915_gem_init_ppgtt(struct drm_device *dev)
 
 	if (!dev_priv->mm.aliasing_ppgtt)
 		return;
-
 
 	pd_addr = dev_priv->mm.gtt->gtt + ppgtt->pd_offset/sizeof(uint32_t);
 	for (i = 0; i < ppgtt->num_pd_entries; i++) {

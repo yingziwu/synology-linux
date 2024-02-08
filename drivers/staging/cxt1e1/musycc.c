@@ -43,7 +43,6 @@ unsigned int max_bh = 0;
 
 #define sd_find_chan(ci,ch)   c4_find_chan(ch)
 
-
 /*******************************************************************/
 /* global driver variables */
 extern ci_t *c4_list;
@@ -56,7 +55,6 @@ extern int  max_rxdesc_used;
 extern int  max_txdesc_used;
 extern ci_t *CI;                /* dummy pointr to board ZEROE's data - DEBUG
                                  * USAGE */
-
 
 /*******************************************************************/
 /* forward references */
@@ -213,7 +211,6 @@ musycc_dump_txbuffer_ring (mch_t * ch, int lockit)
 }
 #endif
 
-
 /*
  * The following supports a backdoor debug facility which can be used to
  * display the state of a board's channel.
@@ -264,7 +261,6 @@ musycc_dump_ring (ci_t * ci, unsigned int chan)
     return SBE_DRVR_SUCCESS;
 }
 
-
 status_t
 musycc_dump_rings (ci_t * ci, unsigned int start_chan)
 {
@@ -274,7 +270,6 @@ musycc_dump_rings (ci_t * ci, unsigned int start_chan)
         musycc_dump_ring (ci, chan);
     return SBE_DRVR_SUCCESS;
 }
-
 
 /*
  * NOTE on musycc_init_mdt():  These MUSYCC writes are only operational after
@@ -303,7 +298,6 @@ musycc_init_mdt (mpi_t * pi)
         pci_write_32 (addr, cfg);
     }
 }
-
 
 /* Set TX thp to the next unprocessed md */
 
@@ -354,7 +348,6 @@ musycc_update_tx_thp (mch_t * ch)
     pr_info("++ musycc_update_tx_thp[%d]: setting thp = %p, sts %x\n", ch->channum, md, md->status);
 #endif
 }
-
 
 /*
  * This is the workq task executed by the OS when our queue_work() is
@@ -466,7 +459,6 @@ musycc_wq_chan_restart (void *arg)      /* channel private structure */
     }
 }
 
-
  /*
   * Channel restart either fires of a workqueue request (2.6) or lodges a
   * watchdog activation sequence (2.4).
@@ -489,7 +481,6 @@ musycc_chan_restart (mch_t * ch)
 
 }
 
-
 void
 rld_put_led (mpi_t * pi, u_int32_t ledval)
 {
@@ -502,7 +493,6 @@ rld_put_led (mpi_t * pi, u_int32_t ledval)
 
     pci_write_32 ((u_int32_t *) &pi->up->cpldbase->leds, led);  /* RLD DEBUG TRANHANG */
 }
-
 
 #define MUSYCC_SR_RETRY_CNT  9
 
@@ -575,7 +565,6 @@ rewrite:
     r = pci_read_32 ((u_int32_t *) &pi->reg->srd);      /* adhere to write
                                                          * timing imposition */
 
-
     if ((r != req) && (req != SR_CHIP_RESET) && (++rcnt <= MUSYCC_SR_RETRY_CNT))
     {
         if (cxt1e1_log_level >= LOG_MONITOR)
@@ -611,7 +600,6 @@ rewrite:
     }
     SD_SEM_GIVE (&pi->sr_sem_busy); /* allow any next request */
 }
-
 
 #ifdef  SBE_PMCC4_ENABLE
 void
@@ -682,7 +670,6 @@ musycc_update_timeslots (mpi_t * pi)
 }
 #endif
 
-
 #ifdef SBE_WAN256T3_ENABLE
 void
 musycc_update_timeslots (mpi_t * pi)
@@ -716,7 +703,6 @@ musycc_update_timeslots (mpi_t * pi)
     musycc_serv_req (pi, SR_TIMESLOT_MAP | SR_TX_DIRECTION);
 }
 #endif
-
 
  /*
   * This routine converts a generic library channel configuration parameter
@@ -781,7 +767,6 @@ musycc_init_port (mpi_t * pi)
     musycc_update_timeslots (pi);
 }
 #endif
-
 
 status_t    __init
 musycc_init (ci_t * ci)
@@ -883,7 +868,6 @@ musycc_init (ci_t * ci)
 
     return SBE_DRVR_SUCCESS;        /* no error */
 }
-
 
 void
 musycc_bh_tx_eom (mpi_t * pi, int gchan)
@@ -1076,7 +1060,6 @@ musycc_bh_tx_eom (mpi_t * pi, int gchan)
 #endif
 }
 
-
 STATIC void
 musycc_bh_rx_eom (mpi_t * pi, int gchan)
 {
@@ -1166,7 +1149,6 @@ musycc_bh_rx_eom (mpi_t * pi, int gchan)
         FLUSH_MEM_WRITE ();
     }
 }
-
 
 irqreturn_t
 musycc_intr_th_handler (void *devp)
@@ -1313,7 +1295,6 @@ musycc_intr_th_handler (void *devp)
 #endif
     return IRQ_HANDLED;
 }
-
 
 #if defined(SBE_ISR_IMMEDIATE)
 unsigned long
@@ -1491,7 +1472,6 @@ musycc_intr_bh_tasklet (ci_t * ci)
             break;
         }                           /* switch on event */
 
-
         /*
          * Per MUSYCC Manual, Section 6.4.8.3 [Transmit Errors], TX errors
          * are service-affecting and require action to resume normal
@@ -1660,7 +1640,6 @@ musycc_new_chan (ci_t * ci, int channum, void *user)
 }
 #endif
 
-
 #ifdef SBE_PMCC4_ENABLE
 status_t
 musycc_chan_down (ci_t * dummy, int channum)
@@ -1716,7 +1695,6 @@ musycc_chan_down (ci_t * dummy, int channum)
 }
 #endif
 
-
 int
 musycc_del_chan (ci_t * ci, int channum)
 {
@@ -1732,7 +1710,6 @@ musycc_del_chan (ci_t * ci, int channum)
     return 0;
 }
 
-
 int
 musycc_del_chan_stats (ci_t * ci, int channum)
 {
@@ -1746,7 +1723,6 @@ musycc_del_chan_stats (ci_t * ci, int channum)
     memset (&ch->s, 0, sizeof (struct sbecom_chan_stats));
     return 0;
 }
-
 
 int
 musycc_start_xmit (ci_t * ci, int channum, void *mem_token)
@@ -1872,7 +1848,6 @@ musycc_start_xmit (ci_t * ci, int channum, void *mem_token)
         } else
             u |= EOMIRQ_ENABLE;     /* EOM, last HDLC chunk */
 
-
         /* last chunk in hdlc mode */
         u |= (ch->p.idlecode << IDLE_CODE);
         if (ch->p.pad_fill_count)
@@ -1900,7 +1875,6 @@ musycc_start_xmit (ci_t * ci, int channum, void *mem_token)
     }
     FLUSH_MEM_WRITE ();
 
-
     /*
      * Now transfer ownership of first chunk from HOST to MUSYCC in order to
      * fire-off this XMIT.
@@ -1927,6 +1901,5 @@ musycc_start_xmit (ci_t * ci, int channum, void *mem_token)
 #endif
     return 0;
 }
-
 
 /*** End-of-File ***/

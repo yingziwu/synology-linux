@@ -51,7 +51,6 @@ struct task_struct *current_set[NR_CPUS] = {&init_task, };
 void (*pm_power_off)(void) = NULL;
 EXPORT_SYMBOL(pm_power_off);
 
-
 #if XTENSA_HAVE_COPROCESSORS
 
 void coprocessor_release_all(struct thread_info *ti)
@@ -99,7 +98,6 @@ void coprocessor_flush_all(struct thread_info *ti)
 }
 
 #endif
-
 
 /*
  * Powermanagement idle function, if any is provided by the platform.
@@ -223,7 +221,6 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 	return 0;
 }
 
-
 /*
  * These bracket the sleeping functions..
  */
@@ -336,4 +333,3 @@ long xtensa_execve(const char __user *name,
 out:
 	return error;
 }
-

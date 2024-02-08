@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright (C) 2008 Red Hat, Inc., Eric Paris <eparis@redhat.com>
  *
@@ -89,12 +92,19 @@ void fsnotify_put_event(struct fsnotify_event *event)
 	if (atomic_dec_and_test(&event->refcnt)) {
 		pr_debug("%s: event=%p\n", __func__, event);
 
+#ifdef MY_ABC_HERE
+		if (event->data_type == FSNOTIFY_EVENT_PATH || event->data_type == FSNOTIFY_EVENT_SYNO)
+#else
 		if (event->data_type == FSNOTIFY_EVENT_PATH)
+#endif
 			path_put(&event->path);
 
 		BUG_ON(!list_empty(&event->private_data_list));
 
 		kfree(event->file_name);
+#ifdef MY_ABC_HERE
+		kfree(event->full_name);
+#endif
 		put_pid(event->tgid);
 		kmem_cache_free(fsnotify_event_cachep, event);
 	}
@@ -131,6 +141,74 @@ struct fsnotify_event_private_data *fsnotify_remove_priv_from_event(struct fsnot
 	}
 	return priv;
 }
+
+#ifdef MY_ABC_HERE
+// base_name should have leading '/'
+static void formalize_full_path(const char *mnt_name, const char *base_name, char *full_path){
+	if (mnt_name[0] == '/'){
+		if(mnt_name[1] == 0){
+			snprintf(full_path, PATH_MAX,"%s", base_name);
+		}else{
+			snprintf(full_path, PATH_MAX,"%s%s", mnt_name, base_name);
+		}
+	}else
+		snprintf(full_path, PATH_MAX,"/%s%s", mnt_name, base_name);
+}
+
+static int SYNOFetchFullName(struct fsnotify_event *event, gfp_t gfp)
+{
+	char *dentry_path_buf = NULL;
+	char *full_path = NULL;
+	char *mnt_full_path = NULL;
+	char *dentry_path = NULL;
+	struct vfsmount *mnt = event->path.mnt;
+	struct dentry *dentry = event->path.dentry;
+	int ret = -1;
+	int data_type = event->data_type;
+
+	if(data_type == FSNOTIFY_EVENT_PATH) {
+		dentry_path_buf = kmalloc(PATH_MAX, gfp);
+		if (unlikely(!dentry_path_buf)) {
+			ret = -ENOMEM;
+			goto ERR;
+		}
+		dentry_path = dentry_path_raw(dentry, dentry_path_buf, PATH_MAX - 1);
+		if (unlikely(IS_ERR(dentry_path))) {
+			ret = PTR_ERR(dentry_path);
+			goto ERR;
+		}
+	}
+
+	full_path = kmalloc(PATH_MAX, gfp);
+	mnt_full_path = kzalloc(PATH_MAX, gfp);
+	if(!full_path || !mnt_full_path){
+		ret = -ENOMEM;
+		goto ERR;
+	}
+
+	ret = syno_fetch_mountpoint_fullpath(mnt, PATH_MAX, mnt_full_path);
+	if (ret < 0)
+		goto ERR;
+	if(data_type == FSNOTIFY_EVENT_PATH) {
+		formalize_full_path(mnt_full_path, dentry_path, full_path);
+	} else {
+		formalize_full_path(mnt_full_path, event->file_name, full_path);
+	}
+	event->full_name = kstrdup(full_path, gfp);
+	if (unlikely(!event->full_name)) {
+		ret = -ENOMEM;
+		goto ERR;
+	}
+	event->full_name_len = strlen(event->full_name);
+	ret = 0;
+
+ERR:
+	kfree(dentry_path_buf);
+	kfree(full_path);
+	kfree(mnt_full_path);
+	return ret;
+}
+#endif /* MY_ABC_HERE */
 
 /*
  * Add an event to the group notification queue.  The group can later pull this
@@ -217,6 +295,21 @@ alloc_holder:
 	group->q_len++;
 	holder->event = event;
 
+#ifdef MY_ABC_HERE
+	/* we fetch full name after it is decided to inqueue. */
+	if (event->data_type == FSNOTIFY_EVENT_SYNO || event->data_type == FSNOTIFY_EVENT_PATH)
+	{
+		if (event->full_name == NULL) {
+			int ret;
+			ret = SYNOFetchFullName(event, GFP_ATOMIC);
+			if (ret < 0) {
+				spin_unlock(&event->lock);
+				mutex_unlock(&group->notification_mutex);
+				return ERR_PTR(ret);
+			}
+		}
+	}
+#endif
 	fsnotify_get_event(event);
 	list_add_tail(&holder->event_list, list);
 	if (priv)
@@ -374,8 +467,21 @@ struct fsnotify_event *fsnotify_clone_event(struct fsnotify_event *old_event)
 			return NULL;
 		}
 	}
+#ifdef MY_ABC_HERE
+	if (event->full_name_len) {
+		event->full_name = kstrdup(old_event->full_name, GFP_KERNEL);
+		if (!event->full_name) {
+			kmem_cache_free(fsnotify_event_cachep, event);
+			return NULL;
+		}
+	}
+#endif
 	event->tgid = get_pid(old_event->tgid);
+#ifdef MY_ABC_HERE
+	if (event->data_type == FSNOTIFY_EVENT_PATH || event->data_type == FSNOTIFY_EVENT_SYNO)
+#else
 	if (event->data_type == FSNOTIFY_EVENT_PATH)
+#endif
 		path_get(&event->path);
 
 	return event;
@@ -423,6 +529,9 @@ struct fsnotify_event *fsnotify_create_event(struct inode *to_tell, __u32 mask, 
 	event->data_type = data_type;
 
 	switch (data_type) {
+#ifdef MY_ABC_HERE
+	case FSNOTIFY_EVENT_SYNO:
+#endif
 	case FSNOTIFY_EVENT_PATH: {
 		struct path *path = data;
 		event->path.dentry = path->dentry;

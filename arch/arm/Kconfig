@@ -219,6 +219,10 @@ config ARM_PATCH_PHYS_VIRT
 	  this feature (eg, building a kernel for a single machine) and
 	  you need to shrink the kernel to the minimal size.
 
+config ARCH_HIBERNATION_POSSIBLE
+   def_bool y
+   depends on CPU_V7 && HI3535_SDK_2050
+
 config NEED_MACH_IO_H
 	bool
 	help
@@ -390,6 +394,25 @@ config ARCH_CNS3XXX
 	select PCI_DOMAINS if PCI
 	help
 	  Support for Cavium Networks CNS3XXX platform.
+
+config ARCH_HI3535
+	bool "Hisilicon 3535 family"
+	select ARM_AMBA
+	select CLKDEV_LOOKUP
+	select NEED_MACH_MEMORY_H
+	select HAVE_CLK
+	select HAVE_SCHED_CLOCK
+	select GENERIC_TIME
+	select GENERIC_CLOCKEVENTS
+	select NEED_MACH_IO_H
+	select HAVE_SMP
+	select MIGHT_HAVE_CACHE_L2X0
+	select ARCH_HAS_CPUFREQ
+	help
+	  Support for Hisi Band Video
+	  Terminal Hi3535 platform.
+	  The Hi3535 platform is the
+	  first one for NVR.
 
 config ARCH_GEMINI
 	bool "Cortina Systems Gemini"
@@ -1061,6 +1084,9 @@ source "arch/arm/mach-msm/Kconfig"
 
 source "arch/arm/mach-mv78xx0/Kconfig"
 
+if ARCH_HI3535
+source "arch/arm/mach-hi3535/Kconfig"
+endif
 source "arch/arm/plat-mxc/Kconfig"
 
 source "arch/arm/mach-mxs/Kconfig"
@@ -1444,7 +1470,7 @@ config ISA_DMA_API
 	bool
 
 config PCI
-	bool "PCI support" if MIGHT_HAVE_PCI
+	bool "PCI support" if MIGHT_HAVE_PCI || ARCH_HI3535
 	help
 	  Find out whether you have a PCI motherboard. PCI is the name of a
 	  bus system, i.e. the way the CPU talks to the other stuff inside
@@ -1477,8 +1503,11 @@ config PCI_HOST_ITE8152
 	select DMABOUNCE
 
 source "drivers/pci/Kconfig"
+source "drivers/pci/pcie/Kconfig"
+source "drivers/pci/hotplug/Kconfig"
 
 source "drivers/pcmcia/Kconfig"
+source "drivers/pci/hipcie/Kconfig"
 
 endmenu
 
@@ -1896,6 +1925,15 @@ config DEPRECATED_PARAM_STRUCT
 	  This was deprecated in 2001 and announced to live on for 5 years.
 	  Some old boot loaders still use this way.
 
+config ARM_FLUSH_CONSOLE_ON_RESTART
+	bool "Force flush the console on restart"
+	help
+	  If the console is locked while the system is rebooted, the messages
+	  in the temporary logbuffer would not have propogated to all the
+	  console drivers. This option forces the console lock to be
+	  released if it failed to be acquired, which will cause all the
+	  pending messages to be flushed.
+
 endmenu
 
 menu "Boot options"
@@ -1907,6 +1945,21 @@ config USE_OF
 	select IRQ_DOMAIN
 	help
 	  Include support for flattened device tree machine descriptions.
+
+config BUILD_ARM_APPENDED_DTB_IMAGE
+	bool "Build a concatenated zImage/dtb by default"
+	depends on OF
+	help
+	  Enabling this option will cause a concatenated zImage and DTB to
+	  be built by default (instead of a standalone zImage.)  The image
+	  will built in arch/arm/boot/zImage-dtb.<dtb name>
+
+config BUILD_ARM_APPENDED_DTB_IMAGE_NAME
+	string "Default dtb name"
+	depends on BUILD_ARM_APPENDED_DTB_IMAGE
+	help
+	  name of the dtb to append when building a concatenated
+	  zImage/dtb.
 
 # Compressed boot loader in ROM.  Yes, we really want to ask about
 # TEXT and BSS so we preserve their values in the config files.

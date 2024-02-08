@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -17,6 +20,10 @@
  */
 #ifndef _TCP_H
 #define _TCP_H
+
+#ifdef MY_ABC_HERE
+#undef TCP_DEBUG
+#endif
 
 #define FASTRETRANS_DEBUG 1
 
@@ -43,6 +50,10 @@
 #include <net/tcp_states.h>
 #include <net/inet_ecn.h>
 #include <net/dst.h>
+
+#ifdef CONFIG_TNK
+#include <net/tnkdrv.h>
+#endif
 
 #include <linux/seq_file.h>
 #include <linux/memcontrol.h>
@@ -381,7 +392,6 @@ enum tcp_tw_status {
 	TCP_TW_SYN = 3
 };
 
-
 extern enum tcp_tw_status tcp_timewait_state_process(struct inet_timewait_sock *tw,
 						     struct sk_buff *skb,
 						     const struct tcphdr *th);
@@ -435,7 +445,6 @@ extern struct sk_buff * tcp_make_synack(struct sock *sk, struct dst_entry *dst,
 					struct request_sock *req,
 					struct request_values *rvp);
 extern int tcp_disconnect(struct sock *sk, int flags);
-
 
 /* From syncookies.c */
 extern __u32 syncookie_secret[2][16-4+SHA_DIGEST_WORDS];
@@ -493,6 +502,15 @@ extern int tcp_syn_flood_action(struct sock *sk,
 extern void tcp_push_one(struct sock *, unsigned int mss_now);
 extern void tcp_send_ack(struct sock *sk);
 extern void tcp_send_delayed_ack(struct sock *sk);
+#ifdef CONFIG_TNK
+extern void tnk_send_fin(struct sock *sk);
+extern void tnk_send_ack(struct sock *sk, unsigned int rcv_nxt,
+				unsigned window);
+extern void tnk_send_probe(struct sock *sk, unsigned int seq,
+				unsigned int ack_seq, unsigned int);
+extern int proc_tnk_cfg_tcp_retries2(struct ctl_table *table, int write,
+		void __user *buffer, size_t *lenp, loff_t *ppos);
+#endif
 
 /* tcp_input.c */
 extern void tcp_cwnd_application_limited(struct sock *sk);
@@ -640,6 +658,9 @@ struct tcp_skb_cb {
 		struct inet_skb_parm	h4;
 #if IS_ENABLED(CONFIG_IPV6)
 		struct inet6_skb_parm	h6;
+#endif
+#ifdef CONFIG_TNK
+		struct tnkcb		tcb;
 #endif
 	} header;	/* For incoming frames		*/
 	__u32		seq;		/* Starting sequence number	*/
@@ -972,7 +993,6 @@ static inline int tcp_prequeue(struct sock *sk, struct sk_buff *skb)
 	}
 	return 1;
 }
-
 
 #undef STATE_TRACE
 
@@ -1455,6 +1475,8 @@ extern struct sk_buff **tcp4_gro_receive(struct sk_buff **head,
 					 struct sk_buff *skb);
 extern int tcp_gro_complete(struct sk_buff *skb);
 extern int tcp4_gro_complete(struct sk_buff *skb);
+
+extern int tcp_nuke_addr(struct net *net, struct sockaddr *addr);
 
 #ifdef CONFIG_PROC_FS
 extern int tcp4_proc_init(void);

@@ -196,7 +196,6 @@ static const signed short xpad_btn_triggers[] = {
 	-1
 };
 
-
 static const signed short xpad360_btn[] = {  /* buttons for x360 controller */
 	BTN_TL, BTN_TR,		/* Button LB/RB */
 	BTN_MODE,		/* The big X button */
@@ -764,7 +763,6 @@ static void xpad_led_disconnect(struct usb_xpad *xpad)
 static int xpad_led_probe(struct usb_xpad *xpad) { return 0; }
 static void xpad_led_disconnect(struct usb_xpad *xpad) { }
 #endif
-
 
 static int xpad_open(struct input_dev *dev)
 {

@@ -112,7 +112,6 @@ enum {
 #define CPU_DYING_FROZEN	(CPU_DYING | CPU_TASKS_FROZEN)
 #define CPU_STARTING_FROZEN	(CPU_STARTING | CPU_TASKS_FROZEN)
 
-
 #ifdef CONFIG_SMP
 /* Need to know about CPUs going up/down? */
 #if defined(CONFIG_HOTPLUG_CPU) || !defined(MODULE)
@@ -212,5 +211,12 @@ extern void enable_nonboot_cpus(void);
 static inline int disable_nonboot_cpus(void) { return 0; }
 static inline void enable_nonboot_cpus(void) {}
 #endif /* !CONFIG_PM_SLEEP_SMP */
+
+#define IDLE_START 1
+#define IDLE_END 2
+
+void idle_notifier_register(struct notifier_block *n);
+void idle_notifier_unregister(struct notifier_block *n);
+void idle_notifier_call_chain(unsigned long val);
 
 #endif /* _LINUX_CPU_H_ */

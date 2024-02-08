@@ -11,7 +11,6 @@
  * (at your option) any later version.
  */
 
-
 /*
  * This file requires the following identifiers used in USB strings to
  * be defined (each of type pointer to char):
@@ -49,11 +48,9 @@
  * The valid range of num_buffers is: num >= 2 && num <= 4.
  */
 
-
 #include <linux/usb/storage.h>
 #include <scsi/scsi.h>
 #include <asm/unaligned.h>
-
 
 /*
  * Thanks to NetChip Technologies for donating this product ID.
@@ -64,9 +61,7 @@
 #define FSG_VENDOR_ID	0x0525	/* NetChip */
 #define FSG_PRODUCT_ID	0xa4a5	/* Linux-USB File-backed Storage Gadget */
 
-
 /*-------------------------------------------------------------------------*/
-
 
 #ifndef DEBUG
 #undef VERBOSE_DEBUG
@@ -110,8 +105,6 @@
 #define ERROR(d, fmt, args...)   dev_err(&(d)->gadget->dev , fmt , ## args)
 #define WARNING(d, fmt, args...) dev_warn(&(d)->gadget->dev , fmt , ## args)
 #define INFO(d, fmt, args...)    dev_info(&(d)->gadget->dev , fmt , ## args)
-
-
 
 #ifdef DUMP_MSGS
 
@@ -158,7 +151,6 @@ struct interrupt_data {
 /* CBI Accept Device-Specific Command request */
 #define USB_CBI_ADSC_REQUEST		0x00
 
-
 /* Length of a SCSI Command Data Block */
 #define MAX_COMMAND_SIZE	16
 
@@ -182,9 +174,7 @@ struct interrupt_data {
 #define ASC(x)		((u8) ((x) >> 8))
 #define ASCQ(x)		((u8) (x))
 
-
 /*-------------------------------------------------------------------------*/
-
 
 struct fsg_lun {
 	struct file	*filp;
@@ -216,7 +206,6 @@ static struct fsg_lun *fsg_lun_from_dev(struct device *dev)
 	return container_of(dev, struct fsg_lun, dev);
 }
 
-
 /* Big enough to hold our biggest descriptor */
 #define EP0_BUFSIZE	256
 #define DELAYED_STATUS	(EP0_BUFSIZE + 999)	/* An impossibly large value */
@@ -233,14 +222,21 @@ MODULE_PARM_DESC(num_buffers, "Number of pipeline buffers");
  * Number of buffers we will use.
  * 2 is usually enough for good buffering pipeline
  */
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HI_HS_DEVICE)
+#define fsg_num_buffers	1
+#else
 #define fsg_num_buffers	CONFIG_USB_GADGET_STORAGE_NUM_BUFFERS
-
+#endif /* CONFIG_HI_HS_DEVICE */
 #endif /* CONFIG_USB_DEBUG */
 
 /* check if fsg_num_buffers is within a valid range */
 static inline int fsg_num_buffers_validate(void)
 {
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HI_HS_DEVICE)
+	if (fsg_num_buffers >= 1 && fsg_num_buffers <= 4)
+#else
 	if (fsg_num_buffers >= 2 && fsg_num_buffers <= 4)
+#endif
 		return 0;
 	pr_err("fsg_num_buffers %u is out of range (%d to %d)\n",
 	       fsg_num_buffers, 2 ,4);
@@ -304,18 +300,14 @@ enum data_direction {
 	DATA_DIR_NONE
 };
 
-
 /*-------------------------------------------------------------------------*/
-
 
 static inline u32 get_unaligned_be24(u8 *buf)
 {
 	return 0xffffff & (u32) get_unaligned_be32(buf - 1);
 }
 
-
 /*-------------------------------------------------------------------------*/
-
 
 enum {
 #ifndef FSG_NO_DEVICE_STRINGS
@@ -326,7 +318,6 @@ enum {
 #endif
 	FSG_STRING_INTERFACE
 };
-
 
 #ifndef FSG_NO_OTG
 static struct usb_otg_descriptor
@@ -410,7 +401,6 @@ static struct usb_descriptor_header *fsg_fs_function[] = {
 #endif
 	NULL,
 };
-
 
 /*
  * USB 2.0 devices need to expose both high speed and full speed
@@ -601,7 +591,6 @@ fsg_ep_desc(struct usb_gadget *g, struct usb_endpoint_descriptor *fs,
 	return fs;
 }
 
-
 /* Static strings, in UTF-8 (for simplicity we use only ASCII characters) */
 static struct usb_string		fsg_strings[] = {
 #ifndef FSG_NO_DEVICE_STRINGS
@@ -618,7 +607,6 @@ static struct usb_gadget_strings	fsg_stringtab = {
 	.language	= 0x0409,		/* en-us */
 	.strings	= fsg_strings,
 };
-
 
  /*-------------------------------------------------------------------------*/
 
@@ -720,7 +708,6 @@ out:
 	return rc;
 }
 
-
 static void fsg_lun_close(struct fsg_lun *curlun)
 {
 	if (curlun->filp) {
@@ -729,7 +716,6 @@ static void fsg_lun_close(struct fsg_lun *curlun)
 		curlun->filp = NULL;
 	}
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -764,9 +750,7 @@ static void store_cdrom_address(u8 *dest, int msf, u32 addr)
 	}
 }
 
-
 /*-------------------------------------------------------------------------*/
-
 
 static ssize_t fsg_show_ro(struct device *dev, struct device_attribute *attr,
 			   char *buf)
@@ -812,7 +796,6 @@ static ssize_t fsg_show_file(struct device *dev, struct device_attribute *attr,
 	up_read(filesem);
 	return rc;
 }
-
 
 static ssize_t fsg_store_ro(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t count)

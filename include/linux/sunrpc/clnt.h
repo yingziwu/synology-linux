@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/include/linux/sunrpc/clnt.h
  *
@@ -240,6 +243,9 @@ static inline bool __rpc_copy_addr6(struct sockaddr *dst,
 
 	dsin6->sin6_family = ssin6->sin6_family;
 	dsin6->sin6_addr = ssin6->sin6_addr;
+#ifdef MY_ABC_HERE
+	dsin6->sin6_scope_id = ssin6->sin6_scope_id;
+#endif
 	return true;
 }
 #else	/* !(IS_ENABLED(CONFIG_IPV6) */

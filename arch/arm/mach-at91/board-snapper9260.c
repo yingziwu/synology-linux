@@ -184,5 +184,3 @@ MACHINE_START(SNAPPER_9260, "Bluewater Systems Snapper 9260/9G20 module")
 	.init_irq	= at91_init_irq_default,
 	.init_machine	= snapper9260_board_init,
 MACHINE_END
-
-

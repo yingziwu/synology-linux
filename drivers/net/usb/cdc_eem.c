@@ -32,7 +32,6 @@
 #include <linux/usb/usbnet.h>
 #include <linux/gfp.h>
 
-
 /*
  * This driver is an implementation of the CDC "Ethernet Emulation
  * Model" (EEM) specification, which encapsulates Ethernet frames

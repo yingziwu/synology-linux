@@ -112,4 +112,3 @@
 
 #define DEFAULT_WIDTH		100
 #define DEFAULT_HEIGHT		100
-

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * sata_mv.c - Marvell SATA support
  *
@@ -92,6 +95,10 @@ static int irq_coalescing_usecs;
 module_param(irq_coalescing_usecs, int, S_IRUGO);
 MODULE_PARM_DESC(irq_coalescing_usecs,
 		 "IRQ coalescing time threshold in usecs");
+
+#ifdef MY_ABC_HERE
+extern void sata_print_link_status(struct ata_link *link);
+#endif
 
 enum {
 	/* BAR's are enumerated in terms of pci_resource_start() terms */
@@ -645,6 +652,20 @@ static void mv_bmdma_stop(struct ata_queued_cmd *qc);
 static u8   mv_bmdma_status(struct ata_port *ap);
 static u8 mv_sff_check_status(struct ata_port *ap);
 
+#ifdef MY_ABC_HERE
+static struct device_attribute *sata_mv_shost_attrs[] = {
+	&dev_attr_syno_manutil_power_disable,
+	&dev_attr_syno_pm_gpio,
+	&dev_attr_syno_pm_info,
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_diskname_trans,
+#endif
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_sata_disk_led_ctrl,
+#endif
+	NULL
+};
+#endif
 /* .sg_tablesize is (MV_MAX_SG_CT / 2) in the structures below
  * because we have to allow room for worst case splitting of
  * PRDs for 64K boundaries in mv_fill_sg().
@@ -653,6 +674,9 @@ static struct scsi_host_template mv5_sht = {
 	ATA_BASE_SHT(DRV_NAME),
 	.sg_tablesize		= MV_MAX_SG_CT / 2,
 	.dma_boundary		= MV_DMA_BOUNDARY,
+#ifdef MY_ABC_HERE
+	.syno_index_get         = syno_libata_index_get,
+#endif
 };
 
 static struct scsi_host_template mv6_sht = {
@@ -660,6 +684,9 @@ static struct scsi_host_template mv6_sht = {
 	.can_queue		= MV_MAX_Q_DEPTH - 1,
 	.sg_tablesize		= MV_MAX_SG_CT / 2,
 	.dma_boundary		= MV_DMA_BOUNDARY,
+#ifdef MY_ABC_HERE
+	.shost_attrs		= sata_mv_shost_attrs,
+#endif
 };
 
 static struct ata_port_operations mv5_ops = {
@@ -711,7 +738,6 @@ static struct ata_port_operations mv6_ops = {
 	.bmdma_start		= mv_bmdma_start,
 	.bmdma_stop		= mv_bmdma_stop,
 	.bmdma_status		= mv_bmdma_status,
-
 	.port_start		= mv_port_start,
 	.port_stop		= mv_port_stop,
 };
@@ -1416,7 +1442,27 @@ static int mv_qc_defer(struct ata_queued_cmd *qc)
 			qc->flags |= ATA_QCFLAG_CLEAR_EXCL;
 			return 0;
 		} else
+#ifdef MY_ABC_HERE
+		{
+			if (!ap->nr_active_links) {
+				/* Since we are here now, just preempt */
+				if ((pp->pp_flags & MV_PP_FLAG_EDMA_EN) &&
+					(pp->pp_flags & MV_PP_FLAG_NCQ_EN) &&
+					!ata_is_ncq(qc->tf.protocol)) {
+					ap->excl_link = link;
+					qc->flags |= ATA_QCFLAG_CLEAR_EXCL;
+				} else {
+					/* normal I/O should preempt in this situation */
+					ap->excl_link = NULL;
+				}
+				return 0;
+			} else {
+				return ATA_DEFER_PORT;
+			}
+		}
+#else
 			return ATA_DEFER_PORT;
+#endif
 	}
 
 	/*
@@ -2672,6 +2718,14 @@ static void mv_err_intr(struct ata_port *ap)
 		ata_ehi_push_desc(ehi, "parity error");
 	}
 	if (edma_err_cause & (EDMA_ERR_DEV_DCON | EDMA_ERR_DEV_CON)) {
+#ifdef MY_ABC_HERE
+		syno_ata_info_print(ap);
+#endif
+#ifdef MY_ABC_HERE
+		if (edma_err_cause & EDMA_ERR_DEV_CON) {
+			ap->pflags |= ATA_PFLAG_SYNO_BOOT_PROBE;
+		}
+#endif
 		ata_ehi_hotplugged(ehi);
 		ata_ehi_push_desc(ehi, edma_err_cause & EDMA_ERR_DEV_DCON ?
 			"dev disconnect" : "dev connect");
@@ -3122,7 +3176,6 @@ static void mv5_phy_errata(struct mv_host_priv *hpriv, void __iomem *mmio,
 	tmp |= hpriv->signal[port].amps;
 	writel(tmp, phy_mmio + MV5_PHY_MODE);
 }
-
 
 #undef ZERO
 #define ZERO(reg) writel(0, port_mmio + (reg))
@@ -3576,8 +3629,21 @@ static void mv_pmp_select(struct ata_port *ap, int pmp)
 static int mv_pmp_hardreset(struct ata_link *link, unsigned int *class,
 				unsigned long deadline)
 {
+#ifdef MY_ABC_HERE
+	int iRet = 0;
+#endif
+
 	mv_pmp_select(link->ap, sata_srst_pmp(link));
+#ifdef MY_ABC_HERE
+	iRet = sata_std_hardreset(link, class, deadline);
+	if (0 < giSynoAtaDebug) {
+		DBGMESG("-- Syno Debug Show pmp link status --\n");
+		sata_print_link_status(link);
+	}
+	return iRet;
+#else
 	return sata_std_hardreset(link, class, deadline);
+#endif
 }
 
 static int mv_softreset(struct ata_link *link, unsigned int *class,
@@ -4184,14 +4250,12 @@ static struct platform_driver mv_platform_driver = {
 				  },
 };
 
-
 #ifdef CONFIG_PCI
 static int mv_pci_init_one(struct pci_dev *pdev,
 			   const struct pci_device_id *ent);
 #ifdef CONFIG_PM
 static int mv_pci_device_resume(struct pci_dev *pdev);
 #endif
-
 
 static struct pci_driver mv_pci_driver = {
 	.name			= DRV_NAME,
@@ -4298,7 +4362,15 @@ static int mv_pci_init_one(struct pci_dev *pdev,
 	ata_print_version_once(&pdev->dev, DRV_VERSION);
 
 	/* allocate host */
+#ifdef MY_ABC_HERE
+	if(gSynoSataHostCnt < sizeof(gszSataPortMap) && 0 != gszSataPortMap[gSynoSataHostCnt]) {
+		n_ports = gszSataPortMap[gSynoSataHostCnt] - '0';
+	}else{
+#endif
 	n_ports = mv_get_hc_count(ppi[0]->flags) * MV_PORTS_PER_HC;
+#ifdef MY_ABC_HERE
+	}
+#endif
 
 	host = ata_host_alloc_pinfo(&pdev->dev, ppi, n_ports);
 	hpriv = devm_kzalloc(&pdev->dev, sizeof(*hpriv), GFP_KERNEL);

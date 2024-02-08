@@ -79,7 +79,6 @@ static int __devinit ab8500_i2c_probe(struct platform_device *plf)
 	if (ret)
 		kfree(ab8500);
 
-
 	return ret;
 }
 

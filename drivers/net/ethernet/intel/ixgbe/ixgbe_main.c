@@ -205,7 +205,6 @@ static const struct ixgbe_reg_info ixgbe_reg_info_tbl[] = {
 	{}
 };
 
-
 /*
  * ixgbe_regdump - register printout routine
  */
@@ -929,7 +928,6 @@ static void ixgbe_update_rx_dca(struct ixgbe_adapter *adapter,
 	struct ixgbe_hw *hw = &adapter->hw;
 	u32 rxctrl = dca3_get_tag(rx_ring->dev, cpu);
 	u8 reg_idx = rx_ring->reg_idx;
-
 
 	switch (hw->mac.type) {
 	case ixgbe_mac_82599EB:
@@ -3553,7 +3551,6 @@ static void ixgbe_configure_dcb(struct ixgbe_adapter *adapter)
 
 	if (hw->mac.type == ixgbe_mac_82598EB)
 		netif_set_gso_max_size(adapter->netdev, 32768);
-
 
 	/* Enable VLAN tag insert/strip */
 	adapter->netdev->features |= NETIF_F_HW_VLAN_RX;
@@ -6632,7 +6629,6 @@ static netdev_features_t ixgbe_fix_features(struct net_device *netdev,
 	if (!(adapter->flags2 & IXGBE_FLAG2_RSC_CAPABLE))
 		features &= ~NETIF_F_LRO;
 	
-
 	return features;
 }
 

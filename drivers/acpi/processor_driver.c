@@ -123,7 +123,6 @@ static int acpi_processor_errata_piix4(struct pci_dev *dev)
 	u8 value1 = 0;
 	u8 value2 = 0;
 
-
 	if (!dev)
 		return -EINVAL;
 
@@ -223,7 +222,6 @@ static int acpi_processor_errata(struct acpi_processor *pr)
 {
 	int result = 0;
 	struct pci_dev *dev = NULL;
-
 
 	if (!pr)
 		return -EINVAL;
@@ -612,7 +610,6 @@ static int acpi_processor_remove(struct acpi_device *device, int type)
 {
 	struct acpi_processor *pr = NULL;
 
-
 	if (!device || !acpi_driver_data(device))
 		return -EINVAL;
 
@@ -657,7 +654,6 @@ static int is_processor_present(acpi_handle handle)
 	acpi_status status;
 	unsigned long long sta = 0;
 
-
 	status = acpi_evaluate_integer(handle, "_STA", NULL, &sta);
 
 	if (ACPI_SUCCESS(status) && (sta & ACPI_STA_DEVICE_PRESENT))
@@ -681,7 +677,6 @@ int acpi_processor_device_add(acpi_handle handle, struct acpi_device **device)
 	acpi_handle phandle;
 	struct acpi_device *pdev;
 
-
 	if (acpi_get_parent(handle, &phandle)) {
 		return -ENODEV;
 	}
@@ -703,7 +698,6 @@ static void acpi_processor_hotplug_notify(acpi_handle handle,
 	struct acpi_processor *pr;
 	struct acpi_device *device = NULL;
 	int result;
-
 
 	switch (event) {
 	case ACPI_NOTIFY_BUS_CHECK:

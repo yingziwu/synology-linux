@@ -86,7 +86,6 @@ static char quirks[128];
 module_param_string(quirks, quirks, sizeof(quirks), S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(quirks, "supplemental list of device IDs and their quirks");
 
-
 /*
  * The entries in this table correspond, line for line,
  * with the entries in usb_storage_usb_ids[], defined in usual-tables.c.
@@ -968,12 +967,18 @@ BadDevice:
 }
 EXPORT_SYMBOL_GPL(usb_stor_probe1);
 
+#ifdef CONFIG_HI3535_SDK_2050
+extern int retry_reset;
+#endif /* CONFIG_HI3535_SDK_2050 */
 /* Second part of general USB mass-storage probing */
 int usb_stor_probe2(struct us_data *us)
 {
 	int result;
 	struct device *dev = &us->pusb_intf->dev;
 
+#ifdef CONFIG_HI3535_SDK_2050
+	retry_reset = 1;
+#endif /* CONFIG_HI3535_SDK_2050 */
 	/* Make sure the transport and protocol have both been set */
 	if (!us->transport || !us->proto_handler) {
 		result = -ENXIO;

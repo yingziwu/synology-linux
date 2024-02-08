@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Common prep/pmac/chrp boot and setup code.
  */
@@ -40,6 +43,10 @@
 #include <asm/mmu_context.h>
 
 #include "setup.h"
+
+#ifdef  MY_ABC_HERE
+extern char gszSynoHWRevision[];
+#endif
 
 #define DBG(fmt...)
 
@@ -110,7 +117,6 @@ notrace unsigned long __init early_init(unsigned long dt_ptr)
 
 	return KERNELBASE + offset;
 }
-
 
 /*
  * Find out what kind of machine we're on and save any data we need
@@ -185,6 +191,18 @@ int __init ppc_setup_l2cr(char *str)
 	return 1;
 }
 __setup("l2cr=", ppc_setup_l2cr);
+
+#ifdef MY_ABC_HERE
+static int __init early_hw_revision(char *p)
+{
+       snprintf(gszSynoHWRevision, 4, "%s", p);
+
+       printk("Synology Hardware Revision: %s\n", gszSynoHWRevision);
+
+       return 1;
+}
+__setup("rev=", early_hw_revision);
+#endif
 
 /* Checks "l3cr=xxxx" command-line option */
 int __init ppc_setup_l3cr(char *str)

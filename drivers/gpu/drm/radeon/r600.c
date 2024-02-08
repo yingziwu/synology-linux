@@ -1909,7 +1909,6 @@ void r600_gpu_init(struct radeon_device *rdev)
 	WREG32(VC_ENHANCE, 0);
 }
 
-
 /*
  * Indirect registers accessor
  */
@@ -2252,7 +2251,6 @@ void r600_cp_fini(struct radeon_device *rdev)
 	r600_cp_stop(rdev);
 	radeon_ring_fini(rdev, &rdev->ring[RADEON_RING_TYPE_GFX_INDEX]);
 }
-
 
 /*
  * GPU scratch registers helpers function.
@@ -2683,7 +2681,6 @@ void r600_fini(struct radeon_device *rdev)
 	kfree(rdev->bios);
 	rdev->bios = NULL;
 }
-
 
 /*
  * CS stuff

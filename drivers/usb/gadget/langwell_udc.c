@@ -7,7 +7,6 @@
  * version 2, as published by the Free Software Foundation.
  */
 
-
 /* #undef	DEBUG */
 /* #undef	VERBOSE_DEBUG */
 
@@ -36,13 +35,11 @@
 
 #include "langwell_udc.h"
 
-
 #define	DRIVER_DESC		"Intel Langwell USB Device Controller driver"
 #define	DRIVER_VERSION		"16 May 2009"
 
 static const char driver_name[] = "langwell_udc";
 static const char driver_desc[] = DRIVER_DESC;
-
 
 /* for endpoint 0 operations */
 static const struct usb_endpoint_descriptor
@@ -53,7 +50,6 @@ langwell_ep0_desc = {
 	.bmAttributes =		USB_ENDPOINT_XFER_CONTROL,
 	.wMaxPacketSize =	EP0_MAX_PKT_SIZE,
 };
-
 
 /*-------------------------------------------------------------------------*/
 /* debugging */
@@ -150,14 +146,12 @@ static inline void print_all_registers(struct langwell_udc *dev)
 
 #endif /* VERBOSE_DEBUG */
 
-
 /*-------------------------------------------------------------------------*/
 
 #define	is_in(ep)	(((ep)->ep_num == 0) ? ((ep)->dev->ep0_dir ==	\
 			USB_DIR_IN) : (usb_endpoint_dir_in((ep)->desc)))
 
 #define	DIR_STRING(ep)	(is_in(ep) ? "in" : "out")
-
 
 static char *type_string(const struct usb_endpoint_descriptor *desc)
 {
@@ -172,7 +166,6 @@ static char *type_string(const struct usb_endpoint_descriptor *desc)
 
 	return "control";
 }
-
 
 /* configure endpoint control registers */
 static void ep_reset(struct langwell_ep *ep, unsigned char ep_num,
@@ -201,7 +194,6 @@ static void ep_reset(struct langwell_ep *ep, unsigned char ep_num,
 
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /* reset ep0 dQH and endptctrl */
 static void ep0_reset(struct langwell_udc *dev)
@@ -236,7 +228,6 @@ static void ep0_reset(struct langwell_udc *dev)
 
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -369,7 +360,6 @@ done:
 	return retval;
 }
 
-
 /*-------------------------------------------------------------------------*/
 
 /* retire a request */
@@ -422,7 +412,6 @@ static void done(struct langwell_ep *ep, struct langwell_request *req,
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 static void langwell_ep_fifo_flush(struct usb_ep *_ep);
 
 /* delete all endpoint requests, called with spinlock held */
@@ -442,7 +431,6 @@ static void nuke(struct langwell_ep *ep, int status)
 		done(ep, req, status);
 	}
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -488,7 +476,6 @@ static int langwell_ep_disable(struct usb_ep *_ep)
 	return 0;
 }
 
-
 /* allocate a request object to use with this endpoint */
 static struct usb_request *langwell_alloc_request(struct usb_ep *_ep,
 		gfp_t gfp_flags)
@@ -516,7 +503,6 @@ static struct usb_request *langwell_alloc_request(struct usb_ep *_ep,
 	return &req->req;
 }
 
-
 /* free a request object */
 static void langwell_free_request(struct usb_ep *_ep,
 		struct usb_request *_req)
@@ -541,7 +527,6 @@ static void langwell_free_request(struct usb_ep *_ep,
 	dev_vdbg(&dev->pdev->dev, "free request for %s\n", _ep->name);
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -627,7 +612,6 @@ out:
 	return 0;
 }
 
-
 /* fill in the dTD structure to build a transfer descriptor */
 static struct langwell_dtd *build_dtd(struct langwell_request *req,
 		unsigned *length, dma_addr_t *dma, int *is_last)
@@ -692,7 +676,6 @@ static struct langwell_dtd *build_dtd(struct langwell_request *req,
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 	return dtd;
 }
-
 
 /* generate dTD linked list for a request */
 static int req_to_dtd(struct langwell_request *req)
@@ -807,7 +790,6 @@ static int langwell_ep_queue(struct usb_ep *_ep, struct usb_request *_req,
 	return 0;
 }
 
-
 /* dequeue (cancels, unlinks) an I/O request from an endpoint */
 static int langwell_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 {
@@ -899,7 +881,6 @@ done:
 	return retval;
 }
 
-
 /*-------------------------------------------------------------------------*/
 
 /* endpoint set/clear halt */
@@ -935,7 +916,6 @@ static void ep_set_halt(struct langwell_ep *ep, int value)
 
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /* set the endpoint halt feature */
 static int langwell_ep_set_halt(struct usb_ep *_ep, int value)
@@ -987,7 +967,6 @@ done:
 	return retval;
 }
 
-
 /* set the halt feature and ignores clear requests */
 static int langwell_ep_set_wedge(struct usb_ep *_ep)
 {
@@ -1005,7 +984,6 @@ static int langwell_ep_set_wedge(struct usb_ep *_ep)
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 	return usb_ep_set_halt(_ep);
 }
-
 
 /* flush contents of a fifo */
 static void langwell_ep_fifo_flush(struct usb_ep *_ep)
@@ -1053,7 +1031,6 @@ done:
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 /* endpoints operations structure */
 static const struct usb_ep_ops langwell_ep_ops = {
 
@@ -1085,7 +1062,6 @@ static const struct usb_ep_ops langwell_ep_ops = {
 	.fifo_flush	= langwell_ep_fifo_flush,
 };
 
-
 /*-------------------------------------------------------------------------*/
 
 /* device controller usb_gadget_ops structure */
@@ -1107,7 +1083,6 @@ static int langwell_get_frame(struct usb_gadget *_gadget)
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 	return retval;
 }
-
 
 /* enter or exit PHY low power state */
 static void langwell_phy_low_power(struct langwell_udc *dev, bool flag)
@@ -1133,7 +1108,6 @@ static void langwell_phy_low_power(struct langwell_udc *dev, bool flag)
 			"%s PHY low power suspend, devlc = 0x%08x\n",
 			flag ? "enter" : "exit", devlc);
 }
-
 
 /* tries to wake up the host connected to this gadget */
 static int langwell_wakeup(struct usb_gadget *_gadget)
@@ -1182,7 +1156,6 @@ static int langwell_wakeup(struct usb_gadget *_gadget)
 	return 0;
 }
 
-
 /* notify controller that VBUS is powered or not */
 static int langwell_vbus_session(struct usb_gadget *_gadget, int is_active)
 {
@@ -1217,7 +1190,6 @@ static int langwell_vbus_session(struct usb_gadget *_gadget, int is_active)
 	return 0;
 }
 
-
 /* constrain controller's VBUS power usage */
 static int langwell_vbus_draw(struct usb_gadget *_gadget, unsigned mA)
 {
@@ -1238,7 +1210,6 @@ static int langwell_vbus_draw(struct usb_gadget *_gadget, unsigned mA)
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 	return -ENOTSUPP;
 }
-
 
 /* D+ pullup, software-controlled connect/disconnect to USB host */
 static int langwell_pullup(struct usb_gadget *_gadget, int is_on)
@@ -1302,7 +1273,6 @@ static const struct usb_gadget_ops langwell_ops = {
 	.udc_start	= langwell_start,
 	.udc_stop	= langwell_stop,
 };
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -1383,7 +1353,6 @@ static int langwell_udc_reset(struct langwell_udc *dev)
 	return 0;
 }
 
-
 /* reinitialize device controller endpoints */
 static int eps_reinit(struct langwell_udc *dev)
 {
@@ -1431,7 +1400,6 @@ static int eps_reinit(struct langwell_udc *dev)
 	return 0;
 }
 
-
 /* enable interrupt and set controller to run state */
 static void langwell_udc_start(struct langwell_udc *dev)
 {
@@ -1462,7 +1430,6 @@ static void langwell_udc_start(struct langwell_udc *dev)
 	dev_dbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 /* disable interrupt and set controller to stop state */
 static void langwell_udc_stop(struct langwell_udc *dev)
 {
@@ -1483,7 +1450,6 @@ static void langwell_udc_stop(struct langwell_udc *dev)
 
 	dev_dbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /* stop all USB activities */
 static void stop_activity(struct langwell_udc *dev)
@@ -1507,7 +1473,6 @@ static void stop_activity(struct langwell_udc *dev)
 	dev_dbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 /*-------------------------------------------------------------------------*/
 
 /* device "function" sysfs attribute file */
@@ -1523,7 +1488,6 @@ static ssize_t show_function(struct device *_dev,
 	return scnprintf(buf, PAGE_SIZE, "%s\n", dev->driver->function);
 }
 static DEVICE_ATTR(function, S_IRUGO, show_function, NULL);
-
 
 static inline enum usb_device_speed lpm_device_speed(u32 reg)
 {
@@ -1770,7 +1734,6 @@ static ssize_t show_langwell_udc(struct device *_dev,
 }
 static DEVICE_ATTR(langwell_udc, S_IRUGO, show_langwell_udc, NULL);
 
-
 /* device "remote_wakeup" sysfs attribute file */
 static ssize_t store_remote_wakeup(struct device *_dev,
 		struct device_attribute *attr, const char *buf, size_t count)
@@ -1799,7 +1762,6 @@ static ssize_t store_remote_wakeup(struct device *_dev,
 	return rc;
 }
 static DEVICE_ATTR(remote_wakeup, S_IWUSR, NULL, store_remote_wakeup);
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -1951,7 +1913,6 @@ static void setup_tripwire(struct langwell_udc *dev)
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 /* protocol ep0 stall, will automatically be cleared on new transaction */
 static void ep0_stall(struct langwell_udc *dev)
 {
@@ -1970,7 +1931,6 @@ static void ep0_stall(struct langwell_udc *dev)
 
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /* PRIME a status phase for ep0 */
 static int prime_status_phase(struct langwell_udc *dev, int dir)
@@ -2012,7 +1972,6 @@ static int prime_status_phase(struct langwell_udc *dev, int dir)
 	return status;
 }
 
-
 /* SET_ADDRESS request routine */
 static void set_address(struct langwell_udc *dev, u16 value,
 		u16 index, u16 length)
@@ -2032,7 +1991,6 @@ static void set_address(struct langwell_udc *dev, u16 value,
 
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /* return endpoint by windex */
 static struct langwell_ep *get_ep_by_windex(struct langwell_udc *dev,
@@ -2062,7 +2020,6 @@ static struct langwell_ep *get_ep_by_windex(struct langwell_udc *dev,
 	return NULL;
 }
 
-
 /* return whether endpoint is stalled, 0: not stalled; 1: stalled */
 static int ep_is_stall(struct langwell_ep *ep)
 {
@@ -2081,7 +2038,6 @@ static int ep_is_stall(struct langwell_ep *ep)
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 	return retval;
 }
-
 
 /* GET_STATUS request routine */
 static void get_status(struct langwell_udc *dev, u8 request_type, u16 value,
@@ -2150,7 +2106,6 @@ stall:
 	ep0_stall(dev);
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /* setup packet interrupt handler */
 static void handle_setup_packet(struct langwell_udc *dev,
@@ -2369,7 +2324,6 @@ end:
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 /* transfer completion, process endpoint request and free the completed dTDs
  * for this request
  */
@@ -2464,7 +2418,6 @@ static int process_ep_req(struct langwell_udc *dev, int index,
 	return 0;
 }
 
-
 /* complete DATA or STATUS phase of ep0 prime status phase if needed */
 static void ep0_req_complete(struct langwell_udc *dev,
 		struct langwell_ep *ep0, struct langwell_request *req)
@@ -2507,7 +2460,6 @@ static void ep0_req_complete(struct langwell_udc *dev,
 
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /* USB transfer completion interrupt */
 static void handle_trans_complete(struct langwell_udc *dev)
@@ -2630,7 +2582,6 @@ static void handle_port_change(struct langwell_udc *dev)
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 /* USB reset interrupt handler */
 static void handle_usb_reset(struct langwell_udc *dev)
 {
@@ -2713,7 +2664,6 @@ static void handle_usb_reset(struct langwell_udc *dev)
 	dev_vdbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 /* USB bus suspend/resume interrupt */
 static void handle_bus_suspend(struct langwell_udc *dev)
 {
@@ -2740,7 +2690,6 @@ static void handle_bus_suspend(struct langwell_udc *dev)
 	dev_dbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 static void handle_bus_resume(struct langwell_udc *dev)
 {
 	dev_dbg(&dev->pdev->dev, "---> %s()\n", __func__);
@@ -2765,7 +2714,6 @@ static void handle_bus_resume(struct langwell_udc *dev)
 
 	dev_dbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /* USB device controller interrupt handler */
 static irqreturn_t langwell_irq(int irq, void *_dev)
@@ -2871,7 +2819,6 @@ static irqreturn_t langwell_irq(int irq, void *_dev)
 	return IRQ_HANDLED;
 }
 
-
 /*-------------------------------------------------------------------------*/
 
 /* release device structure */
@@ -2886,7 +2833,6 @@ static void gadget_release(struct device *_dev)
 	dev_dbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 	kfree(dev);
 }
-
 
 /* enable SRAM caching if SRAM detected */
 static void sram_init(struct langwell_udc *dev)
@@ -2914,7 +2860,6 @@ static void sram_init(struct langwell_udc *dev)
 	dev_dbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
 
-
 /* release SRAM caching */
 static void sram_deinit(struct langwell_udc *dev)
 {
@@ -2930,7 +2875,6 @@ static void sram_deinit(struct langwell_udc *dev)
 	dev_info(&dev->pdev->dev, "release SRAM caching\n");
 	dev_dbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 }
-
 
 /* tear down the binding between this driver and the pci device */
 static void langwell_udc_remove(struct pci_dev *pdev)
@@ -2991,7 +2935,6 @@ static void langwell_udc_remove(struct pci_dev *pdev)
 	/* free dev, wait for the release() finished */
 	wait_for_completion(&done);
 }
-
 
 /*
  * wrap this driver around the specified device, but
@@ -3235,7 +3178,6 @@ error:
 	return retval;
 }
 
-
 /* device controller suspend */
 static int langwell_udc_suspend(struct pci_dev *pdev, pm_message_t state)
 {
@@ -3282,7 +3224,6 @@ static int langwell_udc_suspend(struct pci_dev *pdev, pm_message_t state)
 	dev_dbg(&dev->pdev->dev, "<--- %s()\n", __func__);
 	return 0;
 }
-
 
 /* device controller resume */
 static int langwell_udc_resume(struct pci_dev *pdev)
@@ -3365,7 +3306,6 @@ static int langwell_udc_resume(struct pci_dev *pdev)
 	return 0;
 }
 
-
 /* pci driver shutdown */
 static void langwell_udc_shutdown(struct pci_dev *pdev)
 {
@@ -3397,7 +3337,6 @@ static const struct pci_device_id pci_ids[] = { {
 
 MODULE_DEVICE_TABLE(pci, pci_ids);
 
-
 static struct pci_driver langwell_pci_driver = {
 	.name =		(char *) driver_name,
 	.id_table =	pci_ids,
@@ -3412,13 +3351,11 @@ static struct pci_driver langwell_pci_driver = {
 	.shutdown =	langwell_udc_shutdown,
 };
 
-
 static int __init init(void)
 {
 	return pci_register_driver(&langwell_pci_driver);
 }
 module_init(init);
-
 
 static void __exit cleanup(void)
 {
@@ -3426,9 +3363,7 @@ static void __exit cleanup(void)
 }
 module_exit(cleanup);
 
-
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR("Xiaochen Shen <xiaochen.shen@intel.com>");
 MODULE_VERSION(DRIVER_VERSION);
 MODULE_LICENSE("GPL");
-

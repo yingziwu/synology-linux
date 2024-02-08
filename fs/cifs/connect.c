@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *   fs/cifs/connect.c
  *
@@ -1136,7 +1139,6 @@ static int get_option_ul(substring_t args[], unsigned long *option)
 	return rc;
 }
 
-
 static int cifs_parse_security_flavors(char *value,
 				       struct smb_vol *vol)
 {
@@ -1339,6 +1341,9 @@ cifs_parse_mount_options(const char *mountdata, const char *devname,
 			vol->no_linux_ext = 1;
 			break;
 		case Opt_nocase:
+#ifdef MY_ABC_HERE
+			SynoPosixSemanticsEnabled = 0;
+#endif /* MY_ABC_HERE */
 			vol->nocase = 1;
 			break;
 		case Opt_brl:
@@ -3499,7 +3504,6 @@ cifs_cleanup_volume_info(struct smb_vol *volume_info)
 	kfree(volume_info);
 }
 
-
 #ifdef CONFIG_CIFS_DFS_UPCALL
 /* build_path_to_root returns full path to root when
  * we do not have an exiting connection (tcon) */
@@ -3958,7 +3962,6 @@ CIFSTCon(unsigned int xid, struct cifs_ses *ses,
 		else
 			is_unicode = false;
 
-
 		/* skip service field (NB: this field is always ASCII) */
 		if (length == 3) {
 			if ((bcc_ptr[0] == 'I') && (bcc_ptr[1] == 'P') &&
@@ -4058,7 +4061,6 @@ int cifs_negotiate_protocol(unsigned int xid, struct cifs_ses *ses)
 
 	return rc;
 }
-
 
 int cifs_setup_session(unsigned int xid, struct cifs_ses *ses,
 			struct nls_table *nls_info)

@@ -221,4 +221,3 @@ module_exit(cleanup);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR("Bryan Wu <cooloney@kernel.org>");
 MODULE_LICENSE("GPL");
-

@@ -750,7 +750,6 @@ static DEVICE_ATTR(rsgain_setting, S_IRUGO | S_IWUSR, ds2781_get_rsgain_setting,
 static DEVICE_ATTR(pio_pin, S_IRUGO | S_IWUSR, ds2781_get_pio_pin,
 	ds2781_set_pio_pin);
 
-
 static struct attribute *ds2781_attributes[] = {
 	&dev_attr_pmod_enabled.attr,
 	&dev_attr_sense_resistor_value.attr,
@@ -866,9 +865,7 @@ static void __exit ds2781_battery_exit(void)
 module_init(ds2781_battery_init);
 module_exit(ds2781_battery_exit);
 
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Renata Sayakhova <renata@oktetlabs.ru>");
 MODULE_DESCRIPTION("Maxim/Dallas DS2781 Stand-Alone Fuel Gauage IC driver");
 MODULE_ALIAS("platform:ds2781-battery");
-

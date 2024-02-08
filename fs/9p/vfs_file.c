@@ -517,7 +517,6 @@ v9fs_file_write(struct file *filp, const char __user * data,
 	ssize_t retval = 0;
 	loff_t origin = *offset;
 
-
 	retval = generic_write_checks(filp, &origin, &count, 0);
 	if (retval)
 		goto out;
@@ -538,7 +537,6 @@ v9fs_file_write(struct file *filp, const char __user * data,
 out:
 	return retval;
 }
-
 
 static int v9fs_file_fsync(struct file *filp, loff_t start, loff_t end,
 			   int datasync)
@@ -605,7 +603,6 @@ v9fs_vm_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf)
 	struct page *page = vmf->page;
 	struct file *filp = vma->vm_file;
 	struct inode *inode = filp->f_path.dentry->d_inode;
-
 
 	p9_debug(P9_DEBUG_VFS, "page %p fid %lx\n",
 		 page, (unsigned long)filp->private_data);
@@ -736,7 +733,6 @@ static const struct vm_operations_struct v9fs_file_vm_ops = {
 	.fault = filemap_fault,
 	.page_mkwrite = v9fs_vm_page_mkwrite,
 };
-
 
 const struct file_operations v9fs_cached_file_operations = {
 	.llseek = generic_file_llseek,

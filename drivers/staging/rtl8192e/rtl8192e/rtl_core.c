@@ -59,7 +59,6 @@ int hwwep = 1;
 static int channels = 0x3fff;
 static char *ifname = "wlan%d";
 
-
 static struct rtl819x_ops rtl819xp_ops = {
 	.nic_type			= NIC_8192E,
 	.get_eeprom_size		= rtl8192_get_eeprom_size,
@@ -329,7 +328,6 @@ bool MgntActSet_RF_State(struct net_device *dev,
 
 	ProtectOrNot = false;
 
-
 	if (!ProtectOrNot) {
 		while (true) {
 			spin_lock_irqsave(&priv->rf_ps_lock, flag);
@@ -376,7 +374,6 @@ bool MgntActSet_RF_State(struct net_device *dev,
 		if (!priv->rtllib->RfOffReason) {
 			priv->rtllib->RfOffReason = 0;
 			bActionAllowed = true;
-
 
 			if (rtState == eRfOff &&
 			    ChangeSource >= RF_CHANGE_BY_HW)
@@ -449,7 +446,6 @@ bool MgntActSet_RF_State(struct net_device *dev,
 	RT_TRACE((COMP_PS | COMP_RF), "<===MgntActSet_RF_State()\n");
 	return bActionAllowed;
 }
-
 
 static short rtl8192_get_nic_desc_num(struct net_device *dev, int prio)
 {
@@ -1108,7 +1104,6 @@ static void rtl8192_init_priv_constant(struct net_device *dev)
 	priv->RegSupportPciASPM = 2;
 }
 
-
 static void rtl8192_init_priv_variable(struct net_device *dev)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
@@ -1480,7 +1475,6 @@ static void rtl819x_ifsilentreset(struct net_device *dev)
 
 	u8 IsPortal = 0;
 
-
 	if (priv->ResetProgress == RESET_TYPE_NORESET) {
 
 		RT_TRACE(COMP_RESET, "=========>Reset progress!!\n");
@@ -1630,7 +1624,6 @@ static void rtl819x_update_rxcounts(struct r8192_priv *priv, u32 *TotalRxBcnNum,
 	}
 }
 
-
 void	rtl819x_watchdog_wqcallback(void *data)
 {
 	struct r8192_priv *priv = container_of_dwork_rsl(data,
@@ -1679,7 +1672,6 @@ void	rtl819x_watchdog_wqcallback(void *data)
 		ieee->LinkDetectInfo.NumTxOkInPeriod > 100)
 			bBusyTraffic = true;
 
-
 		if (ieee->LinkDetectInfo.NumRxOkInPeriod > 4000 ||
 		    ieee->LinkDetectInfo.NumTxOkInPeriod > 4000) {
 			bHigherBusyTraffic = true;
@@ -1727,7 +1719,6 @@ void	rtl819x_watchdog_wqcallback(void *data)
 			priv->check_roaming_cnt++;
 		else
 			priv->check_roaming_cnt = 0;
-
 
 		if (priv->check_roaming_cnt > 0) {
 			if (ieee->eRFPowerState == eRfOff)
@@ -1810,7 +1801,6 @@ void rtl8192_tx_enable(struct net_device *dev)
 	rtllib_reset_queue(priv->rtllib);
 }
 
-
 static void rtl8192_free_rx_ring(struct net_device *dev)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
@@ -1862,7 +1852,6 @@ void rtl8192_data_hard_stop(struct net_device *dev)
 {
 }
 
-
 void rtl8192_data_hard_resume(struct net_device *dev)
 {
 }
@@ -1884,7 +1873,6 @@ void rtl8192_hard_data_xmit(struct sk_buff *skb, struct net_device *dev,
 
 	assert(queue_index != TXCMD_QUEUE);
 
-
 	memcpy((unsigned char *)(skb->cb), &dev, sizeof(dev));
 	skb_push(skb, priv->rtllib->tx_headroom);
 	ret = rtl8192_tx(dev, skb);
@@ -1897,7 +1885,6 @@ void rtl8192_hard_data_xmit(struct sk_buff *skb, struct net_device *dev,
 						 priv->rtllib->tx_headroom);
 		priv->rtllib->stats.tx_packets++;
 	}
-
 
 	return;
 }
@@ -1934,8 +1921,6 @@ int rtl8192_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
 			kfree_skb(skb);
 		};
 	}
-
-
 
 	return ret;
 
@@ -2148,7 +2133,6 @@ static int rtl8192_alloc_tx_desc_ring(struct net_device *dev,
 	return 0;
 }
 
-
 short rtl8192_pci_initdescring(struct net_device *dev)
 {
 	u32 ret;
@@ -2235,7 +2219,6 @@ long rtl819x_translate_todbm(struct r8192_priv *priv, u8 signal_strength_index)
 	return signal_power;
 }
 
-
 void
 rtl819x_update_rxsignalstatistics8190pci(
 	struct r8192_priv *priv,
@@ -2243,7 +2226,6 @@ rtl819x_update_rxsignalstatistics8190pci(
 	)
 {
 	int weighting = 0;
-
 
 	if (priv->stats.recv_signal_power == 0)
 		priv->stats.recv_signal_power =
@@ -2263,7 +2245,6 @@ void rtl819x_process_cck_rxpathsel(struct r8192_priv *priv,
 				   struct rtllib_rx_stats *pprevious_stats)
 {
 }
-
 
 u8 rtl819x_query_rxpwrpercentage(char antpower)
 {
@@ -2305,8 +2286,6 @@ rtl8192_record_rxdesc_forlateruse(
 	ptarget_stats->bIsAMPDU = psrc_stats->bIsAMPDU;
 	ptarget_stats->bFirstMPDU = psrc_stats->bFirstMPDU;
 }
-
-
 
 static void rtl8192_rx_normal(struct net_device *dev)
 {
@@ -2417,7 +2396,6 @@ static void rtl8192_rx_cmd(struct net_device *dev)
 {
 }
 
-
 static void rtl8192_tx_resume(struct net_device *dev)
 {
 	struct r8192_priv *priv = (struct r8192_priv *)rtllib_priv(dev);
@@ -2470,7 +2448,6 @@ int _rtl8192_up(struct net_device *dev, bool is_silent_reset)
 	return 0;
 }
 
-
 static int rtl8192_open(struct net_device *dev)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
@@ -2483,7 +2460,6 @@ static int rtl8192_open(struct net_device *dev)
 
 }
 
-
 int rtl8192_up(struct net_device *dev)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
@@ -2492,7 +2468,6 @@ int rtl8192_up(struct net_device *dev)
 		return -1;
 	return _rtl8192_up(dev, false);
 }
-
 
 static int rtl8192_close(struct net_device *dev)
 {
@@ -2556,7 +2531,6 @@ static void r8192_set_multicast(struct net_device *dev)
 	priv->promisc = promisc;
 
 }
-
 
 static int r8192_set_mac_adr(struct net_device *dev, void *mac)
 {
@@ -2698,7 +2672,6 @@ out:
 	return ret;
 }
 
-
 irqreturn_type rtl8192_interrupt(int irq, void *netdev, struct pt_regs *regs)
 {
 	struct net_device *dev = (struct net_device *) netdev;
@@ -2831,8 +2804,6 @@ done:
 	return IRQ_HANDLED;
 }
 
-
-
 /****************************************************************************
 	---------------------------- PCI_STUFF---------------------------
 *****************************************************************************/
@@ -2909,7 +2880,6 @@ static int __devinit rtl8192_pci_probe(struct pci_dev *pdev,
 		RT_TRACE(COMP_ERR, "request_mem_region failed!");
 		goto err_rel_rtllib;
 	}
-
 
 	ioaddr = (unsigned long)ioremap_nocache(pmem_start, pmem_len);
 	if (ioaddr == (unsigned long)NULL) {

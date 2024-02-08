@@ -357,7 +357,6 @@ struct devfreq *devfreq_add_device(struct device *dev,
 		return ERR_PTR(-EINVAL);
 	}
 
-
 	if (!governor->no_central_polling) {
 		mutex_lock(&devfreq_list_lock);
 		devfreq = find_device_devfreq(dev);

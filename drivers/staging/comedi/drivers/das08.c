@@ -1049,7 +1049,6 @@ static int das08_attach(struct comedi_device *dev, struct comedi_devconfig *it)
 	return das08_common_attach(dev, iobase);
 }
 
-
 int das08_common_detach(struct comedi_device *dev)
 {
 	printk(KERN_INFO "comedi%d: das08: remove\n", dev->minor);

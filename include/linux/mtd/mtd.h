@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org> et al.
  *
@@ -373,13 +376,11 @@ extern void __put_mtd_device(struct mtd_info *mtd);
 extern struct mtd_info *get_mtd_device_nm(const char *name);
 extern void put_mtd_device(struct mtd_info *mtd);
 
-
 struct mtd_notifier {
 	void (*add)(struct mtd_info *mtd);
 	void (*remove)(struct mtd_info *mtd);
 	struct list_head list;
 };
-
 
 extern void register_mtd_user (struct mtd_notifier *new);
 extern int unregister_mtd_user (struct mtd_notifier *old);
@@ -398,5 +399,13 @@ static inline int mtd_is_eccerr(int err) {
 static inline int mtd_is_bitflip_or_eccerr(int err) {
 	return mtd_is_bitflip(err) || mtd_is_eccerr(err);
 }
+
+#ifdef MY_ABC_HERE
+/* written in synopart.c */
+int SYNOMTDModifyPartInfo(struct mtd_info *mtd, unsigned long offset, unsigned long length);
+
+/* written in redboot.c */
+int SYNOMTDModifyFisInfo(struct mtd_info *mtd, struct SYNO_MTD_FIS_INFO SynoMtdFisInfo);
+#endif /* MY_ABC_HERE */
 
 #endif /* __MTD_MTD_H__ */

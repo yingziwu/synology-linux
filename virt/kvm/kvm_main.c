@@ -598,7 +598,6 @@ void kvm_put_kvm(struct kvm *kvm)
 }
 EXPORT_SYMBOL_GPL(kvm_put_kvm);
 
-
 static int kvm_vm_release(struct inode *inode, struct file *filp)
 {
 	struct kvm *kvm = filp->private_data;
@@ -1720,7 +1719,6 @@ static long kvm_vcpu_ioctl(struct file *filp,
 		return kvm_arch_vcpu_ioctl(filp, ioctl, arg);
 #endif
 
-
 	vcpu_load(vcpu);
 	switch (ioctl) {
 	case KVM_RUN:
@@ -2335,7 +2333,6 @@ static int kvm_cpu_hotplug(struct notifier_block *notifier, unsigned long val,
 	}
 	return NOTIFY_OK;
 }
-
 
 asmlinkage void kvm_spurious_fault(void)
 {

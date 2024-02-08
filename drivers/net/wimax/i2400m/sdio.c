@@ -79,7 +79,6 @@ static const char *i2400ms_bus_fw_names[] = {
 	NULL
 };
 
-
 static const struct i2400m_poke_table i2400ms_pokes[] = {
 	I2400M_FW_POKE(0x6BE260, 0x00000088),
 	I2400M_FW_POKE(0x080550, 0x00000005),
@@ -157,7 +156,6 @@ function_enabled:
 	return err;
 }
 
-
 /*
  * Setup minimal device communication infrastructure needed to at
  * least be able to update the firmware.
@@ -213,7 +211,6 @@ error_set_blk_size:
 	return result;
 }
 
-
 /*
  * Tear down minimal device communication infrastructure needed to at
  * least be able to update the firmware.
@@ -231,7 +228,6 @@ void i2400ms_bus_release(struct i2400m *i2400m)
 	sdio_disable_func(func);
 	sdio_release_host(func);
 }
-
 
 /*
  * Setup driver resources needed to communicate with the device
@@ -253,7 +249,6 @@ int i2400ms_bus_dev_start(struct i2400m *i2400m)
 	d_fnend(3, dev, "(i2400m %p) = %d\n", i2400m, 0);
 	return 0;
 }
-
 
 /*
  * Sends a barker buffer to the device
@@ -290,7 +285,6 @@ int __i2400ms_send_barker(struct i2400ms *i2400ms,
 error_kzalloc:
 	return ret;
 }
-
 
 /*
  * Reset a device at different levels (warm, cold or bus)
@@ -372,7 +366,6 @@ do_bus_reset:
 	return result;
 }
 
-
 static
 void i2400ms_netdev_setup(struct net_device *net_dev)
 {
@@ -381,7 +374,6 @@ void i2400ms_netdev_setup(struct net_device *net_dev)
 	i2400ms_init(i2400ms);
 	i2400m_netdev_setup(net_dev);
 }
-
 
 /*
  * Debug levels control; see debug.h
@@ -394,14 +386,12 @@ struct d_level D_LEVEL[] = {
 };
 size_t D_LEVEL_SIZE = ARRAY_SIZE(D_LEVEL);
 
-
 #define __debugfs_register(prefix, name, parent)			\
 do {									\
 	result = d_level_register_debugfs(prefix, name, parent);	\
 	if (result < 0)							\
 		goto error;						\
 } while (0)
-
 
 static
 int i2400ms_debugfs_add(struct i2400ms *i2400ms)
@@ -429,7 +419,6 @@ error:
 	i2400ms->debugfs_dentry = NULL;
 	return result;
 }
-
 
 static struct device_type i2400ms_type = {
 	.name	= "wimax",
@@ -539,7 +528,6 @@ error_alloc_netdev:
 	return result;
 }
 
-
 static
 void i2400ms_remove(struct sdio_func *func)
 {
@@ -568,7 +556,6 @@ const struct sdio_device_id i2400ms_sdio_ids[] = {
 };
 MODULE_DEVICE_TABLE(sdio, i2400ms_sdio_ids);
 
-
 static
 struct sdio_driver i2400m_sdio_driver = {
 	.name		= KBUILD_MODNAME,
@@ -576,7 +563,6 @@ struct sdio_driver i2400m_sdio_driver = {
 	.remove		= i2400ms_remove,
 	.id_table	= i2400ms_sdio_ids,
 };
-
 
 static
 int __init i2400ms_driver_init(void)
@@ -587,14 +573,12 @@ int __init i2400ms_driver_init(void)
 }
 module_init(i2400ms_driver_init);
 
-
 static
 void __exit i2400ms_driver_exit(void)
 {
 	sdio_unregister_driver(&i2400m_sdio_driver);
 }
 module_exit(i2400ms_driver_exit);
-
 
 MODULE_AUTHOR("Intel Corporation <linux-wimax@intel.com>");
 MODULE_DESCRIPTION("Intel 2400M WiMAX networking for SDIO");

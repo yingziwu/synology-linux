@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * xHCI host controller driver
  *
@@ -46,7 +49,6 @@ static u8 usb_bos_descriptor [] = {
 	0x00,				/* bU1DevExitLat, set later. */
 	0x00, 0x00			/* __le16 bU2DevExitLat, set later. */
 };
-
 
 static void xhci_common_hub_descriptor(struct xhci_hcd *xhci,
 		struct usb_hub_descriptor *desc, int ports)
@@ -410,6 +412,28 @@ static int xhci_get_ports(struct usb_hcd *hcd, __le32 __iomem ***port_array)
 	return max_ports;
 }
 
+#if defined(MY_ABC_HERE)
+/*
+ * get the mapping port array.
+ * if hcd is usb3, return usb2's port_array, and vice versa.
+ */
+static int xhci_get_ports_map(struct usb_hcd *hcd, __le32 __iomem ***port_array)
+{
+    int max_ports;
+    struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+
+    if (hcd->speed == HCD_USB3) {
+        max_ports = xhci->num_usb2_ports; // should be the same as num_usb3_ports
+        *port_array = xhci->usb2_ports;
+    } else {
+        max_ports = xhci->num_usb3_ports;
+        *port_array = xhci->usb3_ports;
+    }
+
+    return max_ports;
+}
+#endif
+
 void xhci_set_link_state(struct xhci_hcd *xhci, __le32 __iomem **port_array,
 				int port_id, u32 link_state)
 {
@@ -510,6 +534,11 @@ static void xhci_hub_report_link_state(u32 *status, u32 status_reg)
 	*status |= pls;
 }
 
+#ifdef MY_ABC_HERE
+#include <linux/pci.h>
+extern int gSynoFactoryUSB3Disable;
+#endif
+
 /*
  * Function for Compliance Mode Quirk.
  *
@@ -542,14 +571,25 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
 	int max_ports;
 	unsigned long flags;
 	u32 temp, status;
+#if defined(MY_ABC_HERE)
+	u32 temp_map;
+#endif
 	int retval = 0;
 	__le32 __iomem **port_array;
+#if defined(MY_ABC_HERE)
+	__le32 __iomem **port_array_map;
+	struct pci_dev *pdev = to_pci_dev(hcd->self.controller);
+#endif
 	int slot_id;
 	struct xhci_bus_state *bus_state;
 	u16 link_state = 0;
 	u16 wake_mask = 0;
+	unsigned selector;
 
 	max_ports = xhci_get_ports(hcd, &port_array);
+#if defined(MY_ABC_HERE)
+	xhci_get_ports_map(hcd, &port_array_map); // max_ports should be the same, only for NEC fixes
+#endif
 	bus_state = &xhci->bus_state[hcd_index(hcd)];
 
 	spin_lock_irqsave(&xhci->lock, flags);
@@ -697,11 +737,15 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
 			link_state = (wIndex & 0xff00) >> 3;
 		if (wValue == USB_PORT_FEAT_REMOTE_WAKE_MASK)
 			wake_mask = wIndex & 0xff00;
+		selector = wIndex >> 8;
 		wIndex &= 0xff;
 		if (!wIndex || wIndex > max_ports)
 			goto error;
 		wIndex--;
 		temp = xhci_readl(xhci, port_array[wIndex]);
+#if defined(MY_ABC_HERE)
+		temp_map = xhci_readl(xhci, port_array_map[wIndex]);
+#endif
 		if (temp == 0xffffffff) {
 			retval = -ENODEV;
 			break;
@@ -821,8 +865,24 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
 			 * However, khubd will ignore the roothub events until
 			 * the roothub is registered.
 			 */
+#ifdef MY_ABC_HERE
+			xhci_dbg(xhci, "set port power. hcd->speed:%d.\n",hcd->speed);
+			if (1 == gSynoFactoryUSB3Disable && hcd->speed == HCD_USB3)
+				xhci_writel(xhci, temp & ~PORT_POWER, port_array[wIndex]);
+			else
+			{
+				// set power on usb3 port before usb2 port
+				if((0 == gSynoFactoryUSB3Disable) && (hcd->speed == HCD_USB2) && !(temp_map & PORT_POWER)) {
+					xhci_writel(xhci, temp_map | PORT_POWER, port_array_map[wIndex]);
+					temp_map = xhci_readl(xhci, port_array_map[wIndex]);
+					mdelay(100);
+				}
+				xhci_writel(xhci, temp | PORT_POWER, port_array[wIndex]);
+			}
+#else
 			xhci_writel(xhci, temp | PORT_POWER,
 					port_array[wIndex]);
+#endif
 
 			temp = xhci_readl(xhci, port_array[wIndex]);
 			xhci_dbg(xhci, "set port power, actual port %d status  = 0x%x\n", wIndex, temp);
@@ -847,6 +907,23 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
 			xhci_writel(xhci, temp, port_array[wIndex]);
 
 			temp = xhci_readl(xhci, port_array[wIndex]);
+			break;
+
+		/* For downstream facing ports (these):  one hub port is put
+		 * into test mode according to USB2 11.24.2.13, then the hub
+		 * must be reset (which for root hub now means rmmod+modprobe,
+		 * or else system reboot).
+		 */
+		case USB_PORT_FEAT_TEST:
+			if (hcd->speed != HCD_USB2)
+				goto error;
+			if (!selector || selector > 5)
+				goto error;
+			xhci_quiesce(xhci);
+			xhci_halt(xhci);
+			temp = xhci_readl(xhci, port_array[wIndex] + 1);
+			temp |= selector << 28;
+			xhci_writel(xhci, temp, port_array[wIndex]+1);
 			break;
 		default:
 			goto error;

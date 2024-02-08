@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_SCHED_H
 #define _LINUX_SCHED_H
 
@@ -141,7 +144,6 @@ extern unsigned long nr_uninterruptible(void);
 extern unsigned long nr_iowait(void);
 extern unsigned long nr_iowait_cpu(int cpu);
 extern unsigned long this_cpu_load(void);
-
 
 extern void calc_global_load(unsigned long ticks);
 
@@ -399,7 +401,6 @@ extern void arch_unmap_area_topdown(struct mm_struct *, unsigned long);
 #else
 static inline void arch_pick_mmap_layout(struct mm_struct *mm) {}
 #endif
-
 
 extern void set_dumpable(struct mm_struct *mm, int value);
 extern int get_dumpable(struct mm_struct *mm);
@@ -709,6 +710,9 @@ struct user_struct {
 	atomic_t inotify_watches; /* How many inotify watches does this user have? */
 	atomic_t inotify_devs;	/* How many inotify devs does this user have opened? */
 #endif
+#ifdef MY_ABC_HERE
+	atomic_t synotify_instances;
+#endif
 #ifdef CONFIG_FANOTIFY
 	atomic_t fanotify_listeners;
 #endif
@@ -742,7 +746,6 @@ extern struct user_struct *find_user(uid_t);
 
 extern struct user_struct root_user;
 #define INIT_USER (&root_user)
-
 
 struct backing_dev_info;
 struct reclaim_state;
@@ -1084,9 +1087,7 @@ static inline bool cpus_share_cache(int this_cpu, int that_cpu)
 
 #endif	/* !CONFIG_SMP */
 
-
 struct io_context;			/* See blkdev.h */
-
 
 #ifdef ARCH_HAS_PREFETCH_SWITCH_STACK
 extern void prefetch_stack(struct task_struct *t);
@@ -1343,7 +1344,6 @@ struct task_struct {
 	unsigned in_execve:1;	/* Tell the LSMs that the process is doing an
 				 * execve */
 	unsigned in_iowait:1;
-
 
 	/* Revert to default priority/policy when forking */
 	unsigned sched_reset_on_fork:1;
@@ -1715,7 +1715,6 @@ static inline pid_t task_pid_vnr(struct task_struct *tsk)
 	return __task_pid_nr_ns(tsk, PIDTYPE_PID, NULL);
 }
 
-
 static inline pid_t task_tgid_nr(struct task_struct *tsk)
 {
 	return tsk->tgid;
@@ -1728,7 +1727,6 @@ static inline pid_t task_tgid_vnr(struct task_struct *tsk)
 	return pid_vnr(task_tgid(tsk));
 }
 
-
 static inline pid_t task_pgrp_nr_ns(struct task_struct *tsk,
 					struct pid_namespace *ns)
 {
@@ -1739,7 +1737,6 @@ static inline pid_t task_pgrp_vnr(struct task_struct *tsk)
 {
 	return __task_pid_nr_ns(tsk, PIDTYPE_PGID, NULL);
 }
-
 
 static inline pid_t task_session_nr_ns(struct task_struct *tsk,
 					struct pid_namespace *ns)
@@ -1803,6 +1800,9 @@ static inline void put_task_struct(struct task_struct *t)
 
 extern void task_times(struct task_struct *p, cputime_t *ut, cputime_t *st);
 extern void thread_group_times(struct task_struct *p, cputime_t *ut, cputime_t *st);
+
+extern int task_free_register(struct notifier_block *n);
+extern int task_free_unregister(struct notifier_block *n);
 
 /*
  * Per process flags
@@ -1967,7 +1967,6 @@ extern u64 cpu_clock(int cpu);
 extern u64 local_clock(void);
 extern u64 sched_clock_cpu(int cpu);
 
-
 extern void sched_clock_init(void);
 
 #ifndef CONFIG_HAVE_UNSTABLE_SCHED_CLOCK
@@ -1997,11 +1996,7 @@ extern void sched_clock_idle_wakeup_event(u64 delta_ns);
 #endif
 
 #ifdef CONFIG_IRQ_TIME_ACCOUNTING
-/*
- * An i/f to runtime opt-in for irq time accounting based off of sched_clock.
- * The reason for this explicit opt-in is not to have perf penalty with
- * slow sched_clocks.
- */
+extern int sched_clock_irqtime;
 extern void enable_sched_clock_irqtime(void);
 extern void disable_sched_clock_irqtime(void);
 #else

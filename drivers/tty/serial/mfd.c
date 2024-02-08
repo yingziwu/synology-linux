@@ -127,7 +127,6 @@ static inline void serial_out(struct uart_hsu_port *up, int offset, int value)
 
 #define HSU_REGS_BUFSIZE	1024
 
-
 static ssize_t port_show_regs(struct file *file, char __user *user_buf,
 				size_t count, loff_t *ppos)
 {

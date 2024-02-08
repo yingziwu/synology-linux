@@ -63,7 +63,6 @@ static unsigned int msmsdcc_sdioirq;
 #define PIO_SPINMAX 30
 #define CMD_SPINMAX 20
 
-
 static inline void
 msmsdcc_disable_clocks(struct msmsdcc_host *host, int deferr)
 {
@@ -594,7 +593,6 @@ msmsdcc_data_err(struct msmsdcc_host *host, struct mmc_data *data,
 		data->error = -EIO;
 	}
 }
-
 
 static int
 msmsdcc_pio_read(struct msmsdcc_host *host, char *buffer, unsigned int remain)
@@ -1222,7 +1220,6 @@ msmsdcc_probe(struct platform_device *pdev)
 	host->busclk_timer.data = (unsigned long) host;
 	host->busclk_timer.function = msmsdcc_busclk_expired;
 
-
 	host->cmdpoll = 1;
 
 	host->base = ioremap(memres->start, PAGE_SIZE);
@@ -1420,7 +1417,6 @@ do_resume_work(struct work_struct *work)
 	}
 }
 #endif
-
 
 static int
 msmsdcc_suspend(struct platform_device *dev, pm_message_t state)

@@ -28,7 +28,6 @@
 #define PLAT_NAND_CLE			(1 << 16)
 #define PLAT_NAND_ALE			(1 << 17)
 
-
 /* AHB Peripherals */
 #define U300_AHB_PER_PHYS_BASE		0xa0000000
 #define U300_AHB_PER_VIRT_BASE		0xff010000
@@ -72,7 +71,6 @@
 
 /* EMIF Configuration Area */
 #define U300_EMIF_CFG_BASE		(U300_AHB_PER_PHYS_BASE+0x4000)
-
 
 /*
  * FAST peripherals
@@ -145,7 +143,6 @@
 
 /* PPM */
 #define U300_PPM_BASE			(U300_SLOW_PER_PHYS_BASE+0xb000)
-
 
 /*
  * REST peripherals

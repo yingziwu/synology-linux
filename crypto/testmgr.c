@@ -1240,7 +1240,6 @@ static int test_pcomp(struct crypto_pcomp *tfm,
 	return 0;
 }
 
-
 static int test_cprng(struct crypto_rng *tfm, struct cprng_testvec *template,
 		      unsigned int tcount)
 {
@@ -2461,7 +2460,6 @@ static const struct alg_test_desc alg_test_descs[] = {
 			}
 		}
 	}, {
-
 
 		.alg = "rfc4309(ccm(aes))",
 		.test = alg_test_aead,

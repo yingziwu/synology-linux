@@ -1,5 +1,8 @@
 
 obj-$(CONFIG_ATA)		+= libata.o
+obj-$(CONFIG_HI_SATA)		+= ahci_sys.o
+obj-$(CONFIG_HI_SATA_V100)		+= hisatav100.o
+obj-$(CONFIG_HI_SATA_V200)		+= hisatav200.o
 
 # non-SFF interface
 obj-$(CONFIG_SATA_AHCI)		+= ahci.o libahci.o
@@ -28,6 +31,9 @@ obj-$(CONFIG_SATA_SVW)		+= sata_svw.o
 obj-$(CONFIG_SATA_ULI)		+= sata_uli.o
 obj-$(CONFIG_SATA_VIA)		+= sata_via.o
 obj-$(CONFIG_SATA_VITESSE)	+= sata_vsc.o
+
+# Synology modified, for disk ordering. sata_sil24.o sould be after sata_mv.o
+obj-$(CONFIG_SATA_SIL24)        += sata_sil24.o
 
 # SFF PATA w/ BMDMA
 obj-$(CONFIG_PATA_ALI)		+= pata_ali.o

@@ -614,7 +614,6 @@ EXPORT_SYMBOL_GPL(ring_buffer_normalize_time_stamp);
 #define RB_PAGE_HEAD		1UL
 #define RB_PAGE_UPDATE		2UL
 
-
 #define RB_FLAG_MASK		3UL
 
 /* PAGE_MOVED is not part of the mask */

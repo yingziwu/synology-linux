@@ -199,7 +199,6 @@ static inline u16 i5100_mtr_numcol(u16 a)
 	return a & ((1 << 2) - 1);
 }
 
-
 static inline u32 i5100_validlog_redmemvalid(u32 a)
 {
 	return a >> 2 & 1;

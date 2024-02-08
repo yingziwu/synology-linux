@@ -49,7 +49,6 @@
 
 #define AA(__x)		((unsigned long)(__x))
 
-
 asmlinkage long sys32_truncate64(const char __user *filename,
 				 unsigned long offset_low,
 				 unsigned long offset_high)
@@ -373,7 +372,6 @@ asmlinkage long sys32_pwrite(unsigned int fd, const char __user *ubuf,
 	return sys_pwrite64(fd, ubuf, count,
 			  ((loff_t)AA(poshi) << 32) | AA(poslo));
 }
-
 
 asmlinkage long sys32_personality(unsigned long personality)
 {

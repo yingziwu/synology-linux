@@ -100,7 +100,6 @@ extern void prep_compound_page(struct page *page, unsigned long order);
 extern bool is_free_buddy_page(struct page *page);
 #endif
 
-
 /*
  * function for dealing with page's order in buddy system.
  * zone->lock is already acquired when we use these.

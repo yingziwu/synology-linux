@@ -37,7 +37,6 @@ struct drm_device;
 struct drm_mode_set;
 struct drm_framebuffer;
 
-
 #define DRM_MODE_OBJECT_CRTC 0xcccccccc
 #define DRM_MODE_OBJECT_CONNECTOR 0xc0c0c0c0
 #define DRM_MODE_OBJECT_ENCODER 0xe0e0e0e0
@@ -396,7 +395,6 @@ struct drm_crtc {
 	/* if you are using the helper */
 	void *helper_private;
 };
-
 
 /**
  * drm_connector_funcs - control connectors on a given device

@@ -113,12 +113,6 @@ struct ustr {
 	uint8_t u_len;
 };
 
-struct extent_position {
-	struct buffer_head *bh;
-	uint32_t offset;
-	struct kernel_lb_addr block;
-};
-
 /* super.c */
 
 static inline void udf_updated_lvid(struct super_block *sb)

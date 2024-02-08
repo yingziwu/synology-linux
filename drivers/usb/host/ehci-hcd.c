@@ -72,7 +72,6 @@
 
 static const char	hcd_name [] = "ehci_hcd";
 
-
 #undef VERBOSE_DEBUG
 #undef EHCI_URB_TRACE
 
@@ -763,7 +762,6 @@ static int ehci_run (struct usb_hcd *hcd)
 #endif
 	}
 
-
 	// Philips, Intel, and maybe others need CMD_RUN before the
 	// root hub will detect new devices (why?); NEC doesn't
 	ehci->command &= ~(CMD_LRESET|CMD_IAAD|CMD_PSE|CMD_ASE|CMD_RESET);
@@ -1254,6 +1252,10 @@ static int ehci_get_frame (struct usb_hcd *hcd)
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR (DRIVER_AUTHOR);
 MODULE_LICENSE ("GPL");
+#ifdef CONFIG_HIUSB_EHCI
+#include "hiusb-ehci.c"
+#define	PLATFORM_DRIVER		hiusb_ehci_hcd_driver
+#endif
 
 #ifdef CONFIG_PCI
 #include "ehci-pci.c"
@@ -1397,6 +1399,14 @@ static int __init ehci_hcd_init(void)
 
 	if (usb_disabled())
 		return -ENODEV;
+#ifdef CONFIG_HIUSB_EHCI
+	retval = platform_device_register(&hiusb_ehci_platdev);
+	if (retval < 0) {
+		printk(KERN_ERR "%s->%d, platform_device_register fail.\n",
+				 __func__, __LINE__);
+		return -ENODEV;
+	}
+#endif
 
 	printk(KERN_INFO "%s: " DRIVER_DESC "\n", hcd_name);
 	set_bit(USB_EHCI_LOADED, &usb_hcds_loaded);
@@ -1475,6 +1485,10 @@ clean0:
 err_debug:
 #endif
 	clear_bit(USB_EHCI_LOADED, &usb_hcds_loaded);
+#ifdef CONFIG_HIUSB_EHCI
+	platform_device_unregister(&hiusb_ehci_platdev);
+#endif
+
 	return retval;
 }
 module_init(ehci_hcd_init);
@@ -1500,6 +1514,8 @@ static void __exit ehci_hcd_cleanup(void)
 	debugfs_remove(ehci_debug_root);
 #endif
 	clear_bit(USB_EHCI_LOADED, &usb_hcds_loaded);
+#ifdef CONFIG_HIUSB_EHCI
+	platform_device_unregister(&hiusb_ehci_platdev);
+#endif
 }
 module_exit(ehci_hcd_cleanup);
-

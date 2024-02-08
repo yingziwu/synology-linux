@@ -80,7 +80,6 @@ int split_cmdline(char *cmdline, const char ***argv);
 		} \
 	} while(0)
 
-
 static inline int is_absolute_path(const char *path)
 {
 	return path[0] == '/';

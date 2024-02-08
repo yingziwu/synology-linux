@@ -31,7 +31,6 @@
 
 #include "usb.h"
 
-
 #ifdef CONFIG_HOTPLUG
 
 /*
@@ -206,7 +205,6 @@ static const struct usb_device_id *usb_match_dynamic_id(struct usb_interface *in
 	return NULL;
 }
 
-
 /* called from driver core with dev locked */
 static int usb_probe_device(struct device *dev)
 {
@@ -348,7 +346,11 @@ static int usb_unbind_interface(struct device *dev)
 	/* Terminate all URBs for this interface unless the driver
 	 * supports "soft" unbinding.
 	 */
+#ifdef CONFIG_HI3535_SDK_2050
+	if (!driver->soft_unbind || udev->state == USB_STATE_NOTATTACHED)
+#else
 	if (!driver->soft_unbind)
+#endif /* CONFIG_HI3535_SDK_2050 */
 		usb_disable_interface(udev, intf, false);
 
 	driver->disconnect(intf);

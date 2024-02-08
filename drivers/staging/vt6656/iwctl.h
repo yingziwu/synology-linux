@@ -51,7 +51,6 @@ void iwctl_giwrange(struct net_device *dev,
              struct iw_point *wrq,
              char *extra);
 
-
 void iwctl_giwmode(struct net_device *dev,
              struct iw_request_info *info,
              __u32 *wmode,

@@ -17,7 +17,6 @@
 
 #include "fimc-core.h"
 
-
 void fimc_hw_reset(struct fimc_dev *dev)
 {
 	u32 cfg;
@@ -511,7 +510,6 @@ void fimc_hw_set_in_dma(struct fimc_ctx *ctx)
 	writel(cfg, dev->regs + S5P_CIDMAPARAM);
 }
 
-
 void fimc_hw_set_input_path(struct fimc_ctx *ctx)
 {
 	struct fimc_dev *dev = ctx->fimc_dev;
@@ -645,7 +643,6 @@ int fimc_hw_set_camera_source(struct fimc_dev *fimc,
 	writel(cfg, fimc->regs + S5P_CISRCFMT);
 	return 0;
 }
-
 
 int fimc_hw_set_camera_offset(struct fimc_dev *fimc, struct fimc_frame *f)
 {

@@ -75,7 +75,6 @@ void *memset(void *s, int c, size_t n)
 	__insn_prefetch(&out8[n - 1]);
 #endif /* !CHIP_HAS_WH64() */
 
-
 	/* Align 'out8'. We know n >= 3 so this won't write past the end. */
 	while (((uintptr_t) out8 & 3) != 0) {
 		*out8++ = c;

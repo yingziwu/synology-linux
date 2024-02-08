@@ -208,7 +208,6 @@ int via_mem_free(struct drm_device *dev, void *data, struct drm_file *file_priv)
 	return 0;
 }
 
-
 void via_reclaim_buffers_locked(struct drm_device *dev,
 				struct drm_file *file)
 {

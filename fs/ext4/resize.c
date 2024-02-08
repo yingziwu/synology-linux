@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext4/resize.c
  *
@@ -7,7 +10,6 @@
  *
  * This could probably be made into a module, because it is not often in use.
  */
-
 
 #define EXT4FS_DEBUG
 
@@ -1092,7 +1094,6 @@ static int ext4_setup_new_descs(handle_t *handle, struct super_block *sb,
 	__u16				*bg_flags = flex_gd->bg_flags;
 	int				i, gdb_off, gdb_num, err = 0;
 	
-
 	for (i = 0; i < flex_gd->count; i++, group_data++, bg_flags++) {
 		group = group_data->group;
 
@@ -1205,8 +1206,10 @@ static void ext4_update_super(struct super_block *sb,
 
 	/* Update the reserved block counts only once the new group is
 	 * active. */
+#ifndef MY_ABC_HERE
 	ext4_r_blocks_count_set(es, ext4_r_blocks_count(es) +
 				reserved_blocks);
+#endif
 
 	/* Update the free space counts */
 	percpu_counter_add(&sbi->s_freeclusters_counter,
@@ -1444,7 +1447,6 @@ int ext4_group_add(struct super_block *sb, struct ext4_new_group_data *input)
 			return PTR_ERR(inode);
 		}
 	}
-
 
 	err = verify_group_input(sb, input);
 	if (err)

@@ -191,7 +191,6 @@ SYSCALL_DEFINE6(osf_mmap, unsigned long, addr, unsigned long, len,
 	return ret;
 }
 
-
 /*
  * The OSF/1 statfs structure is much larger, but this should
  * match the beginning, at least.
@@ -1078,7 +1077,6 @@ SYSCALL_DEFINE2(osf_usleep_thread, struct timeval32 __user *, sleep,
 	return -EFAULT;
 }
 
-
 struct timex32 {
 	unsigned int modes;	/* mode selector */
 	long offset;		/* time offset (usec) */
@@ -1146,7 +1144,7 @@ arch_get_unmapped_area_1(unsigned long addr, unsigned long len,
 		/* At this point:  (!vma || addr < vma->vm_end). */
 		if (limit - len < addr)
 			return -ENOMEM;
-		if (!vma || addr + len <= vma->vm_start)
+		if (!vma || addr + len <= vm_start_gap(vma))
 			return addr;
 		addr = vma->vm_end;
 		vma = vma->vm_next;

@@ -252,7 +252,6 @@ rate_lowest_non_cck_index(struct ieee80211_supported_band *sband,
 	return 0;
 }
 
-
 bool rate_control_send_low(struct ieee80211_sta *sta,
 			   void *priv_sta,
 			   struct ieee80211_tx_rate_control *txrc)
@@ -351,8 +350,6 @@ static bool rate_idx_match_mcs_mask(struct ieee80211_tx_rate *rate,
 	}
 	return false;
 }
-
-
 
 static void rate_idx_match_mask(struct ieee80211_tx_rate *rate,
 				struct ieee80211_tx_rate_control *txrc,
@@ -531,4 +528,3 @@ void rate_control_deinitialize(struct ieee80211_local *local)
 	local->rate_ctrl = NULL;
 	rate_control_free(ref);
 }
-

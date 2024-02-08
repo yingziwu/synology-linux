@@ -765,7 +765,6 @@ pipe_read_fasync(int fd, struct file *filp, int on)
 	return retval;
 }
 
-
 static int
 pipe_write_fasync(int fd, struct file *filp, int on)
 {
@@ -778,7 +777,6 @@ pipe_write_fasync(int fd, struct file *filp, int on)
 
 	return retval;
 }
-
 
 static int
 pipe_rdwr_fasync(int fd, struct file *filp, int on)
@@ -797,7 +795,6 @@ pipe_rdwr_fasync(int fd, struct file *filp, int on)
 	mutex_unlock(&inode->i_mutex);
 	return retval;
 }
-
 
 static int
 pipe_read_release(struct inode *inode, struct file *filp)

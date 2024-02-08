@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext2/super.c
  *
@@ -236,6 +239,20 @@ static int ext2_show_options(struct seq_file *seq, struct dentry *root)
 	    le16_to_cpu(es->s_def_resgid) != EXT2_DEF_RESGID) {
 		seq_printf(seq, ",resgid=%u", sbi->s_resgid);
 	}
+	if (sbi->s_uid) {
+		if (sbi->s_uid != sbi->s_diskuid)
+			seq_printf(seq, ",uid=%u:%u",
+				sbi->s_uid, sbi->s_diskuid);
+		else
+			seq_printf(seq, ",uid=%u", sbi->s_uid);
+	}
+	if (sbi->s_gid) {
+		if (sbi->s_gid != sbi->s_diskgid)
+			seq_printf(seq, ",gid=%u:%u",
+				sbi->s_gid, sbi->s_diskgid);
+		else
+			seq_printf(seq, ",gid=%u", sbi->s_gid);
+	}
 	if (test_opt(sb, ERRORS_RO)) {
 		int def_errors = le16_to_cpu(es->s_errors);
 
@@ -393,7 +410,8 @@ enum {
 	Opt_err_ro, Opt_nouid32, Opt_nocheck, Opt_debug,
 	Opt_oldalloc, Opt_orlov, Opt_nobh, Opt_user_xattr, Opt_nouser_xattr,
 	Opt_acl, Opt_noacl, Opt_xip, Opt_ignore, Opt_err, Opt_quota,
-	Opt_usrquota, Opt_grpquota, Opt_reservation, Opt_noreservation
+	Opt_usrquota, Opt_grpquota, Opt_reservation, Opt_noreservation,
+	Opt_uid, Opt_diskuid, Opt_gid, Opt_diskgid
 };
 
 static const match_table_t tokens = {
@@ -427,6 +445,10 @@ static const match_table_t tokens = {
 	{Opt_usrquota, "usrquota"},
 	{Opt_reservation, "reservation"},
 	{Opt_noreservation, "noreservation"},
+	{Opt_uid, "uid=%u"},
+	{Opt_diskuid, "uid=%u:%u"},
+	{Opt_gid, "gid=%u"},
+	{Opt_diskgid, "gid=%u:%u"},
 	{Opt_err, NULL}
 };
 
@@ -568,6 +590,34 @@ static int parse_options(char *options, struct super_block *sb)
 			clear_opt(sbi->s_mount_opt, RESERVATION);
 			ext2_msg(sb, KERN_INFO, "reservations OFF");
 			break;
+		case Opt_uid:
+			if (match_int(&args[0], &option))
+				return 0;
+			sbi->s_uid = sbi->s_diskuid = option;
+			break;
+		case Opt_diskuid:
+			if (match_int(&args[0], &option))
+				return 0;
+			sbi->s_uid = option;
+
+			if (match_int(&args[1], &option))
+				return 0;
+			sbi->s_diskuid = option;
+			break;
+		case Opt_gid:
+			if (match_int(&args[0], &option))
+				return 0;
+			sbi->s_gid = sbi->s_diskgid = option;
+			break;
+		case Opt_diskgid:
+			if (match_int(&args[0], &option))
+				return 0;
+			sbi->s_gid = option;
+
+			if (match_int(&args[1], &option))
+				return 0;
+			sbi->s_diskgid = option;
+			break;
 		case Opt_ignore:
 			break;
 		default:
@@ -592,6 +642,7 @@ static int ext2_setup_super (struct super_block * sb,
 	}
 	if (read_only)
 		return res;
+#ifndef MY_ABC_HERE
 	if (!(sbi->s_mount_state & EXT2_VALID_FS))
 		ext2_msg(sb, KERN_WARNING,
 			"warning: mounting unchecked fs, "
@@ -612,6 +663,7 @@ static int ext2_setup_super (struct super_block * sb,
 		ext2_msg(sb, KERN_WARNING,
 			"warning: checktime reached, "
 			"running e2fsck is recommended");
+#endif /* MY_ABC_HERE */
 	if (!le16_to_cpu(es->s_max_mnt_count))
 		es->s_max_mnt_count = cpu_to_le16(EXT2_DFL_MAX_MNT_COUNT);
 	le16_add_cpu(&es->s_mnt_count, 1);
@@ -699,7 +751,6 @@ static loff_t ext2_max_size(int bits)
 
 	/* total blocks in file system block size */
 	upper_limit >>= (bits - 9);
-
 
 	/* indirect blocks */
 	meta_blocks = 1;
@@ -1189,7 +1240,6 @@ static int ext2_sync_fs(struct super_block *sb, int wait)
 	return 0;
 }
 
-
 void ext2_write_super(struct super_block *sb)
 {
 	if (!(sb->s_flags & MS_RDONLY))
@@ -1214,6 +1264,10 @@ static int ext2_remount (struct super_block * sb, int * flags, char * data)
 	old_opts.s_mount_opt = sbi->s_mount_opt;
 	old_opts.s_resuid = sbi->s_resuid;
 	old_opts.s_resgid = sbi->s_resgid;
+	old_opts.s_uid = sbi->s_uid;
+	old_opts.s_diskuid = sbi->s_diskuid;
+	old_opts.s_gid = sbi->s_gid;
+	old_opts.s_diskgid = sbi->s_diskgid;
 
 	/*
 	 * Allow the "check" option to be passed as a remount option.
@@ -1300,6 +1354,10 @@ restore_opts:
 	sbi->s_mount_opt = old_opts.s_mount_opt;
 	sbi->s_resuid = old_opts.s_resuid;
 	sbi->s_resgid = old_opts.s_resgid;
+	sbi->s_uid = old_opts.s_uid;
+	sbi->s_diskuid = old_opts.s_diskuid;
+	sbi->s_gid = old_opts.s_gid;
+	sbi->s_diskgid = old_opts.s_diskgid;
 	sb->s_flags = old_sb_flags;
 	spin_unlock(&sbi->s_lock);
 	return err;

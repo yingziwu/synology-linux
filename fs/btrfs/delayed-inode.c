@@ -1422,7 +1422,6 @@ int btrfs_insert_delayed_dir_index(struct btrfs_trans_handle *trans,
 	 */
 	BUG_ON(ret);
 
-
 	mutex_lock(&delayed_node->mutex);
 	ret = __btrfs_add_delayed_insertion_item(delayed_node, delayed_item);
 	if (unlikely(ret)) {

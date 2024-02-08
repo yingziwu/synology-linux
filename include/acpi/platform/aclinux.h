@@ -50,7 +50,6 @@
 #define ACPI_USE_DO_WHILE_0
 #define ACPI_MUTEX_TYPE             ACPI_BINARY_SEMAPHORE
 
-
 #ifdef __KERNEL__
 
 #include <linux/string.h>
@@ -107,7 +106,6 @@
 /* Linux uses GCC */
 
 #include "acgcc.h"
-
 
 #ifdef __KERNEL__
 #include <acpi/actypes.h>

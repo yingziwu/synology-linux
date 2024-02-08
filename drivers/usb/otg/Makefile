@@ -7,6 +7,9 @@ ccflags-$(CONFIG_USB_GADGET_DEBUG)	+= -DDEBUG
 
 # infrastructure
 obj-$(CONFIG_USB_OTG_UTILS)	+= otg.o
+obj-$(CONFIG_USB_OTG_WAKELOCK)	+= otg-wakelock.o
+
+#obj-$(CONFIG_USB_OTG_HI3516A)	+= hi3516a_otg.o
 
 # transceiver drivers
 obj-$(CONFIG_USB_GPIO_VBUS)	+= gpio_vbus.o

@@ -573,7 +573,6 @@ check_range(struct mm_struct *mm, unsigned long start, unsigned long end,
 	int err;
 	struct vm_area_struct *first, *vma, *prev;
 
-
 	first = find_vma(mm, start);
 	if (!first)
 		return ERR_PTR(-EFAULT);
@@ -1396,7 +1395,6 @@ out_put:
 	goto out;
 
 }
-
 
 /* Retrieve NUMA policy */
 SYSCALL_DEFINE5(get_mempolicy, int __user *, policy,
@@ -2355,7 +2353,6 @@ static const char * const policy_modes[] =
 	[MPOL_INTERLEAVE] = "interleave",
 	[MPOL_LOCAL]      = "local"
 };
-
 
 #ifdef CONFIG_TMPFS
 /**

@@ -636,7 +636,6 @@ void usbhs_pipe_select_fifo(struct usbhs_pipe *pipe, struct usbhs_fifo *fifo)
 		fifo->pipe = pipe;
 }
 
-
 /*
  *		dcp control
  */

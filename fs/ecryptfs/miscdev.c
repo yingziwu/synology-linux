@@ -515,7 +515,6 @@ out_free:
 	return rc;
 }
 
-
 static const struct file_operations ecryptfs_miscdev_fops = {
 	.open    = ecryptfs_miscdev_open,
 	.poll    = ecryptfs_miscdev_poll,

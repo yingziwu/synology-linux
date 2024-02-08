@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/namespace.c
  *
@@ -25,6 +28,14 @@
 
 #define HASH_SHIFT ilog2(PAGE_SIZE / sizeof(struct list_head))
 #define HASH_SIZE (1UL << HASH_SHIFT)
+
+#ifdef MY_ABC_HERE
+extern int gSynoHasDynModule;
+#endif
+
+#ifdef MY_ABC_HERE
+extern void ext4_fill_mount_path(struct super_block *sb, const char *szPath);
+#endif
 
 static int event;
 static DEFINE_IDA(mnt_id_ida);
@@ -1867,6 +1878,12 @@ static int do_new_mount(struct path *path, char *type, int flags,
 		return PTR_ERR(mnt);
 
 	err = do_add_mount(real_mount(mnt), path, mnt_flags);
+#ifdef MY_ABC_HERE
+	if (!strcmp(type, "ext4")) {
+		char buf[SYNO_EXT4_MOUNT_PATH_LEN] = {'\0'};
+		ext4_fill_mount_path(mnt->mnt_sb, d_path(path, buf, sizeof(buf)));
+	}
+#endif
 	if (err)
 		mntput(mnt);
 	return err;
@@ -2129,6 +2146,15 @@ long do_mount(char *dev_name, char *dir_name, char *type_page,
 	struct path path;
 	int retval = 0;
 	int mnt_flags = 0;
+#if defined(MY_ABC_HERE)
+	extern int gSynoInstallFlag;
+	if ( 0 == gSynoInstallFlag &&
+			NULL != dev_name &&
+			strstr(dev_name, SYNO_USB_FLASH_DEVICE_PATH) &&
+			gSynoHasDynModule) {
+		return -EINVAL;
+	}
+#endif
 
 	/* Discard magic */
 	if ((flags & MS_MGC_MSK) == MS_MGC_VAL)
@@ -2505,6 +2531,9 @@ SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 		goto out4; /* not attached */
 	/* make sure we can reach put_old from new_root */
 	if (!is_path_reachable(real_mount(old.mnt), old.dentry, &new))
+		goto out4;
+	/* make certain new is below the root */
+	if (!is_path_reachable(new_mnt, new.dentry, &root))
 		goto out4;
 	br_write_lock(vfsmount_lock);
 	detach_mnt(new_mnt, &parent_path);

@@ -118,7 +118,6 @@ static int wm8994_gpio_to_irq(struct gpio_chip *chip, unsigned offset)
 	return wm8994->irq_base + offset;
 }
 
-
 #ifdef CONFIG_DEBUG_FS
 static const char *wm8994_gpio_fn(u16 fn)
 {

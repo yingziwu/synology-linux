@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_MM_H
 #define _LINUX_MM_H
 
@@ -577,7 +580,6 @@ static inline pte_t maybe_mkwrite(pte_t pte, struct vm_area_struct *vma)
  * sets it, so none of the operations on it need to be atomic.
  */
 
-
 /*
  * page->flags layout:
  *
@@ -873,6 +875,7 @@ extern bool skip_free_areas_node(unsigned int flags, int nid);
 
 int shmem_lock(struct file *file, int lock, struct user_struct *user);
 struct file *shmem_file_setup(const char *name, loff_t size, unsigned long flags);
+void shmem_set_file(struct vm_area_struct *vma, struct file *file);
 int shmem_zero_setup(struct vm_area_struct *);
 
 extern int can_do_mlock(void);
@@ -952,6 +955,9 @@ static inline void unmap_shared_mapping_range(struct address_space *mapping,
 
 extern void truncate_pagecache(struct inode *inode, loff_t old, loff_t new);
 extern void truncate_setsize(struct inode *inode, loff_t newsize);
+#ifdef MY_ABC_HERE
+extern void ecryptfs_truncate_setsize(struct inode *inode, loff_t newsize);
+#endif
 extern int vmtruncate(struct inode *inode, loff_t offset);
 extern int vmtruncate_range(struct inode *inode, loff_t offset, loff_t end);
 void truncate_pagecache_range(struct inode *inode, loff_t offset, loff_t end);
@@ -1012,34 +1018,6 @@ void account_page_writeback(struct page *page);
 int set_page_dirty(struct page *page);
 int set_page_dirty_lock(struct page *page);
 int clear_page_dirty_for_io(struct page *page);
-
-/* Is the vma a continuation of the stack vma above it? */
-static inline int vma_growsdown(struct vm_area_struct *vma, unsigned long addr)
-{
-	return vma && (vma->vm_end == addr) && (vma->vm_flags & VM_GROWSDOWN);
-}
-
-static inline int stack_guard_page_start(struct vm_area_struct *vma,
-					     unsigned long addr)
-{
-	return (vma->vm_flags & VM_GROWSDOWN) &&
-		(vma->vm_start == addr) &&
-		!vma_growsdown(vma->vm_prev, addr);
-}
-
-/* Is the vma a continuation of the stack vma below it? */
-static inline int vma_growsup(struct vm_area_struct *vma, unsigned long addr)
-{
-	return vma && (vma->vm_start == addr) && (vma->vm_flags & VM_GROWSUP);
-}
-
-static inline int stack_guard_page_end(struct vm_area_struct *vma,
-					   unsigned long addr)
-{
-	return (vma->vm_flags & VM_GROWSUP) &&
-		(vma->vm_end == addr) &&
-		!vma_growsup(vma->vm_next, addr);
-}
 
 extern pid_t
 vm_is_stack(struct task_struct *task, struct vm_area_struct *vma, int in_group);
@@ -1421,7 +1399,11 @@ int write_one_page(struct page *page, int wait);
 void task_dirty_inc(struct task_struct *tsk);
 
 /* readahead.c */
+#ifdef MY_ABC_HERE
+#define VM_MAX_READAHEAD	512	/* kbytes */
+#else /* MY_ABC_HERE */
 #define VM_MAX_READAHEAD	128	/* kbytes */
+#endif /* MY_ABC_HERE */
 #define VM_MIN_READAHEAD	16	/* kbytes (includes current page) */
 
 int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
@@ -1445,6 +1427,7 @@ unsigned long ra_submit(struct file_ra_state *ra,
 			struct address_space *mapping,
 			struct file *filp);
 
+extern unsigned long stack_guard_gap;
 /* Generic expand stack which grows the stack according to GROWS{UP,DOWN} */
 extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
 
@@ -1471,6 +1454,30 @@ static inline struct vm_area_struct * find_vma_intersection(struct mm_struct * m
 	if (vma && end_addr <= vma->vm_start)
 		vma = NULL;
 	return vma;
+}
+
+static inline unsigned long vm_start_gap(struct vm_area_struct *vma)
+{
+	unsigned long vm_start = vma->vm_start;
+
+	if (vma->vm_flags & VM_GROWSDOWN) {
+		vm_start -= stack_guard_gap;
+		if (vm_start > vma->vm_start)
+			vm_start = 0;
+	}
+	return vm_start;
+}
+
+static inline unsigned long vm_end_gap(struct vm_area_struct *vma)
+{
+	unsigned long vm_end = vma->vm_end;
+
+	if (vma->vm_flags & VM_GROWSUP) {
+		vm_end += stack_guard_gap;
+		if (vm_end < vma->vm_end)
+			vm_end = -PAGE_SIZE;
+	}
+	return vm_end;
 }
 
 static inline unsigned long vma_pages(struct vm_area_struct *vma)
@@ -1520,6 +1527,7 @@ struct page *follow_page(struct vm_area_struct *, unsigned long address,
 #define FOLL_MLOCK	0x40	/* mark page as mlocked */
 #define FOLL_SPLIT	0x80	/* don't return transhuge pages, split them */
 #define FOLL_HWPOISON	0x100	/* check page is hwpoisoned */
+#define FOLL_COW	0x4000	/* internal GUP flag */
 
 typedef int (*pte_fn_t)(pte_t *pte, pgtable_t token, unsigned long addr,
 			void *data);
@@ -1590,7 +1598,6 @@ int vmemmap_populate_basepages(struct page *start_page,
 						unsigned long pages, int node);
 int vmemmap_populate(struct page *start_page, unsigned long pages, int node);
 void vmemmap_populate_print_last(void);
-
 
 enum mf_flags {
 	MF_COUNT_INCREASED = 1 << 0,

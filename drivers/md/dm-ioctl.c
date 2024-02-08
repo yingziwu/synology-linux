@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2001, 2002 Sistina Software (UK) Limited.
  * Copyright (C) 2004 - 2006 Red Hat, Inc. All rights reserved.
@@ -42,7 +45,6 @@ struct vers_iter {
     char *end;
     uint32_t flags;
 };
-
 
 #define NUM_BUCKETS 64
 #define MASK_BUCKETS (NUM_BUCKETS - 1)
@@ -1012,6 +1014,16 @@ static int do_resume(struct dm_ioctl *param)
 	dm_put(md);
 	return r;
 }
+
+#ifdef MY_ABC_HERE
+static int dev_active(struct dm_ioctl *param, size_t param_size)
+{
+	if (param->flags & DM_SUSPEND_FLAG)
+		return do_suspend(param);
+
+	return do_resume(param);
+}
+#endif
 
 /*
  * Set or unset the suspension state of a device.

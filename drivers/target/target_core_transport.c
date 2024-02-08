@@ -3706,7 +3706,6 @@ static inline sector_t transport_limit_task_sectors(
 	return sectors;
 }
 
-
 /*
  * This function can be used by HW target mode drivers to create a linked
  * scatterlist from all contiguously allocated struct se_task->task_sg[].

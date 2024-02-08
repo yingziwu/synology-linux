@@ -163,7 +163,6 @@ intel_emit_post_sync_nonzero_flush(struct intel_ring_buffer *ring)
 	u32 scratch_addr = pc->gtt_offset + 128;
 	int ret;
 
-
 	ret = intel_ring_begin(ring, 6);
 	if (ret)
 		return ret;
@@ -409,7 +408,6 @@ static int init_render_ring(struct intel_ring_buffer *ring)
 			return ret;
 	}
 
-
 	if (IS_GEN6(dev)) {
 		/* From the Sandybridge PRM, volume 1 part 3, page 24:
 		 * "If this bit is set, STCunit will have LRA as replacement
@@ -555,8 +553,6 @@ gen6_blt_ring_sync_to(struct intel_ring_buffer *waiter,
 			       BCS,
 			       seqno);
 }
-
-
 
 #define PIPE_CONTROL_FLUSH(ring__, addr__)					\
 do {									\
@@ -1324,7 +1320,6 @@ static const struct intel_ring_buffer bsd_ring = {
 	.irq_put		= bsd_ring_put_irq,
 	.dispatch_execbuffer	= ring_dispatch_execbuffer,
 };
-
 
 static void gen6_bsd_ring_write_tail(struct intel_ring_buffer *ring,
 				     u32 value)

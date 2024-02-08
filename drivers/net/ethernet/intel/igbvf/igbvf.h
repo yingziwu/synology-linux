@@ -55,7 +55,6 @@ enum latency_range {
 	latency_invalid = 255
 };
 
-
 /* Interrupt modes, as used by the IntMode parameter */
 #define IGBVF_INT_MODE_LEGACY           0
 #define IGBVF_INT_MODE_MSI              1

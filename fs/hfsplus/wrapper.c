@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/hfsplus/wrapper.c
  *
@@ -156,7 +159,11 @@ static int hfsplus_get_last_session(struct super_block *sb,
 			*start = (sector_t)te.cdte_addr.lba << 2;
 			return 0;
 		}
+#ifdef MY_ABC_HERE
+		pr_err("invalid session number or type of track\n");
+#else
 		printk(KERN_ERR "hfs: invalid session number or type of track\n");
+#endif
 		return -EINVAL;
 	}
 	ms_info.addr_format = CDROM_LBA;
@@ -234,8 +241,12 @@ reread:
 
 	error = -EINVAL;
 	if (sbi->s_backup_vhdr->signature != sbi->s_vhdr->signature) {
+#ifdef MY_ABC_HERE
+		pr_warn("invalid secondary volume header\n");
+#else
 		printk(KERN_WARNING
 			"hfs: invalid secondary volume header\n");
+#endif
 		goto out_free_backup_vhdr;
 	}
 
@@ -259,8 +270,12 @@ reread:
 		blocksize >>= 1;
 
 	if (sb_set_blocksize(sb, blocksize) != blocksize) {
+#ifdef MY_ABC_HERE
+		pr_err("unable to set blocksize to %u!\n", blocksize);
+#else
 		printk(KERN_ERR "hfs: unable to set blocksize to %u!\n",
 			blocksize);
+#endif
 		goto out_free_backup_vhdr;
 	}
 

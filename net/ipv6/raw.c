@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	RAW sockets for IPv6
  *	Linux INET6 implementation
@@ -273,9 +276,26 @@ static int rawv6_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
 				sk->sk_bound_dev_if = addr->sin6_scope_id;
 			}
 
+#ifdef MY_ABC_HERE
+			if (!sk->sk_bound_dev_if) {
+				unsigned flags;
+				for_each_netdev(sock_net(sk), dev) {
+					flags = dev_get_flags(dev);
+					if((flags & IFF_RUNNING) && 
+					 !(flags & (IFF_LOOPBACK | IFF_SLAVE))) {
+						sk->sk_bound_dev_if = dev->ifindex;
+						break;
+					}
+				}
+				if(!sk->sk_bound_dev_if) {
+					goto out_unlock;
+				}
+			}
+#else
 			/* Binding to link-local address requires an interface */
 			if (!sk->sk_bound_dev_if)
 				goto out_unlock;
+#endif
 
 			err = -ENODEV;
 			dev = dev_get_by_index_rcu(sock_net(sk),
@@ -437,7 +457,6 @@ int rawv6_rcv(struct sock *sk, struct sk_buff *skb)
 	rawv6_rcv_skb(sk, skb);
 	return 0;
 }
-
 
 /*
  *	This should be easy, if there is something there
@@ -951,7 +970,6 @@ static int rawv6_geticmpfilter(struct sock *sk, int level, int optname,
 
 	return 0;
 }
-
 
 static int do_rawv6_setsockopt(struct sock *sk, int level, int optname,
 			    char __user *optval, unsigned int optlen)

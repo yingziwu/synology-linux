@@ -320,7 +320,6 @@ void print_counters(struct counters *counters)
 	struct counters *cnt;
 	static int printed;
 
-
 	if (!printed || !summary_only)
 		print_header();
 
@@ -1002,14 +1001,12 @@ void check_cpuid()
 	do_nehalem_turbo_ratio_limit = has_nehalem_turbo_ratio_limit(family, model);
 }
 
-
 void usage()
 {
 	fprintf(stderr, "%s: [-v] [-M MSR#] [-i interval_sec | command ...]\n",
 		progname);
 	exit(1);
 }
-
 
 /*
  * in /dev/cpu/ return success for names that are numbers

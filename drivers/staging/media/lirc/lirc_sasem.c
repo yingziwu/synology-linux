@@ -45,7 +45,6 @@
 #include <media/lirc.h>
 #include <media/lirc_dev.h>
 
-
 #define MOD_AUTHOR	"Oliver Stabel <oliver.stabel@gmx.de>, " \
 			"Tim Davies <tim@opensystems.net.au>"
 #define MOD_DESC	"USB Driver for Sasem Remote Controller V1.1"
@@ -155,7 +154,6 @@ static struct usb_class_driver sasem_class = {
 static DEFINE_MUTEX(disconnect_lock);
 
 static int debug;
-
 
 /*** M O D U L E   C O D E ***/
 
@@ -662,8 +660,6 @@ static void usb_rx_callback(struct urb *urb)
 	return;
 }
 
-
-
 /**
  * Callback function for USB core API: Probe
  */
@@ -688,7 +684,6 @@ static int sasem_probe(struct usb_interface *interface,
 	int i;
 
 	printk(KERN_INFO "%s: found Sasem device\n", __func__);
-
 
 	dev = usb_get_dev(interface_to_usbdev(interface));
 	iface_desc = interface->cur_altsetting;
@@ -745,7 +740,6 @@ static int sasem_probe(struct usb_interface *interface,
 	if (!vfd_ep_found)
 		printk(KERN_INFO "%s: no valid output (VFD) endpoint found.\n",
 		       __func__);
-
 
 	/* Allocate memory */
 	alloc_status = 0;

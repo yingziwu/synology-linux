@@ -38,7 +38,6 @@
 /* Disable for nested KVM */
 #define USE_QUICK_LAST_INST
 
-
 /* Get helper functions for subarch specific functionality */
 
 #if defined(CONFIG_PPC_BOOK3S_64)
@@ -150,8 +149,6 @@ no_dcbz32_on:
 
 	RFI
 kvmppc_handler_trampoline_enter_end:
-
-
 
 /******************************************************************************
  *                                                                            *

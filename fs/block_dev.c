@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/block_dev.c
  *
@@ -26,6 +29,9 @@
 #include <linux/uio.h>
 #include <linux/namei.h>
 #include <linux/log2.h>
+#ifdef SYNO_FIX_MD_RESIZE_BUSY_LOOP
+#include <linux/delay.h>
+#endif
 #include <linux/cleancache.h>
 #include <asm/uaccess.h>
 #include "internal.h"
@@ -1014,6 +1020,9 @@ void check_disk_size_change(struct gendisk *disk, struct block_device *bdev)
 	bdev_size = i_size_read(bdev->bd_inode);
 	if (disk_size != bdev_size) {
 		char name[BDEVNAME_SIZE];
+#ifdef SYNO_FIX_MD_RESIZE_BUSY_LOOP
+		int loop = 0;
+#endif
 
 		disk_name(disk, 0, name);
 		printk(KERN_INFO
@@ -1021,6 +1030,16 @@ void check_disk_size_change(struct gendisk *disk, struct block_device *bdev)
 		       name, bdev_size, disk_size);
 		i_size_write(bdev->bd_inode, disk_size);
 		flush_disk(bdev, false);
+#ifdef SYNO_FIX_MD_RESIZE_BUSY_LOOP
+		for (loop = 0; loop < SYNO_FIX_MD_RESIZE_BUSY_LOOP; loop++) {
+			// validate bdev
+			if (!__invalidate_device(bdev, false)) {
+				break;
+			}
+			schedule();
+			flush_disk(bdev, false);
+		}
+#endif
 	}
 }
 EXPORT_SYMBOL(check_disk_size_change);
@@ -1045,10 +1064,18 @@ int revalidate_disk(struct gendisk *disk)
 	if (!bdev)
 		return ret;
 
+#ifdef MY_ABC_HERE
+	mutex_lock(&bdev->bd_inode->i_mutex);
+#else
 	mutex_lock(&bdev->bd_mutex);
+#endif
 	check_disk_size_change(disk, bdev);
 	bdev->bd_invalidated = 0;
+#ifdef MY_ABC_HERE
+	mutex_unlock(&bdev->bd_inode->i_mutex);
+#else
 	mutex_unlock(&bdev->bd_mutex);
+#endif
 	bdput(bdev);
 	return ret;
 }

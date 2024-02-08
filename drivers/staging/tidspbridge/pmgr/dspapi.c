@@ -1004,7 +1004,6 @@ inline void find_node_handle(struct node_res_object **noderes,
 	return;
 }
 
-
 /*
  * ======== nodewrap_allocate ========
  */

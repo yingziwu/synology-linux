@@ -245,4 +245,3 @@ static void __exit tms_pci_rmmod (void)
 
 module_init(tms_pci_init);
 module_exit(tms_pci_rmmod);
-

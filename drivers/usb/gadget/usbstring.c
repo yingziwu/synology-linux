@@ -18,7 +18,6 @@
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 
-
 /**
  * usb_gadget_get_string - fill out a string descriptor 
  * @table: of c strings encoded using UTF-8
@@ -68,4 +67,3 @@ usb_gadget_get_string (struct usb_gadget_strings *table, int id, u8 *buf)
 	buf [1] = USB_DT_STRING;
 	return buf [0];
 }
-

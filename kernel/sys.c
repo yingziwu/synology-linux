@@ -766,7 +766,6 @@ error:
 	return retval;
 }
 
-
 /*
  * This function implements a generic ability to update ruid, euid,
  * and suid.  This allows you to implement the 4.4 compatible seteuid().
@@ -886,7 +885,6 @@ SYSCALL_DEFINE3(getresgid, gid_t __user *, rgid, gid_t __user *, egid, gid_t __u
 
 	return retval;
 }
-
 
 /*
  * "setfsuid()" sets the fsuid - the uid used for filesystem checks. This

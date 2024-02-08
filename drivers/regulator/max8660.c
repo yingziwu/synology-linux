@@ -99,7 +99,6 @@ static int max8660_write(struct max8660 *max8660, u8 reg, u8 mask, u8 val)
 	return ret;
 }
 
-
 /*
  * DCDC functions
  */
@@ -179,7 +178,6 @@ static struct regulator_ops max8660_dcdc_ops = {
 	.get_voltage = max8660_dcdc_get,
 };
 
-
 /*
  * LDO5 functions
  */
@@ -233,7 +231,6 @@ static struct regulator_ops max8660_ldo5_ops = {
 	.set_voltage = max8660_ldo5_set,
 	.get_voltage = max8660_ldo5_get,
 };
-
 
 /*
  * LDO67 functions

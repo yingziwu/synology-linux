@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -268,16 +271,28 @@
 #include <linux/crypto.h>
 #include <linux/time.h>
 #include <linux/slab.h>
+#include <linux/uid_stat.h>
 
 #include <net/icmp.h>
 #include <net/tcp.h>
 #include <net/xfrm.h>
 #include <net/ip.h>
+#include <net/ip6_route.h>
+#include <net/ipv6.h>
+#include <net/transp_v6.h>
 #include <net/netdma.h>
 #include <net/sock.h>
 
+#ifdef CONFIG_TNK
+#include <net/tnkdrv.h>
+#endif
+
 #include <asm/uaccess.h>
 #include <asm/ioctls.h>
+
+#ifdef MY_ABC_HERE
+#include <linux/pci.h>
+#endif /* MY_ABC_HERE */
 
 int sysctl_tcp_fin_timeout __read_mostly = TCP_FIN_TIMEOUT;
 
@@ -325,6 +340,27 @@ void tcp_enter_memory_pressure(struct sock *sk)
 	}
 }
 EXPORT_SYMBOL(tcp_enter_memory_pressure);
+#ifdef CONFIG_TNK
+struct tnkfuncs *tnk;
+
+void tcp_register_tnk_funcs(struct tnkfuncs *f)
+{
+	tnk = f;
+}
+EXPORT_SYMBOL(tcp_register_tnk_funcs);
+
+int proc_tnk_cfg_tcp_retries2(struct ctl_table *table, int write,
+		void __user *buffer, size_t *lenp, loff_t *ppos)
+{
+	int ret;
+
+	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+	if (write && ret == 0 && tnk)
+		tnk->config_tcp_retries2(sysctl_tcp_retries2);
+
+	return ret;
+}
+#endif
 
 /* Convert seconds to retransmits based on initial and max timeout */
 static u8 secs_to_retrans(int seconds, int timeout, int rto_max)
@@ -659,6 +695,11 @@ ssize_t tcp_splice_read(struct socket *sock, loff_t *ppos,
 				ret = -EAGAIN;
 				break;
 			}
+#ifdef CONFIG_TNK
+			if (tnk && sk->sk_tnkinfo.entry != NULL)
+				tnk->tcp_wait_data(sk, &timeo);
+			else
+#endif
 			sk_wait_data(sk, &timeo);
 			if (signal_pending(current)) {
 				ret = sock_intr_errno(timeo);
@@ -775,6 +816,19 @@ static ssize_t do_tcp_sendpages(struct sock *sk, struct page **pages, int poffse
 	clear_bit(SOCK_ASYNC_NOSPACE, &sk->sk_socket->flags);
 
 	mss_now = tcp_send_mss(sk, &size_goal, flags);
+#ifdef CONFIG_TNK
+	/*  tnk is active.  tnk_tcp_send will return
+	 *  the number of bytes successfully queued.  Zero
+	 *  indicates no space available, -1 indicates
+	 *  this connection is not accelerated.
+	 */
+	if (tnk) {
+		copied = tnk->tcp_sendpages(sk, pages, poffset, psize, flags);
+		if (copied != -EINVAL)
+			return copied;
+	}
+#endif
+
 	copied = 0;
 
 	err = -EPIPE;
@@ -924,6 +978,9 @@ int tcp_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 
 	lock_sock(sk);
 
+#ifdef CONFIG_TNK
+	sk->sk_tnkinfo.reetrant++;
+#endif
 	flags = msg->msg_flags;
 	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
 
@@ -946,6 +1003,21 @@ int tcp_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))
 		goto out_err;
 
+#ifdef CONFIG_TNK
+	/*  tnk is active.  tnk_tcp_sendmsg will return
+	 *  the number of bytes successfully queued.  Zero
+	 *  indicates no space available, -1 indicates
+	 *  this connection is not accelerated.
+	 */
+	if (tnk) {
+		copied = tnk->tcp_sendmsg(sk, msg->msg_iov,
+				msg->msg_iovlen, flags);
+		if (copied != -EINVAL)
+			goto out;
+	}
+
+	copied = 0;
+#endif
 	sg = !!(sk->sk_route_caps & NETIF_F_SG);
 
 	while (--iovlen >= 0) {
@@ -1114,7 +1186,13 @@ wait_for_memory:
 out:
 	if (copied)
 		tcp_push(sk, flags, mss_now, tp->nonagle);
+#ifdef CONFIG_TNK
+	sk->sk_tnkinfo.reetrant--;
+#endif
 	release_sock(sk);
+
+	if (copied > 0)
+		uid_stat_tcp_snd(current_uid(), copied);
 	return copied;
 
 do_fault:
@@ -1132,6 +1210,9 @@ do_error:
 		goto out;
 out_err:
 	err = sk_stream_error(sk, flags, err);
+#ifdef CONFIG_TNK
+	sk->sk_tnkinfo.reetrant--;
+#endif
 	release_sock(sk);
 	return err;
 }
@@ -1340,6 +1421,30 @@ int tcp_read_sock(struct sock *sk, read_descriptor_t *desc,
 
 	if (sk->sk_state == TCP_LISTEN)
 		return -ENOTCONN;
+#ifdef CONFIG_TNK
+	/*  tnk is active.  tnk_tcp_read_sock will return
+	 *  the number of bytes successfully queued.  Zero
+	 *  indicates no space available, -1 indicates
+	 *  this connection is not accelerated.
+	 */
+	if (tnk) {
+		int err;
+		int value;
+		err = tnk->tcp_read_sock(sk, desc, recv_actor, &copied);
+		if (!err)
+			return copied;
+		else if (err != -EINVAL) {
+			value = copied ? copied : err;
+			return value;
+		}
+		/* when tnk->tcp_read_sock() returns, it may read some data
+		   and update tp->copied_seq. So if we continue read date
+		   from sk->sk_receive_queue, we must update "seq" first.
+		   Otherwise tp->copied_seq will be modified wrongly. */
+		seq = tp->copied_seq;
+	}
+#endif
+
 	while ((skb = tcp_recv_skb(sk, seq, &offset)) != NULL) {
 		if (offset < skb->len) {
 			int used;
@@ -1389,8 +1494,11 @@ int tcp_read_sock(struct sock *sk, read_descriptor_t *desc,
 	tcp_rcv_space_adjust(sk);
 
 	/* Clean up data we have read: This will do ACK frames. */
-	if (copied > 0)
+	if (copied > 0) {
 		tcp_cleanup_rbuf(sk, copied);
+		uid_stat_tcp_rcv(current_uid(), copied);
+	}
+
 	return copied;
 }
 EXPORT_SYMBOL(tcp_read_sock);
@@ -1418,6 +1526,9 @@ int tcp_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	int copied_early = 0;
 	struct sk_buff *skb;
 	u32 urg_hole = 0;
+#ifdef CONFIG_TNK
+	int tnk_fin_flag = 0;
+#endif
 
 	lock_sock(sk);
 
@@ -1426,6 +1537,12 @@ int tcp_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 		goto out;
 
 	timeo = sock_rcvtimeo(sk, nonblock);
+	/* in some case, i.e. afp stress, we need more time to received data */
+#ifdef MY_ABC_HERE
+	if (flags & MSG_WAITALL) {
+		timeo <= 1; /* timeo = timeo * 2 */
+	}
+#endif
 
 	/* Urgent data needs to be handled specially. */
 	if (flags & MSG_OOB)
@@ -1438,6 +1555,32 @@ int tcp_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	}
 
 	target = sock_rcvlowat(sk, flags & MSG_WAITALL, len);
+
+#ifdef CONFIG_TNK
+tnk_tcp_recv:
+	/*  tnk is active.  tcp_receive will return
+	 *  the number of bytes successfully copied.  Zero
+	 *  indicates no data available, -1 indicates
+	 *  this connection is not accelerated.
+	 */
+	if (tnk) {
+		err = tnk->tcp_receive(sk, seq, &timeo,
+				target, msg->msg_iov, &copied,
+				&len, tnk_fin_flag, flags);
+		if (!err) {
+			err = (!timeo && copied == 0) ? -EAGAIN : copied;
+			if (sk->sk_state == TCP_CLOSE_WAIT) {
+				if (!copied)
+					err = copied;
+			}
+			goto out;
+		} else if (err != -EINVAL) {
+			err = copied ? copied : err;
+			goto out;
+		}
+		err = -ENOTCONN;
+	}
+#endif
 
 #ifdef CONFIG_NET_DMA
 	tp->ucopy.dma_chan = NULL;
@@ -1464,6 +1607,31 @@ int tcp_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	do {
 		u32 offset;
 
+#ifdef MY_ABC_HERE
+        if(flags &  MSG_NOCATCHSIGNAL) {
+			/* Original when we have recvfile(), we remove the following
+			 * sygnal_pending(). But it would cause system hang when smbd
+			 * is receive file and user "kill -9" it. So I copy the
+			 * code back. But in order to keep track, I did not remove
+			 * our define.
+			 */
+			if (signal_pending(current)) {
+				if (sigismember(&current->pending.signal, SIGQUIT) ||
+					sigismember(&current->pending.signal, SIGABRT) ||
+					sigismember(&current->pending.signal, SIGKILL) ||
+					sigismember(&current->pending.signal, SIGTERM) ||
+					sigismember(&current->pending.signal, SIGSTOP) ) {
+
+					printk("%s (%d) Avoiding recvfile() hangs.\n", __FILE__, __LINE__);
+					if (copied)
+						break;
+					copied = timeo ? sock_intr_errno(timeo) : -EAGAIN;
+					break;
+				}
+			}
+        }
+        else
+#endif /* MY_ABC_HERE */
 		/* Are we at urgent data? Stop if we have read anything or have SIGURG pending. */
 		if (tp->urg_data && tp->urg_seq == *seq) {
 			if (copied)
@@ -1477,6 +1645,18 @@ int tcp_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 		/* Next get a buffer. */
 
 		skb_queue_walk(&sk->sk_receive_queue, skb) {
+#ifdef CONFIG_TNK
+#ifdef CONFIG_HI3535_SDK_2050
+			if (tcp_hdr(skb)->fin && tnk) {
+#else
+			if (tcp_hdr(skb)->fin &&
+			    before(*seq, TCP_SKB_CB(skb)->seq) && tnk) {
+#endif /* CONFIG_HI3535_SDK_2050 */
+				tnk_fin_flag = tnk->tcp_check_fin(sk);
+				if (tnk_fin_flag)
+					goto tnk_tcp_recv;
+			}
+#endif
 			/* Now that we have two receive queues this
 			 * shouldn't happen.
 			 */
@@ -1515,6 +1695,11 @@ int tcp_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 				break;
 
 			if (sk->sk_err) {
+#ifdef MY_ABC_HERE
+				if ( (msg->msg_flags & MSG_KERNSPACE) &&
+					ECONNRESET == sk->sk_err )
+					printk("connection reset by peer.\n");
+#endif
 				copied = sock_error(sk);
 				break;
 			}
@@ -1545,6 +1730,12 @@ int tcp_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 		}
 
 		tcp_cleanup_rbuf(sk, copied);
+#ifdef CONFIG_TNK
+		if (tnk) {
+			if (tnk->tcp_check_connect_state(sk))
+				goto tnk_tcp_recv;
+		}
+#endif
 
 		if (!sysctl_tcp_low_latency && tp->ucopy.task == user_recv) {
 			/* Install new reader */
@@ -1699,6 +1890,11 @@ do_prequeue:
 			} else
 #endif
 			{
+#ifdef MY_ABC_HERE
+				if(msg->msg_flags & MSG_KERNSPACE)
+					err = skb_copy_datagram_iovec1(skb, offset, msg->msg_iov, used);
+				else
+#endif /* MY_ABC_HERE */
 				err = skb_copy_datagram_iovec(skb, offset,
 						msg->msg_iov, used);
 				if (err) {
@@ -1779,6 +1975,9 @@ skip_copy:
 	tcp_cleanup_rbuf(sk, copied);
 
 	release_sock(sk);
+
+	if (copied > 0)
+		uid_stat_tcp_rcv(current_uid(), copied);
 	return copied;
 
 out:
@@ -1787,6 +1986,8 @@ out:
 
 recv_urg:
 	err = tcp_recv_urg(sk, msg, len, flags);
+	if (err > 0)
+		uid_stat_tcp_rcv(current_uid(), err);
 	goto out;
 }
 EXPORT_SYMBOL(tcp_recvmsg);
@@ -1878,8 +2079,21 @@ void tcp_shutdown(struct sock *sk, int how)
 	    (TCPF_ESTABLISHED | TCPF_SYN_SENT |
 	     TCPF_SYN_RECV | TCPF_CLOSE_WAIT)) {
 		/* Clear out any half completed packets.  FIN if needed. */
-		if (tcp_close_state(sk))
-			tcp_send_fin(sk);
+		if (tcp_close_state(sk)) {
+#ifdef CONFIG_TNK
+			int val = 0;
+			sk->sk_tnkinfo.howto_destroy = TNK_DESTROY_SHUTDOWN;
+			if (tnk)
+				val = tnk->tcp_close(sk, 1);
+
+			/*if the toe don't send fin, send it here*/
+			if (!val) {
+#endif
+				tcp_send_fin(sk);
+#ifdef CONFIG_TNK
+			}
+#endif
+		}
 	}
 }
 EXPORT_SYMBOL(tcp_shutdown);
@@ -1927,11 +2141,34 @@ void tcp_close(struct sock *sk, long timeout)
 		__kfree_skb(skb);
 	}
 
+#ifdef CONFIG_TNK
+	sk->sk_tnkinfo.howto_destroy = TNK_DESTROY_CLOSE;
+	if (tnk) {
+		tnk->tcp_disable_rcv(sk);
+		data_was_unread += tnk->tcp_recv_queue_data_size(sk);
+	}
+#endif
+
 	sk_mem_reclaim(sk);
 
 	/* If socket has been already reset (e.g. in tcp_reset()) - kill it. */
-	if (sk->sk_state == TCP_CLOSE)
+	if (sk->sk_state == TCP_CLOSE) {
+#ifdef CONFIG_TNK
+		/* Fix stream.c WARNING when TOE accelarate connection
+		 * after shutdown().
+		 *     Tcp communication sequence maybe like this:
+		 * shutdown(WR) ->  TOE accelarate -> tcp_close().
+		 *     So we may reach here when TOE receive a FIN packet,
+		 * we will destroy this tcp connection but TOE connection
+		 * still ACTIVE. This will cause TOE connection zombie
+		 * and memory leak(eg. stream.c WARNING). */
+		if (tnk) {
+			sk->sk_tnkinfo.howto_destroy = TNK_DESTROY_CLOSE;
+			tnk->tcp_close(sk, 0);
+		}
+#endif
 		goto adjudge_to_death;
+	}
 
 	/* As outlined in RFC 2525, section 2.17, we send a RST here because
 	 * data was lost. To witness the awful effects of the old behavior of
@@ -1975,7 +2212,20 @@ void tcp_close(struct sock *sk, long timeout)
 		 * Probably, I missed some more holelets.
 		 * 						--ANK
 		 */
-		tcp_send_fin(sk);
+#ifdef CONFIG_TNK
+		int val = 0;
+		sk->sk_tnkinfo.howto_destroy = TNK_DESTROY_CLOSE;
+		/* tnk is active. Call tnk_tcp_close */
+		if (tnk)
+			val = tnk->tcp_close(sk, 1);
+
+		/*if the toe don't send fin, send it here*/
+		if (!val) {
+#endif
+			tcp_send_fin(sk);
+#ifdef CONFIG_TNK
+		}
+#endif
 	}
 
 	sk_stream_wait_close(sk, timeout);
@@ -1987,7 +2237,6 @@ adjudge_to_death:
 
 	/* It is the last release_sock in its life. It will remove backlog. */
 	release_sock(sk);
-
 
 	/* Now socket is owned by kernel and we acquire BH lock
 	   to finish close. No need to check for user refs.
@@ -2030,6 +2279,13 @@ adjudge_to_death:
 				inet_csk_reset_keepalive_timer(sk,
 						tmo - TCP_TIMEWAIT_LEN);
 			} else {
+#ifdef CONFIG_TNK
+				if (tnk) {
+					sk->sk_tnkinfo.howto_destroy =
+						TNK_DESTROY_CLOSE;
+					tnk->tcp_close(sk, 0);
+				}
+#endif
 				tcp_time_wait(sk, TCP_FIN_WAIT2, tmo);
 				goto out;
 			}
@@ -2050,6 +2306,12 @@ adjudge_to_death:
 	/* Otherwise, socket is reprieved until protocol close. */
 
 out:
+#ifdef CONFIG_TNK
+	if (tnk) {
+		sk->sk_tnkinfo.howto_destroy = TNK_DESTROY_CLOSE;
+		tnk->tcp_close(sk, 0);
+	}
+#endif
 	bh_unlock_sock(sk);
 	local_bh_enable();
 	sock_put(sk);
@@ -2982,7 +3244,6 @@ retry:
 }
 EXPORT_SYMBOL(tcp_alloc_md5sig_pool);
 
-
 /**
  *	tcp_get_md5sig_pool - get md5sig_pool for this user
  *
@@ -3301,7 +3562,6 @@ void __init tcp_init(void)
 		INIT_HLIST_HEAD(&tcp_hashinfo.bhash[i].chain);
 	}
 
-
 	cnt = tcp_hashinfo.ehash_mask + 1;
 
 	tcp_death_row.sysctl_max_tw_buckets = cnt / 2;
@@ -3335,4 +3595,108 @@ void __init tcp_init(void)
 	tcp_secret_primary = &tcp_secret_one;
 	tcp_secret_retiring = &tcp_secret_two;
 	tcp_secret_secondary = &tcp_secret_two;
+}
+
+static int tcp_is_local(struct net *net, __be32 addr) {
+	struct rtable *rt;
+	struct flowi4 fl4 = { .daddr = addr };
+	rt = ip_route_output_key(net, &fl4);
+	if (IS_ERR_OR_NULL(rt))
+		return 0;
+	return rt->dst.dev && (rt->dst.dev->flags & IFF_LOOPBACK);
+}
+
+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+static int tcp_is_local6(struct net *net, struct in6_addr *addr) {
+	struct rt6_info *rt6 = rt6_lookup(net, addr, addr, 0, 0);
+	return rt6 && rt6->dst.dev && (rt6->dst.dev->flags & IFF_LOOPBACK);
+}
+#endif
+
+/*
+ * tcp_nuke_addr - destroy all sockets on the given local address
+ * if local address is the unspecified address (0.0.0.0 or ::), destroy all
+ * sockets with local addresses that are not configured.
+ */
+int tcp_nuke_addr(struct net *net, struct sockaddr *addr)
+{
+	int family = addr->sa_family;
+	unsigned int bucket;
+
+	struct in_addr *in;
+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+	struct in6_addr *in6;
+#endif
+	if (family == AF_INET) {
+		in = &((struct sockaddr_in *)addr)->sin_addr;
+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+	} else if (family == AF_INET6) {
+		in6 = &((struct sockaddr_in6 *)addr)->sin6_addr;
+#endif
+	} else {
+		return -EAFNOSUPPORT;
+	}
+
+	for (bucket = 0; bucket < tcp_hashinfo.ehash_mask; bucket++) {
+		struct hlist_nulls_node *node;
+		struct sock *sk;
+		spinlock_t *lock = inet_ehash_lockp(&tcp_hashinfo, bucket);
+
+restart:
+		spin_lock_bh(lock);
+		sk_nulls_for_each(sk, node, &tcp_hashinfo.ehash[bucket].chain) {
+			struct inet_sock *inet = inet_sk(sk);
+
+			if (sysctl_ip_dynaddr && sk->sk_state == TCP_SYN_SENT)
+				continue;
+			if (sock_flag(sk, SOCK_DEAD))
+				continue;
+
+			if (family == AF_INET) {
+				__be32 s4 = inet->inet_rcv_saddr;
+				if (s4 == LOOPBACK4_IPV6)
+					continue;
+
+				if (in->s_addr != s4 &&
+				    !(in->s_addr == INADDR_ANY &&
+				      !tcp_is_local(net, s4)))
+					continue;
+			}
+
+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+			if (family == AF_INET6) {
+				struct in6_addr *s6;
+				if (!inet->pinet6)
+					continue;
+
+				s6 = &inet->pinet6->rcv_saddr;
+				if (ipv6_addr_type(s6) == IPV6_ADDR_MAPPED)
+					continue;
+
+				if (!ipv6_addr_equal(in6, s6) &&
+				    !(ipv6_addr_equal(in6, &in6addr_any) &&
+				      !tcp_is_local6(net, s6)))
+				continue;
+			}
+#endif
+
+			sock_hold(sk);
+			spin_unlock_bh(lock);
+
+			local_bh_disable();
+			bh_lock_sock(sk);
+			sk->sk_err = ETIMEDOUT;
+			sk->sk_error_report(sk);
+
+			tcp_done(sk);
+			bh_unlock_sock(sk);
+			local_bh_enable();
+			sock_put(sk);
+
+			goto restart;
+		}
+		spin_unlock_bh(lock);
+	}
+
+	return 0;
 }

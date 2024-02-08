@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright (c) 1999-2001 Vojtech Pavlik
  */
@@ -40,8 +43,11 @@ MODULE_LICENSE("GPL");
 
 static void evbug_event(struct input_handle *handle, unsigned int type, unsigned int code, int value)
 {
+#if defined(CONFIG_SYNO_HI3535_VS) || defined(MY_ABC_HERE)
+#else
 	printk(KERN_DEBUG pr_fmt("Event. Dev: %s, Type: %d, Code: %d, Value: %d\n"),
 	       dev_name(&handle->dev->dev), type, code, value);
+#endif
 }
 
 static int evbug_connect(struct input_handler *handler, struct input_dev *dev,

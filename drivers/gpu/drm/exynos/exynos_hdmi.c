@@ -868,7 +868,6 @@ static const struct hdmi_conf hdmi_confs[] = {
 	{ 1920, 1080, 60, false, hdmiphy_conf148_5, &hdmi_conf_1080p60 },
 };
 
-
 static inline u32 hdmi_reg_read(struct hdmi_context *hdata, u32 reg_id)
 {
 	return readl(hdata->regs + reg_id);

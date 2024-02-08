@@ -70,4 +70,3 @@ static inline void unlock_rsb(struct dlm_rsb *r)
 }
 
 #endif
-

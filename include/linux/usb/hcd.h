@@ -148,7 +148,6 @@ struct usb_hcd {
 	struct usb_hcd		*shared_hcd;
 	struct usb_hcd		*primary_hcd;
 
-
 #define HCD_BUFFER_POOLS	4
 	struct dma_pool		*pool[HCD_BUFFER_POOLS];
 
@@ -197,7 +196,6 @@ struct hcd_timeout {	/* timeouts we allocate */
 
 /*-------------------------------------------------------------------------*/
 
-
 struct hc_driver {
 	const char	*description;	/* "ehci-hcd" etc */
 	const char	*product_desc;	/* product/vendor string */
@@ -218,7 +216,9 @@ struct hc_driver {
 	/* called to init HCD and root hub */
 	int	(*reset) (struct usb_hcd *hcd);
 	int	(*start) (struct usb_hcd *hcd);
-
+#ifdef CONFIG_HI3535_SDK_2050
+	void	(*hi_ehci_reset) (struct usb_hcd *hcd);
+#endif /* CONFIG_HI3535_SDK_2050 */
 	/* NOTE:  these suspend/resume calls relate to the HC as
 	 * a whole, not just the root hub; they're for PCI bus glue.
 	 */
@@ -500,7 +500,6 @@ extern void usb_ep0_reinit(struct usb_device *);
 #define SetHubFeature		(0x2000 | USB_REQ_SET_FEATURE)
 #define SetPortFeature		(0x2300 | USB_REQ_SET_FEATURE)
 
-
 /*-------------------------------------------------------------------------*/
 
 /* class requests from USB 3.0 hub spec, table 10-5 */
@@ -518,7 +517,6 @@ extern void usb_ep0_reinit(struct usb_device *);
 
 #define NS_TO_US(ns)	((ns + 500L) / 1000L)
 			/* convert & round nanoseconds to microseconds */
-
 
 /*
  * Full/low speed bandwidth allocation constants/support.
@@ -581,7 +579,6 @@ static inline void usb_hcd_resume_root_hub(struct usb_hcd *hcd)
 	return;
 }
 #endif /* CONFIG_USB_SUSPEND */
-
 
 /*
  * USB device fs stuff
@@ -657,7 +654,6 @@ static inline void usbmon_urb_complete(struct usb_bus *bus, struct urb *urb,
 
 #define	RUN_CONTEXT (in_irq() ? "in_irq" \
 		: (in_interrupt() ? "in_interrupt" : "can sleep"))
-
 
 /* This rwsem is for use only by the hub driver and ehci-hcd.
  * Nobody else should touch it.

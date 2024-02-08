@@ -28,7 +28,6 @@ EXPORT_SYMBOL(smp_topology);
 static unsigned long __iomem *ipi_mappings[NR_CPUS];
 #endif
 
-
 /*
  * Top-level send_IPI*() functions to send messages to other cpus.
  */
@@ -148,7 +147,6 @@ void evaluate_message(int tag)
 	}
 }
 
-
 /*
  * flush_icache_range() code uses smp_call_function().
  */
@@ -171,7 +169,6 @@ void flush_icache_range(unsigned long start, unsigned long end)
 	on_each_cpu(ipi_flush_icache_range, &flush, 1);
 	preempt_enable();
 }
-
 
 /* Called when smp_send_reschedule() triggers IRQ_RESCHEDULE. */
 static irqreturn_t handle_reschedule_ipi(int irq, void *token)

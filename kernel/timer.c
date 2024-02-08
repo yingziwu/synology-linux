@@ -1779,7 +1779,6 @@ static struct notifier_block __cpuinitdata timers_nb = {
 	.notifier_call	= timer_cpu_notify,
 };
 
-
 void __init init_timers(void)
 {
 	int err = timer_cpu_notify(&timers_nb, (unsigned long)CPU_UP_PREPARE,

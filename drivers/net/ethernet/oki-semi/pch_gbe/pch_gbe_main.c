@@ -437,7 +437,6 @@ static void pch_gbe_mac_init_rx_addrs(struct pch_gbe_hw *hw, u16 mar_count)
 	pch_gbe_wait_clr_bit(&hw->reg->ADDR_MASK, PCH_GBE_BUSY);
 }
 
-
 /**
  * pch_gbe_mac_mc_addr_list_update - Update Multicast addresses
  * @hw:	            Pointer to the HW structure
@@ -629,7 +628,6 @@ static void pch_gbe_mac_set_pause_packet(struct pch_gbe_hw *hw)
 
 	return;
 }
-
 
 /**
  * pch_gbe_alloc_queues - Allocate memory for all rings
@@ -825,8 +823,6 @@ static void pch_gbe_irq_enable(struct pch_gbe_adapter *adapter)
 	ioread32(&hw->reg->INT_ST);
 	pr_debug("INT_EN reg : 0x%08x\n", ioread32(&hw->reg->INT_EN));
 }
-
-
 
 /**
  * pch_gbe_setup_tctl - configure the Transmit control registers
@@ -1213,7 +1209,6 @@ static void pch_gbe_tx_queue(struct pch_gbe_adapter *adapter,
 		tx_ring->next_to_use = 0;
 	else
 		tx_ring->next_to_use = ring_num + 1;
-
 
 	buffer_info = &tx_ring->buffer_info[ring_num];
 	tmp_skb = buffer_info->skb;
@@ -1920,7 +1915,6 @@ static int pch_gbe_request_irq(struct pch_gbe_adapter *adapter)
 		 adapter->have_msi, flags, err);
 	return err;
 }
-
 
 static void pch_gbe_set_multi(struct net_device *netdev);
 /**
@@ -2781,7 +2775,6 @@ static struct pci_driver pch_gbe_driver = {
 	.shutdown = pch_gbe_shutdown,
 	.err_handler = &pch_gbe_err_handler
 };
-
 
 static int __init pch_gbe_init_module(void)
 {

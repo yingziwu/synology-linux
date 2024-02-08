@@ -95,7 +95,6 @@ static void musb_do_idle(unsigned long _musb)
 	spin_unlock_irqrestore(&musb->lock, flags);
 }
 
-
 static void omap2430_musb_try_idle(struct musb *musb, unsigned long timeout)
 {
 	unsigned long		default_timeout = jiffies + msecs_to_jiffies(3);

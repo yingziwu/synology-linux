@@ -91,12 +91,10 @@ struct rfkill_data {
 	bool			input_handler;
 };
 
-
 MODULE_AUTHOR("Ivo van Doorn <IvDoorn@gmail.com>");
 MODULE_AUTHOR("Johannes Berg <johannes@sipsolutions.net>");
 MODULE_DESCRIPTION("RF switch support");
 MODULE_LICENSE("GPL");
-
 
 /*
  * The locking here should be made much smarter, we currently have
@@ -123,7 +121,6 @@ static struct {
 } rfkill_global_states[NUM_RFKILL_TYPES];
 
 static bool rfkill_epo_lock_active;
-
 
 #ifdef CONFIG_RFKILL_LEDS
 static void rfkill_led_trigger_event(struct rfkill *rfkill)
@@ -451,7 +448,6 @@ bool rfkill_get_global_sw_state(const enum rfkill_type type)
 }
 #endif
 
-
 bool rfkill_set_hw_state(struct rfkill *rfkill, bool blocked)
 {
 	bool ret, change;
@@ -770,6 +766,7 @@ void rfkill_pause_polling(struct rfkill *rfkill)
 }
 EXPORT_SYMBOL(rfkill_pause_polling);
 
+#ifdef CONFIG_RFKILL_PM
 void rfkill_resume_polling(struct rfkill *rfkill)
 {
 	BUG_ON(!rfkill);
@@ -804,14 +801,17 @@ static int rfkill_resume(struct device *dev)
 
 	return 0;
 }
+#endif
 
 static struct class rfkill_class = {
 	.name		= "rfkill",
 	.dev_release	= rfkill_release,
 	.dev_attrs	= rfkill_dev_attrs,
 	.dev_uevent	= rfkill_dev_uevent,
+#ifdef CONFIG_RFKILL_PM
 	.suspend	= rfkill_suspend,
 	.resume		= rfkill_resume,
+#endif
 };
 
 bool rfkill_blocked(struct rfkill *rfkill)
@@ -826,7 +826,6 @@ bool rfkill_blocked(struct rfkill *rfkill)
 	return !!(state & RFKILL_BLOCK_ANY);
 }
 EXPORT_SYMBOL(rfkill_blocked);
-
 
 struct rfkill * __must_check rfkill_alloc(const char *name,
 					  struct device *parent,

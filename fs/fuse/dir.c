@@ -1359,9 +1359,15 @@ static int fuse_do_setattr(struct dentry *entry, struct iattr *attr,
 	if (!(fc->flags & FUSE_DEFAULT_PERMISSIONS))
 		attr->ia_valid |= ATTR_FORCE;
 
+#ifdef CONFIG_FS_SYNO_ACL
+	if (inode && (!(inode->i_sb->s_flags & MS_SYNOACL))) {
+#endif
 	err = inode_change_ok(inode, attr);
 	if (err)
 		return err;
+#ifdef CONFIG_FS_SYNO_ACL
+	}
+#endif
 
 	if (attr->ia_valid & ATTR_OPEN) {
 		if (fc->atomic_o_trunc)

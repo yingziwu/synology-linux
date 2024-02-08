@@ -381,7 +381,6 @@ static int tegra_periph_clk_enable_refcount[CLK_OUT_ENB_NUM * 32];
 		udelay(2);						\
 	} while (0)
 
-
 static inline int clk_set_div(struct clk *c, u32 n)
 {
 	return clk_set_rate(c, (clk_get_rate(c->parent) + n-1) / n);
@@ -828,7 +827,6 @@ static int tegra30_pll_clk_wait_for_lock(struct clk *c, u32 lock_reg,
 
 	return 0;
 }
-
 
 static void tegra30_utmi_param_configure(struct clk *c)
 {
@@ -1644,7 +1642,6 @@ static struct clk_ops tegra_periph_clk_ops = {
 	.reset			= &tegra30_periph_clk_reset,
 };
 
-
 /* Periph extended clock configuration ops */
 static int
 tegra30_vi_clk_cfg_ex(struct clk *c, enum tegra_clk_ex_param p, u32 setting)
@@ -1696,7 +1693,6 @@ static struct clk_ops tegra_nand_clk_ops = {
 	.clk_cfg_ex		= &tegra30_nand_clk_cfg_ex,
 	.reset			= &tegra30_periph_clk_reset,
 };
-
 
 static int
 tegra30_dtv_clk_cfg_ex(struct clk *c, enum tegra_clk_ex_param p, u32 setting)
@@ -1857,7 +1853,6 @@ static struct clk_ops tegra_clk_out_ops = {
 	.disable		= &tegra30_clk_out_disable,
 	.set_parent		= &tegra30_clk_out_set_parent,
 };
-
 
 /* Clock doubler ops */
 static void tegra30_clk_double_init(struct clk *c)
@@ -2450,7 +2445,6 @@ static struct clk tegra_pll_x_out0 = {
 	.parent    = &tegra_pll_x,
 	.max_rate  = 850000000,
 };
-
 
 static struct clk_pll_freq_table tegra_pll_e_freq_table[] = {
 	/* PLLE special case: use cpcon field to store cml divider value */
@@ -3050,7 +3044,6 @@ struct clk *tegra_ptr_clks[] = {
 	&tegra_clk_blink,
 	&tegra30_clk_twd,
 };
-
 
 static void tegra30_init_one_clock(struct clk *c)
 {

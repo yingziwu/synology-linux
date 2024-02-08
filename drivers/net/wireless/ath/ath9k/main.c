@@ -353,7 +353,6 @@ out:
 	return r;
 }
 
-
 /*
  * Set/change channels.  If the channel is really being changed, it's done
  * by reseting the chip.  To accomplish this we must first cleanup any pending
@@ -661,7 +660,6 @@ static void ath_node_detach(struct ath_softc *sc, struct ieee80211_sta *sta)
 		ath_tx_node_cleanup(sc, an);
 }
 
-
 void ath9k_tasklet(unsigned long data)
 {
 	struct ath_softc *sc = (struct ath_softc *)data;
@@ -772,7 +770,6 @@ irqreturn_t ath_isr(int irq, void *dev)
 	 */
 	if (sc->sc_flags & SC_OP_INVALID)
 		return IRQ_NONE;
-
 
 	/* shared irq, not for us */
 
@@ -1391,7 +1388,6 @@ static void ath9k_do_vif_add_setup(struct ieee80211_hw *hw,
 		ath9k_set_beaconing_status(sc, true);
 	}
 }
-
 
 static int ath9k_add_interface(struct ieee80211_hw *hw,
 			       struct ieee80211_vif *vif)

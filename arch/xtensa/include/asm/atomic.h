@@ -248,7 +248,6 @@ static __inline__ int __atomic_add_unless(atomic_t *v, int a, int u)
 	return c;
 }
 
-
 static inline void atomic_clear_mask(unsigned int mask, atomic_t *v)
 {
     unsigned int all_f = -1;
@@ -294,4 +293,3 @@ static inline void atomic_set_mask(unsigned int mask, atomic_t *v)
 #endif /* __KERNEL__ */
 
 #endif /* _XTENSA_ATOMIC_H */
-

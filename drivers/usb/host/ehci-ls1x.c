@@ -8,7 +8,6 @@
  *  by the Free Software Foundation.
  */
 
-
 #include <linux/platform_device.h>
 
 static int ehci_ls1x_reset(struct usb_hcd *hcd)

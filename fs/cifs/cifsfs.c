@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *   fs/cifs/cifsfs.c
  *
@@ -55,6 +58,9 @@ int cifsERROR = 1;
 int traceSMB = 0;
 bool enable_oplocks = true;
 unsigned int linuxExtEnabled = 1;
+#ifdef MY_ABC_HERE
+unsigned int SynoPosixSemanticsEnabled = 1;
+#endif
 unsigned int lookupCacheEnabled = 1;
 unsigned int multiuser_mount = 0;
 unsigned int global_secflags = CIFSSEC_DEF;
@@ -464,7 +470,13 @@ static void cifs_umount_begin(struct super_block *sb)
 		   all waiting network requests, nothing to do */
 		spin_unlock(&cifs_tcp_ses_lock);
 		return;
+#ifdef MY_ABC_HERE
+	// tcon->tc_count will always 1. Because it will re-use the exist tcon
+	// So we need to check the same value which is checked before kill_sb.
+	} else if (atomic_read(&sb->s_active) == 1)
+#else
 	} else if (tcon->tc_count == 1)
+#endif /* MY_ABC_HERE */
 		tcon->tidStatus = CifsExiting;
 	spin_unlock(&cifs_tcp_ses_lock);
 

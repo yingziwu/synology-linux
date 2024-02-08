@@ -17,7 +17,6 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <linux/spinlock.h>
 #include <linux/shmem_fs.h>
 
@@ -40,7 +39,6 @@ int _drm_gem_create_mmap_offset_size(struct drm_gem_object *obj, size_t size);
 #define OMAP_BO_DMA			0x01000000	/* actually is physically contiguous */
 #define OMAP_BO_EXT_SYNC	0x02000000	/* externally allocated sync object */
 #define OMAP_BO_EXT_MEM		0x04000000	/* externally allocated memory */
-
 
 struct omap_gem_object {
 	struct drm_gem_object base;
@@ -316,7 +314,6 @@ size_t omap_gem_mmap_size(struct drm_gem_object *obj)
 	return size;
 }
 
-
 /* Normal handling for the case of faulting in non-tiled buffers */
 static int fault_1d(struct drm_gem_object *obj,
 		struct vm_area_struct *vma, struct vm_fault *vmf)
@@ -485,7 +482,6 @@ int omap_gem_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 		ret = fault_2d(obj, vma, vmf);
 	else
 		ret = fault_1d(obj, vma, vmf);
-
 
 fail:
 	mutex_unlock(&dev->struct_mutex);
@@ -890,7 +886,6 @@ static inline bool is_waiting(struct omap_gem_sync_waiter *waiter)
 		printk(KERN_ERR "%s:%d: "fmt"\n", \
 				__func__, __LINE__, ##__VA_ARGS__); \
 	} while (0)
-
 
 static void sync_op_update(void)
 {

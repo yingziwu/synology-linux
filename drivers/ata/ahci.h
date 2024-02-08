@@ -133,6 +133,7 @@ enum {
 	PORT_SCR_ACT		= 0x34, /* SATA phy register: SActive */
 	PORT_SCR_NTF		= 0x3c, /* SATA phy register: SNotification */
 	PORT_FBS		= 0x40, /* FIS-based Switching */
+	PORT_FIFO		= 0x44, /* RX FIFO Threshold */
 
 	/* PORT_IRQ_{STAT,MASK} bits */
 	PORT_IRQ_COLD_PRES	= (1 << 31), /* cold presence detect */
@@ -153,6 +154,8 @@ enum {
 	PORT_IRQ_DMAS_FIS	= (1 << 2), /* DMA Setup FIS rx'd */
 	PORT_IRQ_PIOS_FIS	= (1 << 1), /* PIO Setup FIS rx'd */
 	PORT_IRQ_D2H_REG_FIS	= (1 << 0), /* D2H Register FIS rx'd */
+
+	PORT_SATA_FIFO_VALUE	= 0x6d9f24,
 
 	PORT_IRQ_FREEZE		= PORT_IRQ_HBUS_ERR |
 				  PORT_IRQ_IF_ERR |

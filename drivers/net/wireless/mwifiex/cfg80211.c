@@ -688,7 +688,6 @@ static struct ieee80211_supported_band mwifiex_band_5ghz = {
 	.n_bitrates = ARRAY_SIZE(mwifiex_rates) - 4,
 };
 
-
 /* Supported crypto cipher suits to be advertised to cfg80211 */
 
 static const u32 mwifiex_cipher_suites[] = {

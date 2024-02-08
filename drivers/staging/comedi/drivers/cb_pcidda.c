@@ -282,7 +282,6 @@ static int cb_pcidda_attach(struct comedi_device *dev,
 	struct pci_dev *pcidev = NULL;
 	int index;
 
-
 /*
  * Allocate the private structure area.
  */

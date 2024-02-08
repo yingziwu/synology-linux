@@ -1807,7 +1807,6 @@ static int splice_pipe_to_pipe(struct pipe_inode_info *ipipe,
 	int ret = 0, nbuf;
 	bool input_wakeup = false;
 
-
 retry:
 	ret = ipipe_prep(ipipe, flags);
 	if (ret)

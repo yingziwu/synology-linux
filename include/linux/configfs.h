@@ -120,7 +120,6 @@ static inline void config_group_put(struct config_group *group)
 extern struct config_item *config_group_find_item(struct config_group *,
 						  const char *);
 
-
 struct configfs_attribute {
 	const char		*ca_name;
 	struct module 		*ca_owner;
@@ -255,6 +254,6 @@ void configfs_unregister_subsystem(struct configfs_subsystem *subsys);
 /* These functions can sleep and can alloc with GFP_KERNEL */
 /* WARNING: These cannot be called underneath configfs callbacks!! */
 int configfs_depend_item(struct configfs_subsystem *subsys, struct config_item *target);
-void configfs_undepend_item(struct configfs_subsystem *subsys, struct config_item *target);
+void configfs_undepend_item(struct config_item *target);
 
 #endif /* _CONFIGFS_H_ */

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	TCP over IPv6
  *	Linux INET6 implementation
@@ -184,9 +187,27 @@ static int tcp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
 			sk->sk_bound_dev_if = usin->sin6_scope_id;
 		}
 
+#ifdef MY_ABC_HERE
+		if (!sk->sk_bound_dev_if) {
+			unsigned flags;
+			struct net_device *dev = NULL;
+			for_each_netdev(sock_net(sk), dev) {
+				flags = dev_get_flags(dev);
+				if((flags & IFF_RUNNING) && 
+				 !(flags & (IFF_LOOPBACK | IFF_SLAVE))) {
+					sk->sk_bound_dev_if = dev->ifindex;
+					break;
+				}
+			}
+			if(!sk->sk_bound_dev_if) {
+				return -EINVAL;
+			}
+		}
+#else
 		/* Connect to link-local address requires an interface */
 		if (!sk->sk_bound_dev_if)
 			return -EINVAL;
+#endif
 	}
 
 	if (tp->rx_opt.ts_recent_stamp &&
@@ -473,7 +494,6 @@ out:
 	bh_unlock_sock(sk);
 	sock_put(sk);
 }
-
 
 static int tcp_v6_send_synack(struct sock *sk, struct request_sock *req,
 			      struct request_values *rvp)
@@ -1009,7 +1029,6 @@ static void tcp_v6_reqsk_send_ack(struct sock *sk, struct sk_buff *skb,
 	tcp_v6_send_ack(skb, tcp_rsk(req)->snt_isn + 1, tcp_rsk(req)->rcv_isn + 1, req->rcv_wnd, req->ts_recent,
 			tcp_v6_md5_do_lookup(sk, &ipv6_hdr(skb)->daddr), 0);
 }
-
 
 static struct sock *tcp_v6_hnd_req(struct sock *sk,struct sk_buff *skb)
 {
@@ -1553,7 +1572,6 @@ discard:
 csum_err:
 	TCP_INC_STATS_BH(sock_net(sk), TCP_MIB_INERRS);
 	goto discard;
-
 
 ipv6_pktoptions:
 	/* Do you ask, what is it?

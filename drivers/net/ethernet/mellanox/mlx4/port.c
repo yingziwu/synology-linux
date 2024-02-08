@@ -313,7 +313,6 @@ int mlx4_register_mac(struct mlx4_dev *dev, u8 port, u64 mac)
 }
 EXPORT_SYMBOL_GPL(mlx4_register_mac);
 
-
 void __mlx4_unregister_mac(struct mlx4_dev *dev, u8 port, u64 mac)
 {
 	struct mlx4_port_info *info = &mlx4_priv(dev)->port[port];

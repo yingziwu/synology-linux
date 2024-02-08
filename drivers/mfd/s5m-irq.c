@@ -277,14 +277,12 @@ static struct irq_chip s5m8763_irq_chip = {
 	.irq_unmask = s5m8763_irq_unmask,
 };
 
-
 static irqreturn_t s5m8767_irq_thread(int irq, void *data)
 {
 	struct s5m87xx_dev *s5m87xx = data;
 	u8 irq_reg[NUM_IRQ_REGS-1];
 	int ret;
 	int i;
-
 
 	ret = s5m_bulk_read(s5m87xx, S5M8767_REG_INT1,
 				NUM_IRQ_REGS - 1, irq_reg);

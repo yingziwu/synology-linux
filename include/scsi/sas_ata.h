@@ -47,7 +47,6 @@ void sas_ata_wait_eh(struct domain_device *dev);
 void sas_probe_sata(struct asd_sas_port *port);
 #else
 
-
 static inline int dev_is_sata(struct domain_device *dev)
 {
 	return 0;

@@ -196,8 +196,6 @@ static inline bool imxdma_chan_is_doing_cyclic(struct imxdma_channel *imxdmac)
 	return false;
 }
 
-
-
 static void imx_dmav1_writel(struct imxdma_engine *imxdma, unsigned val,
 			     unsigned offset)
 {
@@ -961,7 +959,6 @@ static int __init imxdma_probe(struct platform_device *pdev)
 	{
 	struct imxdma_engine *imxdma;
 	int ret, i;
-
 
 	imxdma = kzalloc(sizeof(*imxdma), GFP_KERNEL);
 	if (!imxdma)

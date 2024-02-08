@@ -51,7 +51,6 @@ MODULE_DESCRIPTION("Broadcom 802.11n wireless LAN fullmac driver.");
 MODULE_SUPPORTED_DEVICE("Broadcom 802.11n WLAN fullmac cards");
 MODULE_LICENSE("Dual BSD/GPL");
 
-
 /* Interface control information */
 struct brcmf_if {
 	struct brcmf_pub *drvr;	/* back pointer to brcmf_pub */
@@ -1099,7 +1098,6 @@ void brcmf_detach(struct device *dev)
 	struct brcmf_pub *drvr = bus_if->drvr;
 
 	brcmf_dbg(TRACE, "Enter\n");
-
 
 	/* make sure primary interface removed last */
 	for (i = BRCMF_MAX_IFS-1; i > -1; i--)

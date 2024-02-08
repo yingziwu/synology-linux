@@ -1009,4 +1009,3 @@ void dlm_user_exit(void)
 	misc_deregister(&ctl_device);
 	misc_deregister(&monitor_device);
 }
-

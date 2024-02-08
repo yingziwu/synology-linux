@@ -95,8 +95,6 @@ struct iwl_drv {
 	struct completion request_firmware_complete;
 };
 
-
-
 /*
  * struct fw_sec: Just for the image parsing proccess.
  * For the fw storage we are using struct fw_desc.
@@ -384,7 +382,6 @@ static int iwl_parse_v1_v2_firmware(struct iwl_drv *drv,
 			(int)ucode_raw->size);
 		return -EINVAL;
 	}
-
 
 	set_sec_data(pieces, IWL_UCODE_REGULAR, IWL_UCODE_SECTION_INST, src);
 	src += get_sec_size(pieces, IWL_UCODE_REGULAR, IWL_UCODE_SECTION_INST);
@@ -744,7 +741,6 @@ static int validate_sec_sizes(struct iwl_drv *drv,
 	}
 	return 0;
 }
-
 
 /**
  * iwl_ucode_callback - callback when firmware was loaded

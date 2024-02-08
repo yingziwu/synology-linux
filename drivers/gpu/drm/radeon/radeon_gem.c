@@ -154,7 +154,6 @@ void radeon_gem_object_close(struct drm_gem_object *obj,
 	radeon_bo_unreserve(rbo);
 }
 
-
 /*
  * GEM ioctls.
  */

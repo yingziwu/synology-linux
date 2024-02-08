@@ -205,7 +205,6 @@ struct ctlr_info {
 #define SA5_OUTDB_CLEAR_PERF_BIT        0x01
 #define SA5_OUTDB_STATUS        0x9C
 
-
 #define HPSA_INTR_ON 	1
 #define HPSA_INTR_OFF	0
 /*
@@ -372,4 +371,3 @@ struct board_type {
 };
 
 #endif /* HPSA_H */
-

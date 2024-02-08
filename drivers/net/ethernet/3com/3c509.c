@@ -24,7 +24,6 @@
 	unusually long time it could also result in missed packets, but in
 	practice this rarely happens.
 
-
 	FIXES:
 		Alan Cox:       Removed the 'Unexpected interrupt' bug.
 		Michael Meskes:	Upgraded to Donald Becker's version 1.07.
@@ -120,7 +119,6 @@ static int el3_cards = 0;
 
 #define EL3WINDOW(win_num) outw(SelectWindow + (win_num), ioaddr + EL3_CMD)
 
-
 /* The top five bits written to EL3_CMD are a command, the lower
    11 bits are the parameter, if applicable. */
 enum c509cmd {
@@ -208,7 +206,6 @@ static int el3_resume(struct device *);
 #define el3_suspend NULL
 #define el3_resume NULL
 #endif
-
 
 /* generic device remove for all device types */
 static int el3_device_remove (struct device *device);
@@ -626,7 +623,6 @@ static int __init el3_mca_probe(struct device *device)
 	ioaddr = ((short)((pos4&0xfc)|0x02)) << 8;
 	irq = pos5 & 0x0f;
 
-
 	pr_info("3c529: found %s at slot %d\n",
 		el3_mca_adapter_names[mdev->index], slot + 1);
 
@@ -768,7 +764,6 @@ static ushort id_read_eeprom(int index)
 	return word;
 }
 
-
 static int
 el3_open(struct net_device *dev)
 {
@@ -813,7 +808,6 @@ el3_tx_timeout (struct net_device *dev)
 	outw(TxEnable, ioaddr + EL3_CMD);
 	netif_wake_queue(dev);
 }
-
 
 static netdev_tx_t
 el3_start_xmit(struct sk_buff *skb, struct net_device *dev)
@@ -975,7 +969,6 @@ el3_interrupt(int irq, void *dev_id)
 	spin_unlock(&lp->lock);
 	return IRQ_HANDLED;
 }
-
 
 #ifdef CONFIG_NET_POLL_CONTROLLER
 /*

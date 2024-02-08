@@ -151,7 +151,6 @@ struct ct_atc {
 #endif
 };
 
-
 int __devinit ct_atc_create(struct snd_card *card, struct pci_dev *pci,
 			    unsigned int rsr, unsigned int msr, int chip_type,
 			    unsigned int subsysid, struct ct_atc **ratc);

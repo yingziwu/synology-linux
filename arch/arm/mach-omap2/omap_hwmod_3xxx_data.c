@@ -1373,7 +1373,6 @@ static struct omap_hwmod am35xx_uart4_hwmod = {
 	.class          = &omap2_uart_class,
 };
 
-
 static struct omap_hwmod_class i2c_class = {
 	.name	= "i2c",
 	.sysc	= &i2c_sysc,
@@ -2635,7 +2634,6 @@ static struct omap_hwmod omap3xxx_mcbsp3_sidetone_hwmod = {
 	.slaves_cnt	= ARRAY_SIZE(omap3xxx_mcbsp3_sidetone_slaves),
 };
 
-
 /* SR common */
 static struct omap_hwmod_sysc_fields omap34xx_sr_sysc_fields = {
 	.clkact_shift	= 20,
@@ -3591,7 +3589,6 @@ static __initdata struct omap_hwmod *omap3xxx_hwmods[] = {
 	&omap3xxx_mcbsp5_hwmod,
 	&omap3xxx_mcbsp2_sidetone_hwmod,
 	&omap3xxx_mcbsp3_sidetone_hwmod,
-
 
 	/* mcspi class */
 	&omap34xx_mcspi1,

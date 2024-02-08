@@ -88,7 +88,6 @@ MODULE_DESCRIPTION("Broadcom 802.11n wireless LAN driver.");
 MODULE_SUPPORTED_DEVICE("Broadcom 802.11n WLAN cards");
 MODULE_LICENSE("Dual BSD/GPL");
 
-
 /* recognized BCMA Core IDs */
 static struct bcma_device_id brcms_coreid_table[] = {
 	BCMA_CORE(BCMA_MANUF_BCM, BCMA_CORE_80211, 23, BCMA_ANY_CLASS),
@@ -1084,8 +1083,6 @@ fail:
 	brcms_free(wl);
 	return NULL;
 }
-
-
 
 /**
  * determines if a device is a WL device, and if so, attaches it.

@@ -655,8 +655,6 @@ static inline u64 global_rt_runtime(void)
 	return (u64)sysctl_sched_rt_runtime * NSEC_PER_USEC;
 }
 
-
-
 static inline int task_current(struct rq *rq, struct task_struct *p)
 {
 	return rq->curr == p;
@@ -670,7 +668,6 @@ static inline int task_running(struct rq *rq, struct task_struct *p)
 	return task_current(rq, p);
 #endif
 }
-
 
 #ifndef prepare_arch_switch
 # define prepare_arch_switch(next)	do { } while (0)
@@ -755,7 +752,6 @@ static inline void finish_lock_switch(struct rq *rq, struct task_struct *prev)
 }
 #endif /* __ARCH_WANT_UNLOCKED_CTXSW */
 
-
 static inline void update_load_add(struct load_weight *lw, unsigned long inc)
 {
 	lw->weight += inc;
@@ -835,7 +831,6 @@ enum cpuacct_stat_index {
 	CPUACCT_STAT_NSTATS,
 };
 
-
 #define sched_class_highest (&stop_sched_class)
 #define for_each_class(class) \
    for (class = sched_class_highest; class; class = class->next)
@@ -844,7 +839,6 @@ extern const struct sched_class stop_sched_class;
 extern const struct sched_class rt_sched_class;
 extern const struct sched_class fair_sched_class;
 extern const struct sched_class idle_sched_class;
-
 
 #ifdef CONFIG_SMP
 

@@ -712,7 +712,6 @@ void drm_mode_set_crtcinfo(struct drm_display_mode *p, int adjust_flags)
 }
 EXPORT_SYMBOL(drm_mode_set_crtcinfo);
 
-
 /**
  * drm_mode_copy - copy the mode
  * @dst: mode to overwrite

@@ -309,7 +309,6 @@ unsigned long __init_refok init_memory_mapping(unsigned long start,
 	return ret >> PAGE_SHIFT;
 }
 
-
 /*
  * devmem_is_allowed() checks to see if /dev/mem access to a certain address
  * is valid. The argument is a physical page number.
@@ -422,4 +421,3 @@ void __init zone_sizes_init(void)
 
 	free_area_init_nodes(max_zone_pfns);
 }
-

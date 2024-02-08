@@ -105,7 +105,6 @@ do {								\
 		f_op = FOP;		\
 		goto cond_branch
 
-
 #define SEEN_DATAREF 1 /* might call external helpers */
 #define SEEN_XREG    2 /* ebx is used */
 #define SEEN_MEM     4 /* use mem[] for temporary storage */

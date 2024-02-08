@@ -164,7 +164,6 @@ static inline void s3c24xx_i2c_enable_irq(struct s3c24xx_i2c *i2c)
 	writel(tmp | S3C2410_IICCON_IRQEN, i2c->regs + S3C2410_IICCON);
 }
 
-
 /* s3c24xx_i2c_message_start
  *
  * put the start of a message onto the bus
@@ -459,7 +458,6 @@ static irqreturn_t s3c24xx_i2c_irq(int irqno, void *dev_id)
  out:
 	return IRQ_HANDLED;
 }
-
 
 /* s3c24xx_i2c_set_master
  *

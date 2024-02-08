@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
   FUSE: Filesystem in Userspace
   Copyright (C) 2001-2008  Miklos Szeredi <miklos@szeredi.hu>
@@ -20,6 +23,9 @@
 #include <linux/random.h>
 #include <linux/sched.h>
 #include <linux/exportfs.h>
+#ifdef CONFIG_FS_SYNO_ACL
+#include <linux/syno_acl.h>
+#endif
 
 MODULE_AUTHOR("Miklos Szeredi <miklos@szeredi.hu>");
 MODULE_DESCRIPTION("Filesystem in Userspace");
@@ -419,6 +425,9 @@ enum {
 	OPT_ALLOW_OTHER,
 	OPT_MAX_READ,
 	OPT_BLKSIZE,
+#ifdef CONFIG_FS_SYNO_ACL
+	OPT_SYNOACL,
+#endif
 	OPT_ERR
 };
 
@@ -431,10 +440,17 @@ static const match_table_t tokens = {
 	{OPT_ALLOW_OTHER,		"allow_other"},
 	{OPT_MAX_READ,			"max_read=%u"},
 	{OPT_BLKSIZE,			"blksize=%u"},
+#ifdef CONFIG_FS_SYNO_ACL
+	{OPT_SYNOACL, 			SYNO_ACL_MNT_OPT},
+#endif
 	{OPT_ERR,			NULL}
 };
 
+#if defined(CONFIG_FS_SYNO_ACL) || defined(MY_DEF_HERE)
+static int parse_fuse_opt(char *opt, struct super_block *sb, struct fuse_mount_data *d, int is_bdev)
+#else
 static int parse_fuse_opt(char *opt, struct fuse_mount_data *d, int is_bdev)
+#endif
 {
 	char *p;
 	memset(d, 0, sizeof(struct fuse_mount_data));
@@ -500,6 +516,11 @@ static int parse_fuse_opt(char *opt, struct fuse_mount_data *d, int is_bdev)
 			d->blksize = value;
 			break;
 
+#ifdef CONFIG_FS_SYNO_ACL
+		case OPT_SYNOACL:
+			sb->s_flags |= MS_SYNOACL;
+			break;
+#endif
 		default:
 			return 0;
 		}
@@ -527,6 +548,10 @@ static int fuse_show_options(struct seq_file *m, struct dentry *root)
 		seq_printf(m, ",max_read=%u", fc->max_read);
 	if (sb->s_bdev && sb->s_blocksize != FUSE_DEFAULT_BLKSIZE)
 		seq_printf(m, ",blksize=%lu", sb->s_blocksize);
+#ifdef CONFIG_FS_SYNO_ACL
+	if (sb->s_flags & MS_SYNOACL)
+		seq_puts(m, ","SYNO_ACL_MNT_OPT);
+#endif
 	return 0;
 }
 
@@ -946,7 +971,11 @@ static int fuse_fill_super(struct super_block *sb, void *data, int silent)
 
 	sb->s_flags &= ~MS_NOSEC;
 
+#if defined(CONFIG_FS_SYNO_ACL) || defined(MY_DEF_HERE)
+	if (!parse_fuse_opt((char *) data, sb, &d, is_bdev))
+#else
 	if (!parse_fuse_opt((char *) data, &d, is_bdev))
+#endif
 		goto err;
 
 	if (is_bdev) {
@@ -989,9 +1018,20 @@ static int fuse_fill_super(struct super_block *sb, void *data, int silent)
 	sb->s_bdi = &fc->bdi;
 
 	/* Handle umasking inside the fuse code */
+#ifdef CONFIG_FS_SYNO_ACL
+	if (sb->s_flags & MS_SYNOACL) {
+		int st = SYNOACLModuleStatusGet("synoacl_vfs");
+		if (MODULE_STATE_LIVE != st) {
+			sb->s_flags &= ~MS_SYNOACL;
+			printk(KERN_ERR "synoacl module has not been loaded. Unable to mount with synoacl, vfs_mod status=%d \n", st);
+		} else
+			SYNOACLModuleGet("synoacl_vfs");
+	}
+#else
 	if (sb->s_flags & MS_POSIXACL)
 		fc->dont_mask = 1;
 	sb->s_flags |= MS_POSIXACL;
+#endif
 
 	fc->release = fuse_free_conn;
 	fc->flags = d.flags;
@@ -1077,6 +1117,11 @@ static void fuse_kill_sb_anon(struct super_block *sb)
 		up_write(&fc->killsb);
 	}
 
+#ifdef CONFIG_FS_SYNO_ACL
+	if (MS_SYNOACL & sb->s_flags) {
+		SYNOACLModulePut("synoacl_vfs");
+	}
+#endif
 	kill_anon_super(sb);
 }
 
@@ -1105,6 +1150,12 @@ static void fuse_kill_sb_blk(struct super_block *sb)
 		fc->sb = NULL;
 		up_write(&fc->killsb);
 	}
+
+#ifdef CONFIG_FS_SYNO_ACL
+	if (MS_SYNOACL & sb->s_flags) {
+		SYNOACLModulePut("synoacl_vfs");
+	}
+#endif
 
 	kill_block_super(sb);
 }

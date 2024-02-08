@@ -18,8 +18,6 @@
 #include <linux/rtc.h>
 #include <linux/bcd.h>
 
-
-
 /*
  * We can't determine type by probing, but if we expect pre-Linux code
  * to have set the chip up as a clock (turning on the oscillator and
@@ -40,7 +38,6 @@ enum ds_type {
 	last_ds_type /* always last */
 	/* rs5c372 too?  different address... */
 };
-
 
 /* RTC registers don't differ much, except for the century flag */
 #define DS1307_REG_SECS		0x00	/* 00-59 */
@@ -100,7 +97,6 @@ enum ds_type {
 #	define RX8025_BIT_PON		0x10
 #	define RX8025_BIT_VDET		0x40
 #	define RX8025_BIT_XST		0x20
-
 
 struct ds1307 {
 	u8			offset; /* register's offset */

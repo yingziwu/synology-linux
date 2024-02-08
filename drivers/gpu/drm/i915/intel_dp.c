@@ -993,7 +993,6 @@ static void ironlake_wait_panel_power_cycle(struct intel_dp *intel_dp)
 	ironlake_wait_panel_status(intel_dp, IDLE_CYCLE_MASK, IDLE_CYCLE_VALUE);
 }
 
-
 /* Read the current pp_control value, unlocking the register if it
  * is locked
  */
@@ -1268,7 +1267,6 @@ static void intel_dp_prepare(struct drm_encoder *encoder)
 {
 	struct intel_dp *intel_dp = enc_to_intel_dp(encoder);
 
-
 	/* Make sure the panel is off before trying to change the mode. But also
 	 * ensure that we have vdd while we switch off the panel. */
 	ironlake_edp_panel_vdd_on(intel_dp);
@@ -1402,7 +1400,6 @@ intel_get_adjust_request_pre_emphasis(uint8_t adjust_request[2],
 
 	return ((l >> s) & 3) << DP_TRAIN_PRE_EMPHASIS_SHIFT;
 }
-
 
 #if 0
 static char	*voltage_names[] = {
@@ -1712,7 +1709,6 @@ intel_dp_start_link_train(struct intel_dp *intel_dp)
 		/* Use intel_dp->train_set[0] to set the voltage and pre emphasis values */
 		uint8_t	    link_status[DP_LINK_STATUS_SIZE];
 		uint32_t    signal_levels;
-
 
 		if (IS_GEN7(dev) && is_cpu_edp(intel_dp)) {
 			signal_levels = intel_gen7_edp_signal_levels(intel_dp->train_set[0]);
@@ -2110,7 +2106,6 @@ intel_dp_get_edid_modes(struct drm_connector *connector, struct i2c_adapter *ada
 	ironlake_edp_panel_vdd_off(intel_dp, false);
 	return ret;
 }
-
 
 /**
  * Uses CRT_HOTPLUG_EN and CRT_HOTPLUG_STAT to detect DP connection.

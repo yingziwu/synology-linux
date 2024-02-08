@@ -108,7 +108,6 @@ static inline int __atomic_add_unless(atomic_t *v, int a, int u)
 	return c;
 }
 
-
 #undef __CS_LOOP
 
 #define ATOMIC64_INIT(i)  { (i) }
@@ -235,7 +234,6 @@ static inline long long atomic64_cmpxchg(atomic64_t *v,
 		: "cc");
 	return rp_old.pair;
 }
-
 
 static inline long long atomic64_add_return(long long i, atomic64_t *v)
 {

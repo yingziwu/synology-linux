@@ -496,7 +496,6 @@ void cpu_hotplug_disable_before_freeze(void)
 	cpu_maps_update_done();
 }
 
-
 /*
  * When tasks have been thawed, re-enable regular CPU hotplug (which had been
  * disabled while beginning to freeze tasks).
@@ -541,7 +540,6 @@ cpu_hotplug_pm_callback(struct notifier_block *nb,
 
 	return NOTIFY_OK;
 }
-
 
 static int __init cpu_hotplug_pm_sync_init(void)
 {
@@ -668,3 +666,23 @@ void init_cpu_online(const struct cpumask *src)
 {
 	cpumask_copy(to_cpumask(cpu_online_bits), src);
 }
+
+static ATOMIC_NOTIFIER_HEAD(idle_notifier);
+
+void idle_notifier_register(struct notifier_block *n)
+{
+	atomic_notifier_chain_register(&idle_notifier, n);
+}
+EXPORT_SYMBOL_GPL(idle_notifier_register);
+
+void idle_notifier_unregister(struct notifier_block *n)
+{
+	atomic_notifier_chain_unregister(&idle_notifier, n);
+}
+EXPORT_SYMBOL_GPL(idle_notifier_unregister);
+
+void idle_notifier_call_chain(unsigned long val)
+{
+	atomic_notifier_call_chain(&idle_notifier, val, NULL);
+}
+EXPORT_SYMBOL_GPL(idle_notifier_call_chain);

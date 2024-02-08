@@ -871,7 +871,6 @@ static int mlx4_init_icm(struct mlx4_dev *dev, struct mlx4_dev_cap *dev_cap,
 		goto err_unmap_aux;
 	}
 
-
 	num_eqs = (mlx4_is_master(dev)) ?
 		roundup_pow_of_two(mlx4_master_get_num_eqs(dev)) :
 		dev->caps.num_eqs;

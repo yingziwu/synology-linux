@@ -7,7 +7,6 @@
 #define USB_MAJOR			180
 #define USB_DEVICE_MAJOR		189
 
-
 #ifdef __KERNEL__
 
 #include <linux/errno.h>        /* for -ENODEV */
@@ -539,7 +538,6 @@ extern int usb_lock_device_for_reset(struct usb_device *udev,
 extern int usb_reset_device(struct usb_device *dev);
 extern void usb_queue_reset_device(struct usb_interface *dev);
 
-
 /* USB autosuspend and autoresume */
 #ifdef CONFIG_USB_SUSPEND
 extern void usb_enable_autosuspend(struct usb_device *udev);
@@ -635,7 +633,6 @@ extern struct usb_host_interface *usb_find_alt_setting(
 		unsigned int iface_num,
 		unsigned int alt_num);
 
-
 /**
  * usb_make_path - returns stable device path in the usb tree
  * @dev: the device whose path is being constructed
@@ -729,6 +726,22 @@ static inline int usb_make_path(struct usb_device *dev, char *buf, size_t size)
 	.idVendor = (vend), \
 	.idProduct = (prod), \
 	.bInterfaceProtocol = (pr)
+
+/**
+ * USB_DEVICE_INTERFACE_NUMBER - describe a usb device with a specific interface number
+ * @vend: the 16 bit USB Vendor ID
+ * @prod: the 16 bit USB Product ID
+ * @num: bInterfaceNumber value
+ *
+ * This macro is used to create a struct usb_device_id that matches a
+ * specific interface number of devices.
+ */
+#define USB_DEVICE_INTERFACE_NUMBER(vend, prod, num) \
+	.match_flags = USB_DEVICE_ID_MATCH_DEVICE | \
+		       USB_DEVICE_ID_MATCH_INT_NUMBER, \
+	.idVendor = (vend), \
+	.idProduct = (prod), \
+	.bInterfaceNumber = (num)
 
 /**
  * USB_DEVICE_INFO - macro used to describe a class of usb devices
@@ -1499,7 +1512,6 @@ extern int usb_driver_set_configuration(struct usb_device *udev, int config);
 #define USB_CTRL_GET_TIMEOUT	5000
 #define USB_CTRL_SET_TIMEOUT	5000
 
-
 /**
  * struct usb_sg_request - support for scatter/gather I/O
  * @status: zero indicates success, else negative errno
@@ -1548,7 +1560,6 @@ int usb_sg_init(
 );
 void usb_sg_cancel(struct usb_sg_request *io);
 void usb_sg_wait(struct usb_sg_request *io);
-
 
 /* ----------------------------------------------------------------------- */
 

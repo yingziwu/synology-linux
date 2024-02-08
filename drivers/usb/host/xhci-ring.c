@@ -473,7 +473,6 @@ static struct xhci_segment *find_trb_seg(
 	return cur_seg;
 }
 
-
 static struct xhci_ring *xhci_triad_to_transfer_ring(struct xhci_hcd *xhci,
 		unsigned int slot_id, unsigned int ep_index,
 		unsigned int stream_id)
@@ -991,7 +990,6 @@ void xhci_stop_endpoint_command_watchdog(unsigned long arg)
 	xhci_dbg(xhci, "xHCI host controller is dead.\n");
 }
 
-
 static void update_ring_for_set_deq_completion(struct xhci_hcd *xhci,
 		struct xhci_virt_device *dev,
 		struct xhci_ring *ep_ring,
@@ -1182,7 +1180,6 @@ static void xhci_complete_cmd_in_cmd_wait_list(struct xhci_hcd *xhci,
 	else
 		xhci_free_command(xhci, command);
 }
-
 
 /* Check to see if a command in the device's command queue matches this one.
  * Signal the completion or free the command, and return 1.  Return 0 if the
@@ -1390,6 +1387,12 @@ static void handle_cmd_completion(struct xhci_hcd *xhci,
 			inc_deq(xhci, xhci->cmd_ring);
 			return;
 		}
+		/* There is no command to handle if we get a stop event when the
+		 * command ring is empty, event->cmd_trb points to the next
+		 * unset command
+		 */
+		if (xhci->cmd_ring->dequeue == xhci->cmd_ring->enqueue)
+			return;
 	}
 
 	switch (le32_to_cpu(xhci->cmd_ring->dequeue->generic.field[3])

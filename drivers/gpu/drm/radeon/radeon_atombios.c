@@ -363,7 +363,6 @@ static bool radeon_atom_apply_quirks(struct drm_device *dev,
 			return false;
 	}
 
-
 	/* Funky macbooks */
 	if ((dev->pdev->device == 0x71C5) &&
 	    (dev->pdev->subsystem_vendor == 0x106b) &&
@@ -462,7 +461,6 @@ static bool radeon_atom_apply_quirks(struct drm_device *dev,
 			*connector_type = DRM_MODE_CONNECTOR_DVII;
 		}
 	}
-
 
 	return true;
 }

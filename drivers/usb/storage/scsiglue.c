@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* Driver for USB Mass Storage compliant devices
  * SCSI layer glue code
  *
@@ -65,6 +68,10 @@
 #define VENDOR_ID_NIKON		0x04b0
 #define VENDOR_ID_PENTAX	0x0a17
 #define VENDOR_ID_MOTOROLA	0x22b8
+
+#ifdef MY_ABC_HERE
+extern int gSynoHasDynModule;
+#endif
 
 /***********************************************************************
  * Host functions 
@@ -580,6 +587,10 @@ struct scsi_host_template usb_stor_host_template = {
 
 	/* sysfs device attributes */
 	.sdev_attrs =			sysfs_device_attr_list,
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	.syno_port_type         = SYNO_PORT_TYPE_USB,
+#endif
 
 	/* module management */
 	.module =			THIS_MODULE

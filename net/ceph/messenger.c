@@ -359,7 +359,6 @@ static void set_sock_callbacks(struct socket *sock,
 	sk->sk_state_change = ceph_sock_state_change;
 }
 
-
 /*
  * socket helpers
  */
@@ -452,7 +451,6 @@ static int ceph_tcp_sendpage(struct socket *sock, struct page *page,
 
 	return ret;
 }
-
 
 /*
  * Shutdown/close the socket for the given connection.
@@ -606,7 +604,6 @@ void ceph_con_init(struct ceph_connection *con, void *private,
 	con->state = CON_STATE_CLOSED;
 }
 EXPORT_SYMBOL(ceph_con_init);
-
 
 /*
  * We maintain a global counter to order connection attempts.  Get
@@ -1155,7 +1152,6 @@ static int prepare_read_message(struct ceph_connection *con)
 	return 0;
 }
 
-
 static int read_partial(struct ceph_connection *con,
 			int end, int size, void *object)
 {
@@ -1169,7 +1165,6 @@ static int read_partial(struct ceph_connection *con,
 	}
 	return 1;
 }
-
 
 /*
  * Read all or part of the connect-side handshake on a new connection
@@ -1665,7 +1660,6 @@ static int process_connect(struct ceph_connection *con)
 	return 0;
 }
 
-
 /*
  * read (part of) an ack
  */
@@ -1676,7 +1670,6 @@ static int read_partial_ack(struct ceph_connection *con)
 
 	return read_partial(con, end, size, &con->in_temp_ack);
 }
-
 
 /*
  * We can finally discard anything that's been acked.
@@ -1700,9 +1693,6 @@ static void process_ack(struct ceph_connection *con)
 	}
 	prepare_read_tag(con);
 }
-
-
-
 
 static int read_partial_message_section(struct ceph_connection *con,
 					struct kvec *section,
@@ -1998,7 +1988,6 @@ static void process_message(struct ceph_connection *con)
 	mutex_lock(&con->mutex);
 }
 
-
 /*
  * Write something to the socket.  Called in a worker thread when the
  * socket appears to be writeable and we have something ready to send.
@@ -2091,8 +2080,6 @@ out:
 	dout("try_write done on %p ret %d\n", con, ret);
 	return ret;
 }
-
-
 
 /*
  * Read what we can from the socket.
@@ -2231,7 +2218,6 @@ bad_tag:
 	goto out;
 }
 
-
 /*
  * Atomically queue work on a connection.  Bump @con reference to
  * avoid races with connection teardown.
@@ -2350,7 +2336,6 @@ fault:
 	goto done_unlocked;
 }
 
-
 /*
  * Generic error/fault handler.  A retry mechanism is used with
  * exponential backoff
@@ -2434,8 +2419,6 @@ out_unlock:
 	if (con->ops->fault)
 		con->ops->fault(con);
 }
-
-
 
 /*
  * initialize a new messenger instance
@@ -2609,7 +2592,6 @@ void ceph_con_keepalive(struct ceph_connection *con)
 		queue_con(con);
 }
 EXPORT_SYMBOL(ceph_con_keepalive);
-
 
 /*
  * construct a new message with given type, size
@@ -2794,7 +2776,6 @@ static int ceph_con_in_msg_alloc(struct ceph_connection *con, int *skip)
 
 	return ret;
 }
-
 
 /*
  * Free a generically kmalloc'd message.

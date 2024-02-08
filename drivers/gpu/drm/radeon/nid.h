@@ -572,4 +572,3 @@
 #define	PACKET3_SET_APPEND_CNT			        0x75
 
 #endif
-

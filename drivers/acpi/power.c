@@ -119,7 +119,6 @@ acpi_power_get_context(acpi_handle handle,
 	int result = 0;
 	struct acpi_device *device = NULL;
 
-
 	if (!resource)
 		return -ENODEV;
 
@@ -142,7 +141,6 @@ static int acpi_power_get_state(acpi_handle handle, int *state)
 	unsigned long long sta = 0;
 	char node_name[5];
 	struct acpi_buffer buffer = { sizeof(node_name), node_name };
-
 
 	if (!handle || !state)
 		return -EINVAL;
@@ -715,7 +713,6 @@ static int acpi_power_add(struct acpi_device *device)
 	struct acpi_power_resource *resource = NULL;
 	union acpi_object acpi_object;
 	struct acpi_buffer buffer = { sizeof(acpi_object), &acpi_object };
-
 
 	if (!device)
 		return -EINVAL;

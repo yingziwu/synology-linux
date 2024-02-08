@@ -43,7 +43,6 @@
  */
 #define atomic_xchg(v, new)	(xchg(&((v)->counter), (new)))
 
-
 /**
  * atomic_cmpxchg - atomic compare-and-exchange values
  * @v: pointer to value to change
@@ -157,7 +156,6 @@ static inline int __atomic_add_unless(atomic_t *v, int a, int u)
 #define atomic_dec_and_test(v) (atomic_sub_return(1, (v)) == 0)
 #define atomic_sub_and_test(i, v) (atomic_sub_return(i, (v)) == 0)
 #define atomic_add_negative(i, v) (atomic_add_return(i, (v)) < 0)
-
 
 #define atomic_inc_return(v) (atomic_add_return(1, v))
 #define atomic_dec_return(v) (atomic_sub_return(1, v))

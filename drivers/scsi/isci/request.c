@@ -2493,7 +2493,6 @@ static void isci_request_handle_controller_specific_errors(
 		*complete_to_host_ptr = isci_perform_normal_io_completion;
 		break;
 
-
 	/* Note that the only open reject completion codes seen here will be
 	 * abandon-class codes; all others are automatically retried in the SCU.
 	 */
@@ -2975,7 +2974,6 @@ static void isci_request_io_request_complete(struct isci_host *ihost,
 			complete_to_host = isci_perform_normal_io_completion;
 			set_bit(IREQ_COMPLETE_IN_TARGET, &request->flags);
 			break;
-
 
 		default:
 			/* Catch any otherwise unhandled error codes here. */

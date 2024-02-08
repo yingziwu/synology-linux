@@ -428,6 +428,20 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		else
 			client->flags &= ~I2C_CLIENT_PEC;
 		return 0;
+#ifdef CONFIG_HI3535_SDK_2050
+	case I2C_16BIT_REG:
+		if (arg)
+			client->flags |= I2C_M_16BIT_REG;
+		else
+			client->flags &= ~I2C_M_16BIT_REG;
+		return 0;
+	case I2C_16BIT_DATA:
+		if (arg)
+			client->flags |= I2C_M_16BIT_DATA;
+		else
+			client->flags &= ~I2C_M_16BIT_DATA;
+		return 0;
+#endif
 	case I2C_FUNCS:
 		funcs = i2c_get_functionality(client->adapter);
 		return put_user(funcs, (unsigned long __user *)arg);

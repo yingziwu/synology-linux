@@ -181,7 +181,6 @@ warn_no_idmapd(struct cache_detail *detail, int has_died)
 			has_died ? "died" : "not been started");
 }
 
-
 static int         idtoname_parse(struct cache_detail *, char *, int);
 static struct ent *idtoname_lookup(struct ent *);
 static struct ent *idtoname_update(struct ent *, struct ent *);
@@ -273,7 +272,6 @@ out:
 	return error;
 }
 
-
 static struct ent *
 idtoname_lookup(struct ent *item)
 {
@@ -297,7 +295,6 @@ idtoname_update(struct ent *new, struct ent *old)
 	else
 		return NULL;
 }
-
 
 /*
  * Name -> ID cache
@@ -440,7 +437,6 @@ out:
 
 	return (error);
 }
-
 
 static struct ent *
 nametoid_lookup(struct ent *item)

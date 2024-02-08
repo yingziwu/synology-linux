@@ -331,7 +331,6 @@ static void sock_disable_timestamp(struct sock *sk, unsigned long flags)
 	}
 }
 
-
 int sock_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 {
 	int err;
@@ -803,7 +802,11 @@ set_rcvbuf:
 	case SO_NOFCS:
 		sock_valbool_flag(sk, SOCK_NOFCS, valbool);
 		break;
-
+#ifdef CONFIG_TNK
+	case SO_TOE_ENABLE:
+		sk->sk_tnkinfo.not_capable = !valbool;
+		break;
+#endif
 	default:
 		ret = -ENOPROTOOPT;
 		break;
@@ -812,7 +815,6 @@ set_rcvbuf:
 	return ret;
 }
 EXPORT_SYMBOL(sock_setsockopt);
-
 
 void cred_to_ucred(struct pid *pid, const struct cred *cred,
 		   struct ucred *ucred)
@@ -1435,7 +1437,6 @@ void __init sk_init(void)
  *	Simple resource managers for sockets.
  */
 
-
 /*
  * Write buffer destructor automatically called from kfree_skb.
  */
@@ -1474,7 +1475,6 @@ void sock_rfree(struct sk_buff *skb)
 	sk_mem_uncharge(sk, len);
 }
 EXPORT_SYMBOL(sock_rfree);
-
 
 int sock_i_uid(struct sock *sk)
 {
@@ -1588,7 +1588,6 @@ static long sock_wait_for_wmem(struct sock *sk, long timeo)
 	finish_wait(sk_sleep(sk), &wait);
 	return timeo;
 }
-
 
 /*
  *	Generic send/receive buffer handlers
@@ -1869,7 +1868,6 @@ void __sk_mem_reclaim(struct sock *sk)
 		sk_leave_memory_pressure(sk);
 }
 EXPORT_SYMBOL(__sk_mem_reclaim);
-
 
 /*
  * Set of default routines for initialising struct proto_ops when
@@ -2675,7 +2673,6 @@ static __net_exit void proto_exit_net(struct net *net)
 {
 	proc_net_remove(net, "protocols");
 }
-
 
 static __net_initdata struct pernet_operations proto_net_ops = {
 	.init = proto_init_net,

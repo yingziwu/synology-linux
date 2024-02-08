@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  inode.c - part of debugfs, a tiny little debug file system
  *
@@ -596,6 +599,10 @@ void debugfs_remove_recursive(struct dentry *dentry)
 }
 EXPORT_SYMBOL_GPL(debugfs_remove_recursive);
 
+#ifdef MY_ABC_HERE
+extern struct synotify_rename_path * get_rename_path_list(struct dentry *old_dentry, struct dentry *new_dentry);
+extern void free_rename_path_list(struct synotify_rename_path * rename_path_list);
+#endif
 /**
  * debugfs_rename - rename a file/directory in the debugfs filesystem
  * @old_dir: a pointer to the parent dentry for the renamed object. This
@@ -621,6 +628,9 @@ struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
 	int error;
 	struct dentry *dentry = NULL, *trap;
 	const char *old_name;
+#ifdef MY_ABC_HERE
+	struct synotify_rename_path *rename_path_list = NULL;
+#endif
 
 	trap = lock_rename(new_dir, old_dir);
 	/* Source or destination directories don't exist? */
@@ -635,6 +645,9 @@ struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
 	if (IS_ERR(dentry) || dentry == trap || dentry->d_inode)
 		goto exit;
 
+#ifdef MY_ABC_HERE
+	rename_path_list = get_rename_path_list(old_dentry, dentry);
+#endif
 	old_name = fsnotify_oldname_init(old_dentry->d_name.name);
 
 	error = simple_rename(old_dir->d_inode, old_dentry, new_dir->d_inode,
@@ -644,14 +657,29 @@ struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
 		goto exit;
 	}
 	d_move(old_dentry, dentry);
+#ifdef MY_ABC_HERE
+	fsnotify_move(old_dir->d_inode, new_dir->d_inode, old_name,
+		S_ISDIR(old_dentry->d_inode->i_mode),
+		NULL, old_dentry, rename_path_list);
+
+#else
 	fsnotify_move(old_dir->d_inode, new_dir->d_inode, old_name,
 		S_ISDIR(old_dentry->d_inode->i_mode),
 		NULL, old_dentry);
+#endif
 	fsnotify_oldname_free(old_name);
 	unlock_rename(new_dir, old_dir);
 	dput(dentry);
+
+#ifdef MY_ABC_HERE
+	free_rename_path_list(rename_path_list);
+	rename_path_list = NULL;
+#endif
 	return old_dentry;
 exit:
+#ifdef MY_ABC_HERE
+	free_rename_path_list(rename_path_list);
+#endif
 	if (dentry && !IS_ERR(dentry))
 		dput(dentry);
 	unlock_rename(new_dir, old_dir);
@@ -667,7 +695,6 @@ bool debugfs_initialized(void)
 	return debugfs_registered;
 }
 EXPORT_SYMBOL_GPL(debugfs_initialized);
-
 
 static struct kobject *debug_kobj;
 
@@ -688,4 +715,3 @@ static int __init debugfs_init(void)
 	return retval;
 }
 core_initcall(debugfs_init);
-

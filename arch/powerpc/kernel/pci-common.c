@@ -49,7 +49,6 @@ static int global_phb_number;		/* Global phb counter */
 /* ISA Memory physical address */
 resource_size_t isa_mem_base;
 
-
 static struct dma_map_ops *pci_dma_ops = &dma_direct_ops;
 
 void set_pci_dma_ops(struct dma_map_ops *dma_ops)
@@ -414,7 +413,6 @@ pgprot_t pci_phys_mem_access_prot(struct file *file,
 
 	return prot;
 }
-
 
 /*
  * Perform the actual remap of the pages for a PCI device mapping, as
@@ -1071,7 +1069,6 @@ void __devinit pci_fixup_cardbus(struct pci_bus *bus)
 	pcibios_setup_bus_devices(bus);
 }
 
-
 static int skip_isa_ioresource_align(struct pci_dev *dev)
 {
 	if (pci_has_flag(PCI_CAN_SKIP_ISA_ALIGN) &&
@@ -1441,7 +1438,6 @@ void pcibios_claim_one_bus(struct pci_bus *bus)
 	list_for_each_entry(child_bus, &bus->children, node)
 		pcibios_claim_one_bus(child_bus);
 }
-
 
 /* pcibios_finish_adding_to_bus
  *

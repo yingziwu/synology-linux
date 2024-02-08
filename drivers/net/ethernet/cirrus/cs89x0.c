@@ -100,7 +100,6 @@
 
 */
 
-
 /*
  * Set this to zero to disable DMA code
  *
@@ -291,7 +290,6 @@ static int __init media_fn(char *str)
 }
 
 __setup("cs89x0_media=", media_fn);
-
 
 #ifndef CONFIG_CS89x0_PLATFORM
 /* Check for a network adaptor of this type, and return '0' iff one exists.
@@ -606,7 +604,6 @@ cs89x0_probe1(struct net_device *dev, unsigned long ioaddr, int modular)
 	   the driver will always do *something* instead of complain that
 	   adapter_cnf is 0. */
 
-
         if ((readreg(dev, PP_SelfST) & (EEPROM_OK | EEPROM_PRESENT)) ==
 	      (EEPROM_OK|EEPROM_PRESENT)) {
 	        /* Load the MAC. */
@@ -797,7 +794,6 @@ out1:
 	return retval;
 }
 
-
 /*********************************
  * This page contains DMA routines
 **********************************/
@@ -985,7 +981,6 @@ static void __init reset_chip(struct net_device *dev)
 #endif /* !CONFIG_MACH_MX31ADS */
 }
 
-
 static void
 control_dc_dc(struct net_device *dev, int on_not_off)
 {
@@ -1128,7 +1123,6 @@ send_test_pkt(struct net_device *dev)
 	return 0;
 }
 
-
 static int
 detect_aui(struct net_device *dev)
 {
@@ -1160,7 +1154,6 @@ detect_bnc(struct net_device *dev)
 	else
 		return DETECTED_NONE;
 }
-
 
 static void
 write_irq(struct net_device *dev, int chip_type, int irq)
@@ -1729,7 +1722,6 @@ static void set_multicast_list(struct net_device *dev)
 	spin_unlock_irqrestore(&lp->lock, flags);
 }
 
-
 static int set_mac_address(struct net_device *dev, void *p)
 {
 	int i;
@@ -1801,7 +1793,6 @@ MODULE_PARM_DESC(use_dma , "(ignored)");
 MODULE_AUTHOR("Mike Cruse, Russwll Nelson <nelson@crynwr.com>, Andrew Morton");
 MODULE_LICENSE("GPL");
 
-
 /*
 * media=t             - specify media type
    or media=2
@@ -1809,7 +1800,6 @@ MODULE_LICENSE("GPL");
    or medai=auto
 * duplex=0            - specify forced half/full/autonegotiate duplex
 * debug=#             - debug level
-
 
 * Default Chip Configuration:
   * DMA Burst = enabled
@@ -1824,7 +1814,6 @@ MODULE_LICENSE("GPL");
   * if memory address is > 1MB, then required mem decode hw is present
   * if 10B-2, then agent other than driver will enable DC/DC converter
     (hw or software util)
-
 
 */
 

@@ -985,7 +985,6 @@ void r100_ring_start(struct radeon_device *rdev, struct radeon_ring *ring)
 	radeon_ring_unlock_commit(rdev, ring);
 }
 
-
 /* Load the microcode for the CP */
 static int r100_cp_init_microcode(struct radeon_device *rdev)
 {
@@ -2042,7 +2041,6 @@ int r100_cs_parse(struct radeon_cs_parser *p)
 	return 0;
 }
 
-
 /*
  * Global GPU functions
  */
@@ -2535,7 +2533,6 @@ void r100_mc_init(struct radeon_device *rdev)
 	radeon_update_bandwidth_info(rdev);
 }
 
-
 /*
  * Indirect registers accessor
  */
@@ -2653,7 +2650,6 @@ static int r100_debugfs_cp_ring_info(struct seq_file *m, void *data)
 	}
 	return 0;
 }
-
 
 static int r100_debugfs_cp_csq_fifo(struct seq_file *m, void *data)
 {
@@ -2818,7 +2814,6 @@ int r100_set_surface_reg(struct radeon_device *rdev, int reg,
 		flags |= pitch / 16;
 	else
 		flags |= pitch / 8;
-
 
 	DRM_DEBUG_KMS("writing surface %d %d %x %x\n", reg, flags, offset, offset+obj_size-1);
 	WREG32(RADEON_SURFACE0_INFO + surf_index, flags);

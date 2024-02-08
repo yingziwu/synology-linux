@@ -69,4 +69,9 @@
 /* Instruct lower device to use last 4-bytes of skb data as FCS */
 #define SO_NOFCS		43
 
+#ifdef CONFIG_TNK
+/* TOE option for hisi device only */
+#define SO_TOE_ENABLE		44
+#endif
+
 #endif /* _ASM_SOCKET_H */

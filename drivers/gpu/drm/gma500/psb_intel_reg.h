@@ -709,7 +709,6 @@ struct dpst_guardband {
 #define SWF31			0x72418
 #define SWF32			0x7241c
 
-
 /*
  * Palette registers
  */
@@ -1313,6 +1312,5 @@ No status bits are changed.
 
 #define LANE_PLL_MASK		(0x7 << 20)
 #define LANE_PLL_ENABLE		(0x3 << 20)
-
 
 #endif

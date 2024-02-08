@@ -496,7 +496,6 @@ static void cleanup(struct intelfb_info *dinfo)
 	return -ENODEV;							\
 } while (0)
 
-
 static int __devinit intelfb_pci_register(struct pci_dev *pdev,
 					  const struct pci_device_id *ent)
 {
@@ -841,7 +840,6 @@ static int __devinit intelfb_pci_register(struct pci_dev *pdev,
 	if (bailearly == 4)
 		bailout(dinfo);
 
-
 	if (intelfb_set_fbinfo(dinfo)) {
 		cleanup(dinfo);
 		return -ENODEV;
@@ -952,7 +950,6 @@ int __inline__ intelfb_var_to_depth(const struct fb_var_screeninfo *var)
 		return var->bits_per_pixel;
 	}
 }
-
 
 static __inline__ int var_to_refresh(const struct fb_var_screeninfo *var)
 {
@@ -1702,4 +1699,3 @@ static int intelfb_sync(struct fb_info *info)
 	intelfbhw_do_sync(dinfo);
 	return 0;
 }
-

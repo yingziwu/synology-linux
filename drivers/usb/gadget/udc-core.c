@@ -253,7 +253,6 @@ static int udc_is_newstyle(struct usb_udc *udc)
 	return 0;
 }
 
-
 static void usb_gadget_remove_driver(struct usb_udc *udc)
 {
 	dev_dbg(&udc->dev, "unregistering UDC driver [%s]\n",

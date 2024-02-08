@@ -493,7 +493,6 @@ static unsigned int efx_mcdi_event_link_speed[] = {
 	[MCDI_EVENT_LINKCHANGE_SPEED_10G] = 10000,
 };
 
-
 static void efx_mcdi_process_link_change(struct efx_nic *efx, efx_qword_t *ev)
 {
 	u32 flags, fcntl, speed, lpa;
@@ -1103,13 +1102,11 @@ fail:
 
 }
 
-
 int
 efx_mcdi_wol_filter_set_magic(struct efx_nic *efx,  const u8 *mac, int *id_out)
 {
 	return efx_mcdi_wol_filter_set(efx, MC_CMD_WOL_TYPE_MAGIC, mac, id_out);
 }
-
 
 int efx_mcdi_wol_filter_get_magic(struct efx_nic *efx, int *id_out)
 {
@@ -1136,7 +1133,6 @@ fail:
 	netif_err(efx, hw, efx->net_dev, "%s: failed rc=%d\n", __func__, rc);
 	return rc;
 }
-
 
 int efx_mcdi_wol_filter_remove(struct efx_nic *efx, int id)
 {
@@ -1203,4 +1199,3 @@ fail:
 	netif_err(efx, hw, efx->net_dev, "%s: failed rc=%d\n", __func__, rc);
 	return rc;
 }
-

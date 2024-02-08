@@ -24,14 +24,12 @@
  *
  */
 
-
 #include "vmxnet3_int.h"
 
 struct vmxnet3_stat_desc {
 	char desc[ETH_GSTRING_LEN];
 	int  offset;
 };
-
 
 /* per tq stats maintained by the device */
 static const struct vmxnet3_stat_desc
@@ -112,7 +110,6 @@ vmxnet3_global_stats[] = {
 					 tx_timeout_count) }
 };
 
-
 struct rtnl_link_stats64 *
 vmxnet3_get_stats64(struct net_device *netdev,
 		   struct rtnl_link_stats64 *stats)
@@ -182,7 +179,6 @@ vmxnet3_get_sset_count(struct net_device *netdev, int sset)
 	}
 }
 
-
 /* Should be multiple of 4 */
 #define NUM_TX_REGS	8
 #define NUM_RX_REGS	12
@@ -194,7 +190,6 @@ vmxnet3_get_regs_len(struct net_device *netdev)
 	return (adapter->num_tx_queues * NUM_TX_REGS * sizeof(u32) +
 		adapter->num_rx_queues * NUM_RX_REGS * sizeof(u32));
 }
-
 
 static void
 vmxnet3_get_drvinfo(struct net_device *netdev, struct ethtool_drvinfo *drvinfo)
@@ -213,7 +208,6 @@ vmxnet3_get_drvinfo(struct net_device *netdev, struct ethtool_drvinfo *drvinfo)
 	drvinfo->eedump_len   = 0;
 	drvinfo->regdump_len  = vmxnet3_get_regs_len(netdev);
 }
-
 
 static void
 vmxnet3_get_strings(struct net_device *netdev, u32 stringset, u8 *buf)
@@ -340,7 +334,6 @@ vmxnet3_get_ethtool_stats(struct net_device *netdev,
 		*buf++ = *(u64 *)(base + vmxnet3_global_stats[i].offset);
 }
 
-
 static void
 vmxnet3_get_regs(struct net_device *netdev, struct ethtool_regs *regs, void *p)
 {
@@ -386,7 +379,6 @@ vmxnet3_get_regs(struct net_device *netdev, struct ethtool_regs *regs, void *p)
 
 }
 
-
 static void
 vmxnet3_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 {
@@ -395,7 +387,6 @@ vmxnet3_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 	wol->supported = WAKE_UCAST | WAKE_ARP | WAKE_MAGIC;
 	wol->wolopts = adapter->wol;
 }
-
 
 static int
 vmxnet3_set_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
@@ -413,7 +404,6 @@ vmxnet3_set_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 
 	return 0;
 }
-
 
 static int
 vmxnet3_get_settings(struct net_device *netdev, struct ethtool_cmd *ecmd)
@@ -436,7 +426,6 @@ vmxnet3_get_settings(struct net_device *netdev, struct ethtool_cmd *ecmd)
 	return 0;
 }
 
-
 static void
 vmxnet3_get_ringparam(struct net_device *netdev,
 		      struct ethtool_ringparam *param)
@@ -456,7 +445,6 @@ vmxnet3_get_ringparam(struct net_device *netdev,
 	param->rx_jumbo_pending = 0;
 }
 
-
 static int
 vmxnet3_set_ringparam(struct net_device *netdev,
 		      struct ethtool_ringparam *param)
@@ -473,7 +461,6 @@ vmxnet3_set_ringparam(struct net_device *netdev,
 	if (param->rx_pending == 0 || param->rx_pending >
 						VMXNET3_RX_RING_MAX_SIZE)
 		return -EINVAL;
-
 
 	/* round it up to a multiple of VMXNET3_RING_SIZE_ALIGN */
 	new_tx_ring_size = (param->tx_pending + VMXNET3_RING_SIZE_MASK) &
@@ -549,7 +536,6 @@ out:
 
 	return err;
 }
-
 
 static int
 vmxnet3_get_rxnfc(struct net_device *netdev, struct ethtool_rxnfc *info,

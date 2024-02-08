@@ -58,7 +58,6 @@
  */
 #define EXT_STATS_
 
-
 /*
  * ext4_inode has i_block array (60 bytes total).
  * The first 12 bytes store ext4_extent_header;
@@ -158,7 +157,6 @@ typedef int (*ext_prepare_callback)(struct inode *, ext4_lblk_t,
  */
 #define EXT_INIT_MAX_LEN	(1UL << 15)
 #define EXT_UNINIT_MAX_LEN	(EXT_INIT_MAX_LEN - 1)
-
 
 #define EXT_FIRST_EXTENT(__hdr__) \
 	((struct ext4_extent *) (((char *) (__hdr__)) +		\
@@ -293,4 +291,3 @@ extern int ext4_ext_check_inode(struct inode *inode);
 extern int ext4_find_delalloc_cluster(struct inode *inode, ext4_lblk_t lblk,
 				      int search_hint_reverse);
 #endif /* _EXT4_EXTENTS */
-

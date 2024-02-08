@@ -95,7 +95,6 @@ acpi_status acpi_set_firmware_waking_vector(u32 physical_address)
 {
 	ACPI_FUNCTION_TRACE(acpi_set_firmware_waking_vector);
 
-
 	/*
 	 * According to the ACPI specification 2.0c and later, the 64-bit
 	 * waking vector should be cleared and the 32-bit waking vector should
@@ -137,7 +136,6 @@ ACPI_EXPORT_SYMBOL(acpi_set_firmware_waking_vector)
 acpi_status acpi_set_firmware_waking_vector64(u64 physical_address)
 {
 	ACPI_FUNCTION_TRACE(acpi_set_firmware_waking_vector64);
-
 
 	/* Determine if the 64-bit vector actually exists */
 
@@ -422,7 +420,6 @@ acpi_status acpi_leave_sleep_state(u8 sleep_state)
 	acpi_status status;
 
 	ACPI_FUNCTION_TRACE(acpi_leave_sleep_state);
-
 
 	status = acpi_hw_sleep_dispatch(sleep_state, 0, ACPI_WAKE_FUNCTION_ID);
 	return_ACPI_STATUS(status);

@@ -33,7 +33,6 @@
 #include "reg.h"
 #include "debug.h"
 
-
 /*********\
 * Receive *
 \*********/
@@ -104,7 +103,6 @@ ath5k_hw_set_rxdp(struct ath5k_hw *ah, u32 phys_addr)
 	ath5k_hw_reg_write(ah, phys_addr, AR5K_RXDP);
 	return 0;
 }
-
 
 /**********\
 * Transmit *
@@ -488,7 +486,6 @@ done:
 	return ret;
 }
 
-
 /*******************\
 * Interrupt masking *
 \*******************/
@@ -638,7 +635,6 @@ ath5k_hw_get_isr(struct ath5k_hw *ah, enum ath5k_int *interrupt_mask)
 		 * status.
 		 */
 		*interrupt_mask = (pisr & AR5K_INT_COMMON) & ah->ah_imr;
-
 
 		/* We treat TXOK,TXDESC, TXERR and TXEOL
 		 * the same way (schedule the tx tasklet)
@@ -825,7 +821,6 @@ ath5k_hw_set_imr(struct ath5k_hw *ah, enum ath5k_int new_mask)
 
 	return old_mask;
 }
-
 
 /********************\
  Init/Stop functions

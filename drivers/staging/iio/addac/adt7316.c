@@ -434,7 +434,6 @@ static ssize_t adt7316_store_ad_channel(struct device *dev,
 		config2 = chip->config2 & (~ADT7316_AD_SINGLE_CH_MASK);
 	}
 
-
 	config2 |= data;
 
 	ret = chip->bus.write(chip->bus.client, ADT7316_CONFIG2, config2);
@@ -550,7 +549,6 @@ static IIO_DEVICE_ATTR(enable_smbus_timeout, S_IRUGO | S_IWUSR,
 		adt7316_show_enable_smbus_timeout,
 		adt7316_store_enable_smbus_timeout,
 		0);
-
 
 static ssize_t adt7316_store_reset(struct device *dev,
 		struct device_attribute *attr,
@@ -750,7 +748,6 @@ static IIO_DEVICE_ATTR(AIN_internal_Vref, S_IRUGO | S_IWUSR,
 		adt7316_store_AIN_internal_Vref,
 		0);
 
-
 static ssize_t adt7316_show_enable_prop_DACA(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
@@ -948,7 +945,6 @@ static ssize_t adt7316_show_all_DAC_update_modes(struct device *dev,
 
 static IIO_DEVICE_ATTR(all_DAC_update_modes, S_IRUGO,
 		adt7316_show_all_DAC_update_modes, NULL, 0);
-
 
 static ssize_t adt7316_store_update_DAC(struct device *dev,
 		struct device_attribute *attr,

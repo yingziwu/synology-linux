@@ -172,7 +172,6 @@ static int aio_setup_ring(struct kioctx *ctx)
 	return 0;
 }
 
-
 /* aio_ring_event: returns a pointer to the event at the given index from
  * kmap_atomic().  Release the pointer with put_aio_ring_event();
  */
@@ -907,7 +906,6 @@ static void aio_kick_handler(struct work_struct *work)
 	if (requeue)
 		queue_delayed_work(aio_wq, &ctx->wq, 0);
 }
-
 
 /*
  * Called by kick_iocb to queue the kiocb for retry

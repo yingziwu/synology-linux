@@ -32,7 +32,6 @@
 #define SO_PROTOCOL	0x1028
 #define SO_DOMAIN	0x1029
 
-
 /* Linux specific, keep the same. */
 #define SO_NO_CHECK	0x000b
 #define SO_PRIORITY	0x000c
@@ -64,7 +63,6 @@
 
 /* Instruct lower device to use last 4-bytes of skb data as FCS */
 #define SO_NOFCS		0x0027
-
 
 /* Security levels - as per NRL IPv6 - don't actually do anything */
 #define SO_SECURITY_AUTHENTICATION		0x5001

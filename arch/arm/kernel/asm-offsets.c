@@ -12,6 +12,11 @@
  */
 #include <linux/sched.h>
 #include <linux/mm.h>
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+#include <linux/suspend.h>
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 #include <linux/dma-mapping.h>
 #include <asm/cacheflush.h>
 #include <asm/glue-df.h>
@@ -144,5 +149,12 @@ int main(void)
   DEFINE(DMA_BIDIRECTIONAL,	DMA_BIDIRECTIONAL);
   DEFINE(DMA_TO_DEVICE,		DMA_TO_DEVICE);
   DEFINE(DMA_FROM_DEVICE,	DMA_FROM_DEVICE);
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+	DEFINE(PBE_ADDRESS,		offsetof(struct pbe, address));
+	DEFINE(PBE_ORIG_ADDRESS,	offsetof(struct pbe, orig_address));
+	DEFINE(PBE_NEXT,		offsetof(struct pbe, next));
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
   return 0; 
 }

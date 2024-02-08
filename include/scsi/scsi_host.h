@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _SCSI_SCSI_HOST_H
 #define _SCSI_SCSI_HOST_H
 
@@ -20,7 +23,6 @@ struct scsi_host_cmd_pool;
 struct scsi_transport_template;
 struct blk_queue_tags;
 
-
 /*
  * The various choices mean:
  * NONE: Self evident.	Host adapter is not capable of scatter-gather.
@@ -42,6 +44,14 @@ struct blk_queue_tags;
 
 #define DISABLE_CLUSTERING 0
 #define ENABLE_CLUSTERING 1
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+enum {
+   	SYNO_PORT_TYPE_SATA = 1,
+	SYNO_PORT_TYPE_USB = 2,
+	SYNO_PORT_TYPE_SAS = 3,
+};
+#endif /* MY_ABC_HERE */
 
 enum {
 	SCSI_QDEPTH_DEFAULT,	/* default requested change, e.g. from sysfs */
@@ -83,7 +93,6 @@ struct scsi_host_template {
 	 * Status: OPTIONAL
 	 */
 	int (* ioctl)(struct scsi_device *dev, int cmd, void __user *arg);
-
 
 #ifdef CONFIG_COMPAT
 	/* 
@@ -367,7 +376,6 @@ struct scsi_host_template {
 #define SCSI_ADAPTER_RESET	1
 #define SCSI_FIRMWARE_RESET	2
 
-
 	/*
 	 * Name of proc directory
 	 */
@@ -506,6 +514,35 @@ struct scsi_host_template {
 	 */
 	struct list_head legacy_hosts;
 
+#ifdef MY_ABC_HERE
+	/*
+	 * This is an optional routine that allow low level driver can deside
+	 * target start index in scsi layer.
+	 *
+	 * @return : scsi index of what low level driver want
+	 * Status: OPTIONAL
+	 */
+	int  (* syno_index_get)(struct Scsi_Host *host, uint channel, uint id, uint lun);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	/*
+	 * This is an optional routine that could power off host power.
+	 *
+	 * @return : 0 success, otherwise fail
+	 * Status: OPTIONAL
+	 */
+	int  (* syno_host_power_ctl)(struct Scsi_Host *host, u8 blPowerOn);
+#endif
+
+	/* for debug */
+	int  (* syno_set_dbg)(struct Scsi_Host *host, unsigned int uiDbglvl);
+	int  (* syno_get_dbg)(struct Scsi_Host *host, unsigned int *uiDbglvl);
+	int  (* syno_dbg_info)(struct Scsi_Host *host);
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	int  syno_port_type;
+#endif
+
 	/*
 	 * Vendor Identifier associated with the host
 	 *
@@ -533,7 +570,6 @@ struct scsi_host_template {
 		spin_unlock_irqrestore(shost->host_lock, irq_flags);	\
 		return rc;						\
 	}
-
 
 /*
  * shost state: If you alter this, you also need to alter scsi_sysfs.c
@@ -705,7 +741,6 @@ struct Scsi_Host {
 	unsigned char dma_channel;
 	unsigned int  irq;
 	
-
 	enum scsi_host_state shost_state;
 
 	/* ldm bits */

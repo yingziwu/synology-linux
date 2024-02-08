@@ -103,14 +103,15 @@ int __init notsc_setup(char *str)
 
 __setup("notsc", notsc_setup);
 
-static int no_sched_irq_time;
-
 static int __init tsc_setup(char *str)
 {
 	if (!strcmp(str, "reliable"))
 		tsc_clocksource_reliable = 1;
-	if (!strncmp(str, "noirqtime", 9))
-		no_sched_irq_time = 1;
+	if (!strncmp(str, "noirqtime", 9)) {
+		printk(KERN_WARNING "tsc: tsc=noirqtime is "
+				"obsolete, use noirqtime instead\n");
+		disable_sched_clock_irqtime();
+	}
 	return 1;
 }
 
@@ -184,7 +185,6 @@ static unsigned long calc_pmtimer_ref(u64 deltatsc, u64 pm1, u64 pm2)
 #define CAL2_MS		50
 #define CAL2_LATCH	(PIT_TICK_RATE / (1000 / CAL2_MS))
 #define CAL2_PIT_LOOPS	5000
-
 
 /*
  * Try to calibrate the TSC against the Programmable
@@ -578,7 +578,6 @@ int recalibrate_cpu_khz(void)
 
 EXPORT_SYMBOL(recalibrate_cpu_khz);
 
-
 /* Accelerators for sched_clock()
  * convert from cycles(64bits) => nanoseconds (64bits)
  *  basic equation:
@@ -846,7 +845,6 @@ __cpuinit int unsynchronized_tsc(void)
 	return 0;
 }
 
-
 static void tsc_refine_calibration_work(struct work_struct *work);
 static DECLARE_DELAYED_WORK(tsc_irqwork, tsc_refine_calibration_work);
 /**
@@ -920,7 +918,6 @@ out:
 	clocksource_register_khz(&clocksource_tsc, tsc_khz);
 }
 
-
 static int __init init_tsc_clocksource(void)
 {
 	if (!cpu_has_tsc || tsc_disabled > 0 || !tsc_khz)
@@ -989,8 +986,7 @@ void __init tsc_init(void)
 	/* now allow native_sched_clock() to use rdtsc */
 	tsc_disabled = 0;
 
-	if (!no_sched_irq_time)
-		enable_sched_clock_irqtime();
+	enable_sched_clock_irqtime();
 
 	lpj = ((u64)tsc_khz * 1000);
 	do_div(lpj, HZ);

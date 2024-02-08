@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _SCSI_SCSI_DEVICE_H
 #define _SCSI_SCSI_DEVICE_H
 
@@ -91,7 +94,13 @@ struct scsi_device {
 	unsigned long last_queue_ramp_up;	/* last queue ramp up time */
 
 	unsigned int id, lun, channel;
-
+#ifdef MY_ABC_HERE
+	char syno_disk_name[BDEVNAME_SIZE];		/* name of major driver */
+#endif
+#ifdef MY_ABC_HERE
+	unsigned char auto_remap;
+#endif
+	int reverved;
 	unsigned int manufacturer;	/* Manufacturer of device, for using 
 					 * vendor-specific cmd's */
 	unsigned sector_size;	/* size in bytes */
@@ -166,6 +175,13 @@ struct scsi_device {
 	atomic_t iorequest_cnt;
 	atomic_t iodone_cnt;
 	atomic_t ioerr_cnt;
+
+#ifdef MY_ABC_HERE
+	unsigned long   idle;   /* scsi idle time in jiffers */
+	unsigned char	spindown;
+	unsigned char   nospindown;
+	unsigned char   do_standby_syncing;
+#endif /* MY_ABC_HERE */
 
 	struct device		sdev_gendev,
 				sdev_dev;
@@ -281,6 +297,10 @@ static inline struct scsi_target *scsi_target(struct scsi_device *sdev)
 
 #define starget_printk(prefix, starget, fmt, a...)	\
 	dev_printk(prefix, &(starget)->dev, fmt, ##a)
+
+#ifdef MY_ABC_HERE
+#define SYNO_DISK_MODEL_LEN "24"
+#endif
 
 extern struct scsi_device *__scsi_add_device(struct Scsi_Host *,
 		uint, uint, uint, void *hostdata);

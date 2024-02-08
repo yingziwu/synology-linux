@@ -18,6 +18,7 @@ obj-$(CONFIG_MTD_CHAR)		+= mtdchar.o
 obj-$(CONFIG_MTD_BLKDEVS)	+= mtd_blkdevs.o
 obj-$(CONFIG_MTD_BLOCK)		+= mtdblock.o
 obj-$(CONFIG_MTD_BLOCK_RO)	+= mtdblock_ro.o
+obj-$(CONFIG_MTD_BLOCK_ROMBLOCK)+= romblock.o
 obj-$(CONFIG_FTL)		+= ftl.o
 obj-$(CONFIG_NFTL)		+= nftl.o
 obj-$(CONFIG_INFTL)		+= inftl.o
@@ -30,6 +31,11 @@ obj-$(CONFIG_MTD_SWAP)		+= mtdswap.o
 nftl-objs		:= nftlcore.o nftlmount.o
 inftl-objs		:= inftlcore.o inftlmount.o
 
+ifeq ($(CONFIG_SYNO_HI3535_VS), y)
+# change the devices and nand order to let nand flash partitions beyond spi flash partition
+obj-y       += chips/ lpddr/ maps/ nand/ devices/ onenand/ tests/
+else
 obj-y		+= chips/ lpddr/ maps/ devices/ nand/ onenand/ tests/
+endif
 
 obj-$(CONFIG_MTD_UBI)		+= ubi/

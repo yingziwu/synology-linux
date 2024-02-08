@@ -440,7 +440,6 @@ void pci_restore_msi_state(struct pci_dev *dev)
 }
 EXPORT_SYMBOL_GPL(pci_restore_msi_state);
 
-
 #define to_msi_attr(obj) container_of(obj, struct msi_attribute, attr)
 #define to_msi_desc(obj) container_of(obj, struct msi_desc, kobj)
 
@@ -476,7 +475,6 @@ static const struct sysfs_ops msi_irq_sysfs_ops = {
 
 static struct msi_attribute mode_attribute =
 	__ATTR(mode, S_IRUGO, show_msi_mode, NULL);
-
 
 struct attribute *msi_irq_default_attrs[] = {
 	&mode_attribute.attr,

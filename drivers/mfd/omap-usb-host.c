@@ -146,7 +146,6 @@
 #define is_ehci_tll_mode(x)	(x == OMAP_EHCI_PORT_MODE_TLL)
 #define is_ehci_hsic_mode(x)	(x == OMAP_EHCI_PORT_MODE_HSIC)
 
-
 struct usbhs_hcd_omap {
 	struct clk			*xclk60mhsp1_ck;
 	struct clk			*xclk60mhsp2_ck;
@@ -584,7 +583,6 @@ static void omap_usbhs_init(struct device *dev)
 	pm_runtime_put_sync(dev);
 }
 
-
 /**
  * usbhs_omap_probe - initialize TI-based HCDs
  *
@@ -621,7 +619,6 @@ static int __devinit usbhs_omap_probe(struct platform_device *pdev)
 	omap->platdata.ohci_data = pdata->ohci_data;
 
 	pm_runtime_enable(dev);
-
 
 	for (i = 0; i < OMAP3_HS_USB_PORTS; i++)
 		if (is_ehci_phy_mode(i) || is_ehci_tll_mode(i) ||

@@ -298,7 +298,6 @@ static void update_sampling_rate(unsigned int new_rate)
 		next_sampling  = jiffies + usecs_to_jiffies(new_rate);
 		appointed_at = dbs_info->work.timer.expires;
 
-
 		if (time_before(next_sampling, appointed_at)) {
 
 			mutex_unlock(&dbs_info->timer_mutex);
@@ -798,7 +797,6 @@ static void __exit cpufreq_gov_dbs_exit(void)
 {
 	cpufreq_unregister_governor(&cpufreq_gov_ondemand);
 }
-
 
 MODULE_AUTHOR("Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>");
 MODULE_AUTHOR("Alexey Starikovskiy <alexey.y.starikovskiy@intel.com>");

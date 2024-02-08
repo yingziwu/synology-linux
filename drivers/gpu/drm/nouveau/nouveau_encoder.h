@@ -100,5 +100,4 @@ int nv50_sor_create(struct drm_connector *, struct dcb_entry *);
 void nv50_sor_dp_calc_tu(struct drm_device *, int, int, u32, u32);
 int nv50_dac_create(struct drm_connector *, struct dcb_entry *);
 
-
 #endif /* __NOUVEAU_ENCODER_H__ */

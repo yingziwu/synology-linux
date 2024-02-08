@@ -15,7 +15,6 @@
  *	notice is accompanying it.
  */
 
-
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/stringify.h>
@@ -397,7 +396,6 @@ static const struct {
 
 #define TG3_NUM_STATS	ARRAY_SIZE(ethtool_stats_keys)
 
-
 static const struct {
 	const char string[ETH_GSTRING_LEN];
 } ethtool_test_keys[] = {
@@ -412,7 +410,6 @@ static const struct {
 };
 
 #define TG3_NUM_TEST	ARRAY_SIZE(ethtool_test_keys)
-
 
 static void tg3_write32(struct tg3 *tp, u32 off, u32 val)
 {
@@ -2014,7 +2011,6 @@ static void tg3_phy_toggle_apd(struct tg3 *tp, bool enable)
 
 	tg3_writephy(tp, MII_TG3_MISC_SHDW, reg);
 
-
 	reg = MII_TG3_MISC_SHDW_WREN |
 	      MII_TG3_MISC_SHDW_APD_SEL |
 	      MII_TG3_MISC_SHDW_APD_WKTM_84MS;
@@ -3478,7 +3474,6 @@ static int tg3_load_tso_firmware(struct tg3 *tp)
 	tw32_f(cpu_base + CPU_MODE,  0x00000000);
 	return 0;
 }
-
 
 /* tp->lock is held. */
 static void __tg3_set_mac_addr(struct tg3 *tp, int skip_mac_1)
@@ -6952,7 +6947,6 @@ static netdev_tx_t tg3_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	if (pci_dma_mapping_error(tp->pdev, mapping))
 		goto drop;
 
-
 	tnapi->tx_buffers[entry].skb = skb;
 	dma_unmap_addr_set(&tnapi->tx_buffers[entry], mapping, mapping);
 
@@ -8237,7 +8231,6 @@ static void tg3_rings_reset(struct tg3 *tp)
 	     txrcb < limit; txrcb += TG3_BDINFO_SIZE)
 		tg3_write_mem(tp, txrcb + TG3_BDINFO_MAXLEN_FLAGS,
 			      BDINFO_FLAGS_DISABLED);
-
 
 	/* Disable all receive return rings but the first. */
 	if (tg3_flag(tp, 5717_PLUS))
@@ -12811,7 +12804,6 @@ static void __devinit tg3_get_57780_nvram_info(struct tg3 *tp)
 	if (tp->nvram_pagesize != 264 && tp->nvram_pagesize != 528)
 		tg3_flag_set(tp, NO_NVRAM_ADDR_TRANS);
 }
-
 
 static void __devinit tg3_get_5717_nvram_info(struct tg3 *tp)
 {

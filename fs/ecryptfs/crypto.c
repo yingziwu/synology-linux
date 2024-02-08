@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /**
  * eCryptfs: Linux filesystem encryption layer
  *
@@ -242,8 +245,14 @@ void ecryptfs_destroy_crypt_stat(struct ecryptfs_crypt_stat *crypt_stat)
 {
 	struct ecryptfs_key_sig *key_sig, *key_sig_tmp;
 
+#ifdef MY_ABC_HERE
+	if (crypt_stat->tfm) {
+		crypto_free_ablkcipher(crypt_stat->tfm);
+	}
+#else /* MY_ABC_HERE */
 	if (crypt_stat->tfm)
 		crypto_free_blkcipher(crypt_stat->tfm);
+#endif /* MY_ABC_HERE */
 	if (crypt_stat->hash_tfm)
 		crypto_free_hash(crypt_stat->hash_tfm);
 	list_for_each_entry_safe(key_sig, key_sig_tmp,
@@ -322,6 +331,70 @@ int virt_to_scatterlist(const void *addr, int size, struct scatterlist *sg,
 	return i;
 }
 
+#ifdef MY_ABC_HERE
+static void ecryptfs_async_done(struct crypto_async_request *async_req,
+								int error)
+{
+	struct ecryptfs_request *ecryptfs_req = async_req->data;
+
+	if (error == -EINPROGRESS) {
+		WARN_ON(1);
+		return;
+	}
+
+	ecryptfs_req->error = error;
+	complete(&ecryptfs_req->complete);
+}
+
+static int ecryptfs_async_init(struct ecryptfs_request *ecryptfs_req,
+				struct ecryptfs_crypt_stat *crypt_stat)
+{
+	int rc = 0;
+
+	init_completion(&(ecryptfs_req->complete));
+	ecryptfs_req->crypt_stat = crypt_stat;
+
+	if (NULL == (ecryptfs_req->req = ablkcipher_request_alloc(crypt_stat->tfm, GFP_NOFS))) {
+		WARN_ON(1);
+		rc = -EINVAL;
+		goto out;
+	}
+
+	ablkcipher_request_set_callback(ecryptfs_req->req, CRYPTO_TFM_REQ_MAY_BACKLOG |
+					CRYPTO_TFM_REQ_MAY_SLEEP,
+					ecryptfs_async_done,
+					ecryptfs_req);
+out:
+	return rc;
+}
+
+static void ecryptfs_async_wait(struct ecryptfs_request *ecryptfs_req,
+								int rc)
+{
+	switch (rc) {
+	case 0:
+		/* sync */
+		break;
+	case -EBUSY:
+	case -EINPROGRESS:
+		/* async */
+		wait_for_completion(&ecryptfs_req->complete);
+
+		if (ecryptfs_req->error) {
+			printk("error from async request: %d \n", ecryptfs_req->error);
+			WARN_ON(1);
+		}
+
+		break;
+	default:
+		break;
+	}
+
+	ablkcipher_request_free(ecryptfs_req->req);
+	ecryptfs_req->req = NULL;
+}
+#endif /* MY_ABC_HERE */
+
 /**
  * encrypt_scatterlist
  * @crypt_stat: Pointer to the crypt_stat struct to initialize.
@@ -337,11 +410,15 @@ static int encrypt_scatterlist(struct ecryptfs_crypt_stat *crypt_stat,
 			       struct scatterlist *src_sg, int size,
 			       unsigned char *iv)
 {
+#ifdef MY_ABC_HERE
+	struct ecryptfs_request ecryptfs_req = {0};
+#else /* MY_ABC_HERE */
 	struct blkcipher_desc desc = {
 		.tfm = crypt_stat->tfm,
 		.info = iv,
 		.flags = CRYPTO_TFM_REQ_MAY_SLEEP
 	};
+#endif /* MY_ABC_HERE */
 	int rc = 0;
 
 	BUG_ON(!crypt_stat || !crypt_stat->tfm
@@ -352,11 +429,26 @@ static int encrypt_scatterlist(struct ecryptfs_crypt_stat *crypt_stat,
 		ecryptfs_dump_hex(crypt_stat->key,
 				  crypt_stat->key_size);
 	}
+
 	/* Consider doing this once, when the file is opened */
+
 	mutex_lock(&crypt_stat->cs_tfm_mutex);
+#ifdef MY_ABC_HERE
+	rc = ecryptfs_async_init(&ecryptfs_req, crypt_stat);
+	if (rc) {
+		mutex_unlock(&crypt_stat->cs_tfm_mutex);
+		goto out;
+	}
+#endif
+
 	if (!(crypt_stat->flags & ECRYPTFS_KEY_SET)) {
+#ifdef MY_ABC_HERE
+		rc = crypto_ablkcipher_setkey(crypt_stat->tfm, crypt_stat->key,
+					     crypt_stat->key_size);
+#else
 		rc = crypto_blkcipher_setkey(crypt_stat->tfm, crypt_stat->key,
 					     crypt_stat->key_size);
+#endif
 		crypt_stat->flags |= ECRYPTFS_KEY_SET;
 	}
 	if (rc) {
@@ -367,7 +459,13 @@ static int encrypt_scatterlist(struct ecryptfs_crypt_stat *crypt_stat,
 		goto out;
 	}
 	ecryptfs_printk(KERN_DEBUG, "Encrypting [%d] bytes.\n", size);
+#ifdef MY_ABC_HERE
+	ablkcipher_request_set_crypt(ecryptfs_req.req, src_sg, dest_sg, size, iv);
+	ecryptfs_async_wait(&ecryptfs_req,
+						crypto_ablkcipher_encrypt(ecryptfs_req.req));
+#else
 	crypto_blkcipher_encrypt_iv(&desc, dest_sg, src_sg, size);
+#endif
 	mutex_unlock(&crypt_stat->cs_tfm_mutex);
 out:
 	return rc;
@@ -490,6 +588,9 @@ int ecryptfs_encrypt_page(struct page *page)
 		rc = ecryptfs_write_lower(ecryptfs_inode, enc_extent_virt,
 					  offset, crypt_stat->extent_size);
 		if (rc < 0) {
+#ifdef MY_ABC_HERE
+			if (-EDQUOT != rc && -EIO != rc && -ENOSPC != rc)
+#endif
 			ecryptfs_printk(KERN_ERR, "Error attempting "
 					"to write lower page; rc = [%d]"
 					"\n", rc);
@@ -563,6 +664,9 @@ int ecryptfs_decrypt_page(struct page *page)
 	struct ecryptfs_crypt_stat *crypt_stat;
 	char *enc_extent_virt;
 	struct page *enc_extent_page = NULL;
+#ifdef MY_ABC_HERE
+	char *syno_zero_virt = NULL;
+#endif
 	unsigned long extent_offset;
 	int rc = 0;
 
@@ -578,6 +682,14 @@ int ecryptfs_decrypt_page(struct page *page)
 		goto out;
 	}
 	enc_extent_virt = kmap(enc_extent_page);
+#ifdef MY_ABC_HERE
+	syno_zero_virt = kzalloc(crypt_stat->extent_size, GFP_KERNEL);
+	if (!syno_zero_virt) {
+		rc = -ENOMEM;
+		goto out;
+	}
+#endif
+
 	for (extent_offset = 0;
 	     extent_offset < (PAGE_CACHE_SIZE / crypt_stat->extent_size);
 	     extent_offset++) {
@@ -596,6 +708,21 @@ int ecryptfs_decrypt_page(struct page *page)
 					"\n", rc);
 			goto out;
 		}
+
+#ifdef MY_ABC_HERE
+		// check pre 16 byte first, in order to filter unnecessary memcmp
+		if (!memcmp(enc_extent_virt, syno_zero_virt, 16) &&
+			!memcmp(enc_extent_virt+16, syno_zero_virt+16, crypt_stat->extent_size-16)){
+			char *ecryptfs_page_virt;
+			ecryptfs_page_virt = kmap_atomic(page);
+			memcpy((char *)ecryptfs_page_virt,
+			enc_extent_virt, crypt_stat->extent_size);
+			kunmap_atomic(ecryptfs_page_virt);
+			rc = 0;
+			continue;
+		}
+#endif
+
 		rc = ecryptfs_decrypt_extent(page, crypt_stat, enc_extent_page,
 					     extent_offset);
 		if (rc) {
@@ -609,6 +736,10 @@ out:
 		kunmap(enc_extent_page);
 		__free_page(enc_extent_page);
 	}
+#ifdef MY_ABC_HERE
+	if (syno_zero_virt)
+		kfree(syno_zero_virt);
+#endif
 	return rc;
 }
 
@@ -627,17 +758,34 @@ static int decrypt_scatterlist(struct ecryptfs_crypt_stat *crypt_stat,
 			       struct scatterlist *src_sg, int size,
 			       unsigned char *iv)
 {
+#ifdef MY_ABC_HERE
+	struct ecryptfs_request ecryptfs_req = {0};
+#else /* MY_ABC_HERE */
 	struct blkcipher_desc desc = {
 		.tfm = crypt_stat->tfm,
 		.info = iv,
 		.flags = CRYPTO_TFM_REQ_MAY_SLEEP
 	};
+#endif /* MY_ABC_HERE */
 	int rc = 0;
 
 	/* Consider doing this once, when the file is opened */
 	mutex_lock(&crypt_stat->cs_tfm_mutex);
+#ifdef MY_ABC_HERE
+	rc = ecryptfs_async_init(&ecryptfs_req, crypt_stat);
+	if (rc) {
+		mutex_unlock(&crypt_stat->cs_tfm_mutex);
+		goto out;
+	}
+	if (!(crypt_stat->flags & ECRYPTFS_KEY_SET)) {
+		rc = crypto_ablkcipher_setkey(crypt_stat->tfm, crypt_stat->key,
+									  crypt_stat->key_size);
+		crypt_stat->flags |= ECRYPTFS_KEY_SET;
+	}
+#else /* MY_ABC_HERE */
 	rc = crypto_blkcipher_setkey(crypt_stat->tfm, crypt_stat->key,
 				     crypt_stat->key_size);
+#endif /* MY_ABC_HERE */
 	if (rc) {
 		ecryptfs_printk(KERN_ERR, "Error setting key; rc = [%d]\n",
 				rc);
@@ -646,7 +794,14 @@ static int decrypt_scatterlist(struct ecryptfs_crypt_stat *crypt_stat,
 		goto out;
 	}
 	ecryptfs_printk(KERN_DEBUG, "Decrypting [%d] bytes.\n", size);
+
+#ifdef MY_ABC_HERE
+	ablkcipher_request_set_crypt(ecryptfs_req.req, src_sg, dest_sg, size, iv);
+	ecryptfs_async_wait(&ecryptfs_req,
+						crypto_ablkcipher_decrypt(ecryptfs_req.req));
+#else /* MY_ABC_HERE */
 	rc = crypto_blkcipher_decrypt_iv(&desc, dest_sg, src_sg, size);
+#endif /* MY_ABC_HERE */
 	mutex_unlock(&crypt_stat->cs_tfm_mutex);
 	if (rc) {
 		ecryptfs_printk(KERN_ERR, "Error decrypting; rc = [%d]\n",
@@ -749,8 +904,12 @@ int ecryptfs_init_crypt_ctx(struct ecryptfs_crypt_stat *crypt_stat)
 						    crypt_stat->cipher, "cbc");
 	if (rc)
 		goto out_unlock;
+#ifdef MY_ABC_HERE
+	crypt_stat->tfm = crypto_alloc_ablkcipher(full_alg_name, 0, 0);
+#else /* MY_ABC_HERE */
 	crypt_stat->tfm = crypto_alloc_blkcipher(full_alg_name, 0,
 						 CRYPTO_ALG_ASYNC);
+#endif /* MY_ABC_HERE */
 	kfree(full_alg_name);
 	if (IS_ERR(crypt_stat->tfm)) {
 		rc = PTR_ERR(crypt_stat->tfm);
@@ -760,7 +919,11 @@ int ecryptfs_init_crypt_ctx(struct ecryptfs_crypt_stat *crypt_stat)
 				crypt_stat->cipher);
 		goto out_unlock;
 	}
+#ifdef MY_ABC_HERE
+	crypto_ablkcipher_set_flags(crypt_stat->tfm, CRYPTO_TFM_REQ_WEAK_KEY);
+#else /* MY_ABC_HERE */
 	crypto_blkcipher_set_flags(crypt_stat->tfm, CRYPTO_TFM_REQ_WEAK_KEY);
+#endif /* MY_ABC_HERE */
 	rc = 0;
 out_unlock:
 	mutex_unlock(&crypt_stat->cs_tfm_mutex);
@@ -1266,6 +1429,10 @@ ecryptfs_write_metadata_to_contents(struct inode *ecryptfs_inode,
 
 	rc = ecryptfs_write_lower(ecryptfs_inode, virt,
 				  0, virt_len);
+#ifdef MY_ABC_HERE
+	if (-EDQUOT == rc || -EIO == rc || -ENOSPC == rc)
+		return rc;  // skip error msg
+#endif
 	if (rc < 0)
 		printk(KERN_ERR "%s: Error attempting to write header "
 		       "information to lower file; rc = [%d]\n", __func__, rc);
@@ -1356,6 +1523,9 @@ int ecryptfs_write_metadata(struct dentry *ecryptfs_dentry,
 		rc = ecryptfs_write_metadata_to_contents(ecryptfs_inode, virt,
 							 virt_len);
 	if (rc) {
+#ifdef MY_ABC_HERE
+		if (-EDQUOT != rc && -EIO != rc && -ENOSPC != rc)
+#endif
 		printk(KERN_ERR "%s: Error writing metadata out to lower file; "
 		       "rc = [%d]\n", __func__, rc);
 		goto out_free;
@@ -1768,10 +1938,21 @@ struct kmem_cache *ecryptfs_key_tfm_cache;
 static struct list_head key_tfm_list;
 struct mutex key_tfm_list_mutex;
 
+#ifdef MY_ABC_HERE
+extern int (*fecryptfs_decode_and_decrypt_filename)(char **plaintext_name,
+                                        size_t *plaintext_name_size,
+                                        struct dentry *ecryptfs_dir_dentry,
+                                        const char *name, size_t name_size);
+#endif /* MY_ABC_HERE */
+
 int __init ecryptfs_init_crypto(void)
 {
 	mutex_init(&key_tfm_list_mutex);
 	INIT_LIST_HEAD(&key_tfm_list);
+#ifdef MY_ABC_HERE
+	fecryptfs_decode_and_decrypt_filename = &ecryptfs_decode_and_decrypt_filename;
+#endif /* MY_ABC_HERE */
+
 	return 0;
 }
 
@@ -1784,6 +1965,9 @@ int ecryptfs_destroy_crypto(void)
 {
 	struct ecryptfs_key_tfm *key_tfm, *key_tfm_tmp;
 
+#ifdef MY_ABC_HERE
+	fecryptfs_decode_and_decrypt_filename = NULL;
+#endif /* MY_ABC_HERE */
 	mutex_lock(&key_tfm_list_mutex);
 	list_for_each_entry_safe(key_tfm, key_tfm_tmp, &key_tfm_list,
 				 key_tfm_list) {
@@ -2196,6 +2380,15 @@ int ecryptfs_decode_and_decrypt_filename(char **plaintext_name,
 	size_t packet_size;
 	int rc = 0;
 
+#ifdef MY_ABC_HERE
+	if ((ecryptfs_dir_dentry->d_flags & DCACHE_ECRYPTFS_DECRYPT) &&
+		!(mount_crypt_stat->flags & ECRYPTFS_MOUNT_CRYPT_STAT_INITIALIZED)) {
+		printk(KERN_ERR "%s: path:%s is not ecryptfs root.\n", __func__,
+		       ecryptfs_dir_dentry->d_name.name);
+		rc = -EINVAL;
+		goto out;
+	}
+#endif /* MY_ABC_HERE */
 	if ((mount_crypt_stat->flags & ECRYPTFS_GLOBAL_ENCRYPT_FILENAMES)
 	    && !(mount_crypt_stat->flags & ECRYPTFS_ENCRYPTED_VIEW_ENABLED)
 	    && (name_size > ECRYPTFS_FNEK_ENCRYPTED_FILENAME_PREFIX_SIZE)

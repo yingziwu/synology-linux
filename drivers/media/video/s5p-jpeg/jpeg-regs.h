@@ -167,4 +167,3 @@
 #define S5P_JPG_HACTBLG(n)		(0x8c0 + (n) * 0x400)
 
 #endif /* JPEG_REGS_H_ */
-

@@ -62,7 +62,6 @@ static const struct {
 		[TILFMT_PAGE]  = GEOM(SLOT_WIDTH_BITS, SLOT_HEIGHT_BITS, 1),
 };
 
-
 /* lookup table for registers w/ per-engine instances */
 static const uint32_t reg[][4] = {
 		[PAT_STATUS] = {DMM_PAT_STATUS__0, DMM_PAT_STATUS__1,

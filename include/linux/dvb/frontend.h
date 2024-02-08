@@ -35,7 +35,6 @@ typedef enum fe_type {
 	FE_ATSC
 } fe_type_t;
 
-
 typedef enum fe_caps {
 	FE_IS_STUPID			= 0,
 	FE_CAN_INVERSION_AUTO		= 0x1,
@@ -69,7 +68,6 @@ typedef enum fe_caps {
 	FE_CAN_MUTE_TS			= 0x80000000  /* frontend can stop spurious TS data output */
 } fe_caps_t;
 
-
 struct dvb_frontend_info {
 	char       name[128];
 	fe_type_t  type;			/* DEPRECATED. Use DTV_ENUM_DELSYS instead */
@@ -84,7 +82,6 @@ struct dvb_frontend_info {
 	fe_caps_t  caps;
 };
 
-
 /**
  *  Check out the DiSEqC bus spec available on http://www.eutelsat.org/ for
  *  the meaning of this struct...
@@ -94,13 +91,11 @@ struct dvb_diseqc_master_cmd {
 	__u8 msg_len;	/*  valid values are 3...6  */
 };
 
-
 struct dvb_diseqc_slave_reply {
 	__u8 msg [4];	/*  { framing, data [3] } */
 	__u8 msg_len;	/*  valid values are 0...4, 0 means no msg  */
 	int  timeout;	/*  return from ioctl after timeout ms with */
 };			/*  errorcode when no message was received  */
-
 
 typedef enum fe_sec_voltage {
 	SEC_VOLTAGE_13,
@@ -108,18 +103,15 @@ typedef enum fe_sec_voltage {
 	SEC_VOLTAGE_OFF
 } fe_sec_voltage_t;
 
-
 typedef enum fe_sec_tone_mode {
 	SEC_TONE_ON,
 	SEC_TONE_OFF
 } fe_sec_tone_mode_t;
 
-
 typedef enum fe_sec_mini_cmd {
 	SEC_MINI_A,
 	SEC_MINI_B
 } fe_sec_mini_cmd_t;
-
 
 typedef enum fe_status {
 	FE_HAS_SIGNAL	= 0x01,   /* found something above the noise level */
@@ -138,7 +130,6 @@ typedef enum fe_spectral_inversion {
 	INVERSION_AUTO
 } fe_spectral_inversion_t;
 
-
 typedef enum fe_code_rate {
 	FEC_NONE = 0,
 	FEC_1_2,
@@ -153,7 +144,6 @@ typedef enum fe_code_rate {
 	FEC_3_5,
 	FEC_9_10,
 } fe_code_rate_t;
-
 
 typedef enum fe_modulation {
 	QPSK,
@@ -204,7 +194,6 @@ typedef enum fe_guard_interval {
 	GUARD_INTERVAL_19_256,
 } fe_guard_interval_t;
 
-
 typedef enum fe_hierarchy {
 	HIERARCHY_NONE,
 	HIERARCHY_1,
@@ -212,7 +201,6 @@ typedef enum fe_hierarchy {
 	HIERARCHY_4,
 	HIERARCHY_AUTO
 } fe_hierarchy_t;
-
 
 #if defined(__DVB_CORE__) || !defined (__KERNEL__)
 struct dvb_qpsk_parameters {
@@ -239,7 +227,6 @@ struct dvb_ofdm_parameters {
 	fe_guard_interval_t guard_interval;
 	fe_hierarchy_t      hierarchy_information;
 };
-
 
 struct dvb_frontend_parameters {
 	__u32 frequency;     /* (absolute) frequency in Hz for QAM/OFDM/ATSC */
@@ -357,9 +344,7 @@ typedef enum fe_delivery_system {
 	SYS_DVBC_ANNEX_C,
 } fe_delivery_system_t;
 
-
 #define SYS_DVBC_ANNEX_AC	SYS_DVBC_ANNEX_A
-
 
 struct dtv_cmds_h {
 	char	*name;		/* A display name for debugging purposes */
@@ -398,7 +383,6 @@ struct dtv_properties {
 #define FE_SET_PROPERTY		   _IOW('o', 82, struct dtv_properties)
 #define FE_GET_PROPERTY		   _IOR('o', 83, struct dtv_properties)
 
-
 /**
  * When set, this flag will disable any zigzagging or other "normal" tuning
  * behaviour. Additionally, there will be no automatic monitoring of the lock
@@ -407,7 +391,6 @@ struct dtv_properties {
  * reopened read-write.
  */
 #define FE_TUNE_MODE_ONESHOT 0x01
-
 
 #define FE_GET_INFO		   _IOR('o', 61, struct dvb_frontend_info)
 

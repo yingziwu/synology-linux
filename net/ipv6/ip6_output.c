@@ -1122,6 +1122,9 @@ static inline int ip6_ufo_append_data(struct sock *sk,
 	 * udp datagram
 	 */
 	if ((skb = skb_peek_tail(&sk->sk_write_queue)) == NULL) {
+#ifdef CONFIG_HI3535_SDK_2050
+		struct frag_hdr fhdr;
+#endif /* CONFIG_HI3535_SDK_2050 */
 		skb = sock_alloc_send_skb(sk,
 			hh_len + fragheaderlen + transhdrlen + 20,
 			(flags & MSG_DONTWAIT), &err);
@@ -1142,12 +1145,16 @@ static inline int ip6_ufo_append_data(struct sock *sk,
 
 		skb->ip_summed = CHECKSUM_PARTIAL;
 		skb->csum = 0;
+
+#ifdef CONFIG_HI3535_SDK_2050
+#else
 	}
 
 	err = skb_append_datato_frags(sk,skb, getfrag, from,
 				      (length - transhdrlen));
 	if (!err) {
 		struct frag_hdr fhdr;
+#endif /* CONFIG_HI3535_SDK_2050 */
 
 		/* Specify the length of each IPv6 datagram fragment.
 		 * It has to be a multiple of 8.
@@ -1159,14 +1166,23 @@ static inline int ip6_ufo_append_data(struct sock *sk,
 		skb_shinfo(skb)->ip6_frag_id = fhdr.identification;
 		__skb_queue_tail(&sk->sk_write_queue, skb);
 
+#ifdef CONFIG_HI3535_SDK_2050
+#else
 		return 0;
+#endif /* CONFIG_HI3535_SDK_2050 */
 	}
+
+#ifdef CONFIG_HI3535_SDK_2050
+	return skb_append_datato_frags(sk, skb, getfrag, from,
+				       (length - transhdrlen));
+#else /* CONFIG_HI3535_SDK_2050 */
 	/* There is not enough support do UPD LSO,
 	 * so follow normal path
 	 */
-	kfree_skb(skb);
+	kfree_skb(skb); 
 
 	return err;
+#endif  /* CONFIG_HI3535_SDK_2050 */
 }
 
 static inline struct ipv6_opt_hdr *ip6_opt_dup(struct ipv6_opt_hdr *src,
@@ -1337,6 +1353,30 @@ int ip6_append_data(struct sock *sk, int getfrag(void *from, char *to,
 	 * --yoshfuji
 	 */
 
+#ifdef CONFIG_HI3535_SDK_2050
+	if ((length > mtu) && dontfrag && (sk->sk_protocol == IPPROTO_UDP ||
+					   sk->sk_protocol == IPPROTO_RAW)) {
+		ipv6_local_rxpmtu(sk, fl6, mtu-exthdrlen);
+		return -EMSGSIZE;
+	}
+
+	skb = skb_peek_tail(&sk->sk_write_queue);
+	cork->length += length;
+	if (((length > mtu) ||
+	     (skb && skb_has_frags(skb))) &&
+	    (sk->sk_protocol == IPPROTO_UDP) &&
+	    (rt->dst.dev->features & NETIF_F_UFO)) {
+		err = ip6_ufo_append_data(sk, getfrag, from, length,
+					  hh_len, fragheaderlen,
+					  transhdrlen, mtu, flags, rt);
+		if (err)
+			goto error;
+		return 0;
+	}
+
+	if (!skb)
+		goto alloc_new_skb;
+#else /* CONFIG_HI3535_SDK_2050 */
 	cork->length += length;
 	if (length > mtu) {
 		int proto = sk->sk_protocol;
@@ -1359,6 +1399,7 @@ int ip6_append_data(struct sock *sk, int getfrag(void *from, char *to,
 
 	if ((skb = skb_peek_tail(&sk->sk_write_queue)) == NULL)
 		goto alloc_new_skb;
+#endif /* CONFIG_HI3535_SDK_2050 */
 
 	while (length > 0) {
 		/* Check if the remaining data fits into current packet. */

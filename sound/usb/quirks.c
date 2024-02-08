@@ -71,7 +71,6 @@ static int ignore_interface_quirk(struct snd_usb_audio *chip,
 	return 0;
 }
 
-
 /*
  * Allow alignment on audio sub-slot (channel samples) rather than
  * on audio slots (audio frames)
@@ -575,7 +574,6 @@ static int audiophile_skip_setting_quirk(struct snd_usb_audio *chip,
 	return 0; /* keep this altsetting */
 }
 
-
 static int fasttrackpro_skip_setting_quirk(struct snd_usb_audio *chip,
 					   int iface, int altno)
 {
@@ -762,4 +760,3 @@ void snd_usb_set_format_quirk(struct snd_usb_substream *subs,
 		break;
 	}
 }
-

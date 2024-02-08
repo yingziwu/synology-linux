@@ -3117,7 +3117,6 @@ err:
 	return retval;
 };
 
-
 static int bind_con_driver(const struct consw *csw, int first, int last,
 			   int deflt)
 {
@@ -4164,7 +4163,6 @@ static int con_font_default(struct vc_data *vc, struct console_font_op *op)
 	char *s = name;
 	int rc;
 
-
 	if (!op->data)
 		s = NULL;
 	else if (strncpy_from_user(name, op->data, MAX_FONT_NAME - 1) < 0)
@@ -4193,7 +4191,6 @@ static int con_font_copy(struct vc_data *vc, struct console_font_op *op)
 {
 	int con = op->height;
 	int rc;
-
 
 	console_lock();
 	if (vc->vc_mode != KD_TEXT)

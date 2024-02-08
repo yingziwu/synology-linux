@@ -71,6 +71,8 @@ obj-$(CONFIG_REED_SOLOMON) += reed_solomon/
 obj-$(CONFIG_BCH) += bch.o
 obj-$(CONFIG_LZO_COMPRESS) += lzo/
 obj-$(CONFIG_LZO_DECOMPRESS) += lzo/
+obj-$(CONFIG_LZMA_COMPRESS) += lzma/
+obj-$(CONFIG_LZMA_DECOMPRESS) += lzma/
 obj-$(CONFIG_XZ_DEC) += xz/
 obj-$(CONFIG_RAID6_PQ) += raid6/
 
@@ -122,6 +124,8 @@ obj-$(CONFIG_MPILIB) += mpi/
 obj-$(CONFIG_SIGNATURE) += digsig.o
 
 obj-$(CONFIG_CLZ_TAB) += clz_tab.o
+
+obj-$(CONFIG_SYNO_PLUGIN_INTERFACE) += synolib/
 
 hostprogs-y	:= gen_crc32table
 clean-files	:= crc32table.h

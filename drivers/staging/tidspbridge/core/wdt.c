@@ -24,7 +24,6 @@
 #include <dspbridge/wdt.h>
 #include <dspbridge/host_os.h>
 
-
 #define OMAP34XX_WDT3_BASE 		(L4_PER_34XX_BASE + 0x30000)
 
 static struct dsp_wdt_setting dsp_wdt;
@@ -87,7 +86,6 @@ void dsp_wdt_sm_set(void *data)
 	dsp_wdt.sm_wdt = data;
 	dsp_wdt.sm_wdt->wdt_overflow = 5;	/* in seconds */
 }
-
 
 void dsp_wdt_exit(void)
 {

@@ -93,7 +93,6 @@ KVM_HANDLER BOOKE_INTERRUPT_SPE_FP_ROUND
 _GLOBAL(kvmppc_handler_len)
 	.long kvmppc_handler_1 - kvmppc_handler_0
 
-
 /* Registers:
  *  SPRG_SCRATCH0: guest r4
  *  r4: vcpu pointer
@@ -303,7 +302,6 @@ heavyweight_exit:
 	mtcr	r5
 	/* r3 still contains the return code from kvmppc_handle_exit(). */
 	blr
-
 
 /* Registers:
  *  r3: kvm_run pointer

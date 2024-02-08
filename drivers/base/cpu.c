@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * CPU subsystem support
  */
@@ -15,6 +18,10 @@
 #include <linux/percpu.h>
 
 #include "base.h"
+
+#if defined(SYNO_LIMIT_CPU_CORES) && defined(MY_ABC_HERE)
+#include <linux/synobios.h>
+#endif
 
 struct bus_type cpu_subsys = {
 	.name = "cpu",

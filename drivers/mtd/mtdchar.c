@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org>
  *
@@ -37,6 +40,10 @@
 #include <linux/mtd/map.h>
 
 #include <asm/uaccess.h>
+#ifdef MY_ABC_HERE
+#include <linux/syscalls.h>
+#include <linux/semaphore.h>
+#endif /* MY_ABC_HERE */
 
 static DEFINE_MUTEX(mtd_mutex);
 
@@ -277,19 +284,97 @@ static ssize_t mtdchar_read(struct file *file, char __user *buf, size_t count,
 	return total_retlen;
 } /* mtdchar_read */
 
+#ifdef MY_ABC_HERE
+static int syno_write_buf_size = 0x1000;
+
+char *kbuf;
+int write_kbuf_len;
+struct semaphore write_kbuf_sem;
+
+/**
+ * This function accuire or release buffer for mtd driver to write flash.
+ * The updater should call SYNOMTDAlloc() before doing system upgrade,
+ * and this buffer should not be released before upgrade finished.
+ * Otherwise, if the buffer is malloc-ed and released within a dd write,
+ * the kernel may malloc failed somehow.
+ *
+ * @author cnliu
+ * @param blMalloc
+ *     A boolean variable to indicate malloc or release.
+ *     true: To malloc buffer for mtd driver to write before doing mtd_write().
+ *     false: After mtd_write(), we need to free buffer for mtd driver.
+ *
+ * @return
+ *     Upon successful malloc, SYNOMTDAlloc() return 0.
+ *     Otherwise return -ENOMEM.
+ *
+ * @example
+ *     if (SYNOMTDAlloc(true) == 0) {
+ *         system("dd if=zImage of=/dev/mtd1 bs=128k");
+ *         SYNOMTDAlloc(false);
+ *     }
+ *
+ * @see init_mtdchar
+ * @see mtd_write
+ * @see write_kbuf_sem
+ * @see lnxsdk/main/updater.c
+ */
+SYSCALL_DEFINE1(SYNOMTDAlloc, bool, blMalloc)
+{
+	int retval = 0;
+
+	down(&write_kbuf_sem);
+	if (blMalloc) {
+		if (write_kbuf_len)
+			goto End;
+
+		write_kbuf_len = syno_write_buf_size;
+		kbuf = kmalloc(write_kbuf_len, GFP_KERNEL);
+		if (!kbuf) {
+			printk(KERN_NOTICE "%s:%d(%s) malloc fail write_kbuf_len=[%d], kbuf=[%p]\n", __FILE__, __LINE__, __func__, write_kbuf_len, kbuf);
+			write_kbuf_len = 0x0;
+			retval = -ENOMEM;
+		}
+	} else {
+		if (!write_kbuf_len)
+			goto End;
+		write_kbuf_len = 0x0;
+		kfree(kbuf);
+		kbuf = NULL;
+	}
+End:
+	up(&write_kbuf_sem);
+	return retval;
+} /* sys_SYNOMTDAlloc() */
+#endif /* MY_ABC_HERE */
+
 static ssize_t mtdchar_write(struct file *file, const char __user *buf, size_t count,
 			loff_t *ppos)
 {
 	struct mtd_file_info *mfi = file->private_data;
 	struct mtd_info *mtd = mfi->mtd;
+#ifdef MY_ABC_HERE
+	// do nothing
+#else /* MY_ABC_HERE */
 	size_t size = count;
 	char *kbuf;
+#endif /* MY_ABC_HERE */
 	size_t retlen;
 	size_t total_retlen=0;
 	int ret=0;
 	int len;
 
 	pr_debug("MTD_write\n");
+#ifdef MY_ABC_HERE
+	if (syno_write_buf_size < mtd->writesize) {
+		printk(KERN_ERR "mtd kmalloc size small than mtd driver minimal write size !!\n");
+		WARN_ON(1);
+		syno_write_buf_size = mtd->writesize;
+		if (write_kbuf_len)
+			sys_SYNOMTDAlloc(false);
+		printk(KERN_ERR "mtd kmalloc size replace with mtd driver minimal write size !!\n");
+	}
+#endif /* MY_ABC_HERE */
 
 	if (*ppos == mtd->size)
 		return -ENOSPC;
@@ -300,15 +385,35 @@ static ssize_t mtdchar_write(struct file *file, const char __user *buf, size_t c
 	if (!count)
 		return 0;
 
+#ifdef MY_ABC_HERE
+	if (!write_kbuf_len) {
+		ret = sys_SYNOMTDAlloc(true);
+		if (ret != 0)
+			return ret;
+	}
+	down(&write_kbuf_sem);
+#else /* MY_ABC_HERE */
 	kbuf = mtd_kmalloc_up_to(mtd, &size);
 	if (!kbuf)
 		return -ENOMEM;
+#endif /* MY_ABC_HERE */
 
 	while (count) {
+#ifdef MY_ABC_HERE
+		if (count > syno_write_buf_size)
+			len = syno_write_buf_size;
+		else
+			len = count;
+#else /* MY_ABC_HERE */
 		len = min_t(size_t, count, size);
+#endif /* MY_ABC_HERE */
 
 		if (copy_from_user(kbuf, buf, len)) {
+#ifdef MY_ABC_HERE
+			up(&write_kbuf_sem);
+#else /* MY_ABC_HERE */
 			kfree(kbuf);
+#endif /* MY_ABC_HERE */
 			return -EFAULT;
 		}
 
@@ -346,12 +451,20 @@ static ssize_t mtdchar_write(struct file *file, const char __user *buf, size_t c
 			buf += retlen;
 		}
 		else {
+#ifdef MY_ABC_HERE
+			up(&write_kbuf_sem);
+#else /* MY_ABC_HERE */
 			kfree(kbuf);
+#endif /* MY_ABC_HERE */
 			return ret;
 		}
 	}
 
+#ifdef MY_ABC_HERE
+	up(&write_kbuf_sem);
+#else /* MY_ABC_HERE */
 	kfree(kbuf);
+#endif /* MY_ABC_HERE */
 	return total_retlen;
 } /* mtdchar_write */
 
@@ -946,6 +1059,44 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 	}
 #endif
 
+#ifdef MY_ABC_HERE
+	case MEMMODIFYPARTINFO:
+	{
+		unsigned long adrs[2];
+
+		if (copy_from_user(adrs, (void *)arg, 2* sizeof(unsigned long)))
+			return -EFAULT;
+
+		ret = SYNOMTDModifyPartInfo(mtd, adrs[0], adrs[1]); /* adrs[0] is offset, adrs[1] is the length */
+
+		break;
+	}
+
+	case MEMMODIFYFISINFO:
+	{
+#ifdef CONFIG_MTD_REDBOOT_PARTS
+		struct SYNO_MTD_FIS_INFO SynoMtdFisInfo;
+
+		if (strcmp(mtd->name, "FIS directory")) { // cannot apply on other flash partitions
+			return -EOPNOTSUPP;
+		}
+
+		if (copy_from_user(&SynoMtdFisInfo, (struct SYNO_MTD_FIS_INFO *)arg, sizeof(struct SYNO_MTD_FIS_INFO))) {
+			return -EFAULT;
+		}
+
+		if (!SynoMtdFisInfo.name[0]) { // sanity check
+			return -EFAULT;
+		}
+
+		ret = SYNOMTDModifyFisInfo(mtd, SynoMtdFisInfo);
+#else
+		ret = -EOPNOTSUPP;
+#endif
+		break;
+	}
+#endif /* MY_ABC_HERE */
+
 	/* This ioctl is being deprecated - it truncates the ECC layout */
 	case ECCGETLAYOUT:
 	{
@@ -1009,6 +1160,142 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 	{
 		/* No reread partition feature. Just return ok */
 		ret = 0;
+		break;
+	}
+
+	case MEMEWRITEPAGE:
+	{
+		struct mtd_epage_buf buf;
+		struct mtd_epage_buf *buf_user = argp;
+		struct mtd_oob_ops ops;
+
+		if (mtd->type != MTD_NANDFLASH)
+			return -EOPNOTSUPP;
+
+		if (copy_from_user(&buf, argp, sizeof(buf)))
+			return -EFAULT;
+
+		if (buf.oob_len > mtd->oobsize || buf.data_len > mtd->writesize)
+			return -EINVAL;
+
+		if (!mtd->_write_oob)
+			return -EOPNOTSUPP;
+
+		ops.len = mtd->writesize;
+		ops.ooblen = buf.oob_len;
+		ops.ooboffs = buf.start & (mtd->oobsize - 1);
+		ops.mode = MTD_OPS_PLACE_OOB;
+
+		if (ops.ooboffs && ops.ooblen > (mtd->oobsize - ops.ooboffs))
+			return -EINVAL;
+
+		/* alloc memory and copy oob data from user mode
+		 * to kernel mode
+		 */
+		ops.oobbuf = kmalloc(buf.oob_len, GFP_KERNEL);
+		if (!ops.oobbuf)
+			return -ENOMEM;
+
+		if (copy_from_user(ops.oobbuf, buf.oob_ptr, buf.oob_len)) {
+			kfree(ops.oobbuf);
+			return -EFAULT;
+		}
+
+		/* alloc memory and copy page data from user mode
+		 * to kernel mode
+		 */
+		ops.datbuf = kmalloc(mtd->writesize, GFP_KERNEL);
+		if (!ops.datbuf) {
+			kfree(ops.oobbuf);
+			return -ENOMEM;
+		}
+		if (copy_from_user(ops.datbuf, buf.data_ptr, mtd->writesize)) {
+			kfree(ops.oobbuf);
+			kfree(ops.datbuf);
+			return -EFAULT;
+		}
+
+		buf.start &= ~(mtd->oobsize - 1);
+		ret = mtd->_write_oob(mtd, buf.start, &ops);
+
+		kfree(ops.oobbuf);
+		kfree(ops.datbuf);
+
+		if (ret)
+			return ret;
+
+		if (copy_to_user(&buf_user->oob_len, &ops.oobretlen,
+				sizeof(buf_user->oob_len)))
+			return -EFAULT;
+
+		if (copy_to_user(&buf_user->data_len, &ops.retlen,
+				sizeof(buf_user->data_len)))
+			return  -EFAULT;
+
+		break;
+	}
+	case MEMEREADPAGE:
+	{
+		struct mtd_epage_buf buf;
+		struct mtd_epage_buf *buf_user = argp;
+		struct mtd_oob_ops ops;
+
+		if (mtd->type != MTD_NANDFLASH)
+			return -EOPNOTSUPP;
+
+		if (copy_from_user(&buf, argp, sizeof(buf)))
+			return -EFAULT;
+
+		if (buf.oob_len > mtd->oobsize || buf.data_len > mtd->writesize)
+			return -EINVAL;
+
+		if (!mtd->_read_oob)
+			return -EOPNOTSUPP;
+
+		ops.len = mtd->writesize;
+		ops.ooblen = buf.oob_len;
+		ops.mode = MTD_OPS_PLACE_OOB;
+		ops.ooboffs = buf.start & (mtd->oobsize - 1);
+
+		if (ops.ooboffs && ops.ooblen > (mtd->oobsize - ops.ooboffs))
+			return -EINVAL;
+
+		/* alloc memory and copy oob data from user mode
+		 * to kernel mode
+		 */
+		ops.oobbuf = kmalloc(mtd->oobsize, GFP_KERNEL);
+		if (!ops.oobbuf)
+			return -ENOMEM;
+		/* alloc memory and copy page data from user mode
+		 * to kernel mode
+		 */
+		ops.datbuf = kmalloc(mtd->writesize, GFP_KERNEL);
+		if (!ops.datbuf) {
+			kfree(ops.oobbuf);
+			return -ENOMEM;
+		}
+		buf.start &= ~(mtd->oobsize - 1);
+		ret = mtd->_read_oob(mtd, buf.start, &ops);
+
+		if (ret) {
+			kfree(ops.oobbuf);
+			kfree(ops.datbuf);
+			return ret;
+		}
+
+		if (copy_to_user(buf_user->oob_ptr, ops.oobbuf, ops.oobretlen)
+		    || copy_to_user(buf_user->data_ptr, ops.datbuf, ops.retlen)
+		    || copy_to_user(&buf_user->oob_len, &ops.oobretlen,
+					sizeof(buf_user->oob_len))
+		    || copy_to_user(&buf_user->data_len, &ops.retlen,
+			    sizeof(buf_user->data_len))) {
+			kfree(ops.oobbuf);
+			kfree(ops.datbuf);
+			return -EFAULT;
+		}
+
+		kfree(ops.oobbuf);
+		kfree(ops.datbuf);
 		break;
 	}
 
@@ -1216,6 +1503,11 @@ static int __init init_mtdchar(void)
 		pr_notice("Can't register mtd_inodefs filesystem: %d\n", ret);
 		goto err_unregister_chdev;
 	}
+
+#ifdef MY_ABC_HERE
+	/* Allocate buffer and init spinlock */
+	sema_init(&write_kbuf_sem, 1);
+#endif /* MY_ABC_HERE */
 	return ret;
 
 err_unregister_chdev:

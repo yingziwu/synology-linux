@@ -163,7 +163,6 @@ struct nfc_llcp_sock {
 #define LLCP_DM_NOBOUND 0x02
 #define LLCP_DM_REJ     0x03
 
-
 struct nfc_llcp_local *nfc_llcp_find_local(struct nfc_dev *dev);
 u8 nfc_llcp_get_sdp_ssap(struct nfc_llcp_local *local,
 			 struct nfc_llcp_sock *sock);

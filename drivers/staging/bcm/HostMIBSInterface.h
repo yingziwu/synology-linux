@@ -1,5 +1,4 @@
 
-
 #ifndef _HOST_MIBSINTERFACE_H
 #define _HOST_MIBSINTERFACE_H
 
@@ -52,7 +51,6 @@ typedef union _U_MIBS_IP_ADDRESS
 		UCHAR		ucIpv6Mask[MIBS_MAX_IP_RANGE_LENGTH * MIBS_IPV6_ADDRESS_SIZEINBYTES];
 	};
 }U_MIBS_IP_ADDRESS;
-
 
 typedef struct _S_MIBS_HOST_INFO
 {
@@ -114,7 +112,6 @@ typedef struct _S_MIBS_CLASSIFIER_RULE
 	UINT32              u32PHSRuleID;
 }S_MIBS_CLASSIFIER_RULE;
 
-
 typedef struct _S_MIBS_PHS_RULE
 {
 	ULONG		ulSFID;
@@ -163,7 +160,6 @@ typedef struct _S_MIBS_EXTSERVICEFLOW_PARAMETERS
 	UINT32 		wmanIfCmnCpsTargetSaid;
 
 }S_MIBS_EXTSERVICEFLOW_PARAMETERS;
-
 
 typedef struct _S_MIBS_SERVICEFLOW_TABLE
 {
@@ -226,5 +222,3 @@ typedef struct _S_MIBS_HOST_STATS_MIBS
 	S_MIBS_DROPPED_APP_CNTRL_MESSAGES	stDroppedAppCntrlMsgs;
 }S_MIBS_HOST_STATS_MIBS;
 #endif
-
-

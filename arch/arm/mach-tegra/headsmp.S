@@ -64,7 +64,6 @@ ENTRY(v7_invalidate_l1)
         mov     pc, lr
 ENDPROC(v7_invalidate_l1)
 
-
 ENTRY(tegra_secondary_startup)
         bl      v7_invalidate_l1
 	/* Enable coresight */

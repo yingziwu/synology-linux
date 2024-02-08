@@ -61,13 +61,24 @@ void percpu_counter_set(struct percpu_counter *fbc, s64 amount)
 {
 	int cpu;
 
+#ifdef CONFIG_HI3535_SDK_2050
+	unsigned long flags;
+
+	raw_spin_lock_irqsave(&fbc->lock, flags);
+#else
 	raw_spin_lock(&fbc->lock);
+#endif /* CONFIG_HI3535_SDK_2050 */
 	for_each_possible_cpu(cpu) {
 		s32 *pcount = per_cpu_ptr(fbc->counters, cpu);
 		*pcount = 0;
 	}
 	fbc->count = amount;
+
+#ifdef CONFIG_HI3535_SDK_2050
+	raw_spin_unlock_irqrestore(&fbc->lock, flags);
+#else
 	raw_spin_unlock(&fbc->lock);
+#endif /* CONFIG_HI3535_SDK_2050 */
 }
 EXPORT_SYMBOL(percpu_counter_set);
 
@@ -78,10 +89,20 @@ void __percpu_counter_add(struct percpu_counter *fbc, s64 amount, s32 batch)
 	preempt_disable();
 	count = __this_cpu_read(*fbc->counters) + amount;
 	if (count >= batch || count <= -batch) {
+#ifdef CONFIG_HI3535_SDK_2050
+		unsigned long flags;
+		raw_spin_lock_irqsave(&fbc->lock, flags);
+#else
 		raw_spin_lock(&fbc->lock);
+#endif
 		fbc->count += count;
 		__this_cpu_write(*fbc->counters, 0);
+
+#ifdef CONFIG_HI3535_SDK_2050
+		raw_spin_unlock_irqrestore(&fbc->lock, flags);
+#else
 		raw_spin_unlock(&fbc->lock);
+#endif /* CONFIG_HI3535_SDK_2050 */
 	} else {
 		__this_cpu_write(*fbc->counters, count);
 	}
@@ -97,14 +118,23 @@ s64 __percpu_counter_sum(struct percpu_counter *fbc)
 {
 	s64 ret;
 	int cpu;
+#ifdef CONFIG_HI3535_SDK_2050
+	unsigned long flags;
 
+	raw_spin_lock_irqsave(&fbc->lock, flags);
+#else
 	raw_spin_lock(&fbc->lock);
+#endif /* CONFIG_HI3535_SDK_2050 */
 	ret = fbc->count;
 	for_each_online_cpu(cpu) {
 		s32 *pcount = per_cpu_ptr(fbc->counters, cpu);
 		ret += *pcount;
 	}
+#ifdef CONFIG_HI3535_SDK_2050
+	raw_spin_unlock_irqrestore(&fbc->lock, flags);
+#else
 	raw_spin_unlock(&fbc->lock);
+#endif /* CONFIG_HI3535_SDK_2050 */
 	return ret;
 }
 EXPORT_SYMBOL(__percpu_counter_sum);

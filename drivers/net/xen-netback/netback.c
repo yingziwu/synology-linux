@@ -660,7 +660,6 @@ static void xen_netbk_rx_action(struct xen_netbk *netbk)
 			sco->meta_slots_used--;
 		}
 
-
 		vif->dev->stats.tx_bytes += skb->len;
 		vif->dev->stats.tx_packets++;
 

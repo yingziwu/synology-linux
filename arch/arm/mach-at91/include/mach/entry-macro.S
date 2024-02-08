@@ -24,4 +24,3 @@
 	teq	\irqstat, #0				@ ISR is 0 when no current interrupt, or spurious interrupt
 	streq	\tmp, [\base, #AT91_AIC_EOICR]		@ not going to be handled further, then ACK it now.
 	.endm
-

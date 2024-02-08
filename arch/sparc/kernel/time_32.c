@@ -183,7 +183,6 @@ static struct platform_driver clock_driver = {
 	},
 };
 
-
 /* Probe for the mostek real time clock chip. */
 static int __init clock_init(void)
 {
@@ -194,7 +193,6 @@ static int __init clock_init(void)
  * need to see the clock registers.
  */
 fs_initcall(clock_init);
-
 
 u32 sbus_do_gettimeoffset(void)
 {
@@ -207,7 +205,6 @@ u32 sbus_do_gettimeoffset(void)
 
 	return usec * 1000;
 }
-
 
 u32 arch_gettimeoffset(void)
 {
@@ -232,7 +229,6 @@ void __init time_init(void)
 	else
 		sbus_time_init();
 }
-
 
 static int set_rtc_mmss(unsigned long secs)
 {

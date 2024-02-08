@@ -149,7 +149,6 @@ enum pxa910_mux {
 	PXA910_MUX_NONE = 0xffff,
 };
 
-
 static struct pinctrl_pin_desc pxa910_pads[] = {
 	PINCTRL_PIN(GPIO0, "GPIO0"),
 	PINCTRL_PIN(GPIO1, "GPIO1"),
@@ -495,7 +494,6 @@ struct pxa3xx_mfp_pin pxa910_mfp[] = {
 	MFPR_910(MMC1_CD,   0x0AC, MMC1,     GPIO,   SEC1_JTAG, NONE,      NONE,      NONE,     NONE,     NONE),
 	MFPR_910(VCXO_OUT,  0x0D8, VCXO_OUT, PWM3,   NONE,      NONE,      NONE,      NONE,     NONE,     NONE),
 };
-
 
 static const unsigned p910_usim2_pin1[] = {GPIO67, GPIO68, GPIO69};
 static const unsigned p910_usim2_pin2[] = {ND_IO15, ND_IO14, ND_IO13};

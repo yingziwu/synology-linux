@@ -46,7 +46,6 @@
 #define CONTROLLER_FROM_HANDLE(handle)    (((handle) >> 4) & 0x0f)
 #define CHANNEL_FROM_HANDLE(handle)       ((handle) & 0x0f)
 
-
 /* ---- Private Variables ------------------------------------------------ */
 
 static DMA_Global_t gDMA;

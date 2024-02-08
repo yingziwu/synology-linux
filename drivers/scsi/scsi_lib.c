@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  scsi_lib.c Copyright (C) 1999 Eric Youngdale
  *
@@ -32,7 +35,6 @@
 #include "scsi_priv.h"
 #include "scsi_logging.h"
 
-
 #define SG_MEMPOOL_NR		ARRAY_SIZE(scsi_sg_pools)
 #define SG_MEMPOOL_SIZE		2
 
@@ -66,6 +68,10 @@ static struct scsi_host_sg_pool scsi_sg_pools[] = {
 };
 #undef SP
 
+#ifdef MY_ABC_HERE
+SDBADSECTORS  grgSdBadSectors[SYNO_MAX_INTERNAL_DISK];
+int     gBadSectorTest = 0;
+#endif
 struct kmem_cache *scsi_sdb_cache;
 
 /*
@@ -254,7 +260,6 @@ int scsi_execute(struct scsi_device *sdev, const unsigned char *cmd,
 	return ret;
 }
 EXPORT_SYMBOL(scsi_execute);
-
 
 int scsi_execute_req(struct scsi_device *sdev, const unsigned char *cmd,
 		     int data_direction, void *buffer, unsigned bufflen,
@@ -1022,6 +1027,56 @@ int scsi_init_io(struct scsi_cmnd *cmd, gfp_t gfp_mask)
 	if (error)
 		goto err_exit;
 
+#ifdef MY_ABC_HERE
+	if (gBadSectorTest > 0) {
+		sector_t    badSector, curSector;
+		int i;
+		struct gendisk	*disk = cmd->request->rq_disk;
+		char *diskname = NULL;
+		int max_support_disk = sizeof(grgSdBadSectors)/sizeof(SDBADSECTORS);
+
+		if (disk) {
+			diskname = disk->disk_name;
+			i = SynoGetInternalDiskSeq(diskname);
+			curSector = blk_rq_pos(cmd->request);
+			if (i < max_support_disk && grgSdBadSectors[i].uiEnable) {
+				int j;
+				for (j = 0; j < 100; j++) {
+					badSector = grgSdBadSectors[i].rgSectors[j];
+					if (curSector <= badSector && (curSector + blk_rq_sectors(cmd->request)) >= badSector) {
+						if (grgSdBadSectors[i].rgEnableSector[j] & EN_BAD_SECTOR_READ) {
+							if (rq_data_dir(cmd->request) == READ) {
+								printk("%s[%d]:%s [%s], found badsector at %llu of %s curSector %llu\n",
+									   __FILE__, __LINE__, __FUNCTION__,
+									   "read",
+									   (unsigned long long)badSector, 
+									   diskname, 
+									   (unsigned long long)curSector);
+								return BLKPREP_KILL;
+							} else {
+								grgSdBadSectors[i].rgEnableSector[j] &= ~EN_BAD_SECTOR_READ;
+							}
+						}
+						if (grgSdBadSectors[i].rgEnableSector[j] & EN_BAD_SECTOR_WRITE) {
+							if (rq_data_dir(cmd->request) == WRITE) {
+								printk("%s[%d]:%s [%s], found badsector at %llu of %s curSector %llu\n",
+									   __FILE__, __LINE__, __FUNCTION__,
+									   "write",
+									   (unsigned long long)badSector, 
+									   diskname, 
+									   (unsigned long long)curSector);
+								return BLKPREP_KILL;
+							}
+						}
+					} else if (badSector == 0xFFFFFFFF) {
+						break;
+					}
+				}
+			}
+		}
+	}
+#endif
+
 	if (blk_bidi_rq(rq)) {
 		struct scsi_data_buffer *bidi_sdb = kmem_cache_zalloc(
 			scsi_sdb_cache, GFP_ATOMIC);
@@ -1188,8 +1243,14 @@ int scsi_prep_state_check(struct scsi_device *sdev, struct request *req)
 			 * commands.  The device must be brought online
 			 * before trying any recovery commands.
 			 */
+#ifdef MY_ABC_HERE
+			if (printk_ratelimit()) {
+#endif
 			sdev_printk(KERN_ERR, sdev,
 				    "rejecting I/O to offline device\n");
+#ifdef MY_ABC_HERE
+			}
+#endif
 			ret = BLKPREP_KILL;
 			break;
 		case SDEV_DEL:
@@ -1295,7 +1356,6 @@ static inline int scsi_dev_queue_ready(struct request_queue *q,
 
 	return 1;
 }
-
 
 /*
  * scsi_target_queue_ready: checks if there we can send commands to target
@@ -1521,12 +1581,17 @@ static void scsi_request_fn(struct request_queue *q)
 			break;
 
 		if (unlikely(!scsi_device_online(sdev))) {
+#ifdef MY_ABC_HERE
+			if (printk_ratelimit()) {
+#endif
 			sdev_printk(KERN_ERR, sdev,
 				    "rejecting I/O to offline device\n");
+#ifdef MY_ABC_HERE
+			}
+#endif
 			scsi_kill_request(req, q);
 			continue;
 		}
-
 
 		/*
 		 * Remove the request from the request list.
@@ -1876,7 +1941,6 @@ scsi_mode_select(struct scsi_device *sdev, int pf, int sp, int modepage,
 		real_buffer[2] = data->device_specific;
 		real_buffer[3] = data->block_descriptor_length;
 		
-
 		cmd[0] = MODE_SELECT;
 		cmd[4] = len;
 	}

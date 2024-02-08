@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext3/inode.c
  *
@@ -865,7 +868,6 @@ int ext3_get_blocks_handle(handle_t *handle, struct inode *inode,
 	int count = 0;
 	ext3_fsblk_t first_block = 0;
 
-
 	trace_ext3_get_blocks_enter(inode, iblock, maxblocks, create);
 	J_ASSERT(handle != NULL || create == 0);
 	depth = ext3_block_to_path(inode,iblock,offsets,&blocks_to_boundary);
@@ -1253,9 +1255,21 @@ static int ext3_write_begin(struct file *file, struct address_space *mapping,
 	struct page *page;
 	pgoff_t index;
 	unsigned from, to;
+#ifdef MY_ABC_HERE
+	// Add for mark_inode_dirty.
+	int needed_blocks;
+
+	if (flags & AOP_FLAG_RECVFILE) {
+		needed_blocks = ext3_writepage_trans_blocks(inode) + MAX_PAGES_PER_RECVFILE;
+	} else {
+		needed_blocks = ext3_writepage_trans_blocks(inode) + 1;
+	}
+#endif
+#ifndef MY_ABC_HERE
 	/* Reserve one block more for addition to orphan list in case
 	 * we allocate blocks but write fails for some reason */
 	int needed_blocks = ext3_writepage_trans_blocks(inode) + 1;
+#endif
 
 	trace_ext3_write_begin(inode, pos, len, flags);
 
@@ -1295,8 +1309,10 @@ write_begin_failed:
 		 * finishes. Do this only if ext3_can_truncate() agrees so
 		 * that orphan processing code is happy.
 		 */
+#ifndef MY_ABC_HERE
 		if (pos + len > inode->i_size && ext3_can_truncate(inode))
 			ext3_orphan_add(handle, inode);
+#endif
 		ext3_journal_stop(handle);
 		unlock_page(page);
 		page_cache_release(page);
@@ -1305,10 +1321,18 @@ write_begin_failed:
 	}
 	if (ret == -ENOSPC && ext3_should_retry_alloc(inode->i_sb, &retries))
 		goto retry;
+#ifdef MY_ABC_HERE
+	if (ret >= 0 && (flags & AOP_FLAG_RECVFILE)) {
+		if (pos + len > inode->i_size) {
+			// Don't need i_size_write because we hold i_mutex.
+			inode->i_size = pos + len;
+			ext3_mark_inode_dirty(handle, inode);
+		}
+	}
+#endif
 out:
 	return ret;
 }
-
 
 int ext3_journal_dirty_data(handle_t *handle, struct buffer_head *bh)
 {
@@ -2913,12 +2937,23 @@ struct inode *ext3_iget(struct super_block *sb, unsigned long ino)
 		inode->i_uid |= le16_to_cpu(raw_inode->i_uid_high) << 16;
 		inode->i_gid |= le16_to_cpu(raw_inode->i_gid_high) << 16;
 	}
+	if (EXT3_SB(sb)->s_uid)
+		inode->i_uid = EXT3_SB(sb)->s_uid;
+	if (EXT3_SB(sb)->s_gid)
+		inode->i_gid = EXT3_SB(sb)->s_gid;
 	set_nlink(inode, le16_to_cpu(raw_inode->i_links_count));
 	inode->i_size = le32_to_cpu(raw_inode->i_size);
 	inode->i_atime.tv_sec = (signed)le32_to_cpu(raw_inode->i_atime);
 	inode->i_ctime.tv_sec = (signed)le32_to_cpu(raw_inode->i_ctime);
 	inode->i_mtime.tv_sec = (signed)le32_to_cpu(raw_inode->i_mtime);
 	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec = inode->i_mtime.tv_nsec = 0;
+#ifdef MY_ABC_HERE
+	inode->i_create_time.tv_sec = (signed)le32_to_cpu(raw_inode->ext3_create_time);
+	inode->i_create_time.tv_nsec = 0;
+#endif
+#ifdef MY_ABC_HERE
+	inode->i_archive_bit = le32_to_cpu(raw_inode->ext3_archive_bit);
+#endif
 
 	ei->i_state_flags = 0;
 	ei->i_dir_start_lookup = 0;
@@ -3066,10 +3101,16 @@ static int ext3_do_update_inode(handle_t *handle,
 {
 	struct ext3_inode *raw_inode = ext3_raw_inode(iloc);
 	struct ext3_inode_info *ei = EXT3_I(inode);
+	uid_t uid = inode->i_uid;
+	gid_t gid = inode->i_gid;
 	struct buffer_head *bh = iloc->bh;
 	int err = 0, rc, block;
 	int need_datasync = 0;
 	__le32 disksize;
+	__le16 uid_low;
+	__le16 gid_low;
+	__le16 uid_high;
+	__le16 gid_high;
 
 again:
 	/* we can't allow multiple procs in here at once, its a bit racey */
@@ -3082,30 +3123,42 @@ again:
 
 	ext3_get_inode_flags(ei);
 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
-	if(!(test_opt(inode->i_sb, NO_UID32))) {
-		raw_inode->i_uid_low = cpu_to_le16(low_16_bits(inode->i_uid));
-		raw_inode->i_gid_low = cpu_to_le16(low_16_bits(inode->i_gid));
+	if (EXT3_SB(inode->i_sb)->s_uid)
+		uid = EXT3_SB(inode->i_sb)->s_diskuid;
+	if (EXT3_SB(inode->i_sb)->s_gid)
+		gid = EXT3_SB(inode->i_sb)->s_diskgid;
+	if (!(test_opt(inode->i_sb, NO_UID32))) {
+		uid_low = cpu_to_le16(low_16_bits(uid));
+		gid_low = cpu_to_le16(low_16_bits(gid));
 /*
  * Fix up interoperability with old kernels. Otherwise, old inodes get
  * re-used with the upper 16 bits of the uid/gid intact
  */
-		if(!ei->i_dtime) {
-			raw_inode->i_uid_high =
-				cpu_to_le16(high_16_bits(inode->i_uid));
-			raw_inode->i_gid_high =
-				cpu_to_le16(high_16_bits(inode->i_gid));
+		if (!ei->i_dtime) {
+			uid_high = cpu_to_le16(high_16_bits(uid));
+			gid_high = cpu_to_le16(high_16_bits(gid));
 		} else {
-			raw_inode->i_uid_high = 0;
-			raw_inode->i_gid_high = 0;
+			uid_high = 0;
+			gid_high = 0;
 		}
 	} else {
-		raw_inode->i_uid_low =
-			cpu_to_le16(fs_high2lowuid(inode->i_uid));
-		raw_inode->i_gid_low =
-			cpu_to_le16(fs_high2lowgid(inode->i_gid));
-		raw_inode->i_uid_high = 0;
-		raw_inode->i_gid_high = 0;
+		uid_low = cpu_to_le16(fs_high2lowuid(uid));
+		gid_low = cpu_to_le16(fs_high2lowgid(gid));
+		uid_high = 0;
+		gid_high = 0;
 	}
+	/* don't mangle uid/gid of existing files if override is active */
+	if (!EXT3_SB(inode->i_sb)->s_uid ||
+	    ext3_test_inode_state(inode, EXT3_STATE_NEW)) {
+		raw_inode->i_uid_high = uid_high;
+		raw_inode->i_uid_low = uid_low;
+	}
+	if (!EXT3_SB(inode->i_sb)->s_gid ||
+	    ext3_test_inode_state(inode, EXT3_STATE_NEW)) {
+		raw_inode->i_gid_high = gid_high;
+		raw_inode->i_gid_low = gid_low;
+	}
+
 	raw_inode->i_links_count = cpu_to_le16(inode->i_nlink);
 	disksize = cpu_to_le32(ei->i_disksize);
 	if (disksize != raw_inode->i_size) {
@@ -3122,6 +3175,12 @@ again:
 	raw_inode->i_faddr = cpu_to_le32(ei->i_faddr);
 	raw_inode->i_frag = ei->i_frag_no;
 	raw_inode->i_fsize = ei->i_frag_size;
+#endif
+#ifdef MY_ABC_HERE
+	raw_inode->ext3_create_time = cpu_to_le32(inode->i_create_time.tv_sec);
+#endif
+#ifdef MY_ABC_HERE
+	raw_inode->ext3_archive_bit = cpu_to_le32(inode->i_archive_bit);
 #endif
 	raw_inode->i_file_acl = cpu_to_le32(ei->i_file_acl);
 	if (!S_ISREG(inode->i_mode)) {
@@ -3359,6 +3418,49 @@ err_out:
 	return error;
 }
 
+#ifdef MY_ABC_HERE
+int ext3_syno_set_archive_ver(struct dentry *dentry, u32 version)
+{
+	struct inode *inode = dentry->d_inode;
+	struct syno_xattr_archive_version value;
+	int err;
+
+	value.v_magic = cpu_to_le16(0x2552);
+	value.v_struct_version = cpu_to_le16(1);
+	value.v_archive_version = cpu_to_le32(version);
+	err = ext3_xattr_set(inode, EXT3_XATTR_INDEX_SYNO, XATTR_SYNO_ARCHIVE_VERSION, &value, sizeof(value), 0);
+	if (!err) {
+		inode->i_archive_version = version;
+		inode->i_flags |= S_ARCHIVE_VERSION_CACHED;
+	}
+	return err;
+}
+
+int ext3_syno_get_archive_ver(struct dentry *dentry, u32 *version)
+{
+	struct inode *inode = dentry->d_inode;
+	struct syno_xattr_archive_version value;
+	int err;
+
+	if (IS_ARCHIVE_VERSION_CACHED(inode)) {
+		*version = inode->i_archive_version;
+		return 0;
+	}
+
+	err = ext3_xattr_get(inode, EXT3_XATTR_INDEX_SYNO, XATTR_SYNO_ARCHIVE_VERSION, &value, sizeof(value));
+	if (0 < err) {
+		inode->i_archive_version = le32_to_cpu(value.v_archive_version);
+	} else if (-ENODATA == err) {
+		inode->i_archive_version = 0;
+	} else {
+		*version = 0;
+		return err;
+	}
+	*version = inode->i_archive_version;
+	inode->i_flags |= S_ARCHIVE_VERSION_CACHED;
+	return 0;
+}
+#endif /* MY_ABC_HERE */
 
 /*
  * How many blocks doth make a writepage()?

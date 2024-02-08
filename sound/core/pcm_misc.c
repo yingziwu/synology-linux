@@ -208,7 +208,6 @@ static struct pcm_format_data pcm_formats[(INT)SNDRV_PCM_FORMAT_LAST+1] = {
 	},
 };
 
-
 /**
  * snd_pcm_format_signed - Check the PCM format is signed linear
  * @format: the format to check

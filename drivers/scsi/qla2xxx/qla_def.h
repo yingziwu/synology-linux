@@ -848,7 +848,6 @@ typedef struct {
 #define PD_STATE_PORT_LOGOUT			10
 #define PD_STATE_WAIT_PORT_LOGOUT_ACK		11
 
-
 #define QLA_ZIO_MODE_6		(BIT_2 | BIT_1)
 #define QLA_ZIO_DISABLED	0
 #define QLA_ZIO_DEFAULT_TIMER	2
@@ -1590,7 +1589,6 @@ typedef struct {
 	uint32_t dseg_rsp_length;	/* Data segment 1 length. */
 } ms_iocb_entry_t;
 
-
 /*
  * ISP queue - Mailbox Command entry structure definition.
  */
@@ -1637,7 +1635,6 @@ struct mbx_entry {
  */
 #define RESPONSE_ENTRY_SIZE	(sizeof(response_t))
 #define REQUEST_ENTRY_SIZE	(sizeof(request_t))
-
 
 /*
  * 24 bit port ID type definition.
@@ -2304,7 +2301,6 @@ enum qla_work_type {
 	QLA_EVT_UEVENT,
 };
 
-
 struct qla_work_evt {
 	struct list_head	list;
 	enum qla_work_type	type;
@@ -2932,8 +2928,6 @@ typedef struct scsi_qla_host {
 	port_id_t	d_id;			/* Host adapter port id */
 	uint8_t		marker_needed;
 	uint16_t	mgmt_svr_loop_id;
-
-
 
 	/* Timeout timers. */
 	uint8_t         loop_down_abort_time;    /* port down timer */

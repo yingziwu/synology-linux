@@ -19,5 +19,4 @@
 
 #endif /* __KERNEL__ */
 
-
 #endif /* __ASM_AVR32_TYPES_H */

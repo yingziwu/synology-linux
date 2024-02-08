@@ -1268,4 +1268,3 @@ int acpi_processor_get_throttling_info(struct acpi_processor *pr)
 
 	return result;
 }
-

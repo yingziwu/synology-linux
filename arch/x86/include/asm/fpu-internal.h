@@ -32,7 +32,6 @@ extern user_regset_get_fn fpregs_get, xfpregs_get, fpregs_soft_get,
 extern user_regset_set_fn fpregs_set, xfpregs_set, fpregs_soft_set,
 				 xstateregs_set;
 
-
 /*
  * xstateregs_active == fpregs_active. Please refer to the comment
  * at the definition of fpregs_active.

@@ -30,7 +30,6 @@ extern void __init at91_aic_init(unsigned int priority[]);
 extern int  __init at91_aic_of_init(struct device_node *node,
 				    struct device_node *parent);
 
-
  /* Timer */
 struct sys_timer;
 extern void at91rm9200_ioremap_st(u32 addr);

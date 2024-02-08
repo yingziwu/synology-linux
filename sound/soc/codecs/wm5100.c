@@ -2394,7 +2394,6 @@ static int wm5100_soc_volatile(struct snd_soc_codec *codec,
 	return true;
 }
 
-
 static struct snd_soc_codec_driver soc_codec_dev_wm5100 = {
 	.probe =	wm5100_probe,
 	.remove =	wm5100_remove,
@@ -2550,7 +2549,6 @@ static __devinit int wm5100_i2c_probe(struct i2c_client *i2c,
 	default:
 		break;
 	}
-
 
 	wm5100_init_gpio(i2c);
 

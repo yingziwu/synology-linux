@@ -41,7 +41,6 @@ struct btree_node {
 	__le64 keys[0];
 } __packed;
 
-
 void inc_children(struct dm_transaction_manager *tm, struct btree_node *n,
 		  struct dm_btree_value_type *vt);
 

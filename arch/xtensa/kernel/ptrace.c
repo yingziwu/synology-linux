@@ -29,7 +29,6 @@
 #include <asm/elf.h>
 #include <asm/coprocessor.h>
 
-
 void user_enable_single_step(struct task_struct *child)
 {
 	child->ptrace |= PT_SINGLESTEP;
@@ -113,7 +112,6 @@ int ptrace_setregs(struct task_struct *child, void __user *uregs)
 
 	return 0;
 }
-
 
 int ptrace_getxregs(struct task_struct *child, void __user *uregs)
 {
@@ -343,4 +341,3 @@ void do_syscall_trace_leave(struct pt_regs *regs)
 			&& (current->ptrace & PT_PTRACED))
 		do_syscall_trace();
 }
-

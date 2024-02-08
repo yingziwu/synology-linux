@@ -1908,7 +1908,6 @@ lpfc_##attr##_store(struct device *dev, struct device_attribute *attr, \
 		return -EINVAL;\
 }
 
-
 #define LPFC_ATTR(name, defval, minval, maxval, desc) \
 static uint lpfc_##name = defval;\
 module_param(lpfc_##name, uint, S_IRUGO);\
@@ -2273,7 +2272,6 @@ lpfc_soft_wwnn_store(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR(lpfc_soft_wwnn, S_IRUGO | S_IWUSR,\
 		   lpfc_soft_wwnn_show, lpfc_soft_wwnn_store);
-
 
 static int lpfc_poll = 0;
 module_param(lpfc_poll, int, S_IRUGO);
@@ -3010,7 +3008,6 @@ lpfc_stat_data_ctrl_store(struct device *dev, struct device_attribute *attr,
 	return -EINVAL;
 }
 
-
 /**
  * lpfc_stat_data_ctrl_show - Read function for lpfc_stat_data_ctrl sysfs file
  * @dev: Pointer to class device object.
@@ -3086,7 +3083,6 @@ static DEVICE_ATTR(lpfc_stat_data_ctrl, S_IRUGO | S_IWUSR,
 #define STAT_DATA_SIZE_PER_TARGET(NUM_BUCKETS) ((NUM_BUCKETS) * 11 + 18)
 #define MAX_STAT_DATA_SIZE_PER_TARGET \
 	STAT_DATA_SIZE_PER_TARGET(LPFC_MAX_BUCKET_COUNT)
-
 
 /**
  * sysfs_drvr_stat_data_read - Read function for lpfc_drvr_stat_data attribute
@@ -4220,7 +4216,6 @@ lpfc_free_sysfs_attr(struct lpfc_vport *vport)
 	sysfs_remove_bin_file(&shost->shost_dev.kobj, &sysfs_mbox_attr);
 	sysfs_remove_bin_file(&shost->shost_dev.kobj, &sysfs_ctlreg_attr);
 }
-
 
 /*
  * Dynamic FC Host Attributes Support

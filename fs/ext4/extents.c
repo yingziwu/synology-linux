@@ -522,7 +522,6 @@ ext4_ext_binsearch_idx(struct inode *inode,
 	struct ext4_extent_header *eh = path->p_hdr;
 	struct ext4_extent_idx *r, *l, *m;
 
-
 	ext_debug("binsearch for %u(idx):  ", block);
 
 	l = EXT_FIRST_INDEX(eh) + 1;
@@ -2104,7 +2103,6 @@ ext4_ext_in_cache(struct inode *inode, ext4_lblk_t block,
 	return ret;
 }
 
-
 /*
  * ext4_ext_rm_idx:
  * removes index from the index block.
@@ -2308,7 +2306,6 @@ static int ext4_remove_blocks(handle_t *handle, struct inode *inode,
 	}
 	return 0;
 }
-
 
 /*
  * ext4_ext_rm_leaf() Removes the extents associated with the
@@ -3810,7 +3807,6 @@ static int get_implied_cluster_alloc(struct super_block *sb,
 	trace_ext4_get_implied_cluster_alloc_exit(sb, map, 0);
 	return 0;
 }
-
 
 /*
  * Block allocation/map/preallocation routine for extents based files

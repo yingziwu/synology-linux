@@ -747,7 +747,6 @@ err_probe:
 	return ret;
 }
 
-
 #ifdef CONFIG_OF
 static int __devinit spear_smi_probe_config_dt(struct platform_device *pdev,
 					       struct device_node *np)

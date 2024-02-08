@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * 	NET3	Protocol independent device support routines.
  *
@@ -143,6 +146,75 @@
 
 /* This should be increased if a protocol with a bigger head is added. */
 #define GRO_MAX_HEAD (MAX_HEADER + 128)
+
+#ifdef MY_ABC_HERE
+static unsigned int str_to_hex( char ch )
+{
+	if( (ch >= '0') && (ch <= '9') )
+		return( ch - '0' );
+
+	if( (ch >= 'a') && (ch <= 'f') )
+		return( ch - 'a' + 10 );
+
+	if( (ch >= 'A') && (ch <= 'F') )
+		return( ch - 'A' + 10 );
+
+	return 0;
+}
+
+void convert_str_to_mac( char *source , char *dest )
+{
+	dest[0] = (str_to_hex( source[0] ) << 4) + str_to_hex( source[1] );
+	dest[1] = (str_to_hex( source[2] ) << 4) + str_to_hex( source[3] );
+	dest[2] = (str_to_hex( source[4] ) << 4) + str_to_hex( source[5] );
+	dest[3] = (str_to_hex( source[6] ) << 4) + str_to_hex( source[7] );
+	dest[4] = (str_to_hex( source[8] ) << 4) + str_to_hex( source[9] );
+	dest[5] = (str_to_hex( source[10] ) << 4) + str_to_hex( source[11] );
+}
+
+#define SYNO_VENDOR_MAC_SUCCESS     0
+#define SYNO_VENDOR_MAC_EMPTY       1
+#define SYNO_VENDOR_MAC_FAIL        2
+int syno_get_dev_vendor_mac(const char *szDev, char *szMac)
+{
+	extern unsigned char grgbLanMac[CONFIG_SYNO_MAC_IF][16];
+#ifdef MY_ABC_HERE
+	extern unsigned long g_internal_netif_num;
+#endif
+	int err = SYNO_VENDOR_MAC_FAIL;
+	char szIFPrefix[IFNAMSIZ] = "eth";
+	int iMacIndex = 0;
+	const char *pMacIndex = NULL;
+
+	if (!szMac || !szDev)
+		goto ERR;
+
+	// According to function __dev_get_by_name
+	// we can use strncmp & IFNAMSIZ to replace memcmp to avoid #48870
+	if (!strncmp(szDev, szIFPrefix, strlen(szIFPrefix))) {
+		pMacIndex = szDev + strlen(szIFPrefix);
+		iMacIndex = simple_strtol(pMacIndex, NULL, 10);
+#ifdef MY_ABC_HERE
+		if (0 > iMacIndex || g_internal_netif_num <= iMacIndex) {
+			err = SYNO_VENDOR_MAC_FAIL;
+			goto ERR;
+		}
+#endif
+		if (!strcmp(grgbLanMac[iMacIndex], "")) {
+			err = SYNO_VENDOR_MAC_EMPTY;
+			goto ERR;
+		}
+		convert_str_to_mac(grgbLanMac[iMacIndex], szMac);
+	} else {
+		goto ERR;
+	}
+
+	err = SYNO_VENDOR_MAC_SUCCESS;
+ERR:
+	return err;
+}
+EXPORT_SYMBOL(syno_get_dev_vendor_mac);
+#endif
 
 /*
  *	The list of packet types we will receive (as opposed to discard)
@@ -535,7 +607,6 @@ int netdev_boot_setup_check(struct net_device *dev)
 }
 EXPORT_SYMBOL(netdev_boot_setup_check);
 
-
 /**
  *	netdev_boot_base	- get address from boot time settings
  *	@prefix: prefix for network device
@@ -729,7 +800,6 @@ struct net_device *dev_get_by_index_rcu(struct net *net, int ifindex)
 	return NULL;
 }
 EXPORT_SYMBOL(dev_get_by_index_rcu);
-
 
 /**
  *	dev_get_by_index - find a device by its ifindex
@@ -1080,7 +1150,6 @@ int dev_set_alias(struct net_device *dev, const char *alias, size_t len)
 	return len;
 }
 
-
 /**
  *	netdev_features_change - device changes features
  *	@dev: device to cause notification
@@ -1309,7 +1378,6 @@ int dev_close(struct net_device *dev)
 }
 EXPORT_SYMBOL(dev_close);
 
-
 /**
  *	dev_disable_lro - disable Large Receive Offload on a device
  *	@dev: device
@@ -1334,7 +1402,6 @@ void dev_disable_lro(struct net_device *dev)
 		netdev_WARN(dev, "failed to disable LRO!\n");
 }
 EXPORT_SYMBOL(dev_disable_lro);
-
 
 static int dev_boot_phase = 1;
 
@@ -1856,7 +1923,6 @@ void dev_kfree_skb_any(struct sk_buff *skb)
 		dev_kfree_skb(skb);
 }
 EXPORT_SYMBOL(dev_kfree_skb_any);
-
 
 /**
  * netif_device_detach - mark device as removed
@@ -2585,7 +2651,6 @@ out:
 	return rc;
 }
 EXPORT_SYMBOL(dev_queue_xmit);
-
 
 /*=======================================================================
 			Receiver routines
@@ -3929,7 +3994,6 @@ int register_gifconf(unsigned int family, gifconf_func_t *gifconf)
 }
 EXPORT_SYMBOL(register_gifconf);
 
-
 /*
  *	Map an interface index to its name (SIOCGIFNAME)
  */
@@ -4321,7 +4385,6 @@ static const struct file_operations ptype_seq_fops = {
 	.release = seq_release_net,
 };
 
-
 static int __net_init dev_proc_net_init(struct net *net)
 {
 	int rc = -ENOMEM;
@@ -4368,7 +4431,6 @@ static int __init dev_proc_init(void)
 #else
 #define dev_proc_init() 0
 #endif	/* CONFIG_PROC_FS */
-
 
 /**
  *	netdev_set_master	-	set up master pointer
@@ -5155,7 +5217,6 @@ int dev_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 	}
 }
 
-
 /**
  *	dev_new_index	-	allocate an ifindex
  *	@net: the applicable net namespace
@@ -5222,7 +5283,6 @@ static void rollback_registered_many(struct list_head *head)
 	list_for_each_entry(dev, head, unreg_list) {
 		/* Shutdown queueing discipline. */
 		dev_shutdown(dev);
-
 
 		/* Notify protocols, that we are about to destroy
 		   this device. They should clean all the things.
@@ -5637,7 +5697,6 @@ int init_dummy_netdev(struct net_device *dev)
 }
 EXPORT_SYMBOL_GPL(init_dummy_netdev);
 
-
 /**
  *	register_netdev	- register a network device
  *	@dev: device to register
@@ -5846,7 +5905,9 @@ struct rtnl_link_stats64 *dev_get_stats(struct net_device *dev,
 	} else {
 		netdev_stats_to_stats64(storage, &dev->stats);
 	}
+#ifndef MY_ABC_HERE
 	storage->rx_dropped += atomic_long_read(&dev->rx_dropped);
+#endif
 	return storage;
 }
 EXPORT_SYMBOL(dev_get_stats);
@@ -6265,7 +6326,6 @@ static int dev_cpu_callback(struct notifier_block *nfb,
 	return NOTIFY_OK;
 }
 
-
 /**
  *	netdev_increment_features - increment feature set by one
  *	@all: current feature set
@@ -6581,4 +6641,3 @@ static int __init initialize_hashrnd(void)
 }
 
 late_initcall_sync(initialize_hashrnd);
-

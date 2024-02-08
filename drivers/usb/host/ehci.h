@@ -97,7 +97,6 @@ struct ehci_hcd {			/* one per controller */
 	unsigned		periodic_sched;	/* periodic activity count */
 	unsigned		uframe_periodic_max; /* max periodic time per uframe */
 
-
 	/* list of itds & sitds completed while clock_frame was still active */
 	struct list_head	cached_itd_list;
 	struct list_head	cached_sitd_list;
@@ -190,7 +189,6 @@ static inline struct usb_hcd *ehci_to_hcd (struct ehci_hcd *ehci)
 {
 	return container_of ((void *) ehci, struct usb_hcd, hcd_priv);
 }
-
 
 static inline void
 iaa_watchdog_start(struct ehci_hcd *ehci)

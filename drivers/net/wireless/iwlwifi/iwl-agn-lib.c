@@ -887,7 +887,6 @@ void iwlagn_set_rxon_chain(struct iwl_priv *priv, struct iwl_rxon_context *ctx)
 	active_rx_cnt = iwl_get_active_rx_chain_count(priv);
 	idle_rx_cnt = iwl_get_idle_rx_chain_count(priv, active_rx_cnt);
 
-
 	/* correct rx chain count according hw settings
 	 * and chain noise calibration
 	 */
@@ -949,7 +948,6 @@ struct wowlan_key_data {
 	const u8 *bssid;
 	bool error, use_rsc_tsc, use_tkip;
 };
-
 
 static void iwlagn_wowlan_program_keys(struct ieee80211_hw *hw,
 			       struct ieee80211_vif *vif,

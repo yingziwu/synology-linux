@@ -534,7 +534,6 @@ out:
 	return ret;
 }
 
-
 /**
  * doc_read_page_ecc_init - Initialize hardware ECC engine
  * @docg3: the device
@@ -655,7 +654,6 @@ out:
 	doc_dbg("doc_ecc_bch_fix_data: flipped %d bits\n", numerrs);
 	return numerrs;
 }
-
 
 /**
  * doc_read_page_prepare - Prepares reading data from a flash page
@@ -2141,7 +2139,6 @@ static int __init docg3_init(void)
 	return platform_driver_probe(&g3_driver, docg3_probe);
 }
 module_init(docg3_init);
-
 
 static void __exit docg3_exit(void)
 {

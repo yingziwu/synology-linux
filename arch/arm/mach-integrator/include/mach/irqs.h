@@ -80,4 +80,3 @@
 
 #define NR_IRQS_INTEGRATOR_AP		34
 #define NR_IRQS_INTEGRATOR_CP		47
-

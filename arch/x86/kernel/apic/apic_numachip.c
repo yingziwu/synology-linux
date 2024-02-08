@@ -301,4 +301,3 @@ static struct apic apic_numachip __refconst = {
 	.safe_wait_icr_idle		= native_safe_apic_wait_icr_idle,
 };
 apic_driver(apic_numachip);
-

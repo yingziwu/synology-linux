@@ -360,7 +360,8 @@ CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
                    -Iarch/$(hdr-arch)/include/generated -Iinclude \
                    $(if $(KBUILD_SRC), -I$(srctree)/include) \
-                   -include $(srctree)/include/linux/kconfig.h
+                   -include $(srctree)/include/linux/kconfig.h \
+                   -include $(if $(KBUILD_SRC),$(srctree)/)include/linux/syno.h
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
@@ -1205,7 +1206,7 @@ distclean: mrproper
 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
 		-o -name '.*.rej' \
 		-o -name '*%' -o -name '.*.cmd' -o -name 'core' \) \
-		-type f -print | xargs rm -f
+		-type f -print -follow | xargs rm -f
 
 
 # Packaging of the kernel to various formats
@@ -1413,7 +1414,7 @@ clean: $(clean-dirs)
 		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \
 		-o -name '*.symtypes' -o -name 'modules.order' \
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
-		-o -name '*.gcno' \) -type f -print | xargs rm -f
+		-o -name '*.gcno' \) -type f -print -follow | xargs rm -f
 
 # Generate tags for editors
 # ---------------------------------------------------------------------------

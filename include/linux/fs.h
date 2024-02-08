@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_FS_H
 #define _LINUX_FS_H
 
@@ -10,6 +13,10 @@
 #include <linux/ioctl.h>
 #include <linux/blk_types.h>
 #include <linux/types.h>
+
+#ifdef MY_ABC_HERE
+#include <linux/net.h>
+#endif /* MY_ABC_HERE */
 
 /*
  * It's silly to have NR_OPEN bigger than NR_FILE, but you can change
@@ -55,15 +62,39 @@ struct inodes_stat_t {
 	int dummy[5];		/* padding for sysctl ABI compatibility */
 };
 
-
 #define NR_FILE  8192	/* this can well be larger on a larger system */
 
+#ifdef CONFIG_FS_SYNO_ACL
+/*
+   Note!!!!! It should be consistent with SYNO_ACL_MAY_XXXXX in <linux/syno_acl_xattr_ds.h>
+*/
+#define MAY_EXEC		(0x0001)
+#define MAY_WRITE		(0x0002)
+#define MAY_READ		(0x0004)
+#define MAY_APPEND		(0x0008)
+#define MAY_ACCESS 		(0x0010)
+#define MAY_OPEN 		(0x0020)
+#define MAY_READ_EXT_ATTR	(0x0040)
+#define MAY_READ_PERMISSION	(0x0080)
+#define MAY_READ_ATTR		(0x0100)
+#define MAY_WRITE_ATTR		(0x0200)
+#define MAY_WRITE_EXT_ATTR	(0x0400)
+#define MAY_WRITE_PERMISSION	(0x0800)
+#define MAY_DEL			(0x1000)
+#define MAY_DEL_CHILD		(0x2000)
+#define MAY_GET_OWNER_SHIP	(0x4000)
+
+#define MASK_RDONLY_CHECK (MAY_WRITE|MAY_APPEND|MAY_WRITE_ATTR|MAY_WRITE_EXT_ATTR|MAY_WRITE_PERMISSION|MAY_DEL|MAY_DEL_CHILD|MAY_GET_OWNER_SHIP)
+
+#else /* CONFIG_FS_SYNO_ACL */
 #define MAY_EXEC		0x00000001
 #define MAY_WRITE		0x00000002
 #define MAY_READ		0x00000004
 #define MAY_APPEND		0x00000008
 #define MAY_ACCESS		0x00000010
 #define MAY_OPEN		0x00000020
+#endif /* CONFIG_FS_SYNO_ACL */
+
 #define MAY_CHDIR		0x00000040
 /* called from RCU mode, don't block */
 #define MAY_NOT_BLOCK		0x00000080
@@ -214,6 +245,12 @@ struct inodes_stat_t {
 #define MS_KERNMOUNT	(1<<22) /* this is a kern_mount call */
 #define MS_I_VERSION	(1<<23) /* Update inode I_version field */
 #define MS_STRICTATIME	(1<<24) /* Always perform atime updates */
+#ifdef CONFIG_FS_SYNO_ACL
+#define MS_SYNOACL	(1<<25)	/* Synology ACL */
+#endif /* CONFIG_FS_SYNO_ACL */
+#ifdef MY_ABC_HERE
+#define MS_CORRUPT	(1<<26)	/* filesystem corrupt */
+#endif
 #define MS_NOSEC	(1<<28)
 #define MS_BORN		(1<<29)
 #define MS_ACTIVE	(1<<30)
@@ -246,6 +283,12 @@ struct inodes_stat_t {
 #define S_AUTOMOUNT	2048	/* Automount/referral quasi-directory */
 #define S_NOSEC		4096	/* no suid or xattr security attributes */
 
+#ifdef MY_ABC_HERE
+#define S_CREATE_TIME_CACHED 0x40000000
+#endif
+#ifdef MY_ABC_HERE
+#define S_ARCHIVE_VERSION_CACHED 0x80000000
+#endif
 /*
  * Note that nosuid etc flags are inode-specific: setting some file-system
  * flags just means all the inodes inherit those flags by default. It might be
@@ -282,6 +325,9 @@ struct inodes_stat_t {
 #define IS_IMA(inode)		((inode)->i_flags & S_IMA)
 #define IS_AUTOMOUNT(inode)	((inode)->i_flags & S_AUTOMOUNT)
 #define IS_NOSEC(inode)		((inode)->i_flags & S_NOSEC)
+#ifdef MY_ABC_HERE
+#define IS_ARCHIVE_VERSION_CACHED(inode) ((inode)->i_flags & S_ARCHIVE_VERSION_CACHED)
+#endif
 
 /* the read-only stuff doesn't really belong here, but any other place is
    probably as bad and I don't want to create yet another include file. */
@@ -332,6 +378,18 @@ struct inodes_stat_t {
 #define FITHAW		_IOWR('X', 120, int)	/* Thaw */
 #define FITRIM		_IOWR('X', 121, struct fstrim_range)	/* Trim */
 
+#ifdef MY_ABC_HERE
+#define FIGETVERSION			_IOWR('x', 122, unsigned int)	/* get syno archive version */
+#define FISETVERSION			_IOWR('x', 123, unsigned int)	/* set syno archive version */
+#define FIINCVERSION			_IO('x', 124)	/* increase syno archive version by 1 */
+#define FISETFILEVERSION		_IOWR('x', 125, unsigned int)	/* set file syno archive version */
+#ifdef MY_ABC_HERE
+#define FIGETBADVERSION			_IOWR('x', 126, unsigned int)	/* fix bad archive version */
+#define FICLEARBADVERSION		_IO('x', 127)	/* fix bad archive version */
+#define FISETBADVERSION			_IOWR('x', 128, unsigned int)	/* fix bad archive version */
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
 #define	FS_IOC_GETFLAGS			_IOR('f', 1, long)
 #define	FS_IOC_SETFLAGS			_IOW('f', 2, long)
 #define	FS_IOC_GETVERSION		_IOR('v', 1, long)
@@ -374,7 +432,6 @@ struct inodes_stat_t {
 #define FS_FL_USER_VISIBLE		0x0003DFFF /* User visible flags */
 #define FS_FL_USER_MODIFIABLE		0x000380FF /* User modifiable flags */
 
-
 #define SYNC_FILE_RANGE_WAIT_BEFORE	1
 #define SYNC_FILE_RANGE_WRITE		2
 #define SYNC_FILE_RANGE_WAIT_AFTER	4
@@ -401,6 +458,7 @@ struct inodes_stat_t {
 #include <linux/rculist_bl.h>
 #include <linux/atomic.h>
 #include <linux/shrinker.h>
+#include <linux/lockdep.h>
 #include <linux/migrate_mode.h>
 
 #include <asm/byteorder.h>
@@ -525,6 +583,9 @@ enum positive_aop_returns {
 #define AOP_FLAG_NOFS			0x0004 /* used by filesystem to direct
 						* helper code (eg buffer layer)
 						* to clear GFP_FS from alloc */
+#ifdef MY_ABC_HERE
+#define AOP_FLAG_RECVFILE		0x0008
+#endif
 
 /*
  * oh the beauties of C type declarations.
@@ -606,7 +667,6 @@ struct address_space_operations {
 	int (*write_end)(struct file *, struct address_space *mapping,
 				loff_t pos, unsigned len, unsigned copied,
 				struct page *page, void *fsdata);
-
 	/* Unfortunately this kludge is needed for FIBMAP. Don't use it */
 	sector_t (*bmap)(struct address_space *, sector_t);
 	void (*invalidatepage) (struct page *, unsigned long);
@@ -747,6 +807,9 @@ static inline int mapping_writably_mapped(struct address_space *mapping)
 #endif
 
 struct posix_acl;
+#ifdef CONFIG_FS_SYNO_ACL
+struct syno_acl;
+#endif /* CONFIG_FS_SYNO_ACL */
 #define ACL_NOT_CACHED ((void *)(-1))
 
 #define IOP_FASTPERM	0x0001
@@ -818,6 +881,16 @@ struct inode {
 		struct list_head	i_dentry;
 		struct rcu_head		i_rcu;
 	};
+#ifdef MY_ABC_HERE
+	__u32			i_archive_bit;
+	struct mutex		i_syno_mutex;   /* i_archive_bit */
+#endif
+#ifdef MY_ABC_HERE
+	__u32			i_archive_version;
+#endif
+#ifdef MY_ABC_HERE
+	struct timespec		i_create_time;
+#endif
 	atomic_t		i_count;
 	unsigned int		i_blkbits;
 	u64			i_version;
@@ -846,6 +919,9 @@ struct inode {
 #ifdef CONFIG_IMA
 	atomic_t		i_readcount; /* struct files open RO */
 #endif
+#ifdef CONFIG_FS_SYNO_ACL
+	struct syno_acl		*i_syno_acl;
+#endif /* CONFIG_FS_SYNO_ACL */
 	void			*i_private; /* fs or device private pointer */
 };
 
@@ -1374,7 +1450,6 @@ static inline void unlock_flocks(void)
 
 #endif /* !CONFIG_FILE_LOCKING */
 
-
 struct fasync_struct {
 	spinlock_t		fa_lock;
 	int			magic;
@@ -1402,6 +1477,8 @@ extern void f_delown(struct file *filp);
 extern pid_t f_getown(struct file *filp);
 extern int send_sigurg(struct fown_struct *fown);
 
+struct mm_struct;
+
 /*
  *	Umount options
  */
@@ -1414,6 +1491,32 @@ extern int send_sigurg(struct fown_struct *fown);
 
 extern struct list_head super_blocks;
 extern spinlock_t sb_lock;
+
+/* Possible states of 'frozen' field */
+enum {
+	SB_UNFROZEN = 0,		/* FS is unfrozen */
+	SB_FREEZE_WRITE	= 1,		/* Writes, dir ops, ioctls frozen */
+	SB_FREEZE_TRANS = 2,
+	SB_FREEZE_PAGEFAULT = 2,	/* Page faults stopped as well */
+	SB_FREEZE_FS = 3,		/* For internal FS use (e.g. to stop
+					 * internal threads if needed) */
+	SB_FREEZE_COMPLETE = 4,		/* ->freeze_fs finished successfully */
+};
+
+#define SB_FREEZE_LEVELS (SB_FREEZE_COMPLETE - 1)
+
+struct sb_writers {
+	/* Counters for counting writers at each level */
+	struct percpu_counter	counter[SB_FREEZE_LEVELS];
+	wait_queue_head_t	wait;		/* queue for waiting for
+						   writers / faults to finish */
+	int			frozen;		/* Is sb frozen? */
+	wait_queue_head_t	wait_unfrozen;	/* queue for waiting for
+						   sb to be thawed */
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+	struct lockdep_map	lock_map[SB_FREEZE_LEVELS];
+#endif
+};
 
 struct super_block {
 	struct list_head	s_list;		/* Keep this first */
@@ -1464,6 +1567,7 @@ struct super_block {
 
 	int			s_frozen;
 	wait_queue_head_t	s_wait_unfrozen;
+	struct sb_writers	s_writers;
 
 	char s_id[32];				/* Informational name */
 	u8 s_uuid[16];				/* UUID */
@@ -1495,6 +1599,16 @@ struct super_block {
 	char __rcu *s_options;
 	const struct dentry_operations *s_d_op; /* default d_op for dentries */
 
+#ifdef MY_ABC_HERE
+	/* We've not sure s_frozen is capable of out intention, thus we
+	 * create another to flag frozen stat. Awful... */
+	struct mutex s_archive_mutex;  /* protect frozen state, also version */
+	u32		s_archive_version;
+#ifdef MY_ABC_HERE
+	u32		s_archive_version1;
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
 	/*
 	 * Saved pool identifier for cleancache (-1 means none)
 	 */
@@ -1518,14 +1632,118 @@ extern struct timespec current_fs_time(struct super_block *sb);
 /*
  * Snapshotting support.
  */
-enum {
-	SB_UNFROZEN = 0,
-	SB_FREEZE_WRITE	= 1,
-	SB_FREEZE_TRANS = 2,
-};
+/* Will go away when all users are converted */
+#define vfs_check_frozen(sb, level) do { } while (0)
 
-#define vfs_check_frozen(sb, level) \
-	wait_event((sb)->s_wait_unfrozen, ((sb)->s_frozen < (level)))
+void __sb_end_write(struct super_block *sb, int level);
+int __sb_start_write(struct super_block *sb, int level, bool wait);
+
+/**
+ * sb_end_write - drop write access to a superblock
+ * @sb: the super we wrote to
+ *
+ * Decrement number of writers to the filesystem. Wake up possible waiters
+ * wanting to freeze the filesystem.
+ */
+static inline void sb_end_write(struct super_block *sb)
+{
+	__sb_end_write(sb, SB_FREEZE_WRITE);
+}
+
+/**
+ * sb_end_pagefault - drop write access to a superblock from a page fault
+ * @sb: the super we wrote to
+ *
+ * Decrement number of processes handling write page fault to the filesystem.
+ * Wake up possible waiters wanting to freeze the filesystem.
+ */
+static inline void sb_end_pagefault(struct super_block *sb)
+{
+	__sb_end_write(sb, SB_FREEZE_PAGEFAULT);
+}
+
+/**
+ * sb_end_intwrite - drop write access to a superblock for internal fs purposes
+ * @sb: the super we wrote to
+ *
+ * Decrement fs-internal number of writers to the filesystem.  Wake up possible
+ * waiters wanting to freeze the filesystem.
+ */
+static inline void sb_end_intwrite(struct super_block *sb)
+{
+	__sb_end_write(sb, SB_FREEZE_FS);
+}
+
+/**
+ * sb_start_write - get write access to a superblock
+ * @sb: the super we write to
+ *
+ * When a process wants to write data or metadata to a file system (i.e. dirty
+ * a page or an inode), it should embed the operation in a sb_start_write() -
+ * sb_end_write() pair to get exclusion against file system freezing. This
+ * function increments number of writers preventing freezing. If the file
+ * system is already frozen, the function waits until the file system is
+ * thawed.
+ *
+ * Since freeze protection behaves as a lock, users have to preserve
+ * ordering of freeze protection and other filesystem locks. Generally,
+ * freeze protection should be the outermost lock. In particular, we have:
+ *
+ * sb_start_write
+ *   -> i_mutex			(write path, truncate, directory ops, ...)
+ *   -> s_umount		(freeze_super, thaw_super)
+ */
+static inline void sb_start_write(struct super_block *sb)
+{
+	__sb_start_write(sb, SB_FREEZE_WRITE, true);
+}
+
+static inline int sb_start_write_trylock(struct super_block *sb)
+{
+	return __sb_start_write(sb, SB_FREEZE_WRITE, false);
+}
+
+/**
+ * sb_start_pagefault - get write access to a superblock from a page fault
+ * @sb: the super we write to
+ *
+ * When a process starts handling write page fault, it should embed the
+ * operation into sb_start_pagefault() - sb_end_pagefault() pair to get
+ * exclusion against file system freezing. This is needed since the page fault
+ * is going to dirty a page. This function increments number of running page
+ * faults preventing freezing. If the file system is already frozen, the
+ * function waits until the file system is thawed.
+ *
+ * Since page fault freeze protection behaves as a lock, users have to preserve
+ * ordering of freeze protection and other filesystem locks. It is advised to
+ * put sb_start_pagefault() close to mmap_sem in lock ordering. Page fault
+ * handling code implies lock dependency:
+ *
+ * mmap_sem
+ *   -> sb_start_pagefault
+ */
+static inline void sb_start_pagefault(struct super_block *sb)
+{
+	__sb_start_write(sb, SB_FREEZE_PAGEFAULT, true);
+}
+
+/*
+ * sb_start_intwrite - get write access to a superblock for internal fs purposes
+ * @sb: the super we write to
+ *
+ * This is the third level of protection against filesystem freezing. It is
+ * free for use by a filesystem. The only requirement is that it must rank
+ * below sb_start_pagefault.
+ *
+ * For example filesystem can call sb_start_intwrite() when starting a
+ * transaction which somewhat eases handling of freezing for internal sources
+ * of filesystem changes (internal fs threads, discarding preallocation on file
+ * close, etc.).
+ */
+static inline void sb_start_intwrite(struct super_block *sb)
+{
+	__sb_start_write(sb, SB_FREEZE_FS, true);
+}
 
 /*
  * until VFS tracks user namespaces for inodes, just make all files
@@ -1634,9 +1852,16 @@ struct file_operations {
 	int (*setlease)(struct file *, long, struct file_lock **);
 	long (*fallocate)(struct file *file, int mode, loff_t offset,
 			  loff_t len);
+#ifdef MY_ABC_HERE
+	ssize_t (*syno_recvfile)(struct file *file, struct socket *sock,
+	                                              loff_t *ppos, size_t count, size_t * rbytes, size_t * wbytes);
+#endif
 };
 
 struct inode_operations {
+#ifdef MY_ABC_HERE
+	int (*syno_getattr)(struct dentry *, struct kstat *, int flags);
+#endif
 	struct dentry * (*lookup) (struct inode *,struct dentry *, struct nameidata *);
 	void * (*follow_link) (struct dentry *, struct nameidata *);
 	int (*permission) (struct inode *, int);
@@ -1655,6 +1880,35 @@ struct inode_operations {
 	int (*rename) (struct inode *, struct dentry *,
 			struct inode *, struct dentry *);
 	void (*truncate) (struct inode *);
+#ifdef CONFIG_FS_SYNO_ACL
+	struct syno_acl * (*syno_acl_get)(struct inode *);
+	int (*syno_acl_set)(struct inode *, struct syno_acl *);
+	int (*syno_acl_xattr_get)(struct dentry *, int, void *, size_t);
+	int (*syno_permission)(struct dentry *, int);
+	int (*syno_exec_permission)(struct dentry *);
+	int (*syno_acl_access)(struct dentry *, int, int);
+	int (*syno_may_delete)(struct dentry *, struct inode *);
+	int (*syno_inode_change_ok)(struct dentry *, struct iattr *);
+	int (*syno_arbit_chg_ok)(struct dentry *, unsigned int cmd, int tag, int mask);
+	int (*syno_setattr_post)(struct dentry *, struct iattr *);
+	int (*syno_acl_init)(struct dentry *, struct inode *);
+	void (*syno_acl_to_mode)(struct dentry *, struct kstat *);
+	int (*syno_acl_sys_get_perm)(struct dentry *, int *mask);
+	int (*syno_acl_sys_check_perm)(struct dentry *, int mask);
+	int (*syno_acl_sys_is_support)(struct dentry *, int tag);
+	int (*syno_bypass_is_synoacl)(struct dentry *, int cmd, int reterr);
+#endif /* CONFIG_FS_SYNO_ACL */
+#ifdef MY_ABC_HERE
+	int (*syno_get_archive_bit)(struct dentry *, unsigned int *);
+	int (*syno_set_archive_bit)(struct dentry *, unsigned int);
+#endif
+#ifdef MY_ABC_HERE
+	int (*syno_get_archive_ver)(struct dentry *, u32 *);
+	int (*syno_set_archive_ver)(struct dentry *, u32);
+#endif
+#ifdef MY_ABC_HERE
+	int (*syno_set_crtime)(struct dentry *, struct timespec *);
+#endif
 	int (*setattr) (struct dentry *, struct iattr *);
 	int (*getattr) (struct vfsmount *mnt, struct dentry *, struct kstat *);
 	int (*setxattr) (struct dentry *, const char *,const void *,size_t,int);
@@ -1682,6 +1936,14 @@ extern ssize_t vfs_writev(struct file *, const struct iovec __user *,
 		unsigned long, loff_t *);
 
 struct super_operations {
+#ifdef MY_ABC_HERE
+	int (*syno_get_sb_archive_ver)(struct super_block *sb, u32 *version);
+	int (*syno_set_sb_archive_ver)(struct super_block *sb, u32 version);
+#ifdef MY_ABC_HERE
+	int (*syno_get_sb_archive_ver1)(struct super_block *sb, u32 *version);
+	int (*syno_set_sb_archive_ver1)(struct super_block *sb, u32 version);
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
    	struct inode *(*alloc_inode)(struct super_block *sb);
 	void (*destroy_inode)(struct inode *);
 
@@ -1845,9 +2107,13 @@ struct file_system_type {
 	struct lock_class_key s_lock_key;
 	struct lock_class_key s_umount_key;
 	struct lock_class_key s_vfs_rename_key;
+	struct lock_class_key s_writers_key[SB_FREEZE_LEVELS];
 
 	struct lock_class_key i_lock_key;
 	struct lock_class_key i_mutex_key;
+#ifdef MY_ABC_HERE
+	struct lock_class_key i_syno_mutex_key;
+#endif
 	struct lock_class_key i_mutex_dir_key;
 };
 
@@ -2364,6 +2630,17 @@ extern int generic_file_mmap(struct file *, struct vm_area_struct *);
 extern int generic_file_readonly_mmap(struct file *, struct vm_area_struct *);
 extern int file_read_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
 int generic_write_checks(struct file *file, loff_t *pos, size_t *count, int isblk);
+#ifdef MY_ABC_HERE
+/**
+* Description for page buffer in recvfile:
+* The max size of per receive file request is "128KB". If PAGE_SIZE is changed from 4K to 64K,
+* maximal number of pages shall change dynamically to keep consistent maximal size "128K".
+* 128K = 2^17 and PAGE_SIZE is determined by PAGE_SHIFT, so formula for max page is
+* "2^(17 - PAGE_SHIFT)".
+*/
+#define MAX_PAGES_PER_RECVFILE (1 << (17 - PAGE_SHIFT))
+extern int do_recvfile(struct file *file, struct socket *sock, loff_t *ppos, size_t count, size_t *rbytes , size_t *wbytes);
+#endif /* MY_ABC_HERE */
 extern ssize_t generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t);
 extern ssize_t __generic_file_aio_write(struct kiocb *, const struct iovec *, unsigned long,
 		loff_t *);
@@ -2671,6 +2948,122 @@ static inline void inode_has_no_xattr(struct inode *inode)
 	if (!is_sxid(inode->i_mode) && (inode->i_sb->s_flags & MS_NOSEC))
 		inode->i_flags |= S_NOSEC;
 }
+
+#ifdef MY_ABC_HERE
+#define UTF16_UPCASE_TABLE_SIZE 	0x10000		/* 64k chars */
+#define UNICODE_UTF16_BUFSIZE		4096		/* should be safe enough for namei */
+#define UNICODE_UTF8_BUFSIZE		8192
+int syno_utf8_strcmp(const u_int8_t *utf8str1,const u_int8_t *utf8str2,int len_utf8_str1, int len_utf8_str2, u_int16_t *upcasetable);
+int syno_utf8_toupper(u_int8_t *to,const u_int8_t *from, int maxlen, int clenfrom, u_int16_t *upcasetable);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+static inline int syno_op_get_archive_bit(struct dentry *dentry, unsigned int *pArbit)
+{
+	int err = 0;
+	struct inode *inode = dentry->d_inode;
+
+	if (inode->i_op->syno_get_archive_bit) {
+		err = inode->i_op->syno_get_archive_bit(dentry, pArbit);
+		if (-ENODATA == err) {
+			err = 0;
+			*pArbit = 0;
+		}
+	} else {
+		*pArbit = inode->i_archive_bit;
+	}
+
+	return err;
+}
+
+static inline int syno_op_set_archive_bit_nolock(struct dentry *dentry, unsigned int arbit)
+{
+	int err = 0;
+	struct inode *inode = dentry->d_inode;
+
+	if (inode->i_op->syno_set_archive_bit) {
+		err = inode->i_op->syno_set_archive_bit(dentry, arbit);
+	} else {
+		inode->i_archive_bit = arbit;
+		mark_inode_dirty_sync(inode);
+	}
+
+	return err;
+}
+
+static inline int syno_op_set_archive_bit(struct dentry *dentry, unsigned int arbit)
+{
+	int err = 0;
+	struct inode *inode = dentry->d_inode;
+
+	mutex_lock(&inode->i_syno_mutex);
+	err = syno_op_set_archive_bit_nolock(dentry, arbit);
+	mutex_unlock(&inode->i_syno_mutex);
+	return err;
+}
+#if defined(CONFIG_FS_SYNO_ACL)
+#define IS_SYNOACL_SUPERUSER() (0 == current_fsuid())
+
+static inline int is_syno_arbit_enable(struct inode *inode, struct dentry * dentry, unsigned int arbit)
+{
+	if (inode->i_op->syno_get_archive_bit) {
+		unsigned int tmp = 0;
+		int err = inode->i_op->syno_get_archive_bit(dentry, &tmp);
+
+		if (!err && (arbit & tmp)) {
+			return 1;
+		}
+		if (-EOPNOTSUPP != err){ //err or arbit not enabled
+			return 0;
+		}
+	}
+
+	if (inode->i_archive_bit & arbit) {
+		return 1;
+	}
+	return 0;
+}
+
+#define IS_INODE_SYNOACL(inode, dentry)		is_syno_arbit_enable(inode, dentry, S2_SYNO_ACL_SUPPORT)
+#define IS_SMB_READONLY(dentry)			is_syno_arbit_enable(dentry->d_inode, dentry, S2_SMB_READONLY)
+#define IS_SYNOACL_INHERIT(dentry)		is_syno_arbit_enable(dentry->d_inode, dentry, S2_SYNO_ACL_INHERIT)
+#define IS_SYNOACL_EXIST(dentry)		is_syno_arbit_enable(dentry->d_inode, dentry, S2_SYNO_ACL_EXIST)
+#define HAS_SYNOACL(dentry)			is_syno_arbit_enable(dentry->d_inode, dentry, (S2_SYNO_ACL_EXIST | S2_SYNO_ACL_INHERIT))
+#define IS_SYNOACL_OWNER_IS_GROUP(dentry)	is_syno_arbit_enable(dentry->d_inode, dentry, S2_SYNO_ACL_IS_OWNER_GROUP)
+
+#define IS_FS_SYNOACL(inode)			__IS_FLG(inode, MS_SYNOACL)
+#define IS_SYNOACL(dentry)			(IS_FS_SYNOACL(dentry->d_inode) && IS_INODE_SYNOACL(dentry->d_inode, dentry))
+#define IS_SYNOACL_INODE(inode, dentry)		(IS_FS_SYNOACL(inode) && IS_INODE_SYNOACL(inode, dentry))
+
+#define is_synoacl_owner(dentry)		IS_SYNOACL_OWNER_IS_GROUP(dentry)?in_group_p(dentry->d_inode->i_gid):(dentry->d_inode->i_uid == current_fsuid())
+#define is_synoacl_owner_or_capable(dentry)	(is_synoacl_owner(dentry) || capable(CAP_FOWNER))
+#endif /* CONFIG_FS_SYNO_ACL */
+
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define SYNO_EXT4_MOUNT_PATH_LEN 128
+#endif
+
+#ifdef MY_ABC_HERE
+static inline int syno_op_set_crtime(struct dentry *dentry, struct timespec *time)
+{
+	int error = 0;
+	struct inode *inode = dentry->d_inode;
+
+	mutex_lock(&inode->i_mutex);
+
+	if (inode->i_op->syno_set_crtime) {
+		error = inode->i_op->syno_set_crtime(dentry, time);
+	} else {
+		inode->i_create_time = timespec_trunc(*time, inode->i_sb->s_time_gran);
+		mark_inode_dirty(inode);
+	}
+
+	mutex_unlock(&inode->i_mutex);
+	return error;
+}
+#endif /* MY_ABC_HERE */
 
 #endif /* __KERNEL__ */
 #endif /* _LINUX_FS_H */

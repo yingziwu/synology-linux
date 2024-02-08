@@ -61,7 +61,6 @@ extern bool dss_debug;
 #define DSSDBGF(format, ...)
 #endif
 
-
 #ifdef DSS_SUBSYS_NAME
 #define DSSERR(format, ...) \
 	printk(KERN_ERR "omapdss " DSS_SUBSYS_NAME " error: " format, \
@@ -421,7 +420,6 @@ void dispc_find_clk_divs(bool is_tft, unsigned long req_pck, unsigned long fck,
 int dispc_calc_clock_rates(unsigned long dispc_fclk_rate,
 		struct dispc_clock_info *cinfo);
 
-
 void dispc_ovl_set_fifo_threshold(enum omap_plane plane, u32 low, u32 high);
 void dispc_ovl_compute_fifo_thresholds(enum omap_plane plane,
 		u32 *fifo_low, u32 *fifo_high, bool use_fifomerge,
@@ -531,7 +529,6 @@ static inline void rfbi_uninit_platform_driver(void)
 {
 }
 #endif
-
 
 #ifdef CONFIG_OMAP2_DSS_COLLECT_IRQ_STATS
 static inline void dss_collect_irq_stats(u32 irqstatus, unsigned *irq_arr)

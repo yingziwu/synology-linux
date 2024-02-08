@@ -75,7 +75,6 @@ struct xiic_i2c {
 	int			rx_pos;
 };
 
-
 #define XIIC_MSB_OFFSET 0
 #define XIIC_REG_OFFSET (0x100+XIIC_MSB_OFFSET)
 
@@ -686,7 +685,6 @@ static struct i2c_adapter xiic_adapter = {
 	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
 	.algo		= &xiic_algorithm,
 };
-
 
 static int __devinit xiic_i2c_probe(struct platform_device *pdev)
 {

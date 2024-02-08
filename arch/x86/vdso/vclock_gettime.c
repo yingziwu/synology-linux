@@ -79,7 +79,6 @@ notrace static long vdso_fallback_gtod(struct timeval *tv, struct timezone *tz)
 	return ret;
 }
 
-
 notrace static inline long vgetns(void)
 {
 	long v;

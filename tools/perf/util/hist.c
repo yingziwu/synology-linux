@@ -762,7 +762,6 @@ static size_t __callchain__fprintf_flat(FILE *fp,
 
 	ret += __callchain__fprintf_flat(fp, self->parent, total_samples);
 
-
 	list_for_each_entry(chain, &self->val, list) {
 		if (chain->ip >= PERF_CONTEXT_MAX)
 			continue;
@@ -1227,7 +1226,6 @@ static void hists__remove_entry_filter(struct hists *hists, struct hist_entry *h
 
 	hists__calc_col_len(hists, h);
 }
-
 
 static bool hists__filter_entry_by_dso(struct hists *hists,
 				       struct hist_entry *he)

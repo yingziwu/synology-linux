@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
   File: linux/xattr.h
 
@@ -28,6 +31,22 @@
 
 #define XATTR_USER_PREFIX "user."
 #define XATTR_USER_PREFIX_LEN (sizeof (XATTR_USER_PREFIX) - 1)
+
+#ifdef MY_ABC_HERE
+#define XATTR_SYNO_PREFIX "syno."
+#define XATTR_SYNO_PREFIX_LEN (sizeof (XATTR_SYNO_PREFIX) - 1)
+#endif
+
+#ifdef MY_ABC_HERE
+#define XATTR_SYNO_ARCHIVE_BIT "archive_bit"
+#endif
+#ifdef MY_ABC_HERE
+#define XATTR_SYNO_ARCHIVE_VERSION "archive_version"
+#define XATTR_SYNO_ARCHIVE_VERSION_VOLUME "archive_version_volume"
+#endif
+#ifdef MY_ABC_HERE
+#define XATTR_SYNO_CREATE_TIME "create_time"
+#endif
 
 /* Security namespace */
 #define XATTR_EVM_SUFFIX "evm"
@@ -74,6 +93,14 @@ struct xattr_handler {
 	int (*set)(struct dentry *dentry, const char *name, const void *buffer,
 		   size_t size, int flags, int handler_flags);
 };
+
+#ifdef MY_ABC_HERE
+struct syno_xattr_archive_version {
+	__le16	v_magic;
+	__le16	v_struct_version;
+	__le32	v_archive_version;
+};
+#endif
 
 struct xattr {
 	char *name;

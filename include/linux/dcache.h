@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef __LINUX_DCACHE_H
 #define __LINUX_DCACHE_H
 
@@ -135,6 +138,11 @@ struct dentry_operations {
 	int (*d_compare)(const struct dentry *, const struct inode *,
 			const struct dentry *, const struct inode *,
 			unsigned int, const char *, const struct qstr *);
+#ifdef MY_ABC_HERE
+	int (*d_compare_case)(const struct dentry *, const struct inode *,
+			const struct dentry *, const struct inode *,
+			unsigned int, const char *, const struct qstr *, int caseless);
+#endif /* MY_ABC_HERE */
 	int (*d_delete)(const struct dentry *);
 	void (*d_release)(struct dentry *);
 	void (*d_prune)(struct dentry *);
@@ -177,6 +185,10 @@ struct dentry_operations {
 #define DCACHE_GENOCIDE		0x0200
 #define DCACHE_SHRINK_LIST	0x0400
 
+#ifdef MY_ABC_HERE
+#define DCACHE_ECRYPTFS_DECRYPT 0x20000000
+#endif
+
 #define DCACHE_NFSFS_RENAMED	0x1000
      /* this dentry has been "silly renamed" and has to be deleted on the last
       * dput() */
@@ -193,12 +205,20 @@ struct dentry_operations {
 
 #define DCACHE_DENTRY_KILLED	0x100000
 
+#ifdef MY_ABC_HERE
+#define DCACHE_OP_COMPARE_CASE	0x10000000
+#endif /* MY_ABC_HERE */
+
 extern seqlock_t rename_lock;
 
 static inline int dname_external(struct dentry *dentry)
 {
 	return dentry->d_name.name != dentry->d_iname;
 }
+
+#ifdef MY_ABC_HERE
+extern int dentry_cmp(const unsigned char *cs, size_t scount, const unsigned char *ct, unsigned tcount);
+#endif /* MY_ABC_HERE */
 
 /*
  * These are the low-level FS interfaces to the dcache..
@@ -281,10 +301,18 @@ extern struct dentry *d_ancestor(struct dentry *, struct dentry *);
 /* appendix may either be NULL or be used for transname suffixes */
 extern struct dentry *d_lookup(struct dentry *, struct qstr *);
 extern struct dentry *d_hash_and_lookup(struct dentry *, struct qstr *);
+#ifdef MY_ABC_HERE
+extern struct dentry *d_lookup_case(struct dentry *, struct qstr *, int caseless);
+extern struct dentry *__d_lookup(const struct dentry *, const struct qstr *, int caseless);
+extern struct dentry *__d_lookup_rcu(const struct dentry *parent,
+				const struct qstr *name,
+				unsigned *seq, struct inode **inode, int caseless);
+#else
 extern struct dentry *__d_lookup(struct dentry *, struct qstr *);
 extern struct dentry *__d_lookup_rcu(const struct dentry *parent,
 				const struct qstr *name,
 				unsigned *seq, struct inode **inode);
+#endif /* MY_ABC_HERE */
 
 /**
  * __d_rcu_to_refcount - take a refcount on dentry if sequence check is ok

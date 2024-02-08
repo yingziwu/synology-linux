@@ -161,8 +161,6 @@ static inline struct omap4_idle_statedata *_fill_cstate_usage(
 	return cx;
 }
 
-
-
 /**
  * omap4_idle_init - Init routine for OMAP4 idle
  *
@@ -181,7 +179,6 @@ int __init omap4_idle_init(void)
 	cpu1_pd = pwrdm_lookup("cpu1_pwrdm");
 	if ((!mpu_pd) || (!cpu0_pd) || (!cpu1_pd))
 		return -ENODEV;
-
 
 	drv->safe_state_index = -1;
 	dev = &per_cpu(omap4_idle_dev, cpu_id);

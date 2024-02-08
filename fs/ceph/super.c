@@ -89,7 +89,6 @@ static int ceph_statfs(struct dentry *dentry, struct kstatfs *buf)
 	return 0;
 }
 
-
 static int ceph_sync_fs(struct super_block *sb, int wait)
 {
 	struct ceph_fs_client *fsc = ceph_sb_to_client(sb);
@@ -606,7 +605,6 @@ static void destroy_caches(void)
 	kmem_cache_destroy(ceph_file_cachep);
 }
 
-
 /*
  * ceph_umount_begin - initiate forced umount.  Tear down down the
  * mount, skipping steps that may hang while waiting for server(s).
@@ -682,9 +680,6 @@ out:
 	ceph_mdsc_put_request(req);
 	return root;
 }
-
-
-
 
 /*
  * mount: join the ceph cluster, and open root directory.

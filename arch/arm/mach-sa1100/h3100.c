@@ -112,4 +112,3 @@ MACHINE_START(H3100, "Compaq iPAQ H3100")
 	.init_machine	= h3100_mach_init,
 	.restart	= sa11x0_restart,
 MACHINE_END
-

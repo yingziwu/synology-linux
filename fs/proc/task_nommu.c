@@ -315,4 +315,3 @@ const struct file_operations proc_tid_maps_operations = {
 	.llseek		= seq_lseek,
 	.release	= seq_release_private,
 };
-

@@ -473,7 +473,6 @@ static struct omap_hwmod omap2420_timer5_hwmod = {
 	.class		= &omap2xxx_timer_hwmod_class,
 };
 
-
 /* timer6 */
 static struct omap_hwmod omap2420_timer6_hwmod;
 

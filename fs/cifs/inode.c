@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *   fs/cifs/inode.c
  *
@@ -30,7 +33,6 @@
 #include "cifs_debug.h"
 #include "cifs_fs_sb.h"
 #include "fscache.h"
-
 
 static void cifs_set_ops(struct inode *inode)
 {
@@ -135,6 +137,9 @@ cifs_fattr_to_inode(struct inode *inode, struct cifs_fattr *fattr)
 	set_nlink(inode, fattr->cf_nlink);
 	inode->i_uid = fattr->cf_uid;
 	inode->i_gid = fattr->cf_gid;
+#ifdef MY_ABC_HERE
+	inode->i_create_time = cifs_NTtimeToUnix(cpu_to_le64(fattr->cf_createtime));
+#endif
 
 	/* if dynperm is set, don't clobber existing mode */
 	if (inode->i_state & I_NEW ||
@@ -1158,7 +1163,6 @@ undo_setattr:
 
 	goto out_close;
 }
-
 
 /*
  * If dentry->d_inode is null (usually meaning the cached dentry

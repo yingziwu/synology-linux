@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * n_tty.c --- implements the N_TTY line discipline.
  *
@@ -49,7 +52,6 @@
 #include <linux/file.h>
 #include <linux/uaccess.h>
 #include <linux/module.h>
-
 
 /* number of characters left in xmit buffer before select has we have room */
 #define WAKEUP_CHARS 256
@@ -1329,7 +1331,6 @@ handle_newline:
 	put_tty_queue(c, tty);
 }
 
-
 /**
  *	n_tty_write_wakeup	-	asynchronous I/O notifier
  *	@tty: tty device
@@ -1696,7 +1697,6 @@ static int job_control(struct tty_struct *tty, struct file *file)
 	return 0;
 }
 
-
 /**
  *	n_tty_read		-	read function for tty
  *	@tty: tty device
@@ -1988,7 +1988,13 @@ static ssize_t n_tty_write(struct tty_struct *tty, struct file *file,
 				tty->ops->flush_chars(tty);
 		} else {
 			while (nr > 0) {
+#if defined(MY_ABC_HERE) && !defined(CONFIG_ARMADA_370)
+				mutex_lock(&tty->output_lock);
+#endif /* MY_ABC_HERE */
 				c = tty->ops->write(tty, b, nr);
+#if defined(MY_ABC_HERE) && !defined(CONFIG_ARMADA_370)
+				mutex_unlock(&tty->output_lock);
+#endif /* MY_ABC_HERE */
 				if (c < 0) {
 					retval = c;
 					goto break_out;

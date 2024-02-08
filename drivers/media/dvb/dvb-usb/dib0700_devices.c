@@ -45,7 +45,6 @@ static struct mt2060_config bristol_mt2060_config[2] = {
 	}
 };
 
-
 static struct dibx000_agc_config bristol_dib3000p_mt2060_agc_config = {
 	.band_caps = BAND_VHF | BAND_UHF,
 	.setup     = (1 << 8) | (5 << 5) | (0 << 4) | (0 << 3) | (0 << 2) | (2 << 0),
@@ -1522,7 +1521,6 @@ static int dib8096_set_param_override(struct dvb_frontend *fe)
 	target = (dib0090_get_wbd_target(fe) * 8 * 18 / 33 + 1) / 2;
 	dib8000_set_wbd_ref(fe, target);
 
-
 	if (band == BAND_CBAND) {
 		deb_info("tuning in CBAND - soft-AGC startup\n");
 		dib0090_set_tune_state(fe, CT_AGC_START);
@@ -1841,7 +1839,6 @@ static int dib8096p_agc_startup(struct dvb_frontend *fe)
 	target = (dib0090_get_wbd_target(fe) * 8  + 1) / 2;
 	dib8000_set_wbd_ref(fe, target);
 
-
 	while (p->frequency / 1000 > adc_table->freq) {
 		better_sampling_freq = 1;
 		adc_table++;
@@ -2079,7 +2076,6 @@ static struct dib0090_config nim9090md_dib0090_config[2] = {
 	}
 };
 
-
 static int stk9090m_frontend_attach(struct dvb_usb_adapter *adap)
 {
 	struct dib0700_adapter_state *state = adap->priv;
@@ -2313,7 +2309,6 @@ static int dib7090p_get_best_sampling(struct dvb_frontend *fe , struct dib7090p_
 		if (!spur)
 			break;
 	}
-
 
 	if (adc->pll_loopdiv == 0 && adc->pll_prediv == 0)
 		return -EINVAL;
@@ -3481,7 +3476,6 @@ static int mxl5007t_tuner_attach(struct dvb_usb_adapter *adap)
 			  &adap->dev->i2c_adap, 0x60,
 			  &hcw_mxl5007t_config) == NULL ? -ENODEV : 0;
 }
-
 
 /* DVB-USB and USB stuff follows */
 struct usb_device_id dib0700_usb_id_table[] = {

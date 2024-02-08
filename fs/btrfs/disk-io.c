@@ -919,7 +919,6 @@ static int btree_migratepage(struct address_space *mapping,
 }
 #endif
 
-
 static int btree_writepages(struct address_space *mapping,
 			    struct writeback_control *wbc)
 {
@@ -1069,7 +1068,6 @@ struct extent_buffer *btrfs_find_create_tree_block(struct btrfs_root *root,
 				 bytenr, blocksize);
 	return eb;
 }
-
 
 int btrfs_write_tree_block(struct extent_buffer *buf)
 {
@@ -1645,7 +1643,6 @@ static int find_newest_super_backup(struct btrfs_fs_info *info, u64 newest_gen)
 	return newest_index;
 }
 
-
 /*
  * find the oldest backup so we know where to store new entries
  * in the backup array.  This will set the backup_root_index
@@ -1840,7 +1837,6 @@ static void free_root_pointers(struct btrfs_fs_info *info, int chunk_root)
 	}
 }
 
-
 int open_ctree(struct super_block *sb,
 	       struct btrfs_fs_devices *fs_devices,
 	       char *options)
@@ -2013,7 +2009,6 @@ int open_ctree(struct super_block *sb,
 			     fs_info->btree_inode->i_mapping);
 	fs_info->pinned_extents = &fs_info->freed_extents[0];
 	fs_info->do_barriers = 1;
-
 
 	mutex_init(&fs_info->ordered_operations_mutex);
 	mutex_init(&fs_info->tree_log_mutex);

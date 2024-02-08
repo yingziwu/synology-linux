@@ -30,7 +30,6 @@
 #include <linux/io.h>
 #include <linux/suspend.h>
 
-
 #include <mach/clk.h>
 
 /* Frequency table index must be sequential starting at 0 */
@@ -242,7 +241,6 @@ static void __exit tegra_cpufreq_exit(void)
 {
         cpufreq_unregister_driver(&tegra_cpufreq_driver);
 }
-
 
 MODULE_AUTHOR("Colin Cross <ccross@android.com>");
 MODULE_DESCRIPTION("cpufreq driver for Nvidia Tegra2");

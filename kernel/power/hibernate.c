@@ -25,10 +25,11 @@
 #include <linux/freezer.h>
 #include <linux/gfp.h>
 #include <linux/syscore_ops.h>
+#include <linux/ctype.h>
+#include <linux/genhd.h>
 #include <scsi/scsi_scan.h>
 
 #include "power.h"
-
 
 static int nocompress;
 static int noresume;
@@ -37,6 +38,13 @@ static int resume_delay;
 static char resume_file[256] = CONFIG_PM_STD_PARTITION;
 dev_t swsusp_resume_device;
 sector_t swsusp_resume_block;
+
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT)
+int noshrink;
+char hb_bdev_file[64] = CONFIG_PM_STD_PARTITION;
+char compress_method[16] = "lzo";
+volatile unsigned long in_suspend;
+#else
 int in_suspend __nosavedata;
 
 enum {
@@ -624,8 +632,11 @@ int hibernate(void)
 	printk(KERN_INFO "PM: Syncing filesystems ... ");
 	sys_sync();
 	printk("done.\n");
-
+#if deffined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT)
+	error = suspend_freeze_processes();
+#else
 	error = freeze_processes();
+#endif
 	if (error)
 		goto Free_bitmaps;
 
@@ -651,11 +662,19 @@ int hibernate(void)
 		in_suspend = 0;
 		pm_restore_gfp_mask();
 	} else {
+#ifdef CONFIG_HI3535_SDK_2050
+		pr_info("PM: Image restored successfully.\n");
+#else
 		pr_debug("PM: Image restored successfully.\n");
+#endif /* CONFIG_HI3535_SDK_2050 */
 	}
 
  Thaw:
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT)
+	suspend_thaw_processes();
+#else
 	thaw_processes();
+#endif
 
 	/* Don't bother checking whether freezer_test_done is true */
 	freezer_test_done = false;
@@ -670,7 +689,6 @@ int hibernate(void)
 	unlock_system_sleep();
 	return error;
 }
-
 
 /**
  * software_resume - Resume from a saved hibernation image.
@@ -728,6 +746,17 @@ static int software_resume(void)
 
 	/* Check if the device is there */
 	swsusp_resume_device = name_to_dev_t(resume_file);
+
+	/*
+	 * name_to_dev_t is ineffective to verify parition if resume_file is in
+	 * integer format. (e.g. major:minor)
+	 */
+	if (isdigit(resume_file[0]) && resume_wait) {
+		int partno;
+		while (!get_gendisk(swsusp_resume_device, &partno))
+			msleep(10);
+	}
+
 	if (!swsusp_resume_device) {
 		/*
 		 * Some device discovery might still be in progress; we need
@@ -781,7 +810,11 @@ static int software_resume(void)
 		goto close_finish;
 
 	pr_debug("PM: Preparing processes for restore.\n");
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT)
+	error = suspend_freeze_processes();
+#else
 	error = freeze_processes();
+#endif
 	if (error) {
 		swsusp_close(FMODE_READ);
 		goto Done;
@@ -796,7 +829,11 @@ static int software_resume(void)
 
 	printk(KERN_ERR "PM: Failed to load hibernation image, recovering.\n");
 	swsusp_free();
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT)
+	suspend_thaw_processes();
+#else
 	thaw_processes();
+#endif
  Done:
 	free_basic_memory_bitmaps();
  Finish:
@@ -813,8 +850,9 @@ close_finish:
 	goto Finish;
 }
 
+#if !defined(CONFIG_HI3535_SDK_2050) ||(defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT))
 late_initcall(software_resume);
-
+#endif
 
 static const char * const hibernation_modes[] = {
 	[HIBERNATION_PLATFORM]	= "platform",
@@ -975,6 +1013,35 @@ static ssize_t image_size_store(struct kobject *kobj, struct kobj_attribute *att
 
 power_attr(image_size);
 
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef CONFIG_HISI_SNAPSHOT_BOOT
+static ssize_t compress_method_show(struct kobject *kobj,
+		struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%s\n", compress_method);
+}
+static ssize_t compress_method_store(struct kobject *kobj,
+		struct kobj_attribute *attr,
+		const char *buf, size_t n)
+{
+	return -EINVAL;
+}
+power_attr(compress_method);
+static ssize_t hb_bdev_file_show(struct kobject *kobj,
+		struct kobj_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%s\n", hb_bdev_file);
+}
+static ssize_t hb_bdev_file_store(struct kobject *kobj,
+		struct kobj_attribute *attr,
+		const char *buf, size_t n)
+{
+	return -EINVAL;
+}
+power_attr(hb_bdev_file);
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
+
 static ssize_t reserved_size_show(struct kobject *kobj,
 				  struct kobj_attribute *attr, char *buf)
 {
@@ -1002,14 +1069,18 @@ static struct attribute * g[] = {
 	&resume_attr.attr,
 	&image_size_attr.attr,
 	&reserved_size_attr.attr,
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef CONFIG_HISI_SNAPSHOT_BOOT
+	&compress_method_attr.attr,
+	&hb_bdev_file_attr.attr,
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 	NULL,
 };
-
 
 static struct attribute_group attr_group = {
 	.attrs = g,
 };
-
 
 static int __init pm_disk_init(void)
 {
@@ -1017,7 +1088,6 @@ static int __init pm_disk_init(void)
 }
 
 core_initcall(pm_disk_init);
-
 
 static int __init resume_setup(char *str)
 {
@@ -1067,6 +1137,17 @@ static int __init resumedelay_setup(char *str)
 	resume_delay = simple_strtoul(str, NULL, 0);
 	return 1;
 }
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+static int __init hb_bdev_setup(char *str)
+{
+	strncpy(hb_bdev_file, str, sizeof(hb_bdev_file) - 1);
+	return 1;
+}
+
+__setup("hbcomp=", hb_bdev_setup);
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 
 __setup("noresume", noresume_setup);
 __setup("resume_offset=", resume_offset_setup);

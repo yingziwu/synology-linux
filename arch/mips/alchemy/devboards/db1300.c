@@ -763,7 +763,6 @@ static int __init db1300_device_init(void)
 }
 device_initcall(db1300_device_init);
 
-
 void __init board_setup(void)
 {
 	unsigned short whoami;

@@ -28,7 +28,6 @@
 
 #include "proto.h"
 
-
 #define DEBUG_SIG 0
 
 #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
@@ -36,7 +35,6 @@
 asmlinkage void ret_from_sys_call(void);
 static void do_signal(struct pt_regs *, struct switch_stack *,
 		      unsigned long, unsigned long);
-
 
 /*
  * The OSF/1 sigprocmask calling sequence is different from the
@@ -296,7 +294,6 @@ give_sigsegv:
 	force_sig(SIGSEGV, current);
 }
 
-
 /*
  * Set up a signal frame.
  */
@@ -481,7 +478,6 @@ give_sigsegv:
 	return -EFAULT;
 }
 
-
 /*
  * OK, we're invoking a handler.
  */
@@ -524,7 +520,6 @@ syscall_restart(unsigned long r0, unsigned long r19,
 		break;
 	}
 }
-
 
 /*
  * Note that 'init' is a special process: it doesn't get signals it doesn't

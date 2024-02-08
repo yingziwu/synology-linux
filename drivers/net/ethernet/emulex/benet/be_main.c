@@ -1022,7 +1022,6 @@ static int be_set_vf_vlan(struct net_device *netdev,
 			adapter->vf_cfg[vf].if_handle);
 	}
 
-
 	if (status)
 		dev_info(&adapter->pdev->dev,
 				"VLAN %d config on VF %d failed\n", vlan, vf);
@@ -1269,7 +1268,6 @@ static void be_rx_compl_process(struct be_rx_obj *rxo,
 	skb->protocol = eth_type_trans(skb, netdev);
 	if (netdev->features & NETIF_F_RXHASH)
 		skb->rxhash = rxcp->rss_hash;
-
 
 	if (rxcp->vlanf)
 		__vlan_hwaccel_put_tag(skb, rxcp->vlan_tag);
@@ -3194,7 +3192,6 @@ pci_map_err:
 	be_unmap_pci_bars(adapter);
 	return -ENOMEM;
 }
-
 
 static void be_ctrl_cleanup(struct be_adapter *adapter)
 {

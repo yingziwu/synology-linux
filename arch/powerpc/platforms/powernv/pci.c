@@ -363,7 +363,6 @@ struct pci_ops pnv_pci_ops = {
 	.write = pnv_pci_write_config,
 };
 
-
 static void pnv_tce_invalidate(struct iommu_table *tbl,
 			       u64 *startp, u64 *endp)
 {
@@ -372,7 +371,6 @@ static void pnv_tce_invalidate(struct iommu_table *tbl,
 
 	start = __pa(startp);
 	end = __pa(endp);
-
 
 	/* BML uses this case for p6/p7/galaxy2: Shift addr and put in node */
 	if (tbl->it_busno) {
@@ -403,7 +401,6 @@ static void pnv_tce_invalidate(struct iommu_table *tbl,
 	 * we don't care on free()
 	 */
 }
-
 
 static int pnv_tce_build(struct iommu_table *tbl, long index, long npages,
 			 unsigned long uaddr, enum dma_data_direction direction,
@@ -534,7 +531,6 @@ static int pnv_pci_probe_mode(struct pci_bus *bus)
 	struct pci_controller *hose = pci_bus_to_host(bus);
 	const __be64 *tstamp;
 	u64 now, target;
-
 
 	/* We hijack this as a way to ensure we have waited long
 	 * enough since the reset was lifted on the PCI bus

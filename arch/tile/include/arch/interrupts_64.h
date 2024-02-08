@@ -23,7 +23,6 @@
 #define INT_MASK(intno) (1ULL << (intno))
 #endif
 
-
 /** Where a given interrupt executes */
 #define INTERRUPT_VECTOR(i, pl) (0xFC000000 + ((pl) << 24) + ((i) << 8))
 
@@ -32,7 +31,6 @@
 
 /** The base address of user-level interrupts. */
 #define USER_INTERRUPT_VECTOR_BASE INTERRUPT_VECTOR(0, 0)
-
 
 /** Additional synthetic interrupt. */
 #define INT_BREAKPOINT (63)

@@ -134,7 +134,6 @@ static inline void omap_writeb(u8 v, u32 pa)
 	__raw_writeb(v, OMAP2_L4_IO_ADDRESS(pa));
 }
 
-
 static inline void omap_writew(u16 v, u32 pa)
 {
 	__raw_writew(v, OMAP2_L4_IO_ADDRESS(pa));

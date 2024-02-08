@@ -70,4 +70,3 @@ MACHINE_START(AUTCPU12, "autronix autcpu12")
 	.timer		= &clps711x_timer,
 	.restart	= clps711x_restart,
 MACHINE_END
-

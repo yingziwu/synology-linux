@@ -37,7 +37,6 @@
 #include <linux/efi.h>
 #include <linux/uaccess.h>
 
-
 #define EFI_RTC_VERSION		"0.4"
 
 #define EFI_ISDST (EFI_TIME_ADJUST_DAYLIGHT|EFI_TIME_IN_DAYLIGHT)
@@ -129,7 +128,6 @@ convert_from_efi_time(efi_time_t *eft, struct rtc_time *wtime)
 
 	/* day in the year [1-365]*/
 	wtime->tm_yday = compute_yday(eft);
-
 
 	switch (eft->daylight & EFI_ISDST) {
 		case EFI_ISDST:
@@ -330,7 +328,6 @@ efi_rtc_get_status(char *buf)
 		/* XXX fixme: convert to string? */
 		p += sprintf(p, "Timezone       : %u\n", eft.timezone);
 		
-
 	p += sprintf(p,
 		     "Alarm Time     : %u:%u:%u.%09u\n"
 		     "Alarm Date     : %u-%u-%u\n"

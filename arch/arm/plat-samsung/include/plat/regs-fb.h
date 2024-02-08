@@ -181,7 +181,6 @@
 
 /* WINCONx */
 
-
 #define WINCONx_BITSWP				(1 << 18)
 #define WINCONx_BYTSWP				(1 << 17)
 #define WINCONx_HAWSWP				(1 << 16)
@@ -365,7 +364,6 @@
 #define WxKEYCON1_COLVAL_LIMIT			(0xffffff)
 #define WxKEYCON1_COLVAL(_x)			((_x) << 0)
 
-
 /* Window blanking (MAP) */
 
 #define WINxMAP_MAP				(1 << 24)
@@ -400,4 +398,3 @@
 #define BLENDCON_NEW_MASK			(1 << 0)
 #define BLENDCON_NEW_8BIT_ALPHA_VALUE		(1 << 0)
 #define BLENDCON_NEW_4BIT_ALPHA_VALUE		(0 << 0)
-

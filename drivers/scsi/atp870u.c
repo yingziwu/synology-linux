@@ -627,8 +627,6 @@ static int atp870u_queuecommand_lck(struct scsi_cmnd *req_p,
 	host = req_p->device->host;
 	dev = (struct atp_unit *)&host->hostdata;
 		
-
-		
 	m = 1;
 	m = m << scmd_id(req_p);
 
@@ -3133,7 +3131,6 @@ static int atp870u_proc_info(struct Scsi_Host *HBAptr, char *buffer,
 	return (len);
 }
 
-
 static int atp870u_biosparam(struct scsi_device *disk, struct block_device *dev,
 			sector_t capacity, int *ip)
 {
@@ -3158,7 +3155,6 @@ static void atp870u_remove (struct pci_dev *pdev)
 {	
 	struct atp_unit *devext = pci_get_drvdata(pdev);
 	struct Scsi_Host *pshost = devext->host;
-	
 	
 	scsi_remove_host(pshost);
 	printk(KERN_INFO "free_irq : %d\n",pshost->irq);
@@ -3238,8 +3234,6 @@ static void tscam_885(void)
 	}
 	return;
 }
-
-
 
 static void is885(struct atp_unit *dev, unsigned int wkport,unsigned char c)
 {
@@ -3921,4 +3915,3 @@ tar_dcons:
 
 module_init(atp870u_init);
 module_exit(atp870u_exit);
-

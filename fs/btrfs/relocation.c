@@ -522,7 +522,6 @@ static int update_backref_cache(struct btrfs_trans_handle *trans,
 	return 1;
 }
 
-
 static int should_ignore_root(struct btrfs_root *root)
 {
 	struct btrfs_root *reloc_root;

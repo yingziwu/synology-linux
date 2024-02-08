@@ -53,7 +53,6 @@ error_ret:
 }
 EXPORT_SYMBOL_GPL(iio_map_array_register);
 
-
 /* Assumes the exact same array (e.g. memory locations)
  * used at unregistration as used at registration rather than
  * more complex checking of contents.
@@ -106,7 +105,6 @@ static const struct iio_chan_spec
 		}
 	return chan;
 }
-
 
 struct iio_channel *iio_st_channel_get(const char *name,
 				       const char *channel_name)

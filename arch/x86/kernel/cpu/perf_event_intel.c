@@ -1331,7 +1331,6 @@ static int intel_pmu_hw_config(struct perf_event *event)
 		 */
 		u64 alt_config = X86_CONFIG(.event=0xc0, .inv=1, .cmask=16);
 
-
 		alt_config |= (event->hw.config & ~X86_RAW_EVENT_MASK);
 		event->hw.config = alt_config;
 	}

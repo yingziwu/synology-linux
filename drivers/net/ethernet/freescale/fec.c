@@ -544,7 +544,6 @@ fec_stop(struct net_device *ndev)
 	}
 }
 
-
 static void
 fec_timeout(struct net_device *ndev)
 {
@@ -627,7 +626,6 @@ fec_enet_tx(struct net_device *ndev)
 	fep->dirty_tx = bdp;
 	spin_unlock(&fep->hw_lock);
 }
-
 
 /* During a receive, the cur_rx points to the current incoming buffer.
  * When we update through the ring, if the next incoming buffer has
@@ -786,8 +784,6 @@ fec_enet_interrupt(int irq, void *dev_id)
 
 	return ret;
 }
-
-
 
 /* ------------------------------------------------------------------------- */
 static void __inline__ fec_get_mac(struct net_device *ndev)

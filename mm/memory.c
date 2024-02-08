@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/mm/memory.c
  *
@@ -121,7 +124,6 @@ static int __init init_zero_pfn(void)
 	return 0;
 }
 core_initcall(init_zero_pfn);
-
 
 #if defined(SPLIT_RSS_COUNTING)
 
@@ -1297,7 +1299,6 @@ static void unmap_page_range(struct mmu_gather *tlb,
 	mem_cgroup_uncharge_end();
 }
 
-
 static void unmap_single_vma(struct mmu_gather *tlb,
 		struct vm_area_struct *vma, unsigned long start_addr,
 		unsigned long end_addr, unsigned long *nr_accounted,
@@ -1445,6 +1446,24 @@ int zap_vma_ptes(struct vm_area_struct *vma, unsigned long address,
 }
 EXPORT_SYMBOL_GPL(zap_vma_ptes);
 
+static inline bool can_follow_write_pte(pte_t pte, struct page *page,
+					unsigned int flags)
+{
+	if (pte_write(pte))
+		return true;
+
+	/*
+	 * Make sure that we are really following CoWed page. We do not really
+	 * have to care about exclusiveness of the page because we only want
+	 * to ensure that once COWed page hasn't disappeared in the meantime
+	 * or it hasn't been merged to a KSM page.
+	 */
+	if ((flags & FOLL_FORCE) && (flags & FOLL_COW))
+		return page && PageAnon(page) && !PageKsm(page);
+
+	return false;
+}
+
 /**
  * follow_page - look up a page descriptor from a user-virtual address
  * @vma: vm_area_struct mapping @address
@@ -1527,10 +1546,13 @@ split_fallthrough:
 	pte = *ptep;
 	if (!pte_present(pte))
 		goto no_page;
-	if ((flags & FOLL_WRITE) && !pte_write(pte))
-		goto unlock;
 
 	page = vm_normal_page(vma, address, pte);
+	if ((flags & FOLL_WRITE) && !can_follow_write_pte(pte, page, flags)) {
+		pte_unmap_unlock(ptep, ptl);
+		return NULL;
+	}
+
 	if (unlikely(!page)) {
 		if ((flags & FOLL_DUMP) ||
 		    !is_zero_pfn(pte_pfn(pte)))
@@ -1573,7 +1595,7 @@ split_fallthrough:
 			unlock_page(page);
 		}
 	}
-unlock:
+
 	pte_unmap_unlock(ptep, ptl);
 out:
 	return page;
@@ -1600,12 +1622,6 @@ no_page_table:
 	    (!vma->vm_ops || !vma->vm_ops->fault))
 		return ERR_PTR(-EFAULT);
 	return page;
-}
-
-static inline int stack_guard_page(struct vm_area_struct *vma, unsigned long addr)
-{
-	return stack_guard_page_start(vma, addr) ||
-	       stack_guard_page_end(vma, addr+PAGE_SIZE);
 }
 
 /**
@@ -1758,11 +1774,6 @@ int __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
 				int ret;
 				unsigned int fault_flags = 0;
 
-				/* For mlock, just skip the stack guard page. */
-				if (foll_flags & FOLL_MLOCK) {
-					if (stack_guard_page(vma, start))
-						goto next_page;
-				}
 				if (foll_flags & FOLL_WRITE)
 					fault_flags |= FAULT_FLAG_WRITE;
 				if (nonblocking)
@@ -1807,17 +1818,13 @@ int __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
 				 * The VM_FAULT_WRITE bit tells us that
 				 * do_wp_page has broken COW when necessary,
 				 * even if maybe_mkwrite decided not to set
-				 * pte_write. We can thus safely do subsequent
-				 * page lookups as if they were reads. But only
-				 * do so when looping for pte_write is futile:
-				 * in some cases userspace may also be wanting
-				 * to write to the gotten user page, which a
-				 * read fault here might prevent (a readonly
-				 * page might get reCOWed by userspace write).
+				 * pte_write. We cannot simply drop FOLL_WRITE
+				 * here because the COWed page might be gone by
+				 * the time we do the subsequent page lookups.
 				 */
 				if ((ret & VM_FAULT_WRITE) &&
 				    !(vma->vm_flags & VM_WRITE))
-					foll_flags &= ~FOLL_WRITE;
+					foll_flags |= FOLL_COW;
 
 				cond_resched();
 			}
@@ -2870,7 +2877,6 @@ void unmap_mapping_range(struct address_space *mapping,
 	if (details.last_index < details.first_index)
 		details.last_index = ULONG_MAX;
 
-
 	mutex_lock(&mapping->i_mmap_mutex);
 	if (unlikely(!prio_tree_empty(&mapping->i_mmap)))
 		unmap_mapping_range_tree(&mapping->i_mmap, &details);
@@ -3064,40 +3070,6 @@ out_release:
 }
 
 /*
- * This is like a special single-page "expand_{down|up}wards()",
- * except we must first make sure that 'address{-|+}PAGE_SIZE'
- * doesn't hit another vma.
- */
-static inline int check_stack_guard_page(struct vm_area_struct *vma, unsigned long address)
-{
-	address &= PAGE_MASK;
-	if ((vma->vm_flags & VM_GROWSDOWN) && address == vma->vm_start) {
-		struct vm_area_struct *prev = vma->vm_prev;
-
-		/*
-		 * Is there a mapping abutting this one below?
-		 *
-		 * That's only ok if it's the same stack mapping
-		 * that has gotten split..
-		 */
-		if (prev && prev->vm_end == address)
-			return prev->vm_flags & VM_GROWSDOWN ? 0 : -ENOMEM;
-
-		expand_downwards(vma, address - PAGE_SIZE);
-	}
-	if ((vma->vm_flags & VM_GROWSUP) && address + PAGE_SIZE == vma->vm_end) {
-		struct vm_area_struct *next = vma->vm_next;
-
-		/* As VM_GROWSDOWN but s/below/above/ */
-		if (next && next->vm_start == address + PAGE_SIZE)
-			return next->vm_flags & VM_GROWSUP ? 0 : -ENOMEM;
-
-		expand_upwards(vma, address + PAGE_SIZE);
-	}
-	return 0;
-}
-
-/*
  * We enter with non-exclusive mmap_sem (to exclude vma changes,
  * but allow concurrent faults), and pte mapped but not yet locked.
  * We return with mmap_sem still held, but pte unmapped and unlocked.
@@ -3112,8 +3084,8 @@ static int do_anonymous_page(struct mm_struct *mm, struct vm_area_struct *vma,
 
 	pte_unmap(page_table);
 
-	/* Check if we need to add a guard page to the stack */
-	if (check_stack_guard_page(vma, address) < 0)
+	/* File mapping without ->vm_ops ? */
+	if (vma->vm_flags & VM_SHARED)
 		return VM_FAULT_SIGBUS;
 
 	/* Use the zero-page for reads */
@@ -3371,6 +3343,9 @@ static int do_linear_fault(struct mm_struct *mm, struct vm_area_struct *vma,
 			- vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
 
 	pte_unmap(page_table);
+	/* The VMA was not fully populated on mmap() or missing VM_DONTEXPAND */
+	if (!vma->vm_ops->fault)
+		return VM_FAULT_SIGBUS;
 	return __do_fault(mm, vma, address, pmd, pgoff, flags, orig_pte);
 }
 
@@ -3429,11 +3404,9 @@ int handle_pte_fault(struct mm_struct *mm,
 	entry = *pte;
 	if (!pte_present(entry)) {
 		if (pte_none(entry)) {
-			if (vma->vm_ops) {
-				if (likely(vma->vm_ops->fault))
-					return do_linear_fault(mm, vma, address,
+			if (vma->vm_ops)
+				return do_linear_fault(mm, vma, address,
 						pte, pmd, flags, entry);
-			}
 			return do_anonymous_page(mm, vma, address,
 						 pte, pmd, flags);
 		}
@@ -4026,3 +3999,69 @@ void copy_user_huge_page(struct page *dst, struct page *src,
 	}
 }
 #endif /* CONFIG_TRANSPARENT_HUGEPAGE || CONFIG_HUGETLBFS */
+
+#ifdef MY_ABC_HERE
+extern struct mm_struct *syno_get_task_mm(struct task_struct *task);
+int syno_access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, int len, int write)
+{
+	struct mm_struct *mm;
+	struct vm_area_struct *vma;
+	void *old_buf = buf;
+
+	mm = syno_get_task_mm(tsk);
+	if (!mm)
+		return 0;
+
+	down_read(&mm->mmap_sem);
+	/* ignore errors, just check how much was successfully transferred */
+	while (len) {
+		int bytes, ret, offset;
+		void *maddr;
+		struct page *page = NULL;
+
+		ret = get_user_pages(tsk, mm, addr, 1,
+				write, 1, &page, &vma);
+		if (ret <= 0) {
+			/*
+			 * Check if this is a VM_IO | VM_PFNMAP VMA, which
+			 * we can access using slightly different code.
+			 */
+#ifdef CONFIG_HAVE_IOREMAP_PROT
+			vma = find_vma(mm, addr);
+			if (!vma)
+				break;
+			if (vma->vm_ops && vma->vm_ops->access)
+				ret = vma->vm_ops->access(vma, addr, buf,
+							  len, write);
+			if (ret <= 0)
+#endif
+				break;
+			bytes = ret;
+		} else {
+			bytes = len;
+			offset = addr & (PAGE_SIZE-1);
+			if (bytes > PAGE_SIZE-offset)
+				bytes = PAGE_SIZE-offset;
+
+			maddr = kmap(page);
+			if (write) {
+				copy_to_user_page(vma, page, addr,
+						  maddr + offset, buf, bytes);
+				set_page_dirty_lock(page);
+			} else {
+				copy_from_user_page(vma, page, addr,
+						    buf, maddr + offset, bytes);
+			}
+			kunmap(page);
+			page_cache_release(page);
+		}
+		len -= bytes;
+		buf += bytes;
+		addr += bytes;
+	}
+	up_read(&mm->mmap_sem);
+	mmput(mm);
+
+	return buf - old_buf;
+}
+#endif /* MY_ABC_HERE */

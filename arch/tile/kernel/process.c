@@ -40,7 +40,6 @@
 #include <arch/abi.h>
 #include <arch/sim_def.h>
 
-
 /*
  * Use the (x86) "idle=poll" option to prefer low latency when leaving the
  * idle loop over low power while in the idle loop, e.g. if we have
@@ -73,7 +72,6 @@ early_param("idle", idle_setup);
 void cpu_idle(void)
 {
 	int cpu = smp_processor_id();
-
 
 	current_thread_info()->status |= TS_POLLING;
 
@@ -266,7 +264,6 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
 	/* New thread does not own any networks. */
 	p->thread.hardwall = NULL;
 #endif
-
 
 	/*
 	 * Start the new thread with the current architecture state
@@ -471,7 +468,6 @@ static void restore_arch_state(const struct thread_struct *t)
 #endif
 }
 
-
 void _prepare_arch_switch(struct task_struct *next)
 {
 #if CHIP_HAS_SN_PROC()
@@ -495,7 +491,6 @@ void _prepare_arch_switch(struct task_struct *next)
 		__insn_mtspr(SPR_SNCTL, snctl | SPR_SNCTL__FRZPROC_MASK);
 #endif
 }
-
 
 struct task_struct *__sched _switch_to(struct task_struct *prev,
 				       struct task_struct *next)

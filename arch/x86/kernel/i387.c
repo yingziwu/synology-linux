@@ -630,7 +630,6 @@ static int save_i387_xsave(void __user *buf)
 	struct _fpstate_ia32 __user *fx = buf;
 	int err = 0;
 
-
 	sanitize_i387_state(tsk);
 
 	/*

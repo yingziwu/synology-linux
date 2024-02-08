@@ -4,7 +4,6 @@
  * initial bootloader stuff..
  */
 
-
 	.set noreorder
 	.globl	__start
 	.ent	__start

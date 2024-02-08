@@ -55,7 +55,6 @@ static const struct snd_pcm_hardware alsa_hardware = {
 	.periods_max = AUDIO_FRAGMENT_MANY * 2,
 };
 
-
 /*---------------------------------------------------------------------------*/
 /*
  *  SUBMIT ALL AUDIO URBS.
@@ -747,4 +746,3 @@ int easycap_alsa_probe(struct easycap *peasycap)
 	SAM("registered %s\n", &psnd_card->id[0]);
 	return 0;
 }
-

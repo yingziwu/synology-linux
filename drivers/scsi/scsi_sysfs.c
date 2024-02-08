@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * scsi_sysfs.c
  *
@@ -364,6 +367,9 @@ static void scsi_device_dev_release_usercontext(struct work_struct *work)
 	scsi_target_reap(scsi_target(sdev));
 
 	kfree(sdev->inquiry);
+#ifdef MY_ABC_HERE
+	kfree(sdev->model);
+#endif
 	kfree(sdev);
 
 	if (parent)
@@ -443,6 +449,18 @@ void scsi_sysfs_unregister(void)
  * sdev_show_function: macro to create an attr function that can be used to
  * show a non-bit field.
  */
+#ifdef MY_ABC_HERE
+#define sdev_show_function(field, format_string)				\
+static ssize_t								\
+sdev_show_##field (struct device *dev, struct device_attribute *attr,	\
+		   char *buf)						\
+{									\
+	struct scsi_device *sdev;					\
+	sdev = to_scsi_device(dev);					\
+	return snprintf (buf, SYNO_DISK_MODEL_NUM + 4, format_string, sdev->field);		\
+}									\
+
+#else
 #define sdev_show_function(field, format_string)				\
 static ssize_t								\
 sdev_show_##field (struct device *dev, struct device_attribute *attr,	\
@@ -453,6 +471,8 @@ sdev_show_##field (struct device *dev, struct device_attribute *attr,	\
 	return snprintf (buf, 20, format_string, sdev->field);		\
 }									\
 
+#endif
+
 /*
  * sdev_rd_attr: macro to create a function and attribute variable for a
  * read only field.
@@ -460,7 +480,6 @@ sdev_show_##field (struct device *dev, struct device_attribute *attr,	\
 #define sdev_rd_attr(field, format_string)				\
 	sdev_show_function(field, format_string)			\
 static DEVICE_ATTR(field, S_IRUGO, sdev_show_##field, NULL);
-
 
 /*
  * sdev_rw_attr: create a function and attribute variable for a
@@ -523,6 +542,129 @@ static int scsi_sdev_check_buf_bit(const char *buf)
 		return -EINVAL;
 }
 #endif
+
+#ifdef MY_ABC_HERE
+extern void
+ScsiRemapModeSet(struct scsi_device *sdev, unsigned char blAutoRemap);
+static ssize_t
+sdev_show_auto_remap(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct scsi_device *sdev;
+	sdev = to_scsi_device(dev);
+	return snprintf (buf, 20, "%d type 0x%x\n", sdev->auto_remap, sdev->type);
+}
+
+static ssize_t
+sdev_store_auto_remap(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct scsi_device *sdev;
+	int val = 0;
+	sdev = to_scsi_device(dev);
+	sscanf (buf, "%d", &val);
+
+	ScsiRemapModeSet(sdev, val ? 1 : 0);
+	return count;
+}
+static DEVICE_ATTR(auto_remap, S_IRUGO | S_IWUSR, sdev_show_auto_remap, sdev_store_auto_remap);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+/* FIXME: We don't know why SAS disks led blinking when open it, so we add a sysfs interface to prevent it
+ * The following code is copied from "case SD_IOCTL_IDLE: " ind "sd.c" */
+static ssize_t
+sdev_show_syno_idle_time(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct scsi_device *sdev;
+	int iRet = -EFAULT;
+
+	if (NULL == (sdev = to_scsi_device(dev))) {
+		goto END;
+	}
+
+	iRet = snprintf (buf, 20, "%lu\n", (jiffies - sdev->idle) / HZ + 1);
+
+END:
+	return iRet;
+}
+
+static ssize_t
+sdev_store_syno_idle_time(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct scsi_device *sdev;
+	unsigned long idletime;
+
+	if (NULL == (sdev = to_scsi_device(dev))) {
+		goto END;
+	}
+
+	sscanf(buf, "%lu", &idletime);
+	// idletime = (jiffies - sdev->idle) / HZ + 1
+	sdev->idle = jiffies - (idletime -1) * HZ;
+
+END:
+	return count;
+}
+
+static DEVICE_ATTR(syno_idle_time, S_IRUGO | S_IWUSR, sdev_show_syno_idle_time, sdev_store_syno_idle_time);
+
+static ssize_t
+sdev_show_syno_spindown(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct scsi_device *sdev;
+	int iRet = -EFAULT;
+
+	if (NULL == (sdev = to_scsi_device(dev))) {
+		goto END;
+	}
+
+	iRet = snprintf (buf, 20, "%d\n", sdev->spindown);
+
+END:
+	return iRet;
+}
+
+static DEVICE_ATTR(syno_spindown, S_IRUGO, sdev_show_syno_spindown, NULL);
+
+static ssize_t
+sdev_show_syno_standby_syncing(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct scsi_device *sdev;
+	int iRet = -EFAULT;
+
+	if (NULL == (sdev = to_scsi_device(dev))) {
+		goto END;
+	}
+
+	iRet = snprintf (buf, 20, "%u\n", sdev->do_standby_syncing);
+
+END:
+	return iRet;
+}
+
+static ssize_t
+sdev_store_syno_standby_syncing(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct scsi_device *sdev;
+	unsigned long ulstandby_syncing;
+
+	if (NULL == (sdev = to_scsi_device(dev))) {
+		goto END;
+	}
+
+	sscanf(buf, "%lu", &ulstandby_syncing);
+	if (0 < ulstandby_syncing) {
+		sdev->do_standby_syncing = 1;
+	} else {
+		sdev->do_standby_syncing = 0;
+	}
+
+END:
+	return count;
+}
+
+static DEVICE_ATTR(syno_standby_syncing, S_IRUGO | S_IWUSR, sdev_show_syno_standby_syncing, sdev_store_syno_standby_syncing);
+#endif /* MY_ABC_HERE */
+
 /*
  * Create the actual show/store functions and data structures.
  */
@@ -531,7 +673,11 @@ sdev_rd_attr (queue_depth, "%d\n");
 sdev_rd_attr (type, "%d\n");
 sdev_rd_attr (scsi_level, "%d\n");
 sdev_rd_attr (vendor, "%.8s\n");
+#ifdef MY_ABC_HERE
+sdev_rd_attr (model, "%."SYNO_DISK_MODEL_LEN"s\n");
+#else
 sdev_rd_attr (model, "%.16s\n");
+#endif
 sdev_rd_attr (rev, "%.4s\n");
 
 /*
@@ -727,6 +873,14 @@ static struct attribute *scsi_sdev_attrs[] = {
 	&dev_attr_iodone_cnt.attr,
 	&dev_attr_ioerr_cnt.attr,
 	&dev_attr_modalias.attr,
+#ifdef MY_ABC_HERE
+	&dev_attr_auto_remap.attr,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_idle_time.attr,
+	&dev_attr_syno_spindown.attr,
+	&dev_attr_syno_standby_syncing.attr,
+#endif /* MY_ABC_HERE */
 	REF_EVT(media_change),
 	NULL
 };
@@ -973,6 +1127,11 @@ void __scsi_remove_device(struct scsi_device *sdev)
 	put_device(dev);
 }
 
+#ifdef MY_ABC_HERE
+int (*funcSYNORaidDiskUnplug)(char *szDiskName) = NULL;
+EXPORT_SYMBOL(funcSYNORaidDiskUnplug);
+#endif /* MY_ABC_HERE */
+
 /**
  * scsi_remove_device - unregister a device from the scsi bus
  * @sdev:	scsi_device to unregister
@@ -984,6 +1143,11 @@ void scsi_remove_device(struct scsi_device *sdev)
 	mutex_lock(&shost->scan_mutex);
 	__scsi_remove_device(sdev);
 	mutex_unlock(&shost->scan_mutex);
+#ifdef MY_ABC_HERE
+	if (funcSYNORaidDiskUnplug) {
+		funcSYNORaidDiskUnplug(sdev->syno_disk_name);
+	}
+#endif  /* MY_ABC_HERE */
 }
 EXPORT_SYMBOL(scsi_remove_device);
 

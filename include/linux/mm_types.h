@@ -322,7 +322,6 @@ struct mm_struct {
 						 * by mmlist_lock
 						 */
 
-
 	unsigned long hiwater_rss;	/* High-watermark of RSS usage */
 	unsigned long hiwater_vm;	/* High-water virtual memory usage */
 

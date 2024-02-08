@@ -122,4 +122,3 @@ define_machine(p1023_rds) {
 	.pcibios_fixup_bus	= fsl_pcibios_fixup_bus,
 #endif
 };
-

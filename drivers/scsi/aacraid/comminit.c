@@ -135,7 +135,6 @@ static int aac_alloc_comm(struct aac_dev *dev, void **commaddr, unsigned long co
 	init->HostRRQ_AddrHigh = (u32)((u64)dev->host_rrq_pa >> 32);
 	init->HostRRQ_AddrLow = (u32)(dev->host_rrq_pa & 0xffffffff);
 
-
 	/*
 	 * Increment the base address by the amount already used
 	 */
@@ -469,5 +468,3 @@ struct aac_dev *aac_init_adapter(struct aac_dev *dev)
 
 	return dev;
 }
-
-    

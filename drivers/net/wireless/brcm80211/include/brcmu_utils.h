@@ -173,7 +173,6 @@ extern void brcmu_pktq_flush(struct pktq *pq, bool dir,
 /* ip address */
 struct ipv4_addr;
 
-
 /* externs */
 /* format/print */
 #ifdef DEBUG

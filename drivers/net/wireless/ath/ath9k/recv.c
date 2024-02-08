@@ -1587,7 +1587,6 @@ static void ath_ant_comb_scan(struct ath_softc *sc, struct ath_rx_status *rs)
 				 antcomb->total_pkt_count);
 	}
 
-
 	ath9k_hw_antdiv_comb_conf_get(sc->sc_ah, &div_ant_conf);
 	curr_alt_set = div_ant_conf.alt_lna_conf;
 	curr_main_set = div_ant_conf.main_lna_conf;
@@ -1927,7 +1926,6 @@ int ath_rx_tasklet(struct ath_softc *sc, int flush, bool hp)
 			dev_kfree_skb_any(skb);
 			skb = hdr_skb;
 		}
-
 
 		if (ah->caps.hw_caps & ATH9K_HW_CAP_ANT_DIV_COMB) {
 

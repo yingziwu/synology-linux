@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Scsi Host Layer for MPT (Message Passing Technology) based controllers
  *
@@ -130,7 +133,6 @@ struct sense_info {
 	u8 asc;
 	u8 ascq;
 };
-
 
 #define MPT2SAS_TURN_ON_FAULT_LED (0xFFFC)
 #define MPT2SAS_PORT_ENABLE_COMPLETE (0xFFFD)
@@ -1147,7 +1149,6 @@ _scsih_build_scatter_gather(struct MPT2SAS_ADAPTER *ioc,
 		chain_dma = chain_req->chain_buffer_dma;
 	} while (1);
 
-
  fill_in_last_segment:
 
 	/* fill the last segment */
@@ -1738,7 +1739,6 @@ _scsih_disable_ddio(struct MPT2SAS_ADAPTER *ioc)
 	return;
 }
 
-
 /**
  * _scsih_get_num_volumes - Get number of volumes in the ioc
  * @ioc: per adapter object
@@ -1764,7 +1764,6 @@ _scsih_get_num_volumes(struct MPT2SAS_ADAPTER *ioc)
 	}
 	return vol_cnt;
 }
-
 
 /**
  * _scsih_init_warpdrive_properties - Set properties for warpdrive direct I/O.
@@ -1908,7 +1907,6 @@ _scsih_init_warpdrive_properties(struct MPT2SAS_ADAPTER *ioc,
 	raid_device->max_lba = le64_to_cpu(vol_pg0->MaxLBA);
 	raid_device->stripe_sz = le32_to_cpu(vol_pg0->StripeSize);
 	raid_device->block_sz = le16_to_cpu(vol_pg0->BlockSize);
-
 
 	kfree(vol_pg0);
 	return;
@@ -2312,7 +2310,6 @@ mpt2sas_scsih_clear_tm_flag(struct MPT2SAS_ADAPTER *ioc, u16 handle)
 		}
 	}
 }
-
 
 /**
  * mpt2sas_scsih_issue_tm - main routine for sending tm requests
@@ -2796,7 +2793,6 @@ _scsih_fw_event_free(struct MPT2SAS_ADAPTER *ioc, struct fw_event_work
 	spin_unlock_irqrestore(&ioc->fw_event_lock, flags);
 }
 
-
 /**
  * _scsih_error_recovery_delete_devices - remove devices not responding
  * @ioc: per adapter object
@@ -2946,7 +2942,6 @@ _scsih_block_io_all_device(struct MPT2SAS_ADAPTER *ioc)
 		scsi_internal_device_block(sdev);
 	}
 }
-
 
 /**
  * _scsih_block_io_device - set the device state to SDEV_BLOCK
@@ -3152,8 +3147,6 @@ _scsih_tm_tr_send(struct MPT2SAS_ADAPTER *ioc, u16 handle)
 	mpi_request->TaskType = MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET;
 	mpt2sas_base_put_smid_hi_priority(ioc, smid);
 }
-
-
 
 /**
  * _scsih_sas_control_complete - completion routine
@@ -3611,7 +3604,6 @@ _scsih_check_ir_config_unhide_events(struct MPT2SAS_ADAPTER *ioc,
 	}
 }
 
-
 /**
  * _scsih_check_volume_delete_events - set delete flag for volumes
  * @ioc: per adapter object
@@ -3793,7 +3785,6 @@ _scsih_scsi_direct_io_set(struct MPT2SAS_ADAPTER *ioc, u16 smid, u8 direct_io)
 {
 	ioc->scsi_lookup[smid - 1].direct_io = direct_io;
 }
-
 
 /**
  * _scsih_setup_direct_io - setup MPI request for WARPDRIVE Direct I/O
@@ -4455,7 +4446,6 @@ _scsih_io_done(struct MPT2SAS_ADAPTER *ioc, u16 smid, u8 msix_index, u32 reply)
 		    sas_device_priv_data->sas_target->handle);
 		return 0;
 	}
-
 
 	/* turning off TLR */
 	scsi_state = mpi_reply->SCSIState;
@@ -5219,7 +5209,6 @@ _scsih_add_device(struct MPT2SAS_ADAPTER *ioc, u16 handle, u8 phy_num, u8 is_pd)
 		    ioc->name, __FILE__, __LINE__, __func__);
 		return -1;
 	}
-
 
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
 	sas_device = mpt2sas_scsih_sas_device_find_by_sas_address(ioc,
@@ -7155,7 +7144,6 @@ _scsih_scan_for_devices_after_reset(struct MPT2SAS_ADAPTER *ioc)
 	printk(MPT2SAS_INFO_FMT "scan devices: complete\n", ioc->name);
 }
 
-
 /**
  * mpt2sas_scsih_reset_handler - reset callback handler (for scsih)
  * @ioc: per adapter object
@@ -7242,8 +7230,6 @@ _firmware_event_work(struct work_struct *work)
 		break;
 	case MPT2SAS_PORT_ENABLE_COMPLETE:
 		ioc->start_scan = 0;
-
-
 
 		dewtprintk(ioc, printk(MPT2SAS_INFO_FMT "port enable: complete "
 		    "from worker thread\n", ioc->name));
@@ -7461,6 +7447,9 @@ static struct scsi_host_template scsih_driver_template = {
 	.use_clustering			= ENABLE_CLUSTERING,
 	.shost_attrs			= mpt2sas_host_attrs,
 	.sdev_attrs			= mpt2sas_dev_attrs,
+#ifdef MY_ABC_HERE
+	.syno_port_type		= SYNO_PORT_TYPE_SAS,
+#endif
 };
 
 /**
@@ -7850,7 +7839,6 @@ _scsih_probe_devices(struct MPT2SAS_ADAPTER *ioc)
 		_scsih_probe_sas(ioc);
 }
 
-
 /**
  * _scsih_scan_start - scsi lld callback for .scan_start
  * @shost: SCSI host pointer
@@ -7920,7 +7908,6 @@ _scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
 	ioc->is_driver_loading = 0;
 	return 1;
 }
-
 
 /**
  * _scsih_probe - attach and add scsi host
@@ -8191,7 +8178,6 @@ _scsih_pci_slot_reset(struct pci_dev *pdev)
 	rc = mpt2sas_base_map_resources(ioc);
 	if (rc)
 		return PCI_ERS_RESULT_DISCONNECT;
-
 
 	rc = mpt2sas_base_hard_reset_handler(ioc, CAN_SLEEP,
 	    FORCE_BIG_HAMMER);

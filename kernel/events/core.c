@@ -1194,7 +1194,6 @@ static int __perf_remove_from_context(void *info)
 	return 0;
 }
 
-
 /*
  * Remove the event from a task's (or a CPU's) list of events.
  *

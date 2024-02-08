@@ -56,9 +56,14 @@ extern int nand_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
  * is supported now. If you add a chip with bigger oobsize/page
  * adjust this accordingly.
  */
-#define NAND_MAX_OOBSIZE	576
-#define NAND_MAX_PAGESIZE	8192
 
+#ifdef CONFIG_HI3535_SDK_2050
+#define NAND_MAX_OOBSIZE	4800
+#define NAND_MAX_PAGESIZE	32768
+#else
+#define NAND_MAX_OOBSIZE	1200
+#define NAND_MAX_PAGESIZE	16384
+#endif /* CONFIG_HI3535_SDK_2050 */
 /*
  * Constants for hardware specific CLE/ALE/NCE function
  *
@@ -92,6 +97,9 @@ extern int nand_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
 #define NAND_CMD_READID		0x90
 #define NAND_CMD_ERASE2		0xd0
 #define NAND_CMD_PARAM		0xec
+#ifdef CONFIG_HI3535_SDK_2050
+#define NAND_CMD_SYNC_RESET	0xfc
+#endif /* CONFIG_HI3535_SDK_2050 */
 #define NAND_CMD_RESET		0xff
 
 #define NAND_CMD_LOCK		0x2a
@@ -155,7 +163,6 @@ typedef enum {
 
 /* Bit mask for flags passed to do_nand_read_ecc */
 #define NAND_GET_DEVICE		0x80
-
 
 /*
  * Option constants for bizarre disfunctionality and real
@@ -556,7 +563,9 @@ struct nand_chip {
 #define NAND_MFR_MICRON		0x2c
 #define NAND_MFR_AMD		0x01
 #define NAND_MFR_MACRONIX	0xc2
-
+#ifdef CONFIG_HI3535_SDK_2050
+#define NAND_MFR_GD			0xc8
+#endif /* CONFIG_HI3535_SDK_2050 */
 /**
  * struct nand_flash_dev - NAND Flash Device ID Structure
  * @name:	Identify the device type

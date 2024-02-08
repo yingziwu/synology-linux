@@ -99,7 +99,6 @@ DEFINE_SIMPLE_ATTRIBUTE(fops_iwm_dbg_modules,
 			iwm_debugfs_u32_read, iwm_debugfs_dbg_modules_write,
 			"%llu\n");
 
-
 static ssize_t iwm_debugfs_txq_read(struct file *filp, char __user *buffer,
 				   size_t count, loff_t *ppos)
 {

@@ -138,7 +138,6 @@ bad_area:
 	bad_page_fault(regs, address, SIGSEGV);
 	return;
 
-
 	/* We ran out of memory, or some other thing happened to us that made
 	 * us unable to handle the page fault gracefully.
 	 */
@@ -206,7 +205,6 @@ bad_page_fault:
 	return;
 }
 
-
 void
 bad_page_fault(struct pt_regs *regs, unsigned long address, int sig)
 {
@@ -233,4 +231,3 @@ bad_page_fault(struct pt_regs *regs, unsigned long address, int sig)
 	die("Oops", regs, sig);
 	do_exit(sig);
 }
-

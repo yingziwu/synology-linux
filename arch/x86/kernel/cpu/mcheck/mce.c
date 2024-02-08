@@ -224,7 +224,6 @@ static void drain_mcelog_buffer(void)
 	} while (next != prev);
 }
 
-
 void mce_register_decode_chain(struct notifier_block *nb)
 {
 	atomic_notifier_chain_register(&x86_mce_decoder_chain, nb);

@@ -112,7 +112,6 @@ sys_sigaltstack(const stack_t __user *uss, stack_t __user *uoss)
 	return do_sigaltstack(uss, uoss, rdusp());
 }
 
-
 /*
  * Do a signal return; undo the signal stack.
  *

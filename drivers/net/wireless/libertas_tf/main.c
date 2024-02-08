@@ -477,7 +477,6 @@ static void lbtf_op_configure_filter(struct ieee80211_hw *hw,
 		}
 	}
 
-
 	if (priv->mac_control != old_mac_control)
 		lbtf_set_mac_control(priv);
 
@@ -668,7 +667,6 @@ done:
 	return priv;
 }
 EXPORT_SYMBOL_GPL(lbtf_add_card);
-
 
 int lbtf_remove_card(struct lbtf_private *priv)
 {

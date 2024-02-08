@@ -161,7 +161,6 @@ static __init int s3c2442_clk_init(void)
 
 arch_initcall(s3c2442_clk_init);
 
-
 static struct device s3c2442_dev = {
 	.bus		= &s3c2442_subsys,
 };

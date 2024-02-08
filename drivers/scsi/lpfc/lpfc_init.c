@@ -160,7 +160,6 @@ lpfc_config_port_prep(struct lpfc_hba *phba)
 		return -ERESTART;
 	}
 
-
 	/*
 	 * The value of rr must be 1 since the driver set the cv field to 1.
 	 * This setting requires the FW to set all revision fields.
@@ -1237,7 +1236,6 @@ lpfc_handle_deferred_eratt(struct lpfc_hba *phba)
 	spin_lock_irq(&phba->hbalock);
 	psli->sli_flag &= ~LPFC_SLI_ACTIVE;
 	spin_unlock_irq(&phba->hbalock);
-
 
 	/*
 	 * Firmware stops when it triggred erratt. That could cause the I/Os
@@ -6480,7 +6478,6 @@ lpfc_sli4_queue_create(struct lpfc_hba *phba)
 		goto out_free_mbx_cq;
 	}
 	phba->sli4_hba.els_cq = qdesc;
-
 
 	/*
 	 * Create fast-path FCP Completion Queue(s), one-to-one with FCP EQs.

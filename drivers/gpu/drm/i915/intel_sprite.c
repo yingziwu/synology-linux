@@ -663,4 +663,3 @@ intel_plane_init(struct drm_device *dev, enum pipe pipe)
 
 	return ret;
 }
-

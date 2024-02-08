@@ -84,7 +84,6 @@ static void *vb2_vmalloc_get_userptr(void *alloc_ctx, unsigned long vaddr,
 	offset = vaddr & ~PAGE_MASK;
 	buf->size = size;
 
-
 	vma = find_vma(current->mm, vaddr);
 	if (vma && (vma->vm_flags & VM_PFNMAP) && (vma->vm_pgoff)) {
 		if (vb2_get_contig_userptr(vaddr, size, &vma, &physp))

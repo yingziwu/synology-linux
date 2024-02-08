@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * NET		An implementation of the SOCKET network access protocol.
  *
@@ -660,7 +663,6 @@ void __sock_recv_timestamp(struct msghdr *msg, struct sock *sk,
 		}
 	}
 
-
 	memset(ts, 0, sizeof(ts));
 	if (skb->tstamp.tv64 &&
 	    sock_flag(sk, SOCK_TIMESTAMPING_SOFTWARE)) {
@@ -882,7 +884,6 @@ static ssize_t sock_aio_read(struct kiocb *iocb, const struct iovec *iov,
 
 	if (iocb->ki_left == 0)	/* Match SYS5 behaviour */
 		return 0;
-
 
 	x = alloc_sock_iocb(iocb, &siocb);
 	if (!x)
@@ -1758,7 +1759,12 @@ SYSCALL_DEFINE6(recvfrom, int, fd, void __user *, ubuf, size_t, size,
 {
 	struct socket *sock;
 	struct iovec iov;
+#ifdef MY_ABC_HERE
+	// Fix bug 4511 in DS2.0. This is a workaround method.
+	struct msghdr msg = {0};
+#else
 	struct msghdr msg;
+#endif
 	struct sockaddr_storage address;
 	int err, err2;
 	int fput_needed;
@@ -2289,31 +2295,31 @@ int __sys_recvmmsg(int fd, struct mmsghdr __user *mmsg, unsigned int vlen,
 			break;
 	}
 
+	if (err == 0)
+		goto out_put;
+
+	if (datagrams == 0) {
+		datagrams = err;
+		goto out_put;
+	}
+
+	/*
+	 * We may return less entries than requested (vlen) if the
+	 * sock is non block and there aren't enough datagrams...
+	 */
+	if (err != -EAGAIN) {
+		/*
+		 * ... or  if recvmsg returns an error after we
+		 * received some datagrams, where we record the
+		 * error to return on the next call or if the
+		 * app asks about it using getsockopt(SO_ERROR).
+		 */
+		sock->sk->sk_err = -err;
+	}
 out_put:
 	fput_light(sock->file, fput_needed);
 
-	if (err == 0)
-		return datagrams;
-
-	if (datagrams != 0) {
-		/*
-		 * We may return less entries than requested (vlen) if the
-		 * sock is non block and there aren't enough datagrams...
-		 */
-		if (err != -EAGAIN) {
-			/*
-			 * ... or  if recvmsg returns an error after we
-			 * received some datagrams, where we record the
-			 * error to return on the next call or if the
-			 * app asks about it using getsockopt(SO_ERROR).
-			 */
-			sock->sk->sk_err = -err;
-		}
-
-		return datagrams;
-	}
-
-	return err;
+	return datagrams;
 }
 
 SYSCALL_DEFINE5(recvmmsg, int, fd, struct mmsghdr __user *, mmsg,

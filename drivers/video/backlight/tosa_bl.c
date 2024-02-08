@@ -168,7 +168,6 @@ static const struct i2c_device_id tosa_bl_id[] = {
 	{ },
 };
 
-
 static struct i2c_driver tosa_bl_driver = {
 	.driver = {
 		.name		= "tosa-bl",
@@ -186,4 +185,3 @@ module_i2c_driver(tosa_bl_driver);
 MODULE_AUTHOR("Dmitry Baryshkov");
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("LCD/Backlight control for Sharp SL-6000 PDA");
-

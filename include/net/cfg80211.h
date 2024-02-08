@@ -35,7 +35,6 @@
  * use restrictions.
  */
 
-
 /**
  * DOC: Device registration
  *
@@ -1041,7 +1040,6 @@ struct cfg80211_bss {
  */
 const u8 *ieee80211_bss_get_ie(struct cfg80211_bss *bss, u8 ie);
 
-
 /**
  * struct cfg80211_auth_request - Authentication request data
  *
@@ -1540,7 +1538,6 @@ struct cfg80211_ops {
 	int	(*change_beacon)(struct wiphy *wiphy, struct net_device *dev,
 				 struct cfg80211_beacon_data *info);
 	int	(*stop_ap)(struct wiphy *wiphy, struct net_device *dev);
-
 
 	int	(*add_station)(struct wiphy *wiphy, struct net_device *dev,
 			       u8 *mac, struct station_parameters *params);
@@ -2457,7 +2454,6 @@ extern int ieee80211_radiotap_iterator_init(
 extern int ieee80211_radiotap_iterator_next(
 	struct ieee80211_radiotap_iterator *iterator);
 
-
 extern const unsigned char rfc1042_header[6];
 extern const unsigned char bridge_tunnel_header[6];
 
@@ -3178,7 +3174,6 @@ void cfg80211_remain_on_channel_expired(struct net_device *dev,
 					enum nl80211_channel_type channel_type,
 					gfp_t gfp);
 
-
 /**
  * cfg80211_new_sta - notify userspace about station
  *
@@ -3234,7 +3229,6 @@ bool cfg80211_rx_mgmt(struct net_device *dev, int freq, int sig_dbm,
  */
 void cfg80211_mgmt_tx_status(struct net_device *dev, u64 cookie,
 			     const u8 *buf, size_t len, bool ack, gfp_t gfp);
-
 
 /**
  * cfg80211_cqm_rssi_notify - connection quality monitoring rssi event

@@ -1420,8 +1420,6 @@ static irqreturn_t rt2400pci_interrupt(int irq, void *dev_instance)
 
 	spin_unlock(&rt2x00dev->irqmask_lock);
 
-
-
 	return IRQ_HANDLED;
 }
 
@@ -1813,7 +1811,6 @@ static DEFINE_PCI_DEVICE_TABLE(rt2400pci_device_table) = {
 	{ PCI_DEVICE(0x1814, 0x0101) },
 	{ 0, }
 };
-
 
 MODULE_AUTHOR(DRV_PROJECT);
 MODULE_VERSION(DRV_VERSION);

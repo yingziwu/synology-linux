@@ -192,7 +192,6 @@ static int hidinput_setkeycode(struct input_dev *dev,
 	return -EINVAL;
 }
 
-
 /**
  * hidinput_calc_abs_res - calculate an absolute axis resolution
  * @field: the HID report field to calculate resolution for
@@ -870,7 +869,6 @@ mapped:
 	if (usage->code > max)
 		goto ignore;
 
-
 	if (usage->type == EV_ABS) {
 
 		int a = field->logical_minimum;
@@ -1204,6 +1202,9 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 				 * UGCI) cram a lot of unrelated inputs into the
 				 * same interface. */
 				hidinput->report = report;
+				if (hid->driver->input_register &&
+						hid->driver->input_register(hid, hidinput))
+					goto out_cleanup;
 				if (input_register_device(hidinput->input))
 					goto out_cleanup;
 				hidinput = NULL;
@@ -1217,6 +1218,10 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 			goto out_cleanup;
 		goto out_unwind;
 	}
+
+	if (hidinput && hid->driver->input_register &&
+			hid->driver->input_register(hid, hidinput))
+		goto out_cleanup;
 
 	if (hidinput && input_register_device(hidinput->input))
 		goto out_cleanup;
@@ -1248,4 +1253,3 @@ void hidinput_disconnect(struct hid_device *hid)
 	}
 }
 EXPORT_SYMBOL_GPL(hidinput_disconnect);
-

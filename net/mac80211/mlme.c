@@ -195,7 +195,6 @@ static u32 ieee80211_enable_ht(struct ieee80211_sub_if_data *sdata,
 	sband = local->hw.wiphy->bands[local->hw.conf.channel->band];
 	prev_chantype = sdata->vif.bss_conf.channel_type;
 
-
 	hti_cfreq = ieee80211_channel_to_frequency(hti->control_chan,
 						   sband->band);
 	/* check that channel matches the right operating channel */
@@ -1741,7 +1740,6 @@ void ieee80211_connection_loss(struct ieee80211_vif *vif)
 }
 EXPORT_SYMBOL(ieee80211_connection_loss);
 
-
 static void ieee80211_destroy_auth_data(struct ieee80211_sub_if_data *sdata,
 					bool assoc)
 {
@@ -1861,7 +1859,6 @@ ieee80211_rx_mgmt_auth(struct ieee80211_sub_if_data *sdata,
 	return RX_MGMT_NONE;
 }
 
-
 static enum rx_mgmt_action __must_check
 ieee80211_rx_mgmt_deauth(struct ieee80211_sub_if_data *sdata,
 			 struct ieee80211_mgmt *mgmt, size_t len)
@@ -1894,7 +1891,6 @@ ieee80211_rx_mgmt_deauth(struct ieee80211_sub_if_data *sdata,
 
 	return RX_MGMT_CFG80211_DEAUTH;
 }
-
 
 static enum rx_mgmt_action __must_check
 ieee80211_rx_mgmt_disassoc(struct ieee80211_sub_if_data *sdata,
@@ -2257,7 +2253,6 @@ static void ieee80211_rx_bss_info(struct ieee80211_sub_if_data *sdata,
 	}
 }
 
-
 static void ieee80211_rx_mgmt_probe_resp(struct ieee80211_sub_if_data *sdata,
 					 struct sk_buff *skb)
 {
@@ -2500,7 +2495,6 @@ static void ieee80211_rx_mgmt_beacon(struct ieee80211_sub_if_data *sdata,
 	changed |= ieee80211_handle_bss_capability(sdata,
 			le16_to_cpu(mgmt->u.beacon.capab_info),
 			erp_valid, erp_value);
-
 
 	if (elems.ht_cap_elem && elems.ht_info_elem && elems.wmm_param &&
 	    !(ifmgd->flags & IEEE80211_STA_DISABLE_11N)) {

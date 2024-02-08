@@ -86,7 +86,6 @@
 #define AD7192_CLK_INT_CO		3 /* Internal 4.92 MHz Clock available
 					   * at the MCLK2 pin */
 
-
 /* Configuration Register Bit Designations (AD7192_REG_CONF) */
 
 #define AD7192_CONF_CHOP	(1 << 23) /* CHOP enable */
@@ -713,7 +712,6 @@ out:
 static IIO_DEV_ATTR_SAMP_FREQ(S_IWUSR | S_IRUGO,
 		ad7192_read_frequency,
 		ad7192_write_frequency);
-
 
 static ssize_t ad7192_show_scale_available(struct device *dev,
 			struct device_attribute *attr, char *buf)

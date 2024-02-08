@@ -55,4 +55,3 @@ MODULE_AUTHOR("Chris Kelly");
 MODULE_DESCRIPTION("Ozmo Devices USB over WiFi hcd driver");
 MODULE_VERSION("1.0.8");
 MODULE_LICENSE("GPL");
-

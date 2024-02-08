@@ -256,7 +256,6 @@ int wpa_set_wpadev(PSDevice pDevice, int val)
 		return ret;
 	}
 
-
 	if (param->u.wpa_key.seq && param->u.wpa_key.seq_len > sizeof(abySeq))
 		return -EINVAL;
 
@@ -298,7 +297,6 @@ int wpa_set_wpadev(PSDevice pDevice, int val)
 
 	if (param->u.wpa_key.set_tx)
 		dwKeyIndex |= (1 << 31);
-
 
 	if (pDevice->eEncryptionStatus == Ndis802_11Encryption3Enabled)
 		byKeyDecMode = KEY_CTL_CCMP;
@@ -397,7 +395,6 @@ int wpa_set_wpadev(PSDevice pDevice, int val)
 
 	return ret;
 }
-
 
 /*
  * Description:

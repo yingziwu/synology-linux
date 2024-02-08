@@ -49,5 +49,4 @@ void mv78xx0_restart(char, const char *);
 
 extern struct sys_timer mv78xx0_timer;
 
-
 #endif

@@ -10,7 +10,6 @@
  * of the License.
  */
 
-
 /*
 
 Goals and Theory of Operation
@@ -77,7 +76,6 @@ struct async_entry {
 static DECLARE_WAIT_QUEUE_HEAD(async_done);
 
 static atomic_t entry_count;
-
 
 /*
  * MUST be called with the lock held!

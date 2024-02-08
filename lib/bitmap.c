@@ -140,7 +140,6 @@ void __bitmap_shift_right(unsigned long *dst,
 }
 EXPORT_SYMBOL(__bitmap_shift_right);
 
-
 /**
  * __bitmap_shift_left - logical left shift of the bits in a bitmap
  *   @dst : destination bitmap
@@ -676,7 +675,6 @@ int bitmap_parselist(const char *bp, unsigned long *maskp, int nmaskbits)
 }
 EXPORT_SYMBOL(bitmap_parselist);
 
-
 /**
  * bitmap_parselist_user()
  *
@@ -702,7 +700,6 @@ int bitmap_parselist_user(const char __user *ubuf,
 					ulen, 1, maskp, nmaskbits);
 }
 EXPORT_SYMBOL(bitmap_parselist_user);
-
 
 /**
  * bitmap_pos_to_ord - find ordinal of set bit at given position in bitmap

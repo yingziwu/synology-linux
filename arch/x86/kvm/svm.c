@@ -652,7 +652,6 @@ static int svm_hardware_enable(void *garbage)
 		__get_cpu_var(current_tsc_ratio) = TSC_RATIO_DEFAULT;
 	}
 
-
 	/*
 	 * Get OSVW bits.
 	 *
@@ -3211,7 +3210,6 @@ static int wrmsr_interception(struct vcpu_svm *svm)
 	u32 ecx = svm->vcpu.arch.regs[VCPU_REGS_RCX];
 	u64 data = (svm->vcpu.arch.regs[VCPU_REGS_RAX] & -1u)
 		| ((u64)(svm->vcpu.arch.regs[VCPU_REGS_RDX] & -1u) << 32);
-
 
 	svm->next_rip = kvm_rip_read(&svm->vcpu) + 2;
 	if (svm_set_msr(&svm->vcpu, ecx, data)) {

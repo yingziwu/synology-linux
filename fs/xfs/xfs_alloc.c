@@ -2435,7 +2435,6 @@ xfs_alloc_vextent_worker(
 	current_restore_flags_nested(&pflags, PF_FSTRANS);
 }
 
-
 int				/* error */
 xfs_alloc_vextent(
 	xfs_alloc_arg_t	*args)	/* allocation argument structure */
@@ -2766,7 +2765,6 @@ out_force_log:
 	spin_lock(&pag->pagb_lock);
 	return false;
 }
-
 
 /*
  * For a given extent [fbno, flen], make sure we can reuse it safely.

@@ -396,7 +396,6 @@ nouveau_channel_cleanup(struct drm_device *dev, struct drm_file *file_priv)
 	}
 }
 
-
 /***********************************
  * ioctls wrapping the functions
  ***********************************/

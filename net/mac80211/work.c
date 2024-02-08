@@ -32,7 +32,6 @@ enum work_action {
 	WORK_ACT_TIMEOUT,
 };
 
-
 /* utils */
 static inline void ASSERT_WORK_MTX(struct ieee80211_local *local)
 {

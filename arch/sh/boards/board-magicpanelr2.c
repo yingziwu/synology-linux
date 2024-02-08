@@ -344,7 +344,6 @@ static struct platform_device *mpr2_devices[] __initdata = {
 	&flash_device,
 };
 
-
 static int __init mpr2_devices_setup(void)
 {
 	return platform_add_devices(mpr2_devices, ARRAY_SIZE(mpr2_devices));

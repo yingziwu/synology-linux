@@ -59,7 +59,6 @@ static __init int set_corruption_check_size(char *arg)
 }
 early_param("memory_corruption_check_size", set_corruption_check_size);
 
-
 void __init setup_bios_corruption_check(void)
 {
 	phys_addr_t start, end;
@@ -105,7 +104,6 @@ void __init setup_bios_corruption_check(void)
 	if (num_scan_areas)
 		printk(KERN_INFO "Scanning %d areas for low memory corruption\n", num_scan_areas);
 }
-
 
 void check_for_bios_corruption(void)
 {
@@ -156,4 +154,3 @@ static int start_periodic_check_for_corruption(void)
 }
 
 module_init(start_periodic_check_for_corruption);
-

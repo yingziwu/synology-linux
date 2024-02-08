@@ -91,7 +91,6 @@ static struct sys_timer v2m_timer = {
 	.init	= v2m_timer_init,
 };
 
-
 static DEFINE_SPINLOCK(v2m_cfg_lock);
 
 int v2m_cfg_write(u32 devfn, u32 data)
@@ -146,7 +145,6 @@ void __init v2m_flags_set(u32 data)
 	writel(~0, v2m_sysreg_base + V2M_SYS_FLAGSCLR);
 	writel(data, v2m_sysreg_base + V2M_SYS_FLAGSSET);
 }
-
 
 static struct resource v2m_pcie_i2c_resource = {
 	.start	= V2M_SERIAL_BUS_PCI,
@@ -317,7 +315,6 @@ static struct amba_device *v2m_amba_devs[] __initdata = {
 	&wdt_device,
 	&rtc_device,
 };
-
 
 static long v2m_osc_round(struct clk *clk, unsigned long rate)
 {

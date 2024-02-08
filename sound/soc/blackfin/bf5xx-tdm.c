@@ -320,4 +320,3 @@ module_platform_driver(bfin_tdm_driver);
 MODULE_AUTHOR("Barry Song");
 MODULE_DESCRIPTION("TDM driver for ADI Blackfin");
 MODULE_LICENSE("GPL");
-

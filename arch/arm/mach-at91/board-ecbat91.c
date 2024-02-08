@@ -42,7 +42,6 @@
 
 #include "generic.h"
 
-
 static void __init ecb_at91init_early(void)
 {
 	/* Set cpu type: PQFP */
@@ -82,7 +81,6 @@ static struct at91_mmc_data __initdata ecb_at91mmc_data = {
 	.wp_pin		= -EINVAL,
 	.vcc_pin	= -EINVAL,
 };
-
 
 #if defined(CONFIG_MTD_DATAFLASH)
 static struct mtd_partition __initdata my_flash0_partitions[] =

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/mm/page_alloc.c
  *
@@ -192,6 +195,7 @@ static char * const zone_names[MAX_NR_ZONES] = {
 };
 
 int min_free_kbytes = 1024;
+int min_free_order_shift = 1;
 
 static unsigned long __meminitdata nr_kernel_pages;
 static unsigned long __meminitdata nr_all_pages;
@@ -749,7 +753,6 @@ void __meminit __free_pages_bootmem(struct page *page, unsigned int order)
 	__free_pages(page, order);
 }
 
-
 /*
  * The order of subdivision here is critical for the IO subsystem.
  * Please do not alter this order without good reasons and regression
@@ -868,7 +871,6 @@ struct page *__rmqueue_smallest(struct zone *zone, unsigned int order,
 
 	return NULL;
 }
-
 
 /*
  * This array describes the order lists are fallen back to when
@@ -1565,7 +1567,7 @@ static bool __zone_watermark_ok(struct zone *z, int order, unsigned long mark,
 		free_pages -= z->free_area[o].nr_free << o;
 
 		/* Require fewer higher order pages to be free */
-		min >>= 1;
+		min >>= min_free_order_shift;
 
 		if (free_pages <= min)
 			return false;
@@ -2402,7 +2404,9 @@ rebalance:
 	}
 
 nopage:
+#ifndef MY_ABC_HERE
 	warn_alloc_failed(gfp_mask, order, NULL);
+#endif
 	return page;
 got_pg:
 	if (kmemcheck_enabled)
@@ -2878,7 +2882,6 @@ static int build_zonelists_node(pg_data_t *pgdat, struct zonelist *zonelist,
 	return nr_zones;
 }
 
-
 /*
  *  zonelist_order:
  *  0 = automatic detection of better ordering.
@@ -2897,7 +2900,6 @@ static int build_zonelists_node(pg_data_t *pgdat, struct zonelist *zonelist,
  */
 static int current_zonelist_order = ZONELIST_ORDER_DEFAULT;
 static char zonelist_order_name[3][8] = {"Default", "Node", "Zone"};
-
 
 #ifdef CONFIG_NUMA
 /* The value user specified ....changed by config */
@@ -2983,7 +2985,6 @@ out:
 	return ret;
 }
 
-
 #define MAX_NODE_LOAD (nr_online_nodes)
 static int node_load[MAX_NUMNODES];
 
@@ -3046,7 +3047,6 @@ static int find_next_best_node(int node, nodemask_t *used_node_mask)
 
 	return best_node;
 }
-
 
 /*
  * Build zonelists ordered by node and zones within node.

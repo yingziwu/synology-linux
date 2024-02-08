@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * xHCI host controller driver
  *
@@ -37,6 +40,12 @@
 static int link_quirk;
 module_param(link_quirk, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(link_quirk, "Don't clear the chain bit on a link TRB");
+
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+extern enum XHCI_SPECIAL_RESET_MODE xhci_special_reset; // from hub.c
+extern unsigned short xhci_vendor;
+// SKIP_SPECIAL_RESET_xxx: check SPECIAL_RESET_RETRY in hub.c for reference
+#endif
 
 /* TODO: copied from ehci-hcd.c - can this be refactored? */
 /*
@@ -491,7 +500,6 @@ static int xhci_all_ports_seen_u0(struct xhci_hcd *xhci)
 	return (xhci->port_status_u0 == ((1 << xhci->num_usb3_ports)-1));
 }
 
-
 /*
  * Initialize memory for HCD and xHC (one-time init).
  *
@@ -525,7 +533,6 @@ int xhci_init(struct usb_hcd *hcd)
 }
 
 /*-------------------------------------------------------------------------*/
-
 
 #ifdef CONFIG_USB_XHCI_HCD_DEBUGGING
 static void xhci_event_ring_work(unsigned long arg)
@@ -578,6 +585,15 @@ static void xhci_event_ring_work(unsigned long arg)
 }
 #endif
 
+#ifdef MY_ABC_HERE
+extern int gSynoFactoryUSB3Disable;
+#endif
+
+#ifdef MY_ABC_HERE
+extern int gSynoFactoryUSBFastReset;
+extern unsigned int blk_timeout_factory; // defined in blk-timeout.c
+#endif
+
 static int xhci_run_finished(struct xhci_hcd *xhci)
 {
 	if (xhci_start(xhci)) {
@@ -591,6 +607,37 @@ static int xhci_run_finished(struct xhci_hcd *xhci)
 		xhci_ring_cmd_db(xhci);
 
 	xhci_dbg(xhci, "Finished xhci_run for USB3 roothub\n");
+
+#ifdef MY_ABC_HERE
+    if (1 == gSynoFactoryUSB3Disable) {
+        printk("xhci USB3 ports are disabled!\n");
+    }
+#endif
+
+#ifdef MY_ABC_HERE
+	if (1 == gSynoFactoryUSBFastReset) {
+		printk("USB_FAST_RESET enabled!\n");
+		blk_timeout_factory = 1;
+	}
+#endif
+
+#if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
+#ifdef MY_ABC_HERE
+	if(1 == gSynoFactoryUSB3Disable || PCI_VENDOR_ID_ETRON == xhci_vendor) {
+		xhci_special_reset = XHCI_SPECIAL_RESET_DISABLE;
+	} else {
+		xhci_special_reset = XHCI_SPECIAL_RESET_PAUSE;
+#if defined(MY_DEF_HERE)
+		xhci_task = kthread_run(xhci_thread, NULL, "xhci_thread");
+#endif
+	}
+#else
+#if defined(MY_DEF_HERE)
+	xhci_task = kthread_run(xhci_thread, NULL, "xhci_thread");
+#endif
+#endif //MY_ABC_HERE
+#endif //MY_DEF_HERE || MY_ABC_HERE
+
 	return 0;
 }
 
@@ -750,6 +797,14 @@ void xhci_stop(struct usb_hcd *hcd)
 	xhci_mem_cleanup(xhci);
 	xhci_dbg(xhci, "xhci_stop completed - status = %x\n",
 		    xhci_readl(xhci, &xhci->op_regs->status));
+
+#ifdef MY_ABC_HERE
+	if (1 == gSynoFactoryUSBFastReset) {
+		printk("USB_FAST_RESET disabled!\n");
+		blk_timeout_factory = 0;
+	}
+#endif
+
 }
 
 /*
@@ -2520,7 +2575,6 @@ static int xhci_reserve_bandwidth(struct xhci_hcd *xhci,
 	return -ENOMEM;
 }
 
-
 /* Issue a configure endpoint command or evaluate context command
  * and wait for it to finish.
  */
@@ -3498,10 +3552,13 @@ void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 
 	virt_dev = xhci->devs[udev->slot_id];
 
-	/* Stop any wayward timer functions (which may grab the lock) */
-	for (i = 0; i < 31; ++i) {
-		virt_dev->eps[i].ep_state &= ~EP_HALT_PENDING;
-		del_timer_sync(&virt_dev->eps[i].stop_cmd_timer);
+	/* add by gjlei NULL pointer maybe */
+	if (NULL != virt_dev) {
+		/* Stop any wayward timer functions (which may grab the lock) */
+		for (i = 0; i < 31; ++i) {
+			virt_dev->eps[i].ep_state &= ~EP_HALT_PENDING;
+			del_timer_sync(&virt_dev->eps[i].stop_cmd_timer);
+		}
 	}
 
 	if (udev->usb2_hw_lpm_enabled) {
@@ -3551,7 +3608,6 @@ static int xhci_reserve_host_control_ep_resources(struct xhci_hcd *xhci)
 			xhci->num_active_eps);
 	return 0;
 }
-
 
 /*
  * Returns 0 if the xHC ran out of device slots, the Enable Slot command
@@ -4233,6 +4289,13 @@ static int __init xhci_hcd_init(void)
 		printk(KERN_DEBUG "Problem registering platform driver.");
 		goto unreg_pci;
 	}
+#if defined(CONFIG_SYNO_HI3535_VS) || defined(MY_ABC_HERE)
+	retval = xhci_register_hi3535();
+	if (retval < 0) {
+		printk(KERN_DEBUG "Problem registering hi3535 driver.");
+		goto unreg_pci;
+	}
+#endif
 	/*
 	 * Check the compiler generated sizes of structures that must be laid
 	 * out in specific ways for hardware access.
@@ -4262,5 +4325,8 @@ static void __exit xhci_hcd_cleanup(void)
 {
 	xhci_unregister_pci();
 	xhci_unregister_plat();
+#if defined(CONFIG_SYNO_HI3535_VS) || defined(MY_ABC_HERE)
+	xhci_unregister_hi3535();
+#endif
 }
 module_exit(xhci_hcd_cleanup);

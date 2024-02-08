@@ -448,7 +448,6 @@ static int write_trace_info(int fd, struct perf_header *h __used,
 	return read_tracing_data(fd, &evlist->entries);
 }
 
-
 static int write_build_id(int fd, struct perf_header *h,
 			  struct perf_evlist *evlist __used)
 {
@@ -861,8 +860,6 @@ done:
 	free_cpu_topo(tp);
 	return ret;
 }
-
-
 
 static int write_total_mem(int fd, struct perf_header *h __used,
 			  struct perf_evlist *evlist __used)

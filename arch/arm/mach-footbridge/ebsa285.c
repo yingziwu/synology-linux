@@ -23,4 +23,3 @@ MACHINE_START(EBSA285, "EBSA285")
 	.timer		= &footbridge_timer,
 	.restart	= footbridge_restart,
 MACHINE_END
-

@@ -68,7 +68,6 @@ struct vmw_surface_offset {
 	uint32_t bo_offset;
 };
 
-
 static uint64_t vmw_user_context_size;
 static uint64_t vmw_user_surface_size;
 static uint64_t vmw_user_stream_size;
@@ -91,7 +90,6 @@ struct vmw_resource *vmw_resource_reference(struct vmw_resource *res)
 	kref_get(&res->kref);
 	return res;
 }
-
 
 /**
  * vmw_resource_release_id - release a resource id to the id manager.
@@ -149,7 +147,6 @@ void vmw_resource_unreference(struct vmw_resource **p_res)
 	write_unlock(&dev_priv->resource_lock);
 }
 
-
 /**
  * vmw_resource_alloc_id - release a resource id to the id manager.
  *
@@ -178,7 +175,6 @@ static int vmw_resource_alloc_id(struct vmw_private *dev_priv,
 
 	return ret;
 }
-
 
 static int vmw_resource_init(struct vmw_private *dev_priv,
 			     struct vmw_resource *res,
@@ -261,7 +257,6 @@ static void vmw_hw_context_destroy(struct vmw_resource *res)
 		SVGA3dCmdHeader header;
 		SVGA3dCmdDestroyContext body;
 	} *cmd;
-
 
 	vmw_execbuf_release_pinned_bo(dev_priv, true, res->id);
 
@@ -414,7 +409,6 @@ int vmw_context_define_ioctl(struct drm_device *dev, void *data,
 	struct ttm_object_file *tfile = vmw_fpriv(file_priv)->tfile;
 	struct vmw_master *vmaster = vmw_master(file_priv->master);
 	int ret;
-
 
 	/*
 	 * Approximate idr memory usage with 128 bytes. It will be limited
@@ -571,7 +565,6 @@ static const struct vmw_bpp vmw_sf_bpp[] = {
 	[SVGA3D_Z_D24S8_INT] = {32,  32}
 };
 
-
 /**
  * Surface management.
  */
@@ -593,7 +586,6 @@ struct vmw_surface_destroy {
 	SVGA3dCmdDestroySurface body;
 };
 
-
 /**
  * vmw_surface_dma_size - Compute fifo size for a dma command.
  *
@@ -606,7 +598,6 @@ static inline uint32_t vmw_surface_dma_size(const struct vmw_surface *srf)
 {
 	return srf->num_sizes * sizeof(struct vmw_surface_dma);
 }
-
 
 /**
  * vmw_surface_define_size - Compute fifo size for a surface define command.
@@ -621,7 +612,6 @@ static inline uint32_t vmw_surface_define_size(const struct vmw_surface *srf)
 	return sizeof(struct vmw_surface_define) + srf->num_sizes *
 		sizeof(SVGA3dSize);
 }
-
 
 /**
  * vmw_surface_destroy_size - Compute fifo size for a surface destroy command.
@@ -688,7 +678,6 @@ static void vmw_surface_define_encode(const struct vmw_surface *srf,
 	}
 }
 
-
 /**
  * vmw_surface_dma_encode - Encode a surface_dma command.
  *
@@ -747,7 +736,6 @@ static void vmw_surface_dma_encode(struct vmw_surface *srf,
 	}
 };
 
-
 static void vmw_hw_surface_destroy(struct vmw_resource *res)
 {
 
@@ -793,7 +781,6 @@ void vmw_surface_res_free(struct vmw_resource *res)
 	kfree(srf->snooper.image);
 	kfree(srf);
 }
-
 
 /**
  * vmw_surface_do_validate - make a surface available to the device.
@@ -859,7 +846,6 @@ int vmw_surface_do_validate(struct vmw_private *dev_priv,
 		ret = -EBUSY;
 		goto out_no_fifo;
 	}
-
 
 	/*
 	 * Encode surface define- and dma commands.
@@ -978,7 +964,6 @@ int vmw_surface_evict(struct vmw_private *dev_priv,
 	if (unlikely(ret != 0))
 		goto out_no_validate;
 
-
 	/*
 	 * Encode the dma- and surface destroy commands.
 	 */
@@ -1032,7 +1017,6 @@ out_no_reserve:
 	ttm_bo_unref(&srf->backup);
 	return ret;
 }
-
 
 /**
  * vmw_surface_validate - make a surface available to the device, evicting
@@ -1091,7 +1075,6 @@ int vmw_surface_validate(struct vmw_private *dev_priv,
 
 	return ret;
 }
-
 
 /**
  * vmw_surface_remove_from_lists - Remove surface resources from lookup lists
@@ -1213,7 +1196,6 @@ int vmw_user_lookup_handle(struct vmw_private *dev_priv,
 	return ret;
 }
 
-
 int vmw_user_surface_lookup_handle(struct vmw_private *dev_priv,
 				   struct ttm_object_file *tfile,
 				   uint32_t handle, struct vmw_surface **out)
@@ -1314,7 +1296,6 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 	size = vmw_user_surface_size + 128 +
 		ttm_round_pot(num_sizes * sizeof(struct drm_vmw_size)) +
 		ttm_round_pot(num_sizes * sizeof(struct vmw_surface_offset));
-
 
 	ret = ttm_read_lock(&vmaster->lock, true);
 	if (unlikely(ret != 0))
@@ -1849,7 +1830,6 @@ int vmw_stream_claim_ioctl(struct drm_device *dev, void *data,
 		goto out_unlock;
 	}
 
-
 	stream = kmalloc(sizeof(*stream), GFP_KERNEL);
 	if (unlikely(stream == NULL)) {
 		ttm_mem_global_free(vmw_mem_glob(dev_priv),
@@ -1917,7 +1897,6 @@ err_ref:
 	vmw_resource_unreference(&res);
 	return ret;
 }
-
 
 int vmw_dumb_create(struct drm_file *file_priv,
 		    struct drm_device *dev,

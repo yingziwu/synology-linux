@@ -496,7 +496,6 @@ static u8 adis16400_addresses[17][2] = {
 	[incli_y] = { ADIS16300_ROLL_OUT }
 };
 
-
 static int adis16400_write_raw(struct iio_dev *indio_dev,
 			       struct iio_chan_spec const *chan,
 			       int val,

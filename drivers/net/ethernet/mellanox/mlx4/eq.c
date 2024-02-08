@@ -149,7 +149,6 @@ void mlx4_gen_slave_eqe(struct work_struct *work)
 	}
 }
 
-
 static void slave_event(struct mlx4_dev *dev, u8 slave, struct mlx4_eqe *eqe)
 {
 	struct mlx4_priv *priv = mlx4_priv(dev);
@@ -797,7 +796,6 @@ static void mlx4_free_irqs(struct mlx4_dev *dev)
 		}
 	}
 
-
 	kfree(eq_table->irq_names);
 }
 
@@ -913,7 +911,6 @@ int mlx4_init_eq_table(struct mlx4_dev *dev)
 			goto err_out_unmap;
 		}
 	}
-
 
 	if (dev->flags & MLX4_FLAG_MSI_X) {
 		const char *eq_name;
@@ -1120,4 +1117,3 @@ void mlx4_release_eq(struct mlx4_dev *dev, int vec)
 
 }
 EXPORT_SYMBOL(mlx4_release_eq);
-

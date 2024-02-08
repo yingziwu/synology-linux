@@ -18,7 +18,6 @@
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 /*
  * Driver implements own I2C-adapter for tuner I2C access. That's since chip
  * have unusual I2C-gate control which closes gate automatically after each
@@ -326,7 +325,6 @@ static int rtl2830_set_frontend(struct dvb_frontend *fe)
 		{0xb8, 0xe3, 0x93, 0x99, 0x99, 0x98,}, /* 7 MHz */
 		{0xae, 0xba, 0xf3, 0x26, 0x66, 0x64,}, /* 8 MHz */
 	};
-
 
 	dbg("%s: frequency=%d bandwidth_hz=%d inversion=%d", __func__,
 		c->frequency, c->bandwidth_hz, c->inversion);

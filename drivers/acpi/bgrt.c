@@ -133,7 +133,6 @@ static int __init bgrt_init(void)
 		goto out_err;
 	}
 
-
 	bgrt_kobj = kobject_create_and_add("bgrt", acpi_kobj);
 	if (!bgrt_kobj) {
 		ret = -EINVAL;

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *   fs/cifs/cifssmb.c
  *
@@ -195,7 +198,11 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 	if (!ses->need_reconnect && !tcon->need_reconnect)
 		return 0;
 
+#ifdef MY_ABC_HERE
+	nls_codepage = load_nls("utf8");
+#else
 	nls_codepage = load_nls_default();
+#endif
 
 	/*
 	 * need to prevent multiple threads trying to simultaneously
@@ -530,7 +537,6 @@ CIFSSMBNegotiate(unsigned int xid, struct cifs_ses *ses)
 			server->timeAdj *= 60; /* also in seconds */
 		}
 		cFYI(1, "server->timeAdj: %d seconds", server->timeAdj);
-
 
 		/* BB get server time for time conversions and add
 		code to use it and timezone since this is not UTC */
@@ -1363,7 +1369,11 @@ openRetry:
 	/* XP does not handle ATTR_POSIX_SEMANTICS */
 	/* but it helps speed up case sensitive checks for other
 	servers such as Samba */
-	if (tcon->ses->capabilities & CAP_UNIX)
+	if ((tcon->ses->capabilities & CAP_UNIX)
+#ifdef MY_ABC_HERE
+		&& SynoPosixSemanticsEnabled
+#endif
+	)
 		pSMB->FileAttributes |= cpu_to_le32(ATTR_POSIX_SEMANTICS);
 
 	if (create_options & CREATE_OPTION_READONLY)
@@ -1894,7 +1904,6 @@ CIFSSMBRead(const int xid, struct cifs_io_parms *io_parms, unsigned int *nbytes,
 	return rc;
 }
 
-
 int
 CIFSSMBWrite(const int xid, struct cifs_io_parms *io_parms,
 	     unsigned int *nbytes, const char *buf,
@@ -2335,7 +2344,6 @@ CIFSSMBWrite2(const int xid, struct cifs_io_parms *io_parms,
 	else /* wct == 12 pad bigger by four bytes */
 		iov[0].iov_len = smb_hdr_len + 8;
 
-
 	rc = SendReceive2(xid, tcon->ses, iov, n_vec + 1, &resp_buf_type,
 			  long_op);
 	cifs_stats_inc(&tcon->num_writes);
@@ -2617,7 +2625,6 @@ plk_err_exit:
 
 	return rc;
 }
-
 
 int
 CIFSSMBClose(const int xid, struct cifs_tcon *tcon, int smb_file_id)
@@ -5369,7 +5376,6 @@ QFSUnixRetry:
 	if (rc == -EAGAIN)
 		goto QFSUnixRetry;
 
-
 	return rc;
 }
 
@@ -5444,8 +5450,6 @@ SETFSUnixRetry:
 
 	return rc;
 }
-
-
 
 int
 CIFSSMBQFSPosixInfo(const int xid, struct cifs_tcon *tcon,
@@ -5532,7 +5536,6 @@ QFSPosixRetry:
 
 	return rc;
 }
-
 
 /* We can not use write of zero bytes trick to
    set file size due to need for large file support.  Also note that
@@ -6222,7 +6225,6 @@ QAllEAsRetry:
 		cFYI(1, "Send error in QueryAllEAs = %d", rc);
 		goto QAllEAsOut;
 	}
-
 
 	/* BB also check enough total bytes returned */
 	/* BB we need to improve the validity checking

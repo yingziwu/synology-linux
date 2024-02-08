@@ -520,7 +520,6 @@ static void __init setup_memory_end(void)
 	unsigned long vmax, vmalloc_size, tmp;
 	int i;
 
-
 #ifdef CONFIG_ZFCPDUMP
 	if (ipl_info.type == IPL_TYPE_FCP_DUMP && !OLDMEM_BASE) {
 		memory_end = ZFCPDUMP_HSA_SIZE;

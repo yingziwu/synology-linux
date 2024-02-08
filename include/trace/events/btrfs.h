@@ -428,7 +428,6 @@ TRACE_EVENT(btrfs_sync_fs,
 		{ BTRFS_ADD_DELAYED_EXTENT, "ADD_DELAYED_EXTENT" }, 	\
 		{ BTRFS_UPDATE_DELAYED_HEAD, "UPDATE_DELAYED_HEAD" })
 			
-
 TRACE_EVENT(btrfs_delayed_tree_ref,
 
 	TP_PROTO(struct btrfs_delayed_ref_node *ref,

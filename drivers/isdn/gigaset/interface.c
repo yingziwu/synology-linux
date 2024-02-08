@@ -498,7 +498,6 @@ out:
 	mutex_unlock(&cs->mutex);
 }
 
-
 /* wakeup tasklet for the write operation */
 static void if_wake(unsigned long data)
 {

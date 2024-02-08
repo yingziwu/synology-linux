@@ -320,7 +320,6 @@ enum bcm63xx_regs_set {
 #define BCM_6358_PCMDMAC_BASE		(0xfffe1900)
 #define BCM_6358_PCMDMAS_BASE		(0xfffe1a00)
 
-
 /*
  * 6368 register sets base address
  */
@@ -361,7 +360,6 @@ enum bcm63xx_regs_set {
 #define BCM_6368_PCMDMA_BASE		(0xb0005800)
 #define BCM_6368_PCMDMAC_BASE		(0xb0005a00)
 #define BCM_6368_PCMDMAS_BASE		(0xb0005c00)
-
 
 extern const unsigned long *bcm63xx_regs_base;
 
@@ -446,7 +444,6 @@ extern const unsigned long *bcm63xx_regs_base;
 	[RSET_PCMDMA]		= BCM_## __cpu ##_PCMDMA_BASE,		\
 	[RSET_PCMDMAC]		= BCM_## __cpu ##_PCMDMAC_BASE,		\
 	[RSET_PCMDMAS]		= BCM_## __cpu ##_PCMDMAS_BASE,		\
-
 
 static inline unsigned long bcm63xx_regset_address(enum bcm63xx_regs_set set)
 {

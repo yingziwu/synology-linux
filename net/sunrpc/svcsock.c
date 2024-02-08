@@ -56,7 +56,6 @@
 
 #define RPCDBG_FACILITY	RPCDBG_SVCXPRT
 
-
 static struct svc_sock *svc_setup_socket(struct svc_serv *, struct socket *,
 					 int *errp, int flags);
 static void		svc_udp_data_ready(struct sock *, int);
@@ -221,7 +220,6 @@ int svc_send_common(struct socket *sock, struct xdr_buf *xdr,
 out:
 	return len;
 }
-
 
 /*
  * Generic sendto routine
@@ -1096,7 +1094,6 @@ static int copy_pages_to_kvecs(struct kvec *vec, struct page **pages, int len)
 	}
 	return i;
 }
-
 
 /*
  * Receive data from a TCP socket.

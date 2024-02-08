@@ -22,7 +22,6 @@
 #define CRB_HI(off)	((crb_hub_agt[CRB_BLK(off)] << 20) | ((off) & 0xf0000))
 #define CRB_INDIRECT_2M	(0x1e0000UL)
 
-
 #ifndef readq
 static inline u64 readq(void __iomem *addr)
 {
@@ -673,7 +672,6 @@ int qlcnic_config_bridged_mode(struct qlcnic_adapter *adapter, u32 enable)
 	return rv;
 }
 
-
 #define RSS_HASHTYPE_IP_TCP	0x3
 
 int qlcnic_config_rss(struct qlcnic_adapter *adapter, int enable)
@@ -816,7 +814,6 @@ int qlcnic_change_mtu(struct net_device *netdev, int mtu)
 	return rc;
 }
 
-
 netdev_features_t qlcnic_fix_features(struct net_device *netdev,
 	netdev_features_t features)
 {
@@ -832,7 +829,6 @@ netdev_features_t qlcnic_fix_features(struct net_device *netdev,
 
 	return features;
 }
-
 
 int qlcnic_set_features(struct net_device *netdev, netdev_features_t features)
 {
@@ -984,7 +980,6 @@ qlcnic_hw_read_wx_2M(struct qlcnic_adapter *adapter, ulong off)
 	return -1;
 }
 
-
 void __iomem *
 qlcnic_get_ioaddr(struct qlcnic_adapter *adapter, u32 offset)
 {
@@ -994,7 +989,6 @@ qlcnic_get_ioaddr(struct qlcnic_adapter *adapter, u32 offset)
 
 	return addr;
 }
-
 
 static int
 qlcnic_pci_set_window_2M(struct qlcnic_adapter *adapter,

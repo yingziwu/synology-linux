@@ -136,13 +136,10 @@
 #define LINK_20GTFD		LINK_STATUS_SPEED_AND_DUPLEX_20GTFD
 #define LINK_20GXFD		LINK_STATUS_SPEED_AND_DUPLEX_20GXFD
 
-
-
 /* */
 #define SFP_EEPROM_CON_TYPE_ADDR		0x2
 	#define SFP_EEPROM_CON_TYPE_VAL_LC	0x7
 	#define SFP_EEPROM_CON_TYPE_VAL_COPPER	0x21
-
 
 #define SFP_EEPROM_COMP_CODE_ADDR		0x3
 	#define SFP_EEPROM_COMP_CODE_SR_MASK	(1<<4)
@@ -689,7 +686,6 @@ static void bnx2x_ets_e3b0_pbf_disabled(const struct link_params *params)
 	REG_WR(bp, (port) ? PBF_REG_ETS_ARB_NUM_STRICT_ARB_SLOTS_P1 :
 		   PBF_REG_ETS_ARB_NUM_STRICT_ARB_SLOTS_P0 , 0x100);
 
-
 	REG_WR(bp, (port) ? PBF_REG_ETS_ARB_CLIENT_IS_STRICT_P1 :
 		   PBF_REG_ETS_ARB_CLIENT_IS_STRICT_P0 , 0);
 
@@ -1156,7 +1152,6 @@ int bnx2x_ets_e3b0_config(const struct link_params *params,
 	bnx2x_ets_e3b0_set_credit_upper_bound_nig(params, min_w_val_nig);
 	bnx2x_ets_e3b0_set_credit_upper_bound_pbf(params, min_w_val_pbf);
 
-
 	for (cos_entry = 0; cos_entry < ets_params->num_of_cos; cos_entry++) {
 		if (bnx2x_cos_state_bw == ets_params->cos[cos_entry].state) {
 			cos_bw_bitmap |= (1 << cos_entry);
@@ -1386,7 +1381,6 @@ static void bnx2x_update_pfc_xmac(struct link_params *params,
 	REG_WR(bp, xmac_base + XMAC_REG_PFC_CTRL, pfc0_val);
 	REG_WR(bp, xmac_base + XMAC_REG_PFC_CTRL_HI, pfc1_val);
 
-
 	/* Set MAC address for source TX Pause/PFC frames */
 	REG_WR(bp, xmac_base + XMAC_REG_CTRL_SA_LO,
 	       ((params->mac_addr[2] << 24) |
@@ -1399,7 +1393,6 @@ static void bnx2x_update_pfc_xmac(struct link_params *params,
 
 	udelay(30);
 }
-
 
 static void bnx2x_emac_get_pfc_stat(struct link_params *params,
 				    u32 pfc_frames_sent[2],
@@ -2662,7 +2655,6 @@ int bnx2x_update_pfc(struct link_params *params,
 	}
 	return bnx2x_status;
 }
-
 
 static int bnx2x_bmac1_enable(struct link_params *params,
 			      struct link_vars *vars,
@@ -4608,7 +4600,6 @@ static void bnx2x_set_warpcore_loopback(struct bnx2x_phy *phy,
 	}
 }
 
-
 void bnx2x_sync_link(struct link_params *params,
 			   struct link_vars *vars)
 {
@@ -4908,7 +4899,6 @@ static void bnx2x_set_parallel_detection(struct bnx2x_phy *phy,
 				  MDIO_REG_BANK_10G_PARALLEL_DETECT,
 				  MDIO_10G_PARALLEL_DETECT_PAR_DET_10G_CONTROL,
 				  &control2);
-
 
 		control2 |=
 		    MDIO_10G_PARALLEL_DETECT_PAR_DET_10G_CONTROL_PARDET10G_EN;
@@ -5233,7 +5223,6 @@ static void bnx2x_initialize_sgmii_process(struct bnx2x_phy *phy,
 		bnx2x_restart_autoneg(phy, params, 0);
 	}
 }
-
 
 /*
  * link management
@@ -5673,7 +5662,6 @@ static int bnx2x_warpcore_read_status(struct bnx2x_phy *phy,
 
 	}
 
-
 	if (lane < 2) {
 		bnx2x_cl45_read(bp, phy, MDIO_WC_DEVAD,
 				MDIO_WC_REG_GP2_STATUS_GP_2_2, &gp_speed);
@@ -5686,7 +5674,6 @@ static int bnx2x_warpcore_read_status(struct bnx2x_phy *phy,
 	if ((lane & 1) == 0)
 		gp_speed <<= 8;
 	gp_speed &= 0x3f00;
-
 
 	rc = bnx2x_get_link_speed_duplex(phy, params, vars, link_up, gp_speed,
 					 duplex);
@@ -6082,7 +6069,6 @@ static int bnx2x_format_ver(u32 num, u8 *str, u16 *len)
 	}
 	return 0;
 }
-
 
 static int bnx2x_null_format_ver(u32 spirom_ver, u8 *str, u16 *len)
 {
@@ -7262,7 +7248,6 @@ static int bnx2x_8073_config_init(struct bnx2x_phy *phy,
 				 MDIO_PMA_REG_8073_OPT_DIGITAL_CTRL,
 				 (val | (3<<9)));
 	}
-
 
 	/* Enable CL37 BAM */
 	if (REG_RD(bp, params->shmem_base +
@@ -8820,7 +8805,6 @@ static u8 bnx2x_8726_read_status(struct bnx2x_phy *phy,
 	return link_up;
 }
 
-
 static int bnx2x_8726_config_init(struct bnx2x_phy *phy,
 				  struct link_params *params,
 				  struct link_vars *vars)
@@ -9029,7 +9013,6 @@ static int bnx2x_8727_config_init(struct bnx2x_phy *phy,
 	bnx2x_cl45_write(bp, phy,
 			 MDIO_PMA_DEVAD, MDIO_PMA_REG_PHY_IDENTIFIER, mod_abs);
 
-
 	/* Enable/Disable PHY transmitter output */
 	bnx2x_set_disable_pmd_transmit(params, phy, 0);
 
@@ -9231,7 +9214,6 @@ static void bnx2x_8727_handle_mod_abs(struct bnx2x_phy *phy,
 		bnx2x_cl45_read(bp, phy,
 				MDIO_PMA_DEVAD,
 				MDIO_PMA_LASI_RXSTAT, &rx_alarm_status);
-
 
 		if ((val & PORT_FEAT_CFG_OPT_MDL_ENFRCMNT_MASK) ==
 		    PORT_FEAT_CFG_OPT_MDL_ENFRCMNT_DISABLE_TX_LASER)
@@ -9459,7 +9441,6 @@ static void bnx2x_save_848xx_spirom_version(struct bnx2x_phy *phy,
 						  phy->ver_addr);
 			return;
 		}
-
 
 		/* 2) read register 0xc200_0000 (SPI_FW_STATUS) */
 		bnx2x_cl45_write(bp, phy, MDIO_PMA_DEVAD, 0xA819, 0x0000);
@@ -9780,7 +9761,6 @@ static int bnx2x_84833_cmd_hdlr(struct bnx2x_phy *phy,
 	return 0;
 }
 
-
 static int bnx2x_84833_pair_swap_cfg(struct bnx2x_phy *phy,
 				   struct link_params *params,
 				   struct link_vars *vars)
@@ -10027,7 +10007,6 @@ static u8 bnx2x_848xx_read_status(struct bnx2x_phy *phy,
 	u16 val, val1, val2;
 	u8 link_up = 0;
 
-
 	/* Check 10G-BaseT link status */
 	/* Check PMD signal ok */
 	bnx2x_cl45_read(bp, phy,
@@ -10141,7 +10120,6 @@ static u8 bnx2x_848xx_read_status(struct bnx2x_phy *phy,
 
 	return link_up;
 }
-
 
 static int bnx2x_848xx_format_ver(u32 raw_ver, u8 *str, u16 *len)
 {
@@ -10603,7 +10581,6 @@ static int bnx2x_54618se_config_init(struct bnx2x_phy *phy,
 	return 0;
 }
 
-
 static void bnx2x_5461x_set_link_led(struct bnx2x_phy *phy,
 				       struct link_params *params, u8 mode)
 {
@@ -10638,7 +10615,6 @@ static void bnx2x_5461x_set_link_led(struct bnx2x_phy *phy,
 		MDIO_REG_GPHY_SHADOW_WR_ENA | temp);
 	return;
 }
-
 
 static void bnx2x_54618se_link_reset(struct bnx2x_phy *phy,
 				     struct link_params *params)
@@ -11133,7 +11109,6 @@ static struct bnx2x_phy phy_warpcore = {
 	.set_link_led	= (set_link_led_t)NULL,
 	.phy_specific_func = (phy_specific_func_t)NULL
 };
-
 
 static struct bnx2x_phy phy_7101 = {
 	.type		= PORT_HW_CFG_XGXS_EXT_PHY_TYPE_SFX7101,
@@ -11896,7 +11871,6 @@ u32 bnx2x_phy_selection(struct link_params *params)
 	return return_cfg;
 }
 
-
 int bnx2x_phy_probe(struct link_params *params)
 {
 	u8 phy_index, actual_phy_idx;
@@ -12423,7 +12397,6 @@ static int bnx2x_8726_common_init_phy(struct bnx2x *bp,
 		bnx2x_cl45_write(bp, &phy,
 				 MDIO_PMA_DEVAD, MDIO_PMA_REG_GEN_CTRL, 0x0001);
 
-
 		/* Set fault module detected LED on */
 		bnx2x_set_gpio(bp, MISC_REGISTERS_GPIO_0,
 			       MISC_REGISTERS_GPIO_HIGH,
@@ -12542,7 +12515,6 @@ static int bnx2x_8727_common_init_phy(struct bnx2x *bp,
 				NIG_MASK_XGXS0_LINK10G |
 				NIG_MASK_SERDES0_LINK_STATUS |
 				NIG_MASK_MI_INT));
-
 
 		/* Reset the phy */
 		bnx2x_cl45_write(bp, &phy[port],

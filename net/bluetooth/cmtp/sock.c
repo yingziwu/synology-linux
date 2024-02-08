@@ -39,7 +39,6 @@
 
 #include <linux/isdn/capilli.h>
 
-
 #include "cmtp.h"
 
 static int cmtp_sock_release(struct socket *sock)

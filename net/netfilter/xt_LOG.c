@@ -455,7 +455,6 @@ log_packet_common(struct sbuff *m,
 #endif
 }
 
-
 static void
 ipt_log_packet(u_int8_t pf,
 	       unsigned int hooknum,

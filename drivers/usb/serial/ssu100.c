@@ -62,7 +62,6 @@ static const struct usb_device_id id_table[] = {
 
 MODULE_DEVICE_TABLE(usb, id_table);
 
-
 static struct usb_driver ssu100_driver = {
 	.name			       = "ssu100",
 	.probe			       = usb_serial_probe,
@@ -104,7 +103,6 @@ static inline int ssu100_setdevice(struct usb_device *dev, u8 *data)
 	return ssu100_control_msg(dev, QT_SET_GET_DEVICE, x, 0);
 }
 
-
 static inline int ssu100_getdevice(struct usb_device *dev, u8 *data)
 {
 	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
@@ -122,7 +120,6 @@ static inline int ssu100_getregister(struct usb_device *dev,
 			       uart, data, sizeof(*data), 300);
 
 }
-
 
 static inline int ssu100_setregister(struct usb_device *dev,
 				     unsigned short uart,
@@ -225,7 +222,6 @@ out:	kfree(data);
 
 }
 
-
 static void ssu100_set_termios(struct tty_struct *tty,
 			       struct usb_serial_port *port,
 			       struct ktermios *old_termios)
@@ -268,7 +264,6 @@ static void ssu100_set_termios(struct tty_struct *tty,
 
 	dbg("%s - got baud = %d\n", __func__, baud);
 
-
 	divisor = MAX_BAUD_RATE / baud;
 	remainder = MAX_BAUD_RATE % baud;
 	if (((remainder * 2) >= baud) && (baud != 110))
@@ -302,7 +297,6 @@ static void ssu100_set_termios(struct tty_struct *tty,
 		dbg("%s - set SW flow control failed", __func__);
 
 }
-
 
 static int ssu100_open(struct tty_struct *tty, struct usb_serial_port *port)
 {
@@ -435,8 +429,6 @@ static int ssu100_get_icount(struct tty_struct *tty,
 
 	return 0;
 }
-
-
 
 static int ssu100_ioctl(struct tty_struct *tty,
 		    unsigned int cmd, unsigned long arg)

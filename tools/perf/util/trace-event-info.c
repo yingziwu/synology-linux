@@ -67,7 +67,6 @@ struct events {
 	char *name;
 };
 
-
 void *malloc_or_die(unsigned int size)
 {
 	void *data;

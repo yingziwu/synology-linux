@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * originally based on the dummy device.
  *
@@ -81,12 +84,23 @@
 #include "bond_3ad.h"
 #include "bond_alb.h"
 
+#include "../ethernet/stmmac/tnkhw.h"
+#include "../ethernet/stmmac/tnksysctl.h"
 /*---------------------------- Module parameters ----------------------------*/
 
 /* monitor all links that often (in milliseconds). <=0 disables monitoring */
 #define BOND_LINK_MON_INTERV	0
 #define BOND_LINK_ARP_INTERV	0
-
+#ifdef TNK_BONDING
+#define DELTA_LIMIT		100
+/* #define TNK_BONDING_DEBUG */
+#undef TNK_BONDING_DEBUG
+#ifdef TNK_BONDING_DEBUG
+#define TNKB_DBG(fmt, args...)  printk(fmt, ## args)
+#else
+#define TNKB_DBG(fmt, args...)  do { } while (0)
+#endif
+#endif
 static int max_bonds	= BOND_DEFAULT_MAX_BONDS;
 static int tx_queues	= BOND_DEFAULT_TX_QUEUES;
 static int num_peer_notif = 1;
@@ -179,6 +193,23 @@ MODULE_PARM_DESC(resend_igmp, "Number of IGMP membership reports to send on "
 			      "link failure");
 
 /*----------------------------- Global variables ----------------------------*/
+#ifdef TNK_BONDING
+int select_slave_dev(struct net_device *dev)
+{
+	int i;
+	char name[2][5] = {"eth0", "eth1"};
+	for (i = 0; i < 2; i++) {
+		if (0 == strncmp(name[i], dev->name, strlen(dev->name))) {
+			TNKB_DBG("dev->name =%s, select %d dev\n",
+					dev->name, i);
+			return i;
+		}
+	}
+	printk(KERN_ERR "ERROR: %s the slave->dev is neither eth0 nor eth1\n",
+			__func__);
+	return -1;
+}
+#endif
 
 #ifdef CONFIG_NET_POLL_CONTROLLER
 atomic_t netpoll_block_tx = ATOMIC_INIT(0);
@@ -747,7 +778,6 @@ static void bond_mc_del(struct bonding *bond, void *addr)
 	}
 }
 
-
 static void __bond_resend_igmp_join_requests(struct net_device *dev)
 {
 	struct in_device *in_dev;
@@ -1161,6 +1191,18 @@ void bond_select_active_slave(struct bonding *bond)
 	best_slave = bond_find_best_slave(bond);
 	if (best_slave != bond->curr_active_slave) {
 		bond_change_active_slave(bond, best_slave);
+#ifdef TNK_BONDING
+		if (hitoe && bond->curr_active_slave) {
+			int slave_dev_id = 0;
+			/* set bond current active slave */
+			slave_dev_id =
+				select_slave_dev(bond->curr_active_slave->dev);
+			TNKB_DBG(" %s bond->curr_active_dev->name = %s\n",
+				__func__, bond->curr_active_slave->dev->name);
+			TNKB_DBG("slave_dev_id = %d\n", slave_dev_id);
+			tnkhw_bonding_setcurr_active_slave(slave_dev_id);
+		}
+#endif
 		rv = bond_set_carrier(bond);
 		if (!rv)
 			return;
@@ -1438,6 +1480,22 @@ static bool bond_should_deliver_exact_match(struct sk_buff *skb,
 					    struct bonding *bond)
 {
 	if (bond_is_slave_inactive(slave)) {
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef TNK_BONDING
+		if (hitoe) {
+			/* When TOE turn on, FIN or RST packet may
+			 * come here. But TOE has ACKed these packets,
+			 * we should not return true because it lead
+			 * packet loss.
+			 */
+			struct tcp_skb_cb *tcp_cb = TCP_SKB_CB(skb);
+			struct tnkcb *cb = &(tcp_cb->header.tcb);
+
+			if (cb->magic == TNK_MAGIC)
+				return false;
+		}
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 		if (bond->params.mode == BOND_MODE_ALB &&
 		    skb->pkt_type != PACKET_BROADCAST &&
 		    skb->pkt_type != PACKET_MULTICAST)
@@ -1619,9 +1677,32 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev)
 	/* If this is the first slave, then we need to set the master's hardware
 	 * address to be the same as the slave's. */
 	if (is_zero_ether_addr(bond->dev->dev_addr))
+#ifdef MY_ABC_HERE
+		{
+			unsigned char szMac[MAX_ADDR_LEN];
+			memset(szMac, 0, sizeof(szMac));
+
+			if (syno_get_dev_vendor_mac(slave_dev->name, szMac)){
+				printk("%s:%s(%d) dev:[%s] get vendor mac fail\n",
+						__FILE__, __FUNCTION__, __LINE__, slave_dev->name);
+				/*
+				 *  Cannot get SYNO's vendor mac, possibly because
+				 *  	- mac not written to onboard flash, or
+				 *  	- this eth is on addon card rather than on mainboard.
+				 *  	Fallback to perm_hwaddr.
+				 */
+				memcpy(bond->dev->dev_addr, slave_dev->dev_addr,
+					slave_dev->addr_len);
+			} else {
+				/* Normal case: set to syno vendor mac */
+				memcpy(bond->dev->dev_addr, szMac,
+					ETH_ALEN);
+			}
+		}
+#else
 		memcpy(bond->dev->dev_addr, slave_dev->dev_addr,
 		       slave_dev->addr_len);
-
+#endif
 
 	new_slave = kzalloc(sizeof(struct slave), GFP_KERNEL);
 	if (!new_slave) {
@@ -1648,7 +1729,29 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev)
 	 * that need it, and for restoring it upon release, and then
 	 * set it to the master's address
 	 */
+#ifdef MY_ABC_HERE
+	{
+		unsigned char szMac[MAX_ADDR_LEN];
+		memset(szMac, 0, sizeof(szMac));
+
+		if (syno_get_dev_vendor_mac(slave_dev->name, szMac)){
+			printk("%s:%s(%d) dev:[%s] get vendor mac fail\n", 
+					__FILE__, __FUNCTION__, __LINE__, slave_dev->name);
+			/* 
+			 * Cannot get SYNO's vendor mac, possibly because
+			 *	- mac not written to onboard flash, or
+			 *	- this eth is on addon card rather than on mainboard.
+			 *	Fallback to perm_hwaddr.
+			 */
+			memcpy(new_slave->perm_hwaddr, slave_dev->dev_addr, ETH_ALEN);
+		} else {
+			/* Normal case: set to syno vendor mac */
+			memcpy(new_slave->perm_hwaddr, szMac, ETH_ALEN);
+		}
+	}
+#else
 	memcpy(new_slave->perm_hwaddr, slave_dev->dev_addr, ETH_ALEN);
+#endif
 
 	if (!bond->params.fail_over_mac) {
 		/*
@@ -1876,6 +1979,17 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev)
 		new_slave->link != BOND_LINK_DOWN ? "n up" : " down");
 
 	/* enslave is successful */
+#ifdef TNK_BONDING
+	if (hitoe) {
+		/* assume slave_cnt == 2 */
+		/* enable bonding function to TOE */
+		TNKB_DBG("%s bond->slave_cnt = %d,slave->dev = %d\n",
+				__func__, bond->slave_cnt,
+				select_slave_dev(new_slave->dev));
+		if (bond->slave_cnt == 2)
+			tnkhw_bonding_enable(1);
+	}
+#endif
 	return 0;
 
 /* Undo stages on error */
@@ -2099,7 +2213,15 @@ int bond_release(struct net_device *bond_dev, struct net_device *slave_dev)
 	slave_dev->priv_flags &= ~IFF_BONDING;
 
 	kfree(slave);
-
+#ifdef TNK_BONDING
+	 /* add disable bonding function to TOE */
+	if (hitoe) {
+		TNKB_DBG(".............%s.............\n",
+				__func__);
+		if (bond->slave_cnt < 2)
+			tnkhw_bonding_enable(0);
+	}
+#endif
 	return 0;  /* deletion OK */
 }
 
@@ -2336,7 +2458,6 @@ static int bond_slave_info_query(struct net_device *bond_dev, struct ifslave *in
 
 /*-------------------------------- Monitoring -------------------------------*/
 
-
 static int bond_miimon_inspect(struct bonding *bond)
 {
 	struct slave *slave;
@@ -2450,7 +2571,14 @@ static void bond_miimon_commit(struct bonding *bond)
 		case BOND_LINK_UP:
 			slave->link = BOND_LINK_UP;
 			slave->jiffies = jiffies;
-
+#ifdef TNK_BONDING
+			if (hitoe) {
+				/* set slave->dev active */
+				int slave_dev_id;
+				slave_dev_id = select_slave_dev(slave->dev);
+				tnkhw_bonding_setstatus_slave(slave_dev_id, 1);
+			}
+#endif
 			if (bond->params.mode == BOND_MODE_8023AD) {
 				/* prevent it from being the active one */
 				bond_set_backup_slave(slave);
@@ -2487,7 +2615,14 @@ static void bond_miimon_commit(struct bonding *bond)
 				slave->link_failure_count++;
 
 			slave->link = BOND_LINK_DOWN;
-
+#ifdef TNK_BONDING
+			if (hitoe) {
+				/* set slave->dev inactive */
+				int slave_dev_id;
+				slave_dev_id = select_slave_dev(slave->dev);
+				tnkhw_bonding_setstatus_slave(slave_dev_id, 0);
+			}
+#endif
 			if (bond->params.mode == BOND_MODE_ACTIVEBACKUP ||
 			    bond->params.mode == BOND_MODE_8023AD)
 				bond_set_slave_inactive_flags(slave);
@@ -2638,7 +2773,6 @@ static void bond_arp_send(struct net_device *slave_dev, int arp_op, __be32 dest_
 	}
 	arp_xmit(skb);
 }
-
 
 static void bond_arp_send_all(struct bonding *bond, struct slave *slave)
 {
@@ -2811,7 +2945,10 @@ void bond_loadbalance_arp_mon(struct work_struct *work)
 	read_lock(&bond->lock);
 
 	delta_in_ticks = msecs_to_jiffies(bond->params.arp_interval);
-
+#ifdef TNK_BONDING
+	if (hitoe && (delta_in_ticks < DELTA_LIMIT))
+		delta_in_ticks <<= 3;
+#endif
 	if (bond->slave_cnt == 0)
 		goto re_arm;
 
@@ -2840,6 +2977,16 @@ void bond_loadbalance_arp_mon(struct work_struct *work)
 
 				slave->link  = BOND_LINK_UP;
 				bond_set_active_slave(slave);
+#ifdef TNK_BONDING
+				if (hitoe) {
+					/* set slave->dev active */
+					int slave_dev_id;
+					slave_dev_id =
+						select_slave_dev(slave->dev);
+					tnkhw_bonding_setstatus_slave
+						(slave_dev_id, 1);
+				}
+#endif
 
 				/* primary_slave has no meaning in round-robin
 				 * mode. the window of a slave being up and
@@ -2873,6 +3020,16 @@ void bond_loadbalance_arp_mon(struct work_struct *work)
 
 				slave->link  = BOND_LINK_DOWN;
 				bond_set_backup_slave(slave);
+#ifdef TNK_BONDING
+				if (hitoe) {
+					/* set slave->dev inactive */
+					int slave_dev_id;
+					slave_dev_id =
+						select_slave_dev(slave->dev);
+					tnkhw_bonding_setstatus_slave
+						(slave_dev_id, 0);
+				}
+#endif
 
 				if (slave->link_failure_count < UINT_MAX)
 					slave->link_failure_count++;
@@ -3017,6 +3174,14 @@ static void bond_ab_arp_commit(struct bonding *bond, int delta_in_ticks)
 			continue;
 
 		case BOND_LINK_UP:
+#ifdef TNK_BONDING
+			if (hitoe) {
+				/* set slave->dev active */
+				int slave_dev_id;
+				slave_dev_id = select_slave_dev(slave->dev);
+				tnkhw_bonding_setstatus_slave(slave_dev_id, 1);
+			}
+#endif
 			trans_start = dev_trans_start(slave->dev);
 			if ((!bond->curr_active_slave &&
 			     time_in_range(jiffies,
@@ -3046,6 +3211,14 @@ static void bond_ab_arp_commit(struct bonding *bond, int delta_in_ticks)
 				slave->link_failure_count++;
 
 			slave->link = BOND_LINK_DOWN;
+#ifdef TNK_BONDING
+			if (hitoe) {
+				/* set slave->dev inactive */
+				int slave_dev_id;
+				slave_dev_id = select_slave_dev(slave->dev);
+				tnkhw_bonding_setstatus_slave(slave_dev_id, 0);
+			}
+#endif
 			bond_set_slave_inactive_flags(slave);
 
 			pr_info("%s: link status definitely down for interface %s, disabling it\n",
@@ -3156,6 +3329,10 @@ void bond_activebackup_arp_mon(struct work_struct *work)
 	read_lock(&bond->lock);
 
 	delta_in_ticks = msecs_to_jiffies(bond->params.arp_interval);
+#ifdef TNK_BONDING
+	if (hitoe && (delta_in_ticks < DELTA_LIMIT))
+		delta_in_ticks <<= 3;
+#endif
 
 	if (bond->slave_cnt == 0)
 		goto re_arm;
@@ -3463,6 +3640,15 @@ static int bond_open(struct net_device *bond_dev)
 		bond_3ad_initiate_agg_selection(bond, 1);
 	}
 
+#ifdef TNK_BONDING
+	/* add enable bonding function to TOE */
+	if (hitoe) {
+		TNKB_DBG(".............%s.............\n",
+				__func__);
+		if (bond->slave_cnt >= 2)
+			tnkhw_bonding_enable(1);
+	}
+#endif
 	return 0;
 }
 
@@ -3506,6 +3692,14 @@ static int bond_close(struct net_device *bond_dev)
 		bond_alb_deinitialize(bond);
 	}
 	bond->recv_probe = NULL;
+#ifdef TNK_BONDING
+	if (hitoe) {
+		TNKB_DBG(".............%s..............\n",
+				__func__);
+		/* disable bonding function */
+		tnkhw_bonding_enable(0);
+	}
+#endif
 
 	return 0;
 }
@@ -3586,7 +3780,6 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
 		mii = if_mii(ifr);
 		if (!mii)
 			return -EINVAL;
-
 
 		if (mii->reg_num == 1) {
 			struct bonding *bond = netdev_priv(bond_dev);
@@ -3865,7 +4058,6 @@ static int bond_set_mac_address(struct net_device *bond_dev, void *addr)
 	if (bond->params.mode == BOND_MODE_ALB)
 		return bond_alb_set_mac_address(bond_dev, addr);
 
-
 	pr_debug("bond=%p, name=%s\n",
 		 bond, bond_dev ? bond_dev->name : "None");
 
@@ -3996,7 +4188,6 @@ out:
 
 	return NETDEV_TX_OK;
 }
-
 
 /*
  * in active-backup mode, we know that bond->curr_active_slave is always valid if
@@ -4161,7 +4352,6 @@ static inline int bond_slave_override(struct bonding *bond,
 
 	return res;
 }
-
 
 static u16 bond_select_queue(struct net_device *dev, struct sk_buff *skb)
 {
@@ -4474,6 +4664,19 @@ static int bond_check_params(struct bond_params *params)
 			       mode == NULL ? "NULL" : mode);
 			return -EINVAL;
 		}
+#ifdef TNK_BONDING
+		if (hitoe) {
+			/* set bonding mode to logic */
+			if (bond_mode == BOND_MODE_ACTIVEBACKUP) {
+				tnkhw_bonding_setmode(BOND_MODE_ACTIVEBACKUP);
+			} else if (bond_mode == BOND_MODE_ROUNDROBIN) {
+				tnkhw_bonding_setmode(BOND_MODE_ROUNDROBIN);
+			} else {
+				pr_err("Error: Invalid bonding mode in TOE\n");
+				return -EINVAL;
+			}
+		}
+#endif
 	}
 
 	if (xmit_hash_policy) {
@@ -4528,6 +4731,16 @@ static int bond_check_params(struct bond_params *params)
 		max_bonds = BOND_DEFAULT_MAX_BONDS;
 	}
 
+#ifdef TNK_BONDING
+	if (hitoe) {
+		if (max_bonds > 1) {
+			pr_warning("Warning: TOE max_bonds should use default value,");
+			pr_warning(" so it was reset to BOND_DEFAULT_MAX_BONDS (%d)\n",
+					BOND_DEFAULT_MAX_BONDS);
+			max_bonds = BOND_DEFAULT_MAX_BONDS;
+		}
+	}
+#endif
 	if (miimon < 0) {
 		pr_warning("Warning: miimon module parameter (%d), not in range 0-%d, so it was reset to %d\n",
 			   miimon, INT_MAX, BOND_LINK_MON_INTERV);
@@ -4921,7 +5134,9 @@ static int __init bonding_init(void)
 	int res;
 
 	pr_info("%s", bond_version);
-
+#ifdef TNK_BONDING
+	TNKB_DBG("TOE bonding init hitoe = %d\n", hitoe);
+#endif
 	res = bond_check_params(&bonding_defaults);
 	if (res)
 		goto out;

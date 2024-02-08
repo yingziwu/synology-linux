@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/hfsplus/bnode.c
  *
@@ -39,6 +42,16 @@ void hfs_bnode_read(struct hfs_bnode *node, void *buf, int off, int len)
 	}
 }
 
+#ifdef MY_ABC_HERE
+u32 hfs_bnode_read_u32(struct hfs_bnode *node, int off)
+{
+	__be32 data;
+	/* TODO: optimize later... */
+	hfs_bnode_read(node, &data, off, 4);
+	return be32_to_cpu(data);
+}
+#endif
+
 u16 hfs_bnode_read_u16(struct hfs_bnode *node, int off)
 {
 	__be16 data;
@@ -62,7 +75,12 @@ void hfs_bnode_read_key(struct hfs_bnode *node, void *key, int off)
 
 	tree = node->tree;
 	if (node->type == HFS_NODE_LEAF ||
+#ifdef MY_ABC_HERE
+	    tree->attributes & HFS_TREE_VARIDXKEYS ||
+	    node->tree->cnid == HFSPLUS_ATTR_CNID)
+#else
 	    tree->attributes & HFS_TREE_VARIDXKEYS)
+#endif
 		key_len = hfs_bnode_read_u16(node, off) + 2;
 	else
 		key_len = tree->max_key_len + 2;
@@ -129,7 +147,11 @@ void hfs_bnode_copy(struct hfs_bnode *dst_node, int dst,
 	struct page **src_page, **dst_page;
 	int l;
 
+#ifdef MY_ABC_HERE
+	hfs_dbg(BNODE_MOD, "copybytes: %u,%u,%u\n", dst, src, len);
+#else
 	dprint(DBG_BNODE_MOD, "copybytes: %u,%u,%u\n", dst, src, len);
+#endif
 	if (!len)
 		return;
 	tree = src_node->tree;
@@ -187,7 +209,11 @@ void hfs_bnode_move(struct hfs_bnode *node, int dst, int src, int len)
 	struct page **src_page, **dst_page;
 	int l;
 
+#ifdef MY_ABC_HERE
+	hfs_dbg(BNODE_MOD, "movebytes: %u,%u,%u\n", dst, src, len);
+#else
 	dprint(DBG_BNODE_MOD, "movebytes: %u,%u,%u\n", dst, src, len);
+#endif
 	if (!len)
 		return;
 	src += node->page_offset;
@@ -301,34 +327,67 @@ void hfs_bnode_dump(struct hfs_bnode *node)
 	__be32 cnid;
 	int i, off, key_off;
 
+#ifdef MY_ABC_HERE
+	hfs_dbg(BNODE_MOD, "bnode: %d\n", node->this);
+#else
 	dprint(DBG_BNODE_MOD, "bnode: %d\n", node->this);
+#endif
 	hfs_bnode_read(node, &desc, 0, sizeof(desc));
+#ifdef MY_ABC_HERE
+	hfs_dbg(BNODE_MOD, "%d, %d, %d, %d, %d\n",
+#else
 	dprint(DBG_BNODE_MOD, "%d, %d, %d, %d, %d\n",
+#endif
 		be32_to_cpu(desc.next), be32_to_cpu(desc.prev),
 		desc.type, desc.height, be16_to_cpu(desc.num_recs));
 
 	off = node->tree->node_size - 2;
 	for (i = be16_to_cpu(desc.num_recs); i >= 0; off -= 2, i--) {
 		key_off = hfs_bnode_read_u16(node, off);
+#ifdef MY_ABC_HERE
+		hfs_dbg(BNODE_MOD, " %d", key_off);
+#else
 		dprint(DBG_BNODE_MOD, " %d", key_off);
+#endif
 		if (i && node->type == HFS_NODE_INDEX) {
 			int tmp;
 
+#ifdef MY_ABC_HERE
+			if (node->tree->attributes & HFS_TREE_VARIDXKEYS ||
+					node->tree->cnid == HFSPLUS_ATTR_CNID)
+#else
 			if (node->tree->attributes & HFS_TREE_VARIDXKEYS)
+#endif
 				tmp = hfs_bnode_read_u16(node, key_off) + 2;
 			else
 				tmp = node->tree->max_key_len + 2;
+#ifdef MY_ABC_HERE
+			hfs_dbg_cont(BNODE_MOD, " (%d", tmp);
+#else
 			dprint(DBG_BNODE_MOD, " (%d", tmp);
+#endif
 			hfs_bnode_read(node, &cnid, key_off + tmp, 4);
+#ifdef MY_ABC_HERE
+			hfs_dbg_cont(BNODE_MOD, ",%d)", be32_to_cpu(cnid));
+#else
 			dprint(DBG_BNODE_MOD, ",%d)", be32_to_cpu(cnid));
+#endif
 		} else if (i && node->type == HFS_NODE_LEAF) {
 			int tmp;
 
 			tmp = hfs_bnode_read_u16(node, key_off);
+#ifdef MY_ABC_HERE
+			hfs_dbg_cont(BNODE_MOD, " (%d)", tmp);
+#else
 			dprint(DBG_BNODE_MOD, " (%d)", tmp);
+#endif
 		}
 	}
+#ifdef MY_ABC_HERE
+	hfs_dbg_cont(BNODE_MOD, "\n");
+#else
 	dprint(DBG_BNODE_MOD, "\n");
+#endif
 }
 
 void hfs_bnode_unlink(struct hfs_bnode *node)
@@ -364,7 +423,11 @@ void hfs_bnode_unlink(struct hfs_bnode *node)
 
 	/* move down? */
 	if (!node->prev && !node->next)
+#ifdef MY_ABC_HERE
+		hfs_dbg(BNODE_MOD, "hfs_btree_del_level\n");
+#else
 		dprint(DBG_BNODE_MOD, "hfs_btree_del_level\n");
+#endif
 	if (!node->parent) {
 		tree->root = 0;
 		tree->depth = 0;
@@ -384,7 +447,11 @@ struct hfs_bnode *hfs_bnode_findhash(struct hfs_btree *tree, u32 cnid)
 	struct hfs_bnode *node;
 
 	if (cnid >= tree->node_count) {
+#ifdef MY_ABC_HERE
+		pr_err("request for non-existent node "
+#else
 		printk(KERN_ERR "hfs: request for non-existent node "
+#endif
 				"%d in B*Tree\n",
 			cnid);
 		return NULL;
@@ -407,7 +474,11 @@ static struct hfs_bnode *__hfs_bnode_create(struct hfs_btree *tree, u32 cnid)
 	loff_t off;
 
 	if (cnid >= tree->node_count) {
+#ifdef MY_ABC_HERE
+		pr_err("request for non-existent node "
+#else
 		printk(KERN_ERR "hfs: request for non-existent node "
+#endif
 				"%d in B*Tree\n",
 			cnid);
 		return NULL;
@@ -423,8 +494,12 @@ static struct hfs_bnode *__hfs_bnode_create(struct hfs_btree *tree, u32 cnid)
 	node->this = cnid;
 	set_bit(HFS_BNODE_NEW, &node->flags);
 	atomic_set(&node->refcnt, 1);
+#ifdef MY_ABC_HERE
+	hfs_dbg(BNODE_REFS, "new_node(%d:%d): 1\n",
+#else
 	dprint(DBG_BNODE_REFS, "new_node(%d:%d): 1\n",
-	       node->tree->cnid, node->this);
+#endif
+		node->tree->cnid, node->this);
 	init_waitqueue_head(&node->lock_wq);
 	spin_lock(&tree->hash_lock);
 	node2 = hfs_bnode_findhash(tree, cnid);
@@ -468,7 +543,11 @@ void hfs_bnode_unhash(struct hfs_bnode *node)
 {
 	struct hfs_bnode **p;
 
+#ifdef MY_ABC_HERE
+	hfs_dbg(BNODE_REFS, "remove_node(%d:%d): %d\n",
+#else
 	dprint(DBG_BNODE_REFS, "remove_node(%d:%d): %d\n",
+#endif
 		node->tree->cnid, node->this, atomic_read(&node->refcnt));
 	for (p = &node->tree->node_hash[hfs_bnode_hash(node->this)];
 	     *p && *p != node; p = &(*p)->next_hash)
@@ -586,9 +665,18 @@ struct hfs_bnode *hfs_bnode_create(struct hfs_btree *tree, u32 num)
 	node = hfs_bnode_findhash(tree, num);
 	spin_unlock(&tree->hash_lock);
 	if (node) {
+#ifdef MY_ABC_HERE
+		tree->sb->s_flags |= MS_RDONLY;
+		return ERR_PTR(-EIO);
+#else /* ! MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+		pr_crit("new node %u already hashed?\n", num);
+#else
 		printk(KERN_CRIT "new node %u already hashed?\n", num);
+#endif /* MY_ABC_HERE */
 		WARN_ON(1);
 		return node;
+#endif /* MY_ABC_HERE */
 	}
 	node = __hfs_bnode_create(tree, num);
 	if (!node)
@@ -618,7 +706,11 @@ void hfs_bnode_get(struct hfs_bnode *node)
 {
 	if (node) {
 		atomic_inc(&node->refcnt);
+#ifdef MY_ABC_HERE
+		hfs_dbg(BNODE_REFS, "get_node(%d:%d): %d\n",
+#else
 		dprint(DBG_BNODE_REFS, "get_node(%d:%d): %d\n",
+#endif
 			node->tree->cnid, node->this,
 			atomic_read(&node->refcnt));
 	}
@@ -631,10 +723,22 @@ void hfs_bnode_put(struct hfs_bnode *node)
 		struct hfs_btree *tree = node->tree;
 		int i;
 
+#ifdef MY_ABC_HERE
+		hfs_dbg(BNODE_REFS, "put_node(%d:%d): %d\n",
+#else
 		dprint(DBG_BNODE_REFS, "put_node(%d:%d): %d\n",
+#endif
 			node->tree->cnid, node->this,
 			atomic_read(&node->refcnt));
+#ifdef MY_ABC_HERE
+		if (!atomic_read(&node->refcnt)) {
+			printk("hfsplus:node refcnt wrong (%d).\n", atomic_read(&node->refcnt));
+			tree->sb->s_flags |= MS_RDONLY;
+			return;
+		}
+#else
 		BUG_ON(!atomic_read(&node->refcnt));
+#endif
 		if (!atomic_dec_and_lock(&node->refcnt, &tree->hash_lock))
 			return;
 		for (i = 0; i < tree->pages_per_bnode; i++) {
@@ -646,6 +750,10 @@ void hfs_bnode_put(struct hfs_bnode *node)
 		if (test_bit(HFS_BNODE_DELETED, &node->flags)) {
 			hfs_bnode_unhash(node);
 			spin_unlock(&tree->hash_lock);
+#ifdef MY_ABC_HERE
+			hfs_bnode_clear(node, 0,
+				PAGE_CACHE_SIZE * tree->pages_per_bnode);
+#endif
 			hfs_bmap_free(node);
 			hfs_bnode_free(node);
 			return;
@@ -653,4 +761,3 @@ void hfs_bnode_put(struct hfs_bnode *node)
 		spin_unlock(&tree->hash_lock);
 	}
 }
-

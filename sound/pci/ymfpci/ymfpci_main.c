@@ -1652,7 +1652,6 @@ YMFPCI_SINGLE(SNDRV_CTL_NAME_IEC958("",CAPTURE,SWITCH), 0, YDSXGR_SPDIFINCTRL, 0
 YMFPCI_SINGLE(SNDRV_CTL_NAME_IEC958("Loop",NONE,NONE), 0, YDSXGR_SPDIFINCTRL, 4),
 };
 
-
 /*
  * GPIO
  */
@@ -1791,7 +1790,6 @@ static struct snd_kcontrol_new snd_ymfpci_pcm_volume __devinitdata = {
 	.put = snd_ymfpci_pcm_vol_put,
 };
 
-
 /*
  *  Mixer routines
  */
@@ -1893,7 +1891,6 @@ int __devinit snd_ymfpci_mixer(struct snd_ymfpci *chip, int rear_switch)
 	return 0;
 }
 
-
 /*
  * timer
  */
@@ -1971,7 +1968,6 @@ int __devinit snd_ymfpci_timer(struct snd_ymfpci *chip, int device)
 	chip->timer = timer;
 	return err;
 }
-
 
 /*
  *  proc interface

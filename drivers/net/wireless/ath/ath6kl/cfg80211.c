@@ -421,7 +421,6 @@ static bool ath6kl_is_tx_pending(struct ath6kl *ar)
 	return ar->tx_pending[ath6kl_wmi_get_control_ep(ar->wmi)] == 0;
 }
 
-
 static int ath6kl_cfg80211_connect(struct wiphy *wiphy, struct net_device *dev,
 				   struct cfg80211_connect_params *sme)
 {
@@ -3234,4 +3233,3 @@ void ath6kl_cfg80211_destroy(struct ath6kl *ar)
 
 	wiphy_free(ar->wiphy);
 }
-

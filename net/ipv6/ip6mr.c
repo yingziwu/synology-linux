@@ -339,7 +339,6 @@ struct ipmr_mfc_iter {
 	int ct;
 };
 
-
 static struct mfc6_cache *ipmr_mfc_seq_idx(struct net *net,
 					   struct ipmr_mfc_iter *it, loff_t pos)
 {
@@ -845,7 +844,6 @@ static void ip6mr_destroy_unres(struct mr6_table *mrt, struct mfc6_cache *c)
 
 	ip6mr_cache_free(c);
 }
-
 
 /* Timer process for all the unresolved queue. */
 
@@ -2039,7 +2037,6 @@ dont_forward:
 	return 0;
 }
 
-
 /*
  *	Multicast packets for forwarding arrive here
  */
@@ -2089,7 +2086,6 @@ int ip6_mr_input(struct sk_buff *skb)
 
 	return 0;
 }
-
 
 static int __ip6mr_fill_mroute(struct mr6_table *mrt, struct sk_buff *skb,
 			       struct mfc6_cache *c, struct rtmsg *rtm)

@@ -90,4 +90,3 @@ ENTRY(tegra_cpu_wfi)
 	dsb
 	mov	pc, lr
 ENDPROC(tegra_cpu_wfi)
-

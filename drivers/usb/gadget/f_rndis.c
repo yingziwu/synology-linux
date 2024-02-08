@@ -25,7 +25,6 @@
 #include "u_ether.h"
 #include "rndis.h"
 
-
 /*
  * This function is an RNDIS Ethernet port -- a Microsoft protocol that's
  * been promoted instead of the standard CDC Ethernet.  The published RNDIS
@@ -71,6 +70,8 @@ struct f_rndis {
 	struct gether			port;
 	u8				ctrl_id, data_id;
 	u8				ethaddr[ETH_ALEN];
+	u32				vendorID;
+	const char			*manufacturer;
 	int				config;
 
 	struct usb_ep			*notify;
@@ -101,7 +102,6 @@ static unsigned int bitrate(struct usb_gadget *g)
 
 #define LOG2_STATUS_INTERVAL_MSEC	5	/* 1 << 5 == 32 msec */
 #define STATUS_BYTECOUNT		8	/* 8 bytes data */
-
 
 /* interface descriptor: */
 
@@ -164,7 +164,6 @@ static struct usb_interface_descriptor rndis_data_intf = {
 	.bInterfaceProtocol =	0,
 	/* .iInterface = DYNAMIC */
 };
-
 
 static struct usb_interface_assoc_descriptor
 rndis_iad_descriptor = {
@@ -531,7 +530,6 @@ invalid:
 	return value;
 }
 
-
 static int rndis_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 {
 	struct f_rndis		*rndis = func_to_rndis(f);
@@ -768,12 +766,10 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
 	rndis_set_param_medium(rndis->config, NDIS_MEDIUM_802_3, 0);
 	rndis_set_host_mac(rndis->config, rndis->ethaddr);
 
-#if 0
-// FIXME
-	if (rndis_set_param_vendor(rndis->config, vendorID,
-				manufacturer))
-		goto fail0;
-#endif
+	if (rndis->manufacturer && rndis->vendorID &&
+			rndis_set_param_vendor(rndis->config, rndis->vendorID,
+					       rndis->manufacturer))
+		goto fail;
 
 	/* NOTE:  all that is done without knowing or caring about
 	 * the network link ... which is unavailable to this code
@@ -855,19 +851,26 @@ static inline bool can_support_rndis(struct usb_configuration *c)
 int
 rndis_bind_config(struct usb_configuration *c, u8 ethaddr[ETH_ALEN])
 {
+	return rndis_bind_config_vendor(c, ethaddr, 0, NULL);
+}
+
+int
+rndis_bind_config_vendor(struct usb_configuration *c, u8 ethaddr[ETH_ALEN],
+				u32 vendorID, const char *manufacturer)
+{
 	struct f_rndis	*rndis;
 	int		status;
 
 	if (!can_support_rndis(c) || !ethaddr)
 		return -EINVAL;
 
+	/* setup RNDIS itself */
+	status = rndis_init();
+	if (status < 0)
+		return status;
+
 	/* maybe allocate device-global string IDs */
 	if (rndis_string_defs[0].id == 0) {
-
-		/* ... and setup RNDIS itself */
-		status = rndis_init();
-		if (status < 0)
-			return status;
 
 		/* control interface label */
 		status = usb_string_id(c->cdev);
@@ -898,6 +901,8 @@ rndis_bind_config(struct usb_configuration *c, u8 ethaddr[ETH_ALEN])
 		goto fail;
 
 	memcpy(rndis->ethaddr, ethaddr, ETH_ALEN);
+	rndis->vendorID = vendorID;
+	rndis->manufacturer = manufacturer;
 
 	/* RNDIS activates when the host changes this filter */
 	rndis->port.cdc_filter = 0;

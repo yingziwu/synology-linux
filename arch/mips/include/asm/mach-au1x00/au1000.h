@@ -34,7 +34,6 @@
 #ifndef _AU1000_H_
 #define _AU1000_H_
 
-
 #ifndef _LANGUAGE_ASSEMBLY
 
 #include <linux/delay.h>
@@ -341,7 +340,6 @@ enum au1300_vss_block {
 };
 
 extern void au1300_vss_block_control(int block, int enable);
-
 
 /* SOC Interrupt numbers */
 /* Au1000-style (IC0/1): 2 controllers with 32 sources each */
@@ -802,7 +800,6 @@ enum soc_au1200_ints {
 
 /**********************************************************************/
 
-
 /*
  * Au1300 GPIO+INT controller (GPIC) register offsets and bits
  * Registers are 128bits (0x10 bytes), divided into 4 "banks".
@@ -961,7 +958,6 @@ enum soc_au1200_ints {
 #define MEM_STNAND_ADDR 	0x4
 #define MEM_STNAND_DATA 	0x20
 
-
 /* Programmable Counters 0 and 1 */
 #define SYS_BASE		0xB1900000
 #define SYS_COUNTER_CNTRL	(SYS_BASE + 0x14)
@@ -1031,7 +1027,6 @@ enum soc_au1200_ints {
 #define I2S_CONTROL		0xB1000008
 #  define I2S_CONTROL_D 	(1 << 1)
 #  define I2S_CONTROL_CE	(1 << 0)
-
 
 /* Ethernet Controllers  */
 
@@ -1265,7 +1260,6 @@ enum soc_au1200_ints {
 #define SSI_ENABLE_CD		(1 << 1)
 #define SSI_ENABLE_E		(1 << 0)
 
-
 /*
  * The IrDA peripheral has an IRFIRSEL pin, but on the DB/PB boards it's not
  * used to select FIR/SIR mode on the transceiver but as a GPIO.  Instead a
@@ -1278,7 +1272,6 @@ enum soc_au1200_ints {
 struct au1k_irda_platform_data {
 	void(*set_phy_mode)(int mode);
 };
-
 
 /* GPIO */
 #define SYS_PINFUNC		0xB190002C
@@ -1464,7 +1457,6 @@ struct au1k_irda_platform_data {
 #define AC97C_CNTRL		0xB0000010
 #  define AC97C_RS		(1 << 1)
 #  define AC97C_CE		(1 << 0)
-
 
 /* The PCI chip selects are outside the 32bit space, and since we can't
  * just program the 36bit addresses into BARs, we have to take a chunk

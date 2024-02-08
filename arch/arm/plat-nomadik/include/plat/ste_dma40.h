@@ -5,7 +5,6 @@
  * License terms: GNU General Public License (GPL) version 2
  */
 
-
 #ifndef STE_DMA40_H
 #define STE_DMA40_H
 
@@ -83,7 +82,6 @@ enum stedma40_xfer_dir {
 	STEDMA40_PERIPH_TO_MEM,
 	STEDMA40_PERIPH_TO_PERIPH
 };
-
 
 /**
  * struct stedma40_chan_cfg - dst/src channel configuration

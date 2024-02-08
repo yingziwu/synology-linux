@@ -26,7 +26,6 @@
 #define REG_READ_D(_ah, _reg) \
 	ath9k_hw_common(_ah)->ops->read((_ah), (_reg))
 
-
 static ssize_t ath9k_debugfs_read_buf(struct file *file, char __user *user_buf,
 				      size_t count, loff_t *ppos)
 {
@@ -128,7 +127,6 @@ static const struct file_operations fops_tx_chainmask = {
 	.owner = THIS_MODULE,
 	.llseek = default_llseek,
 };
-
 
 static ssize_t read_file_rx_chainmask(struct file *file, char __user *user_buf,
 			     size_t count, loff_t *ppos)
@@ -324,7 +322,6 @@ static const struct file_operations fops_dma = {
 	.llseek = default_llseek,
 };
 
-
 void ath_debug_stat_interrupt(struct ath_softc *sc, enum ath9k_int status)
 {
 	if (status)
@@ -431,7 +428,6 @@ static ssize_t read_file_interrupt(struct file *file, char __user *user_buf,
 		"%8s: %10u\n", "TSFOOR", sc->debug.stats.istats.tsfoor);
 	len += snprintf(buf + len, sizeof(buf) - len,
 		"%8s: %10u\n", "TOTAL", sc->debug.stats.istats.total);
-
 
 	if (len > sizeof(buf))
 		len = sizeof(buf);

@@ -244,7 +244,6 @@ void tty_del_file(struct file *file)
 	tty_free_file(file);
 }
 
-
 #define TTY_NUMBER(tty) ((tty)->index + (tty)->driver->name_base)
 
 /**
@@ -565,7 +564,6 @@ void __tty_hangup(struct tty_struct *tty)
 	if (!tty)
 		return;
 
-
 	spin_lock(&redirect_lock);
 	if (redirect && file_tty(redirect) == tty) {
 		f = redirect;
@@ -720,7 +718,6 @@ void tty_vhangup(struct tty_struct *tty)
 
 EXPORT_SYMBOL(tty_vhangup);
 
-
 /**
  *	tty_vhangup_self	-	process vhangup for own ctty
  *
@@ -861,7 +858,6 @@ void no_tty(void)
 	tty_unlock();
 	proc_clear_tty(tsk);
 }
-
 
 /**
  *	stop_tty	-	propagate flow control
@@ -1112,7 +1108,6 @@ void tty_write_message(struct tty_struct *tty, char *msg)
 	}
 	return;
 }
-
 
 /**
  *	tty_write		-	write method for tty device file
@@ -1992,7 +1987,6 @@ retry_open:
 	}
 	tty_unlock();
 
-
 	mutex_lock(&tty_mutex);
 	tty_lock();
 	spin_lock_irq(&current->sighand->siglock);
@@ -2015,8 +2009,6 @@ err_file:
 	tty_free_file(filp);
 	return retval;
 }
-
-
 
 /**
  *	tty_poll	-	check tty status
@@ -2907,7 +2899,6 @@ static struct device *tty_get_device(struct tty_struct *tty)
 	return class_find_device(tty_class, NULL, &devt, dev_match_devt);
 }
 
-
 /**
  *	initialize_tty_struct
  *	@tty: tty to initialize
@@ -2978,8 +2969,9 @@ void deinitialize_tty_struct(struct tty_struct *tty)
 
 int tty_put_char(struct tty_struct *tty, unsigned char ch)
 {
-	if (tty->ops->put_char)
+	if (tty->ops->put_char) {
 		return tty->ops->put_char(tty, ch);
+	}
 	return tty->ops->write(tty, &ch, 1);
 }
 EXPORT_SYMBOL_GPL(tty_put_char);
@@ -3394,4 +3386,3 @@ int __init tty_init(void)
 #endif
 	return 0;
 }
-

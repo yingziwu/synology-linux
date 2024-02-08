@@ -52,10 +52,8 @@
 
 #include "rtllib.h"
 
-
 u32 rt_global_debug_component = COMP_ERR;
 EXPORT_SYMBOL(rt_global_debug_component);
-
 
 void _setup_timer(struct timer_list *ptimer, void *fun, unsigned long data)
 {
@@ -124,7 +122,6 @@ struct net_device *alloc_rtllib(int sizeof_priv)
 		goto failed;
 	}
 	rtllib_networks_initialize(ieee);
-
 
 	/* Default fragmentation threshold is maximum payload size */
 	ieee->fts = DEFAULT_FTS;

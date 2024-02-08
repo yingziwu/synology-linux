@@ -234,7 +234,6 @@ struct device_driver {
 	struct driver_private *p;
 };
 
-
 extern int __must_check driver_register(struct device_driver *drv);
 extern void driver_unregister(struct device_driver *drv);
 
@@ -242,7 +241,6 @@ extern struct device_driver *driver_find(const char *name,
 					 struct bus_type *bus);
 extern int driver_probe_done(void);
 extern void wait_for_device_probe(void);
-
 
 /* sysfs interface for exporting driver attributes */
 
@@ -847,7 +845,6 @@ extern int (*platform_notify)(struct device *dev);
 
 extern int (*platform_notify_remove)(struct device *dev);
 
-
 /*
  * get_device - atomically increment the reference count for the device.
  *
@@ -872,7 +869,6 @@ extern void device_shutdown(void);
 
 /* debugging and troubleshooting/diagnostic helpers. */
 extern const char *dev_driver_string(const struct device *dev);
-
 
 #ifdef CONFIG_PRINTK
 

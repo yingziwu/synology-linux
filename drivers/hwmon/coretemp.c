@@ -369,7 +369,6 @@ exit_free:
 	return err;
 }
 
-
 static int __cpuinit chk_ucode_version(unsigned int cpu)
 {
 	struct cpuinfo_x86 *c = &cpu_data(cpu);

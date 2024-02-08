@@ -187,7 +187,6 @@
 
 /* Triton Core internal information (END) */
 
-
 /* subchip/slave 0 0x48 - POWER */
 #define TWL6030_BASEADD_RTC		0x0000
 #define TWL6030_BASEADD_MEM		0x0017
@@ -223,7 +222,6 @@
 #define HFCLK_FREQ_38p4_MHZ		(3 << 0)
 #define HIGH_PERF_SQ			(1 << 3)
 #define CK32K_LOWPWR_EN			(1 << 7)
-
 
 /* chip-specific feature flags, for i2c_device_id.driver_data */
 #define TWL4030_VAUX2		BIT(0)	/* pre-5030 voltage ranges */
@@ -1190,7 +1188,6 @@ static void clocks_init(struct device *dev,
 }
 
 /*----------------------------------------------------------------------*/
-
 
 static int twl_remove(struct i2c_client *client)
 {

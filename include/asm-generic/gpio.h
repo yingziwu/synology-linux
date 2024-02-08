@@ -146,7 +146,6 @@ extern struct gpio_chip *gpiochip_find(const void *data,
 					int (*match)(struct gpio_chip *chip,
 						     const void *data));
 
-
 /* Always use the library code for GPIO management calls,
  * or when sleeping may be involved.
  */
@@ -160,7 +159,6 @@ extern int gpio_set_debounce(unsigned gpio, unsigned debounce);
 
 extern int gpio_get_value_cansleep(unsigned gpio);
 extern void gpio_set_value_cansleep(unsigned gpio, int value);
-
 
 /* A platform's <asm/gpio.h> code may want to inline the I/O calls when
  * the GPIO is constant and refers to some always-present controller,

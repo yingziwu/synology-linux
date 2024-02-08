@@ -1004,7 +1004,6 @@ static int __devinit ab8500_btemp_probe(struct platform_device *pdev)
 	di->btemp_psy.external_power_changed =
 		ab8500_btemp_external_power_changed;
 
-
 	/* Create a work queue for the btemp */
 	di->btemp_wq =
 		create_singlethread_workqueue("ab8500_btemp_wq");

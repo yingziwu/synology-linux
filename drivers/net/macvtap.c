@@ -359,7 +359,6 @@ static struct rtnl_link_ops macvtap_link_ops __read_mostly = {
 	.dellink	= macvtap_dellink,
 };
 
-
 static void macvtap_sock_write_space(struct sock *sk)
 {
 	wait_queue_head_t *wqueue;
@@ -639,7 +638,6 @@ static int macvtap_skb_to_vnet_hdr(const struct sk_buff *skb,
 
 	return 0;
 }
-
 
 /* Get packet from user space buffer */
 static ssize_t macvtap_get_user(struct macvtap_queue *q, struct msghdr *m,

@@ -74,6 +74,10 @@
 #include <net/xfrm.h>
 #include <net/netdma.h>
 #include <net/secure_seq.h>
+#ifdef CONFIG_TNK
+#include <net/tnkdrv.h>
+#endif
+
 #include <net/tcp_memcontrol.h>
 
 #include <linux/inet.h>
@@ -85,10 +89,13 @@
 #include <linux/crypto.h>
 #include <linux/scatterlist.h>
 
+#ifdef CONFIG_TNK
+extern struct tnkfuncs *tnk;
+#endif
+
 int sysctl_tcp_tw_reuse __read_mostly;
 int sysctl_tcp_low_latency __read_mostly;
 EXPORT_SYMBOL(sysctl_tcp_low_latency);
-
 
 #ifdef CONFIG_TCP_MD5SIG
 static int tcp_v4_md5_hash_hdr(char *md5_hash, const struct tcp_md5sig_key *key,
@@ -864,8 +871,6 @@ int tcp_syn_flood_action(struct sock *sk,
 	int want_cookie = 0;
 	struct listen_sock *lopt;
 
-
-
 #ifdef CONFIG_SYN_COOKIES
 	if (sysctl_tcp_syncookies) {
 		msg = "Sending cookies";
@@ -1427,7 +1432,6 @@ drop:
 }
 EXPORT_SYMBOL(tcp_v4_conn_request);
 
-
 /*
  * The three way handshake has completed - we got a valid synack -
  * now create the new socket.
@@ -1513,6 +1517,20 @@ struct sock *tcp_v4_syn_recv_sock(struct sock *sk, struct sk_buff *skb,
 	if (__inet_inherit_port(sk, newsk) < 0)
 		goto put_and_exit;
 	__inet_hash_nolisten(newsk, NULL);
+#ifdef CONFIG_TNK
+	/*  tnk is active. tnk_tcp_send will return
+	 *  the number of bytes successfully queued. Zero
+	 *  indicates no space available, -1 indicates
+	 *  this connection is not accelerated.
+	 */
+	if (tnk) {
+		/* newsk will inherit sk->sk_tnkinfo,
+		   so make sure state is reset */
+		newsk->sk_tnkinfo.state = 0;
+		tnk->tcp_prepare(newsk, skb, 1);
+		tnk->tcp_open(newsk);
+	}
+#endif
 
 	return newsk;
 
@@ -1582,7 +1600,6 @@ static __sum16 tcp_v4_checksum_init(struct sk_buff *skb)
 	return 0;
 }
 
-
 /* The socket must have it's spinlock held when we get
  * here.
  *
@@ -1604,13 +1621,40 @@ int tcp_v4_do_rcv(struct sock *sk, struct sk_buff *skb)
 	if (tcp_v4_inbound_md5_hash(sk, skb))
 		goto discard;
 #endif
+#ifdef CONFIG_TNK
+	if (tnk) {
+		/* If this is an active TOE-accelerated connection,
+		 * we can't allow any more packets to enter the
+		 * sk_receive_queue here */
+		if ((sk->sk_tnkinfo.state == TNKINFO_STATE_ACTIVATING)
+				|| (sk->sk_tnkinfo.state
+					== TNKINFO_STATE_ACTIVE)) {
+
+			if (!sk->sk_tnkinfo.finflag && !sk->sk_tnkinfo.rstflag)
+				goto discard;
+		}
+	}
+#endif
 
 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
 		sock_rps_save_rxhash(sk, skb);
+/* only fast path toe is allowed */
+#ifdef CONFIG_TNK
+		if (tnk)
+			sk->sk_tnkinfo.enable = 1;
+#endif
 		if (tcp_rcv_established(sk, skb, tcp_hdr(skb), skb->len)) {
 			rsk = sk;
+#ifdef CONFIG_TNK
+			if (tnk)
+				sk->sk_tnkinfo.enable = 0;
+#endif
 			goto reset;
 		}
+#ifdef CONFIG_TNK
+		if (tnk)
+			sk->sk_tnkinfo.enable = 0;
+#endif
 		return 0;
 	}
 

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	PF_INET6 socket protocol family
  *	Linux INET6 implementation
@@ -17,7 +20,6 @@
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  */
-
 
 #include <linux/module.h>
 #include <linux/capability.h>
@@ -61,6 +63,20 @@
 
 #include <asm/uaccess.h>
 #include <linux/mroute6.h>
+
+#ifdef CONFIG_ANDROID_PARANOID_NETWORK
+#include <linux/android_aid.h>
+
+static inline int current_has_network(void)
+{
+	return in_egroup_p(AID_INET) || capable(CAP_NET_RAW);
+}
+#else
+static inline int current_has_network(void)
+{
+	return 1;
+}
+#endif
 
 MODULE_AUTHOR("Cast of dozens");
 MODULE_DESCRIPTION("IPv6 protocol stack for Linux");
@@ -107,6 +123,9 @@ static int inet6_create(struct net *net, struct socket *sock, int protocol,
 	char answer_no_check;
 	int try_loading_module = 0;
 	int err;
+
+	if (!current_has_network())
+		return -EACCES;
 
 	if (sock->type != SOCK_RAW &&
 	    sock->type != SOCK_DGRAM &&
@@ -252,7 +271,6 @@ out_rcu_unlock:
 	goto out;
 }
 
-
 /* bind for INET6 API */
 int inet6_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
 {
@@ -332,8 +350,24 @@ int inet6_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
 
 				/* Binding to link-local address requires an interface */
 				if (!sk->sk_bound_dev_if) {
+#ifdef MY_ABC_HERE
+					unsigned flags;
+					for_each_netdev(net, dev) {
+						flags = dev_get_flags(dev);
+						if ((flags & IFF_RUNNING) && 
+						   !(flags & (IFF_LOOPBACK | IFF_SLAVE))) {
+							sk->sk_bound_dev_if = dev->ifindex;
+							break;
+						}
+					}
+					if (!sk->sk_bound_dev_if) {
+						err = -EINVAL;
+						goto out_unlock;
+					}
+#else
 					err = -EINVAL;
 					goto out_unlock;
+#endif
 				}
 				dev = dev_get_by_index_rcu(net, sk->sk_bound_dev_if);
 				if (!dev) {
@@ -477,6 +511,21 @@ int inet6_getname(struct socket *sock, struct sockaddr *uaddr,
 
 EXPORT_SYMBOL(inet6_getname);
 
+int inet6_killaddr_ioctl(struct net *net, void __user *arg) {
+	struct in6_ifreq ireq;
+	struct sockaddr_in6 sin6;
+
+	if (!capable(CAP_NET_ADMIN))
+		return -EACCES;
+
+	if (copy_from_user(&ireq, arg, sizeof(struct in6_ifreq)))
+		return -EFAULT;
+
+	sin6.sin6_family = AF_INET6;
+	sin6.sin6_addr = ireq.ifr6_addr;
+	return tcp_nuke_addr(net, (struct sockaddr *) &sin6);
+}
+
 int inet6_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 {
 	struct sock *sk = sock->sk;
@@ -501,6 +550,8 @@ int inet6_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 		return addrconf_del_ifaddr(net, (void __user *) arg);
 	case SIOCSIFDSTADDR:
 		return addrconf_set_dstaddr(net, (void __user *) arg);
+	case SIOCKILLADDR:
+		return inet6_killaddr_ioctl(net, (void __user *) arg);
 	default:
 		if (!sk->sk_prot->ioctl)
 			return -ENOIOCTLCMD;
@@ -824,6 +875,12 @@ static struct sk_buff *ipv6_gso_segment(struct sk_buff *skb,
 				fptr->frag_off |= htons(IP6_MF);
 			offset += (ntohs(ipv6h->payload_len) -
 				   sizeof(struct frag_hdr));
+#ifdef CONFIG_HI3535_SDK_2050
+			/* when ipv6 packet has extend header,
+			 * offset should substract the exthdr len.
+			 */
+			offset -= unfrag_ip6hlen - sizeof(*ipv6h);
+#endif /* CONFIG_HI3535_SDK_2050 */
 		}
 	}
 
@@ -1095,7 +1152,6 @@ static int __init inet6_init(void)
 	err = proto_register(&rawv6_prot, 1);
 	if (err)
 		goto out_unregister_udplite_proto;
-
 
 	/* We MUST register RAW sockets before we create the ICMP6,
 	 * IGMP6, or NDISC control sockets.

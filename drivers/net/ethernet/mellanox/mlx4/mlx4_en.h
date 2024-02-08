@@ -60,7 +60,6 @@
  * Device constants
  */
 
-
 #define MLX4_EN_PAGE_SHIFT	12
 #define MLX4_EN_PAGE_SIZE	(1 << MLX4_EN_PAGE_SHIFT)
 #define MAX_RX_RINGS		16
@@ -184,14 +183,12 @@ enum cq_type {
 	TX = 1,
 };
 
-
 /*
  * Useful macros
  */
 #define ROUNDUP_LOG2(x)		ilog2(roundup_pow_of_two(x))
 #define XNOR(x, y)		(!(x) == !(y))
 #define ILLEGAL_MAC(addr)	(addr == 0xffffffffffffULL || addr == 0x0)
-
 
 struct mlx4_en_tx_info {
 	struct sk_buff *skb;
@@ -201,12 +198,10 @@ struct mlx4_en_tx_info {
 	u8 inl;
 };
 
-
 #define MLX4_EN_BIT_DESC_OWN	0x80000000
 #define CTRL_SIZE	sizeof(struct mlx4_wqe_ctrl_seg)
 #define MLX4_EN_MEMTYPE_PAD	0x100
 #define DS_SIZE		sizeof(struct mlx4_wqe_data_seg)
-
 
 struct mlx4_en_tx_desc {
 	struct mlx4_wqe_ctrl_seg ctrl;
@@ -282,7 +277,6 @@ struct mlx4_en_rx_ring {
 	unsigned long csum_none;
 };
 
-
 static inline int mlx4_en_can_lro(__be16 status)
 {
 	return (status & cpu_to_be16(MLX4_CQE_STATUS_IPV4	|
@@ -357,7 +351,6 @@ struct mlx4_en_dev {
 	spinlock_t              uar_lock;
 	u8			mac_removed[MLX4_MAX_PORTS + 1];
 };
-
 
 struct mlx4_en_rss_map {
 	int base_qpn;
@@ -566,8 +559,6 @@ u64 mlx4_en_mac_to_u64(u8 *addr);
  * Globals
  */
 extern const struct ethtool_ops mlx4_en_ethtool_ops;
-
-
 
 /*
  * printk / logging functions

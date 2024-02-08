@@ -31,7 +31,6 @@
 
 #define DMA_ERROR_CODE		(~(dma_addr_t)0x0)
 
-
 #define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
 #define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
 

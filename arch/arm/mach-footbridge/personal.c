@@ -21,4 +21,3 @@ MACHINE_START(PERSONAL_SERVER, "Compaq-PersonalServer")
 	.timer		= &footbridge_timer,
 	.restart	= footbridge_restart,
 MACHINE_END
-

@@ -520,7 +520,6 @@ static struct stedma40_chan_cfg uart2_dma_cfg_tx = {
 };
 #endif
 
-
 static pin_cfg_t mop500_pins_uart0[] = {
 	GPIO0_U0_CTSn   | PIN_INPUT_PULLUP,
 	GPIO1_U0_RTSn   | PIN_OUTPUT_HIGH,
@@ -821,7 +820,6 @@ static const char * u8500_dt_board_compat[] = {
 	"st-ericsson,mop500",
 	NULL,
 };
-
 
 DT_MACHINE_START(U8500_DT, "ST-Ericsson U8500 platform (Device Tree Support)")
 	.map_io		= u8500_map_io,

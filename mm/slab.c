@@ -2121,7 +2121,6 @@ static void __kmem_cache_destroy(struct kmem_cache *cachep)
 	kmem_cache_free(&cache_cache, cachep);
 }
 
-
 /**
  * calculate_slab_order - calculate size (page order) of slabs
  * @cachep: pointer to the cache that is being created
@@ -3880,7 +3879,6 @@ static __always_inline void *__do_kmalloc(size_t size, gfp_t flags,
 
 	return ret;
 }
-
 
 #if defined(CONFIG_DEBUG_SLAB) || defined(CONFIG_TRACING)
 void *__kmalloc(size_t size, gfp_t flags)

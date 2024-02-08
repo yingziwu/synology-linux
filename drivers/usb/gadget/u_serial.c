@@ -29,7 +29,6 @@
 
 #include "u_serial.h"
 
-
 /*
  * This component encapsulates the TTY layer glue needed to provide basic
  * "serial port" functionality through the USB gadget stack.  Each such
@@ -131,8 +130,6 @@ static struct portmaster {
 static unsigned	n_ports;
 
 #define GS_CLOSE_TIMEOUT		15		/* seconds */
-
-
 
 #ifdef VERBOSE_DEBUG
 #define pr_vdebug(fmt, arg...) \
@@ -555,7 +552,6 @@ recycle:
 	 */
 	if (tty && do_push)
 		tty_flip_buffer_push(tty);
-
 
 	/* We want our data queue to become empty ASAP, keeping data
 	 * in the tty and ldisc (not here).  If we couldn't push any
@@ -1025,7 +1021,7 @@ static const struct tty_operations gs_tty_ops = {
 
 static struct tty_driver *gs_tty_driver;
 
-static int __init
+static int
 gs_port_alloc(unsigned port_num, struct usb_cdc_line_coding *coding)
 {
 	struct gs_port	*port;
@@ -1071,7 +1067,7 @@ gs_port_alloc(unsigned port_num, struct usb_cdc_line_coding *coding)
  *
  * Returns negative errno or zero.
  */
-int __init gserial_setup(struct usb_gadget *g, unsigned count)
+int gserial_setup(struct usb_gadget *g, unsigned count)
 {
 	unsigned			i;
 	struct usb_cdc_line_coding	coding;

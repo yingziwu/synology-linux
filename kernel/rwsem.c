@@ -127,5 +127,3 @@ void down_write_nested(struct rw_semaphore *sem, int subclass)
 EXPORT_SYMBOL(down_write_nested);
 
 #endif
-
-

@@ -172,7 +172,6 @@ struct u300_gpio_confdata {
 	.outval = 1, \
 }
 
-
 /* Initial configuration */
 static const struct __initdata u300_gpio_confdata
 bs335_gpio_config[BS335_GPIO_NUM_PORTS][U300_GPIO_PINS_PER_PORT] = {

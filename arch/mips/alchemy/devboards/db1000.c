@@ -71,7 +71,6 @@ void __init board_setup(void)
 	printk(KERN_INFO "AMD Alchemy %s Board\n", board_type_str());
 }
 
-
 static int db1500_map_pci_irq(const struct pci_dev *d, u8 slot, u8 pin)
 {
 	if ((slot < 12) || (slot > 13) || pin == 0)
@@ -117,7 +116,6 @@ static int __init db1500_pci_init(void)
 }
 /* must be arch_initcall; MIPS PCI scans busses in a subsys_initcall */
 arch_initcall(db1500_pci_init);
-
 
 static struct resource au1100_lcd_resources[] = {
 	[0] = {
@@ -462,7 +460,6 @@ static struct platform_device db1100_spi_dev = {
 		.platform_data	= &db1100_spictl_pd,
 	},
 };
-
 
 static struct platform_device *db1x00_devs[] = {
 	&db1x00_codec_dev,

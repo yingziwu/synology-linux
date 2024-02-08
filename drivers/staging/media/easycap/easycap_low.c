@@ -40,7 +40,6 @@
 
 #include "easycap.h"
 
-
 #define GET(X, Y, Z) do { \
 	int __rc; \
 	*(Z) = (u16)0; \

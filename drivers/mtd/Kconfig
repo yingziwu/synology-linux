@@ -203,6 +203,19 @@ config MTD_BLOCK_RO
 	  You do not need this option for use with the DiskOnChip devices. For
 	  those, enable NFTL support (CONFIG_NFTL) instead.
 
+config MTD_BLOCK_ROMBLOCK
+	tristate "Readonly(romblock) block device access to MTD devices"
+	depends on BLOCK
+	select MTD_BLKDEVS
+	default y
+	help
+	Same as readonly block driver, but this
+	allow you to mount read-only file systems
+	from an MTD device, containing bad blocks.
+	If you want use read-only file systems,
+	Say Y.
+
+
 config FTL
 	tristate "FTL (Flash Translation Layer) support"
 	depends on BLOCK

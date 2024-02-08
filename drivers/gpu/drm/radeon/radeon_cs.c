@@ -308,7 +308,6 @@ static void radeon_cs_parser_fini(struct radeon_cs_parser *parser, int error)
 {
 	unsigned i;
 
-
 	if (!error && parser->ib)
 		ttm_eu_fence_buffer_objects(&parser->validated,
 					    parser->ib->fence);

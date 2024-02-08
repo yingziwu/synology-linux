@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/hfsplus/ioctl.c
  *
@@ -16,7 +19,9 @@
 #include <linux/fs.h>
 #include <linux/mount.h>
 #include <linux/sched.h>
+#ifdef MY_ABC_HERE
 #include <linux/xattr.h>
+#endif
 #include <asm/uaccess.h>
 #include "hfsplus_fs.h"
 
@@ -59,7 +64,11 @@ static int hfsplus_ioctl_bless(struct file *file, int __user *user_flags)
 
 static int hfsplus_ioctl_getflags(struct file *file, int __user *user_flags)
 {
+#ifdef MY_ABC_HERE
 	struct inode *inode = file->f_path.dentry->d_inode;
+#else
+	struct inode *inode = file_inode(file);
+#endif
 	struct hfsplus_inode_info *hip = HFSPLUS_I(inode);
 	unsigned int flags = 0;
 
@@ -75,7 +84,11 @@ static int hfsplus_ioctl_getflags(struct file *file, int __user *user_flags)
 
 static int hfsplus_ioctl_setflags(struct file *file, int __user *user_flags)
 {
+#ifdef MY_ABC_HERE
 	struct inode *inode = file->f_path.dentry->d_inode;
+#else
+	struct inode *inode = file_inode(file);
+#endif
 	struct hfsplus_inode_info *hip = HFSPLUS_I(inode);
 	unsigned int flags;
 	int err = 0;
@@ -152,6 +165,8 @@ long hfsplus_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	}
 }
 
+#ifdef MY_ABC_HERE
+#else
 int hfsplus_setxattr(struct dentry *dentry, const char *name,
 		     const void *value, size_t size, int flags)
 {
@@ -258,3 +273,4 @@ ssize_t hfsplus_listxattr(struct dentry *dentry, char *buffer, size_t size)
 
 	return HFSPLUS_ATTRLIST_SIZE;
 }
+#endif /* MY_ABC_HERE */

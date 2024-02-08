@@ -907,7 +907,6 @@ static void __init sfi_handle_i2c_dev(int bus, struct i2c_board_info *i2c_info)
 		i2c_register_board_info(bus, i2c_info, 1);
  }
 
-
 static int __init sfi_parse_devs(struct sfi_table_header *table)
 {
 	struct sfi_table_simple *sb;

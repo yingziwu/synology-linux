@@ -27,7 +27,11 @@
 #include <linux/highmem.h>
 #include <linux/list.h>
 #include <linux/slab.h>
-
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+#include <linux/writeback.h>
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 #include <asm/uaccess.h>
 #include <asm/mmu_context.h>
 #include <asm/pgtable.h>
@@ -540,7 +544,21 @@ static void memory_bm_clear_bit(struct memory_bitmap *bm, unsigned long pfn)
 	BUG_ON(error);
 	clear_bit(bit, addr);
 }
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+static int mem_bm_clear_bit_check(struct memory_bitmap *bm, unsigned long pfn)
+{
+	void *addr;
+	unsigned int bit;
+	int error;
 
+	error = memory_bm_find_bit(bm, pfn, &addr, &bit);
+	if (!error)
+		clear_bit(bit, addr);
+	return error;
+}
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 static int memory_bm_test_bit(struct memory_bitmap *bm, unsigned long pfn)
 {
 	void *addr;
@@ -604,6 +622,76 @@ struct nosave_region {
 	unsigned long start_pfn;
 	unsigned long end_pfn;
 };
+
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+/* used for pmem pfn save */
+static LIST_HEAD(save_regions);
+static DEFINE_SPINLOCK(save_spin);
+
+void *register_save_region(unsigned long start_pfn, unsigned long end_pfn)
+{
+	struct nosave_region *region;
+	region = kmalloc(sizeof(*region), GFP_KERNEL);
+	BUG_ON(!region);
+
+	region->start_pfn = start_pfn;
+	region->end_pfn = end_pfn;
+
+	spin_lock(&save_spin);
+	list_add_tail(&region->list, &save_regions);
+	spin_unlock(&save_spin);
+
+	return region;
+}
+EXPORT_SYMBOL(register_save_region);
+
+void unregister_save_region(void *mem)
+{
+	struct nosave_region *region = mem;
+
+	if (!region)
+		return;
+
+	spin_lock(&save_spin);
+	list_del(&region->list);
+	spin_unlock(&save_spin);
+
+	kfree(mem);
+}
+EXPORT_SYMBOL(unregister_save_region);
+
+static LIST_HEAD(nosave_regions_runtime);
+static DEFINE_SPINLOCK(nosave_spin);
+
+void *register_nosave_region_runtime(unsigned long start_pfn,
+		unsigned long end_pfn)
+{
+	struct nosave_region *region;
+	region = kmalloc(sizeof(struct nosave_region), GFP_KERNEL);
+	BUG_ON(!region);
+	region->start_pfn = start_pfn;
+	region->end_pfn = end_pfn;
+	spin_lock(&nosave_spin);
+	list_add_tail(&region->list, &nosave_regions_runtime);
+	spin_unlock(&nosave_spin);
+	return region;
+}
+EXPORT_SYMBOL(register_nosave_region_runtime);
+
+void unregister_nosave_region_runtime(void *mem)
+{
+	struct nosave_region *region = mem;
+	if (!region)
+		return;
+	spin_lock(&nosave_spin);
+	list_del(&region->list);
+	spin_unlock(&nosave_spin);
+	kfree(mem);
+}
+EXPORT_SYMBOL(unregister_nosave_region_runtime);
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 
 static LIST_HEAD(nosave_regions);
 
@@ -715,8 +803,11 @@ static void mark_nosave_pages(struct memory_bitmap *bm)
 			 (unsigned long long) region->start_pfn << PAGE_SHIFT,
 			 ((unsigned long long) region->end_pfn << PAGE_SHIFT)
 				- 1);
-
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT)
+		for (pfn = region->start_pfn; pfn <= region->end_pfn; pfn++)
+#else
 		for (pfn = region->start_pfn; pfn < region->end_pfn; pfn++)
+#endif
 			if (pfn_valid(pfn)) {
 				/*
 				 * It is safe to ignore the result of
@@ -728,6 +819,52 @@ static void mark_nosave_pages(struct memory_bitmap *bm)
 			}
 	}
 }
+
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+/*used for pmem pages mark. maybe useless for us*/
+static void mark_snapshot_pages_again(void)
+{
+	struct nosave_region *region;
+	struct memory_bitmap *bm = forbidden_pages_map;
+
+	if (list_empty(&save_regions))
+		goto proc_nosave;
+
+	spin_lock(&save_spin);
+	list_for_each_entry(region, &save_regions, list) {
+		unsigned long pfn;
+
+		pr_info("PM: Marking save pages: %016lx - %016lx\n",
+				region->start_pfn << PAGE_SHIFT,
+				region->end_pfn << PAGE_SHIFT);
+
+		for (pfn = region->start_pfn; pfn <= region->end_pfn; pfn++)
+			if (pfn_valid(pfn))
+				mem_bm_clear_bit_check(bm, pfn);
+	}
+	spin_unlock(&save_spin);
+
+proc_nosave:
+	if (list_empty(&nosave_regions_runtime))
+		return;
+
+	spin_lock(&nosave_spin);
+	list_for_each_entry(region, &nosave_regions_runtime, list) {
+		unsigned long pfn;
+
+		pr_info("PM: Marking runtime nosave pages: %016lx - %016lx\n",
+				region->start_pfn << PAGE_SHIFT,
+				region->end_pfn << PAGE_SHIFT);
+
+		for (pfn = region->start_pfn; pfn <= region->end_pfn; pfn++)
+			if (pfn_valid(pfn))
+				mem_bm_set_bit_check(bm, pfn);
+	}
+	spin_unlock(&nosave_spin);
+}
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 
 /**
  *	create_basic_memory_bitmaps - create bitmaps needed for marking page
@@ -966,7 +1103,6 @@ static inline void do_copy_page(long *dst, long *src)
 		*dst++ = *src++;
 }
 
-
 /**
  *	safe_copy_page - check if the page we are going to copy is marked as
  *		present in the kernel page tables (this always is the case if
@@ -983,7 +1119,6 @@ static void safe_copy_page(void *dst, struct page *s_page)
 		kernel_map_pages(s_page, 1, 0);
 	}
 }
-
 
 #ifdef CONFIG_HIGHMEM
 static inline struct page *
@@ -1250,6 +1385,31 @@ static void free_unnecessary_pages(void)
 	}
 }
 
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+/*
+ ** Kick the writeback threads then try to free up some ZONE_NORMAL memory.
+ **/
+static void free_more_memory(void)
+{
+	struct zone *zone;
+	int nid;
+
+	wakeup_flusher_threads(1024, WB_REASON_FREE_MORE_MEM);
+	yield();
+
+	for_each_online_node(nid) {
+		(void)first_zones_zonelist(node_zonelist(nid, GFP_NOFS),
+				gfp_zone(GFP_NOFS), NULL,
+				&zone);
+		if (zone)
+			try_to_free_pages(node_zonelist(nid, GFP_NOFS), 0,
+					GFP_NOFS, NULL);
+	}
+}
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
+
 /**
  * minimum_image_size - Estimate the minimum acceptable size of an image
  * @saveable: Number of saveable pages in the system.
@@ -1310,6 +1470,18 @@ int hibernate_preallocate_memory(void)
 	struct timeval start, stop;
 	int error;
 
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+	bool compress;
+	unsigned long min_image_size, prev_image_size;
+
+	/* this will try to free some pages in the normal zone */
+	free_more_memory();
+
+	mark_snapshot_pages_again();
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
+
 	printk(KERN_INFO "PM: Preallocating image memory... ");
 	do_gettimeofday(&start);
 
@@ -1323,7 +1495,52 @@ int hibernate_preallocate_memory(void)
 
 	alloc_normal = 0;
 	alloc_highmem = 0;
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT)
+	compress = swsusp_check_storage_all() == 1 ? true : false;
 
+	if (noshrink)
+		goto skip_reclaim;
+
+	/* calculates the snapshot image size */
+	prev_image_size = min_image_size =
+		global_page_state(NR_SLAB_RECLAIMABLE)
+		+ global_page_state(NR_ACTIVE_ANON)
+		+ global_page_state(NR_INACTIVE_ANON)
+		+ global_page_state(NR_ACTIVE_FILE)
+		+ global_page_state(NR_INACTIVE_FILE)
+		- global_page_state(NR_FILE_MAPPED);
+
+	/* Count the number of saveable data pages.
+	 * Does page reclamation till min_image_size becomes constant
+	 */
+	do {
+		save_highmem = count_highmem_pages();
+		saveable = count_data_pages();
+		saveable += save_highmem;
+
+		shrink_all_memory(saveable);
+
+		min_image_size = global_page_state(NR_SLAB_RECLAIMABLE)
+			+ global_page_state(NR_ACTIVE_ANON)
+			+ global_page_state(NR_INACTIVE_ANON)
+			+ global_page_state(NR_ACTIVE_FILE)
+			+ global_page_state(NR_INACTIVE_FILE)
+			- global_page_state(NR_FILE_MAPPED);
+
+		if (prev_image_size == min_image_size)
+			break;
+		else
+			prev_image_size = min_image_size;
+	} while (saveable > min_image_size);
+
+skip_reclaim:
+	/*
+	 * Compute the total number of page frames we can use (count) and the
+	 * number of pages needed for image metadata (size).
+	 */
+	save_highmem = count_highmem_pages();
+	saveable = count_data_pages();
+#else
 	/* Count the number of saveable data pages. */
 	save_highmem = count_highmem_pages();
 	saveable = count_data_pages();
@@ -1332,11 +1549,42 @@ int hibernate_preallocate_memory(void)
 	 * Compute the total number of page frames we can use (count) and the
 	 * number of pages needed for image metadata (size).
 	 */
+#endif /* defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT) */
 	count = saveable;
 	saveable += save_highmem;
 	highmem = save_highmem;
 	size = 0;
 	for_each_populated_zone(zone) {
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef DEBUG_PAGE_RECLAIM
+	printk(KERN_INFO "Zone Name : %s\n", zone->name);
+	printk(KERN_INFO "Zone pages scanned : %x\n", zone->pages_scanned);
+	printk(KERN_INFO "Zone pages present : %x\n", zone->present_pages);
+	printk(KERN_INFO "Zone start pfn : %x\n", zone->zone_start_pfn);
+	printk(KERN_INFO "zone_page_state(zone, NR_FREE_PAGES) : %x\n"
+			, zone_page_state(zone, NR_FREE_PAGES));
+	printk(KERN_INFO "zone_page_state(zone, NR_ACTIVE_ANON) : %x\n"
+			, zone_page_state(zone, NR_ACTIVE_ANON));
+	printk(KERN_INFO "zone_page_state(zone, NR_INACTIVE_FILE) : %x\n"
+			, zone_page_state(zone, NR_INACTIVE_FILE));
+	printk(KERN_INFO "zone_page_state(zone, NR_ACTIVE_FILE) : %x\n"
+			, zone_page_state(zone, NR_ACTIVE_FILE));
+	printk(KERN_INFO "zone_page_state(zone, NR_ANON_PAGES) : %x\n"
+			, zone_page_state(zone, NR_ANON_PAGES));
+	printk(KERN_INFO "zone_page_state(zone, NR_FILE_MAPPED) : %x\n"
+			, zone_page_state(zone, NR_FILE_MAPPED));
+	printk(KERN_INFO "zone_page_state(zone, NR_FILE_PAGES) : %x\n"
+			, zone_page_state(zone, NR_FILE_PAGES));
+	printk(KERN_INFO "zone_page_state(zone, NR_FILE_DIRTY) : %x\n"
+			, zone_page_state(zone, NR_FILE_DIRTY));
+	printk(KERN_INFO "zone_page_state(zone, NR_WRITEBACK) : %x\n"
+			, zone_page_state(zone, NR_WRITEBACK));
+	printk(KERN_INFO "zone_page_state(zone, NR_SLAB_RECLAIMABLE) : %x\n"
+			, zone_page_state(zone, NR_SLAB_RECLAIMABLE));
+	printk(KERN_INFO "zone_page_state(zone, NR_SLAB_UNRECLAIMABLE) : %x\n"
+			, zone_page_state(zone, NR_SLAB_UNRECLAIMABLE));
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 		size += snapshot_additional_pages(zone);
 		if (is_highmem(zone))
 			highmem += zone_page_state(zone, NR_FREE_PAGES);
@@ -1354,7 +1602,14 @@ int hibernate_preallocate_memory(void)
 	max_size = (count - (size + PAGES_FOR_IO)) / 2
 			- 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE);
 	/* Compute the desired number of image pages specified by image_size. */
-	size = DIV_ROUND_UP(image_size, PAGE_SIZE);
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT)
+	if (compress)
+		/* very rough : may accomplish 40% of original */
+		size = DIV_ROUND_UP(image_size * 5 / 2, PAGE_SIZE);
+	else
+#endif
+	    size = DIV_ROUND_UP(image_size, PAGE_SIZE);
+
 	if (size > max_size)
 		size = max_size;
 	/*
@@ -1388,8 +1643,16 @@ int hibernate_preallocate_memory(void)
 	 * NOTE: If this is not done, performance will be hurt badly in some
 	 * test cases.
 	 */
+#if defined(CONFIG_HI3535_SDK_2050) && defined(CONFIG_HISI_SNAPSHOT_BOOT)
+	/* REVISIT : fail-safe case.
+	 *   *    is this needed ? do you really want this ?
+	 *       *    it may try to free all of page-cache.
+	 *           */
+	if (!noshrink)
+		shrink_all_memory(saveable);
+#else
 	shrink_all_memory(saveable - size);
-
+#endif
 	/*
 	 * The number of saveable pages in memory was too high, so apply some
 	 * pressure to decrease it.  First, make room for the largest possible

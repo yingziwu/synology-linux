@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * MTD SPI driver for ST M25Pxx (and similar) serial flash chips
  *
@@ -201,6 +204,18 @@ static int wait_till_ready(struct m25p *flash)
 
 	return 1;
 }
+
+#ifdef MY_ABC_HERE
+static int unlock_chip(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+        return 0;
+}
+
+static int lock_chip(struct mtd_info *mtd, loff_t ofs, size_t len)
+{
+        return 0;
+}
+#endif /* MY_ABC_HERE */
 
 /*
  * Erase the whole flash memory
@@ -778,7 +793,6 @@ static const struct spi_device_id *__devinit jedec_probe(struct spi_device *spi)
 	return ERR_PTR(-ENODEV);
 }
 
-
 /*
  * board specific setup should have ensured the SPI clock used here
  * matches what the READ command supports, at least until this driver
@@ -879,6 +893,10 @@ static int __devinit m25p_probe(struct spi_device *spi)
 	flash->mtd.size = info->sector_size * info->n_sectors;
 	flash->mtd._erase = m25p80_erase;
 	flash->mtd._read = m25p80_read;
+#ifdef MY_ABC_HERE
+	flash->mtd._lock    = lock_chip;
+	flash->mtd._unlock  = unlock_chip;
+#endif /* MY_ABC_HERE */
 
 	/* sst flash chips use AAI word program */
 	if (JEDEC_MFR(info->jedec_id) == CFI_MFR_SST)
@@ -934,7 +952,6 @@ static int __devinit m25p_probe(struct spi_device *spi)
 				flash->mtd.eraseregions[i].erasesize / 1024,
 				flash->mtd.eraseregions[i].numblocks);
 
-
 	/* partitions should match sector boundaries; and it may be good to
 	 * use readonly partitions for writeprotected sectors (BP2..BP0).
 	 */
@@ -942,7 +959,6 @@ static int __devinit m25p_probe(struct spi_device *spi)
 			data ? data->parts : NULL,
 			data ? data->nr_parts : 0);
 }
-
 
 static int __devexit m25p_remove(struct spi_device *spi)
 {
@@ -957,7 +973,6 @@ static int __devexit m25p_remove(struct spi_device *spi)
 	}
 	return 0;
 }
-
 
 static struct spi_driver m25p80_driver = {
 	.driver = {

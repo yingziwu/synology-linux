@@ -517,7 +517,6 @@ static inline void rcu_preempt_sleep_check(void)
 		(p) = (typeof(*v) __force space *)(v); \
 	})
 
-
 /**
  * rcu_access_pointer() - fetch RCU pointer with no dereferencing
  * @p: The pointer to read
@@ -652,7 +651,6 @@ static inline void rcu_preempt_sleep_check(void)
  */
 #define rcu_dereference_protected(p, c) \
 	__rcu_dereference_protected((p), (c), __rcu)
-
 
 /**
  * rcu_dereference() - fetch RCU-protected pointer for dereferencing

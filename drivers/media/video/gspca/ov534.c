@@ -1166,7 +1166,6 @@ static void setlightfreq(struct gspca_dev *gspca_dev)
 	sccb_reg_write(gspca_dev, 0x2b, val);
 }
 
-
 /* this function is called at probe time */
 static int sd_config(struct gspca_dev *gspca_dev,
 		     const struct usb_device_id *id)

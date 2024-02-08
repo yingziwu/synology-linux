@@ -72,5 +72,3 @@
 #define SO_NOFCS		43
 
 #endif /* _ASM_SOCKET_H */
-
-

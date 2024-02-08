@@ -113,4 +113,3 @@ void oz_events_clear(void)
 	spin_unlock_irqrestore(&g_eventlock, irqstate);
 }
 #endif /* WANT_EVENT_TRACE */
-

@@ -341,7 +341,6 @@ int paste_selection(struct tty_struct *tty)
 	struct  tty_ldisc *ld;
 	DECLARE_WAITQUEUE(wait, current);
 
-
 	console_lock();
 	poke_blanked_console();
 	console_unlock();

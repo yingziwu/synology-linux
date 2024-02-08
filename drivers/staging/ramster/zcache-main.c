@@ -570,7 +570,6 @@ static void zbud_evict_pages(int nr)
 	struct zbud_page *zbpg;
 	int i, newly_unused_pages = 0;
 
-
 	/* now try freeing unbuddied pages, starting with least space avail */
 	for (i = 0; i < MAX_CHUNK; i++) {
 retry_unbud_list_i:
@@ -973,7 +972,6 @@ static void ramster_remotify_queue_delayed_work(unsigned long delay)
 		pr_err("ramster_remotify: bad workqueue\n");
 }
 
-
 static int use_frontswap;
 static int use_cleancache;
 static int ramster_remote_target_nodenum = -1;
@@ -1006,7 +1004,6 @@ static void ramster_remotify_init(void)
 		create_singlethread_workqueue("ramster_remotify");
 	ramster_remotify_queue_delayed_work(n * HZ);
 }
-
 
 static void zbud_init(void)
 {
@@ -1088,7 +1085,6 @@ static unsigned int zv_max_mean_zsize = (PAGE_SIZE / 8) * 5;
 
 static atomic_t zv_curr_dist_counts[NCHUNKS];
 static atomic_t zv_cumul_dist_counts[NCHUNKS];
-
 
 static struct zv_hdr *zv_create(struct zcache_client *cli, uint32_t pool_id,
 				struct tmem_oid *oid, uint32_t index,
@@ -1687,7 +1683,6 @@ static struct tmem_hostops zcache_hostops = {
  * zcache implementations for PAM page descriptor ops
  */
 
-
 static inline void dec_and_check(atomic_t *pvar)
 {
 	atomic_dec(pvar);
@@ -2214,7 +2209,6 @@ out:
 	return ret;
 }
 
-
 static int zcache_cpu_notifier(struct notifier_block *nb,
 				unsigned long action, void *pcpu)
 {
@@ -2542,7 +2536,6 @@ static struct kobj_attribute ramster_remote_target_nodenum_attr = {
 	.show = ramster_remote_target_nodenum_show,
 	.store = ramster_remote_target_nodenum_store,
 };
-
 
 static struct attribute *ramster_attrs[] = {
 	&ramster_interface_revision_attr.attr,

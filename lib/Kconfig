@@ -177,6 +177,12 @@ config LZO_COMPRESS
 config LZO_DECOMPRESS
 	tristate
 
+config LZMA_COMPRESS
+	tristate
+
+config LZMA_DECOMPRESS
+	tristate
+
 source "lib/xz/Kconfig"
 
 #
@@ -377,5 +383,12 @@ config SIGNATURE
 	help
 	  Digital signature verification. Currently only RSA is supported.
 	  Implementation is done using GnuPG MPI library
+
+config SYNO_PLUGIN_INTERFACE
+	bool "Synology plugin interface for kernel modules"
+	default y
+	help
+	  <DSM> #37988
+	  Extract some kernel modules as plugins. (ex: iSCSI extent pool)
 
 endmenu

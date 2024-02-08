@@ -1679,7 +1679,6 @@ int do_QDIO(struct ccw_device *cdev, unsigned int callflags,
 {
 	struct qdio_irq *irq_ptr;
 
-
 	if (bufnr >= QDIO_MAX_BUFFERS_PER_Q || count > QDIO_MAX_BUFFERS_PER_Q)
 		return -EINVAL;
 

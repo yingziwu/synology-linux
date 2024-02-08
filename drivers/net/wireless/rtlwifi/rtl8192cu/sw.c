@@ -75,7 +75,6 @@ static int rtl92cu_init_sw_vars(struct ieee80211_hw *hw)
 				      rtlpriv->cfg->fw_name, rtlpriv->io.dev,
 				      GFP_KERNEL, hw, rtl_fw_cb);
 
-
 	return 0;
 }
 

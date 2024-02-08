@@ -101,14 +101,12 @@
 #include <wl_cs.h>
 #include <wl_sysfs.h>
 
-
 /*******************************************************************************
  *  global definitions
  ******************************************************************************/
 #if DBG
 extern dbg_info_t *DbgInfo;
 #endif  /* DBG */
-
 
 /*******************************************************************************
  *	wl_adapter_attach()
@@ -161,8 +159,6 @@ static int wl_adapter_attach(struct pcmcia_device *link)
 } /* wl_adapter_attach */
 /*============================================================================*/
 
-
-
 static void wl_adapter_detach(struct pcmcia_device *link)
 {
 	struct net_device   *dev = link->priv;
@@ -184,7 +180,6 @@ static void wl_adapter_detach(struct pcmcia_device *link)
 	DBG_LEAVE(DbgInfo);
 } /* wl_adapter_detach */
 /*============================================================================*/
-
 
 void wl_adapter_release(struct pcmcia_device *link)
 {
@@ -278,7 +273,6 @@ failed:
 } /* wl_adapter_insert */
 /*============================================================================*/
 
-
 /*******************************************************************************
  *	wl_adapter_open()
  *******************************************************************************
@@ -329,7 +323,6 @@ int wl_adapter_open(struct net_device *dev)
 	return result;
 } /* wl_adapter_open */
 /*============================================================================*/
-
 
 /*******************************************************************************
  *	wl_adapter_close()
@@ -399,8 +392,6 @@ static struct pcmcia_driver wlags49_driver = {
 	.resume	    = wl_adapter_resume,
 };
 
-
-
 /*******************************************************************************
  *	wl_adapter_init_module()
  *******************************************************************************
@@ -435,7 +426,6 @@ int wl_adapter_init_module(void)
 } /* wl_adapter_init_module */
 /*============================================================================*/
 
-
 /*******************************************************************************
  *	wl_adapter_cleanup_module()
  *******************************************************************************
@@ -459,14 +449,12 @@ void wl_adapter_cleanup_module(void)
 	DBG_ENTER(DbgInfo);
 	DBG_TRACE(DbgInfo, "wl_adapter_cleanup_module() -- PCMCIA\n");
 
-
 	pcmcia_unregister_driver(&wlags49_driver);
 
 	DBG_LEAVE(DbgInfo);
 	return;
 } /* wl_adapter_cleanup_module */
 /*============================================================================*/
-
 
 /*******************************************************************************
  *	wl_adapter_is_open()

@@ -1193,7 +1193,6 @@ static struct platform_device sh_mmcif_device = {
 	.resource	= sh_mmcif_resources,
 };
 
-
 static int mackerel_camera_add(struct soc_camera_device *icd);
 static void mackerel_camera_del(struct soc_camera_device *icd);
 

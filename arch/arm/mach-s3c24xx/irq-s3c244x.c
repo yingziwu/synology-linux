@@ -133,7 +133,6 @@ static struct subsys_interface s3c2442_irq_interface = {
 	.add_dev	= s3c244x_irq_add,
 };
 
-
 static int s3c2442_irq_init(void)
 {
 	return subsys_interface_register(&s3c2442_irq_interface);

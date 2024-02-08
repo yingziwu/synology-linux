@@ -170,7 +170,6 @@ static void bdev_writeseg(struct super_block *sb, u64 ofs, size_t len)
 	__bdev_writeseg(sb, ofs, ofs >> PAGE_SHIFT, len >> PAGE_SHIFT);
 }
 
-
 static void erase_end_io(struct bio *bio, int err) 
 { 
 	const int uptodate = test_bit(BIO_UPTODATE, &bio->bi_flags); 

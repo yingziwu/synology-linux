@@ -29,8 +29,6 @@
 #include "bnx2x_init.h"
 #include "bnx2x_sp.h"
 
-
-
 /**
  * bnx2x_move_fp - move content of the fastpath structure.
  *
@@ -82,7 +80,6 @@ static u16 bnx2x_free_tx_pkt(struct bnx2x *bp, struct bnx2x_fp_txdata *txdata,
 	tx_start_bd = &txdata->tx_desc_ring[bd_idx].start_bd;
 	dma_unmap_single(&bp->pdev->dev, BD_UNMAP_ADDR(tx_start_bd),
 			 BD_UNMAP_LEN(tx_start_bd), DMA_TO_DEVICE);
-
 
 	nbd = le16_to_cpu(tx_start_bd->nbd) - 1;
 #ifdef BNX2X_STOP_ON_ERROR
@@ -384,7 +381,6 @@ static inline u16 bnx2x_set_lro_mss(struct bnx2x *bp, u16 parsing_flags,
 	else /* IPv4 */
 		hdrs_len += sizeof(struct iphdr);
 
-
 	/* Check if there was a TCP timestamp, if there is it's will
 	 * always be 12 bytes length: nop nop kind length echo val.
 	 *
@@ -429,7 +425,6 @@ static int bnx2x_fill_frag_skb(struct bnx2x *bp, struct bnx2x_fastpath *fp,
 						PRS_FLAG_OVERETH_IPV6) ?
 				SKB_GSO_TCPV6 : SKB_GSO_TCPV4;
 	}
-
 
 #ifdef BNX2X_STOP_ON_ERROR
 	if (pages > min_t(u32, 8, MAX_SKB_FRAGS)*SGE_PAGE_SIZE*PAGES_PER_SGE) {
@@ -553,7 +548,6 @@ static inline void bnx2x_tpa_stop(struct bnx2x *bp, struct bnx2x_fastpath *fp,
 			   "Failed to allocate new pages - dropping packet!\n");
 			dev_kfree_skb_any(skb);
 		}
-
 
 		/* put new data in bin */
 		rx_buf->data = new_data;
@@ -781,7 +775,6 @@ reuse_rx:
 		if (bp->dev->features & NETIF_F_RXCSUM)
 			bnx2x_csum_validate(skb, cqe, fp);
 
-
 		skb_record_rx_queue(skb, fp->rx_queue);
 
 		if (le16_to_cpu(cqe_fp->pars_flags.flags) &
@@ -789,7 +782,6 @@ reuse_rx:
 			__vlan_hwaccel_put_tag(skb,
 					       le16_to_cpu(cqe_fp->vlan_tag));
 		napi_gro_receive(&fp->napi, skb);
-
 
 next_rx:
 		rx_buf->data = NULL;
@@ -1796,7 +1788,6 @@ int bnx2x_nic_load(struct bnx2x *bp, int load_mode)
 	for_each_queue(bp, i)
 		bnx2x_bz_fp(bp, i);
 
-
 	/* Set the receive queues buffer size */
 	bnx2x_set_rx_buf_size(bp);
 
@@ -2208,7 +2199,6 @@ int bnx2x_nic_unload(struct bnx2x *bp, int unload_mode)
 			bnx2x_set_reset_global(bp);
 	}
 
-
 	/* The last driver must disable a "close the gate" if there is no
 	 * parity attention or "process kill" pending.
 	 */
@@ -2293,7 +2283,6 @@ int bnx2x_poll(struct napi_struct *napi, int budget)
 		for_each_cos_in_tx_queue(fp, cos)
 			if (bnx2x_tx_queue_has_work(&fp->txdata[cos]))
 				bnx2x_tx_int(bp, &fp->txdata[cos]);
-
 
 		if (bnx2x_has_rx_work(fp)) {
 			work_done += bnx2x_rx_int(fp, budget - work_done);
@@ -3062,7 +3051,6 @@ int bnx2x_setup_tc(struct net_device *dev, u8 num_tc)
 		   prio, bp->prio_to_cos[prio]);
 	}
 
-
 	/* Use this configuration to diffrentiate tc0 from other COSes
 	   This can be used for ets or pfc, and save the effort of setting
 	   up a multio class queue disc or negotiating DCBX with a switch
@@ -3687,7 +3675,6 @@ int bnx2x_resume(struct pci_dev *pdev)
 
 	return rc;
 }
-
 
 void bnx2x_set_ctx_validation(struct bnx2x *bp, struct eth_context *cxt,
 			      u32 cid)

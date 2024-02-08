@@ -44,7 +44,6 @@ struct ttm_bo_device;
 
 struct drm_mm_node;
 
-
 /**
  * struct ttm_placement
  *
@@ -88,7 +87,6 @@ struct ttm_bus_placement {
 	bool		io_reserved_vm;
 	uint64_t        io_reserved_count;
 };
-
 
 /**
  * struct ttm_mem_reg
@@ -262,7 +260,6 @@ struct ttm_buffer_object {
 	struct rb_node vm_rb;
 	struct drm_mm_node *vm_node;
 
-
 	/**
 	 * Special members that are protected by the reserve lock
 	 * and the bo::lock when written to. Can be read with
@@ -361,7 +358,6 @@ extern int ttm_bo_validate(struct ttm_buffer_object *bo,
  */
 extern void ttm_bo_unref(struct ttm_buffer_object **bo);
 
-
 /**
  * ttm_bo_list_ref_sub
  *
@@ -397,7 +393,6 @@ extern void ttm_bo_add_to_lru(struct ttm_buffer_object *bo);
  * avoid recursive reservation from lru lists.
  */
 extern int ttm_bo_del_from_lru(struct ttm_buffer_object *bo);
-
 
 /**
  * ttm_bo_lock_delayed_workqueue

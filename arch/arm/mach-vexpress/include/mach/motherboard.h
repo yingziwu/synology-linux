@@ -64,7 +64,6 @@
 #define V2M_SYS_CFGCTRL		0x0a4
 #define V2M_SYS_CFGSTAT		0x0a8
 
-
 /*
  * Interrupts.  Those in {} are for AMBA devices
  */
@@ -86,7 +85,6 @@
 #define IRQ_V2M_LAN9118		(32 + 15)
 #define IRQ_V2M_ISP1761		(32 + 16)
 #define IRQ_V2M_PCIE		(32 + 17)
-
 
 /*
  * Configuration

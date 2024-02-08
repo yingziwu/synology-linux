@@ -309,7 +309,6 @@ static const int trigger_level_1[4] = { 1, 1, 1, 1 };
 
 #define PCH_REGS_BUFSIZE	1024
 
-
 static ssize_t port_show_regs(struct file *file, char __user *user_buf,
 				size_t count, loff_t *ppos)
 {

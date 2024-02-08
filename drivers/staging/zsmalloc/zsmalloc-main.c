@@ -425,7 +425,6 @@ static struct page *find_get_zspage(struct size_class *class)
 	return page;
 }
 
-
 static int zs_cpu_notifier(struct notifier_block *nb, unsigned long action,
 				void *pcpu)
 {
@@ -670,7 +669,6 @@ void *zs_map_object(struct zs_pool *pool, void *handle)
 
 		nextp = get_next_page(page);
 		BUG_ON(!nextp);
-
 
 		set_pte(area->vm_ptes[0], mk_pte(page, PAGE_KERNEL));
 		set_pte(area->vm_ptes[1], mk_pte(nextp, PAGE_KERNEL));

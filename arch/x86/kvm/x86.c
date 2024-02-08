@@ -859,7 +859,6 @@ void kvm_enable_efer_bits(u64 mask)
 }
 EXPORT_SYMBOL_GPL(kvm_enable_efer_bits);
 
-
 /*
  * Writes msr value into into the appropriate "register".
  * Returns 0 on success, non-0 otherwise.
@@ -1750,7 +1749,6 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, u32 msr, u64 data)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(kvm_set_msr_common);
-
 
 /*
  * Reads an msr value (of 'msr_index') into 'pdata'.
@@ -5377,7 +5375,6 @@ out:
 	return r;
 }
 
-
 static int __vcpu_run(struct kvm_vcpu *vcpu)
 {
 	int r;
@@ -6351,7 +6348,6 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
 			memslot->userspace_addr = userspace_addr;
 		}
 	}
-
 
 	return 0;
 }

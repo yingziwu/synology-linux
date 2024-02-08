@@ -244,4 +244,3 @@ err_exit:
 }
 
 fs_initcall(anon_inode_init);
-

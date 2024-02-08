@@ -663,7 +663,6 @@ struct pn533_target_type_a {
 	u8 nfcid_data[];
 } __packed;
 
-
 #define PN533_TYPE_A_SENS_RES_NFCID1(x) ((u8)((be16_to_cpu(x) & 0x00C0) >> 6))
 #define PN533_TYPE_A_SENS_RES_SSD(x) ((u8)((be16_to_cpu(x) & 0x001F) >> 0))
 #define PN533_TYPE_A_SENS_RES_PLATCONF(x) ((u8)((be16_to_cpu(x) & 0x0F00) >> 8))
@@ -1273,7 +1272,6 @@ static void pn533_deactivate_target(struct nfc_dev *nfc_dev, u32 target_idx)
 
 	return;
 }
-
 
 static int pn533_in_dep_link_up_complete(struct pn533 *dev, void *arg,
 						u8 *params, int params_len)

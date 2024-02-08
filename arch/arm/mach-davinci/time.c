@@ -336,7 +336,6 @@ static struct clock_event_device clockevent_davinci = {
 	.set_mode	= davinci_set_mode,
 };
 
-
 static void __init davinci_timer_init(void)
 {
 	struct clk *timer_clk;
@@ -413,7 +412,6 @@ static void __init davinci_timer_init(void)
 struct sys_timer davinci_timer = {
 	.init   = davinci_timer_init,
 };
-
 
 /* reset board using watchdog timer */
 void davinci_watchdog_reset(struct platform_device *pdev)

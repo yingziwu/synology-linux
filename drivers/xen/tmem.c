@@ -40,7 +40,6 @@
 #define TMEM_POOL_PAGESIZE_SHIFT   4
 #define TMEM_VERSION_SHIFT        24
 
-
 struct tmem_pool_uuid {
 	u64 uuid_lo;
 	u64 uuid_hi;

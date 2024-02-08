@@ -75,7 +75,6 @@ void dump_stack(void)
 }
 EXPORT_SYMBOL(dump_stack);
 
-
 void die(char *str, struct pt_regs *fp, int nr)
 {
 	console_verbose();
@@ -98,7 +97,6 @@ static void die_if_kernel(char *str, struct pt_regs *fp, int nr)
 
 	die(str, fp, nr);
 }
-
 
 /* Internal exceptions */
 static struct exception_info iexcept_table[10] = {

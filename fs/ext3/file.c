@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext3/file.c
  *
@@ -67,6 +70,10 @@ const struct file_operations ext3_file_operations = {
 };
 
 const struct inode_operations ext3_file_inode_operations = {
+#ifdef MY_ABC_HERE
+	.syno_get_archive_ver = ext3_syno_get_archive_ver,
+	.syno_set_archive_ver = ext3_syno_set_archive_ver,
+#endif
 	.setattr	= ext3_setattr,
 #ifdef CONFIG_EXT3_FS_XATTR
 	.setxattr	= generic_setxattr,
@@ -77,4 +84,3 @@ const struct inode_operations ext3_file_inode_operations = {
 	.get_acl	= ext3_get_acl,
 	.fiemap		= ext3_fiemap,
 };
-

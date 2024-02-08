@@ -480,7 +480,6 @@ int mwifiex_cmd_802_11_associate(struct mwifiex_private *priv,
 	if (priv->sec_info.wapi_enabled && priv->wapi_ie_len)
 		mwifiex_cmd_append_wapi_ie(priv, &pos);
 
-
 	mwifiex_cmd_append_generic_ie(priv, &pos);
 
 	mwifiex_cmd_append_tsf_tlv(priv, &pos, bss_desc);

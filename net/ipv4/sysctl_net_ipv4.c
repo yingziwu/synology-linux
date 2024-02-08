@@ -74,7 +74,6 @@ static int ipv4_local_port_range(ctl_table *table, int write,
 	return ret;
 }
 
-
 static void inet_get_ping_group_range_table(struct ctl_table *table, gid_t *low, gid_t *high)
 {
 	gid_t *data = table->data;
@@ -340,7 +339,11 @@ static struct ctl_table ipv4_table[] = {
 		.data		= &sysctl_tcp_retries2,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
+#ifdef CONFIG_TNK
+		.proc_handler	= proc_tnk_cfg_tcp_retries2
+#else
 		.proc_handler	= proc_dointvec
+#endif
 	},
 	{
 		.procname	= "tcp_fin_timeout",

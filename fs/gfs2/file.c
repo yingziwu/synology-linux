@@ -1053,4 +1053,3 @@ const struct file_operations gfs2_dir_fops_nolock = {
 	.fsync		= gfs2_fsync,
 	.llseek		= default_llseek,
 };
-

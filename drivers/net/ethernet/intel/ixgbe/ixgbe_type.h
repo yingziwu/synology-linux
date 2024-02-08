@@ -421,7 +421,6 @@
 #define IXGBE_TDPT2TCCR(_i)     (0x0CD20 + ((_i) * 4)) /* 8 of these (0-7) */
 #define IXGBE_TDPT2TCSR(_i)     (0x0CD40 + ((_i) * 4)) /* 8 of these (0-7) */
 
-
 /* Security Control Registers */
 #define IXGBE_SECTXCTRL         0x08800
 #define IXGBE_SECTXSTAT         0x08804
@@ -2312,7 +2311,6 @@ typedef u32 ixgbe_link_speed;
                                         IXGBE_LINK_SPEED_1GB_FULL | \
                                         IXGBE_LINK_SPEED_10GB_FULL)
 
-
 /* Physical layer type */
 typedef u32 ixgbe_physical_layer;
 #define IXGBE_PHYSICAL_LAYER_UNKNOWN      0
@@ -2908,7 +2906,6 @@ struct ixgbe_info {
 	struct ixgbe_phy_operations	*phy_ops;
 	struct ixgbe_mbx_operations	*mbx_ops;
 };
-
 
 /* Error Codes */
 #define IXGBE_ERR_EEPROM                        -1

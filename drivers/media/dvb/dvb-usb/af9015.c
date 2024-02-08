@@ -1198,7 +1198,6 @@ static int af9015_tuner_sleep(struct dvb_frontend *fe)
 	return ret;
 }
 
-
 static int af9015_af9013_frontend_attach(struct dvb_usb_adapter *adap)
 {
 	int ret;

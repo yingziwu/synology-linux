@@ -350,7 +350,6 @@ struct mn10300_serial_port mn10300_serial_port_sif2 = {
 };
 #endif /* CONFIG_MN10300_TTYSM2 */
 
-
 /*
  * list of available serial ports
  */
@@ -366,7 +365,6 @@ struct mn10300_serial_port *mn10300_serial_ports[NR_UARTS + 1] = {
 #endif
 	[NR_UARTS] = NULL,
 };
-
 
 /*
  * we abuse the serial ports' baud timers' interrupt lines to get the ability
@@ -407,7 +405,6 @@ static struct irq_chip mn10300_serial_pic = {
 	.irq_mask_ack	= mn10300_serial_chip_mask_ack,
 	.irq_unmask	= mn10300_serial_nop,
 };
-
 
 /*
  * serial virtual DMA interrupt jump table
@@ -1506,7 +1503,6 @@ static int __init mn10300_serial_init(void)
 
 __initcall(mn10300_serial_init);
 
-
 #ifdef CONFIG_MN10300_TTYSM_CONSOLE
 
 /*
@@ -1670,7 +1666,6 @@ static int mn10300_serial_poll_get_char(struct uart_port *_port)
 
 	return ch;
 }
-
 
 /*
  * Polled character transmission for the kernel debugger

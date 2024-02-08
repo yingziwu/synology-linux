@@ -57,8 +57,6 @@ struct opticon_private {
 	int outstanding_urbs;
 };
 
-
-
 static void opticon_read_bulk_callback(struct urb *urb)
 {
 	struct opticon_private *priv = urb->context;
@@ -374,7 +372,6 @@ static void opticon_throttle(struct tty_struct *tty)
 	priv->throttled = true;
 	spin_unlock_irqrestore(&priv->lock, flags);
 }
-
 
 static void opticon_unthrottle(struct tty_struct *tty)
 {

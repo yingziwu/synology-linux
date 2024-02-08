@@ -156,7 +156,6 @@ static struct scoop_pcmcia_config poodle_pcmcia_config = {
 
 EXPORT_SYMBOL(poodle_scoop_device);
 
-
 static struct platform_device poodle_audio_device = {
 	.name	= "poodle-audio",
 	.id	= -1,
@@ -289,7 +288,6 @@ static struct pxamci_platform_data poodle_mci_platform_data = {
 	.gpio_power		= -1,
 };
 
-
 /*
  * Irda
  */
@@ -298,7 +296,6 @@ static struct pxaficp_platform_data poodle_ficp_platform_data = {
 	.transceiver_cap	= IR_SIRMODE | IR_OFF,
 };
 
-
 /*
  * USB Device Controller
  */
@@ -306,7 +303,6 @@ static struct pxa2xx_udc_mach_info udc_info __initdata = {
 	/* no connect GPIO; poodle can't tell connection status */
 	.gpio_pullup	= POODLE_GPIO_USB_PULLUP,
 };
-
 
 /* PXAFB device */
 static struct pxafb_mode_info poodle_fb_mode = {

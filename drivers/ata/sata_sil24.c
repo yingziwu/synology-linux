@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * sata_sil24.c - Driver for Silicon Image 3124/3132 SATA-2 controllers
  *
@@ -51,7 +54,6 @@ struct sil24_sge {
 	__le32	cnt;
 	__le32	flags;
 };
-
 
 enum {
 	SIL24_HOST_BAR		= 0,
@@ -381,11 +383,29 @@ static struct pci_driver sil24_pci_driver = {
 #endif
 };
 
+#ifdef MY_ABC_HERE
+static struct device_attribute *sil24_shost_attrs[] = {
+	&dev_attr_syno_manutil_power_disable,
+	&dev_attr_syno_pm_gpio,
+	&dev_attr_syno_pm_info,
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_diskname_trans,
+#endif
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_sata_disk_led_ctrl,
+#endif
+	NULL
+};
+#endif
+
 static struct scsi_host_template sil24_sht = {
 	ATA_NCQ_SHT(DRV_NAME),
 	.can_queue		= SIL24_MAX_CMDS,
 	.sg_tablesize		= SIL24_MAX_SGE,
 	.dma_boundary		= ATA_DMA_BOUNDARY,
+#ifdef MY_ABC_HERE
+	.shost_attrs 		= sil24_shost_attrs,
+#endif
 };
 
 static struct ata_port_operations sil24_ops = {
@@ -830,7 +850,24 @@ static int sil24_qc_defer(struct ata_queued_cmd *qc)
 				return ATA_DEFER_PORT;
 			qc->flags |= ATA_QCFLAG_CLEAR_EXCL;
 		} else
+#ifdef MY_ABC_HERE
+		{
+			if (!ap->nr_active_links) {
+				/* Since we are here now, just preempt */
+				if (is_excl) {
+					ap->excl_link = link;
+					qc->flags |= ATA_QCFLAG_CLEAR_EXCL;
+				} else {
+					/* normal I/O should preempt in this situation */
+					ap->excl_link = NULL;
+				}
+			} else {
+				return ATA_DEFER_PORT;
+			}
+		}
+#else
 			return ATA_DEFER_PORT;
+#endif
 	} else if (unlikely(is_excl)) {
 		ap->excl_link = link;
 		if (ap->nr_active_links)
@@ -1003,6 +1040,12 @@ static void sil24_error_intr(struct ata_port *ap)
 	}
 
 	if (irq_stat & (PORT_IRQ_PHYRDY_CHG | PORT_IRQ_DEV_XCHG)) {
+#ifdef MY_ABC_HERE
+		syno_ata_info_print(ap);
+#endif
+#ifdef MY_ABC_HERE
+		ap->pflags |= ATA_PFLAG_SYNO_BOOT_PROBE;
+#endif
 		ata_ehi_hotplugged(ehi);
 		ata_ehi_push_desc(ehi, "%s",
 				  irq_stat & PORT_IRQ_PHYRDY_CHG ?
@@ -1242,7 +1285,6 @@ static void sil24_init_controller(struct ata_host *host)
 	for (i = 0; i < host->n_ports; i++) {
 		struct ata_port *ap = host->ports[i];
 		void __iomem *port = sil24_port_base(ap);
-
 
 		/* Initial PHY setting */
 		writel(0x20c, port + PORT_PHY_CFG);

@@ -645,7 +645,6 @@ static void mtip_timeout_function(unsigned long int data)
 				wake_up_interruptible(&port->svc_wait);
 			}
 
-
 		}
 	}
 
@@ -2933,7 +2932,6 @@ static int mtip_hw_init(struct driver_data *dd)
 	dd->port->smart_buf = (void *)dd->port->log_buf  + ATA_SECT_SIZE;
 	dd->port->smart_buf_dma = dd->port->log_buf_dma + ATA_SECT_SIZE;
 
-
 	/* Point the command headers at the command tables. */
 	for (i = 0; i < num_command_slots; i++) {
 		dd->port->commands[i].command_header =
@@ -3042,7 +3040,6 @@ static int mtip_hw_init(struct driver_data *dd)
 	dd->port->cmd_timer.function = mtip_timeout_function;
 	mod_timer(&dd->port->cmd_timer,
 		jiffies + msecs_to_jiffies(MTIP_TIMEOUT_CHECK_PERIOD));
-
 
 	if (test_bit(MTIP_DDF_REMOVE_PENDING_BIT, &dd->dd_flag)) {
 		rv = -EFAULT;

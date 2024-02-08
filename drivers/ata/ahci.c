@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  ahci.c - AHCI SATA support
  *
@@ -51,6 +54,10 @@
 #define DRV_NAME	"ahci"
 #define DRV_VERSION	"3.0"
 
+#ifdef MY_ABC_HERE
+extern long g_ahci_switch;
+#endif
+
 enum {
 	AHCI_PCI_BAR_STA2X11	= 0,
 	AHCI_PCI_BAR_ENMOTUS	= 2,
@@ -94,6 +101,39 @@ static struct scsi_host_template ahci_sht = {
 	AHCI_SHT("ahci"),
 };
 
+#ifdef MY_ABC_HERE
+static int
+sata_syno_ahci_defer_cmd(struct ata_queued_cmd *qc)
+{
+	struct ata_link *link = qc->dev->link;
+	struct ata_port *ap = link->ap;
+
+	if (ap->excl_link == NULL || ap->excl_link == link) {
+		if (ap->nr_active_links == 0 || ata_link_active(link)) {
+			qc->flags |= ATA_QCFLAG_CLEAR_EXCL;
+			return ata_std_qc_defer(qc);
+		}
+
+		ap->excl_link = link;
+	} else {
+		/* preempt when no any command in the queue*/
+		if (!ap->nr_active_links) {
+			ap->excl_link = link;
+			qc->flags |= ATA_QCFLAG_CLEAR_EXCL;
+			return ata_std_qc_defer(qc);
+		}
+	}
+
+	return ATA_DEFER_PORT;
+}
+
+static struct ata_port_operations ahci_pmp_ops = {
+	.inherits		= &ahci_ops,
+
+	.qc_defer		= sata_syno_ahci_defer_cmd,
+};
+#endif
+
 static struct ata_port_operations ahci_vt8251_ops = {
 	.inherits		= &ahci_ops,
 	.hardreset		= ahci_vt8251_hardreset,
@@ -127,7 +167,11 @@ static const struct ata_port_info ahci_port_info[] = {
 		.flags		= AHCI_FLAG_COMMON,
 		.pio_mask	= ATA_PIO4,
 		.udma_mask	= ATA_UDMA6,
+#ifdef MY_ABC_HERE
+		.port_ops	= &ahci_pmp_ops,
+#else
 		.port_ops	= &ahci_ops,
+#endif
 	},
 	[board_ahci_yes_fbs] =
 	{
@@ -421,7 +465,6 @@ static const struct pci_device_id ahci_pci_tbl[] = {
 	{ }	/* terminate list */
 };
 
-
 static struct pci_driver ahci_pci_driver = {
 	.name			= DRV_NAME,
 	.id_table		= ahci_pci_tbl,
@@ -440,7 +483,6 @@ static int marvell_enable = 1;
 #endif
 module_param(marvell_enable, int, 0644);
 MODULE_PARM_DESC(marvell_enable, "Marvell SATA via AHCI (1 = enabled)");
-
 
 static void ahci_pci_save_initial_config(struct pci_dev *pdev,
 					 struct ahci_host_priv *hpriv)
@@ -1058,6 +1100,12 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	VPRINTK("ENTER\n");
 
+#ifdef MY_ABC_HERE
+	if(0 == g_ahci_switch) {
+		printk("AHCI is disabled.\n");
+		return 0;
+	}
+#endif
 	WARN_ON((int)ATA_MAX_QUEUE > AHCI_MAX_CMDS);
 
 	ata_print_version_once(&pdev->dev, DRV_VERSION);
@@ -1189,7 +1237,15 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	 * determining the maximum port number requires looking at
 	 * both CAP.NP and port_map.
 	 */
+#ifdef MY_ABC_HERE
+	if(gSynoSataHostCnt < sizeof(gszSataPortMap) && 0 != gszSataPortMap[gSynoSataHostCnt]) {
+		n_ports = gszSataPortMap[gSynoSataHostCnt] - '0';
+	}else{
+#endif
 	n_ports = max(ahci_nr_ports(hpriv->cap), fls(hpriv->port_map));
+#ifdef MY_ABC_HERE
+	}
+#endif
 
 	host = ata_host_alloc_pinfo(&pdev->dev, ppi, n_ports);
 	if (!host)
@@ -1214,7 +1270,6 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		/* set enclosure management message type */
 		if (ap->flags & ATA_FLAG_EM)
 			ap->em_message_type = hpriv->em_msg_type;
-
 
 		/* disabled/not-implemented port */
 		if (!(hpriv->port_map & (1 << i)))
@@ -1253,7 +1308,6 @@ static void __exit ahci_exit(void)
 {
 	pci_unregister_driver(&ahci_pci_driver);
 }
-
 
 MODULE_AUTHOR("Jeff Garzik");
 MODULE_DESCRIPTION("AHCI SATA low-level driver");

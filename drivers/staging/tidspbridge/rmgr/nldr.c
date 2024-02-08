@@ -1395,7 +1395,6 @@ static int load_ovly(struct nldr_nodeobject *nldr_node_obj,
 		}
 	}
 
-
 	if (!po_node) {
 		status = -ENOENT;
 		goto func_end;
@@ -1671,7 +1670,6 @@ static void unload_lib(struct nldr_nodeobject *nldr_node_obj,
 	struct nldr_object *nldr_obj = nldr_node_obj->nldr_obj;
 	u16 i;
 
-
 	/* Unload dependent libraries */
 	for (i = 0; i < root->dep_libs; i++)
 		unload_lib(nldr_node_obj, &root->dep_libs_tree[i]);
@@ -1720,7 +1718,6 @@ static void unload_ovly(struct nldr_nodeobject *nldr_node_obj,
 			break;
 		}
 	}
-
 
 	if (!po_node)
 		/* TODO: Should we print warning here? */

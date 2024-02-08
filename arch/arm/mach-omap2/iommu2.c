@@ -65,7 +65,6 @@
 	 ((pgsz) == MMU_CAM_PGSZ_64K) ? 0xffff0000 :	\
 	 ((pgsz) == MMU_CAM_PGSZ_4K)  ? 0xfffff000 : 0)
 
-
 static void __iommu_set_twl(struct omap_iommu *obj, bool on)
 {
 	u32 l = iommu_read_reg(obj, MMU_CNTL);
@@ -83,7 +82,6 @@ static void __iommu_set_twl(struct omap_iommu *obj, bool on)
 
 	iommu_write_reg(obj, l, MMU_CNTL);
 }
-
 
 static int omap2_iommu_enable(struct omap_iommu *obj)
 {

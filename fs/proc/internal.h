@@ -135,8 +135,6 @@ int proc_remount(struct super_block *sb, int *flags, char *data);
 int proc_readdir(struct file *, void *, filldir_t);
 struct dentry *proc_lookup(struct inode *, struct dentry *, struct nameidata *);
 
-
-
 /* Lookups */
 typedef struct dentry *instantiate_t(struct inode *, struct dentry *,
 				struct task_struct *, const void *);
@@ -151,4 +149,3 @@ int proc_setattr(struct dentry *dentry, struct iattr *attr);
 
 extern const struct inode_operations proc_ns_dir_inode_operations;
 extern const struct file_operations proc_ns_dir_operations;
-

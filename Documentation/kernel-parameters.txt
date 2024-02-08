@@ -1837,6 +1837,9 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
 	noirqdebug	[X86-32] Disables the code which attempts to detect and
 			disable unhandled interrupt sources.
 
+	noirqtime       [X86,ARM] Run time disables IRQ_TIME_ACCOUNTING and
+			eliminates the timestamping on irq/softirq entry/exit.
+
 	no_timer_check	[X86,APIC] Disables the code which tests for
 			broken timer IRQ sources.
 
@@ -2377,6 +2380,8 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
 
 	resume=		[SWSUSP]
 			Specify the partition device for software suspend
+			Format:
+			{/dev/<dev> | PARTUUID=<uuid> | <int>:<int> | <hex>}
 
 	resume_offset=	[SWSUSP]
 			Specify the offset from the beginning of the partition
@@ -2541,6 +2546,13 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
 	spia_fio_base=
 	spia_pedr=
 	spia_peddr=
+
+	stack_guard_gap=	[MM]
+			override the default stack gap protection. The value
+			is in page units and it defines how many pages prior
+			to (for stacks growing down) resp. after (for stacks
+			growing up) the main stack are reserved for no other
+			mapping. Default value is 256 pages.
 
 	stacktrace	[FTRACE]
 			Enabled the stack tracer on boot up.
@@ -2708,10 +2720,8 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
 			as the stability checks done at bootup.	Used to enable
 			high-resolution timer mode on older hardware, and in
 			virtualized environment.
-			[x86] noirqtime: Do not use TSC to do irq accounting.
-			Used to run time disable IRQ_TIME_ACCOUNTING on any
-			platforms where RDTSC is slow and this accounting
-			can add overhead.
+			[x86] noirqtime: obsoleted by "noirqtime" generic option,
+			see it's documentation for details.
 
 	turbografx.map[2|3]=	[HW,JOY]
 			TurboGraFX parallel port interface

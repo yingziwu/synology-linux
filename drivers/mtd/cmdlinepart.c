@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Read flash partition table from command line
  *
@@ -55,10 +58,9 @@
 #define dbg(x)
 #endif
 
-
 /* special size referring to all the remaining space in a partition */
-#define SIZE_REMAINING UINT_MAX
-#define OFFSET_CONTINUOUS UINT_MAX
+#define SIZE_REMAINING ULLONG_MAX
+#define OFFSET_CONTINUOUS ULLONG_MAX
 
 struct cmdline_mtd_partition {
 	struct cmdline_mtd_partition *next;
@@ -67,11 +69,24 @@ struct cmdline_mtd_partition {
 	struct mtd_partition *parts;
 };
 
+#if defined(CONFIG_SYNO_HI3535_VS) || defined(MY_ABC_HERE)
+
+#define SYNO_MAX_MTD_DEV 2
+static char *cmdline[SYNO_MAX_MTD_DEV]={0};
+static int cm_index = 0;
+
 /* mtdpart_setup() parses into here */
-static struct cmdline_mtd_partition *partitions;
+static struct cmdline_mtd_partition *partitions = NULL;
+
+#else
 
 /* the command line passed to mtdpart_setupd() */
 static char *cmdline;
+
+/* mtdpart_setup() parses into here */
+static struct cmdline_mtd_partition *partitions;
+#endif
+
 static int cmdline_parsed = 0;
 
 /*
@@ -90,8 +105,8 @@ static struct mtd_partition * newpart(char *s,
                                       int extra_mem_size)
 {
 	struct mtd_partition *parts;
-	unsigned long size;
-	unsigned long offset = OFFSET_CONTINUOUS;
+	uint64_t size;
+	uint64_t offset = OFFSET_CONTINUOUS;
 	char *name;
 	int name_len;
 	unsigned char *extra_mem;
@@ -109,7 +124,8 @@ static struct mtd_partition * newpart(char *s,
 		size = memparse(s, &s);
 		if (size < PAGE_SIZE)
 		{
-			printk(KERN_ERR ERRP "partition size too small (%lx)\n", size);
+			printk(KERN_ERR ERRP "partition size too small(%llx)\n",
+					size);
 			return NULL;
 		}
 	}
@@ -290,7 +306,6 @@ static int mtdpart_setup_real(char *s)
 		dbg(("mtdid=<%s> num_parts=<%d>\n",
 		     this_mtd->mtd_id, this_mtd->num_parts));
 
-
 		/* EOS - we're done */
 		if (*s == 0)
 			break;
@@ -306,6 +321,25 @@ static int mtdpart_setup_real(char *s)
 	return 1;
 }
 
+#if defined(CONFIG_SYNO_HI3535_VS) || defined(MY_ABC_HERE)
+void syno_mtdpart_setup_real(void)
+{
+	int i,j;
+	
+	for (i = 0; i < SYNO_MAX_MTD_DEV; i++) {
+		if (NULL == cmdline[i])
+			continue;
+
+		/*replace '+' to ' ' */
+		for (j=0; cmdline[i][j] !='\0'; j++) {
+			if ('+' == cmdline[i][j])
+				cmdline[i][j]=' ';
+		}		
+
+		mtdpart_setup_real(cmdline[i]);
+	}
+}
+#endif
 /*
  * Main function to be called from the MTD mapping driver/device to
  * obtain the partitioning information. At this point the command line
@@ -317,14 +351,18 @@ static int parse_cmdline_partitions(struct mtd_info *master,
 				    struct mtd_partition **pparts,
 				    struct mtd_part_parser_data *data)
 {
-	unsigned long offset;
+	uint64_t offset;
 	int i;
 	struct cmdline_mtd_partition *part;
 	const char *mtd_id = master->name;
 
 	/* parse command line */
 	if (!cmdline_parsed)
+#if defined(CONFIG_SYNO_HI3535_VS) || defined(MY_ABC_HERE)
+		syno_mtdpart_setup_real();
+#else
 		mtdpart_setup_real(cmdline);
+#endif
 
 	for(part = partitions; part; part = part->next)
 	{
@@ -359,7 +397,6 @@ static int parse_cmdline_partitions(struct mtd_info *master,
 	return 0;
 }
 
-
 /*
  * This is the handler for our kernel parameter, called from
  * main.c::checksetup(). Note that we can not yet kmalloc() anything,
@@ -369,7 +406,16 @@ static int parse_cmdline_partitions(struct mtd_info *master,
  */
 static int mtdpart_setup(char *s)
 {
+	#if defined(CONFIG_SYNO_HI3535_VS) || defined(MY_ABC_HERE)
+	if (SYNO_MAX_MTD_DEV > cm_index) {
+		cmdline[cm_index++] = s;
+	} else {
+		printk("Error...defined too many mtdparts\n");
+	}
+	#else
 	cmdline = s;
+	#endif
+	
 	return 1;
 }
 

@@ -554,7 +554,6 @@ static int omap_mcbsp_dai_set_dai_sysclk(struct snd_soc_dai *cpu_dai,
 		regs->pcr0	|= SCLKME;
 		break;
 
-
 	case OMAP_MCBSP_CLKR_SRC_CLKR:
 		err = omap_mcbsp_6pin_src_mux(mcbsp, CLKR_SRC_CLKR);
 		break;

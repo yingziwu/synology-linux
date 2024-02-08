@@ -32,6 +32,12 @@ int sysctl_tcp_retries2 __read_mostly = TCP_RETR2;
 int sysctl_tcp_orphan_retries __read_mostly;
 int sysctl_tcp_thin_linear_timeouts __read_mostly;
 
+#ifdef CONFIG_TNK
+EXPORT_SYMBOL(sysctl_tcp_keepalive_time);
+EXPORT_SYMBOL(sysctl_tcp_retries2);
+extern struct tnkfuncs *tnk;
+#endif
+
 static void tcp_write_timer(unsigned long);
 static void tcp_delack_timer(unsigned long);
 static void tcp_keepalive_timer (unsigned long data);
@@ -505,13 +511,23 @@ void tcp_set_keepalive(struct sock *sk, int val)
 {
 	if ((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN))
 		return;
-
+#ifdef CONFIG_TNK
+	if (tnk) {
+		if ((sk->sk_tnkinfo.state == TNKINFO_STATE_ACTIVATING)
+		|| (sk->sk_tnkinfo.state == TNKINFO_STATE_ACTIVE)) {
+			return;
+		}
+	}
+#endif
 	if (val && !sock_flag(sk, SOCK_KEEPOPEN))
 		inet_csk_reset_keepalive_timer(sk, keepalive_time_when(tcp_sk(sk)));
 	else if (!val)
 		inet_csk_delete_keepalive_timer(sk);
 }
 
+#ifdef CONFIG_TNK
+EXPORT_SYMBOL(tcp_set_keepalive);
+#endif
 
 static void tcp_keepalive_timer (unsigned long data)
 {
@@ -520,6 +536,14 @@ static void tcp_keepalive_timer (unsigned long data)
 	struct tcp_sock *tp = tcp_sk(sk);
 	u32 elapsed;
 
+#ifdef CONFIG_TNK
+	if (tnk) {
+		if ((sk->sk_tnkinfo.state == TNKINFO_STATE_ACTIVATING)
+		|| (sk->sk_tnkinfo.state == TNKINFO_STATE_ACTIVE)) {
+			return;
+		}
+	}
+#endif
 	/* Only process if socket is not in use. */
 	bh_lock_sock(sk);
 	if (sock_owned_by_user(sk)) {

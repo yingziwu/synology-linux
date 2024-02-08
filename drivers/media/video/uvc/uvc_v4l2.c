@@ -1288,4 +1288,3 @@ const struct v4l2_file_operations uvc_fops = {
 	.get_unmapped_area = uvc_v4l2_get_unmapped_area,
 #endif
 };
-

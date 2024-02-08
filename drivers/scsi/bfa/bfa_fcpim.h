@@ -64,7 +64,6 @@ void bfa_fcp_res_recfg(struct bfa_s *bfa, u16 num_ioim_fw);
 #define BFA_FCPIM_PATHTOV_DEF	(30 * 1000)	/* in millisecs */
 #define BFA_FCPIM_PATHTOV_MAX	(90 * 1000)	/* in millisecs */
 
-
 #define bfa_itnim_ioprofile_update(__itnim, __index)			\
 	(__itnim->ioprofile.iocomps[__index]++)
 

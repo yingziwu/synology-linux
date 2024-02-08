@@ -415,7 +415,6 @@ static void sa11x0_dma_tasklet(unsigned long arg)
 	dev_dbg(d->slave.dev, "tasklet exit\n");
 }
 
-
 static void sa11x0_dma_desc_free(struct sa11x0_dma_dev *d, struct list_head *head)
 {
 	struct sa11x0_dma_desc *txd, *txn;

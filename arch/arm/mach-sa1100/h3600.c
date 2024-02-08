@@ -84,7 +84,6 @@ static struct sa1100fb_mach_info h3600_lcd_info = {
 	.lcd_power = h3600_lcd_power,
 };
 
-
 static void __init h3600_map_io(void)
 {
 	h3xxx_map_io();
@@ -162,4 +161,3 @@ MACHINE_START(H3600, "Compaq iPAQ H3600")
 	.init_machine	= h3600_mach_init,
 	.restart	= sa11x0_restart,
 MACHINE_END
-

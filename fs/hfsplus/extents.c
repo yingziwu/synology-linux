@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/hfsplus/extents.c
  *
@@ -83,7 +86,11 @@ static u32 hfsplus_ext_lastblock(struct hfsplus_extent *ext)
 	return be32_to_cpu(ext->start_block) + be32_to_cpu(ext->block_count);
 }
 
+#ifdef MY_ABC_HERE
+static int __hfsplus_ext_write_extent(struct inode *inode,
+#else
 static void __hfsplus_ext_write_extent(struct inode *inode,
+#endif
 		struct hfs_find_data *fd)
 {
 	struct hfsplus_inode_info *hip = HFSPLUS_I(inode);
@@ -95,16 +102,29 @@ static void __hfsplus_ext_write_extent(struct inode *inode,
 			      HFSPLUS_IS_RSRC(inode) ?
 				HFSPLUS_TYPE_RSRC : HFSPLUS_TYPE_DATA);
 
+#ifdef MY_ABC_HERE
+	res = hfs_brec_find(fd, hfs_find_rec_by_key);
+#else
 	res = hfs_brec_find(fd);
+#endif
 	if (hip->extent_state & HFSPLUS_EXT_NEW) {
 		if (res != -ENOENT)
+#ifdef MY_ABC_HERE
+			return res;
+#else
 			return;
+#endif
+
 		hfs_brec_insert(fd, hip->cached_extents,
 				sizeof(hfsplus_extent_rec));
 		hip->extent_state &= ~(HFSPLUS_EXT_DIRTY | HFSPLUS_EXT_NEW);
 	} else {
 		if (res)
+#ifdef MY_ABC_HERE
+			return res;
+#else
 			return;
+#endif
 		hfs_bnode_write(fd->bnode, hip->cached_extents,
 				fd->entryoffset, fd->entrylength);
 		hip->extent_state &= ~HFSPLUS_EXT_DIRTY;
@@ -117,11 +137,17 @@ static void __hfsplus_ext_write_extent(struct inode *inode,
 	 * to explicily mark the inode dirty, too.
 	 */
 	set_bit(HFSPLUS_I_EXT_DIRTY, &hip->flags);
+
+#ifdef MY_ABC_HERE
+	return 0;
+#endif
 }
 
 static int hfsplus_ext_write_extent_locked(struct inode *inode)
 {
-	int res;
+#ifdef MY_ABC_HERE
+	int res = 0;
+#endif
 
 	if (HFSPLUS_I(inode)->extent_state & HFSPLUS_EXT_DIRTY) {
 		struct hfs_find_data fd;
@@ -129,10 +155,20 @@ static int hfsplus_ext_write_extent_locked(struct inode *inode)
 		res = hfs_find_init(HFSPLUS_SB(inode->i_sb)->ext_tree, &fd);
 		if (res)
 			return res;
+
+#ifdef MY_ABC_HERE
+		res = __hfsplus_ext_write_extent(inode, &fd);
+#else
 		__hfsplus_ext_write_extent(inode, &fd);
+#endif
 		hfs_find_exit(&fd);
 	}
+
+#ifdef MY_ABC_HERE
+	return res;
+#else
 	return 0;
+#endif
 }
 
 int hfsplus_ext_write_extent(struct inode *inode)
@@ -154,7 +190,11 @@ static inline int __hfsplus_ext_read_extent(struct hfs_find_data *fd,
 
 	hfsplus_ext_build_key(fd->search_key, cnid, block, type);
 	fd->key->ext.cnid = 0;
+#ifdef MY_ABC_HERE
+	res = hfs_brec_find(fd, hfs_find_rec_by_key);
+#else
 	res = hfs_brec_find(fd);
+#endif
 	if (res && res != -ENOENT)
 		return res;
 	if (fd->key->ext.cnid != fd->search_key->ext.cnid ||
@@ -175,8 +215,16 @@ static inline int __hfsplus_ext_cache_extent(struct hfs_find_data *fd,
 
 	WARN_ON(!mutex_is_locked(&hip->extents_lock));
 
+#ifdef MY_ABC_HERE
+	if (hip->extent_state & HFSPLUS_EXT_DIRTY) {
+		res = __hfsplus_ext_write_extent(inode, fd);
+		if (res)
+			return res;
+	}
+#else
 	if (hip->extent_state & HFSPLUS_EXT_DIRTY)
 		__hfsplus_ext_write_extent(inode, fd);
+#endif
 
 	res = __hfsplus_ext_read_extent(fd, hip->cached_extents, inode->i_ino,
 					block, HFSPLUS_IS_RSRC(inode) ?
@@ -265,7 +313,11 @@ int hfsplus_get_block(struct inode *inode, sector_t iblock,
 	mutex_unlock(&hip->extents_lock);
 
 done:
+#ifdef MY_ABC_HERE
+	hfs_dbg(EXTENT, "get_block(%lu): %llu - %u\n",
+#else
 	dprint(DBG_EXTENT, "get_block(%lu): %llu - %u\n",
+#endif
 		inode->i_ino, (long long)iblock, dblock);
 
 	mask = (1 << sbi->fs_shift) - 1;
@@ -288,11 +340,21 @@ static void hfsplus_dump_extent(struct hfsplus_extent *extent)
 {
 	int i;
 
+#ifdef MY_ABC_HERE
+	hfs_dbg(EXTENT, "   ");
+	for (i = 0; i < 8; i++)
+		hfs_dbg_cont(EXTENT, " %u:%u",
+			     be32_to_cpu(extent[i].start_block),
+			     be32_to_cpu(extent[i].block_count));
+	hfs_dbg_cont(EXTENT, "\n");
+#else
 	dprint(DBG_EXTENT, "   ");
 	for (i = 0; i < 8; i++)
 		dprint(DBG_EXTENT, " %u:%u", be32_to_cpu(extent[i].start_block),
 				 be32_to_cpu(extent[i].block_count));
 	dprint(DBG_EXTENT, "\n");
+#endif
+
 }
 
 static int hfsplus_add_extent(struct hfsplus_extent *extent, u32 offset,
@@ -329,6 +391,9 @@ static int hfsplus_free_extents(struct super_block *sb,
 {
 	u32 count, start;
 	int i;
+#ifdef MY_ABC_HERE
+	int err = 0;
+#endif
 
 	hfsplus_dump_extent(extent);
 	for (i = 0; i < 8; extent++, i++) {
@@ -345,18 +410,46 @@ found:
 	for (;;) {
 		start = be32_to_cpu(extent->start_block);
 		if (count <= block_nr) {
+#ifdef MY_ABC_HERE
+			err = hfsplus_block_free(sb, start, count);
+			if (err) {
+				pr_err("can't free extent\n");
+				hfs_dbg(EXTENT, " start: %u count: %u\n",
+					start, count);
+			}
+#else
 			hfsplus_block_free(sb, start, count);
+#endif
 			extent->block_count = 0;
 			extent->start_block = 0;
 			block_nr -= count;
 		} else {
 			count -= block_nr;
+#ifdef MY_ABC_HERE
+			err = hfsplus_block_free(sb, start + count, block_nr);
+			if (err) {
+				pr_err("can't free extent\n");
+				hfs_dbg(EXTENT, " start: %u count: %u\n",
+					start, count);
+			}
+#else
 			hfsplus_block_free(sb, start + count, block_nr);
+#endif
 			extent->block_count = cpu_to_be32(count);
 			block_nr = 0;
 		}
+#ifdef MY_ABC_HERE
+		if (!block_nr || !i) {
+			/*
+			 * Try to free all extents and
+			 * return only last error
+			 */
+			return err;
+		}
+#else
 		if (!block_nr || !i)
 			return 0;
+#endif
 		i--;
 		extent--;
 		count = be32_to_cpu(extent->block_count);
@@ -416,7 +509,11 @@ int hfsplus_file_extend(struct inode *inode)
 	if (sbi->alloc_file->i_size * 8 <
 	    sbi->total_blocks - sbi->free_blocks + 8) {
 		/* extend alloc file */
+#ifdef MY_ABC_HERE
+		pr_err("extend alloc file! "
+#else
 		printk(KERN_ERR "hfs: extend alloc file! "
+#endif
 				"(%llu,%u,%u)\n",
 			sbi->alloc_file->i_size * 8,
 			sbi->total_blocks, sbi->free_blocks);
@@ -443,11 +540,15 @@ int hfsplus_file_extend(struct inode *inode)
 		}
 	}
 
-	dprint(DBG_EXTENT, "extend %lu: %u,%u\n", inode->i_ino, start, len);
+	hfs_dbg(EXTENT, "extend %lu: %u,%u\n", inode->i_ino, start, len);
 
 	if (hip->alloc_blocks <= hip->first_blocks) {
 		if (!hip->first_blocks) {
+#ifdef MY_ABC_HERE
+			hfs_dbg(EXTENT, "first extents\n");
+#else
 			dprint(DBG_EXTENT, "first extents\n");
+#endif
 			/* no extents yet */
 			hip->first_extents[0].start_block = cpu_to_be32(start);
 			hip->first_extents[0].block_count = cpu_to_be32(len);
@@ -484,7 +585,11 @@ out:
 	return res;
 
 insert_extent:
+#ifdef MY_ABC_HERE
+	hfs_dbg(EXTENT, "insert new extent\n");
+#else
 	dprint(DBG_EXTENT, "insert new extent\n");
+#endif
 	res = hfsplus_ext_write_extent_locked(inode);
 	if (res)
 		goto out;
@@ -509,16 +614,22 @@ void hfsplus_file_truncate(struct inode *inode)
 	u32 alloc_cnt, blk_cnt, start;
 	int res;
 
+#ifdef MY_ABC_HERE
+	hfs_dbg(INODE, "truncate: %lu, %llu -> %llu\n",
+#else
 	dprint(DBG_INODE, "truncate: %lu, %llu -> %llu\n",
-		inode->i_ino, (long long)hip->phys_size,
-		inode->i_size);
+#endif
+		inode->i_ino, (long long)hip->phys_size, inode->i_size);
 
 	if (inode->i_size > hip->phys_size) {
 		struct address_space *mapping = inode->i_mapping;
 		struct page *page;
 		void *fsdata;
+#ifdef MY_ABC_HERE
+		loff_t size = inode->i_size;
+#else
 		u32 size = inode->i_size;
-
+#endif
 		res = pagecache_write_begin(NULL, mapping, size, 0,
 						AOP_FLAG_UNINTERRUPTIBLE,
 						&page, &fsdata);

@@ -149,7 +149,6 @@ int drm_edid_header_is_valid(const u8 *raw_edid)
 }
 EXPORT_SYMBOL(drm_edid_header_is_valid);
 
-
 /*
  * Sanity check the EDID block (base or extension).  Return 0 if the block
  * doesn't check out, or 1 if it's valid.

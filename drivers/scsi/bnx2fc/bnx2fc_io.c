@@ -132,7 +132,6 @@ static void bnx2fc_cmd_timeout(struct work_struct *work)
 						   "logo - tgt flags = 0x%lx\n",
 						   tgt->flags);
 
-
 					mutex_lock(&lport->disc.disc_mutex);
 					lport->tt.rport_logoff(rdata);
 					mutex_unlock(&lport->disc.disc_mutex);
@@ -556,7 +555,6 @@ void bnx2fc_cmd_release(struct kref *ref)
 		index = io_req->xid % num_possible_cpus();
 	else
 		index = RESERVE_FREE_LIST_INDEX;
-
 
 	spin_lock_bh(&cmd_mgr->free_list_lock[index]);
 	if (io_req->cmd_type != BNX2FC_SCSI_CMD)
@@ -1108,7 +1106,6 @@ int bnx2fc_eh_abort(struct scsi_cmnd *sc_cmd)
 	int logo_issued;
 	int wait_cnt = 0;
 	int rc = FAILED;
-
 
 	rc = fc_block_scsi_eh(sc_cmd);
 	if (rc)
@@ -1863,7 +1860,6 @@ void bnx2fc_process_scsi_cmd_compl(struct bnx2fc_cmd *io_req,
 	struct bnx2fc_rport *tgt = io_req->tgt;
 	struct scsi_cmnd *sc_cmd;
 	struct Scsi_Host *host;
-
 
 	/* scsi_cmd_cmpl is called with tgt lock held */
 

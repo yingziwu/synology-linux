@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Driver for AMBA serial ports
  *
@@ -55,10 +58,19 @@
 
 #include <asm/io.h>
 #include <asm/sizes.h>
+/*solve uart block when overflow*/
+#define UART_OE_ENABLE
+
+#define IRQ_FLAGS       IRQF_TRIGGER_NONE
 
 #define UART_NR			14
 
+#ifdef MY_ABC_HERE
+#define SERIAL_AMBA_MAJOR       4
+#else
 #define SERIAL_AMBA_MAJOR	204
+#endif /* MY_ABC_HERE */
+
 #define SERIAL_AMBA_MINOR	64
 #define SERIAL_AMBA_NR		UART_NR
 
@@ -66,7 +78,6 @@
 
 #define UART_DR_ERROR		(UART011_DR_OE|UART011_DR_BE|UART011_DR_PE|UART011_DR_FE)
 #define UART_DUMMY_DR_RX	(1 << 16)
-
 
 #define UART_WA_SAVE_NR 14
 
@@ -209,7 +220,9 @@ static int pl011_fifo_to_tty(struct uart_amba_port *uap)
 			if (ch & UART011_DR_OE)
 				uap->port.icount.overrun++;
 
+#ifndef UART_OE_ENABLE
 			ch &= uap->port.read_status_mask;
+#endif
 
 			if (ch & UART011_DR_BE)
 				flag = TTY_BREAK;
@@ -217,6 +230,9 @@ static int pl011_fifo_to_tty(struct uart_amba_port *uap)
 				flag = TTY_PARITY;
 			else if (ch & UART011_DR_FE)
 				flag = TTY_FRAME;
+#ifdef UART_OE_ENABLE
+			writel(~0, uap->port.membase + UART01x_RSR);
+#endif
 		}
 
 		if (uart_handle_sysrq_char(&uap->port, ch & 255))
@@ -227,7 +243,6 @@ static int pl011_fifo_to_tty(struct uart_amba_port *uap)
 
 	return fifotaken;
 }
-
 
 /*
  * All the DMA operation mode stuff goes inside this ifdef.
@@ -995,7 +1010,6 @@ static inline bool pl011_dma_rx_running(struct uart_amba_port *uap)
 	return uap->using_rx_dma && uap->dmarx.running;
 }
 
-
 #else
 /* Blank functions if the DMA engine is not available */
 static inline void pl011_dma_probe(struct uart_amba_port *uap)
@@ -1053,7 +1067,6 @@ static inline bool pl011_dma_rx_running(struct uart_amba_port *uap)
 
 #define pl011_dma_flush_buffer	NULL
 #endif
-
 
 /*
  * pl011_lockup_wa
@@ -1397,24 +1410,41 @@ static int pl011_startup(struct uart_port *port)
 
 	uap->port.uartclk = clk_get_rate(uap->clk);
 
-	/* Clear pending error and receive interrupts */
-	writew(UART011_OEIS | UART011_BEIS | UART011_PEIS | UART011_FEIS |
-	       UART011_RTIS | UART011_RXIS, uap->port.membase + UART011_ICR);
+#ifdef UART_OE_ENABLE
+	spin_lock_irq(&uap->port.lock);
 
 	/*
-	 * Allocate the IRQ
+	 * Clean Any errors and status.
 	 */
-	retval = request_irq(uap->port.irq, pl011_int, 0, "uart-pl011", uap);
+	writew(0,  uap->port.membase + UART011_CR);
+	writel(~0, uap->port.membase + UART01x_RSR);
+	writel(~0, uap->port.membase + UART011_ICR);
+#else
+	/*
+	 * Allocate the IRQ
+	 *
+	 * We define UART_OE_ENABLE to solve problem
+	 * of uart overflow.
+	 * Function of request_irq here is invalid,
+	 * and we will call it at the below one.
+	 */
+	retval = request_irq(uap->port.irq, pl011_int,
+				IRQ_FLAGS, "uart-pl011", uap);
 	if (retval)
 		goto clk_dis;
+
+	spin_lock_irq(&uap->port.lock);
+#endif
 
 	writew(uap->vendor->ifls, uap->port.membase + UART011_IFLS);
 
 	/*
 	 * Provoke TX FIFO interrupt into asserting.
 	 */
+#ifndef UART_OE_ENABLE
 	cr = UART01x_CR_UARTEN | UART011_CR_TXE | UART011_CR_LBE;
 	writew(cr, uap->port.membase + UART011_CR);
+#endif
 	writew(0, uap->port.membase + UART011_FBRD);
 	writew(1, uap->port.membase + UART011_IBRD);
 	writew(0, uap->port.membase + uap->lcrh_rx);
@@ -1428,19 +1458,37 @@ static int pl011_startup(struct uart_port *port)
 			writew(0xff, uap->port.membase + UART011_MIS);
 		writew(0, uap->port.membase + uap->lcrh_tx);
 	}
+#ifndef UART_OE_ENABLE
 	writew(0, uap->port.membase + UART01x_DR);
+#endif
 	while (readw(uap->port.membase + UART01x_FR) & UART01x_FR_BUSY)
 		barrier();
-
+#ifndef UART_OE_ENABLE
 	/* restore RTS and DTR */
 	cr = uap->old_cr & (UART011_CR_RTS | UART011_CR_DTR);
 	cr |= UART01x_CR_UARTEN | UART011_CR_RXE | UART011_CR_TXE;
 	writew(cr, uap->port.membase + UART011_CR);
+#endif
+
+	/* Clear pending error and receive interrupts */
+	writew(UART011_OEIS | UART011_BEIS | UART011_PEIS | UART011_FEIS |
+	       UART011_RTIS | UART011_RXIS, uap->port.membase + UART011_ICR);
+
+	spin_unlock_irq(&uap->port.lock);
 
 	/*
 	 * initialise the old status of the modem signals
 	 */
 	uap->old_status = readw(uap->port.membase + UART01x_FR) & UART01x_FR_MODEM_ANY;
+#ifdef UART_OE_ENABLE
+	/*
+	 * Allocate the IRQ
+	 */
+	retval = request_irq(uap->port.irq, pl011_int,
+				IRQ_FLAGS, "uart-pl011", uap);
+	if (retval)
+		goto clk_dis;
+#endif
 
 	/* Startup DMA */
 	pl011_dma_startup(uap);
@@ -1458,6 +1506,13 @@ static int pl011_startup(struct uart_port *port)
 	if (!pl011_dma_rx_running(uap))
 		uap->im |= UART011_RXIM;
 	writew(uap->im, uap->port.membase + UART011_IMSC);
+
+#ifdef UART_OE_ENABLE
+	cr = UART01x_CR_UARTEN | UART011_CR_RXE | UART011_CR_TXE;
+	writew(cr, uap->port.membase + UART011_CR);
+	writew(0, uap->port.membase + UART01x_DR);
+#endif
+
 	spin_unlock_irq(&uap->port.lock);
 
 	if (uap->port.dev->platform_data) {
@@ -1516,11 +1571,16 @@ static void pl011_shutdown(struct uart_port *port)
 	 * it during startup().
 	 */
 	uap->autorts = false;
+
+	spin_lock_irq(&uap->port.lock);
+
 	cr = readw(uap->port.membase + UART011_CR);
 	uap->old_cr = cr;
 	cr &= UART011_CR_RTS | UART011_CR_DTR;
 	cr |= UART01x_CR_UARTEN | UART011_CR_TXE;
 	writew(cr, uap->port.membase + UART011_CR);
+
+	spin_unlock_irq(&uap->port.lock);
 
 	/*
 	 * disable break condition and fifos
@@ -1901,7 +1961,11 @@ static int __init pl011_console_setup(struct console *co, char *options)
 
 static struct uart_driver amba_reg;
 static struct console amba_console = {
-	.name		= "ttyAMA",
+#ifdef MY_ABC_HERE
+	.name		= "ttyS",
+#else
+	.name           = "ttyAMA",
+#endif /* MY_ABC_HERE */
 	.write		= pl011_console_write,
 	.device		= uart_console_device,
 	.setup		= pl011_console_setup,
@@ -1917,8 +1981,13 @@ static struct console amba_console = {
 
 static struct uart_driver amba_reg = {
 	.owner			= THIS_MODULE,
-	.driver_name		= "ttyAMA",
-	.dev_name		= "ttyAMA",
+#ifdef MY_ABC_HERE
+	.driver_name		= "ttyS",
+	.dev_name		= "ttyS",
+#else
+	.driver_name            = "ttyAMA",
+	.dev_name               = "ttyAMA",
+#endif /* MY_ABC_HERE */
 	.major			= SERIAL_AMBA_MAJOR,
 	.minor			= SERIAL_AMBA_MINOR,
 	.nr			= UART_NR,

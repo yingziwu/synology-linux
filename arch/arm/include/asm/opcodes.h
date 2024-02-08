@@ -17,7 +17,6 @@ extern asmlinkage unsigned int arm_check_condition(u32 opcode, u32 psr);
 #define ARM_OPCODE_CONDTEST_PASS   1
 #define ARM_OPCODE_CONDTEST_UNCOND 2
 
-
 /*
  * Opcode byteswap helpers
  *

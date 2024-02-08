@@ -29,7 +29,6 @@ MODULE_AUTHOR("Christian Hentschel <chentschel@arnet.com.ar>");
 MODULE_DESCRIPTION("SIP NAT helper");
 MODULE_ALIAS("ip_nat_sip");
 
-
 static unsigned int mangle_packet(struct sk_buff *skb, unsigned int dataoff,
 				  const char **dptr, unsigned int *datalen,
 				  unsigned int matchoff, unsigned int matchlen,

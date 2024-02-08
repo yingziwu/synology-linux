@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	Definitions for the 'struct sk_buff' memory handlers.
  *
@@ -285,7 +288,6 @@ struct skb_shared_info {
 #define SKB_DATAREF_SHIFT 16
 #define SKB_DATAREF_MASK ((1 << SKB_DATAREF_SHIFT) - 1)
 
-
 enum {
 	SKB_FCLONE_UNAVAILABLE,
 	SKB_FCLONE_ORIG,
@@ -499,7 +501,6 @@ struct sk_buff {
  *	Handling routines are only of interest to the kernel
  */
 #include <linux/slab.h>
-
 
 /*
  * skb might have a dst pointer attached, refcounted or not.
@@ -1178,7 +1179,6 @@ static inline struct sk_buff *__skb_dequeue_tail(struct sk_buff_head *list)
 	return skb;
 }
 
-
 static inline bool skb_is_nonlinear(const struct sk_buff *skb)
 {
 	return skb->data_len;
@@ -1197,6 +1197,13 @@ static inline int skb_pagelen(const struct sk_buff *skb)
 		len += skb_frag_size(&skb_shinfo(skb)->frags[i]);
 	return len + skb_headlen(skb);
 }
+
+#ifdef CONFIG_HI3535_SDK_2050
+static inline bool skb_has_frags(const struct sk_buff *skb)
+{
+	return skb_shinfo(skb)->nr_frags;
+}
+#endif /* CONFIG_HI3535_SDK_2050 */
 
 /**
  * __skb_fill_page_desc - initialise a paged fragment in an skb
@@ -2100,6 +2107,12 @@ extern unsigned int    datagram_poll(struct file *file, struct socket *sock,
 extern int	       skb_copy_datagram_iovec(const struct sk_buff *from,
 					       int offset, struct iovec *to,
 					       int size);
+#ifdef MY_ABC_HERE
+extern int	       skb_copy_datagram_iovec1(const struct sk_buff *from,
+					       int offset, struct iovec *to,
+					       int size);
+#endif
+
 extern int	       skb_copy_and_csum_datagram_iovec(struct sk_buff *skb,
 							int hlen,
 							struct iovec *iov);

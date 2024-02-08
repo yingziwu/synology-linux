@@ -51,10 +51,6 @@ static int          msglevel                =MSG_LEVEL_INFO;
 
 /*---------------------  Export Functions  --------------------------*/
 
-
-
-
-
 /*
  * Description:
  *      Set this hash index into multicast address register bit
@@ -74,7 +70,6 @@ void MACvSetMultiAddrByHash (PSDevice pDevice, BYTE byHashIdx)
     BYTE            byBitMask;
     BYTE            pbyData[2];
 
-
     // calculate byte position
     uByteIdx = byHashIdx / 8;
 
@@ -93,8 +88,6 @@ void MACvSetMultiAddrByHash (PSDevice pDevice, BYTE byHashIdx)
                         2,
                         pbyData);
 }
-
-
 
 /*
  * Description:
@@ -123,7 +116,6 @@ void MACvWriteMultiAddr(PSDevice pDevice, unsigned int uByteIdx, BYTE byData)
                         &byData1);
 }
 
-
 /*
  * Description:
  *      Shut Down MAC
@@ -149,7 +141,6 @@ void MACbShutdown(PSDevice pDevice)
 void MACvSetBBType(PSDevice pDevice,BYTE byType)
 {
 BYTE            pbyData[2];
-
 
     pbyData[0] = byType;
     pbyData[1] = EnCFG_BBType_MASK;
@@ -202,7 +193,6 @@ void MACvDisableKeyEntry(PSDevice pDevice, unsigned int uEntryIdx)
 WORD    wOffset;
 BYTE            byData;
 
-
     byData = (BYTE) uEntryIdx;
 
     wOffset = MISCFIFO_KEYETRY0;
@@ -221,7 +211,6 @@ BYTE            byData;
                         &byData
                         );
 }
-
 
 /*
  * Description:
@@ -317,9 +306,7 @@ BYTE            pbyData[24];
                         pbyData
                         );
 
-
 }
-
 
 void MACvRegBitsOff(PSDevice pDevice, BYTE byRegOfs, BYTE byBits)
 {
@@ -337,11 +324,9 @@ BYTE            pbyData[2];
                         );
 }
 
-
 void MACvRegBitsOn(PSDevice pDevice, BYTE byRegOfs, BYTE byBits)
 {
 BYTE            pbyData[2];
-
 
     pbyData[0] = byBits;
     pbyData[1] = byBits;
@@ -359,7 +344,6 @@ void MACvWriteWord(PSDevice pDevice, BYTE byRegOfs, WORD wData)
 {
 BYTE            pbyData[2];
 
-
     pbyData[0] = (BYTE)(wData & 0xff);
     pbyData[1] = (BYTE)(wData >> 8);
 
@@ -376,7 +360,6 @@ BYTE            pbyData[2];
 void MACvWriteBSSIDAddress(PSDevice pDevice, PBYTE pbyEtherAddr)
 {
 BYTE            pbyData[6];
-
 
     pbyData[0] = *((PBYTE)pbyEtherAddr);
     pbyData[1] = *((PBYTE)pbyEtherAddr+1);
@@ -398,7 +381,6 @@ void MACvEnableProtectMD(PSDevice pDevice)
 {
 BYTE            pbyData[2];
 
-
     pbyData[0] = EnCFG_ProtectMd;
     pbyData[1] = EnCFG_ProtectMd;
 
@@ -414,7 +396,6 @@ BYTE            pbyData[2];
 void MACvDisableProtectMD(PSDevice pDevice)
 {
 BYTE            pbyData[2];
-
 
     pbyData[0] = 0;
     pbyData[1] = EnCFG_ProtectMd;
@@ -432,7 +413,6 @@ void MACvEnableBarkerPreambleMd(PSDevice pDevice)
 {
 BYTE            pbyData[2];
 
-
     pbyData[0] = EnCFG_BarkerPream;
     pbyData[1] = EnCFG_BarkerPream;
 
@@ -449,7 +429,6 @@ void MACvDisableBarkerPreambleMd(PSDevice pDevice)
 {
 BYTE            pbyData[2];
 
-
     pbyData[0] = 0;
     pbyData[1] = EnCFG_BarkerPream;
 
@@ -461,7 +440,6 @@ BYTE            pbyData[2];
                         pbyData
                         );
 }
-
 
 void MACvWriteBeaconInterval(PSDevice pDevice, WORD wInterval)
 {

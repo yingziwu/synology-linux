@@ -361,7 +361,6 @@ xfs_trans_read_buf(
 			return XFS_ERROR(EIO);
 		}
 
-
 		bip = bp->b_fspriv;
 		bip->bli_recur++;
 
@@ -436,7 +435,6 @@ shutdown_abort:
 	*bpp = NULL;
 	return XFS_ERROR(EIO);
 }
-
 
 /*
  * Release the buffer bp which was previously acquired with one of the
@@ -649,7 +647,6 @@ xfs_trans_log_buf(xfs_trans_t	*tp,
 	xfs_buf_item_log(bip, first, last);
 }
 
-
 /*
  * This called to invalidate a buffer that is being used within
  * a transaction.  Typically this is because the blocks in the
@@ -798,7 +795,6 @@ xfs_trans_inode_alloc_buf(
 
 	bip->bli_flags |= XFS_BLI_INODE_ALLOC_BUF;
 }
-
 
 /*
  * Similar to xfs_trans_inode_buf(), this marks the buffer as a cluster of

@@ -573,7 +573,6 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
 					if (!irq_out_pump_restart(hid))
 						set_bit(HID_OUT_RUNNING, &usbhid->iofl);
 
-
 			}
 		}
 		return;
@@ -1423,7 +1422,6 @@ void usbhid_put_power(struct hid_device *hid)
 
 	usb_autopm_put_interface(usbhid->intf);
 }
-
 
 #ifdef CONFIG_PM
 static int hid_suspend(struct usb_interface *intf, pm_message_t message)

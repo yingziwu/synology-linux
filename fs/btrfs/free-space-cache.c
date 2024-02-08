@@ -971,7 +971,6 @@ int __btrfs_write_out_cache(struct btrfs_root *root, struct inode *inode,
 	if (ret)
 		goto out;
 
-
 	ret = filemap_write_and_wait(inode->i_mapping);
 	if (ret)
 		goto out;

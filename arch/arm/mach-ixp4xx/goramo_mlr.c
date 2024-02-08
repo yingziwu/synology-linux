@@ -102,7 +102,6 @@ static inline void set_control(int line, int value)
 		control_value &= ~(1 << line);
 }
 
-
 static void output_control(void)
 {
 	int i;
@@ -123,7 +122,6 @@ static void output_control(void)
 	set_sda(1);		/* Be ready for START */
 	set_scl(1);
 }
-
 
 static void (*set_carrier_cb_tab[2])(void *pdev, int carrier);
 
@@ -155,7 +153,6 @@ static irqreturn_t hss_dcd_irq(int irq, void *pdev)
 	set_carrier_cb_tab[port](pdev, !i);
 	return IRQ_HANDLED;
 }
-
 
 static int hss_open(int port, void *pdev,
 		    void (*set_carrier_cb)(void *pdev, int carrier))
@@ -195,7 +192,6 @@ static void hss_close(int port, void *pdev)
 	gpio_line_set(port ? GPIO_HSS1_RTS_N : GPIO_HSS0_RTS_N, 1);
 }
 
-
 /* Flash memory */
 static struct flash_platform_data flash_data = {
 	.map_name	= "cfi_probe",
@@ -214,7 +210,6 @@ static struct platform_device device_flash = {
 	.resource	= &flash_resource,
 };
 
-
 /* I^2C interface */
 static struct i2c_gpio_platform_data i2c_data = {
 	.sda_pin	= GPIO_SDA,
@@ -226,7 +221,6 @@ static struct platform_device device_i2c = {
 	.id		= 0,
 	.dev		= { .platform_data = &i2c_data },
 };
-
 
 /* IXP425 2 UART ports */
 static struct resource uart_resources[] = {
@@ -274,7 +268,6 @@ static struct platform_device device_uarts = {
 	.resource		= uart_resources,
 };
 
-
 /* Built-in 10/100 Ethernet MAC interfaces */
 static struct eth_plat_info eth_plat[] = {
 	{
@@ -299,7 +292,6 @@ static struct platform_device device_eth_tab[] = {
 		.dev.platform_data	= eth_plat + 1,
 	}
 };
-
 
 /* IXP425 2 synchronous serial ports */
 static struct hss_plat_info hss_plat[] = {
@@ -327,7 +319,6 @@ static struct platform_device device_hss_tab[] = {
 		.dev.platform_data	= hss_plat + 1,
 	}
 };
-
 
 static struct platform_device *device_tab[6] __initdata = {
 	&device_flash,		/* index 0 */
@@ -436,7 +427,6 @@ static void __init gmlr_init(void)
 	platform_add_devices(device_tab, devices);
 }
 
-
 #ifdef CONFIG_PCI
 static void __init gmlr_pci_preinit(void)
 {
@@ -491,7 +481,6 @@ static int __init gmlr_pci_init(void)
 
 subsys_initcall(gmlr_pci_init);
 #endif /* CONFIG_PCI */
-
 
 MACHINE_START(GORAMO_MLR, "MultiLink")
 	/* Maintainer: Krzysztof Halasa */

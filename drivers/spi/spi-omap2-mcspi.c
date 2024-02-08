@@ -110,7 +110,6 @@ struct omap2_mcspi_dma {
  */
 #define DMA_MIN_BYTES			160
 
-
 struct omap2_mcspi {
 	struct work_struct	work;
 	/* lock protects queue and registers */
@@ -1329,7 +1328,6 @@ static struct platform_driver omap2_mcspi_driver = {
 	},
 	.remove =	__exit_p(omap2_mcspi_remove),
 };
-
 
 static int __init omap2_mcspi_init(void)
 {

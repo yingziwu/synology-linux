@@ -82,7 +82,6 @@ unsigned int sa11x0_ppcr_to_freq(unsigned int idx)
 	return freq;
 }
 
-
 /* make sure that only the "userspace" governor is run -- anything else wouldn't make sense on
  * this platform, anyway.
  */
@@ -151,7 +150,6 @@ static void sa11x0_register_device(struct platform_device *dev, void *data)
 		printk(KERN_ERR "Unable to register device %s: %d\n",
 			dev->name, err);
 }
-
 
 static struct resource sa11x0udc_resources[] = {
 	[0] = DEFINE_RES_MEM(__PREG(Ser0UDCCR), SZ_64K),
@@ -359,7 +357,6 @@ static int __init sa1100_init(void)
 
 arch_initcall(sa1100_init);
 
-
 /*
  * Common I/O mapping:
  *
@@ -447,4 +444,3 @@ void sa1110_mb_enable(void)
 
 	local_irq_restore(flags);
 }
-

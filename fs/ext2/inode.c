@@ -1316,6 +1316,10 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 		inode->i_uid |= le16_to_cpu(raw_inode->i_uid_high) << 16;
 		inode->i_gid |= le16_to_cpu(raw_inode->i_gid_high) << 16;
 	}
+	if (EXT2_SB(sb)->s_uid)
+		inode->i_uid = EXT2_SB(sb)->s_uid;
+	if (EXT2_SB(sb)->s_gid)
+		inode->i_gid = EXT2_SB(sb)->s_gid;
 	set_nlink(inode, le16_to_cpu(raw_inode->i_links_count));
 	inode->i_size = le32_to_cpu(raw_inode->i_size);
 	inode->i_atime.tv_sec = (signed)le32_to_cpu(raw_inode->i_atime);
@@ -1419,6 +1423,10 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 	struct ext2_inode * raw_inode = ext2_get_inode(sb, ino, &bh);
 	int n;
 	int err = 0;
+	__le16 uid_low;
+	__le16 gid_low;
+	__le16 uid_high;
+	__le16 gid_high;
 
 	if (IS_ERR(raw_inode))
  		return -EIO;
@@ -1430,26 +1438,40 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 
 	ext2_get_inode_flags(ei);
 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
+	if (EXT2_SB(sb)->s_uid)
+		uid = EXT2_SB(sb)->s_diskuid;
+	if (EXT2_SB(sb)->s_gid)
+		gid = EXT2_SB(sb)->s_diskgid;
 	if (!(test_opt(sb, NO_UID32))) {
-		raw_inode->i_uid_low = cpu_to_le16(low_16_bits(uid));
-		raw_inode->i_gid_low = cpu_to_le16(low_16_bits(gid));
+		uid_low = cpu_to_le16(low_16_bits(uid));
+		gid_low = cpu_to_le16(low_16_bits(gid));
 /*
  * Fix up interoperability with old kernels. Otherwise, old inodes get
  * re-used with the upper 16 bits of the uid/gid intact
  */
 		if (!ei->i_dtime) {
-			raw_inode->i_uid_high = cpu_to_le16(high_16_bits(uid));
-			raw_inode->i_gid_high = cpu_to_le16(high_16_bits(gid));
+			uid_high = cpu_to_le16(high_16_bits(uid));
+			gid_high = cpu_to_le16(high_16_bits(gid));
 		} else {
-			raw_inode->i_uid_high = 0;
-			raw_inode->i_gid_high = 0;
+			uid_high = 0;
+			gid_high = 0;
 		}
 	} else {
-		raw_inode->i_uid_low = cpu_to_le16(fs_high2lowuid(uid));
-		raw_inode->i_gid_low = cpu_to_le16(fs_high2lowgid(gid));
-		raw_inode->i_uid_high = 0;
-		raw_inode->i_gid_high = 0;
+		uid_low = cpu_to_le16(fs_high2lowuid(uid));
+		gid_low = cpu_to_le16(fs_high2lowgid(gid));
+		uid_high = 0;
+		gid_high = 0;
 	}
+	/* don't mangle uid/gid of existing files if override is active */
+	if (!EXT2_SB(sb)->s_uid || ei->i_state & EXT2_STATE_NEW) {
+		raw_inode->i_uid_high = uid_high;
+		raw_inode->i_uid_low = uid_low;
+	}
+	if (!EXT2_SB(sb)->s_gid || ei->i_state & EXT2_STATE_NEW) {
+		raw_inode->i_gid_high = gid_high;
+		raw_inode->i_gid_low = gid_low;
+	}
+
 	raw_inode->i_links_count = cpu_to_le16(inode->i_nlink);
 	raw_inode->i_size = cpu_to_le32(inode->i_size);
 	raw_inode->i_atime = cpu_to_le32(inode->i_atime.tv_sec);

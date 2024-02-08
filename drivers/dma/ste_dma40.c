@@ -831,7 +831,6 @@ static int d40_sg_2_dmalen(struct scatterlist *sgl, int sg_len,
 	return len;
 }
 
-
 #ifdef CONFIG_PM
 static void dma40_backup(void __iomem *baseaddr, u32 *backup,
 			 u32 *regaddr, int num, bool save)
@@ -1124,7 +1123,6 @@ __d40_execute_command_log(struct d40_chan *d40c, enum d40_command command)
 		active_reg = d40c->base->virtbase + D40_DREG_ACTIVE;
 	else
 		active_reg = d40c->base->virtbase + D40_DREG_ACTIVO;
-
 
 	spin_lock_irqsave(&d40c->phy_chan->lock, flags);
 
@@ -1955,7 +1953,6 @@ _exit:
 
 }
 
-
 static u32 stedma40_residue(struct dma_chan *chan)
 {
 	struct d40_chan *d40c =
@@ -2031,7 +2028,6 @@ d40_prep_sg_phy(struct d40_chan *chan, struct d40_desc *desc,
 	return ret < 0 ? ret : 0;
 }
 
-
 static struct d40_desc *
 d40_prep_desc(struct d40_chan *chan, struct scatterlist *sg,
 	      unsigned int sg_len, unsigned long dma_flags)
@@ -2056,7 +2052,6 @@ d40_prep_desc(struct d40_chan *chan, struct scatterlist *sg,
 		chan_err(chan, "Could not allocate lli\n");
 		goto err;
 	}
-
 
 	desc->lli_current = 0;
 	desc->txd.flags = dma_flags;
@@ -2105,7 +2100,6 @@ d40_prep_sg(struct dma_chan *dchan, struct scatterlist *sg_src,
 		chan_err(chan, "Cannot prepare unallocated channel\n");
 		return NULL;
 	}
-
 
 	spin_lock_irqsave(&chan->lock, flags);
 
@@ -2261,7 +2255,6 @@ static int d40_alloc_chan_resources(struct dma_chan *chan)
 		 d40c->phy_chan->num,
 		 d40c->dma_cfg.use_fixed_channel ? ", fixed" : "");
 
-
 	/*
 	 * Only write channel configuration to the DMA if the physical
 	 * resource is free. In case of multiple logical channels
@@ -2287,7 +2280,6 @@ static void d40_free_chan_resources(struct dma_chan *chan)
 		chan_err(d40c, "Cannot free unallocated channel\n");
 		return;
 	}
-
 
 	spin_lock_irqsave(&d40c->lock, flags);
 
@@ -2857,7 +2849,6 @@ static int __init d40_phy_res_init(struct d40_base *base)
 						       D40_DREG_GCC_SRC);
 			gcc |= D40_DREG_GCC_EVTGRP_ENA(D40_PHYS_TO_GROUP(i),
 						       D40_DREG_GCC_DST);
-
 
 		} else {
 			base->phy_res[i].allocated_src = D40_ALLOC_FREE;

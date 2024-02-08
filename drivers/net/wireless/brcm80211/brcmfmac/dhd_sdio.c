@@ -114,7 +114,6 @@ struct rte_console {
 
 #define BRCMF_FIRSTREAD	(1 << 6)
 
-
 /* SBSDIO_DEVICE_CTL */
 
 /* 1: device will assert busy signal when receiving CMD53 */
@@ -451,7 +450,6 @@ struct sdpcm_shared_le {
 	__le32 msgtrace_addr;
 	u8 tag[32];
 };
-
 
 /* misc chip info needed by some of the routines */
 /* Private data for SDIO bus interaction */
@@ -1846,7 +1844,6 @@ brcmf_sdbrcm_readframes(struct brcmf_sdio *bus, uint maxframes, bool *finished)
 		}
 		brcmf_dbg_hex_dump(BRCMF_BYTES_ON() || BRCMF_HDRS_ON(),
 				   bus->rxhdr, SDPCM_HDRLEN, "RxHdr:\n");
-
 
 		/* Extract hardware header fields */
 		len = get_unaligned_le16(bus->rxhdr);

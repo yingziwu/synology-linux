@@ -89,7 +89,6 @@ do { \
   } \
 }
 
-
 struct dlm_direntry {
 	struct list_head	list;
 	uint32_t		master_nodeid;
@@ -107,7 +106,6 @@ struct dlm_rsbtable {
 	struct rb_root		toss;
 	spinlock_t		lock;
 };
-
 
 /*
  * Lockspace member (per node in a ls)
@@ -147,7 +145,6 @@ struct dlm_args {
 	struct dlm_lksb		*lksb;
 	unsigned long		timeout;
 };
-
 
 /*
  * Lock block
@@ -273,7 +270,6 @@ struct dlm_lkb {
 	};
 };
 
-
 struct dlm_rsb {
 	struct dlm_ls		*res_ls;	/* the lockspace */
 	struct kref		res_ref;
@@ -335,7 +331,6 @@ static inline int rsb_flag(struct dlm_rsb *r, enum rsb_flags flag)
 	return test_bit(flag, &r->res_flags);
 }
 
-
 /* dlm_header is first element of all structs sent between nodes */
 
 #define DLM_HEADER_MAJOR	0x00030000
@@ -354,7 +349,6 @@ struct dlm_header {
 	uint8_t			h_cmd;		/* DLM_MSG, DLM_RCOM */
 	uint8_t			h_pad;
 };
-
 
 #define DLM_MSG_REQUEST		1
 #define DLM_MSG_CONVERT		2
@@ -393,7 +387,6 @@ struct dlm_message {
 	int			m_result;	/* 0 or -EXXX */
 	char			m_extra[0];	/* name or lvb */
 };
-
 
 #define DLM_RS_NODES		0x00000001
 #define DLM_RS_NODES_ALL	0x00000002
@@ -658,4 +651,3 @@ static inline void dlm_delete_debug_file(struct dlm_ls *ls) { }
 #endif
 
 #endif				/* __DLM_INTERNAL_DOT_H__ */
-

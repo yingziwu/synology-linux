@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-
 /*
  * History:
  * 2008-01-12	Tobias Lorenz <tobias.lorenz@gmx.net>
@@ -109,11 +108,8 @@
  *                Improves RDS reception significantly
  */
 
-
 /* kernel includes */
 #include "radio-si470x.h"
-
-
 
 /**************************************************************************
  * Module Parameters
@@ -151,8 +147,6 @@ MODULE_PARM_DESC(tune_timeout, "Tune timeout: *3000*");
 static unsigned int seek_timeout = 5000;
 module_param(seek_timeout, uint, 0644);
 MODULE_PARM_DESC(seek_timeout, "Seek timeout: *5000*");
-
-
 
 /**************************************************************************
  * Generic Functions
@@ -210,7 +204,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_get_freq - get the frequency
  */
@@ -256,7 +249,6 @@ static int si470x_get_freq(struct si470x_device *radio, unsigned int *freq)
 	return retval;
 }
 
-
 /*
  * si470x_set_freq - set the frequency
  */
@@ -296,7 +288,6 @@ int si470x_set_freq(struct si470x_device *radio, unsigned int freq)
 
 	return si470x_set_chan(radio, chan);
 }
-
 
 /*
  * si470x_set_seek - set seek
@@ -365,7 +356,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_start - switch on radio
  */
@@ -405,7 +395,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_stop - switch off radio
  */
@@ -429,7 +418,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_rds_on - switch on rds reception
  */
@@ -445,8 +433,6 @@ static int si470x_rds_on(struct si470x_device *radio)
 
 	return retval;
 }
-
-
 
 /**************************************************************************
  * File Operations Interface
@@ -509,7 +495,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_fops_poll - poll RDS data
  */
@@ -534,7 +519,6 @@ static unsigned int si470x_fops_poll(struct file *file,
 	return retval;
 }
 
-
 /*
  * si470x_fops - file operations interface
  */
@@ -546,8 +530,6 @@ static const struct v4l2_file_operations si470x_fops = {
 	.open			= si470x_fops_open,
 	.release		= si470x_fops_release,
 };
-
-
 
 /**************************************************************************
  * Video4Linux Interface
@@ -588,7 +570,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_vidioc_g_ctrl - get the value of a control
  */
@@ -625,7 +606,6 @@ done:
 	mutex_unlock(&radio->lock);
 	return retval;
 }
-
 
 /*
  * si470x_vidioc_s_ctrl - set the value of a control
@@ -667,7 +647,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_vidioc_g_audio - get audio attributes
  */
@@ -682,7 +661,6 @@ static int si470x_vidioc_g_audio(struct file *file, void *priv,
 
 	return 0;
 }
-
 
 /*
  * si470x_vidioc_g_tuner - get tuner attributes
@@ -767,7 +745,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_vidioc_s_tuner - set tuner attributes
  */
@@ -808,7 +785,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_vidioc_g_frequency - get tuner or modulator radio frequency
  */
@@ -840,7 +816,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_vidioc_s_frequency - set tuner or modulator radio frequency
  */
@@ -870,7 +845,6 @@ done:
 	mutex_unlock(&radio->lock);
 	return retval;
 }
-
 
 /*
  * si470x_vidioc_s_hw_freq_seek - set hardware frequency seek
@@ -902,7 +876,6 @@ done:
 	return retval;
 }
 
-
 /*
  * si470x_ioctl_ops - video device ioctl operations
  */
@@ -918,7 +891,6 @@ static const struct v4l2_ioctl_ops si470x_ioctl_ops = {
 	.vidioc_s_frequency	= si470x_vidioc_s_frequency,
 	.vidioc_s_hw_freq_seek	= si470x_vidioc_s_hw_freq_seek,
 };
-
 
 /*
  * si470x_viddev_template - video device interface

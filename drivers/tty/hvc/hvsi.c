@@ -1063,7 +1063,6 @@ static int hvsi_tiocmset(struct tty_struct *tty,
 	return 0;
 }
 
-
 static const struct tty_operations hvsi_ops = {
 	.open = hvsi_open,
 	.close = hvsi_close,

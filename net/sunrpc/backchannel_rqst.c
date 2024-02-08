@@ -278,4 +278,3 @@ void xprt_free_bc_request(struct rpc_rqst *req)
 	list_add(&req->rq_bc_pa_list, &xprt->bc_pa_list);
 	spin_unlock_bh(&xprt->bc_pa_lock);
 }
-

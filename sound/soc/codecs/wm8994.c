@@ -1147,7 +1147,6 @@ static int aif2clk_ev(struct snd_soc_dapm_widget *w,
 		else
 			adc = WM8994_AIF2ADCL_ENA | WM8994_AIF2ADCR_ENA;
 
-
 		val = snd_soc_read(codec, WM8994_AIF2_CONTROL_2);
 		if ((val & WM8994_AIF2DACL_SRC) &&
 		    (val & WM8994_AIF2DACR_SRC))
@@ -3463,7 +3462,6 @@ static void wm8958_default_micdet(u16 status, void *data)
 				    SND_JACK_HEADSET);
 	}
 
-
 	if (wm8994->mic_detecting && status & 0xfc) {
 		dev_dbg(codec->dev, "Detected headphone\n");
 		wm8994->mic_detecting = false;
@@ -4103,7 +4101,6 @@ static int wm8994_codec_probe(struct snd_soc_codec *codec)
 		break;
 	}
 		
-
 	wm_hubs_add_analogue_routes(codec, 0, 0);
 	snd_soc_dapm_add_routes(dapm, intercon, ARRAY_SIZE(intercon));
 

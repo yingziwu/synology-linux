@@ -25,7 +25,6 @@
  *					if no match found.
  */
 
-
 #include <asm/uaccess.h>
 #include <linux/bitops.h>
 #include <linux/capability.h>
@@ -58,6 +57,7 @@
 
 #include <net/arp.h>
 #include <net/ip.h>
+#include <net/tcp.h>
 #include <net/route.h>
 #include <net/ip_fib.h>
 #include <net/rtnetlink.h>
@@ -680,7 +680,6 @@ static inline int inet_abc_len(__be32 addr)
 	return rc;
 }
 
-
 int devinet_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 {
 	struct ifreq ifr;
@@ -734,6 +733,7 @@ int devinet_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 	case SIOCSIFBRDADDR:	/* Set the broadcast address */
 	case SIOCSIFDSTADDR:	/* Set the destination address */
 	case SIOCSIFNETMASK: 	/* Set the netmask for the interface */
+	case SIOCKILLADDR:	/* Nuke all sockets on this address */
 		ret = -EACCES;
 		if (!capable(CAP_NET_ADMIN))
 			goto out;
@@ -785,7 +785,8 @@ int devinet_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 	}
 
 	ret = -EADDRNOTAVAIL;
-	if (!ifa && cmd != SIOCSIFADDR && cmd != SIOCSIFFLAGS)
+	if (!ifa && cmd != SIOCSIFADDR && cmd != SIOCSIFFLAGS
+	    && cmd != SIOCKILLADDR)
 		goto done;
 
 	switch (cmd) {
@@ -910,6 +911,9 @@ int devinet_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 			}
 			inet_insert_ifa(ifa);
 		}
+		break;
+	case SIOCKILLADDR:	/* Nuke all connections on this address */
+		ret = tcp_nuke_addr(net, (struct sockaddr *) sin);
 		break;
 	}
 done:
@@ -1842,4 +1846,3 @@ void __init devinet_init(void)
 	rtnl_register(PF_INET, RTM_DELADDR, inet_rtm_deladdr, NULL, NULL);
 	rtnl_register(PF_INET, RTM_GETADDR, NULL, inet_dump_ifaddr, NULL);
 }
-

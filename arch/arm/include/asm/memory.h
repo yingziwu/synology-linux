@@ -227,6 +227,11 @@ static inline void *phys_to_virt(phys_addr_t x)
  */
 #define __pa(x)			__virt_to_phys((unsigned long)(x))
 #define __va(x)			((void *)__phys_to_virt((unsigned long)(x)))
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+#define __pa_symbol(x)      __pa(RELOC_HIDE((unsigned long)(x), 0))
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 #define pfn_to_kaddr(pfn)	__va((pfn) << PAGE_SHIFT)
 
 /*

@@ -124,7 +124,6 @@ struct omap_uart_config {
 	unsigned int enabled_uarts;
 };
 
-
 struct omap_flash_part_config {
 	char part_table[0];
 };
@@ -160,7 +159,6 @@ extern const void *__init omap_get_var_config(u16 tag, size_t *len);
 
 extern struct omap_board_config_kernel *omap_board_config;
 extern int omap_board_config_size;
-
 
 /* for TI reference platforms sharing the same debug card */
 extern int debug_card_init(u32 addr, unsigned gpio);

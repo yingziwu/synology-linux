@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_BLKDEV_H
 #define _LINUX_BLKDEV_H
 
@@ -255,6 +258,7 @@ struct queue_limits {
 	unsigned int		io_min;
 	unsigned int		io_opt;
 	unsigned int		max_discard_sectors;
+	unsigned int		max_write_same_sectors;
 	unsigned int		discard_granularity;
 	unsigned int		discard_alignment;
 
@@ -566,7 +570,6 @@ static inline void blk_clear_queue_full(struct request_queue *q, int sync)
 		queue_flag_clear(QUEUE_FLAG_ASYNCFULL, q);
 }
 
-
 /*
  * mergeable request must not have _NOMERGE or _BARRIER bit set, nor may
  * it already be started by driver.
@@ -829,6 +832,8 @@ extern void blk_queue_max_segments(struct request_queue *, unsigned short);
 extern void blk_queue_max_segment_size(struct request_queue *, unsigned int);
 extern void blk_queue_max_discard_sectors(struct request_queue *q,
 		unsigned int max_discard_sectors);
+extern void blk_queue_max_write_same_sectors(struct request_queue *q,
+		unsigned int max_write_same_sectors);
 extern void blk_queue_logical_block_size(struct request_queue *, unsigned short);
 extern void blk_queue_physical_block_size(struct request_queue *, unsigned int);
 extern void blk_queue_alignment_offset(struct request_queue *q,
@@ -902,6 +907,9 @@ struct blk_plug_cb {
 extern void blk_start_plug(struct blk_plug *);
 extern void blk_finish_plug(struct blk_plug *);
 extern void blk_flush_plug_list(struct blk_plug *, bool);
+#ifdef  MY_ABC_HERE
+extern void syno_flashcache_return_error(struct bio *bio);
+#endif
 
 static inline void blk_flush_plug(struct task_struct *tsk)
 {
@@ -1409,7 +1417,6 @@ static inline void blk_flush_plug(struct task_struct *task)
 static inline void blk_schedule_flush_plug(struct task_struct *task)
 {
 }
-
 
 static inline bool blk_needs_flush_plug(struct task_struct *tsk)
 {

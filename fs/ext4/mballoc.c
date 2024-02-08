@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (c) 2003-2006, Cluster File Systems, Inc, info@clusterfs.com
  * Written by Alex Tomas <alex@clusterfs.com>
@@ -15,7 +18,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-
  */
-
 
 /*
  * mballoc.c contains the multiblocks allocation routines
@@ -1197,7 +1199,6 @@ static void ext4_mb_unload_buddy(struct ext4_buddy *e4b)
 		page_cache_release(e4b->bd_buddy_page);
 }
 
-
 static int mb_find_order_for_block(struct ext4_buddy *e4b, int block)
 {
 	int order = 1;
@@ -1972,6 +1973,11 @@ ext4_mb_regular_allocator(struct ext4_allocation_context *ac)
 	 */
 repeat:
 	for (; cr < 4 && ac->ac_status == AC_STATUS_CONTINUE; cr++) {
+#ifdef MY_ABC_HERE
+#define SYNO_MBALLOC_RANDOM_THRES 1024
+		ext4_group_t random_interval;
+		random_interval = ngroups / (SYNO_MBALLOC_RANDOM_THRES/2);
+#endif /* MY_ABC_HERE */
 		ac->ac_criteria = cr;
 		/*
 		 * searching for the right group start
@@ -1980,8 +1986,28 @@ repeat:
 		group = ac->ac_g_ex.fe_group;
 
 		for (i = 0; i < ngroups; group++, i++) {
+#ifdef MY_ABC_HERE
+			if (0 == cr) { // only do it on cr==0 for safety
+				if (i >= SYNO_MBALLOC_RANDOM_THRES && 
+						ngroups > 2 * SYNO_MBALLOC_RANDOM_THRES) {
+					ext4_group_t step;
+					step = get_random_int() % random_interval;
+					if (2 > step) {
+						step = 0;
+					} else {
+						step -= 2;
+					}
+					group += step;
+					i += step;
+				}
+			}
+			if (group >= ngroups) {
+				group -= ngroups;
+			}
+#else /* !MY_ABC_HERE */
 			if (group == ngroups)
 				group = 0;
+#endif /* MY_ABC_HERE */
 
 			/* This now checks without needing the buddy page */
 			if (!ext4_mb_good_group(ac, group, cr))
@@ -2608,7 +2634,6 @@ static void ext4_free_data_callback(struct super_block *sb,
 	/* we expect to find existing buddy because it's pinned */
 	BUG_ON(err != 0);
 
-
 	db = e4b.bd_info;
 	/* there are blocks to put in buddy to make them really free */
 	count += entry->efd_count;
@@ -2713,7 +2738,6 @@ void ext4_exit_mballoc(void)
 	ext4_groupinfo_destroy_slabs();
 	ext4_remove_debugfs_entry();
 }
-
 
 /*
  * Check quota and mark chosen space (ac->ac_b_ex) non-free in bitmaps
@@ -4758,6 +4782,9 @@ int ext4_group_add_blocks(handle_t *handle, struct super_block *sb,
 	    in_range(block, ext4_inode_table(sb, desc), sbi->s_itb_per_group) ||
 	    in_range(block + count - 1, ext4_inode_table(sb, desc),
 		     sbi->s_itb_per_group)) {
+#ifdef MY_ABC_HERE
+		if (printk_ratelimit())
+#endif
 		ext4_error(sb, "Adding blocks in system zones - "
 			   "Block = %llu, count = %lu",
 			   block, count);

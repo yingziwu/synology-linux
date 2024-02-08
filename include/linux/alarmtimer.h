@@ -18,7 +18,6 @@ enum alarmtimer_restart {
 	ALARMTIMER_RESTART,
 };
 
-
 #define ALARMTIMER_STATE_INACTIVE	0x00
 #define ALARMTIMER_STATE_ENQUEUED	0x01
 #define ALARMTIMER_STATE_CALLBACK	0x02
@@ -75,5 +74,7 @@ static inline int alarmtimer_callback_running(struct alarm *timer)
 	return timer->state & ALARMTIMER_STATE_CALLBACK;
 }
 
+/* Provide way to access the rtc device being used by alarmtimers */
+struct rtc_device *alarmtimer_get_rtcdev(void);
 
 #endif

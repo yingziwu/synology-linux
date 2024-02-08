@@ -64,7 +64,6 @@ static struct usb_driver omninet_driver = {
 	.id_table =	id_table,
 };
 
-
 static struct usb_serial_driver zyxel_omninet_device = {
 	.driver = {
 		.owner =	THIS_MODULE,
@@ -87,7 +86,6 @@ static struct usb_serial_driver zyxel_omninet_device = {
 static struct usb_serial_driver * const serial_drivers[] = {
 	&zyxel_omninet_device, NULL
 };
-
 
 /* The protocol.
  *
@@ -163,7 +161,6 @@ static void omninet_close(struct usb_serial_port *port)
 	dbg("%s - port %d", __func__, port->number);
 	usb_kill_urb(port->read_urb);
 }
-
 
 #define OMNINET_DATAOFFSET	0x04
 #define OMNINET_HEADERLEN	sizeof(struct omninet_header)
@@ -265,7 +262,6 @@ static int omninet_write(struct tty_struct *tty, struct usb_serial_port *port,
 	return result;
 }
 
-
 static int omninet_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -301,7 +297,6 @@ static void omninet_write_bulk_callback(struct urb *urb)
 	usb_serial_port_softint(port);
 }
 
-
 static void omninet_disconnect(struct usb_serial *serial)
 {
 	struct usb_serial_port *wport = serial->port[1];
@@ -310,7 +305,6 @@ static void omninet_disconnect(struct usb_serial *serial)
 
 	usb_kill_urb(wport->write_urb);
 }
-
 
 static void omninet_release(struct usb_serial *serial)
 {

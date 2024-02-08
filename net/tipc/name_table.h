@@ -48,7 +48,6 @@ struct tipc_port_list;
 
 #define TIPC_ZM_SRV 3		/* zone master service name type */
 
-
 /**
  * struct publication - info about a published (name or) name sequence
  * @type: name sequence type
@@ -83,7 +82,6 @@ struct publication {
 	struct list_head cluster_list;
 	struct list_head zone_list;
 };
-
 
 extern rwlock_t tipc_nametbl_lock;
 

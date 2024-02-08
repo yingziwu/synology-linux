@@ -140,7 +140,6 @@ struct CYZ_BOOT_CTRL {
         unsigned long   data[CYZ_BOOT_NWORDS];
 };
 
-
 #ifndef DP_WINDOW_SIZE
 /*
  *	Memory Window Sizes
@@ -412,7 +411,6 @@ struct CH_CTRL {
 	__u32 filler[7];
 };
 
-
 /*
  *	BUF_CTRL - This per channel structure contains
  *	all Tx and Rx buffer control for a given channel.
@@ -584,7 +582,6 @@ struct cyclades_port {
 #define	CLOSING_WAIT_DELAY	30*HZ
 #define CY_CLOSING_WAIT_NONE	ASYNC_CLOSING_WAIT_NONE
 #define CY_CLOSING_WAIT_INF	ASYNC_CLOSING_WAIT_INF
-
 
 #define CyMAX_CHIPS_PER_CARD	8
 #define CyMAX_CHAR_FIFO		12

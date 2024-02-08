@@ -389,7 +389,6 @@ static int usbfs_rmdir(struct inode *dir, struct dentry *dentry)
 	return error;
 }
 
-
 /* default file operations */
 static ssize_t default_read_file (struct file *file, char __user *buf,
 				  size_t count, loff_t *ppos)
@@ -745,4 +744,3 @@ void usbfs_cleanup(void)
 	if (usbdir)
 		remove_proc_entry("bus/usb", NULL);
 }
-

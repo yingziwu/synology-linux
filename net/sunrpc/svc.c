@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * linux/net/sunrpc/svc.c
  *
@@ -28,6 +31,10 @@
 #include <linux/sunrpc/svcsock.h>
 #include <linux/sunrpc/clnt.h>
 #include <linux/sunrpc/bc_xprt.h>
+
+#ifdef MY_ABC_HERE
+#include <linux/nfs.h>
+#endif
 
 #define RPCDBG_FACILITY	RPCDBG_SVCDSP
 
@@ -200,7 +207,6 @@ svc_pool_map_init_percpu(struct svc_pool_map *m)
 	return pidx;
 };
 
-
 /*
  * Initialise the pool map for SVC_POOL_PERNODE mode.
  * Returns number of pools or <0 on error.
@@ -228,7 +234,6 @@ svc_pool_map_init_pernode(struct svc_pool_map *m)
 
 	return pidx;
 }
-
 
 /*
  * Add a reference to the global map of cpus to pools (and
@@ -271,7 +276,6 @@ svc_pool_map_get(void)
 	return m->npools;
 }
 
-
 /*
  * Drop a reference to the global map of cpus to pools.
  * When the last reference is dropped, the map data is
@@ -296,7 +300,6 @@ svc_pool_map_put(void)
 
 	mutex_unlock(&svc_pool_map_mutex);
 }
-
 
 static int svc_pool_map_get_node(unsigned int pidx)
 {
@@ -965,6 +968,12 @@ int svc_register(const struct svc_serv *serv, struct net *net,
 			if (progp->pg_vers[i]->vs_hidden)
 				continue;
 
+#ifdef MY_ABC_HERE
+			if (NFS_PROGRAM == progp->pg_prog && 4 == i && IPPROTO_UDP == proto) {
+				continue;
+			}
+#endif
+
 			error = __svc_register(net, progp->pg_name, progp->pg_prog,
 						i, family, proto, port);
 			if (error < 0)
@@ -1037,6 +1046,9 @@ static void svc_unregister(const struct svc_serv *serv, struct net *net)
 /*
  * Printk the given error with the address of the client that caused it.
  */
+#ifdef MY_ABC_HERE
+static __printf(2,3) int svc_printk(struct svc_rqst *rqstp, const char *fmt, ...) {}
+#else
 static __printf(2, 3)
 int svc_printk(struct svc_rqst *rqstp, const char *fmt, ...)
 {
@@ -1056,6 +1068,7 @@ int svc_printk(struct svc_rqst *rqstp, const char *fmt, ...)
 
 	return r;
 }
+#endif
 
 /*
  * Common routine for processing the RPC request.

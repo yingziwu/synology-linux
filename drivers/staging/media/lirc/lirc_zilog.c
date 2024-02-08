@@ -166,7 +166,6 @@ static int minor = -1;	/* minor number */
 				 ## args);				\
 	} while (0)
 
-
 /* struct IR reference counting */
 static struct IR *get_ir_device(struct IR *ir, bool ir_devices_lock_held)
 {
@@ -1409,7 +1408,6 @@ static int ir_remove(struct i2c_client *client)
 	}
 	return 0;
 }
-
 
 /* ir_devices_lock must be held */
 static struct IR *get_ir_device_by_adapter(struct i2c_adapter *adapter)

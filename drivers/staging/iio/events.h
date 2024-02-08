@@ -59,7 +59,6 @@ enum iio_event_direction {
 	 ((u64)chan_type << 32) | (((u16)chan2) << 16) | ((u16)chan1) | \
 	 ((u16)chan))
 
-
 #define IIO_EV_DIR_MAX 4
 #define IIO_EV_BIT(type, direction)			\
 	(1 << (type*IIO_EV_DIR_MAX + direction))

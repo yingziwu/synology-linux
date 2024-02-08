@@ -47,7 +47,6 @@
 #include <linux/module.h>
 #include <net/netfilter/ipv6/nf_defrag_ipv6.h>
 
-
 struct nf_ct_frag6_skb_cb
 {
 	struct inet6_skb_parm	h;
@@ -184,7 +183,6 @@ fq_find(__be32 id, u32 user, struct in6_addr *src, struct in6_addr *dst)
 oom:
 	return NULL;
 }
-
 
 static int nf_ct_frag6_queue(struct nf_ct_frag6_queue *fq, struct sk_buff *skb,
 			     const struct frag_hdr *fhdr, int nhoff)

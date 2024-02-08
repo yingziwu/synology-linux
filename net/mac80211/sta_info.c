@@ -560,7 +560,6 @@ static bool sta_info_buffer_expired(struct sta_info *sta, struct sk_buff *skb)
 	return time_after(jiffies, info->control.jiffies + timeout);
 }
 
-
 static bool sta_info_cleanup_expire_buffered_ac(struct ieee80211_local *local,
 						struct sta_info *sta, int ac)
 {

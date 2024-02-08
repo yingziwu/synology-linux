@@ -446,7 +446,6 @@ static void NCR5380_print(struct Scsi_Host *instance)
 	printk("\n");
 }
 
-
 /* 
  *	NCR5380_print_phase	-	show SCSI phase
  *	@instance: adapter to dump
@@ -543,7 +542,6 @@ static void NCR5380_set_timer(struct NCR5380_hostdata *hostdata, unsigned long t
 	hostdata->time_expires = jiffies + timeout;
 	schedule_delayed_work(&hostdata->coroutine, timeout);
 }
-
 
 static int probe_irq __initdata = 0;
 
@@ -796,7 +794,6 @@ static char *lprint_opcode(int opcode, char *pos, char *buffer, int length)
 	SPRINTF("%2d (0x%02x)", opcode, opcode);
 	return (pos);
 }
-
 
 /**
  *	NCR5380_init	-	initialise an NCR5380
@@ -1259,7 +1256,6 @@ static void collect_stats(struct NCR5380_hostdata *hostdata, Scsi_Cmnd * cmd)
 #endif
 }
 
-
 /* 
  * Function : int NCR5380_select (struct Scsi_Host *instance, Scsi_Cmnd *cmd, 
  *      int tag);
@@ -1326,7 +1322,6 @@ static int NCR5380_select(struct Scsi_Host *instance, Scsi_Cmnd * cmd, int tag)
 
 	NCR5380_write(OUTPUT_DATA_REG, hostdata->id_mask);
 	NCR5380_write(MODE_REG, MR_ARBITRATE);
-
 
 	/* We can be relaxed here, interrupts are on, we are
 	   in workqueue context, the birds are singing in the trees */
@@ -1743,7 +1738,6 @@ static int do_abort(struct Scsi_Host *host) {
 	int rc;
 	NCR5380_setup(host);
 
-
 	/* Request message out phase */
 	NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE | ICR_ASSERT_ATN);
 
@@ -1807,7 +1801,6 @@ static int do_abort(struct Scsi_Host *host) {
  *
  *	Locks: io_request lock held by caller
  */
-
 
 static int NCR5380_transfer_dma(struct Scsi_Host *instance, unsigned char *phase, int *count, unsigned char **data) {
 	NCR5380_local_declare();
@@ -2576,7 +2569,6 @@ static void NCR5380_reselect(struct Scsi_Host *instance) {
 		 * just reestablished, and remove it from the disconnected queue.
 		 */
 
-
 		for (tmp = (Scsi_Cmnd *) hostdata->disconnected_queue, prev = NULL; tmp; prev = tmp, tmp = (Scsi_Cmnd *) tmp->host_scribble)
 			if ((target_mask == (1 << tmp->device->id)) && (lun == tmp->device->lun)
 			    ) {
@@ -2818,7 +2810,6 @@ static int NCR5380_abort(Scsi_Cmnd * cmd) {
 			"         before abortion\n", instance->host_no);
 	return FAILED;
 }
-
 
 /* 
  * Function : int NCR5380_bus_reset (Scsi_Cmnd *cmd)

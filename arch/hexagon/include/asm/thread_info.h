@@ -40,7 +40,6 @@ extern struct thread_info *alloc_thread_info_node(struct task_struct *tsk, int n
 extern void free_thread_info(struct thread_info *ti);
 #endif
 
-
 #ifndef __ASSEMBLY__
 
 typedef struct {

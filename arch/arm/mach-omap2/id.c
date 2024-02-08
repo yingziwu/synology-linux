@@ -63,7 +63,6 @@ out:
 }
 EXPORT_SYMBOL(omap_type);
 
-
 /*----------------------------------------------------------------------------*/
 
 #define OMAP_TAP_IDCODE		0x0204
@@ -261,7 +260,6 @@ void __init omap4xxx_check_features(void)
 
 	if (cpu_is_omap443x())
 		omap_features |= OMAP4_HAS_MPU_1GHZ;
-
 
 	if (cpu_is_omap446x()) {
 		si_type =

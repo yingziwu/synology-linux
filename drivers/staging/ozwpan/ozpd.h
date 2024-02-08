@@ -118,4 +118,3 @@ void oz_apps_init(void);
 void oz_apps_term(void);
 
 #endif /* Sentry */
-

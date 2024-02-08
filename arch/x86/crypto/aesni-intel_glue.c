@@ -1254,7 +1254,6 @@ static struct crypto_alg __rfc4106_alg = {
 };
 #endif
 
-
 static const struct x86_cpu_id aesni_cpu_id[] = {
 	X86_FEATURE_MATCH(X86_FEATURE_AES),
 	{}

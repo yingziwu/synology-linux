@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /**
  * eCryptfs: Linux filesystem encryption layer
  * Kernel declarations.
@@ -190,6 +193,15 @@ struct ecryptfs_filename {
 	char dentry_name[ECRYPTFS_ENCRYPTED_DENTRY_NAME_LEN + 1];
 };
 
+#ifdef MY_ABC_HERE
+struct ecryptfs_request {
+	struct ablkcipher_request *req;
+	struct completion complete;
+	struct ecryptfs_crypt_stat *crypt_stat;
+	int error;
+};
+#endif
+
 /**
  * This is the primary struct associated with each encrypted file.
  *
@@ -220,7 +232,11 @@ struct ecryptfs_crypt_stat {
 	size_t extent_shift;
 	unsigned int extent_mask;
 	struct ecryptfs_mount_crypt_stat *mount_crypt_stat;
+#ifdef MY_ABC_HERE
+	struct crypto_ablkcipher *tfm;
+#else /* MY_ABC_HERE */
 	struct crypto_blkcipher *tfm;
+#endif /* MY_ABC_HERE */
 	struct crypto_hash *hash_tfm; /* Crypto context for generating
 				       * the initialization vectors */
 	unsigned char cipher[ECRYPTFS_MAX_CIPHER_NAME_SIZE];
@@ -318,6 +334,9 @@ struct ecryptfs_mount_crypt_stat {
 #define ECRYPTFS_GLOBAL_ENCFN_USE_MOUNT_FNEK   0x00000020
 #define ECRYPTFS_GLOBAL_ENCFN_USE_FEK          0x00000040
 #define ECRYPTFS_GLOBAL_MOUNT_AUTH_TOK_ONLY    0x00000080
+#ifdef MY_ABC_HERE
+#define ECRYPTFS_SYNO_ERROR_REPORT             0x10000000
+#endif
 	u32 flags;
 	struct list_head global_auth_tok_list;
 	struct mutex global_auth_tok_list_mutex;

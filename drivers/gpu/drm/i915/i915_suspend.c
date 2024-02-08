@@ -430,7 +430,6 @@ static void i915_restore_modeset_reg(struct drm_device *dev)
 		break;
 	}
 
-
 	if (HAS_PCH_SPLIT(dev)) {
 		dpll_a_reg = _PCH_DPLL_A;
 		dpll_b_reg = _PCH_DPLL_B;

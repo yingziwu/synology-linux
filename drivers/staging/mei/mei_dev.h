@@ -37,7 +37,6 @@
  */
 extern struct pci_dev *mei_device;
 
-
 /*
  * AMTHI Client UUID
  */
@@ -129,7 +128,6 @@ struct mei_message_data {
 	u32 size;
 	unsigned char *data;
 } __packed;
-
 
 struct mei_cl_cb {
 	struct list_head cb_list;
@@ -244,8 +242,6 @@ struct mei_device {
 	u16 wd_due_counter;
 	unsigned char wd_data[MEI_START_WD_DATA_SIZE];
 
-
-
 	struct file *iamthif_file_object;
 	struct mei_cl iamthif_cl;
 	struct mei_cl_cb *iamthif_current_cb;
@@ -263,7 +259,6 @@ struct mei_device {
 	bool wd_interface_reg;
 };
 
-
 /*
  * mei init function prototypes
  */
@@ -276,7 +271,6 @@ int mei_disconnect_host_client(struct mei_device *dev, struct mei_cl *cl);
 void mei_remove_client_from_file_list(struct mei_device *dev, u8 host_client_id);
 void mei_host_init_iamthif(struct mei_device *dev);
 void mei_allocate_me_clients_storage(struct mei_device *dev);
-
 
 u8 mei_find_me_client_update_filext(struct mei_device *dev,
 				struct mei_cl *priv,
@@ -310,8 +304,6 @@ static inline bool mei_cl_cmp_id(const struct mei_cl *cl1,
 		(cl1->host_client_id == cl2->host_client_id) &&
 		(cl1->me_client_id == cl2->me_client_id);
 }
-
-
 
 /*
  * MEI Host Client Functions
@@ -414,7 +406,6 @@ static inline u32 mei_mecbrw_read(struct mei_device *dev)
 {
 	return mei_reg_read(dev, ME_CB_RW);
 }
-
 
 /*
  * mei interface function prototypes

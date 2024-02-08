@@ -133,7 +133,6 @@ static const struct super_operations isofs_sops = {
 	.show_options	= generic_show_options,
 };
 
-
 static const struct dentry_operations isofs_dentry_ops[] = {
 	{
 		.d_hash		= isofs_hash,
@@ -1038,7 +1037,6 @@ int isofs_get_blocks(struct inode *inode, sector_t iblock,
 		printk(KERN_DEBUG "%s: block number too large\n", __func__);
 		goto abort;
 	}
-
 
 	offset = 0;
 	firstext = ei->i_first_extent;

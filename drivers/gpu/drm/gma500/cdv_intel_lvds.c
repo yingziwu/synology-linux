@@ -123,7 +123,6 @@ static int cdv_lvds_i2c_set_brightness(struct drm_device *dev,
 	return -1;
 }
 
-
 static int cdv_lvds_pwm_set_brightness(struct drm_device *dev, int level)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;
@@ -546,7 +545,6 @@ static const struct drm_connector_funcs cdv_intel_lvds_connector_funcs = {
 	.destroy = cdv_intel_lvds_destroy,
 };
 
-
 static void cdv_intel_lvds_enc_destroy(struct drm_encoder *encoder)
 {
 	drm_encoder_cleanup(encoder);
@@ -596,7 +594,6 @@ void cdv_intel_lvds_init(struct drm_device *dev,
 	connector = &psb_intel_connector->base;
 	encoder = &psb_intel_encoder->base;
 
-
 	drm_connector_init(dev, connector,
 			   &cdv_intel_lvds_connector_funcs,
 			   DRM_MODE_CONNECTOR_LVDS);
@@ -604,7 +601,6 @@ void cdv_intel_lvds_init(struct drm_device *dev,
 	drm_encoder_init(dev, encoder,
 			 &cdv_intel_lvds_enc_funcs,
 			 DRM_MODE_ENCODER_LVDS);
-
 
 	psb_intel_connector_attach_encoder(psb_intel_connector,
 					   psb_intel_encoder);

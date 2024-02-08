@@ -2428,7 +2428,6 @@ out_err1:
 	return ret;
 }
 
-
 /**
  * drm_fb_release - remove and free the FBs on this file
  * @filp: file * from the ioctl
@@ -2596,7 +2595,6 @@ out:
 	mutex_unlock(&dev->mode_config.mutex);
 	return ret;
 }
-
 
 /**
  * drm_fb_detachmode - Detach a user specified mode from an connector

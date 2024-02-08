@@ -516,6 +516,13 @@ config SENSORS_LINEAGE
 	  This driver can also be built as a module.  If so, the module
 	  will be called lineage-pem.
 
+config SENSORS_SYNO_HDDMON
+        tristate "Synology Hard Disk Monitor"
+        help
+          If you say yes here you get support for the Synology
+          Hdd Monitor to monitor the hdds' presentation and to
+          enable/disable the power supply of each hdd.
+
 config SENSORS_LM63
 	tristate "National Semiconductor LM63 and compatibles"
 	depends on I2C

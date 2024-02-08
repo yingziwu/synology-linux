@@ -667,7 +667,6 @@ xirc2ps_config_check(struct pcmcia_device *p_dev, void *priv_data)
 	return pcmcia_request_io(p_dev);
 }
 
-
 static int pcmcia_get_mac_ce(struct pcmcia_device *p_dev,
 			     tuple_t *tuple,
 			     void *priv)
@@ -685,7 +684,6 @@ static int pcmcia_get_mac_ce(struct pcmcia_device *p_dev,
 		dev->dev_addr[i] = tuple->TupleData[i+2];
 	return 0;
 };
-
 
 static int
 xirc2ps_config(struct pcmcia_device * link)
@@ -941,7 +939,6 @@ xirc2ps_release(struct pcmcia_device *link)
 
 /*====================================================================*/
 
-
 static int xirc2ps_suspend(struct pcmcia_device *link)
 {
 	struct net_device *dev = link->priv;
@@ -965,7 +962,6 @@ static int xirc2ps_resume(struct pcmcia_device *link)
 
 	return 0;
 }
-
 
 /*====================================================================*/
 
@@ -1225,7 +1221,6 @@ do_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
     pr_debug("do_start_xmit(skb=%p, dev=%p) len=%u\n",
 	  skb, dev, pktlen);
-
 
     /* adjust the packet length to min. required
      * and hope that the buffer is large enough
@@ -1763,7 +1758,6 @@ static const struct pcmcia_device_id xirc2ps_ids[] = {
 	PCMCIA_DEVICE_NULL,
 };
 MODULE_DEVICE_TABLE(pcmcia, xirc2ps_ids);
-
 
 static struct pcmcia_driver xirc2ps_cs_driver = {
 	.owner		= THIS_MODULE,

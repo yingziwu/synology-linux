@@ -78,7 +78,6 @@ enum ipi_message_type {
 	IPI_CPU_TEST
 };
 
-
 /********** SMP inter processor interrupt and communication routines */
 
 #undef PER_CPU_IRQ_REGION
@@ -101,7 +100,6 @@ ipi_init(int cpuid)
 }
 #endif
 
-
 /*
 ** Yoink this CPU from the runnable list... 
 **
@@ -116,7 +114,6 @@ halt_processor(void)
 	for (;;)
 		;
 }
-
 
 irqreturn_t __irq_entry
 ipi_interrupt(int irq, void *dev_id) 
@@ -194,7 +191,6 @@ ipi_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
-
 static inline void
 ipi_send(int cpu, enum ipi_message_type op)
 {
@@ -235,7 +231,6 @@ send_IPI_allbutself(enum ipi_message_type op)
 			send_IPI_single(i, op);
 	}
 }
-
 
 inline void 
 smp_send_stop(void)	{ send_IPI_allbutself(IPI_CPU_STOP); }
@@ -313,7 +308,6 @@ smp_cpu_init(int cpunum)
 	init_IRQ();   /* make sure no IRQs are enabled or pending */
 	start_cpu_itimer();
 }
-
 
 /*
  * Slaves start using C here. Indirectly called from smp_slave_stext.
@@ -428,8 +422,6 @@ void __init smp_prepare_boot_cpu(void)
 	set_cpu_present(bootstrap_processor, true);
 }
 
-
-
 /*
 ** inventory.c:do_inventory() hasn't yet been run and thus we
 ** don't 'discover' the additional CPUs until later.
@@ -448,12 +440,10 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
 		printk(KERN_INFO "SMP mode deactivated.\n");
 }
 
-
 void smp_cpus_done(unsigned int cpu_max)
 {
 	return;
 }
-
 
 int __cpuinit __cpu_up(unsigned int cpu)
 {

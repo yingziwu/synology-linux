@@ -22,7 +22,6 @@
 
 #include "drm_fb_helper.h"
 
-
 #ifdef CONFIG_DEBUG_FS
 
 static int gem_show(struct seq_file *m, void *arg)

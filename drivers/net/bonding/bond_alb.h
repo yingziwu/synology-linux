@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright(c) 1999 - 2004 Intel Corporation. All rights reserved.
  *
@@ -51,7 +54,6 @@ struct slave;
 				 * because the key hash table is BYTE wide !
 				 */
 
-
 #define TLB_NULL_INDEX		0xffffffff
 #define MAX_LP_BURST		3
 
@@ -67,7 +69,6 @@ struct slave;
  * promiscuous after failover
  */
 #define RLB_PROMISC_TIMEOUT	(10*ALB_TIMER_TICKS_PER_SEC)
-
 
 struct tlb_client_info {
 	struct slave *tx_slave;	/* A pointer to slave used for transmiting
@@ -163,5 +164,7 @@ int bond_alb_xmit(struct sk_buff *skb, struct net_device *bond_dev);
 void bond_alb_monitor(struct work_struct *);
 int bond_alb_set_mac_address(struct net_device *bond_dev, void *addr);
 void bond_alb_clear_vlan(struct bonding *bond, unsigned short vlan_id);
+#ifdef	MY_ABC_HERE
+void bond_alb_info_show(struct seq_file *seq);
+#endif /* MY_ABC_HERE */
 #endif /* __BOND_ALB_H__ */
-

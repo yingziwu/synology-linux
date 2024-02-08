@@ -429,7 +429,6 @@ arch_initcall(sparc_register_ioport);
 
 #endif /* CONFIG_SBUS */
 
-
 /* LEON reuses PCI DMA ops */
 #if defined(CONFIG_PCI) || defined(CONFIG_SPARC_LEON)
 
@@ -669,7 +668,6 @@ struct dma_map_ops *dma_ops = &sbus_dma_ops;
 #endif
 
 EXPORT_SYMBOL(dma_ops);
-
 
 /*
  * Return whether the given PCI device DMA address mask can be

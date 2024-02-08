@@ -136,7 +136,6 @@ static int ks8995_read(struct ks8995_switch *ks, char *buf,
 	return err ? err : count;
 }
 
-
 static int ks8995_write(struct ks8995_switch *ks, char *buf,
 		 unsigned offset, size_t count)
 {
@@ -227,7 +226,6 @@ static ssize_t ks8995_registers_read(struct file *filp, struct kobject *kobj,
 	return ks8995_read(ks8995, buf, off, count);
 }
 
-
 static ssize_t ks8995_registers_write(struct file *filp, struct kobject *kobj,
 	struct bin_attribute *bin_attr, char *buf, loff_t off, size_t count)
 {
@@ -248,7 +246,6 @@ static ssize_t ks8995_registers_write(struct file *filp, struct kobject *kobj,
 
 	return ks8995_write(ks8995, buf, off, count);
 }
-
 
 static struct bin_attribute ks8995_registers_attr = {
 	.attr = {

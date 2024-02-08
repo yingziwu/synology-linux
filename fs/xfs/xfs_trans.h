@@ -204,7 +204,6 @@ struct xfs_log_item_desc {
 #define	XFS_TRANS_SB_REXTENTS		0x00001000
 #define	XFS_TRANS_SB_REXTSLOG		0x00002000
 
-
 /*
  * Per-extent log reservation for the allocation btree changes
  * involved in freeing or allocating an extent.
@@ -228,7 +227,6 @@ struct xfs_log_item_desc {
 #define	XFS_DIROP_LOG_COUNT(mp)	\
 	(XFS_DAENTER_BLOCKS(mp, XFS_DATA_FORK) + \
 	 XFS_DAENTER_BMAPS(mp, XFS_DATA_FORK) + 1)
-
 
 #define	XFS_WRITE_LOG_RES(mp)	((mp)->m_reservations.tr_write)
 #define	XFS_ITRUNCATE_LOG_RES(mp)   ((mp)->m_reservations.tr_itruncate)
@@ -260,7 +258,6 @@ struct xfs_log_item_desc {
 	 (128 * (ext + (ext * XFS_BM_MAXLEVELS(mp, XFS_ATTR_FORK)))))
 #define	XFS_ATTRRM_LOG_RES(mp)	((mp)->m_reservations.tr_attrrm)
 #define	XFS_CLEAR_AGI_BUCKET_LOG_RES(mp)  ((mp)->m_reservations.tr_clearagi)
-
 
 /*
  * Various log count values.

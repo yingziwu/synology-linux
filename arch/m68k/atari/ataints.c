@@ -50,7 +50,6 @@
 #include <asm/irq.h>
 #include <asm/entry.h>
 
-
 /*
  * Atari interrupt handling scheme:
  * --------------------------------
@@ -200,7 +199,6 @@ void __init atari_init_IRQ(void)
 	sound_ym.wd_data = 0xff;
 }
 
-
 /*
  * atari_register_vme_int() returns the number of a free interrupt vector for
  * hardware with a programmable int vector (probably a VME board).
@@ -222,7 +220,6 @@ unsigned long atari_register_vme_int(void)
 }
 EXPORT_SYMBOL(atari_register_vme_int);
 
-
 void atari_unregister_vme_int(unsigned long irq)
 {
 	if (irq >= VME_SOURCE_BASE && irq < VME_SOURCE_BASE + VME_MAX_SOURCES) {
@@ -231,5 +228,3 @@ void atari_unregister_vme_int(unsigned long irq)
 	}
 }
 EXPORT_SYMBOL(atari_unregister_vme_int);
-
-

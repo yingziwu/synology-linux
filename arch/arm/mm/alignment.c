@@ -746,7 +746,11 @@ do_alignment_t32_to_handler(unsigned long *pinstr, struct pt_regs *regs,
 static int
 do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 {
+#ifdef CONFIG_HI3535_SDK_2050
+	union offset_union offset = {0};
+#else
 	union offset_union offset;
+#endif /* CONFIG_HI3535_SDK_2050 */
 	unsigned long instr = 0, instrptr;
 	int (*handler)(unsigned long addr, unsigned long instr, struct pt_regs *regs);
 	unsigned int type;

@@ -31,7 +31,6 @@
 #include "easycap.h"
 #include <linux/usb/audio.h>
 
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("R.M. Thomas <rmthomas@sciolus.org>");
 MODULE_DESCRIPTION(EASYCAP_DRIVER_DESCRIPTION);
@@ -59,8 +58,6 @@ MODULE_PARM_DESC(gain, "Audio gain: 0,...,16(default),...31");
 static bool easycap_ntsc;
 module_param_named(ntsc, easycap_ntsc, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(ntsc, "NTSC default encoding (default PAL)");
-
-
 
 struct easycap_dongle easycapdc60_dongle[DONGLE_MANY];
 static struct mutex mutex_dongle;
@@ -990,7 +987,6 @@ int easycap_video_dqbuf(struct easycap *peasycap, int mode)
 {
 	int input, ifield, miss, rc;
 
-
 	if (!peasycap) {
 		SAY("ERROR:  peasycap is NULL\n");
 		return -EFAULT;
@@ -1183,7 +1179,6 @@ int easycap_video_dqbuf(struct easycap *peasycap, int mode)
 	else
 		peasycap->frame_buffer[peasycap->frame_read][0].kount =
 							V4L2_FIELD_BOTTOM;
-
 
 	JOM(8, "setting:    %i=peasycap->frame_read\n", peasycap->frame_read);
 	JOM(8, "bumped to:  %i=peasycap->frame_fill\n", peasycap->frame_fill);
@@ -3568,7 +3563,6 @@ static int easycap_usb_probe(struct usb_interface *intf,
 		 */
 		peasycap->video_device.v4l2_dev = NULL;
 
-
 		strcpy(&peasycap->video_device.name[0], "easycapdc60");
 		peasycap->video_device.fops = &v4l2_fops;
 		peasycap->video_device.minor = -1;
@@ -3825,7 +3819,6 @@ static int easycap_usb_probe(struct usb_interface *intf,
 			err("easycap_alsa_probe() rc = %i\n", rc);
 			return -ENODEV;
 		}
-
 
 		JOM(8, "kref_get() with %i=kref.refcount.counter\n",
 				peasycap->kref.refcount.counter);

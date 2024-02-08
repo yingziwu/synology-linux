@@ -512,7 +512,6 @@ static struct usb_driver ipaq_driver = {
 	.id_table =	ipaq_id_table,
 };
 
-
 /* All of the device info needed for the Compaq iPAQ */
 static struct usb_serial_driver ipaq_device = {
 	.driver = {
@@ -593,7 +592,6 @@ static int ipaq_calc_num_ports(struct usb_serial *serial)
 	return ipaq_num_ports;
 }
 
-
 static int ipaq_startup(struct usb_serial *serial)
 {
 	dbg("%s", __func__);
@@ -643,7 +641,6 @@ static void __exit ipaq_exit(void)
 {
 	usb_serial_deregister_drivers(&ipaq_driver, serial_drivers);
 }
-
 
 module_init(ipaq_init);
 module_exit(ipaq_exit);

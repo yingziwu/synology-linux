@@ -18,7 +18,7 @@
 #include "nl80211.h"
 #include "wext-compat.h"
 
-#define IEEE80211_SCAN_RESULT_EXPIRE	(15 * HZ)
+#define IEEE80211_SCAN_RESULT_EXPIRE	(3 * HZ)
 
 void ___cfg80211_scan_done(struct cfg80211_registered_device *rdev, bool leak)
 {
@@ -504,7 +504,6 @@ struct cfg80211_bss *cfg80211_get_mesh(struct wiphy *wiphy,
 	return &res->pub;
 }
 EXPORT_SYMBOL(cfg80211_get_mesh);
-
 
 static void rb_insert_bss(struct cfg80211_registered_device *dev,
 			  struct cfg80211_internal_bss *bss)
@@ -1293,7 +1292,6 @@ ieee80211_bss(struct wiphy *wiphy, struct iw_request_info *info,
 	return current_ev;
 }
 
-
 static int ieee80211_scan_results(struct cfg80211_registered_device *dev,
 				  struct iw_request_info *info,
 				  char *buf, size_t len)
@@ -1316,7 +1314,6 @@ static int ieee80211_scan_results(struct cfg80211_registered_device *dev,
 	spin_unlock_bh(&dev->bss_lock);
 	return current_ev - buf;
 }
-
 
 int cfg80211_wext_giwscan(struct net_device *dev,
 			  struct iw_request_info *info,

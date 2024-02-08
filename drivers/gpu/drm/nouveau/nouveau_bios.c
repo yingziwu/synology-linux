@@ -3534,7 +3534,6 @@ init_i2c_long_if(struct nvbios *bios, uint16_t offset, struct init_exec *iexec)
 	if (!chan)
 		return -ENODEV;
 
-
 	ret = i2c_transfer(&chan->adapter, msg, 2);
 	if (ret < 0) {
 		BIOSLOG(bios, "0x%04X: I2CReg: 0x%02X:0x%02X, Value: [no device], "
@@ -4481,7 +4480,6 @@ nouveau_bios_run_display_table(struct drm_device *dev, u16 type, int pclk,
 
 	return 0;
 }
-
 
 int run_tmds_table(struct drm_device *dev, struct dcb_entry *dcbent, int head, int pxclk)
 {

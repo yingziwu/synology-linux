@@ -22,7 +22,6 @@
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 
-
 #include "bnx2x.h"
 
 /* This is used as a replacement for an MCP if it's not present */
@@ -649,7 +648,6 @@ static inline void bnx2x_igu_clear_sb_gen(struct bnx2x *bp, u8 func,
 	while (!(REG_RD(bp, igu_addr_ack) & sb_bit) && --cnt)
 		msleep(20);
 
-
 	if (!(REG_RD(bp, igu_addr_ack) & sb_bit)) {
 		DP(NETIF_MSG_HW,
 		   "Unable to finish IGU cleanup: idu_sb_id %d offset %d bit %d (cnt %d)\n",
@@ -995,7 +993,6 @@ static inline int bnx2x_func_start(struct bnx2x *bp)
 	return bnx2x_func_state_change(bp, &func_params);
 }
 
-
 /**
  * bnx2x_set_fw_mac_addr - fill in a MAC address in FW format
  *
@@ -1323,7 +1320,6 @@ static inline u8 bnx2x_cnic_igu_sb_id(struct bnx2x *bp)
 {
 	return bp->igu_base_sb;
 }
-
 
 static inline void bnx2x_init_fcoe_fp(struct bnx2x *bp)
 {

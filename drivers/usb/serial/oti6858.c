@@ -745,7 +745,6 @@ static int oti6858_ioctl(struct tty_struct *tty,
 	return -ENOIOCTLCMD;
 }
 
-
 static void oti6858_release(struct usb_serial *serial)
 {
 	int i;
@@ -967,4 +966,3 @@ MODULE_LICENSE("GPL");
 
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "enable debug output");
-

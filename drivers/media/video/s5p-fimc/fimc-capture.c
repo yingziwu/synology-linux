@@ -339,7 +339,6 @@ static void buffer_queue(struct vb2_buffer *vb)
 
 	min_bufs = vid_cap->reqbufs_count > 1 ? 2 : 1;
 
-
 	if (vb2_is_streaming(&vid_cap->vbq) &&
 	    vid_cap->active_buf_cnt >= min_bufs &&
 	    !test_and_set_bit(ST_CAPT_STREAM, &fimc->state)) {

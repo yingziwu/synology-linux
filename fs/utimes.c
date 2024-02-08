@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/compiler.h>
 #include <linux/file.h>
 #include <linux/fs.h>
@@ -10,6 +13,10 @@
 #include <linux/syscalls.h>
 #include <asm/uaccess.h>
 #include <asm/unistd.h>
+
+#ifdef CONFIG_FS_SYNO_ACL
+#include "synoacl_int.h"
+#endif /* CONFIG_FS_SYNO_ACL */
 
 #ifdef __ARCH_WANT_SYS_UTIME
 
@@ -95,6 +102,14 @@ static int utimes_common(struct path *path, struct timespec *times)
                 if (IS_IMMUTABLE(inode))
 			goto mnt_drop_write_and_out;
 
+#ifdef CONFIG_FS_SYNO_ACL
+		if (IS_SYNOACL(path->dentry)) {
+			error = synoacl_op_perm(path->dentry, MAY_WRITE_ATTR | MAY_WRITE_EXT_ATTR);
+			if (error) {
+				goto mnt_drop_write_and_out;
+			}
+		} else
+#endif /* CONFIG_FS_SYNO_ACL */
 		if (!inode_owner_or_capable(inode)) {
 			error = inode_permission(inode, MAY_WRITE);
 			if (error)
@@ -222,3 +237,62 @@ SYSCALL_DEFINE2(utimes, char __user *, filename,
 {
 	return sys_futimesat(AT_FDCWD, filename, utimes);
 }
+
+#ifdef MY_ABC_HERE
+/**
+ * sys_SYNOUtime() is used to update create time.
+ *
+ * @param	filename	The file to be changed create time.
+ * 			ctime	Create time.
+ * @return	0	success
+ *			!0	error
+ */
+SYSCALL_DEFINE2(SYNOUtime, const char __user *, filename, struct timespec __user *, ctime)
+{
+	int error;
+	struct path path;
+	struct inode *inode = NULL;
+	struct timespec time;
+
+	if (!ctime) {
+		return -EINVAL;
+	}
+	error = copy_from_user(&time, ctime, sizeof(struct timespec));
+	if (error)
+		goto out;
+
+	error = user_path_at(AT_FDCWD, filename, LOOKUP_FOLLOW, &path);
+	if (error)
+		goto out;
+
+	error = mnt_want_write(path.mnt);
+	if (error)
+		goto dput_and_out;
+
+	inode = path.dentry->d_inode;
+	if (!inode_owner_or_capable(inode)) {
+#ifdef CONFIG_FS_SYNO_ACL
+		if (IS_SYNOACL(path.dentry)) {
+			error = synoacl_op_perm(path.dentry, MAY_WRITE_ATTR | MAY_WRITE_EXT_ATTR);
+			if (error)
+				goto drop_write;
+		} else {
+#endif /* CONFIG_FS_SYNO_ACL */
+		error = -EPERM;
+		goto drop_write;
+#ifdef CONFIG_FS_SYNO_ACL
+		}
+#endif /* CONFIG_FS_SYNO_ACL */
+	}
+
+	error = syno_op_set_crtime(path.dentry, &time);
+
+drop_write:
+	mnt_drop_write(path.mnt);
+dput_and_out:
+	path_put(&path);
+out:
+	return error;
+	return 0;
+}
+#endif /* MY_ABC_HERE */

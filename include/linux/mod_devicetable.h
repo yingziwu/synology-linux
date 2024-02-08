@@ -21,7 +21,6 @@ struct pci_device_id {
 	kernel_ulong_t driver_data;	/* Data private to the driver */
 };
 
-
 #define IEEE1394_MATCH_VENDOR_ID	0x0001
 #define IEEE1394_MATCH_MODEL_ID		0x0002
 #define IEEE1394_MATCH_SPECIFIER_ID	0x0004
@@ -36,7 +35,6 @@ struct ieee1394_device_id {
 	kernel_ulong_t driver_data
 		__attribute__((aligned(sizeof(kernel_ulong_t))));
 };
-
 
 /*
  * Device table entry for "new style" table-driven USB drivers.
@@ -114,6 +112,8 @@ struct usb_device_id {
 	__u8		bInterfaceClass;
 	__u8		bInterfaceSubClass;
 	__u8		bInterfaceProtocol;
+	/* Used for vendor-specific interface matches */
+	__u8            bInterfaceNumber;
 
 	/* not matched against */
 	kernel_ulong_t	driver_info;
@@ -130,6 +130,7 @@ struct usb_device_id {
 #define USB_DEVICE_ID_MATCH_INT_CLASS		0x0080
 #define USB_DEVICE_ID_MATCH_INT_SUBCLASS	0x0100
 #define USB_DEVICE_ID_MATCH_INT_PROTOCOL	0x0200
+#define USB_DEVICE_ID_MATCH_INT_NUMBER          0x0400
 
 #define HID_ANY_ID				(~0)
 
@@ -202,7 +203,6 @@ struct pnp_card_device_id {
 		__u8 id[PNP_ID_LEN];
 	} devs[PNP_MAX_DEVICES];
 };
-
 
 #define SERIO_ANY	0xff
 

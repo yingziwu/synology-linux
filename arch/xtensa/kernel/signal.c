@@ -236,7 +236,6 @@ restore_sigcontext(struct pt_regs *regs, struct rt_sigframe __user *frame)
 	return err;
 }
 
-
 /*
  * Do a signal return; undo the signal stack.
  */
@@ -276,8 +275,6 @@ badframe:
 	force_sig(SIGSEGV, current);
 	return 0;
 }
-
-
 
 /*
  * Set up a signal frame.
@@ -331,7 +328,6 @@ gen_return_code(unsigned char *codemem)
 
 	return err;
 }
-
 
 static int setup_frame(int sig, struct k_sigaction *ka, siginfo_t *info,
 		       sigset_t *set, struct pt_regs *regs)
@@ -465,8 +461,6 @@ asmlinkage long xtensa_sigaltstack(const stack_t __user *uss,
 	return do_sigaltstack(uss, uoss, regs->areg[1]);
 }
 
-
-
 /*
  * Note that 'init' is a special process: it doesn't get signals it doesn't
  * want to handle. Thus you cannot kill init even with a SIGKILL even by
@@ -562,4 +556,3 @@ no_signal:
 		task_pt_regs(current)->icountlevel = 1;
 	return 0;
 }
-

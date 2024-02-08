@@ -16,7 +16,6 @@
 #include <net/inet_timewait_sock.h>
 #include <net/ip.h>
 
-
 /**
  *	inet_twsk_unhash - unhash a timewait socket from established hash
  *	@tw: timewait socket

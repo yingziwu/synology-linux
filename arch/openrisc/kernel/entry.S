@@ -88,7 +88,6 @@
 	l.lwz   r1,PT_SP(r1)					;\
 	l.rfe
 
-
 #define EXCEPTION_ENTRY(handler)				\
 	.global	handler						;\
 handler:							;\
@@ -290,7 +289,6 @@ EXCEPTION_ENTRY(_insn_page_fault_handler)
 	l.j     _ret_from_exception
 	l.nop
 
-
 /* ---[ 0x500: Timer exception ]----------------------------------------- */
 
 EXCEPTION_ENTRY(_timer_handler)
@@ -357,7 +355,6 @@ jr:
 	l.lwz   r5,0(r4)
 
 	l.srli  r4,r3,26                /* Shift left to get the insn opcode */
-
 
 1:
 //	  l.mtspr r0,r5,SPR_EPCR_BASE
@@ -509,9 +506,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
 
 /* ---[ 0x900: DTLB miss exception ]------------------------------------- */
 
-
 /* ---[ 0xa00: ITLB miss exception ]------------------------------------- */
-
 
 /* ---[ 0xb00: Range exception ]----------------------------------------- */
 
@@ -658,7 +653,6 @@ _syscall_check_work:
 
 _syscall_resume_userspace:
 //	ENABLE_INTERRUPTS(r29)
-
 
 /* This is the hot path for returning to userspace from a syscall.  If there's
  * work to be done and the branch to _work_pending was taken above, then the
@@ -879,7 +873,6 @@ _restore_all:
 	RESTORE_ALL
 	/* This returns to userspace code */
 
-
 ENTRY(_ret_from_intr)
 ENTRY(_ret_from_exception)
 	l.lwz	r4,PT_SR(r1)
@@ -934,7 +927,6 @@ ENTRY(_kernel_thread_helper)
 	l.jr	r31
 	 l.nop
 
-
 /* ========================================================[ switch ] === */
 
 /*
@@ -950,7 +942,6 @@ ENTRY(_kernel_thread_helper)
  * to the "_switch" path.  If you change this (or in particular, the
  * SAVE_REGS macro), you'll have to change the fork code also.
  */
-
 
 /* _switch MUST never lay on page boundry, cause it runs from
  * effective addresses and beeing interrupted by iTLB miss would kill it.

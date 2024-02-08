@@ -165,7 +165,6 @@ static const intel_limit_t intel_limits_i9xx_lvds = {
 	.find_pll = intel_find_best_PLL,
 };
 
-
 static const intel_limit_t intel_limits_g4x_sdvo = {
 	.dot = { .min = 25000, .max = 270000 },
 	.vco = { .min = 1750000, .max = 3500000},
@@ -1267,7 +1266,6 @@ static void intel_disable_pch_pll(struct drm_i915_private *dev_priv,
 		pll_sel |= TRANSC_DPLLA_SEL;
 	else if (pipe == 1)
 		pll_sel |= TRANSC_DPLLB_SEL;
-
 
 	if ((I915_READ(PCH_DPLL_SEL) & pll_mask) == pll_sel)
 		return;
@@ -3585,7 +3583,6 @@ ironlake_compute_m_n(int bits_per_pixel, int nlanes, int pixel_clock,
 	fdi_reduce_ratio(&m_n->link_m, &m_n->link_n);
 }
 
-
 struct intel_watermark_params {
 	unsigned long fifo_size;
 	unsigned long max_wm;
@@ -3730,7 +3727,6 @@ static const struct intel_watermark_params sandybridge_cursor_srwm_info = {
 	2,
 	SNB_FIFO_LINE_SIZE
 };
-
 
 /**
  * intel_calculate_wm - calculate watermark level
@@ -4828,7 +4824,6 @@ static void sandybridge_update_sprite_wm(struct drm_device *dev, int pipe,
 	val &= ~WM0_PIPE_SPRITE_MASK;
 	I915_WRITE(reg, val | (sprite_wm << WM0_PIPE_SPRITE_SHIFT));
 	DRM_DEBUG_KMS("sprite watermarks For pipe %d - %d\n", pipe, sprite_wm);
-
 
 	ret = sandybridge_compute_sprite_srwm(dev, pipe, sprite_width,
 					      pixel_size,
@@ -7135,7 +7130,6 @@ static void intel_idle_update(struct work_struct *work)
 			intel_decrease_pllclock(crtc);
 	}
 
-
 	mutex_unlock(&dev->struct_mutex);
 }
 
@@ -9317,7 +9311,6 @@ void intel_modeset_cleanup(struct drm_device *dev)
 	mutex_lock(&dev->struct_mutex);
 
 	intel_unregister_dsm_handler();
-
 
 	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
 		/* Skip inactive CRTCs */

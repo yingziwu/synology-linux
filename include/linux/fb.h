@@ -302,7 +302,6 @@ struct fb_con2fbmap {
 #define VESA_HSYNC_SUSPEND      2
 #define VESA_POWERDOWN          3
 
-
 enum {
 	/* screen: unblanked, hsync: on,  vsync: on */
 	FB_BLANK_UNBLANK       = VESA_NO_BLANKING,
@@ -862,10 +861,14 @@ struct fb_info {
 	struct mutex bl_curve_mutex;	
 	u8 bl_curve[FB_BACKLIGHT_LEVELS];
 #endif
+
+#ifdef CONFIG_HI3535_SDK_2050
+#else
 #ifdef CONFIG_FB_DEFERRED_IO
 	struct delayed_work deferred_work;
 	struct fb_deferred_io *fbdefio;
 #endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 
 	struct fb_ops *fbops;
 	struct device *device;		/* This is the parent */
@@ -893,6 +896,13 @@ struct fb_info {
 			resource_size_t size;
 		} ranges[0];
 	} *apertures;
+
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef CONFIG_FB_DEFERRED_IO
+	struct delayed_work deferred_work;
+	struct fb_deferred_io *fbdefio;
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 };
 
 static inline struct apertures_struct *alloc_apertures(unsigned int max_num) {

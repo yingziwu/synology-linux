@@ -10,7 +10,6 @@
  * (at your option) any later version.
  */
 
-
 /* #define VERBOSE_DEBUG */
 
 #include <linux/init.h>
@@ -30,7 +29,6 @@
 
 #include <linux/usb/gadgetfs.h>
 #include <linux/usb/gadget.h>
-
 
 /*
  * The gadgetfs API maps each endpoint to a file descriptor so that you
@@ -71,7 +69,6 @@ static const char shortname [] = "gadgetfs";
 MODULE_DESCRIPTION (DRIVER_DESC);
 MODULE_AUTHOR ("David Brownell");
 MODULE_LICENSE ("GPL");
-
 
 /*----------------------------------------------------------------------*/
 
@@ -256,7 +253,6 @@ static const char *CHIP;
 #define INFO(dev,fmt,args...) \
 	xprintk(dev , KERN_INFO , fmt , ## args)
 
-
 /*----------------------------------------------------------------------*/
 
 /* SYNCHRONOUS ENDPOINT OPERATIONS (bulk/intr/iso)
@@ -362,7 +358,6 @@ ep_io (struct ep_data *epdata, void *buf, unsigned len)
 	}
 	return value;
 }
-
 
 /* handle a synchronous OUT bulk/intr/iso transfer */
 static ssize_t
@@ -1609,7 +1604,6 @@ static void destroy_ep_files (struct dev_data *dev)
 	spin_unlock_irq (&dev->lock);
 }
 
-
 static struct inode *
 gadgetfs_create_file (struct super_block *sb, char const *name,
 		void *data, const struct file_operations *fops,
@@ -1799,7 +1793,6 @@ static struct usb_gadget_driver probe_driver = {
 	},
 };
 
-
 /* DEVICE INITIALIZATION
  *
  *     fd = open ("/dev/gadget/$CHIP", O_RDWR)
@@ -1964,7 +1957,6 @@ static const struct file_operations dev_init_operations = {
  * device configuration then later for event monitoring.
  */
 
-
 /* FIXME PAM etc could set this security policy without mount options
  * if epfiles inherited ownership and permissons from ep0 ...
  */
@@ -1976,7 +1968,6 @@ static unsigned default_perm = S_IRUSR | S_IWUSR;
 module_param (default_uid, uint, 0644);
 module_param (default_gid, uint, 0644);
 module_param (default_perm, uint, 0644);
-
 
 static struct inode *
 gadgetfs_make_inode (struct super_block *sb,
@@ -2132,4 +2123,3 @@ static void __exit cleanup (void)
 	unregister_filesystem (&gadgetfs_type);
 }
 module_exit (cleanup);
-

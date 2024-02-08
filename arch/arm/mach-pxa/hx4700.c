@@ -820,7 +820,6 @@ static struct platform_device audio = {
 	.id	= -1,
 };
 
-
 /*
  * Platform devices
  */

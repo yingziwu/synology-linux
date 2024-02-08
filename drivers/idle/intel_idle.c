@@ -488,7 +488,6 @@ static int intel_idle_cpuidle_driver_init(void)
 	return 0;
 }
 
-
 /*
  * intel_idle_cpu_init()
  * allocate, initialize, register cpuidle_devices

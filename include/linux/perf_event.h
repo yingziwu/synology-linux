@@ -1109,7 +1109,6 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr,
 extern u64 perf_event_read_value(struct perf_event *event,
 				 u64 *enabled, u64 *running);
 
-
 struct perf_sample_data {
 	u64				type;
 
@@ -1347,7 +1346,6 @@ do {									\
 		(void *)(unsigned long)smp_processor_id());		\
 	register_cpu_notifier(&fn##_nb);				\
 } while (0)
-
 
 #define PMU_FORMAT_ATTR(_name, _format)					\
 static ssize_t								\

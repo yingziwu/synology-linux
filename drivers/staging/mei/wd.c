@@ -354,7 +354,6 @@ struct watchdog_device amt_wd_dev = {
 		.max_timeout = AMT_WD_MAX_TIMEOUT,
 };
 
-
 void  mei_watchdog_register(struct mei_device *dev)
 {
 	dev_dbg(&dev->pdev->dev, "dev->wd_timeout =%d.\n", dev->wd_timeout);
@@ -376,4 +375,3 @@ void mei_watchdog_unregister(struct mei_device *dev)
 		watchdog_unregister_device(&amt_wd_dev);
 	dev->wd_interface_reg = false;
 }
-

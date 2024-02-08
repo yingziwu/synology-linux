@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2001 Sistina Software (UK) Limited.
  * Copyright (C) 2004-2008 Red Hat, Inc. All rights reserved.
@@ -827,6 +830,12 @@ int dm_table_add_target(struct dm_table *t, const char *type,
 		DMWARN("%s: %s: ignoring discards_supported because num_discard_requests is zero.",
 		       dm_device_name(t->md), type);
 
+#ifdef MY_ABC_HERE
+	if (tgt->type->lvinfoset){
+		tgt->type->lvinfoset(tgt);
+	}
+#endif /* MY_ABC_HERE */
+
 	return 0;
 
  bad:
@@ -1229,6 +1238,14 @@ int dm_calculate_queue_limits(struct dm_table *table,
 
 		ti = dm_table_get_target(table, i++);
 
+#ifdef MY_ABC_HERE
+		if (!ti->type->iterate_devices && ti->force_io_hints) {
+			if (ti->type->io_hints) {
+				ti->type->io_hints(ti, &ti_limits);
+			}
+			goto combine_limits;
+		}
+#endif
 		if (!ti->type->iterate_devices)
 			goto combine_limits;
 

@@ -109,7 +109,6 @@
 #define KEY_EVENT_CODE		0x7f
 #define KEY_EVENT_VALUE		0x80
 
-
 static const struct i2c_device_id tca8418_id[] = {
 	{ TCA8418_NAME, 8418, },
 	{ }
@@ -250,7 +249,6 @@ static int __devinit tca8418_configure(struct tca8418_keypad *keypad_data)
 				CFG_INT_CFG | CFG_OVR_FLOW_IEN | CFG_KE_IEN);
 	if (error < 0)
 		return -ENODEV;
-
 
 	/* Assemble a mask for row and column registers */
 	reg  =  ~(~0 << keypad_data->rows);
@@ -401,7 +399,6 @@ static int __devexit tca8418_keypad_remove(struct i2c_client *client)
 
 	return 0;
 }
-
 
 static struct i2c_driver tca8418_keypad_driver = {
 	.driver = {

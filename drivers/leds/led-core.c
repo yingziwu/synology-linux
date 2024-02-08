@@ -67,7 +67,6 @@ static void led_set_software_blink(struct led_classdev *led_cdev,
 	mod_timer(&led_cdev->blink_timer, jiffies + 1);
 }
 
-
 void led_blink_set(struct led_classdev *led_cdev,
 		   unsigned long *delay_on,
 		   unsigned long *delay_off)

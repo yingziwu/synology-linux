@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Read-Copy Update mechanism for mutual exclusion
  *
@@ -210,7 +213,11 @@ module_param(blimit, long, 0);
 module_param(qhimark, long, 0);
 module_param(qlowmark, long, 0);
 
-int rcu_cpu_stall_suppress __read_mostly; /* 1 = suppress stall warnings. */
+#ifdef MY_ABC_HERE
+int rcu_cpu_stall_suppress __read_mostly = 1; /* 1 = suppress stall warnings. */
+#else
+int rcu_cpu_stall_suppress __read_mostly;
+#endif
 int rcu_cpu_stall_timeout __read_mostly = CONFIG_RCU_CPU_STALL_TIMEOUT;
 
 module_param(rcu_cpu_stall_suppress, int, 0644);
@@ -714,6 +721,10 @@ static int jiffies_till_stall_check(void)
 	}
 	return till_stall_check * HZ + RCU_STALL_DELAY_DELTA;
 }
+
+#ifndef MY_ABC_HERE
+int rcu_cpu_stall_suppress __read_mostly;
+#endif
 
 static void record_gp_stall_check_time(struct rcu_state *rsp)
 {

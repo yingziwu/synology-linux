@@ -705,7 +705,6 @@ qla24xx_calc_dsd_lists(uint16_t dsds)
 	return dsd_lists;
 }
 
-
 /**
  * qla24xx_build_scsi_iocbs() - Build IOCB command utilizing Command Type 7
  * IOCB types.
@@ -1589,7 +1588,6 @@ queuing_error:
 	return QLA_FUNCTION_FAILED;
 }
 
-
 /**
  * qla24xx_dif_start_scsi() - Send a SCSI command to the ISP
  * @sp: command to send to the ISP
@@ -1793,7 +1791,6 @@ queuing_error:
 	spin_unlock_irqrestore(&ha->hardware_lock, flags);
 	return QLA_FUNCTION_FAILED;
 }
-
 
 static void qla25xx_set_que(srb_t *sp, struct rsp_que **rsp)
 {

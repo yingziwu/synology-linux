@@ -36,7 +36,6 @@
 #include "xfs_vnodeops.h"
 #include "xfs_trace.h"
 
-
 static int xfs_swap_extents(
 	xfs_inode_t	*ip,	/* target inode */
 	xfs_inode_t	*tip,	/* tmp inode */
@@ -420,7 +419,6 @@ xfs_swap_extents(
 		target_log_flags |= XFS_ILOG_DBROOT;
 		break;
 	}
-
 
 	xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL | XFS_IOLOCK_EXCL);
 	xfs_trans_ijoin(tp, tip, XFS_ILOCK_EXCL | XFS_IOLOCK_EXCL);

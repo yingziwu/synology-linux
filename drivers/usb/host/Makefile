@@ -17,6 +17,7 @@ xhci-hcd-$(CONFIG_PCI)	+= xhci-pci.o
 
 ifneq ($(CONFIG_USB_XHCI_PLATFORM), )
 	xhci-hcd-y		+= xhci-plat.o
+	xhci-hcd-y              += hiusb-xhci.o
 endif
 
 obj-$(CONFIG_USB_WHCI_HCD)	+= whci/
@@ -41,3 +42,6 @@ obj-$(CONFIG_USB_IMX21_HCD)	+= imx21-hcd.o
 obj-$(CONFIG_USB_FSL_MPH_DR_OF)	+= fsl-mph-dr-of.o
 obj-$(CONFIG_USB_OCTEON2_COMMON) += octeon2-common.o
 obj-$(CONFIG_MIPS_ALCHEMY)	+= alchemy-common.o
+obj-$(CONFIG_ARCH_HI3535)	+= hiusb-hi3535.o
+obj-$(CONFIG_ARCH_HI3516A)	+= hiusb-hi3516a.o hiusb-otg.o
+#obj-$(CONFIG_USB_OTG_HI3516A)		+= hiusb-otg.o

@@ -22,7 +22,6 @@
  * Christoph Hellwig : Some cleanup work (2000/03/01)
  */
 
-
 #include "sound_config.h"
 #include <linux/init.h>
 #include <linux/types.h>
@@ -71,7 +70,6 @@ static char     dma_alloc_map[MAX_DMA_CHANNELS];
 #define DMA_MAP_UNAVAIL		0
 #define DMA_MAP_FREE		1
 #define DMA_MAP_BUSY		2
-
 
 unsigned long seq_time = 0;	/* Time for /dev/sequencer */
 extern struct class *sound_class;
@@ -525,7 +523,6 @@ bad:
 	return -1;
 }
 
-
 static int dmabuf;
 static int dmabug;
 
@@ -611,7 +608,6 @@ MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("OSS Sound subsystem");
 MODULE_AUTHOR("Hannu Savolainen, et al.");
 
-
 int sound_alloc_dma(int chn, char *deviceID)
 {
 	int err;
@@ -666,7 +662,6 @@ static void do_sequencer_timer(unsigned long dummy)
 {
 	sequencer_timer(0);
 }
-
 
 static DEFINE_TIMER(seq_timer, do_sequencer_timer, 0, 0);
 
@@ -736,4 +731,3 @@ void conf_printf2(char *name, int base, int irq, int dma, int dma2)
 #endif
 }
 EXPORT_SYMBOL(conf_printf2);
-

@@ -464,7 +464,6 @@ done:
 }
 EXPORT_SYMBOL(drm_crtc_helper_set_mode);
 
-
 static int
 drm_crtc_helper_disable(struct drm_crtc *crtc)
 {
@@ -1023,7 +1022,6 @@ void drm_helper_hpd_irq_event(struct drm_device *dev)
 		queue_delayed_work(system_nrt_wq, &dev->mode_config.output_poll_work, 0);
 }
 EXPORT_SYMBOL(drm_helper_hpd_irq_event);
-
 
 /**
  * drm_format_num_planes - get the number of planes for format

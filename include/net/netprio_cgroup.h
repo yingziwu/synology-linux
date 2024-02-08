@@ -17,7 +17,6 @@
 #include <linux/hardirq.h>
 #include <linux/rcupdate.h>
 
-
 struct netprio_map {
 	struct rcu_head rcu;
 	u32 priomap_len;

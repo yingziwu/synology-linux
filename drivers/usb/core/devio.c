@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*****************************************************************************/
 
 /*
@@ -620,10 +623,12 @@ static int checkintf(struct dev_state *ps, unsigned int ifnum)
 		return -EINVAL;
 	if (test_bit(ifnum, &ps->ifclaimed))
 		return 0;
+#ifndef MY_ABC_HERE
 	/* if not yet claimed, claim it for the driver */
 	dev_warn(&ps->dev->dev, "usbfs: process %d (%s) did not claim "
 		 "interface %u before use\n", task_pid_nr(current),
 		 current->comm, ifnum);
+#endif
 	return claimintf(ps, ifnum);
 }
 
@@ -1672,7 +1677,6 @@ static int proc_reapurbnonblock_compat(struct dev_state *ps, void __user *arg)
 	}
 	return retval;
 }
-
 
 #endif
 

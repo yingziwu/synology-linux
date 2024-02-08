@@ -1676,7 +1676,6 @@ static int rtl8169_set_features(struct net_device *dev,
 	return 0;
 }
 
-
 static inline u32 rtl8169_tx_vlan_tag(struct rtl8169_private *tp,
 				      struct sk_buff *skb)
 {
@@ -5752,7 +5751,6 @@ rtl8169_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 		stats->rx_packets = tp->rx_stats.packets;
 		stats->rx_bytes	= tp->rx_stats.bytes;
 	} while (u64_stats_fetch_retry_bh(&tp->rx_stats.syncp, start));
-
 
 	do {
 		start = u64_stats_fetch_begin_bh(&tp->tx_stats.syncp);

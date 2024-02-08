@@ -24,6 +24,14 @@ KBUILD_CFLAGS	+=$(call cc-option,-marm,)
 # Never generate .eh_frame
 KBUILD_CFLAGS	+= $(call cc-option,-fno-dwarf2-cfi-asm)
 
+ifeq ($(CROSS_COMPILE), arm-hisiv300-linux-)
+KBUILD_CFLAGS   += -fno-aggressive-loop-optimizations
+endif
+
+ifeq ($(CROSS_COMPILE), arm-hisiv400-linux-)
+KBUILD_CFLAGS   += -fno-aggressive-loop-optimizations
+endif
+
 # Do not use arch/arm/defconfig - it's always outdated.
 # Select a platform tht is kept up-to-date
 KBUILD_DEFCONFIG := versatile_defconfig
@@ -197,6 +205,7 @@ machine-$(CONFIG_MACH_SPEAR310)		:= spear3xx
 machine-$(CONFIG_MACH_SPEAR320)		:= spear3xx
 machine-$(CONFIG_MACH_SPEAR600)		:= spear6xx
 machine-$(CONFIG_ARCH_ZYNQ)		:= zynq
+machine-$(CONFIG_ARCH_HI3535)		:= hi3535
 
 # Platform directory name.  This list is sorted alphanumerically
 # by CONFIG_* macro name.
@@ -263,6 +272,9 @@ libs-y				:= arch/arm/lib/ $(libs-y)
 # Default target when executing plain make
 ifeq ($(CONFIG_XIP_KERNEL),y)
 KBUILD_IMAGE := xipImage
+endif
+ifeq ($(CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE),y)
+KBUILD_IMAGE := zImage-dtb.$(CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE_NAME)
 else
 KBUILD_IMAGE := zImage
 endif

@@ -357,7 +357,6 @@ static int test__open_syscall_event_on_all_cpus(void)
 		goto out_thread_map_delete;
 	}
 
-
 	CPU_ZERO(&cpu_set);
 
 	memset(&attr, 0, sizeof(attr));
@@ -1465,7 +1464,6 @@ out_delete_evlist:
 out:
 	return (err < 0 || errs > 0) ? -1 : 0;
 }
-
 
 #if defined(__x86_64__) || defined(__i386__)
 

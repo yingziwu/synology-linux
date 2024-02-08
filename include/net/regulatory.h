@@ -18,7 +18,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
 /**
  * enum environment_cap - Environment parsed from country IE
  * @ENVIRON_ANY: indicates country IE applies to both indoor and

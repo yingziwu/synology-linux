@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * fs/inotify_user.c - inotify support for userspace
  *
@@ -146,6 +149,10 @@ static bool inotify_should_send_event(struct fsnotify_group *group, struct inode
 				      struct fsnotify_mark *vfsmount_mark,
 				      __u32 mask, void *data, int data_type)
 {
+#ifdef MY_ABC_HERE
+	if (data_type == FSNOTIFY_EVENT_SYNO)
+		return false;
+#endif
 	if ((inode_mark->mask & FS_EXCL_UNLINK) &&
 	    (data_type == FSNOTIFY_EVENT_PATH)) {
 		struct path *path = data;
@@ -205,7 +212,6 @@ static void inotify_free_group_priv(struct fsnotify_group *group)
 void inotify_free_event_priv(struct fsnotify_event_private_data *fsn_event_priv)
 {
 	struct inotify_event_private_data *event_priv;
-
 
 	event_priv = container_of(fsn_event_priv, struct inotify_event_private_data,
 				  fsnotify_event_priv_data);

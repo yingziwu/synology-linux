@@ -32,4 +32,3 @@ extern unsigned long trace_flags;
 #define OZ_TRACE_TX_FRAMES	0x20
 
 #endif /* Sentry */
-

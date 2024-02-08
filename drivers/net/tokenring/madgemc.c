@@ -242,7 +242,6 @@ static int __devinit madgemc_probe(struct device *device)
 	else
 		card->cabletype = 0; /* UTP/RJ-45 */
 
-
 	/* 
 	 * ROM Info. This requires us to actually twiddle
 	 * bits on the card, so we must ensure above that 
@@ -297,7 +296,6 @@ static int __devinit madgemc_probe(struct device *device)
 		case 3: printk("Immediate release"); break;
 	}
 	printk(" (%s)\n", (card->fairness)?"Unfair":"Fair");
-
 
 	/* 
 	 * Enable SIF before we assign the interrupt handler,
@@ -758,4 +756,3 @@ module_init(madgemc_init);
 module_exit(madgemc_exit);
 
 MODULE_LICENSE("GPL");
-

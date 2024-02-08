@@ -89,7 +89,6 @@ static void octeon_flush_icache_all_cores(struct vm_area_struct *vma)
 #endif
 }
 
-
 /**
  * Called to flush the icache on all cores
  */
@@ -97,7 +96,6 @@ static void octeon_flush_icache_all(void)
 {
 	octeon_flush_icache_all_cores(NULL);
 }
-
 
 /**
  * Called to flush all memory associated with a memory
@@ -113,7 +111,6 @@ static void octeon_flush_cache_mm(struct mm_struct *mm)
 	 */
 }
 
-
 /**
  * Flush a range of kernel addresses out of the icache
  *
@@ -122,7 +119,6 @@ static void octeon_flush_icache_range(unsigned long start, unsigned long end)
 {
 	octeon_flush_icache_all_cores(NULL);
 }
-
 
 /**
  * Flush the icache for a trampoline. These are used for interrupt
@@ -138,7 +134,6 @@ static void octeon_flush_cache_sigtramp(unsigned long addr)
 	octeon_flush_icache_all_cores(vma);
 }
 
-
 /**
  * Flush a range out of a vma
  *
@@ -152,7 +147,6 @@ static void octeon_flush_cache_range(struct vm_area_struct *vma,
 	if (vma->vm_flags & VM_EXEC)
 		octeon_flush_icache_all_cores(vma);
 }
-
 
 /**
  * Flush a specific page of a vma
@@ -247,7 +241,6 @@ static void __cpuinit probe_octeon(void)
 			  c->dcache.sets, c->dcache.linesz);
 	}
 }
-
 
 /**
  * Setup the Octeon cache flush routines

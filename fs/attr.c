@@ -15,6 +15,10 @@
 #include <linux/security.h>
 #include <linux/evm.h>
 
+#ifdef CONFIG_FS_SYNO_ACL
+#include "synoacl_int.h"
+#endif /* CONFIG_FS_SYNO_ACL */
+
 /**
  * inode_change_ok - check if attribute changes to an inode are allowed
  * @inode:	inode to check
@@ -170,6 +174,9 @@ int notify_change(struct dentry * dentry, struct iattr * attr)
 	int error;
 	struct timespec now;
 	unsigned int ia_valid = attr->ia_valid;
+#ifdef CONFIG_FS_SYNO_ACL
+	int isSYNOACL = 0;
+#endif /* CONFIG_FS_SYNO_ACL */
 
 	if (ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID | ATTR_TIMES_SET)) {
 		if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
@@ -238,12 +245,26 @@ int notify_change(struct dentry * dentry, struct iattr * attr)
 	if (error)
 		return error;
 
+#ifdef CONFIG_FS_SYNO_ACL
+	isSYNOACL = IS_SYNOACL(dentry);
+	if (isSYNOACL) {
+		error = synoacl_op_inode_chg_ok(dentry, attr);
+		if (error) {
+			return error;
+		}
+	}
+#endif /* CONFIG_FS_SYNO_ACL */
 	if (inode->i_op->setattr)
 		error = inode->i_op->setattr(dentry, attr);
 	else
 		error = simple_setattr(dentry, attr);
 
 	if (!error) {
+#ifdef CONFIG_FS_SYNO_ACL
+		if (isSYNOACL) {
+			synoacl_op_setattr_post(dentry, attr);
+		}
+#endif /* CONFIG_FS_SYNO_ACL */
 		fsnotify_change(dentry, ia_valid);
 		evm_inode_post_setattr(dentry, ia_valid);
 	}

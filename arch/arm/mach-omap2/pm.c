@@ -144,8 +144,6 @@ int omap_set_pwrdm_state(struct powerdomain *pwrdm, u32 pwrst)
 	return ret;
 }
 
-
-
 /*
  * This API is to be called during init to set the various voltage
  * domains to the voltage as per the opp table. Typically we boot up

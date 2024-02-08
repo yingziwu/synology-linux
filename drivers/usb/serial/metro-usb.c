@@ -87,7 +87,6 @@ static void metrousb_read_int_callback(struct urb *urb)
 		goto exit;
 	}
 
-
 	/* Set the data read from the usb port into the serial port buffer. */
 	tty = tty_port_tty_get(&port->port);
 	if (!tty) {

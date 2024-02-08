@@ -692,7 +692,6 @@ static struct property *flat_read_property(struct inbuf *dtbuf,
 	return build_property(name, val);
 }
 
-
 static struct reserve_info *flat_read_mem_reserve(struct inbuf *inb)
 {
 	struct reserve_info *reservelist = NULL;
@@ -718,7 +717,6 @@ static struct reserve_info *flat_read_mem_reserve(struct inbuf *inb)
 
 	return reservelist;
 }
-
 
 static char *nodename_from_path(const char *ppath, const char *cpath)
 {
@@ -796,7 +794,6 @@ static struct node *unflatten_tree(struct inbuf *dtbuf,
 
 	return node;
 }
-
 
 struct boot_info *dt_from_blob(const char *fname)
 {

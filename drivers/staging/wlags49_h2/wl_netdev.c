@@ -114,14 +114,12 @@
 #include <wl_pci.h>
 #endif  /* BUS_PCI */
 
-
 /*******************************************************************************
  * global variables
  ******************************************************************************/
 #if DBG
 extern dbg_info_t *DbgInfo;
 #endif  /* DBG */
-
 
 #if HCF_ENCAP
 #define MTU_MAX (HCF_MAX_MSG - ETH_HLEN - 8)
@@ -477,7 +475,6 @@ static struct ethtool_ops wl_ethtool_ops = {
     .get_drvinfo = wl_get_drvinfo,
     .get_link = ethtool_op_get_link,
 };
-
 
 /*******************************************************************************
  *	wl_ioctl()
@@ -1228,7 +1225,6 @@ struct net_device * wl_device_alloc( void )
     /* Initialize the 'next' pointer in the struct. Currently only used for PCI,
        but do it here just in case it's used for other buses in the future */
     lp = wl_priv(dev);
-
 
     /* Check MTU */
     if( dev->mtu > MTU_MAX )

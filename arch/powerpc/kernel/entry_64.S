@@ -332,7 +332,6 @@ _GLOBAL(save_nvgprs)
 	std	r0,_TRAP(r1)
 	blr
 
-	
 /*
  * The sigsuspend and rt_sigsuspend system calls can call do_signal
  * and thus put the process into the stopped state where we might
@@ -774,8 +773,6 @@ restore_check_irq_replay:
 #endif /* CONFIG_PPC_BOOK3E */
 1:	b	.ret_from_except /* What else to do here ? */
  
-
-
 3:
 do_work:
 #ifdef CONFIG_PREEMPT
@@ -1076,7 +1073,6 @@ _GLOBAL(_mcount)
 	mtctr	r5
 	bctrl
 	nop
-
 
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
 	b	ftrace_graph_caller

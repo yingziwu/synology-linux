@@ -78,7 +78,6 @@ define_pe_printk_level(pe_err, KERN_ERR);
 define_pe_printk_level(pe_warn, KERN_WARNING);
 define_pe_printk_level(pe_info, KERN_INFO);
 
-
 /* Calculate resource usage & alignment requirement of a single
  * device. This will also assign all resources within the device
  * for a given type starting at 0 for the biggest one and then
@@ -1213,7 +1212,6 @@ void __init pnv_pci_init_ioda1_phb(struct device_node *np)
 	phb->regs = of_iomap(np, 0);
 	if (phb->regs == NULL)
 		pr_err("  Failed to map registers !\n");
-
 
 	/* XXX This is hack-a-thon. This needs to be changed so that:
 	 *  - we obtain stuff like PE# etc... from device-tree

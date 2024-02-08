@@ -49,7 +49,6 @@ extern asmlinkage long sys_c6x_execve(const char __user *name,
 				      const char __user *const __user *envp,
 				      struct pt_regs *regs);
 
-
 #include <asm-generic/syscalls.h>
 
 #endif /* __ASM_C6X_SYSCALLS_H */

@@ -454,7 +454,6 @@ static int oaktrail_power_up(struct drm_device *dev)
 	return 0;
 }
 
-
 static int oaktrail_chip_setup(struct drm_device *dev)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;

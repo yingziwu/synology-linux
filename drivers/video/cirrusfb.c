@@ -324,7 +324,6 @@ static const struct zorrocl zcl_picasso4_z2 __devinitconst = {
 	.ramid2		= ZORRO_PROD_VILLAGE_TRONIC_PICASSO_IV_Z2_RAM2,
 };
 
-
 static const struct zorro_device_id cirrusfb_zorro_table[] __devinitconst = {
 	{
 		.id		= ZORRO_PROD_HELFRICH_SD64_REG,
@@ -2993,4 +2992,3 @@ static void cirrusfb_dbg_reg_dump(struct fb_info *info, caddr_t regbase)
 }
 
 #endif				/* CIRRUSFB_DEBUG */
-

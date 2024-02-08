@@ -1560,4 +1560,3 @@ module_exit(s5p_jpeg_unregister);
 MODULE_AUTHOR("Andrzej Pietrasiewicz <andrzej.p@samsung.com>");
 MODULE_DESCRIPTION("Samsung JPEG codec driver");
 MODULE_LICENSE("GPL");
-

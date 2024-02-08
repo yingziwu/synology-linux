@@ -5,7 +5,6 @@
 #include <linux/if_arp.h>
 #include <net/neighbour.h>
 
-
 extern struct neigh_table arp_tbl;
 
 static inline u32 arp_hashfn(u32 key, const struct net_device *dev, u32 hash_rnd)

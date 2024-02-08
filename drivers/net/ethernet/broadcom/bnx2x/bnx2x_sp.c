@@ -311,7 +311,6 @@ static inline int bnx2x_state_wait(struct bnx2x *bp, int state,
 	/* can take a while if any port is running */
 	int cnt = 5000;
 
-
 	if (CHIP_REV_IS_EMUL(bp))
 		cnt *= 20;
 
@@ -527,7 +526,6 @@ static int bnx2x_check_vlan_mac_add(struct bnx2x *bp,
 	return 0;
 }
 
-
 /* check_del() callbacks */
 static struct bnx2x_vlan_mac_registry_elem *
 	bnx2x_check_mac_del(struct bnx2x *bp,
@@ -615,7 +613,6 @@ static bool bnx2x_check_move_always_err(
 	return false;
 }
 
-
 static inline u8 bnx2x_vlan_mac_get_rx_tx_flag(struct bnx2x_vlan_mac_obj *o)
 {
 	struct bnx2x_raw_obj *raw = &o->raw;
@@ -631,7 +628,6 @@ static inline u8 bnx2x_vlan_mac_get_rx_tx_flag(struct bnx2x_vlan_mac_obj *o)
 
 	return rx_tx_flag;
 }
-
 
 static inline void bnx2x_set_mac_in_nig(struct bnx2x *bp,
 				 bool add, unsigned char *dev_addr, int index)
@@ -708,7 +704,6 @@ static inline void bnx2x_vlan_mac_set_rdata_hdr_e2(u32 cid, int type,
 	hdr->echo = (cid & BNX2X_SWCID_MASK) | (type << BNX2X_SWCID_SHIFT);
 	hdr->rule_cnt = (u8)rule_cnt;
 }
-
 
 /* hw_config() callbacks */
 static void bnx2x_set_one_mac_e2(struct bnx2x *bp,
@@ -955,7 +950,6 @@ static void bnx2x_set_one_vlan_mac_e2(struct bnx2x *bp,
 	bool add = (cmd == BNX2X_VLAN_MAC_ADD) ? true : false;
 	u16 vlan = elem->cmd_data.vlan_mac.u.vlan_mac.vlan;
 	u8 *mac = elem->cmd_data.vlan_mac.u.vlan_mac.mac;
-
 
 	/* Reset the ramrod data buffer for the first rule */
 	if (rule_idx == 0)
@@ -1810,8 +1804,6 @@ int bnx2x_config_vlan_mac(
 	return rc;
 }
 
-
-
 /**
  * bnx2x_vlan_mac_del_all - delete elements with given vlan_mac_flags spec
  *
@@ -1924,7 +1916,6 @@ static inline void bnx2x_init_vlan_mac_common(struct bnx2x_vlan_mac_obj *o,
 	bnx2x_init_raw_obj(&o->raw, cl_id, cid, func_id, rdata, rdata_mapping,
 			   state, pstate, type);
 }
-
 
 void bnx2x_init_mac_obj(struct bnx2x *bp,
 			struct bnx2x_vlan_mac_obj *mac_obj,
@@ -2273,7 +2264,6 @@ static int bnx2x_set_rx_mode_e2(struct bnx2x *bp,
 		bnx2x_rx_mode_set_cmd_state_e2(bp, p->rx_accept_flags,
 			&(data->rules[rule_idx++]), false);
 	}
-
 
 	/*
 	 * If FCoE Queue configuration has been requested configure the Rx and
@@ -3324,7 +3314,6 @@ static inline int bnx2x_mcast_handle_restore_cmd_e1(
 	return -1;
 }
 
-
 static inline int bnx2x_mcast_handle_pending_cmds_e1(
 	struct bnx2x *bp, struct bnx2x_mcast_ramrod_params *p)
 {
@@ -3333,7 +3322,6 @@ static inline int bnx2x_mcast_handle_pending_cmds_e1(
 	struct bnx2x_mcast_obj *o = p->mcast_obj;
 	union bnx2x_mcast_config_data cfg_data = {0};
 	int cnt = 0;
-
 
 	/* If nothing to be done - return */
 	if (list_empty(&o->pending_cmds_head))
@@ -3830,7 +3818,6 @@ static bool bnx2x_credit_pool_always_true(struct bnx2x_credit_pool_obj *o,
 	return true;
 }
 
-
 static bool bnx2x_credit_pool_get_entry(
 	struct bnx2x_credit_pool_obj *o,
 	int *offset)
@@ -4195,7 +4182,6 @@ int bnx2x_config_rss(struct bnx2x *bp,
 	return rc;
 }
 
-
 void bnx2x_init_rss_config_obj(struct bnx2x *bp,
 			       struct bnx2x_rss_config_obj *rss_obj,
 			       u8 cl_id, u32 cid, u8 func_id, u8 engine_id,
@@ -4262,7 +4248,6 @@ int bnx2x_queue_state_change(struct bnx2x *bp,
 
 	return !!test_bit(pending_bit, pending);
 }
-
 
 static int bnx2x_queue_set_pending(struct bnx2x_queue_sp_obj *obj,
 				   struct bnx2x_queue_state_params *params)
@@ -4377,7 +4362,6 @@ static void bnx2x_q_fill_init_general_data(struct bnx2x *bp,
 	gen_data->sp_client_id = params->spcl_id;
 	gen_data->mtu = cpu_to_le16(params->mtu);
 	gen_data->func_id = o->func_id;
-
 
 	gen_data->cos = params->cos;
 
@@ -4672,7 +4656,6 @@ static inline int bnx2x_q_send_setup_tx_only(struct bnx2x *bp,
 		&params->params.tx_only;
 	u8 cid_index = tx_only_params->cid_index;
 
-
 	if (cid_index >= o->max_cos) {
 		BNX2X_ERR("queue[%d]: cid_index (%d) is out of range\n",
 			  o->cl_id, cid_index);
@@ -4781,7 +4764,6 @@ static inline int bnx2x_q_send_update(struct bnx2x *bp,
 			  o->cl_id, cid_index);
 		return -EINVAL;
 	}
-
 
 	/* Clear the ramrod data */
 	memset(rdata, 0, sizeof(*rdata));
@@ -5554,7 +5536,6 @@ static inline void bnx2x_func_reset_cmn(struct bnx2x *bp,
 	bnx2x_func_reset_port(bp, drv);
 	drv->reset_hw_cmn(bp);
 }
-
 
 static inline int bnx2x_func_hw_reset(struct bnx2x *bp,
 				      struct bnx2x_func_state_params *params)

@@ -17,7 +17,6 @@
 #include <mach/at91_pmc.h>
 #include <mach/at91_ramc.h>
 
-
 #ifdef CONFIG_ARCH_AT91SAM9263
 /*
  * FIXME either or both the SDRAM controllers (EB0, EB1) might be in use;
@@ -311,7 +310,6 @@ sdr_en_restore:
 ram_restored:
 	/* Restore registers, and return */
 	ldmfd	sp!, {r4 - r12, pc}
-
 
 .saved_mckr:
 	.word 0

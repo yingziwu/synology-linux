@@ -42,6 +42,11 @@ source "fs/nilfs2/Kconfig"
 
 endif # BLOCK
 
+config FS_SYNO_ACL
+# Synology ACL utility routines (for now, only ext4)
+# ACL depends on SYNO_ARCHIVE_BIT
+	def_bool y
+
 # Posix ACL utility routines
 #
 # Note: Posix ACLs can be implemented without these helpers.  Never use
@@ -203,6 +208,10 @@ source "fs/hfsplus/Kconfig"
 source "fs/befs/Kconfig"
 source "fs/bfs/Kconfig"
 source "fs/efs/Kconfig"
+
+# Patched by YAFFS
+source "fs/yaffs2/Kconfig"
+
 source "fs/jffs2/Kconfig"
 # UBIFS File system configuration
 source "fs/ubifs/Kconfig"

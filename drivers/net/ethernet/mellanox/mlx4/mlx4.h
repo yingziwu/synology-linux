@@ -126,7 +126,6 @@ enum mlx4_alloc_mode {
 	RES_OP_MAP_ICM,
 };
 
-
 /*
  *Virtual HCR structures.
  * mlx4_vhcr is the sw representation, in machine endianess
@@ -644,7 +643,6 @@ enum {
 	MCAST_DEFAULT		= 2
 };
 
-
 struct mlx4_set_port_general_context {
 	u8 reserved[3];
 	u8 flags;
@@ -1030,7 +1028,6 @@ int mlx4_QUERY_PORT_wrapper(struct mlx4_dev *dev, int slave,
 			    struct mlx4_cmd_mailbox *outbox,
 			    struct mlx4_cmd_info *cmd);
 int mlx4_get_port_ib_caps(struct mlx4_dev *dev, u8 port, __be32 *caps);
-
 
 int mlx4_QP_ATTACH_wrapper(struct mlx4_dev *dev, int slave,
 			   struct mlx4_vhcr *vhcr,

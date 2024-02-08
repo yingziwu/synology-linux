@@ -497,8 +497,6 @@ struct dasd_block {
 	struct dasd_profile profile;
 };
 
-
-
 /* reasons why device (ccw_device_start) was stopped */
 #define DASD_STOPPED_NOT_ACC 1         /* not accessible */
 #define DASD_STOPPED_QUIESCE 2         /* Quiesced */
@@ -519,7 +517,6 @@ struct dasd_block {
 #define DASD_FLAG_IS_RESERVED	7	/* The device is reserved */
 #define DASD_FLAG_LOCK_STOLEN	8	/* The device lock was stolen */
 #define DASD_FLAG_SUSPENDED	9	/* The device was suspended */
-
 
 void dasd_put_device_wake(struct dasd_device *);
 

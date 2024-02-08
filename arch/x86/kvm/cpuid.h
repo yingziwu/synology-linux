@@ -18,7 +18,6 @@ int kvm_vcpu_ioctl_get_cpuid2(struct kvm_vcpu *vcpu,
 			      struct kvm_cpuid2 *cpuid,
 			      struct kvm_cpuid_entry2 __user *entries);
 
-
 static inline bool guest_cpuid_has_xsave(struct kvm_vcpu *vcpu)
 {
 	struct kvm_cpuid_entry2 *best;

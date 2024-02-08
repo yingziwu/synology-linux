@@ -1573,7 +1573,6 @@ out_sock_release_nosk:
 }
 EXPORT_SYMBOL(netlink_kernel_create);
 
-
 void
 netlink_kernel_release(struct sock *sk)
 {
@@ -1764,6 +1763,7 @@ int __netlink_dump_start(struct sock *ssk, struct sk_buff *skb,
 	if (cb == NULL)
 		return -ENOBUFS;
 
+	cb->start = control->start;
 	cb->dump = control->dump;
 	cb->done = control->done;
 	cb->nlh = nlh;
@@ -1798,6 +1798,9 @@ int __netlink_dump_start(struct sock *ssk, struct sk_buff *skb,
 
 	nlk->cb = cb;
 	mutex_unlock(nlk->cb_mutex);
+
+	if (cb->start)
+		cb->start(cb);
 
 	ret = netlink_dump(sk);
 out:
@@ -2018,7 +2021,6 @@ static void netlink_seq_stop(struct seq_file *seq, void *v)
 	read_unlock(&nl_table_lock);
 }
 
-
 static int netlink_seq_show(struct seq_file *seq, void *v)
 {
 	if (v == SEQ_START_TOKEN)
@@ -2052,7 +2054,6 @@ static const struct seq_operations netlink_seq_ops = {
 	.stop   = netlink_seq_stop,
 	.show   = netlink_seq_show,
 };
-
 
 static int netlink_seq_open(struct inode *inode, struct file *file)
 {

@@ -3951,7 +3951,6 @@ static int qla4xxx_get_bidi_chap(struct scsi_qla_host *ha, char *username,
 	return ret;
 }
 
-
 static int qla4xxx_get_boot_target(struct scsi_qla_host *ha,
 				   struct ql4_boot_session_info *boot_sess,
 				   uint16_t ddb_index)
@@ -4103,7 +4102,6 @@ static int qla4xxx_setup_boot_info(struct scsi_qla_host *ha)
 		return QLA_SUCCESS;
 	}
 
-
 	ha->boot_kset = iscsi_boot_create_host_kset(ha->host->host_no);
 	if (!ha->boot_kset)
 		goto kset_free;
@@ -4152,7 +4150,6 @@ kset_free:
 	iscsi_boot_destroy_kset(ha->boot_kset);
 	return -ENOMEM;
 }
-
 
 /**
  * qla4xxx_create chap_list - Create CHAP list from FLASH

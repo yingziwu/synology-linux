@@ -146,7 +146,6 @@ int iwlagn_suspend(struct iwl_priv *priv, struct cfg80211_wowlan *wowlan);
 int iwlagn_hwrate_to_mac80211_idx(u32 rate_n_flags, enum ieee80211_band band);
 void iwl_setup_rx_handlers(struct iwl_priv *priv);
 
-
 /* tx */
 int iwlagn_tx_skb(struct iwl_priv *priv, struct sk_buff *skb);
 int iwlagn_tx_agg_start(struct iwl_priv *priv, struct ieee80211_vif *vif,
@@ -209,7 +208,6 @@ static inline const char *iwl_get_tx_fail_reason(u32 status) { return ""; }
 static inline const char *iwl_get_agg_tx_fail_reason(u16 status) { return ""; }
 #endif
 
-
 /* station management */
 int iwlagn_manage_ibss_station(struct iwl_priv *priv,
 			       struct ieee80211_vif *vif, bool add);
@@ -220,7 +218,6 @@ int iwlagn_manage_ibss_station(struct iwl_priv *priv,
 #define IWL_STA_LOCAL BIT(3) /* station state not directed by mac80211;
 				(this is for the IBSS BSSID stations) */
 #define IWL_STA_BCAST BIT(4) /* this station is the special bcast station */
-
 
 void iwl_restore_stations(struct iwl_priv *priv, struct iwl_rxon_context *ctx);
 void iwl_clear_ucode_stations(struct iwl_priv *priv,
@@ -247,7 +244,6 @@ int iwl_add_sta_callback(struct iwl_priv *priv, struct iwl_rx_cmd_buffer *rxb,
 			       struct iwl_device_cmd *cmd);
 int iwl_sta_update_ht(struct iwl_priv *priv, struct iwl_rxon_context *ctx,
 		      struct ieee80211_sta *sta);
-
 
 static inline int iwl_sta_id(struct ieee80211_sta *sta)
 {

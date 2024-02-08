@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* -------------------------------------------------------------------------
  * i2c-algo-bit.c i2c driver algorithms for bit-shift adapters
  * -------------------------------------------------------------------------
@@ -30,7 +33,6 @@
 #include <linux/sched.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
-
 
 /* ----- global defines ----------------------------------------------- */
 
@@ -125,7 +127,6 @@ done:
 	return 0;
 }
 
-
 /* --- other auxiliary functions --------------------------------------	*/
 static void i2c_start(struct i2c_algo_bit_data *adap)
 {
@@ -145,7 +146,6 @@ static void i2c_repstart(struct i2c_algo_bit_data *adap)
 	scllo(adap);
 }
 
-
 static void i2c_stop(struct i2c_algo_bit_data *adap)
 {
 	/* assert: scl is low */
@@ -154,8 +154,6 @@ static void i2c_stop(struct i2c_algo_bit_data *adap)
 	setsda(adap, 1);
 	udelay(adap->udelay);
 }
-
-
 
 /* send a byte without start cond., look for arbitration,
    check ackn. from slave */
@@ -189,7 +187,11 @@ static int i2c_outb(struct i2c_adapter *i2c_adap, unsigned char c)
 		 */
 		scllo(adap);
 	}
+#if defined(MY_ABC_HERE)
+	getsda(adap);
+#else /* MY_ABC_HERE */
 	sdahi(adap);
+#endif /* MY_ABC_HERE */
 	if (sclhi(adap) < 0) { /* timeout */
 		bit_dbg(1, &i2c_adap->dev, "i2c_outb: 0x%02x, "
 			"timeout at ack\n", (int)c);
@@ -208,7 +210,6 @@ static int i2c_outb(struct i2c_adapter *i2c_adap, unsigned char c)
 	/* assert: scl is low (sda undef) */
 }
 
-
 static int i2c_inb(struct i2c_adapter *i2c_adap)
 {
 	/* read byte via i2c port, without start/stop sequence	*/
@@ -218,7 +219,12 @@ static int i2c_inb(struct i2c_adapter *i2c_adap)
 	struct i2c_algo_bit_data *adap = i2c_adap->algo_data;
 
 	/* assert: scl is low */
+#if defined(MY_ABC_HERE)
+	getsda(adap);
+#else /* MY_ABC_HERE */
 	sdahi(adap);
+#endif /* MY_ABC_HERE */
+
 	for (i = 0; i < 8; i++) {
 		if (sclhi(adap) < 0) { /* timeout */
 			bit_dbg(1, &i2c_adap->dev, "i2c_inb: timeout at bit "
@@ -613,7 +619,6 @@ static u32 bit_func(struct i2c_adapter *adap)
 	       I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
 	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
 }
-
 
 /* -----exported algorithm data: -------------------------------------	*/
 

@@ -62,7 +62,6 @@ static u32 edca_setting_UL[HT_IOT_PEER_MAX] = {
 #define RTK_DL_EDCA 0x5e4322
 /*---------------------------Define Local Constant---------------------------*/
 
-
 /*------------------------Define global variable-----------------------------*/
 struct dig_t dm_digtable;
 u8 dm_shadow[16][256] = {
@@ -72,11 +71,8 @@ u8 dm_shadow[16][256] = {
 struct drx_path_sel DM_RxPathSelTable;
 /*------------------------Define global variable-----------------------------*/
 
-
 /*------------------------Define local variable------------------------------*/
 /*------------------------Define local variable------------------------------*/
-
-
 
 /*---------------------Define local function prototype-----------------------*/
 static	void	dm_check_rate_adaptive(struct net_device *dev);
@@ -84,15 +80,9 @@ static	void	dm_check_rate_adaptive(struct net_device *dev);
 static	void	dm_init_bandwidth_autoswitch(struct net_device *dev);
 static	void	dm_bandwidth_autoswitch(struct net_device *dev);
 
-
 static	void	dm_check_txpower_tracking(struct net_device *dev);
 
-
-
-
-
 static	void	dm_bb_initialgain_restore(struct net_device *dev);
-
 
 static	void	dm_bb_initialgain_backup(struct net_device *dev);
 
@@ -112,11 +102,9 @@ static	void	dm_check_edca_turbo(struct net_device *dev);
 
 static	void dm_check_pbc_gpio(struct net_device *dev);
 
-
 static	void dm_check_rx_path_selection(struct net_device *dev);
 static	void dm_init_rxpath_selection(struct net_device *dev);
 static	void dm_rxpath_sel_byrssi(struct net_device *dev);
-
 
 static void dm_init_fsync(struct net_device *dev);
 static void dm_deInit_fsync(struct net_device *dev);
@@ -128,7 +116,6 @@ static  void dm_check_ac_dc_power(struct net_device *dev);
 
 static	void	dm_init_dynamic_txpower(struct net_device *dev);
 static	void	dm_dynamic_txpower(struct net_device *dev);
-
 
 static	void dm_send_rssi_tofw(struct net_device *dev);
 static	void	dm_ctstoself(struct net_device *dev);
@@ -213,7 +200,6 @@ static void dm_check_ac_dc_power(struct net_device *dev)
 	return;
 };
 
-
 void init_rate_adaptive(struct net_device *dev)
 {
 
@@ -235,7 +221,6 @@ void init_rate_adaptive(struct net_device *dev)
 		pra->ping_rssi_enable = 0;
 	pra->ping_rssi_thresh_for_ra = 15;
 
-
 	if (priv->rf_type == RF_2T4R) {
 		pra->upper_rssi_threshold_ratr		=	0x8f0f0000;
 		pra->middle_rssi_threshold_ratr		=	0x8f0ff000;
@@ -253,7 +238,6 @@ void init_rate_adaptive(struct net_device *dev)
 	}
 
 }
-
 
 static void dm_check_rate_adaptive(struct net_device *dev)
 {
@@ -281,7 +265,6 @@ static void dm_check_rate_adaptive(struct net_device *dev)
 
 		bshort_gi_enabled = (pHTInfo->bCurTxBW40MHz && pHTInfo->bCurShortGI40MHz) ||
 			(!pHTInfo->bCurTxBW40MHz && pHTInfo->bCurShortGI20MHz);
-
 
 		pra->upper_rssi_threshold_ratr =
 				(pra->upper_rssi_threshold_ratr & (~BIT31)) | ((bshort_gi_enabled) ? BIT31 : 0);
@@ -474,7 +457,6 @@ static void dm_TXPowerTrackingCallback_TSSI(struct net_device *dev)
 
 	RT_TRACE(COMP_POWER_TRACKING, "powerlevelOFDM24G = %x\n",
 		 powerlevelOFDM24G);
-
 
 	for (j = 0; j <= 30; j++) {
 
@@ -1348,7 +1330,6 @@ static void dm_InitializeTXPowerTracking_ThermalMeter(struct net_device *dev)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
 
-
 	if (priv->rtllib->FwRWRF)
 		priv->btxpower_tracking = true;
 	else
@@ -1378,7 +1359,6 @@ static void dm_CheckTXPowerTracking_TSSI(struct net_device *dev)
 	if (!priv->btxpower_tracking)
 		return;
 	tx_power_track_counter++;
-
 
 	 if (tx_power_track_counter >= 180) {
 		queue_delayed_work_rsl(priv->priv_wq, &priv->txpower_tracking_wq, 0);
@@ -1471,7 +1451,6 @@ static void dm_CCKTxPowerAdjust_TSSI(struct net_device *dev, bool  bInCH14)
 
 		rtl8192_setBBreg(dev, rCCK0_DebugPort, bMaskLWord, TempVal);
 	}
-
 
 }
 
@@ -1617,7 +1596,6 @@ static void dm_bb_initialgain_restore(struct net_device *dev)
 
 }
 
-
 void dm_backup_dynamic_mechanism_state(struct net_device *dev)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
@@ -1627,7 +1605,6 @@ void dm_backup_dynamic_mechanism_state(struct net_device *dev)
 	dm_bb_initialgain_backup(dev);
 
 }
-
 
 static void dm_bb_initialgain_backup(struct net_device *dev)
 {
@@ -1795,7 +1772,6 @@ static void dm_ctrl_initgain_byrssi_by_driverrssi(
 	else
 		dm_digtable.CurSTAConnectState = DIG_STA_DISCONNECT;
 
-
 	if (dm_digtable.dbg_mode == DM_DBG_OFF)
 		dm_digtable.rssi_val = priv->undecorated_smoothed_pwdb;
 	dm_initial_gain(dev);
@@ -1896,7 +1872,6 @@ static void dm_ctrl_initgain_byrssi_by_fwfalse_alarm(
 	}
 	dm_ctrl_initgain_byrssi_highpwr(dev);
 }
-
 
 static void dm_ctrl_initgain_byrssi_highpwr(struct net_device *dev)
 {
@@ -2083,7 +2058,6 @@ static	void dm_cs_ratio(struct net_device *dev)
 		reset_cnt = priv->reset_count;
 	}
 
-
 	if ((dm_digtable.precs_ratio_state != dm_digtable.curcs_ratio_state) ||
 	    !initialized || force_write) {
 		if (dm_digtable.curcs_ratio_state == DIG_CS_RATIO_LOWER)
@@ -2192,7 +2166,6 @@ static void dm_check_edca_turbo(struct net_device *dev)
 		}
 	}
 
-
 dm_CheckEdcaTurbo_EXIT:
 	priv->rtllib->bis_any_nonbepkts = false;
 	lastTxOkCnt = priv->stats.txbytesunicast;
@@ -2232,7 +2205,6 @@ static void dm_ctstoself(struct net_device *dev)
 		lastRxOkCnt = priv->stats.rxbytesunicast;
 	}
 }
-
 
 static	void dm_Init_WA_Broadcom_IOT(struct net_device *dev)
 {
@@ -2557,7 +2529,6 @@ static	void	dm_check_rx_path_selection(struct net_device *dev)
 	queue_delayed_work_rsl(priv->priv_wq, &priv->rfpath_check_wq, 0);
 }
 
-
 static void dm_init_fsync(struct net_device *dev)
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
@@ -2576,7 +2547,6 @@ static void dm_init_fsync(struct net_device *dev)
 	setup_timer(&priv->fsync_timer, dm_fsync_timer_callback,
 		   (unsigned long) dev);
 }
-
 
 static void dm_deInit_fsync(struct net_device *dev)
 {

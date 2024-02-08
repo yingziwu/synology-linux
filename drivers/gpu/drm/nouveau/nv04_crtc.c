@@ -794,7 +794,6 @@ nv04_crtc_do_mode_set_base(struct drm_crtc *crtc,
 		return 0;
 	}
 
-
 	/* If atomic, we want to switch to the fb we were passed, so
 	 * now we update pointers to do that.  (We don't pin; just
 	 * assume we're already pinned and update the base address.)
@@ -1060,4 +1059,3 @@ nv04_crtc_create(struct drm_device *dev, int crtc_num)
 
 	return 0;
 }
-

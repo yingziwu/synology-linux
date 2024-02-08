@@ -2,6 +2,8 @@
 # SATA/PATA driver configuration
 #
 
+source "drivers/ata/Kconfig.ahci"
+
 config HAVE_PATA_PLATFORM
 	bool
 	help
@@ -77,6 +79,7 @@ config SATA_AHCI
 
 config SATA_AHCI_PLATFORM
 	tristate "Platform AHCI SATA support"
+	depends on HI_SATA
 	help
 	  This option enables support for Platform AHCI Serial ATA
 	  controllers.

@@ -66,7 +66,6 @@ struct tipc_port_list {
 	u32 ports[PLSIZE];
 };
 
-
 struct tipc_node;
 
 extern const char tipc_bclink_name[];

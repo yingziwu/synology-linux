@@ -84,6 +84,10 @@ struct ext2_sb_info {
 	unsigned long s_sb_block;
 	uid_t s_resuid;
 	gid_t s_resgid;
+	uid_t s_uid;          /* make all files appear to belong to this uid */
+	uid_t s_diskuid;      /* write this uid to disk (if s_uid != 0) */
+	gid_t s_gid;          /* make all files appear to belong to this gid */
+	gid_t s_diskgid;      /* write this gid to disk (if s_gid != 0) */
 	unsigned short s_mount_state;
 	unsigned short s_pad;
 	int s_addr_per_block_bits;
@@ -385,7 +389,6 @@ struct ext2_inode {
 #define EXT2_MOUNT_GRPQUOTA		0x040000  /* group quota */
 #define EXT2_MOUNT_RESERVATION		0x080000  /* Preallocation */
 
-
 #define clear_opt(o, opt)		o &= ~EXT2_MOUNT_##opt
 #define set_opt(o, opt)			o |= EXT2_MOUNT_##opt
 #define test_opt(sb, opt)		(EXT2_SB(sb)->s_mount_opt & \
@@ -639,6 +642,10 @@ struct ext2_mount_options {
 	unsigned long s_mount_opt;
 	uid_t s_resuid;
 	gid_t s_resgid;
+	uid_t s_uid;
+	uid_t s_diskuid;
+	gid_t s_gid;
+	gid_t s_diskgid;
 };
 
 /*
@@ -695,7 +702,6 @@ struct ext2_inode_info {
  * Inode dynamic state flags
  */
 #define EXT2_STATE_NEW			0x00000001 /* inode is newly created */
-
 
 /*
  * Function prototypes

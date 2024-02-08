@@ -34,7 +34,6 @@
 #include <linux/input/mt.h>
 #include "usbhid/usbhid.h"
 
-
 MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
 MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
 MODULE_DESCRIPTION("HID multitouch panels");
@@ -330,6 +329,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 	if (field->physical == HID_DG_STYLUS)
 		return -1;
 
+	/* Only map fields from TouchScreen or TouchPad collections.
+         * We need to ignore fields that belong to other collections
+         * such as Mouse that might have the same GenericDesktop usages. */
+	if (field->application == HID_DG_TOUCHSCREEN)
+		set_bit(INPUT_PROP_DIRECT, hi->input->propbit);
+	else if (field->application == HID_DG_TOUCHPAD)
+		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
+	else
+		return 0;
+
 	switch (usage->hid & HID_USAGE_PAGE) {
 
 	case HID_UP_GENDESK:
@@ -485,7 +494,6 @@ static void mt_complete_slot(struct mt_device *td)
 	td->num_received++;
 }
 
-
 /*
  * this function is called when a whole packet has been received and processed,
  * so that it can decide what to send to the input layer.
@@ -526,8 +534,6 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
 	input_sync(input);
 	td->num_received = 0;
 }
-
-
 
 static int mt_event(struct hid_device *hid, struct hid_field *field,
 				struct hid_usage *usage, __s32 value)

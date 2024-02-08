@@ -356,7 +356,6 @@ static AMBA_APB_DEVICE(mmc, "mb:1c", 0, INTEGRATOR_CP_MMC_BASE,
 static AMBA_APB_DEVICE(aaci, "mb:1d", 0, INTEGRATOR_CP_AACI_BASE,
 	INTEGRATOR_CP_AACI_IRQS, NULL);
 
-
 /*
  * CLCD support
  */

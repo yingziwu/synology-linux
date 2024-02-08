@@ -13,7 +13,6 @@
 #include <linux/pid_namespace.h>
 #include "internal.h"
 
-
 static const struct proc_ns_operations *ns_entries[] = {
 #ifdef CONFIG_NET_NS
 	&netns_operations,
@@ -197,4 +196,3 @@ out_invalid:
 	fput(file);
 	return ERR_PTR(-EINVAL);
 }
-

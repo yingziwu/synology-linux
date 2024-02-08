@@ -746,7 +746,6 @@ static const struct attribute_group gl520_group_temp2 = {
 	.attrs = gl520_attributes_temp2,
 };
 
-
 /*
  * Real code
  */
@@ -822,7 +821,6 @@ exit:
 	return err;
 }
 
-
 /* Called when we have found a new GL520SM. */
 static void gl520_init_client(struct i2c_client *client)
 {
@@ -874,7 +872,6 @@ static int gl520_remove(struct i2c_client *client)
 	return 0;
 }
 
-
 /*
  * Registers 0x07 to 0x0c are word-sized, others are byte-sized
  * GL520 uses a high-byte first convention
@@ -894,7 +891,6 @@ static int gl520_write_value(struct i2c_client *client, u8 reg, u16 value)
 	else
 		return i2c_smbus_write_byte_data(client, reg, value);
 }
-
 
 static struct gl520_data *gl520_update_device(struct device *dev)
 {

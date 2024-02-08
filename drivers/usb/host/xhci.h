@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * xHCI host controller driver
  *
@@ -127,7 +130,6 @@ struct xhci_cap_regs {
 
 /* run_regs_off bitmask - bits 0:4 reserved */
 #define	RTSOFF_MASK	(~0x1f)
-
 
 /* Number of registers per port */
 #define	NUM_PORT_REGS	4
@@ -675,7 +677,6 @@ struct xhci_ep_ctx {
 /* deq bitmasks */
 #define EP_CTX_CYCLE_MASK		(1 << 0)
 
-
 /**
  * struct xhci_input_control_context
  * Input control context; see section 6.2.5.
@@ -889,7 +890,6 @@ struct xhci_interval_bw_table {
 	unsigned int		ss_bw_out;
 };
 
-
 struct xhci_virt_device {
 	struct usb_device		*udev;
 	/*
@@ -942,7 +942,6 @@ struct xhci_tt_bw_info {
 	int				active_eps;
 };
 
-
 /**
  * struct xhci_device_context_array
  * @dev_context_ptr	array of 64-bit DMA addresses for device contexts
@@ -958,7 +957,6 @@ struct xhci_device_context_array {
  * TODO: change this to be dynamically sized at HC mem init time since the HC
  * might not be able to handle the maximum number of devices possible.
  */
-
 
 struct xhci_transfer_event {
 	/* 64-bit buffer address, or immediate data */
@@ -1080,7 +1078,6 @@ struct xhci_event_cmd {
 /* Set TR Dequeue Pointer command TRB fields */
 #define TRB_TO_STREAM_ID(p)		((((p) & (0xffff << 16)) >> 16))
 #define STREAM_ID_FOR_TRB(p)		((((p)) & 0xffff) << 16)
-
 
 /* Port Status Change Event TRB fields */
 /* Port ID - bits 31:24 */
@@ -1706,6 +1703,11 @@ static inline int xhci_register_plat(void)
 { return 0; }
 static inline void xhci_unregister_plat(void)
 {  }
+#endif
+
+#if defined(CONFIG_SYNO_HI3535_VS) || defined(MY_ABC_HERE)
+int xhci_register_hi3535(void);
+void xhci_unregister_hi3535(void);
 #endif
 
 /* xHCI host controller glue */

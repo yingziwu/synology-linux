@@ -68,7 +68,6 @@ struct brcms_info {
 	spinlock_t lock;	/* per-device perimeter lock */
 	spinlock_t isr_lock;	/* per-device ISR synchronization lock */
 
-
 	/* timer related fields */
 	atomic_t callbacks;	/* # outstanding callback functions */
 	struct brcms_timer *timers;	/* timer cleanup queue */

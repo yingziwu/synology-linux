@@ -376,7 +376,6 @@ do {									\
 	__ret;								\
 })
 
-
 #define __wait_event_interruptible_locked(wq, condition, exclusive, irq) \
 ({									\
 	int __ret = 0;							\
@@ -405,7 +404,6 @@ do {									\
 	__set_current_state(TASK_RUNNING);				\
 	__ret;								\
 })
-
 
 /**
  * wait_event_interruptible_locked - sleep until a condition gets true
@@ -522,8 +520,6 @@ do {									\
 #define wait_event_interruptible_exclusive_locked_irq(wq, condition)	\
 	((condition)							\
 	 ? 0 : __wait_event_interruptible_locked(wq, condition, 1, 1))
-
-
 
 #define __wait_event_killable(wq, condition, ret)			\
 do {									\

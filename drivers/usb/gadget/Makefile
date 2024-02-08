@@ -3,7 +3,10 @@
 #
 ccflags-$(CONFIG_USB_GADGET_DEBUG) := -DDEBUG
 
+ifndef CONFIG_HIUSB_DEVICE
 obj-$(CONFIG_USB_GADGET)	+= udc-core.o
+endif
+
 obj-$(CONFIG_USB_DUMMY_HCD)	+= dummy_hcd.o
 obj-$(CONFIG_USB_NET2272)	+= net2272.o
 obj-$(CONFIG_USB_NET2280)	+= net2280.o
@@ -31,6 +34,7 @@ obj-$(CONFIG_USB_MV_UDC)	+= mv_udc.o
 mv_udc-y			:= mv_udc_core.o
 obj-$(CONFIG_USB_CI13XXX_MSM)	+= ci13xxx_msm.o
 obj-$(CONFIG_USB_FUSB300)	+= fusb300_udc.o
+obj-$(CONFIG_HIUSB_DEVICE)	+= hi_hs_dev/
 
 #
 # USB gadget drivers
@@ -52,6 +56,7 @@ g_nokia-y			:= nokia.o
 g_webcam-y			:= webcam.o
 g_ncm-y				:= ncm.o
 g_acm_ms-y			:= acm_ms.o
+g_android-y			:= android.o
 
 obj-$(CONFIG_USB_ZERO)		+= g_zero.o
 obj-$(CONFIG_USB_AUDIO)		+= g_audio.o
@@ -71,3 +76,4 @@ obj-$(CONFIG_USB_G_NOKIA)	+= g_nokia.o
 obj-$(CONFIG_USB_G_WEBCAM)	+= g_webcam.o
 obj-$(CONFIG_USB_G_NCM)		+= g_ncm.o
 obj-$(CONFIG_USB_G_ACM_MS)	+= g_acm_ms.o
+obj-$(CONFIG_USB_G_ANDROID)	+= g_android.o

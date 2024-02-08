@@ -158,4 +158,3 @@ static inline void __kunmap_atomic(void *addr)
 #endif
 
 #endif /* _PARISC_CACHEFLUSH_H */
-

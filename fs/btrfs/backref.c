@@ -817,7 +817,6 @@ int btrfs_find_all_roots(struct btrfs_trans_handle *trans,
 	return 0;
 }
 
-
 static int __inode_info(u64 inum, u64 ioff, u8 key_type,
 			struct btrfs_root *fs_root, struct btrfs_path *path,
 			struct btrfs_key *found_key)

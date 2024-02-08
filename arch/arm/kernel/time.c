@@ -94,7 +94,6 @@ static inline void do_leds(void)
 #define	do_leds()
 #endif
 
-
 #ifndef CONFIG_GENERIC_CLOCKEVENTS
 /*
  * Kernel system timer support.
@@ -149,4 +148,3 @@ void __init time_init(void)
 	system_timer->init();
 	sched_clock_postinit();
 }
-

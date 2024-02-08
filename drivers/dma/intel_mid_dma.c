@@ -559,7 +559,6 @@ static int intel_mid_dma_device_control(struct dma_chan *chan,
 	return 0;
 }
 
-
 /**
  * intel_mid_dma_prep_memcpy -	Prep memcpy txn
  * @chan: chan for DMA transfer

@@ -1255,7 +1255,6 @@ static int __devexit ks8842_remove(struct platform_device *pdev)
 	return 0;
 }
 
-
 static struct platform_driver ks8842_platform_driver = {
 	.driver = {
 		.name	= DRV_NAME,
@@ -1271,4 +1270,3 @@ MODULE_DESCRIPTION("Timberdale KS8842 ethernet driver");
 MODULE_AUTHOR("Mocean Laboratories <info@mocean-labs.com>");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("platform:ks8842");
-

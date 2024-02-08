@@ -124,7 +124,6 @@ void phone_unregister_device(struct phone_device *pfd)
 	mutex_unlock(&phone_lock);
 }
 
-
 static const struct file_operations phone_fops =
 {
 	.owner		= THIS_MODULE,
@@ -136,7 +135,6 @@ static const struct file_operations phone_fops =
  *	Board init functions
  */
  
-
 /*
  *    Initialise Telephony for linux
  */

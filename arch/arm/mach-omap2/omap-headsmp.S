@@ -42,4 +42,3 @@ hold:	ldr	r12,=0x103
 	 */
 	b	secondary_startup
 ENDPROC(omap_secondary_startup)
-

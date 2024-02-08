@@ -67,7 +67,6 @@ void EnableHWSecurityConfig8192(struct net_device *dev)
 		SECR_value |= SCR_TxUseDK;
 	}
 
-
 	ieee->hwsec_active = 1;
 	if ((ieee->pHTInfo->IOTAction&HT_IOT_ACT_PURE_N_MODE) || !hwwep) {
 		ieee->hwsec_active = 0;
@@ -133,7 +132,6 @@ void setKey(struct net_device *dev, u8 EntryNo, u8 KeyIndex, u16 KeyType,
 		usConfig |= BIT15 | (KeyType<<2);
 	else
 		usConfig |= BIT15 | (KeyType<<2) | KeyIndex;
-
 
 	for (i = 0; i < CAM_CONTENT_COUNT; i++) {
 		TargetCommand  = i + CAM_CONTENT_COUNT * EntryNo;
@@ -210,7 +208,6 @@ void CamRestoreAllEntry(struct net_device *dev)
 	};
 
 	RT_TRACE(COMP_SEC, "CamRestoreAllEntry:\n");
-
 
 	if ((priv->rtllib->pairwise_key_type == KEY_TYPE_WEP40) ||
 	    (priv->rtllib->pairwise_key_type == KEY_TYPE_WEP104)) {

@@ -55,7 +55,6 @@ static void __init ar913x_wmac_setup(void)
 	ath79_wmac_resources[0].end = AR913X_WMAC_BASE + AR913X_WMAC_SIZE - 1;
 }
 
-
 static int ar933x_wmac_reset(void)
 {
 	ath79_device_reset_set(AR933X_RESET_WMAC);

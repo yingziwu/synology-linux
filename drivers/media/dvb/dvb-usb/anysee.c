@@ -509,7 +509,6 @@ static struct cxd2820r_config anysee_cxd2820r_config = {
  * IOE[5] STV0903 1=enabled
  */
 
-
 /* external I2C gate used for DNOD44CDH086A(TDA18212) tuner module */
 static int anysee_i2c_gate_ctrl(struct dvb_frontend *fe, int enable)
 {

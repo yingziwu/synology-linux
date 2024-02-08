@@ -387,7 +387,6 @@ int set_dabr(unsigned long dabr)
 	mtspr(SPRN_DABR, dabr);
 #endif
 
-
 	return 0;
 }
 
@@ -483,7 +482,6 @@ struct task_struct *__switch_to(struct task_struct *prev,
 		set_dabr(new->thread.dabr);
 #endif /* CONFIG_HAVE_HW_BREAKPOINT */
 #endif
-
 
 	new_thread = &new->thread;
 	old_thread = &current->thread;

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* audit_watch.c -- watching inodes
  *
  * Copyright 2003-2009 Red Hat, Inc.
@@ -486,6 +489,11 @@ static bool audit_watch_should_send_event(struct fsnotify_group *group, struct i
 					  struct fsnotify_mark *vfsmount_mark,
 					  __u32 mask, void *data, int data_type)
 {
+#ifdef MY_ABC_HERE
+	/* Don't care syno notify event, because latter will be FSNOTIFY_EVENT_PATH or  FSNOTIFY_EVENT_INODE coming up */
+	if (data_type == FSNOTIFY_EVENT_SYNO)
+		return false;
+#endif
        return true;
 }
 
@@ -499,6 +507,11 @@ static int audit_watch_handle_event(struct fsnotify_group *group,
 	__u32 mask = event->mask;
 	const char *dname = event->file_name;
 	struct audit_parent *parent;
+
+#ifdef MY_ABC_HERE
+	if (FSNOTIFY_EVENT_SYNO == event->data_type)
+		return 0;
+#endif
 
 	parent = container_of(inode_mark, struct audit_parent, mark);
 

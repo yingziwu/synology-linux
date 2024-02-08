@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext3/dir.c
  *
@@ -45,7 +48,6 @@ const struct file_operations ext3_dir_operations = {
 	.release	= ext3_release_dir,
 };
 
-
 static unsigned char get_dtype(struct super_block *sb, int filetype)
 {
 	if (!EXT3_HAS_INCOMPAT_FEATURE(sb, EXT3_FEATURE_INCOMPAT_FILETYPE) ||
@@ -54,7 +56,6 @@ static unsigned char get_dtype(struct super_block *sb, int filetype)
 
 	return (ext3_filetype_table[filetype]);
 }
-
 
 int ext3_check_dir_entry (const char * function, struct inode * dir,
 			  struct ext3_dir_entry_2 * de,
@@ -77,6 +78,9 @@ int ext3_check_dir_entry (const char * function, struct inode * dir,
 		error_msg = "inode out of bounds";
 
 	if (unlikely(error_msg != NULL))
+#ifdef MY_ABC_HERE
+		if (printk_ratelimit())
+#endif
 		ext3_error (dir->i_sb, function,
 			"bad entry in directory #%lu: %s - "
 			"offset=%lu, inode=%lu, rec_len=%d, name_len=%d",
@@ -102,8 +106,13 @@ static int ext3_readdir(struct file * filp,
 
 	sb = inode->i_sb;
 
+#ifdef MY_ABC_HERE
+	if ((EXT3_SB(inode->i_sb)->s_es->s_syno_hash_magic != cpu_to_le32(SYNO_HASH_MAGIC)) &&
+		!EXT3_HAS_COMPAT_FEATURE(inode->i_sb, EXT3_FEATURE_COMPAT_DIR_INDEX) &&
+#else
 	if (EXT3_HAS_COMPAT_FEATURE(inode->i_sb,
 				    EXT3_FEATURE_COMPAT_DIR_INDEX) &&
+#endif
 	    ((EXT3_I(inode)->i_flags & EXT3_INDEX_FL) ||
 	     ((inode->i_size >> sb->s_blocksize_bits) == 1))) {
 		err = ext3_dx_readdir(filp, dirent, filldir);
@@ -302,7 +311,6 @@ static void free_rb_tree_fname(struct rb_root *root)
 	}
 }
 
-
 static struct dir_private_info *ext3_htree_create_dir_info(loff_t pos)
 {
 	struct dir_private_info *p;
@@ -378,8 +386,6 @@ int ext3_htree_store_dirent(struct file *dir_file, __u32 hash,
 	rb_insert_color(&new_fn->rb_hash, &info->root);
 	return 0;
 }
-
-
 
 /*
  * This is a helper function for ext3_dx_readdir.  It calls filldir

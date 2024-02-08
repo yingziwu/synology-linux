@@ -74,7 +74,6 @@ struct ieee80211_fragment_entry {
 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
 };
 
-
 struct ieee80211_bss {
 	/* don't want to look up all the time */
 	size_t ssid_len;
@@ -169,7 +168,6 @@ static inline u8 bss_mesh_id_len(struct ieee80211_bss *bss)
 	return 0;
 }
 
-
 typedef unsigned __bitwise__ ieee80211_tx_result;
 #define TX_CONTINUE	((__force ieee80211_tx_result) 0u)
 #define TX_DROP		((__force ieee80211_tx_result) 1u)
@@ -190,7 +188,6 @@ struct ieee80211_tx_data {
 
 	unsigned int flags;
 };
-
 
 typedef unsigned __bitwise__ ieee80211_rx_result;
 #define RX_CONTINUE		((__force ieee80211_rx_result) 0u)
@@ -1025,7 +1022,6 @@ struct ieee80211_local {
 #define I802_DEBUG_INC(c) do { } while (0)
 #endif /* CONFIG_MAC80211_DEBUG_COUNTERS */
 
-
 	int total_ps_buffered; /* total number of all buffered unicast and
 				* multicast packets for power saving stations
 				*/
@@ -1168,13 +1164,11 @@ static inline struct ieee80211_local *hw_to_local(
 	return container_of(hw, struct ieee80211_local, hw);
 }
 
-
 static inline int ieee80211_bssid_match(const u8 *raddr, const u8 *addr)
 {
 	return compare_ether_addr(raddr, addr) == 0 ||
 	       is_broadcast_ether_addr(raddr);
 }
-
 
 int ieee80211_hw_config(struct ieee80211_local *local, u32 changed);
 void ieee80211_tx_set_protected(struct ieee80211_tx_data *tx);

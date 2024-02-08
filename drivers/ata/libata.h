@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  libata.h - helper library for ATA
  *
@@ -30,6 +33,17 @@
 
 #define DRV_NAME	"libata"
 #define DRV_VERSION	"3.00"	/* must be exactly four chars */
+
+#ifdef MY_ABC_HERE
+struct ata_blacklist_entry {
+	const char *model_num;
+	const char *model_rev;
+	unsigned long horkage;
+};
+
+extern struct ata_blacklist_entry ata_device_blacklist [];
+extern int glob_match (const char *text, const char *pattern);
+#endif
 
 struct ata_scsi_args {
 	struct ata_device	*dev;
@@ -138,12 +152,14 @@ extern void ata_scsi_scan_host(struct ata_port *ap, int sync);
 extern int ata_scsi_offline_dev(struct ata_device *dev);
 extern void ata_scsi_media_change_notify(struct ata_device *dev);
 extern void ata_scsi_hotplug(struct work_struct *work);
+#ifdef MY_ABC_HERE
+extern void ata_syno_pmp_hotplug(struct work_struct *work);
+#endif //MY_ABC_HERE
 extern void ata_schedule_scsi_eh(struct Scsi_Host *shost);
 extern void ata_scsi_dev_rescan(struct work_struct *work);
 extern int ata_bus_probe(struct ata_port *ap);
 extern int ata_scsi_user_scan(struct Scsi_Host *shost, unsigned int channel,
 			      unsigned int id, unsigned int lun);
-
 
 /* libata-eh.c */
 extern unsigned long ata_internal_cmd_timeout(struct ata_device *dev, u8 cmd);

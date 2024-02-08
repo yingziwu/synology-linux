@@ -84,7 +84,6 @@
 #define PMU_I2C_STATUS_DATAREAD	1
 #define PMU_I2C_STATUS_BUSY	0xfe
 
-
 /* Kind of PMU (model) */
 enum {
 	PMU_UNKNOWN,

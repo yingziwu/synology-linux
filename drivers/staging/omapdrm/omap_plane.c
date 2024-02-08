@@ -184,7 +184,6 @@ static int commit(struct drm_plane *plane)
 		queue_work(priv->wq, &omap_plane->work);
 	}
 
-
 	if (ovl->is_enabled(ovl)) {
 		omap_framebuffer_flush(plane->fb, info->pos_x, info->pos_y,
 				info->out_width, info->out_height);

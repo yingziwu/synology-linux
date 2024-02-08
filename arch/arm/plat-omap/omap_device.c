@@ -313,7 +313,6 @@ static void _add_hwmod_clocks_clkdev(struct omap_device *od,
 		_add_clkdev(od, oh->opt_clks[i].role, oh->opt_clks[i].clk);
 }
 
-
 /**
  * omap_device_build_from_dt - build an omap_device with multiple hwmods
  * @pdev_name: name of the platform_device driver to use
@@ -400,7 +399,6 @@ static int _omap_device_notifier_call(struct notifier_block *nb,
 
 	return NOTIFY_DONE;
 }
-
 
 /* Public functions for use by core code */
 
@@ -812,7 +810,6 @@ int omap_device_register(struct platform_device *pdev)
 	pdev->dev.pm_domain = &omap_device_pm_domain;
 	return platform_device_add(pdev);
 }
-
 
 /* Public functions for use by device drivers through struct platform_data */
 

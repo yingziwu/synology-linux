@@ -50,7 +50,6 @@
  * necessary.
  */
 
-
 /***********************\
 * ANI parameter control *
 \***********************/
@@ -201,7 +200,6 @@ ath5k_ani_set_cck_weak_signal_detection(struct ath5k_hw *ah, bool on)
 	ATH5K_DBG_UNLIMIT(ah, ATH5K_DEBUG_ANI, "turned %s",
 			  on ? "on" : "off");
 }
-
 
 /***************\
 * ANI algorithm *
@@ -517,7 +515,6 @@ ath5k_ani_calibration(struct ath5k_hw *ah)
 	}
 }
 
-
 /*******************\
 * Interrupt handler *
 \*******************/
@@ -586,7 +583,6 @@ ath5k_ani_phy_error_report(struct ath5k_hw *ah,
 			tasklet_schedule(&ah->ani_tasklet);
 	}
 }
-
 
 /****************\
 * Initialization *
@@ -710,7 +706,6 @@ ath5k_ani_init(struct ath5k_hw *ah, enum ath5k_ani_mode mode)
 
 	ah->ani_state.ani_mode = mode;
 }
-
 
 /**************\
 * Debug output *

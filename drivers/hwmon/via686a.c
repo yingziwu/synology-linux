@@ -47,7 +47,6 @@
 #include <linux/acpi.h>
 #include <linux/io.h>
 
-
 /*
  * If force_addr is set to anything different from 0, we forcibly enable
  * the device at the given address.
@@ -679,7 +678,6 @@ static struct platform_driver via686a_driver = {
 	.probe		= via686a_probe,
 	.remove		= __devexit_p(via686a_remove),
 };
-
 
 /* This is called when the module is loaded */
 static int __devinit via686a_probe(struct platform_device *pdev)

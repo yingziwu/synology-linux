@@ -717,7 +717,6 @@ static int fcoe_shost_config(struct fc_lport *lport, struct device *dev)
 	return 0;
 }
 
-
 /**
  * fcoe_fdmi_info() - Get FDMI related info from net devive for SW FCoE
  * @lport:  The local port that is associated with the net device
@@ -1005,7 +1004,6 @@ static int fcoe_ddp_target(struct fc_lport *lport, u16 xid,
 
 	return 0;
 }
-
 
 /**
  * fcoe_ddp_done() - Call a LLD's ddp_done through the net device
@@ -2368,7 +2366,6 @@ static int fcoe_hostlist_add(const struct fc_lport *lport)
 	}
 	return 0;
 }
-
 
 static struct fcoe_transport fcoe_sw_transport = {
 	.name = {FCOE_TRANSPORT_DEFAULT},

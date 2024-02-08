@@ -6,7 +6,7 @@
  *
  * Copyright (C) 1998,2001-2005 Pavel Machek <pavel@ucw.cz>
  * Copyright (C) 2006 Rafael J. Wysocki <rjw@sisk.pl>
- * Copyright (C) 2010 Bojan Smojver <bojan@rexursive.com>
+ * Copyright (C) 2010-2012 Bojan Smojver <bojan@rexursive.com>
  *
  * This file is released under the GPLv2.
  *
@@ -30,7 +30,11 @@
 #include <linux/atomic.h>
 #include <linux/kthread.h>
 #include <linux/crc32.h>
-
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+#include <linux/mount.h>
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 #include "power.h"
 
 #define HIBERNATE_SIG	"S1SUSPEND"
@@ -216,7 +220,11 @@ struct block_device *hib_resume_bdev;
 /*
  * Saving part
  */
-
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+static int flush_swap_writer(struct swap_map_handle *handle);
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 static int mark_swapfiles(struct swap_map_handle *handle, unsigned int flags)
 {
 	int error;
@@ -230,8 +238,23 @@ static int mark_swapfiles(struct swap_map_handle *handle, unsigned int flags)
 		swsusp_header->flags = flags;
 		if (flags & SF_CRC32_MODE)
 			swsusp_header->crc32 = handle->crc32;
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+		/*store the resume address in the swsusp_header */
+		*(unsigned long *)((&swsusp_header->image) - 1) =
+			(unsigned long)swsusp_arch_resume;
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 		error = hib_bio_write_page(swsusp_resume_block,
-					swsusp_header, NULL);
+				swsusp_header, NULL);
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+	/*
+	 * Make sure the mark has been writen to flash!
+	 */
+	flush_swap_writer(handle);
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 	} else {
 		printk(KERN_ERR "PM: Swap header not found!\n");
 		error = -ENODEV;
@@ -266,6 +289,53 @@ static int swsusp_swap_check(void)
 	return res;
 }
 
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef CONFIG_HISI_SNAPSHOT_BOOT
+static int swsusp_hb_bdev_check(void)
+{
+	char spath[64];
+	struct block_device *bdev = NULL;
+	dev_t device;
+
+	if (hb_bdev_file[0] == 0)
+		return -1;
+
+	strncpy(spath, hb_bdev_file, sizeof(spath));
+
+	if (strncmp(spath, "/dev/block/", 11) == 0)
+		strcpy(spath + 5, spath + 11);
+
+	device = name_to_dev_t(spath);
+	if (device == MKDEV(0, 0))
+		return -1;
+
+	bdev = bdget(device);
+	if (!bdev)
+		return -1;
+
+	bdput(bdev);
+
+	return 0;
+}
+
+int swsusp_check_storage_all(void)
+{
+	int ret;
+
+	ret = swsusp_hb_bdev_check();
+	if (ret >= 0)
+		return 1; /* use hb_bdev device */
+
+	return -1;
+}
+#else
+int swsusp_check_storage_all(void)
+{
+	return 0; /* use swap device always */
+}
+#endif /* CONFIG_HISI_SNAPSHOT_BOOT */
+#endif /* CONFIG_HI3535_SDK_2050 */
+
 /**
  *	write_page - Write one page to given swap location.
  *	@buf:		Address we're writing.
@@ -282,14 +352,17 @@ static int write_page(void *buf, sector_t offset, struct bio **bio_chain)
 		return -ENOSPC;
 
 	if (bio_chain) {
-		src = (void *)__get_free_page(__GFP_WAIT | __GFP_HIGH);
+		src = (void *)__get_free_page(__GFP_WAIT | __GFP_NOWARN |
+		                              __GFP_NORETRY);
 		if (src) {
 			copy_page(src, buf);
 		} else {
 			ret = hib_wait_on_bio_chain(bio_chain); /* Free pages */
 			if (ret)
 				return ret;
-			src = (void *)__get_free_page(__GFP_WAIT | __GFP_HIGH);
+			src = (void *)__get_free_page(__GFP_WAIT |
+			                              __GFP_NOWARN |
+			                              __GFP_NORETRY);
 			if (src) {
 				copy_page(src, buf);
 			} else {
@@ -367,12 +440,17 @@ static int swap_write_page(struct swap_map_handle *handle, void *buf,
 		clear_page(handle->cur);
 		handle->cur_swap = offset;
 		handle->k = 0;
-	}
-	if (bio_chain && low_free_pages() <= handle->reqd_free_pages) {
-		error = hib_wait_on_bio_chain(bio_chain);
-		if (error)
-			goto out;
-		handle->reqd_free_pages = reqd_free_pages();
+
+		if (bio_chain && low_free_pages() <= handle->reqd_free_pages) {
+			error = hib_wait_on_bio_chain(bio_chain);
+			if (error)
+				goto out;
+			/*
+			 * Recalculate the number of required free pages, to
+			 * make sure we never take more than half.
+			 */
+			handle->reqd_free_pages = reqd_free_pages();
+		}
 	}
  out:
 	return error;
@@ -419,9 +497,9 @@ static int swap_writer_finish(struct swap_map_handle *handle,
 /* Maximum number of threads for compression/decompression. */
 #define LZO_THREADS	3
 
-/* Maximum number of pages for read buffering. */
-#define LZO_READ_PAGES	(MAP_PAGE_ENTRIES * 8)
-
+/* Minimum/maximum number of pages for read buffering. */
+#define LZO_MIN_RD_PAGES	1024
+#define LZO_MAX_RD_PAGES	8192
 
 /**
  *	save_image - save the suspend image data
@@ -631,12 +709,6 @@ static int save_image_lzo(struct swap_map_handle *handle,
 	}
 
 	/*
-	 * Adjust number of free pages after all allocations have been done.
-	 * We don't want to run out of pages when writing.
-	 */
-	handle->reqd_free_pages = reqd_free_pages();
-
-	/*
 	 * Start the CRC32 thread.
 	 */
 	init_waitqueue_head(&crc->go);
@@ -656,6 +728,12 @@ static int save_image_lzo(struct swap_map_handle *handle,
 		ret = -ENOMEM;
 		goto out_clean;
 	}
+
+	/*
+	 * Adjust the number of required free pages after all allocations have
+	 * been done. We don't want to run out of pages when writing.
+	 */
+	handle->reqd_free_pages = reqd_free_pages();
 
 	printk(KERN_INFO
 		"PM: Using %u thread(s) for compression.\n"
@@ -793,6 +871,259 @@ static int enough_swap(unsigned int nr_pages, unsigned int flags)
 	return free_swap > required;
 }
 
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef CONFIG_HISI_SNAPSHOT_BOOT
+
+#define PAGE_NR(x) (((x) + PAGE_SIZE - 1) / PAGE_SIZE)
+
+#include "compress.h"
+
+static int hb_bdev_write_header(struct compress_writer *writer,
+		union sscomp_header *sscomp)
+{
+	int ret;
+
+	ret = writer->write(writer, 0, PAGE_NR(sizeof(*sscomp)), sscomp);
+	if (ret != PAGE_NR(sizeof(*sscomp))) {
+		printk(KERN_ERR "PM: %s: write() failed\n", __func__);
+		return -EFAULT;
+	}
+
+	return 0;
+}
+
+static int hb_bdev_write_data(struct compress_writer *writer,
+		struct sscomp_block *block,
+		unsigned int *src_len,
+		sector_t *write_offs_page_i)
+{
+	void *buf = (void *)writer->dst;
+	int ret;
+	sector_t page_nr;
+
+	ret = writer->compress(writer, block, src_len);
+	if (ret <= 0) {
+		printk(KERN_ERR "PM: %s: compress() failed\n", __func__);
+		return -EFAULT;
+	}
+
+	page_nr = ret;
+	ret = writer->write(writer, *write_offs_page_i, page_nr, buf);
+	if (ret != page_nr) {
+		printk(KERN_ERR "PM: %s: write() failed\n", __func__);
+		return -EFAULT;
+	}
+
+	*write_offs_page_i += page_nr;
+
+	return 0;
+}
+
+static inline int hb_bdev_write_finish(struct compress_writer *writer)
+{
+	return writer->finish(writer);
+}
+
+static inline void __hb_bdev_unpack_pfn(void *mem)
+{
+	unsigned long *pfn = mem;
+	while ((void *)pfn < mem + PAGE_SIZE) {
+		*pfn <<= PAGE_SHIFT;
+		pfn++;
+	}
+}
+
+extern unsigned int crc32_check(
+		unsigned int crc, const unsigned char *p, unsigned int len);
+
+static int hb_bdev_save_image(struct compress_writer *writer,
+		struct snapshot_handle *snapshot)
+{
+	union sscomp_header *sscomp = &writer->sscomp;
+	struct sscomp_block *block = &sscomp->b.blocks[0];
+	unsigned int nr_pages;
+	unsigned int filled_src = 0;
+	sector_t write_offs_page_i;
+	int ret;
+
+	write_offs_page_i = PAGE_NR(sizeof(*sscomp));
+
+	/* meta block(s) */
+	nr_pages = sscomp->info.meta_pages;
+	while (nr_pages) {
+		ret = snapshot_read_next(snapshot);
+		if (ret <= 0) {
+			printk(KERN_ERR "PM: snapshot_read_next() failed\n");
+			return -EFAULT;
+		}
+
+		memcpy((void *)writer->src + filled_src, data_of(*snapshot),
+				PAGE_SIZE);
+
+		__hb_bdev_unpack_pfn((void *)writer->src + filled_src);
+
+#ifdef USE_SHA1
+		hb_bdev_sha1_update((void *)writer->src + filled_src,
+				PAGE_SIZE);
+#else
+		sscomp->info.crc32 = crc32_check(sscomp->info.crc32,
+				(void *)writer->src + filled_src, PAGE_SIZE);
+#endif
+		filled_src += PAGE_SIZE;
+		if (filled_src >= writer->src_buf_sz) {
+			ret = hb_bdev_write_data(writer, block, &filled_src,
+					&write_offs_page_i);
+			if (ret)
+				return -EFAULT;
+			sscomp->info.meta_blocks++;
+			block++;
+		}
+		nr_pages--;
+	}
+
+	while (filled_src > 0) {
+		ret = hb_bdev_write_data(writer, block, &filled_src,
+				&write_offs_page_i);
+		if (ret)
+			return -EFAULT;
+		sscomp->info.meta_blocks++;
+		block++;
+	}
+
+	/* copy block(s) */
+	nr_pages = sscomp->info.data_pages;
+	while (nr_pages) {
+		ret = snapshot_read_next(snapshot);
+		if (ret <= 0) {
+			printk(KERN_ERR "PM: snapshot_read_next() failed\n");
+			return -EFAULT;
+		}
+
+		memcpy((void *)writer->src + filled_src, data_of(*snapshot),
+				PAGE_SIZE);
+
+#ifdef USE_SHA1
+		hb_bdev_sha1_update((void *)writer->src + filled_src,
+				PAGE_SIZE);
+#else
+		sscomp->info.crc32 = crc32_check(sscomp->info.crc32,
+				(void *)writer->src + filled_src, PAGE_SIZE);
+#endif
+		filled_src += PAGE_SIZE;
+		if (filled_src >= writer->src_buf_sz) {
+			ret = hb_bdev_write_data(writer, block, &filled_src,
+					&write_offs_page_i);
+			if (ret)
+				return -EFAULT;
+			sscomp->info.data_blocks++;
+			block++;
+		}
+		nr_pages--;
+	}
+
+	while (filled_src > 0) {
+		ret = hb_bdev_write_data(writer, block, &filled_src,
+				&write_offs_page_i);
+		if (ret)
+			return -EFAULT;
+		sscomp->info.data_blocks++;
+		block++;
+	}
+
+	printk(KERN_INFO "PM: compressed: %u pages to %llu pages.\n",
+			sscomp->info.meta_pages + sscomp->info.data_pages,
+			(unsigned long long)write_offs_page_i
+			- PAGE_NR(sizeof(*sscomp)));
+
+	printk(KERN_INFO "PM: written: %u meta blocks and %u data blocks\n",
+			sscomp->info.meta_blocks, sscomp->info.data_blocks);
+
+	return 0;
+}
+
+static int swsusp_compress_and_write(unsigned int flags)
+{
+	struct compress_writer *writer = get_susp_compress_writer(hb_bdev_file);
+	struct snapshot_handle snapshot;
+	struct swsusp_info *susp_info;
+	union sscomp_header *sscomp;
+	unsigned int meta_pages, copy_pages;
+	int error;
+
+	if (!writer) {
+		printk(KERN_ERR "PM: Cannot get compress-writer\n");
+		return -EFAULT;
+	}
+
+	sscomp = &writer->sscomp;
+
+	/* invalidate existing one */
+	memset(writer->pagebuf, 0, PAGE_SIZE);
+	error = hb_bdev_write_header(writer, writer->pagebuf);
+	if (error)
+		goto out_finish;
+
+	memset(&snapshot, 0, sizeof(struct snapshot_handle));
+	error = snapshot_read_next(&snapshot);
+	if (error < PAGE_SIZE) {
+		if (error >= 0)
+			error = -EFAULT;
+		goto out_error;
+	}
+
+	susp_info = (struct swsusp_info *)data_of(snapshot);
+	copy_pages = susp_info->image_pages;
+	meta_pages = susp_info->pages - susp_info->image_pages - 1;
+	if (!copy_pages && !meta_pages) {
+		error = -EINVAL;
+		goto out_error;
+	}
+
+	sscomp->info.meta_pages = meta_pages;
+	sscomp->info.data_pages = copy_pages;
+
+#ifdef USE_SHA1
+	hb_bdev_sha1_init();
+	strncpy(sscomp->info.sha1sum, "Not checked yet!",
+			sizeof(sscomp->info.sha1sum));
+#else
+	sscomp->info.crc32 = 0;
+#endif
+
+	error = hb_bdev_save_image(writer, &snapshot);
+	if (error)
+		goto out_finish;
+
+#ifdef USE_SHA1
+	hb_bdev_sha1_final(sscomp->info.sha1sum);
+#endif
+
+	/* update */
+	memcpy(sscomp->info.magic, SSCOMP_MAGIC_4, sizeof(sscomp->info.magic));
+	sscomp->info.ctl_func = (unsigned long)swsusp_arch_resume;
+	sscomp->info.ctl_data = (unsigned long)saved_processor_context;
+
+	error = hb_bdev_write_header(writer, sscomp);
+	if (error)
+		goto out_finish;
+
+	error = hb_bdev_write_finish(writer);
+
+out_finish:
+out_error:
+	put_susp_compress_writer(writer);
+	return error;
+}
+
+#else
+
+static inline swsusp_compress_and_write(unsigned int flags)
+{
+	return -RESTARTSYS;
+}
+
+#endif /* CONFIG_HISI_SNAPSHOT_BOOT */
+#endif /* CONFIG_HI3535_SDK_2050 */
 /**
  *	swsusp_write - Write entire image and metadata.
  *	@flags: flags to pass to the "boot" kernel in the image header
@@ -811,6 +1142,14 @@ int swsusp_write(unsigned int flags)
 	unsigned long pages;
 	int error;
 
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef CONFIG_HISI_SNAPSHOT_BOOT
+	error = swsusp_check_storage_all();
+	if (error == 1)
+		return swsusp_compress_and_write(flags);
+
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 	pages = snapshot_get_image_size();
 	error = get_swap_writer(&handle);
 	if (error) {
@@ -1067,7 +1406,7 @@ static int load_image_lzo(struct swap_map_handle *handle,
 	unsigned i, thr, run_threads, nr_threads;
 	unsigned ring = 0, pg = 0, ring_size = 0,
 	         have = 0, want, need, asked = 0;
-	unsigned long read_pages;
+	unsigned long read_pages = 0;
 	unsigned char **page = NULL;
 	struct dec_data *data = NULL;
 	struct crc_data *crc = NULL;
@@ -1079,7 +1418,7 @@ static int load_image_lzo(struct swap_map_handle *handle,
 	nr_threads = num_online_cpus() - 1;
 	nr_threads = clamp_val(nr_threads, 1, LZO_THREADS);
 
-	page = vmalloc(sizeof(*page) * LZO_READ_PAGES);
+	page = vmalloc(sizeof(*page) * LZO_MAX_RD_PAGES);
 	if (!page) {
 		printk(KERN_ERR "PM: Failed to allocate LZO page\n");
 		ret = -ENOMEM;
@@ -1144,15 +1483,22 @@ static int load_image_lzo(struct swap_map_handle *handle,
 	}
 
 	/*
-	 * Adjust number of pages for read buffering, in case we are short.
+	 * Set the number of pages for read buffering.
+	 * This is complete guesswork, because we'll only know the real
+	 * picture once prepare_image() is called, which is much later on
+	 * during the image load phase. We'll assume the worst case and
+	 * say that none of the image pages are from high memory.
 	 */
-	read_pages = (nr_free_pages() - snapshot_get_image_size()) >> 1;
-	read_pages = clamp_val(read_pages, LZO_CMP_PAGES, LZO_READ_PAGES);
+	if (low_free_pages() > snapshot_get_image_size())
+		read_pages = (low_free_pages() - snapshot_get_image_size()) / 2;
+	read_pages = clamp_val(read_pages, LZO_MIN_RD_PAGES, LZO_MAX_RD_PAGES);
 
 	for (i = 0; i < read_pages; i++) {
 		page[i] = (void *)__get_free_page(i < LZO_CMP_PAGES ?
 		                                  __GFP_WAIT | __GFP_HIGH :
-		                                  __GFP_WAIT);
+		                                  __GFP_WAIT | __GFP_NOWARN |
+		                                  __GFP_NORETRY);
+
 		if (!page[i]) {
 			if (i < LZO_CMP_PAGES) {
 				ring_size = i;
@@ -1419,10 +1765,13 @@ int swsusp_check(void)
 			goto put;
 
 		if (!memcmp(HIBERNATE_SIG, swsusp_header->sig, 10)) {
+#if !defined (CONFIG_HI3535_SDK_2050) || (defined(CONFIG_HI3535_SDK_2050) &&	!defined(CONFIG_HISI_SNAPSHOT_BOOT))
 			memcpy(swsusp_header->sig, swsusp_header->orig_sig, 10);
 			/* Reset swap signature now */
 			error = hib_bio_write_page(swsusp_resume_block,
 						swsusp_header, NULL);
+#endif
+
 		} else {
 			error = -EINVAL;
 		}

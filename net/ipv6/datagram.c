@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	common UDP/RAW code
  *	Linux INET6 implementation
@@ -138,8 +141,25 @@ ipv4_connected:
 
 		/* Connect to link-local address requires an interface */
 		if (!sk->sk_bound_dev_if) {
+#ifdef MY_ABC_HERE
+			unsigned flags;
+			struct net_device *dev = NULL;
+			for_each_netdev(sock_net(sk), dev) {
+				flags = dev_get_flags(dev);
+				if((flags & IFF_RUNNING) && 
+				 !(flags & (IFF_LOOPBACK | IFF_SLAVE))) {
+					sk->sk_bound_dev_if = dev->ifindex;
+					break;
+				}
+			}
+			if(!sk->sk_bound_dev_if) {
+				err = -EINVAL;
+				goto out;
+			}
+#else
 			err = -EINVAL;
 			goto out;
+#endif
 		}
 	}
 
@@ -463,7 +483,6 @@ out_free_skb:
 out:
 	return err;
 }
-
 
 int datagram_recv_ctl(struct sock *sk, struct msghdr *msg, struct sk_buff *skb)
 {

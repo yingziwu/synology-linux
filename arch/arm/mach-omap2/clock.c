@@ -537,4 +537,3 @@ struct clk_functions omap2_clk_functions = {
 	.clk_set_parent		= omap2_clk_set_parent,
 	.clk_disable_unused	= omap2_clk_disable_unused,
 };
-

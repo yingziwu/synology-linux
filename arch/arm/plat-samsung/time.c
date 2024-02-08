@@ -60,7 +60,6 @@ static unsigned long timer_usec_ticks;
  * Original patch by Dimitry Andric, updated by Ben Dooks
 */
 
-
 /* timer_mask_usec_ticks
  *
  * given a clock and divisor, make the value to pass into timer_ticks_to_usec
@@ -123,7 +122,6 @@ static unsigned long s3c2410_gettimeoffset (void)
 
 	return timer_ticks_to_usec(tdone);
 }
-
 
 /*
  * IRQ handler for the timer

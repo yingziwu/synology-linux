@@ -907,7 +907,6 @@ static void virtnet_get_ringparam(struct net_device *dev,
 
 }
 
-
 static void virtnet_get_drvinfo(struct net_device *dev,
 				struct ethtool_drvinfo *info)
 {

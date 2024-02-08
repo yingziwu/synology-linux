@@ -607,7 +607,6 @@ static u64 sys_addr_to_input_addr(struct mem_ctl_info *mci, u64 sys_addr)
 	return input_addr;
 }
 
-
 /*
  * @input_addr is an InputAddr associated with the node represented by mci.
  * Translate @input_addr to a DramAddr and return the result.
@@ -2386,7 +2385,6 @@ static void restore_ecc_error_reporting(struct ecc_settings *s, u8 nid,
 					struct pci_dev *F3)
 {
 	u32 value, mask = 0x3;		/* UECC/CECC enable */
-
 
 	if (!s->nbctl_valid)
 		return;

@@ -718,7 +718,6 @@ static inline unsigned short pci230_ao_mangle_datum(struct comedi_device *dev,
 	if (devpriv->ao_bipolar)
 		datum ^= 1 << (thisboard->ao_bits - 1);
 
-
 	/* PCI230 is 12 bit - stored in upper bits of 16 bit register (lower
 	 * four bits reserved for expansion). */
 	/* PCI230+ is also 12 bit AO. */
@@ -1169,7 +1168,6 @@ static int pci230_ai_rinsn(struct comedi_device *dev,
 		adccon |= PCI230_ADC_IR_BIP;
 	else
 		adccon |= PCI230_ADC_IR_UNI;
-
 
 	/* Enable only this channel in the scan list - otherwise by default
 	 * we'll get one sample from each channel. */
@@ -2381,7 +2379,6 @@ static int pci230_ai_cmd(struct comedi_device *dev, struct comedi_subdevice *s)
 	if (!get_resources(dev, res_mask, OWNER_AICMD))
 		return -EBUSY;
 
-
 	/* Get number of scans required. */
 	if (cmd->stop_src == TRIG_COUNT) {
 		devpriv->ai_scan_count = cmd->stop_arg;
@@ -2635,7 +2632,6 @@ static irqreturn_t pci230_interrupt(int irq, void *d)
 	if (status_int == PCI230_INT_DISABLE)
 		return IRQ_NONE;
 
-
 	spin_lock_irqsave(&devpriv->isr_spinlock, irqflags);
 	valid_status_int = devpriv->int_en & status_int;
 	/* Disable triggered interrupts.
@@ -2695,7 +2691,6 @@ static void pci230_handle_ao_nofifo(struct comedi_device *dev,
 
 	if (!devpriv->ao_continuous && (devpriv->ao_scan_count == 0))
 		return;
-
 
 	for (i = 0; i < cmd->chanlist_len; i++) {
 		/* Read sample from Comedi's circular buffer. */
@@ -2858,7 +2853,6 @@ static void pci230_handle_ai(struct comedi_device *dev,
 	if (todo == 0)
 		return;
 
-
 	fifoamount = 0;
 	for (i = 0; i < todo; i++) {
 		if (fifoamount == 0) {
@@ -2942,7 +2936,6 @@ static void pci230_ao_stop(struct comedi_device *dev,
 	if (!started)
 		return;
 
-
 	cmd = &s->async->cmd;
 	if (cmd->scan_begin_src == TRIG_TIMER) {
 		/* Stop scan rate generator. */
@@ -3003,7 +2996,6 @@ static void pci230_ai_stop(struct comedi_device *dev,
 	spin_unlock_irqrestore(&devpriv->ai_stop_spinlock, irqflags);
 	if (!started)
 		return;
-
 
 	cmd = &s->async->cmd;
 	if (cmd->convert_src == TRIG_TIMER) {

@@ -378,7 +378,6 @@ struct be_cmd_req_cq_create {
 	struct phys_addr pages[8];
 } __packed;
 
-
 struct be_cmd_resp_cq_create {
 	struct be_cmd_resp_hdr hdr;
 	u16 cq_id;
@@ -401,7 +400,6 @@ struct be_cmd_resp_get_fat {
 	u32 rsvd[2];
 	u32 data_buffer[1];
 } __packed;
-
 
 /******************** Create MCCQ ***************************/
 /* Pseudo amap definition in which each bit of the actual structure is defined
@@ -1502,7 +1500,6 @@ struct be_port_rxf_stats_v1 {
 	u32 rsvd5[3];
 };
 
-
 struct be_rxf_stats_v1 {
 	struct be_port_rxf_stats_v1 port[4];
 	u32 rsvd0[2];
@@ -1673,4 +1670,3 @@ extern int be_cmd_set_hsw_config(struct be_adapter *adapter, u16 pvid,
 extern int be_cmd_get_hsw_config(struct be_adapter *adapter, u16 *pvid,
 			u32 domain, u16 intf_id);
 extern int be_cmd_get_acpi_wol_cap(struct be_adapter *adapter);
-

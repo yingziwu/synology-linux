@@ -1208,7 +1208,6 @@ static int nl80211_set_wds_peer(struct sk_buff *skb, struct genl_info *info)
 	return rdev->ops->set_wds_peer(wdev->wiphy, dev, bssid);
 }
 
-
 static int nl80211_set_wiphy(struct sk_buff *skb, struct genl_info *info)
 {
 	struct cfg80211_registered_device *rdev;
@@ -1477,7 +1476,6 @@ static int nl80211_set_wiphy(struct sk_buff *skb, struct genl_info *info)
 		dev_put(netdev);
 	return result;
 }
-
 
 static int nl80211_send_iface(struct sk_buff *msg, u32 pid, u32 seq, int flags,
 			      struct cfg80211_registered_device *rdev,
@@ -2543,7 +2541,6 @@ static int nl80211_dump_station(struct sk_buff *skb,
 		sta_idx++;
 	}
 
-
  out:
 	cb->args[1] = sta_idx;
 	err = skb->len;
@@ -3000,7 +2997,6 @@ static int nl80211_dump_mpath(struct sk_buff *skb,
 		path_idx++;
 	}
 
-
  out:
 	cb->args[1] = path_idx;
 	err = skb->len;
@@ -3374,7 +3370,6 @@ do {\
 	} \
 } while (0);\
 
-
 	if (!info->attrs[NL80211_ATTR_MESH_CONFIG])
 		return -EINVAL;
 	if (nla_parse_nested(tb, NL80211_MESHCONF_ATTR_MAX,
@@ -3471,7 +3466,6 @@ static int nl80211_parse_mesh_setup(struct genl_info *info,
 		(nla_get_u8(tb[NL80211_MESH_SETUP_ENABLE_VENDOR_METRIC])) ?
 		 IEEE80211_PATH_METRIC_VENDOR :
 		 IEEE80211_PATH_METRIC_AIRTIME;
-
 
 	if (tb[NL80211_MESH_SETUP_IE]) {
 		struct nlattr *ieattr =

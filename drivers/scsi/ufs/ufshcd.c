@@ -1970,7 +1970,6 @@ static void __exit ufshcd_exit(void)
 }
 module_exit(ufshcd_exit);
 
-
 MODULE_AUTHOR("Santosh Yaragnavi <santosh.sy@samsung.com>, "
 	      "Vinayak Holikatti <h.vinayak@samsung.com>");
 MODULE_DESCRIPTION("Generic UFS host controller driver");

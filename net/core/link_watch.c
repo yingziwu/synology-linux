@@ -23,7 +23,6 @@
 #include <linux/bitops.h>
 #include <asm/types.h>
 
-
 enum lw_bits {
 	LW_URGENT = 0,
 };
@@ -48,7 +47,6 @@ static unsigned char default_operstate(const struct net_device *dev)
 
 	return IF_OPER_UP;
 }
-
 
 static void rfc2863_policy(struct net_device *dev)
 {
@@ -75,7 +73,6 @@ static void rfc2863_policy(struct net_device *dev)
 	write_unlock_bh(&dev_base_lock);
 }
 
-
 static bool linkwatch_urgent_event(struct net_device *dev)
 {
 	if (!netif_running(dev))
@@ -86,7 +83,6 @@ static bool linkwatch_urgent_event(struct net_device *dev)
 
 	return netif_carrier_ok(dev) &&	qdisc_tx_changing(dev);
 }
-
 
 static void linkwatch_add_event(struct net_device *dev)
 {
@@ -99,7 +95,6 @@ static void linkwatch_add_event(struct net_device *dev)
 	}
 	spin_unlock_irqrestore(&lweventlist_lock, flags);
 }
-
 
 static void linkwatch_schedule_work(int urgent)
 {
@@ -137,7 +132,6 @@ static void linkwatch_schedule_work(int urgent)
 	/* Otherwise we reschedule it again for immediate execution. */
 	schedule_delayed_work(&linkwatch_work, 0);
 }
-
 
 static void linkwatch_do_dev(struct net_device *dev)
 {
@@ -221,13 +215,11 @@ void linkwatch_forget_dev(struct net_device *dev)
 		linkwatch_do_dev(dev);
 }
 
-
 /* Must be called with the rtnl semaphore held */
 void linkwatch_run_queue(void)
 {
 	__linkwatch_run_queue(0);
 }
-
 
 static void linkwatch_event(struct work_struct *dummy)
 {
@@ -235,7 +227,6 @@ static void linkwatch_event(struct work_struct *dummy)
 	__linkwatch_run_queue(time_after(linkwatch_nextevent, jiffies));
 	rtnl_unlock();
 }
-
 
 void linkwatch_fire_event(struct net_device *dev)
 {

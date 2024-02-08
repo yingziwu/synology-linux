@@ -95,7 +95,6 @@ EXPORT_SYMBOL_GPL(__mtd_next_device);
 
 static LIST_HEAD(mtd_notifiers);
 
-
 #if defined(CONFIG_MTD_CHAR) || defined(CONFIG_MTD_CHAR_MODULE)
 #define MTD_DEVT(index) MKDEV(MTD_CHAR_MAJOR, (index)*2)
 #else
@@ -476,9 +475,17 @@ int mtd_device_parse_register(struct mtd_info *mtd, const char **types,
 		err = add_mtd_partitions(mtd, real_parts, err);
 		kfree(real_parts);
 	} else if (err == 0) {
+		/* We do not add the whole spi flash as a mtdblock device,
+		   To avoid the number of nand partition +1.
+		 */
+		/*
 		err = add_mtd_device(mtd);
+		*/
+#ifdef CONFIG_HI3535_SDK_2050
+#else
 		if (err == 1)
 			err = -ENODEV;
+#endif
 	}
 
 	return err;
@@ -601,7 +608,6 @@ out:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(get_mtd_device);
-
 
 int __get_mtd_device(struct mtd_info *mtd)
 {

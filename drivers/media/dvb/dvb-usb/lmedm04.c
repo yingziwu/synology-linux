@@ -79,8 +79,6 @@
 #include "z0194a.h"
 #include "m88rs2000.h"
 
-
-
 /* debug */
 static int dvb_usb_lme2510_debug;
 #define l_dprintk(var, level, args...) do { \
@@ -94,7 +92,6 @@ static int dvb_usb_lme2510_debug;
 		*p, *(p+1), *(p+2), *(p+3), *(p+4), \
 			*(p+5), *(p+6), *(p+7));
 
-
 module_param_named(debug, dvb_usb_lme2510_debug, int, 0644);
 MODULE_PARM_DESC(debug, "set debugging level (1=info (or-able))."
 			DVB_USB_DEBUG_STATUS);
@@ -106,7 +103,6 @@ MODULE_PARM_DESC(firmware, "set default firmware 0=Sharp7395 1=LG");
 static int pid_filter;
 module_param_named(pid, pid_filter, int, 0644);
 MODULE_PARM_DESC(pid, "set default 0=default 1=off 2=on");
-
 
 DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 
@@ -407,10 +403,8 @@ static int lme2510_pid_filter(struct dvb_usb_adapter *adap, int index, u16 pid,
 		mutex_unlock(&adap->dev->i2c_mutex);
 	}
 
-
 	return ret;
 }
-
 
 static int lme2510_return_status(struct usb_device *dev)
 {
@@ -597,7 +591,6 @@ static int lme2510_msg(struct dvb_usb_device *d,
 	return ret;
 }
 
-
 static int lme2510_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[],
 				 int num)
 {
@@ -772,7 +765,6 @@ static int lme2510_download_firmware(struct usb_device *dev,
 	usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 			0x06, 0x80, 0x0200, 0x00, data, 0x0109, 1000);
 
-
 	data[0] = 0x8a;
 	len_in = 1;
 	msleep(2000);
@@ -882,7 +874,6 @@ static int lme_firmware_switch(struct usb_device *udev, int cold)
 	default:
 		fw_lme = fw_c_s7395;
 	}
-
 
 	if (cold_fw) {
 		info("FRM Loading %s file", fw_lme);

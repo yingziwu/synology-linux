@@ -306,7 +306,6 @@ void radeon_ring_free_size(struct radeon_device *rdev, struct radeon_ring *ring)
 	}
 }
 
-
 int radeon_ring_alloc(struct radeon_device *rdev, struct radeon_ring *ring, unsigned ndw)
 {
 	int r;

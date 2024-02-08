@@ -24,7 +24,6 @@
 
 DEFINE_SPINLOCK(ntp_lock);
 
-
 /* USER_HZ period (usecs): */
 unsigned long			tick_usec = TICK_USEC;
 
@@ -110,7 +109,6 @@ static long pps_calcnt;		/* calibration intervals */
 static long pps_jitcnt;		/* jitter limit exceeded */
 static long pps_stbcnt;		/* stability limit exceeded */
 static long pps_errcnt;		/* calibration errors */
-
 
 /* PPS kernel consumer compensates the whole phase error immediately.
  * Otherwise, reduce the offset by a fixed factor times the time constant.
@@ -234,7 +232,6 @@ static inline void pps_fill_timex(struct timex *txc)
 
 #endif /* CONFIG_NTP_PPS */
 
-
 /**
  * ntp_synced - Returns 1 if the NTP status is not UNSYNC
  *
@@ -243,7 +240,6 @@ static inline int ntp_synced(void)
 {
 	return !(time_status & STA_UNSYNC);
 }
-
 
 /*
  * NTP methods:
@@ -365,7 +361,6 @@ void ntp_clear(void)
 
 }
 
-
 u64 ntp_tick_length(void)
 {
 	unsigned long flags;
@@ -376,7 +371,6 @@ u64 ntp_tick_length(void)
 	spin_unlock_irqrestore(&ntp_lock, flags);
 	return ret;
 }
-
 
 /*
  * this routine handles the overflow of the microsecond field
@@ -440,7 +434,6 @@ int second_overflow(unsigned long secs)
 		break;
 	}
 
-
 	/* Bump the maxerror field */
 	time_maxerror += MAXFREQ / NSEC_PER_USEC;
 	if (time_maxerror > NTP_PHASE_LIMIT) {
@@ -476,8 +469,6 @@ int second_overflow(unsigned long secs)
 	tick_length += (s64)(time_adjust * NSEC_PER_USEC / NTP_INTERVAL_FREQ)
 							 << NTP_SCALE_SHIFT;
 	time_adjust = 0;
-
-
 
 out:
 	spin_unlock_irqrestore(&ntp_lock, flags);
@@ -539,7 +530,6 @@ static void notify_cmos_timer(void)
 #else
 static inline void notify_cmos_timer(void) { }
 #endif
-
 
 /*
  * Propagate a new txc->status value into the NTP state:

@@ -19,7 +19,6 @@
 #include <asm/ucontext.h>
 #include <asm/cacheflush.h>
 
-
 #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
 
 /*

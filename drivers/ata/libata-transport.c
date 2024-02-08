@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright 2008 ioogle, Inc.  All rights reserved.
  *	Released under GPL v2.
@@ -22,7 +25,6 @@
  * found. They are removed only when the HBA is removed, cleaned before the
  * error handler runs.
  */
-
 
 #include <linux/kernel.h>
 #include <linux/blkdev.h>
@@ -64,7 +66,6 @@ struct ata_internal {
 };
 #define to_ata_internal(tmpl)	container_of(tmpl, struct ata_internal, t)
 
-
 #define tdev_to_device(d)					\
 	container_of((d), struct ata_device, tdev)
 #define transport_class_to_dev(dev)				\
@@ -80,11 +81,9 @@ struct ata_internal {
 #define transport_class_to_port(dev)				\
 	tdev_to_port((dev)->parent)
 
-
 /* Device objects are always created whit link objects */
 static int ata_tdev_add(struct ata_device *dev);
 static void ata_tdev_delete(struct ata_device *dev);
-
 
 /*
  * Hack to allow attributes of the same name in different objects.
@@ -146,7 +145,6 @@ static struct {
 	{ ATA_DEV_NONE,			"none" }
 };
 ata_bitfield_name_search(class, ata_class_names)
-
 
 static struct {
 	u32		value;
@@ -315,11 +313,9 @@ int ata_tport_add(struct device *parent,
 	return error;
 }
 
-
 /*
  * ATA link attributes
  */
-
 
 #define ata_link_show_linkspeed(field)					\
 static ssize_t								\
@@ -337,8 +333,19 @@ static DEVICE_ATTR(field, S_IRUGO, show_ata_link_##field, NULL)
 
 ata_link_linkspeed_attr(hw_sata_spd_limit);
 ata_link_linkspeed_attr(sata_spd_limit);
-ata_link_linkspeed_attr(sata_spd);
+#ifdef MY_ABC_HERE
+static ssize_t
+show_ata_link_sata_spd(struct device *dev,
+			struct device_attribute *attr, char *buf)
+{
+	struct ata_link *link = transport_class_to_link(dev);
 
+	return sprintf(buf,"%s\n", sata_spd_string(link->sata_spd));
+}
+static DEVICE_ATTR(sata_spd, S_IRUGO, show_ata_link_sata_spd, NULL);
+#else
+ata_link_linkspeed_attr(sata_spd);
+#endif
 
 static DECLARE_TRANSPORT_CLASS(ata_link_class,
 		"ata_link", NULL, NULL, NULL);
@@ -466,7 +473,6 @@ ata_dev_attr(xfer, pio_mode);
 ata_dev_attr(xfer, dma_mode);
 ata_dev_attr(xfer, xfer_mode);
 
-
 #define ata_dev_show_simple(field, format_string, cast)		\
 static ssize_t								\
 show_ata_dev_##field(struct device *dev,				\
@@ -513,7 +519,6 @@ show_ata_dev_ering(struct device *dev,
 	ata_ering_map(&ata_dev->ering, ata_show_ering, &arg);
 	return arg.written;
 }
-
 
 static DEVICE_ATTR(ering, S_IRUGO, show_ata_dev_ering, NULL);
 
@@ -617,7 +622,6 @@ static void ata_tdev_delete(struct ata_device *ata_dev)
 	ata_tdev_free(ata_dev);
 }
 
-
 /**
  * ata_tdev_add  --  initialize a transport ATA device structure.
  * @ata_dev:	ata_dev structure.
@@ -653,7 +657,6 @@ static int ata_tdev_add(struct ata_device *ata_dev)
 	transport_configure_device(dev);
 	return 0;
 }
-
 
 /*
  * Setup / Teardown code

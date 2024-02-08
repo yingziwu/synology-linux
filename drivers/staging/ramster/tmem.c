@@ -633,7 +633,6 @@ static int tmem_repatriate(void **ppampd, struct tmem_hashbucket *hb,
 	bool intransit = false;
 	int ret = 0;
 
-
 	if (!is_ephemeral(pool))
 		new_pampd = (*tmem_pamops.repatriate_preload)(
 				old_pampd, pool, oidp, index, &intransit);

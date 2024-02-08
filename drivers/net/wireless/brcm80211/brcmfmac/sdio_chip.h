@@ -132,5 +132,4 @@ extern void brcmf_sdio_chip_drivestrengthinit(struct brcmf_sdio_dev *sdiodev,
 					      u32 drivestrength);
 extern u8 brcmf_sdio_chip_getinfidx(struct chip_info *ci, u16 coreid);
 
-
 #endif		/* _BRCMFMAC_SDIO_CHIP_H_ */

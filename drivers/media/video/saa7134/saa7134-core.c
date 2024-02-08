@@ -41,7 +41,6 @@ MODULE_AUTHOR("Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(SAA7134_VERSION);
 
-
 /* ------------------------------------------------------------------ */
 
 static unsigned int irq_debug;
@@ -74,7 +73,6 @@ static unsigned int vbi_nr[]   = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
 static unsigned int radio_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
 static unsigned int tuner[]    = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
 static unsigned int card[]     = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
-
 
 module_param_array(video_nr, int, NULL, 0444);
 module_param_array(vbi_nr,   int, NULL, 0444);
@@ -143,7 +141,6 @@ void saa7134_set_gpio(struct saa7134_dev *dev, int bit_no, int value)
 }
 
 /* ------------------------------------------------------------------ */
-
 
 /* ----------------------------------------------------------- */
 /* delayed request_module                                      */
@@ -542,11 +539,9 @@ static irqreturn_t saa7134_irq(int irq, void *dev_id)
 		if (irq_debug)
 			print_irqstatus(dev,loop,report,status);
 
-
 		if ((report & SAA7134_IRQ_REPORT_RDCAP) ||
 			(report & SAA7134_IRQ_REPORT_INTL))
 				saa7134_irq_video_signalchange(dev);
-
 
 		if ((report & SAA7134_IRQ_REPORT_DONE_RA0) &&
 		    (status & 0x60) == 0)
@@ -739,7 +734,6 @@ static int saa7134_hwinit2(struct saa7134_dev *dev)
 
 	return 0;
 }
-
 
 /* shutdown */
 static int saa7134_hwfini(struct saa7134_dev *dev)
@@ -1145,7 +1139,6 @@ static void __devexit saa7134_finidev(struct pci_dev *pci_dev)
 	saa7134_i2c_unregister(dev);
 	saa7134_unregister_video(dev);
 
-
 	/* the DMA sound modules should be unloaded before reaching
 	   this, but just in case they are still present... */
 	if (dev->dmasound.priv_data != NULL) {
@@ -1153,13 +1146,11 @@ static void __devexit saa7134_finidev(struct pci_dev *pci_dev)
 		dev->dmasound.priv_data = NULL;
 	}
 
-
 	/* release resources */
 	free_irq(pci_dev->irq, dev);
 	iounmap(dev->lmmio);
 	release_mem_region(pci_resource_start(pci_dev,0),
 			   pci_resource_len(pci_dev,0));
-
 
 	v4l2_device_unregister(&dev->v4l2_dev);
 

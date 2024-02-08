@@ -133,7 +133,6 @@ static struct nand_ecclayout oob_4096_ecc8 = {
 	.oobfree = { {2, 6}, {136, 82} },
 };
 
-
 /*
  * Generic flash bbt descriptors
  */
@@ -791,7 +790,6 @@ static int fsl_ifc_chip_init(struct fsl_ifc_mtd *priv)
 	/* set up nand options */
 	chip->options = NAND_NO_READRDY | NAND_NO_AUTOINCR;
 	chip->bbt_options = NAND_BBT_USE_FLASH;
-
 
 	if (in_be32(&ifc->cspr_cs[priv->bank].cspr) & CSPR_PORT_SIZE_16) {
 		chip->read_byte = fsl_ifc_read_byte16;

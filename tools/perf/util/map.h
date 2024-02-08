@@ -101,7 +101,6 @@ static inline u64 identity__map_ip(struct map *map __used, u64 ip)
 	return ip;
 }
 
-
 /* rip/ip <-> addr suitable for passing to `objdump --start-address=` */
 u64 map__rip_2objdump(struct map *map, u64 rip);
 u64 map__objdump_2ip(struct map *map, u64 addr);
@@ -204,7 +203,6 @@ struct symbol *map_groups__find_symbol_by_name(struct map_groups *mg,
 					       const char *name,
 					       struct map **mapp,
 					       symbol_filter_t filter);
-
 
 struct thread *machine__findnew_thread(struct machine *machine, pid_t pid);
 void machine__remove_thread(struct machine *machine, struct thread *th);

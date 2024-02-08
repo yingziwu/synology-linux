@@ -187,7 +187,6 @@ struct si_info {
  * Use si_setcore() or si_setcoreidx() to change the association to another core
  */
 
-
 /* AMBA Interconnect exported externs */
 extern struct bcma_device *ai_findcore(struct si_pub *sih,
 				       u16 coreid, u16 coreunit);

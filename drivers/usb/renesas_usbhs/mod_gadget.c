@@ -992,7 +992,6 @@ int usbhs_mod_gadget_probe(struct usbhs_priv *priv)
 	if (ret)
 		goto err_register;
 
-
 	dev_info(dev, "gadget probed\n");
 
 	return 0;

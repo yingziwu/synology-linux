@@ -57,7 +57,6 @@
 #define TA_PROD_MODE_WRITE_PROTECT	0
 #define TA_CACHE_CORE_NPS		0
 
-
 #define ISCSI_IOV_DATA_BUFFER		5
 
 enum tpg_np_network_transport_table {

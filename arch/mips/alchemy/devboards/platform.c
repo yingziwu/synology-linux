@@ -13,12 +13,10 @@
 #include <asm/reboot.h>
 #include <asm/mach-db1x00/bcsr.h>
 
-
 static struct platform_device db1x00_rtc_dev = {
 	.name	= "rtc-au1xxx",
 	.id	= -1,
 };
-
 
 static void db1x_power_off(void)
 {

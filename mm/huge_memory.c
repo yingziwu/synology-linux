@@ -94,7 +94,6 @@ static struct khugepaged_scan khugepaged_scan = {
 	.mm_head = LIST_HEAD_INIT(khugepaged_scan.mm_head),
 };
 
-
 static int set_recommended_min_free_kbytes(void)
 {
 	struct zone *zone;
@@ -1304,7 +1303,6 @@ static void __split_huge_page_refcount(struct page *page)
 		BUG_ON(!PageUptodate(page_tail));
 		BUG_ON(!PageDirty(page_tail));
 		BUG_ON(!PageSwapBacked(page_tail));
-
 
 		lru_add_page_tail(zone, page, page_tail);
 	}

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Virtio SCSI HBA driver
  *
@@ -389,6 +392,9 @@ static struct scsi_host_template virtscsi_host_template = {
 	.can_queue = 1024,
 	.dma_boundary = UINT_MAX,
 	.use_clustering = ENABLE_CLUSTERING,
+#ifdef MY_ABC_HERE
+	.syno_port_type		= SYNO_PORT_TYPE_SAS,
+#endif
 };
 
 #define virtscsi_config_get(vdev, fld) \
@@ -554,7 +560,6 @@ static int __init init(void)
 				"virtscsi_cmd_cache failed\n");
 		goto error;
 	}
-
 
 	virtscsi_cmd_pool =
 		mempool_create_slab_pool(VIRTIO_SCSI_MEMPOOL_SZ,

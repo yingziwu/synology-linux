@@ -152,8 +152,6 @@ extern void			ndisc_send_skb(struct sk_buff *skb,
 					       const struct in6_addr *saddr,
 					       struct icmp6hdr *icmp6h);
 
-
-
 /*
  *	IGMP
  */
@@ -164,7 +162,6 @@ extern void			igmp6_cleanup(void);
 extern int			igmp6_event_query(struct sk_buff *skb);
 
 extern int			igmp6_event_report(struct sk_buff *skb);
-
 
 #ifdef CONFIG_SYSCTL
 extern int 			ndisc_ifinfo_sysctl_change(struct ctl_table *ctl,

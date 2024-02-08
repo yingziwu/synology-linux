@@ -34,7 +34,6 @@ db8500_add_ssp(struct device *parent, const char *name, resource_size_t base,
 	return dbx500_add_amba_device(parent, name, base, irq, pdata, 0);
 }
 
-
 #define db8500_add_i2c0(parent, pdata) \
 	dbx500_add_i2c(parent, 0, U8500_I2C0_BASE, IRQ_DB8500_I2C0, pdata)
 #define db8500_add_i2c1(parent, pdata) \

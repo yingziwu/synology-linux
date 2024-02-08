@@ -18,4 +18,3 @@
 extern void s6e8ax0_init(void);
 
 #endif
-

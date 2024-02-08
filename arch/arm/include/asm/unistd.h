@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  arch/arm/include/asm/unistd.h
  *
@@ -20,6 +23,8 @@
 #else
 #define __NR_SYSCALL_BASE	__NR_OABI_SYSCALL_BASE
 #endif
+
+#include <linux/syno.h>
 
 /*
  * This file contains the system call numbers.
@@ -404,6 +409,71 @@
 #define __NR_setns			(__NR_SYSCALL_BASE+375)
 #define __NR_process_vm_readv		(__NR_SYSCALL_BASE+376)
 #define __NR_process_vm_writev		(__NR_SYSCALL_BASE+377)
+#ifdef MY_ABC_HERE
+#define __NR_SYNOUtime                 (__NR_SYSCALL_BASE+402)
+#define __NR_SYNOArchiveBit            (__NR_SYSCALL_BASE+403)
+#define __NR_recvfile                  (__NR_SYSCALL_BASE+404)
+#define __NR_SYNOMTDAlloc              (__NR_SYSCALL_BASE+405)
+#define __NR_SYNOCaselessStat64        (__NR_SYSCALL_BASE+406)
+#define __NR_SYNOCaselessLStat64       (__NR_SYSCALL_BASE+407)
+#define __NR_SYNOEcryptName            (__NR_SYSCALL_BASE+410)
+#define __NR_SYNODecryptName           (__NR_SYSCALL_BASE+411)
+#define __NR_SYNOACLCheckPerm          (__NR_SYSCALL_BASE+412)
+#define __NR_SYNOACLIsSupport          (__NR_SYSCALL_BASE+413)
+#define __NR_SYNOACLGetPerm            (__NR_SYSCALL_BASE+414)
+#define __NR_SYNOFlushAggregate        (__NR_SYSCALL_BASE+415)
+#define __NR_SYNOStat64                (__NR_SYSCALL_BASE+419)
+#define __NR_SYNOFStat64               (__NR_SYSCALL_BASE+420)
+#define __NR_SYNOLStat64               (__NR_SYSCALL_BASE+421)
+#define __NR_SYNONotifyInit            (__NR_SYSCALL_BASE+422)
+#define __NR_SYNONotifyAddWatch        (__NR_SYSCALL_BASE+423)
+#define __NR_SYNONotifyRemoveWatch     (__NR_SYSCALL_BASE+424)
+#define __NR_SYNONotifyAddWatch32      (__NR_SYSCALL_BASE+425)
+#define __NR_SYNONotifyRemoveWatch32   (__NR_SYSCALL_BASE+426)
+#define __NR_SYNOArchiveOverwrite      (__NR_SYSCALL_BASE+427)
+
+#define SYNOUtime(arg1, arg2)                     syscall(__NR_SYNOUtime, arg1, arg2)
+
+#define SYNOArchiveBit(arg1, arg2)                syscall(__NR_SYNOArchiveBit, arg1, arg2)
+
+#ifdef MY_ABC_HERE
+#define recvfile(arg1, arg2, arg3, arg4, arg5)    syscall(__NR_recvfile, arg1, arg2, arg3, arg4, arg5)
+#endif
+
+#define SYNOMTDAlloc(arg1)                        syscall(__NR_SYNOMTDAlloc, arg1)
+
+#if !defined(__KERNEL__)
+#define SYNOCaselessStat(arg1, arg2)              syscall(__NR_SYNOCaselessStat64, arg1, arg2)
+#define SYNOCaselessLStat(arg1, arg2)             syscall(__NR_SYNOCaselessLStat64, arg1, arg2)
+#endif /* !__KERNEL__ */
+
+#ifdef MY_ABC_HERE
+#define __NR_SYNOEcryptName                 (__NR_SYSCALL_BASE+410)
+#define __NR_SYNODecryptName                (__NR_SYSCALL_BASE+411)
+#define SYNOEcryptName(arg1, arg2)                syscall(__NR_SYNOEcryptName, arg1, arg2)
+#define SYNODecryptName(arg1, arg2, arg3)         syscall(__NR_SYNODecryptName, arg1, arg2, arg3)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define SYNOACLSysCheckPerm(arg1, arg2)           syscall(__NR_SYNOACLCheckPerm, arg1, arg2)
+#define SYNOACLSysIsSupport(arg1, arg2, arg3)     syscall(__NR_SYNOACLIsSupport, arg1, arg2, arg3)
+#define SYNOACLSysGetPerm(arg1, arg2)             syscall(__NR_SYNOACLGetPerm, arg1, arg2)
+#endif /* MY_ABC_HERE */
+
+#if !defined(__KERNEL__)
+#define SYNOStat(arg1, arg2, arg3)                syscall(__NR_SYNOStat64, arg1, arg2, arg3)
+#define SYNOFStat(arg1, arg2, arg3)               syscall(__NR_SYNOFStat64, arg1, arg2, arg3)
+#define SYNOLStat(arg1, arg2, arg3)               syscall(__NR_SYNOLStat64, arg1, arg2, arg3)
+#endif /* !__KERNEL__ */
+
+#define SYNONotifyInit(arg1)                      syscall(__NR_SYNONotifyInit, arg1)
+#define SYNONotifyAddWatch(arg1, arg2, arg3)      syscall(__NR_SYNONotifyAddWatch, arg1, arg2, arg3)
+#define SYNONotifyRemoveWatch(arg1, arg2, arg3)   syscall(__NR_SYNONotifyRemoveWatch, arg1, arg2, arg3)
+#define SYNONotifyAddWatch32(arg1, arg2, arg3)    syscall(__NR_SYNONotifyAddWatch32, arg1, arg2, arg3)
+#define SYNONotifyRemoveWatch32(arg1, arg2, arg3) syscall(__NR_SYNONotifyRemoveWatch32, arg1, arg2, arg3)
+
+#define SYNOArchiveOverwrite(arg1, arg2)          syscall(__NR_SYNOArchiveOverwrite, arg1, arg2)
+#endif /* MY_ABC_HERE */
 
 /*
  * The following SWIs are ARM private.

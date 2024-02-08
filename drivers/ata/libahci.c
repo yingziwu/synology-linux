@@ -1,9 +1,12 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  libahci.c - Common AHCI SATA low-level routines
  *
- *  Maintained by:  Jeff Garzik <jgarzik@pobox.com>
- *    		    Please ALWAYS copy linux-ide@vger.kernel.org
- *		    on emails.
+ *  Maintained by:Jeff Garzik <jgarzik@pobox.com>
+ *		Please ALWAYS copy linux-ide@vger.kernel.org
+ *		on emails.
  *
  *  Copyright 2004-2005 Red Hat, Inc.
  *
@@ -44,11 +47,30 @@
 #include <scsi/scsi_host.h>
 #include <scsi/scsi_cmnd.h>
 #include <linux/libata.h>
+#ifdef MY_ABC_HERE
+#include "libata.h"
+#endif
 #include "ahci.h"
+#if defined(ONFIG_SYNO_HI3535_NVR)
+#include <linux/pci.h>
+#endif
+#include "hisatav200.h"
+
+#ifdef MY_ABC_HERE
+#include <linux/leds.h>
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+extern void syno_ledtrig_active_set(int iLedNum);
+extern int *gpGreenLedMap;
+#else
+extern int SYNO_CTRL_HDD_ACT_NOTIFY(int index);
+#endif /* MY_ABC_HERE */
 
 static int ahci_skip_host_reset;
 int ahci_ignore_sss;
 EXPORT_SYMBOL_GPL(ahci_ignore_sss);
+static int fbs_en = CONFIG_HI_SATA_FBS;
 
 module_param_named(skip_host_reset, ahci_skip_host_reset, int, 0444);
 MODULE_PARM_DESC(skip_host_reset, "skip global host reset (0=don't skip, 1=skip)");
@@ -56,6 +78,23 @@ MODULE_PARM_DESC(skip_host_reset, "skip global host reset (0=don't skip, 1=skip)
 module_param_named(ignore_sss, ahci_ignore_sss, int, 0444);
 MODULE_PARM_DESC(ignore_sss, "Ignore staggered spinup flag (0=don't ignore, 1=ignore)");
 
+module_param(fbs_en, uint, 0600);
+MODULE_PARM_DESC(fbs_en, "ahci fbs flags (default:1)");
+
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+#define AHCI_TIMEOUT_COUNT	10
+#define AHCI_POLL_TIMER		(20 * HZ)
+
+struct ata_fbs_ctrl {
+	unsigned int fbs_enable_ctrl; /* fbs enable or disable control switch */
+	unsigned int fbs_mode_ctrl;   /* 1.5G: fbs disable, 3G/6G: fbs enable */
+	unsigned int fbs_enable_flag;
+	unsigned int fbs_disable_flag;
+	unsigned int fbs_cmd_issue_flag;
+	struct timer_list poll_timer;
+};
+static struct ata_fbs_ctrl fbs_ctrl[3];
+#endif
 static int ahci_set_lpm(struct ata_link *link, enum ata_lpm_policy policy,
 			unsigned hints);
 static ssize_t ahci_led_show(struct ata_port *ap, char *buf);
@@ -63,8 +102,6 @@ static ssize_t ahci_led_store(struct ata_port *ap, const char *buf,
 			      size_t size);
 static ssize_t ahci_transmit_led_message(struct ata_port *ap, u32 state,
 					ssize_t size);
-
-
 
 static int ahci_scr_read(struct ata_link *link, unsigned int sc_reg, u32 *val);
 static int ahci_scr_write(struct ata_link *link, unsigned int sc_reg, u32 val);
@@ -132,6 +169,17 @@ struct device_attribute *ahci_shost_attrs[] = {
 	&dev_attr_ahci_port_cmd,
 	&dev_attr_em_buffer,
 	&dev_attr_em_message_supported,
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_manutil_power_disable,
+	&dev_attr_syno_pm_gpio,
+	&dev_attr_syno_pm_info,
+#endif
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_diskname_trans,
+#endif
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_sata_disk_led_ctrl,
+#endif
 	NULL
 };
 EXPORT_SYMBOL_GPL(ahci_shost_attrs);
@@ -139,6 +187,12 @@ EXPORT_SYMBOL_GPL(ahci_shost_attrs);
 struct device_attribute *ahci_sdev_attrs[] = {
 	&dev_attr_sw_activity,
 	&dev_attr_unload_heads,
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_wcache,
+#endif
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_disk_serial,
+#endif
 	NULL
 };
 EXPORT_SYMBOL_GPL(ahci_sdev_attrs);
@@ -171,6 +225,9 @@ struct ata_port_operations ahci_ops = {
 	.em_store		= ahci_led_store,
 	.sw_activity_show	= ahci_activity_show,
 	.sw_activity_store	= ahci_activity_store,
+#ifdef MY_ABC_HERE
+	.transmit_led_message	= ahci_transmit_led_message,
+#endif
 #ifdef CONFIG_PM
 	.port_suspend		= ahci_port_suspend,
 	.port_resume		= ahci_port_resume,
@@ -212,7 +269,7 @@ static void ahci_enable_ahci(void __iomem *mmio)
 		tmp = readl(mmio + HOST_CTL);	/* flush && sanity check */
 		if (tmp & HOST_AHCI_EN)
 			return;
-		msleep(10);
+		msleep(20);
 	}
 
 	WARN_ON(1);
@@ -735,6 +792,74 @@ static void ahci_power_down(struct ata_port *ap)
 }
 #endif
 
+#if defined(CONFIG_ARCH_GEN3) || defined(CONFIG_SYNO_AVOTON) || defined(CONFIG_SYNO_ALPINE) || defined(MY_ABC_HERE)
+static void syno_sw_activity(struct ata_port *ap)
+{
+#ifdef MY_ABC_HERE
+		if(NULL == gpGreenLedMap){
+			return;
+		}
+		syno_ledtrig_active_set(gpGreenLedMap[ap->syno_disk_index]);
+#else /* MY_ABC_HERE */
+		SYNO_CTRL_HDD_ACT_NOTIFY(ap->syno_disk_index);
+#endif /* MY_ABC_HERE */
+}
+
+/**
+ * This function is used for AHCI software activity led,
+ *
+ * hostnum is scsi_host index
+ */
+int syno_ahci_disk_led_enable(const unsigned short hostnum, const int iValue)
+{
+	struct Scsi_Host *shost = scsi_host_lookup(hostnum);
+	struct ata_port *ap = NULL;
+	int ret = -EINVAL;
+	struct ahci_port_priv *pp = NULL;
+	struct ahci_em_priv *emp = NULL;
+	struct ata_link *link = NULL;
+	unsigned long flags;
+
+	if (NULL == shost) {
+		goto END;
+	}
+
+	if (NULL == (ap = ata_shost_to_port(shost))) {
+		goto END;
+	}
+
+	// del old timer
+	pp = ap->private_data;
+	spin_lock_irqsave(ap->lock, flags);
+	ata_for_each_link(link, ap, EDGE) {
+		emp = &pp->em_priv[link->pmp];
+		emp->saved_activity = emp->activity = 0;
+		del_timer(&emp->timer);
+	}
+
+	if (iValue) {
+		ap->flags |= ATA_FLAG_SW_ACTIVITY;
+		ata_for_each_link(link, ap, EDGE) {
+			ahci_init_sw_activity(link);
+		}
+	} else {
+		ap->flags &= ~ATA_FLAG_SW_ACTIVITY;
+		ata_for_each_link(link, ap, EDGE) {
+			link->flags &= ~ATA_LFLAG_SW_ACTIVITY;
+		}
+	}
+	spin_unlock_irqrestore(ap->lock, flags);
+	ret = 0;
+
+END:
+	if (shost) {
+		scsi_host_put(shost);
+	}
+	return ret;
+}
+EXPORT_SYMBOL(syno_ahci_disk_led_enable);
+#endif
+
 static void ahci_start_port(struct ata_port *ap)
 {
 	struct ahci_host_priv *hpriv = ap->host->private_data;
@@ -758,9 +883,15 @@ static void ahci_start_port(struct ata_port *ap)
 
 			/* EM Transmit bit maybe busy during init */
 			for (i = 0; i < EM_MAX_RETRY; i++) {
+#ifdef MY_ABC_HERE
+				rc = ap->ops->transmit_led_message(ap,
+							       emp->led_state,
+							       4);
+#else
 				rc = ahci_transmit_led_message(ap,
 							       emp->led_state,
 							       4);
+#endif
 				if (rc == -EBUSY)
 					ata_msleep(ap, 1);
 				else
@@ -875,6 +1006,17 @@ static void ahci_sw_activity_blink(unsigned long arg)
 	 * toggle state of LED and reset timer.  If not,
 	 * turn LED to desired idle state.
 	 */
+#if defined(MY_ABC_HERE)
+	spin_lock_irqsave(ap->lock, flags);
+	if (emp->saved_activity != emp->activity) {
+		emp->saved_activity = emp->activity;
+
+		syno_sw_activity(ap);
+
+		mod_timer(&emp->timer, jiffies + msecs_to_jiffies(100));
+	}
+	spin_unlock_irqrestore(ap->lock, flags);
+#else
 	spin_lock_irqsave(ap->lock, flags);
 	if (emp->saved_activity != emp->activity) {
 		emp->saved_activity = emp->activity;
@@ -895,11 +1037,23 @@ static void ahci_sw_activity_blink(unsigned long arg)
 	} else {
 		/* switch to idle */
 		led_message &= ~EM_MSG_LED_VALUE_ACTIVITY;
+#ifdef MY_ABC_HERE
+		if ((ata_phys_link_online(link)) || (emp->blink_policy == BLINK_OFF))
+#else
 		if (emp->blink_policy == BLINK_OFF)
+#endif
 			led_message |= (1 << 16);
+#ifdef MY_ABC_HERE
+		mod_timer(&emp->timer, jiffies + msecs_to_jiffies(500));
+#endif
 	}
 	spin_unlock_irqrestore(ap->lock, flags);
+#ifdef MY_ABC_HERE
+	ap->ops->transmit_led_message(ap, led_message, 4);
+#else
 	ahci_transmit_led_message(ap, led_message, 4);
+#endif
+#endif
 }
 
 static void ahci_init_sw_activity(struct ata_link *link)
@@ -910,10 +1064,16 @@ static void ahci_init_sw_activity(struct ata_link *link)
 
 	/* init activity stats, setup timer */
 	emp->saved_activity = emp->activity = 0;
+#if defined(MY_ABC_HERE) && !defined(MY_ABC_HERE)
+	emp->blink_policy = BLINK_ON;
+#endif
 	setup_timer(&emp->timer, ahci_sw_activity_blink, (unsigned long)link);
 
+#if defined(MY_ABC_HERE)
+#else
 	/* check our blink policy and set flag for link if it's enabled */
 	if (emp->blink_policy)
+#endif
 		link->flags |= ATA_LFLAG_SW_ACTIVITY;
 }
 
@@ -1028,7 +1188,11 @@ static ssize_t ahci_led_store(struct ata_port *ap, const char *buf,
 	if (emp->blink_policy)
 		state &= ~EM_MSG_LED_VALUE_ACTIVITY;
 
+#ifdef MY_ABC_HERE
+	return ap->ops->transmit_led_message(ap, state, size);
+#else
 	return ahci_transmit_led_message(ap, state, size);
+#endif
 }
 
 static ssize_t ahci_activity_store(struct ata_device *dev, enum sw_activity val)
@@ -1047,7 +1211,11 @@ static ssize_t ahci_activity_store(struct ata_device *dev, enum sw_activity val)
 		/* set the LED to OFF */
 		port_led_state &= EM_MSG_LED_VALUE_OFF;
 		port_led_state |= (ap->port_no | (link->pmp << 8));
+#ifdef MY_ABC_HERE
+		ap->ops->transmit_led_message(ap, port_led_state, 4);
+#else
 		ahci_transmit_led_message(ap, port_led_state, 4);
+#endif
 	} else {
 		link->flags |= ATA_LFLAG_SW_ACTIVITY;
 		if (val == BLINK_OFF) {
@@ -1055,7 +1223,11 @@ static ssize_t ahci_activity_store(struct ata_device *dev, enum sw_activity val)
 			port_led_state &= EM_MSG_LED_VALUE_OFF;
 			port_led_state |= (ap->port_no | (link->pmp << 8));
 			port_led_state |= EM_MSG_LED_VALUE_ON; /* check this */
+#ifdef MY_ABC_HERE
+			ap->ops->transmit_led_message(ap, port_led_state, 4);
+#else
 			ahci_transmit_led_message(ap, port_led_state, 4);
+#endif
 		}
 	}
 	emp->blink_policy = val;
@@ -1254,7 +1426,43 @@ int ahci_do_softreset(struct ata_link *link, unsigned int *class,
 	struct ata_taskfile tf;
 	int rc;
 
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+	unsigned int port_num = ap->port_no;
+#endif
+
 	DPRINTK("ENTER\n");
+
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+	if (fbs_ctrl[port_num].fbs_enable_ctrl &&
+			(link->pmp == SATA_PMP_CTRL_PORT)) {
+		u32 sstatus, tmp = 0;
+		struct ahci_port_priv *pp = ap->private_data;
+
+		/* set outstanding=1 to delay data from ddr to sata */
+		writel(0x20000000, IO_ADDRESS(0x120100BC));
+
+		if ((sata_scr_read(link, SCR_STATUS, &sstatus) == 0)
+			   && ((sstatus & 0xf) == 3))
+			tmp = (sstatus >> 4) & 0xf;
+		if (tmp == 1) {
+			fbs_ctrl[port_num].fbs_mode_ctrl = 0;
+			if (pp->fbs_enabled == true)
+				ahci_disable_fbs(ap);
+		} else if (tmp == 2) {
+			fbs_ctrl[port_num].fbs_mode_ctrl = 1;
+			if (pp->fbs_enabled == false)
+				ahci_enable_fbs(ap);
+		} else if (tmp == 3) {
+			fbs_ctrl[port_num].fbs_mode_ctrl = 1;
+			if (pp->fbs_enabled == false)
+				ahci_enable_fbs(ap);
+		}
+		fbs_ctrl[port_num].fbs_enable_flag = 0;
+		fbs_ctrl[port_num].fbs_disable_flag = 0;
+		fbs_ctrl[port_num].fbs_cmd_issue_flag = 0;
+
+	}
+#endif
 
 	/* prepare for SRST (AHCI-1.1 10.4.1) */
 	rc = ahci_kick_engine(ap);
@@ -1415,8 +1623,23 @@ static void ahci_postreset(struct ata_link *link, unsigned int *class)
 	struct ata_port *ap = link->ap;
 	void __iomem *port_mmio = ahci_port_base(ap);
 	u32 new_tmp, tmp;
+	u32 sstatus;
 
 	ata_std_postreset(link, class);
+
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+	if ((sata_scr_read(link, SCR_STATUS, &sstatus) == 0) &&
+			((sstatus & 0xf) != 0x3)) {
+		writel(0x1001, IO_ADDRESS(0x201200A4 + (ap->port_no * 0xc)));
+		writel(0x1,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0x0,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0xc0,   IO_ADDRESS(0x201200A4 + (ap->port_no * 0xc)));
+		writel(0x2,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0x0,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0x8,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0x0,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+	}
+#endif
 
 	/* Make sure port's ATAPI bit is set appropriately */
 	new_tmp = tmp = readl(port_mmio + PORT_CMD);
@@ -1458,6 +1681,69 @@ static int ahci_pmp_qc_defer(struct ata_queued_cmd *qc)
 	struct ata_port *ap = qc->ap;
 	struct ahci_port_priv *pp = ap->private_data;
 
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+	int is_atapi = ata_is_atapi(qc->tf.protocol);
+	void __iomem *port_mmio = ahci_port_base(ap);
+	unsigned int port_num = ap->port_no;
+	unsigned int cmd_timeout_count;
+
+	if (fbs_ctrl[port_num].fbs_enable_ctrl &&
+			(ap->link.pmp == SATA_PMP_CTRL_PORT)
+			&& fbs_ctrl[port_num].fbs_mode_ctrl) {
+		if (is_atapi || fbs_ctrl[ap->port_no].fbs_cmd_issue_flag) {
+			mod_timer(&fbs_ctrl[port_num].poll_timer,
+					jiffies + AHCI_POLL_TIMER);
+
+			if (!fbs_ctrl[port_num].fbs_disable_flag) {
+				cmd_timeout_count = 0;
+				while (readl(port_mmio + PORT_SCR_ACT)
+						|| readl(port_mmio
+							+ PORT_CMD_ISSUE)
+						|| readl(port_mmio
+							+ PORT_IRQ_STAT)) {
+					cmd_timeout_count++;
+					if (cmd_timeout_count >=
+							AHCI_TIMEOUT_COUNT) {
+						fbs_ctrl[ap->port_no].
+							fbs_cmd_issue_flag = 1;
+						cmd_timeout_count = 0;
+						return ATA_DEFER_LINK;
+					}
+				}
+
+				if (pp->fbs_enabled == true)
+					ahci_disable_fbs(ap);
+
+				ap->excl_link = NULL;
+				ap->nr_active_links = 0;
+				fbs_ctrl[port_num].fbs_disable_flag = 1;
+				fbs_ctrl[port_num].fbs_enable_flag = 0;
+				fbs_ctrl[ap->port_no].fbs_cmd_issue_flag = 0;
+			}
+		} else {
+			if (fbs_ctrl[port_num].fbs_enable_flag) {
+				cmd_timeout_count = 0;
+				while (readl(port_mmio + PORT_SCR_ACT)
+						|| readl(port_mmio
+							+ PORT_CMD_ISSUE)
+						|| readl(port_mmio
+							+ PORT_IRQ_STAT)) {
+					cmd_timeout_count++;
+					if (cmd_timeout_count >=
+							AHCI_TIMEOUT_COUNT) {
+						cmd_timeout_count = 0;
+						return ATA_DEFER_LINK;
+					}
+				}
+
+				if (pp->fbs_enabled == false)
+					ahci_enable_fbs(ap);
+				fbs_ctrl[port_num].fbs_enable_flag = 0;
+				fbs_ctrl[port_num].fbs_disable_flag = 0;
+			}
+		}
+	}
+#endif
 	if (!sata_pmp_attached(ap) || pp->fbs_enabled)
 		return ata_std_qc_defer(qc);
 	else
@@ -1543,8 +1829,12 @@ static void ahci_error_intr(struct ata_port *ap, u32 irq_stat)
 		u32 fbs = readl(port_mmio + PORT_FBS);
 		int pmp = fbs >> PORT_FBS_DWE_OFFSET;
 
-		if ((fbs & PORT_FBS_SDE) && (pmp < ap->nr_pmp_links) &&
-		    ata_link_online(&ap->pmp_link[pmp])) {
+#ifdef MY_ABC_HERE
+		if ((fbs & PORT_FBS_SDE) && (pmp < ap->nr_pmp_links)) {
+#else
+		if ((fbs & PORT_FBS_SDE) && (pmp < ap->nr_pmp_links) /*&&
+		    ata_link_online(&ap->pmp_link[pmp])*/) {
+#endif
 			link = &ap->pmp_link[pmp];
 			fbs_need_dec = true;
 		}
@@ -1621,6 +1911,14 @@ static void ahci_error_intr(struct ata_port *ap, u32 irq_stat)
 	}
 
 	if (irq_stat & (PORT_IRQ_CONNECT | PORT_IRQ_PHYRDY)) {
+#ifdef MY_ABC_HERE
+		syno_ata_info_print(ap);
+#endif
+#ifdef MY_ABC_HERE
+		if (irq_stat & PORT_IRQ_CONNECT) {
+			ap->pflags |= ATA_PFLAG_SYNO_BOOT_PROBE;
+		}
+#endif
 		ata_ehi_hotplugged(host_ehi);
 		ata_ehi_push_desc(host_ehi, "%s",
 			irq_stat & PORT_IRQ_CONNECT ?
@@ -1629,9 +1927,13 @@ static void ahci_error_intr(struct ata_port *ap, u32 irq_stat)
 
 	/* okay, let's hand over to EH */
 
-	if (irq_stat & PORT_IRQ_FREEZE)
-		ata_port_freeze(ap);
-	else if (fbs_need_dec) {
+	if (irq_stat & PORT_IRQ_FREEZE) {
+		if ((irq_stat & PORT_IRQ_IF_ERR) && fbs_need_dec) {
+			ata_link_abort(link);
+			ahci_fbs_dec_intr(ap);
+		} else
+			ata_port_freeze(ap);
+	} else if (fbs_need_dec) {
 		ata_link_abort(link);
 		ahci_fbs_dec_intr(ap);
 	} else
@@ -1651,6 +1953,19 @@ static void ahci_port_intr(struct ata_port *ap)
 	status = readl(port_mmio + PORT_IRQ_STAT);
 	writel(status, port_mmio + PORT_IRQ_STAT);
 
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+	if (status & PORT_IRQ_CONNECT) {
+		writel(0x1001, IO_ADDRESS(0x201200A4 + (ap->port_no * 0xc)));
+		writel(0x1,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0x0,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0x40,   IO_ADDRESS(0x201200A4 + (ap->port_no * 0xc)));
+		writel(0x2,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0x0,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0x8,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+		writel(0x0,    IO_ADDRESS(0x201200A0 + (ap->port_no * 0xc)));
+	}
+#endif
+
 	/* ignore BAD_PMP while resetting */
 	if (unlikely(resetting))
 		status &= ~PORT_IRQ_BAD_PMP;
@@ -1663,7 +1978,8 @@ static void ahci_port_intr(struct ata_port *ap)
 
 	if (unlikely(status & PORT_IRQ_ERROR)) {
 		ahci_error_intr(ap, status);
-		return;
+		if (!(status & ~(PORT_IRQ_ERROR)))
+			return;
 	}
 
 	if (status & PORT_IRQ_SDB_FIS) {
@@ -1714,7 +2030,6 @@ static void ahci_port_intr(struct ata_port *ap)
 		else
 			qc_active = readl(port_mmio + PORT_CMD_ISSUE);
 	}
-
 
 	rc = ata_qc_complete_multiple(ap, qc_active);
 
@@ -1913,7 +2228,9 @@ static void ahci_enable_fbs(struct ata_port *ap)
 	writel(fbs | PORT_FBS_EN, port_mmio + PORT_FBS);
 	fbs = readl(port_mmio + PORT_FBS);
 	if (fbs & PORT_FBS_EN) {
+#ifndef CONFIG_ARCH_HI3535
 		dev_info(ap->host->dev, "FBS is enabled\n");
+#endif
 		pp->fbs_enabled = true;
 		pp->fbs_last_dev = -1; /* initialization */
 	} else
@@ -1947,11 +2264,15 @@ static void ahci_disable_fbs(struct ata_port *ap)
 	if (fbs & PORT_FBS_EN)
 		dev_err(ap->host->dev, "Failed to disable FBS\n");
 	else {
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
 		dev_info(ap->host->dev, "FBS is disabled\n");
+#endif
 		pp->fbs_enabled = false;
 	}
 
 	ahci_start_engine(ap);
+
+	writel(PORT_SATA_FIFO_VALUE, port_mmio + PORT_FIFO);
 }
 
 static void ahci_pmp_attach(struct ata_port *ap)
@@ -1960,11 +2281,41 @@ static void ahci_pmp_attach(struct ata_port *ap)
 	struct ahci_port_priv *pp = ap->private_data;
 	u32 cmd;
 
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+	u32 sstatus, tmp = 0;
+	struct ata_link *link;
+	struct ata_eh_info *host_ehi = &ap->link.eh_info;
+	unsigned int port_num = ap->port_no;
+#endif
+
 	cmd = readl(port_mmio + PORT_CMD);
 	cmd |= PORT_CMD_PMP;
 	writel(cmd, port_mmio + PORT_CMD);
 
-	ahci_enable_fbs(ap);
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+	if (fbs_ctrl[port_num].fbs_enable_ctrl) {
+		/* set outstanding=1 to delay data from ddr to sata */
+		writel(0x20000000, IO_ADDRESS(0x120100BC));
+		link = &ap->link;
+		if ((sata_scr_read(link, SCR_STATUS, &sstatus) == 0)
+			   && ((sstatus & 0xf) == 3))
+			tmp = (sstatus >> 4) & 0xf;
+		if (tmp == 1) {
+			fbs_ctrl[port_num].fbs_mode_ctrl = 0;
+			ahci_disable_fbs(ap);
+			ata_ehi_hotplugged(host_ehi);
+			printk(KERN_INFO "PHY RDY changed\n");
+			ata_port_freeze(ap);
+		} else if (tmp == 2) {
+			fbs_ctrl[port_num].fbs_mode_ctrl = 1;
+			ahci_enable_fbs(ap);
+		} else if (tmp == 3) {
+			fbs_ctrl[port_num].fbs_mode_ctrl = 1;
+			ahci_enable_fbs(ap);
+		}
+	} else
+		ahci_disable_fbs(ap);
+#endif
 
 	pp->intr_mask |= PORT_IRQ_BAD_PMP;
 
@@ -2028,6 +2379,19 @@ static int ahci_port_suspend(struct ata_port *ap, pm_message_t mesg)
 	}
 
 	return rc;
+}
+#endif
+
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+static void ahci_poll_func(unsigned long arg)
+{
+	struct ata_port *ap = (struct ata_port *)arg;
+	unsigned int port_num = ap->port_no;
+
+	if (ap->link.pmp == SATA_PMP_CTRL_PORT) {
+		fbs_ctrl[port_num].fbs_enable_flag = 1;
+		fbs_ctrl[port_num].fbs_disable_flag = 0;
+	}
 }
 #endif
 
@@ -2105,6 +2469,18 @@ static int ahci_port_start(struct ata_port *ap)
 	pp->intr_mask = DEF_PORT_IRQ;
 
 	ap->private_data = pp;
+
+#if defined(CONFIG_ARCH_HI3535) && !defined(CONFIG_SATA_AHCI)
+	fbs_ctrl[ap->port_no].fbs_enable_ctrl = fbs_en;
+	fbs_ctrl[ap->port_no].fbs_enable_flag = 0;
+	fbs_ctrl[ap->port_no].fbs_disable_flag = 0;
+	fbs_ctrl[ap->port_no].fbs_cmd_issue_flag = 0;
+
+	init_timer(&fbs_ctrl[ap->port_no].poll_timer);
+	fbs_ctrl[ap->port_no].poll_timer.function = ahci_poll_func;
+	fbs_ctrl[ap->port_no].poll_timer.data = (unsigned long)ap;
+	fbs_ctrl[ap->port_no].poll_timer.expires = jiffies + AHCI_POLL_TIMER;
+#endif
 
 	/* engage engines, captain */
 	return ahci_port_resume(ap);

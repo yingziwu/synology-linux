@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * fs/fs-writeback.c
  *
@@ -28,6 +31,11 @@
 #include <linux/backing-dev.h>
 #include <linux/tracepoint.h>
 #include "internal.h"
+
+#ifdef MY_ABC_HERE
+#include <linux/synolib.h>
+extern int syno_hibernation_log_level;
+#endif /* MY_ABC_HERE */
 
 /*
  * 4MB minimal write chunk size
@@ -990,7 +998,6 @@ int bdi_writeback_thread(void *data)
 	return 0;
 }
 
-
 /*
  * Start writeback of `nr_pages' pages.  If `nr_pages' is zero, write back
  * the whole world.
@@ -1083,8 +1090,14 @@ void __mark_inode_dirty(struct inode *inode, int flags)
 	if ((inode->i_state & flags) == flags)
 		return;
 
-	if (unlikely(block_dump))
+	if (unlikely(block_dump > 1))
 		block_dump___mark_inode_dirty(inode);
+
+#ifdef MY_ABC_HERE
+	if(syno_hibernation_log_level > 0) {
+		syno_do_hibernation_inode_log(inode);
+	}
+#endif /* MY_ABC_HERE */
 
 	spin_lock(&inode->i_lock);
 	if ((inode->i_state & flags) != flags) {

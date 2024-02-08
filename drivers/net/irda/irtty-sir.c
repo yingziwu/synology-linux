@@ -414,7 +414,6 @@ static int irtty_ioctl(struct tty_struct *tty, struct file *file, unsigned int c
 	return err;
 }
 
-
 /* 
  *  Function irtty_open(tty)
  *
@@ -576,4 +575,3 @@ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
 MODULE_DESCRIPTION("IrDA TTY device driver");
 MODULE_ALIAS_LDISC(N_IRDA);
 MODULE_LICENSE("GPL");
-

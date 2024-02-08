@@ -28,8 +28,6 @@
 #include <linux/workqueue.h>
 #include <linux/hyperv.h>
 
-
-
 /*
  * Global state maintained for transaction that is being processed.
  * Note that only one transaction can be active at any point in time.
@@ -286,7 +284,6 @@ kvp_respond_to_host(char *key, char *value, int error)
 		 * silently return.
 		 */
 		return;
-
 
 	/*
 	 * If the error parameter is set, terminate the host's enumeration

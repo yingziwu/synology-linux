@@ -42,7 +42,6 @@
 #include <linux/uaccess.h>
 #include <net/sock.h>
 
-
 #include "bnep.h"
 
 static int bnep_sock_release(struct socket *sock)

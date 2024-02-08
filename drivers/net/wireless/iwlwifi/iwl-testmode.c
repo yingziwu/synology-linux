@@ -80,7 +80,6 @@
 #include "iwl-fh.h"
 #include "iwl-prph.h"
 
-
 /* Periphery registers absolute lower bound. This is used in order to
  * differentiate registery access through HBUS_TARG_PRPH_* and
  * HBUS_TARG_MEM_* accesses.
@@ -141,7 +140,6 @@ static inline int get_event_length(struct iwl_rx_cmd_buffer *rxb)
 	else
 		return 0;
 }
-
 
 /*
  * This function multicasts the spontaneous messages from the device to the
@@ -231,13 +229,11 @@ static void iwl_trace_cleanup(struct iwl_priv *priv)
 	}
 }
 
-
 void iwl_testmode_cleanup(struct iwl_priv *priv)
 {
 	iwl_trace_cleanup(priv);
 	iwl_mem_cleanup(priv);
 }
-
 
 /*
  * This function handles the user application commands to the ucode.
@@ -322,7 +318,6 @@ nla_put_failure:
 	IWL_DEBUG_INFO(priv, "Failed creating NL attributes\n");
 	return -ENOMSG;
 }
-
 
 /*
  * This function handles the user application commands for register access.
@@ -415,7 +410,6 @@ nla_put_failure:
 	kfree_skb(skb);
 	return -EMSGSIZE;
 }
-
 
 static int iwl_testmode_cfg_init_calib(struct iwl_priv *priv)
 {
@@ -620,7 +614,6 @@ nla_put_failure:
 	kfree_skb(skb);
 	return -EMSGSIZE;
 }
-
 
 /*
  * This function handles the user application commands for uCode trace
@@ -948,7 +941,6 @@ static int iwl_testmode_notifications(struct ieee80211_hw *hw,
 		priv->pre_rx_handler = NULL;
 	return 0;
 }
-
 
 /* The testmode gnl message handler that takes the gnl message from the
  * user space and parses it per the policy iwl_testmode_gnl_msg_policy, then

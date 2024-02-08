@@ -39,7 +39,6 @@ static int radeon_semaphore_add_bo(struct radeon_device *rdev)
 	uint32_t *cpu_ptr;
 	int r, i;
 
-
 	bo = kmalloc(sizeof(struct radeon_semaphore_bo), GFP_KERNEL);
 	if (bo == NULL) {
 		return -ENOMEM;

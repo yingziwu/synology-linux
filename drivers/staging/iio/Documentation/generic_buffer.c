@@ -130,7 +130,6 @@ int main(int argc, char **argv)
 	unsigned long timedelay = 1000000;
 	unsigned long buf_len = 128;
 
-
 	int ret, c, i, j, toread;
 
 	FILE *fp_ev;

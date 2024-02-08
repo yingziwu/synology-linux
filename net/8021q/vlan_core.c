@@ -142,7 +142,6 @@ err_free:
 	return NULL;
 }
 
-
 /*
  * vlan info and vid list
  */

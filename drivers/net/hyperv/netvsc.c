@@ -32,7 +32,6 @@
 
 #include "hyperv_net.h"
 
-
 static struct netvsc_device *alloc_net_device(struct hv_device *device)
 {
 	struct netvsc_device *net_device;
@@ -78,7 +77,6 @@ static struct netvsc_device *get_inbound_net_device(struct hv_device *device)
 get_in_err:
 	return net_device;
 }
-
 
 static int netvsc_destroy_recv_buf(struct netvsc_device *net_device)
 {
@@ -187,7 +185,6 @@ static int netvsc_init_recv_buf(struct hv_device *device)
 		goto cleanup;
 	}
 
-
 	/* Notify the NetVsp of the gpadl handle */
 	init_packet = &net_device->channel_init_pkt;
 
@@ -213,7 +210,6 @@ static int netvsc_init_recv_buf(struct hv_device *device)
 
 	t = wait_for_completion_timeout(&net_device->channel_init_wait, 5*HZ);
 	BUG_ON(t == 0);
-
 
 	/* Check the response */
 	if (init_packet->msg.v1_msg.
@@ -259,7 +255,6 @@ cleanup:
 exit:
 	return ret;
 }
-
 
 /* Negotiate NVSP protocol version */
 static int negotiate_nvsp_ver(struct hv_device *device,

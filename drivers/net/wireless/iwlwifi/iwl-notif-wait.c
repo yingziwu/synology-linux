@@ -64,7 +64,6 @@
 
 #include "iwl-notif-wait.h"
 
-
 void iwl_notification_wait_init(struct iwl_notif_wait_data *notif_wait)
 {
 	spin_lock_init(&notif_wait->notif_wait_lock);
@@ -104,7 +103,6 @@ void iwl_abort_notification_waits(struct iwl_notif_wait_data *notif_wait)
 
 	wake_up_all(&notif_wait->notif_waitq);
 }
-
 
 void
 iwl_init_notification_wait(struct iwl_notif_wait_data *notif_wait,

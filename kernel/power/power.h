@@ -78,9 +78,28 @@ static struct kobj_attribute _name##_attr = {	\
 extern unsigned long image_size;
 /* Size of memory reserved for drivers (default SPARE_PAGES x PAGE_SIZE) */
 extern unsigned long reserved_size;
+#ifdef CONFIG_HI3535_SDK_2050
+#ifndef	CONFIG_HISI_SNAPSHOT_BOOT
 extern int in_suspend;
+#endif
+#else /* CONFIG_HI3535_SDK_2050 */
+extern int in_suspend;
+#endif /* CONFIG_HI3535_SDK_2050 */
+
 extern dev_t swsusp_resume_device;
 extern sector_t swsusp_resume_block;
+
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef CONFIG_HISI_SNAPSHOT_BOOT
+extern char hb_bdev_file[64];
+extern char compress_method[16];
+extern void *saved_processor_context;
+
+extern volatile unsigned long in_suspend;
+extern int noshrink;
+extern int swsusp_check_storage_all(void);
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 
 extern asmlinkage int swsusp_arch_suspend(void);
 extern asmlinkage int swsusp_arch_resume(void);
@@ -239,6 +258,8 @@ static inline int suspend_freeze_processes(void)
 	if (error)
 		return error;
 
+#ifdef CONFIG_HI3535_SDK_2050
+#ifndef	CONFIG_HISI_SNAPSHOT_BOOT
 	error = freeze_kernel_threads();
 	/*
 	 * freeze_kernel_threads() thaws only kernel threads upon freezing
@@ -247,11 +268,29 @@ static inline int suspend_freeze_processes(void)
 	if (error)
 		thaw_processes();
 
+#else
+	error = pm_notifier_call_chain(PM_POST_FREEZE_PROCESS);
+#endif
+#else /* CONFIG_HI3535_SDK_2050 */
+	error = freeze_kernel_threads();
+	/*
+	 * freeze_kernel_threads() thaws only kernel threads upon freezing
+	 * failure. So we have to thaw the userspace tasks ourselves.
+	 */
+	if (error)
+		thaw_processes();
+#endif /* CONFIG_HI3535_SDK_2050 */
+
 	return error;
 }
 
 static inline void suspend_thaw_processes(void)
 {
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+	pm_notifier_call_chain(PM_THAW_PROCESS_PREPARE);
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 	thaw_processes();
 }
 #else
@@ -264,3 +303,30 @@ static inline void suspend_thaw_processes(void)
 {
 }
 #endif
+
+#ifdef CONFIG_PM_AUTOSLEEP
+
+/* kernel/power/autosleep.c */
+extern int pm_autosleep_init(void);
+extern int pm_autosleep_lock(void);
+extern void pm_autosleep_unlock(void);
+extern suspend_state_t pm_autosleep_state(void);
+extern int pm_autosleep_set_state(suspend_state_t state);
+
+#else /* !CONFIG_PM_AUTOSLEEP */
+
+static inline int pm_autosleep_init(void) { return 0; }
+static inline int pm_autosleep_lock(void) { return 0; }
+static inline void pm_autosleep_unlock(void) {}
+static inline suspend_state_t pm_autosleep_state(void) { return PM_SUSPEND_ON; }
+
+#endif /* !CONFIG_PM_AUTOSLEEP */
+
+#ifdef CONFIG_PM_WAKELOCKS
+
+/* kernel/power/wakelock.c */
+extern ssize_t pm_show_wakelocks(char *buf, bool show_active);
+extern int pm_wake_lock(const char *buf);
+extern int pm_wake_unlock(const char *buf);
+
+#endif /* !CONFIG_PM_WAKELOCKS */

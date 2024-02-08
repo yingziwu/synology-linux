@@ -4806,7 +4806,6 @@ static int decode_readdir(struct xdr_stream *xdr, struct rpc_rqst *req, struct n
 		pglen = recvd;
 	xdr_read_pages(xdr, pglen);
 
-
 	return pglen;
 }
 

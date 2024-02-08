@@ -312,7 +312,6 @@ err:
 	return ret;
 }
 
-
 static const struct driver_info	qmi_wwan_info = {
 	.description	= "QMI speaking wwan device",
 	.flags		= FLAG_WWAN,

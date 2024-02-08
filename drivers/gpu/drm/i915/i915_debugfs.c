@@ -39,7 +39,6 @@
 
 #define DRM_I915_RING_DEBUG 1
 
-
 #if defined(CONFIG_DEBUG_FS)
 
 enum {
@@ -321,7 +320,6 @@ static int i915_gem_gtt_info(struct seq_file *m, void* data)
 	return 0;
 }
 
-
 static int i915_gem_pageflip_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
@@ -455,7 +453,6 @@ static int i915_gem_seqno_info(struct seq_file *m, void *data)
 
 	return 0;
 }
-
 
 static int i915_interrupt_info(struct seq_file *m, void *data)
 {
@@ -1067,7 +1064,6 @@ static int gen6_drpc_info(struct seq_file *m)
 	unsigned forcewake_count;
 	int count=0, ret;
 
-
 	ret = mutex_lock_interruptible(&dev->struct_mutex);
 	if (ret)
 		return ret;
@@ -1475,7 +1471,6 @@ static int i915_ppgtt_info(struct seq_file *m, void *data)
 	struct drm_i915_private *dev_priv = dev->dev_private;
 	struct intel_ring_buffer *ring;
 	int i, ret;
-
 
 	ret = mutex_lock_interruptible(&dev->struct_mutex);
 	if (ret)

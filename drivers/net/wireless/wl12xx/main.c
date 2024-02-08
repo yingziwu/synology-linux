@@ -1645,7 +1645,6 @@ static struct sk_buff *wl12xx_alloc_dummy_packet(struct wl1271 *wl)
 	return skb;
 }
 
-
 #ifdef CONFIG_PM
 static int wl1271_configure_suspend_sta(struct wl1271 *wl,
 					struct wl12xx_vif *wlvif)
@@ -1667,7 +1666,6 @@ static int wl1271_configure_suspend_sta(struct wl1271 *wl,
 
 	if (ret < 0)
 		wl1271_error("suspend: set wake up conditions failed: %d", ret);
-
 
 	wl1271_ps_elp_sleep(wl);
 
@@ -2209,7 +2207,6 @@ static int wl1271_op_add_interface(struct ieee80211_hw *hw,
 		ret = -EBUSY;
 		goto out;
 	}
-
 
 	ret = wl12xx_init_vif_data(wl, vif);
 	if (ret < 0)
@@ -4209,7 +4206,6 @@ static int wl1271_allocate_sta(struct wl1271 *wl,
 	struct wl1271_station *wl_sta;
 	int ret;
 
-
 	if (wl->active_sta_count >= AP_MAX_STATIONS) {
 		wl1271_warning("could not allocate HLID - too much stations");
 		return -EBUSY;
@@ -4860,7 +4856,6 @@ static const struct ieee80211_ops wl1271_ops = {
 	.channel_switch = wl12xx_op_channel_switch,
 	CFG80211_TESTMODE_CMD(wl1271_tm_cmd)
 };
-
 
 u8 wl1271_rate_to_idx(int rate, enum ieee80211_band band)
 {

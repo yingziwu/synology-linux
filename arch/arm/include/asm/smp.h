@@ -42,7 +42,6 @@ void handle_IPI(int ipinr, struct pt_regs *regs);
  */
 extern void smp_init_cpus(void);
 
-
 /*
  * Provide a function to raise an IPI cross call on CPUs in callmap.
  */
@@ -92,5 +91,7 @@ extern void platform_cpu_enable(unsigned int cpu);
 
 extern void arch_send_call_function_single_ipi(int cpu);
 extern void arch_send_call_function_ipi_mask(const struct cpumask *mask);
+
+extern void smp_send_all_cpu_backtrace(void);
 
 #endif /* ifndef __ASM_ARM_SMP_H */

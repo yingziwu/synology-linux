@@ -204,7 +204,6 @@ static struct XC_TV_STANDARD XC5000_Standard[MAX_TV_STANDARD] = {
 	{"FM Radio-INPUT1_MONO", 0x0278, 0x9002}
 };
 
-
 struct xc5000_fw_cfg {
 	char *name;
 	u16 size;
@@ -456,7 +455,6 @@ static int xc_set_RF_frequency(struct xc5000_priv *priv, u32 freq_hz)
 	return xc_write_reg(priv, XREG_FINERFREQ, freq_code);
 }
 
-
 static int xc_set_IF_frequency(struct xc5000_priv *priv, u32 freq_khz)
 {
 	u32 freq_code = (freq_khz * 1024)/1000;
@@ -465,7 +463,6 @@ static int xc_set_IF_frequency(struct xc5000_priv *priv, u32 freq_khz)
 
 	return xc_write_reg(priv, XREG_IF_OUT, freq_code);
 }
-
 
 static int xc_get_ADC_Envelope(struct xc5000_priv *priv, u16 *adc_envelope)
 {
@@ -991,7 +988,6 @@ static int xc5000_set_analog_params(struct dvb_frontend *fe,
 	return ret;
 }
 
-
 static int xc5000_get_frequency(struct dvb_frontend *fe, u32 *freq)
 {
 	struct xc5000_priv *priv = fe->tuner_priv;
@@ -1130,7 +1126,6 @@ static int xc5000_set_config(struct dvb_frontend *fe, void *priv_cfg)
 
 	return 0;
 }
-
 
 static const struct dvb_tuner_ops xc5000_tuner_ops = {
 	.info = {

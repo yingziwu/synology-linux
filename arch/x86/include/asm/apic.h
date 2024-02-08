@@ -33,7 +33,6 @@
 			printk(s, ##a);    \
 	} while (0)
 
-
 #if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86_32)
 extern void generic_apic_probe(void);
 #else
@@ -504,7 +503,6 @@ static inline void default_wait_for_init_deassert(atomic_t *deassert)
 
 extern void generic_bigsmp_probe(void);
 
-
 #ifdef CONFIG_X86_LOCAL_APIC
 
 #include <asm/smp.h>
@@ -521,7 +519,6 @@ static inline const struct cpumask *default_target_cpus(void)
 }
 
 DECLARE_EARLY_PER_CPU(u16, x86_bios_cpu_apicid);
-
 
 static inline unsigned int read_apic_id(void)
 {

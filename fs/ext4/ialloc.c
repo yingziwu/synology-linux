@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext4/ialloc.c
  *
@@ -304,6 +307,138 @@ error_return:
 	ext4_std_error(sb, fatal);
 }
 
+#ifdef MY_ABC_HERE
+/*
+ * There are two policies for allocating an inode.  If the new inode is
+ * a directory, then a forward search is made for a block group with both
+ * free space and a low directory-to-inode ratio; if that fails, then of
+ * the groups with above-average free space, that group with the fewest
+ * directories already is chosen.
+ *
+ * For other inodes, search forward from the parent directory\'s block
+ * group to find a free inode.
+ */
+static int find_group_dir(struct super_block *sb, struct inode *parent,
+				ext4_group_t *best_group)
+{
+	ext4_group_t ngroups = ext4_get_groups_count(sb);
+	unsigned int freei, avefreei;
+	struct ext4_group_desc *desc, *best_desc = NULL;
+	ext4_group_t group;
+	int ret = -1;
+
+	freei = percpu_counter_read_positive(&EXT4_SB(sb)->s_freeinodes_counter);
+	avefreei = freei / ngroups;
+
+	for (group = 0; group < ngroups; group++) {
+		desc = ext4_get_group_desc(sb, group, NULL);
+		if (!desc || !ext4_free_inodes_count(sb, desc))
+			continue;
+		if (ext4_free_inodes_count(sb, desc) < avefreei)
+			continue;
+		if (!best_desc ||
+		    (ext4_free_group_clusters(sb, desc) >
+		     ext4_free_group_clusters(sb, best_desc))) {
+			*best_group = group;
+			best_desc = desc;
+			ret = 0;
+		}
+	}
+#ifdef MY_ABC_HERE
+	if (0 == ret) {
+		goto FOUND_GROUP;
+	}
+	/*
+	 * The free-inodes counter is approximate, and for really small
+	 * filesystems the above test can fail to find any blockgroups
+	 */
+	for (group = 0; group < ngroups; group++) {
+		desc = ext4_get_group_desc(sb, group, NULL);
+		if (!desc || !ext4_free_inodes_count(sb, desc))
+			continue;
+		*best_group = group;
+		ret = 0;
+		goto FOUND_GROUP;
+	}
+
+FOUND_GROUP:
+#endif
+	return ret;
+}
+
+#define free_block_ratio 10
+
+static int find_group_flex(struct super_block *sb, struct inode *parent,
+			   ext4_group_t *best_group)
+{
+	struct ext4_sb_info *sbi = EXT4_SB(sb);
+	struct ext4_group_desc *desc;
+	struct flex_groups *flex_group = sbi->s_flex_groups;
+	ext4_group_t parent_group = EXT4_I(parent)->i_block_group;
+	ext4_group_t parent_fbg_group = ext4_flex_group(sbi, parent_group);
+	ext4_group_t ngroups = ext4_get_groups_count(sb);
+	int flex_size = ext4_flex_bg_size(sbi);
+	ext4_group_t best_flex = parent_fbg_group;
+	int blocks_per_flex = sbi->s_blocks_per_group * flex_size;
+	int flexbg_free_blocks;
+	int flex_freeb_ratio;
+	ext4_group_t n_fbg_groups;
+	ext4_group_t i;
+
+	n_fbg_groups = (ngroups + flex_size - 1) >>
+		sbi->s_log_groups_per_flex;
+
+find_close_to_parent:
+	flexbg_free_blocks = atomic_read(&flex_group[best_flex].free_clusters);
+	flex_freeb_ratio = flexbg_free_blocks * 100 / blocks_per_flex;
+	if (atomic_read(&flex_group[best_flex].free_inodes) &&
+	    flex_freeb_ratio > free_block_ratio)
+		goto found_flexbg;
+
+	if (best_flex && best_flex == parent_fbg_group) {
+		best_flex--;
+		goto find_close_to_parent;
+	}
+
+	for (i = 0; i < n_fbg_groups; i++) {
+		if (i == parent_fbg_group || i == parent_fbg_group - 1)
+			continue;
+
+		flexbg_free_blocks = atomic_read(&flex_group[i].free_clusters);
+		flex_freeb_ratio = flexbg_free_blocks * 100 / blocks_per_flex;
+
+		if (flex_freeb_ratio > free_block_ratio &&
+		    (atomic_read(&flex_group[i].free_inodes))) {
+			best_flex = i;
+			goto found_flexbg;
+		}
+
+		if ((atomic_read(&flex_group[best_flex].free_inodes) == 0) ||
+		    ((atomic_read(&flex_group[i].free_clusters) >
+		      atomic_read(&flex_group[best_flex].free_clusters)) &&
+		     atomic_read(&flex_group[i].free_inodes)))
+			best_flex = i;
+	}
+
+	if (!atomic_read(&flex_group[best_flex].free_inodes) ||
+	    !atomic_read(&flex_group[best_flex].free_clusters))
+		return -1;
+
+found_flexbg:
+	for (i = best_flex * flex_size; i < ngroups &&
+		     i < (best_flex + 1) * flex_size; i++) {
+		desc = ext4_get_group_desc(sb, i, NULL);
+		if (ext4_free_inodes_count(sb, desc)) {
+			*best_group = i;
+			goto out;
+		}
+	}
+
+	return -1;
+out:
+	return 0;
+}
+#endif /* MY_ABC_HERE */
 struct orlov_stats {
 	__u32 free_inodes;
 	__u32 free_clusters;
@@ -631,6 +766,9 @@ struct inode *ext4_new_inode(handle_t *handle, struct inode *dir, umode_t mode,
 	struct inode *ret;
 	ext4_group_t i;
 	ext4_group_t flex_group;
+#ifdef MY_ABC_HERE
+	static int once = 1;
+#endif
 
 	/* Cannot create files in a deleted directory */
 	if (!dir || !dir->i_nlink)
@@ -655,8 +793,31 @@ struct inode *ext4_new_inode(handle_t *handle, struct inode *dir, umode_t mode,
 		goto got_group;
 	}
 
+#ifdef MY_ABC_HERE
+	if (sbi->s_log_groups_per_flex && test_opt(sb, OLDALLOC)) {
+		ret2 = find_group_flex(sb, dir, &group);
+		if (ret2 == -1) {
+			ret2 = find_group_other(sb, dir, &group, mode);
+			if (ret2 == 0 && once) {
+				once = 0;
+				printk(KERN_NOTICE "ext4: find_group_flex "
+				       "failed, fallback succeeded dir %lu\n",
+				       dir->i_ino);
+			}
+		}
+		goto got_group;
+	}
+
+	if (S_ISDIR(mode)) {
+		if (test_opt(sb, OLDALLOC))
+			ret2 = find_group_dir(sb, dir, &group);
+		else
+			ret2 = find_group_orlov(sb, dir, &group, mode, qstr);
+	}
+#else
 	if (S_ISDIR(mode))
 		ret2 = find_group_orlov(sb, dir, &group, mode, qstr);
+#endif
 	else
 		ret2 = find_group_other(sb, dir, &group, mode);
 
@@ -778,7 +939,10 @@ got:
 			ext4_itable_unused_set(sb, gdp,
 					(EXT4_INODES_PER_GROUP(sb) - ino));
 		up_read(&grp->alloc_sem);
+	} else {
+		ext4_lock_group(sb, group);
 	}
+
 	ext4_free_inodes_set(sb, gdp, ext4_free_inodes_count(sb, gdp) - 1);
 	if (S_ISDIR(mode)) {
 		ext4_used_dirs_set(sb, gdp, ext4_used_dirs_count(sb, gdp) + 1);
@@ -790,8 +954,8 @@ got:
 	}
 	if (EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_GDT_CSUM)) {
 		gdp->bg_checksum = ext4_group_desc_csum(sbi, group, gdp);
-		ext4_unlock_group(sb, group);
 	}
+	ext4_unlock_group(sb, group);
 
 	BUFFER_TRACE(group_desc_bh, "call ext4_handle_dirty_metadata");
 	err = ext4_handle_dirty_metadata(handle, NULL, group_desc_bh);
@@ -824,6 +988,14 @@ got:
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ei->i_crtime =
 						       ext4_current_time(inode);
 
+#ifdef MY_ABC_HERE
+	inode->i_create_time = ei->i_crtime;
+#endif
+#ifdef MY_ABC_HERE
+	if (!EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) {
+		inode->i_archive_bit = ALL_SYNO_ARCHIVE;	/* set archive bit on creation */
+	}
+#endif
 	memset(ei->i_data, 0, sizeof(ei->i_data));
 	ei->i_dir_start_lookup = 0;
 	ei->i_disksize = 0;

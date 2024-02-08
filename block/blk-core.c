@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 1991, 1992 Linus Torvalds
  * Copyright (C) 1994,      Karl Keyte: Added support for disk statistics
@@ -34,6 +37,11 @@
 #include <trace/events/block.h>
 
 #include "blk.h"
+
+#ifdef MY_ABC_HERE
+#include <linux/synolib.h>
+extern int syno_hibernation_log_level;
+#endif /* MY_ABC_HERE */
 
 EXPORT_TRACEPOINT_SYMBOL_GPL(block_bio_remap);
 EXPORT_TRACEPOINT_SYMBOL_GPL(block_rq_remap);
@@ -1448,6 +1456,9 @@ static void handle_bad_sector(struct bio *bio)
 {
 	char b[BDEVNAME_SIZE];
 
+#ifdef MY_ABC_HERE
+	if (printk_ratelimit()) {
+#endif
 	printk(KERN_INFO "attempt to access beyond end of device\n");
 	printk(KERN_INFO "%s: rw=%ld, want=%Lu, limit=%Lu\n",
 			bdevname(bio->bi_bdev, b),
@@ -1455,6 +1466,9 @@ static void handle_bad_sector(struct bio *bio)
 			(unsigned long long)bio->bi_sector + bio_sectors(bio),
 			(long long)(i_size_read(bio->bi_bdev->bd_inode) >> 9));
 
+#ifdef MY_ABC_HERE
+	}
+#endif
 	set_bit(BIO_EOF, &bio->bi_flags);
 }
 
@@ -1716,6 +1730,14 @@ void submit_bio(int rw, struct bio *bio)
 				bdevname(bio->bi_bdev, b),
 				count);
 		}
+
+#ifdef MY_ABC_HERE
+		if(syno_hibernation_log_level > 0) {
+			char b[BDEVNAME_SIZE];
+			syno_do_hibernation_bio_log(bdevname(bio->bi_bdev, b));
+		}
+#endif /* MY_ABC_HERE */
+
 	}
 
 	generic_make_request(bio);
@@ -2133,9 +2155,15 @@ bool blk_update_request(struct request *req, int error, unsigned int nr_bytes)
 			error_type = "I/O";
 			break;
 		}
+#ifdef MY_ABC_HERE
+		if (printk_ratelimit()) {
+#endif
 		printk(KERN_ERR "end_request: %s error, dev %s, sector %llu\n",
 		       error_type, req->rq_disk ? req->rq_disk->disk_name : "?",
 		       (unsigned long long)blk_rq_pos(req));
+#ifdef MY_ABC_HERE
+		}
+#endif
 	}
 
 	blk_account_io_completion(req, nr_bytes);
@@ -2299,7 +2327,6 @@ static void blk_finish_request(struct request *req, int error)
 
 	if (req->cmd_flags & REQ_DONTPREP)
 		blk_unprep_request(req);
-
 
 	blk_account_io_done(req);
 
@@ -2886,6 +2913,20 @@ void blk_finish_plug(struct blk_plug *plug)
 		current->plug = NULL;
 }
 EXPORT_SYMBOL(blk_finish_plug);
+
+#ifdef MY_ABC_HERE
+void syno_flashcache_return_error(struct bio *bio)
+{
+	/* defined in blk_types.h */
+	if (bio_flagged(bio, BIO_MD_RETURN_ERROR)) {
+		printk(KERN_DEBUG "Get flashcache read error, return error code\n");
+		bio_endio(bio, 1);
+	} else {
+		bio_endio(bio, 0);
+	}
+}
+#endif
+EXPORT_SYMBOL(syno_flashcache_return_error);
 
 int __init blk_dev_init(void)
 {

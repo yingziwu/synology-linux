@@ -12,6 +12,8 @@ obj-$(CONFIG_USB_DWC3)		+= dwc3/
 
 obj-$(CONFIG_USB_MON)		+= mon/
 
+obj-$(CONFIG_ARCH_HI3535)	+= host/
+obj-$(CONFIG_ARCH_HI3516A)	+= host/
 obj-$(CONFIG_PCI)		+= host/
 obj-$(CONFIG_USB_EHCI_HCD)	+= host/
 obj-$(CONFIG_USB_ISP116X_HCD)	+= host/
@@ -35,6 +37,7 @@ obj-$(CONFIG_USB_WUSB)		+= wusbcore/
 obj-$(CONFIG_USB_ACM)		+= class/
 obj-$(CONFIG_USB_PRINTER)	+= class/
 obj-$(CONFIG_USB_WDM)		+= class/
+obj-$(CONFIG_USB_WDM_SYNO)	+= class/
 obj-$(CONFIG_USB_TMC)		+= class/
 
 obj-$(CONFIG_USB_STORAGE)	+= storage/

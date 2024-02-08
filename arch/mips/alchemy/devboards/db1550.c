@@ -26,7 +26,6 @@
 #include <prom.h>
 #include "platform.h"
 
-
 const char *get_system_type(void)
 {
 	return "DB1550";
@@ -281,7 +280,6 @@ static struct platform_device db1550_ac97_dev = {
 	.num_resources	= ARRAY_SIZE(au1550_psc1_res),
 	.resource	= au1550_psc1_res,
 };
-
 
 static struct resource au1550_psc2_res[] = {
 	[0] = {

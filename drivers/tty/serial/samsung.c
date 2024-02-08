@@ -212,7 +212,6 @@ static int s3c24xx_serial_rx_fifocnt(struct s3c24xx_uart_port *ourport,
 	return (ufstat & info->rx_fifomask) >> info->rx_fifoshift;
 }
 
-
 /* ? - where has parity gone?? */
 #define S3C2410_UERSTAT_PARITY (0x1000)
 
@@ -427,6 +426,8 @@ static void s3c24xx_serial_shutdown(struct uart_port *port)
 	if (ourport->tx_claimed) {
 		if (!s3c24xx_serial_has_interrupt_mask(port))
 			free_irq(ourport->tx_irq, ourport);
+		else
+			free_irq(port->irq, ourport);
 		tx_enabled(port) = 0;
 		ourport->tx_claimed = 0;
 	}
@@ -434,6 +435,8 @@ static void s3c24xx_serial_shutdown(struct uart_port *port)
 	if (ourport->rx_claimed) {
 		if (!s3c24xx_serial_has_interrupt_mask(port))
 			free_irq(ourport->rx_irq, ourport);
+		/* else already freed above as the s3c64xx_serial_startup()
+		 * will have set both tx_claimed and rx_claimed */
 		ourport->rx_claimed = 0;
 		rx_enabled(port) = 0;
 	}
@@ -872,7 +875,6 @@ s3c24xx_serial_verify_port(struct uart_port *port, struct serial_struct *ser)
 	return 0;
 }
 
-
 #ifdef CONFIG_SERIAL_SAMSUNG_CONSOLE
 
 static struct console s3c24xx_serial_console;
@@ -991,7 +993,6 @@ static void s3c24xx_serial_resetport(struct uart_port *port,
 	/* some delay is required after fifo reset */
 	udelay(1);
 }
-
 
 #ifdef CONFIG_CPU_FREQ
 
@@ -1164,7 +1165,6 @@ static ssize_t s3c24xx_serial_show_clksrc(struct device *dev,
 }
 
 static DEVICE_ATTR(clock_source, S_IRUGO, s3c24xx_serial_show_clksrc, NULL);
-
 
 /* Device driver serial port probe */
 

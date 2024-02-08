@@ -79,7 +79,6 @@ static struct {
 
 /* ......................................................................... */
 
-
 /*
  * Reload the watchdog timer.  (ie, pat the watchdog)
  */

@@ -5910,7 +5910,6 @@
 #define LINK_SYNC_ATTENTION_BIT_FUNC_6	    RESERVED_GENERAL_ATTENTION_BIT_18
 #define LINK_SYNC_ATTENTION_BIT_FUNC_7	    RESERVED_GENERAL_ATTENTION_BIT_19
 
-
 #define LATCHED_ATTN_RBCR			23
 #define LATCHED_ATTN_RBCT			24
 #define LATCHED_ATTN_RBCN			25
@@ -5977,7 +5976,6 @@
 #define GRCBASE_XSEM		0x280000
 #define GRCBASE_USEM		0x300000
 #define GRCBASE_MISC_AEU	GRCBASE_MISC
-
 
 /* offset of configuration space in the pci core register */
 #define PCICFG_OFFSET					0x2000
@@ -6049,7 +6047,6 @@
 #define PCICFG_DEVICE_STATUS_AUX_PWR_DET	(1<<4)
 #define PCICFG_DEVICE_STATUS_NO_PEND		(1<<5)
 #define PCICFG_LINK_CONTROL				0xbc
-
 
 #define BAR_USTRORM_INTMEM				0x400000
 #define BAR_CSTRORM_INTMEM				0x410000
@@ -6173,7 +6170,6 @@
 #define PXPCS_TL_CONTROL_5_ERR_FC_PRTL	   (1 << 1)    /*WC*/
 #define PXPCS_TL_CONTROL_5_ERR_PSND_TLP    (1 << 0)    /*WC*/
 
-
 #define PXPCS_TL_FUNC345_STAT	   0x854
 #define PXPCS_TL_FUNC345_STAT_PRI_SIG_TARGET_ABORT4    (1 << 29)   /* WC */
 #define PXPCS_TL_FUNC345_STAT_ERR_UNSPPORT4\
@@ -6268,7 +6264,6 @@
 #define PXPCS_TL_FUNC345_STAT_ERR_PSND_TLP2\
 	(1 << 0) /* Poisoned Error Status Status for Function 2, if set, \
 	generate pcie_err_attn output when this error is seen.. WC */
-
 
 #define PXPCS_TL_FUNC678_STAT  0x85C
 #define PXPCS_TL_FUNC678_STAT_PRI_SIG_TARGET_ABORT7    (1 << 29)   /*	 WC */
@@ -6365,7 +6360,6 @@
 	(1 << 0) /* Poisoned Error Status Status for Function 5, if set, \
 	generate pcie_err_attn output when this error is seen.. WC */
 
-
 #define BAR_USTRORM_INTMEM				0x400000
 #define BAR_CSTRORM_INTMEM				0x410000
 #define BAR_XSTRORM_INTMEM				0x420000
@@ -6387,7 +6381,6 @@
 #define ME_REG_ABS_PF_NUM_SHIFT	16
 #define ME_REG_ABS_PF_NUM\
 	(7L<<ME_REG_ABS_PF_NUM_SHIFT) /* Absolute PF Num */
-
 
 #define MDIO_REG_BANK_CL73_IEEEB0	0x0
 #define MDIO_CL73_IEEEB0_CL73_AN_CONTROL	0x0
@@ -6540,7 +6533,6 @@
 #define MDIO_GP_STATUS_TOP_AN_STATUS1_ACTUAL_SPEED_20G_DXGXS	0x1E00
 #define MDIO_GP_STATUS_TOP_AN_STATUS1_ACTUAL_SPEED_10G_SFI	0x1F00
 
-
 #define MDIO_REG_BANK_10G_PARALLEL_DETECT		0x8130
 #define MDIO_10G_PARALLEL_DETECT_PAR_DET_10G_STATUS		0x10
 #define MDIO_10G_PARALLEL_DETECT_PAR_DET_10G_STATUS_PD_LINK		0x8000
@@ -6682,7 +6674,6 @@ bit15=link,bit12=duplex,bits11:10=speed,bit14=acknowledge.
 Theotherbitsarereservedandshouldbezero*/
 #define MDIO_COMBO_IEEE0_AUTO_NEG_LINK_PARTNER_ABILITY1_SGMII_MODE	0x0001
 
-
 #define MDIO_PMA_DEVAD			0x1
 /*ieee*/
 #define MDIO_PMA_REG_CTRL		0x0
@@ -6761,7 +6752,6 @@ Theotherbitsarereservedandshouldbezero*/
 #define MDIO_PMA_REG_8481_LINK_SIGNAL_LED4_ENABLE_MASK	0x800
 #define MDIO_PMA_REG_8481_LINK_SIGNAL_LED4_ENABLE_SHIFT 11
 
-
 #define MDIO_WIS_DEVAD			0x2
 /*bcm*/
 #define MDIO_WIS_REG_LASI_CNTL		0x9002
@@ -6779,7 +6769,6 @@ Theotherbitsarereservedandshouldbezero*/
 #define MDIO_PCS_REG_7101_SPI_FIFO_ADDR_BULK_ERASE_CMD	 (0xC7)
 #define MDIO_PCS_REG_7101_SPI_FIFO_ADDR_PAGE_PROGRAM_CMD (2)
 #define MDIO_PCS_REG_7101_SPI_BYTES_TO_TRANSFER_ADDR 0xE028
-
 
 #define MDIO_XS_DEVAD			0x4
 #define MDIO_XS_PLL_SEQUENCER		0x8000
@@ -6897,7 +6886,6 @@ Theotherbitsarereservedandshouldbezero*/
 #define PHY84833_STATUS_CMD_NOT_OPEN_FOR_CMDS		0x0040
 #define PHY84833_STATUS_CMD_CLEAR_COMPLETE		0x0080
 #define PHY84833_STATUS_CMD_OPEN_OVERRIDE		0xa5a5
-
 
 /* Warpcore clause 45 addressing */
 #define MDIO_WC_DEVAD					0x3
@@ -7071,7 +7059,6 @@ Theotherbitsarereservedandshouldbezero*/
 #define COMMAND_REG_SIMD_MASK	    0x18
 #define COMMAND_REG_SIMD_NOMASK     0x1c
 
-
 #define IGU_MEM_BASE						0x0000
 
 #define IGU_MEM_MSIX_BASE					0x0000
@@ -7119,7 +7106,6 @@ Theotherbitsarereservedandshouldbezero*/
 #define IGU_VF_CONF_PARENT_SHIFT   2	     /* Parent PF	       */
 #define IGU_VF_CONF_SINGLE_ISR_EN  (0x1<<4)  /* single ISR mode enable */
 
-
 #define IGU_BC_DSB_NUM_SEGS    5
 #define IGU_BC_NDSB_NUM_SEGS   2
 #define IGU_NORM_DSB_NUM_SEGS  2
@@ -7140,10 +7126,8 @@ Theotherbitsarereservedandshouldbezero*/
 #define IGU_REG_MAPPING_MEMORY_FID_MASK	(0x7F<<7)
 #define IGU_REG_MAPPING_MEMORY_FID_SHIFT	7
 
-
 #define CDU_REGION_NUMBER_XCM_AG 2
 #define CDU_REGION_NUMBER_UCM_AG 4
-
 
 /**
  * String-to-compress [31:8] = CID (all 24 bits)
@@ -7218,6 +7202,5 @@ static inline u8 calc_crc8(u32 data, u8 crc)
 
 	return crc_res;
 }
-
 
 #endif /* BNX2X_REG_H */

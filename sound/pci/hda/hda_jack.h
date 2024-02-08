@@ -71,5 +71,4 @@ int snd_hda_jack_add_kctls(struct hda_codec *codec,
 
 void snd_hda_jack_report_sync(struct hda_codec *codec);
 
-
 #endif /* __SOUND_HDA_JACK_H */

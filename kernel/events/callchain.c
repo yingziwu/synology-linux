@@ -23,7 +23,6 @@ static atomic_t nr_callchain_events;
 static DEFINE_MUTEX(callchain_mutex);
 static struct callchain_cpus_entries *callchain_cpus_entries;
 
-
 __weak void perf_callchain_kernel(struct perf_callchain_entry *entry,
 				  struct pt_regs *regs)
 {
@@ -157,7 +156,6 @@ struct perf_callchain_entry *perf_callchain(struct pt_regs *regs)
 {
 	int rctx;
 	struct perf_callchain_entry *entry;
-
 
 	entry = get_callchain_entry(&rctx);
 	if (rctx == -1)

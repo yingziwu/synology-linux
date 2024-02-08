@@ -25,7 +25,6 @@
 #include "util.h"
 #include "member.h"
 
-
 static int rcom_response(struct dlm_ls *ls)
 {
 	return test_bit(LSFL_RCOM_READY, &ls->ls_flags);
@@ -573,4 +572,3 @@ Eshort:
 	log_error(ls, "recovery message %x from %d is too short",
 			  rc->rc_type, nodeid);
 }
-

@@ -1331,7 +1331,6 @@ void efx_nic_remove_eventq(struct efx_channel *channel)
 	efx_free_special_buffer(channel->efx, &channel->eventq);
 }
 
-
 void efx_nic_event_test_start(struct efx_channel *channel)
 {
 	channel->event_test_cpu = -1;
@@ -1547,7 +1546,6 @@ static irqreturn_t efx_msi_interrupt(int irq, void *dev_id)
 
 	return IRQ_HANDLED;
 }
-
 
 /* Setup RSS indirection table.
  * This maps from the hash value of the packet to RXQ

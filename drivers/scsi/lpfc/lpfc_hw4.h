@@ -1865,7 +1865,6 @@ struct lpfc_mbx_init_vfi {
 };
 #define MBX_VFI_IN_USE			0x9F02
 
-
 struct lpfc_mbx_reg_vfi {
 	uint32_t word1;
 #define lpfc_reg_vfi_vp_SHIFT		28
@@ -3458,7 +3457,6 @@ struct fcp_icmnd64_wqe {
 	struct wqe_common wqe_com;     /* words 6-11 */
 	uint32_t rsvd_12_15[4];        /* word 12-15 */
 };
-
 
 union lpfc_wqe {
 	uint32_t words[16];

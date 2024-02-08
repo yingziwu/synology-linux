@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -197,7 +200,6 @@ struct net_device_stats {
 
 #endif  /*  __KERNEL__  */
 
-
 /* Media selection options. */
 enum {
         IF_PORT_UNKNOWN = 0,
@@ -309,7 +311,6 @@ enum netdev_state_t {
 	__LINK_STATE_LINKWATCH_PENDING,
 	__LINK_STATE_DORMANT,
 };
-
 
 /*
  * This structure holds at boot time configured netdevice settings. They
@@ -1119,7 +1120,6 @@ struct net_device {
 	unsigned int		promiscuity;
 	unsigned int		allmulti;
 
-
 	/* Protocol specific pointers */
 
 #if IS_ENABLED(CONFIG_VLAN_8021Q)
@@ -1536,9 +1536,7 @@ extern int register_netdevice_notifier(struct notifier_block *nb);
 extern int unregister_netdevice_notifier(struct notifier_block *nb);
 extern int call_netdevice_notifiers(unsigned long val, struct net_device *dev);
 
-
 extern rwlock_t				dev_base_lock;		/* Device list lock */
-
 
 #define for_each_netdev(net, d)		\
 		list_for_each_entry(d, &(net)->dev_base_head, dev_list)
@@ -2259,7 +2257,6 @@ static inline bool netif_dormant(const struct net_device *dev)
 	return test_bit(__LINK_STATE_DORMANT, &dev->state);
 }
 
-
 /**
  *	netif_oper_up - test if device is operational
  *	@dev: network device
@@ -2673,6 +2670,9 @@ static inline bool netif_supports_nofcs(struct net_device *dev)
 
 extern struct pernet_operations __net_initdata loopback_net_ops;
 
+#ifdef MY_ABC_HERE
+extern int syno_get_dev_vendor_mac(const char *szDev, char *szMac);
+#endif
 /* Logging, debugging and troubleshooting/diagnostic helpers. */
 
 /* netdev_printk helpers, similar to dev_printk */

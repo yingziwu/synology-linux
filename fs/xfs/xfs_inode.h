@@ -208,7 +208,6 @@ typedef struct xfs_icdinode {
 #define XFS_IFORK_MAXEXT(ip, w) \
 	(XFS_IFORK_SIZE(ip, w) / sizeof(xfs_bmbt_rec_t))
 
-
 #ifdef __KERNEL__
 
 struct xfs_buf;
@@ -445,7 +444,6 @@ static inline int xfs_isiflocked(struct xfs_inode *ip)
 	{ XFS_IOLOCK_SHARED,	"IOLOCK_SHARED" }, \
 	{ XFS_ILOCK_EXCL,	"ILOCK_EXCL" }, \
 	{ XFS_ILOCK_SHARED,	"ILOCK_SHARED" }
-
 
 /*
  * Flags for lockdep annotations.

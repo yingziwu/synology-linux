@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext4/dir.c
  *
@@ -55,8 +58,15 @@ static int is_dx_dir(struct inode *inode)
 {
 	struct super_block *sb = inode->i_sb;
 
+#ifdef MY_ABC_HERE
+	if ((EXT4_SB(inode->i_sb)->s_es->s_syno_hash_magic !=
+				cpu_to_le32(SYNO_HASH_MAGIC)) &&
+		!EXT4_HAS_COMPAT_FEATURE(inode->i_sb,
+		     EXT4_FEATURE_COMPAT_DIR_INDEX) &&
+#else
 	if (EXT4_HAS_COMPAT_FEATURE(inode->i_sb,
 		     EXT4_FEATURE_COMPAT_DIR_INDEX) &&
+#endif /* MY_ABC_HERE */
 	    ((ext4_test_inode_flag(inode, EXT4_INODE_INDEX)) ||
 	     ((inode->i_size >> sb->s_blocksize_bits) == 1)))
 		return 1;
@@ -94,20 +104,27 @@ int __ext4_check_dir_entry(const char *function, unsigned int line,
 	else
 		return 0;
 
-	if (filp)
-		ext4_error_file(filp, function, line, bh->b_blocknr,
+	if (filp) {
+#ifdef MY_ABC_HERE
+		if (printk_ratelimit())
+#endif
+		ext4_error_file(filp, function, line, bh ? bh->b_blocknr : 0,
 				"bad entry in directory: %s - offset=%u(%u), "
 				"inode=%u, rec_len=%d, name_len=%d",
-				error_msg, (unsigned) (offset % bh->b_size),
+				error_msg, (unsigned) (offset%bh->b_size),
 				offset, le32_to_cpu(de->inode),
 				rlen, de->name_len);
-	else
-		ext4_error_inode(dir, function, line, bh->b_blocknr,
+	} else {
+#ifdef MY_ABC_HERE
+		if (printk_ratelimit())
+#endif
+		ext4_error_inode(dir, function, line, bh ? bh->b_blocknr : 0,
 				"bad entry in directory: %s - offset=%u(%u), "
 				"inode=%u, rec_len=%d, name_len=%d",
-				error_msg, (unsigned) (offset % bh->b_size),
+				error_msg, (unsigned) (offset%bh->b_size),
 				offset, le32_to_cpu(de->inode),
 				rlen, de->name_len);
+	}
 
 	return 1;
 }
@@ -310,7 +327,6 @@ static inline loff_t ext4_get_htree_eof(struct file *filp)
 		return EXT4_HTREE_EOF_64BIT;
 }
 
-
 /*
  * ext4_dir_llseek() based on generic_file_llseek() to handle both
  * non-htree and htree directories, where the "offset" is in terms
@@ -440,7 +456,6 @@ static void free_rb_tree_fname(struct rb_root *root)
 	}
 }
 
-
 static struct dir_private_info *ext4_htree_create_dir_info(struct file *filp,
 							   loff_t pos)
 {
@@ -517,8 +532,6 @@ int ext4_htree_store_dirent(struct file *dir_file, __u32 hash,
 	rb_insert_color(&new_fn->rb_hash, &info->root);
 	return 0;
 }
-
-
 
 /*
  * This is a helper function for ext4_dx_readdir.  It calls filldir

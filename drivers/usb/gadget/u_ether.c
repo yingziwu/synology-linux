@@ -22,7 +22,6 @@
 
 #include "u_ether.h"
 
-
 /*
  * This component encapsulates the Ethernet link glue needed to provide
  * one (!) network link through the USB gadget stack, normally "usb0".
@@ -82,7 +81,6 @@ struct eth_dev {
 #define RX_EXTRA	20	/* bytes guarding against rx overflows */
 
 #define DEFAULT_QLEN	2	/* double buffering by default */
-
 
 #ifdef CONFIG_USB_GADGET_DUALSPEED
 
@@ -213,7 +211,6 @@ rx_submit(struct eth_dev *dev, struct usb_request *req, gfp_t gfp_flags)
 
 	if (!out)
 		return -ENOTCONN;
-
 
 	/* Padding up to RX_EXTRA handles minor disagreements with host.
 	 * Normally we use the USB "terminate on short read" convention;
@@ -764,6 +761,26 @@ static struct device_type gadget_type = {
  */
 int gether_setup(struct usb_gadget *g, u8 ethaddr[ETH_ALEN])
 {
+	return gether_setup_name(g, ethaddr, "usb");
+}
+
+/**
+ * gether_setup_name - initialize one ethernet-over-usb link
+ * @g: gadget to associated with these links
+ * @ethaddr: NULL, or a buffer in which the ethernet address of the
+ *	host side of the link is recorded
+ * @netname: name for network device (for example, "usb")
+ * Context: may sleep
+ *
+ * This sets up the single network link that may be exported by a
+ * gadget driver using this framework.  The link layer addresses are
+ * set up using module parameters.
+ *
+ * Returns negative errno, or zero on success
+ */
+int gether_setup_name(struct usb_gadget *g, u8 ethaddr[ETH_ALEN],
+		const char *netname)
+{
 	struct eth_dev		*dev;
 	struct net_device	*net;
 	int			status;
@@ -786,7 +803,7 @@ int gether_setup(struct usb_gadget *g, u8 ethaddr[ETH_ALEN])
 
 	/* network device setup */
 	dev->net = net;
-	strcpy(net->name, "usb%d");
+	snprintf(net->name, sizeof(net->name), "%s%%d", netname);
 
 	if (get_ether_addr(dev_addr, net->dev_addr))
 		dev_warn(&g->dev,
@@ -843,7 +860,6 @@ void gether_cleanup(void)
 
 	the_dev = NULL;
 }
-
 
 /**
  * gether_connect - notify network layer that USB link is active

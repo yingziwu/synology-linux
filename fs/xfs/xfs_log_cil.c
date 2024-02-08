@@ -167,7 +167,6 @@ xlog_cil_prepare_log_vecs(
 	struct xfs_log_vec	*lv = NULL;
 	struct xfs_log_vec	*ret_lv = NULL;
 
-
 	/* Bail out if we didn't find a log item.  */
 	if (list_empty(&tp->t_items)) {
 		ASSERT(0);

@@ -201,7 +201,6 @@ static int record_root_in_trans(struct btrfs_trans_handle *trans,
 	return 0;
 }
 
-
 int btrfs_record_root_in_trans(struct btrfs_trans_handle *trans,
 			       struct btrfs_root *root)
 {
@@ -1187,7 +1186,6 @@ int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans,
 	put_transaction(cur_trans);
 	return 0;
 }
-
 
 static void cleanup_transaction(struct btrfs_trans_handle *trans,
 				struct btrfs_root *root)

@@ -373,4 +373,3 @@ void __devinit tegra30_pinmux_init(const struct tegra_pingroup_desc **pg,
 	*pgdrive = tegra_soc_drive_pingroups;
 	*pgdrive_max = TEGRA_MAX_DRIVE_PINGROUP;
 }
-

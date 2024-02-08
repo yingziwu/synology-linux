@@ -736,7 +736,6 @@ int dib8000_update_pll(struct dvb_frontend *fe,
 }
 EXPORT_SYMBOL(dib8000_update_pll);
 
-
 static int dib8000_reset_gpio(struct dib8000_state *st)
 {
 	/* reset the GPIOs */
@@ -3331,7 +3330,6 @@ struct dvb_frontend *dib8000_get_slave_frontend(struct dvb_frontend *fe, int sla
 	return state->fe[slave_index];
 }
 EXPORT_SYMBOL(dib8000_get_slave_frontend);
-
 
 int dib8000_i2c_enumeration(struct i2c_adapter *host, int no_of_demods,
 		u8 default_addr, u8 first_addr, u8 is_dib8096p)

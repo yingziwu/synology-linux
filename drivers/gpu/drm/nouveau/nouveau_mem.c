@@ -30,7 +30,6 @@
  *    Roy Spliet <r.spliet@student.tudelft.nl>
  */
 
-
 #include "drmP.h"
 #include "drm.h"
 #include "drm_sarea.h"
@@ -362,7 +361,6 @@ nouveau_mem_vram_init(struct drm_device *dev)
 		/* Reset to default value. */
 		pci_set_consistent_dma_mask(dev->pdev, DMA_BIT_MASK(32));
 	}
-
 
 	ret = nouveau_ttm_global_init(dev_priv);
 	if (ret)

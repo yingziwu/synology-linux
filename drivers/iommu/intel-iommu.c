@@ -534,7 +534,6 @@ void free_iova_mem(struct iova *iova)
 	kmem_cache_free(iommu_iova_cache, iova);
 }
 
-
 static int __iommu_calculate_agaw(struct intel_iommu *iommu, int max_gaw)
 {
 	unsigned long sagaw;
@@ -815,7 +814,6 @@ static struct dma_pte *pfn_to_dma_pte(struct dmar_domain *domain,
 
 	return pte;
 }
-
 
 /* return address's pte at specific level */
 static struct dma_pte *dma_pfn_level_pte(struct dmar_domain *domain,
@@ -1242,7 +1240,6 @@ static int iommu_disable_translation(struct intel_iommu *iommu)
 	return 0;
 }
 
-
 static int iommu_init_domains(struct intel_iommu *iommu)
 {
 	unsigned long ndomains;
@@ -1278,7 +1275,6 @@ static int iommu_init_domains(struct intel_iommu *iommu)
 		set_bit(0, iommu->domain_ids);
 	return 0;
 }
-
 
 static void domain_exit(struct dmar_domain *domain);
 static void vm_domain_exit(struct dmar_domain *domain);
@@ -3479,7 +3475,6 @@ static void __init dmar_register_rmrr_unit(struct dmar_rmrr_unit *rmrr)
 {
 	list_add(&rmrr->list, &dmar_rmrr_units);
 }
-
 
 int __init dmar_parse_one_rmrr(struct acpi_dmar_header *header)
 {

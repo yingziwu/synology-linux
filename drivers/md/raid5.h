@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _RAID5_H
 #define _RAID5_H
 
@@ -318,6 +321,9 @@ enum {
 	STRIPE_BIOFILL_RUN,
 	STRIPE_COMPUTE_RUN,
 	STRIPE_OPS_REQ_PENDING,
+#ifdef MY_ABC_HERE
+	STRIPE_NORETRY
+#endif
 };
 
 /*
@@ -354,7 +360,6 @@ enum {
  * PREREAD_ACTIVE is set, else we set DELAYED which will send it to the delayed queue.
  * HANDLE gets cleared if stripe_handle leaves nothing locked.
  */
-
 
 struct disk_info {
 	struct md_rdev	*rdev, *replacement;
@@ -430,7 +435,6 @@ struct r5conf {
 #ifdef CONFIG_HOTPLUG_CPU
 	struct notifier_block	cpu_notify;
 #endif
-
 	/*
 	 * Free stripes pool
 	 */
@@ -481,7 +485,6 @@ struct r5conf {
 #define ALGORITHM_ROTATING_N_RESTART	9 /* DDF PRL=6 RLQ=2 */
 #define ALGORITHM_ROTATING_N_CONTINUE	10 /*DDF PRL=6 RLQ=3 */
 
-
 /* For every RAID5 algorithm we define a RAID6 algorithm
  * with exactly the same layout for data and parity, and
  * with the Q block always on the last device (N-1).
@@ -516,4 +519,9 @@ static inline int algorithm_is_DDF(int layout)
 extern int md_raid5_congested(struct mddev *mddev, int bits);
 extern void md_raid5_kick_device(struct r5conf *conf);
 extern int raid5_set_cache_size(struct mddev *mddev, int size);
+
+#ifdef MY_ABC_HERE
+#define sector_mod(a,b) sector_div(a,b)
+#endif /* MY_ABC_HERE */
+
 #endif

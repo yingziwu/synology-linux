@@ -356,7 +356,6 @@ done:
 	return retval;
 }
 
-
 static struct mv_dtd *build_dtd(struct mv_req *req, unsigned *length,
 		dma_addr_t *dma, int *is_last)
 {

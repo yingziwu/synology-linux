@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext4/inode.c
  *
@@ -37,6 +40,9 @@
 #include <linux/printk.h>
 #include <linux/slab.h>
 #include <linux/ratelimit.h>
+#ifdef MY_ABC_HERE
+#include <linux/xattr.h>
+#endif
 
 #include "ext4_jbd2.h"
 #include "xattr.h"
@@ -814,11 +820,21 @@ static int ext4_write_begin(struct file *file, struct address_space *mapping,
 	unsigned from, to;
 
 	trace_ext4_write_begin(inode, pos, len, flags);
+#ifdef MY_ABC_HERE
+	// Add for mark_inode_dirty.
+	if (flags & AOP_FLAG_RECVFILE) {
+		needed_blocks = ext4_writepage_trans_blocks(inode) + MAX_PAGES_PER_RECVFILE;
+	} else {
+		needed_blocks = ext4_writepage_trans_blocks(inode) + 1;
+	}
+#else
 	/*
 	 * Reserve one block more for addition to orphan list in case
 	 * we allocate blocks but write fails for some reason
 	 */
 	needed_blocks = ext4_writepage_trans_blocks(inode) + 1;
+#endif
+
 	index = pos >> PAGE_CACHE_SHIFT;
 	from = pos & (PAGE_CACHE_SIZE - 1);
 	to = from + len;
@@ -863,12 +879,15 @@ retry:
 		 * Add inode to orphan list in case we crash before
 		 * truncate finishes
 		 */
+#ifndef MY_ABC_HERE
 		if (pos + len > inode->i_size && ext4_can_truncate(inode))
 			ext4_orphan_add(handle, inode);
+#endif
 
 		ext4_journal_stop(handle);
 		if (pos + len > inode->i_size) {
 			ext4_truncate_failed_write(inode);
+#ifndef MY_ABC_HERE
 			/*
 			 * If truncate failed early the inode might
 			 * still be on the orphan list; we need to
@@ -877,11 +896,21 @@ retry:
 			 */
 			if (inode->i_nlink)
 				ext4_orphan_del(NULL, inode);
+#endif
 		}
 	}
 
 	if (ret == -ENOSPC && ext4_should_retry_alloc(inode->i_sb, &retries))
 		goto retry;
+#ifdef MY_ABC_HERE
+	if (ret >= 0 && (flags & AOP_FLAG_RECVFILE)) {
+		if (pos + len > inode->i_size) {
+			// Don't need i_size_write because we hold i_mutex.
+			inode->i_size = pos + len;
+			ext4_mark_inode_dirty(handle, inode);
+		}
+	}
+#endif
 out:
 	return ret;
 }
@@ -991,7 +1020,6 @@ static int ext4_ordered_write_end(struct file *file,
 		if (inode->i_nlink)
 			ext4_orphan_del(NULL, inode);
 	}
-
 
 	return ret ? ret : copied;
 }
@@ -1558,6 +1586,9 @@ static void mpage_da_map_and_submit(struct mpage_da_data *mpd)
 				 "with error %d", mpd->inode->i_ino,
 				 (unsigned long long) next,
 				 mpd->b_size >> mpd->inode->i_blkbits, err);
+#ifdef MY_ABC_HERE
+			if (err != -ENOSPC)
+#endif
 			ext4_msg(sb, KERN_CRIT,
 				"This should not happen!! Data will be lost\n");
 			if (err == -ENOSPC)
@@ -1594,11 +1625,26 @@ static void mpage_da_map_and_submit(struct mpage_da_data *mpd)
 	 * Update on-disk size along with block allocation.
 	 */
 	disksize = ((loff_t) next + blks) << mpd->inode->i_blkbits;
+#ifdef MY_ABC_HERE
+	if (disksize > EXT4_I(mpd->inode)->i_disksize) {
+		loff_t i_size;
+		struct inode *inode = mpd->inode;
+
+		down_write(&EXT4_I(inode)->i_data_sem);
+		i_size = i_size_read(inode);
+		if (disksize > i_size)
+			disksize = i_size;
+		if (disksize > EXT4_I(inode)->i_disksize)
+			EXT4_I(inode)->i_disksize = disksize;
+		err = ext4_mark_inode_dirty(handle, inode);
+		up_write(&EXT4_I(inode)->i_data_sem);
+#else /* MY_ABC_HERE */
 	if (disksize > i_size_read(mpd->inode))
 		disksize = i_size_read(mpd->inode);
 	if (disksize > EXT4_I(mpd->inode)->i_disksize) {
 		ext4_update_i_disksize(mpd->inode, disksize);
 		err = ext4_mark_inode_dirty(handle, mpd->inode);
+#endif /* MY_ABC_HERE */
 		if (err)
 			ext4_error(mpd->inode->i_sb,
 				   "Failed to mark inode %lu dirty",
@@ -2182,7 +2228,6 @@ out:
 	return ret;
 }
 
-
 static int ext4_da_writepages(struct address_space *mapping,
 			      struct writeback_control *wbc)
 {
@@ -2435,7 +2480,15 @@ retry:
 	 * to journalling the i_disksize update if writes to the end
 	 * of file which has an already mapped buffer.
 	 */
+#ifdef MY_ABC_HERE
+	if (flags & AOP_FLAG_RECVFILE) {
+		handle = ext4_journal_start(inode, MAX_PAGES_PER_RECVFILE);
+	} else {
+		handle = ext4_journal_start(inode, 1);
+	}
+#else
 	handle = ext4_journal_start(inode, 1);
+#endif
 	if (IS_ERR(handle)) {
 		ret = PTR_ERR(handle);
 		goto out;
@@ -2468,6 +2521,15 @@ retry:
 
 	if (ret == -ENOSPC && ext4_should_retry_alloc(inode->i_sb, &retries))
 		goto retry;
+#ifdef MY_ABC_HERE
+	if (ret >= 0 && (flags & AOP_FLAG_RECVFILE)) {
+		if (pos + len > inode->i_size) {
+			// Don't need i_size_write because we hold i_mutex.
+			inode->i_size = pos + len;
+			ext4_mark_inode_dirty(handle, inode);
+		}
+	}
+#endif
 out:
 	return ret;
 }
@@ -3112,6 +3174,13 @@ static const struct address_space_operations ext4_da_aops = {
 	.error_remove_page	= generic_error_remove_page,
 };
 
+#ifdef MY_ABC_HERE
+void ext4_set_writeback_aops(struct inode *inode)
+{
+	inode->i_mapping->a_ops = &ext4_writeback_aops;
+}
+#endif
+
 void ext4_set_aops(struct inode *inode)
 {
 	switch (ext4_inode_journal_mode(inode)) {
@@ -3134,7 +3203,6 @@ void ext4_set_aops(struct inode *inode)
 		BUG();
 	}
 }
-
 
 /*
  * ext4_discard_partial_page_buffers()
@@ -3254,7 +3322,6 @@ static int ext4_discard_partial_page_buffers_no_lock(handle_t *handle,
 		 */
 		if (range_to_discard > end_of_block)
 			range_to_discard = end_of_block;
-
 
 		/*
 		 * Skip this buffer head if we are only zeroing unampped
@@ -3675,6 +3742,10 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 		inode->i_uid |= le16_to_cpu(raw_inode->i_uid_high) << 16;
 		inode->i_gid |= le16_to_cpu(raw_inode->i_gid_high) << 16;
 	}
+	if (EXT4_SB(sb)->s_uid)
+		inode->i_uid = EXT4_SB(sb)->s_uid;
+	if (EXT4_SB(sb)->s_gid)
+		inode->i_gid = EXT4_SB(sb)->s_gid;
 	set_nlink(inode, le16_to_cpu(raw_inode->i_links_count));
 
 	ext4_clear_state_flags(ei);	/* Only relevant on 32-bit archs */
@@ -3769,6 +3840,15 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 	EXT4_INODE_GET_XTIME(i_mtime, inode, raw_inode);
 	EXT4_INODE_GET_XTIME(i_atime, inode, raw_inode);
 	EXT4_EINODE_GET_XTIME(i_crtime, ei, raw_inode);
+#ifdef MY_ABC_HERE
+	inode->i_create_time.tv_sec = (signed)le32_to_cpu(raw_inode->i_crtime);
+	inode->i_create_time.tv_nsec = (signed)le32_to_cpu(raw_inode->i_crtime_extra);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	if (!EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) {
+		inode->i_archive_bit = le16_to_cpu(raw_inode->ext4_archive_bit);
+	}
+#endif
 
 	inode->i_version = le32_to_cpu(raw_inode->i_disk_version);
 	if (EXT4_INODE_SIZE(inode->i_sb) > EXT4_GOOD_OLD_INODE_SIZE) {
@@ -3892,9 +3972,15 @@ static int ext4_do_update_inode(handle_t *handle,
 {
 	struct ext4_inode *raw_inode = ext4_raw_inode(iloc);
 	struct ext4_inode_info *ei = EXT4_I(inode);
+	uid_t uid = inode->i_uid;
+	gid_t gid = inode->i_gid;
 	struct buffer_head *bh = iloc->bh;
 	int err = 0, rc, block;
 	int need_datasync = 0;
+	__le16 uid_low;
+	__le16 gid_low;
+	__le16 uid_high;
+	__le16 gid_high;
 
 	/* For fields not not tracking in the in-memory inode,
 	 * initialise them to zero for new inodes. */
@@ -3903,36 +3989,57 @@ static int ext4_do_update_inode(handle_t *handle,
 
 	ext4_get_inode_flags(ei);
 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
+	if (EXT4_SB(inode->i_sb)->s_uid)
+		uid = EXT4_SB(inode->i_sb)->s_diskuid;
+	if (EXT4_SB(inode->i_sb)->s_gid)
+		gid = EXT4_SB(inode->i_sb)->s_diskgid;
 	if (!(test_opt(inode->i_sb, NO_UID32))) {
-		raw_inode->i_uid_low = cpu_to_le16(low_16_bits(inode->i_uid));
-		raw_inode->i_gid_low = cpu_to_le16(low_16_bits(inode->i_gid));
+		uid_low = cpu_to_le16(low_16_bits(uid));
+		gid_low = cpu_to_le16(low_16_bits(gid));
 /*
  * Fix up interoperability with old kernels. Otherwise, old inodes get
  * re-used with the upper 16 bits of the uid/gid intact
  */
 		if (!ei->i_dtime) {
-			raw_inode->i_uid_high =
-				cpu_to_le16(high_16_bits(inode->i_uid));
-			raw_inode->i_gid_high =
-				cpu_to_le16(high_16_bits(inode->i_gid));
+			uid_high = cpu_to_le16(high_16_bits(uid));
+			gid_high = cpu_to_le16(high_16_bits(gid));
 		} else {
-			raw_inode->i_uid_high = 0;
-			raw_inode->i_gid_high = 0;
+			uid_high = 0;
+			gid_high = 0;
 		}
 	} else {
-		raw_inode->i_uid_low =
-			cpu_to_le16(fs_high2lowuid(inode->i_uid));
-		raw_inode->i_gid_low =
-			cpu_to_le16(fs_high2lowgid(inode->i_gid));
-		raw_inode->i_uid_high = 0;
-		raw_inode->i_gid_high = 0;
+		uid_low = cpu_to_le16(fs_high2lowuid(uid));
+		gid_low = cpu_to_le16(fs_high2lowgid(gid));
+		uid_high = 0;
+		gid_high = 0;
 	}
+	/* don't mangle uid/gid of existing files if override is active */
+	if (!EXT4_SB(inode->i_sb)->s_uid ||
+	    ext4_test_inode_state(inode, EXT4_STATE_NEW)) {
+		raw_inode->i_uid_high = uid_high;
+		raw_inode->i_uid_low = uid_low;
+	}
+	if (!EXT4_SB(inode->i_sb)->s_gid ||
+	    ext4_test_inode_state(inode, EXT4_STATE_NEW)) {
+		raw_inode->i_gid_high = gid_high;
+		raw_inode->i_gid_low = gid_low;
+	}
+
 	raw_inode->i_links_count = cpu_to_le16(inode->i_nlink);
 
 	EXT4_INODE_SET_XTIME(i_ctime, inode, raw_inode);
 	EXT4_INODE_SET_XTIME(i_mtime, inode, raw_inode);
 	EXT4_INODE_SET_XTIME(i_atime, inode, raw_inode);
 	EXT4_EINODE_SET_XTIME(i_crtime, ei, raw_inode);
+#ifdef MY_ABC_HERE
+	raw_inode->i_crtime = cpu_to_le32(inode->i_create_time.tv_sec);
+	raw_inode->i_crtime_extra = cpu_to_le32(inode->i_create_time.tv_nsec);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	if (!EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) {
+		raw_inode->ext4_archive_bit = cpu_to_le16(inode->i_archive_bit); /* we'll lost upper 16 bits flags */
+	}
+#endif
 
 	if (ext4_inode_blocks_set(handle, raw_inode, ei))
 		goto out_brelse;
@@ -4105,6 +4212,10 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 	int error, rc = 0;
 	int orphan = 0;
 	const unsigned int ia_valid = attr->ia_valid;
+#ifdef MY_ABC_HERE
+	bool already_update_size = false;
+	loff_t oldsize = 0;
+#endif
 
 	error = inode_change_ok(inode, attr);
 	if (error)
@@ -4164,8 +4275,23 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 			error = ext4_orphan_add(handle, inode);
 			orphan = 1;
 		}
+#ifdef MY_ABC_HERE
+		down_write(&EXT4_I(inode)->i_data_sem);
+#endif
 		EXT4_I(inode)->i_disksize = attr->ia_size;
 		rc = ext4_mark_inode_dirty(handle, inode);
+#ifdef MY_ABC_HERE
+		/*
+		 * We have to update i_size under i_data_sem together
+		 * with i_disksize to avoid races with writeback.
+		 */
+		if (!error) {
+			oldsize = inode->i_size;
+			i_size_write(inode, attr->ia_size);
+			already_update_size = true;
+		}
+		up_write(&EXT4_I(inode)->i_data_sem);
+#endif /* MY_ABC_HERE */
 		if (!error)
 			error = rc;
 		ext4_journal_stop(handle);
@@ -4189,9 +4315,17 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 	}
 
 	if (attr->ia_valid & ATTR_SIZE) {
-		if (attr->ia_size != i_size_read(inode))
+#ifdef MY_ABC_HERE
+		if (already_update_size) {
+			truncate_pagecache(inode, oldsize, attr->ia_size);
+			ext4_truncate(inode);
+		} else
+#endif /* MY_ABC_HERE */
+		if (attr->ia_size != i_size_read(inode)) {
 			truncate_setsize(inode, attr->ia_size);
-		ext4_truncate(inode);
+			ext4_truncate(inode);
+		} else if (ext4_test_inode_flag(inode, EXT4_INODE_EOFBLOCKS))
+			ext4_truncate(inode);
 	}
 
 	if (!rc) {
@@ -4240,6 +4374,50 @@ int ext4_getattr(struct vfsmount *mnt, struct dentry *dentry,
 	stat->blocks += (delalloc_blocks << inode->i_sb->s_blocksize_bits)>>9;
 	return 0;
 }
+
+#ifdef MY_ABC_HERE
+int ext4_syno_set_archive_ver(struct dentry *dentry, u32 version)
+{
+	struct inode *inode = dentry->d_inode;
+	struct syno_xattr_archive_version value;
+	int err;
+
+	value.v_magic = cpu_to_le16(0x2552);
+	value.v_struct_version = cpu_to_le16(1);
+	value.v_archive_version = cpu_to_le32(version);
+	err = ext4_xattr_set(inode, EXT4_XATTR_INDEX_SYNO, XATTR_SYNO_ARCHIVE_VERSION, &value, sizeof(value), 0);
+	if (!err) {
+		inode->i_archive_version = version;
+		inode->i_flags |= S_ARCHIVE_VERSION_CACHED;
+	}
+	return err;
+}
+
+int ext4_syno_get_archive_ver(struct dentry *dentry, u32 *version)
+{
+	struct inode *inode = dentry->d_inode;
+	struct syno_xattr_archive_version value;
+	int err;
+
+	if (IS_ARCHIVE_VERSION_CACHED(inode)) {
+		*version = inode->i_archive_version;
+		return 0;
+	}
+
+	err = ext4_xattr_get(inode, EXT4_XATTR_INDEX_SYNO, XATTR_SYNO_ARCHIVE_VERSION, &value, sizeof(value));
+	if (0 < err) {
+		inode->i_archive_version = le32_to_cpu(value.v_archive_version);
+	} else if (-ENODATA == err) {
+		inode->i_archive_version = 0;
+	} else {
+		*version = 0;
+		return err;
+	}
+	*version = inode->i_archive_version;
+	inode->i_flags |= S_ARCHIVE_VERSION_CACHED;
+	return 0;
+}
+#endif /* MY_ABC_HERE */
 
 static int ext4_index_trans_blocks(struct inode *inode, int nrblocks, int chunk)
 {

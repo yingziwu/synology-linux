@@ -503,7 +503,6 @@ static void ati_remote_input_report(struct urb *urb)
 			"channel 0x%02x; key data %02x, scancode %02x\n",
 			remote_num, data[2], scancode);
 
-
 	if (index >= 0 && ati_remote_tbl[index].kind == KIND_LITERAL) {
 		input_event(dev, ati_remote_tbl[index].type,
 			ati_remote_tbl[index].code,

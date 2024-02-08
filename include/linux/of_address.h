@@ -50,7 +50,6 @@ static inline const u32 *of_get_address(struct device_node *dev, int index,
 }
 #endif /* CONFIG_OF_ADDRESS */
 
-
 #if defined(CONFIG_OF_ADDRESS) && defined(CONFIG_PCI)
 extern const __be32 *of_get_pci_address(struct device_node *dev, int bar_no,
 			       u64 *size, unsigned int *flags);
@@ -71,4 +70,3 @@ static inline const __be32 *of_get_pci_address(struct device_node *dev,
 #endif /* CONFIG_OF_ADDRESS && CONFIG_PCI */
 
 #endif /* __OF_ADDRESS_H */
-

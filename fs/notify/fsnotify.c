@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright (C) 2008 Red Hat, Inc., Eric Paris <eparis@redhat.com>
  *
@@ -27,6 +30,10 @@
 #include <linux/fsnotify_backend.h>
 #include "fsnotify.h"
 #include "../mount.h"
+
+#ifdef MY_ABC_HERE
+#include <linux/nsproxy.h>
+#endif
 
 /*
  * Clear all of the marks on an inode when it is being evicted from core
@@ -123,7 +130,7 @@ int __fsnotify_parent(struct path *path, struct dentry *dentry, __u32 mask)
 }
 EXPORT_SYMBOL_GPL(__fsnotify_parent);
 
-static int send_to_group(struct inode *to_tell, struct vfsmount *mnt,
+static int send_to_group(struct inode *to_tell,
 			 struct fsnotify_mark *inode_mark,
 			 struct fsnotify_mark *vfsmount_mark,
 			 __u32 mask, void *data,
@@ -168,10 +175,10 @@ static int send_to_group(struct inode *to_tell, struct vfsmount *mnt,
 			vfsmount_test_mask &= ~inode_mark->ignored_mask;
 	}
 
-	pr_debug("%s: group=%p to_tell=%p mnt=%p mask=%x inode_mark=%p"
+	pr_debug("%s: group=%p to_tell=%p mask=%x inode_mark=%p"
 		 " inode_test_mask=%x vfsmount_mark=%p vfsmount_test_mask=%x"
 		 " data=%p data_is=%d cookie=%d event=%p\n",
-		 __func__, group, to_tell, mnt, mask, inode_mark,
+		 __func__, group, to_tell, mask, inode_mark,
 		 inode_test_mask, vfsmount_mark, vfsmount_test_mask, data,
 		 data_is, cookie, *event);
 
@@ -258,16 +265,16 @@ int fsnotify(struct inode *to_tell, __u32 mask, void *data, int data_is,
 
 		if (inode_group > vfsmount_group) {
 			/* handle inode */
-			ret = send_to_group(to_tell, NULL, inode_mark, NULL, mask, data,
+			ret = send_to_group(to_tell, inode_mark, NULL, mask, data,
 					    data_is, cookie, file_name, &event);
 			/* we didn't use the vfsmount_mark */
 			vfsmount_group = NULL;
 		} else if (vfsmount_group > inode_group) {
-			ret = send_to_group(to_tell, &mnt->mnt, NULL, vfsmount_mark, mask, data,
+			ret = send_to_group(to_tell, NULL, vfsmount_mark, mask, data,
 					    data_is, cookie, file_name, &event);
 			inode_group = NULL;
 		} else {
-			ret = send_to_group(to_tell, &mnt->mnt, inode_mark, vfsmount_mark,
+			ret = send_to_group(to_tell, inode_mark, vfsmount_mark,
 					    mask, data, data_is, cookie, file_name,
 					    &event);
 		}
@@ -295,6 +302,159 @@ out:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(fsnotify);
+
+#ifdef MY_ABC_HERE
+/*
+ * notify_event
+ *
+ * get notify event path by given vfsmnt and dentry.
+ * notify event according to procedded dentry path.
+ *
+ * */
+static int notify_event(struct vfsmount *vfsmnt, struct dentry *dentry, __u32 mask)
+{
+	int ret = 0;
+	struct path path;
+	struct path root_path;
+	char *dentry_path = NULL;
+	char *dentry_buf = NULL;
+	struct mount * mnt = NULL;
+	__u32 test_mask = (mask & ~FS_EVENT_ON_CHILD);
+
+	if (!dentry) {
+		ret = -EINVAL;
+		goto end;
+	}
+	if (!vfsmnt) {
+		ret = -EINVAL;
+		goto end;
+	}
+
+	mnt = real_mount(vfsmnt);
+	if (!mnt) {
+		ret = -EINVAL;
+		goto end;
+	}
+
+	if (!(test_mask & mnt->mnt_fsnotify_mask)) {
+		ret = 0;
+		goto end;
+	}
+
+	memset(&path, 0, sizeof(struct path));
+	memset(&root_path, 0, sizeof(struct path));
+
+	path.mnt = vfsmnt;
+	path.dentry = dentry;
+	root_path.mnt = vfsmnt;
+	root_path.dentry = vfsmnt->mnt_root;
+
+	dentry_buf = kmalloc(PATH_MAX, GFP_NOFS);
+	if (!dentry_buf) {
+		ret = -ENOMEM;
+		goto end;
+	}
+
+	dentry_path = __d_path(&path, &root_path, dentry_buf, PATH_MAX-1);
+	if (IS_ERR_OR_NULL(dentry_path)) {
+		ret = -1;
+		goto end;
+	}
+
+	SYNOFsnotify(mask, &path, FSNOTIFY_EVENT_SYNO, dentry_path, 0);
+end:
+	if (dentry_buf)
+		kfree(dentry_buf);
+	return ret;
+}
+
+inline int SYNOFsnotify(__u32 mask, void *data, int data_is,
+		const unsigned char *file_name, u32 cookie)
+{
+	struct hlist_node *mount_node = NULL;
+	struct fsnotify_mark *mount_mark = NULL;
+	struct fsnotify_event *event = NULL;
+	struct mount *mnt = NULL;
+	int idx = 0;
+	/* global tests shouldn't care about events on child only the specific event */
+	__u32 test_mask = (mask & ~FS_EVENT_ON_CHILD);
+
+	if (data_is != FSNOTIFY_EVENT_SYNO)
+		return 0;
+
+	if (!((struct path *)data)->mnt)
+		return 0;
+
+	mnt = real_mount(((struct path *)data)->mnt);
+	if (!(test_mask & mnt->mnt_fsnotify_mask))
+		return 0;
+
+	idx = srcu_read_lock(&fsnotify_mark_srcu);
+
+	mount_node = srcu_dereference(mnt->mnt_fsnotify_marks.first,
+						 &fsnotify_mark_srcu);
+
+	while (mount_node) {
+
+		mount_mark = hlist_entry(srcu_dereference(mount_node, &fsnotify_mark_srcu),
+							struct fsnotify_mark, m.m_list);
+
+		send_to_group(NULL, NULL, mount_mark, mask, data,
+					    data_is, cookie, file_name, &event);
+
+		mount_node = srcu_dereference(mount_node->next,
+							 &fsnotify_mark_srcu);
+	}
+
+	srcu_read_unlock(&fsnotify_mark_srcu, idx);
+	/*
+	 * fsnotify_create_event() took a reference so the event can't be cleaned
+	 * up while we are still trying to add it to lists, drop that one.
+	 */
+	if (event)
+		fsnotify_put_event(event);
+
+	return 0;
+}
+
+/* Do syno notify according to given dentry and mask */
+int SYNONotify(struct dentry *dentry, __u32 mask)
+{
+	struct list_head *head = NULL;
+	struct nsproxy *nsproxy = NULL;
+	int ret = 0;
+
+	if (!dentry) {
+		ret = -EINVAL;
+		goto ERR;
+	}
+
+	if (!dentry->d_sb) {
+		ret = -EINVAL;
+		goto ERR;
+	}
+
+	nsproxy = current->nsproxy;
+	if (nsproxy) {
+		struct mnt_namespace *mnt_space = nsproxy->mnt_ns;
+		if (mnt_space) {
+			list_for_each(head, &mnt_space->list) {
+				struct mount *mnt = list_entry(head, struct mount, mnt_list);
+				if (mnt && mnt->mnt.mnt_sb == dentry->d_sb) {
+					struct vfsmount *vfsmnt = &mnt->mnt;
+					mntget(vfsmnt);
+					notify_event(vfsmnt, dentry, mask); // NOTE: ignore error
+					mntput(vfsmnt);
+				}
+			}
+		}
+	}
+
+ERR:
+	return ret;
+}
+EXPORT_SYMBOL(SYNONotify);
+#endif /* MY_ABC_HERE */
 
 static __init int fsnotify_init(void)
 {

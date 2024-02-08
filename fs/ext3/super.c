@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext3/super.c
  *
@@ -61,6 +64,15 @@ static int ext3_remount (struct super_block * sb, int * flags, char * data);
 static int ext3_statfs (struct dentry * dentry, struct kstatfs * buf);
 static int ext3_unfreeze(struct super_block *sb);
 static int ext3_freeze(struct super_block *sb);
+
+#ifdef MY_ABC_HERE
+extern struct dentry_operations ext3_dentry_operations;
+
+spinlock_t ext3_namei_buf_lock;  /* lock for ext3_utf8_namei_buf[] in fs/ext3/namei.c */
+spinlock_t ext3_hash_buf_lock;   /* lock for ext3_utf8_hash_buf[] in fs/ext3/namei.c */
+static int ext3_namei_lock_init = 0;
+static int ext3_hash_lock_init = 0;
+#endif /* MY_ABC_HERE */
 
 /*
  * Wrappers for journal_start/end.
@@ -625,6 +637,20 @@ static int ext3_show_options(struct seq_file *seq, struct dentry *root)
 	    le16_to_cpu(es->s_def_resgid) != EXT3_DEF_RESGID) {
 		seq_printf(seq, ",resgid=%u", sbi->s_resgid);
 	}
+	if (sbi->s_uid) {
+		if (sbi->s_uid != sbi->s_diskuid)
+			seq_printf(seq, ",uid=%u:%u",
+				sbi->s_uid, sbi->s_diskuid);
+		else
+			seq_printf(seq, ",uid=%u", sbi->s_uid);
+	}
+	if (sbi->s_gid) {
+		if (sbi->s_gid != sbi->s_diskgid)
+			seq_printf(seq, ",gid=%u:%u",
+				sbi->s_gid, sbi->s_diskgid);
+		else
+			seq_printf(seq, ",gid=%u", sbi->s_gid);
+	}
 	if (test_opt(sb, ERRORS_RO)) {
 		int def_errors = le16_to_cpu(es->s_errors);
 
@@ -678,7 +704,6 @@ static int ext3_show_options(struct seq_file *seq, struct dentry *root)
 
 	return 0;
 }
-
 
 static struct inode *ext3_nfs_get_inode(struct super_block *sb,
 		u64 ino, u32 generation)
@@ -743,6 +768,42 @@ static int bdev_try_to_free_page(struct super_block *sb, struct page *page,
 	return try_to_free_buffers(page);
 }
 
+#ifdef MY_ABC_HERE
+static int ext3_syno_set_sb_archive_ver(struct super_block *sb, u32 archive_ver)
+{
+	struct ext3_super_block *es = EXT3_SB(sb)->s_es;
+	handle_t *handle;
+	int err, err2;
+
+	sb->s_archive_version = archive_ver;
+	es->s_archive_version = cpu_to_le32(sb->s_archive_version);
+
+	handle = ext3_journal_start_sb(sb, 1);
+	if (IS_ERR(handle)) {
+		err = PTR_ERR(handle);
+		goto exit;
+	}
+	err = ext3_journal_get_write_access(handle, EXT3_SB(sb)->s_sbh);
+	if (err) {
+		goto exit_journal;
+	}
+	err = ext3_journal_dirty_metadata(handle, EXT3_SB(sb)->s_sbh);
+exit_journal:
+	err2 = ext3_journal_stop(handle);
+	if (!err) {
+		err = err2;
+	}
+exit:
+	return err;
+}
+
+static int ext3_syno_get_sb_archive_ver(struct super_block *sb, u32 *archive_ver)
+{
+	*archive_ver = sb->s_archive_version;
+	return 0;
+}
+#endif /* MY_ABC_HERE */
+
 #ifdef CONFIG_QUOTA
 #define QTYPE2NAME(t) ((t)==USRQUOTA?"user":"group")
 #define QTYPE2MOPT(on, t) ((t)==USRQUOTA?((on)##USRJQUOTA):((on)##GRPJQUOTA))
@@ -782,6 +843,10 @@ static const struct quotactl_ops ext3_qctl_operations = {
 #endif
 
 static const struct super_operations ext3_sops = {
+#ifdef MY_ABC_HERE
+	.syno_set_sb_archive_ver = ext3_syno_set_sb_archive_ver,
+	.syno_get_sb_archive_ver = ext3_syno_get_sb_archive_ver,
+#endif
 	.alloc_inode	= ext3_alloc_inode,
 	.destroy_inode	= ext3_destroy_inode,
 	.write_inode	= ext3_write_inode,
@@ -820,7 +885,8 @@ enum {
 	Opt_usrjquota, Opt_grpjquota, Opt_offusrjquota, Opt_offgrpjquota,
 	Opt_jqfmt_vfsold, Opt_jqfmt_vfsv0, Opt_jqfmt_vfsv1, Opt_quota,
 	Opt_noquota, Opt_ignore, Opt_barrier, Opt_nobarrier, Opt_err,
-	Opt_resize, Opt_usrquota, Opt_grpquota
+	Opt_resize, Opt_usrquota, Opt_grpquota,
+	Opt_uid, Opt_diskuid, Opt_gid, Opt_diskgid
 };
 
 static const match_table_t tokens = {
@@ -877,6 +943,10 @@ static const match_table_t tokens = {
 	{Opt_barrier, "barrier"},
 	{Opt_nobarrier, "nobarrier"},
 	{Opt_resize, "resize"},
+	{Opt_uid, "uid=%u"},
+	{Opt_diskuid, "uid=%u:%u"},
+	{Opt_gid, "gid=%u"},
+	{Opt_diskgid, "gid=%u:%u"},
 	{Opt_err, NULL},
 };
 
@@ -1036,12 +1106,20 @@ static int parse_options (char *options, struct super_block *sb,
 			set_opt (sbi->s_mount_opt, DEBUG);
 			break;
 		case Opt_oldalloc:
+#ifdef MY_ABC_HERE
+			set_opt (sbi->s_mount_opt, OLDALLOC);
+#else /* MY_ABC_HERE */
 			ext3_msg(sb, KERN_WARNING,
 				"Ignoring deprecated oldalloc option");
+#endif /* MY_ABC_HERE */
 			break;
 		case Opt_orlov:
+#ifdef MY_ABC_HERE
+			clear_opt (sbi->s_mount_opt, OLDALLOC);
+#else /* MY_ABC_HERE */
 			ext3_msg(sb, KERN_WARNING,
 				"Ignoring deprecated orlov option");
+#endif /* MY_ABC_HERE */
 			break;
 #ifdef CONFIG_EXT3_FS_XATTR
 		case Opt_user_xattr:
@@ -1267,6 +1345,34 @@ set_qf_format:
 			ext3_msg(sb, KERN_WARNING,
 				"warning: ignoring deprecated bh option");
 			break;
+		case Opt_uid:
+			if (match_int(&args[0], &option))
+				return 0;
+			sbi->s_uid = sbi->s_diskuid = option;
+			break;
+		case Opt_diskuid:
+			if (match_int(&args[0], &option))
+				return 0;
+			sbi->s_uid = option;
+
+			if (match_int(&args[1], &option))
+				return 0;
+			sbi->s_diskuid = option;
+			break;
+		case Opt_gid:
+			if (match_int(&args[0], &option))
+				return 0;
+			sbi->s_gid = sbi->s_diskgid = option;
+			break;
+		case Opt_diskgid:
+			if (match_int(&args[0], &option))
+				return 0;
+			sbi->s_gid = option;
+
+			if (match_int(&args[1], &option))
+				return 0;
+			sbi->s_diskgid = option;
+			break;
 		default:
 			ext3_msg(sb, KERN_ERR,
 				"error: unrecognized mount option \"%s\" "
@@ -1318,6 +1424,7 @@ static int ext3_setup_super(struct super_block *sb, struct ext3_super_block *es,
 	}
 	if (read_only)
 		return res;
+#ifndef MY_ABC_HERE
 	if (!(sbi->s_mount_state & EXT3_VALID_FS))
 		ext3_msg(sb, KERN_WARNING,
 			"warning: mounting unchecked fs, "
@@ -1338,6 +1445,7 @@ static int ext3_setup_super(struct super_block *sb, struct ext3_super_block *es,
 		ext3_msg(sb, KERN_WARNING,
 			"warning: checktime reached, "
 			"running e2fsck is recommended");
+#endif /* MY_ABC_HERE */
 #if 0
 		/* @@@ We _will_ want to clear the valid bit if we find
                    inconsistencies, to force a fsck at reboot.  But for
@@ -1429,7 +1537,6 @@ static int ext3_check_descriptors(struct super_block *sb)
 	sbi->s_es->s_free_inodes_count=cpu_to_le32(ext3_count_free_inodes(sb));
 	return 1;
 }
-
 
 /* ext3_orphan_cleanup() walks a singly-linked list of inodes (starting at
  * the superblock) which were deleted from all directories, but held open by
@@ -1573,7 +1680,6 @@ static loff_t ext3_max_size(int bits)
 	/* total blocks in file system block size */
 	upper_limit >>= (bits - 9);
 
-
 	/* indirect blocks */
 	meta_blocks = 1;
 	/* double indirect blocks */
@@ -1615,7 +1721,6 @@ static ext3_fsblk_t descriptor_loc(struct super_block *sb,
 		has_super = 1;
 	return (has_super + ext3_group_first_block_no(sb, bg));
 }
-
 
 static int ext3_fill_super (struct super_block *sb, void *data, int silent)
 {
@@ -2036,12 +2141,23 @@ static int ext3_fill_super (struct super_block *sb, void *data, int silent)
 		ext3_msg(sb, KERN_ERR, "error: corrupt root inode, run e2fsck");
 		goto failed_mount3;
 	}
+#ifdef MY_ABC_HERE
+	sb->s_d_op = &ext3_dentry_operations;
+#endif /* MY_ABC_HERE */
 	sb->s_root = d_make_root(root);
 	if (!sb->s_root) {
 		ext3_msg(sb, KERN_ERR, "error: get root dentry failed");
 		ret = -ENOMEM;
 		goto failed_mount3;
 	}
+
+#ifdef MY_ABC_HERE
+	// root is mounted, attach our dentry operations
+	sb->s_root->d_op = &ext3_dentry_operations;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	sb->s_archive_version = le32_to_cpu(es->s_archive_version);
+#endif
 
 	ext3_setup_super (sb, es, sb->s_flags & MS_RDONLY);
 
@@ -2056,6 +2172,16 @@ static int ext3_fill_super (struct super_block *sb, void *data, int silent)
 		test_opt(sb,DATA_FLAGS) == EXT3_MOUNT_JOURNAL_DATA ? "journal":
 		test_opt(sb,DATA_FLAGS) == EXT3_MOUNT_ORDERED_DATA ? "ordered":
 		"writeback");
+#ifdef MY_ABC_HERE
+	if (!ext3_namei_lock_init) {
+		spin_lock_init(&ext3_namei_buf_lock);
+		ext3_namei_lock_init=1;
+	}
+	if (!ext3_hash_lock_init) {
+		spin_lock_init(&ext3_hash_buf_lock);
+		ext3_hash_lock_init=1;
+	}
+#endif /* MY_ABC_HERE */
 
 	return 0;
 
@@ -2427,7 +2553,6 @@ static int ext3_commit_super(struct super_block *sb,
 	return error;
 }
 
-
 /*
  * Have we just finished recovery?  If so, and if we are mounting (or
  * remounting) the filesystem readonly, then we will end up with a
@@ -2590,6 +2715,10 @@ static int ext3_remount (struct super_block * sb, int * flags, char * data)
 	old_opts.s_mount_opt = sbi->s_mount_opt;
 	old_opts.s_resuid = sbi->s_resuid;
 	old_opts.s_resgid = sbi->s_resgid;
+	old_opts.s_uid = sbi->s_uid;
+	old_opts.s_diskuid = sbi->s_diskuid;
+	old_opts.s_gid = sbi->s_gid;
+	old_opts.s_diskgid = sbi->s_diskgid;
 	old_opts.s_commit_interval = sbi->s_commit_interval;
 #ifdef CONFIG_QUOTA
 	old_opts.s_jquota_fmt = sbi->s_jquota_fmt;
@@ -2701,6 +2830,10 @@ restore_opts:
 	sbi->s_mount_opt = old_opts.s_mount_opt;
 	sbi->s_resuid = old_opts.s_resuid;
 	sbi->s_resgid = old_opts.s_resgid;
+	sbi->s_uid = old_opts.s_uid;
+	sbi->s_diskuid = old_opts.s_diskuid;
+	sbi->s_gid = old_opts.s_gid;
+	sbi->s_diskgid = old_opts.s_diskgid;
 	sbi->s_commit_interval = old_opts.s_commit_interval;
 #ifdef CONFIG_QUOTA
 	sbi->s_jquota_fmt = old_opts.s_jquota_fmt;

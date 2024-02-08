@@ -491,7 +491,6 @@ enum {
 #define QLCNIC_NIU_GB_MAC_CONFIG_1(I)		\
 		(QLCNIC_CRB_NIU + 0x30004 + (I)*0x10000)
 
-
 #define TEST_AGT_CTRL	(0x00)
 
 #define TA_CTL_START	BIT_0
@@ -610,7 +609,6 @@ enum {
 	QLCNIC_TEMP_WARN,	/* Sound alert, temperature getting high */
 	QLCNIC_TEMP_PANIC	/* Fatal error, hardware has shut down. */
 };
-
 
 /* Lock IDs for PHY lock */
 #define PHY_LOCK_DRIVER		0x44524956

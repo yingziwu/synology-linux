@@ -604,7 +604,6 @@ static int wacom_probe(struct hid_device *hdev,
 	wdata->battery.type = POWER_SUPPLY_TYPE_BATTERY;
 	wdata->battery.use_for_apm = 0;
 
-
 	ret = power_supply_register(&hdev->dev, &wdata->battery);
 	if (ret) {
 		hid_warn(hdev, "can't create sysfs battery attribute, err: %d\n",
@@ -694,4 +693,3 @@ static void __exit wacom_exit(void)
 module_init(wacom_init);
 module_exit(wacom_exit);
 MODULE_LICENSE("GPL");
-

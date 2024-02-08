@@ -7,4 +7,3 @@ extern void highbank_lluart_map_io(void);
 #else
 static inline void highbank_lluart_map_io(void) {}
 #endif
-

@@ -703,7 +703,6 @@ int __init_or_module do_one_initcall(initcall_t fn)
 	return ret;
 }
 
-
 extern initcall_t __initcall_start[];
 extern initcall_t __initcall0_start[];
 extern initcall_t __initcall1_start[];
@@ -806,7 +805,6 @@ static noinline int init_post(void)
 	mark_rodata_ro();
 	system_state = SYSTEM_RUNNING;
 	numa_default_policy();
-
 
 	current->signal->flags |= SIGNAL_UNKILLABLE;
 

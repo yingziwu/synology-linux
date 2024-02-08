@@ -103,4 +103,3 @@ void pxa_restart(char mode, const char *cmd)
 		break;
 	}
 }
-

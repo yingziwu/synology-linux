@@ -60,7 +60,6 @@ static int inline ek_have_2mmc(void)
 	return machine_is_at91sam9g20ek_2mmc() || (system_rev & HAVE_2MMC);
 }
 
-
 static void __init ek_init_early(void)
 {
 	/* Initialize processor: 18.432 MHz crystal */
@@ -98,7 +97,6 @@ static struct at91_udc_data __initdata ek_udc_data = {
 	.pullup_pin	= -EINVAL,		/* pull-up driven by UDC */
 };
 
-
 /*
  * SPI devices.
  */
@@ -120,7 +118,6 @@ static struct spi_board_info ek_spi_devices[] = {
 #endif
 #endif
 };
-
 
 /*
  * MACB Ethernet device
@@ -204,7 +201,6 @@ static void __init ek_add_device_nand(void)
 
 	at91_add_device_nand(&ek_nand_data);
 }
-
 
 /*
  * MCI (SD/MMC)
@@ -358,7 +354,6 @@ static void __init ek_add_regulators(void)
 static void __init ek_add_regulators(void) {}
 #endif
 
-
 static struct i2c_board_info __initdata ek_i2c_devices[] = {
         {
                 I2C_BOARD_INFO("24c512", 0x50)
@@ -367,7 +362,6 @@ static struct i2c_board_info __initdata ek_i2c_devices[] = {
                 I2C_BOARD_INFO("wm8731", 0x1b)
         },
 };
-
 
 static void __init ek_board_init(void)
 {

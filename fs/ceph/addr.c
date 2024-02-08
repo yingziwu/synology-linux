@@ -362,7 +362,6 @@ out:
 	return ret;
 }
 
-
 /*
  * Read multiple pages.  Leave pages we don't read + unlock in page_list;
  * the caller (VM) cleans them up.
@@ -525,7 +524,6 @@ static int ceph_writepage(struct page *page, struct writeback_control *wbc)
 	return err;
 }
 
-
 /*
  * lame release_pages helper.  release_pages() isn't exported to
  * modules.
@@ -542,7 +540,6 @@ static void ceph_release_pages(struct page **pages, int num)
 	}
 	pagevec_release(&pvec);
 }
-
 
 /*
  * async writeback completion handler.
@@ -950,8 +947,6 @@ out:
 	return rc;
 }
 
-
-
 /*
  * See if a given @snapc is either writeable, or already written.
  */
@@ -1174,7 +1169,6 @@ const struct address_space_operations ceph_aops = {
 	.releasepage = ceph_releasepage,
 	.direct_IO = ceph_direct_io,
 };
-
 
 /*
  * vm ops

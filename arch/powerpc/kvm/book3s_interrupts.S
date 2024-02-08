@@ -36,7 +36,6 @@
 
 #endif /* CONFIG_PPC_BOOK3S_XX */
 
-
 #define VCPU_GPR(n)		(VCPU_GPRS + (n * ULONG_SIZE))
 #define VCPU_LOAD_NVGPRS(vcpu) \
 	PPC_LL	r14, VCPU_GPR(r14)(vcpu); \

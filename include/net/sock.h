@@ -83,6 +83,10 @@ void mem_cgroup_sockets_destroy(struct cgroup *cgrp)
 {
 }
 #endif
+
+#ifdef CONFIG_TNK
+#include <net/tnkdrv.h>
+#endif
 /*
  * This structure really needs to be cleaned up.
  * Most of it is for TCP, and not used by any of
@@ -377,6 +381,10 @@ struct sock {
   	int			(*sk_backlog_rcv)(struct sock *sk,
 						  struct sk_buff *skb);  
 	void                    (*sk_destruct)(struct sock *sk);
+
+#ifdef CONFIG_TNK
+	struct tnkinfo		sk_tnkinfo;
+#endif
 };
 
 static inline int sk_peek_offset(struct sock *sk, int flags)
@@ -973,7 +981,6 @@ static inline struct cg_proto *parent_cg_proto(struct proto *proto,
 }
 #endif
 
-
 static inline bool sk_has_memory_pressure(const struct sock *sk)
 {
 	return sk->sk_prot->memory_pressure != NULL;
@@ -1156,7 +1163,6 @@ proto_memory_pressure(struct proto *prot)
 	return !!*prot->memory_pressure;
 }
 
-
 #ifdef CONFIG_PROC_FS
 /* Called with local bh disabled */
 extern void sock_prot_inuse_add(struct net *net, struct proto *prot, int inc);
@@ -1167,7 +1173,6 @@ static void inline sock_prot_inuse_add(struct net *net, struct proto *prot,
 {
 }
 #endif
-
 
 /* With per-bucket locks this operation is not-atomic, so that
  * this version is not worse.
@@ -1375,7 +1380,6 @@ static inline void unlock_sock_fast(struct sock *sk, bool slow)
 	else
 		spin_unlock_bh(&sk->sk_lock.slock);
 }
-
 
 extern struct sock		*sk_alloc(struct net *net, int family,
 					  gfp_t priority,

@@ -33,6 +33,7 @@
 
 #define PCI_VENDOR_ID_ETRON		0x1b6f
 #define PCI_DEVICE_ID_ASROCK_P67	0x7023
+unsigned short xhci_vendor = 0;
 
 static const char hcd_name[] = "xhci_hcd";
 

@@ -676,7 +676,6 @@ unsigned long try_to_compact_pages(struct zonelist *zonelist,
 	return rc;
 }
 
-
 /* Compact all zones within a node */
 static int __compact_pgdat(pg_data_t *pgdat, struct compact_control *cc)
 {

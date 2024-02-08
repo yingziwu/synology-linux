@@ -322,7 +322,6 @@ out:
 	return NETDEV_TX_OK;
 }
 
-
 /******************************************
  *   Routines looking at netdevice side.
  ******************************************/

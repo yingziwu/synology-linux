@@ -160,7 +160,6 @@ struct iwl_cmd_header {
 	__le16 sequence;
 } __packed;
 
-
 #define FH_RSCSR_FRAME_SIZE_MSK		0x00003FFF	/* bits 0-13 */
 
 struct iwl_rx_packet {
@@ -544,7 +543,6 @@ static inline int iwl_trans_tx_agg_alloc(struct iwl_trans *trans,
 
 	return trans->ops->tx_agg_alloc(trans, sta_id, tid);
 }
-
 
 static inline void iwl_trans_tx_agg_setup(struct iwl_trans *trans,
 					   enum iwl_rxon_context_id ctx,

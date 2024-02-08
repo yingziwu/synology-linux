@@ -252,6 +252,7 @@ struct uart_ops {
 	void		(*pm)(struct uart_port *, unsigned int state,
 			      unsigned int oldstate);
 	int		(*set_wake)(struct uart_port *, unsigned int state);
+	void		(*wake_peer)(struct uart_port *);
 
 	/*
 	 * Return a string describing the type of the port
@@ -406,7 +407,6 @@ struct uart_state {
 };
 
 #define UART_XMIT_SIZE	PAGE_SIZE
-
 
 /* number of characters left in xmit buffer before we ask for more */
 #define WAKEUP_CHARS		256

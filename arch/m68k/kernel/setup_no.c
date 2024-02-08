@@ -123,7 +123,6 @@ void parse_uboot_commandline(char *commandp, int size)
 	unsigned long uboot_initrd_start, uboot_initrd_end;
 	unsigned long uboot_cmd_start, uboot_cmd_end;
 
-
 	sp = (unsigned long *)_init_sp;
 	uboot_kbd = sp[1];
 	uboot_initrd_start = sp[2];
@@ -314,4 +313,3 @@ const struct seq_operations cpuinfo_op = {
 	.stop	= c_stop,
 	.show	= show_cpuinfo,
 };
-

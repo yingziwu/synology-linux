@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext4/file.c
  *
@@ -248,6 +251,10 @@ const struct file_operations ext4_file_operations = {
 };
 
 const struct inode_operations ext4_file_inode_operations = {
+#ifdef MY_ABC_HERE
+	.syno_get_archive_ver	= ext4_syno_get_archive_ver,
+	.syno_set_archive_ver	= ext4_syno_set_archive_ver,
+#endif
 	.setattr	= ext4_setattr,
 	.getattr	= ext4_getattr,
 #ifdef CONFIG_EXT4_FS_XATTR
@@ -259,4 +266,3 @@ const struct inode_operations ext4_file_inode_operations = {
 	.get_acl	= ext4_get_acl,
 	.fiemap		= ext4_fiemap,
 };
-

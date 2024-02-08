@@ -93,6 +93,4 @@ extern struct dsa_switch_driver mv88e6123_61_65_switch_driver;
 			return __ret;					\
 	})
 
-
-
 #endif

@@ -468,7 +468,6 @@ nfs_request_remove_commit_list(struct nfs_page *req)
 }
 EXPORT_SYMBOL_GPL(nfs_request_remove_commit_list);
 
-
 /*
  * Add a request to the inode's commit list.
  */
@@ -995,7 +994,6 @@ static int nfs_flush_multi(struct nfs_pageio_descriptor *desc, struct list_head 
 	     desc->pg_count > wsize))
 		desc->pg_ioflags &= ~FLUSH_COND_STABLE;
 
-
 	offset = 0;
 	nbytes = desc->pg_count;
 	do {
@@ -1247,7 +1245,6 @@ static const struct rpc_call_ops nfs_write_full_ops = {
 	.rpc_release = nfs_writeback_release_full,
 };
 
-
 /*
  * This function is called when the WRITE call is complete.
  */
@@ -1329,7 +1326,6 @@ void nfs_writeback_done(struct rpc_task *task, struct nfs_write_data *data)
 	}
 	return;
 }
-
 
 #if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
 static int nfs_commit_set_lock(struct nfs_inode *nfsi, int may_wait)
@@ -1787,4 +1783,3 @@ void nfs_destroy_writepagecache(void)
 	mempool_destroy(nfs_wdata_mempool);
 	kmem_cache_destroy(nfs_wdata_cachep);
 }
-

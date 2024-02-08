@@ -55,7 +55,6 @@
 	.previous
 	.endm
 
-
 .Ldo_err4:
 	ld	r16,STK_REG(r16)(r1)
 	ld	r15,STK_REG(r15)(r1)
@@ -84,7 +83,6 @@
 	ld	r4,56(r1)
 	ld	r5,64(r1)
 	b	__copy_tofrom_user_base
-
 
 _GLOBAL(__copy_tofrom_user_power7)
 #ifdef CONFIG_ALTIVEC

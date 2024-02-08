@@ -84,7 +84,6 @@ static unsigned int skip_txen_test; /* force skip of txen test at init time */
 
 #define BOTH_EMPTY 	(UART_LSR_TEMT | UART_LSR_THRE)
 
-
 #ifdef CONFIG_SERIAL_8250_DETECT_IRQ
 #define CONFIG_SERIAL_DETECT_IRQ 1
 #endif
@@ -1886,7 +1885,6 @@ static int serial8250_get_poll_char(struct uart_port *port)
 	return serial_port_in(port, UART_RX);
 }
 
-
 static void serial8250_put_poll_char(struct uart_port *port,
 			 unsigned char c)
 {
@@ -2435,7 +2433,6 @@ serial8250_set_ldisc(struct uart_port *port, int new)
 	} else
 		port->flags &= ~UPF_HARDPPS_CD;
 }
-
 
 void serial8250_do_pm(struct uart_port *port, unsigned int state,
 		      unsigned int oldstate)

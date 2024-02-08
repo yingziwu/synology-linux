@@ -284,5 +284,4 @@ static inline void ath9k_debug_samp_bb_mac(struct ath_softc *sc)
 
 #endif
 
-
 #endif /* DEBUG_H */

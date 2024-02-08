@@ -45,7 +45,6 @@ Theory of Operation:
 
 static const char *version = "smc-ultra32.c: 06/97 v1.00\n";
 
-
 #include <linux/module.h>
 #include <linux/eisa.h>
 #include <linux/kernel.h>
@@ -151,7 +150,6 @@ out:
 	free_netdev(dev);
 	return ERR_PTR(err);
 }
-
 
 static const struct net_device_ops ultra32_netdev_ops = {
 	.ndo_open 		= ultra32_open,
@@ -460,4 +458,3 @@ void __exit cleanup_module(void)
 	}
 }
 #endif /* MODULE */
-

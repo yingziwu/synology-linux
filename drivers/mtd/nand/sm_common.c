@@ -36,7 +36,6 @@ static struct nand_ecclayout nand_oob_sm_small = {
 	}
 };
 
-
 static int sm_block_markbad(struct mtd_info *mtd, loff_t ofs)
 {
 	struct mtd_oob_ops ops;
@@ -54,7 +53,6 @@ static int sm_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	ops.oobbuf = (void *)&oob;
 	ops.datbuf = NULL;
 
-
 	ret = mtd_write_oob(mtd, ofs, &ops);
 	if (ret < 0 || ops.oobretlen != SM_OOB_SIZE) {
 		printk(KERN_NOTICE
@@ -66,7 +64,6 @@ static int sm_block_markbad(struct mtd_info *mtd, loff_t ofs)
 
 	return error;
 }
-
 
 static struct nand_flash_dev nand_smartmedia_flash_ids[] = {
 	{"SmartMedia 1MiB 5V",          0x6e, 256, 1, 0x1000, 0},

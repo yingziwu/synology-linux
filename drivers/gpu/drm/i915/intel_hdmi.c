@@ -123,7 +123,6 @@ static void i9xx_write_infoframe(struct drm_encoder *encoder,
 	u32 port, flags, val = I915_READ(VIDEO_DIP_CTL);
 	unsigned i, len = DIP_HEADER_SIZE + frame->len;
 
-
 	/* XXX first guess at handling video port, is this corrent? */
 	if (intel_hdmi->sdvox_reg == SDVOB)
 		port = VIDEO_DIP_PORT_B;

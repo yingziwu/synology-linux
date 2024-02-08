@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/hfsplus/bitmap.c
  *
@@ -30,7 +33,11 @@ int hfsplus_block_allocate(struct super_block *sb, u32 size,
 	if (!len)
 		return size;
 
+#ifdef MY_ABC_HERE
+	hfs_dbg(BITMAP, "block_allocate: %u,%u,%u\n", size, offset, len);
+#else
 	dprint(DBG_BITMAP, "block_allocate: %u,%u,%u\n", size, offset, len);
+#endif
 	mutex_lock(&sbi->alloc_mutex);
 	mapping = sbi->alloc_file->i_mapping;
 	page = read_mapping_page(mapping, offset / PAGE_CACHE_BITS, NULL);
@@ -89,14 +96,22 @@ int hfsplus_block_allocate(struct super_block *sb, u32 size,
 		else
 			end = pptr + ((size + 31) & (PAGE_CACHE_BITS - 1)) / 32;
 	}
+#ifdef MY_ABC_HERE
+	hfs_dbg(BITMAP, "bitmap full\n");
+#else
 	dprint(DBG_BITMAP, "bitmap full\n");
+#endif
 	start = size;
 	goto out;
 
 found:
 	start = offset + (curr - pptr) * 32 + i;
 	if (start >= size) {
+#ifdef MY_ABC_HERE
+		hfs_dbg(BITMAP, "bitmap full\n");
+#else
 		dprint(DBG_BITMAP, "bitmap full\n");
+#endif
 		goto out;
 	}
 	/* do any partial u32 at the start */
@@ -153,8 +168,13 @@ done:
 	kunmap(page);
 	*max = offset + (curr - pptr) * 32 + i - start;
 	sbi->free_blocks -= *max;
+#ifdef MY_ABC_HERE
+	hfsplus_mark_mdb_dirty(sb);
+	hfs_dbg(BITMAP, "-> %u,%u\n", start, *max);
+#else
 	sb->s_dirt = 1;
 	dprint(DBG_BITMAP, "-> %u,%u\n", start, *max);
+#endif
 out:
 	mutex_unlock(&sbi->alloc_mutex);
 	return start;
@@ -173,15 +193,25 @@ int hfsplus_block_free(struct super_block *sb, u32 offset, u32 count)
 	if (!count)
 		return 0;
 
+#ifdef MY_ABC_HERE
+	hfs_dbg(BITMAP, "block_free: %u,%u\n", offset, count);
+#else
 	dprint(DBG_BITMAP, "block_free: %u,%u\n", offset, count);
+#endif
 	/* are all of the bits in range? */
 	if ((offset + count) > sbi->total_blocks)
+#ifdef MY_ABC_HERE
+		return -ENOENT;
+#else
 		return -2;
+#endif
 
 	mutex_lock(&sbi->alloc_mutex);
 	mapping = sbi->alloc_file->i_mapping;
 	pnr = offset / PAGE_CACHE_BITS;
 	page = read_mapping_page(mapping, pnr, NULL);
+	if (IS_ERR(page))
+		goto kaboom;
 	pptr = kmap(page);
 	curr = pptr + (offset & (PAGE_CACHE_BITS - 1)) / 32;
 	end = pptr + PAGE_CACHE_BITS / 32;
@@ -214,6 +244,10 @@ int hfsplus_block_free(struct super_block *sb, u32 offset, u32 count)
 		set_page_dirty(page);
 		kunmap(page);
 		page = read_mapping_page(mapping, ++pnr, NULL);
+#ifdef MY_ABC_HERE
+		if (IS_ERR(page))
+			goto kaboom;
+#endif
 		pptr = kmap(page);
 		curr = pptr;
 		end = pptr + PAGE_CACHE_BITS / 32;
@@ -228,8 +262,18 @@ out:
 	set_page_dirty(page);
 	kunmap(page);
 	sbi->free_blocks += len;
+#ifdef MY_ABC_HERE
+	hfsplus_mark_mdb_dirty(sb);
+#else
 	sb->s_dirt = 1;
+#endif
 	mutex_unlock(&sbi->alloc_mutex);
 
 	return 0;
+
+kaboom:
+	pr_crit("unable to mark blocks free: error %ld\n", PTR_ERR(page));
+	mutex_unlock(&sbi->alloc_mutex);
+
+	return -EIO;
 }

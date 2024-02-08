@@ -87,5 +87,4 @@ struct drm_psb_gem_mmap {
 #define 	PSB_MODE_OPERATION_MODE_VALID	0x01
 #define DRM_GMA_GET_PIPE_FROM_CRTC_ID	0x08	/* CRTC to physical pipe# */
 
-
 #endif

@@ -178,6 +178,9 @@ struct nand_manufacturers nand_manuf_ids[] = {
 	{NAND_MFR_MICRON, "Micron"},
 	{NAND_MFR_AMD, "AMD"},
 	{NAND_MFR_MACRONIX, "Macronix"},
+#ifdef CONFIG_HI3535_SDK_2050
+	{NAND_MFR_GD, "GD"},
+#endif /* CONFIG_HI3535_SDK_2050 */
 	{0x0, "Unknown"}
 };
 

@@ -87,7 +87,6 @@ struct nsp_data_opt_msg1 {
 	__le16 segnum;
 } __packed;
 
-
 /* Acknowledgment Message (data/other data)                             */
 struct nsp_data_ack_msg {
 	__u8   msgflg;
@@ -101,7 +100,6 @@ struct  nsp_conn_ack_msg {
 	__u8 msgflg;
 	__le16 dstaddr;
 } __packed;
-
 
 /* Connect Initiate/Retransmit Initiate/Connect Confirm */
 struct  nsp_conn_init_msg {
@@ -127,8 +125,6 @@ struct  nsp_disconn_init_msg {
 	__le16 reason;
 } __packed;
 
-
-
 struct  srcobj_fmt {
 	__u8   format;
 	__u8   task;
@@ -149,7 +145,6 @@ static __inline__ int dn_before(__u16 seq1, __u16 seq2)
 
         return (int)((seq1 - seq2) & 0x0fff) > 2048;
 }
-
 
 static __inline__ int dn_after(__u16 seq1, __u16 seq2)
 {

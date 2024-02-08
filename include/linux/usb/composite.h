@@ -242,6 +242,9 @@ int usb_add_config(struct usb_composite_dev *,
 		struct usb_configuration *,
 		int (*)(struct usb_configuration *));
 
+int usb_remove_config(struct usb_composite_dev *,
+		struct usb_configuration *);
+
 /**
  * struct usb_composite_driver - groups configurations into a gadget
  * @name: For diagnostics, identifies the driver.
@@ -298,7 +301,6 @@ extern int usb_composite_probe(struct usb_composite_driver *driver,
 			       int (*bind)(struct usb_composite_dev *cdev));
 extern void usb_composite_unregister(struct usb_composite_driver *driver);
 extern void usb_composite_setup_continue(struct usb_composite_dev *cdev);
-
 
 /**
  * struct usb_composite_device - represents one composite usb gadget
@@ -368,7 +370,6 @@ extern int usb_string_id(struct usb_composite_dev *c);
 extern int usb_string_ids_tab(struct usb_composite_dev *c,
 			      struct usb_string *str);
 extern int usb_string_ids_n(struct usb_composite_dev *c, unsigned n);
-
 
 /* messaging utils */
 #define DBG(d, fmt, args...) \

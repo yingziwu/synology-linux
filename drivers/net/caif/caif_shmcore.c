@@ -243,7 +243,6 @@ int caif_shmdrv_rx_cb(u32 mbx_msg, void *priv)
 					(pshm_drv->pshm_dev->pshm_netdev,
 								CAIF_FLOW_ON);
 
-
 			/* Schedule the work queue. if required */
 			if (!work_pending(&pshm_drv->shm_tx_work))
 				queue_work(pshm_drv->pshm_tx_workqueue,

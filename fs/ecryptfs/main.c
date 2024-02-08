@@ -562,6 +562,11 @@ static struct dentry *ecryptfs_mount(struct file_system_type *fs_type, int flags
 	 */
 	s->s_flags = flags & ~MS_POSIXACL;
 	s->s_flags |= path.dentry->d_sb->s_flags & (MS_RDONLY | MS_POSIXACL);
+#ifdef CONFIG_FS_SYNO_ACL
+	if (IS_FS_SYNOACL(path.dentry->d_inode)) {
+		s->s_flags |= MS_SYNOACL;
+	}
+#endif /* CONFIG_FS_SYNO_ACL */
 
 	s->s_maxbytes = path.dentry->d_sb->s_maxbytes;
 	s->s_blocksize = path.dentry->d_sb->s_blocksize;

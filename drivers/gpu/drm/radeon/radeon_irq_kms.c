@@ -275,4 +275,3 @@ void radeon_irq_kms_pflip_irq_put(struct radeon_device *rdev, int crtc)
 	}
 	spin_unlock_irqrestore(&rdev->irq.pflip_lock[crtc], irqflags);
 }
-

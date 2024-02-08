@@ -871,7 +871,6 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
 {
 	int rc;
 
-
 	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
 		mem->guest_phys_addr, mem->memory_size);
 	if (rc)

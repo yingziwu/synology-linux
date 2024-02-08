@@ -55,7 +55,6 @@
 #define PINMUX_GPIO_GP_ALL()	CPU_ALL_PORT(_GP_GPIO, , unused)
 #define PINMUX_DATA_GP_ALL()	CPU_ALL_PORT(_GP_DATA, , unused)
 
-
 #define PORT_10_REV(fn, pfx, sfx)				\
 	PORT_1(fn, pfx##9, sfx), PORT_1(fn, pfx##8, sfx),	\
 	PORT_1(fn, pfx##7, sfx), PORT_1(fn, pfx##6, sfx),	\

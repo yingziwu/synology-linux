@@ -1647,7 +1647,6 @@ struct rtl_priv {
 #define rtl_efuse(rtlpriv)	(&((rtlpriv)->efuse))
 #define rtl_psc(rtlpriv)	(&((rtlpriv)->psc))
 
-
 /***************************************
     Bluetooth Co-existence Related
 ****************************************/
@@ -1730,7 +1729,6 @@ struct bt_coexist_info {
 	u8 reg_bt_sco;
 
 };
-
 
 /****************************************
 	mem access macro define start

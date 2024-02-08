@@ -91,7 +91,6 @@ static int sock_pipe_buf_steal(struct pipe_inode_info *pipe,
 	return 1;
 }
 
-
 /* Pipe buffer operations for a socket. */
 static const struct pipe_buf_operations sock_pipe_buf_ops = {
 	.can_merge = 0,
@@ -731,7 +730,6 @@ int skb_copy_ubufs(struct sk_buff *skb, gfp_t gfp_mask)
 	skb_shinfo(skb)->tx_flags &= ~SKBTX_DEV_ZEROCOPY;
 	return 0;
 }
-
 
 /**
  *	skb_clone	-	duplicate an sk_buff
@@ -3243,7 +3241,6 @@ void skb_complete_wifi_ack(struct sk_buff *skb, bool acked)
 		kfree_skb(skb);
 }
 EXPORT_SYMBOL_GPL(skb_complete_wifi_ack);
-
 
 /**
  * skb_partial_csum_set - set up and verify partial csum values for packet

@@ -107,7 +107,6 @@
 #define ql4_printk(level, ha, format, arg...) \
 	dev_printk(level , &((ha)->pdev->dev) , format , ## arg)
 
-
 /*
  * Host adapter default definitions
  ***********************************/
@@ -499,7 +498,6 @@ struct scsi_qla_host {
 #define DPC_RESET_ACTIVE		20 /* 0x00040000 */
 #define DPC_HA_UNRECOVERABLE		21 /* 0x00080000 ISP-82xx only*/
 #define DPC_HA_NEED_QUIESCENT		22 /* 0x00100000 ISP-82xx only*/
-
 
 	struct Scsi_Host *host; /* pointer to host data */
 	uint32_t tot_ddbs;

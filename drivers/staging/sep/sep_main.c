@@ -642,7 +642,6 @@ static int sep_end_transaction_handler(struct sep_device *sep,
 	return 0;
 }
 
-
 /**
  * sep_release - close a SEP device
  * @inode: inode of SEP device
@@ -775,7 +774,6 @@ static unsigned int sep_poll(struct file *filp, poll_table *wait)
 		goto end_function;
 	}
 
-
 	/* Add the event to the polling wait table */
 	dev_dbg(&sep->pdev->dev, "[PID%d] poll: calling wait sep_event\n",
 					current->pid);
@@ -864,7 +862,6 @@ static unsigned long sep_set_time(struct sep_device *sep)
 {
 	struct timeval time;
 	u32 *time_addr;	/* Address of time as seen by the kernel */
-
 
 	do_gettimeofday(&time);
 
@@ -1337,7 +1334,6 @@ static int sep_lock_user_pages(struct sep_device *sep,
 			(unsigned long)lli_array[0].bus_address,
 			lli_array[0].block_size);
 
-
 	/* Check the size of the last page */
 	if (num_pages > 1) {
 		lli_array[num_pages - 1].block_size =
@@ -1804,7 +1800,6 @@ static void sep_debug_print_lli_tables(struct sep_device *sep,
 			current->pid,
 			(unsigned long)lli_table_ptr->bus_address);
 
-
 		table_data_size = lli_table_ptr->block_size & 0xffffff;
 		num_table_entries = (lli_table_ptr->block_size >> 24) & 0xff;
 
@@ -1828,7 +1823,6 @@ static void sep_debug_print_lli_tables(struct sep_device *sep,
 					current->pid);
 #endif
 }
-
 
 /**
  * sep_prepare_empty_lli_table - create a blank LLI table
@@ -2591,7 +2585,6 @@ end_function_with_error:
 	dma_ctx->dma_res_arr[dma_ctx->nr_dcb_creat].out_page_array = NULL;
 	kfree(lli_out_array);
 
-
 end_function_free_lli_in:
 	kfree(dma_ctx->dma_res_arr[dma_ctx->nr_dcb_creat].in_map_array);
 	dma_ctx->dma_res_arr[dma_ctx->nr_dcb_creat].in_map_array = NULL;
@@ -2869,7 +2862,6 @@ end_function:
 	return error;
 
 }
-
 
 /**
  * sep_free_dma_tables_and_dcb - free DMA tables and DCBs
@@ -3631,7 +3623,6 @@ end_function:
 	return error;
 }
 
-
 /**
  *	sep_read - Returns results of an operation for fastcall interface
  *	@filp: File pointer
@@ -3678,7 +3669,6 @@ static ssize_t sep_read(struct file *filp,
 		error = -EINVAL;
 		goto end_function_error;
 	}
-
 
 	/* Wait for SEP to finish */
 	wait_event(sep->event_interrupt,
@@ -3751,7 +3741,6 @@ static inline ssize_t sep_fastcall_args_get(struct sep_device *sep,
 		error = -EINVAL;
 		goto end_function;
 	}
-
 
 	if (copy_from_user(args, buf_user, sizeof(struct sep_fastcall_hdr))) {
 		error = -EFAULT;
@@ -3853,7 +3842,6 @@ static ssize_t sep_write(struct file *filp,
 		/* Signal received */
 		goto end_function_error;
 	}
-
 
 	/*
 	 * Prepare contents of the shared area regions for
@@ -3978,8 +3966,6 @@ static loff_t sep_seek(struct file *filp, loff_t offset, int origin)
 	return -ENOSYS;
 }
 
-
-
 /**
  * sep_file_operations - file operation on sep device
  * @sep_ioctl:	ioctl handler from user space call
@@ -4031,7 +4017,6 @@ sep_sysfs_read(struct file *filp, struct kobject *kobj,
 	queue_num = sep->sep_queue_num;
 	if (queue_num > SEP_DOUBLEBUF_USERS_LIMIT)
 		queue_num = SEP_DOUBLEBUF_USERS_LIMIT;
-
 
 	if (count < sizeof(queue_num)
 			+ (queue_num * sizeof(struct sep_queue_data))) {
@@ -4100,7 +4085,6 @@ static int sep_register_driver_with_fs(struct sep_device *sep)
 
 	return ret_val;
 }
-
 
 /**
  *sep_probe - probe a matching PCI device
@@ -4500,7 +4484,6 @@ static int __init sep_init(void)
 	return pci_register_driver(&sep_pci_driver);
 }
 
-
 /**
  * sep_exit - called to unload driver
  *
@@ -4510,7 +4493,6 @@ static void __exit sep_exit(void)
 {
 	pci_unregister_driver(&sep_pci_driver);
 }
-
 
 module_init(sep_init);
 module_exit(sep_exit);

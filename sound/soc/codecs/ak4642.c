@@ -465,7 +465,6 @@ static int ak4642_resume(struct snd_soc_codec *codec)
 	return 0;
 }
 
-
 static int ak4642_probe(struct snd_soc_codec *codec)
 {
 	struct ak4642_priv *ak4642 = snd_soc_codec_get_drvdata(codec);

@@ -258,7 +258,6 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 	return ab8500_rtc_irq_enable(dev, alarm->enabled);
 }
 
-
 static int ab8500_rtc_set_calibration(struct device *dev, int calibration)
 {
 	int retval;
@@ -429,7 +428,6 @@ static int __devinit ab8500_rtc_probe(struct platform_device *pdev)
 	}
 
 	platform_set_drvdata(pdev, rtc);
-
 
 	err = ab8500_sysfs_rtc_register(&pdev->dev);
 	if (err) {

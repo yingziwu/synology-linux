@@ -9,7 +9,6 @@
 #include <linux/delay.h>
 #include <linux/gfp.h>
 
-
 /*
  * qla2x00_mailbox_command
  *	Issue mailbox command and waits for completion.
@@ -66,7 +65,6 @@ qla2x00_mailbox_command(scsi_qla_host_t *vha, mbx_cmd_t *mcp)
 
 	rval = QLA_SUCCESS;
 	abort_active = test_bit(ABORT_ISP_ACTIVE, &base_vha->dpc_flags);
-
 
 	if (ha->flags.pci_channel_io_perm_failure) {
 		ql_log(ql_log_warn, vha, 0x1003,
@@ -625,7 +623,6 @@ qla2x00_get_fw_options(scsi_qla_host_t *vha, uint16_t *fwopts)
 
 	return rval;
 }
-
 
 /*
  * qla2x00_set_fw_options
@@ -3737,7 +3734,6 @@ qla2x00_get_xgmac_stats(scsi_qla_host_t *vha, dma_addr_t stats_dma,
 	} else {
 		ql_dbg(ql_dbg_mbx, vha, 0x10f0, "Done %s.\n", __func__);
 
-
 		*actual_size = mcp->mb[2] << 2;
 	}
 
@@ -4145,7 +4141,6 @@ qla81xx_set_port_config(scsi_qla_host_t *vha, uint16_t *mb)
 	return rval;
 }
 
-
 int
 qla24xx_set_fcp_prio(scsi_qla_host_t *vha, uint16_t loop_id, uint16_t priority,
 		uint16_t *mb)
@@ -4548,7 +4543,6 @@ qla2x00_port_logout(scsi_qla_host_t *vha, struct fc_port *fcport)
 		return QLA_FUNCTION_FAILED;
 	}
 
-
 	ql_dbg(ql_dbg_mbx, vha, 0x113c, "Done %s.\n",  __func__);
 
 	/* Perform Implicit LOGO. */
@@ -4568,4 +4562,3 @@ qla2x00_port_logout(scsi_qla_host_t *vha, struct fc_port *fcport)
 
 	return rval;
 }
-

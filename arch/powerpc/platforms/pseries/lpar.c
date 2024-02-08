@@ -46,7 +46,6 @@
 #include "plpar_wrappers.h"
 #include "pseries.h"
 
-
 /* in hvCall.S */
 EXPORT_SYMBOL(plpar_hcall);
 EXPORT_SYMBOL(plpar_hcall9);

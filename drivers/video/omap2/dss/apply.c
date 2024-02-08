@@ -1225,7 +1225,6 @@ err:
 	return r;
 }
 
-
 int dss_ovl_set_info(struct omap_overlay *ovl,
 		struct omap_overlay_info *info)
 {
@@ -1494,4 +1493,3 @@ err:
 	mutex_unlock(&apply_lock);
 	return r;
 }
-

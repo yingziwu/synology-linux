@@ -137,6 +137,12 @@ struct pid_entry {
 
 static int proc_fd_permission(struct inode *inode, int mask);
 
+/* ANDROID is for special files in /proc. */
+#define ANDROID(NAME, MODE, OTYPE)			\
+	NOD(NAME, (S_IFREG|(MODE)),			\
+		&proc_##OTYPE##_inode_operations,	\
+		&proc_##OTYPE##_operations, {})
+
 /*
  * Count the number of hardlinks for the pid_entry table, excluding the .
  * and .. links.
@@ -257,7 +263,6 @@ static int proc_pid_auxv(struct task_struct *task, char *buffer)
 	}
 	return res;
 }
-
 
 #ifdef CONFIG_KALLSYMS
 /*
@@ -573,7 +578,6 @@ static bool has_pid_permissions(struct pid_namespace *pid,
 	return ptrace_may_access(task, PTRACE_MODE_READ);
 }
 
-
 static int proc_pid_permission(struct inode *inode, int mask)
 {
 	struct pid_namespace *pid = inode->i_sb->s_fs_info;
@@ -601,8 +605,6 @@ static int proc_pid_permission(struct inode *inode, int mask)
 	}
 	return generic_permission(inode, mask);
 }
-
-
 
 static const struct inode_operations proc_def_inode_operations = {
 	.setattr	= proc_setattr,
@@ -818,7 +820,6 @@ static ssize_t environ_read(struct file *file, char __user *buf,
 	if (!page)
 		goto out;
 
-
 	mm = mm_for_maps(task);
 	ret = PTR_ERR(mm);
 	if (!mm || IS_ERR(mm))
@@ -968,6 +969,35 @@ err_task_lock:
 out:
 	return err < 0 ? err : count;
 }
+
+static int oom_adjust_permission(struct inode *inode, int mask)
+{
+	uid_t uid;
+	struct task_struct *p;
+
+	p = get_proc_task(inode);
+	if(p) {
+		uid = task_uid(p);
+		put_task_struct(p);
+	}
+
+	/*
+	 * System Server (uid == 1000) is granted access to oom_adj of all 
+	 * android applications (uid > 10000) as and services (uid >= 1000)
+	 */
+	if (p && (current_fsuid() == 1000) && (uid >= 1000)) {
+		if (inode->i_mode >> 6 & mask) {
+			return 0;
+		}
+	}
+
+	/* Fall back to default. */
+	return generic_permission(inode, mask);
+}
+
+static const struct inode_operations proc_oom_adjust_inode_operations = {
+	.permission	= oom_adjust_permission,
+};
 
 static const struct file_operations proc_oom_adjust_operations = {
 	.read		= oom_adjust_read,
@@ -1214,7 +1244,6 @@ static const struct file_operations proc_fault_inject_operations = {
 	.llseek		= generic_file_llseek,
 };
 #endif
-
 
 #ifdef CONFIG_SCHED_DEBUG
 /*
@@ -1490,7 +1519,6 @@ static const struct inode_operations proc_pid_link_inode_operations = {
 	.follow_link	= proc_pid_follow_link,
 	.setattr	= proc_setattr,
 };
-
 
 /* building an inode */
 
@@ -2407,7 +2435,6 @@ static const struct inode_operations proc_fdinfo_inode_operations = {
 	.setattr	= proc_setattr,
 };
 
-
 static struct dentry *proc_pident_instantiate(struct inode *dir,
 	struct dentry *dentry, struct task_struct *task, const void *ptr)
 {
@@ -3011,7 +3038,7 @@ static const struct pid_entry tgid_base_stuff[] = {
 	REG("cgroup",  S_IRUGO, proc_cgroup_operations),
 #endif
 	INF("oom_score",  S_IRUGO, proc_oom_score),
-	REG("oom_adj",    S_IRUGO|S_IWUSR, proc_oom_adjust_operations),
+	ANDROID("oom_adj",S_IRUGO|S_IWUSR, oom_adjust),
 	REG("oom_score_adj", S_IRUGO|S_IWUSR, proc_oom_score_adj_operations),
 #ifdef CONFIG_AUDITSYSCALL
 	REG("loginuid",   S_IWUSR|S_IRUGO, proc_loginuid_operations),

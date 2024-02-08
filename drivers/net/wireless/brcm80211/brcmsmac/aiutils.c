@@ -483,7 +483,6 @@ ai_buscore_setup(struct si_info *sii, struct bcma_device *cc)
 	struct bcma_device *pcie = NULL;
 	struct bcma_device *core;
 
-
 	/* no cores found, bail out */
 	if (cc->bus->nr_cores == 0)
 		return false;

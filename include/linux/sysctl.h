@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * sysctl.h: General linux system control interface
  *
@@ -155,8 +158,6 @@ enum
 	KERN_PANIC_ON_NMI=76, /* int: whether we will panic on an unrecovered */
 };
 
-
-
 /* CTL_VM names: */
 enum
 {
@@ -196,7 +197,6 @@ enum
 	VM_VDSO_ENABLED=34,	/* map VDSO into new processes? */
 	VM_MIN_SLAB=35,		 /* Percent pages ignored by zone reclaim */
 };
-
 
 /* CTL_NET names: */
 enum
@@ -641,7 +641,6 @@ enum {
 	NET_ATALK_AARP_RESOLVE_TIME=4
 };
 
-
 /* /proc/sys/net/netrom */
 enum {
 	NET_NETROM_DEFAULT_PATH_QUALITY=1,
@@ -795,7 +794,6 @@ enum {
 	NET_IRDA_WARN_NOREPLY_TIME=13,
 	NET_IRDA_LAP_KEEPALIVE_TIME=14,
 };
-
 
 /* CTL_FS names: */
 enum
@@ -964,6 +962,10 @@ extern int proc_doulongvec_ms_jiffies_minmax(struct ctl_table *table, int,
 				      void __user *, size_t *, loff_t *);
 extern int proc_do_large_bitmap(struct ctl_table *, int,
 				void __user *, size_t *, loff_t *);
+#ifdef MY_ABC_HERE
+extern int SynoProcDoStringVec(struct ctl_table *, int,
+				void __user *, size_t *, loff_t *);
+#endif
 
 /*
  * Register a set of sysctl names by calling register_sysctl_table

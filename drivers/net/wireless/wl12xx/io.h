@@ -164,7 +164,6 @@ static inline int wl1271_power_on(struct wl1271 *wl)
 	return ret;
 }
 
-
 /* Top Register IO */
 void wl1271_top_reg_write(struct wl1271 *wl, int addr, u16 val);
 u16 wl1271_top_reg_read(struct wl1271 *wl, int addr);

@@ -876,7 +876,6 @@ out:
 	return ret;
 }
 
-
 /**
  * send test command to firmware
  *
@@ -1091,7 +1090,6 @@ int wl12xx_cmd_build_null_data(struct wl1271 *wl, struct wl12xx_vif *wlvif)
 	int size;
 	void *ptr;
 	int ret = -ENOMEM;
-
 
 	if (wlvif->bss_type == BSS_TYPE_IBSS) {
 		size = sizeof(struct wl12xx_null_data_template);
@@ -1740,7 +1738,6 @@ static int wl12xx_cmd_roc(struct wl1271 *wl, struct wl12xx_vif *wlvif,
 		ret = -EINVAL;
 		goto out_free;
 	}
-
 
 	ret = wl1271_cmd_send(wl, CMD_REMAIN_ON_CHANNEL, cmd, sizeof(*cmd), 0);
 	if (ret < 0) {

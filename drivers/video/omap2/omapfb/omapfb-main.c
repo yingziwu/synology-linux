@@ -1821,7 +1821,6 @@ static void fbinfo_cleanup(struct omapfb2_device *fbdev, struct fb_info *fbi)
 	fb_dealloc_cmap(&fbi->cmap);
 }
 
-
 static void omapfb_free_resources(struct omapfb2_device *fbdev)
 {
 	int i;
@@ -2338,7 +2337,6 @@ static int omapfb_probe(struct platform_device *pdev)
 		dev_warn(&pdev->dev, "VRFB is not supported on this hardware, "
 				"ignoring the module parameter vrfb=y\n");
 	}
-
 
 	mutex_init(&fbdev->mtx);
 

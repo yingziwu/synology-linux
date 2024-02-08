@@ -57,7 +57,6 @@ MODULE_PARM_DESC(use_pci_fixup, "Enable PCI fixup to seek for hidden devices");
  */
 #define MAX_SOCKET_BUSES	2
 
-
 /*
  * Alter this version for the module when modifications are made
  */
@@ -120,7 +119,6 @@ MODULE_PARM_DESC(use_pci_fixup, "Enable PCI fixup to seek for hidden devices");
 
 #define DIMM_TOP_COR_ERR(r)			(((r) >> 16) & 0x7fff)
 #define DIMM_BOT_COR_ERR(r)			((r) & 0x7fff)
-
 
 	/* OFFSETS for Devices 4,5 and 6 Function 0 */
 
@@ -207,7 +205,6 @@ struct i7core_info {
 	u32	max_dod;
 	u32	ch_map;
 };
-
 
 struct i7core_inject {
 	int	enable;
@@ -1113,7 +1110,6 @@ static ssize_t i7core_inject_enable_store(struct mem_ctl_info *mci,
 		" inject 0x%08x\n",
 		mask, pvt->inject.eccmask, injectmask);
 
-
 	return count;
 }
 
@@ -1980,7 +1976,6 @@ struct memdev_dmi_entry {
 	u32 extended_size;
 	u16 conf_mem_clk_speed;
 } __attribute__((__packed__));
-
 
 /*
  * Decode the DRAM Clock Frequency, be paranoid, make sure that all

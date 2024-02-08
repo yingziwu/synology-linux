@@ -984,9 +984,6 @@ int iwl_send_statistics_request(struct iwl_priv *priv, u8 flags, bool clear)
 					&statistics_cmd);
 }
 
-
-
-
 #ifdef CONFIG_IWLWIFI_DEBUGFS
 
 #define IWL_TRAFFIC_DUMP_SIZE	(IWL_TRAFFIC_ENTRY_SIZE * IWL_TRAFFIC_ENTRIES)
@@ -1241,7 +1238,6 @@ static void iwl_force_rf_reset(struct iwl_priv *priv)
 	iwl_internal_short_hw_scan(priv);
 }
 
-
 int iwl_force_reset(struct iwl_priv *priv, int mode, bool external)
 {
 	struct iwl_force_reset *force_reset;
@@ -1291,7 +1287,6 @@ int iwl_force_reset(struct iwl_priv *priv, int mode, bool external)
 	}
 	return 0;
 }
-
 
 int iwl_cmd_echo_test(struct iwl_priv *priv)
 {

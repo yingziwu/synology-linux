@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/kernel/setup.c
  *
@@ -62,8 +65,63 @@
 #include "atags.h"
 #include "tcm.h"
 
+#ifdef MY_ABC_HERE
+extern int gSynoFactoryUSB3Disable;
+#endif
+
+#ifdef  MY_ABC_HERE
+extern char gszSynoHWVersion[];
+#endif
+
+#ifdef  MY_ABC_HERE
+extern char gszSynoHWRevision[];
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_internal_hd_num;
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_internal_netif_num;
+long g_egiga = 1;
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_hdd_hotplug;
+#endif
+
+#ifdef MY_ABC_HERE
+extern unsigned char grgbLanMac[CONFIG_SYNO_MAC_IF][16];
+extern int giVenderFormatVersion;
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszSerialNum[32];
+extern char gszCustomSerialNum[32];
+#endif
+
 #ifndef MEM_SIZE
 #define MEM_SIZE	(16*1024*1024)
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszDiskIdxMap[16];
+#endif
+
+#ifdef MY_ABC_HERE
+extern char giDiskSeqReverse[8];
+#endif
+
+#ifdef MY_ABC_HERE
+extern int gSynoHasDynModule;
+#endif
+
+#ifdef SYNO_FLASH_MEMORY_SIZE
+extern long gSynoFlashMemorySize;
+#endif
+
+#ifdef MY_ABC_HERE
+extern int gSynoFactoryUSBFastReset;
 #endif
 
 #if defined(CONFIG_FPE_NWFPE) || defined(CONFIG_FPE_FASTFPE)
@@ -76,6 +134,280 @@ static int __init fpe_setup(char *line)
 }
 
 __setup("fpe=", fpe_setup);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_hw_version(char *p)
+{
+	char *szPtr;
+
+	snprintf(gszSynoHWVersion, 16, "%s", p);
+
+	szPtr = gszSynoHWVersion;
+	while ((*szPtr != ' ') && (*szPtr != '\t') && (*szPtr != '\0')) {
+		szPtr++;
+	}
+	*szPtr = 0;
+	strcat(gszSynoHWVersion, "-j");
+
+	printk("Synology Hardware Version: %s\n", gszSynoHWVersion);
+
+	return 1;
+}
+__setup("syno_hw_version=", early_hw_version);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_hw_revision(char *p)
+{
+       snprintf(gszSynoHWRevision, 4, "%s", p);
+
+       printk("Synology Hardware Revision: %s\n", gszSynoHWRevision);
+
+       return 1;
+}
+__setup("rev=", early_hw_revision);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_internal_hd_num(char *p)
+{
+	g_internal_hd_num = simple_strtol(p, NULL, 10);
+
+	printk("Internal HD num: %d\n", (int)g_internal_hd_num);
+
+	return 1;
+}
+__setup("ihd_num=", early_internal_hd_num);
+#endif
+
+#ifdef  MY_ABC_HERE
+static int __init early_internal_netif_num(char *p)
+{
+	g_internal_netif_num = simple_strtol(p, NULL, 10);
+
+	if ( g_internal_netif_num >= 0 ) {
+		printk("Internal netif num: %d\n", (int)g_internal_netif_num);
+	}
+
+	return 1;
+}
+__setup("netif_num=", early_internal_netif_num);
+
+static void __init early_egiga(char *p)
+{
+	g_egiga = simple_strtol(p, NULL, 10);
+
+	if ( g_egiga == 0 ) {
+		printk("egiga port is disabled\n");
+	}
+}
+__setup("egiga=", early_egiga);
+#endif
+#ifdef MY_ABC_HERE
+static int __init early_hdd_hotplug(char *p)
+{
+	g_hdd_hotplug = simple_strtol(p, NULL, 10);
+
+	if ( g_hdd_hotplug > 0 ) {
+		printk("Support HDD Hotplug.\n");
+	}
+
+	return 1;
+}
+__setup("HddHotplug=", early_hdd_hotplug);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_mac1(char *p)
+{
+#if CONFIG_SYNO_MAC_IF > 1
+	snprintf(grgbLanMac[0], sizeof(grgbLanMac[0]), "%s", p);
+
+	printk("Mac1: %s\n", grgbLanMac[0]);
+#endif
+
+	return 1;
+}
+__setup("mac1=", early_mac1);
+
+static int __init early_mac2(char *p)
+{
+#if CONFIG_SYNO_MAC_IF > 2
+	snprintf(grgbLanMac[1], sizeof(grgbLanMac[1]), "%s", p);
+
+	printk("Mac2: %s\n", grgbLanMac[1]);
+#endif
+	return 1;
+}
+__setup("mac2=", early_mac2);
+
+static int __init early_mac3(char *p)
+{
+#if CONFIG_SYNO_MAC_IF > 3
+	snprintf(grgbLanMac[2], sizeof(grgbLanMac[2]), "%s", p);
+
+	printk("Mac3: %s\n", grgbLanMac[2]);
+#endif
+
+	return 1;
+}
+__setup("mac3=", early_mac3);
+
+static int __init early_mac4(char *p)
+{
+#if CONFIG_SYNO_MAC_IF > 4
+	snprintf(grgbLanMac[3], sizeof(grgbLanMac[3]), "%s", p);
+
+	printk("Mac4: %s\n", grgbLanMac[3]);
+#endif
+
+	return 1;
+}
+__setup("mac4=", early_mac4);
+
+static int __init early_macs(char *p)
+{
+	int iMacCount = 0;
+	char *pBegin = p;
+	char *pEnd = strstr(pBegin, ",");
+
+	while (NULL != pEnd && CONFIG_SYNO_MAC_IF > iMacCount) {
+		*pEnd = '\0';
+		snprintf(grgbLanMac[iMacCount], sizeof(grgbLanMac[iMacCount]), "%s", pBegin);
+		pBegin = pEnd + 1;
+		pEnd = strstr(pBegin, ",");
+		iMacCount++;
+	}
+
+	if ('\0' != *pBegin && CONFIG_SYNO_MAC_IF > iMacCount) {
+		snprintf(grgbLanMac[iMacCount], sizeof(grgbLanMac[iMacCount]), "%s", pBegin);
+	}
+
+	return 1;
+}
+__setup("macs=", early_macs);
+
+static int __init early_vender_format_version(char *p)
+{
+	giVenderFormatVersion = simple_strtol(p, NULL, 10);
+
+	printk("Vender format version: %d\n", giVenderFormatVersion);
+
+	return 1;
+}
+__setup("vender_format_version=", early_vender_format_version);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+static int __init early_sn(char *p)
+{
+        snprintf(gszSerialNum, sizeof(gszSerialNum), "%s", p);
+        printk("Serial Number: %s\n", gszSerialNum);
+        return 1;
+}
+__setup("sn=", early_sn);
+
+static int __init early_custom_sn(char *p)
+{
+        snprintf(gszCustomSerialNum, sizeof(gszCustomSerialNum), "%s", p);
+        printk("Custom Serial Number: %s\n", gszCustomSerialNum);
+        return 1;
+}
+__setup("custom_sn=", early_custom_sn);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_disk_idx_map(char *p)
+{
+	snprintf(gszDiskIdxMap, sizeof(gszDiskIdxMap), "%s", p);
+
+	if('\0' != gszDiskIdxMap[0]) {
+		printk("Disk Index Map: %s\n", gszDiskIdxMap);
+	}
+
+	return 1;
+}
+__setup("DiskIdxMap=", early_disk_idx_map);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_disk_seq_reserve(char *p)
+{
+	snprintf(giDiskSeqReverse, sizeof(giDiskSeqReverse), "%s", p);
+
+	if('\0' != giDiskSeqReverse[0]) {
+		printk("Disk Sequence Reverse: %s\n", giDiskSeqReverse);
+	}
+
+	return 1;
+}
+__setup("DiskSeqReverse=", early_disk_seq_reserve);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_is_dyn_module(char *p)
+{
+	int iLen = 0;
+
+	gSynoHasDynModule = 0;
+	
+	if ((NULL == p) || (0 == (iLen = strlen(p)))) {
+		goto END;
+	}
+
+	if ( 0 == strcmp (p, "y")) {
+		gSynoHasDynModule = 1;
+		printk("Synology Dynamic Module support.\n");
+	}
+
+END:
+	return 1;
+}
+__setup("syno_dyn_module=", early_is_dyn_module);
+#endif
+
+#ifdef SYNO_FLASH_MEMORY_SIZE
+static int __init early_flash_memory_size(char *p)
+{
+	int iLen = 0;
+
+	if ((NULL == p) || (0 == (iLen = strlen(p)))) {
+		gSynoFlashMemorySize = 4;
+	} else {
+		gSynoFlashMemorySize = simple_strtol(p, NULL, 10);
+	}
+
+	printk("Flash Memory Size: %d MB\n", (int)gSynoFlashMemorySize);
+
+END:
+	return 1;
+}
+__setup("flash_size=", early_flash_memory_size);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_factory_usb_fast_reset(char *p)
+{
+	gSynoFactoryUSBFastReset = simple_strtol(p, NULL, 10);
+
+	printk("Factory USB Fast Reset: %d\n", (int)gSynoFactoryUSBFastReset);
+
+	return 1;
+}
+__setup("syno_usb_fast_reset=", early_factory_usb_fast_reset);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_factory_usb3_disable(char *p)
+{
+    gSynoFactoryUSB3Disable = simple_strtol(p, NULL, 10);
+
+    printk("Factory USB3 Disable: %d\n", (int)gSynoFactoryUSB3Disable);
+
+    return 1;
+}
+__setup("syno_disable_usb3=", early_factory_usb3_disable);
 #endif
 
 extern void paging_init(struct machine_desc *desc);
@@ -102,7 +434,6 @@ EXPORT_SYMBOL(system_serial_high);
 
 unsigned int elf_hwcap __read_mostly;
 EXPORT_SYMBOL(elf_hwcap);
-
 
 #ifdef MULTI_CPU
 struct processor processor __read_mostly;
@@ -994,7 +1325,6 @@ void __init setup_arch(char **cmdline_p)
 	if (mdesc->init_early)
 		mdesc->init_early();
 }
-
 
 static int __init topology_init(void)
 {

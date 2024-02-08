@@ -2060,7 +2060,6 @@ static int alc_build_controls(struct hda_codec *codec)
 	return 0;
 }
 
-
 /*
  * Common callbacks
  */
@@ -4807,7 +4806,6 @@ static const struct alc_model_fixup alc880_fixup_models[] = {
 	{}
 };
 
-
 /*
  * OK, here we have finally the patch for ALC880
  */
@@ -4851,7 +4849,6 @@ static int patch_alc880(struct hda_codec *codec)
 	alc_free(codec);
 	return err;
 }
-
 
 /*
  * ALC260 support
@@ -5044,7 +5041,6 @@ static int patch_alc260(struct hda_codec *codec)
 	return err;
 }
 
-
 /*
  * ALC882/883/885/888/889 support
  *
@@ -5115,7 +5111,6 @@ static void alc882_gpio_mute(struct hda_codec *codec, int pin, int muted)
 	gpiodir = snd_hda_codec_read(codec, codec->afg, 0,
 				     AC_VERB_GET_GPIO_DIRECTION, 0);
 	gpiodir |= (1 << pin);
-
 
 	snd_hda_codec_write(codec, codec->afg, 0,
 			    AC_VERB_SET_GPIO_MASK, gpiomask);
@@ -5555,7 +5550,6 @@ static int patch_alc882(struct hda_codec *codec)
 	return err;
 }
 
-
 /*
  * ALC262 support
  */
@@ -5640,7 +5634,6 @@ static const struct snd_pci_quirk alc262_fixup_tbl[] = {
 	SND_PCI_QUIRK(0x17ff, 0x058d, "Benq T31-16", ALC262_FIXUP_BENQ_T31),
 	{}
 };
-
 
 /*
  */
@@ -6251,7 +6244,6 @@ static const struct alc_model_fixup alc269_fixup_models[] = {
 	{.id = ALC269_FIXUP_LENOVO_DOCK, .name = "lenovo-dock"},
 	{}
 };
-
 
 static void alc269_fill_coef(struct hda_codec *codec)
 {
@@ -6911,7 +6903,6 @@ static const struct alc_model_fixup alc662_fixup_models[] = {
 	{.id = ALC662_FIXUP_ASUS_MODE8, .name = "asus-mode8"},
 	{}
 };
-
 
 /*
  */

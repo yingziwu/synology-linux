@@ -1390,7 +1390,6 @@ static irqreturn_t i915_driver_irq_handler(DRM_IRQ_ARGS)
 				blc_event = true;
 		}
 
-
 		if (blc_event || (iir & I915_ASLE_INTERRUPT))
 			intel_opregion_asle_intr(dev);
 

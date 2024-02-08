@@ -2332,7 +2332,6 @@ struct mac_iveiv_entry {
 #define TOKEN_RADIO_OFF			2
 #define TOKEN_WAKEUP			3
 
-
 /*
  * DMA descriptor defines.
  */

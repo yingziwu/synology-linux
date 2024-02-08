@@ -34,7 +34,6 @@
 #include "hash.h"
 #include "bat_algo.h"
 
-
 /* List manipulations on hardif_list have to be rtnl_lock()'ed,
  * list traversals just rcu-locked */
 struct list_head hardif_list;

@@ -322,7 +322,6 @@ static int __devinit ade7854_spi_probe(struct spi_device *spi)
 	st->irq = spi->irq;
 	st->spi = spi;
 
-
 	ret = ade7854_probe(indio_dev, &spi->dev);
 	if (ret)
 		iio_free_device(indio_dev);

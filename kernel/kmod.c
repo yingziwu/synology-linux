@@ -468,6 +468,24 @@ static void helper_unlock(void)
 		wake_up(&running_helpers_waitq);
 }
 
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+static void helper_lock_force(void)
+{
+	atomic_inc(&running_helpers);
+	smp_mb__after_atomic_inc();
+}
+
+static void helper_unlock_force(void)
+{
+	int tmp;
+
+	tmp = atomic_dec_and_test(&running_helpers);
+	if (tmp && (usermodehelper_disabled == 0))
+		wake_up(&running_helpers_waitq);
+}
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 /**
  * call_usermodehelper_setup - prepare to call a usermode helper
  * @path: path to usermode executable
@@ -577,6 +595,47 @@ unlock:
 	return retval;
 }
 EXPORT_SYMBOL(call_usermodehelper_exec);
+
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef	CONFIG_HISI_SNAPSHOT_BOOT
+int call_usermodehelper_exec_force(struct subprocess_info *sub_info, int wait)
+{
+	DECLARE_COMPLETION_ONSTACK(done);
+	int retval = 0;
+
+	helper_lock_force();
+
+	if (sub_info->path[0] == '\0')
+		goto out;
+
+	if (!khelper_wq) {
+		retval = -EBUSY;
+		goto out;
+	}
+
+	sub_info->complete = &done;
+	sub_info->wait = wait;
+
+	queue_work(khelper_wq, &sub_info->work);
+	if (wait == UMH_NO_WAIT)    /* task has freed sub_info */
+		goto unlock;
+	wait_for_completion(&done);
+	retval = sub_info->retval;
+
+out:
+	call_usermodehelper_freeinfo(sub_info);
+unlock:
+	helper_unlock_force();
+
+	return retval;
+}
+#else
+int call_usermodehelper_exec_force(struct subprocess_info *sub_info, int wait)
+{ }
+
+#endif
+EXPORT_SYMBOL(call_usermodehelper_exec_force);
+#endif /* CONFIG_HI3535_SDK_2050 */
 
 static int proc_cap_handler(struct ctl_table *table, int write,
 			 void __user *buffer, size_t *lenp, loff_t *ppos)

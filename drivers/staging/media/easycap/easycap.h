@@ -511,7 +511,6 @@ int start_100(struct usb_device *);
 int stop_100(struct usb_device *);
 /*---------------------------------------------------------------------------*/
 
-
 /*---------------------------------------------------------------------------*/
 /*
  *  MACROS SAM(...) AND JOM(...) ALLOW DIAGNOSTIC OUTPUT TO BE TAGGED WITH

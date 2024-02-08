@@ -268,7 +268,6 @@ static ssize_t flash_write(struct file *file, const char __user *buf,
 	return written;
 }
 
-
 /*
  * The memory devices use the full 32/64 bits of the offset, and so we cannot
  * check against negative addresses: they are ok. The return value is weird,
@@ -319,7 +318,6 @@ static loff_t flash_llseek(struct file *file, loff_t offset, int orig)
 	mutex_unlock(&flash_mutex);
 	return ret;
 }
-
 
 /*
  * assume that main Write routine did the parameter checking...
@@ -607,7 +605,6 @@ static int write_block(unsigned long p, const char __user *buf, int count)
 
 	return count;
 }
-
 
 static void kick_open(void)
 {

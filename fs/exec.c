@@ -2049,7 +2049,6 @@ static void wait_for_dump_helpers(struct file *file)
 
 }
 
-
 /*
  * umh_pipe_setup
  * helper function to customize the process used

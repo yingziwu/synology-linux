@@ -943,7 +943,6 @@ static u32 si_get_tile_pipe_to_backend_map(struct radeon_device *rdev,
 		}
 	}
 
-
 	memset((uint8_t *)&swizzle_pipe[0], 0, sizeof(u32) * SI_MAX_PIPES);
 	switch (rdev->family) {
 	case CHIP_TAHITI:
@@ -4125,4 +4124,3 @@ void si_fini(struct radeon_device *rdev)
 	kfree(rdev->bios);
 	rdev->bios = NULL;
 }
-

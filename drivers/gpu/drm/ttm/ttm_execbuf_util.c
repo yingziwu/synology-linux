@@ -97,7 +97,6 @@ static int ttm_eu_wait_unreserved_locked(struct list_head *list,
 	return ret;
 }
 
-
 void ttm_eu_backoff_reservation(struct list_head *list)
 {
 	struct ttm_validate_buffer *entry;

@@ -168,7 +168,6 @@ static void _ipxotp_init(struct otpinfo *oi)
 	u32 otpp, st;
 	int ccrev = ai_get_ccrev(oi->sih);
 
-
 	/*
 	 * record word offset of General Use Region
 	 * for various chipcommon revs

@@ -49,7 +49,6 @@ struct hd29l2_config {
 	u8 ts_mode;
 };
 
-
 #if defined(CONFIG_DVB_HD29L2) || \
 	(defined(CONFIG_DVB_HD29L2_MODULE) && defined(MODULE))
 extern struct dvb_frontend *hd29l2_attach(const struct hd29l2_config *config,

@@ -551,7 +551,6 @@ static int tpm_tis_init(struct device *dev, resource_size_t start,
 	if (itpm)
 		dev_info(dev, "Intel iTPM workaround enabled\n");
 
-
 	/* Figure out the capabilities */
 	intfcaps =
 	    ioread32(chip->vendor.iobase +
@@ -696,7 +695,6 @@ static int tpm_tis_init(struct device *dev, resource_size_t start,
 	list_add(&chip->vendor.list, &tis_chips);
 	mutex_unlock(&tis_lock);
 
-
 	return 0;
 out_err:
 	if (chip->vendor.iobase)
@@ -725,7 +723,6 @@ static void tpm_tis_reenable_interrupts(struct tpm_chip *chip)
 	iowrite32(intmask,
 		  chip->vendor.iobase + TPM_INT_ENABLE(chip->vendor.locality));
 }
-
 
 #ifdef CONFIG_PNP
 static int __devinit tpm_tis_pnp_init(struct pnp_dev *pnp_dev,
@@ -790,7 +787,6 @@ static __devexit void tpm_tis_pnp_remove(struct pnp_dev *dev)
 
 	kfree(chip);
 }
-
 
 static struct pnp_driver tis_pnp_driver = {
 	.name = "tpm_tis",

@@ -351,7 +351,6 @@ mem_cgroup_zone_nr_lru_pages(struct mem_cgroup *memcg, int nid, int zid,
 	return 0;
 }
 
-
 static inline struct zone_reclaim_stat*
 mem_cgroup_get_reclaim_stat(struct mem_cgroup *memcg, struct zone *zone)
 {
@@ -449,4 +448,3 @@ static inline void sock_release_memcg(struct sock *sk)
 }
 #endif /* CONFIG_CGROUP_MEM_RES_CTLR_KMEM */
 #endif /* _LINUX_MEMCONTROL_H */
-

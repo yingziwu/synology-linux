@@ -318,10 +318,8 @@ struct iwl_sensitivity_ranges {
 	u16 nrg_th_cca;
 };
 
-
 #define KELVIN_TO_CELSIUS(x) ((x)-273)
 #define CELSIUS_TO_KELVIN(x) ((x)+273)
-
 
 /******************************************************************************
  *
@@ -596,7 +594,6 @@ struct iwl_event_log {
 /* Firmware reload counter and Timestamp */
 #define IWL_MIN_RELOAD_DURATION		1000 /* 1000 ms */
 #define IWL_MAX_CONTINUE_RELOAD_CNT	4
-
 
 enum iwl_reset {
 	IWL_RF_RESET = 0,

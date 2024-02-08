@@ -459,7 +459,6 @@ void radeon_fence_driver_fini(struct radeon_device *rdev)
 	}
 }
 
-
 /*
  * Fence debugfs
  */

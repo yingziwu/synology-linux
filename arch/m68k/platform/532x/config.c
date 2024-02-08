@@ -102,7 +102,6 @@ void __init config_BSP(char *commandp, int size)
 #define MIN_FSYS	58333 	/* KHz */
 #define FREF		16000   /* KHz */
 
-
 #define MAX_MFD		135     /* Multiplier */
 #define MIN_MFD		88      /* Multiplier */
 #define BUSDIV		6       /* Divider */
@@ -185,7 +184,6 @@ void scm_init(void)
 	MCF_SCM_BCR = (MCF_SCM_BCR_GBR | MCF_SCM_BCR_GBW);
 }
 
-
 void fbcs_init(void)
 {
 	MCF_GPIO_PAR_CS = 0x0000003E;
@@ -250,7 +248,6 @@ void sdramc_init(void)
 		| MCF_SDRAMC_SDCFG2_BRD2WT((int)((SDRAM_CASL+SDRAM_BL/2-1.0)+0.5))
 		| MCF_SDRAMC_SDCFG2_BL(SDRAM_BL-1));
 
-            
 	/*
 	 * Precharge and enable write to SDMR
 	 */

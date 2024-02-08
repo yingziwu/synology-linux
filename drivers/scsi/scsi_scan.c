@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * scsi_scan.c
  *
@@ -46,6 +49,30 @@
 
 #include "scsi_priv.h"
 #include "scsi_logging.h"
+
+#if defined(MY_ABC_HERE)
+#define SYNO_INQUIRY_TMP_LEN 32
+#define SZ_STAT_DISK_VENDOR "ATA     "
+#define SYNO_INQUIRY_VENDOR_LEN 8
+typedef struct _tag_SYNO_DISK_VENDOR {
+	const char *szName;    /* name of vendor, or NULL for list end */
+	const int iLength; /* length of vendor */
+}SYNO_DISK_VENDOR;
+
+SYNO_DISK_VENDOR gDiskVendor[] = {
+	{"OCZ", 3},
+	{"Crucial", 7},
+	{"Micron", 6},
+	{NULL, 0}
+};
+#endif
+
+#if defined(MY_ABC_HERE)
+#define SYNO_RESULT_LEN 512
+/* The IDENTIFY DEVICE command will get most 40 characters */
+#define SYNO_IDENTIFY_DEVICE_TMP_LEN 40
+extern int syno_get_ata_identity(struct scsi_device *sdev, u16 *id);
+#endif
 
 #define ALLOC_FAILURE_MSG	KERN_ERR "%s: Allocation failure during" \
 	" SCSI scanning, some SCSI devices might not be configured\n"
@@ -250,7 +277,10 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
 		goto out;
 
 	sdev->vendor = scsi_null_device_strs;
+#ifdef MY_ABC_HERE
+#else
 	sdev->model = scsi_null_device_strs;
+#endif
 	sdev->rev = scsi_null_device_strs;
 	sdev->host = shost;
 	sdev->queue_ramp_up_period = SCSI_DEFAULT_RAMP_UP_PERIOD;
@@ -510,6 +540,208 @@ void scsi_target_reap(struct scsi_target *starget)
 					   &starget->ew);
 }
 
+#ifdef MY_ABC_HERE
+/**
+ * ssyno_standard_inquiry_strin - refine the vendor and model strings of SATA disks
+ * @szInqStr: INQUIRY result string to be refined
+ * @uiLen: length of the string
+ *
+ * Description:
+ *             The result of INQUIRY from a SATA disk might set vendor as "ATA"
+ *             and set model as "vendor model." This would confuse the userspace
+ *             applications.
+ *             This function refines the INQUIRY result of SATA disks to correctly
+ *             fill the vendor and model entries. This function resets the result
+ *             string and parses the original model string and fills the correct
+ *             data into each entry.
+ **/
+static void syno_standard_inquiry_string(unsigned char *szInqStr, unsigned int uiLen)
+{
+	char szRevStr[4] = {'\0'};
+	char szTmpStr[SYNO_INQUIRY_TMP_LEN] = {'\0'};
+	int iCharIdx;
+	int blPreIsSpace = 0, blSegmented = 0;
+	int blSpecialVendor = 0;
+	int i = 0;
+
+	if (NULL == szInqStr || 0 == uiLen) {
+		goto END;
+	}
+
+	if (uiLen > SYNO_INQUIRY_TMP_LEN) {
+		uiLen = SYNO_INQUIRY_TMP_LEN;
+	}
+
+	memcpy(szRevStr, szInqStr + uiLen - 4, 4);
+	memcpy(szTmpStr, szInqStr + 8, uiLen - 4 - 8);
+
+	for (i = 0; NULL != gDiskVendor[i].szName; i++) {
+		if (!strncmp(gDiskVendor[i].szName, szTmpStr, gDiskVendor[i].iLength)) {
+			blSpecialVendor = 1;
+			break;
+		}
+	}
+
+	if (1 == blSpecialVendor) {
+		iCharIdx = gDiskVendor[i].iLength;
+	} else {
+		for (iCharIdx = 0; iCharIdx < sizeof(szTmpStr); iCharIdx++) {
+			if ('\0' == szTmpStr[iCharIdx]) {
+				break;
+			}
+
+			if (' ' == szTmpStr[iCharIdx]) {
+				blPreIsSpace = 1;
+			} else {
+				if (blPreIsSpace) {
+					blSegmented =1;
+					break;
+				}
+			}
+		}
+
+		if (!blSegmented) {
+			goto END;
+		}
+	}
+
+	memset(szInqStr, 0, uiLen);
+
+	memcpy(szInqStr, szTmpStr, iCharIdx);
+	memcpy(szInqStr + 8, szTmpStr + iCharIdx, strlen(szTmpStr) - iCharIdx);
+	memcpy(szInqStr + (uiLen - 4), szRevStr, 4);
+END:
+	return;
+}
+
+/**
+ * syno_standard_vendor_string - refine the vendor strings of SATA disks
+ * @szInqStr: INQUIRY result string to be refined
+ * @uiLen: length of the string
+ *
+ * Description:
+ * 	The verder name is not correct in some disk. For example, the vendor name of
+ * 	"OCZ-VERTEX3 MI" is "OCZ-VERT".
+ *	This function refines the INQUIRY result of SATA disks to correctly
+ *	fill the vendor name by vendor list gDiskVendor.
+ **/
+static void syno_standard_vendor_string(unsigned char *szInqStr, unsigned int uiLen)
+{
+	int i = 0;
+
+	if (NULL == szInqStr || 0 == uiLen) {
+		goto END;
+	}
+
+	if (uiLen > SYNO_INQUIRY_VENDOR_LEN) {
+		uiLen = SYNO_INQUIRY_VENDOR_LEN;
+	}
+
+	for (i = 0; NULL != gDiskVendor[i].szName; i++) {
+		if (!strncmp(gDiskVendor[i].szName, szInqStr, gDiskVendor[i].iLength)) {
+			memset(szInqStr, 0, uiLen);
+			memcpy(szInqStr, gDiskVendor[i].szName, gDiskVendor[i].iLength);
+			break;
+		}
+	}
+END:
+	return;
+}
+#endif
+
+#ifdef MY_ABC_HERE
+/**
+ * Description:
+ * 	The result of SCSI INQUIRY from a SATA disk might set vendor as "ATA"
+ * 	and set model as "vendor model" in 16 characters. This could let model
+ * 	name obtain incomplete. For expample, model will be "KINGSTON SKC100S"
+ * 	after INQUIRY command executes. But the complete model name of the disk
+ * 	is "SKC100S3120G".
+ *	This function use ATA command to obtain SATA disk informatiom and then
+ *	refines the INQUIRY result of SATA disks to correctly fill the vendor
+ *	and model entries. This function resets the result string and parses the
+ *	original model string and fills the correct data into each entry.
+ * References:
+ * 	1. Information Technology - AT Attachment with Packet Interface - 5 (ATA/ATAPI-5)
+ * 	2. ATA Command Pass-Through
+ *
+ * @param
+ * 	sdev[IN]: send ATA command to the SCSI device
+ * 	szInqReturn[OUT]: INQUIRY result string to be refined
+ *
+ **/
+
+static void scsi_ata_identify_device_get_model_name(struct scsi_device *sdev, unsigned char *szInqReturn)
+{
+	int i = 0;
+	int blSpecialVendor = 0;
+	int blPreIsSpace = 0;
+	int blSegmented = 0;
+	int iRes = 0;
+	u16 id[SYNO_RESULT_LEN / 2] = {0};
+	unsigned char szInqResult[SYNO_RESULT_LEN] = {0};
+
+	iRes = syno_get_ata_identity(sdev, id);
+	memcpy(szInqResult, id, SYNO_RESULT_LEN);
+
+	/* Swap string for endian problems */
+	for (i = 0; i < SYNO_RESULT_LEN - 1; i += 2)
+	{
+		char tmp = szInqResult[i];
+		szInqResult[i] = szInqResult[i+1];
+		szInqResult[i+1] = tmp;
+	}
+
+	if (!iRes || '\0' == szInqResult[54]) {
+		return;
+	}
+
+	for (i = 0; NULL != gDiskVendor[i].szName; i++) {
+		/* The disk model name start from word 27 in the buffer */
+		if (!strncmp(gDiskVendor[i].szName, &szInqResult[54], gDiskVendor[i].iLength)) {
+			blSpecialVendor = 1;
+			break;
+		}
+	}
+
+	if (1 == blSpecialVendor) {
+		if (' ' == szInqResult[54 + gDiskVendor[i].iLength] ||
+				'-' == szInqResult[54 + gDiskVendor[i].iLength] ||
+				'_' == szInqResult[54 + gDiskVendor[i].iLength]) {
+			i = gDiskVendor[i].iLength + 1;
+		} else {
+			i = gDiskVendor[i].iLength;
+		}
+	} else {
+		/* Search the end of vendor name */
+		for (i = 0; i < SYNO_IDENTIFY_DEVICE_TMP_LEN; i++) {
+			if ('\0' == szInqResult[54+i]) {
+				break;
+			}
+
+			if (' ' == szInqResult[54+i]) {
+				if(1 == blPreIsSpace){
+					break;
+				}
+				blPreIsSpace = 1;
+			} else if (blPreIsSpace) {
+				blSegmented = 1;
+				break;
+			}
+		}
+
+		if (!blSegmented){
+			i = 0;
+		}
+	}
+
+	/* The disk model name start from word 27 in the buffer */
+	memcpy(szInqReturn, &szInqResult[54 + i], SYNO_DISK_MODEL_NUM);
+
+	return;
+}
+#endif
+
 /**
  * sanitize_inquiry_string - remove non-graphical chars from an INQUIRY result string
  * @s: INQUIRY result string to sanitize
@@ -620,6 +852,17 @@ static int scsi_probe_lun(struct scsi_device *sdev, unsigned char *inq_result,
 	}
 
 	if (result == 0) {
+#ifdef MY_ABC_HERE
+		/*
+		 * Only transfering the strings that vendor is ATA.
+		 * vendor set as "ATA" means the disk is a SATA disk
+		 */
+		if (!strncmp(&inq_result[8], SZ_STAT_DISK_VENDOR, 8)) {
+			syno_standard_inquiry_string(&inq_result[8], 28);
+		} else {
+			syno_standard_vendor_string(&inq_result[8], 8);
+		}
+#endif
 		sanitize_inquiry_string(&inq_result[8], 8);
 		sanitize_inquiry_string(&inq_result[16], 16);
 		sanitize_inquiry_string(&inq_result[32], 4);
@@ -745,6 +988,9 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
 		int *bflags, int async)
 {
 	int ret;
+#ifdef MY_ABC_HERE
+	unsigned char szDiskModel[SYNO_DISK_MODEL_NUM + 4] = {'\0'};
+#endif
 
 	/*
 	 * XXX do not save the inquiry, since it can change underneath us,
@@ -773,7 +1019,30 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
 		return SCSI_SCAN_NO_RESPONSE;
 
 	sdev->vendor = (char *) (sdev->inquiry + 8);
+#ifdef MY_ABC_HERE
+	if(!(SYNO_PORT_TYPE_USB == sdev->host->hostt->syno_port_type)) {
+		scsi_ata_identify_device_get_model_name(sdev, (unsigned char *)&szDiskModel);
+	}
+
+	if(0 != strlen(szDiskModel)) {
+		sdev->model = kmemdup(szDiskModel, SYNO_DISK_MODEL_NUM, GFP_ATOMIC);
+	} else {
+		/*
+		 * Can't get disk model name by using ATA IDENTIFY DEVICE command.
+		 * eg. SAS disk, Enclosure ...
+		 * So we copy disk model name from INQUIRY result.
+		 */
+		memset (szDiskModel, ' ', SYNO_DISK_MODEL_NUM);
+		memcpy(szDiskModel, (char *) (sdev->inquiry + 16), 16);
+		sdev->model = kmemdup(szDiskModel, SYNO_DISK_MODEL_NUM, GFP_ATOMIC);
+	}
+	if (sdev->model == NULL)
+		return SCSI_SCAN_NO_RESPONSE;
+
+	sanitize_inquiry_string((unsigned char *) sdev->model, SYNO_DISK_MODEL_NUM);
+#else
 	sdev->model = (char *) (sdev->inquiry + 16);
+#endif
 	sdev->rev = (char *) (sdev->inquiry + 32);
 
 	if (strncmp(sdev->vendor, "ATA     ", 8) == 0) {
@@ -854,7 +1123,11 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
 	if (inq_result[7] & 0x10)
 		sdev->sdtr = 1;
 
+#ifdef MY_ABC_HERE
+	sdev_printk(KERN_NOTICE, sdev, "%s %.8s %."SYNO_DISK_MODEL_LEN"s %.4s PQ: %d "
+#else
 	sdev_printk(KERN_NOTICE, sdev, "%s %.8s %.16s %.4s PQ: %d "
+#endif
 			"ANSI: %d%s\n", scsi_device_type(sdev->type),
 			sdev->vendor, sdev->model, sdev->rev,
 			sdev->inq_periph_qual, inq_result[2] & 0x07,
@@ -1963,4 +2236,3 @@ void scsi_free_host_dev(struct scsi_device *sdev)
 	__scsi_remove_device(sdev);
 }
 EXPORT_SYMBOL(scsi_free_host_dev);
-

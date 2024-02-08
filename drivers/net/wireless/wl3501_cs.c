@@ -63,8 +63,6 @@
 /* For rough constant delay */
 #define WL3501_NOPLOOP(n) { int x = 0; while (x++ < n) slow_down_io(); }
 
-
-
 #define wl3501_outb(a, b) { outb(a, b); slow_down_io(); }
 #define wl3501_outb_p(a, b) { outb_p(a, b); slow_down_io(); }
 #define wl3501_outsb(a, b, c) { outsb(a, b, c); slow_down_io(); }
@@ -1867,7 +1865,6 @@ static int wl3501_probe(struct pcmcia_device *p_dev)
 	if (!dev)
 		goto out_link;
 
-
 	dev->netdev_ops		= &wl3501_netdev_ops;
 	dev->watchdog_timeo	= 5 * HZ;
 
@@ -1997,7 +1994,6 @@ static int wl3501_resume(struct pcmcia_device *link)
 
 	return 0;
 }
-
 
 static const struct pcmcia_device_id wl3501_ids[] = {
 	PCMCIA_DEVICE_MANF_CARD(0xd601, 0x0001),

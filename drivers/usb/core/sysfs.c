@@ -9,7 +9,6 @@
  *
  */
 
-
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/usb.h>
@@ -524,7 +523,6 @@ static void remove_power_attributes(struct device *dev)
 
 #endif	/* CONFIG_USB_SUSPEND */
 
-
 /* Descriptor fields */
 #define usb_descriptor_attr_le16(field, format_string)			\
 static ssize_t								\
@@ -561,8 +559,6 @@ usb_descriptor_attr(bDeviceProtocol, "%02x\n")
 usb_descriptor_attr(bNumConfigurations, "%d\n")
 usb_descriptor_attr(bMaxPacketSize0, "%d\n")
 
-
-
 /* show if the device is authorized (1) or not (0) */
 static ssize_t usb_dev_authorized_show(struct device *dev,
 				       struct device_attribute *attr,
@@ -571,7 +567,6 @@ static ssize_t usb_dev_authorized_show(struct device *dev,
 	struct usb_device *usb_dev = to_usb_device(dev);
 	return snprintf(buf, PAGE_SIZE, "%u\n", usb_dev->authorized);
 }
-
 
 /*
  * Authorize a device to be used in the system
@@ -619,7 +614,6 @@ static ssize_t usb_remove_store(struct device *dev,
 	return rc;
 }
 static DEVICE_ATTR(remove, 0200, NULL, usb_remove_store);
-
 
 static struct attribute *dev_attrs[] = {
 	/* current configuration's attributes */

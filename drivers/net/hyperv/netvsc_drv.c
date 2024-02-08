@@ -47,7 +47,6 @@ struct net_device_context {
 	struct work_struct work;
 };
 
-
 static int ring_size = 128;
 module_param(ring_size, int, S_IRUGO);
 MODULE_PARM_DESC(ring_size, "Ring buffer size (# of pages)");
@@ -370,7 +369,6 @@ static void netvsc_send_garp(struct work_struct *w)
 	net = net_device->ndev;
 	netif_notify_peers(net);
 }
-
 
 static int netvsc_probe(struct hv_device *dev,
 			const struct hv_vmbus_device_id *dev_id)

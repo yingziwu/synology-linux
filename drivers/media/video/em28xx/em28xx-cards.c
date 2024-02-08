@@ -275,7 +275,6 @@ static struct em28xx_reg_seq dikom_dk300_digital[] = {
 	{ -1,			-1,	-1,		-1},
 };
 
-
 /* Reset for the most [digital] boards */
 static struct em28xx_reg_seq leadership_digital[] = {
 	{EM2874_R80_GPIO,	0x70,	0xff,	10},
@@ -2219,7 +2218,6 @@ static inline void em28xx_set_model(struct em28xx *dev)
 				       EM28XX_I2C_FREQ_100_KHZ;
 }
 
-
 /* FIXME: Should be replaced by a proper mt9m111 driver */
 static int em28xx_initialize_mt9m111(struct em28xx *dev)
 {
@@ -2236,7 +2234,6 @@ static int em28xx_initialize_mt9m111(struct em28xx *dev)
 
 	return 0;
 }
-
 
 /* FIXME: Should be replaced by a proper mt9m001 driver */
 static int em28xx_initialize_mt9m001(struct em28xx *dev)
@@ -2895,7 +2892,6 @@ void em28xx_card_setup(struct em28xx *dev)
 				&mt9v011_info, NULL);
 	}
 
-
 	if (dev->board.adecoder == EM28XX_TVAUDIO)
 		v4l2_i2c_new_subdev(&dev->v4l2_dev, &dev->i2c_adap,
 			"tvaudio", dev->board.tvaudio_addr, NULL);
@@ -2933,7 +2929,6 @@ void em28xx_card_setup(struct em28xx *dev)
 	if(!disable_ir)
 		em28xx_ir_init(dev);
 }
-
 
 #if defined(CONFIG_MODULES) && defined(MODULE)
 static void request_module_async(struct work_struct *work)

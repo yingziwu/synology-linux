@@ -91,14 +91,12 @@ static void at91_stop_hc(struct platform_device *pdev)
 	at91_stop_clock();
 }
 
-
 /*-------------------------------------------------------------------------*/
 
 static void __devexit usb_hcd_at91_remove (struct usb_hcd *, struct platform_device *);
 
 /* configure so an HC device and id are always provided */
 /* always called with process context; sleeping is OK */
-
 
 /**
  * usb_hcd_at91_probe - initialize AT91-based HCDs
@@ -189,7 +187,6 @@ static int __devinit usb_hcd_at91_probe(const struct hc_driver *driver,
 	usb_put_hcd(hcd);
 	return retval;
 }
-
 
 /* may be called with controller, bus, and devices active */
 

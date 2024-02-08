@@ -553,7 +553,6 @@ static int validate_actions(const struct nlattr *attr,
 				return -EINVAL;
 			break;
 
-
 		case OVS_ACTION_ATTR_POP_VLAN:
 			break;
 

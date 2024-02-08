@@ -75,7 +75,17 @@
 #include <asm/unaligned.h>
 #include <net/netdma.h>
 
+#ifdef CONFIG_TNK
+#include <net/tnkdrv.h>
+#endif
+
+#ifdef CONFIG_TNK
+/* The TOE doesn't generate timestamps,
+   so disable by default */
+int sysctl_tcp_timestamps __read_mostly;
+#else
 int sysctl_tcp_timestamps __read_mostly = 1;
+#endif
 int sysctl_tcp_window_scaling __read_mostly = 1;
 int sysctl_tcp_sack __read_mostly = 1;
 int sysctl_tcp_fack __read_mostly = 1;
@@ -102,6 +112,10 @@ int sysctl_tcp_thin_dupack __read_mostly;
 
 int sysctl_tcp_moderate_rcvbuf __read_mostly = 1;
 int sysctl_tcp_abc __read_mostly;
+
+#ifdef CONFIG_TNK
+extern struct tnkfuncs *tnk;
+#endif
 
 #define FLAG_DATA		0x01 /* Incoming frame contained data.		*/
 #define FLAG_WIN_UPDATE		0x02 /* Incoming ACK was a window update.	*/
@@ -586,6 +600,18 @@ static void tcp_event_data_recv(struct sock *sk, struct sk_buff *skb)
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct inet_connection_sock *icsk = inet_csk(sk);
 	u32 now;
+#ifdef CONFIG_TNK
+    /*  If tnk is active then update the byte count on this
+     *  connection.
+     */
+	if (tnk && (skb->len > 0)
+		&& !tcp_hdr(skb)->fin
+		&& !tcp_hdr(skb)->rst
+		&& (!sk->sk_lock.owned)) {
+		(&sk->sk_tnkinfo)->update_path = UPDATE_PATH_RECV;
+		tnk->tcp_update(sk, skb->len);
+	}
+#endif
 
 	inet_csk_schedule_ack(sk);
 
@@ -4164,6 +4190,17 @@ static void tcp_reset(struct sock *sk)
 	default:
 		sk->sk_err = ECONNRESET;
 	}
+#ifdef CONFIG_TNK
+	/*  tnk is active. Call tnk_Tcp_close*/
+	sk->sk_tnkinfo.howto_destroy = TNK_DESTROY_SHUTDOWN;
+	if (tnk)
+#ifdef CONFIG_HI3535_SDK_2050
+		tnk->tcp_reset(sk);
+#else
+		tnk->tcp_close(sk, 0);
+#endif /* CONFIG_HI3535_SDK_2050 */
+#endif
+
 	/* This barrier is coupled with smp_rmb() in tcp_poll() */
 	smp_wmb();
 
@@ -4614,7 +4651,6 @@ end:
 		skb_set_owner_r(skb, sk);
 }
 
-
 static void tcp_data_queue(struct sock *sk, struct sk_buff *skb)
 {
 	const struct tcphdr *th = tcp_hdr(skb);
@@ -4624,6 +4660,29 @@ static void tcp_data_queue(struct sock *sk, struct sk_buff *skb)
 	if (TCP_SKB_CB(skb)->seq == TCP_SKB_CB(skb)->end_seq)
 		goto drop;
 
+#ifdef CONFIG_HI3535_SDK_2050
+#ifdef CONFIG_TNK
+	if (tnk) {
+		/* Attention Here!!!
+		 * In some condition, packets come here even TOE
+		 * conneciton created. The possible path is:
+		 * inet_csk_accept --> release_sock --> tcp_v4_do_rcv -->
+		 *   tcp_child_process --> tcp_rcv_state_process -->
+		 *   tcp_data_queue.
+		 */
+		/* If this is an active TOE-accelerated connection,
+		 * we can't allow any more packets to enter the
+		 * sk_receive_queue here */
+		if ((sk->sk_tnkinfo.state == TNKINFO_STATE_ACTIVATING)
+				|| (sk->sk_tnkinfo.state
+					== TNKINFO_STATE_ACTIVE)) {
+
+			if (!sk->sk_tnkinfo.finflag && !sk->sk_tnkinfo.rstflag)
+				goto drop;
+		}
+	}
+#endif
+#endif /* CONFIG_HI3535_SDK_2050 */
 	skb_dst_drop(skb);
 	__skb_pull(skb, th->doff * 4);
 
@@ -5671,6 +5730,13 @@ static int tcp_rcv_synsent_state_process(struct sock *sk, struct sk_buff *skb,
 		 *    (our SYN has been ACKed), change the connection
 		 *    state to ESTABLISHED..."
 		 */
+#ifdef CONFIG_TNK
+		/* tnk is active. Initialise a new connection */
+		if (tnk) {
+			tnk->tcp_prepare(sk, skb, 1);
+			tnk->tcp_open(sk);
+		}
+#endif
 
 		TCP_ECN_rcv_synack(tp, th);
 

@@ -740,11 +740,9 @@ void efx_remove_rx_queue(struct efx_rx_queue *rx_queue)
 	rx_queue->buffer = NULL;
 }
 
-
 module_param(rx_alloc_method, int, 0644);
 MODULE_PARM_DESC(rx_alloc_method, "Allocation method used for RX buffers");
 
 module_param(rx_refill_threshold, uint, 0444);
 MODULE_PARM_DESC(rx_refill_threshold,
 		 "RX descriptor ring fast/slow fill threshold (%)");
-

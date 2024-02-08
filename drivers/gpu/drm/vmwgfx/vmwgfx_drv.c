@@ -41,7 +41,6 @@
 #define VMW_MIN_INITIAL_WIDTH 800
 #define VMW_MIN_INITIAL_HEIGHT 600
 
-
 /**
  * Fully encoded drm commands. Might move to vmw_drm.h
  */
@@ -231,7 +230,6 @@ static void vmw_print_capabilities(uint32_t capabilities)
 		DRM_INFO("  Screen Object 2.\n");
 }
 
-
 /**
  * vmw_execbuf_prepare_dummy_query - Initialize a query result structure at
  * the start of a buffer object.
@@ -274,7 +272,6 @@ static void vmw_dummy_query_bo_prepare(struct vmw_private *dev_priv)
 	ttm_bo_unreserve(bo);
 }
 
-
 /**
  * vmw_dummy_query_bo_create - create a bo to hold a dummy query result
  *
@@ -295,7 +292,6 @@ static int vmw_dummy_query_bo_create(struct vmw_private *dev_priv)
 			     0, 0, false, NULL,
 			     &dev_priv->dummy_query_bo);
 }
-
 
 static int vmw_request_device(struct vmw_private *dev_priv)
 {
@@ -532,11 +528,9 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
 	if (unlikely(ret != 0))
 		goto out_err0;
 
-
 	vmw_master_init(&dev_priv->fbdev_master);
 	ttm_lock_set_kill(&dev_priv->fbdev_master.lock, false, SIGTERM);
 	dev_priv->active_master = &dev_priv->fbdev_master;
-
 
 	ret = ttm_bo_device_init(&dev_priv->bdev,
 				 dev_priv->bo_global_ref.ref.object,
@@ -878,7 +872,6 @@ static void vmw_master_destroy(struct drm_device *dev,
 	kfree(vmaster);
 }
 
-
 static int vmw_master_set(struct drm_device *dev,
 			  struct drm_file *file_priv,
 			  bool from_open)
@@ -980,7 +973,6 @@ static void vmw_master_drop(struct drm_device *dev,
 	if (dev_priv->enable_fb)
 		vmw_fb_on(dev_priv);
 }
-
 
 static void vmw_remove(struct pci_dev *pdev)
 {

@@ -199,13 +199,11 @@ static const struct mca_adapters_t mc32_adapters[] = {
 	{ 0x0000, NULL }
 };
 
-
 /* Macros for ring index manipulations */
 static inline u16 next_rx(u16 rx) { return (rx+1)&(RX_RING_LEN-1); };
 static inline u16 prev_rx(u16 rx) { return (rx-1)&(RX_RING_LEN-1); };
 
 static inline u16 next_tx(u16 tx) { return (tx+1)&(TX_RING_LEN-1); };
-
 
 /* Index to functions, as function prototypes. */
 static int	mc32_probe1(struct net_device *dev, int ioaddr);
@@ -397,9 +395,7 @@ static int __init mc32_probe1(struct net_device *dev, int slot)
 	pr_cont("io 0x%3lX irq %d mem 0x%lX (%dK)\n",
 		dev->base_addr, dev->irq, dev->mem_start, i/1024);
 
-
 	/* We ought to set the cache line size here.. */
-
 
 	/*
 	 *	Go PROM browsing
@@ -541,7 +537,6 @@ err_exit_ports:
 	return err;
 }
 
-
 /**
  *	mc32_ready_poll		-	wait until we can feed it a command
  *	@dev:	The device to wait for
@@ -556,7 +551,6 @@ static inline void mc32_ready_poll(struct net_device *dev)
 	int ioaddr = dev->base_addr;
 	while(!(inb(ioaddr+HOST_STATUS)&HOST_STATUS_CRR));
 }
-
 
 /**
  *	mc32_command_nowait	-	send a command non blocking
@@ -599,7 +593,6 @@ static int mc32_command_nowait(struct net_device *dev, u16 cmd, void *data, int 
 
 	return ret;
 }
-
 
 /**
  *	mc32_command	-	send a command and sleep until completion
@@ -660,7 +653,6 @@ static int mc32_command(struct net_device *dev, u16 cmd, void *data, int len)
 	return ret;
 }
 
-
 /**
  *	mc32_start_transceiver	-	tell board to restart tx/rx
  *	@dev: The 3c527 card to issue the command to
@@ -694,7 +686,6 @@ static void mc32_start_transceiver(struct net_device *dev) {
 	/* We are not interrupted on start completion */
 }
 
-
 /**
  *	mc32_halt_transceiver	-	tell board to stop tx/rx
  *	@dev: The 3c527 card to issue the command to
@@ -722,7 +713,6 @@ static void mc32_halt_transceiver(struct net_device *dev)
 	outb(HOST_CMD_SUSPND_TX, ioaddr+HOST_CMD);
 	wait_for_completion(&lp->xceiver_cmd);
 }
-
 
 /**
  *	mc32_load_rx_ring	-	load the ring of receive buffers
@@ -780,7 +770,6 @@ static int mc32_load_rx_ring(struct net_device *dev)
 	return 0;
 }
 
-
 /**
  *	mc32_flush_rx_ring	-	free the ring of receive buffers
  *	@lp: Local data of 3c527 to flush the rx ring of
@@ -804,7 +793,6 @@ static void mc32_flush_rx_ring(struct net_device *dev)
 		lp->rx_ring[i].p=NULL;
 	}
 }
-
 
 /**
  *	mc32_load_tx_ring	-	load transmit ring
@@ -848,7 +836,6 @@ static void mc32_load_tx_ring(struct net_device *dev)
 	lp->tx_ring_tail=0;
 }
 
-
 /**
  *	mc32_flush_tx_ring 	-	free transmit ring
  *	@lp: Local data of 3c527 to flush the tx ring of
@@ -877,7 +864,6 @@ static void mc32_flush_tx_ring(struct net_device *dev)
 	atomic_set(&lp->tx_ring_head, 0);
 	lp->tx_ring_tail=0;
 }
-
 
 /**
  *	mc32_open	-	handle 'up' of card
@@ -917,7 +903,6 @@ static int mc32_open(struct net_device *dev)
 	 */
 
 	up(&lp->cmd_mutex);
-
 
 	/*
 	 *	Send the indications on command
@@ -980,7 +965,6 @@ static int mc32_open(struct net_device *dev)
 	return 0;
 }
 
-
 /**
  *	mc32_timeout	-	handle a timeout from the network layer
  *	@dev: 3c527 that timed out
@@ -997,7 +981,6 @@ static void mc32_timeout(struct net_device *dev)
 	/* Try to restart the adaptor. */
 	netif_wake_queue(dev);
 }
-
 
 /**
  *	mc32_send_packet	-	queue a frame for transmit
@@ -1070,7 +1053,6 @@ static netdev_tx_t mc32_send_packet(struct sk_buff *skb,
 	return NETDEV_TX_OK;
 }
 
-
 /**
  *	mc32_update_stats	-	pull off the on board statistics
  *	@dev: 3c527 to service
@@ -1117,7 +1099,6 @@ static void mc32_update_stats(struct net_device *dev)
 	dev->stats.collisions+=st->dataC[11];
 	st->dataC[11]=0;
 }
-
 
 /**
  *	mc32_rx_ring	-	process the receive ring
@@ -1217,7 +1198,6 @@ static void mc32_rx_ring(struct net_device *dev)
 	}
 }
 
-
 /**
  *	mc32_tx_ring	-	process completed transmits
  *	@dev: 3c527 that needs its transmit ring processing
@@ -1293,7 +1273,6 @@ static void mc32_tx_ring(struct net_device *dev)
 	}
 
 }
-
 
 /**
  *	mc32_interrupt		-	handle an interrupt from a 3c527
@@ -1402,7 +1381,6 @@ static irqreturn_t mc32_interrupt(int irq, void *dev_id)
 		}
 	}
 
-
 	/*
 	 *	Process the transmit and receive rings
          */
@@ -1415,7 +1393,6 @@ static irqreturn_t mc32_interrupt(int irq, void *dev_id)
 
 	return IRQ_HANDLED;
 }
-
 
 /**
  *	mc32_close	-	user configuring the 3c527 down
@@ -1478,7 +1455,6 @@ static int mc32_close(struct net_device *dev)
 	return 0;
 }
 
-
 /**
  *	mc32_get_stats		-	hand back stats to network layer
  *	@dev: The 3c527 card to handle
@@ -1493,7 +1469,6 @@ static struct net_device_stats *mc32_get_stats(struct net_device *dev)
 	mc32_update_stats(dev);
 	return &dev->stats;
 }
-
 
 /**
  *	do_mc32_set_multicast_list	-	attempt to update multicasts
@@ -1565,7 +1540,6 @@ static void do_mc32_set_multicast_list(struct net_device *dev, int retry)
 	}
 }
 
-
 /**
  *	mc32_set_multicast_list	-	queue multicast list update
  *	@dev: The 3c527 to use
@@ -1579,7 +1553,6 @@ static void mc32_set_multicast_list(struct net_device *dev)
 {
 	do_mc32_set_multicast_list(dev,0);
 }
-
 
 /**
  *	mc32_reset_multicast_list	-	reset multicast list

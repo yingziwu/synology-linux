@@ -2605,7 +2605,6 @@ static int __devinit ab8500_charger_probe(struct platform_device *pdev)
 	di->usb_chg.max_out_curr = ab8500_charger_current_map[
 		ARRAY_SIZE(ab8500_charger_current_map) - 1];
 
-
 	/* Create a work queue for the charger */
 	di->charger_wq =
 		create_singlethread_workqueue("ab8500_charger_wq");
@@ -2662,7 +2661,6 @@ static int __devinit ab8500_charger_probe(struct platform_device *pdev)
 		dev_err(di->dev, "failed to get vddadc regulator\n");
 		goto free_charger_wq;
 	}
-
 
 	/* Initialize OVV, and other registers */
 	ret = ab8500_charger_init_hw_registers(di);

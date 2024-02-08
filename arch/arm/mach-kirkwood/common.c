@@ -67,7 +67,6 @@ void __init kirkwood_map_io(void)
  */
 unsigned int kirkwood_clk_ctrl = CGC_DUNIT | CGC_RESERVED;
 
-
 /*****************************************************************************
  * EHCI0
  ****************************************************************************/
@@ -76,7 +75,6 @@ void __init kirkwood_ehci_init(void)
 	kirkwood_clk_ctrl |= CGC_USB0;
 	orion_ehci_init(USB_PHYS_BASE, IRQ_KIRKWOOD_USB, EHCI_PHY_NA);
 }
-
 
 /*****************************************************************************
  * GE00
@@ -89,7 +87,6 @@ void __init kirkwood_ge00_init(struct mv643xx_eth_platform_data *eth_data)
 			GE00_PHYS_BASE, IRQ_KIRKWOOD_GE00_SUM,
 			IRQ_KIRKWOOD_GE00_ERR, kirkwood_tclk);
 }
-
 
 /*****************************************************************************
  * GE01
@@ -104,7 +101,6 @@ void __init kirkwood_ge01_init(struct mv643xx_eth_platform_data *eth_data)
 			IRQ_KIRKWOOD_GE01_ERR, kirkwood_tclk);
 }
 
-
 /*****************************************************************************
  * Ethernet switch
  ****************************************************************************/
@@ -112,7 +108,6 @@ void __init kirkwood_ge00_switch_init(struct dsa_platform_data *d, int irq)
 {
 	orion_ge00_switch_init(d, irq);
 }
-
 
 /*****************************************************************************
  * NAND flash
@@ -168,7 +163,6 @@ static void __init kirkwood_rtc_init(void)
 	orion_rtc_init(RTC_PHYS_BASE, IRQ_KIRKWOOD_RTC);
 }
 
-
 /*****************************************************************************
  * SATA
  ****************************************************************************/
@@ -180,7 +174,6 @@ void __init kirkwood_sata_init(struct mv_sata_platform_data *sata_data)
 
 	orion_sata_init(sata_data, SATA_PHYS_BASE, IRQ_KIRKWOOD_SATA);
 }
-
 
 /*****************************************************************************
  * SD/SDIO/MMC
@@ -225,7 +218,6 @@ void __init kirkwood_sdio_init(struct mvsdio_platform_data *mvsdio_data)
 	platform_device_register(&kirkwood_sdio);
 }
 
-
 /*****************************************************************************
  * SPI
  ****************************************************************************/
@@ -235,7 +227,6 @@ void __init kirkwood_spi_init()
 	orion_spi_init(SPI_PHYS_BASE, kirkwood_tclk);
 }
 
-
 /*****************************************************************************
  * I2C
  ****************************************************************************/
@@ -243,7 +234,6 @@ void __init kirkwood_i2c_init(void)
 {
 	orion_i2c_init(I2C_PHYS_BASE, IRQ_KIRKWOOD_TWSI, 8);
 }
-
 
 /*****************************************************************************
  * UART0
@@ -254,7 +244,6 @@ void __init kirkwood_uart0_init(void)
 	orion_uart0_init(UART0_VIRT_BASE, UART0_PHYS_BASE,
 			 IRQ_KIRKWOOD_UART_0, kirkwood_tclk);
 }
-
 
 /*****************************************************************************
  * UART1
@@ -275,7 +264,6 @@ void __init kirkwood_crypto_init(void)
 			  KIRKWOOD_SRAM_SIZE, IRQ_KIRKWOOD_CRYPTO);
 }
 
-
 /*****************************************************************************
  * XOR0
  ****************************************************************************/
@@ -286,7 +274,6 @@ void __init kirkwood_xor0_init(void)
 	orion_xor0_init(XOR0_PHYS_BASE, XOR0_HIGH_PHYS_BASE,
 			IRQ_KIRKWOOD_XOR_00, IRQ_KIRKWOOD_XOR_01);
 }
-
 
 /*****************************************************************************
  * XOR1
@@ -299,7 +286,6 @@ void __init kirkwood_xor1_init(void)
 			IRQ_KIRKWOOD_XOR_10, IRQ_KIRKWOOD_XOR_11);
 }
 
-
 /*****************************************************************************
  * Watchdog
  ****************************************************************************/
@@ -307,7 +293,6 @@ void __init kirkwood_wdt_init(void)
 {
 	orion_wdt_init(kirkwood_tclk);
 }
-
 
 /*****************************************************************************
  * Time handling

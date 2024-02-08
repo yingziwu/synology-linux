@@ -455,7 +455,6 @@ static void nbd_clear_que(struct nbd_device *nbd)
 	}
 }
 
-
 static void nbd_handle_req(struct nbd_device *nbd, struct request *req)
 {
 	if (req->cmd_type != REQ_TYPE_FS)

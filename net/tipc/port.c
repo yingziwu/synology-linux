@@ -58,7 +58,6 @@ static struct sk_buff *port_build_self_abort_msg(struct tipc_port *, u32 err);
 static struct sk_buff *port_build_peer_abort_msg(struct tipc_port *, u32 err);
 static void port_timeout(unsigned long ref);
 
-
 static u32 port_peernode(struct tipc_port *p_ptr)
 {
 	return msg_destnode(&p_ptr->phdr);
@@ -464,7 +463,6 @@ static void port_timeout(unsigned long ref)
 	tipc_net_route_msg(buf);
 }
 
-
 static void port_handle_node_down(unsigned long ref)
 {
 	struct tipc_port *p_ptr = tipc_port_lock(ref);
@@ -477,7 +475,6 @@ static void port_handle_node_down(unsigned long ref)
 	tipc_net_route_msg(buf);
 }
 
-
 static struct sk_buff *port_build_self_abort_msg(struct tipc_port *p_ptr, u32 err)
 {
 	struct sk_buff *buf = port_build_peer_abort_msg(p_ptr, err);
@@ -489,7 +486,6 @@ static struct sk_buff *port_build_self_abort_msg(struct tipc_port *p_ptr, u32 er
 	}
 	return buf;
 }
-
 
 static struct sk_buff *port_build_peer_abort_msg(struct tipc_port *p_ptr, u32 err)
 {
@@ -653,7 +649,6 @@ void tipc_port_reinit(void)
 	}
 	spin_unlock_bh(&tipc_port_list_lock);
 }
-
 
 /*
  *  port_dispatcher_sigh(): Signal handler for messages destinated
@@ -867,7 +862,6 @@ static void port_wakeup_sh(unsigned long ref)
 		cb(uh, ref);
 }
 
-
 static void port_wakeup(struct tipc_port *p_ptr)
 {
 	tipc_k_signal((Handler)port_wakeup_sh, p_ptr->ref);
@@ -960,7 +954,6 @@ int tipc_set_portimportance(u32 ref, unsigned int imp)
 	tipc_port_unlock(p_ptr);
 	return 0;
 }
-
 
 int tipc_publish(u32 ref, unsigned int scope, struct tipc_name_seq const *seq)
 {
@@ -1362,4 +1355,3 @@ int tipc_send_buf2port(u32 ref, struct tipc_portid const *dest,
 		return dsz;
 	return -ELINKCONG;
 }
-

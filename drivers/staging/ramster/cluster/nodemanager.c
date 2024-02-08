@@ -936,7 +936,6 @@ void r2nm_undepend_this_node(void)
 	r2nm_node_put(local_node);
 }
 
-
 static void __exit exit_r2nm(void)
 {
 	/* XXX sync with hb callbacks and shut down hb? */

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Block data types and constants.  Directly include this file only to
  * break include dependency loop.
@@ -95,6 +98,17 @@ struct bio {
 #define BIO_FS_INTEGRITY 9	/* fs owns integrity data, not block layer */
 #define BIO_QUIET	10	/* Make BIO Quiet */
 #define BIO_MAPPED_INTEGRITY 11/* integrity metadata has been remapped */
+#ifdef MY_ABC_HERE
+#define BIO_AUTO_REMAP 12	/* record if auto-remap occurred */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+/*
+ * Currently, our RAID1 device won't return error on make_reuest() when RAID1 is crashed
+ * So we add this flag to told md layer that is should eturn error for flashcache * devices
+ */
+#define BIO_MD_RETURN_ERROR 13
+#endif
+
 #define bio_flagged(bio, flag)	((bio)->bi_flags & (1 << (flag)))
 
 /*

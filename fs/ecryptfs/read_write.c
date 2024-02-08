@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /**
  * eCryptfs: Linux filesystem encryption layer
  *
@@ -206,6 +209,10 @@ int ecryptfs_write(struct inode *ecryptfs_inode, char *data, loff_t offset,
 			rc2 = ecryptfs_write_inode_size_to_metadata(
 								ecryptfs_inode);
 			if (rc2) {
+#ifdef MY_ABC_HERE
+				if (-EDQUOT != rc && -ENOSPC != rc)
+#endif
+
 				printk(KERN_ERR	"Problem with "
 				       "ecryptfs_write_inode_size_to_metadata; "
 				       "rc = [%d]\n", rc2);

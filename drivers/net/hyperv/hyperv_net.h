@@ -106,7 +106,6 @@ struct rndis_device {
 	unsigned char hw_mac_adr[ETH_ALEN];
 };
 
-
 /* Interface */
 int netvsc_device_add(struct hv_device *device, void *additional_info);
 int netvsc_device_remove(struct hv_device *device);
@@ -124,13 +123,10 @@ void rndis_filter_device_remove(struct hv_device *dev);
 int rndis_filter_receive(struct hv_device *dev,
 			struct hv_netvsc_packet *pkt);
 
-
-
 int rndis_filter_send(struct hv_device *dev,
 			struct hv_netvsc_packet *pkt);
 
 int rndis_filter_set_packet_filter(struct rndis_device *dev, u32 new_filter);
-
 
 #define NVSP_INVALID_PROTOCOL_VERSION	((u32)0xFFFFFFFF)
 
@@ -385,7 +381,6 @@ union nvsp_1_message_uber {
 						send_rndis_pkt_complete;
 } __packed;
 
-
 /*
  * Network VSP protocol version 2 messages:
  */
@@ -456,7 +451,6 @@ struct nvsp_message {
 	union nvsp_all_messages msg;
 } __packed;
 
-
 #define NETVSC_MTU 65536
 
 #define NETVSC_RECEIVE_BUFFER_SIZE		(1024*1024*2)	/* 2MB */
@@ -506,9 +500,7 @@ struct netvsc_device {
 	void *extension;
 };
 
-
 /*  Status codes */
-
 
 #ifndef STATUS_SUCCESS
 #define STATUS_SUCCESS				(0x00000000L)
@@ -691,7 +683,6 @@ struct netvsc_device {
 #define RNDIS_OID_GEN_CO_RCV_PDUS_ERROR		0x00020104
 #define RNDIS_OID_GEN_CO_RCV_PDUS_NO_BUFFER	0x00020105
 
-
 #define RNDIS_OID_GEN_CO_RCV_CRC_ERROR		0x00020201
 #define RNDIS_OID_GEN_CO_TRANSMIT_QUEUE_LENGTH	0x00020202
 #define RNDIS_OID_GEN_CO_BYTES_XMIT		0x00020203
@@ -785,7 +776,6 @@ struct netvsc_device {
 /* Not a real medium, defined as an upper-bound */
 #define RNDIS_MEDIUM_MAX				0x0000000d
 
-
 /* Remote NDIS medium connection states. */
 #define RNDIS_MEDIA_STATE_CONNECTED		0x00000000
 #define RNDIS_MEDIA_STATE_DISCONNECTED		0x00000001
@@ -793,7 +783,6 @@ struct netvsc_device {
 /*  Remote NDIS version numbers */
 #define RNDIS_MAJOR_VERSION			0x00000001
 #define RNDIS_MINOR_VERSION			0x00000000
-
 
 /* NdisInitialize message */
 struct rndis_initialize_request {
@@ -1092,7 +1081,6 @@ struct rcondis_mp_deactivate_vc_complete {
 	u32 status;
 };
 
-
 /* union with all of the RNDIS messages */
 union rndis_message_container {
 	struct rndis_packet pkt;
@@ -1132,7 +1120,6 @@ struct rndis_message {
 	union rndis_message_container msg;
 };
 
-
 struct rndis_filter_packet {
 	void *completion_ctx;
 	void (*completion)(void *context);
@@ -1171,10 +1158,7 @@ struct rndis_filter_packet {
 #define RNDIS_MESSAGE_RAW_PTR_TO_MESSAGE_PTR(rndis_msg)	\
 	((void *) rndis_msg)
 
-
 #define __struct_bcount(x)
-
-
 
 #define RNDIS_HEADER_SIZE	(sizeof(struct rndis_message) - \
 				 sizeof(union rndis_message_container))
@@ -1191,7 +1175,5 @@ struct rndis_filter_packet {
 #define NDIS_PACKET_TYPE_ALL_FUNCTIONAL	0x00000200
 #define NDIS_PACKET_TYPE_FUNCTIONAL	0x00000400
 #define NDIS_PACKET_TYPE_MAC_FRAME	0x00000800
-
-
 
 #endif /* _HYPERV_NET_H */

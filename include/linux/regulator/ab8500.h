@@ -90,7 +90,6 @@ enum ab8500_regulator_reg {
 	AB8500_NUM_REGULATOR_REGISTERS,
 };
 
-
 /* AB9540 registers */
 enum ab9540_regulator_reg {
 	AB9540_REGUREQUESTCTRL1,

@@ -23,10 +23,17 @@
 #include <linux/ahci_platform.h>
 #include "ahci.h"
 
+#include "ahci_sys.h"
+
+static unsigned int ncq_en = CONFIG_HI_SATA_NCQ;
+module_param(ncq_en, uint, 0600);
+MODULE_PARM_DESC(ncq_en, "ahci ncq flag (default:1)");
+
 enum ahci_type {
 	AHCI,		/* standard platform ahci */
 	IMX53_AHCI,	/* ahci on i.mx53 */
 	STRICT_AHCI,	/* delayed DMA engine start */
+	HISILICON_AHCI, /* Hisilicon ahci */
 };
 
 static struct platform_device_id ahci_devtype[] = {
@@ -40,11 +47,13 @@ static struct platform_device_id ahci_devtype[] = {
 		.name = "strict-ahci",
 		.driver_data = STRICT_AHCI,
 	}, {
+		.name = "hisilicon-ahci",
+		.driver_data = HISILICON_AHCI,
+	}, {
 		/* sentinel */
 	}
 };
 MODULE_DEVICE_TABLE(platform, ahci_devtype);
-
 
 static const struct ata_port_info ahci_port_info[] = {
 	/* by features */
@@ -67,11 +76,36 @@ static const struct ata_port_info ahci_port_info[] = {
 		.udma_mask	= ATA_UDMA6,
 		.port_ops	= &ahci_ops,
 	},
+	[HISILICON_AHCI] = {
+		.flags		= AHCI_FLAG_COMMON,
+		.pio_mask	= ATA_PIO4,
+		.udma_mask	= ATA_UDMA6,
+		.port_ops	= &ahci_ops,
+	},
 };
 
 static struct scsi_host_template ahci_platform_sht = {
 	AHCI_SHT("ahci_platform"),
 };
+
+#ifdef CONFIG_ARCH_HI3535
+#define	HI_SATA_MISC_CTRL1	IO_ADDRESS(0x20120004)
+#define	HI_SATA_USE_ESATA	(1 << 12)
+static unsigned int is_sata_port2_en(void)
+{
+	unsigned int tmp_val;
+
+	tmp_val = readl(HI_SATA_MISC_CTRL1);
+	tmp_val &= HI_SATA_USE_ESATA;
+
+	if (tmp_val)
+		return 0;
+
+	/* sata prot2 is enabled */
+	return 1;
+}
+
+#endif
 
 static int __init ahci_probe(struct platform_device *pdev)
 {
@@ -129,13 +163,20 @@ static int __init ahci_probe(struct platform_device *pdev)
 			return rc;
 	}
 
+	hi_sata_init(hpriv->mmio);
+
 	ahci_save_initial_config(dev, hpriv,
-		pdata ? pdata->force_port_map : 0,
-		pdata ? pdata->mask_port_map  : 0);
+			pdata ? pdata->force_port_map : 0,
+			pdata ? pdata->mask_port_map  : 0);
 
 	/* prepare host */
-	if (hpriv->cap & HOST_CAP_NCQ)
+	if (hpriv->cap & HOST_CAP_NCQ) {
+		printk(KERN_DEBUG "NCQ is supported.\n");
 		pi.flags |= ATA_FLAG_NCQ;
+	}
+
+	if (!ncq_en)
+		pi.flags &= ~ATA_FLAG_NCQ;
 
 	if (hpriv->cap & HOST_CAP_PMP)
 		pi.flags |= ATA_FLAG_PMP;
@@ -148,6 +189,10 @@ static int __init ahci_probe(struct platform_device *pdev)
 	 * both CAP.NP and port_map.
 	 */
 	n_ports = max(ahci_nr_ports(hpriv->cap), fls(hpriv->port_map));
+#ifdef CONFIG_ARCH_HI3535
+	if (!is_sata_port2_en())
+		n_ports = 2;
+#endif
 
 	host = ata_host_alloc_pinfo(dev, ppi, n_ports);
 	if (!host) {
@@ -188,7 +233,7 @@ static int __init ahci_probe(struct platform_device *pdev)
 	ahci_print_info(host, "platform");
 
 	rc = ata_host_activate(host, irq, ahci_interrupt, IRQF_SHARED,
-			       &ahci_platform_sht);
+			&ahci_platform_sht);
 	if (rc)
 		goto err0;
 
@@ -209,6 +254,8 @@ static int __devexit ahci_remove(struct platform_device *pdev)
 
 	if (pdata && pdata->exit)
 		pdata->exit(dev);
+
+	hi_sata_exit();
 
 	return 0;
 }
@@ -241,6 +288,8 @@ static int ahci_suspend(struct device *dev)
 	rc = ata_host_suspend(host, PMSG_SUSPEND);
 	if (rc)
 		return rc;
+
+	hi_sata_exit();
 
 	if (pdata && pdata->suspend)
 		return pdata->suspend(dev);
@@ -298,8 +347,50 @@ static struct platform_driver ahci_driver = {
 	.id_table	= ahci_devtype,
 };
 
+static struct resource hisata_ahci_resources[] = {
+	[0] = {
+		.start          = CONFIG_HI_SATA_IOBASE,
+		.end            = CONFIG_HI_SATA_IOBASE +
+			CONFIG_HI_SATA_IOSIZE - 1,
+		.flags          = IORESOURCE_MEM,
+	},
+	[1] = {
+		.start          = CONFIG_HI_SATA_IRQNUM,
+		.end            = CONFIG_HI_SATA_IRQNUM,
+		.flags		= IORESOURCE_IRQ,
+	},
+};
+
+static u64 ahci_dmamask = DMA_BIT_MASK(32);
+
+static void hisata_ahci_platdev_release(struct device *dev)
+{
+}
+
+static struct platform_device hisata_ahci_device = {
+	.name           = "ahci",
+	.dev = {
+		.dma_mask               = &ahci_dmamask,
+		.coherent_dma_mask      = DMA_BIT_MASK(32),
+		.release                = hisata_ahci_platdev_release,
+	},
+	.num_resources  = ARRAY_SIZE(hisata_ahci_resources),
+	.resource       = hisata_ahci_resources,
+	.id_entry = &ahci_devtype[HISILICON_AHCI],
+};
+
 static int __init ahci_init(void)
 {
+	int ret;
+
+	ret = platform_device_register(&hisata_ahci_device);
+	if (ret) {
+		printk(KERN_ERR "[%s %d] ", __func__, __LINE__);
+		printk(KERN_ERR "sata platform device register ");
+		printk(KERN_ERR "is failed!!!\n");
+		return ret;
+	}
+
 	return platform_driver_probe(&ahci_driver, ahci_probe);
 }
 module_init(ahci_init);
@@ -307,6 +398,7 @@ module_init(ahci_init);
 static void __exit ahci_exit(void)
 {
 	platform_driver_unregister(&ahci_driver);
+	platform_device_unregister(&hisata_ahci_device);
 }
 module_exit(ahci_exit);
 

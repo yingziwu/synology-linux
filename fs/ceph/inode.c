@@ -96,7 +96,6 @@ const struct inode_operations ceph_file_iops = {
 	.removexattr = ceph_removexattr,
 };
 
-
 /*
  * We use a 'frag tree' to keep track of the MDS's directory fragments
  * for a given inode (usually there is just a single fragment).  We
@@ -258,7 +257,6 @@ static int ceph_fill_dirfrag(struct inode *inode,
 		goto out;
 	}
 
-
 	/* find/add this frag to store mds delegation info */
 	frag = __get_or_create_frag(ci, id);
 	if (IS_ERR(frag)) {
@@ -281,7 +279,6 @@ out:
 	mutex_unlock(&ci->i_fragtree_mutex);
 	return err;
 }
-
 
 /*
  * initialize a newly allocated inode.
@@ -428,7 +425,6 @@ void ceph_destroy_inode(struct inode *inode)
 
 	call_rcu(&inode->i_rcu, ceph_i_callback);
 }
-
 
 /*
  * Helpers to fill in size, ctime, mtime, and atime.  We have to be
@@ -1418,7 +1414,6 @@ out:
 	iput(inode);
 }
 
-
 /*
  * called by trunc_wq; take i_mutex ourselves
  *
@@ -1511,7 +1506,6 @@ retry:
 
 	wake_up_all(&ci->i_cap_wq);
 }
-
 
 /*
  * symlinks
@@ -1766,7 +1760,6 @@ int ceph_do_getattr(struct inode *inode, int mask)
 	dout("do_getattr result=%d\n", err);
 	return err;
 }
-
 
 /*
  * Check inode permissions.  We verify we have a valid value for

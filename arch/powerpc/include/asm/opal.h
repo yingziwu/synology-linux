@@ -478,8 +478,6 @@ int64_t opal_pci_eeh_freeze_clear(uint64_t phb_id, uint64_t pe_number,
 				  uint64_t eeh_action_token);
 int64_t opal_pci_shpc(uint64_t phb_id, uint64_t shpc_action, uint8_t *state);
 
-
-
 int64_t opal_pci_phb_mmio_enable(uint64_t phb_id, uint16_t window_type,
 				 uint16_t window_num, uint16_t enable);
 int64_t opal_pci_set_phb_mem_window(uint64_t phb_id, uint16_t window_type,

@@ -47,7 +47,6 @@
 
 #include "generic.h"
 
-
 static void __init afeb9260_init_early(void)
 {
 	/* Initialize processor: 18.432 MHz crystal */
@@ -87,8 +86,6 @@ static struct at91_udc_data __initdata afeb9260_udc_data = {
 	.pullup_pin	= -EINVAL,		/* pull-up driven by UDC */
 };
 
-
-
 /*
  * SPI devices.
  */
@@ -101,7 +98,6 @@ static struct spi_board_info afeb9260_spi_devices[] = {
 	},
 };
 
-
 /*
  * MACB Ethernet device
  */
@@ -109,7 +105,6 @@ static struct macb_platform_data __initdata afeb9260_macb_data = {
 	.phy_irq_pin	= AT91_PIN_PA9,
 	.is_rmii	= 0,
 };
-
 
 /*
  * NAND flash
@@ -144,7 +139,6 @@ static struct atmel_nand_data __initdata afeb9260_nand_data = {
 	.det_pin	= -EINVAL,
 };
 
-
 /*
  * MCI (SD/MMC)
  */
@@ -155,8 +149,6 @@ static struct at91_mmc_data __initdata afeb9260_mmc_data = {
 	.wire4		= 1,
 	.vcc_pin	= -EINVAL,
 };
-
-
 
 static struct i2c_board_info __initdata afeb9260_i2c_devices[] = {
 	{
@@ -220,4 +212,3 @@ MACHINE_START(AFEB9260, "Custom afeb9260 board")
 	.init_irq	= at91_init_irq_default,
 	.init_machine	= afeb9260_board_init,
 MACHINE_END
-

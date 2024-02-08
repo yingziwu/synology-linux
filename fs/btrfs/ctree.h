@@ -128,7 +128,6 @@ struct btrfs_ordered_sum;
 #define BTRFS_LAST_FREE_OBJECTID -256ULL
 #define BTRFS_FIRST_CHUNK_TREE_OBJECTID 256ULL
 
-
 /*
  * the device items go into the chunk tree.  The key is in the form
  * [ 1 BTRFS_DEV_ITEM_KEY device_id ]
@@ -362,7 +361,6 @@ struct btrfs_header {
 #define BTRFS_MAX_XATTR_SIZE(r)	(BTRFS_LEAF_DATA_SIZE(r) - \
 				 sizeof(struct btrfs_item) -\
 				 sizeof(struct btrfs_dir_item))
-
 
 /*
  * this is a very generous portion of the super block, giving us
@@ -617,7 +615,6 @@ struct btrfs_extent_ref_v0 {
 	__le64 objectid;
 	__le32 count;
 } __attribute__ ((__packed__));
-
 
 /* dev extents record free space on individual devices.  The owner
  * field points back to the chunk allocation mapping tree that allocated
@@ -1429,7 +1426,6 @@ struct btrfs_ioctl_defrag_range_args {
 	__u32 unused[4];
 };
 
-
 /*
  * inode items have the data typically returned from stat and store other
  * info about object characteristics.  There is one for every file and dir in
@@ -1815,7 +1811,6 @@ BTRFS_SETGET_FUNCS(extent_flags, struct btrfs_extent_item, flags, 64);
 
 BTRFS_SETGET_FUNCS(extent_refs_v0, struct btrfs_extent_item_v0, refs, 32);
 
-
 BTRFS_SETGET_FUNCS(tree_block_level, struct btrfs_tree_block_info, level, 8);
 
 static inline void btrfs_tree_block_key(struct extent_buffer *eb,
@@ -2073,7 +2068,6 @@ static inline void btrfs_dir_item_key_to_cpu(struct extent_buffer *eb,
 	btrfs_dir_item_key(eb, item, &disk_key);
 	btrfs_disk_key_to_cpu(key, &disk_key);
 }
-
 
 static inline u8 btrfs_key_type(struct btrfs_key *key)
 {

@@ -63,7 +63,6 @@
 #ifndef __iwl_pci_h__
 #define __iwl_pci_h__
 
-
 /*
  * This file declares the config structures for all devices.
  */

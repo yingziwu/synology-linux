@@ -22,7 +22,6 @@
  * (Adapter K), B1 Professional and KAAN Professional (Adapter B)
  */
 
-
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -54,7 +53,6 @@ static bool debug;
 #define KOBIL_TIMEOUT		500
 #define KOBIL_BUF_LENGTH	300
 
-
 /* Function prototypes */
 static int  kobil_startup(struct usb_serial *serial);
 static void kobil_release(struct usb_serial *serial);
@@ -82,7 +80,6 @@ static const struct usb_device_id id_table[] = {
 	{ }			/* Terminating entry */
 };
 
-
 MODULE_DEVICE_TABLE(usb, id_table);
 
 static struct usb_driver kobil_driver = {
@@ -91,7 +88,6 @@ static struct usb_driver kobil_driver = {
 	.disconnect =	usb_serial_disconnect,
 	.id_table =	id_table,
 };
-
 
 static struct usb_serial_driver kobil_device = {
 	.driver = {
@@ -127,7 +123,6 @@ struct kobil_private {
 	int cur_pos; /* index of the next char to send in buf */
 	__u16 device_type;
 };
-
 
 static int kobil_startup(struct usb_serial *serial)
 {
@@ -188,7 +183,6 @@ static int kobil_startup(struct usb_serial *serial)
 	}
 	return 0;
 }
-
 
 static void kobil_release(struct usb_serial *serial)
 {
@@ -324,7 +318,6 @@ static int kobil_open(struct tty_struct *tty, struct usb_serial_port *port)
 	return 0;
 }
 
-
 static void kobil_close(struct usb_serial_port *port)
 {
 	dbg("%s - port %d", __func__, port->number);
@@ -338,7 +331,6 @@ static void kobil_close(struct usb_serial_port *port)
 	}
 	usb_kill_urb(port->interrupt_in_urb);
 }
-
 
 static void kobil_read_int_callback(struct urb *urb)
 {
@@ -385,11 +377,9 @@ static void kobil_read_int_callback(struct urb *urb)
 			__func__, port->number, result);
 }
 
-
 static void kobil_write_callback(struct urb *purb)
 {
 }
-
 
 static int kobil_write(struct tty_struct *tty, struct usb_serial_port *port,
 			const unsigned char *buf, int count)
@@ -471,14 +461,12 @@ static int kobil_write(struct tty_struct *tty, struct usb_serial_port *port,
 	return count;
 }
 
-
 static int kobil_write_room(struct tty_struct *tty)
 {
 	/* dbg("%s - port %d", __func__, port->number); */
 	/* FIXME */
 	return 8;
 }
-
 
 static int kobil_tiocmget(struct tty_struct *tty)
 {

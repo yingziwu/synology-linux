@@ -12,7 +12,6 @@
 *!
 *!***************************************************************************/
 
-
 #include <linux/fs.h>
 #include <linux/init.h>
 #include <linux/mm.h>
@@ -51,7 +50,6 @@ static const char ds1302_name[] = "ds1302";
 #define TK_RST_DIR(x) REG_SHADOW_SET(R_PORT_PB_DIR,  port_pb_dir_shadow,  CONFIG_ETRAX_DS1302_RSTBIT, x)
 #endif
 
-
 #define TK_SDA_OUT(x) REG_SHADOW_SET(R_PORT_PB_DATA, port_pb_data_shadow, CONFIG_ETRAX_DS1302_SDABIT, x)
 #define TK_SCL_OUT(x) REG_SHADOW_SET(R_PORT_PB_DATA, port_pb_data_shadow, CONFIG_ETRAX_DS1302_SCLBIT, x)
 
@@ -59,7 +57,6 @@ static const char ds1302_name[] = "ds1302";
 /* 1 is out, 0 is in */
 #define TK_SDA_DIR(x) REG_SHADOW_SET(R_PORT_PB_DIR,  port_pb_dir_shadow,  CONFIG_ETRAX_DS1302_SDABIT, x)
 #define TK_SCL_DIR(x) REG_SHADOW_SET(R_PORT_PB_DIR,  port_pb_dir_shadow,  CONFIG_ETRAX_DS1302_SCLBIT, x)
-
 
 /*
  * The reason for tempudelay and not udelay is that loops_per_usec
@@ -73,7 +70,6 @@ static void tempudelay(int usecs)
 	for(loops = usecs * 12; loops > 0; loops--)
 		/* nothing */;	
 }
-
 
 /* Send 8 bits. */
 static void
@@ -158,8 +154,6 @@ ds1302_wdisable(void)
 	out_byte(0x80); /* Disable write protect bit 7 = 0 */
 	stop();
 }
-
-
 
 /* Read a byte from the selected register in the DS1302. */
 
@@ -273,7 +267,6 @@ static int rtc_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			hrs = rtc_tm.tm_hour;
 			min = rtc_tm.tm_min;
 			sec = rtc_tm.tm_sec;
-			
 			
 			if ((yrs < 1970) || (yrs > 2069))
 				return -EINVAL;
@@ -435,7 +428,6 @@ ds1302_probe(void)
 
 	return retval;
 }
-
 
 /* Just probe for the RTC and register the device to handle the ioctl needed. */
 

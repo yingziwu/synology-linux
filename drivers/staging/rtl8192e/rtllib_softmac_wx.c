@@ -13,7 +13,6 @@
  * released under the GPL
  */
 
-
 #include "rtllib.h"
 #include "dot11d.h"
 /* FIXME: add A freqs */
@@ -25,7 +24,6 @@ const long rtllib_wlan_frequencies[] = {
 	2472, 2484
 };
 EXPORT_SYMBOL(rtllib_wlan_frequencies);
-
 
 int rtllib_wx_set_freq(struct rtllib_device *ieee, struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
@@ -84,7 +82,6 @@ out:
 }
 EXPORT_SYMBOL(rtllib_wx_set_freq);
 
-
 int rtllib_wx_get_freq(struct rtllib_device *ieee,
 			     struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
@@ -129,7 +126,6 @@ int rtllib_wx_get_wap(struct rtllib_device *ieee,
 }
 EXPORT_SYMBOL(rtllib_wx_get_wap);
 
-
 int rtllib_wx_set_wap(struct rtllib_device *ieee,
 			 struct iw_request_info *info,
 			 union iwreq_data *awrq,
@@ -165,7 +161,6 @@ int rtllib_wx_set_wap(struct rtllib_device *ieee,
 		ret = -1;
 		goto out;
 	}
-
 
 	if (ifup)
 		rtllib_stop_protocol(ieee, true);
@@ -250,7 +245,6 @@ int rtllib_wx_get_rate(struct rtllib_device *ieee,
 	return 0;
 }
 EXPORT_SYMBOL(rtllib_wx_get_rate);
-
 
 int rtllib_wx_set_rts(struct rtllib_device *ieee,
 			     struct iw_request_info *info,
@@ -477,7 +471,6 @@ int rtllib_wx_set_essid(struct rtllib_device *ieee,
 	if (proto_started)
 		rtllib_stop_protocol(ieee, true);
 
-
 	/* this is just to be sure that the GET wx callback
 	 * has consisten infos. not needed otherwise
 	 */
@@ -563,7 +556,6 @@ int rtllib_wx_get_name(struct rtllib_device *ieee,
 	return 0;
 }
 EXPORT_SYMBOL(rtllib_wx_get_name);
-
 
 /* this is mostly stolen from hostap */
 int rtllib_wx_set_power(struct rtllib_device *ieee,

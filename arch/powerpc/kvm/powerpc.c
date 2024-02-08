@@ -308,7 +308,6 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
 	kvmppc_core_commit_memory_region(kvm, mem);
 }
 
-
 void kvm_arch_flush_shadow(struct kvm *kvm)
 {
 }

@@ -379,7 +379,6 @@ static DECLARE_INTC_DESC(intca_desc, "r8a7740-intca",
 INTC_IRQ_PINS_32(intca_irq_pins, 0xe6900000,
 		 INTC_VECT, "r8a7740-intca-irq-pins");
 
-
 /*
  *		INTCS
  */

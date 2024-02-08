@@ -16,6 +16,7 @@
 #include <linux/slab.h>
 
 #include "xhci.h"
+#include "hiusbv200.h"
 
 static void xhci_plat_quirks(struct device *dev, struct xhci_hcd *xhci)
 {
@@ -88,6 +89,7 @@ static int xhci_plat_probe(struct platform_device *pdev)
 	struct xhci_hcd		*xhci;
 	struct resource         *res;
 	struct usb_hcd		*hcd;
+	struct hiusb_plat_data	*platdata;
 	int			ret;
 	int			irq;
 
@@ -125,6 +127,14 @@ static int xhci_plat_probe(struct platform_device *pdev)
 		goto release_mem_region;
 	}
 
+	platdata = dev_get_platdata(&pdev->dev);
+	if (platdata && platdata->start_hcd)
+		platdata->start_hcd(hcd->regs);
+	else {
+		dev_dbg(&pdev->dev, "error no host reset fuction\n");
+		ret = -EFAULT;
+		goto release_mem_region;
+	}
 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
 	if (ret)
 		goto unmap_registers;
@@ -159,7 +169,8 @@ dealloc_usb2_hcd:
 
 unmap_registers:
 	iounmap(hcd->regs);
-
+	if (platdata->stop_hcd)
+		platdata->stop_hcd();
 release_mem_region:
 	release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
 
@@ -173,7 +184,9 @@ static int xhci_plat_remove(struct platform_device *dev)
 {
 	struct usb_hcd	*hcd = platform_get_drvdata(dev);
 	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
+	struct hiusb_plat_data *platdata;
 
+	platdata = dev_get_platdata(&dev->dev);
 	usb_remove_hcd(xhci->shared_hcd);
 	usb_put_hcd(xhci->shared_hcd);
 
@@ -181,6 +194,8 @@ static int xhci_plat_remove(struct platform_device *dev)
 	iounmap(hcd->regs);
 	usb_put_hcd(hcd);
 	kfree(xhci);
+	if (platdata && platdata->stop_hcd)
+		platdata->stop_hcd();
 
 	return 0;
 }

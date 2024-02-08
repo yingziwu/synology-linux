@@ -508,7 +508,6 @@ static void alsa_uac2_exit(struct audio_dev *agdev)
 	platform_device_unregister(&uac2->pdev);
 }
 
-
 /* --------- USB Function Interface ------------- */
 
 enum {

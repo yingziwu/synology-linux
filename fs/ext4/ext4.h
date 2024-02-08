@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  ext4.h
  *
@@ -785,6 +788,19 @@ do {									       \
 
 #endif /* defined(__KERNEL__) || defined(__linux__) */
 
+#ifdef MY_ABC_HERE
+#define ext4_archive_bit		i_pad1
+#endif
+
+#ifdef MY_ABC_HERE
+#define ext4_archive_version_bad	s_usr_quota_inum
+#endif
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+#define SYNO_HASH_MAGIC       0x01856E96      // 25521814
+#define s_syno_hash_magic     s_checksum
+#endif
+
 /*
  * storage for cached extent
  * If ec_len == 0, then the cache is invalid.
@@ -927,6 +943,9 @@ struct ext4_inode_info {
 /*
  * Mount flags
  */
+#ifdef MY_ABC_HERE
+#define EXT4_MOUNT_OLDALLOC		0x00002  /* Don't use the new Orlov allocator */
+#endif /* MY_ABC_HERE */
 #define EXT4_MOUNT_GRPID		0x00004	/* Create files with directory's group */
 #define EXT4_MOUNT_DEBUG		0x00008	/* Some debugging messages */
 #define EXT4_MOUNT_ERRORS_CONT		0x00010	/* Continue on errors */
@@ -1113,7 +1132,14 @@ struct ext4_super_block {
 	__le32	s_usr_quota_inum;	/* inode for tracking user quota */
 	__le32	s_grp_quota_inum;	/* inode for tracking group quota */
 	__le32	s_overhead_clusters;	/* overhead blocks/clusters in fs */
+#ifdef MY_ABC_HERE
+	__le32	s_reserved[106];	/* Paddint to the end of the block */
+	__le32	s_archive_version;	/* Last archived version */
+	__le32  s_archive_version_obsoleted;
+	__le32  s_syno_hash_magic;      /* Enable Htree if the magic is given */
+#else
 	__le32  s_reserved[109];        /* Padding to the end of the block */
+#endif /* MY_ABC_HERE */
 };
 
 #define EXT4_S_ERR_LEN (EXT4_S_ERR_END - EXT4_S_ERR_START)
@@ -1154,6 +1180,10 @@ struct ext4_sb_info {
 	ext4_fsblk_t s_sb_block;
 	uid_t s_resuid;
 	gid_t s_resgid;
+	uid_t s_uid;          /* make all files appear to belong to this uid */
+	uid_t s_diskuid;      /* write this uid to disk (if s_uid != 0) */
+	gid_t s_gid;          /* make all files appear to belong to this gid */
+	gid_t s_diskgid;      /* write this gid to disk (if s_gid != 0) */
 	unsigned short s_mount_state;
 	unsigned short s_pad;
 	int s_addr_per_block_bits;
@@ -1248,7 +1278,10 @@ struct ext4_sb_info {
 
 	unsigned int s_log_groups_per_flex;
 	struct flex_groups *s_flex_groups;
-
+#ifdef MY_ABC_HERE
+	int s_new_error_fs_event_flag;
+	char *s_mount_path;
+#endif
 	/* workqueue for dio unwritten */
 	struct workqueue_struct *dio_unwritten_wq;
 
@@ -1593,9 +1626,16 @@ static inline __le16 ext4_rec_len_to_disk(unsigned len, unsigned blocksize)
  * (c) Daniel Phillips, 2001
  */
 
+#ifdef MY_ABC_HERE
+#define is_dx(dir) ((EXT4_SB(dir->i_sb)->s_es->s_syno_hash_magic == cpu_to_le32(SYNO_HASH_MAGIC)) && \
+			!(EXT4_HAS_COMPAT_FEATURE(dir->i_sb, \
+					EXT4_FEATURE_COMPAT_DIR_INDEX)) && \
+			(EXT4_I(dir)->i_flags & EXT4_INDEX_FL))
+#else
 #define is_dx(dir) (EXT4_HAS_COMPAT_FEATURE(dir->i_sb, \
 				      EXT4_FEATURE_COMPAT_DIR_INDEX) && \
 		    ext4_test_inode_flag((dir), EXT4_INODE_INDEX))
+#endif /* MY_ABC_HERE */
 #define EXT4_DIR_LINK_MAX(dir) (!is_dx(dir) && (dir)->i_nlink >= EXT4_LINK_MAX)
 #define EXT4_DIR_LINK_EMPTY(dir) ((dir)->i_nlink == 2 || (dir)->i_nlink == 1)
 
@@ -1619,17 +1659,14 @@ struct dx_hash_info
 	u32		*seed;
 };
 
-
 /* 32 and 64 bit signed EOF for dx directories */
 #define EXT4_HTREE_EOF_32BIT   ((1UL  << (32 - 1)) - 1)
 #define EXT4_HTREE_EOF_64BIT   ((1ULL << (64 - 1)) - 1)
-
 
 /*
  * Control parameters used by ext4_htree_next_block
  */
 #define HASH_NB_ALWAYS		1
-
 
 /*
  * Describe an inode's exact location on disk and in memory
@@ -1680,7 +1717,11 @@ void ext4_get_group_no_and_offset(struct super_block *sb, ext4_fsblk_t blocknr,
 /*
  * Timeout and state flag for lazy initialization inode thread.
  */
+#ifdef MY_ABC_HERE
+#define EXT4_DEF_LI_WAIT_MULT			2
+#else
 #define EXT4_DEF_LI_WAIT_MULT			10
+#endif
 #define EXT4_DEF_LI_MAX_START_DELAY		5
 #define EXT4_LAZYINIT_QUIT			0x0001
 #define EXT4_LAZYINIT_RUNNING			0x0002
@@ -1907,6 +1948,9 @@ extern void ext4_set_inode_flags(struct inode *);
 extern void ext4_get_inode_flags(struct ext4_inode_info *);
 extern int ext4_alloc_da_blocks(struct inode *inode);
 extern void ext4_set_aops(struct inode *inode);
+#ifdef MY_ABC_HERE
+extern void ext4_set_writeback_aops(struct inode *inode);
+#endif
 extern int ext4_writepage_trans_blocks(struct inode *);
 extern int ext4_chunk_trans_blocks(struct inode *, int nrblocks);
 extern int ext4_discard_partial_page_buffers(handle_t *handle,
@@ -1916,6 +1960,10 @@ extern int ext4_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf);
 extern qsize_t *ext4_get_reserved_space(struct inode *inode);
 extern void ext4_da_update_reserve_space(struct inode *inode,
 					int used, int quota_claim);
+#ifdef MY_ABC_HERE
+extern int ext4_syno_get_archive_ver(struct dentry *d, u32 *);
+extern int ext4_syno_set_archive_ver(struct dentry *d, u32);
+#endif /* MY_ABC_HERE */
 
 /* indirect.c */
 extern int ext4_ind_map_blocks(handle_t *handle, struct inode *inode,

@@ -731,8 +731,6 @@ static const struct file_operations dtim_interval_ops = {
 	.llseek = default_llseek,
 };
 
-
-
 static ssize_t suspend_dtim_interval_read(struct file *file,
 					  char __user *user_buf,
 					  size_t count, loff_t *ppos)
@@ -780,7 +778,6 @@ static ssize_t suspend_dtim_interval_write(struct file *file,
 	mutex_unlock(&wl->mutex);
 	return count;
 }
-
 
 static const struct file_operations suspend_dtim_interval_ops = {
 	.read = suspend_dtim_interval_read,
@@ -1126,7 +1123,6 @@ static int wl1271_debugfs_add_files(struct wl1271 *wl,
 
 	DEBUGFS_ADD_PREFIX(rx_streaming, interval, streaming);
 	DEBUGFS_ADD_PREFIX(rx_streaming, always, streaming);
-
 
 	return 0;
 

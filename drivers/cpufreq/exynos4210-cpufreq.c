@@ -39,7 +39,6 @@ static unsigned int exynos4210_volt_table[CPUFREQ_LEVEL_END] = {
 	1250000, 1150000, 1050000, 975000, 950000,
 };
 
-
 static struct cpufreq_clkdiv exynos4210_clkdiv_table[CPUFREQ_LEVEL_END];
 
 static struct cpufreq_frequency_table exynos4210_freq_table[] = {

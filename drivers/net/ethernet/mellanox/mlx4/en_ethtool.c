@@ -38,7 +38,6 @@
 #include "mlx4_en.h"
 #include "en_port.h"
 
-
 static void
 mlx4_en_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *drvinfo)
 {
@@ -626,8 +625,3 @@ const struct ethtool_ops mlx4_en_ethtool_ops = {
 	.get_rxfh_indir = mlx4_en_get_rxfh_indir,
 	.set_rxfh_indir = mlx4_en_set_rxfh_indir,
 };
-
-
-
-
-

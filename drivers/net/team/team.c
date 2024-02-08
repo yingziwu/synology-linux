@@ -30,7 +30,6 @@
 
 #define DRV_NAME "team"
 
-
 /**********
  * Helpers
  **********/
@@ -75,7 +74,6 @@ int team_port_set_team_mac(struct team_port *port)
 	return __set_port_mac(port->dev, port->team->dev->dev_addr);
 }
 EXPORT_SYMBOL(team_port_set_team_mac);
-
 
 /*******************
  * Options handling
@@ -403,7 +401,6 @@ static int team_change_mode(struct team *team, const char *kind)
 	return 0;
 }
 
-
 /************************
  * Rx path frame handler
  ************************/
@@ -444,7 +441,6 @@ static rx_handler_result_t team_handle_frame(struct sk_buff **pskb)
 
 	return res;
 }
-
 
 /****************
  * Port handling
@@ -704,7 +700,6 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
 
 	return 0;
 }
-
 
 /*****************
  * Net device ops
@@ -1051,7 +1046,6 @@ static const struct net_device_ops team_netdev_ops = {
 	.ndo_fix_features	= team_fix_features,
 };
 
-
 /***********************
  * rt netlink interface
  ***********************/
@@ -1115,7 +1109,6 @@ static struct rtnl_link_ops team_link_ops __read_mostly = {
 	.newlink	= team_newlink,
 	.validate	= team_validate,
 };
-
 
 /***********************************
  * Generic netlink custom interface
@@ -1584,7 +1577,6 @@ static void team_nl_fini(void)
 	genl_unregister_family(&team_nl_family);
 }
 
-
 /******************
  * Change checkers
  ******************/
@@ -1682,7 +1674,6 @@ static int team_device_event(struct notifier_block *unused,
 static struct notifier_block team_notifier_block __read_mostly = {
 	.notifier_call = team_device_event,
 };
-
 
 /***********************
  * Module init and exit

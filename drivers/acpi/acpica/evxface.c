@@ -51,7 +51,6 @@
 #define _COMPONENT          ACPI_EVENTS
 ACPI_MODULE_NAME("evxface")
 
-
 /*******************************************************************************
  *
  * FUNCTION:    acpi_populate_handler_object
@@ -117,7 +116,6 @@ acpi_add_handler_object(struct acpi_object_notify_handler *parent_obj,
 
 	return AE_OK;
 }
-
 
 /*******************************************************************************
  *
@@ -338,7 +336,6 @@ acpi_remove_notify_handler(acpi_handle device,
 		status = AE_BAD_PARAMETER;
 		goto exit;
 	}
-
 
 	/* Make sure all deferred tasks are completed */
 	acpi_os_wait_events_complete(NULL);

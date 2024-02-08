@@ -15,7 +15,6 @@
 #define IMMED #
 #define	DBG_PUTC(x)	moveb IMMED x, 0xfffff907
 
-
 .global _stext
 .global _start
 
@@ -48,7 +47,6 @@ _ramend:
 	
 _start:
 _stext:
-
 
 #ifdef CONFIG_M68328
 
@@ -200,7 +198,6 @@ L3:
 _exit:
 
 	jmp	_exit
-
 
 	.data
 env:

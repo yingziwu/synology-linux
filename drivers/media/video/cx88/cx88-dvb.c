@@ -761,8 +761,6 @@ static int cx8802_alloc_frontends(struct cx8802_dev *dev)
 	return 0;
 }
 
-
-
 static const u8 samsung_smt_7020_inittab[] = {
 	     0x01, 0x15,
 	     0x02, 0x00,
@@ -813,7 +811,6 @@ static const u8 samsung_smt_7020_inittab[] = {
 	     0x34, 0x13,
 	     0xff, 0xff,
 };
-
 
 static int samsung_smt_7020_tuner_set_params(struct dvb_frontend *fe)
 {
@@ -935,7 +932,6 @@ static int samsung_smt_7020_stv0299_set_symbol_rate(struct dvb_frontend *fe,
 
 	return 0;
 }
-
 
 static const struct stv0299_config samsung_stv0299_config = {
 	.demod_address = 0x68,

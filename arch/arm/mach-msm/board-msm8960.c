@@ -112,4 +112,3 @@ MACHINE_START(MSM8960_RUMI3, "QCT MSM8960 RUMI3")
 	.handle_irq = gic_handle_irq,
 	.init_machine = msm8960_rumi3_init,
 MACHINE_END
-

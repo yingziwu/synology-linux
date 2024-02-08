@@ -4,7 +4,6 @@
   (C) 2002 Andreas Gruenbacher, <a.gruenbacher@computer.org>
 */
 
-
 #ifndef __LINUX_POSIX_ACL_H
 #define __LINUX_POSIX_ACL_H
 
@@ -51,7 +50,6 @@ struct posix_acl {
 #define FOREACH_ACL_ENTRY(pa, acl, pe) \
 	for(pa=(acl)->a_entries, pe=pa+(acl)->a_count; pa<pe; pa++)
 
-
 /*
  * Duplicate an ACL handle.
  */
@@ -72,7 +70,6 @@ posix_acl_release(struct posix_acl *acl)
 	if (acl && atomic_dec_and_test(&acl->a_refcount))
 		kfree_rcu(acl, a_rcu);
 }
-
 
 /* posix_acl.c */
 
@@ -163,9 +160,11 @@ static inline void forget_all_cached_acls(struct inode *inode)
 
 static inline void cache_no_acl(struct inode *inode)
 {
+#ifndef CONFIG_FS_SYNO_ACL
 #ifdef CONFIG_FS_POSIX_ACL
 	inode->i_acl = NULL;
 	inode->i_default_acl = NULL;
+#endif
 #endif
 }
 

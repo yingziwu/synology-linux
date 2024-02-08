@@ -134,7 +134,6 @@ sort__dso_cmp(struct hist_entry *left, struct hist_entry *right)
 	return _sort__dso_cmp(left->ms.map, right->ms.map);
 }
 
-
 static int64_t _sort__sym_cmp(struct symbol *sym_l, struct symbol *sym_r,
 			      u64 ip_l, u64 ip_r)
 {
@@ -197,7 +196,6 @@ static int _hist_entry__sym_snprintf(struct map *map, struct symbol *sym,
 
 	return ret;
 }
-
 
 struct sort_entry sort_dso = {
 	.se_header	= "Shared Object",

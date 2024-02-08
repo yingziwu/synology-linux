@@ -1155,7 +1155,6 @@ static int _rtl92se_set_media_status(struct ieee80211_hw *hw,
 	rtl_write_dword(rtlpriv, TCR, temp & (~BIT(8)));
 	rtl_write_dword(rtlpriv, TCR, temp | BIT(8));
 
-
 	return 0;
 }
 
@@ -1227,7 +1226,6 @@ void rtl92se_disable_interrupt(struct ieee80211_hw *hw)
 
 	synchronize_irq(rtlpci->pdev->irq);
 }
-
 
 static u8 _rtl92s_set_sysclk(struct ieee80211_hw *hw, u8 data)
 {
@@ -1360,7 +1358,6 @@ static void _rtl92se_gen_refreshledstate(struct ieee80211_hw *hw)
 		rtl92se_sw_led_off(hw, pLed0);
 }
 
-
 static void _rtl92se_power_domain_init(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -1430,7 +1427,6 @@ static void _rtl92se_power_domain_init(struct ieee80211_hw *hw)
 	/* Set Digital Vdd to Retention isolation Path. */
 	tmpu2b = rtl_read_word(rtlpriv, REG_SYS_ISO_CTRL);
 	rtl_write_word(rtlpriv, REG_SYS_ISO_CTRL, (tmpu2b | BIT(11)));
-
 
 	/* For warm reboot NIC disappera bug. */
 	tmpu2b = rtl_read_word(rtlpriv, REG_SYS_FUNC_EN);

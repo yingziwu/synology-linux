@@ -25,7 +25,6 @@
 #include <linux/hw_breakpoint.h>
 #include <linux/cn_proc.h>
 
-
 static int ptrace_trapping_sleep_fn(void *flags)
 {
 	schedule();
@@ -608,7 +607,6 @@ static int ptrace_setsiginfo(struct task_struct *child, const siginfo_t *info)
 	}
 	return error;
 }
-
 
 #ifdef PTRACE_SINGLESTEP
 #define is_singlestep(request)		((request) == PTRACE_SINGLESTEP)

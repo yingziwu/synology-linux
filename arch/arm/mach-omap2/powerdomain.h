@@ -45,7 +45,6 @@
 #define PWRSTS_RET_ON		(PWRSTS_RET | PWRSTS_ON)
 #define PWRSTS_OFF_RET_ON	(PWRSTS_OFF_RET | PWRSTS_ON)
 
-
 /* Powerdomain flags */
 #define PWRDM_HAS_HDWR_SAR	(1 << 0) /* hardware save-and-restore support */
 #define PWRDM_HAS_MPU_QUIRK	(1 << 1) /* MPU pwr domain has MEM bank 0 bits
@@ -236,6 +235,5 @@ extern u32 omap2_pwrdm_get_mem_bank_stst_mask(u8 bank);
 
 extern struct powerdomain wkup_omap2_pwrdm;
 extern struct powerdomain gfx_omap2_pwrdm;
-
 
 #endif

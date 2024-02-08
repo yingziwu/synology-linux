@@ -189,7 +189,6 @@ struct acx_slot {
 	u8 reserved[5];
 } __packed;
 
-
 #define ACX_MC_ADDRESS_GROUP_MAX	(8)
 #define ADDRESS_GROUP_MAX_LEN	        (ETH_ALEN * ACX_MC_ADDRESS_GROUP_MAX)
 
@@ -758,7 +757,6 @@ struct wl1271_acx_rx_config_opt {
 	u8 reserved;
 } __packed;
 
-
 struct wl1271_acx_bet_enable {
 	struct acx_header header;
 
@@ -887,7 +885,6 @@ struct wl1271_acx_rssi_snr_avg_weights {
 	u8 snr_beacon;
 	u8 snr_data;
 };
-
 
 /* special capability bit (not employed by the 802.11n spec) */
 #define WL12XX_HT_CAP_HT_OPERATION BIT(16)
@@ -1223,7 +1220,6 @@ enum {
 	ACX_FEATURE_CFG                  = 0x0043,
 	ACX_PROTECTION_CFG               = 0x0044,
 };
-
 
 int wl1271_acx_wake_up_conditions(struct wl1271 *wl,
 				  struct wl12xx_vif *wlvif,

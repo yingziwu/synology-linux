@@ -624,7 +624,6 @@ static void _dispc_setup_color_conv_coef(void)
 #undef CVAL
 }
 
-
 static void dispc_ovl_set_ba0(enum omap_plane plane, u32 paddr)
 {
 	dispc_write_reg(DISPC_OVL_BA0(plane), paddr);
@@ -1903,7 +1902,6 @@ int dispc_ovl_setup(enum omap_plane plane, struct omap_overlay_info *oi,
 		dispc_ovl_set_ba1_uv(plane, oi->p_uv_addr + offset1);
 	}
 
-
 	dispc_ovl_set_row_inc(plane, row_inc);
 	dispc_ovl_set_pix_inc(plane, pix_inc);
 
@@ -2134,7 +2132,6 @@ void dispc_mgr_enable_fifohandcheck(enum omap_channel channel, bool enable)
 		REG_FLD_MOD(DISPC_CONFIG, enable ? 1 : 0, 16, 16);
 }
 
-
 void dispc_mgr_set_lcd_display_type(enum omap_channel channel,
 		enum omap_lcd_display_type type)
 {
@@ -2164,7 +2161,6 @@ void dispc_set_loadmode(enum omap_dss_load_mode mode)
 {
 	REG_FLD_MOD(DISPC_CONFIG, mode, 2, 1);
 }
-
 
 static void dispc_mgr_set_default_color(enum omap_channel channel, u32 color)
 {

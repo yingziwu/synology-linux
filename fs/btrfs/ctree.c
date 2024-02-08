@@ -779,7 +779,6 @@ static inline unsigned int leaf_data_end(struct btrfs_root *root,
 	return btrfs_item_offset_nr(leaf, nr - 1);
 }
 
-
 /*
  * search for key in the extent_buffer.  The items start at offset p,
  * and they are item_size apart.  There are 'max' items in p.
@@ -1400,7 +1399,6 @@ static noinline int reada_for_balance(struct btrfs_root *root,
 	}
 	return ret;
 }
-
 
 /*
  * when we walk down the tree, it is usually safe to unlock the higher layers
@@ -2270,7 +2268,6 @@ static noinline int split_node(struct btrfs_trans_handle *trans,
 	write_extent_buffer(split, root->fs_info->chunk_tree_uuid,
 			    (unsigned long)btrfs_header_chunk_tree_uuid(split),
 			    BTRFS_UUID_SIZE);
-
 
 	copy_extent_buffer(split, c,
 			   btrfs_node_key_ptr_offset(0),

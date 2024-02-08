@@ -1568,7 +1568,6 @@ static int pl330_submit_req(void *ch_id, struct pl330_req *r)
 		goto xfer_exit;
 	}
 
-
 	/* Use last settings, if not provided */
 	if (r->cfg) {
 		/* Prefer Secure Channel */

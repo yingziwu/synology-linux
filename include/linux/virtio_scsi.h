@@ -110,5 +110,4 @@ struct virtio_scsi_config {
 #define VIRTIO_SCSI_S_HEAD                     2
 #define VIRTIO_SCSI_S_ACA                      3
 
-
 #endif /* _LINUX_VIRTIO_SCSI_H */

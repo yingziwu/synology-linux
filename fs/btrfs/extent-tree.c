@@ -1830,7 +1830,6 @@ static int btrfs_discard_extent(struct btrfs_root *root, u64 bytenr,
 	u64 discarded_bytes = 0;
 	struct btrfs_bio *bbio = NULL;
 
-
 	/* Tell the block device(s) that the sectors can be discarded */
 	ret = btrfs_map_block(&root->fs_info->mapping_tree, REQ_DISCARD,
 			      bytenr, &num_bytes, &bbio, 0);
@@ -1838,7 +1837,6 @@ static int btrfs_discard_extent(struct btrfs_root *root, u64 bytenr,
 	if (!ret) {
 		struct btrfs_bio_stripe *stripe = bbio->stripes;
 		int i;
-
 
 		for (i = 0; i < bbio->num_stripes; i++, stripe++) {
 			if (!stripe->dev->can_discard)
@@ -1864,7 +1862,6 @@ static int btrfs_discard_extent(struct btrfs_root *root, u64 bytenr,
 
 	if (actual_bytes)
 		*actual_bytes = discarded_bytes;
-
 
 	return ret;
 }
@@ -2346,7 +2343,6 @@ next:
 	}
 	return count;
 }
-
 
 static void wait_for_more_refs(struct btrfs_delayed_ref_root *delayed_refs,
 			unsigned long num_refs)
@@ -6257,7 +6253,6 @@ struct extent_buffer *btrfs_alloc_free_block(struct btrfs_trans_handle *trans,
 	u64 flags = 0;
 	int ret;
 
-
 	block_rsv = use_block_rsv(trans, root, blocksize);
 	if (IS_ERR(block_rsv))
 		return ERR_CAST(block_rsv);
@@ -7121,7 +7116,6 @@ static int set_block_group_ro(struct btrfs_block_group_cache *cache, int force)
 	u64 num_bytes;
 	u64 min_allocable_bytes;
 	int ret = -ENOSPC;
-
 
 	/*
 	 * We need some metadata space and system metadata space for

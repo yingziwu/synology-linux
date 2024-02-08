@@ -21,7 +21,6 @@
  *
  */
 
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/poll.h>
@@ -54,7 +53,6 @@
  *
  */
 
-
 enum key_index {
 	FullyQualifiedDomainName = 0,
 	IntegrationServicesVersion, /*This key is serviced in the kernel*/
@@ -79,7 +77,6 @@ static char *processor_arch;
 static char *os_build;
 static char *lic_version;
 static struct utsname uts_buf;
-
 
 #define MAX_FILE_NAME 100
 #define ENTRIES_PER_BLOCK 50
@@ -232,7 +229,6 @@ static int kvp_file_init(void)
 
 		if (fd == -1)
 			return 1;
-
 
 		filep = fopen(fname, "r");
 		if (!filep)
@@ -435,7 +431,6 @@ static void kvp_pool_enumerate(int pool, int index, __u8 *key, int key_size,
 	memcpy(value, record[index].value, value_size);
 }
 
-
 void kvp_get_os_info(void)
 {
 	FILE	*file;
@@ -595,7 +590,6 @@ getaddr_done:
 	return error;
 }
 
-
 static int
 kvp_get_domain_name(char *buffer, int length)
 {
@@ -686,7 +680,6 @@ int main(void)
 	addr.nl_pad = 0;
 	addr.nl_pid = 0;
 	addr.nl_groups = CN_KVP_IDX;
-
 
 	error = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 	if (error < 0) {

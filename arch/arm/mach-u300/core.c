@@ -1430,7 +1430,6 @@ const struct coh_dma_channel chan_config[U300_DMA_CHANNELS] = {
 #endif
 };
 
-
 static struct coh901318_platform coh901318_platform = {
 	.chans_slave = dma_slave_channels,
 	.chans_memcpy = dma_memcpy_channels,
@@ -1673,7 +1672,6 @@ void __init u300_init_irq(void)
 		 mask[1], mask[1]);
 }
 
-
 /*
  * U300 platforms peripheral handling
  */
@@ -1769,7 +1767,6 @@ static void __init u300_init_check_chip(void)
 		       chipname);
 	}
 #endif
-
 
 }
 

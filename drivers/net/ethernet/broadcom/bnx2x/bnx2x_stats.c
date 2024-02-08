@@ -20,7 +20,6 @@
 #include "bnx2x_stats.h"
 #include "bnx2x_cmn.h"
 
-
 /* Statistics */
 
 /*
@@ -77,8 +76,6 @@ static void bnx2x_storm_stats_post(struct bnx2x *bp)
 
 		DP(BNX2X_MSG_STATS, "Sending statistics ramrod %d\n",
 			bp->fw_stats_req->hdr.drv_stats_counter);
-
-
 
 		/* send FW stats ramrod */
 		rc = bnx2x_sp_post(bp, RAMROD_CMD_ID_COMMON_STAT_QUERY, 0,
@@ -905,7 +902,6 @@ static int bnx2x_storm_stats_update(struct bnx2x *bp)
 					qstats->total_bytes_received_hi;
 		qstats->valid_bytes_received_lo =
 					qstats->total_bytes_received_lo;
-
 
 		UPDATE_EXTEND_TSTAT(rcv_ucast_pkts,
 					total_unicast_packets_received);

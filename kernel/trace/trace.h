@@ -33,7 +33,6 @@ enum trace_type {
 	__TRACE_LAST_TYPE,
 };
 
-
 #undef __field
 #define __field(type, item)		type	item;
 
@@ -229,7 +228,6 @@ struct tracer_flags {
 /* Makes more easy to define a tracer opt */
 #define TRACER_OPT(s, b)	.name = #s, .bit = b
 
-
 /**
  * struct tracer - a specific tracer and its callbacks to interact with debugfs
  * @name: the name chosen to select it on the available_tracers file
@@ -283,7 +281,6 @@ struct tracer {
 	int			print_max;
 	int			use_max_tr;
 };
-
 
 /* Only current can touch trace_recursion */
 #define trace_recursion_inc() do { (current)->trace_recursion++; } while (0)
@@ -456,6 +453,7 @@ static inline void __trace_stack(struct trace_array *tr, unsigned long flags,
 extern cycle_t ftrace_now(int cpu);
 
 extern void trace_find_cmdline(int pid, char comm[]);
+extern int trace_find_tgid(int pid);
 
 #ifdef CONFIG_DYNAMIC_FTRACE
 extern unsigned long ftrace_update_tot_cnt;
@@ -532,7 +530,6 @@ extern int __trace_graph_entry(struct trace_array *tr,
 extern void __trace_graph_return(struct trace_array *tr,
 				 struct ftrace_graph_ret *trace,
 				 unsigned long flags, int pc);
-
 
 #ifdef CONFIG_DYNAMIC_FTRACE
 /* TODO: make this variable */
@@ -667,6 +664,7 @@ enum trace_iterator_flags {
 	TRACE_ITER_OVERWRITE		= 0x200000,
 	TRACE_ITER_STOP_ON_FREE		= 0x400000,
 	TRACE_ITER_IRQ_INFO		= 0x800000,
+	TRACE_ITER_TGID 		= 0x1000000,
 };
 
 /*

@@ -854,4 +854,3 @@ static inline bool kvm_check_request(int req, struct kvm_vcpu *vcpu)
 }
 
 #endif
-

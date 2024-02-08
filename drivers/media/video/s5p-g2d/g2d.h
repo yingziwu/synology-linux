@@ -71,7 +71,6 @@ struct g2d_fmt {
 	u32	hw;
 };
 
-
 void g2d_reset(struct g2d_dev *d);
 void g2d_set_src_size(struct g2d_dev *d, struct g2d_frame *f);
 void g2d_set_src_addr(struct g2d_dev *d, dma_addr_t a);
@@ -83,5 +82,3 @@ void g2d_set_rop4(struct g2d_dev *d, u32 r);
 void g2d_set_flip(struct g2d_dev *d, u32 r);
 u32 g2d_cmd_stretch(u32 e);
 void g2d_set_cmd(struct g2d_dev *d, u32 c);
-
-

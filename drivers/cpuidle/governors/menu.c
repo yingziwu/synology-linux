@@ -28,7 +28,6 @@
 #define MAX_INTERESTING 50000
 #define STDDEV_THRESH 400
 
-
 /*
  * Concepts and ideas behind the menu governor
  *
@@ -122,14 +121,12 @@ struct menu_device {
 	int		interval_ptr;
 };
 
-
 #define LOAD_INT(x) ((x) >> FSHIFT)
 #define LOAD_FRAC(x) LOAD_INT(((x) & (FIXED_1-1)) * 100)
 
 static int get_loadavg(void)
 {
 	unsigned long this = this_cpu_load();
-
 
 	return LOAD_INT(this) * 10 + LOAD_FRAC(this) / 10;
 }
@@ -173,7 +170,12 @@ static inline int performance_multiplier(void)
 
 	/* for higher loadavg, we are more reluctant */
 
-	mult += 2 * get_loadavg();
+	/*
+	 * this doesn't work as intended - it is almost always 0, but can
+	 * sometimes, depending on workload, spike very high into the hundreds
+	 * even when the average cpu load is under 10%.
+	 */
+	/* mult += 2 * get_loadavg(); */
 
 	/* for IO wait tasks (per cpu!) we add 5x each */
 	mult += 10 * nr_iowait_cpu(smp_processor_id());
@@ -257,7 +259,6 @@ static int menu_select(struct cpuidle_driver *drv, struct cpuidle_device *dev)
 	t = ktime_to_timespec(tick_nohz_get_sleep_length());
 	data->expected_us =
 		t.tv_sec * USEC_PER_SEC + t.tv_nsec / NSEC_PER_USEC;
-
 
 	data->bucket = which_bucket(data->expected_us);
 
@@ -348,7 +349,6 @@ static void menu_update(struct cpuidle_driver *drv, struct cpuidle_device *dev)
 	if (unlikely(!(target->flags & CPUIDLE_FLAG_TIME_VALID)))
 		last_idle_us = data->expected_us;
 
-
 	measured_us = last_idle_us;
 
 	/*
@@ -357,7 +357,6 @@ static void menu_update(struct cpuidle_driver *drv, struct cpuidle_device *dev)
 	 */
 	if (measured_us > data->exit_us)
 		measured_us -= data->exit_us;
-
 
 	/* update our correction ratio */
 

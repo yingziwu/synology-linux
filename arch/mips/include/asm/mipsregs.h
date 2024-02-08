@@ -174,7 +174,6 @@
 #define FPU_CSR_RU      0x2     /* towards +Infinity */
 #define FPU_CSR_RD      0x3     /* towards -Infinity */
 
-
 /*
  * Values for PageMask register
  */
@@ -600,7 +599,6 @@
 
 #define MIPS_CONF7_RPS		(_ULCAST_(1) << 2)
 
-
 /*
  * Bits in the MIPS32/64 coprocessor 1 (FPU) revision register.
  */
@@ -658,7 +656,6 @@ do {								\
 	:							\
 	: "r" (val), "i" (counter));				\
 } while (0)
-
 
 /*
  * Macros to access the system control coprocessor
@@ -1075,7 +1072,6 @@ do {									\
 
 #define read_c0_ebase()		__read_32bit_c0_register($15, 1)
 #define write_c0_ebase(val)	__write_32bit_c0_register($15, 1, val)
-
 
 /* Cavium OCTEON (cnMIPS) */
 #define read_c0_cvmcount()	__read_ulong_c0_register($9, 6)

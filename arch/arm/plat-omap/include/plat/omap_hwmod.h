@@ -84,7 +84,6 @@ extern struct omap_hwmod_sysc_fields omap_hwmod_sysc_type2;
 #define MODULEMODE_HWCTRL		1
 #define MODULEMODE_SWCTRL		2
 
-
 /**
  * struct omap_hwmod_mux_info - hwmod specific mux configuration
  * @pads:              array of omap_device_pad entries
@@ -159,7 +158,6 @@ struct omap_hwmod_opt_clk {
 	struct clk	*_clk;
 };
 
-
 /* omap_hwmod_omap2_firewall.flags bits */
 #define OMAP_FIREWALL_L3		(1 << 0)
 #define OMAP_FIREWALL_L4		(1 << 1)
@@ -177,7 +175,6 @@ struct omap_hwmod_omap2_firewall {
 	u8 l4_prot_group;
 	u8 flags;
 };
-
 
 /*
  * omap_hwmod_addr_space.flags bits
@@ -204,7 +201,6 @@ struct omap_hwmod_addr_space {
 	u32 pa_end;
 	u8 flags;
 };
-
 
 /*
  * omap_hwmod_ocp_if.user bits: these indicate the initiators that use this
@@ -248,7 +244,6 @@ struct omap_hwmod_ocp_if {
 	u8				user;
 	u8				flags;
 };
-
 
 /* Macros for use in struct omap_hwmod_sysconfig */
 
@@ -361,7 +356,6 @@ struct omap_hwmod_omap2_prcm {
 	u8 idlest_stdby_bit;
 };
 
-
 /**
  * struct omap_hwmod_omap4_prcm - OMAP4-specific PRCM data
  * @clkctrl_reg: PRCM address of the clock control register
@@ -375,7 +369,6 @@ struct omap_hwmod_omap4_prcm {
 	u8		submodule_wkdep_bit;
 	u8		modulemode;
 };
-
 
 /*
  * omap_hwmod.flags definitions

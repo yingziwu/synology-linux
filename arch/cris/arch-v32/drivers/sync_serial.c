@@ -32,7 +32,6 @@
 #include <hwregs/reg_map.h>
 #include <asm/sync_serial.h>
 
-
 /* The receiver is a bit tricky because of the continuous stream of data.*/
 /*                                                                       */
 /* Three DMA descriptors are linked together. Each DMA descriptor is     */
@@ -452,7 +451,6 @@ static int sync_serial_open(struct inode *inode, struct file *file)
 		DEBUG(printk(KERN_DEBUG "Device is busy.. \n"));
 		goto out;
 	}
-
 
 	if (port->init_irqs) {
 		if (port->use_dma) {
@@ -934,7 +932,6 @@ static int sync_serial_ioctl(struct file *file,
 		return_val = -1;
 	}
 
-
 	if (port->started) {
 		rec_cfg.rec_en = port->input;
 		gen_cfg.en = (port->output | port->input);
@@ -945,7 +942,6 @@ static int sync_serial_ioctl(struct file *file,
 	REG_WR(sser, port->regi_sser, rw_frm_cfg, frm_cfg);
 	REG_WR(sser, port->regi_sser, rw_intr_mask, intr_mask);
 	REG_WR(sser, port->regi_sser, rw_cfg, gen_cfg);
-
 
 	if (cmd == SSP_FRAME_SYNC && (arg & (WORD_SIZE_8 | WORD_SIZE_12 |
 			WORD_SIZE_16 | WORD_SIZE_24 | WORD_SIZE_32))) {

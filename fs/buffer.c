@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/buffer.c
  *
@@ -94,7 +97,6 @@ __clear_page_buffers(struct page *page)
 	page_cache_release(page);
 }
 
-
 static int quiet_error(struct buffer_head *bh)
 {
 	if (!test_bit(BH_Quiet, &bh->b_state) && printk_ratelimit())
@@ -102,13 +104,19 @@ static int quiet_error(struct buffer_head *bh)
 	return 1;
 }
 
-
 static void buffer_io_error(struct buffer_head *bh)
 {
 	char b[BDEVNAME_SIZE];
+
+#ifdef MY_ABC_HERE
+	    if (printk_ratelimit()) {
+#endif
 	printk(KERN_ERR "Buffer I/O error on device %s, logical block %Lu\n",
 			bdevname(bh->b_bdev, b),
 			(unsigned long long)bh->b_blocknr);
+#ifdef MY_ABC_HERE
+		}
+#endif
 }
 
 /*
@@ -408,7 +416,6 @@ void mark_buffer_async_write(struct buffer_head *bh)
 	mark_buffer_async_write_endio(bh, end_buffer_async_write);
 }
 EXPORT_SYMBOL(mark_buffer_async_write);
-
 
 /*
  * fs/buffer.c contains helper functions for buffer-backed address space's
@@ -968,8 +975,14 @@ grow_dev_page(struct block_device *bdev, sector_t block,
 	if (page_has_buffers(page)) {
 		bh = page_buffers(page);
 		if (bh->b_size == size) {
+#ifdef CONFIG_HI3535_SDK_2050
+			end_block = init_page_buffers(page, bdev,
+						(sector_t)index << sizebits,
+						size);
+#else
 			end_block = init_page_buffers(page, bdev,
 						index << sizebits, size);
+#endif /* CONFIG_HI3535_SDK_2050 */
 			goto done;
 		}
 		if (!try_to_free_buffers(page))
@@ -990,7 +1003,12 @@ grow_dev_page(struct block_device *bdev, sector_t block,
 	 */
 	spin_lock(&inode->i_mapping->private_lock);
 	link_dev_buffers(page, bh);
+#ifdef CONFIG_HI3535_SDK_2050
+	end_block = init_page_buffers(page, bdev, (sector_t)index << sizebits,
+			size);
+#else
 	end_block = init_page_buffers(page, bdev, index << sizebits, size);
+#endif /* CONFIG_HI3535_SDK_2050 */
 	spin_unlock(&inode->i_mapping->private_lock);
 done:
 	ret = (block < end_block) ? 1 : -ENXIO;

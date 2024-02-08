@@ -21,7 +21,6 @@
 #include <asm/mips-boards/prom.h>
 #include <asm/mips-boards/simint.h>
 
-
 unsigned long cpu_khz;
 
 /*
@@ -82,7 +81,6 @@ static void mips_timer_dispatch(void)
 {
 	do_IRQ(mips_cpu_timer_irq);
 }
-
 
 unsigned __cpuinit get_c0_compare_int(void)
 {

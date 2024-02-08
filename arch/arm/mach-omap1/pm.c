@@ -590,7 +590,6 @@ static int omap_pm_prepare(void)
 	return 0;
 }
 
-
 /*
  *	omap_pm_enter - Actually enter a sleep state.
  *	@state:		State we're entering.
@@ -612,7 +611,6 @@ static int omap_pm_enter(suspend_state_t state)
 	return 0;
 }
 
-
 /**
  *	omap_pm_finish - Finish up suspend sequence.
  *
@@ -625,7 +623,6 @@ static void omap_pm_finish(void)
 	enable_hlt();
 }
 
-
 static irqreturn_t omap_wakeup_interrupt(int irq, void *dev)
 {
 	return IRQ_HANDLED;
@@ -636,8 +633,6 @@ static struct irqaction omap_wakeup_irq = {
 	.flags		= IRQF_DISABLED,
 	.handler	= omap_wakeup_interrupt
 };
-
-
 
 static const struct platform_suspend_ops omap_pm_ops = {
 	.prepare	= omap_pm_prepare,

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * linux/fs/ext4/xattr.c
  *
@@ -99,7 +102,7 @@ static struct mb_cache *ext4_xattr_cache;
 
 static const struct xattr_handler *ext4_xattr_handler_map[] = {
 	[EXT4_XATTR_INDEX_USER]		     = &ext4_xattr_user_handler,
-#ifdef CONFIG_EXT4_FS_POSIX_ACL
+#if defined(CONFIG_EXT4_FS_POSIX_ACL)
 	[EXT4_XATTR_INDEX_POSIX_ACL_ACCESS]  = &ext4_xattr_acl_access_handler,
 	[EXT4_XATTR_INDEX_POSIX_ACL_DEFAULT] = &ext4_xattr_acl_default_handler,
 #endif
@@ -107,17 +110,23 @@ static const struct xattr_handler *ext4_xattr_handler_map[] = {
 #ifdef CONFIG_EXT4_FS_SECURITY
 	[EXT4_XATTR_INDEX_SECURITY]	     = &ext4_xattr_security_handler,
 #endif
+#ifdef MY_ABC_HERE
+	[EXT4_XATTR_INDEX_SYNO]          = &ext4_xattr_syno_handler,
+#endif
 };
 
 const struct xattr_handler *ext4_xattr_handlers[] = {
 	&ext4_xattr_user_handler,
 	&ext4_xattr_trusted_handler,
-#ifdef CONFIG_EXT4_FS_POSIX_ACL
+#if defined(CONFIG_EXT4_FS_POSIX_ACL)
 	&ext4_xattr_acl_access_handler,
 	&ext4_xattr_acl_default_handler,
 #endif
 #ifdef CONFIG_EXT4_FS_SECURITY
 	&ext4_xattr_security_handler,
+#endif
+#ifdef MY_ABC_HERE
+	&ext4_xattr_syno_handler,
 #endif
 	NULL
 };
@@ -1355,8 +1364,6 @@ cleanup:
 	return error;
 }
 
-
-
 /*
  * ext4_xattr_delete_inode()
  *
@@ -1607,3 +1614,39 @@ ext4_exit_xattr(void)
 		mb_cache_destroy(ext4_xattr_cache);
 	ext4_xattr_cache = NULL;
 }
+
+#ifdef MY_ABC_HERE
+static size_t
+ext4_xattr_syno_list(struct dentry *dentry, char *list, size_t list_size,
+			 const char *name, size_t name_len, int handler_flags)
+{
+	return 0;
+}
+
+static int ext4_xattr_syno_get(struct dentry *dentry, const char *name,
+			  void *buffer, size_t size, int handler_flags)
+{
+	if (strcmp(name, "") == 0)
+		return -EINVAL;
+
+	return ext4_xattr_get(dentry->d_inode, EXT4_XATTR_INDEX_SYNO, name, buffer, size);
+}
+
+static int ext4_xattr_syno_set(struct dentry *dentry, const char *name,
+			  const void *value, size_t size, int flags, int handler_flags)
+{
+	if (strcmp(name, "") == 0){
+		return -EINVAL;
+	}
+
+	return ext4_xattr_set(dentry->d_inode, EXT4_XATTR_INDEX_SYNO, name,
+				  value, size, flags);
+}
+
+struct xattr_handler ext4_xattr_syno_handler = {
+	.prefix	= XATTR_SYNO_PREFIX,
+	.list	= ext4_xattr_syno_list,
+	.get	= ext4_xattr_syno_get,
+	.set	= ext4_xattr_syno_set,
+};
+#endif /* MY_ABC_HERE */

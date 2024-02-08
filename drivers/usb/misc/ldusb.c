@@ -822,4 +822,3 @@ static struct usb_driver ld_usb_driver = {
 };
 
 module_usb_driver(ld_usb_driver);
-

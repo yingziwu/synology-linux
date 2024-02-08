@@ -308,4 +308,3 @@ nv50_dac_create(struct drm_connector *connector, struct dcb_entry *entry)
 	drm_mode_connector_attach_encoder(connector, encoder);
 	return 0;
 }
-

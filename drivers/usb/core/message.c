@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * message.c - synchronous message handling
  */
@@ -19,6 +22,10 @@
 
 #include "usb.h"
 
+#ifdef MY_ABC_HERE
+#define SYNO_URB_TIMEOUT		(10 * HZ)
+#endif /* MY_ABC_HERE */
+
 static void cancel_async_set_config(struct usb_device *udev);
 
 struct api_context {
@@ -33,7 +40,6 @@ static void usb_api_blocking_completion(struct urb *urb)
 	ctx->status = urb->status;
 	complete(&ctx->done);
 }
-
 
 /*
  * Starts urb and waits for completion or timeout. Note that this call
@@ -55,7 +61,18 @@ static int usb_start_wait_urb(struct urb *urb, int timeout, int *actual_length)
 		goto out;
 
 	expire = timeout ? msecs_to_jiffies(timeout) : MAX_SCHEDULE_TIMEOUT;
+#ifdef MY_ABC_HERE
+	if (0 == timeout) {
+		expire = SYNO_URB_TIMEOUT;
+	}
+#endif /* MY_ABC_HERE */
 	if (!wait_for_completion_timeout(&ctx.done, expire)) {
+#ifdef MY_ABC_HERE
+		if (0 == timeout) {
+			dev_warn(&urb->dev->dev, "URB time out!!\n");
+			WARN_ON(1);
+		}
+#endif /* MY_ABC_HERE */
 		usb_kill_urb(urb);
 		retval = (ctx.status == -ENOENT ? -ETIMEDOUT : ctx.status);
 
@@ -327,7 +344,6 @@ static void sg_complete(struct urb *urb)
 
 	spin_unlock(&io->lock);
 }
-
 
 /**
  * usb_sg_init - initializes scatterlist-based bulk/interrupt I/O request
@@ -1104,7 +1120,6 @@ void usb_reset_endpoint(struct usb_device *dev, unsigned int epaddr)
 }
 EXPORT_SYMBOL_GPL(usb_reset_endpoint);
 
-
 /**
  * usb_disable_interface -- Disable all endpoints for an interface
  * @dev: the device whose interface is being disabled
@@ -1593,7 +1608,6 @@ static struct usb_interface_assoc_descriptor *find_iad(struct usb_device *dev,
 	return retval;
 }
 
-
 /*
  * Internal function to queue a device reset
  *
@@ -1631,7 +1645,6 @@ static void __usb_queue_reset_device(struct work_struct *ws)
 		usb_unlock_device(udev);
 	}
 }
-
 
 /*
  * usb_set_configuration - Makes a particular device setting be current

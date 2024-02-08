@@ -118,7 +118,6 @@ extern unsigned long __bad_increment_for_ia64_fetch_and_add (void);
 #define ia64_get_cpuid			IA64_INTRINSIC_API(get_cpuid)
 #define ia64_get_pmd			IA64_INTRINSIC_API(get_pmd)
 
-
 /************************************************/
 /* Instructions paravirtualized for performance */
 /************************************************/

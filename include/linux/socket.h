@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_SOCKET_H
 #define _LINUX_SOCKET_H
 
@@ -271,12 +274,16 @@ struct ucred {
 #define MSG_CMSG_CLOEXEC 0x40000000	/* Set close_on_exit for file
 					   descriptor received through
 					   SCM_RIGHTS */
+#ifdef MY_ABC_HERE
+#define MSG_KERNSPACE       0x40000
+#define MSG_NOCATCHSIGNAL   0x80000
+#endif /* MY_ABC_HERE */
+
 #if defined(CONFIG_COMPAT)
 #define MSG_CMSG_COMPAT	0x80000000	/* This message needs 32 bit fixups */
 #else
 #define MSG_CMSG_COMPAT	0		/* We never have 32 bit fixups */
 #endif
-
 
 /* Setsockoptions(2) level. Thanks to BSD these must match IPPROTO_xxx */
 #define SOL_IP		0
@@ -315,6 +322,10 @@ struct ucred {
 
 /* IPX options */
 #define IPX_TYPE	1
+
+#ifdef MY_ABC_HERE
+extern void memcpy_tokerneliovec(struct iovec *iov, unsigned char *kdata, int len);
+#endif
 
 extern void cred_to_ucred(struct pid *pid, const struct cred *cred, struct ucred *ucred);
 

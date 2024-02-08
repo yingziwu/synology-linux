@@ -506,7 +506,6 @@ static void brcmf_usb_del_fromq(struct brcmf_usbdev_info *devinfo,
 	spin_unlock_irqrestore(&devinfo->qlock, flags);
 }
 
-
 static void brcmf_usb_tx_complete(struct urb *urb)
 {
 	struct brcmf_usbreq *req = (struct brcmf_usbreq *)urb->context;
@@ -612,7 +611,6 @@ brcmf_usb_state_change(struct brcmf_usbdev_info *devinfo, int state)
 	struct brcmf_bus *bcmf_bus = devinfo->bus_pub.bus;
 	int old_state;
 
-
 	if (devinfo->bus_pub.state == state)
 		return;
 
@@ -705,7 +703,6 @@ static int brcmf_usb_tx(struct device *dev, struct sk_buff *skb)
 
 	return ret;
 }
-
 
 static int brcmf_usb_up(struct device *dev)
 {
@@ -943,7 +940,6 @@ brcmf_usb_resetcfg(struct brcmf_usbdev_info *devinfo)
 	}
 }
 
-
 static int
 brcmf_usb_dl_send_bulk(struct brcmf_usbdev_info *devinfo, void *buffer, int len)
 {
@@ -1152,7 +1148,6 @@ brcmf_usb_fw_download(struct brcmf_usbdev_info *devinfo)
 	return err;
 }
 
-
 static void brcmf_usb_detach(const struct brcmf_usbdev *bus_pub)
 {
 	struct brcmf_usbdev_info *devinfo =
@@ -1250,7 +1245,6 @@ static int brcmf_usb_get_fw(struct brcmf_usbdev_info *devinfo)
 	return 0;
 }
 
-
 static
 struct brcmf_usbdev *brcmf_usb_attach(int nrxq, int ntxq, struct device *dev)
 {
@@ -1345,7 +1339,6 @@ static int brcmf_usb_probe_cb(struct device *dev, const char *desc,
 	struct brcmf_bus *bus = NULL;
 	struct brcmf_usbdev *bus_pub = NULL;
 	int ret;
-
 
 	bus_pub = brcmf_usb_attach(BRCMF_USB_NRXQ, BRCMF_USB_NTXQ, dev);
 	if (!bus_pub) {

@@ -106,7 +106,6 @@ int omapdss_sdi_display_enable(struct omap_dss_device *dssdev)
 		t->pixel_clock = pck;
 	}
 
-
 	dispc_mgr_set_lcd_timings(dssdev->manager->id, t);
 
 	r = dss_set_clock_div(&dss_cinfo);

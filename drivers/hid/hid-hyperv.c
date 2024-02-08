@@ -21,7 +21,6 @@
 #include <linux/hiddev.h>
 #include <linux/hyperv.h>
 
-
 struct hv_input_dev_info {
 	unsigned int size;
 	unsigned short vendor;
@@ -44,7 +43,6 @@ struct hv_input_dev_info {
 #define SYNTHHID_INPUT_VERSION_MINOR	0
 #define SYNTHHID_INPUT_VERSION		(SYNTHHID_INPUT_VERSION_MINOR | \
 					 (SYNTHHID_INPUT_VERSION_MAJOR << 16))
-
 
 #pragma pack(push, 1)
 /*
@@ -115,13 +113,11 @@ struct synthhid_input_report {
 #define INPUTVSC_SEND_RING_BUFFER_SIZE		(10*PAGE_SIZE)
 #define INPUTVSC_RECV_RING_BUFFER_SIZE		(10*PAGE_SIZE)
 
-
 enum pipe_prot_msg_type {
 	PIPE_MESSAGE_INVALID,
 	PIPE_MESSAGE_DATA,
 	PIPE_MESSAGE_MAXIMUM
 };
-
 
 struct pipe_prt_msg {
 	enum pipe_prot_msg_type type;
@@ -158,7 +154,6 @@ struct mousevsc_dev {
 	struct hv_input_dev_info hid_dev_info;
 	struct hid_device       *hid_device;
 };
-
 
 static struct mousevsc_dev *mousevsc_alloc_device(struct hv_device *device)
 {
@@ -541,7 +536,6 @@ probe_err0:
 
 	return ret;
 }
-
 
 static int mousevsc_remove(struct hv_device *dev)
 {

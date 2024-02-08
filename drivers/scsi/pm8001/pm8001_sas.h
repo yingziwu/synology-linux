@@ -97,11 +97,9 @@ do {						\
 #define PM8001_MSG_DBG(HBA, CMD)		\
 	PM8001_CHECK_LOGGING(HBA, PM8001_MSG_LOGGING, CMD)
 
-
 #define PM8001_USE_TASKLET
 #define PM8001_USE_MSIX
 #define PM8001_READ_VPD
-
 
 #define DEV_IS_EXPANDER(type)	((type == EDGE_DEV) || (type == FANOUT_DEV))
 
@@ -405,7 +403,6 @@ struct pm8001_fw_image_header {
 	__be32 startup_entry;
 } __attribute__((packed, aligned(4)));
 
-
 /**
  * FW Flash Update status values
  */
@@ -499,4 +496,3 @@ int pm8001_bar4_shift(struct pm8001_hba_info *pm8001_ha, u32 shiftValue);
 extern struct device_attribute *pm8001_host_attrs[];
 
 #endif
-

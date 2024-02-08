@@ -77,7 +77,6 @@ ieee80211_tx_h_michael_mic_add(struct ieee80211_tx_data *tx)
 	return TX_CONTINUE;
 }
 
-
 ieee80211_rx_result
 ieee80211_rx_h_michael_mic_verify(struct ieee80211_rx_data *rx)
 {
@@ -172,7 +171,6 @@ mic_fail:
 	return RX_DROP_UNUSABLE;
 }
 
-
 static int tkip_encrypt_skb(struct ieee80211_tx_data *tx, struct sk_buff *skb)
 {
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
@@ -224,7 +222,6 @@ static int tkip_encrypt_skb(struct ieee80211_tx_data *tx, struct sk_buff *skb)
 					   key, skb, pos, len);
 }
 
-
 ieee80211_tx_result
 ieee80211_crypto_tkip_encrypt(struct ieee80211_tx_data *tx)
 {
@@ -239,7 +236,6 @@ ieee80211_crypto_tkip_encrypt(struct ieee80211_tx_data *tx)
 
 	return TX_CONTINUE;
 }
-
 
 ieee80211_rx_result
 ieee80211_crypto_tkip_decrypt(struct ieee80211_rx_data *rx)
@@ -289,7 +285,6 @@ ieee80211_crypto_tkip_decrypt(struct ieee80211_rx_data *rx)
 
 	return RX_CONTINUE;
 }
-
 
 static void ccmp_special_blocks(struct sk_buff *skb, u8 *pn, u8 *scratch,
 				int encrypted)
@@ -363,7 +358,6 @@ static void ccmp_special_blocks(struct sk_buff *skb, u8 *pn, u8 *scratch,
 	}
 }
 
-
 static inline void ccmp_pn2hdr(u8 *hdr, u8 *pn, int key_id)
 {
 	hdr[0] = pn[5];
@@ -376,7 +370,6 @@ static inline void ccmp_pn2hdr(u8 *hdr, u8 *pn, int key_id)
 	hdr[7] = pn[0];
 }
 
-
 static inline void ccmp_hdr2pn(u8 *pn, u8 *hdr)
 {
 	pn[0] = hdr[7];
@@ -386,7 +379,6 @@ static inline void ccmp_hdr2pn(u8 *pn, u8 *hdr)
 	pn[4] = hdr[1];
 	pn[5] = hdr[0];
 }
-
 
 static int ccmp_encrypt_skb(struct ieee80211_tx_data *tx, struct sk_buff *skb)
 {
@@ -455,7 +447,6 @@ static int ccmp_encrypt_skb(struct ieee80211_tx_data *tx, struct sk_buff *skb)
 	return 0;
 }
 
-
 ieee80211_tx_result
 ieee80211_crypto_ccmp_encrypt(struct ieee80211_tx_data *tx)
 {
@@ -470,7 +461,6 @@ ieee80211_crypto_ccmp_encrypt(struct ieee80211_tx_data *tx)
 
 	return TX_CONTINUE;
 }
-
 
 ieee80211_rx_result
 ieee80211_crypto_ccmp_decrypt(struct ieee80211_rx_data *rx)
@@ -535,7 +525,6 @@ ieee80211_crypto_ccmp_decrypt(struct ieee80211_rx_data *rx)
 	return RX_CONTINUE;
 }
 
-
 static void bip_aad(struct sk_buff *skb, u8 *aad)
 {
 	/* BIP AAD: FC(masked) || A1 || A2 || A3 */
@@ -547,7 +536,6 @@ static void bip_aad(struct sk_buff *skb, u8 *aad)
 	/* A1 || A2 || A3 */
 	memcpy(aad + 2, skb->data + 4, 3 * ETH_ALEN);
 }
-
 
 static inline void bip_ipn_set64(u8 *d, u64 pn)
 {
@@ -568,7 +556,6 @@ static inline void bip_ipn_swap(u8 *d, const u8 *s)
 	*d++ = s[1];
 	*d = s[0];
 }
-
 
 ieee80211_tx_result
 ieee80211_crypto_aes_cmac_encrypt(struct ieee80211_tx_data *tx)
@@ -613,7 +600,6 @@ ieee80211_crypto_aes_cmac_encrypt(struct ieee80211_tx_data *tx)
 
 	return TX_CONTINUE;
 }
-
 
 ieee80211_rx_result
 ieee80211_crypto_aes_cmac_decrypt(struct ieee80211_rx_data *rx)

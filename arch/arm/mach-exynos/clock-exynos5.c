@@ -1199,7 +1199,6 @@ void __init_or_cpufreq exynos5_setup_clocks(void)
 			aclk_333, aclk_266, aclk_200,
 			aclk_166, aclk_66);
 
-
 	clk_fout_epll.ops = &exynos5_epll_ops;
 
 	if (clk_set_parent(&exynos5_clk_mout_epll.clk, &clk_fout_epll))

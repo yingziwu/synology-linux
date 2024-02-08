@@ -735,7 +735,6 @@ int bridge_chnl_open(struct chnl_object **chnl,
 			return status;
 	}
 
-
 	/* Create channel object: */
 	pchnl = kzalloc(sizeof(struct chnl_object), GFP_KERNEL);
 	if (!pchnl)
@@ -822,7 +821,6 @@ int bridge_chnl_register_notify(struct chnl_object *chnl_obj,
 				    struct dsp_notification *hnotification)
 {
 	int status = 0;
-
 
 	if (event_mask)
 		status = ntfy_register(chnl_obj->ntfy_obj, hnotification,
