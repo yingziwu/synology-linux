@@ -932,13 +932,17 @@ void SendDiskPowerShortBreakEvent(struct work_struct *work)
 	struct ata_port *ap = container_of(work, struct ata_port, SendDiskPowerShortBreakEventTask);
 
 #ifdef MY_DEF_HERE
-	DISK_PORT_TYPE diskType;
+	DISK_PORT_TYPE diskType = UNKNOWN_DEVICE;
+	int diskPortIndex = -1;
 	int slotNumber = 0;
 	if (NULL == funcSYNODiskPowerShortBreakReport || NULL == ap) {
 		goto END;
 	}
 	slotNumber = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0) + 1;
-	if (0 < slotNumber) {
+	getDiskPortTypeAndIndexByAtaPort(ap, &diskType, &diskPortIndex);
+	if (SYSTEM_DEVICE == diskType) {
+		slotNumber = diskPortIndex;
+	} else if(0 < slotNumber) {
 		diskType = INTERNAL_DEVICE;
 	} else if (syno_is_synology_pm(ap)) {
 		diskType = EUNIT_DEVICE;
@@ -1127,6 +1131,28 @@ void syno_pmp_ncq_cmd_error_handler(struct ata_port *ap)
 }
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+FUNC_SYNOBIOS_EVENT funcSYNOSendEunitResetEvent = NULL;
+EXPORT_SYMBOL(funcSYNOSendEunitResetEvent);
+
+static void sendEBoxResetEvent(unsigned int host_no) {
+
+	SYNOBIOS_EVENT_PARM parm;
+
+	if (!funcSYNOSendEunitResetEvent) {
+		return;
+	}
+
+	memset(&parm, 0, sizeof(SYNOBIOS_EVENT_PARM));
+	parm.data[0] = host_no;
+
+	funcSYNOSendEunitResetEvent(parm);
+
+	return;
+}
+
+#endif /* MY_ABC_HERE */
+
 /**
  * ata_scsi_cmd_error_handler - error callback for a list of commands
  * @host:	scsi host containing the port
@@ -1253,6 +1279,54 @@ unsigned int syno_get_ata_enabled_dev_bitmap(struct ata_port *ap)
 }
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+static int schedule_eunit_eh(struct ata_port *pAp_target)
+{
+	int iRet = -1;
+	struct ata_port *pAp = NULL;
+
+#ifdef MY_DEF_HERE
+#else /* MY_DEF_HERE */
+	int i = 0;
+#endif /* MY_DEF_HERE */
+	
+	if (NULL == pAp_target || !syno_is_synology_pm(pAp_target)) {
+		goto END;
+	}
+
+	if (!IS_SYNOLOGY_RX1223RP(pAp_target->PMSynoUnique)) {
+		iRet = 0;
+		goto END;
+	}
+
+#ifdef MY_DEF_HERE
+	while (NULL != (pAp = SynoEunitEnumPort(pAp_target, pAp? &pAp->ata_port_list: NULL))) {
+		// pAp_target already entered eh, do not trigger eh again
+		if (pAp_target != pAp) {
+			DBGMESG("Schedule EH for ata_port %d\n", pAp->print_id);
+			ata_port_schedule_eh(pAp);
+		}
+	}
+#else /* MY_DEF_HERE */
+	for (i = 0; i < pAp_target->host->n_ports; i++, pAp = NULL) {
+		pAp = pAp_target->host->ports[i];
+		
+		if (NULL == pAp || !syno_is_synology_pm(pAp)) {
+			continue;
+		}
+
+		if (pAp_target != pAp) {
+			ata_port_schedule_eh(pAp);
+		}
+	}
+#endif /* MY_DEF_HERE */
+
+	iRet = 0;
+END:
+	return iRet;
+}
+#endif /* MY_ABC_HERE */
+
 /**
  * ata_scsi_port_error_handler - recover the port after the commands
  * @host:	SCSI host containing the port
@@ -1281,6 +1355,10 @@ void ata_scsi_port_error_handler(struct Scsi_Host *host, struct ata_port *ap)
 #ifdef MY_ABC_HERE
 	struct ata_link *reset_link = NULL;
 #endif /* MY_ABC_HERE */
+#ifdef MY_DEF_HERE
+	DISK_PORT_TYPE diskPortType = UNKNOWN_DEVICE;
+	int diskPortIndex = -1;
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_ABC_HERE
 	if (syno_is_hw_version(HW_DS916p) && syno_need_force_retry(ap)) {
@@ -1425,6 +1503,9 @@ deep_repeat:
 		// no matter unset deepsleep success or not, clear flag here
 		SynoEunitFlagSet(pAp_master, 0, ATA_PFLAG_SYNO_IRQOFF_PWROFF_DONE, 0);
 		SynoEunitFlagSet(pAp_master, 0, ATA_PFLAG_SYNO_IRQ_OFF, 0);
+
+		// For some eunit, we have to trigger EH for slave pmp manually.
+		schedule_eunit_eh(ap);
 
 		spin_lock_irqsave(pAp_master->lock, flags);
 		pAp_master->pflags &= ~(ATA_PFLAG_SYNO_IRQOFF_LOCK_FOR_EH);
@@ -1844,38 +1925,59 @@ SKIP:
 		ata_port_info(ap, "EH complete\n");
 
 #ifdef MY_ABC_HERE
+	if(syno_is_synology_pm(ap) && IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique) && 0 == ap->PMSynoEMID) {
+		if (ap->scsi_host) {
+			DBGMESG("PMP eh trigger synobios event, host_no = %d\n", ap->scsi_host->host_no);
+			sendEBoxResetEvent(ap->scsi_host->host_no);
+		} else {
+			DBGMESG("PMP eh trigger synobios event, scsi host is NULL\n");
+		}
+	}
+#endif /* MY_ABC_HERE */
+		
+#ifdef MY_ABC_HERE
 	ap->ulSynoPortEnabledBitmap = syno_get_ata_enabled_dev_bitmap(ap);
 	ap->blSynoDiskHotplugEvent = false;
 #endif /* MY_ABC_HERE */
 
 	ap->pflags &= ~(ATA_PFLAG_SCSI_HOTPLUG | ATA_PFLAG_RECOVERED);
 
+#ifdef MY_DEF_HERE
+	getDiskPortTypeAndIndexByAtaPort(ap, &diskPortType, &diskPortIndex);
+#endif /* MY_DEF_HERE */
+
 #ifdef MY_ABC_HERE
 	ata_for_each_link(reset_link, ap, EDGE) {
 		if (SYNO_DISK_RESET_FAIL_REPORT_COUNT <= reset_link->uiSoftResetFailCount) {
 			memset(&reset_link->diskSoftResetFailEventParm, 0, sizeof(reset_link->diskSoftResetFailEventParm));
 #ifdef MY_DEF_HERE
-			reset_link->diskSoftResetFailEventParm.data1 = syno_libata_numeric_diskname_number_get(reset_link);
+			reset_link->diskSoftResetFailEventParm.data[0] = syno_libata_numeric_diskname_number_get(reset_link);
 #else /* MY_DEF_HERE */
-			reset_link->diskSoftResetFailEventParm.data1 = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0);
+			reset_link->diskSoftResetFailEventParm.data[0] = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0);
 #endif /* MY_DEF_HERE */
-			reset_link->diskSoftResetFailEventParm.data2 = ap->nr_pmp_links;
-			reset_link->diskSoftResetFailEventParm.data3 = reset_link->pmp;
-			reset_link->diskSoftResetFailEventParm.data4 = 0;
-			reset_link->diskSoftResetFailEventParm.data5 = reset_link->uiSoftResetFailCount;
+			reset_link->diskSoftResetFailEventParm.data[1] = ap->nr_pmp_links;
+			reset_link->diskSoftResetFailEventParm.data[2] = reset_link->pmp;
+			reset_link->diskSoftResetFailEventParm.data[3] = 0;
+			reset_link->diskSoftResetFailEventParm.data[4] = reset_link->uiSoftResetFailCount;
+#ifdef MY_DEF_HERE
+			reset_link->diskSoftResetFailEventParm.data[5] = diskPortType;
+#endif /* MY_DEF_HERE */
 			schedule_work(&(reset_link->SendDiskSoftResetFailEventTask));
 		}
 		if (SYNO_DISK_RESET_FAIL_REPORT_COUNT <= reset_link->uiHardResetFailCount) {
 			memset(&reset_link->diskHardResetFailEventParm, 0, sizeof(reset_link->diskHardResetFailEventParm));
 #ifdef MY_DEF_HERE
-			reset_link->diskHardResetFailEventParm.data1 = syno_libata_numeric_diskname_number_get(reset_link);;
+			reset_link->diskHardResetFailEventParm.data[0] = syno_libata_numeric_diskname_number_get(reset_link);;
 #else /* MY_DEF_HERE */
-			reset_link->diskHardResetFailEventParm.data1 = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0);
+			reset_link->diskHardResetFailEventParm.data[0] = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0);
 #endif /* MY_DEF_HERE */
-			reset_link->diskHardResetFailEventParm.data2 = ap->nr_pmp_links;
-			reset_link->diskHardResetFailEventParm.data3 = reset_link->pmp;
-			reset_link->diskHardResetFailEventParm.data4 = 1;
-			reset_link->diskHardResetFailEventParm.data5 = reset_link->uiHardResetFailCount;
+			reset_link->diskHardResetFailEventParm.data[1] = ap->nr_pmp_links;
+			reset_link->diskHardResetFailEventParm.data[2] = reset_link->pmp;
+			reset_link->diskHardResetFailEventParm.data[3] = 1;
+			reset_link->diskHardResetFailEventParm.data[4] = reset_link->uiHardResetFailCount;
+#ifdef MY_DEF_HERE
+			reset_link->diskHardResetFailEventParm.data[5] = diskPortType;
+#endif /* MY_DEF_HERE */
 			schedule_work(&(reset_link->SendDiskHardResetFailEventTask));
 		}
 		reset_link->uiSoftResetFailCount = 0;
@@ -3528,10 +3630,13 @@ static void ata_eh_link_autopsy(struct ata_link *link)
 	}
 
 #ifdef MY_ABC_HERE
-	if (ap->nr_pmp_links &&
-		ehc->i.serror & SERR_PHYRDY_CHG &&
-		ehc->i.serror & SERR_COMM_WAKE) {
-		ap->link.eh_context.i.action |= ATA_EH_HARDRESET;
+	/* Skip PMP Hardreset on JMB575 */
+	if (!syno_pm_is_jmb575(sata_pmp_gscr_vendor(link->ap->link.device->gscr), sata_pmp_gscr_devid(link->ap->link.device->gscr))){
+		if (ap->nr_pmp_links &&
+			ehc->i.serror & SERR_PHYRDY_CHG &&
+			ehc->i.serror & SERR_COMM_WAKE) {
+			ap->link.eh_context.i.action |= ATA_EH_HARDRESET;
+		}
 	}
 #endif /* MY_ABC_HERE */
 
@@ -3723,6 +3828,10 @@ static void ata_eh_link_report(struct ata_link *link)
 #ifdef MY_ABC_HERE
 	bool blTimeout = false;
 	bool blRWCmd = true;
+#ifdef MY_DEF_HERE
+	DISK_PORT_TYPE diskPortType = UNKNOWN_DEVICE;
+	int diskPortIndex = -1;
+#endif /* MY_DEF_HERE */
 #endif /* MY_ABC_HERE */
 
 	if (ehc->i.flags & ATA_EHI_QUIET)
@@ -3906,27 +4015,34 @@ static void ata_eh_link_report(struct ata_link *link)
 #ifdef MY_ABC_HERE
 	memset(&link->diskSataErrEventParm, 0, sizeof(link->diskSataErrEventParm));
 #ifdef MY_DEF_HERE
-	link->diskSataErrEventParm.data1 = syno_libata_numeric_diskname_number_get(link);
+	link->diskSataErrEventParm.data[0] = syno_libata_numeric_diskname_number_get(link);
 #else /* MY_DEF_HERE */
-	link->diskSataErrEventParm.data1 = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0);
+	link->diskSataErrEventParm.data[0] = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0);
 #endif /* MY_DEF_HERE */
-	link->diskSataErrEventParm.data2 = ap->nr_pmp_links;
-	link->diskSataErrEventParm.data3 = link->pmp;
-	link->diskSataErrEventParm.data4 = link->uiSError;
-	link->diskSataErrEventParm.data5 = link->uiError;
+	link->diskSataErrEventParm.data[1] = ap->nr_pmp_links;
+	link->diskSataErrEventParm.data[2] = link->pmp;
+	link->diskSataErrEventParm.data[3] = link->uiSError;
+	link->diskSataErrEventParm.data[4] = link->uiError;
+#ifdef MY_DEF_HERE
+	getDiskPortTypeAndIndexByAtaPort(ap, &diskPortType, &diskPortIndex);
+	link->diskSataErrEventParm.data[5] = diskPortType;
+#endif /* MY_DEF_HERE */
 	schedule_work(&(link->SendSataErrEventTask));
 
 	if (true == blTimeout) {
 		memset(&link->diskTimeoutEventParm, 0, sizeof(link->diskTimeoutEventParm));
 #ifdef MY_DEF_HERE
-		link->diskTimeoutEventParm.data1 = syno_libata_numeric_diskname_number_get(link);
+		link->diskTimeoutEventParm.data[0] = syno_libata_numeric_diskname_number_get(link);
 #else /* MY_DEF_HERE */
-		link->diskTimeoutEventParm.data1 = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0);
+		link->diskTimeoutEventParm.data[0] = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0);
 #endif /* MY_DEF_HERE */
-		link->diskTimeoutEventParm.data2 = ap->nr_pmp_links;
-		link->diskTimeoutEventParm.data3 = link->pmp;
-		link->diskTimeoutEventParm.data4 = blRWCmd;
-		link->diskTimeoutEventParm.data5 = 0x0;
+		link->diskTimeoutEventParm.data[1] = ap->nr_pmp_links;
+		link->diskTimeoutEventParm.data[2] = link->pmp;
+		link->diskTimeoutEventParm.data[3] = blRWCmd;
+		link->diskTimeoutEventParm.data[4] = 0x0;
+#ifdef MY_DEF_HERE
+		link->diskTimeoutEventParm.data[5] = diskPortType;
+#endif /* MY_DEF_HERE */
 		schedule_work(&(link->SendDiskTimeoutEventTask));
 	}
 #endif /* MY_ABC_HERE */

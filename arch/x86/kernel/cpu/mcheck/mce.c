@@ -231,9 +231,7 @@ void mce_register_decode_chain(struct notifier_block *nb)
 {
 	atomic_inc(&num_notifiers);
 
-	/* Ensure SRAO notifier has the highest priority in the decode chain. */
-	if (nb != &mce_srao_nb && nb->priority == INT_MAX)
-		nb->priority -= 1;
+	WARN_ON(nb->priority > MCE_PRIO_LOWEST && nb->priority < MCE_PRIO_EDAC);
 
 	atomic_notifier_chain_register(&x86_mce_decoder_chain, nb);
 }
@@ -589,7 +587,7 @@ static int srao_decode_notifier(struct notifier_block *nb, unsigned long val,
 }
 static struct notifier_block mce_srao_nb = {
 	.notifier_call	= srao_decode_notifier,
-	.priority = INT_MAX,
+	.priority	= MCE_PRIO_SRAO,
 };
 
 static int mce_default_notifier(struct notifier_block *nb, unsigned long val,
@@ -615,7 +613,7 @@ static int mce_default_notifier(struct notifier_block *nb, unsigned long val,
 static struct notifier_block mce_default_nb = {
 	.notifier_call	= mce_default_notifier,
 	/* lowest prio, we want it to run last. */
-	.priority	= 0,
+	.priority	= MCE_PRIO_LOWEST,
 };
 
 /*
@@ -1563,13 +1561,12 @@ EXPORT_SYMBOL_GPL(mce_notify_irq);
 static int __mcheck_cpu_mce_banks_init(void)
 {
 	int i;
-	u8 num_banks = mca_cfg.banks;
 
-	mce_banks = kzalloc(num_banks * sizeof(struct mce_bank), GFP_KERNEL);
+	mce_banks = kzalloc(MAX_NR_BANKS * sizeof(struct mce_bank), GFP_KERNEL);
 	if (!mce_banks)
 		return -ENOMEM;
 
-	for (i = 0; i < num_banks; i++) {
+	for (i = 0; i < MAX_NR_BANKS; i++) {
 		struct mce_bank *b = &mce_banks[i];
 
 		b->ctl = -1ULL;
@@ -1583,24 +1580,16 @@ static int __mcheck_cpu_mce_banks_init(void)
  */
 static int __mcheck_cpu_cap_init(void)
 {
-	unsigned b;
 	u64 cap;
+	u8 b;
 
 	rdmsrl(MSR_IA32_MCG_CAP, cap);
 
 	b = cap & MCG_BANKCNT_MASK;
-	if (!mca_cfg.banks)
-		pr_info("CPU supports %d MCE banks\n", b);
-
-	if (b > MAX_NR_BANKS) {
-		pr_warn("Using only %u machine check banks out of %u\n",
-			MAX_NR_BANKS, b);
+	if (WARN_ON_ONCE(b > MAX_NR_BANKS))
 		b = MAX_NR_BANKS;
-	}
 
-	/* Don't support asymmetric configurations today */
-	WARN_ON(mca_cfg.banks != 0 && b != mca_cfg.banks);
-	mca_cfg.banks = b;
+	mca_cfg.banks = max(mca_cfg.banks, b);
 
 	if (!mce_banks) {
 		int err = __mcheck_cpu_mce_banks_init();
@@ -2877,6 +2866,8 @@ static int __init mcheck_debugfs_init(void) { return -EINVAL; }
 
 static int __init mcheck_late_init(void)
 {
+	pr_info("Using %d MCE banks\n", mca_cfg.banks);
+
 	mcheck_debugfs_init();
 
 	/*

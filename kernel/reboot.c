@@ -38,8 +38,10 @@ extern unsigned gSynoUsbVbusGpp[CONFIG_SYNO_USB_VBUS_NUM_GPIO];
 extern unsigned gSynoUsbVbusGppPol[CONFIG_SYNO_USB_VBUS_NUM_GPIO];
 #endif /* MY_DEF_HERE */
 
-#ifdef MY_DEF_HERE
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 #include <linux/syno_gpio.h>
+#endif /* defined(MY_DEF_HERE) || defined(MY_DEF_HERE) */
+#ifdef MY_DEF_HERE
 extern SYNO_GPIO syno_gpio;
 extern void SYNO_GPIO_WRITE(int pin, int pValue);
 #endif /* MY_DEF_HERE */
@@ -120,7 +122,7 @@ static void syno_turnoff_all_usb_vbus_gpio(void)
 		for_each_child_of_node(of_root, pUSBNode) {
 			// TODO: corrently the index of usb is not well defined, so the index is read but not used.
 			// get index number of usb_slot, e.g. /usb_slot@4 --> 4
-			if (pUSBNode->full_name && 1 != sscanf(pUSBNode->full_name, "/"DT_USB_SLOT"@%d", &index)) {
+			if (pUSBNode->full_name && 1 == sscanf(pUSBNode->full_name, "/"DT_USB_SLOT"@%d", &index)) {
 
 				pVbusNode = of_get_child_by_name(pUSBNode, DT_VBUS);
 				if (NULL == pVbusNode) {
@@ -147,7 +149,7 @@ USB_PUT_NODE:
 		for_each_child_of_node(of_root, pUSBNode) {
 			// TODO: corrently the index of usb is not well defined, so the index is read but not used.
 			// get index number of usb_slot, e.g. /usb_slot@4 --> 4
-			if (pUSBNode->full_name && 1 != sscanf(pUSBNode->full_name, "/"DT_HUB_SLOT"@%d", &index)) {
+			if (pUSBNode->full_name && 1 == sscanf(pUSBNode->full_name, "/"DT_HUB_SLOT"@%d", &index)) {
 
 				pVbusNode = of_get_child_by_name(pUSBNode, DT_VBUS);
 				if (NULL == pVbusNode) {
@@ -184,6 +186,31 @@ HUB_PUT_NODE:
 }
 #endif /* MY_DEF_HERE */
 
+#ifdef MY_DEF_HERE
+static void syno_turnoff_all_disk_enable_gpio(void)
+{
+	int index;
+	struct device_node *pInterNode = NULL;
+	u32 EnableGpioPin = U32_MAX, EnableGpioPolarity = U32_MAX;
+
+	for_each_child_of_node(of_root, pInterNode) {
+		if (pInterNode->full_name && 1 == sscanf(pInterNode->full_name, "/"DT_INTERNAL_SLOT"@%d", &index)) {
+			if (0 != of_property_read_u32_index(pInterNode, DT_POWER_PIN_GPIO, SYNO_GPIO_PIN, &EnableGpioPin)) {
+				printk(KERN_ERR "%s reading EnableGpioPin failed.\n", __func__);
+				continue;
+			}
+			if (0 != of_property_read_u32_index(pInterNode, DT_POWER_PIN_GPIO, SYNO_POLARITY_PIN, &EnableGpioPolarity)) {
+				printk(KERN_ERR "%s reading EnableGpioPolarity failed.\n", __func__);
+				continue;
+			}
+			SYNO_GPIO_WRITE(EnableGpioPin, (ACTIVE_HIGH == EnableGpioPolarity) ? 0 : 1);
+			msleep(500);
+			printk(KERN_INFO "Turned off slot %d enable gpio %u (%s)\n", index, EnableGpioPin,(ACTIVE_HIGH == EnableGpioPolarity) ? "ACTIVE_HIGH" : "ACTIVE_LOW");
+		}
+	}
+}
+#endif /* MY_DEF_HERE */
+
 void kernel_restart_prepare(char *cmd)
 {
 	blocking_notifier_call_chain(&reboot_notifier_list, SYS_RESTART, cmd);
@@ -193,6 +220,9 @@ void kernel_restart_prepare(char *cmd)
 #ifdef MY_DEF_HERE
 	if (SYSTEM_RESTART == system_state)
 		syno_turnoff_all_usb_vbus_gpio();
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	syno_turnoff_all_disk_enable_gpio();
 #endif /* MY_DEF_HERE */
 }
 
@@ -375,6 +405,9 @@ static void kernel_shutdown_prepare(enum system_states state)
 #ifdef MY_DEF_HERE
 	if (SYSTEM_POWER_OFF == system_state)
 		syno_turnoff_all_usb_vbus_gpio();
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	syno_turnoff_all_disk_enable_gpio();
 #endif /* MY_DEF_HERE */
 #if defined(MY_DEF_HERE) && defined(MY_ABC_HERE)
 	/* When WOL is set, CPLD will light on phy led as boot if this pin is high, before BIOS initialization. */

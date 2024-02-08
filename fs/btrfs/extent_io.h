@@ -399,6 +399,12 @@ int extent_writepages(struct extent_io_tree *tree,
 		      struct address_space *mapping,
 		      get_extent_t *get_extent,
 		      struct writeback_control *wbc);
+#ifdef MY_DEF_HERE
+int syno_cache_protection_extent_writepages(struct extent_io_tree *tree,
+		      struct address_space *mapping,
+		      get_extent_t *get_extent,
+		      struct writeback_control *wbc);
+#endif /* MY_DEF_HERE */
 int btree_write_cache_pages(struct address_space *mapping,
 			    struct writeback_control *wbc);
 int extent_readpages(struct extent_io_tree *tree,

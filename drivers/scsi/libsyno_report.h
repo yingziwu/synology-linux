@@ -8,6 +8,7 @@
 
 #ifdef MY_ABC_HERE
 int SynoScsiDeviceToDiskIndex(const struct scsi_device *psdev);
+bool SynoIsPhysicalDrive(const struct scsi_device *psdev);
 #endif /* MY_ABC_HERE */
 
 #if defined(MY_DEF_HERE)

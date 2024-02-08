@@ -49,9 +49,6 @@ void btrfs_##name(struct work_struct *arg)
 BTRFS_WORK_HELPER_PROTO(worker_helper);
 BTRFS_WORK_HELPER_PROTO(delalloc_helper);
 BTRFS_WORK_HELPER_PROTO(flush_delalloc_helper);
-#ifdef MY_ABC_HERE
-BTRFS_WORK_HELPER_PROTO(flush_meta_helper);
-#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER_PROTO(cache_helper);
 BTRFS_WORK_HELPER_PROTO(submit_helper);
 BTRFS_WORK_HELPER_PROTO(fixup_helper);
@@ -86,6 +83,9 @@ BTRFS_WORK_HELPER_PROTO(scrubparity_helper);
 #ifdef MY_ABC_HERE
 BTRFS_WORK_HELPER_PROTO(syno_nocow_endio_helper);
 BTRFS_WORK_HELPER_PROTO(syno_high_priority_endio_helper);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER_PROTO(syno_bg_cache_helper);
 #endif /* MY_ABC_HERE */
 
 struct btrfs_workqueue *btrfs_alloc_workqueue(const char *name,

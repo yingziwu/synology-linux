@@ -677,7 +677,7 @@ static void bond_set_dev_addr(struct net_device *bond_dev,
 	netdev_dbg(bond_dev, "bond_dev=%p slave_dev=%p slave_dev->addr_len=%d\n",
 		   bond_dev, slave_dev, slave_dev->addr_len);
 #ifdef MY_ABC_HERE
-	if (syno_get_dev_vendor_mac(slave_dev->name, szMac)) {
+	if (syno_get_dev_vendor_mac(slave_dev->name, szMac, sizeof(szMac))) {
 		printk("%s:%s(%d) dev:[%s] get vendor mac fail\n",
 				__FILE__, __FUNCTION__, __LINE__, slave_dev->name);
 		/**
@@ -1518,7 +1518,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev)
 #ifdef MY_ABC_HERE
 	memset(szMac, 0, sizeof(szMac));
 
-	if (syno_get_dev_vendor_mac(slave_dev->name, szMac)) {
+	if (syno_get_dev_vendor_mac(slave_dev->name, szMac, sizeof(szMac))) {
 		netdev_info(bond_dev, "%s:%s(%d) dev:[%s] get vendor mac fail\n",
 				__FILE__, __FUNCTION__, __LINE__, slave_dev->name);
 		/**

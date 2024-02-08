@@ -35,14 +35,19 @@ void SynoScsiErrorWithSenseReport(struct scsi_device *psdev,
 	int index = -1;
 
 #ifdef MY_ABC_HERE
+	// For those not physical drive, do not send notity to synobios/scemd
+	// It will interrupt user with wrong device, eg. iscsi{N}.
+	if(!SynoIsPhysicalDrive(psdev)){
+		return ;
+	}
 	index = SynoScsiDeviceToDiskIndex(psdev);
 #endif /* MY_ABC_HERE */
 	if (0 <= index) {
-		psdev->scsiErrorEventParm.data1 = SYNO_SCSI_ERROR_WITH_SENSE;
-		psdev->scsiErrorEventParm.data2 = index;
-		psdev->scsiErrorEventParm.data3 =
+		psdev->scsiErrorEventParm.data[0] = SYNO_SCSI_ERROR_WITH_SENSE;
+		psdev->scsiErrorEventParm.data[1] = index;
+		psdev->scsiErrorEventParm.data[2] =
 			SynoAssembleScsiSense(sense_key, asc, ascq);
-		psdev->scsiErrorEventParm.data4 = lba;
+		psdev->scsiErrorEventParm.data[3] = lba;
 		schedule_work(&(psdev->sendScsiErrorEventTask));
 	}
 }
@@ -53,13 +58,18 @@ void SynoScsiTimeoutReport(struct scsi_device *psdev,
 	int index = -1;
 
 #ifdef MY_ABC_HERE
+	// For those not physical drive, do not send notity to synobios/scemd
+	// It will interrupt user with wrong device, eg. iscsi{N}.
+	if(!SynoIsPhysicalDrive(psdev)){
+		return ;
+	}
 	index = SynoScsiDeviceToDiskIndex(psdev);
 #endif /* MY_ABC_HERE */
 	if (0 <= index) {
-		psdev->scsiErrorEventParm.data1 = SYNO_SCSI_ERROR_TIMEOUT;
-		psdev->scsiErrorEventParm.data2 = index;
-		psdev->scsiErrorEventParm.data3 = op;
-		psdev->scsiErrorEventParm.data4 = iRetries;
+		psdev->scsiErrorEventParm.data[0] = SYNO_SCSI_ERROR_TIMEOUT;
+		psdev->scsiErrorEventParm.data[1] = index;
+		psdev->scsiErrorEventParm.data[2] = op;
+		psdev->scsiErrorEventParm.data[3] = iRetries;
 		schedule_work(&(psdev->sendScsiErrorEventTask));
 	}
 }

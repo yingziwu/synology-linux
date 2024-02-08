@@ -382,14 +382,22 @@ struct flex_groups {
 #define EXT4_PROJINHERIT_FL		0x20000000 /* Create with parents projid */
 #define EXT4_RESERVED_FL		0x80000000 /* reserved for ext4 lib */
 
-#define EXT4_FL_USER_VISIBLE		0x004BDFFF /* User visible flags */
-#define EXT4_FL_USER_MODIFIABLE		0x004380FF /* User modifiable flags */
+#define EXT4_FL_USER_VISIBLE		0x304BDFFF /* User visible flags */
+#define EXT4_FL_USER_MODIFIABLE		0x204380FF /* User modifiable flags */
+
+#define EXT4_FL_XFLAG_VISIBLE		(EXT4_SYNC_FL | \
+					 EXT4_IMMUTABLE_FL | \
+					 EXT4_APPEND_FL | \
+					 EXT4_NODUMP_FL | \
+					 EXT4_NOATIME_FL | \
+					 EXT4_PROJINHERIT_FL)
 
 /* Flags that should be inherited by new inodes from their parent. */
 #define EXT4_FL_INHERITED (EXT4_SECRM_FL | EXT4_UNRM_FL | EXT4_COMPR_FL |\
 			   EXT4_SYNC_FL | EXT4_NODUMP_FL | EXT4_NOATIME_FL |\
 			   EXT4_NOCOMPR_FL | EXT4_JOURNAL_DATA_FL |\
-			   EXT4_NOTAIL_FL | EXT4_DIRSYNC_FL)
+			   EXT4_NOTAIL_FL | EXT4_DIRSYNC_FL |\
+			   EXT4_PROJINHERIT_FL)
 
 /* Flags that are appropriate for regular files (all but dir-specific ones). */
 #define EXT4_REG_FLMASK (~(EXT4_DIRSYNC_FL | EXT4_TOPDIR_FL))
@@ -521,6 +529,12 @@ struct ext4_new_group_data {
 	__u32 free_blocks_count;
 };
 
+#ifdef MY_ABC_HERE
+struct ext4_ioctl_feature_flags {
+	__u32 syno_capability;
+};
+#endif /* MY_ABC_HERE */
+
 /* Indexes used to index group tables in ext4_new_group_data */
 enum {
 	BLOCK_BITMAP = 0,	/* block bitmap */
@@ -619,6 +633,50 @@ enum {
 #define EXT4_IOC_SET_ENCRYPTION_POLICY	_IOR('f', 19, struct ext4_encryption_policy)
 #define EXT4_IOC_GET_ENCRYPTION_PWSALT	_IOW('f', 20, __u8[16])
 #define EXT4_IOC_GET_ENCRYPTION_POLICY	_IOW('f', 21, struct ext4_encryption_policy)
+
+#ifdef MY_ABC_HERE
+#define EXT4_IOC_GET_FEATURES	_IOR('f', 50, struct ext4_ioctl_feature_flags)
+#define EXT4_IOC_SET_FEATURES	_IOW('f', 50, struct ext4_ioctl_feature_flags[2])
+#endif /* MY_ABC_HERE */
+#ifndef FS_IOC_FSGETXATTR
+/* Until the uapi changes get merged for project quota... */
+
+#define FS_IOC_FSGETXATTR		_IOR('X', 31, struct fsxattr)
+#define FS_IOC_FSSETXATTR		_IOW('X', 32, struct fsxattr)
+
+/*
+ * Structure for FS_IOC_FSGETXATTR and FS_IOC_FSSETXATTR.
+ */
+struct fsxattr {
+	__u32		fsx_xflags;	/* xflags field value (get/set) */
+	__u32		fsx_extsize;	/* extsize field value (get/set)*/
+	__u32		fsx_nextents;	/* nextents field value (get)	*/
+	__u32		fsx_projid;	/* project identifier (get/set) */
+	unsigned char	fsx_pad[12];
+};
+
+/*
+ * Flags for the fsx_xflags field
+ */
+#define FS_XFLAG_REALTIME	0x00000001	/* data in realtime volume */
+#define FS_XFLAG_PREALLOC	0x00000002	/* preallocated file extents */
+#define FS_XFLAG_IMMUTABLE	0x00000008	/* file cannot be modified */
+#define FS_XFLAG_APPEND		0x00000010	/* all writes append */
+#define FS_XFLAG_SYNC		0x00000020	/* all writes synchronous */
+#define FS_XFLAG_NOATIME	0x00000040	/* do not update access time */
+#define FS_XFLAG_NODUMP		0x00000080	/* do not include in backups */
+#define FS_XFLAG_RTINHERIT	0x00000100	/* create with rt bit set */
+#define FS_XFLAG_PROJINHERIT	0x00000200	/* create with parents projid */
+#define FS_XFLAG_NOSYMLINKS	0x00000400	/* disallow symlink creation */
+#define FS_XFLAG_EXTSIZE	0x00000800	/* extent size allocator hint */
+#define FS_XFLAG_EXTSZINHERIT	0x00001000	/* inherit inode extent size */
+#define FS_XFLAG_NODEFRAG	0x00002000  	/* do not defragment */
+#define FS_XFLAG_FILESTREAM	0x00004000	/* use filestream allocator */
+#define FS_XFLAG_HASATTR	0x80000000	/* no DIFLAG for this */
+#endif /* !defined(FS_IOC_FSGETXATTR) */
+
+#define EXT4_IOC_FSGETXATTR		FS_IOC_FSGETXATTR
+#define EXT4_IOC_FSSETXATTR		FS_IOC_FSSETXATTR
 
 #if defined(__KERNEL__) && defined(CONFIG_COMPAT)
 /*
@@ -1052,6 +1110,10 @@ struct ext4_inode_info {
 	/* Encryption params */
 	struct ext4_crypt_info *i_crypt_info;
 #endif
+	kprojid_t i_projid;
+#ifdef MY_ABC_HERE
+	bool i_is_swapfile;
+#endif /* MY_ABC_HERE */
 };
 
 /*
@@ -1071,6 +1133,9 @@ struct ext4_inode_info {
 /*
  * Mount flags set via mount options or defaults
  */
+#ifdef MY_ABC_HERE
+#define EXT4_MOUNT_ROOTPRJQUOTA		0x00001	/* Root has to obey project quota */
+#endif /* MY_ABC_HERE */
 #define EXT4_MOUNT_GRPID		0x00004	/* Create files with directory's group */
 #define EXT4_MOUNT_DEBUG		0x00008	/* Some debugging messages */
 #define EXT4_MOUNT_ERRORS_CONT		0x00010	/* Continue on errors */
@@ -1094,15 +1159,24 @@ struct ext4_inode_info {
 #define EXT4_MOUNT_POSIX_ACL		0x08000	/* POSIX Access Control Lists */
 #define EXT4_MOUNT_NO_AUTO_DA_ALLOC	0x10000	/* No auto delalloc mapping */
 #define EXT4_MOUNT_BARRIER		0x20000 /* Use block barriers */
-#ifdef MY_ABC_HERE
-#define EXT4_MOUNT_SYNO_ACL		0x40000 /* Synology Access Control Lists */
-#endif /* MY_ABC_HERE */
-#define EXT4_MOUNT_QUOTA		0x80000 /* Some quota option set */
-#define EXT4_MOUNT_USRQUOTA		0x100000 /* "old" user quota */
-#define EXT4_MOUNT_GRPQUOTA		0x200000 /* "old" group quota */
+#define EXT4_MOUNT_QUOTA		0x40000 /* Some quota option set */
+#define EXT4_MOUNT_USRQUOTA		0x80000 /* "old" user quota,
+						 * enable enforcement for hidden
+						 * quota files */
+#define EXT4_MOUNT_GRPQUOTA		0x100000 /* "old" group quota, enable
+						  * enforcement for hidden quota
+						  * files */
+#define EXT4_MOUNT_PRJQUOTA		0x200000 /* Enable project quota
+						  * enforcement */
 #define EXT4_MOUNT_DIOREAD_NOLOCK	0x400000 /* Enable support for dio read nolocking */
 #define EXT4_MOUNT_JOURNAL_CHECKSUM	0x800000 /* Journal checksums */
 #define EXT4_MOUNT_JOURNAL_ASYNC_COMMIT	0x1000000 /* Journal Async Commit */
+#ifdef MY_ABC_HERE
+#define EXT4_MOUNT_SYNO_RBD_META	0x2000000 /* RBD meta */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define EXT4_MOUNT_SYNO_ACL		0x4000000 /* Synology Access Control Lists */
+#endif /* MY_ABC_HERE */
 #define EXT4_MOUNT_DELALLOC		0x8000000 /* Delalloc support */
 #define EXT4_MOUNT_DATA_ERR_ABORT	0x10000000 /* Abort on file data write */
 #define EXT4_MOUNT_BLOCK_VALIDITY	0x20000000 /* Block validity checking */
@@ -1287,14 +1361,21 @@ struct ext4_super_block {
 	__le32	s_lpf_ino;		/* Location of the lost+found inode */
 	__le32	s_prj_quota_inum;	/* inode for tracking project quota */
 	__le32	s_checksum_seed;	/* crc32c(uuid) if csum_seed set */
-#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
-	__le32	s_reserved[95];	/* Paddint to the end of the block */
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || \
+    defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	__le32	s_reserved[89];	/* Paddint to the end of the block */
+	__le64  s_syno_rbd_first_mapping_table_offset;
+	__le32  s_feature_syno_capability;
+	__le32  s_syno_mtime;
+	__le64  s_syno_kbytes_written;
 	__le32  s_syno_hash_magic;  /* magic number for syno caseless dir_index */
 	__le32	s_archive_version;	/* Last archived version */
 	__le32  s_archive_version_obsoleted;
 #else
 	__le32	s_reserved[98];		/* Padding to the end of the block */
-#endif /* MY_ABC_HERE || MY_ABC_HERE */
+#endif /* MY_ABC_HERE || MY_ABC_HERE ||
+	* MY_ABC_HERE || MY_ABC_HERE
+	*/
 	__le32	s_checksum;		/* crc32c(superblock) */
 };
 
@@ -1317,7 +1398,7 @@ struct ext4_super_block {
 #endif
 
 /* Number of quota types we support */
-#define EXT4_MAXQUOTAS 2
+#define EXT4_MAXQUOTAS 3
 
 /*
  * fourth extended-fs super-block data in memory
@@ -1495,6 +1576,10 @@ struct ext4_sb_info {
 	struct ratelimit_state s_err_ratelimit_state;
 	struct ratelimit_state s_warning_ratelimit_state;
 	struct ratelimit_state s_msg_ratelimit_state;
+
+#ifdef MY_ABC_HERE
+	spinlock_t s_feature_lock; /* for ext4 feature flags */
+#endif /* MY_ABC_HERE */
 };
 
 static inline struct ext4_sb_info *EXT4_SB(struct super_block *sb)
@@ -1654,18 +1739,32 @@ static inline int ext4_encrypted_inode(struct inode *inode)
 	((EXT4_SB(sb)->s_es->s_feature_ro_compat & cpu_to_le32(mask)) != 0)
 #define EXT4_HAS_INCOMPAT_FEATURE(sb,mask)			\
 	((EXT4_SB(sb)->s_es->s_feature_incompat & cpu_to_le32(mask)) != 0)
+#ifdef MY_ABC_HERE
+#define EXT4_HAS_SYNO_CAPABILITY_FEATURE(sb,mask)		\
+	((EXT4_SB(sb)->s_es->s_feature_syno_capability & cpu_to_le32(mask)) != 0)
+#endif /* MY_ABC_HERE */
+
 #define EXT4_SET_COMPAT_FEATURE(sb,mask)			\
 	EXT4_SB(sb)->s_es->s_feature_compat |= cpu_to_le32(mask)
 #define EXT4_SET_RO_COMPAT_FEATURE(sb,mask)			\
 	EXT4_SB(sb)->s_es->s_feature_ro_compat |= cpu_to_le32(mask)
 #define EXT4_SET_INCOMPAT_FEATURE(sb,mask)			\
 	EXT4_SB(sb)->s_es->s_feature_incompat |= cpu_to_le32(mask)
+#ifdef MY_ABC_HERE
+#define EXT4_SET_SYNO_CAPABILITY_FEATURE(sb,mask)		\
+	EXT4_SB(sb)->s_es->s_feature_syno_capability |= cpu_to_le32(mask)
+#endif /* MY_ABC_HERE */
+
 #define EXT4_CLEAR_COMPAT_FEATURE(sb,mask)			\
 	EXT4_SB(sb)->s_es->s_feature_compat &= ~cpu_to_le32(mask)
 #define EXT4_CLEAR_RO_COMPAT_FEATURE(sb,mask)			\
 	EXT4_SB(sb)->s_es->s_feature_ro_compat &= ~cpu_to_le32(mask)
 #define EXT4_CLEAR_INCOMPAT_FEATURE(sb,mask)			\
 	EXT4_SB(sb)->s_es->s_feature_incompat &= ~cpu_to_le32(mask)
+#ifdef MY_ABC_HERE
+#define EXT4_CLEAR_SYNO_CAPABILITY_FEATURE(sb,mask)		\
+	EXT4_SB(sb)->s_es->s_feature_syno_capability &= ~cpu_to_le32(mask)
+#endif /* MY_ABC_HERE */
 
 #define EXT4_FEATURE_COMPAT_DIR_PREALLOC	0x0001
 #define EXT4_FEATURE_COMPAT_IMAGIC_INODES	0x0002
@@ -1709,6 +1808,10 @@ static inline int ext4_encrypted_inode(struct inode *inode)
 #define EXT4_FEATURE_INCOMPAT_LARGEDIR		0x4000 /* >2GB or 3-lvl htree */
 #define EXT4_FEATURE_INCOMPAT_INLINE_DATA	0x8000 /* data in inode */
 #define EXT4_FEATURE_INCOMPAT_ENCRYPT		0x10000
+
+#ifdef MY_ABC_HERE
+#define EXT4_FEATURE_SYNO_CAPABILITY_RBD_META 	0x0001
+#endif /* MY_ABC_HERE */
 
 #define EXT4_FEATURE_COMPAT_FUNCS(name, flagname) \
 static inline bool ext4_has_feature_##name(struct super_block *sb) \
@@ -1761,6 +1864,25 @@ static inline void ext4_clear_feature_##name(struct super_block *sb) \
 		~cpu_to_le32(EXT4_FEATURE_INCOMPAT_##flagname); \
 }
 
+#ifdef MY_ABC_HERE
+#define EXT4_FEATURE_SYNO_CAPABILITY_FUNCS(name, flagname) \
+static inline bool ext4_has_feature_##name(struct super_block *sb) \
+{ \
+	return ((EXT4_SB(sb)->s_es->s_feature_syno_capability & \
+		cpu_to_le32(EXT4_FEATURE_SYNO_CAPABILITY_##flagname)) != 0); \
+} \
+static inline void ext4_set_feature_##name(struct super_block *sb) \
+{ \
+	EXT4_SB(sb)->s_es->s_feature_syno_capability |= \
+		cpu_to_le32(EXT4_FEATURE_SYNO_CAPABILITY_##flagname); \
+} \
+static inline void ext4_clear_feature_##name(struct super_block *sb) \
+{ \
+	EXT4_SB(sb)->s_es->s_feature_syno_capability &= \
+		~cpu_to_le32(EXT4_FEATURE_SYNO_CAPABILITY_##flagname); \
+}
+#endif /* MY_ABC_HERE */
+
 EXT4_FEATURE_COMPAT_FUNCS(dir_prealloc,		DIR_PREALLOC)
 EXT4_FEATURE_COMPAT_FUNCS(imagic_inodes,	IMAGIC_INODES)
 EXT4_FEATURE_COMPAT_FUNCS(journal,		HAS_JOURNAL)
@@ -1798,6 +1920,10 @@ EXT4_FEATURE_INCOMPAT_FUNCS(largedir,		LARGEDIR)
 EXT4_FEATURE_INCOMPAT_FUNCS(inline_data,	INLINE_DATA)
 EXT4_FEATURE_INCOMPAT_FUNCS(encrypt,		ENCRYPT)
 
+#ifdef MY_ABC_HERE
+EXT4_FEATURE_SYNO_CAPABILITY_FUNCS(syno_rbd_meta,	RBD_META)
+#endif /* MY_ABC_HERE */
+
 #define EXT2_FEATURE_COMPAT_SUPP	EXT4_FEATURE_COMPAT_EXT_ATTR
 #define EXT2_FEATURE_INCOMPAT_SUPP	(EXT4_FEATURE_INCOMPAT_FILETYPE| \
 					 EXT4_FEATURE_INCOMPAT_META_BG)
@@ -1833,7 +1959,27 @@ EXT4_FEATURE_INCOMPAT_FUNCS(encrypt,		ENCRYPT)
 					 EXT4_FEATURE_RO_COMPAT_HUGE_FILE |\
 					 EXT4_FEATURE_RO_COMPAT_BIGALLOC |\
 					 EXT4_FEATURE_RO_COMPAT_METADATA_CSUM|\
-					 EXT4_FEATURE_RO_COMPAT_QUOTA)
+					 EXT4_FEATURE_RO_COMPAT_QUOTA |\
+					 EXT4_FEATURE_RO_COMPAT_PROJECT)
+
+#ifdef MY_ABC_HERE
+
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
+EXT4_FEATURE_SYNO_CAPABILITY_RBD_META 			(0U)
+#endif /* MY_ABC_HERE */
+
+
+#define EXT4_FEATURE_SYNO_CAPABILITY_SUPP 		\
+			(EXT4_FEATURE_SYNO_CAPABILITY_RBD_META)
+
+#define EXT4_FEATURE_SYNO_CAPABILITY_SAFE_SET		\
+			(EXT4_FEATURE_SYNO_CAPABILITY_RBD_META)
+
+#define EXT4_FEATURE_SYNO_CAPABILITY_SAFE_CLEAR 	\
+			(EXT4_FEATURE_SYNO_CAPABILITY_RBD_META)
+
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 /*
@@ -1848,22 +1994,75 @@ EXT4_FEATURE_INCOMPAT_FUNCS(encrypt,		ENCRYPT)
 #define EXT4_INODE_GET_SYNO_ARCHIVE_BIT(inode, raw_inode) \
 do { \
 	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) { \
-		inode->i_archive_bit = le32_to_cpu(raw_inode->i_syno_archive_bit); \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_syno_archive_bit)) \
+			inode->i_archive_bit = le32_to_cpu(raw_inode->i_syno_archive_bit); \
+		else \
+			inode->i_archive_bit = 0; \
 	} else { \
-		inode->i_archive_bit = le16_to_cpu(raw_inode->i_checksum_hi); \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_checksum_hi)) \
+			inode->i_archive_bit = le16_to_cpu(raw_inode->i_checksum_hi); \
+		else \
+			inode->i_archive_bit = 0; \
 	} \
+	inode->i_archive_bit &= ARCHIVE_BIT_MASK; \
 } while (0)
 
 #define EXT4_INODE_SET_SYNO_ARCHIVE_BIT(inode, raw_inode) \
 do { \
+	__u32 flags; \
 	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) { \
-		raw_inode->i_syno_archive_bit = cpu_to_le32(inode->i_archive_bit); \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_syno_archive_bit)) \
+			flags = le32_to_cpu(raw_inode->i_syno_archive_bit); \
 	} else { \
-		raw_inode->i_checksum_hi = cpu_to_le16(inode->i_archive_bit); /* we'll lost upper 16 bits flags */ \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_checksum_hi)) \
+			flags = le16_to_cpu(raw_inode->i_checksum_hi); \
+	} \
+	flags &= ~ARCHIVE_BIT_MASK; \
+	flags |= inode->i_archive_bit; \
+	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) { \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_syno_archive_bit)) \
+			raw_inode->i_syno_archive_bit = cpu_to_le32(flags); \
+	} else { \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_checksum_hi)) \
+			/* we'll lost upper 16 bits flags */ \
+			raw_inode->i_checksum_hi = cpu_to_le16(flags); \
 	} \
 } while (0)
 
 #endif /* End of MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+static inline bool ext4_inode_is_swapfile(struct inode *inode,
+					  struct ext4_inode *raw_inode)
+{
+	__u32 flags;
+	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM))
+		flags = le32_to_cpu(raw_inode->i_syno_archive_bit);
+	else
+		flags = le16_to_cpu(raw_inode->i_checksum_hi);
+	return !!(flags & EXT4_INODE_SWAPFILE_FLAG);
+}
+
+static inline void ext4_inode_set_swapfile(struct inode *inode,
+					   struct ext4_inode *raw_inode,
+					   bool is_swapfile)
+{
+	__u32 flags;
+	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM))
+		flags = le32_to_cpu(raw_inode->i_syno_archive_bit);
+	else
+		flags = le16_to_cpu(raw_inode->i_checksum_hi);
+
+	if (is_swapfile)
+		flags |= EXT4_INODE_SWAPFILE_FLAG;
+	else
+		flags &= ~EXT4_INODE_SWAPFILE_FLAG;
+
+	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM))
+		raw_inode->i_syno_archive_bit = cpu_to_le32(flags);
+	else
+		raw_inode->i_checksum_hi = cpu_to_le16(flags);
+}
+#endif /* MY_ABC_HERE */
 
 #define EXTN_FEATURE_FUNCS(ver) \
 static inline bool ext4_has_unknown_ext##ver##_compat_features(struct super_block *sb) \
@@ -1898,12 +2097,23 @@ static inline bool ext4_has_incompat_features(struct super_block *sb)
 {
 	return (EXT4_SB(sb)->s_es->s_feature_incompat != 0);
 }
+#ifdef MY_ABC_HERE
+static inline bool ext4_has_syno_capability_features(struct super_block *sb)
+{
+	return (EXT4_SB(sb)->s_es->s_feature_syno_capability != 0);
+}
+#endif /* MY_ABC_HERE */
 
 /*
  * Default values for user and/or group using reserved blocks
  */
 #define	EXT4_DEF_RESUID		0
 #define	EXT4_DEF_RESGID		0
+
+/*
+ * Default project ID
+ */
+#define	EXT4_DEF_PROJID		0
 
 #define EXT4_DEF_INODE_READAHEAD_BLKS	32
 
@@ -2618,6 +2828,7 @@ extern int ext4_zero_partial_blocks(handle_t *handle, struct inode *inode,
 extern int ext4_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf);
 extern int ext4_filemap_fault(struct vm_area_struct *vma, struct vm_fault *vmf);
 extern qsize_t *ext4_get_reserved_space(struct inode *inode);
+extern int ext4_get_projid(struct inode *inode, kprojid_t *projid);
 extern void ext4_da_update_reserve_space(struct inode *inode,
 					int used, int quota_claim);
 #ifdef MY_ABC_HERE
@@ -2629,6 +2840,9 @@ extern int ext4_syno_set_archive_ver(struct dentry *d, u32);
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 extern int ext4_syno_pattern_check(struct inode *, struct page *, size_t offset, size_t bytes, int type);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+int ext4_fsdev_mapping(struct inode *inode, u64 start, u64 end, u64 *dev_start, u64 *dev_end);
 #endif /* MY_ABC_HERE */
 
 /* indirect.c */
@@ -3350,6 +3564,13 @@ extern int ext4_bio_write_page(struct ext4_io_submit *io,
 			       struct writeback_control *wbc,
 			       bool keep_towrite);
 
+#ifdef MY_ABC_HERE
+extern int ext4_rbd_meta_file_activate(struct inode *inode);
+extern int ext4_rbd_meta_file_deactivate(struct inode *inode);
+extern int ext4_rbd_meta_file_mapping(struct inode *inode,
+			struct syno_rbd_meta_ioctl_args *args);
+#endif /* MY_ABC_HERE */
+
 /* mmp.c */
 extern int ext4_multi_mount_protect(struct super_block *, ext4_fsblk_t);
 
@@ -3399,6 +3620,20 @@ extern struct mutex ext4__aio_mutex[EXT4_WQ_HASH_SZ];
 #define EXT4_RESIZING	0
 extern int ext4_resize_begin(struct super_block *sb);
 extern void ext4_resize_end(struct super_block *sb);
+
+#ifdef MY_ABC_HERE
+static inline bool ext4_is_valid_syno_capability(struct super_block *sb)
+{
+	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
+	return (le32_to_cpu(es->s_syno_mtime) == le32_to_cpu(es->s_mtime)) &&
+	       (le64_to_cpu(es->s_syno_kbytes_written) == le64_to_cpu(es->s_kbytes_written));
+}
+#endif /* MY_ABC_HERE */
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+int ext4_syno_write_super(struct super_block *sb, void *vals,
+			  void (*updater)(struct super_block *sb, void *vals));
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
 
 #endif	/* __KERNEL__ */
 

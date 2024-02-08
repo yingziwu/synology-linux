@@ -510,6 +510,7 @@ static const struct xgbe_version_data xgbe_v2a = {
 	.tx_desc_prefetch		= 5,
 	.rx_desc_prefetch		= 5,
 	.an_cdr_workaround		= 1,
+	.an_kr_workaround		= 1,
 };
 
 static const struct xgbe_version_data xgbe_v2b = {
@@ -525,6 +526,7 @@ static const struct xgbe_version_data xgbe_v2b = {
 	.tx_desc_prefetch		= 5,
 	.rx_desc_prefetch		= 5,
 	.an_cdr_workaround		= 1,
+	.an_kr_workaround		= 1,
 };
 
 static const struct pci_device_id xgbe_pci_table[] = {
