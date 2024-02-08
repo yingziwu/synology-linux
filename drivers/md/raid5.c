@@ -1233,7 +1233,7 @@ static void sort_deferred_bios(struct syno_r5defer *group, struct bio_list *pend
 		 * Same location or adjacent bio could add into one ent.
 		 */
 		if (!ent || (ent->sector != bio->bi_sector &&
-		             ent->sector != bio->bi_sector - bio->bi_size)) {
+		             ent->sector != bio->bi_sector - (bio->bi_size >> 9))) {
 			if (ent_cnt == SYNO_MAX_SORT_ENT_CNT) {
 				bio_list_add_head(pending_bios, bio);
 				break;
@@ -3123,18 +3123,21 @@ static int syno_raid5_data_corrupt_disk_get(const struct r5conf* conf, const int
 	}
 
 	for (d = 0; d < conf->raid_disks; d++) {
-		if (conf->disks[d].rdev) {
-			if (!test_bit(In_sync, &conf->disks[d].rdev->flags)) {
-				BUG_ON(num_repair >= conf->max_degraded);
-				repair_disk[num_repair++] = d;
+		struct md_rdev *rdev;
+
+		rcu_read_lock();
+		rdev = rcu_dereference(conf->disks[d].rdev);
+		if (!(rdev && test_bit(In_sync, &rdev->flags))) {
+			if (num_repair >= conf->max_degraded) {
+				WARN_ON(1);
+				rcu_read_unlock();
+				return -1;
 			}
-		} else {
-			BUG_ON(num_repair >= conf->max_degraded);
 			repair_disk[num_repair++] = d;
 		}
+		rcu_read_unlock();
 	}
-	BUG_ON(conf->max_degraded != num_repair);
-
+	WARN_ON(conf->max_degraded != num_repair);
 
 	for (d = 0; d < num_repair && num_bad_disk < max_bad_disk; d++) {
 		if (pd_idx != repair_disk[d] && qd_idx != repair_disk[d]) {

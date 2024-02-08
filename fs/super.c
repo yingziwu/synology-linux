@@ -1021,6 +1021,10 @@ struct dentry *mount_bdev(struct file_system_type *fs_type,
 
 		s->s_mode = mode;
 		strlcpy(s->s_id, bdevname(bdev, b), sizeof(s->s_id));
+#ifdef MY_ABC_HERE
+		if (NULL != strstr(s->s_id, "synoboot"))
+			printk(KERN_NOTICE "%s: %s mounted, process=%s\n", fs_type->name, s->s_id, current->comm);
+#endif /* MY_ABC_HERE */
 		sb_set_blocksize(s, block_size(bdev));
 		error = fill_super(s, data, flags & MS_SILENT ? 1 : 0);
 		if (error) {

@@ -23,8 +23,22 @@
 #define EXTENT_NEED_WAIT (1 << 13)
 #define EXTENT_DAMAGED (1 << 14)
 #define EXTENT_NORESERVE (1 << 15)
+/*
+ * Must be cleared only during ordered extent completion or on error paths if we
+ * did not manage to submit bios and create the ordered extents for the range.
+ * Should not be cleared during page release and page invalidation (if there is
+ * an ordered extent in flight), that is left for the ordered extent completion.
+ */
+#define EXTENT_DELALLOC_NEW	(1 << 18)
+/*
+ * When an ordered extent successfully completes for a region marked as a new
+ * delalloc range, use this flag when clearing a new delalloc range to indicate
+ * that the VFS' inode number of bytes should be incremented and the inode's new
+ * delalloc bytes decremented, in an atomic way to prevent races with stat(2).
+ */
+#define EXTENT_ADD_INODE_BYTES  (1 << 19)
 #define EXTENT_IOBITS (EXTENT_LOCKED | EXTENT_WRITEBACK)
-#define EXTENT_CTLBITS (EXTENT_DO_ACCOUNTING | EXTENT_FIRST_DELALLOC)
+#define EXTENT_CTLBITS (EXTENT_DO_ACCOUNTING | EXTENT_FIRST_DELALLOC | EXTENT_ADD_INODE_BYTES)
 
 /*
  * flags for bio submission. The high bits indicate the compression
@@ -299,6 +313,7 @@ int convert_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
 		       unsigned long bits, unsigned long clear_bits,
 		       struct extent_state **cached_state, gfp_t mask);
 int set_extent_delalloc(struct extent_io_tree *tree, u64 start, u64 end,
+			unsigned int extra_bits,
 			struct extent_state **cached_state, gfp_t mask);
 int set_extent_defrag(struct extent_io_tree *tree, u64 start, u64 end,
 		      struct extent_state **cached_state, gfp_t mask);
@@ -395,8 +410,13 @@ void read_extent_buffer(struct extent_buffer *eb, void *dst,
 int read_extent_buffer_to_user(struct extent_buffer *eb, void __user *dst,
 			       unsigned long start,
 			       unsigned long len);
+void write_extent_buffer_fsid(struct extent_buffer *eb, const void *src);
+void write_extent_buffer_chunk_tree_uuid(struct extent_buffer *eb,
+		const void *src);
 void write_extent_buffer(struct extent_buffer *eb, const void *src,
 			 unsigned long start, unsigned long len);
+void copy_extent_buffer_full(struct extent_buffer *dst,
+			     struct extent_buffer *src);
 void copy_extent_buffer(struct extent_buffer *dst, struct extent_buffer *src,
 			unsigned long dst_offset, unsigned long src_offset,
 			unsigned long len);
@@ -404,8 +424,8 @@ void memcpy_extent_buffer(struct extent_buffer *dst, unsigned long dst_offset,
 			   unsigned long src_offset, unsigned long len);
 void memmove_extent_buffer(struct extent_buffer *dst, unsigned long dst_offset,
 			   unsigned long src_offset, unsigned long len);
-void memset_extent_buffer(struct extent_buffer *eb, char c,
-			  unsigned long start, unsigned long len);
+void memzero_extent_buffer(struct extent_buffer *eb, unsigned long start,
+			   unsigned long len);
 int extent_buffer_test_bit(struct extent_buffer *eb, unsigned long start,
 			   unsigned long pos);
 void extent_buffer_bitmap_set(struct extent_buffer *eb, unsigned long start,

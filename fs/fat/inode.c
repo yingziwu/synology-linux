@@ -31,10 +31,6 @@
 #include <linux/hash.h>
 #include <linux/blkdev.h>
 #include <asm/unaligned.h>
-#ifdef MY_ABC_HERE
-#include <linux/sched.h>
-#include <linux/string.h>
-#endif /* MY_ABC_HERE */
 #include "fat.h"
 
 #ifndef CONFIG_FAT_DEFAULT_IOCHARSET
@@ -527,11 +523,6 @@ static void fat_set_state(struct super_block *sb,
 	struct buffer_head *bh;
 	struct fat_boot_sector *b;
 	struct msdos_sb_info *sbi = sb->s_fs_info;
-
-#ifdef MY_ABC_HERE
-	if (NULL != strstr(sb->s_id, "synoboot"))
-		fat_msg(sb, KERN_WARNING, "fat_set_state: set=%d process=%s pid=%d", set, current->comm, task_pid_nr(current));
-#endif /* MY_ABC_HERE */
 
 	/* do not change any thing if mounted read only */
 	if ((sb->s_flags & MS_RDONLY) && !force)
