@@ -56,8 +56,10 @@ extern void ext4_fill_mount_path(struct super_block *sb, const char *szPath);
 #ifdef MY_ABC_HERE
 int (*funcSYNOSendErrorFsBtrfsEvent)(const u8*) = NULL;
 void (*btrfs_fill_mount_path)(struct super_block *, const char *) = NULL;
+int (*funcSYNOMetaCorruptedEvent)(const u8*, u64 start) = NULL;
 EXPORT_SYMBOL(funcSYNOSendErrorFsBtrfsEvent);
 EXPORT_SYMBOL(btrfs_fill_mount_path);
+EXPORT_SYMBOL(funcSYNOMetaCorruptedEvent);
 #endif
 
 static int event;

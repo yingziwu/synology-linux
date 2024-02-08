@@ -1095,7 +1095,7 @@ got:
 #ifdef MY_ABC_HERE
 	inode->i_create_time = ei->i_crtime;
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	inode->i_archive_bit = ALL_SYNO_ARCHIVE;   /* set archive bit on creation */
 #endif
 

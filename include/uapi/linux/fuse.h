@@ -528,11 +528,11 @@ struct fuse_lk_out {
 
 struct fuse_access_in {
 	__u32	mask;
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 	__u32	syno_acl_access;
 #else
 	__u32	padding;
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 };
 
 struct fuse_init_in {

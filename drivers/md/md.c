@@ -63,6 +63,9 @@
 #endif /* MY_ABC_HERE */
 #include "md.h"
 #include "bitmap.h"
+#ifdef MY_ABC_HERE
+#include <linux/writeback.h>
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 static struct kmem_cache *syno_mdio_cache;
@@ -1981,8 +1984,8 @@ static int super_1_validate(struct mddev *mddev, struct md_rdev *rdev)
 		
 		mddev->recovery_cp = le64_to_cpu(sb->resync_offset);
 #ifdef MY_ABC_HERE
-		if (mddev->recovery_cp == le64_to_cpu(MaxSector - 1)){
-			mddev->recovery_cp = le64_to_cpu(MaxSector);
+		if (mddev->recovery_cp == MaxSector - 1){
+			mddev->recovery_cp = MaxSector;
 			mddev->sb_not_clean = 1;
 		}
 #endif /* MY_ABC_HERE */
@@ -4892,6 +4895,11 @@ md_active_store(struct mddev *mddev, const char *page, size_t len)
 	spin_unlock(&mddev->ActLock);
 
 	if (iNeedWake) {
+		if (unlikely(block_dump))
+			pr_warn("ppid:%d(%s), pid:%d(%s), try to wakeup %s\n",
+				task_pid_nr(current->real_parent), current->real_parent->comm,
+				task_pid_nr(current), current->comm,
+				mdname(mddev));
 		SynoMDWakeUpDevices(mddev);
 	}
 

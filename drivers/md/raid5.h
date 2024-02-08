@@ -210,6 +210,9 @@ struct stripe_head {
 	unsigned long		state;		/* state flags */
 	atomic_t		count;	      /* nr of active thread/requests */
 #ifdef MY_ABC_HERE
+	atomic_t delayed_cnt;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	spinlock_t		lock;
 #endif
 	int			bm_seq;	/* sequence number for bitmap flushes */
@@ -325,6 +328,10 @@ enum {
 #ifdef MY_ABC_HERE
 	STRIPE_NORETRY,
 #endif
+#ifdef MY_ABC_HERE
+	STRIPE_ACTIVATE_STABLE,
+	STRIPE_CHECK_STABLE_LIST,
+#endif /* MY_ABC_HERE */
 };
 
 
@@ -398,6 +405,12 @@ struct r5conf {
 	struct list_head	hold_list; /* preread ready stripes */
 	struct list_head	delayed_list; /* stripes that have plugged requests */
 	struct list_head	bitmap_list; /* stripes delaying awaiting bitmap update */
+#ifdef MY_ABC_HERE
+	/* stripes that need stable in order to keey consistent,
+	 * so we need to delay some writes but can soon be handled again
+	 */
+	struct list_head    stable_list;
+#endif /* MY_ABC_HERE */
 	struct bio		*retry_read_aligned; /* currently retrying aligned bios   */
 	struct bio		*retry_read_aligned_list; /* aligned bios retry list  */
 	atomic_t		preread_active_stripes; /* stripes with scheduled io */
@@ -459,6 +472,10 @@ struct r5conf {
 	 * the new thread here until we fully activate the array.
 	 */
 	struct md_thread	*thread;
+#ifdef MY_DEF_HERE
+	int syno_dummy_read;
+	struct page *dummy_page;
+#endif /* MY_DEF_HERE */
 };
 
 /*

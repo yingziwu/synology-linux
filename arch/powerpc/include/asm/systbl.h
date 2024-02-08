@@ -414,7 +414,7 @@ SYSCALL(SYNOUtime)             /* 402 */
 #else
 SYSCALL(ni_syscall)
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 SYSCALL(SYNOArchiveBit)        /* 403 */
 #else
 SYSCALL(ni_syscall)
@@ -445,7 +445,7 @@ SYSCALL(SYNODecryptName)	/* 411 */
 SYSCALL(ni_syscall)			/* 410 */
 SYSCALL(ni_syscall)
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 SYSCALL(SYNOACLCheckPerm)		/* 412 */
 SYSCALL(SYNOACLIsSupport)		/* 413 */
 SYSCALL(SYNOACLGetPerm)		    /* 414 */
@@ -868,7 +868,7 @@ SYSCALL(syno_utime)             /* 802 */
 #else
 SYSCALL(ni_syscall)
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 SYSCALL(syno_archive_bit)        /* 803 */
 #else
 SYSCALL(ni_syscall)
@@ -899,7 +899,7 @@ SYSCALL(syno_decrypt_name)		/* 811 */
 SYSCALL(ni_syscall)			/* 810 */
 SYSCALL(ni_syscall)
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 SYSCALL(syno_acl_check_perm)		/* 812 */
 SYSCALL(syno_acl_is_support)		/* 813 */
 SYSCALL(syno_acl_get_perm)			/* 814 */

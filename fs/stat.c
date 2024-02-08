@@ -161,7 +161,7 @@ int __always_inline syno_vfs_getattr(struct path *path, struct kstat *stat, int 
 #ifdef MY_ABC_HERE
 			stat->syno_create_time = inode->i_create_time;
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 			stat->syno_archive_bit = inode->i_archive_bit;
 #endif
 #ifdef MY_ABC_HERE
@@ -795,13 +795,13 @@ static int SYNOStat64CopyToUser(struct kstat *pKst, unsigned int flags, struct S
 			goto Out;
 		}
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 		if (flags & SYNOST_ARCHIVE_BIT) {
 			if (__put_user(pKst->syno_archive_bit, &pSt64->ext.archive_bit)){
 				goto Out;
 			}
 		}
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 #ifdef MY_ABC_HERE
 		if (flags & SYNOST_CREATE_TIME) {
 			if (copy_to_user(&pSt64->ext.create_time, &pKst->syno_create_time, sizeof(pSt64->ext.create_time))){
@@ -963,13 +963,13 @@ static int SYNOStatCopyToUser(struct kstat *pKst, unsigned int flags, struct SYN
 			goto Out;
 		}
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 		if (flags & SYNOST_ARCHIVE_BIT) {
 			if (__put_user(pKst->syno_archive_bit, &pSt->ext.archive_bit)){
 				goto Out;
 			}
 		}
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 #ifdef MY_ABC_HERE
 		if (flags & SYNOST_CREATE_TIME) {
 			if (copy_to_user(&pSt->ext.create_time, &pKst->syno_create_time, sizeof(pSt->ext.create_time))){

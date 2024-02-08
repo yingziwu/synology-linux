@@ -166,9 +166,6 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
 
 	if (conf->nr_strip_zones == 1) {
 		conf->layout = RAID0_ORIG_LAYOUT;
-#ifdef MY_DEF_HERE
-		mddev->has_raid0_layout_feature = 0;
-#endif /* MY_DEF_HERE */
 	} else if (mddev->layout == RAID0_ORIG_LAYOUT ||
 		   mddev->layout == RAID0_ALT_MULTIZONE_LAYOUT) {
 		conf->layout = mddev->layout;
@@ -332,6 +329,12 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
 		queue_flag_clear_unlocked(QUEUE_FLAG_DISCARD, mddev->queue);
 	else
 		queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, mddev->queue);
+#ifdef MY_ABC_HERE
+	if (conf->nr_strip_zones == 1) {
+		mddev->has_raid0_layout_feature = 0;
+		mddev->layout = -1;
+	}
+#endif /* MY_ABC_HERE */
 
 	pr_debug("md/raid0:%s: done.\n", mdname(mddev));
 	*private_conf = conf;

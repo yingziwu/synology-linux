@@ -393,7 +393,7 @@
 #define SYNOUtime(arg1, arg2)			syscall(__NR_SYNOUtime, arg1, arg2)
 #endif
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 #define __NR_SYNOArchiveBit			403
 #define SYNOArchiveBit(arg1, arg2)		syscall(__NR_SYNOArchiveBit, arg1, arg2)
 #endif
@@ -424,14 +424,14 @@
 #define SYNODecryptName(arg1, arg2, arg3)         syscall(__NR_SYNODecryptName, arg1, arg2, arg3)
 #endif
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 #define __NR_SYNOACLCheckPerm               412
 #define SYNOACLSysCheckPerm(arg1, arg2)            syscall(__NR_SYNOACLCheckPerm, arg1, arg2)
 #define __NR_SYNOACLIsSupport               413
 #define SYNOACLSysIsSupport(arg1, arg2, arg3)            syscall(__NR_SYNOACLIsSupport, arg1, arg2, arg3)
 #define __NR_SYNOACLGetPerm               414
 #define SYNOACLSysGetPerm(arg1, arg2)            syscall(__NR_SYNOACLGetPerm, arg1, arg2)
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 
 #ifdef MY_ABC_HERE
 #define __NR_SYNOFlushAggregate       415
@@ -481,7 +481,7 @@
 #define syno_utime(arg1, arg2)			syscall(__NR_syno_utime, arg1, arg2)
 #endif
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 #define __NR_syno_archive_bit			803
 #define syno_archive_bit(arg1, arg2)		syscall(__NR_syno_archive_bit, arg1, arg2)
 #endif
@@ -512,14 +512,14 @@
 #define syno_decrypt_name(arg1, arg2, arg3)         syscall(__NR_syno_decrypt_name, arg1, arg2, arg3)
 #endif
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 #define __NR_syno_acl_check_perm               812
 #define syno_acl_check_perm(arg1, arg2)            syscall(__NR_syno_acl_check_perm, arg1, arg2)
 #define __NR_syno_acl_is_support               813
 #define syno_acl_is_support(arg1, arg2, arg3)            syscall(__NR_syno_acl_is_support, arg1, arg2, arg3)
 #define __NR_syno_acl_get_perm               814
 #define syno_acl_get_perm(arg1, arg2)            syscall(__NR_syno_acl_get_perm, arg1, arg2)
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 
 #ifdef MY_ABC_HERE
 #define __NR_syno_flush_aggregate       815

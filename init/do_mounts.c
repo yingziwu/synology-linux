@@ -384,6 +384,11 @@ void __init mount_block_root(char *name, int flags)
 		mnt_opts = root_mount_data;
 	}
 #endif
+#ifdef MY_ABC_HERE
+	if (!strcmp(name, "/dev/root")) {
+		flags |= MS_NOATIME;
+	}
+#endif /* MY_ABC_HERE */
 
 	get_fs_names(fs_names);
 retry:
