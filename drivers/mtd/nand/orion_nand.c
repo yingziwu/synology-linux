@@ -187,7 +187,7 @@ static int __init orion_nand_probe(struct platform_device *pdev)
 			board->parts, board->nr_parts);
 #endif /* MY_DEF_HERE */
 	if (ret) {
-		nand_release(mtd);
+		nand_cleanup(nc);
 		goto no_dev;
 	}
 

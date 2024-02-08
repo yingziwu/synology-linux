@@ -16,5 +16,6 @@ int btrfs_rbd_meta_file_mapping(struct inode *inode,
 
 int btrfs_delete_all_rbd_meta_file_records(struct inode *inode);
 int btrfs_activate_all_rbd_meta_files(struct btrfs_fs_info *fs_info);
+void btrfs_unpin_rbd_meta_file(struct inode *inode);
 
 #endif /* __BTRFS_SYNO_RBD_META_H_ */

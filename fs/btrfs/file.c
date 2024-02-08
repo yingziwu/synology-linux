@@ -705,6 +705,7 @@ int btrfs_dirty_pages(struct btrfs_root *root, struct inode *inode,
 	u64 end_of_last_block;
 	u64 end_pos = pos + write_bytes;
 	loff_t isize = i_size_read(inode);
+	unsigned int extra_bits = 0;
 
 	start_pos = pos & ~((u64)root->sectorsize - 1);
 	num_bytes = ALIGN(write_bytes + pos - start_pos, root->sectorsize);
@@ -720,7 +721,7 @@ int btrfs_dirty_pages(struct btrfs_root *root, struct inode *inode,
 			 EXTENT_DO_ACCOUNTING | EXTENT_DEFRAG, 0, 0, cached, GFP_NOFS);
 
 	err = btrfs_set_extent_delalloc(inode, start_pos, end_of_last_block,
-					cached);
+					extra_bits, cached);
 	if (err)
 		return err;
 
@@ -1413,7 +1414,7 @@ int btrfs_mark_extent_written(struct btrfs_trans_handle *trans,
 	int del_nr = 0;
 	int del_slot = 0;
 	int recow;
-	int ret;
+	int ret = 0;
 	u64 ino = btrfs_ino(inode);
 #ifdef MY_ABC_HERE
 	struct btrfs_key syno_usage_key;
@@ -1678,7 +1679,7 @@ again:
 	}
 out:
 	btrfs_free_path(path);
-	return 0;
+	return ret;
 }
 
 /*
@@ -2129,7 +2130,7 @@ again:
 		err = btrfs_syno_cache_protection_write_and_send_command(syno_cache_protection_req, &syno_cache_protection_parm);
 		if (err) {
 			btrfs_warn(root->fs_info, "Failed to SYNO Cache Protection send write command with root %llu inode %llu pg_index %lu fsid %pU err %d", root->objectid, btrfs_ino(inode),
-						page_index(dst_pages[0]), root->fs_info->fsid, err);
+						page_index(dst_pages[0]), root->fs_info->fs_devices->fsid, err);
 		}
 		syno_cache_protection_req = NULL;
 	}
@@ -2408,7 +2409,7 @@ again:
 		err = btrfs_syno_cache_protection_write_and_send_command(syno_cache_protection_req, &syno_cache_protection_parm);
 		if (err) {
 			btrfs_warn(root->fs_info, "Failed to SYNO Cache Protection send write command with root %llu inode %llu pg_index %lu fsid %pU err %d", root->objectid, btrfs_ino(inode),
-						page_index(pages[0]), root->fs_info->fsid, err);
+						page_index(pages[0]), root->fs_info->fs_devices->fsid, err);
 		}
 		syno_cache_protection_req = NULL;
 	}
@@ -2593,6 +2594,7 @@ static noinline ssize_t __btrfs_buffered_write(struct file *file,
 		}
 
 		reserve_bytes = num_pages << PAGE_CACHE_SHIFT;
+		only_release_metadata = false;
 
 		ret = btrfs_check_data_free_space(inode, pos, write_bytes);
 		if (ret < 0) {
@@ -2726,7 +2728,7 @@ again:
 			err = btrfs_syno_cache_protection_write_and_send_command(syno_cache_protection_req, &syno_cache_protection_parm);
 			if (err) {
 				btrfs_warn(root->fs_info, "Failed to SYNO Cache Protection send write command with root %llu inode %llu pg_index %lu fsid %pU err %d", root->objectid, btrfs_ino(inode),
-							page_index(pages[0]), root->fs_info->fsid, err);
+							page_index(pages[0]), root->fs_info->fs_devices->fsid, err);
 			}
 			syno_cache_protection_req = NULL;
 		}
@@ -2758,7 +2760,6 @@ again:
 			set_extent_bit(&BTRFS_I(inode)->io_tree, lockstart,
 				       lockend, EXTENT_NORESERVE, NULL,
 				       NULL, GFP_NOFS);
-			only_release_metadata = false;
 		}
 
 		btrfs_drop_pages(pages, num_pages);

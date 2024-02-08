@@ -107,35 +107,6 @@ void btrfs_put_transaction(struct btrfs_transaction *transaction)
 	}
 }
 
-static void clear_btree_io_tree(struct extent_io_tree *tree)
-{
-	spin_lock(&tree->lock);
-	/*
-	 * Do a single barrier for the waitqueue_active check here, the state
-	 * of the waitqueue should not change once clear_btree_io_tree is
-	 * called.
-	 */
-	smp_mb();
-	while (!RB_EMPTY_ROOT(&tree->state)) {
-		struct rb_node *node;
-		struct extent_state *state;
-
-		node = rb_first(&tree->state);
-		state = rb_entry(node, struct extent_state, rb_node);
-		rb_erase(&state->rb_node, &tree->state);
-		RB_CLEAR_NODE(&state->rb_node);
-		/*
-		 * btree io trees aren't supposed to have tasks waiting for
-		 * changes in the flags of extent states ever.
-		 */
-		ASSERT(!waitqueue_active(&state->wq));
-		free_extent_state(state);
-
-		cond_resched_lock(&tree->lock);
-	}
-	spin_unlock(&tree->lock);
-}
-
 static noinline void switch_commit_roots(struct btrfs_transaction *trans,
 					 struct btrfs_fs_info *fs_info)
 {
@@ -149,7 +120,7 @@ static noinline void switch_commit_roots(struct btrfs_transaction *trans,
 		root->commit_root = btrfs_root_node(root);
 		if (is_fstree(root->objectid))
 			btrfs_unpin_free_ino(root);
-		clear_btree_io_tree(&root->dirty_log_pages);
+		extent_io_tree_release(&root->dirty_log_pages);
 	}
 
 	/* We can free old roots now. */
@@ -1190,7 +1161,7 @@ int btrfs_write_marked_extents(struct btrfs_root *root,
 		 * btree nodes/leafs for which writeback hasn't finished yet
 		 * (and without errors).
 		 * We cleanup any entries left in the io tree when committing
-		 * the transaction (through clear_btree_io_tree()).
+		 * the transaction (through extent_io_tree_release()).
 		 */
 		if (err == -ENOMEM) {
 			err = 0;
@@ -1242,7 +1213,7 @@ int btrfs_wait_marked_extents(struct btrfs_root *root,
 		 * left in the io tree. For a log commit, we don't remove them
 		 * after committing the log because the tree can be accessed
 		 * concurrently - we do it only at transaction commit time when
-		 * it's safe to do it (through clear_btree_io_tree()).
+		 * it's safe to do it (through extent_io_tree_release()).
 		 */
 		err = clear_extent_bit(dirty_pages, start, end,
 				       EXTENT_NEED_WAIT,
@@ -1331,7 +1302,7 @@ static int btrfs_write_and_wait_transaction(struct btrfs_trans_handle *trans,
 					   , total_count, total_size
 #endif /* MY_ABC_HERE */
 					   );
-	clear_btree_io_tree(&trans->transaction->dirty_pages);
+	extent_io_tree_release(&trans->transaction->dirty_pages);
 
 	return ret;
 }
@@ -1576,8 +1547,10 @@ int btrfs_defrag_root(struct btrfs_root *root)
 
 	while (1) {
 		trans = btrfs_start_transaction(root, 0);
-		if (IS_ERR(trans))
-			return PTR_ERR(trans);
+		if (IS_ERR(trans)) {
+			ret = PTR_ERR(trans);
+			break;
+		}
 
 		ret = btrfs_defrag_leaves(trans, root);
 
@@ -1975,7 +1948,11 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 #endif /* MY_ABC_HERE */
 
 	key.offset = (u64)-1;
-	pending->snap = btrfs_read_fs_root_no_name(root->fs_info, &key);
+	pending->snap = btrfs_get_new_fs_root(fs_info, &key
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+										 , pending->new_fs_root_args
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
+										 );
 	if (IS_ERR(pending->snap)) {
 		ret = PTR_ERR(pending->snap);
 		btrfs_abort_transaction(trans, root, ret);
@@ -1983,6 +1960,14 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	}
 #ifdef MY_ABC_HERE
 	pending->snap->invalid_quota = invalid_quota;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	ret = btrfs_syno_locker_snapshot_clone(trans, pending->snap, root);
+	if (ret) {
+		btrfs_abort_transaction(trans, root, ret);
+		goto fail;
+	}
 #endif /* MY_ABC_HERE */
 
 	ret = btrfs_reloc_post_snapshot(trans, pending);
@@ -2481,6 +2466,9 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	struct btrfs_inode *btree_ino = BTRFS_I(root->fs_info->btree_inode);
 	int ret;
 #ifdef MY_ABC_HERE
+	struct timespec64 locker_clock;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	struct syno_btrfs_commit_stats stats;
 	unsigned long processed_count = 0;
 	unsigned long processed_inodes = 0;
@@ -2495,6 +2483,14 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 		trans->syno_cache_protection_req = NULL;
 	}
 #endif /* MY_DEF_HERE */
+
+	/*
+	 * Some places just start a transaction to commit it.  We need to make
+	 * sure that if this commit fails that the abort code actually marks the
+	 * transaction as failed, so set trans->dirty to make the abort code do
+	 * the right thing.
+	 */
+	trans->dirty = true;
 
 	/* Stop the commit early if ->aborted is set */
 	if (unlikely(ACCESS_ONCE(cur_trans->aborted))) {
@@ -2931,8 +2927,14 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 #ifdef MY_ABC_HERE
 	btrfs_set_super_syno_rbd_first_mapping_table_offset(
 			root->fs_info->super_copy,
-			root->fs_info->syno_rbd_first_mapping_table_offset);
+			root->fs_info->syno_rbd.first_mapping_table_offset);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	locker_clock = btrfs_syno_locker_fs_clock_get(root->fs_info);
+	btrfs_set_super_syno_locker_clock(root->fs_info->super_copy, locker_clock.tv_sec);
+	btrfs_syno_locker_update_work_kick(root->fs_info);
+#endif /* MY_ABC_HERE */
+
 	memcpy(root->fs_info->super_for_commit, root->fs_info->super_copy,
 	       sizeof(*root->fs_info->super_copy));
 
@@ -3008,7 +3010,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 		parm.transid = cur_trans->transid;
 		err = btrfs_syno_cache_protection_exec_command(SYNO_CACHE_PROTECTION_BTRFS_COMMAND_CHECKPOINT_END, root->fs_info, &parm);
 		if (err) {
-			btrfs_warn(root->fs_info, "Failed to SYNO Cache Protection send checkpoint end command with transid %llu fsid %pU err %d", parm.transid, root->fs_info->fsid, err);
+			btrfs_warn(root->fs_info, "Failed to SYNO Cache Protection send checkpoint end command with transid %llu fsid %pU err %d", parm.transid, root->fs_info->fs_devices->fsid, err);
 		}
 	}
 #endif /* MY_DEF_HERE */

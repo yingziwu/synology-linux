@@ -455,7 +455,7 @@ int mmc_spi_set_crc(struct mmc_host *host, int use_crc)
 	return err;
 }
 
-int mmc_switch_status_error(struct mmc_host *host, u32 status)
+static int mmc_switch_status_error(struct mmc_host *host, u32 status)
 {
 	if (mmc_host_is_spi(host)) {
 		if (status & R1_SPI_ILLEGAL_COMMAND)
@@ -468,6 +468,26 @@ int mmc_switch_status_error(struct mmc_host *host, u32 status)
 			return -EBADMSG;
 	}
 	return 0;
+}
+
+/* Caller must hold re-tuning */
+int __mmc_switch_status(struct mmc_card *card, bool crc_err_fatal)
+{
+	u32 status;
+	int err;
+
+	err = mmc_send_status(card, &status);
+	if (!crc_err_fatal && err == -EILSEQ)
+		return 0;
+	if (err)
+		return err;
+
+	return mmc_switch_status_error(card->host, status);
+}
+
+int mmc_switch_status(struct mmc_card *card)
+{
+	return __mmc_switch_status(card, true);
 }
 
 /**
