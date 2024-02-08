@@ -58,6 +58,7 @@ struct fb_info *framebuffer_alloc(size_t size, struct device *dev)
 		info->par = p + fb_info_size;
 
 	info->device = dev;
+	info->fbcon_rotate_hint = -1;
 
 #ifdef CONFIG_FB_BACKLIGHT
 	mutex_init(&info->bl_curve_mutex);
@@ -255,7 +256,6 @@ static ssize_t store_rotate(struct device *device,
 
 	return count;
 }
-
 
 static ssize_t show_rotate(struct device *device,
 			   struct device_attribute *attr, char *buf)

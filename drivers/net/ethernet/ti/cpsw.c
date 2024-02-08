@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Texas Instruments Ethernet Switch Driver
  *
@@ -252,7 +255,6 @@ struct cpsw_ss_regs {
 #define CTRL_V2_ALL_TS_MASK (CTRL_V2_TS_BITS | TS_TX_EN | TS_RX_EN)
 #define CTRL_V2_TX_TS_BITS  (CTRL_V2_TS_BITS | TS_TX_EN)
 #define CTRL_V2_RX_TS_BITS  (CTRL_V2_TS_BITS | TS_RX_EN)
-
 
 #define CTRL_V3_TS_BITS \
 	(TS_320 | TS_319 | TS_132 | TS_131 | TS_130 | TS_129 |\
@@ -1159,8 +1161,13 @@ static void cpsw_slave_open(struct cpsw_slave *slave, struct cpsw_priv *priv)
 			slave->data->phy_id, slave->slave_num);
 		slave->phy = NULL;
 	} else {
+#if defined(MY_DEF_HERE)
+		phy_attached_info(slave->phy);
+
+#else /* MY_DEF_HERE */
 		dev_info(priv->dev, "phy found : id is : 0x%x\n",
 			 slave->phy->phy_id);
+#endif /* MY_DEF_HERE */
 		phy_start(slave->phy);
 
 		/* Configure GMII_SEL register */
@@ -2049,8 +2056,14 @@ static int cpsw_probe_dt(struct cpsw_priv *priv,
 			phy_dev = of_phy_find_device(phy_node);
 			if (!phy_dev)
 				return -ENODEV;
+#if defined(MY_DEF_HERE)
+			snprintf(slave_data->phy_id, sizeof(slave_data->phy_id),
+				 PHY_ID_FMT, phy_dev->mdio.bus->id,
+				 phy_dev->mdio.addr);
+#else /* MY_DEF_HERE */
 			snprintf(slave_data->phy_id, sizeof(slave_data->phy_id),
 				 PHY_ID_FMT, phy_dev->bus->id, phy_dev->addr);
+#endif /* MY_DEF_HERE */
 		} else if (parp) {
 			u32 phyid;
 			struct device_node *mdio_node;

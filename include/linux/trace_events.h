@@ -114,7 +114,6 @@ enum trace_iter_flags {
 	TRACE_FILE_TIME_IN_NS	= 4,
 };
 
-
 typedef enum print_line_t (*trace_print_func)(struct trace_iterator *iter,
 				      int flags, struct trace_event *event);
 
@@ -301,6 +300,7 @@ struct trace_event_call {
 	int				perf_refcount;
 	struct hlist_head __percpu	*perf_events;
 	struct bpf_prog			*prog;
+	struct perf_event		*bpf_prog_owner;
 
 	int	(*perf_perm)(struct trace_event_call *,
 			     struct perf_event *);

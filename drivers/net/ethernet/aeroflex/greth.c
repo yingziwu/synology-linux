@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Aeroflex Gaisler GRETH 10/100/1G Ethernet MAC.
  *
@@ -212,7 +215,6 @@ static void greth_clean_rings(struct greth_private *greth)
 			dev_kfree_skb(skb);
 		}
 
-
 	} else { /* 10/100 Mbps MAC */
 
 		for (i = 0; i < GRETH_RXBD_NUM; i++, rx_bdp++) {
@@ -418,7 +420,6 @@ greth_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	if (netif_msg_pktdata(greth))
 		greth_print_tx_packet(skb);
 
-
 	if (unlikely(skb->len > MAX_FRAME_SIZE)) {
 		dev->stats.tx_errors++;
 		goto out;
@@ -503,7 +504,6 @@ greth_start_xmit_gbit(struct sk_buff *skb, struct net_device *dev)
 	status |= skb_headlen(skb) & GRETH_BD_LEN;
 	if (greth->tx_next == GRETH_TXBD_NUM_MASK)
 		status |= GRETH_BD_WR;
-
 
 	bdp = greth->tx_bd_base + greth->tx_next;
 	greth_write_bd(&bdp->stat, status);
@@ -1337,10 +1337,14 @@ static int greth_mdio_init(struct greth_private *greth)
 	greth->mdio->write = greth_mdio_write;
 	greth->mdio->priv = greth;
 
+#if defined(MY_DEF_HERE)
+//do nothing
+#else /* MY_DEF_HERE */
 	greth->mdio->irq = greth->mdio_irqs;
 
 	for (phy = 0; phy < PHY_MAX_ADDR; phy++)
 		greth->mdio->irq[phy] = PHY_POLL;
+#endif /* MY_DEF_HERE */
 
 	ret = mdiobus_register(greth->mdio);
 	if (ret) {

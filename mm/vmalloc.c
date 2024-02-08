@@ -21,6 +21,7 @@
 #include <linux/debugobjects.h>
 #include <linux/kallsyms.h>
 #include <linux/list.h>
+#include <linux/notifier.h>
 #include <linux/rbtree.h>
 #include <linux/radix-tree.h>
 #include <linux/rcupdate.h>
@@ -271,7 +272,6 @@ unsigned long vmalloc_to_pfn(const void *vmalloc_addr)
 }
 EXPORT_SYMBOL(vmalloc_to_pfn);
 
-
 /*** Global kva allocator ***/
 
 #define VM_LAZY_FREE	0x01
@@ -344,6 +344,8 @@ static void __insert_vmap_area(struct vmap_area *va)
 
 static void purge_vmap_area_lazy(void);
 
+static BLOCKING_NOTIFIER_HEAD(vmap_notify_list);
+
 /*
  * Allocate a region of KVA of the specified size and alignment, within the
  * vstart and vend.
@@ -362,6 +364,8 @@ static struct vmap_area *alloc_vmap_area(unsigned long size,
 	BUG_ON(!size);
 	BUG_ON(offset_in_page(size));
 	BUG_ON(!is_power_of_2(align));
+
+	might_sleep_if(gfpflags_allow_blocking(gfp_mask));
 
 	va = kmalloc_node(sizeof(struct vmap_area),
 			gfp_mask & GFP_RECLAIM_MASK, node);
@@ -469,12 +473,34 @@ overflow:
 		purged = 1;
 		goto retry;
 	}
+
+	if (gfpflags_allow_blocking(gfp_mask)) {
+		unsigned long freed = 0;
+		blocking_notifier_call_chain(&vmap_notify_list, 0, &freed);
+		if (freed > 0) {
+			purged = 0;
+			goto retry;
+		}
+	}
+
 	if (printk_ratelimit())
 		pr_warn("vmap allocation for size %lu failed: "
 			"use vmalloc=<size> to increase size.\n", size);
 	kfree(va);
 	return ERR_PTR(-EBUSY);
 }
+
+int register_vmap_purge_notifier(struct notifier_block *nb)
+{
+	return blocking_notifier_chain_register(&vmap_notify_list, nb);
+}
+EXPORT_SYMBOL_GPL(register_vmap_purge_notifier);
+
+int unregister_vmap_purge_notifier(struct notifier_block *nb)
+{
+	return blocking_notifier_chain_unregister(&vmap_notify_list, nb);
+}
+EXPORT_SYMBOL_GPL(unregister_vmap_purge_notifier);
 
 static void __free_vmap_area(struct vmap_area *va)
 {
@@ -724,7 +750,6 @@ static void free_unmap_vmap_area_addr(unsigned long addr)
 	BUG_ON(!va);
 	free_unmap_vmap_area(va);
 }
-
 
 /*** Per cpu kva allocator ***/
 
@@ -1730,6 +1755,12 @@ static inline void *__vmalloc_node_flags(unsigned long size,
 					node, __builtin_return_address(0));
 }
 
+void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
+				  void *caller)
+{
+	return __vmalloc_node(size, 1, flags, PAGE_KERNEL, node, caller);
+}
+
 /**
  *	vmalloc  -  allocate virtually contiguous memory
  *	@size:		allocation size
@@ -2214,7 +2245,6 @@ void __weak vmalloc_sync_all(void)
 {
 }
 
-
 static int f(pte_t *pte, pgtable_t table, unsigned long addr, void *data)
 {
 	pte_t ***p = data;
@@ -2690,4 +2720,3 @@ static int __init proc_vmalloc_init(void)
 module_init(proc_vmalloc_init);
 
 #endif
-

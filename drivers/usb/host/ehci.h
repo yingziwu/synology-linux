@@ -177,7 +177,6 @@ struct ehci_hcd {			/* one per controller */
 	unsigned		periodic_count;	/* periodic activity count */
 	unsigned		uframe_periodic_max; /* max periodic time per uframe */
 
-
 	/* list of itds & sitds completed while now_frame was still active */
 	struct list_head	cached_itd_list;
 	struct ehci_itd		*last_itd_to_free;
@@ -227,6 +226,11 @@ struct ehci_hcd {			/* one per controller */
 	unsigned		frame_index_bug:1; /* MosChip (AKA NetMos) */
 	unsigned		need_oc_pp_cycle:1; /* MPC834X port power */
 	unsigned		imx28_write_fix:1; /* For Freescale i.MX28 */
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_USB_PATCH_ON_RTK
+	unsigned		fixed_async_list_addr_bug:1;
+#endif
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 
 	/* required for usb32 quirk */
 	#define OHCI_CTRL_HCFS          (3 << 6)
@@ -858,7 +862,6 @@ static inline u32 hc32_to_cpup (const struct ehci_hcd *ehci, const __hc32 *x)
 	dev_info(ehci_to_hcd(ehci)->self.controller , fmt , ## args)
 #define ehci_warn(ehci, fmt, args...) \
 	dev_warn(ehci_to_hcd(ehci)->self.controller , fmt , ## args)
-
 
 #ifndef CONFIG_DYNAMIC_DEBUG
 #define STUB_DEBUG_FILES

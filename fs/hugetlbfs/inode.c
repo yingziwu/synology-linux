@@ -141,7 +141,7 @@ static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
 
 	vma_len = (loff_t)(vma->vm_end - vma->vm_start);
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	file_accessed(file);
 
 	ret = -ENOMEM;
@@ -157,7 +157,7 @@ static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
 	if (vma->vm_flags & VM_WRITE && inode->i_size < len)
 		inode->i_size = len;
 out:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 
 	return ret;
 }
@@ -191,7 +191,7 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
 		addr = ALIGN(addr, huge_page_size(h));
 		vma = find_vma(mm, addr);
 		if (TASK_SIZE - len >= addr &&
-		    (!vma || addr + len <= vma->vm_start))
+		    (!vma || addr + len <= vm_start_gap(vma)))
 			return addr;
 	}
 
@@ -323,7 +323,6 @@ static void remove_huge_page(struct page *page)
 	ClearPageUptodate(page);
 	delete_from_page_cache(page);
 }
-
 
 /*
  * remove_inode_hugepages handles two distinct cases: truncation and hole
@@ -524,7 +523,7 @@ static long hugetlbfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
 	if (hole_end > hole_start) {
 		struct address_space *mapping = inode->i_mapping;
 
-		mutex_lock(&inode->i_mutex);
+		inode_lock(inode);
 		i_mmap_lock_write(mapping);
 		if (!RB_EMPTY_ROOT(&mapping->i_mmap))
 			hugetlb_vmdelete_list(&mapping->i_mmap,
@@ -532,7 +531,7 @@ static long hugetlbfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
 						hole_end  >> PAGE_SHIFT);
 		i_mmap_unlock_write(mapping);
 		remove_inode_hugepages(inode, hole_start, hole_end);
-		mutex_unlock(&inode->i_mutex);
+		inode_unlock(inode);
 	}
 
 	return 0;
@@ -566,7 +565,7 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
 	start = offset >> hpage_shift;
 	end = (offset + len + hpage_size - 1) >> hpage_shift;
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 
 	/* We need to check rlimit even when FALLOC_FL_KEEP_SIZE */
 	error = inode_newsize_ok(inode, offset + len);
@@ -653,7 +652,7 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
 		i_size_write(inode, offset + len);
 	inode->i_ctime = CURRENT_TIME;
 out:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	return error;
 }
 
@@ -917,7 +916,6 @@ static void hugetlbfs_inc_free_inodes(struct hugetlbfs_sb_info *sbinfo)
 	}
 }
 
-
 static struct kmem_cache *hugetlbfs_inode_cachep;
 
 static struct inode *hugetlbfs_alloc_inode(struct super_block *sb)
@@ -954,7 +952,6 @@ static const struct address_space_operations hugetlbfs_aops = {
 	.set_page_dirty	= hugetlbfs_set_page_dirty,
 	.migratepage    = hugetlbfs_migrate_page,
 };
-
 
 static void init_once(void *foo)
 {
@@ -1363,7 +1360,6 @@ static void __exit exit_hugetlbfs_fs(void)
 {
 	struct hstate *h;
 	int i;
-
 
 	/*
 	 * Make sure all delayed rcu free inodes are flushed before we

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright(c) 1999 - 2004 Intel Corporation. All rights reserved.
  *
@@ -128,7 +131,6 @@ static void ad_marker_info_received(struct bond_marker *marker_info,
 static void ad_marker_response_received(struct bond_marker *marker,
 					struct port *port);
 static void ad_update_actor_keys(struct port *port, bool reset);
-
 
 /* ================= api to bonding and kernel code ================== */
 
@@ -389,7 +391,6 @@ static u16 __ad_timer_to_ticks(u16 timer_type, u16 par)
 
 	return retval;
 }
-
 
 /* ================= ad_rx_machine helper functions ================== */
 
@@ -2373,6 +2374,9 @@ void bond_3ad_adapter_speed_duplex_changed(struct slave *slave)
 	ad_update_actor_keys(port, false);
 	netdev_dbg(slave->bond->dev, "Port %d slave %s changed speed/duplex\n",
 		   port->actor_port_number, slave->dev->name);
+#ifdef MY_ABC_HERE
+	port->sm_vars |= AD_PORT_BEGIN;
+#endif /* CONFIG_SYNO_8023AD_LINK_STATUS */
 	spin_unlock_bh(&slave->bond->mode_lock);
 }
 
