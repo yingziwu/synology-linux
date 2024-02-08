@@ -25,7 +25,6 @@
 
 #include <linux/types.h>
 
-
 /*
  *  protocol version
  */

@@ -498,7 +498,6 @@ exit:
 	return retval;
 }
 
-
 static const struct i2c_algorithm smbus_algorithm = {
 	.smbus_xfer	= sis630_access,
 	.functionality	= sis630_func,
@@ -546,7 +545,6 @@ static void sis630_remove(struct pci_dev *dev)
 		smbus_base = 0;
 	}
 }
-
 
 static struct pci_driver sis630_driver = {
 	.name		= "sis630_smbus",

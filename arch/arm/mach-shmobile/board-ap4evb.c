@@ -1084,7 +1084,6 @@ static struct i2c_board_info i2c1_devices[] = {
 	},
 };
 
-
 static const struct pinctrl_map ap4evb_pinctrl_map[] = {
 	/* MMCIF */
 	PIN_MAP_MUX_GROUP_DEFAULT("sh_mmcif.0", "pfc-sh7372",

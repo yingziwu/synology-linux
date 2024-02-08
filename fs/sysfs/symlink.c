@@ -320,7 +320,6 @@ const struct inode_operations sysfs_symlink_inode_operations = {
 	.permission	= sysfs_permission,
 };
 
-
 EXPORT_SYMBOL_GPL(sysfs_create_link);
 EXPORT_SYMBOL_GPL(sysfs_remove_link);
 EXPORT_SYMBOL_GPL(sysfs_rename_link);

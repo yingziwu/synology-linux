@@ -377,7 +377,6 @@ wait_on_recovery:
 	return ret;
 }
 
-
 static void do_renew_lease(struct nfs_client *clp, unsigned long timestamp)
 {
 	spin_lock(&clp->cl_lock);
@@ -708,7 +707,6 @@ void nfs41_init_sequence(struct nfs4_sequence_args *args,
 static void nfs4_set_sequence_privileged(struct nfs4_sequence_args *args)
 {
 }
-
 
 static int nfs4_sequence_done(struct rpc_task *task,
 			       struct nfs4_sequence_res *res)
@@ -1057,7 +1055,6 @@ no_delegation:
 
 	return ret;
 }
-
 
 static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmode)
 {
@@ -2075,7 +2072,6 @@ out_err:
 	*res = NULL;
 	return status;
 }
-
 
 static struct nfs4_state *nfs4_do_open(struct inode *dir,
 					struct dentry *dentry,
@@ -6967,7 +6963,6 @@ static bool nfs4_match_stateid(const nfs4_stateid *s1,
 {
 	return nfs4_stateid_match(s1, s2);
 }
-
 
 static const struct nfs4_state_recovery_ops nfs40_reboot_recovery_ops = {
 	.owner_flag_bit = NFS_OWNER_RECLAIM_REBOOT,

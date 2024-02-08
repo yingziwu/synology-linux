@@ -2571,7 +2571,6 @@ static ssize_t ocfs2_file_aio_read(struct kiocb *iocb,
 			filp->f_path.dentry->d_name.len,
 			filp->f_path.dentry->d_name.name, nr_segs);
 
-
 	if (!inode) {
 		ret = -EINVAL;
 		mlog_errno(ret);

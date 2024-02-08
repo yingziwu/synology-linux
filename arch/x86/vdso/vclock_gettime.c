@@ -89,7 +89,6 @@ static notrace cycle_t vread_pvclock(int *mode)
 	u8 flags;
 	unsigned cpu, cpu1;
 
-
 	/*
 	 * When looping to get a consistent (time-info, tsc) pair, we
 	 * also need to deal with the possibility we can switch vcpus,
@@ -149,7 +148,6 @@ notrace static long vdso_fallback_gtod(struct timeval *tv, struct timezone *tz)
 	    "0" (__NR_gettimeofday), "D" (tv), "S" (tz) : "memory");
 	return ret;
 }
-
 
 notrace static inline u64 vgetsns(int *mode)
 {

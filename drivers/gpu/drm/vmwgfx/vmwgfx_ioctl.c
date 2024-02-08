@@ -77,7 +77,6 @@ int vmw_getparam_ioctl(struct drm_device *dev, void *data,
 	return 0;
 }
 
-
 int vmw_get_cap_3d_ioctl(struct drm_device *dev, void *data,
 			 struct drm_file *file_priv)
 {
@@ -282,7 +281,6 @@ out_clips:
 	return ret;
 }
 
-
 /**
  * vmw_fops_poll - wrapper around the drm_poll function
  *
@@ -301,7 +299,6 @@ unsigned int vmw_fops_poll(struct file *filp, struct poll_table_struct *wait)
 	vmw_fifo_ping_host(dev_priv, SVGA_SYNC_GENERIC);
 	return drm_poll(filp, wait);
 }
-
 
 /**
  * vmw_fops_read - wrapper around the drm_read function

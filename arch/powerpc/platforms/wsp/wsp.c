@@ -62,7 +62,6 @@ void __init wsp_setup_irq(void)
 	opb_pic_init();
 }
 
-
 int __init wsp_probe_devices(void)
 {
 	struct device_node *np;

@@ -43,7 +43,6 @@
  *                                                                           *
  *****************************************************************************/
 
-
 /*
  * _hash_page_4K(unsigned long ea, unsigned long access, unsigned long vsid,
  *		 pte_t *ptep, unsigned long trap, int local, int ssize)
@@ -319,9 +318,7 @@ htab_pte_insert_failure:
 	li	r3,-1
 	b	htab_bail
 
-
 #else /* CONFIG_PPC_64K_PAGES */
-
 
 /*****************************************************************************
  *                                                                           *
@@ -967,9 +964,7 @@ ht64_pte_insert_failure:
 	li	r3,-1
 	b	ht64_bail
 
-
 #endif /* CONFIG_PPC_HAS_HASH_64K */
-
 
 /*****************************************************************************
  *                                                                           *

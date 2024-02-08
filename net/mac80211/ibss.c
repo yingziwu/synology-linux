@@ -33,7 +33,6 @@
 
 #define IEEE80211_IBSS_MAX_STA_ENTRIES 128
 
-
 static void __ieee80211_sta_join_ibss(struct ieee80211_sub_if_data *sdata,
 				      const u8 *bssid, const int beacon_int,
 				      struct ieee80211_channel *chan,

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * ld script for the x86 kernel
  *
@@ -79,6 +82,15 @@ PHDRS {
 	note PT_NOTE FLAGS(0);          /* ___ */
 }
 
+#ifdef MY_DEF_HERE
+#else
+#ifdef CONFIG_KAISER
+#define ALIGN_KAISER()	. = ALIGN(PAGE_SIZE);
+#else
+#define ALIGN_KAISER()
+#endif
+#endif	/* MY_DEF_HERE */
+
 SECTIONS
 {
 #ifdef CONFIG_X86_32
@@ -99,9 +111,17 @@ SECTIONS
 		TEXT_TEXT
 		SCHED_TEXT
 		LOCK_TEXT
+#ifdef MY_DEF_HERE
+#else
+		ALIGN_KAISER()
+#endif	/* MY_DEF_HERE */
 		KPROBES_TEXT
 		ENTRY_TEXT
 		IRQENTRY_TEXT
+#ifdef MY_DEF_HERE
+#else
+		ALIGN_KAISER()
+#endif	/* MY_DEF_HERE */
 		*(.fixup)
 		*(.gnu.warning)
 		/* End of text section */
@@ -322,7 +342,6 @@ SECTIONS
 	/DISCARD/ : { *(.eh_frame) }
 }
 
-
 #ifdef CONFIG_X86_32
 /*
  * The ASSERT() sink to . is intentional, for binutils 2.14 compatibility:
@@ -357,4 +376,3 @@ INIT_PER_CPU(irq_stack_union);
 . = ASSERT(kexec_control_code_size <= KEXEC_CONTROL_CODE_MAX_SIZE,
            "kexec control code size is too big");
 #endif
-

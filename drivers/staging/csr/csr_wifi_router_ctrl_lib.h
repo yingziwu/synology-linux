@@ -65,7 +65,6 @@ const char* CsrWifiRouterCtrlTrafficConfigTypeToString(CsrWifiRouterCtrlTrafficC
 const char* CsrWifiRouterCtrlTrafficPacketTypeToString(CsrWifiRouterCtrlTrafficPacketType value);
 const char* CsrWifiRouterCtrlTrafficTypeToString(CsrWifiRouterCtrlTrafficType value);
 
-
 /*----------------------------------------------------------------------------*
  * CsrPrim Type toString function.
  * Converts a message type to the String name of the Message

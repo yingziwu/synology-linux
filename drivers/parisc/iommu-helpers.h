@@ -35,7 +35,6 @@ iommu_fill_pdir(struct ioc *ioc, struct scatterlist *startsg, int nents,
 			   sg_virt_addr(startsg), startsg->length
 		);
 
-
 		/*
 		** Look for the start of a new DMA stream
 		*/
@@ -84,7 +83,6 @@ iommu_fill_pdir(struct ioc *ioc, struct scatterlist *startsg, int nents,
 	}
 	return(n_mappings);
 }
-
 
 /*
 ** First pass is to walk the SG list and determine where the breaks are
@@ -176,4 +174,3 @@ iommu_coalesce_chunks(struct ioc *ioc, struct device *dev,
 
 	return n_mappings;
 }
-

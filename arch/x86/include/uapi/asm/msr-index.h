@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_MSR_INDEX_H
 #define _ASM_X86_MSR_INDEX_H
 
@@ -32,6 +35,13 @@
 #define EFER_FFXSR		(1<<_EFER_FFXSR)
 
 /* Intel MSRs. Some also available on other CPUs */
+
+#ifdef MY_DEF_HERE
+#else
+#define MSR_IA32_SPEC_CTRL		0x00000048
+#define MSR_IA32_PRED_CMD		0x00000049
+#endif	/* MY_DEF_HERE */
+
 #define MSR_IA32_PERFCTR0		0x000000c1
 #define MSR_IA32_PERFCTR1		0x000000c2
 #define MSR_FSB_FREQ			0x000000cd
@@ -209,6 +219,12 @@
 #define MSR_F15H_PERF_CTR		0xc0010201
 #define MSR_F15H_NB_PERF_CTL		0xc0010240
 #define MSR_F15H_NB_PERF_CTR		0xc0010241
+#ifdef MY_DEF_HERE
+#else
+#define MSR_F15H_PTSC			0xc0010280
+#define MSR_F15H_IC_CFG			0xc0011021
+#define MSR_F15H_IC_CFG_DIS_IND		BIT_ULL(14)
+#endif	/* MY_DEF_HERE */
 
 /* Fam 10h MSRs */
 #define MSR_FAM10H_MMIO_CONF_BASE	0xc0010058
@@ -218,6 +234,11 @@
 #define FAM10H_MMIO_CONF_BASE_MASK	0xfffffffULL
 #define FAM10H_MMIO_CONF_BASE_SHIFT	20
 #define MSR_FAM10H_NODE_ID		0xc001100c
+#ifdef MY_DEF_HERE
+#else
+#define MSR_F10H_DECFG			0xc0011029
+#define MSR_F10H_DECFG_LFENCE_SERIALIZE_BIT	1
+#endif	/* MY_DEF_HERE */
 
 /* K8 MSRs */
 #define MSR_K8_TOP_MEM1			0xc001001a
@@ -294,6 +315,11 @@
 #define FEATURE_CONTROL_LOCKED				(1<<0)
 #define FEATURE_CONTROL_VMXON_ENABLED_INSIDE_SMX	(1<<1)
 #define FEATURE_CONTROL_VMXON_ENABLED_OUTSIDE_SMX	(1<<2)
+#ifdef MY_DEF_HERE
+#else
+#define FEATURE_ENABLE_IBRS				(1<<0)
+#define FEATURE_SET_IBPB				(1<<0)
+#endif	/* MY_DEF_HERE */
 
 #define MSR_IA32_APICBASE		0x0000001b
 #define MSR_IA32_APICBASE_BSP		(1<<8)

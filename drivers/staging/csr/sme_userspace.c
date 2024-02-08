@@ -110,10 +110,8 @@ uf_sme_init(unifi_priv_t *priv)
         interfacePriv->sta_activity_check_enabled = FALSE;
     }
 
-
     return 0;
 } /* uf_sme_init() */
-
 
 void
 uf_sme_deinit(unifi_priv_t *priv)
@@ -180,12 +178,7 @@ uf_sme_deinit(unifi_priv_t *priv)
         priv->interfacePriv[i]->interfaceMode = CSR_WIFI_ROUTER_CTRL_MODE_NONE;
     }
 
-
 } /* uf_sme_deinit() */
-
-
-
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -241,7 +234,6 @@ unifi_ta_indicate_protocol(void *ospriv,
 
 } /* unifi_ta_indicate_protocol() */
 
-
 /*
  * ---------------------------------------------------------------------------
  * unifi_ta_indicate_sampling
@@ -276,7 +268,6 @@ unifi_ta_indicate_sampling(void *ospriv, CsrWifiRouterCtrlTrafficStats *stats)
     queue_work(priv->unifi_workqueue, &priv->ta_sample_ind_work.task);
 
 } /* unifi_ta_indicate_sampling() */
-
 
 /*
  * ---------------------------------------------------------------------------

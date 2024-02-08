@@ -58,7 +58,6 @@
 #include "vport-internal_dev.h"
 #include "vport-netdev.h"
 
-
 #define REHASH_FLOW_INTERVAL (10 * 60 * HZ)
 static void rehash_flow_table(struct work_struct *work);
 static DECLARE_DELAYED_WORK(rehash_flow_wq, rehash_flow_table);
@@ -647,7 +646,6 @@ static int validate_actions(const struct nlattr *attr,
 			if (nla_get_u32(a) >= DP_MAX_PORTS)
 				return -EINVAL;
 			break;
-
 
 		case OVS_ACTION_ATTR_POP_VLAN:
 			break;

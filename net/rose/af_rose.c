@@ -1041,7 +1041,7 @@ int rose_rx_call_request(struct sk_buff *skb, struct net_device *dev, struct ros
 	rose_start_heartbeat(make);
 
 	if (!sock_flag(sk, SOCK_DEAD))
-		sk->sk_data_ready(sk, skb->len);
+		sk->sk_data_ready(sk);
 
 	return 1;
 }
@@ -1210,7 +1210,6 @@ static int rose_sendmsg(struct kiocb *iocb, struct socket *sock,
 	return len;
 }
 
-
 static int rose_recvmsg(struct kiocb *iocb, struct socket *sock,
 			struct msghdr *msg, size_t size, int flags)
 {
@@ -1270,7 +1269,6 @@ static int rose_recvmsg(struct kiocb *iocb, struct socket *sock,
 
 	return copied;
 }
-
 
 static int rose_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 {

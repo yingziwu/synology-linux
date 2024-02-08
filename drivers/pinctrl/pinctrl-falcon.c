@@ -224,9 +224,6 @@ static struct ltq_pmx_func falcon_funcs[] = {
 	{"pcm",		ARRAY_AND_SIZE(ltq_pcm_grps)},
 };
 
-
-
-
 /* ---------  pinconf related code --------- */
 static int falcon_pinconf_group_get(struct pinctrl_dev *pctrldev,
 				unsigned group, unsigned long *config)
@@ -394,9 +391,6 @@ static struct ltq_pinmux_info falcon_info = {
 	.params		= falcon_cfg_params,
 	.num_params	= ARRAY_SIZE(falcon_cfg_params),
 };
-
-
-
 
 /* --------- register the pinctrl layer --------- */
 

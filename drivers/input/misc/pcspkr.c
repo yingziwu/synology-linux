@@ -135,4 +135,3 @@ static struct platform_driver pcspkr_platform_driver = {
 	.shutdown	= pcspkr_shutdown,
 };
 module_platform_driver(pcspkr_platform_driver);
-

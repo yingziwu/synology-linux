@@ -65,7 +65,6 @@ MODULE_DEVICE_TABLE(sdio, brcmf_sdmmc_ids);
 
 static struct brcmfmac_sdio_platform_data *brcmfmac_sdio_pdata;
 
-
 static bool
 brcmf_pm_resume_error(struct brcmf_sdio_dev *sdiodev)
 {

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/stat.h>
 #include <linux/sysctl.h>
 #include "../fs/xfs/xfs_sysctl.h"
@@ -582,7 +585,6 @@ static const struct bin_table bin_net_tr_table[] = {
 	{}
 };
 
-
 static const struct bin_table bin_net_decnet_conf_vars[] = {
 	{ CTL_INT,	NET_DECNET_CONF_DEV_FORWARDING,	"forwarding" },
 	{ CTL_INT,	NET_DECNET_CONF_DEV_PRIORITY,	"priority" },
@@ -796,6 +798,13 @@ static const struct bin_table bin_inotify_table[] = {
 	{}
 };
 
+#ifdef MY_ABC_HERE
+static const struct bin_table bin_synotify_table[] = {
+	{ CTL_INT,      SYNOTIFY_MAX_QUEUED_EVENTS,     "max_queued_events" },
+	{}
+};
+#endif /* MY_ABC_HERE */
+
 static const struct bin_table bin_fs_table[] = {
 	{ CTL_INT,	FS_NRINODE,		"inode-nr" },
 	{ CTL_INT,	FS_STATINODE,		"inode-state" },
@@ -817,6 +826,9 @@ static const struct bin_table bin_fs_table[] = {
 	{ CTL_ULONG,	FS_AIO_NR,		"aio-nr" },
 	{ CTL_ULONG,	FS_AIO_MAX_NR,		"aio-max-nr" },
 	{ CTL_DIR,	FS_INOTIFY,		"inotify",	bin_inotify_table },
+#ifdef MY_ABC_HERE
+	{ CTL_DIR,      FS_SYNOTIFY,            "synotify",     bin_synotify_table },
+#endif /* MY_ABC_HERE */
 	{ CTL_DIR,	FS_OCFS2,		"ocfs2",	bin_fs_ocfs2_table },
 	{ CTL_INT,	KERN_SETUID_DUMPABLE,	"suid_dumpable" },
 	{}
@@ -871,7 +883,6 @@ static const struct bin_table bin_bus_table[] = {
 	{}
 };
 
-
 static const struct bin_table bin_s390dbf_table[] = {
 	{ CTL_INT,	5678 /* CTL_S390DBF_STOPPABLE */, "debug_stoppable" },
 	{ CTL_INT,	5679 /* CTL_S390DBF_ACTIVE */,	  "debug_active" },
@@ -923,7 +934,6 @@ static ssize_t bin_dir(struct file *file,
 {
 	return -ENOTDIR;
 }
-
 
 static ssize_t bin_string(struct file *file,
 	void __user *oldval, size_t oldlen, void __user *newval, size_t newlen)
@@ -1335,7 +1345,6 @@ out:
 	return result;
 }
 
-
 #else /* CONFIG_SYSCTL_SYSCALL */
 
 static ssize_t binary_sysctl(const int *name, int nlen,
@@ -1345,7 +1354,6 @@ static ssize_t binary_sysctl(const int *name, int nlen,
 }
 
 #endif /* CONFIG_SYSCTL_SYSCALL */
-
 
 static void deprecated_sysctl_warning(const int *name, int nlen)
 {
@@ -1445,7 +1453,6 @@ SYSCALL_DEFINE1(sysctl, struct __sysctl_args __user *, args)
 
 	return result;
 }
-
 
 #ifdef CONFIG_COMPAT
 

@@ -139,7 +139,6 @@ int csio_is_hw_removing(struct csio_hw *hw)
 	return csio_match_state(hw, csio_hws_removing);
 }
 
-
 /*
  *	csio_hw_wait_op_done_val - wait until an operation is completed
  *	@hw: the HW module
@@ -1335,7 +1334,6 @@ csio_hw_fw_upgrade(struct csio_hw *hw, uint32_t mbox,
 	return csio_hw_fw_restart(hw, mbox, reset);
 }
 
-
 /*
  *	csio_hw_fw_config_file - setup an adapter via a Configuration File
  *	@hw: the HW module
@@ -1532,7 +1530,6 @@ csio_get_device_params(struct csio_hw *hw)
 
 	return 0;
 }
-
 
 /*
  * csio_config_device_caps - Get and set device capabilities.
@@ -2128,7 +2125,6 @@ csio_hw_flash_fw(struct csio_hw *hw)
 
 	return ret;
 }
-
 
 /*
  * csio_hw_configure - Configure HW
@@ -3559,7 +3555,6 @@ csio_evtq_cleanup(struct csio_hw *hw)
 	hw->stats.n_evt_freeq = 0;
 }
 
-
 static void
 csio_process_fwevtq_entry(struct csio_hw *hw, void *wr, uint32_t len,
 			  struct csio_fl_dma_buf *flb, void *priv)
@@ -3847,7 +3842,6 @@ csio_mgmtm_exit(struct csio_mgmtm *mgmtm)
 {
 	del_timer_sync(&mgmtm->mgmt_timer);
 }
-
 
 /**
  * csio_hw_start - Kicks off the HW State machine

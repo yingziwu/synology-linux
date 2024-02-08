@@ -56,7 +56,6 @@ static int __init etrax_init_cont_rotime(void)
 }
 arch_initcall(etrax_init_cont_rotime);
 
-
 unsigned long timer_regs[NR_CPUS] =
 {
 	regi_timer0,
@@ -86,7 +85,6 @@ unsigned long get_ns_in_jiffie(void)
 	ns = (TIMER0_DIV - data) * 10;
 	return ns;
 }
-
 
 /* From timer MDS describing the hardware watchdog:
  * 4.3.1 Watchdog Operation

@@ -44,10 +44,16 @@ int simple_statfs(struct dentry *dentry, struct kstatfs *buf)
  * Retaining negative dentries for an in-memory filesystem just wastes
  * memory and lookup time: arrange for them to be deleted immediately.
  */
-static int simple_delete_dentry(const struct dentry *dentry)
+int always_delete_dentry(const struct dentry *dentry)
 {
 	return 1;
 }
+EXPORT_SYMBOL(always_delete_dentry);
+
+const struct dentry_operations simple_dentry_operations = {
+	.d_delete = always_delete_dentry,
+};
+EXPORT_SYMBOL(simple_dentry_operations);
 
 /*
  * Lookup the data. This is trivial - if the dentry didn't already
@@ -55,10 +61,6 @@ static int simple_delete_dentry(const struct dentry *dentry)
  */
 struct dentry *simple_lookup(struct inode *dir, struct dentry *dentry, unsigned int flags)
 {
-	static const struct dentry_operations simple_dentry_operations = {
-		.d_delete = simple_delete_dentry,
-	};
-
 	if (dentry->d_name.len > NAME_MAX)
 		return ERR_PTR(-ENAMETOOLONG);
 	d_set_d_op(dentry, &simple_dentry_operations);
@@ -174,9 +176,9 @@ int dcache_readdir(struct file * filp, void * dirent, filldir_t filldir)
 
 				spin_unlock(&next->d_lock);
 				spin_unlock(&dentry->d_lock);
-				if (filldir(dirent, next->d_name.name, 
-					    next->d_name.len, filp->f_pos, 
-					    next->d_inode->i_ino, 
+				if (filldir(dirent, next->d_name.name,
+					    next->d_name.len, filp->f_pos,
+					    next->d_inode->i_ino,
 					    dt_type(next->d_inode)) < 0)
 					return 0;
 				spin_lock(&dentry->d_lock);

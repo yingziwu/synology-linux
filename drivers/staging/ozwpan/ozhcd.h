@@ -12,4 +12,3 @@ void oz_hcd_pd_departed(void *ctx);
 void oz_hcd_pd_reset(void *hpd, void *hport);
 
 #endif /* _OZHCD_H */
-

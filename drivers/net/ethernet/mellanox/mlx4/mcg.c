@@ -1064,7 +1064,6 @@ int mlx4_qp_detach_common(struct mlx4_dev *dev, struct mlx4_qp *qp, u8 gid[16],
 		goto out;
 	}
 
-
 	mgm->members_count = cpu_to_be32(--members_count | (u32) prot << 30);
 	mgm->qp[loc]       = mgm->qp[i - 1];
 	mgm->qp[i - 1]     = 0;

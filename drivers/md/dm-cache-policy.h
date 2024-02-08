@@ -161,7 +161,6 @@ struct dm_cache_policy {
 
 	int (*writeback_work)(struct dm_cache_policy *p, dm_oblock_t *oblock, dm_cblock_t *cblock);
 
-
 	/*
 	 * How full is the cache?
 	 */

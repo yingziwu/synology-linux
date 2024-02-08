@@ -222,7 +222,6 @@ skip_key_lookup:
 	if (itn->fb_tunnel_dev && itn->fb_tunnel_dev->flags & IFF_UP)
 		return netdev_priv(itn->fb_tunnel_dev);
 
-
 	return NULL;
 }
 EXPORT_SYMBOL_GPL(ip_tunnel_lookup);
@@ -628,7 +627,6 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
 		dev->stats.collisions++;
 		goto tx_error;
 	}
-
 
 	if (tnl_update_pmtu(dev, skb, rt, tnl_params->frag_off)) {
 		ip_rt_put(rt);

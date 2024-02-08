@@ -123,7 +123,6 @@ static int acpi_processor_errata_piix4(struct pci_dev *dev)
 	u8 value1 = 0;
 	u8 value2 = 0;
 
-
 	if (!dev)
 		return -EINVAL;
 
@@ -223,7 +222,6 @@ static int acpi_processor_errata(struct acpi_processor *pr)
 {
 	int result = 0;
 	struct pci_dev *dev = NULL;
-
 
 	if (!pr)
 		return -EINVAL;
@@ -611,7 +609,6 @@ static int acpi_processor_remove(struct acpi_device *device)
 {
 	struct acpi_processor *pr = NULL;
 
-
 	if (!device || !acpi_driver_data(device))
 		return -EINVAL;
 
@@ -656,7 +653,6 @@ static int is_processor_present(acpi_handle handle)
 {
 	acpi_status status;
 	unsigned long long sta = 0;
-
 
 	status = acpi_evaluate_integer(handle, "_STA", NULL, &sta);
 

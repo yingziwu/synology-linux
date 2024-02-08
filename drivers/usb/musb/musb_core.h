@@ -138,7 +138,6 @@ enum musb_g_ep0_state {
 #define OTG_TIME_A_AIDL_BDIS	200		/* min 200 msec */
 #define OTG_TIME_B_ASE0_BRST	100		/* min 3.125 ms */
 
-
 /*************************** REGISTER ACCESS ********************************/
 
 /* Endpoint registers (other than dynfifo setup) can be accessed either
@@ -514,7 +513,6 @@ static inline void musb_configure_ep0(struct musb *musb)
 	musb->endpoints[0].is_shared_fifo = true;
 }
 #endif /* CONFIG_BLACKFIN */
-
 
 /***************************** Glue it together *****************************/
 

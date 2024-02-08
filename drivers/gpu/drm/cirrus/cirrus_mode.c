@@ -429,7 +429,6 @@ void cirrus_crtc_fb_gamma_get(struct drm_crtc *crtc, u16 *red, u16 *green,
 	*blue = cirrus_crtc->lut_b[regno];
 }
 
-
 static bool cirrus_encoder_mode_fixup(struct drm_encoder *encoder,
 				      const struct drm_display_mode *mode,
 				      struct drm_display_mode *adjusted_mode)
@@ -493,7 +492,6 @@ static struct drm_encoder *cirrus_encoder_init(struct drm_device *dev)
 
 	return encoder;
 }
-
 
 int cirrus_vga_get_modes(struct drm_connector *connector)
 {
@@ -576,7 +574,6 @@ static struct drm_connector *cirrus_vga_init(struct drm_device *dev)
 
 	return connector;
 }
-
 
 int cirrus_modeset_init(struct cirrus_device *cdev)
 {

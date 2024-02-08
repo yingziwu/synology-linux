@@ -649,4 +649,3 @@ ipwireless_tty_notify_control_line_change(struct ipw_tty *tty,
 		tty_hangup(tty->port.tty);
 	}
 }
-

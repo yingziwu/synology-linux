@@ -35,7 +35,6 @@ struct nvc0_vmmgr_priv {
 	spinlock_t lock;
 };
 
-
 /* Map from compressed to corresponding uncompressed storage type.
  * The value 0xff represents an invalid storage type.
  */
@@ -74,7 +73,6 @@ const u8 nvc0_pte_storage_type_map[256] =
 	0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, /* 0xf0 */
 	0xfe, 0xfe, 0xfe, 0xfe, 0xff, 0xfd, 0xfe, 0xff
 };
-
 
 static void
 nvc0_vm_map_pgt(struct nouveau_gpuobj *pgd, u32 index,

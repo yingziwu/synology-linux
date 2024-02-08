@@ -160,7 +160,6 @@ void guest_exit(void)
 }
 EXPORT_SYMBOL_GPL(guest_exit);
 
-
 /**
  * context_tracking_task_switch - context switch the syscall callbacks
  * @prev: the task that is being switched out

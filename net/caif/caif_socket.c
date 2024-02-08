@@ -124,7 +124,6 @@ static void caif_flow_ctrl(struct sock *sk, int mode)
 static int caif_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 {
 	int err;
-	int skb_len;
 	unsigned long flags;
 	struct sk_buff_head *list = &sk->sk_receive_queue;
 	struct caifsock *cf_sk = container_of(sk, struct caifsock, sk);
@@ -153,14 +152,13 @@ static int caif_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 	 * may be freed by other threads of control pulling packets
 	 * from the queue.
 	 */
-	skb_len = skb->len;
 	spin_lock_irqsave(&list->lock, flags);
 	if (!sock_flag(sk, SOCK_DEAD))
 		__skb_queue_tail(list, skb);
 	spin_unlock_irqrestore(&list->lock, flags);
 
 	if (!sock_flag(sk, SOCK_DEAD))
-		sk->sk_data_ready(sk, skb_len);
+		sk->sk_data_ready(sk);
 	else
 		kfree_skb(skb);
 	return 0;
@@ -309,7 +307,6 @@ read_error:
 	return ret;
 }
 
-
 /* Copied from unix_stream_wait_data, identical except for lock call. */
 static long caif_stream_data_wait(struct sock *sk, long timeo)
 {
@@ -343,7 +340,6 @@ static long caif_stream_data_wait(struct sock *sk, long timeo)
 	release_sock(sk);
 	return timeo;
 }
-
 
 /*
  * Copied from unix_stream_recvmsg, but removed credit checks,
@@ -1104,7 +1100,6 @@ static int caif_create(struct net *net, struct socket *sock, int protocol,
 	release_sock(&cf_sk->sk);
 	return 0;
 }
-
 
 static struct net_proto_family caif_family_ops = {
 	.family = PF_CAIF,

@@ -157,7 +157,6 @@ void machine_kexec(struct kimage *image)
 	if (!kexec_boot_atags)
 		kexec_boot_atags = image->start - KEXEC_ARM_ZIMAGE_OFFSET + KEXEC_ARM_ATAGS_OFFSET;
 
-
 	/* copy our kernel relocation code to the control code page */
 	reboot_entry = fncpy(reboot_code_buffer,
 			     reboot_entry,

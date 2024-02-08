@@ -202,7 +202,6 @@ void bond_destroy_slave_symlinks(struct net_device *master,
 	sysfs_remove_link(&(master->dev.kobj), linkname);
 }
 
-
 /*
  * Show the slaves in the current bond.
  */
@@ -894,7 +893,6 @@ static ssize_t bonding_show_ad_select(struct device *d,
 		bond->params.ad_select);
 }
 
-
 static ssize_t bonding_store_ad_select(struct device *d,
 				       struct device_attribute *attr,
 				       const char *buf, size_t count)
@@ -1178,7 +1176,6 @@ static ssize_t bonding_store_carrier(struct device *d,
 	int new_value, ret = count;
 	struct bonding *bond = to_bond(d);
 
-
 	if (sscanf(buf, "%d", &new_value) != 1) {
 		pr_err("%s: no use_carrier value specified.\n",
 		       bond->dev->name);
@@ -1198,7 +1195,6 @@ out:
 }
 static DEVICE_ATTR(use_carrier, S_IRUGO | S_IWUSR,
 		   bonding_show_carrier, bonding_store_carrier);
-
 
 /*
  * Show and set currently active_slave.
@@ -1307,7 +1303,6 @@ static ssize_t bonding_store_active_slave(struct device *d,
 static DEVICE_ATTR(active_slave, S_IRUGO | S_IWUSR,
 		   bonding_show_active_slave, bonding_store_active_slave);
 
-
 /*
  * Show link status of the bond interface.
  */
@@ -1347,7 +1342,6 @@ static ssize_t bonding_show_ad_aggregator(struct device *d,
 }
 static DEVICE_ATTR(ad_aggregator, S_IRUGO, bonding_show_ad_aggregator, NULL);
 
-
 /*
  * Show number of active 802.3ad ports.
  */
@@ -1368,7 +1362,6 @@ static ssize_t bonding_show_ad_num_ports(struct device *d,
 	return count;
 }
 static DEVICE_ATTR(ad_num_ports, S_IRUGO, bonding_show_ad_num_ports, NULL);
-
 
 /*
  * Show current 802.3ad actor key.
@@ -1391,7 +1384,6 @@ static ssize_t bonding_show_ad_actor_key(struct device *d,
 }
 static DEVICE_ATTR(ad_actor_key, S_IRUGO, bonding_show_ad_actor_key, NULL);
 
-
 /*
  * Show current 802.3ad partner key.
  */
@@ -1412,7 +1404,6 @@ static ssize_t bonding_show_ad_partner_key(struct device *d,
 	return count;
 }
 static DEVICE_ATTR(ad_partner_key, S_IRUGO, bonding_show_ad_partner_key, NULL);
-
 
 /*
  * Show current 802.3ad partner mac.
@@ -1547,7 +1538,6 @@ err_no_cmd:
 
 static DEVICE_ATTR(queue_id, S_IRUGO | S_IWUSR, bonding_show_queue_id,
 		   bonding_store_queue_id);
-
 
 /*
  * Show and set the all_slaves_active flag.
@@ -1736,4 +1726,3 @@ void bond_prepare_sysfs_group(struct bonding *bond)
 {
 	bond->dev->sysfs_groups[0] = &bonding_group;
 }
-

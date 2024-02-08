@@ -36,7 +36,6 @@ typedef struct CsrWifiFsmEventList
     CsrWifiFsmEvent *last;
 } CsrWifiFsmEventList;
 
-
 /**
  * @brief
  *   FSM timer id.
@@ -76,7 +75,6 @@ typedef struct CsrWifiFsmTimer
     u32         timeoutTimeMs;
 } CsrWifiFsmTimer;
 
-
 /**
  * @brief
  *   Fsm Alien Event
@@ -90,7 +88,6 @@ typedef struct
     CsrWifiFsmEvent event;
     void           *alienEvent;
 } CsrWifiFsmAlienEvent;
-
 
 /**
  * @brief
@@ -168,7 +165,6 @@ typedef void (*CsrWifiFsmProcResetFnPtr)(CsrWifiFsmContext *context);
  *   u16 a valid destination OR CSR_WIFI_FSM_ENV
  */
 typedef u16 (*CsrWifiFsmDestLookupCallbackPtr)(void *context, const CsrWifiFsmEvent *event);
-
 
 #ifdef CSR_WIFI_FSM_DUMP_ENABLE
 /**

@@ -132,7 +132,6 @@ sclp_service_call(sclp_cmdw_t command, void *sccb)
 	return 0;
 }
 
-
 static void
 __sclp_queue_read_req(void)
 {
@@ -530,7 +529,6 @@ struct sclp_statechangebuf {
 	sccb_mask_t	sclp_send_mask;
 	u32		read_data_function_mask;
 } __attribute__((packed));
-
 
 /* State change event callback. Inform listeners of changes. */
 static void

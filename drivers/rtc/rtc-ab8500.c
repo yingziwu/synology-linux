@@ -267,7 +267,6 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 	return ab8500_rtc_irq_enable(dev, alarm->enabled);
 }
 
-
 static int ab8500_rtc_set_calibration(struct device *dev, int calibration)
 {
 	int retval;

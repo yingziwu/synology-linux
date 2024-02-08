@@ -225,6 +225,7 @@ struct kvm_vcpu {
 	int sigset_active;
 	sigset_t sigset;
 	struct kvm_vcpu_stat stat;
+	unsigned int halt_poll_ns;
 
 #ifdef CONFIG_HAS_IOMEM
 	int mmio_needed;
@@ -1079,4 +1080,3 @@ static inline bool kvm_vcpu_eligible_for_directed_yield(struct kvm_vcpu *vcpu)
 
 #endif /* CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT */
 #endif
-

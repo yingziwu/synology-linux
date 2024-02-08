@@ -14,7 +14,6 @@
  *
  */
 
-
 #include <linux/export.h>
 #include <linux/pci.h>
 #include <linux/kthread.h>
@@ -28,7 +27,6 @@
 #include "hbm.h"
 #include "hw-me.h"
 #include "client.h"
-
 
 /**
  * mei_cl_complete_handler - processes completed operation for a client
@@ -228,7 +226,6 @@ static int _mei_irq_thread_close(struct mei_device *dev, s32 *slots,
 	return 0;
 }
 
-
 /**
  * _mei_irq_thread_read - processes read related operation.
  *
@@ -265,7 +262,6 @@ static int _mei_irq_thread_read(struct mei_device *dev,	s32 *slots,
 
 	return 0;
 }
-
 
 /**
  * _mei_irq_thread_ioctl - processes ioctl related operation.
@@ -355,7 +351,6 @@ static int mei_irq_thread_write_complete(struct mei_device *dev, s32 *slots,
 		list_move_tail(&cb->list, &cmpl_list->list);
 		return -ENODEV;
 	}
-
 
 	cl->status = 0;
 	cb->buf_idx += mei_hdr.length;
@@ -466,7 +461,6 @@ end:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(mei_irq_read_handler);
-
 
 /**
  * mei_irq_write_handler -  dispatch write requests
@@ -618,8 +612,6 @@ int mei_irq_write_handler(struct mei_device *dev, struct mei_cl_cb *cmpl_list)
 }
 EXPORT_SYMBOL_GPL(mei_irq_write_handler);
 
-
-
 /**
  * mei_timer - timer function.
  *
@@ -637,7 +629,6 @@ void mei_timer(struct work_struct *work)
 
 	struct mei_device *dev = container_of(work,
 					struct mei_device, timer_work.work);
-
 
 	mutex_lock(&dev->device_lock);
 	if (dev->dev_state != MEI_DEV_ENABLED) {
@@ -722,4 +713,3 @@ out:
 	schedule_delayed_work(&dev->timer_work, 2 * HZ);
 	mutex_unlock(&dev->device_lock);
 }
-

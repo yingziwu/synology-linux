@@ -64,4 +64,3 @@ static void *jffs2_follow_link(struct dentry *dentry, struct nameidata *nd)
 	 */
 	return NULL;
 }
-

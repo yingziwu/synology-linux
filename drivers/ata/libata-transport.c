@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright 2008 ioogle, Inc.  All rights reserved.
  *	Released under GPL v2.
@@ -23,7 +26,6 @@
  * error handler runs.
  */
 
-
 #include <linux/kernel.h>
 #include <linux/blkdev.h>
 #include <linux/spinlock.h>
@@ -37,7 +39,20 @@
 #include "libata.h"
 #include "libata-transport.h"
 
+#ifdef MY_DEF_HERE
+#ifdef MY_DEF_HERE
+#define ATA_PORT_ATTRS		4
+#else /* MY_DEF_HERE */
+#define ATA_PORT_ATTRS		3
+#endif /* MY_DEF_HERE */
+#else /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#define ATA_PORT_ATTRS		3
+#else /* MY_DEF_HERE */
 #define ATA_PORT_ATTRS		2
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
+
 #define ATA_LINK_ATTRS		3
 #define ATA_DEV_ATTRS		9
 
@@ -64,7 +79,6 @@ struct ata_internal {
 };
 #define to_ata_internal(tmpl)	container_of(tmpl, struct ata_internal, t)
 
-
 #define tdev_to_device(d)					\
 	container_of((d), struct ata_device, tdev)
 #define transport_class_to_dev(dev)				\
@@ -80,11 +94,9 @@ struct ata_internal {
 #define transport_class_to_port(dev)				\
 	tdev_to_port((dev)->parent)
 
-
 /* Device objects are always created whit link objects */
 static int ata_tdev_add(struct ata_device *dev);
 static void ata_tdev_delete(struct ata_device *dev);
-
 
 /*
  * Hack to allow attributes of the same name in different objects.
@@ -146,7 +158,6 @@ static struct {
 	{ ATA_DEV_NONE,			"none" }
 };
 ata_bitfield_name_search(class, ata_class_names)
-
 
 static struct {
 	u32		value;
@@ -216,6 +227,12 @@ static DEVICE_ATTR(name, S_IRUGO, show_ata_port_##name, NULL)
 
 ata_port_simple_attr(nr_pmp_links, nr_pmp_links, "%d\n", int);
 ata_port_simple_attr(stats.idle_irq, idle_irq, "%ld\n", unsigned long);
+#ifdef MY_DEF_HERE
+ata_port_simple_attr(local_port_no, port_no, "%u\n", unsigned int);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+ata_port_simple_attr(error_handling, error_handling, "%u\n", unsigned int);
+#endif /* MY_DEF_HERE */
 
 static DECLARE_TRANSPORT_CLASS(ata_port_class,
 			       "ata_port", NULL, NULL, NULL);
@@ -315,7 +332,6 @@ int ata_tport_add(struct device *parent,
 	return error;
 }
 
-
 /*
  * ATA link attributes
  */
@@ -338,7 +354,6 @@ static DEVICE_ATTR(field, S_IRUGO, show_ata_link_##field, NULL)
 ata_link_linkspeed_attr(hw_sata_spd_limit, fls);
 ata_link_linkspeed_attr(sata_spd_limit, fls);
 ata_link_linkspeed_attr(sata_spd, noop);
-
 
 static DECLARE_TRANSPORT_CLASS(ata_link_class,
 		"ata_link", NULL, NULL, NULL);
@@ -466,7 +481,6 @@ ata_dev_attr(xfer, pio_mode);
 ata_dev_attr(xfer, dma_mode);
 ata_dev_attr(xfer, xfer_mode);
 
-
 #define ata_dev_show_simple(field, format_string, cast)		\
 static ssize_t								\
 show_ata_dev_##field(struct device *dev,				\
@@ -513,7 +527,6 @@ show_ata_dev_ering(struct device *dev,
 	ata_ering_map(&ata_dev->ering, ata_show_ering, &arg);
 	return arg.written;
 }
-
 
 static DEVICE_ATTR(ering, S_IRUGO, show_ata_dev_ering, NULL);
 
@@ -617,7 +630,6 @@ static void ata_tdev_delete(struct ata_device *ata_dev)
 	ata_tdev_free(ata_dev);
 }
 
-
 /**
  * ata_tdev_add  --  initialize a transport ATA device structure.
  * @ata_dev:	ata_dev structure.
@@ -653,7 +665,6 @@ static int ata_tdev_add(struct ata_device *ata_dev)
 	transport_configure_device(dev);
 	return 0;
 }
-
 
 /*
  * Setup / Teardown code
@@ -709,6 +720,12 @@ struct scsi_transport_template *ata_attach_transport(void)
 	count = 0;
 	SETUP_PORT_ATTRIBUTE(nr_pmp_links);
 	SETUP_PORT_ATTRIBUTE(idle_irq);
+#ifdef MY_DEF_HERE
+	SETUP_PORT_ATTRIBUTE(port_no);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	SETUP_PORT_ATTRIBUTE(error_handling);
+#endif /* MY_DEF_HERE */
 	BUG_ON(count > ATA_PORT_ATTRS);
 	i->port_attrs[count] = NULL;
 

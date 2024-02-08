@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright 2002 Andi Kleen, SuSE Labs.
  * Thanks to Ben LaHaise for precious feedback.
@@ -478,10 +481,17 @@ try_preserve_large_page(pte_t *kpte, unsigned long address,
 	 * a non present pmd. The canon_pgprot will clear _PAGE_GLOBAL
 	 * for the ancient hardware that doesn't support it.
 	 */
+#ifdef MY_DEF_HERE
 	if (pgprot_val(req_prot) & _PAGE_PRESENT)
 		pgprot_val(req_prot) |= _PAGE_PSE | _PAGE_GLOBAL;
 	else
 		pgprot_val(req_prot) &= ~(_PAGE_PSE | _PAGE_GLOBAL);
+#else
+	if (pgprot_val(req_prot) & _PAGE_PRESENT)
+		pgprot_val(req_prot) |= _PAGE_PSE | __PAGE_KERNEL_GLOBAL;
+	else
+		pgprot_val(req_prot) &= ~(_PAGE_PSE | __PAGE_KERNEL_GLOBAL);
+#endif	/* MY_DEF_HERE */
 
 	req_prot = canon_pgprot(req_prot);
 
@@ -593,10 +603,17 @@ __split_large_page(pte_t *kpte, unsigned long address, struct page *base)
 	 * present pmd/pte. The canon_pgprot will clear _PAGE_GLOBAL
 	 * for the ancient hardware that doesn't support it.
 	 */
+#ifdef MY_DEF_HERE
 	if (pgprot_val(ref_prot) & _PAGE_PRESENT)
 		pgprot_val(ref_prot) |= _PAGE_GLOBAL;
 	else
 		pgprot_val(ref_prot) &= ~_PAGE_GLOBAL;
+#else
+	if (pgprot_val(ref_prot) & _PAGE_PRESENT)
+		pgprot_val(ref_prot) |= __PAGE_KERNEL_GLOBAL;
+	else
+		pgprot_val(ref_prot) &= ~__PAGE_KERNEL_GLOBAL;
+#endif	/* MY_DEF_HERE */
 
 	/*
 	 * Get the target pfn from the original entry:
@@ -722,10 +739,17 @@ repeat:
 		 * _PAGE_GLOBAL for the ancient hardware that doesn't
 		 * support it.
 		 */
+#ifdef MY_DEF_HERE
 		if (pgprot_val(new_prot) & _PAGE_PRESENT)
 			pgprot_val(new_prot) |= _PAGE_GLOBAL;
 		else
 			pgprot_val(new_prot) &= ~_PAGE_GLOBAL;
+#else
+		if (pgprot_val(new_prot) & _PAGE_PRESENT)
+			pgprot_val(new_prot) |= __PAGE_KERNEL_GLOBAL;
+		else
+			pgprot_val(new_prot) &= ~__PAGE_KERNEL_GLOBAL;
+#endif	/* MY_DEF_HERE */
 
 		/*
 		 * We need to keep the pfn from the existing PTE,

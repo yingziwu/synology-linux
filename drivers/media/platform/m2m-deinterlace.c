@@ -786,7 +786,6 @@ static const struct v4l2_ioctl_ops deinterlace_ioctl_ops = {
 	.vidioc_streamoff	= vidioc_streamoff,
 };
 
-
 /*
  * Queue operations
  */
@@ -1106,4 +1105,3 @@ static struct platform_driver deinterlace_pdrv = {
 	},
 };
 module_platform_driver(deinterlace_pdrv);
-

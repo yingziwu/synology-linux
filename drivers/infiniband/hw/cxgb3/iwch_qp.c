@@ -291,7 +291,6 @@ static int build_zero_stag_recv(struct iwch_qp *qhp, union t3_wr *wqe,
 	u32 pbl_addr;
 	u32 pbl_offset;
 
-
 	/*
 	 * The T3 HW requires the PBL in the HW recv descriptor to reference
 	 * a PBL entry.  So we allocate the max needed PBL memory here and pass
@@ -809,7 +808,6 @@ static void __flush_qp(struct iwch_qp *qhp, struct iwch_cq *rchp,
 	int count;
 	int flushed;
 
-
 	PDBG("%s qhp %p rchp %p schp %p\n", __func__, qhp, rchp, schp);
 	/* take a ref on the qhp since we must release the lock */
 	atomic_inc(&qhp->refcnt);
@@ -874,7 +872,6 @@ static void flush_qp(struct iwch_qp *qhp)
 	}
 	__flush_qp(qhp, rchp, schp);
 }
-
 
 /*
  * Return count of RECV WRs posted
@@ -1041,7 +1038,7 @@ int iwch_modify_qp(struct iwch_dev *rhp, struct iwch_qp *qhp,
 	case IWCH_QP_STATE_RTS:
 		switch (attrs->next_state) {
 		case IWCH_QP_STATE_CLOSING:
-			BUG_ON(atomic_read(&qhp->ep->com.kref.refcount) < 2);
+			BUG_ON(kref_read(&qhp->ep->com.kref) < 2);
 			qhp->attr.state = IWCH_QP_STATE_CLOSING;
 			if (!internal) {
 				abort=0;

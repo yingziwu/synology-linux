@@ -396,7 +396,7 @@ struct sock {
 	u32			sk_classid;
 	struct cg_proto		*sk_cgrp;
 	void			(*sk_state_change)(struct sock *sk);
-	void			(*sk_data_ready)(struct sock *sk, int bytes);
+	void			(*sk_data_ready)(struct sock *sk);
 	void			(*sk_write_space)(struct sock *sk);
 	void			(*sk_error_report)(struct sock *sk);
 	int			(*sk_backlog_rcv)(struct sock *sk,
@@ -1094,7 +1094,6 @@ static inline struct cg_proto *parent_cg_proto(struct proto *proto,
 }
 #endif
 
-
 static inline bool sk_has_memory_pressure(const struct sock *sk)
 {
 	return sk->sk_prot->memory_pressure != NULL;
@@ -1277,7 +1276,6 @@ proto_memory_pressure(struct proto *prot)
 	return !!*prot->memory_pressure;
 }
 
-
 #ifdef CONFIG_PROC_FS
 /* Called with local bh disabled */
 extern void sock_prot_inuse_add(struct net *net, struct proto *prot, int inc);
@@ -1288,7 +1286,6 @@ static inline void sock_prot_inuse_add(struct net *net, struct proto *prot,
 {
 }
 #endif
-
 
 /* With per-bucket locks this operation is not-atomic, so that
  * this version is not worse.
@@ -1513,7 +1510,6 @@ static inline void unlock_sock_fast(struct sock *sk, bool slow)
 	else
 		spin_unlock_bh(&sk->sk_lock.slock);
 }
-
 
 extern struct sock		*sk_alloc(struct net *net, int family,
 					  gfp_t priority,

@@ -27,7 +27,6 @@
 #include "xfs_trans_priv.h"
 #include "xfs_extfree_item.h"
 
-
 kmem_zone_t	*xfs_efi_zone;
 kmem_zone_t	*xfs_efd_zone;
 
@@ -109,7 +108,6 @@ xfs_efi_item_format(
 	log_vector->i_type = XLOG_REG_TYPE_EFI_FORMAT;
 	ASSERT(size >= sizeof(xfs_efi_log_format_t));
 }
-
 
 /*
  * Pinning has no meaning for an efi item, so just return.
@@ -207,7 +205,6 @@ static const struct xfs_item_ops xfs_efi_item_ops = {
 	.iop_push	= xfs_efi_item_push,
 	.iop_committing = xfs_efi_item_committing
 };
-
 
 /*
  * Allocate and initialize an efi item with the given number of extents.

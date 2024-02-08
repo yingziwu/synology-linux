@@ -19,13 +19,13 @@
 #include <linux/threads.h>
 #include <linux/spinlock.h>
 
-
 #define KVM_MAX_VCPUS		1
 #define KVM_USER_MEM_SLOTS	8
 /* memory slots that does not exposed to userspace */
 #define KVM_PRIVATE_MEM_SLOTS 	0
 
 #define KVM_COALESCED_MMIO_PAGE_OFFSET 1
+#define KVM_HALT_POLL_NS_DEFAULT 500000
 
 /* Don't support huge pages */
 #define KVM_HPAGE_GFN_SHIFT(x)	0
@@ -33,8 +33,6 @@
 /* We don't currently support large pages. */
 #define KVM_NR_PAGE_SIZES	1
 #define KVM_PAGES_PER_HPAGE(x)	1
-
-
 
 /* Special address that contains the comm page, used for reducing # of traps */
 #define KVM_GUEST_COMMPAGE_ADDR     0x0
@@ -100,6 +98,8 @@ struct kvm_vcpu_stat {
 	u32 resvd_inst_exits;
 	u32 break_inst_exits;
 	u32 flush_dcache_exits;
+	u32 halt_successful_poll;
+	u32 halt_attempted_poll;
 	u32 halt_wakeup;
 };
 
@@ -402,7 +402,6 @@ struct kvm_vcpu_arch {
 
 	struct kvm_mips_tlb shadow_tlb[NR_CPUS][KVM_MIPS_GUEST_TLB_SIZE];
 
-
 	struct hrtimer comparecount_timer;
 
 	int last_sched_cpu;
@@ -410,7 +409,6 @@ struct kvm_vcpu_arch {
 	/* WAIT executed */
 	int wait;
 };
-
 
 #define kvm_read_c0_guest_index(cop0)               (cop0->reg[MIPS_CP0_TLB_INDEX][0])
 #define kvm_write_c0_guest_index(cop0, val)         (cop0->reg[MIPS_CP0_TLB_INDEX][0] = val)
@@ -472,7 +470,6 @@ struct kvm_vcpu_arch {
     kvm_clear_c0_guest_ebase(cop0, change);           \
     kvm_set_c0_guest_ebase(cop0, ((val) & (change))); \
 }
-
 
 struct kvm_mips_callbacks {
 	int (*handle_cop_unusable) (struct kvm_vcpu *vcpu);
@@ -660,6 +657,5 @@ extern int kvm_mips_trans_mtc0(uint32_t inst, uint32_t *opc,
 extern void mips32_SyncICache(unsigned long addr, unsigned long size);
 extern int kvm_mips_dump_stats(struct kvm_vcpu *vcpu);
 extern unsigned long kvm_mips_get_ramsize(struct kvm *kvm);
-
 
 #endif /* __MIPS_KVM_HOST_H__ */

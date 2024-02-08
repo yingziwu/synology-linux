@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Kernel-based Virtual Machine driver for Linux
  *
@@ -43,6 +46,10 @@
 #include <asm/xcr.h>
 #include <asm/perf_event.h>
 #include <asm/kexec.h>
+#ifdef MY_DEF_HERE
+#else
+#include <asm/nospec-branch.h>
+#endif	/* MY_DEF_HERE */
 
 #include "trace.h"
 
@@ -418,6 +425,10 @@ struct vcpu_vmx {
 	u64 		      msr_host_kernel_gs_base;
 	u64 		      msr_guest_kernel_gs_base;
 #endif
+#ifdef MY_DEF_HERE
+#else
+	u64		      spec_ctrl;
+#endif	/* MY_DEF_HERE */
 	/*
 	 * loaded_vmcs points to the VMCS currently used in this vcpu. For a
 	 * non-nested (L1) guest, it always points to vmcs01. For a nested
@@ -491,7 +502,6 @@ static inline struct vcpu_vmx *to_vmx(struct kvm_vcpu *vcpu)
 #define FIELD(number, name)	[number] = VMCS12_OFFSET(name)
 #define FIELD64(number, name)	[number] = VMCS12_OFFSET(name), \
 				[number##_HIGH] = VMCS12_OFFSET(name)+4
-
 
 static const unsigned long shadow_read_only_fields[] = {
 	/*
@@ -840,6 +850,13 @@ static inline bool is_machine_check(u32 intr_info)
 	return (intr_info & (INTR_INFO_INTR_TYPE_MASK | INTR_INFO_VECTOR_MASK |
 			     INTR_INFO_VALID_MASK)) ==
 		(INTR_TYPE_HARD_EXCEPTION | MC_VECTOR | INTR_INFO_VALID_MASK);
+}
+
+/* Undocumented: icebp/int1 */
+static inline bool is_icebp(u32 intr_info)
+{
+	return (intr_info & (INTR_INFO_INTR_TYPE_MASK | INTR_INFO_VALID_MASK))
+		== (INTR_TYPE_PRIV_SW_EXCEPTION | INTR_INFO_VALID_MASK);
 }
 
 static inline bool cpu_has_vmx_msr_bitmap(void)
@@ -1721,6 +1738,10 @@ static void vmx_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
 	if (per_cpu(current_vmcs, cpu) != vmx->loaded_vmcs->vmcs) {
 		per_cpu(current_vmcs, cpu) = vmx->loaded_vmcs->vmcs;
 		vmcs_load(vmx->loaded_vmcs->vmcs);
+#ifdef MY_DEF_HERE
+#else
+		spec_ctrl_ibpb();
+#endif	/* MY_DEF_HERE */
 	}
 
 	if (vmx->loaded_vmcs->cpu != cpu) {
@@ -2408,6 +2429,12 @@ static int vmx_get_msr(struct kvm_vcpu *vcpu, u32 msr_index, u64 *pdata)
 	case MSR_IA32_TSC:
 		data = guest_read_tsc();
 		break;
+#ifdef MY_DEF_HERE
+#else
+	case MSR_IA32_SPEC_CTRL:
+		data = to_vmx(vcpu)->spec_ctrl;
+		break;
+#endif	/* MY_DEF_HERE */
 	case MSR_IA32_SYSENTER_CS:
 		data = vmcs_read32(GUEST_SYSENTER_CS);
 		break;
@@ -2479,6 +2506,12 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
 	case MSR_IA32_TSC:
 		kvm_write_tsc(vcpu, msr_info);
 		break;
+#ifdef MY_DEF_HERE
+#else
+	case MSR_IA32_SPEC_CTRL:
+		to_vmx(vcpu)->spec_ctrl = msr_info->data;
+		break;
+#endif	/* MY_DEF_HERE */
 	case MSR_IA32_CR_PAT:
 		if (vmcs_config.vmentry_ctrl & VM_ENTRY_LOAD_IA32_PAT) {
 			vmcs_write64(GUEST_IA32_PAT, data);
@@ -2632,7 +2665,6 @@ static void vmclear_local_loaded_vmcss(void)
 				 loaded_vmcss_on_cpu_link)
 		__loaded_vmcs_clear(v);
 }
-
 
 /* Just like cpu_vmxoff(), but with the __kvm_handle_fault_on_reboot()
  * tricks.
@@ -2888,6 +2920,14 @@ static void free_loaded_vmcs(struct loaded_vmcs *loaded_vmcs)
 	loaded_vmcs_clear(loaded_vmcs);
 	free_vmcs(loaded_vmcs->vmcs);
 	loaded_vmcs->vmcs = NULL;
+#ifdef MY_DEF_HERE
+#else
+	/*
+	 * The VMCS could be recycled, causing a false negative in vmx_vcpu_load;
+	 * block speculative execution.
+	 */
+	spec_ctrl_ibpb();
+#endif	/* MY_DEF_HERE */
 }
 
 static void free_kvm_area(void)
@@ -3458,7 +3498,6 @@ static int vmx_get_cpl(struct kvm_vcpu *vcpu)
 
 	return vmx->cpl;
 }
-
 
 static u32 vmx_segment_access_rights(struct kvm_segment *var)
 {
@@ -4771,7 +4810,11 @@ static int handle_exception(struct kvm_vcpu *vcpu)
 		dr6 = vmcs_readl(EXIT_QUALIFICATION);
 		if (!(vcpu->guest_debug &
 		      (KVM_GUESTDBG_SINGLESTEP | KVM_GUESTDBG_USE_HW_BP))) {
-			vcpu->arch.dr6 = dr6 | DR6_FIXED_1;
+			vcpu->arch.dr6 &= ~15;
+			vcpu->arch.dr6 |= dr6;
+			if (is_icebp(intr_info))
+				skip_emulated_instruction(vcpu);
+
 			kvm_queue_exception(vcpu, DB_VECTOR);
 			return 1;
 		}
@@ -5947,7 +5990,6 @@ static inline bool vmcs12_read_any(struct kvm_vcpu *vcpu,
 	}
 }
 
-
 static inline bool vmcs12_write_any(struct kvm_vcpu *vcpu,
 				    unsigned long field, u64 field_value){
 	short offset = vmcs_field_to_offset(field);
@@ -6109,7 +6151,6 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
 	return 1;
 }
 
-
 static int handle_vmwrite(struct kvm_vcpu *vcpu)
 {
 	unsigned long field;
@@ -6142,7 +6183,6 @@ static int handle_vmwrite(struct kvm_vcpu *vcpu)
 			return 1;
 		}
 	}
-
 
 	field = kvm_register_read(vcpu, (((vmx_instruction_info) >> 28) & 0xf));
 	if (vmcs_field_readonly(field)) {
@@ -6843,13 +6883,21 @@ static void vmx_handle_external_intr(struct kvm_vcpu *vcpu)
 			"pushf\n\t"
 			"orl $0x200, (%%" _ASM_SP ")\n\t"
 			__ASM_SIZE(push) " $%c[cs]\n\t"
+#ifdef MY_DEF_HERE
 			"call *%[entry]\n\t"
+#else
+			CALL_NOSPEC
+#endif	/* MY_DEF_HERE */
 			:
 #ifdef CONFIG_X86_64
 			[sp]"=&r"(tmp)
 #endif
 			:
+#ifdef MY_DEF_HERE
 			[entry]"r"(entry),
+#else
+			THUNK_TARGET(entry),
+#endif	/* MY_DEF_HERE */
 			[ss]"i"(__KERNEL_DS),
 			[cs]"i"(__KERNEL_CS)
 			);
@@ -7029,6 +7077,11 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
 	atomic_switch_perf_msrs(vmx);
 	debugctlmsr = get_debugctlmsr();
 
+#ifdef MY_DEF_HERE
+#else
+	spec_ctrl_vmenter_ibrs(vmx->spec_ctrl);
+#endif	/* MY_DEF_HERE */
+
 	vmx->__launched = vmx->loaded_vmcs->launched;
 	asm(
 		/* Store host registers */
@@ -7099,6 +7152,26 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
 
 		"pop  %%" _ASM_BP "; pop  %%" _ASM_DX " \n\t"
 		"setbe %c[fail](%0) \n\t"
+#ifdef MY_DEF_HERE
+#else
+		/*
+		 * Clear host registers marked as clobbered to prevent
+		 * speculative use.
+		 */
+		"xor %%" _ASM_BX ", %%" _ASM_BX " \n\t"
+		"xor %%" _ASM_SI ", %%" _ASM_SI " \n\t"
+		"xor %%" _ASM_DI ", %%" _ASM_DI " \n\t"
+#ifdef CONFIG_X86_64
+		"xor %%r8, %%r8 \n\t"
+		"xor %%r9, %%r9 \n\t"
+		"xor %%r10, %%r10 \n\t"
+		"xor %%r11, %%r11 \n\t"
+		"xor %%r12, %%r12 \n\t"
+		"xor %%r13, %%r13 \n\t"
+		"xor %%r14, %%r14 \n\t"
+		"xor %%r15, %%r15 \n\t"
+#endif
+#endif	/* MY_DEF_HERE */
 		".pushsection .rodata \n\t"
 		".global vmx_return \n\t"
 		"vmx_return: " _ASM_PTR " 2b \n\t"
@@ -7134,6 +7207,17 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
 		, "eax", "ebx", "edi", "esi"
 #endif
 	      );
+
+#ifdef MY_DEF_HERE
+#else
+	if (cpu_has_spec_ctrl()) {
+		rdmsrl(MSR_IA32_SPEC_CTRL, vmx->spec_ctrl);
+		__spec_ctrl_vmexit_ibrs(vmx->spec_ctrl);
+	}
+
+	/* Eliminate branch target predictions from guest mode */
+	fill_RSB();
+#endif	/* MY_DEF_HERE */
 
 	/* MSR_IA32_DEBUGCTLMSR is zeroed on vmexit. Restore it if needed */
 	if (debugctlmsr)
@@ -7499,9 +7583,14 @@ static void prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 				  page_to_phys(vmx->nested.apic_access_page));
 		}
 
+#ifdef MY_ABC_HERE
+		exec_control &= ~(SECONDARY_EXEC_VIRTUALIZE_APIC_ACCESSES |
+				SECONDARY_EXEC_VIRTUAL_INTR_DELIVERY |
+				SECONDARY_EXEC_APIC_REGISTER_VIRT |
+				SECONDARY_EXEC_PAUSE_LOOP_EXITING);
+#endif /* MY_ABC_HERE */
 		vmcs_write32(SECONDARY_VM_EXEC_CONTROL, exec_control);
 	}
-
 
 	/*
 	 * Set host-state according to L0's settings (vmcs12 is irrelevant here)
@@ -7554,7 +7643,6 @@ static void prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 	else if (vmcs_config.vmentry_ctrl & VM_ENTRY_LOAD_IA32_PAT)
 		vmcs_write64(GUEST_IA32_PAT, vmx->vcpu.arch.pat);
 
-
 	set_cr4_guest_host_mask(vmx);
 
 	if (vmcs12->cpu_based_vm_exec_control & CPU_BASED_USE_TSC_OFFSETING)
@@ -7581,7 +7669,12 @@ static void prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 		vcpu->arch.efer &= ~(EFER_LMA | EFER_LME);
 	/* Note: modifies VM_ENTRY/EXIT_CONTROLS and GUEST/HOST_IA32_EFER */
 	vmx_set_efer(vcpu, vcpu->arch.efer);
-
+#ifdef MY_ABC_HERE
+	exec_control = vmcs12->pin_based_vm_exec_control;
+	exec_control |= vmcs_config.pin_based_exec_ctrl;
+	exec_control &= ~(PIN_BASED_VMX_PREEMPTION_TIMER|PIN_BASED_POSTED_INTR);
+	vmcs_write32(PIN_BASED_VM_EXEC_CONTROL, exec_control);
+#endif /* MY_ABC_HERE */
 	/*
 	 * This sets GUEST_CR0 to vmcs12->guest_cr0, with possibly a modified
 	 * TS bit (for lazy fpu) and bits which we consider mandatory enabled.
@@ -8030,7 +8123,6 @@ static void load_vmcs12_host_state(struct kvm_vcpu *vcpu,
 		vmx_flush_tlb(vcpu);
 	}
 
-
 	vmcs_write32(GUEST_SYSENTER_CS, vmcs12->host_ia32_sysenter_cs);
 	vmcs_writel(GUEST_SYSENTER_ESP, vmcs12->host_ia32_sysenter_esp);
 	vmcs_writel(GUEST_SYSENTER_EIP, vmcs12->host_ia32_sysenter_eip);
@@ -8333,6 +8425,11 @@ static int __init vmx_init(void)
 	vmx_disable_intercept_for_msr(MSR_IA32_SYSENTER_CS, false);
 	vmx_disable_intercept_for_msr(MSR_IA32_SYSENTER_ESP, false);
 	vmx_disable_intercept_for_msr(MSR_IA32_SYSENTER_EIP, false);
+#ifdef MY_DEF_HERE
+#else
+	vmx_disable_intercept_for_msr(MSR_IA32_SPEC_CTRL, false);
+	vmx_disable_intercept_for_msr(MSR_IA32_PRED_CMD, false);
+#endif	/* MY_DEF_HERE */
 	memcpy(vmx_msr_bitmap_legacy_x2apic,
 			vmx_msr_bitmap_legacy, PAGE_SIZE);
 	memcpy(vmx_msr_bitmap_longmode_x2apic,

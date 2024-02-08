@@ -722,7 +722,6 @@ static int vidioc_enum_input(struct file *file, void *priv,
 	return 0;
 }
 
-
 static int vidioc_g_input(struct file *file, void *priv, unsigned int *input)
 {
 	struct go7007 *go = video_drvdata(file);

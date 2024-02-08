@@ -421,7 +421,6 @@ xfs_inode_buf_verify(
 	xfs_inobp_check(mp, bp);
 }
 
-
 static void
 xfs_inode_buf_read_verify(
 	struct xfs_buf	*bp)
@@ -440,7 +439,6 @@ const struct xfs_buf_ops xfs_inode_buf_ops = {
 	.verify_read = xfs_inode_buf_read_verify,
 	.verify_write = xfs_inode_buf_write_verify,
 };
-
 
 /*
  * This routine is called to map an inode to the buffer containing the on-disk
@@ -1341,7 +1339,6 @@ xfs_ialloc(
 		ip->i_d.di_crtime = ip->i_d.di_mtime;
 	}
 
-
 	flags = XFS_ILOG_CORE;
 	switch (mode & S_IFMT) {
 	case S_IFIFO:
@@ -1921,7 +1918,6 @@ xfs_ifree_cluster(
 			lip = lip->li_bio_list;
 		}
 
-
 		/*
 		 * For each inode in memory attempt to add it to the inode
 		 * buffer and set it up for being staled on buffer IO
@@ -2220,7 +2216,6 @@ xfs_iroot_realloc(
 		XFS_IFORK_SIZE(ip, whichfork) + XFS_BROOT_SIZE_ADJ(ip));
 	return;
 }
-
 
 /*
  * This is called when the amount of space needed for if_data
@@ -2668,7 +2663,6 @@ out_put:
 	xfs_perag_put(pag);
 	return 0;
 
-
 cluster_corrupt_out:
 	/*
 	 * Corruption detected in the clustering loop.  Invalidate the
@@ -2824,7 +2818,6 @@ abort_out:
 	xfs_iflush_abort(ip, false);
 	return error;
 }
-
 
 STATIC int
 xfs_iflush_int(
@@ -4075,4 +4068,3 @@ xfs_can_free_eofblocks(struct xfs_inode *ip, bool force)
 
 	return true;
 }
-

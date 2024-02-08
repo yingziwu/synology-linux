@@ -53,7 +53,6 @@
 #include "unifi_priv.h"
 #include <net/pkt_sched.h>
 
-
 /* Wext handler is supported only if CSR_SUPPORT_WEXT is defined */
 #ifdef CSR_SUPPORT_WEXT
 extern struct iw_handler_def unifi_iw_handler_def;
@@ -75,7 +74,6 @@ static struct net_device_stats *uf_net_get_stats(struct net_device *dev);
 static u16 uf_net_select_queue(struct net_device *dev, struct sk_buff *skb);
 static netdev_tx_t uf_net_xmit(struct sk_buff *skb, struct net_device *dev);
 static void uf_set_multicast_list(struct net_device *dev);
-
 
 typedef int (*tx_signal_handler)(unifi_priv_t *priv, struct sk_buff *skb, const struct ethhdr *ehdr, CSR_PRIORITY priority);
 
@@ -138,7 +136,6 @@ static const struct net_device_ops uf_netdev_ops =
 
 static u8 oui_rfc1042[P80211_OUI_LEN] = { 0x00, 0x00, 0x00 };
 static u8 oui_8021h[P80211_OUI_LEN]   = { 0x00, 0x00, 0xf8 };
-
 
 /* Callback for event logging to blocking clients */
 static void netdev_mlme_event_handler(ul_client_t  *client,
@@ -207,7 +204,6 @@ uf_alloc_netdevice(CsrSdioFunction *sdio_dev, int bus_id)
     priv = (unifi_priv_t *)(interfacePriv + 1);
     interfacePriv->privPtr = priv;
     interfacePriv->InterfaceTag = 0;
-
 
     /* Initialize all supported netdev interface to be NULL */
     for(i=0; i<CSR_WIFI_NUM_INTERFACES; i++) {
@@ -455,8 +451,6 @@ uf_alloc_netdevice_for_other_interfaces(unifi_priv_t *priv, u16 interfaceTag)
     return TRUE;
 } /* uf_alloc_netdevice() */
 
-
-
 /*
  * ---------------------------------------------------------------------------
  *  uf_free_netdevice
@@ -554,7 +548,6 @@ uf_free_netdevice(unifi_priv_t *priv)
     return 0;
 } /* uf_free_netdevice() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  uf_net_open
@@ -612,7 +605,6 @@ uf_net_open(struct net_device *dev)
     return 0;
 } /* uf_net_open() */
 
-
 static int
 uf_net_stop(struct net_device *dev)
 {
@@ -637,7 +629,6 @@ uf_net_stop(struct net_device *dev)
     return 0;
 } /* uf_net_stop() */
 
-
 /* This is called after the WE handlers */
 static int
 uf_net_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
@@ -648,8 +639,6 @@ uf_net_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 
     return rc;
 } /* uf_net_ioctl() */
-
-
 
 static struct net_device_stats *
 uf_net_get_stats(struct net_device *dev)
@@ -816,7 +805,6 @@ uf_net_select_queue(struct net_device *dev, struct sk_buff *skb)
         queue = UNIFI_TRAFFIC_Q_EAPOL;
     }
 
-
     return (u16)queue;
 } /* uf_net_select_queue() */
 
@@ -959,7 +947,6 @@ _identify_sme_ma_pkt_ind(unifi_priv_t *priv,
                             pkt_ind->Rssi,
                             pkt_ind->Snr,
                             pkt_ind->ReceivedRate);
-
 
                     unifi_trace(priv, UDBG1,
                             "_identify_sme_ma_pkt_ind: unifi_sys_ma_pkt_ind <--\n");
@@ -1134,7 +1121,6 @@ skb_80211_to_ether(unifi_priv_t *priv, struct sk_buff *skb,
     return 0;
 } /* skb_80211_to_ether() */
 
-
 static CsrWifiRouterCtrlPortAction verify_port(unifi_priv_t *priv, unsigned char *address, int queue, u16 interfaceTag)
 {
 #ifdef CSR_NATIVE_LINUX
@@ -1258,7 +1244,6 @@ int prepare_and_add_macheader(unifi_priv_t *priv, struct sk_buff *skb, struct sk
             unifi_warning(priv, "prepare_and_add_macheader: Unknown mode %d\n",
                           interfacePriv->interfaceMode);
     }
-
 
     /* If Sta is QOS & HTC is supported then need to set 'order' bit */
     /* We don't support HT Control for now */
@@ -1571,7 +1556,6 @@ send_ma_pkt_request(unifi_priv_t *priv, struct sk_buff *skb, const struct ethhdr
     unifi_trace(priv, UDBG5, "RA[0]=%x, RA[1]=%x, RA[2]=%x, RA[3]=%x, RA[4]=%x, RA[5]=%x\n",
                 peerAddress.a[0],peerAddress.a[1], peerAddress.a[2], peerAddress.a[3],
                 peerAddress.a[4],peerAddress.a[5]);
-
 
     if ((proto == ETH_P_PAE)
 #ifdef CSR_WIFI_SECURITY_WAPI_ENABLE
@@ -1902,7 +1886,6 @@ unifi_restart_xmit(void *ospriv, unifi_TrafficQueue queue)
 #endif
 } /* unifi_restart_xmit() */
 
-
 static void
 indicate_rx_skb(unifi_priv_t *priv, u16 ifTag, u8* dst_a, u8* src_a, struct sk_buff *skb, CSR_SIGNAL *signal,
                 bulk_data_param_t *bulkdata)
@@ -1971,7 +1954,6 @@ indicate_rx_skb(unifi_priv_t *priv, u16 ifTag, u8* dst_a, u8* src_a, struct sk_b
         return;
     }
 
-
     if(priv->cmanrTestMode)
     {
         const CSR_MA_PACKET_INDICATION *pkt_ind = &signal->u.MaPacketIndication;
@@ -2039,7 +2021,6 @@ uf_process_rx_pending_queue(unifi_priv_t *priv, int queue,
 
         list_del(l_h);
 
-
         unifi_trace(priv, UDBG2,
                     "uf_process_rx_pending_queue: Was Blocked skb=%p, bulkdata=%p\n",
                     rx_q_item->skb, &rx_q_item->bulkdata);
@@ -2106,13 +2087,11 @@ uf_resume_data_plane(unifi_priv_t *priv, int queue,
     }
 } /* uf_resume_data_plane() */
 
-
 void uf_free_pending_rx_packets(unifi_priv_t *priv, int queue, CsrWifiMacAddress peer_address,u16 interfaceTag)
 {
     uf_process_rx_pending_queue(priv, queue, peer_address, 0,interfaceTag);
 
 } /* uf_free_pending_rx_packets() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -2171,7 +2150,6 @@ unifi_rx(unifi_priv_t *priv, CSR_SIGNAL *signal, bulk_data_param_t *bulkdata)
         return;
     }
 
-
     skb = (struct sk_buff*)bulkdata->d[0].os_net_buf_ptr;
     skb->len = bulkdata->d[0].data_length;
 
@@ -2181,7 +2159,6 @@ unifi_rx(unifi_priv_t *priv, CSR_SIGNAL *signal, bulk_data_param_t *bulkdata)
 
     memcpy(da,(skb->data+4+toDs*12),ETH_ALEN);/* Address1 or 3 */
     memcpy(sa,(skb->data+10+fromDs*(6+toDs*8)),ETH_ALEN); /* Address2, 3 or 4 */
-
 
     pData = &bulkdata->d[0];
     frameControl = CSR_GET_UINT16_FROM_LITTLE_ENDIAN(pData->os_data_ptr);
@@ -2338,7 +2315,6 @@ unifi_rx(unifi_priv_t *priv, CSR_SIGNAL *signal, bulk_data_param_t *bulkdata)
     }
 #endif /* CSR_SUPPORT_SME */
 
-
     /* Now that the MAC header is removed, null-data frames have zero length
      * and can be dropped
      */
@@ -2441,7 +2417,6 @@ static void process_ma_packet_cfm(unifi_priv_t *priv, CSR_SIGNAL *signal, bulk_d
     return;
 }
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_rx
@@ -2481,7 +2456,6 @@ static void process_ma_packet_ind(unifi_priv_t *priv, CSR_SIGNAL *signal, bulk_d
     interfaceTag = (pkt_ind->VirtualInterfaceIdentifier & 0xff);
     interfacePriv = priv->interfacePriv[interfaceTag];
 
-
     /* Sanity check that the VIF refers to a sensible interface */
     if (interfaceTag >= CSR_WIFI_NUM_INTERFACES)
     {
@@ -2512,7 +2486,6 @@ static void process_ma_packet_ind(unifi_priv_t *priv, CSR_SIGNAL *signal, bulk_d
         unifi_net_data_free(priv,&bulkdata->d[0]);
         return;
     }
-
 
     skb = (struct sk_buff*)bulkdata->d[0].os_net_buf_ptr;
     skb->len = bulkdata->d[0].data_length;
@@ -2726,7 +2699,6 @@ uf_set_multicast_list(struct net_device *dev)
     unifi_trace(priv, UDBG3,
             "uf_set_multicast_list (count=%d)\n", mc_addr_count);
 
-
     /* Not enough space? */
     if (mc_addr_count > UNIFI_MAX_MULTICAST_ADDRESSES) {
         return;
@@ -2842,7 +2814,6 @@ netdev_mlme_event_handler(ul_client_t *pcli, const u8 *sig_packed, int sig_len,
 
 } /* netdev_mlme_event_handler() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  uf_net_get_name
@@ -2934,7 +2905,6 @@ static struct notifier_block uf_netdev_notifier = {
 };
 #endif /* CSR_SUPPORT_WEXT */
 
-
 static void
         process_amsdu(unifi_priv_t *priv, CSR_SIGNAL *signal, bulk_data_param_t *bulkdata)
 {
@@ -2978,7 +2948,6 @@ static void
 
         memcpy((u8*)subframe_bulkdata.d[0].os_data_ptr, dot11_hdr_ptr, dot11_hdr_size);
 
-
         /* When to DS=0 and from DS=0, address 3 will already have BSSID so no need to re-program */
         if ((frameControl & IEEE802_11_FC_TO_DS_MASK) && !(frameControl & IEEE802_11_FC_FROM_DS_MASK)){
                 memcpy((u8*)subframe_bulkdata.d[0].os_data_ptr + IEEE802_11_ADDR3_OFFSET, ((struct ethhdr*)ptr)->h_dest, ETH_ALEN);
@@ -3002,9 +2971,7 @@ static void
     unifi_net_data_free(priv, &bulkdata->d[0]);
 }
 
-
 #define SN_TO_INDEX(__ba_session, __sn) (((__sn - __ba_session->start_sn) & 0xFFF) % __ba_session->wind_size)
-
 
 #define ADVANCE_EXPECTED_SN(__ba_session) \
 { \
@@ -3026,7 +2993,6 @@ static void add_frame_to_ba_complete(unifi_priv_t *priv,
     interfacePriv->ba_complete[interfacePriv->ba_complete_index] = *frame_desc;
     interfacePriv->ba_complete_index++;
 }
-
 
 static void update_expected_sn(unifi_priv_t *priv,
                           netInterface_priv_t *interfacePriv,
@@ -3053,7 +3019,6 @@ static void update_expected_sn(unifi_priv_t *priv,
     ba_session->expected_sn = sn;
 }
 
-
 static void complete_ready_sequence(unifi_priv_t *priv,
                                netInterface_priv_t *interfacePriv,
                                ba_session_rx_struct *ba_session)
@@ -3069,7 +3034,6 @@ static void complete_ready_sequence(unifi_priv_t *priv,
     }
 }
 
-
 void scroll_ba_window(unifi_priv_t *priv,
                                 netInterface_priv_t *interfacePriv,
                                 ba_session_rx_struct *ba_session,
@@ -3080,7 +3044,6 @@ void scroll_ba_window(unifi_priv_t *priv,
         complete_ready_sequence(priv, interfacePriv, ba_session);
     }
 }
-
 
 static int consume_frame_or_get_buffer_index(unifi_priv_t *priv,
                                             netInterface_priv_t *interfacePriv,
@@ -3133,8 +3096,6 @@ static int consume_frame_or_get_buffer_index(unifi_priv_t *priv,
     return i;
 }
 
-
-
 static void process_ba_frame(unifi_priv_t *priv,
                                              netInterface_priv_t *interfacePriv,
                                              ba_session_rx_struct *ba_session,
@@ -3160,7 +3121,6 @@ static void process_ba_frame(unifi_priv_t *priv,
     complete_ready_sequence(priv, interfacePriv, ba_session);
 }
 
-
 static void process_ba_complete(unifi_priv_t *priv, netInterface_priv_t *interfacePriv)
 {
     frame_desc_struct *frame_desc;
@@ -3174,7 +3134,6 @@ static void process_ba_complete(unifi_priv_t *priv, netInterface_priv_t *interfa
     interfacePriv->ba_complete_index = 0;
 
 }
-
 
 /* Check if the frames in BA reoder buffer has aged and
  * if so release the frames to upper processes and move
@@ -3257,7 +3216,6 @@ static void check_ba_frame_age_timeout( unifi_priv_t *priv,
     }
 }
 
-
 static void process_ma_packet_error_ind(unifi_priv_t *priv, CSR_SIGNAL *signal, bulk_data_param_t *bulkdata)
 {
     u16 interfaceTag;
@@ -3269,7 +3227,6 @@ static void process_ma_packet_error_ind(unifi_priv_t *priv, CSR_SIGNAL *signal, 
     CSR_SEQUENCE_NUMBER sn;
 
     interfaceTag = (pkt_err_ind->VirtualInterfaceIdentifier & 0xff);
-
 
     /* Sanity check that the VIF refers to a sensible interface */
     if (interfaceTag >= CSR_WIFI_NUM_INTERFACES)
@@ -3303,5 +3260,3 @@ static void process_ma_packet_error_ind(unifi_priv_t *priv, CSR_SIGNAL *signal, 
     up(&priv->ba_mutex);
     process_ba_complete(priv, interfacePriv);
 }
-
-

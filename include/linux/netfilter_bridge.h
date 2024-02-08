@@ -3,7 +3,6 @@
 
 #include <uapi/linux/netfilter_bridge.h>
 
-
 enum nf_br_hook_priorities {
 	NF_BR_PRI_FIRST = INT_MIN,
 	NF_BR_PRI_NAT_DST_BRIDGED = -300,

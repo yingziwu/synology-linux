@@ -140,4 +140,3 @@ err:
 	mei_dbgfs_deregister(dev);
 	return -ENODEV;
 }
-

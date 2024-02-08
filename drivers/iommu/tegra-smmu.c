@@ -1036,7 +1036,6 @@ static int smmu_debugfs_stats_show(struct seq_file *s, void *v)
 	int i;
 	const char * const stats[] = { "hit", "miss", };
 
-
 	for (i = 0; i < ARRAY_SIZE(stats); i++) {
 		u32 val;
 		size_t offs;

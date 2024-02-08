@@ -324,12 +324,10 @@ static int rtl2832_wr_demod_reg(struct rtl2832_priv *priv, int reg, u32 val)
 	u8 page;
 	u32 mask;
 
-
 	u8 reading[4];
 	u8 writing[4];
 	u32 reading_tmp;
 	u32 writing_tmp;
-
 
 	reg_start_addr = registers[reg].start_address;
 	msb = registers[reg].msb;
@@ -338,7 +336,6 @@ static int rtl2832_wr_demod_reg(struct rtl2832_priv *priv, int reg, u32 val)
 
 	len = (msb >> 3) + 1;
 	mask = REG_MASK(msb - lsb);
-
 
 	ret = rtl2832_rd_regs(priv, reg_start_addr, page, &reading[0], len);
 	if (ret)
@@ -350,7 +347,6 @@ static int rtl2832_wr_demod_reg(struct rtl2832_priv *priv, int reg, u32 val)
 
 	writing_tmp = reading_tmp & ~(mask << lsb);
 	writing_tmp |= ((val & mask) << lsb);
-
 
 	for (i = 0; i < len; i++)
 		writing[i] = (writing_tmp >> ((len - 1 - i) * 8)) & 0xff;
@@ -389,7 +385,6 @@ err:
 	dev_dbg(&priv->i2c->dev, "%s: failed=%d\n", __func__, ret);
 	return ret;
 }
-
 
 static int rtl2832_set_if(struct dvb_frontend *fe, u32 if_freq)
 {
@@ -597,7 +592,6 @@ static int rtl2832_set_frontend(struct dvb_frontend *fe)
 		},
 	};
 
-
 	dev_dbg(&priv->i2c->dev, "%s: frequency=%d bandwidth_hz=%d " \
 			"inversion=%d\n", __func__, c->frequency,
 			c->bandwidth_hz, c->inversion);
@@ -667,7 +661,6 @@ static int rtl2832_set_frontend(struct dvb_frontend *fe)
 	ret = rtl2832_wr_demod_reg(priv, DVBT_CFREQ_OFF_RATIO, cfreq_off_ratio);
 	if (ret)
 		goto err;
-
 
 	/* soft reset */
 	ret = rtl2832_wr_demod_reg(priv, DVBT_SOFT_RST, 0x1);
