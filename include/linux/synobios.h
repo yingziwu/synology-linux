@@ -216,6 +216,7 @@
 #define HW_RS3621xsp   "RS3621xs+"     //"RS3621xs+"
 #define HW_RS3621rpxs  "RS3621rpxs"    //"RS3621rpxs"
 #define HW_RS4021xsp   "RS4021xs+"     //"RS4021xs+"
+#define HW_RS4024xsp   "RS4024xs+"     //"RS4024xs+"
 #define HW_UNKNOWN     "DSUnknown"
 
 #define EBOX_INFO_UNIQUE_RX410  "RX410"

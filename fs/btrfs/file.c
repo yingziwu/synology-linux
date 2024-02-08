@@ -705,6 +705,7 @@ int btrfs_dirty_pages(struct btrfs_root *root, struct inode *inode,
 	u64 end_of_last_block;
 	u64 end_pos = pos + write_bytes;
 	loff_t isize = i_size_read(inode);
+	unsigned int extra_bits = 0;
 
 	start_pos = pos & ~((u64)root->sectorsize - 1);
 	num_bytes = ALIGN(write_bytes + pos - start_pos, root->sectorsize);
@@ -720,7 +721,7 @@ int btrfs_dirty_pages(struct btrfs_root *root, struct inode *inode,
 			 EXTENT_DO_ACCOUNTING | EXTENT_DEFRAG, 0, 0, cached, GFP_NOFS);
 
 	err = btrfs_set_extent_delalloc(inode, start_pos, end_of_last_block,
-					cached);
+					extra_bits, cached);
 	if (err)
 		return err;
 
@@ -904,25 +905,23 @@ next:
  * If an extent intersects the range but is not entirely inside the range
  * it is either truncated or split.  Anything entirely inside the range
  * is deleted from the tree.
+ *
+ * Note: the VFS' inode number of bytes is not updated, it's up to the caller
+ * to deal with that. We set the field 'bytes_found' of the arguments structure
+ * with the number of allocated bytes found in the target range, so that the
+ * caller can update the inode's number of bytes in an atomic way when
+ * replacing extents in a range to avoid races with stat(2).
  */
-int __btrfs_drop_extents(struct btrfs_trans_handle *trans,
-			 struct btrfs_root *root, struct inode *inode,
-			 struct btrfs_path *path, u64 start, u64 end,
-#ifdef MY_ABC_HERE
-			 u64 *first_punch_pos, u64 *last_punch_pos,
-			 int *partial_punch,
-#endif /* MY_ABC_HERE */
-			 u64 *drop_end, int drop_cache,
-			 int replace_extent,
-			 u32 extent_item_size,
-			 int *key_inserted)
+int btrfs_drop_extents(struct btrfs_trans_handle *trans,
+			struct btrfs_root *root, struct inode *inode,
+			struct btrfs_drop_extents_args *args)
 {
 	struct extent_buffer *leaf;
 	struct btrfs_file_extent_item *fi;
 	struct btrfs_key key;
 	struct btrfs_key new_key;
 	u64 ino = btrfs_ino(inode);
-	u64 search_start = start;
+	u64 search_start = args->start;
 	u64 disk_bytenr = 0;
 	u64 num_bytes = 0;
 #ifdef MY_ABC_HERE
@@ -930,7 +929,7 @@ int __btrfs_drop_extents(struct btrfs_trans_handle *trans,
 #endif /* MY_ABC_HERE */
 	u64 extent_offset = 0;
 	u64 extent_end = 0;
-	u64 last_end = start;
+	u64 last_end = args->start;
 	int del_nr = 0;
 	int del_slot = 0;
 	int extent_type;
@@ -946,11 +945,26 @@ int __btrfs_drop_extents(struct btrfs_trans_handle *trans,
 #ifdef MY_ABC_HERE
 	bool should_throttle = false;
 #endif /* MY_ABC_HERE */
+	struct btrfs_path *path = args->path;
 
-	if (drop_cache)
-		btrfs_drop_extent_cache(inode, start, end - 1, 0);
+	args->bytes_found = 0;
+	args->extent_inserted = false;
 
-	if (start >= BTRFS_I(inode)->disk_i_size && !replace_extent)
+	/* Must always have a path if ->replace_extent is true */
+	ASSERT(!(args->replace_extent && !args->path));
+
+	if (!path) {
+		path = btrfs_alloc_path();
+		if (!path) {
+			ret = -ENOMEM;
+			goto out;
+		}
+	}
+
+	if (args->drop_cache)
+		btrfs_drop_extent_cache(inode, args->start, args->end - 1, 0);
+
+	if (args->start >= BTRFS_I(inode)->disk_i_size && !args->replace_extent)
 		modify_tree = 0;
 
 	update_refs = (test_bit(BTRFS_ROOT_REF_COWS, &root->state) ||
@@ -961,7 +975,7 @@ int __btrfs_drop_extents(struct btrfs_trans_handle *trans,
 					       search_start, modify_tree);
 		if (ret < 0)
 			break;
-		if (ret > 0 && path->slots[0] > 0 && search_start == start) {
+		if (ret > 0 && path->slots[0] > 0 && search_start == args->start) {
 			leaf = path->nodes[0];
 			btrfs_item_key_to_cpu(leaf, &key, path->slots[0] - 1);
 			if (key.objectid == ino &&
@@ -987,8 +1001,16 @@ next_slot:
 		}
 
 		btrfs_item_key_to_cpu(leaf, &key, path->slots[0]);
-		if (key.objectid > ino ||
-		    key.type > BTRFS_EXTENT_DATA_KEY || key.offset >= end)
+
+		if (key.objectid > ino)
+			break;
+		if (WARN_ON_ONCE(key.objectid < ino) ||
+		    key.type < BTRFS_EXTENT_DATA_KEY) {
+			ASSERT(del_nr == 0);
+			path->slots[0]++;
+			goto next_slot;
+		}
+		if (key.type > BTRFS_EXTENT_DATA_KEY || key.offset >= args->end)
 			break;
 
 		fi = btrfs_item_ptr(leaf, path->slots[0],
@@ -1010,8 +1032,8 @@ next_slot:
 				btrfs_file_extent_inline_len(leaf,
 						     path->slots[0], fi);
 		} else {
-			WARN_ON(1);
-			extent_end = search_start;
+			/* can't happen */
+			BUG();
 		}
 
 		/*
@@ -1034,7 +1056,7 @@ next_slot:
 		}
 
 		found = 1;
-		search_start = max(key.offset, start);
+		search_start = max(key.offset, args->start);
 		if (recow || !modify_tree) {
 			modify_tree = -1;
 			btrfs_release_path(path);
@@ -1045,7 +1067,7 @@ next_slot:
 		 *     | - range to drop - |
 		 *  | -------- extent -------- |
 		 */
-		if (start > key.offset && end < extent_end) {
+		if (args->start > key.offset && args->end < extent_end) {
 			BUG_ON(del_nr > 0);
 			if (extent_type == BTRFS_FILE_EXTENT_INLINE) {
 				ret = -EOPNOTSUPP;
@@ -1053,7 +1075,7 @@ next_slot:
 			}
 
 			memcpy(&new_key, &key, sizeof(new_key));
-			new_key.offset = start;
+			new_key.offset = args->start;
 			ret = btrfs_duplicate_item(trans, root, path,
 						   &new_key);
 			if (ret == -EAGAIN) {
@@ -1067,15 +1089,15 @@ next_slot:
 			fi = btrfs_item_ptr(leaf, path->slots[0] - 1,
 					    struct btrfs_file_extent_item);
 			btrfs_set_file_extent_num_bytes(leaf, fi,
-							start - key.offset);
+							args->start - key.offset);
 
 			fi = btrfs_item_ptr(leaf, path->slots[0],
 					    struct btrfs_file_extent_item);
 
-			extent_offset += start - key.offset;
+			extent_offset += args->start - key.offset;
 			btrfs_set_file_extent_offset(leaf, fi, extent_offset);
 			btrfs_set_file_extent_num_bytes(leaf, fi,
-							extent_end - start);
+							extent_end - args->start);
 			btrfs_mark_buffer_dirty(leaf);
 
 			if (update_refs && disk_bytenr > 0) {
@@ -1084,10 +1106,10 @@ next_slot:
 						disk_bytenr, num_bytes, 0,
 						root->root_key.objectid,
 						new_key.objectid,
-						start - extent_offset, 1, 0,
+						args->start - extent_offset, 1, 0,
 						inode, i_uid_read(inode)
 #ifdef MY_ABC_HERE
-						,btrfs_syno_usage_ref_check(root, new_key.objectid, end)
+						,btrfs_syno_usage_ref_check(root, new_key.objectid, args->end)
 #endif /* MY_ABC_HERE */
 						);
 #else
@@ -1095,18 +1117,18 @@ next_slot:
 						disk_bytenr, num_bytes, 0,
 						root->root_key.objectid,
 						new_key.objectid,
-						start - extent_offset, 1
+						args->start - extent_offset, 1
 #ifdef MY_ABC_HERE
 						,0
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
-						,btrfs_syno_usage_ref_check(root, new_key.objectid, end)
+						,btrfs_syno_usage_ref_check(root, new_key.objectid, args->end)
 #endif /* MY_ABC_HERE */
 						);
 #endif /* MY_ABC_HERE */
 				BUG_ON(ret); /* -ENOMEM */
 			}
-			key.offset = start;
+			key.offset = args->start;
 		}
 		/*
 		 * From here on out we will have actually dropped something, so
@@ -1118,7 +1140,7 @@ next_slot:
 		 *  | ---- range to drop ----- |
 		 *      | -------- extent -------- |
 		 */
-		if (start <= key.offset && end < extent_end) {
+		if (args->start <= key.offset && args->end < extent_end) {
 			if (extent_type == BTRFS_FILE_EXTENT_INLINE) {
 				ret = -EOPNOTSUPP;
 				break;
@@ -1128,26 +1150,26 @@ next_slot:
 			relative_offset = key.offset - extent_offset;
 			if (relative_offset >= LLONG_MAX)
 				relative_offset = 0;
-			if (first_punch_pos && relative_offset < *first_punch_pos)
-				*first_punch_pos = relative_offset;
-			if (last_punch_pos &&
-			    relative_offset + num_bytes > *last_punch_pos)
-				*last_punch_pos = relative_offset + num_bytes;
-			if (partial_punch)
-				*partial_punch = 1;
+			if (args->first_punch_pos && relative_offset < *(args->first_punch_pos))
+				*(args->first_punch_pos) = relative_offset;
+			if (args->last_punch_pos &&
+			    relative_offset + num_bytes > *(args->last_punch_pos))
+				*(args->last_punch_pos) = relative_offset + num_bytes;
+			if (args->partial_punch)
+				*(args->partial_punch) = 1;
 #endif /* MY_ABC_HERE */
 
 			memcpy(&new_key, &key, sizeof(new_key));
-			new_key.offset = end;
+			new_key.offset = args->end;
 			btrfs_set_item_key_safe(root, path, &new_key);
 
-			extent_offset += end - key.offset;
+			extent_offset += args->end - key.offset;
 			btrfs_set_file_extent_offset(leaf, fi, extent_offset);
 			btrfs_set_file_extent_num_bytes(leaf, fi,
-							extent_end - end);
+							extent_end - args->end);
 			btrfs_mark_buffer_dirty(leaf);
 			if (update_refs && disk_bytenr > 0)
-				inode_sub_bytes(inode, end - key.offset);
+				args->bytes_found += args->end - key.offset;
 			break;
 		}
 
@@ -1156,7 +1178,7 @@ next_slot:
 		 *       | ---- range to drop ----- |
 		 *  | -------- extent -------- |
 		 */
-		if (start > key.offset && end >= extent_end) {
+		if (args->start > key.offset && args->end >= extent_end) {
 			BUG_ON(del_nr > 0);
 			if (extent_type == BTRFS_FILE_EXTENT_INLINE) {
 				ret = -EOPNOTSUPP;
@@ -1164,23 +1186,23 @@ next_slot:
 			}
 
 			btrfs_set_file_extent_num_bytes(leaf, fi,
-							start - key.offset);
+							args->start - key.offset);
 			btrfs_mark_buffer_dirty(leaf);
 #ifdef MY_ABC_HERE
 			relative_offset = key.offset - extent_offset;
 			if (relative_offset >= LLONG_MAX)
 				relative_offset = 0;
-			if (first_punch_pos && relative_offset < *first_punch_pos)
-				*first_punch_pos = relative_offset;
-			if (last_punch_pos &&
-			    relative_offset + num_bytes > *last_punch_pos)
-				*last_punch_pos = relative_offset + num_bytes;
-			if (partial_punch)
-				*partial_punch = 1;
+			if (args->first_punch_pos && relative_offset < *(args->first_punch_pos))
+				*(args->first_punch_pos) = relative_offset;
+			if (args->last_punch_pos &&
+			    relative_offset + num_bytes > *(args->last_punch_pos))
+				*(args->last_punch_pos) = relative_offset + num_bytes;
+			if (args->partial_punch)
+				*(args->partial_punch) = 1;
 #endif /* MY_ABC_HERE */
 			if (update_refs && disk_bytenr > 0)
-				inode_sub_bytes(inode, extent_end - start);
-			if (end == extent_end)
+				args->bytes_found += extent_end - args->start;
+			if (args->end == extent_end)
 				break;
 
 			path->slots[0]++;
@@ -1191,7 +1213,7 @@ next_slot:
 		 *  | ---- range to drop ----- |
 		 *    | ------ extent ------ |
 		 */
-		if (start <= key.offset && end >= extent_end) {
+		if (args->start <= key.offset && args->end >= extent_end) {
 delete_extent_item:
 			if (del_nr == 0) {
 				del_slot = path->slots[0];
@@ -1203,8 +1225,7 @@ delete_extent_item:
 
 			if (update_refs &&
 			    extent_type == BTRFS_FILE_EXTENT_INLINE) {
-				inode_sub_bytes(inode,
-						extent_end - key.offset);
+				args->bytes_found += extent_end - key.offset;
 				extent_end = ALIGN(extent_end,
 						   root->sectorsize);
 			} else if (update_refs && disk_bytenr > 0) {
@@ -1235,21 +1256,20 @@ delete_extent_item:
 				BUG_ON(ret); /* -ENOMEM */
 #ifdef MY_ABC_HERE
 				relative_offset = key.offset - extent_offset;
-				if (partial_punch &&
+				if (args->partial_punch &&
 				    extent_end - key.offset != num_bytes) {
-					*partial_punch = 1;
+					*(args->partial_punch) = 1;
 					if (relative_offset >= LLONG_MAX)
 						relative_offset = 0;
-					if (first_punch_pos &&
-					    relative_offset < *first_punch_pos)
-						*first_punch_pos = relative_offset;
-					if (last_punch_pos &&
-					    relative_offset + num_bytes > *last_punch_pos)
-						*last_punch_pos = relative_offset + num_bytes;
+					if (args->first_punch_pos &&
+					    relative_offset < *(args->first_punch_pos))
+						*(args->first_punch_pos) = relative_offset;
+					if (args->last_punch_pos &&
+					    relative_offset + num_bytes > *(args->last_punch_pos))
+						*(args->last_punch_pos) = relative_offset + num_bytes;
 				}
 #endif /* MY_ABC_HERE */
-				inode_sub_bytes(inode,
-						extent_end - key.offset);
+				args->bytes_found += extent_end - key.offset;
 #ifdef MY_ABC_HERE
 				if (trans->check_throttle && btrfs_should_throttle_delayed_refs(trans, root) == 1) {
 					should_throttle = true;
@@ -1257,7 +1277,7 @@ delete_extent_item:
 #endif /* MY_ABC_HERE */
 			}
 
-			if (end == extent_end)
+			if (args->end == extent_end)
 				break;
 
 #ifdef MY_ABC_HERE
@@ -1297,7 +1317,7 @@ delete_extent_item:
 		 * Set path->slots[0] to first slot, so that after the delete
 		 * if items are move off from our leaf to its immediate left or
 		 * right neighbor leafs, we end up with a correct and adjusted
-		 * path->slots[0] for our insertion (if replace_extent != 0).
+		 * path->slots[0] for our insertion (if args->replace_extent).
 		 */
 		path->slots[0] = del_slot;
 		ret = btrfs_del_items(trans, root, path, del_slot, del_nr);
@@ -1311,15 +1331,15 @@ delete_extent_item:
 	 * which case it unlocked our path, so check path->locks[0] matches a
 	 * write lock.
 	 */
-	if (!ret && replace_extent && leafs_visited == 1 &&
+	if (!ret && args->replace_extent && leafs_visited == 1 &&
 	    (path->locks[0] == BTRFS_WRITE_LOCK_BLOCKING ||
 	     path->locks[0] == BTRFS_WRITE_LOCK) &&
 	    btrfs_leaf_free_space(root, leaf) >=
-	    sizeof(struct btrfs_item) + extent_item_size) {
+	    sizeof(struct btrfs_item) + args->extent_item_size) {
 
 		key.objectid = ino;
 		key.type = BTRFS_EXTENT_DATA_KEY;
-		key.offset = start;
+		key.offset = args->start;
 		if (!del_nr && path->slots[0] < btrfs_header_nritems(leaf)) {
 			struct btrfs_key slot_key;
 
@@ -1328,36 +1348,20 @@ delete_extent_item:
 				path->slots[0]++;
 		}
 		setup_items_for_insert(root, path, &key,
-				       &extent_item_size,
-				       extent_item_size,
+				       &args->extent_item_size,
+				       args->extent_item_size,
 				       sizeof(struct btrfs_item) +
-				       extent_item_size, 1);
-		*key_inserted = 1;
+				       args->extent_item_size, 1);
+		args->extent_inserted = true;
 	}
 
-	if (!replace_extent || !(*key_inserted))
+	if (!args->path)
+		btrfs_free_path(path);
+	else if (!args->extent_inserted)
 		btrfs_release_path(path);
-	if (drop_end)
-		*drop_end = found ? min(end, last_end) : end;
-	return ret;
-}
 
-int btrfs_drop_extents(struct btrfs_trans_handle *trans,
-		       struct btrfs_root *root, struct inode *inode, u64 start,
-		       u64 end, int drop_cache)
-{
-	struct btrfs_path *path;
-	int ret;
-
-	path = btrfs_alloc_path();
-	if (!path)
-		return -ENOMEM;
-	ret = __btrfs_drop_extents(trans, root, inode, path, start, end, NULL,
-#ifdef MY_ABC_HERE
-				   NULL, NULL, NULL,
-#endif /* MY_ABC_HERE */
-				   drop_cache, 0, 0, NULL);
-	btrfs_free_path(path);
+out:
+	args->drop_end = found ? min(args->end, last_end) : args->end;
 	return ret;
 }
 
@@ -3319,7 +3323,8 @@ static int btrfs_insert_clone_extent(struct btrfs_trans_handle *trans,
 				     struct inode *inode,
 				     struct btrfs_path *path,
 				     struct btrfs_clone_extent_info *clone_info,
-				     const u64 clone_len)
+				     const u64 clone_len,
+				     const u64 bytes_to_drop)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 	struct btrfs_root *root = BTRFS_I(inode)->root;
@@ -3338,8 +3343,10 @@ static int btrfs_insert_clone_extent(struct btrfs_trans_handle *trans,
 		return 0;
 
 	if (clone_info->disk_offset == 0 &&
-	    btrfs_fs_incompat(fs_info, NO_HOLES))
+	    btrfs_fs_incompat(fs_info, NO_HOLES)) {
+		btrfs_update_inode_bytes(BTRFS_I(inode), 0, bytes_to_drop);
 		return 0;
+	}
 
 	key.objectid = btrfs_ino(inode);
 	key.type = BTRFS_EXTENT_DATA_KEY;
@@ -3365,10 +3372,12 @@ static int btrfs_insert_clone_extent(struct btrfs_trans_handle *trans,
 	btrfs_release_path(path);
 
 	/* If it's a hole, nothing more needs to be done. */
-	if (clone_info->disk_offset == 0)
+	if (clone_info->disk_offset == 0) {
+		btrfs_update_inode_bytes(BTRFS_I(inode), 0, bytes_to_drop);
 		return 0;
+	}
 
-	inode_add_bytes(inode, clone_len);
+	btrfs_update_inode_bytes(BTRFS_I(inode), clone_len, bytes_to_drop);
 
 #ifdef MY_ABC_HERE
 	if (clone_info->quota_enabled &&
@@ -3467,6 +3476,7 @@ int btrfs_punch_hole_range(struct inode *inode, struct btrfs_path *path,
 #endif /* MY_ABC_HERE */
 			   )
 {
+	struct btrfs_drop_extents_args drop_args = { 0 };
 	struct btrfs_root *root = BTRFS_I(inode)->root;
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 	u64 min_size = btrfs_calc_trans_metadata_size(root, 1);
@@ -3532,16 +3542,25 @@ int btrfs_punch_hole_range(struct inode *inode, struct btrfs_path *path,
 	trans->block_rsv = rsv;
 
 	cur_offset = start;
+	drop_args.path = path;
+	drop_args.end = end + 1;
+	drop_args.drop_cache = true;
+#ifdef MY_ABC_HERE
+	drop_args.first_punch_pos = &first_punch_pos;
+	drop_args.last_punch_pos = &last_punch_pos;
+	drop_args.partial_punch = &partial_punch;
+#endif /* MY_ABC_HERE */
 	while (cur_offset < end) {
+		drop_args.start = cur_offset;
 #ifdef MY_ABC_HERE
 		trans->check_throttle = true;
 #endif /* MY_ABC_HERE */
-		ret = __btrfs_drop_extents(trans, root, inode, path,
-					   cur_offset, end + 1,
-#ifdef MY_ABC_HERE
-					   &first_punch_pos, &last_punch_pos, &partial_punch,
-#endif /* MY_ABC_HERE */
-					   &drop_end, 1, 0, 0, NULL);
+		ret = btrfs_drop_extents(trans, root, inode, &drop_args);
+		/* If we are punching a hole decrement the inode's byte count */
+		if (!clone_info)
+			btrfs_update_inode_bytes(BTRFS_I(inode), 0, drop_args.bytes_found);
+		drop_end = drop_args.drop_end;
+
 		if (ret != -ENOSPC
 #ifdef MY_ABC_HERE
 			&& ret != -EAGAIN
@@ -3581,7 +3600,8 @@ int btrfs_punch_hole_range(struct inode *inode, struct btrfs_path *path,
 			u64 clone_len = drop_end - clone_info->file_offset;
 
 			ret = btrfs_insert_clone_extent(trans, inode, path,
-							clone_info, clone_len);
+							clone_info, clone_len,
+							drop_args.bytes_found);
 			if (ret) {
 				btrfs_abort_transaction(trans, root, ret);
 				break;
@@ -3679,7 +3699,8 @@ int btrfs_punch_hole_range(struct inode *inode, struct btrfs_path *path,
 	}
 	if (clone_info) {
 		ret = btrfs_insert_clone_extent(trans, inode, path, clone_info,
-						clone_info->data_len);
+						clone_info->data_len,
+						drop_args.bytes_found);
 		if (ret) {
 			btrfs_abort_transaction(trans, root, ret);
 			goto out_trans;

@@ -101,6 +101,18 @@ config SYNO_FS_SHOW_INCOMPAT_SUPP
 	bool "Show file system's incompatible support flags"
 	default y
 
+config SYNO_FS_SHOW_COMPAT_RO_SUPP
+	bool "Show file system's compatible read-only support flags"
+	default y
+
+config SYNO_FS_SPLICE_FSNOTIFY
+	bool "splice: report related fsnotify events"
+	default y
+
+config SYNO_FS_SYNOBOOT_LOG
+	bool "synoboot access log"
+	default y
+
 endmenu #Basic
 
 menu "CIFS"
@@ -168,11 +180,6 @@ config SYNO_FAT_CREATE_TIME
 	bool "FAT syno create time"
 	default y
 	depends on SYNO_FS_CREATE_TIME && FAT_FS
-
-config SYNO_FAT_SYNOBOOT_LOG
-	bool "synoboot access log"
-	default y
-	depends on FAT_FS
 
 endmenu
 
@@ -340,6 +347,11 @@ config SYNO_EXT4_METADATA_CSUM_SMOOTH_ERR_HANDLING
 
 config SYNO_EXT4_SYMLINK_IOCTL
 	bool "add ioctl to symbolic link"
+	default y
+	depends on EXT4_FS
+
+config SYNO_EXT4_BH_FLAGS_WARNING
+	bool "Workaround for incorrect bh flags"
 	default y
 	depends on EXT4_FS
 
@@ -938,6 +950,11 @@ config SYNO_BTRFS_MOUNT_OPTION_EXPAND_64BIT
 	default y
 	depends on BTRFS_FS
 
+config SYNO_BTRFS_COMPAT_RO_NO_REMOUNT_RW
+	bool "No remount as read-write is allowed for compat-ro"
+	default y
+	depends on BTRFS_FS
+
 config SYNO_BTRFS_FALLOCATE_MARK_WRITTEN
 	bool "Mark fallocated area as written rether than prealloc"
 	default y
@@ -1063,6 +1080,46 @@ config SYNO_BTRFS_HIBERNATION_MONITOR
 	bool "Monitor modified log for hibernation"
 	default y
 	depends on BTRFS_FS
+
+config SYNO_BTRFS_FIX_CHUNK_LOGICAL_OVERFLOW
+	bool "fix chunk logical overflow"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FIX_BIO_FLAG_REQ_META_MISSING
+	bool "fix bio flag REQ_META missing"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_STATISTICS
+	bool "add meta statistics"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_QUOTA_SOFT_LIMIT
+	bool "add quota soft limit"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_SEND_IMPROVE_CHECK_NEW_DIR_CREATED_WITH_NEW_DIR_CACHE
+	bool "improve check new dir created with new dir cache"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_AUTO_DISABLE_COMPRESS_WHEN_NOCOW_SET
+	bool "auto disable compress when nocow set"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_QUICK_BALANCE
+	bool "balance only one block group"
+	default y
+	depends on SYNO_BTRFS_ALLOCATOR
+
+config SYNO_BTRFS_SEARCH_BY_EXTENT_TYPE
+	bool "search extent item by extent type"
+	default y
+	depends on SYNO_BTRFS_BACKREF
 
 endmenu #BTRFS
 

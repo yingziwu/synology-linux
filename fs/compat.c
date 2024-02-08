@@ -1499,7 +1499,7 @@ COMPAT_SYSCALL_DEFINE5(syno_recv_file, int, fd, int, s, loff_t *, offset, size_t
 
 	set_fs(KERNEL_DS);
 	/* The __user pointer cast is valid because of the set_fs() */
-	ret = sys_recvfile(fd, s, offset, nbytes, (size_t __user *)&rwbytes64);
+	ret = sys_syno_recv_file(fd, s, offset, nbytes, (size_t __user *)&rwbytes64);
 	set_fs(oldfs);
 
 	/* truncating is ok because it's a user address */

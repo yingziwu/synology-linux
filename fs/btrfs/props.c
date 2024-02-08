@@ -33,13 +33,15 @@ static DEFINE_HASHTABLE(prop_handlers_ht, BTRFS_PROP_HANDLERS_HT_BITS);
 struct prop_handler {
 	struct hlist_node node;
 	const char *xattr_name;
-	int (*validate)(const char *value, size_t len);
+	int (*validate)(const struct btrfs_inode *inode, const char *value,
+			size_t len);
 	int (*apply)(struct inode *inode, const char *value, size_t len);
 	const char *(*extract)(struct inode *inode);
 	int inheritable;
 };
 
-static int prop_compression_validate(const char *value, size_t len);
+static int prop_compression_validate(const struct btrfs_inode *inode,
+				     const char *value, size_t len);
 static int prop_compression_apply(struct inode *inode,
 				  const char *value,
 				  size_t len);
@@ -103,18 +105,30 @@ find_prop_handler(const char *name,
 	return NULL;
 }
 
-static int __btrfs_set_prop(struct btrfs_trans_handle *trans,
-			    struct inode *inode,
-			    const char *name,
-			    const char *value,
-			    size_t value_len,
-			    int flags)
+int btrfs_validate_prop(const struct btrfs_inode *inode, const char *name,
+			const char *value, size_t value_len)
 {
 	const struct prop_handler *handler;
-	int ret;
 
 	if (strlen(name) <= XATTR_BTRFS_PREFIX_LEN)
 		return -EINVAL;
+
+	handler = find_prop_handler(name, NULL);
+	if (!handler)
+		return -EINVAL;
+
+	if (value_len == 0)
+		return 0;
+
+	return handler->validate(inode, value, value_len);
+}
+
+int btrfs_set_prop(struct btrfs_trans_handle *trans, struct inode *inode,
+		   const char *name, const char *value, size_t value_len,
+		   int flags)
+{
+	const struct prop_handler *handler;
+	int ret;
 
 	handler = find_prop_handler(name, NULL);
 	if (!handler)
@@ -132,9 +146,6 @@ static int __btrfs_set_prop(struct btrfs_trans_handle *trans,
 		return ret;
 	}
 
-	ret = handler->validate(value, value_len);
-	if (ret)
-		return ret;
 	ret = __btrfs_setxattr(trans, inode, handler->xattr_name,
 			       value, value_len, flags);
 	if (ret)
@@ -149,15 +160,6 @@ static int __btrfs_set_prop(struct btrfs_trans_handle *trans,
 	set_bit(BTRFS_INODE_HAS_PROPS, &BTRFS_I(inode)->runtime_flags);
 
 	return 0;
-}
-
-int btrfs_set_prop(struct inode *inode,
-		   const char *name,
-		   const char *value,
-		   size_t value_len,
-		   int flags)
-{
-	return __btrfs_set_prop(NULL, inode, name, value, value_len, flags);
 }
 
 static int iterate_object_props(struct btrfs_root *root,
@@ -337,9 +339,9 @@ static int inherit_props(struct btrfs_trans_handle *trans,
 					  num_bytes, BTRFS_RESERVE_NO_FLUSH);
 		if (ret)
 			goto out;
-#endif
-		ret = __btrfs_set_prop(trans, inode, h->xattr_name,
-				       value, strlen(value), 0);
+#endif /* MY_ABC_HERE */
+		ret = btrfs_set_prop(trans, inode, h->xattr_name, value,
+				     strlen(value), 0);
 #ifdef MY_ABC_HERE
 #else
 		btrfs_block_rsv_release(root, trans->block_rsv, num_bytes);
@@ -392,13 +394,21 @@ int btrfs_subvol_inherit_props(struct btrfs_trans_handle *trans,
 	return ret;
 }
 
-static int prop_compression_validate(const char *value, size_t len)
+static int prop_compression_validate(const struct btrfs_inode *inode,
+				     const char *value, size_t len)
 {
+	if (!btrfs_inode_can_compress(inode))
+		return -EINVAL;
+
 	if (!strncmp("lzo", value, len))
 		return 0;
 	else if (!strncmp("zlib", value, len))
 		return 0;
 	else if (!strncmp("zstd", value, len))
+		return 0;
+
+	if ((len == 2 && strncmp("no", value, 2) == 0) ||
+	    (len == 4 && strncmp("none", value, 4) == 0))
 		return 0;
 
 	return -EINVAL;
@@ -411,7 +421,17 @@ static int prop_compression_apply(struct inode *inode,
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 	int type;
 
+	/* Reset to defaults */
 	if (len == 0) {
+		BTRFS_I(inode)->flags &= ~BTRFS_INODE_COMPRESS;
+		BTRFS_I(inode)->flags &= ~BTRFS_INODE_NOCOMPRESS;
+		BTRFS_I(inode)->force_compress = BTRFS_COMPRESS_NONE;
+		return 0;
+	}
+
+	/* Set NOCOMPRESS flag */
+	if ((len == 2 && strncmp("no", value, 2) == 0) ||
+	    (len == 4 && strncmp("none", value, 4) == 0)) {
 		BTRFS_I(inode)->flags |= BTRFS_INODE_NOCOMPRESS;
 		BTRFS_I(inode)->flags &= ~BTRFS_INODE_COMPRESS;
 		BTRFS_I(inode)->force_compress = BTRFS_COMPRESS_NONE;

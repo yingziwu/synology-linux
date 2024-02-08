@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * "splice": joining two ropes together by interweaving their strands.
  *
@@ -28,6 +31,9 @@
 #include <linux/export.h>
 #include <linux/syscalls.h>
 #include <linux/uio.h>
+#ifdef MY_ABC_HERE
+#include <linux/fsnotify.h>
+#endif /* MY_ABC_HERE */
 #include <linux/security.h>
 #include <linux/gfp.h>
 #include <linux/socket.h>
@@ -1418,6 +1424,11 @@ static long do_splice(struct file *in, loff_t __user *off_in,
 
 		ret = do_splice_from(ipipe, out, &offset, len, flags);
 
+#ifdef MY_ABC_HERE
+               if (ret > 0)
+                       fsnotify_modify(out);
+#endif /* MY_ABC_HERE */
+
 		if (!off_out)
 			out->f_pos = offset;
 		else if (copy_to_user(off_out, &offset, sizeof(loff_t)))
@@ -1439,6 +1450,11 @@ static long do_splice(struct file *in, loff_t __user *off_in,
 		}
 
 		ret = do_splice_to(in, &offset, opipe, len, flags);
+
+#ifdef MY_ABC_HERE
+               if (ret > 0)
+                       fsnotify_access(in);
+#endif /* MY_ABC_HERE */
 
 		if (!off_in)
 			in->f_pos = offset;

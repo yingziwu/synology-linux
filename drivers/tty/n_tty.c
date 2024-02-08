@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * n_tty.c --- implements the N_TTY line discipline.
  *
@@ -1407,7 +1410,20 @@ static void n_tty_receive_buf(struct tty_struct *tty, const unsigned char *cp,
 	int	i;
 	char	buf[64];
 	unsigned long cpuflags;
-
+#ifdef MY_ABC_HERE
+	extern int gSynoForbidConsole;
+	extern void (*funcSYNOConsoleProhibitEvent)(void);
+	static unsigned long last_jiffies = INITIAL_JIFFIES;
+	if (1 == gSynoForbidConsole && !strcmp(tty->name, "ttyS0")) {
+		if (time_after(jiffies, last_jiffies + msecs_to_jiffies(3000))) {
+			if (NULL != funcSYNOConsoleProhibitEvent) {
+				funcSYNOConsoleProhibitEvent();
+			}
+			last_jiffies = jiffies;
+		}
+		return;
+	}
+#endif /* MY_ABC_HERE */
 	if (ldata->real_raw) {
 		raw_spin_lock_irqsave(&ldata->read_lock, cpuflags);
 		i = min(N_TTY_BUF_SIZE - ldata->read_cnt,
