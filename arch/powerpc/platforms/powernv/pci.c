@@ -480,7 +480,6 @@ static int pnv_pci_probe_mode(struct pci_bus *bus)
 	const __be64 *tstamp;
 	u64 now, target;
 
-
 	/* We hijack this as a way to ensure we have waited long
 	 * enough since the reset was lifted on the PCI bus
 	 */

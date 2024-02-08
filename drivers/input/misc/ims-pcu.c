@@ -113,7 +113,6 @@ struct ims_pcu {
 	bool setup_complete; /* Input and LED devices have been created */
 };
 
-
 /*********************************************************************
  *             Buttons Input device support                          *
  *********************************************************************/
@@ -254,7 +253,6 @@ static void ims_pcu_destroy_buttons(struct ims_pcu *pcu)
 	input_unregister_device(buttons->input);
 }
 
-
 /*********************************************************************
  *             Gamepad Input device support                          *
  *********************************************************************/
@@ -346,7 +344,6 @@ static void ims_pcu_destroy_gamepad(struct ims_pcu *pcu)
 	kfree(gamepad);
 }
 
-
 /*********************************************************************
  *             PCU Communication protocol handling                   *
  *********************************************************************/
@@ -392,7 +389,6 @@ static void ims_pcu_destroy_gamepad(struct ims_pcu *pcu)
 
 #define IMS_PCU_RSP_EVNT_BUTTONS	0xe0	/* Unsolicited, button state */
 #define IMS_PCU_GAMEPAD_MASK		0x0001ff80UL	/* Bits 7 through 16 */
-
 
 #define IMS_PCU_MIN_PACKET_LEN		3
 #define IMS_PCU_DATA_OFFSET		2
@@ -1032,7 +1028,6 @@ static void ims_pcu_destroy_backlight(struct ims_pcu *pcu)
 	led_classdev_unregister(&backlight->cdev);
 	cancel_work_sync(&backlight->work);
 }
-
 
 /*********************************************************************
  *             Sysfs attributes handling                             *

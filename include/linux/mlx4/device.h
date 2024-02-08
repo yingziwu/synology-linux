@@ -173,7 +173,6 @@ enum {
 	MLX4_FUNC_CAP_64B_EQE_CQE	= 1L << 0
 };
 
-
 #define MLX4_ATTR_EXTENDED_PORT_INFO	cpu_to_be16(0xff90)
 
 enum {

@@ -636,7 +636,6 @@ static int pci9118_insn_write_ao(struct comedi_device *dev,
 	else
 		chanreg = PCI9118_DA1;
 
-
 	for (n = 0; n < insn->n; n++) {
 		outl(data[n], dev->iobase + chanreg);
 		devpriv->ao_data[ch] = data[n];

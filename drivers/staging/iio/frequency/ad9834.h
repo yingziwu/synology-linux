@@ -69,7 +69,6 @@ struct ad9834_state {
 	unsigned short			freq_data[2] ;
 };
 
-
 /*
  * TODO: struct ad7887_platform_data needs to go into include/linux/iio
  */

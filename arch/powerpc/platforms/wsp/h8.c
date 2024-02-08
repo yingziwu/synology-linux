@@ -18,7 +18,6 @@
  * We assume that FW has it setup right and no one messes with it.
  */
 
-
 static u8 __iomem *h8;
 
 #define RBR 0		/* Receiver Buffer Register */
@@ -69,7 +68,6 @@ static void wsp_h8_terminal_cmd(const char *cmd, int sz)
 	for (;;)
 		continue;
 }
-
 
 void wsp_h8_restart(char *cmd)
 {

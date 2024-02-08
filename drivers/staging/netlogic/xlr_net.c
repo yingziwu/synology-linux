@@ -694,7 +694,6 @@ static int xlr_phy_read(u32 *base_addr, int phy_addr, int regnum)
 	xlr_nae_wreg(base_addr, R_MII_MGMT_COMMAND,
 			(1 << O_MII_MGMT_COMMAND__rstat));
 
-
 	/* poll for the read cycle to complete */
 	while (!timedout) {
 		checktime = jiffies;

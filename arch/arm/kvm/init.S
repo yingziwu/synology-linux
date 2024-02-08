@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2012 - Virtual Open Systems and Columbia University
  * Author: Christoffer Dall <c.dall@virtualopensystems.com>
@@ -142,7 +145,11 @@ target:	@ We're now in the trampoline code, switch page tables
 
 	@ Invalidate the old TLBs
 	mcr	p15, 4, r0, c8, c7, 0	@ TLBIALLH
+#if defined (MY_ABC_HERE)
+	dsb	ish
+#else /* MY_ABC_HERE */
 	dsb
+#endif /* MY_ABC_HERE */
 
 	eret
 

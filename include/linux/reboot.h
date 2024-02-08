@@ -1,7 +1,6 @@
 #ifndef _LINUX_REBOOT_H
 #define _LINUX_REBOOT_H
 
-
 #include <linux/notifier.h>
 #include <uapi/linux/reboot.h>
 
@@ -12,7 +11,6 @@
 
 extern int register_reboot_notifier(struct notifier_block *);
 extern int unregister_reboot_notifier(struct notifier_block *);
-
 
 /*
  * Architecture-specific implementations of sys_reboot commands.

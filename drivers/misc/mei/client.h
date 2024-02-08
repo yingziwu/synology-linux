@@ -35,7 +35,6 @@ void mei_io_cb_free(struct mei_cl_cb *priv_cb);
 int mei_io_cb_alloc_req_buf(struct mei_cl_cb *cb, size_t length);
 int mei_io_cb_alloc_resp_buf(struct mei_cl_cb *cb, size_t length);
 
-
 /**
  * mei_io_list_init - Sets up a queue list.
  *
@@ -53,7 +52,6 @@ void mei_io_list_flush(struct mei_cl_cb *list, struct mei_cl *cl);
 
 struct mei_cl *mei_cl_allocate(struct mei_device *dev);
 void mei_cl_init(struct mei_cl *cl, struct mei_device *dev);
-
 
 int mei_cl_link(struct mei_cl *cl, int id);
 int mei_cl_unlink(struct mei_cl *cl);
@@ -83,7 +81,6 @@ static inline bool mei_cl_is_transitioning(struct mei_cl *cl)
 		MEI_FILE_DISCONNECTING == cl->state);
 }
 
-
 int mei_cl_flow_ctrl_creds(struct mei_cl *cl);
 
 int mei_cl_flow_ctrl_reduce(struct mei_cl *cl);
@@ -97,8 +94,6 @@ int mei_cl_read_start(struct mei_cl *cl, size_t length);
 int mei_cl_write(struct mei_cl *cl, struct mei_cl_cb *cb, bool blocking);
 
 void mei_host_client_init(struct work_struct *work);
-
-
 
 void mei_cl_all_disconnect(struct mei_device *dev);
 void mei_cl_all_read_wakeup(struct mei_device *dev);

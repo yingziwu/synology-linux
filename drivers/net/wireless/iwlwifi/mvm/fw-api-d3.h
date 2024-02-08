@@ -85,7 +85,6 @@ struct iwl_d3_manager_config {
 	__le32 wakeup_host_timer;
 } __packed; /* D3_MANAGER_CONFIG_CMD_S_VER_4 */
 
-
 /* TODO: OFFLOADS_QUERY_API_S_VER_1 */
 
 /**
@@ -125,7 +124,6 @@ struct iwl_proto_offload_cmd {
 	u8 ndp_mac_addr[ETH_ALEN];
 	__le16 reserved2;
 } __packed; /* PROT_OFFLOAD_CONFIG_CMD_DB_S_VER_1 */
-
 
 /*
  * WOWLAN_PATTERNS

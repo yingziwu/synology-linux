@@ -15,9 +15,21 @@ xhci-hcd-y := xhci.o xhci-mem.o
 xhci-hcd-y += xhci-ring.o xhci-hub.o xhci-dbg.o
 xhci-hcd-$(CONFIG_PCI)	+= xhci-pci.o
 
+ifeq ($(CONFIG_SYNO_ARMADA),y)
+xhci-hcd-y		+= xhci-plat.o
+xhci-hcd-y		+= xhci-mvebu.o
+else
 ifneq ($(CONFIG_USB_XHCI_PLATFORM), )
 	xhci-hcd-y		+= xhci-plat.o
+ifeq ($(CONFIG_SYNO_LSP_ARMADA),y)
+	xhci-hcd-$(CONFIG_USB_XHCI_MVEBU)	+= xhci-mvebu.o
 endif
+endif
+endif
+
+etxhci-hcd-y := etxhci.o etxhci-mem.o etxhci-pci.o
+etxhci-hcd-y += etxhci-ring.o etxhci-hub.o etxhci-dbg.o
+etxhci-hcd-y += etxhci-ejxxx.o
 
 obj-$(CONFIG_USB_WHCI_HCD)	+= whci/
 
@@ -41,6 +53,7 @@ obj-$(CONFIG_USB_OHCI_HCD)	+= ohci-hcd.o
 obj-$(CONFIG_USB_UHCI_HCD)	+= uhci-hcd.o
 obj-$(CONFIG_USB_FHCI_HCD)	+= fhci.o
 obj-$(CONFIG_USB_XHCI_HCD)	+= xhci-hcd.o
+obj-$(CONFIG_USB_ETRON_HCD)	+= etxhci-hcd.o
 obj-$(CONFIG_USB_SL811_HCD)	+= sl811-hcd.o
 obj-$(CONFIG_USB_SL811_CS)	+= sl811_cs.o
 obj-$(CONFIG_USB_U132_HCD)	+= u132-hcd.o
@@ -52,3 +65,26 @@ obj-$(CONFIG_USB_FSL_MPH_DR_OF)	+= fsl-mph-dr-of.o
 obj-$(CONFIG_USB_OCTEON2_COMMON) += octeon2-common.o
 obj-$(CONFIG_USB_HCD_BCMA)	+= bcma-hcd.o
 obj-$(CONFIG_USB_HCD_SSB)	+= ssb-hcd.o
+obj-$(CONFIG_USB_HCD_ST)	+= st-hcd.o
+
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+ifeq ($(CONFIG_SYNO_HI3536),y)
+ifeq ($(CONFIG_ARCH_HI3536),y)
+obj-$(CONFIG_USB_XHCI_HCD)	+= hiusb-xhci-hi3536.o
+obj-$(CONFIG_USB_EHCI_HCD)	+= hiusb-ehci-hi3536.o
+endif
+ifeq ($(CONFIG_ARCH_HI3531A),y)
+obj-$(CONFIG_USB_XHCI_HCD)	+= hiusb-xhci-hi3531a.o
+obj-$(CONFIG_USB_EHCI_HCD)	+= hiusb-ehci-hi3531a.o
+endif
+else # CONFIG_SYNO_HI3536
+ifdef CONFIG_USB
+obj-$(CONFIG_ARCH_HI3536)	+= hiusb-xhci-hi3536.o hiusb-ehci-hi3536.o
+endif
+ifdef CONFIG_USB
+obj-$(CONFIG_ARCH_HI3531A)	+= hiusb-xhci-hi3531a.o hiusb-ehci-hi3531a.o
+endif
+endif # CONFIG_SYNO_HI3536
+obj-$(CONFIG_HIUSB_DEVICE2_0)	+= hiusb-otg.o
+obj-$(CONFIG_ARCH_HI3521A)	+= hiusb-hi3521a.o
+endif # CONFIG_SYNO_LSP_HI3536

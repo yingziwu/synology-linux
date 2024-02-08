@@ -43,5 +43,3 @@ void CsrWifiRouterFreeUpstreamMessageContents(u16 eventClass, void *message)
 		break;
 	}
 }
-
-

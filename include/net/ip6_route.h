@@ -136,7 +136,11 @@ extern int			rt6_route_rcv(struct net_device *dev,
 					      const struct in6_addr *gwaddr);
 
 extern void ip6_update_pmtu(struct sk_buff *skb, struct net *net, __be32 mtu,
+#if defined(CONFIG_SYNO_LSP_HI3536)
+			    int oif, u32 mark, kuid_t uid);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 			    int oif, u32 mark);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 extern void ip6_sk_update_pmtu(struct sk_buff *skb, struct sock *sk,
 			       __be32 mtu);
 extern void ip6_redirect(struct sk_buff *skb, struct net *net, int oif, u32 mark);
@@ -154,7 +158,6 @@ extern int rt6_dump_route(struct rt6_info *rt, void *p_arg);
 extern void rt6_ifdown(struct net *net, struct net_device *dev);
 extern void rt6_mtu_change(struct net_device *dev, unsigned int mtu);
 extern void rt6_remove_prefsrc(struct inet6_ifaddr *ifp);
-
 
 /*
  *	Store a destination cache entry in a socket

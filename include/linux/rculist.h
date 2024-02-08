@@ -522,6 +522,5 @@ static inline void hlist_add_after_rcu(struct hlist_node *prev,
 	     pos = hlist_entry_safe(rcu_dereference_bh((pos)->member.next),\
 			typeof(*(pos)), member))
 
-
 #endif	/* __KERNEL__ */
 #endif

@@ -38,7 +38,6 @@ static u32 notrace pxa_read_sched_clock(void)
 	return readl_relaxed(OSCR);
 }
 
-
 #define MIN_OSCR_DELTA 16
 
 static irqreturn_t

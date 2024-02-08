@@ -1,25 +1,7 @@
-/*
- * dmxdev.c - DVB demultiplexer device
- *
- * Copyright (C) 2000 Ralph Metzler & Marcus Metzler
- *		      for convergence integrated media GmbH
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; either version 2.1
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/sched.h>
 #include <linux/spinlock.h>
 #include <linux/slab.h>
@@ -159,6 +141,12 @@ static int dvb_dvr_open(struct inode *inode, struct file *file)
 	}
 
 	if ((file->f_flags & O_ACCMODE) == O_WRONLY) {
+#if defined (MY_ABC_HERE)
+		if (!dvbdev->writers) {
+			mutex_unlock(&dmxdev->mutex);
+			return -EBUSY;
+		}
+#endif  
 		dmxdev->dvr_orig_fe = dmxdev->demux->frontend;
 
 		if (!dmxdev->demux->write) {
@@ -174,6 +162,9 @@ static int dvb_dvr_open(struct inode *inode, struct file *file)
 		}
 		dmxdev->demux->disconnect_frontend(dmxdev->demux);
 		dmxdev->demux->connect_frontend(dmxdev->demux, front);
+#if defined (MY_ABC_HERE)
+		dvbdev->writers--;
+#endif  
 	}
 	dvbdev->users++;
 	mutex_unlock(&dmxdev->mutex);
@@ -188,6 +179,9 @@ static int dvb_dvr_release(struct inode *inode, struct file *file)
 	mutex_lock(&dmxdev->mutex);
 
 	if ((file->f_flags & O_ACCMODE) == O_WRONLY) {
+#if defined (MY_ABC_HERE)
+		dvbdev->writers++;
+#endif  
 		dmxdev->demux->disconnect_frontend(dmxdev->demux);
 		dmxdev->demux->connect_frontend(dmxdev->demux,
 						dmxdev->dvr_orig_fe);
@@ -203,7 +197,7 @@ static int dvb_dvr_release(struct inode *inode, struct file *file)
 			vfree(mem);
 		}
 	}
-	/* TODO */
+	 
 	dvbdev->users--;
 	if (dvbdev->users == 1 && dmxdev->exit == 1) {
 		fops_put(file->f_op);
@@ -277,7 +271,6 @@ static int dvb_dvr_set_buffer_size(struct dmxdev *dmxdev,
 	buf->data = newmem;
 	buf->size = size;
 
-	/* reset and not flush in case the buffer shrinks */
 	dvb_ringbuffer_reset(buf);
 	spin_unlock_irq(&dmxdev->lock);
 
@@ -318,7 +311,6 @@ static int dvb_dmxdev_set_buffer_size(struct dmxdev_filter *dmxdevfilter,
 	buf->data = newmem;
 	buf->size = size;
 
-	/* reset and not flush in case the buffer shrinks */
 	dvb_ringbuffer_reset(buf);
 	spin_unlock_irq(&dmxdevfilter->dev->lock);
 
@@ -421,7 +413,6 @@ static int dvb_dmxdev_ts_callback(const u8 *buffer1, size_t buffer1_len,
 	return 0;
 }
 
-/* stop feed but only mark the specified filter as stopped (state set) */
 static int dvb_dmxdev_feed_stop(struct dmxdev_filter *dmxdevfilter)
 {
 	struct dmxdev_feed *feed;
@@ -443,7 +434,6 @@ static int dvb_dmxdev_feed_stop(struct dmxdev_filter *dmxdevfilter)
 	return 0;
 }
 
-/* start feed associated with the specified filter */
 static int dvb_dmxdev_feed_start(struct dmxdev_filter *filter)
 {
 	struct dmxdev_feed *feed;
@@ -470,8 +460,6 @@ static int dvb_dmxdev_feed_start(struct dmxdev_filter *filter)
 	return 0;
 }
 
-/* restart section feed if it has filters left associated with it,
-   otherwise release the feed */
 static int dvb_dmxdev_feed_restart(struct dmxdev_filter *filter)
 {
 	int i;
@@ -534,7 +522,6 @@ static void dvb_dmxdev_delete_pids(struct dmxdev_filter *dmxdevfilter)
 {
 	struct dmxdev_feed *feed, *tmp;
 
-	/* delete all PIDs */
 	list_for_each_entry_safe(feed, tmp, &dmxdevfilter->feed.ts, next) {
 		list_del(&feed->next);
 		kfree(feed);
@@ -573,10 +560,17 @@ static int dvb_dmxdev_start_feed(struct dmxdev *dmxdev,
 
 	ts_pes = para->pes_type;
 
+#if defined (MY_ABC_HERE)
+	if (ts_pes != DMX_PES_OTHER)
+		ts_type = TS_DECODER;
+	else
+		ts_type = 0;
+#else  
 	if (ts_pes < DMX_PES_OTHER)
 		ts_type = TS_DECODER;
 	else
 		ts_type = 0;
+#endif  
 
 	if (otype == DMX_OUT_TS_TAP)
 		ts_type |= TS_PACKET;
@@ -642,8 +636,6 @@ static int dvb_dmxdev_filter_start(struct dmxdev_filter *filter)
 		*secfilter = NULL;
 		*secfeed = NULL;
 
-
-		/* find active filter/feed with same PID */
 		for (i = 0; i < dmxdev->filternum; i++) {
 			if (dmxdev->filter[i].state >= DMXDEV_STATE_GO &&
 			    dmxdev->filter[i].type == DMXDEV_TYPE_SEC &&
@@ -653,7 +645,6 @@ static int dvb_dmxdev_filter_start(struct dmxdev_filter *filter)
 			}
 		}
 
-		/* if no feed found, try to allocate new one */
 		if (!*secfeed) {
 			ret = dmxdev->demux->allocate_section_feed(dmxdev->demux,
 								   secfeed,
@@ -804,7 +795,6 @@ static int dvb_dmxdev_add_pid(struct dmxdev *dmxdev,
 	    (filter->state < DMXDEV_STATE_SET))
 		return -EINVAL;
 
-	/* only TS packet filters may have multiple PIDs */
 	if ((filter->params.pes.output != DMX_OUT_TSDEMUX_TAP) &&
 	    (!list_empty(&filter->feed.ts)))
 		return -EINVAL;
@@ -874,8 +864,14 @@ static int dvb_dmxdev_pes_filter_set(struct dmxdev *dmxdev,
 	dvb_dmxdev_filter_stop(dmxdevfilter);
 	dvb_dmxdev_filter_reset(dmxdevfilter);
 
+#if defined (MY_ABC_HERE)
+	if ((unsigned)params->pes_type >= DMX_PES_LAST)
+		return -EINVAL;
+#else  
 	if ((unsigned)params->pes_type > DMX_PES_OTHER)
 		return -EINVAL;
+
+#endif  
 
 	dmxdevfilter->type = DMXDEV_TYPE_PES;
 	memcpy(&dmxdevfilter->params, params,
@@ -1213,6 +1209,9 @@ static const struct file_operations dvb_dvr_fops = {
 static struct dvb_device dvbdev_dvr = {
 	.priv = NULL,
 	.readers = 1,
+#if defined (MY_ABC_HERE)
+	.writers = 1,
+#endif  
 	.users = 1,
 	.fops = &dvb_dvr_fops
 };

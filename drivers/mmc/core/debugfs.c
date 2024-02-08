@@ -1,12 +1,7 @@
-/*
- * Debugfs support for hosts and cards
- *
- * Copyright (C) 2008 Atmel Corporation
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/moduleparam.h>
 #include <linux/export.h>
 #include <linux/debugfs.h>
@@ -28,9 +23,8 @@ static DECLARE_FAULT_ATTR(fail_default_attr);
 static char *fail_request;
 module_param(fail_request, charp, 0);
 
-#endif /* CONFIG_FAIL_MMC_REQUEST */
+#endif  
 
-/* The debugfs functions are optimized away when CONFIG_DEBUG_FS isn't set. */
 static int mmc_ios_show(struct seq_file *s, void *data)
 {
 	static const char *vdd_str[] = {
@@ -135,6 +129,11 @@ static int mmc_ios_show(struct seq_file *s, void *data)
 	case MMC_TIMING_UHS_DDR50:
 		str = "sd uhs DDR50";
 		break;
+#if defined (MY_ABC_HERE)
+	case MMC_TIMING_MMC_DDR52:
+		str = "mmc DDR52";
+		break;
+#endif  
 	case MMC_TIMING_MMC_HS200:
 		str = "mmc high-speed SDR200";
 		break;
@@ -188,7 +187,6 @@ static int mmc_clock_opt_set(void *data, u64 val)
 {
 	struct mmc_host *host = data;
 
-	/* We need this check due to input value is u64 */
 	if (val > host->f_max)
 		return -EINVAL;
 
@@ -208,11 +206,10 @@ void mmc_add_host_debugfs(struct mmc_host *host)
 
 	root = debugfs_create_dir(mmc_hostname(host), NULL);
 	if (IS_ERR(root))
-		/* Don't complain -- debugfs just isn't enabled */
+		 
 		return;
 	if (!root)
-		/* Complain -- debugfs is enabled, but it failed to
-		 * create the directory. */
+		 
 		goto err_root;
 
 	host->debugfs_root = root;
@@ -344,11 +341,10 @@ void mmc_add_card_debugfs(struct mmc_card *card)
 
 	root = debugfs_create_dir(mmc_card_id(card), host->debugfs_root);
 	if (IS_ERR(root))
-		/* Don't complain -- debugfs just isn't enabled */
+		 
 		return;
 	if (!root)
-		/* Complain -- debugfs is enabled, but it failed to
-		 * create the directory. */
+		 
 		goto err;
 
 	card->debugfs_root = root;

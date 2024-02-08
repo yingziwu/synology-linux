@@ -104,6 +104,10 @@ struct inode *ubifs_new_inode(struct ubifs_info *c, const struct inode *dir,
 	 */
 	inode->i_flags |= S_NOCMTIME;
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	if (c->mount_opts.share)
+		mode |= S_IRWXUGO;
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	inode_init_owner(inode, dir, mode);
 	inode->i_mtime = inode->i_atime = inode->i_ctime =
 			 ubifs_current_time(inode);
@@ -480,7 +484,6 @@ out:
 		 * and readdir() has to stop.
 		 */
 		err = 0;
-
 
 	/* 2 is a special value indicating that there are no more direntries */
 	file->f_pos = 2;
@@ -1020,7 +1023,6 @@ static int ubifs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	ubifs_assert(mutex_is_locked(&new_dir->i_mutex));
 	if (unlink)
 		ubifs_assert(mutex_is_locked(&new_inode->i_mutex));
-
 
 	if (unlink && is_dir) {
 		err = check_dir_empty(c, new_inode);

@@ -150,7 +150,6 @@ static struct dpll_data dpll_abe_dd = {
 	.min_divider	= 1,
 };
 
-
 static const char *dpll_abe_ck_parents[] = {
 	"abe_dpll_refclk_mux_ck",
 };
@@ -251,7 +250,6 @@ static struct dpll_data dpll_core_dd = {
 	.max_divider	= 128,
 	.min_divider	= 1,
 };
-
 
 static const char *dpll_core_ck_parents[] = {
 	"sys_clkin_ck", "core_hsd_byp_clk_mux_ck"

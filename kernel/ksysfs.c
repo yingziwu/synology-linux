@@ -54,7 +54,6 @@ static ssize_t uevent_helper_store(struct kobject *kobj,
 }
 KERNEL_ATTR_RW(uevent_helper);
 
-
 #ifdef CONFIG_PROFILING
 static ssize_t profiling_show(struct kobject *kobj,
 				  struct kobj_attribute *attr, char *buf)

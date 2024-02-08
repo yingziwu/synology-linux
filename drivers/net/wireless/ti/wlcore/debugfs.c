@@ -128,7 +128,6 @@ static void chip_op_handler(struct wl1271 *wl, unsigned long value,
 	wl1271_ps_elp_sleep(wl);
 }
 
-
 static inline void no_write_handler(struct wl1271 *wl,
 				    unsigned long value,
 				    unsigned long param)
@@ -681,8 +680,6 @@ static const struct file_operations dtim_interval_ops = {
 	.llseek = default_llseek,
 };
 
-
-
 static ssize_t suspend_dtim_interval_read(struct file *file,
 					  char __user *user_buf,
 					  size_t count, loff_t *ppos)
@@ -730,7 +727,6 @@ static ssize_t suspend_dtim_interval_write(struct file *file,
 	mutex_unlock(&wl->mutex);
 	return count;
 }
-
 
 static const struct file_operations suspend_dtim_interval_ops = {
 	.read = suspend_dtim_interval_read,

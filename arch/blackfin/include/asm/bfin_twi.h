@@ -113,7 +113,6 @@ static inline u16 read_RCV_DATA16(struct bfin_twi_iface *iface)
 }
 #endif
 
-
 /*  ********************  TWO-WIRE INTERFACE (TWI) MASKS  ***********************/
 /* TWI_CLKDIV Macros (Use: *pTWI_CLKDIV = CLKLOW(x)|CLKHI(y);  )				*/
 #define	CLKLOW(x)	((x) & 0xFF)	/* Periods Clock Is Held Low                    */

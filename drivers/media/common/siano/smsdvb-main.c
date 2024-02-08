@@ -43,7 +43,6 @@ static int sms_dbg;
 module_param_named(debug, sms_dbg, int, 0644);
 MODULE_PARM_DESC(debug, "set debug level (info=1, adv=2 (or-able))");
 
-
 u32 sms_to_guard_interval_table[] = {
 	[0] = GUARD_INTERVAL_1_32,
 	[1] = GUARD_INTERVAL_1_16,
@@ -59,7 +58,6 @@ u32 sms_to_code_rate_table[] = {
 	[4] = FEC_7_8,
 };
 
-
 u32 sms_to_hierarchy_table[] = {
 	[0] = HIERARCHY_NONE,
 	[1] = HIERARCHY_1,
@@ -73,7 +71,6 @@ u32 sms_to_modulation_table[] = {
 	[2] = QAM_64,
 	[3] = DQPSK,
 };
-
 
 /* Events that may come from DVB v3 adapter */
 static void sms_board_dvb3_event(struct smsdvb_client_t *client,

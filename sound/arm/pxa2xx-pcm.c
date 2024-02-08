@@ -1,16 +1,12 @@
-/*
- * linux/sound/arm/pxa2xx-pcm.c -- ALSA PCM interface for the Intel PXA2xx chip
- *
- * Author:	Nicolas Pitre
- * Created:	Nov 30, 2004
- * Copyright:	(C) 2004 MontaVista Software, Inc.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
+#if defined(MY_DEF_HERE)
+#include <linux/dma-mapping.h>
+#include <linux/dmaengine.h>
+#endif  
 #include <sound/core.h>
 #include <sound/pxa2xx-lib.h>
 
@@ -80,7 +76,11 @@ static struct snd_pcm_ops pxa2xx_pcm_ops = {
 	.mmap		= pxa2xx_pcm_mmap,
 };
 
+#if defined(MY_DEF_HERE)
+ 
+#else  
 static u64 pxa2xx_pcm_dmamask = 0xffffffff;
+#endif  
 
 int pxa2xx_pcm_new(struct snd_card *card, struct pxa2xx_pcm_client *client,
 		   struct snd_pcm **rpcm)
@@ -97,10 +97,16 @@ int pxa2xx_pcm_new(struct snd_card *card, struct pxa2xx_pcm_client *client,
 	pcm->private_data = client;
 	pcm->private_free = pxa2xx_pcm_free_dma_buffers;
 
+#if defined(MY_DEF_HERE)
+	ret = dma_coerce_mask_and_coherent(card->dev, DMA_BIT_MASK(32));
+	if (ret)
+		goto out;
+#else  
 	if (!card->dev->dma_mask)
 		card->dev->dma_mask = &pxa2xx_pcm_dmamask;
 	if (!card->dev->coherent_dma_mask)
 		card->dev->coherent_dma_mask = 0xffffffff;
+#endif  
 
 	if (play) {
 		int stream = SNDRV_PCM_STREAM_PLAYBACK;

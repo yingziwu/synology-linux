@@ -81,8 +81,6 @@ static inline void netpoll_send_skb(struct netpoll *np, struct sk_buff *skb)
 	local_irq_restore(flags);
 }
 
-
-
 #ifdef CONFIG_NETPOLL
 static inline bool netpoll_rx_on(struct sk_buff *skb)
 {

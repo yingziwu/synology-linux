@@ -111,7 +111,6 @@ extern struct cpuinfo_um cpu_data[];
 #define current_cpu_data boot_cpu_data
 #endif
 
-
 #define KSTK_REG(tsk, reg) get_thread_reg(reg, &tsk->thread.switch_buf)
 extern unsigned long get_wchan(struct task_struct *p);
 

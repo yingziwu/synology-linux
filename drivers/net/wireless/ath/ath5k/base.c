@@ -83,7 +83,6 @@ module_param_named(no_hw_rfkill_switch, ath5k_modparam_no_hw_rfkill_switch,
 								bool, S_IRUGO);
 MODULE_PARM_DESC(no_hw_rfkill_switch, "Ignore the GPIO RFKill switch state");
 
-
 /* Module info */
 MODULE_AUTHOR("Jiri Slaby");
 MODULE_AUTHOR("Nick Kossifidis");
@@ -893,7 +892,6 @@ ath5k_desc_free(struct ath5k_hw *ah)
 	ah->bufptr = NULL;
 }
 
-
 /**************\
 * Queues setup *
 \**************/
@@ -1076,7 +1074,6 @@ ath5k_txq_release(struct ath5k_hw *ah)
 		}
 }
 
-
 /*************\
 * RX Handling *
 \*************/
@@ -1162,7 +1159,6 @@ ath5k_rx_decrypted(struct ath5k_hw *ah, struct sk_buff *skb,
 
 	return 0;
 }
-
 
 static void
 ath5k_check_ibss_tsf(struct ath5k_hw *ah, struct sk_buff *skb,
@@ -1508,7 +1504,6 @@ unlock:
 	ath5k_set_current_imask(ah);
 }
 
-
 /*************\
 * TX Handling *
 \*************/
@@ -1699,7 +1694,6 @@ ath5k_tasklet_tx(unsigned long data)
 	ath5k_set_current_imask(ah);
 }
 
-
 /*****************\
 * Beacon handling *
 \*****************/
@@ -1761,7 +1755,6 @@ ath5k_beacon_setup(struct ath5k_hw *ah, struct ath5k_buf *bf)
 	 */
 	if (ah->ah_ant_mode == AR5K_ANTMODE_SECTOR_AP)
 		antenna = ah->bsent & 4 ? 2 : 1;
-
 
 	/* FIXME: If we are in g mode and rate is a CCK rate
 	 * subtract ah->ah_txpower.txp_cck_ofdm_pwr_delta
@@ -2108,7 +2101,6 @@ static void ath5k_tasklet_beacon(unsigned long data)
 	}
 }
 
-
 /********************\
 * Interrupt handling *
 \********************/
@@ -2166,7 +2158,6 @@ ath5k_intr(int irq, void *dev_id)
 	struct ath5k_hw *ah = dev_id;
 	enum ath5k_int status;
 	unsigned int counter = 1000;
-
 
 	/*
 	 * If hw is not ready (or detached) and we get an
@@ -2242,7 +2233,6 @@ ath5k_intr(int irq, void *dev_id)
 			 */
 			if (status & AR5K_INT_RXEOL)
 				ah->stats.rxeol_intr++;
-
 
 			/* TX Underrun -> Bump tx trigger level */
 			if (status & AR5K_INT_TXURN)
@@ -2331,7 +2321,6 @@ ath5k_calibrate_work(struct work_struct *work)
 	} else
 		ah->ah_cal_mask |= AR5K_CALIBRATION_SHORT;
 
-
 	ATH5K_DBG(ah, ATH5K_DEBUG_CALIBRATE, "channel %u/%x\n",
 		ieee80211_frequency_to_channel(ah->curchan->center_freq),
 		ah->curchan->hw_value);
@@ -2348,7 +2337,6 @@ ath5k_calibrate_work(struct work_struct *work)
 		ah->ah_cal_mask &= ~AR5K_CALIBRATION_SHORT;
 }
 
-
 static void
 ath5k_tasklet_ani(unsigned long data)
 {
@@ -2358,7 +2346,6 @@ ath5k_tasklet_ani(unsigned long data)
 	ath5k_ani_calibration(ah);
 	ah->ah_cal_mask &= ~AR5K_CALIBRATION_ANI;
 }
-
 
 static void
 ath5k_tx_complete_poll_work(struct work_struct *work)
@@ -2406,7 +2393,6 @@ ath5k_tx_complete_poll_work(struct work_struct *work)
 	ieee80211_queue_delayed_work(ah->hw, &ah->tx_complete_work,
 		msecs_to_jiffies(ATH5K_TX_COMPLETE_POLL_INT));
 }
-
 
 /*************************\
 * Initialization routines *
@@ -2865,7 +2851,6 @@ ath5k_init(struct ieee80211_hw *hw)
 	struct ath5k_txq *txq;
 	u8 mac[ETH_ALEN] = {};
 	int ret;
-
 
 	/*
 	 * Collect the channel list.  The 802.11 layer

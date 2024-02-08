@@ -1,27 +1,7 @@
-/*
- * System controller support for Armada 370 and XP platforms.
- *
- * Copyright (C) 2012 Marvell
- *
- * Lior Amsalem <alior@marvell.com>
- * Gregory CLEMENT <gregory.clement@free-electrons.com>
- * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
- *
- * This file is licensed under the terms of the GNU General Public
- * License version 2.  This program is licensed "as is" without any
- * warranty of any kind, whether express or implied.
- *
- * The Armada 370 and Armada XP SoCs both have a range of
- * miscellaneous registers, that do not belong to a particular device,
- * but rather provide system-level features. This basic
- * system-controller driver provides a device tree binding for those
- * registers, and implements utility functions offering various
- * features related to those registers.
- *
- * For now, the feature set is limited to restarting the platform by a
- * soft-reset, but it might be extended in the future.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/of_address.h>
@@ -35,6 +15,10 @@ struct mvebu_system_controller {
 
 	u32 rstoutn_mask_reset_out_en;
 	u32 system_soft_reset;
+
+#if defined(MY_DEF_HERE)
+	u32 resume_boot_addr;
+#endif  
 };
 static struct mvebu_system_controller *mvebu_sc;
 
@@ -44,6 +28,16 @@ const struct mvebu_system_controller armada_370_xp_system_controller = {
 	.rstoutn_mask_reset_out_en = 0x1,
 	.system_soft_reset = 0x1,
 };
+
+#if defined(MY_DEF_HERE)
+const struct mvebu_system_controller armada_375_system_controller = {
+	.rstoutn_mask_offset = 0x54,
+	.system_soft_reset_offset = 0x58,
+	.rstoutn_mask_reset_out_en = 0x1,
+	.system_soft_reset = 0x1,
+	.resume_boot_addr = 0xd4,
+};
+#endif  
 
 const struct mvebu_system_controller orion_system_controller = {
 	.rstoutn_mask_offset = 0x108,
@@ -59,8 +53,17 @@ static struct of_device_id of_system_controller_table[] = {
 	}, {
 		.compatible = "marvell,armada-370-xp-system-controller",
 		.data = (void *) &armada_370_xp_system_controller,
+#if defined(MY_DEF_HERE)
+	}, {
+		.compatible = "marvell,armada-375-system-controller",
+		.data = (void *) &armada_375_system_controller,
+	}, {
+		 
+		.compatible = "marvell,armada-380-system-controller",
+		.data = (void *) &armada_370_xp_system_controller,
+#endif  
 	},
-	{ /* end of list */ },
+	{   },
 };
 
 void mvebu_restart(char mode, const char *cmd)
@@ -68,15 +71,11 @@ void mvebu_restart(char mode, const char *cmd)
 	if (!system_controller_base) {
 		pr_err("Cannot restart, system-controller not available: check the device tree\n");
 	} else {
-		/*
-		 * Enable soft reset to assert RSTOUTn.
-		 */
+		 
 		writel(mvebu_sc->rstoutn_mask_reset_out_en,
 			system_controller_base +
 			mvebu_sc->rstoutn_mask_offset);
-		/*
-		 * Assert soft reset.
-		 */
+		 
 		writel(mvebu_sc->system_soft_reset,
 			system_controller_base +
 			mvebu_sc->system_soft_reset_offset);
@@ -86,6 +85,17 @@ void mvebu_restart(char mode, const char *cmd)
 		;
 }
 
+#if defined(MY_DEF_HERE)
+#ifdef CONFIG_SMP
+void armada_375_set_bootaddr(void *boot_addr)
+{
+	WARN_ON(system_controller_base == NULL);
+	writel(virt_to_phys(boot_addr), system_controller_base +
+	       mvebu_sc->resume_boot_addr);
+}
+#endif
+#endif  
+
 static int __init mvebu_system_controller_init(void)
 {
 	struct device_node *np;
@@ -93,7 +103,7 @@ static int __init mvebu_system_controller_init(void)
 	np = of_find_matching_node(NULL, of_system_controller_table);
 	if (np) {
 		const struct of_device_id *match =
-		    of_match_node(of_system_controller_table, np);
+			of_match_node(of_system_controller_table, np);
 		BUG_ON(!match);
 		system_controller_base = of_iomap(np, 0);
 		mvebu_sc = (struct mvebu_system_controller *)match->data;
@@ -102,4 +112,8 @@ static int __init mvebu_system_controller_init(void)
 	return 0;
 }
 
+#if defined(MY_DEF_HERE)
+early_initcall(mvebu_system_controller_init);
+#else  
 arch_initcall(mvebu_system_controller_init);
+#endif  

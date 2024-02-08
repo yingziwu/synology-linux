@@ -330,7 +330,6 @@ void dc_intr_tx(struct channel *sc)
 			continue;
 		}
 
-
 		if (sc->ether.tx_data[current_read]) {
 			sc->s.out_packets++;
 			sc->s.out_bytes += sc->ether.tx_data[current_read]->len;
@@ -393,7 +392,6 @@ void dc_intr_tx(struct channel *sc)
 	spin_unlock(&sc->ether.tx_lock);
 }
 
-
 void dc_intr_tx_underflow(struct channel *sc)
 {
 	u32 val;
@@ -426,9 +424,6 @@ void dc_intr_tx_underflow(struct channel *sc)
 
 	dc_transmitter_onoff(sc, SBE_2T3E3_ON);
 }
-
-
-
 
 void exar7250_intr(struct channel *sc)
 {
@@ -476,7 +471,6 @@ void exar7250_intr(struct channel *sc)
 	}
 }
 
-
 void exar7250_T3_intr(struct channel *sc, u32 block_status)
 {
 	u32 status, result;
@@ -519,7 +513,6 @@ void exar7250_T3_intr(struct channel *sc, u32 block_status)
 				status);
 	}
 
-
 	if (block_status & SBE_2T3E3_FRAMER_VAL_TX_INTERRUPT_STATUS) {
 		status = exar7250_read(sc, SBE_2T3E3_FRAMER_REG_T3_TX_FEAC_CONFIGURATION_STATUS);
 		dev_dbg(&sc->pdev->dev, "SBE 2T3E3: Framer interrupt T3 TX (REG[0x31] = %02X)\n",
@@ -530,7 +523,6 @@ void exar7250_T3_intr(struct channel *sc, u32 block_status)
 			status);
 	}
 }
-
 
 void exar7250_E3_intr(struct channel *sc, u32 block_status)
 {

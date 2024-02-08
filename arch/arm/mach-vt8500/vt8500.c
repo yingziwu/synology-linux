@@ -184,4 +184,3 @@ DT_MACHINE_START(WMT_DT, "VIA/Wondermedia SoC (Device Tree Support)")
 	.init_time	= clocksource_of_init,
 	.restart	= vt8500_restart,
 MACHINE_END
-

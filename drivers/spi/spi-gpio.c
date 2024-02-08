@@ -29,7 +29,6 @@
 #include <linux/spi/spi_bitbang.h>
 #include <linux/spi/spi_gpio.h>
 
-
 /*
  * This bitbanging SPI master driver should help make systems usable
  * when a native hardware SPI engine is not available, perhaps because

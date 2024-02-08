@@ -326,7 +326,6 @@ static struct resource dma_resource[] = {
 	}
 };
 
-
 static struct resource pinctrl_resources[] = {
 	{
 		.start = U300_SYSCON_BASE,
@@ -517,7 +516,6 @@ static void __init u300_init_irq(void)
 	vic_init((void __iomem *) U300_INTCON1_VBASE, IRQ_U300_INTCON1_START,
 		 mask[1], mask[1]);
 }
-
 
 /*
  * U300 platforms peripheral handling

@@ -1,13 +1,16 @@
-/*
- * machine_kexec.c - handle transition of Linux booting another kernel
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/mm.h>
 #include <linux/kexec.h>
 #include <linux/delay.h>
 #include <linux/reboot.h>
 #include <linux/io.h>
 #include <linux/irq.h>
+#if defined (MY_ABC_HERE)
+#include <linux/cpu.h>
+#endif  
 #include <linux/memblock.h>
 #include <asm/pgtable.h>
 #include <linux/of_fdt.h>
@@ -28,21 +31,12 @@ extern unsigned long kexec_boot_atags;
 
 static atomic_t waiting_for_crash_ipi;
 
-/*
- * Provide a dummy crash_notes definition while crash dump arrives to arm.
- * This prevents breakage of crash_notes attribute in kernel/ksysfs.c.
- */
-
 int machine_kexec_prepare(struct kimage *image)
 {
 	struct kexec_segment *current_segment;
 	__be32 header;
 	int i, err;
 
-	/*
-	 * No segment at default ATAGs address. try to locate
-	 * a dtb using magic.
-	 */
 	for (i = 0; i < image->nr_segments; i++) {
 		current_segment = &image->segment[i];
 
@@ -76,8 +70,15 @@ void machine_crash_nonpanic_core(void *unused)
 
 	set_cpu_online(smp_processor_id(), false);
 	atomic_dec(&waiting_for_crash_ipi);
+#if defined (MY_ABC_HERE)
+#if defined(MY_ABC_HERE)
 	while (1)
 		cpu_relax();
+#endif  
+#else  
+	while (1)
+		cpu_relax();
+#endif  
 }
 
 static void machine_kexec_mask_interrupts(void)
@@ -109,9 +110,15 @@ void machine_crash_shutdown(struct pt_regs *regs)
 
 	local_irq_disable();
 
+#if defined (MY_ABC_HERE)
+#if defined (MY_ABC_HERE)
+#else  
+	system_state = SYSTEM_RESTART;
+#endif  
+#endif  
 	atomic_set(&waiting_for_crash_ipi, num_online_cpus() - 1);
 	smp_call_function(machine_crash_nonpanic_core, NULL, false);
-	msecs = 1000; /* Wait at most a second for the other cpus to stop */
+	msecs = 1000;  
 	while ((atomic_read(&waiting_for_crash_ipi) > 0) && msecs) {
 		mdelay(1);
 		msecs--;
@@ -121,13 +128,16 @@ void machine_crash_shutdown(struct pt_regs *regs)
 
 	crash_save_cpu(regs, smp_processor_id());
 	machine_kexec_mask_interrupts();
+#if defined (MY_ABC_HERE)
+#if defined (MY_ABC_HERE)
+#else  
+	disable_nonboot_cpus();
+#endif  
+#endif  
 
 	printk(KERN_INFO "Loading crashdump kernel...\n");
 }
 
-/*
- * Function pointer to optional machine-specific reinitialization
- */
 void (*kexec_reinit)(void);
 
 void machine_kexec(struct kimage *image)
@@ -145,20 +155,16 @@ void machine_kexec(struct kimage *image)
 
 	page_list = image->head & PAGE_MASK;
 
-	/* we need both effective and real address here */
 	reboot_code_buffer_phys =
 	    page_to_pfn(image->control_code_page) << PAGE_SHIFT;
 	reboot_code_buffer = page_address(image->control_code_page);
 
-	/* Prepare parameters for reboot_code_buffer*/
 	kexec_start_address = image->start;
 	kexec_indirection_page = page_list;
 	kexec_mach_type = machine_arch_type;
 	if (!kexec_boot_atags)
 		kexec_boot_atags = image->start - KEXEC_ARM_ZIMAGE_OFFSET + KEXEC_ARM_ATAGS_OFFSET;
 
-
-	/* copy our kernel relocation code to the control code page */
 	reboot_entry = fncpy(reboot_code_buffer,
 			     reboot_entry,
 			     relocate_new_kernel_size);

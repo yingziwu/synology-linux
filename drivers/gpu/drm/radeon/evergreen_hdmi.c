@@ -162,7 +162,6 @@ static void evergreen_audio_set_dto(struct drm_encoder *encoder, u32 clock)
 	WREG32(DCCG_AUDIO_DTO0_MODULE, clock * 100);
 }
 
-
 /*
  * update the info frames with the data from the current display mode
  */

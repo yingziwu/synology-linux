@@ -344,7 +344,6 @@ static int netvsc_change_mtu(struct net_device *ndev, int mtu)
 	return 0;
 }
 
-
 static int netvsc_set_mac_addr(struct net_device *ndev, void *p)
 {
 	struct net_device_context *ndevctx = netdev_priv(ndev);
@@ -370,7 +369,6 @@ static int netvsc_set_mac_addr(struct net_device *ndev, void *p)
 
 	return err;
 }
-
 
 static const struct ethtool_ops ethtool_ops = {
 	.get_drvinfo	= netvsc_get_drvinfo,
@@ -405,7 +403,6 @@ static void netvsc_send_garp(struct work_struct *w)
 	net = net_device->ndev;
 	netdev_notify_peers(net);
 }
-
 
 static int netvsc_probe(struct hv_device *dev,
 			const struct hv_vmbus_device_id *dev_id)

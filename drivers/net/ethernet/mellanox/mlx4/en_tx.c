@@ -224,7 +224,6 @@ static void mlx4_en_stamp_wqe(struct mlx4_en_priv *priv,
 	}
 }
 
-
 static u32 mlx4_en_free_tx_desc(struct mlx4_en_priv *priv,
 				struct mlx4_en_tx_ring *ring,
 				int index, u8 owner, u64 timestamp)
@@ -292,7 +291,6 @@ static u32 mlx4_en_free_tx_desc(struct mlx4_en_priv *priv,
 	dev_kfree_skb_any(skb);
 	return tx_info->nr_txbb;
 }
-
 
 int mlx4_en_free_tx_buf(struct net_device *dev, struct mlx4_en_tx_ring *ring)
 {
@@ -391,7 +389,6 @@ static void mlx4_en_process_tx_cq(struct net_device *dev, struct mlx4_en_cq *cq)
 		cqe = &buf[(index << factor) + factor];
 	}
 
-
 	/*
 	 * To prevent CQ overflow we first update CQ consumer and only then
 	 * the ring consumer.
@@ -420,7 +417,6 @@ void mlx4_en_tx_irq(struct mlx4_cq *mcq)
 	mlx4_en_process_tx_cq(cq->dev, cq);
 	mlx4_en_arm_cq(priv, cq);
 }
-
 
 static struct mlx4_en_tx_desc *mlx4_en_bounce_to_desc(struct mlx4_en_priv *priv,
 						      struct mlx4_en_tx_ring *ring,
@@ -733,7 +729,6 @@ netdev_tx_t mlx4_en_xmit(struct sk_buff *skb, struct net_device *dev)
 	netdev_tx_sent_queue(ring->tx_queue, tx_info->nr_bytes);
 	AVG_PERF_COUNTER(priv->pstats.tx_pktsz_avg, skb->len);
 
-
 	/* valid only for none inline segments */
 	tx_info->data_offset = (void *) data - (void *) tx_desc;
 
@@ -809,4 +804,3 @@ tx_drop:
 	priv->stats.tx_dropped++;
 	return NETDEV_TX_OK;
 }
-

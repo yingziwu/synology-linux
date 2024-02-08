@@ -386,7 +386,6 @@ out_dev_put:
 	goto out;
 }
 
-
 /*
  *	Release all memory associated with X.25 neighbour structures.
  */

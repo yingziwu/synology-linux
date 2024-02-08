@@ -1,25 +1,7 @@
-/*
- * Algorithm testing framework and tests.
- *
- * Copyright (c) 2002 James Morris <jmorris@intercode.com.au>
- * Copyright (c) 2002 Jean-Francois Dive <jef@linuxbe.org>
- * Copyright (c) 2007 Nokia Siemens Networks
- * Copyright (c) 2008 Herbert Xu <herbert@gondor.apana.org.au>
- *
- * Updated RFC4106 AES-GCM testing.
- *    Authors: Aidan O'Mahony (aidan.o.mahony@intel.com)
- *             Adrian Hoban <adrian.hoban@intel.com>
- *             Gabriele Paoloni <gabriele.paoloni@intel.com>
- *             Tadeusz Struk (tadeusz.struk@intel.com)
- *    Copyright (c) 2010, Intel Corporation.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <crypto/hash.h>
 #include <linux/err.h>
 #include <linux/module.h>
@@ -32,7 +14,6 @@
 
 #ifdef CONFIG_CRYPTO_MANAGER_DISABLE_TESTS
 
-/* a perfect nop */
 int alg_test(const char *driver, const char *alg, u32 type, u32 mask)
 {
 	return 0;
@@ -42,14 +23,8 @@ int alg_test(const char *driver, const char *alg, u32 type, u32 mask)
 
 #include "testmgr.h"
 
-/*
- * Need slab memory for testing (size in number of pages).
- */
 #define XBUFSIZE	8
 
-/*
- * Indexes into the xbuf to simulate cross-page access.
- */
 #define IDX1		32
 #define IDX2		32400
 #define IDX3		1
@@ -59,9 +34,6 @@ int alg_test(const char *driver, const char *alg, u32 type, u32 mask)
 #define IDX7		27333
 #define IDX8		3000
 
-/*
-* Used by test_cipher()
-*/
 #define ENCRYPT 1
 #define DECRYPT 0
 
@@ -112,7 +84,7 @@ struct alg_test_desc {
 	const char *alg;
 	int (*test)(const struct alg_test_desc *desc, const char *driver,
 		    u32 type, u32 mask);
-	int fips_allowed;	/* set if alg is allowed in fips mode */
+	int fips_allowed;	 
 
 	union {
 		struct aead_test_suite aead;
@@ -329,7 +301,7 @@ static int test_hash(struct crypto_ahash *tfm, struct hash_testvec *template,
 					INIT_COMPLETION(tresult.completion);
 					break;
 				}
-				/* fall through */
+				 
 			default:
 				printk(KERN_ERR "alg: hash: digest failed "
 				       "on chunking test %d for %s: "
@@ -390,7 +362,6 @@ static int __test_aead(struct crypto_aead *tfm, int enc,
 	if (diff_dst && testmgr_alloc_buf(xoutbuf))
 		goto out_nooutbuf;
 
-	/* avoid "the frame size is larger than 1024 bytes" compiler warning */
 	sg = kmalloc(sizeof(*sg) * 8 * (diff_dst ? 3 : 2), GFP_KERNEL);
 	if (!sg)
 		goto out_nosg;
@@ -423,9 +394,6 @@ static int __test_aead(struct crypto_aead *tfm, int enc,
 		if (!template[i].np) {
 			j++;
 
-			/* some tepmplates have no input data but they will
-			 * touch input
-			 */
 			input = xbuf[0];
 			assoc = axbuf[0];
 
@@ -491,10 +459,10 @@ static int __test_aead(struct crypto_aead *tfm, int enc,
 			switch (ret) {
 			case 0:
 				if (template[i].novrfy) {
-					/* verification was supposed to fail */
+					 
 					pr_err("alg: aead%s: %s failed on test %d for %s: ret was 0, expected -EBADMSG\n",
 					       d, e, j, algo);
-					/* so really, we got a bad message */
+					 
 					ret = -EBADMSG;
 					goto out;
 				}
@@ -509,9 +477,9 @@ static int __test_aead(struct crypto_aead *tfm, int enc,
 				}
 			case -EBADMSG:
 				if (template[i].novrfy)
-					/* verification failure was expected */
+					 
 					continue;
-				/* fall through */
+				 
 			default:
 				pr_err("alg: aead%s: %s failed on test %d for %s: ret=%d\n",
 				       d, e, j, algo, -ret);
@@ -641,10 +609,10 @@ static int __test_aead(struct crypto_aead *tfm, int enc,
 			switch (ret) {
 			case 0:
 				if (template[i].novrfy) {
-					/* verification was supposed to fail */
+					 
 					pr_err("alg: aead%s: %s failed on chunk test %d for %s: ret was 0, expected -EBADMSG\n",
 					       d, e, j, algo);
-					/* so really, we got a bad message */
+					 
 					ret = -EBADMSG;
 					goto out;
 				}
@@ -659,9 +627,9 @@ static int __test_aead(struct crypto_aead *tfm, int enc,
 				}
 			case -EBADMSG:
 				if (template[i].novrfy)
-					/* verification failure was expected */
+					 
 					continue;
-				/* fall through */
+				 
 			default:
 				pr_err("alg: aead%s: %s failed on chunk test %d for %s: ret=%d\n",
 				       d, e, j, algo, -ret);
@@ -734,12 +702,10 @@ static int test_aead(struct crypto_aead *tfm, int enc,
 {
 	int ret;
 
-	/* test 'dst == src' case */
 	ret = __test_aead(tfm, enc, template, tcount, false);
 	if (ret)
 		return ret;
 
-	/* test 'dst != src' case */
 	return __test_aead(tfm, enc, template, tcount, true);
 }
 
@@ -921,7 +887,7 @@ static int __test_skcipher(struct crypto_ablkcipher *tfm, int enc,
 					INIT_COMPLETION(result.completion);
 					break;
 				}
-				/* fall through */
+				 
 			default:
 				pr_err("alg: skcipher%s: %s failed on test %d for %s: ret=%d\n",
 				       d, e, j, algo, -ret);
@@ -1021,7 +987,7 @@ static int __test_skcipher(struct crypto_ablkcipher *tfm, int enc,
 					INIT_COMPLETION(result.completion);
 					break;
 				}
-				/* fall through */
+				 
 			default:
 				pr_err("alg: skcipher%s: %s failed on chunk test %d for %s: ret=%d\n",
 				       d, e, j, algo, -ret);
@@ -1077,12 +1043,10 @@ static int test_skcipher(struct crypto_ablkcipher *tfm, int enc,
 {
 	int ret;
 
-	/* test 'dst == src' case */
 	ret = __test_skcipher(tfm, enc, template, tcount, false);
 	if (ret)
 		return ret;
 
-	/* test 'dst != src' case */
 	return __test_skcipher(tfm, enc, template, tcount, true);
 }
 
@@ -1211,7 +1175,6 @@ static int test_pcomp(struct crypto_pcomp *tfm,
 		if (res > 0)
 			produced += res;
 
-		/* Add remaining input data */
 		req.avail_in += (ctemplate[i].inlen + 1) / 2;
 
 		res = crypto_compress_update(tfm, &req);
@@ -1223,7 +1186,6 @@ static int test_pcomp(struct crypto_pcomp *tfm,
 		if (res > 0)
 			produced += res;
 
-		/* Provide remaining output space */
 		req.avail_out += COMP_BUF_SIZE - ctemplate[i].outlen / 2;
 
 		res = crypto_compress_final(tfm, &req);
@@ -1292,7 +1254,6 @@ static int test_pcomp(struct crypto_pcomp *tfm,
 		if (res > 0)
 			produced += res;
 
-		/* Add remaining input data */
 		req.avail_in += (dtemplate[i].inlen + 1) / 2;
 
 		res = crypto_decompress_update(tfm, &req);
@@ -1304,7 +1265,6 @@ static int test_pcomp(struct crypto_pcomp *tfm,
 		if (res > 0)
 			produced += res;
 
-		/* Provide remaining output space */
 		req.avail_out += COMP_BUF_SIZE - dtemplate[i].outlen / 2;
 
 		res = crypto_decompress_final(tfm, &req);
@@ -1341,7 +1301,6 @@ static int test_pcomp(struct crypto_pcomp *tfm,
 
 	return 0;
 }
-
 
 static int test_cprng(struct crypto_rng *tfm, struct cprng_testvec *template,
 		      unsigned int tcount)
@@ -1561,14 +1520,21 @@ static int alg_test_hash(const struct alg_test_desc *desc, const char *driver,
 static int alg_test_crc32c(const struct alg_test_desc *desc,
 			   const char *driver, u32 type, u32 mask)
 {
+#ifdef CONFIG_CRYPTO_DEV_AL_AHASH_CRC
+	 
+#else  
 	struct crypto_shash *tfm;
 	u32 val;
+#endif  
 	int err;
 
 	err = alg_test_hash(desc, driver, type, mask);
 	if (err)
 		goto out;
 
+#ifdef CONFIG_CRYPTO_DEV_AL_AHASH_CRC
+	 
+#else  
 	tfm = crypto_alloc_shash(driver, type, mask);
 	if (IS_ERR(tfm)) {
 		printk(KERN_ERR "alg: crc32c: Failed to load transform for %s: "
@@ -1602,6 +1568,7 @@ static int alg_test_crc32c(const struct alg_test_desc *desc,
 	} while (0);
 
 	crypto_free_shash(tfm);
+#endif  
 
 out:
 	return err;
@@ -1633,7 +1600,6 @@ static int alg_test_null(const struct alg_test_desc *desc,
 	return 0;
 }
 
-/* Please keep this list sorted by algorithm name. */
 static const struct alg_test_desc alg_test_descs[] = {
 	{
 		.alg = "__cbc-cast5-avx",
@@ -1763,6 +1729,20 @@ static const struct alg_test_desc alg_test_descs[] = {
 			}
 		}
 	}, {
+#if defined(MY_DEF_HERE)
+		.alg = "authenc(hmac(sha384),cbc(aes))",
+		.test = alg_test_aead,
+		.fips_allowed = 1,
+		.suite = {
+			.aead = {
+				.enc = {
+					.vecs = hmac_sha384_aes_cbc_enc_tv_template,
+					.count = HMAC_SHA384_AES_CBC_ENC_TEST_VECTORS
+				}
+			}
+		}
+	}, {
+#endif  
 		.alg = "authenc(hmac(sha512),cbc(aes))",
 		.test = alg_test_aead,
 		.fips_allowed = 1,
@@ -1971,6 +1951,16 @@ static const struct alg_test_desc alg_test_descs[] = {
 			.hash = {
 				.vecs = crc32c_tv_template,
 				.count = CRC32C_TEST_VECTORS
+			}
+		}
+	}, {
+		.alg = "crct10dif",
+		.test = alg_test_hash,
+		.fips_allowed = 1,
+		.suite = {
+			.hash = {
+				.vecs = crct10dif_tv_template,
+				.count = CRCT10DIF_TEST_VECTORS
 			}
 		}
 	}, {
@@ -3151,6 +3141,6 @@ non_fips_alg:
 	return -EINVAL;
 }
 
-#endif /* CONFIG_CRYPTO_MANAGER_DISABLE_TESTS */
+#endif  
 
 EXPORT_SYMBOL_GPL(alg_test);

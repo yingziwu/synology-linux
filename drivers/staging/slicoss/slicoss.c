@@ -54,7 +54,6 @@
  *       IS-NIC driver.
  */
 
-
 #define KLUDGE_FOR_4GB_BOUNDARY         1
 #define DEBUG_MICROCODE                 1
 #define DBG                             1
@@ -2780,7 +2779,6 @@ xmit_fail:
 	goto xmit_done;
 }
 
-
 static void slic_adapter_freeresources(struct adapter *adapter)
 {
 	slic_init_cleanup(adapter);
@@ -3689,7 +3687,6 @@ static int slic_entry_probe(struct pci_dev *pcidev,
 
 	mmio_start = pci_resource_start(pcidev, 0);
 	mmio_len = pci_resource_len(pcidev, 0);
-
 
 /*	memmapped_ioaddr =  (u32)ioremap_nocache(mmio_start, mmio_len);*/
 	memmapped_ioaddr = ioremap(mmio_start, mmio_len);

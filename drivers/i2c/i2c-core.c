@@ -46,7 +46,6 @@
 
 #include "i2c-core.h"
 
-
 /* core_lock protects i2c_adapter_idr, and guarantees
    that device detection, deletion of detected devices, and attach_adapter
    calls are serialized */
@@ -92,7 +91,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
 
 	return 0;
 }
-
 
 /* uevent helps with hotplug: modprobe -q $(MODALIAS) */
 static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
@@ -458,7 +456,6 @@ static struct device_type i2c_client_type = {
 	.release	= i2c_client_dev_release,
 };
 
-
 /**
  * i2c_verify_client - return parameter as i2c_client, or NULL
  * @dev: device, probably from some driver model iterator
@@ -476,7 +473,6 @@ struct i2c_client *i2c_verify_client(struct device *dev)
 }
 EXPORT_SYMBOL(i2c_verify_client);
 
-
 /* This is a permissive address validity check, I2C address map constraints
  * are purposely not enforced, except for the general call address. */
 static int i2c_check_client_addr_validity(const struct i2c_client *client)
@@ -486,9 +482,15 @@ static int i2c_check_client_addr_validity(const struct i2c_client *client)
 		if (client->addr > 0x3ff)
 			return -EINVAL;
 	} else {
+#if defined(CONFIG_SYNO_LSP_HI3536) && defined(CONFIG_HI_I2C)
+		/* 7-bit address, reject the general call address */
+		if (client->addr == 0x00 || client->addr > 0xfe)
+			return -EINVAL;
+#else /* CONFIG_SYNO_LSP_HI3536 && CONFIG_HI_I2C */
 		/* 7-bit address, reject the general call address */
 		if (client->addr == 0x00 || client->addr > 0x7f)
 			return -EINVAL;
+#endif /* CONFIG_SYNO_LSP_HI3536 && CONFIG_HI_I2C */
 	}
 	return 0;
 }
@@ -692,7 +694,6 @@ out_err_silent:
 }
 EXPORT_SYMBOL_GPL(i2c_new_device);
 
-
 /**
  * i2c_unregister_device - reverse effect of i2c_new_device()
  * @client: value returned from i2c_new_device()
@@ -703,7 +704,6 @@ void i2c_unregister_device(struct i2c_client *client)
 	device_unregister(&client->dev);
 }
 EXPORT_SYMBOL_GPL(i2c_unregister_device);
-
 
 static const struct i2c_device_id dummy_id[] = {
 	{ "dummy", 0 },
@@ -1285,7 +1285,6 @@ void i2c_del_adapter(struct i2c_adapter *adap)
 }
 EXPORT_SYMBOL(i2c_del_adapter);
 
-
 /* ------------------------------------------------------------------------- */
 
 int i2c_for_each_dev(void *data, int (*fn)(struct device *, void *))
@@ -1586,7 +1585,11 @@ int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
 	struct i2c_msg msg;
 
 	msg.addr = client->addr;
+#if defined(CONFIG_SYNO_LSP_HI3536) && defined(CONFIG_HI_I2C)
+	msg.flags = client->flags;
+#else /* CONFIG_SYNO_LSP_HI3536 && CONFIG_HI_I2C */
 	msg.flags = client->flags & I2C_M_TEN;
+#endif /* CONFIG_SYNO_LSP_HI3536 && CONFIG_HI_I2C */
 	msg.len = count;
 	msg.buf = (char *)buf;
 
@@ -1615,7 +1618,11 @@ int i2c_master_recv(const struct i2c_client *client, char *buf, int count)
 	int ret;
 
 	msg.addr = client->addr;
+#if defined(CONFIG_SYNO_LSP_HI3536) && defined(CONFIG_HI_I2C)
+	msg.flags = client->flags;
+#else /* CONFIG_SYNO_LSP_HI3536 && CONFIG_HI_I2C */
 	msg.flags = client->flags & I2C_M_TEN;
+#endif /* CONFIG_SYNO_LSP_HI3536 && CONFIG_HI_I2C */
 	msg.flags |= I2C_M_RD;
 	msg.len = count;
 	msg.buf = buf;

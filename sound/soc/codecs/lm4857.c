@@ -1,18 +1,7 @@
-/*
- * LM4857 AMP driver
- *
- * Copyright 2007 Wolfson Microelectronics PLC.
- * Author: Graeme Gregory
- *         graeme.gregory@wolfsonmicro.com
- * Copyright 2011 Lars-Peter Clausen <lars@metafoo.de>
- *
- *  This program is free software; you can redistribute  it and/or modify it
- *  under  the terms of  the GNU General  Public License as published by the
- *  Free Software Foundation;  either version 2 of the  License, or (at your
- *  option) any later version.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/i2c.h>
@@ -31,13 +20,11 @@ static const uint8_t lm4857_default_regs[] = {
 	0x00, 0x00, 0x00, 0x00,
 };
 
-/* The register offsets in the cache array */
 #define LM4857_MVOL 0
 #define LM4857_LVOL 1
 #define LM4857_RVOL 2
 #define LM4857_CTRL 3
 
-/* the shifts required to set these bits */
 #define LM4857_3D 5
 #define LM4857_WAKEUP 5
 #define LM4857_EPGAIN 4
@@ -78,7 +65,11 @@ static unsigned int lm4857_read(struct snd_soc_codec *codec,
 static int lm4857_get_mode(struct snd_kcontrol *kcontrol,
 	struct snd_ctl_elem_value *ucontrol)
 {
+#if defined(MY_DEF_HERE)
+	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
+#else  
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+#endif  
 	struct lm4857 *lm4857 = snd_soc_codec_get_drvdata(codec);
 
 	ucontrol->value.integer.value[0] = lm4857->mode;
@@ -89,7 +80,11 @@ static int lm4857_get_mode(struct snd_kcontrol *kcontrol,
 static int lm4857_set_mode(struct snd_kcontrol *kcontrol,
 	struct snd_ctl_elem_value *ucontrol)
 {
+#if defined(MY_DEF_HERE)
+	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
+#else  
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+#endif  
 	struct lm4857 *lm4857 = snd_soc_codec_get_drvdata(codec);
 	uint8_t value = ucontrol->value.integer.value[0];
 
@@ -161,10 +156,6 @@ static const struct snd_kcontrol_new lm4857_controls[] = {
 		lm4857_get_mode, lm4857_set_mode),
 };
 
-/* There is a demux between the input signal and the output signals.
- * Currently there is no easy way to model it in ASoC and since it does not make
- * much of a difference in practice simply connect the input direclty to the
- * outputs. */
 static const struct snd_soc_dapm_route lm4857_routes[] = {
 	{"LS", NULL, "IN"},
 	{"HP", NULL, "IN"},

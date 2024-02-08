@@ -138,7 +138,6 @@ static void nv_crtc_calc_state_ext(struct drm_crtc *crtc, struct drm_display_mod
 	if (nv_device(drm->device)->chipset > 0x40 && dot_clock <= (pll_lim.vco1.max_freq / 2))
 		memset(&pll_lim.vco2, 0, sizeof(pll_lim.vco2));
 
-
 	if (!clk->pll_calc(clk, &pll_lim, dot_clock, pv))
 		return;
 
@@ -800,7 +799,6 @@ nv04_crtc_do_mode_set_base(struct drm_crtc *crtc,
 		NV_DEBUG(drm, "No FB bound\n");
 		return 0;
 	}
-
 
 	/* If atomic, we want to switch to the fb we were passed, so
 	 * now we update pointers to do that.  (We don't pin; just

@@ -35,7 +35,6 @@ static DEFINE_PCI_DEVICE_TABLE(pciidlist) = {
 	{0,}
 };
 
-
 static int cirrus_kick_out_firmware_fb(struct pci_dev *pdev)
 {
 	struct apertures_struct *ap;

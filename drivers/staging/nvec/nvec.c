@@ -716,7 +716,6 @@ static irqreturn_t nvec_interrupt(int irq, void *dev)
 		status & RCVD ? " RCVD" : "",
 		status & RNW ? " RNW" : "");
 
-
 	/*
 	 * TODO: A correct fix needs to be found for this.
 	 *
@@ -865,7 +864,6 @@ static int tegra_nvec_probe(struct platform_device *pdev)
 	tegra_init_i2c_slave(nvec);
 
 	clk_prepare_enable(i2c_clk);
-
 
 	/* enable event reporting */
 	nvec_toggle_global_events(nvec, true);

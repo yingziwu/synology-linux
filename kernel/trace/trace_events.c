@@ -2309,7 +2309,6 @@ __trace_early_add_event_dirs(struct trace_array *tr)
 	struct ftrace_event_file *file;
 	int ret;
 
-
 	list_for_each_entry(file, &tr->events, list) {
 		ret = event_create_dir(tr->event_dir, file,
 				       &ftrace_event_id_fops,

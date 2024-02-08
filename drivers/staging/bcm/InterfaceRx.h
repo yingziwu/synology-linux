@@ -4,4 +4,3 @@
 BOOLEAN InterfaceRx(struct bcm_interface_adapter *Adapter);
 
 #endif
-

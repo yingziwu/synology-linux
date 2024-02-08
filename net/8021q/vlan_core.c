@@ -153,7 +153,6 @@ err_free:
 }
 EXPORT_SYMBOL(vlan_untag);
 
-
 /*
  * vlan info and vid list
  */

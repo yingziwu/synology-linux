@@ -33,7 +33,6 @@ struct net_generic;
 struct sock;
 struct netns_ipvs;
 
-
 #define NETDEV_HASHBITS    8
 #define NETDEV_HASHENTRIES (1 << NETDEV_HASHBITS)
 
@@ -78,7 +77,6 @@ struct net {
 	/* core fib_rules */
 	struct list_head	rules_ops;
 
-
 	struct net_device       *loopback_dev;          /* The loopback */
 	struct netns_core	core;
 	struct netns_mib	mib;
@@ -94,6 +92,7 @@ struct net {
 #if defined(CONFIG_IP_DCCP) || defined(CONFIG_IP_DCCP_MODULE)
 	struct netns_dccp	dccp;
 #endif
+#if !defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
 #ifdef CONFIG_NETFILTER
 	struct netns_nf		nf;
 	struct netns_xt		xt;
@@ -105,6 +104,7 @@ struct net {
 #endif
 	struct sock		*nfnl;
 	struct sock		*nfnl_stash;
+#endif
 #endif
 #ifdef CONFIG_WEXT_CORE
 	struct sk_buff_head	wext_nlevents;
@@ -118,6 +118,20 @@ struct net {
 	struct netns_ipvs	*ipvs;
 	struct sock		*diag_nlsk;
 	atomic_t		rt_genid;
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+#ifdef CONFIG_NETFILTER
+	struct netns_nf		nf;
+	struct netns_xt		xt;
+#if defined(CONFIG_NF_CONNTRACK) || defined(CONFIG_NF_CONNTRACK_MODULE)
+	struct netns_ct		ct;
+#endif
+#if IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
+	struct netns_nf_frag	nf_frag;
+#endif
+	struct sock		*nfnl;
+	struct sock		*nfnl_stash;
+#endif
+#endif
 };
 
 /*
@@ -148,7 +162,6 @@ static inline struct net *copy_net_ns(unsigned long flags,
 	return old_net;
 }
 #endif /* CONFIG_NET_NS */
-
 
 extern struct list_head net_namespace_list;
 
@@ -214,7 +227,6 @@ int net_eq(const struct net *net1, const struct net *net2)
 
 #define net_drop_ns NULL
 #endif
-
 
 #ifdef NETNS_REFCNT_DEBUG
 static inline struct net *hold_net(struct net *net)

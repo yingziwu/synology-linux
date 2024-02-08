@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * arch/arm/common/mcpm_head.S -- kernel entry point for multi-cluster PM
  *
@@ -15,6 +18,9 @@
 
 #include <linux/linkage.h>
 #include <asm/mcpm.h>
+#if defined(MY_DEF_HERE)
+#include <asm/assembler.h>
+#endif /* MY_DEF_HERE */
 
 #include "vlock.h"
 
@@ -47,6 +53,9 @@
 
 ENTRY(mcpm_entry_point)
 
+#if defined(MY_DEF_HERE)
+ ARM_BE8(setend        be)
+#endif /* MY_DEF_HERE */
  THUMB(	adr	r12, BSYM(1f)	)
  THUMB(	bx	r12		)
  THUMB(	.thumb			)
@@ -151,7 +160,11 @@ mcpm_setup_leave:
 
 	mov	r0, #INBOUND_NOT_COMING_UP
 	strb	r0, [r8, #MCPM_SYNC_CLUSTER_INBOUND]
+#if defined (MY_ABC_HERE)
+	dsb	st
+#else /* MY_ABC_HERE */
 	dsb
+#endif /* MY_ABC_HERE */
 	sev
 
 	mov	r0, r11

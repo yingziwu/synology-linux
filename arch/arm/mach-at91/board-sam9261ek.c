@@ -54,7 +54,6 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
-
 static void __init ek_init_early(void)
 {
 	/* Initialize processor: 18.432 MHz crystal */
@@ -138,7 +137,6 @@ static void __init ek_add_device_dm9000(void)
 static void __init ek_add_device_dm9000(void) {}
 #endif /* CONFIG_DM9000 */
 
-
 /*
  * USB Host Port
  */
@@ -148,7 +146,6 @@ static struct at91_usbh_data __initdata ek_usbh_data = {
 	.overcurrent_pin= {-EINVAL, -EINVAL},
 };
 
-
 /*
  * USB Device Port
  */
@@ -156,7 +153,6 @@ static struct at91_udc_data __initdata ek_udc_data = {
 	.vbus_pin	= AT91_PIN_PB29,
 	.pullup_pin	= -EINVAL,		/* pull-up driven by UDC */
 };
-
 
 /*
  * NAND flash
@@ -350,7 +346,6 @@ static struct mci_platform_data __initdata mci0_data = {
 
 #endif /* CONFIG_SPI_ATMEL_* */
 
-
 /*
  * LCD Controller
  */
@@ -477,7 +472,6 @@ static struct atmel_lcdfb_info __initdata ek_lcdc_data = {
 #else
 static struct atmel_lcdfb_info __initdata ek_lcdc_data;
 #endif
-
 
 /*
  * GPIO Buttons

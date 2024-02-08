@@ -188,7 +188,6 @@ extern void *crystalhd_dioq_fetch_wait(struct crystalhd_dioq *ioq, uint32_t to_s
 extern int crystalhd_create_elem_pool(struct crystalhd_adp *, uint32_t);
 extern void crystalhd_delete_elem_pool(struct crystalhd_adp *);
 
-
 /*================ Debug routines/macros .. ================================*/
 extern void crystalhd_show_buffer(uint32_t off, uint8_t *buff, uint32_t dwcount);
 
@@ -203,13 +202,11 @@ enum _chd_log_levels {
 	BCMLOG_SSTEP		= 0x00000004,	/* Stepping information */
 };
 
-
 #define BCMLOG(trace, fmt, args...)	\
 do {					\
 	if (g_linklog_level & trace)	\
 		printk(fmt, ##args);	\
 } while (0)
-
 
 #define BCMLOG_ERR(fmt, args...)				\
 do {								\

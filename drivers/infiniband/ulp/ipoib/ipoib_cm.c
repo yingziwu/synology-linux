@@ -1459,7 +1459,6 @@ static void ipoib_cm_stale_task(struct work_struct *work)
 	spin_unlock_irq(&priv->lock);
 }
 
-
 static ssize_t show_mode(struct device *d, struct device_attribute *attr,
 			 char *buf)
 {

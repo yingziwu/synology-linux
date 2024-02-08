@@ -740,5 +740,4 @@ void mlx4_ib_device_unregister_sysfs(struct mlx4_ib_dev *device);
 
 __be64 mlx4_ib_gen_node_guid(void);
 
-
 #endif /* MLX4_IB_H */

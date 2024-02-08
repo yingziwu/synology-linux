@@ -352,7 +352,6 @@ decode_ds_addr(struct net *net, struct xdr_stream *streamp, gfp_t gfp_flags)
 	char *startsep = "";
 	char *endsep = "";
 
-
 	/* r_netid */
 	p = xdr_inline_decode(streamp, 4);
 	if (unlikely(!p))
@@ -789,7 +788,6 @@ static void nfs4_clear_ds_conn_bit(struct nfs4_pnfs_ds *ds)
 	smp_mb__after_clear_bit();
 	wake_up_bit(&ds->ds_state, NFS4DS_CONNECTING);
 }
-
 
 struct nfs4_pnfs_ds *
 nfs4_fl_prepare_ds(struct pnfs_layout_segment *lseg, u32 ds_idx)

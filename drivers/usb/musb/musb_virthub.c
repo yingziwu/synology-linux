@@ -44,7 +44,6 @@
 
 #include "musb_core.h"
 
-
 static void musb_port_suspend(struct musb *musb, bool do_suspend)
 {
 	struct usb_otg	*otg = musb->xceiv->otg;
@@ -206,7 +205,6 @@ void musb_root_disconnect(struct musb *musb)
 			usb_otg_state_string(musb->xceiv->state));
 	}
 }
-
 
 /*---------------------------------------------------------------------*/
 

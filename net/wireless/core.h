@@ -17,7 +17,6 @@
 #include <net/cfg80211.h>
 #include "reg.h"
 
-
 #define WIPHY_IDX_INVALID	-1
 
 struct cfg80211_registered_device {
@@ -78,9 +77,13 @@ struct cfg80211_registered_device {
 
 	struct mutex sched_scan_mtx;
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	struct genl_info *cur_cmd_info;
+#else /* CONFIG_SYNO_LSP_HI3536 */
 #ifdef CONFIG_NL80211_TESTMODE
 	struct genl_info *testmode_info;
 #endif
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	struct work_struct conn_work;
 	struct work_struct event_work;
@@ -157,7 +160,6 @@ static inline void cfg80211_unhold_bss(struct cfg80211_internal_bss *bss)
 	int r = atomic_dec_return(&bss->hold);
 	WARN_ON(r < 0);
 }
-
 
 struct cfg80211_registered_device *cfg80211_rdev_by_wiphy_idx(int wiphy_idx);
 int get_wiphy_idx(struct wiphy *wiphy);
@@ -448,7 +450,6 @@ void cfg80211_set_dfs_state(struct wiphy *wiphy,
 			    enum nl80211_dfs_state dfs_state);
 
 void cfg80211_dfs_channels_update_work(struct work_struct *work);
-
 
 static inline int
 cfg80211_can_change_interface(struct cfg80211_registered_device *rdev,

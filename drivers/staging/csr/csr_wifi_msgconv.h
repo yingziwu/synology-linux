@@ -25,7 +25,6 @@ void CsrUint32DesBigEndian(u32 *v, u8 *buffer, size_t *offset);
 void CsrUint24Ser(u8 *ptr, size_t *len, u32 v);
 void CsrUint24Des(u32 *v, u8 *buffer, size_t *offset);
 
-
 size_t CsrWifiEventSizeof(void *msg);
 u8* CsrWifiEventSer(u8 *ptr, size_t *len, void *msg);
 void* CsrWifiEventDes(u8 *buffer, size_t length);

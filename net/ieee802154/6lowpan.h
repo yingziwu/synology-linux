@@ -189,7 +189,6 @@
 #define LOWPAN_IPHC_TTL_255	0x03
 #define LOWPAN_IPHC_TTL_I	0x00
 
-
 /* Values of fields within the IPHC encoding second byte */
 #define LOWPAN_IPHC_CID		0x80
 

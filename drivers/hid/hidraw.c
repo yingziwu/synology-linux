@@ -167,7 +167,6 @@ static ssize_t hidraw_write(struct file *file, const char __user *buffer, size_t
 	return ret;
 }
 
-
 /* This function performs a Get_Report transfer over the control endpoint
  * per section 7.2.1 of the HID specification, version 1.1.  The first byte
  * of buffer is the report number to request, or 0x0 if the defice does not
@@ -253,6 +252,9 @@ static int hidraw_open(struct inode *inode, struct file *file)
 	unsigned int minor = iminor(inode);
 	struct hidraw *dev;
 	struct hidraw_list *list;
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	unsigned long flags;
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	int err = 0;
 
 	if (!(list = kzalloc(sizeof(struct hidraw_list), GFP_KERNEL))) {
@@ -266,10 +268,14 @@ static int hidraw_open(struct inode *inode, struct file *file)
 		goto out_unlock;
 	}
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	// do nothing
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	list->hidraw = hidraw_table[minor];
 	mutex_init(&list->read_mutex);
 	list_add_tail(&list->node, &hidraw_table[minor]->list);
 	file->private_data = list;
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	dev = hidraw_table[minor];
 	if (!dev->open++) {
@@ -283,9 +289,20 @@ static int hidraw_open(struct inode *inode, struct file *file)
 		if (err < 0) {
 			hid_hw_power(dev->hid, PM_HINT_NORMAL);
 			dev->open--;
+#if defined(CONFIG_SYNO_LSP_HI3536)
+			goto out_unlock;
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 		}
 	}
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	list->hidraw = hidraw_table[minor];
+	mutex_init(&list->read_mutex);
+	spin_lock_irqsave(&hidraw_table[minor]->list_lock, flags);
+	list_add_tail(&list->node, &hidraw_table[minor]->list);
+	spin_unlock_irqrestore(&hidraw_table[minor]->list_lock, flags);
+	file->private_data = list;
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 out_unlock:
 	mutex_unlock(&minors_lock);
 out:
@@ -456,7 +473,11 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
 	struct hidraw *dev = hid->hidraw;
 	struct hidraw_list *list;
 	int ret = 0;
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	unsigned long flags;
 
+	spin_lock_irqsave(&dev->list_lock, flags);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	list_for_each_entry(list, &dev->list, node) {
 		int new_head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
 
@@ -471,6 +492,9 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
 		list->head = new_head;
 		kill_fasync(&list->fasync, SIGIO, POLL_IN);
 	}
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	spin_unlock_irqrestore(&dev->list_lock, flags);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	wake_up_interruptible(&dev->wait);
 	return ret;
@@ -519,6 +543,9 @@ int hidraw_connect(struct hid_device *hid)
 
 	mutex_unlock(&minors_lock);
 	init_waitqueue_head(&dev->wait);
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	spin_lock_init(&dev->list_lock);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	INIT_LIST_HEAD(&dev->list);
 
 	dev->hid = hid;

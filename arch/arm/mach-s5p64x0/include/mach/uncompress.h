@@ -116,7 +116,6 @@ static inline void flush(void)
 		*((volatile unsigned int __force *)(ad)) = (d); \
 	} while (0)
 
-
 #ifdef CONFIG_S3C_BOOT_ERROR_RESET
 
 static void arch_decomp_error(const char *x)
@@ -173,8 +172,6 @@ static void arch_decomp_setup(void)
 
 	arch_enable_uart_fifo();
 }
-
-
 
 static void arch_detect_cpu(void)
 {

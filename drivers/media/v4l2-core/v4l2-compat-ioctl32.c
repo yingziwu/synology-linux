@@ -30,7 +30,6 @@ static long native_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	return ret;
 }
 
-
 struct v4l2_clip32 {
 	struct v4l2_rect        c;
 	compat_caddr_t 		next;
@@ -774,7 +773,6 @@ static int put_v4l2_subdev_edid32(struct v4l2_subdev_edid *kp, struct v4l2_subde
 			return -EFAULT;
 	return 0;
 }
-
 
 #define VIDIOC_G_FMT32		_IOWR('V',  4, struct v4l2_format32)
 #define VIDIOC_S_FMT32		_IOWR('V',  5, struct v4l2_format32)

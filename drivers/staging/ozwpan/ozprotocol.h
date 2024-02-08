@@ -155,8 +155,6 @@ struct oz_usb_hdr {
 	u8	type;
 } PACKED;
 
-
-
 /* USB requests element subtypes (type field of hs_usb_hdr).
  */
 #define OZ_GET_DESC_REQ			1

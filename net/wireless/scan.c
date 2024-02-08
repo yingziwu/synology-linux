@@ -68,7 +68,11 @@ module_param(bss_entries_limit, int, 0644);
 MODULE_PARM_DESC(bss_entries_limit,
                  "limit to number of scan BSS entries (per wiphy, default 1000)");
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+#define IEEE80211_SCAN_RESULT_EXPIRE	(7 * HZ)
+#else /* CONFIG_SYNO_LSP_HI3536 */
 #define IEEE80211_SCAN_RESULT_EXPIRE	(30 * HZ)
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 static void bss_free(struct cfg80211_internal_bss *bss)
 {
@@ -1499,7 +1503,6 @@ ieee80211_bss(struct wiphy *wiphy, struct iw_request_info *info,
 	return current_ev;
 }
 
-
 static int ieee80211_scan_results(struct cfg80211_registered_device *dev,
 				  struct iw_request_info *info,
 				  char *buf, size_t len)
@@ -1522,7 +1525,6 @@ static int ieee80211_scan_results(struct cfg80211_registered_device *dev,
 	spin_unlock_bh(&dev->bss_lock);
 	return current_ev - buf;
 }
-
 
 int cfg80211_wext_giwscan(struct net_device *dev,
 			  struct iw_request_info *info,

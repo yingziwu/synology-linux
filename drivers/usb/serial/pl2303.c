@@ -129,7 +129,6 @@ MODULE_DEVICE_TABLE(usb, id_table);
 #define UART_OVERRUN_ERROR		0x40
 #define UART_CTS			0x80
 
-
 enum pl2303_type {
 	type_0,		/* don't know the difference between type 0 and */
 	type_1,		/* type 1, until someone from prolific tells us... */
@@ -710,7 +709,6 @@ static void pl2303_update_line_status(struct usb_serial_port *port,
 
 	idv = le16_to_cpu(port->serial->dev->descriptor.idVendor);
 	idp = le16_to_cpu(port->serial->dev->descriptor.idProduct);
-
 
 	if (idv == SIEMENS_VENDOR_ID) {
 		if (idp == SIEMENS_PRODUCT_ID_X65 ||

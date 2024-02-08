@@ -120,7 +120,6 @@ static void cirrus_imageblit(struct fb_info *info,
 			 image->height);
 }
 
-
 static struct fb_ops cirrusfb_ops = {
 	.owner = THIS_MODULE,
 	.fb_check_var = drm_fb_helper_check_var,
@@ -214,7 +213,6 @@ static int cirrusfb_create(struct drm_fb_helper *helper,
 	gfbdev->helper.fbdev = info;
 
 	strcpy(info->fix.id, "cirrusdrmfb");
-
 
 	info->flags = FBINFO_DEFAULT;
 	info->fbops = &cirrusfb_ops;

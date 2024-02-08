@@ -8,11 +8,9 @@
 
 *****************************************************************************/
 
-
 #ifndef CSR_WIFI_HOSTIO_H
 #define CSR_WIFI_HOSTIO_H
 
 #define CSR_WIFI_HOSTIO_PRIM 0x0453
 
 #endif /* CSR_WIFI_HOSTIO_H */
-

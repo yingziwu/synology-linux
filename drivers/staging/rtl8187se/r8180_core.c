@@ -939,7 +939,6 @@ short alloc_rx_desc_ring(struct net_device *dev, u16 bufsize, int count)
 	return 0;
 }
 
-
 void set_nic_rxring(struct net_device *dev)
 {
 	u8 pgreg;
@@ -1165,7 +1164,6 @@ void PerformUndecoratedSignalSmoothing8185(struct r8180_priv *priv,
 	else
 		priv->CurCCKRSSI = 0;
 }
-
 
 /*
  * This is rough RX isr handling routine
@@ -1494,7 +1492,6 @@ drop: /* this is used when we have not enough mem */
 		priv->rxbuffer = (priv->rxbuffer->next);
 	}
 }
-
 
 void rtl8180_dma_kick(struct net_device *dev, int priority)
 {
@@ -2711,7 +2708,6 @@ void rtl8180_set_hw_wep(struct net_device *dev)
 	      read_nic_dword(dev, KEY0+4+4), read_nic_dword(dev, KEY0+4),
 	      read_nic_dword(dev, KEY0));
 }
-
 
 void rtl8185_rf_pins_enable(struct net_device *dev)
 {

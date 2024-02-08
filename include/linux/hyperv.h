@@ -27,7 +27,6 @@
 
 #include <linux/types.h>
 
-
 /*
  * Implementation of host controlled snapshot of the guest.
  */
@@ -49,7 +48,6 @@ enum hv_vss_op {
 	VSS_OP_COUNT /* Number of operations, must be last */
 };
 
-
 /*
  * Header for all VSS messages.
  */
@@ -57,7 +55,6 @@ struct hv_vss_hdr {
 	__u8 operation;
 	__u8 reserved[7];
 } __attribute__((packed));
-
 
 /*
  * Flag values for the hv_vss_check_feature. Linux supports only
@@ -114,7 +111,6 @@ struct hv_vss_msg {
  */
 #define HV_KVP_EXCHANGE_MAX_VALUE_SIZE          (2048)
 
-
 /*
  * Maximum key size - the registry limit for the length of an entry name
  * is 256 characters, including the null terminator
@@ -169,7 +165,6 @@ struct hv_vss_msg {
  * value (both are strings) is returned. If the index is invalid
  * (not supported), a NULL key string is returned.
  */
-
 
 /*
  * Registry value types.
@@ -259,7 +254,6 @@ enum hv_kvp_exchg_pool {
 #define MAX_IP_ADDR_SIZE	1024
 #define MAX_GATEWAY_SIZE	512
 
-
 struct hv_kvp_ipaddr_value {
 	__u16	adapter_id[MAX_ADAPTER_ID_SIZE];
 	__u8	addr_family;
@@ -269,7 +263,6 @@ struct hv_kvp_ipaddr_value {
 	__u16	gate_way[MAX_GATEWAY_SIZE];
 	__u16	dns_addr[MAX_IP_ADDR_SIZE];
 } __attribute__((packed));
-
 
 struct hv_kvp_hdr {
 	__u8 operation;
@@ -342,7 +335,6 @@ struct hv_kvp_ip_msg {
 #include <linux/device.h>
 #include <linux/mod_devicetable.h>
 
-
 #define MAX_PAGE_BUFFER_COUNT				19
 #define MAX_MULTIPAGE_BUFFER_COUNT			32 /* 128K */
 
@@ -369,7 +361,6 @@ struct hv_multipage_buffer {
 					 MAX_PAGE_BUFFER_COUNT))
 #define MAX_MULTIPAGE_BUFFER_PACKET	(0x18 +			\
 					 sizeof(struct hv_multipage_buffer))
-
 
 #pragma pack(pop)
 
@@ -429,7 +420,6 @@ struct hv_ring_buffer_debug_info {
 	u32 bytes_avail_towrite;
 };
 
-
 /*
  *
  * hv_get_ringbuffer_availbytes()
@@ -454,7 +444,6 @@ hv_get_ringbuffer_availbytes(struct hv_ring_buffer_info *rbi,
 		read_loc - write_loc;
 	*read = dsize - *write;
 }
-
 
 /*
  * We use the same version numbering for all Hyper-V modules.
@@ -490,7 +479,6 @@ hv_get_ringbuffer_availbytes(struct hv_ring_buffer_info *rbi,
 #define VERSION_WIN7    ((1 << 16) | (1))
 #define VERSION_WIN8    ((2 << 16) | (4))
 #define VERSION_WIN8_1    ((3 << 16) | (0))
-
 
 #define VERSION_INVAL -1
 
@@ -693,7 +681,6 @@ enum vmbus_packet_type {
 };
 
 #define VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED	1
-
 
 /* Version 1 messages */
 enum vmbus_channel_message_type {
@@ -1084,7 +1071,6 @@ struct vmbus_channel_packet_multipage_buffer {
 	struct hv_multipage_buffer range;
 } __packed;
 
-
 extern int vmbus_open(struct vmbus_channel *channel,
 			    u32 send_ringbuffersize,
 			    u32 recv_ringbuffersize,
@@ -1135,7 +1121,6 @@ extern int vmbus_recvpacket_raw(struct vmbus_channel *channel,
 				     u32 *buffer_actual_len,
 				     u64 *requestid);
 
-
 extern void vmbus_get_debug_info(struct vmbus_channel *channel,
 				     struct vmbus_channel_debug_info *debug);
 
@@ -1177,7 +1162,6 @@ struct hv_device {
 
 	struct vmbus_channel *channel;
 };
-
 
 static inline struct hv_device *device_to_hv_device(struct device *d)
 {
@@ -1330,7 +1314,6 @@ void vmbus_driver_unregister(struct hv_driver *hv_driver);
 			0x8e, 0x77, 0x05, 0x58, 0xeb, 0x10, 0x73, 0xf8 \
 		}
 
-
 /*
  * Common header for Hyper-V ICs
  */
@@ -1345,7 +1328,6 @@ void vmbus_driver_unregister(struct hv_driver *hv_driver);
 #define ICMSGHDRFLAG_TRANSACTION	1
 #define ICMSGHDRFLAG_REQUEST		2
 #define ICMSGHDRFLAG_RESPONSE		4
-
 
 /*
  * While we want to handle util services as regular devices,

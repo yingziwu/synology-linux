@@ -507,7 +507,6 @@ MODULE_DEVICE_TABLE(of, mcp23s08_i2c_of_match);
 #endif
 #endif /* CONFIG_OF */
 
-
 #if IS_ENABLED(CONFIG_I2C)
 
 static int mcp230xx_probe(struct i2c_client *client,

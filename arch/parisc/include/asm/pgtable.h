@@ -167,7 +167,6 @@ extern void purge_tlb_entries(struct mm_struct *, unsigned long);
 /* PFN_PTE_SHIFT defines the shift of a PTE value to access the PFN field */
 #define PFN_PTE_SHIFT		12
 
-
 /* this is how many bits may be used by the file functions */
 #define PTE_FILE_MAX_BITS	(BITS_PER_LONG - PTE_SHIFT)
 
@@ -230,7 +229,6 @@ extern void purge_tlb_entries(struct mm_struct *, unsigned long);
 #define PAGE_KERNEL_UNC	__pgprot(_PAGE_KERNEL | _PAGE_NO_CACHE)
 #define PAGE_GATEWAY    __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_ACCESSED | _PAGE_GATEWAY| _PAGE_READ)
 
-
 /*
  * We could have an execute only page using "gateway - promote to priv
  * level 3", but that is kind of silly. So, the way things are defined
@@ -257,7 +255,6 @@ extern void purge_tlb_entries(struct mm_struct *, unsigned long);
 #define __S101  PAGE_EXECREAD
 #define __S110  PAGE_RWX
 #define __S111  PAGE_RWX
-
 
 extern pgd_t swapper_pg_dir[]; /* declared in init_task.c */
 
@@ -304,8 +301,6 @@ static inline void pmd_clear(pmd_t *pmd) {
 #endif
 		__pmd_val_set(*pmd,  0);
 }
-
-
 
 #if PT_NLEVELS == 3
 #define pgd_page_vaddr(pgd) ((unsigned long) __va(pgd_address(pgd)))
@@ -486,7 +481,6 @@ static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, 
 
 #endif /* !__ASSEMBLY__ */
 
-
 /* TLB page size encoding - see table 3-1 in parisc20.pdf */
 #define _PAGE_SIZE_ENCODING_4K		0
 #define _PAGE_SIZE_ENCODING_16K		1
@@ -504,7 +498,6 @@ static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, 
 #elif defined(CONFIG_PARISC_PAGE_SIZE_64KB)
 # define _PAGE_SIZE_ENCODING_DEFAULT _PAGE_SIZE_ENCODING_64K
 #endif
-
 
 #define io_remap_pfn_range(vma, vaddr, pfn, size, prot)		\
 		remap_pfn_range(vma, vaddr, pfn, size, prot)

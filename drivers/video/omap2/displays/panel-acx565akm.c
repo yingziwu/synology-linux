@@ -318,7 +318,6 @@ static int acx565akm_get_actual_brightness(struct acx565akm_device *md)
 	return bv;
 }
 
-
 static int acx565akm_bl_update_status(struct backlight_device *dev)
 {
 	struct acx565akm_device *md = dev_get_drvdata(&dev->dev);
@@ -468,7 +467,6 @@ static struct attribute *bldev_attrs[] = {
 static struct attribute_group bldev_attr_group = {
 	.attrs = bldev_attrs,
 };
-
 
 /*---------------------------ACX Panel----------------------------*/
 
@@ -734,7 +732,6 @@ static int acx_panel_check_timings(struct omap_dss_device *dssdev,
 {
 	return 0;
 }
-
 
 static struct omap_dss_driver acx_panel_driver = {
 	.probe		= acx_panel_probe,

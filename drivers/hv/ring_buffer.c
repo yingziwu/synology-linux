@@ -123,7 +123,6 @@ static bool hv_need_to_signal_on_read(u32 old_rd,
 	prev_write_sz = write_loc >= old_rd ? r_size - (write_loc - old_rd) :
 			old_rd - write_loc;
 
-
 	if ((prev_write_sz < pending_sz) && (cur_write_sz >= pending_sz))
 		return true;
 
@@ -202,7 +201,6 @@ hv_set_next_read_location(struct hv_ring_buffer_info *ring_info,
 	ring_info->ring_buffer->read_index = next_read_location;
 }
 
-
 /*
  *
  * hv_get_ring_buffer()
@@ -214,7 +212,6 @@ hv_get_ring_buffer(struct hv_ring_buffer_info *ring_info)
 {
 	return (void *)ring_info->ring_buffer->buffer;
 }
-
 
 /*
  *
@@ -270,13 +267,11 @@ static u32 hv_copyfrom_ringbuffer(
 
 		memcpy(dest, ring_buffer + start_read_offset, destlen);
 
-
 	start_read_offset += destlen;
 	start_read_offset %= ring_buffer_size;
 
 	return start_read_offset;
 }
-
 
 /*
  *
@@ -411,7 +406,6 @@ int hv_ringbuffer_write(struct hv_ring_buffer_info *outring_info,
 				&bytes_avail_toread,
 				&bytes_avail_towrite);
 
-
 	/* If there is only room for the packet, assume it is full. */
 	/* Otherwise, the next time around, we think the ring buffer */
 	/* is empty since the read index == write index */
@@ -447,13 +441,11 @@ int hv_ringbuffer_write(struct hv_ring_buffer_info *outring_info,
 	/* Now, update the write location */
 	hv_set_next_write_location(outring_info, next_write_location);
 
-
 	spin_unlock_irqrestore(&outring_info->ring_lock, flags);
 
 	*signal = hv_need_to_signal(old_write, outring_info);
 	return 0;
 }
-
 
 /*
  *
@@ -496,7 +488,6 @@ int hv_ringbuffer_peek(struct hv_ring_buffer_info *Inring_info,
 
 	return 0;
 }
-
 
 /*
  *

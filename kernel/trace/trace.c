@@ -158,7 +158,6 @@ static int __init boot_alloc_snapshot(char *str)
 }
 __setup("alloc_snapshot", boot_alloc_snapshot);
 
-
 static char trace_boot_options_buf[MAX_TRACER_SIZE] __initdata;
 static char *trace_boot_options __initdata;
 
@@ -730,6 +729,9 @@ static const char *trace_options[] = {
 	"irq-info",
 	"markers",
 	"function-trace",
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	"print-tgid",
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	NULL
 };
 
@@ -1242,6 +1244,9 @@ void tracing_reset_all_online_cpus(void)
 static unsigned map_pid_to_cmdline[PID_MAX_DEFAULT+1];
 static unsigned map_cmdline_to_pid[SAVED_CMDLINES];
 static char saved_cmdlines[SAVED_CMDLINES][TASK_COMM_LEN];
+#if defined(CONFIG_SYNO_LSP_HI3536)
+static unsigned saved_tgids[SAVED_CMDLINES];
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 static int cmdline_idx;
 static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
 
@@ -1443,6 +1448,9 @@ static int trace_save_cmdline(struct task_struct *tsk)
 	}
 
 	memcpy(&saved_cmdlines[idx], tsk->comm, TASK_COMM_LEN);
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	saved_tgids[idx] = tsk->tgid;
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	arch_spin_unlock(&trace_cmdline_lock);
 
@@ -1479,6 +1487,27 @@ void trace_find_cmdline(int pid, char comm[])
 	arch_spin_unlock(&trace_cmdline_lock);
 	preempt_enable();
 }
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+int trace_find_tgid(int pid)
+{
+	unsigned map;
+	int tgid;
+
+	preempt_disable();
+	arch_spin_lock(&trace_cmdline_lock);
+	map = map_pid_to_cmdline[pid];
+	if (map != NO_CMDLINE_MAP)
+		tgid = saved_tgids[map];
+	else
+		tgid = -1;
+
+	arch_spin_unlock(&trace_cmdline_lock);
+	preempt_enable();
+
+	return tgid;
+}
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 void tracing_record_cmdline(struct task_struct *tsk)
 {
@@ -2049,7 +2078,6 @@ __trace_array_vprintk(struct ring_buffer *buffer,
 	pc = preempt_count();
 	preempt_disable_notrace();
 
-
 	tbuffer = get_trace_buf();
 	if (!tbuffer) {
 		len = 0;
@@ -2435,6 +2463,15 @@ static void print_func_help_header(struct trace_buffer *buf, struct seq_file *m)
 	seq_puts(m, "#              | |       |          |         |\n");
 }
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+static void print_func_help_header_tgid(struct trace_buffer *buf, struct seq_file *m)
+{
+	print_event_info(buf, m);
+	seq_puts(m, "#           TASK-PID    TGID   CPU#      TIMESTAMP  FUNCTION\n");
+	seq_puts(m, "#              | |        |      |          |         |\n");
+}
+#endif /* CONFIG_SYNO_LSP_HI3536 */
+
 static void print_func_help_header_irq(struct trace_buffer *buf, struct seq_file *m)
 {
 	print_event_info(buf, m);
@@ -2446,6 +2483,20 @@ static void print_func_help_header_irq(struct trace_buffer *buf, struct seq_file
 	seq_puts(m, "#           TASK-PID   CPU#  ||||    TIMESTAMP  FUNCTION\n");
 	seq_puts(m, "#              | |       |   ||||       |         |\n");
 }
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+static void print_func_help_header_irq_tgid(struct trace_buffer *buf, struct seq_file *m)
+{
+	print_event_info(buf, m);
+	seq_puts(m, "#                                      _-----=> irqs-off\n");
+	seq_puts(m, "#                                     / _----=> need-resched\n");
+	seq_puts(m, "#                                    | / _---=> hardirq/softirq\n");
+	seq_puts(m, "#                                    || / _--=> preempt-depth\n");
+	seq_puts(m, "#                                    ||| /     delay\n");
+	seq_puts(m, "#           TASK-PID    TGID   CPU#  ||||    TIMESTAMP  FUNCTION\n");
+	seq_puts(m, "#              | |        |      |   ||||       |         |\n");
+}
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 void
 print_trace_header(struct seq_file *m, struct trace_iterator *iter)
@@ -2747,9 +2798,23 @@ void trace_default_header(struct seq_file *m)
 	} else {
 		if (!(trace_flags & TRACE_ITER_VERBOSE)) {
 			if (trace_flags & TRACE_ITER_IRQ_INFO)
+#if defined(CONFIG_SYNO_LSP_HI3536)
+				if (trace_flags & TRACE_ITER_TGID)
+					print_func_help_header_irq_tgid(iter->trace_buffer, m);
+				else
+					print_func_help_header_irq(iter->trace_buffer, m);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 				print_func_help_header_irq(iter->trace_buffer, m);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 			else
+#if defined(CONFIG_SYNO_LSP_HI3536)
+				if (trace_flags & TRACE_ITER_TGID)
+					print_func_help_header_tgid(iter->trace_buffer, m);
+				else
+					print_func_help_header(iter->trace_buffer, m);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 				print_func_help_header(iter->trace_buffer, m);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 		}
 	}
 }
@@ -3601,10 +3666,56 @@ tracing_saved_cmdlines_read(struct file *file, char __user *ubuf,
 }
 
 static const struct file_operations tracing_saved_cmdlines_fops = {
-    .open       = tracing_open_generic,
-    .read       = tracing_saved_cmdlines_read,
-    .llseek	= generic_file_llseek,
+	.open	= tracing_open_generic,
+	.read	= tracing_saved_cmdlines_read,
+	.llseek	= generic_file_llseek,
 };
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+static ssize_t
+tracing_saved_tgids_read(struct file *file, char __user *ubuf,
+				size_t cnt, loff_t *ppos)
+{
+	char *file_buf;
+	char *buf;
+	int len = 0;
+	int pid;
+	int i;
+
+	file_buf = kmalloc(SAVED_CMDLINES*(16+1+16), GFP_KERNEL);
+	if (!file_buf)
+		return -ENOMEM;
+
+	buf = file_buf;
+
+	for (i = 0; i < SAVED_CMDLINES; i++) {
+		int tgid;
+		int r;
+
+		pid = map_cmdline_to_pid[i];
+		if (pid == -1 || pid == NO_CMDLINE_MAP)
+			continue;
+
+		tgid = trace_find_tgid(pid);
+		r = sprintf(buf, "%d %d\n", pid, tgid);
+		buf += r;
+		len += r;
+	}
+
+	len = simple_read_from_buffer(ubuf, cnt, ppos,
+				      file_buf, len);
+
+	kfree(file_buf);
+
+	return len;
+}
+
+static const struct file_operations tracing_saved_tgids_fops = {
+	.open	= tracing_open_generic,
+	.read	= tracing_saved_tgids_read,
+	.llseek	= generic_file_llseek,
+};
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 static ssize_t
 tracing_set_trace_read(struct file *filp, char __user *ubuf,
@@ -3753,7 +3864,6 @@ out:
 
 	return ret;
 }
-
 
 /**
  * tracing_update_buffers - used by tracing facility to expand ring buffers
@@ -4854,7 +4964,6 @@ static int snapshot_raw_open(struct inode *inode, struct file *filp)
 
 #endif /* CONFIG_TRACER_SNAPSHOT */
 
-
 static const struct file_operations tracing_max_lat_fops = {
 	.open		= tracing_open_generic,
 	.read		= tracing_max_lat_read,
@@ -5640,7 +5749,6 @@ trace_options_write(struct file *filp, const char __user *ubuf, size_t cnt,
 	return cnt;
 }
 
-
 static const struct file_operations trace_options_fops = {
 	.open = tracing_open_generic,
 	.read = trace_options_read,
@@ -5712,7 +5820,6 @@ struct dentry *trace_create_file(const char *name,
 
 	return ret;
 }
-
 
 static struct dentry *trace_options_init_dentry(struct trace_array *tr)
 {
@@ -6162,6 +6269,11 @@ init_tracer_debugfs(struct trace_array *tr, struct dentry *d_tracer)
 	trace_create_file("trace_marker", 0220, d_tracer,
 			  tr, &tracing_mark_fops);
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	trace_create_file("saved_tgids", 0444, d_tracer,
+			  tr, &tracing_saved_tgids_fops);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
+
 	trace_create_file("trace_clock", 0644, d_tracer, tr,
 			  &trace_clock_fops);
 
@@ -6409,7 +6521,6 @@ __init static int tracer_alloc_buffers(void)
 {
 	int ring_buf_size;
 	int ret = -ENOMEM;
-
 
 	if (!alloc_cpumask_var(&tracing_buffer_mask, GFP_KERNEL))
 		goto out;

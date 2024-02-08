@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * vlock.S - simple voting lock implementation for ARM
  *
@@ -42,7 +45,11 @@
 	dmb
 	mov	\rscratch, #0
 	strb	\rscratch, [\rbase, \rcpu]
+#if defined (MY_ABC_HERE)
+	dsb	st
+#else /* MY_ABC_HERE */
 	dsb
+#endif /* MY_ABC_HERE */
 	sev
 .endm
 
@@ -102,7 +109,11 @@ ENTRY(vlock_unlock)
 	dmb
 	mov	r1, #VLOCK_OWNER_NONE
 	strb	r1, [r0, #VLOCK_OWNER_OFFSET]
+#if defined (MY_ABC_HERE)
+	dsb	st
+#else /* MY_ABC_HERE */
 	dsb
+#endif /* MY_ABC_HERE */
 	sev
 	bx	lr
 ENDPROC(vlock_unlock)

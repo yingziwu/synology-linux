@@ -63,7 +63,6 @@
 /* udc specific */
 #include "amd5536udc.h"
 
-
 static void udc_tasklet_disconnect(unsigned long);
 static void empty_req_queue(struct udc_ep *);
 static int udc_probe(struct udc *dev);
@@ -135,7 +134,6 @@ static DECLARE_COMPLETION(on_pollstall_exit);
 /* tasklet for usb disconnect */
 static DECLARE_TASKLET(disconnect_tasklet, udc_tasklet_disconnect,
 		(unsigned long) &udc);
-
 
 /* endpoint names used for print */
 static const char ep0_string[] = "ep0in";
@@ -305,7 +303,6 @@ static void UDC_QUEUE_CNAK(struct udc_ep *ep, unsigned num)
 	} else
 		cnak_pending = cnak_pending & (~(1 << (num)));
 }
-
 
 /* Enables endpoint, is called by gadget driver */
 static int
@@ -797,7 +794,6 @@ static int prep_dma(struct udc_ep *ep, struct udc_request *req, gfp_t gfp)
 				UDC_DMA_STP_STS_BS_HOST_READY,
 				UDC_DMA_STP_STS_BS);
 
-
 			/* clear NAK by writing CNAK */
 			if (ep->naking) {
 				tmp = readl(&ep->regs->ctl);
@@ -967,7 +963,6 @@ static int udc_create_dma_chain(
 			td = (struct udc_data_dma *) phys_to_virt(last->next);
 			td->status = 0;
 		}
-
 
 		if (td)
 			td->bufptr = req->req.dma + i; /* assign buffer */
@@ -1647,7 +1642,6 @@ static void udc_tasklet_disconnect(unsigned long par)
 	ep_init(dev->regs,
 			&dev->ep[UDC_EP0IN_IX]);
 
-
 	if (!soft_reset_occured) {
 		/* init controller by soft reset */
 		udc_soft_reset(dev);
@@ -2039,7 +2033,6 @@ static void udc_ep0_set_rde(struct udc *dev)
 		}
 	}
 }
-
 
 /* Interrupt handler for data OUT traffic */
 static irqreturn_t udc_data_out_isr(struct udc *dev, int ep_ix)
@@ -2554,7 +2547,6 @@ __acquires(dev->lock)
 		} else
 			dev->waiting_zlp_ack_ep0in = 1;
 
-
 		/* clear NAK by writing CNAK in EP0_OUT */
 		if (!set) {
 			tmp = readl(&dev->ep[UDC_EP0OUT_IX].regs->ctl);
@@ -2729,7 +2721,6 @@ static irqreturn_t udc_control_in_isr(struct udc *dev)
 	return ret_val;
 }
 
-
 /* Interrupt handler for global device events */
 static irqreturn_t udc_dev_isr(struct udc *dev, u32 dev_irq)
 __releases(dev->lock)
@@ -2765,7 +2756,6 @@ __acquires(dev->lock)
 
 				/* ep ix in UDC CSR register space */
 				udc_csr_epix = ep->num;
-
 
 			/* OUT ep */
 			} else {
@@ -2818,7 +2808,6 @@ __acquires(dev->lock)
 
 				/* ep ix in UDC CSR register space */
 				udc_csr_epix = ep->num;
-
 
 			/* OUT ep */
 			} else {
@@ -3000,7 +2989,6 @@ static irqreturn_t udc_irq(int irq, void *pdev)
 
 	}
 
-
 	/* check for dev irq */
 	reg = readl(&dev->regs->irqsts);
 	if (reg) {
@@ -3008,7 +2996,6 @@ static irqreturn_t udc_irq(int irq, void *pdev)
 		writel(reg, &dev->regs->irqsts);
 		ret_val |= udc_dev_isr(dev, reg);
 	}
-
 
 	spin_unlock(&dev->lock);
 	return ret_val;
@@ -3363,4 +3350,3 @@ module_pci_driver(udc_pci_driver);
 MODULE_DESCRIPTION(UDC_MOD_DESCRIPTION);
 MODULE_AUTHOR("Thomas Dahlmann");
 MODULE_LICENSE("GPL");
-

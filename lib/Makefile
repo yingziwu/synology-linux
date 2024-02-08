@@ -78,6 +78,8 @@ obj-$(CONFIG_LZO_COMPRESS) += lzo/
 obj-$(CONFIG_LZO_DECOMPRESS) += lzo/
 obj-$(CONFIG_XZ_DEC) += xz/
 obj-$(CONFIG_RAID6_PQ) += raid6/
+obj-$(CONFIG_LIBELF_32) += libelf/
+obj-$(CONFIG_LIBELF_64) += libelf/
 
 lib-$(CONFIG_DECOMPRESS_GZIP) += decompress_inflate.o
 lib-$(CONFIG_DECOMPRESS_BZIP2) += decompress_bunzip2.o
@@ -151,6 +153,10 @@ obj-$(CONFIG_INTERVAL_TREE_TEST) += interval_tree_test.o
 interval_tree_test-objs := interval_tree_test_main.o interval_tree.o
 
 obj-$(CONFIG_ASN1) += asn1_decoder.o
+
+ifeq ($(CONFIG_SYNO_PLUGIN_INTERFACE),y)
+obj-y += synolib/
+endif
 
 hostprogs-y	:= gen_crc32table
 clean-files	:= crc32table.h

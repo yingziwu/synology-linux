@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/linkage.h>
 #include <asm/assembler.h>
 #include "abort-macro.S"
@@ -32,9 +35,14 @@ ENTRY(v6_early_abort)
 	bne	do_DataAbort
 	bic	r1, r1, #1 << 11		@ clear bit 11 of FSR
 	ldr	r3, [r4]			@ read aborted ARM instruction
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+ ARM_BE8(rev	r3, r3)
+#else /* MY_DEF_HERE || MY_DEF_HERE */
 #ifdef CONFIG_CPU_ENDIAN_BE8
 	rev	r3, r3
 #endif
+#endif /* MY_DEF_HERE || MY_DEF_HERE */
+
 	do_ldrd_abort tmp=ip, insn=r3
 	tst	r3, #1 << 20			@ L = 0 -> write
 	orreq	r1, r1, #1 << 11		@ yes.

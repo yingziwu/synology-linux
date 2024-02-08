@@ -913,5 +913,3 @@ int omapfb_ioctl(struct fb_info *fbi, unsigned int cmd, unsigned long arg)
 
 	return r;
 }
-
-

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * include/linux/backing-dev.h
  *
@@ -31,7 +34,11 @@ enum bdi_state {
 	BDI_wb_alloc,		/* Default embedded wb allocated */
 	BDI_async_congested,	/* The async (write) queue is getting full */
 	BDI_sync_congested,	/* The sync queue is getting full */
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	BDI_REGISTERED,		/* bdi_register() was done */
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	BDI_registered,		/* bdi_register() was done */
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	BDI_writeback_running,	/* Writeback is in progress */
 	BDI_unused,		/* Available bits start here */
 };
@@ -269,6 +276,9 @@ int bdi_set_max_ratio(struct backing_dev_info *bdi, unsigned int max_ratio);
 #endif
 
 extern struct backing_dev_info default_backing_dev_info;
+#ifdef MY_DEF_HERE
+extern struct backing_dev_info syno_backing_dev_info;
+#endif /* MY_DEF_HERE */
 extern struct backing_dev_info noop_backing_dev_info;
 
 int writeback_in_progress(struct backing_dev_info *bdi);

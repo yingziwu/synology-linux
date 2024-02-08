@@ -55,7 +55,6 @@ do { \
 
 #endif /* CONFIG_PREEMPT */
 
-
 #ifdef CONFIG_PREEMPT_COUNT
 
 #define preempt_disable() \
