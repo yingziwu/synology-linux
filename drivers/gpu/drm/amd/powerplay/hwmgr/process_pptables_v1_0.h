@@ -32,3 +32,4 @@ extern int get_powerplay_table_entry_v1_0(struct pp_hwmgr *hwmgr, uint32_t entry
 				struct pp_power_state *, void *, uint32_t));
 
 #endif
+

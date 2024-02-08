@@ -223,6 +223,7 @@ static int gpio_mdio_reset(struct mii_bus *bus)
 	return 0;
 }
 
+
 static int gpio_mdio_probe(struct platform_device *ofdev)
 {
 	struct device *dev = &ofdev->dev;
@@ -283,6 +284,7 @@ out_free_priv:
 out:
 	return err;
 }
+
 
 static int gpio_mdio_remove(struct platform_device *dev)
 {

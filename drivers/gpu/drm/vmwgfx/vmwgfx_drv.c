@@ -49,6 +49,7 @@
 
 #define VMWGFX_REPO "In Tree"
 
+
 /**
  * Fully encoded drm commands. Might move to vmw_drm.h
  */
@@ -255,6 +256,7 @@ MODULE_PARM_DESC(restrict_dma_mask, "Restrict DMA mask to 44 bits with IOMMU");
 module_param_named(restrict_dma_mask, vmw_restrict_dma_mask, int, 0600);
 MODULE_PARM_DESC(assume_16bpp, "Assume 16-bpp when filtering modes");
 module_param_named(assume_16bpp, vmw_assume_16bpp, int, 0600);
+
 
 static void vmw_print_capabilities(uint32_t capabilities)
 {
@@ -771,6 +773,7 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
 	if (unlikely(ret != 0))
 		goto out_err0;
 
+
 	vmw_master_init(&dev_priv->fbdev_master);
 	ttm_lock_set_kill(&dev_priv->fbdev_master.lock, false, SIGTERM);
 	dev_priv->active_master = &dev_priv->fbdev_master;
@@ -882,6 +885,7 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
 		dev_priv->has_dx = !!vmw_read(dev_priv, SVGA_REG_DEV_CAP);
 		spin_unlock(&dev_priv->cap_lock);
 	}
+
 
 	ret = vmw_kms_init(dev_priv);
 	if (unlikely(ret != 0))

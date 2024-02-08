@@ -168,6 +168,7 @@ static int sst_get_stream_mapping(int dev, int sdev, int dir,
 	if (map == NULL)
 		return -EINVAL;
 
+
 	/* index 0 is not used in stream map */
 	for (i = 1; i < size; i++) {
 		if ((map[i].dev_num == dev) && (map[i].direction == dir))
@@ -254,6 +255,7 @@ static int sst_platform_alloc_stream(struct snd_pcm_substream *substream,
 	ret_val = stream->ops->open(sst->dev, &str_params);
 	if (ret_val <= 0)
 		return ret_val;
+
 
 	return ret_val;
 }
@@ -396,7 +398,13 @@ static int sst_media_hw_params(struct snd_pcm_substream *substream,
 				struct snd_pcm_hw_params *params,
 				struct snd_soc_dai *dai)
 {
-	snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(params));
+	int ret;
+
+	ret =
+		snd_pcm_lib_malloc_pages(substream,
+				params_buffer_bytes(params));
+	if (ret)
+		return ret;
 	memset(substream->runtime->dma_area, 0, params_buffer_bytes(params));
 	return 0;
 }
@@ -636,6 +644,7 @@ static int sst_platform_pcm_trigger(struct snd_pcm_substream *substream,
 	return ret_val;
 }
 
+
 static snd_pcm_uframes_t sst_platform_pcm_pointer
 			(struct snd_pcm_substream *substream)
 {
@@ -703,6 +712,7 @@ static struct snd_soc_platform_driver sst_soc_platform_drv  = {
 static const struct snd_soc_component_driver sst_component = {
 	.name		= "sst",
 };
+
 
 static int sst_platform_probe(struct platform_device *pdev)
 {
@@ -804,6 +814,7 @@ static void sst_soc_complete(struct device *dev)
 #define sst_soc_complete NULL
 
 #endif
+
 
 static const struct dev_pm_ops sst_platform_pm = {
 	.prepare	= sst_soc_prepare,

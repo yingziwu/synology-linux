@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -41,6 +42,7 @@ disclaimer.
 #include "tm_nodes_utils.h"
 #include "tm_nodes_ctl.h"
 #include "tm_hw_configuration_interface.h"
+
 
 /**
  */
@@ -145,6 +147,7 @@ static int tm_nodes_on_off(tm_handle hndl,
 	return 0;
 }
 
+
 /**
  */
 static int tm_copy_b_node(tm_handle hndl,
@@ -192,6 +195,7 @@ static int tm_copy_b_node(tm_handle hndl,
 	return rc;
 }
 
+
 /**
  */
 static int tm_copy_a_node(tm_handle hndl,
@@ -238,6 +242,7 @@ static int tm_copy_a_node(tm_handle hndl,
 
 	return rc;
 }
+
 
 /**
  */
@@ -307,6 +312,7 @@ int tm_c_nodes_switch(tm_handle hndl,
 	return 0;
 }
 
+
 /**
  */
 int tm_b_nodes_switch(tm_handle hndl,
@@ -372,6 +378,7 @@ int tm_b_nodes_switch(tm_handle hndl,
 
 	return 0;
 }
+
 
 /**
  */
@@ -439,6 +446,7 @@ int tm_a_nodes_switch(tm_handle hndl,
 	return 0;
 }
 
+
 /** Copied from tm_nodes_ctl.
  */
 static int tm_delete_a_node(tm_handle hndl, uint32_t index)
@@ -476,6 +484,7 @@ static int tm_delete_a_node(tm_handle hndl, uint32_t index)
 	return 0;
 }
 
+
 /** Copied from tm_nodes_ctl.
  */
 static int tm_delete_b_node(tm_handle hndl, uint32_t index)
@@ -512,6 +521,7 @@ static int tm_delete_b_node(tm_handle hndl, uint32_t index)
 
 	return 0;
 }
+
 
 /** Move first child of the from_node to the end of the to_node.
  *  Assumption: first child of the from_node should free and consequent to the last child of to_node.
@@ -638,6 +648,8 @@ int tm_node_move(tm_handle hndl,
 err_out:
 	 return rc;
 }
+
+
 
 /**
  */
@@ -911,6 +923,7 @@ err_out:
 	return rc;
 }
 
+
 static int port_update_sw_image(tm_handle hndl,
 								enum tm_port_bw port_speed,
 								struct tm_port_params *params,
@@ -953,6 +966,7 @@ static int port_update_sw_image(tm_handle hndl,
 	return rc;
 }
 
+
 /**
  */
 static int port_calc_ranges(uint16_t parents,
@@ -986,6 +1000,7 @@ static int port_calc_ranges(uint16_t parents,
 	return 0;
 }
 
+
 /**
  */
 static void set_a_node_params_default(struct tm_a_node_params *params)
@@ -1001,6 +1016,7 @@ static void set_a_node_params_default(struct tm_a_node_params *params)
 	}
 }
 
+
 /**
  */
 static void set_b_node_params_default(struct tm_b_node_params *params)
@@ -1015,6 +1031,7 @@ static void set_b_node_params_default(struct tm_b_node_params *params)
 		params->elig_prio_func_ptr = 0;
 	}
 }
+
 
 /**
  */
@@ -1131,6 +1148,7 @@ int tm_create_asym_port(tm_handle hndl, uint8_t port_index,
 		goto out;
 	}
 
+
 	rc = rm_init_port(rm, port_index, params->num_of_children);
 	if (rc)
 		goto out;
@@ -1142,6 +1160,7 @@ int tm_create_asym_port(tm_handle hndl, uint8_t port_index,
 	port->last_child_c_node = rm_port->last_child;
 	for (i = port->first_child_c_node; i <= port->last_child_c_node; i++)
 		ctl->tm_c_node_array[i].parent_port = port_index;
+
 
 	port_update_sw_image(hndl, port_speed, params, port_index);
 	/* Download to HW */
@@ -1164,6 +1183,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */
@@ -1277,6 +1297,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_config_port_drop_per_cos(tm_handle hndl, uint8_t port_index,
@@ -1382,6 +1403,7 @@ out:
 	return rc;
 }
 
+
 /***************************************************************************
  * Queue Creation
  ***************************************************************************/
@@ -1421,6 +1443,7 @@ int tm_create_queue_to_port(tm_handle hndl, uint8_t port_index,
 	}
 	return rc;
 }
+
 
 /**
  */
@@ -1527,6 +1550,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_create_queue_to_c_node(tm_handle hndl, uint32_t c_node_index,
@@ -1559,6 +1583,7 @@ int tm_create_queue_to_c_node(tm_handle hndl, uint32_t c_node_index,
 	return rc;
 }
 
+
 /**
  */
 int tm_create_queue_to_b_node(tm_handle hndl, uint32_t b_node_index,
@@ -1585,6 +1610,7 @@ int tm_create_queue_to_b_node(tm_handle hndl, uint32_t b_node_index,
 	}
 	return rc;
 }
+
 
 /**
  */
@@ -1677,6 +1703,7 @@ out:
 	return rc;
 }
 
+
 /***************************************************************************
  * A-node Creation
  ***************************************************************************/
@@ -1714,6 +1741,7 @@ int tm_create_a_node_to_port(tm_handle hndl, uint8_t port_index,
 	return rc;
 }
 
+
 /**
  */
 int tm_create_a_node_to_c_node(tm_handle hndl, uint32_t c_node_index,
@@ -1741,6 +1769,7 @@ int tm_create_a_node_to_c_node(tm_handle hndl, uint32_t c_node_index,
 	}
 	return rc;
 }
+
 
 /**
  */
@@ -1801,6 +1830,7 @@ int tm_create_a_node_to_b_node(tm_handle hndl, uint32_t b_node_index,
 		rc = TM_CONF_ELIG_PRIO_FUNC_ID_OOR;
 		goto out;
 	}
+
 
 	/* check if the referenced a-node drop profile exists */
 	rc = rm_a_node_drop_profile_status(rm, a_params->wred_profile_ref, &status);
@@ -1886,6 +1916,7 @@ out:
 	return rc;
 }
 
+
 /***************************************************************************
  * B-node Creation
  ***************************************************************************/
@@ -1917,6 +1948,7 @@ int tm_create_b_node_to_port(tm_handle hndl, uint8_t port_index,
 	}
 	return rc;
 }
+
 
 /**
  */
@@ -2062,6 +2094,7 @@ out:
 	return rc;
 }
 
+
 /***************************************************************************
  * C-node Creation
  ***************************************************************************/
@@ -2166,6 +2199,7 @@ int tm_create_c_node_to_port(tm_handle hndl, uint8_t port_index,
 
 	/* Update C-node SW DB */
 	node->elig_prio_func_ptr = c_params->elig_prio_func_ptr;
+
 
 	for (i = 0; i < TM_WRED_COS; i++) {
 		/* Update Drop profile pointer */

@@ -37,6 +37,7 @@ static struct usb_device_id ath9k_hif_usb_ids[] = {
 	{ USB_DEVICE(0x0cf3, 0xb002) }, /* Ubiquiti WifiStation */
 	{ USB_DEVICE(0x057c, 0x8403) }, /* AVM FRITZ!WLAN 11N v2 USB */
 	{ USB_DEVICE(0x0471, 0x209e) }, /* Philips (or NXP) PTA01 */
+	{ USB_DEVICE(0x1eda, 0x2315) }, /* AirTies */
 
 	{ USB_DEVICE(0x0cf3, 0x7015),
 	  .driver_info = AR9287_USB },  /* Atheros */
@@ -713,6 +714,7 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
 		ath9k_htc_rx_msg(hif_dev->htc_handle, skb,
 				 skb->len, USB_REG_IN_PIPE);
 
+
 		nskb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
 		if (!nskb) {
 			dev_err(&hif_dev->udev->dev,
@@ -1214,6 +1216,9 @@ static int send_eject_command(struct usb_interface *interface)
 	unsigned char *cmd;
 	u8 bulk_out_ep;
 	int r;
+
+	if (iface_desc->desc.bNumEndpoints < 2)
+		return -ENODEV;
 
 	/* Find bulk out endpoint */
 	for (r = 1; r >= 0; r--) {

@@ -21,6 +21,7 @@
  *
  */
 
+
 #ifndef _FIJI_PP_SMC_H_
 #define _FIJI_PP_SMC_H_
 
@@ -81,6 +82,7 @@ enum FAN_CONTROL {
 #define PPSMC_GeminiModeMaster 1  /*Master GPU on a Gemini board*/
 #define PPSMC_GeminiModeSlave  2  /*Slave GPU on a Gemini board*/
 
+
 /* Return codes for driver to SMC communication. */
 #define PPSMC_Result_OK             ((uint16_t)0x01)
 #define PPSMC_Result_NoMore         ((uint16_t)0x02)
@@ -92,6 +94,7 @@ enum FAN_CONTROL {
 #define PPSMC_Result_UnknownVT      ((uint16_t)0xFD)
 
 #define PPSMC_isERROR(x) ((uint16_t)0x80 & (x))
+
 
 #define PPSMC_MSG_Halt                      ((uint16_t)0x10)
 #define PPSMC_MSG_Resume                    ((uint16_t)0x11)

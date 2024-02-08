@@ -132,6 +132,7 @@ static void ad_marker_response_received(struct bond_marker *marker,
 					struct port *port);
 static void ad_update_actor_keys(struct port *port, bool reset);
 
+
 /* ================= api to bonding and kernel code ================== */
 
 /**
@@ -391,6 +392,7 @@ static u16 __ad_timer_to_ticks(u16 timer_type, u16 par)
 
 	return retval;
 }
+
 
 /* ================= ad_rx_machine helper functions ================== */
 
@@ -2012,6 +2014,9 @@ void bond_3ad_unbind_slave(struct slave *slave)
 		   aggregator->aggregator_identifier);
 
 	/* Tell the partner that this port is not suitable for aggregation */
+	port->actor_oper_port_state &= ~AD_STATE_SYNCHRONIZATION;
+	port->actor_oper_port_state &= ~AD_STATE_COLLECTING;
+	port->actor_oper_port_state &= ~AD_STATE_DISTRIBUTING;
 	port->actor_oper_port_state &= ~AD_STATE_AGGREGATION;
 	__update_lacpdu_from_port(port);
 	ad_lacpdu_send(port);

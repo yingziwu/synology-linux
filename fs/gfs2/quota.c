@@ -144,6 +144,7 @@ static void gfs2_qd_dispose(struct list_head *list)
 	}
 }
 
+
 static enum lru_status gfs2_qd_isolate(struct list_head *item,
 		struct list_lru_one *lru, spinlock_t *lru_lock, void *arg)
 {
@@ -191,6 +192,7 @@ struct shrinker gfs2_qd_shrinker = {
 	.seeks = DEFAULT_SEEKS,
 	.flags = SHRINKER_NUMA_AWARE,
 };
+
 
 static u64 qd2index(struct gfs2_quota_data *qd)
 {
@@ -259,6 +261,7 @@ static struct gfs2_quota_data *gfs2_qd_search_bucket(unsigned int hash,
 	return NULL;
 }
 
+
 static int qd_get(struct gfs2_sbd *sdp, struct kqid qid,
 		  struct gfs2_quota_data **qdp)
 {
@@ -295,6 +298,7 @@ static int qd_get(struct gfs2_sbd *sdp, struct kqid qid,
 
 	return 0;
 }
+
 
 static void qd_hold(struct gfs2_quota_data *qd)
 {
@@ -1478,6 +1482,7 @@ void gfs2_wake_up_statfs(struct gfs2_sbd *sdp) {
 		wake_up(&sdp->sd_quota_wait);
 	}
 }
+
 
 /**
  * gfs2_quotad - Write cached quota changes into the quota file

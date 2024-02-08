@@ -171,6 +171,7 @@ enum dc_status dc_remove_stream_from_ctx(
 			struct dc_state *new_ctx,
 			struct dc_stream_state *stream);
 
+
 bool dc_add_plane_to_context(
 		const struct dc *dc,
 		struct dc_stream_state *stream,
@@ -223,6 +224,7 @@ bool dc_enable_stereo(
 	struct dc_stream_state *streams[],
 	uint8_t stream_count);
 
+
 enum surface_update_type dc_check_update_surfaces_for_stream(
 		struct dc *dc,
 		struct dc_surface_update *updates,
@@ -271,6 +273,7 @@ void dc_stream_set_static_screen_events(struct dc *dc,
 					struct dc_stream_state **stream,
 					int num_streams,
 					const struct dc_static_screen_events *events);
+
 
 bool dc_stream_adjust_vmin_vmax(struct dc *dc,
 				struct dc_stream_state **stream,

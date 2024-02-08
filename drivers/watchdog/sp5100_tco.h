@@ -43,6 +43,7 @@
 
 #define SP5100_DEVNAME			"SP5100 TCO"
 
+
 /*  For SB8x0(or later) chipset */
 #define SB800_IO_PM_INDEX_REG		0xCD6
 #define SB800_IO_PM_DATA_REG		0xCD7
@@ -53,10 +54,11 @@
 #define SB800_PM_WATCHDOG_CONFIG	0x4C
 
 #define SB800_PCI_WATCHDOG_DECODE_EN	(1 << 0)
-#define SB800_PM_WATCHDOG_DISABLE	(1 << 2)
+#define SB800_PM_WATCHDOG_DISABLE	(1 << 1)
 #define SB800_PM_WATCHDOG_SECOND_RES	(3 << 0)
 #define SB800_ACPI_MMIO_DECODE_EN	(1 << 0)
 #define SB800_ACPI_MMIO_SEL		(1 << 1)
+
 
 #define SB800_PM_WDT_MMIO_OFFSET	0xB00
 

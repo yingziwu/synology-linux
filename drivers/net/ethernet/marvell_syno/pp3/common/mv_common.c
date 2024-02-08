@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -209,6 +210,7 @@ void mv_debug_mem_dump(void *addr, int size, int access)
 	pr_cont("\n");
 }
 
+
 /*
 Description:
 	Allocate number of memory buffers of request size.
@@ -327,3 +329,4 @@ void mv_field_set(int offs, int bits, unsigned int *entry,  unsigned int val)
 	/* set new field */
 	entry[word] |= (val << offs_in_word);
 }
+

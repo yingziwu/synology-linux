@@ -183,6 +183,7 @@ static fInt fDecodeLinearFuse(uint32_t fuse_value, fInt f_min, fInt f_range, uin
 	return f_decoded_value;
 }
 
+
 static fInt fDecodeLogisticFuse(uint32_t fuse_value, fInt f_average, fInt f_range, uint32_t bitlength)
 {
 	fInt f_fuse_value = Convert_ULONG_ToFraction(fuse_value);
@@ -551,3 +552,4 @@ static fInt fRoundUpByStepSize(fInt A, fInt fStepSize, bool error_term)
 
 	return solution;
 }
+

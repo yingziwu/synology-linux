@@ -786,7 +786,7 @@ isdn_tty_suspend(char *id, modem_info *info, atemu *m)
 		cmd.parm.cmsg.para[3] = 4; /* 16 bit 0x0004 Suspend */
 		cmd.parm.cmsg.para[4] = 0;
 		cmd.parm.cmsg.para[5] = l;
-		strncpy(&cmd.parm.cmsg.para[6], id, l);
+		strscpy(&cmd.parm.cmsg.para[6], id, l);
 		cmd.command = CAPI_PUT_MESSAGE;
 		cmd.driver = info->isdn_driver;
 		cmd.arg = info->isdn_channel;
@@ -1342,6 +1342,7 @@ isdn_tty_get_lsr_info(modem_info *info, uint __user *value)
 	return put_user(result, value);
 }
 
+
 static int
 isdn_tty_tiocmget(struct tty_struct *tty)
 {
@@ -1458,15 +1459,19 @@ isdn_tty_set_termios(struct tty_struct *tty, struct ktermios *old_termios)
 {
 	modem_info *info = (modem_info *) tty->driver_data;
 
+	mutex_lock(&modem_info_mutex);
 	if (!old_termios)
 		isdn_tty_change_speed(info);
 	else {
 		if (tty->termios.c_cflag == old_termios->c_cflag &&
 		    tty->termios.c_ispeed == old_termios->c_ispeed &&
-		    tty->termios.c_ospeed == old_termios->c_ospeed)
+		    tty->termios.c_ospeed == old_termios->c_ospeed) {
+			mutex_unlock(&modem_info_mutex);
 			return;
+		}
 		isdn_tty_change_speed(info);
 	}
+	mutex_unlock(&modem_info_mutex);
 }
 
 /*
@@ -1868,6 +1873,7 @@ isdn_tty_exit(void)
 	put_tty_driver(dev->mdm.tty_modem);
 	dev->mdm.tty_modem = NULL;
 }
+
 
 /*
  * isdn_tty_match_icall(char *MSN, atemu *tty_emulator, int dev_idx)
@@ -2530,6 +2536,7 @@ isdn_tty_modem_result(int code, modem_info *info)
 			tty_hangup(info->port.tty);
 	}
 }
+
 
 /*
  * Display a modem-register-value.

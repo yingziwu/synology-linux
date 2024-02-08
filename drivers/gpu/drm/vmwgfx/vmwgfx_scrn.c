@@ -30,6 +30,7 @@
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
 
+
 #define vmw_crtc_to_sou(x) \
 	container_of(x, struct vmw_screen_object_unit, base.crtc)
 #define vmw_encoder_to_sou(x) \
@@ -92,6 +93,7 @@ static void vmw_sou_destroy(struct vmw_screen_object_unit *sou)
 	vmw_du_cleanup(&sou->base);
 	kfree(sou);
 }
+
 
 /*
  * Screen Object Display Unit CRTC functions
@@ -220,6 +222,7 @@ static void vmw_sou_crtc_mode_set_nofb(struct drm_crtc *crtc)
 	struct vmw_plane_state *vps;
 	int ret;
 
+
 	sou      = vmw_crtc_to_sou(crtc);
 	dev_priv = vmw_priv(crtc->dev);
 	ps       = crtc->primary->state;
@@ -290,6 +293,7 @@ static void vmw_sou_crtc_atomic_disable(struct drm_crtc *crtc,
 	struct vmw_screen_object_unit *sou;
 	int ret;
 
+
 	if (!crtc) {
 		DRM_ERROR("CRTC is NULL\n");
 		return;
@@ -342,6 +346,7 @@ static int vmw_sou_crtc_page_flip(struct drm_crtc *crtc,
 		ret = vmw_kms_sou_do_surface_dirty(dev_priv, vfb,
 						   NULL, &vclips, NULL,
 						   0, 0, 1, 1, &fence);
+
 
 	if (ret != 0)
 		goto out_no_fence;
@@ -421,10 +426,13 @@ static const struct drm_connector_funcs vmw_sou_connector_funcs = {
 	.atomic_get_property = vmw_du_connector_atomic_get_property,
 };
 
+
 static const struct
 drm_connector_helper_funcs vmw_sou_connector_helper_funcs = {
 	.best_encoder = drm_atomic_helper_best_encoder,
 };
+
+
 
 /*
  * Screen Object Display Plane Functions
@@ -452,6 +460,7 @@ vmw_sou_primary_plane_cleanup_fb(struct drm_plane *plane,
 	vmw_du_plane_cleanup_fb(plane, old_state);
 }
 
+
 /**
  * vmw_sou_primary_plane_prepare_fb - allocate backing buffer
  *
@@ -472,6 +481,7 @@ vmw_sou_primary_plane_prepare_fb(struct drm_plane *plane,
 	struct vmw_private *dev_priv;
 	size_t size;
 	int ret;
+
 
 	if (!new_fb) {
 		vmw_dmabuf_unreference(&vps->dmabuf);
@@ -514,6 +524,7 @@ vmw_sou_primary_plane_prepare_fb(struct drm_plane *plane,
 	return ret;
 }
 
+
 static void
 vmw_sou_primary_plane_atomic_update(struct drm_plane *plane,
 				    struct drm_plane_state *old_state)
@@ -523,6 +534,7 @@ vmw_sou_primary_plane_atomic_update(struct drm_plane *plane,
 	if (crtc)
 		crtc->primary->fb = plane->state->fb;
 }
+
 
 static const struct drm_plane_funcs vmw_sou_plane_funcs = {
 	.update_plane = drm_atomic_helper_update_plane,
@@ -570,6 +582,7 @@ static const struct drm_crtc_helper_funcs vmw_sou_crtc_helper_funcs = {
 	.atomic_enable = vmw_sou_crtc_atomic_enable,
 	.atomic_disable = vmw_sou_crtc_atomic_disable,
 };
+
 
 static int vmw_sou_init(struct vmw_private *dev_priv, unsigned unit)
 {
@@ -647,6 +660,7 @@ static int vmw_sou_init(struct vmw_private *dev_priv, unsigned unit)
 	connector->status = vmw_du_connector_detect(connector, true);
 	vmw_connector_state_to_vcs(connector->state)->is_implicit = false;
 
+
 	ret = drm_encoder_init(dev, encoder, &vmw_screen_object_encoder_funcs,
 			       DRM_MODE_ENCODER_VIRTUAL, NULL);
 	if (ret) {
@@ -663,6 +677,7 @@ static int vmw_sou_init(struct vmw_private *dev_priv, unsigned unit)
 		DRM_ERROR("Failed to register connector\n");
 		goto err_free_encoder;
 	}
+
 
 	vmw_du_crtc_reset(crtc);
 	ret = drm_crtc_init_with_planes(dev, crtc, &sou->base.primary,
@@ -1022,6 +1037,7 @@ out_revert:
 
 	return ret;
 }
+
 
 /**
  * vmw_sou_readback_fifo_commit - Callback to submit a set of readback clips.

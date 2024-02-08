@@ -23,6 +23,7 @@
 
 #include "mv_pp3_swq.h"
 
+
 #define MV_PP3_DBG_SWQ_CNT_DUMP(swq, num, cpu, name, name_pref, pr_name, pr_zero)\
 	mv_pp3_swq_cnt(swq, num, cpu, offsetof(struct pp3_swq_stats, name)/4, #name, name_pref, pr_name, pr_zero)
 
@@ -33,6 +34,7 @@ struct pp3_swq *mv_pp3_swq_alloc(void)
 	return swq;
 }
 /*---------------------------------------------------------------------------*/
+
 
 int mv_pp3_rx_swq_sw_init(struct pp3_swq *rx_swq, int frame, int swq, int hwq, int irq_group)
 {
@@ -224,6 +226,7 @@ void mv_pp3_swq_delete(struct pp3_swq *rx_swq)
 }
 /*---------------------------------------------------------------------------*/
 
+
 /*---------------------------------------------------------------------------
 mv_pp3_queue_cnt
 	print counter values from swq list
@@ -329,3 +332,4 @@ void mv_pp3_swq_stats_clear(struct pp3_swq *swq)
 	memset(&swq->stats, 0, sizeof(struct pp3_swq_stats));
 }
 /*---------------------------------------------------------------------------*/
+

@@ -1539,6 +1539,7 @@ static int mtp_setup_configfs(struct mtp_instance *fi_mtp)
 	return __mtp_setup(fi_mtp);
 }
 
+
 static void mtp_cleanup(void)
 {
 	struct mtp_dev *dev = _mtp_dev;
@@ -1573,6 +1574,7 @@ static struct config_item_type mtp_func_type = {
 	.ct_item_ops    = &mtp_item_ops,
 	.ct_owner       = THIS_MODULE,
 };
+
 
 static struct mtp_instance *to_fi_mtp(struct usb_function_instance *fi)
 {

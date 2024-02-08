@@ -237,6 +237,7 @@ static void intel_mst_pre_enable_dp(struct intel_encoder *encoder,
 		return;
 	}
 
+
 	intel_dp->active_mst_links++;
 	temp = I915_READ(DP_TP_STATUS(port));
 	I915_WRITE(DP_TP_STATUS(port), temp);

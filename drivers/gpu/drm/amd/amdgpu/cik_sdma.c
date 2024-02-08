@@ -67,6 +67,7 @@ MODULE_FIRMWARE("radeon/mullins_sdma1.bin");
 
 u32 amdgpu_cik_gpu_check_soft_reset(struct amdgpu_device *adev);
 
+
 static void cik_sdma_free_microcode(struct amdgpu_device *adev)
 {
 	int i;

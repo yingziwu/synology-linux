@@ -30,6 +30,7 @@
 #include <soc/realtek/rtd129x_lockapi.h>
 #endif
 
+
 #define RTK_USB_RLE0599_PHY_NAME "rtk-usb-phy-rle0599"
 
 struct reg_addr {

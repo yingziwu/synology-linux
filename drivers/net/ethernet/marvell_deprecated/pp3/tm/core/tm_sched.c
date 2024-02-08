@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -110,6 +111,7 @@ int tm_sched_general_config(tm_handle hndl, uint8_t port_ext_bp)
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
 
+
 	rc = tm_glob_lock(TM_ENV(ctl));
 	if (rc)
 		return rc;
@@ -137,6 +139,7 @@ out:
 	return rc;
 }
 #endif
+
 
 int tm_configure_fixed_periodic_scheme_2_5G(tm_handle hndl, enum tm_level level)
 {
@@ -179,6 +182,7 @@ out:
 	tm_sched_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 #ifdef MV_QMTM_NSS_A0
 /**

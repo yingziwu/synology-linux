@@ -107,6 +107,7 @@ static unsigned int bitrate(struct usb_gadget *g)
 #define RNDIS_STATUS_INTERVAL_MS	32
 #define STATUS_BYTECOUNT		8	/* 8 bytes data */
 
+
 /* interface descriptor: */
 
 static struct usb_interface_descriptor rndis_control_intf = {
@@ -168,6 +169,7 @@ static struct usb_interface_descriptor rndis_data_intf = {
 	.bInterfaceProtocol =	0,
 	/* .iInterface = DYNAMIC */
 };
+
 
 static struct usb_interface_assoc_descriptor
 rndis_iad_descriptor = {
@@ -531,6 +533,7 @@ invalid:
 	/* device either stalls (value < 0) or reports success */
 	return value;
 }
+
 
 static int rndis_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 {

@@ -295,7 +295,8 @@ ret_from_mc_except:
 	andi.	r10,r11,MSR_PR;		/* save stack pointer */	    \
 	beq	1f;			/* branch around if supervisor */   \
 	ld	r1,PACAKSAVE(r13);	/* get kernel stack coming from usr */\
-1:	cmpdi	cr1,r1,0;		/* check if SP makes sense */	    \
+1:	type##_BTB_FLUSH		\
+	cmpdi	cr1,r1,0;		/* check if SP makes sense */	    \
 	bge-	cr1,exc_##n##_bad_stack;/* bad stack (TODO: out of line) */ \
 	mfspr	r10,SPRN_##type##_SRR0;	/* read SRR0 before touching stack */
 
@@ -326,6 +327,30 @@ ret_from_mc_except:
 	subi	r1,r1,SPECIAL_EXC_FRAME_SIZE
 #define SPRN_MC_SRR0	SPRN_MCSRR0
 #define SPRN_MC_SRR1	SPRN_MCSRR1
+
+#ifdef CONFIG_PPC_FSL_BOOK3E
+#define GEN_BTB_FLUSH			\
+	START_BTB_FLUSH_SECTION		\
+		beq 1f;			\
+		BTB_FLUSH(r10)			\
+		1:		\
+	END_BTB_FLUSH_SECTION
+
+#define CRIT_BTB_FLUSH			\
+	START_BTB_FLUSH_SECTION		\
+		BTB_FLUSH(r10)		\
+	END_BTB_FLUSH_SECTION
+
+#define DBG_BTB_FLUSH CRIT_BTB_FLUSH
+#define MC_BTB_FLUSH CRIT_BTB_FLUSH
+#define GDBELL_BTB_FLUSH GEN_BTB_FLUSH
+#else
+#define GEN_BTB_FLUSH
+#define CRIT_BTB_FLUSH
+#define DBG_BTB_FLUSH
+#define MC_BTB_FLUSH
+#define GDBELL_BTB_FLUSH
+#endif
 
 #define NORMAL_EXCEPTION_PROLOG(n, intnum, addition)			    \
 	EXCEPTION_PROLOG(n, intnum, GEN, addition##_GEN(n))
@@ -373,6 +398,7 @@ ret_from_mc_except:
 #define PROLOG_ADDITION_2REGS_MC(n)					    \
 	std	r14,PACA_EXMC+EX_R14(r13);				    \
 	std	r15,PACA_EXMC+EX_R15(r13)
+
 
 /* Core exception code for all exceptions except TLB misses. */
 #define EXCEPTION_COMMON_LVL(n, scratch, excf)				    \
@@ -488,6 +514,7 @@ exc_##n##_bad_stack:							    \
 	std	r7,TI_LOCAL_FLAGS(r11);					\
 1:
 
+
 #define MASKABLE_EXCEPTION(trapnum, intnum, label, hdlr, ack)		\
 	START_EXCEPTION(label);						\
 	NORMAL_EXCEPTION_PROLOG(trapnum, intnum, PROLOG_ADDITION_MASKABLE)\
@@ -503,6 +530,7 @@ exc_##n##_bad_stack:							    \
 	.section	".toc","aw"
 exception_marker:
 	.tc	ID_EXC_MARKER[TC],STACK_FRAME_REGS_MARKER
+
 
 /*
  * And here we have the exception vectors !
@@ -670,6 +698,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
 #endif
 	b	ret_from_except
 
+
 /* Decrementer Interrupt */
 	MASKABLE_EXCEPTION(0x900, BOOKE_INTERRUPT_DECREMENTER,
 			   decrementer, timer_interrupt, ACK_DEC)
@@ -731,8 +760,14 @@ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
 	andis.	r15,r14,(DBSR_IC|DBSR_BT)@h
 	beq+	1f
 
+#ifdef CONFIG_RELOCATABLE
+	ld	r15,PACATOC(r13)
+	ld	r14,interrupt_base_book3e@got(r15)
+	ld	r15,__end_interrupts@got(r15)
+#else
 	LOAD_REG_IMMEDIATE(r14,interrupt_base_book3e)
 	LOAD_REG_IMMEDIATE(r15,__end_interrupts)
+#endif
 	cmpld	cr0,r10,r14
 	cmpld	cr1,r10,r15
 	blt+	cr0,1f
@@ -795,8 +830,14 @@ kernel_dbg_exc:
 	andis.	r15,r14,(DBSR_IC|DBSR_BT)@h
 	beq+	1f
 
+#ifdef CONFIG_RELOCATABLE
+	ld	r15,PACATOC(r13)
+	ld	r14,interrupt_base_book3e@got(r15)
+	ld	r15,__end_interrupts@got(r15)
+#else
 	LOAD_REG_IMMEDIATE(r14,interrupt_base_book3e)
 	LOAD_REG_IMMEDIATE(r15,__end_interrupts)
+#endif
 	cmpld	cr0,r10,r14
 	cmpld	cr1,r10,r15
 	blt+	cr0,1f
@@ -995,6 +1036,7 @@ _GLOBAL(__replay_interrupt)
 	cmpwi	cr0,r3,0x280
 	beq	exc_0x280_common
 	blr
+
 
 /*
  * This is called from 0x300 and 0x400 handlers after the prologs with
@@ -1518,6 +1560,7 @@ _GLOBAL(start_initialization_book3e)
 	tovirt(r28,r28)
 	mtlr	r28
 	blr
+
 
 /*
  * Secondary core/processor entry

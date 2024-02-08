@@ -375,6 +375,7 @@ struct SMU72_Discrete_MCRegisters {
 
 typedef struct SMU72_Discrete_MCRegisters SMU72_Discrete_MCRegisters;
 
+
 /* --------------------------------------------------- Fan Table ----------------------------------------------------------- */
 
 struct SMU72_Discrete_FanTable {
@@ -564,6 +565,7 @@ struct SMU7_BapmScoreboard {
 	int32_t temperature_gradient;
 	uint32_t measured_temperature;
 };
+
 
 typedef struct SMU7_BapmScoreboard SMU7_BapmScoreboard;
 
@@ -776,4 +778,6 @@ typedef struct SMU7_Discrete_Pm_Status_Table SMU7_Discrete_Pm_Status_Table;
 #pragma pack(pop)
 #endif
 
+
 #endif
+

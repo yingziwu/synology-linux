@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * bitmap.h: Copyright (C) Peter T. Breuer (ptb@ot.uc3m.es) 2003
  *
@@ -15,6 +18,9 @@
 #define BITMAP_MAJOR_CLUSTERED 5
 #define	BITMAP_MAJOR_HOSTENDIAN 3
 
+#ifdef MY_ABC_HERE
+#define BITMAP_ERR_OFFSET -9999
+#endif /* MY_ABC_HERE */
 /*
  * in-memory bitmap:
  *

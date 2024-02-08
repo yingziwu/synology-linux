@@ -56,6 +56,7 @@ static inline void clk_factor_write_factor(struct clk_factor_config *f, u32 f_va
     writel(val, f->reg);
 }
 
+
 /**
  * clk_factor_write_factor_merged - write to factor in the same address
  *   @f_0: first factor to write, the register is used as the target address
@@ -139,3 +140,4 @@ struct clk * clk_register_factor(struct device *dev, const char *name,
     const char *parent_name, struct clk_factor * clk_f, unsigned long flags);
 
 #endif
+

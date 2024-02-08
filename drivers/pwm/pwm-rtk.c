@@ -621,6 +621,7 @@ static ssize_t pwm_store_out_freq(struct device *dev, struct device_attribute *a
 	return count;
 }
 
+
 ssize_t pwm_show_dutyRate0(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	return pwm_show_dutyRate(dev, attr, buf, 0);
@@ -836,6 +837,7 @@ ssize_t pwm_store_out_freq3(struct device *dev, struct device_attribute *attr,
 {
 	return pwm_store_out_freq(dev, attr, buf, count, 3);
 }
+
 
 static int rtd1295_pwm_probe(struct platform_device *pdev)
 {

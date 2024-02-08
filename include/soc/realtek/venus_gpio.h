@@ -28,6 +28,7 @@ typedef struct
     void (*handler) (VENUS_GPIO_ID id, unsigned char assert, void* data);   // assert call back
 }VENUS_GPIO_IRQ;
 
+
 typedef enum {
     MIS_GPIO = 0,
     ISO_GPIO,
@@ -57,9 +58,17 @@ static __maybe_unused  int venus_gpio_request_irq      (VENUS_GPIO_ID          g
                                  char*                  name,
                                  void*                  dev_id){return 0;}
 
+
 static __maybe_unused  void venus_gpio_free_irq        (VENUS_GPIO_ID          gid,  void*     dev_id){return ;}
 static  __maybe_unused int venus_gpio_clear_isr        (VENUS_GPIO_ID          gid){return 0;}
 static __maybe_unused  int venus_gpio_chk_irq_enable   (VENUS_GPIO_ID          gid){return 0;}
+
+
+
+
+
+
+
 
 /*
 
@@ -94,6 +103,7 @@ int venus_gpio_chk_irq_enable   (VENUS_GPIO_ID          gid);
 */
 ////////////////// Debug messages ////////////////////
 
+
 #ifdef CONFIG_VENUS_GPIO_DBG_EN
 #define VENUS_GPIO_DBG(fmt, args...)          printk("[GPIO] Dbg, " fmt, ## args)
 #define VENUS_GPIO_INFO(fmt, args...)         printk("[GPIO] Info, " fmt, ## args)
@@ -103,5 +113,6 @@ int venus_gpio_chk_irq_enable   (VENUS_GPIO_ID          gid);
 #endif
 
 #define VENUS_GPIO_WARNING(fmt, args...)      printk("[GPIO] Warning, " fmt, ## args)
+
 
 #endif //__VENUS_GPIO_H__

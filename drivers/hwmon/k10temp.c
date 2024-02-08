@@ -276,6 +276,7 @@ int syno_k10cpu_temperature(struct _SynoCpuTemp *pCpuTemp)
 		return -1;
 	}
 
+
 	pdev = pci_get_device(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F3, NULL);
 
 	if (!pdev)

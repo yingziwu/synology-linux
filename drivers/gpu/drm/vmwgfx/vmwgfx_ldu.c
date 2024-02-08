@@ -30,6 +30,7 @@
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
 
+
 #define vmw_crtc_to_ldu(x) \
 	container_of(x, struct vmw_legacy_display_unit, base.crtc)
 #define vmw_encoder_to_ldu(x) \
@@ -61,6 +62,7 @@ static void vmw_ldu_destroy(struct vmw_legacy_display_unit *ldu)
 	vmw_du_cleanup(&ldu->base);
 	kfree(ldu);
 }
+
 
 /*
  * Legacy Display Unit CRTC functions
@@ -234,6 +236,7 @@ static const struct drm_crtc_funcs vmw_legacy_crtc_funcs = {
 	.set_config = vmw_kms_set_config,
 };
 
+
 /*
  * Legacy Display Unit encoder functions
  */
@@ -294,6 +297,7 @@ vmw_ldu_primary_plane_cleanup_fb(struct drm_plane *plane,
 {
 }
 
+
 /**
  * vmw_ldu_primary_plane_prepare_fb - Noop
  *
@@ -309,6 +313,7 @@ vmw_ldu_primary_plane_prepare_fb(struct drm_plane *plane,
 	return 0;
 }
 
+
 static void
 vmw_ldu_primary_plane_atomic_update(struct drm_plane *plane,
 				    struct drm_plane_state *old_state)
@@ -318,6 +323,7 @@ vmw_ldu_primary_plane_atomic_update(struct drm_plane *plane,
 	struct vmw_framebuffer *vfb;
 	struct drm_framebuffer *fb;
 	struct drm_crtc *crtc = plane->state->crtc ?: old_state->crtc;
+
 
 	ldu = vmw_crtc_to_ldu(crtc);
 	dev_priv = vmw_priv(plane->dev);
@@ -332,6 +338,7 @@ vmw_ldu_primary_plane_atomic_update(struct drm_plane *plane,
 
 	vmw_ldu_commit_list(dev_priv);
 }
+
 
 static const struct drm_plane_funcs vmw_ldu_plane_funcs = {
 	.update_plane = drm_atomic_helper_update_plane,
@@ -378,6 +385,7 @@ static const struct drm_crtc_helper_funcs vmw_ldu_crtc_helper_funcs = {
 	.atomic_enable = vmw_ldu_crtc_atomic_enable,
 	.atomic_disable = vmw_ldu_crtc_atomic_disable,
 };
+
 
 static int vmw_ldu_init(struct vmw_private *dev_priv, unsigned unit)
 {
@@ -444,6 +452,7 @@ static int vmw_ldu_init(struct vmw_private *dev_priv, unsigned unit)
 
 	drm_plane_helper_add(cursor, &vmw_ldu_cursor_plane_helper_funcs);
 
+
 	vmw_du_connector_reset(connector);
 	ret = drm_connector_init(dev, connector, &vmw_legacy_connector_funcs,
 				 DRM_MODE_CONNECTOR_VIRTUAL);
@@ -455,6 +464,7 @@ static int vmw_ldu_init(struct vmw_private *dev_priv, unsigned unit)
 	drm_connector_helper_add(connector, &vmw_ldu_connector_helper_funcs);
 	connector->status = vmw_du_connector_detect(connector, true);
 	vmw_connector_state_to_vcs(connector->state)->is_implicit = true;
+
 
 	ret = drm_encoder_init(dev, encoder, &vmw_legacy_encoder_funcs,
 			       DRM_MODE_ENCODER_VIRTUAL, NULL);
@@ -472,6 +482,7 @@ static int vmw_ldu_init(struct vmw_private *dev_priv, unsigned unit)
 		DRM_ERROR("Failed to register connector\n");
 		goto err_free_encoder;
 	}
+
 
 	vmw_du_crtc_reset(crtc);
 	ret = drm_crtc_init_with_planes(dev, crtc, &ldu->base.primary,
@@ -569,6 +580,7 @@ int vmw_kms_ldu_close_display(struct vmw_private *dev_priv)
 
 	return 0;
 }
+
 
 int vmw_kms_ldu_do_dmabuf_dirty(struct vmw_private *dev_priv,
 				struct vmw_framebuffer *framebuffer,

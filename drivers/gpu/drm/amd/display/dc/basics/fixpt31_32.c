@@ -54,6 +54,7 @@ static inline uint64_t complete_integer_division_u64(
 	return result;
 }
 
+
 #define FRACTIONAL_PART_MASK \
 	((1ULL << FIXED31_32_BITS_PER_FRACTIONAL_PART) - 1)
 

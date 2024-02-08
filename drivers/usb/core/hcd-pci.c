@@ -34,6 +34,7 @@
 
 #include "usb.h"
 
+
 /* PCI-based HCs are common, but plenty of non-PCI HCs are used too */
 
 /*
@@ -311,6 +312,7 @@ disable_pci:
 }
 EXPORT_SYMBOL_GPL(usb_hcd_pci_probe);
 
+
 /* may be called without controller electrically present */
 /* may be called with controller, bus, and devices active */
 
@@ -527,8 +529,6 @@ static int resume_common(struct device *dev, int event)
 				event == PM_EVENT_RESTORE);
 		if (retval) {
 			dev_err(dev, "PCI post-resume error %d!\n", retval);
-			if (hcd->shared_hcd)
-				usb_hc_died(hcd->shared_hcd);
 			usb_hc_died(hcd);
 		}
 	}

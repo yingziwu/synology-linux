@@ -494,7 +494,7 @@
 .endm
 
 .macro deactivate_traps
-	mov	x2, #HCR_RW
+	mov_q	x2, HCR_HOST_NVHE_FLAGS
 	msr	hcr_el2, x2
 	msr	hstr_el2, xzr
 
@@ -1112,6 +1112,7 @@ ENTRY(__kvm_hyp_vector)
 	ventry	el1_fiq_invalid			// FIQ 32-bit EL1
 	ventry	el1_error_invalid		// Error 32-bit EL1
 ENDPROC(__kvm_hyp_vector)
+
 
 ENTRY(__kvm_get_mdcr_el2)
 	mrs	x0, mdcr_el2

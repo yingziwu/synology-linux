@@ -3,36 +3,39 @@
 #endif
 #ifdef MY_ABC_HERE
 #include <linux/syscalls.h>
-#endif  
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 #include <linux/file.h>
-#include <linux/fs.h>  
+#include <linux/fs.h> /* struct inode */
 #include <linux/fsnotify_backend.h>
 #include <linux/idr.h>
-#include <linux/init.h>  
+#include <linux/init.h> /* module_init */
 #include <linux/synotify.h>
-#include <linux/kernel.h>  
-#include <linux/namei.h>  
-#include <linux/sched.h>  
-#include <linux/slab.h>  
+#include <linux/kernel.h> /* roundup() */
+#include <linux/namei.h> /* LOOKUP_FOLLOW */
+#include <linux/sched.h> /* struct user */
+#include <linux/slab.h> /* struct kmem_cache */
 #include <linux/types.h>
 #include <linux/anon_inodes.h>
 #include <linux/uaccess.h>
 #include <linux/poll.h>
 #include <linux/wait.h>
-#include <linux/mount.h>  
+#include <linux/mount.h> /* struct vfsmount */
 
 #include <asm/ioctls.h>
 
 #include "synotify.h"
+#ifdef MY_ABC_HERE
+#include "../../synoacl_int.h"
+#endif /* MY_ABC_HERE */
 
-#define SYNOTIFY_DEFAULT_MAX_EVENTS	16384  
-#define SYNOTIFY_DEFAULT_MAX_WATCHERS	8192  
-#define SYNOTIFY_DEFAULT_MAX_INSTANCES	128  
+
+#define SYNOTIFY_DEFAULT_MAX_EVENTS	16384 /* per group */
+#define SYNOTIFY_DEFAULT_MAX_WATCHERS	8192 /* per group */
+#define SYNOTIFY_DEFAULT_MAX_INSTANCES	128 /* per user */
 
 extern const struct fsnotify_ops synotify_fsnotify_ops;
 
-static struct kmem_cache *synotify_mark_cache __read_mostly;
 static int synotify_max_queued_events = SYNOTIFY_DEFAULT_MAX_EVENTS;
 static int zero;
 
@@ -49,7 +52,7 @@ struct ctl_table synotify_table[] = {
 	},
 	{ }
 };
-#endif  
+#endif /* CONFIG_SYSCTL */
 
 static int round_event_name_len(struct fsnotify_event *fsn_event)
 {
@@ -61,6 +64,13 @@ static int round_event_name_len(struct fsnotify_event *fsn_event)
 	return roundup(event->full_name_len + 1, sizeof(struct synotify_event));
 }
 
+/*
+ * Get an fsnotify notification event if one exists and is small
+ * enough to fit in "count". Return an error pointer if the count
+ * is not large enough.
+ *
+ * Called with the group->notification_mutex held.
+ */
 static struct fsnotify_event *get_one_event(struct fsnotify_group *group,
 					    size_t count)
 {
@@ -80,6 +90,8 @@ static struct fsnotify_event *get_one_event(struct fsnotify_group *group,
 	if (event_size > count)
 		return ERR_PTR(-EINVAL);
 
+	/* held the notification_mutex the whole time, so this is the
+	 * same event we peeked above */
 	return fsnotify_remove_first_event(group);
 }
 
@@ -101,24 +113,34 @@ static ssize_t copy_event_to_user(struct fsnotify_group *group,
 	pr_debug("%s: group=%p event=%p\n", __func__, group, fsn_event);
 
 	event = SYNOTIFY_E(fsn_event);
-	 
+	/*
+	 * round up event->name_len so it is a multiple of event_size
+	 * plus an extra byte for the terminating '\0'.
+	 */
 	name_len = round_event_name_len(fsn_event);
 	synotify_event.len = name_len;
 	synotify_event.mask = synotify_mask_to_arg(fsn_event->mask);
 	synotify_event.cookie = event->sync_cookie;
 
+	/* send the main event */
 	if (copy_to_user(buf, &synotify_event, event_size))
 		return -EFAULT;
 
 	buf += event_size;
 
+	/*
+	 * fsnotify only stores the pathname, so here we have to send the pathname
+	 * and then pad that pathname out to a multiple of sizeof(inotify_event)
+	 * with zeros.  I get my zeros from the nul_inotify_event.
+	 */
 	if (name_len) {
 		unsigned int len_to_zero = name_len - event->full_name_len;
-		 
+		/* copy the path name */
 		if (copy_to_user(buf, event->full_name, event->full_name_len))
 			return -EFAULT;
 		buf += event->full_name_len;
 
+		/* fill userspace with 0's */
 		if (clear_user(buf, len_to_zero))
 			return -EFAULT;
 		buf += len_to_zero;
@@ -128,6 +150,7 @@ static ssize_t copy_event_to_user(struct fsnotify_group *group,
 	return event_size;
 }
 
+/* synotifiy userspace file descriptor functions */
 static unsigned int synotify_poll(struct file *file, poll_table *wait)
 {
 	struct fsnotify_group *group = file->private_data;
@@ -200,6 +223,7 @@ static int synotify_release(struct inode *ignored, struct file *file)
 
 	pr_debug("%s: group=%p\n", __func__, group);
 
+	/* matches the SYNONotifyInit->fsnotify_alloc_group */
 	fsnotify_destroy_group(group);
 
 	return 0;
@@ -245,7 +269,7 @@ static const struct file_operations synotify_fops = {
 
 static void synotify_free_mark(struct fsnotify_mark *fsn_mark)
 {
-	kmem_cache_free(synotify_mark_cache, fsn_mark);
+	kfree(fsn_mark);
 }
 
 static int synotify_find_path(const char __user *filename,
@@ -258,7 +282,12 @@ static int synotify_find_path(const char __user *filename,
 	error = user_path_at(AT_FDCWD, filename, flags, path);
 	if (error)
 		return error;
-	 
+	/* you can only watch an inode if you have read permissions on it */
+#ifdef MY_ABC_HERE
+	if (IS_SYNOACL(path->dentry))
+		error = synoacl_op_perm(path->dentry, MAY_READ);
+	else
+#endif /* MY_ABC_HERE */
 	error = inode_permission(path->dentry->d_inode, MAY_READ);
 	if (error)
 		path_put(path);
@@ -306,8 +335,9 @@ static int synotify_remove_vfsmount_mark(struct fsnotify_group *group,
 	if (destroy_mark)
 		fsnotify_free_mark(fsn_mark);
 
+	/* synotify_mark_remove_from_mask invokes fsnotify_get_mark, so we put here */
 	fsnotify_put_mark(fsn_mark);
-	 
+	// FIXME: it will remove entire mount mask
 	if (removed & real_mount(mnt)->mnt_fsnotify_mask)
 		fsnotify_recalc_vfsmount_mask(mnt);
 
@@ -329,6 +359,7 @@ static __u32 synotify_mark_add_to_mask(struct fsnotify_mark *fsn_mark,
 
 	spin_unlock(&fsn_mark->lock);
 
+	/* return new add event */
 	return setmask & ~oldmask;
 }
 
@@ -347,7 +378,7 @@ static int synotify_add_vfsmount_mark(struct fsnotify_group *group,
 			return -ENOSPC;
 		}
 
-		fsn_mark = kmem_cache_alloc(synotify_mark_cache, GFP_KERNEL);
+		fsn_mark = kmalloc(sizeof(struct fsnotify_mark), GFP_KERNEL);
 		if (!fsn_mark) {
 			mutex_unlock(&group->mark_mutex);
 			return -ENOMEM;
@@ -361,9 +392,11 @@ static int synotify_add_vfsmount_mark(struct fsnotify_group *group,
 		}
 	}
 
+	/* update mark flags/ignored_flags */
 	added = synotify_mark_add_to_mask(fsn_mark, mask);
 	mutex_unlock(&group->mark_mutex);
 
+	/* Check if we have any new event we need to take care */
 	if (added & ~real_mount(mnt)->mnt_fsnotify_mask)
 		fsnotify_recalc_vfsmount_mask(mnt);
 err:
@@ -382,6 +415,12 @@ static int synotify_set_mark(int synotify_fd, const char __user * pathname, __u6
 
 	pr_debug("%s: synotify_fd=%d pathname=%p mask=%llx\n",__FUNCTION__, synotify_fd, pathname, mask);
 
+	/*
+	 * we only use lower 32 bits right now.
+	 * Depends on arch, it may be in lower or upper 32 bits of input parameter.
+	 * If it is in lower 32 bits, it is OK. If it is in upper 32 bits, we move it to
+	 * lower 32 bits. If it is in both upper and lower, we return -EINVAL.
+	 */
 	if (mask >> 32) {
 		if (mask << 32)
 			return ret;
@@ -392,6 +431,7 @@ static int synotify_set_mark(int synotify_fd, const char __user * pathname, __u6
 	if (unlikely(!f.file))
 		return -EBADF;
 
+	/* verify that this is indeed an fanotify instance */
 	if (unlikely(f.file->f_op != &synotify_fops)) {
 		ret = -EINVAL;
 		goto fput_and_out;
@@ -408,6 +448,7 @@ static int synotify_set_mark(int synotify_fd, const char __user * pathname, __u6
 
 	mnt = path.mnt;
 
+	/* add/remove an vfsmount mark */
 	switch (synotify_flag & (SYNOTIFY_MARK_ADD | SYNOTIFY_MARK_REMOVE)) {
 	case SYNOTIFY_MARK_ADD:
 		ret = synotify_add_vfsmount_mark(group, mnt, mask);
@@ -424,19 +465,11 @@ fput_and_out:
 	fdput(f);
 	return ret;
 }
-
-static int __init synotify_user_setup(void)
-{
-	synotify_mark_cache = kmem_cache_create("synotify_mark",sizeof(struct fsnotify_mark), __alignof__(struct fsnotify_mark),SLAB_PANIC , NULL);
-
-	return 0;
-}
-device_initcall(synotify_user_setup);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
- 
-SYSCALL_DEFINE1(SYNONotifyInit, unsigned int, flags)
+/* synotify syscalls */
+SYSCALL_DEFINE1(syno_notify_init, unsigned int, flags)
 {
 #ifdef MY_ABC_HERE
 	struct fsnotify_group *group;
@@ -466,10 +499,18 @@ SYSCALL_DEFINE1(SYNONotifyInit, unsigned int, flags)
 		return -EMFILE;
 	}
 
+	/* fsnotify_alloc_group takes a ref.  Dropped in synotify_release */
 	group = fsnotify_alloc_group(&synotify_fsnotify_ops);
 	if (IS_ERR(group)) {
 		free_uid(user);
 		return PTR_ERR(group);
+	}
+
+	group->synotify_data.synotify_full_path_buf = kzalloc(PATH_MAX, GFP_KERNEL);
+	group->synotify_data.synotify_d_path_buf = kzalloc(PATH_MAX, GFP_KERNEL);
+	if (!group->synotify_data.synotify_full_path_buf || !group->synotify_data.synotify_d_path_buf) {
+		fd = -ENOMEM;
+		goto out_destroy_group;
 	}
 
 	group->synotify_data.user = user;
@@ -497,24 +538,36 @@ out_destroy_group:
 	return fd;
 #else
 	return -EOPNOTSUPP;
-#endif  
+#endif /* MY_ABC_HERE */
+}
+SYSCALL_DEFINE1(SYNONotifyInit, unsigned int, flags)
+{
+	return sys_syno_notify_init(flags);
 }
 
-SYSCALL_DEFINE3(SYNONotifyRemoveWatch, int, synotify_fd, const char __user *, pathname, __u64, mask)
+SYSCALL_DEFINE3(syno_notify_remove_watch, int, synotify_fd, const char __user *, pathname, __u64, mask)
 {
 #ifdef MY_ABC_HERE
 	return synotify_set_mark(synotify_fd, pathname, mask, SYNOTIFY_MARK_REMOVE);
 #else
 	return -EOPNOTSUPP;
-#endif  
+#endif /* MY_ABC_HERE */
+}
+SYSCALL_DEFINE3(SYNONotifyRemoveWatch, int, synotify_fd, const char __user *, pathname, __u64, mask)
+{
+	return sys_syno_notify_remove_watch(synotify_fd, pathname, mask);
 }
 
-SYSCALL_DEFINE3(SYNONotifyAddWatch, int, synotify_fd, const char __user *, pathname, __u64, mask)
+SYSCALL_DEFINE3(syno_notify_add_watch, int, synotify_fd, const char __user *, pathname, __u64, mask)
 {
 #ifdef MY_ABC_HERE
 	return synotify_set_mark(synotify_fd, pathname, mask, SYNOTIFY_MARK_ADD);
 #else
 	return -EOPNOTSUPP;
-#endif  
+#endif /* MY_ABC_HERE */
 }
-#endif  
+SYSCALL_DEFINE3(SYNONotifyAddWatch, int, synotify_fd, const char __user *, pathname, __u64, mask)
+{
+	return sys_syno_notify_add_watch(synotify_fd, pathname, mask);
+}
+#endif /* MY_ABC_HERE */

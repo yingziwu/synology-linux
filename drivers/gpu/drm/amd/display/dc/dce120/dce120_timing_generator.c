@@ -95,6 +95,7 @@ static bool dce120_timing_generator_is_in_vertical_blank(
 	return field == 1;
 }
 
+
 /* determine if given timing can be supported by TG */
 bool dce120_timing_generator_validate_timing(
 	struct timing_generator *tg,
@@ -113,6 +114,7 @@ bool dce120_timing_generator_validate_timing(
 					timing,
 					signal))
 		return false;
+
 
 	if (v_blank < tg110->min_v_blank	||
 		 timing->h_sync_width  < tg110->min_h_sync_width ||
@@ -254,6 +256,7 @@ void dce120_timing_generator_setup_global_swap_lock(
 							CRTC0_CRTC_V_TOTAL,
 							CRTC_V_TOTAL);
 
+
 	dm_write_reg_soc15(tg->ctx, mmCRTC0_CRTC_GSL_WINDOW, tg110->offsets.crtc, 0);
 
 	CRTC_REG_UPDATE_N(DCP0_DCP_GSL_CONTROL, 6,
@@ -376,6 +379,7 @@ bool dce120_timing_generator_did_triggered_reset_occur(
 			CRTC0_CRTC_FORCE_COUNT_NOW_CNTL,
 			CRTC_FORCE_COUNT_NOW_OCCURRED) != 0;
 }
+
 
 /******** Stuff to move to other virtual HW objects *****************/
 /* Move to enable accelerated mode */
@@ -625,6 +629,7 @@ void dce120_timing_generator_get_position(struct timing_generator *tg,
 			CRTC0_CRTC_NOM_VERT_POSITION,
 			CRTC_VERT_COUNT_NOM);
 }
+
 
 void dce120_timing_generator_get_crtc_scanoutpos(
 	struct timing_generator *tg,
@@ -1135,6 +1140,7 @@ static const struct timing_generator_funcs dce120_tg_funcs = {
 		.set_test_pattern = dce120_timing_generator_set_test_pattern,
 		.arm_vert_intr = dce120_arm_vert_intr,
 };
+
 
 void dce120_timing_generator_construct(
 	struct dce110_timing_generator *tg110,

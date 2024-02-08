@@ -85,6 +85,7 @@ static inline bool spsc_queue_push(struct spsc_queue *queue, struct spsc_node *n
 	return tail == &queue->head;
 }
 
+
 static inline struct spsc_node *spsc_queue_pop(struct spsc_queue *queue)
 {
 	struct spsc_node *next, *node;
@@ -115,5 +116,7 @@ static inline struct spsc_node *spsc_queue_pop(struct spsc_queue *queue)
 	atomic_dec(&queue->job_count);
 	return node;
 }
+
+
 
 #endif /* DRM_SCHEDULER_SPSC_QUEUE_H_ */

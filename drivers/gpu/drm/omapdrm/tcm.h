@@ -90,6 +90,7 @@ struct tcm {
 
 struct tcm *sita_init(u16 width, u16 height);
 
+
 /**
  * Deinitialize tiler container manager.
  *

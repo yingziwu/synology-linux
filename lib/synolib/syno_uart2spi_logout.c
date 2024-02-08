@@ -9,6 +9,7 @@
 #define SZ_DTS_PROPERTY_LOG_OUT_GPIO  "syno_uart_logout_gpio"
 #define SYNO_UART2SPI_LOGOUT_TTY_PATH "/dev/ttyS2"
 
+
 struct file *tty_filp = NULL;
 static struct kobject *SynoUart2SpiLogoutObject = NULL;
 
@@ -53,6 +54,7 @@ static int syno_ttyS_set_termios(void)
 	new_termios.c_cflag &= ~CRTSCTS;
 	new_termios.c_lflag = 0;
 	new_termios.c_iflag = 0;
+
 
 	ret = tty_filp->f_op->unlocked_ioctl(tty_filp, TCSETS, (unsigned long)&new_termios);
 	if (ret < 0) {
@@ -113,6 +115,7 @@ static ssize_t syno_logout_gpio_store(struct kobject *kobj, struct kobj_attribut
         goto END;
     }
 
+
     if (2 == uiGpioValue) {
         syno_gpio_direction_input(uiGpioPin);
     } else if (1 == uiGpioValue) {
@@ -124,6 +127,7 @@ static ssize_t syno_logout_gpio_store(struct kobject *kobj, struct kobj_attribut
 END:
 	return count;
 }
+
 
 // register function to attribute
 static struct kobj_attribute syno_logout_gpio = __ATTR( syno_logout_gpio, 0640, syno_logout_gpio_show, syno_logout_gpio_store);
@@ -137,6 +141,7 @@ static struct attribute *SynoUart2SpiLogoutAttr[] = {
 static struct attribute_group SynoUart2SpiLogoutGroup = {
 	.attrs = SynoUart2SpiLogoutAttr
 };
+
 
 static int syno_uart2spi_logout_init(void)
 {

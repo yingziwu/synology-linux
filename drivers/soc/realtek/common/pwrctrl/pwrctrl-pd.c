@@ -157,6 +157,7 @@ static void pwrctrl_pd_sync(struct device *dev)
 	}
 }
 
+
 int pwrctrl_pd_register_pm_notifier(struct notifier_block *nb)
 {
 	return atomic_notifier_chain_register(&pm_notifier_list, nb);
@@ -224,6 +225,7 @@ int power_controller_add_of_providers(struct device *dev,
 	if (!pcd->pc_data.controls)
 		return -ENOMEM;
 	pcd->pc_data.num_controls = pcd->num_ppds;
+
 
 	for (i = 0; i < pcd->num_ppds; i++) {
 		if (!pcd->ppds[i])

@@ -254,6 +254,7 @@ PERIPH_CLK_FULL_DD(usb32_usb2_sys, 16, 16, DIV_SEL0, DIV_SEL0, 9, 12);
 PERIPH_CLK_FULL_DD(usb32_ss_sys, 17, 18, DIV_SEL0, DIV_SEL0, 15, 18);
 static PERIPH_GATE(pcie, 14);
 
+
 static struct clk_periph_data data_sb[] = {
 	REF_CLK_MUX_DD(gbe_50),
 	REF_CLK_MUX_DD(gbe_core),

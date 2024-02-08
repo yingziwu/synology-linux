@@ -187,4 +187,5 @@
 #define G2227_LDO3_SLPVOLT_SHIFT        (0)
 #define G2227_LDO3_SLPVOLT_WIDTH        (4)
 
+
 #endif /* __LINUX_MFD_G2227_H */

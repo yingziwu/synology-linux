@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/kernel/armksyms.c
  *
@@ -16,9 +19,9 @@
 #include <linux/syscalls.h>
 #include <linux/uaccess.h>
 #include <linux/io.h>
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 #include <linux/arm-smccc.h>
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 #include <asm/checksum.h>
 #include <asm/ftrace.h>
@@ -178,10 +181,10 @@ EXPORT_SYMBOL(__gnu_mcount_nc);
 EXPORT_SYMBOL(__pv_phys_pfn_offset);
 EXPORT_SYMBOL(__pv_offset);
 #endif
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 
 #ifdef CONFIG_HAVE_ARM_SMCCC
 EXPORT_SYMBOL(arm_smccc_smc);
 EXPORT_SYMBOL(arm_smccc_hvc);
 #endif
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */

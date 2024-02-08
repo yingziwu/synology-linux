@@ -1347,8 +1347,10 @@ static void uvd_v6_0_set_sw_clock_gating(struct amdgpu_device *adev)
 	data = RREG32(mmUVD_CGC_CTRL);
 	data2 = RREG32(mmUVD_SUVD_CGC_CTRL);
 
+
 	data &= ~(UVD_CGC_CTRL__CLK_OFF_DELAY_MASK |
 		  UVD_CGC_CTRL__CLK_GATE_DLY_TIMER_MASK);
+
 
 	data |= UVD_CGC_CTRL__DYN_CLOCK_MODE_MASK |
 		(1 << REG_FIELD_SHIFT(UVD_CGC_CTRL, CLK_GATE_DLY_TIMER)) |

@@ -21,6 +21,7 @@
 #ifndef _smuio_9_0_SH_MASK_HEADER
 #define _smuio_9_0_SH_MASK_HEADER
 
+
 // addressBlock: smuio_smuio_SmuSmuioDec
 //ROM_CNTL
 #define ROM_CNTL__CLOCK_GATING_EN__SHIFT                                                                      0x0

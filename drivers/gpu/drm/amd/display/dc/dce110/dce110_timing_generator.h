@@ -84,6 +84,7 @@ enum trigger_polarity_select {
 	TRIGGER_POLARITY_SELECT_GENERICC = 7
 };
 
+
 struct dce110_timing_generator_offsets {
 	int32_t crtc;
 	int32_t dcp;

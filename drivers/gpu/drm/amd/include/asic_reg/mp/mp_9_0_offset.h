@@ -21,6 +21,8 @@
 #ifndef _mp_9_0_OFFSET_HEADER
 #define _mp_9_0_OFFSET_HEADER
 
+
+
 // addressBlock: mp_SmuMp0_SmnDec
 // base address:	0x0
 #define mmMP0_SMN_C2PMSG_32	0x0060
@@ -175,6 +177,7 @@
 #define mmMP0_SMN_IH_SW_INT_BASE_IDX	0
 #define mmMP0_SMN_IH_SW_INT_CTRL	0x00c3
 #define mmMP0_SMN_IH_SW_INT_CTRL_BASE_IDX	0
+
 
 // addressBlock: mp_SmuMp1_SmnDec
 // base address:	0x0
@@ -361,9 +364,12 @@
 #define mmMP1_SMN_EXT_SCRATCH8	0x03c8
 #define mmMP1_SMN_EXT_SCRATCH8_BASE_IDX	0
 
+
 // addressBlock: mp_SmuMp1Pub_CruDec
 // base address:	0x0
 #define mmMP1_SMN_PUB_CTRL	0x02c5
 #define mmMP1_SMN_PUB_CTRL_BASE_IDX	0
+
+
 
 #endif

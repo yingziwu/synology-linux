@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*======================================================================
 
     drivers/mtd/afs.c: ARM Flash Layout/Partitioning
@@ -162,11 +165,11 @@ afs_read_iis(struct mtd_info *mtd, struct image_info_struct *iis, u_int ptr)
 }
 
 static int parse_afs_partitions(struct mtd_info *mtd,
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 				const struct mtd_partition **pparts,
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 				struct mtd_partition **pparts,
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 				struct mtd_part_parser_data *data)
 {
 	struct mtd_partition *parts;
@@ -279,6 +282,7 @@ static void __exit afs_parser_exit(void)
 
 module_init(afs_parser_init);
 module_exit(afs_parser_exit);
+
 
 MODULE_AUTHOR("ARM Ltd");
 MODULE_DESCRIPTION("ARM Firmware Suite partition parser");

@@ -323,6 +323,7 @@ static bool amdgpu_bo_validate_size(struct amdgpu_device *adev,
 			goto fail;
 	}
 
+
 	/* TODO add more domains checks, such as AMDGPU_GEM_DOMAIN_CPU */
 	return true;
 

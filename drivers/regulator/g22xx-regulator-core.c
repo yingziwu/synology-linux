@@ -127,6 +127,7 @@ static unsigned int g22xx_regulator_get_mode_regmap(struct regulator_dev *rdev)
 	return REGULATOR_MODE_NORMAL;
 }
 
+
 static int g22xx_set_suspend_enable(struct regulator_dev *rdev)
 {
 	struct g22xx_regulator_data *data = rdev_get_drvdata(rdev);
@@ -268,6 +269,7 @@ int g22xx_regulator_register(struct g22xx_device *gdev,
 	struct g22xx_regulator_data *data;
 	struct regulator_config config = {};
 	struct regulation_constraints *c;
+
 
 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
 	if (!data)

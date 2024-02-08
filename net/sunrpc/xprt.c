@@ -758,8 +758,15 @@ void xprt_connect(struct rpc_task *task)
 			return;
 		if (xprt_test_and_set_connecting(xprt))
 			return;
-		xprt->stat.connect_start = jiffies;
-		xprt->ops->connect(xprt, task);
+		/* Race breaker */
+		if (!xprt_connected(xprt)) {
+			xprt->stat.connect_start = jiffies;
+			xprt->ops->connect(xprt, task);
+		} else {
+			xprt_clear_connecting(xprt);
+			task->tk_status = 0;
+			rpc_wake_up_queued_task(&xprt->pending, task);
+		}
 	}
 	xprt_release_write(xprt, task);
 }
@@ -1283,7 +1290,7 @@ void xprt_release(struct rpc_task *task)
 	if (xprt->ops->release_request)
 		xprt->ops->release_request(task);
 	if (!list_empty(&req->rq_list))
-		list_del(&req->rq_list);
+		list_del_init(&req->rq_list);
 	xprt->last_used = jiffies;
 	if (list_empty(&xprt->recv) && xprt_has_timer(xprt))
 		mod_timer(&xprt->timer,

@@ -220,6 +220,7 @@ static void cpumf_pmu_disable(struct pmu *pmu)
 	cpuhw->flags &= ~PMU_F_ENABLED;
 }
 
+
 /* Number of perf events counting hardware events */
 static atomic_t num_events = ATOMIC_INIT(0);
 /* Used to avoid races in calling reserve/release_cpumf_hardware */
@@ -343,6 +344,8 @@ static int __hw_perf_event_init(struct perf_event *event)
 		break;
 
 	case PERF_TYPE_HARDWARE:
+		if (is_sampling_event(event))	/* No sampling support */
+			return -ENOENT;
 		ev = attr->config;
 		/* Count user space (problem-state) only */
 		if (!attr->exclude_user && attr->exclude_kernel) {

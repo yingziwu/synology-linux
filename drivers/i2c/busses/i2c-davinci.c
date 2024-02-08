@@ -234,12 +234,16 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
 	/*
 	 * It's not always possible to have 1 to 2 ratio when d=7, so fall back
 	 * to minimal possible clkh in this case.
+	 *
+	 * Note:
+	 * CLKH is not allowed to be 0, in this case I2C clock is not generated
+	 * at all
 	 */
-	if (clk >= clkl + d) {
+	if (clk > clkl + d) {
 		clkh = clk - clkl - d;
 		clkl -= d;
 	} else {
-		clkh = 0;
+		clkh = 1;
 		clkl = clk - (d << 1);
 	}
 
@@ -278,6 +282,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
 		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKH_REG));
 	dev_dbg(dev->dev, "bus_freq = %dkHz, bus_delay = %d\n",
 		pdata->bus_freq, pdata->bus_delay);
+
 
 	/* Take the I2C module out of reset: */
 	davinci_i2c_reset_ctrl(dev, 1);

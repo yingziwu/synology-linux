@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Read flash partition table from command line
  *
@@ -63,6 +66,7 @@
 #else
 #define dbg(x)
 #endif
+
 
 /* special size referring to all the remaining space in a partition */
 #define SIZE_REMAINING ULLONG_MAX
@@ -279,6 +283,7 @@ static int mtdpart_setup_real(char *s)
 		dbg(("mtdid=<%s> num_parts=<%d>\n",
 		     this_mtd->mtd_id, this_mtd->num_parts));
 
+
 		/* EOS - we're done */
 		if (*s == 0)
 			break;
@@ -302,11 +307,11 @@ static int mtdpart_setup_real(char *s)
  * the first one in the chain if a NULL mtd_id is passed in.
  */
 static int parse_cmdline_partitions(struct mtd_info *master,
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 				    const struct mtd_partition **pparts,
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 				    struct mtd_partition **pparts,
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 				    struct mtd_part_parser_data *data)
 {
 	unsigned long long offset;
@@ -366,6 +371,7 @@ static int parse_cmdline_partitions(struct mtd_info *master,
 
 	return part->num_parts;
 }
+
 
 /*
  * This is the handler for our kernel parameter, called from

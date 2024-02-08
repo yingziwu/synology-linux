@@ -921,3 +921,4 @@ nouveau_gem_ioctl_info(struct drm_device *dev, void *data,
 	drm_gem_object_unreference_unlocked(gem);
 	return ret;
 }
+

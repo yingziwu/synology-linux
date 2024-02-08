@@ -80,6 +80,7 @@
 #define PCIE_BUS_CLK                10000
 #define TCLK                        (PCIE_BUS_CLK / 10)
 
+
 /** Values for the CG_THERMAL_CTRL::DPM_EVENT_SRC field. */
 enum DPM_EVENT_SRC {
 	DPM_EVENT_SRC_ANALOG = 0,
@@ -218,6 +219,7 @@ static int phm_get_svi2_voltage_table_v0(pp_atomctrl_voltage_table *voltage_tabl
 	return 0;
 }
 
+
 /**
 * Create Voltage Tables.
 *
@@ -278,6 +280,7 @@ static int smu7_construct_voltage_tables(struct pp_hwmgr *hwmgr)
 		PP_ASSERT_WITH_CODE((0 == result),
 			"Failed to retrieve SVI2 VDDGFX table from lookup table.", return result;);
 	}
+
 
 	if (SMU7_VOLTAGE_CONTROL_BY_GPIO == data->voltage_control) {
 		result = atomctrl_get_voltage_table_v3(hwmgr,
@@ -662,6 +665,7 @@ static int smu7_setup_dpm_tables_v0(struct pp_hwmgr *hwmgr)
 	PP_ASSERT_WITH_CODE(allowed_vdd_mclk_table->count >= 1,
 		"VMCLK dependency table has to have is missing. This table is mandatory", return -EINVAL);
 
+
 	/* Initialize Sclk DPM table based on allow Sclk values*/
 	data->dpm_table.sclk_table.count = 0;
 
@@ -943,6 +947,7 @@ static int smu7_enable_sclk_mclk_dpm(struct pp_hwmgr *hwmgr)
 				return -EINVAL);
 
 		PHM_WRITE_FIELD(hwmgr->device, MC_SEQ_CNTL_3, CAC_EN, 0x1);
+
 
 		if (hwmgr->chip_family == AMDGPU_FAMILY_CI) {
 			cgs_write_ind_register(hwmgr->device, CGS_IND_REG__SMC, 0xc0400d30, 0x5);
@@ -1493,6 +1498,7 @@ static int smu7_get_evv_voltages(struct pp_hwmgr *hwmgr)
 			(struct phm_ppt_v1_information *)hwmgr->pptable;
 	struct phm_ppt_v1_clock_voltage_dependency_table *sclk_table = NULL;
 
+
 	for (i = 0; i < SMU7_MAX_LEAKAGE_COUNT; i++) {
 		vv_id = ATOM_VIRTUAL_VOLTAGE_ID0 + i;
 
@@ -1710,6 +1716,7 @@ static int phm_add_voltage(struct pp_hwmgr *hwmgr,
 
 	return 0;
 }
+
 
 static int smu7_calc_voltage_dependency_tables(struct pp_hwmgr *hwmgr)
 {
@@ -1951,6 +1958,7 @@ static int smu7_thermal_parameter_init(struct pp_hwmgr *hwmgr)
 	struct phm_ppt_v1_information *table_info =
 			(struct phm_ppt_v1_information *)(hwmgr->pptable);
 
+
 	if (atomctrl_get_pp_assign_pin(hwmgr, VDDC_PCC_GPIO_PINID, &gpio_pin_assignment)) {
 		temp_reg = cgs_read_ind_register(hwmgr->device, CGS_IND_REG__SMC, ixCNB_PWRMGT_CNTL);
 		switch (gpio_pin_assignment.uc_gpio_pin_bit_shift) {
@@ -2056,6 +2064,7 @@ static void smu7_patch_ppt_v0_with_vdd_leakage(struct pp_hwmgr *hwmgr,
 		pr_err("Voltage value looks like a Leakage ID but it's not patched \n");
 }
 
+
 static int smu7_patch_vddc(struct pp_hwmgr *hwmgr,
 			      struct phm_clock_voltage_dependency_table *tab)
 {
@@ -2097,6 +2106,7 @@ static int smu7_patch_vce_vddc(struct pp_hwmgr *hwmgr,
 
 	return 0;
 }
+
 
 static int smu7_patch_uvd_vddc(struct pp_hwmgr *hwmgr,
 				  struct phm_uvd_clock_voltage_dependency_table *tab)
@@ -2245,6 +2255,7 @@ static int smu7_patch_dependency_tables_with_leakage(struct pp_hwmgr *hwmgr)
 
 	return 0;
 }
+
 
 static int smu7_set_private_data_based_on_pptable_v0(struct pp_hwmgr *hwmgr)
 {
@@ -2744,6 +2755,7 @@ static int smu7_apply_state_adjust_rules(struct pp_hwmgr *hwmgr,
 				    hwmgr->platform_descriptor.platformCaps,
 				    PHM_PlatformCaps_DisableMclkSwitchingForFrameLock);
 
+
 	if (info.display_count == 0)
 		disable_mclk_switching = false;
 	else
@@ -2800,6 +2812,7 @@ static int smu7_apply_state_adjust_rules(struct pp_hwmgr *hwmgr,
 	}
 	return 0;
 }
+
 
 static uint32_t smu7_dpm_get_mclk(struct pp_hwmgr *hwmgr, bool low)
 {
@@ -4414,6 +4427,7 @@ static int smu7_set_mclk_od(struct pp_hwmgr *hwmgr, uint32_t value)
 	return 0;
 }
 
+
 static int smu7_get_sclks(struct pp_hwmgr *hwmgr, struct amd_pp_clocks *clocks)
 {
 	struct phm_ppt_v1_information *table_info =
@@ -4736,3 +4750,4 @@ int smu7_init_function_pointers(struct pp_hwmgr *hwmgr)
 
 	return ret;
 }
+

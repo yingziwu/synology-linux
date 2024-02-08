@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -30,12 +31,14 @@ disclaimer.
 
 #include "common/mv_sw_if.h"
 
+
 /** An rm instance handle type.
  */
 #define rmctl_t void *
 
 #define RM_FALSE 0
 #define RM_TRUE  1
+
 
 /**
  */
@@ -46,6 +49,7 @@ enum rm_level {
 	RM_Q_LVL
 };
 
+
 /** RM list element data structure.
  */
 struct rm_list_elem {
@@ -54,11 +58,13 @@ struct rm_list_elem {
 	struct rm_list_elem *next;
 };
 
+
 /** RM list data structure.
  */
 struct rm_list {
 	struct rm_list_elem *next_ptr;
 	struct rm_list_elem *first;
 };
+
 
 #endif   /* RM_INTERFACE_H */

@@ -119,6 +119,7 @@ void se_drv_init(struct device *dev)
 //	}
 }
 
+
 static int rtk_se_probe(struct platform_device *pdev)
 {
 	int ret;

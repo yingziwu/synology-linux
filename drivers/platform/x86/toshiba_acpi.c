@@ -34,6 +34,7 @@
 #define TOSHIBA_ACPI_VERSION	"0.23"
 #define PROC_INTERFACE_VERSION	1
 
+#include <linux/compiler.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -1472,7 +1473,7 @@ static const struct file_operations keys_proc_fops = {
 	.write		= keys_proc_write,
 };
 
-static int version_proc_show(struct seq_file *m, void *v)
+static int __maybe_unused version_proc_show(struct seq_file *m, void *v)
 {
 	seq_printf(m, "driver:                  %s\n", TOSHIBA_ACPI_VERSION);
 	seq_printf(m, "proc_interface:          %d\n", PROC_INTERFACE_VERSION);
@@ -1589,6 +1590,7 @@ static ssize_t kbd_backlight_mode_store(struct device *dev,
 	struct toshiba_acpi_dev *toshiba = dev_get_drvdata(dev);
 	int mode;
 	int ret;
+
 
 	ret = kstrtoint(buf, 0, &mode);
 	if (ret)

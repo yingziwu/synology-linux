@@ -467,3 +467,4 @@ void i915_gem_object_set_cache_coherency(struct drm_i915_gem_object *obj,
 void i915_gem_object_flush_if_display(struct drm_i915_gem_object *obj);
 
 #endif
+

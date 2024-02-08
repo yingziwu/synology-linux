@@ -362,6 +362,7 @@ static bool is_neigh_solicit(u8 *buf, size_t len)
 		msg->icmph.icmp6_type == NDISC_NEIGHBOUR_SOLICITATION);
 }
 
+
 static struct sk_buff *cdc_mbim_process_dgram(struct usbnet *dev, u8 *buf, size_t len, u16 tci)
 {
 	__be16 proto = htons(ETH_P_802_3);
@@ -592,7 +593,7 @@ static const struct driver_info cdc_mbim_info_zlp = {
  */
 static const struct driver_info cdc_mbim_info_ndp_to_end = {
 	.description = "CDC MBIM",
-	.flags = FLAG_NO_SETINT | FLAG_MULTI_PACKET | FLAG_WWAN,
+	.flags = FLAG_NO_SETINT | FLAG_MULTI_PACKET | FLAG_WWAN | FLAG_SEND_ZLP,
 	.bind = cdc_mbim_bind,
 	.unbind = cdc_mbim_unbind,
 	.manage_power = cdc_mbim_manage_power,

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -29,6 +30,7 @@ disclaimer.
 #define	TM_DEFS_H
 
 #include "common/mv_sw_if.h"
+
 
 /** BW resolution in Kbits */
 #define TM_KBITS   1000
@@ -61,11 +63,13 @@ disclaimer.
 /** 64 bit Invalid data indicator */
 #define TM_64BIT_INVAL   0xFFFFFFFFFFFFFFFFULL
 
+
 /* Status constants */
 /** Enable indicator */
 #define TM_ENABLE  1
 /** Disable indicator */
 #define TM_DISABLE 0
+
 
 /** Maximum Bandwidth (in Kbits/sec) */
 #define TM_MAX_BW 100000000 /* 100GBit/sec */
@@ -96,6 +100,9 @@ enum {
 
 #define IS_VALID_Q_TYPE_PRIO(type, prio)			((type <= MINMAXTB_SHAPING) && (prio <= PRIO_7))
 #define IS_VALID_N_TYPE_PRIO(type, prio)			((type <= MINMAXTB_SHAPING) && (prio <= PRIO_P))
+
+
+
 
 enum elig_func_node {
 	/** Eligible function priority 0 **/
@@ -157,7 +164,9 @@ enum elig_func_node {
 
 	TM_ELIG_N_DEFAULT = TM_ELIG_N_FIXED_P0
 
+
 };
+
 
 /** Eligible functions for queue nodes enumerator */
 enum elig_func_queue {
@@ -316,6 +325,7 @@ struct tm_queue_params {
 	uint8_t elig_prio_func_ptr;    /**< Eligible Priority Function pointer */
 };
 
+
 /** A-Node Parameters Data Structure */
 struct tm_a_node_params {
 	uint16_t quantum;              /**< DWRR Quantum in TM_NODE_QUANTUM_UNIT */
@@ -324,6 +334,7 @@ struct tm_a_node_params {
 	uint8_t elig_prio_func_ptr;    /**< Eligible Priority Function pointer */
 	uint32_t num_of_children;      /**< Number of children nodes */
 };
+
 
 /** B-Node Parameters Data Structure */
 struct tm_b_node_params {
@@ -334,6 +345,7 @@ struct tm_b_node_params {
 	uint16_t num_of_children;      /**< Number of children nodes */
 };
 
+
 /** C-Node Parameters Data Structure */
 struct tm_c_node_params {
 	uint16_t quantum;              /**< DWRR Quantum in TM_NODE_QUANTUM_UNIT */
@@ -343,6 +355,7 @@ struct tm_c_node_params {
 	uint8_t elig_prio_func_ptr;    /**< Eligible Priority Function pointer */
 	uint16_t num_of_children;      /**< Number of children nodes */
 };
+
 
 /** Port Parameters Data Structure */
 struct tm_port_params {
@@ -360,12 +373,14 @@ struct tm_port_drop_per_cos {
 	uint8_t wred_profile_ref[8];   /**< Index of Drop profile per CoS */
 };
 
+
 /** Port status data structure */
 struct tm_port_status {
 	uint32_t max_bucket_level;  /**< Maximal Shaper Bucket level */
 	uint32_t min_bucket_level;  /**< Minimal Shaper Bucket level */
 	uint32_t deficit[8];        /**< DWRR Deficit per instance */
 };
+
 
 /** Node status data structure */
 struct tm_node_status {
@@ -381,6 +396,7 @@ struct tm_qmr_pkt_statistics {
 											* to not installed Queue *//*
 };
 
+
 *//** RCB Packet Statistics data structure *//*
 struct tm_rcb_pkt_statistics {
 	uint64_t num_pkts_to_sms;            *//**< Non-error pkts that are passed to SMS *//*
@@ -395,6 +411,7 @@ struct tm_error_info {
 	uint16_t error_counter; /**< TM Block Error counter */
 	uint16_t exception_counter; /**< TM Block Exception Counter */
 };
+
 
 /** TM2TM External Headers */
 struct tm_ext_hdr {
@@ -439,4 +456,6 @@ union tm_elig_prio_func {
 	struct tm_elig_prio_func_out node_elig_prio_func[8][4];		/**< Eligible Priority Functions for intermediate nodes   */
 };
 
+
 #endif   /* TM_DEFS_H */
+

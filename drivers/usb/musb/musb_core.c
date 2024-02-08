@@ -105,6 +105,7 @@
 
 #define TA_WAIT_BCON(m) max_t(int, (m)->a_wait_bcon, OTG_TIME_A_WAIT_BCON)
 
+
 #define DRIVER_AUTHOR "Mentor Graphics, Texas Instruments, Nokia"
 #define DRIVER_DESC "Inventra Dual-Role USB Controller Driver"
 
@@ -119,6 +120,7 @@ MODULE_DESCRIPTION(DRIVER_INFO);
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:" MUSB_DRIVER_NAME);
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -875,7 +877,7 @@ b_host:
 	 */
 	if (int_usb & MUSB_INTR_RESET) {
 		handled = IRQ_HANDLED;
-		if (devctl & MUSB_DEVCTL_HM) {
+		if (is_host_active(musb)) {
 			/*
 			 * When BABBLE happens what we can depends on which
 			 * platform MUSB is running, because some platforms
@@ -885,9 +887,7 @@ b_host:
 			 * drop the session.
 			 */
 			dev_err(musb->controller, "Babble\n");
-
-			if (is_host_active(musb))
-				musb_recover_from_babble(musb);
+			musb_recover_from_babble(musb);
 		} else {
 			dev_dbg(musb->controller, "BUS RESET as %s\n",
 				usb_otg_state_string(musb->xceiv->otg->state));
@@ -1109,6 +1109,7 @@ static void musb_shutdown(struct platform_device *pdev)
 	pm_runtime_put(musb->controller);
 	/* FIXME power down */
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1360,6 +1361,7 @@ static int ep_config_from_table(struct musb *musb)
 	printk(KERN_DEBUG "%s: setup fifo_mode %d\n",
 			musb_driver_name, fifo_mode);
 
+
 done:
 	offset = fifo_setup(musb, hw_ep, &ep0_cfg, 0);
 	/* assert(offset > 0) */
@@ -1398,6 +1400,7 @@ done:
 
 	return 0;
 }
+
 
 /*
  * ep_config_from_hw - when MUSB_C_DYNFIFO_DEF is false
@@ -1772,6 +1775,7 @@ musb_vbus_show(struct device *dev, struct device_attribute *attr, char *buf)
 	int		vbus;
 	u8		devctl;
 
+	pm_runtime_get_sync(dev);
 	spin_lock_irqsave(&musb->lock, flags);
 	val = musb->a_wait_bcon;
 	vbus = musb_platform_get_vbus_status(musb);
@@ -1785,6 +1789,7 @@ musb_vbus_show(struct device *dev, struct device_attribute *attr, char *buf)
 			vbus = 0;
 	}
 	spin_unlock_irqrestore(&musb->lock, flags);
+	pm_runtime_put_sync(dev);
 
 	return sprintf(buf, "Vbus %s, timeout %lu msec\n",
 			vbus ? "on" : "off", val);
@@ -2519,7 +2524,8 @@ static int musb_resume(struct device *dev)
 	pm_runtime_set_active(dev);
 	pm_runtime_enable(dev);
 
-	musb_start(musb);
+	musb_enable_interrupts(musb);
+	musb_platform_enable(musb);
 
 	return 0;
 }

@@ -93,6 +93,7 @@ static int omap_gem_dmabuf_end_cpu_access(struct dma_buf *buffer,
 	return 0;
 }
 
+
 static void *omap_gem_dmabuf_kmap_atomic(struct dma_buf *buffer,
 		unsigned long page_num)
 {

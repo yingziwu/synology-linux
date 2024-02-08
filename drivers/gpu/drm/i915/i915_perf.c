@@ -24,6 +24,7 @@
  *   Robert Bragg <robert@sixbynine.org>
  */
 
+
 /**
  * DOC: i915 Perf Overview
  *
@@ -290,6 +291,7 @@ static u32 i915_perf_stream_paranoid = true;
 #define OAREPORT_REASON_TIMER          (1<<0)
 #define OAREPORT_REASON_CTX_SWITCH     (1<<3)
 #define OAREPORT_REASON_CLK_RATIO      (1<<5)
+
 
 /* For sysctl proc_dointvec_minmax of i915_oa_max_sample_rate
  *
@@ -694,6 +696,7 @@ static int gen8_append_oa_reports(struct i915_perf_stream *stream,
 		      head, tail))
 		return -EIO;
 
+
 	for (/* none */;
 	     (taken = OA_TAKEN(tail, head));
 	     head = (head + report_size) & mask) {
@@ -984,6 +987,7 @@ static int gen7_append_oa_reports(struct i915_perf_stream *stream,
 		      head, tail))
 		return -EIO;
 
+
 	for (/* none */;
 	     (taken = OA_TAKEN(tail, head));
 	     head = (head + report_size) & mask) {
@@ -1233,6 +1237,7 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
 		mutex_unlock(&dev_priv->drm.struct_mutex);
 		if (IS_ERR(ring))
 			return PTR_ERR(ring);
+
 
 		/*
 		 * Explicitly track the ID (instead of calling
@@ -2523,6 +2528,7 @@ static int i915_perf_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+
 static const struct file_operations fops = {
 	.owner		= THIS_MODULE,
 	.llseek		= no_llseek,
@@ -2535,6 +2541,7 @@ static const struct file_operations fops = {
 	 */
 	.compat_ioctl   = i915_perf_ioctl,
 };
+
 
 /**
  * i915_perf_open_ioctl_locked - DRM ioctl() for userspace to open a stream FD

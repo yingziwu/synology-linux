@@ -10,6 +10,7 @@
 
 #include <uapi/asm/page.h>
 
+
 #ifndef __ASSEMBLY__
 
 #define get_user_page(vaddr)		__get_free_page(GFP_KERNEL)
@@ -101,7 +102,7 @@ typedef pte_t * pgtable_t;
 #define virt_addr_valid(kaddr)  pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
 
 /* Default Permissions for stack/heaps pages (Non Executable) */
-#define VM_DATA_DEFAULT_FLAGS   (VM_READ | VM_WRITE | VM_MAYREAD | VM_MAYWRITE)
+#define VM_DATA_DEFAULT_FLAGS   (VM_READ | VM_WRITE | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 
 #define WANT_PAGE_VIRTUAL   1
 

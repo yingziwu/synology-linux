@@ -29,8 +29,8 @@ struct slabinfo {
 	int alias;
 	int refs;
 	int aliases, align, cache_dma, cpu_slabs, destroy_by_rcu;
-	int hwcache_align, object_size, objs_per_slab;
-	int sanity_checks, slab_size, store_user, trace;
+	unsigned int hwcache_align, object_size, objs_per_slab;
+	unsigned int sanity_checks, slab_size, store_user, trace;
 	int order, poison, reclaim_account, red_zone;
 	unsigned long partial, objects, slabs, objects_partial, objects_total;
 	unsigned long alloc_fastpath, alloc_slowpath;
@@ -159,6 +159,7 @@ static unsigned long read_obj(const char *name)
 	return strlen(buffer);
 }
 
+
 /*
  * Get the contents of an attribute
  */
@@ -221,6 +222,7 @@ static unsigned long read_slab_obj(struct slabinfo *s, const char *name)
 	}
 	return l;
 }
+
 
 /*
  * Put a size string together
@@ -814,6 +816,7 @@ static void totals(void)
 	unsigned long min_ppartobj = 100, max_ppartobj = 0,
 				avg_ppartobj, total_ppartobj = 0;
 
+
 	for (s = slabinfo; s < slabinfo + slabs; s++) {
 		unsigned long long size;
 		unsigned long used;
@@ -1124,6 +1127,7 @@ static void alias(void)
 	if (active)
 		printf("\n");
 }
+
 
 static void rename_slabs(void)
 {

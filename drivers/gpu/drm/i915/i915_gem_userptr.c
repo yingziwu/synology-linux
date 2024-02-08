@@ -517,8 +517,8 @@ __i915_gem_userptr_get_pages_worker(struct work_struct *_work)
 					(work->task, mm,
 					 obj->userptr.ptr + pinned * PAGE_SIZE,
 					 npages - pinned,
-					 !obj->userptr.read_only, 0,
-					 pvec + pinned, NULL);
+					 flags,
+					 pvec + pinned, NULL, NULL);
 				if (ret < 0)
 					break;
 

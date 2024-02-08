@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -53,6 +54,7 @@ enum ppc_mem_type {
 	PPC_MEM_SPAD,
 	PPC_MEM_INVALID
 };
+
 
 struct mem_rec {
 	u32 address;
@@ -98,6 +100,7 @@ int mv_fw_mem_write(char *data, int size, unsigned int target_mem);
 int mv_fw_mem_read(char *data, int size, unsigned int source_mem);
 
 int mv_fw_mem_img_write(struct mem_image *img, unsigned int mem_type);
+
 
 int mv_fw_pkts_rec_dump(int ppc, u32 start_entry, int size);
 int mv_fw_sp_dump(int ppc, u32 ppn_numb, u32 buf_index, u32 start_sp_adr, u32 size);

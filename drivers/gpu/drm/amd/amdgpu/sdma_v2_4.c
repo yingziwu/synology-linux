@@ -559,6 +559,7 @@ static int sdma_v2_4_start(struct amdgpu_device *adev)
 {
 	int r;
 
+
 	if (adev->firmware.load_type == AMDGPU_FW_LOAD_DIRECT) {
 		r = sdma_v2_4_load_microcode(adev);
 		if (r)

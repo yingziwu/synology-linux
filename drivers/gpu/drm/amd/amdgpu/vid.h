@@ -453,6 +453,7 @@
 #              define PACKET3_QUERY_STATUS_DOORBELL_OFFSET(x)  ((x) << 2)
 #              define PACKET3_QUERY_STATUS_ENG_SEL(x)          ((x) << 25)
 
+
 #define VCE_CMD_NO_OP		0x00000000
 #define VCE_CMD_END		0x00000001
 #define VCE_CMD_IB		0x00000002

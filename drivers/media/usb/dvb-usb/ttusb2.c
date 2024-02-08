@@ -78,6 +78,9 @@ static int ttusb2_msg(struct dvb_usb_device *d, u8 cmd,
 	u8 *s, *r = NULL;
 	int ret = 0;
 
+	if (4 + rlen > 64)
+		return -EIO;
+
 	s = kzalloc(wlen+4, GFP_KERNEL);
 	if (!s)
 		return -ENOMEM;
@@ -150,6 +153,7 @@ static int tt3650_ci_read_attribute_mem(struct dvb_ca_en50221 *ca, int slot, int
 
 	buf[0] = (address >> 8) & 0x0F;
 	buf[1] = address;
+
 
 	ret = tt3650_ci_msg_locked(ca, TT3650_CMD_CI_RD_ATTR, buf, 2, 3);
 
@@ -380,6 +384,22 @@ static int ttusb2_i2c_xfer(struct i2c_adapter *adap,struct i2c_msg msg[],int num
 		write_read = i+1 < num && (msg[i+1].flags & I2C_M_RD);
 		read = msg[i].flags & I2C_M_RD;
 
+		if (3 + msg[i].len > sizeof(obuf)) {
+			err("i2c wr len=%d too high", msg[i].len);
+			break;
+		}
+		if (write_read) {
+			if (3 + msg[i+1].len > sizeof(ibuf)) {
+				err("i2c rd len=%d too high", msg[i+1].len);
+				break;
+			}
+		} else if (read) {
+			if (3 + msg[i].len > sizeof(ibuf)) {
+				err("i2c rd len=%d too high", msg[i].len);
+				break;
+			}
+		}
+
 		obuf[0] = (msg[i].addr << 1) | (write_read | read);
 		if (read)
 			obuf[1] = 0;
@@ -448,6 +468,7 @@ static int tt3650_rc_query(struct dvb_usb_device *d)
 	return 0;
 }
 
+
 /* Callbacks for DVB USB */
 static int ttusb2_identify_state (struct usb_device *udev, struct
 		dvb_usb_device_properties *props, struct dvb_usb_device_description **desc,
@@ -463,6 +484,7 @@ static int ttusb2_power_ctrl(struct dvb_usb_device *d, int onoff)
 	ttusb2_msg(d, CMD_POWER, &b, 0, NULL, 0);
 	return ttusb2_msg(d, CMD_POWER, &b, 1, NULL, 0);
 }
+
 
 static struct tda10086_config tda10086_config = {
 	.demod_address = 0x0e,

@@ -69,6 +69,7 @@
  * Let's hope these problems do not actually matter for anything.
  */
 
+
 /*
  * 8- and 16-bit register defines..
  */
@@ -186,8 +187,10 @@ static void mark_screen_rdonly(struct mm_struct *mm)
 	pte_unmap_unlock(pte, ptl);
 out:
 	up_write(&mm->mmap_sem);
-	flush_tlb();
+	flush_tlb_mm_range(mm, 0xA0000, 0xA0000 + 32*PAGE_SIZE, 0UL);
 }
+
+
 
 static int do_vm86_irq_handling(int subfunction, int irqnumber);
 static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus);
@@ -196,6 +199,7 @@ SYSCALL_DEFINE1(vm86old, struct vm86_struct __user *, user_vm86)
 {
 	return do_sys_vm86((struct vm86plus_struct __user *) user_vm86, false);
 }
+
 
 SYSCALL_DEFINE2(vm86, unsigned long, cmd, unsigned long, arg)
 {
@@ -218,6 +222,7 @@ SYSCALL_DEFINE2(vm86, unsigned long, cmd, unsigned long, arg)
 	/* we come here only for functions VM86_ENTER, VM86_ENTER_NO_BYPASS */
 	return do_sys_vm86((struct vm86plus_struct __user *) arg, true);
 }
+
 
 static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus)
 {
@@ -712,7 +717,8 @@ void handle_vm86_fault(struct kernel_vm86_regs *regs, long error_code)
 	return;
 
 check_vip:
-	if (VEFLAGS & X86_EFLAGS_VIP) {
+	if ((VEFLAGS & (X86_EFLAGS_VIP | X86_EFLAGS_VIF)) ==
+	    (X86_EFLAGS_VIP | X86_EFLAGS_VIF)) {
 		save_v86_state(regs, VM86_STI);
 		return;
 	}
@@ -821,6 +827,7 @@ static inline int get_and_reset_irq(int irqnumber)
 	return ret;
 }
 
+
 static int do_vm86_irq_handling(int subfunction, int irqnumber)
 {
 	int ret;
@@ -854,3 +861,4 @@ static int do_vm86_irq_handling(int subfunction, int irqnumber)
 	}
 	return -EINVAL;
 }
+

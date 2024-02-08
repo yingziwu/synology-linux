@@ -867,6 +867,7 @@ static void si_dma_emit_fill_buffer(struct amdgpu_ib *ib,
 	ib->ptr[ib->length_dw++] = upper_32_bits(dst_offset) << 16;
 }
 
+
 static const struct amdgpu_buffer_funcs si_dma_buffer_funcs = {
 	.copy_max_bytes = 0xffff8,
 	.copy_num_dw = 5,

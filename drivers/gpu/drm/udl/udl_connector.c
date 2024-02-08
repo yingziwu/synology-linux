@@ -135,6 +135,7 @@ udl_detect(struct drm_connector *connector, bool force)
 		udl_connector->edid = NULL;
 	}
 
+
 	if (!udl_get_edid(udl, &edid_buff, &edid_buff_size))
 		return connector_status_disconnected;
 

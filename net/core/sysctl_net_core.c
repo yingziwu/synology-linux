@@ -300,6 +300,22 @@ static struct ctl_table net_core_table[] = {
 		.extra2		= &one,
 #endif
 	},
+# ifdef CONFIG_HAVE_EBPF_JIT
+	{
+		.procname	= "bpf_jit_harden",
+		.data		= &bpf_jit_harden,
+		.maxlen		= sizeof(int),
+		.mode		= 0600,
+		.proc_handler	= proc_dointvec,
+	},
+	{
+		.procname	= "bpf_jit_kallsyms",
+		.data		= &bpf_jit_kallsyms,
+		.maxlen		= sizeof(int),
+		.mode		= 0600,
+		.proc_handler	= proc_dointvec,
+	},
+# endif
 #endif
 	{
 		.procname	= "netdev_tstamp_prequeue",
@@ -366,14 +382,16 @@ static struct ctl_table net_core_table[] = {
 		.data		= &sysctl_net_busy_poll,
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &zero,
 	},
 	{
 		.procname	= "busy_read",
 		.data		= &sysctl_net_busy_read,
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &zero,
 	},
 #endif
 #ifdef CONFIG_NET_SCHED
@@ -426,8 +444,6 @@ static struct ctl_table netns_core_table[] = {
 static __net_init int sysctl_core_net_init(struct net *net)
 {
 	struct ctl_table *tbl;
-
-	net->core.sysctl_somaxconn = SOMAXCONN;
 
 	tbl = netns_core_table;
 	if (!net_eq(net, &init_net)) {

@@ -167,6 +167,7 @@ void machine_halt(void)
 	while (1) ;
 }
 
+
 #ifdef CONFIG_TAU
 extern u32 cpu_temp(unsigned long cpu);
 extern u32 cpu_temp_both(unsigned long cpu);
@@ -215,14 +216,6 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 	unsigned long proc_freq;
 	unsigned short maj;
 	unsigned short min;
-
-	/* We only show online cpus: disable preempt (overzealous, I
-	 * knew) to prevent cpu going down. */
-	preempt_disable();
-	if (!cpu_online(cpu_id)) {
-		preempt_enable();
-		return 0;
-	}
 
 #ifdef CONFIG_SMP
 	pvr = per_cpu(cpu_pvr, cpu_id);
@@ -328,9 +321,6 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 #ifdef CONFIG_SMP
 	seq_printf(m, "\n");
 #endif
-
-	preempt_enable();
-
 	/* If this is the last cpu, print the summary */
 	if (cpumask_next(cpu_id, cpu_online_mask) >= nr_cpu_ids)
 		show_cpuinfo_summary(m);
@@ -418,6 +408,7 @@ static void __init cpu_init_thread_core_maps(int tpc)
 	       tpc, tpc > 1 ? "s" : "");
 	printk(KERN_DEBUG " (thread shift is %d)\n", threads_shift);
 }
+
 
 /**
  * setup_cpu_maps - initialize the following cpu maps:

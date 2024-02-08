@@ -1386,6 +1386,7 @@ static int si_common_sw_fini(void *handle)
 	return 0;
 }
 
+
 static void si_init_golden_registers(struct amdgpu_device *adev)
 {
 	switch (adev->asic_type) {
@@ -1450,6 +1451,7 @@ static void si_init_golden_registers(struct amdgpu_device *adev)
 							hainan_mgcg_cgcg_init,
 							ARRAY_SIZE(hainan_mgcg_cgcg_init));
 		break;
+
 
 	default:
 		BUG();
@@ -1997,3 +1999,4 @@ int si_set_ip_blocks(struct amdgpu_device *adev)
 	}
 	return 0;
 }
+

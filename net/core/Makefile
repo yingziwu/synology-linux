@@ -28,3 +28,4 @@ ifeq ($(CONFIG_SYNO_LSP_ARMADA_16_12), y)
 obj-$(CONFIG_MV_GNSS_SUPPORT) += gnss/
 obj-$(CONFIG_HWBM) += hwbm.o
 endif
+obj-$(CONFIG_DST_CACHE) += dst_cache.o

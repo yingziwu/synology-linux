@@ -1221,3 +1221,4 @@ void mv_pp2x_set_non_kernel_ethtool_ops(struct net_device *netdev)
 {
 	netdev->ethtool_ops = &mv_pp2x_non_kernel_eth_tool_ops;
 }
+

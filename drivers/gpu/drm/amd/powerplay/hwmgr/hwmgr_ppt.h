@@ -53,6 +53,7 @@ struct phm_ppt_v1_clock_voltage_dependency_table {
 
 typedef struct phm_ppt_v1_clock_voltage_dependency_table phm_ppt_v1_clock_voltage_dependency_table;
 
+
 /* Multimedia Clock Voltage Dependency records and table */
 struct phm_ppt_v1_mm_clock_voltage_dependency_record {
 	uint32_t  dclk;                                              /* UVD D-clock */
@@ -112,3 +113,4 @@ struct phm_ppt_v1_gpio_table {
 typedef struct phm_ppt_v1_gpio_table phm_ppt_v1_gpio_table;
 
 #endif
+

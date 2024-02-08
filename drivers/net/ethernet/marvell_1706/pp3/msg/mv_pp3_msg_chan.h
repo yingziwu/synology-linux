@@ -34,6 +34,7 @@
 #define CHAN_STAT_INFO(c)
 #endif
 
+
 /*
 	event - HMAC Rx event
 	 * 0 - QM queue - Timeout or new items added to the queue
@@ -87,6 +88,7 @@ struct host_msg {
 	struct mv_pp3_fw_msg_header	msg_header;
 	u32				fw_msg[1];
 };
+
 
 /* Init messenger facility - call ones
 Return:

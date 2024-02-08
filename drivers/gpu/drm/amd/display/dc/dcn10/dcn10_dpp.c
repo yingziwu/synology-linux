@@ -108,6 +108,7 @@ void dpp_set_gamut_remap_bypass(struct dcn10_dpp *dpp)
 
 #define IDENTITY_RATIO(ratio) (dal_fixed31_32_u2d19(ratio) == (1 << 19))
 
+
 bool dpp_get_optimal_number_of_taps(
 		struct dpp *dpp,
 		struct scaler_data *scl_data,
@@ -179,6 +180,8 @@ void dpp_reset(struct dpp *dpp_base)
 	memset(&dpp->scl_data, 0, sizeof(dpp->scl_data));
 	memset(&dpp->pwl_data, 0, sizeof(dpp->pwl_data));
 }
+
+
 
 static void dpp1_cm_set_regamma_pwl(
 	struct dpp *dpp_base, const struct pwl_params *params, enum opp_regamma mode)
@@ -398,6 +401,7 @@ void dpp1_set_cursor_attributes(
 				CUR0_COLOR1, 0xFFFFFFFF);
 	}
 }
+
 
 void dpp1_set_cursor_position(
 		struct dpp *dpp_base,

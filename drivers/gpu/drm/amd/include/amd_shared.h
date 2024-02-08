@@ -25,6 +25,7 @@
 
 #include <drm/amd_asic_type.h>
 
+
 #define AMD_MAX_USEC_TIMEOUT		200000  /* 200 ms */
 
 /*
@@ -59,10 +60,12 @@ enum amd_clockgating_state {
 	AMD_CG_STATE_UNGATE,
 };
 
+
 enum amd_powergating_state {
 	AMD_PG_STATE_GATE = 0,
 	AMD_PG_STATE_UNGATE,
 };
+
 
 /* CG flags */
 #define AMD_CG_SUPPORT_GFX_MGCG			(1 << 0)
@@ -147,5 +150,6 @@ struct amd_ip_funcs {
 	/* get current clockgating status */
 	void (*get_clockgating_state)(void *handle, u32 *flags);
 };
+
 
 #endif /* __AMD_SHARED_H__ */

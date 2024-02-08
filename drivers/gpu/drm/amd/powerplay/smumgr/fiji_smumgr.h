@@ -27,6 +27,7 @@
 #include <pp_endian.h>
 #include "smu7_smumgr.h"
 
+
 struct fiji_pt_defaults {
 	uint8_t   SviLoadLineEn;
 	uint8_t   SviLoadLineVddC;
@@ -47,3 +48,4 @@ struct fiji_smumgr {
 };
 
 #endif
+

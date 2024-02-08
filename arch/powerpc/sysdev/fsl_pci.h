@@ -16,6 +16,7 @@
 
 struct platform_device;
 
+
 /* FSL PCI controller BRR1 register */
 #define PCI_FSL_BRR1      0xbf8
 #define PCI_FSL_BRR1_VER 0xffff
@@ -127,15 +128,6 @@ extern struct device_node *fsl_pci_primary;
 void fsl_pci_assign_primary(void);
 #else
 static inline void fsl_pci_assign_primary(void) {}
-#endif
-
-#ifdef CONFIG_EDAC_MPC85XX
-int mpc85xx_pci_err_probe(struct platform_device *op);
-#else
-static inline int mpc85xx_pci_err_probe(struct platform_device *op)
-{
-	return -ENOTSUPP;
-}
 #endif
 
 #ifdef CONFIG_FSL_PCI

@@ -33,6 +33,7 @@
 #include "vmwgfx_binding.h"
 #include "device_include/svga3d_surfacedefs.h"
 
+
 /**
  * struct vmw_user_surface - User-space visible surface resource
  *
@@ -81,6 +82,7 @@ static int vmw_gb_surface_unbind(struct vmw_resource *res,
 				 struct ttm_validate_buffer *val_buf);
 static int vmw_gb_surface_destroy(struct vmw_resource *res);
 
+
 static const struct vmw_user_resource_conv user_surface_conv = {
 	.object_type = VMW_RES_SURFACE,
 	.base_obj_to_res = vmw_user_surface_base_to_res,
@@ -89,6 +91,7 @@ static const struct vmw_user_resource_conv user_surface_conv = {
 
 const struct vmw_user_resource_conv *user_surface_converter =
 	&user_surface_conv;
+
 
 static uint64_t vmw_user_surface_size;
 
@@ -142,6 +145,7 @@ struct vmw_surface_destroy {
 	SVGA3dCmdDestroySurface body;
 };
 
+
 /**
  * vmw_surface_dma_size - Compute fifo size for a dma command.
  *
@@ -154,6 +158,7 @@ static inline uint32_t vmw_surface_dma_size(const struct vmw_surface *srf)
 {
 	return srf->num_sizes * sizeof(struct vmw_surface_dma);
 }
+
 
 /**
  * vmw_surface_define_size - Compute fifo size for a surface define command.
@@ -168,6 +173,7 @@ static inline uint32_t vmw_surface_define_size(const struct vmw_surface *srf)
 	return sizeof(struct vmw_surface_define) + srf->num_sizes *
 		sizeof(SVGA3dSize);
 }
+
 
 /**
  * vmw_surface_destroy_size - Compute fifo size for a surface destroy command.
@@ -293,6 +299,7 @@ static void vmw_surface_dma_encode(struct vmw_surface *srf,
 		++cmd;
 	}
 };
+
 
 /**
  * vmw_hw_surface_destroy - destroy a Device surface
@@ -489,6 +496,7 @@ static int vmw_legacy_srf_bind(struct vmw_resource *res,
 	return vmw_legacy_srf_dma(res, val_buf, true);
 }
 
+
 /**
  * vmw_legacy_srf_unbind - Perform a legacy surface unbind as part of the
  *                         surface eviction process.
@@ -553,6 +561,7 @@ static int vmw_legacy_srf_destroy(struct vmw_resource *res)
 
 	return 0;
 }
+
 
 /**
  * vmw_surface_init - initialize a struct vmw_surface
@@ -723,6 +732,7 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 		ttm_round_pot(num_sizes * sizeof(struct drm_vmw_size)) +
 		ttm_round_pot(num_sizes * sizeof(struct vmw_surface_offset));
 
+
 	desc = svga3dsurface_get_desc(req->format);
 	if (unlikely(desc->block_desc == SVGA3DBLOCKDESC_NONE)) {
 		DRM_ERROR("Invalid surface format for surface creation.\n");
@@ -874,6 +884,7 @@ out_unlock:
 	ttm_read_unlock(&dev_priv->reservation_sem);
 	return ret;
 }
+
 
 static int
 vmw_surface_handle_reference(struct vmw_private *dev_priv,
@@ -1096,6 +1107,7 @@ out_no_id:
 	return ret;
 }
 
+
 static int vmw_gb_surface_bind(struct vmw_resource *res,
 			       struct ttm_validate_buffer *val_buf)
 {
@@ -1160,6 +1172,7 @@ static int vmw_gb_surface_unbind(struct vmw_resource *res,
 	} *cmd3;
 	uint32_t submit_size;
 	uint8_t *cmd;
+
 
 	BUG_ON(bo->mem.mem_type != VMW_PL_MOB);
 
@@ -1242,6 +1255,7 @@ static int vmw_gb_surface_destroy(struct vmw_resource *res)
 	return 0;
 }
 
+
 /**
  * vmw_gb_surface_define_ioctl - Ioctl function implementing
  *                               the user surface define functionality.
@@ -1302,6 +1316,7 @@ int vmw_gb_surface_define_ioctl(struct drm_device *dev, void *data,
 		return ret;
 
 	res = &user_srf->srf.res;
+
 
 	if (req->buffer_handle != SVGA3D_INVALID_ID) {
 		ret = vmw_user_dmabuf_lookup(tfile, req->buffer_handle,

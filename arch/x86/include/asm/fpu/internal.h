@@ -94,6 +94,9 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
 #define user_insn(insn, output, input...)				\
 ({									\
 	int err;							\
+									\
+	might_fault();							\
+									\
 	asm volatile(ASM_STAC "\n"					\
 		     "1:" #insn "\n\t"					\
 		     "2: " ASM_CLAC "\n"				\
@@ -491,6 +494,7 @@ static inline int fpu_want_lazy_restore(struct fpu *fpu, unsigned int cpu)
 {
 	return fpu == this_cpu_read_stable(fpu_fpregs_owner_ctx) && cpu == fpu->last_cpu;
 }
+
 
 static inline void __fpregs_deactivate(struct fpu *fpu)
 {

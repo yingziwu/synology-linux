@@ -145,6 +145,9 @@ static void calculate_bandwidth(
 	/* maximum_number_of_surfaces-1: d1 display_write_back420 chroma*/
 	/* underlay luma and chroma surface parameters from spreadsheet*/
 
+
+
+
 	if (data->d0_underlay_mode == bw_def_none) { d0_underlay_enable = 0; }
 	else {
 		d0_underlay_enable = 1;
@@ -2668,6 +2671,7 @@ static void populate_initial_data(
 		data->interlace_mode[num_displays + 4] = false;
 		data->stereo_mode[num_displays + 4] = bw_def_mono;
 
+
 		for (j = 0; j < 2; j++) {
 			data->fbc_en[num_displays * 2 + j] = false;
 			data->lpt_en[num_displays * 2 + j] = false;
@@ -2708,6 +2712,7 @@ static void populate_initial_data(
 	for (i = 0; i < pipe_count; i++) {
 		if (!pipe[i].stream || pipe[i].bottom_pipe)
 			continue;
+
 
 		data->fbc_en[num_displays + 4] = false;
 		data->lpt_en[num_displays + 4] = false;
@@ -2885,6 +2890,8 @@ bool bw_calcs(struct dc_context *ctx,
 			bw_fixed_to_int(bw_mul(data->
 				nbp_state_change_watermark[9], bw_int_to_fixed(1000)));
 
+
+
 		calcs_output->stutter_exit_wm_ns[0].a_mark =
 			bw_fixed_to_int(bw_mul(data->
 				stutter_exit_watermark[4], bw_int_to_fixed(1000)));
@@ -2912,6 +2919,8 @@ bool bw_calcs(struct dc_context *ctx,
 		calcs_output->stutter_exit_wm_ns[5].a_mark =
 			bw_fixed_to_int(bw_mul(data->
 				stutter_exit_watermark[9], bw_int_to_fixed(1000)));
+
+
 
 		calcs_output->urgent_wm_ns[0].a_mark =
 			bw_fixed_to_int(bw_mul(data->
@@ -2976,6 +2985,8 @@ bool bw_calcs(struct dc_context *ctx,
 				bw_fixed_to_int(bw_mul(data->
 					nbp_state_change_watermark[9], bw_int_to_fixed(1000)));
 
+
+
 			calcs_output->stutter_exit_wm_ns[0].b_mark =
 				bw_fixed_to_int(bw_mul(data->
 					stutter_exit_watermark[4], bw_int_to_fixed(1000)));
@@ -3003,6 +3014,8 @@ bool bw_calcs(struct dc_context *ctx,
 			calcs_output->stutter_exit_wm_ns[5].b_mark =
 				bw_fixed_to_int(bw_mul(data->
 					stutter_exit_watermark[9], bw_int_to_fixed(1000)));
+
+
 
 			calcs_output->urgent_wm_ns[0].b_mark =
 				bw_fixed_to_int(bw_mul(data->
@@ -3065,6 +3078,7 @@ bool bw_calcs(struct dc_context *ctx,
 			calcs_output->nbp_state_change_wm_ns[5].c_mark =
 				bw_fixed_to_int(bw_mul(data->
 					nbp_state_change_watermark[9], bw_int_to_fixed(1000)));
+
 
 			calcs_output->stutter_exit_wm_ns[0].c_mark =
 				bw_fixed_to_int(bw_mul(data->
@@ -3197,6 +3211,7 @@ bool bw_calcs(struct dc_context *ctx,
 		calcs_output->stutter_exit_wm_ns[5].d_mark =
 			bw_fixed_to_int(bw_mul(data->
 				stutter_exit_watermark[9], bw_int_to_fixed(1000)));
+
 
 		calcs_output->urgent_wm_ns[0].d_mark =
 			bw_fixed_to_int(bw_mul(data->

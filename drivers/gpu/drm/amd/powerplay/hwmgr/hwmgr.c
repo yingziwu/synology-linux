@@ -445,6 +445,7 @@ int phm_wait_on_register(struct pp_hwmgr *hwmgr, uint32_t index,
 	return 0;
 }
 
+
 /**
  * Returns once the part of the register indicated by the mask has
  * reached the given value.The indirect space is described by giving
@@ -512,6 +513,7 @@ bool phm_cf_want_vce_power_gating(struct pp_hwmgr *hwmgr)
 {
 	return phm_cap_enabled(hwmgr->platform_descriptor.platformCaps, PHM_PlatformCaps_VCEPowerGating);
 }
+
 
 int phm_trim_voltage_table(struct pp_atomctrl_voltage_table *vol_table)
 {

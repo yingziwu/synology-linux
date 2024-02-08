@@ -70,6 +70,7 @@ static void bochs_ttm_global_release(struct bochs_device *bochs)
 	bochs->ttm.mem_global_ref.release = NULL;
 }
 
+
 static void bochs_bo_ttm_destroy(struct ttm_buffer_object *tbo)
 {
 	struct bochs_bo *bo;

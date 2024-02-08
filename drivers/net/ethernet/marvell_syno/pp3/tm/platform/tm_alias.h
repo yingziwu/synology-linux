@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -285,6 +286,7 @@ extern struct tm_alias {
 } TM;
 
 extern struct tm_alias tm_index_offset;
+
 
 void init_tm_alias_struct(void __iomem *base);
 void init_tm_init_offset_struct(void);

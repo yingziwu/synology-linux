@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -63,6 +64,7 @@ out:
 	tm_sched_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 int tm_set_shaping_ex(tm_handle hndl,
 					enum tm_level level,
@@ -247,6 +249,7 @@ out:
 	return rc;
 }
 
+
 int tm_set_shaping(tm_handle hndl,
 					enum tm_level level,
 					uint32_t index,
@@ -270,6 +273,9 @@ int tm_set_no_shaping(tm_handle hndl,
 {
 	return tm_set_shaping_ex(hndl, level, index, 0, 0, NULL, NULL);
 }
+
+
+
 
 int tm_read_shaping(tm_handle hndl,
 					enum tm_level level,

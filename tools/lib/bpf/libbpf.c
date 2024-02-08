@@ -114,6 +114,7 @@ int libbpf_strerror(int err, char *buf, size_t size)
 		goto out;		\
 } while(0)
 
+
 /* Copied from tools/perf/util/util.h */
 #ifndef zfree
 # define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
@@ -486,6 +487,24 @@ bpf_object__init_maps(struct bpf_object *obj, void *data,
 	return 0;
 }
 
+static bool section_have_execinstr(struct bpf_object *obj, int idx)
+{
+	Elf_Scn *scn;
+	GElf_Shdr sh;
+
+	scn = elf_getscn(obj->efile.elf, idx);
+	if (!scn)
+		return false;
+
+	if (gelf_getshdr(scn, &sh) != &sh)
+		return false;
+
+	if (sh.sh_flags & SHF_EXECINSTR)
+		return true;
+
+	return false;
+}
+
 static int bpf_object__elf_collect(struct bpf_object *obj)
 {
 	Elf *elf = obj->efile.elf;
@@ -566,6 +585,14 @@ static int bpf_object__elf_collect(struct bpf_object *obj)
 		} else if (sh.sh_type == SHT_REL) {
 			void *reloc = obj->efile.reloc;
 			int nr_reloc = obj->efile.nr_reloc + 1;
+			int sec = sh.sh_info; /* points to other section */
+
+			/* Only do relo for section with exec instructions */
+			if (!section_have_execinstr(obj, sec)) {
+				pr_debug("skip relo %s(%d) for section(%d)\n",
+					 name, idx, sec);
+				continue;
+			}
 
 			reloc = realloc(reloc,
 					sizeof(*obj->efile.reloc) * nr_reloc);
@@ -747,6 +774,7 @@ bpf_program__relocate(struct bpf_program *prog, int *map_fds)
 	prog->nr_reloc = 0;
 	return 0;
 }
+
 
 static int
 bpf_object__relocate(struct bpf_object *obj)

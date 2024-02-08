@@ -437,7 +437,7 @@ transfer_failed:
 
 	info.si_signo	= SIGSEGV;
 	info.si_errno	= 0;
-	info.si_code	= 0;
+	info.si_code	= SEGV_MAPERR;
 	info.si_addr	= (void *) regs->pc;
 	force_sig_info(SIGSEGV, &info, current);
 	return;
@@ -922,6 +922,7 @@ static int __init test_misalignment(void)
 		"add	+264,sp		\n"
 		: "+d"(tmp), "=d"(x));
 	ASSERTCMP(x, ==, 0x55332211);
+
 
 	printk(KERN_NOTICE "___ MOV_LNE ___\n");
 	tmp = 1;

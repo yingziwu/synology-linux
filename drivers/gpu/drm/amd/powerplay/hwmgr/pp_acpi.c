@@ -58,6 +58,7 @@ bool acpi_atcs_notify_pcie_device_ready(void *device)
 						0);
 }
 
+
 int acpi_pcie_perf_request(void *device, uint8_t perf_req, bool advertise)
 {
 	struct atcs_pref_req_input atcs_input;

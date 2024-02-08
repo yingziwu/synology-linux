@@ -75,6 +75,7 @@ static int dma_tx_num = TX_DESCRIPTORS;
 module_param(dma_tx_num, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(dma_tx_num, "Number of descriptors in the TX list");
 
+
 #define POLL_PHY (-1)
 
 /* Make sure DMA buffer size is larger than the max frame size
@@ -342,6 +343,7 @@ static void free_skbufs(struct net_device *dev)
 	for (i = 0; i < tx_descs; i++)
 		tse_free_tx_buffer(priv, &priv->tx_ring[i]);
 
+
 	kfree(priv->tx_ring);
 }
 
@@ -569,6 +571,7 @@ static irqreturn_t altera_isr(int irq, void *dev_id)
 		__napi_schedule(&priv->napi);
 	}
 
+
 	return IRQ_HANDLED;
 }
 
@@ -732,8 +735,10 @@ static struct phy_device *connect_local_phy(struct net_device *dev)
 
 		phydev = phy_connect(dev, phy_id_fmt, &altera_tse_adjust_link,
 				     priv->phy_iface);
-		if (IS_ERR(phydev))
+		if (IS_ERR(phydev)) {
 			netdev_err(dev, "Could not attach to PHY\n");
+			phydev = NULL;
+		}
 
 	} else {
 		int ret;
@@ -1074,6 +1079,7 @@ static void altera_tse_set_mcfilter(struct net_device *dev)
 	}
 }
 
+
 static void altera_tse_set_mcfilterall(struct net_device *dev)
 {
 	struct altera_tse_private *priv = netdev_priv(dev);
@@ -1172,6 +1178,7 @@ static int tse_open(struct net_device *dev)
 		netdev_err(dev, "DMA descriptors initialization failed\n");
 		goto alloc_skbuf_error;
 	}
+
 
 	/* Register RX interrupt */
 	ret = request_irq(priv->rx_irq, altera_isr, IRQF_SHARED,
@@ -1343,6 +1350,7 @@ static int altera_tse_probe(struct platform_device *pdev)
 	if (of_id)
 		priv->dmaops = (struct altera_dmaops *)of_id->data;
 
+
 	if (priv->dmaops &&
 	    priv->dmaops->altera_dtype == ALTERA_DTYPE_SGDMA) {
 		/* Get the mapped address to the SGDMA descriptor memory */
@@ -1421,11 +1429,13 @@ static int altera_tse_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_free_netdev;
 
+
 	/* xSGDMA Tx Dispatcher address space */
 	ret = request_and_map(pdev, "tx_csr", &dma_res,
 			      &priv->tx_dma_csr);
 	if (ret)
 		goto err_free_netdev;
+
 
 	/* Rx IRQ */
 	priv->rx_irq = platform_get_irq_byname(pdev, "rx_irq");

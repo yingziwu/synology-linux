@@ -314,6 +314,7 @@ typedef struct _SEREG_DMAINFO
 
 } SEREG_DMAINFO;
 
+
 //=================================================================================================
 typedef union _SEREG_CLUT_LOCK_ST
 {
@@ -447,6 +448,8 @@ typedef union _SEREG_CONVCOEF3
         uint32_t  m11: 13;                  //IO[11:0]: Coefficient with format (sign,2,10)
         uint32_t  m12: 13;                  //IO[23:12]: Coefficient with format (sign,2,10)
         uint32_t  Reserved: 6;              //IO[31:24]: Reserved
+
+
 
     } Fields;
 
@@ -886,6 +889,7 @@ typedef union _SEREG_INSTCNT_L
         uint32_t instcnt_l;                 //IO[31:0]: number of commands encountered(lower 4 bytes).  This field will increment by 1
                                             //          whenever an command is completed execution. It will wrap to 0 after 32¡¦hffffffff.
 
+
     } Fields;
 
 } SEREG_INSTCNT_L;
@@ -899,6 +903,7 @@ typedef union _SEREG_INSTCNT_H
                                             //Register: INSTCNT_H (0x1800_C510)
         uint32_t instcnt_h;                 //IO[31:0]: number of commands encountered(lower 4 bytes).  This field will increment by 1
                                             //          whenever an command is completed execution. It will wrap to 0 after 32¡¦hffffffff.
+
 
     } Fields;
 

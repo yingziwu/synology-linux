@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -38,6 +39,7 @@ disclaimer.
 static int ppc_port_fifo_base;
 static int mac_port_fifo_base;
 static int qm_regs_debug_flags;
+
 
 void qm_dbg_flags(u32 flag, u32 en)
 {
@@ -105,6 +107,7 @@ void qm_xoff_emac_qnum_set(int emac, int queue)
 	qm_register_write(qm.ql.xoff_mac_qnum, emac * 4, 1, &queue);
 }
 
+
 /* Enable/disable tail pointer insertion in the CFH, per EMAC source */
 void qm_tail_ptr_mode(int emac, bool enable)
 {
@@ -138,6 +141,7 @@ void qm_init(void __iomem *base)
 	qm_reg_size_alias_init();
 	qm_reg_offset_alias_init();
 }
+
 
 void qm_pfe_base_address_pool_set(struct mv_a40 *qece_base_address, struct mv_a40 *pyld_base_address)
 {
@@ -232,6 +236,7 @@ static void qm_dma_dram_pools_enable(u32 qece_thr_hi, u32 qece_thr_lo, u32 pl_th
 	qm_register_write(reg_base_address, reg_offset, reg_size, (u32 *)&reg_dram_thresholds);
 }
 
+
 void qm_dma_dram_pools_def_enable(void)
 {
 	/* set gpm qece and pl pools (2 and 3) thresholds */
@@ -267,6 +272,7 @@ static int qm_dqf_port_data_fifo_params_set(int port, int base, int depth)
 		reg_data_fifo_params.data_fifo_base_p   =
 			base / QM_DQF_MAC_ROW_SIZE;
 	}
+
 
 	reg_base_address =      qm.dqf.Data_FIFO_params_p;
 	reg_size   =   qm_reg_size.dqf.Data_FIFO_params_p;
@@ -422,6 +428,7 @@ int qm_emac_profile_set(int emac, enum mv_port_mode port_mode, int queue)
 	return MV_OK;
 }
 
+
 int qm_hmac_profile_set(int first_q, int q_num)
 {
 	int ret_val, queue, last_q;
@@ -528,6 +535,7 @@ static int qm_ql_queue_bpi_group_get(int queue, int *group)
 
 	return MV_OK;
 }
+
 
 const char *mv_qm_node_str(enum mv_qm_node_type level)
 {
@@ -1377,6 +1385,7 @@ static void qm_hw_internal_regs_set(void)
 	qm_register_write(qm.dqf.base + 0x3C, 0, 1, &val);
 }
 
+
 /*
  clear HW configuration
 	- disable all queues threshold profile
@@ -1589,6 +1598,7 @@ int qm_default_set(int ppc_num)
 			qm_ql_queue_port_set(i, port_id);
 		else
 			pr_warn("%s: cannot get port id of q#%d from TM api\n", __func__, i);
+
 
 	/* config ports */
 	ports = mv_tm_scheme_ports_num();

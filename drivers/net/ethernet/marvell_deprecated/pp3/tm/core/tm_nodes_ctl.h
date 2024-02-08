@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -57,6 +58,7 @@ disclaimer.
  */
 int tm_delete_node(tm_handle hndl, enum tm_level level, uint32_t node_id);
 
+
 /**  Delete port and all its subtree from scheduling hierarchy.
  *
  *   @param[in]     hndl        TM lib handle.
@@ -75,6 +77,7 @@ int tm_delete_node(tm_handle hndl, enum tm_level level, uint32_t node_id);
  */
 int tm_delete_trans_port(tm_handle hndl, uint8_t index);
 
+
 /***************************************************************************
  * Reshuffling
  ***************************************************************************/
@@ -92,6 +95,7 @@ int tm_delete_trans_port(tm_handle hndl, uint8_t index);
  */
 int tm_nodes_read_next_change(tm_handle hndl, struct tm_tree_change *change);
 
+
 /** Empty list of reshuffling changes.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -102,6 +106,7 @@ int tm_nodes_read_next_change(tm_handle hndl, struct tm_tree_change *change);
  *   @retval -@EBADF if hndl is invalid.
  */
 int tm_clean_list(tm_handle hndl);
+
 
 #endif   /* TM_NODES_CTL_H */
 

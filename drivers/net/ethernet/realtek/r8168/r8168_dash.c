@@ -151,6 +151,7 @@ int AllocateDashShareMemory(struct net_device *dev)
                 tp->RecvFromFwBufferPhy = tp->UnalignedRecvFromFwBufferPa + Offset ;
         } while(FALSE);
 
+
         return ret;
 }
 
@@ -224,6 +225,7 @@ IsDash2TxLastDesc(struct rtl8168_private *tp)
         else
                 return FALSE;
 }
+
 
 static PRX_DASH_FROM_FW_DESC
 GetDash2RxDesc(struct rtl8168_private *tp)
@@ -683,6 +685,7 @@ static void RecvFromDashFwComplete(struct rtl8168_private *tp)
 
                         tp->DashReqRegValue = pRxDashBufferType2->oobhdr.hostReqV;
 
+
                         if( OobReqEnable ) {
                                 if( tp->DashReqRegValue == 0x91 ) {
                                         tp->AfterRecvFromFwBufLen = pDescRxDashFromFw->length;
@@ -710,6 +713,7 @@ static void RecvFromDashFwComplete(struct rtl8168_private *tp)
 #endif
                                 }
                         }
+
 
                         pDescRxDashFromFw = GetDash2RxDesc(tp) ;
 
@@ -1757,6 +1761,7 @@ int rtl8168_dash_ioctl(struct net_device *dev, struct ifreq *ifr)
         default:
                 return -EOPNOTSUPP;
         }
+
 
         return ret;
 }

@@ -146,6 +146,7 @@ static const char* model_name[] = {
 #define TR_100_UDMAREG_UDMA_MASK	0x0000ffff
 #define TR_100_UDMAREG_UDMA_EN		0x00000001
 
+
 /* 66Mhz cell, found in KeyLargo. Can do ultra mode 0 to 2 on
  * 40 connector cable and to 4 on 80 connector one.
  * Clock unit is 15ns (66Mhz)
@@ -371,6 +372,7 @@ static struct kauai_timing	shasta_udma133_timings[] =
 	{ 15    , 0x00033021, },
 	{ 0	, 0 },
 };
+
 
 static inline u32
 kauai_lookup_timing(struct kauai_timing* table, int cycle_time)
@@ -918,6 +920,7 @@ static u8 pmac_ide_cable_detect(ide_hwif_t *hwif)
 	struct device_node *root = of_find_node_by_path("/");
 	const char *model = of_get_property(root, "model", NULL);
 
+	of_node_put(root);
 	/* Get cable type from device-tree. */
 	if (cable && !strncmp(cable, "80-", 3)) {
 		/* Some drives fail to detect 80c cable in PowerBook */
@@ -1366,6 +1369,7 @@ static void pmac_ide_macio_mb_event(struct macio_dev* mdev, int mb_state)
 	}
 }
 #endif /* CONFIG_PMAC_MEDIABAY */
+
 
 static struct of_device_id pmac_ide_macio_match[] = 
 {

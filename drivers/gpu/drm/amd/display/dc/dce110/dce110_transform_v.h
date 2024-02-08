@@ -42,6 +42,7 @@ void dce110_opp_v_set_csc_adjustment(
 		struct transform *xfm,
 	const struct out_csc_color_matrix *tbl_entry);
 
+
 void dce110_opp_program_regamma_pwl_v(
 	struct transform *xfm,
 	const struct pwl_params *params);

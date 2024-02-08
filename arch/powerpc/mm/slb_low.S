@@ -69,6 +69,7 @@ slb_miss_kernel_load_linear:
 	addis	r9,r9,(MAX_USER_CONTEXT - 0xc + 1)@ha
 	addi	r9,r9,(MAX_USER_CONTEXT - 0xc + 1)@l
 
+
 BEGIN_FTR_SECTION
 	b	slb_finish_load
 END_MMU_FTR_SECTION_IFCLR(MMU_FTR_1T_SEGMENT)
@@ -178,6 +179,16 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_1T_SEGMENT)
 	b	slb_finish_load
 
 8:	/* invalid EA */
+	/*
+	 * It's possible the bad EA is too large to fit in the SLB cache, which
+	 * would mean we'd fail to invalidate it on context switch. So mark the
+	 * SLB cache as full so we force a full flush. We also set cr7+eq to
+	 * mark the address as a kernel address, so slb_finish_load() skips
+	 * trying to insert it into the SLB cache.
+	 */
+	li	r9,SLB_CACHE_ENTRIES + 1
+	sth	r9,PACASLBCACHEPTR(r13)
+	crset	4*cr7+eq
 	li	r10,0			/* BAD_VSID */
 	li	r9,0			/* BAD_VSID */
 	li	r11,SLB_VSID_USER	/* flags don't much matter */
@@ -231,6 +242,7 @@ _GLOBAL(slb_allocate_user)
 	/* fall through slb_finish_load */
 
 #endif /* __DISABLED__ */
+
 
 /*
  * Finish loading of an SLB entry and return
@@ -321,3 +333,4 @@ slb_finish_load_1T:
 	/* r3 = EA, r11 = VSID data */
 	clrrdi	r3,r3,SID_SHIFT_1T	/* clear out non-ESID bits */
 	b	7b
+

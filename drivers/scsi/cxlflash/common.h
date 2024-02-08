@@ -53,6 +53,7 @@ extern const struct file_operations cxlflash_cxl_fops;
 /* RRQ for master issued cmds */
 #define NUM_RRQ_ENTRY                   CXLFLASH_MAX_CMDS
 
+
 static inline void check_sizes(void)
 {
 	BUILD_BUG_ON_NOT_POWER_OF_2(CXLFLASH_NUM_CMDS);
