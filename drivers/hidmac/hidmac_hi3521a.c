@@ -61,3 +61,4 @@ void hidmac_unreset(void)
 	tmp &= ~DMAC_SRST_REQ;
 	writel(tmp, (void *)(IO_SYS_CRG_BASE + REG_DMAC_CRG));
 }
+

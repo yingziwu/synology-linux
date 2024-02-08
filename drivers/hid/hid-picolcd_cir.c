@@ -39,6 +39,7 @@
 
 #include "hid-picolcd.h"
 
+
 int picolcd_raw_cir(struct picolcd_data *data,
 		struct hid_report *report, u8 *raw_data, int size)
 {
@@ -147,3 +148,4 @@ void picolcd_exit_cir(struct picolcd_data *data)
 	if (rdev)
 		rc_unregister_device(rdev);
 }
+

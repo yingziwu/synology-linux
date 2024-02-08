@@ -55,6 +55,7 @@
  *     drm_modeset_acquire_fini(&ctx);
  */
 
+
 /**
  * __drm_modeset_lock_all - internal helper to grab all modeset locks
  * @dev: DRM device

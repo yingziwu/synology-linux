@@ -87,6 +87,7 @@ static int fddi_header(struct sk_buff *skb, struct net_device *dev,
 	return -hl;
 }
 
+
 /*
  * Rebuild the FDDI MAC header. This is called after an ARP
  * (or in future other address resolution) has completed on
@@ -109,6 +110,7 @@ static int fddi_rebuild_header(struct sk_buff	*skb)
 		return 0;
 	}
 }
+
 
 /*
  * Determine the packet's protocol ID and fill in skb fields.
@@ -177,6 +179,7 @@ static const struct header_ops fddi_header_ops = {
 	.create		= fddi_header,
 	.rebuild	= fddi_rebuild_header,
 };
+
 
 static void fddi_setup(struct net_device *dev)
 {

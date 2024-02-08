@@ -83,6 +83,7 @@
 #define ETH_MIB_RX_PAUSE			53
 #define ETH_MIB_RX_CNTRL			54
 
+
 struct bcm_enet_mib_counters {
 	u64 tx_gd_octets;
 	u32 tx_gd_pkts;
@@ -133,6 +134,7 @@ struct bcm_enet_mib_counters {
 	u32 rx_cntrl;
 };
 
+
 struct bcm_enet_priv {
 
 	/* mac id (from platform device id) */
@@ -153,6 +155,7 @@ struct bcm_enet_priv {
 	/* allocated size (in bytes) for rx & tx dma ring */
 	unsigned int rx_desc_alloc_size;
 	unsigned int tx_desc_alloc_size;
+
 
 	struct napi_struct napi;
 
@@ -187,6 +190,7 @@ struct bcm_enet_priv {
 	/* lock rx_timeout against rx normal operation */
 	spinlock_t rx_lock;
 
+
 	/* dma channel id for tx */
 	int tx_chan;
 
@@ -210,6 +214,7 @@ struct bcm_enet_priv {
 
 	/* lock used by tx reclaim and xmit */
 	spinlock_t tx_lock;
+
 
 	/* set if internal phy is ignored and external mii interface
 	 * is selected */

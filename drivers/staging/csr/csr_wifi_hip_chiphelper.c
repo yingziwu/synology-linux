@@ -45,6 +45,7 @@ static const struct chip_helper_init_values init_vals_v2[] = {
     { 0xF006, 0x0050 }
 };
 
+
 static const struct chip_helper_init_values init_vals_v22_v23[] = {
     { 0xF81C, 0x00FF },
     /*{ 0x????, 0x???? }, */
@@ -548,6 +549,7 @@ static const struct chip_device_desc_t hyd_wlan_subsys_desc_v1 =
     }
 };
 
+
 /* This is the list of all chips that we know about.  I'm
    assuming that the order here will be important - we
    might have multiple entries witrh the same SDIO id for
@@ -588,6 +590,7 @@ ChipDescript* ChipHelper_GetVersionSdio(u8 sdio_ver)
     return &chip_device_desc_null;
 }
 
+
 ChipDescript* ChipHelper_GetVersionAny(u16 from_FF9A, u16 from_FE81)
 {
     u32 i;
@@ -620,15 +623,18 @@ ChipDescript* ChipHelper_GetVersionAny(u16 from_FF9A, u16 from_FE81)
     return &chip_device_desc_null;
 }
 
+
 ChipDescript* ChipHelper_GetVersionUniFi(u16 ver)
 {
     return ChipHelper_GetVersionAny(0x0000, ver);
 }
 
+
 ChipDescript *ChipHelper_Null(void)
 {
     return &chip_device_desc_null;
 }
+
 
 ChipDescript* ChipHelper_GetVersionBlueCore(enum chip_helper_bluecore_age bc_age, u16 version)
 {
@@ -641,6 +647,7 @@ ChipDescript* ChipHelper_GetVersionBlueCore(enum chip_helper_bluecore_age bc_age
         return ChipHelper_GetVersionAny(0x0000, version);
     }
 }
+
 
 /* Expand the DEF0 functions into simple code to return the
    correct thing.  The DEF1 functions expand to nothing in
@@ -670,6 +677,7 @@ u16 ChipHelper_MapAddress_SPI2HOST(ChipDescript *chip_help, u16 addr)
     return addr;
 }
 
+
 u16 ChipHelper_MapAddress_HOST2SPI(ChipDescript *chip_help, u16 addr)
 {
     u32 i;
@@ -682,6 +690,7 @@ u16 ChipHelper_MapAddress_HOST2SPI(ChipDescript *chip_help, u16 addr)
     }
     return addr;
 }
+
 
 /* The address returned by this function is the start of the
    window in the address space, that is where we can start
@@ -700,6 +709,7 @@ u16 ChipHelper_WINDOW_ADDRESS(ChipDescript                 *chip_help,
     return 0;
 }
 
+
 /* This returns the size of the window minus any blocked section */
 u16 ChipHelper_WINDOW_SIZE(ChipDescript                 *chip_help,
                                  enum chip_helper_window_index window)
@@ -712,6 +722,7 @@ u16 ChipHelper_WINDOW_SIZE(ChipDescript                 *chip_help,
     return 0;
 }
 
+
 /* Get the register writes we should do to make sure that
    the chip is running with most clocks on. */
 u32 ChipHelper_ClockStartupSequence(ChipDescript                          *chip_help,
@@ -721,6 +732,7 @@ u32 ChipHelper_ClockStartupSequence(ChipDescript                          *chip_
     return chip_help->init.len;
 }
 
+
 /* Get the set of values tat we should write to the chip to perform a reset. */
 u32 ChipHelper_HostResetSequence(ChipDescript                           *chip_help,
                                        const struct chip_helper_reset_values **val)
@@ -728,6 +740,7 @@ u32 ChipHelper_HostResetSequence(ChipDescript                           *chip_he
     *val = chip_help->reset_prog.vals;
     return chip_help->reset_prog.len;
 }
+
 
 /* Decode a windowed access to the chip. */
 s32 ChipHelper_DecodeWindow(ChipDescript *chip_help,
@@ -776,3 +789,5 @@ s32 ChipHelper_DecodeWindow(ChipDescript *chip_help,
     *len = win->size - of;
     return TRUE;
 }
+
+

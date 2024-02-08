@@ -33,6 +33,7 @@
 #define CRG33_SSP_CKEN		(0x1 << 13) /* 0:close clk, 1:open clk */
 #define CRG33_SSP_RST		(0x1 << 5) /* 0:cancel reset, 1:reset */
 
+
 #define MISC_REG_BASE		0x12120000
 
 #define REG_MISC_CTRL_MAP	IO_ADDRESS(MISC_REG_BASE + 0x04)

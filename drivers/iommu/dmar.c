@@ -621,6 +621,7 @@ int __init dmar_dev_scope_init(void)
 	return dmar_dev_scope_status;
 }
 
+
 int __init dmar_table_init(void)
 {
 	static int dmar_table_initialized;
@@ -733,6 +734,7 @@ int __init detect_intel_iommu(void)
 
 	return ret ? 1 : -ENODEV;
 }
+
 
 static void unmap_iommu(struct intel_iommu *iommu)
 {
@@ -1215,6 +1217,7 @@ int dmar_enable_qi(struct intel_iommu *iommu)
 		return -ENOMEM;
 
 	qi = iommu->qi;
+
 
 	desc_page = alloc_pages_node(iommu->node, GFP_ATOMIC | __GFP_ZERO, 0);
 	if (!desc_page) {

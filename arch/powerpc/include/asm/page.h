@@ -116,6 +116,7 @@ extern long long virt_phys_offset;
 #define VIRT_PHYS_OFFSET (KERNELBASE - PHYSICAL_START)
 #endif
 
+
 #ifdef CONFIG_PPC64
 #define MEMORY_START	0UL
 #elif defined(CONFIG_NONSTATIC_KERNEL)
@@ -338,6 +339,7 @@ typedef struct { pte_t pte; unsigned long hidx; } real_pte_t;
 #else
 typedef pte_t real_pte_t;
 #endif
+
 
 #ifdef CONFIG_PPC64
 typedef unsigned long pmd_t;

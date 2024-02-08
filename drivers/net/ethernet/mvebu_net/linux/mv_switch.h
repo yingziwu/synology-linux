@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -51,5 +52,7 @@ struct mv_switch_pdata {
 	int			rgmii_rx_timing_delay;
 	int			rgmii_tx_timing_delay;
 };
+
+
 
 #endif  /* LINUX_MV_SWITCH_H */

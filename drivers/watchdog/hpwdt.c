@@ -102,6 +102,7 @@ struct smbios_proliant_info {
 };
 #define SMBIOS_ICRU_INFORMATION		219
 
+
 struct cmn_registers {
 	union {
 		struct {
@@ -198,6 +199,7 @@ asm(".text                          \n\t"
     "leave                          \n\t"
     "ret                            \n\t"
     ".previous");
+
 
 /*
  *	cru_detect

@@ -352,6 +352,7 @@ int pnc_ip4_5tuple_rxq(unsigned int eth_port, unsigned int sip, unsigned int dip
 #endif /* CONFIG_MV_ETH_PNC_L3_FLOW */
 }
 
+
 /*
  * pnc_rxq_map_dump - Dump all rules
  */

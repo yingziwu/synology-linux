@@ -244,22 +244,22 @@ static void perf_duration_warn(struct irq_work *w)
 			"perf interrupt took too long (%lld > %lld), lowering "
 			"kernel.perf_event_max_sample_rate to %d\n",
 			avg_local_sample_len,
-#if defined(CONFIG_SYNO_HI3536)
+#if defined(MY_DEF_HERE)
 			(u64) atomic_read(&perf_sample_allowed_ns),
-#else /* CONFIG_SYNO_HI3536 */
+#else /* MY_DEF_HERE */
 			atomic_read(&perf_sample_allowed_ns),
-#endif /* CONFIG_SYNO_HI3536 */
+#endif /* MY_DEF_HERE */
 			sysctl_perf_event_sample_rate);
 #else /* MY_ABC_HERE */
 	printk_ratelimited(KERN_WARNING
 			"perf interrupt took too long (%lld > %lld), lowering "
 			"kernel.perf_event_max_sample_rate to %d\n",
 			avg_local_sample_len,
-#if defined(CONFIG_SYNO_HI3536)
+#if defined(MY_DEF_HERE)
 			(u64) atomic_read(&perf_sample_allowed_ns),
-#else /* CONFIG_SYNO_HI3536 */
+#else /* MY_DEF_HERE */
 			atomic_read(&perf_sample_allowed_ns),
-#endif /* CONFIG_SYNO_HI3536 */
+#endif /* MY_DEF_HERE */
 			sysctl_perf_event_sample_rate);
 #endif /* MY_ABC_HERE */
 }
@@ -1386,6 +1386,7 @@ static int __perf_remove_from_context(void *info)
 
 	return 0;
 }
+
 
 /*
  * Remove the event from a task's (or a CPU's) list of events.
@@ -7502,7 +7503,7 @@ int perf_event_init_context(struct task_struct *child, int ctxn)
 		ret = inherit_task_group(event, parent, parent_ctx,
 					 child, ctxn, &inherited_all);
 		if (ret)
-			break;
+			goto out_unlock;
 	}
 
 	/*
@@ -7518,7 +7519,7 @@ int perf_event_init_context(struct task_struct *child, int ctxn)
 		ret = inherit_task_group(event, parent, parent_ctx,
 					 child, ctxn, &inherited_all);
 		if (ret)
-			break;
+			goto out_unlock;
 	}
 
 	raw_spin_lock_irqsave(&parent_ctx->lock, flags);
@@ -7546,6 +7547,7 @@ int perf_event_init_context(struct task_struct *child, int ctxn)
 	}
 
 	raw_spin_unlock_irqrestore(&parent_ctx->lock, flags);
+out_unlock:
 	mutex_unlock(&parent_ctx->mutex);
 
 	perf_unpin_context(parent_ctx);

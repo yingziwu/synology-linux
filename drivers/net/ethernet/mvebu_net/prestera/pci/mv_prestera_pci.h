@@ -181,6 +181,7 @@ struct pci_decoding_window {
 #define MSYS_CAUSE_VEC1_REG_OFFS		0x20904
 #define CPU_INT_SOURCE_CONTROL_IRQ_OFFS		28
 
+
 #define MV_PCI_DEVICE_FLAVOUR_TABLE_ENTRIES(devId)	\
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, devId + 0x00)},\
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, devId + 0x01)},\
@@ -438,5 +439,6 @@ struct pci_decoding_window {
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, devId + 0xFD)},\
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, devId + 0xFE)},\
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, devId + 0xFF)}
+
 
 #endif /* __MV_PRESTERA_PCI_H */

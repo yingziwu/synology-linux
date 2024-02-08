@@ -2173,6 +2173,7 @@ static int ocrdma_update_err_scqe(struct ib_wc *ibwc, struct ocrdma_cqe *cqe,
 	return ocrdma_update_err_cqe(ibwc, cqe, qp, status);
 }
 
+
 static bool ocrdma_poll_err_scqe(struct ocrdma_qp *qp,
 				 struct ocrdma_cqe *cqe, struct ib_wc *ibwc,
 				 bool *polled, bool *stop)

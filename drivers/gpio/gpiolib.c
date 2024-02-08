@@ -19,32 +19,55 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/gpio.h>
 
+/* Optional implementation infrastructure for GPIO interfaces.
+ *
+ * Platforms may want to use this if they tend to use very many GPIOs
+ * that aren't part of a System-On-Chip core; or across I2C/SPI/etc.
+ *
+ * When kernel footprint or instruction count is an issue, simpler
+ * implementations may be preferred.  The GPIO programming interface
+ * allows for inlining speed-critical get/set operations for common
+ * cases, so that access to SOC-integrated GPIOs can sometimes cost
+ * only an instruction or two per bit.
+ */
+
+
+/* When debugging, extend minimal trust to callers and platform code.
+ * Also emit diagnostic messages that may help initial bringup, when
+ * board setup or driver bugs are most common.
+ *
+ * Otherwise, minimize overhead in what may be bitbanging codepaths.
+ */
 #ifdef	DEBUG
 #define	extra_checks	1
 #else
 #define	extra_checks	0
 #endif
 
+/* gpio_lock prevents conflicts during gpio_desc[] table updates.
+ * While any GPIO is requested, its gpio_chip is not removable;
+ * each GPIO's "requested" flag serves as a lock and refcount.
+ */
 static DEFINE_SPINLOCK(gpio_lock);
 
 struct gpio_desc {
 	struct gpio_chip	*chip;
 	unsigned long		flags;
- 
+/* flag symbols are bit numbers */
 #define FLAG_REQUESTED	0
 #define FLAG_IS_OUT	1
-#define FLAG_EXPORT	2	 
-#define FLAG_SYSFS	3	 
-#define FLAG_TRIG_FALL	4	 
-#define FLAG_TRIG_RISE	5	 
-#define FLAG_ACTIVE_LOW	6	 
-#define FLAG_OPEN_DRAIN	7	 
-#define FLAG_OPEN_SOURCE 8	 
+#define FLAG_EXPORT	2	/* protected by sysfs_lock */
+#define FLAG_SYSFS	3	/* exported via /sys/class/gpio/control */
+#define FLAG_TRIG_FALL	4	/* trigger on falling edge */
+#define FLAG_TRIG_RISE	5	/* trigger on rising edge */
+#define FLAG_ACTIVE_LOW	6	/* sysfs value has active low */
+#define FLAG_OPEN_DRAIN	7	/* Gpio is open drain type */
+#define FLAG_OPEN_SOURCE 8	/* Gpio is open source type */
 #if defined (MY_DEF_HERE)
-#define FLAG_USED_AS_IRQ 9	 
-#endif  
+#define FLAG_USED_AS_IRQ 9	/* GPIO is connected to an IRQ */
+#endif /* MY_DEF_HERE */
 
-#define ID_SHIFT	16	 
+#define ID_SHIFT	16	/* add new flags before this one */
 
 #define GPIO_FLAGS_MASK		((1 << ID_SHIFT) - 1)
 #define GPIO_TRIGGER_MASK	(BIT(FLAG_TRIG_FALL) | BIT(FLAG_TRIG_RISE))
@@ -63,6 +86,10 @@ static LIST_HEAD(gpio_chips);
 static DEFINE_IDR(dirent_idr);
 #endif
 
+/*
+ * Internal gpiod_* API using descriptors instead of the integer namespace.
+ * Most of this should eventually go public.
+ */
 static int gpiod_request(struct gpio_desc *desc, const char *label);
 static void gpiod_free(struct gpio_desc *desc);
 static int gpiod_direction_input(struct gpio_desc *desc);
@@ -78,7 +105,7 @@ static int gpiod_to_irq(const struct gpio_desc *desc);
 #if defined (MY_DEF_HERE)
 static int gpiod_lock_as_irq(struct gpio_desc *desc);
 static void gpiod_unlock_as_irq(struct gpio_desc *desc);
-#endif  
+#endif /* MY_DEF_HERE */
 static int gpiod_export(struct gpio_desc *desc, bool direction_may_change);
 static int gpiod_export_link(struct device *dev, const char *name,
 			     struct gpio_desc *desc);
@@ -119,7 +146,7 @@ static void gpiod_unexport(struct gpio_desc *desc);
 #define gpiod_dbg(desc, fmt, ...)				   \
 	pr_debug("gpio-%d: " fmt, desc_to_gpio(desc), ##__VA_ARGS__)
 #endif
-#endif  
+#endif /* MY_DEF_HERE */
 
 static inline void desc_set_label(struct gpio_desc *d, const char *label)
 {
@@ -128,11 +155,17 @@ static inline void desc_set_label(struct gpio_desc *d, const char *label)
 #endif
 }
 
+/*
+ * Return the GPIO number of the passed descriptor relative to its chip
+ */
 static int gpio_chip_hwgpio(const struct gpio_desc *desc)
 {
 	return desc - &desc->chip->desc[0];
 }
 
+/**
+ * Convert a GPIO number to its descriptor
+ */
 static struct gpio_desc *gpio_to_desc(unsigned gpio)
 {
 	if (WARN(!gpio_is_valid(gpio), "invalid GPIO %d\n", gpio))
@@ -142,7 +175,9 @@ static struct gpio_desc *gpio_to_desc(unsigned gpio)
 }
 
 #if defined (MY_DEF_HERE)
- 
+/**
+ * Convert an offset on a certain chip to a corresponding descriptor
+ */
 static struct gpio_desc *gpiochip_offset_to_desc(struct gpio_chip *chip,
 						 unsigned int offset)
 {
@@ -150,17 +185,33 @@ static struct gpio_desc *gpiochip_offset_to_desc(struct gpio_chip *chip,
 
 	return gpio_to_desc(gpio);
 }
-#endif  
- 
+#endif /* MY_DEF_HERE */
+/**
+ * Convert a GPIO descriptor to the integer namespace.
+ * This should disappear in the future but is needed since we still
+ * use GPIO numbers for error messages and sysfs nodes
+ */
 static int desc_to_gpio(const struct gpio_desc *desc)
 {
 #if defined(CONFIG_SYNO_LSP_HI3536)
 	return desc - &gpio_desc[0];
-#else  
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	return desc->chip->base + gpio_chip_hwgpio(desc);
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 }
 
+
+/* Warn when drivers omit gpio_request() calls -- legal but ill-advised
+ * when setting direction, and otherwise illegal.  Until board setup code
+ * and drivers use explicit requests everywhere (which won't happen when
+ * those calls have no teeth) we can't avoid autorequesting.  This nag
+ * message should motivate switching to explicit requests... so should
+ * the weaker cleanup after faults, compared to gpio_request().
+ *
+ * NOTE: the autorequest mechanism is going away; at this point it's
+ * only "legal" in the sense that (old) code using it won't break yet,
+ * but instead only triggers a WARN() stack dump.
+ */
 static int gpio_ensure_requested(struct gpio_desc *desc)
 {
 	const struct gpio_chip *chip = desc->chip;
@@ -171,11 +222,11 @@ static int gpio_ensure_requested(struct gpio_desc *desc)
 		if (!try_module_get(chip->owner)) {
 			pr_err("GPIO-%d: module can't be gotten \n", gpio);
 			clear_bit(FLAG_REQUESTED, &desc->flags);
-			 
+			/* lose */
 			return -EIO;
 		}
 		desc_set_label(desc, "[auto]");
-		 
+		/* caller must chip->request() w/o spinlock */
 		if (chip->request)
 			return 1;
 	}
@@ -187,22 +238,24 @@ static struct gpio_chip *gpiod_to_chip(const struct gpio_desc *desc)
 	return desc ? desc->chip : NULL;
 }
 
+/* caller holds gpio_lock *OR* gpio is marked as requested */
 struct gpio_chip *gpio_to_chip(unsigned gpio)
 {
 	return gpiod_to_chip(gpio_to_desc(gpio));
 }
 
+/* dynamic allocation of GPIOs, e.g. on a hotplugged device */
 static int gpiochip_find_base(int ngpio)
 {
 	struct gpio_chip *chip;
 	int base = ARCH_NR_GPIOS - ngpio;
 
 	list_for_each_entry_reverse(chip, &gpio_chips, list) {
-		 
+		/* found a free space? */
 		if (chip->base + chip->ngpio <= base)
 			break;
 		else
-			 
+			/* nope, check the space right before the chip */
 			base = chip->base - ngpio;
 	}
 
@@ -215,6 +268,7 @@ static int gpiochip_find_base(int ngpio)
 	}
 }
 
+/* caller ensures gpio is valid and requested, chip->get_direction may sleep  */
 static int gpiod_get_direction(const struct gpio_desc *desc)
 {
 	struct gpio_chip	*chip;
@@ -229,13 +283,14 @@ static int gpiod_get_direction(const struct gpio_desc *desc)
 
 	status = chip->get_direction(chip, offset);
 	if (status > 0) {
-		 
+		/* GPIOF_DIR_IN, or other positive */
 		status = 1;
-		 
+		/* FLAG_IS_OUT is just a cache of the result of get_direction(),
+		 * so it does not affect constness per se */
 		clear_bit(FLAG_IS_OUT, &((struct gpio_desc *)desc)->flags);
 	}
 	if (status == 0) {
-		 
+		/* GPIOF_DIR_OUT */
 		set_bit(FLAG_IS_OUT, &((struct gpio_desc *)desc)->flags);
 	}
 	return status;
@@ -243,7 +298,31 @@ static int gpiod_get_direction(const struct gpio_desc *desc)
 
 #ifdef CONFIG_GPIO_SYSFS
 
+/* lock protects against unexport_gpio() being called while
+ * sysfs files are active.
+ */
 static DEFINE_MUTEX(sysfs_lock);
+
+/*
+ * /sys/class/gpio/gpioN... only for GPIOs that are exported
+ *   /direction
+ *      * MAY BE OMITTED if kernel won't allow direction changes
+ *      * is read/write as "in" or "out"
+ *      * may also be written as "high" or "low", initializing
+ *        output value as specified ("out" implies "low")
+ *   /value
+ *      * always readable, subject to hardware behavior
+ *      * may be writable, as zero/nonzero
+ *   /edge
+ *      * configures behavior of poll(2) on /value
+ *      * available only if pin can generate IRQs on input
+ *      * is read/write as "none", "falling", "rising", or "both"
+ *   /active_low
+ *      * configures polarity of /value
+ *      * is read/write as zero/nonzero
+ *      * also affects existing and subsequent "falling" and "rising"
+ *        /edge configuration
+ */
 
 static ssize_t gpio_direction_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
@@ -289,7 +368,7 @@ static ssize_t gpio_direction_store(struct device *dev,
 	return status ? : size;
 }
 
-static   DEVICE_ATTR(direction, 0644,
+static /* const */ DEVICE_ATTR(direction, 0644,
 		gpio_direction_show, gpio_direction_store);
 
 static ssize_t gpio_value_show(struct device *dev,
@@ -379,7 +458,7 @@ static int gpio_setup_irq(struct gpio_desc *desc, struct device *dev,
 	if (!gpio_flags) {
 #if defined (MY_DEF_HERE)
 		gpiod_unlock_as_irq(desc);
-#endif  
+#endif /* MY_DEF_HERE */
 		ret = 0;
 		goto free_id;
 	}
@@ -423,7 +502,7 @@ static int gpio_setup_irq(struct gpio_desc *desc, struct device *dev,
 		gpiod_warn(desc, "failed to flag the GPIO for IRQ\n");
 		goto free_id;
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 	desc->flags |= gpio_flags;
 	return 0;
@@ -518,6 +597,7 @@ static int sysfs_set_active_low(struct gpio_desc *desc, struct device *dev,
 	else
 		clear_bit(FLAG_ACTIVE_LOW, &desc->flags);
 
+	/* reconfigure poll(2) support if enabled on one edge only */
 	if (dev != NULL && (!!test_bit(FLAG_TRIG_RISE, &desc->flags) ^
 				!!test_bit(FLAG_TRIG_FALL, &desc->flags))) {
 		unsigned long trigger_flags = desc->flags & GPIO_TRIGGER_MASK;
@@ -584,6 +664,13 @@ static const struct attribute_group gpio_attr_group = {
 	.attrs = gpio_attrs,
 };
 
+/*
+ * /sys/class/gpio/gpiochipN/
+ *   /base ... matching gpio_chip.base (N)
+ *   /label ... matching gpio_chip.label
+ *   /ngpio ... matching gpio_chip.ngpio
+ */
+
 static ssize_t chip_base_show(struct device *dev,
 			       struct device_attribute *attr, char *buf)
 {
@@ -622,6 +709,12 @@ static const struct attribute_group gpiochip_attr_group = {
 	.attrs = gpiochip_attrs,
 };
 
+/*
+ * /sys/class/gpio/export ... write-only
+ *	integer N ... number of GPIO to export (full access)
+ * /sys/class/gpio/unexport ... write-only
+ *	integer N ... number of GPIO to unexport
+ */
 static ssize_t export_store(struct class *class,
 				struct class_attribute *attr,
 				const char *buf, size_t len)
@@ -635,11 +728,16 @@ static ssize_t export_store(struct class *class,
 		goto done;
 
 	desc = gpio_to_desc(gpio);
-	 
+	/* reject invalid GPIOs */
 	if (!desc) {
 		pr_warn("%s: invalid GPIO %ld\n", __func__, gpio);
 		return -EINVAL;
 	}
+
+	/* No extra locking here; FLAG_SYSFS just signifies that the
+	 * request and export were done by on behalf of userspace, so
+	 * they may be undone on its behalf too.
+	 */
 
 	status = gpiod_request(desc, "sysfs");
 	if (status < 0) {
@@ -672,7 +770,7 @@ static ssize_t unexport_store(struct class *class,
 		goto done;
 
 	desc = gpio_to_desc(gpio);
-	 
+	/* reject bogus commands (gpio_unexport ignores them) */
 	if (!desc) {
 		pr_warn("%s: invalid GPIO %ld\n", __func__, gpio);
 		return -EINVAL;
@@ -680,6 +778,10 @@ static ssize_t unexport_store(struct class *class,
 
 	status = -EINVAL;
 
+	/* No extra locking here; FLAG_SYSFS just signifies that the
+	 * request and export were done by on behalf of userspace, so
+	 * they may be undone on its behalf too.
+	 */
 	if (test_and_clear_bit(FLAG_SYSFS, &desc->flags)) {
 		status = 0;
 		gpiod_free(desc);
@@ -703,6 +805,22 @@ static struct class gpio_class = {
 	.class_attrs =	gpio_class_attrs,
 };
 
+
+/**
+ * gpio_export - export a GPIO through sysfs
+ * @gpio: gpio to make available, already requested
+ * @direction_may_change: true if userspace may change gpio direction
+ * Context: arch_initcall or later
+ *
+ * When drivers want to make a GPIO accessible to userspace after they
+ * have requested it -- perhaps while debugging, or as part of their
+ * public interface -- they may use this routine.  If the GPIO can
+ * change direction (some can't) and the caller allows it, userspace
+ * will see "direction" sysfs attribute which may be used to change
+ * the gpio's direction.  A "value" attribute will always be provided.
+ *
+ * Returns zero on success, else an error.
+ */
 static int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
 {
 	struct gpio_chip	*chip;
@@ -712,6 +830,7 @@ static int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
 	struct device		*dev;
 	int			offset;
 
+	/* can't export until sysfs is available ... */
 	if (!gpio_class.p) {
 		pr_debug("%s: called too early!\n", __func__);
 		return -ENOENT;
@@ -726,6 +845,7 @@ static int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
 
 	mutex_lock(&sysfs_lock);
 
+	/* check if chip is being removed */
 	if (!chip || !chip->exported) {
 		status = -ENODEV;
 		goto fail_unlock;
@@ -804,6 +924,17 @@ static int match_export(struct device *dev, const void *data)
 	return dev_get_drvdata(dev) == data;
 }
 
+/**
+ * gpio_export_link - create a sysfs link to an exported GPIO node
+ * @dev: device under which to create symlink
+ * @name: name of the symlink
+ * @gpio: gpio to create symlink to, already exported
+ *
+ * Set up a symlink from /sys/.../dev/name to /sys/class/gpio/gpioN
+ * node. Caller is responsible for unlinking.
+ *
+ * Returns zero on success, else an error.
+ */
 static int gpiod_export_link(struct device *dev, const char *name,
 			     struct gpio_desc *desc)
 {
@@ -844,6 +975,18 @@ int gpio_export_link(struct device *dev, const char *name, unsigned gpio)
 }
 EXPORT_SYMBOL_GPL(gpio_export_link);
 
+/**
+ * gpio_sysfs_set_active_low - set the polarity of gpio sysfs value
+ * @gpio: gpio to change
+ * @value: non-zero to use active low, i.e. inverted values
+ *
+ * Set the polarity of /sys/class/gpio/gpioN/value sysfs attribute.
+ * The GPIO does not have to be exported yet.  If poll(2) support has
+ * been enabled for either rising or falling edge, it will be
+ * reconfigured to follow the new polarity.
+ *
+ * Returns zero on success, else an error.
+ */
 static int gpiod_sysfs_set_active_low(struct gpio_desc *desc, int value)
 {
 	struct device		*dev = NULL;
@@ -882,6 +1025,12 @@ int gpio_sysfs_set_active_low(unsigned gpio, int value)
 }
 EXPORT_SYMBOL_GPL(gpio_sysfs_set_active_low);
 
+/**
+ * gpio_unexport - reverse effect of gpio_export()
+ * @gpio: gpio to make unavailable
+ *
+ * This is implicit on gpio_free().
+ */
 static void gpiod_unexport(struct gpio_desc *desc)
 {
 	int			status = 0;
@@ -930,9 +1079,15 @@ static int gpiochip_export(struct gpio_chip *chip)
 	int		status;
 	struct device	*dev;
 
+	/* Many systems register gpio chips for SOC support very early,
+	 * before driver model support is available.  In those cases we
+	 * export this later, in gpiolib_sysfs_init() ... here we just
+	 * verify that _some_ field of gpio_class got initialized.
+	 */
 	if (!gpio_class.p)
 		return 0;
 
+	/* use chip->base for the ID; it's already known to be unique */
 	mutex_lock(&sysfs_lock);
 	dev = device_create(&gpio_class, chip->dev, MKDEV(0, 0), chip,
 				"gpiochip%d", chip->base);
@@ -974,7 +1129,7 @@ static void gpiochip_unexport(struct gpio_chip *chip)
 		sysfs_remove_group(&dev->kobj, &gpiochip_attr_group);
 		put_device(dev);
 		device_unregister(dev);
-		 
+		/* prevent further gpiod exports */
 		chip->exported = 0;
 		status = 0;
 	} else
@@ -985,6 +1140,7 @@ static void gpiochip_unexport(struct gpio_chip *chip)
 		pr_debug("%s: chip %s status %d\n", __func__,
 				chip->label, status);
 
+	/* unregister gpiod class devices owned by sysfs */
 	for (i = 0; i < chip->ngpio; i++) {
 		desc = &chip->desc[i];
 		if (test_and_clear_bit(FLAG_SYSFS, &desc->flags))
@@ -1002,6 +1158,12 @@ static int __init gpiolib_sysfs_init(void)
 	if (status < 0)
 		return status;
 
+	/* Scan and register the gpio_chips which registered very
+	 * early (e.g. before the class_register above was called).
+	 *
+	 * We run before arch_initcall() so chip->dev nodes can have
+	 * registered, and so arch_initcall() can always gpio_export().
+	 */
 	spin_lock_irqsave(&gpio_lock, flags);
 	list_for_each_entry(chip, &gpio_chips, list) {
 		if (!chip || chip->exported)
@@ -1012,6 +1174,7 @@ static int __init gpiolib_sysfs_init(void)
 		spin_lock_irqsave(&gpio_lock, flags);
 	}
 	spin_unlock_irqrestore(&gpio_lock, flags);
+
 
 	return status;
 }
@@ -1048,21 +1211,30 @@ static inline void gpiod_unexport(struct gpio_desc *desc)
 {
 }
 
-#endif  
+#endif /* CONFIG_GPIO_SYSFS */
 
+/*
+ * Add a new chip to the global chips list, keeping the list of chips sorted
+ * by base order.
+ *
+ * Return -EBUSY if the new chip overlaps with some other chip's integer
+ * space.
+ */
 static int gpiochip_add_to_list(struct gpio_chip *chip)
 {
 	struct list_head *pos = &gpio_chips;
 	struct gpio_chip *_chip;
 	int err = 0;
 
+	/* find where to insert our chip */
 	list_for_each(pos, &gpio_chips) {
 		_chip = list_entry(pos, struct gpio_chip, list);
-		 
+		/* shall we insert before _chip? */
 		if (_chip->base >= chip->base + chip->ngpio)
 			break;
 	}
 
+	/* are we stepping on the chip right before? */
 	if (pos != &gpio_chips && pos->prev != &gpio_chips) {
 		_chip = list_entry(pos->prev, struct gpio_chip, list);
 		if (_chip->base + _chip->ngpio > chip->base) {
@@ -1078,6 +1250,23 @@ static int gpiochip_add_to_list(struct gpio_chip *chip)
 	return err;
 }
 
+/**
+ * gpiochip_add() - register a gpio_chip
+ * @chip: the chip to register, with chip->base initialized
+ * Context: potentially before irqs or kmalloc will work
+ *
+ * Returns a negative errno if the chip can't be registered, such as
+ * because the chip->base is invalid or already associated with a
+ * different chip.  Otherwise it returns zero as a success code.
+ *
+ * When gpiochip_add() is called very early during boot, so that GPIOs
+ * can be freely used, the chip->dev device must be registered before
+ * the gpio framework's arch_initcall().  Otherwise sysfs initialization
+ * for GPIOs will fail rudely.
+ *
+ * If chip->base is negative, this requests dynamic assignment of
+ * a range of valid GPIOs.
+ */
 int gpiochip_add(struct gpio_chip *chip)
 {
 	unsigned long	flags;
@@ -1111,6 +1300,13 @@ int gpiochip_add(struct gpio_chip *chip)
 			struct gpio_desc *desc = &chip->desc[id];
 			desc->chip = chip;
 
+			/* REVISIT:  most hardware initializes GPIOs as
+			 * inputs (often with pullups enabled) so power
+			 * usage is minimized.  Linux code should set the
+			 * gpio direction first thing; but until it does,
+			 * and in case chip->get_direction is not set,
+			 * we may expose the wrong direction in sysfs.
+			 */
 			desc->flags = !chip->direction_input
 				? (1 << FLAG_IS_OUT)
 				: 0;
@@ -1119,7 +1315,7 @@ int gpiochip_add(struct gpio_chip *chip)
 
 #if defined(CONFIG_SYNO_LSP_HI3536)
 	spin_unlock_irqrestore(&gpio_lock, flags);
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 #ifdef CONFIG_PINCTRL
 	INIT_LIST_HEAD(&chip->pin_ranges);
@@ -1128,11 +1324,11 @@ int gpiochip_add(struct gpio_chip *chip)
 	of_gpiochip_add(chip);
 
 #if defined(CONFIG_SYNO_LSP_HI3536)
-	 
-#else  
+	// do nothing
+#else /* CONFIG_SYNO_LSP_HI3536 */
 unlock:
 	spin_unlock_irqrestore(&gpio_lock, flags);
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	if (status)
 		goto fail;
@@ -1149,9 +1345,9 @@ unlock:
 #if defined(CONFIG_SYNO_LSP_HI3536)
 unlock:
 	spin_unlock_irqrestore(&gpio_lock, flags);
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 fail:
-	 
+	/* failures here can mean systems won't boot... */
 	pr_err("gpiochip_add: gpios %d..%d (%s) failed to register\n",
 		chip->base, chip->base + chip->ngpio - 1,
 		chip->label ? : "generic");
@@ -1159,6 +1355,12 @@ fail:
 }
 EXPORT_SYMBOL_GPL(gpiochip_add);
 
+/**
+ * gpiochip_remove() - unregister a gpio_chip
+ * @chip: the chip to unregister
+ *
+ * A gpio_chip with any GPIOs still requested may not be removed.
+ */
 int gpiochip_remove(struct gpio_chip *chip)
 {
 	unsigned long	flags;
@@ -1191,6 +1393,17 @@ int gpiochip_remove(struct gpio_chip *chip)
 }
 EXPORT_SYMBOL_GPL(gpiochip_remove);
 
+/**
+ * gpiochip_find() - iterator for locating a specific gpio_chip
+ * @data: data to pass to match function
+ * @callback: Callback function to check gpio_chip
+ *
+ * Similar to bus_find_device.  It returns a reference to a gpio_chip as
+ * determined by a user supplied @match callback.  The callback should return
+ * 0 if the device doesn't match and non-zero if it does.  If the callback is
+ * non-zero, this function will return to the caller and not iterate over any
+ * more gpio_chips.
+ */
 struct gpio_chip *gpiochip_find(void *data,
 				int (*match)(struct gpio_chip *chip,
 					     void *data))
@@ -1203,6 +1416,7 @@ struct gpio_chip *gpiochip_find(void *data,
 		if (match(chip, data))
 			break;
 
+	/* No match? */
 	if (&chip->list == &gpio_chips)
 		chip = NULL;
 	spin_unlock_irqrestore(&gpio_lock, flags);
@@ -1213,6 +1427,15 @@ EXPORT_SYMBOL_GPL(gpiochip_find);
 
 #ifdef CONFIG_PINCTRL
 
+/**
+ * gpiochip_add_pin_range() - add a range for GPIO <-> pin mapping
+ * @chip: the gpiochip to add the range for
+ * @pinctrl_name: the dev_name() of the pin controller to map to
+ * @gpio_offset: the start offset in the current gpio_chip number space
+ * @pin_offset: the start offset in the pin controller number space
+ * @npins: the number of pins from the offset of each pin space (GPIO and
+ *	pin controller) to accumulate in this range
+ */
 int gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
 			   unsigned int gpio_offset, unsigned int pin_offset,
 			   unsigned int npins)
@@ -1227,6 +1450,7 @@ int gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
 		return -ENOMEM;
 	}
 
+	/* Use local offset as range ID */
 	pin_range->range.id = gpio_offset;
 	pin_range->range.gc = chip;
 	pin_range->range.name = chip->label;
@@ -1253,6 +1477,10 @@ int gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
 }
 EXPORT_SYMBOL_GPL(gpiochip_add_pin_range);
 
+/**
+ * gpiochip_remove_pin_ranges() - remove all the GPIO <-> pin mappings
+ * @chip: the chip to remove all the mappings for
+ */
 void gpiochip_remove_pin_ranges(struct gpio_chip *chip)
 {
 	struct gpio_pin_range *pin_range, *tmp;
@@ -1266,8 +1494,12 @@ void gpiochip_remove_pin_ranges(struct gpio_chip *chip)
 }
 EXPORT_SYMBOL_GPL(gpiochip_remove_pin_ranges);
 
-#endif  
+#endif /* CONFIG_PINCTRL */
 
+/* These "optional" allocation calls help prevent drivers from stomping
+ * on each other, and help provide better diagnostics in debugfs.
+ * They're called even less than the "set direction" calls.
+ */
 static int gpiod_request(struct gpio_desc *desc, const char *label)
 {
 	struct gpio_chip	*chip;
@@ -1288,6 +1520,10 @@ static int gpiod_request(struct gpio_desc *desc, const char *label)
 	if (!try_module_get(chip->owner))
 		goto done;
 
+	/* NOTE:  gpio_request() can be called in early boot,
+	 * before IRQs are enabled, for non-sleeping (SOC) GPIOs.
+	 */
+
 	if (test_and_set_bit(FLAG_REQUESTED, &desc->flags) == 0) {
 		desc_set_label(desc, label ? : "?");
 		status = 0;
@@ -1298,7 +1534,7 @@ static int gpiod_request(struct gpio_desc *desc, const char *label)
 	}
 
 	if (chip->request) {
-		 
+		/* chip->request may sleep */
 		spin_unlock_irqrestore(&gpio_lock, flags);
 		status = chip->request(chip, gpio_chip_hwgpio(desc));
 		spin_lock_irqsave(&gpio_lock, flags);
@@ -1311,7 +1547,7 @@ static int gpiod_request(struct gpio_desc *desc, const char *label)
 		}
 	}
 	if (chip->get_direction) {
-		 
+		/* chip->get_direction may sleep */
 		spin_unlock_irqrestore(&gpio_lock, flags);
 		gpiod_get_direction(desc);
 		spin_lock_irqsave(&gpio_lock, flags);
@@ -1372,6 +1608,12 @@ void gpio_free(unsigned gpio)
 }
 EXPORT_SYMBOL_GPL(gpio_free);
 
+/**
+ * gpio_request_one - request a single GPIO with initial configuration
+ * @gpio:	the GPIO number
+ * @flags:	GPIO configuration as specified by GPIOF_*
+ * @label:	a literal description string of this GPIO
+ */
 int gpio_request_one(unsigned gpio, unsigned long flags, const char *label)
 {
 	struct gpio_desc *desc;
@@ -1412,6 +1654,11 @@ int gpio_request_one(unsigned gpio, unsigned long flags, const char *label)
 }
 EXPORT_SYMBOL_GPL(gpio_request_one);
 
+/**
+ * gpio_request_array - request multiple GPIOs in a single call
+ * @array:	array of the 'struct gpio'
+ * @num:	how many GPIOs in the array
+ */
 int gpio_request_array(const struct gpio *array, size_t num)
 {
 	int i, err;
@@ -1430,6 +1677,11 @@ err_free:
 }
 EXPORT_SYMBOL_GPL(gpio_request_array);
 
+/**
+ * gpio_free_array - release multiple GPIOs in a single call
+ * @array:	array of the 'struct gpio'
+ * @num:	how many GPIOs in the array
+ */
 void gpio_free_array(const struct gpio *array, size_t num)
 {
 	while (num--)
@@ -1437,6 +1689,19 @@ void gpio_free_array(const struct gpio *array, size_t num)
 }
 EXPORT_SYMBOL_GPL(gpio_free_array);
 
+/**
+ * gpiochip_is_requested - return string iff signal was requested
+ * @chip: controller managing the signal
+ * @offset: of signal within controller's 0..(ngpio - 1) range
+ *
+ * Returns NULL if the GPIO is not currently requested, else a string.
+ * If debugfs support is enabled, the string returned is the label passed
+ * to gpio_request(); otherwise it is a meaningless constant.
+ *
+ * This function is for use by GPIO controller drivers.  The label can
+ * help with diagnostics, and knowing that the signal is used as a GPIO
+ * can help avoid accidentally multiplexing it to another controller.
+ */
 const char *gpiochip_is_requested(struct gpio_chip *chip, unsigned offset)
 {
 	struct gpio_desc *desc;
@@ -1455,6 +1720,16 @@ const char *gpiochip_is_requested(struct gpio_chip *chip, unsigned offset)
 #endif
 }
 EXPORT_SYMBOL_GPL(gpiochip_is_requested);
+
+
+/* Drivers MUST set GPIO direction before making get/set calls.  In
+ * some cases this is done in early boot, before IRQs are enabled.
+ *
+ * As a rule these aren't called more than once (except for drivers
+ * using the open-drain emulation idiom) so these are natural places
+ * to accumulate extra debugging checks.  Note that we can't (yet)
+ * rely on gpio_request() having been called beforehand.
+ */
 
 static int gpiod_direction_input(struct gpio_desc *desc)
 {
@@ -1477,6 +1752,8 @@ static int gpiod_direction_input(struct gpio_desc *desc)
 	if (status < 0)
 		goto fail;
 
+	/* now we know the gpio is valid and chip won't vanish */
+
 	spin_unlock_irqrestore(&gpio_lock, flags);
 
 	might_sleep_if(chip->can_sleep);
@@ -1487,11 +1764,13 @@ static int gpiod_direction_input(struct gpio_desc *desc)
 		if (status < 0) {
 #if defined (MY_DEF_HERE)
 			gpiod_dbg(desc, "chip request fail, %d\n", status);
-#else  
+#else /* MY_DEF_HERE */
 			pr_debug("GPIO-%d: chip request fail, %d\n",
 				desc_to_gpio(desc), status);
-#endif  
-			 
+#endif /* MY_DEF_HERE */
+			/* and it's not available to anyone else ...
+			 * gpio_request() is the fully clean solution.
+			 */
 			goto lose;
 		}
 	}
@@ -1508,11 +1787,11 @@ fail:
 #if defined (MY_DEF_HERE)
 	if (status)
 		gpiod_dbg(desc, "%s status %d\n", __func__, status);
-#else  
+#else /* MY_DEF_HERE */
 	if (status)
 		pr_debug("%s: gpio-%d status %d\n", __func__,
 			 desc_to_gpio(desc), status);
-#endif  
+#endif /* MY_DEF_HERE */
 	return status;
 }
 
@@ -1535,18 +1814,19 @@ static int gpiod_direction_output(struct gpio_desc *desc, int value)
 	}
 
 #if defined (MY_DEF_HERE)
-	 
+	/* GPIOs used for IRQs shall not be set as output */
 	if (test_bit(FLAG_USED_AS_IRQ, &desc->flags)) {
 
 		pr_err("%s: tried to set a GPIO tied to an IRQ as output\n",
 			  __func__);
 		return -EIO;
 	}
-#endif  
-	 
+#endif /* MY_DEF_HERE */
+	/* Open drain pin should not be driven to 1 */
 	if (value && test_bit(FLAG_OPEN_DRAIN,  &desc->flags))
 		return gpiod_direction_input(desc);
 
+	/* Open source pin should not be driven to 0 */
 	if (!value && test_bit(FLAG_OPEN_SOURCE,  &desc->flags))
 		return gpiod_direction_input(desc);
 
@@ -1559,6 +1839,8 @@ static int gpiod_direction_output(struct gpio_desc *desc, int value)
 	if (status < 0)
 		goto fail;
 
+	/* now we know the gpio is valid and chip won't vanish */
+
 	spin_unlock_irqrestore(&gpio_lock, flags);
 
 	might_sleep_if(chip->can_sleep);
@@ -1569,11 +1851,13 @@ static int gpiod_direction_output(struct gpio_desc *desc, int value)
 		if (status < 0) {
 #if defined (MY_DEF_HERE)
 			gpiod_dbg(desc, "chip request fail, %d\n", status);
-#else  
+#else /* MY_DEF_HERE */
 			pr_debug("GPIO-%d: chip request fail, %d\n",
 				desc_to_gpio(desc), status);
-#endif  
-			 
+#endif /* MY_DEF_HERE */
+			/* and it's not available to anyone else ...
+			 * gpio_request() is the fully clean solution.
+			 */
 			goto lose;
 		}
 	}
@@ -1590,11 +1874,11 @@ fail:
 #if defined (MY_DEF_HERE)
 	if (status)
 		gpiod_dbg(desc, "%s: gpio status %d\n", __func__, status);
-#else  
+#else /* MY_DEF_HERE */
 	if (status)
 		pr_debug("%s: gpio-%d status %d\n", __func__,
 			 desc_to_gpio(desc), status);
-#endif  
+#endif /* MY_DEF_HERE */
 	return status;
 }
 
@@ -1604,6 +1888,11 @@ int gpio_direction_output(unsigned gpio, int value)
 }
 EXPORT_SYMBOL_GPL(gpio_direction_output);
 
+/**
+ * gpio_set_debounce - sets @debounce time for a @gpio
+ * @gpio: the gpio to set debounce time
+ * @debounce: debounce time is microseconds
+ */
 static int gpiod_set_debounce(struct gpio_desc *desc, unsigned debounce)
 {
 	unsigned long		flags;
@@ -1626,6 +1915,8 @@ static int gpiod_set_debounce(struct gpio_desc *desc, unsigned debounce)
 	if (status < 0)
 		goto fail;
 
+	/* now we know the gpio is valid and chip won't vanish */
+
 	spin_unlock_irqrestore(&gpio_lock, flags);
 
 	might_sleep_if(chip->can_sleep);
@@ -1638,11 +1929,11 @@ fail:
 #if defined (MY_DEF_HERE)
 	if (status)
 		gpiod_dbg(desc, "%s: status %d\n", __func__, status);
-#else  
+#else /* MY_DEF_HERE */
 	if (status)
 		pr_debug("%s: gpio-%d status %d\n", __func__,
 			 desc_to_gpio(desc), status);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return status;
 }
@@ -1653,6 +1944,37 @@ int gpio_set_debounce(unsigned gpio, unsigned debounce)
 }
 EXPORT_SYMBOL_GPL(gpio_set_debounce);
 
+/* I/O calls are only valid after configuration completed; the relevant
+ * "is this a valid GPIO" error checks should already have been done.
+ *
+ * "Get" operations are often inlinable as reading a pin value register,
+ * and masking the relevant bit in that register.
+ *
+ * When "set" operations are inlinable, they involve writing that mask to
+ * one register to set a low value, or a different register to set it high.
+ * Otherwise locking is needed, so there may be little value to inlining.
+ *
+ *------------------------------------------------------------------------
+ *
+ * IMPORTANT!!!  The hot paths -- get/set value -- assume that callers
+ * have requested the GPIO.  That can include implicit requesting by
+ * a direction setting call.  Marking a gpio as requested locks its chip
+ * in memory, guaranteeing that these table lookups need no more locking
+ * and that gpiochip_remove() will fail.
+ *
+ * REVISIT when debugging, consider adding some instrumentation to ensure
+ * that the GPIO was actually requested.
+ */
+
+/**
+ * __gpio_get_value() - return a gpio's value
+ * @gpio: gpio whose value will be returned
+ * Context: any
+ *
+ * This is used directly or indirectly to implement gpio_get_value().
+ * It returns the zero or nonzero value provided by the associated
+ * gpio_chip.get() method; or zero if no such method is provided.
+ */
 static int gpiod_get_value(const struct gpio_desc *desc)
 {
 	struct gpio_chip	*chip;
@@ -1663,7 +1985,7 @@ static int gpiod_get_value(const struct gpio_desc *desc)
 		return 0;
 	chip = desc->chip;
 	offset = gpio_chip_hwgpio(desc);
-	 
+	/* Should be using gpio_get_value_cansleep() */
 	WARN_ON(chip->can_sleep);
 	value = chip->get ? chip->get(chip, offset) : 0;
 	trace_gpio_value(desc_to_gpio(desc), 1, value);
@@ -1676,6 +1998,12 @@ int __gpio_get_value(unsigned gpio)
 }
 EXPORT_SYMBOL_GPL(__gpio_get_value);
 
+/*
+ *  _gpio_set_open_drain_value() - Set the open drain gpio's value.
+ * @gpio: Gpio whose state need to be set.
+ * @chip: Gpio chip.
+ * @value: Non-zero for setting it HIGH otherise it will set to LOW.
+ */
 static void _gpio_set_open_drain_value(struct gpio_desc *desc, int value)
 {
 	int err = 0;
@@ -1697,13 +2025,19 @@ static void _gpio_set_open_drain_value(struct gpio_desc *desc, int value)
 		gpiod_err(desc,
 			  "%s: Error in set_value for open drain err %d\n",
 			  __func__, err);
-#else  
+#else /* MY_DEF_HERE */
 	if (err < 0)
 		pr_err("%s: Error in set_value for open drain gpio%d err %d\n",
 					__func__, desc_to_gpio(desc), err);
-#endif  
+#endif /* MY_DEF_HERE */
 }
 
+/*
+ *  _gpio_set_open_source() - Set the open source gpio's value.
+ * @gpio: Gpio whose state need to be set.
+ * @chip: Gpio chip.
+ * @value: Non-zero for setting it HIGH otherise it will set to LOW.
+ */
 static void _gpio_set_open_source_value(struct gpio_desc *desc, int value)
 {
 	int err = 0;
@@ -1725,13 +2059,22 @@ static void _gpio_set_open_source_value(struct gpio_desc *desc, int value)
 		gpiod_err(desc,
 			  "%s: Error in set_value for open source err %d\n",
 			  __func__, err);
-#else  
+#else /* MY_DEF_HERE */
 	if (err < 0)
 		pr_err("%s: Error in set_value for open source gpio%d err %d\n",
 					__func__, desc_to_gpio(desc), err);
-#endif  
+#endif /* MY_DEF_HERE */
 }
 
+/**
+ * __gpio_set_value() - assign a gpio's value
+ * @gpio: gpio whose value will be assigned
+ * @value: value to assign
+ * Context: any
+ *
+ * This is used directly or indirectly to implement gpio_set_value().
+ * It invokes the associated gpio_chip.set() method.
+ */
 static void gpiod_set_value(struct gpio_desc *desc, int value)
 {
 	struct gpio_chip	*chip;
@@ -1739,7 +2082,7 @@ static void gpiod_set_value(struct gpio_desc *desc, int value)
 	if (!desc)
 		return;
 	chip = desc->chip;
-	 
+	/* Should be using gpio_set_value_cansleep() */
 	WARN_ON(chip->can_sleep);
 	trace_gpio_value(desc_to_gpio(desc), 0, value);
 	if (test_bit(FLAG_OPEN_DRAIN, &desc->flags))
@@ -1756,11 +2099,19 @@ void __gpio_set_value(unsigned gpio, int value)
 }
 EXPORT_SYMBOL_GPL(__gpio_set_value);
 
+/**
+ * __gpio_cansleep() - report whether gpio value access will sleep
+ * @gpio: gpio in question
+ * Context: any
+ *
+ * This is used directly or indirectly to implement gpio_cansleep().  It
+ * returns nonzero if access reading or writing the GPIO value can sleep.
+ */
 static int gpiod_cansleep(const struct gpio_desc *desc)
 {
 	if (!desc)
 		return 0;
-	 
+	/* only call this on GPIOs that are valid! */
 	return desc->chip->can_sleep;
 }
 
@@ -1770,6 +2121,15 @@ int __gpio_cansleep(unsigned gpio)
 }
 EXPORT_SYMBOL_GPL(__gpio_cansleep);
 
+/**
+ * __gpio_to_irq() - return the IRQ corresponding to a GPIO
+ * @gpio: gpio whose IRQ will be returned (already requested)
+ * Context: any
+ *
+ * This is used directly or indirectly to implement gpio_to_irq().
+ * It returns the number of the IRQ signaled by this (input) GPIO,
+ * or a negative errno.
+ */
 static int gpiod_to_irq(const struct gpio_desc *desc)
 {
 	struct gpio_chip	*chip;
@@ -1789,7 +2149,16 @@ int __gpio_to_irq(unsigned gpio)
 EXPORT_SYMBOL_GPL(__gpio_to_irq);
 
 #if defined (MY_DEF_HERE)
- 
+/**
+ * gpiod_lock_as_irq() - lock a GPIO to be used as IRQ
+ * @gpio: the GPIO line to lock as used for IRQ
+ *
+ * This is used directly by GPIO drivers that want to lock down
+ * a certain GPIO line to be used as IRQs, for example in the
+ * .to_irq() callback of their gpio_chip, or in the .irq_enable()
+ * of its irq_chip implementation if the GPIO is known from that
+ * code.
+ */
 static int gpiod_lock_as_irq(struct gpio_desc *desc)
 {
 	if (!desc)
@@ -1811,6 +2180,13 @@ int gpio_lock_as_irq(struct gpio_chip *chip, unsigned int offset)
 }
 EXPORT_SYMBOL_GPL(gpio_lock_as_irq);
 
+/**
+ * gpiod_unlock_as_irq() - unlock a GPIO used as IRQ
+ * @gpio: the GPIO line to unlock from IRQ usage
+ *
+ * This is used directly by GPIO drivers that want to indicate
+ * that a certain GPIO is no longer used exclusively for IRQ.
+ */
 static void gpiod_unlock_as_irq(struct gpio_desc *desc)
 {
 	if (!desc)
@@ -1824,7 +2200,11 @@ void gpio_unlock_as_irq(struct gpio_chip *chip, unsigned int offset)
 	return gpiod_unlock_as_irq(gpiochip_offset_to_desc(chip, offset));
 }
 EXPORT_SYMBOL_GPL(gpio_unlock_as_irq);
-#endif  
+#endif /* MY_DEF_HERE */
+
+/* There's no value in making it easy to inline GPIO calls that may sleep.
+ * Common examples include ones connected to I2C or SPI chips.
+ */
 
 static int gpiod_get_value_cansleep(const struct gpio_desc *desc)
 {
@@ -1881,7 +2261,7 @@ static void gpiolib_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 	int			is_out;
 #if defined (MY_DEF_HERE)
 	int			is_irq;
-#endif  
+#endif /* MY_DEF_HERE */
 
 	for (i = 0; i < chip->ngpio; i++, gpio++, gdesc++) {
 		if (!test_bit(FLAG_REQUESTED, &gdesc->flags))
@@ -1898,14 +2278,14 @@ static void gpiolib_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 				? (chip->get(chip, i) ? "hi" : "lo")
 				: "?  ",
 			is_irq ? "IRQ" : "   ");
-#else  
+#else /* MY_DEF_HERE */
 		seq_printf(s, " gpio-%-3d (%-20.20s) %s %s",
 			gpio, gdesc->label,
 			is_out ? "out" : "in ",
 			chip->get
 				? (chip->get(chip, i) ? "hi" : "lo")
 				: "?  ");
-#endif  
+#endif /* MY_DEF_HERE */
 		seq_printf(s, "\n");
 	}
 }
@@ -1999,21 +2379,21 @@ static const struct file_operations gpiolib_operations = {
 
 static int __init gpiolib_debugfs_init(void)
 {
-	 
+	/* /sys/kernel/debug/gpio */
 	(void) debugfs_create_file("gpio", S_IFREG | S_IRUGO,
 				NULL, NULL, &gpiolib_operations);
 	return 0;
 }
 subsys_initcall(gpiolib_debugfs_init);
 
-#endif	 
+#endif	/* DEBUG_FS */
 
 #ifdef MY_DEF_HERE
 int syno_gpio_value_set(int iPin, int iValue)
 {
 	int iRet = -1;
 	struct gpio_desc *desc;
-	desc = gpio_to_desc(iPin);  
+	desc = gpio_to_desc(iPin); //pin validation is checked here
 
 	if (!desc) {
 		goto END;
@@ -2036,7 +2416,7 @@ int syno_gpio_value_get(int iPin, int *pValue)
 {
 	int iRet = -1;
 	struct gpio_desc *desc;
-	desc = gpio_to_desc(iPin);  
+	desc = gpio_to_desc(iPin); //pin validation is checked here
 
 	if (!desc) {
 		goto END;
@@ -2049,4 +2429,4 @@ END:
 	return iRet;
 }
 EXPORT_SYMBOL(syno_gpio_value_get);
-#endif  
+#endif /* MY_DEF_HERE */

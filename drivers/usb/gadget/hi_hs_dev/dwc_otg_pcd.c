@@ -95,6 +95,7 @@ void dwc_otg_request_done(dwc_otg_pcd_ep_t *ep, dwc_otg_pcd_request_t *req,
 	if (ep->pcd->request_pending > 0)
 		--ep->pcd->request_pending;
 
+
 	ep->stopped = stopped;
 	DWC_FREE(req);
 }
@@ -175,6 +176,7 @@ static int32_t dwc_otg_pcd_resume_cb(void *p)
 
 	if (pcd->fops->resume)
 		pcd->fops->resume(pcd);
+
 
 	/* Stop the SRP timeout timer. */
 	if ((GET_CORE_IF(pcd)->core_params->phy_type != DWC_PHY_TYPE_PARAM_FS)
@@ -546,6 +548,7 @@ void dwc_otg_iso_ep_start_buf_transfer(dwc_otg_core_if_t *core_if,
 	else
 		addr = &core_if->dev_if->out_ep_regs[ep->num]->doepctl;
 
+
 	if (core_if->dma_enable == 0 || core_if->dma_desc_enable != 0) {
 		return;
 	} else {
@@ -664,6 +667,7 @@ void dwc_otg_iso_ep_stop_transfer(dwc_otg_core_if_t *core_if, dwc_ep_t *ep)
 	else
 		addr = &core_if->dev_if->out_ep_regs[ep->num]->doepctl;
 
+
 	/* disable the ep */
 	depctl.d32 = DWC_READ_REG32(addr);
 
@@ -724,6 +728,7 @@ int dwc_otg_pcd_iso_ep_start(dwc_otg_pcd_t *pcd, void *ep_handle,
 
 	if (ep->iso_req_handle)
 		DWC_WARN("ISO request in progress\n");
+
 
 	dwc_ep->dma_addr0 = dma0;
 	dwc_ep->dma_addr1 = dma1;
@@ -1033,6 +1038,7 @@ static void srp_timeout(void *ptr)
 			if (core_if->pcd_cb && core_if->pcd_cb->resume_wakeup)
 				core_if->pcd_cb->resume_wakeup(core_if->pcd_cb->p);
 
+
 			/* Clear Session Request */
 			gotgctl.d32 = 0;
 			gotgctl.b.sesreq = 1;
@@ -1111,6 +1117,7 @@ dwc_otg_pcd_t *dwc_otg_pcd_init(dwc_otg_core_if_t *core_if)
 	if (pcd == NULL)
 		return NULL;
 
+
 	pcd->lock = DWC_SPINLOCK_ALLOC();
 	if (!pcd->lock) {
 		DWC_ERROR("Could not allocate lock for pcd");
@@ -1129,12 +1136,14 @@ dwc_otg_pcd_t *dwc_otg_pcd_init(dwc_otg_core_if_t *core_if)
 	else
 		DWC_PRINTF("Shared Tx FIFO mode\n");
 
+
 	/*
 	 * Initialized the Core for Device mode here if there is nod ADP support.
 	 * Otherwise it will be done later in dwc_otg_adp_start routine.
 	 */
 	if (dwc_otg_is_device_mode(core_if))
 		dwc_otg_core_dev_init(core_if);
+
 
 	/*
 	 * Register the PCD Callbacks.
@@ -1368,6 +1377,7 @@ uint32_t dwc_otg_pcd_is_otg(dwc_otg_pcd_t *pcd)
 	if (!usbcfg.b.srpcap || !usbcfg.b.hnpcap)
 		return 0;
 
+
 	return 1;
 }
 
@@ -1545,6 +1555,7 @@ int dwc_otg_pcd_ep_enable(dwc_otg_pcd_t *pcd,
 	/* Set initial data PID. */
 	if (ep->dwc_ep.type == UE_BULK)
 		ep->dwc_ep.data_pid_start = 0;
+
 
 	/* Alloc DMA Descriptors */
 	if (GET_CORE_IF(pcd)->dma_desc_enable) {
@@ -1967,6 +1978,7 @@ static int dwc_otg_pcd_xiso_create_pkt_descs(dwc_otg_pcd_request_t *req,
 	else
 		ipds = DWC_ALLOC(sizeof(*ipds) * pkt_count);
 
+
 	if (!ipds) {
 		DWC_ERROR("Failed to allocate isoc descriptors");
 		return -DWC_E_NO_MEMORY;
@@ -2044,8 +2056,10 @@ int dwc_otg_pcd_xiso_ep_queue(dwc_otg_pcd_t *pcd, void *ep_handle,
 	else
 		req = DWC_ALLOC(sizeof(*req));
 
+
 	if (!req)
 		return -DWC_E_NO_MEMORY;
+
 
 	/* Create the Isoc descs for this request which shall be the exact match
 	 * of the structure sent to us from the non-portable logic */
@@ -2126,6 +2140,7 @@ int dwc_otg_pcd_ep_queue(dwc_otg_pcd_t *pcd, void *ep_handle,
 	else
 		req = DWC_ALLOC(sizeof(*req));
 
+
 	if (!req)
 		return -DWC_E_NO_MEMORY;
 
@@ -2181,6 +2196,7 @@ int dwc_otg_pcd_ep_queue(dwc_otg_pcd_t *pcd, void *ep_handle,
 	 */
 	if (ep->dwc_ep.num == 0 && ep->dwc_ep.is_in)
 		DWC_DEBUGPL(DBG_PCDV, "%d-OUT ZLP\n", ep->dwc_ep.num);
+
 
 	/* Start the transfer */
 	if (DWC_CIRCLEQ_EMPTY(&ep->queue) && !ep->stopped) {
@@ -2368,6 +2384,7 @@ int dwc_otg_pcd_ep_dequeue(dwc_otg_pcd_t *pcd, void *ep_handle,
 	else
 		req = NULL;
 
+
 	DWC_SPINUNLOCK_IRQRESTORE(pcd->lock, flags);
 
 	return req ? 0 : -DWC_E_SHUTDOWN;
@@ -2416,6 +2433,7 @@ int dwc_otg_pcd_ep_halt(dwc_otg_pcd_t *pcd, void *ep_handle, int value)
 				if (ep->dwc_ep.num == 0)
 					pcd->ep0state = EP0_STALL;
 
+
 				ep->stopped = 1;
 				dwc_otg_ep_set_stall(GET_CORE_IF(pcd),
 						     &ep->dwc_ep);
@@ -2423,6 +2441,7 @@ int dwc_otg_pcd_ep_halt(dwc_otg_pcd_t *pcd, void *ep_handle, int value)
 		} else {
 			if (ep->dwc_ep.num == 0)
 				pcd->ep0state = EP0_STALL;
+
 
 			ep->stopped = 1;
 			dwc_otg_ep_set_stall(GET_CORE_IF(pcd), &ep->dwc_ep);

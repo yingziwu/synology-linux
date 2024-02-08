@@ -78,6 +78,7 @@ The user may:
             commercial use other than making said contribution to the ITU.
             Said permission will be provided on a case-by-case basis.
 
+
 ANY OTHER USE OR APPLICATION OF THE PESQ SOFTWARE AND/OR THE PESQ
 ALGORITHM WILL REQUIRE A PESQ LICENCE AGREEMENT, WHICH MAY BE OBTAINED
 FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
@@ -85,6 +86,7 @@ FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
 EACH COMPANY OFFERS OEM LICENSE AGREEMENTS, WHICH COMBINE OEM
 IMPLEMENTATIONS OF THE PESQ ALGORITHM TOGETHER WITH A PESQ PATENT LICENSE
 AGREEMENT. PESQ PATENT-ONLY LICENSE AGREEMENTS MAY BE OBTAINED FROM OPTICOM.
+
 
 ***********************************************************************
 *  OPTICOM GmbH                    *  Psytechnics Limited             *

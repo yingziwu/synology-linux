@@ -782,6 +782,7 @@ static int mwl8k_load_firmware(struct ieee80211_hw *hw)
 	return loops ? 0 : -ETIMEDOUT;
 }
 
+
 /* DMA header used by firmware and hardware.  */
 struct mwl8k_dma_data {
 	__le16 fwlen;
@@ -1130,6 +1131,7 @@ static struct rxd_ops rxd_sta_ops = {
 	.rxd_process	= mwl8k_rxd_sta_process,
 };
 
+
 #define MWL8K_RX_DESCS		256
 #define MWL8K_RX_MAXSZ		3800
 
@@ -1245,6 +1247,7 @@ static void mwl8k_rxq_deinit(struct ieee80211_hw *hw, int index)
 			    rxq->rxd, rxq->rxd_dma);
 	rxq->rxd = NULL;
 }
+
 
 /*
  * Scan a list of BSSIDs to process for finalize join.
@@ -1389,6 +1392,7 @@ static int rxq_process(struct ieee80211_hw *hw, int index, int limit)
 
 	return processed;
 }
+
 
 /*
  * Packet transmission.
@@ -2103,6 +2107,7 @@ mwl8k_txq_xmit(struct ieee80211_hw *hw,
 	}
 }
 
+
 /*
  * Firmware access.
  *
@@ -2227,6 +2232,7 @@ static int mwl8k_post_cmd(struct ieee80211_hw *hw, struct mwl8k_cmd_pkt *cmd)
 				msecs_to_jiffies(MWL8K_CMD_TIMEOUT_MS));
 
 	priv->hostcmd_wait = NULL;
+
 
 	pci_unmap_single(priv->pdev, dma_addr, dma_size,
 					PCI_DMA_BIDIRECTIONAL);
@@ -3709,6 +3715,7 @@ done:
 	return;
 }
 
+
 /*
  * CMD_BSS_START.
  */
@@ -3785,6 +3792,7 @@ enum ba_stream_action_type {
 	MWL8K_BA_CHECK,
 };
 
+
 struct mwl8k_create_ba_stream {
 	__le32	flags;
 	__le32	idle_thrs;
@@ -3857,6 +3865,7 @@ mwl8k_create_ba(struct ieee80211_hw *hw, struct mwl8k_ampdu_stream *stream,
 	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
 	if (cmd == NULL)
 		return -ENOMEM;
+
 
 	cmd->header.code = cpu_to_le16(MWL8K_CMD_BASTREAM);
 	cmd->header.length = cpu_to_le16(sizeof(*cmd));
@@ -4431,6 +4440,7 @@ static int mwl8k_cmd_update_stadb_del(struct ieee80211_hw *hw,
 	return rc;
 }
 
+
 /*
  * Interrupt handling.
  */
@@ -4526,6 +4536,7 @@ static void mwl8k_rx_poll(unsigned long data)
 		tasklet_schedule(&priv->poll_rx_task);
 	}
 }
+
 
 /*
  * Core driver operations.
@@ -4825,6 +4836,7 @@ static int mwl8k_config(struct ieee80211_hw *hw, u32 changed)
 			if (rc)
 				goto out;
 		}
+
 
 	} else {
 		rc = mwl8k_cmd_rf_tx_power(hw, conf->power_level);
@@ -5754,6 +5766,7 @@ static int mwl8k_probe_hw(struct ieee80211_hw *hw)
 	if (rc)
 		wiphy_warn(hw->wiphy, "failed to set # of TX antennas");
 
+
 	/* Disable interrupts */
 	iowrite32(0, priv->regs + MWL8K_HIU_A2H_INTERRUPT_MASK);
 	free_irq(priv->pdev->irq, hw);
@@ -5850,6 +5863,7 @@ static const struct ieee80211_iface_combination ap_if_comb = {
 	.max_interfaces = 8,
 	.num_different_channels = 1,
 };
+
 
 static int mwl8k_firmware_load_success(struct mwl8k_priv *priv)
 {
@@ -5975,6 +5989,7 @@ static int mwl8k_probe(struct pci_dev *pdev,
 		printed_version = 1;
 	}
 
+
 	rc = pci_enable_device(pdev);
 	if (rc) {
 		printk(KERN_ERR "%s: Cannot enable new PCI device\n",
@@ -5990,6 +6005,7 @@ static int mwl8k_probe(struct pci_dev *pdev,
 	}
 
 	pci_set_master(pdev);
+
 
 	hw = ieee80211_alloc_hw(sizeof(*priv), &mwl8k_ops);
 	if (hw == NULL) {

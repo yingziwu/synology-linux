@@ -206,6 +206,8 @@ IVc. Errata
 See Packet Engines confidential appendix (prototype chips only).
 */
 
+
+
 enum capability_flags {
 	HasMII=1, FullTxStatus=2, IsGigabit=4, HasMulticastBug=8, FullRxStatus=16,
 	HasMACAddrBug=32, /* Only on early revs.  */
@@ -240,6 +242,7 @@ static DEFINE_PCI_DEVICE_TABLE(yellowfin_pci_tbl) = {
 	{ }
 };
 MODULE_DEVICE_TABLE (pci, yellowfin_pci_tbl);
+
 
 /* Offsets to the Yellowfin registers.  Various sizes and alignments. */
 enum yellowfin_offsets {
@@ -558,6 +561,7 @@ static void mdio_write(void __iomem *ioaddr, int phy_id, int location, int value
 		if ((ioread16(ioaddr + MII_Status) & 1) == 0)
 			break;
 }
+
 
 static int yellowfin_open(struct net_device *dev)
 {
@@ -1368,6 +1372,7 @@ static int netdev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	}
 }
 
+
 static void yellowfin_remove_one(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -1390,12 +1395,14 @@ static void yellowfin_remove_one(struct pci_dev *pdev)
 	pci_set_drvdata(pdev, NULL);
 }
 
+
 static struct pci_driver yellowfin_driver = {
 	.name		= DRV_NAME,
 	.id_table	= yellowfin_pci_tbl,
 	.probe		= yellowfin_init_one,
 	.remove		= yellowfin_remove_one,
 };
+
 
 static int __init yellowfin_init (void)
 {
@@ -1406,10 +1413,12 @@ static int __init yellowfin_init (void)
 	return pci_register_driver(&yellowfin_driver);
 }
 
+
 static void __exit yellowfin_cleanup (void)
 {
 	pci_unregister_driver (&yellowfin_driver);
 }
+
 
 module_init(yellowfin_init);
 module_exit(yellowfin_cleanup);

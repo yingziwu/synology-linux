@@ -214,6 +214,7 @@ int32_t dwc_otg_hcd_handle_sof_intr(dwc_otg_hcd_t *hcd)
 	if (tr_type != DWC_OTG_TRANSACTION_NONE)
 		dwc_otg_hcd_queue_transactions(hcd, tr_type);
 
+
 	/* Clear interrupt */
 	gintsts.b.sofintr = 1;
 	DWC_WRITE_REG32(&hcd->core_if->core_global_regs->gintsts, gintsts.d32);
@@ -582,6 +583,7 @@ static int update_urb_state_xfer_comp(dwc_hc_t *hc,
 	xfer_length = get_actual_xfer_length(hc, hc_regs, qtd,
 					     DWC_OTG_HC_XFER_COMPLETE,
 					     &short_read);
+
 
 	/* non DWORD-aligned buffer case handling. */
 	if (hc->align_buff && xfer_length && hc->ep_is_in) {
@@ -1194,6 +1196,7 @@ static int32_t handle_hc_stall_intr(dwc_otg_hcd_t *hcd,
 
 	if (pipe_type == UE_CONTROL)
 		hcd->fops->complete(hcd, urb->priv, urb, -DWC_E_PIPE);
+
 
 	if (pipe_type == UE_BULK || pipe_type == UE_INTERRUPT) {
 		hcd->fops->complete(hcd, urb->priv, urb, -DWC_E_PIPE);

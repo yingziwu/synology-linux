@@ -65,6 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __INCPCIREGSH
 #define __INCPCIREGSH
 
+
 #include "pci-if/mvPciIfRegs.h"
 /* defines */
 #define MAX_PCI_DEVICES         32
@@ -79,7 +80,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* this enumeratoe order is determined by the content of :
 		PCI_BASE_ADDR_ENABLE_REG 				 					*/
 
+
 /* registers offsetes defines */
+
+
 
 /*************************/
 /* PCI control registers */
@@ -102,6 +106,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* PCI Dll Control (PDC)*/
 #define PDC_DLL_EN					BIT0
+
 
 /* PCI Command Register (PCR) */
 #define PCR_MASTER_BYTE_SWAP_EN     BIT0
@@ -161,16 +166,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PMR_PCI_RESET_MASK			(0x1 << PMR_PCI_RESET_OFFS)
 #define PMR_PCI_RESET_PCIXRST		(0x0 << PMR_PCI_RESET_OFFS)
 
+
 /* PCI Retry Register (PRR) */
 #define PRR_RETRY_CNTR_OFFS			16 /* Retry Counter */
 #define PRR_RETRY_CNTR_MAX			0xff
 #define PRR_RETRY_CNTR_MASK			(PRR_RETRY_CNTR_MAX << PRR_RETRY_CNTR_OFFS)
+
 
 /* PCI Discard Timer Register (PDTR) */
 #define PDTR_TIMER_OFFS				0	/* Timer */
 #define PDTR_TIMER_MAX				0xffff
 #define PDTR_TIMER_MIN				0x7F
 #define PDTR_TIMER_MASK				(PDTR_TIMER_MAX << PDTR_TIMER_OFFS)
+
 
 /* PCI Arbiter Control Register (PACR) */
 #define PACR_BROKEN_DETECT_EN		BIT1	/* Broken Detection Enable */
@@ -187,6 +195,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define PACR_ARB_ENABLE				BIT31	/* Enable Internal Arbiter */
 
+
 /* PCI P2P Configuration Register (PPCR) */
 #define PPCR_2ND_BUS_L_OFFS			0	/* 2nd PCI Interface Bus Range Lower */
 #define PPCR_2ND_BUS_L_MASK			(0xff << PPCR_2ND_BUS_L_OFFS)
@@ -199,6 +208,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define PPCR_DEV_NUM_OFFS			24  /* The PCI interface’s Device number */
 #define PPCR_DEV_NUM_MASK			(0xff << PPCR_DEV_NUM_OFFS)
+
 
 /* PCI Access Control Base Low Register (PACBLR) */
 #define PACBLR_EN					BIT0 /* Access control window enable */
@@ -233,6 +243,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                              ((base+PACBLR_BASE_L_ALIGNMENT)&PACBLR_BASE_L_MASK)
 #define PACBLR_BASE_ALIGN_DOWN(base)  (base & PACBLR_BASE_L_MASK)
 
+
 /* PCI Access Control Base High Register (PACBHR) 	*/
 #define PACBHR_BASE_H_OFFS			0	/* Corresponds to address bits [63:32] */
 #define PACBHR_CTRL_BASE_H_MASK		(0xffffffff << PACBHR_BASE_H_OFFS)
@@ -252,6 +263,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PACSR_SIZE_ALIGN_UP(size)   \
                                    ((size+PACSR_SIZE_ALIGNMENT)&PACSR_SIZE_MASK)
 #define PACSR_SIZE_ALIGN_DOWN(size) (size & PACSR_SIZE_MASK)
+
 
 /***************************************/
 /* PCI Configuration Access Registers  */
@@ -275,6 +287,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PCAR_BUS_NUM_MASK			(0xFF << PCAR_BUS_NUM_OFFS)
 
 #define PCAR_CONFIG_EN				BIT31
+
 
 /***************************************/
 /* PCI Configuration registers */
@@ -305,6 +318,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PCIX_STATUS		                            0x064
 #define PCI_COMPACT_PCI_HOT_SWAP		            0x068
 
+
 /*********************************************/
 /* PCI Configuration, Function 1, Registers  */
 /*********************************************/
@@ -313,6 +327,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PCI_SCS2_BASE_ADDR_HIGH						0x14
 #define PCI_SCS3_BASE_ADDR_LOW		 				0x18
 #define PCI_SCS3_BASE_ADDR_HIGH						0x1c
+
 
 /***********************************************/
 /*  PCI Configuration, Function 2, Registers   */
@@ -352,6 +367,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PXS_BN_OFFS		8	/* Bus Number */
 #define PXS_BN_MASK		(0xff << PXS_BN_OFFS)
 
+
 /* PCI Error Report Register Map */
 #define PCI_SERRN_MASK_REG(pciIf)		(0x30c28  + (pciIf * 0x80))
 #define PCI_CAUSE_REG(pciIf)			(0x31d58 + (pciIf * 0x80))
@@ -370,6 +386,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PECR_ERR_CMD_MASK			(0xf << PECR_ERR_CMD_OFFS)
 #define PECR_DAC					BIT4
 
+
 /* defaults */
 /* Set bits means value is about to change according to new value */
 #define PCI_COMMAND_DEFAULT_MASK                0xffffdff1
@@ -384,8 +401,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                  PCR_MASTER_M64_ALLIGN          |       \
                  PCR_ERRORS_PROPAGATION_EN)
 
+
 #define PCI_ARBITER_CTRL_DEFAULT_MASK   0x801fc07a
 #define PCI_ARBITER_CTRL_DEFAULT        \
         (PACR_BROKEN_VAL_PCIX_MIN << PACR_BROKEN_VAL_OFFS)
+
 
 #endif /* #ifndef __INCPCIREGSH */

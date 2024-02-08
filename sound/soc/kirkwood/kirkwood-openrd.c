@@ -49,6 +49,7 @@ static struct snd_soc_ops openrd_client_ops = {
 	.hw_params = openrd_client_hw_params,
 };
 
+
 static struct snd_soc_dai_link openrd_client_dai[] = {
 {
 	.name = "CS42L51",
@@ -61,6 +62,7 @@ static struct snd_soc_dai_link openrd_client_dai[] = {
 	.ops = &openrd_client_ops,
 },
 };
+
 
 static struct snd_soc_card openrd_client = {
 	.name = "OpenRD Client",

@@ -46,6 +46,7 @@ suspend_mmu_off:
 						@ r6 = __pa(sti_eram_code)
 						@ r7 = __pa(pokeloop)
 
+
 	blx	r6	@ call the sti_hps_on_eram
 			@ placed in the ERAM
 
@@ -68,6 +69,7 @@ suspend_mmu_on:
 	ldmfd   sp!, {r4-r12, lr}
 	mov	pc, lr
 
+
 @ the sti_hps_on_eram is the code running on ERAM, this is copied to eram
 @ and jumped from suspend_mmu_off, r6 containing the physical address
 @ of this function
@@ -79,6 +81,7 @@ sti_hps_on_eram:
 
 	blx	r7		@ call the poke loop to execute
 				@ the entry_table
+
 
 	wfi
 	mov	r0, r5		@ r0 = __pa_eram(table exit address)

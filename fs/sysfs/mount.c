@@ -23,6 +23,7 @@
 
 #include "sysfs.h"
 
+
 static struct vfsmount *sysfs_mnt;
 struct kmem_cache *sysfs_dir_cachep;
 

@@ -7,16 +7,16 @@
 #include <linux/pci.h>
 #if defined (MY_DEF_HERE) || defined(MY_DEF_HERE)
 #include <linux/msi.h>
-#endif  
+#endif /* MY_DEF_HERE || MY_DEF_HERE */
 
 struct pci_dev;
 #if defined(MY_DEF_HERE)
 struct of_phandle_args;
 int of_irq_parse_pci(const struct pci_dev *pdev, struct of_phandle_args *out_irq);
-#else  
+#else /* MY_DEF_HERE */
 struct of_irq;
 int of_irq_map_pci(const struct pci_dev *pdev, struct of_irq *out_irq);
-#endif  
+#endif /* MY_DEF_HERE */
 
 struct device_node;
 struct device_node *of_pci_find_child_device(struct device_node *parent,
@@ -24,7 +24,7 @@ struct device_node *of_pci_find_child_device(struct device_node *parent,
 #if defined(MY_ABC_HERE)
 int of_pci_get_devfn(struct device_node *np);
 int of_pci_parse_bus_range(struct device_node *node, struct resource *res);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #if defined (MY_DEF_HERE) || defined(MY_DEF_HERE)
 int of_pci_get_devfn(struct device_node *np);
@@ -40,6 +40,6 @@ static inline void of_pci_msi_chip_remove(struct msi_chip *chip) { }
 static inline struct msi_chip *
 of_pci_find_msi_chip_by_node(struct device_node *of_node) { return NULL; }
 #endif
-#endif  
+#endif /* MY_DEF_HERE || MY_DEF_HERE */
 
 #endif

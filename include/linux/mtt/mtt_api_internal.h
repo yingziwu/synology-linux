@@ -24,6 +24,7 @@
 #include "../mtt.h"
 #include <linux/mtt/systrace.h>
 
+
 /**
  * The MTT specification says that a channel can be allocated to a
  * software component upon mtt_open, so there is conceptually a mapping
@@ -50,6 +51,8 @@
 #define MTT_COMPID_MAOFFSET (1<<MTT_COMPID_MASHIFT) /* Start at bit 12 */
 #define MTT_COMPID_MAMSK    0x0000F000              /* Bits 12 to 15 */
 
+
+
 /**
  * The MTT specification says that a channel can be allocated to a
  * software component upon mtt_open, so there is conceptually a mapping
@@ -75,6 +78,7 @@
 #define MTT_COMPID_CHSHIFT  0          /* Start at bit 0 */
 #define MTT_COMPID_CHOFFSET 0          /* Start at bit 0 */
 #define MTT_COMPID_CHMSK    0x000000FF /* Bits 0 to 7 */
+
 
 /* COMMON CHANNEL DEFINITIONS */
 /* Channel definitions are moved to systrace.h */

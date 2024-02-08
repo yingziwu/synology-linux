@@ -68,3 +68,4 @@ void hifmc_get_nand_best_clock(unsigned int *clock)
 
 	*clock = clk_reg;
 }
+

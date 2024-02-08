@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Reset Controller framework
+ *
+ * Copyright 2013 Philipp Zabel, Pengutronix
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ */
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/export.h>
@@ -15,12 +24,28 @@
 static DEFINE_MUTEX(reset_controller_list_mutex);
 static LIST_HEAD(reset_controller_list);
 
+/**
+ * struct reset_control - a reset control
+ * @rcdev: a pointer to the reset controller device
+ *         this reset control belongs to
+ * @id: ID of the reset controller in the reset
+ *      controller device
+ */
 struct reset_control {
 	struct reset_controller_dev *rcdev;
 	struct device *dev;
 	unsigned int id;
 };
 
+/**
+ * of_reset_simple_xlate - translate reset_spec to the reset line number
+ * @rcdev: a pointer to the reset controller device
+ * @reset_spec: reset line specifier as found in the device tree
+ * @flags: a flags pointer to fill in (optional)
+ *
+ * This simple translation function should be used for reset controllers
+ * with 1:1 mapping, where reset lines can be indexed by number without gaps.
+ */
 int of_reset_simple_xlate(struct reset_controller_dev *rcdev,
 			  const struct of_phandle_args *reset_spec)
 {
@@ -34,6 +59,10 @@ int of_reset_simple_xlate(struct reset_controller_dev *rcdev,
 }
 EXPORT_SYMBOL_GPL(of_reset_simple_xlate);
 
+/**
+ * reset_controller_register - register a reset controller device
+ * @rcdev: a pointer to the initialized reset controller device
+ */
 int reset_controller_register(struct reset_controller_dev *rcdev)
 {
 	if (!rcdev->of_xlate) {
@@ -49,6 +78,10 @@ int reset_controller_register(struct reset_controller_dev *rcdev)
 }
 EXPORT_SYMBOL_GPL(reset_controller_register);
 
+/**
+ * reset_controller_unregister - unregister a reset controller device
+ * @rcdev: a pointer to the reset controller device
+ */
 void reset_controller_unregister(struct reset_controller_dev *rcdev)
 {
 	mutex_lock(&reset_controller_list_mutex);
@@ -57,6 +90,10 @@ void reset_controller_unregister(struct reset_controller_dev *rcdev)
 }
 EXPORT_SYMBOL_GPL(reset_controller_unregister);
 
+/**
+ * reset_control_reset - reset the controlled device
+ * @rstc: reset controller
+ */
 int reset_control_reset(struct reset_control *rstc)
 {
 	if (rstc->rcdev->ops->reset)
@@ -66,6 +103,10 @@ int reset_control_reset(struct reset_control *rstc)
 }
 EXPORT_SYMBOL_GPL(reset_control_reset);
 
+/**
+ * reset_control_assert - asserts the reset line
+ * @rstc: reset controller
+ */
 int reset_control_assert(struct reset_control *rstc)
 {
 	if (rstc->rcdev->ops->assert)
@@ -75,6 +116,10 @@ int reset_control_assert(struct reset_control *rstc)
 }
 EXPORT_SYMBOL_GPL(reset_control_assert);
 
+/**
+ * reset_control_deassert - deasserts the reset line
+ * @rstc: reset controller
+ */
 int reset_control_deassert(struct reset_control *rstc)
 {
 	if (rstc->rcdev->ops->deassert)
@@ -85,7 +130,10 @@ int reset_control_deassert(struct reset_control *rstc)
 EXPORT_SYMBOL_GPL(reset_control_deassert);
 
 #if defined (MY_DEF_HERE)
- 
+/**
+ * reset_control_is_asserted - queries the reset line status
+ * @rstc: reset controller
+ */
 int reset_control_is_asserted(struct reset_control *rstc)
 {
 	if (rstc->rcdev->ops->is_asserted)
@@ -95,16 +143,27 @@ int reset_control_is_asserted(struct reset_control *rstc)
 }
 EXPORT_SYMBOL_GPL(reset_control_is_asserted);
 
-#endif  
+#endif /* MY_DEF_HERE */
 
 #if defined(MY_DEF_HERE)
- 
+/**
+ * of_reset_control_get - Lookup and obtain a reference to a reset
+ * controller by OF node.
+ */
 struct reset_control *of_reset_control_get(struct device_node *np,
 					   const char *id)
-#else  
- 
+#else /* MY_DEF_HERE */
+/**
+ * reset_control_get - Lookup and obtain a reference to a reset controller.
+ * @dev: device to be reset by the controller
+ * @id: reset line name
+ *
+ * Returns a struct reset_control or IS_ERR() condition containing errno.
+ *
+ * Use of id names is optional.
+ */
 struct reset_control *reset_control_get(struct device *dev, const char *id)
-#endif  
+#endif /* MY_DEF_HERE */
 {
 	struct reset_control *rstc = ERR_PTR(-EPROBE_DEFER);
 	struct reset_controller_dev *r, *rcdev;
@@ -119,7 +178,7 @@ struct reset_control *reset_control_get(struct device *dev, const char *id)
 						 "reset-names", id);
 	ret = of_parse_phandle_with_args(np, "resets", "#reset-cells",
 					 index, &args);
-#else  
+#else /* MY_DEF_HERE */
 	if (!dev)
 		return ERR_PTR(-EINVAL);
 
@@ -128,7 +187,7 @@ struct reset_control *reset_control_get(struct device *dev, const char *id)
 						 "reset-names", id);
 	ret = of_parse_phandle_with_args(dev->of_node, "resets", "#reset-cells",
 					 index, &args);
-#endif  
+#endif /* MY_DEF_HERE */
 	if (ret)
 		return ERR_PTR(ret);
 
@@ -146,9 +205,9 @@ struct reset_control *reset_control_get(struct device *dev, const char *id)
 		mutex_unlock(&reset_controller_list_mutex);
 #if defined (MY_DEF_HERE)
 		return ERR_PTR(-EPROBE_DEFER);
-#else  
+#else /* MY_DEF_HERE */
 		return ERR_PTR(-ENODEV);
-#endif  
+#endif /* MY_DEF_HERE */
 	}
 
 	rstc_id = rcdev->of_xlate(rcdev, &args);
@@ -168,9 +227,9 @@ struct reset_control *reset_control_get(struct device *dev, const char *id)
 
 #if defined(MY_DEF_HERE)
 	rstc->dev = NULL;
-#else  
+#else /* MY_DEF_HERE */
 	rstc->dev = dev;
-#endif  
+#endif /* MY_DEF_HERE */
 	rstc->rcdev = rcdev;
 	rstc->id = rstc_id;
 
@@ -179,6 +238,15 @@ struct reset_control *reset_control_get(struct device *dev, const char *id)
 #if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(of_reset_control_get);
 
+/**
+ * reset_control_get - Lookup and obtain a reference to a reset controller.
+ * @dev: device to be reset by the controller
+ * @id: reset line name
+ *
+ * Returns a struct reset_control or IS_ERR() condition containing errno.
+ *
+ * Use of id names is optional.
+ */
 struct reset_control *reset_control_get(struct device *dev, const char *id)
 {
 	struct reset_control *rstc;
@@ -194,8 +262,13 @@ struct reset_control *reset_control_get(struct device *dev, const char *id)
 
 	return rstc;
 }
-#endif  
+#endif /* MY_DEF_HERE */
 EXPORT_SYMBOL_GPL(reset_control_get);
+
+/**
+ * reset_control_put - free the reset controller
+ * @rstc: reset controller
+ */
 
 void reset_control_put(struct reset_control *rstc)
 {
@@ -212,6 +285,15 @@ static void devm_reset_control_release(struct device *dev, void *res)
 	reset_control_put(*(struct reset_control **)res);
 }
 
+/**
+ * devm_reset_control_get - resource managed reset_control_get()
+ * @dev: device to be reset by the controller
+ * @id: reset line name
+ *
+ * Managed reset_control_get(). For reset controllers returned from this
+ * function, reset_control_put() is called automatically on driver detach.
+ * See reset_control_get() for more information.
+ */
 struct reset_control *devm_reset_control_get(struct device *dev, const char *id)
 {
 	struct reset_control **ptr, *rstc;
@@ -241,6 +323,14 @@ static int devm_reset_control_match(struct device *dev, void *res, void *data)
 	return *rstc == data;
 }
 
+/**
+ * devm_reset_control_put - resource managed reset_control_put()
+ * @rstc: reset controller to free
+ *
+ * Deallocate a reset control allocated withd devm_reset_control_get().
+ * This function will not need to be called normally, as devres will take
+ * care of freeing the resource.
+ */
 void devm_reset_control_put(struct reset_control *rstc)
 {
 	int ret;
@@ -252,6 +342,15 @@ void devm_reset_control_put(struct reset_control *rstc)
 }
 EXPORT_SYMBOL_GPL(devm_reset_control_put);
 
+/**
+ * device_reset - find reset controller associated with the device
+ *                and perform reset
+ * @dev: device to be reset by the controller
+ *
+ * Convenience wrapper for reset_control_get() and reset_control_reset().
+ * This is useful for the common case of devices with single, dedicated reset
+ * lines.
+ */
 int device_reset(struct device *dev)
 {
 	struct reset_control *rstc;

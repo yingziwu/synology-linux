@@ -264,6 +264,7 @@ static void __init cm_t35_init_display(void)
 	spi_register_board_info(cm_t35_lcd_spi_board_info,
 				ARRAY_SIZE(cm_t35_lcd_spi_board_info));
 
+
 	err = gpio_request_one(CM_T35_LCD_EN_GPIO, GPIOF_OUT_INIT_LOW,
 			"lcd bl enable");
 	if (err) {

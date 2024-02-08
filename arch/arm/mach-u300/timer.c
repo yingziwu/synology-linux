@@ -305,6 +305,7 @@ static int u300_set_next_event(unsigned long cycles,
 	return 0;
 }
 
+
 /* Use general purpose timer 1 as clock event */
 static struct clock_event_device clockevent_u300_1mhz = {
 	.name		= "GPT1",
@@ -343,6 +344,7 @@ static u32 notrace u300_read_sched_clock(void)
 {
 	return readl(U300_TIMER_APP_VBASE + U300_TIMER_APP_GPT2CC);
 }
+
 
 /*
  * This sets up the system timers, clock source and clock event.

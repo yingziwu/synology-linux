@@ -197,6 +197,7 @@ static struct platform_device davinci_mmcsd1_device = {
 	.resource = mmcsd1_resources,
 };
 
+
 void __init davinci_setup_mmc(int module, struct davinci_mmc_config *config)
 {
 	struct platform_device	*pdev = NULL;
@@ -341,3 +342,4 @@ static int __init davinci_init_devices(void)
 	return 0;
 }
 arch_initcall(davinci_init_devices);
+

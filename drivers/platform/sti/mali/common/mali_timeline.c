@@ -1161,6 +1161,7 @@ mali_timeline_point mali_timeline_system_add_tracker(struct mali_timeline_system
 	/* At this point the tracker object might have been freed so we should no longer
 	 * access it. */
 
+
 	/* The tracker will always be activated after calling add_tracker, even if NO_POINT is
 	 * returned. */
 	return point;

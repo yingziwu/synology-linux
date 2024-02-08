@@ -339,6 +339,7 @@ static int add_brk_on_call(struct dyn_ftrace *rec, unsigned long addr)
 	return add_break(rec->ip, old);
 }
 
+
 static int add_brk_on_nop(struct dyn_ftrace *rec)
 {
 	unsigned const char *old;
@@ -742,6 +743,18 @@ void prepare_ftrace_return(unsigned long *parent, unsigned long self_addr,
 	struct ftrace_graph_ent trace;
 	unsigned long return_hooker = (unsigned long)
 				&return_to_handler;
+
+	/*
+	 * When resuming from suspend-to-ram, this function can be indirectly
+	 * called from early CPU startup code while the CPU is in real mode,
+	 * which would fail miserably.  Make sure the stack pointer is a
+	 * virtual address.
+	 *
+	 * This check isn't as accurate as virt_addr_valid(), but it should be
+	 * good enough for this purpose, and it's fast.
+	 */
+	if (unlikely((long)__builtin_frame_address(0) >= 0))
+		return;
 
 	if (unlikely(atomic_read(&current->tracing_graph_pause)))
 		return;

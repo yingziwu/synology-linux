@@ -27,6 +27,7 @@ static int usb_w90x900_probe(const struct hc_driver *driver,
 	int retval = 0, irq;
 	unsigned long val;
 
+
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
 		retval = -ENXIO;

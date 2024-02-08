@@ -12,6 +12,7 @@
 #include <pwd.h>
 #include <string.h>
 
+
 enum perf_target_errno perf_target__validate(struct perf_target *target)
 {
 	enum perf_target_errno ret = PERF_ERRNO_TARGET__SUCCESS;

@@ -1149,6 +1149,7 @@ static struct rdma_id_private *cma_new_udp_id(struct rdma_cm_id *listen_id,
 	if (IS_ERR(id))
 		return NULL;
 
+
 	if (cma_get_net_info(ib_event->private_data, listen_id->ps,
 			     &ip_ver, &port, &src, &dst))
 		goto err;
@@ -2770,6 +2771,9 @@ static int cma_accept_iw(struct rdma_id_private *id_priv,
 {
 	struct iw_cm_conn_param iw_param;
 	int ret;
+
+	if (!conn_param)
+		return -EINVAL;
 
 	ret = cma_modify_qp_rtr(id_priv, conn_param);
 	if (ret)

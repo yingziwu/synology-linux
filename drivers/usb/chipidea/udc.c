@@ -1511,6 +1511,7 @@ static int ci13xxx_start(struct usb_gadget *gadget,
 	if (driver->disconnect == NULL)
 		return -EINVAL;
 
+
 	ci->ep0out->ep.desc = &ctrl_endpt_out_desc;
 	retval = usb_ep_enable(&ci->ep0out->ep);
 	if (retval)

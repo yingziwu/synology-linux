@@ -925,6 +925,8 @@ static void efx_sriov_vfdi(struct work_struct *work)
 	(void) efx_sriov_memcpy(efx, copy, ARRAY_SIZE(copy));
 }
 
+
+
 /* After a reset the event queues inside the guests no longer exist. Fill the
  * event ring in guest memory with VFDI reset events, then (re-initialise) the
  * event queue to raise an interrupt. The guest driver will then recover.
@@ -1644,3 +1646,4 @@ int efx_sriov_get_vf_config(struct net_device *net_dev, int vf_i,
 
 	return 0;
 }
+

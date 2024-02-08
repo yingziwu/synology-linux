@@ -124,6 +124,7 @@ int keyreset_remove(struct platform_device *pdev)
 	return 0;
 }
 
+
 struct platform_driver keyreset_driver = {
 	.driver.name = KEYRESET_NAME,
 	.probe = keyreset_probe,

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,7 +35,10 @@ disclaimer.
 #include "mvCommon.h"
 #include "cls/mvPp2Cls4Hw.h"
 
+
 static MV_PP2_CLS_C4_ENTRY		C4;
+
+
 
 static ssize_t mv_cls_help(char *buf)
 {
@@ -85,6 +89,7 @@ static ssize_t mv_cls_help(char *buf)
 	return off;
 }
 
+
 static ssize_t mv_cls_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -108,6 +113,7 @@ static ssize_t mv_cls_show(struct device *dev,
 
 	return off;
 }
+
 
 static ssize_t mv_cls_store(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
@@ -207,6 +213,9 @@ static DEVICE_ATTR(act_sw_ql,			S_IWUSR, NULL, mv_cls_store);
 static DEVICE_ATTR(act_sw_fwd,			S_IWUSR, NULL, mv_cls_store);
 static DEVICE_ATTR(act_sw_queue,		S_IWUSR, NULL, mv_cls_store);
 static DEVICE_ATTR(act_sw_pol,			S_IWUSR, NULL, mv_cls_store);
+
+
+
 
 static struct attribute *cls4_attrs[] = {
 	&dev_attr_sw_dump.attr,

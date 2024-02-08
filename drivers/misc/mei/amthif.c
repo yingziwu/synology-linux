@@ -145,6 +145,7 @@ struct mei_cl_cb *mei_amthif_find_read_list_entry(struct mei_device *dev,
 	return NULL;
 }
 
+
 /**
  * mei_amthif_read - read data from AMTHIF client
  *
@@ -191,6 +192,7 @@ int mei_amthif_read(struct mei_device *dev, struct file *file,
 	if (cb == NULL && file->f_flags & O_NONBLOCK)
 		return -EAGAIN;
 
+
 	dev_dbg(&dev->pdev->dev, "waiting for amthif data\n");
 	while (cb == NULL) {
 		/* unlock the Mutex */
@@ -207,6 +209,7 @@ int mei_amthif_read(struct mei_device *dev, struct file *file,
 
 		dev_dbg(&dev->pdev->dev, "woke up from sleep\n");
 	}
+
 
 	dev_dbg(&dev->pdev->dev, "Got amthif data\n");
 	dev->iamthif_timer = 0;
@@ -411,6 +414,7 @@ void mei_amthif_run_next_cmd(struct mei_device *dev)
 	}
 }
 
+
 unsigned int mei_amthif_poll(struct mei_device *dev,
 		struct file *file, poll_table *wait)
 {
@@ -426,6 +430,8 @@ unsigned int mei_amthif_poll(struct mei_device *dev,
 	}
 	return mask;
 }
+
+
 
 /**
  * mei_amthif_irq_write_completed - processes completed iamthif operation.
@@ -491,6 +497,7 @@ int mei_amthif_irq_write_complete(struct mei_device *dev, s32 *slots,
 
 		list_move_tail(&cb->list, &dev->write_waiting_list.list);
 	}
+
 
 	return 0;
 }

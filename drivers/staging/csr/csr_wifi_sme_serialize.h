@@ -663,3 +663,4 @@ extern void CsrWifiSmeCoreDumpIndSerFree(void *msg);
 #define CsrWifiSmeWpsConfigurationCfmSerFree CsrWifiSmePfree
 
 #endif /* CSR_WIFI_SME_SERIALIZE_H__ */
+

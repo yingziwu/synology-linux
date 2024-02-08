@@ -70,6 +70,7 @@ struct al_pcie_pd {
 	u8	target_bus;
 };
 
+
 static inline struct al_pcie_pd *sys_to_pcie(struct pci_sys_data *sys)
 {
 	return sys->private_data;
@@ -515,6 +516,7 @@ static struct pci_bus *al_pcie_scan_bus(int nr, struct pci_sys_data *sys)
 					 sys, &sys->resources);
 }
 
+
 /*
  * Fixup function to make sure Max Paylod Size and MaxReadReq
  * are set based on host bridge Max capabilities.
@@ -527,6 +529,8 @@ static void al_pci_fixup(struct pci_dev *dev)
 	pcie_bus_configure_set(dev, &smpss);
 }
 DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, al_pci_fixup);
+
+
 
 static int al_pcie_add_host_bridge(struct al_pcie_pd *pcie)
 {

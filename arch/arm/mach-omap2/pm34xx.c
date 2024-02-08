@@ -398,6 +398,7 @@ restore:
 
 #endif /* CONFIG_SUSPEND */
 
+
 /**
  * omap3_iva_idle(): ensure IVA is in idle so it can be put into
  *                   retention

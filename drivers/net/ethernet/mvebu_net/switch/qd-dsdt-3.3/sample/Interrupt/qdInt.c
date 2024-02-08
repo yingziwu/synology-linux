@@ -14,6 +14,7 @@
 
 #include "msSample.h"
 
+
 /*
  *    To enable quarterDeck interrupt, you need to call eventSetActive() and
  *    gprtPhyIntEnable(), as following sample routine.
@@ -91,6 +92,7 @@ GT_STATUS sampleQDIntDisable(GT_QD_DEV *dev)
     }
     return GT_OK;
 }
+
 
 /*
  *    Assume that the following function, sampleQDIntVector(), is registered
@@ -371,6 +373,7 @@ GT_STATUS sampleQDIntVector(GT_QD_DEV *dev)
         */
 
     }
+
 
     /*
      *    Now, all the QuarterDeck related interrupt have been cleared,

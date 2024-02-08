@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __mvBmRegs_h__
 #define __mvBmRegs_h__
 
@@ -117,6 +118,7 @@ extern int bm_reg_vbase;
 #define MV_BM_EMPTY_LIMIT_BIT			19
 #define MV_BM_EMPTY_LIMIT_MASK			(1 << MV_BM_EMPTY_LIMIT_BIT)
 
+
 /* BM Activation Register */
 #define MV_BM_COMMAND_REG               (MV_BM_REG_BASE + 0x4)
 
@@ -169,6 +171,7 @@ extern int bm_reg_vbase;
 #define MV_BM_POOL_GET_READ_PTR_OFFS    16
 #define MV_BM_POOL_GET_READ_PTR_MASK    (0xFFFC << MV_BM_POOL_GET_READ_PTR_OFFS)
 
+
 /* External Buffer Pointers Pool WR pointer */
 #define MV_BM_POOL_WRITE_PTR_REG(pool)  (MV_BM_REG_BASE + 0x18 + ((pool) << 4))
 
@@ -185,6 +188,7 @@ extern int bm_reg_vbase;
 #define MV_BM_POOL_SIZE_OFFS            0
 #define MV_BM_POOL_SIZE_MASK            (0x3FFF << MV_BM_POOL_SIZE_OFFS)
 #define MV_BM_POOL_SIZE_VAL(size)       ((size) << MV_BM_POOL_SIZE_OFFS)
+
 
 /* BM Interrupt Cause Register */
 #define MV_BM_INTR_CAUSE_REG            (MV_BM_REG_BASE + 0x50)
@@ -222,6 +226,8 @@ extern int bm_reg_vbase;
 #define MV_BM_DEBUG_REG                 (MV_BM_REG_BASE + 0x60)
 #define MV_BM_READ_PTR_REG              (MV_BM_REG_BASE + 0x64)
 #define MV_BM_WRITE_PTR_REG             (MV_BM_REG_BASE + 0x68)
+
+
 
 #ifdef __cplusplus
 }

@@ -36,6 +36,7 @@ static char *st_fdma_debugfs_direction[] = {
 #define SEQ_PRINTF(m, s, a) \
 	seq_printf(m, "%-30s (0x%p) = 0x%08x\n", s, a, readl(a));
 
+
 /*
  * Debugfs register file functions
  */
@@ -95,6 +96,7 @@ static const struct file_operations st_fdma_debugfs_regs_fops = {
 	.release	= single_release,
 };
 
+
 /*
  * Debugfs register dmem functions
  */
@@ -134,6 +136,7 @@ static const struct file_operations st_fdma_debugfs_dmem_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+
 
 /*
  * Debugfs channel file functions
@@ -204,6 +207,7 @@ static const struct file_operations st_fdma_debugfs_chan_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+
 
 /*
  * Device register/unregister and initialise/shutdown
@@ -281,6 +285,7 @@ void st_fdma_debugfs_unregister(struct st_fdma_device *fdev)
 	debugfs_remove(fdev->debug_regs);
 	debugfs_remove(fdev->debug_dir);
 }
+
 
 void st_fdma_debugfs_init(void)
 {

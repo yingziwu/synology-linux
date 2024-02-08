@@ -575,6 +575,7 @@ static int palmas_smps_init(struct palmas *palmas, int id,
 			return ret;
 	}
 
+
 	return 0;
 }
 
@@ -759,6 +760,7 @@ static void palmas_dt_to_pdata(struct device *dev,
 
 	pdata->ldo6_vibrator = of_property_read_bool(node, "ti,ldo6-vibrator");
 }
+
 
 static int palmas_regulators_probe(struct platform_device *pdev)
 {
@@ -1021,6 +1023,7 @@ static int palmas_regulators_probe(struct platform_device *pdev)
 			}
 		}
 	}
+
 
 	return 0;
 

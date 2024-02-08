@@ -33,6 +33,7 @@
 #include "mixart_core.h"
 #include "mixart_hwdep.h"
 
+
 /**
  * wait for a value on a peudo register, exit with a timeout
  *
@@ -64,6 +65,7 @@ static int mixart_wait_nice_for_register_value(struct mixart_mgr *mgr,
 
 	return -EBUSY;
 }
+
 
 /*
   structures needed to upload elf code packets 
@@ -300,6 +302,7 @@ static int mixart_enum_physio(struct mixart_mgr *mgr)
 	return 0;
 }
 
+
 static int mixart_first_init(struct mixart_mgr *mgr)
 {
 	u32 k;
@@ -325,6 +328,7 @@ static int mixart_first_init(struct mixart_mgr *mgr)
 
 	return 0;
 }
+
 
 /* firmware base addresses (when hard coded) */
 #define MIXART_MOTHERBOARD_XLX_BASE_ADDRESS   0x00600000
@@ -540,6 +544,7 @@ static int mixart_dsp_load(struct mixart_mgr* mgr, int index, const struct firmw
 
 	return 0;
 }
+
 
 int snd_mixart_setup_firmware(struct mixart_mgr *mgr)
 {

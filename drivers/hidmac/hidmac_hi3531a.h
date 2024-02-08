@@ -86,3 +86,4 @@ extern int g_channel_status[CHANNEL_NUM];
 extern dmac_peripheral g_peripheral[DMAC_MAX_PERIPHERALS];
 
 #endif /* End of __HI_DMAC_HI3531A_H__ */
+

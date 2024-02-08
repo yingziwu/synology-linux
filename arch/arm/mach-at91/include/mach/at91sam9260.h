@@ -49,6 +49,7 @@
 #define AT91SAM9260_ID_IRQ1	30	/* Advanced Interrupt Controller (IRQ1) */
 #define AT91SAM9260_ID_IRQ2	31	/* Advanced Interrupt Controller (IRQ2) */
 
+
 /*
  * User Peripheral physical base addresses.
  */
@@ -93,6 +94,7 @@
 #define AT91SAM9260_BASE_PIT	0xfffffd30
 #define AT91SAM9260_BASE_WDT	0xfffffd40
 #define AT91SAM9260_BASE_GPBR	0xfffffd50
+
 
 /*
  * Internal Memory.

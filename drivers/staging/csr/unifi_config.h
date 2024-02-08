@@ -30,4 +30,5 @@
  */
 #define CSR_WIFI_HIP_NUM_COREDUMP_BUFFERS  5
 
+
 #endif /* __UNIFI_CONFIG_H__ */

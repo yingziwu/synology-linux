@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -34,22 +37,22 @@
 #if defined(CONFIG_SYNO_LSP_HI3536)
 /* Compatibility glue so we can support IPv6 when it's compiled as a module */
 struct pingv6_ops {
-#if defined(CONFIG_SYNO_HI3536)
+#if defined(MY_DEF_HERE)
 	int (*ipv6_recv_error)(struct sock *sk, struct msghdr *msg, int len, int *addr_len);
-#else /* CONFIG_SYNO_HI3536 */
+#else /* MY_DEF_HERE */
 	int (*ipv6_recv_error)(struct sock *sk, struct msghdr *msg, int len);
-#endif /* CONFIG_SYNO_HI3536 */
+#endif /* MY_DEF_HERE */
 	int (*ip6_datagram_recv_ctl)(struct sock *sk, struct msghdr *msg,
 				     struct sk_buff *skb);
 	int (*icmpv6_err_convert)(u8 type, u8 code, int *err);
 	void (*ipv6_icmp_error)(struct sock *sk, struct sk_buff *skb, int err,
 				__be16 port, u32 info, u8 *payload);
 	int (*ipv6_chk_addr)(struct net *net, const struct in6_addr *addr,
-#if defined(CONFIG_SYNO_HI3536)
+#if defined(MY_DEF_HERE)
 			     const struct net_device *dev, int strict);
-#else /* CONFIG_SYNO_HI3536 */
+#else /* MY_DEF_HERE */
 			     struct net_device *dev, int strict);
-#endif /* CONFIG_SYNO_HI3536 */
+#endif /* MY_DEF_HERE */
 };
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 
@@ -113,5 +116,6 @@ void __init ping_init(void);
 int  __init pingv6_init(void);
 void pingv6_exit(void);
 #endif /* CONFIG_SYNO_LSP_HI3536 */
+
 
 #endif /* _PING_H */

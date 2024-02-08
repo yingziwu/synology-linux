@@ -14,6 +14,7 @@
 
 #define VIVOPAY_VENDOR_ID 0x1d5f
 
+
 static struct usb_device_id id_table [] = {
 	/* ViVOpay 8800 */
 	{ USB_DEVICE(VIVOPAY_VENDOR_ID, 0x1004) },

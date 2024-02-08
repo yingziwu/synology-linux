@@ -97,6 +97,7 @@ static void keyscan_stop(struct keyscan_priv *priv)
 	clk_disable(priv->clk);
 }
 
+
 static int keypad_matrix_key_parse_dt(struct keyscan_priv *st_kp)
 {
 	struct device *dev = st_kp->input_dev->dev.parent;

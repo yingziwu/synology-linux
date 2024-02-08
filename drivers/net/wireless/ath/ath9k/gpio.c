@@ -356,6 +356,7 @@ void ath9k_btcoex_timer_resume(struct ath_softc *sc)
 	mod_timer(&btcoex->period_timer, jiffies);
 }
 
+
 /*
  * Pause btcoex timer and bt duty cycle timer
  */

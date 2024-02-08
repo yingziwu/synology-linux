@@ -397,6 +397,7 @@ xfs_qm_scall_quotaon(
 	return (0);
 }
 
+
 /*
  * Return quota status information, such as uquota-off, enforcements, etc.
  */
@@ -666,6 +667,7 @@ xfs_qm_log_quotaoff_end(
 	return (error);
 }
 
+
 STATIC int
 xfs_qm_log_quotaoff(
 	xfs_mount_t	       *mp,
@@ -715,6 +717,7 @@ error0:
 	*qoffstartp = qoffi;
 	return (error);
 }
+
 
 int
 xfs_qm_scall_getquota(
@@ -843,6 +846,7 @@ xfs_qm_export_flags(
 	return (uflags);
 }
 
+
 STATIC int
 xfs_dqrele_inode(
 	struct xfs_inode	*ip,
@@ -870,6 +874,7 @@ xfs_dqrele_inode(
 	xfs_iunlock(ip, XFS_ILOCK_EXCL);
 	return 0;
 }
+
 
 /*
  * Go thru all the inodes in the file system, releasing their dquots.

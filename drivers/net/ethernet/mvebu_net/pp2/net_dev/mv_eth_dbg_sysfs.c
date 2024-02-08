@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -33,6 +34,7 @@ disclaimer.
 
 #include "mv_netdev.h"
 #include "mv_eth_sysfs.h"
+
 
 static ssize_t mv_pp2_dbg_help(char *buf)
 {
@@ -102,11 +104,13 @@ static ssize_t mv_pp2_dbg_reg_store(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static DEVICE_ATTR(help,          S_IRUSR, mv_pp2_dbg_show, NULL);
 static DEVICE_ATTR(clean,         S_IRUSR, mv_pp2_dbg_show, NULL);
 static DEVICE_ATTR(init,          S_IRUSR, mv_pp2_dbg_show, NULL);
 static DEVICE_ATTR(regRead,       S_IWUSR, NULL, mv_pp2_dbg_reg_store);
 static DEVICE_ATTR(regWrite,      S_IWUSR, NULL, mv_pp2_dbg_reg_store);
+
 
 static struct attribute *mv_pp2_dbg_attrs[] = {
 	&dev_attr_clean.attr,
@@ -116,6 +120,7 @@ static struct attribute *mv_pp2_dbg_attrs[] = {
 	&dev_attr_regWrite.attr,
 	NULL
 };
+
 
 static struct attribute_group mv_pp2_dbg_group = {
 	.name = "dbg",

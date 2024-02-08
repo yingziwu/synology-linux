@@ -43,3 +43,4 @@ extern int hifmc100_spi_nor_init(struct hifmc_host *host);
 extern int hifmc100_spi_nor_scan(struct hifmc_host *host);
 
 #endif /* End of __HIFMC100_OS_H__ */
+

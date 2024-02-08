@@ -37,6 +37,7 @@ struct nouveau_channel {
 	struct nouveau_object *object;
 };
 
+
 int  nouveau_channel_new(struct nouveau_drm *, struct nouveau_cli *,
 			 u32 parent, u32 handle, u32 arg0, u32 arg1,
 			 struct nouveau_channel **);

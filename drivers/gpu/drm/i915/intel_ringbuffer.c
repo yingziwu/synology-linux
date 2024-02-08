@@ -206,6 +206,7 @@ intel_emit_post_sync_nonzero_flush(struct intel_engine_cs *ring)
 	u32 scratch_addr = ring->scratch.gtt_offset + 2 * CACHELINE_BYTES;
 	int ret;
 
+
 	ret = intel_ring_begin(ring, 6);
 	if (ret)
 		return ret;

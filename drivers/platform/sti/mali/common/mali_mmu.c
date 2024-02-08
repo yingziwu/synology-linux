@@ -56,6 +56,7 @@ static mali_io_address mali_page_fault_flush_data_page_mapping = NULL;
 static u32 mali_empty_page_directory_phys   = MALI_INVALID_PAGE;
 static mali_io_address mali_empty_page_directory_virt = NULL;
 
+
 _mali_osk_errcode_t mali_mmu_initialize(void)
 {
 	/* allocate the helper pages */
@@ -324,6 +325,7 @@ void mali_mmu_zap_tlb_without_stall(struct mali_mmu_core *mmu)
 {
 	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_COMMAND, MALI_MMU_COMMAND_ZAP_CACHE);
 }
+
 
 void mali_mmu_invalidate_page(struct mali_mmu_core *mmu, u32 mali_address)
 {

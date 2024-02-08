@@ -539,7 +539,7 @@ static void xfrm_hash_resize(struct work_struct *work)
 
 /* Generate new index... KAME seems to generate them ordered by cost
  * of an absolute inpredictability of ordering of rules. This will not pass. */
-static u32 xfrm_gen_index(struct net *net, int dir)
+static u32 xfrm_gen_index(struct net *net, int dir, u32 index)
 {
 	static u32 idx_generator;
 
@@ -549,8 +549,14 @@ static u32 xfrm_gen_index(struct net *net, int dir)
 		u32 idx;
 		int found;
 
-		idx = (idx_generator | dir);
-		idx_generator += 8;
+		if (!index) {
+			idx = (idx_generator | dir);
+			idx_generator += 8;
+		} else {
+			idx = index;
+			index = 0;
+		}
+
 		if (idx == 0)
 			idx = 8;
 		list = net->xfrm.policy_byidx + idx_hash(net, idx);
@@ -665,7 +671,7 @@ int xfrm_policy_insert(int dir, struct xfrm_policy *policy, int excl)
 		xfrm_policy_requeue(delpol, policy);
 		__xfrm_policy_unlink(delpol, dir);
 	}
-	policy->index = delpol ? delpol->index : xfrm_gen_index(net, dir);
+	policy->index = delpol ? delpol->index : xfrm_gen_index(net, dir, policy->index);
 	hlist_add_head(&policy->byidx, net->xfrm.policy_byidx+idx_hash(net, policy->index));
 	policy->curlft.add_time = get_seconds();
 	policy->curlft.use_time = 0;
@@ -1185,7 +1191,7 @@ int xfrm_sk_policy_insert(struct sock *sk, int dir, struct xfrm_policy *pol)
 	sk->sk_policy[dir] = pol;
 	if (pol) {
 		pol->curlft.add_time = get_seconds();
-		pol->index = xfrm_gen_index(net, XFRM_POLICY_MAX+dir);
+		pol->index = xfrm_gen_index(net, XFRM_POLICY_MAX+dir, 0);
 		__xfrm_policy_link(pol, XFRM_POLICY_MAX+dir);
 	}
 	if (old_pol) {
@@ -1497,6 +1503,7 @@ static inline int xfrm_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
 
 	return err;
 }
+
 
 /* Allocate chain of dst_entry's, attach known xfrm's, calculate
  * all the metrics... Shortly, bundle a bundle.
@@ -3200,8 +3207,14 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
 	struct xfrm_state *x_new[XFRM_MAX_DEPTH];
 	struct xfrm_migrate *mp;
 
+	/* Stage 0 - sanity checks */
 	if ((err = xfrm_migrate_check(m, num_migrate)) < 0)
 		goto out;
+
+	if (dir >= XFRM_POLICY_MAX) {
+		err = -EINVAL;
+		goto out;
+	}
 
 	/* Stage 1 - find policy */
 	if ((pol = xfrm_migrate_policy_find(sel, dir, type)) == NULL) {

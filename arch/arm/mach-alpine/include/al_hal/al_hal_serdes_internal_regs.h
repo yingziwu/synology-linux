@@ -272,12 +272,14 @@ extern "C" {
 #define SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START_REG_NUM			31
 #define SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_START				(1 << 1)
 
+
 /*
  * RX lane single roam eye point measurement start signal.
  * If asserted, single measurement at fix XADJUST and YADJUST is started.
  */
 #define SERDES_IREG_FLD_RXCALROAMEYEMEASIN_CYCLEEN_REG_NUM		31
 #define SERDES_IREG_FLD_RXCALROAMEYEMEASIN_CYCLEEN_START		(1 << 2)
+
 
 /*
  * PHY Eye diagram measurement status
@@ -321,6 +323,7 @@ extern "C" {
  */
 #define SERDES_IREG_FLD_RXEQ_DONE_REG_NUM				32
 #define SERDES_IREG_FLD_RXEQ_DONE					(1 << 3)
+
 
 /*
  * 7-bit eye diagram time adjust control
@@ -438,6 +441,7 @@ extern "C" {
 
 #define SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_LOCWREN_REG_NUM		86
 #define SERDES_IREG_FLD_RXCALEYEDIAGFSMIN_LOCWREN			(1 << 4)
+
 
 /* RXCALROAMEYEMEASIN* override enable - Active Low */
 #define SERDES_IREG_FLD_RXCALROAMEYEMEASIN_LOCWREN_REG_NUM		86

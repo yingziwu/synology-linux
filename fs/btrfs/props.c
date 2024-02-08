@@ -1,13 +1,31 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (C) 2014 Filipe David Borba Manana <fdmanana@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License v2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 021110-1307, USA.
+ */
+
 #include <linux/hashtable.h>
 #include "props.h"
 #include "btrfs_inode.h"
 #include "hash.h"
 #include "transaction.h"
 #include "xattr.h"
+#include "compression.h"
 
 #define BTRFS_PROP_HANDLERS_HT_BITS 8
 static DEFINE_HASHTABLE(prop_handlers_ht, BTRFS_PROP_HANDLERS_HT_BITS);
@@ -380,6 +398,8 @@ static int prop_compression_validate(const char *value, size_t len)
 		return 0;
 	else if (!strncmp("zlib", value, len))
 		return 0;
+	else if (!strncmp("zstd", value, len))
+		return 0;
 
 	return -EINVAL;
 }
@@ -388,6 +408,7 @@ static int prop_compression_apply(struct inode *inode,
 				  const char *value,
 				  size_t len)
 {
+	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 	int type;
 
 	if (len == 0) {
@@ -398,12 +419,17 @@ static int prop_compression_apply(struct inode *inode,
 		return 0;
 	}
 
-	if (!strncmp("lzo", value, len))
+	if (!strncmp("lzo", value, 3)) {
 		type = BTRFS_COMPRESS_LZO;
-	else if (!strncmp("zlib", value, len))
+		btrfs_set_fs_incompat(fs_info, COMPRESS_LZO);
+	} else if (!strncmp("zlib", value, 4)) {
 		type = BTRFS_COMPRESS_ZLIB;
-	else
+	} else if (!strncmp("zstd", value, len)) {
+		type = BTRFS_COMPRESS_ZSTD;
+		btrfs_set_fs_incompat(fs_info, COMPRESS_ZSTD);
+	} else {
 		return -EINVAL;
+	}
 
 	BTRFS_I(inode)->flags &= ~BTRFS_INODE_NOCOMPRESS;
 	BTRFS_I(inode)->flags |= BTRFS_INODE_COMPRESS;
@@ -419,6 +445,8 @@ static const char *prop_compression_extract(struct inode *inode)
 		return "zlib";
 	case BTRFS_COMPRESS_LZO:
 		return "lzo";
+	case BTRFS_COMPRESS_ZSTD:
+		return "zstd";
 	}
 
 	return NULL;

@@ -369,3 +369,4 @@ int hisnfc100_ecc_probe(struct mtd_info *mtd, struct nand_chip *chip,
 
 /******************************************************************************/
 #endif /* HISNFC100H */
+

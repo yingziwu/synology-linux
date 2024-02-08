@@ -24,6 +24,7 @@
 
 #include "hbm.h"
 
+
 /**
  * mei_me_reg_read - Reads 32bit data from the mei device
  *
@@ -37,6 +38,7 @@ static inline u32 mei_me_reg_read(const struct mei_me_hw *hw,
 {
 	return ioread32(hw->mem_addr + offset);
 }
+
 
 /**
  * mei_me_reg_write - Writes 32bit data to the mei device
@@ -98,6 +100,7 @@ static inline void mei_hcsr_set(struct mei_me_hw *hw, u32 hcsr)
 	hcsr &= ~H_IS;
 	mei_me_reg_write(hw, H_CSR, hcsr);
 }
+
 
 /**
  * mei_me_hw_config - configure hw dependent settings
@@ -276,6 +279,7 @@ static int mei_me_hw_start(struct mei_device *dev)
 	return ret;
 }
 
+
 /**
  * mei_hbuf_filled_slots - gets number of device filled buffer slots
  *
@@ -333,6 +337,7 @@ static size_t mei_me_hbuf_max_len(const struct mei_device *dev)
 {
 	return dev->hbuf_depth * sizeof(u32) - sizeof(struct mei_msg_hdr);
 }
+
 
 /**
  * mei_write_message - writes a message to mei device.
@@ -585,3 +590,4 @@ struct mei_device *mei_me_dev_init(struct pci_dev *pdev)
 	dev->pdev = pdev;
 	return dev;
 }
+

@@ -40,6 +40,7 @@ typedef unsigned long efi_status_t;
 typedef u8 efi_bool_t;
 typedef u16 efi_char16_t;		/* UNICODE character */
 
+
 typedef struct {
 	u8 b[16];
 } efi_guid_t;
@@ -224,6 +225,7 @@ typedef enum {
 	EfiPciIoAttributeOperationSupported,
     EfiPciIoAttributeOperationMaximum
 } EFI_PCI_IO_PROTOCOL_ATTRIBUTE_OPERATION;
+
 
 typedef struct {
 	void *read;

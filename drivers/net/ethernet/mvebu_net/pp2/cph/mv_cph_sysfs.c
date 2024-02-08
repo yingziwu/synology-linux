@@ -174,6 +174,7 @@ static ssize_t cph_spec_proc_help_add(char *b)
 	return o;
 }
 
+
 /********************************************************************************/
 /*                          Parsing field table                                 */
 /********************************************************************************/
@@ -1055,6 +1056,7 @@ static ssize_t cph_port_func_get(struct device *dev,
 	return len;
 }
 
+
 static DEVICE_ATTR(help,            S_IRUSR, cph_spec_proc_show, NULL);
 static DEVICE_ATTR(help_add,        S_IRUSR, cph_spec_proc_show, NULL);
 static DEVICE_ATTR(show_app_db,     S_IRUSR, cph_spec_proc_show, NULL);
@@ -1095,6 +1097,7 @@ static DEVICE_ATTR(set_dscp_map,    S_IWUSR, cph_spec_proc_show, cph_spec_proc_d
 #endif
 static DEVICE_ATTR(set_tcont,       S_IWUSR, cph_spec_proc_show, cph_spec_proc_2_store);
 static DEVICE_ATTR(trace_level,     S_IWUSR, cph_spec_proc_show, cph_spec_proc_1_store);
+
 
 static struct attribute *cph_spec_proc_attrs[] = {
 	&dev_attr_help.attr,

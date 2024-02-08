@@ -16,6 +16,7 @@
 #include <gtHwCntl.h>
 #include <gtDrvSwRegs.h>
 
+
 #ifdef CONFIG_AVB_FPGA
 
 #undef USE_SINGLE_READ
@@ -62,6 +63,7 @@ unsigned int (*avbFpgaWriteReg)(void* unused, unsigned int port, unsigned int re
 #define GT_PTP_H16_TIME(_time1)    (((_time1) >> 16) & 0xFFFF)
 #endif
 
+
 /****************************************************************************/
 /* PTP operation function declaration.                                    */
 /****************************************************************************/
@@ -71,6 +73,7 @@ extern GT_STATUS ptpOperationPerform
     IN   GT_PTP_OPERATION    ptpOp,
     INOUT GT_PTP_OP_DATA     *opData
 );
+
 
 /*******************************************************************************
 * gptpSetConfig
@@ -337,6 +340,7 @@ GT_STATUS gptpGetConfig
             ptpData->ptpPortConfig[port].ptpArrIntEn = ptpPortData.ptpArrIntEn;
             ptpData->ptpPortConfig[port].ptpDepIntEn = ptpPortData.ptpDepIntEn;
 
+
           if (IS_IN_DEV_GROUP(dev, DEV_ARRV_TS_MODE))
       {
             ptpData->ptpPortConfig[port].transSpec = ptpPortData.transSpec;
@@ -367,6 +371,7 @@ GT_STATUS gptpGetConfig
     }
     opData.ptpData &= dev->validPortVec;
     ptpData->ptpArrIntEn = GT_PORTVEC_2_LPORTVEC(opData.ptpData);
+
 
     /* getting PTPDepIntEn, offset 4 */
     opData.ptpAddr = 4;
@@ -484,6 +489,7 @@ GT_STATUS gptpSetGlobalConfig
 
 }
 
+
 /*******************************************************************************
 * gptpGlobalGetConfig
 *
@@ -566,6 +572,7 @@ GT_STATUS gptpGetGlobalConfig
 
 }
 
+
 /*******************************************************************************
 * gptpSetPortConfig
 *
@@ -623,6 +630,7 @@ GT_STATUS gptpSetPortConfig
     if (ptpData->ipJump > 0x3F)    /* 6 bits */
         return GT_BAD_PARAM;
 
+
     opData.ptpBlock = 0x0;    /* PTP register space */
 
     opData.ptpPort = hwPort;
@@ -677,6 +685,7 @@ GT_STATUS gptpSetPortConfig
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetPortConfig
@@ -773,6 +782,7 @@ GT_STATUS gptpGetPortConfig
 
 }
 
+
 /*******************************************************************************
 * gptpSetPTPEn
 *
@@ -860,6 +870,7 @@ GT_STATUS gptpSetPTPEn
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetPTPEn
@@ -1319,6 +1330,7 @@ GT_STATUS gptpGetPTPInt
 
 }
 
+
 /*******************************************************************************
 * gptpGetPTPGlobalTime
 *
@@ -1544,6 +1556,7 @@ GT_STATUS gptpGetTimeStamped
 
 }
 
+
 /*******************************************************************************
 * gptpResetTimeStamp
 *
@@ -1639,6 +1652,7 @@ GT_STATUS gptpResetTimeStamp
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetReg
@@ -1779,6 +1793,7 @@ GT_STATUS gptpSetReg
         return GT_FAIL;
     }
 
+
     DBG_INFO(("OK.\n"));
     return GT_OK;
 
@@ -1893,6 +1908,7 @@ GT_STATUS gtaiSetEventConfig
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gtaiGetEventConfig
@@ -2060,6 +2076,7 @@ GT_STATUS gtaiGetEventStatus
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gtaiGetEventInt
@@ -2381,6 +2398,7 @@ GT_STATUS gtaiGetTrigInt
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gtaiClearTrigInt
 *
@@ -2445,6 +2463,7 @@ GT_STATUS gtaiClearTrigInt
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtaiSetTrigConfig
@@ -2532,6 +2551,7 @@ GT_STATUS gtaiSetTrigConfig
 
     if (trigData->mode == GT_TAI_TRIG_ON_GIVEN_TIME)
         opData.ptpData |= (1 << 1);
+
 
     op = PTP_WRITE_DATA;
 
@@ -2759,6 +2779,7 @@ GT_STATUS gtaiGetTrigConfig
       trigData->trigPhase = (opData.ptpData >>12) & 1;
     }
 
+
     opData.ptpAddr = 2;
     if((retVal = ptpOperationPerform(dev, op, &opData)) != GT_OK)
     {
@@ -2816,6 +2837,7 @@ GT_STATUS gtaiGetTrigConfig
       data[1] = opData.ptpData;
       trigData->trigGenTime = GT_PTP_BUILD_TIME(data[1],data[0]);
 
+
 	  opData.ptpAddr = 0x13;
       if((retVal = ptpOperationPerform(dev, op, &opData)) != GT_OK)
 	  {
@@ -2849,6 +2871,7 @@ GT_STATUS gtaiGetTrigConfig
       data[1] = opData.ptpData;
       trigData->trigGen2Time = GT_PTP_BUILD_TIME(data[1],data[0]);
 
+
 	  opData.ptpAddr = 0x17;
       if((retVal = ptpOperationPerform(dev, op, &opData)) != GT_OK)
 	  {
@@ -2865,12 +2888,14 @@ GT_STATUS gtaiGetTrigConfig
 	  }
       trigData->lockCorrect2 = 0xF & opData.ptpData;
 
+
     }
 
     DBG_INFO(("OK.\n"));
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gtaiSetTrigLock
@@ -3023,6 +3048,7 @@ GT_STATUS gtaiGetTrigLock
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gtaiGetTSClkPer
 *
@@ -3088,6 +3114,7 @@ GT_STATUS gtaiGetTSClkPer
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gtaiSetTSClkPer
 *
@@ -3152,6 +3179,7 @@ GT_STATUS gtaiSetTSClkPer
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtaiSetMultiPTPSync
@@ -3265,6 +3293,7 @@ GT_STATUS gtaiSetMultiPTPSync
 
 }
 
+
 /*******************************************************************************
 * gtaiGetMultiPTPSync
 *
@@ -3358,6 +3387,7 @@ GT_STATUS gtaiGetMultiPTPSync
 
 }
 
+
 /*******************************************************************************
 * gtaiGetTimeIncDec
 *
@@ -3436,6 +3466,7 @@ GT_STATUS gtaiGetTimeIncDec
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtaiSetTimeInc
@@ -3535,6 +3566,7 @@ GT_STATUS gtaiSetTimeInc
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gtaiSetTimeDec
@@ -3834,6 +3866,7 @@ GT_STATUS gtaiSetTrigGenAmt(IN GT_QD_DEV * dev, IN GT_U32 amount)
 	return GT_OK;
 }
 
+
 /*******************************************************************************
 * gtaiGetTrigGenAmt
 *
@@ -3994,6 +4027,7 @@ GT_STATUS ptpOperationPerform
 #ifdef CONFIG_AVB_FPGA
     GT_U32             tmpData;
 #endif
+
 
     gtSemTake(dev,dev->ptpRegsSem,OS_WAIT_FOREVER);
 
@@ -4408,6 +4442,7 @@ GT_STATUS ptpOperationPerform
                 opData->ptpMultiData[i+1] = (GT_U32)    regAccess.rw_reg_list[i].data;
               }
 
+
               regAccess.entries = 2;
 
               regAccess.rw_reg_list[0].cmd = HW_REG_WRITE;
@@ -4639,6 +4674,7 @@ GT_STATUS ptpOperationPerform
     return retVal;
 }
 
+
 #ifdef CONFIG_AVB_FPGA
 
 /*******************************************************************************
@@ -4769,6 +4805,7 @@ GT_STATUS gptpSetFPGAIntEn
     {
         return retVal;
     }
+
 
     DBG_INFO(("OK.\n"));
     return GT_OK;
@@ -4930,6 +4967,7 @@ GT_STATUS gptpGetP9Mode
 
 }
 
+
 /*******************************************************************************
 * gptpSetP9Mode
 *
@@ -5030,10 +5068,12 @@ GT_STATUS gptpReset
         return retVal;
     }
 
+
     DBG_INFO(("OK.\n"));
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetCycleAdjustEn
@@ -5079,6 +5119,7 @@ GT_STATUS gptpGetCycleAdjustEn
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpSetCycleAdjustEn
@@ -5133,6 +5174,7 @@ GT_STATUS gptpSetCycleAdjustEn
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetCycleAdjust
@@ -5291,6 +5333,7 @@ GT_STATUS gptpSetCycleAdjust
 
 }
 
+
 /*******************************************************************************
 * gptpGetPLLEn
 *
@@ -5340,6 +5383,7 @@ GT_STATUS gptpGetPLLEn
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpSetPLLEn
@@ -5403,6 +5447,7 @@ GT_STATUS gptpSetPLLEn
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gptpGetDDSReg

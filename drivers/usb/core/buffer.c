@@ -16,6 +16,7 @@
 #include <linux/usb.h>
 #include <linux/usb/hcd.h>
 
+
 /*
  * DMA-Coherent Buffers
  */
@@ -79,6 +80,7 @@ int hcd_buffer_create(struct usb_hcd *hcd)
 	return 0;
 }
 
+
 /**
  * hcd_buffer_destroy - deallocate buffer pools
  * @hcd: the bus whose buffer pools are to be destroyed
@@ -98,6 +100,7 @@ void hcd_buffer_destroy(struct usb_hcd *hcd)
 		}
 	}
 }
+
 
 /* sometimes alloc/free could use kmalloc with GFP_DMA, for
  * better sharing and to leverage mm/slab.c intelligence.

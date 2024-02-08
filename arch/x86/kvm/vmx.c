@@ -492,6 +492,7 @@ static inline struct vcpu_vmx *to_vmx(struct kvm_vcpu *vcpu)
 #define FIELD64(number, name)	[number] = VMCS12_OFFSET(name), \
 				[number##_HIGH] = VMCS12_OFFSET(name)+4
 
+
 static const unsigned long shadow_read_only_fields[] = {
 	/*
 	 * We do NOT shadow fields that are modified when L0
@@ -1046,10 +1047,10 @@ static inline bool nested_cpu_has_virtual_nmis(struct vmcs12 *vmcs12,
 	return vmcs12->pin_based_vm_exec_control & PIN_BASED_VIRTUAL_NMIS;
 }
 
-static inline bool is_exception(u32 intr_info)
+static inline bool is_nmi(u32 intr_info)
 {
 	return (intr_info & (INTR_INFO_INTR_TYPE_MASK | INTR_INFO_VALID_MASK))
-		== (INTR_TYPE_HARD_EXCEPTION | INTR_INFO_VALID_MASK);
+		== (INTR_TYPE_NMI_INTR | INTR_INFO_VALID_MASK);
 }
 
 static void nested_vmx_vmexit(struct kvm_vcpu *vcpu);
@@ -2632,6 +2633,7 @@ static void vmclear_local_loaded_vmcss(void)
 		__loaded_vmcs_clear(v);
 }
 
+
 /* Just like cpu_vmxoff(), but with the __kvm_handle_fault_on_reboot()
  * tricks.
  */
@@ -3072,7 +3074,7 @@ static void fix_rmode_seg(int seg, struct kvm_segment *save)
 	}
 
 	vmcs_write16(sf->selector, var.selector);
-	vmcs_write32(sf->base, var.base);
+	vmcs_writel(sf->base, var.base);
 	vmcs_write32(sf->limit, var.limit);
 	vmcs_write32(sf->ar_bytes, vmx_segment_access_rights(&var));
 }
@@ -3456,6 +3458,7 @@ static int vmx_get_cpl(struct kvm_vcpu *vcpu)
 
 	return vmx->cpl;
 }
+
 
 static u32 vmx_segment_access_rights(struct kvm_segment *var)
 {
@@ -4713,7 +4716,7 @@ static int handle_exception(struct kvm_vcpu *vcpu)
 	if (is_machine_check(intr_info))
 		return handle_machine_check(vcpu);
 
-	if ((intr_info & INTR_INFO_INTR_TYPE_MASK) == INTR_TYPE_NMI_INTR)
+	if (is_nmi(intr_info))
 		return 1;  /* already handled by vmx_vcpu_run() */
 
 	if (is_no_device(intr_info)) {
@@ -5832,7 +5835,7 @@ static int handle_vmclear(struct kvm_vcpu *vcpu)
 			vmcs_read32(VMX_INSTRUCTION_INFO), &gva))
 		return 1;
 
-	if (kvm_read_guest_virt(&vcpu->arch.emulate_ctxt, gva, &vmptr,
+	if (kvm_read_guest_virt(vcpu, gva, &vmptr,
 				sizeof(vmptr), &e)) {
 		kvm_inject_page_fault(vcpu, &e);
 		return 1;
@@ -5943,6 +5946,7 @@ static inline bool vmcs12_read_any(struct kvm_vcpu *vcpu,
 		return 0; /* can never happen. */
 	}
 }
+
 
 static inline bool vmcs12_write_any(struct kvm_vcpu *vcpu,
 				    unsigned long field, u64 field_value){
@@ -6096,14 +6100,15 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
 				vmx_instruction_info, &gva))
 			return 1;
 		/* _system ok, as nested_vmx_check_permission verified cpl=0 */
-		kvm_write_guest_virt_system(&vcpu->arch.emulate_ctxt, gva,
-			     &field_value, (is_long_mode(vcpu) ? 8 : 4), NULL);
+		kvm_write_guest_virt_system(vcpu, gva, &field_value,
+					    (is_long_mode(vcpu) ? 8 : 4), NULL);
 	}
 
 	nested_vmx_succeed(vcpu);
 	skip_emulated_instruction(vcpu);
 	return 1;
 }
+
 
 static int handle_vmwrite(struct kvm_vcpu *vcpu)
 {
@@ -6131,12 +6136,13 @@ static int handle_vmwrite(struct kvm_vcpu *vcpu)
 		if (get_vmx_mem_address(vcpu, exit_qualification,
 				vmx_instruction_info, &gva))
 			return 1;
-		if (kvm_read_guest_virt(&vcpu->arch.emulate_ctxt, gva,
-			   &field_value, (is_long_mode(vcpu) ? 8 : 4), &e)) {
+		if (kvm_read_guest_virt(vcpu, gva, &field_value,
+					(is_long_mode(vcpu) ? 8 : 4), &e)) {
 			kvm_inject_page_fault(vcpu, &e);
 			return 1;
 		}
 	}
+
 
 	field = kvm_register_read(vcpu, (((vmx_instruction_info) >> 28) & 0xf));
 	if (vmcs_field_readonly(field)) {
@@ -6173,7 +6179,7 @@ static int handle_vmptrld(struct kvm_vcpu *vcpu)
 			vmcs_read32(VMX_INSTRUCTION_INFO), &gva))
 		return 1;
 
-	if (kvm_read_guest_virt(&vcpu->arch.emulate_ctxt, gva, &vmptr,
+	if (kvm_read_guest_virt(vcpu, gva, &vmptr,
 				sizeof(vmptr), &e)) {
 		kvm_inject_page_fault(vcpu, &e);
 		return 1;
@@ -6239,9 +6245,9 @@ static int handle_vmptrst(struct kvm_vcpu *vcpu)
 			vmx_instruction_info, &vmcs_gva))
 		return 1;
 	/* ok to use *_system, as nested_vmx_check_permission verified cpl=0 */
-	if (kvm_write_guest_virt_system(&vcpu->arch.emulate_ctxt, vmcs_gva,
-				 (void *)&to_vmx(vcpu)->nested.current_vmptr,
-				 sizeof(u64), &e)) {
+	if (kvm_write_guest_virt_system(vcpu, vmcs_gva,
+					(void *)&to_vmx(vcpu)->nested.current_vmptr,
+					sizeof(u64), &e)) {
 		kvm_inject_page_fault(vcpu, &e);
 		return 1;
 	}
@@ -6501,7 +6507,7 @@ static bool nested_vmx_exit_handled(struct kvm_vcpu *vcpu)
 
 	switch (exit_reason) {
 	case EXIT_REASON_EXCEPTION_NMI:
-		if (!is_exception(intr_info))
+		if (is_nmi(intr_info))
 			return 0;
 		else if (is_page_fault(intr_info))
 			return enable_ept;
@@ -6797,8 +6803,7 @@ static void vmx_complete_atomic_exit(struct vcpu_vmx *vmx)
 		kvm_machine_check();
 
 	/* We need to handle NMIs before interrupts are enabled */
-	if ((exit_intr_info & INTR_INFO_INTR_TYPE_MASK) == INTR_TYPE_NMI_INTR &&
-	    (exit_intr_info & INTR_INFO_VALID_MASK)) {
+	if (is_nmi(exit_intr_info)) {
 		kvm_before_handle_nmi(&vmx->vcpu);
 		asm("int $2");
 		kvm_after_handle_nmi(&vmx->vcpu);
@@ -7496,6 +7501,7 @@ static void prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 		vmcs_write32(SECONDARY_VM_EXEC_CONTROL, exec_control);
 	}
 
+
 	/*
 	 * Set host-state according to L0's settings (vmcs12 is irrelevant here)
 	 * Some constant fields are set here by vmx_set_constant_host_state().
@@ -7546,6 +7552,7 @@ static void prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 		vmcs_write64(GUEST_IA32_PAT, vmcs12->guest_ia32_pat);
 	else if (vmcs_config.vmentry_ctrl & VM_ENTRY_LOAD_IA32_PAT)
 		vmcs_write64(GUEST_IA32_PAT, vmx->vcpu.arch.pat);
+
 
 	set_cr4_guest_host_mask(vmx);
 
@@ -8007,7 +8014,7 @@ static void load_vmcs12_host_state(struct kvm_vcpu *vcpu,
 	 * (KVM doesn't change it)- no reason to call set_cr4_guest_host_mask();
 	 */
 	vcpu->arch.cr4_guest_owned_bits = ~vmcs_readl(CR4_GUEST_HOST_MASK);
-	kvm_set_cr4(vcpu, vmcs12->host_cr4);
+	vmx_set_cr4(vcpu, vmcs12->host_cr4);
 
 	/* shadow page tables on either EPT or shadow page tables */
 	kvm_set_cr3(vcpu, vmcs12->host_cr3);
@@ -8021,6 +8028,7 @@ static void load_vmcs12_host_state(struct kvm_vcpu *vcpu,
 		 */
 		vmx_flush_tlb(vcpu);
 	}
+
 
 	vmcs_write32(GUEST_SYSENTER_CS, vmcs12->host_ia32_sysenter_cs);
 	vmcs_writel(GUEST_SYSENTER_ESP, vmcs12->host_ia32_sysenter_esp);

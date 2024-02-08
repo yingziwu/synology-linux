@@ -36,6 +36,7 @@ struct simdisk {
 	int fd;
 };
 
+
 static int simdisk_count = CONFIG_BLK_DEV_SIMDISK_COUNT;
 module_param(simdisk_count, int, S_IRUGO);
 MODULE_PARM_DESC(simdisk_count, "Number of simdisk units.");
@@ -124,6 +125,7 @@ static void simdisk_make_request(struct request_queue *q, struct bio *bio)
 	int status = simdisk_xfer_bio(dev, bio);
 	bio_endio(bio, status);
 }
+
 
 static int simdisk_open(struct block_device *bdev, fmode_t mode)
 {

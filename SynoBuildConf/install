@@ -2,48 +2,114 @@
 # Copyright (c) 2000-2015 Synology Inc. All rights reserved.
 
 UDEV_DEVICE_TABLE="${TmpInstDir}/lib/udev/devicetable"
-UDEV_DEVICE_SCRIPT_DIR="${TmpInstDir}/lib/udev/script"
-DVB_ADMIN_DIR="${TmpInstDir}/usr/syno/sbin"
-UDEV_DEVICE_TABLE_DIR_FOR_DVB="${UDEV_DEVICE_TABLE}/backports_dvb"
-UDEV_DEVICE_SCRIPT_DIR_FOR_DVB="${UDEV_DEVICE_SCRIPT_DIR}/backports_dvb"
-USB_USBMODEM_MAP="usb.usbmodem.table"
-KERNEL_DVB_SRC="scripts/DVB"
-USB_DVB_DEP_TABLE="${KERNEL_DVB_SRC}/usb.DVB.dep.table"
-USB_DVB_VIDPID_TABLE="${KERNEL_DVB_SRC}/usb.DVB.VIDPID.table"
-USB_DVB_SCRIPT="${KERNEL_DVB_SRC}/usb-dvb-util-backports.sh"
-DVB_ADMIN_SCRIPT="${KERNEL_DVB_SRC}/syno_dvb_admin.sh"
-MANUAL_HOTPLUG_GEN_SCRIPT="${KERNEL_DVB_SRC}/manual_gen_hotplug_backports.sh"
 
 if [ ! -d ${UDEV_DEVICE_TABLE} ]; then
 	mkdir -p ${UDEV_DEVICE_TABLE}
 fi
-if [ -f "${USB_USBMODEM_MAP}" ]; then
-	install -c ${USB_USBMODEM_MAP} ${UDEV_DEVICE_TABLE}
+
+KERNEL_MODULES_CONFIG_PATH=${TmpInstDir}/lib/modules-load.d
+KERNEL_MODULES_TABLE=".synotmp-module-list.conf"
+
+SYSTEMD_UNIT_DIR="${TmpInstDir}/lib/systemd/system"
+SYSTEMD_UNIT_SCRIPT_DIR="${TmpInstDir}/usr/syno/lib/systemd/scripts"
+
+# Auto generate bootup insert module list config into /lib/modules-load.d/
+SYNOAutoGenerateModulesConfig () {
+	local _install_list=${1}
+	local _insert_list=${2}
+	local _config_name=${3}
+	local _mod=""
+	local _mod_path=""
+
+	if [ -f ".synotmp-${_config_name}" ];then
+		rm -f ".synotmp-${_config_name}"
+	fi
+
+	for _mod in ${_insert_list};
+	do
+		_mod_path="/${_mod}.ko"
+		# only insert module which is install in /usr/lib/modules/
+		if [[ ${_install_list} == *${_mod_path}* ]]; then
+			echo ${_mod} >> ".synotmp-${_config_name}"
+		else
+			echo "Error: insert module [${_mod}] not in install list"
+		fi
+	done
+
+	if [ -f ".synotmp-${_config_name}" ];then
+		install -Dm644 ".synotmp-${_config_name}" "${KERNEL_MODULES_CONFIG_PATH}/${_config_name}"
+	fi
+}
+
+IPV6_COMMON_LIST="ipv6 ip_tunnel tunnel4 sit"
+CRYPTO_MODULES_ARM_32_COMMON_LIST="md5 cts ansi_cprng ecb sha1_generic arc4"
+MISC_MODULES_COMMON_LIST="llc p8022 psnap crc-ccitt crc-itu-t dm-snapshot md4 hfsplus zlib_deflate sg"
+USB_MODULES_COMMON_LIST="usb-common usbcore usb-storage"
+
+if [ -f "${KERNEL_MODULES_TABLE}" ]; then
+	# get the platform list of modules.
+	ModuleList="`cat ${KERNEL_MODULES_TABLE}`"
+	[ -d ${KERNEL_MODULES_CONFIG_PATH} ] || install -d ${KERNEL_MODULES_CONFIG_PATH}
+
+	# Set the white list on each platform, please not use global white list
+	case ${BUILD_TARGET} in
+		ALPINE)
+			IPV6_LIST=${IPV6_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${IPV6_LIST}" "70-ipv6-kernel.conf"
+
+			CRYPTO_MODULES_LIST="${CRYPTO_MODULES_ARM_32_COMMON_LIST} cryptodev"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
+
+			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST} libcrc32c"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
+
+			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} etxhci-hcd"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
+			;;
+		STM_MONACO)
+			IPV6_LIST=${IPV6_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${IPV6_LIST}" "70-ipv6-kernel.conf"
+
+			CRYPTO_MODULES_LIST="${CRYPTO_MODULES_ARM_32_COMMON_LIST} cbc des_generic authenc sha256_generic"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
+
+			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST} hmac"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
+
+			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} phy-stih407-usb phy-st-usb3 dwc3 dwc3-st ehci-hcd ehci-pci ehci-platform ohci-hcd xhci-hcd st-hcd"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
+			;;
+		MARVELL_ARMADA38X)
+			IPV6_LIST=${IPV6_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${IPV6_LIST}" "70-ipv6-kernel.conf"
+
+			CRYPTO_MODULES_LIST="${CRYPTO_MODULES_ARM_32_COMMON_LIST} cryptodev"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
+
+			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST}"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
+
+			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd ehci-pci ehci-orion xhci-hcd"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
+			;;
+		HISILICON_HI3536)
+			# Deprecated
+			;;
+		*)
+			;;
+	esac
+else
+	echo "Error: Cannot find ${KERNEL_MODULES_TABLE} for generate insert modules list."
 fi
 
-if [ "$BUILD_TARGET" = "STM_MONACO" ]; then
-	if [ ! -d "${UDEV_DEVICE_TABLE_DIR_FOR_DVB}" ]; then
-		mkdir -p ${UDEV_DEVICE_TABLE_DIR_FOR_DVB};
-	fi
-	if [ -f "${USB_DVB_DEP_TABLE}" ]; then
-		install -c ${USB_DVB_DEP_TABLE} ${UDEV_DEVICE_TABLE_DIR_FOR_DVB};
-	fi
-	if [ -f "${USB_DVB_VIDPID_TABLE}" ]; then
-		install -c ${USB_DVB_VIDPID_TABLE} ${UDEV_DEVICE_TABLE_DIR_FOR_DVB};
-	fi
+# install services unit of kernel module to systemd
+[ -d ${SYSTEMD_UNIT_DIR} ] || install -d ${SYSTEMD_UNIT_DIR}
+[ -d ${SYSTEMD_UNIT_DIR}/sysinit.target.wants ] || install -d ${SYSTEMD_UNIT_DIR}/sysinit.target.wants
+[ -d ${SYSTEMD_UNIT_SCRIPT_DIR} ] || install -d ${SYSTEMD_UNIT_SCRIPT_DIR}
+install -m644 systemd/syno-kernel-modules-load.service ${SYSTEMD_UNIT_DIR}
+install -m755 systemd/syno-kernel-modules-load.sh ${SYSTEMD_UNIT_SCRIPT_DIR}
+ln -s ../syno-kernel-modules-load.service ${SYSTEMD_UNIT_DIR}/sysinit.target.wants/syno-kernel-modules-load.service
 
-	if [ ! -d "${UDEV_DEVICE_SCRIPT_DIR_FOR_DVB}" ]; then
-		mkdir -p ${UDEV_DEVICE_SCRIPT_DIR_FOR_DVB};
-	fi
-	if [ -f "${USB_DVB_SCRIPT}" ]; then
-		install -m755 -c ${USB_DVB_SCRIPT} ${UDEV_DEVICE_SCRIPT_DIR_FOR_DVB};
-	fi
-	if [ -f "${MANUAL_HOTPLUG_GEN_SCRIPT}" ]; then
-		install -m755 -c ${MANUAL_HOTPLUG_GEN_SCRIPT} ${UDEV_DEVICE_SCRIPT_DIR_FOR_DVB};
-	fi
-
-	if [ -f "${DVB_ADMIN_SCRIPT}" ]; then
-		mkdir -p ${DVB_ADMIN_DIR};
-		install -m755 -c ${DVB_ADMIN_SCRIPT} ${DVB_ADMIN_DIR};
-	fi
-fi
+install -m644 systemd/syno-fan-modules-load.service ${SYSTEMD_UNIT_DIR}
+install -m755 systemd/syno-fan-modules-load.sh ${SYSTEMD_UNIT_SCRIPT_DIR}
+ln -s ../syno-fan-modules-load.service ${SYSTEMD_UNIT_DIR}/sysinit.target.wants/syno-fan-modules-load.service

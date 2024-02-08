@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -139,6 +140,7 @@ int mv_eth_stop(struct net_device *dev)
 
 	return 0;
 }
+
 
 int mv_eth_change_mtu(struct net_device *dev, int mtu)
 {
@@ -393,6 +395,7 @@ error:
 	printk(KERN_ERR "%s: set mac addr failed\n", dev->name);
 	return -1;
 }
+
 
 /************************************************************
  * mv_eth_open -- Restore MAC address and call to   *

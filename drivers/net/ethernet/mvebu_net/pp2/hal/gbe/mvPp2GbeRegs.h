@@ -120,6 +120,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MV_PP2_POOL_BUF_SIZE_MASK		(0xFFFE)
 /*-------------------------------------------------------------------------------*/
 
+
 #define MV_PP2_RX_STATUS			(MV_PP2_REG_BASE + 0x174)
 
 #define MV_PP2_DISABLE_IN_PROG_OFFS		0
@@ -405,6 +406,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MV_PP2_TX_DESC_SNOOP_REG		(MV_PP2_REG_BASE + 0x2224)
 /*-------------------------------------------------------------------------------*/
 
+
 /************************** Interrupt Cause and Mask registers ******************/
 #define MV_PP2_ISR_RX_THRESHOLD_REG(port)	(MV_PP2_REG_BASE + 0x5200 + 4 * (port))
 
@@ -424,6 +426,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MV_PP2_ISR_DISABLE_INTERRUPT_MASK	(0xFFFF << MV_PP2_ISR_DISABLE_INTERRUPT_OFFS)
 #define MV_PP2_ISR_DISABLE_INTERRUPT(cpuMask)	(((cpuMask) << MV_PP2_ISR_DISABLE_INTERRUPT_OFFS)\
 							& MV_PP2_ISR_DISABLE_INTERRUPT_MASK)
+
 
 #define MV_PP2_ISR_RX_TX_CAUSE_REG(port)	(MV_PP2_REG_BASE + 0x5480 + 4 * (port))
 #define MV_PP2_ISR_RX_TX_MASK_REG(port)		(MV_PP2_REG_BASE + 0x54a0 + 4 * (port))
@@ -457,6 +460,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MV_PP2_CAUSE_MISC_SUM_MASK     		(1 << MV_PP2_CAUSE_MISC_SUM_BIT)
 
 #define MV_PP2_CAUSE_MISC_ERR_SUM_MASK		(0xE7000000)
+
 
 #define MV_PP2_ISR_PON_RX_TX_CAUSE_REG			(MV_PP2_REG_BASE + 0x549c)
 #define MV_PP2_ISR_PON_RX_TX_MASK_REG			(MV_PP2_REG_BASE + 0x54bc)
@@ -492,6 +496,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MV_PP2_PON_CAUSE_MISC_ERR_SUM_MASK		(0xC0270000)
 
+
 /* TCONT Cause registers 54c0 - 54cc */
 /* TCONT Mask registers 54d0 - 54dc */
 #define MV_PP2_ISR_RX_ERR_CAUSE_REG(port)	(MV_PP2_REG_BASE + 0x5500 + 4 * (port))
@@ -520,6 +525,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /************************************ counters ppv2.1 **********************************/
 
+
 #define MV_PP2_V1_CNT_IDX_REG				(MV_PP2_REG_BASE + 0x7040)
 /* TX counters index */
 #define TX_CNT_IDX_TXP					3
@@ -544,7 +550,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MV_PP2_V1_OVERFLOW_MC_DROP_REG			(MV_PP2_REG_BASE + 0x770c)
 
+
+
+
 /*-------------------------------------------------------------------------------*/
+
 
 /************************** TX Scheduler Registers ******************************/
 /* Indirect access */
@@ -917,6 +927,7 @@ typedef struct pp2_tx_desc {
 #define PP2_TX_CPU_MAP_BITS			4
 #define PP2_TX_CPU_MAP_MASK			(((1 << PP2_TX_CPU_MAP_BITS) - 1) << PP2_TX_CPU_MAP_OFFS)
 
+
 /************************** Buffer Header defines ******************************/
 typedef struct pp2_buff_hdr {
 	MV_U32 nextBuffPhysAddr;
@@ -925,6 +936,8 @@ typedef struct pp2_buff_hdr {
 	MV_U16 info;
 	MV_U8  bmQset;
 } PP2_BUFF_HDR;
+
+
 
 /* info bits */
 #define PP2_BUFF_HDR_INFO_MC_ID_OFFS		0

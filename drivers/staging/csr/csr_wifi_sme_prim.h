@@ -24,6 +24,7 @@
 
 typedef CsrPrim CsrWifiSmePrim;
 
+
 /*******************************************************************************
 
   NAME
@@ -1827,6 +1828,7 @@ typedef u8 CsrWifiSmeWpsRegistration;
 #define CSR_WIFI_SME_WPS_REG_REQUIRED       ((CsrWifiSmeWpsRegistration) 0x01)
 #define CSR_WIFI_SME_WPS_REG_UNKNOWN        ((CsrWifiSmeWpsRegistration) 0x02)
 
+
 /*******************************************************************************
 
   NAME
@@ -1917,6 +1919,7 @@ typedef u8 CsrWifiSmeWmmQosInfoMask;
 
 *******************************************************************************/
 typedef u16 CsrWifiSmeWpsConfigTypeMask;
+
 
 /*******************************************************************************
 
@@ -3327,6 +3330,7 @@ typedef struct
     u8                    osVersion[4];
 } CsrWifiSmeWpsConfig;
 
+
 /* Downstream */
 #define CSR_WIFI_SME_PRIM_DOWNSTREAM_LOWEST            (0x0000)
 
@@ -3386,6 +3390,7 @@ typedef struct
 #define CSR_WIFI_SME_INTERFACE_CAPABILITY_GET_REQ         ((CsrWifiSmePrim) (0x0035 + CSR_WIFI_SME_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_SME_WPS_CONFIGURATION_REQ                ((CsrWifiSmePrim) (0x0036 + CSR_WIFI_SME_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_SME_SET_REQ                              ((CsrWifiSmePrim) (0x0037 + CSR_WIFI_SME_PRIM_DOWNSTREAM_LOWEST))
+
 
 #define CSR_WIFI_SME_PRIM_DOWNSTREAM_HIGHEST           (0x0037 + CSR_WIFI_SME_PRIM_DOWNSTREAM_LOWEST)
 
@@ -6502,3 +6507,4 @@ typedef struct
 } CsrWifiSmeWpsConfigurationCfm;
 
 #endif /* CSR_WIFI_SME_PRIM_H__ */
+

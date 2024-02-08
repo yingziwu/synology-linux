@@ -46,6 +46,7 @@
 #ifndef __LINUX_N_R3964_H__
 #define __LINUX_N_R3964_H__
 
+
 #include <linux/param.h>
 #include <uapi/linux/n_r3964.h>
 
@@ -68,6 +69,7 @@
 #define R3964_NO_TX_ROOM ((100)*HZ/1000)
 #define R3964_TO_RX_PANIC ((4000)*HZ/1000)
 #define R3964_MAX_RETRIES 5
+
 
 enum { R3964_IDLE, 
 	   R3964_TX_REQUEST, R3964_TRANSMITTING, 
@@ -94,6 +96,8 @@ struct r3964_client_info {
 	struct r3964_block_header *next_block_to_read;
 	int            msg_count;
 };
+
+
 
 struct r3964_block_header;
 
@@ -140,6 +144,7 @@ struct r3964_block_header
 #define R3964_BCC   0x4000
 #define R3964_DEBUG 0x8000
 
+
 struct r3964_info {
 	spinlock_t     lock;
 	struct tty_struct *tty;
@@ -160,6 +165,7 @@ struct r3964_info {
 	unsigned char bcc;
         unsigned int  blocks_in_rx_queue;
 	  
+	
 	struct r3964_client_info *firstClient;
 	unsigned int state;
 	unsigned int flags;

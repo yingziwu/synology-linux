@@ -39,6 +39,7 @@
 #include "bridge_loop_avoidance.h"
 #include "network-coding.h"
 
+
 static int batadv_get_settings(struct net_device *dev, struct ethtool_cmd *cmd);
 static void batadv_get_drvinfo(struct net_device *dev,
 			       struct ethtool_drvinfo *info);

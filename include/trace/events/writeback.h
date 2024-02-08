@@ -60,13 +60,13 @@ TRACE_EVENT(writeback_dirty_page,
 		__entry->ino,
 		(unsigned long long)__entry->index
 	)
-#else  
+#else /* MY_ABC_HERE */
 	TP_printk("bdi %s: ino=%lu index=%lu",
 		__entry->name,
 		__entry->ino,
 		__entry->index
 	)
-#endif  
+#endif /* MY_ABC_HERE */
 );
 
 DECLARE_EVENT_CLASS(writeback_dirty_inode_template,
@@ -84,6 +84,7 @@ DECLARE_EVENT_CLASS(writeback_dirty_inode_template,
 	TP_fast_assign(
 		struct backing_dev_info *bdi = inode->i_mapping->backing_dev_info;
 
+		/* may be called for files on pseudo FSes w/ unregistered bdi */
 		strncpy(__entry->name,
 			bdi->dev ? dev_name(bdi->dev) : "(unknown)", 32);
 		__entry->ino		= inode->i_ino;
@@ -307,8 +308,8 @@ TRACE_EVENT(writeback_queue_io,
 	),
 	TP_printk("bdi %s: older=%lu age=%ld enqueue=%d reason=%s",
 		__entry->name,
-		__entry->older,	 
-		__entry->age,	 
+		__entry->older,	/* older_than_this in jiffies */
+		__entry->age,	/* older_than_this in relative milliseconds */
 		__entry->moved,
 		__print_symbolic(__entry->reason, WB_WORK_REASON)
 	)
@@ -396,12 +397,12 @@ TRACE_EVENT(bdi_dirty_ratelimit,
 		  "dirty_ratelimit=%lu task_ratelimit=%lu "
 		  "balanced_dirty_ratelimit=%lu",
 		  __entry->bdi,
-		  __entry->write_bw,		 
-		  __entry->avg_write_bw,	 
-		  __entry->dirty_rate,		 
-		  __entry->dirty_ratelimit,	 
-		  __entry->task_ratelimit,  
-		  __entry->balanced_dirty_ratelimit  
+		  __entry->write_bw,		/* write bandwidth */
+		  __entry->avg_write_bw,	/* avg write bandwidth */
+		  __entry->dirty_rate,		/* bdi dirty rate */
+		  __entry->dirty_ratelimit,	/* base ratelimit */
+		  __entry->task_ratelimit, /* ratelimit with position control */
+		  __entry->balanced_dirty_ratelimit /* the balanced ratelimit */
 	)
 );
 
@@ -462,6 +463,7 @@ TRACE_EVENT(balance_dirty_pages,
 		__entry->paused		= (jiffies - start_time) * 1000 / HZ;
 	),
 
+
 	TP_printk("bdi %s: "
 		  "limit=%lu setpoint=%lu dirty=%lu "
 		  "bdi_setpoint=%lu bdi_dirty=%lu "
@@ -478,10 +480,10 @@ TRACE_EVENT(balance_dirty_pages,
 		  __entry->task_ratelimit,
 		  __entry->dirtied,
 		  __entry->dirtied_pause,
-		  __entry->paused,	 
-		  __entry->pause,	 
-		  __entry->period,	 
-		  __entry->think	 
+		  __entry->paused,	/* ms */
+		  __entry->pause,	/* ms */
+		  __entry->period,	/* ms */
+		  __entry->think	/* ms */
 	  )
 );
 
@@ -606,6 +608,7 @@ DEFINE_EVENT(writeback_single_inode_template, writeback_single_inode,
 	TP_ARGS(inode, wbc, nr_to_write)
 );
 
-#endif  
+#endif /* _TRACE_WRITEBACK_H */
 
+/* This part must be outside protection */
 #include <trace/define_trace.h>

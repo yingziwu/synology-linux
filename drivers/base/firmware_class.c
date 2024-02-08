@@ -439,6 +439,7 @@ static int fw_add_devm_name(struct device *dev, const char *name)
 }
 #endif
 
+
 /*
  * user-mode helper code
  */
@@ -989,6 +990,7 @@ fw_load_from_user_helper(struct firmware *firmware, const char *name,
 #define is_fw_load_aborted(buf) false
 
 #endif /* CONFIG_FW_LOADER_USER_HELPER */
+
 
 /* wait until the shared firmware_buf becomes ready (or error) */
 static int sync_cached_firmware_buf(struct firmware_buf *buf)

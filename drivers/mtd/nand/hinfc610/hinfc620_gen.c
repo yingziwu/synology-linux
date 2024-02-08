@@ -75,3 +75,4 @@ int hinfc620_ecc_reg2type(enum hinfc620_ecc_reg reg)
 {
 	return reg2type(ecc_type2reg, ARRAY_SIZE(ecc_type2reg), reg, 0);
 }
+

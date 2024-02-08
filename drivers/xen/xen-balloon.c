@@ -72,6 +72,7 @@ static struct xenbus_watch target_watch = {
 	.callback = watch_target,
 };
 
+
 static int balloon_init_watcher(struct notifier_block *notifier,
 				unsigned long event,
 				void *data)
@@ -159,6 +160,7 @@ static ssize_t store_target_kb(struct device *dev,
 static DEVICE_ATTR(target_kb, S_IRUGO | S_IWUSR,
 		   show_target_kb, store_target_kb);
 
+
 static ssize_t show_target(struct device *dev, struct device_attribute *attr,
 			      char *buf)
 {
@@ -187,6 +189,7 @@ static ssize_t store_target(struct device *dev,
 
 static DEVICE_ATTR(target, S_IRUGO | S_IWUSR,
 		   show_target, store_target);
+
 
 static struct device_attribute *balloon_attrs[] = {
 	&dev_attr_target_kb,

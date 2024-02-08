@@ -812,6 +812,7 @@ err:
 	return ret;
 }
 
+
 static int af9035_fc0011_tuner_callback(struct dvb_usb_device *d,
 		int cmd, int arg)
 {

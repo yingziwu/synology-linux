@@ -65,6 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __MV_PNC_H__
 #define __MV_PNC_H__
 
+
 #include "mvTcam.h"
 
 /*
@@ -208,6 +209,7 @@ enum {
 #endif /* CONFIG_MV_ETH_PNC_WOL */
 };
 
+
 enum {
 	TCAM_LU_MAC,
 	TCAM_LU_L2,
@@ -280,6 +282,7 @@ unsigned int pnc_port_mask_update(unsigned int mask, int eth_port, int add);
 unsigned int pnc_port_mask(int eth_port);
 int          pnc_tcam_port_update(int tid, int eth_port, int add);
 
+
 /* Set number of Rx queues */
 void pnc_rxq_max(int rxq_max);
 
@@ -329,6 +332,7 @@ int pnc_rxq_map_dump(void);
 /* Add TOS priority rule */
 int     pnc_ip4_dscp(int port, unsigned char dscp, unsigned char mask, int rxq);
 void    pnc_ipv4_dscp_show(int port);
+
 
 /* 2 tuple match */
 int pnc_ipv4_2_tuples_add(unsigned int tid, unsigned int flow_hi,

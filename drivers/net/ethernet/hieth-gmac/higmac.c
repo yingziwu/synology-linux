@@ -581,6 +581,7 @@ static void higmac_adjust_link(struct net_device *dev)
 				pr_err("unknown, phy link duplex!\n");
 		}
 
+
 		/* TODO: what'll happened when linkup twice */
 		if (enable_autoeee)
 			init_autoeee(ld, stat);
@@ -945,6 +946,7 @@ static irqreturn_t hieth_net_isr(int irq, void *dev_id)
 		higmac_trace(7, "unknown ints=0x%.8x\n", ints);
 		higmac_clear_irqstatus(ld, ints);
 	}
+
 
 #if	0	/* debug_pmt and eee */
 	ints = readl(ld->gmac_iobase + 0xa00);

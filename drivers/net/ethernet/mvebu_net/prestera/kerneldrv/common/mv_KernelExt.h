@@ -72,6 +72,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *       $Revision: 7.*******************************************************************************/
 
+
+
 #define MV_MAX_TASKS                40
 #define MV_THREAD_NAME_LEN          16
 
@@ -90,8 +92,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MV_SEMAPTHORE_F_FLAGS_MASK  0x10000000
 #define MV_SEMAPTHORE_F_COUNT_MASK  0x0fffffff
 
+
+
 #define MV_QUEUES_MIN 32
 #define MV_QUEUES_DEF 32
+
+
+
 
 typedef struct {
     char name[MV_THREAD_NAME_LEN];
@@ -139,6 +146,7 @@ typedef struct {
     unsigned long   timeOut;
 } mv_msgq_sr_stc;
 
+
 /********************************************************
  *
  * Error codes
@@ -154,6 +162,8 @@ typedef struct {
 #define MVKERNELEXT_ECONFLICT    9
 #define MVKERNELEXT_EEMPTY      10
 #define MVKERNELEXT_EFULL       11
+
+
 
 /********************************************************
  *
@@ -187,6 +197,7 @@ typedef struct {
 #define MVKERNELEXT_IOC_MSGQRECV    _IOW(MVKERNELEXT_IOC_MAGIC, 22, mv_msgq_sr_stc)
 #define MVKERNELEXT_IOC_MSGQNUMMSGS _IOW(MVKERNELEXT_IOC_MAGIC, 23, long)
 
+
 #ifdef  MVKERNELEXT_SYSCALLS
 /********************************************************
  *
@@ -207,6 +218,7 @@ typedef struct {
 #endif
 #  define __NR_mv_ctl             __NR_fsetxattr
 #endif
+
 
 #ifdef __KERNEL__
 
@@ -243,6 +255,7 @@ struct mv_task {
     int                 tasklock_wcount;
 #endif
 };
+
 
 /***** Static function declarations ************************************/
 
@@ -483,6 +496,11 @@ static unsigned long mv_do_wait_on_queue_timeout(
         unsigned long timeout
 );
 
+
+
+
+
+
 /************************************************************************
 *
 * Task lookup functions
@@ -564,6 +582,8 @@ static struct mv_task* gettask_cr(
         struct task_struct *tsk
 );
 
+
+
 /************************************************************************
  *
  * task locking
@@ -616,6 +636,11 @@ int mvKernelExt_TaskLock(struct task_struct* tsk);
 *******************************************************************************/
 int mvKernelExt_TaskUnlock(struct task_struct* tsk, int force);
 
+
+
+
+
+
 /*******************************************************************************
 * mv_set_prio
 *
@@ -637,6 +662,7 @@ int mvKernelExt_TaskUnlock(struct task_struct* tsk, int force);
 *
 *******************************************************************************/
 static int mv_set_prio(mv_priority_stc *param);
+
 
 /************************************************************************
 *
@@ -709,6 +735,7 @@ static void mvKernelExt_SemCleanup(void);
 *
 *******************************************************************************/
 int mvKernelExt_SemCreate(int flags, const char *name);
+
 
 /*******************************************************************************
 * mvKernelExt_SemDelete
@@ -870,6 +897,7 @@ int mvKernelExt_SemWaitTimeout(
 static void mvKernelExt_SemUnlockMutexes(
         struct task_struct  *owner
 );
+
 
 /*******************************************************************************
 * mvKernelExt_MsgQInit

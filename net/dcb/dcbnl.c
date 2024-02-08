@@ -979,6 +979,7 @@ static int dcbnl_build_peer_app(struct net_device *netdev, struct sk_buff* skb,
 	u16 app_count;
 	int err;
 
+
 	/**
 	 * retrieve the peer app configuration form the driver. If the driver
 	 * handlers fail exit without doing anything
@@ -1495,6 +1496,7 @@ err:
 	dcbnl_ieee_notify(netdev, RTM_SETDCB, DCB_CMD_IEEE_DEL, seq, 0);
 	return err;
 }
+
 
 /* DCBX configuration */
 static int dcbnl_getdcbx(struct net_device *netdev, struct nlmsghdr *nlh,

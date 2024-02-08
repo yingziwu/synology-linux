@@ -39,6 +39,7 @@ static void set_cred_user_ns(struct cred *cred, struct user_namespace *user_ns)
 	cred->cap_inheritable = CAP_EMPTY_SET;
 	cred->cap_permitted = CAP_FULL_SET;
 	cred->cap_effective = CAP_FULL_SET;
+	cred->cap_ambient = CAP_EMPTY_SET;
 	cred->cap_bset = CAP_FULL_SET;
 #ifdef CONFIG_KEYS
 	key_put(cred->request_key_auth);
@@ -419,6 +420,7 @@ projid_t from_kprojid_munged(struct user_namespace *targ, kprojid_t kprojid)
 	return projid;
 }
 EXPORT_SYMBOL(from_kprojid_munged);
+
 
 static int uid_m_show(struct seq_file *seq, void *v)
 {

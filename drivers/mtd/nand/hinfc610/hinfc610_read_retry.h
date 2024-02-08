@@ -22,3 +22,4 @@
 struct read_retry_t *hinfc610_find_read_retry(int type);
 
 #endif /* HINFC610_READ_RETRY_H */
+

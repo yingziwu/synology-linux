@@ -21,6 +21,7 @@
  */
 #include "al_dma.h"
 
+
 /******************************************************************************
  *****************************************************************************/
 struct dma_async_tx_descriptor *al_dma_prep_sg_lock(
@@ -167,6 +168,7 @@ struct dma_async_tx_descriptor *al_dma_prep_sg_lock(
 		1,
 		chan->stats_prep.sg_memcpy_size,
 		total_src_len);
+
 
 	al_dma_tx_submit_sw_cond_unlock(chan, txd);
 

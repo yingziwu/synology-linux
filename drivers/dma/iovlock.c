@@ -1,11 +1,37 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright(c) 2004 - 2006 Intel Corporation. All rights reserved.
+ * Portions based on net/core/datagram.c and copyrighted by their authors.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59
+ * Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called COPYING.
+ */
+
+/*
+ * This code allows the net stack to make use of a DMA engine for
+ * skb to iovec copies.
+ */
+
 #include <linux/dmaengine.h>
 #include <linux/pagemap.h>
 #include <linux/slab.h>
-#include <net/tcp.h>  
+#include <net/tcp.h> /* for memcpy_toiovec */
 #include <asm/io.h>
 #include <asm/uaccess.h>
 
@@ -19,12 +45,26 @@ static int num_pages_spanned(struct iovec *iov)
 #if defined(MY_ABC_HERE)
 #define NETDMA_MAX_NR_IOVECS	UIO_MAXIOV
 #define NETDMA_MAX_NR_PAGES	NETDMA_MAX_NR_IOVECS
- 
+/*
+ * Pin down all the iovec pages needed for len bytes.
+ * return 0 on success
+ *
+ * We are allocating a single chunk of memory, and then carving it up into
+ * 3 sections, the latter 2 whose size depends on the number of iovecs and the
+ * total number of pages, respectively.
+ */
 int dma_pin_iovec_pages(struct tcp_sock *tp, struct iovec *iov, size_t len)
-#else  
- 
+#else /* MY_ABC_HERE */
+/*
+ * Pin down all the iovec pages needed for len bytes.
+ * Return a struct dma_pinned_list to keep track of pages pinned down.
+ *
+ * We are allocating a single chunk of memory, and then carving it up into
+ * 3 sections, the latter 2 whose size depends on the number of iovecs and the
+ * total number of pages, respectively.
+ */
 struct dma_pinned_list *dma_pin_iovec_pages(struct iovec *iov, size_t len)
-#endif  
+#endif /* MY_ABC_HERE */
 {
 	struct dma_pinned_list *local_list;
 	struct page **pages;
@@ -36,14 +76,16 @@ struct dma_pinned_list *dma_pin_iovec_pages(struct iovec *iov, size_t len)
 
 #if defined(MY_ABC_HERE)
 	if (!tp->ucopy.pinned_list) {
-		 
+		/* single kmalloc for pinned list, page_list[], and the page arrays */
 		local_list = kmalloc(sizeof(*local_list)
 		+ (NETDMA_MAX_NR_IOVECS * sizeof (struct dma_page_list))
 		+ (NETDMA_MAX_NR_PAGES * sizeof (struct page*)), GFP_KERNEL);
 
+		/* handle malloc failure */
 		if (!local_list)
 			return -1;
 
+		/* alloc sgt tables*/
 		local_list->sgts = kmalloc(2 * sizeof(struct sg_table), GFP_KERNEL);
 		if (!local_list->sgts)
 			goto sgts_fail;
@@ -67,12 +109,13 @@ sgts_fail:
 
 alloc_ok:
 	local_list = tp->ucopy.pinned_list;
-#else  
-	 
+#else /* MY_ABC_HERE */
+	/* don't pin down non-user-based iovecs */
 	if (segment_eq(get_fs(), KERNEL_DS))
 		return NULL;
-#endif  
+#endif /* MY_ABC_HERE */
 
+	/* determine how many iovecs/pages there are, up front */
 	do {
 		iovec_len_used += iov[nr_iovecs].iov_len;
 		iovec_pages_used += num_pages_spanned(&iov[nr_iovecs]);
@@ -80,7 +123,7 @@ alloc_ok:
 	} while (iovec_len_used < len);
 
 #if defined(MY_ABC_HERE)
-	 
+	/* return error so DMA won't be used of the buffer is too large */
 	if (unlikely((nr_iovecs > NETDMA_MAX_NR_IOVECS) || (iovec_pages_used > NETDMA_MAX_NR_PAGES)))
 		return -1;
 
@@ -89,15 +132,16 @@ alloc_ok:
                local_list->kernel = 1;
         else
                local_list->kernel = 0;
-#else  
-	 
+#else /* MY_ABC_HERE */
+	/* single kmalloc for pinned list, page_list[], and the page arrays */
 	local_list = kmalloc(sizeof(*local_list)
 		+ (nr_iovecs * sizeof (struct dma_page_list))
 		+ (iovec_pages_used * sizeof (struct page*)), GFP_KERNEL);
 	if (!local_list)
 		goto out;
-#endif  
+#endif /* MY_ABC_HERE */
 
+	/* list of pages starts right after the page list array */
 	pages = (struct page **) &local_list->page_list[nr_iovecs];
 
 	local_list->nr_iovecs = 0;
@@ -132,14 +176,15 @@ alloc_ok:
 			page_list->pages = pages;
 			pages += page_list->nr_pages;
 
+			/* pin pages down */
 			down_read(&current->mm->mmap_sem);
 			ret = get_user_pages(
 					current,
 					current->mm,
 					(unsigned long) iov[i].iov_base,
 					page_list->nr_pages,
-					1,	 
-					0,	 
+					1,	/* write */
+					0,	/* force */
 					page_list->pages,
 					NULL);
 			up_read(&current->mm->mmap_sem);
@@ -147,7 +192,7 @@ alloc_ok:
 			local_list->nr_iovecs = i + 1;
 			if (ret != page_list->nr_pages) {
 				pr_debug("%s %d: get_user_pages didn't succeed to pin all requested pages!!\n", __func__, __LINE__);
-				 
+				/* set the nr_pages that really allocated so the unpin will release it*/
 				page_list->nr_pages = ret > 0 ? ret : 0;
 				goto unpin;
 			}
@@ -161,7 +206,7 @@ alloc_ok:
 unpin:
 	dma_unpin_iovec_pages(local_list);
 	return -1;
-#else  
+#else /* MY_ABC_HERE */
 	for (i = 0; i < nr_iovecs; i++) {
 		struct dma_page_list *page_list = &local_list->page_list[i];
 
@@ -176,14 +221,15 @@ unpin:
 		page_list->pages = pages;
 		pages += page_list->nr_pages;
 
+		/* pin pages down */
 		down_read(&current->mm->mmap_sem);
 		ret = get_user_pages(
 			current,
 			current->mm,
 			(unsigned long) iov[i].iov_base,
 			page_list->nr_pages,
-			1,	 
-			0,	 
+			1,	/* write */
+			0,	/* force */
 			page_list->pages,
 			NULL);
 		up_read(&current->mm->mmap_sem);
@@ -200,7 +246,7 @@ unpin:
 	dma_unpin_iovec_pages(local_list);
 out:
 	return NULL;
-#endif  
+#endif /* MY_ABC_HERE */
 }
 
 #if defined(MY_DEF_HERE) && defined(CONFIG_SPLICE_NET_DMA_SUPPORT)
@@ -213,18 +259,21 @@ struct dma_pinned_list *dma_pin_kernel_iovec_pages(struct iovec *iov, size_t len
 	int iovec_len_used = 0;
 	int iovec_pages_used = 0;
 
+	/* determine how many iovecs/pages there are, up front */
 	do {
 		iovec_len_used += iov[nr_iovecs].iov_len;
 		iovec_pages_used += num_pages_spanned(&iov[nr_iovecs]);
 		nr_iovecs++;
 	} while (iovec_len_used < len);
 
+	/* single kmalloc for pinned list, page_list[], and the page arrays */
 	local_list = kmalloc(sizeof(*local_list)
 		+ (nr_iovecs * sizeof (struct dma_page_list))
 		+ (iovec_pages_used * sizeof (struct page*)), GFP_KERNEL);
 	if (!local_list)
 		goto out;
 
+	/* list of pages starts right after the page list array */
 	pages = (struct page **) &local_list->page_list[nr_iovecs];
 
 	local_list->nr_iovecs = 0;
@@ -265,7 +314,7 @@ void dma_unpin_kernel_iovec_pages(struct dma_pinned_list *pinned_list)
 
 	kfree(pinned_list);
 }
-#endif  
+#endif /* MY_DEF_HERE && CONFIG_SPLICE_NET_DMA_SUPPORT */
 
 void dma_unpin_iovec_pages(struct dma_pinned_list *pinned_list)
 {
@@ -284,7 +333,7 @@ void dma_unpin_iovec_pages(struct dma_pinned_list *pinned_list)
 			}
 		}
 	}
-#else  
+#else /* MY_ABC_HERE */
 	for (i = 0; i < pinned_list->nr_iovecs; i++) {
 		struct dma_page_list *page_list = &pinned_list->page_list[i];
 		for (j = 0; j < page_list->nr_pages; j++) {
@@ -294,7 +343,7 @@ void dma_unpin_iovec_pages(struct dma_pinned_list *pinned_list)
 	}
 
 	kfree(pinned_list);
-#endif  
+#endif /* MY_ABC_HERE */
 }
 
 #if defined(MY_ABC_HERE)
@@ -311,6 +360,7 @@ void dma_free_iovec_data(struct tcp_sock *tp)
 	}
 }
 
+/* return number of sg elements created on success, and negative of failure */
 int dma_memcpy_fill_sg_from_iovec(struct dma_chan *chan, struct iovec *iov,
 	struct dma_pinned_list *pinned_list, struct scatterlist *dst_sg,
 	unsigned int offset, size_t len)
@@ -322,16 +372,18 @@ int dma_memcpy_fill_sg_from_iovec(struct dma_chan *chan, struct iovec *iov,
 	int sg_nents = 0;
 #ifdef MY_ABC_HERE
 	int init_len = len;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	pr_debug("%s %d:  nr iovecs %d. len 0x%x\n",
 					__func__, __LINE__,
 					 pinned_list->nr_iovecs, len);
 
+
 	iovec_idx = 0;
 	while (iovec_idx < pinned_list->nr_iovecs) {
 		struct dma_page_list *page_list;
 
+		/* skip already used-up iovecs */
 		while (!iov[iovec_idx].iov_len)
 			iovec_idx++;
 
@@ -341,10 +393,12 @@ int dma_memcpy_fill_sg_from_iovec(struct dma_chan *chan, struct iovec *iov,
 		page_idx = (((unsigned long)iov[iovec_idx].iov_base & PAGE_MASK)
 			 - ((unsigned long)page_list->base_address & PAGE_MASK)) >> PAGE_SHIFT;
 
+
 		pr_debug("%s %d: iov idx %d. len 0x%x\n",
 					__func__, __LINE__,
 					 iovec_idx, iov[iovec_idx].iov_len);
 
+		/* break up copies to not cross page boundary */
 		while (iov[iovec_idx].iov_len) {
 			copy = min_t(int, PAGE_SIZE - iov_byte_offset, len);
 			copy = min_t(int, copy, iov[iovec_idx].iov_len);
@@ -372,6 +426,7 @@ int dma_memcpy_fill_sg_from_iovec(struct dma_chan *chan, struct iovec *iov,
 		iovec_idx++;
 	}
 
+	/* really bad if we ever run out of iovecs */
 #ifdef MY_ABC_HERE
 	printk(KERN_ERR"run out of iovecs, nr_iovecs=%d, init_len=%d, remaining len=%d\n", pinned_list->nr_iovecs, init_len, len);
 	iovec_idx = 0;
@@ -381,12 +436,20 @@ int dma_memcpy_fill_sg_from_iovec(struct dma_chan *chan, struct iovec *iov,
 		}
 		iovec_idx++;
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 	BUG();
 	return -EFAULT;
 }
-#endif  
+#endif /* MY_ABC_HERE */
 
+/*
+ * We have already pinned down the pages we will be using in the iovecs.
+ * Each entry in iov array has corresponding entry in pinned_list->page_list.
+ * Using array indexing to keep iov[] and page_list[] in sync.
+ * Initial elements in iov array's iov->iov_len will be 0 if already copied into
+ *   by another call.
+ * iov array length remaining guaranteed to be bigger than len.
+ */
 dma_cookie_t dma_memcpy_to_iovec(struct dma_chan *chan, struct iovec *iov,
 	struct dma_pinned_list *pinned_list, unsigned char *kdata, size_t len)
 {
@@ -403,6 +466,7 @@ dma_cookie_t dma_memcpy_to_iovec(struct dma_chan *chan, struct iovec *iov,
 	while (iovec_idx < pinned_list->nr_iovecs) {
 		struct dma_page_list *page_list;
 
+		/* skip already used-up iovecs */
 		while (!iov[iovec_idx].iov_len)
 			iovec_idx++;
 
@@ -412,6 +476,7 @@ dma_cookie_t dma_memcpy_to_iovec(struct dma_chan *chan, struct iovec *iov,
 		page_idx = (((unsigned long)iov[iovec_idx].iov_base & PAGE_MASK)
 			 - ((unsigned long)page_list->base_address & PAGE_MASK)) >> PAGE_SHIFT;
 
+		/* break up copies to not cross page boundary */
 		while (iov[iovec_idx].iov_len) {
 			copy = min_t(int, PAGE_SIZE - iov_byte_offset, len);
 			copy = min_t(int, copy, iov[iovec_idx].iov_len);
@@ -421,7 +486,7 @@ dma_cookie_t dma_memcpy_to_iovec(struct dma_chan *chan, struct iovec *iov,
 					iov_byte_offset,
 					kdata,
 					copy);
-			 
+			/* poll for a descriptor slot */
 			if (unlikely(dma_cookie < 0)) {
 				dma_async_issue_pending(chan);
 				continue;
@@ -441,6 +506,7 @@ dma_cookie_t dma_memcpy_to_iovec(struct dma_chan *chan, struct iovec *iov,
 		iovec_idx++;
 	}
 
+	/* really bad if we ever run out of iovecs */
 	BUG();
 	return -EFAULT;
 }
@@ -456,6 +522,8 @@ dma_cookie_t dma_memcpy_pg_to_iovec(struct dma_chan *chan, struct iovec *iov,
 	int page_idx;
 	int err;
 
+	/* this needs as-yet-unimplemented buf-to-buff, so punt. */
+	/* TODO: use dma for this */
 	if (!chan || !pinned_list) {
 		u8 *vaddr = kmap(page);
 		err = memcpy_toiovec(iov, vaddr + offset, len);
@@ -467,6 +535,7 @@ dma_cookie_t dma_memcpy_pg_to_iovec(struct dma_chan *chan, struct iovec *iov,
 	while (iovec_idx < pinned_list->nr_iovecs) {
 		struct dma_page_list *page_list;
 
+		/* skip already used-up iovecs */
 		while (!iov[iovec_idx].iov_len)
 			iovec_idx++;
 
@@ -476,6 +545,7 @@ dma_cookie_t dma_memcpy_pg_to_iovec(struct dma_chan *chan, struct iovec *iov,
 		page_idx = (((unsigned long)iov[iovec_idx].iov_base & PAGE_MASK)
 			 - ((unsigned long)page_list->base_address & PAGE_MASK)) >> PAGE_SHIFT;
 
+		/* break up copies to not cross page boundary */
 		while (iov[iovec_idx].iov_len) {
 			copy = min_t(int, PAGE_SIZE - iov_byte_offset, len);
 			copy = min_t(int, copy, iov[iovec_idx].iov_len);
@@ -486,7 +556,7 @@ dma_cookie_t dma_memcpy_pg_to_iovec(struct dma_chan *chan, struct iovec *iov,
 					page,
 					offset,
 					copy);
-			 
+			/* poll for a descriptor slot */
 			if (unlikely(dma_cookie < 0)) {
 				dma_async_issue_pending(chan);
 				continue;
@@ -506,6 +576,7 @@ dma_cookie_t dma_memcpy_pg_to_iovec(struct dma_chan *chan, struct iovec *iov,
 		iovec_idx++;
 	}
 
+	/* really bad if we ever run out of iovecs */
 	BUG();
 	return -EFAULT;
 }

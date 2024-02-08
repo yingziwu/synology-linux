@@ -21,6 +21,7 @@ struct yaffs_checkpt_chunk_hdr {
 	u32 xor;
 } ;
 
+
 static int apply_chunk_offset(struct yaffs_dev *dev, int chunk)
 {
 	return chunk - dev->chunk_offset;
@@ -309,6 +310,7 @@ static int yaffs2_checkpt_flush_buffer(struct yaffs_dev *dev)
 	memset(dev->checkpt_buffer, 0, dev->data_bytes_per_chunk);
 
 	yaffs2_checkpt_init_chunk_hdr(dev);
+
 
 	return 1;
 }

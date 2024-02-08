@@ -8,12 +8,14 @@
 #ifndef _UAPI_INPUT_H
 #define _UAPI_INPUT_H
 
+
 #ifndef __KERNEL__
 #include <sys/time.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <linux/types.h>
 #endif
+
 
 /*
  * The event structure itself
@@ -868,6 +870,7 @@ struct input_keymap_entry {
 #define ABS_MT_DISTANCE		0x3b	/* Contact hover distance */
 #define ABS_MT_TOOL_X		0x3c	/* Center X tool position */
 #define ABS_MT_TOOL_Y		0x3d	/* Center Y tool position */
+
 
 #define ABS_MAX			0x3f
 #define ABS_CNT			(ABS_MAX+1)

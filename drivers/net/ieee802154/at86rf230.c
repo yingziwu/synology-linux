@@ -488,6 +488,7 @@ at86rf230_state(struct ieee802154_dev *dev, int state)
 			goto err;
 	} while (val == STATE_TRANSITION_IN_PROGRESS);
 
+
 	if (val == desired_status)
 		return 0;
 

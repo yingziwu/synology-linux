@@ -16,3 +16,4 @@
  * divisor.
  */
 #define CLOCK_TICK_RATE		47894000
+

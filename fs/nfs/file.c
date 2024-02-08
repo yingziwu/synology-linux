@@ -419,7 +419,7 @@ static int nfs_write_end(struct file *file, struct address_space *mapping,
 	 */
 	if (!PageUptodate(page)) {
 		unsigned pglen = nfs_page_length(page);
-		unsigned end = offset + len;
+		unsigned end = offset + copied;
 
 		if (pglen == 0) {
 			zero_user_segments(page, 0, offset,
@@ -479,7 +479,7 @@ static int nfs_release_page(struct page *page, gfp_t gfp)
 	 * doing this memory reclaim for a fs-related allocation.
 	 */
 	if (mapping && (gfp & GFP_KERNEL) == GFP_KERNEL &&
-	    !(current->flags & PF_FSTRANS)) {
+	    !(current->flags & PF_MEMALLOC_NOFS)) {
 		int how = FLUSH_SYNC;
 
 		/* Don't let kswapd deadlock waiting for OOM RPC calls */

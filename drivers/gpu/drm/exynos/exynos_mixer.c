@@ -1230,6 +1230,7 @@ static int mixer_probe(struct platform_device *pdev)
 
 	return 0;
 
+
 fail:
 	dev_info(dev, "probe failed\n");
 	return ret;

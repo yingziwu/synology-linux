@@ -549,3 +549,4 @@ perm_error:
 	if (frozen_bus)
 		pcibios_remove_pci_devices(frozen_bus);
 }
+

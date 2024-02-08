@@ -1,7 +1,14 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Driver for the RTC in Marvell SoCs.
+ *
+ * This file is licensed under the terms of the GNU General Public
+ * License version 2.  This program is licensed "as is" without any
+ * warranty of any kind, whether express or implied.
+ */
+
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/rtc.h>
@@ -14,12 +21,13 @@
 #include <linux/gfp.h>
 #include <linux/module.h>
 
+
 #define RTC_TIME_REG_OFFS	0
 #define RTC_SECONDS_OFFS	0
 #define RTC_MINUTES_OFFS	8
 #define RTC_HOURS_OFFS		16
 #define RTC_WDAY_OFFS		24
-#define RTC_HOURS_12H_MODE		(1 << 22)  
+#define RTC_HOURS_12H_MODE		(1 << 22) /* 12 hours mode */
 
 #define RTC_DATE_REG_OFFS	4
 #define RTC_MDAY_OFFS		0
@@ -72,7 +80,7 @@ static int mv_rtc_read_time(struct device *dev, struct rtc_time *tm)
 
 	second = rtc_time & 0x7f;
 	minute = (rtc_time >> RTC_MINUTES_OFFS) & 0x7f;
-	hour = (rtc_time >> RTC_HOURS_OFFS) & 0x3f;  
+	hour = (rtc_time >> RTC_HOURS_OFFS) & 0x3f; /* assume 24 hours mode */
 	wday = (rtc_time >> RTC_WDAY_OFFS) & 0x7;
 
 	day = rtc_date & 0x3f;
@@ -85,7 +93,7 @@ static int mv_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	tm->tm_mday = bcd2bin(day);
 	tm->tm_wday = bcd2bin(wday);
 	tm->tm_mon = bcd2bin(month) - 1;
-	 
+	/* hw counts from year 2000, but tm_year is relative to 1900 */
 	tm->tm_year = bcd2bin(year) + 100;
 
 	return rtc_valid_tm(tm);
@@ -103,7 +111,7 @@ static int mv_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
 
 	second = rtc_time & 0x7f;
 	minute = (rtc_time >> RTC_MINUTES_OFFS) & 0x7f;
-	hour = (rtc_time >> RTC_HOURS_OFFS) & 0x3f;  
+	hour = (rtc_time >> RTC_HOURS_OFFS) & 0x3f; /* assume 24 hours mode */
 	wday = (rtc_time >> RTC_WDAY_OFFS) & 0x7;
 
 	day = rtc_date & 0x3f;
@@ -116,7 +124,7 @@ static int mv_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
 	alm->time.tm_mday = bcd2bin(day);
 	alm->time.tm_wday = bcd2bin(wday);
 	alm->time.tm_mon = bcd2bin(month) - 1;
-	 
+	/* hw counts from year 2000, but tm_year is relative to 1900 */
 	alm->time.tm_year = bcd2bin(year) + 100;
 
 	if (rtc_valid_tm(&alm->time) < 0) {
@@ -175,7 +183,7 @@ static int mv_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
 	void __iomem *ioaddr = pdata->ioaddr;
 
 	if (pdata->irq < 0)
-		return -EINVAL;  
+		return -EINVAL; /* fall back into rtc-dev's emulation */
 
 	if (enabled)
 		writel(1, ioaddr + RTC_ALARM_INTERRUPT_MASK_REG_OFFS);
@@ -189,9 +197,11 @@ static irqreturn_t mv_rtc_interrupt(int irq, void *data)
 	struct rtc_plat_data *pdata = data;
 	void __iomem *ioaddr = pdata->ioaddr;
 
+	/* alarm irq? */
 	if (!readl(ioaddr + RTC_ALARM_INTERRUPT_CASUE_REG_OFFS))
 		return IRQ_NONE;
 
+	/* clear interrupt */
 	writel(0, ioaddr + RTC_ALARM_INTERRUPT_CASUE_REG_OFFS);
 	rtc_update_irq(pdata->rtc, 1, RTC_IRQF | RTC_AF);
 	return IRQ_HANDLED;
@@ -218,7 +228,7 @@ static int __init mv_rtc_probe(struct platform_device *pdev)
 	u32 rtc_time;
 #if defined(MY_DEF_HERE)
 	u32 rtc_date;
-#endif  
+#endif /* MY_DEF_HERE */
 	int ret = 0;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -239,10 +249,11 @@ static int __init mv_rtc_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	pdata->clk = devm_clk_get(&pdev->dev, NULL);
-	 
+	/* Not all SoCs require a clock.*/
 	if (!IS_ERR(pdata->clk))
 		clk_prepare_enable(pdata->clk);
 
+	/* make sure the 24 hours mode is enabled */
 	rtc_time = readl(pdata->ioaddr + RTC_TIME_REG_OFFS);
 	if (rtc_time & RTC_HOURS_12H_MODE) {
 		dev_err(&pdev->dev, "24 Hours mode not supported.\n");
@@ -250,6 +261,7 @@ static int __init mv_rtc_probe(struct platform_device *pdev)
 		goto out;
 	}
 
+	/* make sure it is actually functional */
 	if (rtc_time == 0x01000000) {
 		ssleep(1);
 		rtc_time = readl(pdata->ioaddr + RTC_TIME_REG_OFFS);
@@ -261,13 +273,17 @@ static int __init mv_rtc_probe(struct platform_device *pdev)
 	}
 
 #if defined(MY_DEF_HERE)
-	 
+	/*
+	 * A date after January 19th, 2038 does not fit on 32 bits and
+	 * will confuse the kernel and userspace. Reset to a sane date
+	 * (January 1st, 2013) if we're after 2038.
+	 */
 	rtc_date = readl(pdata->ioaddr + RTC_DATE_REG_OFFS);
 	if (bcd2bin((rtc_date >> RTC_YEAR_OFFS) & 0xff) >= 38) {
 		dev_info(&pdev->dev, "invalid RTC date, resetting to January, 1st 2013\n");
 		writel(0x130101, pdata->ioaddr + RTC_DATE_REG_OFFS);
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 	pdata->irq = platform_get_irq(pdev, 0);
 

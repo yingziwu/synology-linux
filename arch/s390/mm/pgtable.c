@@ -32,6 +32,7 @@
 #define FRAG_MASK	0x03
 #endif
 
+
 unsigned long *crst_table_alloc(struct mm_struct *mm)
 {
 	struct page *page = alloc_pages(GFP_KERNEL, ALLOC_ORDER);
@@ -194,6 +195,7 @@ void gmap_free(struct gmap *gmap)
 	unsigned long *table;
 	int i;
 
+
 	/* Flush tlb. */
 	if (MACHINE_HAS_IDTE)
 		__tlb_flush_idte((unsigned long) gmap->table |
@@ -333,7 +335,7 @@ int gmap_map_segment(struct gmap *gmap, unsigned long from,
 
 	if ((from | to | len) & (PMD_SIZE - 1))
 		return -EINVAL;
-	if (len == 0 || from + len > PGDIR_SIZE ||
+	if (len == 0 || from + len > TASK_MAX_SIZE ||
 	    from + len < from || to + len < to)
 		return -EINVAL;
 

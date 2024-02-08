@@ -316,3 +316,4 @@ static int spi_do_not_qe_enable(struct hifmc_spi *spi)
 {
 	return 0;
 }
+

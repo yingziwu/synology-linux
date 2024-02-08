@@ -43,6 +43,7 @@
 #define DEMOAPP_IOCSTOP  _IO(DEMOAPP_IOC_MAGIC, 2)
 #define DEMOAPP_IOC_MAXNR 3
 
+
 /* Change this value to change the duration of the test */
 #define MAX_BUFFS               200000
 

@@ -296,6 +296,7 @@ mode_fixup(struct drm_atomic_state *state)
 			}
 		}
 
+
 		ret = funcs->mode_fixup(encoder, &crtc_state->mode,
 					&crtc_state->adjusted_mode);
 		if (!ret) {

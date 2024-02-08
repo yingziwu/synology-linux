@@ -329,6 +329,7 @@ void ia64_mmu_init(void *my_cpu_data)
 		      " to cover mapped address space.\n"
 		      " Try using a smaller page size.\n");
 
+
 	/* place the VMLPT at the end of each page-table mapped region: */
 	pta = POW2(61) - POW2(vmlpt_bits);
 
@@ -635,6 +636,7 @@ mem_init (void)
 	       "%luk data, %luk init)\n", nr_free_pages() << (PAGE_SHIFT - 10),
 	       num_physpages << (PAGE_SHIFT - 10), codesize >> 10,
 	       reserved_pages << (PAGE_SHIFT - 10), datasize >> 10, initsize >> 10);
+
 
 	/*
 	 * For fsyscall entrpoints with no light-weight handler, use the ordinary

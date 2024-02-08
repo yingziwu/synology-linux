@@ -16,6 +16,7 @@
 #include <asm/cmpxchg.h>
 #include <asm-generic/atomic64.h>
 
+
 #define ATOMIC_INIT(i)  { (i) }
 
 extern int __atomic_add_return(int, atomic_t *);

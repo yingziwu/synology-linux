@@ -115,6 +115,7 @@ eg., if the value 10011010b is written into the least significant byte of a comm
 
 #define LADRF			0x168	/* Logical address filter register */
 
+
 /* Register Bit Definitions */
 typedef enum {
 
@@ -131,6 +132,7 @@ typedef enum {
 	MIB_ADDRESS		= (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3)|
 					(1 << 4) | (1 << 5),
 }MIB_ADDR_BITS;
+
 
 typedef enum {
 
@@ -294,6 +296,7 @@ typedef enum {
 
 }CMD3_BITS;
 
+
 typedef enum {
 
 	/* VAL0 */
@@ -305,6 +308,7 @@ typedef enum {
 	CMD7_CLEAR  		= 0x0000001B	/* Command style register */
 
 }CMD7_BITS;
+
 
 typedef enum {
 
@@ -357,6 +361,7 @@ typedef enum {
 
 }AUTOPOLL1_BITS;
 
+
 typedef enum {
 
 	AP_REG2_EN		= (1 << 15),
@@ -377,6 +382,7 @@ typedef enum {
 
 }AUTOPOLL3_BITS;
 
+
 typedef enum {
 
 	AP_REG4_EN		= (1 << 15),
@@ -387,6 +393,7 @@ typedef enum {
 
 }AUTOPOLL4_BITS;
 
+
 typedef enum {
 
 	AP_REG5_EN		= (1 << 15),
@@ -396,6 +403,9 @@ typedef enum {
 	AP_PHY5_ADDR_MASK	= (0xF << 0) |(1 << 4),/* 4:0 */
 
 }AUTOPOLL5_BITS;
+
+
+
 
 /* AP_VALUE 			0x98, 32bit ragister */
 typedef enum {
@@ -439,6 +449,7 @@ typedef enum {
 				  (1 << 9) | (1 << 10),	/* 10:0 */
 }DLY_INT_B_BITS;
 
+
 /* FLOW_CONTROL 		0xC8, 32bit register */
 typedef enum {
 
@@ -469,6 +480,7 @@ typedef enum {
 
 }PHY_ACCESS_BITS;
 
+
 /* PMAT0			0x190,	 32bit register */
 typedef enum {
 	PMR_ACTIVE		= (1 << 31),
@@ -479,6 +491,7 @@ typedef enum {
 				  	(1 << 22),/* 22:16 */
 	PMR_B4			= (0xF << 0) | (0xF << 4),/* 15:0 */
 }PMAT0_BITS;
+
 
 /* PMAT1			0x194,	 32bit register */
 typedef enum {
@@ -546,6 +559,7 @@ typedef enum {
 #define xmt_pkts_1024to1518_octet		0x35
 #define xmt_oversize_pkts			0x36
 #define xmt_jumbo_pkts				0x37
+
 
 /* Driver definitions */
 
@@ -798,3 +812,4 @@ static bool dynamic_ipg[MAX_UNITS] = { [ 0 ... MAX_UNITS-1] = false };
 static unsigned int chip_version;
 
 #endif /* _AMD8111E_H */
+

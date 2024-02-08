@@ -17,12 +17,14 @@
 #include <linux/platform_data/dma-st-fdma.h>
 #include "st_fdma.h"
 
+
 /*
  * MCHI packet defines
  */
 #define ST_FDMA_MCHI_MAX_PAYLOAD	4096
 #define ST_FDMA_MCHI_MIN_PACKET	3
 #define ST_FDMA_MCHI_MAX_PACKET	(3 + 4096)
+
 
 /*
  * MCHI Rx node control defines
@@ -39,6 +41,7 @@
 #define MCHI_CONTROL_COMP_PAUSE		0x40000000
 #define MCHI_CONTROL_COMP_IRQ		0x80000000
 
+
 /*
  * MCHI structures
  */
@@ -46,6 +49,7 @@ struct st_fdma_mchi {
 	struct st_dma_dreq_config *pkt_start_rx_dreq;
 	u32 rx_fifo_threshold_addr;
 };
+
 
 /*
  * MCHI dmaengine extension resources functions
@@ -137,6 +141,7 @@ void st_fdma_mchi_free_chan_resources(struct st_fdma_chan *fchan)
 	kfree(fchan->extension);
 	fchan->extension = NULL;
 }
+
 
 /*
  * MCHI dmaengine extensions API

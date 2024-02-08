@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * fs/inotify_user.c - inotify support for userspace
  *
@@ -41,6 +44,9 @@
 
 #include "inotify.h"
 #include "../fdinfo.h"
+#ifdef MY_ABC_HERE
+#include "../../synoacl_int.h"
+#endif /* MY_ABC_HERE */
 
 #include <asm/ioctls.h>
 
@@ -337,6 +343,7 @@ static const struct file_operations inotify_fops = {
 	.llseek		= noop_llseek,
 };
 
+
 /*
  * find_inode - resolve a user-given path to a specific inode
  */
@@ -348,6 +355,11 @@ static int inotify_find_inode(const char __user *dirname, struct path *path, uns
 	if (error)
 		return error;
 	/* you can only watch an inode if you have read permissions on it */
+#ifdef MY_ABC_HERE
+	if (IS_SYNOACL(path->dentry))
+		error = synoacl_op_perm(path->dentry, MAY_READ);
+	else
+#endif /* MY_ABC_HERE */
 	error = inode_permission(path->dentry->d_inode, MAY_READ);
 	if (error)
 		path_put(path);
@@ -698,6 +710,7 @@ static struct fsnotify_group *inotify_new_group(unsigned int max_events)
 
 	return group;
 }
+
 
 /* inotify syscalls */
 SYSCALL_DEFINE1(inotify_init1, int, flags)

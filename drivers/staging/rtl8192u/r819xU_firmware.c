@@ -146,6 +146,7 @@ fwSendNullPacket(
 	return rtStatus;
 }
 
+
 //-----------------------------------------------------------------------------
 // Procedure:    Check whether main code is download OK. If OK, turn on CPU
 //

@@ -739,6 +739,7 @@ MV_STATUS mvBmPoolBuffCountersSet(int pool, int cntrGrntd, int cntrShared)
 		return MV_BAD_PARAM;
 	}
 
+
 	regVal |= cntrShared << MV_BM_POOL_CNTR_SHARED_OFFS;
 	regVal |= cntrGrntd << MV_BM_POOL_CNTR_GRNTD_OFFS;
 

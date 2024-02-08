@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -55,7 +56,9 @@ MV_CESA_COMMAND *cesaCmdArray[CESA_CHAN];
 static MV_CESA_MBUF *cesaMbufArray[CESA_CHAN];
 void *cesaOSHandle;
 
+
 static MV_L2FW_SEC_SA_ENTRY sa;
+
 
 #define MALLOC_AND_CLEAR(_ptr_, _size_) {\
 	(_ptr_) = mvOsMalloc(_size_);\
@@ -65,6 +68,7 @@ static MV_L2FW_SEC_SA_ENTRY sa;
 	 } \
 	memset((_ptr_), 0, (_size_));\
 }
+
 
 void mv_l2sec_stats()
 {
@@ -313,6 +317,8 @@ void mv_l2sec_cesa_start(void)
  * nfp sec Interrupt handler routine.
  */
 
+
+
 static irqreturn_t
 mv_l2sec_interrupt_handler(int irq, void *arg)
 {
@@ -373,6 +379,7 @@ void mv_l2sec_req_handler(unsigned long dummy)
 	atomic_sub(req_count_init, &req_count);
 
 }
+
 
 void mv_l2sec_open_cesa_session(void)
 {
@@ -481,6 +488,7 @@ int mv_l2sec_cesa_init(void)
 	return 0;
 }
 
+
 void mv_l2sec_build_tunnel(MV_BUF_INFO *pBuf, MV_L2FW_SEC_SA_ENTRY *pSAEntry)
 {
 	MV_IP_HEADER *pIpHdr, *pIntIpHdr;
@@ -507,6 +515,7 @@ void mv_l2sec_build_tunnel(MV_BUF_INFO *pBuf, MV_L2FW_SEC_SA_ENTRY *pSAEntry)
 	return;
 }
 
+
 /* Append sequence number and spi, save some space for IV */
 void mv_l2sec_build_esp_hdr(MV_BUF_INFO *pBuf, MV_L2FW_SEC_SA_ENTRY *pSAEntry)
 {
@@ -527,6 +536,7 @@ void mv_l2sec_build_mac(MV_BUF_INFO *pBuf, MV_L2FW_SEC_SA_ENTRY *pSAEntry)
 	pMacHdr->typeOrLen = 0x08;/* stands for IP protocol code 16bit swapped */
 	return;
 }
+
 
 MV_STATUS mv_l2sec_esp_process(struct eth_pbuf *pPkt, MV_BUF_INFO *pBuf, MV_L2FW_SEC_SA_ENTRY *pSAEntry,
 				struct eth_port *newpp, int channel, int inPort)
@@ -590,6 +600,7 @@ MV_STATUS mv_l2sec_esp_process(struct eth_pbuf *pPkt, MV_BUF_INFO *pBuf, MV_L2FW
 	pCesaCmd->macOffset = 0;
 	pCesaCmd->macLength = pBuf->dataSize - pSAEntry->digestSize;
 
+
 	if ((pCesaCmd->digestOffset != 0) && ((pCesaCmd->digestOffset%4)))  {
 		printk(KERN_INFO "pBuf->dataSize=%d pSAEntry->digestSize=%d in %s\n",
 			pBuf->dataSize, pSAEntry->digestSize, __func__);
@@ -602,6 +613,7 @@ MV_STATUS mv_l2sec_esp_process(struct eth_pbuf *pPkt, MV_BUF_INFO *pBuf, MV_L2FW
 	disable_irq(CESA_IRQ(channel));
 	status = mvCesaAction(channel, pCesaCmd);
 	enable_irq(CESA_IRQ(channel));
+
 
 	if (status != MV_OK) {
 		pSAEntry->stats.rejected++;

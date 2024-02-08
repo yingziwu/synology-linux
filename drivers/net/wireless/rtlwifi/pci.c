@@ -550,6 +550,7 @@ static void _rtl_pci_tx_chk_waitq(struct ieee80211_hw *hw)
 	}
 }
 
+
 static void _rtl_pci_tx_isr(struct ieee80211_hw *hw, int prio)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -667,6 +668,7 @@ static void _rtl_receive_one(struct ieee80211_hw *hw, struct sk_buff *skb,
 	bool unicast = false;
 	struct sk_buff *uskb = NULL;
 	u8 *pdata;
+
 
 	memcpy(IEEE80211_SKB_RXCB(skb), &rx_status, sizeof(rx_status));
 
@@ -1494,6 +1496,7 @@ static int rtl_pci_tx(struct ieee80211_hw *hw,
 
 	rtlpriv->cfg->ops->set_desc((u8 *)pdesc, true,
 				    HW_DESC_OWN, &temp_one);
+
 
 	if ((ring->entries - skb_queue_len(&ring->queue)) < 2 &&
 	    hw_queue != BEACON_QUEUE) {

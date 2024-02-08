@@ -62,12 +62,19 @@
 /* Only include this file if USE_PROFILE is defined */
 #ifdef USE_PROFILE
 
+
+
+
 /*******************************************************************************
  *  constant definitions
  ******************************************************************************/
 
+
 /* Allow support for calling system fcns to parse config file */
 #define __KERNEL_SYSCALLS__
+
+
+
 
 /*******************************************************************************
  * include files
@@ -93,6 +100,7 @@
 #include <wl_main.h>
 #include <wl_profile.h>
 
+
 /*******************************************************************************
  * global variables
  ******************************************************************************/
@@ -107,6 +115,7 @@ extern dbg_info_t *DbgInfo;
 
 int parse_yes_no(char *value);
 
+
 int parse_yes_no(char *value)
 {
 int rc = 0;										/* default to NO for invalid parameters */
@@ -120,6 +129,7 @@ int rc = 0;										/* default to NO for invalid parameters */
 	}
 	return rc;
 } /* parse_yes_no */
+
 
 /*******************************************************************************
  *	parse_config()

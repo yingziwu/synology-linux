@@ -112,6 +112,7 @@ struct cf_mod {
 	} csumfunc;
 };
 
+
 /*
  * So far we just support CAN -> CAN routing and frame modifications.
  *
@@ -434,7 +435,7 @@ static inline int cgw_register_filter(struct cgw_job *gwj)
 {
 	return can_rx_register(gwj->src.dev, gwj->ccgw.filter.can_id,
 			       gwj->ccgw.filter.can_mask, can_can_gw_rcv,
-			       gwj, "gw");
+			       gwj, "gw", NULL);
 }
 
 static inline void cgw_unregister_filter(struct cgw_job *gwj)

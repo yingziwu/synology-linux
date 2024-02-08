@@ -87,6 +87,7 @@ static int hifmc100_driver_probe(struct platform_device *plat_dev)
 	FMC_PR(BT_DBG, "\t|-Save SPI nor driver private data: host\n");
 	platform_set_drvdata(plat_dev, host);
 
+
 	host->regbase = ioremap_nocache(CONFIG_HIFMC_REG_BASE,
 			HIFMC_REG_ADDRESS_LEN);
 	if (!host->regbase) {
@@ -328,3 +329,4 @@ module_exit(hifmc100_module_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("BVT_BSP");
 MODULE_DESCRIPTION("Hisilicon Flash Memory Controller V100 SPI Nor Driver");
+

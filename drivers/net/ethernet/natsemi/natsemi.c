@@ -22,6 +22,7 @@
 	http://www.scyld.com/network/netsemi.html
 	[link no longer provides useful info -jgarzik]
 
+
 	TODO:
 	* big endian support with CFG:BEM instead of cpu_to_le32
 */
@@ -216,6 +217,8 @@ IVc. Errata
 
 None characterised.
 */
+
+
 
 /*
  * Support for fibre connections on Am79C874:
@@ -973,6 +976,7 @@ static int natsemi_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
 	free_netdev(dev);
 	return i;
 }
+
 
 /* Read the EEPROM and MII Management Data I/O (MDIO) interfaces.
    The EEPROM code is for the common 93c06/46 EEPROMs with 6 bit addresses. */
@@ -3205,6 +3209,7 @@ static int netdev_close(struct net_device *dev)
 	return 0;
 }
 
+
 static void natsemi_remove1(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -3296,6 +3301,7 @@ static int natsemi_suspend (struct pci_dev *pdev, pm_message_t state)
 	return 0;
 }
 
+
 static int natsemi_resume (struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata (pdev);
@@ -3367,3 +3373,4 @@ static void __exit natsemi_exit_mod (void)
 
 module_init(natsemi_init_mod);
 module_exit(natsemi_exit_mod);
+

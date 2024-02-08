@@ -1297,3 +1297,4 @@ void __init rx51_peripherals_init(void)
 	rx51_charger_init();
 	rx51_init_twl4030_hwmon();
 }
+

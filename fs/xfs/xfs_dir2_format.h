@@ -187,6 +187,7 @@ xfs_dir2_sf_nextentry(struct xfs_dir2_sf_hdr *hdr,
 		((char *)sfep + xfs_dir2_sf_entsize(hdr, sfep->namelen));
 }
 
+
 /*
  * Data block structures.
  *

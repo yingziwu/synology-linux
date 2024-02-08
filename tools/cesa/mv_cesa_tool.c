@@ -73,6 +73,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cesa_dev.h"
 
+
+
 void show_usage(int badarg)
 {
         fprintf(stderr,
@@ -246,6 +248,8 @@ static void parse_test_cmdline(int argc, char **argv, CESA_TEST *cesa_test)
 		cesa_test->checkmode = atoi(argv[i++]);
         }
 }
+
+
 
 int main(int argc, char *argv[])
 {

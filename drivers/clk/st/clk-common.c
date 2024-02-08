@@ -1427,3 +1427,5 @@ int stm_clk_fs_get_rate(unsigned long input, struct stm_fs *fs,
 
 	return CLK_ERR_BAD_PARAMETER;
 }
+
+

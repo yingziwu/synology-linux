@@ -1,7 +1,26 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * CPU frequency scaling for DaVinci
+ *
+ * Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
+ *
+ * Based on linux/arch/arm/plat-omap/cpu-omap.c. Original Copyright follows:
+ *
+ *  Copyright (C) 2005 Nokia Corporation
+ *  Written by Tony Lindgren <tony@atomide.com>
+ *
+ *  Based on cpu-sa1110.c, Copyright (C) 2001 Russell King
+ *
+ * Copyright (C) 2007-2008 Texas Instruments, Inc.
+ * Updated to support OMAP3
+ * Rajendra Nayak <rnayak@ti.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
 #include <linux/types.h>
 #include <linux/cpufreq.h>
 #include <linux/init.h>
@@ -36,11 +55,11 @@ static int davinci_verify_speed(struct cpufreq_policy *policy)
 
 #if defined(MY_DEF_HERE)
 	cpufreq_verify_within_cpu_limits(policy);
-#else  
+#else /* MY_DEF_HERE */
 	cpufreq_verify_within_limits(policy, policy->cpuinfo.min_freq,
 				     policy->cpuinfo.max_freq);
 
-#endif  
+#endif /* MY_DEF_HERE */
 	policy->min = clk_round_rate(armclk, policy->min * 1000) / 1000;
 	policy->max = clk_round_rate(armclk, policy->max * 1000) / 1000;
 	cpufreq_verify_within_limits(policy, policy->cpuinfo.min_freq,
@@ -80,6 +99,7 @@ static int davinci_target(struct cpufreq_policy *policy,
 
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_PRECHANGE);
 
+	/* if moving to higher frequency, up the voltage beforehand */
 	if (pdata->set_voltage && freqs.new > freqs.old) {
 		ret = pdata->set_voltage(idx);
 		if (ret)
@@ -96,6 +116,7 @@ static int davinci_target(struct cpufreq_policy *policy,
 			goto out;
 	}
 
+	/* if moving to lower freq, lower the voltage after lowering freq */
 	if (pdata->set_voltage && freqs.new < freqs.old)
 		pdata->set_voltage(idx);
 
@@ -114,6 +135,7 @@ static int davinci_cpu_init(struct cpufreq_policy *policy)
 	if (policy->cpu != 0)
 		return -EINVAL;
 
+	/* Finish platform specific initialization */
 	if (pdata->init) {
 		result = pdata->init();
 		if (result)
@@ -131,6 +153,12 @@ static int davinci_cpu_init(struct cpufreq_policy *policy)
 
 	cpufreq_frequency_table_get_attr(freq_table, policy->cpu);
 
+	/*
+	 * Time measurement across the target() function yields ~1500-1800us
+	 * time taken with no drivers on notification list.
+	 * Setting the latency to 2000 us to accommodate addition of drivers
+	 * to pre/post change notification list.
+	 */
 	policy->cpuinfo.transition_latency = 2000 * 1000;
 	return 0;
 }
@@ -207,3 +235,4 @@ int __init davinci_cpufreq_init(void)
 	return platform_driver_probe(&davinci_cpufreq_driver,
 							davinci_cpufreq_probe);
 }
+

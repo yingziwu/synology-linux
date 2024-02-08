@@ -416,6 +416,7 @@ static unsigned char sha2Key1[] = { 0x0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x0
 	0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
 };
 
+
 static MV_CESA_TEST_SESSION desTestSessions[] = {
 /*000*/ {-1, MV_CESA_CRYPTO_DES, MV_CESA_CRYPTO_ECB,
 	 MV_CESA_MAC_NULL, MV_CESA_CRYPTO_ONLY,
@@ -1714,6 +1715,7 @@ void cesaTestReadyIsr(void)
 	}
 
 	spin_unlock(&cesaLock);
+
 
 #ifdef MV_NETBSD
 		return 0;

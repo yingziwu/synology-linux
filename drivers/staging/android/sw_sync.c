@@ -110,6 +110,7 @@ static struct sync_timeline_ops sw_sync_timeline_ops = {
 	.pt_value_str = sw_sync_pt_value_str,
 };
 
+
 struct sw_sync_timeline *sw_sync_timeline_create(const char *name)
 {
 	struct sw_sync_timeline *obj = (struct sw_sync_timeline *)

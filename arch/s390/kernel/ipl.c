@@ -385,6 +385,7 @@ size_t append_ipl_scpdata(char *dest, size_t len)
 	return rc;
 }
 
+
 static struct kobj_attribute sys_ipl_vm_parm_attr =
 	__ATTR(parm, S_IRUGO, ipl_vm_parm_show, NULL);
 
@@ -881,6 +882,7 @@ static struct attribute_group reipl_ccw_attr_group_lpar = {
 	.name  = IPL_CCW_STR,
 	.attrs = reipl_ccw_attrs_lpar,
 };
+
 
 /* NSS reipl device attributes */
 static void reipl_get_ascii_nss_name(char *dst,
@@ -1784,6 +1786,7 @@ static ssize_t on_halt_store(struct kobject *kobj,
 static struct kobj_attribute on_halt_attr =
 	__ATTR(on_halt, 0644, on_halt_show, on_halt_store);
 
+
 static void do_machine_halt(void)
 {
 	smp_send_stop();
@@ -1811,6 +1814,7 @@ static ssize_t on_poff_store(struct kobject *kobj,
 
 static struct kobj_attribute on_poff_attr =
 	__ATTR(on_poff, 0644, on_poff_show, on_poff_store);
+
 
 static void do_machine_power_off(void)
 {

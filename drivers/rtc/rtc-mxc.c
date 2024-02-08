@@ -510,3 +510,4 @@ module_platform_driver(mxc_rtc_driver)
 MODULE_AUTHOR("Daniel Mack <daniel@caiaq.de>");
 MODULE_DESCRIPTION("RTC driver for Freescale MXC");
 MODULE_LICENSE("GPL");
+

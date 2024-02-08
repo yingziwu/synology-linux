@@ -3600,6 +3600,7 @@ static void skl_flush_wm_values(struct drm_i915_private *dev_priv,
 		reallocated[pipe] = true;
 	}
 
+
 	/*
 	 * Second pass: flush the pipes that are having their allocation
 	 * reduced, but overlapping with a previous allocation.
@@ -5081,6 +5082,7 @@ static void valleyview_check_pctx(struct drm_i915_private *dev_priv)
 	WARN_ON(pctx_addr != dev_priv->mm.stolen_base +
 			     dev_priv->vlv_pctx->stolen->start);
 }
+
 
 /* Check that the pcbr address is not empty. */
 static void cherryview_check_pctx(struct drm_i915_private *dev_priv)

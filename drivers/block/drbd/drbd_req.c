@@ -30,6 +30,7 @@
 #include "drbd_int.h"
 #include "drbd_req.h"
 
+
 static bool drbd_may_do_local_read(struct drbd_conf *mdev, sector_t sector, int size);
 
 /* Update disk stats at start of I/O request */
@@ -184,6 +185,7 @@ void complete_master_bio(struct drbd_conf *mdev,
 	bio_endio(m->bio, m->error);
 	dec_ap_bio(mdev);
 }
+
 
 static void drbd_remove_request_interval(struct rb_root *root,
 					 struct drbd_request *req)
@@ -1087,6 +1089,7 @@ static void drbd_send_and_submit(struct drbd_conf *mdev, struct drbd_request *re
 		 * full data updates, but start sending "dirty bits" only. */
 		maybe_pull_ahead(mdev);
 	}
+
 
 	if (drbd_suspended(mdev)) {
 		/* push back and retry: */

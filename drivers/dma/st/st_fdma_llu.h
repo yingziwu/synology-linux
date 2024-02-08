@@ -13,6 +13,7 @@
 #ifndef __ST_FDMA_LLU_H__
 #define __ST_FDMA_LLU_H__
 
+
 /*
  * Free running / paced specific linked list structure
  */
@@ -58,12 +59,14 @@ struct st_fdma_llu {
 	};
 };
 
+
 /*
  * Defines for maximum sized LLU structure and alignment
  */
 
 #define ST_FDMA_LLU_SIZE		sizeof(struct st_fdma_llu)
 #define ST_FDMA_LLU_ALIGN		64
+
 
 /*
  * Defines for generic node control
@@ -81,5 +84,6 @@ struct st_fdma_llu {
 #define NODE_CONTROL_SECURE		0x00008000
 #define NODE_CONTROL_COMP_PAUSE		0x40000000
 #define NODE_CONTROL_COMP_IRQ		0x80000000
+
 
 #endif /* __ST_FDMA_LLU_H__ */

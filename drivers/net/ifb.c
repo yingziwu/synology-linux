@@ -26,6 +26,7 @@
 
 */
 
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
@@ -153,6 +154,7 @@ static struct rtnl_link_stats64 *ifb_stats64(struct net_device *dev,
 
 	return stats;
 }
+
 
 static const struct net_device_ops ifb_netdev_ops = {
 	.ndo_open	= ifb_open,

@@ -72,6 +72,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "intLib.h"
 #include "config.h"
 
+
 SEM_ID      cesaSemId = NULL;
 SEM_ID      cesaWaitSemId = NULL;
 
@@ -152,6 +153,7 @@ do {					\
 
 #define CESA_DEF_REQ_SIZE       256
 
+
 /* CESA Tests Debug */
 #undef CESA_TEST_DEBUG
 
@@ -216,6 +218,7 @@ int                 cesaCheckSize;
 int                 cesaCheckMode;
 int                 cesaTestIdx;
 int                 cesaCaseIdx;
+
 
 MV_U32      cesaTestIsrCount = 0;
 MV_U32      cesaTestIsrMissCount = 0;
@@ -321,6 +324,7 @@ static unsigned char    cryptoKey1[] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd
 static unsigned char    cryptoKey7[] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef};
 static unsigned char    iv1[]        = {0x12, 0x34, 0x56, 0x78, 0x90, 0xab, 0xcd, 0xef};
 
+
 static unsigned char    cryptoKey2[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                                         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
 
@@ -335,6 +339,7 @@ static unsigned char    cryptoKey4[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06
 
 static unsigned char    cryptoKey5[] = {0x56, 0xe4, 0x7a, 0x38, 0xc5, 0x59, 0x89, 0x74,
                                         0xbc, 0x46, 0x90, 0x3d, 0xba, 0x29, 0x03, 0x49};
+
 
 static unsigned char    key3des1[]   = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,
                                         0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01,
@@ -393,6 +398,7 @@ static unsigned char    shaKey4[]    = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07
                                         0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
                                         0x11, 0x12, 0x13, 0x14};
 
+
 static MV_CESA_TEST_SESSION   desTestSessions[] =
 {
 /*000*/ {-1, MV_CESA_CRYPTO_DES, MV_CESA_CRYPTO_ECB,
@@ -430,6 +436,7 @@ static MV_CESA_TEST_SESSION   desTestSessions[] =
               "NULL Crypto Algorithm encode"
         },
 };
+
 
 static MV_CESA_TEST_SESSION   tripleDesTestSessions[] =
 {
@@ -483,6 +490,7 @@ static MV_CESA_TEST_SESSION   tripleDesTestSessions[] =
              "3DES ECB encode"
         },
 };
+
 
 static MV_CESA_TEST_SESSION   aesTestSessions[] =
 {
@@ -551,6 +559,7 @@ static MV_CESA_TEST_SESSION   aesTestSessions[] =
         },
 };
 
+
 static MV_CESA_TEST_SESSION   md5TestSessions[] =
 {
 /*300*/ {-1, MV_CESA_CRYPTO_NULL, MV_CESA_CRYPTO_ECB,
@@ -596,6 +605,7 @@ static MV_CESA_TEST_SESSION   md5TestSessions[] =
              "HASH-MD5 Generate Signature"
         },
 };
+
 
 static MV_CESA_TEST_SESSION   shaTestSessions[] =
 {
@@ -710,6 +720,7 @@ static MV_CESA_TEST_SESSION   combinedTestSessions[] =
         },
 };
 
+
 static MV_CESA_TEST_DB_ENTRY cesaTestsDB[MAX_TEST_TYPE+1] =
 {
     { desTestSessions,       sizeof(desTestSessions)/sizeof(desTestSessions[0]) },
@@ -720,6 +731,7 @@ static MV_CESA_TEST_DB_ENTRY cesaTestsDB[MAX_TEST_TYPE+1] =
     { combinedTestSessions,  sizeof(combinedTestSessions)/sizeof(combinedTestSessions[0]) },
     { NULL,                  0 }
 };
+
 
 char  cesaNullPlainHexText[]   = "000000000000000000000000000000000000000000000000";
 
@@ -773,6 +785,8 @@ char  cesaAesCtrCipher[]       = "00E0017B27777F3F4A1786F000000001"
                                  "4540A42BDE6D7836D59A5CEAAEF31053"
                                  "25B2072F";
 
+
+
 /* Input cesaHmacHex3 is '0xdd' repeated 50 times */
 char  cesaHmacMd5digestHex3[]  = "56be34521d144c88dbb8c733f0e8b3f6";
 char  cesaHmacSha1digestHex3[] = "125d7342b9ac11cd91a39af48aa17b4f63f175d3";
@@ -804,6 +818,7 @@ char cbc3desThenSha1digest80[]   = "1b002ed050be743aa98860cf35659646bb8efcc0";
 
 char cbcAes128ThenMd5digest80[]  = "6b6e863ac5a71d15e3e9b1c86c9ba05f";
 char cbcAes128ThenSha1digest80[] = "13558472d1fc1c90dffec6e5136c7203452d509b";
+
 
 static MV_CESA_TEST_CASE  cesaTestCases[] =
 {
@@ -838,6 +853,7 @@ static MV_CESA_TEST_CASE  cesaTestCases[] =
 /*26*/ { plain3des2,         cipher3desCbc2,            iv3des2,0,      0,      -1  },
 /*27*/ { plain3des3,         cipher3desCbc3,            iv3des3,0,      0,      -1  },
 };
+
 
 /* Key         = 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
  *               0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa
@@ -987,6 +1003,7 @@ static MV_CESA_SIZE_TEST     mdMultiSizeTest305[] =
     {18432, "f558511dcf81985b7a1bb57fad970531" },
     { 0, NULL },
 };
+
 
 /* Key         = 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
  *               0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa
@@ -1171,6 +1188,7 @@ static MV_CESA_SIZE_TEST     tripleDesMdMultiSizeTest502[] =
     { 0, NULL },
 };
 
+
 /* CryptoKey   = 0x01234567, 0x89abcdef,
  *               0x01234567, 0x89abcdef,
  *               0x01234567, 0x89abcdef;
@@ -1235,6 +1253,7 @@ static MV_CESA_SIZE_TEST     cbc3desMdMultiSizeTest504[] =
     { 0, NULL },
 };
 
+
 /* CryptoKey   = 0x01234567, 0x89abcdef,
  *               0x01234567, 0x89abcdef,
  *               0x01234567, 0x89abcdef;
@@ -1268,6 +1287,7 @@ static MV_CESA_SIZE_TEST     cbc3desShaMultiSizeTest505[] =
     { 0, NULL },
 };
 
+
 /* CryptoKey   = 0x01234567, 0x89abcdef,
  *               0x01234567, 0x89abcdef,
  *               0x01234567, 0x89abcdef
@@ -1298,6 +1318,7 @@ static MV_CESA_SIZE_TEST     cbcAes128md5multiSizeTest506[] =
     {18432, "4a3eb1cba1fa45f3981270953f720c42" },
     { 0, NULL },
 };
+
 
 /* CryptoKey   = 0x01234567, 0x89abcdef,
  *               0x01234567, 0x89abcdef,
@@ -1331,7 +1352,9 @@ static MV_CESA_SIZE_TEST     cbcAes128sha1multiSizeTest507[] =
     { 0, NULL },
 };
 
+
 void    cesaTestPrintStatus(void);
+
 
 /*------------------------- LOCAL FUNCTIONs ---------------------------------*/
 MV_STATUS testCmd(int sid, int iter, MV_CESA_COMMAND* pCmd,
@@ -1362,6 +1385,7 @@ void desTest(int iter, int reqSize, int checkMode);
 void cesaTestStop(void);
 MV_STATUS testRun(int idx, int caseIdx, int iter,int reqSize, int checkMode);
 void cesaTestStart(int bufNum, int bufSize);
+
 
 static MV_U32      getRate(MV_U32* remainder)
 {
@@ -1634,6 +1658,7 @@ void cesaCheckReady(MV_CESA_RESULT* r)
             cesaExpReqId = 0;
     }
 }
+
 
 #ifdef MV_NETBSD
 static int cesaTestReadyIsr(void *arg)
@@ -2379,6 +2404,7 @@ MV_STATUS   testRun(int idx, int caseIdx, int iter,
     return MV_OK;
 }
 
+
 void cesaTestStop(void)
 {
     MV_CESA_MBUF    *pMbufSrc, *pMbufDst;
@@ -2558,6 +2584,7 @@ void    aesTest(int iter, int reqSize, int checkMode)
     testClose(207);
     testClose(208);
 }
+
 
 void    mdTest(int iter, int reqSize, int checkMode)
 {
@@ -2937,9 +2964,11 @@ void    open_session_test(int idx, int caseIdx, int iter)
     }
 }
 
+
 void    loopback_test(int idx, int iter, int size, char* pPlainData)
 {
 }
+
 
 #if defined(MV_VXWORKS)
 int testMode = 0;

@@ -748,6 +748,7 @@ void tipc_nametbl_unsubscribe(struct tipc_subscription *s)
 	write_unlock_bh(&tipc_nametbl_lock);
 }
 
+
 /**
  * subseq_list - print specified sub-sequence contents into the given buffer
  */

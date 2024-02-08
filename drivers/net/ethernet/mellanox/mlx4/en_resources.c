@@ -70,6 +70,7 @@ void mlx4_en_fill_qp_context(struct mlx4_en_priv *priv, int size, int stride,
 		context->param3 |= cpu_to_be32(1 << 30);
 }
 
+
 int mlx4_en_map_buffer(struct mlx4_buf *buf)
 {
 	struct page **pages;
@@ -105,3 +106,4 @@ void mlx4_en_sqp_event(struct mlx4_qp *qp, enum mlx4_event event)
 {
     return;
 }
+

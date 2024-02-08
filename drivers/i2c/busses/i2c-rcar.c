@@ -78,6 +78,7 @@
 #define MDRE	(1 << 1)
 #define MATE	(1 << 0)	/* address sent irq en */
 
+
 enum {
 	RCAR_BUS_PHASE_ADDR,
 	RCAR_BUS_PHASE_DATA,

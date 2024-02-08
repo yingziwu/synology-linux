@@ -37,6 +37,7 @@
 
 /* Modified by Synopsys, Inc, 12/12/2007 */
 
+
 #ifndef _USB_H_
 #define _USB_H_
 

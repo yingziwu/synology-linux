@@ -25,4 +25,5 @@
 # define smp_read_barrier_depends() do { } while(0)
 #endif
 
+
 #endif /* __ASM_AVR32_BARRIER_H */

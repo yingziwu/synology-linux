@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __mvPmt_h__
 #define __mvPmt_h__
 
@@ -76,6 +77,7 @@ extern "C" {
 #define PMT_TEXT    16
 
 #define PMT_PRINT_VALID_FLAG    0x01
+
 
 typedef union mv_neta_pmt_t {
 	MV_U32	word;
@@ -130,6 +132,7 @@ enum {
 
 #define MV_NETA_PMT_LAST_BIT        23
 #define MV_NETA_PMT_LAST_MASK       (1 << MV_NETA_PMT_LAST_BIT)
+
 
 /*********** Command special defines ************/
 
@@ -216,6 +219,7 @@ enum {
 		(pmt)->word &= ~MV_NETA_PMT_DATA_MASK;              \
 		(pmt)->word |= ((data) << MV_NETA_PMT_DATA_OFFS);
 
+
 MV_STATUS   mvNetaPmtWrite(int port, int idx, MV_NETA_PMT *pEntry);
 MV_STATUS   mvNetaPmtRead(int port, int idx, MV_NETA_PMT *pEntry);
 MV_STATUS   mvNetaPmtClear(int port);
@@ -247,6 +251,8 @@ MV_VOID        mvNetaPmtJump(MV_NETA_PMT *pEntry, MV_U16 target, int type, int c
 int         mvNetaPmtTtlDec(int port, int idx, int ip_offs, int isLast);
 int         mvNetaPmtDataReplace(int port, int idx, int offset,
 				 MV_U8 *data, int bytes, int isLast);
+
+
 
 #ifdef __cplusplus
 }

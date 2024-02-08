@@ -1898,3 +1898,4 @@ void BBvUpdatePreEDThreshold(struct vnt_private *pDevice, int bScanning)
     }
 
 }
+

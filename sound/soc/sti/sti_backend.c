@@ -419,6 +419,7 @@ static const struct snd_soc_component_driver sti_backend_component = {
 	.name = "sti_backend_dai",
 };
 
+
 /*
  * Back end driver
  */

@@ -237,6 +237,7 @@ enum al_eth_rx_desc_l3_offset_sel {
 	AL_ETH_L3_OFFSET_INNER = 1, /**< set L3 offset of the inner packet */
 };
 
+
 /** selection of the L4 protocol index in the Metadata */
 enum al_eth_rx_desc_l4_proto_idx_sel {
 	AL_ETH_L4_PROTO_IDX_OUTER = 0, /**< set L4 proto index of the outer packet */
@@ -397,6 +398,7 @@ struct al_eth_pkt{
 
 struct al_ec_regs;
 
+
 /** Ethernet Adapter private data structure used by this driver */
 struct al_hal_eth_adapter{
 	uint16_t dev_id; /**<PCI adapter device ID */
@@ -490,6 +492,7 @@ int al_eth_ec_mac_ints_config(struct al_hal_eth_adapter *adapter);
 int al_eth_queue_config(struct al_hal_eth_adapter *adapter, enum al_udma_type type, uint32_t qid,
 			struct al_udma_q_params *q_params);
 
+
 /**
  * enable a queue if it was previously disabled
  *
@@ -539,6 +542,7 @@ int al_eth_mac_stop(struct al_hal_eth_adapter *adapter);
  * @return 0 on success. negative error on failure.
  */
 int al_eth_mac_start(struct al_hal_eth_adapter *adapter);
+
 
 /**
  * get the adapter capabilities (speed, duplex,..)
@@ -592,6 +596,7 @@ int al_eth_mac_loopback_config(struct al_hal_eth_adapter *adapter, int enable);
  * @return 0 on success, otherwise on failure.
  */
 int al_eth_rx_pkt_limit_config(struct al_hal_eth_adapter *adapter, uint32_t min_rx_len, uint32_t max_rx_len);
+
 
 /* MDIO */
 
@@ -684,6 +689,7 @@ static INLINE uint32_t al_eth_tx_available_get(struct al_hal_eth_adapter *adapte
  * room in the descriptors ring
  */
 int al_eth_tx_pkt_prepare(struct al_udma_q *tx_dma_q, struct al_eth_pkt *pkt);
+
 
 /**
  * Trigger the DMA about previously added tx descriptors.
@@ -799,6 +805,7 @@ void al_eth_rx_buffer_action(struct al_udma_q *rx_dma_q,
  * @return return number of descriptors or 0 if no completed packet found.
  */
  uint32_t al_eth_pkt_rx(struct al_udma_q *rx_dma_q, struct al_eth_pkt *pkt);
+
 
 /* RX parser table */
 struct al_eth_epe_p_reg_entry {
@@ -1162,6 +1169,7 @@ int al_eth_fwd_vid_config_set(struct al_hal_eth_adapter *adapter, al_bool use_ta
 int al_eth_fwd_vid_table_set(struct al_hal_eth_adapter *adapter, uint32_t idx,
 			     struct al_eth_fwd_vid_table_entry *entry);
 
+
 /**
  * Configure default UDMA register
  * When the control table entry udma selection set to AL_ETH_CTRL_TABLE_UDMA_SEL_REG<n>,
@@ -1207,6 +1215,8 @@ int al_eth_fwd_default_queue_config(struct al_hal_eth_adapter *adapter, uint32_t
 int al_eth_fwd_default_priority_config(struct al_hal_eth_adapter *adapter, uint32_t idx,
 				   uint8_t prio);
 
+
+
 /* filter undetected MAC DA */
 #define AL_ETH_RFW_FILTER_UNDET_MAC          (1 << 0)
 /* filter specific MAC DA based on MAC table output */
@@ -1229,6 +1239,7 @@ int al_eth_fwd_default_priority_config(struct al_hal_eth_adapter *adapter, uint3
 #define AL_ETH_RFW_FILTER_PROT_INDEX         (1 << 9)
 /* filter packet based on WoL decision */
 #define AL_ETH_RFW_FILTER_WOL		     (1 << 10)
+
 
 struct al_eth_filter_params {
 	al_bool		enable;
@@ -1270,6 +1281,7 @@ int al_eth_filter_config(struct al_hal_eth_adapter *adapter, struct al_eth_filte
  */
 int al_eth_filter_override_config(struct al_hal_eth_adapter *adapter,
 				  struct al_eth_filter_override_params *params);
+
 
 int al_eth_switching_config_set(struct al_hal_eth_adapter *adapter, uint8_t udma_id, uint8_t forward_all_to_mac, uint8_t enable_int_switching,
 					enum al_eth_tx_switch_vid_sel_type vid_sel_type,
@@ -1870,6 +1882,7 @@ int al_eth_flr_rmn_restore_params(int (* pci_read_config_u32)(void *handle, int 
 		int	mac_addresses_num);
 
 /* board specific information (media type, phy address, etc.. */
+
 
 enum al_eth_board_media_type {
 	AL_ETH_BOARD_MEDIA_TYPE_AUTO_DETECT		= 0,

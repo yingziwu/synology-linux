@@ -464,6 +464,7 @@ static void mei_nfc_init(struct work_struct *work)
 
 	cldev->priv_data = ndev;
 
+
 	return;
 
 err:
@@ -471,6 +472,7 @@ err:
 
 	return;
 }
+
 
 int mei_nfc_host_init(struct mei_device *dev)
 {
@@ -526,6 +528,7 @@ int mei_nfc_host_init(struct mei_device *dev)
 		goto err;
 
 	cl->device_uuid = mei_nfc_guid;
+
 
 	list_add_tail(&cl->device_link, &dev->device_list);
 

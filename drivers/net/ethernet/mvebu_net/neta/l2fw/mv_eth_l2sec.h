@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -39,6 +40,7 @@ extern u32 mv_crypto_virt_base_get(void);
 #define L2SEC_CESA_BUF_NUM	1	/* CESA_DEF_BUF_NUM */
 #define L2SEC_CESA_BUF_SIZE  1500	/* CESA_DEF_BUF_SIZE */
 
+
 /* IPSec Enumerators */
 typedef enum {
 	MV_L2FW_SEC_TUNNEL = 0,
@@ -49,6 +51,7 @@ typedef enum {
 	MV_L2FW_SEC_ESP = 0,
 	MV_L2FW_SEC_AH,
 } MV_L2FW_SEC_ENCAP;
+
 
 typedef enum {
 	MV_L2FW_SEC_ENCRYPT = 0,
@@ -88,6 +91,7 @@ struct mv_l2fw_sec_sa_entry {
 	struct mv_l2fw_sa_stats stats;
 } MV_L2FW_SEC_SA_ENTRY;
 
+
 #define CESA_0    0
 #define CESA_1    1
 
@@ -97,6 +101,7 @@ struct mv_l2fw_sec_sa_entry {
 #else
 #define CESA_CHAN 1
 #endif
+
 
 #define MV_L2FW_SEC_REQ_Q_SIZE   1000
 #define CESA_DEF_REQ_SIZE       (256*4)

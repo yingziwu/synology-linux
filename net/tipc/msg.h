@@ -77,9 +77,11 @@
 
 #define TIPC_MEDIA_ADDR_OFFSET	5
 
+
 struct tipc_msg {
 	__be32 hdr[15];
 };
+
 
 static inline u32 msg_word(struct tipc_msg *m, u32 pos)
 {
@@ -206,6 +208,7 @@ static inline void msg_set_size(struct tipc_msg *m, u32 sz)
 	m->hdr[0] = htonl((msg_word(m, 0) & ~0x1ffff) | sz);
 }
 
+
 /*
  * Word 1
  */
@@ -278,6 +281,7 @@ static inline void msg_set_bcast_ack(struct tipc_msg *m, u32 n)
 {
 	msg_set_bits(m, 1, 0, 0xffff, n);
 }
+
 
 /*
  * Word 2
@@ -478,6 +482,7 @@ static inline struct tipc_msg *msg_get_wrapped(struct tipc_msg *m)
 #define DSC_REQ_MSG		0
 #define DSC_RESP_MSG		1
 
+
 /*
  * Word 1
  */
@@ -500,6 +505,7 @@ static inline void msg_set_node_sig(struct tipc_msg *m, u32 n)
 {
 	msg_set_bits(m, 1, 0, 0xffff, n);
 }
+
 
 /*
  * Word 2
@@ -534,6 +540,7 @@ static inline void msg_set_bcgap_to(struct tipc_msg *m, u32 n)
 	msg_set_bits(m, 2, 0, 0xffff, n);
 }
 
+
 /*
  * Word 4
  */
@@ -547,6 +554,7 @@ static inline void msg_set_last_bcast(struct tipc_msg *m, u32 n)
 	msg_set_bits(m, 4, 16, 0xffff, n);
 }
 
+
 static inline u32 msg_fragm_no(struct tipc_msg *m)
 {
 	return msg_bits(m, 4, 16, 0xffff);
@@ -557,6 +565,7 @@ static inline void msg_set_fragm_no(struct tipc_msg *m, u32 n)
 	msg_set_bits(m, 4, 16, 0xffff, n);
 }
 
+
 static inline u32 msg_next_sent(struct tipc_msg *m)
 {
 	return msg_bits(m, 4, 0, 0xffff);
@@ -566,6 +575,7 @@ static inline void msg_set_next_sent(struct tipc_msg *m, u32 n)
 {
 	msg_set_bits(m, 4, 0, 0xffff, n);
 }
+
 
 static inline u32 msg_long_msgno(struct tipc_msg *m)
 {

@@ -20,10 +20,12 @@
 #include <gtVct.h>
 #include <gtSem.h>
 
+
 #ifdef GT_USE_MAD
 #include "madApi.h"
 #include "madHwCntl.h"
 #endif
+
 
 /*
  * This routine set Auto-Negotiation Ad Register for Copper
@@ -111,6 +113,7 @@ GT_STATUS translateAutoMode
     if (mdGetAutoNegoMode(autoNegoEn, speedMode, duplexMode, autoMode) != MAD_OK)
       return GT_FAIL;
 
+
     return GT_OK;
 }
 
@@ -138,6 +141,7 @@ GT_STATUS phySetAutoMode_mad
        return status;
     }
 
+
     if(phyInfo->flag & GT_PHY_COPPER)
     {
         if((mdCopperSetAutoNeg(&(dev->mad_dev),hwPort,autoEn, autoMode)) != MAD_OK)
@@ -157,6 +161,7 @@ GT_STATUS phySetAutoMode_mad
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtPhyReset_mad
@@ -230,6 +235,7 @@ GT_STATUS gprtPhyReset_mad
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetPortLoopback_mad
@@ -396,6 +402,7 @@ IN GT_PHY_SPEED speed
         return GT_FAIL;
     }
 
+
     if((status = mdCopperSetSpeedDuplex(&(dev->mad_dev),port,mspeed,((mDuplexmod)?MAD_TRUE:MAD_FALSE))) != MAD_OK)
     {
         DBG_INFO(("mdCopperSetSpeedDuplex failed.\n"));
@@ -406,6 +413,7 @@ IN GT_PHY_SPEED speed
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtPortAutoNegEnable_mad
@@ -714,6 +722,7 @@ IN GT_BOOL   dMode
         u16Data = u16Data & (QD_PHY_LOOPBACK | QD_PHY_SPEED | QD_PHY_SPEED_MSB);
     }
 
+
     DBG_INFO(("Write to phy(%d) register: regAddr 0x%x, data %#x",
               hwPort,QD_PHY_CONTROL_REG,u16Data));
 
@@ -728,6 +737,7 @@ IN GT_BOOL   dMode
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtSetPortAutoMode_mad
@@ -809,6 +819,7 @@ GT_STATUS gprtSetPortAutoMode_mad
     return retVal;
 
 }
+
 
 /*******************************************************************************
 * gprtSetPause_mad
@@ -893,12 +904,14 @@ IN GT_PHY_PAUSE_MODE state
     else
       autoMode &= ~MAD_AUTO_AD_ASYM_PAUSE;
 
+
      if ((retVal=mdCopperSetAutoNeg(&(dev->mad_dev), hwPort, autoNegoEn, autoMode))!=MAD_OK)
     {
         DBG_INFO(("mdCopperSetAutoNeg Failed.\n"));
         gtSemGive(dev,dev->phyRegsSem);
         return GT_FAIL;
     }
+
 
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
@@ -982,6 +995,7 @@ GT_STATUS gprtSetDTEDetect_mad
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetDTEDetectStatus_mad
 *
@@ -1052,14 +1066,17 @@ GT_STATUS gprtGetDTEDetectStatus_mad
         return GT_FAIL;
     }
 
+
      if (en==MAD_TRUE)
       *state = GT_TRUE;
     else
       *state = GT_FALSE;
 
+
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetDTEDetectDropWait_mad
@@ -1097,6 +1114,7 @@ GT_STATUS gprtSetDTEDetectDropWait_mad
     GT_PHY_INFO    phyInfo;
     MAD_BOOL    en;
     MAD_U16     dropHys;
+
 
     DBG_INFO(("gprtSetDTEDropWait_mad Called.\n"));
 
@@ -1145,6 +1163,7 @@ GT_STATUS gprtSetDTEDetectDropWait_mad
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetDTEDetectDropWait_mad
@@ -1222,6 +1241,7 @@ GT_STATUS gprtGetDTEDetectDropWait_mad
     gtSemGive(dev,dev->phyRegsSem);
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtSetEnergyDetect_mad
@@ -1337,6 +1357,7 @@ GT_STATUS gprtSetEnergyDetect_mad
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetEnergyDetect_mad
 *
@@ -1450,6 +1471,7 @@ GT_STATUS gprtGetEnergyDetect_mad
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSet1000TMasterMode_mad
 *
@@ -1534,6 +1556,7 @@ GT_STATUS gprtSet1000TMasterMode_mad
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gprtGet1000TMasterMode_mad
 *
@@ -1611,6 +1634,7 @@ GT_STATUS gprtGet1000TMasterMode_mad
     mode->autoConfig = msmode.autoConfig;
     mode->masterPrefer = msmode.masterPrefer;
 
+
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
@@ -1675,6 +1699,7 @@ GT_STATUS gprtGetPhyLinkStatus_mad
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gprtSetPktGenEnable_mad
@@ -1773,6 +1798,8 @@ GT_STATUS gprtSetPktGenEnable_mad
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gprtGetPhyReg_mad
@@ -1883,6 +1910,8 @@ GT_STATUS gprtSetPhyReg_mad
     gtSemGive(dev,dev->phyRegsSem);
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gprtGetPagedPhyReg_mad

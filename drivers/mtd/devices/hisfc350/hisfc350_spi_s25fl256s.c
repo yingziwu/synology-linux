@@ -69,7 +69,9 @@ static int spi_s25fl256s_entry_4addr(struct hisfc_spi *spi, int enable)
 	}
 #endif /* CONFIG_SYNO_LSP_HI3536_V2060 */
 
+
 	host->set_host_addr_mode(host, enable);
 
 	return 0;
 }
+

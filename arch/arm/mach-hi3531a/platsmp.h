@@ -14,3 +14,4 @@ void hi3531a_scu_power_up(int cpu);
 void hi3531a_secondary_startup(void);
 
 #endif
+

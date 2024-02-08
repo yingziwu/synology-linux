@@ -31,3 +31,4 @@ extern void printch(char);
 #endif
 
 #endif /* __ASM_ARCH_EARLY_DEBUG_H */
+

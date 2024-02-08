@@ -198,3 +198,4 @@ static int spi_general_qe_enable(struct hisnfc_op *spi)
 
 	return 0;
 }
+

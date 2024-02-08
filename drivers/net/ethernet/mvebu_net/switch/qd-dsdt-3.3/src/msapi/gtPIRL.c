@@ -249,6 +249,7 @@ GT_STATUS gpirlActivate
 
 }
 
+
 /*******************************************************************************
 * gpirlDeactivate
 *
@@ -309,6 +310,7 @@ GT_STATUS gpirlDeactivate
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gpirlUpdateParam
@@ -459,6 +461,7 @@ GT_STATUS gpirlUpdateParam
 
 }
 
+
 /*******************************************************************************
 * gpirlReadParam
 *
@@ -563,6 +566,8 @@ GT_STATUS gpirlReadParam
 
 }
 
+
+
 /*******************************************************************************
 * gpirlUpdatePortVec
 *
@@ -649,6 +654,7 @@ GT_STATUS gpirlUpdatePortVec
 
 }
 
+
 /*******************************************************************************
 * gpirlReadPortVec
 *
@@ -717,6 +723,8 @@ GT_STATUS gpirlReadPortVec
     return GT_OK;
 
 }
+
+
 
 /*******************************************************************************
 * grcGetPirlFcMode
@@ -965,6 +973,7 @@ GT_STATUS gpirlInitialize
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * statsOperationPerform
@@ -1503,6 +1512,7 @@ static GT_STATUS pirlWriteResource
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * pirlReadResource
 *
@@ -1552,6 +1562,7 @@ static GT_STATUS pirlReadResource
 
         data[i] = (GT_U16)opData.irlData;
     }
+
 
     /* reg0 data */
     res->bktRateType = (data[0] >> 15) & 0x1;
@@ -1635,6 +1646,7 @@ static GT_STATUS pirlSetPortVec
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * pirlGetPortVec
 *
@@ -1688,6 +1700,7 @@ static GT_STATUS pirlGetPortVec
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * pirlSetFcMode

@@ -102,3 +102,4 @@ extern unsigned long sti_pokeloop_sz;
 #endif /* __ASSEMBLER__ */
 
 #endif /* __STI_POKE_TABLE_H__ */
+

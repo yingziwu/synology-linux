@@ -171,6 +171,7 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
 		info->id = idr_ret;
 		qxl_release_unmap(qdev, *release, info);
 
+
 out_unref:
 		qxl_bo_unref(&bo);
 		return ret;

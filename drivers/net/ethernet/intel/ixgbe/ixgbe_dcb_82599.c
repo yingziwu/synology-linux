@@ -359,3 +359,4 @@ s32 ixgbe_dcb_hw_config_82599(struct ixgbe_hw *hw, u8 pfc_en, u16 *refill,
 
 	return 0;
 }
+

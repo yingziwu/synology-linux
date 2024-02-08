@@ -117,6 +117,7 @@ int __add_to_swap_cache(struct page *page, swp_entry_t entry)
 	return error;
 }
 
+
 int add_to_swap_cache(struct page *page, swp_entry_t entry, gfp_t gfp_mask)
 {
 	int error;

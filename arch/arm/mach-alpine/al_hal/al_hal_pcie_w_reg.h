@@ -33,6 +33,7 @@ met:
 
 *******************************************************************************/
 
+
 #ifndef __AL_HAL_PCIE_W_REG_H__
 #define __AL_HAL_PCIE_W_REG_H__
 
@@ -42,6 +43,8 @@ extern "C" {
 /*
 * Unit Registers
 */
+
+
 
 struct al_pcie_w_global_ctrl {
 	/* [0x0]  */
@@ -236,9 +239,11 @@ struct al_pcie_w_regs {
 	struct al_pcie_w_int_grp_b int_grp_b; /* [0x440] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** Port_Init register ****/
 /* Enable port to start LTSSM Link Training */

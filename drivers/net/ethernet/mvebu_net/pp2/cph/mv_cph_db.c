@@ -94,6 +94,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mv_cph_header.h"
 /*#include "ezxml.h"*/
 
+
 /******************************************************************************
 * Variable Definition
 ******************************************************************************/
@@ -1173,6 +1174,7 @@ MV_STATUS cph_db_display_frwd_field(
 
 	return MV_OK;
 }
+
 
 /******************************************************************************
 * cph_db_display_all()

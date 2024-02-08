@@ -98,6 +98,7 @@ static void ath9k_wow_create_keep_alive_pattern(struct ath_hw *ah)
 	else
 		ctl[2] = 0x7 << 16; /* tx_tries 0 */
 
+
 	for (i = 0; i < KAL_NUM_DESC_WORDS; i++)
 		REG_WRITE(ah, (AR_WOW_KA_DESC_WORD2 + i * 4), ctl[i]);
 
@@ -262,6 +263,7 @@ u32 ath9k_hw_wow_wakeup(struct ath_hw *ah)
 		REG_SET_BIT(ah, AR_WA, AR_WA_UNTIE_RESET_EN |
 			    AR_WA_POR_SHORT | AR_WA_RESET_EN);
 	}
+
 
 	/*
 	 * restore the beacon threshold to init value
@@ -437,6 +439,7 @@ void ath9k_hw_wow_enable(struct ath_hw *ah, u32 pattern_enable)
 
 	REG_RMW(ah, AR_WOW_KEEP_ALIVE, set, clr);
 
+
 	/*
 	 * we are relying on a bmiss failure. ensure we have
 	 * enough threshold to prevent false positives
@@ -509,6 +512,8 @@ void ath9k_hw_wow_enable(struct ath_hw *ah, u32 pattern_enable)
 		set = AR_PMCTRL_PWR_STATE_D1D3_REAL;
 		REG_SET_BIT(ah, AR_PCIE_PM_CTRL, set);
 	}
+
+
 
 	REG_CLR_BIT(ah, AR_STA_ID1, AR_STA_ID1_PRESERVE_SEQNUM);
 

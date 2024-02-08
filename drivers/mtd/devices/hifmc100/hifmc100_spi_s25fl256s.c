@@ -110,3 +110,4 @@ static int spi_s25fl256s_entry_4addr(struct hifmc_spi *spi, int enable)
 
 	return 0;
 }
+

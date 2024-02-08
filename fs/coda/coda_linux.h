@@ -66,6 +66,7 @@ void coda_sysctl_clean(void);
         printk("kernel malloc returns 0 at %s:%d\n", __FILE__, __LINE__); \
 } while (0)
 
+
 #define CODA_FREE(ptr,size) \
     do { if (size < PAGE_SIZE) kfree((ptr)); else vfree((ptr)); } while (0)
 

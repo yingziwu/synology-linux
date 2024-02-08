@@ -8,3 +8,4 @@ unsigned int get_apb_clk(void)
 
 	return apb_clk;
 }
+

@@ -119,3 +119,4 @@ typedef struct mem_addr {
 
 extern int g_channel_status[DMAC_MAX_CHANNELS];
 #endif /* End of #ifndef __HI_INC_ECSDMACC_H__ */
+

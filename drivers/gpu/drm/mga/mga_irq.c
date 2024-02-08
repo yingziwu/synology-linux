@@ -46,6 +46,7 @@ u32 mga_get_vblank_counter(struct drm_device *dev, int crtc)
 	return atomic_read(&dev_priv->vbl_received);
 }
 
+
 irqreturn_t mga_driver_irq_handler(DRM_IRQ_ARGS)
 {
 	struct drm_device *dev = (struct drm_device *) arg;
@@ -67,6 +68,7 @@ irqreturn_t mga_driver_irq_handler(DRM_IRQ_ARGS)
 	if (status & MGA_SOFTRAPEN) {
 		const u32 prim_start = MGA_READ(MGA_PRIMADDRESS);
 		const u32 prim_end = MGA_READ(MGA_PRIMEND);
+
 
 		MGA_WRITE(MGA_ICLEAR, MGA_SOFTRAPICLR);
 
@@ -99,6 +101,7 @@ int mga_enable_vblank(struct drm_device *dev, int crtc)
 	MGA_WRITE(MGA_IEN, MGA_VLINEIEN | MGA_SOFTRAPEN);
 	return 0;
 }
+
 
 void mga_disable_vblank(struct drm_device *dev, int crtc)
 {

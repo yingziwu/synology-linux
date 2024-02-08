@@ -229,3 +229,4 @@ unsigned int match_page_type_to_size(unsigned char type)
 	return match_type_to_reg(page_type_size_table,
 			ARRAY_SIZE(page_type_size_table), type, _2K);
 }
+

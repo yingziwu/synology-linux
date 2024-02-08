@@ -109,6 +109,7 @@ struct omap2_mcspi_dma {
  */
 #define DMA_MIN_BYTES			160
 
+
 /*
  * Used for context save and restore, structure members to be updated whenever
  * corresponding registers are modified.
@@ -480,6 +481,7 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
 	mcspi = spi_master_get_devdata(spi->master);
 	mcspi_dma = &mcspi->dma_channels[spi->chip_select];
 	l = mcspi_cached_chconf0(spi);
+
 
 	if (cs->word_len <= 8) {
 		width = DMA_SLAVE_BUSWIDTH_1_BYTE;
@@ -974,6 +976,7 @@ static void omap2_mcspi_work(struct omap2_mcspi *mcspi, struct spi_message *m)
 			mcspi->ctx.modulctrl =
 				mcspi_read_cs_reg(spi, OMAP2_MCSPI_MODULCTRL);
 		}
+
 
 		if (!cs_active) {
 			omap2_mcspi_force_cs(spi, 1);

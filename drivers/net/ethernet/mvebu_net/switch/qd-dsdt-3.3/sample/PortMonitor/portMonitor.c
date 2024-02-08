@@ -74,6 +74,7 @@ GT_STATUS samplePortMonitor(GT_QD_DEV *dev,GT_LPORT monitoredPort, GT_LPORT moni
     return GT_OK;
 }
 
+
 /*
  *    Disable Egress Monitoring and Ingress Monitoring for the monitoredPort.
 */

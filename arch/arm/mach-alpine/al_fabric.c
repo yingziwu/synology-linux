@@ -82,6 +82,7 @@ static struct notifier_block al_fabric_plat_device_nb = {
 	.notifier_call = al_fabric_plat_device_notifier,
 };
 
+
 static int al_fabric_pci_device_notifier(struct notifier_block *nb,
 				       unsigned long event, void *__dev)
 {
@@ -224,6 +225,7 @@ int __init al_fabric_init(void)
 
 	nb_node = of_find_matching_node(NULL, of_nb_table);
 	ccu_node = of_find_matching_node(NULL, of_ccu_table);
+
 
 	if (!nb_node)
 		return -EINVAL;

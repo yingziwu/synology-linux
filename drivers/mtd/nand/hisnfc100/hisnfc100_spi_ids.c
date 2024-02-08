@@ -1062,3 +1062,4 @@ void spi_nand_ids_register(void)
 	pr_info("SPI Nand ID Table Version %s\n", SPI_NAND_ID_TAB_VER);
 	nand_get_flash_type_func = spi_nand_get_flash_info;
 }
+

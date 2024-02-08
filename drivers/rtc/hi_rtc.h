@@ -62,3 +62,4 @@ int hirtc_get_time(rtc_time_t *compositetime);
 #endif /* CONFIG_SYNO_HI3536_RTC_HCTOSYS */
 
 #endif
+

@@ -1109,6 +1109,7 @@ void st_fdma_parse_dt(struct platform_device *pdev,
 	of_property_read_u32(hwnp, "imem-size", (u32 *)&hw->imem.size);
 }
 
+
 /*
  * Platform driver initialise.
  */
@@ -1355,6 +1356,7 @@ static int st_fdma_remove(struct platform_device *pdev)
 	return 0;
 }
 
+
 /*
  * Power management
  */
@@ -1457,3 +1459,4 @@ module_exit(st_fdma_exit);
 MODULE_AUTHOR("John Boddie <john.boddie@st.com>");
 MODULE_DESCRIPTION("STMicroelectronics FDMA dmaengine driver");
 MODULE_LICENSE("GPL");
+

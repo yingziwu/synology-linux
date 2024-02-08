@@ -115,3 +115,4 @@ ENTRY(fiq_glue_setup) /* func, data, sp, smc call number */
 		msr		cpsr_c, r4
 		ldmfd		sp!, {r4}
 		bx		lr
+

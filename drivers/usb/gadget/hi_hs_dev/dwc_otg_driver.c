@@ -48,6 +48,7 @@
  * device.
  */
 
+
 #include "dwc_otg_os_dep.h"
 #include "dwc_os.h"
 #include "dwc_otg_dbg.h"
@@ -623,6 +624,7 @@ static int dwc_otg_driver_probe(struct platform_device *pltdev)
 
 	dev_dbg(&pltdev->dev, "dwc_otg_device=0x%p\n", dwc_otg_device);
 
+
 	dwc_otg_device->core_if = dwc_otg_cil_init(dwc_otg_device->os_dep.base);
 	if (!dwc_otg_device->core_if) {
 		dev_err(&pltdev->dev, "CIL initialization failed!\n");
@@ -665,6 +667,7 @@ static int dwc_otg_driver_probe(struct platform_device *pltdev)
 	 */
 	dwc_otg_disable_global_interrupts(dwc_otg_device->core_if);
 
+
 	/*
 	 * Install the interrupt handler for the common interrupts before
 	 * enabling common interrupts in core_init below.
@@ -682,6 +685,8 @@ static int dwc_otg_driver_probe(struct platform_device *pltdev)
 	} else {
 		dwc_otg_device->common_irq_installed = 1;
 	}
+
+
 
 	/*
 	 * Initialize the DWC_otg core.
@@ -810,6 +815,7 @@ static int __init hiusbudc_module_init(void)
 	if (result < 0)
 		return result;
 
+
 	result = platform_driver_register(&dwc_otg_driver);
 	if (result < 0) {
 		platform_device_unregister(&hiusbudc_pltdev);
@@ -817,6 +823,8 @@ static int __init hiusbudc_module_init(void)
 	}
 
 #endif
+
+
 
 	return result;
 }
@@ -831,6 +839,7 @@ static void __exit hiusbudc_module_exit(void)
 
 	printk(KERN_INFO "%s module removed\n", dwc_driver_name);
 }
+
 
 module_init(hiusbudc_module_init);
 module_exit(hiusbudc_module_exit);

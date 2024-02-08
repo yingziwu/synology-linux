@@ -31,6 +31,7 @@
 #include "drbd_int.h"
 #include "drbd_wrappers.h"
 
+
 enum al_transaction_types {
 	AL_TR_UPDATE = 0,
 	AL_TR_INITIALIZED = 0xffff
@@ -102,6 +103,7 @@ struct update_al_work {
 	struct completion event;
 	int err;
 };
+
 
 void *drbd_md_get_buffer(struct drbd_conf *mdev)
 {
@@ -587,6 +589,7 @@ _al_write_transaction(struct drbd_conf *mdev)
 	return err;
 }
 
+
 static int w_al_write_transaction(struct drbd_work *w, int unused)
 {
 	struct update_al_work *aw = container_of(w, struct update_al_work, w);
@@ -688,6 +691,7 @@ static int w_update_odbm(struct drbd_work *w, int unused)
 
 	return 0;
 }
+
 
 /* ATTENTION. The AL's extents are 4MB each, while the extents in the
  * resync LRU-cache are 16MB each.

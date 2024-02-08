@@ -1042,7 +1042,7 @@ again:
 	next_tail = (tail + sizeof(*cmd)) % iommu->cmd_buf_size;
 	left      = (head - next_tail) % iommu->cmd_buf_size;
 
-	if (left <= 2) {
+	if (left <= 0x20) {
 		struct iommu_cmd sync_cmd;
 		volatile u64 sem = 0;
 		int ret;
@@ -1279,6 +1279,7 @@ static void domain_flush_complete(struct protection_domain *domain)
 		iommu_completion_wait(amd_iommus[i]);
 	}
 }
+
 
 /*
  * This function flushes the DTEs for all devices in domain
@@ -2050,6 +2051,7 @@ static struct dma_ops_domain *dma_ops_domain_alloc(void)
 	dma_dom->aperture[0]->bitmap[0] = 1;
 	dma_dom->next_address = 0;
 
+
 	return dma_dom;
 
 free_dma_dom:
@@ -2213,6 +2215,7 @@ out_unlock:
 
 	return ret;
 }
+
 
 static void pdev_iommuv2_disable(struct pci_dev *pdev)
 {
@@ -3412,6 +3415,7 @@ static size_t amd_iommu_unmap(struct iommu_domain *dom, unsigned long iova,
 	mutex_unlock(&domain->api_lock);
 
 	domain_flush_tlb_pde(domain);
+	domain_flush_complete(domain);
 
 	return unmap_size;
 }

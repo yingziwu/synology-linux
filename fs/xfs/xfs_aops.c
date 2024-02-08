@@ -87,7 +87,7 @@ xfs_destroy_ioend(
 	}
 
 	if (ioend->io_iocb) {
-		inode_dio_end(ioend->io_inode);
+		inode_dio_done(ioend->io_inode);
 		if (ioend->io_isasync) {
 			aio_complete(ioend->io_iocb, ioend->io_error ?
 					ioend->io_error : ioend->io_result, 0);
@@ -134,7 +134,7 @@ xfs_setfilesize_trans_alloc(
 	 * We hand off the transaction to the completion thread now, so
 	 * clear the flag here.
 	 */
-	current_restore_flags_nested(&tp->t_pflags, PF_FSTRANS);
+	current_restore_flags_nested(&tp->t_pflags, PF_MEMALLOC_NOFS);
 	return 0;
 }
 
@@ -154,9 +154,15 @@ xfs_setfilesize(
 	 * thus we need to mark ourselves as beeing in a transaction manually.
 	 * Similarly for freeze protection.
 	 */
-	current_set_flags_nested(&tp->t_pflags, PF_FSTRANS);
+	current_set_flags_nested(&tp->t_pflags, PF_MEMALLOC_NOFS);
 	rwsem_acquire_read(&VFS_I(ip)->i_sb->s_writers.lock_map[SB_FREEZE_FS-1],
 			   0, 1, _THIS_IP_);
+
+	/* we abort the update if there was an IO error */
+	if (ioend->io_error) {
+		xfs_trans_cancel(tp, 0);
+		return ioend->io_error;
+	}
 
 	xfs_ilock(ip, XFS_ILOCK_EXCL);
 	isize = xfs_new_eof(ip, ioend->io_offset + ioend->io_size);
@@ -213,14 +219,17 @@ xfs_end_io(
 		ioend->io_error = -EIO;
 		goto done;
 	}
-	if (ioend->io_error)
-		goto done;
 
 	/*
 	 * For unwritten extents we need to issue transactions to convert a
 	 * range to normal written extens after the data I/O has finished.
+	 * Detecting and handling completion IO errors is done individually
+	 * for each case as different cleanup operations need to be performed
+	 * on error.
 	 */
 	if (ioend->io_type == XFS_IO_UNWRITTEN) {
+		if (ioend->io_error)
+			goto done;
 		error = xfs_iomap_write_unwritten(ip, ioend->io_offset,
 						  ioend->io_size);
 	} else if (ioend->io_isdirect && xfs_ioend_is_append(ioend)) {
@@ -962,7 +971,7 @@ xfs_vm_writepage(
 	 * Given that we do not allow direct reclaim to call us, we should
 	 * never be called while in a filesystem transaction.
 	 */
-	if (WARN_ON(current->flags & PF_FSTRANS))
+	if (WARN_ON(current->flags & PF_MEMALLOC_NOFS))
 		goto redirty;
 
 	/* Is this page beyond the end of the file? */
@@ -1117,6 +1126,7 @@ xfs_vm_writepage(
 		xfs_cluster_write(inode, page->index + 1, &imap, &ioend,
 				  wbc, end_index);
 	}
+
 
 	/*
 	 * Reserve log space if we might write beyond the on-disk inode size.

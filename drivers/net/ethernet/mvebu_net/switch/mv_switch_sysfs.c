@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -36,6 +37,7 @@ disclaimer.
 #include "mv802_3.h"
 #include "mv_switch.h"
 #include "mv_phy.h"
+
 
 static ssize_t mv_switch_help(char *buf)
 {
@@ -145,6 +147,7 @@ static ssize_t mv_switch_netdev_store(struct device *dev, struct device_attribut
 	/* Read arguments */
 	sscanf(buf, "%d %d", &port, &group);
 
+
 	if (!strcmp(name, "port_add"))
 		err = mv_switch_port_add(port, group);
 	else if (!strcmp(name, "port_del"))
@@ -172,6 +175,7 @@ static DEVICE_ATTR(port_del,    S_IWUSR, mv_switch_show, mv_switch_netdev_store)
 static DEVICE_ATTR(atu_show,    S_IRUSR, mv_switch_show, mv_switch_store);
 static DEVICE_ATTR(power_set,   S_IWUSR, mv_switch_show, mv_switch_store);
 static DEVICE_ATTR(power_get,   S_IWUSR, mv_switch_show, mv_switch_store);
+
 
 static struct attribute *mv_switch_attrs[] = {
 	&dev_attr_reg_r.attr,

@@ -25,6 +25,7 @@
  *					if no match found.
  */
 
+
 #include <asm/uaccess.h>
 #include <linux/bitops.h>
 #include <linux/capability.h>
@@ -866,6 +867,7 @@ static int inet_abc_len(__be32 addr)
 	return rc;
 }
 
+
 int devinet_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 {
 	struct ifreq ifr;
@@ -1704,6 +1706,10 @@ static int inet_netconf_msgsize_devconf(int type)
 		size += nla_total_size(4);
 	if (type == -1 || type == NETCONFA_MC_FORWARDING)
 		size += nla_total_size(4);
+	if (type == -1 || type == NETCONFA_IGNORE_ROUTES_WITH_LINKDOWN)
+		size += nla_total_size(4);
+	if (type == -1 || type == NETCONFA_PROXY_ARP)
+		size += nla_total_size(4);
 
 	return size;
 }
@@ -1739,6 +1745,14 @@ static int inet_netconf_fill_devconf(struct sk_buff *skb, int ifindex,
 	if ((type == -1 || type == NETCONFA_MC_FORWARDING) &&
 	    nla_put_s32(skb, NETCONFA_MC_FORWARDING,
 			IPV4_DEVCONF(*devconf, MC_FORWARDING)) < 0)
+		goto nla_put_failure;
+	if ((type == -1 || type == NETCONFA_IGNORE_ROUTES_WITH_LINKDOWN) &&
+	    nla_put_s32(skb, NETCONFA_IGNORE_ROUTES_WITH_LINKDOWN,
+			IPV4_DEVCONF(*devconf, IGNORE_ROUTES_WITH_LINKDOWN)) < 0)
+		goto nla_put_failure;
+	if ((type == -1 || type == NETCONFA_PROXY_ARP) &&
+	    nla_put_s32(skb, NETCONFA_PROXY_ARP,
+			IPV4_DEVCONF(*devconf, PROXY_ARP)) < 0)
 		goto nla_put_failure;
 
 	return nlmsg_end(skb, nlh);
@@ -1777,6 +1791,8 @@ static const struct nla_policy devconf_ipv4_policy[NETCONFA_MAX+1] = {
 	[NETCONFA_IFINDEX]	= { .len = sizeof(int) },
 	[NETCONFA_FORWARDING]	= { .len = sizeof(int) },
 	[NETCONFA_RP_FILTER]	= { .len = sizeof(int) },
+	[NETCONFA_PROXY_ARP]	= { .len = sizeof(int) },
+	[NETCONFA_IGNORE_ROUTES_WITH_LINKDOWN]	= { .len = sizeof(int) },
 };
 
 static int inet_netconf_get_devconf(struct sk_buff *in_skb,
@@ -1958,6 +1974,19 @@ static void inet_forward_change(struct net *net)
 	}
 }
 
+static int devinet_conf_ifindex(struct net *net, struct ipv4_devconf *cnf)
+{
+	if (cnf == net->ipv4.devconf_dflt)
+		return NETCONFA_IFINDEX_DEFAULT;
+	else if (cnf == net->ipv4.devconf_all)
+		return NETCONFA_IFINDEX_ALL;
+	else {
+		struct in_device *idev
+			= container_of(cnf, struct in_device, cnf);
+		return idev->dev->ifindex;
+	}
+}
+
 static int devinet_conf_proc(ctl_table *ctl, int write,
 			     void __user *buffer,
 			     size_t *lenp, loff_t *ppos)
@@ -1970,6 +1999,7 @@ static int devinet_conf_proc(ctl_table *ctl, int write,
 		struct ipv4_devconf *cnf = ctl->extra1;
 		struct net *net = ctl->extra2;
 		int i = (int *)ctl->data - cnf->data;
+		int ifindex;
 
 		set_bit(i, cnf->state);
 
@@ -1979,21 +2009,23 @@ static int devinet_conf_proc(ctl_table *ctl, int write,
 		    i == IPV4_DEVCONF_ROUTE_LOCALNET - 1)
 			if ((new_value == 0) && (old_value != 0))
 				rt_cache_flush(net);
+
 		if (i == IPV4_DEVCONF_RP_FILTER - 1 &&
 		    new_value != old_value) {
-			int ifindex;
-
-			if (cnf == net->ipv4.devconf_dflt)
-				ifindex = NETCONFA_IFINDEX_DEFAULT;
-			else if (cnf == net->ipv4.devconf_all)
-				ifindex = NETCONFA_IFINDEX_ALL;
-			else {
-				struct in_device *idev =
-					container_of(cnf, struct in_device,
-						     cnf);
-				ifindex = idev->dev->ifindex;
-			}
+			ifindex = devinet_conf_ifindex(net, cnf);
 			inet_netconf_notify_devconf(net, NETCONFA_RP_FILTER,
+						    ifindex, cnf);
+		}
+		if (i == IPV4_DEVCONF_PROXY_ARP - 1 &&
+		    new_value != old_value) {
+			ifindex = devinet_conf_ifindex(net, cnf);
+			inet_netconf_notify_devconf(net, NETCONFA_PROXY_ARP,
+						    ifindex, cnf);
+		}
+		if (i == IPV4_DEVCONF_IGNORE_ROUTES_WITH_LINKDOWN - 1 &&
+		    new_value != old_value) {
+			ifindex = devinet_conf_ifindex(net, cnf);
+			inet_netconf_notify_devconf(net, NETCONFA_IGNORE_ROUTES_WITH_LINKDOWN,
 						    ifindex, cnf);
 		}
 	}
@@ -2111,6 +2143,8 @@ static struct devinet_sysctl_table {
 		DEVINET_SYSCTL_RW_ENTRY(ARP_ACCEPT, "arp_accept"),
 		DEVINET_SYSCTL_RW_ENTRY(ARP_NOTIFY, "arp_notify"),
 		DEVINET_SYSCTL_RW_ENTRY(PROXY_ARP_PVLAN, "proxy_arp_pvlan"),
+		DEVINET_SYSCTL_RW_ENTRY(IGNORE_ROUTES_WITH_LINKDOWN,
+					"ignore_routes_with_linkdown"),
 
 		DEVINET_SYSCTL_FLUSHING_ENTRY(NOXFRM, "disable_xfrm"),
 		DEVINET_SYSCTL_FLUSHING_ENTRY(NOPOLICY, "disable_policy"),
@@ -2317,3 +2351,4 @@ void __init devinet_init(void)
 	rtnl_register(PF_INET, RTM_GETNETCONF, inet_netconf_get_devconf,
 		      inet_netconf_dump_devconf, NULL);
 }
+

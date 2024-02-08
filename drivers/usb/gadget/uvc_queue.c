@@ -390,3 +390,4 @@ static struct uvc_buffer *uvc_queue_head(struct uvc_video_queue *queue)
 
 	return buf;
 }
+

@@ -142,6 +142,15 @@ static void check_smt_enabled(void)
 			of_node_put(dn);
 		}
 	}
+
+	/*
+	 * Fixup HFSCR:TM based on CPU features. The bit is set by our
+	 * early asm init because at that point we haven't updated our
+	 * CPU features from firmware and device-tree. Here we have,
+	 * so let's do it.
+	 */
+	if (cpu_has_feature(CPU_FTR_HVMODE) && !cpu_has_feature(CPU_FTR_TM_COMP))
+		mtspr(SPRN_HFSCR, mfspr(SPRN_HFSCR) & ~HFSCR_TM);
 }
 
 /* Look for smt-enabled= cmdline option */
@@ -357,6 +366,7 @@ static void __init initialize_cache_info(void)
 
 	DBG(" <- initialize_cache_info()\n");
 }
+
 
 /*
  * Do some initial setup of the system.  The parameters are those which 
@@ -618,6 +628,7 @@ void __init setup_arch(char **cmdline_p)
 	ppc64_boot_msg(0x15, "Setup Done");
 }
 
+
 /* ToDo: do something useful if ppc_md is not yet setup. */
 #define PPC64_LINUX_FUNCTION 0x0f000000
 #define PPC64_IPL_MESSAGE 0xc0000000
@@ -698,7 +709,9 @@ void __init setup_per_cpu_areas(void)
 }
 #endif
 
+
 #ifdef CONFIG_PPC_INDIRECT_IO
 struct ppc_pci_io ppc_pci_io;
 EXPORT_SYMBOL(ppc_pci_io);
 #endif /* CONFIG_PPC_INDIRECT_IO */
+

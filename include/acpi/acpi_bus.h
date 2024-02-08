@@ -416,6 +416,7 @@ int acpi_match_device_ids(struct acpi_device *device,
 int acpi_create_dir(struct acpi_device *);
 void acpi_remove_dir(struct acpi_device *);
 
+
 /**
  * module_acpi_driver(acpi_driver) - Helper macro for registering an ACPI driver
  * @__acpi_driver: acpi_driver struct

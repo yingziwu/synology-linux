@@ -147,6 +147,7 @@ __HPP_HEADER_FN(_type, _str, _min_width, _unit_width)			\
 __HPP_WIDTH_FN(_type, _min_width, _unit_width)				\
 __HPP_ENTRY_RAW_FN(_type, _field)
 
+
 HPP_PERCENT_FNS(overhead, "Overhead", period, 8, 8)
 HPP_PERCENT_FNS(overhead_sys, "sys", period_sys, 8, 8)
 HPP_PERCENT_FNS(overhead_us, "usr", period_us, 8, 8)
@@ -155,6 +156,7 @@ HPP_PERCENT_FNS(overhead_guest_us, "guest usr", period_guest_us, 9, 8)
 
 HPP_RAW_FNS(samples, "Samples", nr_events, 12, 12)
 HPP_RAW_FNS(period, "Period", period, 12, 12)
+
 
 static int hpp__header_baseline(struct perf_hpp *hpp)
 {
@@ -378,6 +380,7 @@ struct perf_hpp_fmt perf_hpp__format[] = {
 
 LIST_HEAD(perf_hpp__list);
 
+
 #undef HPP__COLOR_PRINT_FNS
 #undef HPP__PRINT_FNS
 
@@ -389,6 +392,7 @@ LIST_HEAD(perf_hpp__list);
 #undef __HPP_COLOR_PERCENT_FN
 #undef __HPP_ENTRY_PERCENT_FN
 #undef __HPP_ENTRY_RAW_FN
+
 
 void perf_hpp__init(void)
 {

@@ -2029,6 +2029,7 @@
 #define  TG3_PCIE_EIDLE_DELAY_13_CLKS	 0x0000000c
 /* 0x7e74 --> 0x8000 unused */
 
+
 /* Alternate PCIE definitions */
 #define TG3_PCIE_TLDLPL_PORT		0x00007c00
 #define TG3_PCIE_DL_LO_FTSMAX		0x0000000c
@@ -2060,6 +2061,7 @@
 #define TG3_OTP_RCOFF_SHIFT		16
 
 #define TG3_OTP_DEFAULT			0x286c1640
+
 
 /* Hardware Legacy NVRAM layout */
 #define TG3_NVM_VPD_OFF			0x100
@@ -2111,6 +2113,7 @@
 #define TG3_EEPROM_SB_EDH_MIN_MASK	0x000000ff
 #define TG3_EEPROM_SB_EDH_BLD_MASK	0x0000f800
 #define TG3_EEPROM_SB_EDH_BLD_SHFT	11
+
 
 /* 32K Window into NIC internal memory */
 #define NIC_SRAM_WIN_BASE		0x00008000
@@ -2235,8 +2238,10 @@
 #define TG3_SRAM_RX_JMB_BDCACHE_SIZE_5700	64
 #define TG3_SRAM_RX_JMB_BDCACHE_SIZE_5717	16
 
+
 /* Currently this is fixed. */
 #define TG3_PHY_MII_ADDR		0x01
+
 
 /*** Tigon3 specific PHY MII registers. ***/
 #define MII_TG3_MMD_CTRL		0x0d /* MMD Access Control register */
@@ -2300,6 +2305,7 @@
 #define MII_TG3_AUXCTL_MISC_RDSEL_SHIFT	12
 #define MII_TG3_AUXCTL_MISC_WREN	0x8000
 
+
 #define MII_TG3_AUX_STAT		0x19 /* auxiliary status register */
 #define MII_TG3_AUX_STAT_LPASS		0x0004
 #define MII_TG3_AUX_STAT_SPDMASK	0x0700
@@ -2344,6 +2350,7 @@
 #define TG3_CL45_D7_EEERES_STAT		0x803e
 #define TG3_CL45_D7_EEERES_STAT_LP_100TX	0x0002
 #define TG3_CL45_D7_EEERES_STAT_LP_1000T	0x0004
+
 
 /* Fast Ethernet Tranceiver definitions */
 #define MII_TG3_FET_PTEST		0x17
@@ -2466,6 +2473,7 @@
 #define TG3_APE_LOCK_GPIO		7
 
 #define TG3_EEPROM_SB_F1R2_MBA_OFF	0x10
+
 
 /* There are two ways to manage the TX descriptors on the tigon3.
  * Either the descriptors are in host DMA'able memory, or they
@@ -2779,6 +2787,7 @@ struct tg3_hw_stats {
 #define TG3_TEMP_MAX_OFFSET		0xcc
 #define TG3_TEMP_SENSOR_OFFSET		0xd4
 
+
 struct tg3_ocir {
 	u32				signature;
 	u16				version_flags;
@@ -2801,6 +2810,7 @@ struct tg3_ocir {
 	u32				port3_flags;
 	u32				reserved2[1];
 };
+
 
 /* 'mapping' is superfluous as the chip does not write into
  * the tx/rx post rings so we could just fetch it from there.
@@ -3166,6 +3176,7 @@ struct tg3 {
 	u32				rxq_cnt;
 	u32				rxq_max;
 	bool				rx_refill;
+
 
 	/* begin "everything else" cacheline(s) section */
 	unsigned long			rx_dropped;

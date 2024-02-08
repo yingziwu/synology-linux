@@ -31,6 +31,7 @@
 
 #include "hyperv_net.h"
 
+
 #define RNDIS_EXT_LEN 100
 struct rndis_request {
 	struct list_head list_ent;
@@ -59,6 +60,7 @@ struct rndis_request {
 };
 
 static void rndis_filter_send_completion(void *ctx);
+
 
 static struct rndis_device *get_rndis_device(void)
 {
@@ -609,6 +611,7 @@ cleanup:
 	return ret;
 }
 
+
 static int rndis_filter_query_device_link_status(struct rndis_device *dev)
 {
 	u32 size = sizeof(u32);
@@ -678,6 +681,7 @@ exit:
 	return ret;
 }
 
+
 static int rndis_filter_init_device(struct rndis_device *dev)
 {
 	struct rndis_request *request;
@@ -706,6 +710,7 @@ static int rndis_filter_init_device(struct rndis_device *dev)
 		dev->state = RNDIS_DEV_UNINITIALIZED;
 		goto cleanup;
 	}
+
 
 	t = wait_for_completion_timeout(&request->wait_event, 5*HZ);
 
@@ -822,6 +827,7 @@ int rndis_filter_device_add(struct hv_device *dev,
 		return ret;
 	}
 
+
 	/* Initialize the rndis device */
 	net_device = hv_get_drvdata(dev);
 
@@ -868,6 +874,7 @@ void rndis_filter_device_remove(struct hv_device *dev)
 
 	netvsc_device_remove(dev);
 }
+
 
 int rndis_filter_open(struct hv_device *dev)
 {

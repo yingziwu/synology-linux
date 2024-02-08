@@ -117,6 +117,7 @@
 #define EMISS_NAND_WR_DMA_MAX_CHUNK_SIZE		0x10C
 #define EMISS_NAND_WR_DMA_MAX_MESSAGE_SIZE		0x110
 
+
 /*
  * Hamming/BCH controller interrupts
  */
@@ -157,6 +158,7 @@
 #define CFG_RESET				(0x1 << 3)
 #define CFG_RESET_ECC(x)			(0x1 << (7 + (x)))
 #define CFG_RESET_ECC_ALL			(0xff << 7)
+
 
 /*
  * BCH Controller
@@ -267,6 +269,7 @@
 #define BCH_NEXT_CHIP_ON		BCH_INSTR(BCH_OPC_NEXT_CHIP_ON, 0)
 #define BCH_DEC_JMP_MCS(x)		BCH_INSTR(BCH_OPC_DEC_JMP_MCS, (x))
 #define BCH_ECC_SCORE(x)		BCH_INSTR(BCH_OPC_ECC_SCORE, (x))
+
 
 /*
  * Hamming-FLEX register fields

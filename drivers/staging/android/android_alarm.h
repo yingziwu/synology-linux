@@ -67,6 +67,7 @@ enum android_alarm_return_flags {
 #define ANDROID_ALARM_IOCTL_TO_TYPE(cmd)    (_IOC_NR(cmd) >> 4)
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 
+
 #ifdef CONFIG_COMPAT
 #define ANDROID_ALARM_SET_COMPAT(type)		ALARM_IOW(2, type, \
 							struct compat_timespec)

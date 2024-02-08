@@ -19,6 +19,7 @@
 #ifndef	__R8192UDM_H__
 #define __R8192UDM_H__
 
+
 /*--------------------------Define Parameters-------------------------------*/
 #define			OFDM_Table_Length	19
 #define		CCK_Table_length	12
@@ -36,6 +37,7 @@
 #define		BW_AUTO_SWITCH_LOW_HIGH			30
 
 #define		DM_check_fsync_time_interval				500
+
 
 #define		DM_DIG_BACKOFF				12
 #define		DM_DIG_MAX					0x36
@@ -79,6 +81,7 @@
 #define		DM_Type_ByDriver		1
 
 /*--------------------------Define Parameters-------------------------------*/
+
 
 /*------------------------------Define structure----------------------------*/
 struct dig_t {
@@ -130,6 +133,7 @@ enum dm_dig_sta {
 	DM_STA_DIG_MAX
 };
 
+
 enum dm_ratr_sta {
 	DM_RATR_STA_HIGH = 0,
 	DM_RATR_STA_MIDDLE = 1,
@@ -166,6 +170,7 @@ enum dm_dig_two_port_alg {
 	DIG_TWO_PORT_ALGO_RSSI = 0,
 	DIG_TWO_PORT_ALGO_FALSE_ALARM = 1,
 };
+
 
 enum dm_dig_ext_port_alg {
 	DIG_EXT_PORT_STAGE_0 = 0,
@@ -226,6 +231,7 @@ enum dm_cck_rx_path_method {
 	CCK_Rx_Version_MAX
 };
 
+
 enum dm_dbg {
 	DM_DBG_OFF = 0,
 	DM_DBG_ON = 1,
@@ -239,6 +245,7 @@ struct dcmd_txcmd {
 };
 /*------------------------------Define structure----------------------------*/
 
+
 /*------------------------Export global variable----------------------------*/
 extern	struct dig_t dm_digtable;
 extern	u8		dm_shadow[16][256];
@@ -247,6 +254,7 @@ extern struct drx_path_sel DM_RxPathSelTable;
 extern	u8			test_flag;
 /*------------------------Export global variable----------------------------*/
 
+
 /*------------------------Export Marco Definition---------------------------*/
 #define DM_APInitGainChangeNotify(Event)		\
 	{						\
@@ -254,12 +262,14 @@ extern	u8			test_flag;
 	}
 /*------------------------Export Marco Definition---------------------------*/
 
+
 /*--------------------------Exported Function prototype---------------------*/
 /*--------------------------Exported Function prototype---------------------*/
 extern  void    init_hal_dm(struct net_device *dev);
 extern  void deinit_hal_dm(struct net_device *dev);
 
 extern void hal_dm_watchdog(struct net_device *dev);
+
 
 extern  void    init_rate_adaptive(struct net_device *dev);
 extern  void    dm_txpower_trackingcallback(void *data);

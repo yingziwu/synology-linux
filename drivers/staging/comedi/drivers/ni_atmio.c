@@ -490,6 +490,7 @@ static int ni_atmio_attach(struct comedi_device *dev,
 	if (ret < 0)
 		return ret;
 
+
 	return 0;
 }
 

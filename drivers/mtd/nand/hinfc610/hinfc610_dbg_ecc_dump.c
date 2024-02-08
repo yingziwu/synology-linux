@@ -106,6 +106,8 @@ static struct hinfc610_ecc_inf_t hinfc610_ecc_inf[] = {
 	{8192, NAND_ECC_27BIT, 8, hinfc610_ecc_8k},
 	{8192, NAND_ECC_24BIT, 8, hinfc610_ecc_8k},
 
+
+
 	{4096, NAND_ECC_32BIT, 4, hinfc610_ecc_4k},
 	{4096, NAND_ECC_27BIT, 4, hinfc610_ecc_4k},
 	{4096, NAND_ECC_24BIT, 4, hinfc610_ecc_4k},

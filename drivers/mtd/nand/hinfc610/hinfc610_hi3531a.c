@@ -33,3 +33,4 @@ void hinfc610_controller_enable(struct hinfc_host *host, int enable)
 	if (regval != old_val)
 		writel(regval, __io_address(CRG_REG_BASE + REG_NFC_CRG));
 }
+

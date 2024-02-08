@@ -334,3 +334,4 @@ module_exit(hisnfc100_os_module_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("BVT_BSP");
 MODULE_DESCRIPTION("Hisnfc Device Driver, Version 100");
+

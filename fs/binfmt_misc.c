@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  binfmt_misc.c
  *
@@ -368,6 +371,7 @@ static Node *create_entry(const char __user *buffer, size_t count)
 	if (!e->interpreter[0])
 		goto Einval;
 
+
 	p = check_special_flags (p, e);
 
 	if (*p == '\n')
@@ -401,10 +405,10 @@ static int parse_command(const char __user *buffer, size_t count)
 		return -EINVAL;
 	if (copy_from_user(s, buffer, count))
 		return -EFAULT;
-#if defined(CONFIG_SYNO_HI3536)
+#if defined(MY_DEF_HERE)
 	if (count == 0)
 		return 0;
-#endif /* CONFIG_SYNO_HI3536 */
+#endif /* MY_DEF_HERE */
 	if (s[count-1] == '\n')
 		count--;
 	if (count == 1 && s[0] == '0')
@@ -448,6 +452,7 @@ static void entry_status(Node *e, char *page)
 		*dp ++ = 'C';
 	}
 	*dp ++ = '\n';
+
 
 	if (!test_bit(Magic, &e->flags)) {
 		sprintf(dp, "extension .%s\n", e->magic);

@@ -71,6 +71,7 @@
  *
  ************************************************************************************************************/
 
+
 /************************************************************************************************************
  **
  ** Implementation Notes
@@ -96,6 +97,7 @@
 #if ! defined offsetof
 #define offsetof(s,m)   ((unsigned int)&(((s *)0)->m))
 #endif // offsetof
+
 
 /***********************************************************************************************************/
 /***************************************  PROTOTYPES  ******************************************************/
@@ -285,6 +287,7 @@ struct CFG_RANGE3_STRCT BASED cfg_drv_act_ranges_pri = {
 	}
 } ;
 
+
 struct CFG_RANGE4_STRCT BASED cfg_drv_act_ranges_sta = {
 	sizeof(cfg_drv_act_ranges_sta)/sizeof(hcf_16) - 1,  //length of RID
 	CFG_DRV_ACT_RANGES_STA,     // (0x0829)
@@ -329,6 +332,7 @@ struct CFG_RANGE4_STRCT BASED cfg_drv_act_ranges_sta = {
 	}
 } ;
 
+
 struct CFG_RANGE6_STRCT BASED cfg_drv_act_ranges_hsi = {
 	sizeof(cfg_drv_act_ranges_hsi)/sizeof(hcf_16) - 1,  //length of RID
 	CFG_DRV_ACT_RANGES_HSI,     // (0x082A)
@@ -364,6 +368,7 @@ struct CFG_RANGE6_STRCT BASED cfg_drv_act_ranges_hsi = {
 #endif // HCF_HSI_VAR_5
 	}
 } ;
+
 
 CFG_RANGE4_STRCT BASED cfg_drv_act_ranges_apf = {
 	sizeof(cfg_drv_act_ranges_apf)/sizeof(hcf_16) - 1,  //length of RID
@@ -485,6 +490,7 @@ HCF_STATIC hcf_16* BASED xxxx[ ] = {
 	NULL                                    //endsentinel
 };
 #define xxxx_PRI_IDENTITY_OFFSET    (ARRAY_SIZE(xxxx) - 3)
+
 
 /************************************************************************************************************
  ************************** T O P   L E V E L   H C F   R O U T I N E S **************************************
@@ -798,6 +804,7 @@ hcf_action( IFBP ifbp, hcf_16 action )
 	return rc;
 } // hcf_action
 
+
 /************************************************************************************************************
  *
  *.MODULE        int hcf_cntl( IFBP ifbp, hcf_16 cmd )
@@ -977,6 +984,7 @@ hcf_cntl( IFBP ifbp, hcf_16 cmd )
 	HCFLOGEXIT( HCF_TRACE_CNTL );
 	return rc;
 } // hcf_cntl
+
 
 /************************************************************************************************************
  *
@@ -1327,6 +1335,7 @@ get_frame_lst( IFBP ifbp, int tx_rx_flag )
 	return head;
 } // get_frame_lst
 
+
 /************************************************************************************************************
  * Function put_frame_lst
  *
@@ -1415,6 +1424,7 @@ put_frame_lst( IFBP ifbp, DESC_STRCT *descp, int tx_rx_flag )
 	}
 } // put_frame_lst
 
+
 /************************************************************************************************************
  *
  *.MODULE        DESC_STRCT* hcf_dma_rx_get( IFBP ifbp )
@@ -1499,6 +1509,7 @@ hcf_dma_rx_get (IFBP ifbp)
 	return descp;
 } // hcf_dma_rx_get
 
+
 /************************************************************************************************************
  *
  *.MODULE        void hcf_dma_rx_put( IFBP ifbp, DESC_STRCT *descp )
@@ -1564,6 +1575,7 @@ hcf_dma_rx_put( IFBP ifbp, DESC_STRCT *descp )
 	HCFLOGEXIT( HCF_TRACE_DMA_RX_PUT );
 } // hcf_dma_rx_put
 
+
 /************************************************************************************************************
  *
  *.MODULE        DESC_STRCT* hcf_dma_tx_get( IFBP ifbp )
@@ -1612,6 +1624,7 @@ hcf_dma_tx_get( IFBP ifbp )
 	HCFLOGEXIT( HCF_TRACE_DMA_TX_GET );
 	return descp;
 } // hcf_dma_tx_get
+
 
 /************************************************************************************************************
  *
@@ -1829,6 +1842,7 @@ hcf_encap( wci_bufp type )
 	return rc;
 } // hcf_encap
 
+
 /************************************************************************************************************
  *
  *.MODULE        int hcf_get_info( IFBP ifbp, LTVP ltvp )
@@ -2045,6 +2059,7 @@ hcf_get_info( IFBP ifbp, LTVP ltvp )
 	return rc;
 } // hcf_get_info
 
+
 /************************************************************************************************************
  *
  *.MODULE        int hcf_put_info( IFBP ifbp, LTVP ltvp )
@@ -2239,6 +2254,7 @@ hcf_put_info( IFBP ifbp, LTVP ltvp )
 	return rc;
 } // hcf_put_info
 
+
 /************************************************************************************************************
  *
  *.MODULE        int hcf_rcv_msg( IFBP ifbp, DESC_STRCT *descp, unsigned int offset )
@@ -2398,6 +2414,7 @@ hcf_rcv_msg( IFBP ifbp, DESC_STRCT *descp, unsigned int offset )
 	HCFLOGEXIT( HCF_TRACE_RCV_MSG );
 	return rc;
 } // hcf_rcv_msg
+
 
 /************************************************************************************************************
  *
@@ -2670,6 +2687,7 @@ hcf_send_msg( IFBP ifbp, DESC_STRCT *descp, hcf_16 tx_cntl )
 	return rc;
 } // hcf_send_msg
 
+
 /************************************************************************************************************
  *
  *.MODULE        int hcf_service_nic( IFBP ifbp, wci_bufp bufp, unsigned int len )
@@ -2891,6 +2909,7 @@ or
 *   IFB_RxLEN thus corrupting the I/F to the MSF.
 *;?: In case of DMA (compiled in and activated):
 
+
 *54: Limiting the number of places where the F/W is acked (e.g. the merging of the Rx-ACK with the other
 *   ACKs), is supposed to diminish the potential of race conditions in the F/W.
 *   Note 1: The CMD event is acknowledged in cmd_cmpl
@@ -3042,9 +3061,11 @@ hcf_service_nic( IFBP ifbp, wci_bufp bufp, unsigned int len )
 	return rc;
 } // hcf_service_nic
 
+
 /************************************************************************************************************
  ************************** H C F   S U P P O R T   R O U T I N E S ******************************************
  ************************************************************************************************************/
+
 
 /************************************************************************************************************
  *
@@ -3097,6 +3118,8 @@ calc_mic( hcf_32* p, hcf_32 m )
 #undef R
 #undef L
 #endif // HCF_TYPE_WPA
+
+
 
 #if (HCF_TYPE) & HCF_TYPE_WPA
 /************************************************************************************************************
@@ -3174,6 +3197,7 @@ calc_mic_rx_frag( IFBP ifbp, wci_bufp p, int len )
 	}
 } // calc_mic_rx_frag
 #endif // HCF_TYPE_WPA
+
 
 #if (HCF_TYPE) & HCF_TYPE_WPA
 /************************************************************************************************************
@@ -3268,6 +3292,7 @@ calc_mic_tx_frag( IFBP ifbp, wci_bufp p, int len )
 	}
 } // calc_mic_tx_frag
 #endif // HCF_TYPE_WPA
+
 
 #if HCF_PROT_TIME
 /************************************************************************************************************
@@ -3364,6 +3389,7 @@ calibrate( IFBP ifbp )
 } // calibrate
 #endif // HCF_PROT_TIME
 
+
 #if (HCF_TYPE) & HCF_TYPE_WPA
 /************************************************************************************************************
  *
@@ -3411,6 +3437,7 @@ check_mic( IFBP ifbp )
 	return rc;
 } // check_mic
 #endif // HCF_TYPE_WPA
+
 
 /************************************************************************************************************
  *
@@ -3495,6 +3522,7 @@ cmd_cmpl( IFBP ifbp )
 	return rc;
 } // cmd_cmpl
 
+
 /************************************************************************************************************
  *
  *.SUBMODULE     int cmd_exe( IFBP ifbp, int cmd_code, int par_0 )
@@ -3572,6 +3600,7 @@ cmd_exe( IFBP ifbp, hcf_16 cmd_code, hcf_16 par_0 ) //if HCMD_BUSY of cmd_code s
 	HCFLOGEXIT( HCF_TRACE_CMD_EXE );
 	return rc;
 } // cmd_exe
+
 
 /************************************************************************************************************
  *
@@ -3680,6 +3709,7 @@ download( IFBP ifbp, CFG_PROG_STRCT FAR *ltvp )                     //Hermes-II 
 	return rc;
 } // download
 
+
 #if (HCF_ASSERT) & HCF_ASSERT_PRINTF
 /**************************************************
  * Certain Hermes-II firmware versions can generate
@@ -3718,6 +3748,7 @@ fw_printf(IFBP ifbp, CFG_FW_PRINTF_STRCT FAR *ltvp)
 	return rc;
 };
 #endif // HCF_ASSERT_PRINTF
+
 
 /************************************************************************************************************
  *
@@ -3782,6 +3813,7 @@ get_fid( IFBP ifbp )
 	}
 	return fid;
 } // get_fid
+
 
 /************************************************************************************************************
  *
@@ -4220,6 +4252,7 @@ isr_info( IFBP ifbp )
 //  return;
 //} // isr_info
 
+
 /************************************************************************************************************
  *
  *.SUBMODULE     void mdd_assert( IFBP ifbp, unsigned int line_number, hcf_32 q )
@@ -4281,6 +4314,7 @@ mdd_assert( IFBP ifbp, unsigned int line_number, hcf_32 q )
 	}
 } // mdd_assert
 #endif // HCF_ASSERT
+
 
 /************************************************************************************************************
  *
@@ -4381,6 +4415,7 @@ put_frag( IFBP ifbp, wci_bufp bufp, int len BE_PAR( int word_len ) )
 	}
 } // put_frag
 
+
 /************************************************************************************************************
  *
  *.SUBMODULE     void put_frag_finalize( IFBP ifbp )
@@ -4422,6 +4457,7 @@ put_frag_finalize( IFBP ifbp )
 #endif // HCF_TYPE_WPA
 	put_frag( ifbp, null_addr, 1 BE_PAR(0) );   //write (possibly) trailing data or MIC byte
 } // put_frag_finalize
+
 
 /************************************************************************************************************
  *
@@ -4497,6 +4533,7 @@ put_info( IFBP ifbp, LTVP ltvp  )
 	}
 	return rc;
 } // put_info
+
 
 /************************************************************************************************************
  *
@@ -4609,6 +4646,7 @@ put_info_mb( IFBP ifbp, CFG_MB_INFO_STRCT FAR * ltvp )
 	return rc;
 } // put_info_mb
 
+
 /************************************************************************************************************
  *
  *.SUBMODULE     int setup_bap( IFBP ifbp, hcf_16 fid, int offset, int type )
@@ -4707,3 +4745,4 @@ setup_bap( IFBP ifbp, hcf_16 fid, int offset, int type )
 	HCFTRACE( ifbp, HCF_TRACE_STRIO | HCF_TRACE_EXIT );
 	return rc;
 } // setup_bap
+

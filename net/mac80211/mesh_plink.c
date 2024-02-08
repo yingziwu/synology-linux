@@ -649,6 +649,7 @@ u32 mesh_plink_block(struct sta_info *sta)
 	return changed;
 }
 
+
 void mesh_rx_plink_frame(struct ieee80211_sub_if_data *sdata,
 			 struct ieee80211_mgmt *mgmt, size_t len,
 			 struct ieee80211_rx_status *rx_status)

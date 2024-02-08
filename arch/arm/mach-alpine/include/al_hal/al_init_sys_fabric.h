@@ -92,6 +92,7 @@ void al_nbservice_clear_settings(void __iomem *nb_regs_address);
  */
 void al_ccu_clear_settings(void __iomem *ccu_address);
 
+
 #ifdef __cplusplus
 }
 #endif

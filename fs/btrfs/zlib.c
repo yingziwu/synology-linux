@@ -73,13 +73,11 @@ fail:
 
 static int zlib_compress_pages(struct list_head *ws,
 			       struct address_space *mapping,
-			       u64 start, unsigned long len,
+			       u64 start,
 			       struct page **pages,
-			       unsigned long nr_dest_pages,
 			       unsigned long *out_pages,
 			       unsigned long *total_in,
-			       unsigned long *total_out,
-			       unsigned long max_out)
+			       unsigned long *total_out)
 {
 	struct workspace *workspace = list_entry(ws, struct workspace, list);
 	int ret;
@@ -89,6 +87,9 @@ static int zlib_compress_pages(struct list_head *ws,
 	struct page *in_page = NULL;
 	struct page *out_page = NULL;
 	unsigned long bytes_left;
+	unsigned long len = *total_out;
+	unsigned long nr_dest_pages = *out_pages;
+	const unsigned long max_out = nr_dest_pages * PAGE_SIZE;
 
 	*out_pages = 0;
 	*total_out = 0;
@@ -210,11 +211,7 @@ out:
 	return ret;
 }
 
-static int zlib_decompress_biovec(struct list_head *ws, struct page **pages_in,
-				  u64 disk_start,
-				  struct bio_vec *bvec,
-				  int vcnt,
-				  size_t srclen)
+static int zlib_decompress_bio(struct list_head *ws, struct compressed_bio *cb)
 {
 	struct workspace *workspace = list_entry(ws, struct workspace, list);
 	int ret = 0, ret2;
@@ -223,10 +220,13 @@ static int zlib_decompress_biovec(struct list_head *ws, struct page **pages_in,
 	size_t total_out = 0;
 	unsigned long page_in_index = 0;
 	unsigned long page_out_index = 0;
-	unsigned long total_pages_in = (srclen + PAGE_CACHE_SIZE - 1) /
-					PAGE_CACHE_SIZE;
+	size_t srclen = cb->compressed_len;
+	unsigned long total_pages_in = DIV_ROUND_UP(srclen, PAGE_CACHE_SIZE);
 	unsigned long buf_start;
 	unsigned long pg_offset;
+	struct page **pages_in = cb->compressed_pages;
+	u64 disk_start = cb->start;
+	struct bio *orig_bio = cb->orig_bio;
 
 	data_in = kmap(pages_in[page_in_index]);
 	workspace->strm.next_in = data_in;
@@ -267,7 +267,7 @@ static int zlib_decompress_biovec(struct list_head *ws, struct page **pages_in,
 
 		ret2 = btrfs_decompress_buf2page(workspace->buf, buf_start,
 						 total_out, disk_start,
-						 bvec, vcnt,
+						 orig_bio->bi_io_vec, orig_bio->bi_vcnt,
 						 &page_out_index, &pg_offset);
 		if (ret2 == 0) {
 			ret = 0;
@@ -301,7 +301,7 @@ done:
 	if (data_in)
 		kunmap(pages_in[page_in_index]);
 	if (!ret)
-		btrfs_clear_biovec_end(bvec, vcnt, page_out_index, pg_offset);
+		btrfs_clear_biovec_end(orig_bio->bi_io_vec, orig_bio->bi_vcnt, page_out_index, pg_offset);
 	return ret;
 }
 
@@ -408,6 +408,6 @@ struct btrfs_compress_op btrfs_zlib_compress = {
 	.alloc_workspace	= zlib_alloc_workspace,
 	.free_workspace		= zlib_free_workspace,
 	.compress_pages		= zlib_compress_pages,
-	.decompress_biovec	= zlib_decompress_biovec,
+	.decompress_bio		= zlib_decompress_bio,
 	.decompress		= zlib_decompress,
 };

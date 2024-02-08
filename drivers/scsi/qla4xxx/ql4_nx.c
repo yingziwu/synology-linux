@@ -1275,6 +1275,7 @@ qla4_82xx_pci_mem_read_2M(struct scsi_qla_host *ha,
 					off, data, size);
 	}
 
+
 	off8 = off & 0xfffffff0;
 	off0[0] = off & 0xf;
 	sz[0] = (size < (16 - off0[0])) ? size : (16 - off0[0]);
@@ -1634,6 +1635,7 @@ qla4_8xxx_set_qsnt_ready(struct scsi_qla_host *ha)
 
 	qla4_8xxx_wr_direct(ha, QLA8XXX_CRB_DRV_STATE, qsnt_state);
 }
+
 
 static int
 qla4_82xx_start_firmware(struct scsi_qla_host *ha, uint32_t image_start)

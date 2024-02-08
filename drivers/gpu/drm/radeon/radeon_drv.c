@@ -37,6 +37,7 @@
 #include <linux/console.h>
 #include <linux/module.h>
 
+
 /*
  * KMS wrapper.
  * - 2.0.0 - initial interface

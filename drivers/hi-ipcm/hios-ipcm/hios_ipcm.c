@@ -138,3 +138,4 @@ EXPORT_SYMBOL(hios_ipcm_check_remote);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("chanjinn");
+

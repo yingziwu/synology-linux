@@ -538,6 +538,7 @@ out:
 	return destroy;
 }
 
+
 int rds_ib_cm_initiate_connect(struct rdma_cm_id *cm_id)
 {
 	struct rds_connection *conn = cm_id->context;
@@ -780,6 +781,7 @@ int rds_ib_conn_alloc(struct rds_connection *conn, gfp_t gfp)
 	list_add_tail(&ic->ib_node, &ib_nodev_conns);
 	spin_unlock_irqrestore(&ib_nodev_conns_lock, flags);
 
+
 	rdsdebug("conn %p conn ic %p\n", conn, conn->c_transport_data);
 	return 0;
 }
@@ -809,6 +811,7 @@ void rds_ib_conn_free(void *arg)
 
 	kfree(ic);
 }
+
 
 /*
  * An error occurred on the connection

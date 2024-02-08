@@ -575,6 +575,7 @@ scan_microcode(unsigned long start, unsigned long end,
 	if (!cd.data)
 		return UCODE_ERROR;
 
+
 	return get_matching_model_microcode(0, start, cd.data, cd.size,
 					    mc_saved_data, mc_saved_in_initrd,
 					    uci);
