@@ -13,6 +13,9 @@
 #include <linux/types.h>
 #include <linux/ioctl.h>
 #include <linux/irqnr.h>
+#ifdef __KERNEL__
+#include <linux/percpu.h>
+#endif /* __KERNEL__ */
 
 /* ioctl()'s for the random number generator */
 
@@ -116,6 +119,8 @@ void prandom_seed(u32 seed);
  */
 #define random32() prandom_u32()
 #define srandom32(seed) prandom_seed(seed)
+
+DECLARE_PER_CPU(struct rnd_state, net_rand_state);
 
 u32 prandom_u32_state(struct rnd_state *);
 void prandom_bytes_state(struct rnd_state *state, void *buf, int nbytes);

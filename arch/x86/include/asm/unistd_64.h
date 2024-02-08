@@ -700,7 +700,7 @@ __SYSCALL(__NR_process_vm_writev, sys_process_vm_writev)
 __SYSCALL(__NR_SYNOUtime, sys_SYNOUtime)
 #endif
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 #define __NR_SYNOArchiveBit                     403
 #define SYNOArchiveBit(arg1, arg2)              syscall(__NR_SYNOArchiveBit, arg1, arg2)
 __SYSCALL(__NR_SYNOArchiveBit, sys_SYNOArchiveBit)
@@ -736,7 +736,7 @@ __SYSCALL(__NR_SYNOEcryptName, sys_SYNOEcryptName)
 __SYSCALL(__NR_SYNODecryptName, sys_SYNODecryptName)
 #endif
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 #define __NR_SYNOACLCheckPerm                   412
 #define SYNOACLSysCheckPerm(arg1, arg2)         syscall(__NR_SYNOACLCheckPerm, arg1, arg2)
 __SYSCALL(__NR_SYNOACLCheckPerm, sys_SYNOACLCheckPerm)
@@ -797,7 +797,7 @@ __SYSCALL(__NR_SYNOArchiveOverwrite, sys_SYNOArchiveOverwrite)
 __SYSCALL(__NR_syno_utime, sys_syno_utime)
 #endif
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 #define __NR_syno_archive_bit                     803
 #define syno_archive_bit(arg1, arg2)              syscall(__NR_syno_archive_bit, arg1, arg2)
 __SYSCALL(__NR_syno_archive_bit, sys_syno_archive_bit)
@@ -833,7 +833,7 @@ __SYSCALL(__NR_syno_ecrypt_name, sys_syno_ecrypt_name)
 __SYSCALL(__NR_syno_decrypt_name, sys_syno_decrypt_name)
 #endif
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 #define __NR_syno_acl_check_perm                   812
 #define syno_acl_check_perm(arg1, arg2)         syscall(__NR_syno_acl_check_perm, arg1, arg2)
 __SYSCALL(__NR_syno_acl_check_perm, sys_syno_acl_check_perm)

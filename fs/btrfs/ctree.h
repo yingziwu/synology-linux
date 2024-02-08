@@ -510,7 +510,9 @@ struct btrfs_super_block {
 	u8 sys_chunk_array[BTRFS_SYSTEM_CHUNK_ARRAY_SIZE];
 	struct btrfs_root_backup super_roots[BTRFS_NUM_BACKUP_ROOTS];
 #ifdef MY_ABC_HERE
-	u8 syno_reserved[557];
+	u8 syno_reserved[525];
+	__le64 syno_rbd_reserved[3]; /* Reserve for synorbd */
+	__le64 log_tree_rsv;
 	__le64 syno_generation;
 #endif
 } __attribute__ ((__packed__));

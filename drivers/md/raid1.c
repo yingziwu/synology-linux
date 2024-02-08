@@ -472,6 +472,10 @@ static void raid1_end_write_request(struct bio *bio, int error)
 		set_bit(WriteErrorSeen,
 			&conf->mirrors[mirror].rdev->flags);
 		set_bit(R1BIO_WriteError, &r1_bio->state);
+#ifdef MY_ABC_HERE
+		if (conf->mirrors[mirror].rdev->badblocks.shift < 0)
+			md_error(conf->mddev, conf->mirrors[mirror].rdev);
+#endif /* MY_ABC_HERE */
 	} else {
 		/*
 		 * Set R1BIO_Uptodate in our master bio, so that we
@@ -562,7 +566,7 @@ static int read_assign_target(struct r1conf *conf, struct r1bio *r1_bio, int *ma
 	rcu_read_lock();
 	read_target = conf->read_target;
 
-	if (read_target >= 0) {
+	if (read_target >= 0 && read_target < conf->raid_disks * 2) {
 		rdev = rcu_dereference(conf->mirrors[read_target].rdev);
 		if (r1_bio->bios[read_target] == IO_BLOCKED
 				|| rdev == NULL
@@ -576,6 +580,7 @@ static int read_assign_target(struct r1conf *conf, struct r1bio *r1_bio, int *ma
 			goto end;
 		}
 		best_disk = read_target;
+		atomic_inc(&rdev->nr_pending);
 		goto end;
 	}
 	if (best_disk >= 0) {
@@ -3069,7 +3074,11 @@ read_target_store(struct mddev *mddev, const char *page, size_t len)
 		return -EINVAL;
 	}
 
-	conf->read_target = min;
+	if (min < conf->raid_disks * 2)
+		conf->read_target = min;
+	else
+		return -EINVAL;
+
 	return len;
 }
 
@@ -3147,6 +3156,11 @@ static int run(struct mddev *mddev)
 		    !test_bit(In_sync, &conf->mirrors[i].rdev->flags) ||
 		    test_bit(Faulty, &conf->mirrors[i].rdev->flags))
 			mddev->degraded++;
+#ifdef MY_ABC_HERE
+	mddev->thread = conf->thread;
+	conf->thread = NULL;
+	mddev->private = conf;
+#endif /* MY_ABC_HERE */
 	/*
 	 * RAID1 needs at least one disk in active
 	 */
@@ -3178,9 +3192,12 @@ static int run(struct mddev *mddev)
                                 mdname(mddev));
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 	mddev->thread = conf->thread;
 	conf->thread = NULL;
 	mddev->private = conf;
+#endif /* MY_ABC_HERE */
 
 	md_set_array_sectors(mddev, raid1_size(mddev, 0, 0));
 

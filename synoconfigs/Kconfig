@@ -304,4 +304,12 @@ config SYNO_SWAP_FLAG
 	bool "Avoid misuse Swapon / Swapoff"
 	default y
 
+config SYNO_MD_DUMMY_READ
+	bool "Read parity chunk to enhance sequential read performance"
+	default n
+
+config SYNO_FS_SHOW_INCOMPAT_SUPP
+	bool "Show file system's incompatible support flags"
+	default y
+
 endmenu
