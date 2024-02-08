@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -55,6 +56,7 @@ struct a390_internals {
 static struct a390_internals a390_int = {
 	.addr_completion_regs = {0x0120, 0x0124, 0x0128, 0x012c, 0x0130, 0x0134, 0x0138, 0x013c},
 };
+
 
 /* return new calculated access address without silicon base */
 /*        that added in real read/write function             */

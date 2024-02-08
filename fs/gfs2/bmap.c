@@ -174,6 +174,7 @@ out:
 	return error;
 }
 
+
 /**
  * find_metapath - Find path through the metadata tree
  * @sdp: The superblock
@@ -921,6 +922,7 @@ out:
 	return error;
 }
 
+
 /**
  * gfs2_block_truncate_page - Deal with zeroing out data for truncate
  *
@@ -1474,7 +1476,7 @@ int gfs2_write_alloc_required(struct gfs2_inode *ip, u64 offset,
 	end_of_file = (i_size_read(&ip->i_inode) + sdp->sd_sb.sb_bsize - 1) >> shift;
 	lblock = offset >> shift;
 	lblock_stop = (offset + len + sdp->sd_sb.sb_bsize - 1) >> shift;
-	if (lblock_stop > end_of_file)
+	if (lblock_stop > end_of_file && ip != GFS2_I(sdp->sd_rindex))
 		return 1;
 
 	size = (lblock_stop - lblock) << shift;
@@ -1490,3 +1492,4 @@ int gfs2_write_alloc_required(struct gfs2_inode *ip, u64 offset,
 
 	return 0;
 }
+

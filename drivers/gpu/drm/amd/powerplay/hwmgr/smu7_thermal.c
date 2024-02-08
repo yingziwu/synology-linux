@@ -69,6 +69,7 @@ int smu7_fan_ctrl_get_fan_speed_percent(struct pp_hwmgr *hwmgr,
 	if (duty100 == 0)
 		return -EINVAL;
 
+
 	tmp64 = (uint64_t)duty * 100;
 	do_div(tmp64, duty100);
 	*speed = (uint32_t)tmp64;
@@ -177,6 +178,7 @@ int smu7_fan_ctrl_start_smc_fan_control(struct pp_hwmgr *hwmgr)
 
 	return result;
 }
+
 
 int smu7_fan_ctrl_stop_smc_fan_control(struct pp_hwmgr *hwmgr)
 {
@@ -456,9 +458,12 @@ int smu7_start_thermal_controller(struct pp_hwmgr *hwmgr,
 	return 0;
 }
 
+
+
 int smu7_thermal_ctrl_uninitialize_thermal_controller(struct pp_hwmgr *hwmgr)
 {
 	if (!hwmgr->thermal_controller.fanInfo.bNoFan)
 		smu7_fan_ctrl_set_default_mode(hwmgr);
 	return 0;
 }
+

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -29,6 +30,7 @@ disclaimer.
 #define TM_NODES_REORDER_H
 
 #include "tm_core_types.h"
+
 
  /** Move a number of children from one parent node to another.
   *  The two nodes must have children with adjecent indicies.
@@ -55,6 +57,7 @@ int tm_nodes_move(tm_handle hndl,
 				  uint16_t from_node,
 				  uint16_t to_node);
 
+
  /** Switch children between two nodes.
   *
   *  @param[in]    hndl                 TM lib handle
@@ -74,4 +77,6 @@ int tm_nodes_switch(tm_handle hndl,
 					uint16_t node_a,
 					uint16_t node_b);
 
+
 #endif   /* TM_NODES_REORDER_H */
+

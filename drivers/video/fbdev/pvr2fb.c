@@ -687,7 +687,7 @@ static ssize_t pvr2fb_write(struct fb_info *info, const char *buf,
 		return -ENOMEM;
 
 	ret = get_user_pages_unlocked(current, current->mm, (unsigned long)buf,
-				      nr_pages, WRITE, 0, pages);
+				      nr_pages, pages, FOLL_WRITE);
 
 	if (ret < nr_pages) {
 		nr_pages = ret;
@@ -1090,6 +1090,7 @@ static int __init pvr2fb_init(void)
 		printk(KERN_ERR "Failed to allocate memory for fb_info\n");
 		return -ENOMEM;
 	}
+
 
 	currentpar = fb_info->par;
 

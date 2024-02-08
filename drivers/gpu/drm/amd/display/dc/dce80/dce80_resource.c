@@ -71,6 +71,7 @@
 #define mmDP6_DP_DPHY_INTERNAL_CTRL                     0x4EDE
 #endif
 
+
 #ifndef mmBIOS_SCRATCH_2
 	#define mmBIOS_SCRATCH_2 0x05CB
 	#define mmBIOS_SCRATCH_6 0x05CF
@@ -86,6 +87,7 @@
 	#define mmDP5_DP_DPHY_FAST_TRAINING                     0x4BCE
 	#define mmDP6_DP_DPHY_FAST_TRAINING                     0x4ECE
 #endif
+
 
 #ifndef mmHPD_DC_HPD_CONTROL
 	#define mmHPD_DC_HPD_CONTROL                            0x189A
@@ -147,6 +149,7 @@ static const struct dce110_timing_generator_offsets dce80_tg_offsets[] = {
 /* set register offset with instance */
 #define SRI(reg_name, block, id)\
 	.reg_name = mm ## block ## id ## _ ## reg_name
+
 
 static const struct dce_disp_clk_registers disp_clk_regs = {
 		CLK_COMMON_REG_LIST_DCE_BASE()
@@ -320,6 +323,7 @@ static const struct dce_aduio_mask audio_mask = {
 [id] = {\
 	CS_COMMON_REG_LIST_DCE_80(id),\
 }
+
 
 static const struct dce110_clk_src_regs clk_src_regs[] = {
 	clk_src_regs(0),
@@ -780,6 +784,7 @@ static bool dce80_construct(
 	pool->base.res_cap = &res_cap;
 	pool->base.funcs = &dce80_res_pool_funcs;
 
+
 	/*************************************************
 	 *  Resource + asic cap harcoding                *
 	 *************************************************/
@@ -843,6 +848,7 @@ static bool dce80_construct(
 		BREAK_TO_DEBUGGER();
 		goto res_create_fail;
 	}
+
 
 	if (dm_pp_get_static_clocks(ctx, &static_clk_info))
 		pool->base.display_clock->max_clks_state =
@@ -943,6 +949,7 @@ static bool dce81_construct(
 	pool->base.res_cap = &res_cap_81;
 	pool->base.funcs = &dce80_res_pool_funcs;
 
+
 	/*************************************************
 	 *  Resource + asic cap harcoding                *
 	 *************************************************/
@@ -1006,6 +1013,7 @@ static bool dce81_construct(
 		BREAK_TO_DEBUGGER();
 		goto res_create_fail;
 	}
+
 
 	if (dm_pp_get_static_clocks(ctx, &static_clk_info))
 		pool->base.display_clock->max_clks_state =
@@ -1106,6 +1114,7 @@ static bool dce83_construct(
 	pool->base.res_cap = &res_cap_83;
 	pool->base.funcs = &dce80_res_pool_funcs;
 
+
 	/*************************************************
 	 *  Resource + asic cap harcoding                *
 	 *************************************************/
@@ -1165,6 +1174,7 @@ static bool dce83_construct(
 		BREAK_TO_DEBUGGER();
 		goto res_create_fail;
 	}
+
 
 	if (dm_pp_get_static_clocks(ctx, &static_clk_info))
 		pool->base.display_clock->max_clks_state =

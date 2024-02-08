@@ -80,6 +80,7 @@ struct dm_comressor_info {
 };
 #endif
 
+
 struct amdgpu_display_manager {
 	struct dal *dal;
 	struct dc *dc;

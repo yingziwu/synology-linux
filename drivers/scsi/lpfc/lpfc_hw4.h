@@ -1993,6 +1993,7 @@ struct lpfc_mbx_init_vfi {
 };
 #define MBX_VFI_IN_USE			0x9F02
 
+
 struct lpfc_mbx_reg_vfi {
 	uint32_t word1;
 #define lpfc_reg_vfi_upd_SHIFT		29
@@ -2494,6 +2495,7 @@ struct lpfc_mbx_memory_dump_type3 {
 #define SFP_WAVELENGTH_LC1310	1310
 #define SFP_WAVELENGTH_LL1550	1550
 
+
 /*
  *  * SFF-8472 TABLE 3.4
  *   */
@@ -2580,6 +2582,7 @@ struct lpfc_mbx_memory_dump_type3 {
 #define SSF_A2_VENDOR_SPECIFIC		120
 #define SSF_USER_EEPROM			128
 #define SSF_VENDOR_CONTROL		148
+
 
 /*
  * Tranceiver codes Fibre Channel SFF-8472
@@ -3177,7 +3180,7 @@ struct lpfc_mbx_get_port_name {
 #define MB_CEQ_STATUS_QUEUE_FLUSHING		0x4
 #define MB_CQE_STATUS_DMA_FAILED		0x5
 
-#define LPFC_MBX_WR_CONFIG_MAX_BDE		8
+#define LPFC_MBX_WR_CONFIG_MAX_BDE		1
 struct lpfc_mbx_wr_object {
 	struct mbox_header header;
 	union {
@@ -3869,6 +3872,7 @@ struct fcp_icmnd64_wqe {
 	struct wqe_common wqe_com;     /* words 6-11 */
 	uint32_t rsvd_12_15[4];        /* word 12-15 */
 };
+
 
 union lpfc_wqe {
 	uint32_t words[16];

@@ -25,6 +25,7 @@
  *					if no match found.
  */
 
+
 #include <asm/uaccess.h>
 #include <linux/bitops.h>
 #include <linux/capability.h>
@@ -913,6 +914,7 @@ static int inet_abc_len(__be32 addr)
 	return rc;
 }
 
+
 int devinet_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 {
 	struct ifreq ifr;
@@ -1356,7 +1358,7 @@ skip:
 
 static bool inetdev_valid_mtu(unsigned int mtu)
 {
-	return mtu >= 68;
+	return mtu >= IPV4_MIN_MTU;
 }
 
 static void inetdev_send_gratuitous_arp(struct net_device *dev,

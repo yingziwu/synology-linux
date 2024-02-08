@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -29,6 +30,7 @@ disclaimer.
 #define   	TM_NODES_CREATE_H
 
 #include "tm_core_types.h"
+
 
 /***************************************************************************
  * Port Creation
@@ -144,6 +146,7 @@ int tm_create_port(tm_handle hndl, uint8_t port_index,
 					uint16_t num_of_a_nodes,
 					uint32_t num_of_queues);
 
+
 /** Configure Port's Drop per Cos and download its parameters to HW.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -162,6 +165,7 @@ int tm_create_port(tm_handle hndl, uint8_t port_index,
  */
 int tm_config_port_drop_per_cos(tm_handle hndl, uint8_t port_index,
 				struct tm_port_drop_per_cos *params);
+
 
 /***************************************************************************
  * Queue Creation
@@ -226,6 +230,7 @@ int tm_create_queue_to_port(tm_handle hndl, uint8_t port_index,
 							uint32_t *b_node_index,
 							uint32_t *c_node_index);
 
+
 /** Create transparent path from Queue to Port.
  *
  *  @note This API introduces 'transparent' concept to TM nodes
@@ -268,6 +273,7 @@ int tm_create_queue_to_port(tm_handle hndl, uint8_t port_index,
 int tm_create_trans_queue_to_port(tm_handle hndl, uint8_t port_index,
 								struct tm_queue_params *q_params,
 								uint32_t *queue_index);
+
 
 /** Create path from Queue to C-node.
  *
@@ -315,6 +321,7 @@ int tm_create_queue_to_c_node(tm_handle hndl, uint32_t c_node_index,
 							uint32_t *a_node_index,
 							uint32_t *b_node_index);
 
+
 /** Create path from Queue to B-node.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -351,6 +358,7 @@ int tm_create_queue_to_b_node(tm_handle hndl, uint32_t b_node_index,
 							uint32_t *queue_index,
 							uint32_t *a_node_index);
 
+
 /** Create path from Queue to A-node.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -378,6 +386,7 @@ int tm_create_queue_to_b_node(tm_handle hndl, uint32_t b_node_index,
 int tm_create_queue_to_a_node(tm_handle hndl, uint32_t a_node_index,
 							struct tm_queue_params *q_params,
 							uint32_t *queue_index);
+
 
 /***************************************************************************
  * A-node Creation
@@ -431,6 +440,7 @@ int tm_create_a_node_to_port(tm_handle hndl, uint8_t port_index,
 							uint32_t *b_node_index,
 							uint32_t *c_node_index);
 
+
 /** Create path from A-node to C-node.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -469,6 +479,7 @@ int tm_create_a_node_to_c_node(tm_handle hndl, uint32_t c_node_index,
 								uint32_t *a_node_index,
 								uint32_t *b_node_index);
 
+
 /** Create path from A-node to B-node.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -498,6 +509,7 @@ int tm_create_a_node_to_c_node(tm_handle hndl, uint32_t c_node_index,
 int tm_create_a_node_to_b_node(tm_handle hndl, uint32_t b_node_index,
 								struct tm_a_node_params *a_params,
 								uint32_t *a_node_index);
+
 
 /***************************************************************************
  * B-node Creation
@@ -541,6 +553,7 @@ int tm_create_b_node_to_port(tm_handle hndl, uint8_t port_index,
 							uint32_t *b_node_index,
 							uint32_t *c_node_index);
 
+
 /** Create path from B-node to C-node.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -570,6 +583,7 @@ int tm_create_b_node_to_port(tm_handle hndl, uint8_t port_index,
 int tm_create_b_node_to_c_node(tm_handle hndl, uint32_t c_node_index,
 								struct tm_b_node_params *b_params,
 								uint32_t *b_node_index);
+
 
 /***************************************************************************
  * C-node Creation
@@ -606,4 +620,6 @@ int tm_create_c_node_to_port(tm_handle hndl, uint8_t port_index,
 							struct tm_c_node_params *c_params,
 							uint32_t *c_node_index);
 
+
 #endif 	 /* TM_NODES_CREATE_H */
+

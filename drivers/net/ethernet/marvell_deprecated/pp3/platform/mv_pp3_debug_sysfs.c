@@ -30,6 +30,7 @@
 #include "net_complex/mv_net_complex_a39x.h"
 #include "mv_pp3.h"
 
+
 #define PP3_DEBUG_ARRAY_SIZE	512
 
 static ssize_t pp3_debug_help(char *b)
@@ -250,11 +251,13 @@ int mv_pp3_debug_sysfs_init(struct kobject *pp3_kobj)
 	return err;
 }
 
+
 int mv_pp3_debug_sysfs_exit(struct kobject *pp3_kobj)
 {
 	sysfs_remove_group(pp3_kobj, &pp3_debug_group);
 
 	return 0;
 }
+
 
 #endif /* MY_DEF_HERE */

@@ -49,6 +49,7 @@ struct vega10_temperature {
 #define FDO_PWM_MODE_STATIC  1
 #define FDO_PWM_MODE_STATIC_RPM 5
 
+
 extern int vega10_thermal_get_temperature(struct pp_hwmgr *hwmgr);
 extern int vega10_thermal_stop_thermal_controller(struct pp_hwmgr *hwmgr);
 extern int vega10_fan_ctrl_get_fan_speed_info(struct pp_hwmgr *hwmgr,
@@ -75,3 +76,4 @@ extern int vega10_start_thermal_controller(struct pp_hwmgr *hwmgr,
 extern uint32_t smu7_get_xclk(struct pp_hwmgr *hwmgr);
 
 #endif
+

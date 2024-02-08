@@ -39,6 +39,7 @@
 
 #include "timing_generator.h"
 
+
 #define NUMBER_OF_FRAME_TO_WAIT_ON_TRIGGERED_RESET 10
 
 #define MAX_H_TOTAL (CRTC_H_TOTAL__CRTC_H_TOTAL_MASK + 1)
@@ -53,6 +54,7 @@
  *
  * So we can create dce110 timing generator to use it.
  */
+
 
 /*
 * apply_front_porch_workaround
@@ -1262,6 +1264,7 @@ void dce110_timing_generator_setup_global_swap_lock(
 			    DCIO_GSL0_GLOBAL_UNLOCK_SEL);
 
 	dm_write_reg(tg->ctx, CRTC_REG(mmDCIO_GSL0_CNTL), value);
+
 
 	{
 		uint32_t value_crtc_vtotal;

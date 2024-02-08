@@ -24,6 +24,7 @@
 #ifndef _SMU7_SMUMANAGER_H
 #define _SMU7_SMUMANAGER_H
 
+
 #include <pp_endian.h>
 
 #define SMC_RAM_END 0x40000
@@ -57,6 +58,7 @@ struct smu7_smumgr {
 	uint32_t                             acpi_optimization;
 	struct smu7_avfs                     avfs;
 };
+
 
 int smu7_copy_bytes_from_smc(struct pp_hwmgr *hwmgr, uint32_t smc_start_address,
 				uint32_t *dest, uint32_t byte_count, uint32_t limit);

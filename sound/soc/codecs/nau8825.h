@@ -114,7 +114,8 @@
 #define NAU8825_FLL_INTEGER_MASK		(0x3ff << 0)
 
 /* FLL4 (0x07) */
-#define NAU8825_FLL_REF_DIV_MASK		(0x3 << 10)
+#define NAU8825_FLL_REF_DIV_SFT	10
+#define NAU8825_FLL_REF_DIV_MASK	(0x3 << NAU8825_FLL_REF_DIV_SFT)
 
 /* FLL5 (0x08) */
 #define NAU8825_FLL_FILTER_SW_MASK		(0x1 << 14)
@@ -301,6 +302,7 @@
 #define NAU8825_POWER_DOWN_DACL	(1 << 8)
 #define NAU8825_CHANRGE_PUMP_EN	(1 << 5)
 
+
 /* System Clock Source */
 enum {
 	NAU8825_CLK_MCLK = 0,
@@ -335,5 +337,6 @@ struct nau8825 {
 
 int nau8825_enable_jack_detect(struct snd_soc_codec *codec,
 				struct snd_soc_jack *jack);
+
 
 #endif  /* __NAU8825_H__ */

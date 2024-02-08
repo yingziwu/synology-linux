@@ -24,6 +24,7 @@
 
 #include "puwrap.h"
 
+
 #ifdef CONFIG_RTK_RESERVE_MEMORY
 #define USE_ION_ALLOCATOR
 #ifdef USE_ION_ALLOCATOR
@@ -60,6 +61,7 @@ static rtkdrv_buffer_t s_memory = {0};
 unsigned long pll_phy_register = 0;
 unsigned long pll_virt_register = 0;
 unsigned long pll_size_register = 0;
+
 
 #define PU_PLATFORM_DEVICE_NAME "rtk_puwrap"
 
@@ -298,7 +300,9 @@ static int pu_probe(struct platform_device *pdev)
     printk(KERN_INFO "[PUWRAP] success to probe pu wrapper device\n");
 #endif /* endif CONFIG_RTK_RESERVE_MEMORY */
 
+
     return 0;
+
 
 #ifdef CONFIG_RTK_RESERVE_MEMORY
 #ifndef USE_ION_ALLOCATOR
@@ -388,6 +392,7 @@ static void __exit pu_exit(void)
     //platform_driver_unregister(&pu_driver);
     return;
 }
+
 
 static const struct of_device_id rtk_pu_dt_match[] = {
     { .compatible = "Realtek,rtk1295-pu_pll" },

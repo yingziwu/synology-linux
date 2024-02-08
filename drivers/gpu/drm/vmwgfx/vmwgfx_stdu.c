@@ -31,12 +31,15 @@
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
 
+
 #define vmw_crtc_to_stdu(x) \
 	container_of(x, struct vmw_screen_target_display_unit, base.crtc)
 #define vmw_encoder_to_stdu(x) \
 	container_of(x, struct vmw_screen_target_display_unit, base.encoder)
 #define vmw_connector_to_stdu(x) \
 	container_of(x, struct vmw_screen_target_display_unit, base.connector)
+
+
 
 enum stdu_content_type {
 	SAME_AS_DISPLAY = 0,
@@ -89,6 +92,7 @@ struct vmw_stdu_surface_copy {
 	SVGA3dCmdSurfaceCopy body;
 };
 
+
 /**
  * struct vmw_screen_target_display_unit
  *
@@ -114,11 +118,16 @@ struct vmw_screen_target_display_unit {
 	unsigned int cpp;
 };
 
+
+
 static void vmw_stdu_destroy(struct vmw_screen_target_display_unit *stdu);
+
+
 
 /******************************************************************************
  * Screen Target Display Unit CRTC Functions
  *****************************************************************************/
+
 
 /**
  * vmw_stdu_crtc_destroy - cleans up the STDU
@@ -189,6 +198,8 @@ static int vmw_stdu_define_st(struct vmw_private *dev_priv,
 	return 0;
 }
 
+
+
 /**
  * vmw_stdu_bind_st - Binds a surface to a Screen Target
  *
@@ -208,6 +219,7 @@ static int vmw_stdu_bind_st(struct vmw_private *dev_priv,
 		SVGA3dCmdHeader header;
 		SVGA3dCmdBindGBScreenTarget body;
 	} *cmd;
+
 
 	if (!stdu->defined) {
 		DRM_ERROR("No screen target defined\n");
@@ -301,6 +313,8 @@ static int vmw_stdu_update_st(struct vmw_private *dev_priv,
 	return 0;
 }
 
+
+
 /**
  * vmw_stdu_destroy_st - Destroy a Screen Target
  *
@@ -316,6 +330,7 @@ static int vmw_stdu_destroy_st(struct vmw_private *dev_priv,
 		SVGA3dCmdHeader header;
 		SVGA3dCmdDestroyGBScreenTarget body;
 	} *cmd;
+
 
 	/* Nothing to do if not successfully defined */
 	if (unlikely(!stdu->defined))
@@ -347,6 +362,7 @@ static int vmw_stdu_destroy_st(struct vmw_private *dev_priv,
 	return ret;
 }
 
+
 /**
  * vmw_stdu_crtc_mode_set_nofb - Updates screen target size
  *
@@ -360,6 +376,7 @@ static void vmw_stdu_crtc_mode_set_nofb(struct drm_crtc *crtc)
 	struct vmw_private *dev_priv;
 	struct vmw_screen_target_display_unit *stdu;
 	int ret;
+
 
 	stdu     = vmw_crtc_to_stdu(crtc);
 	dev_priv = vmw_priv(crtc->dev);
@@ -389,9 +406,11 @@ static void vmw_stdu_crtc_mode_set_nofb(struct drm_crtc *crtc)
 			  crtc->x, crtc->y);
 }
 
+
 static void vmw_stdu_crtc_helper_prepare(struct drm_crtc *crtc)
 {
 }
+
 
 static void vmw_stdu_crtc_atomic_enable(struct drm_crtc *crtc,
 					struct drm_crtc_state *old_state)
@@ -400,6 +419,7 @@ static void vmw_stdu_crtc_atomic_enable(struct drm_crtc *crtc,
 	struct vmw_screen_target_display_unit *stdu;
 	struct vmw_framebuffer *vfb;
 	struct drm_framebuffer *fb;
+
 
 	stdu     = vmw_crtc_to_stdu(crtc);
 	dev_priv = vmw_priv(crtc->dev);
@@ -419,6 +439,7 @@ static void vmw_stdu_crtc_atomic_disable(struct drm_crtc *crtc,
 	struct vmw_private *dev_priv;
 	struct vmw_screen_target_display_unit *stdu;
 	int ret;
+
 
 	if (!crtc) {
 		DRM_ERROR("CRTC is NULL\n");
@@ -539,6 +560,7 @@ static int vmw_stdu_crtc_page_flip(struct drm_crtc *crtc,
 	return 0;
 }
 
+
 /**
  * vmw_stdu_dmabuf_clip - Callback to encode a suface DMA command cliprect
  *
@@ -624,6 +646,7 @@ static void vmw_stdu_dmabuf_fifo_commit(struct vmw_kms_dirty *dirty)
 	ddirty->right = ddirty->bottom = S32_MIN;
 }
 
+
 /**
  * vmw_stdu_dmabuf_cpu_clip - Callback to encode a CPU blit
  *
@@ -652,6 +675,7 @@ static void vmw_stdu_dmabuf_cpu_clip(struct vmw_kms_dirty *dirty)
 	ddirty->fb_left = min_t(s32, ddirty->fb_left, dirty->fb_x);
 	ddirty->fb_top  = min_t(s32, ddirty->fb_top, dirty->fb_y);
 }
+
 
 /**
  * vmw_stdu_dmabuf_cpu_commit - Callback to do a CPU blit from DMAbuf
@@ -700,6 +724,7 @@ static void vmw_stdu_dmabuf_cpu_commit(struct vmw_kms_dirty *dirty)
 	dst = ttm_kmap_obj_virtual(&guest_map, &not_used);
 	dst += ddirty->fb_top * dst_pitch + ddirty->fb_left * stdu->cpp;
 
+
 	/* Figure out the real direction */
 	if (ddirty->transfer == SVGA3D_WRITE_HOST_VRAM) {
 		u8 *tmp;
@@ -738,6 +763,7 @@ static void vmw_stdu_dmabuf_cpu_commit(struct vmw_kms_dirty *dirty)
 			(const struct drm_clip_rect *) &region, 1, 1);
 		if (ret)
 			goto out_cleanup;
+
 
 		dev_priv = vmw_priv(stdu->base.crtc.dev);
 		cmd = vmw_fifo_reserve(dev_priv, sizeof(*cmd));
@@ -988,6 +1014,7 @@ out_finish:
 	return ret;
 }
 
+
 /*
  *  Screen Target CRTC dispatch table
  */
@@ -1000,6 +1027,8 @@ static const struct drm_crtc_funcs vmw_stdu_crtc_funcs = {
 	.set_config = vmw_kms_set_config,
 	.page_flip = vmw_stdu_crtc_page_flip,
 };
+
+
 
 /******************************************************************************
  * Screen Target Display Unit Encoder Functions
@@ -1024,6 +1053,8 @@ static const struct drm_encoder_funcs vmw_stdu_encoder_funcs = {
 	.destroy = vmw_stdu_encoder_destroy,
 };
 
+
+
 /******************************************************************************
  * Screen Target Display Unit Connector Functions
  *****************************************************************************/
@@ -1043,6 +1074,8 @@ static void vmw_stdu_connector_destroy(struct drm_connector *connector)
 	vmw_stdu_destroy(vmw_connector_to_stdu(connector));
 }
 
+
+
 static const struct drm_connector_funcs vmw_stdu_connector_funcs = {
 	.dpms = vmw_du_connector_dpms,
 	.detect = vmw_du_connector_detect,
@@ -1056,14 +1089,19 @@ static const struct drm_connector_funcs vmw_stdu_connector_funcs = {
 	.atomic_get_property = vmw_du_connector_atomic_get_property,
 };
 
+
 static const struct
 drm_connector_helper_funcs vmw_stdu_connector_helper_funcs = {
 	.best_encoder = drm_atomic_helper_best_encoder,
 };
 
+
+
 /******************************************************************************
  * Screen Target Display Plane Functions
  *****************************************************************************/
+
+
 
 /**
  * vmw_stdu_primary_plane_cleanup_fb - Unpins the display surface
@@ -1092,6 +1130,8 @@ vmw_stdu_primary_plane_cleanup_fb(struct drm_plane *plane,
 	vps->content_fb_type = SAME_AS_DISPLAY;
 	vps->cpp = 0;
 }
+
+
 
 /**
  * vmw_stdu_primary_plane_prepare_fb - Readies the display surface
@@ -1266,6 +1306,8 @@ out_srf_unref:
 	return ret;
 }
 
+
+
 /**
  * vmw_stdu_primary_plane_atomic_update - formally switches STDU to new plane
  *
@@ -1318,6 +1360,7 @@ vmw_stdu_primary_plane_atomic_update(struct drm_plane *plane,
 		DRM_ERROR("Failed to update STDU.\n");
 }
 
+
 static const struct drm_plane_funcs vmw_stdu_plane_funcs = {
 	.update_plane = drm_atomic_helper_update_plane,
 	.disable_plane = drm_atomic_helper_disable_plane,
@@ -1335,6 +1378,7 @@ static const struct drm_plane_funcs vmw_stdu_cursor_funcs = {
 	.atomic_duplicate_state = vmw_du_plane_duplicate_state,
 	.atomic_destroy_state = vmw_du_plane_destroy_state,
 };
+
 
 /*
  * Atomic Helpers
@@ -1365,6 +1409,7 @@ static const struct drm_crtc_helper_funcs vmw_stdu_crtc_helper_funcs = {
 	.atomic_disable = vmw_stdu_crtc_atomic_disable,
 };
 
+
 /**
  * vmw_stdu_init - Sets up a Screen Target Display Unit
  *
@@ -1384,6 +1429,7 @@ static int vmw_stdu_init(struct vmw_private *dev_priv, unsigned unit)
 	struct drm_plane *primary, *cursor;
 	struct drm_crtc *crtc;
 	int    ret;
+
 
 	stdu = kzalloc(sizeof(*stdu), GFP_KERNEL);
 	if (!stdu)
@@ -1504,6 +1550,8 @@ err_free:
 	return ret;
 }
 
+
+
 /**
  *  vmw_stdu_destroy - Cleans up a vmw_screen_target_display_unit
  *
@@ -1516,6 +1564,8 @@ static void vmw_stdu_destroy(struct vmw_screen_target_display_unit *stdu)
 	vmw_du_cleanup(&stdu->base);
 	kfree(stdu);
 }
+
+
 
 /******************************************************************************
  * Screen Target Display KMS Functions
@@ -1540,6 +1590,7 @@ int vmw_kms_stdu_init_display(struct vmw_private *dev_priv)
 {
 	struct drm_device *dev = dev_priv->dev;
 	int i, ret;
+
 
 	/* Do nothing if Screen Target support is turned off */
 	if (!VMWGFX_ENABLE_SCREEN_TARGET_OTABLE)

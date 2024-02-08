@@ -60,6 +60,7 @@ enum intel_dpll_id {
 	 */
 	DPLL_ID_PCH_PLL_B = 1,
 
+
 	/**
 	 * @DPLL_ID_WRPLL1: HSW and BDW WRPLL1
 	 */
@@ -84,6 +85,7 @@ enum intel_dpll_id {
 	 * @DPLL_ID_LCPLL_2700: HSW and BDW 2.7 GHz LCPLL
 	 */
 	DPLL_ID_LCPLL_2700 = 5,
+
 
 	/**
 	 * @DPLL_ID_SKL_DPLL0: SKL and later DPLL0

@@ -116,6 +116,7 @@ void md_drv_init(struct device *dev)
 //	}
 }
 
+
 static int rtk_md_probe(struct platform_device *pdev)
 {
 	int ret;

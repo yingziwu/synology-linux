@@ -125,6 +125,11 @@
 #define MEI_DEV_ID_KBP        0xA2BA  /* Kaby Point */
 #define MEI_DEV_ID_KBP_2      0xA2BB  /* Kaby Point 2 */
 
+#define MEI_DEV_ID_LBG        0xA1BA  /* Lewisburg (SPT) */
+
+#define MEI_DEV_ID_BXT_M      0x1A9A  /* Broxton M */
+#define MEI_DEV_ID_APL_I      0x5A9A  /* Apollo Lake I */
+
 /*
  * MEI HW Section
  */
@@ -198,6 +203,7 @@ access to ME_CBD */
 #define ME_IS_HRA         0x00000002
 /* ME Interrupt Enable HRA - host read only access to ME_IE */
 #define ME_IE_HRA         0x00000001
+
 
 /* H_HPG_CSR register bits */
 #define H_HPG_CSR_PGIHEXR 0x00000001

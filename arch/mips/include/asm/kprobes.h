@@ -40,10 +40,12 @@ typedef union mips_instruction kprobe_opcode_t;
 
 #define flush_insn_slot(p)						\
 do {									\
-	flush_icache_range((unsigned long)p->addr,			\
+	if (p->addr)							\
+		flush_icache_range((unsigned long)p->addr,		\
 			   (unsigned long)p->addr +			\
 			   (MAX_INSN_SIZE * sizeof(kprobe_opcode_t)));	\
 } while (0)
+
 
 #define kretprobe_blacklist_size 0
 
@@ -71,6 +73,7 @@ struct prev_kprobe {
 	((((ADDR) + MAX_JPROBES_STACK_SIZE) > MAX_JPROBES_STACK_ADDR)	\
 		? MAX_JPROBES_STACK_ADDR - (ADDR)			\
 		: MAX_JPROBES_STACK_SIZE)
+
 
 #define SKIP_DELAYSLOT 0x0001
 

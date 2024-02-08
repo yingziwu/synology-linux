@@ -1020,6 +1020,7 @@ static unsigned long msc_win_to_user(void *data, void *src, size_t len)
 	return ret;
 }
 
+
 /*
  * file operations' callbacks
  */
@@ -1417,7 +1418,8 @@ nr_pages_store(struct device *dev, struct device_attribute *attr,
 		if (!end)
 			break;
 
-		len -= end - p;
+		/* consume the number and the following comma, hence +1 */
+		len -= end - p + 1;
 		p = end + 1;
 	} while (len);
 

@@ -1949,6 +1949,7 @@ err_free_vectors:
 	return ret;
 }
 
+
 /*
  * idt_deinit_ist() - deinitialize PCIe interrupt handler
  * @ndev:	IDT NTB hardware driver descriptor
@@ -2708,3 +2709,4 @@ static void __exit idt_pci_driver_exit(void)
 	debugfs_remove_recursive(dbgfs_topdir);
 }
 module_exit(idt_pci_driver_exit);
+

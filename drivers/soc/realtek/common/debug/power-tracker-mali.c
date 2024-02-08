@@ -63,6 +63,7 @@ static __init struct device_node *of_find_mali_node(void)
 	return NULL;
 }
 
+
 static int __init mali_pt_init(void)
 {
 	struct device_node *node;

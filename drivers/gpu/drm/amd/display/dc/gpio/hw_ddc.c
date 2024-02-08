@@ -32,6 +32,7 @@
 #include "reg_helper.h"
 #include "gpio_regs.h"
 
+
 #undef FN
 #define FN(reg_name, field_name) \
 	ddc->shifts->field_name, ddc->masks->field_name

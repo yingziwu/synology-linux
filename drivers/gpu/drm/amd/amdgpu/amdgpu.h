@@ -586,6 +586,7 @@ typedef enum _AMDGPU_DOORBELL64_ASSIGNMENT
 	 *  Compute related doorbells are allocated from 0x00 to 0x8a
 	 */
 
+
 	/* kernel scheduling */
 	AMDGPU_DOORBELL64_KIQ                     = 0x00,
 
@@ -669,6 +670,7 @@ struct amdgpu_flip_work {
 	struct dma_fence_cb		cb;
 	bool				async;
 };
+
 
 /*
  * CP & rings.
@@ -769,6 +771,7 @@ int amdgpu_ctx_wait_prev_fence(struct amdgpu_ctx *ctx, unsigned ring_id);
 
 void amdgpu_ctx_mgr_init(struct amdgpu_ctx_mgr *mgr);
 void amdgpu_ctx_mgr_fini(struct amdgpu_ctx_mgr *mgr);
+
 
 /*
  * file private structure
@@ -1225,10 +1228,12 @@ struct amdgpu_firmware {
  */
 void amdgpu_benchmark(struct amdgpu_device *adev, int test_number);
 
+
 /*
  * Testing
  */
 void amdgpu_test_moves(struct amdgpu_device *adev);
+
 
 /*
  * amdgpu smumgr functions
@@ -1398,6 +1403,7 @@ typedef void (*amdgpu_wreg_t)(struct amdgpu_device*, uint32_t, uint32_t);
 typedef uint32_t (*amdgpu_block_rreg_t)(struct amdgpu_device*, uint32_t, uint32_t);
 typedef void (*amdgpu_block_wreg_t)(struct amdgpu_device*, uint32_t, uint32_t, uint32_t);
 
+
 /*
  * amdgpu nbio functions
  *
@@ -1445,6 +1451,7 @@ struct amdgpu_nbio_funcs {
 	void (*init_registers)(struct amdgpu_device *adev);
 	void (*detect_hw_virt)(struct amdgpu_device *adev);
 };
+
 
 /* Define the HW IP blocks will be used in driver , add more if necessary */
 enum amd_hw_ip_block_type {

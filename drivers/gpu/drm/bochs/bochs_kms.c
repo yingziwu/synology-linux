@@ -178,6 +178,7 @@ static void bochs_encoder_init(struct drm_device *dev)
 	drm_encoder_helper_add(encoder, &bochs_encoder_helper_funcs);
 }
 
+
 static int bochs_connector_get_modes(struct drm_connector *connector)
 {
 	int count;
@@ -239,6 +240,7 @@ static void bochs_connector_init(struct drm_device *dev)
 				 &bochs_connector_connector_helper_funcs);
 	drm_connector_register(connector);
 }
+
 
 int bochs_kms_init(struct bochs_device *bochs)
 {

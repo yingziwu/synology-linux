@@ -17,6 +17,7 @@
 #ifndef __mv_pp3_fw_msg_h__
 #define __mv_pp3_fw_msg_h__
 
+
 #include "common/mv_sw_if.h"
 #include "platform/mv_pp3.h"
 #include "vport/mv_pp3_pool.h"
@@ -67,3 +68,4 @@ void pp3_fw_bmpool_stat_print(struct mv_pp3_fw_bm_pool_stat *stat);
 void pp3_fw_msg_stat_print(struct mv_pp3_fw_msg_chan_stat *stat);
 
 #endif /* __mv_pp3_fw_msg_h__ */
+

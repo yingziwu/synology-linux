@@ -230,6 +230,7 @@ void psb_intel_opregion_enable_asle(struct drm_device *dev)
 #define ACPI_EV_LID            (1<<1)
 #define ACPI_EV_DOCK           (1<<2)
 
+
 static int psb_intel_opregion_video_event(struct notifier_block *nb,
 					  unsigned long val, void *data)
 {
@@ -350,3 +351,4 @@ err_out:
 	iounmap(base);
 	return err;
 }
+

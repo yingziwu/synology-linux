@@ -54,6 +54,7 @@ static void rtk_rtc_check_rtcacr(struct device *dev)
     val = readl(rtk_rtc_base + REG_RTCACR);
     dev_info(dev, "rtk_rtc rtcacr = 0x%x", val);
 
+
     if ((val &0x80) == 0x80) {
         spin_unlock_irqrestore(&rtk_rtc_lock, flags);
         return ;
@@ -402,6 +403,7 @@ static int rtk_rtc_probe(struct platform_device *pdev)
 
         rtk_rtc_setalarm(&pdev->dev, &alrm);
 
+
     }
 
     {
@@ -410,6 +412,7 @@ static int rtk_rtc_probe(struct platform_device *pdev)
 
         dev_err(&pdev->dev,"alrm read as %04d.%02d.%02d %02d:%02d:%02d", 1900+alrm.time.tm_year, alrm.time.tm_mon, alrm.time.tm_mday,
                 alrm.time.tm_hour, alrm.time.tm_min, alrm.time.tm_sec);
+
 
     }
 #endif

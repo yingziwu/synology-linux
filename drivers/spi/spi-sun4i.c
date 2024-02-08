@@ -190,6 +190,7 @@ static int sun4i_spi_transfer_one(struct spi_master *master,
 	/* Clear pending interrupts */
 	sun4i_spi_write(sspi, SUN4I_INT_STA_REG, ~0);
 
+
 	reg = sun4i_spi_read(sspi, SUN4I_CTL_REG);
 
 	/* Reset FIFOs */
@@ -214,6 +215,7 @@ static int sun4i_spi_transfer_one(struct spi_master *master,
 		reg |= SUN4I_CTL_LMTF;
 	else
 		reg &= ~SUN4I_CTL_LMTF;
+
 
 	/*
 	 * If it's a TX only transfer, we don't want to fill the RX
@@ -456,7 +458,7 @@ err_free_master:
 
 static int sun4i_spi_remove(struct platform_device *pdev)
 {
-	pm_runtime_disable(&pdev->dev);
+	pm_runtime_force_suspend(&pdev->dev);
 
 	return 0;
 }

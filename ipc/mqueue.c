@@ -612,6 +612,7 @@ static struct ext_wait_queue *wq_get_first_waiter(
 	return list_entry(ptr, struct ext_wait_queue, list);
 }
 
+
 static inline void set_cookie(struct sk_buff *skb, char code)
 {
 	((char *)skb->data)[NOTIFY_COOKIE_LEN-1] = code;
@@ -1250,8 +1251,10 @@ retry:
 
 			timeo = MAX_SCHEDULE_TIMEOUT;
 			ret = netlink_attachskb(sock, nc, &timeo, NULL);
-			if (ret == 1)
+			if (ret == 1) {
+				sock = NULL;
 				goto retry;
+			}
 			if (ret) {
 				sock = NULL;
 				nc = NULL;

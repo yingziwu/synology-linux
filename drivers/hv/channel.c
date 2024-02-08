@@ -73,7 +73,6 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
 	void *in, *out;
 	unsigned long flags;
 	int ret, err = 0;
-	unsigned long t;
 	struct page *page;
 
 	spin_lock_irqsave(&newchannel->lock, flags);
@@ -126,6 +125,7 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
 		err = ret;
 		goto error0;
 	}
+
 
 	/* Establish the gpadl for the ring buffer */
 	newchannel->ringbuffer_gpadlhandle = 0;
@@ -182,11 +182,7 @@ int vmbus_open(struct vmbus_channel *newchannel, u32 send_ringbuffer_size,
 		goto error1;
 	}
 
-	t = wait_for_completion_timeout(&open_info->waitevent, 5*HZ);
-	if (t == 0) {
-		err = -ETIMEDOUT;
-		goto error1;
-	}
+	wait_for_completion(&open_info->waitevent);
 
 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
 	list_del(&open_info->msglistentry);
@@ -374,7 +370,7 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
 	struct vmbus_channel_gpadl_header *gpadlmsg;
 	struct vmbus_channel_gpadl_body *gpadl_body;
 	struct vmbus_channel_msginfo *msginfo = NULL;
-	struct vmbus_channel_msginfo *submsginfo;
+	struct vmbus_channel_msginfo *submsginfo, *tmp;
 	u32 msgcount;
 	struct list_head *curr;
 	u32 next_gpadl_handle;
@@ -394,6 +390,7 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
 	gpadlmsg->header.msgtype = CHANNELMSG_GPADL_HEADER;
 	gpadlmsg->child_relid = channel->offermsg.child_relid;
 	gpadlmsg->gpadl = next_gpadl_handle;
+
 
 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
 	list_add_tail(&msginfo->msglistentry,
@@ -434,6 +431,13 @@ cleanup:
 	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
 	list_del(&msginfo->msglistentry);
 	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
+
+	if (msgcount > 1) {
+		list_for_each_entry_safe(submsginfo, tmp, &msginfo->submsglist,
+			 msglistentry) {
+			kfree(submsginfo);
+		}
+	}
 
 	kfree(msginfo);
 	return ret;
@@ -612,6 +616,7 @@ int vmbus_sendpacket_ctl(struct vmbus_channel *channel, void *buffer,
 	bool signal = false;
 	int num_vecs = ((bufferlen != 0) ? 3 : 1);
 
+
 	/* Setup the descriptor */
 	desc.type = type; /* VmbusPacketTypeDataInBand; */
 	desc.flags = flags; /* VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED; */
@@ -707,6 +712,7 @@ int vmbus_sendpacket_pagebuffer_ctl(struct vmbus_channel *channel,
 
 	if (pagecount > MAX_PAGE_BUFFER_COUNT)
 		return -EINVAL;
+
 
 	/*
 	 * Adjust the size down since vmbus_channel_packet_page_buffer is the
@@ -862,6 +868,7 @@ int vmbus_sendpacket_multipagebuffer(struct vmbus_channel *channel,
 	packetlen = descsize + bufferlen;
 	packetlen_aligned = ALIGN(packetlen, sizeof(u64));
 
+
 	/* Setup the descriptor */
 	desc.type = VM_PKT_DATA_USING_GPA_DIRECT;
 	desc.flags = VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED;
@@ -917,6 +924,7 @@ int vmbus_recvpacket(struct vmbus_channel *channel, void *buffer,
 	*buffer_actual_len = 0;
 	*requestid = 0;
 
+
 	ret = hv_ringbuffer_peek(&channel->inbound, &desc,
 			     sizeof(struct vmpacket_descriptor));
 	if (ret != 0)
@@ -962,10 +970,12 @@ int vmbus_recvpacket_raw(struct vmbus_channel *channel, void *buffer,
 	*buffer_actual_len = 0;
 	*requestid = 0;
 
+
 	ret = hv_ringbuffer_peek(&channel->inbound, &desc,
 			     sizeof(struct vmpacket_descriptor));
 	if (ret != 0)
 		return 0;
+
 
 	packetlen = desc.len8 << 3;
 

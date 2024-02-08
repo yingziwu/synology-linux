@@ -119,6 +119,7 @@
 #define AXI_MON_MAX_CHANNELS		(12)
 #define AXI_MON_MAX_BUS_WIDTH		(48)
 
+
 /* Address comparator access types */
 enum axim_comp_type {
 	AXIM_COMP_ADDR,

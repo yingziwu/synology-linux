@@ -1325,6 +1325,7 @@ static int cx8800_initdev(struct pci_dev *pci_dev,
 		goto fail_core;
 	}
 
+
 	/* initialize driver struct */
 	spin_lock_init(&dev->slock);
 
@@ -1428,7 +1429,7 @@ static int cx8800_initdev(struct pci_dev *pci_dev,
 
 	/* initial device configuration */
 	mutex_lock(&core->lock);
-	cx88_set_tvnorm(core, core->tvnorm);
+	cx88_set_tvnorm(core, V4L2_STD_NTSC_M);
 	v4l2_ctrl_handler_setup(&core->video_hdl);
 	v4l2_ctrl_handler_setup(&core->audio_hdl);
 	cx88_video_mux(core, 0);

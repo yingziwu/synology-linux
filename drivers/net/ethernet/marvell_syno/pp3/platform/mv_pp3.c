@@ -179,6 +179,7 @@ int mv_pp3_nss_drain(struct mv_pp3 *priv)
 	for_each_possible_cpu(cpu)
 		mv_pp3_cpu_close(priv, cpu);
 
+
 	tm_close();
 	mv_pp3_drv_messenger_close();
 	mv_pp3_messenger_close();
@@ -1086,3 +1087,4 @@ module_exit(mv_pp3_cleanup_module);
 MODULE_DESCRIPTION("Marvell PPv3 Network Driver - www.marvell.com");
 MODULE_AUTHOR("Dmitri Epshtein <dima@marvell.com>");
 MODULE_LICENSE("GPL");
+

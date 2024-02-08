@@ -29,6 +29,7 @@
 #include "smu10_driver_if.h"
 #include "rv_ppsmc.h"
 
+
 #define RAVEN_MAX_HARDWARE_POWERLEVELS               8
 #define PHMRAVEN_DYNCLK_NUMBER_OF_TREND_COEFFICIENTS   15
 
@@ -116,6 +117,7 @@ struct pp_disable_nbpslo_flags {
 	};
 };
 
+
 enum rv_pstate_previous_action {
 	DO_NOTHING = 1,
 	FORCE_HIGH,
@@ -147,6 +149,7 @@ struct rv_power_state {
 
 #define RAVEN_NUM_NBPSTATES        4
 #define RAVEN_NUM_NBPMEMORYCLOCK   2
+
 
 struct rv_display_phy_info_entry {
 	uint8_t                   phy_present;
@@ -185,6 +188,7 @@ struct rv_clock_voltage_dependency_record {
 	uint32_t clk;
 	uint32_t vol;
 };
+
 
 struct rv_voltage_dependency_table {
 	uint32_t count;
@@ -233,6 +237,7 @@ struct rv_hwmgr {
 	bool disable_uvd_power_tune_feature;
 	bool enable_bapm_feature;
 	bool enable_tdc_limit_feature;
+
 
 	/* SMC SRAM Address of firmware header tables */
 	uint32_t sram_end;

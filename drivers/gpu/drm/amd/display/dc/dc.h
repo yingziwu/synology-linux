@@ -44,6 +44,7 @@
 #define MAX_STREAMS 6
 #define MAX_SINKS_PER_LINK 4
 
+
 /*******************************************************************************
  * Display Core Interfaces
  ******************************************************************************/
@@ -99,6 +100,7 @@ struct dc_static_screen_events {
 	bool overlay_update;
 };
 
+
 /* Surface update type is used by dc_update_surfaces_and_stream
  * The update type is determined at the very beginning of the function based
  * on parameters passed in and decides how much programming (or updating) is
@@ -136,6 +138,7 @@ struct dc;
 struct dc_plane_state;
 struct dc_state;
 
+
 struct dc_cap_funcs {
 	bool (*get_dcc_compression_cap)(const struct dc *dc,
 			const struct dc_dcc_surface_param *input,
@@ -143,6 +146,7 @@ struct dc_cap_funcs {
 };
 
 struct link_training_settings;
+
 
 /* Structure to hold configuration flags set by dm at dc creation. */
 struct dc_config {
@@ -545,6 +549,7 @@ enum dc_status dc_validate_global_state(
 		struct dc *dc,
 		struct dc_state *new_ctx);
 
+
 void dc_resource_state_construct(
 		const struct dc *dc,
 		struct dc_state *dst_ctx);
@@ -569,6 +574,7 @@ void dc_resource_state_destruct(struct dc_state *context);
  *   New streams are enabled with blank stream; no memory read.
  */
 bool dc_commit_state(struct dc *dc, struct dc_state *context);
+
 
 struct dc_state *dc_create_state(void);
 void dc_retain_state(struct dc_state *context);
@@ -617,6 +623,8 @@ struct dc_container_id {
 	// 2 byte product code -> ELD.ProductCode
 	unsigned short productCode;
 };
+
+
 
 /*
  * The sink structure contains EDID and other display device properties

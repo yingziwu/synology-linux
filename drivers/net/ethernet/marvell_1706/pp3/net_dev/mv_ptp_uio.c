@@ -48,6 +48,7 @@ int mv_pp3_ptp_tai_tod_uio_init(struct platform_device *shared_pdev)
 #include "gop/mv_tai_regs.h"
 #include "net_dev/mv_ptp_service.h"
 
+
 #define TS_NAME	"ts_tai_tod"
 #define TS_NAME_UIO	"ts_tai_tod_uio"
 
@@ -99,6 +100,7 @@ static const struct kernel_param_ops param_ops = {
 	.set = write_store_cmd,
 };
 module_param_cb(ts_tai_tod_uio, &param_ops, &ts_ptp_uio, 0644);
+
 
 static int ts_ptp_uio_probe(struct platform_device *pdev)
 {

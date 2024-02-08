@@ -23,6 +23,7 @@
 #include "br_private.h"
 #include "br_private_stp.h"
 
+
 /* Port id is composed of priority and port number.
  * NB: some bits of priority are dropped to
  *     make room for more ports.
@@ -176,6 +177,8 @@ static void br_stp_start(struct net_bridge *br)
 		br_debug(br, "using kernel STP\n");
 
 		/* To start timers on any ports left in blocking */
+		if (br->dev->flags & IFF_UP)
+			mod_timer(&br->hello_timer, jiffies + br->hello_time);
 		br_port_state_selection(br);
 	}
 

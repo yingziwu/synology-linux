@@ -21,6 +21,8 @@
 #ifndef _athub_1_0_OFFSET_HEADER
 #define _athub_1_0_OFFSET_HEADER
 
+
+
 // addressBlock: athub_atsdec
 // base address:	0x3080
 #define mmATC_ATS_CNTL	0x0000
@@ -185,6 +187,7 @@
 #define mmATC_ATS_VMID_SNAPSHOT_GFX_STAT_BASE_IDX	0
 #define mmATC_ATS_VMID_SNAPSHOT_MMHUB_STAT	0x0053
 #define mmATC_ATS_VMID_SNAPSHOT_MMHUB_STAT_BASE_IDX	0
+
 
 // addressBlock: athub_xpbdec
 // base address:	0x31f0
@@ -380,6 +383,7 @@
 #define mmXPB_CLG_MM_UNITID_MAPPING2_BASE_IDX	0
 #define mmXPB_CLG_MM_UNITID_MAPPING3	0x00bc
 #define mmXPB_CLG_MM_UNITID_MAPPING3_BASE_IDX	0
+
 
 // addressBlock: athub_rpbdec
 // base address:	0x33b0

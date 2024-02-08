@@ -198,6 +198,7 @@ int drm_mode_crtc_set_gamma_size(struct drm_crtc *crtc,
 		b_base[i] = i << 8;
 	}
 
+
 	return 0;
 }
 EXPORT_SYMBOL(drm_mode_crtc_set_gamma_size);

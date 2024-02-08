@@ -35,6 +35,7 @@ int aa_remount(struct aa_profile *profile, struct path *path,
 int aa_bind_mount(struct aa_profile *profile, struct path *path,
 		  const char *old_name, unsigned long flags);
 
+
 int aa_mount_change_type(struct aa_profile *profile, struct path *path,
 			 unsigned long flags);
 

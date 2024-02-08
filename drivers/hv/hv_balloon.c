@@ -41,6 +41,8 @@
  * Begin protocol definitions.
  */
 
+
+
 /*
  * Protocol versions. The low word is the minor version, the high word the major
  * version.
@@ -68,6 +70,8 @@ enum {
 
 	DYNMEM_PROTOCOL_VERSION_CURRENT = DYNMEM_PROTOCOL_VERSION_WIN10
 };
+
+
 
 /*
  * Message Types
@@ -97,6 +101,7 @@ enum dm_message_type {
 	DM_VERSION_1_MAX		= 12
 };
 
+
 /*
  * Structures defining the dynamic memory management
  * protocol.
@@ -109,6 +114,7 @@ union dm_version {
 	};
 	__u32 version;
 } __packed;
+
 
 union dm_caps {
 	struct {
@@ -142,6 +148,8 @@ union dm_mem_page_range {
 	__u64  page_range;
 } __packed;
 
+
+
 /*
  * The header for all dynamic memory messages:
  *
@@ -165,6 +173,7 @@ struct dm_message {
 	struct dm_header hdr;
 	__u8 data[]; /* enclosed message */
 } __packed;
+
 
 /*
  * Specific message types supporting the dynamic memory protocol.
@@ -262,6 +271,7 @@ struct dm_status {
 	__u32 io_diff;
 } __packed;
 
+
 /*
  * Message to ask the guest to allocate memory - balloon up message.
  * This message is sent from the host to the guest. The guest may not be
@@ -275,6 +285,7 @@ struct dm_balloon {
 	__u32 num_pages;
 	__u32 reservedz;
 } __packed;
+
 
 /*
  * Balloon response message; this message is sent from the guest
@@ -331,6 +342,7 @@ struct dm_unballoon_response {
 	struct dm_header hdr;
 } __packed;
 
+
 /*
  * Hot add request message. Message sent from the host to the guest.
  *
@@ -380,6 +392,7 @@ enum dm_info_type {
 	MAX_INFO_TYPE
 };
 
+
 /*
  * Header for the information message.
  */
@@ -417,15 +430,26 @@ struct dm_info_msg {
  * currently hot added. We hot add in multiples of 128M
  * chunks; it is possible that we may not be able to bring
  * online all the pages in the region. The range
- * covered_end_pfn defines the pages that can
+ * covered_start_pfn:covered_end_pfn defines the pages that can
  * be brough online.
  */
 
 struct hv_hotadd_state {
 	struct list_head list;
 	unsigned long start_pfn;
+	unsigned long covered_start_pfn;
 	unsigned long covered_end_pfn;
 	unsigned long ha_end_pfn;
+	unsigned long end_pfn;
+	/*
+	 * A list of gaps.
+	 */
+	struct list_head gap_list;
+};
+
+struct hv_hotadd_gap {
+	struct list_head list;
+	unsigned long start_pfn;
 	unsigned long end_pfn;
 };
 
@@ -474,6 +498,7 @@ enum hv_dm_state {
 	DM_HOT_ADD,
 	DM_INIT_ERROR
 };
+
 
 static __u8 recv_buffer[PAGE_SIZE];
 static __u8 *send_buffer;
@@ -581,17 +606,46 @@ static struct notifier_block hv_memory_nb = {
 	.priority = 0
 };
 
-static void hv_bring_pgs_online(unsigned long start_pfn, unsigned long size)
+/* Check if the particular page is backed and can be onlined and online it. */
+static void hv_page_online_one(struct hv_hotadd_state *has, struct page *pg)
+{
+	unsigned long cur_start_pgp;
+	unsigned long cur_end_pgp;
+	struct hv_hotadd_gap *gap;
+
+	cur_start_pgp = (unsigned long)pfn_to_page(has->covered_start_pfn);
+	cur_end_pgp = (unsigned long)pfn_to_page(has->covered_end_pfn);
+
+	/* The page is not backed. */
+	if (((unsigned long)pg < cur_start_pgp) ||
+	    ((unsigned long)pg >= cur_end_pgp))
+		return;
+
+	/* Check for gaps. */
+	list_for_each_entry(gap, &has->gap_list, list) {
+		cur_start_pgp = (unsigned long)
+			pfn_to_page(gap->start_pfn);
+		cur_end_pgp = (unsigned long)
+			pfn_to_page(gap->end_pfn);
+		if (((unsigned long)pg >= cur_start_pgp) &&
+		    ((unsigned long)pg < cur_end_pgp)) {
+			return;
+		}
+	}
+
+	/* This frame is currently backed; online the page. */
+	__online_page_set_limits(pg);
+	__online_page_increment_counters(pg);
+	__online_page_free(pg);
+}
+
+static void hv_bring_pgs_online(struct hv_hotadd_state *has,
+				unsigned long start_pfn, unsigned long size)
 {
 	int i;
 
-	for (i = 0; i < size; i++) {
-		struct page *pg;
-		pg = pfn_to_page(start_pfn + i);
-		__online_page_set_limits(pg);
-		__online_page_increment_counters(pg);
-		__online_page_free(pg);
-	}
+	for (i = 0; i < size; i++)
+		hv_page_online_one(has, pfn_to_page(start_pfn + i));
 }
 
 static void hv_mem_hot_add(unsigned long start, unsigned long size,
@@ -667,26 +721,25 @@ static void hv_online_page(struct page *pg)
 
 	list_for_each(cur, &dm_device.ha_region_list) {
 		has = list_entry(cur, struct hv_hotadd_state, list);
-		cur_start_pgp = (unsigned long)pfn_to_page(has->start_pfn);
-		cur_end_pgp = (unsigned long)pfn_to_page(has->covered_end_pfn);
+		cur_start_pgp = (unsigned long)
+			pfn_to_page(has->start_pfn);
+		cur_end_pgp = (unsigned long)pfn_to_page(has->end_pfn);
 
-		if (((unsigned long)pg >= cur_start_pgp) &&
-			((unsigned long)pg < cur_end_pgp)) {
-			/*
-			 * This frame is currently backed; online the
-			 * page.
-			 */
-			__online_page_set_limits(pg);
-			__online_page_increment_counters(pg);
-			__online_page_free(pg);
-		}
+		/* The page belongs to a different HAS. */
+		if (((unsigned long)pg < cur_start_pgp) ||
+		    ((unsigned long)pg >= cur_end_pgp))
+			continue;
+
+		hv_page_online_one(has, pg);
+		break;
 	}
 }
 
-static bool pfn_covered(unsigned long start_pfn, unsigned long pfn_cnt)
+static int pfn_covered(unsigned long start_pfn, unsigned long pfn_cnt)
 {
 	struct list_head *cur;
 	struct hv_hotadd_state *has;
+	struct hv_hotadd_gap *gap;
 	unsigned long residual, new_inc;
 
 	if (list_empty(&dm_device.ha_region_list))
@@ -701,6 +754,24 @@ static bool pfn_covered(unsigned long start_pfn, unsigned long pfn_cnt)
 		 */
 		if (start_pfn < has->start_pfn || start_pfn >= has->end_pfn)
 			continue;
+
+		/*
+		 * If the current start pfn is not where the covered_end
+		 * is, create a gap and update covered_end_pfn.
+		 */
+		if (has->covered_end_pfn != start_pfn) {
+			gap = kzalloc(sizeof(struct hv_hotadd_gap), GFP_ATOMIC);
+			if (!gap)
+				return -ENOMEM;
+
+			INIT_LIST_HEAD(&gap->list);
+			gap->start_pfn = has->covered_end_pfn;
+			gap->end_pfn = start_pfn;
+			list_add_tail(&gap->list, &has->gap_list);
+
+			has->covered_end_pfn = start_pfn;
+		}
+
 		/*
 		 * If the current hot add-request extends beyond
 		 * our current limit; extend it.
@@ -717,19 +788,10 @@ static bool pfn_covered(unsigned long start_pfn, unsigned long pfn_cnt)
 			has->end_pfn += new_inc;
 		}
 
-		/*
-		 * If the current start pfn is not where the covered_end
-		 * is, update it.
-		 */
-
-		if (has->covered_end_pfn != start_pfn)
-			has->covered_end_pfn = start_pfn;
-
-		return true;
-
+		return 1;
 	}
 
-	return false;
+	return 0;
 }
 
 static unsigned long handle_pg_range(unsigned long pg_start,
@@ -768,6 +830,8 @@ static unsigned long handle_pg_range(unsigned long pg_start,
 			if (pgs_ol > pfn_cnt)
 				pgs_ol = pfn_cnt;
 
+			has->covered_end_pfn +=  pgs_ol;
+			pfn_cnt -= pgs_ol;
 			/*
 			 * Check if the corresponding memory block is already
 			 * online by checking its last previously backed page.
@@ -776,10 +840,8 @@ static unsigned long handle_pg_range(unsigned long pg_start,
 			 */
 			if (start_pfn > has->start_pfn &&
 			    !PageReserved(pfn_to_page(start_pfn - 1)))
-				hv_bring_pgs_online(start_pfn, pgs_ol);
+				hv_bring_pgs_online(has, start_pfn, pgs_ol);
 
-			has->covered_end_pfn +=  pgs_ol;
-			pfn_cnt -= pgs_ol;
 		}
 
 		if ((has->ha_end_pfn < has->end_pfn) && (pfn_cnt > 0)) {
@@ -817,13 +879,19 @@ static unsigned long process_hot_add(unsigned long pg_start,
 					unsigned long rg_size)
 {
 	struct hv_hotadd_state *ha_region = NULL;
+	int covered;
 
 	if (pfn_cnt == 0)
 		return 0;
 
-	if (!dm_device.host_specified_ha_region)
-		if (pfn_covered(pg_start, pfn_cnt))
+	if (!dm_device.host_specified_ha_region) {
+		covered = pfn_covered(pg_start, pfn_cnt);
+		if (covered < 0)
+			return 0;
+
+		if (covered)
 			goto do_pg_range;
+	}
 
 	/*
 	 * If the host has specified a hot-add range; deal with it first.
@@ -835,10 +903,12 @@ static unsigned long process_hot_add(unsigned long pg_start,
 			return 0;
 
 		INIT_LIST_HEAD(&ha_region->list);
+		INIT_LIST_HEAD(&ha_region->gap_list);
 
 		list_add_tail(&ha_region->list, &dm_device.ha_region_list);
 		ha_region->start_pfn = rg_start;
 		ha_region->ha_end_pfn = rg_start;
+		ha_region->covered_start_pfn = pg_start;
 		ha_region->covered_end_pfn = pg_start;
 		ha_region->end_pfn = rg_start + rg_size;
 	}
@@ -1068,6 +1138,8 @@ static void free_balloon_pages(struct hv_dynmem_device *dm,
 	}
 }
 
+
+
 static unsigned int alloc_balloon_pages(struct hv_dynmem_device *dm,
 					unsigned int num_pages,
 					struct dm_balloon_response *bl_resp,
@@ -1116,6 +1188,8 @@ static unsigned int alloc_balloon_pages(struct hv_dynmem_device *dm,
 	return num_pages;
 }
 
+
+
 static void balloon_up(struct work_struct *dummy)
 {
 	unsigned int num_pages = dm_device.balloon_wrk.num_pages;
@@ -1152,6 +1226,7 @@ static void balloon_up(struct work_struct *dummy)
 		bl_resp->hdr.type = DM_BALLOON_RESPONSE;
 		bl_resp->hdr.size = sizeof(struct dm_balloon_response);
 		bl_resp->more_pages = 1;
+
 
 		num_pages -= num_ballooned;
 		num_ballooned = alloc_balloon_pages(&dm_device, num_pages,
@@ -1251,6 +1326,7 @@ static int dm_thread_func(void *dm_dev)
 
 	return 0;
 }
+
 
 static void version_resp(struct hv_dynmem_device *dm,
 			struct dm_version_response *vresp)
@@ -1560,6 +1636,7 @@ static int balloon_remove(struct hv_device *dev)
 	struct hv_dynmem_device *dm = hv_get_drvdata(dev);
 	struct list_head *cur, *tmp;
 	struct hv_hotadd_state *has;
+	struct hv_hotadd_gap *gap, *tmp_gap;
 
 	if (dm->num_pages_ballooned != 0)
 		pr_warn("Ballooned pages: %d\n", dm->num_pages_ballooned);
@@ -1576,6 +1653,10 @@ static int balloon_remove(struct hv_device *dev)
 #endif
 	list_for_each_safe(cur, tmp, &dm->ha_region_list) {
 		has = list_entry(cur, struct hv_hotadd_state, list);
+		list_for_each_entry_safe(gap, tmp_gap, &has->gap_list, list) {
+			list_del(&gap->list);
+			kfree(gap);
+		}
 		list_del(&has->list);
 		kfree(has);
 	}

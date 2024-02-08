@@ -9,4 +9,5 @@ struct udl_drm_connector {
 	struct edid *edid;
 };
 
+
 #endif //__UDL_CONNECTOR_H__

@@ -30,6 +30,7 @@
 #include "../include/grph_object_id.h"
 #include "dce110/dce110_timing_generator.h"
 
+
 void dce120_timing_generator_construct(
 	struct dce110_timing_generator *tg110,
 	struct dc_context *ctx,

@@ -364,6 +364,7 @@ void menu_finalize(struct menu *parent)
 			menu->parent = parent;
 			last_menu = menu;
 		}
+		expr_free(basedep);
 		if (last_menu) {
 			parent->list = parent->next;
 			parent->next = last_menu->next;
@@ -679,6 +680,7 @@ struct gstr get_relations_str(struct symbol **sym_arr, struct list_head *head)
 		str_append(&res, _("No matches found.\n"));
 	return res;
 }
+
 
 void menu_get_ext_help(struct menu *menu, struct gstr *help)
 {

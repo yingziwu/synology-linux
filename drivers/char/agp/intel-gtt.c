@@ -1391,6 +1391,7 @@ int intel_gmch_probe(struct pci_dev *bridge_pdev, struct pci_dev *gpu_pdev,
 	}
 #endif
 
+
 	/*
 	 * Can be called from the fake agp driver but also directly from
 	 * drm/i915.ko. Hence we need to check whether everything is set up

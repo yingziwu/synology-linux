@@ -126,6 +126,7 @@ struct gianfar_ptp_registers {
 #define PRSC_OCK_SHIFT        (0) /* Output clock division/prescale factor. */
 #define PRSC_OCK_MASK         (0xffff)
 
+
 #define DRIVER		"gianfar_ptp"
 #define DEFAULT_CKSEL	1
 #define N_EXT_TS	2
@@ -313,10 +314,9 @@ static int ptp_gianfar_adjtime(struct ptp_clock_info *ptp, s64 delta)
 	now = tmr_cnt_read(etsects);
 	now += delta;
 	tmr_cnt_write(etsects, now);
+	set_fipers(etsects);
 
 	spin_unlock_irqrestore(&etsects->lock, flags);
-
-	set_fipers(etsects);
 
 	return 0;
 }

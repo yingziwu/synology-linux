@@ -385,6 +385,7 @@ static int i8042_aux_write(struct serio *serio, unsigned char c)
 					I8042_CMD_MUX_SEND + port->mux);
 }
 
+
 /*
  * i8042_aux_close attempts to clear AUX or KBD port state by disabling
  * and then re-enabling it.
@@ -433,8 +434,10 @@ static int i8042_start(struct serio *serio)
 {
 	struct i8042_port *port = serio->port_data;
 
+	spin_lock_irq(&i8042_lock);
 	port->exists = true;
-	mb();
+	spin_unlock_irq(&i8042_lock);
+
 	return 0;
 }
 
@@ -447,16 +450,20 @@ static void i8042_stop(struct serio *serio)
 {
 	struct i8042_port *port = serio->port_data;
 
+	spin_lock_irq(&i8042_lock);
 	port->exists = false;
+	port->serio = NULL;
+	spin_unlock_irq(&i8042_lock);
 
 	/*
+	 * We need to make sure that interrupt handler finishes using
+	 * our serio port before we return from this function.
 	 * We synchronize with both AUX and KBD IRQs because there is
 	 * a (very unlikely) chance that AUX IRQ is raised for KBD port
 	 * and vice versa.
 	 */
 	synchronize_irq(I8042_AUX_IRQ);
 	synchronize_irq(I8042_KBD_IRQ);
-	port->serio = NULL;
 }
 
 /*
@@ -573,7 +580,7 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
 
 	spin_unlock_irqrestore(&i8042_lock, flags);
 
-	if (likely(port->exists && !filtered))
+	if (likely(serio && !filtered))
 		serio_interrupt(serio, data, dfl);
 
  out:
@@ -1043,6 +1050,7 @@ static int i8042_controller_init(void)
 	return 0;
 }
 
+
 /*
  * Reset the controller and reset CRT to the original value set by BIOS.
  */
@@ -1084,6 +1092,7 @@ static void i8042_controller_reset(bool s2r_wants_reset)
 	if (i8042_command(&i8042_initial_ctr, I8042_CMD_CTL_WCTR))
 		pr_warn("Can't restore CTR\n");
 }
+
 
 /*
  * i8042_panic_blink() will turn the keyboard LEDs on or off and is called
@@ -1171,6 +1180,7 @@ static int i8042_controller_resume(bool s2r_wants_reset)
 			return -EIO;
 		}
 	}
+
 
 #ifdef CONFIG_X86
 	if (i8042_dritek)

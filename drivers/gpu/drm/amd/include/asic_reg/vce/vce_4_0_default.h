@@ -21,6 +21,7 @@
 #ifndef _vce_4_0_DEFAULT_HEADER
 #define _vce_4_0_DEFAULT_HEADER
 
+
 // addressBlock: vce0_vce_dec
 #define mmVCE_STATUS_DEFAULT                                                     0x00000000
 #define mmVCE_VCPU_CNTL_DEFAULT                                                  0x00200000
@@ -65,10 +66,12 @@
 #define mmVCE_SYS_INT_ACK_DEFAULT                                                0x00000000
 #define mmVCE_SYS_INT_STATUS_DEFAULT                                             0x00000000
 
+
 // addressBlock: vce0_ctl_dec
 #define mmVCE_UENC_CLOCK_GATING_DEFAULT                                          0xffc00040
 #define mmVCE_UENC_REG_CLOCK_GATING_DEFAULT                                      0x000007ff
 #define mmVCE_UENC_CLOCK_GATING_2_DEFAULT                                        0x00010000
+
 
 // addressBlock: vce0_vce_sclk_dec
 #define mmVCE_LMI_VCPU_CACHE_40BIT_BAR_DEFAULT                                   0x00000000
@@ -98,6 +101,7 @@
 #define mmVCE_LMI_VCPU_CACHE_40BIT_BAR6_DEFAULT                                  0x00000000
 #define mmVCE_LMI_VCPU_CACHE_40BIT_BAR7_DEFAULT                                  0x00000000
 
+
 // addressBlock: vce0_mmsch_dec
 #define mmVCE_MMSCH_VF_VMID_DEFAULT                                              0x00000000
 #define mmVCE_MMSCH_VF_CTX_ADDR_LO_DEFAULT                                       0x00000000
@@ -109,7 +113,10 @@
 #define mmVCE_MMSCH_VF_MAILBOX_HOST_DEFAULT                                      0x00000000
 #define mmVCE_MMSCH_VF_MAILBOX_RESP_DEFAULT                                      0x00000000
 
+
 // addressBlock: vce0_vce_rb_pg_dec
 #define mmVCE_HW_VERSION_DEFAULT                                                 0x00000000
+
+
 
 #endif

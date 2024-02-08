@@ -418,8 +418,9 @@ static struct vlsi_ring *vlsi_alloc_ring(struct pci_dev *pdev, struct ring_descr
 		memset(rd, 0, sizeof(*rd));
 		rd->hw = hwmap + i;
 		rd->buf = kmalloc(len, GFP_KERNEL|GFP_DMA);
-		if (rd->buf == NULL ||
-		    !(busaddr = pci_map_single(pdev, rd->buf, len, dir))) {
+		if (rd->buf)
+			busaddr = pci_map_single(pdev, rd->buf, len, dir);
+		if (rd->buf == NULL || pci_dma_mapping_error(pdev, busaddr)) {
 			if (rd->buf) {
 				net_err_ratelimited("%s: failed to create PCI-MAP for %p\n",
 						    __func__, rd->buf);
@@ -430,8 +431,7 @@ static struct vlsi_ring *vlsi_alloc_ring(struct pci_dev *pdev, struct ring_descr
 				rd = r->rd + j;
 				busaddr = rd_get_addr(rd);
 				rd_set_addr_status(rd, 0, 0);
-				if (busaddr)
-					pci_unmap_single(pdev, busaddr, len, dir);
+				pci_unmap_single(pdev, busaddr, len, dir);
 				kfree(rd->buf);
 				rd->buf = NULL;
 			}
@@ -1354,6 +1354,7 @@ static void vlsi_tx_timeout(struct net_device *ndev)
 {
 	vlsi_irda_dev_t *idev = netdev_priv(ndev);
 
+
 	vlsi_reg_debug(ndev->base_addr, __func__);
 	vlsi_ring_debug(idev->tx_ring);
 
@@ -1707,6 +1708,7 @@ static void vlsi_irda_remove(struct pci_dev *pdev)
  * operations on our own (particularly reflecting the pdev->current_state)
  * otherwise we might get cheated by pci-pm.
  */
+
 
 static int vlsi_irda_suspend(struct pci_dev *pdev, pm_message_t state)
 {

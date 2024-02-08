@@ -55,6 +55,7 @@ static int make_resync_request(struct drbd_device *, int);
  *
  */
 
+
 /* About the global_state_lock
    Each state transition on an device holds a read lock. In case we have
    to evaluate the resync after dependencies, we grab a write lock, because
@@ -255,8 +256,8 @@ void drbd_request_endio(struct bio *bio)
 	} else
 		what = COMPLETED_OK;
 
-	bio_put(req->private_bio);
 	req->private_bio = ERR_PTR(bio->bi_error);
+	bio_put(bio);
 
 	/* not req_mod(), we need irqsave here! */
 	spin_lock_irqsave(&device->resource->req_lock, flags);

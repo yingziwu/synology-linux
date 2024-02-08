@@ -59,9 +59,11 @@ module_param(init_nr_desc_per_channel, uint, 0644);
 MODULE_PARM_DESC(init_nr_desc_per_channel,
 		 "initial descriptors per channel (default: 64)");
 
+
 /* prototypes */
 static dma_cookie_t atc_tx_submit(struct dma_async_tx_descriptor *tx);
 static void atc_issue_pending(struct dma_chan *chan);
+
 
 /*----------------------------------------------------------------------*/
 
@@ -539,6 +541,7 @@ static void atc_advance_work(struct at_dma_chan *atchan)
 	}
 }
 
+
 /**
  * atc_handle_error - handle errors reported by DMA controller
  * @atchan: channel where error occurs
@@ -664,6 +667,7 @@ static irqreturn_t at_dma_interrupt(int irq, void *dev_id)
 	return ret;
 }
 
+
 /*--  DMA Engine API  --------------------------------------------------*/
 
 /**
@@ -712,7 +716,7 @@ atc_prep_dma_interleaved(struct dma_chan *chan,
 			 unsigned long flags)
 {
 	struct at_dma_chan	*atchan = to_at_dma_chan(chan);
-	struct data_chunk	*first = xt->sgl;
+	struct data_chunk	*first;
 	struct at_desc		*desc = NULL;
 	size_t			xfer_count;
 	unsigned int		dwidth;
@@ -723,6 +727,8 @@ atc_prep_dma_interleaved(struct dma_chan *chan,
 
 	if (unlikely(!xt || xt->numf != 1 || !xt->frame_size))
 		return NULL;
+
+	first = xt->sgl;
 
 	dev_info(chan2dev(chan),
 		 "%s: src=%pad, dest=%pad, numf=%d, frame_size=%d, flags=0x%lx\n",
@@ -1775,6 +1781,12 @@ static void atc_free_chan_resources(struct dma_chan *chan)
 	atchan->descs_allocated = 0;
 	atchan->status = 0;
 
+	/*
+	 * Free atslave allocated in at_dma_xlate()
+	 */
+	kfree(chan->private);
+	chan->private = NULL;
+
 	dev_vdbg(chan2dev(chan), "free_chan_resources: done\n");
 }
 
@@ -1809,7 +1821,7 @@ static struct dma_chan *at_dma_xlate(struct of_phandle_args *dma_spec,
 	dma_cap_zero(mask);
 	dma_cap_set(DMA_SLAVE, mask);
 
-	atslave = devm_kzalloc(&dmac_pdev->dev, sizeof(*atslave), GFP_KERNEL);
+	atslave = kzalloc(sizeof(*atslave), GFP_KERNEL);
 	if (!atslave)
 		return NULL;
 
@@ -2140,6 +2152,8 @@ static int at_dma_remove(struct platform_device *pdev)
 	struct resource		*io;
 
 	at_dma_off(atdma);
+	if (pdev->dev.of_node)
+		of_dma_controller_free(pdev->dev.of_node);
 	dma_async_device_unregister(&atdma->dma_common);
 
 	dma_pool_destroy(atdma->memset_pool);

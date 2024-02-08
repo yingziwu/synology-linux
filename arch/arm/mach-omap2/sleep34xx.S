@@ -93,20 +93,13 @@ ENTRY(enable_omap3630_toggle_l2_on_restore)
 ENDPROC(enable_omap3630_toggle_l2_on_restore)
 
 /*
- * Function to call rom code to save secure ram context. This gets
- * relocated to SRAM, so it can be all in .data section. Otherwise
- * we need to initialize api_params separately.
+ * Function to call rom code to save secure ram context.
+ *
+ * r0 = physical address of the parameters
  */
-	.data
-	.align	3
 ENTRY(save_secure_ram_context)
 	stmfd	sp!, {r4 - r11, lr}	@ save registers on stack
-	adr	r3, api_params		@ r3 points to parameters
-	str	r0, [r3,#0x4]		@ r0 has sdram address
-	ldr	r12, high_mask
-	and	r3, r3, r12
-	ldr	r12, sram_phy_addr_mask
-	orr	r3, r3, r12
+	mov	r3, r0			@ physical address of parameters
 	mov	r0, #25			@ set service ID for PPA
 	mov	r12, r0			@ copy secure service ID in r12
 	mov	r1, #0			@ set task id for ROM code in r1
@@ -120,18 +113,7 @@ ENTRY(save_secure_ram_context)
 	nop
 	nop
 	ldmfd	sp!, {r4 - r11, pc}
-	.align
-sram_phy_addr_mask:
-	.word	SRAM_BASE_P
-high_mask:
-	.word	0xffff
-api_params:
-	.word	0x4, 0x0, 0x0, 0x1, 0x1
 ENDPROC(save_secure_ram_context)
-ENTRY(save_secure_ram_context_sz)
-	.word	. - save_secure_ram_context
-
-	.text
 
 /*
  * ======================
@@ -176,6 +158,7 @@ ENTRY(omap34xx_cpu_suspend)
 	ldr	r5, [r4]
 	cmp	r0, #0x0		@ If no context save required,
 	bxeq	r5			@  jump to the WFI code in SRAM
+
 
 	/* Otherwise fall through to the save context code */
 save_context_wfi:
@@ -355,6 +338,7 @@ sdrc_dlla_ctrl:
 	.word	SDRC_DLLA_CTRL_V
 ENTRY(omap3_do_wfi_sz)
 	.word	. - omap3_do_wfi
+
 
 /*
  * ==============================

@@ -21,6 +21,7 @@
 #ifndef _vcn_1_0_SH_MASK_HEADER
 #define _vcn_1_0_SH_MASK_HEADER
 
+
 // addressBlock: uvd_uvd_pg_dec
 //UVD_PGFSM_CONFIG
 #define UVD_PGFSM_CONFIG__UVDM_PWR_CONFIG__SHIFT                                                              0x0
@@ -138,6 +139,7 @@
 #define UVD_DPG_VCPU_CACHE_OFFSET0__CACHE_OFFSET0__SHIFT                                                      0x0
 #define UVD_DPG_VCPU_CACHE_OFFSET0__CACHE_OFFSET0_MASK                                                        0x01FFFFFFL
 
+
 // addressBlock: uvd_uvdgendec
 //UVD_LCM_CGC_CNTRL
 #define UVD_LCM_CGC_CNTRL__FORCE_OFF__SHIFT                                                                   0x12
@@ -148,6 +150,7 @@
 #define UVD_LCM_CGC_CNTRL__FORCE_ON_MASK                                                                      0x00080000L
 #define UVD_LCM_CGC_CNTRL__OFF_DELAY_MASK                                                                     0x0FF00000L
 #define UVD_LCM_CGC_CNTRL__ON_DELAY_MASK                                                                      0xF0000000L
+
 
 // addressBlock: uvd_uvdnpdec
 //UVD_JPEG_CNTL
@@ -666,6 +669,7 @@
 //UVD_LMI_RBC_RB_64BIT_BAR_LOW
 #define UVD_LMI_RBC_RB_64BIT_BAR_LOW__BITS_31_0__SHIFT                                                        0x0
 #define UVD_LMI_RBC_RB_64BIT_BAR_LOW__BITS_31_0_MASK                                                          0xFFFFFFFFL
+
 
 // addressBlock: uvd_uvddec
 //UVD_SEMA_CNTL
@@ -1299,5 +1303,6 @@
 //UVD_RB_RPTR4
 #define UVD_RB_RPTR4__RB_RPTR__SHIFT                                                                          0x4
 #define UVD_RB_RPTR4__RB_RPTR_MASK                                                                            0x007FFFF0L
+
 
 #endif

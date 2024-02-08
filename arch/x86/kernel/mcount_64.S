@@ -12,6 +12,7 @@
 	.code64
 	.section .entry.text, "ax"
 
+
 #ifdef CONFIG_FUNCTION_TRACER
 
 #ifdef CC_USING_FENTRY
@@ -254,6 +255,7 @@ GLOBAL(ftrace_regs_caller_end)
 	jmp ftrace_return
 
 END(ftrace_regs_caller)
+
 
 #else /* ! CONFIG_DYNAMIC_FTRACE */
 

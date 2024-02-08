@@ -513,6 +513,7 @@ static int cz_upload_pptable_to_smu(struct pp_hwmgr *hwmgr)
 		clock_table->AclkBreakdownTable.ClkLevel[i].DfsDid =
 			(uint8_t)dividers.pll_post_divider;
 
+
 		/* uvd breakdown */
 		clock_table->VclkBreakdownTable.ClkLevel[i].GfxVid =
 			(i < uvd_table->count) ? (uint8_t)uvd_table->entries[i].v : 0;
@@ -543,6 +544,7 @@ static int cz_upload_pptable_to_smu(struct pp_hwmgr *hwmgr)
 			(i < vce_table->count) ? (uint8_t)vce_table->entries[i].v : 0;
 		clock_table->EclkBreakdownTable.ClkLevel[i].Frequency =
 			(i < vce_table->count) ? vce_table->entries[i].ecclk : 0;
+
 
 		atomctrl_get_engine_pll_dividers_kong(hwmgr,
 						      clock_table->EclkBreakdownTable.ClkLevel[i].Frequency,
@@ -882,6 +884,7 @@ static int cz_set_power_state_tasks(struct pp_hwmgr *hwmgr, const void *input)
 
 	return 0;
 };
+
 
 static int cz_setup_asic_task(struct pp_hwmgr *hwmgr)
 {
@@ -1504,6 +1507,7 @@ static void cz_hw_print_display_cfg(
 	return 0;
 }
 
+
 static int cz_store_cc6_data(struct pp_hwmgr *hwmgr, uint32_t separation_time,
 			bool cc6_disable, bool pstate_disable, bool pstate_switch_disable)
 {
@@ -1853,6 +1857,7 @@ static int cz_notify_cac_buffer_info(struct pp_hwmgr *hwmgr,
 					size);
 	return 0;
 }
+
 
 static const struct pp_hwmgr_func cz_hwmgr_funcs = {
 	.backend_init = cz_hwmgr_backend_init,

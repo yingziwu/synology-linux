@@ -64,6 +64,13 @@ static inline ktime_t ktime_set(const s64 secs, const unsigned long nsecs)
 		({ (ktime_t){ .tv64 = (lhs).tv64 + (rhs).tv64 }; })
 
 /*
+ * Same as ktime_add(), but avoids undefined behaviour on overflow; however,
+ * this means that you must check the result for overflow yourself.
+ */
+#define ktime_add_unsafe(lhs, rhs) \
+		({ (ktime_t){ .tv64 = (u64) (lhs).tv64 + (rhs).tv64 }; })
+
+/*
  * Add a ktime_t variable and a scalar nanosecond value.
  * res = kt + nsval:
  */
@@ -106,6 +113,7 @@ static inline ktime_t timeval_to_ktime(struct timeval tv)
 
 /* Convert ktime_t to nanoseconds - NOP in the scalar storage format: */
 #define ktime_to_ns(kt)			((kt).tv64)
+
 
 /**
  * ktime_equal - Compares two ktime_t variables to see if they are equal

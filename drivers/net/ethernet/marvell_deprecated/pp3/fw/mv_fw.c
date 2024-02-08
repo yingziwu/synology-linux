@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -104,6 +105,7 @@ void mv_pp3_fw_memory_free(struct mv_pp3 *priv)
 
 }
 
+
 int mv_pp3_fw_ppc_num_set(int ppc_num)
 {
 	if (ppc_num > MV_PP3_PPC_MAX_NUM) {
@@ -115,10 +117,12 @@ int mv_pp3_fw_ppc_num_set(int ppc_num)
 	return 0;
 }
 
+
 int mv_pp3_fw_ppc_num_get(void)
 {
 	return active_ppc_num;
 }
+
 
 int mv_pp3_fw_parse_img_file(const char *image, int image_size, struct mem_image *img)
 {
@@ -197,6 +201,7 @@ static int mv_pp3_ppc_fw_image_load(struct mem_image *ptr_to_image, int ppc)
 	return 0;
 }
 
+
 /* search engine FW load */
 static int mv_pp3_se_cfg_fw_load(struct mem_image *ptr_to_image)
 {
@@ -246,6 +251,7 @@ int mv_pp3_get_path(char *path, int len, char *dir, char *file_name)
 	return 0;
 }
 
+
 int mv_pp3_se_fw_image_download(char *dir)
 {
 	char path[MV_MAX_FW_FILE_PATH] = "\0";
@@ -287,6 +293,7 @@ int mv_pp3_se_fw_image_download(char *dir)
 
 	return 0;
 }
+
 
 int mv_pp3_ppc_fw_image_download(int ppc, char *dir, unsigned int mem_type)
 {
@@ -509,6 +516,7 @@ static bool fw_ec_eng2apb_response_status_check(void)
 	return true;
 }
 
+
 static int mv_pp3_ppc_dram_allocation(int ppc)
 {
 	dma_addr_t nss_dram_addr;
@@ -728,6 +736,7 @@ static void mv_pp3_ppc_run(int ppc)
 	mv_pp3_hw_reg_write(base_addr + MV_PPC_IMEM_HOLD_OFF_REG, 0);
 
 }
+
 
 void mv_pp3_ppc_run_all(void)
 {

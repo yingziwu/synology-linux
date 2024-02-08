@@ -97,6 +97,7 @@ struct dc_context {
 #endif
 };
 
+
 #define MAX_EDID_BUFFER_SIZE 512
 #define EDID_BLOCK_SIZE 128
 #define MAX_SURFACE_NUM 4
@@ -251,6 +252,7 @@ struct dc_mode_flags {
 	uint32_t MIRACAST_REFRESH_DIVIDER;
 };
 
+
 enum dc_timing_source {
 	TIMING_SOURCE_UNDEFINED,
 
@@ -291,6 +293,7 @@ enum dc_timing_source {
 
 	TIMING_SOURCE_COUNT
 };
+
 
 struct stereo_3d_features {
 	bool supported			;
@@ -442,6 +445,7 @@ struct audio_speaker_info {
 	uint32_t ALLSPEAKERS:7;
 	uint32_t SUPPORT_AI:1;
 };
+
 
 struct audio_info_flags {
 

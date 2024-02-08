@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -47,6 +48,7 @@ disclaimer.
 */
 int tm_fixed_port_shaping_change_status(tm_handle hndl, uint8_t status);
 
+
 /** Set shaping (CIR & EIR):
  * @param[in]	hndl		TM lib handle
  * @param[in]	level		TM level.
@@ -68,6 +70,7 @@ int tm_set_shaping(tm_handle hndl,
 					uint32_t index,
 					uint32_t cbw,
 					uint32_t ebw);
+
 
 /** Set minimal shaping (CIR):
  * @param[in]	hndl		TM lib handle
@@ -163,6 +166,7 @@ int tm_set_shaping_ex(tm_handle hndl,
 					uint32_t *pcbs,
 					uint32_t *pebs
 					);
+
 
 #endif   /* TM_SHAPING_H */
 

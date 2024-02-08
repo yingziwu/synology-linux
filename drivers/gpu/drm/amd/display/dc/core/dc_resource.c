@@ -137,6 +137,7 @@ struct resource_pool *dc_create_resource_pool(
 		break;
 #endif
 
+
 	default:
 		break;
 	}
@@ -261,6 +262,7 @@ bool resource_construct(
 
 	return true;
 }
+
 
 void resource_unreference_clock_source(
 		struct resource_context *res_ctx,
@@ -692,6 +694,7 @@ static void calculate_inits_and_adj_vp(struct pipe_ctx *pipe_ctx, struct view *r
 	data->inits.v_c = dal_fixed31_32_add(data->inits.v_c, dal_fixed31_32_div_int(
 			dal_fixed31_32_add_int(data->ratios.vert_c, data->taps.v_taps_c + 1), 2));
 
+
 	/* Adjust for viewport end clip-off */
 	if ((data->viewport.x + data->viewport.width) < (src.x + src.width)) {
 		int vp_clip = src.x + src.width - data->viewport.width - data->viewport.x;
@@ -859,6 +862,7 @@ bool resource_build_scaling_params(struct pipe_ctx *pipe_ctx)
 	pipe_ctx->plane_res.scl_data.h_active = timing->h_addressable + timing->h_border_left + timing->h_border_right;
 	pipe_ctx->plane_res.scl_data.v_active = timing->v_addressable + timing->v_border_top + timing->v_border_bottom;
 
+
 	/* Taps calculations */
 	if (pipe_ctx->plane_res.xfm != NULL)
 		res = pipe_ctx->plane_res.xfm->funcs->transform_get_optimal_number_of_taps(
@@ -905,6 +909,7 @@ bool resource_build_scaling_params(struct pipe_ctx *pipe_ctx)
 	return res;
 }
 
+
 enum dc_status resource_build_scaling_params_for_context(
 	const struct dc  *dc,
 	struct dc_state *context)
@@ -940,6 +945,7 @@ struct pipe_ctx *find_idle_secondary_pipe(
 			break;
 		}
 	}
+
 
 	return secondary_pipe;
 }
@@ -1079,6 +1085,7 @@ bool dc_add_plane_to_context(
 		return false;
 	}
 
+
 	if (stream_status->plane_count == MAX_SURFACE_NUM) {
 		dm_error("Surface: can not attach plane_state %p! Maximum is: %d\n",
 				plane_state, MAX_SURFACE_NUM);
@@ -1181,6 +1188,7 @@ bool dc_remove_plane_from_context(
 		}
 	}
 
+
 	for (i = 0; i < stream_status->plane_count; i++) {
 		if (stream_status->plane_states[i] == plane_state) {
 
@@ -1280,6 +1288,8 @@ bool dc_add_all_planes_for_stream(
 
 	return add_all_planes_for_stream(dc, stream, &set, 1, context);
 }
+
+
 
 static bool is_timing_changed(struct dc_stream_state *cur_stream,
 		struct dc_stream_state *new_stream)
@@ -1397,6 +1407,7 @@ static int acquire_first_free_pipe(
 			pipe_ctx->plane_res.dpp = pool->dpps[i];
 			pipe_ctx->stream_res.opp = pool->opps[i];
 			pipe_ctx->pipe_idx = i;
+
 
 			pipe_ctx->stream = stream;
 			return i;
@@ -1754,6 +1765,7 @@ void dc_resource_state_copy_construct_current(
 {
 	dc_resource_state_copy_construct(dc->current_state, dst_ctx);
 }
+
 
 void dc_resource_state_construct(
 		const struct dc *dc,
@@ -2623,6 +2635,7 @@ bool pipe_need_reprogram(
 
 	if (is_timing_changed(pipe_ctx_old->stream, pipe_ctx->stream))
 		return true;
+
 
 	return false;
 }

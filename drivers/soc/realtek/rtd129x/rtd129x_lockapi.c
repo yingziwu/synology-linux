@@ -127,6 +127,7 @@ int lockapi_unlock( unsigned long flags )
 	return LOCKAPI_NO_ERR;
 }
 
+
 /*
  *
  *
@@ -176,6 +177,7 @@ EXPORT_SYMBOL_GPL(_rtk_lockapi_trylock);
  *
  *
  */
+
 
 int _rtk_lockapi_lock( unsigned long * pflags, char * log_msg )
 {
@@ -309,6 +311,7 @@ EXPORT_SYMBOL_GPL(_rtk_lockapi_trylock2);
  *
  *
  */
+
 
 int _rtk_lockapi_lock2( unsigned long * pflags, char * log_msg )
 {
@@ -444,6 +447,7 @@ EXPORT_SYMBOL_GPL(_rtk_lockapi_trylock3);
  *
  *
  */
+
 
 int _rtk_lockapi_lock3( unsigned long * pflags, char * log_msg, int log_line )
 {

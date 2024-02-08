@@ -1177,6 +1177,7 @@ enum emulation_result kvm_mips_emulate_CP0(uint32_t inst, uint32_t *opc,
 				if (!(current_cpu_data.fpu_id & MIPS_FPIR_F64))
 					val &= ~ST0_FR;
 
+
 				/* Handle changes in FPU mode */
 				preempt_disable();
 
@@ -1233,6 +1234,7 @@ enum emulation_result kvm_mips_emulate_CP0(uint32_t inst, uint32_t *opc,
 				wrmask = kvm_mips_config5_wrmask(vcpu);
 				change = (val ^ old_val) & wrmask;
 				val = old_val ^ change;
+
 
 				/* Handle changes in FPU/MSA modes */
 				preempt_disable();

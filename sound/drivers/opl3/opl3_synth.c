@@ -21,6 +21,7 @@
 
 #include <linux/slab.h>
 #include <linux/export.h>
+#include <linux/nospec.h>
 #include <sound/opl3.h>
 #include <sound/asound_fm.h>
 
@@ -40,6 +41,7 @@
  *      In this case the 2 OP voice number 0 is the 'first half' and
  *      voice 3 is the second.
  */
+
 
 /*
  *    Register offset table for OPL2/3 voices,
@@ -219,6 +221,7 @@ long snd_opl3_write(struct snd_hwdep *hw, const char __user *buf, long count,
 	}
 	return result > 0 ? result : err;
 }
+
 
 /*
  * Patch management
@@ -441,11 +444,12 @@ static int snd_opl3_play_note(struct snd_opl3 * opl3, struct snd_dm_fm_note * no
 	return 0;
 }
 
+
 static int snd_opl3_set_voice(struct snd_opl3 * opl3, struct snd_dm_fm_voice * voice)
 {
 	unsigned short reg_side;
 	unsigned char op_offset;
-	unsigned char voice_offset;
+	unsigned char voice_offset, voice_op;
 
 	unsigned short opl3_reg;
 	unsigned char reg_val;
@@ -470,7 +474,9 @@ static int snd_opl3_set_voice(struct snd_opl3 * opl3, struct snd_dm_fm_voice * v
 		voice_offset = voice->voice - MAX_OPL2_VOICES;
 	}
 	/* Get register offset of operator */
-	op_offset = snd_opl3_regmap[voice_offset][voice->op];
+	voice_offset = array_index_nospec(voice_offset, MAX_OPL2_VOICES);
+	voice_op = array_index_nospec(voice->op, 4);
+	op_offset = snd_opl3_regmap[voice_offset][voice_op];
 
 	reg_val = 0x00;
 	/* Set amplitude modulation (tremolo) effect */
@@ -610,3 +616,4 @@ static int snd_opl3_set_connection(struct snd_opl3 * opl3, int connection)
 
 	return 0;
 }
+

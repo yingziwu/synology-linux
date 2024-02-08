@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * drivers/gpu/ion/rtk_phoenix/rtk_phoenix_tiler_heap.c
  *
@@ -30,7 +33,12 @@
 
 #define ALIGNTO   32U
 #define ION_ALIGN(len) ( ((len)+ALIGNTO-1) & ~(ALIGNTO-1) )
+
+#if defined(MY_DEF_HERE)
+    // Do nothing
+#else
 #define	__phys_to_pfn(paddr)	((unsigned long)((paddr) >> PAGE_SHIFT))
+#endif /* MY_DEF_HERE */
 
 extern void rtk_phoenix_ion_update_last_alloc_addr(unsigned int addr, unsigned int size);
 

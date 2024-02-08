@@ -54,6 +54,7 @@ static u64 __btrfs_dev_replace_cancel(struct btrfs_fs_info *fs_info);
 static int btrfs_dev_replace_kthread(void *data);
 static int btrfs_dev_replace_continue_on_mount(struct btrfs_fs_info *fs_info);
 
+
 int btrfs_init_dev_replace(struct btrfs_fs_info *fs_info)
 {
 	struct btrfs_key key;
@@ -307,6 +308,14 @@ void btrfs_after_dev_replace_commit(struct btrfs_fs_info *fs_info)
 		dev_replace->cursor_left_last_write_of_item;
 }
 
+static char* btrfs_dev_name(struct btrfs_device *device)
+{
+	if (!device || device->missing)
+		return "<missing disk>";
+	else
+		return rcu_str_deref(device->name);
+}
+
 int btrfs_dev_replace_start(struct btrfs_root *root,
 			    struct btrfs_ioctl_dev_replace_args *args)
 {
@@ -337,6 +346,14 @@ int btrfs_dev_replace_start(struct btrfs_root *root,
 	if (ret) {
 		mutex_unlock(&fs_info->volume_mutex);
 		return ret;
+	}
+
+	if (btrfs_pinned_by_swapfile(fs_info, src_device)) {
+		btrfs_warn_in_rcu(fs_info,
+	  "cannot replace device %s (devid %llu) due to active swapfile",
+			btrfs_dev_name(src_device), src_device->devid);
+		mutex_unlock(&fs_info->volume_mutex);
+		return -ETXTBSY;
 	}
 
 	ret = btrfs_init_dev_replace_tgtdev(root, args->start.tgtdev_name,
@@ -582,6 +599,12 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
 	btrfs_rm_dev_replace_unblocked(fs_info);
 
 	/*
+	 * Increment dev_stats_ccnt so that btrfs_run_dev_stats() will
+	 * update on-disk dev stats value during commit transaction
+	 */
+	atomic_inc(&tgt_device->dev_stats_ccnt);
+
+	/*
 	 * this is again a consistent state where no dev_replace procedure
 	 * is running, the target device is part of the filesystem, the
 	 * source device is not part of the filesystem anymore and its 1st
@@ -810,7 +833,7 @@ static int btrfs_dev_replace_kthread(void *data)
 	struct btrfs_ioctl_dev_replace_args *status_args;
 	u64 progress;
 
-	status_args = kzalloc(sizeof(*status_args), GFP_KERNEL);
+	status_args = kzalloc(sizeof(*status_args), GFP_NOFS);
 	if (status_args) {
 		btrfs_dev_replace_status(fs_info, status_args);
 		progress = status_args->status.progress_1000;

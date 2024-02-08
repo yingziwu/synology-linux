@@ -34,6 +34,7 @@
 
 #include <linux/pinctrl/consumer.h>
 
+
 #define RTK_MASTER_7BIT_ADDR  0x24
 #define IsReadMsg(x) (x.flags & I2C_M_RD)
 #define IsSameTarget(x, y) \

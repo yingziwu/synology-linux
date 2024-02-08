@@ -1563,6 +1563,7 @@ static void addr_type_update_snb(struct parser_exec_state *s)
 	}
 }
 
+
 static int copy_gma_to_hva(struct intel_vgpu *vgpu, struct intel_vgpu_mm *mm,
 		unsigned long gma, unsigned long end_gma, void *va)
 {
@@ -1589,6 +1590,7 @@ static int copy_gma_to_hva(struct intel_vgpu *vgpu, struct intel_vgpu_mm *mm,
 	}
 	return len;
 }
+
 
 /*
  * Check whether a batch buffer needs to be scanned. Currently

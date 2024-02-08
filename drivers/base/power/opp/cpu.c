@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Generic OPP helper interface for CPU device
  *
@@ -214,11 +217,11 @@ EXPORT_SYMBOL_GPL(dev_pm_opp_of_cpumask_add_table);
 /*
  * Works only for OPP v2 bindings.
  *
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 //do nothing
-#else // CONFIG_SYNO_RTD1619
+#else // MY_DEF_HERE
  * cpumask should be already set to mask of cpu_dev->id.
-#endif // CONFIG_SYNO_RTD1619
+#endif // MY_DEF_HERE
  * Returns -ENOENT if operating-points-v2 bindings aren't supported.
  */
 int dev_pm_opp_of_get_sharing_cpus(struct device *cpu_dev, cpumask_var_t cpumask)
@@ -234,10 +237,10 @@ int dev_pm_opp_of_get_sharing_cpus(struct device *cpu_dev, cpumask_var_t cpumask
 		return -ENOENT;
 	}
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	cpumask_set_cpu(cpu_dev->id, cpumask);
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	/* OPPs are shared ? */
 	if (!of_property_read_bool(np, "opp-shared"))
 		goto put_cpu_node;

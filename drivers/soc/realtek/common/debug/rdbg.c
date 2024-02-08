@@ -73,6 +73,7 @@ struct rdbg_info *rdbg_phy2info(unsigned long paddr)
 	return NULL;
 }
 
+
 void rdbg_update_ref(struct rdbg_info *info, unsigned int update_val, const char *caller)
 {
 	unsigned int val;

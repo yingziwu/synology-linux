@@ -56,6 +56,7 @@ static void dal_hw_hpd_destruct(
 	dal_hw_gpio_destruct(&pin->base);
 }
 
+
 static void destruct(
 	struct hw_hpd *hpd)
 {

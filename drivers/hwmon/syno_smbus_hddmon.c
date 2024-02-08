@@ -125,6 +125,8 @@ END:
 	return iRet;
 }
 
+
+
 static void __exit syno_smbus_hddmon_exit(void)
 {
 	i2c_unregister_device(gpClient);

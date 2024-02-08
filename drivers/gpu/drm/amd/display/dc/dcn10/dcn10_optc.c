@@ -23,6 +23,7 @@
  *
  */
 
+
 #include "reg_helper.h"
 #include "dcn10_optc.h"
 #include "dc.h"
@@ -250,6 +251,7 @@ void optc1_program_timing(
 		REG_UPDATE(OTG_INTERLACE_CONTROL,
 				OTG_INTERLACE_ENABLE, 0);
 
+
 	/* VTG enable set to 0 first VInit */
 	REG_UPDATE(CONTROL,
 			VTG0_ENABLE, 0);
@@ -438,6 +440,7 @@ bool optc1_disable_crtc(struct timing_generator *optc)
 	return true;
 }
 
+
 void optc1_program_blank_color(
 		struct timing_generator *optc,
 		const struct tg_color *black_color)
@@ -491,6 +494,7 @@ bool optc1_validate_timing(
 	if (timing->h_total > optc1->max_h_total ||
 		timing->v_total > optc1->max_v_total)
 		return false;
+
 
 	if (h_blank < optc1->min_h_blank)
 		return false;
@@ -723,6 +727,7 @@ void optc1_set_early_control(
 	 */
 }
 
+
 void optc1_set_static_screen_control(
 	struct timing_generator *optc,
 	uint32_t value)
@@ -741,6 +746,7 @@ void optc1_set_static_screen_control(
 			OTG_STATIC_SCREEN_EVENT_MASK, value,
 			OTG_STATIC_SCREEN_FRAME_COUNT, 2);
 }
+
 
 /**
  *****************************************************************************
@@ -1108,6 +1114,7 @@ void optc1_program_stereo(struct timing_generator *optc,
 	else
 		optc1_disable_stereo(optc);
 }
+
 
 bool optc1_is_stereo_left_eye(struct timing_generator *optc)
 {

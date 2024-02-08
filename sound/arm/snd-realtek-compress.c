@@ -1337,6 +1337,7 @@ static struct snd_compr_codec_caps caps_dts = {
     .descriptor[0].formats = 0,
 };
 
+
 static struct snd_compr_codec_caps caps_dtsHD = {
     .num_descriptors = 1,
     .descriptor[0].max_ch = 8,

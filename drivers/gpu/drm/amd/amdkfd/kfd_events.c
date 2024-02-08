@@ -52,6 +52,7 @@ struct kfd_signal_page {
 	uint64_t __user *user_address;
 };
 
+
 static uint64_t *page_slots(struct kfd_signal_page *page)
 {
 	return page->kernel_address;
@@ -599,6 +600,8 @@ static int copy_signaled_event_data(uint32_t num_events,
 	return 0;
 
 }
+
+
 
 static long user_timeout_to_jiffies(uint32_t user_timeout_ms)
 {

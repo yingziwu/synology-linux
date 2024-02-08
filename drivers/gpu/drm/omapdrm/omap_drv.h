@@ -87,6 +87,7 @@ struct omap_drm_private {
 	unsigned int max_bandwidth;
 };
 
+
 int omap_debugfs_init(struct drm_minor *minor);
 
 #endif /* __OMAPDRM_DRV_H__ */

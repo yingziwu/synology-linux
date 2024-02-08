@@ -373,6 +373,7 @@ int mv_pp3_gnss_ingress_vport_stats_init(int vport, unsigned int msec)
 	struct mv_pp3_stats_ext_vp *vp_priv;
 	int rc;
 
+
 	if ((msec != 0) && (msec < jiffies_to_msecs(1))) {
 		pr_err("Invalid time period, must be >= %d msec\n", jiffies_to_msecs(1));
 		return -1;
@@ -700,6 +701,7 @@ int mv_pp3_gnss_ingress_vport_ext_stats_get(int vport, bool clean, int size,
 		rc = mv_pp3_gnss_ingress_vport_ext_stats_clean(vport);
 
 	MV_UNLOCK(vp_priv->stats_lock, flags);
+
 
 	return rc;
 }

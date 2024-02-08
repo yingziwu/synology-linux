@@ -343,6 +343,7 @@ int ocfs2_group_extend(struct inode * inode, int new_clusters)
 		goto out_unlock;
 	}
 
+
 	trace_ocfs2_group_extend(
 	     (unsigned long long)le64_to_cpu(group->bg_blkno), new_clusters);
 

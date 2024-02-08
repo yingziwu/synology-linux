@@ -23,6 +23,7 @@
 #ifndef PP_ASICBLOCKS_H
 #define PP_ASICBLOCKS_H
 
+
 enum PHM_AsicBlock {
 	PHM_AsicBlock_GFX,
 	PHM_AsicBlock_UVD_MVC,

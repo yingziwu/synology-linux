@@ -80,6 +80,7 @@ static int amdgpu_cgs_alloc_gpu_mem(struct cgs_device *cgs_device,
 	    || size == 0 || align == 0)
 		return -EINVAL;
 
+
 	switch(type) {
 	case CGS_GPU_MEM_TYPE__VISIBLE_CONTIG_FB:
 	case CGS_GPU_MEM_TYPE__VISIBLE_FB:
@@ -103,6 +104,7 @@ static int amdgpu_cgs_alloc_gpu_mem(struct cgs_device *cgs_device,
 	default:
 		return -EINVAL;
 	}
+
 
 	*handle = 0;
 
@@ -471,6 +473,7 @@ static int amdgpu_cgs_set_powergating_state(struct cgs_device *cgs_device,
 	}
 	return r;
 }
+
 
 static uint32_t fw_type_convert(struct cgs_device *cgs_device, uint32_t fw_type)
 {
@@ -963,6 +966,7 @@ static int amdgpu_cgs_get_active_displays_info(struct cgs_device *cgs_device,
 	}
 	return 0;
 }
+
 
 static int amdgpu_cgs_notify_dpm_enabled(struct cgs_device *cgs_device, bool enabled)
 {

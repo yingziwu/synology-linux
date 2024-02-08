@@ -7,48 +7,53 @@
 #include <linux/fsnotify_backend.h>
 #include <linux/init.h>
 #include <linux/jiffies.h>
-#include <linux/kernel.h>  
+#include <linux/kernel.h> /* UINT_MAX */
 #include <linux/mount.h>
 #include <linux/sched.h>
 #include <linux/types.h>
 #include <linux/wait.h>
 #include <linux/nsproxy.h>
 #include <linux/mnt_namespace.h>
-#include <linux/ratelimit.h>
+#include <linux/module.h>
 
 #include "synotify.h"
 
-static DEFINE_RATELIMIT_STATE(_synotify_rs, (3600 * HZ), 1);
+static struct kmem_cache *synotify_event_info_cachep = NULL;
 
-static int syno_fetch_mountpoint_fullpath(struct vfsmount *mnt, size_t buf_len, char *mnt_full_path)
+static void path_append(char *parent_path, const char *child_name, int n) {
+	int i = strlen(parent_path);
+
+	if (parent_path[i] != '/' && child_name[0] != '/' && n - 1 > i) {
+		parent_path[i] = '/';
+		parent_path[i + 1] = '\0';
+		strncat(parent_path, child_name, n - i - 2);
+	} else
+		strncat(parent_path, child_name, n - i - 1);
+}
+
+/*
+   Fetch full mount point path,
+   It traverse vfsmount from down to up by following mnt_parent
+   @in: struct vfsmount: vfsmount structure, size_t buf_len: path buffer length
+   @out: mnt_full_path: full path of vfsmount struct
+   @return: < 0 : failed, 0 : success
+ */
+static int syno_fetch_mountpoint_fullpath(struct vfsmount *mnt, char *mnt_full_path, char *d_path_buf)
 {
 	int ret = -1;
 	char *mnt_dentry_path = NULL;
-	char *mnt_dentry_path_buf = NULL;
 	struct nsproxy *nsproxy = current->nsproxy;
 	struct mnt_namespace *mnt_space = NULL;
 	struct mount *root_mnt = NULL;
 	struct path root_path;
 	struct path mnt_path;
 
-	mnt_dentry_path_buf = kmalloc(PATH_MAX, GFP_ATOMIC);
-	if(!mnt_dentry_path_buf) {
-		if (__ratelimit(&_synotify_rs))
-			printk(KERN_WARNING "synotify get ENOMEM in file: %s, line: %d\n", __FILE__, __LINE__);
-		ret = -ENOMEM;
-		goto ERR;
-	}
-
-	if (!nsproxy) {
-		ret = -EINVAL;
-		goto ERR;
-	}
+	if (!nsproxy)
+		return -EINVAL;
 
 	mnt_space = nsproxy->mnt_ns;
-	if (!mnt_space || !mnt_space->root) {
-		ret = -EINVAL;
-		goto ERR;
-	}
+	if (!mnt_space || !mnt_space->root)
+		return -EINVAL;
 
 	get_mnt_ns(mnt_space);
 
@@ -64,12 +69,13 @@ static int syno_fetch_mountpoint_fullpath(struct vfsmount *mnt, size_t buf_len, 
 	path_get(&mnt_path);
 	path_get(&root_path);
 
-	mnt_dentry_path = __d_path(&mnt_path, &root_path, mnt_dentry_path_buf, PATH_MAX-1);
+	mnt_dentry_path = __d_path(&mnt_path, &root_path, d_path_buf, PATH_MAX - 1);
 	if(IS_ERR_OR_NULL(mnt_dentry_path)){
+		ret = -ENOENT;
 		goto RESOURCE_PUT;
 	}
 
-	snprintf(mnt_full_path, buf_len, "%s", mnt_dentry_path);
+	path_append(mnt_full_path, mnt_dentry_path, PATH_MAX);
 
 	ret = 0;
 
@@ -77,27 +83,16 @@ RESOURCE_PUT:
 	path_put(&root_path);
 	path_put(&mnt_path);
 	put_mnt_ns(mnt_space);
-ERR:
-	kfree(mnt_dentry_path_buf);
+	d_path_buf[0] = '\0';
 	return ret;
 }
 
-static void formalize_full_path(const char *mnt_name, const char *base_name, char *full_path){
-	if (mnt_name[0] == '/'){
-		if(mnt_name[1] == 0){
-			snprintf(full_path, PATH_MAX,"%s", base_name);
-		}else{
-			snprintf(full_path, PATH_MAX,"%s%s", mnt_name, base_name);
-		}
-	}else
-		snprintf(full_path, PATH_MAX,"/%s%s", mnt_name, base_name);
-}
-
-static int SYNOFetchFullName(struct synotify_event_info *event, gfp_t gfp)
+// Caller should hold group->notification_mutex
+static int synotify_fetch_name(struct fsnotify_event *fsnotify_event, struct fsnotify_group *group)
 {
-	char *dentry_path_buf = NULL;
-	char *full_path = NULL;
-	char *mnt_full_path = NULL;
+	struct synotify_event_info *event = SYNOTIFY_E(fsnotify_event);
+	char *synotify_full_path_buf = NULL;
+	char *synotify_d_path_buf = NULL;
 	char *dentry_path = NULL;
 	struct vfsmount *mnt = event->path.mnt;
 	int ret = -1;
@@ -106,44 +101,29 @@ static int SYNOFetchFullName(struct synotify_event_info *event, gfp_t gfp)
 		return 0;
 	}
 
+	synotify_full_path_buf = group->synotify_data.synotify_full_path_buf;
+	synotify_d_path_buf = group->synotify_data.synotify_d_path_buf;
+	WARN_ON_ONCE(synotify_full_path_buf[0] || synotify_d_path_buf[0]);
+
+	ret = syno_fetch_mountpoint_fullpath(mnt, synotify_full_path_buf, synotify_d_path_buf);
+	if (ret < 0)
+		goto ERR;
+
 	if(event->data_type == FSNOTIFY_EVENT_PATH) {
 		struct path root_path;
 		root_path.mnt = mnt;
 		root_path.dentry = mnt->mnt_root;
-		dentry_path_buf = kmalloc(PATH_MAX, gfp);
-		if (unlikely(!dentry_path_buf)) {
-			if (__ratelimit(&_synotify_rs))
-				printk(KERN_WARNING "synotify get ENOMEM in file: %s, line: %d\n", __FILE__, __LINE__);
-			ret = -ENOMEM;
-			goto ERR;
-		}
-		dentry_path = __d_path(&event->path, &root_path, dentry_path_buf, PATH_MAX-1);
+		dentry_path = __d_path(&event->path, &root_path, synotify_d_path_buf, PATH_MAX-1);
 		if (unlikely(IS_ERR_OR_NULL(dentry_path))) {
+			ret = -ENOENT;
 			goto ERR;
 		}
-	}
+		path_append(synotify_full_path_buf, dentry_path, PATH_MAX);
+	} else
+		path_append(synotify_full_path_buf, event->file_name, PATH_MAX);
 
-	full_path = kmalloc(PATH_MAX, gfp);
-	mnt_full_path = kzalloc(PATH_MAX, gfp);
-	if(!full_path || !mnt_full_path){
-		if (__ratelimit(&_synotify_rs))
-			printk(KERN_WARNING "synotify get ENOMEM in file: %s, line: %d\n", __FILE__, __LINE__);
-		ret = -ENOMEM;
-		goto ERR;
-	}
-
-	ret = syno_fetch_mountpoint_fullpath(mnt, PATH_MAX, mnt_full_path);
-	if (ret < 0)
-		goto ERR;
-	if(event->data_type == FSNOTIFY_EVENT_PATH) {
-		formalize_full_path(mnt_full_path, dentry_path, full_path);
-	} else {
-		formalize_full_path(mnt_full_path, event->file_name, full_path);
-	}
-	event->full_name = kstrdup(full_path, gfp);
+	event->full_name = kstrdup(synotify_full_path_buf, GFP_NOFS);
 	if (unlikely(!event->full_name)) {
-		if (__ratelimit(&_synotify_rs))
-			printk(KERN_WARNING "synotify get ENOMEM in file: %s, line: %d\n", __FILE__, __LINE__);
 		ret = -ENOMEM;
 		goto ERR;
 	}
@@ -151,15 +131,9 @@ static int SYNOFetchFullName(struct synotify_event_info *event, gfp_t gfp)
 	ret = 0;
 
 ERR:
-	kfree(dentry_path_buf);
-	kfree(full_path);
-	kfree(mnt_full_path);
+	synotify_full_path_buf[0] = '\0';
+	synotify_d_path_buf[0] = '\0';
 	return ret;
-}
-
-static int synotify_fetch_name(struct fsnotify_event *event)
-{
-	return SYNOFetchFullName(SYNOTIFY_E(event), GFP_ATOMIC);
 }
 
 static bool should_merge(struct fsnotify_event *old_fsn, struct fsnotify_event *new_fsn)
@@ -179,6 +153,7 @@ static bool should_merge(struct fsnotify_event *old_fsn, struct fsnotify_event *
 	return false;
 }
 
+/* and the list better be locked by something too! */
 static int synotify_merge(struct list_head *list,
 					     struct fsnotify_event *event)
 {
@@ -194,6 +169,7 @@ static bool synotify_should_send_event(struct fsnotify_mark *vfsmnt_mark,
 {
 	__u32 marks_mask;
 
+	/* if we don't have enough info to send an event to userspace say no */
 	if (data_type != FSNOTIFY_EVENT_SYNO && data_type != FSNOTIFY_EVENT_PATH)
 		return false;
 
@@ -214,12 +190,12 @@ struct synotify_event_info *synotify_alloc_event(struct inode *inode, u32 mask,
 {
 	struct synotify_event_info *event;
 
-	event = kmalloc(sizeof(struct synotify_event_info), GFP_KERNEL);
-	if (!event) {
-		if (__ratelimit(&_synotify_rs))
-			printk(KERN_WARNING "synotify get ENOMEM in file: %s, line: %d\n", __FILE__, __LINE__);
+	if (unlikely(!synotify_event_info_cachep))
 		return NULL;
-	}
+
+	event = kmem_cache_alloc(synotify_event_info_cachep, GFP_NOFS);
+	if (!event)
+		return NULL;
 
 	fsnotify_init_event(&event->fse, inode, mask);
 	if (path) {
@@ -279,6 +255,9 @@ static void synotify_free_group_priv(struct fsnotify_group *group)
 	user = group->synotify_data.user;
 	atomic_dec(&user->synotify_instances);
 	free_uid(user);
+
+	kfree(group->synotify_data.synotify_full_path_buf);
+	kfree(group->synotify_data.synotify_d_path_buf);
 }
 
 static void synotify_free_event(struct fsnotify_event *fsn_event)
@@ -288,7 +267,7 @@ static void synotify_free_event(struct fsnotify_event *fsn_event)
 	event = SYNOTIFY_E(fsn_event);
 	path_put(&event->path);
 	kfree(event->full_name);
-	kfree(event);
+	kmem_cache_free(synotify_event_info_cachep, event);
 }
 
 const struct fsnotify_ops synotify_fsnotify_ops = {
@@ -297,4 +276,21 @@ const struct fsnotify_ops synotify_fsnotify_ops = {
 	.free_event = synotify_free_event,
 	.fetch_name = synotify_fetch_name,
 };
-#endif  
+
+static int __init synotify_setup(void)
+{
+	synotify_event_info_cachep = kmem_cache_create("synotify_event_info",
+		sizeof(struct synotify_event_info), 0, SLAB_MEM_SPREAD, NULL);
+	if (!synotify_event_info_cachep)
+		printk(KERN_ERR "synotify failed to kmem_cache_create synotify_event_info, disable synotify!\n");
+
+	return 0;
+}
+
+static void __exit exit_synotify(void) {
+	kmem_cache_destroy(synotify_event_info_cachep);
+}
+
+device_initcall(synotify_setup);
+module_exit(exit_synotify)
+#endif /* MY_ABC_HERE */

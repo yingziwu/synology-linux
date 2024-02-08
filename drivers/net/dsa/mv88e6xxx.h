@@ -550,6 +550,7 @@ enum mv88e6xxx_cap {
 #define MV88E6XXX_FLAG_VTU		BIT(MV88E6XXX_CAP_VTU)
 #define MV88E6XXX_FLAG_PHY_ADDR		BIT(MV88E6XXX_PHY_ADDR_CONVERT)
 
+
 #define MV88E6XXX_FLAGS_FAMILY_6095	\
 	(MV88E6XXX_FLAG_ATU |		\
 	 MV88E6XXX_FLAG_PPU |		\
@@ -867,6 +868,7 @@ extern struct dsa_switch_driver mv88e6171_switch_driver;
 		if (__ret < 0)						\
 			return __ret;					\
 	})
+
 
 #endif /* MY_DEF_HERE */
 

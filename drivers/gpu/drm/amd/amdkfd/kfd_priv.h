@@ -484,6 +484,7 @@ struct qcm_process_device {
 	uint64_t tma_addr;
 };
 
+
 enum kfd_pdd_bound {
 	PDD_UNBOUND = 0,
 	PDD_BOUND,

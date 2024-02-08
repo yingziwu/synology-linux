@@ -60,6 +60,7 @@ void kasan_unpoison_shadow(const void *address, size_t size)
 	}
 }
 
+
 /*
  * All functions below always inlined so compiler could
  * perform better optimizations in each of __asan_loadX/__assn_storeX
@@ -251,6 +252,7 @@ static __always_inline bool memory_is_poisoned(unsigned long addr, size_t size)
 	return memory_is_poisoned_n(addr, size);
 }
 
+
 static __always_inline void check_memory_region(unsigned long addr,
 						size_t size, bool write)
 {
@@ -271,6 +273,18 @@ static __always_inline void check_memory_region(unsigned long addr,
 
 void __asan_loadN(unsigned long addr, size_t size);
 void __asan_storeN(unsigned long addr, size_t size);
+
+void kasan_check_read(const volatile void *p, unsigned int size)
+{
+	check_memory_region((unsigned long)p, size, false);
+}
+EXPORT_SYMBOL(kasan_check_read);
+
+void kasan_check_write(const volatile void *p, unsigned int size)
+{
+	check_memory_region((unsigned long)p, size, true);
+}
+EXPORT_SYMBOL(kasan_check_write);
 
 #undef memset
 void *memset(void *addr, int c, size_t len)
@@ -425,12 +439,13 @@ void kasan_kfree_large(const void *ptr)
 int kasan_module_alloc(void *addr, size_t size)
 {
 	void *ret;
+	size_t scaled_size;
 	size_t shadow_size;
 	unsigned long shadow_start;
 
 	shadow_start = (unsigned long)kasan_mem_to_shadow(addr);
-	shadow_size = round_up(size >> KASAN_SHADOW_SCALE_SHIFT,
-			PAGE_SIZE);
+	scaled_size = (size + KASAN_SHADOW_MASK) >> KASAN_SHADOW_SCALE_SHIFT;
+	shadow_size = round_up(scaled_size, PAGE_SIZE);
 
 	if (WARN_ON(!PAGE_ALIGNED(shadow_start)))
 		return -EINVAL;

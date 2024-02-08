@@ -86,11 +86,19 @@ struct ntb_netdev {
 #ifdef MY_DEF_HERE /* MY_DEF_HERE */
 	unsigned int count_of_rx_allocate_fail;
 	struct delayed_work ntb_skb_allocate_delay_work;
+#ifdef MY_DEF_HERE
+	struct delayed_work ntb_mtu_change_delay_work;
+#endif /* MY_DEF_HERE */
 #endif /* MY_DEF_HERE */
 };
 
 #ifdef MY_DEF_HERE
 static void SYNONtbSkbAllocateWork(struct work_struct *work);
+
+#ifdef MY_DEF_HERE
+static int ntb_netdev_change_mtu(struct net_device *ndev, int new_mtu);
+#endif /* MY_DEF_HERE */
+
 #endif /* MY_DEF_HERE */
 
 #define	NTB_TX_TIMEOUT_MS	1000
@@ -110,6 +118,30 @@ static struct ntb_netdev *gbNtbNetDev = NULL;
 
 static LIST_HEAD(dev_list);
 
+#ifdef MY_DEF_HERE
+static bool SynoNTBShouldMtuChange(struct net_device *ndev)
+{
+	bool blRet = false;
+	int remoteVer = 0;
+	struct ntb_netdev *dev = NULL;
+
+	if (NULL == ndev) {
+		goto ERR;
+	}
+
+	dev = netdev_priv(ndev);
+	remoteVer = ntb_transport_remote_syno_conf_ver(dev->qp);
+	if (remoteVer <= SYNO_NTB_CONFIG_VER) {
+		if (ndev->mtu != gSynoConfigVerInfo[remoteVer].mtu) {
+			blRet = true;
+		}
+	}
+
+ERR:
+	return blRet;
+}
+#endif /* MY_DEF_HERE */
+
 static void ntb_netdev_event_handler(void *data, int link_is_up)
 {
 	struct net_device *ndev = data;
@@ -120,7 +152,16 @@ static void ntb_netdev_event_handler(void *data, int link_is_up)
 
 	if (link_is_up) {
 		if (ntb_transport_link_query(dev->qp))
+#ifdef MY_DEF_HERE
+		{
+			if (SynoNTBShouldMtuChange(ndev)) {
+				schedule_delayed_work(&dev->ntb_mtu_change_delay_work, 0);
+			}
+#endif /* MY_DEF_HERE */
 			netif_carrier_on(ndev);
+#ifdef MY_DEF_HERE
+		}
+#endif /* MY_DEF_HERE */
 	} else {
 		netif_carrier_off(ndev);
 	}
@@ -334,6 +375,25 @@ static void SYNONtbSkbAllocateWork(struct work_struct *work)
 		printk("ntb_netdev workqueue success to allocte a buffer\n");
 	}
 }
+#ifdef MY_DEF_HERE
+static void SYNONtbMtuChangeWork(struct work_struct *work)
+{
+	int remoteVer = 0;
+	struct ntb_netdev *dev = container_of(work,
+			struct ntb_netdev, ntb_mtu_change_delay_work.work);
+	struct net_device *ndev = dev->ndev;
+
+	if (ntb_transport_link_query(dev->qp)) {
+		remoteVer = ntb_transport_remote_syno_conf_ver(dev->qp);
+		if (ndev->mtu != gSynoConfigVerInfo[remoteVer].mtu) {
+			netdev_printk(KERN_WARNING, ndev,
+				"Change current mtu from %d to %d for backward compatibility\n",
+				ndev->mtu, gSynoConfigVerInfo[remoteVer].mtu);
+			ntb_netdev_change_mtu(ndev, gSynoConfigVerInfo[remoteVer].mtu);
+		}
+	}
+}
+#endif /* MY_DEF_HERE */
 #endif /* MY_DEF_HERE */
 
 static int ntb_netdev_open(struct net_device *ndev)
@@ -365,6 +425,9 @@ static int ntb_netdev_open(struct net_device *ndev)
 	netif_start_queue(ndev);
 #ifdef MY_DEF_HERE
 	INIT_DELAYED_WORK(&dev->ntb_skb_allocate_delay_work, SYNONtbSkbAllocateWork);
+#ifdef MY_DEF_HERE
+	INIT_DELAYED_WORK(&dev->ntb_mtu_change_delay_work, SYNONtbMtuChangeWork);
+#endif /* MY_DEF_HERE */
 #endif /* MY_DEF_HERE */
 
 	return 0;
@@ -538,7 +601,11 @@ static int ntb_netdev_probe(struct device *client_dev)
 		goto err;
 	}
 
+#ifdef MY_DEF_HERE
+	ndev->mtu = gSynoConfigVerInfo[SYNO_NTB_CONFIG_VER].mtu;
+#else
 	ndev->mtu = ntb_transport_max_size(dev->qp) - ETH_HLEN;
+#endif /* MY_DEF_HERE */
 
 	rc = register_netdev(ndev);
 	if (rc)
@@ -581,6 +648,9 @@ static void ntb_netdev_remove(struct device *client_dev)
 
 #ifdef MY_DEF_HERE
 	cancel_delayed_work_sync(&dev->ntb_skb_allocate_delay_work);
+#ifdef MY_DEF_HERE
+	cancel_delayed_work_sync(&dev->ntb_mtu_change_delay_work);
+#endif /* MY_DEF_HERE */
 #endif /* MY_DEF_HERE */
 	unregister_netdev(ndev);
 	ntb_transport_free_queue(dev->qp);

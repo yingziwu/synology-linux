@@ -329,6 +329,9 @@ struct sta_info *sta_info_alloc(struct ieee80211_sub_if_data *sdata,
 
 	memcpy(sta->addr, addr, ETH_ALEN);
 	memcpy(sta->sta.addr, addr, ETH_ALEN);
+	sta->sta.max_rx_aggregation_subframes =
+		local->hw.max_rx_aggregation_subframes;
+
 	sta->local = local;
 	sta->sdata = sdata;
 	sta->rx_stats.last_rx = jiffies;
@@ -658,7 +661,7 @@ static void __sta_info_recalc_tim(struct sta_info *sta, bool ignore_pending)
 	}
 
 	/* No need to do anything if the driver does all */
-	if (ieee80211_hw_check(&local->hw, AP_LINK_PS))
+	if (ieee80211_hw_check(&local->hw, AP_LINK_PS) && !local->ops->set_tim)
 		return;
 
 	if (sta->dead)
@@ -739,6 +742,7 @@ static bool sta_info_buffer_expired(struct sta_info *sta, struct sk_buff *skb)
 		timeout = STA_TX_BUFFER_EXPIRE;
 	return time_after(jiffies, info->control.jiffies + timeout);
 }
+
 
 static bool sta_info_cleanup_expire_buffered_ac(struct ieee80211_local *local,
 						struct sta_info *sta, int ac)
@@ -1030,6 +1034,7 @@ void sta_info_stop(struct ieee80211_local *local)
 	del_timer_sync(&local->sta_cleanup);
 	rhashtable_destroy(&local->sta_hash);
 }
+
 
 int __sta_info_flush(struct ieee80211_sub_if_data *sdata, bool vlans)
 {

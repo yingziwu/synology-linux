@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -70,6 +71,7 @@ enum mv_tm_level {
 	TM_P_LEVEL
 };
 
+
 enum mv_tm_config {
 	TM_INVALID_CONFIG = 0,
 	TM_DEFAULT_CONFIG,
@@ -78,6 +80,7 @@ enum mv_tm_config {
 	TM_CFG3_CONFIG,
 	TM_LAST_CONFIG
 };
+
 
 /**
  * @brief   Data structure for qmtm adaptation
@@ -144,7 +147,9 @@ int tm_defcon(void);
 int tm_cfg1(void);
 int tm_2xppc(void);
 
+
 int tm_cfg3_tree(void);
+
 
 /**
  * @brief   Init SysFS.
@@ -153,11 +158,13 @@ int tm_cfg3_tree(void);
  */
 int mv_pp3_tm_sysfs_init(struct kobject *pp3_kobj);
 
+
 /**
  * @brief   Exit SysFS.
  *
  * @return an integer return code.
  */
 int mv_pp3_tm_sysfs_exit(struct kobject *hmac_kobj);
+
 
 #endif /* MV_TM__H */

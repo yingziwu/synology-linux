@@ -754,6 +754,7 @@ static void execlists_cancel_requests(struct intel_engine_cs *engine)
 
 	/* Remaining _unready_ requests will be nop'ed when submitted */
 
+
 	execlists->queue = RB_ROOT;
 	execlists->first = NULL;
 	GEM_BUG_ON(port_isset(execlists->port));

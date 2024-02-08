@@ -102,6 +102,7 @@ struct dc_link_training_settings {
 	struct dc_lane_settings lane_settings[LANE_COUNT_DP_MAX];
 };
 
+
 union dpcd_rev {
 	struct {
 		uint8_t MINOR:4;
@@ -322,6 +323,7 @@ union downstream_port {
 	} bits;
 	unsigned char raw;
 };
+
 
 union sink_status {
 	struct {

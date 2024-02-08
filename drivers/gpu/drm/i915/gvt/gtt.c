@@ -2017,6 +2017,7 @@ int intel_vgpu_write_protect_handler(struct intel_vgpu *vgpu, u64 pa,
 	return ret;
 }
 
+
 static int alloc_scratch_pages(struct intel_vgpu *vgpu,
 		intel_gvt_gtt_type_t type)
 {

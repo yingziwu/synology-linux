@@ -412,6 +412,7 @@ size_t append_ipl_scpdata(char *dest, size_t len)
 	return rc;
 }
 
+
 static struct kobj_attribute sys_ipl_vm_parm_attr =
 	__ATTR(parm, S_IRUGO, ipl_vm_parm_show, NULL);
 
@@ -562,6 +563,7 @@ static struct kset *ipl_kset;
 
 static void __ipl_run(void *unused)
 {
+	__bpon();
 	diag308(DIAG308_IPL, NULL);
 	if (MACHINE_IS_VM)
 		__cpcmd("IPL", NULL, 0, NULL);
@@ -717,6 +719,7 @@ static ssize_t reipl_fcp_scpdata_write(struct file *filp, struct kobject *kobj,
 	size_t scpdata_len = count;
 	size_t padding;
 
+
 	if (off)
 		return -EINVAL;
 
@@ -796,6 +799,7 @@ static ssize_t reipl_generic_loadparm_store(struct ipl_parameter_block *ipb,
 	/* copy and convert to ebcdic */
 	memcpy(ipb->hdr.loadparm, buf, lp_len);
 	ASCEBC(ipb->hdr.loadparm, LOADPARM_LEN);
+	ipb->hdr.flags |= DIAG308_FLAGS_LP_VALID;
 	return len;
 }
 
@@ -889,6 +893,7 @@ static struct attribute_group reipl_ccw_attr_group_lpar = {
 	.name  = IPL_CCW_STR,
 	.attrs = reipl_ccw_attrs_lpar,
 };
+
 
 /* NSS reipl device attributes */
 static void reipl_get_ascii_nss_name(char *dst,

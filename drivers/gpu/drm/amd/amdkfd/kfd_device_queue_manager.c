@@ -1167,6 +1167,7 @@ static int process_termination_nocpsch(struct device_queue_manager *dqm,
 	return retval;
 }
 
+
 static int process_termination_cpsch(struct device_queue_manager *dqm,
 		struct qcm_process_device *qpd)
 {

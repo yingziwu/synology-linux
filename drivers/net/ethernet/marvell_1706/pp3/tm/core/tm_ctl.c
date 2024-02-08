@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -45,6 +46,7 @@ disclaimer.
 #include "tm_get_gen_param_interface.h"
 #include "tm_core_types.h"
 
+
 int tm_lib_init_hw(tm_handle hndl)
 {
 	int rc;
@@ -71,6 +73,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_lib_open(const char *cProductName, tm_handle hEnv, tm_handle *htm)
@@ -85,6 +88,7 @@ int tm_lib_open(const char *cProductName, tm_handle hEnv, tm_handle *htm)
 	int rc = 0;
 	unsigned int i;
 	unsigned int j;
+
 
 	if ((*htm) != NULL)
 	{
@@ -210,6 +214,7 @@ int tm_lib_open(const char *cProductName, tm_handle hEnv, tm_handle *htm)
 		}
 	}
 
+
 	ctl->tm_wred_q_lvl_curves = tm_malloc(sizeof(struct tm_wred_curve) * TM_NUM_WRED_QUEUE_CURVES);
 	if (ctl->tm_wred_q_lvl_curves == NULL)
 	{
@@ -258,6 +263,7 @@ int tm_lib_open(const char *cProductName, tm_handle hEnv, tm_handle *htm)
 		}
 	}
 
+
 	ctl->tm_q_lvl_drop_prof_ptr = tm_malloc(sizeof(uint16_t) * total_queues);
 	if (ctl->tm_q_lvl_drop_prof_ptr == NULL)
 	{
@@ -288,6 +294,7 @@ int tm_lib_open(const char *cProductName, tm_handle hEnv, tm_handle *htm)
 			goto out;
 		}
 	}
+
 
 	ctl->tm_p_lvl_drop_prof_ptr = tm_malloc(sizeof(uint8_t) * total_ports);
 	if (ctl->tm_p_lvl_drop_prof_ptr == NULL) {
@@ -505,6 +512,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_lib_close(tm_handle hndl)
@@ -583,6 +591,7 @@ int tm_lib_close(tm_handle hndl)
 	tm_free(ctl->tm_port_sms_attr_pbase);
 	tm_free(ctl->tm_port_sms_attr_qmap_pars);
 	tm_glob_unlock(TM_ENV(ctl));
+
 
 	/* release TM lib handle */
 	tm_free(ctl);

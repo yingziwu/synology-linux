@@ -213,6 +213,7 @@ int syno_tca9555_hdd_enable_write(int adapter, int address, int index, int val)
 		goto END;
 	}
 
+
 	//bit set = disable, clear = enable
 	if (1 == val && ((data.byte >> iBitToAccess) & 1)) {
 		//if the bit is set, we need to cleart it to enable

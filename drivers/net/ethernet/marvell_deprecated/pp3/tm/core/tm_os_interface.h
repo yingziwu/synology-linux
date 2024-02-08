@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,10 +35,12 @@ disclaimer.
 
 #include "common/mv_sw_if.h"
 
+
 void *tm_malloc(unsigned int size);
 void  tm_free(void *ptr);
 void *tm_memset(void *s, int c, unsigned int n);
 void *tm_memcpy(void *dest, const void *src, unsigned int n);
+
 
 int    tm_abs(int x);
 

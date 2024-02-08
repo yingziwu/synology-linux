@@ -542,6 +542,7 @@ unlock_retry:
 }
 EXPORT_SYMBOL_GPL(reservation_object_wait_timeout_rcu);
 
+
 static inline int
 reservation_object_test_signaled_single(struct dma_fence *passed_fence)
 {

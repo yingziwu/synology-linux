@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -100,6 +101,7 @@ static DEVICE_ATTR(reg_write, S_IWUSR, NULL, mv_gmac_3_hex_store);
 static DEVICE_ATTR(reg_read, S_IWUSR, NULL, mv_gmac_3_hex_store);
 static DEVICE_ATTR(mib_cntrs, S_IWUSR, NULL, mv_gmac_3_hex_store);
 
+
 static struct attribute *mv_gmac_attrs[] = {
 	&dev_attr_help.attr,
 	&dev_attr_regs.attr,
@@ -113,6 +115,7 @@ static struct attribute_group mv_gmac_group = {
 	.name = "gmac",
 	.attrs = mv_gmac_attrs,
 };
+
 
 int mv_pp3_gmac_sysfs_init(struct kobject *pp3_kobj)
 {

@@ -41,9 +41,9 @@
 #include <linux/clk.h>
 #include <linux/cpu.h>
 
-#ifdef CONFIG_SYNO_ARMADA_REFILL_COUNT
+#ifdef MY_DEF_HERE
 u64 refill_failed = 0;
-#endif /* CONFIG_SYNO_ARMADA_REFILL_COUNT*/
+#endif /* MY_DEF_HERE*/
 
 #ifdef MY_DEF_HERE
 #include <linux/synobios.h>
@@ -416,9 +416,9 @@ struct mvneta_statistic {
 
 #define T_REG_32	32
 #define T_REG_64	64
-#ifdef CONFIG_SYNO_ARMADA_REFILL_COUNT
+#ifdef MY_DEF_HERE
 #define T_DATA		1
-#endif /* CONFIG_SYNO_ARMADA_REFILL_COUNT*/
+#endif /* MY_DEF_HERE*/
 
 static const struct mvneta_statistic mvneta_statistics[] = {
 	{ 0x3000, T_REG_64, "good_octets_received", },
@@ -453,9 +453,9 @@ static const struct mvneta_statistic mvneta_statistics[] = {
 	{ 0x304c, T_REG_32, "broadcast_frames_sent", },
 	{ 0x3054, T_REG_32, "fc_sent", },
 	{ 0x300c, T_REG_32, "internal_mac_transmit_err", },
-#ifdef CONFIG_SYNO_ARMADA_REFILL_COUNT
+#ifdef MY_DEF_HERE
 	{ 0x0,    T_DATA,   "refill fail count", },
-#endif /* CONFIG_SYNO_ARMADA_REFILL_COUNT*/
+#endif /* MY_DEF_HERE*/
 };
 
 struct mvneta_pcpu_stats {
@@ -818,6 +818,7 @@ static void mvneta_txq_inc_put(struct mvneta_tx_queue *txq)
 		txq->txq_put_index = 0;
 }
 
+
 /* Clear all MIB counters */
 static void mvneta_mib_counters_clear(struct mvneta_port *pp)
 {
@@ -995,6 +996,7 @@ static void mvneta_max_rx_size_set(struct mvneta_port *pp, int max_rx_size)
 	mvreg_write(pp, MVNETA_GMAC_CTRL_0, val);
 }
 
+
 /* Set rx queue offset */
 static void mvneta_rxq_offset_set(struct mvneta_port *pp,
 				  struct mvneta_rx_queue *rxq,
@@ -1009,6 +1011,7 @@ static void mvneta_rxq_offset_set(struct mvneta_port *pp,
 	val |= MVNETA_RXQ_PKT_OFFSET_MASK(offset >> 3);
 	mvreg_write(pp, MVNETA_RXQ_CONFIG_REG(rxq->id), val);
 }
+
 
 /* Tx descriptors helper methods */
 
@@ -2117,6 +2120,7 @@ static u32 mvneta_txq_desc_csum(int l3_offs, int l3_proto,
 	return command;
 }
 
+
 /* Display more error info */
 static void mvneta_rx_error(struct mvneta_port *pp,
 			    struct mvneta_rx_desc *rx_desc)
@@ -2654,12 +2658,12 @@ err_drop_frame:
 				/* set refill stop flag */
 				atomic_set(&rxq->refill_stop, 1);
 #if defined(MY_DEF_HERE)
-#ifdef CONFIG_SYNO_ARMADA_REFILL_COUNT
+#ifdef MY_DEF_HERE
 				refill_failed++;
-#else /* CONFIG_SYNO_ARMADA_REFILL_COUNT */
+#else /* MY_DEF_HERE */
 				netdev_err(dev, "Linux processing - Can't refill queue %d\n",
 					   rxq->id);
-#endif /* CONFIG_SYNO_ARMADA_REFILL_COUNT*/
+#endif /* MY_DEF_HERE*/
 				/* disable rx_copybreak mode */
 				/* to prevent hidden buffer refill and buffers disorder */
 				rx_copybreak = 0;
@@ -2901,11 +2905,11 @@ err_drop_frame:
 		/* Refill processing */
 		err = hwbm_pool_refill(&bm_pool->hwbm_pool, GFP_ATOMIC);
 		if (err) {
-#ifdef CONFIG_SYNO_ARMADA_REFILL_COUNT
+#ifdef MY_DEF_HERE
 			refill_failed++;
-#else /* CONFIG_SYNO_ARMADA_REFILL_COUNT */
+#else /* MY_DEF_HERE */
 			netdev_err(dev, "Linux processing - Can't refill\n");
-#endif /* CONFIG_SYNO_ARMADA_REFILL_COUNT */
+#endif /* MY_DEF_HERE */
 			goto err_drop_frame_ret_pool;
 		}
 
@@ -3220,6 +3224,7 @@ out:
 
 	return NETDEV_TX_OK;
 }
+
 
 /* Free tx resources, when resetting a port */
 static void mvneta_txq_done_force(struct mvneta_port *pp,
@@ -3792,6 +3797,7 @@ static int mvneta_txq_init(struct mvneta_port *pp,
 	txq->tx_stop_threshold = txq->size - MVNETA_MAX_SKB_DESCS;
 	txq->tx_wake_threshold = txq->tx_stop_threshold / 2;
 
+
 	/* Allocate memory for TX descriptors */
 	txq->descs = dma_alloc_coherent(pp->dev->dev.parent,
 					txq->size * MVNETA_DESC_ALIGNED_SIZE,
@@ -3901,6 +3907,7 @@ static void mvneta_cleanup_rxqs(struct mvneta_port *pp)
 	mvneta_rxq_deinit(pp, &pp->rxqs[rxq_def]);
 #endif /* MY_DEF_HERE */
 }
+
 
 /* Init all Rx queues */
 static int mvneta_setup_rxqs(struct mvneta_port *pp)
@@ -4855,6 +4862,7 @@ static int mvneta_ethtool_get_coalesce(struct net_device *dev,
 	return 0;
 }
 
+
 static void mvneta_ethtool_get_drvinfo(struct net_device *dev,
 				    struct ethtool_drvinfo *drvinfo)
 {
@@ -4865,6 +4873,7 @@ static void mvneta_ethtool_get_drvinfo(struct net_device *dev,
 	strlcpy(drvinfo->bus_info, dev_name(&dev->dev),
 		sizeof(drvinfo->bus_info));
 }
+
 
 static void mvneta_ethtool_get_ringparam(struct net_device *netdev,
 					 struct ethtool_ringparam *ring)
@@ -4952,11 +4961,11 @@ static void mvneta_ethtool_update_stats(struct mvneta_port *pp)
 			val64 = (u64)high << 32 | low;
 			pp->ethtool_stats[i] += val64;
 			break;
-#ifdef CONFIG_SYNO_ARMADA_REFILL_COUNT
+#ifdef MY_DEF_HERE
 		case T_DATA:
 			pp->ethtool_stats[i] = refill_failed;
 			break;
-#endif /* CONFIG_SYNO_ARMADA_REFILL_COUNT*/
+#endif /* MY_DEF_HERE*/
 		}
 #else /* MY_DEF_HERE */
 		val = 0;

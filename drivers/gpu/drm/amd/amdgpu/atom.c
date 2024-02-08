@@ -1348,6 +1348,7 @@ struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
 		strlcpy(ctx->vbios_version, str, sizeof(ctx->vbios_version));
 	}
 
+
 	return ctx;
 }
 
@@ -1418,3 +1419,4 @@ bool amdgpu_atom_parse_cmd_header(struct atom_context *ctx, int index, uint8_t *
 		*crev = CU8(idx + 3);
 	return true;
 }
+

@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -46,6 +47,7 @@ disclaimer.
 #include "fw/mv_fw_shared.h"
 #include "fw/mv_pp3_fw_msg.h"
 #include "fw/mv_pp3_fw_msg_structs.h"
+
 
 /******************************************************************************
 * mv_pp3_eth_tool_get_settings
@@ -134,6 +136,7 @@ int mv_pp3_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *
 
 	return 0;
 }
+
 
 /******************************************************************************
 * mv_pp3_eth_tool_set_settings

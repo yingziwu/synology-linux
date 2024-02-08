@@ -40,6 +40,8 @@ typedef struct
 
 }venus_i2c_adapter;
 
+
+
 typedef struct
 {
     unsigned char mode;
@@ -61,6 +63,7 @@ typedef struct
 }venus_i2c_adapter_config;
 #endif /* CONFIG_SYNO_LSP_RTD1619 */
 
+
 #define SET_I2C_CFG(phy_id, port_id)          ((0x80000000) | ((phy_id)<<8) | (port_id))
 #define SET_G2C_CFG(sda, scl)                 ((0xC0000000) | ((sda)<<8) | (scl))
 #define IS_I2C_CFG(cfg)                       ((cfg & 0xFFFF0000) == 0x80000000)
@@ -70,6 +73,7 @@ typedef struct
 #define GET_I2C_PORT(cfg)                     (cfg & 0xFF)
 #define GET_G2C_SDA(cfg)                      ((cfg>>8) & 0xFF)
 #define GET_G2C_SCL(cfg)                      (cfg & 0xFF)
+
 
 #define I2C_CON                 0x0000
 #define I2C_TAR                 0x0004
@@ -141,6 +145,8 @@ typedef struct
 #define ISO_I2C0_SDA_DEL	0x0084
 #define ISO_I2C6_SDA_DEL	0x00c0
 
+
+
 /*IC_CON*/
 #define IC_SLAVE_DISABLE    0x0040
 #define IC_RESTART_EN       0x0020
@@ -188,5 +194,6 @@ typedef struct
 #define SDA_DEL_2072NS		4
 #define SDA_DEL_2590NS		5
 #endif /* CONFIG_SYNO_LSP_RTD1619 */
+
 
 #endif /*__I2C_RTK_H__*/

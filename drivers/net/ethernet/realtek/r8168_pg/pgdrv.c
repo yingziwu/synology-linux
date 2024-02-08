@@ -68,6 +68,7 @@ static long dev_IoctlFun(struct file *pFile,unsigned int cmd, unsigned long arg)
 				break;
 			}
 
+
 			if (pci_config.bRead==TRUE)
 			{
 				if (pci_config.size==1)

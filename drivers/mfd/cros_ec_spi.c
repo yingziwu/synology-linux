@@ -23,6 +23,7 @@
 #include <linux/slab.h>
 #include <linux/spi/spi.h>
 
+
 /* The header byte, which follows the preamble */
 #define EC_MSG_HEADER			0xec
 
@@ -658,6 +659,8 @@ static int cros_ec_spi_probe(struct spi_device *spi)
 			   sizeof(struct ec_host_response) +
 			   sizeof(struct ec_response_get_protocol_info);
 	ec_dev->dout_size = sizeof(struct ec_host_request);
+
+	ec_spi->last_transfer_ns = ktime_get_ns();
 
 	err = cros_ec_register(ec_dev);
 	if (err) {

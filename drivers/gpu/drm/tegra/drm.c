@@ -577,6 +577,7 @@ put:
 	return err;
 }
 
+
 #ifdef CONFIG_DRM_TEGRA_STAGING
 static int tegra_gem_create(struct drm_device *drm, void *data,
 			    struct drm_file *file)

@@ -117,6 +117,7 @@ struct fbc_input_info {
 	unsigned int   num_of_active_targets;
 };
 
+
 struct fbc_requested_compressed_size {
 	unsigned int   preferred_size;
 	unsigned int   preferred_size_alignment;

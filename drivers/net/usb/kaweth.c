@@ -99,6 +99,7 @@
 
 #define IS_BLOCKED(s) (s & KAWETH_STATUS_BLOCKED)
 
+
 MODULE_AUTHOR("Michael Zappe <zapman@interlan.net>, Stephane Alnet <stephane@u-picardie.fr>, Brad Hards <bhards@bigpond.net.au> and Oliver Neukum <oliver@neukum.org>");
 MODULE_DESCRIPTION("KL5USB101 USB Ethernet driver");
 MODULE_LICENSE("GPL");
@@ -236,6 +237,7 @@ struct kaweth_device
 	dma_addr_t rxbufferhandle;
 	__u8 *rx_buf;
 
+	
 	struct sk_buff *tx_skb;
 
 	__u8 *firmware_buf;
@@ -550,6 +552,7 @@ static void kaweth_resubmit_tl(struct work_struct *work)
 		kaweth_resubmit_int_urb(kaweth, GFP_NOIO);
 }
 
+
 /****************************************************************
  *     kaweth_resubmit_rx_urb
  ****************************************************************/
@@ -809,18 +812,12 @@ static netdev_tx_t kaweth_start_xmit(struct sk_buff *skb,
 	}
 
 	/* We now decide whether we can put our special header into the sk_buff */
-	if (skb_cloned(skb) || skb_headroom(skb) < 2) {
-		/* no such luck - we make our own */
-		struct sk_buff *copied_skb;
-		copied_skb = skb_copy_expand(skb, 2, 0, GFP_ATOMIC);
-		dev_kfree_skb_irq(skb);
-		skb = copied_skb;
-		if (!copied_skb) {
-			kaweth->stats.tx_errors++;
-			netif_start_queue(net);
-			spin_unlock_irq(&kaweth->device_lock);
-			return NETDEV_TX_OK;
-		}
+	if (skb_cow_head(skb, 2)) {
+		kaweth->stats.tx_errors++;
+		netif_start_queue(net);
+		spin_unlock_irq(&kaweth->device_lock);
+		dev_kfree_skb_any(skb);
+		return NETDEV_TX_OK;
 	}
 
 	private_header = (__le16 *)__skb_push(skb, 2);
@@ -982,6 +979,7 @@ static int kaweth_resume(struct usb_interface *intf)
  *     kaweth_probe
  ****************************************************************/
 
+
 static const struct net_device_ops kaweth_netdev_ops = {
 	.ndo_open =			kaweth_open,
 	.ndo_stop =			kaweth_close,
@@ -1005,6 +1003,7 @@ static int kaweth_probe(
 	struct net_device *netdev;
 	const eth_addr_t bcast_addr = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 	int result = 0;
+	int rv = -EIO;
 
 	dev_dbg(dev,
 		"Kawasaki Device Probe (Device number:%d): 0x%4.4x:0x%4.4x:0x%4.4x\n",
@@ -1025,6 +1024,7 @@ static int kaweth_probe(
 	kaweth = netdev_priv(netdev);
 	kaweth->dev = udev;
 	kaweth->net = netdev;
+	kaweth->intf = intf;
 
 	spin_lock_init(&kaweth->device_lock);
 	init_waitqueue_head(&kaweth->term_wait);
@@ -1044,6 +1044,10 @@ static int kaweth_probe(
 		/* Download the firmware */
 		dev_info(dev, "Downloading firmware...\n");
 		kaweth->firmware_buf = (__u8 *)__get_free_page(GFP_KERNEL);
+		if (!kaweth->firmware_buf) {
+			rv = -ENOMEM;
+			goto err_free_netdev;
+		}
 		if ((result = kaweth_download_firmware(kaweth,
 						      "kaweth/new_code.bin",
 						      100,
@@ -1079,6 +1083,7 @@ static int kaweth_probe(
 			dev_err(dev, "Error downloading trigger code fix (%d)\n", result);
 			goto err_fw;
 		}
+
 
 		if ((result = kaweth_trigger_firmware(kaweth, 126)) < 0) {
 			dev_err(dev, "Error triggering firmware (%d)\n", result);
@@ -1133,8 +1138,6 @@ err_fw:
 	}
 
 	dev_dbg(dev, "Initializing net device.\n");
-
-	kaweth->intf = intf;
 
 	kaweth->tx_urb = usb_alloc_urb(0, GFP_KERNEL);
 	if (!kaweth->tx_urb)
@@ -1199,7 +1202,7 @@ err_only_tx:
 err_free_netdev:
 	free_netdev(netdev);
 
-	return -EIO;
+	return rv;
 }
 
 /****************************************************************
@@ -1231,6 +1234,7 @@ static void kaweth_disconnect(struct usb_interface *intf)
 
 	free_netdev(netdev);
 }
+
 
 // FIXME this completion stuff is a modified clone of
 // an OLD version of some stuff in usb.c ...

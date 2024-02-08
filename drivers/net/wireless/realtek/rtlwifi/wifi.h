@@ -99,6 +99,7 @@
 #define RTL_USB_MAX_RX_COUNT			100
 #define QBSS_LOAD_SIZE				5
 #define MAX_WMMELE_LENGTH			64
+#define ASPM_L1_LATENCY				7
 
 #define TOTAL_CAM_ENTRY				32
 
@@ -2026,6 +2027,7 @@ struct rtl_stats {
 	u32 macid_valid_entry[2];
 };
 
+
 struct rt_link_detect {
 	/* count for roaming */
 	u32 bcn_rx_inperiod;
@@ -2651,6 +2653,7 @@ struct rtl_priv {
 #define rtl_efuse(rtlpriv)	(&((rtlpriv)->efuse))
 #define rtl_psc(rtlpriv)	(&((rtlpriv)->psc))
 
+
 /***************************************
     Bluetooth Co-existence Related
 ****************************************/
@@ -2701,6 +2704,7 @@ enum bt_radio_shared {
 	BT_RADIO_SHARED = 0,
 	BT_RADIO_INDIVIDUAL = 1,
 };
+
 
 /****************************************
 	mem access macro define start

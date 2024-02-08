@@ -116,6 +116,7 @@ static bool i915_error_injected(struct drm_i915_private *dev_priv)
 		      i915_error_injected(dev_priv) ? KERN_DEBUG : KERN_ERR, \
 		      fmt, ##__VA_ARGS__)
 
+
 static enum intel_pch intel_virt_detect_pch(struct drm_i915_private *dev_priv)
 {
 	enum intel_pch ret = PCH_NOP;

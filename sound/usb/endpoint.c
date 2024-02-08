@@ -384,6 +384,9 @@ static void snd_complete_urb(struct urb *urb)
 	if (unlikely(atomic_read(&ep->chip->shutdown)))
 		goto exit_clear;
 
+	if (unlikely(!test_bit(EP_FLAG_RUNNING, &ep->flags)))
+		goto exit_clear;
+
 	if (usb_pipeout(ep->pipe)) {
 		retire_outbound_urb(ep, ctx);
 		/* can be stopped during retire callback */
@@ -1215,3 +1218,4 @@ void snd_usb_handle_sync_urb(struct snd_usb_endpoint *ep,
 		ep->freqshift = INT_MIN;
 	}
 }
+

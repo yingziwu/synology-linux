@@ -92,6 +92,7 @@ cirrus_ttm_global_release(struct cirrus_device *cirrus)
 	cirrus->ttm.mem_global_ref.release = NULL;
 }
 
+
 static void cirrus_bo_ttm_destroy(struct ttm_buffer_object *tbo)
 {
 	struct cirrus_bo *bo;
@@ -196,6 +197,7 @@ static void cirrus_ttm_backend_destroy(struct ttm_tt *tt)
 static struct ttm_backend_func cirrus_tt_backend_func = {
 	.destroy = &cirrus_ttm_backend_destroy,
 };
+
 
 static struct ttm_tt *cirrus_ttm_tt_create(struct ttm_bo_device *bdev,
 				 unsigned long size, uint32_t page_flags,

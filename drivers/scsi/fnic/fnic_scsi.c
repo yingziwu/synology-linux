@@ -171,6 +171,7 @@ static int free_wq_copy_descs(struct fnic *fnic, struct vnic_wq_copy *wq)
 	return 0;
 }
 
+
 /**
  * __fnic_set_state_flags
  * Sets/Clears bits in fnic's state_flags
@@ -196,6 +197,7 @@ __fnic_set_state_flags(struct fnic *fnic, unsigned long st_flags,
 
 	return;
 }
+
 
 /*
  * fnic_fw_reset_handler
@@ -248,6 +250,7 @@ int fnic_fw_reset_handler(struct fnic *fnic)
 
 	return ret;
 }
+
 
 /*
  * fnic_flogi_reg_handler
@@ -755,6 +758,7 @@ static inline int is_ack_index_in_range(struct vnic_wq_copy *wq,
 	/* request_out index is in range */
 	return 1;
 }
+
 
 /*
  * Mark that ack received and store the Ack index. If there are multiple
@@ -2529,6 +2533,19 @@ int fnic_host_reset(struct scsi_cmnd *sc)
 	unsigned long wait_host_tmo;
 	struct Scsi_Host *shost = sc->device->host;
 	struct fc_lport *lp = shost_priv(shost);
+	struct fnic *fnic = lport_priv(lp);
+	unsigned long flags;
+
+	spin_lock_irqsave(&fnic->fnic_lock, flags);
+	if (fnic->internal_reset_inprogress == 0) {
+		fnic->internal_reset_inprogress = 1;
+	} else {
+		spin_unlock_irqrestore(&fnic->fnic_lock, flags);
+		FNIC_SCSI_DBG(KERN_DEBUG, fnic->lport->host,
+			"host reset in progress skipping another host reset\n");
+		return SUCCESS;
+	}
+	spin_unlock_irqrestore(&fnic->fnic_lock, flags);
 
 	/*
 	 * If fnic_reset is successful, wait for fabric login to complete
@@ -2549,6 +2566,9 @@ int fnic_host_reset(struct scsi_cmnd *sc)
 		}
 	}
 
+	spin_lock_irqsave(&fnic->fnic_lock, flags);
+	fnic->internal_reset_inprogress = 0;
+	spin_unlock_irqrestore(&fnic->fnic_lock, flags);
 	return ret;
 }
 

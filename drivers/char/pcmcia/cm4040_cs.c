@@ -36,6 +36,7 @@
 
 #include "cm4040_cs.h"
 
+
 #define reader_to_dev(x)	(&x->p_dev->dev)
 
 /* n (debug level) is ignored */
@@ -373,7 +374,7 @@ static ssize_t cm4040_write(struct file *filp, const char __user *buf,
 
 	rc = write_sync_reg(SCR_HOST_TO_READER_START, dev);
 	if (rc <= 0) {
-		DEBUGP(5, dev, "write_sync_reg c=%.2Zx\n", rc);
+		DEBUGP(5, dev, "write_sync_reg c=%.2zx\n", rc);
 		DEBUGP(2, dev, "<- cm4040_write (failed)\n");
 		if (rc == -ERESTARTSYS)
 			return rc;
@@ -386,7 +387,7 @@ static ssize_t cm4040_write(struct file *filp, const char __user *buf,
 	for (i = 0; i < bytes_to_write; i++) {
 		rc = wait_for_bulk_out_ready(dev);
 		if (rc <= 0) {
-			DEBUGP(5, dev, "wait_for_bulk_out_ready rc=%.2Zx\n",
+			DEBUGP(5, dev, "wait_for_bulk_out_ready rc=%.2zx\n",
 			       rc);
 			DEBUGP(2, dev, "<- cm4040_write (failed)\n");
 			if (rc == -ERESTARTSYS)
@@ -402,7 +403,7 @@ static ssize_t cm4040_write(struct file *filp, const char __user *buf,
 	rc = write_sync_reg(SCR_HOST_TO_READER_DONE, dev);
 
 	if (rc <= 0) {
-		DEBUGP(5, dev, "write_sync_reg c=%.2Zx\n", rc);
+		DEBUGP(5, dev, "write_sync_reg c=%.2zx\n", rc);
 		DEBUGP(2, dev, "<- cm4040_write (failed)\n");
 		if (rc == -ERESTARTSYS)
 			return rc;
@@ -517,6 +518,7 @@ static int cm4040_config_check(struct pcmcia_device *p_dev, void *priv_data)
 {
 	return pcmcia_request_io(p_dev);
 }
+
 
 static int reader_config(struct pcmcia_device *link, int devno)
 {

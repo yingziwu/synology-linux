@@ -36,3 +36,4 @@ int syno_scsi_disk_ready_check(void)
 
 	return ret;
 }
+
