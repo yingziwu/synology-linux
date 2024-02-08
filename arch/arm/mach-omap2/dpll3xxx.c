@@ -450,7 +450,6 @@ void omap3_noncore_dpll_disable(struct clk_hw *hw)
 		clkdm_clk_disable(clk->clkdm, hw->clk);
 }
 
-
 /* Non-CORE DPLL rate set code */
 
 /**

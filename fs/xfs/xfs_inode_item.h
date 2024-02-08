@@ -86,7 +86,6 @@ typedef struct xfs_inode_log_format_64 {
 #define	XFS_ILOG_AEXT	0x080	/* log i_af.if_extents */
 #define	XFS_ILOG_ABROOT	0x100	/* log i_af.i_broot */
 
-
 /*
  * The timestamps are dirty, but not necessarily anything else in the inode
  * core.  Unlike the other fields above this one must never make it to disk
@@ -134,7 +133,6 @@ struct xfs_bmbt_rec;
 struct xfs_inode;
 struct xfs_mount;
 
-
 typedef struct xfs_inode_log_item {
 	xfs_log_item_t		ili_item;	   /* common portion */
 	struct xfs_inode	*ili_inode;	   /* inode ptr */
@@ -150,7 +148,6 @@ typedef struct xfs_inode_log_item {
 						      attr exts */
 	xfs_inode_log_format_t	ili_format;	   /* logged structure */
 } xfs_inode_log_item_t;
-
 
 static inline int xfs_inode_clean(xfs_inode_t *ip)
 {

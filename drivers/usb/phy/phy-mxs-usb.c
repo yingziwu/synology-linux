@@ -1,16 +1,7 @@
-/*
- * Copyright 2012 Freescale Semiconductor, Inc.
- * Copyright (C) 2012 Marek Vasut <marex@denx.de>
- * on behalf of DENX Software Engineering GmbH
- *
- * The code contained herein is licensed under the GNU General Public
- * License. You may obtain a copy of the GNU General Public License
- * Version 2 or later at the following locations:
- *
- * http://www.opensource.org/licenses/gpl-license.html
- * http://www.gnu.org/copyleft/gpl.html
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
@@ -47,10 +38,8 @@ static void mxs_phy_hw_init(struct mxs_phy *mxs_phy)
 
 	stmp_reset_block(base + HW_USBPHY_CTRL);
 
-	/* Power up the PHY */
 	writel(0, base + HW_USBPHY_PWD);
 
-	/* enable FS/LS device */
 	writel(BM_USBPHY_CTRL_ENUTMILEVEL2 |
 	       BM_USBPHY_CTRL_ENUTMILEVEL3,
 	       base + HW_USBPHY_CTRL_SET);
@@ -95,26 +84,46 @@ static int mxs_phy_suspend(struct usb_phy *x, int suspend)
 	return 0;
 }
 
+#if defined(MY_DEF_HERE)
+static int mxs_phy_on_connect(struct usb_phy *phy, struct usb_device *udev)
+#else  
 static int mxs_phy_on_connect(struct usb_phy *phy,
 		enum usb_device_speed speed)
+#endif  
 {
 	dev_dbg(phy->dev, "%s speed device has connected\n",
+#if defined(MY_DEF_HERE)
+		(udev->speed == USB_SPEED_HIGH) ? "high" : "non-high");
+
+	if (udev->speed == USB_SPEED_HIGH)
+#else  
 		(speed == USB_SPEED_HIGH) ? "high" : "non-high");
 
 	if (speed == USB_SPEED_HIGH)
+#endif  
 		writel(BM_USBPHY_CTRL_ENHOSTDISCONDETECT,
 		       phy->io_priv + HW_USBPHY_CTRL_SET);
 
 	return 0;
 }
 
+#if defined(MY_DEF_HERE)
+static int mxs_phy_on_disconnect(struct usb_phy *phy, struct usb_device *udev)
+#else  
 static int mxs_phy_on_disconnect(struct usb_phy *phy,
 		enum usb_device_speed speed)
+#endif  
 {
 	dev_dbg(phy->dev, "%s speed device has disconnected\n",
+#if defined(MY_DEF_HERE)
+		(udev->speed == USB_SPEED_HIGH) ? "high" : "non-high");
+
+	if (udev->speed == USB_SPEED_HIGH)
+#else  
 		(speed == USB_SPEED_HIGH) ? "high" : "non-high");
 
 	if (speed == USB_SPEED_HIGH)
+#endif  
 		writel(BM_USBPHY_CTRL_ENHOSTDISCONDETECT,
 		       phy->io_priv + HW_USBPHY_CTRL_CLR);
 
@@ -181,7 +190,7 @@ static int mxs_phy_remove(struct platform_device *pdev)
 
 static const struct of_device_id mxs_phy_dt_ids[] = {
 	{ .compatible = "fsl,imx23-usbphy", },
-	{ /* sentinel */ }
+	{   }
 };
 MODULE_DEVICE_TABLE(of, mxs_phy_dt_ids);
 

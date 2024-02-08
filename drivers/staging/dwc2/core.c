@@ -1641,7 +1641,6 @@ void dwc2_hc_do_ping(struct dwc2_hsotg *hsotg, struct dwc2_host_chan *chan)
 		dev_vdbg(hsotg->dev, "%s: Channel %d\n", __func__,
 			 chan->hc_num);
 
-
 	hctsiz = TSIZ_DOPNG;
 	hctsiz |= 1 << TSIZ_PKTCNT_SHIFT;
 	writel(hctsiz, hsotg->regs + HCTSIZ(chan->hc_num));

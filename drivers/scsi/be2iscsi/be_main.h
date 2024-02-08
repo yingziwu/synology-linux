@@ -752,7 +752,6 @@ struct amap_iscsi_wrb_v2 {
 	u8 rsvd6[15];   /* DWORD 15 */
 } __packed;
 
-
 struct wrb_handle *alloc_wrb_handle(struct beiscsi_hba *phba, unsigned int cid);
 void
 free_mgmt_sgl_handle(struct beiscsi_hba *phba, struct sgl_handle *psgl_handle);
@@ -910,7 +909,6 @@ struct amap_iscsi_target_context_update_wrb_v2 {
 	u8 rsvd14[32]; /* DWORD 14 */
 	u8 rsvd15[32]; /* DWORD 15 */
 } __packed;
-
 
 struct be_ring {
 	u32 pages;		/* queue size in pages */

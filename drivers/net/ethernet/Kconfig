@@ -11,6 +11,10 @@ menuconfig ETHERNET
 
 if ETHERNET
 
+if SYNO_LSP_HI3536
+source "drivers/net/ethernet/stmmac/Kconfig"
+endif # SYNO_LSP_HI3536
+
 config MDIO
 	tristate
 
@@ -21,6 +25,7 @@ source "drivers/net/ethernet/3com/Kconfig"
 source "drivers/net/ethernet/adaptec/Kconfig"
 source "drivers/net/ethernet/aeroflex/Kconfig"
 source "drivers/net/ethernet/alteon/Kconfig"
+source "drivers/net/ethernet/al/Kconfig"
 source "drivers/net/ethernet/amd/Kconfig"
 source "drivers/net/ethernet/apple/Kconfig"
 source "drivers/net/ethernet/atheros/Kconfig"
@@ -86,6 +91,13 @@ config LANTIQ_ETOP
 	  Support for the MII0 inside the Lantiq SoC
 
 source "drivers/net/ethernet/marvell/Kconfig"
+if SYNO_LSP_ARMADA
+source "drivers/net/ethernet/mvebu_net/Kconfig"
+source "drivers/net/ethernet/mvebu_net/neta/Kconfig"
+source "drivers/net/ethernet/mvebu_net/pp2/Kconfig"
+source "drivers/net/ethernet/mvebu_net/prestera/Kconfig"
+endif
+
 source "drivers/net/ethernet/mellanox/Kconfig"
 source "drivers/net/ethernet/micrel/Kconfig"
 source "drivers/net/ethernet/microchip/Kconfig"
@@ -167,5 +179,8 @@ source "drivers/net/ethernet/via/Kconfig"
 source "drivers/net/ethernet/wiznet/Kconfig"
 source "drivers/net/ethernet/xilinx/Kconfig"
 source "drivers/net/ethernet/xircom/Kconfig"
+if SYNO_LSP_HI3536
+source "drivers/net/ethernet/hieth-gmac/Kconfig"
+endif # SYNO_LSP_HI3536
 
 endif # ETHERNET

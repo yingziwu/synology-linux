@@ -76,7 +76,6 @@
 #define WSPI_MAX_NUM_OF_CHUNKS \
 	((SPI_AGGR_BUFFER_SIZE / WSPI_MAX_CHUNK_SIZE) + 1)
 
-
 struct wl12xx_spi_glue {
 	struct device *dev;
 	struct platform_device *core;
@@ -426,7 +425,6 @@ static int wl1271_remove(struct spi_device *spi)
 
 	return 0;
 }
-
 
 static struct spi_driver wl1271_spi_driver = {
 	.driver = {

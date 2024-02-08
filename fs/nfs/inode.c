@@ -79,7 +79,11 @@ int nfs_wait_bit_killable(void *word)
 {
 	if (fatal_signal_pending(current))
 		return -ERESTARTSYS;
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	freezable_schedule_unsafe();
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	freezable_schedule();
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	return 0;
 }
 EXPORT_SYMBOL_GPL(nfs_wait_bit_killable);
@@ -983,7 +987,6 @@ static int nfs_check_inode_attributes(struct inode *inode, struct nfs_fattr *fat
 	loff_t cur_size, new_isize;
 	unsigned long invalid = 0;
 
-
 	if (nfs_have_delegated_attributes(inode))
 		return 0;
 	/* Has the inode gone and changed behind our back? */
@@ -1422,7 +1425,6 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
 				(NFS_INO_INVALID_ATTR
 				| NFS_INO_REVAL_PAGECACHE
 				| NFS_INO_REVAL_FORCED);
-
 
 	if (fattr->valid & NFS_ATTR_FATTR_ATIME)
 		memcpy(&inode->i_atime, &fattr->atime, sizeof(inode->i_atime));

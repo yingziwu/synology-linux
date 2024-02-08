@@ -260,7 +260,6 @@ do_illegal_instruction(struct pt_regs *regs)
 	force_sig(SIGILL, current);
 }
 
-
 /*
  * Handle unaligned memory accesses from user space. Kill task.
  *
@@ -317,7 +316,6 @@ do_debug(struct pt_regs *regs)
 	force_sig(SIGTRAP, current);
 }
 
-
 /* Set exception C handler - for temporary use when probing exceptions */
 
 void * __init trap_set_handler(int cause, void *handler)
@@ -327,7 +325,6 @@ void * __init trap_set_handler(int cause, void *handler)
 	*entry = (unsigned long)handler;
 	return previous;
 }
-
 
 /*
  * Initialize dispatch tables.

@@ -481,8 +481,6 @@ out:
 	xfrm_input_resume(skb, err);
 }
 
-
-
 static int ah6_input(struct xfrm_state *x, struct sk_buff *skb)
 {
 	/*
@@ -540,7 +538,6 @@ static int ah6_input(struct xfrm_state *x, struct sk_buff *skb)
 
 	if (!pskb_may_pull(skb, ah_hlen))
 		goto out;
-
 
 	if ((err = skb_cow_data(skb, 0, &trailer)) < 0)
 		goto out;
@@ -630,7 +627,11 @@ static void ah6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 	if (type == NDISC_REDIRECT)
 		ip6_redirect(skb, net, 0, 0);
 	else
+#if defined(CONFIG_SYNO_LSP_HI3536)
+		ip6_update_pmtu(skb, net, info, 0, 0, INVALID_UID);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 		ip6_update_pmtu(skb, net, info, 0, 0);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	xfrm_state_put(x);
 }
 

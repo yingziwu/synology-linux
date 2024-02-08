@@ -16,13 +16,16 @@
 #ifndef _UAPI__LINUX_IF_PPPOX_H
 #define _UAPI__LINUX_IF_PPPOX_H
 
-
 #include <linux/types.h>
 #include <asm/byteorder.h>
 
 #include <linux/socket.h>
 #include <linux/if_ether.h>
 #include <linux/if_pppol2tp.h>
+#if defined(CONFIG_SYNO_LSP_HI3536)
+#include <linux/if_pppolac.h>
+#include <linux/if_pppopns.h>
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 /* For user-space programs to pick up these definitions
  * which they wouldn't get otherwise without defining __KERNEL__
@@ -56,7 +59,13 @@ struct pptp_addr {
 #define PX_PROTO_OE    0 /* Currently just PPPoE */
 #define PX_PROTO_OL2TP 1 /* Now L2TP also */
 #define PX_PROTO_PPTP  2
+#if defined(CONFIG_SYNO_LSP_HI3536)
+#define PX_PROTO_OLAC  3
+#define PX_PROTO_OPNS  4
+#define PX_MAX_PROTO   5
+#else /* CONFIG_SYNO_LSP_HI3536 */
 #define PX_MAX_PROTO   3
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 struct sockaddr_pppox {
 	__kernel_sa_family_t sa_family;       /* address family, AF_PPPOX */
@@ -151,6 +160,5 @@ struct pppoe_hdr {
 
 /* Length of entire PPPoE + PPP header */
 #define PPPOE_SES_HLEN	8
-
 
 #endif /* _UAPI__LINUX_IF_PPPOX_H */

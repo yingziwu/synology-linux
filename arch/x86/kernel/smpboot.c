@@ -1099,7 +1099,6 @@ void __init native_smp_prepare_cpus(unsigned int max_cpus)
 	}
 	set_cpu_sibling_map(0);
 
-
 	if (smp_sanity_check(max_cpus) < 0) {
 		pr_info("SMP disabled\n");
 		disable_smp();
@@ -1197,7 +1196,6 @@ static int __init _setup_possible_cpus(char *str)
 	return 0;
 }
 early_param("possible_cpus", _setup_possible_cpus);
-
 
 /*
  * cpu_possible_mask should be static, it cannot change as cpu's

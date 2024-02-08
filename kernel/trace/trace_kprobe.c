@@ -45,7 +45,6 @@ struct trace_probe {
 	(offsetof(struct trace_probe, args) +	\
 	(sizeof(struct probe_arg) * (n)))
 
-
 static __kprobes bool trace_probe_is_return(struct trace_probe *tp)
 {
 	return tp->rp.handler != NULL;
@@ -1058,7 +1057,6 @@ partial:
 	return TRACE_TYPE_PARTIAL_LINE;
 }
 
-
 static int kprobe_event_define_fields(struct ftrace_event_call *event_call)
 {
 	int ret, i;
@@ -1372,7 +1370,6 @@ static __init int init_kprobe_trace(void)
 	return 0;
 }
 fs_initcall(init_kprobe_trace);
-
 
 #ifdef CONFIG_FTRACE_STARTUP_TEST
 

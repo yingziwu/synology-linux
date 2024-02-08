@@ -300,7 +300,6 @@ enum MR_EVT_ARGS {
 	MR_EVT_ARGS_GENERIC,
 };
 
-
 #define SGE_BUFFER_SIZE	4096
 /*
  * define constants for device list query options
@@ -336,7 +335,6 @@ enum MR_PD_STATE {
 	MR_PD_STATE_COPYBACK            = 0x20,
 	MR_PD_STATE_SYSTEM              = 0x40,
  };
-
 
  /*
  * defines the physical drive address structure
@@ -1420,7 +1418,6 @@ struct megasas_cmd {
 	u8 cmd_status;
 	u8 abort_aen;
 	u8 retry_for_fw_reset;
-
 
 	struct list_head list;
 	struct scsi_cmnd *scmd;

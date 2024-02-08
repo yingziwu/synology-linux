@@ -27,7 +27,6 @@
  * REF_03 - Analog devices, ADV7604, Hardware Manual, Rev. F, August 2010
  */
 
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -833,7 +832,6 @@ static int configure_predefined_video_timings(struct v4l2_subdev *sd,
 		break;
 	}
 
-
 	return err;
 }
 
@@ -939,7 +937,6 @@ static void set_rgb_quantization_range(struct v4l2_subdev *sd)
 		break;
 	}
 }
-
 
 static int adv7604_s_ctrl(struct v4l2_ctrl *ctrl)
 {
@@ -1390,7 +1387,6 @@ static int adv7604_s_dv_timings(struct v4l2_subdev *sd,
 	}
 
 	set_rgb_quantization_range(sd);
-
 
 	if (debug > 1)
 		adv7604_print_timings(sd, timings,

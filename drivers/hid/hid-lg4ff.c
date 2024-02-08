@@ -23,7 +23,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-
 #include <linux/input.h>
 #include <linux/usb.h>
 #include <linux/hid.h>
@@ -670,8 +669,6 @@ out:
 	hid_info(hid, "Force feedback support for Logitech Gaming Wheels\n");
 	return 0;
 }
-
-
 
 int lg4ff_deinit(struct hid_device *hid)
 {

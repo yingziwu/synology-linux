@@ -151,6 +151,7 @@ cond_syscall(sys_process_vm_readv);
 cond_syscall(sys_process_vm_writev);
 cond_syscall(compat_sys_process_vm_readv);
 cond_syscall(compat_sys_process_vm_writev);
+cond_syscall(sys_copy_file_range);
 
 /* arch-specific weak syscall entries */
 cond_syscall(sys_pciconfig_read);
@@ -209,3 +210,8 @@ cond_syscall(compat_sys_open_by_handle_at);
 
 /* compare kernel pointers */
 cond_syscall(sys_kcmp);
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+/* operate on Secure Computing state */
+cond_syscall(sys_seccomp);
+#endif /* CONFIG_SYNO_LSP_HI3536 */

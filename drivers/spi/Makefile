@@ -8,6 +8,9 @@ ccflags-$(CONFIG_SPI_DEBUG) := -DDEBUG
 # config declarations into driver model code
 obj-$(CONFIG_SPI_MASTER)		+= spi.o
 obj-$(CONFIG_SPI_SPIDEV)		+= spidev.o
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+obj-$(CONFIG_SPI_SPIDEV_INFO)           += spidev_info.o
+endif # CONFIG_SYNO_LSP_HI3536
 
 # SPI master controller drivers (bus)
 obj-$(CONFIG_SPI_ALTERA)		+= spi-altera.o
@@ -65,6 +68,7 @@ obj-$(CONFIG_SPI_SH_HSPI)		+= spi-sh-hspi.o
 obj-$(CONFIG_SPI_SH_MSIOF)		+= spi-sh-msiof.o
 obj-$(CONFIG_SPI_SH_SCI)		+= spi-sh-sci.o
 obj-$(CONFIG_SPI_SIRF)		+= spi-sirf.o
+obj-$(CONFIG_SPI_ST)			+= spi-st.o
 obj-$(CONFIG_SPI_TEGRA114)		+= spi-tegra114.o
 obj-$(CONFIG_SPI_TEGRA20_SFLASH)	+= spi-tegra20-sflash.o
 obj-$(CONFIG_SPI_TEGRA20_SLINK)		+= spi-tegra20-slink.o
@@ -74,3 +78,9 @@ obj-$(CONFIG_SPI_TOPCLIFF_PCH)		+= spi-topcliff-pch.o
 obj-$(CONFIG_SPI_TXX9)			+= spi-txx9.o
 obj-$(CONFIG_SPI_XCOMM)		+= spi-xcomm.o
 obj-$(CONFIG_SPI_XILINX)		+= spi-xilinx.o
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+obj-$(CONFIG_SPI_HISILICON)		+= hi_spi.o
+hi_spi-y				:= spi-hisilicon.o
+hi_spi-$(CONFIG_ARCH_HI3521A)		+= spi-hi3521a.o
+hi_spi-$(CONFIG_ARCH_HI3531A)		+= spi-hi3531a.o
+endif # CONFIG_SYNO_LSP_HI3536

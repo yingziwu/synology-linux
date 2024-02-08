@@ -1,20 +1,10 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _NET_NEIGHBOUR_H
 #define _NET_NEIGHBOUR_H
 
 #include <linux/neighbour.h>
-
-/*
- *	Generic neighbour manipulation
- *
- *	Authors:
- *	Pedro Roque		<roque@di.fc.ul.pt>
- *	Alexey Kuznetsov	<kuznet@ms2.inr.ac.ru>
- *
- * 	Changes:
- *
- *	Harald Welte:		<laforge@gnumonks.org>
- *		- Add neighbour cache statistics like rtstat
- */
 
 #include <linux/atomic.h>
 #include <linux/netdevice.h>
@@ -27,10 +17,6 @@
 #include <linux/workqueue.h>
 #include <net/rtnetlink.h>
 
-/*
- * NUD stands for "neighbor unreachability detection"
- */
-
 #define NUD_IN_TIMER	(NUD_INCOMPLETE|NUD_REACHABLE|NUD_DELAY|NUD_PROBE)
 #define NUD_VALID	(NUD_PERMANENT|NUD_NOARP|NUD_REACHABLE|NUD_PROBE|NUD_STALE|NUD_DELAY)
 #define NUD_CONNECTED	(NUD_PERMANENT|NUD_NOARP|NUD_REACHABLE)
@@ -38,9 +24,13 @@
 struct neighbour;
 
 struct neigh_parms {
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+	 
+#else  
 #ifdef CONFIG_NET_NS
 	struct net *net;
 #endif
+#endif  
 	struct net_device *dev;
 	struct neigh_parms *next;
 	int	(*neigh_setup)(struct neighbour *);
@@ -67,25 +57,30 @@ struct neigh_parms {
 	int	proxy_delay;
 	int	proxy_qlen;
 	int	locktime;
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+#ifdef CONFIG_NET_NS
+	struct net *net;
+#endif
+#endif  
 };
 
 struct neigh_statistics {
-	unsigned long allocs;		/* number of allocated neighs */
-	unsigned long destroys;		/* number of destroyed neighs */
-	unsigned long hash_grows;	/* number of hash resizes */
+	unsigned long allocs;		 
+	unsigned long destroys;		 
+	unsigned long hash_grows;	 
 
-	unsigned long res_failed;	/* number of failed resolutions */
+	unsigned long res_failed;	 
 
-	unsigned long lookups;		/* number of lookups */
-	unsigned long hits;		/* number of hits (among lookups) */
+	unsigned long lookups;		 
+	unsigned long hits;		 
 
-	unsigned long rcv_probes_mcast;	/* number of received mcast ipv6 */
-	unsigned long rcv_probes_ucast; /* number of received ucast ipv6 */
+	unsigned long rcv_probes_mcast;	 
+	unsigned long rcv_probes_ucast;  
 
-	unsigned long periodic_gc_runs;	/* number of periodic GC runs */
-	unsigned long forced_gc_runs;	/* number of forced GC runs */
+	unsigned long periodic_gc_runs;	 
+	unsigned long forced_gc_runs;	 
 
-	unsigned long unres_discards;	/* number of unresolved drops */
+	unsigned long unres_discards;	 
 };
 
 #define NEIGH_CACHE_STAT_INC(tbl, field) this_cpu_inc((tbl)->stats->field)
@@ -127,17 +122,22 @@ struct neigh_ops {
 
 struct pneigh_entry {
 	struct pneigh_entry	*next;
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+	 
+#else  
 #ifdef CONFIG_NET_NS
 	struct net		*net;
 #endif
+#endif  
 	struct net_device	*dev;
 	u8			flags;
 	u8			key[0];
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+#ifdef CONFIG_NET_NS
+	struct net		*net;
+#endif
+#endif  
 };
-
-/*
- *	neighbour table manipulation
- */
 
 #define NEIGH_NUM_HASH_RND	4
 
@@ -147,7 +147,6 @@ struct neigh_hash_table {
 	__u32			hash_rnd[NEIGH_NUM_HASH_RND];
 	struct rcu_head		rcu;
 };
-
 
 struct neigh_table {
 	struct neigh_table	*next;
@@ -163,7 +162,7 @@ struct neigh_table {
 	void			(*proxy_redo)(struct sk_buff *skb);
 	char			*id;
 	struct neigh_parms	parms;
-	/* HACK. gc_* should follow parms without a gap! */
+	 
 	int			gc_interval;
 	int			gc_thresh1;
 	int			gc_thresh2;
@@ -188,7 +187,6 @@ static inline void *neighbour_priv(const struct neighbour *n)
 	return (char *)n + n->tbl->entry_size;
 }
 
-/* flags for neigh_update() */
 #define NEIGH_UPDATE_F_OVERRIDE			0x00000001
 #define NEIGH_UPDATE_F_WEAK_OVERRIDE		0x00000002
 #define NEIGH_UPDATE_F_OVERRIDE_ISROUTER	0x00000004
@@ -291,10 +289,6 @@ static inline struct neigh_parms *neigh_parms_clone(struct neigh_parms *parms)
 	return parms;
 }
 
-/*
- *	Neighbour references
- */
-
 static inline void neigh_release(struct neighbour *neigh)
 {
 	if (atomic_dec_and_test(&neigh->refcnt))
@@ -337,21 +331,38 @@ static inline int neigh_hh_bridge(struct hh_cache *hh, struct sk_buff *skb)
 
 static inline int neigh_hh_output(const struct hh_cache *hh, struct sk_buff *skb)
 {
-	unsigned int seq;
+	unsigned int seq = 0;
 	int hh_len;
+#if defined(MY_DEF_HERE)
+	int retry;
+#endif  
 
 	do {
+#if defined(MY_DEF_HERE)
+		if (!hh_output_relaxed)
+			seq = read_seqbegin(&hh->hh_lock);
+#else  
 		seq = read_seqbegin(&hh->hh_lock);
+#endif  
 		hh_len = hh->hh_len;
 		if (likely(hh_len <= HH_DATA_MOD)) {
-			/* this is inlined by gcc */
+			 
 			memcpy(skb->data - HH_DATA_MOD, hh->hh_data, HH_DATA_MOD);
 		} else {
 			int hh_alen = HH_DATA_ALIGN(hh_len);
 
 			memcpy(skb->data - hh_alen, hh->hh_data, hh_alen);
 		}
+
+#if defined(MY_DEF_HERE)
+		retry = 0;
+		if (!hh_output_relaxed)
+			retry = read_seqretry(&hh->hh_lock, seq);
+
+	} while (retry);
+#else  
 	} while (read_seqretry(&hh->hh_lock, seq));
+#endif  
 
 	skb_push(skb, hh_len);
 	return dev_queue_xmit(skb);

@@ -1,21 +1,7 @@
-/*
- * Copyright (C) 2010 Marvell International Ltd.
- *		Zhangfei Gao <zhangfei.gao@marvell.com>
- *		Kevin Wang <dwang4@marvell.com>
- *		Mingwei Wang <mwwang@marvell.com>
- *		Philip Rakity <prakity@marvell.com>
- *		Mark Brown <markb@marvell.com>
- *
- * This software is licensed under the terms of the GNU General Public
- * License version 2, as published by the Free Software Foundation, and
- * may be copied, distributed, and modified under those terms.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/platform_device.h>
@@ -34,6 +20,9 @@
 #include <linux/of_gpio.h>
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
+#if defined(MY_ABC_HERE)
+#include <linux/mbus.h>
+#endif  
 
 #include "sdhci.h"
 #include "sdhci-pltfm.h"
@@ -45,28 +34,82 @@
 #define SDCLK_DELAY_SHIFT	9
 #define SDCLK_DELAY_MASK	0x1f
 
+#if defined(MY_ABC_HERE)
+#define SD_EXTRA_PARAM_REG	0x100
+#else  
 #define SD_CFG_FIFO_PARAM       0x100
+#endif  
 #define SDCFG_GEN_PAD_CLK_ON	(1<<6)
 #define SDCFG_GEN_PAD_CLK_CNT_MASK	0xFF
 #define SDCFG_GEN_PAD_CLK_CNT_SHIFT	24
 
+#if defined(MY_ABC_HERE)
+#define SD_FIFO_PARAM_REG	0x104
+#define SD_USE_DAT3		BIT(7)
+#define SD_OVRRD_CLK_OEN	BIT(11)
+#define SD_FORCE_CLK_ON		BIT(12)
+#endif  
+
 #define SD_SPI_MODE          0x108
 #define SD_CE_ATA_1          0x10C
+#if defined(MY_ABC_HERE)
+#define SDCE_MMC_CARD		BIT(28)
+#endif  
 
 #define SD_CE_ATA_2          0x10E
 #define SDCE_MISC_INT		(1<<2)
 #define SDCE_MISC_INT_EN	(1<<1)
 
+#if defined(MY_ABC_HERE)
+ 
+#define SDHCI_WINDOW_CTRL(i)	(0x80 + ((i) << 3))
+#define SDHCI_WINDOW_BASE(i)	(0x84 + ((i) << 3))
+#define SDHCI_MAX_WIN_NUM	8
+
+#define SDIO3_CONF_CLK_INV	BIT(0)
+#define SDIO3_CONF_SD_FB_CLK	BIT(2)
+
+static int mv_conf_mbus_windows(struct device *dev, void __iomem *regs,
+				const struct mbus_dram_target_info *dram)
+{
+	int i;
+
+	if (!dram) {
+		dev_err(dev, "no mbus dram info\n");
+		return -EINVAL;
+	}
+
+	for (i = 0; i < SDHCI_MAX_WIN_NUM; i++) {
+		writel(0, regs + SDHCI_WINDOW_CTRL(i));
+		writel(0, regs + SDHCI_WINDOW_BASE(i));
+	}
+
+	for (i = 0; i < dram->num_cs; i++) {
+		const struct mbus_dram_window *cs = dram->cs + i;
+
+		writel(((cs->size - 1) & 0xffff0000) |
+			(cs->mbus_attr << 8) |
+			(dram->mbus_dram_target_id << 4) | 1,
+			regs + SDHCI_WINDOW_CTRL(i));
+		 
+		writel(cs->base, regs + SDHCI_WINDOW_BASE(i));
+	}
+
+	return 0;
+}
+#endif  
+
 static void pxav3_set_private_registers(struct sdhci_host *host, u8 mask)
 {
 	struct platform_device *pdev = to_platform_device(mmc_dev(host->mmc));
 	struct sdhci_pxa_platdata *pdata = pdev->dev.platform_data;
+#if defined(MY_ABC_HERE)
+	struct device_node *np = pdev->dev.of_node;
+	u32 reg_val;
+#endif  
 
 	if (mask == SDHCI_RESET_ALL) {
-		/*
-		 * tune timing of read data/command when crc error happen
-		 * no performance impact
-		 */
+		 
 		if (pdata && 0 != pdata->clk_delay_cycles) {
 			u16 tmp;
 
@@ -76,8 +119,40 @@ static void pxav3_set_private_registers(struct sdhci_host *host, u8 mask)
 			tmp |= SDCLK_SEL;
 			writew(tmp, host->ioaddr + SD_CLOCK_BURST_SIZE_SETUP);
 		}
+
+#if defined(MY_ABC_HERE)
+		if (of_device_is_compatible(np, "marvell,armada-380-sdhci") &&
+		    host->quirks2 & SDHCI_QUIRK2_KEEP_INT_CLK_ON) {
+			reg_val = sdhci_readl(host, SD_FIFO_PARAM_REG);
+			reg_val |= SD_USE_DAT3 | SD_OVRRD_CLK_OEN |
+				   SD_FORCE_CLK_ON;
+			sdhci_writel(host, reg_val, SD_FIFO_PARAM_REG);
+
+			reg_val = sdhci_readl(host, SDHCI_CLOCK_CONTROL);
+			reg_val |= SDHCI_CLOCK_INT_EN;
+			sdhci_writel(host, reg_val, SDHCI_CLOCK_CONTROL);
+		}
+#endif  
 	}
 }
+
+#if defined(MY_ABC_HERE)
+static void pxav3_init_card(struct sdhci_host *host, struct mmc_card *card)
+{
+	struct platform_device *pdev = to_platform_device(mmc_dev(host->mmc));
+	struct device_node *np = pdev->dev.of_node;
+	u32 reg_val;
+
+	if (of_device_is_compatible(np, "marvell,armada-380-sdhci")) {
+		reg_val = sdhci_readl(host, SD_CE_ATA_1);
+		if (mmc_card_mmc(card))
+			reg_val |= SDCE_MMC_CARD;
+		else
+			reg_val &= ~SDCE_MMC_CARD;
+		sdhci_writel(host, reg_val, SD_CE_ATA_1);
+	}
+}
+#endif  
 
 #define MAX_WAIT_COUNT 5
 static void pxav3_gen_init_74_clocks(struct sdhci_host *host, u8 power_mode)
@@ -97,17 +172,20 @@ static void pxav3_gen_init_74_clocks(struct sdhci_host *host, u8 power_mode)
 				pxa->power_mode,
 				power_mode);
 
-		/* set we want notice of when 74 clocks are sent */
 		tmp = readw(host->ioaddr + SD_CE_ATA_2);
 		tmp |= SDCE_MISC_INT_EN;
 		writew(tmp, host->ioaddr + SD_CE_ATA_2);
 
-		/* start sending the 74 clocks */
+#if defined(MY_ABC_HERE)
+		tmp = readw(host->ioaddr + SD_EXTRA_PARAM_REG);
+		tmp |= SDCFG_GEN_PAD_CLK_ON;
+		writew(tmp, host->ioaddr + SD_EXTRA_PARAM_REG);
+#else  
 		tmp = readw(host->ioaddr + SD_CFG_FIFO_PARAM);
 		tmp |= SDCFG_GEN_PAD_CLK_ON;
 		writew(tmp, host->ioaddr + SD_CFG_FIFO_PARAM);
+#endif  
 
-		/* slowest speed is about 100KHz or 10usec per clock */
 		udelay(740);
 		count = 0;
 
@@ -121,7 +199,6 @@ static void pxav3_gen_init_74_clocks(struct sdhci_host *host, u8 power_mode)
 		if (count == MAX_WAIT_COUNT)
 			dev_warn(mmc_dev(host->mmc), "74 clock interrupt not cleared\n");
 
-		/* clear the interrupt bit if posted */
 		tmp = readw(host->ioaddr + SD_CE_ATA_2);
 		tmp |= SDCE_MISC_INT;
 		writew(tmp, host->ioaddr + SD_CE_ATA_2);
@@ -131,15 +208,19 @@ static void pxav3_gen_init_74_clocks(struct sdhci_host *host, u8 power_mode)
 
 static int pxav3_set_uhs_signaling(struct sdhci_host *host, unsigned int uhs)
 {
+#if defined(MY_ABC_HERE)
+	struct platform_device *pdev = to_platform_device(mmc_dev(host->mmc));
+	struct device_node *np = pdev->dev.of_node;
+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+	struct sdhci_pxa *pxa = pltfm_host->priv;
 	u16 ctrl_2;
+	u8 reg_val;
+#else  
+	u16 ctrl_2;
+#endif  
 
-	/*
-	 * Set V18_EN -- UHS modes do not work without this.
-	 * does not change signaling voltage
-	 */
 	ctrl_2 = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 
-	/* Select Bus Speed Mode for host */
 	ctrl_2 &= ~SDHCI_CTRL_UHS_MASK;
 	switch (uhs) {
 	case MMC_TIMING_UHS_SDR12:
@@ -159,6 +240,26 @@ static int pxav3_set_uhs_signaling(struct sdhci_host *host, unsigned int uhs)
 		break;
 	}
 
+#if defined(MY_ABC_HERE)
+	 
+	if (of_device_is_compatible(np, "marvell,armada-380-sdhci")) {
+		reg_val = readb(pxa->sdio3_conf_reg);
+		if (uhs == MMC_TIMING_UHS_SDR50 ||
+		    uhs == MMC_TIMING_UHS_DDR50) {
+			reg_val &= ~SDIO3_CONF_CLK_INV;
+			reg_val |= SDIO3_CONF_SD_FB_CLK;
+		} else if (uhs == MMC_TIMING_MMC_HS ||
+		           uhs == MMC_TIMING_SD_HS) {
+			reg_val &= ~SDIO3_CONF_CLK_INV;
+			reg_val &= ~SDIO3_CONF_SD_FB_CLK;
+		} else {
+			reg_val |= SDIO3_CONF_CLK_INV;
+			reg_val &= ~SDIO3_CONF_SD_FB_CLK;
+		}
+		writeb(reg_val, pxa->sdio3_conf_reg);
+	}
+#endif  
+
 	sdhci_writew(host, ctrl_2, SDHCI_HOST_CONTROL2);
 	dev_dbg(mmc_dev(host->mmc),
 		"%s uhs = %d, ctrl_2 = %04X\n",
@@ -172,20 +273,49 @@ static const struct sdhci_ops pxav3_sdhci_ops = {
 	.set_uhs_signaling = pxav3_set_uhs_signaling,
 	.platform_send_init_74_clocks = pxav3_gen_init_74_clocks,
 	.get_max_clock = sdhci_pltfm_clk_get_max_clock,
+#if defined(MY_ABC_HERE)
+	.init_card = pxav3_init_card,
+#endif  
 };
 
 static struct sdhci_pltfm_data sdhci_pxav3_pdata = {
 	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK
 		| SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC
 		| SDHCI_QUIRK_32BIT_ADMA_SIZE
+#if defined(MY_ABC_HERE)
+ 
+		| SDHCI_QUIRK_MISSING_CAPS,
+#else  
 		| SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
+#endif  
 	.ops = &pxav3_sdhci_ops,
 };
+
+#if defined(MY_ABC_HERE)
+static struct sdhci_pltfm_data sdhci_armada_380_pdata = {
+	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK
+		| SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC
+		| SDHCI_QUIRK_32BIT_ADMA_SIZE
+		| SDHCI_QUIRK_MISSING_CAPS,
+	.ops = &pxav3_sdhci_ops,
+};
+#endif  
 
 #ifdef CONFIG_OF
 static const struct of_device_id sdhci_pxav3_of_match[] = {
 	{
 		.compatible = "mrvl,pxav3-mmc",
+#if defined(MY_ABC_HERE)
+		.data = &sdhci_pxav3_pdata,
+	},
+	{
+		.compatible = "marvell,armada-380-sdhci",
+#if defined(MY_ABC_HERE)
+		.data = &sdhci_armada_380_pdata,
+#else
+		.data = &sdhci_pxav3_pdata,
+#endif  
+#endif  
 	},
 	{},
 };
@@ -219,9 +349,18 @@ static int sdhci_pxav3_probe(struct platform_device *pdev)
 	struct sdhci_pltfm_host *pltfm_host;
 	struct sdhci_pxa_platdata *pdata = pdev->dev.platform_data;
 	struct device *dev = &pdev->dev;
+#if defined(MY_ABC_HERE)
+	struct device_node *np = pdev->dev.of_node;
+#endif  
 	struct sdhci_host *host = NULL;
 	struct sdhci_pxa *pxa = NULL;
+#if defined(MY_ABC_HERE)
+	struct resource *res;
+#endif  
 	const struct of_device_id *match;
+#if defined(MY_ABC_HERE)
+	const struct sdhci_pltfm_data *sdhci_pltfm_data;
+#endif  
 
 	int ret;
 	struct clk *clk;
@@ -230,11 +369,46 @@ static int sdhci_pxav3_probe(struct platform_device *pdev)
 	if (!pxa)
 		return -ENOMEM;
 
+#if defined(MY_ABC_HERE)
+	match = of_match_device(of_match_ptr(sdhci_pxav3_of_match), &pdev->dev);
+
+	if (match)
+		sdhci_pltfm_data = match->data;
+	else
+		sdhci_pltfm_data = &sdhci_pxav3_pdata;
+
+	host = sdhci_pltfm_init(pdev, sdhci_pltfm_data);
+#else  
 	host = sdhci_pltfm_init(pdev, &sdhci_pxav3_pdata);
+#endif  
 	if (IS_ERR(host)) {
 		kfree(pxa);
 		return PTR_ERR(host);
 	}
+
+#if defined(MY_ABC_HERE)
+	if (of_device_is_compatible(np, "marvell,armada-380-sdhci")) {
+		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+		pxa->mbus_win_regs = devm_ioremap_resource(&pdev->dev, res);
+		if (IS_ERR(pxa->mbus_win_regs)) {
+			ret = PTR_ERR(pxa->mbus_win_regs);
+			goto err_clk_get;
+		}
+
+		res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
+		pxa->sdio3_conf_reg = devm_ioremap_resource(&pdev->dev, res);
+		if (IS_ERR(pxa->sdio3_conf_reg)) {
+			ret = PTR_ERR(pxa->sdio3_conf_reg);
+			goto err_clk_get;
+		}
+
+		ret = mv_conf_mbus_windows(&pdev->dev, pxa->mbus_win_regs,
+					   mv_mbus_dram_info());
+		if (ret < 0)
+			goto err_clk_get;
+	}
+#endif  
+
 	pltfm_host = sdhci_priv(host);
 	pltfm_host->priv = pxa;
 
@@ -247,21 +421,42 @@ static int sdhci_pxav3_probe(struct platform_device *pdev)
 	pltfm_host->clk = clk;
 	clk_prepare_enable(clk);
 
-	/* enable 1/8V DDR capable */
 	host->mmc->caps |= MMC_CAP_1_8V_DDR;
 
+#if defined(MY_ABC_HERE)
+	 
+#else  
 	match = of_match_device(of_match_ptr(sdhci_pxav3_of_match), &pdev->dev);
+#endif  
 	if (match) {
 		mmc_of_parse(host->mmc);
 		sdhci_get_of_property(pdev);
 		pdata = pxav3_get_mmc_pdata(dev);
 		pdev->dev.platform_data = pdata;
+#if defined(MY_ABC_HERE)
+		host->caps = sdhci_readl(host, SDHCI_CAPABILITIES);
+		host->caps1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
+
+		if (of_device_is_compatible(np, "marvell,armada-380-sdhci")) {
+			if (of_get_property(np, "no-1-8-v", NULL)) {
+				host->caps &= ~SDHCI_CAN_VDD_180;
+				host->mmc->caps &= ~MMC_CAP_1_8V_DDR;
+			} else
+				host->caps &= ~SDHCI_CAN_VDD_330;
+
+			host->caps1 &= ~(SDHCI_SUPPORT_SDR104 |
+					 SDHCI_USE_SDR50_TUNING);
+
+			if (of_property_read_bool(np, "dat3-cd") &&
+			    !of_property_read_bool(np, "broken-cd"))
+				host->quirks2 |= SDHCI_QUIRK2_KEEP_INT_CLK_ON;
+		}
+#endif  
 	} else if (pdata) {
-		/* on-chip device */
+		 
 		if (pdata->flags & PXA_FLAG_CARD_PERMANENT)
 			host->mmc->caps |= MMC_CAP_NONREMOVABLE;
 
-		/* If slot design supports 8 bit data, indicate this to MMC. */
 		if (pdata->flags & PXA_FLAG_SD_8_BIT_CAPABLE_SLOT)
 			host->mmc->caps |= MMC_CAP_8_BIT_DATA;
 
@@ -363,6 +558,15 @@ static int sdhci_pxav3_resume(struct device *dev)
 {
 	int ret;
 	struct sdhci_host *host = dev_get_drvdata(dev);
+#if defined(MY_ABC_HERE)
+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+	struct sdhci_pxa *pxa = pltfm_host->priv;
+	struct device_node *np = dev->of_node;
+
+	if (of_device_is_compatible(np, "marvell,armada-380-sdhci"))
+		ret = mv_conf_mbus_windows(dev, pxa->mbus_win_regs,
+					   mv_mbus_dram_info());
+#endif  
 
 	pm_runtime_get_sync(dev);
 	ret = sdhci_resume_host(host);
@@ -440,4 +644,3 @@ module_platform_driver(sdhci_pxav3_driver);
 MODULE_DESCRIPTION("SDHCI driver for pxav3");
 MODULE_AUTHOR("Marvell International Ltd.");
 MODULE_LICENSE("GPL v2");
-

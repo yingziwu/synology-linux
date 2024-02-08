@@ -223,7 +223,6 @@ typedef __uint32_t xlog_tid_t;
 
 #define XLOG_COVER_OPS		5
 
-
 /* Ticket reservation region accounting */ 
 #define XLOG_TIC_LEN_MAX	15
 
@@ -260,7 +259,6 @@ typedef struct xlog_ticket {
 
 #endif
 
-
 typedef struct xlog_op_header {
 	__be32	   oh_tid;	/* transaction id of operation	:  4 b */
 	__be32	   oh_len;	/* bytes in data region		:  4 b */
@@ -268,7 +266,6 @@ typedef struct xlog_op_header {
 	__u8	   oh_flags;	/*				:  1 b */
 	__u16	   oh_res2;	/* 32 bit align			:  2 b */
 } xlog_op_header_t;
-
 
 /* valid values for h_fmt */
 #define XLOG_FMT_UNKNOWN  0
@@ -566,7 +563,6 @@ xlog_ticket_alloc(
 	char		client,
 	bool		permanent,
 	xfs_km_flags_t	alloc_flags);
-
 
 static inline void
 xlog_write_adv_cnt(void **ptr, int *len, int *off, size_t bytes)

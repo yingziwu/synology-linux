@@ -427,7 +427,6 @@ extern void slb_set_size(u16 size);
 #define VSID_BITS_1T		(CONTEXT_BITS + ESID_BITS_1T)
 #define VSID_MODULUS_1T		((1UL<<VSID_BITS_1T)-1)
 
-
 #define USER_VSID_RANGE	(1UL << (ESID_BITS + SID_SHIFT))
 
 /*
@@ -527,7 +526,6 @@ typedef struct {
 	void *pte_frag;
 #endif
 } mm_context_t;
-
 
 #if 0
 /*

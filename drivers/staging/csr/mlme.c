@@ -129,7 +129,6 @@ unifi_mlme_wait_for_reply(unifi_priv_t *priv, ul_client_t *pcli, int sig_reply_i
     return 0;
 } /* unifi_mlme_wait_for_reply() */
 
-
 /*
  * ---------------------------------------------------------------------------
  * unifi_mlme_blocking_request
@@ -200,7 +199,6 @@ unifi_mlme_blocking_request(unifi_priv_t *priv, ul_client_t *pcli,
     return 0;
 } /* unifi_mlme_blocking_request() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_mlme_copy_reply_and_wakeup_client
@@ -246,7 +244,6 @@ unifi_mlme_copy_reply_and_wakeup_client(ul_client_t *pcli,
 
 } /* unifi_mlme_copy_reply_and_wakeup_client() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  uf_abort_mlme
@@ -281,8 +278,6 @@ uf_abort_mlme(unifi_priv_t *priv)
 
     return 0;
 } /* uf_abort_mlme() */
-
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -370,7 +365,6 @@ static const struct mlme_code Reason_codes[] = {
     { NULL, -1 }
 };
 
-
 static const char *
 lookup_something(const struct mlme_code *n, int id)
 {
@@ -383,7 +377,6 @@ lookup_something(const struct mlme_code *n, int id)
     /* not found */
     return NULL;
 } /* lookup_something() */
-
 
 const char *
 lookup_result_code(int result)
@@ -400,7 +393,6 @@ lookup_result_code(int result)
 
     return str;
 } /* lookup_result_code() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -430,4 +422,3 @@ lookup_reason_code(int reason)
 
     return str;
 } /* lookup_reason_code() */
-

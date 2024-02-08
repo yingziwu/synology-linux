@@ -358,7 +358,6 @@ static struct main_clk jz_clk_high_speed_peripheral = {
 	.div_offset = JZ_CLOCK_CTRL_HDIV_OFFSET,
 };
 
-
 static struct main_clk jz_clk_low_speed_peripheral = {
 	.clk = {
 		.name = "pclk",

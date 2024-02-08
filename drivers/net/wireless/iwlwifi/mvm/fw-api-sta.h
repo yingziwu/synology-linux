@@ -376,5 +376,4 @@ struct iwl_mvm_wep_key_cmd {
 	struct iwl_mvm_wep_key wep_key[0];
 } __packed; /* SEC_CURR_WEP_KEY_CMD_API_S_VER_2 */
 
-
 #endif /* __fw_api_sta_h__ */

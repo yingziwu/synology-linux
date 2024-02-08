@@ -106,5 +106,4 @@ static inline u16 amd_get_node_id(struct pci_dev *pdev)
 
 #endif
 
-
 #endif /* _ASM_X86_AMD_NB_H */

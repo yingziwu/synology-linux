@@ -1,20 +1,7 @@
-/*
- * Copyright (C) 2007, 2008, Marvell International Ltd.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms and conditions of the GNU General Public License,
- * version 2, as published by the Free Software Foundation.
- *
- * This program is distributed in the hope it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef MV_XOR_H
 #define MV_XOR_H
 
@@ -24,6 +11,24 @@
 #include <linux/interrupt.h>
 
 #define USE_TIMER
+#if defined(MY_ABC_HERE)
+#define MV_XOR_SLOT_SIZE		64
+ 
+#define MV_XOR_POOL_SIZE		(MV_XOR_SLOT_SIZE*3072)
+#define MV_XOR_THRESHOLD		1
+#define MV_XOR_MAX_CHANNELS             2
+
+#define XOR_OPERATION_MODE_XOR		0
+#define XOR_OPERATION_MODE_CRC32C	1
+#define XOR_OPERATION_MODE_MEMCPY	2
+#define XOR_OPERATION_MODE_IN_DESC	7
+#define XOR_DESCRIPTOR_SWAP		BIT(14)
+
+#define XOR_DESC_OPERATION_XOR            (0 << 24)
+#define XOR_DESC_OPERATION_CRC32C         (1 << 24)
+#define XOR_DESC_OPERATION_MEMCPY         (2 << 24)
+#define XOR_DESC_OPERATION_PQ             (5 << 24)
+#else  
 #define MV_XOR_POOL_SIZE		PAGE_SIZE
 #define MV_XOR_SLOT_SIZE		64
 #define MV_XOR_THRESHOLD		1
@@ -32,6 +37,7 @@
 #define XOR_OPERATION_MODE_XOR		0
 #define XOR_OPERATION_MODE_MEMCPY	2
 #define XOR_OPERATION_MODE_MEMSET	4
+#endif  
 #define XOR_DESC_SUCCESS		0x40000000
 
 #define XOR_CURR_DESC(chan)	(chan->mmr_base + 0x210 + (chan->idx * 4))
@@ -48,7 +54,11 @@
 #define XOR_INTR_MASK(chan)	(chan->mmr_base + 0x40)
 #define XOR_ERROR_CAUSE(chan)	(chan->mmr_base + 0x50)
 #define XOR_ERROR_ADDR(chan)	(chan->mmr_base + 0x60)
+#if defined(MY_ABC_HERE)
+#define XOR_INTR_MASK_VALUE	0x3F7
+#else  
 #define XOR_INTR_MASK_VALUE	0x3F5
+#endif  
 
 #define WINDOW_BASE(w)		(0x250 + ((w) << 2))
 #define WINDOW_SIZE(w)		(0x270 + ((w) << 2))
@@ -63,64 +73,73 @@ struct mv_xor_device {
 	struct mv_xor_chan   *channels[MV_XOR_MAX_CHANNELS];
 };
 
-/**
- * struct mv_xor_chan - internal representation of a XOR channel
- * @pending: allows batching of hardware operations
- * @lock: serializes enqueue/dequeue operations to the descriptors pool
- * @mmr_base: memory mapped register base
- * @idx: the index of the xor channel
- * @chain: device chain view of the descriptors
- * @completed_slots: slots completed by HW but still need to be acked
- * @device: parent device
- * @common: common dmaengine channel object members
- * @last_used: place holder for allocation to continue from where it left off
- * @all_slots: complete domain of slots usable by the channel
- * @slots_allocated: records the actual size of the descriptor slot pool
- * @irq_tasklet: bottom half where mv_xor_slot_cleanup runs
- */
+#if defined(MY_ABC_HERE)
+ 
+struct mv_xor_suspend_regs {
+	int config;
+	int int_mask;
+};
+#endif  
+
+#if defined(MY_ABC_HERE)
+ 
+#else  
+ 
+#endif  
 struct mv_xor_chan {
 	int			pending;
-	spinlock_t		lock; /* protects the descriptor slot pool */
+	spinlock_t		lock;  
 	void __iomem		*mmr_base;
 	unsigned int		idx;
 	int                     irq;
 	enum dma_transaction_type	current_type;
+#if defined(MY_ABC_HERE)
+	struct mv_xor_suspend_regs	suspend_regs;
+#endif  
 	struct list_head	chain;
+#if defined(MY_ABC_HERE)
+	struct list_head	free_slots;
+	struct list_head	allocated_slots;
+#endif  
 	struct list_head	completed_slots;
 	dma_addr_t		dma_desc_pool;
 	void			*dma_desc_pool_virt;
 	size_t                  pool_size;
 	struct dma_device	dmadev;
 	struct dma_chan		dmachan;
+#if defined(MY_ABC_HERE)
+	 
+#else  
 	struct mv_xor_desc_slot	*last_used;
 	struct list_head	all_slots;
+#endif  
 	int			slots_allocated;
 	struct tasklet_struct	irq_tasklet;
+#if defined(MY_ABC_HERE)
+	int			op_in_desc;
+#endif  
 #ifdef USE_TIMER
 	unsigned long		cleanup_time;
 	u32			current_on_last_cleanup;
 #endif
 };
 
-/**
- * struct mv_xor_desc_slot - software descriptor
- * @slot_node: node on the mv_xor_chan.all_slots list
- * @chain_node: node on the mv_xor_chan.chain list
- * @completed_node: node on the mv_xor_chan.completed_slots list
- * @hw_desc: virtual address of the hardware descriptor chain
- * @phys: hardware address of the hardware descriptor chain
- * @group_head: first operation in a transaction
- * @slot_cnt: total slots used in an transaction (group of operations)
- * @slots_per_op: number of slots per operation
- * @idx: pool index
- * @unmap_src_cnt: number of xor sources
- * @unmap_len: transaction bytecount
- * @tx_list: list of slots that make up a multi-descriptor transaction
- * @async_tx: support for the async_tx api
- * @xor_check_result: result of zero sum
- * @crc32_result: result crc calculation
- */
+#if defined(MY_ABC_HERE)
+ 
+#else  
+ 
+#endif  
+ 
 struct mv_xor_desc_slot {
+#if defined(MY_ABC_HERE)
+	struct list_head	node;
+	enum dma_transaction_type	type;
+	void			*hw_desc;
+	u16			idx;
+	u16			unmap_src_cnt;
+	u32			value;
+	size_t			unmap_len;
+#else  
 	struct list_head	slot_node;
 	struct list_head	chain_node;
 	struct list_head	completed_node;
@@ -134,6 +153,7 @@ struct mv_xor_desc_slot {
 	u32			value;
 	size_t			unmap_len;
 	struct list_head	tx_list;
+#endif  
 	struct dma_async_tx_descriptor	async_tx;
 	union {
 		u32		*xor_check_result;
@@ -145,18 +165,49 @@ struct mv_xor_desc_slot {
 #endif
 };
 
-/* This structure describes XOR descriptor size 64bytes	*/
+#if defined(MY_ABC_HERE)
+ 
+#if defined(__LITTLE_ENDIAN)
 struct mv_xor_desc {
-	u32 status;		/* descriptor execution status */
-	u32 crc32_result;	/* result of CRC-32 calculation */
-	u32 desc_command;	/* type of operation to be carried out */
-	u32 phy_next_desc;	/* next descriptor address pointer */
-	u32 byte_count;		/* size of src/dst blocks in bytes */
-	u32 phy_dest_addr;	/* destination block address */
-	u32 phy_src_addr[8];	/* source block addresses */
+	u32 status;		 
+	u32 crc32_result;	 
+	u32 desc_command;	 
+	u32 phy_next_desc;	 
+	u32 byte_count;		 
+	u32 phy_dest_addr;	 
+	u32 phy_src_addr[8];	 
+	u32 phy_q_dest_addr;
+	u32 reserved1;
+};
+#define mv_phy_src_idx(src_idx) (src_idx)
+#else
+struct mv_xor_desc {
+	u32 crc32_result;	 
+	u32 status;		 
+	u32 phy_next_desc;	 
+	u32 desc_command;	 
+	u32 phy_dest_addr;	 
+	u32 byte_count;		 
+	u32 phy_src_addr[8];	 
+	u32 reserved1;
+	u32 phy_q_dest_addr;
+};
+#define mv_phy_src_idx(src_idx) (src_idx ^ 1)
+#endif
+#else  
+ 
+struct mv_xor_desc {
+	u32 status;		 
+	u32 crc32_result;	 
+	u32 desc_command;	 
+	u32 phy_next_desc;	 
+	u32 byte_count;		 
+	u32 phy_dest_addr;	 
+	u32 phy_src_addr[8];	 
 	u32 reserved0;
 	u32 reserved1;
 };
+#endif  
 
 #define to_mv_sw_desc(addr_hw_desc)		\
 	container_of(addr_hw_desc, struct mv_xor_desc_slot, hw_desc)
@@ -167,6 +218,5 @@ struct mv_xor_desc {
 #define MV_XOR_MIN_BYTE_COUNT	(128)
 #define XOR_MAX_BYTE_COUNT	((16 * 1024 * 1024) - 1)
 #define MV_XOR_MAX_BYTE_COUNT	XOR_MAX_BYTE_COUNT
-
 
 #endif

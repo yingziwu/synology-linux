@@ -268,7 +268,11 @@ static int nfs4_delay(struct rpc_clnt *clnt, long *timeout)
 		*timeout = NFS4_POLL_RETRY_MIN;
 	if (*timeout > NFS4_POLL_RETRY_MAX)
 		*timeout = NFS4_POLL_RETRY_MAX;
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	freezable_schedule_timeout_killable_unsafe(*timeout);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	freezable_schedule_timeout_killable(*timeout);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	if (fatal_signal_pending(current))
 		res = -ERESTARTSYS;
 	*timeout <<= 1;
@@ -376,7 +380,6 @@ wait_on_recovery:
 		exception->retry = 1;
 	return ret;
 }
-
 
 static void do_renew_lease(struct nfs_client *clp, unsigned long timestamp)
 {
@@ -708,7 +711,6 @@ void nfs41_init_sequence(struct nfs4_sequence_args *args,
 static void nfs4_set_sequence_privileged(struct nfs4_sequence_args *args)
 {
 }
-
 
 static int nfs4_sequence_done(struct rpc_task *task,
 			       struct nfs4_sequence_res *res)
@@ -1057,7 +1059,6 @@ no_delegation:
 
 	return ret;
 }
-
 
 static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmode)
 {
@@ -2075,7 +2076,6 @@ out_err:
 	*res = NULL;
 	return status;
 }
-
 
 static struct nfs4_state *nfs4_do_open(struct inode *dir,
 					struct dentry *dentry,
@@ -4557,7 +4557,11 @@ int nfs4_proc_delegreturn(struct inode *inode, struct rpc_cred *cred, const nfs4
 static unsigned long
 nfs4_set_lock_task_retry(unsigned long timeout)
 {
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	freezable_schedule_timeout_killable_unsafe(timeout);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	freezable_schedule_timeout_killable(timeout);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	timeout <<= 1;
 	if (timeout > NFS4_LOCK_MAXTIMEOUT)
 		return NFS4_LOCK_MAXTIMEOUT;
@@ -6967,7 +6971,6 @@ static bool nfs4_match_stateid(const nfs4_stateid *s1,
 {
 	return nfs4_stateid_match(s1, s2);
 }
-
 
 static const struct nfs4_state_recovery_ops nfs40_reboot_recovery_ops = {
 	.owner_flag_bit = NFS_OWNER_RECLAIM_REBOOT,

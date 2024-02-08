@@ -369,4 +369,3 @@ void usb_stor_print_cmd(struct scsi_cmnd *srb)
 	bn = 0;
 	blen = 0;
 }
-

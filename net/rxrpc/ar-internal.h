@@ -501,10 +501,9 @@ extern void rxrpc_UDP_error_handler(struct work_struct *);
 extern unsigned long rxrpc_ack_timeout;
 extern const char *rxrpc_pkts[];
 
-extern void rxrpc_data_ready(struct sock *, int);
-extern int rxrpc_queue_rcv_skb(struct rxrpc_call *, struct sk_buff *, bool,
-			       bool);
-extern void rxrpc_fast_process_packet(struct rxrpc_call *, struct sk_buff *);
+void rxrpc_data_ready(struct sock *);
+int rxrpc_queue_rcv_skb(struct rxrpc_call *, struct sk_buff *, bool, bool);
+void rxrpc_fast_process_packet(struct rxrpc_call *, struct sk_buff *);
 
 /*
  * ar-local.c
@@ -602,7 +601,6 @@ extern unsigned int rxrpc_debug;
 #define kdebug(FMT,...)	dbgprintk("    "FMT ,##__VA_ARGS__)
 #define kproto(FMT,...)	dbgprintk("### "FMT ,##__VA_ARGS__)
 #define knet(FMT,...)	dbgprintk("@@@ "FMT ,##__VA_ARGS__)
-
 
 #if defined(__KDEBUG)
 #define _enter(FMT,...)	kenter(FMT,##__VA_ARGS__)

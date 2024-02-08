@@ -25,7 +25,6 @@
 #ifndef __HID_H
 #define __HID_H
 
-
 #include <linux/types.h>
 #include <linux/slab.h>
 #include <linux/list.h>
@@ -649,8 +648,13 @@ struct hid_driver {
 	int (*input_mapped)(struct hid_device *hdev,
 			struct hid_input *hidinput, struct hid_field *field,
 			struct hid_usage *usage, unsigned long **bit, int *max);
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	int (*input_configured)(struct hid_device *hdev,
+				struct hid_input *hidinput);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	void (*input_configured)(struct hid_device *hdev,
 				 struct hid_input *hidinput);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	void (*feature_mapping)(struct hid_device *hdev,
 			struct hid_field *field,
 			struct hid_usage *usage);
@@ -945,7 +949,6 @@ static inline int hid_hw_power(struct hid_device *hdev, int level)
 {
 	return hdev->ll_driver->power ? hdev->ll_driver->power(hdev, level) : 0;
 }
-
 
 /**
  * hid_hw_request - send report request to device

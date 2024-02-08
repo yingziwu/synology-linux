@@ -1,10 +1,7 @@
-/*
- * linux/lib/zlib_inflate/inflate_syms.c
- *
- * Exported symbols for the inflate functionality.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/init.h>
 
@@ -17,4 +14,9 @@ EXPORT_SYMBOL(zlib_inflateEnd);
 EXPORT_SYMBOL(zlib_inflateReset);
 EXPORT_SYMBOL(zlib_inflateIncomp); 
 EXPORT_SYMBOL(zlib_inflate_blob);
+#if defined (MY_DEF_HERE)
+#ifdef CONFIG_ST_ELF_EXTENSIONS
+EXPORT_SYMBOL(zlib_inflate_blob_with_header);
+#endif
+#endif  
 MODULE_LICENSE("GPL");

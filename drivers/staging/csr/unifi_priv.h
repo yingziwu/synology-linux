@@ -143,7 +143,6 @@ extern struct wake_lock unifi_sdio_wake_lock;
 /* Time in us before a station is flagged as inactive */
 #define MAX_INACTIVITY_INTERVAL     300000000
 
-
 /* Define for maximum BA session */
 #define MAX_SUPPORTED_BA_SESSIONS_TX   1
 #define MAX_SUPPORTED_BA_SESSIONS_RX   4
@@ -211,7 +210,6 @@ struct dlpriv {
     void *fw_desc;
 };
 
-
 struct uf_thread {
 
     struct task_struct *thread_task;
@@ -249,22 +247,17 @@ typedef struct rx_buffered_packets {
     CSR_SIGNAL signal;
 } rx_buffered_packets_t;
 
-
 typedef u8 CsrWifiAcPowersaveMode;
 #define CSR_WIFI_AC_TRIGGER_ONLY_ENABLED 0x00
 #define CSR_WIFI_AC_DELIVERY_ONLY_ENABLE 0X01
 #define CSR_WIFI_AC_TRIGGER_AND_DELIVERY_ENABLED 0X03
 #define CSR_WIFI_AC_LEGACY_POWER_SAVE 0X02
 
-
 #define IS_DELIVERY_ENABLED(mode) (mode & CSR_WIFI_AC_DELIVERY_ONLY_ENABLE)? 1: 0
 #define IS_DELIVERY_AND_TRIGGER_ENABLED(mode) ((mode & CSR_WIFI_AC_DELIVERY_ONLY_ENABLE)||(mode & CSR_WIFI_AC_TRIGGER_AND_DELIVERY_ENABLED))? 1: 0
 #define IS_DTIM_ACTIVE(flag,hostTag) ((flag == TRUE || hostTag != INVALID_HOST_TAG))
 #define INVALID_HOST_TAG 0xFFFFFFFF
 #define UNIFI_TRAFFIC_Q_CONTENTION UNIFI_TRAFFIC_Q_BE
-
-
-
 
 /* Queue to be used for contention priority */
 
@@ -553,7 +546,6 @@ struct unifi_priv {
     int wep_tx_key_index;
     wep_key_t wep_keys[NUM_WEPKEYS];
 
-
 #ifdef CSR_SUPPORT_WEXT_AP
     CsrWifiSmeApMacConfig ap_mac_config;
     CsrWifiNmeApConfig group_sec_config;
@@ -573,7 +565,6 @@ struct unifi_priv {
 
     /* Mutex to protect unifi_send_signal() */
     spinlock_t send_signal_lock;
-
 
     /*
      * The workqueue to offload the TA run
@@ -646,7 +637,6 @@ typedef struct {
     u8 os_queue_paused;
 } unifi_OsQosInfo;
 
-
 typedef struct {
     u8 active;
     bulk_data_param_t bulkdata;
@@ -669,7 +659,6 @@ typedef struct {
     CsrWifiMacAddress macAddress;
     struct work_struct send_ba_err_task;
 } ba_session_rx_struct;
-
 
 typedef struct {
     struct netInterface_priv *interfacePriv;
@@ -782,7 +771,6 @@ typedef struct netInterface_priv
 
 s32 CsrHipResultToStatus(CsrResult csrResult);
 
-
 /*
  * SDIO related functions and callbacks
  */
@@ -798,8 +786,6 @@ int csr_sdio_linux_remove_irq(CsrSdioFunction *sdio);
 
 void uf_add_os_device(int bus_id, struct device *os_device);
 void uf_remove_os_device(int bus_id);
-
-
 
 /*
  * Claim/release SDIO
@@ -849,7 +835,6 @@ void uf_remove_os_device(int bus_id);
 
 #endif /* CSR_WIFI_SUPPORT_MMC_DRIVER */
 
-
 /*
  * Functions to allocate and free an ethernet device.
  */
@@ -884,7 +869,6 @@ int uf_start_thread(unifi_priv_t *priv, struct uf_thread *thread, int (*func)(vo
 void uf_stop_thread(unifi_priv_t *priv, struct uf_thread *thread);
 void uf_wait_for_thread_to_stop(unifi_priv_t *priv, struct uf_thread *thread);
 
-
 /*
  * Unifi Linux functions
  */
@@ -906,7 +890,6 @@ int ul_send_signal_raw(unifi_priv_t *priv,
                        bulk_data_param_t *bulkdata);
 
 void ul_log_config_ind(unifi_priv_t *priv, u8 *conf_param, int len);
-
 
 /*
  * Data plane operations
@@ -938,8 +921,6 @@ void uf_send_buffered_data_from_delivery_ac(unifi_priv_t *priv, CsrWifiRouterCtr
 void uf_continue_uapsd(unifi_priv_t *priv, CsrWifiRouterCtrlStaInfo_t * staInfo);
 void uf_send_qos_null(unifi_priv_t * priv,u16 interfaceTag, const u8 *da,CSR_PRIORITY priority,CsrWifiRouterCtrlStaInfo_t * srcStaInfo);
 void uf_send_nulldata(unifi_priv_t * priv,u16 interfaceTag, const u8 *da,CSR_PRIORITY priority,CsrWifiRouterCtrlStaInfo_t * srcStaInfo);
-
-
 
 #endif
 CsrResult uf_process_ma_packet_req(unifi_priv_t *priv,  u8 *peerMacAddress, CSR_CLIENT_TAG hostTag, u16 interfaceTag, CSR_TRANSMISSION_CONTROL transmissionControl, CSR_RATE TransmitRate, CSR_PRIORITY priority, CSR_PROCESS_ID senderId, bulk_data_param_t *bulkdata);
@@ -983,7 +964,6 @@ int skb_80211_to_ether(unifi_priv_t *priv, struct sk_buff *skb,
 
 const char *result_code_str(int result);
 
-
 /* prepares & appends the Mac header for the payload */
 int prepare_and_add_macheader(unifi_priv_t *priv,
                               struct sk_buff *skb,
@@ -1003,7 +983,6 @@ unifi_frame_ma_packet_req(unifi_priv_t *priv, CSR_PRIORITY priority,
                           u16 interfaceTag, CSR_TRANSMISSION_CONTROL transmissionControl,
                           CSR_PROCESS_ID leSenderProcessId, u8 *peerMacAddress,
                           CSR_SIGNAL *signal);
-
 
 /* Pack the LSB to include station handle & status of tim set */
 #define CSR_WIFI_PACK_SENDER_ID_LSB_FOR_TIM_REQ(handle, timState)  ((handle << 2) | timState)
@@ -1080,13 +1059,11 @@ int uf_unregister_hip_offline_debug(unifi_priv_t *priv);
 void uf_register_inet_notifier(void);
 void uf_unregister_inet_notifier(void);
 
-
 /*
  * Suspend / Resume handlers
  */
 void unifi_resume(void *ospriv);
 void unifi_suspend(void *ospriv);
-
 
 #define QOS_CAPABILITY_WMM_ENABLED      0x0001
 #define QOS_CAPABILITY_WMM_UAPSD        0x0002
@@ -1098,7 +1075,6 @@ void unifi_suspend(void *ospriv);
 #define QOS_CAPABILITY_TS_BK_ENABLED    0x0200
 #define QOS_CAPABILITY_TS_VI_ENABLED    0x0400
 #define QOS_CAPABILITY_TS_VO_ENABLED    0x0800
-
 
 /* EAPOL PDUS */
 #ifndef ETH_P_PAE
@@ -1115,7 +1091,6 @@ void debug_string_indication(unifi_priv_t *priv,
         unsigned int extralen);
 void debug_word16_indication(unifi_priv_t *priv, const CSR_SIGNAL *sigptr);
 void debug_generic_indication(unifi_priv_t *priv, const CSR_SIGNAL *sigptr);
-
 
 /*
  * putest.c

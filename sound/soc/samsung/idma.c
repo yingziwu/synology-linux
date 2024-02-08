@@ -1,16 +1,7 @@
-/*
- * sound/soc/samsung/idma.c
- *
- * Copyright (c) 2011 Samsung Electronics Co., Ltd.
- *		http://www.samsung.com
- *
- * I2S0's Internal DMA driver
- *
- * This program is free software; you can redistribute  it and/or modify it
- * under  the terms of  the GNU General  Public License as published by the
- * Free Software Foundation;  either version 2 of the  License, or (at your
- * option) any later version.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
@@ -86,18 +77,12 @@ static int idma_enqueue(struct snd_pcm_substream *substream)
 	prtd->token = (void *) substream;
 	spin_unlock(&prtd->lock);
 
-	/* Internal DMA Level0 Interrupt Address */
 	val = idma.lp_tx_addr + prtd->periodsz;
 	writel(val, idma.regs + I2SLVL0ADDR);
 
-	/* Start address0 of I2S internal DMA operation. */
 	val = idma.lp_tx_addr;
 	writel(val, idma.regs + I2SSTR0);
 
-	/*
-	 * Transfer block size for I2S internal DMA.
-	 * Should decide transfer size before start dma operation
-	 */
 	val = readl(idma.regs + I2SSIZE);
 	val &= ~(I2SSIZE_TRNMSK << I2SSIZE_SHIFT);
 	val |= (((runtime->dma_bytes >> 2) &
@@ -191,7 +176,6 @@ static int idma_prepare(struct snd_pcm_substream *substream)
 
 	prtd->pos = prtd->start;
 
-	/* flush the DMA channel */
 	idma_control(LPAM_DMA_STOP);
 	idma_enqueue(substream);
 
@@ -255,7 +239,6 @@ static int idma_mmap(struct snd_pcm_substream *substream,
 	unsigned long size, offset;
 	int ret;
 
-	/* From snd_pcm_lib_mmap_iomem */
 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
 	vma->vm_flags |= VM_IO;
 	size = vma->vm_end - vma->vm_start;
@@ -375,7 +358,6 @@ static int preallocate_idma_buffer(struct snd_pcm *pcm, int stream)
 	buf->dev.dev = pcm->card->dev;
 	buf->private_data = NULL;
 
-	/* Assign PCM buffer pointers */
 	buf->dev.type = SNDRV_DMA_TYPE_CONTINUOUS;
 	buf->addr = idma.lp_tx_addr;
 	buf->bytes = idma_hardware.buffer_bytes_max;
@@ -384,7 +366,11 @@ static int preallocate_idma_buffer(struct snd_pcm *pcm, int stream)
 	return 0;
 }
 
+#if defined(MY_ABC_HERE)
+ 
+#else  
 static u64 idma_mask = DMA_BIT_MASK(32);
+#endif  
 
 static int idma_new(struct snd_soc_pcm_runtime *rtd)
 {
@@ -392,10 +378,16 @@ static int idma_new(struct snd_soc_pcm_runtime *rtd)
 	struct snd_pcm *pcm = rtd->pcm;
 	int ret = 0;
 
+#if defined(MY_ABC_HERE)
+	ret = dma_coerce_mask_and_coherent(card->dev, DMA_BIT_MASK(32));
+	if (ret)
+		return ret;
+#else  
 	if (!card->dev->dma_mask)
 		card->dev->dma_mask = &idma_mask;
 	if (!card->dev->coherent_dma_mask)
 		card->dev->coherent_dma_mask = DMA_BIT_MASK(32);
+#endif  
 
 	if (pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream) {
 		ret = preallocate_idma_buffer(pcm,

@@ -260,6 +260,18 @@ config MMC_SDHCI_BCM2835
 
 	  If unsure, say N.
 
+config MMC_SDHCI_ST
+	tristate "SDHCI support on STMicroelectronics SoC"
+	depends on SOC_STIH415 || SOC_STIH416 || SOC_STIH407 || SOC_STI8416
+	depends on MMC_SDHCI_PLTFM
+	select MMC_SDHCI_IO_ACCESSORS
+	help
+	  This selects the Secure Digital Host Controller Interface in
+	  STMicroelectronics SoCs.
+
+	  If you have a controller with this interface, say Y or M here.
+	  If unsure, say N.
+
 config MMC_OMAP
 	tristate "TI OMAP Multimedia Card Interface support"
 	depends on ARCH_OMAP
@@ -567,6 +579,16 @@ config MMC_DW_PCI
 
 	  If unsure, say N.
 
+config MMC_DW_HISI
+	tristate "Hisilicon specific extensions for Synopsys DW Memory Card Interface"
+	depends on SYNO_LSP_HI3536 && MMC_DW
+	select MMC_DW_PLTFM
+	select MMC_DW_IDMAC
+	help
+	  This selects support for Hisilicon SoC specific extensions to the
+	  Synopsys DesignWare Memory Card Interface driver. Select this option
+	  for platforms based on Hisilicon SoC's.
+
 config MMC_SH_MMCIF
 	tristate "SuperH Internal MMCIF support"
 	depends on MMC_BLOCK && (SUPERH || ARCH_SHMOBILE)
@@ -646,3 +668,7 @@ config MMC_REALTEK_PCI
 	help
 	  Say Y here to include driver code to support SD/MMC card interface
 	  of Realtek PCI-E card reader
+
+if SYNO_LSP_HI3536
+source "drivers/mmc/host/himciv200/Kconfig"
+endif # SYNO_LSP_HI3536

@@ -1,18 +1,7 @@
-/*
- * drivers/uio/uio.c
- *
- * Copyright(C) 2005, Benedikt Spranger <b.spranger@linutronix.de>
- * Copyright(C) 2005, Thomas Gleixner <tglx@linutronix.de>
- * Copyright(C) 2006, Hans J. Koch <hjk@hansjkoch.de>
- * Copyright(C) 2006, Greg Kroah-Hartman <greg@kroah.com>
- *
- * Userspace IO
- *
- * Base Functions
- *
- * Licensed under the GPLv2 only.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/poll.h>
@@ -46,12 +35,7 @@ static struct cdev *uio_cdev;
 static DEFINE_IDR(uio_idr);
 static const struct file_operations uio_fops;
 
-/* Protect idr accesses */
 static DEFINE_MUTEX(minor_lock);
-
-/*
- * attributes
- */
 
 struct uio_map {
 	struct kobject kobj;
@@ -102,7 +86,7 @@ static struct attribute *attrs[] = {
 	&addr_attribute.attr,
 	&size_attribute.attr,
 	&offset_attribute.attr,
-	NULL,	/* need to NULL terminate the list of attributes */
+	NULL,	 
 };
 
 static void map_release(struct kobject *kobj)
@@ -252,15 +236,11 @@ static struct device_attribute uio_class_attributes[] = {
 	{}
 };
 
-/* UIO class infrastructure */
 static struct class uio_class = {
 	.name = "uio",
 	.dev_attrs = uio_class_attributes,
 };
 
-/*
- * device functions
- */
 static int uio_dev_add_attributes(struct uio_device *idev)
 {
 	int ret;
@@ -390,10 +370,6 @@ static void uio_free_minor(struct uio_device *idev)
 	mutex_unlock(&minor_lock);
 }
 
-/**
- * uio_event_notify - trigger an interrupt event
- * @info: UIO device capabilities
- */
 void uio_event_notify(struct uio_info *info)
 {
 	struct uio_device *idev = info->uio_dev;
@@ -404,11 +380,6 @@ void uio_event_notify(struct uio_info *info)
 }
 EXPORT_SYMBOL_GPL(uio_event_notify);
 
-/**
- * uio_interrupt - hardware interrupt handler
- * @irq: IRQ number, can be UIO_IRQ_CYCLIC for cyclic timer
- * @dev_id: Pointer to the devices uio_device structure
- */
 static irqreturn_t uio_interrupt(int irq, void *dev_id)
 {
 	struct uio_device *idev = (struct uio_device *)dev_id;
@@ -615,10 +586,6 @@ static int uio_vma_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 	if (mi < 0)
 		return VM_FAULT_SIGBUS;
 
-	/*
-	 * We need to subtract mi because userspace uses offset = N*PAGE_SIZE
-	 * to use mem[N].
-	 */
 	offset = (vmf->pgoff - mi) << PAGE_SHIFT;
 
 	if (idev->info->mem[mi].memtype == UIO_MEM_LOGICAL)
@@ -650,7 +617,11 @@ static const struct vm_operations_struct uio_physical_vm_ops = {
 #endif
 };
 
+#if defined(MY_DEF_HERE)
+static int uio_mmap_physical(struct vm_area_struct *vma, int cacheable)
+#else  
 static int uio_mmap_physical(struct vm_area_struct *vma)
+#endif  
 {
 	struct uio_device *idev = vma->vm_private_data;
 	int mi = uio_find_mem_index(vma);
@@ -663,17 +634,14 @@ static int uio_mmap_physical(struct vm_area_struct *vma)
 		return -EINVAL;
 
 	vma->vm_ops = &uio_physical_vm_ops;
-	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
 
-	/*
-	 * We cannot use the vm_iomap_memory() helper here,
-	 * because vma->vm_pgoff is the map index we looked
-	 * up above in uio_find_mem_index(), rather than an
-	 * actual page offset into the mmap.
-	 *
-	 * So we just do the physical mmap without a page
-	 * offset.
-	 */
+#if defined(MY_DEF_HERE)
+	if (!cacheable)
+		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+#else  
+	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+#endif  
+
 	return remap_pfn_range(vma,
 			       vma->vm_start,
 			       mem->addr >> PAGE_SHIFT,
@@ -711,10 +679,18 @@ static int uio_mmap(struct file *filep, struct vm_area_struct *vma)
 
 	switch (idev->info->mem[mi].memtype) {
 		case UIO_MEM_PHYS:
+#if defined(MY_DEF_HERE)
+			return uio_mmap_physical(vma, 0);
+#else  
 			return uio_mmap_physical(vma);
+#endif  
 		case UIO_MEM_LOGICAL:
 		case UIO_MEM_VIRTUAL:
 			return uio_mmap_logical(vma);
+#if defined(MY_DEF_HERE)
+		case UIO_MEM_PHYS_CACHEABLE:
+			return uio_mmap_physical(vma, 1);
+#endif  
 		default:
 			return -EINVAL;
 	}
@@ -777,7 +753,6 @@ static int init_uio_class(void)
 {
 	int ret;
 
-	/* This is the first time in here, set everything up properly */
 	ret = uio_major_init();
 	if (ret)
 		goto exit;
@@ -801,14 +776,6 @@ static void release_uio_class(void)
 	uio_major_cleanup();
 }
 
-/**
- * uio_register_device - register a new userspace IO device
- * @owner:	module that creates the new device
- * @parent:	parent device
- * @info:	UIO device capabilities
- *
- * returns zero on success or a negative error code.
- */
 int __uio_register_device(struct module *owner,
 			  struct device *parent,
 			  struct uio_info *info)
@@ -873,11 +840,6 @@ err_kzalloc:
 }
 EXPORT_SYMBOL_GPL(__uio_register_device);
 
-/**
- * uio_unregister_device - unregister a industrial IO device
- * @info:	UIO device capabilities
- *
- */
 void uio_unregister_device(struct uio_info *info)
 {
 	struct uio_device *idev;

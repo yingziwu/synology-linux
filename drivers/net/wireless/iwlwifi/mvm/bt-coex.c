@@ -463,7 +463,6 @@ int iwl_mvm_rx_bt_coex_notif(struct iwl_mvm *mvm,
 	struct iwl_rx_packet *pkt = rxb_addr(rxb);
 	struct iwl_bt_coex_profile_notif *notif = (void *)pkt->data;
 
-
 	IWL_DEBUG_COEX(mvm, "BT Coex Notification received\n");
 	IWL_DEBUG_COEX(mvm, "\tBT %salive\n", notif->bt_status ? "" : "not ");
 	IWL_DEBUG_COEX(mvm, "\tBT open conn %d\n", notif->bt_open_conn);

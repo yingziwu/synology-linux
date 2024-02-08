@@ -1,14 +1,7 @@
-/*
- * Copyright (c) 2008-2009 Nuvoton technology corporation.
- *
- * Wan ZongShun <mcuos.com@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation;version 2 of the License.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/mii.h>
@@ -23,7 +16,6 @@
 #define DRV_MODULE_NAME		"w90p910-emc"
 #define DRV_MODULE_VERSION	"0.1"
 
-/* Ethernet MAC Registers */
 #define REG_CAMCMR		0x00
 #define REG_CAMEN		0x04
 #define REG_CAMM_BASE		0x08
@@ -44,7 +36,6 @@
 #define REG_CRXDSA		0xd4
 #define REG_CRXBSA		0xd8
 
-/* mac controller bit */
 #define MCMDR_RXON		0x01
 #define MCMDR_ACP		(0x01 << 3)
 #define MCMDR_SPCRC		(0x01 << 5)
@@ -54,7 +45,6 @@
 #define MCMDR_OPMOD		(0x01 << 20)
 #define SWR			(0x01 << 24)
 
-/* cam command regiser */
 #define CAMCMR_AUP		0x01
 #define CAMCMR_AMP		(0x01 << 1)
 #define CAMCMR_ABP		(0x01 << 2)
@@ -62,7 +52,6 @@
 #define CAMCMR_ECMP		(0x01 << 4)
 #define CAM0EN			0x01
 
-/* mac mii controller bit */
 #define MDCCR			(0x0a << 20)
 #define PHYAD			(0x01 << 8)
 #define PHYWR			(0x01 << 16)
@@ -70,7 +59,6 @@
 #define PHYPRESP		(0x01 << 18)
 #define CAM_ENTRY_SIZE		0x08
 
-/* rx and tx status */
 #define TXDS_TXCP		(0x01 << 19)
 #define RXDS_CRCE		(0x01 << 17)
 #define RXDS_PTLE		(0x01 << 19)
@@ -78,7 +66,6 @@
 #define RXDS_ALIE		(0x01 << 21)
 #define RXDS_RP			(0x01 << 22)
 
-/* mac interrupt status*/
 #define MISTA_EXDEF		(0x01 << 19)
 #define MISTA_TXBERR		(0x01 << 24)
 #define MISTA_TDU		(0x01 << 23)
@@ -97,22 +84,18 @@
 #define PHYBUSY			(0x01 << 17)
 #define MDCCR_VAL		0xa00000
 
-/* rx and tx owner bit */
 #define RX_OWEN_DMA		(0x01 << 31)
 #define RX_OWEN_CPU		(~(0x03 << 30))
 #define TX_OWEN_DMA		(0x01 << 31)
 #define TX_OWEN_CPU		(~(0x01 << 31))
 
-/* tx frame desc controller bit */
 #define MACTXINTEN		0x04
 #define CRCMODE			0x02
 #define PADDINGMODE		0x01
 
-/* fftcr controller bit */
 #define TXTHD 			(0x03 << 8)
 #define BLENGTH			(0x01 << 20)
 
-/* global setting for driver */
 #define RX_DESC_SIZE		50
 #define TX_DESC_SIZE		10
 #define MAX_RBUFF_SZ		0x600
@@ -182,7 +165,7 @@ static void update_linkspeed_register(struct net_device *dev,
 	val = __raw_readl(ether->reg + REG_MCMDR);
 
 	if (speed == SPEED_100) {
-		/* 100 full/half duplex */
+		 
 		if (duplex == DUPLEX_FULL) {
 			val |= (MCMDR_OPMOD | MCMDR_FDUP);
 		} else {
@@ -190,7 +173,7 @@ static void update_linkspeed_register(struct net_device *dev,
 			val &= ~MCMDR_FDUP;
 		}
 	} else {
-		/* 10 full/half duplex */
+		 
 		if (duplex == DUPLEX_FULL) {
 			val |= MCMDR_FDUP;
 			val &= ~MCMDR_OPMOD;
@@ -476,7 +459,7 @@ static void w90p910_reset_mac(struct net_device *dev)
 
 	w90p910_init_desc(dev);
 
-	dev->trans_start = jiffies; /* prevent tx timeout */
+	dev->trans_start = jiffies;  
 	ether->cur_tx = 0x0;
 	ether->finish_tx = 0x0;
 	ether->cur_rx = 0x0;
@@ -490,7 +473,7 @@ static void w90p910_reset_mac(struct net_device *dev)
 	w90p910_trigger_tx(dev);
 	w90p910_trigger_rx(dev);
 
-	dev->trans_start = jiffies; /* prevent tx timeout */
+	dev->trans_start = jiffies;  
 
 	if (netif_queue_stopped(dev))
 		netif_wake_queue(dev);
@@ -1051,7 +1034,10 @@ failed_put_clk:
 	clk_put(ether->clk);
 failed_free_rxirq:
 	free_irq(ether->rxirq, pdev);
+#if defined (MY_DEF_HERE)
+#else  
 	platform_set_drvdata(pdev, NULL);
+#endif  
 failed_free_txirq:
 	free_irq(ether->txirq, pdev);
 failed_free_io:
@@ -1080,7 +1066,10 @@ static int w90p910_ether_remove(struct platform_device *pdev)
 	free_irq(ether->rxirq, dev);
 
 	del_timer_sync(&ether->check_timer);
+#if defined (MY_DEF_HERE)
+#else  
 	platform_set_drvdata(pdev, NULL);
+#endif  
 
 	free_netdev(dev);
 	return 0;
@@ -1101,4 +1090,3 @@ MODULE_AUTHOR("Wan ZongShun <mcuos.com@gmail.com>");
 MODULE_DESCRIPTION("w90p910 MAC driver!");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:nuc900-emc");
-

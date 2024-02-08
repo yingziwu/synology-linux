@@ -2,11 +2,15 @@
 # Makefile for the Linux network Ethernet device drivers.
 #
 
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+obj-$(CONFIG_STMMAC_ETH_TNK) += stmmac/
+endif # CONFIG_SYNO_LSP_HI3536
 obj-$(CONFIG_NET_VENDOR_3COM) += 3com/
 obj-$(CONFIG_NET_VENDOR_8390) += 8390/
 obj-$(CONFIG_NET_VENDOR_ADAPTEC) += adaptec/
 obj-$(CONFIG_GRETH) += aeroflex/
 obj-$(CONFIG_NET_VENDOR_ALTEON) += alteon/
+obj-$(CONFIG_NET_AL_ETH) += al/
 obj-$(CONFIG_NET_VENDOR_AMD) += amd/
 obj-$(CONFIG_NET_VENDOR_APPLE) += apple/
 obj-$(CONFIG_NET_VENDOR_ATHEROS) += atheros/
@@ -36,6 +40,9 @@ obj-$(CONFIG_IP1000) += icplus/
 obj-$(CONFIG_JME) += jme.o
 obj-$(CONFIG_KORINA) += korina.o
 obj-$(CONFIG_LANTIQ_ETOP) += lantiq_etop.o
+ifeq ($(CONFIG_SYNO_LSP_ARMADA),y)
+obj-$(CONFIG_NET_VENDOR_MVEBU) += mvebu_net/
+endif
 obj-$(CONFIG_NET_VENDOR_MARVELL) += marvell/
 obj-$(CONFIG_NET_VENDOR_MELLANOX) += mellanox/
 obj-$(CONFIG_NET_VENDOR_MICREL) += micrel/
@@ -74,3 +81,6 @@ obj-$(CONFIG_NET_VENDOR_VIA) += via/
 obj-$(CONFIG_NET_VENDOR_WIZNET) += wiznet/
 obj-$(CONFIG_NET_VENDOR_XILINX) += xilinx/
 obj-$(CONFIG_NET_VENDOR_XIRCOM) += xircom/
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+obj-$(CONFIG_HIETH_GMAC) += hieth-gmac/
+endif # CONFIG_SYNO_LSP_HI3536

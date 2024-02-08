@@ -643,7 +643,6 @@ static int m5mols_set_frame_desc(struct v4l2_subdev *sd, unsigned int pad,
 	return 0;
 }
 
-
 static int m5mols_enum_mbus_code(struct v4l2_subdev *sd,
 				 struct v4l2_subdev_fh *fh,
 				 struct v4l2_subdev_mbus_code_enum *code)

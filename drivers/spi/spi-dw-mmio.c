@@ -1,13 +1,7 @@
-/*
- * Memory-mapped interface driver for DW SPI Core
- *
- * Copyright (c) 2010, Octasic semiconductor.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms and conditions of the GNU General Public License,
- * version 2, as published by the Free Software Foundation.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/clk.h>
 #include <linux/err.h>
 #include <linux/interrupt.h>
@@ -16,6 +10,9 @@
 #include <linux/spi/spi.h>
 #include <linux/scatterlist.h>
 #include <linux/module.h>
+#if defined(MY_DEF_HERE)
+#include <linux/of.h>
+#endif  
 
 #include "spi-dw.h"
 
@@ -32,6 +29,9 @@ static int dw_spi_mmio_probe(struct platform_device *pdev)
 	struct dw_spi *dws;
 	struct resource *mem, *ioarea;
 	int ret;
+#if defined(MY_DEF_HERE)
+	int num_cs, bus_num;
+#endif  
 
 	dwsmmio = kzalloc(sizeof(struct dw_spi_mmio), GFP_KERNEL);
 	if (!dwsmmio) {
@@ -41,7 +41,6 @@ static int dw_spi_mmio_probe(struct platform_device *pdev)
 
 	dws = &dwsmmio->dws;
 
-	/* Get basic io resource and map it */
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!mem) {
 		dev_err(&pdev->dev, "no mem resource?\n");
@@ -67,7 +66,7 @@ static int dw_spi_mmio_probe(struct platform_device *pdev)
 	dws->irq = platform_get_irq(pdev, 0);
 	if (dws->irq < 0) {
 		dev_err(&pdev->dev, "no irq resource?\n");
-		ret = dws->irq; /* -ENXIO */
+		ret = dws->irq;  
 		goto err_unmap;
 	}
 
@@ -78,9 +77,25 @@ static int dw_spi_mmio_probe(struct platform_device *pdev)
 	}
 	clk_enable(dwsmmio->clk);
 
+#if defined(MY_DEF_HERE)
+	ret = of_property_read_u32(pdev->dev.of_node, "bus-num", &bus_num);
+	if (ret < 0)
+		dws->bus_num = 0;
+	else
+		dws->bus_num = bus_num;
+
+	ret = of_property_read_u32(pdev->dev.of_node, "num-chipselect", &num_cs);
+	if (ret < 0)
+		dws->num_cs = 4;
+	else
+		dws->num_cs = num_cs;
+
+	dws->parent_dev = &pdev->dev;
+#else  
 	dws->parent_dev = &pdev->dev;
 	dws->bus_num = 0;
 	dws->num_cs = 4;
+#endif  
 	dws->max_freq = clk_get_rate(dwsmmio->clk);
 
 	ret = dw_spi_add_host(dws);
@@ -127,12 +142,23 @@ static int dw_spi_mmio_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#if defined(MY_DEF_HERE)
+static struct of_device_id dw_spi_mmio_of_match[] = {
+		{ .compatible = "snps,dw-spi-mmio", },
+		{  }
+};
+MODULE_DEVICE_TABLE(of, dw_spi_mmio_of_match);
+#endif  
+
 static struct platform_driver dw_spi_mmio_driver = {
 	.probe		= dw_spi_mmio_probe,
 	.remove		= dw_spi_mmio_remove,
 	.driver		= {
 		.name	= DRIVER_NAME,
 		.owner	= THIS_MODULE,
+#if defined(MY_DEF_HERE)
+		.of_match_table = dw_spi_mmio_of_match,
+#endif  
 	},
 };
 module_platform_driver(dw_spi_mmio_driver);

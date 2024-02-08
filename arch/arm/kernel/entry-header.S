@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/init.h>
 #include <linux/linkage.h>
 
@@ -125,10 +128,19 @@
 	movs	pc, lr				@ return & move spsr_svc into cpsr
 	.endm
 
+#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+	// do nothing
+#else /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
 	.macro	get_thread_info, rd
+#if defined(MY_DEF_HERE)
+	mov	\rd, sp, lsr #(PAGE_SHIFT + THREAD_SIZE_ORDER)
+	mov	\rd, \rd, lsl #(PAGE_SHIFT + THREAD_SIZE_ORDER)
+#else /* MY_DEF_HERE */
 	mov	\rd, sp, lsr #13
 	mov	\rd, \rd, lsl #13
+#endif /* MY_DEF_HERE */
 	.endm
+#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
 
 	@
 	@ 32-bit wide "mov pc, reg"
@@ -182,11 +194,15 @@
 	movs	pc, lr				@ return & move spsr_svc into cpsr
 	.endm
 
+#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+	// do nothing
+#else /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
 	.macro	get_thread_info, rd
 	mov	\rd, sp
 	lsr	\rd, \rd, #13
 	mov	\rd, \rd, lsl #13
 	.endm
+#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
 
 	@
 	@ 32-bit wide "mov pc, reg"

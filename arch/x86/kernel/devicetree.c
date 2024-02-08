@@ -1,6 +1,7 @@
-/*
- * Architecture specific OF callbacks.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/bootmem.h>
 #include <linux/export.h>
 #include <linux/io.h>
@@ -28,9 +29,7 @@ int __initdata of_ioapic;
 
 unsigned long pci_address_to_pio(phys_addr_t address)
 {
-	/*
-	 * The ioport address can be directly used by inX / outX
-	 */
+	 
 	BUG_ON(address >= (1 << 16));
 	return (unsigned long)address;
 }
@@ -66,9 +65,6 @@ void __init add_dtb(u64 data)
 	initial_dtb = data + offsetof(struct setup_data, data);
 }
 
-/*
- * CE4100 ids. Will be moved to machine_device_initcall() once we have it.
- */
 static struct of_device_id __initdata ce4100_ids[] = {
 	{ .compatible = "intel,ce4100-cp", },
 	{ .compatible = "isa", },
@@ -106,7 +102,11 @@ struct device_node *pcibios_get_phb_of_node(struct pci_bus *bus)
 
 static int x86_of_pci_irq_enable(struct pci_dev *dev)
 {
+#if defined(MY_ABC_HERE)
+	struct of_phandle_args oirq;
+#else  
 	struct of_irq oirq;
+#endif  
 	u32 virq;
 	int ret;
 	u8 pin;
@@ -117,12 +117,20 @@ static int x86_of_pci_irq_enable(struct pci_dev *dev)
 	if (!pin)
 		return 0;
 
+#if defined(MY_ABC_HERE)
+	ret = of_irq_parse_pci(dev, &oirq);
+#else  
 	ret = of_irq_map_pci(dev, &oirq);
+#endif  
 	if (ret)
 		return ret;
 
+#if defined(MY_ABC_HERE)
+	virq = irq_create_of_mapping(&oirq);
+#else  
 	virq = irq_create_of_mapping(oirq.controller, oirq.specifier,
 			oirq.size);
+#endif  
 	if (virq == 0)
 		return -EINVAL;
 	dev->irq = virq;
@@ -174,7 +182,6 @@ static void __init dtb_lapic_setup(void)
 	if (WARN_ON(ret))
 		return;
 
-	/* Did the boot loader setup the local APIC ? */
 	if (!cpu_has_apic) {
 		if (apic_force_enable(r.start))
 			return;
@@ -253,7 +260,6 @@ static void __init x86_flattree_get_config(void)
 
 	initial_boot_params = new_dtb;
 
-	/* root level address cells */
 	of_scan_flat_dt(early_init_dt_scan_root, NULL);
 
 	unflatten_device_tree();
@@ -357,13 +363,7 @@ static void dt_add_ioapic_domain(unsigned int ioapic_num,
 			(void *)ioapic_num);
 	BUG_ON(!id);
 	if (gsi_cfg->gsi_base == 0) {
-		/*
-		 * The first NR_IRQS_LEGACY irq descs are allocated in
-		 * early_irq_init() and need just a mapping. The
-		 * remaining irqs need both. All of them are preallocated
-		 * and assigned so we can keep the 1:1 mapping which the ioapic
-		 * is having.
-		 */
+		 
 		ret = irq_domain_associate_many(id, 0, 0, NR_IRQS_LEGACY);
 		if (ret)
 			pr_err("Error mapping legacy IRQs: %d\n", ret);

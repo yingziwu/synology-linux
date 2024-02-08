@@ -94,7 +94,6 @@ typedef struct _SM_STATUS {
 #define US_FLIDX_TIMED_OUT	5	/* SCSI midlayer timed out  */
 #define US_FLIDX_DONT_SCAN	6	/* don't scan (disconnect)  */
 
-
 #define USB_STOR_STRING_LEN 32
 
 /*

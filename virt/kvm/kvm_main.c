@@ -637,7 +637,6 @@ void kvm_put_kvm(struct kvm *kvm)
 }
 EXPORT_SYMBOL_GPL(kvm_put_kvm);
 
-
 static int kvm_vm_release(struct inode *inode, struct file *filp)
 {
 	struct kvm *kvm = filp->private_data;
@@ -1994,7 +1993,6 @@ static long kvm_vcpu_ioctl(struct file *filp,
 	if (ioctl == KVM_S390_INTERRUPT || ioctl == KVM_INTERRUPT)
 		return kvm_arch_vcpu_ioctl(filp, ioctl, arg);
 #endif
-
 
 	r = vcpu_load(vcpu);
 	if (r)

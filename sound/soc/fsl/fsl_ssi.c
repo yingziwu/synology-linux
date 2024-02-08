@@ -599,7 +599,6 @@ static const struct snd_soc_component_driver fsl_ssi_component = {
 				ssi_private->stats.name); \
 	} while (0)
 
-
 /**
  * fsl_sysfs_ssi_show: display SSI statistics
  *

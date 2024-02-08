@@ -252,7 +252,6 @@ vfp_propagate_nan(struct vfp_single *vsd, struct vfp_single *vsn,
 	return tn == VFP_SNAN || tm == VFP_SNAN ? FPSCR_IOC : VFP_NAN_FLAG;
 }
 
-
 /*
  * Extended operations
  */
@@ -721,10 +720,6 @@ static struct op fops_ext[32] = {
 	[FEXT_TO_IDX(FEXT_FTOSIZ)]	= { vfp_single_ftosiz, OP_SCALAR },
 };
 
-
-
-
-
 static u32
 vfp_single_fadd_nonnumber(struct vfp_single *vsd, struct vfp_single *vsn,
 			  struct vfp_single *vsm, u32 fpscr)
@@ -915,6 +910,10 @@ vfp_single_multiply_accumulate(int sd, int sn, s32 m, u32 fpscr, u32 negate, cha
 	v = vfp_get_float(sd);
 	pr_debug("VFP: s%u = %08x\n", sd, v);
 	vfp_single_unpack(&vsn, v);
+#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+	if (vsn.exponent == 0 && vsn.significand)
+		vfp_single_normalise_denormal(&vsn);
+#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
 	if (negate & NEG_SUBTRACT)
 		vsn.sign = vfp_sign_negate(vsn.sign);
 

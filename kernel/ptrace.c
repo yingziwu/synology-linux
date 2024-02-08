@@ -27,7 +27,6 @@
 #include <linux/cn_proc.h>
 #include <linux/compat.h>
 
-
 static int ptrace_trapping_sleep_fn(void *flags)
 {
 	schedule();

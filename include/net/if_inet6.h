@@ -185,11 +185,15 @@ struct inet6_dev {
 	__u32			if_flags;
 	int			dead;
 
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+	// do nothing
+#else /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 #ifdef CONFIG_IPV6_PRIVACY
 	u8			rndid[8];
 	struct timer_list	regen_timer;
 	struct list_head	tempaddr_list;
 #endif
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 
 	struct in6_addr		token;
 
@@ -198,11 +202,24 @@ struct inet6_dev {
 	struct ipv6_devconf	cnf;
 	struct ipv6_devstat	stats;
 
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+	// do nothing
+#else /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 	struct timer_list	rs_timer;
 	__u8			rs_probes;
+#endif
 
 	unsigned long		tstamp; /* ipv6InterfaceTable update timestamp */
 	struct rcu_head		rcu;
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+#ifdef CONFIG_IPV6_PRIVACY
+	u8			rndid[8];
+	struct timer_list	regen_timer;
+	struct list_head	tempaddr_list;
+#endif
+	struct timer_list	rs_timer;
+	__u8			rs_probes;
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 };
 
 static inline void ipv6_eth_mc_map(const struct in6_addr *addr, char *buf)

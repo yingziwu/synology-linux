@@ -2,6 +2,10 @@
 # SATA/PATA driver configuration
 #
 
+if SYNO_LSP_HI3536
+source "drivers/ata/Kconfig.hiahci"
+endif # SYNO_LSP_HI3536
+
 config HAVE_PATA_PLATFORM
 	bool
 	help
@@ -89,11 +93,32 @@ config SATA_AHCI
 
 	  If unsure, say N.
 
+config SATA_AHCI_MV
+	tristate "Marvell AHCI SATA support"
+	depends on SYNO_LSP_ARMADA
+	help
+	  This option enables support for the Marvell Serial ATA
+	  platform AHCI controller.  Currently supports SOC devices
+	  compliant to AHCI rev. 1.0
+
+	  If unsure, say N.
+
 config SATA_AHCI_PLATFORM
 	tristate "Platform AHCI SATA support"
+	depends on !SYNO_LSP_HI3536 || (SYNO_LSP_HI3536 && HI_SATA)
 	help
 	  This option enables support for Platform AHCI Serial ATA
 	  controllers.
+
+	  If unsure, say N.
+
+config SATA_AHCI_ST
+	tristate "ST SATA support"
+	depends on SATA_AHCI_PLATFORM
+	depends on SOC_STIH416 || SOC_STIH407 || SOC_STI8416
+	select GENERIC_PHY
+	help
+	  This option enables support for ST SATA controller.
 
 	  If unsure, say N.
 

@@ -21,7 +21,6 @@
 #include <linux/pci.h>
 #include <linux/io.h>
 
-
 /*-------------------------------------------------------------------------*/
 
 static int broken_suspend(struct usb_hcd *hcd)
@@ -270,7 +269,6 @@ static int ohci_pci_reset (struct usb_hcd *hcd)
 	return ret;
 }
 
-
 static int ohci_pci_start (struct usb_hcd *hcd)
 {
 	struct ohci_hcd	*ohci = hcd_to_ohci (hcd);
@@ -296,7 +294,6 @@ static int ohci_pci_start (struct usb_hcd *hcd)
 	}
 	return ret;
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -349,7 +346,6 @@ static const struct hc_driver ohci_pci_hc_driver = {
 };
 
 /*-------------------------------------------------------------------------*/
-
 
 static const struct pci_device_id pci_ids [] = { {
 	/* handle any USB OHCI controller */

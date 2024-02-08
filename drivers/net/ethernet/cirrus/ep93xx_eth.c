@@ -1,14 +1,7 @@
-/*
- * EP93xx ethernet network device driver
- * Copyright (C) 2006 Lennert Buytenhek <buytenh@wantstofly.org>
- * Dedicated to Marija Kulikova.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #define pr_fmt(fmt) KBUILD_MODNAME ":%s: " fmt, __func__
 
 #include <linux/dma-mapping.h>
@@ -278,7 +271,6 @@ static int ep93xx_rx(struct net_device *dev, int processed, int budget)
 			goto err;
 		}
 
-		/* Strip FCS.  */
 		if (rstat0 & RSTAT0_CRCI)
 			length -= 4;
 
@@ -569,29 +561,24 @@ static int ep93xx_start_hw(struct net_device *dev)
 
 	wrl(ep, REG_SELFCTL, ((ep->mdc_divisor - 1) << 9));
 
-	/* Does the PHY support preamble suppress?  */
 	if ((ep93xx_mdio_read(dev, ep->mii.phy_id, MII_BMSR) & 0x0040) != 0)
 		wrl(ep, REG_SELFCTL, ((ep->mdc_divisor - 1) << 9) | (1 << 8));
 
-	/* Receive descriptor ring.  */
 	addr = ep->descs_dma_addr + offsetof(struct ep93xx_descs, rdesc);
 	wrl(ep, REG_RXDQBADD, addr);
 	wrl(ep, REG_RXDCURADD, addr);
 	wrw(ep, REG_RXDQBLEN, RX_QUEUE_ENTRIES * sizeof(struct ep93xx_rdesc));
 
-	/* Receive status ring.  */
 	addr = ep->descs_dma_addr + offsetof(struct ep93xx_descs, rstat);
 	wrl(ep, REG_RXSTSQBADD, addr);
 	wrl(ep, REG_RXSTSQCURADD, addr);
 	wrw(ep, REG_RXSTSQBLEN, RX_QUEUE_ENTRIES * sizeof(struct ep93xx_rstat));
 
-	/* Transmit descriptor ring.  */
 	addr = ep->descs_dma_addr + offsetof(struct ep93xx_descs, tdesc);
 	wrl(ep, REG_TXDQBADD, addr);
 	wrl(ep, REG_TXDQCURADD, addr);
 	wrw(ep, REG_TXDQBLEN, TX_QUEUE_ENTRIES * sizeof(struct ep93xx_tdesc));
 
-	/* Transmit status ring.  */
 	addr = ep->descs_dma_addr + offsetof(struct ep93xx_descs, tstat);
 	wrl(ep, REG_TXSTSQBADD, addr);
 	wrl(ep, REG_TXSTSQCURADD, addr);
@@ -774,7 +761,6 @@ static struct net_device *ep93xx_dev_alloc(struct ep93xx_eth_data *data)
 	return dev;
 }
 
-
 static int ep93xx_eth_remove(struct platform_device *pdev)
 {
 	struct net_device *dev;
@@ -783,11 +769,13 @@ static int ep93xx_eth_remove(struct platform_device *pdev)
 	dev = platform_get_drvdata(pdev);
 	if (dev == NULL)
 		return 0;
+#if defined (MY_DEF_HERE)
+#else  
 	platform_set_drvdata(pdev, NULL);
+#endif  
 
 	ep = netdev_priv(dev);
 
-	/* @@@ Force down.  */
 	unregister_netdev(dev);
 	ep93xx_free_buffers(ep);
 
@@ -856,7 +844,7 @@ static int ep93xx_eth_probe(struct platform_device *pdev)
 	ep->mii.dev = dev;
 	ep->mii.mdio_read = ep93xx_mdio_read;
 	ep->mii.mdio_write = ep93xx_mdio_write;
-	ep->mdc_divisor = 40;	/* Max HCLK 100 MHz, min MDIO clk 2.5 MHz.  */
+	ep->mdc_divisor = 40;	 
 
 	if (is_zero_ether_addr(dev->dev_addr))
 		eth_hw_addr_random(dev);
@@ -876,7 +864,6 @@ err_out:
 	ep93xx_eth_remove(pdev);
 	return err;
 }
-
 
 static struct platform_driver ep93xx_eth_driver = {
 	.probe		= ep93xx_eth_probe,

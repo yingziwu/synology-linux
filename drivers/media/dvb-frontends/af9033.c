@@ -109,7 +109,6 @@ static int af9033_rd_regs(struct af9033_state *state, u32 reg, u8 *val, int len)
 	return ret;
 }
 
-
 /* write single register */
 static int af9033_wr_reg(struct af9033_state *state, u32 reg, u8 val)
 {

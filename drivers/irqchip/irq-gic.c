@@ -1,27 +1,7 @@
-/*
- *  linux/arch/arm/common/gic.c
- *
- *  Copyright (C) 2002 ARM Limited, All Rights Reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * Interrupt architecture for the GIC:
- *
- * o There is one Interrupt Distributor, which receives interrupts
- *   from system devices and sends them to the Interrupt Controllers.
- *
- * o There is one CPU Interface per CPU, which sends interrupts sent
- *   by the Distributor, and interrupts generated locally, to the
- *   associated CPU. The base address of the CPU interface is usually
- *   aliased so that the same address points to different chips depending
- *   on the CPU it is accessed from.
- *
- * Note that IRQs 0-31 are special - they are local to each CPU.
- * As such, the enable set/clear, pending set/clear and active bit
- * registers are banked per-cpu for these sources.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/err.h>
@@ -73,18 +53,9 @@ struct gic_chip_data {
 
 static DEFINE_RAW_SPINLOCK(irq_controller_lock);
 
-/*
- * The GIC mapping of CPU interfaces does not necessarily match
- * the logical CPU numbering.  Let's use a mapping as returned
- * by the GIC itself.
- */
 #define NR_GIC_CPU_IF 8
 static u8 gic_cpu_map[NR_GIC_CPU_IF] __read_mostly;
 
-/*
- * Supported arch specific GIC irq extension.
- * Default make them NULL.
- */
 struct irq_chip gic_arch_extn = {
 	.irq_eoi	= NULL,
 	.irq_mask	= NULL,
@@ -95,10 +66,25 @@ struct irq_chip gic_arch_extn = {
 };
 
 #ifndef MAX_GIC_NR
+#if defined(MY_DEF_HERE)
+#define MAX_GIC_NR	2
+#else  
 #define MAX_GIC_NR	1
+#endif  
 #endif
 
 static struct gic_chip_data gic_data[MAX_GIC_NR] __read_mostly;
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+ 
+struct gic_sgi_handle {
+	unsigned int irq;
+	void (*handle)(unsigned int cpu_intrf,
+			unsigned int irq_num, struct pt_regs *regs);
+};
+struct gic_sgi_handle ipc_irq_handle;
+EXPORT_SYMBOL(ipc_irq_handle);
+#endif  
 
 #ifdef CONFIG_GIC_NON_BANKED
 static void __iomem *gic_get_percpu_base(union gic_base *base)
@@ -149,9 +135,6 @@ static inline unsigned int gic_irq(struct irq_data *d)
 	return d->hwirq;
 }
 
-/*
- * Routines to acknowledge, disable and enable interrupts
- */
 static void gic_mask_irq(struct irq_data *d)
 {
 	u32 mask = 1 << (gic_irq(d) % 32);
@@ -196,7 +179,6 @@ static int gic_set_type(struct irq_data *d, unsigned int type)
 	bool enabled = false;
 	u32 val;
 
-	/* Interrupt configuration for SGIs can't be changed */
 	if (gicirq < 16)
 		return -EINVAL;
 
@@ -214,10 +196,6 @@ static int gic_set_type(struct irq_data *d, unsigned int type)
 	else if (type == IRQ_TYPE_EDGE_RISING)
 		val |= confmask;
 
-	/*
-	 * As recommended by the spec, disable the interrupt before changing
-	 * the configuration
-	 */
 	if (readl_relaxed(base + GIC_DIST_ENABLE_SET + enableoff) & enablemask) {
 		writel_relaxed(enablemask, base + GIC_DIST_ENABLE_CLEAR + enableoff);
 		enabled = true;
@@ -238,7 +216,6 @@ static int gic_retrigger(struct irq_data *d)
 	if (gic_arch_extn.irq_retrigger)
 		return gic_arch_extn.irq_retrigger(d);
 
-	/* the genirq layer expects 0 if we can't retrigger in hardware */
 	return 0;
 }
 
@@ -302,6 +279,17 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
 		}
 		if (irqnr < 16) {
 			writel_relaxed(irqstat, cpu_base + GIC_CPU_EOI);
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+			 
+			if ((irqnr == ipc_irq_handle.irq)
+				&& (ipc_irq_handle.handle)) {
+				ipc_irq_handle.handle(((irqstat >> 10) & 0x7),
+						irqnr, regs);
+				continue;
+			}
+#endif  
+
 #ifdef CONFIG_SMP
 			handle_IPI(irqnr, regs);
 #endif
@@ -379,6 +367,102 @@ static u8 gic_get_cpumask(struct gic_chip_data *gic)
 	return mask;
 }
 
+#if defined(CONFIG_SYNO_LSP_HI3536) && \
+	(defined(CONFIG_ARCH_HI3536) \
+	|| defined(CONFIG_ARCH_HI3521A) \
+	|| defined(CONFIG_ARCH_HI3531A))
+static void __init gic_dist_init(struct gic_chip_data *gic)
+{
+	unsigned int i;
+	u32 cpumask;
+	unsigned int gic_irqs = gic->gic_irqs;
+	void __iomem *base = gic_data_dist_base(gic);
+
+#ifdef CONFIG_A17_BOOT_A7
+	unsigned int tmp;
+	unsigned int mod;
+	unsigned int j;
+	unsigned int k;
+	unsigned int irq_num;
+	char *t;
+	char *argv[CONFIG_IRQNUM_SEND_TO_A7];
+	unsigned int irqnum[CONFIG_IRQNUM_SEND_TO_A7] = {0};
+	char *s = CONFIG_IRQ_TO_A7;
+	char *irqnumchar = (char *)kzalloc(4*1024, GFP_KERNEL);
+
+	if (!irqnumchar)
+		return;
+
+	strncpy(irqnumchar, s, strlen(s));
+
+	irqnumchar[strlen(irqnumchar)+1] = '\0';
+	t = irqnumchar;
+
+	for (j = 0; (argv[j] = strsep(&t, ",")) != NULL; j++) {
+		if (j == ARRAY_SIZE(argv)) {
+			WARN(1, "The number of irq is too large,");
+			WARN(1, "please increase the irq buf\n");
+			break;
+		}
+	}
+	irq_num = j;
+
+	for (k = 0; (k < irq_num) && (argv[k] != NULL); k++)
+		irqnum[k] = memparse(argv[k], NULL);
+#endif
+	writel_relaxed(0, base + GIC_DIST_CTRL);
+
+	for (i = 32; i < gic_irqs; i += 16)
+		writel_relaxed(0, base + GIC_DIST_CONFIG + i * 4 / 16);
+
+	cpumask = gic_get_cpumask(gic);
+	cpumask |= cpumask << 8;
+	cpumask |= cpumask << 16;
+
+	for (i = 32; i < gic_irqs; i += 4) {
+#ifdef CONFIG_A17_BOOT_A7
+		for (j = 0; j < irq_num && irqnum[j] != 0; j++) {
+			if ((i <= irqnum[j]) && (irqnum[j]) < (i+4)) {
+				mod = irqnum[j] % 4;
+				tmp = readl_relaxed(base +
+						GIC_DIST_TARGET + i * 4 / 4);
+				switch (mod) {
+				case 0:
+					 
+					tmp = (tmp & (0xffffff00)) | (1 << 4);
+					break;
+				case 1:
+					 
+					tmp = ((tmp & (0xffff00ff))|(1 << 12));
+					break;
+				case 2:
+					 
+					tmp = ((tmp & (0xff00ffff))|(1 << 20));
+					break;
+				case 3:
+					 
+					tmp = ((tmp & (0x00ffffff))|(1 << 28));
+					break;
+				}
+				writel_relaxed(tmp, base +
+						GIC_DIST_TARGET + i * 4 / 4);
+			}
+		}
+		if (0 != tmp)
+			continue;
+#endif
+		writel_relaxed(cpumask, base + GIC_DIST_TARGET + i * 4 / 4);
+	}
+
+	for (i = 32; i < gic_irqs; i += 4)
+		writel_relaxed(0xa0a0a0a0, base + GIC_DIST_PRI + i * 4 / 4);
+
+	for (i = 32; i < gic_irqs; i += 32)
+		writel_relaxed(0xffffffff, base + GIC_DIST_ENABLE_CLEAR + i * 4 / 32);
+
+	writel_relaxed(1, base + GIC_DIST_CTRL);
+}
+#else  
 static void __init gic_dist_init(struct gic_chip_data *gic)
 {
 	unsigned int i;
@@ -388,36 +472,24 @@ static void __init gic_dist_init(struct gic_chip_data *gic)
 
 	writel_relaxed(0, base + GIC_DIST_CTRL);
 
-	/*
-	 * Set all global interrupts to be level triggered, active low.
-	 */
 	for (i = 32; i < gic_irqs; i += 16)
 		writel_relaxed(0, base + GIC_DIST_CONFIG + i * 4 / 16);
 
-	/*
-	 * Set all global interrupts to this CPU only.
-	 */
 	cpumask = gic_get_cpumask(gic);
 	cpumask |= cpumask << 8;
 	cpumask |= cpumask << 16;
 	for (i = 32; i < gic_irqs; i += 4)
 		writel_relaxed(cpumask, base + GIC_DIST_TARGET + i * 4 / 4);
 
-	/*
-	 * Set priority on all global interrupts.
-	 */
 	for (i = 32; i < gic_irqs; i += 4)
 		writel_relaxed(0xa0a0a0a0, base + GIC_DIST_PRI + i * 4 / 4);
 
-	/*
-	 * Disable all interrupts.  Leave the PPI and SGIs alone
-	 * as these enables are banked registers.
-	 */
 	for (i = 32; i < gic_irqs; i += 32)
 		writel_relaxed(0xffffffff, base + GIC_DIST_ENABLE_CLEAR + i * 4 / 32);
 
 	writel_relaxed(1, base + GIC_DIST_CTRL);
 }
+#endif  
 
 static void __cpuinit gic_cpu_init(struct gic_chip_data *gic)
 {
@@ -426,31 +498,17 @@ static void __cpuinit gic_cpu_init(struct gic_chip_data *gic)
 	unsigned int cpu_mask, cpu = smp_processor_id();
 	int i;
 
-	/*
-	 * Get what the GIC says our CPU mask is.
-	 */
 	BUG_ON(cpu >= NR_GIC_CPU_IF);
 	cpu_mask = gic_get_cpumask(gic);
 	gic_cpu_map[cpu] = cpu_mask;
 
-	/*
-	 * Clear our mask from the other map entries in case they're
-	 * still undefined.
-	 */
 	for (i = 0; i < NR_GIC_CPU_IF; i++)
 		if (i != cpu)
 			gic_cpu_map[i] &= ~cpu_mask;
 
-	/*
-	 * Deal with the banked PPI and SGI interrupts - disable all
-	 * PPI interrupts, ensure all SGI interrupts are enabled.
-	 */
 	writel_relaxed(0xffff0000, dist_base + GIC_DIST_ENABLE_CLEAR);
 	writel_relaxed(0x0000ffff, dist_base + GIC_DIST_ENABLE_SET);
 
-	/*
-	 * Set priority on PPI and SGI interrupts
-	 */
 	for (i = 0; i < 32; i += 4)
 		writel_relaxed(0xa0a0a0a0, dist_base + GIC_DIST_PRI + i * 4 / 4);
 
@@ -459,12 +517,7 @@ static void __cpuinit gic_cpu_init(struct gic_chip_data *gic)
 }
 
 #ifdef CONFIG_CPU_PM
-/*
- * Saves the GIC distributor registers during suspend or idle.  Must be called
- * with interrupts disabled but before powering down the GIC.  After calling
- * this function, no interrupts will be delivered by the GIC, and another
- * platform-specific wakeup source must be enabled.
- */
+ 
 static void gic_dist_save(unsigned int gic_nr)
 {
 	unsigned int gic_irqs;
@@ -493,13 +546,6 @@ static void gic_dist_save(unsigned int gic_nr)
 			readl_relaxed(dist_base + GIC_DIST_ENABLE_SET + i * 4);
 }
 
-/*
- * Restores the GIC distributor registers during resume or when coming out of
- * idle.  Must be called before enabling interrupts.  If a level interrupt
- * that occured while the GIC was suspended is still present, it will be
- * handled normally, but any edge interrupts that occured will not be seen by
- * the GIC and need to be handled by the platform-specific wakeup source.
- */
 static void gic_dist_restore(unsigned int gic_nr)
 {
 	unsigned int gic_irqs;
@@ -593,13 +639,30 @@ static void gic_cpu_restore(unsigned int gic_nr)
 	writel_relaxed(1, cpu_base + GIC_CPU_CTRL);
 }
 
+#if defined(MY_DEF_HERE)
+static void gic_cpu_mask(unsigned int gic_nr)
+{
+	void __iomem *cpu_base;
+
+	if (gic_nr >= MAX_GIC_NR)
+		BUG();
+
+	cpu_base = gic_data_cpu_base(&gic_data[gic_nr]);
+
+	if (!cpu_base)
+		return;
+
+	writel_relaxed(0 | (3<<5), cpu_base + GIC_CPU_CTRL);
+}
+#endif  
+
 static int gic_notifier(struct notifier_block *self, unsigned long cmd,	void *v)
 {
 	int i;
 
 	for (i = 0; i < MAX_GIC_NR; i++) {
 #ifdef CONFIG_GIC_NON_BANKED
-		/* Skip over unused GICs */
+		 
 		if (!gic_data[i].get_base)
 			continue;
 #endif
@@ -620,6 +683,12 @@ static int gic_notifier(struct notifier_block *self, unsigned long cmd,	void *v)
 			break;
 		}
 	}
+
+#if defined(MY_DEF_HERE)
+	 
+	if (cmd == CPU_PM_ENTER)
+		gic_cpu_mask(0);
+#endif  
 
 	return NOTIFY_OK;
 }
@@ -653,17 +722,11 @@ void gic_raise_softirq(const struct cpumask *mask, unsigned int irq)
 	int cpu;
 	unsigned long map = 0;
 
-	/* Convert our logical CPU mask into a physical one. */
 	for_each_cpu(cpu, mask)
 		map |= gic_cpu_map[cpu];
 
-	/*
-	 * Ensure that stores to Normal memory are visible to the
-	 * other CPUs before issuing the IPI.
-	 */
 	dsb();
 
-	/* this always happens on GIC0 */
 	writel_relaxed(map << 16 | irq, gic_data_dist_base(&gic_data[0]) + GIC_DIST_SOFTINT);
 }
 #endif
@@ -695,10 +758,8 @@ static int gic_irq_domain_xlate(struct irq_domain *d,
 	if (intsize < 3)
 		return -EINVAL;
 
-	/* Get the interrupt number and add 16 to skip over SGIs */
 	*out_hwirq = intspec[1] + 16;
 
-	/* For SPIs, we need to add 16 more to get the GIC irq ID number */
 	if (!intspec[0])
 		*out_hwirq += 16;
 
@@ -715,10 +776,6 @@ static int __cpuinit gic_secondary_init(struct notifier_block *nfb,
 	return NOTIFY_OK;
 }
 
-/*
- * Notifier for enabling the GIC CPU interface. Set an arbitrarily high
- * priority because the GIC needs to be up before the ARM generic timers.
- */
 static struct notifier_block __cpuinitdata gic_cpu_notifier = {
 	.notifier_call = gic_secondary_init,
 	.priority = 100,
@@ -742,7 +799,7 @@ void __init gic_init_bases(unsigned int gic_nr, int irq_start,
 
 	gic = &gic_data[gic_nr];
 #ifdef CONFIG_GIC_NON_BANKED
-	if (percpu_offset) { /* Frankein-GIC without banked registers... */
+	if (percpu_offset) {  
 		unsigned int cpu;
 
 		gic->dist_base.percpu_base = alloc_percpu(void __iomem *);
@@ -765,7 +822,7 @@ void __init gic_init_bases(unsigned int gic_nr, int irq_start,
 		gic_set_base_accessor(gic, gic_get_percpu_base);
 	} else
 #endif
-	{			/* Normal, sane GIC... */
+	{			 
 		WARN(percpu_offset,
 		     "GIC_NON_BANKED not enabled, ignoring %08x offset!",
 		     percpu_offset);
@@ -774,17 +831,9 @@ void __init gic_init_bases(unsigned int gic_nr, int irq_start,
 		gic_set_base_accessor(gic, gic_get_common_base);
 	}
 
-	/*
-	 * Initialize the CPU interface map to all CPUs.
-	 * It will be refined as each CPU probes its ID.
-	 */
 	for (i = 0; i < NR_GIC_CPU_IF; i++)
 		gic_cpu_map[i] = 0xff;
 
-	/*
-	 * For primary GICs, skip over SGIs.
-	 * For secondary GICs, skip over PPIs, too.
-	 */
 	if (gic_nr == 0 && (irq_start & 31) > 0) {
 		hwirq_base = 16;
 		if (irq_start != -1)
@@ -793,17 +842,13 @@ void __init gic_init_bases(unsigned int gic_nr, int irq_start,
 		hwirq_base = 32;
 	}
 
-	/*
-	 * Find out how many interrupts are supported.
-	 * The GIC only supports up to 1020 interrupt sources.
-	 */
 	gic_irqs = readl_relaxed(gic_data_dist_base(gic) + GIC_DIST_CTR) & 0x1f;
 	gic_irqs = (gic_irqs + 1) * 32;
 	if (gic_irqs > 1020)
 		gic_irqs = 1020;
 	gic->gic_irqs = gic_irqs;
 
-	gic_irqs -= hwirq_base; /* calculate # of irqs to allocate */
+	gic_irqs -= hwirq_base;  
 	irq_base = irq_alloc_descs(irq_start, 16, gic_irqs, numa_node_id());
 	if (IS_ERR_VALUE(irq_base)) {
 		WARN(1, "Cannot allocate irq_descs @ IRQ%d, assuming pre-allocated\n",
@@ -823,7 +868,13 @@ void __init gic_init_bases(unsigned int gic_nr, int irq_start,
 	set_handle_irq(gic_handle_irq);
 
 	gic_chip.flags |= gic_arch_extn.flags;
+#if !defined(CONFIG_SYNO_LSP_HI3536) || \
+	(defined(CONFIG_SYNO_LSP_HI3536) && \
+	 (defined(CONFIG_ARCH_HI3536) \
+	 || defined(CONFIG_ARCH_HI3521A) \
+	 || defined(CONFIG_ARCH_HI3531A)))
 	gic_dist_init(gic);
+#endif
 	gic_cpu_init(gic);
 	gic_pm_init(gic);
 }

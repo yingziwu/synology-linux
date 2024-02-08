@@ -180,7 +180,6 @@ static int eem_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 	return value;
 }
 
-
 static int eem_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 {
 	struct f_eem		*eem = func_to_eem(f);
@@ -569,4 +568,3 @@ int __init eem_bind_config(struct usb_configuration *c, struct eth_dev *dev)
 		kfree(eem);
 	return status;
 }
-

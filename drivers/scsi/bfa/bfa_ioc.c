@@ -294,7 +294,6 @@ bfa_ioc_sm_reset(struct bfa_ioc_s *ioc, enum ioc_event event)
 	}
 }
 
-
 static void
 bfa_ioc_sm_enabling_entry(struct bfa_ioc_s *ioc)
 {
@@ -345,7 +344,6 @@ bfa_ioc_sm_enabling(struct bfa_ioc_s *ioc, enum ioc_event event)
 		bfa_sm_fault(ioc, event);
 	}
 }
-
 
 static void
 bfa_ioc_sm_getattr_entry(struct bfa_ioc_s *ioc)
@@ -439,7 +437,6 @@ bfa_ioc_sm_op(struct bfa_ioc_s *ioc, enum ioc_event event)
 	}
 }
 
-
 static void
 bfa_ioc_sm_disabling_entry(struct bfa_ioc_s *ioc)
 {
@@ -514,7 +511,6 @@ bfa_ioc_sm_disabled(struct bfa_ioc_s *ioc, enum ioc_event event)
 	}
 }
 
-
 static void
 bfa_ioc_sm_fail_retry_entry(struct bfa_ioc_s *ioc)
 {
@@ -566,7 +562,6 @@ bfa_ioc_sm_fail_retry(struct bfa_ioc_s *ioc, enum ioc_event event)
 		bfa_sm_fault(ioc, event);
 	}
 }
-
 
 static void
 bfa_ioc_sm_fail_entry(struct bfa_ioc_s *ioc)
@@ -1737,7 +1732,6 @@ bfa_ioc_download_fw(struct bfa_ioc_s *ioc, u32 boot_type,
 			swab32(boot_env));
 }
 
-
 /*
  * Update BFA configuration from firmware configuration.
  */
@@ -2026,8 +2020,6 @@ bfa_ioc_auto_recover(bfa_boolean_t auto_recover)
 {
 	bfa_auto_recover = auto_recover;
 }
-
-
 
 bfa_boolean_t
 bfa_ioc_is_operational(struct bfa_ioc_s *ioc)
@@ -2717,7 +2709,6 @@ bfa_ioc_debug_fwsave(struct bfa_ioc_s *ioc, void *trcdata, int *trclen)
 	*trclen = tlen;
 	return BFA_STATUS_OK;
 }
-
 
 /*
  * Retrieve saved firmware trace from a prior IOC failure.

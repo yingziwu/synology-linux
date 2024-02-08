@@ -595,7 +595,6 @@ void ath_ant_comb_scan(struct ath_softc *sc, struct ath_rx_status *rs)
 				 antcomb->total_pkt_count);
 	}
 
-
 	ath9k_hw_antdiv_comb_conf_get(sc->sc_ah, &div_ant_conf);
 	curr_alt_set = div_ant_conf.alt_lna_conf;
 	curr_main_set = div_ant_conf.main_lna_conf;

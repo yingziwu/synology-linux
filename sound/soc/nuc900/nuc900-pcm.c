@@ -1,14 +1,7 @@
-/*
- * Copyright (c) 2010 Nuvoton technology corporation.
- *
- * Wan ZongShun <mcuos.com@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation;version 2 of the License.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/io.h>
@@ -314,16 +307,27 @@ static void nuc900_dma_free_dma_buffers(struct snd_pcm *pcm)
 	snd_pcm_lib_preallocate_free_for_all(pcm);
 }
 
+#if defined(MY_ABC_HERE)
+ 
+#else  
 static u64 nuc900_pcm_dmamask = DMA_BIT_MASK(32);
+#endif  
 static int nuc900_dma_new(struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_card *card = rtd->card->snd_card;
 	struct snd_pcm *pcm = rtd->pcm;
+#if defined(MY_ABC_HERE)
+	int ret;
 
+	ret = dma_coerce_mask_and_coherent(card->dev, DMA_BIT_MASK(32));
+	if (ret)
+		return ret;
+#else  
 	if (!card->dev->dma_mask)
 		card->dev->dma_mask = &nuc900_pcm_dmamask;
 	if (!card->dev->coherent_dma_mask)
 		card->dev->coherent_dma_mask = DMA_BIT_MASK(32);
+#endif  
 
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 		card->dev, 4 * 1024, (4 * 1024) - 1);

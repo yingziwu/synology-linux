@@ -16,6 +16,9 @@ LDFLAGS		:=
 LDFLAGS_vmlinux	:=-p --no-undefined -X
 ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
 LDFLAGS_vmlinux	+= --be8
+ifeq (y, $(filter y, $(CONFIG_ARCH_ALPINE) $(CONFIG_ARCH_MVEBU)))
+LDFLAGS_MODULE	+= --be8
+endif
 endif
 
 OBJCOPYFLAGS	:=-O binary -R .comment -S
@@ -25,9 +28,23 @@ GZFLAGS		:=-9
 # Never generate .eh_frame
 KBUILD_CFLAGS	+= $(call cc-option,-fno-dwarf2-cfi-asm)
 
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+ifeq ($(CROSS_COMPILE), arm-hisiv300-linux-)
+	KBUILD_CFLAGS   += -fno-aggressive-loop-optimizations
+endif
+
+ifeq ($(CROSS_COMPILE), arm-hisiv400-linux-)
+	KBUILD_CFLAGS   += -fno-aggressive-loop-optimizations
+endif
+endif # CONFIG_SYNO_LSP_HI3536
+
 # Do not use arch/arm/defconfig - it's always outdated.
 # Select a platform tht is kept up-to-date
 KBUILD_DEFCONFIG := versatile_defconfig
+
+ifeq ($(CONFIG_FUNC_REORDER),y)
+KBUILD_CFLAGS          += -ffunction-sections
+endif
 
 # defines filename extension depending memory management type.
 ifeq ($(CONFIG_MMU),)
@@ -197,11 +214,20 @@ machine-$(CONFIG_ARCH_VEXPRESS)		+= vexpress
 machine-$(CONFIG_ARCH_VT8500)		+= vt8500
 machine-$(CONFIG_ARCH_W90X900)		+= w90x900
 machine-$(CONFIG_FOOTBRIDGE)		+= footbridge
+machine-$(CONFIG_ARCH_ALPINE)		+= alpine
 machine-$(CONFIG_ARCH_SOCFPGA)		+= socfpga
 machine-$(CONFIG_PLAT_SPEAR)		+= spear
+machine-$(CONFIG_ARCH_STI)     += sti
 machine-$(CONFIG_ARCH_VIRT)		+= virt
 machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
 machine-$(CONFIG_ARCH_SUNXI)		+= sunxi
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+machine-$(CONFIG_ARCH_HI3536)		+= hi3536
+machine-$(CONFIG_ARCH_HI3536_SLAVE)	+= hi3536slave
+machine-$(CONFIG_ARCH_HI3521A)		+= hi3521a
+machine-$(CONFIG_ARCH_HI3531A)		+= hi3531a
+endif # CONFIG_SYNO_LSP_HI3536
+
 
 # Platform directory name.  This list is sorted alphanumerically
 # by CONFIG_* macro name.
@@ -230,18 +256,30 @@ MACHINE  := arch/arm/mach-$(word 1,$(machine-y))/
 else
 MACHINE  :=
 endif
+
+ifeq ($(CONFIG_SYNO_LSP_MONACO),y)
+else
 ifeq ($(CONFIG_ARCH_MULTIPLATFORM),y)
 MACHINE  :=
+endif
 endif
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
 platdirs := $(patsubst %,arch/arm/plat-%/,$(plat-y))
 
+ifeq ($(CONFIG_SYNO_LSP_MONACO),y)
+ifeq ($(KBUILD_SRC),)
+KBUILD_CPPFLAGS += $(patsubst %,-I%include,$(machdirs) $(platdirs))
+else
+KBUILD_CPPFLAGS += $(patsubst %,-I$(srctree)/%include,$(machdirs) $(platdirs))
+endif
+else
 ifneq ($(CONFIG_ARCH_MULTIPLATFORM),y)
 ifeq ($(KBUILD_SRC),)
 KBUILD_CPPFLAGS += $(patsubst %,-I%include,$(machdirs) $(platdirs))
 else
 KBUILD_CPPFLAGS += $(patsubst %,-I$(srctree)/%include,$(machdirs) $(platdirs))
+endif
 endif
 endif
 
@@ -272,6 +310,8 @@ libs-y				:= arch/arm/lib/ $(libs-y)
 # Default target when executing plain make
 ifeq ($(CONFIG_XIP_KERNEL),y)
 KBUILD_IMAGE := xipImage
+else ifeq ($(CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE),y)
+KBUILD_IMAGE := zImage-dtb
 else
 KBUILD_IMAGE := zImage
 endif
@@ -302,6 +342,11 @@ zinstall uinstall install: vmlinux
 
 dtbs: scripts
 	$(Q)$(MAKE) $(build)=$(boot)/dts MACHINE=$(MACHINE) dtbs
+
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+zImage-dtb: vmlinux scripts dtbs
+	$(Q)$(MAKE) $(build)=$(boot) MACHINE=$(MACHINE) $(boot)/$@
+endif # CONFIG_SYNO_LSP_HI3536
 
 # We use MRPROPER_FILES and CLEAN_FILES now
 archclean:

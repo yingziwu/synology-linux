@@ -183,5 +183,3 @@ void CsrWifiSmeFreeDownstreamMessageContents(u16 eventClass, void *message)
             break;
     }
 }
-
-

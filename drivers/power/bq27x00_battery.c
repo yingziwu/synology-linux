@@ -738,7 +738,6 @@ static void bq27x00_powersupply_unregister(struct bq27x00_device_info *di)
 	mutex_destroy(&di->lock);
 }
 
-
 /* i2c specific code */
 #ifdef CONFIG_BATTERY_BQ27X00_I2C
 

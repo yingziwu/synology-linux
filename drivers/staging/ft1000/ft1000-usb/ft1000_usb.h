@@ -97,7 +97,6 @@ struct ft1000_usb {
 	unsigned short tempbuf[32];
 } __packed;
 
-
 struct dpram_blk {
 	struct list_head list;
 	u16 *pbuffer;
@@ -149,7 +148,5 @@ int ft1000_poll(void *dev_id);
 
 int ft1000_init_proc(struct net_device *dev);
 void ft1000_cleanup_proc(struct ft1000_info *info);
-
-
 
 #endif

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/fs.h>
 #include <linux/types.h>
 #include "ctree.h"
@@ -5,7 +8,6 @@
 #include "btrfs_inode.h"
 #include "print-tree.h"
 #include "export.h"
-#include "compat.h"
 
 #define BTRFS_FID_SIZE_NON_CONNECTABLE (offsetof(struct btrfs_fid, \
 						 parent_objectid) / 4)
@@ -81,23 +83,30 @@ static struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
 		err = PTR_ERR(root);
 		goto fail;
 	}
-
-	if (btrfs_root_refs(&root->root_item) == 0) {
-		err = -ENOENT;
-		goto fail;
-	}
+#ifdef MY_DEF_HERE
+	btrfs_hold_fs_root(root);
+	srcu_read_unlock(&fs_info->subvol_srcu, index);
+#endif /* MY_DEF_HERE */
 
 	key.objectid = objectid;
 	btrfs_set_key_type(&key, BTRFS_INODE_ITEM_KEY);
 	key.offset = 0;
 
 	inode = btrfs_iget(sb, &key, root, NULL);
+#ifdef MY_DEF_HERE
+	btrfs_release_fs_root(root);
+	if (IS_ERR(inode)) {
+		err = PTR_ERR(inode);
+		return ERR_PTR(err);
+	}
+#else
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
 		goto fail;
 	}
 
 	srcu_read_unlock(&fs_info->subvol_srcu, index);
+#endif /* MY_DEF_HERE */
 
 	if (check_generation && generation != inode->i_generation) {
 		iput(inode);
@@ -118,11 +127,11 @@ static struct dentry *btrfs_fh_to_parent(struct super_block *sb, struct fid *fh,
 	u32 generation;
 
 	if (fh_type == FILEID_BTRFS_WITH_PARENT) {
-		if (fh_len !=  BTRFS_FID_SIZE_CONNECTABLE)
+		if (fh_len <  BTRFS_FID_SIZE_CONNECTABLE)
 			return NULL;
 		root_objectid = fid->root_objectid;
 	} else if (fh_type == FILEID_BTRFS_WITH_PARENT_ROOT) {
-		if (fh_len != BTRFS_FID_SIZE_CONNECTABLE_ROOT)
+		if (fh_len < BTRFS_FID_SIZE_CONNECTABLE_ROOT)
 			return NULL;
 		root_objectid = fid->parent_root_objectid;
 	} else
@@ -142,11 +151,11 @@ static struct dentry *btrfs_fh_to_dentry(struct super_block *sb, struct fid *fh,
 	u32 generation;
 
 	if ((fh_type != FILEID_BTRFS_WITH_PARENT ||
-	     fh_len != BTRFS_FID_SIZE_CONNECTABLE) &&
+	     fh_len < BTRFS_FID_SIZE_CONNECTABLE) &&
 	    (fh_type != FILEID_BTRFS_WITH_PARENT_ROOT ||
-	     fh_len != BTRFS_FID_SIZE_CONNECTABLE_ROOT) &&
+	     fh_len < BTRFS_FID_SIZE_CONNECTABLE_ROOT) &&
 	    (fh_type != FILEID_BTRFS_WITHOUT_PARENT ||
-	     fh_len != BTRFS_FID_SIZE_NON_CONNECTABLE))
+	     fh_len < BTRFS_FID_SIZE_NON_CONNECTABLE))
 		return NULL;
 
 	objectid = fid->objectid;

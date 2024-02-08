@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 
 #include <linux/sched.h>
 #include <linux/sched/sysctl.h>
@@ -489,6 +492,10 @@ struct rq {
 	/* calc_load related fields */
 	unsigned long calc_load_update;
 	long calc_load_active;
+#ifdef MY_ABC_HERE
+	long calc_io_load_active;
+	long calc_cpu_load_active;
+#endif /* MY_ABC_HERE */
 
 #ifdef CONFIG_SCHED_HRTICK
 #ifdef CONFIG_SMP
@@ -498,6 +505,7 @@ struct rq {
 	struct hrtimer hrtick_timer;
 #endif
 
+#if !defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
 #ifdef CONFIG_SCHEDSTATS
 	/* latency stats */
 	struct sched_info rq_sched_info;
@@ -515,12 +523,32 @@ struct rq {
 	unsigned int ttwu_count;
 	unsigned int ttwu_local;
 #endif
+#endif
 
 #ifdef CONFIG_SMP
 	struct llist_head wake_list;
 #endif
 
 	struct sched_avg avg;
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+#ifdef CONFIG_SCHEDSTATS
+	/* latency stats */
+	struct sched_info rq_sched_info;
+	unsigned long long rq_cpu_time;
+	/* could above be rq->cfs_rq.exec_clock + rq->rt_rq.rt_runtime ? */
+
+	/* sys_sched_yield() stats */
+	unsigned int yld_count;
+
+	/* schedule() stats */
+	unsigned int sched_count;
+	unsigned int sched_goidle;
+
+	/* try_to_wake_up() stats */
+	unsigned int ttwu_count;
+	unsigned int ttwu_local;
+#endif
+#endif
 };
 
 static inline int cpu_of(struct rq *rq)
@@ -783,8 +811,6 @@ static inline u64 global_rt_runtime(void)
 	return (u64)sysctl_sched_rt_runtime * NSEC_PER_USEC;
 }
 
-
-
 static inline int task_current(struct rq *rq, struct task_struct *p)
 {
 	return rq->curr == p;
@@ -798,7 +824,6 @@ static inline int task_running(struct rq *rq, struct task_struct *p)
 	return task_current(rq, p);
 #endif
 }
-
 
 #ifndef prepare_arch_switch
 # define prepare_arch_switch(next)	do { } while (0)
@@ -1019,7 +1044,6 @@ extern const struct sched_class stop_sched_class;
 extern const struct sched_class rt_sched_class;
 extern const struct sched_class fair_sched_class;
 extern const struct sched_class idle_sched_class;
-
 
 #ifdef CONFIG_SMP
 

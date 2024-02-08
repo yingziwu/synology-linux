@@ -71,7 +71,6 @@ static int ignore_interface_quirk(struct snd_usb_audio *chip,
 	return 0;
 }
 
-
 /*
  * Allow alignment on audio sub-slot (channel samples) rather than
  * on audio slots (audio frames)
@@ -935,6 +934,7 @@ void snd_usb_ctl_msg_quirk(struct usb_device *dev, unsigned int pipe,
 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS) {
 
 		switch (le16_to_cpu(dev->descriptor.idProduct)) {
+		case 0x1003: /* Denon DA-300USB */
 		case 0x3005: /* Marantz HD-DAC1 */
 		case 0x3006: /* Marantz SA-14S1 */
 			mdelay(20);

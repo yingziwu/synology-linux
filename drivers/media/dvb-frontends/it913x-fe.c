@@ -460,8 +460,6 @@ static int it913x_fe_select_bw(struct it913x_fe_state *state,
 	return ret;
 }
 
-
-
 static int it913x_fe_read_status(struct dvb_frontend *fe, fe_status_t *status)
 {
 	struct it913x_fe_state *state = fe->demodulator_priv;
@@ -994,7 +992,6 @@ struct dvb_frontend *it913x_fe_attach(struct i2c_adapter *i2c_adap,
 	ret = it913x_fe_start(state);
 	if (ret < 0)
 		goto error;
-
 
 	/* create dvb_frontend */
 	memcpy(&state->frontend.ops, &it913x_fe_ofdm_ops,

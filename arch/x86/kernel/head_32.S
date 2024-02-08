@@ -309,7 +309,6 @@ ENTRY(startup_32_smp)
 	call load_ucode_ap
 #endif
 
-
 default_entry:
 #define CR0_STATE	(X86_CR0_PE | X86_CR0_MP | X86_CR0_ET | \
 			 X86_CR0_NE | X86_CR0_WP | X86_CR0_AM | \
@@ -486,7 +485,6 @@ check_x87:
 	.byte 0xDB,0xE4		/* fsetpm for 287, ignored by 387 */
 	ret
 
-	
 #include "verify_cpu.S"
 
 /*

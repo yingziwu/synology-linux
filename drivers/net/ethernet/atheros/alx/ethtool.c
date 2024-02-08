@@ -46,7 +46,6 @@
 #include "reg.h"
 #include "hw.h"
 
-
 static int alx_get_settings(struct net_device *netdev, struct ethtool_cmd *ecmd)
 {
 	struct alx_priv *alx = netdev_priv(netdev);
@@ -156,7 +155,6 @@ static void alx_get_pauseparam(struct net_device *netdev,
 	else
 		pause->rx_pause = 0;
 }
-
 
 static int alx_set_pauseparam(struct net_device *netdev,
 			      struct ethtool_pauseparam *pause)

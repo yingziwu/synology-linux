@@ -74,7 +74,6 @@ int mei_wd_host_init(struct mei_device *dev)
 	dev->wd_timeout = MEI_WD_DEFAULT_TIMEOUT;
 	dev->wd_state = MEI_WD_IDLE;
 
-
 	/* check for valid client id */
 	i = mei_me_cl_by_uuid(dev, &mei_wd_guid);
 	if (i < 0) {
@@ -367,7 +366,6 @@ static struct watchdog_device amt_wd_dev = {
 		.max_timeout = MEI_WD_MAX_TIMEOUT,
 };
 
-
 void mei_watchdog_register(struct mei_device *dev)
 {
 	if (watchdog_register_device(&amt_wd_dev)) {
@@ -389,4 +387,3 @@ void mei_watchdog_unregister(struct mei_device *dev)
 	watchdog_set_drvdata(&amt_wd_dev, NULL);
 	watchdog_unregister_device(&amt_wd_dev);
 }
-

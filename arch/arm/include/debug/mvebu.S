@@ -1,17 +1,13 @@
-/*
- * Early serial output macro for Marvell  SoC
- *
- * Copyright (C) 2012 Marvell
- *
- * Lior Amsalem <alior@marvell.com>
- * Gregory Clement <gregory.clement@free-electrons.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
-*/
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
+#if defined(MY_ABC_HERE) && defined(CONFIG_DEBUG_MVEBU_UART_ALTERNATE)
+#define ARMADA_370_XP_REGS_PHYS_BASE	0xf1000000
+#else
 #define ARMADA_370_XP_REGS_PHYS_BASE	0xd0000000
+#endif
+
 #define ARMADA_370_XP_REGS_VIRT_BASE	0xfec00000
 
 	.macro	addruart, rp, rv, tmp

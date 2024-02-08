@@ -109,6 +109,9 @@ extern int ip_vs_conn_tab_size;
 struct ip_vs_iphdr {
 	__u32 len;	/* IPv4 simply where L4 starts
 			   IPv6 where L4 Transport Header starts */
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+	__u32 thoff_reasm;
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 	__u16 fragoffs; /* IPv6 fragment offset, 0 if first frag (or not frag)*/
 	__s16 protocol;
 	__s32 flags;
@@ -328,7 +331,6 @@ static inline const char *ip_vs_dbg_addr(int af, char *buf, size_t buf_len,
 #define EnterFunction(level)   do {} while (0)
 #define LeaveFunction(level)   do {} while (0)
 #endif
-
 
 /*
  *      The port number of FTP service (in network order).
@@ -559,9 +561,13 @@ struct ip_vs_conn {
 	union nf_inet_addr      daddr;          /* destination address */
 	volatile __u32          flags;          /* status flags */
 	__u16                   protocol;       /* Which protocol (TCP/UDP) */
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+	// do nothing
+#else /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 #ifdef CONFIG_NET_NS
 	struct net              *net;           /* Name space */
 #endif
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 
 	/* counter and timer */
 	atomic_t		refcnt;		/* reference count */
@@ -605,6 +611,11 @@ struct ip_vs_conn {
 	__u8			pe_data_len;
 
 	struct rcu_head		rcu_head;
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+#ifdef CONFIG_NET_NS
+	struct net              *net;           /* Name space */
+#endif
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 };
 
 /*
@@ -659,7 +670,6 @@ struct ip_vs_service_user_kern {
 	__be32			netmask;	/* persistent netmask or plen */
 };
 
-
 struct ip_vs_dest_user_kern {
 	/* destination server address */
 	union nf_inet_addr	addr;
@@ -673,7 +683,6 @@ struct ip_vs_dest_user_kern {
 	u32			u_threshold;	/* upper threshold */
 	u32			l_threshold;	/* lower threshold */
 };
-
 
 /*
  *	The information about the virtual service offered to the net
@@ -761,7 +770,6 @@ struct ip_vs_dest {
 	unsigned int		in_rs_table:1;	/* we are in rs_table */
 };
 
-
 /*
  *	The scheduler object
  */
@@ -842,7 +850,6 @@ struct ip_vs_app {
 
 	/* ip_vs_app finish */
 	int (*done_conn)(struct ip_vs_app *, struct ip_vs_conn *);
-
 
 	/* not used now */
 	int (*bind_conn)(struct ip_vs_app *, struct ip_vs_conn *,
@@ -1369,7 +1376,6 @@ extern int ip_vs_leave(struct ip_vs_service *svc, struct sk_buff *skb,
 
 extern void ip_vs_scheduler_err(struct ip_vs_service *svc, const char *msg);
 
-
 /*
  *      IPVS control data and functions (from ip_vs_ctl.c)
  */
@@ -1415,7 +1421,6 @@ extern int start_sync_thread(struct net *net, int state, char *mcast_ifn,
 			     __u8 syncid);
 extern int stop_sync_thread(struct net *net, int state);
 extern void ip_vs_sync_conn(struct net *net, struct ip_vs_conn *cp, int pkts);
-
 
 /*
  *      IPVS rate estimator prototypes (from ip_vs_est.c)

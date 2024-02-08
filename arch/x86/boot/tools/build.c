@@ -238,7 +238,6 @@ static void update_pecoff_bss(unsigned int file_sz, unsigned int init_sz)
 
 #endif /* CONFIG_EFI_STUB */
 
-
 /*
  * Parse zoffset.h and find the entry points. We could just #include zoffset.h
  * but that would mean tools/build would have to be rebuilt every time. It's

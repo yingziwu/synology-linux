@@ -1,16 +1,13 @@
-/*
- * Copyright (C) 2012 Calxeda, Inc.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This driver provides the clk notifier callbacks that are used when
- * the cpufreq-cpu0 driver changes to frequency to alert the highbank
- * EnergyCore Management Engine (ECME) about the need to change
- * voltage. The ECME interfaces with the actual voltage regulators.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
+#if defined(MY_ABC_HERE)
+ 
+#else  
+ 
+#endif  
+ 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
 
 #include <linux/kernel.h>
@@ -60,7 +57,11 @@ static struct notifier_block hb_cpufreq_clk_nb = {
 
 static int hb_cpufreq_driver_init(void)
 {
+#if defined(MY_ABC_HERE)
+	struct platform_device_info devinfo = { .name = "cpufreq-dt", };
+#else  
 	struct platform_device_info devinfo = { .name = "cpufreq-cpu0", };
+#endif  
 	struct device *cpu_dev;
 	struct clk *cpu_clk;
 	struct device_node *np;
@@ -101,7 +102,11 @@ static int hb_cpufreq_driver_init(void)
 		goto out_put_node;
 	}
 
-	/* Instantiate cpufreq-cpu0 */
+#if defined(MY_ABC_HERE)
+	 
+#else  
+	 
+#endif  
 	platform_device_register_full(&devinfo);
 
 out_put_node:

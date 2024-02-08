@@ -155,7 +155,6 @@ struct iwl_cmd_header {
 /* iwl_cmd_header flags value */
 #define IWL_CMD_FAILED_MSK 0x40
 
-
 #define FH_RSCSR_FRAME_SIZE_MSK		0x00003FFF	/* bits 0-13 */
 #define FH_RSCSR_FRAME_INVALID		0x55550000
 #define FH_RSCSR_FRAME_ALIGN		0x40

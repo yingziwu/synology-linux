@@ -1107,7 +1107,6 @@ dspcreate(struct channel_req *crq)
 	return 0;
 }
 
-
 static struct Bprotocol DSP = {
 	.Bprotocols = (1 << (ISDN_P_B_L2DSP & ISDN_P_B_MASK))
 	| (1 << (ISDN_P_B_L2DSPHDLC & ISDN_P_B_MASK)),
@@ -1211,7 +1210,6 @@ static int __init dsp_init(void)
 
 	return 0;
 }
-
 
 static void __exit dsp_cleanup(void)
 {

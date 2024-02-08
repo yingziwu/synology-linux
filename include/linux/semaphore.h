@@ -1,18 +1,13 @@
-/*
- * Copyright (c) 2008 Intel Corporation
- * Author: Matthew Wilcox <willy@linux.intel.com>
- *
- * Distributed under the terms of the GNU GPL, version 2
- *
- * Please see kernel/semaphore.c for documentation of these functions
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef __LINUX_SEMAPHORE_H
 #define __LINUX_SEMAPHORE_H
 
 #include <linux/list.h>
 #include <linux/spinlock.h>
 
-/* Please don't access any members of this structure directly */
 struct semaphore {
 	raw_spinlock_t		lock;
 	unsigned int		count;
@@ -41,6 +36,10 @@ extern int __must_check down_interruptible(struct semaphore *sem);
 extern int __must_check down_killable(struct semaphore *sem);
 extern int __must_check down_trylock(struct semaphore *sem);
 extern int __must_check down_timeout(struct semaphore *sem, long jiffies);
+#ifdef MY_DEF_HERE
+extern int __must_check down_timeout_interruptible(struct semaphore *sem,
+		long jiffies);
+#endif  
 extern void up(struct semaphore *sem);
 
-#endif /* __LINUX_SEMAPHORE_H */
+#endif  

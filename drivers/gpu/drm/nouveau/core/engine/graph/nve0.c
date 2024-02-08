@@ -271,7 +271,6 @@ nve0_graph_gpc_trap(struct nvc0_graph_priv *priv)
 	}
 }
 
-
 static void
 nve0_graph_trap_isr(struct nvc0_graph_priv *priv, int chid, u64 inst,
 		struct nouveau_object *engctx)

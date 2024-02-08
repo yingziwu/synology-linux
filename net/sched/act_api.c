@@ -952,7 +952,6 @@ out_kfree_skb:
 	return -1;
 }
 
-
 static int
 tcf_action_add(struct net *net, struct nlattr *nla, struct nlmsghdr *n,
 	       u32 portid, int ovr)

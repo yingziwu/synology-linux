@@ -1201,6 +1201,15 @@ M:	Dinh Nguyen <dinguyen@altera.com>
 S:	Maintained
 F:	drivers/clk/socfpga/
 
+ARM/STI ARCHITECTURE
+M:	Srinivas Kandagatla <srinivas.kandagatla@st.com>
+M:	Stuart Menefy <stuart.menefy@st.com>
+L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+L:	kernel@stlinux.com
+W:	http://www.stlinux.com
+S:	Maintained
+F:	arch/arm/mach-sti/
+
 ARM/TECHNOLOGIC SYSTEMS TS7250 MACHINE SUPPORT
 M:	Lennert Buytenhek <kernel@wantstofly.org>
 L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
@@ -1522,6 +1531,13 @@ W:	http://atmelwlandriver.sourceforge.net/
 S:	Maintained
 F:	drivers/net/wireless/atmel*
 
+ATTO EXPRESSSAS SAS/SATA RAID SCSI DRIVER
+M:      Bradley Grove <linuxdrivers@attotech.com>
+L:      linux-scsi@vger.kernel.org
+W:      http://www.attotech.com
+S:      Supported
+F:      drivers/scsi/esas2r
+
 AUDIT SUBSYSTEM
 M:	Al Viro <viro@zeniv.linux.org.uk>
 M:	Eric Paris <eparis@redhat.com>
@@ -1532,6 +1548,20 @@ S:	Maintained
 F:	include/linux/audit.h
 F:	include/uapi/linux/audit.h
 F:	kernel/audit*
+
+AUFS (advanced multi layered unification filesystem) FILESYSTEM
+M:	"J. R. Okajima" <hooanon05g@gmail.com>
+L:	linux-unionfs@vger.kernel.org
+L:	aufs-users@lists.sourceforge.net (members only)
+W:	http://aufs.sourceforge.net
+T:	git://git.code.sf.net/p/aufs/aufs3-linux
+T:	git://github.com/sfjro/aufs3-linux.git
+S:	Supported
+F:	Documentation/filesystems/aufs/
+F:	Documentation/ABI/testing/debugfs-aufs
+F:	Documentation/ABI/testing/sysfs-aufs
+F:	fs/aufs/
+F:	include/uapi/linux/aufs_type.h
 
 AUXILIARY DISPLAY DRIVERS
 M:	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
@@ -3535,6 +3565,14 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git
 S:	Maintained
 F:	include/asm-generic
 F:	include/uapi/asm-generic
+
+GENERIC PHY FRAMEWORK
+M:	Kishon Vijay Abraham I <kishon@ti.com>
+L:	linux-kernel@vger.kernel.org
+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/kishon/linux-phy.git
+S:	Supported
+F:	drivers/phy/
+F:	include/linux/phy/
 
 GENERIC UIO DRIVER FOR PCI DEVICES
 M:	"Michael S. Tsirkin" <mst@redhat.com>

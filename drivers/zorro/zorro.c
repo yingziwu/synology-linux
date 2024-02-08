@@ -23,14 +23,12 @@
 
 #include "zorro.h"
 
-
     /*
      *  Zorro Expansion Devices
      */
 
 unsigned int zorro_num_autocon;
 struct zorro_dev zorro_autocon[ZORRO_NUM_AUTO];
-
 
     /*
      *  Zorro bus
@@ -39,7 +37,6 @@ struct zorro_dev zorro_autocon[ZORRO_NUM_AUTO];
 struct zorro_bus {
 	struct device dev;
 };
-
 
     /*
      *  Find Zorro Devices
@@ -61,7 +58,6 @@ struct zorro_dev *zorro_find_device(zorro_id id, struct zorro_dev *from)
 }
 EXPORT_SYMBOL(zorro_find_device);
 
-
     /*
      *  Bitmask indicating portions of available Zorro II RAM that are unused
      *  by the system. Every bit represents a 64K chunk, for a maximum of 8MB
@@ -79,7 +75,6 @@ EXPORT_SYMBOL(zorro_find_device);
 
 DECLARE_BITMAP(zorro_unused_z2ram, 128);
 EXPORT_SYMBOL(zorro_unused_z2ram);
-
 
 static void __init mark_region(unsigned long start, unsigned long end,
 			       int flag)
@@ -105,7 +100,6 @@ static void __init mark_region(unsigned long start, unsigned long end,
 	}
 }
 
-
 static struct resource __init *zorro_find_parent_resource(
 	struct platform_device *bridge, struct zorro_dev *z)
 {
@@ -119,8 +113,6 @@ static struct resource __init *zorro_find_parent_resource(
 	}
 	return &iomem_resource;
 }
-
-
 
 static int __init amiga_zorro_probe(struct platform_device *pdev)
 {

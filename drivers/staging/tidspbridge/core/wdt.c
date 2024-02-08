@@ -24,7 +24,6 @@
 #include <dspbridge/wdt.h>
 #include <dspbridge/host_os.h>
 
-
 #define OMAP34XX_WDT3_BASE 		(0x49000000 + 0x30000)
 #define INT_34XX_WDT3_IRQ 		(36 + NR_IRQS)
 
@@ -92,7 +91,6 @@ void dsp_wdt_sm_set(void *data)
 	dsp_wdt.sm_wdt = data;
 	dsp_wdt.sm_wdt->wdt_overflow = 5;	/* in seconds */
 }
-
 
 void dsp_wdt_exit(void)
 {

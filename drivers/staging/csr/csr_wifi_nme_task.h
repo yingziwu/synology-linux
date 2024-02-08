@@ -24,4 +24,3 @@
 extern CsrSchedQid CSR_WIFI_NME_IFACEQUEUE;
 
 #endif /* CSR_WIFI_NME_TASK_H__ */
-

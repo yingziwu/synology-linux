@@ -1,18 +1,7 @@
-/*
- *  CPU frequency scaling for OMAP using OPP information
- *
- *  Copyright (C) 2005 Nokia Corporation
- *  Written by Tony Lindgren <tony@atomide.com>
- *
- *  Based on cpu-sa1110.c, Copyright (C) 2001 Russell King
- *
- * Copyright (C) 2007-2011 Texas Instruments, Inc.
- * - OMAP3/4 support by Rajendra Nayak, Santosh Shilimkar
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/types.h>
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -22,7 +11,11 @@
 #include <linux/err.h>
 #include <linux/clk.h>
 #include <linux/io.h>
+#if defined(MY_ABC_HERE)
+#include <linux/pm_opp.h>
+#else  
 #include <linux/opp.h>
+#endif  
 #include <linux/cpu.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
@@ -31,7 +24,6 @@
 #include <asm/smp_plat.h>
 #include <asm/cpu.h>
 
-/* OPP tolerance in percentage */
 #define	OPP_TOLERANCE	4
 
 static struct cpufreq_frequency_table *freq_table;
@@ -65,7 +57,11 @@ static int omap_target(struct cpufreq_policy *policy,
 	unsigned int i;
 	int r, ret = 0;
 	struct cpufreq_freqs freqs;
+#if defined(MY_ABC_HERE)
+	struct dev_pm_opp *opp;
+#else  
 	struct opp *opp;
+#endif  
 	unsigned long freq, volt = 0, volt_old = 0, tol = 0;
 
 	if (!freq_table) {
@@ -93,7 +89,6 @@ static int omap_target(struct cpufreq_policy *policy,
 	if (freqs.old == freqs.new && policy->cur == freqs.new)
 		return ret;
 
-	/* notifiers */
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_PRECHANGE);
 
 	freq = freqs.new * 1000;
@@ -108,14 +103,22 @@ static int omap_target(struct cpufreq_policy *policy,
 
 	if (mpu_reg) {
 		rcu_read_lock();
+#if defined(MY_ABC_HERE)
+		opp = dev_pm_opp_find_freq_ceil(mpu_dev, &freq);
+#else  
 		opp = opp_find_freq_ceil(mpu_dev, &freq);
+#endif  
 		if (IS_ERR(opp)) {
 			rcu_read_unlock();
 			dev_err(mpu_dev, "%s: unable to find MPU OPP for %d\n",
 				__func__, freqs.new);
 			return -EINVAL;
 		}
+#if defined(MY_ABC_HERE)
+		volt = dev_pm_opp_get_voltage(opp);
+#else  
 		volt = opp_get_voltage(opp);
+#endif  
 		rcu_read_unlock();
 		tol = volt * OPP_TOLERANCE / 100;
 		volt_old = regulator_get_voltage(mpu_reg);
@@ -125,7 +128,6 @@ static int omap_target(struct cpufreq_policy *policy,
 		freqs.old / 1000, volt_old ? volt_old / 1000 : -1,
 		freqs.new / 1000, volt ? volt / 1000 : -1);
 
-	/* scaling up?  scale voltage before frequency */
 	if (mpu_reg && (freqs.new > freqs.old)) {
 		r = regulator_set_voltage(mpu_reg, volt - tol, volt + tol);
 		if (r < 0) {
@@ -138,7 +140,6 @@ static int omap_target(struct cpufreq_policy *policy,
 
 	ret = clk_set_rate(mpu_clk, freqs.new * 1000);
 
-	/* scaling down?  scale voltage after frequency */
 	if (mpu_reg && (freqs.new < freqs.old)) {
 		r = regulator_set_voltage(mpu_reg, volt - tol, volt + tol);
 		if (r < 0) {
@@ -153,7 +154,7 @@ static int omap_target(struct cpufreq_policy *policy,
 	freqs.new = omap_getspeed(policy->cpu);
 
 done:
-	/* notifiers */
+	 
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_POSTCHANGE);
 
 	return ret;
@@ -162,10 +163,18 @@ done:
 static inline void freq_table_free(void)
 {
 	if (atomic_dec_and_test(&freq_table_users))
+#if defined(MY_ABC_HERE)
+		dev_pm_opp_free_cpufreq_table(mpu_dev, &freq_table);
+#else  
 		opp_free_cpufreq_table(mpu_dev, &freq_table);
+#endif  
 }
 
+#if defined(MY_ABC_HERE)
+static int omap_cpu_init(struct cpufreq_policy *policy)
+#else  
 static int __cpuinit omap_cpu_init(struct cpufreq_policy *policy)
+#endif  
 {
 	int result = 0;
 
@@ -181,7 +190,11 @@ static int __cpuinit omap_cpu_init(struct cpufreq_policy *policy)
 	policy->cur = omap_getspeed(policy->cpu);
 
 	if (!freq_table)
+#if defined(MY_ABC_HERE)
+		result = dev_pm_opp_init_cpufreq_table(mpu_dev, &freq_table);
+#else  
 		result = opp_init_cpufreq_table(mpu_dev, &freq_table);
+#endif  
 
 	if (result) {
 		dev_err(mpu_dev, "%s: cpu%d: failed creating freq table[%d]\n",
@@ -199,17 +212,9 @@ static int __cpuinit omap_cpu_init(struct cpufreq_policy *policy)
 
 	policy->cur = omap_getspeed(policy->cpu);
 
-	/*
-	 * On OMAP SMP configuartion, both processors share the voltage
-	 * and clock. So both CPUs needs to be scaled together and hence
-	 * needs software co-ordination. Use cpufreq affected_cpus
-	 * interface to handle this scenario. Additional is_smp() check
-	 * is to keep SMP_ON_UP build working.
-	 */
 	if (is_smp())
 		cpumask_setall(policy->cpus);
 
-	/* FIXME: what's the actual transition time? */
 	policy->cpuinfo.transition_latency = 300 * 1000;
 
 	return 0;
@@ -257,10 +262,7 @@ static int omap_cpufreq_probe(struct platform_device *pdev)
 		pr_warning("%s: unable to get MPU regulator\n", __func__);
 		mpu_reg = NULL;
 	} else {
-		/* 
-		 * Ensure physical regulator is present.
-		 * (e.g. could be dummy regulator.)
-		 */
+		 
 		if (regulator_get_voltage(mpu_reg) < 0) {
 			pr_warn("%s: physical regulator not present for MPU\n",
 				__func__);

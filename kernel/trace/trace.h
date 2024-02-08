@@ -39,7 +39,6 @@ enum trace_type {
 	__TRACE_LAST_TYPE,
 };
 
-
 #undef __field
 #define __field(type, item)		type	item;
 
@@ -313,7 +312,6 @@ struct tracer_flags {
 /* Makes more easy to define a tracer opt */
 #define TRACER_OPT(s, b)	.name = #s, .bit = b
 
-
 /**
  * struct tracer - a specific tracer and its callbacks to interact with debugfs
  * @name: the name chosen to select it on the available_tracers file
@@ -373,7 +371,6 @@ struct tracer {
 	bool			use_max_tr;
 #endif
 };
-
 
 /* Only current can touch trace_recursion */
 
@@ -654,6 +651,9 @@ static inline void __trace_stack(struct trace_array *tr, unsigned long flags,
 extern cycle_t ftrace_now(int cpu);
 
 extern void trace_find_cmdline(int pid, char comm[]);
+#if defined(CONFIG_SYNO_LSP_HI3536)
+extern int trace_find_tgid(int pid);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 #ifdef CONFIG_DYNAMIC_FTRACE
 extern unsigned long ftrace_update_tot_cnt;
@@ -730,7 +730,6 @@ extern int __trace_graph_entry(struct trace_array *tr,
 extern void __trace_graph_return(struct trace_array *tr,
 				 struct ftrace_graph_ret *trace,
 				 unsigned long flags, int pc);
-
 
 #ifdef CONFIG_DYNAMIC_FTRACE
 /* TODO: make this variable */
@@ -867,6 +866,9 @@ enum trace_iterator_flags {
 	TRACE_ITER_IRQ_INFO		= 0x800000,
 	TRACE_ITER_MARKERS		= 0x1000000,
 	TRACE_ITER_FUNCTION		= 0x2000000,
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	TRACE_ITER_TGID 		= 0x4000000,
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 };
 
 /*

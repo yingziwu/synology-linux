@@ -86,7 +86,6 @@ static inline unsigned long load_unaligned_zeropad(const void *addr)
 	return ret;
 }
 
-
 #endif	/* DCACHE_WORD_ACCESS */
 
 #else	/* __ARMEB__ */
