@@ -148,6 +148,7 @@ typedef struct {
 	u32 size;                       /**< [out] size of buffer necessary to hold system information data, in bytes */
 } _mali_uk_get_system_info_size_s;
 
+
 /** @defgroup _mali_uk_getsysteminfo U/K Get System Info
  * @{ */
 
@@ -185,6 +186,7 @@ typedef enum _mali_core_type {
 	/* insert new core here, do NOT alter the existing values */
 } _mali_core_type;
 
+
 /** @brief Capabilities of Memory Banks
  *
  * These may be used to restrict memory banks for certain uses. They may be
@@ -214,6 +216,7 @@ typedef enum mali_memory_cache_settings {
 	MALI_CACHE_STANDARD 			= 0,
 	MALI_CACHE_GP_READ_ALLOCATE     = 1,
 } mali_memory_cache_settings ;
+
 
 /** @brief Information about the Mali Memory system
  *
@@ -249,6 +252,7 @@ typedef struct _mali_mem_info {
 } _mali_mem_info;
 
 /** @} */ /* end group _mali_uk_core */
+
 
 /** @defgroup _mali_uk_gp U/K Vertex Processor
  * @{ */
@@ -401,6 +405,7 @@ typedef struct {
 
 /** @} */ /* end group _mali_uk_gp */
 
+
 /** @defgroup _mali_uk_pp U/K Fragment Processor
  * @{ */
 
@@ -508,6 +513,8 @@ typedef struct {
 	u32 number_of_enabled_cores;               /**< [out] the new number of enabled cores */
 } _mali_uk_pp_num_cores_changed_s;
 
+
+
 /**
  * Flags to indicate write-back units
  */
@@ -524,6 +531,7 @@ typedef struct {
 	u32 wb1_memory;
 	u32 wb2_memory;
 } _mali_uk_pp_disable_wb_s;
+
 
 /** @} */ /* end group _mali_uk_pp */
 
@@ -591,6 +599,7 @@ typedef enum {
 #define _MALI_NOTIFICATION_SUBSYSTEM_SHIFT 16
 #define _MALI_NOTIFICATION_ID_MASK 0x0000FFFF
 #define _MALI_NOTIFICATION_ID_SHIFT 0
+
 
 /** @brief Enumeration of possible settings which match mali_setting_t in user space
  *
@@ -791,6 +800,7 @@ typedef struct {
 
 /** @} */ /* end group _mali_uk_core */
 
+
 /** @defgroup _mali_uk_memory U/K Memory
  * @{ */
 
@@ -905,6 +915,7 @@ typedef struct {
 
 /** @} */ /* end group _mali_uk_memory */
 
+
 /** @addtogroup _mali_uk_pp U/K Fragment Processor
  * @{ */
 
@@ -932,6 +943,7 @@ typedef struct {
 } _mali_uk_get_pp_core_version_s;
 
 /** @} */ /* end group _mali_uk_pp */
+
 
 /** @addtogroup _mali_uk_gp U/K Vertex Processor
  * @{ */
@@ -987,6 +999,7 @@ typedef struct {
 } _mali_uk_profiling_clear_s;
 
 /** @} */ /* end group _mali_uk_gp */
+
 
 /** @addtogroup _mali_uk_memory U/K Memory
  * @{ */

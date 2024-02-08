@@ -75,6 +75,7 @@ struct _mali_osk_device_data {
  */
 _mali_osk_errcode_t _mali_osk_resource_find(u32 addr, _mali_osk_resource_t *res);
 
+
 /** @brief Find Mali GPU HW base address
  *
  * @return 0 if resources are found, otherwise the Mali GPU component with lowest address.
@@ -108,6 +109,7 @@ mali_bool _mali_osk_shared_interrupts(void);
 u32 _mali_osk_mem_write_safe(void *dest, const void *src, u32 size);
 
 /** @} */ /* end group _mali_osk_low_level_memory */
+
 
 #ifdef __cplusplus
 }

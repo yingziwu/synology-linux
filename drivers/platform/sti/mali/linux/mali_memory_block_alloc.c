@@ -20,6 +20,7 @@ struct block_info {
 
 typedef struct block_info block_info;
 
+
 typedef struct block_allocator {
 	struct mutex mutex;
 	block_info *all_blocks;

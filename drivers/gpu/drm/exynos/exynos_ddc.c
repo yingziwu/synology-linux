@@ -17,6 +17,7 @@
 #include <linux/i2c.h>
 #include <linux/module.h>
 
+
 #include "exynos_drm_drv.h"
 #include "exynos_hdmi.h"
 

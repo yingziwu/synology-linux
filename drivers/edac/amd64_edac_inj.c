@@ -207,6 +207,7 @@ static DEVICE_ATTR(inject_write, S_IWUSR,
 static DEVICE_ATTR(inject_read,  S_IWUSR,
 		   NULL, amd64_inject_read_store);
 
+
 int amd64_create_sysfs_inject_files(struct mem_ctl_info *mci)
 {
 	int rc;

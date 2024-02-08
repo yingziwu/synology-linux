@@ -422,6 +422,7 @@ static struct pci_driver lnw_gpio_driver = {
 	},
 };
 
+
 static int wp_gpio_probe(struct platform_device *pdev)
 {
 	struct lnw_gpio *lnw;

@@ -16,6 +16,7 @@
 
 #include <asm/stacktrace.h>
 
+
 void dump_trace(struct task_struct *task, struct pt_regs *regs,
 		unsigned long *stack, unsigned long bp,
 		const struct stacktrace_ops *ops, void *data)
@@ -79,6 +80,7 @@ show_stack_log_lvl(struct task_struct *task, struct pt_regs *regs,
 	pr_cont("\n");
 	show_trace_log_lvl(task, regs, sp, bp, log_lvl);
 }
+
 
 void show_regs(struct pt_regs *regs)
 {

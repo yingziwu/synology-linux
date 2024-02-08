@@ -219,6 +219,7 @@ use_legacy_interrupts:
 		esas2r_lock_set_flags(&a->flags2, AF2_MSI_ENABLED);
 		break;
 
+
 	default:
 		esas2r_log(ESAS2R_LOG_WARN,
 			   "unknown interrupt_mode %d requested, "
@@ -1478,6 +1479,7 @@ bool esas2r_init_adapter_hw(struct esas2r_adapter *a, bool init_poll)
 		esas2r_lock_clear_flags(&a->flags, AF_TASKLET_SCHEDULED);
 	}
 
+
 	esas2r_targ_db_report_changes(a);
 
 	/*
@@ -1516,6 +1518,7 @@ exit:
 			esas2r_lock_clear_flags(&a->flags, AF_CHPRST_PENDING);
 			esas2r_lock_clear_flags(&a->flags, AF_DISC_PENDING);
 		}
+
 
 		/* Enable deferred processing after the first initialization. */
 		if (a->flags & AF_FIRST_INIT) {
@@ -1566,6 +1569,7 @@ void esas2r_reset_chip(struct esas2r_adapter *a)
 	else
 		esas2r_write_register_dword(a, MU_CTL_STATUS_IN,
 					    MU_CTL_IN_FULL_RST);
+
 
 	/* Stall a little while to let the reset condition clear */
 	mdelay(10);

@@ -189,3 +189,4 @@ module_exit(delkin_cb_exit);
 MODULE_AUTHOR("Mark Lord");
 MODULE_DESCRIPTION("Basic support for Delkin/ASKA/Workbit Cardbus IDE");
 MODULE_LICENSE("GPL");
+

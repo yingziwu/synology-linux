@@ -30,6 +30,12 @@ struct synoacl_vfs_operations {
 	int (*syno_acl_init) (struct dentry *d, struct inode *inode);
 };
 
+struct synoacl_mod_info {
+	struct synoacl_syscall_operations *syscall_ops;
+	struct synoacl_vfs_operations *vfs_ops;
+	struct module *owner;
+};
+
 int synoacl_mod_archive_change_ok(struct dentry *, unsigned int , int , int );
 int synoacl_mod_may_delete(struct dentry *, struct inode *);
 int synoacl_mod_setattr_post(struct dentry *, struct iattr *);

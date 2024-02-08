@@ -189,6 +189,7 @@ int setup_profiling_timer(unsigned int multiplier)
 	return -EINVAL;
 }
 
+
 /* cache_decay_ticks is used by the scheduler to decide if a process
  * is "hot" on one CPU. A higher value means a higher penalty to move
  * a process to another CPU. Our cache is rather small so we report
@@ -354,3 +355,4 @@ irqreturn_t crisv32_ipi_interrupt(int irq, void *dev_id)
 
 	return IRQ_HANDLED;
 }
+

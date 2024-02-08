@@ -1,7 +1,11 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Many of the syscalls used in this file expect some of the arguments
+ * to be __user pointers not __kernel pointers.  To limit the sparse
+ * noise, turn off sparse checking for this file.
+ */
 #ifdef __CHECKER__
 #undef __CHECKER__
 #warning "Sparse checking disabled for this file"
@@ -21,7 +25,7 @@
 #ifdef MY_DEF_HERE
 #include <crypto/hydrogen.h>
 bool ramdisk_check_failed;
-#endif  
+#endif /* MY_DEF_HERE */
 
 static __initdata char *message;
 static void __init error(char *x)
@@ -29,6 +33,8 @@ static void __init error(char *x)
 	if (!message)
 		message = x;
 }
+
+/* link hash */
 
 #define N_ALIGN(len) ((((len) + 1) & ~3) + 2)
 
@@ -129,6 +135,8 @@ static void __init dir_utime(void)
 
 static __initdata time_t mtime;
 
+/* cpio header parsing */
+
 static __initdata unsigned long ino, major, minor, nlink;
 static __initdata umode_t mode;
 static __initdata unsigned long body_len, name_len;
@@ -159,6 +167,8 @@ static void __init parse_header(char *s)
 	rdev = new_encode_dev(MKDEV(parsed[9], parsed[10]));
 	name_len = parsed[11];
 }
+
+/* FSM */
 
 static __initdata enum state {
 	Start,
@@ -415,7 +425,7 @@ static int __init flush_buffer(void *bufv, unsigned len)
 	return origLen;
 }
 
-static unsigned my_inptr;    
+static unsigned my_inptr;   /* index of next byte to be processed in inbuf */
 
 #include <linux/decompress/generic.h>
 
@@ -465,9 +475,10 @@ static char * __init unpack_to_rootfs(char *buf, unsigned len)
 					 compress_name);
 				message = msg_buf;
 			}
-#ifdef CONFIG_SYNO_INITRAMFS_DECOMPRESS_ONCE
+#ifdef MY_DEF_HERE
 		} else {
-			 
+			/* It's workaround. For backward supporting inaccurate size of rd
+			 * in boot arguments, eg.: initrd=0x2000040,4M */
 			break;
 		}
 #else
@@ -482,7 +493,7 @@ static char * __init unpack_to_rootfs(char *buf, unsigned len)
 			printk(KERN_INFO "decompress cpio completed and skip redundant lzma\n");
 			break;
 		}
-#endif  
+#endif /* MY_DEF_HERE */
 		this_header = saved_offset + my_inptr;
 		buf += my_inptr;
 		len -= my_inptr;
@@ -520,9 +531,15 @@ static void __init free_initrd(void)
 		goto skip;
 
 #ifdef CONFIG_KEXEC
-	 
+	/*
+	 * If the initrd region is overlapped with crashkernel reserved region,
+	 * free only memory that is not part of crashkernel region.
+	 */
 	if (initrd_start < crashk_end && initrd_end > crashk_start) {
-		 
+		/*
+		 * Initialize initrd memory region since the kexec boot does
+		 * not do.
+		 */
 		memset((void *)initrd_start, 0, initrd_end - initrd_start);
 		if (initrd_start < crashk_start)
 			free_initrd_mem(initrd_start, crashk_start);
@@ -589,7 +606,7 @@ static int __init populate_rootfs(void)
 {
 	char *err = unpack_to_rootfs(__initramfs_start, __initramfs_size);
 	if (err)
-		panic(err);	 
+		panic(err);	/* Failed to decompress INTERNAL initramfs */
 
 #ifdef MY_DEF_HERE
 	const char *ctx = "synology";
@@ -609,7 +626,7 @@ static int __init populate_rootfs(void)
 		ramdisk_check_failed = false;
 		initrd_end -= hydro_sign_BYTES;
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 	if (initrd_start) {
 #ifdef CONFIG_BLK_DEV_RAM
@@ -643,7 +660,10 @@ static int __init populate_rootfs(void)
 			printk(KERN_EMERG "Initramfs unpacking failed: %s\n", err);
 		free_initrd();
 #endif
-		 
+		/*
+		 * Try loading default modules from initramfs.  This gives
+		 * us a chance to load before device_initcalls.
+		 */
 		load_default_modules();
 	}
 	return 0;

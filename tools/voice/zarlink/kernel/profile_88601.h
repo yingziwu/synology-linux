@@ -91,6 +91,7 @@
 typedef unsigned char VpProfileDataType;
 #endif
 
+
 /************** Device_Parameters **************/
 /* Device Configuration Data - ZL88601 100V ABS (-90V/-30V) Master and Slave */
 extern const VpProfileDataType ZLR88621L_ABS90V_OC_DEVICE[];

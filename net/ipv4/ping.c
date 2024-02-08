@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -178,18 +181,19 @@ void ping_unhash(struct sock *sk)
 static void ping_v4_unhash(struct sock *sk)
 {
 	struct inet_sock *isk = inet_sk(sk);
+
 	pr_debug("ping_v4_unhash(isk=%p,isk->num=%u)\n", isk, isk->inet_num);
 #endif /* CONFIG_SYNO_LSP_HI3536 */
+	write_lock_bh(&ping_table.lock);
 	if (sk_hashed(sk)) {
-		write_lock_bh(&ping_table.lock);
 		hlist_nulls_del(&sk->sk_nulls_node);
 		sk_nulls_node_init(&sk->sk_nulls_node);
 		sock_put(sk);
 		isk->inet_num = 0;
 		isk->inet_sport = 0;
 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
-		write_unlock_bh(&ping_table.lock);
 	}
+	write_unlock_bh(&ping_table.lock);
 }
 #if defined(CONFIG_SYNO_LSP_HI3536)
 EXPORT_SYMBOL_GPL(ping_unhash);
@@ -296,6 +300,7 @@ static void inet_get_ping_group_range_net(struct net *net, kgid_t *low,
 		*high = data[1];
 	} while (read_seqretry(&sysctl_local_ports.lock, seq));
 }
+
 
 #if defined(CONFIG_SYNO_LSP_HI3536)
 int ping_init_sock(struct sock *sk)
@@ -851,6 +856,8 @@ static int ping_push_pending_frames(struct sock *sk, struct pingfakehdr *pfh,
 {
 	struct sk_buff *skb = skb_peek(&sk->sk_write_queue);
 
+	if (!skb)
+		return 0;
 	pfh->wcheck = csum_partial((char *)&pfh->icmph,
 		sizeof(struct icmphdr), pfh->wcheck);
 	pfh->icmph.checksum = csum_fold(pfh->wcheck);
@@ -930,6 +937,7 @@ static int ping_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 		return err;
 #else /* CONFIG_SYNO_LSP_HI3536 */
 	pr_debug("ping_sendmsg(sk=%p,sk->num=%u)\n", inet, inet->inet_num);
+
 
 	if (len > 0xFFFF)
 		return -EMSGSIZE;
@@ -1130,18 +1138,18 @@ static int ping_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 
 	if (flags & MSG_ERRQUEUE) {
 		if (family == AF_INET) {
-#if defined(CONFIG_SYNO_HI3536)
+#if defined(MY_DEF_HERE)
 			return ip_recv_error(sk, msg, len, addr_len);
-#else /* CONFIG_SYNO_HI3536 */
+#else /* MY_DEF_HERE */
 			return ip_recv_error(sk, msg, len);
-#endif /* CONFIG_SYNO_HI3536 */
+#endif /* MY_DEF_HERE */
 #if IS_ENABLED(CONFIG_IPV6)
 		} else if (family == AF_INET6) {
-#if defined(CONFIG_SYNO_HI3536)
+#if defined(MY_DEF_HERE)
 			return pingv6_ops.ipv6_recv_error(sk, msg, len, addr_len);
-#else /* CONFIG_SYNO_HI3536 */
+#else /* MY_DEF_HERE */
 			return pingv6_ops.ipv6_recv_error(sk, msg, len);
-#endif /* CONFIG_SYNO_HI3536 */
+#endif /* MY_DEF_HERE */
 #endif
 		}
 	}
@@ -1247,6 +1255,7 @@ static int ping_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 #if defined(CONFIG_SYNO_LSP_HI3536)
 EXPORT_SYMBOL_GPL(ping_queue_rcv_skb);
 #endif /* CONFIG_SYNO_LSP_HI3536 */
+
 
 /*
  *	All we need to do is get the socket.
@@ -1480,6 +1489,7 @@ static void ping_proc_unregister(struct net *net)
 {
 	remove_proc_entry("icmp", net->proc_net);
 }
+
 
 static int __net_init ping_proc_init_net(struct net *net)
 {

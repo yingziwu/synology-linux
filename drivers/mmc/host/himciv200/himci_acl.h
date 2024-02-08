@@ -14,3 +14,4 @@ int himci_acl_rw(int devid, int is_write, u32 ofblk, u32 nrblk);
 
 extern char *get_blkdevparts(void);
 #endif
+

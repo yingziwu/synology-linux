@@ -19,6 +19,7 @@
 #include <gtMiiSmiIf.h>
 #include <gtSem.h>
 
+
 static GT_STATUS hwReadPPU(GT_QD_DEV *dev, GT_U16 *data);
 static GT_STATUS hwWritePPU(GT_QD_DEV *dev, GT_U16 data);
 static GT_STATUS coreReadPhyReg
@@ -72,6 +73,7 @@ static GT_STATUS phyWriteGlobal2Reg
     IN  GT_U16   data
 );
 #endif
+
 
 /*******************************************************************************
 * portToSmiMapping
@@ -173,6 +175,7 @@ GT_U8 portToSmiMapping
     return smiAddr;
 }
 
+
 /****************************************************************************/
 /* Phy registers related functions.                                         */
 /****************************************************************************/
@@ -217,6 +220,7 @@ GT_STATUS hwReadPhyReg
     return retVal;
 }
 
+
 /*******************************************************************************
 * hwWritePhyReg
 *
@@ -257,6 +261,7 @@ GT_STATUS hwWritePhyReg
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwGetPhyRegField
@@ -316,6 +321,7 @@ GT_STATUS hwGetPhyRegField
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwSetPhyRegField
@@ -384,6 +390,7 @@ GT_STATUS hwSetPhyRegField
     return retVal;
 }
 
+
 /*******************************************************************************
 * hwReadPagedPhyReg
 *
@@ -427,6 +434,7 @@ GT_STATUS hwReadPagedPhyReg
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwWritePagedPhyReg
@@ -472,6 +480,7 @@ GT_STATUS hwWritePagedPhyReg
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwGetPagedPhyRegField
@@ -538,6 +547,7 @@ GT_STATUS hwGetPagedPhyRegField
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * hwSetPagedPhyRegField
@@ -608,6 +618,7 @@ GT_STATUS hwSetPagedPhyRegField
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwPhyReset
@@ -764,6 +775,7 @@ GT_STATUS hwReadPortReg
     return retVal;
 }
 
+
 /*******************************************************************************
 * hwWritePortReg
 *
@@ -815,6 +827,7 @@ GT_STATUS hwWritePortReg
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwGetPortRegField
@@ -880,6 +893,7 @@ GT_STATUS hwGetPortRegField
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * hwSetPortRegField
@@ -955,6 +969,7 @@ GT_STATUS hwSetPortRegField
     return retVal;
 }
 
+
 /*******************************************************************************
 * hwSetPortRegBits
 *
@@ -1023,6 +1038,8 @@ GT_STATUS hwSetPortRegBits
     return retVal;
 }
 
+
+
 /****************************************************************************/
 /* Global registers related functions.                                      */
 /****************************************************************************/
@@ -1071,6 +1088,7 @@ GT_STATUS hwReadGlobalReg
     return retVal;
 }
 
+
 /*******************************************************************************
 * hwWriteGlobalReg
 *
@@ -1116,6 +1134,7 @@ GT_STATUS hwWriteGlobalReg
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwGetGlobalRegField
@@ -1181,6 +1200,7 @@ GT_STATUS hwGetGlobalRegField
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * hwSetGlobalRegField
@@ -1302,6 +1322,7 @@ GT_STATUS hwReadGlobal2Reg
     return retVal;
 }
 
+
 /*******************************************************************************
 * hwWriteGlobal2Reg
 *
@@ -1350,6 +1371,7 @@ GT_STATUS hwWriteGlobal2Reg
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwGetGlobal2RegField
@@ -1412,6 +1434,7 @@ GT_STATUS hwGetGlobal2RegField
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * hwSetGlobal2RegField
@@ -1553,6 +1576,7 @@ GT_STATUS hwSetGlobal2RegBits
     return retVal;
 }
 
+
 /*******************************************************************************
 * hwReadGlobal3Reg
 *
@@ -1599,6 +1623,7 @@ GT_STATUS hwReadGlobal3Reg
     DBG_INFO(("data 0x%x.\n",*data));
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwWriteGlobal3Reg
@@ -1648,6 +1673,7 @@ GT_STATUS hwWriteGlobal3Reg
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwGetGlobal3RegField
@@ -1710,6 +1736,7 @@ GT_STATUS hwGetGlobal3RegField
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * hwSetGlobal3RegField
@@ -1851,6 +1878,7 @@ GT_STATUS hwSetGlobal3RegBits
     return retVal;
 }
 
+
 /*********************************************************************************************/
 
 /*******************************************************************************
@@ -1896,6 +1924,7 @@ GT_STATUS hwReadMiiReg
     return retVal;
 }
 
+
 /*******************************************************************************
 * hwWriteMiiReg
 *
@@ -1938,6 +1967,7 @@ GT_STATUS hwWriteMiiReg
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * hwReadPPU
@@ -2057,6 +2087,7 @@ static GT_STATUS hwWritePPU
     return GT_OK;
 }
 
+
 static GT_STATUS coreReadPhyReg
 (
     IN GT_QD_DEV *dev,
@@ -2158,6 +2189,7 @@ static GT_STATUS coreReadPhyReg
     return retVal;
 }
 
+
 static GT_STATUS coreWritePhyReg
 (
     IN GT_QD_DEV *dev,
@@ -2258,6 +2290,7 @@ static GT_STATUS coreWritePhyReg
 
     return retVal;
 }
+
 
 static GT_STATUS coreReadPagedPhyReg
 (
@@ -2408,6 +2441,7 @@ static GT_STATUS coreReadPagedPhyReg
 
 }
 
+
 static GT_STATUS coreWritePagedPhyReg
 (
     IN GT_QD_DEV *dev,
@@ -2551,6 +2585,7 @@ static GT_STATUS coreWritePagedPhyReg
 
     return retVal;
 }
+
 
 /*****************************************************************************
 * phyRegReadPPUEn
@@ -2768,6 +2803,7 @@ GT_STATUS phyRegWritePPUEn (GT_QD_DEV* dev, unsigned int phyAddr , unsigned int 
     }
     timeOut = QD_SMI_ACCESS_LOOP; /* initialize the loop count */
 
+
     if(smiReg & QD_SMI_BUSY)
     {
         for(i = 0 ; i < QD_SMI_TIMEOUT ; i++);
@@ -2826,6 +2862,7 @@ static GT_STATUS phyReadGlobal2Reg
     DBG_INFO(("data 0x%x.\n",*data));
     return retVal;
 }
+
 
 static GT_STATUS phyWriteGlobal2Reg
 (

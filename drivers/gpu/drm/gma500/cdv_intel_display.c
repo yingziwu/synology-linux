@@ -30,6 +30,7 @@
 #include "power.h"
 #include "cdv_device.h"
 
+
 struct cdv_intel_range_t {
 	int min, max;
 };
@@ -168,6 +169,7 @@ static const struct cdv_intel_limit_t cdv_intel_limits[] = {
 })
 
 #define wait_for(COND, MS) _wait_for(COND, MS, 1)
+
 
 int cdv_sb_read(struct drm_device *dev, u32 reg, u32 *val)
 {
@@ -461,6 +463,7 @@ static void cdv_intel_clock(struct drm_device *dev,
 	clock->dot = clock->vco / clock->p;
 }
 
+
 #define INTELPllInvalid(s)   { /* ErrorF (s) */; return false; }
 static bool cdv_intel_PLL_is_valid(struct drm_crtc *crtc,
 				const struct cdv_intel_limit_t *limit,
@@ -490,6 +493,7 @@ static bool cdv_intel_find_best_PLL(const struct cdv_intel_limit_t *limit,
 	struct drm_device *dev = crtc->dev;
 	struct cdv_intel_clock_t clock;
 	int err = target;
+
 
 	if (cdv_intel_pipe_has_type(crtc, INTEL_OUTPUT_LVDS) &&
 	    (REG_READ(LVDS) & LVDS_PORT_EN) != 0) {
@@ -606,6 +610,7 @@ static int cdv_intel_pipe_set_base(struct drm_crtc *crtc,
 		goto psb_intel_pipe_cleaner;
 	}
 
+
 	/* We are displaying this buffer, make sure it is actually loaded
 	   into the GTT */
 	ret = psb_gtt_pin(psbfb->gtt);
@@ -684,6 +689,7 @@ static bool cdv_intel_single_pipe_active (struct drm_device *dev)
 
 	if (cdv_intel_pipe_enabled(dev, 1))
 		pipe_enabled |= FIFO_PIPEB;
+
 
 	DRM_DEBUG_KMS("pipe enabled %x\n", pipe_enabled);
 
@@ -1000,6 +1006,7 @@ static bool cdv_intel_crtc_mode_fixup(struct drm_crtc *crtc,
 	return true;
 }
 
+
 /**
  * Return the pipe currently connected to the panel fitter,
  * or -1 if the panel fitter is not present or not in use
@@ -1180,6 +1187,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
 
 	udelay(150);
 
+
 	/* The LVDS pin pair needs to be on before the DPLLs are enabled.
 	 * This is an exception to the general rule that mode_set doesn't turn
 	 * things on.
@@ -1271,6 +1279,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
 
 	return 0;
 }
+
 
 /**
  * Save HW states of giving crtc
@@ -1391,6 +1400,7 @@ static void cdv_intel_crtc_restore(struct drm_crtc *crtc)
 		crtc_state->saveDSPPOS,
 		crtc_state->saveDSPBASE
 	);
+
 
 	if (crtc_state->saveDPLL & DPLL_VCO_ENABLE) {
 		REG_WRITE(map->dpll,
@@ -1540,6 +1550,7 @@ static int cdv_intel_crtc_cursor_move(struct drm_crtc *crtc, int x, int y)
 	int pipe = psb_intel_crtc->pipe;
 	uint32_t temp = 0;
 	uint32_t adder;
+
 
 	if (x < 0) {
 		temp |= (CURSOR_POS_SIGN << CURSOR_X_SHIFT);

@@ -31,6 +31,7 @@ static struct list_head		lslist;
 static spinlock_t		lslist_lock;
 static struct task_struct *	scand_task;
 
+
 static ssize_t dlm_control_store(struct dlm_ls *ls, const char *buf, size_t len)
 {
 	ssize_t ret = len;
@@ -895,3 +896,4 @@ void dlm_stop_lockspaces(void)
 	}
 	spin_unlock(&lslist_lock);
 }
+

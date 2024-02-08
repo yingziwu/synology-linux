@@ -9,9 +9,11 @@
 #define _ElfW(e, w, t)    _ElfW_1(e, w, _##t)
 #define _ElfW_1(e, w, t)  e##w##t
 
+
 #define ELFW(func)  _ELFW(ELF, __LIBELF_WORDSIZE, func)
 #define _ELFW(e, w, f)    _ELFW_1(e, w, _##f)
 #define _ELFW_1(e, w, f)  e##w##f
+
 
 #ifndef ELF_TYPES
 /* Use ELF_TYPES as guard, as this file could be included twice if
@@ -54,6 +56,7 @@ struct typess {
 	{0x6ffffffe, "GNU version needs"}, \
 	{0x6fffffff, "GNU version symbol table"}, \
 	{0xffffffff, NULL}
+
 
 /* Default ELF load parameters */
 #define ELF_LOADPARAMS_INIT	{NULL, NULL, 0, NULL, true, 0, NULL}

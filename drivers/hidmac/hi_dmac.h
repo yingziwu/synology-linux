@@ -67,3 +67,4 @@ typedef unsigned int dma_addr_t;
 /* #define PAGE_SIZE 0x1000 */
 
 #endif /* End of #ifndef __HI_INC_ECSDMACC_H__ */
+

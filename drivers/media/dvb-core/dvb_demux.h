@@ -1,7 +1,28 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * dvb_demux.h: DVB kernel demux API
+ *
+ * Copyright (C) 2000-2001 Marcus Metzler & Ralph Metzler
+ *                         for convergence integrated media GmbH
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; either version 2.1
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ */
+
 #ifndef _DVB_DEMUX_H_
 #define _DVB_DEMUX_H_
 
@@ -72,12 +93,12 @@ struct dvb_demux_feed {
 	enum dmx_ts_pes pes_type;
 
 	int cc;
-	int pusi_seen;		 
+	int pusi_seen;		/* prevents feeding of garbage from previous section */
 
 	u16 peslen;
 
 	struct list_head list_head;
-	unsigned int index;	 
+	unsigned int index;	/* a unique index for each feed (can be used as hardware pid filter index) */
 };
 
 struct dvb_demux {
@@ -104,10 +125,10 @@ struct dvb_demux {
 #if defined (MY_ABC_HERE)
 	struct dvb_demux_feed *pesfilter[DMX_PES_LAST];
 	u16 pids[DMX_PES_LAST];
-#else  
+#else /* MY_ABC_HERE */
 	struct dvb_demux_feed *pesfilter[DMX_PES_OTHER];
 	u16 pids[DMX_PES_OTHER];
-#endif  
+#endif /* MY_ABC_HERE */
 	int playing;
 	int recording;
 
@@ -119,10 +140,10 @@ struct dvb_demux {
 	struct mutex mutex;
 	spinlock_t lock;
 
-	uint8_t *cnt_storage;  
+	uint8_t *cnt_storage; /* for TS continuity check */
 
-	struct timespec speed_last_time;  
-	uint32_t speed_pkts_cnt;  
+	struct timespec speed_last_time; /* for TS speed check */
+	uint32_t speed_pkts_cnt; /* for TS speed check */
 };
 
 int dvb_dmx_init(struct dvb_demux *dvbdemux);
@@ -135,4 +156,4 @@ void dvb_dmx_swfilter_204(struct dvb_demux *demux, const u8 *buf,
 void dvb_dmx_swfilter_raw(struct dvb_demux *demux, const u8 *buf,
 			  size_t count);
 
-#endif  
+#endif /* _DVB_DEMUX_H_ */

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * sched_clock.c: support for extending counters to full 64-bit ns counter
  *
@@ -55,7 +58,7 @@ static inline u64 notrace cyc_to_ns(u64 cyc, u32 mult, u32 shift)
 	return (cyc * mult) >> shift;
 }
 
-#if defined(CONFIG_SYNO_HI3536)
+#if defined(MY_DEF_HERE)
 static unsigned long long notrace cyc_to_sched_clock(u32 cyc, u32 mask)
 {
 	u64 epoch_ns;
@@ -80,7 +83,7 @@ static unsigned long long notrace cyc_to_sched_clock(u32 cyc, u32 mask)
 
 	return epoch_ns + cyc_to_ns((cyc - epoch_cyc) & mask, cd.mult, cd.shift);
 }
-#endif /* CONFIG_SYNO_HI3536 */
+#endif /* MY_DEF_HERE */
 
 static unsigned long long notrace sched_clock_32(void)
 {

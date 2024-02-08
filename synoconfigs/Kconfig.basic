@@ -166,13 +166,30 @@ config SYNO_GPIO
 	  bool "Employ refactored GPIO-functions"
 	  default n
 
+config SYNO_DATA_CORRECTION
+	bool "Framework of data correction"
+	default n
+
 config SYNO_DISK_EH_FLAG
 	bool "report to userspace if kernel is in SCSI error handling"
 	default y
 
+config SYNO_MICROP_POWEROFF
+	bool "Power off by microP"
+	default n
+
 config SYNO_LOAD_AVERAGE
 	bool "Split load average into cpu and io part"
 	default y
+
+config SYNO_SWAP_FLAG
+	bool "Avoid misuse Swapon / Swapoff"
+	default y
+
+config SYNO_DROP_CACHE_MEM_COMPACT
+	bool "Drop cache and compact memory"
+	default y
+	depends on COMPACTION
 
 endmenu #System Features
 
@@ -241,11 +258,6 @@ config SYNO_INITRAMFS_DECOMPRESS_ONCE
 	bool "Initramfs file decompress once"
 	default y
 
-config SYNO_CGROUP_MEM_DISABLE
-	bool "default disable cgroup subsys memory"
-	depends on CGROUPS
-	default y
-
 config SYNO_MEM_MODE_INFO
 	bool "Transcoding Memory Mode Info"
 	depends on SYNO_MONACO
@@ -302,13 +314,17 @@ config SYNO_HI3536_HARD_RESET_CPU
 	default y
 	depends on SYNO_HI3536
 
+config SYNO_KWORK_STAT
+	bool "Enable work function stat accounting for kworkers"
+	default y
+	depends on TASK_IO_ACCOUNTING
+
+config SYNO_ENLARGE_MODULE_SIZE
+	bool "Enlarge kernel module memory space"
+	default n
+
 config SYNO_WARN_ALLOC_FAILED_RATELIMIT
 	bool "Set harder rate limit for warn_alloc_failed()"
 	default y
-
-config SYNO_HARDLOCKUP_THRESH_EXTENSION
-	bool "Extend hard lockup threshold."
-	default n
-	depends on HARDLOCKUP_DETECTOR
 
 endmenu #Kernel Core Enhancements

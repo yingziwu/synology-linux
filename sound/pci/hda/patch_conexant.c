@@ -138,6 +138,7 @@ struct conexant_spec {
 #endif /* ENABLE_CXT_STATIC_QUIRKS */
 };
 
+
 #ifdef CONFIG_SND_HDA_INPUT_BEEP
 static inline void set_beep_amp(struct conexant_spec *spec, hda_nid_t nid,
 				int idx, int dir)
@@ -177,6 +178,7 @@ static int add_beep_ctls(struct hda_codec *codec)
 #define set_beep_amp(spec, nid, idx, dir) /* NOP */
 #define add_beep_ctls(codec)	0
 #endif
+
 
 #ifdef ENABLE_CXT_STATIC_QUIRKS
 static int conexant_playback_pcm_open(struct hda_pcm_stream *hinfo,
@@ -267,6 +269,8 @@ static int conexant_capture_pcm_cleanup(struct hda_pcm_stream *hinfo,
 	return 0;
 }
 
+
+
 static const struct hda_pcm_stream conexant_pcm_analog_playback = {
 	.substreams = 1,
 	.channels_min = 2,
@@ -289,6 +293,7 @@ static const struct hda_pcm_stream conexant_pcm_analog_capture = {
 		.cleanup = conexant_capture_pcm_cleanup
 	},
 };
+
 
 static const struct hda_pcm_stream conexant_pcm_digital_playback = {
 	.substreams = 1,
@@ -596,6 +601,8 @@ static int cxt_eapd_put(struct snd_kcontrol *kcontrol,
 	  .put = cxt_eapd_put, \
 	  .private_value = nid | (mask<<16) }
 
+
+
 static int conexant_ch_mode_info(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_info *uinfo)
 {
@@ -727,6 +734,7 @@ static void cxt5045_hp_automic(struct hda_codec *codec)
 	else
 		snd_hda_sequence_write(codec, mic_jack_off);
 }
+
 
 /* mute internal speaker if HP is plugged */
 static void cxt5045_hp_automute(struct hda_codec *codec)
@@ -975,6 +983,7 @@ static const struct hda_verb cxt5045_test_init_verbs[] = {
 };
 #endif
 
+
 /* initialize jack-sensing, too */
 static int cxt5045_init(struct hda_codec *codec)
 {
@@ -982,6 +991,7 @@ static int cxt5045_init(struct hda_codec *codec)
 	cxt5045_hp_automute(codec);
 	return 0;
 }
+
 
 enum {
 	CXT5045_LAPTOP_HPSENSE,
@@ -1141,6 +1151,7 @@ static int patch_cxt5045(struct hda_codec *codec)
 
 	return 0;
 }
+
 
 /* Conexant 5047 specific */
 #define CXT5047_SPDIF_OUT	0x11
@@ -1424,6 +1435,7 @@ static const struct hda_verb cxt5047_test_init_verbs[] = {
 };
 #endif
 
+
 /* initialize jack-sensing, too */
 static int cxt5047_hp_init(struct hda_codec *codec)
 {
@@ -1431,6 +1443,7 @@ static int cxt5047_hp_init(struct hda_codec *codec)
 	cxt5047_hp_automute(codec);
 	return 0;
 }
+
 
 enum {
 	CXT5047_LAPTOP,		/* Laptops w/o EAPD support */
@@ -1809,6 +1822,7 @@ static int cxt5051_init(struct hda_codec *codec)
 	return 0;
 }
 
+
 enum {
 	CXT5051_LAPTOP,	 /* Laptops w/ EAPD support */
 	CXT5051_HP,	/* no docking */
@@ -2130,6 +2144,7 @@ static void cxt5066_ideapad_automic(struct hda_codec *codec)
 	}
 }
 
+
 /* toggle input of built-in digital mic and mic jack appropriately */
 static void cxt5066_asus_automic(struct hda_codec *codec)
 {
@@ -2141,6 +2156,7 @@ static void cxt5066_asus_automic(struct hda_codec *codec)
 			    present ? 1 : 0);
 }
 
+
 /* toggle input of built-in digital mic and mic jack appropriately */
 static void cxt5066_hp_laptop_automic(struct hda_codec *codec)
 {
@@ -2151,6 +2167,7 @@ static void cxt5066_hp_laptop_automic(struct hda_codec *codec)
 	snd_hda_codec_write(codec, 0x17, 0, AC_VERB_SET_CONNECT_SEL,
 			    present ? 1 : 3);
 }
+
 
 /* toggle input of built-in digital mic and mic jack appropriately
    order is: external mic -> dock mic -> interal mic */
@@ -2262,6 +2279,7 @@ static void cxt5066_unsol_event(struct hda_codec *codec, unsigned int res)
 		break;
 	}
 }
+
 
 static const struct hda_input_mux cxt5066_analog_mic_boost = {
 	.num_items = 5,
@@ -2848,6 +2866,7 @@ static const struct hda_verb cxt5066_init_verbs_portd_lo[] = {
 	{ } /* end */
 };
 
+
 static const struct hda_verb cxt5066_init_verbs_hp_laptop[] = {
 	{0x14, AC_VERB_SET_CONNECT_SEL, 0x0},
 	{0x19, AC_VERB_SET_UNSOLICITED_ENABLE, AC_USRSP_EN | CONEXANT_HP_EVENT},
@@ -3090,6 +3109,7 @@ static int patch_cxt5066(struct hda_codec *codec)
 }
 
 #endif /* ENABLE_CXT_STATIC_QUIRKS */
+
 
 /*
  * Automatic parser for CX20641 & co

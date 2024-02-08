@@ -20,6 +20,7 @@ struct phy_info {
 #define BIT_PHY_LINK_STATUS	(1 << 0)
 #define EEE_TIME_CLK_CNT	0x814
 
+
 /* ----------------------------phy register-------------------------------*/
 /* MMD: MDIO Manageable Device */
 #define MACR		0x0D

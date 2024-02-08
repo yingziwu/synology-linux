@@ -531,6 +531,7 @@ static const struct iio_chan_spec lis3l02dq_channels[] = {
 	IIO_CHAN_SOFT_TIMESTAMP(3)
 };
 
+
 static int lis3l02dq_read_event_config(struct iio_dev *indio_dev,
 					   u64 event_code)
 {

@@ -35,6 +35,7 @@
 
 #define VERSION "arcnet: raw mode (`r') encapsulation support loaded.\n"
 
+
 static void rx(struct net_device *dev, int bufnum,
 	       struct archdr *pkthdr, int length);
 static int build_header(struct sk_buff *skb, struct net_device *dev,
@@ -52,6 +53,7 @@ static struct ArcProto rawmode_proto =
 	.continue_tx    = NULL,
 	.ack_tx         = NULL
 };
+
 
 static int __init arcnet_raw_init(void)
 {
@@ -80,6 +82,7 @@ module_init(arcnet_raw_init);
 module_exit(arcnet_raw_exit);
 
 MODULE_LICENSE("GPL");
+
 
 /* packet receiver */
 static void rx(struct net_device *dev, int bufnum,
@@ -124,6 +127,7 @@ static void rx(struct net_device *dev, int bufnum,
 	netif_rx(skb);
 }
 
+
 /*
  * Create the ARCnet hard/soft headers for raw mode.
  * There aren't any soft headers in raw mode - not even the protocol id.
@@ -158,6 +162,7 @@ static int build_header(struct sk_buff *skb, struct net_device *dev,
 
 	return hdr_size;	/* success */
 }
+
 
 static int prepare_tx(struct net_device *dev, struct archdr *pkt, int length,
 		      int bufnum)

@@ -931,6 +931,7 @@ temp_crit_show(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%ld\n", temperature);
 }
 
+
 static struct thermal_hwmon_device *
 thermal_hwmon_lookup_by_type(const struct thermal_zone_device *tz)
 {
@@ -1503,6 +1504,7 @@ static int create_trip_attrs(struct thermal_zone_device *tz, int mask)
 			return -ENOMEM;
 		}
 	}
+
 
 	for (indx = 0; indx < tz->trips; indx++) {
 		/* create trip type attribute */

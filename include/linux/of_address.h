@@ -31,7 +31,7 @@ struct of_pci_range_iter {
 		(res)->parent = (res)->child = (res)->sibling = NULL; \
 		(res)->name = (np)->full_name; \
 	} while (0)
-#endif  
+#endif /* MY_DEF_HERE */
 
 #if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
 struct of_pci_range_parser {
@@ -63,7 +63,7 @@ static inline void of_pci_range_to_resource(struct of_pci_range *range,
 	res->parent = res->child = res->sibling = NULL;
 	res->name = np->full_name;
 }
-#endif  
+#endif /* MY_ABC_HERE || MY_DEF_HERE */
 
 #ifdef CONFIG_OF_ADDRESS
 extern u64 of_translate_address(struct device_node *np, const __be32 *addr);
@@ -76,6 +76,10 @@ extern struct device_node *of_find_matching_node_by_address(
 					u64 base_address);
 extern void __iomem *of_iomap(struct device_node *device, int index);
 
+/* Extract an address from a device, returns the region size and
+ * the address space flags too. The PCI version uses a BAR number
+ * instead of an absolute index
+ */
 extern const __be32 *of_get_address(struct device_node *dev, int index,
 			   u64 *size, unsigned int *flags);
 
@@ -87,7 +91,7 @@ static inline unsigned long pci_address_to_pio(phys_addr_t addr) { return -1; }
 #if defined(MY_DEF_HERE)
 struct of_pci_range_iter *of_pci_process_ranges(struct of_pci_range_iter *iter,
 						struct device_node *node);
-#endif  
+#endif /* MY_DEF_HERE */
 
 #if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
 extern int of_pci_range_parser_init(struct of_pci_range_parser *parser,
@@ -95,8 +99,8 @@ extern int of_pci_range_parser_init(struct of_pci_range_parser *parser,
 extern struct of_pci_range *of_pci_range_parser_one(
 					struct of_pci_range_parser *parser,
 					struct of_pci_range *range);
-#endif  
-#else  
+#endif /* MY_ABC_HERE || MY_DEF_HERE */
+#else /* CONFIG_OF_ADDRESS */
 #ifndef of_address_to_resource
 static inline int of_address_to_resource(struct device_node *dev, int index,
 					 struct resource *r)
@@ -128,7 +132,7 @@ struct of_pci_range_iter *of_pci_process_ranges(struct of_pci_range_iter *iter,
 {
 	return NULL;
 }
-#endif  
+#endif /* MY_DEF_HERE */
 
 #if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
 static inline int of_pci_range_parser_init(struct of_pci_range_parser *parser,
@@ -143,15 +147,16 @@ static inline struct of_pci_range *of_pci_range_parser_one(
 {
 	return NULL;
 }
-#endif  
-#endif  
+#endif /* MY_ABC_HERE || MY_DEF_HERE */
+#endif /* CONFIG_OF_ADDRESS */
+
 
 #if defined(CONFIG_OF_ADDRESS) && defined(CONFIG_PCI)
 extern const __be32 *of_get_pci_address(struct device_node *dev, int bar_no,
 			       u64 *size, unsigned int *flags);
 extern int of_pci_address_to_resource(struct device_node *dev, int bar,
 				      struct resource *r);
-#else  
+#else /* CONFIG_OF_ADDRESS && CONFIG_PCI */
 static inline int of_pci_address_to_resource(struct device_node *dev, int bar,
 				             struct resource *r)
 {
@@ -163,6 +168,7 @@ static inline const __be32 *of_get_pci_address(struct device_node *dev,
 {
 	return NULL;
 }
-#endif  
+#endif /* CONFIG_OF_ADDRESS && CONFIG_PCI */
 
-#endif  
+#endif /* __OF_ADDRESS_H */
+

@@ -41,6 +41,7 @@ do_poking:
 	mov	r0, r2		/* Exit code */
 	bx	lr		/* Return point */
 
+
 /* POKE32(A, VAL) */
 do_poke32:
 	cmp	r3, #OP_POKE32

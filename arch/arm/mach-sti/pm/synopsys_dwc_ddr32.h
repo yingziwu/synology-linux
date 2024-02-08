@@ -97,3 +97,4 @@
 #define DTUECTL					0x20c
 
 #endif /* __STI_SYNOPSYS_DWC_DDR32_H__ */
+

@@ -72,4 +72,5 @@ struct i2c_rdwr_ioctl_data {
 
 #define  I2C_RDRW_IOCTL_MAX_MSGS	42
 
+
 #endif /* _UAPI_LINUX_I2C_DEV_H */

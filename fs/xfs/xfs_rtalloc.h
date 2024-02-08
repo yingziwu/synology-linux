@@ -67,6 +67,7 @@ struct xfs_trans;
 #define	XFS_RTBLOCKLOG(b)	xfs_highbit32(b)
 #endif
 
+
 #ifdef __KERNEL__
 
 #ifdef CONFIG_XFS_RT

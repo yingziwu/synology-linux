@@ -155,6 +155,7 @@ extern "C" {
  * @{
  */
 
+
 /** @defgroup _mali_uk_context U/K Context management
  *
  * These functions allow for initialisation of the user-kernel interface once per process.
@@ -205,6 +206,7 @@ _mali_osk_errcode_t _mali_ukk_open( void **context );
 _mali_osk_errcode_t _mali_ukk_close( void **context );
 
 /** @} */ /* end group _mali_uk_context */
+
 
 /** @addtogroup _mali_uk_core U/K Core
  *
@@ -260,6 +262,7 @@ _mali_osk_errcode_t _mali_ukk_get_user_setting(_mali_uk_get_user_setting_s *args
 _mali_osk_errcode_t _mali_ukk_request_high_priority(_mali_uk_request_high_priority_s *args);
 
 /** @} */ /* end group _mali_uk_core */
+
 
 /** @addtogroup _mali_uk_memory U/K Memory
  *
@@ -407,6 +410,7 @@ _mali_osk_errcode_t _mali_ukk_va_to_mali_pa( _mali_uk_va_to_mali_pa_s * args );
 
 /** @} */ /* end group _mali_uk_memory */
 
+
 /** @addtogroup _mali_uk_pp U/K Fragment Processor
  *
  * The Fragment Processor (aka PP (Pixel Processor)) functions provide the following functionality:
@@ -468,7 +472,9 @@ _mali_osk_errcode_t _mali_ukk_get_pp_core_version( _mali_uk_get_pp_core_version_
  */
 void _mali_ukk_pp_job_disable_wb(_mali_uk_pp_disable_wb_s *args);
 
+
 /** @} */ /* end group _mali_uk_pp */
+
 
 /** @addtogroup _mali_uk_gp U/K Vertex Processor
  *

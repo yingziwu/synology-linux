@@ -572,6 +572,7 @@ static const struct attribute_group adm9240_group = {
 	.attrs = adm9240_attributes,
 };
 
+
 /*** sensor chip detect and driver install ***/
 
 /* Return 0 if detection is successful, -ENODEV otherwise */

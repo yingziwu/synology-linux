@@ -13,6 +13,7 @@
 #ifndef __ST_FDMA_REGS_H__
 #define __ST_FDMA_REGS_H__
 
+
 /*
  * FDMA register offsets structure
  */
@@ -45,7 +46,9 @@ struct st_fdma_regs {
 	unsigned long int_mask;
 };
 
+
 #define LEGACY_NODE_DATA_SIZE		0x40
+
 
 /*
  * FDMA revision id register
@@ -55,6 +58,7 @@ struct st_fdma_regs {
 #define REV_ID_MAJOR_SHIFT		16
 #define REV_ID_MINOR_MASK		0x0000ff00
 #define REV_ID_MINOR_SHIFT		8
+
 
 /*
  * FDMA command and status register
@@ -81,6 +85,7 @@ struct st_fdma_regs {
 #define CMD_STAT_REG(_fchan) \
 	((_fchan)->fdev->io_base + (_fchan)->fdev->regs.cmd_statn + \
 		((_fchan)->id * CMD_STAT_OFFSET))
+
 
 /*
  * FDMA request control register
@@ -125,6 +130,7 @@ struct st_fdma_regs {
 
 #define REQ_CONTROLn_REG(_fdev, n) \
 	((_fdev)->io_base + (_fdev)->regs.req_ctln + (n * REQ_CONTROL_OFFSET))
+
 
 /*
  * FDMA node parameter registers

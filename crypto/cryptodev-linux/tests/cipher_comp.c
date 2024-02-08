@@ -20,6 +20,7 @@
 #define	KEY_SIZE	16
 #define MAX_DATALEN	(64 * 1024)
 
+
 static int
 test_crypto(int cfd, struct session_op *sess, int datalen)
 {

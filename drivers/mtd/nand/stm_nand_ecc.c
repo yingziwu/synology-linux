@@ -495,6 +495,7 @@ unsigned char stm_afm_lp1617(const unsigned char *buf)
 		cur = *bp++;
 		tmppar ^= cur;
 
+
 		cur = *bp++;
 		tmppar ^= cur;
 		cur = *bp++;
@@ -504,6 +505,7 @@ unsigned char stm_afm_lp1617(const unsigned char *buf)
 		tmppar ^= cur;
 		cur = *bp++;
 		tmppar ^= cur;
+
 
 		cur = *bp++;
 		tmppar ^= cur;
@@ -601,8 +603,11 @@ int stmnand_test_empty_page(uint8_t *ecc_stored, uint8_t *ecc_calc,
 }
 EXPORT_SYMBOL_GPL(stmnand_test_empty_page);
 
+
 /*****************************************************************************/
+
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Angus Clark");
 MODULE_DESCRIPTION("STMicroelectronics NAND ECC support");
+

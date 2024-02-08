@@ -64,3 +64,4 @@ extern size_t CsrWifiRouterMaPacketIndSizeof(void *msg);
 extern void CsrWifiRouterMaPacketIndSerFree(void *msg);
 
 #endif /* CSR_WIFI_ROUTER_SERIALIZE_H__ */
+

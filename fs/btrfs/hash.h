@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
  *
@@ -38,4 +41,8 @@ static inline u64 btrfs_extref_hash(u64 parent_objectid, const char *name,
 {
 	return (u64) btrfs_crc32c(parent_objectid, name, len);
 }
+
+#ifdef MY_DEF_HERE
+int btrfs_upper_name_hash(const char *name, int len, u32 *hash);
+#endif /* MY_DEF_HERE */
 #endif

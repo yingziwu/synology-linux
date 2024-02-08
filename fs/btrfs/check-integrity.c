@@ -104,6 +104,7 @@
 #include "locking.h"
 #include "check-integrity.h"
 #include "rcu-string.h"
+#include "compression.h"
 
 #define BTRFSIC_BLOCK_HASHTABLE_SIZE 0x10000
 #define BTRFSIC_BLOCK_LINK_HASHTABLE_SIZE 0x10000
@@ -396,6 +397,7 @@ static void btrfsic_cmp_log_and_dev_bytenr(struct btrfsic_state *state,
 static struct mutex btrfsic_mutex;
 static int btrfsic_is_initialized;
 static struct btrfsic_dev_state_hashtable btrfsic_dev_state_hashtable;
+
 
 static void btrfsic_block_init(struct btrfsic_block *b)
 {

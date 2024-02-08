@@ -220,6 +220,7 @@ static char *kdb_read(char *buffer, size_t bufsize)
 	static int last_crlf;
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 
+
 	diag = kdbgetintenv("DTABCOUNT", &dtab_count);
 	if (diag)
 		dtab_count = 30;

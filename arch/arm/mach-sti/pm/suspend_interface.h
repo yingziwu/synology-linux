@@ -51,3 +51,4 @@ int sti_hps_register_notify(struct sti_hps_notify *notify);
 int sti_hps_unregister_notify(struct sti_hps_notify *notify);
 
 #endif /* __SUSPEND_INTERFACE__ */
+

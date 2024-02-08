@@ -1,7 +1,23 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * ALSA SoC SPDIF DIR (Digital Interface Reciever) driver
+ *
+ * Based on ALSA SoC SPDIF DIT driver
+ *
+ *  This driver is used by controllers which can operate in DIR (SPDI/F) where
+ *  no codec is needed.  This file provides stub codec that can be used
+ *  in these configurations. SPEAr SPDIF IN Audio controller uses this driver.
+ *
+ * Author:      Vipin Kumar,  <vipin.kumar@st.com>
+ * Copyright:   (C) 2012  ST Microelectronics
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
@@ -10,7 +26,7 @@
 #include <sound/initval.h>
 #if defined(MY_DEF_HERE)
 #include <linux/of.h>
-#endif  
+#endif /* MY_DEF_HERE */
 
 #define STUB_RATES	SNDRV_PCM_RATE_8000_192000
 #define STUB_FORMATS	(SNDRV_PCM_FMTBIT_S16_LE | \
@@ -49,7 +65,7 @@ static const struct of_device_id spdif_dir_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, spdif_dir_dt_ids);
 #endif
-#endif  
+#endif /* MY_DEF_HERE */
 
 static struct platform_driver spdif_dir_driver = {
 	.probe		= spdif_dir_probe,
@@ -59,7 +75,7 @@ static struct platform_driver spdif_dir_driver = {
 		.owner	= THIS_MODULE,
 #if defined(MY_DEF_HERE)
 		.of_match_table = of_match_ptr(spdif_dir_dt_ids),
-#endif  
+#endif /* MY_DEF_HERE */
 	},
 };
 

@@ -144,3 +144,4 @@ void fiq_glue_resume(void)
 	if (current_handler->resume)
 		current_handler->resume(current_handler);
 }
+

@@ -635,6 +635,7 @@ static bool _rtl8712e_init_mac(struct ieee80211_hw *hw)
 	else
 		mac_func_enable = false;
 
+
 	/* HW Power on sequence */
 	if (!rtl_hal_pwrseqcmdparsing(rtlpriv, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
 		PWR_INTF_PCI_MSK, Rtl8723_NIC_ENABLE_FLOW))
@@ -2375,6 +2376,7 @@ void rtl8723ae_bt_reg_init(struct ieee80211_hw *hw)
 	pcipriv->bt_coexist.reg_bt_sco = 0;
 }
 
+
 void rtl8723ae_bt_hw_init(struct ieee80211_hw *hw)
 {
 }
@@ -2401,6 +2403,7 @@ void rtl8723ae_allow_all_destaddr(struct ieee80211_hw *hw,
 
 	if (write_into_reg)
 		rtl_write_dword(rtlpriv, REG_RCR, rtlpci->receive_config);
+
 
 	RT_TRACE(rtlpriv, COMP_TURBO | COMP_INIT, DBG_LOUD,
 		 "receive_config=0x%08X, write_into_reg=%d\n",

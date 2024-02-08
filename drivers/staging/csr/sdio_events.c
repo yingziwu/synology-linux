@@ -15,6 +15,7 @@
  */
 #include "unifi_priv.h"
 
+
 /*
  * Porting Notes:
  * There are two ways to support the suspend/resume system events in a driver.
@@ -75,6 +76,7 @@ void unifi_suspend(void *ospriv)
 
 } /* unifi_suspend() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_resume
@@ -129,3 +131,4 @@ void unifi_resume(void *ospriv)
     }
 
 } /* unifi_resume() */
+

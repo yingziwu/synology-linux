@@ -1276,7 +1276,7 @@ static int raid_map(struct dm_target *ti, struct bio *bio)
 	struct raid_set *rs = ti->private;
 	struct mddev *mddev = &rs->md;
 
-	mddev->pers->make_request(mddev, bio);
+	md_handle_request(mddev, bio);
 
 	return DM_MAPIO_SUBMITTED;
 }

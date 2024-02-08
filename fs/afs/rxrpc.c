@@ -1,7 +1,17 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/* Maintain an RxRPC server socket to do AFS communications through
+ *
+ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
+ * Written by David Howells (dhowells@redhat.com)
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version
+ * 2 of the License, or (at your option) any later version.
+ */
+
 #include <linux/slab.h>
 #include <net/sock.h>
 #include <net/af_rxrpc.h>
@@ -9,7 +19,7 @@
 #include "internal.h"
 #include "afs_cm.h"
 
-static struct socket *afs_socket;  
+static struct socket *afs_socket; /* my RxRPC socket */
 static struct workqueue_struct *afs_async_calls;
 static atomic_t afs_outstanding_calls;
 static atomic_t afs_outstanding_skbs;
@@ -22,20 +32,24 @@ static void afs_process_async_call(struct work_struct *);
 static void afs_rx_interceptor(struct sock *, unsigned long, struct sk_buff *);
 static int afs_deliver_cm_op_id(struct afs_call *, struct sk_buff *, bool);
 
+/* synchronous call management */
 const struct afs_wait_mode afs_sync_call = {
 	.rx_wakeup	= afs_wake_up_call_waiter,
 	.wait		= afs_wait_for_call_to_complete,
 };
 
+/* asynchronous call management */
 const struct afs_wait_mode afs_async_call = {
 	.rx_wakeup	= afs_wake_up_async_call,
 	.wait		= afs_dont_wait_for_call_to_complete,
 };
 
+/* asynchronous incoming call management */
 static const struct afs_wait_mode afs_async_incoming_call = {
 	.rx_wakeup	= afs_wake_up_async_call,
 };
 
+/* asynchronous incoming call initial processing */
 static const struct afs_call_type afs_RXCMxxxx = {
 	.name		= "CB.xxxx",
 	.deliver	= afs_deliver_cm_op_id,
@@ -47,6 +61,10 @@ static void afs_collect_incoming_call(struct work_struct *);
 static struct sk_buff_head afs_incoming_calls;
 static DECLARE_WORK(afs_collect_incoming_call_work, afs_collect_incoming_call);
 
+/*
+ * open an RxRPC socket and bind it to be a server for callback notifications
+ * - the socket is left in blocking mode and non-blocking ops use MSG_DONTWAIT
+ */
 int afs_open_socket(void)
 {
 	struct sockaddr_rxrpc srx;
@@ -72,6 +90,7 @@ int afs_open_socket(void)
 
 	socket->sk->sk_allocation = GFP_NOFS;
 
+	/* bind the callback manager's address to make this a server socket */
 	srx.srx_family			= AF_RXRPC;
 	srx.srx_service			= CM_SERVICE;
 	srx.transport_type		= SOCK_DGRAM;
@@ -96,6 +115,9 @@ int afs_open_socket(void)
 	return 0;
 }
 
+/*
+ * close the RxRPC socket AFS was using
+ */
 void afs_close_socket(void)
 {
 	_enter("");
@@ -110,6 +132,10 @@ void afs_close_socket(void)
 	_leave("");
 }
 
+/*
+ * note that the data in a socket buffer is now delivered and that the buffer
+ * should be freed
+ */
 static void afs_data_delivered(struct sk_buff *skb)
 {
 	if (!skb) {
@@ -124,6 +150,9 @@ static void afs_data_delivered(struct sk_buff *skb)
 	}
 }
 
+/*
+ * free a socket buffer
+ */
 static void afs_free_skb(struct sk_buff *skb)
 {
 	if (!skb) {
@@ -138,6 +167,9 @@ static void afs_free_skb(struct sk_buff *skb)
 	}
 }
 
+/*
+ * free a call
+ */
 static void afs_free_call(struct afs_call *call)
 {
 	_debug("DONE %p{%s} [%d]",
@@ -154,6 +186,9 @@ static void afs_free_call(struct afs_call *call)
 	kfree(call);
 }
 
+/*
+ * allocate a call with flat request and reply buffers
+ */
 struct afs_call *afs_alloc_flat_call(const struct afs_call_type *type,
 				     size_t request_size, size_t reply_size)
 {
@@ -193,6 +228,9 @@ nomem_call:
 	return NULL;
 }
 
+/*
+ * clean up a call with flat buffer
+ */
 void afs_flat_call_destructor(struct afs_call *call)
 {
 	_enter("");
@@ -203,6 +241,9 @@ void afs_flat_call_destructor(struct afs_call *call)
 	call->buffer = NULL;
 }
 
+/*
+ * attach the data from a bunch of pages on an inode to a call
+ */
 static int afs_send_pages(struct afs_call *call, struct msghdr *msg,
 			  struct kvec *iov)
 {
@@ -219,9 +260,9 @@ static int afs_send_pages(struct afs_call *call, struct msghdr *msg,
 	do {
 #ifdef MY_DEF_HERE
 		_debug("attach %llx-%llx", (unsigned long long)first, (unsigned long long)last);
-#else  
+#else /* MY_DEF_HERE */
 		_debug("attach %lx-%lx", first, last);
-#endif  
+#endif /* MY_DEF_HERE */
 
 		count = last - first + 1;
 		if (count > ARRAY_SIZE(pages))
@@ -246,6 +287,9 @@ static int afs_send_pages(struct afs_call *call, struct msghdr *msg,
 			msg->msg_iov = (struct iovec *) iov;
 			msg->msg_iovlen = 1;
 
+			/* have to change the state *before* sending the last
+			 * packet as RxRPC might give us the reply before it
+			 * returns from sending the request */
 			if (first + loop >= last)
 				call->state = AFS_CALL_AWAIT_REPLY;
 			ret = rxrpc_kernel_send_data(call->rxcall, msg,
@@ -266,6 +310,9 @@ static int afs_send_pages(struct afs_call *call, struct msghdr *msg,
 	return ret;
 }
 
+/*
+ * initiate a call
+ */
 int afs_make_call(struct in_addr *addr, struct afs_call *call, gfp_t gfp,
 		  const struct afs_wait_mode *wait_mode)
 {
@@ -297,6 +344,7 @@ int afs_make_call(struct in_addr *addr, struct afs_call *call, gfp_t gfp,
 	srx.transport.sin.sin_port = call->port;
 	memcpy(&srx.transport.sin.sin_addr, addr, 4);
 
+	/* create a call */
 	rxcall = rxrpc_kernel_begin_call(afs_socket, &srx, call->key,
 					 (unsigned long) call, gfp);
 	call->key = NULL;
@@ -307,6 +355,7 @@ int afs_make_call(struct in_addr *addr, struct afs_call *call, gfp_t gfp,
 
 	call->rxcall = rxcall;
 
+	/* send the request */
 	iov[0].iov_base	= call->request;
 	iov[0].iov_len	= call->request_size;
 
@@ -318,6 +367,9 @@ int afs_make_call(struct in_addr *addr, struct afs_call *call, gfp_t gfp,
 	msg.msg_controllen	= 0;
 	msg.msg_flags		= (call->send_pages ? MSG_MORE : 0);
 
+	/* have to change the state *before* sending the last packet as RxRPC
+	 * might give us the reply before it returns from sending the
+	 * request */
 	if (!call->send_pages)
 		call->state = AFS_CALL_AWAIT_REPLY;
 	ret = rxrpc_kernel_send_data(rxcall, &msg, call->request_size);
@@ -330,6 +382,8 @@ int afs_make_call(struct in_addr *addr, struct afs_call *call, gfp_t gfp,
 			goto error_do_abort;
 	}
 
+	/* at this point, an async call may no longer exist as it may have
+	 * already completed */
 	return wait_mode->wait(call);
 
 error_do_abort:
@@ -345,6 +399,11 @@ error_kill_call:
 	return ret;
 }
 
+/*
+ * handles intercepted messages that were arriving in the socket's Rx queue
+ * - called with the socket receive queue lock held to ensure message ordering
+ * - called with softirqs disabled
+ */
 static void afs_rx_interceptor(struct sock *sk, unsigned long user_call_ID,
 			       struct sk_buff *skb)
 {
@@ -359,11 +418,11 @@ static void afs_rx_interceptor(struct sock *sk, unsigned long user_call_ID,
 	atomic_inc(&afs_outstanding_skbs);
 
 	if (!call) {
-		 
+		/* its an incoming call for our callback service */
 		skb_queue_tail(&afs_incoming_calls, skb);
 		queue_work(afs_wq, &afs_collect_incoming_call_work);
 	} else {
-		 
+		/* route the messages directly to the appropriate call */
 		skb_queue_tail(&call->rx_queue, skb);
 		call->wait_mode->rx_wakeup(call);
 	}
@@ -371,6 +430,9 @@ static void afs_rx_interceptor(struct sock *sk, unsigned long user_call_ID,
 	_leave("");
 }
 
+/*
+ * deliver messages to a call
+ */
 static void afs_deliver_to_call(struct afs_call *call)
 {
 	struct sk_buff *skb;
@@ -449,6 +511,8 @@ static void afs_deliver_to_call(struct afs_call *call)
 		afs_free_skb(skb);
 	}
 
+	/* make sure the queue is empty if the call is done with (we might have
+	 * aborted the call early because of an unmarshalling error) */
 	if (call->state >= AFS_CALL_COMPLETE) {
 		while ((skb = skb_dequeue(&call->rx_queue)))
 			afs_free_skb(skb);
@@ -463,6 +527,9 @@ static void afs_deliver_to_call(struct afs_call *call)
 	_leave("");
 }
 
+/*
+ * wait synchronously for a call to complete
+ */
 static int afs_wait_for_call_to_complete(struct afs_call *call)
 {
 	struct sk_buff *skb;
@@ -476,6 +543,7 @@ static int afs_wait_for_call_to_complete(struct afs_call *call)
 	for (;;) {
 		set_current_state(TASK_INTERRUPTIBLE);
 
+		/* deliver any messages that are in the queue */
 		if (!skb_queue_empty(&call->rx_queue)) {
 			__set_current_state(TASK_RUNNING);
 			afs_deliver_to_call(call);
@@ -494,6 +562,7 @@ static int afs_wait_for_call_to_complete(struct afs_call *call)
 	remove_wait_queue(&call->waitq, &myself);
 	__set_current_state(TASK_RUNNING);
 
+	/* kill the call */
 	if (call->state < AFS_CALL_COMPLETE) {
 		_debug("call incomplete");
 		rxrpc_kernel_abort_call(call->rxcall, RX_CALL_DEAD);
@@ -510,23 +579,37 @@ static int afs_wait_for_call_to_complete(struct afs_call *call)
 	return ret;
 }
 
+/*
+ * wake up a waiting call
+ */
 static void afs_wake_up_call_waiter(struct afs_call *call)
 {
 	wake_up(&call->waitq);
 }
 
+/*
+ * wake up an asynchronous call
+ */
 static void afs_wake_up_async_call(struct afs_call *call)
 {
 	_enter("");
 	queue_work(afs_async_calls, &call->async_work);
 }
 
+/*
+ * put a call into asynchronous mode
+ * - mustn't touch the call descriptor as the call my have completed by the
+ *   time we get here
+ */
 static int afs_dont_wait_for_call_to_complete(struct afs_call *call)
 {
 	_enter("");
 	return -EINPROGRESS;
 }
 
+/*
+ * delete an asynchronous call
+ */
 static void afs_delete_async_call(struct work_struct *work)
 {
 	struct afs_call *call =
@@ -539,6 +622,11 @@ static void afs_delete_async_call(struct work_struct *work)
 	_leave("");
 }
 
+/*
+ * perform processing on an asynchronous call
+ * - on a multiple-thread workqueue this work item may try to run on several
+ *   CPUs at the same time
+ */
 static void afs_process_async_call(struct work_struct *work)
 {
 	struct afs_call *call =
@@ -555,11 +643,14 @@ static void afs_process_async_call(struct work_struct *work)
 							call->error);
 		call->reply = NULL;
 
+		/* kill the call */
 		rxrpc_kernel_end_call(call->rxcall);
 		call->rxcall = NULL;
 		if (call->type->destructor)
 			call->type->destructor(call);
 
+		/* we can't just delete the call because the work item may be
+		 * queued */
 		PREPARE_WORK(&call->async_work, afs_delete_async_call);
 		queue_work(afs_async_calls, &call->async_work);
 	}
@@ -567,6 +658,9 @@ static void afs_process_async_call(struct work_struct *work)
 	_leave("");
 }
 
+/*
+ * empty a socket buffer into a flat reply buffer
+ */
 void afs_transfer_reply(struct afs_call *call, struct sk_buff *skb)
 {
 	size_t len = skb->len;
@@ -576,6 +670,9 @@ void afs_transfer_reply(struct afs_call *call, struct sk_buff *skb)
 	call->reply_size += len;
 }
 
+/*
+ * accept the backlog of incoming calls
+ */
 static void afs_collect_incoming_call(struct work_struct *work)
 {
 	struct rxrpc_call *rxcall;
@@ -585,6 +682,7 @@ static void afs_collect_incoming_call(struct work_struct *work)
 	while ((skb = skb_dequeue(&afs_incoming_calls))) {
 		_debug("new call");
 
+		/* don't need the notification */
 		afs_free_skb(skb);
 
 		if (!call) {
@@ -619,6 +717,9 @@ static void afs_collect_incoming_call(struct work_struct *work)
 		afs_free_call(call);
 }
 
+/*
+ * grab the operation ID from an incoming cache manager call
+ */
 static int afs_deliver_cm_op_id(struct afs_call *call, struct sk_buff *skb,
 				bool last)
 {
@@ -629,6 +730,7 @@ static int afs_deliver_cm_op_id(struct afs_call *call, struct sk_buff *skb,
 
 	ASSERTCMP(call->offset, <, 4);
 
+	/* the operation ID forms the first four bytes of the request data */
 	len = min_t(size_t, len, 4 - call->offset);
 	if (skb_copy_bits(skb, 0, oibuf + call->offset, len) < 0)
 		BUG();
@@ -647,12 +749,19 @@ static int afs_deliver_cm_op_id(struct afs_call *call, struct sk_buff *skb,
 
 	call->state = AFS_CALL_AWAIT_REQUEST;
 
+	/* ask the cache manager to route the call (it'll change the call type
+	 * if successful) */
 	if (!afs_cm_incoming_call(call))
 		return -ENOTSUPP;
 
+	/* pass responsibility for the remainer of this message off to the
+	 * cache manager op */
 	return call->type->deliver(call, skb, last);
 }
 
+/*
+ * send an empty reply
+ */
 void afs_send_empty_reply(struct afs_call *call)
 {
 	struct msghdr msg;
@@ -689,6 +798,9 @@ void afs_send_empty_reply(struct afs_call *call)
 	}
 }
 
+/*
+ * send a simple reply
+ */
 void afs_send_simple_reply(struct afs_call *call, const void *buf, size_t len)
 {
 	struct msghdr msg;
@@ -724,6 +836,9 @@ void afs_send_simple_reply(struct afs_call *call, const void *buf, size_t len)
 	_leave(" [error]");
 }
 
+/*
+ * extract a piece of data from the received data socket buffers
+ */
 int afs_extract_data(struct afs_call *call, struct sk_buff *skb,
 		     bool last, void *buf, size_t count)
 {

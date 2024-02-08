@@ -63,6 +63,7 @@
  */
 #define STM_IPv1_CH_NUMBER 256
 
+
 /* IP V3: A new channel ID each 256 bytes */
 #define STM_IPv3_CH_SHIFT  8
 #define STM_IPv3_CH_OFFSET (1 << STM_IPv3_CH_SHIFT)
@@ -118,5 +119,6 @@
 					(ch_num-MTT_CH_INVALID)/2)
 #define MTT_CH_LIN_KER_FIRST(ch_num)	(MTT_CH_LIN_APP_INVALID(ch_num))
 #define MTT_CH_LIN_KER_INVALID(ch_num)	(ch_num)
+
 
 #endif /*__STM_SYSTRACE_H_*/

@@ -19,7 +19,9 @@
 
 static void yaffs_handle_rd_data_error(struct yaffs_dev *dev, int nand_chunk);
 
+
 /********** Tags ECC calculations  *********/
+
 
 void yaffs_calc_tags_ecc(struct yaffs_tags *tags)
 {
@@ -154,6 +156,7 @@ static int yaffs_rd_chunk_nand(struct yaffs_dev *dev,
 						data, data_size,
 						(u8 *) spare, spare_size,
 						ecc_result);
+
 
 	/* Handle the ECC at this level. */
 

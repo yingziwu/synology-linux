@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
-  
+ /* -------------------------------------------------------------------------
+ * Copyright (C) 2014  STMicroelectronics
+ * Author: Francesco M. Virlinzi  <francesco.virlinzi@st.com>
+ *	   Sudeep Biswas	  <sudeep.biswas@st.com>
+ *
+ * May be copied or modified under the terms of the GNU General Public
+ * License V.2 ONLY.  See linux/COPYING for more information.
+ *
+ * ------------------------------------------------------------------------- */
+
 #include <asm/idmap.h>
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
@@ -32,15 +41,20 @@
 #define STID127_A9_PLL_LOCK_STATUS	(0x98)
 
 #ifdef MY_ABC_HERE
-#else  
+#else /* MY_ABC_HERE */
 #define STIH407_A9_CLK_SELECTION	(0x1a4)
 #define STIH407_A9_PLL_POWER_DOWN	(0x1a8)
 #define STIH407_A9_PLL_LOCK_STATUS	(0x87c)
-#endif  
+#endif /* MY_ABC_HERE */
 
 static DEFINE_MUTEX(hps_notify_mutex);
 static LIST_HEAD(hps_notify_list);
 
+/*
+ * gic_iomem_interface	Reg base VA for the CPU interface part of GIC
+ * gic_iomem_dist	Reg base VA for the Distributor part of GIC
+ * eram_base		Physical base address of eram_1
+ */
 struct hps_private_data {
 	void __iomem *gic_iomem_interface;
 	void __iomem *gic_iomem_dist;
@@ -51,22 +65,40 @@ static struct hps_private_data hps_data;
 
 static struct sti_suspend_table sti_hps_tables[MAX_SUSPEND_TABLE_SIZE];
 
+/* Define HPS specific poke tables */
+/* Below poke table is ddr controller operations before system enters HPS */
 static struct poke_operation sti_hps_ddr_enter[] = {
-	 
+	/* synopsys_ddr32_in_self_refresh=> */
+
+	/*
+	 * Set the register to enter low power from access state
+	 * (based on paraghaph. 7.1.4)
+	 */
 	POKE32(DDR_SCTL, DDR_SCTL_SLEEP),
 	WHILE_NE32(DDR_STAT, DDR_STAT_MASK, DDR_STAT_LOW_POWER),
 
+	/* synopsys_ddr32_phy_standby_enter=> */
 	OR32(DDR_PHY_DXCCR, DDR_PHY_DXCCR_DXODT),
-	OR32(DDR_PHY_PIR, DDR_PHY_PIR_PLL_RESET),  
+	OR32(DDR_PHY_PIR, DDR_PHY_PIR_PLL_RESET), /* DDR_Phy Pll in reset */
 };
 
+/* Below poke table is ddr controller operations after system exits HPS */
 static struct poke_operation sti_hps_ddr_exit[] = {
-	 
+	/*
+	 * Synopsys DDR Phy: moving out Standby
+	 * (synopsys_ddr32_phy_standby_exit)=>
+	 */
+	/* DDR_Phy Pll out of reset */
 	UPDATE32(DDR_PHY_PIR, ~DDR_PHY_PIR_PLL_RESET, 0),
-	 
+	/* Waiting for PLLs to be locked */
 	WHILE_NE32(DDR_PHY_PGSR0, DDR_PHY_PLLREADY, DDR_PHY_PLLREADY),
 	UPDATE32(DDR_PHY_DXCCR, ~DDR_PHY_DXCCR_DXODT, 0),
 
+	/*
+	 * Disables the DDR selfrefresh mode
+	 * (synopsys_ddr32_out_of_self_refresh)=>
+	 */
+	/* From low power to access state (based on paraghaph 7.1.3) */
 	POKE32(DDR_SCTL, DDR_SCTL_WAKEUP),
 	WHILE_NE32(DDR_STAT, DDR_STAT_MASK, DDR_STAT_ACCESS),
 	POKE32(DDR_SCTL, DDR_SCTL_CFG),
@@ -76,7 +108,7 @@ static struct poke_operation sti_hps_ddr_exit[] = {
 };
 
 #ifdef MY_ABC_HERE
-#else  
+#else /* MY_ABC_HERE */
 static  struct poke_operation stih41x_hps_ddr_pll_enter[] = {
 	OR32(DDR_PLL_CFG_OFFSET, 1),
 };
@@ -85,11 +117,17 @@ static  struct poke_operation stih41x_hps_ddr_pll_exit[] = {
 	UPDATE32(DDR_PLL_CFG_OFFSET, ~1, 0),
 	WHILE_NE32(DDR_PLL_STATUS_OFFSET, 1, 1),
 };
-#endif  
+#endif /* MY_ABC_HERE */
 
 static  struct poke_operation stid127_hps_ddr_pll_enter[] = {
 #ifdef STID127_HPS_ISSUE_RESOLVE
-	 
+	/*
+	 * FIXME: the A1_DDR_CLK_ID could be turned-off (like STiG125) but
+	 * in STiD127 it stuck the system. So it is better and safer to
+	 * keep it on during the suspend phase. It will be fixed later (not
+	 * mandatory).
+	 * Issue : The moment we switch DDR clk to OSC(below line), system hangs
+	 */
 	UPDATE32(CLKA_SWITCH_CFG(0), ~(3 << (CLKA_A1_DDR_CLK_ID * 2)),
 		 0 << (CLKA_A1_DDR_CLK_ID * 2)),
 	OR32(CLKA_POWER_CFG, 0x1),
@@ -99,9 +137,9 @@ static  struct poke_operation stid127_hps_ddr_pll_enter[] = {
 };
 
 static  struct poke_operation stid127_hps_ddr_pll_exit[] = {
-	 
+	/* turn-on A1.PLLs */
 	POKE32(CLKA_POWER_CFG, 0x0),
-	 
+	/* Wait A1.PLLs are locked */
 	WHILE_NE32(CLKA_PLL_LOCK_REG(0), CLKA_PLL_LOCK_STATUS,
 		   CLKA_PLL_LOCK_STATUS),
 
@@ -110,25 +148,33 @@ static  struct poke_operation stid127_hps_ddr_pll_exit[] = {
 };
 
 static struct poke_operation stid127_hps_a9_clk_enter[] = {
-	 
+	/* bypass and disable the A9.PLL */
 	OR32(STID127_A9_CLK_SELECTION, 1 << 2),
 	OR32(STID127_A9_PLL_POWER_DOWN, 1),
 };
 
 static struct poke_operation stid127_hps_a9_clk_exit[] = {
-	 
+	/* enable, wait and don't bypass the A9.PLL */
 	UPDATE32(STID127_A9_PLL_POWER_DOWN, ~1, 0),
 	WHILE_NE32(STID127_A9_PLL_LOCK_STATUS, 1, 1),
 	UPDATE32(STID127_A9_CLK_SELECTION, ~(1 << 2), 0),
 };
 
 #ifdef MY_ABC_HERE
-#else  
+#else /* MY_ABC_HERE */
 static  struct poke_operation stih407_hps_ddr_pll_enter[] = {
 #ifdef STIH407_HPS_ISSUE_RESOLVE
-	 
+	/*
+	 * FIXME:
+	 *
+	 * Thi A0.Pll3200 should be turned-off but to do that the
+	 * clock A0_IC_LMI0 should be routed under the external oscillator
+	 * Soc designer confirmed it's possible... but it doesn't work
+	 * and it needs investigation
+	 */
+	/* Bypass the A0.Pll */
 	UPDATE32(CLKA_FLXGEN_CFG(0), ~(BIT(6) - 1), 0x1),
-	 
+	/* turn-off A0.PLL3200 */
 	OR32(CLKA_FLXGEN_PLL_CFG, 0x1 << 8),
 #else
 	DELAY(1),
@@ -136,29 +182,38 @@ static  struct poke_operation stih407_hps_ddr_pll_enter[] = {
 };
 
 static  struct poke_operation stih407_hps_ddr_pll_exit[] = {
-	 
+	/* turn-on A0.PLL3200 */
 	UPDATE32(CLKA_FLXGEN_PLL_CFG, ~(0x1 << 8), 0),
-	 
+	/* Wait PLL lock */
 	WHILE_NE32(CLKA_FLXGEN_PLL_CFG, 1 << 24, 1 << 24),
-	 
+	/* Remove Bypass the A0.Pll */
 	UPDATE32(CLKA_FLXGEN_CFG(0), ~(BIT(6) - 1), 0),
 };
 
 static struct poke_operation stih407_hps_a9_clk_enter[] = {
-	 
+	/* bypass and disable the A9.PLL */
 	OR32(STIH407_A9_CLK_SELECTION, 1 << 1),
 	OR32(STIH407_A9_PLL_POWER_DOWN, 1),
 };
 
 static struct poke_operation stih407_hps_a9_clk_exit[] = {
-	 
+	/* enable, wait and don't bypass the A9.PLL */
 	UPDATE32(STIH407_A9_PLL_POWER_DOWN, ~1, 0),
 	WHILE_NE32(STIH407_A9_PLL_LOCK_STATUS, 1, 1),
 	UPDATE32(STIH407_A9_CLK_SELECTION, ~(1 << 1), 0),
 };
- 
-#endif  
+/* End defining poke tables */
+#endif /* MY_ABC_HERE */
 
+/*
+ * This will read the interrupt number that woken up the
+ * system from HPS. We must write EOI as we read it.
+ * This can be replaced by reading the irq number from
+ * gic global register. In that case, we dont need to write
+ * eoi. Interrupt will be anyway handled by the driver ISR once
+ * we enable the irq bit of cpu0. This will happen before
+ * enabling other cpus.
+ */
 static int sti_get_wake_irq(void *gic_addr)
 {
 	int irq = 0;
@@ -196,6 +251,11 @@ int sti_chk_pend(int wkirq)
 		if (handler->irq == wkirq)
 			return handler->notify();
 
+	/*
+	 * -1 will indicate the caller to check any possible other
+	 * wakeup interrupt handlers. This is because for the current
+	 * wake up interrupt no handler is registered.
+	 */
 	return -1;
 }
 
@@ -219,6 +279,11 @@ static enum sti_hps_notify_ret sti_hps_early_check(int wkirq, void *gic_addr)
 		}
 	}
 
+	/*
+	 * Check other pending interrupts that can wake up and run
+	 * any associated handler. If any handler returns OK, we
+	 * know that HPS exit is fine and we dont re-enter it
+	 */
 	while (int_num <= MAX_GIC_SPI_INT) {
 		regval = readl(gic_addr + (GIC_DIST_PENDING_SET + counter * 4));
 		enabled = readl(gic_addr + (GIC_DIST_ENABLE_SET + counter * 4));
@@ -308,6 +373,7 @@ int sti_hps_prepare(struct sti_hw_state_desc *state)
 	memcpy(state->buffer_data.sti_buffer_code, sti_hps_on_eram,
 	       sti_hps_on_eram_sz);
 
+	/* Now patch buffer_data for HPS */
 	state->buffer_data.table_enter = va_2_pa(eram_base,
 						 eram_va,
 						 state->buffer_data.table_enter
@@ -343,22 +409,50 @@ int sti_hps_enter(struct sti_hw_state_desc *state)
 
 sti_again_hps:
 	if (!list_empty(&state->state_tables)) {
-		 
+		/* Flush the inner L1 and outer L2 cache */
 		flush_cache_all();
 		outer_flush_all();
 
+		/*
+		 * Switch to identity mapping, kernel still mapped intact
+		 * so we continue execution with no impact
+		 */
 		cpu_switch_mm(idmap_pgd, &init_mm);
 
+		/*
+		 * Reject all the old VA->PA mapping coming from previous
+		 * process page table memory map
+		 */
 		local_flush_tlb_all();
 
+		/*
+		 * Jump to asm code that will switch off the mmu and
+		 * execute the poke table to put the system in HPS
+		 */
 		sti_hps_exec((struct sti_suspend_buffer_data *)
 			     __pa(&state->buffer_data),
 			     va_2_pa);
 
+		/* SYSTEM HAS WOKENUP FROM HPS */
+
+		/*
+		 * Flush the inner Virtual address based data cache
+		 * since we will soon switch to anotthe VM space
+		 */
 		flush_cache_all();
 
+		/*
+		 * Switch back to the actual process address
+		 * space from identity mapping. Kernel still
+		 * mapped the same, so no impact, we continue
+		 * execution normally
+		 */
 		cpu_switch_mm(current->mm->pgd, current->mm);
 
+		/*
+		 * Reject all the old VA->PA mapping coming from previous
+		 * page table memory map
+		 */
 		local_flush_tlb_all();
 	}
 
@@ -402,7 +496,7 @@ int sti_hps_setup(struct sti_hw_state_desc *state, unsigned long *ddr_pctl_addr,
 
 #ifdef MY_ABC_HERE
 		if (of_machine_is_compatible("st,stid127")) {
-#else  
+#else /* MY_ABC_HERE */
 		if (of_machine_is_compatible("st,stih416")) {
 			np = of_find_compatible_node(NULL, NULL,
 						     "st,stih416-cpu-syscfg");
@@ -428,7 +522,7 @@ int sti_hps_setup(struct sti_hw_state_desc *state, unsigned long *ddr_pctl_addr,
 						     stih41x_hps_ddr_pll_exit),
 						     ddr_sys_config_base);
 		} else if (of_machine_is_compatible("st,stid127")) {
-#endif  
+#endif /* MY_ABC_HERE */
 			np = of_find_node_by_name(NULL, "ddr-pctl-controller");
 			if (IS_ERR_OR_NULL(np))
 					return -ENODEV;
@@ -476,7 +570,7 @@ int sti_hps_setup(struct sti_hw_state_desc *state, unsigned long *ddr_pctl_addr,
 			   of_machine_is_compatible("st,stih416")) {
 
 			return -ENOTSUPP;
-#else  
+#else /* MY_ABC_HERE */
 		} else if (of_machine_is_compatible("st,stih407")) {
 			np = of_find_node_by_name(NULL, "ddr-pctl-controller");
 			if (IS_ERR_OR_NULL(np))
@@ -519,7 +613,7 @@ int sti_hps_setup(struct sti_hw_state_desc *state, unsigned long *ddr_pctl_addr,
 						     sizeof(
 						     stih407_hps_a9_clk_exit),
 						     reg);
-#endif  
+#endif /* MY_ABC_HERE */
 		}
 	} else if (state->ddr_state == DDR_OFF) {
 		pr_info("sti pm hps: DDR_OFF not supported in HPS\n");
@@ -531,6 +625,12 @@ int sti_hps_setup(struct sti_hw_state_desc *state, unsigned long *ddr_pctl_addr,
 		list_add_tail(&sti_hps_tables[i].node,
 			      &state->state_tables);
 
+	/*
+	 * Read the eram 1 base address where the low power entry/exit
+	 * code will be loaded, currently used for only HPS. In the
+	 * next release we will do away completly with the eram even for
+	 * HPS
+	 */
 	np = of_find_node_by_type(NULL, "eram");
 	if (IS_ERR_OR_NULL(np))
 		return -ENODEV;
@@ -613,3 +713,4 @@ int sti_hps_setup(struct sti_hw_state_desc *state, unsigned long *ddr_pctl_addr,
 
 	return 0;
 }
+

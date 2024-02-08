@@ -1,7 +1,25 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ */
+
 #include <linux/device.h>
 #include <linux/fs.h>
 #include <linux/mm.h>
@@ -25,12 +43,16 @@
 #ifdef MY_ABC_HERE
 #include <linux/syscalls.h>
 #include <linux/semaphore.h>
-#endif  
+#endif /* MY_ABC_HERE */
 
 #include "mtdcore.h"
 
 static DEFINE_MUTEX(mtd_mutex);
 
+/*
+ * Data structure to hold the pointer to the mtd device as well
+ * as mode information of various use cases.
+ */
 struct mtd_file_info {
 	struct mtd_info *mtd;
 	struct inode *ino;
@@ -76,6 +98,7 @@ static int mtdchar_open(struct inode *inode, struct file *file)
 
 	pr_debug("MTD_open\n");
 
+	/* You can't open the RO devices RW */
 	if ((file->f_mode & FMODE_WRITE) && (minor & 1))
 		return -EACCES;
 
@@ -88,7 +111,7 @@ static int mtdchar_open(struct inode *inode, struct file *file)
 
 #ifdef MY_ABC_HERE
 	printk(KERN_ERR"open mtd (%s), process=%s\n", mtd->name, current->comm);
-#endif  
+#endif /* MY_ABC_HERE */
 
 	if (IS_ERR(mtd)) {
 		ret = PTR_ERR(mtd);
@@ -113,6 +136,7 @@ static int mtdchar_open(struct inode *inode, struct file *file)
 	}
 	file->f_mapping = mtd_ino->i_mapping;
 
+	/* You can't open it RW if it's not a writeable device */
 	if ((file->f_mode & FMODE_WRITE) && !(mtd->flags & MTD_WRITEABLE)) {
 		ret = -EACCES;
 		goto out2;
@@ -137,7 +161,9 @@ out:
 	mutex_unlock(&mtd_mutex);
 	simple_release_fs(&mnt, &count);
 	return ret;
-}  
+} /* mtdchar_open */
+
+/*====================================================================*/
 
 static int mtdchar_close(struct inode *inode, struct file *file)
 {
@@ -148,8 +174,9 @@ static int mtdchar_close(struct inode *inode, struct file *file)
 
 #ifdef MY_ABC_HERE
 	printk(KERN_ERR"close mtd (%s), process=%s\n", mtd->name, current->comm);
-#endif  
+#endif /* MY_ABC_HERE */
 
+	/* Only sync if opened RW */
 	if ((file->f_mode & FMODE_WRITE))
 		mtd_sync(mtd);
 
@@ -161,7 +188,25 @@ static int mtdchar_close(struct inode *inode, struct file *file)
 	simple_release_fs(&mnt, &count);
 
 	return 0;
-}  
+} /* mtdchar_close */
+
+/* Back in June 2001, dwmw2 wrote:
+ *
+ *   FIXME: This _really_ needs to die. In 2.5, we should lock the
+ *   userspace buffer down and use it directly with readv/writev.
+ *
+ * The implementation below, using mtd_kmalloc_up_to, mitigates
+ * allocation failures when the system is under low-memory situations
+ * or if memory is highly fragmented at the cost of reducing the
+ * performance of the requested transfer due to a smaller buffer size.
+ *
+ * A more complex but more memory-efficient implementation based on
+ * get_user_pages and iovecs to cover extents of those pages is a
+ * longer-term goal, as intimated by dwmw2 above. However, for the
+ * write case, this requires yet more complex head and tail transfer
+ * handling when those head and tail offsets and sizes are such that
+ * alignment requirements are not met in the NAND subdriver.
+ */
 
 static ssize_t mtdchar_read(struct file *file, char __user *buf, size_t count,
 			loff_t *ppos)
@@ -215,7 +260,15 @@ static ssize_t mtdchar_read(struct file *file, char __user *buf, size_t count,
 		default:
 			ret = mtd_read(mtd, *ppos, len, &retlen, kbuf);
 		}
-		 
+		/* Nand returns -EBADMSG on ECC errors, but it returns
+		 * the data. For our userspace tools it is important
+		 * to dump areas with ECC errors!
+		 * For kernel internal usage it also might return -EUCLEAN
+		 * to signal the caller that a bitflip has occurred and has
+		 * been corrected by the ECC algorithm.
+		 * Userspace software which accesses NAND this way
+		 * must be aware of the fact that it deals with NAND
+		 */
 		if (!ret || mtd_is_bitflip_or_eccerr(ret)) {
 			*ppos += retlen;
 			if (copy_to_user(buf, kbuf, retlen)) {
@@ -239,7 +292,7 @@ static ssize_t mtdchar_read(struct file *file, char __user *buf, size_t count,
 
 	kfree(kbuf);
 	return total_retlen;
-}  
+} /* mtdchar_read */
 
 #ifdef MY_ABC_HERE
 static int syno_write_buf_size = 0x1000;
@@ -248,7 +301,35 @@ char *kbuf;
 int write_kbuf_len;
 struct semaphore write_kbuf_sem;
 
-long sys_SYNOMTDAlloc(bool blMalloc)
+/**
+ * This function accuire or release buffer for mtd driver to write flash.
+ * The updater should call SYNOMTDAlloc() before doing system upgrade,
+ * and this buffer should not be released before upgrade finished.
+ * Otherwise, if the buffer is malloc-ed and released within a dd write,
+ * the kernel may malloc failed somehow.
+ *
+ * @author cnliu
+ * @param blMalloc
+ *     A boolean variable to indicate malloc or release.
+ *     true: To malloc buffer for mtd driver to write before doing mtd_write().
+ *     false: After mtd_write(), we need to free buffer for mtd driver.
+ *
+ * @return
+ *     Upon successful malloc, SYNOMTDAlloc() return 0.
+ *     Otherwise return -ENOMEM.
+ *
+ * @example
+ *     if (SYNOMTDAlloc(true) == 0) {
+ *         system("dd if=zImage of=/dev/mtd1 bs=128k");
+ *         SYNOMTDAlloc(false);
+ *     }
+ *
+ * @see init_mtdchar
+ * @see mtd_write
+ * @see write_kbuf_sem
+ * @see lnxsdk/main/updater.c
+ */
+long sys_syno_mtd_alloc(bool blMalloc)
 {
 	int retval = 0;
 
@@ -274,8 +355,12 @@ long sys_SYNOMTDAlloc(bool blMalloc)
 End:
 	up(&write_kbuf_sem);
 	return retval;
-}  
-#endif  
+} /* sys_SYNOMTDAlloc() */
+long sys_SYNOMTDAlloc(bool blMalloc)
+{
+	return sys_syno_mtd_alloc(blMalloc);
+}
+#endif /* MY_ABC_HERE */
 
 static ssize_t mtdchar_write(struct file *file, const char __user *buf, size_t count,
 			loff_t *ppos)
@@ -283,11 +368,11 @@ static ssize_t mtdchar_write(struct file *file, const char __user *buf, size_t c
 	struct mtd_file_info *mfi = file->private_data;
 	struct mtd_info *mtd = mfi->mtd;
 #ifdef MY_ABC_HERE
-	 
-#else  
+	// do nothing
+#else /* MY_ABC_HERE */
 	size_t size = count;
 	char *kbuf;
-#endif  
+#endif /* MY_ABC_HERE */
 	size_t retlen;
 	size_t total_retlen=0;
 	int ret=0;
@@ -300,10 +385,10 @@ static ssize_t mtdchar_write(struct file *file, const char __user *buf, size_t c
 		WARN_ON(1);
 		syno_write_buf_size = mtd->writesize;
 		if (write_kbuf_len)
-			sys_SYNOMTDAlloc(false);
+			sys_syno_mtd_alloc(false);
 		printk(KERN_ERR "mtd kmalloc size replace with mtd driver minimal write size !!\n");
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
 	if (*ppos == mtd->size)
 		return -ENOSPC;
@@ -316,16 +401,16 @@ static ssize_t mtdchar_write(struct file *file, const char __user *buf, size_t c
 
 #ifdef MY_ABC_HERE
 	if (!write_kbuf_len) {
-		ret = sys_SYNOMTDAlloc(true);
+		ret = sys_syno_mtd_alloc(true);
 		if (ret != 0)
 			return ret;
 	}
 	down(&write_kbuf_sem);
-#else  
+#else /* MY_ABC_HERE */
 	kbuf = mtd_kmalloc_up_to(mtd, &size);
 	if (!kbuf)
 		return -ENOMEM;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	while (count) {
 #ifdef MY_ABC_HERE
@@ -333,16 +418,16 @@ static ssize_t mtdchar_write(struct file *file, const char __user *buf, size_t c
 			len = syno_write_buf_size;
 		else
 			len = count;
-#else  
+#else /* MY_ABC_HERE */
 		len = min_t(size_t, count, size);
-#endif  
+#endif /* MY_ABC_HERE */
 
 		if (copy_from_user(kbuf, buf, len)) {
 #ifdef MY_ABC_HERE
 			up(&write_kbuf_sem);
-#else  
+#else /* MY_ABC_HERE */
 			kfree(kbuf);
-#endif  
+#endif /* MY_ABC_HERE */
 			return -EFAULT;
 		}
 
@@ -382,30 +467,39 @@ static ssize_t mtdchar_write(struct file *file, const char __user *buf, size_t c
 		else {
 #ifdef MY_ABC_HERE
 			up(&write_kbuf_sem);
-#else  
+#else /* MY_ABC_HERE */
 			kfree(kbuf);
-#endif  
+#endif /* MY_ABC_HERE */
 			return ret;
 		}
 	}
 
 #ifdef MY_ABC_HERE
 	up(&write_kbuf_sem);
-#else  
+#else /* MY_ABC_HERE */
 	kfree(kbuf);
-#endif  
+#endif /* MY_ABC_HERE */
 	return total_retlen;
-}  
+} /* mtdchar_write */
 
 #ifdef MY_ABC_HERE
 #ifdef MY_ABC_HERE
+SYSCALL_DEFINE1(syno_mtd_alloc, bool, blMalloc)
+{
+	return sys_syno_mtd_alloc(blMalloc);
+}
 SYSCALL_DEFINE1(SYNOMTDAlloc, bool, blMalloc)
 {
-	return sys_SYNOMTDAlloc(blMalloc);
+	return sys_syno_mtd_alloc(blMalloc);
 }
-#endif  
-#endif  
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 
+/*======================================================================
+
+    IOCTL calls for getting device parameters.
+
+======================================================================*/
 static void mtdchar_erase_callback (struct erase_info *instr)
 {
 	wake_up((wait_queue_head_t *)instr->priv);
@@ -528,12 +622,32 @@ static int mtdchar_readoob(struct file *file, struct mtd_info *mtd,
 
 	kfree(ops.oobbuf);
 
+	/*
+	 * NAND returns -EBADMSG on ECC errors, but it returns the OOB
+	 * data. For our userspace tools it is important to dump areas
+	 * with ECC errors!
+	 * For kernel internal usage it also might return -EUCLEAN
+	 * to signal the caller that a bitflip has occured and has
+	 * been corrected by the ECC algorithm.
+	 *
+	 * Note: currently the standard NAND function, nand_read_oob_std,
+	 * does not calculate ECC for the OOB area, so do not rely on
+	 * this behavior unless you have replaced it with your own.
+	 */
 	if (mtd_is_bitflip_or_eccerr(ret))
 		return 0;
 
 	return ret;
 }
 
+/*
+ * Copies (and truncates, if necessary) data from the larger struct,
+ * nand_ecclayout, to the smaller, deprecated layout struct,
+ * nand_ecclayout_user. This is necessary only to support the deprecated
+ * API ioctl ECCGETLAYOUT while allowing all new functionality to use
+ * nand_ecclayout flexibly (i.e. the struct may change size in new
+ * releases without requiring major rewrites).
+ */
 static int shrink_ecclayout(const struct nand_ecclayout *from,
 		struct nand_ecclayout_user *to)
 {
@@ -557,7 +671,7 @@ static int shrink_ecclayout(const struct nand_ecclayout *from,
 	}
 #if defined (MY_ABC_HERE)
 	to->eccbytes = from->eccbytes;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	return 0;
 }
@@ -580,6 +694,7 @@ static int mtdchar_blkpg_ioctl(struct mtd_info *mtd,
 	switch (a.op) {
 	case BLKPG_ADD_PARTITION:
 
+		/* Only master mtd device must be used to add partitions */
 		if (mtd_is_partition(mtd))
 			return -EINVAL;
 
@@ -703,7 +818,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 		info.erasesize	= mtd->erasesize;
 		info.writesize	= mtd->writesize;
 		info.oobsize	= mtd->oobsize;
-		 
+		/* The below field is obsolete */
 		info.padding	= 0;
 		if (copy_to_user(argp, &info, sizeof(struct mtd_info_user)))
 			return -EFAULT;
@@ -751,6 +866,15 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 			erase->callback = mtdchar_erase_callback;
 			erase->priv = (unsigned long)&waitq;
 
+			/*
+			  FIXME: Allow INTERRUPTIBLE. Which means
+			  not having the wait_queue head on the stack.
+
+			  If the wq_head is on the stack, and we
+			  leave because we got interrupted, then the
+			  wq_head is no longer there when the
+			  callback routine tries to wake us up.
+			*/
 			ret = mtd_erase(mtd, erase);
 			if (!ret) {
 				set_current_state(TASK_UNINTERRUPTIBLE);
@@ -773,6 +897,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 		struct mtd_oob_buf buf;
 		struct mtd_oob_buf __user *buf_user = argp;
 
+		/* NOTE: writes return length to buf_user->length */
 		if (copy_from_user(&buf, argp, sizeof(buf)))
 			ret = -EFAULT;
 		else
@@ -786,6 +911,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 		struct mtd_oob_buf buf;
 		struct mtd_oob_buf __user *buf_user = argp;
 
+		/* NOTE: writes return length to buf_user->start */
 		if (copy_from_user(&buf, argp, sizeof(buf)))
 			ret = -EFAULT;
 		else
@@ -862,6 +988,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 		break;
 	}
 
+	/* Legacy interface */
 	case MEMGETOOBSEL:
 	{
 		struct nand_oobinfo oi;
@@ -966,7 +1093,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 		if (copy_from_user(adrs, (void *)arg, 2* sizeof(unsigned long)))
 			return -EFAULT;
 
-		ret = SYNOMTDModifyPartInfo(mtd, adrs[0], adrs[1]);  
+		ret = SYNOMTDModifyPartInfo(mtd, adrs[0], adrs[1]); /* adrs[0] is offset, adrs[1] is the length */
 
 		break;
 	}
@@ -975,7 +1102,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 	{
 		struct SYNO_MTD_FIS_INFO SynoMtdFisInfo;
 
-		if (strcmp(mtd->name, "FIS directory")) {  
+		if (strcmp(mtd->name, "FIS directory")) { // cannot apply on other flash partitions
 			return -EOPNOTSUPP;
 		}
 
@@ -983,7 +1110,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 			return -EFAULT;
 		}
 
-		if (!SynoMtdFisInfo.name[0]) {  
+		if (!SynoMtdFisInfo.name[0]) { // sanity check
 			return -EFAULT;
 		}
 
@@ -991,8 +1118,9 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 
 		break;
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
+	/* This ioctl is being deprecated - it truncates the ECC layout */
 	case ECCGETLAYOUT:
 	{
 		struct nand_ecclayout_user *usrlay;
@@ -1053,7 +1181,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 
 	case BLKRRPART:
 	{
-		 
+		/* No reread partition feature. Just return ok */
 		ret = 0;
 		break;
 	}
@@ -1063,7 +1191,7 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
 	}
 
 	return ret;
-}  
+} /* memory_ioctl */
 
 static long mtdchar_unlocked_ioctl(struct file *file, u_int cmd, u_long arg)
 {
@@ -1081,7 +1209,7 @@ static long mtdchar_unlocked_ioctl(struct file *file, u_int cmd, u_long arg)
 struct mtd_oob_buf32 {
 	u_int32_t start;
 	u_int32_t length;
-	compat_caddr_t ptr;	 
+	compat_caddr_t ptr;	/* unsigned char* */
 };
 
 #define MEMWRITEOOB32		_IOWR('M', 3, struct mtd_oob_buf32)
@@ -1117,6 +1245,7 @@ static long mtdchar_compat_ioctl(struct file *file, unsigned int cmd,
 		struct mtd_oob_buf32 buf;
 		struct mtd_oob_buf32 __user *buf_user = argp;
 
+		/* NOTE: writes return length to buf->start */
 		if (copy_from_user(&buf, argp, sizeof(buf)))
 			ret = -EFAULT;
 		else
@@ -1134,8 +1263,13 @@ static long mtdchar_compat_ioctl(struct file *file, unsigned int cmd,
 	return ret;
 }
 
-#endif  
+#endif /* CONFIG_COMPAT */
 
+/*
+ * try to determine where a shared mapping can be made
+ * - only supported for NOMMU at the moment (MMU can't doesn't copy private
+ *   mappings)
+ */
 #ifndef CONFIG_MMU
 static unsigned long mtdchar_get_unmapped_area(struct file *file,
 					   unsigned long addr,
@@ -1163,6 +1297,9 @@ static unsigned long mtdchar_get_unmapped_area(struct file *file,
 }
 #endif
 
+/*
+ * set up a mapping for shared memory segments
+ */
 static int mtdchar_mmap(struct file *file, struct vm_area_struct *vma)
 {
 #ifdef CONFIG_MMU
@@ -1170,7 +1307,11 @@ static int mtdchar_mmap(struct file *file, struct vm_area_struct *vma)
 	struct mtd_info *mtd = mfi->mtd;
 	struct map_info *map = mtd->priv;
 
-	if (0  ) {
+        /* This is broken because it assumes the MTD device is map-based
+	   and that mtd->priv is a valid struct map_info.  It should be
+	   replaced with something that uses the mtd_get_unmapped_area()
+	   operation properly. */
+	if (0 /*mtd->type == MTD_RAM || mtd->type == MTD_ROM*/) {
 #ifdef pgprot_noncached
 		if (file->f_flags & O_DSYNC || map->phys >= __pa(high_memory))
 			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
@@ -1238,9 +1379,9 @@ int __init init_mtdchar(void)
 	}
 
 #ifdef MY_ABC_HERE
-	 
+	/* Allocate buffer and init spinlock */
 	sema_init(&write_kbuf_sem, 1);
-#endif  
+#endif /* MY_ABC_HERE */
 
 	return ret;
 

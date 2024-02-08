@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * kernel/workqueue_internal.h
  *
@@ -68,5 +71,23 @@ static inline struct worker *current_wq_worker(void)
  */
 void wq_worker_waking_up(struct task_struct *task, int cpu);
 struct task_struct *wq_worker_sleeping(struct task_struct *task, int cpu);
+
+#ifdef MY_DEF_HERE
+/* For in-thread I/O accumulation. We don't need atomic ops */
+struct work_acct {
+	work_func_t func;
+	unsigned long last_update_jiffies;
+
+	/**
+	 * Please refer to task_io_accounting.h for the following
+	 * I/O statistics
+	 */
+	u64 read_bytes;
+	u64 write_bytes;
+	u64 cancelled_write_bytes;
+};
+
+void worker_run_work(struct worker *worker, struct work_struct *work);
+#endif /* MY_DEF_HERE */
 
 #endif /* _KERNEL_WORKQUEUE_INTERNAL_H */

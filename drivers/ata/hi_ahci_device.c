@@ -94,3 +94,4 @@ module_exit(hi_ahci_exit);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Hisilicon SATA controller low level driver");
 MODULE_VERSION("1.00");
+

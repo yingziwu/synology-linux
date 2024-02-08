@@ -39,6 +39,7 @@
 #define pcie_error(str, arg...)\
 	pr_err("%s->%d" str "\n", __func__, __LINE__, ##arg)
 
+
 #define __256MB__	0x10000000
 #define __128MB__	0x8000000
 #define __4KB__		0x1000
@@ -243,6 +244,7 @@ static struct pcie_info *bus_to_info(int busnr)
 	return NULL;
 }
 
+
 static int __init pcie_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
 {
 	struct pcie_info *info = bus_to_info(dev->bus->number);
@@ -271,6 +273,7 @@ static inline unsigned int to_pcie_address(struct pci_bus *bus,
 
 	address = info->base_addr | PCIE_CFG_BUS(bus->number)
 		| PCIE_CFG_DEV(devfn) | PCIE_CFG_REG(where);
+
 
 	return address;
 }
@@ -558,6 +561,7 @@ static struct pci_bus *__init pcie_scan_bus(int nr, struct pci_sys_data *sys)
 	return bus;
 }
 
+
 static struct hw_pci hipcie __initdata = {
 	.nr_controllers = 1,
 	.preinit    = pcie_preinit,
@@ -566,6 +570,7 @@ static struct hw_pci hipcie __initdata = {
 	.scan       = pcie_scan_bus,
 	.map_irq    = pcie_map_irq,
 };
+
 
 static int __init pcie_init(void)
 {

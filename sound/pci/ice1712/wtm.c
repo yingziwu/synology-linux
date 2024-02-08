@@ -23,6 +23,8 @@
  *
  */
 
+
+
 #include <linux/delay.h>
 #include <linux/interrupt.h>
 #include <linux/init.h>
@@ -32,6 +34,7 @@
 #include "envy24ht.h"
 #include "wtm.h"
 #include "stac946x.h"
+
 
 /*
  *	2*ADC 6*DAC no1 ringbuffer r/w on i2c bus
@@ -60,6 +63,7 @@ static inline unsigned char stac9460_2_get(struct snd_ice1712 *ice, int reg)
 {
 	return snd_vt1724_read_i2c(ice, STAC9460_2_I2C_ADDR, reg);
 }
+
 
 /*
  *	DAC mute control
@@ -440,6 +444,8 @@ static struct snd_kcontrol_new stac9640_controls[] = {
 	}
 };
 
+
+
 /*INIT*/
 static int wtm_add_controls(struct snd_ice1712 *ice)
 {
@@ -477,6 +483,7 @@ static int wtm_init(struct snd_ice1712 *ice)
 	return 0;
 }
 
+
 static unsigned char wtm_eeprom[] = {
 	0x47,	/*SYSCONF: clock 192KHz, 4ADC, 8DAC */
 	0x80,	/* ACLINK : I2S */
@@ -492,6 +499,7 @@ static unsigned char wtm_eeprom[] = {
 	0x80,	/* GPIO_STATE1 */
 	0x00,	/* GPIO_STATE2 */
 };
+
 
 /*entry point*/
 struct snd_ice1712_card_info snd_vt1724_wtm_cards[] = {

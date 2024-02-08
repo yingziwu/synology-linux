@@ -28,6 +28,8 @@
 #include <linux/workqueue.h>
 #include <linux/hyperv.h>
 
+
+
 /*
  * Global state maintained for transaction that is being processed.
  * Note that only one transaction can be active at any point in time.
@@ -59,6 +61,7 @@ static bool in_hand_shake = true;
 static int dm_reg_value;
 
 static void kvp_send_key(struct work_struct *dummy);
+
 
 static void kvp_respond_to_host(struct hv_kvp_msg *msg, int error);
 static void kvp_work_func(struct work_struct *dummy);
@@ -150,6 +153,7 @@ static int kvp_handle_handshake(struct hv_kvp_msg *msg)
 	return ret;
 }
 
+
 /*
  * Callback when data is received from user mode.
  */
@@ -206,6 +210,7 @@ kvp_cn_callback(struct cn_msg *msg, struct netlink_skb_parms *nsp)
 	if (cancel_delayed_work_sync(&kvp_work))
 		kvp_respond_to_host(message, error);
 }
+
 
 static int process_ob_ipinfo(void *in_msg, void *out_msg, int op)
 {
@@ -313,6 +318,9 @@ static void process_ib_ipinfo(void *in_msg, void *out_msg, int op)
 		out->body.kvp_ip_val.addr_family = in->kvp_ip_val.addr_family;
 	}
 }
+
+
+
 
 static void
 kvp_send_key(struct work_struct *dummy)

@@ -16,3 +16,4 @@ struct dmac_user_para {
 extern int hi_memcpy(void *dst, const void *src, size_t count);
 
 #endif
+

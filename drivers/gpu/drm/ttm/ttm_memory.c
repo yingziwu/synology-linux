@@ -232,6 +232,8 @@ out:
 	spin_unlock(&glob->lock);
 }
 
+
+
 static void ttm_shrink_work(struct work_struct *work)
 {
 	struct ttm_mem_global *glob =
@@ -507,6 +509,7 @@ out_unlock:
 	return ret;
 }
 
+
 static int ttm_mem_global_alloc_zone(struct ttm_mem_global *glob,
 				     struct ttm_mem_zone *single_zone,
 				     uint64_t memory,
@@ -577,6 +580,7 @@ void ttm_mem_global_free_page(struct ttm_mem_global *glob, struct page *page)
 #endif
 	ttm_mem_global_free_zone(glob, zone, PAGE_SIZE);
 }
+
 
 size_t ttm_round_pot(size_t size)
 {

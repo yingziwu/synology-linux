@@ -744,6 +744,7 @@ static ssize_t rtl8366_write_debugfs_reg(struct file *file,
 	if (len > 0 && buf[len - 1] == '\n')
 		buf[len - 1] = '\0';
 
+
 	if (kstrtoul(buf, 16, &data)) {
 		dev_err(smi->parent, "Invalid reg value %s\n", buf);
 	} else {

@@ -266,6 +266,7 @@ static void mei_me_remove(struct pci_dev *pdev)
 
 	hw = to_me_hw(dev);
 
+
 	dev_err(&pdev->dev, "stop\n");
 	mei_stop(dev);
 
@@ -287,6 +288,7 @@ static void mei_me_remove(struct pci_dev *pdev)
 
 	pci_release_regions(pdev);
 	pci_disable_device(pdev);
+
 
 }
 #ifdef CONFIG_PM

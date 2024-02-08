@@ -383,6 +383,7 @@ static struct orion_nfc_naked_info orion_nfc_naked_info_lkup[NFC_PAGE_SIZE_MAX_C
 		NULL, NULL, 0, 0, 0, 0, 0, 0
 	}  } };
 
+
 #define ECC_LAYOUT	(orion_nfc_naked_info_lkup[info->page_size][info->ecc_type].ecc_layout)
 #define BB_INFO		(orion_nfc_naked_info_lkup[info->page_size][info->ecc_type].bb_info)
 #define	BB_BYTE_POS	(orion_nfc_naked_info_lkup[info->page_size][info->ecc_type].bb_bytepos)
@@ -1405,6 +1406,7 @@ static struct nand_bbt_descr mvbbt_mirror_descr = {
 	.pattern = mv_mirror_pattern
 };
 
+
 static int orion_nfc_markbad(struct mtd_info *mtd, loff_t ofs)
 {
 	struct nand_chip *chip = mtd->priv;
@@ -1437,6 +1439,7 @@ static int orion_nfc_markbad(struct mtd_info *mtd, loff_t ofs)
 
 	return ret;
 }
+
 
 static void orion_nfc_init_nand(struct nand_chip *nand, struct orion_nfc_info *info)
 {

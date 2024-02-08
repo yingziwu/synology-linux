@@ -17,6 +17,7 @@
 	project Authors.
 */
 
+
 #include "r8180.h"
 #include "r8180_hw.h"
 
@@ -48,6 +49,7 @@ static int r8180_wx_get_freq(struct net_device *dev,
 	return ieee80211_wx_get_freq(priv->ieee80211, a, wrqu, b);
 }
 
+
 int r8180_wx_set_key(struct net_device *dev, struct iw_request_info *info,
 		     union iwreq_data *wrqu, char *key)
 {
@@ -70,6 +72,7 @@ int r8180_wx_set_key(struct net_device *dev, struct iw_request_info *info,
 	return 0;
 }
 
+
 static int r8180_wx_set_beaconinterval(struct net_device *dev, struct iw_request_info *aa,
 			  union iwreq_data *wrqu, char *b)
 {
@@ -91,12 +94,16 @@ static int r8180_wx_set_beaconinterval(struct net_device *dev, struct iw_request
 	return 0;
 }
 
+
+
 static int r8180_wx_get_mode(struct net_device *dev, struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
 {
 	struct r8180_priv *priv = ieee80211_priv(dev);
 	return ieee80211_wx_get_mode(priv->ieee80211, a, wrqu, b);
 }
+
+
 
 static int r8180_wx_get_rate(struct net_device *dev,
 			     struct iw_request_info *info,
@@ -106,12 +113,15 @@ static int r8180_wx_get_rate(struct net_device *dev,
 	return ieee80211_wx_get_rate(priv->ieee80211, info, wrqu, extra);
 }
 
+
+
 static int r8180_wx_set_rate(struct net_device *dev,
 			     struct iw_request_info *info,
 			     union iwreq_data *wrqu, char *extra)
 {
 	int ret;
 	struct r8180_priv *priv = ieee80211_priv(dev);
+
 
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
@@ -125,6 +135,7 @@ static int r8180_wx_set_rate(struct net_device *dev,
 	return ret;
 }
 
+
 static int r8180_wx_set_crcmon(struct net_device *dev,
 			       struct iw_request_info *info,
 			       union iwreq_data *wrqu, char *extra)
@@ -133,6 +144,7 @@ static int r8180_wx_set_crcmon(struct net_device *dev,
 	int *parms = (int *)extra;
 	int enable = (parms[0] > 0);
 	short prev = priv->crcmon;
+
 
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
@@ -157,11 +169,13 @@ static int r8180_wx_set_crcmon(struct net_device *dev,
 	return 0;
 }
 
+
 static int r8180_wx_set_mode(struct net_device *dev, struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
 {
 	struct r8180_priv *priv = ieee80211_priv(dev);
 	int ret;
+
 
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
@@ -202,6 +216,7 @@ struct  iw_range_with_scan_capa	{
 		__u8			scan_capa;
 };
 /* YJ,add,080819,for hidden ap */
+
 
 static int rtl8180_wx_get_range(struct net_device *dev,
 				struct iw_request_info *info,
@@ -289,12 +304,14 @@ static int rtl8180_wx_get_range(struct net_device *dev,
 	return 0;
 }
 
+
 static int r8180_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
 {
 	struct r8180_priv *priv = ieee80211_priv(dev);
 	int ret;
 	struct ieee80211_device* ieee = priv->ieee80211;
+
 
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
@@ -332,6 +349,7 @@ static int r8180_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 	return ret;
 }
 
+
 static int r8180_wx_get_scan(struct net_device *dev, struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
 {
@@ -348,6 +366,7 @@ static int r8180_wx_get_scan(struct net_device *dev, struct iw_request_info *a,
 	up(&priv->wx_sem);
 	return ret;
 }
+
 
 static int r8180_wx_set_essid(struct net_device *dev,
 			      struct iw_request_info *a,
@@ -370,6 +389,7 @@ static int r8180_wx_set_essid(struct net_device *dev,
 	return ret;
 }
 
+
 static int r8180_wx_get_essid(struct net_device *dev,
 			      struct iw_request_info *a,
 			      union iwreq_data *wrqu, char *b)
@@ -386,11 +406,13 @@ static int r8180_wx_get_essid(struct net_device *dev,
 	return ret;
 }
 
+
 static int r8180_wx_set_freq(struct net_device *dev, struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
 {
 	int ret;
 	struct r8180_priv *priv = ieee80211_priv(dev);
+
 
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
@@ -402,6 +424,7 @@ static int r8180_wx_set_freq(struct net_device *dev, struct iw_request_info *a,
 	up(&priv->wx_sem);
 	return ret;
 }
+
 
 static int r8180_wx_get_name(struct net_device *dev,
 			     struct iw_request_info *info,
@@ -433,6 +456,7 @@ static int r8180_wx_set_frag(struct net_device *dev,
 	return 0;
 }
 
+
 static int r8180_wx_get_frag(struct net_device *dev,
 			     struct iw_request_info *info,
 			     union iwreq_data *wrqu, char *extra)
@@ -445,6 +469,7 @@ static int r8180_wx_get_frag(struct net_device *dev,
 
 	return 0;
 }
+
 
 static int r8180_wx_set_wap(struct net_device *dev,
 			 struct iw_request_info *info,
@@ -466,6 +491,7 @@ static int r8180_wx_set_wap(struct net_device *dev,
 
 }
 
+
 static int r8180_wx_get_wap(struct net_device *dev,
 			    struct iw_request_info *info,
 			    union iwreq_data *wrqu, char *extra)
@@ -474,6 +500,7 @@ static int r8180_wx_get_wap(struct net_device *dev,
 
 	return ieee80211_wx_get_wap(priv->ieee80211, info, wrqu, extra);
 }
+
 
 static int r8180_wx_set_enc(struct net_device *dev,
 			    struct iw_request_info *info,
@@ -484,6 +511,7 @@ static int r8180_wx_set_enc(struct net_device *dev,
 
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
+
 
 	down(&priv->wx_sem);
 
@@ -497,6 +525,7 @@ static int r8180_wx_set_enc(struct net_device *dev,
 	return ret;
 }
 
+
 static int r8180_wx_get_enc(struct net_device *dev,
 			    struct iw_request_info *info,
 			    union iwreq_data *wrqu, char *key)
@@ -505,6 +534,7 @@ static int r8180_wx_get_enc(struct net_device *dev,
 
 	return ieee80211_wx_get_encode(priv->ieee80211, info, wrqu, key);
 }
+
 
 static int r8180_wx_set_scan_type(struct net_device *dev, struct iw_request_info *aa, union
 	iwreq_data *wrqu, char *p)	{
@@ -575,6 +605,7 @@ static int r8180_wx_get_retry(struct net_device *dev,
 {
 	struct r8180_priv *priv = ieee80211_priv(dev);
 
+
 	wrqu->retry.disabled = 0; /* can't be disabled */
 
 	if ((wrqu->retry.flags & IW_RETRY_TYPE) ==
@@ -603,6 +634,7 @@ static int r8180_wx_get_sens(struct net_device *dev,
 	return 0;
 }
 
+
 static int r8180_wx_set_sens(struct net_device *dev,
 				struct iw_request_info *info,
 				union iwreq_data *wrqu, char *extra)
@@ -630,6 +662,7 @@ exit:
 
 	return err;
 }
+
 
 static int r8180_wx_set_rawtx(struct net_device *dev,
 			       struct iw_request_info *info,
@@ -674,6 +707,7 @@ static int r8180_wx_set_power(struct net_device *dev,
 	int ret;
 	struct r8180_priv *priv = ieee80211_priv(dev);
 
+
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
 
@@ -698,6 +732,7 @@ static int r8180_wx_set_rts(struct net_device *dev,
 {
 	struct r8180_priv *priv = ieee80211_priv(dev);
 
+
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
 
@@ -719,6 +754,8 @@ static int r8180_wx_get_rts(struct net_device *dev,
 {
 	struct r8180_priv *priv = ieee80211_priv(dev);
 
+
+
 	wrqu->rts.value = priv->rts;
 	wrqu->rts.fixed = 0;	/* no auto select */
 	wrqu->rts.disabled = (wrqu->rts.value == 0);
@@ -738,6 +775,8 @@ static int r8180_wx_get_iwmode(struct net_device *dev,
 	struct r8180_priv *priv = ieee80211_priv(dev);
 	struct ieee80211_device *ieee;
 	int ret = 0;
+
+
 
 	down(&priv->wx_sem);
 
@@ -764,6 +803,7 @@ static int r8180_wx_set_iwmode(struct net_device *dev,
 	int *param = (int *)extra;
 	int ret = 0;
 	int modulation = 0, mode = 0;
+
 
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
@@ -805,7 +845,11 @@ static int r8180_wx_get_preamble(struct net_device *dev,
 {
 	struct r8180_priv *priv = ieee80211_priv(dev);
 
+
+
 	down(&priv->wx_sem);
+
+
 
 	*extra = (char) priv->plcp_preamble_mode;	/* 0:auto 1:short 2:long */
 	up(&priv->wx_sem);
@@ -819,6 +863,7 @@ static int r8180_wx_set_preamble(struct net_device *dev,
 	struct r8180_priv *priv = ieee80211_priv(dev);
 	int ret = 0;
 
+
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
 
@@ -827,6 +872,8 @@ static int r8180_wx_set_preamble(struct net_device *dev,
 		ret = -1;
 	else
 		priv->plcp_preamble_mode = *((short *)extra) ;
+
+
 
 	up(&priv->wx_sem);
 
@@ -839,9 +886,13 @@ static int r8180_wx_get_siglevel(struct net_device *dev,
 	struct r8180_priv *priv = ieee80211_priv(dev);
 	int ret = 0;
 
+
+
 	down(&priv->wx_sem);
 	/* Modify by hikaru 6.5 */
 	*((int *)extra) = priv->wstats.qual.level;/*for interface test ,it should be the priv->wstats.qual.level; */
+
+
 
 	up(&priv->wx_sem);
 
@@ -854,9 +905,13 @@ static int r8180_wx_get_sigqual(struct net_device *dev,
 	struct r8180_priv *priv = ieee80211_priv(dev);
 	int ret = 0;
 
+
+
 	down(&priv->wx_sem);
 	/* Modify by hikaru 6.5	*/
 	*((int *)extra) = priv->wstats.qual.qual;/* for interface test ,it should be the priv->wstats.qual.qual; */
+
+
 
 	up(&priv->wx_sem);
 
@@ -911,6 +966,7 @@ static int r8180_wx_radio_on(struct net_device *dev,
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
 
+
 	down(&priv->wx_sem);
 	priv->rf_wakeup(dev);
 
@@ -929,6 +985,7 @@ static int r8180_wx_radio_off(struct net_device *dev,
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
 
+
 	down(&priv->wx_sem);
 	priv->rf_sleep(dev);
 
@@ -943,8 +1000,12 @@ static int r8180_wx_get_channelplan(struct net_device *dev,
 {
 	struct r8180_priv *priv = ieee80211_priv(dev);
 
+
+
 	down(&priv->wx_sem);
 	*extra = priv->channel_plan;
+
+
 
 	up(&priv->wx_sem);
 
@@ -1062,8 +1123,10 @@ static int r8180_wx_set_mlme(struct net_device *dev,
 	int ret = 0;
 	struct r8180_priv *priv = ieee80211_priv(dev);
 
+
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
+
 
 	down(&priv->wx_sem);
 #if 1
@@ -1079,6 +1142,7 @@ static int r8180_wx_set_gen_ie(struct net_device *dev,
 	int ret = 0;
 		struct r8180_priv *priv = ieee80211_priv(dev);
 
+
 	if (priv->ieee80211->bHwRadioOff)
 		return 0;
 
@@ -1088,6 +1152,7 @@ static int r8180_wx_set_gen_ie(struct net_device *dev,
 #endif
 		up(&priv->wx_sem);
 		return ret;
+
 
 }
 static iw_handler r8180_wx_handlers[] =	{
@@ -1148,6 +1213,7 @@ static iw_handler r8180_wx_handlers[] =	{
 		NULL,					/* SIOCSIWPMKSA */
 		NULL,					/*---hole---*/
 };
+
 
 static const struct iw_priv_args r8180_private_args[] = {
 	{
@@ -1252,6 +1318,7 @@ static const struct iw_priv_args r8180_private_args[] = {
 	},
 };
 
+
 static iw_handler r8180_private_handler[] = {
 	r8180_wx_set_crcmon, /*SIOCIWSECONDPRIV*/
 	dummy,
@@ -1338,3 +1405,5 @@ struct iw_handler_def  r8180_wx_handlers_def = {
 	.get_wireless_stats = r8180_get_wireless_stats,
 	.private_args = (struct iw_priv_args *)r8180_private_args,
 };
+
+

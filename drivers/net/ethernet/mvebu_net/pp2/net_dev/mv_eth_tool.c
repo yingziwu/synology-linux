@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -53,6 +54,7 @@ disclaimer.
 #include "prs/mvPp2Prs.h"
 
 #include "wol/mvPp2Wol.h"
+
 
 #define MV_ETH_TOOL_AN_TIMEOUT	5000
 
@@ -230,6 +232,7 @@ int mv_pp2_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *
 	return 0;
 }
 
+
 /******************************************************************************
 * mv_pp2_eth_tool_restore_settings
 * Description:
@@ -310,6 +313,8 @@ int mv_pp2_eth_tool_restore_settings(struct net_device *netdev)
 
 	return err;
 }
+
+
 
 /******************************************************************************
 * mv_pp2_eth_tool_set_settings
@@ -499,6 +504,7 @@ void mv_pp2_eth_tool_get_drvinfo(struct net_device *netdev,
 	info->eedump_len = 0;
 }
 
+
 /******************************************************************************
 * mv_pp2_eth_tool_get_regs
 * Description:
@@ -545,6 +551,8 @@ void mv_pp2_eth_tool_get_regs(struct net_device *netdev,
 	regs_buff[41] = MV_32BIT_BE(MV_REG_READ(ETH_PORT_ISR_SUM_MASK_REG(priv->port)));
 }
 
+
+
 /******************************************************************************
 * mv_pp2_eth_tool_nway_reset
 * Description:
@@ -574,6 +582,7 @@ int mv_pp2_eth_tool_nway_reset(struct net_device *netdev)
 	return 0;
 }
 
+
 /******************************************************************************
 * mv_pp2_eth_tool_get_link
 * Description:
@@ -602,6 +611,7 @@ u32 mv_pp2_eth_tool_get_link(struct net_device *netdev)
 
 	return mvGmacPortIsLinkUp(pp->port);
 }
+
 
 /******************************************************************************
 * mv_pp2_eth_tool_get_coalesce
@@ -706,6 +716,7 @@ int mv_pp2_eth_tool_set_coalesce(struct net_device *netdev,
 
 	return 0;
 }
+
 
 /******************************************************************************
 * mv_pp2_eth_tool_get_ringparam
@@ -827,6 +838,9 @@ void mv_pp2_eth_tool_get_pauseparam(struct net_device *netdev,
 		pause->tx_pause = 1;
 }
 
+
+
+
 /******************************************************************************
 * mv_pp2_eth_tool_set_pauseparam
 * Description:
@@ -928,6 +942,7 @@ void mv_pp2_eth_tool_get_strings(struct net_device *netdev,
 		break;
 	}
 }
+
 
 /******************************************************************************
 * mv_pp2_eth_tool_get_stats_count

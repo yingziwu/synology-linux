@@ -1262,6 +1262,7 @@ struct ab8500_prcmu_ranges ab8540_debug_ranges[AB8500_NUM_BANKS] = {
 	},
 };
 
+
 static irqreturn_t ab8500_debug_handler(int irq, void *data)
 {
 	char buf[16];
@@ -2855,6 +2856,7 @@ static ssize_t ab8500_unsubscribe_write(struct file *file,
 
 	if (dev_attr[irq_index])
 		sysfs_remove_file(&dev->kobj, &dev_attr[irq_index]->attr);
+
 
 	free_irq(user_val, &dev->kobj);
 	kfree(event_name[irq_index]);

@@ -24,6 +24,8 @@
 #include <linux/workqueue.h>
 #include <linux/hyperv.h>
 
+
+
 /*
  * Global state maintained for transaction that is being processed.
  * Note that only one transaction can be active at any point in time.
@@ -40,6 +42,7 @@ static struct {
 	u64 recv_req_id; /* request ID. */
 	struct hv_vss_msg  *msg; /* current message */
 } vss_transaction;
+
 
 static void vss_respond_to_host(int error);
 
@@ -71,6 +74,7 @@ vss_cn_callback(struct cn_msg *msg, struct netlink_skb_parms *nsp)
 	}
 	vss_respond_to_host(vss_msg->error);
 }
+
 
 static void vss_send_op(struct work_struct *dummy)
 {
@@ -159,6 +163,7 @@ void hv_vss_onchannelcallback(void *context)
 	u32 recvlen;
 	u64 requestid;
 	struct hv_vss_msg *vss_msg;
+
 
 	struct icmsg_hdr *icmsghdrp;
 	struct icmsg_negotiate *negop = NULL;

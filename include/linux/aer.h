@@ -56,3 +56,4 @@ extern void aer_recover_queue(int domain, unsigned int bus, unsigned int devfn,
 			      int severity,
 			      struct aer_capability_regs *aer_regs);
 #endif //_AER_H_
+

@@ -335,3 +335,4 @@ enum binder_driver_command_protocol {
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 
 #endif /* _LINUX_BINDER_H */
+

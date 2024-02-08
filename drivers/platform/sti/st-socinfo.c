@@ -148,6 +148,7 @@ static struct platform_driver st_socinfo_driver = {
 	.probe = st_socinfo_probe,
 };
 
+
 static int __init st_socinfo_init(void)
 {
 	return platform_driver_register(&st_socinfo_driver);

@@ -1,7 +1,29 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*******************************************************************************
+  Header file for stmfp platform data
+  Copyright (C) 2009  STMicroelectronics Ltd
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms and conditions of the GNU General Public License,
+  version 2, as published by the Free Software Foundation.
+
+  This program is distributed in the hope it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+
+  The full GNU General Public License is included in this distribution in
+  the file called "COPYING".
+
+  Author: manish rathi <manish.rathi@st.com>
+*******************************************************************************/
+
 #ifndef __STMFP_PLATFORM_DATA
 #define __STMFP_PLATFORM_DATA
 
@@ -25,6 +47,7 @@ struct stmfp_mdio_bus_data {
 	int probed_phy_irq;
 };
 
+
 enum IF_DEVID { DEVID_DOCSIS , DEVID_GIGE0 , DEVID_GIGE1, DEVID_FP0, DEVID_FP1};
 enum FP_VERSION { FP , FPLITE, FP2 };
 
@@ -44,7 +67,7 @@ struct plat_fpif_data {
 	int q_idx;
 #ifdef MY_ABC_HERE
 	const char *mac_addr;
-#endif  
+#endif /* MY_ABC_HERE */
 };
 
 struct stmfp_of_data {
@@ -59,7 +82,7 @@ struct stmfp_of_data {
 struct plat_stmfp_data {
 	struct stmfp_of_data ofdt;
 	struct plat_fpif_data *if_data[NUM_INTFS];
-	 
+	/* Below callbacks are used mainly for FPGA-FP */
 	void (*platinit)(void *fpgrp);
 	void (*preirq)(void *fpgrp);
 	void (*postirq)(void *fpgrp);

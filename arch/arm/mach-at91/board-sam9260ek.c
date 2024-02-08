@@ -50,6 +50,7 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
+
 static void __init ek_init_early(void)
 {
 	/* Initialize processor: 18.432 MHz crystal */
@@ -72,6 +73,7 @@ static struct at91_udc_data __initdata ek_udc_data = {
 	.vbus_pin	= AT91_PIN_PC5,
 	.pullup_pin	= -EINVAL,		/* pull-up driven by UDC */
 };
+
 
 /*
  * Audio
@@ -134,6 +136,7 @@ static struct spi_board_info ek_spi_devices[] = {
 #endif
 };
 
+
 /*
  * MACB Ethernet device
  */
@@ -141,6 +144,7 @@ static struct macb_platform_data __initdata ek_macb_data = {
 	.phy_irq_pin	= AT91_PIN_PA7,
 	.is_rmii	= 1,
 };
+
 
 /*
  * NAND flash
@@ -203,6 +207,7 @@ static void __init ek_add_device_nand(void)
 	at91_add_device_nand(&ek_nand_data);
 }
 
+
 /*
  * MCI (SD/MMC)
  */
@@ -213,6 +218,7 @@ static struct mci_platform_data __initdata ek_mci0_data = {
 		.wp_pin		= -EINVAL,
 	},
 };
+
 
 /*
  * LEDs
@@ -247,6 +253,7 @@ static struct i2c_board_info __initdata ek_i2c_devices[] = {
 	},
 	/* more devices can be added using expansion connectors */
 };
+
 
 /*
  * GPIO Buttons
@@ -295,6 +302,7 @@ static void __init ek_add_device_buttons(void)
 #else
 static void __init ek_add_device_buttons(void) {}
 #endif
+
 
 static void __init ek_board_init(void)
 {

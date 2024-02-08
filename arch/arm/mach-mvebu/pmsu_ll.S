@@ -15,6 +15,7 @@
 #include <linux/linkage.h>
 #include <asm/assembler.h>
 
+
 #if defined(MY_DEF_HERE)
 ENTRY(armada_38x_scu_power_up)
 	mrc     p15, 4, r1, c15, c0	@ get SCU base address

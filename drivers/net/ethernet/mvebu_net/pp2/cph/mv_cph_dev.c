@@ -349,6 +349,7 @@ ioctl_err:
 	return rc;
 }
 
+
 static const struct file_operations g_cph_dev_fops = {
 	.open			= cph_dev_open,
 	.release		= cph_dev_release,

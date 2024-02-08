@@ -1,7 +1,18 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * kirkwood-dma.c
+ *
+ * (c) 2010 Arnaud Patard <apatard@mandriva.com>
+ * (c) 2010 Arnaud Patard <arnaud.patard@rtp-net.org>
+ *
+ *  This program is free software; you can redistribute  it and/or modify it
+ *  under  the terms of  the GNU General  Public License as published by the
+ *  Free Software Foundation;  either version 2 of the  License, or (at your
+ *  option) any later version.
+ */
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/device.h>
@@ -19,7 +30,7 @@ static struct kirkwood_dma_data *kirkwood_priv(struct snd_pcm_substream *subs)
 	struct snd_soc_pcm_runtime *soc_runtime = subs->private_data;
 	return snd_soc_dai_get_drvdata(soc_runtime->cpu_dai);
 }
-#else  
+#else /* MY_DEF_HERE */
 #define KIRKWOOD_RATES \
 	(SNDRV_PCM_RATE_8000_192000 |		\
 	 SNDRV_PCM_RATE_CONTINUOUS |		\
@@ -37,7 +48,7 @@ struct kirkwood_dma_priv {
 	struct snd_pcm_substream *rec_stream;
 	struct kirkwood_dma_data *data;
 };
-#endif  
+#endif /* MY_DEF_HERE */
 
 static struct snd_pcm_hardware kirkwood_dma_snd_hw = {
 #if defined(MY_DEF_HERE)
@@ -48,7 +59,7 @@ static struct snd_pcm_hardware kirkwood_dma_snd_hw = {
 		SNDRV_PCM_INFO_PAUSE |
 		SNDRV_PCM_INFO_NO_PERIOD_WAKEUP,
 	.buffer_bytes_max	= KIRKWOOD_SND_MAX_BUFFER_BYTES,
-#else  
+#else /* MY_DEF_HERE */
 	.info = (SNDRV_PCM_INFO_INTERLEAVED |
 		 SNDRV_PCM_INFO_MMAP |
 		 SNDRV_PCM_INFO_MMAP_VALID |
@@ -61,7 +72,7 @@ static struct snd_pcm_hardware kirkwood_dma_snd_hw = {
 	.channels_min		= 1,
 	.channels_max		= 8,
 	.buffer_bytes_max	= KIRKWOOD_SND_MAX_PERIOD_BYTES * KIRKWOOD_SND_MAX_PERIODS,
-#endif  
+#endif /* MY_DEF_HERE */
 	.period_bytes_min	= KIRKWOOD_SND_MIN_PERIOD_BYTES,
 	.period_bytes_max	= KIRKWOOD_SND_MAX_PERIOD_BYTES,
 	.periods_min		= KIRKWOOD_SND_MIN_PERIODS,
@@ -70,19 +81,19 @@ static struct snd_pcm_hardware kirkwood_dma_snd_hw = {
 };
 
 #if defined(MY_DEF_HERE)
- 
-#else  
+// do nothing
+#else /* MY_DEF_HERE */
 static u64 kirkwood_dma_dmamask = DMA_BIT_MASK(32);
-#endif  
+#endif /* MY_DEF_HERE */
 
 static irqreturn_t kirkwood_dma_irq(int irq, void *dev_id)
 {
 #if defined(MY_DEF_HERE)
 	struct kirkwood_dma_data *priv = dev_id;
-#else  
+#else /* MY_DEF_HERE */
 	struct kirkwood_dma_priv *prdata = dev_id;
 	struct kirkwood_dma_data *priv = prdata->data;
-#endif  
+#endif /* MY_DEF_HERE */
 	unsigned long mask, status, cause;
 
 	mask = readl(priv->io + KIRKWOOD_INT_MASK);
@@ -95,6 +106,7 @@ static irqreturn_t kirkwood_dma_irq(int irq, void *dev_id)
 		writel(cause, priv->io + KIRKWOOD_ERR_CAUSE);
 	}
 
+	/* we've enabled only bytes interrupts ... */
 	if (status & ~(KIRKWOOD_INT_CAUSE_PLAY_BYTES | \
 			KIRKWOOD_INT_CAUSE_REC_BYTES)) {
 		printk(KERN_WARNING "%s: unexpected interrupt %lx\n",
@@ -102,21 +114,22 @@ static irqreturn_t kirkwood_dma_irq(int irq, void *dev_id)
 		return IRQ_NONE;
 	}
 
+	/* ack int */
 	writel(status, priv->io + KIRKWOOD_INT_CAUSE);
 
 	if (status & KIRKWOOD_INT_CAUSE_PLAY_BYTES)
 #if defined(MY_DEF_HERE)
 		snd_pcm_period_elapsed(priv->substream_play);
-#else  
+#else /* MY_DEF_HERE */
 		snd_pcm_period_elapsed(prdata->play_stream);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	if (status & KIRKWOOD_INT_CAUSE_REC_BYTES)
 #if defined(MY_DEF_HERE)
 		snd_pcm_period_elapsed(priv->substream_rec);
-#else  
+#else /* MY_DEF_HERE */
 		snd_pcm_period_elapsed(prdata->rec_stream);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return IRQ_HANDLED;
 }
@@ -128,9 +141,11 @@ kirkwood_dma_conf_mbus_windows(void __iomem *base, int win,
 {
 	int i;
 
+	/* First disable and clear windows */
 	writel(0, base + KIRKWOOD_AUDIO_WIN_CTRL_REG(win));
 	writel(0, base + KIRKWOOD_AUDIO_WIN_BASE_REG(win));
 
+	/* try to find matching cs for current dma address */
 	for (i = 0; i < dram->num_cs; i++) {
 		const struct mbus_dram_window *cs = dram->cs + i;
 		if ((cs->base & 0xffff0000) < (dma & 0xffff0000)) {
@@ -150,23 +165,24 @@ static int kirkwood_dma_open(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 #if defined(MY_DEF_HERE)
 	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
-#else  
+#else /* MY_DEF_HERE */
 	struct snd_soc_pcm_runtime *soc_runtime = substream->private_data;
 	struct snd_soc_platform *platform = soc_runtime->platform;
 	struct snd_soc_dai *cpu_dai = soc_runtime->cpu_dai;
 	struct kirkwood_dma_data *priv;
 	struct kirkwood_dma_priv *prdata = snd_soc_platform_get_drvdata(platform);
-#endif  
+#endif /* MY_DEF_HERE */
 	const struct mbus_dram_target_info *dram;
 	unsigned long addr;
 
 #if defined(MY_DEF_HERE)
-	 
-#else  
+	// do nothing
+#else /* MY_DEF_HERE */
 	priv = snd_soc_dai_get_dma_data(cpu_dai, substream);
-#endif  
+#endif /* MY_DEF_HERE */
 	snd_soc_set_runtime_hwparams(substream, &kirkwood_dma_snd_hw);
 
+	/* Ensure that all constraints linked to dma burst are fulfilled */
 	err = snd_pcm_hw_constraint_minmax(runtime,
 			SNDRV_PCM_HW_PARAM_BUFFER_BYTES,
 			priv->burst * 2,
@@ -193,9 +209,13 @@ static int kirkwood_dma_open(struct snd_pcm_substream *substream)
 		if (err)
 			return -EBUSY;
 
+		/*
+		 * Enable Error interrupts. We're only ack'ing them but
+		 * it's useful for diagnostics
+		 */
 		writel((unsigned int)-1, priv->io + KIRKWOOD_ERR_MASK);
 	}
-#else  
+#else /* MY_DEF_HERE */
 	if (prdata == NULL) {
 		prdata = kzalloc(sizeof(struct kirkwood_dma_priv), GFP_KERNEL);
 		if (prdata == NULL)
@@ -212,26 +232,30 @@ static int kirkwood_dma_open(struct snd_pcm_substream *substream)
 
 		snd_soc_platform_set_drvdata(platform, prdata);
 
+		/*
+		 * Enable Error interrupts. We're only ack'ing them but
+		 * it's useful for diagnostics
+		 */
 		writel((unsigned long)-1, priv->io + KIRKWOOD_ERR_MASK);
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 	dram = mv_mbus_dram_info();
 	addr = substream->dma_buffer.addr;
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
 #if defined(MY_DEF_HERE)
 		priv->substream_play = substream;
-#else  
+#else /* MY_DEF_HERE */
 		prdata->play_stream = substream;
-#endif  
+#endif /* MY_DEF_HERE */
 		kirkwood_dma_conf_mbus_windows(priv->io,
 			KIRKWOOD_PLAYBACK_WIN, addr, dram);
 	} else {
 #if defined(MY_DEF_HERE)
 		priv->substream_rec = substream;
-#else  
+#else /* MY_DEF_HERE */
 		prdata->rec_stream = substream;
-#endif  
+#endif /* MY_DEF_HERE */
 		kirkwood_dma_conf_mbus_windows(priv->io,
 			KIRKWOOD_RECORD_WIN, addr, dram);
 	}
@@ -256,7 +280,7 @@ static int kirkwood_dma_close(struct snd_pcm_substream *substream)
 		writel(0, priv->io + KIRKWOOD_ERR_MASK);
 		free_irq(priv->irq, priv);
 	}
-#else  
+#else /* MY_DEF_HERE */
 	struct snd_soc_pcm_runtime *soc_runtime = substream->private_data;
 	struct snd_soc_dai *cpu_dai = soc_runtime->cpu_dai;
 	struct snd_soc_platform *platform = soc_runtime->platform;
@@ -279,7 +303,7 @@ static int kirkwood_dma_close(struct snd_pcm_substream *substream)
 		kfree(prdata);
 		snd_soc_platform_set_drvdata(platform, NULL);
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return 0;
 }
@@ -307,15 +331,16 @@ static int kirkwood_dma_prepare(struct snd_pcm_substream *substream)
 #if defined(MY_DEF_HERE)
 	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
 	unsigned long size, count;
-#else  
+#else /* MY_DEF_HERE */
 	struct snd_soc_pcm_runtime *soc_runtime = substream->private_data;
 	struct snd_soc_dai *cpu_dai = soc_runtime->cpu_dai;
 	struct kirkwood_dma_data *priv;
 	unsigned long size, count;
 
 	priv = snd_soc_dai_get_dma_data(cpu_dai, substream);
-#endif  
+#endif /* MY_DEF_HERE */
 
+	/* compute buffer size in term of "words" as requested in specs */
 	size = frames_to_bytes(runtime, runtime->buffer_size);
 	size = (size>>2)-1;
 	count = snd_pcm_lib_period_bytes(substream);
@@ -330,6 +355,7 @@ static int kirkwood_dma_prepare(struct snd_pcm_substream *substream)
 		writel(size, priv->io + KIRKWOOD_REC_BUF_SIZE);
 	}
 
+
 	return 0;
 }
 
@@ -339,14 +365,14 @@ static snd_pcm_uframes_t kirkwood_dma_pointer(struct snd_pcm_substream
 #if defined(MY_DEF_HERE)
 	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
 	snd_pcm_uframes_t count;
-#else  
+#else /* MY_DEF_HERE */
 	struct snd_soc_pcm_runtime *soc_runtime = substream->private_data;
 	struct snd_soc_dai *cpu_dai = soc_runtime->cpu_dai;
 	struct kirkwood_dma_data *priv;
 	snd_pcm_uframes_t count;
 
 	priv = snd_soc_dai_get_dma_data(cpu_dai, substream);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		count = bytes_to_frames(substream->runtime,
@@ -397,12 +423,12 @@ static int kirkwood_dma_new(struct snd_soc_pcm_runtime *rtd)
 	ret = dma_coerce_mask_and_coherent(card->dev, DMA_BIT_MASK(32));
 	if (ret)
 		return ret;
-#else  
+#else /* MY_DEF_HERE */
 	if (!card->dev->dma_mask)
 		card->dev->dma_mask = &kirkwood_dma_dmamask;
 	if (!card->dev->coherent_dma_mask)
 		card->dev->coherent_dma_mask = DMA_BIT_MASK(32);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	if (pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream) {
 		ret = kirkwood_dma_preallocate_dma_buffer(pcm,
@@ -443,17 +469,17 @@ static void kirkwood_dma_free_dma_buffers(struct snd_pcm *pcm)
 
 #if defined(MY_DEF_HERE)
 struct snd_soc_platform_driver kirkwood_soc_platform = {
-#else  
+#else /* MY_DEF_HERE */
 static struct snd_soc_platform_driver kirkwood_soc_platform = {
-#endif  
+#endif /* MY_DEF_HERE */
 	.ops		= &kirkwood_dma_ops,
 	.pcm_new	= kirkwood_dma_new,
 	.pcm_free	= kirkwood_dma_free_dma_buffers,
 };
 
 #if defined(MY_DEF_HERE)
- 
-#else  
+// do nothing
+#else /* MY_DEF_HERE */
 static int kirkwood_soc_platform_probe(struct platform_device *pdev)
 {
 	return snd_soc_register_platform(&pdev->dev, &kirkwood_soc_platform);
@@ -481,4 +507,4 @@ MODULE_AUTHOR("Arnaud Patard <arnaud.patard@rtp-net.org>");
 MODULE_DESCRIPTION("Marvell Kirkwood Audio DMA module");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:kirkwood-pcm-audio");
-#endif  
+#endif /* MY_DEF_HERE */

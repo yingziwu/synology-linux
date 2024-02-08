@@ -155,6 +155,7 @@ void m68k_irq_shutdown(struct irq_data *data)
 		vectors[m68k_first_user_vec + irq - IRQ_USER] = bad_inthandler;
 }
 
+
 unsigned int irq_canonicalize(unsigned int irq)
 {
 #ifdef CONFIG_Q40
@@ -165,6 +166,7 @@ unsigned int irq_canonicalize(unsigned int irq)
 }
 
 EXPORT_SYMBOL(irq_canonicalize);
+
 
 asmlinkage void handle_badint(struct pt_regs *regs)
 {

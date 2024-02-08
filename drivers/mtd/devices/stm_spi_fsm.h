@@ -48,6 +48,7 @@
 #define SPI_STATUS_WR_TIME_REG		0x0164
 #define SPI_FAST_SEQ_DATA_REG		0x0300
 
+
 /*
  * Register: SPI_MODESELECT
  */

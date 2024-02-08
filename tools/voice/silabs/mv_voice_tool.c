@@ -1420,6 +1420,7 @@ struct Wav_Header {
 	int subchunk2_size;
 };
 
+
 /*
  *@func: prepare_al: preparations for the analog loopback
  *@param: input_file_name: the name of the file to be looped back, should be
@@ -1591,6 +1592,7 @@ static int analog_loopback_test(unsigned char line_id, char *file_name, char *di
 		timeout.tv_usec = TIMEOUT;
 	}
 
+
 	sleep(1);
 
 slic_al_out:
@@ -1742,6 +1744,8 @@ static int read_from_wav(FILE *filename, int line_id, long leftsize)
 
 	return res*pcm_bytes;
 }
+
+
 
 /* reads the header and returns the size of the data
  * @filename: an open wav file

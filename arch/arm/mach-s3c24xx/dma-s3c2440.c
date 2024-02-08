@@ -190,3 +190,4 @@ static int __init s3c2440_dma_init(void)
 }
 
 arch_initcall(s3c2440_dma_init);
+

@@ -1403,6 +1403,7 @@ void perf_evsel__print_ip(struct perf_evsel *evsel, union perf_event *event,
 
 	if (symbol_conf.use_callchain && sample->callchain) {
 
+
 		if (machine__resolve_callchain(machine, evsel, al.thread,
 					       sample, NULL) != 0) {
 			if (verbose)
@@ -1509,6 +1510,7 @@ void perf_session__fprintf_info(struct perf_session *session, FILE *fp,
 	perf_header__fprintf_info(session, fp, full);
 	fprintf(fp, "# ========\n#\n");
 }
+
 
 int __perf_session__set_tracepoints_handlers(struct perf_session *session,
 					     const struct perf_evsel_str_handler *assocs,

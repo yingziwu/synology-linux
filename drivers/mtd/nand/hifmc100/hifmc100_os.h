@@ -38,3 +38,4 @@
 extern int hifmc_ip_ver_check(void);
 
 #endif /* End of __HIFMC100_OS_H__ */
+

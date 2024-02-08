@@ -101,6 +101,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "mv_cph_header.h"
 
+
 /******************************************************************************
 * Variable Definition
 ******************************************************************************/
@@ -174,6 +175,7 @@ static struct MV_ENUM_ARRAY_T g_enum_array_gmac = {
 	sizeof(g_enum_map_gmac)/sizeof(g_enum_map_gmac[0]),
 	g_enum_map_gmac
 };
+
 
 /******************************************************************************
 * External Declaration
@@ -1380,6 +1382,7 @@ char *cph_app_lookup_gmac(int enum_value)
 {
 	return mtype_lookup_enum_str(&g_enum_array_gmac, enum_value);
 }
+
 
 /******************************************************************************
 * cph_app_init()

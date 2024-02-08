@@ -27,6 +27,7 @@ typedef int		hios_int;
 typedef int		hios_pid;
 typedef int		hios_status;
 
+
 #define hios_const          const
 #define HIOS_NULL           NULL
 

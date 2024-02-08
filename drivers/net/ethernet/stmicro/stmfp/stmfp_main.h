@@ -139,6 +139,7 @@
 #define SU_Q_MAX_PKT 0x10
 #define SU_Q_MAX_BUF 0x20
 
+
 #define STARTUP_Q_BASE                   (QMAN_CTRL_BASE + 0x200)
 #define STARTUP_Q_RPT_OFF                0x40
 
@@ -244,6 +245,7 @@
 #define FPTOE_ENDIANNESS (FASTPATH_TOE_BASE + 0x4c)
 #define FPTOE_MAX_NONSEG (FASTPATH_TOE_BASE + 0x5c)
 
+
 #define FASTPATH_RXDMA_BASE (FASTPATH_BASE + 0x11000)
 #define FPRXDMA_IRQ_FLAGS (FASTPATH_RXDMA_BASE + 0x0)
 #define FPRXDMA_IRQ_ENABLES_0 (FASTPATH_RXDMA_BASE + 0x4)
@@ -280,6 +282,7 @@
 #define FPHDR_MSS_SHIFT 9
 #define FPHDR_PROT_TCP 3
 #define FPHDR_TCP_MSS_WORD 362
+
 
 #define FPRXDMA0_IRQ_MASK 7
 #define FPTXDMA0_IRQ_MASK 7
@@ -559,6 +562,7 @@ struct fp_promisc_info {
 	u8 mac[ETH_ALEN];
 	struct net_device *netdev;
 };
+
 
 extern int fpif_mdio_register(struct net_device *ndev);
 extern int fpif_mdio_unregister(struct net_device *ndev);

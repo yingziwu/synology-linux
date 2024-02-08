@@ -246,3 +246,4 @@
 })
 
 #endif /* End of __HI_CHIP_REGS_H__ */
+

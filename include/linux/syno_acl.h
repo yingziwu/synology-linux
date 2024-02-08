@@ -40,6 +40,7 @@ struct syno_acl {
 #define FOREACH_SYNOACL_ENTRY(pa, acl, pe) \
 	for(pa=(acl)->a_entries, pe=pa+(acl)->a_count; pa<pe; pa++)
 
+
 /*
  * Duplicate an ACL handle.
  */
@@ -98,10 +99,7 @@ static inline void set_cached_syno_acl(struct inode *inode, struct syno_acl *acl
 		syno_acl_release(old);
 }
 
-extern int SYNOACLModuleStatusGet(const char *szModName);
-extern void UseACLModule(const char *szModName, int isGet);
-
-#define SYNOACLModuleGet(mod_name) do { UseACLModule(mod_name, 1); } while (0)
-#define SYNOACLModulePut(mod_name) do { UseACLModule(mod_name, 0); } while (0)
+extern bool syno_acl_module_get(void);
+extern void syno_acl_module_put(void);
 
 #endif  /* __LINUX_SYNO_ACL_H */

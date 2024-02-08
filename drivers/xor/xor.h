@@ -72,3 +72,4 @@ typedef struct _xordesc {
 	unsigned int reserved0;
 } XOR_DESC;
 #endif
+

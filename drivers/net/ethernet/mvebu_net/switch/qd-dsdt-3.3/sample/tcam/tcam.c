@@ -188,6 +188,7 @@ void displayTcamData(GT_TCAM_DATA *tcamData, int show)
   }
 }
 
+
 GT_U32 sampleTcam(GT_QD_DEV *dev)
 {
   GT_STATUS status;
@@ -340,6 +341,8 @@ GT_U32 sampleTcam(GT_QD_DEV *dev)
     displayTcamData(&tcamData, 7);
 
 #endif
+
+
 
 #if 0
   MSG_PRINT(("\n  TCAM API Purge and read then next \n"));

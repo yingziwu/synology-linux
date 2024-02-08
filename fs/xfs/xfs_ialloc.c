@@ -39,6 +39,7 @@
 #include "xfs_cksum.h"
 #include "xfs_buf_item.h"
 
+
 /*
  * Allocation group level functions.
  */
@@ -705,6 +706,7 @@ xfs_dialloc_ag(
 			goto alloc_inode;
 		}
 
+
 		/*
 		 * In the same AG as parent, but parent's chunk is full.
 		 */
@@ -1008,6 +1010,7 @@ xfs_dialloc(
 
 		if (!okalloc)
 			goto nextag_relse_buffer;
+
 
 		error = xfs_ialloc_ag_alloc(tp, agbp, &ialloced);
 		if (error) {

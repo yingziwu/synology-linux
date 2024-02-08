@@ -250,6 +250,7 @@ MV_STATUS mvEthPhyRegWrite(MV_U32 phyAddr, MV_U32 regOffs, MV_U16 data)
 }
 EXPORT_SYMBOL(mvEthPhyRegWrite);
 
+
 /*******************************************************************************
 * mvEthPhyReset - Reset ethernet Phy.
 *
@@ -292,6 +293,7 @@ MV_STATUS mvEthPhyReset(MV_U32 phyAddr, int timeout)
 	}
 	return MV_TIMEOUT;
 }
+
 
 /*******************************************************************************
 * mvEthPhyRestartAN - Restart ethernet Phy Auto-Negotiation.
@@ -341,6 +343,7 @@ MV_STATUS mvEthPhyRestartAN(MV_U32 phyAddr, int timeout)
 	}
 	return MV_TIMEOUT;
 }
+
 
 /*******************************************************************************
 * mvEthPhyDisableAN - Disable Phy Auto-Negotiation and set forced Speed and Duplex
@@ -512,6 +515,7 @@ MV_BOOL mvEthPhyCheckLink(MV_U32 phyAddr)
 	if ((val_ctrl == ETH_PHY_SMI_DATA_MASK) && (val_st & ETH_PHY_SMI_DATA_MASK))
 		return MV_FALSE;
 
+
 	if (val_ctrl & ETH_PHY_CTRL_AN_ENABLE_MASK) {
 		if (val_st & ETH_PHY_STATUS_AN_DONE_MASK)
 			return MV_TRUE;
@@ -552,6 +556,7 @@ MV_STATUS	mvEthPhyPrintStatus(MV_U32 phyAddr)
 	else
 		mvOsOutput("Auto negotiation: Disabled\n");
 
+
 	/* read specific status reg */
 	if (mvEthPhyRegRead(phyAddr, ETH_PHY_SPEC_STATUS_REG, &val) != MV_OK)
 		return MV_ERROR;
@@ -576,6 +581,7 @@ MV_STATUS	mvEthPhyPrintStatus(MV_U32 phyAddr)
 		mvOsOutput("Duplex: Full\n");
 	else
 		mvOsOutput("Duplex: Half\n");
+
 
 	if (val & ETH_PHY_SPEC_STATUS_LINK_MASK)
 		mvOsOutput("Link: up\n");

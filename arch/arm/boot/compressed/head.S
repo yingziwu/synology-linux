@@ -202,6 +202,7 @@ not_angel:
 #endif
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 
+
 		bl	cache_on
 
 restart:	adr	r0, LC0

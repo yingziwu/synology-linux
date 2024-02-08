@@ -15,6 +15,7 @@
 #ifndef BNX2X_INIT_OPS_H
 #define BNX2X_INIT_OPS_H
 
+
 #ifndef BP_ILT
 #define BP_ILT(bp)	NULL
 #endif
@@ -304,6 +305,7 @@ static void bnx2x_init_block(struct bnx2x *bp, u32 block, u32 stage)
 		}
 	}
 }
+
 
 /****************************************************************************
 * PXP Arbiter
@@ -625,6 +627,7 @@ static int bnx2x_ilt_line_mem_op(struct bnx2x *bp,
 	return 0;
 }
 
+
 static int bnx2x_ilt_client_mem_op(struct bnx2x *bp, int cli_num,
 				   u8 memop)
 {
@@ -686,6 +689,7 @@ static void bnx2x_ilt_line_init_op(struct bnx2x *bp,
 {
 	dma_addr_t	null_mapping;
 	int abs_idx = ilt->start_line + idx;
+
 
 	switch (initop) {
 	case INITOP_INIT:

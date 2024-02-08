@@ -23,6 +23,7 @@ The MTT Library may alternatively be licensed under a proprietary
 license from ST.
 */
 
+
 #ifndef _MTT_API_H_
 #define _MTT_API_H_
 
@@ -260,6 +261,7 @@ MTT_TYPE(MTT_TYPE_FLOAT,  MTT_TYPEP_VECTOR, 4, size)
 #define MTT_TRACEVECTOR_DOUBLE(size)  \
 MTT_TYPE(MTT_TYPE_DOUBLE, MTT_TYPEP_VECTOR, 8, size)
 
+
 #define MTT_COMP_NAME_LEN 64
 
 typedef struct {
@@ -275,6 +277,7 @@ typedef struct {
 	uint32_t nb;
 	mtt_comp_info_t *comp_info;
 } mtt_comp_info_list_t;
+
 
 #if !defined(__KERNEL__) || defined(CONFIG_MTT)
 mtt_return_t

@@ -61,4 +61,5 @@ void mali_utilization_pp_end(void);
  */
 void mali_utilization_suspend(void);
 
+
 #endif /* __MALI_KERNEL_UTILIZATION_H__ */

@@ -83,6 +83,7 @@ int yaffs_mark_bad(struct yaffs_dev *dev, int block_no)
 	return dev->tagger.mark_bad_fn(dev, block_no);
 }
 
+
 int yaffs_query_init_block_state(struct yaffs_dev *dev,
 				 int block_no,
 				 enum yaffs_block_state *state,

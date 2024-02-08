@@ -4,6 +4,7 @@
 #ifndef _LINUX_STAT_H
 #define _LINUX_STAT_H
 
+
 #include <asm/stat.h>
 #include <uapi/linux/stat.h>
 
@@ -25,15 +26,15 @@ struct kstat {
 	dev_t		dev;
 	umode_t		mode;
 #if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
-	 
-#else  
+	// do nothing
+#else /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 #ifdef MY_ABC_HERE
 	__u32		syno_archive_bit;
 #endif
 #ifdef MY_ABC_HERE
 	__u32		syno_archive_version;
 #endif
-#endif  
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 	unsigned int	nlink;
 	kuid_t		uid;
 	kgid_t		gid;
@@ -43,12 +44,15 @@ struct kstat {
 	struct timespec	mtime;
 	struct timespec	ctime;
 #if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
-	 
-#else  
+	// do nothing
+#else /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 #ifdef MY_ABC_HERE
 	struct timespec syno_create_time;
 #endif
-#endif  
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
+#ifdef MY_ABC_HERE
+	unsigned long syno_compressed;
+#endif
 	unsigned long	blksize;
 	unsigned long long	blocks;
 #if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
@@ -61,7 +65,13 @@ struct kstat {
 #ifdef MY_ABC_HERE
 	__u32		syno_archive_version;
 #endif
-#endif  
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
+#ifdef MY_DEF_HERE
+	bool            is_inline;
+#endif /* MY_DEF_HERE */
+#ifdef MY_ABC_HERE
+	unsigned int	syno_flags;
+#endif
 };
 
 #endif

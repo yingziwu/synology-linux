@@ -63,6 +63,7 @@ static void mvebu_powerdown_ip_configuration(void)
 	iounmap(ip_base);
 }
 
+
 static struct of_device_id of_serdes_pipe_config_table[] = {
 	{.compatible = "marvell,armada-375-serdes-pipe-configuration"},
 	{ /* end of list */ },
@@ -87,6 +88,7 @@ static void mvebu_powerdown_pcie_usb_serdes(int phy_number)
 	writel((readl(pipe_base) | PIPE_PM_OVERRIDE) , pipe_base);
 	iounmap(pipe_base);
 }
+
 
 static struct of_device_id of_phy_config_table[] = {
 	{.compatible = "marvell,armada-375-common-phy-configuration"},

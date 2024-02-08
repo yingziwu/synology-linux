@@ -39,6 +39,7 @@
  *	      (bjorn@haxx.se)
  */
 
+
 /* Include files */
 
 #include <linux/jiffies.h>
@@ -64,6 +65,7 @@ MODULE_AUTHOR("Björn Stenberg <bjorn@haxx.se>");
 MODULE_LICENSE("GPL");
 
 static int isd200_Initialization(struct us_data *us);
+
 
 /*
  * The table of devices
@@ -191,9 +193,11 @@ static struct us_unusual_dev isd200_unusual_dev_list[] = {
 #define	ACTION_ENUM		4
 #define	ACTION_IDENTIFY		5
 
+
 /*
  * ata_cdb struct
  */
+
 
 union ata_cdb {
 	struct {
@@ -248,6 +252,7 @@ union ata_cdb {
 	} write;
 };
 
+
 /*
  * Inquiry data structure. This is the data returned from the target
  * after it receives an inquiry.
@@ -284,6 +289,7 @@ struct inquiry_data {
 
 #define INQUIRYDATABUFFERSIZE 36
 
+
 /*
  * ISD200 CONFIG data struct
  */
@@ -313,6 +319,7 @@ struct isd200_config {
 	unsigned char Capability;
 }__attribute__ ((packed));
 
+
 /*
  * ISD200 driver information struct
  */
@@ -332,6 +339,7 @@ struct isd200_info {
 	struct scsi_cmnd srb;
 	struct scatterlist sg;
 };
+
 
 /*
  * Read Capacity Data - returned in Big Endian format
@@ -353,6 +361,7 @@ struct read_block_limits {
 	unsigned char BlockMaximumSize[3];
 	unsigned char BlockMinimumSize[2];
 };
+
 
 /*
  * Sense Data Format
@@ -435,6 +444,7 @@ static void isd200_build_sense(struct us_data *us, struct scsi_cmnd *srb)
 	}
 }
 
+
 /***********************************************************************
  * Transport routines
  ***********************************************************************/
@@ -463,6 +473,7 @@ static void isd200_srb_set_bufflen(struct scsi_cmnd *srb, unsigned bufflen)
 {
 	srb->sdb.length = bufflen;
 }
+
 
 /**************************************************************************
  *  isd200_action
@@ -594,6 +605,7 @@ static int isd200_read_regs( struct us_data *us )
 
 	return retStatus;
 }
+
 
 /**************************************************************************
  * Invoke the transport and basic error-handling/recovery methods
@@ -778,6 +790,7 @@ static int isd200_write_config( struct us_data *us )
 	return retStatus;
 }
 
+
 /**************************************************************************
  * isd200_read_config
  *									 
@@ -807,6 +820,7 @@ static int isd200_read_config( struct us_data *us )
 		(void *) &info->ConfigData, 
 		sizeof(info->ConfigData));
 
+
 	if (result >= 0) {
 		usb_stor_dbg(us, "   Retrieved the following ISD200 Config Data:\n");
 #ifdef CONFIG_USB_STORAGE_DEBUG
@@ -820,6 +834,7 @@ static int isd200_read_config( struct us_data *us )
 	usb_stor_dbg(us, "Leaving isd200_read_config %08X\n", retStatus);
 	return retStatus;
 }
+
 
 /**************************************************************************
  * isd200_atapi_soft_reset
@@ -845,6 +860,7 @@ static int isd200_atapi_soft_reset( struct us_data *us )
 	usb_stor_dbg(us, "Leaving isd200_atapi_soft_reset %08X\n", retStatus);
 	return retStatus;
 }
+
 
 /**************************************************************************
  * isd200_srst
@@ -884,6 +900,7 @@ static int isd200_srst( struct us_data *us )
 	usb_stor_dbg(us, "Leaving isd200_srst %08X\n", retStatus);
 	return retStatus;
 }
+
 
 /**************************************************************************
  * isd200_try_enum
@@ -1410,6 +1427,7 @@ static int isd200_scsi_to_ata(struct scsi_cmnd *srb, struct us_data *us,
 	return(sendToTransport);
 }
 
+
 /**************************************************************************
  * isd200_free_info
  *
@@ -1485,6 +1503,7 @@ static int isd200_Initialization(struct us_data *us)
 
 	return 0;
 }
+
 
 /**************************************************************************
  * Protocol and Transport for the ISD200 ASIC

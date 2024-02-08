@@ -110,6 +110,7 @@ static int find_boot_record(struct INFTLrecord *inftl)
 			continue;
 		}
 
+
 		/*
 		 * This is the first we've seen.
 		 * Copy the media header structure into place.

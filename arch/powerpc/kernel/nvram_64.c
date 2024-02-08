@@ -76,6 +76,7 @@ static loff_t dev_nvram_llseek(struct file *file, loff_t offset, int origin)
 	return file->f_pos;
 }
 
+
 static ssize_t dev_nvram_read(struct file *file, char __user *buf,
 			  size_t count, loff_t *ppos)
 {
@@ -192,6 +193,7 @@ static struct miscdevice nvram_dev = {
 	&nvram_fops
 };
 
+
 #ifdef DEBUG_NVRAM
 static void __init nvram_print_partitions(char * label)
 {
@@ -208,6 +210,7 @@ static void __init nvram_print_partitions(char * label)
 }
 #endif
 
+
 static int __init nvram_write_header(struct nvram_partition * part)
 {
 	loff_t tmp_index;
@@ -218,6 +221,7 @@ static int __init nvram_write_header(struct nvram_partition * part)
 
 	return rc;
 }
+
 
 static unsigned char __init nvram_checksum(struct nvram_header *p)
 {
@@ -436,6 +440,7 @@ int nvram_get_partition_size(loff_t data_index)
 	}
 	return -1;
 }
+
 
 /**
  * nvram_find_partition - Find an nvram partition by signature and name

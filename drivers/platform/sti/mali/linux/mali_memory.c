@@ -193,6 +193,7 @@ int mali_mmap(struct file *filp, struct vm_area_struct *vma)
 	return 0;
 }
 
+
 /* Prepare memory descriptor */
 mali_mem_allocation *mali_mem_descriptor_create(struct mali_session_data *session, mali_mem_type type)
 {

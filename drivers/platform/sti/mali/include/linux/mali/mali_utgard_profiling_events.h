@@ -30,6 +30,7 @@ typedef enum {
 	MALI_PROFILING_EVENT_TYPE_RESUME  = 4 << 24,
 } cinstr_profiling_event_type_t;
 
+
 /**
  * Secifies the channel/source of the event
  */
@@ -46,6 +47,7 @@ typedef enum {
 	MALI_PROFILING_EVENT_CHANNEL_PP7      = 12 << 16,
 	MALI_PROFILING_EVENT_CHANNEL_GPU      = 21 << 16,
 } cinstr_profiling_event_channel_t;
+
 
 #define MALI_PROFILING_MAKE_EVENT_CHANNEL_GP(num) (((MALI_PROFILING_EVENT_CHANNEL_GP0 >> 16) + (num)) << 16)
 #define MALI_PROFILING_MAKE_EVENT_CHANNEL_PP(num) (((MALI_PROFILING_EVENT_CHANNEL_PP0 >> 16) + (num)) << 16)
@@ -167,5 +169,6 @@ typedef enum {
 
 #define MALI_PROFILING_MAKE_EVENT_DATA_CORE_GP(num) (MALI_PROFILING_EVENT_DATA_CORE_GP0 + (num))
 #define MALI_PROFILING_MAKE_EVENT_DATA_CORE_PP(num) (MALI_PROFILING_EVENT_DATA_CORE_PP0 + (num))
+
 
 #endif /*_MALI_UTGARD_PROFILING_EVENTS_H_*/

@@ -94,6 +94,7 @@ struct chsc_scpd {
 	u8 data[PAGE_SIZE - 20];
 } __attribute__ ((packed));
 
+
 extern int chsc_get_ssd_info(struct subchannel_id schid,
 			     struct chsc_ssd_info *ssd);
 extern int chsc_determine_css_characteristics(void);
@@ -162,5 +163,6 @@ int scm_process_availability_information(void);
 static inline int scm_update_information(void) { return 0; }
 static inline int scm_process_availability_information(void) { return 0; }
 #endif /* CONFIG_SCM_BUS */
+
 
 #endif

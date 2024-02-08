@@ -18,6 +18,8 @@
 #include "csr_wifi_hip_unifi.h"
 #include "unifi_priv.h"
 
+
+
 /*
  * ---------------------------------------------------------------------------
  *  wext_send_assoc_event
@@ -69,6 +71,8 @@ wext_send_assoc_event(unifi_priv_t *priv, unsigned char *bssid,
 #endif
 } /* wext_send_assoc_event() */
 
+
+
 /*
  * ---------------------------------------------------------------------------
  *  wext_send_disassoc_event
@@ -98,6 +102,8 @@ wext_send_disassoc_event(unifi_priv_t *priv)
     wireless_send_event(priv->netdev[CSR_WIFI_INTERFACE_IN_USE], SIOCGIWAP, &wrqu, NULL);
 #endif
 } /* wext_send_disassoc_event() */
+
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -129,6 +135,8 @@ wext_send_scan_results_event(unifi_priv_t *priv)
 
 #endif
 } /* wext_send_scan_results_event() */
+
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -204,6 +212,7 @@ _send_michaelmicfailure_event(struct net_device *dev,
 }
 #endif /* WIRELESS_EXT >= 15 */
 
+
 void
 wext_send_michaelmicfailure_event(unifi_priv_t *priv,
                                   u16 count,
@@ -271,3 +280,4 @@ wext_send_started_event(unifi_priv_t *priv)
     wireless_send_event(priv->netdev[CSR_WIFI_INTERFACE_IN_USE], IWEVCUSTOM, &wrqu, data);
 #endif
 } /* wext_send_started_event() */
+

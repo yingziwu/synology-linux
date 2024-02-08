@@ -89,3 +89,4 @@ EXPORT_SYMBOL(hi_sata_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Hisilicon osdrv group");
+

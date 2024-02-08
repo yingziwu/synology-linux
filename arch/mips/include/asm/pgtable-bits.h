@@ -10,6 +10,7 @@
 #ifndef _ASM_PGTABLE_BITS_H
 #define _ASM_PGTABLE_BITS_H
 
+
 /*
  * Note that we shift the lower 32bits of each EntryLo[01] entry
  * 6 bits to the left. That way we can convert the PFN into the
@@ -188,6 +189,7 @@
 #ifndef _PAGE_GLOBAL_SHIFT
 #define _PAGE_GLOBAL_SHIFT ilog2(_PAGE_GLOBAL)
 #endif
+
 
 #ifndef __ASSEMBLY__
 /*

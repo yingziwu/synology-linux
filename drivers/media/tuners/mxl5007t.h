@@ -101,3 +101,4 @@ static inline struct dvb_frontend *mxl5007t_attach(struct dvb_frontend *fe,
  * c-basic-offset: 8
  * End:
  */
+

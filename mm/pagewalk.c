@@ -137,6 +137,8 @@ static int walk_hugetlb_range(struct vm_area_struct *vma,
 
 #endif /* CONFIG_HUGETLB_PAGE */
 
+
+
 /**
  * walk_page_range - walk a memory map's page tables with a callback
  * @addr: starting address

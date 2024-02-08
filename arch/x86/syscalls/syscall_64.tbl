@@ -320,6 +320,7 @@
 311	64	process_vm_writev	sys_process_vm_writev
 312	common	kcmp			sys_kcmp
 313	common	finit_module		sys_finit_module
+316	common	renameat2		sys_renameat2
 326	common	copy_file_range		sys_copy_file_range
 
 #
@@ -395,3 +396,37 @@
 542	x32	getsockopt		compat_sys_getsockopt
 543	x32	io_setup		compat_sys_io_setup
 544	x32	io_submit		compat_sys_io_submit
+
+#
+# start - CONFIG_SYNO_SYSTEM_CALL
+# Synology defined system calls are listed here.
+#
+802	common	syno_utime			sys_syno_utime
+803	common	syno_archive_bit		sys_syno_archive_bit
+804	common	syno_recv_file			sys_syno_recv_file
+#805	common	syno_mtd_alloc			sys_syno_mtd_alloc
+806	common	syno_caseless_stat		sys_syno_caseless_stat
+807	common	syno_caseless_lstat		sys_syno_caseless_lstat
+#808	# not used
+#809	# not used
+810	common	syno_ecrypt_name		sys_syno_ecrypt_name
+811	common	syno_decrypt_name		sys_syno_decrypt_name
+812	common	syno_acl_check_perm		sys_syno_acl_check_perm
+813	common	syno_acl_is_support		sys_syno_acl_is_support
+814	common	syno_acl_get_perm		sys_syno_acl_get_perm
+815	common	syno_flush_aggregate		sys_syno_flush_aggregate
+#816	# not used
+#817	# not used
+#818	# not used
+819	common	syno_stat			sys_syno_stat
+820	common	syno_fstat			sys_syno_fstat
+821	common	syno_lstat			sys_syno_lstat
+822	common	syno_notify_init		sys_syno_notify_init
+823	64	syno_notify_add_watch		sys_syno_notify_add_watch
+824	64	syno_notify_remove_watch	sys_syno_notify_remove_watch
+#825	# not used
+#826	# not used
+827	common	syno_archive_overwrite		sys_syno_archive_overwrite
+#
+# end - CONFIG_SYNO_SYSTEM_CALL
+#

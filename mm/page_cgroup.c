@@ -15,6 +15,7 @@ static unsigned long total_usage;
 
 #if !defined(CONFIG_SPARSEMEM)
 
+
 void __meminit pgdat_page_cgroup_init(struct pglist_data *pgdat)
 {
 	pgdat->node_page_cgroup = NULL;
@@ -318,6 +319,7 @@ void __meminit pgdat_page_cgroup_init(struct pglist_data *pgdat)
 }
 
 #endif
+
 
 #ifdef CONFIG_MEMCG_SWAP
 

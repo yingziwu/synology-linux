@@ -11,6 +11,7 @@ extern unsigned long sysctl_hung_task_timeout_secs;
 extern unsigned long sysctl_hung_task_warnings;
 #ifdef MY_DEF_HERE
 extern unsigned long sysctl_hung_task_warnings_default;
+extern unsigned long sysctl_hung_task_warnings_reset_period;
 #endif /* MY_DEF_HERE */
 
 extern int proc_dohung_task_timeout_secs(struct ctl_table *table, int write,

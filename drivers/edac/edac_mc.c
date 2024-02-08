@@ -480,6 +480,7 @@ void edac_mc_free(struct mem_ctl_info *mci)
 }
 EXPORT_SYMBOL_GPL(edac_mc_free);
 
+
 /**
  * find_mci_by_dev
  *
@@ -618,6 +619,8 @@ void edac_mc_reset_delay_period(unsigned long value)
 
 	mutex_unlock(&mem_ctls_mutex);
 }
+
+
 
 /* Return 0 on success, 1 on failure.
  * Before calling this function, caller must
@@ -1110,6 +1113,7 @@ void edac_raw_mc_handle_error(const enum hw_event_mc_err_type type,
 		edac_ue_error(mci, e->error_count, pos, e->msg, e->location, e->label,
 			      detail, e->other_detail, e->enable_per_layer_report);
 	}
+
 
 }
 EXPORT_SYMBOL_GPL(edac_raw_mc_handle_error);

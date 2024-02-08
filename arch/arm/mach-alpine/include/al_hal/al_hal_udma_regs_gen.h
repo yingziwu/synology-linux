@@ -52,6 +52,8 @@ extern "C" {
 * Unit Registers
 */
 
+
+
 struct udma_gen_dma_misc {
 	/* [0x0] Reserved register for the interrupt controller */
 	uint32_t int_cfg;
@@ -159,9 +161,11 @@ struct udma_gen_regs {
 	struct udma_gen_vmpr vmpr[4];                        /* [0x2800] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** int_cfg register ****/
 /*

@@ -518,6 +518,7 @@ static const struct xenbus_device_id xencons_ids[] = {
 	{ "" }
 };
 
+
 static DEFINE_XENBUS_DRIVER(xencons, "xenconsole",
 	.probe = xencons_probe,
 	.remove = xencons_remove,
@@ -613,6 +614,7 @@ static int xen_cons_init(void)
 	hvc_instantiate(HVC_COOKIE, 0, ops);
 	return 0;
 }
+
 
 module_init(xen_hvc_init);
 module_exit(xen_hvc_fini);

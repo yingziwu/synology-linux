@@ -98,6 +98,7 @@ static struct publ_list *publ_lists[] = {
 	&publ_node	/* publ_lists[TIPC_NODE_SCOPE]		*/
 };
 
+
 /**
  * publ_to_item - add publication info to a publication message
  */

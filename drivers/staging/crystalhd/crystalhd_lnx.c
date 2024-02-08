@@ -20,6 +20,7 @@
 #include <linux/mutex.h>
 #include <linux/slab.h>
 
+
 static DEFINE_MUTEX(chd_dec_mutex);
 static struct class *crystalhd_class;
 
@@ -508,6 +509,7 @@ static void chd_pci_release_mem(struct crystalhd_adp *pinfo)
 
 	pci_release_regions(pinfo->pdev);
 }
+
 
 static void chd_dec_pci_remove(struct pci_dev *pdev)
 {

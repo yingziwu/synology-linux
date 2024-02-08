@@ -61,6 +61,8 @@ struct attribute_group {
 	struct attribute	**attrs;
 };
 
+
+
 /**
  * Use these macros to make defining attributes easier. See include/linux/device.h
  * for examples..
@@ -193,6 +195,11 @@ struct sysfs_dirent *sysfs_get(struct sysfs_dirent *sd);
 void sysfs_put(struct sysfs_dirent *sd);
 
 int __must_check sysfs_init(void);
+
+__printf(2, 3)
+int sysfs_emit(char *buf, const char *fmt, ...);
+__printf(3, 4)
+int sysfs_emit_at(char *buf, int at, const char *fmt, ...);
 
 #else /* CONFIG_SYSFS */
 
@@ -367,6 +374,17 @@ static inline int __must_check sysfs_init(void)
 	return 0;
 }
 
+__printf(2, 3)
+static inline int sysfs_emit(char *buf, const char *fmt, ...)
+{
+	return 0;
+}
+
+__printf(3, 4)
+static inline int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
+{
+	return 0;
+}
 #endif /* CONFIG_SYSFS */
 
 #endif /* _SYSFS_H_ */

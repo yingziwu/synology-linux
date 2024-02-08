@@ -90,6 +90,7 @@ static spinlock_t chanLock[MV_CESA_CHANNELS];
 static DEFINE_SPINLOCK(cesaIfLock);
 static DEFINE_SPINLOCK(cesaIsrLock);
 
+
 /*
  * Initialized in cesa_<mode>_probe, where <mode>: ocf or test
  */
@@ -305,6 +306,7 @@ MV_STATUS mvCesaIfReadyGet(MV_U8 chan, MV_CESA_RESULT *pResult)
 			mvOsPrintf("%s: Error, policy not supported\n", __func__);
 			return MV_ERROR;
 		}
+
 
 		if (pResQ[pCurrResult->reqId] != NULL)
 			mvOsPrintf("%s: Warning, result entry not empty(reqId=%d, chan=%d, resId=%d)\n", __func__, pCurrResult->reqId, chan, resId);
@@ -575,6 +577,7 @@ mv_get_cesa_resources(struct platform_device *pdev)
 
 		mv_cesa_base[chan] = (MV_U32)devm_ioremap(&pdev->dev,
 		    r->start, resource_size(r));
+
 
 		/*
 		 * TDMA base

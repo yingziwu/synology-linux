@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -35,6 +36,7 @@ disclaimer.
 #include "mvCommon.h"
 #include "mvTypes.h"
 #include "wol/mvPp2Wol.h"
+
 
 static ssize_t wol_help(char *buf)
 {
@@ -279,6 +281,7 @@ static DEVICE_ATTR(arp_ip_en, S_IWUSR, NULL,     wol_dec_store);
 static DEVICE_ATTR(ptrn_en,   S_IWUSR, NULL,     wol_dec_store);
 static DEVICE_ATTR(ucast_en,   S_IWUSR, NULL,    wol_dec_store);
 static DEVICE_ATTR(mcast_en,   S_IWUSR, NULL,    wol_dec_store);
+
 
 static struct attribute *wol_attrs[] = {
 	&dev_attr_help.attr,

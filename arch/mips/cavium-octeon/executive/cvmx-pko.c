@@ -141,6 +141,7 @@ void cvmx_pko_disable(void)
 	cvmx_write_csr(CVMX_PKO_REG_FLAGS, pko_reg_flags.u64);
 }
 
+
 /**
  * Reset the packet output.
  */

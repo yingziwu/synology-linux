@@ -291,6 +291,7 @@ static void omap_modeset_free(struct drm_device *dev)
  * drm ioctl funcs
  */
 
+
 static int ioctl_get_param(struct drm_device *dev, void *data,
 		struct drm_file *file_priv)
 {

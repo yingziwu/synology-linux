@@ -212,7 +212,9 @@
 #define HW_FS3600      "FS3600"        //"FS3600"
 #define HW_HD3400      "HD3400"        //"HD3400"
 #define HW_DS3617xsII  "DS3617xsII"    //"DS3617xsII"
-#define HW_DS3621xsp   "DS3621xs+"     //"DS3621xs+"
+#define HW_FS2500      "FS2500"        //"FS2500"
+#define HW_FS2500T     "FS2500T"       //"FS2500T"
+#define HW_DS3622xsp   "DS3622xs+"     //"DS3622xs+"
 #define HW_UNKNOWN     "DSUnknown"
 
 #define EBOX_INFO_UNIQUE_RX410  "RX410"
@@ -234,7 +236,7 @@
 #define EBOX_INFO_UNIQUE_DX1215II "DX1215II"
 #define EBOX_INFO_UNIQUE_DX517  "DX517"
 #define EBOX_INFO_UNIQUE_RX418  "RX418"
-#define EBOX_INFO_UNIQUE_DX1221 "DX1221"
+#define EBOX_INFO_UNIQUE_DX1222 "DX1222"
 
 #define SYNO_UNIQUE(x)     (x>>2)
 #define IS_SYNOLOGY_RX4(x) (SYNO_UNIQUE(x) == 0x15 || SYNO_UNIQUE(x) == 0xd) // 0x54 ~ 0x57
@@ -369,6 +371,12 @@ enum {
     MD_SECTOR_REWRITE_OK = 2,
     MD_FAULTY_DEVICE = 3,
 };
+
+typedef enum {
+	SYNO_SCSI_UNKNOWN = 0,
+	SYNO_SCSI_ERROR_WITH_SENSE,
+	SYNO_SCSI_ERROR_TIMEOUT,
+} SYNO_SCSI_ERROR_EVENT_TYPE;
 
 typedef enum {
 	SYNO_LED_OFF = 0,

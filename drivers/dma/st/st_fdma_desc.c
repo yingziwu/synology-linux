@@ -200,6 +200,7 @@ void st_fdma_desc_start(struct st_fdma_chan *fchan)
 	list_del_init(&fdesc->node);
 	list_add_tail(&fdesc->node, &fchan->desc_active);
 
+
 	if (test_bit(ST_FDMA_IS_PARKED, &fchan->flags)) {
 		/* Switch from parking to next descriptor (no interrupt) */
 		BUG_ON(!fchan->desc_park);

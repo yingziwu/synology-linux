@@ -38,6 +38,7 @@ static struct {
 #endif
 } hdmi;
 
+
 static int hdmi_panel_probe(struct omap_dss_device *dssdev)
 {
 	/* Initialize default timings to VGA in DVI mode */

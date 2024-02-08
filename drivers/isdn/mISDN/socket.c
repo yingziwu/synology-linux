@@ -759,6 +759,7 @@ static const struct proto_ops base_sock_ops = {
 	.mmap		= sock_no_mmap
 };
 
+
 static int
 base_sock_create(struct net *net, struct socket *sock, int protocol)
 {

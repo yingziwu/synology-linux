@@ -144,6 +144,7 @@ static inline void print_memory_payload(dwc_otg_pcd_t *pcd,  dwc_ep_t *ep)
 #endif
 }
 
+
 #ifdef DWC_UTE_CFI
 static inline void print_desc(struct dwc_otg_dma_desc *ddesc,
 			      const uint8_t *epname, int descnum)
@@ -432,6 +433,7 @@ static inline int get_ep_of_last_in_token(dwc_otg_core_if_t *core_if)
 	volatile uint32_t *addr = &dev_global_regs->dtknqr1;
 	int epnum = 0;
 
+
 	/* Read the DTKNQ Registers */
 	for (i = 0; i < DTKNQ_REG_CNT; i++) {
 		in_tkn_epnums[i] = DWC_READ_REG32(addr);
@@ -441,6 +443,7 @@ static inline int get_ep_of_last_in_token(dwc_otg_core_if_t *core_if)
 			addr = &dev_global_regs->dtknqr3_dthrctl;
 		else
 			++addr;
+
 
 	}
 
@@ -528,6 +531,7 @@ int32_t dwc_otg_pcd_handle_np_tx_fifo_empty_intr(dwc_otg_pcd_t *pcd)
 		if (len > ep->dwc_ep.maxpacket)
 			len = ep->dwc_ep.maxpacket;
 
+
 		dwords = (len + 3) / 4;
 		txstatus.d32 = DWC_READ_REG32(&global_regs->gnptxsts);
 		DWC_DEBUGPL(DBG_PCDV, "GNPTXSTS=0x%08x\n", txstatus.d32);
@@ -570,6 +574,7 @@ static int32_t write_empty_tx_fifo(dwc_otg_pcd_t *pcd, uint32_t epnum)
 	if (len > ep->dwc_ep.maxpacket)
 		len = ep->dwc_ep.maxpacket;
 
+
 	dwords = (len + 3) / 4;
 
 	/* While there is space in the queue and space in the FIFO and
@@ -586,6 +591,7 @@ static int32_t write_empty_tx_fifo(dwc_otg_pcd_t *pcd, uint32_t epnum)
 		len = ep->dwc_ep.xfer_len - ep->dwc_ep.xfer_count;
 		if (len > ep->dwc_ep.maxpacket)
 			len = ep->dwc_ep.maxpacket;
+
 
 		dwords = (len + 3) / 4;
 		txstatus.d32 =
@@ -877,6 +883,7 @@ int32_t dwc_otg_pcd_handle_usb_reset_intr(dwc_otg_pcd_t *pcd)
 	for (i = 0; i <= dev_if->num_out_eps; i++)
 		DWC_WRITE_REG32(&dev_if->out_ep_regs[i]->doepctl, doepctl.d32);
 
+
 	/* Flush the NP Tx FIFO */
 	dwc_otg_flush_tx_fifo(core_if, 0x10);
 	/* Flush the Learning Queue */
@@ -1005,6 +1012,7 @@ int32_t dwc_otg_pcd_handle_usb_reset_intr(dwc_otg_pcd_t *pcd)
 	DWC_WRITE_REG32(&in_regs->dieptsiz,
 			deptsiz.d32);*/
 
+
 	/* Clear interrupt */
 	gintsts.d32 = 0;
 	gintsts.b.usbreset = 1;
@@ -1068,6 +1076,7 @@ int32_t dwc_otg_pcd_handle_enum_done_intr(dwc_otg_pcd_t *pcd)
 	if (GET_CORE_IF(pcd)->snpsid >= OTG_CORE_REV_3_00a)
 		ep0_out_start(GET_CORE_IF(pcd), pcd);
 
+
 #ifdef DEBUG_EP0
 	print_ep0_state(pcd);
 #endif
@@ -1076,6 +1085,7 @@ int32_t dwc_otg_pcd_handle_enum_done_intr(dwc_otg_pcd_t *pcd)
 		pcd->ep0state = EP0_IDLE;
 	else if (pcd->ep0state == EP0_STALL)
 		pcd->ep0state = EP0_IDLE;
+
 
 	pcd->ep0state = EP0_IDLE;
 
@@ -1300,6 +1310,7 @@ static inline void do_gadget_setup(dwc_otg_pcd_t *pcd,
 	if (ret < 0)
 		ep0_do_stall(pcd, ret);
 
+
 	/** @todo This is a g_file_storage gadget driver specific
 	 * workaround: a DELAYED_STATUS result from the fsg_setup
 	 * routine will result in the gadget queueing a EP0 IN status
@@ -1350,6 +1361,7 @@ static inline void do_setup_in_status_phase(dwc_otg_pcd_t *pcd)
 	dwc_otg_pcd_ep_t *ep0 = &pcd->ep0;
 	if (pcd->ep0state == EP0_STALL)
 		return;
+
 
 	pcd->ep0state = EP0_IN_STATUS_PHASE;
 
@@ -2620,6 +2632,7 @@ static void set_ddma_iso_pkts_info(dwc_otg_core_if_t *core_if,
 				if (iso_packet->status)
 					iso_packet->status = -DWC_E_NO_DATA;
 
+
 				/* Received data length */
 				if (!sts.b_iso_out.rxbytes) {
 					iso_packet->length =
@@ -2657,6 +2670,7 @@ static void set_ddma_iso_pkts_info(dwc_otg_core_if_t *core_if,
 			    (sts.b_iso_out.bs ^ BS_DMA_DONE);
 			if (iso_packet->status)
 				iso_packet->status = -DWC_E_NO_DATA;
+
 
 			/* Received data length */
 			iso_packet->length =
@@ -2705,6 +2719,7 @@ static void set_ddma_iso_pkts_info(dwc_otg_core_if_t *core_if,
 			if (iso_packet->status != 0)
 				iso_packet->status = -DWC_E_NO_DATA;
 
+
 			/* Bytes has been transfered */
 			iso_packet->length =
 			    dwc_ep->data_per_frame - sts.b_iso_in.txbytes;
@@ -2717,11 +2732,13 @@ static void set_ddma_iso_pkts_info(dwc_otg_core_if_t *core_if,
 		while (sts.b_iso_in.bs == BS_DMA_BUSY)
 			sts.d32 = dma_desc->status.d32;
 
+
 		/* Write status in iso packet descriptor ??? do be done with ERROR codes */
 		iso_packet->status =
 		    sts.b_iso_in.txsts + (sts.b_iso_in.bs ^ BS_DMA_DONE);
 		if (iso_packet->status != 0)
 			iso_packet->status = -DWC_E_NO_DATA;
+
 
 		/* Bytes has been transfered */
 		iso_packet->length =
@@ -2749,6 +2766,7 @@ static void reinit_ddma_iso_xfer(dwc_otg_core_if_t *core_if, dwc_ep_t *dwc_ep)
 		addr = &core_if->dev_if->out_ep_regs[dwc_ep->num]->doepctl;
 	else
 		addr = &core_if->dev_if->in_ep_regs[dwc_ep->num]->diepctl;
+
 
 	if (dwc_ep->proc_buf_num == 0) {
 		/** Buffer 0 descriptors setup */
@@ -3119,6 +3137,7 @@ static void dwc_otg_pcd_handle_noniso_bna(dwc_otg_pcd_ep_t *ep)
 		dma_desc = dwc_ep->desc_addr;
 	}
 
+
 	for (i = start; i < dwc_ep->desc_cnt; ++i, ++dma_desc) {
 		sts.d32 = dma_desc->status.d32;
 		sts.b.bs = BS_HOST_READY;
@@ -3367,6 +3386,7 @@ void predict_nextep_seq(dwc_otg_core_if_t *core_if)
 		else
 			++addr;
 
+
 	}
 
 	/* Copy the DTKNQR1 data to the bit field. */
@@ -3387,6 +3407,7 @@ void predict_nextep_seq(dwc_otg_core_if_t *core_if)
 	/* Fill seqnum[] by initial values: EP number + 31 */
 	for (i = 0; i <= core_if->dev_if->num_in_eps; i++)
 		seqnum[i] = i + 31;
+
 
 	/* Fill intkn_seq[] from in_tkn_epnums[0] */
 	for (i = 0; i < 6; i++)
@@ -3489,10 +3510,12 @@ void predict_nextep_seq(dwc_otg_core_if_t *core_if)
 	for (i = 0; i <= core_if->dev_if->num_in_eps; i++)
 		DWC_DEBUGPL(DBG_PCDV, "%2d\n", core_if->nextep_seq[i]);
 
+
 	/* Flush the Learning Queue */
 	resetctl.d32 = DWC_READ_REG32(&core_if->core_global_regs->grstctl);
 	resetctl.b.intknqflsh = 1;
 	DWC_WRITE_REG32(&core_if->core_global_regs->grstctl, resetctl.d32);
+
 
 }
 
@@ -4112,6 +4135,7 @@ do { \
 	dctl_data_t dctl = {.d32 = 0 };
 	gintmsk_data_t gintmsk = {.d32 = 0 };
 
+
 	DWC_DEBUGPL(DBG_PCDV, "%s()\n", __func__);
 
 	/* Read in the device interrupt bits */
@@ -4221,6 +4245,7 @@ do { \
 								if (pcd->ep0state == EP0_STALL || pcd->ep0state == EP0_DISCONNECT)
 									DWC_ERROR("EP0 is stalled/disconnected\n");
 
+
 								/* Clear IN xfercompl if set */
 								if (diepint0.b.xfercompl && (pcd->ep0state == EP0_IN_STATUS_PHASE
 									|| pcd->ep0state == EP0_IN_DATA_PHASE)) {
@@ -4266,6 +4291,7 @@ do { \
 										/* Prepare for setup packets if ep0in was enabled*/
 										if (pcd->ep0state == EP0_IN_STATUS_PHASE)
 											ep0_out_start(core_if, pcd);
+
 
 										goto exit_xfercompl;
 									} else {
@@ -4887,6 +4913,7 @@ int32_t dwc_otg_pcd_handle_in_nak_effective(dwc_otg_pcd_t *pcd)
 			DWC_WRITE_REG32(&dev_if->in_ep_regs[i]->diepctl, diepctl.d32);
 		}
 	}
+
 
 	/* Disable the Global IN NAK Effective Interrupt */
 	intr_mask.b.ginnakeff = 1;

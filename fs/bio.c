@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2001 Jens Axboe <axboe@kernel.dk>
  *
@@ -541,6 +544,12 @@ void __bio_clone(struct bio *bio, struct bio *bio_src)
 	bio->bi_sector = bio_src->bi_sector;
 	bio->bi_bdev = bio_src->bi_bdev;
 	bio->bi_flags |= 1 << BIO_CLONED;
+#ifdef MY_ABC_HERE
+	if (unlikely(bio_flagged(bio_src, BIO_CORRECTION_RETRY)))
+		bio->bi_flags |= 1 << BIO_CORRECTION_RETRY;
+	if (unlikely(bio_flagged(bio_src, BIO_CORRECTION_ABORT)))
+		bio->bi_flags |= 1 << BIO_CORRECTION_ABORT;
+#endif
 	bio->bi_rw = bio_src->bi_rw;
 	bio->bi_vcnt = bio_src->bi_vcnt;
 	bio->bi_size = bio_src->bi_size;
@@ -1721,6 +1730,14 @@ void bio_endio(struct bio *bio, int error)
 		clear_bit(BIO_UPTODATE, &bio->bi_flags);
 	else if (!test_bit(BIO_UPTODATE, &bio->bi_flags))
 		error = -EIO;
+
+#ifdef MY_ABC_HERE
+	if (bio->bi_bdev && bio_flagged(bio, BIO_TRACE_COMPLETION)) {
+		trace_block_bio_complete(bdev_get_queue(bio->bi_bdev),
+			bio, error);
+		clear_bit(BIO_TRACE_COMPLETION, &bio->bi_flags);
+	}
+#endif /* MY_ABC_HERE */
 
 	if (bio->bi_end_io)
 		bio->bi_end_io(bio, error);

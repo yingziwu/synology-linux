@@ -251,6 +251,7 @@ int adf_event_put(struct adf_obj *obj, enum adf_event_type type)
 	if (ret < 0)
 		return ret;
 
+
 	mutex_lock(&obj->event_lock);
 
 	refcount = adf_obj_find_event_refcount(obj, type);

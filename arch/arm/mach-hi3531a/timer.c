@@ -330,3 +330,4 @@ void __init hi3531a_timer_init(void)
 		TIMER(1)->irq.irq, TIMER(1)->name);
 
 }
+

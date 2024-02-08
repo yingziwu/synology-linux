@@ -307,6 +307,7 @@ static void _al_raid_set_tx_descs(
 	struct al_block *block;
 	uint32_t blk_idx;
 
+
 	for (blk_idx = 0; blk_idx < meta; blk_idx++) {
 		uint32_t flags_len = flags;
 		uint32_t ring_id;

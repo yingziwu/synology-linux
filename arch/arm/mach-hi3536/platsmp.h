@@ -15,3 +15,4 @@ void hi3536_secondary_startup(void);
 void s5_scu_power_up(int cpu);
 
 #endif
+

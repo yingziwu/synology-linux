@@ -1234,3 +1234,4 @@ static u8 efuse_calculate_word_cnts(u8 word_en)
 		word_cnts++;
 	return word_cnts;
 }
+

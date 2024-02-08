@@ -505,6 +505,7 @@ static ssize_t smk_write_rules_list(struct file *file, const char __user *buf,
 			goto out_free_rule;
 	}
 
+
 	if (rule_list == NULL) {
 		load = 1;
 		skp = smk_find_entry(rule->smk_subject);
@@ -1114,6 +1115,7 @@ static void smk_netlbladdr_insert(struct smk_netlbladdr *new)
 		}
 	}
 }
+
 
 /**
  * smk_write_netlbladdr - write() for /smack/netlabel
@@ -1743,6 +1745,8 @@ static ssize_t smk_write_logging(struct file *file, const char __user *buf,
 	return count;
 }
 
+
+
 static const struct file_operations smk_logging_ops = {
 	.read		= smk_read_logging,
 	.write		= smk_write_logging,
@@ -1784,6 +1788,7 @@ static const struct seq_operations load_self_seq_ops = {
 	.show  = load_self_seq_show,
 	.stop  = smk_seq_stop,
 };
+
 
 /**
  * smk_open_load_self - open() for /smack/load-self2
@@ -1892,6 +1897,7 @@ static const struct file_operations smk_access_ops = {
 	.release	= simple_transaction_release,
 	.llseek		= generic_file_llseek,
 };
+
 
 /*
  * Seq_file read operations for /smack/load2

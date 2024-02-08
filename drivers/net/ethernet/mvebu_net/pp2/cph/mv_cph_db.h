@@ -102,6 +102,7 @@ extern "C" {
 #define XML_CPH_ELM_FLOW_SUPPORT     "flow_support"
 #define XML_CPH_ELM_UDP_SUPPORT      "udp_support"
 
+
 /* CPH rule definition for application packet handling
 ------------------------------------------------------------------------------*/
 struct CPH_APP_RULE_T {
@@ -483,6 +484,7 @@ MV_STATUS cph_db_display_mod_field(
 MV_STATUS cph_db_display_frwd_field(
 	enum CPH_APP_FRWD_FIELD_E  frwd_bm,
 	struct CPH_APP_FRWD_T       *frwd_value);
+
 
 /******************************************************************************
 * cph_db_display_all()

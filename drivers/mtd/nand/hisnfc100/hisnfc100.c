@@ -939,3 +939,4 @@ int hisnfc100_host_init(struct hisnfc_host *host)
 			| HISNFC100_TIMING_CFG_TSHSL(CS_DESELECT_TIME));
 	return 0;
 }
+

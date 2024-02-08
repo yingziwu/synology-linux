@@ -1,7 +1,14 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/* al_eth_sysfs.c: AnnapurnaLabs Unified 1GbE and 10GbE ethernet driver.
+ *
+ * Copyright (c) 2013 AnnapurnaLabs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation.
+ */
 #include <linux/device.h>
 #include <linux/stat.h>
 #include <linux/sysfs.h>
@@ -186,7 +193,7 @@ static struct device_attribute dev_attr_rx_equal_enable = {
 	.show = al_eth_show_rx_equal_enable,
 	.store = al_eth_store_rx_equal_enable,
 };
-#endif  
+#endif /* MY_DEF_HERE */
 
 static ssize_t al_eth_store_force_1000_base_x(struct device *dev,
 					      struct device_attribute *attr,
@@ -379,6 +386,8 @@ static struct device_attribute dev_attr_max_rx_buff_alloc_size = {
 	.store = al_eth_store_max_rx_buff_alloc_size,
 };
 
+
+
 #define UDMA_DUMP_PREP_ATTR(_name, _type) {\
         __ATTR(udma_dump_##_name, S_IRUGO|S_IWUGO, rd_udma_dump, wr_udma_dump),\
         (void*)_type }
@@ -403,6 +412,8 @@ static ssize_t wr_udma_dump(
 	const char *buf,
 	size_t count);
 
+
+/* Device attrs - udma debug */
 static struct dev_ext_attribute dev_attr_udma_debug[] = {
 	UDMA_DUMP_PREP_ATTR(m2s_regs, UDMA_DUMP_M2S_REGS),
 	UDMA_DUMP_PREP_ATTR(m2s_q_struct, UDMA_DUMP_M2S_Q_STRUCT),
@@ -412,6 +423,8 @@ static struct dev_ext_attribute dev_attr_udma_debug[] = {
 	UDMA_DUMP_PREP_ATTR(s2m_q_pointers, UDMA_DUMP_S2M_Q_POINTERS)
 };
 
+/******************************************************************************
+ *****************************************************************************/
 int al_eth_sysfs_init(
 	struct device *dev)
 {
@@ -437,7 +450,7 @@ int al_eth_sysfs_init(
 #ifdef MY_DEF_HERE
 	if (device_create_file(dev, &dev_attr_rx_equal_enable))
 		dev_info(dev, "failed to create rx_equal_enable sysfs entry");
-#endif  
+#endif /* MY_DEF_HERE */
 
 	if (device_create_file(dev, &dev_attr_force_1000_base_x))
 		dev_info(dev, "failed to create force_1000_base_x sysfs entry");
@@ -471,6 +484,8 @@ done:
 	return status;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 void al_eth_sysfs_terminate(
 	struct device *dev)
 {
@@ -483,7 +498,7 @@ void al_eth_sysfs_terminate(
 	device_remove_file(dev, &dev_attr_link_training_enable);
 #ifdef MY_DEF_HERE
 	device_remove_file(dev, &dev_attr_rx_equal_enable);
-#endif  
+#endif /* MY_DEF_HERE */
 	device_remove_file(dev, &dev_attr_force_1000_base_x);
 
 	for (i = 0; i < ARRAY_SIZE(dev_attr_udma_debug); i++)
@@ -499,6 +514,8 @@ void al_eth_sysfs_terminate(
 
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t rd_udma_dump(
 	struct device *dev,
 	struct device_attribute *attr,
@@ -540,6 +557,8 @@ static ssize_t rd_udma_dump(
 struct al_eth_adapter;
 extern struct al_udma *al_eth_udma_get(struct al_eth_adapter *adapter, int tx);
 
+/******************************************************************************
+ *****************************************************************************/
 static ssize_t wr_udma_dump(
 	struct device *dev,
 	struct device_attribute *attr,

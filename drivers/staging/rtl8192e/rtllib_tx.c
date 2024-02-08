@@ -55,7 +55,9 @@
 
 /*
 
+
 802.11 Data Frame
+
 
 802.11 frame_control for data frames - 2 bytes
      ,-----------------------------------------------------------------------------------------.
@@ -101,6 +103,7 @@ Desc. | IV  | Encrypted | ICV |
       |     | IP Packet |     |
       `-----------------------'
 Total: 8 non-data bytes
+
 
 802.3 Ethernet Data Frame
 
@@ -207,6 +210,7 @@ int rtllib_encrypt_fragment(struct rtllib_device *ieee, struct sk_buff *frag,
 
 	return 0;
 }
+
 
 void rtllib_txb_free(struct rtllib_txb *txb)
 {
@@ -488,6 +492,7 @@ NO_PROTECTION:
 	tcb_desc->bRTSBW	= false;
 }
 
+
 static void rtllib_txrate_selectmode(struct rtllib_device *ieee,
 				     struct cb_desc *tcb_desc)
 {
@@ -580,6 +585,7 @@ int rtllib_xmit_inter(struct sk_buff *skb, struct net_device *dev)
 		       ieee->dev->name);
 		goto success;
 	}
+
 
 	if (likely(ieee->raw_tx == 0)) {
 		if (unlikely(skb->len < SNAP_SIZE + sizeof(u16))) {
@@ -887,6 +893,7 @@ int rtllib_xmit_inter(struct sk_buff *skb, struct net_device *dev)
 				tcb_desc->bTxDisableRateFallBack = 1;
 			}
 
+
 			tcb_desc->RATRIndex = 7;
 			tcb_desc->bTxUseDriverAssingedRate = 1;
 		} else {
@@ -911,6 +918,7 @@ int rtllib_xmit_inter(struct sk_buff *skb, struct net_device *dev)
 					tcb_desc->data_rate = MGN_1M;
 					tcb_desc->bTxDisableRateFallBack = 1;
 				}
+
 
 				tcb_desc->RATRIndex = 7;
 				tcb_desc->bTxUseDriverAssingedRate = 1;

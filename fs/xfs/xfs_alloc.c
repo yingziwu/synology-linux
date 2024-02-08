@@ -2039,6 +2039,7 @@ xfs_alloc_get_freelist(
 	if (error)
 		return error;
 
+
 	/*
 	 * Get the block number and update the data structures.
 	 */

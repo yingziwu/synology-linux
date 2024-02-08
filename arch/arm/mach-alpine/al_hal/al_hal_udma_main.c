@@ -65,6 +65,7 @@ const char *const al_udma_states_name[] = {
 #define AL_UDMA_Q_FLAGS_NO_COMP_UPDATE	AL_BIT(1)
 #define AL_UDMA_Q_FLAGS_EN_COMP_COAL	AL_BIT(2)
 
+
 static void al_udma_set_defaults(struct al_udma *udma)
 {
 	uint32_t tmp;
@@ -174,6 +175,8 @@ static void al_udma_set_defaults(struct al_udma *udma)
 					UDMA_S2M_FEATURE_REG_5_MAX_COMP_DATA_WR_OSTAND_SHIFT)
 			<< UDMA_AXI_S2M_OSTAND_CFG_WR_MAX_COMP_DATA_WR_SHIFT;
 
+
+
 		al_reg_write32(&udma->udma_regs->s2m.axi_s2m.ostand_cfg_wr, tmp);
 
 		tmp = al_reg_read32(&udma->udma_regs->s2m.s2m_comp.cfg_1c);
@@ -208,6 +211,7 @@ static void al_udma_set_defaults(struct al_udma *udma)
 		reg &= ~UDMA_S2M_COMP_CFG_2C_UNACK_FIFO_DEPTH_MASK;
 		reg |= 0x20<<UDMA_S2M_COMP_CFG_2C_UNACK_FIFO_DEPTH_SHIFT;
 		al_reg_write32(&udma->udma_regs->s2m.s2m_comp.cfg_2c, reg);
+
 
 		/* data fifo depth */
 		reg = al_reg_read32(&udma->udma_regs->s2m.axi_s2m.ostand_cfg_wr);
@@ -346,6 +350,7 @@ static int al_udma_q_enable(struct al_udma_q *udma_q, int enable)
 	al_reg_write32(&udma_q->q_regs->rings.cfg, reg);
 	return 0;
 }
+
 
 /************************ API functions ***************************************/
 

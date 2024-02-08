@@ -1695,6 +1695,7 @@ extern int security_module_enable(struct security_operations *ops);
 extern int register_security(struct security_operations *ops);
 extern void __init security_fixup_ops(struct security_operations *ops);
 
+
 /* Security operations */
 #if defined(CONFIG_SYNO_LSP_HI3536)
 int security_binder_set_context_mgr(struct task_struct *mgr);
@@ -3148,3 +3149,4 @@ static inline int yama_task_prctl(int option, unsigned long arg2,
 #endif /* CONFIG_SECURITY_YAMA */
 
 #endif /* ! __LINUX_SECURITY_H */
+

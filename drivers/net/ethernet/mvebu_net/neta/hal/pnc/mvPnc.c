@@ -120,6 +120,7 @@ struct gbe_pnc_port_mapping gbe_pnc_map_38x[] = {
 		{.gbe_port = 2, .pnc_port = 4},
 };
 
+
 #ifdef CONFIG_OF
 int pnc_gbe_port_map_init(unsigned int ctrl_model, unsigned int ctrl_rev)
 {
@@ -911,6 +912,7 @@ int pnc_ip4_dscp(int port, unsigned char dscp, unsigned char mask, int rxq)
 	return -1;
 #endif /* (CONFIG_MV_ETH_PNC_DSCP_PRIO > 0) */
 }
+
 
 /* IPv4/TCP header parsing for fragmentation and L4 offset.  */
 void pnc_ip4_tcp(int rxq)

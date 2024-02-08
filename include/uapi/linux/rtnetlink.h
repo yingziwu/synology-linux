@@ -165,6 +165,9 @@ struct rtattr {
 #define RTA_DATA(rta)   ((void*)(((char*)(rta)) + RTA_LENGTH(0)))
 #define RTA_PAYLOAD(rta) ((int)((rta)->rta_len) - RTA_LENGTH(0))
 
+
+
+
 /******************************************************************************
  *		Definitions used in routing table administration.
  ****/
@@ -204,6 +207,7 @@ enum {
 };
 
 #define RTN_MAX (__RTN_MAX - 1)
+
 
 /* rtm_protocol */
 
@@ -271,6 +275,7 @@ enum rt_class_t {
 	RT_TABLE_MAX=0xFFFFFFFF
 };
 
+
 /* Routing message attributes */
 
 enum rtattr_type_t {
@@ -324,6 +329,9 @@ struct rtnexthop {
 #define RTNH_F_DEAD		1	/* Nexthop is dead (used by multipath)	*/
 #define RTNH_F_PERVASIVE	2	/* Do recursive gateway lookup	*/
 #define RTNH_F_ONLINK		4	/* Gateway is forced on link	*/
+#define RTNH_F_LINKDOWN		16	/* carrier-down on nexthop */
+
+#define RTNH_COMPARE_MASK	(RTNH_F_DEAD | RTNH_F_LINKDOWN)
 
 /* Macros to handle hexthops */
 
@@ -476,6 +484,7 @@ struct prefix_cacheinfo {
 	__u32	preferred_time;
 	__u32	valid_time;
 };
+
 
 /*****************************************************************
  *		Traffic control messages.
@@ -630,5 +639,7 @@ struct tcamsg {
 #define RTEXT_FILTER_BRVLAN	(1 << 1)
 
 /* End of information exported to user level */
+
+
 
 #endif /* _UAPI__LINUX_RTNETLINK_H */

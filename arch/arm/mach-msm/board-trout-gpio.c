@@ -230,3 +230,4 @@ int __init trout_init_gpio(void)
 }
 
 postcore_initcall(trout_init_gpio);
+

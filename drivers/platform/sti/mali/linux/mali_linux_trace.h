@@ -123,3 +123,4 @@ TRACE_EVENT(mali_sw_counters,
 
 /* This part must exist outside the header guard. */
 #include <trace/define_trace.h>
+

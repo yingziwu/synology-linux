@@ -46,6 +46,7 @@
     hdparm -t -T /dev/hda
 */
 
+
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/pci.h>
@@ -467,6 +468,7 @@ static struct snd_pcm_hw_constraint_ratnums hw_constraints_clocks = {
 	.rats = clocks,
 };
 
+
 static void snd_es1938_rate_set(struct es1938 *chip, 
 				struct snd_pcm_substream *substream,
 				int mode)
@@ -673,6 +675,7 @@ static int snd_es1938_capture_prepare(struct snd_pcm_substream *substream)
 
 	return 0;
 }
+
 
 /* ------------------------------------------------------------------------------
  * Second Audio channel DAC Operation
@@ -1420,6 +1423,7 @@ ES1938_SINGLE("3D Control - Level", 0, 0x52, 0, 63, 0),
 ES1938_SINGLE("Mic Boost (+26dB)", 0, 0x7d, 3, 1, 0)
 };
 
+
 /* ---------------------------------------------------------------------------- */
 /* ---------------------------------------------------------------------------- */
 
@@ -1463,6 +1467,7 @@ static unsigned char saved_regs[SAVED_REG_SIZE+1] = {
 	0x69, 0x6a, 0x6b, 0x6d, 0x6e, 0x6f, 0x7c, 0x7d,
 	0xa8, 0xb4,
 };
+
 
 static int es1938_suspend(struct device *dev)
 {
@@ -1786,6 +1791,7 @@ static int snd_es1938_mixer(struct es1938 *chip)
 	return 0;
 }
        
+
 static int snd_es1938_probe(struct pci_dev *pci,
 			    const struct pci_device_id *pci_id)
 {

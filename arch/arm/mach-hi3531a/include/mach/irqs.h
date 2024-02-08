@@ -66,3 +66,4 @@
 #define MAX_GIC_NR		1
 
 #endif /* __HI_IRQS_H__ */
+

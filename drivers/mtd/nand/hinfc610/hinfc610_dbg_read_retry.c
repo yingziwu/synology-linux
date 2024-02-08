@@ -133,6 +133,7 @@ static ssize_t dbgfs_read_retry_read(struct file *filp, char __user *buffer,
 			return -EFAULT;
 		pusrbuf += len;
 
+
 		len = snprintf(buf, sizeof(buf),
 			"  UTC Clock    page          read retry (max: %d)\n",
 			dbg_read_retry->max_retry);

@@ -33,3 +33,4 @@
 		add	\irqnr, \irqnr, #8
 44:		teq	\irqstat, #0
 		.endm
+

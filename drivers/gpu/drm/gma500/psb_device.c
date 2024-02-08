@@ -26,6 +26,7 @@
 #include "psb_intel_reg.h"
 #include "intel_bios.h"
 
+
 static int psb_output_init(struct drm_device *dev)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;
@@ -61,6 +62,7 @@ static int psb_get_brightness(struct backlight_device *bd)
 	   it */
 	return psb_brightness;
 }
+
 
 static int psb_backlight_setup(struct drm_device *dev)
 {
@@ -391,3 +393,4 @@ const struct psb_ops psb_chip_ops = {
 	.power_down = psb_power_down,
 	.power_up = psb_power_up,
 };
+

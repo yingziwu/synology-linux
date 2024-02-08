@@ -81,6 +81,7 @@ void _mali_osk_profiling_report_sw_counters(u32 *counters)
 	trace_mali_sw_counters(_mali_osk_get_pid(), _mali_osk_get_tid(), NULL, counters);
 }
 
+
 _mali_osk_errcode_t _mali_ukk_profiling_start(_mali_uk_profiling_start_s *args)
 {
 	return _mali_osk_profiling_start(&args->limit);

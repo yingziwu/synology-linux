@@ -75,6 +75,7 @@ extern "C" {
 #define MV_ARM_SOC
 #define SOC_NAME_PREFIX			"MV88F"
 
+
 /* units base and port numbers */
 #ifdef MV_ASMLANGUAGE
 #define XOR_UNIT_BASE(unit)           	0x60800
@@ -149,6 +150,7 @@ extern "C" {
 #define MV_USB_MAX_PORTS		1
 
 #define MV_USB_VERSION              1
+
 
 #define MV_6281_NAND			1
 #define MV_6192_NAND			1

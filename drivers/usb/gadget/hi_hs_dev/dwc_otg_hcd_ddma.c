@@ -660,6 +660,7 @@ static void init_non_isoc_dma_desc(dwc_otg_hcd_t *hcd, dwc_otg_qh_t *qh)
 			n_desc++;
 		} while ((hc->xfer_len > 0) && (n_desc != MAX_DMA_DESC_NUM_GENERIC));
 
+
 		qtd->in_process = 1;
 
 		if (qh->ep_type == UE_CONTROL)
@@ -837,6 +838,7 @@ static void complete_isoc_xfer_ddma(dwc_otg_hcd_t *hcd,
 				 */
 				if (hc->halt_status == DWC_OTG_HC_XFER_URB_DEQUEUE)
 					return;
+
 
 				urb_compl = 1;
 
@@ -1074,6 +1076,7 @@ void dwc_otg_hcd_complete_xfer_ddma(dwc_otg_hcd_t *hcd,
 			/* Halt the channel if session completed */
 			if (halt_status == DWC_OTG_HC_XFER_COMPLETE)
 				dwc_otg_hc_halt(hcd->core_if, hc, halt_status);
+
 
 			release_channel_ddma(hcd, qh);
 			dwc_otg_hcd_qh_remove(hcd, qh);

@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvDramIfStaticInith
 #define __INCmvDramIfStaticInith
 
@@ -70,6 +71,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef	STATIC_DRAM_BANK_2
 #undef	STATIC_DRAM_BANK_3
 #undef 	STATIC_DRAM_BANK_4
+
 
 #ifdef MV_DIMM_TS256MLQ72V5U
 #define	STATIC_DRAM_BANK_2
@@ -96,6 +98,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endif /* TS256MLQ72V5U */
 
+
 #ifdef MV_MT9VDDT3272AG
 /* one DIMM 256M  */
 #define STATIC_SDRAM_CONFIG_REG		    0x5820040d  /* offset 0x1400 - DMA reg-0xf1000814 */
@@ -108,6 +111,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define STATIC_SDRAM_RANK0_SIZE_DIMM1       0x0    /* size bank0 dimm1   */
 
 #endif /* MV_MT9VDDT3272AG */
+
+
 
 #ifdef MV_D27RB12P
 /*

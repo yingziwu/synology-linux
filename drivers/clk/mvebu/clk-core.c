@@ -1,7 +1,18 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Marvell EBU clock core handling defined at reset
+ *
+ * Copyright (C) 2012 Marvell
+ *
+ * Gregory CLEMENT <gregory.clement@free-electrons.com>
+ * Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+ *
+ * This file is licensed under the terms of the GNU General Public
+ * License version 2.  This program is licensed "as is" without any
+ * warranty of any kind, whether express or implied.
+ */
 #include <linux/kernel.h>
 #include <linux/clk.h>
 #include <linux/clkdev.h>
@@ -39,12 +50,18 @@ static void __init mvebu_clk_core_setup(struct device_node *np,
 	if (WARN_ON(!base))
 		return;
 
+	/*
+	 * Allocate struct for TCLK, cpu clk, and core ratio clocks
+	 */
 	clk_data.clk_num = 2 + coreclk->num_ratios;
 	clk_data.clks = kzalloc(clk_data.clk_num * sizeof(struct clk *),
 				GFP_KERNEL);
 	if (WARN_ON(!clk_data.clks))
 		return;
 
+	/*
+	 * Register TCLK
+	 */
 	of_property_read_string_index(np, "clock-output-names", 0,
 				      &tclk_name);
 	rate = coreclk->get_tclk_freq(base);
@@ -52,6 +69,9 @@ static void __init mvebu_clk_core_setup(struct device_node *np,
 						   CLK_IS_ROOT, rate);
 	WARN_ON(IS_ERR(clk_data.clks[0]));
 
+	/*
+	 * Register CPU clock
+	 */
 	of_property_read_string_index(np, "clock-output-names", 1,
 				      &cpuclk_name);
 	rate = coreclk->get_cpu_freq(base);
@@ -59,6 +79,9 @@ static void __init mvebu_clk_core_setup(struct device_node *np,
 						   CLK_IS_ROOT, rate);
 	WARN_ON(IS_ERR(clk_data.clks[1]));
 
+	/*
+	 * Register fixed-factor clocks derived from CPU clock
+	 */
 	for (n = 0; n < coreclk->num_ratios; n++) {
 		const char *rclk_name = coreclk->ratios[n].name;
 		int mult, div;
@@ -72,14 +95,21 @@ static void __init mvebu_clk_core_setup(struct device_node *np,
 		WARN_ON(IS_ERR(clk_data.clks[2+n]));
 	};
 
+	/*
+	 * SAR register isn't needed anymore
+	 */
 	iounmap(base);
 
 	of_clk_add_provider(np, of_clk_src_onecell_get, &clk_data);
 }
 
 #ifdef CONFIG_MACH_ARMADA_370_XP
- 
-#define SARL				    0	 
+/*
+ * Armada 370/XP Sample At Reset is a 64 bit bitfiled split in two
+ * register of 32 bits
+ */
+
+#define SARL				    0	/* Low part [0:31] */
 #define	    SARL_AXP_PCLK_FREQ_OPT	    21
 #define	    SARL_AXP_PCLK_FREQ_OPT_MASK	    0x7
 #define	    SARL_A370_PCLK_FREQ_OPT	    11
@@ -90,7 +120,7 @@ static void __init mvebu_clk_core_setup(struct device_node *np,
 #define	    SARL_A370_FAB_FREQ_OPT_MASK	    0x1F
 #define	    SARL_A370_TCLK_FREQ_OPT	    20
 #define	    SARL_A370_TCLK_FREQ_OPT_MASK    0x1
-#define SARH				    4	 
+#define SARH				    4	/* High part [32:63] */
 #define	    SARH_AXP_PCLK_FREQ_OPT	    (52-32)
 #define	    SARH_AXP_PCLK_FREQ_OPT_MASK	    0x1
 #define	    SARH_AXP_PCLK_FREQ_OPT_SHIFT    3
@@ -207,6 +237,7 @@ static void __init armada_370_get_clk_ratio(
 	armada_370_xp_get_clk_ratio(opt, sar, id, mult, div);
 }
 
+
 static const struct core_clocks armada_370_core_clocks = {
 	.get_tclk_freq = armada_370_get_tclk_freq,
 	.get_cpu_freq = armada_370_get_cpu_freq,
@@ -230,6 +261,7 @@ static const u32 __initconst armada_xp_cpu_frequencies[] = {
 	1600000000,
 };
 
+/* For Armada XP TCLK frequency is fix: 250MHz */
 static u32 __init armada_xp_get_tclk_freq(void __iomem *sar)
 {
 	return 250 * 1000 * 1000;
@@ -242,7 +274,10 @@ static u32 __init armada_xp_get_cpu_freq(void __iomem *sar)
 
 	cpu_freq_select = ((readl(sar) >> SARL_AXP_PCLK_FREQ_OPT) &
 			   SARL_AXP_PCLK_FREQ_OPT_MASK);
-	 
+	/*
+	 * The upper bit is not contiguous to the other ones and
+	 * located in the high part of the SAR registers
+	 */
 	cpu_freq_select |= (((readl(sar+4) >> SARH_AXP_PCLK_FREQ_OPT) &
 			     SARH_AXP_PCLK_FREQ_OPT_MASK)
 			    << SARH_AXP_PCLK_FREQ_OPT_SHIFT);
@@ -261,7 +296,10 @@ static void __init armada_xp_get_clk_ratio(
 
 	u32 opt = ((readl(sar) >> SARL_AXP_FAB_FREQ_OPT) &
 	      SARL_AXP_FAB_FREQ_OPT_MASK);
-	 
+	/*
+	 * The upper bit is not contiguous to the other ones and
+	 * located in the high part of the SAR registers
+	 */
 	opt |= (((readl(sar+4) >> SARH_AXP_FAB_FREQ_OPT) &
 		SARH_AXP_FAB_FREQ_OPT_MASK)
 	       << SARH_AXP_FAB_FREQ_OPT_SHIFT);
@@ -277,11 +315,26 @@ static const struct core_clocks armada_xp_core_clocks = {
 	.num_ratios = ARRAY_SIZE(armada_370_xp_core_ratios),
 };
 
-#endif  
+#endif /* CONFIG_MACH_ARMADA_370_XP */
 
 #if defined(MY_DEF_HERE)
 #ifdef CONFIG_MACH_ARMADA_375
- 
+/*
+ * For Armada 375 Sample At Reset the CPU, DDR and L2 clock are all
+ * defined in the same time
+ *
+ * SAR0[21:17]   : CPU frequency    DDR frequency   L2 frequency
+ *		 6   =  400 MHz	    400 MHz	    200 MHz
+ *		 15  =  600 MHz	    600 MHz	    300 MHz
+ *		 21  =  800 MHz	    534 MHz	    400 MHz
+ *		 25  = 1000 MHz	    500 MHz	    500 MHz
+ *		 others reserved.
+ *
+ * SAR0[22]   : TCLK frequency
+ *		 0 = 166 MHz
+ *		 1 = 200 MHz
+ */
+
 #define	    SAR1_A375_TCLK_FREQ_OPT		22
 #define	    SAR1_A375_TCLK_FREQ_OPT_MASK	0x1
 #define	    SAR1_A375_CPU_DDR_L2_FREQ_OPT	17
@@ -383,10 +436,17 @@ static const struct core_clocks armada_375_core_clocks = {
 	.num_ratios = ARRAY_SIZE(armada_375_core_ratios),
 };
 
-#endif  
+#endif /* CONFIG_MACH_ARMADA_375 */
 
 #ifdef CONFIG_MACH_ARMADA_380
- 
+/*
+ * SAR[14:10] : Ratios between PCLK0, NBCLK, HCLK and DRAM clocks
+ *
+ * SAR[15]    : TCLK frequency
+ *		 0 = 250 MHz
+ *		 1 = 200 MHz
+ */
+
 #define	    SAR_A380_TCLK_FREQ_OPT              15
 #define	    SAR_A380_TCLK_FREQ_OPT_MASK	        0x1
 #define	    SAR_A380_CPU_DDR_L2_FREQ_OPT        10
@@ -413,12 +473,12 @@ static const u32 __initconst armada_380_cpu_frequencies[] = {
 	1332 * 1000 * 1000, 0, 0, 0,
 	1600 * 1000 * 1000, 0, 0, 0,
 	1866 * 1000 * 1000, 0, 0, 2000 * 1000 * 1000,
-#else  
+#else /* MY_DEF_HERE */
 	0, 0, 0, 0,
 	1066 * 1000 * 1000, 0, 0, 0,
 	1332 * 1000 * 1000, 0, 0, 0,
 	1600 * 1000 * 1000,
-#endif  
+#endif /* MY_DEF_HERE */
 };
 
 static u32 __init armada_380_get_cpu_freq(void __iomem *sar)
@@ -492,9 +552,52 @@ static const struct core_clocks armada_380_core_clocks = {
 	.num_ratios = ARRAY_SIZE(armada_380_core_ratios),
 };
 
-#endif  
-#endif  
+#endif /* CONFIG_MACH_ARMADA_380 */
+#endif /* MY_DEF_HERE */
 
+
+/*
+ * Dove PLL sample-at-reset configuration
+ *
+ * SAR0[8:5]   : CPU frequency
+ *		 5  = 1000 MHz
+ *		 6  =  933 MHz
+ *		 7  =  933 MHz
+ *		 8  =  800 MHz
+ *		 9  =  800 MHz
+ *		 10 =  800 MHz
+ *		 11 = 1067 MHz
+ *		 12 =  667 MHz
+ *		 13 =  533 MHz
+ *		 14 =  400 MHz
+ *		 15 =  333 MHz
+ *		 others reserved.
+ *
+ * SAR0[11:9]  : CPU to L2 Clock divider ratio
+ *		 0 = (1/1) * CPU
+ *		 2 = (1/2) * CPU
+ *		 4 = (1/3) * CPU
+ *		 6 = (1/4) * CPU
+ *		 others reserved.
+ *
+ * SAR0[15:12] : CPU to DDR DRAM Clock divider ratio
+ *		 0  = (1/1) * CPU
+ *		 2  = (1/2) * CPU
+ *		 3  = (2/5) * CPU
+ *		 4  = (1/3) * CPU
+ *		 6  = (1/4) * CPU
+ *		 8  = (1/5) * CPU
+ *		 10 = (1/6) * CPU
+ *		 12 = (1/7) * CPU
+ *		 14 = (1/8) * CPU
+ *		 15 = (1/10) * CPU
+ *		 others reserved.
+ *
+ * SAR0[24:23] : TCLK frequency
+ *		 0 = 166 MHz
+ *		 1 = 125 MHz
+ *		 others reserved.
+ */
 #ifdef CONFIG_ARCH_DOVE
 #define SAR_DOVE_CPU_FREQ		5
 #define SAR_DOVE_CPU_FREQ_MASK		0xf
@@ -586,8 +689,49 @@ static const struct core_clocks dove_core_clocks = {
 	.ratios = dove_core_ratios,
 	.num_ratios = ARRAY_SIZE(dove_core_ratios),
 };
-#endif  
+#endif /* CONFIG_ARCH_DOVE */
 
+/*
+ * Kirkwood PLL sample-at-reset configuration
+ * (6180 has different SAR layout than other Kirkwood SoCs)
+ *
+ * SAR0[4:3,22,1] : CPU frequency (6281,6292,6282)
+ *	4  =  600 MHz
+ *	6  =  800 MHz
+ *	7  = 1000 MHz
+ *	9  = 1200 MHz
+ *	12 = 1500 MHz
+ *	13 = 1600 MHz
+ *	14 = 1800 MHz
+ *	15 = 2000 MHz
+ *	others reserved.
+ *
+ * SAR0[19,10:9] : CPU to L2 Clock divider ratio (6281,6292,6282)
+ *	1 = (1/2) * CPU
+ *	3 = (1/3) * CPU
+ *	5 = (1/4) * CPU
+ *	others reserved.
+ *
+ * SAR0[8:5] : CPU to DDR DRAM Clock divider ratio (6281,6292,6282)
+ *	2 = (1/2) * CPU
+ *	4 = (1/3) * CPU
+ *	6 = (1/4) * CPU
+ *	7 = (2/9) * CPU
+ *	8 = (1/5) * CPU
+ *	9 = (1/6) * CPU
+ *	others reserved.
+ *
+ * SAR0[4:2] : Kirkwood 6180 cpu/l2/ddr clock configuration (6180 only)
+ *	5 = [CPU =  600 MHz, L2 = (1/2) * CPU, DDR = 200 MHz = (1/3) * CPU]
+ *	6 = [CPU =  800 MHz, L2 = (1/2) * CPU, DDR = 200 MHz = (1/4) * CPU]
+ *	7 = [CPU = 1000 MHz, L2 = (1/2) * CPU, DDR = 200 MHz = (1/5) * CPU]
+ *	others reserved.
+ *
+ * SAR0[21] : TCLK frequency
+ *	0 = 200 MHz
+ *	1 = 166 MHz
+ *	others reserved.
+ */
 #ifdef CONFIG_ARCH_KIRKWOOD
 #define SAR_KIRKWOOD_CPU_FREQ(x)	\
 	(((x & (1 <<  1)) >>  1) |	\
@@ -704,7 +848,7 @@ static void __init mv88f6180_get_clk_ratio(
 	switch (id) {
 	case KIRKWOOD_CPU_TO_L2:
 	{
-		 
+		/* mv88f6180 has a fixed 1:2 CPU-to-L2 ratio */
 		*mult = 1;
 		*div = 2;
 		break;
@@ -727,7 +871,7 @@ static const struct core_clocks mv88f6180_core_clocks = {
 	.ratios = kirkwood_core_ratios,
 	.num_ratios = ARRAY_SIZE(kirkwood_core_ratios),
 };
-#endif  
+#endif /* CONFIG_ARCH_KIRKWOOD */
 
 static const __initdata struct of_device_id clk_core_match[] = {
 #ifdef CONFIG_MACH_ARMADA_370_XP
@@ -753,7 +897,7 @@ static const __initdata struct of_device_id clk_core_match[] = {
 		.data = &armada_380_core_clocks,
 	},
 #endif
-#endif  
+#endif /* MY_DEF_HERE */
 #ifdef CONFIG_ARCH_DOVE
 	{
 		.compatible = "marvell,dove-core-clock",

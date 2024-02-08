@@ -1337,6 +1337,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
 				" Pen" : " Finger",
 			sizeof(wacom_wac->name));
 
+
 		other_dev = wacom_get_sibling(dev, features->oVid, features->oPid);
 		if (other_dev == NULL || wacom_get_usbdev_data(other_dev) == NULL)
 			other_dev = dev;

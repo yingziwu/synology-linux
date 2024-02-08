@@ -33,6 +33,7 @@ met:
 
 *******************************************************************************/
 
+
 #ifndef __AL_PBS_REG_H
 #define __AL_PBS_REG_H
 
@@ -42,6 +43,8 @@ extern "C" {
 /*
 * Unit Registers
 */
+
+
 
 struct al_pbs_unit {
 	uint32_t conf_bus;              /* conf_bus, configuration of ... */
@@ -171,9 +174,11 @@ struct al_pbs_regs {
 	struct al_pbs_unit unit;
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** conf_bus register ****/
 /* read slave error enable */
@@ -945,6 +950,7 @@ struct al_pbs_regs {
 #define PBS_UNIT_DRAM_SRC_REMAP_BASE_ADDR_SHIFT	29
 #define PBS_UNIT_DRAM_DST_REMAP_BASE_ADDR_SHIFT	29
 #define PBS_UNIT_DRAM_REMAP_BASE_ADDR_MASK	0xFFE0000000
+
 
 #ifdef __cplusplus
 }

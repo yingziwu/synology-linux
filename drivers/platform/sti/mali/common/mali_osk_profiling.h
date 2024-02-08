@@ -137,3 +137,5 @@ mali_bool _mali_osk_profiling_have_recording(void);
 #endif /* defined(CONFIG_MALI400_PROFILING)  && defined(CONFIG_TRACEPOINTS) */
 
 #endif /* __MALI_OSK_PROFILING_H__ */
+
+

@@ -24,6 +24,7 @@ static bool should_merge(struct fsnotify_event *old, struct fsnotify_event *new)
 	return false;
 }
 
+
 /* and the list better be locked by something too! */
 static struct fsnotify_event *synotify_merge(struct list_head *list,
 					     struct fsnotify_event *event)

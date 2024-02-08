@@ -64,6 +64,7 @@
 #include "stm_nand_bbt.h"
 #include "stm_nand_dt.h"
 
+
 #define NAME	"stm-nand-flex"
 
 #ifdef CONFIG_STM_NAND_FLEX_BOOTMODESUPPORT
@@ -152,6 +153,7 @@ static struct stm_nand_flex_controller *mtd_to_flex(struct mtd_info *mtd)
 #define flex_readreg(reg)	ioread32(flex->base_addr + (reg))
 
 /*** FLEX mode control functions (cf nand_base.c) ***/
+
 
 /* Assumes NANDHAM_DATAREAD has been configured for 1-byte reads. */
 static uint8_t flex_read_byte(struct mtd_info *mtd)
@@ -753,6 +755,7 @@ static void flex_calc_timing_registers_legacy(struct stm_nand_timing_data *tm,
 	reg |= (n & 0xff) << 8;
 
 	*wen_timing = reg;
+
 
 	/* REN_TIMING */
 	n = (tm->rd_on + emi_t_ns - 1)/emi_t_ns;

@@ -11,6 +11,7 @@
  * (at your option) any later version.
  */
 
+
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
 #include <linux/list.h>
@@ -36,6 +37,7 @@
  * a "gcc --combine ... part1.c part2.c part3.c ... " build would.
  */
 #include "f_hid.c"
+
 
 struct hidg_func_node {
 	struct list_head node;
@@ -86,6 +88,7 @@ static const struct usb_descriptor_header *otg_desc[] = {
 	NULL,
 };
 
+
 /* string IDs are assigned dynamically */
 static struct usb_string strings_dev[] = {
 	[USB_GADGET_MANUFACTURER_IDX].s = "",
@@ -103,6 +106,8 @@ static struct usb_gadget_strings *dev_strings[] = {
 	&stringtab_dev,
 	NULL,
 };
+
+
 
 /****************************** Configurations ******************************/
 
@@ -210,7 +215,9 @@ static int hidg_plat_driver_remove(struct platform_device *pdev)
 	return 0;
 }
 
+
 /****************************** Some noise ******************************/
+
 
 static __refdata struct usb_composite_driver hidg_driver = {
 	.name		= "g_hid",
@@ -228,6 +235,7 @@ static struct platform_driver hidg_plat_driver = {
 		.name	= "hidg",
 	},
 };
+
 
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR("Fabien Chouteau, Peter Korsgaard");

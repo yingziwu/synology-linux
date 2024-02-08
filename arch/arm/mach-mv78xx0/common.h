@@ -49,4 +49,5 @@ void mv78xx0_restart(char, const char *);
 
 extern void mv78xx0_timer_init(void);
 
+
 #endif

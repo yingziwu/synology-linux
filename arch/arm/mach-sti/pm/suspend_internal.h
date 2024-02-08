@@ -46,3 +46,4 @@ extern unsigned long sti_cps_lock_code_sz;
 void sti_defrost_kernel(void);
 
 #endif /* __SUSPEND_INTERNAL__ */
+

@@ -169,3 +169,4 @@ static struct platform_driver ixp4xx_spkr_platform_driver = {
 	.shutdown	= ixp4xx_spkr_shutdown,
 };
 module_platform_driver(ixp4xx_spkr_platform_driver);
+

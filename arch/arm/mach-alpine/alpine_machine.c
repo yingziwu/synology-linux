@@ -1,7 +1,24 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Device Tree support for Alpine platforms.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
@@ -30,7 +47,7 @@
 	#define LOAD_MAX	0xFFFFFFFF
 #define WDTVALUE		0x004
 #define WDTCONTROL		0x008
-	 
+	/* control register masks */
 	#define	INT_ENABLE	(1 << 0)
 	#define	RESET_ENABLE	(1 << 1)
 #define WDTLOCK			0xC00
@@ -55,8 +72,8 @@ static void __iomem *serdes_base;
 #include <linux/netdevice.h>
 #include <linux/ethtool.h>
 extern void syno_alpine_wol_set(void);
-#endif  
-#endif  
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
 
 static const __initconst struct of_device_id clk_match[] = {
 	{ .compatible = "fixed-clock", .data = of_fixed_clk_setup, },
@@ -67,6 +84,7 @@ static void __init al_timer_init(void)
 {
 	struct device_node *np;
 
+	/* Find the first watchdog and make sure it is not disabled */
 	np = of_find_compatible_node(
 			NULL, NULL, "arm,sp805");
 
@@ -77,6 +95,7 @@ static void __init al_timer_init(void)
 		wd0_base = NULL;
 	}
 
+	/* Timer initialization */
 	of_clk_init(NULL);
 	clocksource_of_init();
 }
@@ -86,7 +105,7 @@ static void synology_power_off(void)
 {
 #ifdef MY_DEF_HERE
 	syno_alpine_wol_set();
-#endif  
+#endif /* MY_DEF_HERE */
 	printk(KERN_EMERG "Synology shutdown\n");
 	writel(SET8N1, UART1_REG(LCR));
 	writel(SOFTWARE_SHUTDOWN, UART1_REG(TX));
@@ -98,7 +117,7 @@ static void synology_restart(char mode, const char *cmd)
 	writel(SET8N1, UART1_REG(LCR));
 	writel(SOFTWARE_REBOOT, UART1_REG(TX));
 }
-#else  
+#else /* MY_DEF_HERE */
 static void al_power_off(void)
 {
 	printk(KERN_EMERG "Unable to shutdown\n");
@@ -117,11 +136,11 @@ static void al_restart(char str, const char *cmd)
 	while (1)
 		;
 }
-#endif  
+#endif /* MY_DEF_HERE */
 
 static void __init al_map_io(void)
 {
-	 
+	/* Needed for early printk to work */
 	struct map_desc uart_map_desc[1];
 
 	uart_map_desc[0].virtual = (unsigned long)AL_UART_BASE(0);
@@ -144,6 +163,7 @@ static void __init al_serdes_resource_init(void)
 {
 	struct device_node *np;
 
+	/* Find the serdes node and make sure it is not disabled */
 	np = of_find_compatible_node(NULL, NULL, "annapurna-labs,al-serdes");
 
 	if (np && of_device_is_available(np)) {
@@ -214,6 +234,7 @@ int alpine_serdes_eth_mode_set(
 
 		al_serdes_handle_init(serdes_base, &obj);
 
+		/* save group params */
 		for (i = 0; i < AL_SRDS_NUM_LANES; i++) {
 			al_serdes_tx_advanced_params_get(
 					&obj,
@@ -232,6 +253,7 @@ int alpine_serdes_eth_mode_set(
 		else
 			al_serdes_mode_set_kr(&obj, group);
 
+		/* restore group params */
 		for (i = 0; i < AL_SRDS_NUM_LANES; i++) {
 			al_serdes_tx_advanced_params_set(
 					&obj,
@@ -277,14 +299,22 @@ static void __init al_init(void)
 {
 #if defined(MY_DEF_HERE)
 	pm_power_off = synology_power_off;
-#else  
+#else /* MY_DEF_HERE */
 	pm_power_off = al_power_off;
-#endif  
+#endif /* MY_DEF_HERE */
 
+	/*
+	 * Power Management Services Initialization
+	 * When running in SMP this should be done earlier
+	 */
 #ifndef CONFIG_SMP
 	alpine_cpu_pm_init();
 #endif
 
+	/* fabric uses a notifier for device registration,
+	 * Hence it must be initialized before registering
+	 * any devices
+	 **/
 	al_fabric_init();
 
 	al_serdes_resource_init();
@@ -332,7 +362,7 @@ DT_MACHINE_START(AL_DT, "AnnapurnaLabs Alpine (Device Tree)")
 	.dt_compat	= al_match,
 #if defined(MY_DEF_HERE)
 	.restart	= synology_restart,
-#else  
+#else /* MY_DEF_HERE */
 	.restart	= al_restart,
-#endif  
+#endif /* MY_DEF_HERE */
 MACHINE_END

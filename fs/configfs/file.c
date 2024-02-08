@@ -62,6 +62,7 @@ struct configfs_buffer {
 	int			bin_buffer_size;
 };
 
+
 /**
  *	fill_read_buffer - allocate and fill buffer from item.
  *	@dentry:	dentry pointer.
@@ -223,6 +224,7 @@ out:
 	return retval;
 }
 
+
 /**
  *	fill_write_buffer - copy buffer from userspace.
  *	@buffer:	data buffer for file.
@@ -253,6 +255,7 @@ fill_write_buffer(struct configfs_buffer * buffer, const char __user * buf, size
 	return error ? -EFAULT : count;
 }
 
+
 /**
  *	flush_write_buffer - push buffer to config_item.
  *	@dentry:	dentry to the attribute
@@ -279,6 +282,7 @@ flush_write_buffer(struct dentry * dentry, struct configfs_buffer * buffer, size
 		return ops->store_attribute(item,attr,buffer->page,count);
 	return attr->store(item, buffer->page, count);
 }
+
 
 /**
  *	configfs_write_file - write an attribute.
@@ -542,6 +546,7 @@ static int configfs_release_bin_file(struct inode *inode, struct file *filp)
 		return len;
 	return ret;
 }
+
 
 const struct file_operations configfs_file_operations = {
 	.read		= configfs_read_file,

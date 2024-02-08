@@ -92,6 +92,7 @@ static int tx_DSR = -1;			/* tx DSR invocation counter */
 struct semaphore *netIfIntTaskSemPtr;   /*  netIfIntTask Signalling sema */
 struct semaphore netIfIntTaskSem;
 
+
 /******************************************************************************/
 /*********************** ethernet port FIFO section ***************************/
 /******************************************************************************/
@@ -515,10 +516,12 @@ int prestera_smi_eth_port_rx_dsr_cnt(void)
 	return (rx_DSR == -1) ? 0 : rx_DSR;
 }
 
+
 int prestera_smi_eth_port_tx_dsr_cnt(void)
 {
 	return (tx_DSR == -1) ? 0 : tx_DSR;
 }
+
 
 /*******************************************************************************
 * prestera_smi_eth_port_rx_dsr
@@ -711,6 +714,7 @@ static void ioctl_cmd_pr(unsigned int cmd)
 		printk("%s\n", prestera_ioctls[_IOC_NR(cmd)]);
 }
 #endif /* MV_DEBUG */
+
 
 /************************************************************************
 *

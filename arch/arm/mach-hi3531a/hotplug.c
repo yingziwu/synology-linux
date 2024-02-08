@@ -24,6 +24,7 @@ static inline void hi3531a_scu_power_off(int cpu)
 	writel(regval, __io_address(CRG_REG_BASE + REG_A9_SRST_CRG));
 }
 
+
 /*****************************************************************************/
 
 void hi3531a_cpu_die(unsigned int cpu)
@@ -66,3 +67,4 @@ void hi3531a_scu_power_up(int cpu)
 	regval &= ~CPU1_SRST_REQ;
 	writel(regval, __io_address(CRG_REG_BASE + REG_A9_SRST_CRG));
 }
+

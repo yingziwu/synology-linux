@@ -283,6 +283,7 @@ void mali_mmu_pagedir_free(struct mali_page_directory *pagedir)
 	_mali_osk_free(pagedir);
 }
 
+
 void mali_mmu_pagedir_update(struct mali_page_directory *pagedir, u32 mali_address, u32 phys_address, u32 size, u32 permission_bits)
 {
 	u32 end_address = mali_address + size;

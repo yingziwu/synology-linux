@@ -1,13 +1,23 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  drivers/cpufreq/cpufreq_stats.c
+ *
+ *  Copyright (C) 2003-2004 Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>.
+ *  (C) 2004 Zou Nan hai <nanhai.zou@intel.com>.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
 #if defined(MY_DEF_HERE)
 #include <linux/cpu.h>
 #include <linux/cpufreq.h>
 #include <linux/module.h>
 #include <linux/slab.h>
-#else  
+#else /* MY_DEF_HERE */
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/cpu.h>
@@ -19,11 +29,11 @@
 #include <linux/kobject.h>
 #include <linux/spinlock.h>
 #include <linux/notifier.h>
-#endif  
+#endif /* MY_DEF_HERE */
 #if defined(CONFIG_SYNO_LSP_HI3536)
 #include <linux/sort.h>
 #include <linux/err.h>
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 #include <asm/cputime.h>
 
 static spinlock_t cpufreq_stats_lock;
@@ -57,7 +67,7 @@ struct all_freq_table {
 static struct all_freq_table *all_freq_table;
 
 static DEFINE_PER_CPU(struct all_cpufreq_stats *, all_cpufreq_stats);
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 static DEFINE_PER_CPU(struct cpufreq_stats *, cpufreq_stats_table);
 
 struct cpufreq_stats_attribute {
@@ -70,7 +80,7 @@ static int cpufreq_stats_update(unsigned int cpu)
 	struct cpufreq_stats *stat;
 #if defined(CONFIG_SYNO_LSP_HI3536)
 	struct all_cpufreq_stats *all_stat;
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	unsigned long long cur_time;
 
 	cur_time = get_jiffies_64();
@@ -89,11 +99,11 @@ static int cpufreq_stats_update(unsigned int cpu)
 			all_stat->time_in_state[stat->last_index] +=
 					cur_time - stat->last_time;
 	}
-#else  
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	if (stat->time_in_state)
 		stat->time_in_state[stat->last_index] +=
 			cur_time - stat->last_time;
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	stat->last_time = cur_time;
 	spin_unlock(&cpufreq_stats_lock);
 	return 0;
@@ -180,7 +190,7 @@ out:
 	len += scnprintf(buf + len, PAGE_SIZE - len, "\n");
 	return len;
 }
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 #ifdef CONFIG_CPU_FREQ_STAT_DETAILS
 static ssize_t show_trans_table(struct cpufreq_policy *policy, char *buf)
@@ -248,7 +258,7 @@ static struct attribute_group stats_attr_group = {
 #if defined(CONFIG_SYNO_LSP_HI3536)
 static struct kobj_attribute _attr_all_time_in_state = __ATTR(all_time_in_state,
 		0444, show_all_time_in_state, NULL);
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 static int freq_table_get_index(struct cpufreq_stats *stat, unsigned int freq)
 {
@@ -367,6 +377,10 @@ static void cpufreq_stats_create_table(unsigned int cpu)
 	struct cpufreq_policy *policy;
 	struct cpufreq_frequency_table *table;
 
+	/*
+	 * "likely(!policy)" because normally cpufreq_stats will be registered
+	 * before cpufreq driver
+	 */
 	policy = cpufreq_cpu_get(cpu);
 	if (likely(!policy))
 		return;
@@ -433,6 +447,7 @@ static int cpufreq_stat_notifier_trans(struct notifier_block *nb,
 	old_index = stat->last_index;
 	new_index = freq_table_get_index(stat, freq->new);
 
+	/* We can't do stat->time_in_state[-1]= .. */
 	if (old_index == -1 || new_index == -1)
 		return 0;
 
@@ -496,8 +511,10 @@ static void __exit cpufreq_stats_exit(void)
 	for_each_online_cpu(cpu)
 		cpufreq_stats_free_table(cpu);
 }
-#else  
- 
+#else /* MY_DEF_HERE */
+/* should be called late in the CPU removal sequence so that the stats
+ * memory is still available in case someone tries to use it.
+ */
 static void cpufreq_stats_free_table(unsigned int cpu)
 {
 	struct cpufreq_stats *stat = per_cpu(cpufreq_stats_table, cpu);
@@ -510,6 +527,9 @@ static void cpufreq_stats_free_table(unsigned int cpu)
 	}
 }
 
+/* must be called early in the CPU removal sequence (before
+ * cpufreq_remove_dev) so that policy is still valid.
+ */
 static void cpufreq_stats_free_sysfs(unsigned int cpu)
 {
 	struct cpufreq_policy *policy = cpufreq_cpu_get(cpu);
@@ -552,7 +572,7 @@ static void cpufreq_allstats_free(void)
 		all_freq_table = NULL;
 	}
 }
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 static int cpufreq_stats_create_table(struct cpufreq_policy *policy,
 		struct cpufreq_frequency_table *table)
@@ -710,6 +730,7 @@ static void cpufreq_allstats_create(unsigned int cpu)
 		return;
 	}
 
+	/*Allocate memory for freq table per cpu as well as clockticks per freq*/
 	alloc_size = count * sizeof(int) + count * sizeof(cputime64_t);
 	all_stat->time_in_state = kzalloc(alloc_size, GFP_KERNEL);
 	if (!all_stat->time_in_state) {
@@ -739,7 +760,7 @@ static void cpufreq_allstats_create(unsigned int cpu)
 	per_cpu(all_cpufreq_stats, cpu) = all_stat;
 	spin_unlock(&cpufreq_stats_lock);
 }
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 static int cpufreq_stat_notifier_policy(struct notifier_block *nb,
 		unsigned long val, void *data)
@@ -763,7 +784,7 @@ static int cpufreq_stat_notifier_policy(struct notifier_block *nb,
 #if defined(CONFIG_SYNO_LSP_HI3536)
 	if (!per_cpu(all_cpufreq_stats, cpu))
 		cpufreq_allstats_create(cpu);
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	ret = cpufreq_stats_create_table(policy, table);
 	if (ret)
@@ -788,6 +809,7 @@ static int cpufreq_stat_notifier_trans(struct notifier_block *nb,
 	old_index = stat->last_index;
 	new_index = freq_table_get_index(stat, freq->new);
 
+	/* We can't do stat->time_in_state[-1]= .. */
 	if (old_index == -1 || new_index == -1)
 		return 0;
 
@@ -830,7 +852,7 @@ out:
 	cpufreq_cpu_put(policy);
 	return ret;
 }
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 static int __cpuinit cpufreq_stat_cpu_callback(struct notifier_block *nfb,
 						   unsigned long action,
@@ -856,11 +878,12 @@ static int __cpuinit cpufreq_stat_cpu_callback(struct notifier_block *nfb,
 	case CPU_DOWN_FAILED_FROZEN:
 		cpufreq_stats_create_table_cpu(cpu);
 		break;
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	}
 	return NOTIFY_OK;
 }
 
+/* priority=1 so this will get called before cpufreq_remove_dev */
 static struct notifier_block cpufreq_stat_cpu_notifier __refdata = {
 	.notifier_call = cpufreq_stat_cpu_callback,
 	.priority = 1,
@@ -906,7 +929,7 @@ static int __init cpufreq_stats_init(void)
 			&_attr_all_time_in_state.attr);
 	if (ret)
 		pr_warn("Error creating sysfs file for cpufreq stats\n");
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	return 0;
 }
@@ -925,9 +948,9 @@ static void __exit cpufreq_stats_exit(void)
 	}
 #if defined(CONFIG_SYNO_LSP_HI3536)
 	cpufreq_allstats_free();
-#endif  
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 }
-#endif  
+#endif /* MY_DEF_HERE */
 
 MODULE_AUTHOR("Zou Nan hai <nanhai.zou@intel.com>");
 MODULE_DESCRIPTION("'cpufreq_stats' - A driver to export cpufreq stats "

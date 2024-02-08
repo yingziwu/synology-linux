@@ -147,6 +147,7 @@ static const struct {
 	{ NULL, 0 }
 };
 
+
 static const struct snmp_mib snmp4_tcp_list[] = {
 	SNMP_MIB_ITEM("RtoAlgorithm", TCP_MIB_RTOALGORITHM),
 	SNMP_MIB_ITEM("RtoMin", TCP_MIB_RTOMIN),
@@ -427,6 +428,8 @@ static const struct file_operations snmp_seq_fops = {
 	.release = single_release_net,
 };
 
+
+
 /*
  *	Output /proc/net/netstat
  */
@@ -509,3 +512,4 @@ int __init ip_misc_proc_init(void)
 {
 	return register_pernet_subsys(&ip_proc_ops);
 }
+

@@ -15,6 +15,7 @@
  *	*under construction*
  */
 
+
 struct in6_pktinfo {
 	struct in6_addr	ipi6_addr;
 	int		ipi6_ifindex;
@@ -49,6 +50,7 @@ struct ipv6_rt_hdr {
 	 *	variable length field
 	 */
 };
+
 
 struct ipv6_opt_hdr {
 	__u8 		nexthdr;
@@ -125,6 +127,7 @@ struct ipv6hdr {
 	struct	in6_addr	daddr;
 };
 
+
 /* index values for the variables in ipv6_devconf */
 enum {
 	DEVCONF_FORWARDING = 0,
@@ -163,5 +166,6 @@ enum {
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 	DEVCONF_MAX
 };
+
 
 #endif /* _UAPI_IPV6_H */

@@ -1689,6 +1689,7 @@ int vb2_streamon(struct vb2_queue *q, enum v4l2_buf_type type)
 }
 EXPORT_SYMBOL_GPL(vb2_streamon);
 
+
 /**
  * vb2_streamoff - stop streaming
  * @q:		videobuf2 queue
@@ -2452,6 +2453,7 @@ size_t vb2_write(struct vb2_queue *q, char __user *data, size_t count,
 	return __vb2_perform_fileio(q, data, count, ppos, nonblocking, 0);
 }
 EXPORT_SYMBOL_GPL(vb2_write);
+
 
 /*
  * The following functions are not part of the vb2 core API, but are helper

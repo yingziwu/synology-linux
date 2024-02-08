@@ -19,6 +19,7 @@
  *
  */
 
+
 #include "stm_nand_bbt.h"
 
 #ifndef CONFIG_STM_NAND_SAFE_MOUNT

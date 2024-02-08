@@ -195,6 +195,7 @@ static int iwl_mvm_phy_ctxt_apply(struct iwl_mvm *mvm,
 	return ret;
 }
 
+
 struct phy_ctx_used_data {
 	unsigned long used[BITS_TO_LONGS(NUM_PHY_CTX)];
 };

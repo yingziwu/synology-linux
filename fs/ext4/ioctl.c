@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * linux/fs/ext4/ioctl.c
  *
@@ -391,7 +394,11 @@ setversion_out:
 		if (err)
 			return err;
 
+#ifdef MY_DEF_HERE
+		if (get_user(n_blocks_count, (__u64 __user *)arg)) {
+#else
 		if (get_user(n_blocks_count, (__u32 __user *)arg)) {
+#endif /* MY_DEF_HERE */
 			err = -EFAULT;
 			goto group_extend_out;
 		}
@@ -613,9 +620,9 @@ resizefs_out:
 		struct request_queue *q = bdev_get_queue(sb->s_bdev);
 		struct fstrim_range range;
 		int ret = 0;
-#if defined(CONFIG_SYNO_LSP_HI3536)
-		int flags  = cmd == FIDTRIM ? BLKDEV_DISCARD_SECURE : 0;
-#endif /* CONFIG_SYNO_LSP_HI3536 */
+#if defined(CONFIG_SYNO_LSP_HI3536) || defined(MY_ABC_HERE)
+		enum trim_act act = TRIM_SEND_TRIM;
+#endif /* CONFIG_SYNO_LSP_HI3536 || MY_ABC_HERE */
 
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
@@ -624,8 +631,11 @@ resizefs_out:
 			return -EOPNOTSUPP;
 
 #if defined(CONFIG_SYNO_LSP_HI3536)
-		if ((flags & BLKDEV_DISCARD_SECURE) && !blk_queue_secdiscard(q))
-			return -EOPNOTSUPP;
+		if (cmd == FIDTRIM) {
+			if (!blk_queue_secdiscard(q))
+				return -EOPNOTSUPP;
+			act = TRIM_SEND_SEC_DISCARD;
+		}
 #endif /* CONFIG_SYNO_LSP_HI3536 */
 		if (copy_from_user(&range, (struct fstrim_range __user *)arg,
 		    sizeof(range)))
@@ -633,8 +643,8 @@ resizefs_out:
 
 		range.minlen = max((unsigned int)range.minlen,
 				   q->limits.discard_granularity);
-#if defined(CONFIG_SYNO_LSP_HI3536)
-		ret = ext4_trim_fs(sb, &range, flags);
+#if defined(CONFIG_SYNO_LSP_HI3536) || defined(MY_ABC_HERE)
+		ret = ext4_trim_fs(sb, &range, act);
 #else /* CONFIG_SYNO_LSP_HI3536 */
 		ret = ext4_trim_fs(sb, &range);
 #endif /* CONFIG_SYNO_LSP_HI3536 */
@@ -647,12 +657,117 @@ resizefs_out:
 
 		return 0;
 	}
+#ifdef MY_ABC_HERE
+	case FIHINTUNUSED:
+	{
+		struct request_queue *q = bdev_get_queue(sb->s_bdev);
+		struct fstrim_range range;
+		int ret = 0;
+
+		if (!capable(CAP_SYS_ADMIN))
+			return -EPERM;
+
+		if (!blk_queue_unused_hint(q))
+			return -EOPNOTSUPP;
+
+		if (copy_from_user(&range, (struct fstrim_range __user *)arg,
+		    sizeof(range)))
+			return -EFAULT;
+
+		ret = ext4_trim_fs(sb, &range, TRIM_SEND_HINT);
+		if (!ret)
+			ext4_msg(sb, KERN_NOTICE, "total send %llu bytes hints", range.len);
+
+		return ret;
+	}
+#endif /* MY_ABC_HERE */
 
 	default:
 		return -ENOTTY;
 	}
 }
 
+#ifdef MY_ABC_HERE
+long ext4_symlink_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	struct inode *inode = file_inode(filp);
+	struct ext4_inode_info *ei = EXT4_I(inode);
+	unsigned int flags;
+
+	ext4_debug("cmd = %u, arg = %lu\n", cmd, arg);
+
+	switch (cmd) {
+	case EXT4_IOC_GETFLAGS:
+		ext4_get_inode_flags(ei);
+		flags = ei->i_flags & EXT4_FL_USER_VISIBLE;
+		return put_user(flags, (int __user *) arg);
+	case EXT4_IOC_SETFLAGS: {
+		handle_t *handle = NULL;
+		int err;
+		struct ext4_iloc iloc;
+		unsigned int mask, i;
+
+		if (!inode_owner_or_capable(inode))
+			return -EACCES;
+
+		if (get_user(flags, (int __user *) arg))
+			return -EFAULT;
+
+		err = mnt_want_write_file(filp);
+		if (err)
+			return err;
+
+		flags = ext4_mask_flags(inode->i_mode, flags);
+
+		err = -EPERM;
+		mutex_lock(&inode->i_mutex);
+		/* Is it quota file? Do not allow user to mess with it */
+		if (IS_NOQUOTA(inode))
+			goto flags_out;
+
+		handle = ext4_journal_start(inode, EXT4_HT_INODE, 1);
+		if (IS_ERR(handle)) {
+			err = PTR_ERR(handle);
+			goto flags_out;
+		}
+		if (IS_SYNC(inode))
+			ext4_handle_sync(handle);
+		err = ext4_reserve_inode_write(handle, inode, &iloc);
+		if (err)
+			goto flags_err;
+
+		for (i = 0, mask = 1; i < 32; i++, mask <<= 1) {
+			if (!(mask & EXT4_FL_USER_MODIFIABLE))
+				continue;
+			if (mask & flags)
+				ext4_set_inode_flag(inode, i);
+			else
+				ext4_clear_inode_flag(inode, i);
+		}
+
+		ext4_set_inode_flags(inode);
+		inode->i_ctime = ext4_current_time(inode);
+
+		err = ext4_mark_iloc_dirty(handle, inode, &iloc);
+flags_err:
+		ext4_journal_stop(handle);
+		if (err)
+			goto flags_out;
+
+		if (err)
+			goto flags_out;
+
+flags_out:
+		mutex_unlock(&inode->i_mutex);
+		mnt_drop_write_file(filp);
+		return err;
+	}
+
+	default:
+		return -ENOTTY;
+	}
+}
+#endif /* MY_ABC_HERE */
 #ifdef CONFIG_COMPAT
 long ext4_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {

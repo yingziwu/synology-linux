@@ -139,3 +139,4 @@ extern void hifmc_set_nor_system_clock(struct spi_op *op, int clk_en);
 /*****************************************************************************/
 
 #endif /* End of __HIFMC100_H__ */
+

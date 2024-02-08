@@ -236,6 +236,7 @@ int asix_get_phy_addr(struct usbnet *dev)
 	return asix_read_phy_addr(dev, 1);
 }
 
+
 int asix_sw_reset(struct usbnet *dev, u8 flags)
 {
 	int ret;

@@ -270,6 +270,7 @@ static void update_global_ops(void)
 		global_ops.flags |= FTRACE_OPS_FL_RECURSION_SAFE;
 	}
 
+
 	/* If we filter on pids, update to use the pid function */
 	if (!list_empty(&ftrace_pids)) {
 		set_ftrace_pid_function(func);
@@ -1505,6 +1506,7 @@ ftrace_ops_test(struct ftrace_ops *ops, unsigned long ip, void *regs)
 #define while_for_each_ftrace_rec()		\
 		}				\
 	}
+
 
 static int ftrace_cmp_recs(const void *a, const void *b)
 {
@@ -3136,6 +3138,7 @@ static void __disable_ftrace_function_probe(void)
 
 	ftrace_probe_registered = 0;
 }
+
 
 static void ftrace_free_entry(struct ftrace_func_probe *entry)
 {

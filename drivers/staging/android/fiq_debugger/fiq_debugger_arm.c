@@ -111,6 +111,7 @@ static void __naked get_mode_regs(struct mode_regs *regs)
 	"bx	lr\n");
 }
 
+
 void fiq_debugger_dump_allregs(struct fiq_debugger_output *output,
 		const struct pt_regs *regs)
 {

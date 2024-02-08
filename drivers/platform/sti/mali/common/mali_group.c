@@ -26,6 +26,7 @@
 #include <trace/events/gpu.h>
 #endif
 
+
 static void mali_group_bottom_half_mmu(void *data);
 static void mali_group_bottom_half_gp(void *data);
 static void mali_group_bottom_half_pp(void *data);
@@ -91,6 +92,7 @@ void mali_group_assert_locked(struct mali_group *group)
 	MALI_DEBUG_ASSERT_LOCK_HELD(group->lock);
 }
 #endif
+
 
 struct mali_group *mali_group_create(struct mali_l2_cache_core *core, struct mali_dlbu_core *dlbu, struct mali_bcast_unit *bcast)
 {

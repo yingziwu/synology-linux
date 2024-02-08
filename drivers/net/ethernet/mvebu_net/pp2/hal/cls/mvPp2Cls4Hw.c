@@ -118,6 +118,7 @@ int mvPp2ClsC4HwUniToRulesGet(int uni, int *set, int *rules)
 	PTR_VALIDATE(set);
 	PTR_VALIDATE(rules);
 
+
 	regVal = mvPp2RdReg(MV_PP2_CLS4_UNI_TO_RL_REG(uni));
 
 	*rules = (regVal & MV_PP2_CLS4_PHY_TO_RL_RULE_NUM_MASK) >> MV_PP2_CLS4_PHY_TO_RL_RULE_NUM;
@@ -163,6 +164,7 @@ int mvPp2ClsC4HwWrite(MV_PP2_CLS_C4_ENTRY *C4, int rule, int set)
 	int regInd;
 
 	PTR_VALIDATE(C4);
+
 
 	POS_RANGE_VALIDATE(rule, (MV_PP2_CLS_C4_GRP_SIZE-1));
 	POS_RANGE_VALIDATE(set, (MV_PP2_CLS_C4_GRPS_NUM-1));
@@ -258,6 +260,7 @@ int mvPp2ClsC4SwDump(MV_PP2_CLS_C4_ENTRY *C4)
 			((C4->sram.regs.actions & (ACT_POLICER_SELECT_MASK)) >> ACT_POLICER_SELECT),
 			((C4->sram.regs.actions & ACT_FWD_MASK) >> ACT_FWD));
 
+
 	/*------------------------------*/
 	/*	qos_attr 0x1E84		*/
 	/*------------------------------*/
@@ -273,6 +276,7 @@ int mvPp2ClsC4SwDump(MV_PP2_CLS_C4_ENTRY *C4)
 			((C4->sram.regs.qos_attr & (ACT_QOS_ATTR_MDF_HIGH_Q_MASK)) >> ACT_QOS_ATTR_MDF_HIGH_Q),
 			((C4->sram.regs.dup_attr & (ACT_DUP_POLICER_MASK)) >> ACT_DUP_POLICER_ID),
 			((C4->sram.regs.dup_attr & ACT_DUP_POLICER_BANK_MASK) >> ACT_DUP_POLICER_BANK_BIT));
+
 
 	return MV_OK;
 }
@@ -342,6 +346,7 @@ int mvPp2ClsC4RegsDump()
 {
 	int i = 0;
 	char reg_name[100];
+
 
 	for (i = 0; i < MV_PP2_MAX_PORTS; i++) {
 		mvOsSPrintf(reg_name, "MV_PP2_CLS4_PHY_TO_RL_%d_REG", i);
@@ -501,6 +506,7 @@ int mvPp2ClsC4SwL3InfoSet(MV_PP2_CLS_C4_ENTRY *C4, int info)
 	return MV_OK;
 }
 
+
 /*-------------------------------------------------------------------------------*/
 /*			Classifier C4 engine Public action table APIs 		 */
 /*-------------------------------------------------------------------------------*/
@@ -595,6 +601,7 @@ int mvPp2ClsC4PolicerSet(MV_PP2_CLS_C4_ENTRY *C4, int cmd, int policerId, int ba
 int mvPp2ClsC4QueueHighSet(MV_PP2_CLS_C4_ENTRY *C4, int cmd, int queue)
 {
 	PTR_VALIDATE(C4);
+
 
 	POS_RANGE_VALIDATE(cmd, UPDATE_AND_LOCK);
 	POS_RANGE_VALIDATE(queue, ACT_QOS_ATTR_MDF_HIGH_Q_MAX);

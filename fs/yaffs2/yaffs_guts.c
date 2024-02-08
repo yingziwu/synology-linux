@@ -340,6 +340,7 @@ static int yaffs_verify_chunk_written(struct yaffs_dev *dev,
 	return retval;
 }
 
+
 int yaffs_check_alloc_available(struct yaffs_dev *dev, int n_chunks)
 {
 	int reserved_chunks;
@@ -647,6 +648,7 @@ static u16 yaffs_calc_name_sum(const YCHAR *name)
 	}
 	return sum;
 }
+
 
 void yaffs_set_obj_name(struct yaffs_obj *obj, const YCHAR * name)
 {
@@ -1987,6 +1989,7 @@ static struct yaffs_obj *yaffs_create_fake_dir(struct yaffs_dev *dev,
 
 }
 
+
 static void yaffs_init_tnodes_and_objs(struct yaffs_dev *dev)
 {
 	int i;
@@ -2230,6 +2233,8 @@ struct yaffs_obj *yaffs_link_obj(struct yaffs_obj *parent, const YCHAR * name,
 
 }
 
+
+
 /*---------------------- Block Management and Page Allocation -------------*/
 
 static void yaffs_deinit_blocks(struct yaffs_dev *dev)
@@ -2287,6 +2292,7 @@ static int yaffs_init_blocks(struct yaffs_dev *dev)
 	if (!dev->chunk_bits)
 		goto alloc_error;
 
+
 	memset(dev->block_info, 0, n_blocks * sizeof(struct yaffs_block_info));
 	memset(dev->chunk_bits, 0, dev->chunk_bit_stride * n_blocks);
 	return YAFFS_OK;
@@ -2295,6 +2301,7 @@ alloc_error:
 	yaffs_deinit_blocks(dev);
 	return YAFFS_FAIL;
 }
+
 
 void yaffs_block_became_dirty(struct yaffs_dev *dev, int block_no)
 {
@@ -3030,6 +3037,8 @@ static int yaffs_wr_data_obj(struct yaffs_obj *in, int inode_chunk,
 
 }
 
+
+
 static int yaffs_do_xattrib_mod(struct yaffs_obj *obj, int set,
 				const YCHAR *name, const void *value, int size,
 				int flags)
@@ -3395,6 +3404,7 @@ int yaffs_update_oh(struct yaffs_obj *in, const YCHAR *name, int force,
 					  in->my_dev->param.chunks_per_block);
 		bi->has_shrink_hdr = 1;
 	}
+
 
 	return new_chunk_id;
 }
@@ -3804,6 +3814,7 @@ int yaffs_flush_file(struct yaffs_obj *in, int update_time, int data_sync)
 	return (yaffs_update_oh(in, NULL, 0, 0, 0, NULL) >= 0) ?
 				YAFFS_OK : YAFFS_FAIL;
 }
+
 
 /* yaffs_del_file deletes the whole file data
  * and the inode associated with the file.
@@ -4305,6 +4316,7 @@ static void yaffs_empty_l_n_f(struct yaffs_dev *dev)
 {
 	yaffs_del_dir_contents(dev->lost_n_found);
 }
+
 
 struct yaffs_obj *yaffs_find_by_name(struct yaffs_obj *directory,
 				     const YCHAR *name)
@@ -4987,6 +4999,7 @@ int yaffs_get_n_free_chunks(struct yaffs_dev *dev)
 	return n_free;
 }
 
+
 int yaffs_format_dev(struct yaffs_dev *dev)
 {
 	int i;
@@ -5020,6 +5033,7 @@ int yaffs_format_dev(struct yaffs_dev *dev)
 
 	return YAFFS_OK;
 }
+
 
 /*
  * Marshalling functions to get loff_t file sizes into and out of

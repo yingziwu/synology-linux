@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright 2006-2007, Michael Ellerman, IBM Corporation.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; version 2 of the
+ * License.
+ *
+ */
+
 #include <linux/irq.h>
 #include <linux/bitmap.h>
 #include <linux/msi.h>
@@ -15,7 +24,7 @@
 
 void mpic_msi_reserve_hwirq(struct mpic *mpic, irq_hw_number_t hwirq)
 {
-	 
+	/* The mpic calls this even when there is no allocator setup */
 	if (!mpic->msi_bitmap.bitmap)
 		return;
 
@@ -31,12 +40,18 @@ static int mpic_msi_reserve_u3_hwirqs(struct mpic *mpic)
 	int flags, index, i;
 #if defined(MY_DEF_HERE)
 	struct of_phandle_args oirq;
-#else  
+#else /* MY_DEF_HERE */
 	struct of_irq oirq;
-#endif  
+#endif /* MY_DEF_HERE */
 
 	pr_debug("mpic: found U3, guessing msi allocator setup\n");
 
+	/* Reserve source numbers we know are reserved in the HW.
+	 *
+	 * This is a bit of a mix of U3 and U4 reserves but that's going
+	 * to work fine, we have plenty enugh numbers left so let's just
+	 * mark anything we don't like reserved.
+	 */
 	for (i = 0;   i < 8;   i++)
 		msi_bitmap_reserve_hwirq(&mpic->msi_bitmap, i);
 
@@ -49,6 +64,7 @@ static int mpic_msi_reserve_u3_hwirqs(struct mpic *mpic)
 	for (i = 124; i < mpic->num_sources; i++)
 		msi_bitmap_reserve_hwirq(&mpic->msi_bitmap, i);
 
+
 	np = NULL;
 	while ((np = of_find_all_nodes(np))) {
 		pr_debug("mpic: mapping hwirqs for %s\n", np->full_name);
@@ -58,11 +74,11 @@ static int mpic_msi_reserve_u3_hwirqs(struct mpic *mpic)
 		while (of_irq_parse_one(np, index++, &oirq) == 0) {
 			ops->xlate(mpic->irqhost, NULL, oirq.args,
 						oirq.args_count, &hwirq, &flags);
-#else  
+#else /* MY_DEF_HERE */
 		while (of_irq_map_one(np, index++, &oirq) == 0) {
 			ops->xlate(mpic->irqhost, NULL, oirq.specifier,
 						oirq.size, &hwirq, &flags);
-#endif  
+#endif /* MY_DEF_HERE */
 			msi_bitmap_reserve_hwirq(&mpic->msi_bitmap, hwirq);
 		}
 	}

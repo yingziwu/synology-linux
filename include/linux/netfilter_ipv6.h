@@ -9,6 +9,7 @@
 
 #include <uapi/linux/netfilter_ipv6.h>
 
+
 #ifdef CONFIG_NETFILTER
 extern int ip6_route_me_harder(struct sk_buff *skb);
 extern __sum16 nf_ip6_checksum(struct sk_buff *skb, unsigned int hook,

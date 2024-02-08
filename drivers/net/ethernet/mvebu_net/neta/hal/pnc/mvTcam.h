@@ -122,6 +122,7 @@ extern unsigned int tcam_line_num;
 #define MV_PNC_XBAR_RET_REG					(MV_PNC_REG_BASE + 0x24)
 /*-------------------------------------------------------------------------------*/
 
+
 #ifdef MV_ETH_PNC_AGING
 #define MV_PNC_AGING_MAX_GROUP              4
 
@@ -166,6 +167,7 @@ extern unsigned int tcam_line_num;
 
 #define MV_PNC_LB_CRC_INIT_REG              (MV_PNC_REG_BASE + 0x44)
 #endif /* MV_ETH_PNC_LB */
+
 
 #define MV_PNC_TCAM_ARRAY_SIZE		256
 #define MV_PNC_TOTAL_DATA_SIZE		120

@@ -62,6 +62,7 @@ met:
 #define AL_PCIE_MIN_MEMORY_BAR_SIZE		(1 << 12)
 #define AL_PCIE_MIN_IO_BAR_SIZE			(1 << 8)
 
+
 /* --->>> MACROS <<<--- */
 #define AL_PCIE_PARSE_LANES(v)		(((1 << v) - 1) << \
 		PCIE_AXI_MISC_PCIE_GLOBAL_CONF_NOF_ACT_LANES_SHIFT)
@@ -251,6 +252,7 @@ al_pcie_port_gen2_params_config(struct al_pcie_port *pcie_port,
 	return 0;
 }
 
+
 static uint16_t
 gen3_lane_eq_param_to_val(struct al_pcie_gen3_lane_eq_params *eq_params)
 {
@@ -285,6 +287,8 @@ al_pcie_port_gen3_params_config(struct al_pcie_port *pcie_port,
 
 	al_reg_write32(&regs->core_space.pcie_sec_ext_cap_base + (4 >> 2),
 		       reg);
+
+
 
 	for (i = 0; i < gen3_params->eq_params_elements; i += 2) {
 		uint32_t eq_control =
@@ -601,6 +605,7 @@ al_pcie_port_ep_iov_setup(
 		((ep_iov_params->support_32b_address_in_iov == AL_TRUE) ?
 		 PCIE_W_CFG_EMUL_CTRL_FIX_CLIENT1_FMT_EN : 0));
 }
+
 
 /******************** link operations ***************************************/
 
@@ -1389,6 +1394,7 @@ int al_pcie_remote_loopback_enter(struct al_pcie_port *pcie_port)
 
 	return 0;
 }
+
 
 /**
  * @brief   exit remote loopback mode

@@ -78,6 +78,7 @@ The user may:
             commercial use other than making said contribution to the ITU.
             Said permission will be provided on a case-by-case basis.
 
+
 ANY OTHER USE OR APPLICATION OF THE PESQ SOFTWARE AND/OR THE PESQ
 ALGORITHM WILL REQUIRE A PESQ LICENCE AGREEMENT, WHICH MAY BE OBTAINED
 FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
@@ -85,6 +86,7 @@ FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
 EACH COMPANY OFFERS OEM LICENSE AGREEMENTS, WHICH COMBINE OEM
 IMPLEMENTATIONS OF THE PESQ ALGORITHM TOGETHER WITH A PESQ PATENT LICENSE
 AGREEMENT. PESQ PATENT-ONLY LICENSE AGREEMENTS MAY BE OBTAINED FROM OPTICOM.
+
 
 ***********************************************************************
 *  OPTICOM GmbH                    *  Psytechnics Limited             *
@@ -110,6 +112,7 @@ Further information is also available from www.pesq.org
 #ifndef FALSE
 #define FALSE 0
 #endif
+
 
 #define LINIIR 60
 
@@ -162,6 +165,7 @@ extern float Sl;
 
 #define Tn 0.01f
 
+
 #ifndef min
   #define min(a,b)  (((a) < (b)) ? (a) : (b))
 #endif
@@ -206,6 +210,7 @@ typedef struct {
   short mode;
 
 } ERROR_INFO;
+
 
 extern long Fs;
 extern long Downsample;
@@ -278,6 +283,8 @@ void apply_pesq( float * x_data, float * ref_surf,
 float * y_data, float * deg_surf, long NVAD_windows, float * ftmp,
 ERROR_INFO * err_info );
 
+
+
 #define     D_POW_F     2
 #define     D_POW_S     6
 #define     D_POW_T     2
@@ -285,6 +292,7 @@ ERROR_INFO * err_info );
 #define     A_POW_F     1
 #define     A_POW_S     6
 #define     A_POW_T     2
+
 
 #define     D_WEIGHT    0.1
 #define     A_WEIGHT    0.0309

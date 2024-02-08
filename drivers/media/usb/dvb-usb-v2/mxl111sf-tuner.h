@@ -85,3 +85,4 @@ struct dvb_frontend *mxl111sf_tuner_attach(struct dvb_frontend *fe,
  * c-basic-offset: 8
  * End:
  */
+

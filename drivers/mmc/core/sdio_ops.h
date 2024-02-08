@@ -20,3 +20,4 @@ int mmc_io_rw_extended(struct mmc_card *card, int write, unsigned fn,
 int sdio_reset(struct mmc_host *host);
 
 #endif
+

@@ -22,3 +22,4 @@
 int hinfc610_get_sync_info(struct hinfc_host *host);
 
 #endif /* HINFC610_SYNC_H */
+

@@ -64,6 +64,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "mvPp2PrsHw.h"
 
+
 /*-------------------------------------------------------------------------------*/
 /*	Static functions declaretion for internal use 				*/
 /*-------------------------------------------------------------------------------*/
@@ -276,6 +277,7 @@ int mvPp2PrsHwPortInit(int port, int lu_first, int lu_max, int offs)
 	return MV_OK;
 }
 
+
 int mvPp2PrsHwRegsDump()
 {
 	int i;
@@ -307,6 +309,7 @@ int mvPp2PrsHwRegsDump()
 
 	return MV_OK;
 }
+
 
 int mvPrsHwLkpFirstSet(int port, int lu_first)
 {
@@ -755,6 +758,8 @@ int mvPp2PrsSwTcamBytesIgnorMaskCmp(MV_PP2_PRS_ENTRY *pe, unsigned int offs, uns
 	return EQUALS;
 }
 
+
+
 int mvPp2PrsSwTcamAiUpdate(MV_PP2_PRS_ENTRY *pe, unsigned int bits, unsigned int enable)
 {
 	int i;
@@ -835,6 +840,7 @@ int mvPp2PrsSwTcamPortMapGet(MV_PP2_PRS_ENTRY *pe, unsigned int *ports)
 	return MV_OK;
 }
 
+
 int mvPp2PrsSwTcamLuSet(MV_PP2_PRS_ENTRY *pe, unsigned int lu)
 {
 
@@ -868,6 +874,7 @@ int mvPp2PrsSwSramRiSetBit(MV_PP2_PRS_ENTRY *pe, unsigned int bit)
 	pe->sram.word[SRAM_RI_WORD] |= (1 << bit);
 	pe->sram.word[SRAM_RI_CTRL_WORD] |= (1 << bit);
 
+
 	return MV_OK;
 }
 
@@ -883,6 +890,7 @@ int mvPp2PrsSwSramRiClearBit(MV_PP2_PRS_ENTRY *pe, unsigned int bit)
 	return MV_OK;
 }
 
+
 /* set RI and RI_UPDATE */
 int mvPp2PrsSwSramRiUpdate(MV_PP2_PRS_ENTRY *pe, unsigned int bits, unsigned int enable)
 {
@@ -897,6 +905,7 @@ int mvPp2PrsSwSramRiUpdate(MV_PP2_PRS_ENTRY *pe, unsigned int bits, unsigned int
 	unsigned int i;
 
 	PTR_VALIDATE(pe);
+
 
 	for (i = 0; i < SRAM_RI_BITS; i++) {
 		if (enable & (1 << i)) {
@@ -980,6 +989,7 @@ int mvPp2PrsSwSramAiClearBit(MV_PP2_PRS_ENTRY *pe, unsigned char bit)
 	return MV_OK;
 }
 
+
 int mvPp2PrsSwSramAiUpdate(MV_PP2_PRS_ENTRY *pe, unsigned int bits, unsigned int mask)
 {
 	unsigned int i;
@@ -998,6 +1008,7 @@ int mvPp2PrsSwSramAiUpdate(MV_PP2_PRS_ENTRY *pe, unsigned int bits, unsigned int
 		}
 	return MV_OK;
 }
+
 
 /* return AI and AI_UPDATE */
 int mvPp2PrsSwSramAiGet(MV_PP2_PRS_ENTRY *pe, unsigned int *bits, unsigned int *enable)
@@ -1125,6 +1136,7 @@ int mvPp2PrsSwSramShiftAbsUpdate(MV_PP2_PRS_ENTRY *pe, int shift, unsigned int o
 	return MV_OK;
 }
 
+
 int mvPp2PrsSwSramOffsetSet(MV_PP2_PRS_ENTRY *pe, unsigned int type, int offset, unsigned int op)
 {
 	PTR_VALIDATE(pe);
@@ -1184,6 +1196,7 @@ int mvPp2PrsSwSramOffsetGet(MV_PP2_PRS_ENTRY *pe, unsigned int *type, int *offse
 
 	*type = pe->sram.byte[SRAM_BIT_TO_BYTE(SRAM_OFFSET_TYPE_OFFS)] >> (SRAM_OFFSET_TYPE_OFFS % 8);
 	*type &= SRAM_OFFSET_TYPE_MASK;
+
 
 	*offset = (pe->sram.byte[SRAM_BIT_TO_BYTE(SRAM_OFFSET_OFFS)] >> (SRAM_OFFSET_OFFS % 8)) & 0x7f;
 	*offset |= (pe->sram.byte[SRAM_BIT_TO_BYTE(SRAM_OFFSET_OFFS + SRAM_OFFSET_BITS)] <<

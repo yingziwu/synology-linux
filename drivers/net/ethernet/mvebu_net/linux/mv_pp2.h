@@ -123,4 +123,5 @@ struct mv_pp2_pdata {
 	unsigned int flags;
 };
 
+
 #endif  /* LINUX_MV_PP2_H */

@@ -28,6 +28,7 @@
 #include <net/tcp.h>
 #include <net/udp.h>
 
+
 #define NAT_TAB_MASK	15
 static struct tcf_common *tcf_nat_ht[NAT_TAB_MASK + 1];
 static u32 nat_idx_gen;

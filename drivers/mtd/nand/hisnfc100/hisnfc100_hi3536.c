@@ -76,3 +76,4 @@ void hisnfc100_get_best_clock(unsigned int *clock)
 
 	*clock = clk_reg;
 }
+

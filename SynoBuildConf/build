@@ -135,22 +135,6 @@ if [ ! -f "${KernelImage}" ]; then
 	exit 1;
 fi
 
-./scripts/syno_gen_usbmodem_table.sh create-table
-if [ "$BUILD_TARGET" = "STM_MONACO" ]; then
-	DVB_MODULES_DIR="scripts/DVB/3.10.x"
-	if [ -d "$DVB_MODULES_DIR" ]; then
-		rm -rf ${DVB_MODULES_DIR}
-	fi
-
-	mkdir -p ${DVB_MODULES_DIR}
-	find drivers/media -name '*.ko' -exec cp {} ${DVB_MODULES_DIR}/ \;
-	cd ./scripts/DVB/
-	./generate_dependency_table.py 2>&1
-	./generate_VIDPID_table.py 2>&1
-	./generate_cleanuped_dependency_table.py 2>&1
-	cd -
-fi
-
 # Compare kernel config with re-generated one to see
 # if any changes or new options not reapplied to ${KernelConfig}.
 ConfigDiff=`diff -bu ${KernelConfig} .config`
@@ -170,3 +154,126 @@ else
             echo
         fi
 fi
+
+check_macro_fail()
+{
+    local WarnMsg=$1
+    local Macro=$2
+    # Build failed if not debug mode
+    [ -f ".debug" ] || WARNING "!!! CONFIG_SYNO check fail : $Macro"
+    WARNING "$WarnMsg"
+    WARNING "Please reconfirm your modifications before committing."
+    echo ""
+}
+
+check_define_macro()
+{
+    INFO "Check CONFIG_SYNO* macro define"
+    local GrepSynoDefine=""
+    local Macro=""
+    local SynoMacro=""
+    local SynoKconfigTable=`find . -name "Kconfig*" -exec grep -n "config SYNO" {} +`
+    declare -A array
+    declare -A SynoMacroWhiteList=( [SYNO_EXPORT_CONFIG]=1 \
+            [SYNO_UNICODE]=1 \
+            [SYNO_YOTAWIMAX_SUPPORT]=1 \
+            [SYNO_SATA_MV_EH]=1 \
+            [SYNO_FS_OPTIONS]=1 \
+            [SYNO_EVANSPORT_POWEROFF]=1 \
+            [SYNO_MD_DISKSTATS]=1 \
+            [SYNO_CONFIGFS_BACKPORT]=1 \
+            [SYNO_CVE_2017_0861]=1 \
+            [SYNO_REMOVE_RA_ERROR_LOG]=1 \
+	    )
+
+    IFS=$'\n'
+
+    GrepSynoDefine=`grep -E -o -rn --exclude-dir={.git,SynoBuildConf} "defined *\(CONFIG_SYNO([0-9]|[a-z]|[A-Z]|_)*"`
+    for WarnMsg in $GrepSynoDefine; do
+        SynoMacro=`echo "$WarnMsg" | cut -d "(" -f2 | cut -c 8-`
+        if [ ! -z ${array["$SynoMacro"]} ]; then
+            continue;
+        fi
+        if [ `echo $SynoKconfigTable | grep "config $SynoMacro" | wc -l` -eq 0 ]; then
+            check_macro_fail $WarnMsg $SynoMacro
+        else
+            array[$SynoMacro]=1
+        fi
+    done
+
+    GrepSynoDefine=`grep -E -o -rn --exclude-dir={.git,SynoBuildConf} "ifdef *CONFIG_SYNO([0-9]|[a-z]|[A-Z]|_)*"`
+    for WarnMsg in $GrepSynoDefine; do
+        SynoMacro=`echo "$WarnMsg" | sed 's/CONFIG_/@/g' | cut -d "@" -f2`
+        if [ ! -z ${array["$SynoMacro"]} ]; then
+            continue;
+        fi
+        if [ `echo $SynoKconfigTable | grep "config $SynoMacro" | wc -l` -eq 0 ]; then
+            check_macro_fail $WarnMsg $SynoMacro
+        else
+            array[$SynoMacro]=1
+        fi
+    done
+
+    #check: ifndef CONFIG_SYNO* case
+    GrepSynoDefine=`grep -E -o -rn --exclude-dir={.git,SynoBuildConf} "ifndef *CONFIG_SYNO"`
+    if [ `echo "$GrepSynoDefine" | wc -l` -ne 0  ]; then
+        for WarnMsg in $GrepSynoDefine; do
+            SynoMacro=`echo "$WarnMsg" | sed 's/CONFIG_/@/g' | cut -d "@" -f2`
+            check_macro_fail $WarnMsg $SynoMacro
+        done
+    fi
+
+    #check: if defined(SYNO_* case
+    GrepSynoDefine=`grep -E -o -rn --exclude-dir={.git,SynoBuildConf} "defined *\(SYNO([0-9]|[a-z]|[A-Z]|_)*"`
+    for WarnMsg in $GrepSynoDefine; do
+        Macro=`echo "$WarnMsg" | cut -d "(" -f2`
+        if [ -z ${SynoMacroWhiteList["$Macro"]} ]; then
+            check_macro_fail $WarnMsg $Macro
+        fi
+    done
+
+    #check: ifdef SYNO_* case
+    GrepSynoDefine=`grep -E -o -rn --exclude-dir={.git,SynoBuildConf} "ifdef *SYNO([0-9]|[a-z]|[A-Z]|_)*"`
+    for WarnMsg in $GrepSynoDefine; do
+        Macro=`echo "$WarnMsg" | awk '{print substr($0, index($0, "SYNO"))}'`
+        if [ -z ${SynoMacroWhiteList["$Macro"]} ]; then
+            check_macro_fail $WarnMsg $Macro
+        fi
+    done
+
+    unset IFS
+}
+
+check_define_macro
+
+check_alpine_kernel_size()
+{
+	# 32M(max arm32 branch offset) - 20M (module size + pmt size) - 1M (reserved)
+	KERNEL_SIZE_LIMIT=11534336
+	VMLINUX="${KernelDir}/vmlinux"
+	READELF=${ToolChainPrefix}readelf
+
+	bss_address=0x`$READELF -S $VMLINUX | grep ".bss" |awk '{print $4}'`
+	bss_size=0x`$READELF -S $VMLINUX | grep ".bss" | awk '{print $6}'`
+	bss_end=`echo $bss_address $bss_size | gawk --non-decimal-data '{printf "%d\n", $1+$2}'`
+
+	headtext_address=0x`$READELF -S $VMLINUX | grep ".head.text" |awk '{print $5}'`
+	headtext_offset=0x`$READELF -S $VMLINUX | grep ".head.text" |awk '{print $6}'`
+
+	page_offset=`echo $headtext_address $headtext_offset | gawk --non-decimal-data '{printf "%d\n", $1-$2}'`
+
+	kernel_size=`echo $bss_end $page_offset | gawk --non-decimal-data '{printf "%d\n", $1-$2}'`
+
+	if [ $kernel_size -gt $KERNEL_SIZE_LIMIT ]; then
+		[ -f ".debug" ] || WARNING "!!! Kernel size check fail :"
+		WARNING "Kernel size $kernel_size Byte exceed limitation! $KERNEL_SIZE_LIMIT Byte"
+	fi
+}
+
+case "$BUILD_TARGET" in
+	ALPINE)
+		check_alpine_kernel_size
+		;;
+	*)
+		;;
+esac

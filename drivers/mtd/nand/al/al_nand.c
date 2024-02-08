@@ -155,6 +155,7 @@ const struct al_nand_device_timing al_nand_manual_timing[] = {
 	}
 };
 
+
 static uint32_t wait_for_irq(struct nand_data *nand, uint32_t irq_mask);
 
 static inline struct nand_data *nand_data_get(
@@ -395,6 +396,7 @@ void nand_write_buff(struct mtd_info *mtd, const uint8_t *buf, int len)
 		nand_send_byte_count_command(&nand->nand_obj,
 				AL_NAND_COMMAND_TYPE_DATA_WRITE_COUNT,
 				cw_size);
+
 
 	while (len > 0) {
 		wait_for_irq(nand, AL_NAND_INTR_STATUS_BUF_WRRDY);

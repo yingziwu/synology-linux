@@ -3,3 +3,4 @@
 
 #define virtio_has_feature(dev, feature) \
 	test_bit((feature), (dev)->features)
+

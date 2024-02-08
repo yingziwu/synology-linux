@@ -37,6 +37,7 @@ static int sti8416_usb2_phy_init(struct usb_phy *phy)
 	return 0;
 }
 
+
 static void sti8416_usb2_phy_shutdown(struct usb_phy *phy)
 {
 	struct sti8416_usb2_phy *phy_dev = phy_to_priv(phy);

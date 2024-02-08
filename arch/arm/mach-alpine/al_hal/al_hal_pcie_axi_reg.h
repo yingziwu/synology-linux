@@ -33,6 +33,7 @@ met:
 
 *******************************************************************************/
 
+
 #ifndef __AL_PCIE_HAL_AXI_REG_H__
 #define __AL_PCIE_HAL_AXI_REG_H__
 
@@ -42,6 +43,8 @@ extern "C" {
 /*
 * Unit Registers
 */
+
+
 
 struct al_pcie_axi_ctrl {
 	/* [0x0]  */
@@ -245,9 +248,11 @@ struct al_pcie_axi_regs {
 	struct al_pcie_axi_int_grp_a_axi int_grp_a; /* [0x200] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** Global register ****/
 /* Not in use */

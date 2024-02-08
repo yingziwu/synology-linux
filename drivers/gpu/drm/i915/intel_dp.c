@@ -1711,6 +1711,7 @@ void intel_edp_panel_on(struct intel_dp *intel_dp)
 	pps_unlock(intel_dp);
 }
 
+
 static void edp_panel_off(struct intel_dp *intel_dp)
 {
 	struct intel_digital_port *intel_dig_port = dp_to_dig_port(intel_dp);

@@ -37,6 +37,7 @@
 #include "bat_algo.h"
 #include "network-coding.h"
 
+
 /* List manipulations on hardif_list have to be rtnl_lock()'ed,
  * list traversals just rcu-locked
  */

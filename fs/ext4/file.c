@@ -1,17 +1,36 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/fs/ext4/file.c
+ *
+ * Copyright (C) 1992, 1993, 1994, 1995
+ * Remy Card (card@masi.ibp.fr)
+ * Laboratoire MASI - Institut Blaise Pascal
+ * Universite Pierre et Marie Curie (Paris VI)
+ *
+ *  from
+ *
+ *  linux/fs/minix/file.c
+ *
+ *  Copyright (C) 1991, 1992  Linus Torvalds
+ *
+ *  ext4 fs regular file handling primitives
+ *
+ *  64-bit file support on 64-bit platforms by Jakub Jelinek
+ *	(jj@sunsite.ms.mff.cuni.cz)
+ */
+
 #include <linux/time.h>
 #include <linux/fs.h>
 #if defined(MY_DEF_HERE)
 #include <linux/fsnotify.h>
-#endif  
+#endif /* MY_DEF_HERE */
 #include <linux/jbd2.h>
 #include <linux/mount.h>
 #if defined(MY_DEF_HERE)
 #include <linux/swap.h>
-#endif  
+#endif /* MY_DEF_HERE */
 #include <linux/path.h>
 #include <linux/aio.h>
 #include <linux/quotaops.h>
@@ -20,19 +39,28 @@
 #include <linux/socket.h>
 #include <linux/net.h>
 #include <net/sock.h>
-#endif  
+#endif /* MY_DEF_HERE */
 #include "ext4.h"
 #include "ext4_jbd2.h"
 #include "xattr.h"
 #include "acl.h"
 
+#ifdef MY_ABC_HERE
+#include "syno_acl.h"
+#endif /* MY_ABC_HERE */
+
+/*
+ * Called when an inode is released. Note that this is different
+ * from ext4_file_open: open gets called at every open, but release
+ * gets called only when /all/ the files are closed.
+ */
 static int ext4_release_file(struct inode *inode, struct file *filp)
 {
 	if (ext4_test_inode_state(inode, EXT4_STATE_DA_ALLOC_CLOSE)) {
 		ext4_alloc_da_blocks(inode);
 		ext4_clear_inode_state(inode, EXT4_STATE_DA_ALLOC_CLOSE);
 	}
-	 
+	/* if we are the last writer on the inode, drop the block reservation */
 	if ((filp->f_mode & FMODE_WRITE) &&
 			(atomic_read(&inode->i_writecount) == 1) &&
 		        !EXT4_I(inode)->i_reserved_data_blocks)
@@ -54,6 +82,15 @@ void ext4_unwritten_wait(struct inode *inode)
 	wait_event(*wq, (atomic_read(&EXT4_I(inode)->i_unwritten) == 0));
 }
 
+/*
+ * This tests whether the IO in question is block-aligned or not.
+ * Ext4 utilizes unwritten extents when hole-filling during direct IO, and they
+ * are converted to written only after the IO is complete.  Until they are
+ * mapped, these blocks appear as holes, so dio_zero_block() will assume that
+ * it needs to zero out portions of the start and/or end block.  If 2 AIO
+ * threads are at work on the same unwritten block, they must be synchronized
+ * or one thread will zero the other's data, causing corruption.
+ */
 static int
 ext4_unaligned_aio(struct inode *inode, const struct iovec *iov,
 		   unsigned long nr_segs, loff_t pos)
@@ -88,6 +125,7 @@ ext4_file_dio_write(struct kiocb *iocb, const struct iovec *iov,
 	    !is_sync_kiocb(iocb))
 		unaligned_aio = ext4_unaligned_aio(inode, iov, nr_segs, pos);
 
+	/* Unaligned direct AIO must be serialized; see comment above */
 	if (unaligned_aio) {
 		mutex_lock(ext4_aio_mutex(inode));
 		ext4_unwritten_wait(inode);
@@ -98,6 +136,7 @@ ext4_file_dio_write(struct kiocb *iocb, const struct iovec *iov,
 	mutex_lock(&inode->i_mutex);
 	blk_start_plug(&plug);
 
+	/* check whether we do a DIO overwrite or not */
 	if (ext4_should_dioread_nolock(inode) && !unaligned_aio &&
 	    !file->f_mapping->nrpages && pos + length <= i_size_read(inode)) {
 		struct ext4_map_blocks map;
@@ -110,7 +149,15 @@ ext4_file_dio_write(struct kiocb *iocb, const struct iovec *iov,
 		len = map.m_len;
 
 		err = ext4_map_blocks(NULL, inode, &map, 0);
-		 
+		/*
+		 * 'err==len' means that all of blocks has been preallocated no
+		 * matter they are initialized or not.  For excluding
+		 * uninitialized extents, we need to check m_flags.  There are
+		 * two conditions that indicate for initialized extents.
+		 * 1) If we hit extent cache, EXT4_MAP_MAPPED flag is returned;
+		 * 2) If we do a real lookup, non-flags are returned.
+		 * So we should check these two conditions.
+		 */
 		if (err == len && (map.m_flags & EXT4_MAP_MAPPED))
 			*overwrite = 1;
 	}
@@ -140,6 +187,11 @@ ext4_file_write(struct kiocb *iocb, const struct iovec *iov,
 	struct inode *inode = file_inode(iocb->ki_filp);
 	ssize_t ret;
 	int overwrite = 0;
+
+	/*
+	 * If we have encountered a bitmap-format file, the size limit
+	 * is smaller than s_maxbytes, which is for extent-mapped files.
+	 */
 
 	if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))) {
 		struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
@@ -193,7 +245,12 @@ static int ext4_file_open(struct inode * inode, struct file * filp)
 	if (unlikely(!(sbi->s_mount_flags & EXT4_MF_MNTDIR_SAMPLED) &&
 		     !(sb->s_flags & MS_RDONLY))) {
 		sbi->s_mount_flags |= EXT4_MF_MNTDIR_SAMPLED;
-		 
+		/*
+		 * Sample where the filesystem has been mounted and
+		 * store it in the superblock for sysadmin convenience
+		 * when trying to sort through large numbers of block
+		 * devices or filesystem images.
+		 */
 		memset(buf, 0, sizeof(buf));
 		path.mnt = mnt;
 		path.dentry = mnt->mnt_root;
@@ -216,7 +273,10 @@ static int ext4_file_open(struct inode * inode, struct file * filp)
 			ext4_journal_stop(handle);
 		}
 	}
-	 
+	/*
+	 * Set up the jbd2_inode if we are opening the inode for
+	 * writing and the journal is present
+	 */
 	if (sbi->s_journal && !ei->jinode && (filp->f_mode & FMODE_WRITE)) {
 		struct jbd2_inode *jinode = jbd2_alloc_inode(GFP_KERNEL);
 
@@ -268,6 +328,10 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 
 	mutex_lock(&inode->i_mutex);
 
+	/*
+	 * If we have encountered a bitmap-format file, the size limit
+	 * is smaller than s_maxbytes, which is for extent-mapped files.
+	 */
 	if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))) {
 		struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
 
@@ -282,6 +346,7 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 			verified_sz = sbi->s_bitmap_maxbytes - pos;
 	}
 
+	/* We can write back this queue in page reclaim */
 	current->backing_dev_info = mapping->backing_dev_info;
 
 	err = generic_write_checks(file, &pos, &verified_sz,
@@ -312,9 +377,9 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 	remaining = verified_sz;
 
 	while (remaining > 0) {
-		unsigned long offset;	 
-		unsigned long bytes;	 
-		int copied;		 
+		unsigned long offset;	/* Offset into pagecache page */
+		unsigned long bytes;	/* Bytes to write to page */
+		int copied;		/* Bytes copied from net */
 		struct page *page;
 		void *fsdata;
 		long rcvtimeo;
@@ -335,6 +400,7 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 		if (mapping_writably_mapped(mapping))
 			flush_dcache_page(page);
 
+		/* save page address for partial recvmsg case */
 		paddr = kmap(page) + offset;
 		iov.iov_base = paddr;
 		iov.iov_len = bytes;
@@ -342,18 +408,22 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 		rcvtimeo = sock->sk->sk_rcvtimeo;
 		sock->sk->sk_rcvtimeo = 5 * HZ;
 
+		/* IOV is ready, receive the data from socket now */
 		copied = kernel_recvmsg(sock, &msg, &iov, 1,
 					bytes, MSG_WAITALL);
 
 		sock->sk->sk_rcvtimeo = rcvtimeo;
 
+		/* kernel_recvmsg returned an error or no data */
 		if (unlikely(copied <= 0)) {
 			kunmap(page);
 
+			/* update error and quit */
 			err = copied;
 
 			pr_debug("%s: kernel_recvmsg err %d\n", __func__, err);
 
+			/* release pagecache */
 			a_ops->write_end(file, mapping, pos,
 					 bytes, 0, page, fsdata);
 			break;
@@ -363,17 +433,26 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 			char *kaddr;
 			char *buff;
 
+			/* recvmsg failed to write the requested bytes, this
+			 * can happen from NEED_RESCHED signal or socket
+			 * timeout. Partial writes are not allowed so we write
+			 * the recvmsg portion and finish splice, this will
+			 * force the caller to redo the remaining.
+			 */
+
 			pr_debug("%s: partial bytes %ld copied %d\n",
 				 __func__, bytes, copied);
 
+			/* alloc buffer for recvmsg data */
 			buff = kmalloc(copied, GFP_KERNEL);
 			if (unlikely(!buff)) {
 				err = -ENOMEM;
 				break;
 			}
-			 
+			/* copy recvmsg bytes to buffer */
 			memcpy(buff, paddr, copied);
 
+			/* and free the partial page */
 			kunmap(page);
 			err = a_ops->write_end(file, mapping, pos,
 					       bytes, 0, page, fsdata);
@@ -384,6 +463,7 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 				break;
 			}
 
+			/* allocate a new page with recvmsg size */
 			err = a_ops->write_begin(file, mapping, pos, copied,
 						 AOP_FLAG_UNINTERRUPTIBLE,
 						 &page, &fsdata);
@@ -397,12 +477,14 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 			if (mapping_writably_mapped(mapping))
 				flush_dcache_page(page);
 
+			/* copy the buffer to new page */
 			kaddr = kmap_atomic(page) + offset;
 			memcpy(kaddr, buff, copied);
 
 			kfree(buff);
 			kunmap_atomic(kaddr);
 
+			/* and write it */
 			mark_page_accessed(page);
 			err = a_ops->write_end(file, mapping, pos, copied,
 					       copied, page, fsdata);
@@ -414,6 +496,7 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 
 			BUG_ON(copied != err);
 
+			/* update written counters */
 			pos += copied;
 			written += copied;
 
@@ -422,6 +505,7 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 
 		kunmap(page);
 
+		/* page written w/o recvmsg error */
 		mark_page_accessed(page);
 		err = a_ops->write_end(file, mapping, pos, bytes,
 				       copied, page, fsdata);
@@ -433,6 +517,7 @@ ssize_t ext4_splice_from_socket(struct file *file, struct socket *sock,
 
 		BUG_ON(copied != err);
 
+		/* write success, update counters */
 		remaining -= copied;
 		pos += copied;
 		written += copied;
@@ -464,8 +549,24 @@ done:
 
 	return written ? written : err;
 }
-#endif  
+#endif /* MY_DEF_HERE */
 
+/*
+ * Here we use ext4_map_blocks() to get a block mapping for a extent-based
+ * file rather than ext4_ext_walk_space() because we can introduce
+ * SEEK_DATA/SEEK_HOLE for block-mapped and extent-mapped file at the same
+ * function.  When extent status tree has been fully implemented, it will
+ * track all extent status for a file and we can directly use it to
+ * retrieve the offset for SEEK_DATA/SEEK_HOLE.
+ */
+
+/*
+ * When we retrieve the offset for SEEK_DATA/SEEK_HOLE, we would need to
+ * lookup page cache to check whether or not there has some data between
+ * [startoff, endoff] because, if this range contains an unwritten extent,
+ * we determine this extent as a data or a hole according to whether the
+ * page cache has data or not.
+ */
 static int ext4_find_unwritten_pgoff(struct inode *inode,
 				     int whence,
 				     struct ext4_map_blocks *map,
@@ -496,33 +597,26 @@ static int ext4_find_unwritten_pgoff(struct inode *inode,
 		num = min_t(pgoff_t, end - index, PAGEVEC_SIZE);
 		nr_pages = pagevec_lookup(&pvec, inode->i_mapping, index,
 					  (pgoff_t)num);
-		if (nr_pages == 0) {
-			if (whence == SEEK_DATA)
-				break;
-
-			BUG_ON(whence != SEEK_HOLE);
-			 
-			if (lastoff == startoff || lastoff < endoff)
-				found = 1;
+		if (nr_pages == 0)
 			break;
-		}
-
-		if (lastoff == startoff && whence == SEEK_HOLE &&
-		    lastoff < page_offset(pvec.pages[0])) {
-			found = 1;
-			break;
-		}
 
 		for (i = 0; i < nr_pages; i++) {
 			struct page *page = pvec.pages[i];
 			struct buffer_head *bh, *head;
 
-			if (lastoff < endoff && whence == SEEK_HOLE &&
-			    page->index > end) {
+			/*
+			 * If current offset is smaller than the page offset,
+			 * there is a hole at this offset.
+			 */
+			if (whence == SEEK_HOLE && lastoff < endoff &&
+			    lastoff < page_offset(pvec.pages[i])) {
 				found = 1;
 				*offset = lastoff;
 				goto out;
 			}
+
+			if (page->index > end)
+				goto out;
 
 			lock_page(page);
 
@@ -540,6 +634,8 @@ static int ext4_find_unwritten_pgoff(struct inode *inode,
 				lastoff = page_offset(page);
 				bh = head = page_buffers(page);
 				do {
+					if (lastoff + bh->b_size <= startoff)
+						goto next;
 					if (buffer_uptodate(bh) ||
 					    buffer_unwritten(bh)) {
 						if (whence == SEEK_DATA)
@@ -554,6 +650,7 @@ static int ext4_find_unwritten_pgoff(struct inode *inode,
 						unlock_page(page);
 						goto out;
 					}
+next:
 					lastoff += bh->b_size;
 					bh = bh->b_this_page;
 				} while (bh != head);
@@ -563,21 +660,26 @@ static int ext4_find_unwritten_pgoff(struct inode *inode,
 			unlock_page(page);
 		}
 
-		if (nr_pages < num && whence == SEEK_HOLE) {
-			found = 1;
-			*offset = lastoff;
+		/* The no. of pages is less than our desired, we are done. */
+		if (nr_pages < num)
 			break;
-		}
 
 		index = pvec.pages[i - 1]->index + 1;
 		pagevec_release(&pvec);
 	} while (index <= end);
 
+	if (whence == SEEK_HOLE && lastoff < endoff) {
+		found = 1;
+		*offset = lastoff;
+	}
 out:
 	pagevec_release(&pvec);
 	return found;
 }
 
+/*
+ * ext4_seek_data() retrieves the offset for SEEK_DATA.
+ */
 static loff_t ext4_seek_data(struct file *file, loff_t offset, loff_t maxsize)
 {
 	struct inode *inode = file->f_mapping->host;
@@ -591,7 +693,7 @@ static loff_t ext4_seek_data(struct file *file, loff_t offset, loff_t maxsize)
 	mutex_lock(&inode->i_mutex);
 
 	isize = i_size_read(inode);
-	if (offset >= isize) {
+	if (offset < 0 || offset >= isize) {
 		mutex_unlock(&inode->i_mutex);
 		return -ENXIO;
 	}
@@ -612,6 +714,10 @@ static loff_t ext4_seek_data(struct file *file, loff_t offset, loff_t maxsize)
 			break;
 		}
 
+		/*
+		 * If there is a delay extent at this offset,
+		 * it will be as a data.
+		 */
 		ext4_es_find_delayed_extent_range(inode, last, last, &es);
 		if (es.es_len != 0 && in_range(last, es.es_lblk, es.es_len)) {
 			if (last != start)
@@ -619,6 +725,11 @@ static loff_t ext4_seek_data(struct file *file, loff_t offset, loff_t maxsize)
 			break;
 		}
 
+		/*
+		 * If there is a unwritten extent at this offset,
+		 * it will be as a data or a hole according to page
+		 * cache that has data or not.
+		 */
 		if (map.m_flags & EXT4_MAP_UNWRITTEN) {
 			int unwritten;
 			unwritten = ext4_find_unwritten_pgoff(inode, SEEK_DATA,
@@ -649,6 +760,9 @@ static loff_t ext4_seek_data(struct file *file, loff_t offset, loff_t maxsize)
 	return dataoff;
 }
 
+/*
+ * ext4_seek_hole() retrieves the offset for SEEK_HOLE.
+ */
 static loff_t ext4_seek_hole(struct file *file, loff_t offset, loff_t maxsize)
 {
 	struct inode *inode = file->f_mapping->host;
@@ -662,7 +776,7 @@ static loff_t ext4_seek_hole(struct file *file, loff_t offset, loff_t maxsize)
 	mutex_lock(&inode->i_mutex);
 
 	isize = i_size_read(inode);
-	if (offset >= isize) {
+	if (offset < 0 || offset >= isize) {
 		mutex_unlock(&inode->i_mutex);
 		return -ENXIO;
 	}
@@ -683,6 +797,10 @@ static loff_t ext4_seek_hole(struct file *file, loff_t offset, loff_t maxsize)
 			continue;
 		}
 
+		/*
+		 * If there is a delay extent at this offset,
+		 * we will skip this extent.
+		 */
 		ext4_es_find_delayed_extent_range(inode, last, last, &es);
 		if (es.es_len != 0 && in_range(last, es.es_lblk, es.es_len)) {
 			last = es.es_lblk + es.es_len;
@@ -690,6 +808,11 @@ static loff_t ext4_seek_hole(struct file *file, loff_t offset, loff_t maxsize)
 			continue;
 		}
 
+		/*
+		 * If there is a unwritten extent at this offset,
+		 * it will be as a data or a hole according to page
+		 * cache that has data or not.
+		 */
 		if (map.m_flags & EXT4_MAP_UNWRITTEN) {
 			int unwritten;
 			unwritten = ext4_find_unwritten_pgoff(inode, SEEK_HOLE,
@@ -701,6 +824,7 @@ static loff_t ext4_seek_hole(struct file *file, loff_t offset, loff_t maxsize)
 			}
 		}
 
+		/* find a hole */
 		break;
 	} while (last <= end);
 
@@ -722,6 +846,11 @@ static loff_t ext4_seek_hole(struct file *file, loff_t offset, loff_t maxsize)
 	return holeoff;
 }
 
+/*
+ * ext4_llseek() handles both block-mapped and extent-mapped maxbytes values
+ * by calling generic_file_llseek_size() with the appropriate maxbytes
+ * value for each.
+ */
 loff_t ext4_llseek(struct file *file, loff_t offset, int whence)
 {
 	struct inode *inode = file->f_mapping->host;
@@ -768,8 +897,8 @@ const struct file_operations ext4_file_operations = {
 	.splice_from_socket = ext4_splice_from_socket,
 #else
 	.splice_from_socket = generic_splice_from_socket,
-#endif  
-#endif  
+#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
 	.fallocate	= ext4_fallocate,
 };
 
@@ -787,6 +916,12 @@ const struct inode_operations ext4_file_inode_operations = {
 	.getxattr	= generic_getxattr,
 	.listxattr	= ext4_listxattr,
 	.removexattr	= generic_removexattr,
+#ifdef MY_ABC_HERE
+	.syno_acl_get   = ext4_get_syno_acl,
+	.syno_acl_set	= ext4_set_syno_acl,
+#else
 	.get_acl	= ext4_get_acl,
+#endif /* MY_ABC_HERE */
 	.fiemap		= ext4_fiemap,
 };
+

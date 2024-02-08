@@ -303,6 +303,7 @@ static void swconfig_defaults_init(struct switch_dev *dev)
 	set_bit(GLOBAL_RESET, &dev->def_global);
 }
 
+
 static struct genl_family switch_fam = {
 	.id = GENL_ID_GENERATE,
 	.name = "switch",
@@ -1030,6 +1031,7 @@ unregister_switch(struct switch_dev *dev)
 	mutex_unlock(&dev->sw_mutex);
 }
 EXPORT_SYMBOL_GPL(unregister_switch);
+
 
 static int __init
 swconfig_init(void)

@@ -123,6 +123,7 @@ static const struct iwl_ht_params iwl7000_ht_params = {
 	.led_mode = IWL_LED_RF_STATE,				\
 	.adv_pm = true						\
 
+
 const struct iwl_cfg iwl7260_2ac_cfg = {
 	.name = "Intel(R) Dual Band Wireless AC 7260",
 	.fw_name_pre = IWL7260_FW_PRE,

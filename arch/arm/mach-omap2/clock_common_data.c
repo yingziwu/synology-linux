@@ -45,6 +45,7 @@ const struct clksel_rate dsp_ick_rates[] = {
 	{ .div = 0 },
 };
 
+
 /* clksel_rate blocks shared between OMAP44xx and AM33xx */
 
 const struct clksel_rate div_1_0_rates[] = {

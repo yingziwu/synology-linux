@@ -264,3 +264,4 @@ struct wlan_bssid_ex {
 };
 
 #endif /* #ifndef WLAN_BSSDEF_H_ */
+

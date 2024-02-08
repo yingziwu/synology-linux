@@ -431,3 +431,4 @@ EXPORT_SYMBOL(cfb_copyarea);
 MODULE_AUTHOR("James Simmons <jsimmons@users.sf.net>");
 MODULE_DESCRIPTION("Generic software accelerated copyarea");
 MODULE_LICENSE("GPL");
+

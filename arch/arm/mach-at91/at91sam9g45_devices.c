@@ -39,6 +39,7 @@
 #include "generic.h"
 #include "clock.h"
 
+
 /* --------------------------------------------------------------------
  *  HDMAC - AHB DMA Controller
  * -------------------------------------------------------------------- */
@@ -77,6 +78,7 @@ void __init at91_add_device_hdmac(void)
 #else
 void __init at91_add_device_hdmac(void) {}
 #endif
+
 
 /* --------------------------------------------------------------------
  *  USB Host (OHCI)
@@ -138,6 +140,7 @@ void __init at91_add_device_usbh_ohci(struct at91_usbh_data *data)
 void __init at91_add_device_usbh_ohci(struct at91_usbh_data *data) {}
 #endif
 
+
 /* --------------------------------------------------------------------
  *  USB Host HS (EHCI)
  *  Needs an OHCI host for low and full speed management
@@ -192,6 +195,7 @@ void __init at91_add_device_usbh_ehci(struct at91_usbh_data *data)
 #else
 void __init at91_add_device_usbh_ehci(struct at91_usbh_data *data) {}
 #endif
+
 
 /* --------------------------------------------------------------------
  *  USB HS Device (Gadget)
@@ -277,6 +281,7 @@ void __init at91_add_device_usba(struct usba_platform_data *data)
 void __init at91_add_device_usba(struct usba_platform_data *data) {}
 #endif
 
+
 /* --------------------------------------------------------------------
  *  Ethernet
  * -------------------------------------------------------------------- */
@@ -349,6 +354,7 @@ void __init at91_add_device_eth(struct macb_platform_data *data)
 #else
 void __init at91_add_device_eth(struct macb_platform_data *data) {}
 #endif
+
 
 /* --------------------------------------------------------------------
  *  MMC / SD
@@ -443,6 +449,7 @@ void __init at91_add_device_mci(short mmc_id, struct mci_platform_data *data)
 	}
 #endif
 
+
 	/* input/irq */
 	if (gpio_is_valid(data->slot[0].detect_pin)) {
 		at91_set_gpio_input(data->slot[0].detect_pin, 1);
@@ -507,6 +514,7 @@ void __init at91_add_device_mci(short mmc_id, struct mci_platform_data *data)
 void __init at91_add_device_mci(short mmc_id, struct mci_platform_data *data) {}
 #endif
 
+
 /* --------------------------------------------------------------------
  *  NAND / SmartMedia
  * -------------------------------------------------------------------- */
@@ -567,6 +575,7 @@ void __init at91_add_device_nand(struct atmel_nand_data *data)
 #else
 void __init at91_add_device_nand(struct atmel_nand_data *data) {}
 #endif
+
 
 /* --------------------------------------------------------------------
  *  TWI (i2c)
@@ -691,6 +700,7 @@ void __init at91_add_device_i2c(short i2c_id, struct i2c_board_info *devices, in
 void __init at91_add_device_i2c(short i2c_id, struct i2c_board_info *devices, int nr_devices) {}
 #endif
 
+
 /* --------------------------------------------------------------------
  *  SPI
  * -------------------------------------------------------------------- */
@@ -802,6 +812,7 @@ void __init at91_add_device_spi(struct spi_board_info *devices, int nr_devices)
 #else
 void __init at91_add_device_spi(struct spi_board_info *devices, int nr_devices) {}
 #endif
+
 
 /* --------------------------------------------------------------------
  *  AC97
@@ -947,6 +958,7 @@ void __init at91_add_device_isi(struct isi_platform_data *data,
 		bool use_pck_as_mck) {}
 #endif
 
+
 /* --------------------------------------------------------------------
  *  LCD Controller
  * -------------------------------------------------------------------- */
@@ -1028,6 +1040,7 @@ void __init at91_add_device_lcdc(struct atmel_lcdfb_info *data)
 void __init at91_add_device_lcdc(struct atmel_lcdfb_info *data) {}
 #endif
 
+
 /* --------------------------------------------------------------------
  *  Timer/Counter block
  * -------------------------------------------------------------------- */
@@ -1083,6 +1096,7 @@ static void __init at91_add_device_tc(void)
 static void __init at91_add_device_tc(void) { }
 #endif
 
+
 /* --------------------------------------------------------------------
  *  RTC
  * -------------------------------------------------------------------- */
@@ -1115,6 +1129,7 @@ static void __init at91_add_device_rtc(void)
 #else
 static void __init at91_add_device_rtc(void) {}
 #endif
+
 
 /* --------------------------------------------------------------------
  *  Touchscreen
@@ -1165,6 +1180,7 @@ void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data)
 #else
 void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data) {}
 #endif
+
 
 /* --------------------------------------------------------------------
  *  ADC
@@ -1315,6 +1331,7 @@ static void __init at91_add_device_rtt(void)
 	platform_device_register(&at91sam9g45_rtt_device);
 }
 
+
 /* --------------------------------------------------------------------
  *  TRNG
  * -------------------------------------------------------------------- */
@@ -1371,6 +1388,7 @@ static void __init at91_add_device_watchdog(void)
 static void __init at91_add_device_watchdog(void) {}
 #endif
 
+
 /* --------------------------------------------------------------------
  *  PWM
  * --------------------------------------------------------------------*/
@@ -1422,6 +1440,7 @@ void __init at91_add_device_pwm(u32 mask)
 #else
 void __init at91_add_device_pwm(u32 mask) {}
 #endif
+
 
 /* --------------------------------------------------------------------
  *  SSC -- Synchronous Serial Controller
@@ -1545,6 +1564,7 @@ void __init at91_add_device_ssc(unsigned id, unsigned pins)
 #else
 void __init at91_add_device_ssc(unsigned id, unsigned pins) {}
 #endif
+
 
 /* --------------------------------------------------------------------
  *  UART

@@ -12,6 +12,8 @@
 #ifndef _STASC_H
 #define _STASC_H
 
+
+
 /*---- UART Register definitions ------------------------------*/
 
 /* Register offsets */

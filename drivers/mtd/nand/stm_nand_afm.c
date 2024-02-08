@@ -39,6 +39,7 @@
 
 #define NAME	"stm-nand-afm"
 
+
 #include <linux/mtd/partitions.h>
 
 #ifdef CONFIG_STM_NAND_AFM_BOOTMODESUPPORT
@@ -76,6 +77,7 @@ MODULE_PARM_DESC(nbootpart, "MTD name of NAND boot-mode ECC partition");
 #else
 #define afm_select_eccparams(x, y) do {} while (0);
 #endif /* CONFIG_STM_NAND_AFM_BOOTMODESUPPORT */
+
 
 /* External functions */
 
@@ -160,6 +162,7 @@ static struct stm_nand_afm_controller *mtd_to_afm(struct mtd_info *mtd)
 			    hwcontrol);
 	return afm;
 }
+
 
 /*
  * Define some template AFM programs
@@ -380,6 +383,7 @@ struct afm_prog afm_prog_write_oob_lp = {
 	.seq_cfg = AFM_SEQ_CFG_GO | AFM_SEQ_CFG_DIR_WRITE,
 };
 
+
 /*
  * STMicroeclectronics H/W ECC layouts
  *
@@ -459,6 +463,7 @@ static struct nand_ecclayout boot_oob_64 = {
 	.oobfree = {{0, 0} },	/* No free OOB bytes */
 };
 #endif
+
 
 static void afm_enable_interrupts(struct stm_nand_afm_controller *afm,
 				  uint32_t irqs)
@@ -584,6 +589,7 @@ static void afm_calc_timing_registers_legacy(struct stm_nand_timing_data *tm,
 
 	*wen_timing = reg;
 
+
 	/* REN_TIMING */
 	n = (tm->rd_on + emi_t_ns - 1)/emi_t_ns;
 	reg = (n & 0xff) << 0;
@@ -672,6 +678,7 @@ static void afm_calc_timing_registers(struct nand_timing_spec *spec,
 
 	*wen_timing = ((n_wen_on & 0xff) |
 		       (n_wen_off & 0xff) << 8);
+
 
 	/*
 	 * REN_TIMING
@@ -834,6 +841,7 @@ afm_init_resources(struct platform_device *pdev)
 	/* Success :-) */
 	return afm;
 
+
 	/* Error path */
  err4:
 #ifdef CONFIG_STM_NAND_AFM_CACHED
@@ -939,6 +947,8 @@ static void afm_select_eccparams(struct mtd_info *mtd, loff_t offs)
 }
 #endif
 
+
+
 /*
  * Internal helper-functions for MTD Interface callbacks
  */
@@ -954,6 +964,7 @@ static int afm_do_read_oob(struct mtd_info *mtd, loff_t from,
 
 	pr_debug("afm_do_read_oob: from = 0x%08Lx, len = %i\n",
 	      (unsigned long long)from, readlen);
+
 
 	if (ops->mode == MTD_OPS_AUTO_OOB)
 		len = chip->ecc.layout->oobavail;
@@ -1290,9 +1301,11 @@ static int afm_do_write_ops(struct mtd_info *mtd, loff_t to,
 	return ret;
 }
 
+
 /*
  * MTD Interface callbacks (replacing equivalent functions in nand_base.c)
  */
+
 
 /* MTD Interface - erase block(s) */
 static int afm_erase(struct mtd_info *mtd, struct erase_info *instr)
@@ -1533,6 +1546,7 @@ static void afm_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
 
 	writesl(afm->base + NANDHAM_AFM_DATA_FIFO, buf, len/4);
 }
+
 
 /*
  * AFM low-level chip operations
@@ -1873,6 +1887,7 @@ static int afm_write_page_ecc_sp(struct mtd_info *mtd, struct nand_chip *chip,
 
 	return 0;
 }
+
 
 /* AFM: Write Page and OOB Data, with ECC support [LargePage]  */
 static int afm_write_page_ecc_lp(struct mtd_info *mtd,
@@ -2295,6 +2310,7 @@ static int afm_write_page_boot(struct mtd_info *mtd,
 	return 0;
 }
 #endif /* CONFIG_STM_NAND_AFM_BOOTMODESUPPORT */
+
 
 /* AFM : Select Chip
  * For now we only support 1 chip per 'stm_nand_afm_device' so chipnr will be 0
@@ -2868,6 +2884,7 @@ static int pbl_boot_boundary(struct mtd_info *mtd, uint32_t *boundary)
 }
 #endif
 
+
 static struct stm_nand_afm_device *
 afm_init_bank(struct stm_nand_afm_controller *afm, int bank_nr,
 		struct stm_nand_bank_data *bank, struct device *dev)
@@ -3041,6 +3058,7 @@ afm_init_bank(struct stm_nand_afm_controller *afm, int bank_nr,
 	/* Success! */
 	return data;
 
+
  err3:
 	nand_release(&data->mtd);
  err2:
@@ -3129,6 +3147,7 @@ static int stm_afm_probe(struct platform_device *pdev)
 
 	return err;
 }
+
 
 static int stm_afm_remove(struct platform_device *pdev)
 {

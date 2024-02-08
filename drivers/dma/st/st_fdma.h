@@ -40,6 +40,7 @@ enum st_fdma_fw_state {
 	ST_FDMA_FW_STATE_ERROR
 };
 
+
 /*
  * FDMA request line specific
  */
@@ -100,6 +101,7 @@ struct st_fdma_chan {
 	void *extension;
 };
 
+
 /*
  * FDMA specific device structure
  */
@@ -149,6 +151,7 @@ struct st_fdma_device {
 	struct dentry *debug_chans[ST_FDMA_NUM_CHANNELS];
 #endif
 };
+
 
 /*
  * FDMA descriptor specific
@@ -210,6 +213,7 @@ void st_fdma_debugfs_unregister(struct st_fdma_device *fdev);
 
 #endif
 
+
 dma_cookie_t st_fdma_tx_submit(struct dma_async_tx_descriptor *desc);
 
 struct st_fdma_desc *st_fdma_desc_alloc(struct st_fdma_chan *fchan);
@@ -230,6 +234,7 @@ void st_fdma_dreq_free(struct st_fdma_chan *fchan,
 		struct st_dma_dreq_config *config);
 int st_fdma_dreq_config(struct st_fdma_chan *fchan,
 		struct st_dma_dreq_config *config);
+
 
 int st_fdma_fw_check(struct st_fdma_device *fdev);
 int st_fdma_fw_load(struct st_fdma_device *fdev, struct ELF32_info *elfinfo);

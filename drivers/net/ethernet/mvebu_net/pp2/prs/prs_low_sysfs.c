@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -35,7 +36,9 @@ disclaimer.
 #include "prs/mvPp2PrsHw.h"
 #include "prs/mvPp2Prs.h"
 
+
 static  MV_PP2_PRS_ENTRY pe;
+
 
 static ssize_t mv_prs_low_help(char *buf)
 {
@@ -74,6 +77,7 @@ static ssize_t mv_prs_low_help(char *buf)
 
 	return off;
 }
+
 
 static ssize_t mv_prs_low_show(struct device *dev,
 				  struct device_attribute *attr, char *buf)
@@ -127,6 +131,7 @@ static ssize_t mv_prs_low_store_signed(struct device *dev,
 
 	return err ? -EINVAL : len;
 }
+
 
 static ssize_t mv_prs_low_store_unsigned(struct device *dev,
 				   struct device_attribute *attr, const char *buf, size_t len)
@@ -186,6 +191,7 @@ static ssize_t mv_prs_low_store_unsigned(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static DEVICE_ATTR(hw_dump,		S_IRUSR, mv_prs_low_show, NULL);
 static DEVICE_ATTR(sw_dump,		S_IRUSR, mv_prs_low_show, NULL);
 static DEVICE_ATTR(help,		S_IRUSR, mv_prs_low_show, NULL);
@@ -209,6 +215,8 @@ static DEVICE_ATTR(s_offs,		S_IWUSR, mv_prs_low_show, mv_prs_low_store_signed);
 static DEVICE_ATTR(s_lu_done,		S_IWUSR, mv_prs_low_show, mv_prs_low_store_unsigned);
 static DEVICE_ATTR(s_fid_gen,		S_IWUSR, mv_prs_low_show, mv_prs_low_store_unsigned);
 static DEVICE_ATTR(hw_frst_itr,		S_IWUSR, mv_prs_low_show, mv_prs_low_store_signed);
+
+
 
 static struct attribute *prs_low_attrs[] = {
 	&dev_attr_hw_dump.attr,

@@ -70,6 +70,7 @@ static unsigned long clk_pll_recalc_rate(struct clk_hw *hwclk,
 	return vco_freq / (1 + divq);
 }
 
+
 static struct clk_ops clk_pll_ops = {
 	.recalc_rate = clk_pll_recalc_rate,
 };
