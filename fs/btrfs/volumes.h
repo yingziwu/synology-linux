@@ -120,6 +120,8 @@ struct btrfs_device {
 
 struct btrfs_fs_devices {
 	u8 fsid[BTRFS_FSID_SIZE]; /* FS specific uuid */
+	u8 metadata_uuid[BTRFS_FSID_SIZE];
+	bool fsid_change;
 
 	/* the device with this id has the most recent copy of the super */
 	u64 latest_devid;
@@ -131,6 +133,10 @@ struct btrfs_fs_devices {
 	u64 total_rw_bytes;
 	u64 num_can_discard;
 	u64 total_devices;
+
+	/* Highest generation number of seen devices */
+	u64 latest_generation;
+
 	struct block_device *latest_bdev;
 
 	/* all of the devices in the FS, protected by a mutex
@@ -304,6 +310,9 @@ struct btrfs_balance_control {
 #ifdef MY_ABC_HERE
 	u64 total_chunk_used;
 #endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
+#ifdef MY_ABC_HERE
+	u64 fast_key_offset;         // 0: normal balance; 1: auto select bg; otherwise: bg key offset provided by progs
+#endif /* MY_ABC_HERE */
 };
 
 int btrfs_account_dev_extents_size(struct btrfs_device *device, u64 start,

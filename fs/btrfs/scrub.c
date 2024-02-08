@@ -503,8 +503,8 @@ static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
 
 #ifdef MY_ABC_HERE
 	add_cksumfailed_file(root, inum, fs_info);
-	SynoAutoErrorFsBtrfsReport(fs_info->fsid);
-#endif
+	SynoAutoErrorFsBtrfsReport(fs_info->fs_devices->fsid);
+#endif /* MY_ABC_HERE */
 
 	root_key.objectid = root;
 	root_key.type = BTRFS_ROOT_ITEM_KEY;
@@ -1586,7 +1586,7 @@ static void scrub_recheck_block_checksum(struct btrfs_fs_info *fs_info,
 		h = (struct btrfs_header *)mapped_buffer;
 
 		if (sblock->pagev[0]->logical != btrfs_stack_header_bytenr(h) ||
-		    memcmp(h->fsid, fs_info->fsid, BTRFS_UUID_SIZE) ||
+		    memcmp(h->fsid, fs_info->fs_devices->fsid, BTRFS_UUID_SIZE) ||
 		    memcmp(h->chunk_tree_uuid, fs_info->chunk_tree_uuid,
 			   BTRFS_UUID_SIZE)) {
 			sblock->header_error = 1;
@@ -2028,7 +2028,7 @@ static int scrub_checksum_tree_block(struct scrub_block *sblock)
 		sblock->generation_error = 1;
 	}
 
-	if (memcmp(h->fsid, fs_info->fsid, BTRFS_UUID_SIZE)) {
+	if (memcmp(h->fsid, fs_info->fs_devices->fsid, BTRFS_UUID_SIZE)) {
 		++fail;
 		sblock->header_error = 1;
 	}
@@ -2045,7 +2045,7 @@ static int scrub_checksum_tree_block(struct scrub_block *sblock)
 	if (sblock->pagev[0]->generation != btrfs_stack_header_generation(h))
 		++fail;
 
-	if (memcmp(h->fsid, fs_info->fsid, BTRFS_UUID_SIZE))
+	if (memcmp(h->fsid, fs_info->fs_devices->fsid, BTRFS_UUID_SIZE))
 		++fail;
 
 	if (memcmp(h->chunk_tree_uuid, fs_info->chunk_tree_uuid,
@@ -2119,7 +2119,7 @@ static int scrub_checksum_super(struct scrub_block *sblock)
 	if (sblock->pagev[0]->generation != btrfs_super_generation(s))
 		++fail_gen;
 
-	if (memcmp(s->fsid, fs_info->fsid, BTRFS_UUID_SIZE))
+	if (memcmp(s->fsid, fs_info->fs_devices->fsid, BTRFS_UUID_SIZE))
 		++fail_cor;
 
 	len = BTRFS_SUPER_INFO_SIZE - BTRFS_CSUM_SIZE;
@@ -3179,25 +3179,25 @@ static noinline_for_stack int scrub_workers_get(struct btrfs_fs_info *fs_info,
 	if (fs_info->scrub_workers_refcnt == 0) {
 		if (is_dev_replace)
 			fs_info->scrub_workers =
-				btrfs_alloc_workqueue("btrfs-scrub", flags,
+				btrfs_alloc_workqueue(fs_info, "btrfs-scrub", flags,
 						      1, 4);
 		else
 			fs_info->scrub_workers =
-				btrfs_alloc_workqueue("btrfs-scrub", flags,
+				btrfs_alloc_workqueue(fs_info, "btrfs-scrub", flags,
 						      max_active, 4);
 		if (!fs_info->scrub_workers) {
 			ret = -ENOMEM;
 			goto out;
 		}
 		fs_info->scrub_wr_completion_workers =
-			btrfs_alloc_workqueue("btrfs-scrubwrc", flags,
+			btrfs_alloc_workqueue(fs_info, "btrfs-scrubwrc", flags,
 					      max_active, 2);
 		if (!fs_info->scrub_wr_completion_workers) {
 			ret = -ENOMEM;
 			goto out;
 		}
 		fs_info->scrub_nocow_workers =
-			btrfs_alloc_workqueue("btrfs-scrubnc", flags, 1, 0);
+			btrfs_alloc_workqueue(fs_info, "btrfs-scrubnc", flags, 1, 0);
 		if (!fs_info->scrub_nocow_workers) {
 			ret = -ENOMEM;
 			goto out;
