@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * mm/mmap.c
  *
@@ -42,6 +45,9 @@
 #include <linux/memory.h>
 #include <linux/printk.h>
 #include <linux/userfaultfd_k.h>
+#ifdef MY_ABC_HERE
+#include <linux/fsnotify.h>
+#endif /* MY_ABC_HERE */
 
 #include <asm/uaccess.h>
 #include <asm/cacheflush.h>
@@ -107,7 +113,6 @@ void vma_set_page_prot(struct vm_area_struct *vma)
 						     vm_flags);
 	}
 }
-
 
 int sysctl_overcommit_memory __read_mostly = OVERCOMMIT_GUESS;  /* heuristic overcommit */
 int sysctl_overcommit_ratio __read_mostly = 50;	/* default is 50% */
@@ -275,7 +280,11 @@ static struct vm_area_struct *remove_vma(struct vm_area_struct *vma)
 	if (vma->vm_ops && vma->vm_ops->close)
 		vma->vm_ops->close(vma);
 	if (vma->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+		vma_fput(vma);
+#else
 		fput(vma->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 	mpol_put(vma_policy(vma));
 	kmem_cache_free(vm_area_cachep, vma);
 	return next;
@@ -288,6 +297,7 @@ SYSCALL_DEFINE1(brk, unsigned long, brk)
 	unsigned long retval;
 	unsigned long newbrk, oldbrk;
 	struct mm_struct *mm = current->mm;
+	struct vm_area_struct *next;
 	unsigned long min_brk;
 	bool populate;
 
@@ -332,7 +342,8 @@ SYSCALL_DEFINE1(brk, unsigned long, brk)
 	}
 
 	/* Check against existing mmap mappings. */
-	if (find_vma_intersection(mm, oldbrk, newbrk+PAGE_SIZE))
+	next = find_vma(mm, oldbrk);
+	if (next && newbrk + PAGE_SIZE > vm_start_gap(next))
 		goto out;
 
 	/* Ok, looks good - let it rip. */
@@ -355,10 +366,22 @@ out:
 
 static long vma_compute_subtree_gap(struct vm_area_struct *vma)
 {
-	unsigned long max, subtree_gap;
-	max = vma->vm_start;
-	if (vma->vm_prev)
-		max -= vma->vm_prev->vm_end;
+	unsigned long max, prev_end, subtree_gap;
+
+	/*
+	 * Note: in the rare case of a VM_GROWSDOWN above a VM_GROWSUP, we
+	 * allow two stack_guard_gaps between them here, and when choosing
+	 * an unmapped area; whereas when expanding we only require one.
+	 * That's a little inconsistent, but keeps the code here simpler.
+	 */
+	max = vm_start_gap(vma);
+	if (vma->vm_prev) {
+		prev_end = vm_end_gap(vma->vm_prev);
+		if (max > prev_end)
+			max -= prev_end;
+		else
+			max = 0;
+	}
 	if (vma->vm_rb.rb_left) {
 		subtree_gap = rb_entry(vma->vm_rb.rb_left,
 				struct vm_area_struct, vm_rb)->rb_subtree_gap;
@@ -451,7 +474,7 @@ static void validate_mm(struct mm_struct *mm)
 			anon_vma_unlock_read(anon_vma);
 		}
 
-		highest_address = vma->vm_end;
+		highest_address = vm_end_gap(vma);
 		vma = vma->vm_next;
 		i++;
 	}
@@ -620,7 +643,7 @@ void __vma_link_rb(struct mm_struct *mm, struct vm_area_struct *vma,
 	if (vma->vm_next)
 		vma_gap_update(vma->vm_next);
 	else
-		mm->highest_vm_end = vma->vm_end;
+		mm->highest_vm_end = vm_end_gap(vma);
 
 	/*
 	 * vma->vm_prev wasn't known when we followed the rbtree to find the
@@ -866,7 +889,7 @@ again:			remove_next = 1 + (end > next->vm_end);
 			vma_gap_update(vma);
 		if (end_changed) {
 			if (!next)
-				mm->highest_vm_end = end;
+				mm->highest_vm_end = vm_end_gap(vma);
 			else if (!adjust_next)
 				vma_gap_update(next);
 		}
@@ -891,7 +914,11 @@ again:			remove_next = 1 + (end > next->vm_end);
 	if (remove_next) {
 		if (file) {
 			uprobe_munmap(next, next->vm_start, next->vm_end);
+#ifdef CONFIG_AUFS_FHSM
+			vma_fput(vma);
+#else
 			fput(file);
+#endif /* CONFIG_AUFS_FHSM */
 		}
 		if (next->anon_vma)
 			anon_vma_merge(vma, next);
@@ -909,7 +936,7 @@ again:			remove_next = 1 + (end > next->vm_end);
 		else if (next)
 			vma_gap_update(next);
 		else
-			mm->highest_vm_end = end;
+			VM_WARN_ON(mm->highest_vm_end != vm_end_gap(vma));
 	}
 	if (insert && file)
 		uprobe_mmap(insert);
@@ -1685,8 +1712,13 @@ out:
 	return addr;
 
 unmap_and_free_vma:
+#ifdef CONFIG_AUFS_FHSM
+	vma_fput(vma);
+#endif
 	vma->vm_file = NULL;
+#ifndef CONFIG_AUFS_FHSM
 	fput(file);
+#endif
 
 	/* Undo any partial mapping done by a device driver. */
 	unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
@@ -1741,7 +1773,7 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
 
 	while (true) {
 		/* Visit left subtree if it looks promising */
-		gap_end = vma->vm_start;
+		gap_end = vm_start_gap(vma);
 		if (gap_end >= low_limit && vma->vm_rb.rb_left) {
 			struct vm_area_struct *left =
 				rb_entry(vma->vm_rb.rb_left,
@@ -1752,12 +1784,13 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
 			}
 		}
 
-		gap_start = vma->vm_prev ? vma->vm_prev->vm_end : 0;
+		gap_start = vma->vm_prev ? vm_end_gap(vma->vm_prev) : 0;
 check_current:
 		/* Check if current node has a suitable gap */
 		if (gap_start > high_limit)
 			return -ENOMEM;
-		if (gap_end >= low_limit && gap_end - gap_start >= length)
+		if (gap_end >= low_limit &&
+		    gap_end > gap_start && gap_end - gap_start >= length)
 			goto found;
 
 		/* Visit right subtree if it looks promising */
@@ -1779,8 +1812,8 @@ check_current:
 			vma = rb_entry(rb_parent(prev),
 				       struct vm_area_struct, vm_rb);
 			if (prev == vma->vm_rb.rb_left) {
-				gap_start = vma->vm_prev->vm_end;
-				gap_end = vma->vm_start;
+				gap_start = vm_end_gap(vma->vm_prev);
+				gap_end = vm_start_gap(vma);
 				goto check_current;
 			}
 		}
@@ -1844,7 +1877,7 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
 
 	while (true) {
 		/* Visit right subtree if it looks promising */
-		gap_start = vma->vm_prev ? vma->vm_prev->vm_end : 0;
+		gap_start = vma->vm_prev ? vm_end_gap(vma->vm_prev) : 0;
 		if (gap_start <= high_limit && vma->vm_rb.rb_right) {
 			struct vm_area_struct *right =
 				rb_entry(vma->vm_rb.rb_right,
@@ -1857,10 +1890,11 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
 
 check_current:
 		/* Check if current node has a suitable gap */
-		gap_end = vma->vm_start;
+		gap_end = vm_start_gap(vma);
 		if (gap_end < low_limit)
 			return -ENOMEM;
-		if (gap_start <= high_limit && gap_end - gap_start >= length)
+		if (gap_start <= high_limit &&
+		    gap_end > gap_start && gap_end - gap_start >= length)
 			goto found;
 
 		/* Visit left subtree if it looks promising */
@@ -1883,7 +1917,7 @@ check_current:
 				       struct vm_area_struct, vm_rb);
 			if (prev == vma->vm_rb.rb_right) {
 				gap_start = vma->vm_prev ?
-					vma->vm_prev->vm_end : 0;
+					vm_end_gap(vma->vm_prev) : 0;
 				goto check_current;
 			}
 		}
@@ -1921,7 +1955,7 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
 		unsigned long len, unsigned long pgoff, unsigned long flags)
 {
 	struct mm_struct *mm = current->mm;
-	struct vm_area_struct *vma;
+	struct vm_area_struct *vma, *prev;
 	struct vm_unmapped_area_info info;
 
 	if (len > TASK_SIZE - mmap_min_addr)
@@ -1932,9 +1966,10 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
 
 	if (addr) {
 		addr = PAGE_ALIGN(addr);
-		vma = find_vma(mm, addr);
+		vma = find_vma_prev(mm, addr, &prev);
 		if (TASK_SIZE - len >= addr && addr >= mmap_min_addr &&
-		    (!vma || addr + len <= vma->vm_start))
+		    (!vma || addr + len <= vm_start_gap(vma)) &&
+		    (!prev || addr >= vm_end_gap(prev)))
 			return addr;
 	}
 
@@ -1957,7 +1992,7 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
 			  const unsigned long len, const unsigned long pgoff,
 			  const unsigned long flags)
 {
-	struct vm_area_struct *vma;
+	struct vm_area_struct *vma, *prev;
 	struct mm_struct *mm = current->mm;
 	unsigned long addr = addr0;
 	struct vm_unmapped_area_info info;
@@ -1972,9 +2007,10 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
 	/* requesting a specific address */
 	if (addr) {
 		addr = PAGE_ALIGN(addr);
-		vma = find_vma(mm, addr);
+		vma = find_vma_prev(mm, addr, &prev);
 		if (TASK_SIZE - len >= addr && addr >= mmap_min_addr &&
-				(!vma || addr + len <= vma->vm_start))
+				(!vma || addr + len <= vm_start_gap(vma)) &&
+				(!prev || addr >= vm_end_gap(prev)))
 			return addr;
 	}
 
@@ -2099,21 +2135,19 @@ find_vma_prev(struct mm_struct *mm, unsigned long addr,
  * update accounting. This is shared with both the
  * grow-up and grow-down cases.
  */
-static int acct_stack_growth(struct vm_area_struct *vma, unsigned long size, unsigned long grow)
+static int acct_stack_growth(struct vm_area_struct *vma,
+			     unsigned long size, unsigned long grow)
 {
 	struct mm_struct *mm = vma->vm_mm;
 	struct rlimit *rlim = current->signal->rlim;
-	unsigned long new_start, actual_size;
+	unsigned long new_start;
 
 	/* address space limit tests */
 	if (!may_expand_vm(mm, grow))
 		return -ENOMEM;
 
 	/* Stack limit test */
-	actual_size = size;
-	if (size && (vma->vm_flags & (VM_GROWSUP | VM_GROWSDOWN)))
-		actual_size -= PAGE_SIZE;
-	if (actual_size > READ_ONCE(rlim[RLIMIT_STACK].rlim_cur))
+	if (size > READ_ONCE(rlim[RLIMIT_STACK].rlim_cur))
 		return -ENOMEM;
 
 	/* mlock limit tests */
@@ -2151,16 +2185,32 @@ static int acct_stack_growth(struct vm_area_struct *vma, unsigned long size, uns
 int expand_upwards(struct vm_area_struct *vma, unsigned long address)
 {
 	struct mm_struct *mm = vma->vm_mm;
+	struct vm_area_struct *next;
+	unsigned long gap_addr;
 	int error = 0;
 
 	if (!(vma->vm_flags & VM_GROWSUP))
 		return -EFAULT;
 
-	/* Guard against wrapping around to address 0. */
-	if (address < PAGE_ALIGN(address+4))
-		address = PAGE_ALIGN(address+4);
-	else
+	/* Guard against exceeding limits of the address space. */
+	address &= PAGE_MASK;
+	if (address >= TASK_SIZE)
 		return -ENOMEM;
+	address += PAGE_SIZE;
+
+	/* Enforce stack_guard_gap */
+	gap_addr = address + stack_guard_gap;
+
+	/* Guard against overflow */
+	if (gap_addr < address || gap_addr > TASK_SIZE)
+		gap_addr = TASK_SIZE;
+
+	next = vma->vm_next;
+	if (next && next->vm_start < gap_addr) {
+		if (!(next->vm_flags & VM_GROWSUP))
+			return -ENOMEM;
+		/* Check that both stack segments have the same anon_vma? */
+	}
 
 	/* We must make sure the anon_vma is allocated. */
 	if (unlikely(anon_vma_prepare(vma)))
@@ -2206,7 +2256,7 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
 				if (vma->vm_next)
 					vma_gap_update(vma->vm_next);
 				else
-					mm->highest_vm_end = address;
+					mm->highest_vm_end = vm_end_gap(vma);
 				spin_unlock(&mm->page_table_lock);
 
 				perf_event_mmap(vma);
@@ -2227,12 +2277,25 @@ int expand_downwards(struct vm_area_struct *vma,
 				   unsigned long address)
 {
 	struct mm_struct *mm = vma->vm_mm;
+	struct vm_area_struct *prev;
+	unsigned long gap_addr;
 	int error;
 
 	address &= PAGE_MASK;
 	error = security_mmap_addr(address);
 	if (error)
 		return error;
+
+	/* Enforce stack_guard_gap */
+	gap_addr = address - stack_guard_gap;
+	if (gap_addr > address)
+		return -ENOMEM;
+	prev = vma->vm_prev;
+	if (prev && prev->vm_end > gap_addr) {
+		if (!(prev->vm_flags & VM_GROWSDOWN))
+			return -ENOMEM;
+		/* Check that both stack segments have the same anon_vma? */
+	}
 
 	/* We must make sure the anon_vma is allocated. */
 	if (unlikely(anon_vma_prepare(vma)))
@@ -2289,28 +2352,25 @@ int expand_downwards(struct vm_area_struct *vma,
 	return error;
 }
 
-/*
- * Note how expand_stack() refuses to expand the stack all the way to
- * abut the next virtual mapping, *unless* that mapping itself is also
- * a stack mapping. We want to leave room for a guard page, after all
- * (the guard page itself is not added here, that is done by the
- * actual page faulting logic)
- *
- * This matches the behavior of the guard page logic (see mm/memory.c:
- * check_stack_guard_page()), which only allows the guard page to be
- * removed under these circumstances.
- */
+/* enforced gap between the expanding stack and other mappings. */
+unsigned long stack_guard_gap = 256UL<<PAGE_SHIFT;
+
+static int __init cmdline_parse_stack_guard_gap(char *p)
+{
+	unsigned long val;
+	char *endptr;
+
+	val = simple_strtoul(p, &endptr, 10);
+	if (!*endptr)
+		stack_guard_gap = val << PAGE_SHIFT;
+
+	return 0;
+}
+__setup("stack_guard_gap=", cmdline_parse_stack_guard_gap);
+
 #ifdef CONFIG_STACK_GROWSUP
 int expand_stack(struct vm_area_struct *vma, unsigned long address)
 {
-	struct vm_area_struct *next;
-
-	address &= PAGE_MASK;
-	next = vma->vm_next;
-	if (next && next->vm_start == address + PAGE_SIZE) {
-		if (!(next->vm_flags & VM_GROWSUP))
-			return -ENOMEM;
-	}
 	return expand_upwards(vma, address);
 }
 
@@ -2332,14 +2392,6 @@ find_extend_vma(struct mm_struct *mm, unsigned long addr)
 #else
 int expand_stack(struct vm_area_struct *vma, unsigned long address)
 {
-	struct vm_area_struct *prev;
-
-	address &= PAGE_MASK;
-	prev = vma->vm_prev;
-	if (prev && prev->vm_end == address) {
-		if (!(prev->vm_flags & VM_GROWSDOWN))
-			return -ENOMEM;
-	}
 	return expand_downwards(vma, address);
 }
 
@@ -2437,7 +2489,7 @@ detach_vmas_to_be_unmapped(struct mm_struct *mm, struct vm_area_struct *vma,
 		vma->vm_prev = prev;
 		vma_gap_update(vma);
 	} else
-		mm->highest_vm_end = prev ? prev->vm_end : 0;
+		mm->highest_vm_end = prev ? vm_end_gap(prev) : 0;
 	tail_vma->vm_next = NULL;
 
 	/* Kill the cache */
@@ -2483,7 +2535,11 @@ static int __split_vma(struct mm_struct *mm, struct vm_area_struct *vma,
 		goto out_free_mpol;
 
 	if (new->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+		vma_get_file(new);
+#else
 		get_file(new->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 
 	if (new->vm_ops && new->vm_ops->open)
 		new->vm_ops->open(new);
@@ -2502,7 +2558,11 @@ static int __split_vma(struct mm_struct *mm, struct vm_area_struct *vma,
 	if (new->vm_ops && new->vm_ops->close)
 		new->vm_ops->close(new);
 	if (new->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+		vma_fput(new);
+#else
 		fput(new->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 	unlink_anon_vmas(new);
  out_free_mpol:
 	mpol_put(vma_policy(new));
@@ -2600,6 +2660,10 @@ int do_munmap(struct mm_struct *mm, unsigned long start, size_t len)
 		}
 	}
 
+#ifdef MY_ABC_HERE
+	if (vma->vm_file && (vma->vm_flags & VM_WRITE))
+		fsnotify_modify(vma->vm_file);
+#endif /* MY_ABC_HERE */
 	/*
 	 * Remove the vma's, and unmap the actual pages
 	 */
@@ -2632,7 +2696,6 @@ SYSCALL_DEFINE2(munmap, unsigned long, addr, size_t, len)
 	return vm_munmap(addr, len);
 }
 
-
 /*
  * Emulation of deprecated remap_file_pages() syscall.
  */
@@ -2644,7 +2707,9 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
 	struct vm_area_struct *vma;
 	unsigned long populate = 0;
 	unsigned long ret = -EINVAL;
+#ifndef	CONFIG_AUFS_FHSM
 	struct file *file;
+#endif /* CONFIG_AUFS_FHSM */
 
 	pr_warn_once("%s (%d) uses deprecated remap_file_pages() syscall. "
 			"See Documentation/vm/remap_file_pages.txt.\n",
@@ -2712,10 +2777,18 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
 		}
 	}
 
+#ifdef CONFIG_AUFS_FHSM
+	vma_get_file(vma);
+#else
 	file = get_file(vma->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 	ret = do_mmap_pgoff(vma->vm_file, start, size,
 			prot, flags, pgoff, &populate);
+#ifdef CONFIG_AUFS_FHSM
+	vma_fput(vma);
+#else
 	fput(file);
+#endif /* CONFIG_AUFS_FHSM */
 out:
 	up_write(&mm->mmap_sem);
 	if (populate)
@@ -2985,7 +3058,11 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
 		if (anon_vma_clone(new_vma, vma))
 			goto out_free_mempol;
 		if (new_vma->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+			vma_get_file(new_vma);
+#else
 			get_file(new_vma->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 		if (new_vma->vm_ops && new_vma->vm_ops->open)
 			new_vma->vm_ops->open(new_vma);
 		vma_link(mm, new_vma, prev, rb_link, rb_parent);

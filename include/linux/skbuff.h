@@ -368,7 +368,6 @@ struct skb_shared_info {
 #define SKB_DATAREF_SHIFT 16
 #define SKB_DATAREF_MASK ((1 << SKB_DATAREF_SHIFT) - 1)
 
-
 enum {
 	SKB_FCLONE_UNAVAILABLE,	/* skb has no fclone (from head_cache) */
 	SKB_FCLONE_ORIG,	/* orig skb (from fclone_cache) */
@@ -715,7 +714,6 @@ struct sk_buff {
  *	Handling routines are only of interest to the kernel
  */
 #include <linux/slab.h>
-
 
 #define SKB_ALLOC_FCLONE	0x01
 #define SKB_ALLOC_RX		0x02
@@ -1282,7 +1280,6 @@ static inline void __skb_header_release(struct sk_buff *skb)
 	atomic_set(&skb_shinfo(skb)->dataref, 1 + (1 << SKB_DATAREF_SHIFT));
 }
 
-
 /**
  *	skb_shared - is the buffer shared
  *	@skb: buffer to check
@@ -1679,7 +1676,6 @@ static inline struct sk_buff *__skb_dequeue_tail(struct sk_buff_head *list)
 		__skb_unlink(skb, list);
 	return skb;
 }
-
 
 static inline bool skb_is_nonlinear(const struct sk_buff *skb)
 {
@@ -2313,7 +2309,6 @@ static inline struct sk_buff *dev_alloc_skb(unsigned int length)
 	return netdev_alloc_skb(NULL, length);
 }
 
-
 static inline struct sk_buff *__netdev_alloc_skb_ip_align(struct net_device *dev,
 		unsigned int length, gfp_t gfp)
 {
@@ -2543,13 +2538,11 @@ static inline struct sk_buff *pskb_copy(struct sk_buff *skb,
 	return __pskb_copy(skb, skb_headroom(skb), gfp_mask);
 }
 
-
 static inline struct sk_buff *pskb_copy_for_clone(struct sk_buff *skb,
 						  gfp_t gfp_mask)
 {
 	return __pskb_copy_fclone(skb, skb_headroom(skb), gfp_mask, true);
 }
-
 
 /**
  *	skb_clone_writable - is the header of a clone writable
@@ -2865,6 +2858,10 @@ unsigned int datagram_poll(struct file *file, struct socket *sock,
 			   struct poll_table_struct *wait);
 int skb_copy_datagram_iter(const struct sk_buff *from, int offset,
 			   struct iov_iter *to, int size);
+#ifdef CONFIG_SENDFILE_PATCH
+int skb_copy_datagram_iter1(const struct sk_buff *from, int offset,
+			   struct iov_iter *to, int size);
+#endif
 static inline int skb_copy_datagram_msg(const struct sk_buff *from, int offset,
 					struct msghdr *msg, int size)
 {

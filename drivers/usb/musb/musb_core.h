@@ -519,7 +519,6 @@ static inline void musb_configure_ep0(struct musb *musb)
 }
 #endif /* CONFIG_BLACKFIN */
 
-
 /***************************** Glue it together *****************************/
 
 extern const char musb_driver_name[];

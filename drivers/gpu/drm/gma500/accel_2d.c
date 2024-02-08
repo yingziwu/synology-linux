@@ -28,7 +28,6 @@
 #include <linux/tty.h>
 #include <linux/slab.h>
 #include <linux/delay.h>
-#include <linux/fb.h>
 #include <linux/init.h>
 #include <linux/console.h>
 
@@ -131,7 +130,6 @@ static int psbfb_2d_submit(struct drm_psb_private *dev_priv, uint32_t *cmdbuf,
 	spin_unlock_irqrestore(&dev_priv->lock_2d, flags);
 	return ret;
 }
-
 
 /**
  *	psb_accel_2d_copy_direction	-	compute blit order
@@ -255,7 +253,7 @@ static void psbfb_copyarea_accel(struct fb_info *info,
 	offset = psbfb->gtt->offset;
 	stride = fb->pitches[0];
 
-	switch (fb->depth) {
+	switch (fb->format->depth) {
 	case 8:
 		src_format = PSB_2D_SRC_332RGB;
 		dst_format = PSB_2D_DST_332RGB;

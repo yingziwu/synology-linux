@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Linux driver for VMware's para-virtualized SCSI HBA.
  *
@@ -102,7 +105,6 @@ struct pvscsi_adapter {
 	struct list_head		cmd_pool;
 	struct pvscsi_ctx		*cmd_map;
 };
-
 
 /* Command line parameters */
 static int pvscsi_ring_pages;
@@ -896,6 +898,14 @@ static int pvscsi_host_reset(struct scsi_cmnd *cmd)
 	return SUCCESS;
 }
 
+#if defined(MY_DEF_HERE) && defined(MY_DEF_HERE)
+int
+pvscsi_index_get(struct Scsi_Host *host, uint channel, uint id, uint lun)
+{
+	return id >= 1 ? id - 1 : 0;
+}
+#endif /* MY_DEF_HERE && MY_DEF_HERE */
+
 static int pvscsi_bus_reset(struct scsi_cmnd *cmd)
 {
 	struct Scsi_Host *host = cmd->device->host;
@@ -977,6 +987,9 @@ static struct scsi_host_template pvscsi_template = {
 	.eh_device_reset_handler	= pvscsi_device_reset,
 	.eh_bus_reset_handler		= pvscsi_bus_reset,
 	.eh_host_reset_handler		= pvscsi_host_reset,
+#if defined(MY_DEF_HERE) && defined(MY_DEF_HERE)
+	.syno_index_get				= pvscsi_index_get,
+#endif /* MY_DEF_HERE && MY_DEF_HERE */
 };
 
 static void pvscsi_process_msg(const struct pvscsi_adapter *adapter,

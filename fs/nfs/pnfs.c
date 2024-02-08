@@ -2294,7 +2294,6 @@ pnfs_layoutcommit_inode(struct inode *inode, bool sync)
 		}
 	}
 
-
 	status = nfs4_proc_layoutcommit(data, sync);
 out:
 	if (status)

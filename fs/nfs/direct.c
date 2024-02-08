@@ -180,7 +180,6 @@ nfs_direct_select_verf(struct nfs_direct_req *dreq,
 	return verfp;
 }
 
-
 /*
  * nfs_direct_set_hdr_verf - set the write/commit verifier
  * @dreq - direct request possibly spanning multiple servers
@@ -586,7 +585,7 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter,
 	if (!count)
 		goto out;
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	result = nfs_sync_mapping(mapping);
 	if (result)
 		goto out_unlock;
@@ -614,7 +613,7 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter,
 	NFS_I(inode)->read_io += count;
 	result = nfs_direct_read_schedule_iovec(dreq, iter, pos);
 
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 
 	if (!result) {
 		result = nfs_direct_wait(dreq);
@@ -628,7 +627,7 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter,
 out_release:
 	nfs_direct_req_release(dreq);
 out_unlock:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 out:
 	return result;
 }
@@ -845,7 +844,6 @@ static const struct nfs_pgio_completion_ops nfs_direct_write_completion_ops = {
 	.completion = nfs_direct_write_completion,
 };
 
-
 /*
  * NB: Return the value of the first error return code.  Subsequent
  *     errors after the first one are ignored.
@@ -977,7 +975,7 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
 	pos = iocb->ki_pos;
 	end = (pos + iov_iter_count(iter) - 1) >> PAGE_CACHE_SHIFT;
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 
 	result = nfs_sync_mapping(mapping);
 	if (result)
@@ -1017,7 +1015,7 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
 					      pos >> PAGE_CACHE_SHIFT, end);
 	}
 
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 
 	if (!result) {
 		result = nfs_direct_wait(dreq);
@@ -1038,7 +1036,7 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
 out_release:
 	nfs_direct_req_release(dreq);
 out_unlock:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	return result;
 }
 

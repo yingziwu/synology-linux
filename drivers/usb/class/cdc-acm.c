@@ -51,7 +51,6 @@
 
 #include "cdc-acm.h"
 
-
 #define DRIVER_AUTHOR "Armin Fuerst, Pavel Machek, Johannes Erdfelt, Vojtech Pavlik, David Kubicek, Johan Hovold"
 #define DRIVER_DESC "USB Abstract Control Model driver for USB modems and ISDN adapters"
 
@@ -909,8 +908,6 @@ static int wait_serial_change(struct acm *acm, unsigned long arg)
 		}
 	} while (!rv);
 
-	
-
 	return rv;
 }
 
@@ -1283,7 +1280,6 @@ skip_normal_probe:
 		return -EBUSY;
 	}
 
-
 	if (data_interface->cur_altsetting->desc.bNumEndpoints < 2 ||
 	    control_interface->cur_altsetting->desc.bNumEndpoints == 0)
 		return -EINVAL;
@@ -1291,7 +1287,6 @@ skip_normal_probe:
 	epctrl = &control_interface->cur_altsetting->endpoint[0].desc;
 	epread = &data_interface->cur_altsetting->endpoint[0].desc;
 	epwrite = &data_interface->cur_altsetting->endpoint[1].desc;
-
 
 	/* workaround for switched endpoints */
 	if (!usb_endpoint_dir_in(epread)) {

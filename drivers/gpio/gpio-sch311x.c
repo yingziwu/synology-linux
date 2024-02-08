@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * GPIO driver for the SMSC SCH311x Super-I/O chips
  *
@@ -99,7 +102,6 @@ to_sch311x_gpio_block(struct gpio_chip *chip)
 	return container_of(chip, struct sch311x_gpio_block, chip);
 }
 
-
 /*
  *	Super-IO functions
  */
@@ -135,7 +137,6 @@ static inline void sch311x_sio_outb(int sio_config_port, int reg, int val)
 	outb(val, sio_config_port + 1);
 }
 
-
 /*
  *	GPIO functions
  */
@@ -149,7 +150,11 @@ static int sch311x_gpio_request(struct gpio_chip *chip, unsigned offset)
 
 	if (!request_region(block->runtime_reg + block->config_regs[offset],
 			    1, DRV_NAME)) {
+#if defined(MY_DEF_HERE)
+		dev_err(chip->parent, "Failed to request region 0x%04x.\n",
+#else /* MY_DEF_HERE */
 		dev_err(chip->dev, "Failed to request region 0x%04x.\n",
+#endif /* MY_DEF_HERE */
 			block->runtime_reg + block->config_regs[offset]);
 		return -EBUSY;
 	}
@@ -261,7 +266,11 @@ static int sch311x_gpio_probe(struct platform_device *pdev)
 		block->chip.get = sch311x_gpio_get;
 		block->chip.set = sch311x_gpio_set;
 		block->chip.ngpio = 8;
+#if defined(MY_DEF_HERE)
+		block->chip.parent = &pdev->dev;
+#else /* MY_DEF_HERE */
 		block->chip.dev = &pdev->dev;
+#endif /* MY_DEF_HERE */
 		block->chip.base = sch311x_gpio_blocks[i].base;
 		block->config_regs = sch311x_gpio_blocks[i].config_regs;
 		block->data_reg = sch311x_gpio_blocks[i].data_reg;
@@ -309,7 +318,6 @@ static struct platform_driver sch311x_gpio_driver = {
 	.probe		= sch311x_gpio_probe,
 	.remove		= sch311x_gpio_remove,
 };
-
 
 /*
  *	Init & exit routines

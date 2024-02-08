@@ -6,7 +6,6 @@
 
 #include <asm/alternative.h>
 #include <asm/cpufeature.h>
-#include <asm/processor.h>
 #include <asm/apicdef.h>
 #include <linux/atomic.h>
 #include <asm/fixmap.h>
@@ -33,7 +32,6 @@
 		if ((v) <= apic_verbosity) \
 			printk(s, ##a);    \
 	} while (0)
-
 
 #if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86_32)
 extern void generic_apic_probe(void);
@@ -468,7 +466,6 @@ extern int default_check_phys_apicid_present(int phys_apicid);
 
 extern void generic_bigsmp_probe(void);
 
-
 #ifdef CONFIG_X86_LOCAL_APIC
 
 #include <asm/smp.h>
@@ -490,7 +487,6 @@ static inline const struct cpumask *online_target_cpus(void)
 }
 
 DECLARE_EARLY_PER_CPU_READ_MOSTLY(u16, x86_bios_cpu_apicid);
-
 
 static inline unsigned int read_apic_id(void)
 {

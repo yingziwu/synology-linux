@@ -100,7 +100,6 @@ static int ocfs2_validate_refcount_block(struct super_block *sb,
 		return rc;
 	}
 
-
 	if (!OCFS2_IS_VALID_REFCOUNT_BLOCK(rb)) {
 		rc = ocfs2_error(sb,
 				 "Refcount block #%llu has bad signature %.*s\n",
@@ -807,7 +806,7 @@ int ocfs2_remove_refcount_tree(struct inode *inode, struct buffer_head *di_bh)
 			mlog_errno(ret);
 			goto out;
 		}
-		mutex_lock(&alloc_inode->i_mutex);
+		inode_lock(alloc_inode);
 
 		ret = ocfs2_inode_lock(alloc_inode, &alloc_bh, 1);
 		if (ret) {
@@ -867,7 +866,7 @@ out_unlock:
 	}
 out_mutex:
 	if (alloc_inode) {
-		mutex_unlock(&alloc_inode->i_mutex);
+		inode_unlock(alloc_inode);
 		iput(alloc_inode);
 	}
 out:
@@ -1637,7 +1636,6 @@ static int ocfs2_expand_refcount_tree(handle_t *handle,
 		expand_bh = ref_leaf_bh;
 		get_bh(expand_bh);
 	}
-
 
 	/* Now add a new refcount block into the tree.*/
 	ret = ocfs2_new_leaf_refcount_block(handle, ci, ref_root_bh,
@@ -4197,7 +4195,7 @@ static int __ocfs2_reflink(struct dentry *old_dentry,
 		goto out;
 	}
 
-	mutex_lock_nested(&new_inode->i_mutex, I_MUTEX_CHILD);
+	inode_lock_nested(new_inode, I_MUTEX_CHILD);
 	ret = ocfs2_inode_lock_nested(new_inode, &new_bh, 1,
 				      OI_LS_REFLINK_TARGET);
 	if (ret) {
@@ -4231,7 +4229,7 @@ inode_unlock:
 	ocfs2_inode_unlock(new_inode, 1);
 	brelse(new_bh);
 out_unlock:
-	mutex_unlock(&new_inode->i_mutex);
+	inode_unlock(new_inode);
 out:
 	if (!ret) {
 		ret = filemap_fdatawait(inode->i_mapping);
@@ -4251,7 +4249,6 @@ static int ocfs2_reflink(struct dentry *old_dentry, struct inode *dir,
 
 	if (!ocfs2_refcount_tree(OCFS2_SB(inode->i_sb)))
 		return -EOPNOTSUPP;
-
 
 	error = ocfs2_create_inode_in_orphan(dir, inode->i_mode,
 					     &new_orphan_inode);
@@ -4389,11 +4386,11 @@ static int ocfs2_vfs_reflink(struct dentry *old_dentry, struct inode *dir,
 			return error;
 	}
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	error = dquot_initialize(dir);
 	if (!error)
 		error = ocfs2_reflink(old_dentry, dir, new_dentry, preserve);
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	if (!error)
 		fsnotify_create(dir, new_dentry);
 	return error;

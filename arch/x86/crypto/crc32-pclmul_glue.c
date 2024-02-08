@@ -33,7 +33,7 @@
 #include <linux/crc32.h>
 #include <crypto/internal/hash.h>
 
-#include <asm/cpufeature.h>
+#include <asm/cpufeatures.h>
 #include <asm/cpu_device_id.h>
 #include <asm/fpu/api.h>
 
@@ -174,7 +174,6 @@ static const struct x86_cpu_id crc32pclmul_cpu_id[] = {
 	{}
 };
 MODULE_DEVICE_TABLE(x86cpu, crc32pclmul_cpu_id);
-
 
 static int __init crc32_pclmul_mod_init(void)
 {

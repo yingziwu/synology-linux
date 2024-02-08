@@ -1,29 +1,14 @@
-/*
- * Copyright (C) 2012 Alexander Block.  All rights reserved.
- * Copyright (C) 2012 STRATO.  All rights reserved.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public
- * License v2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 021110-1307, USA.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include "ctree.h"
 
 #define BTRFS_SEND_STREAM_MAGIC "btrfs-stream"
 #define BTRFS_SEND_STREAM_VERSION 1
 
-#define BTRFS_SEND_BUF_SIZE (1024 * 64)
-#define BTRFS_SEND_READ_SIZE (1024 * 48)
+#define BTRFS_SEND_BUF_SIZE SZ_64K
+#define BTRFS_SEND_READ_SIZE (48 * SZ_1K)
 
 enum btrfs_tlv_type {
 	BTRFS_TLV_U8,
@@ -42,20 +27,19 @@ struct btrfs_stream_header {
 } __attribute__ ((__packed__));
 
 struct btrfs_cmd_header {
-	/* len excluding the header */
+	 
 	__le32 len;
 	__le16 cmd;
-	/* crc including the header with zero crc field */
+	 
 	__le32 crc;
 } __attribute__ ((__packed__));
 
 struct btrfs_tlv_header {
 	__le16 tlv_type;
-	/* len excluding the header */
+	 
 	__le16 tlv_len;
 } __attribute__ ((__packed__));
 
-/* commands */
 enum btrfs_send_cmd {
 	BTRFS_SEND_C_UNSPEC,
 
@@ -87,11 +71,16 @@ enum btrfs_send_cmd {
 
 	BTRFS_SEND_C_END,
 	BTRFS_SEND_C_UPDATE_EXTENT,
+#ifdef MY_ABC_HERE
+	BTRFS_SEND_C_SUBVOL_FLAG,
+#endif  
+#ifdef MY_ABC_HERE
+	BTRFS_SEND_C_FALLOCATE,
+#endif  
 	__BTRFS_SEND_C_MAX,
 };
 #define BTRFS_SEND_C_MAX (__BTRFS_SEND_C_MAX - 1)
 
-/* attributes in send stream */
 enum {
 	BTRFS_SEND_A_UNSPEC,
 
@@ -125,9 +114,24 @@ enum {
 	BTRFS_SEND_A_CLONE_OFFSET,
 	BTRFS_SEND_A_CLONE_LEN,
 
+#ifdef MY_ABC_HERE
+	BTRFS_SEND_A_FLAG,
+#endif  
+#ifdef MY_ABC_HERE
+	BTRFS_SEND_A_FALLOCATE_FLAGS,
+#endif  
 	__BTRFS_SEND_A_MAX,
 };
 #define BTRFS_SEND_A_MAX (__BTRFS_SEND_A_MAX - 1)
+
+#ifdef MY_ABC_HERE
+#define BTRFS_SEND_A_FALLOCATE_FLAG_KEEP_SIZE   (1 << 0)
+#define BTRFS_SEND_A_FALLOCATE_FLAG_PUNCH_HOLE  (1 << 1)
+
+#define BTRFS_SEND_PUNCH_HOLE_FALLOC_FLAGS        \
+		(BTRFS_SEND_A_FALLOCATE_FLAG_KEEP_SIZE |  \
+		 BTRFS_SEND_A_FALLOCATE_FLAG_PUNCH_HOLE)
+#endif  
 
 #ifdef __KERNEL__
 long btrfs_ioctl_send(struct file *mnt_file, void __user *arg);

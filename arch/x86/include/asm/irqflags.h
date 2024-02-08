@@ -4,6 +4,9 @@
 #include <asm/processor-flags.h>
 
 #ifndef __ASSEMBLY__
+
+#include <asm/nospec-branch.h>
+
 /*
  * Interrupt control:
  */
@@ -46,11 +49,13 @@ static inline void native_irq_enable(void)
 
 static inline void native_safe_halt(void)
 {
+	mds_idle_clear_cpu_buffers();
 	asm volatile("sti; hlt": : :"memory");
 }
 
 static inline void native_halt(void)
 {
+	mds_idle_clear_cpu_buffers();
 	asm volatile("hlt": : :"memory");
 }
 
@@ -142,7 +147,6 @@ static inline notrace unsigned long arch_local_irq_save(void)
 #define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
 #define GET_CR0_INTO_EAX		movl %cr0, %eax
 #endif
-
 
 #endif /* __ASSEMBLY__ */
 #endif /* CONFIG_PARAVIRT */

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * SPI init/core code
  *
@@ -326,7 +329,6 @@ struct bus_type spi_bus_type = {
 	.uevent		= spi_uevent,
 };
 EXPORT_SYMBOL_GPL(spi_bus_type);
-
 
 static int spi_drv_probe(struct device *dev)
 {
@@ -721,7 +723,6 @@ static int spi_map_buf(struct spi_master *master, struct device *dev,
 			sg_buf = buf;
 			sg_set_buf(&sgt->sgl[i], sg_buf, min);
 		}
-
 
 		buf += min;
 		len -= min;
@@ -1466,6 +1467,10 @@ of_register_spi_device(struct spi_master *master, struct device_node *nc)
 		spi->mode |= SPI_3WIRE;
 	if (of_find_property(nc, "spi-lsb-first", NULL))
 		spi->mode |= SPI_LSB_FIRST;
+#if defined(MY_DEF_HERE)
+	if (of_find_property(nc, "spi-1byte-cs", NULL))
+		spi->mode |= SPI_1BYTE_CS;
+#endif /* MY_DEF_HERE */
 
 	/* Device DUAL/QUAD mode */
 	if (!of_property_read_u32(nc, "spi-tx-bus-width", &value)) {
@@ -1668,7 +1673,6 @@ static struct class spi_master_class = {
 	.dev_release	= spi_master_release,
 	.dev_groups	= spi_master_groups,
 };
-
 
 /**
  * spi_alloc_master - allocate SPI master controller
@@ -1991,7 +1995,6 @@ struct spi_master *spi_busnum_to_master(u16 bus_num)
 }
 EXPORT_SYMBOL_GPL(spi_busnum_to_master);
 
-
 /*-------------------------------------------------------------------------*/
 
 /* Core methods for SPI master protocol drivers.  Some of the
@@ -2084,12 +2087,19 @@ int spi_setup(struct spi_device *spi)
 
 	spi_set_cs(spi, false);
 
+#if defined(MY_DEF_HERE)
+	dev_dbg(&spi->dev, "setup mode %d, %s%s%s%s%s%u bits/w, %u Hz max --> %d\n",
+#else /* MY_DEF_HERE */
 	dev_dbg(&spi->dev, "setup mode %d, %s%s%s%s%u bits/w, %u Hz max --> %d\n",
+#endif /* MY_DEF_HERE */
 			(int) (spi->mode & (SPI_CPOL | SPI_CPHA)),
 			(spi->mode & SPI_CS_HIGH) ? "cs_high, " : "",
 			(spi->mode & SPI_LSB_FIRST) ? "lsb, " : "",
 			(spi->mode & SPI_3WIRE) ? "3wire, " : "",
 			(spi->mode & SPI_LOOP) ? "loopback, " : "",
+#if defined(MY_DEF_HERE)
+			(spi->mode & SPI_1BYTE_CS) ? "single_cs_byte, " : "",
+#endif /* MY_DEF_HERE */
 			spi->bits_per_word, spi->max_speed_hz,
 			status);
 
@@ -2327,7 +2337,6 @@ int spi_async_locked(struct spi_device *spi, struct spi_message *message)
 
 }
 EXPORT_SYMBOL_GPL(spi_async_locked);
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -2707,4 +2716,3 @@ err0:
  * include needing to have boardinfo data structures be much more public.
  */
 postcore_initcall(spi_init);
-
