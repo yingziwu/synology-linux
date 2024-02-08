@@ -210,7 +210,8 @@ struct intel_encoder {
 	enum intel_output_type type;
 	enum port port;
 	unsigned int cloneable;
-	void (*hot_plug)(struct intel_encoder *);
+	bool (*hotplug)(struct intel_encoder *encoder,
+			struct intel_connector *connector);
 	enum intel_output_type (*compute_output_type)(struct intel_encoder *,
 						      struct intel_crtc_state *,
 						      struct drm_connector_state *);
@@ -367,6 +368,10 @@ struct intel_atomic_state {
 		 * state only when all crtc's are DPMS off.
 		 */
 		struct intel_cdclk_state actual;
+
+		int force_min_cdclk;
+                bool force_min_cdclk_changed;
+
 	} cdclk;
 
 	bool dpll_set, modeset;
@@ -1504,6 +1509,7 @@ u32 glk_plane_color_ctl(const struct intel_crtc_state *crtc_state,
 			const struct intel_plane_state *plane_state);
 u32 skl_plane_ctl(const struct intel_crtc_state *crtc_state,
 		  const struct intel_plane_state *plane_state);
+u32 glk_color_ctl(const struct intel_plane_state *plane_state);
 u32 skl_plane_stride(const struct drm_framebuffer *fb, int plane,
 		     unsigned int rotation);
 int skl_check_plane_surface(struct intel_plane_state *plane_state);
@@ -1608,7 +1614,8 @@ int intel_dsi_dcs_init_backlight_funcs(struct intel_connector *intel_connector);
 void intel_dvo_init(struct drm_i915_private *dev_priv);
 /* intel_hotplug.c */
 void intel_hpd_poll_init(struct drm_i915_private *dev_priv);
-
+bool intel_encoder_hotplug(struct intel_encoder *encoder,
+			   struct intel_connector *connector);
 
 /* legacy fbdev emulation in intel_fbdev.c */
 #ifdef CONFIG_DRM_FBDEV_EMULATION
@@ -1796,6 +1803,8 @@ bool intel_display_power_get_if_enabled(struct drm_i915_private *dev_priv,
 					enum intel_display_power_domain domain);
 void intel_display_power_put(struct drm_i915_private *dev_priv,
 			     enum intel_display_power_domain domain);
+void intel_display_power_put_unchecked(struct drm_i915_private *dev_priv,
+                                       enum intel_display_power_domain domain);
 
 static inline void
 assert_rpm_device_not_suspended(struct drm_i915_private *dev_priv)
@@ -1918,6 +1927,7 @@ bool intel_sdvo_init(struct drm_i915_private *dev_priv,
 
 
 /* intel_sprite.c */
+bool intel_format_is_yuv(u32 format);
 int intel_usecs_to_scanlines(const struct drm_display_mode *adjusted_mode,
 			     int usecs);
 struct intel_plane *intel_sprite_plane_create(struct drm_i915_private *dev_priv,

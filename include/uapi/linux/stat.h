@@ -70,6 +70,12 @@
 #define ALL_SMB (S2_SMB_ARCHIVE|S2_SMB_HIDDEN|S2_SMB_SYSTEM|S2_SMB_SPARSE)
 #endif /* MY_ABC_HERE */
 
+#define ARCHIVE_BIT_MASK		GENMASK(14, 0)
+
+#ifdef MY_ABC_HERE
+#define EXT4_INODE_SWAPFILE_FLAG	(1<<15)
+#endif /* MY_ABC_HERE */
+
 #endif /* MY_ABC_HERE */
 
 #endif /* _UAPI_LINUX_STAT_H */

@@ -148,6 +148,7 @@ struct nvme_dev {
 #endif
 #ifdef MY_DEF_HERE
 	int syno_disk_index;
+	int syno_eunit_index;
 #endif /* MY_DEF_HERE */
 };
 
@@ -155,6 +156,7 @@ struct nvme_dev {
 static void (*syno_sw_activity)(struct nvme_dev *);
 #ifdef MY_ABC_HERE
 extern void syno_ledtrig_active_set(int iLedNum);
+extern void syno_eunit_ledtrig_active_set(int iEunitNum, int iLedNum);
 extern int *gpGreenLedMap;
 #endif /* MY_ABC_HERE */
 #endif /* MY_DEF_HERE */
@@ -219,6 +221,7 @@ EXPORT_SYMBOL(SynoNVMeGetDeviceIndex);
  * allocated to store the PRP list.
  */
 struct nvme_iod {
+	struct nvme_request req;
 	struct nvme_queue *nvmeq;
 	int aborted;
 	int npages;		/* In the PRP list. 0 means small pool in use */
@@ -468,6 +471,9 @@ static int nvme_init_iod(struct request *rq, struct nvme_dev *dev)
 	if (!(rq->cmd_flags & REQ_DONTPREP)) {
 		rq->retries = 0;
 		rq->cmd_flags |= REQ_DONTPREP;
+#ifdef MY_ABC_HERE
+		nvme_req(rq)->flags = 0;
+#endif /* MY_ABC_HERE */
 	}
 	return 0;
 }
@@ -743,10 +749,18 @@ static int nvme_setup_discard(struct nvme_queue *nvmeq, struct nvme_ns *ns,
 #ifdef MY_ABC_HERE
 static void syno_sw_activity_by_lp3943(struct nvme_dev *dev)
 {
-	if (NULL == gpGreenLedMap || 0 > dev->syno_disk_index) {
+	if (0 > dev->syno_disk_index) {
 		return;
 	}
-	syno_ledtrig_active_set(gpGreenLedMap[dev->syno_disk_index]);
+	if (0 == dev->syno_eunit_index) {
+		if (gpGreenLedMap) {
+			syno_ledtrig_active_set(gpGreenLedMap[dev->syno_disk_index]);
+		}
+	} else {
+#ifdef MY_DEF_HERE
+		syno_eunit_ledtrig_active_set(dev->syno_eunit_index, dev->syno_disk_index);
+#endif /* MY_DEF_HERE */
+	}
 }
 #endif /* MY_ABC_HERE */
 #endif /* MY_DEF_HERE */
@@ -763,6 +777,15 @@ static int nvme_queue_rq(struct blk_mq_hw_ctx *hctx,
 	struct request *req = bd->rq;
 	struct nvme_command cmnd;
 	int ret = BLK_MQ_RQ_QUEUE_OK;
+
+#ifdef MY_ABC_HERE
+	if (dev->ctrl.state != NVME_CTRL_LIVE && req->q == dev->ctrl.admin_q &&
+	    nvme_req(req)->flags & NVME_REQ_USERCMD) {
+		req->errors = NVME_SC_HOST_PATH_ERROR;
+		blk_mq_end_request(req, -EBUSY);
+		return BLK_MQ_RQ_QUEUE_OK;
+	}
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * If formated with metadata, require the block layer provide a buffer
@@ -785,7 +808,7 @@ static int nvme_queue_rq(struct blk_mq_hw_ctx *hctx,
 		ret = nvme_setup_discard(nvmeq, ns, req, &cmnd);
 	} else {
 		if (req->cmd_type == REQ_TYPE_DRV_PRIV)
-			memcpy(&cmnd, req->cmd, sizeof(cmnd));
+			memcpy(&cmnd, nvme_req(req)->cmd, sizeof(cmnd));
 		else if (req->cmd_flags & REQ_FLUSH)
 			nvme_setup_flush(ns, &cmnd);
 		else
@@ -952,8 +975,7 @@ static void __nvme_process_cq(struct nvme_queue *nvmeq, unsigned int *tag)
 		}
 
 		req = blk_mq_tag_to_rq(*nvmeq->tags, cqe.command_id);
-		if (req->cmd_type == REQ_TYPE_DRV_PRIV && req->special)
-			memcpy(req->special, &cqe, sizeof(cqe));
+		nvme_req(req)->result = cqe.result;
 		blk_mq_complete_request(req, le16_to_cpu(cqe.status) >> 1);
 
 	}
@@ -1744,7 +1766,7 @@ static int nvme_configure_admin_queue(struct nvme_dev *dev)
 	u64 cap = lo_hi_readq(dev->bar + NVME_REG_CAP);
 	struct nvme_queue *nvmeq;
 
-	dev->subsystem = readl(dev->bar + NVME_REG_VS) >= NVME_VS(1, 1) ?
+	dev->subsystem = readl(dev->bar + NVME_REG_VS) >= NVME_VS(1, 1, 0) ?
 						NVME_CAP_NSSRC(cap) : 0;
 
 	if (dev->subsystem &&
@@ -2156,7 +2178,7 @@ static int nvme_pci_enable(struct nvme_dev *dev)
 #endif /* MY_DEF_HERE */
 	}
 
-	if (readl(dev->bar + NVME_REG_VS) >= NVME_VS(1, 2))
+	if (readl(dev->bar + NVME_REG_VS) >= NVME_VS(1, 2, 0))
 		dev->cmb = nvme_map_cmb(dev);
 
 	pci_enable_pcie_error_reporting(pdev);
@@ -2317,6 +2339,7 @@ static void nvme_remove_dead_ctrl(struct nvme_dev *dev, int status)
 
 	kref_get(&dev->ctrl.kref);
 	nvme_dev_disable(dev, false);
+	nvme_kill_queues(&dev->ctrl);
 	if (!schedule_work(&dev->remove_work))
 		nvme_put_ctrl(&dev->ctrl);
 }
@@ -2406,7 +2429,6 @@ static void nvme_remove_dead_ctrl_work(struct work_struct *work)
 	struct nvme_dev *dev = container_of(work, struct nvme_dev, remove_work);
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 
-	nvme_kill_queues(&dev->ctrl);
 	if (pci_get_drvdata(pdev))
 		device_release_driver(&pdev->dev);
 	nvme_put_ctrl(&dev->ctrl);
@@ -2530,44 +2552,29 @@ static unsigned long check_vendor_combination_bug(struct pci_dev *pdev)
 
 	return 0;
 }
-
 #ifdef MY_DEF_HERE
-#ifdef MY_DEF_HERE
-static int syno_nvme_index_get(const struct pci_dev *pdev)
+void syno_nvme_index_fill(struct pci_dev *pdev)
 {
-	int iIndex = -1;
-	struct device_node *pDeviceNode = NULL;
+      struct nvme_dev *dev;
 
-	if (NULL == pdev || NULL == of_root) {
-		goto END;
-	}
+      if (!pdev) {
+              return;
+      }
 
-	for_each_child_of_node(of_root, pDeviceNode) {
-		if (pDeviceNode->full_name && 0 == strncmp(pDeviceNode->full_name, "/"DT_INTERNAL_SLOT, strlen("/"DT_INTERNAL_SLOT))) {
-			/* skip non-internal nvme device */
-			if (!of_find_property(pDeviceNode, DT_PCIE_ROOT, NULL)) {
-				continue;
-			}
+      dev = (struct nvme_dev *)pci_get_drvdata(pdev);
 
-			if (0 == syno_compare_dts_pciepath(pdev, pDeviceNode)) {
-				// get index number of nvme_slot, e.g. /internal_slot@4 --> 4
-				sscanf(pDeviceNode->full_name, "/"DT_INTERNAL_SLOT"@%d", &iIndex);
-				of_node_put(pDeviceNode);
-				break;
-			}
-		}
-	}
-END:
-	return iIndex;
-}
-#else /* MY_DEF_HERE */
-static int syno_nvme_index_get(const struct pci_dev *pdev)
-{
-	return 0;
+      dev->syno_eunit_index = 0;
+      dev->syno_disk_index = syno_nvme_index_get(pdev, dev->ctrl.syno_block_info);
+
+      // not internal try external
+      if (-1 == dev->syno_disk_index) {
+              dev->syno_eunit_index = syno_eunit_index_get(pdev, dev->ctrl.syno_block_info);
+      }
+      if (dev->syno_eunit_index) {
+              dev->syno_disk_index = syno_eunit_disk_index_get(pdev, dev->ctrl.syno_block_info);
+      }
 }
 #endif /* MY_DEF_HERE */
-#endif /* MY_DEF_HERE */
-
 static int nvme_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
 	int node, result = -ENOMEM;
@@ -2620,8 +2627,10 @@ static int nvme_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	syno_pciepath_enum(&pdev->dev, dev->ctrl.syno_block_info);
 #endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
-	dev->syno_disk_index = syno_nvme_index_get(pdev) - 1;
-	if (syno_is_hw_version(HW_SA6500)) {
+	syno_nvme_index_fill(pdev);
+
+	if (syno_is_hw_version(HW_SA6500)
+			|| syno_is_hw_version(HW_FS6600N)) {
 		syno_sw_activity = syno_sw_activity_by_lp3943;
 	} else {
 		syno_sw_activity = NULL;

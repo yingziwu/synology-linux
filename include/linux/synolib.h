@@ -13,6 +13,9 @@
 #include <linux/fs.h>
 #include <linux/list.h>
 #include <linux/kobject.h>
+#ifdef MY_DEF_HERE
+#include <linux/of.h>
+#endif /* MY_DEF_HERE */
 
 #ifdef  MY_ABC_HERE
 extern int gSynoDebugFlag;
@@ -71,7 +74,7 @@ void syno_plugin_handle_put(void *hnd);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
-#define SATA_REMAP_MAX  32
+#define SATA_REMAP_MAX  64
 #define SATA_REMAP_NOT_INIT 0xff
 extern int g_syno_sata_remap[SATA_REMAP_MAX];
 extern int g_use_sata_remap;
@@ -82,7 +85,12 @@ int syno_get_mv_14xx_remap_idx(int origin_idx);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_DEF_HERE
+#define MAX_INTERNAL_ATA_PORT 60
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
 #define DT_INTERNAL_SLOT "internal_slot"
+#define DT_SYSTEM_SLOT "system_slot"
 #define DT_ESATA_SLOT "esata_port"
 #define DT_CX4_SLOT "cx4_port"
 #define DT_PCIE_SLOT "pcie_slot"
@@ -120,6 +128,31 @@ int syno_get_mv_14xx_remap_idx(int origin_idx);
 #define DT_MODEL_NAME "model_name"
 #define DT_SWITCHTEC "switchtec"
 #define DT_LED_OFF_GPIO "led_off_gpio"
+#define DT_I2C_BUS "i2c_bus"
+#define DT_I2C_DEVICE "i2c_device"
+#define DT_I2C_ADDRESS "i2c_address"
+#define DT_I2C_DEVICE_NAME "i2c_device_name"
+#define DT_DEVICE_INDEX "device_index"
+#define DT_ACPI_HID "acpi_hid"
+#define DT_ACPI_UID "acpi_uid"
+#define DT_SET_SSC_OFF "set_ssc_off"
+#define DT_NVME "nvme"
+#define DT_PCIE_POSTFIX "pcie_postfix"
+#define DT_PCIE_EUNIT_PORT "pcie_eunit_port"
+#define DT_NUMBER_OF_LED_TRIGGER "number_of_led_trigger"
+#define DT_M2_CARD "m2_card"
+#define DT_EUNIT "eunit"
+#define DT_I2C_BUS "i2c_bus"
+#define DT_PCIID_LIST "pciid_list"
+
+#ifdef MY_DEF_HERE
+#define DT_AHCI_INTERNAL_MODE "internal_mode"
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+#define DT_PCIEHP_FORCE "pciehp_force"
+#define DT_ROOT_LIST "root_list"
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_ABC_HERE
 #define DT_SYNO_HDD_SMBUS_TYPE "syno_smbus_hdd_type"
@@ -138,6 +171,25 @@ int syno_get_mv_14xx_remap_idx(int origin_idx);
 #define DT_SYNO_PMBUS_STATUS_REG "syno_pmbus_status_register"
 #define DT_SYNO_PMBUS_PSU_OFF_BIT "syno_pmbus_psu_off_bit"
 #define DT_SYNO_PMBUS_PSU_PRESENT_BIT "syno_pmbus_psu_present_bit"
+
+#ifdef MY_DEF_HERE
+#define SZ_DTS_AHCI_IRQ "ahci_irq"
+#define SZ_AHCI_HARD_IRQ "hard_irq"
+#define SZ_AHCI_THREADED_IRQ "threaded_irq"
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_ABC_HERE
+#define SZ_DTS_EBOX_I2C_PWR_BTN "power_btn"
+#define SZ_DTS_EBOX_I2C_OFFSET "offset"
+#define SZ_DTS_EBOX_I2C_MASK "mask"
+#define SZ_DTS_EBOX_I2C_PWR_CTL "power_control"
+#define SZ_DTS_EBOX_I2C_SN_READ "ebox_sn_read"
+#define SZ_DTS_EBOX_RP "rp_power"
+#define SZ_DTS_EBOX_RP_INFO "rp_power_info"
+#define SZ_DTS_EBOX_I2C_DEEPSELLP_CTL "deep_sleep_control"
+#define SZ_DTS_EBOX_I2C_DEEPSELLP_INDICATOR "deep_sleep_indicator"
+#define SZ_DTS_EBOX_I2C_REG_MANUAL_ENABLE "reg_manual_enable"
+#endif /* MY_ABC_HERE */
 
 #define SYNO_DTS_PROPERTY_CONTENT_LENGTH 128 // If used to retrive PCIe path, can only accept 9 layer PCIe switch.
 #define MAX_NODENAME_LEN 31
@@ -210,12 +262,9 @@ extern int g_syno_hdd_enable_list[SYNO_SPINUP_GROUP_PIN_MAX_NUM];
 #endif /* MY_DEF_HERE */
 
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+#define SYNOBIOS_EVENTDATA_NUM_MAX 8
 typedef struct _synobios_event_parm_tag {
-	unsigned long long data1;
-	unsigned long long data2;
-	unsigned long long data3;
-	unsigned long long data4;
-	unsigned long long data5;
+	unsigned long long data[SYNOBIOS_EVENTDATA_NUM_MAX];
 } SYNOBIOS_EVENT_PARM;
 
 typedef int (*FUNC_SYNOBIOS_EVENT)(SYNOBIOS_EVENT_PARM parms);
@@ -226,6 +275,29 @@ typedef struct _synobios_evnet_action_tag {
 	struct list_head list;
 } SYNOBIOS_EVENT_ACTION_LIST;
 #endif /* MY_ABC_HERE || MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+/*
+ * Notice
+ * ------
+ *  Before calling syno_kexec_test() or reading kexex_test_flags, please
+ *  ensure that syno_kexec_test_init() has been called.
+ */
+#define KEXEC_TEST_DECOMPRESSION	0	/* Did we skip compressed/head_64.S ? */
+#define KEXEC_TEST_BOOTLOADER		1	/* Is bootloader type 0xD ? */
+#define KEXEC_TEST_E820_TABLE		2	/* Is the minimal start address of usable memory in e820 table 0x100 ? */
+#define KEXEC_TEST_SETUP_DATA		3	/* Did we receive setup_data with type SETUP_NONE or SETUP_EFI ? */
+
+extern unsigned long kexec_test_flags;
+
+/*
+ * Test whether the above KEXEC_TEST_* bits are set.
+ */
+static __always_inline bool syno_kexec_test(int test)
+{
+	return 0 != test_bit(test, &kexec_test_flags);
+}
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_DEF_HERE
 
@@ -249,6 +321,30 @@ typedef struct _syno_multipath_target_sysfs {
 	ssize_t (*funcTargetSysfsStore)(struct gendisk*, struct attribute*, const char*, size_t);
 	SYNO_MPATH_SYSFS_SHOW_AGGR_METHOD (*funcTargetShowAggrMethod)(struct attribute*);
 } SYNO_MPATH_TARGET_SYSFS;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+struct asm2824_pdata {
+	struct pci_dev *pci_dev;
+};
+int syno_pci_dev_to_i2c_bus(struct pci_dev*);
+#endif /* CONFIG_SYNO_PCIEI2C */
+
+#ifdef MY_DEF_HERE
+int syno_nvme_index_get(struct pci_dev *pdev, char *syno_block_info);
+bool syno_pciid_list_cmp(struct pci_dev *pdev, struct device_node *pDeviceNode);
+struct device_node * syno_pci_dev_to_eunit_node(struct pci_dev* pdev);
+int syno_eunit_disk_index_get(struct pci_dev *pdev, char *syno_block_info);
+int syno_eunit_index_get(struct pci_dev *pdev, char *syno_block_info);
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+void syno_add_eunit_led_remap(struct pci_dev* pdev);
+void syno_del_eunit_led_remap(struct pci_dev* pdev);
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+#define SYNO_ATMEGA_NUM_MAX 2
 #endif /* MY_DEF_HERE */
 
 #endif //__SYNOLIB_H_

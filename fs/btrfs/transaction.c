@@ -35,6 +35,9 @@
 #include "volumes.h"
 #include "dev-replace.h"
 #include "qgroup.h"
+#ifdef MY_ABC_HERE
+#include "syno-feat-tree.h"
+#endif /* MY_ABC_HERE */
 
 #define BTRFS_ROOT_TRANS_TAG 0
 
@@ -278,9 +281,13 @@ loop:
 	atomic_set(&cur_trans->delayed_refs.num_entries, 0);
 #ifdef MY_ABC_HERE
 	init_rwsem(&cur_trans->delayed_refs_rw_sem);
-#endif
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	cur_trans->delayed_refs.num_pending_csums_leafs = 0;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	cur_trans->delayed_refs.num_syno_usage_heads_ready = 0;
+	atomic_set(&cur_trans->delayed_refs.num_syno_usage_entries, 0);
 #endif /* MY_ABC_HERE */
 
 	/*
@@ -482,9 +489,16 @@ static inline bool need_reserve_reloc_root(struct btrfs_root *root)
 	return true;
 }
 
+#ifdef MY_DEF_HERE
+static struct btrfs_trans_handle *
+__start_transaction(struct btrfs_root *root, unsigned int num_items,
+		  unsigned int type, enum btrfs_reserve_flush_enum flush,
+		  struct syno_cache_protection_parameter_command_generic *syno_cache_protection_command_generic)
+#else
 static struct btrfs_trans_handle *
 start_transaction(struct btrfs_root *root, unsigned int num_items,
 		  unsigned int type, enum btrfs_reserve_flush_enum flush)
+#endif /* MY_DEF_HERE */
 {
 	struct btrfs_trans_handle *h;
 	struct btrfs_transaction *cur_trans;
@@ -495,6 +509,10 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
 #endif /* CONFIG_SYNO_BTRFS_QGROUP */
 	bool reloc_reserved = false;
 	int ret;
+#ifdef MY_DEF_HERE
+	void *syno_cache_protection_req = NULL;
+	int err;
+#endif /* MY_DEF_HERE */
 
 	/* Send isn't supposed to start transactions. */
 	ASSERT(current->journal_info != BTRFS_SEND_TRANS_STUB);
@@ -547,6 +565,17 @@ again:
 		goto alloc_fail;
 	}
 
+#ifdef MY_DEF_HERE
+	if (syno_cache_protection_is_enabled(root->fs_info) && syno_cache_protection_command_generic) {
+		syno_cache_protection_req = btrfs_syno_cache_protection_alloc_command(syno_cache_protection_command_generic->command, root->fs_info, syno_cache_protection_command_generic->parm);
+		if (IS_ERR(syno_cache_protection_req)) {
+			err = PTR_ERR(syno_cache_protection_req);
+			syno_cache_protection_req = NULL;
+			btrfs_warn(root->fs_info, "Failed to SYNO Cache Protection alloc command [%d] err %d", (int)syno_cache_protection_command_generic->command, err);
+		}
+	}
+#endif /* MY_DEF_HERE */
+
 	/*
 	 * If we are JOIN_NOLOCK we're already committing a transaction and
 	 * waiting on this guy, so we don't need to do the sb_start_intwrite
@@ -588,11 +617,21 @@ again:
 	h->pending_snap_rm = true;
 #endif /* MY_ABC_HERE */
 	h->can_flush_pending_bgs = true;
+#ifdef MY_DEF_HERE
+	h->syno_cache_protection_req = syno_cache_protection_req;
+	syno_cache_protection_req = NULL;
+#endif /* MY_DEF_HERE */
 #ifdef MY_ABC_HERE
 #else
 	INIT_LIST_HEAD(&h->qgroup_ref_list);
 #endif /* MY_ABC_HERE */
 	INIT_LIST_HEAD(&h->new_bgs);
+#ifdef MY_ABC_HERE
+	h->syno_usage = false;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	h->cleaner = false;
+#endif /* MY_ABC_HERE */
 
 	smp_mb();
 	if (cur_trans->state >= TRANS_STATE_BLOCKED &&
@@ -618,6 +657,12 @@ got_it:
 	return h;
 
 join_fail:
+#ifdef MY_DEF_HERE
+	if (syno_cache_protection_req) {
+		btrfs_syno_cache_protection_free_command(syno_cache_protection_req);
+		syno_cache_protection_req = NULL;
+	}
+#endif /* MY_DEF_HERE */
 	if (type & __TRANS_FREEZABLE)
 		sb_end_intwrite(root->fs_info->sb);
 	kmem_cache_free(btrfs_trans_handle_cachep, h);
@@ -633,6 +678,22 @@ reserve_fail:
 	return ERR_PTR(ret);
 }
 
+#ifdef MY_DEF_HERE
+static struct btrfs_trans_handle *
+start_transaction(struct btrfs_root *root, unsigned int num_items,
+		  unsigned int type, enum btrfs_reserve_flush_enum flush)
+{
+	return __start_transaction(root, num_items, type, flush, NULL);
+}
+
+struct btrfs_trans_handle *btrfs_start_transaction_with_cache_protection(struct btrfs_root *root, unsigned int num_items,
+				struct syno_cache_protection_parameter_command_generic *syno_cache_protection_command_generic)
+{
+	return __start_transaction(root, num_items, TRANS_START,
+				 BTRFS_RESERVE_FLUSH_ALL, syno_cache_protection_command_generic);
+}
+#endif /* MY_DEF_HERE */
+
 struct btrfs_trans_handle *btrfs_start_transaction(struct btrfs_root *root,
 						   unsigned int num_items)
 {
@@ -640,20 +701,36 @@ struct btrfs_trans_handle *btrfs_start_transaction(struct btrfs_root *root,
 				 BTRFS_RESERVE_FLUSH_ALL);
 }
 
+#ifdef MY_DEF_HERE
+struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv_with_cache_protection(
+					struct btrfs_root *root,
+					unsigned int num_items,
+					int min_factor,
+					struct syno_cache_protection_parameter_command_generic *syno_cache_protection_command_generic)
+#else
 struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv(
 					struct btrfs_root *root,
 					unsigned int num_items,
 					int min_factor)
+#endif /* MY_DEF_HERE */
 {
 	struct btrfs_trans_handle *trans;
 	u64 num_bytes;
 	int ret;
 
+#ifdef MY_DEF_HERE
+	trans = btrfs_start_transaction_with_cache_protection(root, num_items, syno_cache_protection_command_generic);
+#else
 	trans = btrfs_start_transaction(root, num_items);
+#endif /* MY_DEF_HERE */
 	if (!IS_ERR(trans) || PTR_ERR(trans) != -ENOSPC)
 		return trans;
 
+#ifdef MY_DEF_HERE
+	trans = btrfs_start_transaction_with_cache_protection(root, 0, syno_cache_protection_command_generic);
+#else
 	trans = btrfs_start_transaction(root, 0);
+#endif /* MY_DEF_HERE */
 	if (IS_ERR(trans))
 		return trans;
 
@@ -674,6 +751,15 @@ struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv(
 
 	return trans;
 }
+#ifdef MY_DEF_HERE
+struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv(
+					struct btrfs_root *root,
+					unsigned int num_items,
+					int min_factor)
+{
+	return btrfs_start_transaction_fallback_global_rsv_with_cache_protection(root, num_items, min_factor, NULL);
+}
+#endif /* MY_DEF_HERE */
 
 struct btrfs_trans_handle *btrfs_start_transaction_lflush(
 					struct btrfs_root *root,
@@ -682,6 +768,15 @@ struct btrfs_trans_handle *btrfs_start_transaction_lflush(
 	return start_transaction(root, num_items, TRANS_START,
 				 BTRFS_RESERVE_FLUSH_LIMIT);
 }
+
+#ifdef MY_DEF_HERE
+struct btrfs_trans_handle *btrfs_join_transaction_with_cache_protection(struct btrfs_root *root,
+				struct syno_cache_protection_parameter_command_generic *syno_cache_protection_command_generic)
+{
+	return __start_transaction(root, 0, TRANS_JOIN,
+				 BTRFS_RESERVE_NO_FLUSH, syno_cache_protection_command_generic);
+}
+#endif /* MY_DEF_HERE */
 
 struct btrfs_trans_handle *btrfs_join_transaction(struct btrfs_root *root)
 {
@@ -814,7 +909,11 @@ void btrfs_throttle(struct btrfs_root *root)
 static int should_end_transaction(struct btrfs_trans_handle *trans,
 				  struct btrfs_root *root)
 {
-	if (btrfs_check_space_for_delayed_refs(trans, root))
+	if (btrfs_check_space_for_delayed_refs(trans, root
+#ifdef MY_ABC_HERE
+		, false
+#endif /* MY_ABC_HERE */
+		))
 		return 1;
 
 	return !!btrfs_block_rsv_check(root, &root->fs_info->global_block_rsv, 5);
@@ -865,6 +964,13 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
 		return 0;
 	}
 
+#ifdef MY_DEF_HERE
+	if (trans->syno_cache_protection_req) {
+		btrfs_syno_cache_protection_free_command(trans->syno_cache_protection_req);
+		trans->syno_cache_protection_req = NULL;
+	}
+#endif /* MY_DEF_HERE */
+
 	btrfs_trans_release_metadata(trans, root);
 	trans->block_rsv = NULL;
 
@@ -874,7 +980,7 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
 	trans->delayed_ref_updates = 0;
 	if (!trans->sync) {
 #ifdef MY_ABC_HERE
-		unsigned long sync_cur = cur;
+		unsigned long sync_cur = cur * 2;
 #endif /* MY_ABC_HERE */
 		must_run_delayed_refs =
 			btrfs_should_throttle_delayed_refs(trans, root);
@@ -1053,7 +1159,11 @@ int btrfs_throttle_delayed_refs(struct btrfs_root *root, unsigned long delayed_r
  * those extents are sent to disk but does not wait on them
  */
 int btrfs_write_marked_extents(struct btrfs_root *root,
-			       struct extent_io_tree *dirty_pages, int mark)
+			       struct extent_io_tree *dirty_pages, int mark
+#ifdef MY_ABC_HERE
+				, u64 *total_count, u64 *total_size
+#endif /* MY_ABC_HERE */
+			       )
 {
 	int err = 0;
 	int werr = 0;
@@ -1061,11 +1171,6 @@ int btrfs_write_marked_extents(struct btrfs_root *root,
 	struct extent_state *cached_state = NULL;
 	u64 start = 0;
 	u64 end;
-#ifdef MY_ABC_HERE
-	u64 count = 0;
-	u64 size = 0;
-	u64 total_size = 0;
-#endif /* MY_ABC_HERE */
 
 	while (!find_first_extent_bit(dirty_pages, start, &start, &end,
 				      mark, &cached_state)) {
@@ -1101,19 +1206,13 @@ int btrfs_write_marked_extents(struct btrfs_root *root,
 		cached_state = NULL;
 		cond_resched();
 #ifdef MY_ABC_HERE
-		if (root->fs_info->commit_time_debug) {
-			count ++;
-			size = end - start + 1;
-			total_size += size;
+		if (total_count && total_size) {
+			*total_count += 1;
+			*total_size += end - start + 1;
 		}
 #endif /* MY_ABC_HERE */
 		start = end + 1;
 	}
-#ifdef MY_ABC_HERE
-	if (root->fs_info->commit_time_debug) {
-		btrfs_warn(root->fs_info, "Writeback extent: count(%llu) size(%llu)", count, total_size);
-	}
-#endif /* MY_ABC_HERE */
 	return werr;
 }
 
@@ -1190,14 +1289,22 @@ int btrfs_wait_marked_extents(struct btrfs_root *root,
  * those extents are on disk for transaction or log commit
  */
 static int btrfs_write_and_wait_marked_extents(struct btrfs_root *root,
-				struct extent_io_tree *dirty_pages, int mark)
+				struct extent_io_tree *dirty_pages, int mark
+#ifdef MY_ABC_HERE
+				, u64 *total_count, u64 *total_size
+#endif /* MY_ABC_HERE */
+				)
 {
 	int ret;
 	int ret2;
 	struct blk_plug plug;
 
 	blk_start_plug(&plug);
-	ret = btrfs_write_marked_extents(root, dirty_pages, mark);
+	ret = btrfs_write_marked_extents(root, dirty_pages, mark
+#ifdef MY_ABC_HERE
+					, total_count, total_size
+#endif /* MY_ABC_HERE */
+					);
 	blk_finish_plug(&plug);
 	ret2 = btrfs_wait_marked_extents(root, dirty_pages, mark);
 
@@ -1209,13 +1316,21 @@ static int btrfs_write_and_wait_marked_extents(struct btrfs_root *root,
 }
 
 static int btrfs_write_and_wait_transaction(struct btrfs_trans_handle *trans,
-				     struct btrfs_root *root)
+				     struct btrfs_root *root
+#ifdef MY_ABC_HERE
+				     , u64 *total_count, u64 *total_size
+#endif /* MY_ABC_HERE */
+				     )
 {
 	int ret;
 
 	ret = btrfs_write_and_wait_marked_extents(root,
 					   &trans->transaction->dirty_pages,
-					   EXTENT_DIRTY);
+					   EXTENT_DIRTY
+#ifdef MY_ABC_HERE
+					   , total_count, total_size
+#endif /* MY_ABC_HERE */
+					   );
 	clear_btree_io_tree(&trans->transaction->dirty_pages);
 
 	return ret;
@@ -1304,7 +1419,14 @@ static noinline int commit_cowonly_roots(struct btrfs_trans_handle *trans,
 	if (ret)
 		return ret;
 #endif /* MY_ABC_HERE */
-
+#ifdef MY_ABC_HERE
+	ret = btrfs_syno_usage_global_type_update(trans, root->fs_info);
+	if (ret)
+		return ret;
+	ret = btrfs_syno_usage_status_update(trans, root->fs_info);
+	if (ret)
+		return ret;
+#endif /* MY_ABC_HERE */
 	ret = btrfs_setup_space_cache(trans, root);
 	if (ret)
 		return ret;
@@ -1357,6 +1479,9 @@ again:
  */
 void btrfs_add_dead_root(struct btrfs_root *root)
 {
+#ifdef MY_ABC_HERE
+	WARN_ON_ONCE(!test_bit(BTRFS_ROOT_IN_RADIX, &root->state));
+#endif /* MY_ABC_HERE */
 	spin_lock(&root->fs_info->trans_lock);
 	if (list_empty(&root->root_list))
 		list_add_tail(&root->root_list, &root->fs_info->dead_roots);
@@ -1366,6 +1491,9 @@ void btrfs_add_dead_root(struct btrfs_root *root)
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
 void btrfs_add_dead_root_head(struct btrfs_root *root)
 {
+#ifdef MY_ABC_HERE
+	WARN_ON_ONCE(!test_bit(BTRFS_ROOT_IN_RADIX, &root->state));
+#endif /* MY_ABC_HERE */
 	spin_lock(&root->fs_info->trans_lock);
 	if (list_empty(&root->root_list))
 		list_add(&root->root_list, &root->fs_info->dead_roots);
@@ -1401,7 +1529,6 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans,
 
 			btrfs_free_log(trans, root);
 			btrfs_update_reloc_root(trans, root);
-			btrfs_orphan_commit_root(trans, root);
 
 			btrfs_save_ino_cache(root, trans);
 
@@ -1420,6 +1547,10 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans,
 						&root->root_key,
 						&root->root_item);
 
+#ifdef MY_ABC_HERE
+			if (!err && root->syno_usage_enabled && is_fstree(root->objectid) && root->objectid <= BTRFS_LAST_FREE_OBJECTID)
+				err = btrfs_syno_usage_root_status_update(trans, fs_info, root->objectid, &root->syno_usage_root_status);
+#endif /* MY_ABC_HERE */
 			spin_lock(&fs_info->fs_roots_radix_lock);
 			if (err)
 				break;
@@ -1536,7 +1667,11 @@ static int qgroup_account_snapshot(struct btrfs_trans_handle *trans,
 	if (ret)
 		goto out;
 	switch_commit_roots(trans->transaction, fs_info);
-	ret = btrfs_write_and_wait_transaction(trans, src);
+	ret = btrfs_write_and_wait_transaction(trans, src
+#ifdef MY_ABC_HERE
+						, NULL, NULL
+#endif /* MY_ABC_HERE */
+						);
 	if (ret)
 		btrfs_handle_fs_error(fs_info, ret,
 			"Error while writing out transaction for qgroup");
@@ -1567,7 +1702,13 @@ out:
  */
 static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 				   struct btrfs_fs_info *fs_info,
-				   struct btrfs_pending_snapshot *pending)
+				   struct btrfs_pending_snapshot *pending
+#ifdef MY_ABC_HERE
+				   , unsigned long *snapshot_processed_inodes
+				   , unsigned long *snapshot_processed_items
+				   , unsigned long *snapshot_processed_refs
+#endif /* MY_ABC_HERE */
+				   )
 {
 	struct btrfs_key key;
 	struct btrfs_root_item *new_root_item;
@@ -1588,6 +1729,18 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	u64 objectid;
 	u64 root_flags;
 	uuid_le new_uuid;
+#ifdef MY_ABC_HERE
+	struct btrfs_syno_usage_root_status syno_usage_root_status;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	bool invalid_quota;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	unsigned long processed_inodes = 0;
+	unsigned long processed_items = 0;
+	unsigned long processed_refs = 0;
+	unsigned long processed_total_refs = 0;
+#endif /* MY_ABC_HERE */
 
 	ASSERT(pending->path);
 	path = pending->path;
@@ -1660,11 +1813,31 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	 * otherwise we corrupt the FS during
 	 * snapshot
 	 */
+#ifdef MY_ABC_HERE
+	ret = btrfs_run_delayed_items_and_get_processed(trans, root,
+				&processed_inodes, &processed_items);
+#else /* MY_ABC_HERE */
 	ret = btrfs_run_delayed_items(trans, root);
+#endif /* MY_ABC_HERE */
 	if (ret) {	/* Transaction aborted */
 		btrfs_abort_transaction(trans, root, ret);
 		goto fail;
 	}
+
+#ifdef MY_ABC_HERE
+#ifdef MY_ABC_HERE
+	processed_refs = 0;
+	ret = btrfs_run_delayed_refs_and_get_processed(trans, root,
+			(unsigned long) -1, &processed_refs);
+	processed_total_refs += processed_refs;
+#else /* MY_ABC_HERE */
+	ret = btrfs_run_delayed_refs(trans, root, (unsigned long)-1);
+#endif /* MY_ABC_HERE */
+	if (ret) {
+		btrfs_abort_transaction(trans, root, ret);
+		goto fail;
+	}
+#endif /* MY_ABC_HERE */
 
 	record_root_in_trans(trans, root, 0);
 	btrfs_set_root_last_snapshot(&root->root_item, trans->transid);
@@ -1747,6 +1920,60 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		goto fail;
 	}
 
+#ifdef MY_ABC_HERE
+	if (fs_info->syno_usage_enabled && root->syno_usage_enabled && is_fstree(objectid) && objectid <= BTRFS_LAST_FREE_OBJECTID) {
+		memset(&syno_usage_root_status, 0, sizeof(syno_usage_root_status));
+		syno_usage_root_status.type = SYNO_USAGE_TYPE_NONE;
+		syno_usage_root_status.new_type = SYNO_USAGE_TYPE_NONE;
+		syno_usage_root_status.state = SYNO_USAGE_ROOT_STATE_RESCAN;
+		syno_usage_root_status.flags = root->syno_usage_root_status.flags & ~BTRFS_SYNO_USAGE_ROOT_FLAG_RESET_MASK;
+		if (pending->readonly)
+			syno_usage_root_status.flags |= BTRFS_SYNO_USAGE_ROOT_FLAG_READONLY;
+		syno_usage_root_status.flags |= BTRFS_SYNO_USAGE_ROOT_FLAG_FAST_RESCAN;
+		syno_usage_root_status.num_bytes = root->syno_usage_root_status.num_bytes;
+		syno_usage_root_status.drop_progress.objectid = 0;
+		syno_usage_root_status.drop_progress.type = 0;
+		syno_usage_root_status.drop_progress.offset = 0;
+		syno_usage_root_status.fast_rescan_progress.objectid = 0;
+		syno_usage_root_status.fast_rescan_progress.type = 0;
+		syno_usage_root_status.fast_rescan_progress.offset = 0;
+		syno_usage_root_status.full_rescan_progress = root->syno_usage_root_status.full_rescan_progress;
+		syno_usage_root_status.cur_full_rescan_size = root->syno_usage_root_status.cur_full_rescan_size;
+		syno_usage_root_status.total_full_rescan_size = root->syno_usage_root_status.total_full_rescan_size;
+		syno_usage_root_status.total_syno_subvol_usage_items = root->syno_usage_root_status.total_syno_subvol_usage_items;
+		ret = btrfs_syno_usage_root_status_update(trans, fs_info, objectid, &syno_usage_root_status);
+		if (ret)
+			goto fail;
+		if (!(syno_usage_root_status.flags & BTRFS_SYNO_USAGE_ROOT_FLAG_READONLY)) {
+			spin_lock(&fs_info->syno_usage_lock);
+			fs_info->syno_usage_status.total_syno_subvol_usage_items += syno_usage_root_status.total_syno_subvol_usage_items;
+			spin_unlock(&fs_info->syno_usage_lock);
+		}
+	}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	invalid_quota = root->invalid_quota;
+	if (fs_info->syno_quota_v2_enabled && !invalid_quota) {
+		struct syno_quota_rescan_item_updater updater;
+
+		syno_quota_rescan_item_init(&updater);
+		updater.flags = SYNO_QUOTA_RESCAN_DONE;
+		updater.version = BTRFS_QGROUP_V2_STATUS_VERSION;
+		updater.rescan_inode = (u64)-1;
+		updater.end_inode = (u64)-1;
+		updater.tree_size = 0;
+		updater.next_root = 0;
+		ret = btrfs_add_update_syno_quota_rescan_item(trans, fs_info->quota_root,
+			objectid, &updater);
+		if (ret)
+			btrfs_warn(fs_info,
+				"Failed to create syno quota rescan item for root %llu, ret = %d",
+				objectid, ret);
+		ret = 0; // No need to abort transaction, we can fix it by doing a quota rescan.
+	}
+#endif /* MY_ABC_HERE */
+
 	key.offset = (u64)-1;
 	pending->snap = btrfs_read_fs_root_no_name(root->fs_info, &key);
 	if (IS_ERR(pending->snap)) {
@@ -1754,6 +1981,9 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		btrfs_abort_transaction(trans, root, ret);
 		goto fail;
 	}
+#ifdef MY_ABC_HERE
+	pending->snap->invalid_quota = invalid_quota;
+#endif /* MY_ABC_HERE */
 
 	ret = btrfs_reloc_post_snapshot(trans, pending);
 	if (ret) {
@@ -1761,7 +1991,14 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		goto fail;
 	}
 
+#ifdef MY_ABC_HERE
+	processed_refs = 0;
+	ret = btrfs_run_delayed_refs_and_get_processed(trans, root,
+			(unsigned long) -1, &processed_refs);
+	processed_total_refs += processed_refs;
+#else /* MY_ABC_HERE */
 	ret = btrfs_run_delayed_refs(trans, root, (unsigned long)-1);
+#endif /* MY_ABC_HERE */
 	if (ret) {
 		btrfs_abort_transaction(trans, root, ret);
 		goto fail;
@@ -1818,7 +2055,14 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		}
 	}
 
+#ifdef MY_ABC_HERE
+	processed_refs = 0;
+	ret = btrfs_run_delayed_refs_and_get_processed(trans, root,
+			(unsigned long) -1, &processed_refs);
+	processed_total_refs += processed_refs;
+#else /* MY_ABC_HERE */
 	ret = btrfs_run_delayed_refs(trans, root, (unsigned long)-1);
+#endif /* MY_ABC_HERE */
 	if (ret) {
 		btrfs_abort_transaction(trans, root, ret);
 		goto fail;
@@ -1842,6 +2086,15 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	}
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+	if (!ret && snapshot_processed_inodes &&
+	    snapshot_processed_items && snapshot_processed_refs) {
+		*snapshot_processed_inodes += processed_inodes;
+		*snapshot_processed_items += processed_items;
+		*snapshot_processed_refs += processed_total_refs;
+	}
+#endif /* MY_ABC_HERE */
+
 fail:
 	pending->error = ret;
 dir_item_existed:
@@ -1862,7 +2115,13 @@ no_free_objectid:
  * create all the snapshots we've scheduled for creation
  */
 static noinline int create_pending_snapshots(struct btrfs_trans_handle *trans,
-					     struct btrfs_fs_info *fs_info)
+					     struct btrfs_fs_info *fs_info
+#ifdef MY_ABC_HERE
+					     , unsigned long *snapshot_processed_inodes
+					     , unsigned long *snapshot_processed_items
+					     , unsigned long *snapshot_processed_refs
+#endif /* MY_ABC_HERE */
+					     )
 {
 	struct btrfs_pending_snapshot *pending, *next;
 	struct list_head *head = &trans->transaction->pending_snapshots;
@@ -1870,7 +2129,13 @@ static noinline int create_pending_snapshots(struct btrfs_trans_handle *trans,
 
 	list_for_each_entry_safe(pending, next, head, list) {
 		list_del(&pending->list);
-		ret = create_pending_snapshot(trans, fs_info, pending);
+		ret = create_pending_snapshot(trans, fs_info, pending
+#ifdef MY_ABC_HERE
+					      , snapshot_processed_inodes
+					      , snapshot_processed_items
+					      , snapshot_processed_refs
+#endif /* MY_ABC_HERE */
+					      );
 		if (ret)
 			break;
 	}
@@ -1894,6 +2159,9 @@ static void update_super_roots(struct btrfs_root *root)
 	super->generation = root_item->generation;
 #ifdef MY_ABC_HERE
 	super->syno_generation = root_item->generation;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	super->syno_capability_generation = root_item->generation;
 #endif /* MY_ABC_HERE */
 	super->root_level = root_item->level;
 	if (btrfs_test_opt(root, SPACE_CACHE))
@@ -2093,6 +2361,118 @@ static inline void btrfs_wait_delalloc_flush(struct btrfs_fs_info *fs_info)
 		btrfs_wait_ordered_roots(fs_info, -1, 0, (u64)-1);
 }
 
+#ifdef MY_ABC_HERE
+struct syno_btrfs_commit_stats {
+	struct timespec prepare_timestamp;
+	struct timespec wait_prev_trans_timestamp;
+	struct timespec start_timestamp;
+	struct timespec wait_join_trans_end_timestamp;
+	struct timespec run_data_refs_for_usrquota_timestamp;
+	struct timespec create_snapshot_timestamp;
+	struct timespec run_items_timestamp;
+	struct timespec run_refs_timestamp;
+	struct timespec commit_roots_timestamp;
+	struct timespec writeback_timestamp;
+	s64 start_eb_miss;
+	s64 start_eb_hit;
+	unsigned long prepare_before_run_refs;
+	unsigned long prepare_processed_refs;
+	unsigned long prepare_after_run_refs;
+	unsigned long pre_run_processed_inodes;
+	unsigned long pre_run_processed_items;
+	unsigned long run_data_refs_for_usrquota_processed_refs;
+	unsigned long snapshot_processed_inodes;
+	unsigned long snapshot_processed_items;
+	unsigned long snapshot_processed_refs;
+	unsigned long run_processed_inodes;
+	unsigned long run_processed_items;
+	unsigned long run_refs_processed_refs;
+	u64 write_eb_count;
+	u64 write_eb_size;
+};
+
+static void print_commit_stats(struct btrfs_fs_info *fs_info,
+		struct syno_btrfs_commit_stats *stats)
+{
+	struct timespec done = current_fs_time(fs_info->sb);
+	struct timespec total = timespec_sub(done, stats->start_timestamp);
+	s64 total_time = timespec_to_ns(&total) / NSEC_PER_MSEC;
+
+	if (fs_info->commit_time_debug_ms &&
+		fs_info->commit_time_debug_ms > total_time)
+		return;
+
+	stats->start_eb_miss =
+		percpu_counter_sum(&fs_info->eb_miss) - stats->start_eb_miss;
+	stats->start_eb_hit =
+		percpu_counter_sum(&fs_info->eb_hit) - stats->start_eb_hit;
+
+	done = timespec_sub(done, stats->writeback_timestamp);
+	stats->writeback_timestamp = timespec_sub(
+			stats->writeback_timestamp, stats->commit_roots_timestamp);
+	stats->commit_roots_timestamp = timespec_sub(
+			stats->commit_roots_timestamp, stats->run_refs_timestamp);
+	stats->run_refs_timestamp = timespec_sub(
+			stats->run_refs_timestamp, stats->run_items_timestamp);
+	stats->run_items_timestamp = timespec_sub(
+			stats->run_items_timestamp, stats->create_snapshot_timestamp);
+	stats->create_snapshot_timestamp = timespec_sub(
+			stats->create_snapshot_timestamp, stats->run_data_refs_for_usrquota_timestamp);
+	stats->run_data_refs_for_usrquota_timestamp = timespec_sub(
+			stats->run_data_refs_for_usrquota_timestamp, stats->wait_join_trans_end_timestamp);
+	stats->wait_join_trans_end_timestamp = timespec_sub(
+			stats->wait_join_trans_end_timestamp, stats->start_timestamp);
+	stats->start_timestamp = timespec_sub(
+			stats->start_timestamp, stats->wait_prev_trans_timestamp);
+	stats->wait_prev_trans_timestamp = timespec_sub(
+			stats->wait_prev_trans_timestamp, stats->prepare_timestamp);
+
+	btrfs_warn(fs_info, "commit trans:\n"
+	"total_time: %lld, meta-read[miss/total]:[%llu/%llu], meta-write[count/size]:[%llu/%llu K]\n"
+	"prepare phase: time: %lld, refs[before/process/after]:[%lu/%lu/%lu]\n"
+	"wait prev trans completed: time: %lld\n"
+	"pre-run delayed item phase: time: %lld, inodes/items:[%lu/%lu]\n"
+	"wait join end trans: time: %lld\n"
+	"run data refs for usrquota: time: %lld, refs:[%lu]\n"
+	"create snpashot: time: %lld, inodes/items:[%lu/%lu], refs:[%lu]\n"
+	"delayed item phase: time: %lld, inodes/items:[%lu/%lu]\n"
+	"delayed refs phase: time: %lld, refs:[%lu]\n"
+	"commit roots phase: time: %lld\n"
+	"writeback phase: time: %lld",
+	total_time, stats->start_eb_miss, (stats->start_eb_miss + stats->start_eb_hit),
+	stats->write_eb_count, stats->write_eb_size >> 10,
+	// prepare phase
+	timespec_to_ns(&stats->wait_prev_trans_timestamp) / NSEC_PER_MSEC,
+	stats->prepare_before_run_refs,
+	stats->prepare_processed_refs,
+	stats->prepare_after_run_refs,
+	// wait prev trans phase
+	timespec_to_ns(&stats->start_timestamp) / NSEC_PER_MSEC,
+	// pre-run delayed item phase
+	timespec_to_ns(&stats->wait_join_trans_end_timestamp) / NSEC_PER_MSEC,
+	stats->pre_run_processed_inodes, stats->pre_run_processed_items,
+	// wait join end trans phase
+	timespec_to_ns(&stats->run_data_refs_for_usrquota_timestamp) / NSEC_PER_MSEC,
+	// run data refs for usrquota
+	timespec_to_ns(&stats->create_snapshot_timestamp) / NSEC_PER_MSEC,
+	stats->run_data_refs_for_usrquota_processed_refs,
+	// create snpashot
+	timespec_to_ns(&stats->run_items_timestamp) / NSEC_PER_MSEC,
+	stats->snapshot_processed_inodes, stats->snapshot_processed_items,
+	stats->snapshot_processed_refs,
+	// delayed item phase
+	timespec_to_ns(&stats->run_refs_timestamp) / NSEC_PER_MSEC,
+	stats->run_processed_inodes, stats->run_processed_items,
+	// run delayed-refs
+	timespec_to_ns(&stats->commit_roots_timestamp) / NSEC_PER_MSEC,
+	stats->run_refs_processed_refs,
+	// commit root phase
+	timespec_to_ns(&stats->writeback_timestamp) / NSEC_PER_MSEC,
+	// writeback phase
+	timespec_to_ns(&done) / NSEC_PER_MSEC);
+}
+#endif /* MY_ABC_HERE */
+
 int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 			     struct btrfs_root *root)
 {
@@ -2101,15 +2481,20 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	struct btrfs_inode *btree_ino = BTRFS_I(root->fs_info->btree_inode);
 	int ret;
 #ifdef MY_ABC_HERE
-	struct timespec commit_start, commit_wait_lock, commit_done;
-	struct timespec commit_interval1, commit_interval2;
+	struct syno_btrfs_commit_stats stats;
+	unsigned long processed_count = 0;
+	unsigned long processed_inodes = 0;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	unsigned long pre_run_delayed_refs_count;
 #endif /* MY_ABC_HERE */
 
-#ifdef MY_ABC_HERE
-	if (root->fs_info->commit_time_debug) {
-		commit_start = current_fs_time(root->fs_info->sb);
+#ifdef MY_DEF_HERE
+	if (trans->syno_cache_protection_req) {
+		btrfs_syno_cache_protection_free_command(trans->syno_cache_protection_req);
+		trans->syno_cache_protection_req = NULL;
 	}
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 
 	/* Stop the commit early if ->aborted is set */
 	if (unlikely(ACCESS_ONCE(cur_trans->aborted))) {
@@ -2118,13 +2503,40 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 		return ret;
 	}
 
+#ifdef MY_ABC_HERE
+	memset(&stats, 0, sizeof(stats));
+	stats.prepare_timestamp = current_fs_time(root->fs_info->sb);
+	stats.prepare_before_run_refs = atomic_read(&trans->transaction->delayed_refs.num_entries);
+#endif /* MY_ABC_HERE */
+
 	btrfs_trans_release_metadata(trans, root);
 	trans->block_rsv = NULL;
 
 	/* make a pass through all the delayed refs we have so far
 	 * any runnings procs may add more while we are here
 	 */
-	ret = btrfs_run_delayed_refs(trans, root, 0);
+#ifdef MY_ABC_HERE
+	pre_run_delayed_refs_count = min_t(unsigned long, atomic_read(&trans->transaction->delayed_refs.num_entries) * 2, 512);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	processed_count = 0;
+	ret = btrfs_run_delayed_refs_and_get_processed(trans, root
+#ifdef MY_ABC_HERE
+						, pre_run_delayed_refs_count
+#else /* MY_ABC_HERE */
+						, 0
+#endif /* MY_ABC_HERE */
+						, &processed_count);
+	stats.prepare_processed_refs += processed_count;
+#else /* MY_ABC_HERE */
+	ret = btrfs_run_delayed_refs(trans, root
+#ifdef MY_ABC_HERE
+				, pre_run_delayed_refs_count
+#else /* MY_ABC_HERE */
+				, 0
+#endif /* MY_ABC_HERE */
+				);
+#endif /* MY_ABC_HERE */
 	if (ret) {
 		btrfs_end_transaction(trans, root);
 		return ret;
@@ -2142,7 +2554,29 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	if (!list_empty(&trans->new_bgs))
 		btrfs_create_pending_block_groups(trans, root);
 
-	ret = btrfs_run_delayed_refs(trans, root, 0);
+#ifdef MY_ABC_HERE
+	pre_run_delayed_refs_count = min_t(unsigned long, atomic_read(&trans->transaction->delayed_refs.num_entries) * 2, 512);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	processed_count = 0;
+	ret = btrfs_run_delayed_refs_and_get_processed(trans, root
+#ifdef MY_ABC_HERE
+						, pre_run_delayed_refs_count
+#else /* MY_ABC_HERE */
+						, 0
+#endif /* MY_ABC_HERE */
+						, &processed_count);
+	stats.prepare_processed_refs += processed_count;
+	stats.prepare_after_run_refs = atomic_read(&trans->transaction->delayed_refs.num_entries);
+#else /* MY_ABC_HERE */
+	ret = btrfs_run_delayed_refs(trans, root
+#ifdef MY_ABC_HERE
+				, pre_run_delayed_refs_count
+#else /* MY_ABC_HERE */
+				, 0
+#endif /* MY_ABC_HERE */
+				);
+#endif /* MY_ABC_HERE */
 	if (ret) {
 		btrfs_end_transaction(trans, root);
 		return ret;
@@ -2200,6 +2634,10 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	cur_trans->state = TRANS_STATE_COMMIT_START;
 	wake_up(&root->fs_info->transaction_blocked_wait);
 
+#ifdef MY_ABC_HERE
+	stats.wait_prev_trans_timestamp = current_fs_time(root->fs_info->sb);
+#endif /* MY_ABC_HERE */
+
 	if (cur_trans->list.prev != &root->fs_info->trans_list) {
 		prev_trans = list_entry(cur_trans->list.prev,
 					struct btrfs_transaction, list);
@@ -2230,13 +2668,25 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 		}
 	}
 
+#ifdef MY_ABC_HERE
+	stats.start_timestamp = current_fs_time(root->fs_info->sb);
+	stats.start_eb_miss = percpu_counter_sum(&root->fs_info->eb_miss);
+	stats.start_eb_hit = percpu_counter_sum(&root->fs_info->eb_hit);
+#endif /* MY_ABC_HERE */
+
 	extwriter_counter_dec(cur_trans, trans->type);
 
 	ret = btrfs_start_delalloc_flush(root->fs_info);
 	if (ret)
 		goto cleanup_transaction;
 
+#ifdef MY_ABC_HERE
+	ret = btrfs_run_delayed_items_and_get_processed(trans, root,
+				&stats.pre_run_processed_inodes,
+				&stats.pre_run_processed_items);
+#else /* MY_ABC_HERE */
 	ret = btrfs_run_delayed_items(trans, root);
+#endif /* MY_ABC_HERE */
 	if (ret)
 		goto cleanup_transaction;
 
@@ -2244,13 +2694,27 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 		   extwriter_counter_read(cur_trans) == 0);
 
 	/* some pending stuffs might be added after the previous flush. */
+#ifdef MY_ABC_HERE
+	processed_inodes = 0;
+	processed_count = 0;
+	ret = btrfs_run_delayed_items_and_get_processed(trans, root,
+				&processed_inodes,
+				&processed_count);
+	stats.pre_run_processed_inodes += processed_inodes;
+	stats.pre_run_processed_items += processed_count;
+#else /* MY_ABC_HERE */
 	ret = btrfs_run_delayed_items(trans, root);
+#endif /* MY_ABC_HERE */
 	if (ret)
 		goto cleanup_transaction;
 
 	btrfs_wait_delalloc_flush(root->fs_info);
 
 	btrfs_scrub_pause(root);
+
+#ifdef MY_ABC_HERE
+	stats.wait_join_trans_end_timestamp = current_fs_time(root->fs_info->sb);
+#endif /* MY_ABC_HERE */
 	/*
 	 * Ok now we need to make sure to block out any other joins while we
 	 * commit the transaction.  We could have started a join before setting
@@ -2269,14 +2733,28 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	}
 
 #ifdef MY_ABC_HERE
+	stats.run_data_refs_for_usrquota_timestamp = current_fs_time(root->fs_info->sb);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 	if (btrfs_usrquota_compat_inode_quota(root->fs_info)) {
+#ifdef MY_ABC_HERE
+		ret = btrfs_run_delayed_refs_and_get_processed(trans, root,
+				BTRFS_USRQUOTA_DELAYED_REF_SCAN,
+				&stats.run_data_refs_for_usrquota_processed_refs);
+#else /* MY_ABC_HERE */
 		ret = btrfs_run_delayed_refs(trans, root, BTRFS_USRQUOTA_DELAYED_REF_SCAN);
+#endif /* MY_ABC_HERE */
 		if (ret) {
 			goto scrub_continue;
 		}
 	}
 #endif /* MY_ABC_HERE */
 
+
+#ifdef MY_ABC_HERE
+	stats.create_snapshot_timestamp = current_fs_time(root->fs_info->sb);
+#endif /* MY_ABC_HERE */
 	/*
 	 * the reloc mutex makes sure that we stop
 	 * the balancing code from coming in and moving
@@ -2289,7 +2767,13 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	 * deal with them in create_pending_snapshot(), which is the
 	 * core function of the snapshot creation.
 	 */
-	ret = create_pending_snapshots(trans, root->fs_info);
+	ret = create_pending_snapshots(trans, root->fs_info
+#ifdef MY_ABC_HERE
+				       , &stats.snapshot_processed_inodes
+				       , &stats.snapshot_processed_items
+				       , &stats.snapshot_processed_refs
+#endif /* MY_ABC_HERE */
+				       );
 	if (ret) {
 		mutex_unlock(&root->fs_info->reloc_mutex);
 		goto scrub_continue;
@@ -2305,13 +2789,27 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	 * because all the tree which are snapshoted will be forced to COW
 	 * the nodes and leaves.
 	 */
+#ifdef MY_ABC_HERE
+	stats.run_items_timestamp = current_fs_time(root->fs_info->sb);
+	ret = btrfs_run_delayed_items_and_get_processed(trans, root,
+				&stats.run_processed_inodes,
+				&stats.run_processed_items);
+#else /* MY_ABC_HERE */
 	ret = btrfs_run_delayed_items(trans, root);
+#endif /* MY_ABC_HERE */
 	if (ret) {
 		mutex_unlock(&root->fs_info->reloc_mutex);
 		goto scrub_continue;
 	}
 
+#ifdef MY_ABC_HERE
+	stats.run_refs_timestamp = current_fs_time(root->fs_info->sb);
+	ret = btrfs_run_delayed_refs_and_get_processed(trans, root,
+			(unsigned long) -1,
+			&stats.run_refs_processed_refs);
+#else /* MY_ABC_HERE */
 	ret = btrfs_run_delayed_refs(trans, root, (unsigned long)-1);
+#endif /* MY_ABC_HERE */
 	if (ret) {
 		mutex_unlock(&root->fs_info->reloc_mutex);
 		goto scrub_continue;
@@ -2335,6 +2833,9 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 
 	WARN_ON(cur_trans != trans->transaction);
 
+#ifdef MY_ABC_HERE
+	stats.commit_roots_timestamp = current_fs_time(root->fs_info->sb);
+#endif /* MY_ABC_HERE */
 	/* btrfs_commit_tree_roots is responsible for getting the
 	 * various roots consistent with each other.  Every pointer
 	 * in the tree of tree roots has to point to the most up to date
@@ -2427,6 +2928,11 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	btrfs_set_super_syno_log_tree_rsv(root->fs_info->super_copy,
 			    root->fs_info->log_tree_rsv_start);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	btrfs_set_super_syno_rbd_first_mapping_table_offset(
+			root->fs_info->super_copy,
+			root->fs_info->syno_rbd_first_mapping_table_offset);
+#endif /* MY_ABC_HERE */
 	memcpy(root->fs_info->super_for_commit, root->fs_info->super_copy,
 	       sizeof(*root->fs_info->super_copy));
 
@@ -2446,12 +2952,14 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 
 	wake_up(&root->fs_info->transaction_wait);
 #ifdef MY_ABC_HERE
-	if (root->fs_info->commit_time_debug) {
-		commit_wait_lock = current_fs_time(root->fs_info->sb);
-	}
+	stats.writeback_timestamp = current_fs_time(root->fs_info->sb);
 #endif /* MY_ABC_HERE */
 
-	ret = btrfs_write_and_wait_transaction(trans, root);
+	ret = btrfs_write_and_wait_transaction(trans, root
+#ifdef MY_ABC_HERE
+			, &(stats.write_eb_count), &(stats.write_eb_size)
+#endif /* MY_ABC_HERE */
+			);
 	if (ret) {
 		btrfs_handle_fs_error(root->fs_info, ret,
 			    "Error while writing out transaction");
@@ -2474,14 +2982,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	btrfs_finish_extent_commit(trans, root);
 
 #ifdef MY_ABC_HERE
-	if (root->fs_info->commit_time_debug) {
-		commit_done = current_fs_time(root->fs_info->sb);
-		commit_interval1 = timespec_sub(commit_wait_lock, commit_start);
-		commit_interval2 = timespec_sub(commit_done, commit_wait_lock);
-		btrfs_warn(root->fs_info, "btrfs full commit: Section1(%lu.%lu) Section2(%lu.%lu)",
-				commit_interval1.tv_sec, commit_interval1.tv_nsec,
-				commit_interval2.tv_sec, commit_interval2.tv_nsec);
-	}
+	print_commit_stats(root->fs_info, &stats);
 #endif /* MY_ABC_HERE */
 
 
@@ -2499,6 +3000,18 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	spin_lock(&root->fs_info->trans_lock);
 	list_del_init(&cur_trans->list);
 	spin_unlock(&root->fs_info->trans_lock);
+
+#ifdef MY_DEF_HERE
+	if (syno_cache_protection_is_enabled(root->fs_info)) {
+		int err;
+		struct syno_cache_protection_parameter_command_checkpoint_end parm;
+		parm.transid = cur_trans->transid;
+		err = btrfs_syno_cache_protection_exec_command(SYNO_CACHE_PROTECTION_BTRFS_COMMAND_CHECKPOINT_END, root->fs_info, &parm);
+		if (err) {
+			btrfs_warn(root->fs_info, "Failed to SYNO Cache Protection send checkpoint end command with transid %llu fsid %pU err %d", parm.transid, root->fs_info->fsid, err);
+		}
+	}
+#endif /* MY_DEF_HERE */
 
 	btrfs_put_transaction(cur_trans);
 	btrfs_put_transaction(cur_trans);

@@ -133,6 +133,9 @@ struct scsi_disk {
 	unsigned	lbpvpd : 1;
 	unsigned	ws10 : 1;
 	unsigned	ws16 : 1;
+#ifdef MY_ABC_HERE
+	unsigned	support_fua : 1;
+#endif /* MY_ABC_HERE */
 };
 #define to_scsi_disk(obj) container_of(obj,struct scsi_disk,dev)
 

@@ -24,6 +24,10 @@
 
 struct btrfs_free_space {
 	struct rb_node offset_index;
+	struct rb_node bytes_index;
+#ifdef MY_ABC_HERE
+	struct rb_node bytes_index_with_extent;
+#endif /* MY_ABC_HERE */
 	u64 offset;
 	u64 bytes;
 	u64 max_extent_size;
@@ -34,6 +38,10 @@ struct btrfs_free_space {
 struct btrfs_free_space_ctl {
 	spinlock_t tree_lock;
 	struct rb_root free_space_offset;
+	struct rb_root_cached free_space_bytes;
+#ifdef MY_ABC_HERE
+	struct rb_root_cached free_space_bytes_with_extent;
+#endif /* MY_ABC_HERE */
 	u64 free_space;
 	int extents_thresh;
 	int free_extents;
@@ -94,12 +102,32 @@ int btrfs_write_out_ino_cache(struct btrfs_root *root,
 void btrfs_init_free_space_ctl(struct btrfs_block_group_cache *block_group);
 int __btrfs_add_free_space(struct btrfs_free_space_ctl *ctl,
 			   u64 bytenr, u64 size);
+#ifdef MY_DEF_HERE
+int __btrfs_add_free_space_with_cache_protection(struct btrfs_free_space_ctl *ctl,
+			   u64 offset, u64 bytes);
+#endif /* MY_DEF_HERE */
+#ifdef MY_ABC_HERE
+void btrfs_syno_allocator_relink_block_group(struct btrfs_block_group_cache *cache);
+void btrfs_syno_allocator_remove_block_group(struct btrfs_block_group_cache *cache);
+void btrfs_syno_allocator_preload_block_group(struct btrfs_block_group_cache *cache, u64 bytes);
+void btrfs_syno_allocator_release_cache_block_group(struct btrfs_block_group_cache *cache);
+#endif /* MY_ABC_HERE */
 static inline int
 btrfs_add_free_space(struct btrfs_block_group_cache *block_group,
 		     u64 bytenr, u64 size)
 {
-	return __btrfs_add_free_space(block_group->free_space_ctl,
-				      bytenr, size);
+	int ret;
+	int (*add_free_space)(struct btrfs_free_space_ctl *ctl, u64 bytenr, u64 size) = __btrfs_add_free_space;
+
+#ifdef MY_DEF_HERE
+	add_free_space = __btrfs_add_free_space_with_cache_protection;
+#endif /* MY_DEF_HERE */
+	ret = add_free_space(block_group->free_space_ctl, bytenr, size);
+#ifdef MY_ABC_HERE
+	if (!ret)
+		btrfs_syno_allocator_relink_block_group(block_group);
+#endif /* MY_ABC_HERE */
+	return ret;
 }
 int btrfs_remove_free_space(struct btrfs_block_group_cache *block_group,
 			    u64 bytenr, u64 size);

@@ -68,6 +68,57 @@ struct inodes_stat_t {
 	long dummy[5];		/* padding for sysctl ABI compatibility */
 };
 
+#ifdef MY_ABC_HERE
+enum SYNO_RBD_META_IOCTL_ACT {
+	SYNO_RBD_META_ACTIVATE = 1,
+	SYNO_RBD_META_DEACTIVATE = 2,
+	SYNO_RBD_META_MAPPING = 3,
+	SYNO_RBD_META_SET_FIRST_OFFSET = 4,
+	SYNO_RBD_META_CLEANUP_ALL = 5,
+};
+
+struct syno_rbd_meta_file_mapping {
+	__u64 dev_offset;
+	__u64 length;
+};
+
+struct syno_rbd_meta_ioctl_args {
+	unsigned int act; /* enum SYNO_RBD_META_IOCTL_ACT */
+	union {
+		struct {
+			__u64 first_offset;
+		};
+		struct {
+			__u64 start;
+			size_t size;
+			unsigned int cnt;
+		};
+	};
+	struct syno_rbd_meta_file_mapping mappings[0];
+};
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+/* request */
+#define SYNO_SPACE_USAGE_REQUEST_DATA_USED (1ULL << 0) /* Want/got data used */
+#define SYNO_SPACE_USAGE_REQUEST_DATA_DELAY_ALLOCATED (1ULL << 1) /* Want/got data delay allocated */
+#define SYNO_SPACE_USAGE_REQUEST_METADATA_USED (1ULL << 2) /* Want/got metadata used */
+
+/* flags */
+#define SYNO_SPACE_USAGE_FLAG_RESCAN (1ULL << 0)
+
+struct syno_space_usage_info {
+	/* in */
+	__u64 request_mask;
+	/* out */
+	__u64 result_mask;
+	__u64 flags;
+	__u64 data_used;
+	__u64 data_delay_allocated;
+	__u64 metadata_used;
+	__u64 reserved[10]; /* pad to 128 bytes */
+};
+#endif /* MY_ABC_HERE */
 
 #define NR_FILE  8192	/* this can well be larger on a larger system */
 
@@ -103,6 +154,9 @@ struct inodes_stat_t {
 #define MS_LAZYTIME	(1<<25) /* Update the on-disk [acm]times lazily */
 #ifdef MY_ABC_HERE
 #define MS_SYNOACL	(1<<26)	/* Synology ACL */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define MS_ROOTPRJQUOTA (1<<27)
 #endif /* MY_ABC_HERE */
 
 /* These sb flags are internal to the kernel */
@@ -196,6 +250,14 @@ struct inodes_stat_t {
 #define FIHINTUNUSED			_IOWR('x', 129, unsigned int)	/* search unused space as hints */
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+#define FICTRRBDMETA			_IOWR('x', 130, unsigned int)	/* control syno rbd meta */
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define FISPACEUSAGE			_IOWR('x', 131, struct syno_space_usage_info)	/* get space usage */
+#endif /* MY_ABC_HERE */
+
 #define	FS_IOC_GETFLAGS			_IOR('f', 1, long)
 #define	FS_IOC_SETFLAGS			_IOW('f', 2, long)
 #define	FS_IOC_GETVERSION		_IOR('v', 1, long)
@@ -243,5 +305,6 @@ struct inodes_stat_t {
 #define SYNC_FILE_RANGE_WAIT_BEFORE	1
 #define SYNC_FILE_RANGE_WRITE		2
 #define SYNC_FILE_RANGE_WAIT_AFTER	4
+
 
 #endif /* _UAPI_LINUX_FS_H */

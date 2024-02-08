@@ -650,6 +650,7 @@ struct intel_fbc {
 
 	bool enabled;
 	bool active;
+	bool flip_pending;
 
 	bool underrun_detected;
 	struct work_struct underrun_work;
@@ -714,12 +715,6 @@ struct intel_fbc {
 		int cfb_size;
 		unsigned int gen9_wa_cfb_stride;
 	} params;
-
-	struct intel_fbc_work {
-		bool scheduled;
-		u32 scheduled_vblank;
-		struct work_struct work;
-	} work;
 
 	const char *no_fbc_reason;
 };
@@ -1837,6 +1832,8 @@ struct drm_i915_private {
 
 	struct intel_uncore uncore;
 
+	struct mutex tlb_invalidate_lock;
+
 	struct i915_virtual_gpu vgpu;
 
 	struct intel_gvt *gvt;
@@ -1950,6 +1947,8 @@ struct drm_i915_private {
 		struct intel_cdclk_state actual;
 		/* The current hardware cdclk state */
 		struct intel_cdclk_state hw;
+
+		int force_min_cdclk;
 	} cdclk;
 
 	/**
@@ -2072,6 +2071,7 @@ struct drm_i915_private {
 	 *
 	 */
 	struct mutex av_mutex;
+	int audio_power_refcount;
 
 	struct {
 		struct list_head list;

@@ -539,6 +539,7 @@ END:
 DEVICE_ATTR(syno_fake_error_ctrl, S_IRUGO | S_IWUSR, syno_fake_error_ctrl_show, syno_fake_error_ctrl_store);
 EXPORT_SYMBOL_GPL(dev_attr_syno_fake_error_ctrl);
 
+#ifdef MY_ABC_HERE
 /**
  * show this dev power reset count
  **/
@@ -583,6 +584,7 @@ END:
 DEVICE_ATTR(syno_pwr_reset_count, S_IRUGO | S_IWUSR, syno_pwr_reset_count_show, syno_pwr_reset_count_store);
 EXPORT_SYMBOL_GPL(dev_attr_syno_pwr_reset_count);
 #endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 /**
@@ -598,6 +600,11 @@ syno_sata_error_event_debug_store(struct device *dev, struct device_attribute *a
 	int iStartIdx = 0;
 	int iErrorCount = 0;
 	SYNOBIOS_EVENT_PARM parms;
+#ifdef MY_DEF_HERE
+    DISK_PORT_TYPE diskPortType = UNKNOWN_DEVICE;
+    int diskPortIndex = -1;
+#endif /* MY_DEF_HERE */
+
 
 	if (!ap || !ata_dev) {
 		goto END;
@@ -606,53 +613,64 @@ syno_sata_error_event_debug_store(struct device *dev, struct device_attribute *a
 
 #ifdef MY_DEF_HERE
 	iStartIdx = syno_libata_numeric_diskname_number_get(ata_dev->link);
+	getDiskPortTypeAndIndexByAtaPort(ap, &diskPortType, &diskPortIndex);
 #else /* MY_DEF_HERE */
 	iStartIdx = syno_libata_index_get(ap->scsi_host, SATA_PMP_MAX_PORTS, 0, 0);
 #endif /* MY_DEF_HERE */
 
 	if (funcSYNOSataErrorReport) {
 		memset(&parms, 0, sizeof(parms));
-		parms.data1 = iStartIdx;
-		parms.data2 = ap->nr_pmp_links;
-		parms.data3 = ata_dev->link->pmp;
-		parms.data4 = SERR_10B_8B_ERR;
-		parms.data5 = ATA_ICRC;
+		parms.data[0] = iStartIdx;
+		parms.data[1] = ap->nr_pmp_links;
+		parms.data[2] = ata_dev->link->pmp;
+		parms.data[3] = SERR_10B_8B_ERR;
+		parms.data[4] = ATA_ICRC;
+#ifdef MY_DEF_HERE
+		parms.data[5] = diskPortType;
+#endif /* MY_DEF_HERE */
 		funcSYNOSataErrorReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {SError: 10B8B} {Error: ICRC} --------------------\n");
-		parms.data4 = SERR_HANDSHAKE | SERR_DISPARITY;
-		parms.data5 = ATA_UNC;
+		parms.data[3] = SERR_HANDSHAKE | SERR_DISPARITY;
+		parms.data[4] = ATA_UNC;
 		funcSYNOSataErrorReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {SError: Dispar Handshk} {Error: UNC} --------------------\n");
-		parms.data4 = 0;
-		parms.data5 = ATA_IDNF | ATA_ABORTED | ATA_UNC;
+		parms.data[3] = 0;
+		parms.data[4] = ATA_IDNF | ATA_ABORTED | ATA_UNC;
 		funcSYNOSataErrorReport(parms);
 		printk(KERN_ERR "----------------------- send event: {Error: UNC IDNF ABORTED} --------------------\n");
 	}
 	if (funcSYNODiskTimeoutReport) {
 		memset(&parms, 0, sizeof(parms));
-		parms.data1 = iStartIdx;
-		parms.data2 = ap->nr_pmp_links;
-		parms.data3 = ata_dev->link->pmp;
-		parms.data4 = 0;
-		parms.data5 = 0;
+		parms.data[0] = iStartIdx;
+		parms.data[1] = ap->nr_pmp_links;
+		parms.data[2] = ata_dev->link->pmp;
+		parms.data[3] = 0;
+		parms.data[4] = 0;
+#ifdef MY_DEF_HERE
+		parms.data[5] = diskPortType;
+#endif /* MY_DEF_HERE */
+
 
 		funcSYNODiskTimeoutReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {Timeout Others} --------------------\n");
-		parms.data4 = 1;
+		parms.data[3] = 1;
 		funcSYNODiskTimeoutReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {Timeout R/W} --------------------\n");
 	}
-	if (funcSYNODiskTimeoutReport) {
+	if (funcSYNODiskResetFailReport) {
 		memset(&parms, 0, sizeof(parms));
-		parms.data1 = iStartIdx;
-		parms.data2 = ap->nr_pmp_links;
-		parms.data3 = ata_dev->link->pmp;
-		parms.data4 = 0;
-		parms.data5 = iErrorCount;
+		parms.data[0] = iStartIdx;
+		parms.data[1] = ap->nr_pmp_links;
+		parms.data[2] = ata_dev->link->pmp;
+		parms.data[3] = 0;
+		parms.data[4] = iErrorCount;
+#ifdef MY_DEF_HERE
+		parms.data[5] = diskPortType;
+#endif /* MY_DEF_HERE */
 
 		funcSYNODiskResetFailReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {Soft reset failed count %d} --------------------\n", iErrorCount);
-		parms.data4 = 1;
+		parms.data[3] = 1;
 		funcSYNODiskResetFailReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {Hard reset failed count %d} --------------------\n", iErrorCount);
 	}
@@ -806,6 +824,333 @@ END:
 	return ret;
 }
 
+/**
+ * Using scsi command to issue jmb575 led command
+ *
+ * @param ap	[IN] Should not be NULL
+ * @param sde	[IN] Should not be NULL
+ * @param pPkg	[IN] Should not be NULL
+ * @param rw	[IN] read or write
+ *
+ * @return 			0: success
+ * 			Otherwise: fail
+ */
+int syno_jmb_575_led_ctl_with_scmd(struct ata_port *ap,
+					struct scsi_device *sdev,
+					u8 *pLedMask,
+					u8 rw)
+{
+	unsigned long flags = 0;
+	int cmd_result;
+	u8 scsi_cmd[MAX_COMMAND_SIZE];
+	u8 sense[SCSI_SENSE_BUFFERSIZE];
+	int ret = -EIO;
+	int iRetries = 0;
+
+	memset(scsi_cmd, 0, sizeof(scsi_cmd));
+	memset(sense, 0, sizeof(sense));
+
+	if (NULL == ap || NULL == sdev || NULL == pLedMask) {
+		goto END;
+	}
+
+	/* Get gpio ctrl lock in 2s */
+	spin_lock_irqsave(ap->lock, flags);
+	while ((ap->link.uiStsFlags & SYNO_STATUS_GPIO_CTRL) && (SYNO_PMP_GPIO_TRIES < iRetries)) {
+		spin_unlock_irqrestore(ap->lock, flags);
+		schedule_timeout_uninterruptible(HZ/2);
+		spin_lock_irqsave(ap->lock, flags);
+		++iRetries;
+	}
+
+	if (SYNO_PMP_GPIO_TRIES <= iRetries) {
+		DBGMESG("syno_jmb_575_led_ctl_with_scmd get gpio lock timeout\n");
+		spin_unlock_irqrestore(ap->lock, flags);
+		goto END;
+	}
+	/* lock to prevent others to do pmp gpio control */
+	ap->link.uiStsFlags |= SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(ap->lock, flags);
+
+	scsi_cmd[0] = ATA_16;
+	scsi_cmd[1]  = (3 << 1) | 1;
+
+	/* Command */
+	scsi_cmd[14] = ATA_CMD_PMP_SYNO_LED_GPIO;
+
+	if (READ == rw) {
+		scsi_cmd[2] = 0x20;
+		/* LBA(0:7) */
+		scsi_cmd[8] = 0x40; /* Read GPIO */
+	} else {
+		/* LBA(0:7) */
+		scsi_cmd[8] = *pLedMask;
+	}
+
+	cmd_result = scsi_execute(sdev, scsi_cmd, DMA_NONE, NULL, 0,
+				  sense, (10*HZ), 5, 0, NULL);
+	//cmd_result = scsi_execute(sdev, scsi_cmd, DMA_NONE, NULL, 0,
+	//			  sense, &sshdr, (10*HZ), 5, 0, 0, NULL);
+
+	if (driver_byte(cmd_result) == DRIVER_SENSE) {
+		u8 *desc = sense + 8;
+
+		if (WRITE == rw) {
+			ret = 0;
+			goto END;
+		}
+
+		cmd_result &= ~(0xFF<<24);
+		if (cmd_result & SAM_STAT_CHECK_CONDITION) {
+			struct scsi_sense_hdr sshdr;
+			scsi_normalize_sense(sense, SCSI_SENSE_BUFFERSIZE,
+					     &sshdr);
+			if (sshdr.sense_key == RECOVERED_ERROR &&
+			    sshdr.asc == 0 && sshdr.ascq == 0x1d)
+				cmd_result &= ~SAM_STAT_CHECK_CONDITION;
+		}
+
+		*pLedMask = desc[7];
+	}
+
+	if (cmd_result) {
+		goto END;
+	}
+
+	ret = 0;
+
+END:
+	/* unlock to let others can do pmp gpio control */
+	spin_lock_irqsave(ap->lock, flags);
+	ap->link.uiStsFlags &= ~SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(ap->lock, flags);
+	return ret;
+}
+
+static int syno_pm_jmb575_poll(struct ata_port *ap,
+						struct scsi_device *sdev,
+						char *buf,
+						int sectors)
+{
+	/* Scsi command */
+	u8 scsi_cmd[MAX_COMMAND_SIZE];
+	u8 sense[SCSI_SENSE_BUFFERSIZE];
+	u8 *argbuf = NULL;
+	int argsize = 0;
+
+	/* Lock */
+	int iRetries = 0;
+	unsigned long flags = 0;
+
+	int cmd_result;
+	int ret = -EIO;
+
+	memset(scsi_cmd, 0, sizeof(scsi_cmd));	
+	memset(sense, 0, sizeof(sense));
+
+	if (NULL == ap || NULL == sdev || NULL == buf || 0 >= sectors) {
+		printk("%s: Parameters check failed\n", __func__);
+		goto END;
+	}
+
+	if(!IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+		goto END;
+	}
+
+	/* Get Lock in 2s */
+	spin_lock_irqsave(ap->lock, flags);
+	while ((ap->link.uiStsFlags & SYNO_STATUS_GPIO_CTRL) && (SYNO_PMP_GPIO_TRIES < iRetries)) {
+		spin_unlock_irqrestore(ap->lock, flags);
+		schedule_timeout_uninterruptible(HZ/2);
+		spin_lock_irqsave(ap->lock, flags);
+		++iRetries;
+	}
+
+	/* Get Lock Timeout */
+	if (SYNO_PMP_GPIO_TRIES <= iRetries) {
+		printk("%s: Failed to get lock\n", __func__);
+		spin_unlock_irqrestore(ap->lock, flags);
+		goto RELEASE_LOCK;
+	}
+	/* lock to prevent others to do pmp gpio control */
+	ap->link.uiStsFlags |= SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(ap->lock, flags);
+
+	/* Init CDB */
+
+	scsi_cmd[0] = ATA_16;
+	scsi_cmd[1] = (0x04 << 1) | 0x01;
+	scsi_cmd[2] = 0x28;
+	scsi_cmd[4] = 0xE9;
+	scsi_cmd[6] = 0x01;
+	scsi_cmd[14] = 0xF0;
+
+	argsize = sectors * ATA_SECT_SIZE;
+	argbuf = kmalloc(argsize, GFP_KERNEL);
+
+	/* Scsi execute */
+
+	cmd_result = scsi_execute(sdev, scsi_cmd, DMA_FROM_DEVICE, buf, argsize,
+				  sense, (10*HZ), 5, 0, NULL);
+
+	if (driver_byte(cmd_result) == DRIVER_SENSE) {/* sense data available */
+		cmd_result &= ~(0xFF<<24); /* DRIVER_SENSE is not an error */
+
+		/* If we set cc then ATA pass-through will cause a
+		 * check condition even if no error. Filter that. */
+		if (cmd_result & SAM_STAT_CHECK_CONDITION) {
+			struct scsi_sense_hdr sshdr;
+			scsi_normalize_sense(sense, SCSI_SENSE_BUFFERSIZE,
+					     &sshdr);
+			if (sshdr.sense_key == RECOVERED_ERROR &&
+			    sshdr.asc == 0 && sshdr.ascq == 0x1d)
+				cmd_result &= ~SAM_STAT_CHECK_CONDITION;
+		}
+	}
+
+	if (cmd_result) {
+		printk("Fail scsi_execut\n");
+		ret = -EIO;
+		goto END;
+	}
+
+	ret = 0;
+
+RELEASE_LOCK:
+	/* unlock to let others can do pmp gpio control */
+	spin_lock_irqsave(ap->lock, flags);
+	ap->link.uiStsFlags &= ~SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(ap->lock, flags);
+
+END:
+	kfree(argbuf);
+	return ret;
+}
+
+/**
+ * Using scsi command to issue ebox i2c command
+ *
+ * @param ap	[IN] Should not be NULL
+ * @param sde	[IN] Should not be NULL
+ * @param pPkg	[IN] Should not be NULL
+ * @param rw	[IN] read or write
+ *
+ * @return 			0: success
+ * 			Otherwise: fail
+ */
+int syno_i2c_with_scmd(struct ata_port *ap,
+					struct scsi_device *sdev,
+					SYNO_PM_I2C_PKG *pPkg,
+					u8 rw)
+{
+	unsigned long flags = 0;
+	int cmd_result;
+	u8 scsi_cmd[MAX_COMMAND_SIZE];
+	u8 sense[SCSI_SENSE_BUFFERSIZE];
+	int ret = -EIO;
+	int iRetries = 0;
+	int i = 0;
+
+	/* i2c pkg to scmd mapping */
+	const int i2c_pkg_to_scmd[7] = {10, 12, 7, 9, 11, 6, 5};
+	const int desc_to_i2c_pkg[7] = {7, 9, 11, 4, 6, 7, 5};
+
+	memset(scsi_cmd, 0, sizeof(scsi_cmd));
+	memset(sense, 0, sizeof(sense));
+
+	if (NULL == ap || NULL == sdev || NULL == pPkg) {
+		goto END;
+	}
+
+	/* Get gpio ctrl lock in 2s */
+	spin_lock_irqsave(ap->lock, flags);
+	while ((ap->link.uiStsFlags & SYNO_STATUS_GPIO_CTRL) && (SYNO_PMP_GPIO_TRIES < iRetries)) {
+		spin_unlock_irqrestore(ap->lock, flags);
+		schedule_timeout_uninterruptible(HZ/2);
+		spin_lock_irqsave(ap->lock, flags);
+		++iRetries;
+	}
+
+	if (SYNO_PMP_GPIO_TRIES <= iRetries) {
+		DBGMESG("syno_i2c_with_scmd get gpio lock timeout\n");
+		spin_unlock_irqrestore(ap->lock, flags);
+		goto END;
+	}
+	/* lock to prevent others to do pmp gpio control */
+	ap->link.uiStsFlags |= SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(ap->lock, flags);
+
+
+	scsi_cmd[0] = ATA_16;
+	scsi_cmd[1]  = (3 << 1) | 1;
+
+	/* LBA(0:7) */
+	scsi_cmd[8] = pPkg->offset;
+	/* Command */
+	scsi_cmd[14] = ATA_CMD_PMP_SYNO_I2C;
+
+	if (READ == rw) {
+		scsi_cmd[2] = 0x20;
+		/* Feature(15:8) */
+		scsi_cmd[3] = 1;
+		/* Feature(0:7) */
+		scsi_cmd[4] = pPkg->addr << 1 | 0x01; /* Read */
+		/* Device */
+		scsi_cmd[13] = pPkg->len;
+	} else {
+		/* Feature(0:7) */
+		scsi_cmd[4] = pPkg->addr << 1;
+		/* Device */
+		scsi_cmd[13] = pPkg->len + 1; /* Add 1 for i2c dev offset */
+		/* Write Data */
+		for (i = 0; i < pPkg->len; i++) {
+			if (ARRAY_SIZE(i2c_pkg_to_scmd) > i) {
+				scsi_cmd[i2c_pkg_to_scmd[i]] = pPkg->inputData[i];
+			}
+		}
+	}
+
+	cmd_result = scsi_execute(sdev, scsi_cmd, DMA_NONE, NULL, 0,
+				  sense, (10*HZ), 5, 0, NULL);
+	
+	if (driver_byte(cmd_result) == DRIVER_SENSE) {
+		u8 *desc = sense + 8;
+
+		if (WRITE == rw) {
+			ret = 0;
+			goto END;
+		}
+
+		cmd_result &= ~(0xFF<<24);
+		if (cmd_result & SAM_STAT_CHECK_CONDITION) {
+			struct scsi_sense_hdr sshdr;
+			scsi_normalize_sense(sense, SCSI_SENSE_BUFFERSIZE,
+					     &sshdr);
+			if (sshdr.sense_key == RECOVERED_ERROR &&
+			    sshdr.asc == 0 && sshdr.ascq == 0x1d)
+				cmd_result &= ~SAM_STAT_CHECK_CONDITION;
+		}
+
+		for (i = 0; i < pPkg->len; i++) {
+			if (ARRAY_SIZE(desc_to_i2c_pkg) > i) {
+				pPkg->resultData[i] = desc[desc_to_i2c_pkg[i]];
+			}
+		}
+	}
+
+	if (cmd_result) {
+		goto END;
+	}
+
+	ret = 0;
+
+END:
+	/* unlock to let others can do pmp gpio control */
+	spin_lock_irqsave(ap->lock, flags);
+	ap->link.uiStsFlags &= ~SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(ap->lock, flags);
+	return ret;
+}
 
 /**
  * using scsi command to issue gpio command
@@ -1016,7 +1361,42 @@ syno_gpio_write_with_sdev(struct ata_port *ap, struct scsi_device *sdev, u32 inp
 	return syno_gpio_with_scmd(ap, sdev, &pm_pkg, WRITE);
 }
 
+
 #ifdef MY_DEF_HERE
+struct ata_port* SynoEunitEnumPort(struct ata_port *pAp_master, struct klist_node *pAtaNode)
+{
+	struct ata_port *pAp = NULL;
+	struct klist_node *ata_node = NULL;
+	int slotNumber = -1;
+	struct klist_iter klist_iter;
+	memset(&klist_iter, 0, sizeof(klist_iter));
+
+	if (NULL == pAp_master) {
+		goto END;
+	}
+
+	if (-1 == (slotNumber = syno_external_libata_index_get(pAp_master))) {
+		printk(KERN_DEBUG "Failed to get slotNumber for ata_port %d\n", pAp_master->print_id);
+		goto END;
+	}
+
+	klist_iter_init_node(&syno_ata_port_head, &klist_iter, pAtaNode);
+	for (ata_node = klist_next(&klist_iter); NULL != ata_node; ata_node = klist_next(&klist_iter)) {
+		pAp = container_of(ata_node, struct ata_port, ata_port_list);
+
+		if (syno_is_synology_pm(pAp) && slotNumber == syno_external_libata_index_get(pAp)) {
+			break;	
+		}
+
+		pAp = NULL;
+	}
+	klist_iter_exit(&klist_iter);
+
+END:
+	return pAp;
+
+}
+
 /* find eunit master */
 struct ata_port *SynoEunitFindMaster(struct ata_port *pAp)
 {
@@ -1104,6 +1484,35 @@ END:
 #endif /* MY_DEF_HERE */
 
 #ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
+static void SynoEunitBindLock(struct ata_port *pAp_master, bool blset)
+{
+	struct ata_port *ap = NULL;
+
+	if (NULL == pAp_master) {
+		goto END;
+	}
+
+	if (!syno_is_synology_pm(pAp_master)) {
+		goto END;
+	}
+
+	while (NULL != (ap = SynoEunitEnumPort(pAp_master, ap? &ap->ata_port_list: NULL))) {
+		/* This special lock is used to power on eunit in deep sleep state. */
+		if (!ap->scsi_host->eunit_lock_configured) {
+			ap->scsi_host->peunit_poweron_lock = &(pAp_master->scsi_host->eunit_poweron_lock);
+			ap->scsi_host->puiata_eh_flag = &(pAp_master->scsi_host->uiata_eh_flag);
+			ap->scsi_host->eunit_lock_configured = 1;
+		}
+		if (blset) {
+			ap->scsi_host->is_eunit_deepsleep = 1;
+		}
+	}
+
+END:
+	return ;
+}
+#else /* MY_DEF_HERE */
 static void SynoEunitBindLock(struct ata_port *pAp_master, bool blset)
 {
 	struct ata_port *ap = NULL;
@@ -1171,7 +1580,8 @@ static void SynoEunitBindLock(struct ata_port *pAp_master, bool blset)
 				IS_SYNOLOGY_RX1217(ap->PMSynoUnique) ||
 				IS_SYNOLOGY_DX1215(ap->PMSynoUnique) ||
 				IS_SYNOLOGY_DX1222(ap->PMSynoUnique) ||
-				IS_SYNOLOGY_DX1215II(ap->PMSynoUnique)) {
+				IS_SYNOLOGY_DX1215II(ap->PMSynoUnique) ||
+				IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
 			/* This special lock is used to power on eunit in deep sleep state. */
 			if (!ap->scsi_host->eunit_lock_configured) {
 				ap->scsi_host->peunit_poweron_lock = &(pAp_master->scsi_host->eunit_poweron_lock);
@@ -1188,8 +1598,79 @@ CONTINUE_FOR:
 END:
 	return;
 }
+#endif /* MY_DEF_HERE */
 #endif /* MY_ABC_HERE */
 
+
+#ifdef MY_DEF_HERE
+/*
+ * blWithLink is false: No matter any disk on ap, just raise/pull flag
+ * blWithLink is true: If any disk(link) on ata port, then raise/pull the flag
+ */
+void SynoEunitFlagSet(struct ata_port *pAp_master, bool blset, unsigned int flag, bool blWithLink)
+{
+	struct klist_iter klist_iter;
+	struct klist_node *ata_node = NULL;
+	struct ata_port *ap = NULL;
+	struct ata_link *link = NULL;
+	unsigned long flags_ap;
+	bool blAnyLink = false;
+	int slotNumber = -1;
+
+	memset(&klist_iter, 0, sizeof(klist_iter));
+
+	if (NULL == pAp_master) {
+		goto END;
+	}
+
+	if (!syno_is_synology_pm(pAp_master)) {
+		goto END;
+	}
+
+	slotNumber = syno_external_libata_index_get(pAp_master);
+	if (-1 == slotNumber) {
+		printk(KERN_DEBUG "Failed to get slotNumber for ata_port %d\n", pAp_master->print_id);
+		goto END;
+	}
+
+	klist_iter_init(&syno_ata_port_head, &klist_iter);
+	for (ata_node = klist_next(&klist_iter); NULL != ata_node; ata_node = klist_next(&klist_iter)) {
+		ap = container_of(ata_node, struct ata_port, ata_port_list);
+		if (slotNumber != syno_external_libata_index_get(ap)) {
+			goto CONTINUE_FOR;
+		}
+
+		if (blWithLink) {
+			/* Check any link on ap */
+			ata_for_each_link(link, ap, EDGE) {
+				if (0 != link->sata_spd) {
+					blAnyLink = true;
+					break;
+				}
+			}
+			/* If no link on ap, do not raise/pull flag. */
+			if (!blAnyLink) {
+				goto CONTINUE_FOR;
+			}
+		}
+
+		spin_lock_irqsave(ap->lock, flags_ap);
+		if (blset) {
+			ap->pflags |= flag;
+		} else {
+			ap->pflags &= ~flag;
+		}
+		spin_unlock_irqrestore(ap->lock, flags_ap);
+
+CONTINUE_FOR:
+		ap = NULL;
+	}
+	klist_iter_exit(&klist_iter);
+
+END:
+	return ;
+}
+#else /* MY_DEF_HERE */
 /*
  * blWithLink is false: No matter any disk on ap, just raise/pull flag
  * blWithLink is true: If any disk(link) on ata port, then raise/pull the flag
@@ -1273,7 +1754,8 @@ void SynoEunitFlagSet(struct ata_port *pAp_master, bool blset, unsigned int flag
 				IS_SYNOLOGY_RX1217(ap->PMSynoUnique) ||
 				IS_SYNOLOGY_DX1215(ap->PMSynoUnique) ||
 				IS_SYNOLOGY_DX1222(ap->PMSynoUnique) ||
-				IS_SYNOLOGY_DX1215II(ap->PMSynoUnique)) {
+				IS_SYNOLOGY_DX1215II(ap->PMSynoUnique) ||
+				IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
 			if (blWithLink) {
 				/* Check any link on ap */
 				ata_for_each_link(link, ap, EDGE) {
@@ -1302,6 +1784,7 @@ CONTINUE_FOR:
 END:
 	return;
 }
+#endif /* MY_DEF_HERE */
 
 /*
  *
@@ -1408,6 +1891,9 @@ EXPORT_SYMBOL_GPL(dev_attr_syno_manutil_power_disable);
 
 #ifdef MY_ABC_HERE
 #define SYNO_DISK_TRANS_LEN 3
+#ifdef MY_DEF_HERE
+extern int g_is_sas_model;
+#endif /* MY_DEF_HERE */
 static ssize_t
 syno_trans_host_to_disk_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -1420,8 +1906,6 @@ syno_trans_host_to_disk_show(struct device *dev, struct device_attribute *attr, 
 	goto END;
 #endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
-	extern int g_is_sas_model;
-
 	if (1 == g_is_sas_model) {
 		iLen = snprintf(buf, 5, "SAS\n");
 		goto END;
@@ -1711,6 +2195,14 @@ syno_pm_info_show(struct device *dev, struct device_attribute *attr, char *buf)
 					EBOX_INFO_UNIQUE_DX1215II,
 					EBOX_INFO_EMID_KEY,
 					ap->PMSynoEMID);
+		} else if (IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+			snprintf(szTmp,
+					BDEVNAME_SIZE,
+					"%s=\"%s\"\n%s=\"%d\"\n",
+					EBOX_INFO_UNIQUE_KEY,
+					EBOX_INFO_UNIQUE_RX1223RP,
+					EBOX_INFO_EMID_KEY,
+					ap->PMSynoEMID);
 		} else {
 			snprintf(szTmp,
 					BDEVNAME_SIZE,
@@ -1762,6 +2254,128 @@ END:
 
 DEVICE_ATTR(syno_pm_info, S_IRUGO, syno_pm_info_show, NULL);
 EXPORT_SYMBOL_GPL(dev_attr_syno_pm_info);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+typedef struct {
+	unsigned char fanTach[4][2];
+} SYNO_JMB575_POLL_DATA;
+
+static ssize_t
+syno_pm_i2c_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct Scsi_Host *shost = class_to_shost(dev);
+	struct ata_port *ap = ata_shost_to_port(shost);
+	int written = 0, i = 0;
+	int fanIdx = 0;
+
+	if (SYNO_PM_I2C_SYSFS_I2C_READ == ap->i2cOp && !ap->i2cPkg.blIsErr) {
+		written += sprintf(buf, "%s=\"", EBOX_I2C_KEY);
+
+		for(i = 0; i < ap->i2cPkg.len; i++)  {
+
+			written += snprintf(buf+written, 20, "0x%02x%s",
+				ap->i2cPkg.resultData[i],
+				((ap->i2cPkg.len -1)  == i) ? "\"\n" : " ");
+		}
+	} else if (SYNO_PM_I2C_SYSFS_POLLING == ap->i2cOp) {
+		if (NULL != ap->link.device->sdev && 0 == syno_pm_jmb575_poll(ap, ap->link.device->sdev, ap->sector_buf, 1)) {
+			written += snprintf(buf+written, 25, "[%s]\n", EBOX_I2C_KEY);
+			
+			for (fanIdx = 0; fanIdx < ARRAY_SIZE(((SYNO_JMB575_POLL_DATA*)(ap->sector_buf))->fanTach); fanIdx++) {
+			
+				written += snprintf(buf+written, 25, "%s%d=\"0x%02x 0x%02x\"\n", 
+							EBOX_I2C_POLLING_FAN,
+							fanIdx + 1,
+							((SYNO_JMB575_POLL_DATA*)(ap->sector_buf))->fanTach[fanIdx][0],
+							((SYNO_JMB575_POLL_DATA*)(ap->sector_buf))->fanTach[fanIdx][1]);
+			}
+		}
+	}
+
+	return written;
+}
+
+static ssize_t
+syno_pm_i2c_store(struct device *dev, struct device_attribute *attr, const char * buf, size_t count)
+{
+	struct Scsi_Host *shost = class_to_shost(dev);
+	struct ata_port *ap = ata_shost_to_port(shost);
+	ssize_t ret = -EIO;
+
+	int i = 0;
+	int offset = 0;
+	int total_offset = 0;
+	
+	int ledIdx = 0;
+	int setLedMask = 0;
+	struct scsi_device *sdev = NULL;
+	
+	if (defer_gpio_cmd(ap, 0, READ) || NULL == (sdev = ap->link.device->sdev)) {
+		DBGMESG("ata%d: skip ebox i2c control\n", ap->print_id);
+		goto END;
+	}
+
+	if (0 == strncmp(buf, EBOX_I2C_SYSFS_OP_WRITE, strlen(EBOX_I2C_SYSFS_OP_WRITE))) {
+		total_offset = strlen(EBOX_I2C_SYSFS_OP_WRITE);
+
+		ap->i2cOp = SYNO_PM_I2C_SYSFS_I2C_WRITE;
+
+
+		if (3 > sscanf(buf + total_offset, "%hx %hx %hu%n", &ap->i2cPkg.addr, &ap->i2cPkg.offset, &ap->i2cPkg.len, &offset)) {
+			printk("I2C store parameter error\n");
+			goto END;
+		}
+
+		total_offset += offset;
+		ap->i2cPkg.len = ap->i2cPkg.len <= SYNO_PMP_I2C_MAX_DATA_LEN? ap->i2cPkg.len : SYNO_PMP_I2C_MAX_DATA_LEN;
+
+		for (i = 0; i < ap->i2cPkg.len; i++) {
+			if(0 >= sscanf(buf + total_offset, "%4hhx%n", &ap->i2cPkg.inputData[i], &offset)) {
+				printk("I2C store parameter error\n");
+				goto END;
+			}
+			total_offset += offset;
+		}
+
+		syno_i2c_with_scmd(ap, sdev, &ap->i2cPkg, WRITE);
+	} else if (0 == strncmp(buf, EBOX_I2C_SYSFS_OP_READ, strlen(EBOX_I2C_SYSFS_OP_READ))) {
+		total_offset = strlen(EBOX_I2C_SYSFS_OP_READ);
+
+		ap->i2cOp = SYNO_PM_I2C_SYSFS_I2C_READ;
+
+		if (3 > sscanf(buf + total_offset, "%hx %hx %hu%n", &ap->i2cPkg.addr, &ap->i2cPkg.offset, &ap->i2cPkg.len, &offset)) {
+			printk("I2C store parameter error\n");
+			goto END;
+		}
+
+		total_offset += offset;
+		ap->i2cPkg.len = ap->i2cPkg.len <= SYNO_PMP_I2C_MAX_DATA_LEN? ap->i2cPkg.len : SYNO_PMP_I2C_MAX_DATA_LEN;
+
+		ap->i2cPkg.blIsErr = false;
+		syno_i2c_with_scmd(ap, sdev, &ap->i2cPkg, READ);
+	} else if (0 == strncmp(buf, EBOX_I2C_SYSFS_OP_JMB575_LED_CTL, strlen(EBOX_I2C_SYSFS_OP_JMB575_LED_CTL))) {
+		total_offset = strlen(EBOX_I2C_SYSFS_OP_JMB575_LED_CTL);
+
+		if (2 > sscanf(buf + total_offset, "%d %d", &ledIdx, &setLedMask)) {
+			ret = count;
+			goto END;
+		}
+
+		if (syno_sata_jmb575_disk_led_set_with_scmnd(&ap->link, ledIdx, setLedMask)) {
+			printk("JMB575 Led Ctrl Fail\n");
+		}
+	} else if (0 == strncmp(buf, EBOX_I2C_SYSFS_OP_POLL, strlen(EBOX_I2C_SYSFS_OP_POLL))) {
+		ap->i2cOp = SYNO_PM_I2C_SYSFS_POLLING;
+	}
+
+	ret = count;
+END:
+
+	return ret;
+}
+DEVICE_ATTR(syno_pm_i2c, S_IRUGO | S_IWUSR, syno_pm_i2c_show, syno_pm_i2c_store);
+EXPORT_SYMBOL_GPL(dev_attr_syno_pm_i2c);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -3219,6 +3833,9 @@ static void ata_scsi_sdev_config(struct scsi_device *sdev)
 	 * requests.
 	 */
 	sdev->max_device_blocked = 1;
+#ifdef MY_ABC_HERE
+	sdev->default_disable_fua = 1;
+#endif /* MY_ABC_HERE */
 }
 
 /**
@@ -6071,7 +6688,7 @@ static inline int __ata_scsi_queuecmd(struct scsi_cmnd *scmd,
 		/* if irq off, we must Schedule Wake Up immediately to let
 		 * ResubmitCommand(..) -> ata_port_schedule_eh(..) -> ata_scsi_error(..)
 		 * power on disk */
-		if (!(dev->link->ap->link.uiStsFlags & SYNO_STATUS_GPIO_CTRL)) {
+		if (!ata_is_host_link(dev->link) || !(dev->link->ap->link.uiStsFlags & SYNO_STATUS_GPIO_CTRL)) {
 			if ((dev->link->ap->pflags & ATA_PFLAG_SYNO_IRQ_OFF) ||
 					(dev->link->ap->pflags & ATA_PFLAG_SYNO_IRQOFF_PWROFF_DONE)) {
 				if (!(dev->link->ap->pflags & ATA_PFLAG_SYNO_DS_PWROFF)) {
@@ -6083,6 +6700,14 @@ static inline int __ata_scsi_queuecmd(struct scsi_cmnd *scmd,
 				goto RETRY;
 			}
 		}
+
+		if(IS_SYNOLOGY_RX1223RP(dev->link->ap->PMSynoUnique)) {
+			if ((dev->link->ap->pflags & ATA_PFLAG_SYNO_DS_WAKING)) {
+				ata_port_schedule_eh(dev->link->ap);
+				goto RETRY;
+			}
+		}
+
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -6459,6 +7084,9 @@ void ata_scsi_scan_host(struct ata_port *ap, int sync)
 		if (!IS_ERR(pPmSdev)) {
 			dev->sdev = pPmSdev;
 			scsi_device_put(pPmSdev);
+#ifdef MY_ABC_HERE
+			syno_pm_show_sn(dev);
+#endif /* MY_ABC_HERE */
 		} else {
 			dev->sdev = NULL;
 		}
@@ -7266,6 +7894,73 @@ END:
 EXPORT_SYMBOL(syno_external_libata_index_get);
 
 /**
+ * getDiskPortTypeAndIndexByAtaPort - Find ata_port in DTS, return DISK_PORT_TYPE and port index
+ * @ap          [IN] : ata_port
+ * @portType    [OUT]: DISK_PORT_TYPE
+ * @portIndex   [OUT]: port index
+ *
+ * return  0: Program ended normally
+ *        -1: Error return
+ *
+ * For example, ata_port matches below DTS member, portType = SYSTEM_DEVICE, portIndex = 1
+ *   system_slot@1 {
+ *       ahci {
+ *           pcie_root = "00:17.0";
+ *           ata_port = <0>;
+ *           sw_activity = <1>;
+ *       };
+ *   }
+ *
+ * For example, ata_port matches below DTS member, portType = INTERNAL_DEVICE, portIndex = 2
+ *   internal_slot@2 {
+ *       ahci {
+ *           pcie_root = "00:17.0";
+ *           ata_port = <0>;
+ *           sw_activity = <1>;
+ *       };
+ *   }
+ */
+int getDiskPortTypeAndIndexByAtaPort(const struct ata_port *ap, DISK_PORT_TYPE *portType, int *portIndex)
+{
+	int iRet = -1;
+	struct device_node *pDeviceNode = NULL;
+	if (NULL == ap || NULL == of_root || NULL == portType || NULL == portIndex) {
+		printk("Invalid parameter\n");
+		goto END;
+	}
+
+	*portType = UNKNOWN_DEVICE;
+
+	for_each_child_of_node(of_root, pDeviceNode) {
+		if (NULL == pDeviceNode->full_name) {
+			continue;
+		}
+
+		if (false == ap->ops->syno_compare_node_info(ap, pDeviceNode)) {
+			continue;
+		}
+
+		if (1 == sscanf(pDeviceNode->full_name, "/"DT_INTERNAL_SLOT"@%d", portIndex)) {
+			*portType = INTERNAL_DEVICE;
+			of_node_put(pDeviceNode);
+			break;
+		} else if (1 == sscanf(pDeviceNode->full_name, "/"DT_SYSTEM_SLOT"@%d", portIndex)) {
+			*portType = SYSTEM_DEVICE;
+			of_node_put(pDeviceNode);
+			break;
+		} else {
+			of_node_put(pDeviceNode);
+			break;
+		}
+	}
+
+	iRet = 0;
+END:
+	return iRet;
+}
+EXPORT_SYMBOL(getDiskPortTypeAndIndexByAtaPort);
+
+/**
  * lookup_internal_slot - lookup device tree to find corresponding internal slot of the ata_port
  * @ap [IN]: query ata_port
  *
@@ -7376,10 +8071,19 @@ EXPORT_SYMBOL(syno_libata_disk_map_table_gen);
  * Otherwise, return the index with channel
  *
  */
-static const int syno_dx1222_mapping_table[SATA_PMP_MAX_PORTS] = {-1, 0, 1, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static const int syno_dx1222_mapping_table[SATA_PMP_MAX_PORTS] = {-1, 2, 1, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static const int syno_rx1223rp_slot_mapping[12] = {8, 1, 4, 0, 9, 10, 6, 11, 5, 7, 2, 3}; /* 0-based */
 uint syno_eunit_port_mapping(struct ata_port *ap, uint host_idx, uint channel)
 {
 	int mapped_idx = -1;
+	int emid = ap->PMSynoEMID;
+
+	int base_idx = 0;
+	int slot_idx_orig = 0;
+	int slot_idx_mapped = 0;
+	int num_of_pm_ports = syno_support_disk_num(sata_pmp_gscr_vendor(ap->link.device->gscr),
+												sata_pmp_gscr_devid(ap->link.device->gscr),
+												ap->PMSynoUnique);
 
 	if (SATA_PMP_MAX_PORTS < channel) {
 		goto END;
@@ -7393,6 +8097,14 @@ uint syno_eunit_port_mapping(struct ata_port *ap, uint host_idx, uint channel)
 			goto END;
 		}
 		mapped_idx = ((host_idx + 1) * 26) + syno_dx1222_mapping_table[channel]; /* + 1 is for jumping to sdax */
+	} else if (IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+		if (channel >= num_of_pm_ports) {
+			goto END;
+		}
+		base_idx = (host_idx + 1 - emid) * 26;
+		slot_idx_orig = emid * num_of_pm_ports + channel;
+		slot_idx_mapped = syno_rx1223rp_slot_mapping[slot_idx_orig];
+		mapped_idx = base_idx + ((slot_idx_mapped / num_of_pm_ports) * 26) + (slot_idx_mapped % num_of_pm_ports);
 	} else {
 		mapped_idx = ((host_idx + 1) * 26) + channel; /* + 1 is for jumping to sdax */
 	}
@@ -7490,20 +8202,21 @@ int syno_libata_index_get(struct Scsi_Host *host, uint channel, uint id, uint lu
  *        -1: failed
  */
 int
-syno_libata_port_power_ctl(struct Scsi_Host *host, u8 blPowerOn)
+syno_libata_port_power_ctl(struct Scsi_Host *host, u8 pwrOp)
 {
 	struct ata_port *ap = ata_shost_to_port(host);
 	struct ata_port *pAp_master = NULL;
 	unsigned long flags = 0;
 	int iIsDSPowerOff = 0;
 	int iRet = -1;
+	u8 blPowerOn = (pwrOp & (SYNO_PWR_OP_POWER_ON | SYNO_PWR_OP_WAKE))? 1 : 0;
 
 	if(0 == iIsSynoPmCtlSupport(ap)) {
 		DBGMESG("disk %d doesn't support pm control\n", ap->print_id);
 		goto END;
 	}
 
-	DBGMESG("disk %d do pm control blPowerOn %d\n", ap->print_id, blPowerOn);
+	DBGMESG("disk %d do pm control pwrOp %d\n", ap->print_id, pwrOp);
 	if (!ap->nr_pmp_links) {
 		/* Internal disks case: only support deep sleep ap, we can do pm control */
 		if(blPowerOn) {
@@ -7527,7 +8240,7 @@ syno_libata_port_power_ctl(struct Scsi_Host *host, u8 blPowerOn)
 		}
 		/* this port is a master , we no need to get master */
 		if(0 == ap->PMSynoEMID) {
-			if (0 != syno_libata_pm_power_ctl(ap, blPowerOn, 0)) {
+			if (0 != syno_libata_pm_power_ctl(ap, pwrOp, 0)) {
 				goto END;
 			}
 		}
@@ -7536,7 +8249,7 @@ syno_libata_port_power_ctl(struct Scsi_Host *host, u8 blPowerOn)
 			if (NULL == pAp_master) {
 				printk("Can't find syno Eunit master to do power control\n");
 			}
-			if (0 != syno_libata_pm_power_ctl(pAp_master, blPowerOn, 0)) {
+			if (0 != syno_libata_pm_power_ctl(pAp_master, pwrOp, 0)) {
 				goto END;
 			}
 		}
@@ -7548,6 +8261,78 @@ END:
 	return iRet;
 }
 
+#ifdef MY_DEF_HERE
+/* check if any port in this EUnit still have errors or activeties
+ *
+ * @param host [IN] EUnit master port
+ *
+ * @return 0: not have errors or activeties
+ *         1: have errors or activeties
+ *        -1: failed
+ */
+static int SynoIsEunitPortActing(const struct ata_port *pAp_master)
+{
+	int iRet = -1;
+	unsigned long flags = 0;
+	struct klist_iter klist_iter;
+	struct klist_node *ata_node = NULL;
+	struct ata_port *ap = NULL;
+	int slotNumber = -1;
+
+	memset(&klist_iter, 0, sizeof(klist_iter));
+
+	if (NULL == pAp_master) {
+		goto END;
+	}
+
+	if (!syno_is_synology_pm(pAp_master)) {
+		goto END;
+	}
+
+	slotNumber = syno_external_libata_index_get(pAp_master);
+	if (-1 == slotNumber) {
+		printk(KERN_DEBUG "Failed to get slotNumber for ata_port %d\n", pAp_master->print_id);
+		goto END;
+	}
+
+	klist_iter_init(&syno_ata_port_head, &klist_iter);
+	for (ata_node = klist_next(&klist_iter); NULL != ata_node; ata_node = klist_next(&klist_iter)) {
+		ap = container_of(ata_node, struct ata_port, ata_port_list);
+		if (slotNumber != syno_external_libata_index_get(ap)) {
+			goto CONTINUE_FOR;
+		}
+
+		spin_lock_irqsave(ap->lock, flags);
+		/* still have activeties */
+		if (ap->nr_active_links) {
+			DBGMESG("%s EUnit %d have activities\n",
+						(ap->PMSynoEMID == 0 ? "Master" : "Slave"),
+						ap->print_id);
+			iRet = 1;
+		}
+		/* have errors */
+		if (ap->pflags & (~ATA_PFLAG_EXTERNAL)) {
+			DBGMESG("%s EUnit %d have errors pflags 0x%x\n",
+						(ap->PMSynoEMID == 0 ? "Master" : "Slave"),
+						ap->print_id,
+						ap->pflags);
+			iRet = 1;
+		}
+		spin_unlock_irqrestore(ap->lock, flags);
+
+		if (1 == iRet) {
+			goto END;
+		}
+
+CONTINUE_FOR:
+		ap = NULL;
+	}
+	klist_iter_exit(&klist_iter);
+
+END:
+	return iRet;
+}
+#else /* MY_DEF_HERE */
 /* check if any port in this EUnit still have errors or activeties
  *
  * @param host [IN] EUnit master port
@@ -7648,6 +8433,7 @@ CONTINUE_FOR:
 END:
 	return iRet;
 }
+#endif /* MY_DEF_HERE */
 
 SYNO_DEEP_SLEEP_PWR_TYPE syno_get_deep_sleep_pwr_type(struct ata_port *ap)
 {
@@ -7726,14 +8512,18 @@ END:
  */
 static int SynoFlagSet(struct ata_port *ap, const unsigned int ulFlag, const u8 blSet)
 {
-	struct Scsi_Host *pSlave_host = NULL;
 	struct ata_port *pAp_slave = NULL;
 	struct ata_port *pAp_master = NULL;
 	int unique = 0;
-	int i = 0;
 	int iIsActing = 0;
 	int iRet = -1;
+
+#ifdef MY_DEF_HERE
+#else  /* MY_DEF_HERE */
+	struct Scsi_Host *pSlave_host = NULL;
+	int i = 0;
 	int iAtaPrintId = 0;
+#endif /* MY_DEF_HERE */
 	unsigned long flags;
 
 	if (NULL == ap) {
@@ -7775,6 +8565,25 @@ static int SynoFlagSet(struct ata_port *ap, const unsigned int ulFlag, const u8 
 
 		unique = SYNO_UNIQUE(pAp_master->PMSynoUnique);
 		/* find slave disks */
+#ifdef MY_DEF_HERE
+		while (NULL != (pAp_slave = SynoEunitEnumPort(pAp_master, pAp_slave? &pAp_slave->ata_port_list: NULL))) {
+			spin_lock_irqsave(pAp_slave->lock, flags);
+			if(ATA_PFLAG_SYNO_IRQ_OFF == ulFlag && blSet && pAp_slave->nr_active_links) {
+				DBGMESG("Slave disk %d still have command\n",
+						pAp_slave->print_id);
+				iIsActing = 1;
+			}
+			if(blSet) {
+				pAp_slave->pflags |= ulFlag;
+				DBGMESG("Set pflags 0x%x for ata_port %d\n", ulFlag, pAp_slave->print_id);
+			} else {
+				pAp_slave->pflags &= ~(ulFlag);
+				DBGMESG("Unset pflags 0x%x for ata_port %d\n", ulFlag, pAp_slave->print_id);
+			}
+			spin_unlock_irqrestore(pAp_slave->lock, flags);
+		}
+#else /* MY_DEF_HERE */
+
 		iAtaPrintId = atomic_read(&ata_print_id) + 1;
 		for (i = 1; i < iAtaPrintId; i++) {
 
@@ -7825,6 +8634,7 @@ CONTINUE_FOR:
 			pSlave_host = NULL;
 			pAp_slave = NULL;
 		}
+#endif /* MY_DEF_HERE */
 		if (iIsActing) {
 			goto END;
 		}
@@ -8001,7 +8811,7 @@ syno_libata_set_deep_sleep(struct Scsi_Host *host, const u8 blSet)
 	/* set pwr */
 	switch (PwrType) {
 		case PWR_COMMON_TYPE:
-			if (0 != syno_libata_port_power_ctl(pAp_master->scsi_host, blPowerOn)) {
+			if (0 != syno_libata_port_power_ctl(pAp_master->scsi_host, blPowerOn? SYNO_PWR_OP_WAKE : SYNO_PWR_OP_DEEPSLEEP)) {
 				printk("ata port %d set deep sleep pwr fail blPowerOn %d\n", ap->print_id, blPowerOn);
 				goto END;
 			}
