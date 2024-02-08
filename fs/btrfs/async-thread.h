@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
  * Copyright (C) 2014 Fujitsu.  All rights reserved.
@@ -46,26 +49,44 @@ void btrfs_##name(struct work_struct *arg)
 BTRFS_WORK_HELPER_PROTO(worker_helper);
 BTRFS_WORK_HELPER_PROTO(delalloc_helper);
 BTRFS_WORK_HELPER_PROTO(flush_delalloc_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER_PROTO(flush_meta_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER_PROTO(cache_helper);
 BTRFS_WORK_HELPER_PROTO(submit_helper);
 BTRFS_WORK_HELPER_PROTO(fixup_helper);
 BTRFS_WORK_HELPER_PROTO(endio_helper);
 BTRFS_WORK_HELPER_PROTO(endio_meta_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER_PROTO(endio_meta_fix_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER_PROTO(endio_meta_write_helper);
 BTRFS_WORK_HELPER_PROTO(endio_raid56_helper);
 BTRFS_WORK_HELPER_PROTO(endio_repair_helper);
 BTRFS_WORK_HELPER_PROTO(rmw_helper);
 BTRFS_WORK_HELPER_PROTO(endio_write_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER_PROTO(endio_write_sync_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER_PROTO(freespace_write_helper);
 BTRFS_WORK_HELPER_PROTO(delayed_meta_helper);
 BTRFS_WORK_HELPER_PROTO(readahead_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER_PROTO(reada_path_start_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER_PROTO(qgroup_rescan_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER_PROTO(usrquota_rescan_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER_PROTO(extent_refs_helper);
 BTRFS_WORK_HELPER_PROTO(scrub_helper);
 BTRFS_WORK_HELPER_PROTO(scrubwrc_helper);
 BTRFS_WORK_HELPER_PROTO(scrubnc_helper);
 BTRFS_WORK_HELPER_PROTO(scrubparity_helper);
-
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER_PROTO(syno_nocow_endio_helper);
+BTRFS_WORK_HELPER_PROTO(syno_high_priority_endio_helper);
+#endif /* MY_ABC_HERE */
 
 struct btrfs_workqueue *btrfs_alloc_workqueue(const char *name,
 					      unsigned int flags,

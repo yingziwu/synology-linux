@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *   fs/cifs/cifssmb.c
  *
@@ -119,6 +122,9 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 	struct cifs_ses *ses;
 	struct TCP_Server_Info *server;
 	struct nls_table *nls_codepage;
+#ifdef MY_ABC_HERE
+	u16 origin_dialect; /* dialect index that server chose */
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * SMBs NegProt, SessSetup, uLogoff do not have tcon yet so check for
@@ -174,16 +180,34 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 		}
 	}
 
+#ifdef MY_ABC_HERE
+	if (SMB20_PROT_ID <= server->dialect) {
+		cifs_dbg(FYI, "(%s) origin_dialect=0x%x, server->dialect=0x%x\n", __func__, origin_dialect, server->dialect);
+		return -EAGAIN;
+	}
+	origin_dialect = server->dialect;
+#endif /* MY_ABC_HERE */
 	if (!ses->need_reconnect && !tcon->need_reconnect)
 		return 0;
 
+#ifdef MY_ABC_HERE
+	nls_codepage = load_nls("utf8");
+#else
 	nls_codepage = load_nls_default();
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * need to prevent multiple threads trying to simultaneously
 	 * reconnect the same SMB session
 	 */
+#ifdef MY_ABC_HERE
+	if (!mutex_trylock(&ses->session_mutex)) {
+		rc = -EINPROGRESS;
+		goto out;
+	}
+#else
 	mutex_lock(&ses->session_mutex);
+#endif /* MY_ABC_HERE */
 	rc = cifs_negotiate_protocol(0, ses);
 	if (rc == 0 && ses->need_reconnect)
 		rc = cifs_setup_session(0, ses, nls_codepage);
@@ -195,7 +219,11 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 	}
 
 	cifs_mark_open_files_invalid(tcon);
+#ifdef MY_ABC_HERE
+	rc = ses->server->ops->tree_connect(0, ses, tcon->treeName, tcon, nls_codepage);
+#else
 	rc = CIFSTCon(0, ses, tcon->treeName, tcon, nls_codepage);
+#endif /* MY_ABC_HERE */
 	mutex_unlock(&ses->session_mutex);
 	cifs_dbg(FYI, "reconnect tcon rc = %d\n", rc);
 
@@ -214,6 +242,13 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
 	 *
 	 * FIXME: what about file locks? don't we need to reclaim them ASAP?
 	 */
+#ifdef MY_ABC_HERE
+	if (server->dialect != origin_dialect ||
+	    SMB20_PROT_ID <= server->dialect) {
+		cifs_dbg(FYI, "(%s) SMB1 reconnect dialect not match! origin=0x%x, current=0x%x\n", __func__, origin_dialect, server->dialect);
+		rc = -EAGAIN;
+	}
+#endif /* MY_ABC_HERE */
 
 out:
 	/*
@@ -724,6 +759,12 @@ CIFSSMBEcho(struct TCP_Server_Info *server)
 
 	cifs_dbg(FYI, "In echo request\n");
 
+#ifdef MY_ABC_HERE
+	if (CifsGood != server->tcpStatus) {
+		cifs_dbg(FYI, "tcpStatus not Good (%d); Don't send echo\n", server->tcpStatus);
+		return rc;
+	}
+#endif /* MY_ABC_HERE */
 	rc = small_smb_init(SMB_COM_ECHO, 0, NULL, (void **)&smb);
 	if (rc)
 		return rc;
@@ -1352,7 +1393,11 @@ openRetry:
 	 * XP does not handle ATTR_POSIX_SEMANTICS but it helps speed up case
 	 * sensitive checks for other servers such as Samba.
 	 */
+#ifdef MY_ABC_HERE
+	if (tcon->ses->capabilities & CAP_UNIX && SynoPosixSemanticsEnabled)
+#else
 	if (tcon->ses->capabilities & CAP_UNIX)
+#endif /* MY_ABC_HERE */
 		req->FileAttributes |= cpu_to_le32(ATTR_POSIX_SEMANTICS);
 
 	if (create_options & CREATE_OPTION_READONLY)
@@ -1988,12 +2033,12 @@ cifs_writev_requeue(struct cifs_writedata *wdata)
 
 		wdata2->cfile = find_writable_file(CIFS_I(inode), false);
 		if (!wdata2->cfile) {
-			cifs_dbg(VFS, "No writable handles for inode\n");
+			cifs_dbg(VFS, "No writable handles to retry writepages\n");
 			rc = -EBADF;
-			break;
+		} else {
+			wdata2->pid = wdata2->cfile->pid;
+			rc = server->ops->async_writev(wdata2, cifs_writedata_release);
 		}
-		wdata2->pid = wdata2->cfile->pid;
-		rc = server->ops->async_writev(wdata2, cifs_writedata_release);
 
 		for (j = 0; j < nr_pages; j++) {
 			unlock_page(wdata2->pages[j]);
@@ -2008,12 +2053,20 @@ cifs_writev_requeue(struct cifs_writedata *wdata)
 			kref_put(&wdata2->refcount, cifs_writedata_release);
 			if (rc == -EAGAIN)
 				continue;
+			i += nr_pages;
 			break;
 		}
 
 		rest_len -= cur_len;
 		i += nr_pages;
 	} while (i < wdata->nr_pages);
+
+	/* cleanup remaining pages from the original wdata */
+	for (; i < wdata->nr_pages; i++) {
+		SetPageError(wdata->pages[i]);
+		end_page_writeback(wdata->pages[i]);
+		page_cache_release(wdata->pages[i]);
+	}
 
 	mapping_set_error(inode->i_mapping, rc);
 	kref_put(&wdata->refcount, cifs_writedata_release);
@@ -4932,8 +4985,14 @@ CIFSGetDFSRefer(const unsigned int xid, struct cifs_ses *ses,
 	*target_nodes = NULL;
 
 	cifs_dbg(FYI, "In GetDFSRefer the path %s\n", search_name);
+#ifdef MY_ABC_HERE
+	// CID 44892: check ses->server before dereference from get_next_mid
+	if (NULL == ses || NULL == ses->server)
+		return -ENODEV;
+#else
 	if (ses == NULL)
 		return -ENODEV;
+#endif /* MY_ABC_HERE */
 getDFSRetry:
 	rc = smb_init(SMB_COM_TRANSACTION2, 15, NULL, (void **) &pSMB,
 		      (void **) &pSMBr);

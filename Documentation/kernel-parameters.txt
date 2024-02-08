@@ -1035,6 +1035,12 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
 			A valid base address must be provided, and the serial
 			port must already be setup and configured.
 
+		armada3700_uart,<addr>
+			Start an early, polled-mode console on the
+			Armada 3700 serial port at the specified
+			address. The serial port must already be setup
+			and configured. Options are not yet supported.
+
 	earlyprintk=	[X86,SH,BLACKFIN,ARM,M68k]
 			earlyprintk=vga
 			earlyprintk=efi
@@ -2184,6 +2190,7 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
 				improves system performance, but it may also
 				expose users to several CPU vulnerabilities.
 				Equivalent to: nopti [X86]
+					       nospectre_v1 [X86]
 					       nospectre_v2 [X86]
 					       spectre_v2_user=off [X86]
 					       spec_store_bypass_disable=off [X86]
@@ -2498,9 +2505,9 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
 
 	nohugeiomap	[KNL,x86] Disable kernel huge I/O mappings.
 
-	nospectre_v1	[PPC] Disable mitigations for Spectre Variant 1 (bounds
-			check bypass). With this option data leaks are possible
-			in the system.
+	nospectre_v1	[X86,PPC] Disable mitigations for Spectre Variant 1
+			(bounds check bypass). With this option data leaks are
+			possible in the system.
 
 	nospectre_v2	[X86,PPC_FSL_BOOK3E] Disable all mitigations for the Spectre variant 2
 			(indirect branch prediction) vulnerability. System may
@@ -2940,6 +2947,9 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
 		hpmemsize=nn[KMG]	The fixed amount of bus space which is
 				reserved for hotplug bridge's memory window.
 				Default size is 2 megabytes.
+		hpbussize=nn	The minimum amount of additional bus numbers
+				reserved for buses below a hotplug bridge.
+				Default is 1.
 		realloc=	Enable/disable reallocating PCI bridge resources
 				if allocations done by BIOS are too small to
 				accommodate resources required by all child

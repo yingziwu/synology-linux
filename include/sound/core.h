@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef __SOUND_CORE_H
 #define __SOUND_CORE_H
 
@@ -145,6 +148,9 @@ struct snd_card {
 	struct snd_mixer_oss *mixer_oss;
 	int mixer_oss_change_count;
 #endif
+#if defined(MY_ABC_HERE)
+	unsigned int low_level_dev_id;
+#endif /*MY_ABC_HERE*/
 };
 
 #define dev_to_snd_card(p)	container_of(p, struct snd_card, card_dev)

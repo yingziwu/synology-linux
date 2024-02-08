@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/fs/ext4/dir.c
  *
@@ -40,7 +43,12 @@ static int is_dx_dir(struct inode *inode)
 {
 	struct super_block *sb = inode->i_sb;
 
+#ifdef MY_ABC_HERE
+	if ((is_syno_ext(inode->i_sb) ||
+		 ext4_has_feature_dir_index(inode->i_sb)) &&
+#else
 	if (ext4_has_feature_dir_index(inode->i_sb) &&
+#endif /* MY_ABC_HERE */
 	    ((ext4_test_inode_flag(inode, EXT4_INODE_INDEX)) ||
 	     ((inode->i_size >> sb->s_blocksize_bits) == 1) ||
 	     ext4_has_inline_data(inode)))
@@ -66,6 +74,9 @@ int __ext4_check_dir_entry(const char *function, unsigned int line,
 	const char *error_msg = NULL;
 	const int rlen = ext4_rec_len_from_disk(de->rec_len,
 						dir->i_sb->s_blocksize);
+#ifdef MY_ABC_HERE
+	int dangerous_entry = 0;
+#endif /*MY_ABC_HERE */
 
 	if (unlikely(rlen < EXT4_DIR_REC_LEN(1)))
 		error_msg = "rec_len is smaller than minimal";
@@ -78,21 +89,46 @@ int __ext4_check_dir_entry(const char *function, unsigned int line,
 	else if (unlikely(le32_to_cpu(de->inode) >
 			le32_to_cpu(EXT4_SB(dir->i_sb)->s_es->s_inodes_count)))
 		error_msg = "inode out of bounds";
+#ifdef MY_ABC_HERE
+	else if (unlikely((!strncmp(de->name, "/", 1) && le32_to_cpu(de->inode)))) {
+		error_msg = "dangerous dot entry";
+		dangerous_entry = 1;
+	}
+#endif /*MY_ABC_HERE */
 	else
 		return 0;
 
+#ifdef MY_ABC_HERE
+	if (filp) {
+		if (printk_ratelimit())
+			ext4_error_file(filp, function, line, bh->b_blocknr,
+				"bad entry in directory: %s - offset=%u, "
+				"inode=%u, rec_len=%d, name_len=%d, size=%d",
+				error_msg, offset, le32_to_cpu(de->inode),
+				rlen, de->name_len, size);
+	}
+#else /* MY_ABC_HERE */
 	if (filp)
 		ext4_error_file(filp, function, line, bh->b_blocknr,
 				"bad entry in directory: %s - offset=%u, "
 				"inode=%u, rec_len=%d, name_len=%d, size=%d",
 				error_msg, offset, le32_to_cpu(de->inode),
 				rlen, de->name_len, size);
+#endif /* MY_ABC_HERE */
 	else
+#ifdef MY_ABC_HERE
+		if (printk_ratelimit())
+#endif /* MY_ABC_HERE */
 		ext4_error_inode(dir, function, line, bh->b_blocknr,
 				"bad entry in directory: %s - offset=%u, "
 				"inode=%u, rec_len=%d, name_len=%d, size=%d",
 				 error_msg, offset, le32_to_cpu(de->inode),
 				 rlen, de->name_len, size);
+#ifdef MY_ABC_HERE
+	/* do not bother if failure of such type */
+	if (dangerous_entry)
+		return 0;
+#endif /*MY_ABC_HERE */
 
 	return 1;
 }
@@ -184,6 +220,13 @@ static int ext4_readdir(struct file *file, struct dir_context *ctx)
 		if (!buffer_verified(bh) &&
 		    !ext4_dirent_csum_verify(inode,
 				(struct ext4_dir_entry *)bh->b_data)) {
+#ifdef MY_ABC_HERE
+			ext4_msg(inode->i_sb, KERN_CRIT,
+				" %s:%d: inode #%lu: block %lu: comm %s: "
+				"directory fails checksum at offset %llu\n",
+			     __func__, __LINE__, inode->i_ino, (unsigned long)0,
+				 current->comm, (unsigned long long)file->f_pos);
+#else
 			EXT4_ERROR_FILE(file, 0, "directory fails checksum "
 					"at offset %llu",
 					(unsigned long long)ctx->pos);
@@ -191,6 +234,7 @@ static int ext4_readdir(struct file *file, struct dir_context *ctx)
 			brelse(bh);
 			bh = NULL;
 			continue;
+#endif /* MY_ABC_HERE */
 		}
 		set_buffer_verified(bh);
 
@@ -237,6 +281,12 @@ static int ext4_readdir(struct file *file, struct dir_context *ctx)
 					sb->s_blocksize);
 			if (le32_to_cpu(de->inode)) {
 				if (!ext4_encrypted_inode(inode)) {
+#ifdef MY_ABC_HERE
+					if (unlikely(!strncmp(de->name, "/", 1))) {
+						if (!dir_emit_dot(file, ctx))
+							goto done;
+					} else
+#endif /*MY_ABC_HERE */
 					if (!dir_emit(ctx, de->name,
 					    de->name_len,
 					    le32_to_cpu(de->inode),

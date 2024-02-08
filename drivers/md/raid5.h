@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _RAID5_H
 #define _RAID5_H
 
@@ -226,6 +229,15 @@ struct stripe_head {
 
 	struct r5l_io_unit	*log_io;
 	struct list_head	log_list;
+#ifdef MY_ABC_HERE
+	short syno_stat_batch_length;
+	u64 syno_stat_handle_stripe_overhead;
+	u64 syno_stat_raid_run_ops_overhead;
+	u64 syno_stat_bio_fill_drain_overhead;
+	short syno_stat_is_rcw;
+	short syno_stat_is_full_write;
+	short syno_stat_have_been_handled;
+#endif /* MY_ABC_HERE */
 	/**
 	 * struct stripe_operations
 	 * @target - STRIPE_OP_COMPUTE_BLK target
@@ -346,6 +358,12 @@ enum {
 				 * to batch yet.
 				 */
 	STRIPE_LOG_TRAPPED, /* trapped into log */
+#ifdef MY_ABC_HERE
+	STRIPE_NORETRY,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	STRIPE_RECORDED,
+#endif /* MY_ABC_HERE */
 };
 
 #define STRIPE_EXPAND_SYNC_FLAGS \
@@ -432,6 +450,41 @@ struct r5worker_group {
 	int stripes_cnt;
 };
 
+#ifdef MY_ABC_HERE
+enum syno_raid5_heal_stripe_head_stat {
+	HEAL_STRIPE_READ_BLOCK = 0,
+	HEAL_STRIPE_WANT_COMPUTE,
+	HEAL_STRIPE_COMPUTING,
+	HEAL_STRIPE_COMPUTE_DONE,
+};
+
+struct syno_self_heal_stripe_head {
+	struct list_head           sh_list;
+	unsigned long              state;
+	spinlock_t                 sh_lock;
+	sector_t                   sh_sector;
+	int                        pd_idx;
+	int                        qd_idx;
+	int                        ddf_layout;
+	atomic_t                   nr_pending;
+	atomic_t                   nr_bio_chain;
+	struct bio                 *bio_chain;
+	struct r5conf              *raid_conf;
+	struct syno_r5dev {
+		int uptodate;
+		struct page	*page;
+	} dev[1]; /* allocated with extra space depending of RAID geometry */
+};
+
+struct syno_r5bio {
+	struct r5conf *conf;
+	struct bio *bio;
+	struct syno_self_heal_stripe_head *sh;
+	int disk_idx;
+	sector_t sh_sector;
+};
+#endif /* MY_ABC_HERE */
+
 struct r5conf {
 	struct hlist_head	*stripe_hashtbl;
 	/* only protect corresponding hash list and inactive_list */
@@ -442,7 +495,10 @@ struct r5conf {
 	int			max_degraded;
 	int			raid_disks;
 	int			max_nr_stripes;
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 	int			min_nr_stripes;
+#endif /* MY_ABC_HERE */
 
 	/* reshape_progress is the leading edge of a 'reshape'
 	 * It has value MaxSector when no reshape is happening
@@ -480,6 +536,9 @@ struct r5conf {
 	int			bypass_count; /* bypassed prereads */
 	int			bypass_threshold; /* preread nice */
 	int			skip_copy; /* Don't copy data from bio to stripe cache */
+#ifdef MY_ABC_HERE
+	int         stripe_cache_memory_usage;
+#endif /* MY_ABC_HERE */
 	struct list_head	*last_hold; /* detect hold_list promotions */
 
 	/* bios to have bi_end_io called after metadata is synced */
@@ -493,6 +552,18 @@ struct r5conf {
 	char			cache_name[2][32];
 	struct kmem_cache	*slab_cache; /* for allocating stripes */
 	struct mutex		cache_size_mutex; /* Protect changes to cache size */
+#ifdef MY_ABC_HERE
+	int               syno_self_heal_sh_size;
+	wait_queue_head_t syno_self_heal_wait_for_sh;
+	spinlock_t        syno_self_heal_sh_handle_list_lock;
+	spinlock_t        syno_self_heal_sh_free_list_lock;
+	spinlock_t        syno_self_heal_master_bio_lock;
+	spinlock_t        syno_self_heal_master_bio_list_lock;
+	struct list_head  syno_self_heal_sh_handle_list; /* in processing sh */
+	struct list_head  syno_self_heal_sh_free_list; /* free sh */
+	struct bio        *syno_self_heal_master_bio_list;
+	struct kmem_cache *syno_self_heal_slab_sh_cache;
+#endif /* MY_ABC_HERE */
 
 	int			seq_flush, seq_write;
 	int			quiesce;
@@ -516,6 +587,10 @@ struct r5conf {
 	struct notifier_block	cpu_notify;
 #endif
 
+#ifdef MY_ABC_HERE
+	atomic_t            proxy_enable;
+	struct md_thread   *proxy_thread;
+#endif /* MY_ABC_HERE */
 	/*
 	 * Free stripes pool
 	 */
@@ -530,6 +605,8 @@ struct r5conf {
 #define R5_INACTIVE_BLOCKED	1	/* release of inactive stripes blocked,
 					 * waiting for 25% to be free
 					 */
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 #define R5_ALLOC_MORE		2	/* It might help to allocate another
 					 * stripe.
 					 */
@@ -539,9 +616,11 @@ struct r5conf {
 					 * the cache.
 					 */
 	struct shrinker		shrinker;
+#endif /* MY_ABC_HERE */
 	int			pool_size; /* number of disks in stripeheads in pool */
 	spinlock_t		device_lock;
 	struct disk_info	*disks;
+	struct bio_set		*bio_split;
 
 	/* When taking over an array from a different personality, we store
 	 * the new thread here until we fully activate the array.
@@ -551,6 +630,28 @@ struct r5conf {
 	struct r5worker_group	*worker_groups;
 	int			group_cnt;
 	int			worker_cnt_per_group;
+
+#ifdef MY_ABC_HERE
+	/*
+	 * record overheads of main functions in raid5
+	 */
+	u64 syno_stat_handle_stripe_overhead;	/* nanosecond */
+	u64 syno_stat_raid_run_ops_overhead;	/* nanosecond */
+	u64 syno_stat_bio_fill_drain_overhead;	/* nanosceond */
+	unsigned long long syno_stat_recorded_stripe_cnt;
+	u64 syno_stat_handle_stripe_max_overhead;
+	u64 syno_stat_raid_run_ops_max_overhead;
+	u64 syno_stat_bio_fill_drain_max_overhead;
+	u64 syno_stat_other_raid_ops_max_overhead;
+
+	int syno_stat_enable_record_time;
+
+	unsigned long long syno_stat_total_stripe_cnt;
+	unsigned long long syno_stat_handle_stripe_cnt;	/* batched stripes will be consider as one stripe */
+	unsigned long long syno_stat_full_write_stripe_cnt;
+	unsigned long long syno_stat_rmw_cnt, syno_stat_rcw_cnt;
+	unsigned long long syno_stat_raid5d_handle_cnt, syno_stat_raid5d_proxy_handle_cnt, syno_stat_r5worker_handle_cnt;
+#endif /* MY_ABC_HERE */
 	struct r5l_log		*log;
 };
 
@@ -597,6 +698,23 @@ struct r5conf {
 #define ALGORITHM_PARITY_0_6		20
 #define ALGORITHM_PARITY_N_6		ALGORITHM_PARITY_N
 
+#ifdef MY_ABC_HERE
+/* For Synology RAID F1, define new layout as follow */
+#define ALGORITHM_RAID_F1_0		ALGORITHM_LEFT_SYMMETRIC
+#define ALGORITHM_RAID_F1_1		32
+#define ALGORITHM_RAID_F1_2		33
+#define ALGORITHM_RAID_F1_3		34
+#define ALGORITHM_RAID_F1_4		35
+
+#define ALGORITHM_RAID_F1			ALGORITHM_RAID_F1_1
+
+static inline int algorithm_valid_raid_f1(int layout)
+{
+	return layout == ALGORITHM_RAID_F1_0 ||
+		((layout >= ALGORITHM_RAID_F1_1) &&
+		(layout <= ALGORITHM_RAID_F1_4));
+}
+#endif /* MY_ABC_HERE */
 static inline int algorithm_valid_raid5(int layout)
 {
 	return (layout >= 0) &&
@@ -635,4 +753,16 @@ extern void r5l_stripe_write_finished(struct stripe_head *sh);
 extern int r5l_handle_flush_request(struct r5l_log *log, struct bio *bio);
 extern void r5l_quiesce(struct r5l_log *log, int state);
 extern bool r5l_log_disk_error(struct r5conf *conf);
+
+#ifdef MY_ABC_HERE
+#define sector_mod(a,b) sector_div(a,b)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+static inline int md_raid_diff_uneven_count(int algorithm)
+{
+	return (algorithm == ALGORITHM_RAID_F1_0? 0: algorithm - ALGORITHM_RAID_F1_1 + 1);
+}
+
+#endif /* MY_ABC_HERE */
 #endif

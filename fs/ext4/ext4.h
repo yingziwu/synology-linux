@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  ext4.h
  *
@@ -698,6 +701,9 @@ struct ext4_inode {
 	__le32  i_crtime_extra; /* extra FileCreationtime (nsec << 2 | epoch) */
 	__le32  i_version_hi;	/* high 32 bits for 64-bit version */
 	__le32	i_projid;	/* Project ID */
+#ifdef MY_ABC_HERE
+	__le32  i_syno_archive_bit; /* archive bits and attribute bits for SMB and Syno backup */
+#endif /* MY_ABC_HERE */
 };
 
 struct move_extent {
@@ -832,6 +838,9 @@ do {									       \
 #define i_uid_high	osd2.linux2.l_i_uid_high
 #define i_gid_high	osd2.linux2.l_i_gid_high
 #define i_checksum_lo	osd2.linux2.l_i_checksum_lo
+#ifdef MY_ABC_HERE
+#define i_reserved	osd2.linux2.l_i_reserved
+#endif /* MY_ABC_HERE */
 
 #elif defined(__GNU__)
 
@@ -847,6 +856,23 @@ do {									       \
 #define i_reserved2	osd2.masix2.m_i_reserved2
 
 #endif /* defined(__KERNEL__) || defined(__linux__) */
+
+#ifdef MY_ABC_HERE
+#define ext3_archive_bit_lo		i_checksum_lo
+#define ext3_archive_bit_high	i_reserved
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define ext4_archive_version_bad	s_usr_quota_inum
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define i_ext3_create_time	i_disk_version
+#endif /* MY_ABC_HERE */
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+#define SYNO_HASH_MAGIC       0x01856E96      // 25521814
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
 
 #include "extents_status.h"
 
@@ -1068,6 +1094,9 @@ struct ext4_inode_info {
 #define EXT4_MOUNT_POSIX_ACL		0x08000	/* POSIX Access Control Lists */
 #define EXT4_MOUNT_NO_AUTO_DA_ALLOC	0x10000	/* No auto delalloc mapping */
 #define EXT4_MOUNT_BARRIER		0x20000 /* Use block barriers */
+#ifdef MY_ABC_HERE
+#define EXT4_MOUNT_SYNO_ACL		0x40000 /* Synology Access Control Lists */
+#endif /* MY_ABC_HERE */
 #define EXT4_MOUNT_QUOTA		0x80000 /* Some quota option set */
 #define EXT4_MOUNT_USRQUOTA		0x100000 /* "old" user quota */
 #define EXT4_MOUNT_GRPQUOTA		0x200000 /* "old" group quota */
@@ -1258,7 +1287,14 @@ struct ext4_super_block {
 	__le32	s_lpf_ino;		/* Location of the lost+found inode */
 	__le32	s_prj_quota_inum;	/* inode for tracking project quota */
 	__le32	s_checksum_seed;	/* crc32c(uuid) if csum_seed set */
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	__le32	s_reserved[95];	/* Paddint to the end of the block */
+	__le32  s_syno_hash_magic;  /* magic number for syno caseless dir_index */
+	__le32	s_archive_version;	/* Last archived version */
+	__le32  s_archive_version_obsoleted;
+#else
 	__le32	s_reserved[98];		/* Padding to the end of the block */
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
 	__le32	s_checksum;		/* crc32c(superblock) */
 };
 
@@ -1413,8 +1449,19 @@ struct ext4_sb_info {
 	struct flex_groups *s_flex_groups;
 	ext4_group_t s_flex_groups_allocated;
 
+#ifdef MY_ABC_HERE
+	int s_new_error_fs_event_flag;
+	char *s_mount_path;
+	unsigned long s_last_notify_time;
+#endif /* MY_ABC_HERE */
+
 	/* workqueue for reserved extent conversions (buffered io) */
 	struct workqueue_struct *rsv_conversion_wq;
+
+#ifdef MY_ABC_HERE
+	atomic_t reada_group_desc_threads; // Number of running threads; use atomic type since threads can modify it.
+	struct workqueue_struct *group_desc_readahead_wq;
+#endif /* MY_ABC_HERE */
 
 	/* timer for periodic error stats printing */
 	struct timer_list s_err_report;
@@ -1469,7 +1516,11 @@ static inline int ext4_valid_inum(struct super_block *sb, unsigned long ino)
 {
 	return ino == EXT4_ROOT_INO ||
 		(ino >= EXT4_FIRST_INO(sb) &&
+#ifdef MY_ABC_HERE
+		 ino <= (u64)((u64)EXT4_SB(sb)->s_groups_count * (u64)EXT4_INODES_PER_GROUP(sb)));
+#else
 		 ino <= le32_to_cpu(EXT4_SB(sb)->s_es->s_inodes_count));
+#endif /* MY_ABC_HERE */
 }
 
 static inline void ext4_set_io_unwritten_flag(struct inode *inode,
@@ -1784,6 +1835,36 @@ EXT4_FEATURE_INCOMPAT_FUNCS(encrypt,		ENCRYPT)
 					 EXT4_FEATURE_RO_COMPAT_METADATA_CSUM|\
 					 EXT4_FEATURE_RO_COMPAT_QUOTA)
 
+#ifdef MY_ABC_HERE
+/*
+ * <DSM>#109900 enables metadata_csum feature at DSM7.0. Thus, we remove
+ * define of ext4_archive_bit and move it from i_checksum_hi to
+ * i_syno_archive_bit appeding to the end of ext4_inode. It also increases
+ * i_extra_isize from 28 to 32 due to i_syno_archive_bit.
+ * History Logs:
+ * - <DSM>#109900: metadata_csum is default for mkfs.ext4 at DSM7.0 early phase (40248-).
+ * - <DSM>#140121: Due to compatible issues, metadata_csum is removed from default options.
+ */
+#define EXT4_INODE_GET_SYNO_ARCHIVE_BIT(inode, raw_inode) \
+do { \
+	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) { \
+		inode->i_archive_bit = le32_to_cpu(raw_inode->i_syno_archive_bit); \
+	} else { \
+		inode->i_archive_bit = le16_to_cpu(raw_inode->i_checksum_hi); \
+	} \
+} while (0)
+
+#define EXT4_INODE_SET_SYNO_ARCHIVE_BIT(inode, raw_inode) \
+do { \
+	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) { \
+		raw_inode->i_syno_archive_bit = cpu_to_le32(inode->i_archive_bit); \
+	} else { \
+		raw_inode->i_checksum_hi = cpu_to_le16(inode->i_archive_bit); /* we'll lost upper 16 bits flags */ \
+	} \
+} while (0)
+
+#endif /* End of MY_ABC_HERE */
+
 #define EXTN_FEATURE_FUNCS(ver) \
 static inline bool ext4_has_unknown_ext##ver##_compat_features(struct super_block *sb) \
 { \
@@ -1968,8 +2049,21 @@ static inline __le16 ext4_rec_len_to_disk(unsigned len, unsigned blocksize)
  * (c) Daniel Phillips, 2001
  */
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+#define is_syno_ext(sb) \
+	((EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) ? \
+	 (EXT4_SB(sb)->s_es->s_syno_hash_magic == cpu_to_le32(SYNO_HASH_MAGIC)) : \
+	 (EXT4_SB(sb)->s_es->s_checksum == cpu_to_le32(SYNO_HASH_MAGIC)))
+#endif /* MY_ABC_HERE || MY_ABC_HERE  */
+
+#ifdef MY_ABC_HERE
+#define is_dx(dir) ((is_syno_ext((dir)->i_sb) ||\
+			ext4_has_feature_dir_index((dir)->i_sb)) && \
+		    ext4_test_inode_flag((dir), EXT4_INODE_INDEX))
+#else
 #define is_dx(dir) (ext4_has_feature_dir_index((dir)->i_sb) && \
 		    ext4_test_inode_flag((dir), EXT4_INODE_INDEX))
+#endif /* MY_ABC_HERE */
 #define EXT4_DIR_LINK_MAX(dir) (!is_dx(dir) && (dir)->i_nlink >= EXT4_LINK_MAX)
 #define EXT4_DIR_LINK_EMPTY(dir) ((dir)->i_nlink == 2 || (dir)->i_nlink == 1)
 
@@ -2012,6 +2106,9 @@ struct dx_hash_info
 	u32		minor_hash;
 	int		hash_version;
 	u32		*seed;
+#ifdef MY_ABC_HERE
+	int		caseless;
+#endif /* MY_ABC_HERE */
 };
 
 
@@ -2083,7 +2180,11 @@ ext4_group_first_block_no(struct super_block *sb, ext4_group_t group_no)
 /*
  * Timeout and state flag for lazy initialization inode thread.
  */
+#ifdef CONFIG_SYNO_EXT4_LAZYINIT_WAIT_MULT
+#define EXT4_DEF_LI_WAIT_MULT			CONFIG_SYNO_EXT4_LAZYINIT_WAIT_MULT
+#else
 #define EXT4_DEF_LI_WAIT_MULT			10
+#endif /* CONFIG_SYNO_EXT4_LAZYINIT_WAIT_MULT */
 #define EXT4_DEF_LI_MAX_START_DELAY		5
 #define EXT4_LAZYINIT_QUIT			0x0001
 #define EXT4_LAZYINIT_RUNNING			0x0002
@@ -2381,7 +2482,11 @@ int ext4_insert_dentry(struct inode *dir,
 		       struct ext4_filename *fname);
 static inline void ext4_update_dx_flag(struct inode *inode)
 {
+#ifdef MY_ABC_HERE
+	if (!is_syno_ext(inode->i_sb) && !ext4_has_feature_dir_index(inode->i_sb))
+#else
 	if (!ext4_has_feature_dir_index(inode->i_sb))
+#endif /* MY_ABC_HERE */
 		ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
 }
 static unsigned char ext4_filetype_table[] = {
@@ -2451,7 +2556,12 @@ extern int ext4_mb_add_groupinfo(struct super_block *sb,
 		ext4_group_t i, struct ext4_group_desc *desc);
 extern int ext4_group_add_blocks(handle_t *handle, struct super_block *sb,
 				ext4_fsblk_t block, unsigned long count);
+#ifdef MY_ABC_HERE
+extern int ext4_trim_fs(struct super_block *, struct fstrim_range *,
+			enum trim_act act);
+#else
 extern int ext4_trim_fs(struct super_block *, struct fstrim_range *);
+#endif /* MY_ABC_HERE */
 
 /* inode.c */
 int ext4_inode_is_fast_symlink(struct inode *inode);
@@ -2498,6 +2608,9 @@ extern void ext4_set_inode_flags(struct inode *);
 extern void ext4_get_inode_flags(struct ext4_inode_info *);
 extern int ext4_alloc_da_blocks(struct inode *inode);
 extern void ext4_set_aops(struct inode *inode);
+#ifdef MY_ABC_HERE
+extern void ext4_set_writeback_aops(struct inode *inode);
+#endif /* MY_ABC_HERE */
 extern int ext4_writepage_trans_blocks(struct inode *);
 extern int ext4_chunk_trans_blocks(struct inode *, int nrblocks);
 extern int ext4_zero_partial_blocks(handle_t *handle, struct inode *inode,
@@ -2507,6 +2620,16 @@ extern int ext4_filemap_fault(struct vm_area_struct *vma, struct vm_fault *vmf);
 extern qsize_t *ext4_get_reserved_space(struct inode *inode);
 extern void ext4_da_update_reserve_space(struct inode *inode,
 					int used, int quota_claim);
+#ifdef MY_ABC_HERE
+extern int ext4_syno_getattr(struct dentry *d, struct kstat *stat, int flags);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+extern int ext4_syno_get_archive_ver(struct dentry *d, u32 *);
+extern int ext4_syno_set_archive_ver(struct dentry *d, u32);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+extern int ext4_syno_pattern_check(struct inode *, struct page *, size_t offset, size_t bytes, int type);
+#endif /* MY_ABC_HERE */
 
 /* indirect.c */
 extern int ext4_ind_map_blocks(handle_t *handle, struct inode *inode,
@@ -2521,6 +2644,9 @@ extern int ext4_ind_remove_space(handle_t *handle, struct inode *inode,
 
 /* ioctl.c */
 extern long ext4_ioctl(struct file *, unsigned int, unsigned long);
+#ifdef MY_ABC_HERE
+extern long ext4_symlink_ioctl(struct file *, unsigned int, unsigned long);
+#endif
 extern long ext4_compat_ioctl(struct file *, unsigned int, unsigned long);
 
 /* migrate.c */
@@ -2534,6 +2660,17 @@ extern int ext4_orphan_add(handle_t *, struct inode *);
 extern int ext4_orphan_del(handle_t *, struct inode *);
 extern int ext4_htree_fill_tree(struct file *dir_file, __u32 start_hash,
 				__u32 start_minor_hash, __u32 *next_hash);
+#ifdef MY_ABC_HERE
+extern int ext4_search_dir(struct buffer_head *bh,
+			   char *search_buf,
+			   int buf_size,
+			   struct inode *dir,
+			   struct ext4_filename *fname,
+			   const struct qstr *d_name,
+			   unsigned int offset,
+			   struct ext4_dir_entry_2 **res_dir,
+			   int caseless);
+#else
 extern int ext4_search_dir(struct buffer_head *bh,
 			   char *search_buf,
 			   int buf_size,
@@ -2542,6 +2679,7 @@ extern int ext4_search_dir(struct buffer_head *bh,
 			   const struct qstr *d_name,
 			   unsigned int offset,
 			   struct ext4_dir_entry_2 **res_dir);
+#endif /* MY_ABC_HERE */
 extern int ext4_generic_delete_entry(handle_t *handle,
 				     struct inode *dir,
 				     struct ext4_dir_entry_2 *de_del,
@@ -2560,6 +2698,9 @@ extern int ext4_group_extend(struct super_block *sb,
 extern int ext4_resize_fs(struct super_block *sb, ext4_fsblk_t n_blocks_count);
 
 /* super.c */
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+extern int ext4_is_ext3_sb(struct super_block *sb);
+#endif /* MY_ABC_HERE || MY_ABC_HERE || MY_ABC_HERE */
 extern int ext4_seq_options_show(struct seq_file *seq, void *offset);
 extern int ext4_calculate_overhead(struct super_block *sb);
 extern void ext4_superblock_csum_set(struct super_block *sb);
@@ -2569,6 +2710,9 @@ extern int ext4_alloc_flex_bg_array(struct super_block *sb,
 				    ext4_group_t ngroup);
 extern const char *ext4_decode_error(struct super_block *sb, int errno,
 				     char nbuf[16]);
+extern void ext4_mark_group_bitmap_corrupted(struct super_block *sb,
+					     ext4_group_t block_group,
+					     unsigned int flags);
 
 extern __printf(4, 5)
 void __ext4_error(struct super_block *, const char *, unsigned int,
@@ -2845,7 +2989,7 @@ do {								\
 static inline void ext4_update_i_disksize(struct inode *inode, loff_t newsize)
 {
 	WARN_ON_ONCE(S_ISREG(inode->i_mode) &&
-		     !mutex_is_locked(&inode->i_mutex));
+		     !inode_is_locked(inode));
 	down_write(&EXT4_I(inode)->i_data_sem);
 	if (newsize > EXT4_I(inode)->i_disksize)
 		EXT4_I(inode)->i_disksize = newsize;
@@ -2893,6 +3037,10 @@ struct ext4_group_info {
 #define EXT4_GROUP_INFO_WAS_TRIMMED_BIT		1
 #define EXT4_GROUP_INFO_BBITMAP_CORRUPT_BIT	2
 #define EXT4_GROUP_INFO_IBITMAP_CORRUPT_BIT	3
+#define EXT4_GROUP_INFO_BBITMAP_CORRUPT		\
+	(1 << EXT4_GROUP_INFO_BBITMAP_CORRUPT_BIT)
+#define EXT4_GROUP_INFO_IBITMAP_CORRUPT		\
+	(1 << EXT4_GROUP_INFO_IBITMAP_CORRUPT_BIT)
 
 #define EXT4_MB_GRP_NEED_INIT(grp)	\
 	(test_bit(EXT4_GROUP_INFO_NEED_INIT_BIT, &((grp)->bb_state)))
@@ -3022,11 +3170,20 @@ extern int htree_inlinedir_to_tree(struct file *dir_file,
 				   struct dx_hash_info *hinfo,
 				   __u32 start_hash, __u32 start_minor_hash,
 				   int *has_inline_data);
+#ifdef MY_ABC_HERE
+extern struct buffer_head *ext4_find_inline_entry(struct inode *dir,
+					struct ext4_filename *fname,
+					const struct qstr *d_name,
+					struct ext4_dir_entry_2 **res_dir,
+					int *has_inline_data,
+					int caseless);
+#else
 extern struct buffer_head *ext4_find_inline_entry(struct inode *dir,
 					struct ext4_filename *fname,
 					const struct qstr *d_name,
 					struct ext4_dir_entry_2 **res_dir,
 					int *has_inline_data);
+#endif /* MY_ABC_HERE */
 extern int ext4_delete_inline_entry(handle_t *handle,
 				    struct inode *dir,
 				    struct ext4_dir_entry_2 *de_del,
@@ -3089,6 +3246,9 @@ extern int ext4_mpage_readpages(struct address_space *mapping,
 extern const struct inode_operations ext4_encrypted_symlink_inode_operations;
 extern const struct inode_operations ext4_symlink_inode_operations;
 extern const struct inode_operations ext4_fast_symlink_inode_operations;
+#ifdef MY_ABC_HERE
+extern const struct file_operations ext4_symlink_file_operations;
+#endif
 
 /* sysfs.c */
 extern int ext4_register_sysfs(struct super_block *sb);

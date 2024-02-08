@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/drivers/cpufreq/cpufreq.c
  *
@@ -105,7 +108,11 @@ static DEFINE_RWLOCK(cpufreq_driver_lock);
 DEFINE_MUTEX(cpufreq_governor_lock);
 
 /* Flag to suspend/resume CPUFreq governors */
+#ifdef MY_DEF_HERE
+static bool cpufreq_suspended = false;
+#else
 static bool cpufreq_suspended;
+#endif /* MY_DEF_HERE */
 
 static inline bool has_target(void)
 {
@@ -582,7 +589,11 @@ static ssize_t show_scaling_cur_freq(struct cpufreq_policy *policy, char *buf)
 {
 	ssize_t ret;
 
+#ifdef MY_DEF_HERE
+	if (cpufreq_driver && cpufreq_driver->get)
+#else
 	if (cpufreq_driver && cpufreq_driver->setpolicy && cpufreq_driver->get)
+#endif
 		ret = sprintf(buf, "%u\n", cpufreq_driver->get(policy->cpu));
 	else
 		ret = sprintf(buf, "%u\n", policy->cur);
@@ -1859,10 +1870,21 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 		return -ENODEV;
 
 	/* Make sure that target_freq is within supported range */
+#ifdef MY_DEF_HERE
+	do {
+		if (!strcmp(policy->governor->name, "userspace")) break; //hc test
+		if (target_freq > policy->max)
+			target_freq = policy->max;
+		if (target_freq < policy->min)
+			target_freq = policy->min;
+	} while(0);
+#else /* MY_DEF_HERE */
 	if (target_freq > policy->max)
 		target_freq = policy->max;
 	if (target_freq < policy->min)
 		target_freq = policy->min;
+#endif /* MY_DEF_HERE */
+
 
 	pr_debug("target for CPU %u: %u kHz, relation %u, requested %u kHz\n",
 		 policy->cpu, target_freq, relation, old_target_freq);

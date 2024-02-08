@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_GENHD_H
 #define _LINUX_GENHD_H
 
@@ -127,6 +130,9 @@ struct hd_struct {
 #endif
 	struct percpu_ref ref;
 	struct rcu_head rcu_head;
+#ifdef MY_ABC_HERE
+	unsigned auto_remap;
+#endif /* MY_ABC_HERE */
 };
 
 #define GENHD_FL_REMOVABLE			1
@@ -162,6 +168,15 @@ struct disk_part_tbl {
 };
 
 struct disk_events;
+#ifdef MY_ABC_HERE
+enum syno_disk_seq_stat {
+	SYNO_DISK_SEQ_STAT_NEAR_SEQ = 0,
+	SYNO_DISK_SEQ_STAT_SEQ = 1,
+	SYNO_DISK_SEQ_STAT_END = 2, /* Your new added entry SHOULD NOT PASS THE END! */
+};
+
+#define SYNO_BLOCK_RESPONSE_BUCKETS_END 4
+#endif /* MY_ABC_HERE */
 
 #if defined(CONFIG_BLK_DEV_INTEGRITY)
 
@@ -174,6 +189,26 @@ struct blk_integrity {
 };
 
 #endif	/* CONFIG_BLK_DEV_INTEGRITY */
+
+#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
+typedef struct _syno_multipath_target_sysfs SYNO_MPATH_TARGET_SYSFS;
+#endif /* MY_DEF_HERE */
+
+struct syno_gendisk_operations {
+	bool (*is_device_disappear)(struct gendisk *);
+	int (*get_device_index)(struct gendisk *);
+#ifdef MY_DEF_HERE
+	int (*reg_sysfs_to_multipath_dm)(struct gendisk *, SYNO_MPATH_TARGET_SYSFS *);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	void (*multipath_dm_target_blkdev_ioctl)(struct block_device *bdev, fmode_t mode, unsigned cmd, unsigned long arg);
+#endif
+#ifdef MY_ABC_HERE
+	int (*autoremap_stackable_dev_target_set)(struct block_device*, unsigned char);
+#endif /* MY_ABC_HERE */
+};
+#endif /* MY_ABC_HERE */
 
 struct gendisk {
 	/* major, first_minor and minors are input parameters only,
@@ -213,6 +248,24 @@ struct gendisk {
 	struct kobject integrity_kobj;
 #endif	/* CONFIG_BLK_DEV_INTEGRITY */
 	int node_id;
+#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+	int systemDisk;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	sector_t end_sector;
+	unsigned long seq_ios[SYNO_DISK_SEQ_STAT_END];
+	unsigned char block_latency_uuid[16];
+	u64 u64CplCmdCnt[2];
+	u64 u64RespTimeSum[2];
+	u64 u64WaitTime[2];
+	u64 u64RespTimeBuckets[2][SYNO_BLOCK_RESPONSE_BUCKETS_END][32];
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	unsigned char auto_remap;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	const struct syno_gendisk_operations *syno_ops;
+#endif /* MY_ABC_HERE */
 };
 
 static inline struct gendisk *part_to_disk(struct hd_struct *part)

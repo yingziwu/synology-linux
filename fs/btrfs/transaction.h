@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
  *
@@ -50,7 +53,6 @@ struct btrfs_transaction {
 	 */
 	atomic_t num_writers;
 	atomic_t use_count;
-	atomic_t pending_ordered;
 
 	unsigned long flags;
 
@@ -61,7 +63,6 @@ struct btrfs_transaction {
 	unsigned long start_time;
 	wait_queue_head_t writer_wait;
 	wait_queue_head_t commit_wait;
-	wait_queue_head_t pending_wait;
 	struct list_head pending_snapshots;
 	struct list_head pending_chunks;
 	struct list_head switch_commits;
@@ -81,6 +82,13 @@ struct btrfs_transaction {
 	struct list_head deleted_bgs;
 	spinlock_t dropped_roots_lock;
 	struct btrfs_delayed_ref_root delayed_refs;
+#ifdef MY_ABC_HERE
+	struct list_head quota_account_list;
+	spinlock_t quota_account_lock;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	struct rw_semaphore delayed_refs_rw_sem;
+#endif /* MY_ABC_HERE */
 	int aborted;
 };
 
@@ -129,20 +137,36 @@ struct btrfs_trans_handle {
 	 */
 	struct btrfs_root *root;
 	struct seq_list delayed_ref_elem;
+#ifdef MY_ABC_HERE
+#else
 	struct list_head qgroup_ref_list;
+#endif /* MY_ABC_HERE */
 	struct list_head new_bgs;
+#ifdef MY_ABC_HERE
+	struct btrfs_pending_snapshot *pending_snap;
+	bool pending_snap_rm;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	struct btrfs_delayed_ref_throttle_ticket *syno_delayed_ref_throttle_ticket;
+	bool check_throttle;
+#endif /* MY_ABC_HERE */
 };
 
 struct btrfs_pending_snapshot {
 	struct dentry *dentry;
 	struct inode *dir;
 	struct btrfs_root *root;
+	struct btrfs_root_item *root_item;
 	struct btrfs_root *snap;
 	struct btrfs_qgroup_inherit *inherit;
+	struct btrfs_path *path;
 	/* block reservation for the operation */
 	struct btrfs_block_rsv block_rsv;
 	u64 qgroup_reserved;
-	/* extra metadata reseration for relocation */
+#ifdef MY_ABC_HERE
+	u64 copy_limit_from;
+#endif /* MY_ABC_HERE */
+	/* extra metadata reservation for relocation */
 	int error;
 	bool readonly;
 	struct list_head list;
@@ -181,6 +205,10 @@ static inline void btrfs_clear_skip_qgroup(struct btrfs_trans_handle *trans)
 	delayed_refs->qgroup_to_skip = 0;
 }
 
+#ifdef MY_ABC_HERE
+int btrfs_end_transaction_nosync_delayed(struct btrfs_trans_handle *trans,
+			  struct btrfs_root *root);
+#endif /* MY_ABC_HERE */
 int btrfs_end_transaction(struct btrfs_trans_handle *trans,
 			  struct btrfs_root *root);
 struct btrfs_trans_handle *btrfs_start_transaction(struct btrfs_root *root,
@@ -201,6 +229,9 @@ struct btrfs_trans_handle *btrfs_start_ioctl_transaction(struct btrfs_root *root
 int btrfs_wait_for_commit(struct btrfs_root *root, u64 transid);
 
 void btrfs_add_dead_root(struct btrfs_root *root);
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+void btrfs_add_dead_root_head(struct btrfs_root *root);
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
 int btrfs_defrag_root(struct btrfs_root *root);
 int btrfs_clean_one_deleted_snapshot(struct btrfs_root *root);
 int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
@@ -210,6 +241,9 @@ int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans,
 				   int wait_for_unblock);
 int btrfs_end_transaction_throttle(struct btrfs_trans_handle *trans,
 				   struct btrfs_root *root);
+#ifdef MY_ABC_HERE
+int btrfs_throttle_delayed_refs(struct btrfs_root *root, unsigned long delayed_ref_updates);
+#endif /* MY_ABC_HERE */
 int btrfs_should_end_transaction(struct btrfs_trans_handle *trans,
 				 struct btrfs_root *root);
 void btrfs_throttle(struct btrfs_root *root);

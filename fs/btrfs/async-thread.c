@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
  * Copyright (C) 2014 Fujitsu.  All rights reserved.
@@ -87,31 +90,50 @@ bool btrfs_workqueue_normal_congested(struct btrfs_workqueue *wq)
 BTRFS_WORK_HELPER(worker_helper);
 BTRFS_WORK_HELPER(delalloc_helper);
 BTRFS_WORK_HELPER(flush_delalloc_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER(flush_meta_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER(cache_helper);
 BTRFS_WORK_HELPER(submit_helper);
 BTRFS_WORK_HELPER(fixup_helper);
 BTRFS_WORK_HELPER(endio_helper);
 BTRFS_WORK_HELPER(endio_meta_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER(endio_meta_fix_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER(endio_meta_write_helper);
 BTRFS_WORK_HELPER(endio_raid56_helper);
 BTRFS_WORK_HELPER(endio_repair_helper);
 BTRFS_WORK_HELPER(rmw_helper);
 BTRFS_WORK_HELPER(endio_write_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER(endio_write_sync_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER(freespace_write_helper);
 BTRFS_WORK_HELPER(delayed_meta_helper);
 BTRFS_WORK_HELPER(readahead_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER(reada_path_start_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER(qgroup_rescan_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER(usrquota_rescan_helper);
+#endif /* MY_ABC_HERE */
 BTRFS_WORK_HELPER(extent_refs_helper);
 BTRFS_WORK_HELPER(scrub_helper);
 BTRFS_WORK_HELPER(scrubwrc_helper);
 BTRFS_WORK_HELPER(scrubnc_helper);
 BTRFS_WORK_HELPER(scrubparity_helper);
+#ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER(syno_nocow_endio_helper);
+BTRFS_WORK_HELPER(syno_high_priority_endio_helper);
+#endif /* MY_ABC_HERE */
 
 static struct __btrfs_workqueue *
 __btrfs_alloc_workqueue(const char *name, unsigned int flags, int limit_active,
 			 int thresh)
 {
-	struct __btrfs_workqueue *ret = kzalloc(sizeof(*ret), GFP_NOFS);
+	struct __btrfs_workqueue *ret = kzalloc(sizeof(*ret), GFP_KERNEL);
 
 	if (!ret)
 		return NULL;
@@ -162,7 +184,7 @@ struct btrfs_workqueue *btrfs_alloc_workqueue(const char *name,
 					      int limit_active,
 					      int thresh)
 {
-	struct btrfs_workqueue *ret = kzalloc(sizeof(*ret), GFP_NOFS);
+	struct btrfs_workqueue *ret = kzalloc(sizeof(*ret), GFP_KERNEL);
 
 	if (!ret)
 		return NULL;
@@ -246,12 +268,14 @@ out:
 	}
 }
 
-static void run_ordered_work(struct __btrfs_workqueue *wq)
+static void run_ordered_work(struct __btrfs_workqueue *wq,
+			     struct btrfs_work *self)
 {
 	struct list_head *list = &wq->ordered_list;
 	struct btrfs_work *work;
 	spinlock_t *lock = &wq->list_lock;
 	unsigned long flags;
+	bool free_self = false;
 
 	while (1) {
 		spin_lock_irqsave(lock, flags);
@@ -279,14 +303,43 @@ static void run_ordered_work(struct __btrfs_workqueue *wq)
 		list_del(&work->ordered_list);
 		spin_unlock_irqrestore(lock, flags);
 
-		/*
-		 * we don't want to call the ordered free functions
-		 * with the lock held though
-		 */
-		work->ordered_free(work);
-		trace_btrfs_all_work_done(work);
+		if (work == self) {
+			/*
+			 * This is the work item that the worker is currently
+			 * executing.
+			 *
+			 * The kernel workqueue code guarantees non-reentrancy
+			 * of work items. I.e., if a work item with the same
+			 * address and work function is queued twice, the second
+			 * execution is blocked until the first one finishes. A
+			 * work item may be freed and recycled with the same
+			 * work function; the workqueue code assumes that the
+			 * original work item cannot depend on the recycled work
+			 * item in that case (see find_worker_executing_work()).
+			 *
+			 * Note that the work of one Btrfs filesystem may depend
+			 * on the work of another Btrfs filesystem via, e.g., a
+			 * loop device. Therefore, we must not allow the current
+			 * work item to be recycled until we are really done,
+			 * otherwise we break the above assumption and can
+			 * deadlock.
+			 */
+			free_self = true;
+		} else {
+			/*
+			 * we don't want to call the ordered free functions
+			 * with the lock held though
+			 */
+			work->ordered_free(work);
+			trace_btrfs_all_work_done(work);
+		}
 	}
 	spin_unlock_irqrestore(lock, flags);
+
+	if (free_self) {
+		self->ordered_free(self);
+		trace_btrfs_all_work_done(self);
+	}
 }
 
 static void normal_work_helper(struct btrfs_work *work)
@@ -311,7 +364,7 @@ static void normal_work_helper(struct btrfs_work *work)
 	work->func(work);
 	if (need_order) {
 		set_bit(WORK_DONE_BIT, &work->flags);
-		run_ordered_work(wq);
+		run_ordered_work(wq, work);
 	}
 	if (!need_order)
 		trace_btrfs_all_work_done(work);

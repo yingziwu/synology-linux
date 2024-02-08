@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 
 /*
  * xHCI host controller driver
@@ -1003,6 +1006,9 @@ struct xhci_virt_device {
 	struct xhci_tt_bw_info		*tt_info;
 	/* The current max exit latency for the enabled USB3 link states. */
 	u16				current_mel;
+#ifdef MY_DEF_HERE
+	bool				disconnected;
+#endif /* MY_DEF_HERE */
 };
 
 /*

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  libata.h - helper library for ATA
  *
@@ -30,6 +33,16 @@
 
 #define DRV_NAME	"libata"
 #define DRV_VERSION	"3.00"	/* must be exactly four chars */
+
+#ifdef MY_ABC_HERE
+struct ata_blacklist_entry {
+	const char *model_num;
+	const char *model_rev;
+	unsigned long horkage;
+};
+
+extern struct ata_blacklist_entry ata_device_blacklist [];
+#endif /* MY_ABC_HERE */
 
 struct ata_scsi_args {
 	struct ata_device	*dev;
@@ -105,6 +118,9 @@ extern struct ata_port *ata_port_alloc(struct ata_host *host);
 extern const char *sata_spd_string(unsigned int spd);
 extern int ata_port_probe(struct ata_port *ap);
 extern void __ata_port_probe(struct ata_port *ap);
+#ifdef MY_ABC_HERE
+extern int syno_need_force_retry(struct ata_port *ap);
+#endif /* MY_ABC_HERE */
 
 #define to_ata_port(d) container_of(d, struct ata_port, tdev)
 
@@ -139,6 +155,9 @@ extern void ata_scsi_scan_host(struct ata_port *ap, int sync);
 extern int ata_scsi_offline_dev(struct ata_device *dev);
 extern void ata_scsi_media_change_notify(struct ata_device *dev);
 extern void ata_scsi_hotplug(struct work_struct *work);
+#ifdef MY_ABC_HERE
+extern void ata_syno_pmp_hotplug(struct work_struct *work);
+#endif /* MY_ABC_HERE */
 extern void ata_schedule_scsi_eh(struct Scsi_Host *shost);
 extern void ata_scsi_dev_rescan(struct work_struct *work);
 extern int ata_bus_probe(struct ata_port *ap);
@@ -159,6 +178,35 @@ extern void ata_eh_fastdrain_timerfn(unsigned long arg);
 extern void ata_qc_schedule_eh(struct ata_queued_cmd *qc);
 extern void ata_dev_disable(struct ata_device *dev);
 extern void ata_eh_detach_dev(struct ata_device *dev);
+#ifdef MY_ABC_HERE
+extern void sata_pmp_detach(struct ata_device *dev);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+extern void SendSataErrEvent(struct work_struct *work);
+extern void SendDiskRetryEvent(struct work_struct *work);
+extern void SendDiskTimeoutEvent(struct work_struct *work);
+extern void SendDiskSoftResetFailEvent(struct work_struct *work);
+extern void SendDiskHardResetFailEvent(struct work_struct *work);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+extern void SendPortDisEvent(struct work_struct *work);
+#ifdef MY_ABC_HERE
+extern void SendPortRetryFailedEvent(struct work_struct *work);
+
+#if defined(MY_DEF_HERE)
+extern void SendLinkDownEvent(struct work_struct *work);
+#endif /* MY_DEF_HERE */
+
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+extern void SendDiskPowerShortBreakEvent(struct work_struct *work);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+extern void SendDsleepWakeEvent(struct work_struct *work);
+extern void SendPwrResetEvent(struct work_struct *work);
+extern struct Scsi_Host* ata_scsi_is_eunit_deepsleep(struct Scsi_Host *host);
+#endif /* MY_ABC_HERE */
 extern void ata_eh_about_to_do(struct ata_link *link, struct ata_device *dev,
 			       unsigned int action);
 extern void ata_eh_done(struct ata_link *link, struct ata_device *dev,
@@ -254,5 +302,12 @@ static inline void zpodd_enable_run_wake(struct ata_device *dev) {}
 static inline void zpodd_disable_run_wake(struct ata_device *dev) {}
 static inline void zpodd_post_poweron(struct ata_device *dev) {}
 #endif /* CONFIG_SATA_ZPODD */
+#ifdef MY_ABC_HERE
+int syno_gpio_with_scmd(struct ata_port *ap, struct scsi_device *sdev, SYNO_PM_PKG *pPkg, u8 rw);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_DEF_HERE
+void syno_smbus_hdd_powerctl_init(void);
+#endif /* MY_DEF_HERE */
 
 #endif /* __LIBATA_H__ */

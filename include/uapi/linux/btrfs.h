@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
  *
@@ -23,6 +26,7 @@
 
 #define BTRFS_IOCTL_MAGIC 0x94
 #define BTRFS_VOL_NAME_MAX 255
+#define BTRFS_LABEL_SIZE 256
 
 /* this should be 4k */
 #define BTRFS_PATH_NAME_MAX 4087
@@ -36,11 +40,36 @@ struct btrfs_ioctl_vol_args {
 #define BTRFS_SUBVOL_CREATE_ASYNC	(1ULL << 0)
 #define BTRFS_SUBVOL_RDONLY		(1ULL << 1)
 #define BTRFS_SUBVOL_QGROUP_INHERIT	(1ULL << 2)
+#ifdef MY_ABC_HERE
+#define BTRFS_SUBVOL_HIDE (1ULL << 32)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_SUBVOL_NOLOAD_USRQUOTA	(1ULL << 33)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_SUBVOL_CMPR_RATIO         (1ULL << 34)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_SUBVOL_DISABLE_QUOTA (1ULL << 35)
+#endif /* MY_ABC_HERE */
+
 #define BTRFS_FSID_SIZE 16
 #define BTRFS_UUID_SIZE 16
 #define BTRFS_UUID_UNPARSED_SIZE	37
 
-#define BTRFS_QGROUP_INHERIT_SET_LIMITS	(1ULL << 0)
+/*
+ * flags definition for qgroup limits
+ *
+ * Used by:
+ * struct btrfs_qgroup_limit.flags
+ * struct btrfs_qgroup_limit_item.flags
+ */
+#define BTRFS_QGROUP_LIMIT_MAX_RFER	(1ULL << 0)
+#define BTRFS_QGROUP_LIMIT_MAX_EXCL	(1ULL << 1)
+#define BTRFS_QGROUP_LIMIT_RSV_RFER	(1ULL << 2)
+#define BTRFS_QGROUP_LIMIT_RSV_EXCL	(1ULL << 3)
+#define BTRFS_QGROUP_LIMIT_RFER_CMPR	(1ULL << 4)
+#define BTRFS_QGROUP_LIMIT_EXCL_CMPR	(1ULL << 5)
 
 struct btrfs_qgroup_limit {
 	__u64	flags;
@@ -49,6 +78,14 @@ struct btrfs_qgroup_limit {
 	__u64	rsv_rfer;
 	__u64	rsv_excl;
 };
+
+/*
+ * flags definition for qgroup inheritance
+ *
+ * Used by:
+ * struct btrfs_qgroup_inherit.flags
+ */
+#define BTRFS_QGROUP_INHERIT_SET_LIMITS	(1ULL << 0)
 
 struct btrfs_qgroup_inherit {
 	__u64	flags;
@@ -69,6 +106,9 @@ struct btrfs_ioctl_vol_args_v2 {
 	__s64 fd;
 	__u64 transid;
 	__u64 flags;
+#ifdef MY_ABC_HERE
+	__u64 copy_limit_from;
+#endif /* MY_ABC_HERE */
 	union {
 		struct {
 			__u64 size;
@@ -190,6 +230,47 @@ struct btrfs_ioctl_fs_info_args {
 	__u64 reserved[122];			/* pad to 1k */
 };
 
+/*
+ * feature flags
+ *
+ * Used by:
+ * struct btrfs_ioctl_feature_flags
+ */
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+#define BTRFS_FEATURE_COMPAT_BLOCK_GROUP_CACHE_TREE_AUTO	(1ULL << 61)
+#define BTRFS_FEATURE_COMPAT_BLOCK_GROUP_CACHE_TREE	(1ULL << 62)
+#define BTRFS_FEATURE_COMPAT_SYNO_CASELESS	(1ULL << 63)
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
+
+#define BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE		(1ULL << 0)
+/*
+ * Older kernels (< 4.9) on big-endian systems produced broken free space tree
+ * bitmaps, and btrfs-progs also used to corrupt the free space tree (versions
+ * < 4.7.3).  If this bit is clear, then the free space tree cannot be trusted.
+ * btrfs-progs can also intentionally clear this bit to ask the kernel to
+ * rebuild the free space tree, however this might not work on older kernels
+ * that do not know about this bit. If not sure, clear the cache manually on
+ * first mount when booting older kernel versions.
+ */
+#define BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE_VALID	(1ULL << 1)
+
+#define BTRFS_FEATURE_INCOMPAT_MIXED_BACKREF	(1ULL << 0)
+#define BTRFS_FEATURE_INCOMPAT_DEFAULT_SUBVOL	(1ULL << 1)
+#define BTRFS_FEATURE_INCOMPAT_MIXED_GROUPS	(1ULL << 2)
+#define BTRFS_FEATURE_INCOMPAT_COMPRESS_LZO	(1ULL << 3)
+#define BTRFS_FEATURE_INCOMPAT_COMPRESS_ZSTD	(1ULL << 4)
+
+/*
+ * older kernels tried to do bigger metadata blocks, but the
+ * code was pretty buggy.  Lets not let them try anymore.
+ */
+#define BTRFS_FEATURE_INCOMPAT_BIG_METADATA	(1ULL << 5)
+
+#define BTRFS_FEATURE_INCOMPAT_EXTENDED_IREF	(1ULL << 6)
+#define BTRFS_FEATURE_INCOMPAT_RAID56		(1ULL << 7)
+#define BTRFS_FEATURE_INCOMPAT_SKINNY_METADATA	(1ULL << 8)
+#define BTRFS_FEATURE_INCOMPAT_NO_HOLES		(1ULL << 9)
+
 struct btrfs_ioctl_feature_flags {
 	__u64 compat_flags;
 	__u64 compat_ro_flags;
@@ -254,6 +335,70 @@ struct btrfs_balance_progress {
 	__u64 completed;	/* # of chunks relocated so far */
 };
 
+/*
+ * flags definition for balance
+ *
+ * Restriper's general type filter
+ *
+ * Used by:
+ * btrfs_ioctl_balance_args.flags
+ * btrfs_balance_control.flags (internal)
+ */
+#define BTRFS_BALANCE_DATA		(1ULL << 0)
+#define BTRFS_BALANCE_SYSTEM		(1ULL << 1)
+#define BTRFS_BALANCE_METADATA		(1ULL << 2)
+
+#define BTRFS_BALANCE_TYPE_MASK		(BTRFS_BALANCE_DATA |	    \
+					 BTRFS_BALANCE_SYSTEM |	    \
+					 BTRFS_BALANCE_METADATA)
+
+#define BTRFS_BALANCE_FORCE		(1ULL << 3)
+#define BTRFS_BALANCE_RESUME		(1ULL << 4)
+
+/*
+ * flags definitions for per-type balance args
+ *
+ * Balance filters
+ *
+ * Used by:
+ * struct btrfs_balance_args
+ */
+#define BTRFS_BALANCE_ARGS_PROFILES	(1ULL << 0)
+#define BTRFS_BALANCE_ARGS_USAGE	(1ULL << 1)
+#define BTRFS_BALANCE_ARGS_DEVID	(1ULL << 2)
+#define BTRFS_BALANCE_ARGS_DRANGE	(1ULL << 3)
+#define BTRFS_BALANCE_ARGS_VRANGE	(1ULL << 4)
+#define BTRFS_BALANCE_ARGS_LIMIT	(1ULL << 5)
+#define BTRFS_BALANCE_ARGS_LIMIT_RANGE	(1ULL << 6)
+#define BTRFS_BALANCE_ARGS_STRIPES_RANGE (1ULL << 7)
+#define BTRFS_BALANCE_ARGS_USAGE_RANGE	(1ULL << 10)
+
+#define BTRFS_BALANCE_ARGS_MASK			\
+	(BTRFS_BALANCE_ARGS_PROFILES |		\
+	 BTRFS_BALANCE_ARGS_USAGE |		\
+	 BTRFS_BALANCE_ARGS_DEVID | 		\
+	 BTRFS_BALANCE_ARGS_DRANGE |		\
+	 BTRFS_BALANCE_ARGS_VRANGE |		\
+	 BTRFS_BALANCE_ARGS_LIMIT |		\
+	 BTRFS_BALANCE_ARGS_LIMIT_RANGE |	\
+	 BTRFS_BALANCE_ARGS_STRIPES_RANGE |	\
+	 BTRFS_BALANCE_ARGS_USAGE_RANGE)
+
+/*
+ * Profile changing flags.  When SOFT is set we won't relocate chunk if
+ * it already has the target profile (even though it may be
+ * half-filled).
+ */
+#define BTRFS_BALANCE_ARGS_CONVERT	(1ULL << 8)
+#define BTRFS_BALANCE_ARGS_SOFT		(1ULL << 9)
+
+
+/*
+ * flags definition for balance state
+ *
+ * Used by:
+ * struct btrfs_ioctl_balance_args.state
+ */
 #define BTRFS_BALANCE_STATE_RUNNING	(1ULL << 0)
 #define BTRFS_BALANCE_STATE_PAUSE_REQ	(1ULL << 1)
 #define BTRFS_BALANCE_STATE_CANCEL_REQ	(1ULL << 2)
@@ -347,9 +492,94 @@ struct btrfs_ioctl_clone_range_args {
   __u64 dest_offset;
 };
 
-/* flags for the defrag range ioctl */
+#ifdef MY_ABC_HERE
+#define BTRFS_CLONE_RANGE_V2_AUTO_REWRITE_SRC (1 << 0)
+#define BTRFS_CLONE_RANGE_V2_AUTO_REWRITE_DST (1 << 1)
+
+struct btrfs_ioctl_syno_clone_range_args_v2 {
+	__s64 src_fd;
+	/*
+	 * If the ref_limit is reached,
+	 * src_offset and src_lenght will be set to appropriate file
+	 * offset and lenght to indicate which part of the file reaches
+	 * the extent reflink limit. errno EMLINK is returned.
+	 * When EMLINK, src_offset and src_length will be set to the
+	 * position and lenght of file that could not be cloned,
+	 * and ref_limit is set to the current reflinnk count of
+	 * that extent.
+	 */
+	__u64 src_offset;	/* in/out */
+	__u64 src_length;	/* in/out */
+	__u64 dest_offset;
+	__u64 ref_limit;	/* in/out */
+	__u32 flag;
+	__u32 reserved32;
+	__u64 reserved[2];
+};
+#endif /* MY_ABC_HERE */
+/*
+ * flags definition for the defrag range ioctl
+ *
+ * Used by:
+ * struct btrfs_ioctl_defrag_range_args.flags
+ */
 #define BTRFS_DEFRAG_RANGE_COMPRESS 1
 #define BTRFS_DEFRAG_RANGE_START_IO 2
+#ifdef MY_ABC_HERE
+#define BTRFS_DEFRAG_RANGE_SYNO_DEFRAG  (1ULL << 2)
+#define BTRFS_DEFRAG_RANGE_PRINT_STDOUT (1ULL << 3)
+#define BTRFS_DEFRAG_RANGE_SKIP_FAST_SNAPSHOT_CHECK  (1ULL << 4)
+#define BTRFS_DEFRAG_RANGE_START_IO_RANGE  (1ULL << 5)
+#endif /* MY_ABC_HERE */
+struct btrfs_ioctl_defrag_range_args {
+	/* start of the defrag operation */
+	__u64 start;
+
+	/* number of bytes to defrag, use (u64)-1 to say all */
+	__u64 len;
+
+	/*
+	 * flags for the operation, which can include turning
+	 * on compression for this one defrag
+	 */
+	__u64 flags;
+
+	/*
+	 * any extent bigger than this will be considered
+	 * already defragged.  Use 0 to take the kernel default
+	 * Use 1 to say every single extent must be rewritten
+	 */
+	__u32 extent_thresh;
+
+	/*
+	 * which compression method to use if turning on compression
+	 * for this defrag operation.  If unspecified, zlib will
+	 * be used
+	 */
+	__u32 compress_type;
+
+#ifdef MY_ABC_HERE
+	__u64 release_size;
+	/*
+	 * This value is multiple of 4K
+	 */
+	__u16 syno_thresh;
+	/*
+	 * The ratio between number of bytes of file extent data that
+	 * point to processing extent and extent disk byte number.
+	 * If actual ratio is below this condition, defrag would be
+	 * triggered. For example syno_ratio_denom=3 and syno_ratio_nom=2,
+	 * if the (file extent num) <= (extent disk byte num) * 2/3,
+	 * this extent would be defragged.
+	 */
+	__u8 syno_ratio_denom;
+	__u8 syno_ratio_nom;
+	__u32 unused[1];
+#else
+	/* spare for later */
+	__u32 unused[4];
+#endif /* MY_ABC_HERE */
+};
 
 #define BTRFS_SAME_DATA_DIFFERS	1
 /* For extent-same ioctl */
@@ -445,6 +675,13 @@ struct btrfs_ioctl_get_dev_stats {
 	__u64 unused[128 - 2 - BTRFS_DEV_STAT_VALUES_MAX]; /* pad to 1k */
 };
 
+#ifdef MY_ABC_HERE
+struct btrfs_ioctl_cksumfailed_files_args {
+	__u64 sub_vol;
+	__u64 ino;
+};
+#endif /* MY_ABC_HERE */
+
 #define BTRFS_QUOTA_CTL_ENABLE	1
 #define BTRFS_QUOTA_CTL_DISABLE	2
 #define BTRFS_QUOTA_CTL_RESCAN__NOTUSED	3
@@ -469,6 +706,60 @@ struct btrfs_ioctl_qgroup_create_args {
 	__u64 create;
 	__u64 qgroupid;
 };
+
+#ifdef MY_ABC_HERE
+struct btrfs_ioctl_qgroup_query_args {
+	/* state */
+	__u64 rfer;       // disk size (could be smaller than rfer_cmpr due to compression)
+	__u64 rfer_cmpr;  // original size before compression (bad naming due to compatibility)
+	__u64 excl;
+	__u64 excl_cmpr;
+
+	/* limit */
+	__u64 max_rfer;
+	__u64 max_excl;
+	__u64 rsv_rfer;
+	__u64 rsv_excl;
+
+	/* reservation tracking */
+	__u64 reserved;
+};
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define BTRFS_USRQUOTA_CTL_ENABLE 1
+#define BTRFS_USRQUOTA_CTL_DISABLE 2
+#define BTRFS_USRQUOTA_CTL_DUMPTREE 3
+struct btrfs_ioctl_usrquota_ctl_args {
+	__u64 cmd;
+	__u64 status;
+};
+
+struct btrfs_ioctl_usrquota_limit_args {
+	__u64 uid;
+	__u64 rfer_soft;
+	__u64 rfer_hard;
+};
+
+struct btrfs_ioctl_usrquota_rescan_args {
+	__u64 flags;
+	__u64 rootid;
+	__u64 objectid;
+	__u64 reserved[5];
+};
+
+struct btrfs_ioctl_usrquota_query_args {
+	__u64 uid;
+	/* state */
+	__u64 rfer_used;
+	/* limits */
+	__u64 rfer_soft;
+	__u64 rfer_hard;
+	/* reservation tracking */
+	__u64 reserved;
+};
+#endif /* MY_ABC_HERE */
+
 struct btrfs_ioctl_timespec {
 	__u64 sec;
 	__u32 nsec;
@@ -481,8 +772,129 @@ struct btrfs_ioctl_received_subvol_args {
 	struct btrfs_ioctl_timespec stime; /* in */
 	struct btrfs_ioctl_timespec rtime; /* out */
 	__u64	flags;			/* in */
+#ifdef MY_ABC_HERE
+	struct btrfs_ioctl_timespec otime; /* in */
+	__u64	reserved[14];		/* in */
+#else
 	__u64	reserved[16];		/* in */
+#endif /* MY_ABC_HERE */
 };
+
+#ifdef MY_ABC_HERE
+struct btrfs_ioctl_subvol_info_args {
+	/* this root's id */
+	__u64 root_id;
+	/* flags of the root */
+	__u64 flags;
+	/* generation when the root is created or last updated */
+	__u64 gen;
+	/* creation generation of this root in sec*/
+	__u64 ogen;
+	__u8 uuid[BTRFS_UUID_SIZE];
+	__u8 puuid[BTRFS_UUID_SIZE];
+	__u8 ruuid[BTRFS_UUID_SIZE];
+};
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+
+#define BTRFS_SNAP_SIZE_SHOW_EXCL_SIZE 0x1
+#define BTRFS_SNAP_SIZE_SHOW_PROCESSED_SIZE 0x2
+#define BTRFS_SNAP_SIZE_SHOW_MARGINAL_SIZE 0x4
+
+struct btrfs_ioctl_snapshot_size_id_size_map {
+	__u64 snap_id;
+	__u64 marginal_size;
+};
+
+struct btrfs_ioctl_snapshot_size_query_args {
+	/* number of snap ids pointed by *snap_id */
+	__u64 snap_count;
+	__u64 flags;
+	/* output exclusive size in progress to fd
+
+		if BTRFS_SNAP_SIZE_QUERY_OUTPUT_READALBE_PRGRESS
+		   BTRFS_SNAP_SIZE_SHOW_PROCESSED_SIZE
+		   BTRFS_SNAP_SIZE_SHOW_MARGINAL_SIZE
+		are all set
+		the output format will like:
+
+			subvol(360) 0 bytes
+			subvol(361) 0 bytes
+			subvol(362) 2048 bytes
+			        .
+			        .
+			subvol(512) 40967 bytes
+			exclusive  43014 bytes
+			processed  203503 bytes
+
+			subvol(360) 0 bytes
+			subvol(361) 12802 bytes
+			subvol(362) 4096 bytes
+			        .
+			        .
+			subvol(512) 60967 bytes
+			exclusive 77865 bytes
+			processed 302122 bytes
+		        .
+		        .
+
+	*/
+	__s64 fd;
+	/* address of snap ids/marginal size map to caluclate */
+	struct btrfs_ioctl_snapshot_size_id_size_map __user *id_maps;
+	/* exclusive size in byte */
+	__u64 calc_size;
+	__u64 processed_size;
+};
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define BTRFS_LOG_TREE_BG_RSV_ADD (1ULL << 0)
+#define BTRFS_LOG_TREE_BG_RSV_REMOVE (1ULL << 1)
+#define BTRFS_LOG_TREE_BG_RSV_FLAGS \
+               (BTRFS_LOG_TREE_BG_RSV_ADD | \
+                BTRFS_LOG_TREE_BG_RSV_REMOVE)
+
+struct btrfs_ioctl_log_tree_reserve_bg_args {
+	__u64 start;
+	__u64 size;
+	__u64 map_start;
+	__u64 flags;
+	__u64 reserved[4];
+};
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+struct btrfs_ioctl_syno_punch_check_args {
+	__u64 offset;
+	__u64 len;
+	__u64 extent_offset;
+	__u64 extent_len;
+	__u64 reserved[4];
+};
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define BTRFS_FREE_SPACE_ANALYZE_NR_INTERVAL	15
+#define BTRFS_FREE_SPACE_ANALYZE_FLAG_FULL	(1 << 0)
+
+struct btrfs_ioctl_free_space_analyze_args {
+	/* arguments */
+	__u64 flags;
+	__u64 min_continuous_size;
+
+	/* results */
+	__u64 interval_cnts[BTRFS_FREE_SPACE_ANALYZE_NR_INTERVAL];  // For intervals from [4K,8K), [8K,16K) to [64M,128M)
+	__u64 frag_cnts;              // Count of the free blocks which < min_continuous_size
+	__u64 continuous_cnts;        // Count of the free blocks which >= min_continuous_size
+	__u64 total_frag_size;        // The total size of the free blocks which < min_continuous_size
+	__u64 total_continuous_size;  // The total size of the free blocks which >= min_continuous_size
+
+	/* reserved */
+	__u64 reserved[8];
+};
+#endif /* MY_ABC_HERE */
 
 /*
  * Caller doesn't want file data in the send stream, even if the
@@ -504,10 +916,57 @@ struct btrfs_ioctl_received_subvol_args {
  */
 #define BTRFS_SEND_FLAG_OMIT_END_CMD		0x4
 
+#if defined(MY_ABC_HERE) || \
+    defined(MY_ABC_HERE) || \
+	defined(MY_ABC_HERE) || \
+	defined(MY_ABC_HERE)
+/*
+ * In order to simplify how BTRFS_SEND_FLAG_MASK works with syno defined flags,
+ * all syno defined flags are defiend if any of the corresponding config is
+ * turn on.
+ */
+/*
+ * Calculate the amount (in bytes) of new file data between the send and
+ * parent snapshots, or in case of a full send, the total amount of file data
+ * we will send.
+ */
+#define BTRFS_SEND_FLAG_CALCULATE_DATA_SIZE    0x8
+
+/*
+ * find_extent_clone in send could take a lot of time but end up find nothing
+ * to clone, especially in iSCSI BLun thick provision. This flag is used
+ * to indicate send to skip find_extent_clone.
+ */
+#define BTRFS_SEND_FLAG_SKIP_FIND_CLONE    0x10
+
+/*
+ * Use fallocate command to pre-allocate file extents and punch file holes,
+ * instead of write commands with data buffers filled with 0 value bytes.
+ */
+#define BTRFS_SEND_FLAG_SUPPORT_FALLOCATE       0x20
+
+/*
+ * Convert value of xattr btrfs.compression of set_xattr from "zstd" to "lzo"
+ */
+#define BTRFS_SEND_FLAG_FALLBACK_COMPRESSION    0x40
+
+#define BTRFS_SEND_FLAG_MASK \
+	(BTRFS_SEND_FLAG_NO_FILE_DATA | \
+	 BTRFS_SEND_FLAG_OMIT_STREAM_HEADER | \
+	 BTRFS_SEND_FLAG_CALCULATE_DATA_SIZE | \
+	 BTRFS_SEND_FLAG_SKIP_FIND_CLONE | \
+	 BTRFS_SEND_FLAG_SUPPORT_FALLOCATE | \
+	 BTRFS_SEND_FLAG_FALLBACK_COMPRESSION | \
+	 BTRFS_SEND_FLAG_OMIT_END_CMD)
+#else
 #define BTRFS_SEND_FLAG_MASK \
 	(BTRFS_SEND_FLAG_NO_FILE_DATA | \
 	 BTRFS_SEND_FLAG_OMIT_STREAM_HEADER | \
 	 BTRFS_SEND_FLAG_OMIT_END_CMD)
+#endif /* MY_ABC_HERE || \
+          MY_ABC_HERE || \
+		  MY_ABC_HERE || \
+		  MY_ABC_HERE */
 
 struct btrfs_ioctl_send_args {
 	__s64 send_fd;			/* in */
@@ -515,8 +974,39 @@ struct btrfs_ioctl_send_args {
 	__u64 __user *clone_sources;	/* in */
 	__u64 parent_root;		/* in */
 	__u64 flags;			/* in */
+#ifdef MY_ABC_HERE
+	__u64 total_data_size;   /* out */
+	__u32 g_verbose;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	__u64 skip_cmd_count;
+#endif /* MY_ABC_HERE */
+
+#if defined(MY_ABC_HERE) && defined(MY_ABC_HERE)
+	__u32 reserved_u32;
+	__u64 reserved[1];		/* in */
+#elif defined(MY_ABC_HERE)
+	__u32 reserved_u32;
+	__u64 reserved[2];		/* in */
+#elif defined(MY_ABC_HERE)
+	__u64 reserved[3];		/* in */
+#else
 	__u64 reserved[4];		/* in */
+#endif /* defined(MY_ABC_HERE) && defined(MY_ABC_HERE) */
 };
+
+#ifdef MY_ABC_HERE
+/* flags for the compression ioctl */
+#define BTRFS_COMPR_CTL_SET			0x1
+#define BTRFS_COMPR_CTL_COMPR_FL	0x2
+
+struct btrfs_ioctl_compr_ctl_args {
+	__u64	flags;				/* in/out */
+	__u64	size;				/* out */
+	__u64	compressed_size;	/* out */
+	__u64	reserved[1];
+};
+#endif /* MY_ABC_HERE */
 
 /* Error codes as returned by the kernel */
 enum btrfs_err_code {
@@ -556,6 +1046,16 @@ static inline char *btrfs_err_str(enum btrfs_err_code err_code)
 			return NULL;
 	}
 }
+
+#ifdef __KERNEL__
+#ifdef MY_ABC_HERE
+long btrfs_lazy_clone(struct file *file, unsigned long srcfd, u64 off,
+	u64 olen, u64 destoff);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+int btrfs_vfs_ino_to_path(struct inode *inode, u64 inum, char *outpath, int len);
+#endif /* MY_ABC_HERE */
+#endif
 
 #define BTRFS_IOC_SNAP_CREATE _IOW(BTRFS_IOCTL_MAGIC, 1, \
 				   struct btrfs_ioctl_vol_args)
@@ -659,5 +1159,64 @@ static inline char *btrfs_err_str(enum btrfs_err_code err_code)
 				   struct btrfs_ioctl_feature_flags[2])
 #define BTRFS_IOC_GET_SUPPORTED_FEATURES _IOR(BTRFS_IOCTL_MAGIC, 57, \
 				   struct btrfs_ioctl_feature_flags[3])
+
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_FREE_SPACE_ANALYZE	_IOWR(BTRFS_IOCTL_MAGIC, 240, \
+				   struct btrfs_ioctl_free_space_analyze_args)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_SYNO_PUNCH_CHECK	_IOWR(BTRFS_IOCTL_MAGIC, 243, \
+				   struct btrfs_ioctl_syno_punch_check_args)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_SYNO_RESERVE_LOG_TREE_BLOCK_GROUP _IOWR(BTRFS_IOCTL_MAGIC, 244, \
+				   struct btrfs_ioctl_log_tree_reserve_bg_args)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_SYNO_CLONE_RANGE_V2 _IOWR(BTRFS_IOCTL_MAGIC, 245, \
+				    struct btrfs_ioctl_syno_clone_range_args_v2)
+#endif /* CONFIG_SYNO_BTRFS_CLONE_RANGE */
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_SYNC_SYNO	_IO(BTRFS_IOCTL_MAGIC, 246)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_SNAPSHOT_SIZE_QUERY _IOWR(BTRFS_IOCTL_MAGIC, 247, \
+				   struct btrfs_ioctl_snapshot_size_query_args)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_COMPR_CTL _IOR(BTRFS_IOCTL_MAGIC, 248, \
+									struct btrfs_ioctl_compr_ctl_args)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_SUBVOL_GETINFO _IOR(BTRFS_IOCTL_MAGIC, 249, \
+				   struct btrfs_ioctl_subvol_info_args)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_USRQUOTA_CTL _IOWR(BTRFS_IOCTL_MAGIC, 250, \
+                                    struct btrfs_ioctl_usrquota_ctl_args)
+#define BTRFS_IOC_USRQUOTA_LIMIT _IOW(BTRFS_IOCTL_MAGIC, 250, \
+                                      struct btrfs_ioctl_usrquota_limit_args)
+#define BTRFS_IOC_USRQUOTA_RESCAN _IO(BTRFS_IOCTL_MAGIC, 250)
+#define BTRFS_IOC_USRQUOTA_RESCAN_STATUS _IOR(BTRFS_IOCTL_MAGIC, 251, \
+                                              struct btrfs_ioctl_usrquota_rescan_args)
+#define BTRFS_IOC_USRQUOTA_RESCAN_WAIT _IO(BTRFS_IOCTL_MAGIC, 251)
+#define BTRFS_IOC_USRQUOTA_QUERY _IOR(BTRFS_IOCTL_MAGIC, 252, \
+                                      struct btrfs_ioctl_usrquota_query_args)
+#define BTRFS_IOC_USRQUOTA_CLEAN _IOW(BTRFS_IOCTL_MAGIC, 252, __u64)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_QGROUP_QUERY _IOR(BTRFS_IOCTL_MAGIC, 253, \
+                                    struct btrfs_ioctl_qgroup_query_args)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define BTRFS_IOC_CKSUMFAILED_FILES_GET _IOR(BTRFS_IOCTL_MAGIC, 254, \
+		                            struct btrfs_ioctl_cksumfailed_files_args)
+#endif /* MY_ABC_HERE */
 
 #endif /* _UAPI_LINUX_BTRFS_H */

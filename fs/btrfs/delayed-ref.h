@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2008 Oracle.  All rights reserved.
  *
@@ -17,6 +20,10 @@
  */
 #ifndef __DELAYED_REF__
 #define __DELAYED_REF__
+
+#ifdef MY_ABC_HERE
+#include "btrfs_inode.h"
+#endif /* MY_ABC_HERE */
 
 /* these are the possible values of struct btrfs_delayed_ref_node->action */
 #define BTRFS_ADD_DELAYED_REF    1 /* add one backref to the tree */
@@ -42,6 +49,12 @@ struct btrfs_delayed_ref_node {
 
 	/*data/tree ref use list, stored in ref_head->ref_list. */
 	struct list_head list;
+	/*
+	 * If action is BTRFS_ADD_DELAYED_REF, also link this node to
+	 * ref_head->ref_add_list, then we do not need to iterate the
+	 * whole ref_head->ref_list to find BTRFS_ADD_DELAYED_REF nodes.
+	 */
+	struct list_head add_list;
 
 	/* the starting bytenr of the extent */
 	u64 bytenr;
@@ -68,6 +81,9 @@ struct btrfs_delayed_ref_node {
 
 	unsigned int action:8;
 	unsigned int type:8;
+#ifdef MY_ABC_HERE
+	unsigned int no_quota:1;
+#endif /* MY_ABC_HERE */
 	/* is this node still in the rbtree? */
 	unsigned int is_head:1;
 	unsigned int in_tree:1;
@@ -75,11 +91,11 @@ struct btrfs_delayed_ref_node {
 
 struct btrfs_delayed_extent_op {
 	struct btrfs_disk_key key;
+	u8 level;
+	bool update_key;
+	bool update_flags;
+	bool is_data;
 	u64 flags_to_set;
-	int level;
-	unsigned int update_key:1;
-	unsigned int update_flags:1;
-	unsigned int is_data:1;
 };
 
 /*
@@ -99,6 +115,8 @@ struct btrfs_delayed_ref_head {
 
 	spinlock_t lock;
 	struct list_head ref_list;
+	/* accumulate add BTRFS_ADD_DELAYED_REF nodes to this ref_add_list. */
+	struct list_head ref_add_list;
 
 	struct rb_node href_node;
 
@@ -152,6 +170,13 @@ struct btrfs_delayed_data_ref {
 	u64 parent;
 	u64 objectid;
 	u64 offset;
+#ifdef MY_ABC_HERE
+	u64 ram_bytes;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	uid_t uid;
+	struct inode *inode;
+#endif /* MY_ABC_HERE */
 };
 
 struct btrfs_delayed_ref_root {
@@ -159,7 +184,10 @@ struct btrfs_delayed_ref_root {
 	struct rb_root href_root;
 
 	/* dirty extent records */
+#ifdef MY_ABC_HERE
+#else
 	struct rb_root dirty_extent_root;
+#endif /* MY_ABC_HERE */
 
 	/* this spin lock protects the rbtree and the entries inside */
 	spinlock_t lock;
@@ -177,6 +205,10 @@ struct btrfs_delayed_ref_root {
 
 	u64 pending_csums;
 
+#ifdef MY_ABC_HERE
+	u64 num_pending_csums_leafs;
+#endif /* MY_ABC_HERE */
+
 	/*
 	 * set when the tree is flushing before a transaction commit,
 	 * used by the throttling code to decide if new updates need
@@ -188,7 +220,7 @@ struct btrfs_delayed_ref_root {
 
 	/*
 	 * To make qgroup to skip given root.
-	 * This is for snapshot, as btrfs_qgroup_inherit() will manully
+	 * This is for snapshot, as btrfs_qgroup_inherit() will manually
 	 * modify counters for snapshot and its source, so we should skip
 	 * the snapshot in new_root/old_roots or it will get calculated twice
 	 */
@@ -200,7 +232,7 @@ extern struct kmem_cache *btrfs_delayed_tree_ref_cachep;
 extern struct kmem_cache *btrfs_delayed_data_ref_cachep;
 extern struct kmem_cache *btrfs_delayed_extent_op_cachep;
 
-int btrfs_delayed_ref_init(void);
+int __init btrfs_delayed_ref_init(void);
 void btrfs_delayed_ref_exit(void);
 
 static inline struct btrfs_delayed_extent_op *
@@ -216,8 +248,17 @@ btrfs_free_delayed_extent_op(struct btrfs_delayed_extent_op *op)
 		kmem_cache_free(btrfs_delayed_extent_op_cachep, op);
 }
 
+#ifdef MY_ABC_HERE
+static inline struct btrfs_delayed_data_ref *
+btrfs_delayed_node_to_data_ref(struct btrfs_delayed_ref_node *node);
+#endif /* MY_ABC_HERE */
+
 static inline void btrfs_put_delayed_ref(struct btrfs_delayed_ref_node *ref)
 {
+#ifdef MY_ABC_HERE
+	struct btrfs_delayed_data_ref *data_ref = NULL;
+#endif /* MY_ABC_HERE */
+
 	WARN_ON(atomic_read(&ref->refs) == 0);
 	if (atomic_dec_and_test(&ref->refs)) {
 		WARN_ON(ref->in_tree);
@@ -228,6 +269,10 @@ static inline void btrfs_put_delayed_ref(struct btrfs_delayed_ref_node *ref)
 			break;
 		case BTRFS_EXTENT_DATA_REF_KEY:
 		case BTRFS_SHARED_DATA_REF_KEY:
+#ifdef MY_ABC_HERE
+			data_ref = btrfs_delayed_node_to_data_ref(ref);
+			syno_usrquota_inode_put(data_ref->inode);
+#endif /* MY_ABC_HERE */
 			kmem_cache_free(btrfs_delayed_data_ref_cachep, ref);
 			break;
 		case 0:
@@ -248,7 +293,14 @@ int btrfs_add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 			       struct btrfs_trans_handle *trans,
 			       u64 bytenr, u64 num_bytes,
 			       u64 parent, u64 ref_root,
-			       u64 owner, u64 offset, u64 reserved, int action,
+			       u64 owner, u64 offset, u64 reserved,
+#ifdef MY_ABC_HERE
+			       int no_quota,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+			       struct inode *inode, uid_t uid,
+#endif /* MY_ABC_HERE */
+			       int action,
 			       struct btrfs_delayed_extent_op *extent_op);
 int btrfs_add_delayed_qgroup_reserve(struct btrfs_fs_info *fs_info,
 				     struct btrfs_trans_handle *trans,
@@ -263,7 +315,8 @@ void btrfs_merge_delayed_refs(struct btrfs_trans_handle *trans,
 			      struct btrfs_delayed_ref_head *head);
 
 struct btrfs_delayed_ref_head *
-btrfs_find_delayed_ref_head(struct btrfs_trans_handle *trans, u64 bytenr);
+btrfs_find_delayed_ref_head(struct btrfs_delayed_ref_root *delayed_refs,
+			    u64 bytenr);
 int btrfs_delayed_ref_lock(struct btrfs_trans_handle *trans,
 			   struct btrfs_delayed_ref_head *head);
 static inline void btrfs_delayed_ref_unlock(struct btrfs_delayed_ref_head *head)
@@ -274,6 +327,10 @@ static inline void btrfs_delayed_ref_unlock(struct btrfs_delayed_ref_head *head)
 
 struct btrfs_delayed_ref_head *
 btrfs_select_ref_head(struct btrfs_trans_handle *trans);
+#ifdef MY_ABC_HERE
+struct btrfs_delayed_ref_head *
+btrfs_select_data_ref_head(struct btrfs_trans_handle *trans);
+#endif /* MY_ABC_HERE */
 
 int btrfs_check_delayed_seq(struct btrfs_fs_info *fs_info,
 			    struct btrfs_delayed_ref_root *delayed_refs,
