@@ -25,6 +25,7 @@
 #ifndef __DISPLAY_MODE_LIB_H__
 #define __DISPLAY_MODE_LIB_H__
 
+
 #include "dml_common_defs.h"
 #include "soc_bounding_box.h"
 #include "display_mode_vba.h"

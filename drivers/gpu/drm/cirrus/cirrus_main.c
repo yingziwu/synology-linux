@@ -297,6 +297,7 @@ void cirrus_gem_free_object(struct drm_gem_object *obj)
 	cirrus_bo_unref(&cirrus_bo);
 }
 
+
 static inline u64 cirrus_bo_mmap_offset(struct cirrus_bo *bo)
 {
 	return drm_vma_node_offset_addr(&bo->bo.vma_node);

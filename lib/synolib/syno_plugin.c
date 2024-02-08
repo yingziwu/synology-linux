@@ -5,10 +5,13 @@
 #include <linux/slab.h>
 #include <linux/sched.h>
 
+
 /* user-defined header */
+
 
 /* static definition */
 #define SYNO_PLUGIN_ERR(msg, arg...)    printk(KERN_ERR "SYNO_PLUGIN_ERR: %s() " msg, __FUNCTION__, ##arg)
+
 
 typedef struct syno_plugin_s {
 	void               *instance;
@@ -17,9 +20,11 @@ typedef struct syno_plugin_s {
 	struct list_head    list;
 } syno_plugin_t;
 
+
 /* static variables */
 static LIST_HEAD(sg_syno_plugin_list);
 static DEFINE_SPINLOCK(sg_syno_plugin_lock);
+
 
 /* ------- function implementation ------- */
 static inline void syno_plugin_lock(void)

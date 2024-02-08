@@ -151,6 +151,8 @@ void kvm_async_pf_task_wait(u32 token)
 		if (hlist_unhashed(&n.link))
 			break;
 
+		rcu_irq_exit();
+
 		if (!n.halted) {
 			local_irq_enable();
 			schedule();
@@ -159,11 +161,11 @@ void kvm_async_pf_task_wait(u32 token)
 			/*
 			 * We cannot reschedule. So halt.
 			 */
-			rcu_irq_exit();
 			native_safe_halt();
-			rcu_irq_enter();
 			local_irq_disable();
 		}
+
+		rcu_irq_enter();
 	}
 	if (!n.halted)
 		finish_wait(&n.wq, &wait);
@@ -584,6 +586,7 @@ static void kvm_kick_cpu(int cpu)
 	kvm_hypercall2(KVM_HC_KICK_CPU, flags, apicid);
 }
 
+
 #ifdef CONFIG_QUEUED_SPINLOCKS
 
 #include <asm/qspinlock.h>
@@ -655,6 +658,7 @@ static inline void add_stats(enum kvm_contention_stat var, u32 val)
 	check_zero();
 	spinlock_stats.contention_stats[var] += val;
 }
+
 
 static inline u64 spin_time_start(void)
 {

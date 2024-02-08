@@ -172,7 +172,7 @@ void f2fs_drop_largest_extent(struct inode *inode, pgoff_t fofs)
 	__drop_largest_extent(inode, fofs, 1);
 }
 
-void f2fs_init_extent_tree(struct inode *inode, struct f2fs_extent *i_ext)
+static void __f2fs_init_extent_tree(struct inode *inode, struct f2fs_extent *i_ext)
 {
 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
 	struct extent_tree *et;
@@ -202,6 +202,14 @@ void f2fs_init_extent_tree(struct inode *inode, struct f2fs_extent *i_ext)
 	}
 out:
 	write_unlock(&et->lock);
+}
+
+void f2fs_init_extent_tree(struct inode *inode, struct f2fs_extent *i_ext)
+{
+	__f2fs_init_extent_tree(inode, i_ext);
+
+	if (!F2FS_I(inode)->extent_tree)
+		set_inode_flag(F2FS_I(inode), FI_NO_EXTENT);
 }
 
 static bool f2fs_lookup_extent_tree(struct inode *inode, pgoff_t pgofs,
@@ -243,6 +251,7 @@ out:
 	trace_f2fs_lookup_extent_tree_end(inode, pgofs, ei);
 	return ret;
 }
+
 
 /*
  * lookup extent at @fofs, if hit, return the extent
@@ -695,6 +704,7 @@ void f2fs_update_extent_cache(struct dnode_of_data *dn)
 		return;
 
 	f2fs_bug_on(F2FS_I_SB(dn->inode), dn->data_blkaddr == NEW_ADDR);
+
 
 	fofs = start_bidx_of_node(ofs_of_node(dn->node_page), fi) +
 							dn->ofs_in_node;

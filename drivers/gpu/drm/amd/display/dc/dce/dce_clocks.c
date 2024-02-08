@@ -35,6 +35,7 @@
 #endif
 #include "core_types.h"
 
+
 #define TO_DCE_CLOCKS(clocks)\
 	container_of(clocks, struct dce_disp_clk, base)
 
@@ -633,6 +634,7 @@ static bool dce_apply_clock_voltage_request(
 
 	return true;
 }
+
 
 static const struct display_clock_funcs dce120_funcs = {
 	.get_dp_ref_clk_frequency = dce_clocks_get_dp_ref_freq_wrkaround,

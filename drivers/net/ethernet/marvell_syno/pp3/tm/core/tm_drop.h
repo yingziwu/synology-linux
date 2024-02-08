@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -29,6 +30,7 @@ disclaimer.
 #define   	TM_DROP_H
 
 #include "tm_core_types.h"	 /* in order to define tm_handle */
+
 
 /** Create a WRED curve for a level.
  * @param[in]	        	hndl	      TM lib handle
@@ -54,6 +56,7 @@ int tm_create_wred_curve(tm_handle hndl,
 						uint8_t cos,
 						uint8_t *prob,
 						uint8_t *curve_index);
+
 
 /** Create a WRED traditional curve for a level.
  * @param[in]	        	hndl	      TM lib handle
@@ -105,6 +108,7 @@ int tm_create_wred_flat_curve(tm_handle hndl,
 									 uint8_t cp,
 									 uint8_t *curve_index);
 
+
 /** Create Drop profile
  * @param[in]       hndl         TM lib handle
  * @param[in]       level        A nodes level to create a Drop profile for
@@ -142,6 +146,7 @@ int tm_create_drop_profile(tm_handle hndl,
 						   struct tm_drop_profile_params *profile,
 						   uint16_t *prof_index);
 
+
 /** Create 1G CBTD Drop profile
  * @param[in] 		hndl      	 TM lib handle
  * @param[in]       level        A nodes level to create a Drop profile for
@@ -166,6 +171,7 @@ int tm_create_drop_profile_1G(tm_handle hndl,
 						   enum tm_level level,
 						   uint8_t cos,
 						   uint16_t *prof_index);
+
 
 /** Create 2.5G CBTD Drop profile
  * @param[in] 		hndl      	 TM lib handle
@@ -192,6 +198,7 @@ int tm_create_drop_profile_2_5G(tm_handle hndl,
 						   uint8_t cos,
 						   uint16_t *prof_index);
 
+
 /** Delete Drop profile
  * @param[in] 	   hndl 	    TM lib handle
  * @param[in]      level        A nodes level to delete a Drop profile for
@@ -217,6 +224,7 @@ int tm_delete_drop_profile(tm_handle hndl,
 						   enum tm_level level,
 						   uint8_t cos,
 						   uint16_t prof_index);
+
 
 /** Read Drop profile
  * @param[in] 	   hndl	        TM lib handle
@@ -246,6 +254,7 @@ int tm_read_drop_profile(tm_handle hndl,
 						 uint16_t prof_index,
 						 struct tm_drop_profile_params *profile);
 
+
 /** Set Drop (Egress) Colors number per level.
  * @param[in] 	   hndl	        TM lib handle
  * @param[in]      lvl          A nodes level to set colors number for
@@ -266,6 +275,7 @@ int tm_read_drop_profile(tm_handle hndl,
 int tm_set_drop_color_num(tm_handle hndl,
 						  enum tm_level lvl,
 						  enum tm_color_num num);
+
 
 /**  Change Drop Probability (DP) source.
  *
@@ -288,6 +298,7 @@ int tm_dp_source_set(tm_handle hndl,
 						uint8_t color,
 						enum tm_dp_source source);
 
+
 /** Drop Query Response Select.
  *
  *   @param[in]     hndl        TM lib handle.
@@ -307,6 +318,7 @@ int tm_set_drop_query_responce(tm_handle hndl,
 							   uint8_t port_dp,
 							   enum tm_level lvl);
 
+
 /** Drop Queue Cos Select.
  *
  *   @param[in]     hndl        TM lib handle.
@@ -324,6 +336,7 @@ int tm_set_drop_queue_cos(tm_handle hndl,
 						  uint32_t index,
 						  uint8_t cos);
 
+
 /****************************************************************************************/
 /* functions for internal usage */
 
@@ -337,6 +350,7 @@ int tm_set_drop_queue_cos(tm_handle hndl,
  */
 int _tm_config_default_drop_sw(tm_handle hndl);
 
+
 /** Set default values to drop related registers
  * @param[in] 	   hndl	        TM lib handle
  * @return an integer return code
@@ -348,21 +362,25 @@ int _tm_config_default_drop_sw(tm_handle hndl);
  */
 int _tm_config_default_drop_hw(tm_handle hndl);
 
+
 /* Predefined Drop profiles */
 int tm_create_drop_profile_cbtd_100Mb(tm_handle hndl,
 						enum tm_level level,
 						uint8_t cos,
 						uint16_t *prof_index);
 
+
 int tm_create_drop_profile_wred_10Mb(tm_handle hndl,
 						enum tm_level level,
 						uint8_t cos,
 						uint16_t *prof_index);
 
+
 int tm_create_drop_profile_mixed_cbtd_100Mb_wred_10Mb(tm_handle hndl,
 						enum tm_level level,
 						uint8_t cos,
 						uint16_t *prof_index);
+
 
 int tm_update_drop_profile(tm_handle hndl,
 						enum tm_level level,
@@ -370,9 +388,11 @@ int tm_update_drop_profile(tm_handle hndl,
 						uint16_t index,
 						struct tm_drop_profile_params *profile);
 
+
 int tm_drop_profile_hw_set(tm_handle hndl,
 						enum tm_level level,
 						uint8_t cos,
 						uint16_t index);
+
 
 #endif   /* TM_DROP_H */

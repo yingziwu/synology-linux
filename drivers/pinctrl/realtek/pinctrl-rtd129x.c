@@ -54,6 +54,7 @@ static void RTK_pmx_set(struct pinctrl_dev *pctldev,unsigned pin,u8 config)
 			return;
 	}
 
+
 	RTK_PINCTRL_DBG("[%s] Addr(0x%08llx), bit=%u, config=%u",__FUNCTION__,(u64)addr ,pin_regmap[pin].pmux_regbit ,config);
 
 	val = readl(addr);
@@ -335,6 +336,7 @@ static int RTK_pconf_parse_conf(struct pinctrl_dev *pctldev,
 			return -EINVAL;
 	}
 
+
     switch (param) {
 
         case PIN_CONFIG_INPUT_SCHMITT:
@@ -350,6 +352,7 @@ static int RTK_pconf_parse_conf(struct pinctrl_dev *pctldev,
             mask =	1 << (pin_regmap[pin].pcof_regbit + RTK_PCONF_SCHM);
             writel(((val & ~mask)|(set_val<<(pin_regmap[pin].pcof_regbit+RTK_PCONF_SCHM))), addr);
             break;
+
 
         case PIN_CONFIG_DRIVE_STRENGTH:
             strength = arg;
@@ -499,6 +502,7 @@ static int RTK_pmx_enable(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
+
 static int
 RTK_pmx_gpio_request_enable (struct pinctrl_dev *pctldev,
 				    struct pinctrl_gpio_range *range,
@@ -541,6 +545,8 @@ RTK_pmx_gpio_disable_free (struct pinctrl_dev *pctldev,
 	return ;
 }
 
+
+
 static const struct pinmux_ops RTK_pmx_ops = {
 	.get_functions_count = RTK_pmx_get_funcs_cnt,
 	.get_function_name = RTK_pmx_get_func_name,
@@ -555,6 +561,7 @@ static struct pinctrl_desc RTK_pctrl_desc = {
 	.pctlops	= &RTK_pctrl_ops,
 	.pmxops		= &RTK_pmx_ops,
 };
+
 
 static struct of_device_id RTK_pinctrl_match[] = {
 	{ .compatible = "rtk119x,rtk119x-pinctrl", .data = (void *)&rtk129x_pinctrl_data },
@@ -853,3 +860,4 @@ postcore_initcall(rtk_pinctrl_init);
 
 MODULE_DESCRIPTION("RTK pinctrl driver");
 MODULE_LICENSE("GPL");
+

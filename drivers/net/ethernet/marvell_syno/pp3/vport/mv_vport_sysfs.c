@@ -122,9 +122,11 @@ static struct attribute *pp3_dev_attrs[] = {
 	NULL
 };
 
+
 static struct attribute_group pp3_dev_group = {
 	.attrs = pp3_dev_attrs,
 };
+
 
 int mv_pp3_vport_sysfs_init(struct kobject *pp3_kobj)
 {
@@ -152,3 +154,5 @@ int mv_pp3_vport_sysfs_exit(struct kobject *pp3_kobj)
 
 	return 0;
 }
+
+

@@ -194,7 +194,6 @@ static const char *hp100_isa_tbl[] = {
 };
 #endif
 
-#ifdef CONFIG_EISA
 static struct eisa_device_id hp100_eisa_tbl[] = {
 	{ "HWPF180" }, /* HP J2577 rev A */
 	{ "HWP1920" }, /* HP 27248B */
@@ -205,9 +204,7 @@ static struct eisa_device_id hp100_eisa_tbl[] = {
 	{ "" }	       /* Mandatory final entry ! */
 };
 MODULE_DEVICE_TABLE(eisa, hp100_eisa_tbl);
-#endif
 
-#ifdef CONFIG_PCI
 static const struct pci_device_id hp100_pci_tbl[] = {
 	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_J2585A, PCI_ANY_ID, PCI_ANY_ID,},
 	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_J2585B, PCI_ANY_ID, PCI_ANY_ID,},
@@ -219,7 +216,6 @@ static const struct pci_device_id hp100_pci_tbl[] = {
 	{}			/* Terminating entry */
 };
 MODULE_DEVICE_TABLE(pci, hp100_pci_tbl);
-#endif
 
 static int hp100_rx_ratio = HP100_DEFAULT_RX_RATIO;
 static int hp100_priority_tx = HP100_DEFAULT_PRIORITY_TX;
@@ -235,6 +231,7 @@ module_param(hp100_mode, int, 0);
 
 static int hp100_probe1(struct net_device *dev, int ioaddr, u_char bus,
 			struct pci_dev *pci_dev);
+
 
 static int hp100_open(struct net_device *dev);
 static int hp100_close(struct net_device *dev);
@@ -900,6 +897,7 @@ static void hp100_hwinit(struct net_device *dev)
 
 }
 
+
 /*
  * mmuinit - Reinitialise Cascade MMU and MAC settings.
  * Note: Must already be in reset and leaves card in reset.
@@ -1152,6 +1150,7 @@ static int hp100_close(struct net_device *dev)
 	return 0;
 }
 
+
 /*
  * Configure the PDL Rx rings and LAN
  */
@@ -1202,6 +1201,7 @@ static void hp100_init_pdls(struct net_device *dev)
 	}
 }
 
+
 /* These functions "format" the entries in the pdl structure   */
 /* They return how much memory the fragments need.            */
 static int hp100_init_rxpdl(struct net_device *dev,
@@ -1231,6 +1231,7 @@ static int hp100_init_rxpdl(struct net_device *dev,
 
 	return roundup(MAX_RX_FRAG * 2 + 2, 4);
 }
+
 
 static int hp100_init_txpdl(struct net_device *dev,
 			    register hp100_ring_t * ringptr,
@@ -1590,6 +1591,7 @@ drop:
 	return NETDEV_TX_OK;
 }
 
+
 /* clean_txring checks if packets have been sent by the card by reading
  * the TX_PDL register from the performance page and comparing it to the
  * number of committed packets. It then frees the skb's of the packets that
@@ -1755,6 +1757,7 @@ drop:
 	return NETDEV_TX_OK;
 
 }
+
 
 /*
  * Receive Function (Non-Busmaster mode)
@@ -2049,6 +2052,7 @@ static void hp100_clear_stats(struct hp100_private *lp, int ioaddr)
 	hp100_page(PERFORMANCE);
 	spin_unlock_irqrestore(&lp->lock, flags);
 }
+
 
 /*
  *  multicast setup
@@ -2632,7 +2636,7 @@ static int hp100_login_to_vg_hub(struct net_device *dev, u_short force_relogin)
 		/* Wait for link to drop */
 		time = jiffies + (HZ / 10);
 		do {
-			if (~(hp100_inb(VG_LAN_CFG_1) & HP100_LINK_UP_ST))
+			if (!(hp100_inb(VG_LAN_CFG_1) & HP100_LINK_UP_ST))
 				break;
 			if (!in_interrupt())
 				schedule_timeout_interruptible(1);
@@ -2816,6 +2820,7 @@ void hp100_RegisterDump(struct net_device *dev)
 }
 #endif
 
+
 static void cleanup_dev(struct net_device *d)
 {
 	struct hp100_private *p = netdev_priv(d);
@@ -2833,8 +2838,7 @@ static void cleanup_dev(struct net_device *d)
 	free_netdev(d);
 }
 
-#ifdef CONFIG_EISA
-static int __init hp100_eisa_probe (struct device *gendev)
+static int hp100_eisa_probe(struct device *gendev)
 {
 	struct net_device *dev = alloc_etherdev(sizeof(struct hp100_private));
 	struct eisa_device *edev = to_eisa_device(gendev);
@@ -2875,9 +2879,7 @@ static struct eisa_driver hp100_eisa_driver = {
 		.remove  = hp100_eisa_remove,
         }
 };
-#endif
 
-#ifdef CONFIG_PCI
 static int hp100_pci_probe(struct pci_dev *pdev,
 			   const struct pci_device_id *ent)
 {
@@ -2939,13 +2941,13 @@ static void hp100_pci_remove(struct pci_dev *pdev)
 	pci_disable_device(pdev);
 }
 
+
 static struct pci_driver hp100_pci_driver = {
 	.name		= "hp100",
 	.id_table	= hp100_pci_tbl,
 	.probe		= hp100_pci_probe,
 	.remove		= hp100_pci_remove,
 };
-#endif
 
 /*
  *  module section
@@ -3022,36 +3024,27 @@ static int __init hp100_module_init(void)
 	err = hp100_isa_init();
 	if (err && err != -ENODEV)
 		goto out;
-#ifdef CONFIG_EISA
 	err = eisa_driver_register(&hp100_eisa_driver);
 	if (err && err != -ENODEV)
 		goto out2;
-#endif
-#ifdef CONFIG_PCI
 	err = pci_register_driver(&hp100_pci_driver);
 	if (err && err != -ENODEV)
 		goto out3;
-#endif
  out:
 	return err;
  out3:
-#ifdef CONFIG_EISA
 	eisa_driver_unregister (&hp100_eisa_driver);
  out2:
-#endif
 	hp100_isa_cleanup();
 	goto out;
 }
 
+
 static void __exit hp100_module_exit(void)
 {
 	hp100_isa_cleanup();
-#ifdef CONFIG_EISA
 	eisa_driver_unregister (&hp100_eisa_driver);
-#endif
-#ifdef CONFIG_PCI
 	pci_unregister_driver (&hp100_pci_driver);
-#endif
 }
 
 module_init(hp100_module_init)

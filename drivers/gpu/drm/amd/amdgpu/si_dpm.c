@@ -45,6 +45,7 @@
 
 #define SCLK_MIN_DEEPSLEEP_FREQ     1350
 
+
 /* sizeof(ATOM_PPLIB_EXTENDEDHEADER) */
 #define SIZE_OF_ATOM_PPLIB_EXTENDEDHEADER_V2 12
 #define SIZE_OF_ATOM_PPLIB_EXTENDEDHEADER_V3 14
@@ -1728,6 +1729,7 @@ static const struct si_dte_data dte_data_sun_xt =
 	true
 };
 
+
 static const struct si_cac_config_reg cac_weights_hainan[] =
 {
 	{ 0x0, 0x0000ffff, 0, 0x2d9, SISLANDS_CACCONFIG_CGIND },
@@ -1918,6 +1920,7 @@ static void si_calculate_leakage_for_v(struct amdgpu_device *adev,
 {
 	si_calculate_leakage_for_v_formula(coeff, fixed_kt, v, i_leakage, leakage);
 }
+
 
 static void si_update_dte_from_pl2(struct amdgpu_device *adev,
 				   struct si_dte_data *dte_data)
@@ -2992,6 +2995,7 @@ static int si_init_smc_spll_table(struct amdgpu_device *adev)
 		sclk += 512;
 	}
 
+
 	if (!ret)
 		ret = amdgpu_si_copy_bytes_to_smc(adev, si_pi->spll_table_start,
 						  (u8 *)spll_table,
@@ -3414,6 +3418,7 @@ static void rv770_get_engine_memory_ss(struct amdgpu_device *adev)
 	else
 		pi->dynamic_ss = false;
 }
+
 
 static void si_apply_state_adjust_rules(struct amdgpu_device *adev,
 					struct amdgpu_ps *rps)
@@ -4211,6 +4216,7 @@ static void si_setup_bsp(struct amdgpu_device *adev)
 			       &pi->pbsp,
 			       &pi->pbsu);
 
+
         pi->dsp = BSP(pi->bsp) | BSU(pi->bsu);
 	pi->psp = BSP(pi->pbsp) | BSU(pi->pbsu);
 
@@ -4533,6 +4539,7 @@ static int si_populate_smc_voltage_tables(struct amdgpu_device *adev,
 			table->voltageMaskTable.lowMask[SISLANDS_SMC_VOLTAGEMASK_VDDCI] =
 				cpu_to_be32(eg_pi->vddci_voltage_table.mask_low);
 		}
+
 
 		if (si_pi->mvdd_voltage_table.count) {
 			si_populate_smc_voltage_table(adev, &si_pi->mvdd_voltage_table, table);
@@ -5499,6 +5506,7 @@ static int si_convert_power_level_to_smc(struct amdgpu_device *adev,
 					pl->vddc, &level->vddc);
 	if (ret)
 		return ret;
+
 
 	ret = si_get_std_voltage_value(adev, &level->vddc, &std_vddc);
 	if (ret)
@@ -7090,6 +7098,7 @@ static void si_dpm_display_configuration_changed(void *handle)
 	si_program_display_gap(adev);
 }
 
+
 static void si_parse_pplib_non_clock_info(struct amdgpu_device *adev,
 					  struct amdgpu_ps *rps,
 					  struct _ATOM_PPLIB_NONCLOCK_INFO *non_clock_info,
@@ -8053,3 +8062,4 @@ static void si_dpm_set_irq_funcs(struct amdgpu_device *adev)
 	adev->pm.dpm.thermal.irq.num_types = AMDGPU_THERMAL_IRQ_LAST;
 	adev->pm.dpm.thermal.irq.funcs = &si_dpm_irq_funcs;
 }
+

@@ -145,6 +145,7 @@ static int parisc_driver_remove(struct device *dev)
 	return 0;
 }
 	
+
 /**
  * register_parisc_driver - Register this driver if it can handle a device
  * @driver: the PA-RISC driver to try
@@ -178,6 +179,7 @@ int register_parisc_driver(struct parisc_driver *driver)
 	return driver_register(&driver->drv);
 }
 EXPORT_SYMBOL(register_parisc_driver);
+
 
 struct match_count {
 	struct parisc_driver * driver;
@@ -214,6 +216,8 @@ int count_parisc_driver(struct parisc_driver *driver)
 
 	return m.count;
 }
+
+
 
 /**
  * unregister_parisc_driver - Unregister this driver from the list of drivers
@@ -644,6 +648,10 @@ static int match_pci_device(struct device *dev, int index,
 					(modpath->mod == PCI_FUNC(devfn)));
 	}
 
+	/* index might be out of bounds for bc[] */
+	if (index >= 6)
+		return 0;
+
 	id = PCI_SLOT(pdev->devfn) | (PCI_FUNC(pdev->devfn) << 5);
 	return (modpath->bc[index] == id);
 }
@@ -887,6 +895,7 @@ void init_parisc_bus(void)
 		panic("Could not register PA-RISC root device\n");
 	get_device(&root);
 }
+
 
 static int print_one_device(struct device * dev, void * data)
 {

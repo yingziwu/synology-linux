@@ -74,6 +74,7 @@ int mv_pp3_gnss_ingress_cos_to_vq_get(unsigned short vport, int cos, int *vq);
 int mv_pp3_gnss_ingress_vq_size_set(unsigned short vport, int vq, u16 length);
 int mv_pp3_gnss_ingress_vq_size_get(unsigned short vport, int vq, u16 *length);
 
+
 int mv_pp3_gnss_egress_vq_drop_set(unsigned short vport, int vq, struct mv_nss_drop *drop);
 int mv_pp3_gnss_egress_vq_drop_get(unsigned short vport, int vq, struct mv_nss_drop *drop);
 int mv_pp3_gnss_egress_vq_sched_set(unsigned short vport, int vq, struct mv_nss_sched *sched);

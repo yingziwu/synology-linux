@@ -38,6 +38,7 @@ extern int rtk_dwc3_drd_event_buffers_setup(struct dwc3 *dwc);
 extern int dwc3_gadget_restart(struct dwc3 *dwc);
 extern int dwc3_gadget_stop_on_switch(struct dwc3 *dwc);
 
+
 struct usb_gadget_driver *rtk_dwc3_set_and_get_usb_gadget_driver(
 	    struct usb_gadget_driver *driver)
 {

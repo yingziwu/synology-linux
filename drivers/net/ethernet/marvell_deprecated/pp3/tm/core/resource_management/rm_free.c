@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -68,6 +69,7 @@ int rm_free_queue(rmctl_t hndl, uint32_t queue_ind)
 	return 0;
 }
 
+
 /**
  */
 int rm_free_a_node(rmctl_t hndl, uint32_t a_node_ind, uint32_t range)
@@ -119,6 +121,7 @@ int rm_free_a_node(rmctl_t hndl, uint32_t a_node_ind, uint32_t range)
 
 	return rc;
 }
+
 
 /**
  */
@@ -172,6 +175,7 @@ int rm_free_b_node(rmctl_t hndl, uint32_t b_node_ind, uint32_t range)
 	return rc;
 }
 
+
 /**
  */
 int rm_free_c_node(rmctl_t hndl, uint32_t c_node_ind, uint32_t range)
@@ -224,6 +228,7 @@ int rm_free_c_node(rmctl_t hndl, uint32_t c_node_ind, uint32_t range)
 	return rc;
 }
 
+
 /**
  */
 int rm_free_port(rmctl_t hndl, uint8_t port_ind, uint32_t range)
@@ -267,6 +272,7 @@ int rm_free_port(rmctl_t hndl, uint8_t port_ind, uint32_t range)
 	return 0;
 }
 
+
 /**
  */
 int rm_free_wred_queue_curve(rmctl_t hndl, uint16_t entry_ind)
@@ -294,6 +300,7 @@ int rm_free_wred_queue_curve(rmctl_t hndl, uint16_t entry_ind)
 
 	return 0;
 }
+
 
 /**
  */
@@ -323,6 +330,7 @@ int rm_free_wred_a_node_curve(rmctl_t hndl, uint16_t entry_ind)
 	return 0;
 }
 
+
 /**
  */
 int rm_free_wred_b_node_curve(rmctl_t hndl, uint16_t entry_ind)
@@ -350,6 +358,7 @@ int rm_free_wred_b_node_curve(rmctl_t hndl, uint16_t entry_ind)
 
 	return 0;
 }
+
 
 /**
  */
@@ -410,6 +419,7 @@ int rm_free_wred_c_node_curve(rmctl_t hndl, uint8_t cos, uint16_t entry_ind)
 	return 0;
 }
 
+
 /**
  */
 int rm_free_wred_port_curve(rmctl_t hndl, uint16_t entry_ind)
@@ -437,6 +447,7 @@ int rm_free_wred_port_curve(rmctl_t hndl, uint16_t entry_ind)
 
 	return 0;
 }
+
 
 /**
  */
@@ -502,6 +513,7 @@ int rm_free_wred_port_curve_cos(rmctl_t hndl, uint8_t cos, uint16_t entry_ind)
 	return 0;
 }
 
+
 /**
  */
 int rm_free_queue_drop_profile(rmctl_t hndl, uint16_t entry_ind)
@@ -529,6 +541,7 @@ int rm_free_queue_drop_profile(rmctl_t hndl, uint16_t entry_ind)
 
 	return 0;
 }
+
 
 /**
  */
@@ -558,6 +571,7 @@ int rm_free_a_node_drop_profile(rmctl_t hndl, uint16_t entry_ind)
 	return 0;
 }
 
+
 /**
  */
 int rm_free_b_node_drop_profile(rmctl_t hndl, uint16_t entry_ind)
@@ -585,6 +599,7 @@ int rm_free_b_node_drop_profile(rmctl_t hndl, uint16_t entry_ind)
 
 	return 0;
 }
+
 
 /**
  */
@@ -645,6 +660,7 @@ int rm_free_c_node_drop_profile(rmctl_t hndl, uint8_t cos, uint16_t entry_ind)
 	return 0;
 }
 
+
 /**
  */
 int rm_free_port_drop_profile(rmctl_t hndl, uint16_t entry_ind)
@@ -672,6 +688,7 @@ int rm_free_port_drop_profile(rmctl_t hndl, uint16_t entry_ind)
 
 	return 0;
 }
+
 
 /* not used for HX/AX*/
 /**

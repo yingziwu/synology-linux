@@ -10,6 +10,7 @@
 
 #define to_urb(d) container_of(d, struct urb, kref)
 
+
 static void urb_destroy(struct kref *kref)
 {
 	struct urb *urb = to_urb(kref);
@@ -334,7 +335,7 @@ int usb_submit_urb(struct urb *urb, gfp_t mem_flags)
 	if (!urb || !urb->complete)
 		return -EINVAL;
 	if (urb->hcpriv) {
-		WARN_ONCE(1, "URB %p submitted while active\n", urb);
+		WARN_ONCE(1, "URB %pK submitted while active\n", urb);
 		return -EBUSY;
 	}
 
@@ -772,6 +773,7 @@ void usb_kill_anchored_urbs(struct usb_anchor *anchor)
 }
 EXPORT_SYMBOL_GPL(usb_kill_anchored_urbs);
 
+
 /**
  * usb_poison_anchored_urbs - cease all traffic from an anchor
  * @anchor: anchor the requests are bound to
@@ -964,3 +966,4 @@ int usb_anchor_empty(struct usb_anchor *anchor)
 }
 
 EXPORT_SYMBOL_GPL(usb_anchor_empty);
+

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Generic OPP Interface
  *
@@ -17,18 +20,18 @@
 #include <linux/device.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 #include <linux/limits.h>
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 #include <linux/pm_opp.h>
 #include <linux/rculist.h>
 #include <linux/rcupdate.h>
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 struct clk;
 struct regulator;
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 /* Lock to allow exclusive modification to the device and opp lists */
 extern struct mutex dev_opp_list_lock;
 
@@ -58,18 +61,18 @@ extern struct mutex dev_opp_list_lock;
  *		are protected by the dev_opp_list_lock for integrity.
  *		IMPORTANT: the opp nodes should be maintained in increasing
  *		order.
-#if defined(CONFIG_SYNO_RTD1619)
-#else // CONFIG_SYNO_RTD1619
+#if defined(MY_DEF_HERE)
+#else // MY_DEF_HERE
  * @dynamic:	not-created from static DT entries.
-#endif // CONFIG_SYNO_RTD1619
+#endif // MY_DEF_HERE
  * @available:	true/false - marks if this OPP as available or not
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
  * @dynamic:	not-created from static DT entries.
-#endif // CONFIG_SYNO_RTD1619
+#endif // MY_DEF_HERE
  * @turbo:	true if turbo (boost) OPP
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
  * @suspend:	true if suspend OPP
-#endif // CONFIG_SYNO_RTD1619
+#endif // MY_DEF_HERE
  * @rate:	Frequency in hertz
  * @u_volt:	Target voltage in microvolts corresponding to this OPP
  * @u_volt_min:	Minimum voltage in microvolts corresponding to this OPP
@@ -80,9 +83,9 @@ extern struct mutex dev_opp_list_lock;
  * @dev_opp:	points back to the device_opp struct this opp belongs to
  * @rcu_head:	RCU callback head used for deferred freeing
  * @np:		OPP's device node.
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
  * @dentry:	debugfs dentry pointer (per opp)
-#endif // CONFIG_SYNO_RTD1619
+#endif // MY_DEF_HERE
  *
  * This structure stores the OPP information for a given device.
  */
@@ -92,9 +95,9 @@ struct dev_pm_opp {
 	bool available;
 	bool dynamic;
 	bool turbo;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	bool suspend;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	unsigned long rate;
 
 	unsigned long u_volt;
@@ -107,12 +110,12 @@ struct dev_pm_opp {
 	struct rcu_head rcu_head;
 
 	struct device_node *np;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 
 #ifdef CONFIG_DEBUG_FS
 	struct dentry *dentry;
 #endif
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 };
 
 /**
@@ -120,9 +123,9 @@ struct dev_pm_opp {
  * @node:	list node
  * @dev:	device to which the struct object belongs
  * @rcu_head:	RCU callback head used for deferred freeing
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
  * @dentry:	debugfs dentry pointer (per device)
-#endif // CONFIG_SYNO_RTD1619
+#endif // MY_DEF_HERE
  *
  * This is an internal data structure maintaining the list of devices that are
  * managed by 'struct device_opp'.
@@ -131,12 +134,12 @@ struct device_list_opp {
 	struct list_head node;
 	const struct device *dev;
 	struct rcu_head rcu_head;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 
 #ifdef CONFIG_DEBUG_FS
 	struct dentry *dentry;
 #endif
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 };
 
 /**
@@ -151,11 +154,11 @@ struct device_list_opp {
  * @dev_list:	list of devices that share these OPPs
  * @opp_list:	list of opps
  * @np:		struct device_node pointer for opp's DT node.
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
  * @clock_latency_ns_max: Max clock latency in nanoseconds.
-#endif // CONFIG_SYNO_RTD1619
+#endif // MY_DEF_HERE
  * @shared_opp: OPP is shared between multiple devices.
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
  * @suspend_opp: Pointer to OPP to be used during device suspend.
  * @supported_hw: Array of version number to support.
  * @supported_hw_count: Number of elements in supported_hw array.
@@ -166,7 +169,7 @@ struct device_list_opp {
  * @dentry_name: Name of the real dentry.
  *
  * @voltage_tolerance_v1: In percentage, for v1 bindings only.
-#endif // CONFIG_SYNO_RTD1619
+#endif // MY_DEF_HERE
  *
  * This is an internal data structure maintaining the link to opps attached to
  * a device. This structure is not meant to be shared to users as it is
@@ -186,15 +189,15 @@ struct device_opp {
 
 	struct device_node *np;
 	unsigned long clock_latency_ns_max;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 
 	/* For backward compatibility with v1 bindings */
 	unsigned int voltage_tolerance_v1;
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	bool shared_opp;
 	struct dev_pm_opp *suspend_opp;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 
 	unsigned int *supported_hw;
 	unsigned int supported_hw_count;
@@ -206,7 +209,7 @@ struct device_opp {
 	struct dentry *dentry;
 	char dentry_name[NAME_MAX];
 #endif
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 };
 
 /* Routines internal to opp core */
@@ -215,7 +218,7 @@ struct device_list_opp *_add_list_dev(const struct device *dev,
 				      struct device_opp *dev_opp);
 struct device_node *_of_get_opp_desc_node(struct device *dev);
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 #ifdef CONFIG_DEBUG_FS
 void opp_debug_remove_one(struct dev_pm_opp *opp);
 int opp_debug_create_one(struct dev_pm_opp *opp, struct device_opp *dev_opp);
@@ -238,5 +241,5 @@ static inline void opp_debug_unregister(struct device_list_opp *list_dev,
 { }
 #endif		/* DEBUG_FS */
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 #endif		/* __DRIVER_OPP_H__ */

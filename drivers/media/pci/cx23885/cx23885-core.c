@@ -652,6 +652,7 @@ static void cx23885_reset(struct cx23885_dev *dev)
 	cx23885_gpio_setup(dev);
 }
 
+
 static int cx23885_pci_quirks(struct cx23885_dev *dev)
 {
 	dprintk(1, "%s()\n", __func__);
@@ -871,6 +872,16 @@ static int cx23885_dev_setup(struct cx23885_dev *dev)
 	if (cx23885_boards[dev->board].clk_freq > 0)
 		dev->clk_freq = cx23885_boards[dev->board].clk_freq;
 
+	if (dev->board == CX23885_BOARD_HAUPPAUGE_IMPACTVCBE &&
+		dev->pci->subsystem_device == 0x7137) {
+		/* Hauppauge ImpactVCBe device ID 0x7137 is populated
+		 * with an 888, and a 25Mhz crystal, instead of the
+		 * usual third overtone 50Mhz. The default clock rate must
+		 * be overridden so the cx25840 is properly configured
+		 */
+		dev->clk_freq = 25000000;
+	}
+
 	dev->pci_bus  = dev->pci->bus->number;
 	dev->pci_slot = PCI_SLOT(dev->pci->devfn);
 	cx23885_irq_add(dev, 0x001f00);
@@ -1063,6 +1074,7 @@ static __le32 *cx23885_risc_field(__le32 *rp, struct scatterlist *sglist,
 	struct scatterlist *sg;
 	unsigned int line, todo, sol;
 
+
 	if (jump) {
 		*(rp++) = cpu_to_le32(RISC_JUMP);
 		*(rp++) = cpu_to_le32(0);
@@ -1235,11 +1247,14 @@ int cx23885_risc_vbibuffer(struct pci_dev *pci, struct cx23885_riscmem *risc,
 		rp = cx23885_risc_field(rp, sglist, bottom_offset, 0x200,
 					bpl, padding, lines, 0, UNSET == top_offset);
 
+
+
 	/* save pointer to jmp instruction address */
 	risc->jmp = rp;
 	BUG_ON((risc->jmp - risc->cpu + 2) * sizeof(*risc->cpu) > risc->size);
 	return 0;
 }
+
 
 void cx23885_free_buffer(struct cx23885_dev *dev, struct cx23885_buffer *buf)
 {

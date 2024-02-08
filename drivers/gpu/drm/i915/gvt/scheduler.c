@@ -1057,6 +1057,7 @@ void intel_vgpu_clean_submission(struct intel_vgpu *vgpu)
 	kmem_cache_destroy(s->workloads);
 }
 
+
 /**
  * intel_vgpu_reset_submission - reset submission-related resource for vGPU
  * @vgpu: a vGPU

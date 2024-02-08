@@ -17,6 +17,7 @@
 #ifndef _VPU_CONFIG_H_
 #define _VPU_CONFIG_H_
 
+
 #define BODA7503_CODE                   0x7503
 #define CODA7542_CODE                   0x7542
 #define BODA950_CODE                    0x9500
@@ -28,10 +29,12 @@
 #define WAVE420_CODE                    0x4200          /* Wave420   */
 #define WAVE412_CODE                    0x4120
 
+
 #define MAX_INST_HANDLE_SIZE	        (32*1024)
 #define MAX_NUM_INSTANCE 8
 #define MAX_NUM_VPU_CORE 2
 #define MAX_NUM_VCORE                   1
+
 
 #define MAX_ENC_AVC_PIC_WIDTH           4096
 #define MAX_ENC_AVC_PIC_HEIGHT          2304
@@ -95,5 +98,7 @@
 #define USE_IMD_INTERNAL_BUF            1
 #define USE_RDO_INTERNAL_BUF            1
 #define USE_LF_INTERNAL_BUF             1
+
+
 
 #endif  /* _VPU_CONFIG_H_ */

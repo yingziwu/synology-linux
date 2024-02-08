@@ -39,3 +39,4 @@ void dce100_set_bandwidth(
 		bool decrease_allowed);
 
 #endif /* __DC_HWSS_DCE100_H__ */
+

@@ -208,6 +208,7 @@ static int amdgpu_atpx_validate(struct amdgpu_atpx *atpx)
 			  ATPX_DFP_SIGNAL_MUXED))
 		atpx->functions.disp_mux_cntl = true;
 
+
 	/* some bioses set these bits rather than flagging power_cntl as supported */
 	if (valid_bits & (ATPX_DYNAMIC_PX_SUPPORTED |
 			  ATPX_DYNAMIC_DGPU_POWER_OFF_SUPPORTED))

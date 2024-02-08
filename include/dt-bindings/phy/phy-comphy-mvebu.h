@@ -148,3 +148,4 @@
 #endif /* MY_DEF_HERE */
 
 #endif /* _DT_BINDINGS_PHY_COMPHY_MVEBU */
+

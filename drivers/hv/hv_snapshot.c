@@ -55,6 +55,7 @@ static struct {
 	struct hv_vss_msg  *msg; /* current message */
 } vss_transaction;
 
+
 static void vss_respond_to_host(int error);
 
 /*
@@ -113,7 +114,7 @@ static int vss_handle_handshake(struct hv_vss_msg *vss_msg)
 	default:
 		return -EINVAL;
 	}
-	vss_transaction.state = HVUTIL_READY;
+	hv_poll_channel(vss_transaction.recv_channel, vss_poll_wrapper);
 	pr_debug("VSS: userspace daemon ver. %d registered\n", dm_reg_value);
 	return 0;
 }
@@ -149,6 +150,7 @@ static int vss_on_msg(void *msg, int len)
 	}
 	return 0;
 }
+
 
 static void vss_send_op(struct work_struct *dummy)
 {
@@ -233,6 +235,7 @@ void hv_vss_onchannelcallback(void *context)
 	u64 requestid;
 	struct hv_vss_msg *vss_msg;
 
+
 	struct icmsg_hdr *icmsghdrp;
 	struct icmsg_negotiate *negop = NULL;
 
@@ -261,7 +264,6 @@ void hv_vss_onchannelcallback(void *context)
 			 */
 
 			vss_transaction.recv_len = recvlen;
-			vss_transaction.recv_channel = channel;
 			vss_transaction.recv_req_id = requestid;
 			vss_transaction.msg = (struct hv_vss_msg *)vss_msg;
 
@@ -337,6 +339,7 @@ hv_vss_init(struct hv_util_service *srv)
 		return -ENOTSUPP;
 	}
 	recv_buffer = srv->recv_buffer;
+	vss_transaction.recv_channel = srv->channel;
 
 	/*
 	 * When this driver loads, the user level daemon that

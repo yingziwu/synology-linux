@@ -165,6 +165,7 @@ int intel_gvt_render_mmio_to_ring_id(struct intel_gvt *gvt,
 #define fence_num_to_offset(num) \
 	(num * 8 + i915_mmio_reg_offset(FENCE_REG_GEN6_LO(0)))
 
+
 void enter_failsafe_mode(struct intel_vgpu *vgpu, int reason)
 {
 	switch (reason) {

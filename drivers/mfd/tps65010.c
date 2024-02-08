@@ -39,6 +39,7 @@
 
 #include <linux/gpio.h>
 
+
 /*-------------------------------------------------------------------------*/
 
 #define	DRIVER_VERSION	"2 May 2005"
@@ -220,6 +221,7 @@ static int dbg_show(struct seq_file *s, void *_)
 
 	seq_printf(s, "%scharging\n\n", tps->charging ? "" : "(not) ");
 
+
 	/* registers for monitoring battery charging and status; note
 	 * that reading chgstat and regstat may ack IRQs...
 	 */
@@ -257,6 +259,7 @@ static int dbg_show(struct seq_file *s, void *_)
 	/* both LD0s, and their lowpower behavior */
 	value = i2c_smbus_read_byte_data(tps->client, TPS_VREGS1);
 	seq_printf(s, "vregs1    %02x\n\n", value);
+
 
 	/* LEDs and GPIOs */
 	value = i2c_smbus_read_byte_data(tps->client, TPS_LED1_ON);
@@ -510,6 +513,7 @@ static int tps65010_gpio_get(struct gpio_chip *chip, unsigned offset)
 	return 0;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static struct tps65010 *the_tps;
@@ -576,6 +580,7 @@ static int tps65010_probe(struct i2c_client *client,
 		set_bit(FLAG_IRQ_ENABLE, &tps->flags);
 	} else
 		dev_warn(&client->dev, "IRQ not configured!\n");
+
 
 	switch (tps->model) {
 	case TPS65010:
@@ -1094,3 +1099,4 @@ static void __exit tps_exit(void)
 	i2c_del_driver(&tps65010_driver);
 }
 module_exit(tps_exit);
+

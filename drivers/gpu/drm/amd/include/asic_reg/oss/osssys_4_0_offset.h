@@ -21,6 +21,8 @@
 #ifndef _osssys_4_0_OFFSET_HEADER
 #define _osssys_4_0_OFFSET_HEADER
 
+
+
 // addressBlock: osssys_osssysdec
 // base address: 0x4280
 #define mmIH_VMID_0_LUT                                                                                0x0000

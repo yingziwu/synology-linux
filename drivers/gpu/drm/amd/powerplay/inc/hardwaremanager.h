@@ -23,11 +23,14 @@
 #ifndef _HARDWARE_MANAGER_H_
 #define _HARDWARE_MANAGER_H_
 
+
+
 struct pp_hwmgr;
 struct pp_hw_power_state;
 struct pp_power_state;
 enum amd_dpm_forced_level;
 struct PP_TemperatureRange;
+
 
 struct phm_fan_speed_info {
 	uint32_t min_percent;
@@ -436,3 +439,4 @@ extern int phm_get_max_high_clocks(struct pp_hwmgr *hwmgr, struct amd_pp_simple_
 extern int phm_disable_smc_firmware_ctf(struct pp_hwmgr *hwmgr);
 extern int phm_reset_power_profile_state(struct pp_hwmgr *hwmgr);
 #endif /* _HARDWARE_MANAGER_H_ */
+

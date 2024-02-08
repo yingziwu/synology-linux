@@ -17,6 +17,7 @@
 #include <linux/proc_fs.h>
 #include "i2c-algo-phoenix.h"
 
+
 /*------------------------------------------------------------------
  * Func : venus_xfer
  *
@@ -38,6 +39,7 @@ int venus_xfer(
     return p_alog->masterXfer(p_alog->dev_id, msgs, num);
 }
 
+
 /*------------------------------------------------------------------
  * Func : venus_func
  *
@@ -55,11 +57,14 @@ u32 venus_func(
 	return I2C_FUNC_SMBUS_EMUL;
 }
 
+
 static
 struct i2c_algorithm venus_algo = {
 	.master_xfer	= venus_xfer,
 	.functionality	= venus_func,
 };
+
+
 
 /*------------------------------------------------------------------
  * Func : i2c_venus_add_bus
@@ -76,6 +81,8 @@ int i2c_venus_add_bus(struct i2c_adapter *adap)
 	return i2c_add_adapter(adap);
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : i2c_venus_add_bus
  *
@@ -90,6 +97,7 @@ int i2c_venus_del_bus(struct i2c_adapter *adap)
 	i2c_del_adapter(adap);
 	return ;
 }
+
 
 EXPORT_SYMBOL(i2c_venus_add_bus);
 EXPORT_SYMBOL(i2c_venus_del_bus);

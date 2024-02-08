@@ -1621,6 +1621,7 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
 		ret = regulator_enable(rdev->supply);
 		if (ret < 0) {
 			_regulator_put(rdev->supply);
+			rdev->supply = NULL;
 			return ret;
 		}
 	}
@@ -1977,6 +1978,7 @@ void regulator_bulk_unregister_supply_alias(struct device *dev,
 		regulator_unregister_supply_alias(dev, id[i]);
 }
 EXPORT_SYMBOL_GPL(regulator_bulk_unregister_supply_alias);
+
 
 /* Manage enable GPIO list. Same GPIO pin can be shared among regulators */
 static int regulator_ena_gpio_request(struct regulator_dev *rdev,

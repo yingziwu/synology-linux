@@ -468,7 +468,7 @@ static int ad2s1210_read_raw(struct iio_dev *indio_dev,
 			     long m)
 {
 	struct ad2s1210_state *st = iio_priv(indio_dev);
-	bool negative;
+	u16 negative;
 	int ret = 0;
 	u16 pos;
 	s16 vel;
@@ -559,6 +559,7 @@ static IIO_DEVICE_ATTR(lot_high_thrd, S_IRUGO | S_IWUSR,
 static IIO_DEVICE_ATTR(lot_low_thrd, S_IRUGO | S_IWUSR,
 		       ad2s1210_show_reg, ad2s1210_store_reg,
 		       AD2S1210_REG_LOT_LOW_THRD);
+
 
 static const struct iio_chan_spec ad2s1210_channels[] = {
 	{

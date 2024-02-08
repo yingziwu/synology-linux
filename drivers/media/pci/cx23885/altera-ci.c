@@ -355,6 +355,7 @@ static int altera_ci_slot_reset(struct dvb_ca_en50221 *en50221, int slot)
 			break;
 	}
 
+
 	ci_dbg_print("%s: %d msecs\n", __func__,
 		jiffies_to_msecs(jiffies + msecs_to_jiffies(9999) - t_out));
 
@@ -493,6 +494,7 @@ void altera_ci_release(void *dev, int ci_nr)
 	if (temp_int != NULL) {
 		state = temp_int->internal->state[ci_nr - 1];
 		altera_hw_filt_release(dev, ci_nr);
+
 
 		if (((temp_int->internal->filts_used) <= 0) &&
 				((--(temp_int->internal->cis_used)) <= 0)) {
@@ -658,6 +660,10 @@ static int altera_hw_filt_init(struct altera_ci_config *config, int hw_filt_nr)
 		}
 
 		temp_int = append_internal(inter);
+		if (!temp_int) {
+			ret = -ENOMEM;
+			goto err;
+		}
 		inter->filts_used = 1;
 		inter->dev = config->dev;
 		inter->fpga_rw = config->fpga_rw;
@@ -692,6 +698,7 @@ err:
 		     __func__, ret);
 
 	kfree(pid_filt);
+	kfree(inter);
 
 	return ret;
 }
@@ -726,6 +733,10 @@ int altera_ci_init(struct altera_ci_config *config, int ci_nr)
 		}
 
 		temp_int = append_internal(inter);
+		if (!temp_int) {
+			ret = -ENOMEM;
+			goto err;
+		}
 		inter->cis_used = 1;
 		inter->dev = config->dev;
 		inter->fpga_rw = config->fpga_rw;
@@ -794,6 +805,7 @@ err:
 	ci_dbg_print("%s: Cannot initialize CI: Error %d.\n", __func__, ret);
 
 	kfree(state);
+	kfree(inter);
 
 	return ret;
 }

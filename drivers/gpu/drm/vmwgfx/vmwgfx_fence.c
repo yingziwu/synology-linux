@@ -232,6 +232,7 @@ static const struct dma_fence_ops vmw_fence_ops = {
 	.release = vmw_fence_obj_destroy,
 };
 
+
 /**
  * Execute signal actions on fences recently signaled.
  * This is done from a workqueue so we don't have to execute
@@ -405,6 +406,7 @@ static bool vmw_fence_goal_new_locked(struct vmw_fence_manager *fman,
 	return true;
 }
 
+
 /**
  * vmw_fence_goal_check_locked - Replace the device fence goal seqno if
  * needed.
@@ -550,6 +552,7 @@ out_err_init:
 	return ret;
 }
 
+
 static void vmw_user_fence_destroy(struct vmw_fence_obj *fence)
 {
 	struct vmw_user_fence *ufence =
@@ -623,6 +626,7 @@ int vmw_user_fence_create(struct drm_file *file_priv,
 				   VMW_RES_FENCE,
 				   &vmw_user_fence_base_release, NULL);
 
+
 	if (unlikely(ret != 0)) {
 		/*
 		 * Free the base object's reference
@@ -643,6 +647,7 @@ out_no_object:
 	return ret;
 }
 
+
 /**
  * vmw_wait_dma_fence - Wait for a dma fence
  *
@@ -658,6 +663,7 @@ int vmw_wait_dma_fence(struct vmw_fence_manager *fman,
 	struct dma_fence_array *fence_array;
 	int ret = 0;
 	int i;
+
 
 	if (dma_fence_is_signaled(fence))
 		return 0;
@@ -685,6 +691,7 @@ int vmw_wait_dma_fence(struct vmw_fence_manager *fman,
 
 	return 0;
 }
+
 
 /**
  * vmw_fence_fifo_down - signal all unsignaled fence objects.
@@ -735,6 +742,7 @@ void vmw_fence_fifo_up(struct vmw_fence_manager *fman)
 	spin_unlock(&fman->lock);
 }
 
+
 /**
  * vmw_fence_obj_lookup - Look up a user-space fence object
  *
@@ -768,6 +776,7 @@ vmw_fence_obj_lookup(struct ttm_object_file *tfile, u32 handle)
 
 	return base;
 }
+
 
 int vmw_fence_obj_wait_ioctl(struct drm_device *dev, void *data,
 			     struct drm_file *file_priv)
@@ -854,6 +863,7 @@ int vmw_fence_obj_signaled_ioctl(struct drm_device *dev, void *data,
 	return 0;
 }
 
+
 int vmw_fence_obj_unref_ioctl(struct drm_device *dev, void *data,
 			      struct drm_file *file_priv)
 {
@@ -882,6 +892,7 @@ static void vmw_event_fence_action_seq_passed(struct vmw_fence_action *action)
 	struct drm_device *dev = eaction->dev;
 	struct drm_pending_event *event = eaction->event;
 	struct drm_file *file_priv;
+
 
 	if (unlikely(event == NULL))
 		return;
@@ -919,6 +930,7 @@ static void vmw_event_fence_action_cleanup(struct vmw_fence_action *action)
 	vmw_fence_obj_unreference(&eaction->fence);
 	kfree(eaction);
 }
+
 
 /**
  * vmw_fence_obj_add_action - Add an action to a fence object.

@@ -37,6 +37,7 @@
 #define CTX \
 	oppn10->base.ctx
 
+
 /************* FORMATTER ************/
 
 /**
@@ -68,6 +69,7 @@ static void opp1_set_spatial_dither(
 			FMT_HIGHPASS_RANDOM_ENABLE, 0,
 			FMT_FRAME_RANDOM_ENABLE, 0,
 			FMT_RGB_RANDOM_ENABLE, 0);
+
 
 	/* only use FRAME_COUNTER_MAX if frameRandom == 1*/
 	if (params->flags.FRAME_RANDOM == 1) {

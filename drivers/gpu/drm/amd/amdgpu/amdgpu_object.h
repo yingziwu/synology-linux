@@ -260,6 +260,7 @@ int amdgpu_bo_restore_from_shadow(struct amdgpu_device *adev,
 				  struct dma_fence **fence,
 				  bool direct);
 
+
 /*
  * sub allocation
  */
@@ -293,5 +294,6 @@ void amdgpu_sa_bo_free(struct amdgpu_device *adev,
 void amdgpu_sa_bo_dump_debug_info(struct amdgpu_sa_manager *sa_manager,
 					 struct seq_file *m);
 #endif
+
 
 #endif

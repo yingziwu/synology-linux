@@ -441,6 +441,7 @@ static int ocfs2_validate_dir_block(struct super_block *sb,
 	struct ocfs2_dir_block_trailer *trailer =
 		ocfs2_trailer_from_bh(bh, sb);
 
+
 	/*
 	 * We don't validate dirents here, that's handled
 	 * in-place when the code walks them.
@@ -1895,8 +1896,7 @@ static int ocfs2_dir_foreach_blk_el(struct inode *inode,
 				/* On error, skip the f_pos to the
 				   next block. */
 				ctx->pos = (ctx->pos | (sb->s_blocksize - 1)) + 1;
-				brelse(bh);
-				continue;
+				break;
 			}
 			if (le64_to_cpu(de->inode)) {
 				unsigned char d_type = DT_UNKNOWN;

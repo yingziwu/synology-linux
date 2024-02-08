@@ -463,6 +463,7 @@ enum drm_plane_type {
 	DRM_PLANE_TYPE_CURSOR,
 };
 
+
 /**
  * struct drm_plane - central DRM plane control structure
  * @dev: DRM device this plane belongs to
@@ -649,5 +650,6 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
  */
 #define drm_for_each_plane(plane, dev) \
 	list_for_each_entry(plane, &(dev)->mode_config.plane_list, head)
+
 
 #endif

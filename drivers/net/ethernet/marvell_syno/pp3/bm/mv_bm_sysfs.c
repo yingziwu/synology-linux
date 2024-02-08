@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -51,6 +52,7 @@ static ssize_t pp3_dev_bm_help(char *b)
 	o += scnprintf(b+o, PAGE_SIZE-o, "echo [bank]           > bank_regs    - show BM bank registers\n");
 	o += scnprintf(b+o, PAGE_SIZE-o, "echo [bank]           > bank_dump    - show BM bank cache memory\n");
 	o += scnprintf(b+o, PAGE_SIZE-o, "echo [mask]           > debug        - Registers read and write debug outputs\n");
+
 
 	o += scnprintf(b+o, PAGE_SIZE-o, "\n");
 	o += scnprintf(b+o, PAGE_SIZE-o, "parameters:\n");

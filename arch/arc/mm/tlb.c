@@ -98,6 +98,7 @@
  * J-TLB entry got evicted/replaced.
  */
 
+
 /* A copy of the ASID from the PID reg is kept in asid_cache */
 DEFINE_PER_CPU(unsigned int, asid_cache) = MM_CTXT_FIRST_CYCLE;
 
@@ -883,9 +884,6 @@ void do_tlb_overlap_fault(unsigned long cause, unsigned long address,
 	int set;
 
 	local_irq_save(flags);
-
-	/* re-enable the MMU */
-	write_aux_reg(ARC_REG_PID, MMU_ENABLE | read_aux_reg(ARC_REG_PID));
 
 	/* loop thru all sets of TLB */
 	for (set = 0; set < mmu->sets; set++) {

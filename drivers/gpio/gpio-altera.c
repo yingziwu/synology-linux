@@ -97,21 +97,18 @@ static int altera_gpio_irq_set_type(struct irq_data *d,
 
 	altera_gc = to_altera(irq_data_get_irq_chip_data(d));
 
-	if (type == IRQ_TYPE_NONE)
+	if (type == IRQ_TYPE_NONE) {
+		irq_set_handler_locked(d, handle_bad_irq);
 		return 0;
-	if (type == IRQ_TYPE_LEVEL_HIGH &&
-		altera_gc->interrupt_trigger == IRQ_TYPE_LEVEL_HIGH)
+	}
+	if (type == altera_gc->interrupt_trigger) {
+		if (type == IRQ_TYPE_LEVEL_HIGH)
+			irq_set_handler_locked(d, handle_level_irq);
+		else
+			irq_set_handler_locked(d, handle_simple_irq);
 		return 0;
-	if (type == IRQ_TYPE_EDGE_RISING &&
-		altera_gc->interrupt_trigger == IRQ_TYPE_EDGE_RISING)
-		return 0;
-	if (type == IRQ_TYPE_EDGE_FALLING &&
-		altera_gc->interrupt_trigger == IRQ_TYPE_EDGE_FALLING)
-		return 0;
-	if (type == IRQ_TYPE_EDGE_BOTH &&
-		altera_gc->interrupt_trigger == IRQ_TYPE_EDGE_BOTH)
-		return 0;
-
+	}
+	irq_set_handler_locked(d, handle_bad_irq);
 	return -EINVAL;
 }
 
@@ -320,7 +317,7 @@ static int altera_gpio_probe(struct platform_device *pdev)
 	altera_gc->interrupt_trigger = reg;
 
 	ret = gpiochip_irqchip_add(&altera_gc->mmchip.gc, &altera_irq_chip, 0,
-		handle_simple_irq, IRQ_TYPE_NONE);
+		handle_bad_irq, IRQ_TYPE_NONE);
 
 	if (ret) {
 		dev_info(&pdev->dev, "could not add irqchip\n");

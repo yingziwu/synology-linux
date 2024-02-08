@@ -2249,6 +2249,7 @@ static struct usb_function_instance *tcm_alloc_inst(void)
 	struct f_tcm_opts *opts;
 	int i;
 
+
 	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
 	if (!opts)
 		return ERR_PTR(-ENOMEM);

@@ -71,6 +71,7 @@ static inline int notify_page_fault(struct pt_regs *regs)
 	return ret;
 }
 
+
 /*
  * Unlock any spinlocks which will prevent us from getting the
  * message out.
@@ -458,6 +459,8 @@ retry:
 	/* No reason to continue if interrupted by SIGKILL. */
 	if ((fault & VM_FAULT_RETRY) && fatal_signal_pending(current)) {
 		fault = VM_FAULT_SIGNAL;
+		if (flags & FAULT_FLAG_RETRY_NOWAIT)
+			goto out_up;
 		goto out;
 	}
 	if (unlikely(fault & VM_FAULT_ERROR))

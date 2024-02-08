@@ -34,6 +34,9 @@
 #define WRITE_DATA_1		(1<<0)
 #define WRITE_DATA_0		(0<<0)
 
+
+
+
 #define SB2_DBG_START_REG0	(iobase + 0x458)
 #define SB2_DBG_START_REG1	(iobase + 0x45c)
 #define SB2_DBG_START_REG2	(iobase + 0x460)

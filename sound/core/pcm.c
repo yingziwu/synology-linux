@@ -1,6 +1,3 @@
-#ifndef MY_ABC_HERE
-#define MY_ABC_HERE
-#endif
 /*
  *  Digital Audio (PCM) abstract layer
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -32,6 +29,7 @@
 #include <sound/core.h>
 #include <sound/minors.h>
 #include <sound/pcm.h>
+#include <sound/timer.h>
 #include <sound/control.h>
 #include <sound/info.h>
 
@@ -154,13 +152,9 @@ static int snd_pcm_control_ioctl(struct snd_card *card,
 				err = -ENXIO;
 				goto _error;
 			}
-#ifdef MY_ABC_HERE
 			mutex_lock(&pcm->open_mutex);
-#endif /* MY_ABC_HERE */
 			err = snd_pcm_info_user(substream, info);
-#ifdef MY_ABC_HERE
 			mutex_unlock(&pcm->open_mutex);
-#endif /* MY_ABC_HERE */
 		_error:
 			mutex_unlock(&register_mutex);
 			return err;
@@ -1034,8 +1028,13 @@ void snd_pcm_detach_substream(struct snd_pcm_substream *substream)
 	snd_free_pages((void*)runtime->control,
 		       PAGE_ALIGN(sizeof(struct snd_pcm_mmap_control)));
 	kfree(runtime->hw_constraints.rules);
-	kfree(runtime);
+	/* Avoid concurrent access to runtime via PCM timer interface */
+	if (substream->timer)
+		spin_lock_irq(&substream->timer->lock);
 	substream->runtime = NULL;
+	if (substream->timer)
+		spin_unlock_irq(&substream->timer->lock);
+	kfree(runtime);
 	put_pid(substream->pid);
 	substream->pid = NULL;
 	substream->pstr->substream_opened--;
@@ -1245,6 +1244,7 @@ static void snd_pcm_proc_done(void)
 #define snd_pcm_proc_init()
 #define snd_pcm_proc_done()
 #endif /* CONFIG_SND_PROC_FS */
+
 
 /*
  *  ENTRY functions

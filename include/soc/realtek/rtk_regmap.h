@@ -88,4 +88,5 @@ struct regmap *__devm_rtk_regmap_init_secure_mmio(struct device *dev,
 	__regmap_lockdep_wrapper(__devm_rtk_regmap_init_secure_mmio, #config, \
 		dev, regs, config)
 
+
 #endif

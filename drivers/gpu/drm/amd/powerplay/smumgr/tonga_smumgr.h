@@ -28,6 +28,7 @@
 #include "smu7_smumgr.h"
 #include "smu72.h"
 
+
 #define ASICID_IS_TONGA_P(wDID, bRID)	 \
 	(((wDID == 0x6930) && ((bRID == 0xF0) || (bRID == 0xF1) || (bRID == 0xFF))) \
 	|| ((wDID == 0x6920) && ((bRID == 0) || (bRID == 1))))
@@ -57,6 +58,7 @@ struct tonga_mc_reg_table {
 	struct tonga_mc_reg_entry    mc_reg_table_entry[MAX_AC_TIMING_ENTRIES];
 	SMU72_Discrete_MCRegisterAddress mc_reg_address[SMU72_DISCRETE_MC_REGISTER_ARRAY_SIZE];
 };
+
 
 struct tonga_smumgr {
 

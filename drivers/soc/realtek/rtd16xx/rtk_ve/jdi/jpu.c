@@ -562,6 +562,7 @@ static int jpu_release(struct inode *inode, struct file *filp)
 
 	spin_lock(&s_jpu_lock);
 
+
 	if (s_jpu_open_count > 0) {
 		/* found and free the not handled buffer by user applications */
 		jpu_free_buffers(filp);
@@ -798,6 +799,7 @@ static int jpu_probe(struct platform_device *pdev)
 
 	return 0;
 
+
 ERROR_PROVE_DEVICE:
 
 	misc_deregister(&s_jpu_dev);
@@ -972,6 +974,7 @@ static void __exit jpu_exit(void)
 		reset_control_put(rstc_jpeg);
 
 	jpu_clk_put(s_jpu_clk);
+
 
 	if (s_jpu_reg_virt_base) {
 		iounmap(s_jpu_reg_virt_base);

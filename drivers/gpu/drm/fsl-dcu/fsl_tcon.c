@@ -108,3 +108,4 @@ void fsl_tcon_free(struct fsl_tcon *tcon)
 	clk_disable_unprepare(tcon->ipg_clk);
 	clk_put(tcon->ipg_clk);
 }
+

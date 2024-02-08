@@ -280,6 +280,7 @@ static void icp_rm_deliver_irq(struct kvmppc_xics *xics, struct kvmppc_icp *icp,
 		 */
 		if (reject && reject != XICS_IPI) {
 			arch_spin_unlock(&ics->lock);
+			icp->n_reject++;
 			new_irq = reject;
 			goto again;
 		}
@@ -379,6 +380,7 @@ static void icp_rm_down_cppr(struct kvmppc_xics *xics, struct kvmppc_icp *icp,
 		icp_rm_check_resend(xics, icp);
 	}
 }
+
 
 unsigned long kvmppc_rm_h_xirr(struct kvm_vcpu *vcpu)
 {
@@ -610,10 +612,8 @@ int kvmppc_rm_h_eoi(struct kvm_vcpu *vcpu, unsigned long xirr)
 	state = &ics->irq_state[src];
 
 	/* Still asserted, resend it */
-	if (state->asserted) {
-		icp->n_reject++;
+	if (state->asserted)
 		icp_rm_deliver_irq(xics, icp, irq);
-	}
 
 	if (!hlist_empty(&vcpu->kvm->irq_ack_notifier_list)) {
 		icp->rm_action |= XICS_RM_NOTIFY_EOI;

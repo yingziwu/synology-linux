@@ -45,6 +45,7 @@ void set_mmc_runtime_resume_flag(int flag)
 EXPORT_SYMBOL(set_mmc_runtime_resume_flag);
 #endif
 
+
 #endif /* CONFIG_SYNO_LSP_RTD1619 */
 static const unsigned int tran_exp[] = {
 	10000,		100000,		1000000,	10000000,
@@ -693,6 +694,7 @@ MMC_DEV_ATTR(manfid, "0x%06x\n", card->cid.manfid);
 MMC_DEV_ATTR(name, "%s\n", card->cid.prod_name);
 MMC_DEV_ATTR(oemid, "0x%04x\n", card->cid.oemid);
 MMC_DEV_ATTR(serial, "0x%08x\n", card->cid.serial);
+
 
 static struct attribute *sd_std_attrs[] = {
 	&dev_attr_cid.attr,

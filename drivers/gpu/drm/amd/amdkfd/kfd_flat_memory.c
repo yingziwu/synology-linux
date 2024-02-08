@@ -356,3 +356,5 @@ int kfd_init_apertures(struct kfd_process *process)
 
 	return 0;
 }
+
+

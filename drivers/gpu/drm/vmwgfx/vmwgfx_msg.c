@@ -24,6 +24,7 @@
  *
  */
 
+
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -31,6 +32,7 @@
 #include <asm/hypervisor.h>
 #include <drm/drmP.h>
 #include "vmwgfx_msg.h"
+
 
 #define MESSAGE_STATUS_SUCCESS  0x0001
 #define MESSAGE_STATUS_DORECV   0x0002
@@ -74,6 +76,8 @@ struct rpc_channel {
 	u32 cookie_low;
 };
 
+
+
 /**
  * vmw_open_channel
  *
@@ -102,6 +106,8 @@ static int vmw_open_channel(struct rpc_channel *channel, unsigned int protocol)
 	return 0;
 }
 
+
+
 /**
  * vmw_close_channel
  *
@@ -129,6 +135,8 @@ static int vmw_close_channel(struct rpc_channel *channel)
 	return 0;
 }
 
+
+
 /**
  * vmw_send_msg: Sends a message to the host
  *
@@ -142,6 +150,7 @@ static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
 	unsigned long eax, ebx, ecx, edx, si, di, bp;
 	size_t msg_len = strlen(msg);
 	int retries = 0;
+
 
 	while (retries < RETRIES) {
 		retries++;
@@ -188,6 +197,7 @@ static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
 }
 STACK_FRAME_NON_STANDARD(vmw_send_msg);
 
+
 /**
  * vmw_recv_msg: Receives a message from the host
  *
@@ -204,6 +214,7 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
 	char *reply;
 	size_t reply_len;
 	int retries = 0;
+
 
 	*msg_len = 0;
 	*msg = NULL;
@@ -238,6 +249,7 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
 			return -ENOMEM;
 		}
 
+
 		/* Receive buffer */
 		si  = channel->cookie_high;
 		di  = (uintptr_t) reply;
@@ -262,6 +274,7 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
 		}
 
 		reply[reply_len] = '\0';
+
 
 		/* Ack buffer */
 		si  = channel->cookie_high;
@@ -297,6 +310,7 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
 }
 STACK_FRAME_NON_STANDARD(vmw_recv_msg);
 
+
 /**
  * vmw_host_get_guestinfo: Gets a GuestInfo parameter
  *
@@ -316,6 +330,7 @@ int vmw_host_get_guestinfo(const char *guest_info_param,
 	char *msg, *reply = NULL;
 	size_t msg_len, reply_len = 0;
 	int ret = 0;
+
 
 	if (!vmw_msg_enabled)
 		return -ENODEV;
@@ -360,6 +375,8 @@ int vmw_host_get_guestinfo(const char *guest_info_param,
 	return ret;
 }
 
+
+
 /**
  * vmw_host_log: Sends a log message to the host
  *
@@ -373,6 +390,7 @@ int vmw_host_log(const char *log)
 	char *msg;
 	int msg_len;
 	int ret = 0;
+
 
 	if (!vmw_msg_enabled)
 		return -ENODEV;

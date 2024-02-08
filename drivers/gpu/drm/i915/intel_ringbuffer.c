@@ -1019,6 +1019,8 @@ i915_emit_bb_start(struct drm_i915_gem_request *req,
 	return 0;
 }
 
+
+
 int intel_ring_pin(struct intel_ring *ring,
 		   struct drm_i915_private *i915,
 		   unsigned int offset_bias)
@@ -1030,6 +1032,7 @@ int intel_ring_pin(struct intel_ring *ring,
 	int ret;
 
 	GEM_BUG_ON(ring->vaddr);
+
 
 	flags = PIN_GLOBAL;
 	if (offset_bias)

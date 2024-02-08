@@ -190,3 +190,4 @@ typedef struct {
 #define AVCPU_IOCGSTATUS    _IOR(AVCPU_IOC_MAGIC, 4, status_struct)
 
 #endif
+

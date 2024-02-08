@@ -83,13 +83,15 @@ static void c8sectpfe_timer_interrupt(unsigned long ac8sectpfei)
 static void channel_swdemux_tsklet(unsigned long data)
 {
 	struct channel_info *channel = (struct channel_info *)data;
-	struct c8sectpfei *fei = channel->fei;
+	struct c8sectpfei *fei;
 	unsigned long wp, rp;
 	int pos, num_packets, n, size;
 	u8 *buf;
 
 	if (unlikely(!channel || !channel->irec))
 		return;
+
+	fei = channel->fei;
 
 	wp = readl(channel->irec + DMA_PRDS_BUSWP_TP(0));
 	rp = readl(channel->irec + DMA_PRDS_BUSRP_TP(0));
@@ -221,6 +223,7 @@ static int c8sectpfe_start_feed(struct dvb_demux_feed *dvbdmxfeed)
 			fei->io + C8SECTPFE_IB_READ_PNT(channel->tsin_id));
 		writel(channel->fifo,
 			fei->io + C8SECTPFE_IB_WRT_PNT(channel->tsin_id));
+
 
 		/* reset read / write memdma ptrs for this channel */
 		writel(channel->back_buffer_busaddr, channel->irec +
@@ -419,6 +422,7 @@ static irqreturn_t c8sectpfe_idle_irq_handler(int irq, void *priv)
 
 	return IRQ_HANDLED;
 }
+
 
 static void free_input_block(struct c8sectpfei *fei, struct channel_info *tsin)
 {
@@ -935,6 +939,7 @@ static int c8sectpfe_remove(struct platform_device *pdev)
 	return 0;
 }
 
+
 static int configure_channels(struct c8sectpfei *fei)
 {
 	int index = 0, ret;
@@ -1029,6 +1034,7 @@ c8sectpfe_elf_sanity_check(struct c8sectpfei *fei, const struct firmware *fw)
 
 	return 0;
 }
+
 
 static void load_imem_segment(struct c8sectpfei *fei, Elf32_Phdr *phdr,
 			const struct firmware *fw, u8 __iomem *dest,

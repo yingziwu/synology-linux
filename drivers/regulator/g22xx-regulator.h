@@ -55,6 +55,7 @@ struct g22xx_regulator_data {
 
 #define to_g22xx_regulator_desc(_desc) container_of(_desc, struct g22xx_regulator_desc, desc)
 
+
 static inline struct g22xx_device *devm_g22xx_create_device(struct i2c_client *client,
 	const struct regmap_config *config)
 {
@@ -75,6 +76,7 @@ static inline struct g22xx_device *devm_g22xx_create_device(struct i2c_client *c
 
 	return gdev;
 }
+
 
 extern const struct regulator_ops g22xx_regulator_ops;
 extern const struct regulator_ops g22xx_regulator_fixed_uV_ops;

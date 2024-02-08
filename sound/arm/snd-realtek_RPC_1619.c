@@ -2039,6 +2039,7 @@ exit:
     return ret;
 }
 
+
 int RPC_TOAGENT_CREATE_AI_AGENT(snd_card_RTK_capture_pcm_t *dpcm)
 {
     RPC_CREATE_AO_AGENT_T *rpc = NULL;
@@ -2516,6 +2517,8 @@ exit:
     return ret;
 }
 
+
+
 int RPC_TOAGENT_PUT_SHARE_MEMORY(void *p)
 {
     //TRACE_CODE("[%s %s %d]\n", __FILE__, __FUNCTION__, __LINE__);
@@ -2630,6 +2633,8 @@ exit:
 
     return ret;
 }
+
+
 
 int RPC_TOAGENT_SET_AO_FLASH_VOLUME(snd_pcm_substream_t * substream)
 {

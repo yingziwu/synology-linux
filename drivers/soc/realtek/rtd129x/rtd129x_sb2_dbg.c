@@ -15,6 +15,7 @@
 
 #include "include/reg_sb2.h"
 
+
 static void __iomem *iobase;
 
 irqreturn_t isr_sb2_dbg(int irq, void *pdev)
@@ -47,6 +48,7 @@ irqreturn_t isr_sb2_dbg(int irq, void *pdev)
 	}
 
 	intr = readl(SB2_INV_INTSTAT);
+
 
 	if (intr & (SWCIVA_INT | ACIVA_INT | SCIVA_INT)) {
 
@@ -106,6 +108,7 @@ static int sb2_dbg_init(struct platform_device *pdev)
 
 	pr_info("[SB2 DBG][%s] memory monitor 0x98013b00 - 0x98013c00\n", __FUNCTION__);
 	sb2_dbg_acpu_monitor(0, 0x98013b00, 0x98013c00, SB2_DBG_MONITOR_DATA|SB2_DBG_MONITOR_INST, SB2_DBG_MONITOR_READ|SB2_DBG_MONITOR_WRITE);
+
 
 	//Enable SB2 interrupt
 	writel(SB2_ACPU_INT_EN | SB2_SCPU_INT_EN | WRITE_DATA_1, SB2_DBG_INT);

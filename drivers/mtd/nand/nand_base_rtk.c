@@ -90,6 +90,7 @@ do {									\
 
 unsigned int g_mtd_BootcodeSize = 0;
 
+
 /* RTK Nand Chip ID list */
 static int rtd_get_set_nand_info(void);
 extern char g_rtk_nandinfo_line[64];
@@ -110,6 +111,7 @@ static int nand_block_isbad (struct mtd_info *mtd, loff_t ofs);
 //static int nand_block_markbad (struct mtd_info *mtd, loff_t ofs);
 
 int rtk_update_bbt (struct mtd_info *mtd, __u8 *data_buf, __u8 *oob_buf, BB_t *bbt);
+
 
 /* Global Variables */
 int RBA=0;
@@ -686,6 +688,7 @@ static int nand_write (struct mtd_info *mtd, loff_t to, size_t len, size_t *retl
 	return rc;
 }
 
+
 static int nand_write_oob (struct mtd_info *mtd, loff_t to, struct mtd_oob_ops *ops)//for 2.6.34 YAFFS-->mtd
 {
 	struct nand_chip *this = mtd->priv;
@@ -919,6 +922,7 @@ static int nand_suspend (struct mtd_info *mtd)
 	return 0;
 }
 
+
 static void nand_resume (struct mtd_info *mtd)
 {
 	down_write(&rw_sem_resume);
@@ -942,6 +946,7 @@ static void nand_select_chip(struct mtd_info *mtd, int chip)
 			REG_WRITE_U32(REG_PD+map_base, ~(1 << 0));
 	}
 }
+
 
 static int scan_last_die_BB(struct mtd_info *mtd)
 {
@@ -1410,6 +1415,7 @@ int rtk_nand_scan(struct mtd_info *mtd, int maxchips)
 			mtd->erasesize_shift = this->phys_erase_shift;
 			mtd->writesize_shift = this->page_shift;
 
+
 			this->ecc_select = nand_device[i].eccSelect;//add by alexchang 0617-2011.
 
 			if(this->ecc_select>=0x18)
@@ -1464,6 +1470,7 @@ int rtk_nand_scan(struct mtd_info *mtd, int maxchips)
 	result*=this->RBA_PERCENT;
 	do_div(result,100);
 	RBA = this->RBA = result;
+
 
 	RBA = this->RBA = ((unsigned int)mtd->size/block_size) * this->RBA_PERCENT/100;
 

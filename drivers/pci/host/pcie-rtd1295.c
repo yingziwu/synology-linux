@@ -81,6 +81,7 @@ static inline u32 rtk_pcie1_read(u64 addr, u8 size)
 
 pci_read_129x_retry:
 
+
 #ifdef CONFIG_RTK_SW_LOCK_API
 	/* All RBUS1 driver need to have a workaround for emmc hardware error. */
 	/* Need to protect 0xXXXX_X8XX~ 0xXXXX_X9XX. */

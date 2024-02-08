@@ -914,6 +914,7 @@ static void drm_dp_put_mst_branch_device(struct drm_dp_mst_branch *mstb)
 	kref_put(&mstb->kref, drm_dp_destroy_mst_branch_device);
 }
 
+
 static void drm_dp_port_teardown_pdt(struct drm_dp_mst_port *port, int old_pdt)
 {
 	struct drm_dp_mst_branch *mstb;
@@ -1303,6 +1304,7 @@ static struct drm_dp_mst_branch *get_mst_branch_device_by_guid_helper(
 	if (memcmp(mstb->guid, guid, 16) == 0)
 		return mstb;
 
+
 	list_for_each_entry(port, &mstb->ports, next) {
 		if (!port->mstb)
 			continue;
@@ -1514,6 +1516,7 @@ static int process_single_tx_qlock(struct drm_dp_mst_topology_mgr *mgr,
 		hdr.somt = 1;
 	if (space >= len)
 		hdr.eomt = 1;
+
 
 	hdr.msg_len = tosend + 1;
 	drm_dp_encode_sideband_msg_hdr(&hdr, chunk, &idx);
@@ -2807,6 +2810,7 @@ fail:
 	return ret;
 }
 
+
 /**
  * drm_dp_check_act_status() - Check ACT handled status.
  * @mgr: manager to use
@@ -2999,6 +3003,7 @@ void drm_dp_mst_dump_topology(struct seq_file *m,
 			   mgr->payloads[i].payload_state,
 			   mgr->payloads[i].start_slot,
 			   mgr->payloads[i].num_slots);
+
 
 	}
 	mutex_unlock(&mgr->payload_lock);

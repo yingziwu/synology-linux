@@ -44,6 +44,7 @@ enum psp_gfx_crtl_cmd_id
     GFX_CTRL_CMD_ID_MAX             = 0x000F0000,   /* max command ID */
 };
 
+
 /* Control registers of the TEE Gfx interface. These are located in
 *  SRBM-to-PSP mailbox registers (total 8 registers).
 */
@@ -60,11 +61,13 @@ struct psp_gfx_ctrl
 
 };
 
+
 /* Response flag is set in the command when command is completed by PSP.
 *  Used in the GFX_CTRL.CmdResp.
 *  When PSP GFX I/F is initialized, the flag is set.
 */
 #define GFX_FLAG_RESPONSE               0x80000000
+
 
 /* TEE Gfx Command IDs for the ring buffer interface. */
 enum psp_gfx_cmd_id
@@ -77,6 +80,7 @@ enum psp_gfx_cmd_id
     GFX_CMD_ID_LOAD_IP_FW   = 0x00000006,   /* load HW IP FW */
 
 };
+
 
 /* Command to load Trusted Application binary into PSP OS. */
 struct psp_gfx_cmd_load_ta
@@ -94,12 +98,14 @@ struct psp_gfx_cmd_load_ta
     */
 };
 
+
 /* Command to Unload Trusted Application binary from PSP OS. */
 struct psp_gfx_cmd_unload_ta
 {
     uint32_t        session_id;          /* Session ID of the loaded TA to be unloaded */
 
 };
+
 
 /* Shared buffers for InvokeCommand.
 */
@@ -135,6 +141,7 @@ struct psp_gfx_cmd_invoke_cmd
 
 };
 
+
 /* Command to setup TMR region. */
 struct psp_gfx_cmd_setup_tmr
 {
@@ -143,6 +150,7 @@ struct psp_gfx_cmd_setup_tmr
     uint32_t        buf_size;              /* buffer size in bytes (must be multiple of 4 KB) */
 
 };
+
 
 /* FW types for GFX_CMD_ID_LOAD_IP_FW command. Limit 31. */
 enum psp_gfx_fw_type
@@ -178,6 +186,7 @@ struct psp_gfx_cmd_load_ip_fw
 
 };
 
+
 /* All GFX ring buffer commands. */
 union psp_gfx_commands
 {
@@ -188,6 +197,7 @@ union psp_gfx_commands
     struct psp_gfx_cmd_load_ip_fw       cmd_load_ip_fw;
 
 };
+
 
 /* Structure of GFX Response buffer.
 * For GPCOM I/F it is part of GFX_CMD_RESP buffer, for RBI
@@ -234,6 +244,7 @@ struct psp_gfx_cmd_resp
 
     /* total size 1024 bytes */
 };
+
 
 #define FRAME_TYPE_DESTROY          1   /* frame sent by KMD driver when UMD Scheduler context is destroyed*/
 

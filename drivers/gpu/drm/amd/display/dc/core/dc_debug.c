@@ -130,6 +130,7 @@ void pre_surface_trace(
 				plane_state->plane_size.grph.surface_size.height,
 				plane_state->plane_size.grph.surface_pitch);
 
+
 		SURFACE_TRACE(
 				"plane_state->tiling_info.gfx8.num_banks = %d;\n"
 				"plane_state->tiling_info.gfx8.bank_width = %d;\n"
@@ -323,6 +324,7 @@ void context_timing_trace(
 	int h_pos[MAX_PIPES], v_pos[MAX_PIPES];
 	struct crtc_position position;
 	unsigned int underlay_idx = core_dc->res_pool->underlay_pipe_index;
+
 
 	for (i = 0; i < core_dc->res_pool->pipe_count; i++) {
 		struct pipe_ctx *pipe_ctx = &res_ctx->pipe_ctx[i];

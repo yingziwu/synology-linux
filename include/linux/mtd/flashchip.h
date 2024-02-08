@@ -62,6 +62,8 @@ typedef enum {
 	FL_UNKNOWN
 } flstate_t;
 
+
+
 /* NOTE: confusingly, this can be used to refer to more than one chip at a time,
    if they're interleaved.  This can even refer to individual partitions on
    the same physical chip when present. */
@@ -83,6 +85,7 @@ struct flchip {
 	unsigned int write_suspended:1;
 	unsigned int erase_suspended:1;
 	unsigned long in_progress_block_addr;
+	unsigned long in_progress_block_mask;
 
 	struct mutex mutex;
 	wait_queue_head_t wq; /* Wait on here when we're waiting for the chip
@@ -105,5 +108,6 @@ struct flchip_shared {
 	struct flchip *writing;
 	struct flchip *erasing;
 };
+
 
 #endif /* __MTD_FLASHCHIP_H__ */

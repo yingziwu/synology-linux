@@ -173,17 +173,20 @@ machine_restart(char *restart_cmd)
 	common_shutdown(LINUX_REBOOT_CMD_RESTART, restart_cmd);
 }
 
+
 void
 machine_halt(void)
 {
 	common_shutdown(LINUX_REBOOT_CMD_HALT, NULL);
 }
 
+
 void
 machine_power_off(void)
 {
 	common_shutdown(LINUX_REBOOT_CMD_POWER_OFF, NULL);
 }
+
 
 /* Used by sysrq-p, among others.  I don't believe r9-r15 are ever
    saved in the context it's used.  */
@@ -270,12 +273,13 @@ copy_thread(unsigned long clone_flags, unsigned long usp,
 	   application calling fork.  */
 	if (clone_flags & CLONE_SETTLS)
 		childti->pcb.unique = regs->r20;
+	else
+		regs->r20 = 0;	/* OSF/1 has some strange fork() semantics.  */
 	childti->pcb.usp = usp ?: rdusp();
 	*childregs = *regs;
 	childregs->r0 = 0;
 	childregs->r19 = 0;
 	childregs->r20 = 1;	/* OSF/1 has some strange fork() semantics.  */
-	regs->r20 = 0;
 	stack = ((struct switch_stack *) regs) - 1;
 	*childstack = *stack;
 	childstack->r26 = (unsigned long) ret_from_fork;

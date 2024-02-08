@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -269,3 +270,4 @@ static inline bool mv_pp3_rx_csum(struct pp3_vport *cpu_vp, struct mv_cfh_common
 }
 
 #endif /* __mv_netdev_h__ */
+

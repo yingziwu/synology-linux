@@ -204,6 +204,7 @@ bool dc_stream_set_cursor_attributes(
 		if (pipe_ctx->top_pipe && pipe_ctx->plane_state != pipe_ctx->top_pipe->plane_state)
 			continue;
 
+
 		core_dc->hwss.set_cursor_attribute(pipe_ctx);
 	}
 	return true;
@@ -296,6 +297,7 @@ bool dc_stream_get_scanoutpos(const struct dc_stream_state *stream,
 
 	return ret;
 }
+
 
 void dc_stream_log(
 	const struct dc_stream_state *stream,

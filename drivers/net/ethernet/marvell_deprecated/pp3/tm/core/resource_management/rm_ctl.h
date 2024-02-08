@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -56,6 +57,7 @@ int rm_open(uint8_t total_ports,
 			uint32_t total_queues,
 			rmctl_t *hndl);
 
+
 /** Close RM handle.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -65,6 +67,7 @@ int rm_open(uint8_t total_ports,
  *   @retval -EBADF if hndl is an invalid handle
  */
 int rm_close(rmctl_t hndl);
+
 
 #endif   /* RM_CTL_H */
 #endif /* MY_DEF_HERE */

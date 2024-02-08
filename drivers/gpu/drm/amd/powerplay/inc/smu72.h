@@ -85,6 +85,7 @@ struct Gc_Cac_Weight_Data {
 
 typedef struct Gc_Cac_Weight_Data GcCacWeight_Data;
 
+
 typedef struct {
 	uint32_t high;
 	uint32_t low;
@@ -682,3 +683,5 @@ struct SMU_CKS_LOOKUPTable {
 typedef struct SMU_CKS_LOOKUPTable SMU_CKS_LOOKUPTable;
 
 #endif
+
+

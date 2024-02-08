@@ -477,6 +477,7 @@ wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc)
 }
 EXPORT_SYMBOL(drm_crtc_vblank_waitqueue);
 
+
 /**
  * drm_calc_timestamping_constants - calculate vblank timestamp constants
  * @crtc: drm_crtc whose timestamp constants should be updated.

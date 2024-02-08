@@ -57,6 +57,8 @@ bfa_fcs_exit_comp(void *fcs_cbarg)
 	complete(&bfad->comp);
 }
 
+
+
 /*
  *  fcs_api BFA FCS API
  */
@@ -195,6 +197,7 @@ bfa_fcs_exit(struct bfa_fcs_s *fcs)
 
 	bfa_wc_wait(&fcs->wc);
 }
+
 
 /*
  * Fabric module implementation.
@@ -446,6 +449,7 @@ bfa_fcs_fabric_sm_flogi(struct bfa_fcs_fabric_s *fabric,
 		bfa_sm_fault(fabric->fcs, event);
 	}
 }
+
 
 static void
 bfa_fcs_fabric_sm_flogi_retry(struct bfa_fcs_fabric_s *fabric,
@@ -827,23 +831,23 @@ bfa_fcs_fabric_psymb_init(struct bfa_fcs_fabric_s *fabric)
 	bfa_ioc_get_adapter_model(&fabric->fcs->bfa->ioc, model);
 
 	/* Model name/number */
-	strncpy((char *)&port_cfg->sym_name, model,
-		BFA_FCS_PORT_SYMBNAME_MODEL_SZ);
-	strncat((char *)&port_cfg->sym_name, BFA_FCS_PORT_SYMBNAME_SEPARATOR,
-		sizeof(BFA_FCS_PORT_SYMBNAME_SEPARATOR));
+	strlcpy(port_cfg->sym_name.symname, model,
+		BFA_SYMNAME_MAXLEN);
+	strlcat(port_cfg->sym_name.symname, BFA_FCS_PORT_SYMBNAME_SEPARATOR,
+		BFA_SYMNAME_MAXLEN);
 
 	/* Driver Version */
-	strncat((char *)&port_cfg->sym_name, (char *)driver_info->version,
-		BFA_FCS_PORT_SYMBNAME_VERSION_SZ);
-	strncat((char *)&port_cfg->sym_name, BFA_FCS_PORT_SYMBNAME_SEPARATOR,
-		sizeof(BFA_FCS_PORT_SYMBNAME_SEPARATOR));
+	strlcat(port_cfg->sym_name.symname, driver_info->version,
+		BFA_SYMNAME_MAXLEN);
+	strlcat(port_cfg->sym_name.symname, BFA_FCS_PORT_SYMBNAME_SEPARATOR,
+		BFA_SYMNAME_MAXLEN);
 
 	/* Host machine name */
-	strncat((char *)&port_cfg->sym_name,
-		(char *)driver_info->host_machine_name,
-		BFA_FCS_PORT_SYMBNAME_MACHINENAME_SZ);
-	strncat((char *)&port_cfg->sym_name, BFA_FCS_PORT_SYMBNAME_SEPARATOR,
-		sizeof(BFA_FCS_PORT_SYMBNAME_SEPARATOR));
+	strlcat(port_cfg->sym_name.symname,
+		driver_info->host_machine_name,
+		BFA_SYMNAME_MAXLEN);
+	strlcat(port_cfg->sym_name.symname, BFA_FCS_PORT_SYMBNAME_SEPARATOR,
+		BFA_SYMNAME_MAXLEN);
 
 	/*
 	 * Host OS Info :
@@ -851,24 +855,24 @@ bfa_fcs_fabric_psymb_init(struct bfa_fcs_fabric_s *fabric)
 	 * OS name string and instead copy the entire OS info string (64 bytes).
 	 */
 	if (driver_info->host_os_patch[0] == '\0') {
-		strncat((char *)&port_cfg->sym_name,
-			(char *)driver_info->host_os_name,
-			BFA_FCS_OS_STR_LEN);
-		strncat((char *)&port_cfg->sym_name,
+		strlcat(port_cfg->sym_name.symname,
+			driver_info->host_os_name,
+			BFA_SYMNAME_MAXLEN);
+		strlcat(port_cfg->sym_name.symname,
 			BFA_FCS_PORT_SYMBNAME_SEPARATOR,
-			sizeof(BFA_FCS_PORT_SYMBNAME_SEPARATOR));
+			BFA_SYMNAME_MAXLEN);
 	} else {
-		strncat((char *)&port_cfg->sym_name,
-			(char *)driver_info->host_os_name,
-			BFA_FCS_PORT_SYMBNAME_OSINFO_SZ);
-		strncat((char *)&port_cfg->sym_name,
+		strlcat(port_cfg->sym_name.symname,
+			driver_info->host_os_name,
+			BFA_SYMNAME_MAXLEN);
+		strlcat(port_cfg->sym_name.symname,
 			BFA_FCS_PORT_SYMBNAME_SEPARATOR,
-			sizeof(BFA_FCS_PORT_SYMBNAME_SEPARATOR));
+			BFA_SYMNAME_MAXLEN);
 
 		/* Append host OS Patch Info */
-		strncat((char *)&port_cfg->sym_name,
-			(char *)driver_info->host_os_patch,
-			BFA_FCS_PORT_SYMBNAME_OSPATCH_SZ);
+		strlcat(port_cfg->sym_name.symname,
+			driver_info->host_os_patch,
+			BFA_SYMNAME_MAXLEN);
 	}
 
 	/* null terminate */
@@ -888,26 +892,26 @@ bfa_fcs_fabric_nsymb_init(struct bfa_fcs_fabric_s *fabric)
 	bfa_ioc_get_adapter_model(&fabric->fcs->bfa->ioc, model);
 
 	/* Model name/number */
-	strncpy((char *)&port_cfg->node_sym_name, model,
-		BFA_FCS_PORT_SYMBNAME_MODEL_SZ);
-	strncat((char *)&port_cfg->node_sym_name,
+	strlcpy(port_cfg->node_sym_name.symname, model,
+		BFA_SYMNAME_MAXLEN);
+	strlcat(port_cfg->node_sym_name.symname,
 			BFA_FCS_PORT_SYMBNAME_SEPARATOR,
-			sizeof(BFA_FCS_PORT_SYMBNAME_SEPARATOR));
+			BFA_SYMNAME_MAXLEN);
 
 	/* Driver Version */
-	strncat((char *)&port_cfg->node_sym_name, (char *)driver_info->version,
-		BFA_FCS_PORT_SYMBNAME_VERSION_SZ);
-	strncat((char *)&port_cfg->node_sym_name,
+	strlcat(port_cfg->node_sym_name.symname, (char *)driver_info->version,
+		BFA_SYMNAME_MAXLEN);
+	strlcat(port_cfg->node_sym_name.symname,
 			BFA_FCS_PORT_SYMBNAME_SEPARATOR,
-			sizeof(BFA_FCS_PORT_SYMBNAME_SEPARATOR));
+			BFA_SYMNAME_MAXLEN);
 
 	/* Host machine name */
-	strncat((char *)&port_cfg->node_sym_name,
-		(char *)driver_info->host_machine_name,
-		BFA_FCS_PORT_SYMBNAME_MACHINENAME_SZ);
-	strncat((char *)&port_cfg->node_sym_name,
+	strlcat(port_cfg->node_sym_name.symname,
+		driver_info->host_machine_name,
+		BFA_SYMNAME_MAXLEN);
+	strlcat(port_cfg->node_sym_name.symname,
 			BFA_FCS_PORT_SYMBNAME_SEPARATOR,
-			sizeof(BFA_FCS_PORT_SYMBNAME_SEPARATOR));
+			BFA_SYMNAME_MAXLEN);
 
 	/* null terminate */
 	port_cfg->node_sym_name.symname[BFA_SYMNAME_MAXLEN - 1] = 0;
@@ -1001,6 +1005,7 @@ bfa_fcs_fabric_login(struct bfa_fcs_fabric_s *fabric)
 	struct bfa_s		*bfa = fabric->fcs->bfa;
 	struct bfa_lport_cfg_s	*pcfg = &fabric->bport.port_cfg;
 	u8			alpa = 0;
+
 
 	bfa_lps_flogi(fabric->lps, fabric, alpa, bfa_fcport_get_maxfrsize(bfa),
 		      pcfg->pwwn, pcfg->nwwn, fabric->auth_reqd);
@@ -1203,6 +1208,7 @@ bfa_fcs_fabric_modstart(struct bfa_fcs_s *fcs)
 	bfa_sm_send_event(fabric, BFA_FCS_FABRIC_SM_START);
 }
 
+
 /*
  *   Link up notification from BFA physical port module.
  */
@@ -1262,6 +1268,7 @@ bfa_fcs_fabric_delvport(struct bfa_fcs_fabric_s *fabric,
 	bfa_wc_down(&fabric->wc);
 }
 
+
 /*
  * Lookup for a vport within a fabric given its pwwn
  */
@@ -1279,6 +1286,7 @@ bfa_fcs_fabric_vport_lookup(struct bfa_fcs_fabric_s *fabric, wwn_t pwwn)
 
 	return NULL;
 }
+
 
 /*
  *  Get OUI of the attached switch.
@@ -1476,6 +1484,7 @@ bfa_fcs_fabric_flogiacc_comp(void *fcsarg, struct bfa_fcxp_s *fcxp, void *cbarg,
 
 	bfa_trc(fabric->fcs, status);
 }
+
 
 /*
  * Send AEN notification

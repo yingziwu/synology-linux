@@ -42,4 +42,6 @@ struct resource_pool *dcn10_create_resource_pool(
 		uint8_t num_virtual_links,
 		struct dc *dc);
 
+
 #endif /* __DC_RESOURCE_DCN10_H__ */
+

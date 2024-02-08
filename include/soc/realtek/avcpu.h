@@ -39,6 +39,7 @@
 #define AVSTAT_RESUME   2
 #define AVSTAT_RESETAV  3
 
+
 #ifdef CONFIG_RTK_ACPU_RELOAD
 
 #define FW_DESC_TABLE_V1_T_VERSION_1            0x1

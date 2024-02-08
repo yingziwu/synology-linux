@@ -90,6 +90,7 @@ int amdgpu_vcn_sw_init(struct amdgpu_device *adev)
 	DRM_INFO("Found VCN firmware Version: %hu.%hu Family ID: %hu\n",
 		version_major, version_minor, family_id);
 
+
 	bo_size = AMDGPU_GPU_PAGE_ALIGN(le32_to_cpu(hdr->ucode_size_bytes) + 8)
 		  +  AMDGPU_VCN_STACK_SIZE + AMDGPU_VCN_HEAP_SIZE
 		  +  AMDGPU_VCN_SESSION_SIZE * 40;

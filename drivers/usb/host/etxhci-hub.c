@@ -47,6 +47,7 @@ static u8 usb_bos_descriptor [] = {
 	0x00, 0x00			/* __le16 bU2DevExitLat, set later. */
 };
 
+
 static void xhci_common_hub_descriptor(struct xhci_hcd *xhci,
 		struct usb_hub_descriptor *desc, int ports)
 {

@@ -82,6 +82,7 @@ static void virtual_link_encoder_destroy(struct link_encoder **enc)
 	*enc = NULL;
 }
 
+
 static const struct link_encoder_funcs virtual_lnk_enc_funcs = {
 	.validate_output_with_stream =
 		virtual_link_encoder_validate_output_with_stream,
@@ -117,3 +118,5 @@ bool virtual_link_encoder_construct(
 
 	return true;
 }
+
+

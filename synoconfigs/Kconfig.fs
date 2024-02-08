@@ -67,6 +67,10 @@ config SYNO_FS_NOTIFY
 	default y
 	depends on FSNOTIFY && ANON_INODES
 
+config SYNO_FS_EXPORT_TRUNCATE
+	bool "Export symbol: syno_vfs_truncate"
+	default y
+
 config SYNO_FS_FIX_NOTIFY_CHANGE_WARN_ON
 	bool "Fix notify_change warn_on on boot"
 	default y
@@ -75,8 +79,16 @@ config SYNO_FS_RELATIME_PERIOD
 	bool "Add mount option to set update period of relatime"
 	default y
 
+config SYNO_FS_QUOTA_QUERY
+	bool "Support query quota used and limit in vfs operations"
+	default y
+
 config SYNO_FS_SYNOBOOT_LOG
 	bool "synoboot access log"
+	default y
+
+config SYNO_FS_COMPRESSION
+	bool "syno compression"
 	default y
 
 endmenu #Basic
@@ -240,11 +252,6 @@ config SYNO_EXT4_DEFAULT_MNTOPT_JOURNAL_CKSUM
 	default y
 	depends on EXT4_FS
 
-config SYNO_EXT4_DEFAULT_MNTOPT_NOBARRIER
-	bool "Ext4 set default mount option barrier=0"
-	default y
-	depends on EXT4_FS
-
 config SYNO_EXT4_DEFAULT_MNTOPT_BARRIER_ROOTFS
 	bool "Ext4 set default mount option barrier=1 on root fs"
 	default y
@@ -259,6 +266,11 @@ config SYNO_EXT4_INODE_NUM_OVERFLOW_FIX
 	bool "Fix ext4 inode number overflow problem on large volume (>64TB)"
 	default y
 	depends on EXT4_FS && 64BIT
+
+config SYNO_EXT4_WINACL
+	bool "Enable ext4 syno acl"
+	default y
+	depends on EXT4_FS && SYNO_FS_WINACL
 
 config SYNO_EXT4_CASELESS_STAT
 	bool "Support caseless stat in ext4"
@@ -275,6 +287,11 @@ config SYNO_EXT4_SKIP_JOURNAL_SYMLINK
 	default y
 	depends on EXT4_FS
 
+config SYNO_EXT4_RESIZE_INODE_SIZE_EXTEND
+	bool "Increase reserved GDT to break the 16TB boundary of online resize"
+	default y
+	depends on EXT4_FS
+
 config SYNO_EXT4_PARALLEL_GROUP_DESC_PREFETCH_WHEN_MOUNT
 	bool "Add parallel group desc prefetching to enhance mount time."
 	default y
@@ -285,8 +302,29 @@ config SYNO_EXT4_ADD_RETRY_MECH_FOR_SYMLINK
 	default y
 	depends on EXT4_FS
 
+config SYNO_EXT4_AVOID_DANGEROUS_DIR_ENTRY
+	bool "Avoid first dirent entry which malformed form . to /"
+	default y
+	depends on EXT4_FS
+
+config SYNO_EXT4_UNUSED_HINT
+	bool "FIHINTUNUSED ioctl to send free space information to underly layers"
+	default y
+	depends on SYNO_MD_UNUSED_HINT
+	depends on EXT4_FS
+
 config SYNO_EXT4_METADATA_CSUM_SMOOTH_ERR_HANDLING
 	bool "Smooth ext4 checksum err handling to prevent users from losing new volume data"
+	default y
+	depends on EXT4_FS
+
+config SYNO_EXT4_SYMLINK_IOCTL
+	bool "add ioctl to symbolic link"
+	default y
+	depends on EXT4_FS
+
+config SYNO_EXT4_DISABLE_INODES_COUNT_CHECK
+	bool "disable mount time check about inodes count"
 	default y
 	depends on EXT4_FS
 
@@ -314,6 +352,11 @@ config SYNO_BTRFS_ARCHIVE_BIT
 	default y
 	depends on SYNO_FS_ARCHIVE_BIT && BTRFS_FS && SYNO_BTRFS_XATTR
 
+config SYNO_BTRFS_WINACL
+	bool "Enable btrfs syno acl"
+	default y
+	depends on BTRFS_FS && SYNO_FS_WINACL && !BTRFS_FS_POSIX_ACL
+
 config SYNO_BTRFS_PIN_LOG_ON_DELETE_INODE
 	bool "Pin tree-log while unlink to prevent deadlock."
 	default y
@@ -328,6 +371,11 @@ config SYNO_BTRFS_FIX_PAGE_LEAK_WHILE_CLONE_EXTENT_BUFFER
 	bool "Fix btrfs memory leak on clone extent buffer."
 	default y
 	depends on BTRFS_FS
+
+config SYNO_BTRFS_CLONE_CHECK_QUOTA
+	bool "Add quota check for IOC_CLONE ioctl command"
+	default y
+	depends on BTRFS_FS && SYNO_BTRFS_FAST_QGROUP
 
 config SYNO_BTRFS_FREE_EXTENT_MAPS
 	bool "Add a machanisim to drop extent map cache"
@@ -349,6 +397,11 @@ config SYNO_BTRFS_RESIZE_QUERY
 	default y
 	depends on BTRFS_FS
 
+config SYNO_BTRFS_DATA_CORRECTION
+	bool "Report btrfs data checksum failure"
+	default n
+	depends on BTRFS_FS && SYNO_DATA_CORRECTION
+
 config SYNO_BTRFS_SUBVOLUME_HIDE
 	bool "Support subvolume hide flag"
 	default y
@@ -358,6 +411,11 @@ config SYNO_BTRFS_ARCHIVE_VERSION
 	bool "Support syno archive version for btrfs"
 	default y
 	depends on SYNO_FS_ARCHIVE_VERSION && SYNO_BTRFS_XATTR && BTRFS_FS
+
+config SYNO_BTRFS_CASELESS_STAT
+	bool "Add syno caseless stat for btrfs"
+	default y
+	depends on SYNO_FS_CASELESS_STAT && BTRFS_FS
 
 config SYNO_BTRFS_SEND
 	bool "Add syno btrfs send"
@@ -384,10 +442,20 @@ config SYNO_BTRFS_RENAME_READONLY_SUBVOL
 	default y
 	depends on BTRFS_FS
 
+config SYNO_BTRFS_USRQUOTA
+	bool "Btrfs sub-volume usrquota"
+	default y
+	depends on BTRFS_FS && SYNO_BTRFS_FAST_QGROUP
+
 config SYNO_BTRFS_REMOVE_UNUSED_QGROUP
 	bool "Remove qgroup item when snapshot got deleted"
 	default y
 	depends on BTRFS_FS
+
+config SYNO_BTRFS_FAST_QGROUP
+	bool "Syno version fast qgroup accounting"
+	default y
+	depends on BTRFS_FS && SYNO_BTRFS_BACKREF
 
 config SYNO_BTRFS_REVERT_WAIT_OR_COMMIT_SELF_TRANS
 	bool "Revert commit: wait or commit self transaction"
@@ -519,7 +587,7 @@ config SYNO_BTRFS_AVOID_DEADLOCK
 	default y
 	depends on BTRFS_FS
 
-config SYNO_BTRFS_DEFRAG
+config SYNO_BTRFS_RECLAIM_SPACE
 	bool "add support for doing defrag on nocow file"
 	default y
 	depends on BTRFS_FS
@@ -619,6 +687,11 @@ config SYNO_BTRFS_SEND_FALLOCATE_SUPPORT
 	default y
 	depends on BTRFS_FS
 
+config SYNO_BTRFS_SEND_FALLBACK_COMPRESSION
+	bool "add a send flag to convert file compression algorithm from zstd to lzo"
+	default y
+	depends on BTRFS_FS
+
 config SYNO_BTRFS_FIX_FIEMAP_RESULT_NOT_CORRECTED
 	bool "fix fiemap result not corrected"
 	default y
@@ -626,11 +699,6 @@ config SYNO_BTRFS_FIX_FIEMAP_RESULT_NOT_CORRECTED
 
 config SYNO_BTRFS_SEND_SOFT_LOCKUP_AVOIDANCE
 	bool "avoid soft lock-up during sending"
-	default y
-	depends on BTRFS_FS
-
-config SYNO_BTRFS_CLONE_RANGE_V2
-	bool "clone range v2 version"
 	default y
 	depends on BTRFS_FS
 
@@ -644,8 +712,23 @@ config SYNO_BTRFS_SYSFS_FREE_SPACE_TREE
 	default y
 	depends on BTRFS_FS
 
+config SYNO_BTRFS_SEND_ENHANCE_RMDIR
+	bool "enhance send/receive for rmdir"
+	default y
+	depends on BTRFS_FS
+
 config SYNO_BTRFS_FIX_JOURNAL_INFO_BUG
 	bool "fix btrfs journal_info bug"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FIX_SEND_PANIC
+	bool "fix btrfs send panic when commit root invalid memory access"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_CLONE_RANGE_V2
+	bool "clone range v2 version"
 	default y
 	depends on BTRFS_FS
 
@@ -654,13 +737,74 @@ config SYNO_BTRFS_AVOID_FALLOCATE_RUN_BLOCKING_DELAYEDREF
 	default y
 	depends on BTRFS_FS
 
+config SYNO_BTRFS_UNUSED_HINT
+	bool "FIHINTUNUSED ioctl to send free space information to underly layers"
+	default y
+	depends on SYNO_MD_UNUSED_HINT
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FIX_RANDOM_WRITE_OOM
+	bool "fix random write OOM"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_UNLOCKED_BUFFER_WRITE
+	bool "Btrfs: implement unlocked buffered write"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_COW_ASYNC_THROTTLE
+	bool "enhance latency for cow with async throttle"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_ORDERED_EXTENT_THROTTLE
+	bool "enhance latency and avoid OOM with ordered extent throttle"
+	default y
+	depends on BTRFS_FS
+
 config SYNO_BTRFS_SKIP_BLOCK_GROUP
 	bool "add mount option to skip block group"
 	default y
 	depends on BTRFS_FS
 
+config SYNO_BTRFS_PERF_STATS
+	bool "Btrfs performance stats"
+	default y
+	depends on BTRFS_FS && DEBUG_FS
+
 config SYNO_BTRFS_SKIP_QUOTA_TREE
 	bool "Skip reading qgroup/usrquota tree during mount"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_LIMIT_BIO_SIZE_FOR_LATENCY
+	bool "Btrfs limit bio size max 64k for latency"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_SPLIT_ENDIO_WORKQUEUE_FOR_ORDERED_EXTENT
+	bool "Btrfs split endio workqueue for ordered extent to enhance latency"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FIX_DATA_LOSE_WHEN_NOSPACE
+	bool "fix snapshot data lose with nocow file when nospace"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_LOG_TREE_USE_SINGLE_METADATA
+	bool "log tree use single metadata instead of dup"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_LOG_TREE_RSV_METADATA
+	bool "reserve metadata group for log tree"
+	default y
+	depends on BTRFS_FS && SYNO_BTRFS_METADATA_RESERVE && SYNO_BTRFS_CLUSTER_ALLOCATION
+
+config SYNO_BTRFS_MITIGATE_SNAP_LIVELOCK
+	bool "Btrfs mitigate snapshot livelock"
 	default y
 	depends on BTRFS_FS
 
@@ -679,38 +823,13 @@ config SYNO_BTRFS_FIX_ERROR_PAGE_DOUBLE_CLEAR
 	default y
 	depends on BTRFS_FS
 
-config SYNO_BTRFS_PERF_STATS
-	bool "Btrfs performance stats"
-	default y
-	depends on BTRFS_FS && DEBUG_FS
-
 config SYNO_BTRFS_FIX_CRASH_WITH_ANON_BDEV_WHEN_MEMORY_ALLOCATE_FAILED
 	bool "Fix snapshot create failed when memory allocate failed"
 	default y
 	depends on BTRFS_FS
 
-config SYNO_BTRFS_FIX_RANDOM_WRITE_OOM
-	bool "fix random write OOM"
-	default y
-	depends on BTRFS_FS
-
-config SYNO_BTRFS_NO_LOG_REPLAY
-	bool "Allow nologreplay mount option on rw volume mount path"
-	default y
-	depends on BTRFS_FS
-
-config SYNO_BTRFS_MOUNT_OPTION_EXPAND_64BIT
-	bool "Btrfs mount option expand to 64-bit"
-	default y
-	depends on BTRFS_FS
-
-config SYNO_BTRFS_LIMIT_BIO_SIZE_FOR_LATENCY
-	bool "Btrfs limit bio size max 64k for latency"
-	default y
-	depends on BTRFS_FS
-
-config SYNO_BTRFS_COMMIT_STATS
-	bool "Btrfs performance stats about commit transaction."
+config SYNO_BTRFS_FIX_DATA_SPACE_INFO_UNDERFLOW_WITH_FALLOCATE_DUE_TO_QUOTA_RESERVE_FAILED
+	bool "Fix data space info underflow with fallocate due to quota reserve failed"
 	default y
 	depends on BTRFS_FS
 
@@ -719,33 +838,23 @@ config SYNO_BTRFS_SEND_RANGE_CLONE_ENHANCE
 	default y
 	depends on BTRFS_FS
 
-config SYNO_BTRFS_DELAYED_REF_RESERVED_REWORK
-	bool "Rework delayed ref reserved"
-	default y
-	depends on BTRFS_FS
-
-config SYNO_BTRFS_COW_ASYNC_THROTTLE
-	bool "enhance latency for cow with async throttle"
-	default y
-	depends on BTRFS_FS
-
-config SYNO_BTRFS_ORDERED_EXTENT_THROTTLE
-	bool "enhance latency and avoid OOM with ordered extent throttle"
-	default y
-	depends on BTRFS_FS
-
-config SYNO_BTRFS_SPLIT_ENDIO_WORKQUEUE_FOR_ORDERED_EXTENT
-	bool "Btrfs split endio workqueue for ordered extent to enhance latency"
-	default y
-	depends on BTRFS_FS
-
 config SYNO_BTRFS_IMPROVE_DELAYED_REF_THROTTLE
 	bool "improve btrfs delayed ref throttle"
 	default y
 	depends on BTRFS_FS
 
-config SYNO_BTRFS_FIX_PAGE_REFERENCE_LEAK
-	bool "fix page reference leak"
+config SYNO_BTRFS_IMPROVE_SPACE_CACHE
+	bool "improve space cache, not necessary update free space inode"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_NON_BLOCKING_PUNCH_HOLE
+	bool "Add non_blocking_punch_hole"
+	default y
+	depends on BTRFS_FS && SYNO_BTRFS_IMPROVE_DELAYED_REF_THROTTLE
+
+config SYNO_BTRFS_FIX_DATA_CHUNK_ALLOCATE_TOO_MUCH_FOR_PARALLEL_WRITE
+	bool "fix data chunk allocate too much for parallel write"
 	default y
 	depends on BTRFS_FS
 
@@ -754,8 +863,58 @@ config SYNO_BTRFS_TUNE_DEFAULT_MAX_INLINE_SIZE
 	default y
 	depends on BTRFS_FS
 
-config SYNO_BTRFS_DELAYED_ORPHAN_CLEANUP_WHEN_MOUNT
-	bool "improve mount time with dealyed orphan cleanup for tree-root"
+config SYNO_BTRFS_DEBUG_UMOUNT_HANG
+	bool "Enable btrfs umount debug, it should be removed after bug verified"
+	default n
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_VFS_INO_TO_PATH
+	bool "Query ino to path in vfs"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_NO_LOG_REPLAY
+	bool "Allow nologreplay mount option on rw volume mount path"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_COMMIT_STATS
+	bool "Btrfs performance stats about commit transaction."
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_DISABLE_SUBVOL_QUOTA
+	bool "Enable/Disable the quota system upon individual subvolumes"
+	default y
+	depends on BTRFS_FS && SYNO_BTRFS_FAST_QGROUP
+
+config SYNO_BTRFS_COMPRESSION
+	bool "Btrfs syno compression"
+	default y
+	depends on SYNO_FS_COMPRESSION && BTRFS_FS
+
+config SYNO_BTRFS_DELAYED_REF_RESERVED_REWORK
+	bool "Rework delayed ref reserved"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_MOUNT_OPTION_EXPAND_64BIT
+	bool "Btrfs mount option expand to 64-bit"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FALLOCATE_MARK_WRITTEN
+	bool "Mark fallocated area as written rether than prealloc"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FREE_SPACE_ANALYZE
+	bool "A new ioctl to analyze btrfs free space"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_RESET_SCRUB_WORKQUEUE_WHEN_SCRUB_FINISHED
+	bool "Reset scrub workqueue when scrub finished"
 	default y
 	depends on BTRFS_FS
 
@@ -764,8 +923,38 @@ config SYNO_BTRFS_FIX_SRCU_IGET_DEADLOCK
 	default y
 	depends on BTRFS_FS
 
-config SYNO_BTRFS_SEND_ENHANCE_RMDIR
-	bool "enhance send/receive for rmdir"
+config SYNO_BTRFS_IS_INODE_INLINE
+	bool "Test function to test if inode inline"
+	default y
+	depends on BTRFS_FS && SYNO_BTRFS_STAT
+
+config SYNO_BTRFS_DELAYED_ORPHAN_CLEANUP_WHEN_MOUNT
+	bool "improve mount time with dealyed orphan cleanup for tree-root"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_REDUCE_SNAPSHOT_CRITICAL_SECTION
+	bool "Reduce snapshot critical section"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_BACKPORT
+	bool "backport only small part of a large patch"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_REMOVE_FLAG_TREE_CHECK
+	bool "remove tree checker machanism for inode item flags"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FIX_PAGE_REFERENCE_LEAK
+	bool "fix page reference leak"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_SCRUB_CANCEL
+	bool "Let btrfs cancel scrubbing faster"
 	default y
 	depends on BTRFS_FS
 
@@ -818,6 +1007,11 @@ config SYNO_ECRYPTFS_FILENAME_SYSCALL
 	default y
 	depends on SYNO_SYSTEM_CALL && ECRYPT_FS
 
+config SYNO_ECRYPTFS_WINACL
+	bool "Enable syno acl in ecryptfs"
+	default y
+	depends on ECRYPT_FS && SYNO_FS_WINACL
+
 config SYNO_ECRYPTFS_OCF
 	bool "enable ocf framework"
 	default n
@@ -827,6 +1021,11 @@ config SYNO_ECRYPTFS_LOWER_INIT
 	bool "Ecryptfs always initial lower file with rw, ignore security check on initialization"
 	default y
 	depends on ECRYPT_FS
+
+config SYNO_ECRYPTFS_REDUCE_MEMCPY
+	bool "Reduce one memcpy on ecryptfs for performance."
+	default y
+	depends on ECRYPT_FS && BTRFS_FS && SYNO_FS_RECVFILE
 
 config SYNO_ECRYPTFS_SKIP_KERNEL_WRITE_CHECK
 	bool "Skip security check during kernel_write."
@@ -838,10 +1037,26 @@ config SYNO_ECRYPTFS_FAST_LOOKUP
 	default y
 	depends on ECRYPT_FS
 
+config SYNO_ECRYPTFS_PASS_BTRFS_IOCTL
+	bool "Pass syno btrfs ioctl to lower btrfs filesystem"
+	default y
+	depends on ECRYPT_FS && BTRFS_FS
+
 config SYNO_ECRYPTFS_SKIP_EQUAL_ISIZE_UPDATE
 	bool "Update ecryptfs i_size only when they are different"
 	default y
 	depends on ECRYPT_FS
+
+config SYNO_ECRYPTFS_EXPORT
+	bool "Enable ecryptfs nfs export"
+	default y
+	depends on ECRYPT_FS
+	depends on EXPORTFS
+
+config SYNO_ECRYPTFS_FALLOCATE_SUPPORT
+	bool "Add fallocate for eCryptfs"
+	default y
+	depends on ECRYPT_FS && SYNO_ECRYPTFS_REMOVE_TRUNCATE_WRITE
 
 config SYNO_ECRYPTFS_AVOID_MOUNT_REPEATLY
 	bool "Avoid ecryptfs mount repeatly at the same mount point"
@@ -882,12 +1097,25 @@ config SYNO_NFS4_DISABLE_UDP
 	bool "disable NFSv4 over UDP"
 	default y
 
+config SYNO_NFS_VAAI_SUPPORT
+	bool "NFS VAAI support"
+	default y
+
+config SYNO_NFS_VAAI_LAZY_CLONE
+	bool "NFS VAAI lazy clone support"
+	default y
+	depends on BTRFS_FS && SYNO_NFS_VAAI_SUPPORT
+
 config SYNO_NFSD_HIDDEN_FILE
 	bool "Hide system directories"
 	default y
 
 config SYNO_NFSD_AVOID_HUNG_TASK_WHEN_UNLINK_BIG_FILE
 	bool "Avoid parent mutex hung task when unlink big file"
+	default y
+
+config SYNO_NFSD_SQUASH_TO_ADMIN
+	bool "Grant permission of administrators group to admin user"
 	default y
 
 config SYNO_NFSD_NUMA_SVC_POOL_PERNODE
@@ -945,6 +1173,11 @@ config SYNO_HFSPLUS_BREC_FIND_RET_CHECK
 
 config SYNO_HFSPLUS_NODE_DEBUG
 	bool "Print info if have invalid offset"
+	default y
+	depends on HFSPLUS_FS
+
+config SYNO_HFSPLUS_CREATE_TIME
+	bool "assign create time to vfs inode structure"
 	default y
 	depends on HFSPLUS_FS
 

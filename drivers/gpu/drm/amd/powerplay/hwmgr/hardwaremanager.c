@@ -26,6 +26,7 @@
 #include "hardwaremanager.h"
 #include "power_state.h"
 
+
 #define TEMP_RANGE_MIN (0)
 #define TEMP_RANGE_MAX (80 * 1000)
 
@@ -177,6 +178,7 @@ int phm_disable_clock_power_gatings(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 int phm_display_configuration_changed(struct pp_hwmgr *hwmgr)
 {
 	PHM_FUNC_CHECK(hwmgr);
@@ -243,6 +245,7 @@ int phm_start_thermal_controller(struct pp_hwmgr *hwmgr, struct PP_TemperatureRa
 	return 0;
 }
 
+
 bool phm_check_smc_update_required_for_display_configuration(struct pp_hwmgr *hwmgr)
 {
 	PHM_FUNC_CHECK(hwmgr);
@@ -252,6 +255,7 @@ bool phm_check_smc_update_required_for_display_configuration(struct pp_hwmgr *hw
 
 	return hwmgr->hwmgr_func->check_smc_update_required_for_display_configuration(hwmgr);
 }
+
 
 int phm_check_states_equal(struct pp_hwmgr *hwmgr,
 				 const struct pp_hw_power_state *pstate1,
@@ -325,6 +329,7 @@ int phm_set_cpu_power_state(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 int phm_get_performance_level(struct pp_hwmgr *hwmgr, const struct pp_hw_power_state *state,
 				PHM_PerformanceLevelDesignation designation, uint32_t index,
 				PHM_PerformanceLevel *level)
@@ -335,7 +340,9 @@ int phm_get_performance_level(struct pp_hwmgr *hwmgr, const struct pp_hw_power_s
 
 	return hwmgr->hwmgr_func->get_performance_level(hwmgr, state, designation, index, level);
 
+
 }
+
 
 /**
 * Gets Clock Info.
@@ -360,9 +367,11 @@ int phm_get_clock_info(struct pp_hwmgr *hwmgr, const struct pp_hw_power_state *s
 
 	PP_ASSERT_WITH_CODE((0 == result), "Failed to retrieve minimum clocks.", return result);
 
+
 	pclock_info->min_mem_clk = performance_level.memory_clock;
 	pclock_info->min_eng_clk = performance_level.coreClock;
 	pclock_info->min_bus_bandwidth = performance_level.nonLocalMemoryFreq * performance_level.nonLocalMemoryWidth;
+
 
 	result = phm_get_performance_level(hwmgr, state, designation,
 					(hwmgr->platform_descriptor.hardwareActivityPerformanceLevels - 1), &performance_level);

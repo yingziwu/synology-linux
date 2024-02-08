@@ -23,6 +23,7 @@
 #ifndef _POLARIS10_PWRVIRUS_H
 #define _POLARIS10_PWRVIRUS_H
 
+
 #define mmCP_HYP_MEC1_UCODE_ADDR	0xf81a
 #define mmCP_HYP_MEC1_UCODE_DATA	0xf81b
 #define mmCP_HYP_MEC2_UCODE_ADDR	0xf81c
@@ -1787,5 +1788,6 @@ static const PWR_Command_Table pwr_virus_table_post[] = {
 	{ 0x00000000, mmGRBM_STATUS                              },
 	{ 0x00000000, 0xFFFFFFFF                                 },
 };
+
 
 #endif

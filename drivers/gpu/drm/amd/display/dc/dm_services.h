@@ -44,6 +44,7 @@ irq_handler_idx dm_register_interrupt(
 	interrupt_handler ih,
 	void *handler_args);
 
+
 /*
  *
  * GPU registers access
@@ -154,6 +155,7 @@ unsigned int generic_reg_wait(const struct dc_context *ctx,
 	uint32_t addr, uint32_t mask, uint32_t shift, uint32_t condition_value,
 	unsigned int delay_between_poll_us, unsigned int time_out_num_tries,
 	const char *func_name, int line);
+
 
 /* These macros need to be used with soc15 registers in order to retrieve
  * the actual offset.
@@ -320,6 +322,7 @@ bool dm_write_persistent_data(struct dc_context *ctx,
 		unsigned int size,
 		struct persistent_data_flag *flag);
 
+
 /* Call to read data in registry editor for persistent data storage.
  *
  * \inputs      sink - identify edid/link for registry folder creation
@@ -374,6 +377,7 @@ unsigned long long dm_get_timestamp(struct dc_context *ctx);
  */
 void dm_perf_trace_timestamp(const char *func_name, unsigned int line);
 #define PERF_TRACE()	dm_perf_trace_timestamp(__func__, __LINE__)
+
 
 /*
  * Debug and verification hooks

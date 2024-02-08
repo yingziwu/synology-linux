@@ -91,6 +91,7 @@ static struct kfd_gpu_cache_info kaveri_cache_info[] = {
 	/* TODO: Add L2 Cache information */
 };
 
+
 static struct kfd_gpu_cache_info carrizo_cache_info[] = {
 	{
 		/* TCP L1 Cache per CU */
@@ -1253,6 +1254,7 @@ int kfd_create_crat_image_virtual(void **crat_image, size_t *size,
 
 	return ret;
 }
+
 
 /* kfd_destroy_crat_image
  *

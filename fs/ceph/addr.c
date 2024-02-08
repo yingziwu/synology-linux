@@ -189,7 +189,7 @@ static int ceph_releasepage(struct page *page, gfp_t g)
 /*
  * read a single page, without unlocking it.
  */
-static int readpage_nounlock(struct file *filp, struct page *page)
+static int ceph_do_readpage(struct file *filp, struct page *page)
 {
 	struct inode *inode = file_inode(filp);
 	struct ceph_inode_info *ci = ceph_inode(inode);
@@ -219,7 +219,7 @@ static int readpage_nounlock(struct file *filp, struct page *page)
 
 	err = ceph_readpage_from_fscache(inode, page);
 	if (err == 0)
-		goto out;
+		return -EINPROGRESS;
 
 	dout("readpage inode %p file %p page %p index %lu\n",
 	     inode, filp, page, page->index);
@@ -249,8 +249,11 @@ out:
 
 static int ceph_readpage(struct file *filp, struct page *page)
 {
-	int r = readpage_nounlock(filp, page);
-	unlock_page(page);
+	int r = ceph_do_readpage(filp, page);
+	if (r != -EINPROGRESS)
+		unlock_page(page);
+	else
+		r = 0;
 	return r;
 }
 
@@ -392,6 +395,7 @@ out:
 	ceph_osdc_put_request(req);
 	return ret;
 }
+
 
 /*
  * Read multiple pages.  Leave pages we don't read + unlock in page_list;
@@ -575,6 +579,7 @@ static int ceph_writepage(struct page *page, struct writeback_control *wbc)
 	return err;
 }
 
+
 /*
  * lame release_pages helper.  release_pages() isn't exported to
  * modules.
@@ -695,7 +700,7 @@ static int ceph_writepages_start(struct address_space *mapping,
 	struct pagevec pvec;
 	int done = 0;
 	int rc = 0;
-	unsigned wsize = 1 << inode->i_blkbits;
+	unsigned int wsize = i_blocksize(inode);
 	struct ceph_osd_request *req = NULL;
 	int do_sync = 0;
 	loff_t snap_size, i_size;
@@ -1017,6 +1022,8 @@ out:
 	return rc;
 }
 
+
+
 /*
  * See if a given @snapc is either writeable, or already written.
  */
@@ -1090,7 +1097,7 @@ retry_locked:
 			goto retry_locked;
 		r = writepage_nounlock(page, NULL);
 		if (r < 0)
-			goto fail_nosnap;
+			goto fail_unlock;
 		goto retry_locked;
 	}
 
@@ -1118,11 +1125,14 @@ retry_locked:
 	}
 
 	/* we need to read it. */
-	r = readpage_nounlock(file, page);
-	if (r < 0)
-		goto fail_nosnap;
+	r = ceph_do_readpage(file, page);
+	if (r < 0) {
+		if (r == -EINPROGRESS)
+			return -EAGAIN;
+		goto fail_unlock;
+	}
 	goto retry_locked;
-fail_nosnap:
+fail_unlock:
 	unlock_page(page);
 	return r;
 }
@@ -1222,6 +1232,7 @@ const struct address_space_operations ceph_aops = {
 	.releasepage = ceph_releasepage,
 	.direct_IO = ceph_direct_io,
 };
+
 
 /*
  * vm ops

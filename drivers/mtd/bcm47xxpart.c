@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * BCM47XX MTD partitioning
  *
@@ -66,11 +69,13 @@ static const char *bcm47xxpart_trx_data_part_name(struct mtd_info *master,
 {
 	uint32_t buf;
 	size_t bytes_read;
+	int err;
 
-	if (mtd_read(master, offset, sizeof(buf), &bytes_read,
-		     (uint8_t *)&buf) < 0) {
-		pr_err("mtd_read error while parsing (offset: 0x%X)!\n",
-			offset);
+	err  = mtd_read(master, offset, sizeof(buf), &bytes_read,
+			(uint8_t *)&buf);
+	if (err && !mtd_is_bitflip(err)) {
+		pr_err("mtd_read error while parsing (offset: 0x%X): %d\n",
+			offset, err);
 		goto out_default;
 	}
 
@@ -82,11 +87,11 @@ out_default:
 }
 
 static int bcm47xxpart_parse(struct mtd_info *master,
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 			     const struct mtd_partition **pparts,
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 			     struct mtd_partition **pparts,
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 			     struct mtd_part_parser_data *data)
 {
 	struct mtd_partition *parts;
@@ -99,6 +104,7 @@ static int bcm47xxpart_parse(struct mtd_info *master,
 	int trx_part = -1;
 	int last_trx_part = -1;
 	int possible_nvram_sizes[] = { 0x8000, 0xF000, 0x10000, };
+	int err;
 
 	/*
 	 * Some really old flashes (like AT45DB*) had smaller erasesize-s, but
@@ -122,8 +128,8 @@ static int bcm47xxpart_parse(struct mtd_info *master,
 	/* Parse block by block looking for magics */
 	for (offset = 0; offset <= master->size - blocksize;
 	     offset += blocksize) {
-		/* Nothing more in higher memory */
-		if (offset >= 0x2000000)
+		/* Nothing more in higher memory on BCM47XX (MIPS) */
+		if (config_enabled(CONFIG_BCM47XX) && offset >= 0x2000000)
 			break;
 
 		if (curr_part >= BCM47XXPART_MAX_PARTS) {
@@ -132,10 +138,11 @@ static int bcm47xxpart_parse(struct mtd_info *master,
 		}
 
 		/* Read beginning of the block */
-		if (mtd_read(master, offset, BCM47XXPART_BYTES_TO_READ,
-			     &bytes_read, (uint8_t *)buf) < 0) {
-			pr_err("mtd_read error while parsing (offset: 0x%X)!\n",
-			       offset);
+		err = mtd_read(master, offset, BCM47XXPART_BYTES_TO_READ,
+			       &bytes_read, (uint8_t *)buf);
+		if (err && !mtd_is_bitflip(err)) {
+			pr_err("mtd_read error while parsing (offset: 0x%X): %d\n",
+			       offset, err);
 			continue;
 		}
 
@@ -229,12 +236,10 @@ static int bcm47xxpart_parse(struct mtd_info *master,
 
 			last_trx_part = curr_part - 1;
 
-			/*
-			 * We have whole TRX scanned, skip to the next part. Use
-			 * roundown (not roundup), as the loop will increase
-			 * offset in next step.
-			 */
-			offset = rounddown(offset + trx->length, blocksize);
+			/* Jump to the end of TRX */
+			offset = roundup(offset + trx->length, blocksize);
+			/* Next loop iteration will increase the offset */
+			offset -= blocksize;
 			continue;
 		}
 
@@ -258,10 +263,11 @@ static int bcm47xxpart_parse(struct mtd_info *master,
 		}
 
 		/* Read middle of the block */
-		if (mtd_read(master, offset + 0x8000, 0x4,
-			     &bytes_read, (uint8_t *)buf) < 0) {
-			pr_err("mtd_read error while parsing (offset: 0x%X)!\n",
-			       offset);
+		err = mtd_read(master, offset + 0x8000, 0x4, &bytes_read,
+			       (uint8_t *)buf);
+		if (err && !mtd_is_bitflip(err)) {
+			pr_err("mtd_read error while parsing (offset: 0x%X): %d\n",
+			       offset, err);
 			continue;
 		}
 
@@ -281,10 +287,11 @@ static int bcm47xxpart_parse(struct mtd_info *master,
 		}
 
 		offset = master->size - possible_nvram_sizes[i];
-		if (mtd_read(master, offset, 0x4, &bytes_read,
-			     (uint8_t *)buf) < 0) {
-			pr_err("mtd_read error while reading at offset 0x%X!\n",
-			       offset);
+		err = mtd_read(master, offset, 0x4, &bytes_read,
+			       (uint8_t *)buf);
+		if (err && !mtd_is_bitflip(err)) {
+			pr_err("mtd_read error while reading (offset 0x%X): %d\n",
+			       offset, err);
 			continue;
 		}
 

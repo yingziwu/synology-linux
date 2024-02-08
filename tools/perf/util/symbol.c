@@ -200,7 +200,7 @@ void symbols__fixup_end(struct rb_root *symbols)
 
 	/* Last entry */
 	if (curr->end == curr->start)
-		curr->end = roundup(curr->start, 4096);
+		curr->end = roundup(curr->start, 4096) + 4096;
 }
 
 void __map_groups__fixup_end(struct map_groups *mg, enum map_type type)
@@ -1462,6 +1462,7 @@ int dso__load(struct dso *dso, struct map *map, symbol_filter_t filter)
 		dso->symtab_type == DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE_COMP ||
 		dso->symtab_type == DSO_BINARY_TYPE__GUEST_KMODULE ||
 		dso->symtab_type == DSO_BINARY_TYPE__GUEST_KMODULE_COMP;
+
 
 	/*
 	 * Read the build id if possible. This is required for

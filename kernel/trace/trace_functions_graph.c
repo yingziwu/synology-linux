@@ -523,6 +523,7 @@ static void print_graph_proc(struct trace_seq *s, pid_t pid)
 		trace_seq_putc(s, ' ');
 }
 
+
 static void print_graph_lat_fmt(struct trace_seq *s, struct trace_entry *entry)
 {
 	trace_seq_putc(s, ' ');
@@ -767,6 +768,7 @@ print_graph_entry_leaf(struct trace_iterator *iter,
 	struct ftrace_graph_ret *graph_ret;
 	struct ftrace_graph_ent *call;
 	unsigned long long duration;
+	int cpu = iter->cpu;
 	int i;
 
 	graph_ret = &ret_entry->ret;
@@ -775,7 +777,6 @@ print_graph_entry_leaf(struct trace_iterator *iter,
 
 	if (data) {
 		struct fgraph_cpu_data *cpu_data;
-		int cpu = iter->cpu;
 
 		cpu_data = per_cpu_ptr(data->cpu_data, cpu);
 
@@ -804,6 +805,9 @@ print_graph_entry_leaf(struct trace_iterator *iter,
 		trace_seq_putc(s, ' ');
 
 	trace_seq_printf(s, "%ps();\n", (void *)call->func);
+
+	print_graph_irq(iter, graph_ret->func, TRACE_GRAPH_RET,
+			cpu, iter->ent->pid, flags);
 
 	return trace_handle_return(s);
 }
@@ -1164,6 +1168,7 @@ print_graph_comment(struct trace_seq *s, struct trace_entry *ent,
 	return trace_handle_return(s);
 }
 
+
 enum print_line_t
 print_graph_function_flags(struct trace_iterator *iter, u32 flags)
 {
@@ -1418,6 +1423,7 @@ static struct tracer graph_trace __tracer_data = {
 	.selftest	= trace_selftest_startup_function_graph,
 #endif
 };
+
 
 static ssize_t
 graph_depth_write(struct file *filp, const char __user *ubuf, size_t cnt,

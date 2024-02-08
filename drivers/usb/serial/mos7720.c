@@ -234,11 +234,16 @@ static int read_mos_reg(struct usb_serial *serial, unsigned int serial_portnum,
 
 	status = usb_control_msg(usbdev, pipe, request, requesttype, value,
 				     index, buf, 1, MOS_WDR_TIMEOUT);
-	if (status == 1)
+	if (status == 1) {
 		*data = *buf;
-	else if (status < 0)
+	} else {
 		dev_err(&usbdev->dev,
 			"mos7720: usb_control_msg() failed: %d\n", status);
+		if (status >= 0)
+			status = -EIO;
+		*data = 0;
+	}
+
 	kfree(buf);
 
 	return status;
@@ -363,8 +368,6 @@ static int write_parport_reg_nonblock(struct mos7715_parport *mos_parport,
 	if (!urbtrack)
 		return -ENOMEM;
 
-	kref_get(&mos_parport->ref_count);
-	urbtrack->mos_parport = mos_parport;
 	urbtrack->urb = usb_alloc_urb(0, GFP_ATOMIC);
 	if (!urbtrack->urb) {
 		kfree(urbtrack);
@@ -385,6 +388,8 @@ static int write_parport_reg_nonblock(struct mos7715_parport *mos_parport,
 			     usb_sndctrlpipe(usbdev, 0),
 			     (unsigned char *)urbtrack->setup,
 			     NULL, 0, async_complete, urbtrack);
+	kref_get(&mos_parport->ref_count);
+	urbtrack->mos_parport = mos_parport;
 	kref_init(&urbtrack->ref_count);
 	INIT_LIST_HEAD(&urbtrack->urblist_entry);
 
@@ -1421,6 +1426,7 @@ static int calc_baud_rate_divisor(struct usb_serial_port *port, int baudrate, in
 	__u16 round1;
 	__u16 round;
 
+
 	dev_dbg(&port->dev, "%s - %d\n", __func__, baudrate);
 
 	for (i = 0; i < ARRAY_SIZE(divisor_table); i++) {
@@ -1593,6 +1599,7 @@ static void change_port_settings(struct tty_struct *tty,
 	mos7720_port->shadowLCR &=
 		~(LCR_BITS_MASK | LCR_STOP_MASK | LCR_PAR_MASK);
 	mos7720_port->shadowLCR |= (lData | lParity | lStop);
+
 
 	/* Disable Interrupts */
 	write_mos_reg(serial, port_number, MOS7720_IER, 0x00);

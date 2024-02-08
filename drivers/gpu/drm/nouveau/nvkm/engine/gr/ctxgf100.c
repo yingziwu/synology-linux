@@ -1311,6 +1311,7 @@ gf100_grctx_generate(struct gf100_gr *gr)
 	if (ret)
 		goto done;
 
+
 	/* Setup context pointer. */
 	nvkm_kmap(inst);
 	nvkm_wo32(inst, 0x0210, lower_32_bits(ctx->addr + CB_RESERVED) | 4);

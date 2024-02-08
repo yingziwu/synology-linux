@@ -35,6 +35,7 @@
 #include "iscsi_target.h"
 #include <target/iscsi/iscsi_target_stat.h>
 
+
 /* Start items for lio_target_portal_cit */
 
 static inline struct iscsi_tpg_np *to_iscsi_tpg_np(struct config_item *item)
@@ -724,11 +725,8 @@ static ssize_t lio_target_nacl_cmdsn_depth_store(struct config_item *item,
 
 	if (iscsit_get_tpg(tpg) < 0)
 		return -EINVAL;
-	/*
-	 * iscsit_tpg_set_initiator_node_queue_depth() assumes force=1
-	 */
-	ret = iscsit_tpg_set_initiator_node_queue_depth(tpg,
-				config_item_name(acl_ci), cmdsn_depth, 1);
+
+	ret = core_tpg_set_initiator_node_queue_depth(se_nacl, cmdsn_depth);
 
 	pr_debug("LIO_Target_ConfigFS: %s/%s Set CmdSN Window: %u for"
 		"InitiatorName: %s\n", config_item_name(wwn_ci),
@@ -851,6 +849,7 @@ DEF_TPG_ATTRIB(default_erl);
 DEF_TPG_ATTRIB(t10_pi);
 DEF_TPG_ATTRIB(fabric_prot_type);
 DEF_TPG_ATTRIB(tpg_enabled_sendtargets);
+DEF_TPG_ATTRIB(login_keys_workaround);
 
 static struct configfs_attribute *lio_target_tpg_attrib_attrs[] = {
 	&iscsi_tpg_attrib_attr_authentication,
@@ -866,6 +865,7 @@ static struct configfs_attribute *lio_target_tpg_attrib_attrs[] = {
 	&iscsi_tpg_attrib_attr_t10_pi,
 	&iscsi_tpg_attrib_attr_fabric_prot_type,
 	&iscsi_tpg_attrib_attr_tpg_enabled_sendtargets,
+	&iscsi_tpg_attrib_attr_login_keys_workaround,
 	NULL,
 };
 
@@ -927,6 +927,7 @@ static ssize_t iscsi_tpg_auth_##name##_store(struct config_item *item,		\
 }										\
 										\
 CONFIGFS_ATTR(iscsi_tpg_auth_, name);
+
 
 DEF_TPG_AUTH_STR(userid, NAF_USERID_SET);
 DEF_TPG_AUTH_STR(password, NAF_PASSWORD_SET);
@@ -1137,6 +1138,7 @@ out:
 	return -EINVAL;
 }
 
+
 static ssize_t lio_target_tpg_dynamic_sessions_show(struct config_item *item,
 		char *page)
 {
@@ -1189,7 +1191,7 @@ static struct se_portal_group *lio_target_tiqn_addtpg(
 
 	ret = core_tpg_register(wwn, &tpg->tpg_se_tpg, SCSI_PROTOCOL_ISCSI);
 	if (ret < 0)
-		return NULL;
+		goto free_out;
 
 	ret = iscsit_tpg_add_portal_group(tiqn, tpg);
 	if (ret != 0)
@@ -1201,6 +1203,7 @@ static struct se_portal_group *lio_target_tiqn_addtpg(
 	return &tpg->tpg_se_tpg;
 out:
 	core_tpg_deregister(&tpg->tpg_se_tpg);
+free_out:
 	kfree(tpg);
 	return NULL;
 }
@@ -1272,6 +1275,7 @@ static struct se_wwn *lio_target_call_coreaddtiqn(
 	configfs_add_default_group(&tiqn->tiqn_stat_grps.iscsi_logout_stats_group,
 			&tiqn->tiqn_wwn.fabric_stat_group);
 
+
 	pr_debug("LIO_Target_ConfigFS: REGISTER -> %s\n", tiqn->tiqn);
 	pr_debug("LIO_Target_ConfigFS: REGISTER -> Allocated Node:"
 			" %s\n", name);
@@ -1325,6 +1329,7 @@ static ssize_t iscsi_disc_##name##_show(struct config_item *item, char *page) \
 CONFIGFS_ATTR_RO(iscsi_disc_, name)
 
 DEF_DISC_AUTH_INT(authenticate_target);
+
 
 static ssize_t iscsi_disc_enforce_discovery_auth_show(struct config_item *item,
 		char *page)
@@ -1555,42 +1560,31 @@ static int lio_tpg_check_prot_fabric_only(
 }
 
 /*
- * Called with spin_lock_irq(struct se_portal_group->session_lock) held
- * or not held.
- *
- * Also, this function calls iscsit_inc_session_usage_count() on the
+ * This function calls iscsit_inc_session_usage_count() on the
  * struct iscsi_session in question.
  */
 static int lio_tpg_shutdown_session(struct se_session *se_sess)
 {
 	struct iscsi_session *sess = se_sess->fabric_sess_ptr;
-	struct se_portal_group *se_tpg = se_sess->se_tpg;
-	bool local_lock = false;
+	struct se_portal_group *se_tpg = &sess->tpg->tpg_se_tpg;
 
-	if (!spin_is_locked(&se_tpg->session_lock)) {
-		spin_lock_irq(&se_tpg->session_lock);
-		local_lock = true;
-	}
-
+	spin_lock_bh(&se_tpg->session_lock);
 	spin_lock(&sess->conn_lock);
 	if (atomic_read(&sess->session_fall_back_to_erl0) ||
 	    atomic_read(&sess->session_logout) ||
 	    (sess->time2retain_timer_flags & ISCSI_TF_EXPIRED)) {
 		spin_unlock(&sess->conn_lock);
-		if (local_lock)
-			spin_unlock_irq(&sess->conn_lock);
+		spin_unlock_bh(&se_tpg->session_lock);
 		return 0;
 	}
 	atomic_set(&sess->session_reinstatement, 1);
+	atomic_set(&sess->session_fall_back_to_erl0, 1);
 	spin_unlock(&sess->conn_lock);
 
 	iscsit_stop_time2retain_timer(sess);
-	spin_unlock_irq(&se_tpg->session_lock);
+	spin_unlock_bh(&se_tpg->session_lock);
 
 	iscsit_stop_session(sess, 1, 1);
-	if (!local_lock)
-		spin_lock_irq(&se_tpg->session_lock);
-
 	return 1;
 }
 

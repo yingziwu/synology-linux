@@ -22,6 +22,7 @@
 #define REG_WRITE_U16(value, register)          (*(volatile unsigned short *)GET_MAPPED_RBUS_ADDR(register) = value)
 #define REG_WRITE_U32(value, register)          (*(volatile unsigned int *)GET_MAPPED_RBUS_ADDR(register) = value)
 
+
 #define MD_PP_DATA_SIZE_SHIFT   8   /* 256 bytes */
 #define MD_PP_DATA_SIZE         (1 << MD_PP_DATA_SIZE_SHIFT)
 
@@ -76,6 +77,7 @@
 #define MANUFACTURER_ID_ESMT        0x8c //add by alexchang
 #define MANUFACTURER_ID_GD          0xc8 //add by alexchang
 
+
 #define RTK_SFC_ATTR_NONE                       0x00
 #define RTK_SFC_ATTR_SUPPORT_MD_PP              0x01
 #define RTK_SFC_ATTR_SUPPORT_DUAL_IO            0x02
@@ -110,6 +112,7 @@ typedef struct rtk_sfc_info {
     u8 sec_4k_en; //4KB size erase support
     struct mtd_info *mtd_info;
 }rtk_sfc_info_t;
+
 
 #define ENDIAN_SWAP_U16(data)\
     (data>>8) | (data<<8)
@@ -160,6 +163,7 @@ typedef struct rtk_sfc_info {
         REG_WRITE_U32(0x00, 0x9801a020);    \
         asm volatile("DMB SY" : : : "memory"); \
     }while(0)
+
 
 #define SYS_REG_TRY_LOCK(delay)
 #define SYS_REG_TRY_UNLOCK

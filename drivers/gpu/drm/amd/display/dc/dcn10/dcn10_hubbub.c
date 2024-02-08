@@ -187,6 +187,7 @@ static uint32_t convert_and_clamp(
 	return ret_val;
 }
 
+
 void hubbub1_program_watermarks(
 		struct hubbub *hubbub,
 		struct dcn_watermark_set *watermarks,
@@ -231,6 +232,7 @@ void hubbub1_program_watermarks(
 			"HW register value = 0x%x\n",
 			watermarks->a.cstate_pstate.cstate_enter_plus_exit_ns, prog_wm_value);
 
+
 		prog_wm_value = convert_and_clamp(
 				watermarks->a.cstate_pstate.cstate_exit_ns,
 				refclk_mhz, 0x1fffff);
@@ -250,6 +252,7 @@ void hubbub1_program_watermarks(
 		"HW register value = 0x%x\n\n",
 		watermarks->a.cstate_pstate.pstate_change_ns, prog_wm_value);
 
+
 	/* clock state B */
 	prog_wm_value = convert_and_clamp(
 			watermarks->b.urgent_ns, refclk_mhz, 0x1fffff);
@@ -258,6 +261,7 @@ void hubbub1_program_watermarks(
 		"URGENCY_WATERMARK_B calculated =%d\n"
 		"HW register value = 0x%x\n",
 		watermarks->b.urgent_ns, prog_wm_value);
+
 
 	prog_wm_value = convert_and_clamp(
 			watermarks->b.pte_meta_urgent_ns,
@@ -268,6 +272,7 @@ void hubbub1_program_watermarks(
 		"HW register value = 0x%x\n",
 		watermarks->b.pte_meta_urgent_ns, prog_wm_value);
 
+
 	if (REG(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_B)) {
 		prog_wm_value = convert_and_clamp(
 				watermarks->b.cstate_pstate.cstate_enter_plus_exit_ns,
@@ -277,6 +282,7 @@ void hubbub1_program_watermarks(
 			"SR_ENTER_WATERMARK_B calculated =%d\n"
 			"HW register value = 0x%x\n",
 			watermarks->b.cstate_pstate.cstate_enter_plus_exit_ns, prog_wm_value);
+
 
 		prog_wm_value = convert_and_clamp(
 				watermarks->b.cstate_pstate.cstate_exit_ns,
@@ -306,6 +312,7 @@ void hubbub1_program_watermarks(
 		"HW register value = 0x%x\n",
 		watermarks->c.urgent_ns, prog_wm_value);
 
+
 	prog_wm_value = convert_and_clamp(
 			watermarks->c.pte_meta_urgent_ns,
 			refclk_mhz, 0x1fffff);
@@ -314,6 +321,7 @@ void hubbub1_program_watermarks(
 		"PTE_META_URGENCY_WATERMARK_C calculated =%d\n"
 		"HW register value = 0x%x\n",
 		watermarks->c.pte_meta_urgent_ns, prog_wm_value);
+
 
 	if (REG(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_C)) {
 		prog_wm_value = convert_and_clamp(
@@ -324,6 +332,7 @@ void hubbub1_program_watermarks(
 			"SR_ENTER_WATERMARK_C calculated =%d\n"
 			"HW register value = 0x%x\n",
 			watermarks->c.cstate_pstate.cstate_enter_plus_exit_ns, prog_wm_value);
+
 
 		prog_wm_value = convert_and_clamp(
 				watermarks->c.cstate_pstate.cstate_exit_ns,
@@ -362,6 +371,7 @@ void hubbub1_program_watermarks(
 		"HW register value = 0x%x\n",
 		watermarks->d.pte_meta_urgent_ns, prog_wm_value);
 
+
 	if (REG(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_D)) {
 		prog_wm_value = convert_and_clamp(
 				watermarks->d.cstate_pstate.cstate_enter_plus_exit_ns,
@@ -372,6 +382,7 @@ void hubbub1_program_watermarks(
 			"HW register value = 0x%x\n",
 			watermarks->d.cstate_pstate.cstate_enter_plus_exit_ns, prog_wm_value);
 
+
 		prog_wm_value = convert_and_clamp(
 				watermarks->d.cstate_pstate.cstate_exit_ns,
 				refclk_mhz, 0x1fffff);
@@ -381,6 +392,7 @@ void hubbub1_program_watermarks(
 			"HW register value = 0x%x\n",
 			watermarks->d.cstate_pstate.cstate_exit_ns, prog_wm_value);
 	}
+
 
 	prog_wm_value = convert_and_clamp(
 			watermarks->d.cstate_pstate.pstate_change_ns,
@@ -501,3 +513,4 @@ void hubbub1_construct(struct hubbub *hubbub,
 	hubbub->masks = hubbub_mask;
 
 }
+

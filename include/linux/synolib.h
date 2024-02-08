@@ -1,7 +1,7 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+// Copyright (c) 2000-2015 Synology Inc. All rights reserved.
 #ifndef __SYNOLIB_H_
 #define __SYNOLIB_H_
 
@@ -24,35 +24,51 @@ void syno_do_hibernation_filename_log(const char __user *filename);
 void syno_do_hibernation_inode_log(struct inode *inode);
 void syno_do_hibernation_bio_log(const char *DeviceName);
 void syno_do_hibernation_scsi_log(const char *DeviceName);
-#endif  
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+void syno_draw_auto_remap_buffer(char *buffer, int size);
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 int SynoSCSIGetDeviceIndex(struct gendisk *disk);
 #endif
 #ifdef MY_ABC_HERE
 int SynoNVMeGetDeviceIndex(struct gendisk *disk);
-#endif  
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 int SynoDiskGetDeviceIndex(struct block_device *bdev);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
- 
+/**
+ * How to use :
+ * 1. module itself register the proprietary instance into the kernel
+ *    by a predined MAGIC-key.
+ * 2. Others can query the module registration by the same MAGIC-key
+ *    and get the instance handle.
+ * ********************************************************************
+ * Beware of casting/handing "instance", you must know
+ * what you are doing before accessing the instance.
+ * ********************************************************************
+ */
+/* For plugin-instance registration */
 int syno_plugin_register(int plugin_magic, void *instance);
 int syno_plugin_unregister(int plugin_magic);
- 
+/* For getting the plugin-instance */
 int syno_plugin_handle_get(int plugin_magic, void **hnd);
 void * syno_plugin_handle_instance(void *hnd);
 void syno_plugin_handle_put(void *hnd);
 
+/* Magic definition */
 #define EPIO_PLUGIN_MAGIC_NUMBER    0x20120815
 #define RODSP_PLUGIN_MAGIC_NUMBER    0x20141111
 #endif
 
 #ifdef MY_ABC_HERE
- 
+/* Maximum number of MAC addresses */
 #define SYNO_MAC_MAX_NUMBER 8
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #define SATA_REMAP_MAX  32
@@ -63,7 +79,7 @@ int syno_get_remap_idx(int origin_idx);
 extern int g_syno_mv14xx_remap[SATA_REMAP_MAX];
 extern int g_use_mv14xx_remap;
 int syno_get_mv_14xx_remap_idx(int origin_idx);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_DEF_HERE
 #define DT_INTERNAL_SLOT "internal_slot"
@@ -74,6 +90,7 @@ int syno_get_mv_14xx_remap_idx(int origin_idx);
 #define DT_HUB_SLOT "usb_hub"
 #define DT_POWER_PIN_GPIO "power_pin_gpio"
 #define DT_DETECT_PIN_GPIO "detect_pin_gpio"
+#define DT_SWITCH_NO "switch_no"
 #define DT_HDD_LED_TYPE "led_type"
 #define DT_HDD_ORANGE_LED "led_orange"
 #define DT_HDD_GREEN_LED "led_green"
@@ -108,7 +125,7 @@ int syno_get_mv_14xx_remap_idx(int origin_idx);
 #define DT_SYNO_HDD_SMBUS_TYPE "syno_smbus_hdd_type"
 #define DT_SYNO_HDD_SMBUS_ADAPTER "syno_smbus_hdd_adapter"
 #define DT_SYNO_HDD_SMBUS_ADDRESS "syno_smbus_hdd_address"
-#endif  
+#endif /* MY_ABC_HERE */
 
 #define DT_SYNO_PMBUS_ADAPTER "syno_pmbus_adapter"
 #define DT_SYNO_PMBUS_ADDRESS "syno_pmbus_address"
@@ -122,9 +139,10 @@ int syno_get_mv_14xx_remap_idx(int origin_idx);
 #define DT_SYNO_PMBUS_PSU_OFF_BIT "syno_pmbus_psu_off_bit"
 #define DT_SYNO_PMBUS_PSU_PRESENT_BIT "syno_pmbus_psu_present_bit"
 
-#define SYNO_DTS_PROPERTY_CONTENT_LENGTH 128  
+#define SYNO_DTS_PROPERTY_CONTENT_LENGTH 128 // If used to retrive PCIe path, can only accept 9 layer PCIe switch.
 #define MAX_NODENAME_LEN 31
 
+/* This enum must sync with synosdk/fs.h for user space having same DISK_PORT_TYPE mapping */
 typedef enum _tag_DISK_PORT_TYPE{
 	UNKNOWN_DEVICE = 0,
 	INTERNAL_DEVICE,
@@ -141,7 +159,7 @@ typedef enum _tag_DISK_PORT_TYPE{
 	DISK_PORT_TYPE_END,
 } DISK_PORT_TYPE;
 
-#endif  
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_ABC_HERE
 typedef struct _syno_smbus_hdd_powerctl {
@@ -151,7 +169,7 @@ typedef struct _syno_smbus_hdd_powerctl {
         int (*syno_smbus_hdd_present_read)(int adapter, int address, int index);
         int (*syno_smbus_hdd_enable_write_all_once)(int adapter, int address);
 } SYNO_SMBUS_HDD_POWERCTL;
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #define PCI_ADDR_LEN_MAX 9
@@ -159,23 +177,23 @@ typedef struct _syno_smbus_hdd_powerctl {
 extern char gszPciAddrList[PCI_ADDR_NUM_MAX][PCI_ADDR_LEN_MAX];
 extern int gPciAddrNum;
 extern int syno_check_on_option_pci_slot(struct pci_dev *pdev);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
- 
+/* Max 768 */
 #define M2SATA_START_IDX 800
 extern int gPciDeferStart;
 extern int g_nvc_map_index;
 extern int g_syno_nvc_index_map[SATA_REMAP_MAX];
 void syno_insert_sata_index_remap(unsigned int idx, unsigned int num, unsigned int id_start);
-#endif  
+#endif /* MY_ABC_HERE */
 #ifdef MY_DEF_HERE
 #define M2_HOST_LEN_MAX 128
 #define M2_PORT_NO_MAX 16
 extern char gSynoM2HostName[M2_HOST_LEN_MAX];
 extern unsigned long gSynoM2PortNo;
 extern unsigned long gSynoM2PortIndex[M2_PORT_NO_MAX];
-#endif  
+#endif /* MY_DEF_HERE */
 #ifdef MY_ABC_HERE
 #define SYNO_SPINUP_GROUP_MAX 16
 #define SYNO_SPINUP_GROUP_PIN_MAX_NUM 8
@@ -185,19 +203,40 @@ extern int g_syno_hdd_detect_no;
 extern int g_syno_hdd_detect_list[SYNO_SPINUP_GROUP_PIN_MAX_NUM];
 extern int g_syno_hdd_enable_no;
 extern int g_syno_hdd_enable_list[SYNO_SPINUP_GROUP_PIN_MAX_NUM];
-#endif  
-
+#endif /* MY_ABC_HERE */
 #ifdef MY_DEF_HERE
 #define SYSTEM_DEVICE_START_IDX 900
 #define SYSTEM_DEVICE_NUM_MAX 10
-#endif  
+#endif /* MY_DEF_HERE */
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+typedef struct _synobios_event_parm_tag {
+	unsigned long long data1;
+	unsigned long long data2;
+	unsigned long long data3;
+	unsigned long long data4;
+	unsigned long long data5;
+} SYNOBIOS_EVENT_PARM;
+
+typedef int (*FUNC_SYNOBIOS_EVENT)(SYNOBIOS_EVENT_PARM parms);
+
+typedef struct _synobios_evnet_action_tag {
+	FUNC_SYNOBIOS_EVENT *funcSynobiosEvent;
+	SYNOBIOS_EVENT_PARM parms;
+	struct list_head list;
+} SYNOBIOS_EVENT_ACTION_LIST;
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
 
 #ifdef MY_DEF_HERE
 
 typedef enum _tag_SYNO_MPATH_SYSFS_AGGR_METHOD {
-	 
+	/*
+	 * The default option.
+	 * If the attr values between two native device are the same, we will pick
+	 * arbitrary one of them.
+	 */
 	MPATH_SYSFS_SHOW_AGGR_ARBITRARY,
-	 
+	/* Report the minimum value as decimal unsigned long */
 	MPATH_SYSFS_SHOW_AGGR_MIN_UL_DEC,
 } SYNO_MPATH_SYSFS_SHOW_AGGR_METHOD;
 
@@ -210,6 +249,6 @@ typedef struct _syno_multipath_target_sysfs {
 	ssize_t (*funcTargetSysfsStore)(struct gendisk*, struct attribute*, const char*, size_t);
 	SYNO_MPATH_SYSFS_SHOW_AGGR_METHOD (*funcTargetShowAggrMethod)(struct attribute*);
 } SYNO_MPATH_TARGET_SYSFS;
-#endif  
+#endif /* MY_DEF_HERE */
 
-#endif  
+#endif //__SYNOLIB_H_

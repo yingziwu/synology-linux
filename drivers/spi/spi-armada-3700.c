@@ -639,6 +639,7 @@ static int a3700_spi_transfer_one(struct spi_master *master,
 	/* Transfer headers */
 	a3700_spi_header_set(a3700_spi);
 
+
 	if (xfer->rx_buf) {
 		/* Set read data length */
 		spireg_write(a3700_spi, A3700_SPI_IF_DIN_CNT_REG,

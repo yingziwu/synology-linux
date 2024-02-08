@@ -156,6 +156,7 @@ static void queue_delete(struct snd_seq_queue *q)
 	kfree(q);
 }
 
+
 /*----------------------------------------------------------------*/
 
 /* setup queues */
@@ -183,22 +184,26 @@ void __exit snd_seq_queues_delete(void)
 static void queue_use(struct snd_seq_queue *queue, int client, int use);
 
 /* allocate a new queue -
- * return queue index value or negative value for error
+ * return pointer to new queue or ERR_PTR(-errno) for error
+ * The new queue's use_lock is set to 1. It is the caller's responsibility to
+ * call snd_use_lock_free(&q->use_lock).
  */
-int snd_seq_queue_alloc(int client, int locked, unsigned int info_flags)
+struct snd_seq_queue *snd_seq_queue_alloc(int client, int locked, unsigned int info_flags)
 {
 	struct snd_seq_queue *q;
 
 	q = queue_new(client, locked);
 	if (q == NULL)
-		return -ENOMEM;
+		return ERR_PTR(-ENOMEM);
 	q->info_flags = info_flags;
 	queue_use(q, client, 1);
+	snd_use_lock_use(&q->use_lock);
 	if (queue_list_add(q) < 0) {
+		snd_use_lock_free(&q->use_lock);
 		queue_delete(q);
-		return -ENOMEM;
+		return ERR_PTR(-ENOMEM);
 	}
-	return q->queue;
+	return q;
 }
 
 /* delete a queue - queue must be owned by the client */
@@ -215,6 +220,7 @@ int snd_seq_queue_delete(int client, int queueid)
 
 	return 0;
 }
+
 
 /* return pointer to queue structure for specified id */
 struct snd_seq_queue *queueptr(int queueid)
@@ -248,6 +254,7 @@ struct snd_seq_queue *snd_seq_queue_find_name(char *name)
 	return NULL;
 }
 
+
 /* -------------------------------------------------------- */
 
 void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
@@ -270,29 +277,20 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
 
       __again:
 	/* Process tick queue... */
-	while ((cell = snd_seq_prioq_cell_peek(q->tickq)) != NULL) {
-		if (snd_seq_compare_tick_time(&q->timer->tick.cur_tick,
-					      &cell->event.time.tick)) {
-			cell = snd_seq_prioq_cell_out(q->tickq);
-			if (cell)
-				snd_seq_dispatch_event(cell, atomic, hop);
-		} else {
-			/* event remains in the queue */
+	for (;;) {
+		cell = snd_seq_prioq_cell_out(q->tickq,
+					      &q->timer->tick.cur_tick);
+		if (!cell)
 			break;
-		}
+		snd_seq_dispatch_event(cell, atomic, hop);
 	}
 
 	/* Process time queue... */
-	while ((cell = snd_seq_prioq_cell_peek(q->timeq)) != NULL) {
-		if (snd_seq_compare_real_time(&q->timer->cur_time,
-					      &cell->event.time.time)) {
-			cell = snd_seq_prioq_cell_out(q->timeq);
-			if (cell)
-				snd_seq_dispatch_event(cell, atomic, hop);
-		} else {
-			/* event remains in the queue */
+	for (;;) {
+		cell = snd_seq_prioq_cell_out(q->timeq, &q->timer->cur_time);
+		if (!cell)
 			break;
-		}
+		snd_seq_dispatch_event(cell, atomic, hop);
 	}
 
 	/* free lock */
@@ -305,6 +303,7 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
 	q->check_blocked = 0;
 	spin_unlock_irqrestore(&q->check_lock, flags);
 }
+
 
 /* enqueue a event to singe queue */
 int snd_seq_enqueue_event(struct snd_seq_event_cell *cell, int atomic, int hop)
@@ -357,6 +356,7 @@ int snd_seq_enqueue_event(struct snd_seq_event_cell *cell, int atomic, int hop)
 
 	return 0;
 }
+
 
 /*----------------------------------------------------------------*/
 
@@ -431,6 +431,7 @@ int snd_seq_queue_set_owner(int queueid, int client, int locked)
 
 	return 0;
 }
+
 
 /*----------------------------------------------------------------*/
 
@@ -552,6 +553,7 @@ int snd_seq_queue_is_used(int queueid, int client)
 	return result;
 }
 
+
 /*----------------------------------------------------------------*/
 
 /* notification that client has left the system -
@@ -608,6 +610,8 @@ void snd_seq_queue_client_leave(int client)
 		queuefree(q);
 	}
 }
+
+
 
 /*----------------------------------------------------------------*/
 
@@ -721,6 +725,7 @@ static void snd_seq_queue_process_event(struct snd_seq_queue *q,
 	}
 }
 
+
 /*
  * Queue control via timer control port:
  * this function is exported as a callback of timer port.
@@ -747,6 +752,7 @@ int snd_seq_control_queue(struct snd_seq_event *ev, int atomic, int hop)
 	queuefree(q);
 	return 0;
 }
+
 
 /*----------------------------------------------------------------*/
 
@@ -785,3 +791,4 @@ void snd_seq_info_queues_read(struct snd_info_entry *entry,
 	}
 }
 #endif /* CONFIG_SND_PROC_FS */
+

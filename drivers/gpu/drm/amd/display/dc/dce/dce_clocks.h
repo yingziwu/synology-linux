@@ -23,6 +23,7 @@
  *
  */
 
+
 #ifndef _DCE_CLOCKS_H_
 #define _DCE_CLOCKS_H_
 
@@ -109,6 +110,7 @@ struct dce_disp_clk {
 	/* max disp_clk from PPLIB for max validation display clock*/
 	int max_displ_clk_in_khz;
 };
+
 
 struct display_clock *dce_disp_clk_create(
 	struct dc_context *ctx,

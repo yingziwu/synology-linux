@@ -33,6 +33,8 @@
 #include <drm/drm_encoder.h>
 #include "vmwgfx_drv.h"
 
+
+
 /**
  * struct vmw_kms_dirty - closure structure for the vmw_kms_helper_dirty
  * function.
@@ -80,6 +82,7 @@ struct vmw_kms_dirty {
 
 #define VMWGFX_NUM_DISPLAY_UNITS 8
 
+
 #define vmw_framebuffer_to_vfb(x) \
 	container_of(x, struct vmw_framebuffer, base)
 #define vmw_framebuffer_to_vfbs(x) \
@@ -117,10 +120,12 @@ struct vmw_framebuffer_surface {
 	bool is_dmabuf_proxy;  /* true if this is proxy surface for DMA buf */
 };
 
+
 struct vmw_framebuffer_dmabuf {
 	struct vmw_framebuffer base;
 	struct vmw_dma_buffer *buffer;
 };
+
 
 static const uint32_t vmw_primary_plane_formats[] = {
 	DRM_FORMAT_XRGB1555,
@@ -133,6 +138,7 @@ static const uint32_t vmw_primary_plane_formats[] = {
 static const uint32_t vmw_cursor_plane_formats[] = {
 	DRM_FORMAT_ARGB8888,
 };
+
 
 #define vmw_crtc_state_to_vcs(x) container_of(x, struct vmw_crtc_state, base)
 #define vmw_plane_state_to_vps(x) container_of(x, struct vmw_plane_state, base)
@@ -172,6 +178,7 @@ struct vmw_plane_state {
 	struct ttm_bo_kmap_obj host_map;
 	unsigned int cpp;
 };
+
 
 /**
  * Derived class for connector state object
@@ -242,6 +249,7 @@ struct vmw_validation_ctx {
 	container_of(x, struct vmw_display_unit, crtc)
 #define vmw_connector_to_du(x) \
 	container_of(x, struct vmw_display_unit, connector)
+
 
 /*
  * Shared display unit functions - vmwgfx_kms.c

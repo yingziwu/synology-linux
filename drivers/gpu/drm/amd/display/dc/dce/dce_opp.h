@@ -281,6 +281,8 @@ void dce110_opp_construct(struct dce110_opp *opp110,
 
 void dce110_opp_destroy(struct output_pixel_processor **opp);
 
+
+
 /* FORMATTER RELATED */
 void dce110_opp_program_bit_depth_reduction(
 	struct output_pixel_processor *opp,

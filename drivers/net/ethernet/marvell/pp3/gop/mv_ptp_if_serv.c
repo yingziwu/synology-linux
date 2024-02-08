@@ -244,12 +244,14 @@ static void mv_pp3_tai_tod_and_kernel_print(int prt_off_on_extend)
 		nsec[0], ts.nsec, sign, d);
 }
 
+
 /*****************************************************************************/
 /*****************************************************************************/
 static inline void mv_pp3_ptp_reg_print(char *reg_name, u32 reg)
 {
 	pr_info("  %-45s: 0x%x = 0x%08x\n", reg_name, MV_PP3_PTP_UNIT_OFFSET + reg, mv_pp3_ptp_reg_read(reg));
 }
+
 
 /* Time Counter Function Configuration 0 Register 0x03180A10
  The field bits[4:2] defines "Time Counter Function" to be performed

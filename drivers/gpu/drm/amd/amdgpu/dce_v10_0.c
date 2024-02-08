@@ -621,6 +621,7 @@ static void dce_v10_0_program_fmt(struct drm_encoder *encoder)
 	WREG32(mmFMT_BIT_DEPTH_CONTROL + amdgpu_crtc->crtc_offset, tmp);
 }
 
+
 /* display watermark setup */
 /**
  * dce_v10_0_line_buffer_adjust - Set up the line buffer

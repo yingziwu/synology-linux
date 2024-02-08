@@ -383,6 +383,7 @@ static int debugfs_show_mqd_sdma(struct seq_file *m, void *data)
 
 #endif
 
+
 struct mqd_manager *mqd_manager_init_cik(enum KFD_MQD_TYPE type,
 		struct kfd_dev *dev)
 {
@@ -439,3 +440,4 @@ struct mqd_manager *mqd_manager_init_cik(enum KFD_MQD_TYPE type,
 
 	return mqd;
 }
+

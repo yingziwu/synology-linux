@@ -68,6 +68,7 @@ static inline void otg_writel(const unsigned int val, void __iomem *reg)
 
 #endif
 
+
 struct platform_device;
 enum rtk_hsotg_dmamode {
 	RTK_HSOTG_DMA_NONE,		/* do not use DMA at-all */
@@ -165,6 +166,7 @@ struct rtk_hsotg_ep {
 	struct rtk_hsotg	*parent;
 	struct rtk_hsotg_req	*req;
 	struct dentry		*debugfs;
+
 
 	unsigned long		total_data;
 	unsigned int		size_loaded;
@@ -866,6 +868,7 @@ static void rtk_hsotg_start_req(struct rtk_hsotg *hsotg,
 #endif
 		ctrl |= DxEPCTL_CNAK;	/* clear NAK set by core */
 
+
 	dev_dbg(hsotg->dev, "%s: DxEPCTL=0x%08x\n", __func__, ctrl);
 	writel(ctrl, hsotg->regs + epctrl_reg);
 
@@ -1507,6 +1510,7 @@ static void rtk_hsotg_rx_data(struct rtk_hsotg *hsotg, int ep_idx, int size)
 	int to_read;
 	int max_req;
 	int read_ptr;
+
 
 	if (!hs_req) {
 		u32 epctl = readl(hsotg->regs + DOEPCTL(ep_idx));
@@ -2819,6 +2823,7 @@ static int rtk_hsotg_ep_disable(struct usb_ep *ep)
 	/* terminate all requests with shutdown */
 	kill_all_requests(hsotg, hs_ep, -ESHUTDOWN, false);
 
+
 	ctrl = readl(hsotg->regs + epctrl_reg);
 	ctrl &= ~DxEPCTL_EPEna;
 	ctrl &= ~DxEPCTL_USBActEp;
@@ -3466,6 +3471,7 @@ static const struct file_operations fifo_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+
 
 static const char *decode_direction(int is_in)
 {

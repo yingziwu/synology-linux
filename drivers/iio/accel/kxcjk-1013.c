@@ -1079,6 +1079,7 @@ static irqreturn_t kxcjk1013_event_handler(int irq, void *private)
 				       IIO_EV_DIR_RISING),
 				       data->timestamp);
 
+
 		if (ret & KXCJK1013_REG_INT_SRC2_BIT_YN)
 			iio_push_event(indio_dev,
 				       IIO_MOD_EVENT_CODE(IIO_ACCEL,
@@ -1342,6 +1343,8 @@ static int kxcjk1013_resume(struct device *dev)
 
 	mutex_lock(&data->mutex);
 	ret = kxcjk1013_set_mode(data, OPERATION);
+	if (ret == 0)
+		ret = kxcjk1013_set_range(data, data->range);
 	mutex_unlock(&data->mutex);
 
 	return ret;

@@ -49,6 +49,7 @@ void enable_surface_flip_reporting(struct dc_plane_state *plane_state,
 #include "audio.h"
 #include "dm_pp_smu.h"
 
+
 /************ link *****************/
 struct link_init_data {
 	const struct dc *dc;

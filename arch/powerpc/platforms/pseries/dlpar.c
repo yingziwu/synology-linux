@@ -280,7 +280,8 @@ int dlpar_detach_node(struct device_node *dn)
 	if (rc)
 		return rc;
 
-	of_node_put(dn); /* Must decrement the refcount */
+	of_node_put(dn);
+
 	return 0;
 }
 
@@ -636,3 +637,4 @@ static int __init pseries_dlpar_init(void)
 	return rc;
 }
 machine_device_initcall(pseries, pseries_dlpar_init);
+

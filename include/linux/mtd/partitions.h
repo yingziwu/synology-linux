@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * MTD partitioning layer definitions
  *
@@ -10,6 +13,7 @@
 #define MTD_PARTITIONS_H
 
 #include <linux/types.h>
+
 
 /*
  * Partition definition structure:
@@ -48,6 +52,7 @@ struct mtd_partition {
 #define MTDPART_OFS_APPEND	(-1)
 #define MTDPART_SIZ_FULL	(0)
 
+
 struct mtd_info;
 struct device_node;
 
@@ -66,6 +71,7 @@ struct mtd_part_parser_data {
 	struct device_node *of_node;
 };
 
+
 /*
  * Functions dealing with the various ways of partitioning the space
  */
@@ -74,11 +80,11 @@ struct mtd_part_parser {
 	struct list_head list;
 	struct module *owner;
 	const char *name;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	int (*parse_fn)(struct mtd_info *, const struct mtd_partition **,
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	int (*parse_fn)(struct mtd_info *, struct mtd_partition **,
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 			struct mtd_part_parser_data *);
 #if defined(CONFIG_SYNO_LSP_RTD1619)
 	void (*cleanup)(const struct mtd_partition *pparts, int nr_parts);

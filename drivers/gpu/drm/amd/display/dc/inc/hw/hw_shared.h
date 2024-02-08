@@ -126,10 +126,12 @@ struct default_adjustment {
 	bool force_hw_default;
 };
 
+
 struct out_csc_color_matrix {
 	enum dc_color_space color_space;
 	uint16_t regval[12];
 };
+
 
 enum opp_regamma {
 	OPP_REGAMMA_BYPASS = 0,

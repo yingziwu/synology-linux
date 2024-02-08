@@ -623,6 +623,7 @@ static void amdgpu_vm_do_copy_ptes(struct amdgpu_pte_update_params *params,
 {
 	uint64_t src = (params->src + (addr >> 12) * 8);
 
+
 	trace_amdgpu_vm_copy_ptes(pe, src, count);
 
 	amdgpu_vm_copy_pte(params->adev, params->ib, pe, src, count);
@@ -1763,6 +1764,7 @@ struct amdgpu_bo_va *amdgpu_vm_bo_add(struct amdgpu_device *adev,
 
 	return bo_va;
 }
+
 
 /**
  * amdgpu_vm_bo_insert_mapping - insert a new mapping

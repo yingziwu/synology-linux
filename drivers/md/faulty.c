@@ -16,6 +16,7 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+
 /*
  * The "faulty" personality causes some requests to fail.
  *
@@ -68,6 +69,7 @@
 #include "md.h"
 #include <linux/seq_file.h>
 
+
 static void faulty_fail(struct bio *bio)
 {
 	struct bio *b = bio->bi_private;
@@ -94,6 +96,7 @@ static int check_mode(struct faulty_conf *conf, int mode)
 	if (conf->period[mode] == 0 &&
 	    atomic_read(&conf->counters[mode]) <= 0)
 		return 0; /* no failure, no decrement */
+
 
 	if (atomic_dec_and_test(&conf->counters[mode])) {
 		if (conf->period[mode])
@@ -167,7 +170,7 @@ static void add_sector(struct faulty_conf *conf, sector_t start, int mode)
 		conf->nfaults = n+1;
 }
 
-static void make_request(struct mddev *mddev, struct bio *bio)
+static void faulty_make_request(struct mddev *mddev, struct bio *bio)
 {
 	struct faulty_conf *conf = mddev->private;
 	int failit = 0;
@@ -223,7 +226,7 @@ static void make_request(struct mddev *mddev, struct bio *bio)
 	generic_make_request(bio);
 }
 
-static void status(struct seq_file *seq, struct mddev *mddev)
+static void faulty_status(struct seq_file *seq, struct mddev *mddev)
 {
 	struct faulty_conf *conf = mddev->private;
 	int n;
@@ -244,6 +247,7 @@ static void status(struct seq_file *seq, struct mddev *mddev)
 		seq_printf(seq, " ReadPersistent=%d(%d)",
 			   n, conf->period[ReadPersistent]);
 
+
 	if ((n=atomic_read(&conf->counters[ReadFixable])) != 0)
 		seq_printf(seq, " ReadFixable=%d(%d)",
 			   n, conf->period[ReadFixable]);
@@ -254,7 +258,8 @@ static void status(struct seq_file *seq, struct mddev *mddev)
 	seq_printf(seq, " nfaults=%d", conf->nfaults);
 }
 
-static int reshape(struct mddev *mddev)
+
+static int faulty_reshape(struct mddev *mddev)
 {
 	int mode = mddev->new_layout & ModeMask;
 	int count = mddev->new_layout >> ModeShift;
@@ -294,7 +299,7 @@ static sector_t faulty_size(struct mddev *mddev, sector_t sectors, int raid_disk
 	return sectors;
 }
 
-static int run(struct mddev *mddev)
+static int faulty_run(struct mddev *mddev)
 {
 	struct md_rdev *rdev;
 	int i;
@@ -322,7 +327,7 @@ static int run(struct mddev *mddev)
 	md_set_array_sectors(mddev, faulty_size(mddev, 0, 0));
 	mddev->private = conf;
 
-	reshape(mddev);
+	faulty_reshape(mddev);
 
 	return 0;
 }
@@ -339,11 +344,11 @@ static struct md_personality faulty_personality =
 	.name		= "faulty",
 	.level		= LEVEL_FAULTY,
 	.owner		= THIS_MODULE,
-	.make_request	= make_request,
-	.run		= run,
+	.make_request	= faulty_make_request,
+	.run		= faulty_run,
 	.free		= faulty_free,
-	.status		= status,
-	.check_reshape	= reshape,
+	.status		= faulty_status,
+	.check_reshape	= faulty_reshape,
 	.size		= faulty_size,
 };
 

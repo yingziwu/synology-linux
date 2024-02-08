@@ -40,6 +40,7 @@ struct net_generic;
 struct sock;
 struct netns_ipvs;
 
+
 #define NETDEV_HASHBITS    8
 #define NETDEV_HASHENTRIES (1 << NETDEV_HASHBITS)
 
@@ -52,6 +53,7 @@ struct net {
 						 */
 	spinlock_t		rules_mod_lock;
 
+	u32			hash_mix;
 	atomic64_t		cookie_gen;
 
 	struct list_head	list;		/* list of network namespaces */
@@ -84,6 +86,7 @@ struct net {
 	/* core fib_rules */
 	struct list_head	rules_ops;
 
+
 	struct net_device       *loopback_dev;          /* The loopback */
 	struct netns_core	core;
 	struct netns_mib	mib;
@@ -113,6 +116,7 @@ struct net {
 #endif
 #if IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
 	struct netns_nf_frag	nf_frag;
+	struct ctl_table_header *nf_frag_frags_hdr;
 #endif
 	struct sock		*nfnl;
 	struct sock		*nfnl_stash;
@@ -160,6 +164,7 @@ static inline struct net *copy_net_ns(unsigned long flags,
 }
 #endif /* CONFIG_NET_NS */
 
+
 extern struct list_head net_namespace_list;
 
 struct net *get_net_ns_by_pid(pid_t pid);
@@ -206,6 +211,11 @@ int net_eq(const struct net *net1, const struct net *net2)
 	return net1 == net2;
 }
 
+static inline int check_net(const struct net *net)
+{
+	return atomic_read(&net->count) != 0;
+}
+
 void net_drop_ns(void *);
 
 #else
@@ -230,8 +240,14 @@ int net_eq(const struct net *net1, const struct net *net2)
 	return 1;
 }
 
+static inline int check_net(const struct net *net)
+{
+	return 1;
+}
+
 #define net_drop_ns NULL
 #endif
+
 
 typedef struct {
 #ifdef CONFIG_NET_NS

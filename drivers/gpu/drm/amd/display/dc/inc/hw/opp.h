@@ -266,6 +266,7 @@ struct oppbuf_params {
 
 struct opp_funcs {
 
+
 	/* FORMATTER RELATED */
 
 	void (*opp_program_fmt)(

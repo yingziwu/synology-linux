@@ -66,11 +66,13 @@
 
 #define SYS_DUMMY               (SYS_REG_BASE + 0x450)  //dummy register
 
+
 /*SB2 */
 #define SB2_REG_BASE			0x00000000    //0x9801a000
 #define SB2_muxpad2				(SB2_REG_BASE + 0x908)	//mux for arm,lextra ej-tag
 #define SB2_muxpad3				(SB2_REG_BASE + 0x90c)	//mux for arm,lextra ej-tag
 #define SB2_muxpad4				(SB2_REG_BASE + 0x910)	//mux for ej-tag
 #define SB2_muxpad5				(SB2_REG_BASE + 0x914)	//sf_en = 1, force gpio0-3 mux to spi pins
+
 
 #endif /* #ifndef _REG_SYS_H */

@@ -625,7 +625,11 @@ int kvmppc_handle_pagefault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			kvmppc_mmu_unmap_page(vcpu, &pte);
 		}
 		/* The guest's PTE is not mapped yet. Map on the host */
-		kvmppc_mmu_map_page(vcpu, &pte, iswrite);
+		if (kvmppc_mmu_map_page(vcpu, &pte, iswrite) == -EIO) {
+			/* Exit KVM if mapping failed */
+			run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+			return RESUME_HOST;
+		}
 		if (data)
 			vcpu->stat.sp_storage++;
 		else if (vcpu->arch.mmu.is_dcbz32(vcpu) &&
@@ -1598,6 +1602,7 @@ static int kvmppc_core_create_memslot_pr(struct kvm_memory_slot *slot,
 	return 0;
 }
 
+
 #ifdef CONFIG_PPC64
 static int kvm_vm_ioctl_get_smmu_info_pr(struct kvm *kvm,
 					 struct kvm_ppc_smmu_info *info)
@@ -1737,6 +1742,7 @@ static struct kvmppc_ops kvm_ops_pr = {
 	.hcall_implemented = kvmppc_hcall_impl_pr,
 #endif
 };
+
 
 int kvmppc_book3s_init_pr(void)
 {

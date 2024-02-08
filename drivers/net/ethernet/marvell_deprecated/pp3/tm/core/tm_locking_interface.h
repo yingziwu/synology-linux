@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -32,8 +33,10 @@ disclaimer.
 #ifndef TM_LOCKING_INTERFACE_H
 #define TM_LOCKING_INTERFACE_H
 
+
 int	tm_create_locking_staff(void * environment_handle);
 int	tm_destroy_locking_staff(void * environment_handle);
+
 
 /** Lock the TM nodes configuration data from other threads.
  *
@@ -72,6 +75,7 @@ int tm_glob_unlock(void * environment_handle);
 /** Unlock the TM Scheduling configuration data from other threads.
  */
 int tm_sched_unlock(void * environment_handle);
+
 
 #endif   /* TM_LOCKING_INTERFACE_H */
 

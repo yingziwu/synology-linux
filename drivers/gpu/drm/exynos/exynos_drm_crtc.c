@@ -108,6 +108,7 @@ static bool exynos_crtc_mode_fixup(struct drm_crtc *crtc,
 	return true;
 }
 
+
 static const struct drm_crtc_helper_funcs exynos_crtc_helper_funcs = {
 	.mode_valid	= exynos_crtc_mode_valid,
 	.mode_fixup	= exynos_crtc_mode_fixup,

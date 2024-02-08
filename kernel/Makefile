@@ -12,6 +12,10 @@ obj-y     = fork.o exec_domain.o panic.o \
 	    async.o range.o smpboot.o \
 	    syno_bootargs.o
 
+ifdef CONFIG_SYNO_KWORK_STAT
+obj-y += workstat.o
+endif
+
 obj-$(CONFIG_MULTIUSER) += groups.o
 
 ifdef CONFIG_FUNCTION_TRACER
