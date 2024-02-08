@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *   fs/cifs/connect.c
  *
@@ -294,6 +297,9 @@ static const match_table_t cifs_smb_version_tokens = {
 	{ Smb_311, SMB311_VERSION_STRING },
 	{ Smb_311, ALT_SMB311_VERSION_STRING },
 #endif /* SMB311 */
+#ifdef MY_ABC_HERE
+	{ Smb_Syno, SYNO_VERSION_STRING },
+#endif /* MY_ABC_HERE */
 	{ Smb_version_err, NULL }
 };
 
@@ -545,21 +551,12 @@ allocate_buffers(struct TCP_Server_Info *server)
 static bool
 server_unresponsive(struct TCP_Server_Info *server)
 {
-	/*
-	 * We need to wait 2 echo intervals to make sure we handle such
-	 * situations right:
-	 * 1s  client sends a normal SMB request
-	 * 2s  client gets a response
-	 * 30s echo workqueue job pops, and decides we got a response recently
-	 *     and don't need to send another
-	 * ...
-	 * 65s kernel_recvmsg times out, and we see that we haven't gotten
-	 *     a response in >60s.
-	 */
-	if (server->tcpStatus == CifsGood &&
-	    time_after(jiffies, server->lstrp + 2 * SMB_ECHO_INTERVAL)) {
-		cifs_dbg(VFS, "Server %s has not responded in %d seconds. Reconnecting...\n",
-			 server->hostname, (2 * SMB_ECHO_INTERVAL) / HZ);
+	if (echo_retries > 0 && server->tcpStatus == CifsGood &&
+	    time_after(jiffies, server->lstrp +
+				(echo_retries * SMB_ECHO_INTERVAL))) {
+		cifs_dbg(VFS, "Server %s has not responded in %d seconds. "
+			  "Reconnecting...", server->hostname,
+			  (echo_retries * SMB_ECHO_INTERVAL / HZ));
 		cifs_reconnect(server);
 		wake_up(&server->response_q);
 		return true;
@@ -567,6 +564,23 @@ server_unresponsive(struct TCP_Server_Info *server)
 
 	return false;
 }
+#ifdef MY_ABC_HERE
+static bool
+server_nego_unresponsive(struct TCP_Server_Info *server, unsigned long when_start_recv_nego)
+{
+	if (server->tcpStatus == CifsNeedNegotiate &&
+	    need_nego_timeout != 0 &&
+	    time_after(jiffies, when_start_recv_nego + need_nego_timeout * HZ)) {
+		cifs_dbg(FYI, "Server %s has not responded at need nego stage in %d seconds. "
+			  "Reconnecting...\n", server->hostname, need_nego_timeout);
+		cifs_reconnect(server);
+		wake_up(&server->response_q);
+		return true;
+	}
+
+	return false;
+}
+#endif /* MY_ABC_HERE */
 
 /*
  * kvec_array_init - clone a kvec array, and advance into it
@@ -630,6 +644,9 @@ cifs_readv_from_socket(struct TCP_Server_Info *server, struct kvec *iov_orig,
 	unsigned int segs;
 	struct msghdr smb_msg;
 	struct kvec *iov;
+#ifdef MY_ABC_HERE
+	unsigned long when_start_recv_nego;
+#endif /* MY_ABC_HERE */
 
 	iov = get_server_iovec(server, nr_segs);
 	if (!iov)
@@ -637,7 +654,13 @@ cifs_readv_from_socket(struct TCP_Server_Info *server, struct kvec *iov_orig,
 
 	smb_msg.msg_control = NULL;
 	smb_msg.msg_controllen = 0;
+	smb_msg.msg_name = NULL;
+	smb_msg.msg_namelen = 0;
+	smb_msg.msg_flags = 0;
 
+#ifdef MY_ABC_HERE
+	when_start_recv_nego = jiffies;
+#endif /* MY_ABC_HERE */
 	for (total_read = 0; to_read; total_read += length, to_read -= length) {
 		try_to_freeze();
 
@@ -645,6 +668,12 @@ cifs_readv_from_socket(struct TCP_Server_Info *server, struct kvec *iov_orig,
 			total_read = -ECONNABORTED;
 			break;
 		}
+#ifdef MY_ABC_HERE
+		if (server_nego_unresponsive(server, when_start_recv_nego)) {
+			total_read = -ECONNABORTED;
+			break;
+		}
+#endif /* MY_ABC_HERE */
 
 		segs = kvec_array_init(iov, iov_orig, nr_segs, total_read);
 
@@ -1213,6 +1242,12 @@ cifs_parse_smb_version(char *value, struct smb_vol *vol)
 		vol->ops = &smb1_operations;
 		vol->vals = &smb1_values;
 		break;
+#ifdef MY_ABC_HERE
+	case Smb_Syno:
+		vol->ops = &synocifs_operations;
+		vol->vals = &synocifs_values;
+		break;
+#endif /* MY_ABC_HERE */
 #ifdef CONFIG_CIFS_SMB2
 	case Smb_20:
 		vol->ops = &smb20_operations;
@@ -1488,6 +1523,9 @@ cifs_parse_mount_options(const char *mountdata, const char *devname,
 			vol->no_linux_ext = 1;
 			break;
 		case Opt_nocase:
+#ifdef MY_ABC_HERE
+			SynoPosixSemanticsEnabled = 0;
+#endif /* MY_ABC_HERE */
 			vol->nocase = 1;
 			break;
 		case Opt_brl:
@@ -1580,7 +1618,11 @@ cifs_parse_mount_options(const char *mountdata, const char *devname,
 			cifs_dbg(VFS, "FS-Cache support needs CONFIG_CIFS_FSCACHE kernel config option set\n");
 			goto cifs_parse_mount_err;
 #endif
+#if defined(MY_ABC_HERE) && !defined(CONFIG_CIFS_FSCACHE)
+			// CID 45467: dead code after goto.
+#else
 			vol->fsc = true;
+#endif
 			break;
 		case Opt_mfsymlinks:
 			vol->mfsymlinks = true;
@@ -1750,6 +1792,12 @@ cifs_parse_mount_options(const char *mountdata, const char *devname,
 			 * starts with a delimiter
 			 */
 			tmp_end = strchr(data, '=');
+#ifdef MY_ABC_HERE
+			// CID 45506: dereference null return value
+			if (NULL == tmp_end) {
+				goto cifs_parse_mount_err;
+			}
+#endif /* MY_ABC_HERE */
 			tmp_end++;
 			if (!(tmp_end < end && tmp_end[1] == delim)) {
 				/* No it is not. Set the password to NULL */
@@ -1761,6 +1809,12 @@ cifs_parse_mount_options(const char *mountdata, const char *devname,
 		case Opt_pass:
 			/* Obtain the value string */
 			value = strchr(data, '=');
+#ifdef MY_ABC_HERE
+			// CID 45506: dereference null return value
+			if (NULL == value) {
+				goto cifs_parse_mount_err;
+			}
+#endif /* MY_ABC_HERE */
 			value++;
 
 			/* Set tmp_end to end of the string */
@@ -2164,8 +2218,15 @@ static int match_server(struct TCP_Server_Info *server, struct smb_vol *vol)
 	if (vol->nosharesock)
 		return 0;
 
+#ifdef MY_ABC_HERE
+	if ((server->vals != vol->vals && server->values != vol->vals) ||
+	    (server->ops != vol->ops)) {
+		return 0;
+	}
+#else
 	if ((server->vals != vol->vals) || (server->ops != vol->ops))
 		return 0;
+#endif /* MY_ABC_HERE */
 
 	if (!net_eq(cifs_net_ns(server), current->nsproxy->net_ns))
 		return 0;
@@ -2270,6 +2331,11 @@ cifs_get_tcp_session(struct smb_vol *volume_info)
 
 	tcp_ses->ops = volume_info->ops;
 	tcp_ses->vals = volume_info->vals;
+#ifdef MY_ABC_HERE
+	if (&synocifs_values == volume_info->vals) {
+		tcp_ses->values = volume_info->vals;
+	}
+#endif /* MY_ABC_HERE */
 	cifs_set_net_ns(tcp_ses, get_net(current->nsproxy->net_ns));
 	tcp_ses->hostname = extract_hostname(volume_info->UNC);
 	if (IS_ERR(tcp_ses->hostname)) {
@@ -3087,8 +3153,13 @@ ip_rfc1001_connect(struct TCP_Server_Info *server)
 	if (ses_init_buf) {
 		ses_init_buf->trailer.session_req.called_len = 32;
 
+#ifdef MY_ABC_HERE
+		// CID 45235: array compare 0. server_RFC1001_name is an array not pointer.
+		if (server->server_RFC1001_name[0] != 0)
+#else
 		if (server->server_RFC1001_name &&
 		    server->server_RFC1001_name[0] != 0)
+#endif /* MY_ABC_HERE */
 			rfc1002mangle(ses_init_buf->trailer.
 				      session_req.called_name,
 				      server->server_RFC1001_name,

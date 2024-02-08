@@ -550,6 +550,9 @@ int nfs_readdir_page_filler(nfs_readdir_descriptor_t *desc, struct nfs_entry *en
 	xdr_set_scratch_buffer(&stream, page_address(scratch), PAGE_SIZE);
 
 	do {
+		if (entry->label)
+			entry->label->len = NFS4_MAXLABELLEN;
+
 		status = xdr_decode(desc, entry, &stream);
 		if (status != 0) {
 			if (status == -EAGAIN)
@@ -711,12 +714,17 @@ void cache_page_release(nfs_readdir_descriptor_t *desc)
 	desc->page = NULL;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 static
 struct page *get_cache_page(nfs_readdir_descriptor_t *desc)
 {
+	struct page *page;
+
 	return read_cache_page(file_inode(desc->file)->i_mapping,
 			desc->page_index, (filler_t *)nfs_readdir_filler, desc);
 }
+#pragma GCC diagnostic pop
 
 /*
  * Returns 0 if desc->dir_cookie was found on page desc->page_index
@@ -929,7 +937,7 @@ static loff_t nfs_llseek_dir(struct file *filp, loff_t offset, int whence)
 	dfprintk(FILE, "NFS: llseek dir(%pD2, %lld, %d)\n",
 			filp, offset, whence);
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	switch (whence) {
 		case 1:
 			offset += filp->f_pos;
@@ -946,7 +954,7 @@ static loff_t nfs_llseek_dir(struct file *filp, loff_t offset, int whence)
 		dir_ctx->duped = 0;
 	}
 out:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	return offset;
 }
 
@@ -961,9 +969,9 @@ static int nfs_fsync_dir(struct file *filp, loff_t start, loff_t end,
 
 	dfprintk(FILE, "NFS: fsync dir(%pD2) datasync %d\n", filp, datasync);
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	nfs_inc_stats(inode, NFSIOS_VFSFSYNC);
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	return 0;
 }
 

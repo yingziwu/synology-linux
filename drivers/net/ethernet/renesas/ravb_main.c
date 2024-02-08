@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* Renesas Ethernet AVB device driver
  *
  * Copyright (C) 2014-2015 Renesas Electronics Corporation
@@ -919,8 +922,12 @@ static int ravb_phy_init(struct net_device *ndev)
 	/* 10BASE is not supported */
 	phydev->supported &= ~PHY_10BT_FEATURES;
 
+#if defined(MY_DEF_HERE)
+	phy_attached_info(phydev);
+#else /* MY_DEF_HERE */
 	netdev_info(ndev, "attached PHY %d (IRQ %d) to driver %s\n",
 		    phydev->addr, phydev->irq, phydev->drv->name);
+#endif /* MY_DEF_HERE */
 
 	priv->phydev = phydev;
 

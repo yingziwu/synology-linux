@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2014 Filipe David Borba Manana <fdmanana@gmail.com>
  *
@@ -22,6 +25,7 @@
 #include "hash.h"
 #include "transaction.h"
 #include "xattr.h"
+#include "compression.h"
 
 #define BTRFS_PROP_HANDLERS_HT_BITS 8
 static DEFINE_HASHTABLE(prop_handlers_ht, BTRFS_PROP_HANDLERS_HT_BITS);
@@ -299,7 +303,10 @@ static int inherit_props(struct btrfs_trans_handle *trans,
 			 struct inode *inode,
 			 struct inode *parent)
 {
+#ifdef MY_ABC_HERE
+#else
 	struct btrfs_root *root = BTRFS_I(inode)->root;
+#endif /* MY_ABC_HERE */
 	int ret;
 	int i;
 
@@ -310,7 +317,10 @@ static int inherit_props(struct btrfs_trans_handle *trans,
 	for (i = 0; i < ARRAY_SIZE(prop_handlers); i++) {
 		const struct prop_handler *h = &prop_handlers[i];
 		const char *value;
+#ifdef MY_ABC_HERE
+#else
 		u64 num_bytes;
+#endif /* MY_ABC_HERE */
 
 		if (!h->inheritable)
 			continue;
@@ -319,14 +329,20 @@ static int inherit_props(struct btrfs_trans_handle *trans,
 		if (!value)
 			continue;
 
+#ifdef MY_ABC_HERE
+#else
 		num_bytes = btrfs_calc_trans_metadata_size(root, 1);
 		ret = btrfs_block_rsv_add(root, trans->block_rsv,
 					  num_bytes, BTRFS_RESERVE_NO_FLUSH);
 		if (ret)
 			goto out;
+#endif /* MY_ABC_HERE */
 		ret = __btrfs_set_prop(trans, inode, h->xattr_name,
 				       value, strlen(value), 0);
+#ifdef MY_ABC_HERE
+#else
 		btrfs_block_rsv_release(root, trans->block_rsv, num_bytes);
+#endif /* MY_ABC_HERE */
 		if (ret)
 			goto out;
 	}
@@ -381,6 +397,8 @@ static int prop_compression_validate(const char *value, size_t len)
 		return 0;
 	else if (!strncmp("zlib", value, len))
 		return 0;
+	else if (!strncmp("zstd", value, len))
+		return 0;
 
 	return -EINVAL;
 }
@@ -389,6 +407,7 @@ static int prop_compression_apply(struct inode *inode,
 				  const char *value,
 				  size_t len)
 {
+	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 	int type;
 
 	if (len == 0) {
@@ -399,12 +418,17 @@ static int prop_compression_apply(struct inode *inode,
 		return 0;
 	}
 
-	if (!strncmp("lzo", value, len))
+	if (!strncmp("lzo", value, 3)) {
 		type = BTRFS_COMPRESS_LZO;
-	else if (!strncmp("zlib", value, len))
+		btrfs_set_fs_incompat(fs_info, COMPRESS_LZO);
+	} else if (!strncmp("zlib", value, 4)) {
 		type = BTRFS_COMPRESS_ZLIB;
-	else
+	} else if (!strncmp("zstd", value, len)) {
+		type = BTRFS_COMPRESS_ZSTD;
+		btrfs_set_fs_incompat(fs_info, COMPRESS_ZSTD);
+	} else {
 		return -EINVAL;
+	}
 
 	BTRFS_I(inode)->flags &= ~BTRFS_INODE_NOCOMPRESS;
 	BTRFS_I(inode)->flags |= BTRFS_INODE_COMPRESS;
@@ -420,6 +444,8 @@ static const char *prop_compression_extract(struct inode *inode)
 		return "zlib";
 	case BTRFS_COMPRESS_LZO:
 		return "lzo";
+	case BTRFS_COMPRESS_ZSTD:
+		return "zstd";
 	}
 
 	return NULL;

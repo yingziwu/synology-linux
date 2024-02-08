@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * kobject.h - generic kernel object infrastructure.
  *
@@ -57,6 +60,12 @@ enum kobject_action {
 	KOBJ_MOVE,
 	KOBJ_ONLINE,
 	KOBJ_OFFLINE,
+#if defined(MY_DEF_HERE) || defined(CONFIG_SYNO_LSP_RTD1619)
+#if defined(CONFIG_R8168) || defined(CONFIG_R8169SOC)
+	KOBJ_LINKUP,
+	KOBJ_LINKDOWN,
+#endif /* CONFIG_R8168 || CONFIG_R8169SOC */
+#endif /* MY_DEF_HERE || CONFIG_SYNO_LSP_RTD1619 */
 	KOBJ_MAX
 };
 
@@ -108,6 +117,8 @@ extern int __must_check kobject_rename(struct kobject *, const char *new_name);
 extern int __must_check kobject_move(struct kobject *, struct kobject *);
 
 extern struct kobject *kobject_get(struct kobject *kobj);
+extern struct kobject * __must_check kobject_get_unless_zero(
+						struct kobject *kobj);
 extern void kobject_put(struct kobject *kobj);
 
 extern const void *kobject_namespace(struct kobject *kobj);

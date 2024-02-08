@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * workqueue.h --- work queue handling for Linux.
  */
@@ -620,5 +623,9 @@ int workqueue_sysfs_register(struct workqueue_struct *wq);
 static inline int workqueue_sysfs_register(struct workqueue_struct *wq)
 { return 0; }
 #endif	/* CONFIG_SYSFS */
+
+#ifdef MY_ABC_HERE
+void update_kwork_stat_ratelimited(gfp_t gfp);
+#endif
 
 #endif

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Based on arch/arm/kernel/armksyms.c
  *
@@ -26,6 +29,9 @@
 #include <linux/syscalls.h>
 #include <linux/uaccess.h>
 #include <linux/io.h>
+#if defined(MY_DEF_HERE)
+#include <linux/arm-smccc.h>
+#endif /* MY_DEF_HERE */
 
 #include <asm/checksum.h>
 
@@ -68,3 +74,9 @@ EXPORT_SYMBOL(test_and_change_bit);
 #ifdef CONFIG_FUNCTION_TRACER
 EXPORT_SYMBOL(_mcount);
 #endif
+#if defined(MY_DEF_HERE)
+
+	/* arm-smccc */
+EXPORT_SYMBOL(arm_smccc_smc);
+EXPORT_SYMBOL(arm_smccc_hvc);
+#endif /* MY_DEF_HERE */

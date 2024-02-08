@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Driver for AMD am79c PHYs
  *
@@ -72,7 +75,11 @@ static struct phy_driver am79c_driver[] = { {
 	.read_status	= genphy_read_status,
 	.ack_interrupt	= am79c_ack_interrupt,
 	.config_intr	= am79c_config_intr,
+#if defined(MY_DEF_HERE)
+//do nothing
+#else /* MY_DEF_HERE */
 	.driver		= { .owner = THIS_MODULE,},
+#endif /* MY_DEF_HERE */
 } };
 
 module_phy_driver(am79c_driver);

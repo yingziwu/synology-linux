@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Marvell Kirkwood SoC clocks
  *
@@ -256,7 +259,11 @@ static const struct clk_muxing_soc_desc kirkwood_mux_desc[] __initconst = {
 		11, 1, 0 },
 };
 
+#if defined(MY_DEF_HERE)
+//do nothing
+#else /* MY_DEF_HERE */
 #define to_clk_mux(_hw) container_of(_hw, struct clk_mux, hw)
+#endif /* MY_DEF_HERE */
 
 static struct clk *clk_muxing_get_src(
 	struct of_phandle_args *clkspec, void *data)

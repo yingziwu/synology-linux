@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/mm/vmstat.c
  *
@@ -923,7 +926,11 @@ static char * const migratetype_names[MIGRATE_TYPES] = {
 	"Unmovable",
 	"Movable",
 	"Reclaimable",
+#if defined(MY_DEF_HERE) && !defined(MY_DEF_HERE)
+	"Reserve",
+#else /* MY_DEF_HERE && !MY_DEF_HERE */
 	"HighAtomic",
+#endif /* MY_DEF_HERE && !MY_DEF_HERE */
 #ifdef CONFIG_CMA
 	"CMA",
 #endif

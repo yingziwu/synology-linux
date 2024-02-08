@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Server-side procedures for NFSv4.
  *
@@ -55,10 +58,10 @@ nfsd4_security_inode_setsecctx(struct svc_fh *resfh, struct xdr_netobj *label, u
 	struct inode *inode = d_inode(resfh->fh_dentry);
 	int status;
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	status = security_inode_setsecctx(resfh->fh_dentry,
 		label->data, label->len);
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 
 	if (status)
 		/*
@@ -564,6 +567,11 @@ static __be32
 nfsd4_access(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	     struct nfsd4_access *access)
 {
+#ifdef MY_ABC_HERE
+	if (IPPROTO_UDP == rqstp->rq_prot) {
+		return nfserr_acces;
+	}
+#endif /* MY_ABC_HERE */
 	if (access->ac_req_access & ~NFS3_ACCESS_FULL)
 		return nfserr_inval;
 
@@ -774,8 +782,9 @@ nfsd4_read(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		clear_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
 
 	/* check stateid */
-	status = nfs4_preprocess_stateid_op(rqstp, cstate, &read->rd_stateid,
-			RD_STATE, &read->rd_filp, &read->rd_tmp_file);
+	status = nfs4_preprocess_stateid_op(rqstp, cstate, &cstate->current_fh,
+					&read->rd_stateid, RD_STATE,
+					&read->rd_filp, &read->rd_tmp_file);
 	if (status) {
 		dprintk("NFSD: nfsd4_read: couldn't process stateid!\n");
 		goto out;
@@ -922,7 +931,8 @@ nfsd4_setattr(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 
 	if (setattr->sa_iattr.ia_valid & ATTR_SIZE) {
 		status = nfs4_preprocess_stateid_op(rqstp, cstate,
-			&setattr->sa_stateid, WR_STATE, NULL, NULL);
+				&cstate->current_fh, &setattr->sa_stateid,
+				WR_STATE, NULL, NULL);
 		if (status) {
 			dprintk("NFSD: nfsd4_setattr: couldn't process stateid!\n");
 			return status;
@@ -986,8 +996,8 @@ nfsd4_write(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	if (write->wr_offset >= OFFSET_MAX)
 		return nfserr_inval;
 
-	status = nfs4_preprocess_stateid_op(rqstp, cstate, stateid, WR_STATE,
-			&filp, NULL);
+	status = nfs4_preprocess_stateid_op(rqstp, cstate, &cstate->current_fh,
+						stateid, WR_STATE, &filp, NULL);
 	if (status) {
 		dprintk("NFSD: nfsd4_write: couldn't process stateid!\n");
 		return status;
@@ -1011,13 +1021,57 @@ nfsd4_write(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 }
 
 static __be32
+nfsd4_clone(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+		struct nfsd4_clone *clone)
+{
+	struct file *src, *dst;
+	__be32 status;
+
+	if (!cstate->save_fh.fh_dentry)
+		return nfserr_nofilehandle;
+
+	status = nfs4_preprocess_stateid_op(rqstp, cstate, &cstate->save_fh,
+					    &clone->cl_src_stateid, RD_STATE,
+					    &src, NULL);
+	if (status) {
+		dprintk("NFSD: %s: couldn't process src stateid!\n", __func__);
+		goto out;
+	}
+
+	status = nfs4_preprocess_stateid_op(rqstp, cstate, &cstate->current_fh,
+					    &clone->cl_dst_stateid, WR_STATE,
+					    &dst, NULL);
+	if (status) {
+		dprintk("NFSD: %s: couldn't process dst stateid!\n", __func__);
+		goto out_put_src;
+	}
+
+	/* fix up for NFS-specific error code */
+	if (!S_ISREG(file_inode(src)->i_mode) ||
+	    !S_ISREG(file_inode(dst)->i_mode)) {
+		status = nfserr_wrong_type;
+		goto out_put_dst;
+	}
+
+	status = nfsd4_clone_file_range(src, clone->cl_src_pos,
+			dst, clone->cl_dst_pos, clone->cl_count);
+
+out_put_dst:
+	fput(dst);
+out_put_src:
+	fput(src);
+out:
+	return status;
+}
+
+static __be32
 nfsd4_fallocate(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		struct nfsd4_fallocate *fallocate, int flags)
 {
 	__be32 status = nfserr_notsupp;
 	struct file *file;
 
-	status = nfs4_preprocess_stateid_op(rqstp, cstate,
+	status = nfs4_preprocess_stateid_op(rqstp, cstate, &cstate->current_fh,
 					    &fallocate->falloc_stateid,
 					    WR_STATE, &file, NULL);
 	if (status != nfs_ok) {
@@ -1056,7 +1110,7 @@ nfsd4_seek(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	__be32 status;
 	struct file *file;
 
-	status = nfs4_preprocess_stateid_op(rqstp, cstate,
+	status = nfs4_preprocess_stateid_op(rqstp, cstate, &cstate->current_fh,
 					    &seek->seek_stateid,
 					    RD_STATE, &file, NULL);
 	if (status) {
@@ -1637,6 +1691,10 @@ nfsd4_proc_compound(struct svc_rqst *rqstp,
 	}
 
 	while (!status && resp->opcnt < args->opcnt) {
+#ifdef MY_ABC_HERE
+		ktime_t stime = ktime_get();
+#endif
+
 		op = &args->ops[resp->opcnt++];
 
 		dprintk("nfsv4 compound op #%d/%d: %d (%s)\n",
@@ -1723,6 +1781,10 @@ encode_op:
 
 		nfsd4_cstate_clear_replay(cstate);
 		nfsd4_increment_op_stats(op->opnum);
+#ifdef MY_ABC_HERE
+		if (op->opnum >= FIRST_NFS4_OP && op->opnum <= LAST_NFS4_OP)
+			svc_update_lat(&nfsdstats.nfs4_oplatency[op->opnum], stime);
+#endif
 	}
 
 	cstate->status = status;
@@ -2278,6 +2340,12 @@ static struct nfsd4_operation nfsd4_ops[] = {
 		.op_func = (nfsd4op_func)nfsd4_deallocate,
 		.op_flags = OP_MODIFIES_SOMETHING | OP_CACHEME,
 		.op_name = "OP_DEALLOCATE",
+		.op_rsize_bop = (nfsd4op_rsize)nfsd4_only_status_rsize,
+	},
+	[OP_CLONE] = {
+		.op_func = (nfsd4op_func)nfsd4_clone,
+		.op_flags = OP_MODIFIES_SOMETHING | OP_CACHEME,
+		.op_name = "OP_CLONE",
 		.op_rsize_bop = (nfsd4op_rsize)nfsd4_only_status_rsize,
 	},
 	[OP_SEEK] = {
