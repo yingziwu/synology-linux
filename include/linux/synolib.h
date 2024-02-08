@@ -101,12 +101,9 @@ void syno_plugin_handle_put(void *hnd);
 #endif
 
 #ifdef MY_ABC_HERE
+#define SYNOBIOS_EVENTDATA_NUM_MAX 8
 typedef struct _synobios_event_parm_tag {
-	unsigned long long data1;
-	unsigned long long data2;
-	unsigned long long data3;
-	unsigned long long data4;
-	unsigned long long data5;
+	unsigned long long data[SYNOBIOS_EVENTDATA_NUM_MAX];
 } SYNOBIOS_EVENT_PARM;
 
 typedef int (*FUNC_SYNOBIOS_EVENT)(SYNOBIOS_EVENT_PARM parms);

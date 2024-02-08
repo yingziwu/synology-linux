@@ -37,7 +37,7 @@ SYNOAutoGenerateModulesConfig () {
 
 IPV6_COMMON_LIST="ipv6 tunnel4 sit"
 CRYPTO_MODULES_MARVELL_COMMON_LIST="ocf cryptodev cesa_ocf_drv cryptosoft"
-MISC_MODULES_COMMON_LIST="hfsplus llc p8022 psnap dm-snapshot sg"
+MISC_MODULES_COMMON_LIST="hfsplus llc p8022 psnap dm-snapshot sg loop"
 USB_MODULES_COMMON_LIST="usb-common usbcore xhci-hcd usb-storage usblp hid usbhid"
 
 if [ -f "${KERNEL_MODULES_TABLE}" ]; then
@@ -95,7 +95,7 @@ if [ -f "${KERNEL_MODULES_TABLE}" ]; then
 			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
 
-			USB_MODULES_LIST="usb-common usbcore ehci-hcd etxhci-hcd usb-storage usblp hid usbhid"
+			USB_MODULES_LIST="usb-common usbcore etxhci-hcd usb-storage usblp hid usbhid"
 			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
 			;;
 		MARVELL_ARMADA375)

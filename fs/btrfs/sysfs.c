@@ -417,6 +417,20 @@ static struct attribute *btrfs_attrs[] = {
 	NULL,
 };
 
+#ifdef MY_ABC_HERE
+static ssize_t btrfs_incompat_supp_show(struct kobject *kobj,
+				struct kobj_attribute *a, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%llu\n", BTRFS_FEATURE_INCOMPAT_SUPP);
+}
+BTRFS_ATTR(incompat_supp, 0444, btrfs_incompat_supp_show);
+
+static const struct attribute *btrfs_info_attrs[] = {
+	BTRFS_ATTR_PTR(incompat_supp),
+	NULL,
+};
+#endif /* MY_ABC_HERE */
+
 static void btrfs_release_super_kobj(struct kobject *kobj)
 {
 	struct btrfs_fs_info *fs_info = to_fs_info(kobj);
@@ -692,12 +706,22 @@ int btrfs_init_sysfs(void)
 
 	init_feature_attrs();
 	ret = sysfs_create_group(&btrfs_kset->kobj, &btrfs_feature_attr_group);
-
+#ifdef MY_ABC_HERE
+	if (!ret) {
+		ret = sysfs_create_files(&btrfs_kset->kobj, btrfs_info_attrs);
+		if (ret) {
+			sysfs_remove_group(&btrfs_kset->kobj, &btrfs_feature_attr_group);
+		}
+	}
+#endif /* MY_ABC_HERE */
 	return ret;
 }
 
 void btrfs_exit_sysfs(void)
 {
+#ifdef MY_ABC_HERE
+	sysfs_remove_files(&btrfs_kset->kobj, btrfs_info_attrs);
+#endif /* MY_ABC_HERE */
 	sysfs_remove_group(&btrfs_kset->kobj, &btrfs_feature_attr_group);
 	kset_unregister(btrfs_kset);
 	debugfs_remove_recursive(btrfs_debugfs_root_dentry);

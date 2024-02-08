@@ -1580,20 +1580,20 @@ SKIP:
 	ata_for_each_link(reset_link, ap, EDGE) {
 		if (SYNO_DISK_RESET_FAIL_REPORT_COUNT <= reset_link->uiSoftResetFailCount) {
 			memset(&reset_link->diskSoftResetFailEventParm, 0, sizeof(reset_link->diskSoftResetFailEventParm));
-			reset_link->diskSoftResetFailEventParm.data1 = syno_libata_index_get(ap->scsi_host, 0, 0, 0);
-			reset_link->diskSoftResetFailEventParm.data2 = ap->nr_pmp_links;
-			reset_link->diskSoftResetFailEventParm.data3 = reset_link->pmp;
-			reset_link->diskSoftResetFailEventParm.data4 = 0;
-			reset_link->diskSoftResetFailEventParm.data5 = reset_link->uiSoftResetFailCount;
+			reset_link->diskSoftResetFailEventParm.data[0] = syno_libata_index_get(ap->scsi_host, 0, 0, 0);
+			reset_link->diskSoftResetFailEventParm.data[1] = ap->nr_pmp_links;
+			reset_link->diskSoftResetFailEventParm.data[2] = reset_link->pmp;
+			reset_link->diskSoftResetFailEventParm.data[3] = 0;
+			reset_link->diskSoftResetFailEventParm.data[4] = reset_link->uiSoftResetFailCount;
 			schedule_work(&(reset_link->SendDiskSoftResetFailEventTask));
 		}
 		if (SYNO_DISK_RESET_FAIL_REPORT_COUNT <= reset_link->uiHardResetFailCount) {
 			memset(&reset_link->diskHardResetFailEventParm, 0, sizeof(reset_link->diskHardResetFailEventParm));
-			reset_link->diskHardResetFailEventParm.data1 = syno_libata_index_get(ap->scsi_host, 0, 0, 0);
-			reset_link->diskHardResetFailEventParm.data2 = ap->nr_pmp_links;
-			reset_link->diskHardResetFailEventParm.data3 = reset_link->pmp;
-			reset_link->diskHardResetFailEventParm.data4 = 1;
-			reset_link->diskHardResetFailEventParm.data5 = reset_link->uiHardResetFailCount;
+			reset_link->diskHardResetFailEventParm.data[0] = syno_libata_index_get(ap->scsi_host, 0, 0, 0);
+			reset_link->diskHardResetFailEventParm.data[1] = ap->nr_pmp_links;
+			reset_link->diskHardResetFailEventParm.data[2] = reset_link->pmp;
+			reset_link->diskHardResetFailEventParm.data[3] = 1;
+			reset_link->diskHardResetFailEventParm.data[4] = reset_link->uiHardResetFailCount;
 			schedule_work(&(reset_link->SendDiskHardResetFailEventTask));
 		}
 		reset_link->uiSoftResetFailCount = 0;
@@ -3566,20 +3566,20 @@ static void ata_eh_link_report(struct ata_link *link)
 	}
 #ifdef MY_ABC_HERE
 	memset(&link->diskSataErrEventParm, 0, sizeof(link->diskSataErrEventParm));
-	link->diskSataErrEventParm.data1 = syno_libata_index_get(ap->scsi_host, 0, 0, 0);
-	link->diskSataErrEventParm.data2 = ap->nr_pmp_links;
-	link->diskSataErrEventParm.data3 = link->pmp;
-	link->diskSataErrEventParm.data4 = link->uiSError;
-	link->diskSataErrEventParm.data5 = link->uiError;
+	link->diskSataErrEventParm.data[0] = syno_libata_index_get(ap->scsi_host, 0, 0, 0);
+	link->diskSataErrEventParm.data[1] = ap->nr_pmp_links;
+	link->diskSataErrEventParm.data[2] = link->pmp;
+	link->diskSataErrEventParm.data[3] = link->uiSError;
+	link->diskSataErrEventParm.data[4] = link->uiError;
 	schedule_work(&(link->SendSataErrEventTask));
 
 	if (true == blTimeout) {
 		memset(&link->diskTimeoutEventParm, 0, sizeof(link->diskTimeoutEventParm));
-		link->diskTimeoutEventParm.data1 = syno_libata_index_get(ap->scsi_host, 0, 0, 0);
-		link->diskTimeoutEventParm.data2 = ap->nr_pmp_links;
-		link->diskTimeoutEventParm.data3 = link->pmp;
-		link->diskTimeoutEventParm.data4 = blRWCmd;
-		link->diskTimeoutEventParm.data5 = 0x0;
+		link->diskTimeoutEventParm.data[0] = syno_libata_index_get(ap->scsi_host, 0, 0, 0);
+		link->diskTimeoutEventParm.data[1] = ap->nr_pmp_links;
+		link->diskTimeoutEventParm.data[2] = link->pmp;
+		link->diskTimeoutEventParm.data[3] = blRWCmd;
+		link->diskTimeoutEventParm.data[4] = 0x0;
 		schedule_work(&(link->SendDiskTimeoutEventTask));
 	}
 #endif /* MY_ABC_HERE */

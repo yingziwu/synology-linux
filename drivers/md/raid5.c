@@ -253,7 +253,17 @@ static void __release_stripe(struct r5conf *conf, struct stripe_head *sh)
 		if (test_bit(STRIPE_HANDLE, &sh->state)) {
 			if (test_bit(STRIPE_DELAYED, &sh->state) &&
 			    !test_bit(STRIPE_PREREAD_ACTIVE, &sh->state))
+#ifdef MY_ABC_HERE
+			{
+				if (test_bit(STRIPE_ACTIVATE_STABLE, &sh->state) ||
+					test_bit(STRIPE_CHECK_STABLE_LIST, &sh->state))
+					list_add_tail(&sh->lru, &conf->stable_list);
+				else
+					list_add_tail(&sh->lru, &conf->delayed_list);
+			}
+#else /* MY_ABC_HERE */
 				list_add_tail(&sh->lru, &conf->delayed_list);
+#endif /* MY_ABC_HERE */
 			else if (test_bit(STRIPE_BIT_DELAY, &sh->state) &&
 				   sh->bm_seq - conf->seq_write > 0)
 				list_add_tail(&sh->lru, &conf->bitmap_list);
@@ -265,6 +275,10 @@ static void __release_stripe(struct r5conf *conf, struct stripe_head *sh)
 			md_wakeup_thread(conf->mddev->thread);
 		} else {
 			BUG_ON(stripe_operations_active(sh));
+#ifdef MY_ABC_HERE
+			clear_bit(STRIPE_ACTIVATE_STABLE, &sh->state);
+			clear_bit(STRIPE_CHECK_STABLE_LIST, &sh->state);
+#endif /* MY_ABC_HERE */
 			if (test_and_clear_bit(STRIPE_PREREAD_ACTIVE, &sh->state)) {
 				atomic_dec(&conf->preread_active_stripes);
 				if (atomic_read(&conf->preread_active_stripes) < IO_THRESHOLD)
@@ -387,6 +401,9 @@ static void init_stripe(struct stripe_head *sh, sector_t sector, int previous)
 	sh->sector = sector;
 	stripe_set_idx(sector, conf, previous, sh);
 	sh->state = 0;
+#ifdef MY_ABC_HERE
+	atomic_set(&sh->delayed_cnt, 0);
+#endif /* MY_ABC_HERE */
 
 
 	for (i = sh->disks; i--; ) {
@@ -626,6 +643,11 @@ static void ops_run_io(struct stripe_head *sh, struct stripe_head_state *s)
 				md_sync_acct(rdev->bdev, STRIPE_SECTORS);
 
 			set_bit(STRIPE_IO_STARTED, &sh->state);
+#ifdef MY_ABC_HERE
+			if (test_bit(STRIPE_CHECK_STABLE_LIST, &sh->state) && (rw & WRITE)) {
+				atomic_inc(&sh->delayed_cnt);
+			}
+#endif /* MY_ABC_HERE */
 
 			bi->bi_bdev = rdev->bdev;
 			pr_debug("%s: for %llu schedule op %ld on disc %d\n",
@@ -2245,6 +2267,10 @@ static void raid5_end_write_request(struct bio *bi, int error)
 
 	rdev_dec_pending(conf->disks[i].rdev, conf->mddev);
 
+#ifdef MY_ABC_HERE
+	if (test_bit(STRIPE_CHECK_STABLE_LIST, &sh->state))
+		atomic_dec(&sh->delayed_cnt);
+#endif /* MY_ABC_HERE */
 	clear_bit(R5_LOCKED, &sh->dev[i].flags);
 	set_bit(STRIPE_HANDLE, &sh->state);
 	release_stripe(sh);
@@ -3241,6 +3267,9 @@ static void handle_stripe_clean_event(struct r5conf *conf,
 	int i;
 	struct r5dev *dev;
 	int discard_pending = 0;
+#ifdef MY_ABC_HERE
+	int all_written_done = 1;
+#endif /* MY_ABC_HERE */
 
 	for (i = disks; i--; )
 		if (sh->dev[i].written) {
@@ -3276,8 +3305,16 @@ static void handle_stripe_clean_event(struct r5conf *conf,
 							STRIPE_SECTORS,
 					 !test_bit(STRIPE_DEGRADED, &sh->state),
 							0);
+#ifdef MY_ABC_HERE
+			} else {
+				all_written_done = 0;
+				if (test_bit(R5_Discard, &dev->flags))
+					discard_pending = 1;
+			}
+#else /* MY_ABC_HERE */
 			} else if (test_bit(R5_Discard, &dev->flags))
 				discard_pending = 1;
+#endif /* MY_ABC_HERE */
 		}
 	if (!discard_pending &&
 	    test_bit(R5_Discard, &sh->dev[sh->pd_idx].flags)) {
@@ -3302,6 +3339,10 @@ static void handle_stripe_clean_event(struct r5conf *conf,
 
 	}
 
+#ifdef MY_ABC_HERE
+	if (all_written_done)
+		set_bit(STRIPE_ACTIVATE_STABLE, &sh->state);
+#endif /* MY_ABC_HERE */
 	if (test_and_clear_bit(STRIPE_FULL_WRITE, &sh->state))
 		if (atomic_dec_and_test(&conf->pending_full_writes))
 			md_wakeup_thread(conf->mddev->thread);
@@ -4181,6 +4222,9 @@ static void handle_stripe(struct stripe_head *sh)
 		BUG_ON(sh->qd_idx >= 0 &&
 		       !test_bit(R5_UPTODATE, &sh->dev[sh->qd_idx].flags) &&
 		       !test_bit(R5_Discard, &sh->dev[sh->qd_idx].flags));
+#ifdef MY_ABC_HERE
+		set_bit(STRIPE_CHECK_STABLE_LIST, &sh->state);
+#endif /* MY_ABC_HERE */
 		for (i = disks; i--; ) {
 			struct r5dev *dev = &sh->dev[i];
 			if (test_bit(R5_LOCKED, &dev->flags) &&
@@ -4408,6 +4452,28 @@ finish:
 #endif
 }
 
+#ifdef MY_ABC_HERE
+static void raid5_activate_stable_delayed(struct r5conf *conf)
+{
+	struct stripe_head *sh;
+	struct stripe_head *tmp_sh;
+
+	if (list_empty(&conf->stable_list))
+		return;
+
+	list_for_each_entry_safe(sh, tmp_sh, &conf->stable_list, lru) {
+		if ((test_and_clear_bit(STRIPE_ACTIVATE_STABLE, &sh->state)) ||
+			(test_bit(STRIPE_CHECK_STABLE_LIST, &sh->state) && atomic_read(&sh->delayed_cnt) == 0)) {
+			clear_bit(STRIPE_CHECK_STABLE_LIST, &sh->state);
+			clear_bit(STRIPE_DELAYED, &sh->state);
+			if (!test_and_set_bit(STRIPE_PREREAD_ACTIVE, &sh->state))
+				atomic_inc(&conf->preread_active_stripes);
+			list_del_init(&sh->lru);
+			list_add_tail(&sh->lru, &conf->hold_list);
+		}
+	}
+}
+#endif /* MY_ABC_HERE */
 static void raid5_activate_delayed(struct r5conf *conf)
 {
 	if (atomic_read(&conf->preread_active_stripes) < IO_THRESHOLD) {
@@ -4417,6 +4483,10 @@ static void raid5_activate_delayed(struct r5conf *conf)
 			sh = list_entry(l, struct stripe_head, lru);
 			list_del_init(l);
 			clear_bit(STRIPE_DELAYED, &sh->state);
+#ifdef MY_ABC_HERE
+			clear_bit(STRIPE_ACTIVATE_STABLE, &sh->state);
+			clear_bit(STRIPE_CHECK_STABLE_LIST, &sh->state);
+#endif /* MY_ABC_HERE */
 			if (!test_and_set_bit(STRIPE_PREREAD_ACTIVE, &sh->state))
 				atomic_inc(&conf->preread_active_stripes);
 			list_add_tail(&sh->lru, &conf->hold_list);
@@ -4627,12 +4697,110 @@ static int bio_fits_rdev(struct bio *bi)
 	return 1;
 }
 
+#ifdef MY_ABC_HERE
+static void dummy_read_endio(struct bio *bio, int error) {
+	int uptodate = test_bit(BIO_UPTODATE, &bio->bi_flags);
+	struct r5conf *conf = bio->bi_private;
+
+	if (!uptodate) {
+		pr_err("%s: dummy read sector [%llu] error %d\n",
+				mdname(conf->mddev), (u64)bio->bi_sector, error);
+	}
+
+	bio_put(bio);
+}
+
+static void do_dummy_read(struct r5conf *conf, sector_t read_sector, sector_t leng, int idx, int rw)
+{
+	int i = 0;
+	int page_cnt = leng / STRIPE_SECTORS;
+	struct mddev *mddev = conf->mddev;
+	struct bio *bio = NULL;
+	struct md_rdev *rdev = NULL;
+
+	if (idx < 0) {
+		pr_err("%s: Bad idx [%d]\n", mdname(mddev), idx);
+		goto ERR;
+	}
+
+	rcu_read_lock();
+	rdev = rcu_dereference(conf->disks[idx].rdev);
+	rcu_read_unlock();
+	if (!rdev) {
+		pr_err("%s: Failed to get rdev of idx [%d]\n", mdname(mddev), idx);
+		goto ERR;
+	}
+
+	if (unlikely((read_sector - rdev->data_offset + leng) > mddev->dev_sectors)) {
+		goto ERR;
+	}
+
+	bio = bio_alloc_mddev(GFP_NOIO, page_cnt, mddev);
+	if (!bio) {
+		pr_err("%s: Failed to allocate dummy read bio\n", mdname(mddev));
+		goto ERR;
+	}
+
+	bio->bi_end_io = dummy_read_endio;
+	bio->bi_private = conf;
+	bio->bi_bdev = rdev->bdev;
+	bio->bi_next = NULL;
+	bio->bi_rw = rw;
+	bio->bi_sector = read_sector;
+	bio->bi_size = 0;
+	for (i = 0; i < page_cnt; ++i) {
+		if (0 == bio_add_page(bio, conf->dummy_page, STRIPE_SIZE, 0)) {
+			pr_err("%s: Failed to add page to bio\n", mdname(mddev));
+			goto ERR;
+		}
+	}
+	generic_make_request(bio);
+	return;
+
+ERR:
+	if (bio) bio_put(bio);
+	return;
+}
+
+static void dummy_read(struct r5conf *conf, sector_t logical_sector,
+		sector_t end_sector, int dd_idx, int rw)
+{
+	int pd_idx = 0, qd_idx = 0, st_idx = 0;
+	sector_t chunk_offset = sector_mod(logical_sector, conf->chunk_sectors);
+	sector_t chunk_number = logical_sector;
+	sector_t end_sector_offset = end_sector;
+
+	if (sector_mod(end_sector_offset, conf->chunk_sectors)) {
+		return;
+	}
+
+	sector_mod(chunk_number, conf->raid_disks - conf->max_degraded);
+
+	syno_raid5_parity_disk_get(conf, chunk_number, &pd_idx, &qd_idx, &st_idx);
+
+	if (dd_idx != pd_idx) {
+		return;
+	}
+
+	if (5 == conf->level) {
+		do_dummy_read(conf, end_sector, conf->chunk_sectors, dd_idx, rw);
+	} else if (6 == conf->level) {
+		do_dummy_read(conf, end_sector, 2 * conf->chunk_sectors, dd_idx, rw);
+	}
+}
+#endif /* MY_ABC_HERE */
+
 static int chunk_aligned_read(struct mddev *mddev, struct bio * raid_bio)
 {
 	struct r5conf *conf = mddev->private;
 	int dd_idx;
 	struct bio* align_bi;
 	struct md_rdev *rdev;
+#ifdef MY_ABC_HERE
+	sector_t end_sector;
+	sector_t logical_sector = raid_bio->bi_sector +
+		(conf->raid_disks - conf->max_degraded) * conf->chunk_sectors;
+#endif /* MY_ABC_HERE */
 
 	if (!in_chunk_boundary(mddev, raid_bio)) {
 		pr_debug("chunk_aligned_read : non aligned\n");
@@ -4680,6 +4848,9 @@ static int chunk_aligned_read(struct mddev *mddev, struct bio * raid_bio)
 
 		/* No reshape active, so we can trust rdev->data_offset */
 		align_bi->bi_sector += rdev->data_offset;
+#ifdef MY_ABC_HERE
+		end_sector = align_bi->bi_sector + bio_sectors(align_bi);
+#endif /* MY_ABC_HERE */
 
 		spin_lock_irq(&conf->device_lock);
 		wait_event_lock_irq(conf->wait_for_stripe,
@@ -4689,6 +4860,11 @@ static int chunk_aligned_read(struct mddev *mddev, struct bio * raid_bio)
 		spin_unlock_irq(&conf->device_lock);
 
 		generic_make_request(align_bi);
+#ifdef MY_ABC_HERE
+		if (conf->syno_dummy_read) {
+			dummy_read(conf, logical_sector, end_sector, dd_idx, align_bi->bi_rw);
+		}
+#endif /* MY_ABC_HERE */
 		return 1;
 	} else {
 		rcu_read_unlock();
@@ -5475,6 +5651,9 @@ static void raid5d(struct md_thread *thread)
 		}
 		if (atomic_read(&mddev->plug_cnt) == 0)
 			raid5_activate_delayed(conf);
+#ifdef MY_ABC_HERE
+		raid5_activate_stable_delayed(conf);
+#endif /* MY_ABC_HERE */
 
 		while ((bio = remove_bio_from_retry(conf))) {
 			int ok;
@@ -5656,12 +5835,61 @@ stripe_cache_active_show(struct mddev *mddev, char *page)
 static struct md_sysfs_entry
 raid5_stripecache_active = __ATTR_RO(stripe_cache_active);
 
+#ifdef MY_ABC_HERE
+static ssize_t
+raid5_show_syno_dummy_read(struct mddev  *mddev, char *page)
+{
+	struct r5conf *conf = mddev->private;
+
+	if (conf) {
+		return sprintf(page, "%d\n", conf->syno_dummy_read);
+	} else {
+		return 0;
+	}
+}
+
+static ssize_t
+raid5_store_syno_dummy_read(struct mddev  *mddev, const char *page, size_t len)
+{
+	struct r5conf *conf = mddev->private;
+	unsigned long new;
+
+	if (!conf) {
+		return -ENODEV;
+	}
+
+	if (len >= PAGE_SIZE) {
+		return -EINVAL;
+	}
+
+	if (kstrtoul(page, 10, &new)) {
+		return -EINVAL;
+	}
+
+	new = !!new;
+	if (new && !conf->dummy_page) {
+		return -ENOMEM;
+	}
+	conf->syno_dummy_read = new;
+
+	return len;
+}
+
+static struct md_sysfs_entry
+raid5_syno_dummy_read = __ATTR(syno_dummy_read, S_IRUGO | S_IWUSR,
+			 raid5_show_syno_dummy_read,
+			 raid5_store_syno_dummy_read);
+#endif /* MY_ABC_HERE */
+
 static struct attribute *raid5_attrs[] =  {
 	&raid5_stripecache_size.attr,
 	&raid5_stripecache_active.attr,
 	&raid5_preread_bypass_threshold.attr,
 #ifdef MY_ABC_HERE
 	&raid5_writebio.attr,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	&raid5_syno_dummy_read.attr,
 #endif /* MY_ABC_HERE */
 	NULL,
 };
@@ -5732,6 +5960,10 @@ static void free_conf(struct r5conf *conf)
 {
 	shrink_stripes(conf);
 	raid5_free_percpu(conf);
+#ifdef MY_ABC_HERE
+	if (conf->dummy_page)
+		put_page(conf->dummy_page);
+#endif /* MY_ABC_HERE */
 	kfree(conf->disks);
 	kfree(conf->stripe_hashtbl);
 	kfree(conf);
@@ -5796,6 +6028,28 @@ static int raid5_alloc_percpu(struct r5conf *conf)
 	return err;
 }
 
+#ifdef MY_ABC_HERE
+static void setup_dummy_read(struct r5conf *conf)
+{
+	struct mddev *mddev = conf->mddev;
+	struct page *page = alloc_page(GFP_KERNEL);
+
+	conf->syno_dummy_read = 0;
+
+	if (!page) {
+		pr_err("%s: Failed to allocate memory for dummy read\n", mdname(mddev));
+		goto ERR;
+	}
+
+	conf->dummy_page = page;
+	return;
+
+ERR:
+	if (page) put_page(page);
+	return;
+}
+#endif /* MY_ABC_HERE */
+
 static struct r5conf *setup_conf(struct mddev *mddev)
 {
 	struct r5conf *conf;
@@ -5843,6 +6097,9 @@ static struct r5conf *setup_conf(struct mddev *mddev)
 	INIT_LIST_HEAD(&conf->delayed_list);
 	INIT_LIST_HEAD(&conf->bitmap_list);
 	INIT_LIST_HEAD(&conf->inactive_list);
+#ifdef MY_ABC_HERE
+	INIT_LIST_HEAD(&conf->stable_list);
+#endif /* MY_ABC_HERE */
 	atomic_set(&conf->active_stripes, 0);
 	atomic_set(&conf->preread_active_stripes, 0);
 	atomic_set(&conf->active_aligned_reads, 0);
@@ -5919,6 +6176,10 @@ static struct r5conf *setup_conf(struct mddev *mddev)
 	} else
 		printk(KERN_INFO "md/raid:%s: allocated %dkB\n",
 		       mdname(mddev), memory);
+
+#ifdef MY_ABC_HERE
+	setup_dummy_read(conf);
+#endif /* MY_ABC_HERE */
 
 	conf->thread = md_register_thread(raid5d, mddev, NULL);
 

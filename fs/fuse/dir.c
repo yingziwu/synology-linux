@@ -224,7 +224,7 @@ static int fuse_dentry_revalidate(struct dentry *entry, struct nameidata *nd)
 	int ret;
 
 	inode = ACCESS_ONCE(entry->d_inode);
-	if (inode && is_bad_inode(inode))
+	if (inode && fuse_is_bad(inode))
 		goto invalid;
 	else if (fuse_dentry_time(entry) < get_jiffies_64()) {
 		int err;
@@ -469,6 +469,9 @@ static struct dentry *fuse_lookup(struct inode *dir, struct dentry *entry,
 	struct dentry *newent;
 	bool outarg_valid = true;
 
+	if (fuse_is_bad(dir))
+		return ERR_PTR(-EIO);
+
 #ifdef MY_ABC_HERE
 	if ((flags & LOOKUP_CASELESS_COMPARE) && IS_GLUSTER_FS(dir)) {
 		synostat = kmalloc(FUSE_SYNOSTAT_SIZE, GFP_KERNEL);
@@ -532,6 +535,9 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
 	struct fuse_file *ff;
 	struct file *file;
 	int flags = nd->intent.open.flags;
+
+	if (fuse_is_bad(dir))
+		return -EIO;
 
 	if (fc->no_create)
 		return -ENOSYS;
@@ -635,6 +641,9 @@ static int create_new_entry(struct fuse_conn *fc, struct fuse_req *req,
 	struct inode *inode;
 	int err;
 	struct fuse_forget_link *forget;
+
+	if (fuse_is_bad(dir))
+		return -EIO;
 
 	forget = fuse_alloc_forget();
 	if (!forget) {
@@ -783,6 +792,11 @@ static int fuse_unlink(struct inode *dir, struct dentry *entry)
 	if (IS_ERR(req))
 		return PTR_ERR(req);
 
+	if (fuse_is_bad(dir)) {
+		fuse_put_request(fc, req);
+		return -EIO;
+	}
+
 	req->in.h.opcode = FUSE_UNLINK;
 	req->in.h.nodeid = get_node_id(dir);
 	req->in.numargs = 1;
@@ -822,6 +836,11 @@ static int fuse_rmdir(struct inode *dir, struct dentry *entry)
 	if (IS_ERR(req))
 		return PTR_ERR(req);
 
+	if (fuse_is_bad(dir)) {
+		fuse_put_request(fc, req);
+		return -EIO;
+	}
+
 	req->in.h.opcode = FUSE_RMDIR;
 	req->in.h.nodeid = get_node_id(dir);
 	req->in.numargs = 1;
@@ -849,6 +868,11 @@ static int fuse_rename(struct inode *olddir, struct dentry *oldent,
 
 	if (IS_ERR(req))
 		return PTR_ERR(req);
+
+	if (fuse_is_bad(olddir)) {
+		fuse_put_request(fc, req);
+		return -EIO;
+	}
 
 	memset(&inarg, 0, sizeof(inarg));
 	inarg.newdir = get_node_id(newdir);
@@ -1001,7 +1025,7 @@ static int fuse_do_getattr(struct inode *inode, struct kstat *stat,
 	fuse_put_request(fc, req);
 	if (!err) {
 		if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-			make_bad_inode(inode);
+			fuse_make_bad(inode);
 			err = -EIO;
 		} else {
 			fuse_change_attributes(inode, &outarg.attr,
@@ -1137,11 +1161,11 @@ int fuse_allow_current_process(struct fuse_conn *fc)
 	return 0;
 }
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 static int fuse_access(struct inode *inode, int mask, int syno_acl_access)
 #else
 static int fuse_access(struct inode *inode, int mask)
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 {
 	struct fuse_conn *fc = get_fuse_conn(inode);
 	struct fuse_req *req;
@@ -1158,12 +1182,12 @@ static int fuse_access(struct inode *inode, int mask)
 		return PTR_ERR(req);
 
 	memset(&inarg, 0, sizeof(inarg));
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 	inarg.syno_acl_access = syno_acl_access;
 	if (IS_GLUSTER_FS(inode) && syno_acl_access) {
 		inarg.mask = mask & SYNO_PERM_FULL_CONTROL;
 	} else
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 	req->in.h.opcode = FUSE_ACCESS;
 	req->in.h.nodeid = get_node_id(inode);
 	req->in.numargs = 1;
@@ -1205,6 +1229,9 @@ static int fuse_permission(struct inode *inode, int mask)
 	struct fuse_conn *fc = get_fuse_conn(inode);
 	bool refreshed = false;
 	int err = 0;
+
+	if (fuse_is_bad(inode))
+		return -EIO;
 
 	if (!fuse_allow_current_process(fc))
 		return -EACCES;
@@ -1342,7 +1369,7 @@ static int fuse_direntplus_link(struct file *file,
 			err = d_invalidate(dentry);
 			if (err)
 				goto out;
-		} else if (is_bad_inode(inode)) {
+		} else if (fuse_is_bad(inode)) {
 			err = -EIO;
 			goto out;
 		} else {
@@ -1451,7 +1478,7 @@ static int fuse_readdir(struct file *file, void *dstbuf, filldir_t filldir)
 	struct fuse_req *req;
 	u64 attr_version = 0;
 
-	if (is_bad_inode(inode))
+	if (fuse_is_bad(inode))
 		return -EIO;
 
 	req = fuse_get_req(fc, 1);
@@ -1754,7 +1781,7 @@ int fuse_do_setattr(struct inode *inode, struct iattr *attr,
 	}
 
 	if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-		make_bad_inode(inode);
+		fuse_make_bad(inode);
 		err = -EIO;
 		goto error;
 	}
@@ -1800,6 +1827,9 @@ static int fuse_setattr(struct dentry *entry, struct iattr *attr)
 {
 	struct inode *inode = entry->d_inode;
 
+	if (fuse_is_bad(inode))
+		return -EIO;
+
 	if (!fuse_allow_current_process(get_fuse_conn(inode)))
 		return -EACCES;
 
@@ -1814,6 +1844,9 @@ static int fuse_getattr(struct vfsmount *mnt, struct dentry *entry,
 {
 	struct inode *inode = entry->d_inode;
 	struct fuse_conn *fc = get_fuse_conn(inode);
+
+	if (fuse_is_bad(inode))
+		return -EIO;
 
 	if (!fuse_allow_current_process(fc))
 		return -EACCES;
@@ -1947,6 +1980,9 @@ static ssize_t fuse_listxattr(struct dentry *entry, char *list, size_t size)
 	struct fuse_getxattr_out outarg;
 	ssize_t ret;
 
+	if (fuse_is_bad(inode))
+		return -EIO;
+
 	if (!fuse_allow_current_process(fc))
 		return -EACCES;
 
@@ -2021,12 +2057,12 @@ static int fuse_removexattr(struct dentry *entry, const char *name)
 	return err;
 }
 
-#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || defined(SYNO_ARCHIVE_BIT)
 #define SZ_FS_NTFS	"ntfs"
 #define IS_NTFS_FS(inode) (inode->i_sb->s_subtype && !strcmp(SZ_FS_NTFS, inode->i_sb->s_subtype))
-#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || defined(SYNO_ARCHIVE_BIT) */
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 static int fuse_syno_getattr(struct dentry *dentry, struct kstat *stat, int stat_flag);
 
 static int fuse_syno_get_archive_bit(struct dentry *entry, unsigned int *archive_bit)
@@ -2066,9 +2102,9 @@ static int fuse_syno_set_archive_bit(struct dentry *dentry, unsigned int arbit)
 
 	return err;
 }
-#endif //MY_ABC_HERE
+#endif //SYNO_ARCHIVE_BIT
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 static int fuse_syno_acl_sys_get_perm(struct dentry *dentry, int *allow_out)
 {
 	__le32 allow_le32 = 0;
@@ -2161,7 +2197,7 @@ static int fuse_syno_archive_bit_change_ok(struct dentry *dentry, unsigned int c
 
 	return 0;
 }
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 
 #ifdef MY_ABC_HERE
 #define XATTR_NTFS_CREATE_TIME "ntfs_crtime"
@@ -2218,9 +2254,9 @@ out:
 
 static int fuse_syno_ntfs_getattr(struct dentry *dentry, struct kstat *stat, int stat_flag)
 {
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	u32 syno_archive_bit = 0;
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 #ifdef MY_ABC_HERE
 	int size = 0;
 	sle64 time_le = 0;
@@ -2236,7 +2272,7 @@ static int fuse_syno_ntfs_getattr(struct dentry *dentry, struct kstat *stat, int
 		}
 	}
 #endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	if (stat_flag & SYNOST_ARCHIVE_BIT) {
 		size = fuse_getxattr(dentry, XATTR_SYNO_PREFIX XATTR_SYNO_ARCHIVE_BIT,
 				&syno_archive_bit, sizeof(syno_archive_bit));
@@ -2250,7 +2286,7 @@ static int fuse_syno_ntfs_getattr(struct dentry *dentry, struct kstat *stat, int
 		stat->syno_archive_bit = (dentry->d_inode->i_archive_bit & (~ALL_SMB)) | \
 								 (syno_archive_bit & ALL_SMB);
 	}
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 #ifdef MY_ABC_HERE
 	if (stat_flag & SYNOST_ARCHIVE_VER)
 		 stat->syno_archive_version = dentry->d_inode->i_archive_version;
@@ -2270,10 +2306,10 @@ static int fuse_syno_getattr(struct dentry *dentry, struct kstat *stat, int stat
 	if (stat_flag & SYNOST_CREATE_TIME)
 		stat->syno_create_time = dentry->d_inode->i_create_time;
 #endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	if (stat_flag & SYNOST_ARCHIVE_BIT)
 		stat->syno_archive_bit = dentry->d_inode->i_archive_bit;
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 #ifdef MY_ABC_HERE
 	if (stat_flag & SYNOST_ARCHIVE_VER)
 		 stat->syno_archive_version = dentry->d_inode->i_archive_version;
@@ -2353,21 +2389,21 @@ static const struct inode_operations fuse_dir_inode_operations = {
 #ifdef MY_ABC_HERE
 	.syno_set_archive_ver	= fuse_syno_set_archive_version,
 #endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	.syno_get_archive_bit	= fuse_syno_get_archive_bit,
 	.syno_set_archive_bit	= fuse_syno_set_archive_bit,
 #endif
 #ifdef MY_ABC_HERE
 	.syno_set_crtime = fuse_create_time_set,
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 	.syno_acl_sys_get_perm	= fuse_syno_acl_sys_get_perm,
 	.syno_acl_sys_is_support	= fuse_syno_acl_sys_is_support,
 	.syno_acl_sys_check_perm	= fuse_syno_acl_sys_check_perm,
 	.syno_acl_xattr_get	= fuse_syno_acl_xattr_get,
 	.syno_bypass_is_synoacl = fuse_syno_bypass_is_synoacl,
 	.syno_arbit_chg_ok = fuse_syno_archive_bit_change_ok,
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 };
 
 static const struct file_operations fuse_dir_operations = {
@@ -2395,21 +2431,21 @@ static const struct inode_operations fuse_common_inode_operations = {
 #ifdef MY_ABC_HERE
 	.syno_set_archive_ver	= fuse_syno_set_archive_version,
 #endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	.syno_get_archive_bit	= fuse_syno_get_archive_bit,
 	.syno_set_archive_bit	= fuse_syno_set_archive_bit,
 #endif
 #ifdef MY_ABC_HERE
 	.syno_set_crtime = fuse_create_time_set,
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 	.syno_acl_sys_get_perm	= fuse_syno_acl_sys_get_perm,
 	.syno_acl_sys_is_support	= fuse_syno_acl_sys_is_support,
 	.syno_acl_sys_check_perm	= fuse_syno_acl_sys_check_perm,
 	.syno_acl_xattr_get	= fuse_syno_acl_xattr_get,
 	.syno_bypass_is_synoacl = fuse_syno_bypass_is_synoacl,
 	.syno_arbit_chg_ok = fuse_syno_archive_bit_change_ok,
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 };
 
 static const struct inode_operations fuse_symlink_inode_operations = {
@@ -2428,21 +2464,21 @@ static const struct inode_operations fuse_symlink_inode_operations = {
 #ifdef MY_ABC_HERE
 	.syno_set_archive_ver	= fuse_syno_set_archive_version,
 #endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	.syno_get_archive_bit	= fuse_syno_get_archive_bit,
 	.syno_set_archive_bit	= fuse_syno_set_archive_bit,
 #endif
 #ifdef MY_ABC_HERE
 	.syno_set_crtime = fuse_create_time_set,
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 	.syno_acl_sys_get_perm	= fuse_syno_acl_sys_get_perm,
 	.syno_acl_sys_is_support	= fuse_syno_acl_sys_is_support,
 	.syno_acl_sys_check_perm	= fuse_syno_acl_sys_check_perm,
 	.syno_acl_xattr_get	= fuse_syno_acl_xattr_get,
 	.syno_bypass_is_synoacl = fuse_syno_bypass_is_synoacl,
 	.syno_arbit_chg_ok = fuse_syno_archive_bit_change_ok,
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 };
 
 void fuse_init_common(struct inode *inode)

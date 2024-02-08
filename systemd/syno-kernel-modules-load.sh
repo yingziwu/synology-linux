@@ -1,5 +1,6 @@
 #!/bin/sh
 
+SYNOINFO_DEF="/etc.defaults/synoinfo.conf"
 # load synobios
 modprobe synobios system_mode=1
 /bin/mknod /dev/synobios c 201 0 2>/dev/null
@@ -40,4 +41,11 @@ SUPPORT_ACM=`get_key_value $SYNOINFO_DEF support_acm`
 if [ "$SUPPORT_ACM" == "yes" ]; then
 	modprobe cdc-acm
 	mknod /dev/ttyACM0 c 166 0
+fi
+
+# A370 load ehci-hcd, DS114/DS414slim must not insert ehci-hcd
+PLATFORM=`get_key_value $SYNOINFO_DEF unique | cut -d"_" -f2`
+MODEL=`get_key_value $SYNOINFO_DEF unique | cut -d"_" -f3`
+if [ "$PLATFORM" == "armada370" -a "$MODEL" != "414slim" -a "$MODEL" != "114" ]; then
+	modprobe ehci-hcd
 fi

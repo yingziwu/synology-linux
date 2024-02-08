@@ -1,6 +1,3 @@
-#ifndef MY_ABC_HERE
-#define MY_ABC_HERE
-#endif
 /*
  * xHCI host controller driver PCI Bus Glue.
  *
@@ -30,7 +27,7 @@
 #include "etxhci.h"
 
 /* Device for a quirk */
-#ifndef MY_ABC_HERE
+#ifndef SYNO_USB3_PCI_ID_DEFINE
 #define PCI_VENDOR_ID_ETRON		0x1b6f
 #define PCI_DEVICE_ID_ETRON_EJ168	0x7023
 #define PCI_DEVICE_ID_ETRON_EJ188	0x7052
@@ -62,7 +59,7 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
 	struct pci_dev		*pdev = to_pci_dev(dev);
 	struct usb_hcd		*hcd = xhci_to_hcd(xhci);
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_USB3_PCI_ID_DEFINE
 	xhci_vendor = pdev->vendor;
 #endif
 
@@ -72,7 +69,7 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
 		pci_read_config_dword(pdev, 0x58, &xhci->hcc_params1);
 		xhci->hcc_params1 &= 0xffff;
 		xhci_init_ejxxx(xhci);
-#ifdef MY_ABC_HERE
+#ifdef SYNO_USB3_PCI_ID_DEFINE
 		xhci_err(xhci, "Etron chip found.\n");
 #endif
 		if (pdev->device == PCI_DEVICE_ID_ETRON_EJ168)

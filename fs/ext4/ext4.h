@@ -681,7 +681,7 @@ struct ext4_inode {
 	__le32  i_crtime;       /* File Creation time */
 	__le32  i_crtime_extra; /* extra FileCreationtime (nsec << 2 | epoch) */
 	__le32  i_version_hi;	/* high 32 bits for 64-bit version */
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	__le32  i_projid;   /* Project ID */
 	__le32  i_syno_archive_bit; /* archive bits and attribute bits for SMB and Syno backup */
 #endif
@@ -1175,7 +1175,8 @@ struct ext4_super_block {
 	__le32	s_grp_quota_inum;	/* inode for tracking group quota */
 	__le32	s_overhead_clusters;	/* overhead blocks/clusters in fs */
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
-	__le32  s_reserved[105];        /* Padding to the end of the block */
+	__le32  s_reserved[99];        /* Padding to the end of the block */
+	__le32  s_synorbd_reserved[6];        /* Reserve for synorbd */
 	__le32  s_syno_hash_magic;      /* Enable Htree if the magic is given */
 	__le32  s_archive_version;      /* Last archived version */
 	__le32  s_archive_version_obsoleted;
@@ -1547,7 +1548,7 @@ static inline void ext4_clear_state_flags(struct ext4_inode_info *ei)
 					 EXT4_FEATURE_RO_COMPAT_HUGE_FILE |\
 					 EXT4_FEATURE_RO_COMPAT_BIGALLOC)
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 /*
  * <DSM>#109900 enables metadata_csum feature at DSM7.0. Thus, we remove
  * define of ext4_archive_bit and move it from i_pad1 to
@@ -1557,22 +1558,30 @@ static inline void ext4_clear_state_flags(struct ext4_inode_info *ei)
 #define EXT4_INODE_GET_SYNO_ARCHIVE_BIT(inode, raw_inode) \
 do { \
 	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) { \
-		inode->i_archive_bit = le32_to_cpu(raw_inode->i_syno_archive_bit); \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_syno_archive_bit)) \
+			inode->i_archive_bit = le32_to_cpu(raw_inode->i_syno_archive_bit); \
+		else \
+			inode->i_archive_bit = 0; \
 	} else { \
-		inode->i_archive_bit = le16_to_cpu(raw_inode->i_pad1); \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_pad1)) \
+			inode->i_archive_bit = le16_to_cpu(raw_inode->i_pad1); \
+		else \
+			inode->i_archive_bit = 0; \
 	} \
 } while (0)
 
 #define EXT4_INODE_SET_SYNO_ARCHIVE_BIT(inode, raw_inode) \
 do { \
 	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) { \
-		raw_inode->i_syno_archive_bit = cpu_to_le32(inode->i_archive_bit); \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_syno_archive_bit)) \
+			raw_inode->i_syno_archive_bit = cpu_to_le32(inode->i_archive_bit); \
 	} else { \
-		raw_inode->i_pad1 = cpu_to_le16(inode->i_archive_bit); /* we'll lost upper 16 bits flags */ \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_pad1)) \
+			raw_inode->i_pad1 = cpu_to_le16(inode->i_archive_bit); /* we'll lost upper 16 bits flags */ \
 	} \
 } while (0)
 
-#endif /* End of MY_ABC_HERE */
+#endif /* End of SYNO_ARCHIVE_BIT */
 
 /*
  * Default values for user and/or group using reserved blocks

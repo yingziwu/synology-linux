@@ -1,7 +1,7 @@
 /*
  * linux/fs/synoacl_api.c
  *
- * Copyright (c) 2000-2010 Synology Inc.
+ * Copyright (c) 2000-2022 Synology Inc.
  */
 #include <linux/kernel.h>
 #include <linux/slab.h>
@@ -26,22 +26,27 @@
 #define DO_SYSCALL(x, ...)      SYSCALL_OPS->x(__VA_ARGS__)
 #define DO_VFS(x, ...)          VFS_OPS->x(__VA_ARGS__)
 
+static DEFINE_MUTEX(synoacl_mod_mutex);
 struct synoacl_mod_info *synoacl_mod_info = NULL;
 EXPORT_SYMBOL(synoacl_mod_info);
 
 bool syno_acl_module_get(void)
 {
+	int ret = -1;
 	/* If synoacl_vfs.ko wasn't loaded earlier then load it now.
 	 * When synoacl_vfs is built into vmlinux the module's __init
 	 * function will populate synoacl_mod_info.
 	 */
+	mutex_lock(&synoacl_mod_mutex);
 	if (!synoacl_mod_info) {
-		request_module("synoacl_vfs");
+		ret = request_module("synoacl_vfs");
 		if (!synoacl_mod_info) {
-			pr_err("synoacl_vfs request_module failed.\n");
+			mutex_unlock(&synoacl_mod_mutex);
+			pr_err("synoacl_vfs request_module failed. err code:%d\n", ret);
 			return false;
 		}
 	}
+	mutex_unlock(&synoacl_mod_mutex);
 
 	/* And grab the reference, so the module doesn't disappear while the
 	 * kernel is interacting with the kernel module.
