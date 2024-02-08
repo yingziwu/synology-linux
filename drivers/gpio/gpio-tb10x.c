@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* Abilis Systems MODULE DESCRIPTION
  *
  * Copyright (C) Abilis Systems 2013
@@ -43,7 +46,6 @@
 #define OFFSET_TO_REG_CHANGE	(0x0C)
 #define OFFSET_TO_REG_WRMASK	(0x10)
 #define OFFSET_TO_REG_INT_TYPE	(0x14)
-
 
 /**
  * @spinlock: used for atomic read/modify/write of registers
@@ -197,7 +199,11 @@ static int tb10x_gpio_probe(struct platform_device *pdev)
 		return PTR_ERR(tb10x_gpio->base);
 
 	tb10x_gpio->gc.label		= of_node_full_name(dn);
+#if defined(MY_ABC_HERE)
+	tb10x_gpio->gc.parent		= &pdev->dev;
+#else /* MY_ABC_HERE */
 	tb10x_gpio->gc.dev		= &pdev->dev;
+#endif /* MY_ABC_HERE */
 	tb10x_gpio->gc.owner		= THIS_MODULE;
 	tb10x_gpio->gc.direction_input	= tb10x_gpio_direction_in;
 	tb10x_gpio->gc.get		= tb10x_gpio_get;
@@ -208,7 +214,6 @@ static int tb10x_gpio_probe(struct platform_device *pdev)
 	tb10x_gpio->gc.base		= -1;
 	tb10x_gpio->gc.ngpio		= ngpio;
 	tb10x_gpio->gc.can_sleep	= false;
-
 
 	ret = gpiochip_add(&tb10x_gpio->gc);
 	if (ret < 0) {

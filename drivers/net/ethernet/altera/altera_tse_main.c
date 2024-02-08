@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* Altera Triple-Speed Ethernet MAC driver
  * Copyright (C) 2008-2014 Altera Corporation. All rights reserved
  *
@@ -72,7 +75,6 @@ static int dma_tx_num = TX_DESCRIPTORS;
 module_param(dma_tx_num, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(dma_tx_num, "Number of descriptors in the TX list");
 
-
 #define POLL_PHY (-1)
 
 /* Make sure DMA buffer size is larger than the max frame size
@@ -131,7 +133,11 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
 {
 	struct altera_tse_private *priv = netdev_priv(dev);
 	int ret;
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 	int i;
+#endif /* MY_ABC_HERE */
 	struct device_node *mdio_node = NULL;
 	struct mii_bus *mdio = NULL;
 	struct device_node *child_node = NULL;
@@ -161,6 +167,9 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
 	mdio->write = &altera_tse_mdio_write;
 	snprintf(mdio->id, MII_BUS_ID_SIZE, "%s-%u", mdio->name, id);
 
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 	mdio->irq = kcalloc(PHY_MAX_ADDR, sizeof(int), GFP_KERNEL);
 	if (mdio->irq == NULL) {
 		ret = -ENOMEM;
@@ -169,6 +178,7 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
 	for (i = 0; i < PHY_MAX_ADDR; i++)
 		mdio->irq[i] = PHY_POLL;
 
+#endif /* MY_ABC_HERE */
 	mdio->priv = dev;
 	mdio->parent = priv->device;
 
@@ -176,7 +186,11 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
 	if (ret != 0) {
 		netdev_err(dev, "Cannot register MDIO bus %s\n",
 			   mdio->id);
+#if defined(MY_ABC_HERE)
+		goto out_free_mdio;
+#else /* MY_ABC_HERE */
 		goto out_free_mdio_irq;
+#endif /* MY_ABC_HERE */
 	}
 
 	if (netif_msg_drv(priv))
@@ -184,8 +198,12 @@ static int altera_tse_mdio_create(struct net_device *dev, unsigned int id)
 
 	priv->mdio = mdio;
 	return 0;
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 out_free_mdio_irq:
 	kfree(mdio->irq);
+#endif /* MY_ABC_HERE */
 out_free_mdio:
 	mdiobus_free(mdio);
 	mdio = NULL;
@@ -323,7 +341,6 @@ static void free_skbufs(struct net_device *dev)
 		tse_free_rx_buffer(priv, &priv->rx_ring[i]);
 	for (i = 0; i < tx_descs; i++)
 		tse_free_tx_buffer(priv, &priv->tx_ring[i]);
-
 
 	kfree(priv->tx_ring);
 }
@@ -551,7 +568,6 @@ static irqreturn_t altera_isr(int irq, void *dev_id)
 		spin_unlock(&priv->rxdma_irq_lock);
 		__napi_schedule(&priv->napi);
 	}
-
 
 	return IRQ_HANDLED;
 }
@@ -855,7 +871,11 @@ static int init_phy(struct net_device *dev)
 	}
 
 	netdev_dbg(dev, "attached to PHY %d UID 0x%08x Link = %d\n",
+#if defined(MY_ABC_HERE)
+		   phydev->mdio.addr, phydev->phy_id, phydev->link);
+#else /* MY_ABC_HERE */
 		   phydev->addr, phydev->phy_id, phydev->link);
+#endif /* MY_ABC_HERE */
 
 	priv->phydev = phydev;
 	return 0;
@@ -1054,7 +1074,6 @@ static void altera_tse_set_mcfilter(struct net_device *dev)
 	}
 }
 
-
 static void altera_tse_set_mcfilterall(struct net_device *dev)
 {
 	struct altera_tse_private *priv = netdev_priv(dev);
@@ -1153,7 +1172,6 @@ static int tse_open(struct net_device *dev)
 		netdev_err(dev, "DMA descriptors initialization failed\n");
 		goto alloc_skbuf_error;
 	}
-
 
 	/* Register RX interrupt */
 	ret = request_irq(priv->rx_irq, altera_isr, IRQF_SHARED,
@@ -1325,7 +1343,6 @@ static int altera_tse_probe(struct platform_device *pdev)
 	if (of_id)
 		priv->dmaops = (struct altera_dmaops *)of_id->data;
 
-
 	if (priv->dmaops &&
 	    priv->dmaops->altera_dtype == ALTERA_DTYPE_SGDMA) {
 		/* Get the mapped address to the SGDMA descriptor memory */
@@ -1404,13 +1421,11 @@ static int altera_tse_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_free_netdev;
 
-
 	/* xSGDMA Tx Dispatcher address space */
 	ret = request_and_map(pdev, "tx_csr", &dma_res,
 			      &priv->tx_dma_csr);
 	if (ret)
 		goto err_free_netdev;
-
 
 	/* Rx IRQ */
 	priv->rx_irq = platform_get_irq_byname(pdev, "rx_irq");

@@ -25,10 +25,11 @@
  *
  **************************************************************************/
 
+#include <drm/ttm/ttm_placement.h>
+
 #include "vmwgfx_drv.h"
 #include "vmwgfx_resource_priv.h"
 #include "vmwgfx_binding.h"
-#include "ttm/ttm_placement.h"
 
 struct vmw_shader {
 	struct vmw_resource res;
@@ -89,7 +90,6 @@ static const struct vmw_user_resource_conv user_shader_conv = {
 const struct vmw_user_resource_conv *user_shader_converter =
 	&user_shader_conv;
 
-
 static const struct vmw_res_func vmw_gb_shader_func = {
 	.res_type = vmw_res_shader,
 	.needs_backup = true,
@@ -149,7 +149,6 @@ static void vmw_hw_shader_destroy(struct vmw_resource *res)
 	else
 		res->id = -1;
 }
-
 
 static int vmw_gb_shader_init(struct vmw_private *dev_priv,
 			      struct vmw_resource *res,
@@ -606,6 +605,10 @@ int vmw_dx_shader_add(struct vmw_cmdbuf_res_manager *man,
 	struct vmw_dx_shader *shader;
 	struct vmw_resource *res;
 	struct vmw_private *dev_priv = ctx->dev_priv;
+	struct ttm_operation_ctx ttm_opt_ctx = {
+		.interruptible = true,
+		.no_wait_gpu = false
+	};
 	int ret;
 
 	if (!vmw_shader_dx_size)
@@ -615,7 +618,7 @@ int vmw_dx_shader_add(struct vmw_cmdbuf_res_manager *man,
 		return -EINVAL;
 
 	ret = ttm_mem_global_alloc(vmw_mem_glob(dev_priv), vmw_shader_dx_size,
-				   false, true);
+				   &ttm_opt_ctx);
 	if (ret) {
 		if (ret != -ERESTARTSYS)
 			DRM_ERROR("Out of graphics memory for shader "
@@ -658,8 +661,6 @@ out_resource_init:
 
 	return ret;
 }
-
-
 
 /**
  * User-space shader management:
@@ -729,6 +730,10 @@ static int vmw_user_shader_alloc(struct vmw_private *dev_priv,
 {
 	struct vmw_user_shader *ushader;
 	struct vmw_resource *res, *tmp;
+	struct ttm_operation_ctx ctx = {
+		.interruptible = true,
+		.no_wait_gpu = false
+	};
 	int ret;
 
 	/*
@@ -741,7 +746,7 @@ static int vmw_user_shader_alloc(struct vmw_private *dev_priv,
 
 	ret = ttm_mem_global_alloc(vmw_mem_glob(dev_priv),
 				   vmw_user_shader_size,
-				   false, true);
+				   &ctx);
 	if (unlikely(ret != 0)) {
 		if (ret != -ERESTARTSYS)
 			DRM_ERROR("Out of graphics memory for shader "
@@ -750,7 +755,7 @@ static int vmw_user_shader_alloc(struct vmw_private *dev_priv,
 	}
 
 	ushader = kzalloc(sizeof(*ushader), GFP_KERNEL);
-	if (unlikely(ushader == NULL)) {
+	if (unlikely(!ushader)) {
 		ttm_mem_global_free(vmw_mem_glob(dev_priv),
 				    vmw_user_shader_size);
 		ret = -ENOMEM;
@@ -790,7 +795,6 @@ out:
 	return ret;
 }
 
-
 static struct vmw_resource *vmw_shader_alloc(struct vmw_private *dev_priv,
 					     struct vmw_dma_buffer *buffer,
 					     size_t shader_size,
@@ -799,6 +803,10 @@ static struct vmw_resource *vmw_shader_alloc(struct vmw_private *dev_priv,
 {
 	struct vmw_shader *shader;
 	struct vmw_resource *res;
+	struct ttm_operation_ctx ctx = {
+		.interruptible = true,
+		.no_wait_gpu = false
+	};
 	int ret;
 
 	/*
@@ -811,7 +819,7 @@ static struct vmw_resource *vmw_shader_alloc(struct vmw_private *dev_priv,
 
 	ret = ttm_mem_global_alloc(vmw_mem_glob(dev_priv),
 				   vmw_shader_size,
-				   false, true);
+				   &ctx);
 	if (unlikely(ret != 0)) {
 		if (ret != -ERESTARTSYS)
 			DRM_ERROR("Out of graphics memory for shader "
@@ -820,7 +828,7 @@ static struct vmw_resource *vmw_shader_alloc(struct vmw_private *dev_priv,
 	}
 
 	shader = kzalloc(sizeof(*shader), GFP_KERNEL);
-	if (unlikely(shader == NULL)) {
+	if (unlikely(!shader)) {
 		ttm_mem_global_free(vmw_mem_glob(dev_priv),
 				    vmw_shader_size);
 		ret = -ENOMEM;
@@ -839,7 +847,6 @@ static struct vmw_resource *vmw_shader_alloc(struct vmw_private *dev_priv,
 out_err:
 	return ret ? ERR_PTR(ret) : res;
 }
-
 
 static int vmw_shader_define(struct drm_device *dev, struct drm_file *file_priv,
 			     enum drm_vmw_shader_type shader_type_drm,
@@ -969,6 +976,7 @@ int vmw_compat_shader_add(struct vmw_private *dev_priv,
 			  size_t size,
 			  struct list_head *list)
 {
+	struct ttm_operation_ctx ctx = { false, true };
 	struct vmw_dma_buffer *buf;
 	struct ttm_bo_kmap_obj map;
 	bool is_iomem;
@@ -980,7 +988,7 @@ int vmw_compat_shader_add(struct vmw_private *dev_priv,
 
 	/* Allocate and pin a DMA buffer */
 	buf = kzalloc(sizeof(*buf), GFP_KERNEL);
-	if (unlikely(buf == NULL))
+	if (unlikely(!buf))
 		return -ENOMEM;
 
 	ret = vmw_dmabuf_init(dev_priv, buf, size, &vmw_sys_ne_placement,
@@ -988,7 +996,7 @@ int vmw_compat_shader_add(struct vmw_private *dev_priv,
 	if (unlikely(ret != 0))
 		goto out;
 
-	ret = ttm_bo_reserve(&buf->base, false, true, false, NULL);
+	ret = ttm_bo_reserve(&buf->base, false, true, NULL);
 	if (unlikely(ret != 0))
 		goto no_reserve;
 
@@ -1004,7 +1012,7 @@ int vmw_compat_shader_add(struct vmw_private *dev_priv,
 	WARN_ON(is_iomem);
 
 	ttm_bo_kunmap(&map);
-	ret = ttm_bo_validate(&buf->base, &vmw_sys_placement, false, true);
+	ret = ttm_bo_validate(&buf->base, &vmw_sys_placement, &ctx);
 	WARN_ON(ret != 0);
 	ttm_bo_unreserve(&buf->base);
 

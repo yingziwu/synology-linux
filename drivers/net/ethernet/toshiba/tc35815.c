@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * tc35815.c: A TOSHIBA TC35815CF PCI 10/100Mbps ethernet driver for linux.
  *
@@ -275,7 +278,6 @@ struct tc35815_regs {
 #define MD_CA_Busy	       0x00000800 /* 1:Busy (Start Operation)	     */
 #define MD_CA_Wr	       0x00000400 /* 1:Write 0:Read		     */
 
-
 /*
  * Descriptors
  */
@@ -316,7 +318,6 @@ struct BDesc {
 #define BD_CownsBD	       0x80000000 /* BD Controller owner bit	     */
 #define BD_RxBDID_SHIFT	       16
 #define BD_RxBDSeqN_SHIFT      24
-
 
 /* Some useful constants. */
 
@@ -374,7 +375,6 @@ struct FrFD {
 	struct FDesc fd;
 	struct BDesc bd[RX_BUF_NUM];
 };
-
 
 #define tc_readl(addr)	ioread32(addr)
 #define tc_writel(d, addr)	iowrite32(d, addr)
@@ -631,17 +631,28 @@ static int tc_mii_probe(struct net_device *dev)
 	}
 
 	/* attach the mac to the phy */
+#if defined(MY_ABC_HERE)
+	phydev = phy_connect(dev, phydev_name(phydev),
+			     &tc_handle_link_change,
+			     lp->chiptype == TC35815_TX4939 ? PHY_INTERFACE_MODE_RMII : PHY_INTERFACE_MODE_MII);
+#else /* MY_ABC_HERE */
 	phydev = phy_connect(dev, dev_name(&phydev->dev),
 			     &tc_handle_link_change,
 			     lp->chiptype == TC35815_TX4939 ? PHY_INTERFACE_MODE_RMII : PHY_INTERFACE_MODE_MII);
+#endif /* MY_ABC_HERE */
 	if (IS_ERR(phydev)) {
 		printk(KERN_ERR "%s: Could not attach to PHY\n", dev->name);
 		return PTR_ERR(phydev);
 	}
+
+#if defined(MY_ABC_HERE)
+	phy_attached_info(phydev);
+#else /* MY_ABC_HERE */
 	printk(KERN_INFO "%s: attached PHY driver [%s] "
 		"(mii_bus:phy_addr=%s, id=%x)\n",
 		dev->name, phydev->drv->name, dev_name(&phydev->dev),
 		phydev->phy_id);
+#endif /* MY_ABC_HERE */
 
 	/* mask with MAC supported features */
 	phydev->supported &= PHY_BASIC_FEATURES;
@@ -684,6 +695,9 @@ static int tc_mii_init(struct net_device *dev)
 		 (lp->pci_dev->bus->number << 8) | lp->pci_dev->devfn);
 	lp->mii_bus->priv = dev;
 	lp->mii_bus->parent = &lp->pci_dev->dev;
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 	lp->mii_bus->irq = kmalloc(sizeof(int) * PHY_MAX_ADDR, GFP_KERNEL);
 	if (!lp->mii_bus->irq) {
 		err = -ENOMEM;
@@ -692,10 +706,15 @@ static int tc_mii_init(struct net_device *dev)
 
 	for (i = 0; i < PHY_MAX_ADDR; i++)
 		lp->mii_bus->irq[i] = PHY_POLL;
+#endif /* MY_ABC_HERE */
 
 	err = mdiobus_register(lp->mii_bus);
 	if (err)
+#if defined(MY_ABC_HERE)
+		goto err_out_free_mii_bus;
+#else /* MY_ABC_HERE */
 		goto err_out_free_mdio_irq;
+#endif /* MY_ABC_HERE */
 	err = tc_mii_probe(dev);
 	if (err)
 		goto err_out_unregister_bus;
@@ -703,8 +722,12 @@ static int tc_mii_init(struct net_device *dev)
 
 err_out_unregister_bus:
 	mdiobus_unregister(lp->mii_bus);
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 err_out_free_mdio_irq:
 	kfree(lp->mii_bus->irq);
+#endif /* MY_ABC_HERE */
 err_out_free_mii_bus:
 	mdiobus_free(lp->mii_bus);
 err_out:
@@ -874,7 +897,6 @@ err_out:
 	return rc;
 }
 
-
 static void tc35815_remove_one(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -882,7 +904,11 @@ static void tc35815_remove_one(struct pci_dev *pdev)
 
 	phy_disconnect(lp->phy_dev);
 	mdiobus_unregister(lp->mii_bus);
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 	kfree(lp->mii_bus->irq);
+#endif /* MY_ABC_HERE */
 	mdiobus_free(lp->mii_bus);
 	unregister_netdev(dev);
 	free_netdev(dev);
@@ -1816,7 +1842,6 @@ tc35815_txdone(struct net_device *dev)
 				if (lp->lstats.max_tx_qlen < qlen)
 					lp->lstats.max_tx_qlen = qlen;
 
-
 				/* start DMA Transmitter again */
 				txhead->fd.FDNext |= cpu_to_le32(FD_Next_EOL);
 				txhead->fd.FDCtl |= cpu_to_le32(FD_FrmOpt_IntTx);
@@ -1914,7 +1939,6 @@ static void tc35815_set_cam_entry(struct net_device *dev, int index, unsigned ch
 
 	tc_writel(saved_addr, &tr->CAM_Adr);
 }
-
 
 /*
  * Set or clear the multicast filter for this adaptor.

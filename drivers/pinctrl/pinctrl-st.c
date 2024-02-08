@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2013 STMicroelectronics (R&D) Limited.
  * Authors:
@@ -1170,7 +1173,6 @@ static int st_pctl_dt_setup_retime(struct st_pinctrl *info,
 	return -EINVAL;
 }
 
-
 static struct regmap_field *st_pc_get_value(struct device *dev,
 					    struct regmap *regmap, int bank,
 					    int data, int lsb, int msb)
@@ -1522,7 +1524,11 @@ static int st_gpiolib_register_bank(struct st_pinctrl *info,
 	bank->gpio_chip.base = bank_num * ST_GPIO_PINS_PER_BANK;
 	bank->gpio_chip.ngpio = ST_GPIO_PINS_PER_BANK;
 	bank->gpio_chip.of_node = np;
+#if defined(MY_ABC_HERE)
+	bank->gpio_chip.parent = dev;
+#else /* MY_ABC_HERE */
 	bank->gpio_chip.dev = dev;
+#endif /* MY_ABC_HERE */
 	spin_lock_init(&bank->lock);
 
 	of_property_read_string(np, "st,bank-name", &range->name);

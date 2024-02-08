@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2006-2009 Freescale Semicondutor, Inc. All rights reserved.
  *
@@ -62,7 +65,6 @@
 #define ugeth_vdbg(fmt, args...) do { } while (0)
 #endif				/* UGETH_VERBOSE_DEBUG */
 #define UGETH_MSG_DEFAULT	(NETIF_MSG_IFUP << 1 ) - 1
-
 
 static DEFINE_SPINLOCK(ugeth_lock);
 
@@ -1385,7 +1387,11 @@ static int adjust_enet_interface(struct ucc_geth_private *ugeth)
 		value &= ~0x1000;	/* Turn off autonegotiation */
 		phy_write(tbiphy, ENET_TBI_MII_CR, value);
 
+#if defined(MY_ABC_HERE)
+		put_device(&tbiphy->mdio.dev);
+#else /* MY_ABC_HERE */
 		put_device(&tbiphy->dev);
+#endif /* MY_ABC_HERE */
 	}
 
 	init_check_frame_length_mode(ug_info->lengthCheckRx, &ug_regs->maccfg2);
@@ -1705,7 +1711,11 @@ static void uec_configure_serdes(struct net_device *dev)
 	 * several seconds for it to come back.
 	 */
 	if (phy_read(tbiphy, ENET_TBI_MII_SR) & TBISR_LSTATUS) {
+#if defined(MY_ABC_HERE)
+		put_device(&tbiphy->mdio.dev);
+#else /* MY_ABC_HERE */
 		put_device(&tbiphy->dev);
+#endif /* MY_ABC_HERE */
 		return;
 	}
 
@@ -1843,7 +1853,6 @@ static void ucc_geth_free_rx(struct ucc_geth_private *ugeth)
 	struct ucc_fast_info *uf_info;
 	u16 i, j;
 	u8 __iomem *bd;
-
 
 	ug_info = ugeth->ug_info;
 	uf_info = &ug_info->uf_info;
@@ -3556,7 +3565,6 @@ static void ucc_geth_timeout(struct net_device *dev)
 
 	schedule_work(&ugeth->timeout_work);
 }
-
 
 #ifdef CONFIG_PM
 

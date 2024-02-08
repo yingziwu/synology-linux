@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Generic GPIO driver for logic cells found in the Nomadik SoC
  *
@@ -168,7 +171,6 @@ typedef unsigned long pin_cfg_t;
 #define PIN_SLEEPMODE_DISABLED	(0 << PIN_SLEEPMODE_SHIFT)
 #define PIN_SLEEPMODE_ENABLED	(1 << PIN_SLEEPMODE_SHIFT)
 
-
 /* Shortcuts.  Use these instead of separate DIR, PULL, and VAL.  */
 #define PIN_INPUT_PULLDOWN	(PIN_DIR_INPUT | PIN_PULL_DOWN)
 #define PIN_INPUT_PULLUP	(PIN_DIR_INPUT | PIN_PULL_UP)
@@ -228,7 +230,6 @@ typedef unsigned long pin_cfg_t;
 /* These appear in DB8540 and later ASICs */
 #define NMK_GPIO_EDGELEVEL 0x5C
 #define NMK_GPIO_LEVEL	0x60
-
 
 /* Pull up/down values */
 enum nmk_gpio_pull {
@@ -438,7 +439,11 @@ nmk_gpio_disable_lazy_irq(struct nmk_gpio_chip *nmk_chip, unsigned offset)
 			       nmk_chip->addr + NMK_GPIO_FIMSC);
 	}
 
+#if defined(MY_ABC_HERE)
+	dev_dbg(nmk_chip->chip.parent, "%d: clearing interrupt mask\n", gpio);
+#else /* MY_ABC_HERE */
 	dev_dbg(nmk_chip->chip.dev, "%d: clearing interrupt mask\n", gpio);
+#endif /* MY_ABC_HERE */
 }
 
 static void nmk_write_masked(void __iomem *reg, u32 mask, u32 value)
@@ -635,7 +640,6 @@ int nmk_gpio_get_mode(int gpio)
 	return (afunc ? NMK_GPIO_ALT_A : 0) | (bfunc ? NMK_GPIO_ALT_B : 0);
 }
 EXPORT_SYMBOL(nmk_gpio_get_mode);
-
 
 /* IRQ functions */
 static inline int nmk_gpio_get_bitmask(int gpio)
@@ -1188,7 +1192,11 @@ static struct nmk_gpio_chip *nmk_gpio_populate_chip(struct device_node *np,
 	chip->base = id * NMK_GPIO_PER_CHIP;
 	chip->ngpio = NMK_GPIO_PER_CHIP;
 	chip->label = dev_name(&gpio_pdev->dev);
+#if defined(MY_ABC_HERE)
+	chip->parent = &gpio_pdev->dev;
+#else /* MY_ABC_HERE */
 	chip->dev = &gpio_pdev->dev;
+#endif /* MY_ABC_HERE */
 
 	res = platform_get_resource(gpio_pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
@@ -1890,6 +1898,15 @@ static int nmk_pin_config_set(struct pinctrl_dev *pctldev, unsigned pin,
 			if (slpm_val)
 				val = slpm_val - 1;
 
+#if defined(MY_ABC_HERE)
+			dev_dbg(nmk_chip->chip.parent,
+				"pin %d: sleep pull %s, dir %s, val %s\n",
+				pin,
+				slpm_pull ? pullnames[pull] : "same",
+				slpm_output ? (output ? "output" : "input")
+				: "same",
+				slpm_val ? (val ? "high" : "low") : "same");
+#else /* MY_ABC_HERE */
 			dev_dbg(nmk_chip->chip.dev,
 				"pin %d: sleep pull %s, dir %s, val %s\n",
 				pin,
@@ -1897,14 +1914,24 @@ static int nmk_pin_config_set(struct pinctrl_dev *pctldev, unsigned pin,
 				slpm_output ? (output ? "output" : "input")
 				: "same",
 				slpm_val ? (val ? "high" : "low") : "same");
+#endif /* MY_ABC_HERE */
 		}
 
+#if defined(MY_ABC_HERE)
+		dev_dbg(nmk_chip->chip.parent,
+			"pin %d [%#lx]: pull %s, slpm %s (%s%s), lowemi %s\n",
+			pin, cfg, pullnames[pull], slpmnames[slpm],
+			output ? "output " : "input",
+			output ? (val ? "high" : "low") : "",
+			lowemi ? "on" : "off");
+#else /* MY_ABC_HERE */
 		dev_dbg(nmk_chip->chip.dev,
 			"pin %d [%#lx]: pull %s, slpm %s (%s%s), lowemi %s\n",
 			pin, cfg, pullnames[pull], slpmnames[slpm],
 			output ? "output " : "input",
 			output ? (val ? "high" : "low") : "",
 			lowemi ? "on" : "off");
+#endif /* MY_ABC_HERE */
 
 		clk_enable(nmk_chip->clk);
 		bit = pin % NMK_GPIO_PER_CHIP;

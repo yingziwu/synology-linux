@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * mass_storage.c -- Mass Storage USB Gadget
  *
@@ -12,7 +15,6 @@
  * (at your option) any later version.
  */
 
-
 /*
  * The Mass Storage Gadget acts as a USB Mass Storage device,
  * appearing to the host as a disk drive or as a CD-ROM drive.  In
@@ -26,7 +28,6 @@
  * business logic is implemented in f_mass_storage.* file.  Read
  * comments in this file for more detailed description.
  */
-
 
 #include <linux/kernel.h>
 #include <linux/usb/ch9.h>
@@ -95,7 +96,7 @@ static struct fsg_module_parameters mod_data = {
 
 static unsigned int fsg_num_buffers = CONFIG_USB_GADGET_STORAGE_NUM_BUFFERS;
 
-#else
+#else /* MY_ABC_HERE */
 
 /*
  * Number of buffers we will use.
@@ -112,7 +113,11 @@ static void msg_cleanup(void);
 
 static int msg_thread_exits(struct fsg_common *common)
 {
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 	msg_cleanup();
+#endif /* MY_ABC_HERE */
 	return 0;
 }
 
@@ -148,7 +153,6 @@ static struct usb_configuration msg_config_driver = {
 	.bConfigurationValue	= 1,
 	.bmAttributes		= USB_CONFIG_ATT_SELFPOWER,
 };
-
 
 /****************************** Gadget Bind ******************************/
 

@@ -139,7 +139,6 @@ struct sem_undo_list {
 	struct list_head	list_proc;
 };
 
-
 #define sem_ids(ns)	((ns)->ids[IPC_SEM_IDS])
 
 #define sem_checkid(sma, semid)	ipc_checkid(&sma->sem_perm, semid)
@@ -570,7 +569,6 @@ static int newary(struct ipc_namespace *ns, struct ipc_params *params)
 	return sma->sem_perm.id;
 }
 
-
 /*
  * Called with sem_ids.rwsem and ipcp locked.
  */
@@ -885,7 +883,6 @@ static int do_smart_wakeup_zero(struct sem_array *sma, struct sembuf *sops,
 
 	return semop_completed;
 }
-
 
 /**
  * update_queue - look for tasks that can be completed.
@@ -1315,7 +1312,6 @@ static int semctl_setval(struct ipc_namespace *ns, int semid, int semnum,
 		rcu_read_unlock();
 		return -EINVAL;
 	}
-
 
 	if (ipcperms(ns, &sma->sem_perm, S_IWUGO)) {
 		rcu_read_unlock();
@@ -1781,7 +1777,6 @@ out:
 	return un;
 }
 
-
 /**
  * get_queue_result - retrieve the result code from sem_queue
  * @q: Pointer to queue structure
@@ -2008,7 +2003,6 @@ sleep_again:
 		rcu_read_unlock();
 		goto out_free;
 	}
-
 
 	/*
 	 * If queue.status != -EINTR we are woken up by another process.

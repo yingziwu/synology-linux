@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*  SuperH Ethernet device driver
  *
  *  Copyright (C) 2014  Renesas Electronics Corporation
@@ -965,7 +968,6 @@ static void sh_eth_set_receive_align(struct sk_buff *skb)
 		skb_reserve(skb, SH_ETH_RX_ALIGN - reserve);
 }
 
-
 /* CPU <-> EDMAC endian convert */
 static inline __u32 cpu_to_edmac(struct sh_eth_private *mdp, u32 x)
 {
@@ -1879,8 +1881,12 @@ static int sh_eth_phy_init(struct net_device *ndev)
 		return PTR_ERR(phydev);
 	}
 
+#if defined(MY_ABC_HERE)
+	phy_attached_info(phydev);
+#else /* MY_ABC_HERE */
 	netdev_info(ndev, "attached PHY %d (IRQ %d) to driver %s\n",
 		    phydev->addr, phydev->irq, phydev->drv->name);
+#endif /* MY_ABC_HERE */
 
 	mdp->phydev = phydev;
 
@@ -2619,7 +2625,6 @@ static void sh_eth_tsu_read_entry(void *reg, u8 *addr)
 	addr[5] = val & 0xff;
 }
 
-
 static int sh_eth_tsu_find_entry(struct net_device *ndev, const u8 *addr)
 {
 	struct sh_eth_private *mdp = netdev_priv(ndev);
@@ -2913,7 +2918,11 @@ static int sh_mdio_release(struct sh_eth_private *mdp)
 static int sh_mdio_init(struct sh_eth_private *mdp,
 			struct sh_eth_plat_data *pd)
 {
+#if defined(MY_ABC_HERE)
+	int ret;
+#else /* MY_ABC_HERE */
 	int ret, i;
+#endif /* MY_ABC_HERE */
 	struct bb_info *bitbang;
 	struct platform_device *pdev = mdp->pdev;
 	struct device *dev = &mdp->pdev->dev;
@@ -2943,6 +2952,9 @@ static int sh_mdio_init(struct sh_eth_private *mdp,
 	snprintf(mdp->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
 		 pdev->name, pdev->id);
 
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 	/* PHY IRQ */
 	mdp->mii_bus->irq = devm_kmalloc_array(dev, PHY_MAX_ADDR, sizeof(int),
 					       GFP_KERNEL);
@@ -2950,13 +2962,18 @@ static int sh_mdio_init(struct sh_eth_private *mdp,
 		ret = -ENOMEM;
 		goto out_free_bus;
 	}
+#endif /* MY_ABC_HERE */
 
 	/* register MDIO bus */
 	if (dev->of_node) {
 		ret = of_mdiobus_register(mdp->mii_bus, dev->of_node);
 	} else {
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 		for (i = 0; i < PHY_MAX_ADDR; i++)
 			mdp->mii_bus->irq[i] = PHY_POLL;
+#endif /* MY_ABC_HERE */
 		if (pd->phy_irq > 0)
 			mdp->mii_bus->irq[pd->phy] = pd->phy_irq;
 

@@ -28,6 +28,14 @@
 #include "sdio_ops.h"
 #include "sdio_cis.h"
 
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_MMC_SDHCI_RTK
+void set_SDIO_version(int version);
+int get_SDIO_version(void);
+void rtk_register_set(void);
+#endif
+
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 static int sdio_read_fbr(struct sdio_func *func)
 {
 	int ret;
@@ -157,6 +165,12 @@ static int sdio_read_cccr(struct mmc_card *card, u32 ocr)
 			if (ret)
 				goto out;
 
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_MMC_SDHCI_RTK
+			set_SDIO_version(3);
+			rtk_register_set();
+#endif
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 			if (mmc_host_uhs(card->host)) {
 				if (data & SDIO_UHS_DDR50)
 					card->sw_caps.sd3_bus_mode
@@ -169,6 +183,14 @@ static int sdio_read_cccr(struct mmc_card *card, u32 ocr)
 				if (data & SDIO_UHS_SDR104)
 					card->sw_caps.sd3_bus_mode
 						|= SD_MODE_UHS_SDR104;
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_MMC_SDHCI_RTK
+					if(card->host->caps & MMC_CAP_UHS_SDR104) {
+						set_SDIO_version(4);
+						rtk_register_set();
+					}
+#endif
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 			}
 
 			ret = mmc_io_rw_direct(card, 0, 0,
@@ -186,6 +208,12 @@ static int sdio_read_cccr(struct mmc_card *card, u32 ocr)
 
 		/* if no uhs mode ensure we check for high speed */
 		if (!card->sw_caps.sd3_bus_mode) {
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_MMC_SDHCI_RTK
+			set_SDIO_version(2);
+			rtk_register_set();
+#endif
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 			if (speed & SDIO_SPEED_SHS) {
 				card->cccr.high_speed = 1;
 				card->sw_caps.hs_max_dtr = 50000000;
@@ -287,7 +315,6 @@ static int sdio_disable_wide(struct mmc_card *card)
 	return 0;
 }
 
-
 static int sdio_enable_4bit_bus(struct mmc_card *card)
 {
 	int err;
@@ -312,7 +339,6 @@ static int sdio_enable_4bit_bus(struct mmc_card *card)
 
 	return err;
 }
-
 
 /*
  * Test if the card supports high-speed mode and, if so, switch to it.
@@ -435,7 +461,6 @@ static void sdio_select_driver_type(struct mmc_card *card)
 	if (drv_type)
 		mmc_set_driver_type(card->host, drv_type);
 }
-
 
 static int sdio_set_bus_speed_mode(struct mmc_card *card)
 {
@@ -629,8 +654,13 @@ try_again:
 	 * it.
 	 */
 	if (!powered_resume && (rocr & ocr & R4_18V_PRESENT)) {
+#if defined(CONFIG_MMC_SDHCI_RTK) && defined(CONFIG_SYNO_LSP_RTD1619)
+		host->ios.signal_voltage = MMC_SIGNAL_VOLTAGE_180;
+		ocr |= R4_18V_PRESENT;
+#else /* CONFIG_MMC_SDHCI_RTK && CONFIG_SYNO_LSP_RTD1619 */
 		err = mmc_set_signal_voltage(host, MMC_SIGNAL_VOLTAGE_180,
 					ocr_card);
+#endif /* CONFIG_MMC_SDHCI_RTK && CONFIG_SYNO_LSP_RTD1619 */
 		if (err == -EAGAIN) {
 			sdio_reset(host);
 			mmc_go_idle(host);
@@ -1055,7 +1085,6 @@ static const struct mmc_bus_ops mmc_sdio_ops = {
 	.reset = mmc_sdio_reset,
 };
 
-
 /*
  * Starting point for SDIO card init.
  */
@@ -1075,7 +1104,6 @@ int mmc_attach_sdio(struct mmc_host *host)
 	mmc_attach_bus(host, &mmc_sdio_ops);
 	if (host->ocr_avail_sdio)
 		host->ocr_avail = host->ocr_avail_sdio;
-
 
 	rocr = mmc_select_voltage(host, ocr);
 
@@ -1155,7 +1183,6 @@ int mmc_attach_sdio(struct mmc_host *host)
 	mmc_claim_host(host);
 	return 0;
 
-
 remove_added:
 	/* Remove without lock if the device has been added. */
 	mmc_sdio_remove(host);
@@ -1174,4 +1201,3 @@ err:
 
 	return err;
 }
-

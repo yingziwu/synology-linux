@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (c) 2015, Sony Mobile Communications AB.
  * Copyright (c) 2013, The Linux Foundation. All rights reserved.
@@ -256,7 +259,6 @@ static const char *pm8xxx_get_group_name(struct pinctrl_dev *pctldev,
 {
 	return pm8xxx_groups[group];
 }
-
 
 static int pm8xxx_get_group_pins(struct pinctrl_dev *pctldev,
 				 unsigned group,
@@ -533,7 +535,6 @@ static int pm8xxx_mpp_of_xlate(struct gpio_chip *chip,
 
 	return gpio_desc->args[0] - 1;
 }
-
 
 static int pm8xxx_mpp_to_irq(struct gpio_chip *chip, unsigned offset)
 {
@@ -821,7 +822,11 @@ static int pm8xxx_mpp_probe(struct platform_device *pdev)
 
 	pctrl->chip = pm8xxx_mpp_template;
 	pctrl->chip.base = -1;
+#if defined(MY_ABC_HERE)
+	pctrl->chip.parent = &pdev->dev;
+#else /* MY_ABC_HERE */
 	pctrl->chip.dev = &pdev->dev;
+#endif /* MY_ABC_HERE */
 	pctrl->chip.of_node = pdev->dev.of_node;
 	pctrl->chip.of_gpio_n_cells = 2;
 	pctrl->chip.label = dev_name(pctrl->dev);

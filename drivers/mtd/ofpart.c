@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Flash partitions described by the OF (or flattened) device tree
  *
@@ -26,9 +29,16 @@ static bool node_has_compatible(struct device_node *pp)
 }
 
 static int parse_ofpart_partitions(struct mtd_info *master,
+#if defined(CONFIG_SYNO_RTD1619)
+				   const struct mtd_partition **pparts,
+#else /* CONFIG_SYNO_RTD1619 */
 				   struct mtd_partition **pparts,
+#endif /* CONFIG_SYNO_RTD1619 */
 				   struct mtd_part_parser_data *data)
 {
+#if defined(CONFIG_SYNO_RTD1619)
+	struct mtd_partition *parts;
+#endif /* CONFIG_SYNO_RTD1619 */
 	struct device_node *mtd_node;
 	struct device_node *ofpart_node;
 	const char *partname;
@@ -36,11 +46,18 @@ static int parse_ofpart_partitions(struct mtd_info *master,
 	int nr_parts, i, ret = 0;
 	bool dedicated = true;
 
-
+#if defined(MY_ABC_HERE)
+	/*
+	 * of_node can be provided through auxiliary parser data or (preferred)
+	 * by assigning the master device node
+	 */
+	mtd_node = data && data->of_node ? data->of_node : mtd_get_of_node(master);
+#else /* MY_ABC_HERE */
 	if (!data)
 		return 0;
 
 	mtd_node = data->of_node;
+#endif /* MY_ABC_HERE */
 	if (!mtd_node)
 		return 0;
 
@@ -72,8 +89,13 @@ static int parse_ofpart_partitions(struct mtd_info *master,
 	if (nr_parts == 0)
 		return 0;
 
+#if defined(CONFIG_SYNO_RTD1619)
+	parts = kzalloc(nr_parts * sizeof(*parts), GFP_KERNEL);
+	if (!parts)
+#else /* CONFIG_SYNO_RTD1619 */
 	*pparts = kzalloc(nr_parts * sizeof(**pparts), GFP_KERNEL);
 	if (!*pparts)
+#endif /* CONFIG_SYNO_RTD1619 */
 		return -ENOMEM;
 
 	i = 0;
@@ -107,19 +129,36 @@ static int parse_ofpart_partitions(struct mtd_info *master,
 			goto ofpart_fail;
 		}
 
+#if defined(CONFIG_SYNO_RTD1619)
+		parts[i].offset = of_read_number(reg, a_cells);
+		parts[i].size = of_read_number(reg + a_cells, s_cells);
+#else /* CONFIG_SYNO_RTD1619 */
 		(*pparts)[i].offset = of_read_number(reg, a_cells);
 		(*pparts)[i].size = of_read_number(reg + a_cells, s_cells);
+#endif /* CONFIG_SYNO_RTD1619 */
 
 		partname = of_get_property(pp, "label", &len);
 		if (!partname)
 			partname = of_get_property(pp, "name", &len);
+#if defined(CONFIG_SYNO_RTD1619)
+		parts[i].name = partname;
+#else /* CONFIG_SYNO_RTD1619 */
 		(*pparts)[i].name = partname;
+#endif /* CONFIG_SYNO_RTD1619 */
 
 		if (of_get_property(pp, "read-only", &len))
+#if defined(CONFIG_SYNO_RTD1619)
+			parts[i].mask_flags |= MTD_WRITEABLE;
+#else /* CONFIG_SYNO_RTD1619 */
 			(*pparts)[i].mask_flags |= MTD_WRITEABLE;
+#endif /* CONFIG_SYNO_RTD1619 */
 
 		if (of_get_property(pp, "lock", &len))
+#if defined(CONFIG_SYNO_RTD1619)
+			parts[i].mask_flags |= MTD_POWERUP_LOCK;
+#else /* CONFIG_SYNO_RTD1619 */
 			(*pparts)[i].mask_flags |= MTD_POWERUP_LOCK;
+#endif /* CONFIG_SYNO_RTD1619 */
 
 		i++;
 	}
@@ -127,6 +166,9 @@ static int parse_ofpart_partitions(struct mtd_info *master,
 	if (!nr_parts)
 		goto ofpart_none;
 
+#if defined(CONFIG_SYNO_RTD1619)
+	*pparts = parts;
+#endif /* CONFIG_SYNO_RTD1619 */
 	return nr_parts;
 
 ofpart_fail:
@@ -135,8 +177,12 @@ ofpart_fail:
 	ret = -EINVAL;
 ofpart_none:
 	of_node_put(pp);
+#if defined(CONFIG_SYNO_RTD1619)
+	kfree(parts);
+#else /* CONFIG_SYNO_RTD1619 */
 	kfree(*pparts);
 	*pparts = NULL;
+#endif /* CONFIG_SYNO_RTD1619 */
 	return ret;
 }
 
@@ -147,9 +193,16 @@ static struct mtd_part_parser ofpart_parser = {
 };
 
 static int parse_ofoldpart_partitions(struct mtd_info *master,
+#if defined(CONFIG_SYNO_RTD1619)
+				      const struct mtd_partition **pparts,
+#else /* CONFIG_SYNO_RTD1619 */
 				      struct mtd_partition **pparts,
+#endif /* CONFIG_SYNO_RTD1619 */
 				      struct mtd_part_parser_data *data)
 {
+#if defined(CONFIG_SYNO_RTD1619)
+	struct mtd_partition *parts;
+#endif /* CONFIG_SYNO_RTD1619 */
 	struct device_node *dp;
 	int i, plen, nr_parts;
 	const struct {
@@ -157,10 +210,18 @@ static int parse_ofoldpart_partitions(struct mtd_info *master,
 	} *part;
 	const char *names;
 
+#if defined(MY_ABC_HERE)
+	/*
+	 * of_node can be provided through auxiliary parser data or (preferred)
+	 * by assigning the master device node
+	 */
+	dp = data && data->of_node ? data->of_node : mtd_get_of_node(master);
+#else /* MY_ABC_HERE */
 	if (!data)
 		return 0;
 
 	dp = data->of_node;
+#endif /* MY_ABC_HERE */
 	if (!dp)
 		return 0;
 
@@ -173,32 +234,57 @@ static int parse_ofoldpart_partitions(struct mtd_info *master,
 
 	nr_parts = plen / sizeof(part[0]);
 
+#if defined(CONFIG_SYNO_RTD1619)
+	parts = kzalloc(nr_parts * sizeof(*parts), GFP_KERNEL);
+	if (!parts)
+#else /* CONFIG_SYNO_RTD1619 */
 	*pparts = kzalloc(nr_parts * sizeof(*(*pparts)), GFP_KERNEL);
 	if (!*pparts)
+#endif /* CONFIG_SYNO_RTD1619 */
 		return -ENOMEM;
 
 	names = of_get_property(dp, "partition-names", &plen);
 
 	for (i = 0; i < nr_parts; i++) {
+#if defined(CONFIG_SYNO_RTD1619)
+		parts[i].offset = be32_to_cpu(part->offset);
+		parts[i].size   = be32_to_cpu(part->len) & ~1;
+#else /* CONFIG_SYNO_RTD1619 */
 		(*pparts)[i].offset = be32_to_cpu(part->offset);
 		(*pparts)[i].size   = be32_to_cpu(part->len) & ~1;
+#endif /* CONFIG_SYNO_RTD1619 */
 		/* bit 0 set signifies read only partition */
 		if (be32_to_cpu(part->len) & 1)
+#if defined(CONFIG_SYNO_RTD1619)
+			parts[i].mask_flags = MTD_WRITEABLE;
+#else /* CONFIG_SYNO_RTD1619 */
 			(*pparts)[i].mask_flags = MTD_WRITEABLE;
+#endif /* CONFIG_SYNO_RTD1619 */
 
 		if (names && (plen > 0)) {
 			int len = strlen(names) + 1;
 
+#if defined(CONFIG_SYNO_RTD1619)
+			parts[i].name = names;
+#else /* CONFIG_SYNO_RTD1619 */
 			(*pparts)[i].name = names;
+#endif /* CONFIG_SYNO_RTD1619 */
 			plen -= len;
 			names += len;
 		} else {
+#if defined(CONFIG_SYNO_RTD1619)
+			parts[i].name = "unnamed";
+#else /* CONFIG_SYNO_RTD1619 */
 			(*pparts)[i].name = "unnamed";
+#endif /* CONFIG_SYNO_RTD1619 */
 		}
 
 		part++;
 	}
 
+#if defined(CONFIG_SYNO_RTD1619)
+	*pparts = parts;
+#endif /* CONFIG_SYNO_RTD1619 */
 	return nr_parts;
 }
 

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_MMZONE_H
 #define _LINUX_MMZONE_H
 
@@ -40,7 +43,11 @@ enum {
 	MIGRATE_MOVABLE,
 	MIGRATE_RECLAIMABLE,
 	MIGRATE_PCPTYPES,	/* the number of types on the pcp lists */
+#if defined(MY_ABC_HERE) && !defined(MY_ABC_HERE)
+	MIGRATE_RESERVE = MIGRATE_PCPTYPES,
+#else /* MY_ABC_HERE && !MY_ABC_HERE */
 	MIGRATE_HIGHATOMIC = MIGRATE_PCPTYPES,
+#endif /* MY_ABC_HERE && !MY_ABC_HERE */
 #ifdef CONFIG_CMA
 	/*
 	 * MIGRATE_CMA migration type is designed to mimic the way
@@ -131,8 +138,9 @@ enum zone_stat_item {
 	NR_SLAB_RECLAIMABLE,
 	NR_SLAB_UNRECLAIMABLE,
 	NR_PAGETABLE,		/* used for pagetables */
-	NR_KERNEL_STACK,
 	/* Second 128 byte cacheline */
+	NR_KERNEL_STACK,
+	NR_KAISERTABLE,
 	NR_UNSTABLE_NFS,	/* NFS unstable pages */
 	NR_BOUNCE,
 	NR_VMSCAN_WRITE,
@@ -334,7 +342,11 @@ struct zone {
 	/* zone watermarks, access with *_wmark_pages(zone) macros */
 	unsigned long watermark[NR_WMARK];
 
+#if defined(MY_ABC_HERE) && !defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE && !MY_ABC_HERE */
 	unsigned long nr_reserved_highatomic;
+#endif /* MY_ABC_HERE && !MY_ABC_HERE */
 
 	/*
 	 * We don't know if the memory that we're going to allocate will be
@@ -431,6 +443,14 @@ struct zone {
 	unsigned long		present_pages;
 
 	const char		*name;
+
+#if defined(MY_ABC_HERE) && !defined(MY_ABC_HERE)
+	/*
+	 * Number of MIGRATE_RESERVE page block. To maintain for just
+	 * optimization. Protected by zone->lock.
+	 */
+	int			nr_migrate_reserve_block;
+#endif /* MY_ABC_HERE && !MY_ABC_HERE */
 
 #ifdef CONFIG_MEMORY_ISOLATION
 	/*

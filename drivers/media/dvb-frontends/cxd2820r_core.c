@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Sony CXD2820R demodulator driver
  *
@@ -17,7 +20,6 @@
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 
 #include "cxd2820r_priv.h"
 
@@ -529,7 +531,6 @@ static enum dvbfe_search cxd2820r_search(struct dvb_frontend *fe)
 	if (ret)
 		goto error;
 
-
 	/* frontend lock wait loop count */
 	switch (priv->delivery_system) {
 	case SYS_DVBT:
@@ -722,7 +723,11 @@ struct dvb_frontend *cxd2820r_attach(const struct cxd2820r_config *cfg,
 #ifdef CONFIG_GPIOLIB
 		/* add GPIOs */
 		priv->gpio_chip.label = KBUILD_MODNAME;
+#if defined(MY_ABC_HERE)
+		priv->gpio_chip.parent = &priv->i2c->dev;
+#else /* MY_ABC_HERE */
 		priv->gpio_chip.dev = &priv->i2c->dev;
+#endif /* MY_ABC_HERE */
 		priv->gpio_chip.owner = THIS_MODULE;
 		priv->gpio_chip.direction_output =
 				cxd2820r_gpio_direction_output;

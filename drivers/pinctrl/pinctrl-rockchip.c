@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Pinctrl driver for Rockchip SoCs
  *
@@ -1754,7 +1757,11 @@ static int rockchip_gpiolib_register(struct platform_device *pdev,
 		gc = &bank->gpio_chip;
 		gc->base = bank->pin_base;
 		gc->ngpio = bank->nr_pins;
+#if defined(MY_ABC_HERE)
+		gc->parent = &pdev->dev;
+#else /* MY_ABC_HERE */
 		gc->dev = &pdev->dev;
+#endif /* MY_ABC_HERE */
 		gc->of_node = bank->of_node;
 		gc->label = bank->name;
 
@@ -2207,7 +2214,6 @@ static struct rockchip_pin_ctrl rk3368_pin_ctrl = {
 		.pull_calc_reg		= rk3368_calc_pull_reg_and_bit,
 		.drv_calc_reg		= rk3368_calc_drv_reg_and_bit,
 };
-
 
 static const struct of_device_id rockchip_pinctrl_dt_match[] = {
 	{ .compatible = "rockchip,rk2928-pinctrl",

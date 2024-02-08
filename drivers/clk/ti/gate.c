@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * OMAP gate clock support
  *
@@ -24,7 +27,11 @@
 
 #include "clock.h"
 
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 #define to_clk_divider(_hw) container_of(_hw, struct clk_divider, hw)
+#endif /* MY_ABC_HERE */
 
 #undef pr_fmt
 #define pr_fmt(fmt) "%s: " fmt, __func__
@@ -303,7 +310,6 @@ static void __init of_ti_composite_gate_clk_setup(struct device_node *node)
 }
 CLK_OF_DECLARE(ti_composite_gate_clk, "ti,composite-gate-clock",
 	       of_ti_composite_gate_clk_setup);
-
 
 static void __init of_ti_clkdm_gate_clk_setup(struct device_node *node)
 {

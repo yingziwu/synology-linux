@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * pinctrl pads, groups, functions for CSR SiRFatlasVII
  *
@@ -4963,7 +4966,6 @@ static void __atlas7_pmx_pin_input_disable_set(struct atlas7_pmx *pmx,
 		writel(DI_DISABLE << mux->dinput_bit,
 			pmx->regs[BANK_DS] + mux->dinput_reg);
 
-
 		writel(DIV_MASK << mux->dinput_val_bit,
 			pmx->regs[BANK_DS] + CLR_REG(mux->dinput_val_reg));
 		writel(DIV_DISABLE << mux->dinput_val_bit,
@@ -5574,7 +5576,6 @@ static int __init atlas7_pinmux_init(void)
 }
 arch_initcall(atlas7_pinmux_init);
 
-
 /**
  * The Following is GPIO Code
  */
@@ -6012,7 +6013,11 @@ static int atlas7_gpio_probe(struct platform_device *pdev)
 	chip->label = kstrdup(np->name, GFP_KERNEL);
 	chip->of_node = np;
 	chip->of_gpio_n_cells = 2;
+#if defined(MY_ABC_HERE)
+	chip->parent = &pdev->dev;
+#else /* MY_ABC_HERE */
 	chip->dev = &pdev->dev;
+#endif /* MY_ABC_HERE */
 
 	/* Add gpio chip to system */
 	ret = gpiochip_add(chip);

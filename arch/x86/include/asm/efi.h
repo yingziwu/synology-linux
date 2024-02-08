@@ -3,6 +3,7 @@
 
 #include <asm/fpu/api.h>
 #include <asm/pgtable.h>
+#include <asm/nospec-branch.h>
 
 /*
  * We map the EFI regions needed for runtime services non-contiguously,
@@ -27,7 +28,6 @@
 
 #ifdef CONFIG_X86_32
 
-
 extern unsigned long asmlinkage efi_call_phys(void *, ...);
 
 /*
@@ -39,8 +39,10 @@ extern unsigned long asmlinkage efi_call_phys(void *, ...);
 ({									\
 	efi_status_t __s;						\
 	kernel_fpu_begin();						\
+	firmware_restrict_branch_speculation_start();			\
 	__s = ((efi_##f##_t __attribute__((regparm(0)))*)		\
 		efi.systab->runtime->f)(args);				\
+	firmware_restrict_branch_speculation_end();			\
 	kernel_fpu_end();						\
 	__s;								\
 })
@@ -49,8 +51,10 @@ extern unsigned long asmlinkage efi_call_phys(void *, ...);
 #define __efi_call_virt(f, args...) \
 ({									\
 	kernel_fpu_begin();						\
+	firmware_restrict_branch_speculation_start();			\
 	((efi_##f##_t __attribute__((regparm(0)))*)			\
 		efi.systab->runtime->f)(args);				\
+	firmware_restrict_branch_speculation_end();			\
 	kernel_fpu_end();						\
 })
 
@@ -71,7 +75,9 @@ extern u64 asmlinkage efi_call(void *fp, ...);
 	efi_sync_low_kernel_mappings();					\
 	preempt_disable();						\
 	__kernel_fpu_begin();						\
+	firmware_restrict_branch_speculation_start();			\
 	__s = efi_call((void *)efi.systab->runtime->f, __VA_ARGS__);	\
+	firmware_restrict_branch_speculation_end();			\
 	__kernel_fpu_end();						\
 	preempt_enable();						\
 	__s;								\
@@ -172,7 +178,6 @@ static inline efi_status_t efi_thunk_set_virtual_address_map(
 	return EFI_SUCCESS;
 }
 #endif /* CONFIG_EFI_MIXED */
-
 
 /* arch specific definitions used by the stub code */
 

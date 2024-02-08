@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/mm/vmstat.c
  *
@@ -426,7 +429,6 @@ void dec_zone_page_state(struct page *page, enum zone_stat_item item)
 EXPORT_SYMBOL(dec_zone_page_state);
 #endif
 
-
 /*
  * Fold a differential into the global counters.
  * Returns the number of counters updated.
@@ -736,6 +738,7 @@ const char * const vmstat_text[] = {
 	"nr_slab_unreclaimable",
 	"nr_page_table_pages",
 	"nr_kernel_stack",
+	"nr_overhead",
 	"nr_unstable",
 	"nr_bounce",
 	"nr_vmscan_write",
@@ -865,12 +868,10 @@ const char * const vmstat_text[] = {
 #ifdef CONFIG_DEBUG_VM_VMACACHE
 	"vmacache_find_calls",
 	"vmacache_find_hits",
-	"vmacache_full_flushes",
 #endif
 #endif /* CONFIG_VM_EVENTS_COUNTERS */
 };
 #endif /* CONFIG_PROC_FS || CONFIG_SYSFS || CONFIG_NUMA */
-
 
 #if (defined(CONFIG_DEBUG_FS) && defined(CONFIG_COMPACTION)) || \
      defined(CONFIG_PROC_FS)
@@ -923,7 +924,11 @@ static char * const migratetype_names[MIGRATE_TYPES] = {
 	"Unmovable",
 	"Movable",
 	"Reclaimable",
+#if defined(MY_ABC_HERE) && !defined(MY_ABC_HERE)
+	"Reserve",
+#else /* MY_ABC_HERE && !MY_ABC_HERE */
 	"HighAtomic",
+#endif /* MY_ABC_HERE && !MY_ABC_HERE */
 #ifdef CONFIG_CMA
 	"CMA",
 #endif
@@ -1439,7 +1444,6 @@ static bool need_update(int cpu)
 	}
 	return false;
 }
-
 
 /*
  * Shepherd worker thread that checks the

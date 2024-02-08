@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * AD7879/AD7889 based touchscreen and GPIO driver
  *
@@ -263,7 +266,6 @@ static void __ad7879_disable(struct ad7879 *ts)
 	ad7879_write(ts, AD7879_REG_CTRL2, reg);
 }
 
-
 static int ad7879_open(struct input_dev *input)
 {
 	struct ad7879 *ts = input_get_drvdata(input);
@@ -454,7 +456,11 @@ static int ad7879_gpio_add(struct ad7879 *ts,
 		ts->gc.ngpio = 1;
 		ts->gc.label = "AD7879-GPIO";
 		ts->gc.owner = THIS_MODULE;
+#if defined(MY_ABC_HERE)
+		ts->gc.parent = ts->dev;
+#else /* MY_ABC_HERE */
 		ts->gc.dev = ts->dev;
+#endif /* MY_ABC_HERE */
 
 		ret = gpiochip_add(&ts->gc);
 		if (ret)

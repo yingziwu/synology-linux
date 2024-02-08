@@ -255,7 +255,7 @@ static void kvm_del_vqs(struct virtio_device *vdev)
 static int kvm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
 			struct virtqueue *vqs[],
 			vq_callback_t *callbacks[],
-			const char *names[])
+			const char * const names[])
 {
 	struct kvm_device *kdev = to_kvmdev(vdev);
 	int i;
@@ -502,7 +502,6 @@ static int __init s390_virtio_console_init(void)
 	return virtio_cons_early_init(early_put_chars);
 }
 console_initcall(s390_virtio_console_init);
-
 
 /*
  * We do this after core stuff, but before the drivers.

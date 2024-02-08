@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Marvell Kirkwood SoC clocks
  *
@@ -226,7 +229,6 @@ static const struct clk_gating_soc_desc kirkwood_gating_desc[] __initconst = {
 	{ }
 };
 
-
 /*
  * Clock Muxing Control
  */
@@ -256,7 +258,11 @@ static const struct clk_muxing_soc_desc kirkwood_mux_desc[] __initconst = {
 		11, 1, 0 },
 };
 
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 #define to_clk_mux(_hw) container_of(_hw, struct clk_mux, hw)
+#endif /* MY_ABC_HERE */
 
 static struct clk *clk_muxing_get_src(
 	struct of_phandle_args *clkspec, void *data)
@@ -325,7 +331,6 @@ static void __init kirkwood_clk_init(struct device_node *np)
 {
 	struct device_node *cgnp =
 		of_find_compatible_node(NULL, NULL, "marvell,kirkwood-gating-clock");
-
 
 	if (of_device_is_compatible(np, "marvell,mv88f6180-core-clock"))
 		mvebu_coreclk_setup(np, &mv88f6180_coreclks);

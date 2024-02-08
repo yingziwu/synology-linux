@@ -1308,7 +1308,6 @@ static int _mlx4_set_path(struct mlx4_ib_dev *dev, const struct ib_ah_attr *ah,
 	int smac_index;
 	int err;
 
-
 	path->grh_mylmc     = ah->src_path_bits & 0x7f;
 	path->rlid	    = cpu_to_be16(ah->dlid);
 	if (ah->static_rate) {
@@ -1839,7 +1838,6 @@ static int __mlx4_ib_modify_qp(struct ib_qp *ibqp,
 			optpar |= MLX4_QP_OPTPAR_PRIMARY_ADDR_PATH;
 		}
 	}
-
 
 	if (cur_state == IB_QPS_RTS && new_state == IB_QPS_SQD	&&
 	    attr_mask & IB_QP_EN_SQD_ASYNC_NOTIFY && attr->en_sqd_async_notify)
@@ -3334,4 +3332,3 @@ out:
 	mutex_unlock(&qp->mutex);
 	return err;
 }
-

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Timberdale FPGA GPIO driver
  * Copyright (c) 2009 Intel Corporation
@@ -268,7 +271,11 @@ static int timbgpio_probe(struct platform_device *pdev)
 
 	gc->label = dev_name(&pdev->dev);
 	gc->owner = THIS_MODULE;
+#if defined(MY_ABC_HERE)
+	gc->parent = &pdev->dev;
+#else /* MY_ABC_HERE */
 	gc->dev = &pdev->dev;
+#endif /* MY_ABC_HERE */
 	gc->direction_input = timbgpio_gpio_direction_input;
 	gc->get = timbgpio_gpio_get;
 	gc->direction_output = timbgpio_gpio_direction_output;
@@ -341,4 +348,3 @@ MODULE_DESCRIPTION("Timberdale GPIO driver");
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Mocean Laboratories");
 MODULE_ALIAS("platform:"DRIVER_NAME);
-

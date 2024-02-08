@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2008 Red Hat.  All rights reserved.
  *
@@ -29,8 +32,8 @@
 #include "inode-map.h"
 #include "volumes.h"
 
-#define BITS_PER_BITMAP		(PAGE_CACHE_SIZE * 8)
-#define MAX_CACHE_BYTES_PER_GIG	(32 * 1024)
+#define BITS_PER_BITMAP		(PAGE_CACHE_SIZE * 8UL)
+#define MAX_CACHE_BYTES_PER_GIG	SZ_32K
 
 struct btrfs_trim_range {
 	u64 start;
@@ -1086,14 +1089,11 @@ write_pinned_extent_entries(struct btrfs_root *root,
 static noinline_for_stack int
 write_bitmap_entries(struct btrfs_io_ctl *io_ctl, struct list_head *bitmap_list)
 {
-	struct list_head *pos, *n;
+	struct btrfs_free_space *entry, *next;
 	int ret;
 
 	/* Write out the bitmaps */
-	list_for_each_safe(pos, n, bitmap_list) {
-		struct btrfs_free_space *entry =
-			list_entry(pos, struct btrfs_free_space, list);
-
+	list_for_each_entry_safe(entry, next, bitmap_list, list) {
 		ret = io_ctl_add_bitmap(io_ctl, entry->bitmap);
 		if (ret)
 			return -ENOSPC;
@@ -1119,13 +1119,10 @@ static int flush_dirty_cache(struct inode *inode)
 static void noinline_for_stack
 cleanup_bitmap_list(struct list_head *bitmap_list)
 {
-	struct list_head *pos, *n;
+	struct btrfs_free_space *entry, *next;
 
-	list_for_each_safe(pos, n, bitmap_list) {
-		struct btrfs_free_space *entry =
-			list_entry(pos, struct btrfs_free_space, list);
+	list_for_each_entry_safe(entry, next, bitmap_list, list)
 		list_del_init(&entry->list);
-	}
 }
 
 static void noinline_for_stack
@@ -1261,7 +1258,7 @@ static int __btrfs_write_out_cache(struct btrfs_root *root, struct inode *inode,
 		goto out;
 
 	lock_extent_bits(&BTRFS_I(inode)->io_tree, 0, i_size_read(inode) - 1,
-			 0, &cached_state);
+			 &cached_state);
 
 	io_ctl_set_generation(io_ctl, trans->transid);
 
@@ -1421,11 +1418,11 @@ static inline u64 offset_to_bitmap(struct btrfs_free_space_ctl *ctl,
 				   u64 offset)
 {
 	u64 bitmap_start;
-	u32 bytes_per_bitmap;
+	u64 bytes_per_bitmap;
 
 	bytes_per_bitmap = BITS_PER_BITMAP * ctl->unit;
 	bitmap_start = offset - ctl->start;
-	bitmap_start = div_u64(bitmap_start, bytes_per_bitmap);
+	bitmap_start = div64_u64(bitmap_start, bytes_per_bitmap);
 	bitmap_start *= bytes_per_bitmap;
 	bitmap_start += ctl->start;
 
@@ -1644,10 +1641,10 @@ static void recalculate_thresholds(struct btrfs_free_space_ctl *ctl)
 	u64 bitmap_bytes;
 	u64 extent_bytes;
 	u64 size = block_group->key.offset;
-	u32 bytes_per_bg = BITS_PER_BITMAP * ctl->unit;
-	u32 max_bitmaps = div_u64(size + bytes_per_bg - 1, bytes_per_bg);
+	u64 bytes_per_bg = BITS_PER_BITMAP * ctl->unit;
+	u64 max_bitmaps = div64_u64(size + bytes_per_bg - 1, bytes_per_bg);
 
-	max_bitmaps = max_t(u32, max_bitmaps, 1);
+	max_bitmaps = max_t(u64, max_bitmaps, 1);
 
 	ASSERT(ctl->total_bitmaps <= max_bitmaps);
 
@@ -1656,11 +1653,10 @@ static void recalculate_thresholds(struct btrfs_free_space_ctl *ctl)
 	 * at or below 32k, so we need to adjust how much memory we allow to be
 	 * used by extent based free space tracking
 	 */
-	if (size < 1024 * 1024 * 1024)
+	if (size < SZ_1G)
 		max_bytes = MAX_CACHE_BYTES_PER_GIG;
 	else
-		max_bytes = MAX_CACHE_BYTES_PER_GIG *
-			div_u64(size, 1024 * 1024 * 1024);
+		max_bytes = MAX_CACHE_BYTES_PER_GIG * div_u64(size, SZ_1G);
 
 	/*
 	 * we want to account for 1 more bitmap than what we have so we can make
@@ -1990,7 +1986,7 @@ static bool use_bitmap(struct btrfs_free_space_ctl *ctl,
 		/*
 		 * If this block group has some small extents we don't want to
 		 * use up all of our free slots in the cache with them, we want
-		 * to reserve them to larger extents, however if we have plent
+		 * to reserve them to larger extents, however if we have plenty
 		 * of cache left then go ahead an dadd them, no sense in adding
 		 * the overhead of a bitmap if we don't have to.
 		 */
@@ -2016,7 +2012,7 @@ static bool use_bitmap(struct btrfs_free_space_ctl *ctl,
 	return true;
 }
 
-static struct btrfs_free_space_op free_space_op = {
+static const struct btrfs_free_space_op free_space_op = {
 	.recalc_thresholds	= recalculate_thresholds,
 	.use_bitmap		= use_bitmap,
 };
@@ -2489,8 +2485,7 @@ void btrfs_init_free_space_ctl(struct btrfs_block_group_cache *block_group)
 	 * track of free space, and if we pass 1/2 of that we want to
 	 * start converting things over to using bitmaps
 	 */
-	ctl->extents_thresh = ((1024 * 32) / 2) /
-				sizeof(struct btrfs_free_space);
+	ctl->extents_thresh = (SZ_32K / 2) / sizeof(struct btrfs_free_space);
 }
 
 /*
@@ -2725,6 +2720,11 @@ u64 btrfs_alloc_from_cluster(struct btrfs_block_group_cache *block_group,
 	if (cluster->block_group != block_group)
 		goto out;
 
+#ifdef MY_DEF_HERE
+	if (ctl->free_space < cluster->reserve_bytes + bytes)
+		goto out;
+#endif /* MY_DEF_HERE */
+
 	node = rb_first(&cluster->root);
 	if (!node)
 		goto out;
@@ -2793,11 +2793,19 @@ out:
 	return ret;
 }
 
+#ifdef MY_DEF_HERE
+static int btrfs_bitmap_cluster(struct btrfs_block_group_cache *block_group,
+				struct btrfs_free_space *entry,
+				struct btrfs_free_cluster *cluster,
+				u64 offset, u64 bytes,
+				u64 cont1_bytes, u64 min_bytes, u64 empty_size)
+#else
 static int btrfs_bitmap_cluster(struct btrfs_block_group_cache *block_group,
 				struct btrfs_free_space *entry,
 				struct btrfs_free_cluster *cluster,
 				u64 offset, u64 bytes,
 				u64 cont1_bytes, u64 min_bytes)
+#endif /* MY_DEF_HERE */
 {
 	struct btrfs_free_space_ctl *ctl = block_group->free_space_ctl;
 	unsigned long next_zero;
@@ -2812,7 +2820,11 @@ static int btrfs_bitmap_cluster(struct btrfs_block_group_cache *block_group,
 
 	i = offset_to_bit(entry->offset, ctl->unit,
 			  max_t(u64, offset, entry->offset));
+#ifdef MY_DEF_HERE
+	want_bits = bytes_to_bits(empty_size, ctl->unit);
+#else
 	want_bits = bytes_to_bits(bytes, ctl->unit);
+#endif /* MY_DEF_HERE */
 	min_bits = bytes_to_bits(min_bytes, ctl->unit);
 
 	/*
@@ -2840,6 +2852,14 @@ again:
 
 	if (!found_bits) {
 		entry->max_extent_size = (u64)max_bits * ctl->unit;
+#ifdef MY_DEF_HERE
+		if (total_found < empty_size)
+			return -ENOSPC;
+		if (entry->max_extent_size < cont1_bytes)
+			return -ENOSPC;
+		if (entry->max_extent_size < bytes)
+			return -EAGAIN;
+#endif /* MY_DEF_HERE */
 		return -ENOSPC;
 	}
 
@@ -2853,7 +2873,11 @@ again:
 	if (cluster->max_size < found_bits * ctl->unit)
 		cluster->max_size = found_bits * ctl->unit;
 
+#ifdef MY_DEF_HERE
+	if (total_found < want_bits || cluster->max_size < max(bytes, cont1_bytes)) {
+#else
 	if (total_found < want_bits || cluster->max_size < cont1_bytes) {
+#endif /* MY_DEF_HERE */
 		i = next_zero + 1;
 		goto again;
 	}
@@ -2874,11 +2898,24 @@ again:
  * Try to find a cluster with at least bytes total bytes, at least one
  * extent of cont1_bytes, and other clusters of at least min_bytes.
  */
+#ifdef MY_DEF_HERE
+/*
+ * We changed the meaning of cont1_bytes. Now cont1_bytes is directly derived from cluster empty size.
+ * For a qualified cluster, there should be at least one max(bytes, cont1_bytes) bytes.
+ * If we cannot find such extent but can find a cont1_bytes extent, return -EAGAIN, otherwise return -ENOSPC.
+ */
+static noinline int
+setup_cluster_no_bitmap(struct btrfs_block_group_cache *block_group,
+			struct btrfs_free_cluster *cluster,
+			struct list_head *bitmaps, u64 offset, u64 bytes,
+			u64 cont1_bytes, u64 min_bytes, u64 empty_size)
+#else
 static noinline int
 setup_cluster_no_bitmap(struct btrfs_block_group_cache *block_group,
 			struct btrfs_free_cluster *cluster,
 			struct list_head *bitmaps, u64 offset, u64 bytes,
 			u64 cont1_bytes, u64 min_bytes)
+#endif /* MY_DEF_HERE */
 {
 	struct btrfs_free_space_ctl *ctl = block_group->free_space_ctl;
 	struct btrfs_free_space *first = NULL;
@@ -2930,8 +2967,17 @@ setup_cluster_no_bitmap(struct btrfs_block_group_cache *block_group,
 			max_extent = entry->bytes;
 	}
 
+#ifdef MY_DEF_HERE
+	if (window_free < empty_size)
+		return -ENOSPC;
+	if (max_extent < cont1_bytes)
+		return -ENOSPC;
+	if (max_extent < bytes)
+		return -EAGAIN;
+#else
 	if (window_free < bytes || max_extent < cont1_bytes)
 		return -ENOSPC;
+#endif /* MY_DEF_HERE */
 
 	cluster->window_start = first->offset;
 
@@ -2965,11 +3011,19 @@ setup_cluster_no_bitmap(struct btrfs_block_group_cache *block_group,
  * This specifically looks for bitmaps that may work in the cluster, we assume
  * that we have already failed to find extents that will work.
  */
+#ifdef MY_DEF_HERE
+static noinline int
+setup_cluster_bitmap(struct btrfs_block_group_cache *block_group,
+		     struct btrfs_free_cluster *cluster,
+		     struct list_head *bitmaps, u64 offset, u64 bytes,
+		     u64 cont1_bytes, u64 min_bytes, u64 empty_size)
+#else
 static noinline int
 setup_cluster_bitmap(struct btrfs_block_group_cache *block_group,
 		     struct btrfs_free_cluster *cluster,
 		     struct list_head *bitmaps, u64 offset, u64 bytes,
 		     u64 cont1_bytes, u64 min_bytes)
+#endif /* MY_DEF_HERE */
 {
 	struct btrfs_free_space_ctl *ctl = block_group->free_space_ctl;
 	struct btrfs_free_space *entry = NULL;
@@ -2993,10 +3047,17 @@ setup_cluster_bitmap(struct btrfs_block_group_cache *block_group,
 	}
 
 	list_for_each_entry(entry, bitmaps, list) {
+#ifdef MY_DEF_HERE
+		if (entry->bytes < min_bytes)
+			continue;
+		ret = btrfs_bitmap_cluster(block_group, entry, cluster, offset,
+					   bytes, cont1_bytes, min_bytes, empty_size);
+#else
 		if (entry->bytes < bytes)
 			continue;
 		ret = btrfs_bitmap_cluster(block_group, entry, cluster, offset,
 					   bytes, cont1_bytes, min_bytes);
+#endif /* MY_DEF_HERE */
 		if (!ret)
 			return 0;
 	}
@@ -3005,7 +3066,11 @@ setup_cluster_bitmap(struct btrfs_block_group_cache *block_group,
 	 * The bitmaps list has all the bitmaps that record free space
 	 * starting after offset, so no more search is required.
 	 */
+#ifdef MY_DEF_HERE
+	return ret;
+#else
 	return -ENOSPC;
+#endif /* MY_DEF_HERE */
 }
 
 /*
@@ -3019,14 +3084,23 @@ setup_cluster_bitmap(struct btrfs_block_group_cache *block_group,
 int btrfs_find_space_cluster(struct btrfs_root *root,
 			     struct btrfs_block_group_cache *block_group,
 			     struct btrfs_free_cluster *cluster,
+#ifdef MY_DEF_HERE
+			     u64 offset, u64 bytes, u64 empty_size, u64 reserve_bytes)
+#else
 			     u64 offset, u64 bytes, u64 empty_size)
+#endif /* MY_DEF_HERE */
 {
 	struct btrfs_free_space_ctl *ctl = block_group->free_space_ctl;
 	struct btrfs_free_space *entry, *tmp;
 	LIST_HEAD(bitmaps);
 	u64 min_bytes;
 	u64 cont1_bytes;
+#ifdef MY_DEF_HERE
+	int ret1 = 0;
+	int ret = 0;
+#else
 	int ret;
+#endif /* MY_DEF_HERE */
 
 	/*
 	 * Choose the minimum extent size we'll require for this
@@ -3037,12 +3111,20 @@ int btrfs_find_space_cluster(struct btrfs_root *root,
 	if (btrfs_test_opt(root, SSD_SPREAD)) {
 		cont1_bytes = min_bytes = bytes + empty_size;
 	} else if (block_group->flags & BTRFS_BLOCK_GROUP_METADATA) {
+#ifdef MY_DEF_HERE
+		cont1_bytes = min_bytes = 64 * 1024;
+	} else {
+		cont1_bytes = empty_size >> 3;
+		min_bytes = cluster->min_bytes; // protected by refill_lock
+	}
+#else
 		cont1_bytes = bytes;
 		min_bytes = block_group->sectorsize;
 	} else {
 		cont1_bytes = max(bytes, (bytes + empty_size) >> 2);
 		min_bytes = block_group->sectorsize;
 	}
+#endif /* MY_DEF_HERE */
 
 	spin_lock(&ctl->tree_lock);
 
@@ -3050,7 +3132,11 @@ int btrfs_find_space_cluster(struct btrfs_root *root,
 	 * If we know we don't have enough space to make a cluster don't even
 	 * bother doing all the work to try and find one.
 	 */
+#ifdef MY_DEF_HERE
+	if (ctl->free_space < (reserve_bytes + bytes + empty_size)) {
+#else
 	if (ctl->free_space < bytes) {
+#endif /* MY_DEF_HERE */
 		spin_unlock(&ctl->tree_lock);
 		return -ENOSPC;
 	}
@@ -3066,13 +3152,29 @@ int btrfs_find_space_cluster(struct btrfs_root *root,
 	trace_btrfs_find_cluster(block_group, offset, bytes, empty_size,
 				 min_bytes);
 
+#ifdef MY_DEF_HERE
+	ret1 = setup_cluster_no_bitmap(block_group, cluster, &bitmaps, offset,
+				      bytes,
+				      cont1_bytes, min_bytes, empty_size);
+#else
 	ret = setup_cluster_no_bitmap(block_group, cluster, &bitmaps, offset,
 				      bytes + empty_size,
 				      cont1_bytes, min_bytes);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	if (ret1) {
+		ret = setup_cluster_bitmap(block_group, cluster, &bitmaps,
+					   offset, bytes,
+					   cont1_bytes, min_bytes, empty_size);
+		if (ret && ret1 == -EAGAIN)
+			ret = -EAGAIN;
+	}
+#else
 	if (ret)
 		ret = setup_cluster_bitmap(block_group, cluster, &bitmaps,
 					   offset, bytes + empty_size,
 					   cont1_bytes, min_bytes);
+#endif /* MY_DEF_HERE */
 
 	/* Clear our temporary list */
 	list_for_each_entry_safe(entry, tmp, &bitmaps, list)
@@ -3083,6 +3185,9 @@ int btrfs_find_space_cluster(struct btrfs_root *root,
 		list_add_tail(&cluster->block_group_list,
 			      &block_group->cluster_list);
 		cluster->block_group = block_group;
+#ifdef MY_DEF_HERE
+		cluster->reserve_bytes = reserve_bytes;
+#endif /* MY_DEF_HERE */
 	} else {
 		trace_btrfs_failed_cluster_setup(block_group);
 	}
@@ -3102,6 +3207,12 @@ void btrfs_init_free_cluster(struct btrfs_free_cluster *cluster)
 	spin_lock_init(&cluster->refill_lock);
 	cluster->root = RB_ROOT;
 	cluster->max_size = 0;
+#ifdef MY_DEF_HERE
+	cluster->reserve_bytes = 0;
+	cluster->empty_cluster = 1024ULL * 1024 * 1024; // will be reset in fetch_cluster_info() for metadata
+	cluster->min_bytes = 1 * 1024 * 1024;
+	cluster->excluded_size = (u64)-1;
+#endif /* MY_DEF_HERE */
 	cluster->fragmented = false;
 	INIT_LIST_HEAD(&cluster->block_group_list);
 	cluster->block_group = NULL;
@@ -3121,6 +3232,18 @@ static int do_trimming(struct btrfs_block_group_cache *block_group,
 
 	spin_lock(&space_info->lock);
 	spin_lock(&block_group->lock);
+
+#ifdef MY_DEF_HERE
+	if (space_info->bytes_used + space_info->bytes_reserved +
+			space_info->bytes_pinned + space_info->bytes_readonly +
+			space_info->bytes_may_use + reserved_bytes > space_info->total_bytes) {
+		spin_unlock(&block_group->lock);
+		spin_unlock(&space_info->lock);
+		ret = 0;
+		goto end_trim;
+	}
+#endif /* MY_DEF_HERE */
+
 	if (!block_group->ro) {
 		block_group->reserved += reserved_bytes;
 		space_info->bytes_reserved += reserved_bytes;
@@ -3134,6 +3257,9 @@ static int do_trimming(struct btrfs_block_group_cache *block_group,
 	if (!ret)
 		*total_trimmed += trimmed;
 
+#ifdef MY_DEF_HERE
+end_trim:
+#endif /* MY_DEF_HERE */
 	mutex_lock(&ctl->cache_writeout_mutex);
 	btrfs_add_free_space(block_group, reserved_start, reserved_bytes);
 	list_del(&trim_entry->list);
@@ -3205,6 +3331,7 @@ static int trim_no_bitmap(struct btrfs_block_group_cache *block_group,
 		extent_bytes = entry->bytes;
 		start = max(start, extent_start);
 		bytes = min(extent_start + extent_bytes, end) - start;
+
 		if (bytes < minlen) {
 			spin_unlock(&ctl->tree_lock);
 			mutex_unlock(&ctl->cache_writeout_mutex);
@@ -3670,7 +3797,7 @@ have_info:
 			if (tmp->offset + tmp->bytes < offset)
 				break;
 			if (offset + bytes < tmp->offset) {
-				n = rb_prev(&info->offset_index);
+				n = rb_prev(&tmp->offset_index);
 				continue;
 			}
 			info = tmp;
@@ -3684,7 +3811,7 @@ have_info:
 			if (offset + bytes < tmp->offset)
 				break;
 			if (tmp->offset + tmp->bytes < offset) {
-				n = rb_next(&info->offset_index);
+				n = rb_next(&tmp->offset_index);
 				continue;
 			}
 			info = tmp;

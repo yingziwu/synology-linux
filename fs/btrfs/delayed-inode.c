@@ -43,8 +43,7 @@ int __init btrfs_delayed_inode_init(void)
 
 void btrfs_delayed_inode_exit(void)
 {
-	if (delayed_node_cache)
-		kmem_cache_destroy(delayed_node_cache);
+	kmem_cache_destroy(delayed_node_cache);
 }
 
 static inline void btrfs_init_delayed_node(
@@ -54,16 +53,11 @@ static inline void btrfs_init_delayed_node(
 	delayed_node->root = root;
 	delayed_node->inode_id = inode_id;
 	atomic_set(&delayed_node->refs, 0);
-	delayed_node->count = 0;
-	delayed_node->flags = 0;
 	delayed_node->ins_root = RB_ROOT;
 	delayed_node->del_root = RB_ROOT;
 	mutex_init(&delayed_node->mutex);
-	delayed_node->index_cnt = 0;
 	INIT_LIST_HEAD(&delayed_node->n_list);
 	INIT_LIST_HEAD(&delayed_node->p_list);
-	delayed_node->bytes_reserved = 0;
-	memset(&delayed_node->inode_item, 0, sizeof(delayed_node->inode_item));
 }
 
 static inline int btrfs_is_continuous_delayed_item(
@@ -132,7 +126,7 @@ again:
 	if (node)
 		return node;
 
-	node = kmem_cache_alloc(delayed_node_cache, GFP_NOFS);
+	node = kmem_cache_zalloc(delayed_node_cache, GFP_NOFS);
 	if (!node)
 		return ERR_PTR(-ENOMEM);
 	btrfs_init_delayed_node(node, root, ino);
@@ -140,7 +134,7 @@ again:
 	/* cached in the btrfs inode and can be accessed */
 	atomic_add(2, &node->refs);
 
-	ret = radix_tree_preload(GFP_NOFS & ~__GFP_HIGHMEM);
+	ret = radix_tree_preload(GFP_NOFS);
 	if (ret) {
 		kmem_cache_free(delayed_node_cache, node);
 		return ERR_PTR(ret);
@@ -656,9 +650,14 @@ static int btrfs_delayed_inode_reserve_metadata(
 			goto out;
 
 		ret = btrfs_block_rsv_migrate(src_rsv, dst_rsv, num_bytes);
-		if (!WARN_ON(ret))
+		if (!ret)
 			goto out;
 
+		if (btrfs_test_opt(root, ENOSPC_DEBUG)) {
+			btrfs_debug(root->fs_info,
+				    "block rsv migrate returned %d", ret);
+			WARN_ON(1);
+		}
 		/*
 		 * Ok this is a problem, let's just steal from the global rsv
 		 * since this really shouldn't happen that often.
@@ -1386,7 +1385,6 @@ out:
 	kfree(async_work);
 }
 
-
 static int btrfs_wq_run_delayed_node(struct btrfs_delayed_root *delayed_root,
 				     struct btrfs_fs_info *fs_info, int nr)
 {
@@ -1497,7 +1495,6 @@ int btrfs_insert_delayed_dir_index(struct btrfs_trans_handle *trans,
 	 * so reserving metadata failure is impossible
 	 */
 	BUG_ON(ret);
-
 
 	mutex_lock(&delayed_node->mutex);
 	ret = __btrfs_add_delayed_insertion_item(delayed_node, delayed_item);
@@ -1667,28 +1664,18 @@ void btrfs_put_delayed_items(struct list_head *ins_list,
 int btrfs_should_delete_dir_index(struct list_head *del_list,
 				  u64 index)
 {
-	struct btrfs_delayed_item *curr, *next;
-	int ret;
+	struct btrfs_delayed_item *curr;
+	int ret = 0;
 
-	if (list_empty(del_list))
-		return 0;
-
-	list_for_each_entry_safe(curr, next, del_list, readdir_list) {
+	list_for_each_entry(curr, del_list, readdir_list) {
 		if (curr->key.offset > index)
 			break;
-
-		list_del(&curr->readdir_list);
-		ret = (curr->key.offset == index);
-
-		if (atomic_dec_and_test(&curr->refs))
-			kfree(curr);
-
-		if (ret)
-			return 1;
-		else
-			continue;
+		if (curr->key.offset == index) {
+			ret = 1;
+			break;
+		}
 	}
-	return 0;
+	return ret;
 }
 
 /*
@@ -1696,7 +1683,7 @@ int btrfs_should_delete_dir_index(struct list_head *del_list,
  *
  */
 int btrfs_readdir_delayed_dir_index(struct dir_context *ctx,
-				    struct list_head *ins_list, bool *emitted)
+				    struct list_head *ins_list)
 {
 	struct btrfs_dir_item *di;
 	struct btrfs_delayed_item *curr, *next;
@@ -1740,7 +1727,7 @@ int btrfs_readdir_delayed_dir_index(struct dir_context *ctx,
 
 		if (over)
 			return 1;
-		*emitted = true;
+		ctx->pos++;
 	}
 	return 0;
 }
@@ -2001,4 +1988,3 @@ void btrfs_destroy_delayed_inodes(struct btrfs_root *root)
 		btrfs_release_delayed_node(prev_node);
 	}
 }
-

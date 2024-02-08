@@ -1,22 +1,7 @@
-/*
- * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org> et al.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef __MTD_MTD_H__
 #define __MTD_MTD_H__
 
@@ -37,11 +22,6 @@
 
 #define MTD_FAIL_ADDR_UNKNOWN -1LL
 
-/*
- * If the erase fails, fail_addr might indicate exactly which block failed. If
- * fail_addr = MTD_FAIL_ADDR_UNKNOWN, the failure was not at the device level
- * or was not specific to any particular block.
- */
 struct erase_info {
 	struct mtd_info *mtd;
 	uint64_t addr;
@@ -58,31 +38,12 @@ struct erase_info {
 };
 
 struct mtd_erase_region_info {
-	uint64_t offset;		/* At which this region starts, from the beginning of the MTD */
-	uint32_t erasesize;		/* For this region */
-	uint32_t numblocks;		/* Number of blocks of erasesize in this region */
-	unsigned long *lockmap;		/* If keeping bitmap of locks */
+	uint64_t offset;		 
+	uint32_t erasesize;		 
+	uint32_t numblocks;		 
+	unsigned long *lockmap;		 
 };
 
-/**
- * struct mtd_oob_ops - oob operation operands
- * @mode:	operation mode
- *
- * @len:	number of data bytes to write/read
- *
- * @retlen:	number of data bytes written/read
- *
- * @ooblen:	number of oob bytes to write/read
- * @oobretlen:	number of oob bytes written/read
- * @ooboffs:	offset of oob data in the oob area (only relevant when
- *		mode = MTD_OPS_PLACE_OOB or MTD_OPS_RAW)
- * @datbuf:	data buffer - if NULL only oob data are read/written
- * @oobbuf:	oob data buffer
- *
- * Note, it is allowed to read more than one OOB area at one go, but not write.
- * The interface assumes that the OOB write requests program only one page's
- * OOB area.
- */
 struct mtd_oob_ops {
 	unsigned int	mode;
 	size_t		len;
@@ -96,12 +57,7 @@ struct mtd_oob_ops {
 
 #define MTD_MAX_OOBFREE_ENTRIES_LARGE	32
 #define MTD_MAX_ECCPOS_ENTRIES_LARGE	640
-/*
- * Internal ECC layout control structure. For historical reasons, there is a
- * similar, smaller struct nand_ecclayout_user (in mtd-abi.h) that is retained
- * for export to user-space via the ECCGETLAYOUT ioctl.
- * nand_ecclayout should be expandable in the future simply by the above macros.
- */
+ 
 struct nand_ecclayout {
 	__u32 eccbytes;
 	__u32 eccpos[MTD_MAX_ECCPOS_ENTRIES_LARGE];
@@ -109,83 +65,83 @@ struct nand_ecclayout {
 	struct nand_oobfree oobfree[MTD_MAX_OOBFREE_ENTRIES_LARGE];
 };
 
-struct module;	/* only needed for owner field in mtd_info */
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+ 
+struct mtd_oob_region {
+	u32 offset;
+	u32 length;
+};
+
+struct mtd_ooblayout_ops {
+	int (*ecc)(struct mtd_info *mtd, int section,
+		   struct mtd_oob_region *oobecc);
+	int (*free)(struct mtd_info *mtd, int section,
+		    struct mtd_oob_region *oobfree);
+};
+
+struct mtd_pairing_info {
+	int pair;
+	int group;
+};
+
+struct mtd_pairing_scheme {
+	int ngroups;
+	int (*get_info)(struct mtd_info *mtd, int wunit,
+			struct mtd_pairing_info *info);
+	int (*get_wunit)(struct mtd_info *mtd,
+			 const struct mtd_pairing_info *info);
+};
+
+#endif  
+struct module;	 
 
 struct mtd_info {
 	u_char type;
 	uint32_t flags;
-	uint64_t size;	 // Total size of the MTD
+	uint64_t size;	  
 
-	/* "Major" erase size for the device. Naïve users may take this
-	 * to be the only erase size available, or may use the more detailed
-	 * information below if they desire
-	 */
 	uint32_t erasesize;
-	/* Minimal writable flash unit size. In case of NOR flash it is 1 (even
-	 * though individual bits can be cleared), in case of NAND flash it is
-	 * one NAND page (or half, or one-fourths of it), in case of ECC-ed NOR
-	 * it is of ECC block size, etc. It is illegal to have writesize = 0.
-	 * Any driver registering a struct mtd_info must ensure a writesize of
-	 * 1 or larger.
-	 */
+	 
 	uint32_t writesize;
 
-	/*
-	 * Size of the write buffer used by the MTD. MTD devices having a write
-	 * buffer can write multiple writesize chunks at a time. E.g. while
-	 * writing 4 * writesize bytes to a device with 2 * writesize bytes
-	 * buffer the MTD driver can (but doesn't have to) do 2 writesize
-	 * operations, but not 4. Currently, all NANDs have writebufsize
-	 * equivalent to writesize (NAND page size). Some NOR flashes do have
-	 * writebufsize greater than writesize.
-	 */
 	uint32_t writebufsize;
 
-	uint32_t oobsize;   // Amount of OOB data per block (e.g. 16)
-	uint32_t oobavail;  // Available OOB bytes per block
+	uint32_t oobsize;    
+	uint32_t oobavail;   
 
-	/*
-	 * If erasesize is a power of 2 then the shift is stored in
-	 * erasesize_shift otherwise erasesize_shift is zero. Ditto writesize.
-	 */
 	unsigned int erasesize_shift;
 	unsigned int writesize_shift;
-	/* Masks based on erasesize_shift and writesize_shift */
+	 
 	unsigned int erasesize_mask;
 	unsigned int writesize_mask;
 
-	/*
-	 * read ops return -EUCLEAN if max number of bitflips corrected on any
-	 * one region comprising an ecc step equals or exceeds this value.
-	 * Settable by driver, else defaults to ecc_strength.  User can override
-	 * in sysfs.  N.B. The meaning of the -EUCLEAN return code has changed;
-	 * see Documentation/ABI/testing/sysfs-class-mtd for more detail.
-	 */
 	unsigned int bitflip_threshold;
 
-	// Kernel-only stuff starts here.
 	const char *name;
 	int index;
 
-	/* ECC layout structure pointer - read only! */
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+	 
+#else  
+	 
+#endif  
 	struct nand_ecclayout *ecclayout;
 
-	/* the ecc step size. */
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+	 
+	const struct mtd_ooblayout_ops *ooblayout;
+
+	const struct mtd_pairing_scheme *pairing;
+
+#endif  
+	 
 	unsigned int ecc_step_size;
 
-	/* max number of correctible bit errors per ecc step */
 	unsigned int ecc_strength;
 
-	/* Data for variable erase regions. If numeraseregions is zero,
-	 * it means that the whole device has erasesize as given above.
-	 */
 	int numeraseregions;
 	struct mtd_erase_region_info *eraseregions;
 
-	/*
-	 * Do not call via these pointers, use corresponding mtd_*()
-	 * wrappers instead.
-	 */
 	int (*_erase) (struct mtd_info *mtd, struct erase_info *instr);
 	int (*_point) (struct mtd_info *mtd, loff_t from, size_t len,
 		       size_t *retlen, void **virt, resource_size_t *phys);
@@ -228,23 +184,16 @@ struct mtd_info {
 	int (*_suspend) (struct mtd_info *mtd);
 	void (*_resume) (struct mtd_info *mtd);
 	void (*_reboot) (struct mtd_info *mtd);
-	/*
-	 * If the driver is something smart, like UBI, it may need to maintain
-	 * its own reference counting. The below functions are only for driver.
-	 */
+	 
 	int (*_get_device) (struct mtd_info *mtd);
 	void (*_put_device) (struct mtd_info *mtd);
 
-	/* Backing device capabilities for this device
-	 * - provides mmap capabilities
-	 */
 	struct backing_dev_info *backing_dev_info;
 
-	struct notifier_block reboot_notifier;  /* default mode before reboot */
+	struct notifier_block reboot_notifier;   
 
-	/* ECC status information */
 	struct mtd_ecc_stats ecc_stats;
-	/* Subpage shift (NAND) */
+	 
 	int subpage_sft;
 
 	void *priv;
@@ -254,6 +203,65 @@ struct mtd_info {
 	int usecount;
 };
 
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+int mtd_ooblayout_ecc(struct mtd_info *mtd, int section,
+		      struct mtd_oob_region *oobecc);
+int mtd_ooblayout_find_eccregion(struct mtd_info *mtd, int eccbyte,
+				 int *section,
+				 struct mtd_oob_region *oobregion);
+int mtd_ooblayout_get_eccbytes(struct mtd_info *mtd, u8 *eccbuf,
+			       const u8 *oobbuf, int start, int nbytes);
+int mtd_ooblayout_set_eccbytes(struct mtd_info *mtd, const u8 *eccbuf,
+			       u8 *oobbuf, int start, int nbytes);
+int mtd_ooblayout_free(struct mtd_info *mtd, int section,
+		       struct mtd_oob_region *oobfree);
+int mtd_ooblayout_get_databytes(struct mtd_info *mtd, u8 *databuf,
+				const u8 *oobbuf, int start, int nbytes);
+int mtd_ooblayout_set_databytes(struct mtd_info *mtd, const u8 *databuf,
+				u8 *oobbuf, int start, int nbytes);
+int mtd_ooblayout_count_freebytes(struct mtd_info *mtd);
+int mtd_ooblayout_count_eccbytes(struct mtd_info *mtd);
+
+void mtd_set_ecclayout(struct mtd_info *mtd, struct nand_ecclayout *ecclayout);
+
+static inline void mtd_set_ooblayout(struct mtd_info *mtd,
+				     const struct mtd_ooblayout_ops *ooblayout)
+{
+	mtd->ooblayout = ooblayout;
+}
+
+static inline void mtd_set_pairing_scheme(struct mtd_info *mtd,
+				const struct mtd_pairing_scheme *pairing)
+{
+	mtd->pairing = pairing;
+}
+#endif  
+
+#if defined(MY_ABC_HERE)
+static inline void mtd_set_of_node(struct mtd_info *mtd,
+				   struct device_node *np)
+{
+	mtd->dev.of_node = np;
+}
+
+static inline struct device_node *mtd_get_of_node(struct mtd_info *mtd)
+{
+	return mtd->dev.of_node;
+}
+#endif  
+
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+static inline int mtd_oobavail(struct mtd_info *mtd, struct mtd_oob_ops *ops)
+{
+	return ops->mode == MTD_OPS_AUTO_OOB ? mtd->oobavail : mtd->oobsize;
+}
+
+int mtd_wunit_to_pairing_info(struct mtd_info *mtd, int wunit,
+			      struct mtd_pairing_info *info);
+int mtd_pairing_info_to_wunit(struct mtd_info *mtd,
+			      const struct mtd_pairing_info *info);
+int mtd_pairing_groups(struct mtd_info *mtd);
+#endif  
 int mtd_erase(struct mtd_info *mtd, struct erase_info *instr);
 int mtd_point(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen,
 	      void **virt, resource_size_t *phys);
@@ -268,6 +276,9 @@ int mtd_panic_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen,
 		    const u_char *buf);
 
 int mtd_read_oob(struct mtd_info *mtd, loff_t from, struct mtd_oob_ops *ops);
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+int mtd_write_oob(struct mtd_info *mtd, loff_t to, struct mtd_oob_ops *ops);
+#else  
 
 static inline int mtd_write_oob(struct mtd_info *mtd, loff_t to,
 				struct mtd_oob_ops *ops)
@@ -279,6 +290,7 @@ static inline int mtd_write_oob(struct mtd_info *mtd, loff_t to,
 		return -EROFS;
 	return mtd->_write_oob(mtd, to, ops);
 }
+#endif  
 
 int mtd_get_fact_prot_info(struct mtd_info *mtd, size_t len, size_t *retlen,
 			   struct otp_info *buf);
@@ -349,6 +361,24 @@ static inline uint32_t mtd_mod_by_ws(uint64_t sz, struct mtd_info *mtd)
 	return do_div(sz, mtd->writesize);
 }
 
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+static inline int mtd_wunit_per_eb(struct mtd_info *mtd)
+{
+	return mtd->erasesize / mtd->writesize;
+}
+
+static inline int mtd_offset_to_wunit(struct mtd_info *mtd, loff_t offs)
+{
+	return mtd_div_by_ws(mtd_mod_by_eb(offs, mtd), mtd);
+}
+
+static inline loff_t mtd_wunit_to_offset(struct mtd_info *mtd, loff_t base,
+					 int wunit)
+{
+	return base + (wunit * mtd->writesize);
+}
+
+#endif  
 static inline int mtd_has_oob(const struct mtd_info *mtd)
 {
 	return mtd->_read_oob && mtd->_write_oob;
@@ -363,8 +393,6 @@ static inline int mtd_can_have_bb(const struct mtd_info *mtd)
 {
 	return !!mtd->_block_isbad;
 }
-
-	/* Kernel-side ioctl definitions */
 
 struct mtd_partition;
 struct mtd_part_parser_data;
@@ -383,13 +411,11 @@ extern void __put_mtd_device(struct mtd_info *mtd);
 extern struct mtd_info *get_mtd_device_nm(const char *name);
 extern void put_mtd_device(struct mtd_info *mtd);
 
-
 struct mtd_notifier {
 	void (*add)(struct mtd_info *mtd);
 	void (*remove)(struct mtd_info *mtd);
 	struct list_head list;
 };
-
 
 extern void register_mtd_user (struct mtd_notifier *new);
 extern int unregister_mtd_user (struct mtd_notifier *old);
@@ -411,4 +437,11 @@ static inline int mtd_is_bitflip_or_eccerr(int err) {
 
 unsigned mtd_mmap_capabilities(struct mtd_info *mtd);
 
-#endif /* __MTD_MTD_H__ */
+#ifdef MY_ABC_HERE
+ 
+int SYNOMTDModifyPartInfo(struct mtd_info *mtd, unsigned long offset, unsigned long length);
+
+int SYNOMTDModifyFisInfo(struct mtd_info *mtd, struct SYNO_MTD_FIS_INFO SynoMtdFisInfo);
+#endif  
+
+#endif  

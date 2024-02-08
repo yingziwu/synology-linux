@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* b44.c: Broadcom 44xx/47xx Fast Ethernet device driver.
  *
  * Copyright (C) 2002 David S. Miller (davem@redhat.com)
@@ -35,7 +38,6 @@
 #include <asm/uaccess.h>
 #include <asm/io.h>
 #include <asm/irq.h>
-
 
 #include "b44.h"
 
@@ -102,7 +104,6 @@ MODULE_VERSION(DRV_MODULE_VERSION);
 static int b44_debug = -1;	/* -1 == use B44_DEF_MSG_ENABLE as value */
 module_param(b44_debug, int, 0);
 MODULE_PARM_DESC(b44_debug, "B44 bitmapped debugging message enable value");
-
 
 #ifdef CONFIG_B44_PCI
 static const struct pci_device_id b44_pci_tbl[] = {
@@ -2263,6 +2264,9 @@ static int b44_register_phy_one(struct b44 *bp)
 	mii_bus->parent = sdev->dev;
 	mii_bus->phy_mask = ~(1 << bp->phy_addr);
 	snprintf(mii_bus->id, MII_BUS_ID_SIZE, "%x", instance);
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 	mii_bus->irq = kmalloc(sizeof(int) * PHY_MAX_ADDR, GFP_KERNEL);
 	if (!mii_bus->irq) {
 		dev_err(sdev->dev, "mii_bus irq allocation failed\n");
@@ -2271,16 +2275,25 @@ static int b44_register_phy_one(struct b44 *bp)
 	}
 
 	memset(mii_bus->irq, PHY_POLL, sizeof(int) * PHY_MAX_ADDR);
+#endif /* MY_ABC_HERE */
 
 	bp->mii_bus = mii_bus;
 
 	err = mdiobus_register(mii_bus);
 	if (err) {
 		dev_err(sdev->dev, "failed to register MII bus\n");
+#if defined(MY_ABC_HERE)
+		goto err_out_mdiobus;
+#else /* MY_ABC_HERE */
 		goto err_out_mdiobus_irq;
+#endif /* MY_ABC_HERE */
 	}
 
+#if defined(MY_ABC_HERE)
+	if (!mdiobus_is_registered_device(bp->mii_bus, bp->phy_addr) &&
+#else /* MY_ABC_HERE */
 	if (!bp->mii_bus->phy_map[bp->phy_addr] &&
+#endif /* MY_ABC_HERE */
 	    (sprom->boardflags_lo & (B44_BOARDFLAG_ROBO | B44_BOARDFLAG_ADM))) {
 
 		dev_info(sdev->dev,
@@ -2313,19 +2326,29 @@ static int b44_register_phy_one(struct b44 *bp)
 
 	bp->phydev = phydev;
 	bp->old_link = 0;
+#if defined(MY_ABC_HERE)
+	bp->phy_addr = phydev->mdio.addr;
+
+	phy_attached_info(phydev);
+#else /* MY_ABC_HERE */
 	bp->phy_addr = phydev->addr;
 
 	dev_info(sdev->dev, "attached PHY driver [%s] (mii_bus:phy_addr=%s)\n",
 		 phydev->drv->name, dev_name(&phydev->dev));
+#endif /* MY_ABC_HERE */
 
 	return 0;
 
 err_out_mdiobus_unregister:
 	mdiobus_unregister(mii_bus);
 
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 err_out_mdiobus_irq:
 	kfree(mii_bus->irq);
 
+#endif /* MY_ABC_HERE */
 err_out_mdiobus:
 	mdiobus_free(mii_bus);
 
@@ -2339,7 +2362,11 @@ static void b44_unregister_phy_one(struct b44 *bp)
 
 	phy_disconnect(bp->phydev);
 	mdiobus_unregister(mii_bus);
+#if defined(MY_ABC_HERE)
+//do nothing
+#else /* MY_ABC_HERE */
 	kfree(mii_bus->irq);
+#endif /* MY_ABC_HERE */
 	mdiobus_free(mii_bus);
 }
 
@@ -2612,4 +2639,3 @@ static void __exit b44_cleanup(void)
 
 module_init(b44_init);
 module_exit(b44_cleanup);
-

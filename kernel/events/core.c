@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Performance events core code:
  *
@@ -257,11 +260,20 @@ static void perf_duration_warn(struct irq_work *w)
 	local_samples_len = __this_cpu_read(running_sample_length);
 	avg_local_sample_len = local_samples_len/NR_ACCUMULATED_SAMPLES;
 
+#ifdef MY_ABC_HERE
+	printk_ratelimited(KERN_INFO
+			"perf interrupt took too long (%lld > %lld), lowering "
+			"kernel.perf_event_max_sample_rate to %d\n",
+			avg_local_sample_len, allowed_ns >> 1,
+			sysctl_perf_event_sample_rate);
+
+#else /* MY_ABC_HERE */
 	printk_ratelimited(KERN_WARNING
 			"perf interrupt took too long (%lld > %lld), lowering "
 			"kernel.perf_event_max_sample_rate to %d\n",
 			avg_local_sample_len, allowed_ns >> 1,
 			sysctl_perf_event_sample_rate);
+#endif /* MY_ABC_HERE */
 }
 
 static DEFINE_IRQ_WORK(perf_duration_work, perf_duration_warn);
@@ -1677,7 +1689,6 @@ static int __perf_remove_from_context(void *info)
 
 	return 0;
 }
-
 
 /*
  * Remove the event from a task's (or a CPU's) list of events.
@@ -4952,9 +4963,9 @@ static int perf_fasync(int fd, struct file *filp, int on)
 	struct perf_event *event = filp->private_data;
 	int retval;
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	retval = fasync_helper(fd, filp, on, &event->fasync);
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 
 	if (retval < 0)
 		return retval;
@@ -5081,7 +5092,6 @@ static void perf_sample_regs_intr(struct perf_regs *regs_intr,
 	regs_intr->regs = regs;
 	regs_intr->abi  = perf_reg_abi(current);
 }
-
 
 /*
  * Get remaining task size from user stack pointer.
@@ -7108,6 +7118,7 @@ static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd)
 	}
 
 	event->tp_event->prog = prog;
+	event->tp_event->bpf_prog_owner = event;
 
 	return 0;
 }
@@ -7120,7 +7131,7 @@ static void perf_event_free_bpf_prog(struct perf_event *event)
 		return;
 
 	prog = event->tp_event->prog;
-	if (prog) {
+	if (prog && event->tp_event->bpf_prog_owner == event) {
 		event->tp_event->prog = NULL;
 		bpf_prog_put_rcu(prog);
 	}
@@ -7901,7 +7912,6 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
 	INIT_LIST_HEAD(&event->rb_entry);
 	INIT_LIST_HEAD(&event->active_entry);
 	INIT_HLIST_NODE(&event->hlist_entry);
-
 
 	init_waitqueue_head(&event->waitq);
 	init_irq_work(&event->pending, perf_pending_event);
@@ -9452,6 +9462,7 @@ ssize_t perf_event_sysfs_show(struct device *dev, struct device_attribute *attr,
 
 	return 0;
 }
+EXPORT_SYMBOL_GPL(perf_event_sysfs_show);
 
 static int __init perf_event_sysfs_init(void)
 {

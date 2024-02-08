@@ -829,7 +829,6 @@ static inline enum wl_class_t cfqq_class(struct cfq_queue *cfqq)
 	return BE_WORKLOAD;
 }
 
-
 static enum wl_type_t cfqq_type(struct cfq_queue *cfqq)
 {
 	if (!cfq_cfqq_sync(cfqq))
@@ -3810,7 +3809,8 @@ cfq_get_queue(struct cfq_data *cfqd, bool is_sync, struct cfq_io_cq *cic,
 			goto out;
 	}
 
-	cfqq = kmem_cache_alloc_node(cfq_pool, GFP_NOWAIT | __GFP_ZERO,
+	cfqq = kmem_cache_alloc_node(cfq_pool,
+				     GFP_NOWAIT | __GFP_ZERO | __GFP_NOWARN,
 				     cfqd->queue->node);
 	if (!cfqq) {
 		cfqq = &cfqd->oom_cfqq;

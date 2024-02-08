@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright 2009-2012 Freescale Semiconductor, Inc. All Rights Reserved.
  *
@@ -33,7 +36,6 @@ static inline struct mc9s08dz60 *to_mc9s08dz60(struct gpio_chip *gc)
 {
 	return container_of(gc, struct mc9s08dz60, chip);
 }
-
 
 static void mc9s_gpio_to_reg_and_bit(int offset, u8 *reg, u8 *bit)
 {
@@ -72,7 +74,6 @@ static int mc9s08dz60_set(struct mc9s08dz60 *mc9s, unsigned offset, int val)
 
 }
 
-
 static void mc9s08dz60_set_value(struct gpio_chip *gc, unsigned offset, int val)
 {
 	struct mc9s08dz60 *mc9s = to_mc9s08dz60(gc);
@@ -99,7 +100,11 @@ static int mc9s08dz60_probe(struct i2c_client *client,
 
 	mc9s->chip.label = client->name;
 	mc9s->chip.base = -1;
+#if defined(MY_ABC_HERE)
+	mc9s->chip.parent = &client->dev;
+#else /* MY_ABC_HERE */
 	mc9s->chip.dev = &client->dev;
+#endif /* MY_ABC_HERE */
 	mc9s->chip.owner = THIS_MODULE;
 	mc9s->chip.ngpio = GPIO_NUM;
 	mc9s->chip.can_sleep = true;

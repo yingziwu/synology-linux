@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * MC33880 high-side/low-side switch GPIO driver
  * Copyright (c) 2009 Intel Corporation
@@ -40,7 +43,6 @@
 
 #define PIN_NUMBER 8
 
-
 /*
  * Some registers must be read back to modify.
  * To save time we cache them here in memory
@@ -57,7 +59,6 @@ static int mc33880_write_config(struct mc33880 *mc)
 	return spi_write(mc->spi, &mc->port_config, sizeof(mc->port_config));
 }
 
-
 static int __mc33880_set(struct mc33880 *mc, unsigned offset, int value)
 {
 	if (value)
@@ -67,7 +68,6 @@ static int __mc33880_set(struct mc33880 *mc, unsigned offset, int value)
 
 	return mc33880_write_config(mc);
 }
-
 
 static void mc33880_set(struct gpio_chip *chip, unsigned offset, int value)
 {
@@ -116,7 +116,11 @@ static int mc33880_probe(struct spi_device *spi)
 	mc->chip.base = pdata->base;
 	mc->chip.ngpio = PIN_NUMBER;
 	mc->chip.can_sleep = true;
+#if defined(MY_ABC_HERE)
+	mc->chip.parent = &spi->dev;
+#else /* MY_ABC_HERE */
 	mc->chip.dev = &spi->dev;
+#endif /* MY_ABC_HERE */
 	mc->chip.owner = THIS_MODULE;
 
 	mc->port_config = 0x00;
@@ -185,4 +189,3 @@ module_exit(mc33880_exit);
 
 MODULE_AUTHOR("Mocean Laboratories <info@mocean-labs.com>");
 MODULE_LICENSE("GPL v2");
-
