@@ -460,6 +460,7 @@ static int ak4642_resume(struct snd_soc_codec *codec)
 	return 0;
 }
 
+
 static int ak4642_probe(struct snd_soc_codec *codec)
 {
 	int ret;

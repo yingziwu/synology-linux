@@ -20,6 +20,7 @@
 #include <linux/kernel.h>
 #include <linux/if_arp.h>
 
+
 /*
  *      scan.c wext.c autojoin.c
  */
@@ -32,6 +33,7 @@ typedef struct scan_info {
     int info_elem_length;
 
 } scan_info_t;
+
 
 #define IE_VECTOR_MAXLEN 1024
 
@@ -82,6 +84,7 @@ struct wext_config {
 
     struct iw_statistics wireless_stats;
 
+
     /* the ESSID we are currently associated to */
     unsigned char current_ssid[UNIFI_MAX_SSID_LEN];
     /* the BSSID we are currently associated to */
@@ -130,6 +133,7 @@ struct wext_config {
 
 #endif /* CSR_SUPPORT_WEXT */
 
+
 /*
  *      wext.c
  */
@@ -148,6 +152,7 @@ void unifi_scan_indication_handler(unifi_priv_t *priv,
 */
 void unifi_clear_scan_table(unifi_priv_t *priv);
 scan_info_t *unifi_get_scan_report(unifi_priv_t *priv, int index);
+
 
 /*
  * Utility functions
@@ -188,6 +193,7 @@ void uf_deinit_wext_interface(unifi_priv_t *priv);
  */
 int unifi_reset_state(unifi_priv_t *priv, unsigned char *macaddr, unsigned char set_default_mib);
 
+
 /*
  *      mlme.c
  */
@@ -206,6 +212,7 @@ void unifi_mlme_copy_reply_and_wakeup_client(ul_client_t *pcli,
  */
 const char *lookup_reason_code(int reason);
 const char *lookup_result_code(int result);
+
 
 /*
  *      sme_native.c

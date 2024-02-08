@@ -54,6 +54,7 @@ static unsigned int enable_blkdev = 1;
 module_param(enable_blkdev , uint, 0444);
 MODULE_PARM_DESC(enable_blkdev, "Enable block device interfaces");
 
+
 struct rsxx_bio_meta {
 	struct bio	*bio;
 	atomic_t	pending_dmas;
@@ -362,3 +363,5 @@ void rsxx_dev_cleanup(void)
 {
 	kmem_cache_destroy(bio_meta_pool);
 }
+
+

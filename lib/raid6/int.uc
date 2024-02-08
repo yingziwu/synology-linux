@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright 2002-2004 H. Peter Anvin - All Rights Reserved
@@ -107,7 +110,7 @@ static void raid6_int$#_gen_syndrome(int disks, size_t bytes, void **ptrs)
 	}
 }
 
-#ifdef CONFIG_SYNO_MD_RAID6_RMW
+#ifdef MY_ABC_HERE
 static void raid6_int$#_xor_syndrome(int disks, int start, int stop,
 				     size_t bytes, void **ptrs)
 {
@@ -146,12 +149,12 @@ static void raid6_int$#_xor_syndrome(int disks, int start, int stop,
 
 }
 
-#endif /* CONFIG_SYNO_MD_RAID6_RMW */
+#endif /* MY_ABC_HERE */
 const struct raid6_calls raid6_intx$# = {
 	raid6_int$#_gen_syndrome,
-#ifdef CONFIG_SYNO_MD_RAID6_RMW
+#ifdef MY_ABC_HERE
 	raid6_int$#_xor_syndrome,
-#endif /* CONFIG_SYNO_MD_RAID6_RMW */
+#endif /* MY_ABC_HERE */
 	NULL,		/* always valid */
 	"int" NSTRING "x$#",
 	0

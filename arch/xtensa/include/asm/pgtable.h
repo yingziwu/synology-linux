@@ -278,6 +278,7 @@ set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pteval)
 	update_pte(ptep, pteval);
 }
 
+
 static inline void
 set_pmd(pmd_t *pmdp, pmd_t pmdval)
 {
@@ -330,6 +331,7 @@ ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
 #define pte_offset_map(dir,addr)	pte_offset_kernel((dir),(addr))
 #define pte_unmap(pte)		do { } while (0)
 
+
 /*
  * Encode and decode a swap entry.
  *
@@ -362,6 +364,7 @@ ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
 	((pte_t) { ((off) << 4) | _PAGE_INVALID | _PAGE_FILE })
 
 #endif /*  !defined (__ASSEMBLY__) */
+
 
 #ifdef __ASSEMBLY__
 

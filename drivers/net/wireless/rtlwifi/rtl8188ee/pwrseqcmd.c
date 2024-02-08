@@ -29,6 +29,7 @@
 
 #include "pwrseq.h"
 
+
 /*	Description:
  *		This routine deal with the Power Configuration CMDs
  *		 parsing for RTL8723/RTL8188E Series IC.

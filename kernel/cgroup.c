@@ -1266,6 +1266,7 @@ static int parse_cgroupfs_options(char *data, struct cgroup_sb_opts *opts)
 	if ((opts->flags & CGRP_ROOT_NOPREFIX) && (opts->subsys_mask & mask))
 		return -EINVAL;
 
+
 	/* Can't specify "none" and some subsystems */
 	if (opts->subsys_mask && opts->none)
 		return -EINVAL;
@@ -1905,6 +1906,7 @@ int cgroup_taskset_size(struct cgroup_taskset *tset)
 	return tset->tc_array ? tset->tc_array_len : 1;
 }
 EXPORT_SYMBOL_GPL(cgroup_taskset_size);
+
 
 /*
  * cgroup_task_migrate - move a task from one cgroup to another.
@@ -3546,6 +3548,7 @@ int cgroupstats_build(struct cgroupstats *stats, struct dentry *dentry)
 err:
 	return ret;
 }
+
 
 /*
  * seq_file methods for the tasks/procs files. The seq_file position is the

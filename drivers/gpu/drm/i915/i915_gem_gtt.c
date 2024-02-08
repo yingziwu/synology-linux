@@ -75,6 +75,7 @@ static int sanitize_enable_ppgtt(struct drm_device *dev, int enable_ppgtt)
 	return has_aliasing_ppgtt ? 1 : 0;
 }
 
+
 static void ppgtt_bind_vma(struct i915_vma *vma,
 			   enum i915_cache_level cache_level,
 			   u32 flags);
@@ -771,6 +772,7 @@ static int gen6_mm_switch(struct i915_hw_ppgtt *ppgtt,
 	struct drm_device *dev = ppgtt->base.dev;
 	struct drm_i915_private *dev_priv = dev->dev_private;
 
+
 	I915_WRITE(RING_PP_DIR_DCLV(ring), PP_DIR_DCLV_2G);
 	I915_WRITE(RING_PP_DIR_BASE(ring), get_pd_offset(ppgtt));
 
@@ -1344,6 +1346,7 @@ void i915_gem_restore_gtt_mappings(struct drm_device *dev)
 		vma->bind_vma(vma, obj->cache_level, GLOBAL_BIND);
 	}
 
+
 	if (INTEL_INFO(dev)->gen >= 8) {
 		if (IS_CHERRYVIEW(dev))
 			chv_setup_private_ppat(dev_priv);
@@ -1524,6 +1527,7 @@ static void gen6_ggtt_clear_range(struct i915_address_space *vm,
 		iowrite32(scratch_pte, &gtt_base[i]);
 	readl(gtt_base);
 }
+
 
 static void i915_ggtt_bind_vma(struct i915_vma *vma,
 			       enum i915_cache_level cache_level,

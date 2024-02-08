@@ -63,6 +63,7 @@ struct logger_log {
 
 static LIST_HEAD(log_list);
 
+
 /**
  * struct logger_reader - a logging device open for reading
  * @log:	The associated log
@@ -87,6 +88,7 @@ static size_t logger_offset(struct logger_log *log, size_t n)
 {
 	return n & (log->size - 1);
 }
+
 
 /*
  * file_get_log - Given a file structure, return the associated log
@@ -839,6 +841,7 @@ static void __exit logger_exit(void)
 		kfree(current_log);
 	}
 }
+
 
 device_initcall(logger_init);
 module_exit(logger_exit);

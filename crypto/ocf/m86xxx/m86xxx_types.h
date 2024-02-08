@@ -42,6 +42,7 @@
 //
 //-----------------------------------------------------------------------*/
 
+
 #ifndef _ELPTYPES_H_
 #define _ELPTYPES_H_
 
@@ -73,10 +74,13 @@
 #include <asm/uaccess.h>        /* copy_*_user */
 #include <asm/io.h>             /* memcpy_fromio */
 
+
 #define MEM_FREE_MAP(d,s,v,r)	dma_free_coherent(d,s,v,(dma_addr_t)(r))
 #define MEM_ALLOC_MAP(d,s,r)	dma_alloc_coherent(d,s,(dma_addr_t *)(r), GFP_KERNEL)
 #define MEM_UNMAP(d,m,s)	dma_unmap_single(d,(dma_addr_t)(m),(size_t)(s),DMA_BIDIRECTIONAL)
 #define MEM_MAP(d,m,s)		(U32*)dma_map_single(d,m,(size_t)(s),DMA_BIDIRECTIONAL)
+
+
 
 #define USE_IT(x) ((x)=(x))
 
@@ -101,6 +105,7 @@ typedef struct elp_id_s
   struct pci_dev *data;
 
 } elp_id;
+
 
 // This structure defines control and access registers and memory regions
 // mapped into host virtual and physical memory

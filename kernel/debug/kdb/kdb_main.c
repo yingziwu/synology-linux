@@ -126,6 +126,7 @@ static kdbmsg_t kdbmsgs[] = {
 
 static const int __nkdb_err = ARRAY_SIZE(kdbmsgs);
 
+
 /*
  * Initial environment.   This is all kept static and local to
  * this file.   We don't want to rely on the memory allocation
@@ -1049,6 +1050,7 @@ int kdb_parse(const char *cmdstr)
 	}
 }
 
+
 static int handle_ctrl_cmd(char *cmd)
 {
 #define CTRL_P	16
@@ -1295,6 +1297,7 @@ do_full_getstr:
 	KDB_DEBUG_STATE("kdb_local 9", diag);
 	return diag;
 }
+
 
 /*
  * kdb_print_state - Print the state data for the current processor
@@ -2695,6 +2698,7 @@ int kdb_register_repeat(char *cmd,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(kdb_register_repeat);
+
 
 /*
  * kdb_register - Compatibility register function for commands that do

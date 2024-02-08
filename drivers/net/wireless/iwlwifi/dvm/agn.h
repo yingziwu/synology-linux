@@ -84,6 +84,7 @@ extern struct iwl_lib_ops iwl5150_lib;
 extern struct iwl_lib_ops iwl6000_lib;
 extern struct iwl_lib_ops iwl6030_lib;
 
+
 #define TIME_UNIT		1024
 
 /*****************************************************
@@ -200,6 +201,7 @@ int iwlagn_hwrate_to_mac80211_idx(u32 rate_n_flags, enum ieee80211_band band);
 void iwl_setup_rx_handlers(struct iwl_priv *priv);
 void iwl_chswitch_done(struct iwl_priv *priv, bool is_success);
 
+
 /* tx */
 int iwlagn_tx_skb(struct iwl_priv *priv,
 		  struct ieee80211_sta *sta,
@@ -275,6 +277,7 @@ void iwl_scan_offchannel_skb_status(struct iwl_priv *priv);
 
 #define IWL_SCAN_CHECK_WATCHDOG		(HZ * 15)
 
+
 /* bt coex */
 void iwlagn_send_advance_bt_config(struct iwl_priv *priv);
 int iwlagn_bt_coex_profile_notif(struct iwl_priv *priv,
@@ -300,6 +303,7 @@ static inline const char *iwl_get_tx_fail_reason(u32 status) { return ""; }
 static inline const char *iwl_get_agg_tx_fail_reason(u16 status) { return ""; }
 #endif
 
+
 /* station management */
 int iwlagn_manage_ibss_station(struct iwl_priv *priv,
 			       struct ieee80211_vif *vif, bool add);
@@ -310,6 +314,7 @@ int iwlagn_manage_ibss_station(struct iwl_priv *priv,
 #define IWL_STA_LOCAL BIT(3) /* station state not directed by mac80211;
 				(this is for the IBSS BSSID stations) */
 #define IWL_STA_BCAST BIT(4) /* this station is the special bcast station */
+
 
 void iwl_restore_stations(struct iwl_priv *priv, struct iwl_rxon_context *ctx);
 void iwl_clear_ucode_stations(struct iwl_priv *priv,

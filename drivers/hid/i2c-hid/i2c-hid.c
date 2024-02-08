@@ -326,6 +326,15 @@ static int i2c_hid_hwreset(struct i2c_client *client)
 	if (ret)
 		return ret;
 
+	/*
+	 * The HID over I2C specification states that if a DEVICE needs time
+	 * after the PWR_ON request, it should utilise CLOCK stretching.
+	 * However, it has been observered that the Windows driver provides a
+	 * 1ms sleep between the PWR_ON and RESET requests and that some devices
+	 * rely on this.
+	 */
+	usleep_range(1000, 5000);
+
 	i2c_hid_dbg(ihid, "resetting...\n");
 
 	ret = i2c_hid_command(client, &hid_reset_cmd, NULL, 0);
@@ -1080,6 +1089,7 @@ static const struct i2c_device_id i2c_hid_id_table[] = {
 	{ },
 };
 MODULE_DEVICE_TABLE(i2c, i2c_hid_id_table);
+
 
 static struct i2c_driver i2c_hid_driver = {
 	.driver = {

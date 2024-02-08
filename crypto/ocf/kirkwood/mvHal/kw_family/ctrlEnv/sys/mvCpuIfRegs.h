@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCpuIfRegsh
 #define __INCmvCpuIfRegsh
 
@@ -78,8 +79,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CPU_FTDLL_CONFIG_REG			0x20120
 #define CPU_L2_CONFIG_REG			0x20128
 
+
+
 /* ARM Configuration register */
 /* CPU_CONFIG_REG (CCR) */
+
 
 /* Reset vector location */
 #define CCR_VEC_INIT_LOC_OFFS			1
@@ -89,6 +93,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* reset at 0xFFFF0000 */
 #define CCR_VEC_INIT_LOC_FF00			(1 << CCR_VEC_INIT_LOC_OFFS)
 
+
 #define CCR_AHB_ERROR_PROP_OFFS			2
 #define CCR_AHB_ERROR_PROP_MASK			BIT2
 /* Erros are not propogated to AHB */
@@ -96,14 +101,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Erros are propogated to AHB */
 #define CCR_AHB_ERROR_PROP_INDICATE		(1 << CCR_AHB_ERROR_PROP_OFFS)
 
+
 #define CCR_ENDIAN_INIT_OFFS			3
 #define CCR_ENDIAN_INIT_MASK			BIT3
 #define CCR_ENDIAN_INIT_LITTLE			(0 << CCR_ENDIAN_INIT_OFFS)
 #define CCR_ENDIAN_INIT_BIG			(1 << CCR_ENDIAN_INIT_OFFS)
 
+
 #define CCR_INCR_EN_OFFS			4
 #define CCR_INCR_EN_MASK			BIT4
 #define CCR_INCR_EN				BIT4
+
 
 #define CCR_NCB_BLOCKING_OFFS			5
 #define CCR_NCB_BLOCKING_MASK			(1 << CCR_NCB_BLOCKING_OFFS)
@@ -155,6 +163,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ARM Control and Status register */
 /* CPU_CTRL_STAT_REG (CCSR) */
 
+
 /*
 This is used to block PCI express\PCI from access Socrates/Feroceon GP
 while ARM boot is still in progress
@@ -168,6 +177,7 @@ while ARM boot is still in progress
 #define CCSR_ARM_RESET				BIT1
 #define CCSR_SELF_INT				BIT2
 #define CCSR_BIG_ENDIAN				BIT15
+
 
 /* RSTOUTn Mask Register */
 /* CPU_RSTOUTN_MASK_REG (CRMR) */
@@ -200,6 +210,7 @@ while ARM boot is still in progress
 #define CAMCIR_ARM_TIMER1_INT_REQ		BIT2
 #define CAMCIR_ARM_WD_TIMER_INT_REQ		BIT3
 
+
 /* AHB to Mbus Bridge Interrupt Mask Register*/
 /* CPU_AHB_MBUS_MASK_INT_REG (CAMMIR) */
 
@@ -207,6 +218,7 @@ while ARM boot is still in progress
 #define CAMCIR_ARM_SELF_INT_MASK		BIT0
 #define CAMCIR_ARM_SELF_INT_EN			(1 << CAMCIR_ARM_SELF_INT_OFFS)
 #define CAMCIR_ARM_SELF_INT_DIS			(0 << CAMCIR_ARM_SELF_INT_OFFS)
+
 
 #define CAMCIR_ARM_TIMER0_INT_REQ_OFFS		1
 #define CAMCIR_ARM_TIMER0_INT_REQ_MASK		BIT1
@@ -264,6 +276,7 @@ while ARM boot is still in progress
 #define CPU_MAIN_FIQ_MASK_HIGH_REG		0x20218
 #define CPU_ENPOINT_MASK_HIGH_REG		0x2021C
 
+
 /*******************************************/
 /* ARM Doorbell Registers Map		   */
 /*******************************************/
@@ -273,6 +286,8 @@ while ARM boot is still in progress
 #define CPU_ARM_TO_HOST_DRBL_REG		0x20408
 #define CPU_ARM_TO_HOST_MASK_REG		0x2040C
 
+
+
 /* CPU control register map */
 /* Set bits means value is about to change according to new value */
 #define CPU_CONFIG_DEFAULT_MASK         	(CCR_VEC_INIT_LOC_MASK  | CCR_AHB_ERROR_PROP_MASK)
@@ -281,6 +296,7 @@ while ARM boot is still in progress
 
 /* CPU Control and status defaults */
 #define CPU_CTRL_STAT_DEFAULT_MASK              (CCSR_PCI_ACCESS_MASK)
+
 
 #define CPU_CTRL_STAT_DEFAULT                   (CCSR_PCI_ACCESS_ENABLE)
 

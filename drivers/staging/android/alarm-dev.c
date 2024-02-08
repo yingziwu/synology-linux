@@ -60,11 +60,13 @@ struct devalarm {
 
 static struct devalarm alarms[ANDROID_ALARM_TYPE_COUNT];
 
+
 static int is_wakeup(enum android_alarm_type type)
 {
 	return (type == ANDROID_ALARM_RTC_WAKEUP ||
 		type == ANDROID_ALARM_ELAPSED_REALTIME_WAKEUP);
 }
+
 
 static void devalarm_start(struct devalarm *alrm, ktime_t exp)
 {
@@ -73,6 +75,7 @@ static void devalarm_start(struct devalarm *alrm, ktime_t exp)
 	else
 		hrtimer_start(&alrm->u.hrt, exp, HRTIMER_MODE_ABS);
 }
+
 
 static int devalarm_try_to_cancel(struct devalarm *alrm)
 {
@@ -364,6 +367,7 @@ static void devalarm_triggered(struct devalarm *alarm)
 	spin_unlock_irqrestore(&alarm_slock, flags);
 }
 
+
 static enum hrtimer_restart devalarm_hrthandler(struct hrtimer *hrt)
 {
 	struct devalarm *devalrm = container_of(hrt, struct devalarm, u.hrt);
@@ -380,6 +384,7 @@ static enum alarmtimer_restart devalarm_alarmhandler(struct alarm *alrm,
 	devalarm_triggered(devalrm);
 	return ALARMTIMER_NORESTART;
 }
+
 
 static const struct file_operations alarm_fops = {
 	.owner = THIS_MODULE,
@@ -435,3 +440,4 @@ static void  __exit alarm_dev_exit(void)
 
 module_init(alarm_dev_init);
 module_exit(alarm_dev_exit);
+

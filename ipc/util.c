@@ -431,6 +431,7 @@ static int ipcget_public(struct ipc_namespace *ns, struct ipc_ids *ids,
 	return err;
 }
 
+
 /**
  *	ipc_rmid	-	remove an IPC identifier
  *	@ids: IPC identifier set
@@ -581,6 +582,7 @@ int ipcperms(struct ipc_namespace *ns, struct kern_ipc_perm *ipcp, short flag)
  *	for returning to userspace (@out).
  */
  
+
 void kernel_to_ipc64_perm (struct kern_ipc_perm *in, struct ipc64_perm *out)
 {
 	out->key	= in->key;
@@ -776,6 +778,7 @@ err:
 }
 
 #ifdef CONFIG_ARCH_WANT_IPC_PARSE_VERSION
+
 
 /**
  *	ipc_parse_version	-	IPC call version

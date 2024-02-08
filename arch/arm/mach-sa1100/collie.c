@@ -222,6 +222,7 @@ device_initcall(collie_uart_init);
 
 #endif
 
+
 static struct resource locomo_resources[] = {
 	[0] = DEFINE_RES_MEM(0x40000000, SZ_8K),
 	[1] = DEFINE_RES_IRQ(IRQ_GPIO25),
@@ -351,6 +352,7 @@ static void __init collie_init(void)
 	collie_power_resource[0].end = gpio_to_irq(COLLIE_GPIO_AC_IN);
 
 	sa11x0_ppc_configure_mcp();
+
 
 	platform_scoop_config = &collie_pcmcia_config;
 

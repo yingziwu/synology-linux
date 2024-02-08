@@ -69,9 +69,11 @@
 #define SYS_CFGSTAT_ERR		(1 << 1)
 #define SYS_CFGSTAT_COMPLETE	(1 << 0)
 
+
 static void __iomem *vexpress_sysreg_base;
 static struct device *vexpress_sysreg_dev;
 static int vexpress_master_site;
+
 
 void vexpress_flags_set(u32 data)
 {
@@ -111,6 +113,7 @@ void __iomem *vexpress_get_24mhz_clock_base(void)
 	return vexpress_sysreg_base + SYS_24MHZ;
 }
 
+
 static void vexpress_sysreg_find_prop(struct device_node *node,
 		const char *name, u32 *val)
 {
@@ -149,6 +152,7 @@ unsigned __vexpress_get_site(struct device *dev, struct device_node *node)
 
 	return site;
 }
+
 
 struct vexpress_sysreg_config_func {
 	u32 template;
@@ -310,6 +314,7 @@ static void vexpress_sysreg_config_complete(unsigned long data)
 	vexpress_config_complete(vexpress_sysreg_config_bridge, status);
 }
 
+
 void vexpress_sysreg_setup(struct device_node *node)
 {
 	if (WARN_ON(!vexpress_sysreg_base))
@@ -344,6 +349,7 @@ void __init vexpress_sysreg_of_early_init(void)
 		vexpress_sysreg_setup(node);
 	}
 }
+
 
 #define VEXPRESS_SYSREG_GPIO(_name, _reg, _value) \
 	[VEXPRESS_GPIO_##_name] = { \
@@ -415,6 +421,7 @@ static struct gpio_chip vexpress_sysreg_gpio_chip = {
 	.base = 0,
 };
 
+
 #define VEXPRESS_SYSREG_GREEN_LED(_name, _default_trigger, _gpio) \
 	{ \
 		.name = "v2m:green:"_name, \
@@ -437,6 +444,7 @@ struct gpio_led_platform_data vexpress_sysreg_leds_pdata = {
 	.num_leds = ARRAY_SIZE(vexpress_sysreg_leds),
 	.leds = vexpress_sysreg_leds,
 };
+
 
 static ssize_t vexpress_sysreg_sys_id_show(struct device *dev,
 		struct device_attribute *attr, char *buf)

@@ -422,6 +422,7 @@ static int is_co_apic(unsigned int irq)
 	}
 }
 
+
 /*
  * This is the SGI Cobalt (IO-)APIC:
  */
@@ -454,6 +455,7 @@ static struct irq_chip cobalt_irq_type = {
 	.irq_disable	= disable_cobalt_irq,
 	.irq_ack	= ack_cobalt_irq,
 };
+
 
 /*
  * This is the PIIX4-based 8259 that is wired up indirectly to Cobalt

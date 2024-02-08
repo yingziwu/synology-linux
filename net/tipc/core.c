@@ -51,6 +51,7 @@ int tipc_max_ports __read_mostly;
 int tipc_net_id __read_mostly;
 int tipc_remote_management __read_mostly;
 
+
 /**
  * tipc_buf_acquire - creates a TIPC message buffer
  * @size: message size (including TIPC header)
@@ -146,6 +147,7 @@ static int tipc_core_start(void)
 
 	return res;
 }
+
 
 static int __init tipc_init(void)
 {

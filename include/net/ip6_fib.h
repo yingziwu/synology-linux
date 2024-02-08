@@ -235,6 +235,7 @@ struct rt6_statistics {
  *
  */
 
+
 struct fib6_table {
 	struct hlist_node	tb6_hlist;
 	u32			tb6_id;

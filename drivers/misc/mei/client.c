@@ -45,6 +45,7 @@ int mei_me_cl_by_uuid(const struct mei_device *dev, const uuid_le *uuid)
 	return res;
 }
 
+
 /**
  * mei_me_cl_by_id return index to me_clients for client_id
  *
@@ -70,6 +71,7 @@ int mei_me_cl_by_id(struct mei_device *dev, u8 client_id)
 
 	return i;
 }
+
 
 /**
  * mei_io_list_flush - removes list entry belonging to cl.
@@ -176,6 +178,8 @@ int mei_io_cb_alloc_resp_buf(struct mei_cl_cb *cb, size_t length)
 	return 0;
 }
 
+
+
 /**
  * mei_cl_flush_queues - flushes queue lists belonging to cl.
  *
@@ -196,6 +200,7 @@ int mei_cl_flush_queues(struct mei_cl *cl)
 	mei_io_list_flush(&cl->dev->amthif_rd_complete_list, cl);
 	return 0;
 }
+
 
 /**
  * mei_cl_init - initializes intialize cl.
@@ -326,6 +331,7 @@ int mei_cl_unlink(struct mei_cl *cl)
 	return 0;
 }
 
+
 void mei_host_client_init(struct work_struct *work)
 {
 	struct mei_device *dev = container_of(work,
@@ -362,6 +368,7 @@ void mei_host_client_init(struct work_struct *work)
 
 	mutex_unlock(&dev->device_lock);
 }
+
 
 /**
  * mei_cl_disconnect - disconnect host clinet form the me one
@@ -435,6 +442,7 @@ free:
 	mei_io_cb_free(cb);
 	return rets;
 }
+
 
 /**
  * mei_cl_is_other_connecting - checks if other
@@ -693,6 +701,7 @@ int mei_cl_write(struct mei_cl *cl, struct mei_cl_cb *cb, bool blocking)
 	struct mei_msg_hdr mei_hdr;
 	int rets;
 
+
 	if (WARN_ON(!cl || !cl->dev))
 		return -ENODEV;
 
@@ -701,9 +710,11 @@ int mei_cl_write(struct mei_cl *cl, struct mei_cl_cb *cb, bool blocking)
 
 	dev = cl->dev;
 
+
 	buf = &cb->request_buffer;
 
 	dev_dbg(&dev->pdev->dev, "mei_cl_write %d\n", buf->size);
+
 
 	cb->fop_type = MEI_FOP_WRITE;
 
@@ -739,6 +750,7 @@ int mei_cl_write(struct mei_cl *cl, struct mei_cl_cb *cb, bool blocking)
 	dev_dbg(&dev->pdev->dev, "write " MEI_HDR_FMT "\n",
 		MEI_HDR_PRM(&mei_hdr));
 
+
 	if (mei_write_message(dev, &mei_hdr, buf->data)) {
 		rets = -EIO;
 		goto err;
@@ -759,6 +771,7 @@ out:
 		list_add_tail(&cb->list, &dev->write_list.list);
 	}
 
+
 	if (blocking && cl->writing_state != MEI_WRITE_COMPLETE) {
 
 		mutex_unlock(&dev->device_lock);
@@ -774,6 +787,8 @@ out:
 err:
 	return rets;
 }
+
+
 
 /**
  * mei_cl_all_disconnect - disconnect forcefully all connected clients
@@ -791,6 +806,7 @@ void mei_cl_all_disconnect(struct mei_device *dev)
 		cl->timer_count = 0;
 	}
 }
+
 
 /**
  * mei_cl_all_read_wakeup  - wake up all readings so they can be interrupted
@@ -830,3 +846,5 @@ void mei_cl_all_write_clear(struct mei_device *dev)
 		mei_io_cb_free(cb);
 	}
 }
+
+

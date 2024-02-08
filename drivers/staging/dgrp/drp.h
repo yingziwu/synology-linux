@@ -29,6 +29,7 @@
 #include <linux/semaphore.h>
 #include <linux/tty.h>
 
+
 #include "digirp.h"
 
 /************************************************************************
@@ -116,6 +117,7 @@
 #define OPEN_WAIT_CARRIER(cat)		(((cat) & 0x40) == 0x000)
 #define OPEN_FORCES_CARRIER(cat)	(((cat) & 0x40) != 0x000)
 
+
 /************************************************************************
  * Modem signal defines for 16450/16550 compatible FEP.
  * set in ch_mout, ch_mflow, ch_mlast etc
@@ -135,6 +137,7 @@
 #define DM_RI		0x40
 #define DM_CD		0x80		/* This is the DCD flag */
 
+
 /************************************************************************
  * Realport Event Flags.
  ************************************************************************/
@@ -149,6 +152,7 @@
 #define EV_TXI		0x0080		/* Transmit immediate pending */
 #define EV_TXF		0x0100		/* Transmit flow control pending */
 #define EV_RXB		0x0200		/* Break received */
+
 
 /************************************************************************
  * Realport CFLAGS.
@@ -165,6 +169,7 @@
 #define CF_PARODD	0x0200		/* Odd parity */
 #define CF_HUPCL	0x0400		/* Drop DTR on close */
 
+
 /************************************************************************
  * Realport XFLAGS.
  ************************************************************************/
@@ -175,6 +180,7 @@
 #define XF_XEDATA	0x0008		/* Error data in stream */
 #define XF_XTOSS	0x0010		/* Toss IXANY characters */
 #define XF_XIXON	0x0020		/* xxon/xxoff enable */
+
 
 /************************************************************************
  * Realport IFLAGS.
@@ -190,6 +196,7 @@
 #define IF_IXANY	0x0800		/* Restart output on any char */
 #define	IF_IXOFF	0x1000		/* Input software flow control */
 #define IF_DOSMODE	0x8000		/* 16450-compatible errors */
+
 
 /************************************************************************
  * Realport OFLAGS.
@@ -256,6 +263,7 @@
 #define UN_CHECK_CD		0x02000000 /* i.e., CLOCAL */
 #define UN_SHARE_IRQ		0x01000000 /* for multifunction cards */
 
+
 /************************************************************************
  * Structure for terminal or printer unit.  struct un_struct
  *
@@ -276,6 +284,7 @@ struct un_struct {
 	ushort	un_type;
 	struct device *un_sysfs;
 };
+
 
 /************************************************************************
  * Channel State Numbers for ch_state.
@@ -357,6 +366,7 @@ enum dgrp_ch_state_t {
 #define OTYPE_PERSISTENT  1		/* Persistent Open */
 #define OTYPE_INCOMING	  2		/* Incoming Open */
 
+
 /************************************************************************
  * Request/Response flags.
  ************************************************************************/
@@ -376,6 +386,7 @@ enum dgrp_ch_state_t {
 
 #define RR_TX_BREAK	0x1000		/* Send BREAK */
 #define RR_TX_ICHAR	0x2000		/* Send character immediate */
+
 
 /************************************************************************
  * Channel information structure.   struct ch_struct
@@ -496,6 +507,7 @@ struct ch_struct {
 	int	ch_rxcount;		/* Running RX count */
 };
 
+
 /************************************************************************
  * Node State definitions.
  ************************************************************************/
@@ -524,6 +536,7 @@ enum dgrp_nd_state_t {
 #define ND_SELECT	0x0001		/* Multiple net read selects */
 #define ND_DEB_WAIT	0x0002		/* Debug Device waiting */
 
+
 /************************************************************************
  * Monitoring flag definitions.
  ************************************************************************/
@@ -538,6 +551,7 @@ enum dgrp_nd_state_t {
 #define DPA_WAIT_DATA	0x0001		/* Waiting for buffer data */
 #define DPA_WAIT_SPACE	0x0002		/* Waiting for buffer space */
 
+
 /************************************************************************
  * Definitions taken from Realport Dump.
  ************************************************************************/
@@ -548,6 +562,7 @@ enum dgrp_nd_state_t {
 #define RPDUMP_RESET	0xE7		/* Connection reset */
 #define RPDUMP_CLIENT	0xE8		/* Client data */
 #define RPDUMP_SERVER	0xE9		/* Server data */
+
 
 /************************************************************************
  * Node request/response definitions.
@@ -565,6 +580,7 @@ enum dgrp_nd_state_t {
 #define SERIAL_TTDRV_REG   0x0001     /* nd_serial_ttdriver registered	*/
 #define CALLOUT_TTDRV_REG  0x0002     /* nd_callout_ttdriver registered */
 #define XPRINT_TTDRV_REG   0x0004     /* nd_xprint_ttdriver registered	*/
+
 
 /************************************************************************
  * Node structure.  There exists one of these for each associated

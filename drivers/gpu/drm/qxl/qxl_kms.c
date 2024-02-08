@@ -220,6 +220,7 @@ int qxl_device_init(struct qxl_device *qdev,
 		qdev->main_mem_slot,
 		(unsigned long)qdev->vram_base, qdev->rom->ram_header_offset);
 
+
 	qdev->gc_queue = create_singlethread_workqueue("qxl_gc");
 	INIT_WORK(&qdev->gc_work, qxl_gc_work);
 
@@ -298,3 +299,5 @@ out:
 	kfree(qdev);
 	return r;
 }
+
+

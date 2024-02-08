@@ -160,6 +160,8 @@ static int __init parse_tag_initrd(const bp_tag_t* tag)
 
 __tagtable(BP_TAG_INITRD, parse_tag_initrd);
 
+#endif /* CONFIG_BLK_DEV_INITRD */
+
 #ifdef CONFIG_OF
 
 static int __init parse_tag_fdt(const bp_tag_t *tag)
@@ -179,8 +181,6 @@ void __init early_init_dt_setup_initrd_arch(unsigned long start,
 }
 
 #endif /* CONFIG_OF */
-
-#endif /* CONFIG_BLK_DEV_INITRD */
 
 static int __init parse_tag_cmdline(const bp_tag_t* tag)
 {
@@ -349,6 +349,8 @@ extern char _Level6InterruptVector_text_start;
 extern char _Level6InterruptVector_text_end;
 #endif
 
+
+
 #ifdef CONFIG_S32C1I_SELFTEST
 #if XCHAL_HAVE_S32C1I
 
@@ -463,6 +465,7 @@ void __init check_s32c1i(void)
 }
 
 #endif /* CONFIG_S32C1I_SELFTEST */
+
 
 void __init setup_arch(char **cmdline_p)
 {
@@ -647,6 +650,7 @@ c_show(struct seq_file *f, void *slot)
 		     XCHAL_NUM_MISC_REGS,
 		     XCHAL_NUM_IBREAK,
 		     XCHAL_NUM_DBREAK);
+
 
 	/* Interrupt. */
 	seq_printf(f,"num ints\t: %d\n"

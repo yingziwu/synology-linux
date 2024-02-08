@@ -46,6 +46,7 @@
 
 #define EPROM_PAGE_SIZE		64
 
+
 /* different hardware types */
 #define HARDWARE_TYPE_930	0
 #define HARDWARE_TYPE_TIUMP	1
@@ -65,6 +66,7 @@
 #define EDGE_CLOSING_WAIT	4000	/* in .01 sec */
 
 #define EDGE_OUT_BUF_SIZE	1024
+
 
 /* Product information read from the Edgeport */
 struct product_info {
@@ -104,6 +106,7 @@ struct edgeport_serial {
 	int num_ports_open;
 	struct usb_serial *serial;
 };
+
 
 /* Devices that this driver supports */
 static const struct usb_device_id edgeport_1port_id_table[] = {
@@ -209,6 +212,7 @@ static void edge_send(struct usb_serial_port *port, struct tty_struct *tty);
 /* sysfs attributes */
 static int edge_create_sysfs_attrs(struct usb_serial_port *port);
 static int edge_remove_sysfs_attrs(struct usb_serial_port *port);
+
 
 static int ti_vread_sync(struct usb_device *dev, __u8 request,
 				__u16 value, __u16 index, u8 *data, int size)
@@ -392,6 +396,7 @@ static int write_boot_mem(struct edgeport_serial *serial,
 
 	return status;
 }
+
 
 /* Write edgeport I2C memory to TI chip	*/
 static int write_i2c_mem(struct edgeport_serial *serial,
@@ -580,6 +585,8 @@ static int write_rom(struct edgeport_serial *serial, int start_address,
 						serial->TI_I2C_Type, buffer);
 	return -EINVAL;
 }
+
+
 
 /* Read a descriptor header from I2C based on type */
 static int get_descriptor_addr(struct edgeport_serial *serial,
@@ -1386,8 +1393,7 @@ static int download_fw(struct edgeport_serial *serial)
 
 		dev_dbg(dev, "%s - Download successful -- Device rebooting...\n", __func__);
 
-		/* return an error on purpose */
-		return -ENODEV;
+		return 1;
 	}
 
 stayinbootmode:
@@ -1395,8 +1401,9 @@ stayinbootmode:
 	dev_dbg(dev, "%s - STAYING IN BOOT MODE\n", __func__);
 	serial->product_info.TiMode = TI_MODE_BOOT;
 
-	return 0;
+	return 1;
 }
+
 
 static int ti_do_config(struct edgeport_port *port, int feature, int on)
 {
@@ -1406,6 +1413,7 @@ static int ti_do_config(struct edgeport_port *port, int feature, int on)
 			feature, (__u8)(UMPM_UART1_PORT + port_number),
 			on, NULL, 0);
 }
+
 
 static int restore_mcr(struct edgeport_port *port, __u8 mcr)
 {
@@ -1516,6 +1524,7 @@ static void handle_new_lsr(struct edgeport_port *edge_port, int lsr_data,
 		icount->frame++;
 }
 
+
 static void edge_interrupt_callback(struct urb *urb)
 {
 	struct edgeport_serial *edge_serial = urb->context;
@@ -1565,6 +1574,12 @@ static void edge_interrupt_callback(struct urb *urb)
 	function    = TIUMP_GET_FUNC_FROM_CODE(data[0]);
 	dev_dbg(dev, "%s - port_number %d, function %d, info 0x%x\n", __func__,
 		port_number, function, data[1]);
+
+	if (port_number >= edge_serial->serial->num_ports) {
+		dev_err(dev, "bad port number %d\n", port_number);
+		goto exit;
+	}
+
 	port = edge_serial->serial->port[port_number];
 	edge_port = usb_get_serial_port_data(port);
 	if (!edge_port) {
@@ -1645,7 +1660,7 @@ static void edge_bulk_in_callback(struct urb *urb)
 
 	port_number = edge_port->port->number - edge_port->port->serial->minor;
 
-	if (edge_port->lsr_event) {
+	if (urb->actual_length > 0 && edge_port->lsr_event) {
 		edge_port->lsr_event = 0;
 		dev_dbg(dev, "%s ===== Port %u LSR Status = %02x, Data = %02x ======\n",
 			__func__, port_number, edge_port->lsr_mask, *data);
@@ -2349,6 +2364,7 @@ static int edge_tiocmget(struct tty_struct *tty)
 		  | ((msr & EDGEPORT_MSR_RI)	? TIOCM_RI:  0)   /* 0x080 */
 		  | ((msr & EDGEPORT_MSR_DSR)	? TIOCM_DSR: 0);  /* 0x100 */
 
+
 	dev_dbg(&port->dev, "%s -- %x\n", __func__, result);
 	spin_unlock_irqrestore(&edge_port->ep_lock, flags);
 
@@ -2422,6 +2438,13 @@ static int edge_startup(struct usb_serial *serial)
 	struct edgeport_serial *edge_serial;
 	int status;
 
+	/* Make sure we have the required endpoints when in download mode. */
+	if (serial->interface->cur_altsetting->desc.bNumEndpoints > 1) {
+		if (serial->num_bulk_in < serial->num_ports ||
+				serial->num_bulk_out < serial->num_ports)
+			return -ENODEV;
+	}
+
 	/* create our private serial structure */
 	edge_serial = kzalloc(sizeof(struct edgeport_serial), GFP_KERNEL);
 	if (edge_serial == NULL) {
@@ -2433,10 +2456,13 @@ static int edge_startup(struct usb_serial *serial)
 	usb_set_serial_data(serial, edge_serial);
 
 	status = download_fw(edge_serial);
-	if (status) {
+	if (status < 0) {
 		kfree(edge_serial);
 		return status;
 	}
+
+	if (status > 0)
+		return 1;	/* bind but do not register any ports */
 
 	return 0;
 }
@@ -2538,6 +2564,7 @@ static int edge_remove_sysfs_attrs(struct usb_serial_port *port)
 	device_remove_file(&port->dev, &dev_attr_uart_mode);
 	return 0;
 }
+
 
 static struct usb_serial_driver edgeport_1port_device = {
 	.driver = {

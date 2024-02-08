@@ -674,6 +674,7 @@ pm80xx_set_sas_protocol_timer_config(struct pm8001_hba_info *pm8001_ha)
 	if (SASConfigPage.STP_IDLE_TMO > 0x3FFFFFF)
 		SASConfigPage.STP_IDLE_TMO = 0x3FFFFFF;
 
+
 	SASConfigPage.OPNRJT_RTRY_INTVL =         (SAS_MFD << 16) |
 						SAS_OPNRJT_RTRY_INTVL;
 	SASConfigPage.Data_Cmd_OPNRJT_RTRY_TMO =  (SAS_DOPNRJT_RTRY_TMO << 16)

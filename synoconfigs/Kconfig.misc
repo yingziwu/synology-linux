@@ -112,19 +112,36 @@ config SYNO_FIX_RTC_WAKE_AFTER_POWER_FAILURE
 	default y
 	depends on SYNO_X64
 
+config SYNO_IOSCHED_CFQ_PROMOTE_SYNC_TUNABLE
+	bool "add cfs tunable parameter with promote sync"
+	default y
+	depends on IOSCHED_CFQ
+
 config SYNO_KPTI_RETPOLINE_DEFAULT_OFF
 	bool "Set KPTI to default off"
 	default n
 	depends on KAISER
 
-config SYNO_REVERT_PERCPU_COUNTER_COMPARE_BATCH
-	bool "revert percpu_counter compare batch"
+config SYNO_DISABLE_SYSRQ_B_DUMP_STACK
+	bool "do NOT dump stack when trigger sysrq b"
+	default y
+
+config SYNO_FORCE_CF9_REBOOT
+	bool "Support CF9 Force reboot"
 	default n
-	depends on SYNO_X64 && !BTRFS_FS 
+	depends on X86_64
+
+config SYNO_OOM_NOTIFICATION
+	bool "Support oom notification"
+	default y
 
 config SYNO_SKIP_LK3_10_KPTI_RETPOLINE
 	bool "Skip KPTI and Retpoline code"
 	default n
+
+config SYNO_KERNEL_MODULE_REMOVAL_LOGGING
+	bool "add logging about kernel module removal"
+	default y
 
 endmenu #MISC Features
 

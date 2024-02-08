@@ -1385,6 +1385,7 @@ static const struct file_operations coh901318_debugfs_status_operations = {
 	.llseek		= default_llseek,
 };
 
+
 static int __init init_coh901318_debugfs(void)
 {
 
@@ -1471,6 +1472,7 @@ static inline int coh901318_set_conf(struct coh901318_chan *cohc, u32 conf)
 	       COH901318_CX_CFG_SPACING*channel);
 	return 0;
 }
+
 
 static int coh901318_start(struct coh901318_chan *cohc)
 {
@@ -1722,6 +1724,7 @@ static void coh901318_pause(struct dma_chan *chan)
 	    (val & COH901318_CX_CFG_CH_ENABLE))
 		cohc->stopped = 1;
 
+
 	val &= ~COH901318_CX_CFG_CH_ENABLE;
 	/* Enable twice, HW bug work around */
 	writel(val, virtbase + COH901318_CX_CFG +
@@ -1932,6 +1935,7 @@ static void dma_tasklet(unsigned long data)
 	dev_err(COHC_2_DEV(cohc), "[%s] No active dma desc\n", __func__);
 }
 
+
 /* called from interrupt context */
 static void dma_tc_handle(struct coh901318_chan *cohc)
 {
@@ -1978,6 +1982,7 @@ static void dma_tc_handle(struct coh901318_chan *cohc)
 	else
 		tasklet_schedule(&cohc->tasklet);
 }
+
 
 static irqreturn_t dma_irq_handler(int irq, void *dev_id)
 {
@@ -2139,6 +2144,7 @@ coh901318_free_chan_resources(struct dma_chan *chan)
 
 	chan->device->device_control(chan, DMA_TERMINATE_ALL, 0);
 }
+
 
 static dma_cookie_t
 coh901318_tx_submit(struct dma_async_tx_descriptor *tx)
@@ -2312,6 +2318,7 @@ coh901318_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
 				    direction, COH901318_CX_CTRL_TC_IRQ_ENABLE);
 	if (ret)
 		goto err_lli_fill;
+
 
 	COH_DBG(coh901318_list_print(cohc, lli));
 
@@ -2584,6 +2591,7 @@ coh901318_control(struct dma_chan *chan, enum dma_ctrl_cmd cmd,
 		coh901318_desc_free(cohc, cohd);
 	}
 
+
 	cohc->nbr_active_done = 0;
 	cohc->busy = 0;
 
@@ -2749,6 +2757,7 @@ static int coh901318_remove(struct platform_device *pdev)
 	coh901318_pool_destroy(&base->pool);
 	return 0;
 }
+
 
 static struct platform_driver coh901318_driver = {
 	.remove = coh901318_remove,

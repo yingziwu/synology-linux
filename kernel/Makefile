@@ -13,6 +13,10 @@ obj-y     = fork.o exec_domain.o panic.o \
 	    async.o range.o groups.o lglock.o smpboot.o \
 	    syno_bootargs.o
 
+ifdef CONFIG_SYNO_KWORK_STAT
+obj-y += workstat.o
+endif
+
 ifdef CONFIG_FUNCTION_TRACER
 # Do not trace debug files and internal ftrace files
 CFLAGS_REMOVE_lockdep.o = -pg

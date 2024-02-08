@@ -146,6 +146,7 @@ static int wm831x_gp_ldo_set_mode(struct regulator_dev *rdev,
 	int on_reg = ldo->base + WM831X_LDO_ON_CONTROL;
 	int ret;
 
+
 	switch (mode) {
 	case REGULATOR_MODE_NORMAL:
 		ret = wm831x_set_bits(wm831x, on_reg,
@@ -226,6 +227,7 @@ static unsigned int wm831x_gp_ldo_get_optimum_mode(struct regulator_dev *rdev,
 		return REGULATOR_MODE_IDLE;
 	return REGULATOR_MODE_NORMAL;
 }
+
 
 static struct regulator_ops wm831x_gp_ldo_ops = {
 	.list_voltage = wm831x_gp_ldo_list_voltage,
@@ -358,6 +360,7 @@ static struct platform_driver wm831x_gp_ldo_driver = {
  * Analogue LDOs
  */
 
+
 #define WM831X_ALDO_SELECTOR_LOW 0xc
 #define WM831X_ALDO_MAX_SELECTOR 0x1f
 
@@ -433,6 +436,7 @@ static int wm831x_aldo_set_mode(struct regulator_dev *rdev,
 	struct wm831x *wm831x = ldo->wm831x;
 	int on_reg = ldo->base + WM831X_LDO_ON_CONTROL;
 	int ret;
+
 
 	switch (mode) {
 	case REGULATOR_MODE_NORMAL:
@@ -671,6 +675,7 @@ static int wm831x_alive_ldo_probe(struct platform_device *pdev)
 	else
 		id = 0;
 	id = pdev->id - id;
+
 
 	dev_dbg(&pdev->dev, "Probing LDO%d\n", id + 1);
 

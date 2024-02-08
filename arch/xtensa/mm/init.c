@@ -88,6 +88,7 @@ int __init mem_reserve(unsigned long start, unsigned long end, int must_exist)
 	return -1;
 }
 
+
 /*
  * Initialize the bootmem system and give it all the memory we have available.
  */
@@ -146,6 +147,7 @@ void __init bootmem_init(void)
 			     sysmem.bank[i].end - sysmem.bank[i].start);
 
 }
+
 
 void __init zones_init(void)
 {

@@ -283,6 +283,7 @@ static unsigned int msm_get_mctrl(struct uart_port *port)
 	return TIOCM_CAR | TIOCM_CTS | TIOCM_DSR | TIOCM_RTS;
 }
 
+
 static void msm_reset(struct uart_port *port)
 {
 	/* reset everything */
@@ -401,6 +402,7 @@ static int msm_set_baud_rate(struct uart_port *port, unsigned int baud)
 
 	return baud;
 }
+
 
 static void msm_init_clock(struct uart_port *port)
 {
@@ -899,6 +901,7 @@ static int __init msm_serial_probe(struct platform_device *pdev)
 	port->uartclk = clk_get_rate(msm_port->clk);
 	printk(KERN_INFO "uartclk = %d\n", port->uartclk);
 
+
 	resource = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (unlikely(!resource))
 		return -ENXIO;
@@ -927,6 +930,7 @@ static struct of_device_id msm_match_table[] = {
 	{ .compatible = "qcom,msm-uart" },
 	{}
 };
+MODULE_DEVICE_TABLE(of, msm_match_table);
 
 static struct platform_driver msm_platform_driver = {
 	.remove = msm_serial_remove,

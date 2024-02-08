@@ -60,6 +60,7 @@ const char* CsrWifiSmeApDirectionToString(CsrWifiSmeApDirection value);
 const char* CsrWifiSmeApPhySupportToString(CsrWifiSmeApPhySupport value);
 const char* CsrWifiSmeApTypeToString(CsrWifiSmeApType value);
 
+
 /*----------------------------------------------------------------------------*
  * CsrPrim Type toString function.
  * Converts a message type to the String name of the Message
@@ -768,5 +769,6 @@ extern const char *CsrWifiSmeApDownstreamPrimNames[CSR_WIFI_SME_AP_PRIM_DOWNSTRE
 
 #define CsrWifiSmeApWpsRegistrationStartedCfmSend(dst__, interfaceTag__, status__) \
     CsrWifiSmeApWpsRegistrationStartedCfmSendTo(dst__, CSR_WIFI_SME_IFACEQUEUE, interfaceTag__, status__)
+
 
 #endif /* CSR_WIFI_SME_AP_LIB_H__ */

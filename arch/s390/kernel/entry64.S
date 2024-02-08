@@ -794,6 +794,7 @@ cleanup_critical:
 	jl	cleanup_idle
 0:	br	%r14
 
+
 cleanup_system_call:
 	# check if stpt has been executed
 	clg	%r9,BASED(cleanup_system_call_insn)
@@ -925,6 +926,7 @@ cleanup_idle_insn:
 	.quad	__critical_start
 .Lcritical_length:
 	.quad	__critical_end - __critical_start
+
 
 #if defined(CONFIG_KVM) || defined(CONFIG_KVM_MODULE)
 /*

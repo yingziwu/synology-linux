@@ -132,6 +132,7 @@ static void radeon_register_accessor_init(struct radeon_device *rdev)
 	}
 }
 
+
 /* helper to disable agp */
 /**
  * radeon_agp_disable - AGP disable helper function
@@ -2093,3 +2094,4 @@ int radeon_asic_init(struct radeon_device *rdev)
 
 	return 0;
 }
+

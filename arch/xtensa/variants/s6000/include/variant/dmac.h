@@ -69,6 +69,7 @@
 #define S6_DMA_DPORTCTRLGRP_NRCHANS_2		3
 #define S6_DMA_DPORTCTRLGRP_ENA		31
 
+
 /* DMA per channel */
 
 #define DMA_CHNL(dmac, n)	((dmac) + 0x1000 + (n) * 0x100)
@@ -137,6 +138,7 @@ struct s6dmac_ctrl {
 };
 
 extern struct s6dmac_ctrl s6dmac_ctrl[S6_DMAC_NB];
+
 
 /* DMA control, per channel */
 
@@ -258,6 +260,7 @@ static inline void s6dmac_enable_chan(u32 dmac, int chan,
 		((timestamp ? 1 : 0) << S6_DMA_CHNCTRL_TSTAMP),
 		DMA_CHNL(dmac, chan) + S6_DMA_CHNCTRL);
 }
+
 
 /* DMA control, per engine */
 

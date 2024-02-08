@@ -148,6 +148,7 @@ static int tp_event_has_id(struct dirent *sys_dir, struct dirent *evt_dir)
 
 #define MAX_EVENT_LENGTH 512
 
+
 struct tracepoint_path *tracepoint_id_to_path(u64 config)
 {
 	struct tracepoint_path *path = NULL;
@@ -237,6 +238,8 @@ const char *event_type(int type)
 
 	return "unknown";
 }
+
+
 
 static int __add_event(struct list_head **_list, int *idx,
 		       struct perf_event_attr *attr,

@@ -53,6 +53,7 @@ MODULE_DESCRIPTION("Driver for 1-wire Dallas network protocol, temperature famil
 static int w1_strong_pullup = 1;
 module_param_named(strong_pullup, w1_strong_pullup, int, 0);
 
+
 static ssize_t w1_therm_read(struct device *device,
 	struct device_attribute *attr, char *buf);
 
@@ -170,6 +171,7 @@ static inline int w1_convert_temp(u8 rom[9], u8 fid)
 
 	return 0;
 }
+
 
 static ssize_t w1_therm_read(struct device *device,
 	struct device_attribute *attr, char *buf)

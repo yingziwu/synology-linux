@@ -18,6 +18,7 @@
 DEFINE_PER_CPU(struct clock_event_device, gic_clockevent_device);
 int gic_timer_irq_installed;
 
+
 static int gic_next_event(unsigned long delta, struct clock_event_device *evt)
 {
 	u64 cnt;
@@ -52,6 +53,7 @@ struct irqaction gic_compare_irqaction = {
 	.flags = IRQF_PERCPU | IRQF_TIMER,
 	.name = "timer",
 };
+
 
 void gic_event_handler(struct clock_event_device *dev)
 {

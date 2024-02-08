@@ -217,6 +217,7 @@ static u32 sfb_compute_qlen(u32 *prob_r, u32 *avgpm_r, const struct sfb_sched_da
 	return qlen;
 }
 
+
 static void sfb_init_perturbation(u32 slot, struct sfb_sched_data *q)
 {
 	q->bins[slot].perturbation = net_random();
@@ -673,6 +674,7 @@ static unsigned long sfb_bind(struct Qdisc *sch, unsigned long parent,
 {
 	return 0;
 }
+
 
 static const struct Qdisc_class_ops sfb_class_ops = {
 	.graft		=	sfb_graft,

@@ -733,6 +733,7 @@ static bool bnx2x_is_reg_in_chip(struct bnx2x *bp,
 		return false;
 }
 
+
 static bool bnx2x_is_wreg_in_chip(struct bnx2x *bp,
 	const struct wreg_addr *wreg_info)
 {
@@ -1791,8 +1792,16 @@ static void bnx2x_get_ringparam(struct net_device *dev,
 
 	ering->rx_max_pending = MAX_RX_AVAIL;
 
+	/* If size isn't already set, we give an estimation of the number
+	 * of buffers we'll have. We're neglecting some possible conditions
+	 * [we couldn't know for certain at this point if number of queues
+	 * might shrink] but the number would be correct for the likely
+	 * scenario.
+	 */
 	if (bp->rx_ring_size)
 		ering->rx_pending = bp->rx_ring_size;
+	else if (BNX2X_NUM_RX_QUEUES(bp))
+		ering->rx_pending = MAX_RX_AVAIL / BNX2X_NUM_RX_QUEUES(bp);
 	else
 		ering->rx_pending = MAX_RX_AVAIL;
 
@@ -3025,6 +3034,7 @@ static void bnx2x_get_strings(struct net_device *dev, u32 stringset, u8 *buf)
 			}
 		}
 
+
 		for (i = 0, j = 0; i < BNX2X_NUM_STATS; i++) {
 			if (IS_MF_MODE_STAT(bp) && IS_PORT_STAT(i))
 				continue;
@@ -3381,6 +3391,7 @@ static int bnx2x_set_channels(struct net_device *dev,
 			      struct ethtool_channels *channels)
 {
 	struct bnx2x *bp = netdev_priv(dev);
+
 
 	DP(BNX2X_MSG_ETHTOOL,
 	   "set-channels command parameters: rx = %d, tx = %d, other = %d, combined = %d\n",

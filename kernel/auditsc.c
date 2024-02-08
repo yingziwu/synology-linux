@@ -2153,6 +2153,7 @@ int __audit_bprm(struct linux_binprm *bprm)
 	return 0;
 }
 
+
 /**
  * audit_socketcall - record audit data for sys_socketcall
  * @nargs: number of args, which should not be more than AUDITSC_ARGS.

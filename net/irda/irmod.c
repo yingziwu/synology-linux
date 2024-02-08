@@ -150,6 +150,7 @@ static int __init irda_init(void)
 	/* Remove middle layer */
 	irlmp_cleanup();
 
+
 	return ret;
 }
 

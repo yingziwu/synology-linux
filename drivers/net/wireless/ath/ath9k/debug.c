@@ -27,6 +27,7 @@
 #define REG_READ_D(_ah, _reg) \
 	ath9k_hw_common(_ah)->ops->read((_ah), (_reg))
 
+
 static ssize_t ath9k_debugfs_read_buf(struct file *file, char __user *user_buf,
 				      size_t count, loff_t *ppos)
 {
@@ -128,6 +129,7 @@ static const struct file_operations fops_tx_chainmask = {
 	.owner = THIS_MODULE,
 	.llseek = default_llseek,
 };
+
 
 static ssize_t read_file_rx_chainmask(struct file *file, char __user *user_buf,
 			     size_t count, loff_t *ppos)
@@ -372,6 +374,7 @@ static const struct file_operations fops_dma = {
 	.owner = THIS_MODULE,
 	.llseek = default_llseek,
 };
+
 
 void ath_debug_stat_interrupt(struct ath_softc *sc, enum ath9k_int status)
 {
@@ -1249,6 +1252,7 @@ static struct rchan_callbacks rfs_spec_scan_cb = {
 	.create_buf_file = create_buf_file_handler,
 	.remove_buf_file = remove_buf_file_handler,
 };
+
 
 static ssize_t read_file_regidx(struct file *file, char __user *user_buf,
                                 size_t count, loff_t *ppos)

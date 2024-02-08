@@ -46,6 +46,7 @@
 #include <net/inet_common.h>
 #include <net/checksum.h>
 
+
 static struct ping_table ping_table;
 
 static u16 ping_port_rover;
@@ -134,17 +135,18 @@ static void ping_v4_hash(struct sock *sk)
 static void ping_v4_unhash(struct sock *sk)
 {
 	struct inet_sock *isk = inet_sk(sk);
+
 	pr_debug("ping_v4_unhash(isk=%p,isk->num=%u)\n", isk, isk->inet_num);
+	write_lock_bh(&ping_table.lock);
 	if (sk_hashed(sk)) {
-		write_lock_bh(&ping_table.lock);
 		hlist_nulls_del(&sk->sk_nulls_node);
 		sk_nulls_node_init(&sk->sk_nulls_node);
 		sock_put(sk);
 		isk->inet_num = 0;
 		isk->inet_sport = 0;
 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
-		write_unlock_bh(&ping_table.lock);
 	}
+	write_unlock_bh(&ping_table.lock);
 }
 
 static struct sock *ping_v4_lookup(struct net *net, __be32 saddr, __be32 daddr,
@@ -198,6 +200,7 @@ static void inet_get_ping_group_range_net(struct net *net, kgid_t *low,
 		*high = data[1];
 	} while (read_seqretry(&sysctl_local_ports.lock, seq));
 }
+
 
 static int ping_init_sock(struct sock *sk)
 {
@@ -448,6 +451,8 @@ static int ping_push_pending_frames(struct sock *sk, struct pingfakehdr *pfh,
 {
 	struct sk_buff *skb = skb_peek(&sk->sk_write_queue);
 
+	if (!skb)
+		return 0;
 	pfh->wcheck = csum_partial((char *)&pfh->icmph,
 		sizeof(struct icmphdr), pfh->wcheck);
 	pfh->icmph.checksum = csum_fold(pfh->wcheck);
@@ -473,6 +478,7 @@ static int ping_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	int err;
 
 	pr_debug("ping_sendmsg(sk=%p,sk->num=%u)\n", inet, inet->inet_num);
+
 
 	if (len > 0xFFFF)
 		return -EMSGSIZE;
@@ -693,6 +699,7 @@ static int ping_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 	return 0;
 }
 
+
 /*
  *	All we need to do is get the socket.
  */
@@ -904,6 +911,7 @@ static void ping_proc_unregister(struct net *net)
 {
 	remove_proc_entry("icmp", net->proc_net);
 }
+
 
 static int __net_init ping_proc_init_net(struct net *net)
 {

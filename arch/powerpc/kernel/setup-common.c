@@ -165,6 +165,7 @@ void machine_halt(void)
 	while (1) ;
 }
 
+
 #ifdef CONFIG_TAU
 extern u32 cpu_temp(unsigned long cpu);
 extern u32 cpu_temp_both(unsigned long cpu);
@@ -406,6 +407,7 @@ static void __init cpu_init_thread_core_maps(int tpc)
 	       tpc, tpc > 1 ? "s" : "");
 	printk(KERN_DEBUG " (thread shift is %d)\n", threads_shift);
 }
+
 
 /**
  * setup_cpu_maps - initialize the following cpu maps:

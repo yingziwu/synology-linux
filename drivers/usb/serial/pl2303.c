@@ -129,6 +129,7 @@ MODULE_DEVICE_TABLE(usb, id_table);
 #define UART_OVERRUN_ERROR		0x40
 #define UART_CTS			0x80
 
+
 enum pl2303_type {
 	type_0,		/* don't know the difference between type 0 and */
 	type_1,		/* type 1, until someone from prolific tells us... */
@@ -174,8 +175,16 @@ static int pl2303_vendor_write(__u16 value, __u16 index,
 static int pl2303_startup(struct usb_serial *serial)
 {
 	struct pl2303_serial_private *spriv;
+	unsigned char num_ports = serial->num_ports;
 	enum pl2303_type type = type_0;
 	unsigned char *buf;
+
+	if (serial->num_bulk_in < num_ports ||
+			serial->num_bulk_out < num_ports ||
+			serial->num_interrupt_in < num_ports) {
+		dev_err(&serial->interface->dev, "missing endpoints\n");
+		return -ENODEV;
+	}
 
 	spriv = kzalloc(sizeof(*spriv), GFP_KERNEL);
 	if (!spriv)
@@ -709,6 +718,7 @@ static void pl2303_update_line_status(struct usb_serial_port *port,
 
 	idv = le16_to_cpu(port->serial->dev->descriptor.idVendor);
 	idp = le16_to_cpu(port->serial->dev->descriptor.idProduct);
+
 
 	if (idv == SIEMENS_VENDOR_ID) {
 		if (idp == SIEMENS_PRODUCT_ID_X65 ||

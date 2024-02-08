@@ -549,6 +549,7 @@ nouveau_bo_evict_flags(struct ttm_buffer_object *bo, struct ttm_placement *pl)
 	*pl = nvbo->placement;
 }
 
+
 /* GPU-assisted copy using NV_MEMORY_TO_MEMORY_FORMAT, can access
  * TTM_PL_{VRAM,TT} directly.
  */
@@ -1318,6 +1319,7 @@ nouveau_ttm_fault_reserve_notify(struct ttm_buffer_object *bo)
 	/* make sure bo is in mappable vram */
 	if (bo->mem.start + bo->mem.num_pages < mappable)
 		return 0;
+
 
 	nvbo->placement.fpfn = 0;
 	nvbo->placement.lpfn = mappable;

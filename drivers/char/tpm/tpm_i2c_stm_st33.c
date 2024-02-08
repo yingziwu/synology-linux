@@ -240,6 +240,7 @@ static u8 tpm_stm_i2c_status(struct tpm_chip *chip)
 	return data;
 }				/* tpm_stm_i2c_status() */
 
+
 /*
  * check_locality if the locality is active
  * @param: chip, the tpm chip description
@@ -438,6 +439,7 @@ static irqreturn_t tpm_ioserirq_handler(int irq, void *dev_id)
 	complete(&pin_infos->irq_detection);
 	return IRQ_HANDLED;
 } /* tpm_ioserirq_handler() */
+
 
 /*
  * tpm_stm_i2c_send send TPM commands through the I2C bus.

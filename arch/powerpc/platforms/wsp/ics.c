@@ -26,6 +26,7 @@
 #include "wsp.h"
 #include "ics.h"
 
+
 /* WSP ICS */
 
 struct wsp_ics {
@@ -77,6 +78,7 @@ struct wsp_ics {
  */
 #define WSP_ICS_CHIP_SHIFT		17
 
+
 static struct wsp_ics *ics_list;
 static int num_ics;
 
@@ -123,6 +125,7 @@ static u64 xive_set_priority(u64 xive, unsigned int priority)
 
 	return xive;
 }
+
 
 #ifdef CONFIG_SMP
 /* Find logical CPUs within mask on a given chip and store result in ret */

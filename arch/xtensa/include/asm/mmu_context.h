@@ -105,6 +105,7 @@ activate_mm(struct mm_struct *prev, struct mm_struct *next)
 	__load_mmu_context(next);
 }
 
+
 static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
 			     struct task_struct *tsk)
 {
@@ -128,6 +129,7 @@ static inline void destroy_context(struct mm_struct *mm)
 {
 	invalidate_page_directory();
 }
+
 
 static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 {

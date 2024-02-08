@@ -76,6 +76,7 @@ static const struct file_operations drm_proc_fops = {
 	.release = single_release,
 };
 
+
 /**
  * Initialize a given set of proc files for a device
  *
@@ -205,3 +206,4 @@ int drm_proc_cleanup(struct drm_minor *minor, struct proc_dir_entry *root)
 	remove_proc_subtree(name, root);
 	return 0;
 }
+

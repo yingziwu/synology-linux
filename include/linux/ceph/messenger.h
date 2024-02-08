@@ -243,10 +243,12 @@ struct ceph_connection {
 	unsigned long       delay;          /* current delay interval */
 };
 
+
 extern const char *ceph_pr_addr(const struct sockaddr_storage *ss);
 extern int ceph_parse_ips(const char *c, const char *end,
 			  struct ceph_entity_addr *addr,
 			  int max_count, int *count);
+
 
 extern int ceph_msgr_init(void);
 extern void ceph_msgr_exit(void);
@@ -285,6 +287,7 @@ extern void ceph_msg_data_add_bio(struct ceph_msg *msg, struct bio *bio,
 extern struct ceph_msg *ceph_msg_new(int type, int front_len, gfp_t flags,
 				     bool can_fail);
 extern void ceph_msg_kfree(struct ceph_msg *m);
+
 
 static inline struct ceph_msg *ceph_msg_get(struct ceph_msg *msg)
 {

@@ -1,7 +1,7 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+// Copyright (c) 2000-2014 Synology Inc. All rights reserved.
 #ifdef MY_ABC_HERE
 #include <linux/bio.h>
 #include <linux/synobios.h>
@@ -10,7 +10,7 @@
 #include <linux/raid/libmd-report.h>
 #include "md.h"
 
-int (*funcSYNOSendRaidEvent)(unsigned int, unsigned int, unsigned int, unsigned int) = NULL;
+int (*funcSYNOSendRaidEvent)(unsigned int, unsigned int, unsigned int, unsigned long long) = NULL;
 
 void SynoReportFaultyDevice(int md_minor, struct block_device *bdev)
 {
@@ -63,7 +63,6 @@ EXPORT_SYMBOL(funcSYNOSendRaidEvent);
 
 #ifdef MY_ABC_HERE
 int (*funcSYNOSendAutoRemapRaidEvent)(unsigned int, unsigned long long, unsigned int) = NULL;
-int (*funcSYNOSendAutoRemapLVEvent)(const char*, unsigned long long, unsigned int) = NULL;
 void SynoAutoRemapReport(struct mddev *mddev, sector_t sector, struct block_device *bdev)
 {
 	int index = SynoSCSIGetDeviceIndex(bdev);
@@ -79,6 +78,5 @@ void SynoAutoRemapReport(struct mddev *mddev, sector_t sector, struct block_devi
 
 EXPORT_SYMBOL(SynoAutoRemapReport);
 EXPORT_SYMBOL(funcSYNOSendAutoRemapRaidEvent);
-EXPORT_SYMBOL(funcSYNOSendAutoRemapLVEvent);
-#endif  
-#endif  
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */

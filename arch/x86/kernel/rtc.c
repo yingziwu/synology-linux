@@ -149,6 +149,7 @@ void read_persistent_clock(struct timespec *ts)
 	ts->tv_nsec = 0;
 }
 
+
 static struct resource rtc_resources[] = {
 	[0] = {
 		.start	= RTC_PORT(0),

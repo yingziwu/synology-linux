@@ -131,7 +131,8 @@ GLOBAL(ftrace_graph_call)
 	jmp ftrace_stub
 #endif
 
-GLOBAL(ftrace_stub)
+/* This is weak to keep gas from relaxing the jumps */
+WEAK(ftrace_stub)
 	retq
 END(ftrace_caller)
 
@@ -202,6 +203,7 @@ ftrace_restore_flags:
 	jmp  ftrace_stub
 
 END(ftrace_regs_caller)
+
 
 #else /* ! CONFIG_DYNAMIC_FTRACE */
 
@@ -281,6 +283,7 @@ GLOBAL(return_to_handler)
 	jmp *%rdi
 #endif
 
+
 #ifndef CONFIG_PREEMPT
 #define retint_kernel retint_restore_args
 #endif
@@ -291,6 +294,7 @@ ENTRY(native_usergs_sysret64)
 	sysretq
 ENDPROC(native_usergs_sysret64)
 #endif /* CONFIG_PARAVIRT */
+
 
 .macro TRACE_IRQS_IRETQ offset=ARGOFFSET
 #ifdef CONFIG_TRACE_IRQFLAGS
@@ -719,14 +723,12 @@ system_call_fastpath:
 	jnz tracesys
 system_call_fastpath:
 #if __SYSCALL_MASK == ~0
-	cmpq	$NR_syscalls, %rax
+	cmpq $__NR_syscall_max,%rax
 #else
 	andl $__SYSCALL_MASK,%eax
-	cmpl	$NR_syscalls, %eax
+	cmpl $__NR_syscall_max,%eax
 #endif
-	jae	badsys
-	sbb	%rcx, %rcx			/* array_index_mask_nospec() */
-	and	%rcx, %rax
+	ja badsys
 	movq %r10,%rcx
 
 #ifdef CONFIG_RETPOLINE
@@ -885,7 +887,7 @@ tracesys:
 	LOAD_ARGS ARGOFFSET, 1
 #ifdef MY_DEF_HERE
 	RESTORE_REST
-#endif	/* MY_DEF_HERE */
+#endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 #if __SYSCALL_MASK == ~0
 	cmpq $__NR_syscall_max,%rax
@@ -893,21 +895,19 @@ tracesys:
 	andl $__SYSCALL_MASK,%eax
 	cmpl $__NR_syscall_max,%eax
 #endif
-	ja   int_ret_from_sys_call	/* RAX(%rsp) set to -ENOSYS above */
-	movq %r10,%rcx	/* fixup for C */
+	ja   int_ret_from_sys_call  /* RAX(%rsp) set to -ENOSYS above */
+	movq %r10,%rcx  /* fixup for C */
 	call *sys_call_table(,%rax,8)
 	movq %rax,RAX-ARGOFFSET(%rsp)
 	/* Use IRET because user could have changed frame */
 #else
 #if __SYSCALL_MASK == ~0
-	cmpq	$NR_syscalls, %rax
+	cmpq $__NR_syscall_max,%rax
 #else
 	andl $__SYSCALL_MASK,%eax
-	cmpl	$NR_syscalls, %eax
+	cmpl $__NR_syscall_max,%eax
 #endif
-	jae	int_ret_from_sys_call		/* RAX(%rsp) set to -ENOSYS above */
-	sbb	%rcx, %rcx			/* array_index_mask_nospec() */
-	and	%rcx, %rax
+	ja   1f		/* RAX(%rsp) set to -ENOSYS above */
 	movq %r10,%rcx	/* fixup for C */
 
 #ifdef CONFIG_RETPOLINE
@@ -1572,6 +1572,7 @@ zeroentry coprocessor_error do_coprocessor_error
 errorentry alignment_check do_alignment_check
 zeroentry simd_coprocessor_error do_simd_coprocessor_error
 
+
 	/* Reload gs selector with exception handling */
 	/* edi:  new selector */
 ENTRY(native_load_gs_index)
@@ -1932,6 +1933,7 @@ error_bad_iret:
 	jmp error_sti
 	CFI_ENDPROC
 END(error_entry)
+
 
 /* ebx:	no swapgs flag (1: don't need swapgs, 0: need it) */
 ENTRY(error_exit)

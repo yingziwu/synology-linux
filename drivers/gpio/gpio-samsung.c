@@ -2725,6 +2725,7 @@ static struct samsung_gpio_chip exynos5_gpios_4[] = {
 };
 #endif
 
+
 #if defined(CONFIG_ARCH_EXYNOS) && defined(CONFIG_OF)
 static int exynos_gpio_xlate(struct gpio_chip *gc,
 			const struct of_phandle_args *gpiospec, u32 *flags)

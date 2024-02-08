@@ -413,6 +413,7 @@ err_buff:
 
 EXPORT_SYMBOL(s3c2410_dma_enqueue);
 
+
 int s3c2410_dma_devconfig(enum dma_ch channel,
 			  enum dma_data_direction source,
 			  unsigned long devaddr)
@@ -459,6 +460,7 @@ int s3c2410_dma_devconfig(enum dma_ch channel,
 	return 0;
 }
 EXPORT_SYMBOL(s3c2410_dma_devconfig);
+
 
 int s3c2410_dma_getposition(enum dma_ch channel,
 			    dma_addr_t *src, dma_addr_t *dst)
@@ -547,6 +549,7 @@ int s3c2410_dma_free(enum dma_ch channel, struct s3c2410_dma_client *client)
 	}
 
 	/* sort out stopping and freeing the channel */
+
 
 	chan->client = NULL;
 	chan->in_use = 0;

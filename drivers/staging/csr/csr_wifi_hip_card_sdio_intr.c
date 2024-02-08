@@ -27,6 +27,7 @@
 #include "csr_wifi_hip_card.h"
 #include "csr_wifi_hip_xbv.h"
 
+
 /*
  * If the SDIO link is idle for this time (in milliseconds),
  * signal UniFi to go into Deep Sleep.
@@ -39,6 +40,7 @@
  * Valid return value of unifi_bh().
  */
 #define UNIFI_DEFAULT_WAKE_TIMEOUT      1000
+
 
 static CsrResult process_bh(card_t *card);
 static CsrResult handle_host_protocol(card_t *card, u8 *processed_something);
@@ -94,6 +96,7 @@ static void append_char(char c)
     }
 } /* append_char() */
 
+
 void unifi_debug_string_to_buf(const char *str)
 {
     const char *p = str;
@@ -110,6 +113,7 @@ void unifi_debug_string_to_buf(const char *str)
     }
 }
 
+
 void unifi_debug_log_to_buf(const char *fmt, ...)
 {
 #define DEBUG_BUFFER_SIZE       80
@@ -122,6 +126,7 @@ void unifi_debug_log_to_buf(const char *fmt, ...)
 
     unifi_debug_string_to_buf(s);
 } /* unifi_debug_log_to_buf() */
+
 
 /* Convert signed 32 bit (or less) integer to string */
 static void CsrUInt16ToHex(u16 number, char *str)
@@ -137,6 +142,7 @@ static void CsrUInt16ToHex(u16 number, char *str)
     }
     str[4] = '\0';
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -165,6 +171,7 @@ void unifi_debug_hex_to_buf(const char *buff, u16 length)
     }
 }
 
+
 void unifi_debug_buf_dump(void)
 {
     s32 offset = unifi_dbgbuf_ptr - unifi_debug_output;
@@ -173,6 +180,7 @@ void unifi_debug_buf_dump(void)
     dump_str(unifi_debug_output + offset, UNIFI_DEBUG_GBUFFER_SIZE - offset);
     dump_str(unifi_debug_output, offset);
 } /* unifi_debug_buf_dump() */
+
 
 #endif /* CSR_WIFI_HIP_DEBUG_OFFLINE */
 
@@ -196,6 +204,7 @@ void prealloc_netdata_free(card_t *card)
     unifi_warning(card->ospriv, "prealloc_netdata_free: OUT: w=%d r=%d\n", card->prealloc_netdata_w, card->prealloc_netdata_r);
 }
 
+
 CsrResult prealloc_netdata_alloc(card_t *card)
 {
     CsrResult r;
@@ -217,6 +226,7 @@ CsrResult prealloc_netdata_alloc(card_t *card)
 
     return CSR_RESULT_SUCCESS;
 }
+
 
 static CsrResult prealloc_netdata_get(card_t *card, bulk_data_desc_t *bulk_data_slot, u32 size)
 {
@@ -256,6 +266,7 @@ static CsrResult prealloc_netdata_get(card_t *card, bulk_data_desc_t *bulk_data_
     return CSR_RESULT_SUCCESS;
 }
 
+
 #endif
 
 /*
@@ -284,6 +295,7 @@ void unifi_sdio_interrupt_handler(card_t *card)
     card->bh_reason_unifi = 1;
     (void)unifi_run_bh(card->ospriv);
 } /*  sdio_interrupt_handler() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -317,6 +329,7 @@ CsrResult unifi_configure_low_power_mode(card_t                       *card,
     return CSR_RESULT_SUCCESS;
 } /* unifi_configure_low_power_mode() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_force_low_power_mode
@@ -342,6 +355,7 @@ CsrResult unifi_force_low_power_mode(card_t *card)
     return unifi_set_host_state(card, UNIFI_HOST_STATE_TORPID);
 } /* unifi_force_low_power_mode() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_bh
@@ -364,6 +378,7 @@ CsrResult unifi_bh(card_t *card, u32 *remaining)
     s32 iostate, j;
     const enum unifi_low_power_mode low_power_mode = card->low_power_mode;
     u16 data_slots_used = 0;
+
 
     /* Process request to raise the maximum SDIO clock */
     r = process_clock_request(card);
@@ -515,6 +530,7 @@ CsrResult unifi_bh(card_t *card, u32 *remaining)
         return CSR_RESULT_SUCCESS;
     } while (0);
 
+
     /* Disable the SDIO interrupts while doing SDIO ops */
     csrResult = CsrSdioInterruptDisable(card->sdio_if);
     if (csrResult == CSR_SDIO_RESULT_NO_DEVICE)
@@ -623,6 +639,7 @@ exit:
     return r;
 } /* unifi_bh() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  process_clock_request
@@ -681,6 +698,7 @@ static CsrResult process_clock_request(card_t *card)
 
     return r;
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -752,6 +770,7 @@ static CsrResult process_bh(card_t *card)
             card->cmd_prof.sdio_cmd_from_host_and_clear = 0;
 #endif
 
+
         } while (more || card->bh_reason_unifi || card->bh_reason_host);
 
         /* Acknowledge the h/w interrupt */
@@ -821,6 +840,7 @@ static CsrResult process_bh(card_t *card)
     return CSR_RESULT_SUCCESS;
 } /* process_bh() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  handle_host_protocol
@@ -855,6 +875,7 @@ static CsrResult handle_host_protocol(card_t *card, u8 *processed_something)
 
     card->bh_reason_unifi = card->bh_reason_host = 0;
     card->generate_interrupt = 0;
+
 
     /*
      * (Re)fill the T-H signal buffer
@@ -914,6 +935,7 @@ static CsrResult handle_host_protocol(card_t *card, u8 *processed_something)
         return r;
     }
 
+
     /*
      * Send the host interrupt to say the queues have been modified.
      */
@@ -952,11 +974,13 @@ static CsrResult handle_host_protocol(card_t *card, u8 *processed_something)
     return r;
 } /* handle_host_protocol() */
 
+
 /*
  *      Rounds the given signal length in bytes to a whole number
  *      of sig_frag_size.
  */
 #define GET_CHUNKS_FOR(SIG_FRAG_SIZE, LENGTH) (((LENGTH) + ((SIG_FRAG_SIZE)-1)) / (SIG_FRAG_SIZE))
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1008,6 +1032,7 @@ static CsrResult read_to_host_signals(card_t *card, s32 *processed)
 
     unread_bytes = card->config_data.sig_frag_size * unread_chunks;
 
+
     r = unifi_bulk_rw(card,
                       card->config_data.tohost_sigbuf_handle,
                       card->th_buffer.ptr,
@@ -1026,6 +1051,7 @@ static CsrResult read_to_host_signals(card_t *card, s32 *processed)
 
     return CSR_RESULT_SUCCESS;
 } /* read_to_host_signals() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1073,6 +1099,7 @@ static CsrResult update_to_host_signals_r(card_t *card, s16 pending)
     return CSR_RESULT_SUCCESS;
 } /* update_to_host_signals_r() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  read_unpack_cmd
@@ -1099,6 +1126,7 @@ static void read_unpack_cmd(const u8 *ptr, bulk_data_cmd_t *bulk_data_cmd)
     bulk_data_cmd->buffer_handle = CSR_GET_UINT16_FROM_LITTLE_ENDIAN(ptr + index);
     index += SIZEOF_UINT16;
 } /* read_unpack_cmd */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1210,6 +1238,7 @@ static CsrResult process_to_host_signals(card_t *card, s32 *processed)
                         card->to_host_signals_r);
             return CSR_RESULT_FAILURE;
         }
+
 
         switch (cmd)
         {
@@ -1380,6 +1409,7 @@ static CsrResult process_to_host_signals(card_t *card, s32 *processed)
 #endif
                 break;
 
+
             case SDIO_CMD_CLEAR_SLOT:
 #if defined (CSR_WIFI_HIP_DEBUG_OFFLINE) && defined (CSR_WIFI_HIP_DATA_PLANE_PROFILE)
                 card->cmd_prof.sdio_cmd_clear_slot++;
@@ -1508,10 +1538,12 @@ static CsrResult process_to_host_signals(card_t *card, s32 *processed)
     }
     card->th_buffer.ptr = card->th_buffer.buf + remaining;
 
+
     /* If we reach here then we processed something */
     *processed = 1;
     return CSR_RESULT_SUCCESS;
 } /* process_to_host_signals() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1580,6 +1612,7 @@ static CsrResult process_clear_slot_command(card_t *card, const u8 *cmdptr)
 
     return CSR_RESULT_SUCCESS;
 } /* process_clear_slot_command() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1708,6 +1741,7 @@ static CsrResult process_bulk_data_command(card_t *card, const u8 *cmdptr,
                 slot, bdslot->os_data_ptr, offset);
 #endif /* CSR_WIFI_HIP_NOISY */
 
+
     if (bdslot->os_data_ptr == NULL)
     {
         unifi_error(card->ospriv, "Null os_data_ptr - Bulk %s handle %d - slot=%d o=(%d)\n",
@@ -1795,12 +1829,14 @@ static CsrResult process_bulk_data_command(card_t *card, const u8 *cmdptr,
             card->fh_slot_host_tag_record[slot] = CSR_WIFI_HIP_RESERVED_HOST_TAG;
         }
 
+
         /* Set length field in from_host_data array to 0 */
         CardClearFromHostDataSlot(card, slot);
     }
 
     return CSR_RESULT_SUCCESS;
 } /* process_bulk_data_command() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1858,6 +1894,7 @@ static CsrResult check_fh_sig_slots(card_t *card, u16 needed, s32 *space_fh)
     return CSR_RESULT_SUCCESS;
 } /* check_fh_sig_slots() */
 
+
 /*
 * If we are padding the From-Host signals to the SDIO block size,
 * we need to round up the needed_chunks to the SDIO block size.
@@ -1878,6 +1915,7 @@ static CsrResult check_fh_sig_slots(card_t *card, u16 needed, s32 *space_fh)
         } \
     }
 
+
 #define ROUND_UP_SPACE_CHUNKS(_card, _space_chunks) \
     { \
         u16 _chunks_per_block; \
@@ -1888,6 +1926,10 @@ static CsrResult check_fh_sig_slots(card_t *card, u16 needed, s32 *space_fh)
             _space_chunks = ((_space_chunks / _chunks_per_block) * _chunks_per_block); \
         } \
     }
+
+
+
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1971,6 +2013,7 @@ static CsrResult process_fh_cmd_queue(card_t *card, s32 *processed)
     unifi_error(card->ospriv, "proc_fh: %d chunks free, need %d\n",
                 space_chunks, needed_chunks);
 #endif /* CSR_WIFI_HIP_NOISY */
+
 
     /*
      * Coalesce as many from-host signals as possible
@@ -2069,6 +2112,7 @@ static CsrResult process_fh_cmd_queue(card_t *card, s32 *processed)
                     GET_SIGNAL_ID(packed_sigptr));
 #endif  /* CSR_WIFI_HIP_NOISY */
 
+
         /* Append packed signal to F-H buffer */
         total_length = sig_chunks * card->config_data.sig_frag_size;
 
@@ -2116,6 +2160,7 @@ static CsrResult process_fh_cmd_queue(card_t *card, s32 *processed)
 
     return CSR_RESULT_SUCCESS;
 } /* process_fh_cmd_queue() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -2398,6 +2443,7 @@ static CsrResult process_fh_traffic_queue(card_t *card, s32 *processed)
     return CSR_RESULT_SUCCESS;
 } /* process_fh_traffic_queue() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  flush_fh_buffer
@@ -2508,6 +2554,7 @@ static CsrResult flush_fh_buffer(card_t *card)
     return CSR_RESULT_SUCCESS;
 } /* flush_fh_buffer() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  restart_packet_flow
@@ -2544,3 +2591,5 @@ static void restart_packet_flow(card_t *card)
         }
     }
 } /* restart_packet_flow() */
+
+

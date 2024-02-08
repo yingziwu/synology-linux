@@ -713,6 +713,7 @@ struct task_struct *__switch_to(struct task_struct *prev,
 #endif /* CONFIG_HAVE_HW_BREAKPOINT */
 #endif
 
+
 	new_thread = &new->thread;
 	old_thread = &current->thread;
 

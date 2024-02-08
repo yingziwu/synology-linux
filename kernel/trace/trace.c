@@ -158,6 +158,7 @@ static int __init boot_alloc_snapshot(char *str)
 }
 __setup("alloc_snapshot", boot_alloc_snapshot);
 
+
 static char trace_boot_options_buf[MAX_TRACER_SIZE] __initdata;
 static char *trace_boot_options __initdata;
 
@@ -2048,6 +2049,7 @@ __trace_array_vprintk(struct ring_buffer *buffer,
 	pc = preempt_count();
 	preempt_disable_notrace();
 
+
 	tbuffer = get_trace_buf();
 	if (!tbuffer) {
 		len = 0;
@@ -3059,11 +3061,17 @@ static int tracing_open(struct inode *inode, struct file *file)
 	/* If this file was open for write, then erase contents */
 	if ((file->f_mode & FMODE_WRITE) && (file->f_flags & O_TRUNC)) {
 		int cpu = tracing_get_cpu(inode);
+		struct trace_buffer *trace_buf = &tr->trace_buffer;
+
+#ifdef CONFIG_TRACER_MAX_TRACE
+		if (tr->current_trace->print_max)
+			trace_buf = &tr->max_buffer;
+#endif
 
 		if (cpu == RING_BUFFER_ALL_CPUS)
-			tracing_reset_online_cpus(&tr->trace_buffer);
+			tracing_reset_online_cpus(trace_buf);
 		else
-			tracing_reset(&tr->trace_buffer, cpu);
+			tracing_reset(trace_buf, cpu);
 	}
 
 	if (file->f_mode & FMODE_READ) {
@@ -3751,6 +3759,7 @@ out:
 
 	return ret;
 }
+
 
 /**
  * tracing_update_buffers - used by tracing facility to expand ring buffers
@@ -4651,7 +4660,7 @@ static ssize_t tracing_clock_write(struct file *filp, const char __user *ubuf,
 	tracing_reset_online_cpus(&tr->trace_buffer);
 
 #ifdef CONFIG_TRACER_MAX_TRACE
-	if (tr->flags & TRACE_ARRAY_FL_GLOBAL && tr->max_buffer.buffer)
+	if (tr->max_buffer.buffer)
 		ring_buffer_set_clock(tr->max_buffer.buffer, trace_clocks[i].func);
 	tracing_reset_online_cpus(&tr->max_buffer);
 #endif
@@ -4850,6 +4859,7 @@ static int snapshot_raw_open(struct inode *inode, struct file *filp)
 }
 
 #endif /* CONFIG_TRACER_SNAPSHOT */
+
 
 static const struct file_operations tracing_max_lat_fops = {
 	.open		= tracing_open_generic,
@@ -5464,11 +5474,13 @@ ftrace_trace_snapshot_callback(struct ftrace_hash *hash,
 		return ret;
 
  out_reg:
+	ret = alloc_snapshot(&global_trace);
+	if (ret < 0)
+		goto out;
+
 	ret = register_ftrace_function_probe(glob, ops, count);
 
-	if (ret >= 0)
-		alloc_snapshot(&global_trace);
-
+ out:
 	return ret < 0 ? ret : 0;
 }
 
@@ -5636,6 +5648,7 @@ trace_options_write(struct file *filp, const char __user *ubuf, size_t cnt,
 	return cnt;
 }
 
+
 static const struct file_operations trace_options_fops = {
 	.open = tracing_open_generic,
 	.read = trace_options_read,
@@ -5707,6 +5720,7 @@ struct dentry *trace_create_file(const char *name,
 
 	return ret;
 }
+
 
 static struct dentry *trace_options_init_dentry(struct trace_array *tr)
 {
@@ -6403,6 +6417,7 @@ __init static int tracer_alloc_buffers(void)
 {
 	int ring_buf_size;
 	int ret = -ENOMEM;
+
 
 	if (!alloc_cpumask_var(&tracing_buffer_mask, GFP_KERNEL))
 		goto out;

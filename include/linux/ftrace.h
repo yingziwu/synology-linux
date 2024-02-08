@@ -40,6 +40,7 @@
 # define FTRACE_FORCE_LIST_FUNC 0
 #endif
 
+
 struct module;
 struct ftrace_hash;
 
@@ -386,6 +387,7 @@ struct dyn_ftrace *ftrace_rec_iter_record(struct ftrace_rec_iter *iter);
 	for (iter = ftrace_rec_iter_start();	\
 	     iter;				\
 	     iter = ftrace_rec_iter_next(iter))
+
 
 int ftrace_update_record(struct dyn_ftrace *rec, int enable);
 int ftrace_test_record(struct dyn_ftrace *rec, int enable);

@@ -1,7 +1,17 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/fs/ext4/hash.c
+ *
+ * Copyright (C) 2002 by Theodore Ts'o
+ *
+ * This file is released under the GPL v2.
+ *
+ * This file may be redistributed under the terms of the GNU Public
+ * License.
+ */
+
 #include <linux/fs.h>
 #include <linux/jbd2.h>
 #include <linux/cryptohash.h>
@@ -26,6 +36,8 @@ static void TEA_transform(__u32 buf[4], __u32 const in[])
 	buf[1] += b1;
 }
 
+
+/* The old legacy hash */
 static __u32 dx_hack_hash_unsigned(const char *name, int len)
 {
 	__u32 hash, hash0 = 0x12a3fe2d, hash1 = 0x37abe8f9;
@@ -114,6 +126,19 @@ static void str2hashbuf_unsigned(const char *msg, int len, __u32 *buf, int num)
 		*buf++ = pad;
 }
 
+/*
+ * Returns the hash of a filename.  If len is 0 and name is NULL, then
+ * this function can be used to test whether or not a hash version is
+ * supported.
+ *
+ * The seed is an 4 longword (32 bits) "secret" which can be used to
+ * uniquify a hash.  If the seed is all zero's, then some default seed
+ * may be used.
+ *
+ * A particular hash version specifies whether or not the seed is
+ * represented, and whether or not the returned hash is 32 bits or 64
+ * bits.  32 bit hashes will return 0 for the minor hash.
+ */
 int ext4fs_dirhash(const char *name, int len, struct dx_hash_info *hinfo)
 {
 	__u32	hash;
@@ -124,12 +149,15 @@ int ext4fs_dirhash(const char *name, int len, struct dx_hash_info *hinfo)
 	void		(*str2hashbuf)(const char *, int, __u32 *, int) =
 				str2hashbuf_signed;
 #ifdef MY_ABC_HERE
-	 
+	/*
+	 * hash_buf need to add 1 byte for syno_utf8_toupper,
+	 * because it will append 0 to last byte.
+	 */
 	char hash_buf[EXT4_NAME_LEN+1];
 	const char *ori_name = name;
 	int ori_len = len;
 
-	if (name && (len > 0)) {
+	if (hinfo->caseless && name && (len > 0)) {
 		if (len > EXT4_NAME_LEN) {
 			hinfo->hash = 0;
 			printk_ratelimited(KERN_ERR "SynoCaseless Stat name too long\n");
@@ -139,13 +167,15 @@ int ext4fs_dirhash(const char *name, int len, struct dx_hash_info *hinfo)
 								  EXT4_NAME_LEN , len, NULL);
 		name = hash_buf;
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
+	/* Initialize the default seed for the hash checksum functions */
 	buf[0] = 0x67452301;
 	buf[1] = 0xefcdab89;
 	buf[2] = 0x98badcfe;
 	buf[3] = 0x10325476;
 
+	/* Check to see if the seed is all zero's */
 	if (hinfo->seed) {
 		for (i = 0; i < 4; i++) {
 			if (hinfo->seed[i]) {
@@ -159,14 +189,16 @@ int ext4fs_dirhash(const char *name, int len, struct dx_hash_info *hinfo)
 	case DX_HASH_LEGACY_UNSIGNED:
 		hash = dx_hack_hash_unsigned(name, len);
 #ifdef MY_ABC_HERE
-		minor_hash = dx_hack_hash_unsigned(ori_name, ori_len);
-#endif  
+		if (hinfo->caseless)
+			minor_hash = dx_hack_hash_unsigned(ori_name, ori_len);
+#endif /* MY_ABC_HERE */
 		break;
 	case DX_HASH_LEGACY:
 		hash = dx_hack_hash_signed(name, len);
 #ifdef MY_ABC_HERE
-		minor_hash = dx_hack_hash_signed(ori_name, ori_len);
-#endif  
+		if (hinfo->caseless)
+			minor_hash = dx_hack_hash_signed(ori_name, ori_len);
+#endif /* MY_ABC_HERE */
 		break;
 	case DX_HASH_HALF_MD4_UNSIGNED:
 		str2hashbuf = str2hashbuf_unsigned;
@@ -179,24 +211,29 @@ int ext4fs_dirhash(const char *name, int len, struct dx_hash_info *hinfo)
 			p += 32;
 		}
 #ifdef MY_ABC_HERE
-		hash = buf[1];
-		p = ori_name;
-		len = ori_len;
-		buf[0] = 0x67452301;
-		buf[1] = 0xefcdab89;
-		buf[2] = 0x98badcfe;
-		buf[3] = 0x10325476;
-		while (len > 0) {
-			(*str2hashbuf)(p, len, in, 8);
-			half_md4_transform(buf, in);
-			len -= 32;
-			p += 32;
+		if (hinfo->caseless) {
+			hash = buf[1];
+			p = ori_name;
+			len = ori_len;
+			buf[0] = 0x67452301;
+			buf[1] = 0xefcdab89;
+			buf[2] = 0x98badcfe;
+			buf[3] = 0x10325476;
+			while (len > 0) {
+				(*str2hashbuf)(p, len, in, 8);
+				half_md4_transform(buf, in);
+				len -= 32;
+				p += 32;
+			}
+			minor_hash = buf[2];
+		} else {
+			minor_hash = buf[2];
+			hash = buf[1];
 		}
-		minor_hash = buf[2];
 #else
 		minor_hash = buf[2];
 		hash = buf[1];
-#endif  
+#endif /* MY_ABC_HERE */
 		break;
 	case DX_HASH_TEA_UNSIGNED:
 		str2hashbuf = str2hashbuf_unsigned;
@@ -210,19 +247,21 @@ int ext4fs_dirhash(const char *name, int len, struct dx_hash_info *hinfo)
 		}
 		hash = buf[0];
 #ifdef MY_ABC_HERE
-		p = ori_name;
-		len = ori_len;
-		buf[0] = 0x67452301;
-		buf[1] = 0xefcdab89;
-		buf[2] = 0x98badcfe;
-		buf[3] = 0x10325476;
-		while (len > 0) {
-			(*str2hashbuf)(p, len, in, 4);
-			TEA_transform(buf, in);
-			len -= 16;
-			p += 16;
+		if (hinfo->caseless) {
+			p = ori_name;
+			len = ori_len;
+			buf[0] = 0x67452301;
+			buf[1] = 0xefcdab89;
+			buf[2] = 0x98badcfe;
+			buf[3] = 0x10325476;
+			while (len > 0) {
+				(*str2hashbuf)(p, len, in, 4);
+				TEA_transform(buf, in);
+				len -= 16;
+				p += 16;
+			}
 		}
-#endif  
+#endif /* MY_ABC_HERE */
 		minor_hash = buf[1];
 		break;
 	default:

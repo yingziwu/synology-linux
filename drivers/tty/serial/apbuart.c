@@ -120,6 +120,7 @@ static void apbuart_rx_chars(struct uart_port *port)
 
 		uart_insert_char(port, rsr, UART_STATUS_OE, ch, flag);
 
+
 	      ignore_char:
 		status = UART_GET_STATUS(port);
 	}
@@ -414,6 +415,7 @@ static void apbuart_flush_fifo(struct uart_port *port)
 		UART_GET_CHAR(port);
 }
 
+
 /* ======================================================================== */
 /* Console driver, if enabled                                               */
 /* ======================================================================== */
@@ -518,6 +520,7 @@ static struct console grlib_apbuart_console = {
 	.data = &grlib_apbuart_driver,
 };
 
+
 static int grlib_apbuart_configure(void);
 
 static int __init apbuart_console_init(void)
@@ -544,6 +547,7 @@ static struct uart_driver grlib_apbuart_driver = {
 	.nr = UART_NR,
 	.cons = APBUART_CONSOLE,
 };
+
 
 /* ======================================================================== */
 /* OF Platform Driver                                                       */
@@ -590,6 +594,7 @@ static struct platform_driver grlib_apbuart_of_driver = {
 		.of_match_table = apbuart_match,
 	},
 };
+
 
 static int __init grlib_apbuart_configure(void)
 {

@@ -44,3 +44,4 @@ struct psb_fbdev {
 extern int psb_intel_connector_clones(struct drm_device *dev, int type_mask);
 
 #endif
+

@@ -751,6 +751,7 @@ int __cpu_disable(void)
 	}
 	of_node_put(l2_cache);
 
+
 	return 0;
 }
 

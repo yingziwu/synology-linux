@@ -1124,6 +1124,7 @@ static int nfs_flush_multi(struct nfs_pageio_descriptor *desc,
 	     desc->pg_count > wsize))
 		desc->pg_ioflags &= ~FLUSH_COND_STABLE;
 
+
 	offset = 0;
 	nbytes = desc->pg_count;
 	do {
@@ -1245,6 +1246,7 @@ void nfs_pageio_reset_write_mds(struct nfs_pageio_descriptor *pgio)
 }
 EXPORT_SYMBOL_GPL(nfs_pageio_reset_write_mds);
 
+
 void nfs_write_prepare(struct rpc_task *task, void *calldata)
 {
 	struct nfs_write_data *data = calldata;
@@ -1298,6 +1300,7 @@ static const struct rpc_call_ops nfs_write_common_ops = {
 	.rpc_call_done = nfs_writeback_done_common,
 	.rpc_release = nfs_writeback_release_common,
 };
+
 
 /*
  * This function is called when the WRITE call is complete.
@@ -1382,6 +1385,7 @@ void nfs_writeback_done(struct rpc_task *task, struct nfs_write_data *data)
 		rpc_restart_call_prepare(task);
 	}
 }
+
 
 #if IS_ENABLED(CONFIG_NFS_V3) || IS_ENABLED(CONFIG_NFS_V4)
 static int nfs_commit_set_lock(struct nfs_inode *nfsi, int may_wait)
@@ -1867,3 +1871,4 @@ void nfs_destroy_writepagecache(void)
 	mempool_destroy(nfs_wdata_mempool);
 	kmem_cache_destroy(nfs_wdata_cachep);
 }
+

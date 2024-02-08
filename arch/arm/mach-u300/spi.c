@@ -89,6 +89,7 @@ static struct pl022_ssp_controller ssp_platform_data = {
 #endif
 };
 
+
 void __init u300_spi_init(struct amba_device *adev)
 {
 	adev->dev.platform_data = &ssp_platform_data;

@@ -327,6 +327,7 @@ struct pn533_cmd_jump_dep_response {
 	u8 gt[];
 } __packed;
 
+
 /* PN533_TG_INIT_AS_TARGET */
 #define PN533_INIT_TARGET_PASSIVE 0x1
 #define PN533_INIT_TARGET_DEP 0x2
@@ -813,6 +814,7 @@ static void pn533_build_cmd_frame(struct pn533 *dev, u8 cmd_code,
 	int payload_len = skb->len;
 	struct pn533_frame_ops *ops = dev->ops;
 
+
 	skb_push(skb, ops->tx_header_len);
 	skb_put(skb, ops->tx_tail_len);
 
@@ -1150,6 +1152,7 @@ struct pn533_target_type_a {
 	u8 nfcid_len;
 	u8 nfcid_data[];
 } __packed;
+
 
 #define PN533_TYPE_A_SENS_RES_NFCID1(x) ((u8)((be16_to_cpu(x) & 0x00C0) >> 6))
 #define PN533_TYPE_A_SENS_RES_SSD(x) ((u8)((be16_to_cpu(x) & 0x001F) >> 0))
@@ -1969,6 +1972,7 @@ static void pn533_deactivate_target(struct nfc_dev *nfc_dev,
 	return;
 }
 
+
 static int pn533_in_dep_link_up_complete(struct pn533 *dev, void *arg,
 					 struct sk_buff *resp)
 {
@@ -2627,6 +2631,7 @@ static int pn533_setup(struct pn533 *dev)
 		return rc;
 	}
 
+
 	rc = pn533_set_configuration(dev, PN533_CFGITEM_TIMING,
 				     (u8 *)&timing, sizeof(timing));
 	if (rc) {
@@ -2771,6 +2776,7 @@ static int pn533_probe(struct usb_interface *interface,
 	nfc_dev_info(&dev->interface->dev,
 		     "NXP PN533 firmware ver %d.%d now attached",
 		     fw_ver.ver, fw_ver.rev);
+
 
 	dev->nfc_dev = nfc_allocate_device(&pn533_nfc_ops, protocols,
 					   NFC_SE_NONE,

@@ -109,4 +109,5 @@ static inline int dsi_vc_generic_read_2(struct intel_dsi *intel_dsi,
 	return dsi_vc_generic_read(intel_dsi, channel, req, 2, buf, buflen);
 }
 
+
 #endif /* _INTEL_DSI_DSI_H */

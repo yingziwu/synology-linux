@@ -51,6 +51,7 @@
   * A lot code is taken from net/sched/estimator.c
  */
 
+
 /*
  * Make a summary from each cpu
  */
@@ -86,6 +87,7 @@ static void ip_vs_read_cpu_stats(struct ip_vs_stats_user *sum,
 		}
 	}
 }
+
 
 static void estimation_timer(unsigned long arg)
 {

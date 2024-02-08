@@ -778,3 +778,4 @@ int cmd_kmem(int argc, const char **argv, const char *prefix __maybe_unused)
 
 	return 0;
 }
+

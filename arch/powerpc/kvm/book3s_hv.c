@@ -1493,6 +1493,7 @@ int kvmppc_vcpu_run(struct kvm_run *run, struct kvm_vcpu *vcpu)
 	return r;
 }
 
+
 /* Work out RMLS (real mode limit selector) field value for a given RMA size.
    Assumes POWER7 or PPC970. */
 static inline int lpcr_rmls(unsigned long rma_size)

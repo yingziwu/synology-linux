@@ -906,6 +906,7 @@ void icmpv6_cleanup(void)
 	inet6_del_protocol(&icmpv6_protocol, IPPROTO_ICMPV6);
 }
 
+
 static const struct icmp6_err {
 	int err;
 	int fatal;
@@ -999,3 +1000,4 @@ struct ctl_table * __net_init ipv6_icmp_sysctl_init(struct net *net)
 	return table;
 }
 #endif
+

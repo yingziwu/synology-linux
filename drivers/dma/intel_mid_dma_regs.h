@@ -157,6 +157,7 @@ union intel_mid_dma_cfg_hi {
 	u32	cfg_hi;
 };
 
+
 /**
  * struct intel_mid_dma_chan - internal mid representation of a DMA channel
  * @chan: dma_chan strcture represetation for mid chan
@@ -291,6 +292,7 @@ static inline struct intel_mid_dma_slave *to_intel_mid_dma_slave
 {
 	return container_of(slave, struct intel_mid_dma_slave, dma_slave);
 }
+
 
 int dma_resume(struct device *dev);
 

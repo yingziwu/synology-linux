@@ -117,6 +117,7 @@ qxl_image_create_helper(struct qxl_device *qdev,
 		}
 	}
 
+
 	qxl_bo_kunmap(chunk_bo);
 
 	/* Image */

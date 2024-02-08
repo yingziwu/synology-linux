@@ -94,6 +94,7 @@ static int __init integrator_leds_init(void)
 		if (!led)
 			break;
 
+
 		led->cdev.name = integrator_leds[i].name;
 
 		if (i == 4) { /* Setting for LED in core module */

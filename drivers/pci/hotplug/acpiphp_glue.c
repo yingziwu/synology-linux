@@ -146,6 +146,7 @@ static int post_dock_fixups(struct notifier_block *nb, unsigned long val,
 	return NOTIFY_OK;
 }
 
+
 static const struct acpi_dock_ops acpiphp_dock_ops = {
 	.handler = hotplug_event_func,
 };
@@ -350,6 +351,7 @@ register_slot(acpi_handle handle, u32 lvl, void *context, void **rv)
 	return AE_OK;
 }
 
+
 /* see if it's worth looking at this bridge */
 static int detect_ejectable_slots(acpi_handle handle)
 {
@@ -401,6 +403,7 @@ static void init_bridge_misc(struct acpiphp_bridge *bridge)
 	}
 }
 
+
 /* find acpiphp_func from acpiphp_bridge */
 static struct acpiphp_func *acpiphp_bridge_handle_to_function(acpi_handle handle)
 {
@@ -424,6 +427,7 @@ static struct acpiphp_func *acpiphp_bridge_handle_to_function(acpi_handle handle
 
 	return NULL;
 }
+
 
 static struct acpiphp_bridge *acpiphp_handle_to_bridge(acpi_handle handle)
 {
@@ -518,6 +522,7 @@ static int power_on_slot(struct acpiphp_slot *slot)
 	return retval;
 }
 
+
 static int power_off_slot(struct acpiphp_slot *slot)
 {
 	acpi_status status;
@@ -549,6 +554,8 @@ static int power_off_slot(struct acpiphp_slot *slot)
 	return retval;
 }
 
+
+
 /**
  * acpiphp_max_busnr - return the highest reserved bus number under the given bus.
  * @bus: bus to start search with
@@ -576,6 +583,7 @@ static unsigned char acpiphp_max_busnr(struct pci_bus *bus)
 	return max;
 }
 
+
 /**
  * acpiphp_bus_add - add a new bus to acpi subsystem
  * @func: acpiphp_func of the bridge
@@ -602,6 +610,7 @@ static int acpiphp_bus_add(struct acpiphp_func *func)
 
 	return ret_val;
 }
+
 
 /**
  * acpiphp_bus_trim - trim a bus from acpi subsystem
@@ -736,6 +745,7 @@ static int __ref enable_device(struct acpiphp_slot *slot)
 		}
 	}
 
+
  err_exit:
 	return 0;
 }
@@ -786,6 +796,7 @@ static int disable_device(struct acpiphp_slot *slot)
 
 	return 0;
 }
+
 
 /**
  * get_slot_status - get ACPI slot status
@@ -1270,6 +1281,7 @@ int acpiphp_disable_slot(struct acpiphp_slot *slot)
 	return retval;
 }
 
+
 /*
  * slot enabled:  1
  * slot disabled: 0
@@ -1278,6 +1290,7 @@ u8 acpiphp_get_power_status(struct acpiphp_slot *slot)
 {
 	return (slot->flags & SLOT_POWEREDON);
 }
+
 
 /*
  * latch   open:  1
@@ -1291,6 +1304,7 @@ u8 acpiphp_get_latch_status(struct acpiphp_slot *slot)
 
 	return (sta & ACPI_STA_DEVICE_UI) ? 0 : 1;
 }
+
 
 /*
  * adapter presence : 1

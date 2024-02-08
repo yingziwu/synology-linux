@@ -455,6 +455,7 @@ typedef u8 CsrWifiNmeWmmQosInfo;
 #define CSR_WIFI_NME_WMM_QOS_INFO_AC_MAX_SP_FOUR   ((CsrWifiNmeWmmQosInfo) 0x40)
 #define CSR_WIFI_NME_WMM_QOS_INFO_AC_MAX_SP_SIX    ((CsrWifiNmeWmmQosInfo) 0x60)
 
+
 /*******************************************************************************
 
   NAME
@@ -507,6 +508,7 @@ typedef u32 CsrWifiNmeNmeIndicationsMask;
 
 *******************************************************************************/
 typedef u8 CsrWifiNmeWmmQosInfoMask;
+
 
 /*******************************************************************************
 
@@ -894,6 +896,7 @@ typedef struct
     CsrWifiNmeCredentials     credentials;
 } CsrWifiNmeProfile;
 
+
 /* Downstream */
 #define CSR_WIFI_NME_PRIM_DOWNSTREAM_LOWEST            (0x0000)
 
@@ -910,6 +913,7 @@ typedef struct
 #define CSR_WIFI_NME_SIM_UMTS_AUTH_RES                    ((CsrWifiNmePrim) (0x000A + CSR_WIFI_NME_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_NME_WPS_CONFIG_SET_REQ                   ((CsrWifiNmePrim) (0x000B + CSR_WIFI_NME_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_NME_EVENT_MASK_SET_REQ                   ((CsrWifiNmePrim) (0x000C + CSR_WIFI_NME_PRIM_DOWNSTREAM_LOWEST))
+
 
 #define CSR_WIFI_NME_PRIM_DOWNSTREAM_HIGHEST           (0x000C + CSR_WIFI_NME_PRIM_DOWNSTREAM_LOWEST)
 
@@ -1650,3 +1654,4 @@ typedef struct
 } CsrWifiNmeEventMaskSetCfm;
 
 #endif /* CSR_WIFI_NME_PRIM_H__ */
+

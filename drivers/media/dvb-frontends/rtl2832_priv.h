@@ -48,6 +48,7 @@ struct rtl2832_reg_value {
 	u32 value;
 };
 
+
 /* Demod register bit names */
 enum DVBT_REG_BIT_NAME {
 	DVBT_SOFT_RST,

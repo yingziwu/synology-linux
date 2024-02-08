@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/fs/hfsplus/dir.c
+ *
+ * Copyright (C) 2001
+ * Brad Boyer (flar@allandria.com)
+ * (C) 2003 Ardis Technologies <roman@ardistech.com>
+ *
+ * Handling of directories
+ */
+
 #include <linux/errno.h>
 #include <linux/fs.h>
 #include <linux/slab.h>
@@ -22,6 +31,7 @@ static inline void hfsplus_instantiate(struct dentry *dentry,
 	d_instantiate(dentry, inode);
 }
 
+/* Find the entry inside dir named dentry->d_name */
 static struct dentry *hfsplus_lookup(struct inode *dir, struct dentry *dentry,
 				     unsigned int flags)
 {
@@ -34,7 +44,7 @@ static struct dentry *hfsplus_lookup(struct inode *dir, struct dentry *dentry,
 	u16 type;
 #ifdef MY_ABC_HERE
 	int nfc = 0;
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	mutex_lock(&syno_hfsplus_global_mutex);
@@ -65,7 +75,7 @@ NFC:
 	hfsplus_cat_build_key(sb, fd.search_key, dir->i_ino, &dentry->d_name, nfc);
 #else
 	hfsplus_cat_build_key(sb, fd.search_key, dir->i_ino, &dentry->d_name);
-#endif  
+#endif /* MY_ABC_HERE */
 again:
 	err = hfs_brec_read(&fd, &entry, sizeof(entry));
 	if (err) {
@@ -75,9 +85,9 @@ again:
 				nfc = 1;
 				goto NFC;
 			}
-#endif  
+#endif /* MY_ABC_HERE */
 			hfs_find_exit(&fd);
-			 
+			/* No such entry */
 			inode = NULL;
 			goto out;
 		}
@@ -101,18 +111,21 @@ again:
 				cpu_to_be32(HFSP_HARDLINK_TYPE) &&
 				entry.file.user_info.fdCreator ==
 				cpu_to_be32(HFSP_HFSPLUS_CREATOR) &&
+				HFSPLUS_SB(sb)->hidden_dir &&
 				(entry.file.create_date ==
 					HFSPLUS_I(HFSPLUS_SB(sb)->hidden_dir)->
 						create_date ||
 				entry.file.create_date ==
 					HFSPLUS_I(sb->s_root->d_inode)->
-						create_date) &&
-				HFSPLUS_SB(sb)->hidden_dir) {
+						create_date)) {
 			struct qstr str;
 			char name[32];
 
 			if (dentry->d_fsdata) {
-				 
+				/*
+				 * We found a link pointing to another link,
+				 * so ignore it and treat it as regular file.
+				 */
 				cnid = (unsigned long)dentry->d_fsdata;
 				linkid = 0;
 			} else {
@@ -129,7 +142,7 @@ again:
 				hfsplus_cat_build_key(sb, fd.search_key,
 					HFSPLUS_SB(sb)->hidden_dir->i_ino,
 					&str);
-#endif  
+#endif /* MY_ABC_HERE */
 				goto again;
 			}
 		} else if (!dentry->d_fsdata)
@@ -198,18 +211,18 @@ static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 	hfsplus_cat_build_key(sb, fd.search_key, inode->i_ino, NULL, 0);
 #else
 	hfsplus_cat_build_key(sb, fd.search_key, inode->i_ino, NULL);
-#endif  
+#endif /* MY_ABC_HERE */
 	err = hfs_brec_find(&fd, hfs_find_rec_by_key);
 	if (err)
 		goto out;
 
 	switch ((u32)filp->f_pos) {
 	case 0:
-		 
+		/* This is completely artificial... */
 		if (filldir(dirent, ".", 1, 0, inode->i_ino, DT_DIR))
 			goto out;
 		filp->f_pos++;
-		 
+		/* fall through */
 	case 1:
 		if (fd.entrylength > sizeof(entry) || fd.entrylength < 0) {
 			err = -EIO;
@@ -232,7 +245,7 @@ static int hfsplus_readdir(struct file *filp, void *dirent, filldir_t filldir)
 			    be32_to_cpu(entry.thread.parentID), DT_DIR))
 			goto out;
 		filp->f_pos++;
-		 
+		/* fall through */
 	default:
 		if (filp->f_pos >= inode->i_size)
 			goto out;
@@ -368,7 +381,7 @@ static int hfsplus_link(struct dentry *src_dentry, struct inode *dst_dir,
 		res = hfsplus_create_cat(cnid, src_dir,
 			&src_dentry->d_name, inode);
 		if (res)
-			 
+			/* panic? */
 			goto out;
 		sbi->file_count++;
 	}
@@ -508,9 +521,9 @@ static int hfsplus_symlink(struct inode *dir, struct dentry *dentry,
 
 	res = hfsplus_init_inode_security(inode, dir, &dentry->d_name);
 	if (res == -EOPNOTSUPP)
-		res = 0;  
+		res = 0; /* Operation is not supported. */
 	else if (res) {
-		 
+		/* Try to delete anyway without error analysis. */
 		hfsplus_delete_cat(inode->i_ino, dir, &dentry->d_name);
 		goto out_err;
 	}
@@ -556,9 +569,9 @@ static int hfsplus_mknod(struct inode *dir, struct dentry *dentry,
 
 	res = hfsplus_init_inode_security(inode, dir, &dentry->d_name);
 	if (res == -EOPNOTSUPP)
-		res = 0;  
+		res = 0; /* Operation is not supported. */
 	else if (res) {
-		 
+		/* Try to delete anyway without error analysis. */
 		hfsplus_delete_cat(inode->i_ino, dir, &dentry->d_name);
 		goto failed_mknod;
 	}
@@ -595,6 +608,7 @@ static int hfsplus_rename(struct inode *old_dir, struct dentry *old_dentry,
 {
 	int res;
 
+	/* Unlink destination if it already exists */
 	if (new_dentry->d_inode) {
 		if (S_ISDIR(new_dentry->d_inode->i_mode))
 			res = hfsplus_rmdir(new_dir, new_dentry);

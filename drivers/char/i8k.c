@@ -461,6 +461,7 @@ static int i8k_open_fs(struct inode *inode, struct file *file)
 	return single_open(file, i8k_proc_show, NULL);
 }
 
+
 /*
  * Hwmon interface
  */

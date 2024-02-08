@@ -233,6 +233,7 @@ static void __vlv_force_wake_put(struct drm_i915_private *dev_priv,
 		__raw_i915_write32(dev_priv, FORCEWAKE_VLV,
 					_MASKED_BIT_DISABLE(FORCEWAKE_KERNEL));
 
+
 	/* Check for Media Engine */
 	if (FORCEWAKE_MEDIA & fw_engine)
 		__raw_i915_write32(dev_priv, FORCEWAKE_MEDIA_VLV,
@@ -601,6 +602,7 @@ void gen6_gt_force_wake_put(struct drm_i915_private *dev_priv, int fw_engine)
 		vlv_force_wake_put(dev_priv, fw_engine);
 		goto out;
 	}
+
 
 	spin_lock_irqsave(&dev_priv->uncore.lock, irqflags);
 	WARN_ON(!dev_priv->uncore.forcewake_count);

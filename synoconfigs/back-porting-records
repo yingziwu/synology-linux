@@ -1,3 +1,29 @@
+BUG ID:<DSM> #113190 - md: batch flush requests.
+Commit Hashed:
+	2bc13b83e6298486371761de503faeffd15b7534
+
+BUG ID:<DSM> #113190 - Revert "MD: fix lock contention for flush bios"
+Commit Hashed:
+	4bc034d35377196c854236133b07730a777c4aba
+
+First Ready Kernel version: 4.19
+
+BUG ID: <DSM> #115132 - Btrfs: support swap files
+Commit Hashes:
+	ed46ff3d423780fa5173b38a844bf0fdb210a2a7
+
+BUG ID: <DSM> #113190 - MD: fix lock contention for flush bios
+Commit Hashes:
+	5a409b4f56d50b212334f338cb8465d65550cd85
+
+First Ready Kernel version: 4.18
+
+BUG ID: <DSM> #110694 - add for_each_entry_safe for lock-less list
+Commit Hashes:
+	809850b7a5fcc0a96d023e1171a7944c60fd5a71
+
+First Ready Kernel version: 3.1
+
 BUG ID: <DSM> #99714 - locking/atomic, kref: Add kref_read()
 Commit Hashes:
 	2c935bc57221cc2edc787c72ea0e2d30cdcd3d5e

@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCpuh
 #define __INCmvCpuh
 
@@ -93,5 +94,6 @@ MV_U32 mvCpuIfPrintSystemConfig(MV_8 *buffer, MV_U32 index);
 MV_U32 whoAmI(MV_VOID);
 
 #endif /* MV_ASMLANGUAGE */
+
 
 #endif /* __INCmvCpuh */

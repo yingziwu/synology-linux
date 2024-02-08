@@ -306,6 +306,7 @@ static inline struct fence *fence_later(struct fence *f1, struct fence *f2)
 
 signed long fence_wait_timeout(struct fence *, bool intr, signed long timeout);
 
+
 /**
  * fence_wait - sleep until the fence gets signaled
  * @fence:	[in]	the fence to wait on

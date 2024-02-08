@@ -25,6 +25,7 @@
 #include "csr_wifi_hip_signals.h"
 #include "csr_wifi_hip_unifi_udi.h"
 
+
 /*****************************************************************************
  * CardEnableInt -
  */
@@ -69,6 +70,7 @@ u16 CardGetDataSlotSize(card_t *card);
  * CardWriteBulkData -
  */
 CsrResult CardWriteBulkData(card_t *card, card_signal_t *csptr, unifi_TrafficQueue queue);
+
 
 /*****************************************************************************
  * CardClearFromHostDataSlot -

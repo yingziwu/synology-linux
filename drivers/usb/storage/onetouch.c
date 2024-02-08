@@ -59,6 +59,7 @@ struct usb_onetouch {
 	unsigned int is_open:1;
 };
 
+
 /*
  * The table of devices
  */
@@ -96,6 +97,7 @@ static struct us_unusual_dev onetouch_unusual_dev_list[] = {
 };
 
 #undef UNUSUAL_DEV
+
 
 static void usb_onetouch_irq(struct urb *urb)
 {

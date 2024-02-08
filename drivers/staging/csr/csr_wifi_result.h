@@ -24,3 +24,4 @@
 #define CSR_WIFI_HIP_RESULT_NOT_FOUND        ((CsrResult) 6) /* A file (typically a f/w patch) is not found */
 
 #endif /* CSR_WIFI_RESULT_H__ */
+

@@ -723,6 +723,7 @@ static void coda_device_run(void *m2m_priv)
 	coda_write(dev, CODA_ROT_MIR_ENABLE | ctx->params.rot_mode, CODA_CMD_ENC_PIC_ROT_MODE);
 	coda_write(dev, quant_param, CODA_CMD_ENC_PIC_QS);
 
+
 	picture_y = vb2_dma_contig_plane_dma_addr(src_buf, 0);
 	picture_cb = picture_y + q_data_src->width * q_data_src->height;
 	picture_cr = picture_cb + q_data_src->width / 2 *

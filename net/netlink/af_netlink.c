@@ -214,6 +214,7 @@ err1:
 	return NULL;
 }
 
+
 static void
 __netlink_set_ring(struct sock *sk, struct nl_mmap_req *req, bool tx_ring, void **pg_vec,
 		   unsigned int order)
@@ -2817,6 +2818,7 @@ static void netlink_seq_stop(struct seq_file *seq, void *v)
 	read_unlock(&nl_table_lock);
 }
 
+
 static int netlink_seq_show(struct seq_file *seq, void *v)
 {
 	if (v == SEQ_START_TOKEN) {
@@ -2850,6 +2852,7 @@ static const struct seq_operations netlink_seq_ops = {
 	.stop   = netlink_seq_stop,
 	.show   = netlink_seq_show,
 };
+
 
 static int netlink_seq_open(struct inode *inode, struct file *file)
 {

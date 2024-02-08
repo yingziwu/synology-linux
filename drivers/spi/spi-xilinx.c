@@ -275,6 +275,7 @@ static int xilinx_spi_txrx_bufs(struct spi_device *spi, struct spi_transfer *t)
 	xspi->remaining_bytes = t->len;
 	INIT_COMPLETION(xspi->done);
 
+
 	/* Enable the transmit empty interrupt, which we use to determine
 	 * progress on the transmission.
 	 */
@@ -323,6 +324,7 @@ static int xilinx_spi_txrx_bufs(struct spi_device *spi, struct spi_transfer *t)
 
 	return t->len - xspi->remaining_bytes;
 }
+
 
 /* This driver supports single master mode only. Hence Tx FIFO Empty
  * is the only interrupt we care about.
@@ -410,6 +412,7 @@ struct spi_master *xilinx_spi_init(struct device *dev, struct resource *mem,
 	} else
 		goto unmap_io;
 
+
 	/* SPI controller initializations */
 	xspi_init_hw(xspi);
 
@@ -487,6 +490,7 @@ static int xilinx_spi_probe(struct platform_device *dev)
 		dev_err(&dev->dev, "Missing slave select configuration data\n");
 		return -EINVAL;
 	}
+
 
 	r = platform_get_resource(dev, IORESOURCE_MEM, 0);
 	if (!r)

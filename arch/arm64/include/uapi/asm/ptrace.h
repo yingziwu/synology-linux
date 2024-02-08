@@ -23,6 +23,7 @@
 
 #include <asm/hwcap.h>
 
+
 /*
  * PSR bits
  */
@@ -57,6 +58,7 @@
 #define PSR_x		0x0000ff00	/* Extension		*/
 #define PSR_c		0x000000ff	/* Control		*/
 
+
 #ifndef __ASSEMBLY__
 
 /*
@@ -73,6 +75,7 @@ struct user_fpsimd_state {
 	__uint128_t	vregs[32];
 	__u32		fpsr;
 	__u32		fpcr;
+	__u32		__reserved[2];
 };
 
 struct user_hwdebug_state {
