@@ -26,6 +26,9 @@
 #include <linux/timer.h>
 #include <linux/wait.h>
 #include <linux/workqueue.h>
+#ifdef MY_ABC_HERE
+#include "md-hint.h"
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #define SYNO_RAID_LEVEL_F1 45
@@ -206,6 +209,11 @@ enum flag_bits {
 				 * a want_replacement device with same
 				 * raid_disk number.
 				 */
+#ifdef MY_ABC_HERE
+	SynoNonFullInsync,	/* This device is rebuilding in fast rebuilding
+				 * mode, so it's not fully in sync.
+				 */
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	DiskError,	/* device is know to have a fault in degraded state */
 #endif /* MY_ABC_HERE */
@@ -514,9 +522,6 @@ struct mddev {
 	unsigned char			auto_remap;
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
-	unsigned char			enable_rmw;     // 0 ==> force rcw path.
-#endif /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
 	#define MD_SYNC_DEBUG_OFF 0
 	#define MD_SYNC_DEBUG_ON 1
 	unsigned char           sync_debug;
@@ -551,7 +556,40 @@ struct mddev {
 	void (*sync_super)(struct mddev *mddev, struct md_rdev *rdev);
 
 #ifdef MY_ABC_HERE
+	/**
+	 * syno_rh_tree is used to record rebuild hints,
+	 * hints in syno_rh_tree recorded the virtual address
+	 * of array which could be skipped during rebuilding.
+	 */
+	struct syno_hint_tree syno_rh_tree;
+	/**
+	 * syno_rh_mutex protects:
+	 *  syno_rh_tree,
+	 *  syno_allow_fast_rebuild - Avoid any hint being added
+	 *                            after set it to false.
+	 */
+	struct mutex syno_rh_mutex;
+	sector_t syno_rh_skipped_sectors;
+	bool syno_allow_fast_rebuild;
+#ifdef MY_ABC_HERE
+	/**
+	 * syno_sh_tree is used to record scrubbing hints,
+	 * hints in syno_sh_tree record the dev sectors already
+	 * rebuiled.
+	 *
+	 * syno_sh_tree is only used in sync_thread and md_stop,
+	 * so we don't need any lock to protect it.
+	 */
+	struct syno_hint_tree syno_sh_tree;
+	sector_t syno_last_rebuild_start;
+	bool syno_enable_requested_resync_hints;
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	unsigned char has_raid0_layout_feature;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	int syno_md_thread_fixed_node;
 #endif /* MY_ABC_HERE */
 };
 
@@ -619,6 +657,32 @@ struct md_personality
 	void (*syno_set_rdev_auto_remap) (struct mddev *mddev);
 #endif /* MY_ABC_HERE */
 	void *(*takeover) (struct mddev *mddev);
+#ifdef MY_ABC_HERE
+	/* align_chunk_addr_virt_to_dev is used to transfer a range of
+	 * virtual addresses of array to the range of addresses of devices.
+	 * The addresses of devices need to be including in specified virtual
+	 * addresses range, so we need to align the chunk sectors.
+	 *
+	 * e.g. 3drive raid5:
+	 *
+	 *  dev_addr +---+---+---+
+	 *     0     | 0 | 1 | P |   a. [0 ,4) in array -> [0, 2) in devices
+	 *           +---+---+---+   b. [1, 5) in array -> [1, 2) in devices
+	 *     1     | 3 | P | 2 |   c. [2, 3) in array -> [1, 1) in devices
+	 *           +---+---+---+      note that [1,1) is illegal interval.
+	 *     2     | P | 4 | 5 |
+	 *           +---+---+---+
+	 *     each chunk represent the range of [X, X+1)
+	 */
+	void (*align_chunk_addr_virt_to_dev)(struct mddev *mddev,
+					     sector_t virt_start,
+					     sector_t virt_end,
+					     sector_t *dev_start,
+					     sector_t *dev_end);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	void (*adjust_md_threads_node) (struct mddev *mddev);
+#endif /* MY_ABC_HERE */
 };
 
 
@@ -701,6 +765,12 @@ static inline void safe_put_page(struct page *p)
 	if (p) put_page(p);
 }
 
+#ifdef MY_ABC_HERE
+extern sector_t md_speedup_rebuild(struct mddev *mddev, sector_t sector_nr);
+#ifdef MY_ABC_HERE
+extern sector_t md_speedup_requested_resync(struct mddev *mddev, sector_t sector_nr);
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 extern void SynoUpdateSBTask(struct work_struct *work);
 #endif /* MY_ABC_HERE */

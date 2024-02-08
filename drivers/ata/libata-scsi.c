@@ -583,47 +583,47 @@ syno_sata_error_event_debug_store(struct device *dev, struct device_attribute *a
 
 	if (funcSYNOSataErrorReport) {
 		memset(&parms, 0, sizeof(parms));
-		parms.data1 = iStartIdx;
-		parms.data2 = ap->nr_pmp_links;
-		parms.data3 = ata_dev->link->pmp;
-		parms.data4 = SERR_10B_8B_ERR;
-		parms.data5 = ATA_ICRC;
+		parms.data[0] = iStartIdx;
+		parms.data[1] = ap->nr_pmp_links;
+		parms.data[2] = ata_dev->link->pmp;
+		parms.data[3] = SERR_10B_8B_ERR;
+		parms.data[4] = ATA_ICRC;
 		funcSYNOSataErrorReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {SError: 10B8B} {Error: ICRC} --------------------\n");
-		parms.data4 = SERR_HANDSHAKE | SERR_DISPARITY;
-		parms.data5 = ATA_UNC;
+		parms.data[3] = SERR_HANDSHAKE | SERR_DISPARITY;
+		parms.data[4] = ATA_UNC;
 		funcSYNOSataErrorReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {SError: Dispar Handshk} {Error: UNC} --------------------\n");
-		parms.data4 = 0;
-		parms.data5 = ATA_IDNF | ATA_ABORTED | ATA_UNC;
+		parms.data[3] = 0;
+		parms.data[4] = ATA_IDNF | ATA_ABORTED | ATA_UNC;
 		funcSYNOSataErrorReport(parms);
 		printk(KERN_ERR "----------------------- send event: {Error: UNC IDNF ABORTED} --------------------\n");
 	}
 	if (funcSYNODiskTimeoutReport) {
 		memset(&parms, 0, sizeof(parms));
-		parms.data1 = iStartIdx;
-		parms.data2 = ap->nr_pmp_links;
-		parms.data3 = ata_dev->link->pmp;
-		parms.data4 = 0;
-		parms.data5 = 0;
+		parms.data[0] = iStartIdx;
+		parms.data[1] = ap->nr_pmp_links;
+		parms.data[2] = ata_dev->link->pmp;
+		parms.data[3] = 0;
+		parms.data[4] = 0;
 
 		funcSYNODiskTimeoutReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {Timeout Others} --------------------\n");
-		parms.data4 = 1;
+		parms.data[3] = 1;
 		funcSYNODiskTimeoutReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {Timeout R/W} --------------------\n");
 	}
 	if (funcSYNODiskTimeoutReport) {
 		memset(&parms, 0, sizeof(parms));
-		parms.data1 = iStartIdx;
-		parms.data2 = ap->nr_pmp_links;
-		parms.data3 = ata_dev->link->pmp;
-		parms.data4 = 0;
-		parms.data5 = iErrorCount;
+		parms.data[0] = iStartIdx;
+		parms.data[1] = ap->nr_pmp_links;
+		parms.data[2] = ata_dev->link->pmp;
+		parms.data[3] = 0;
+		parms.data[4] = iErrorCount;
 
 		funcSYNODiskResetFailReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {Soft reset failed count %d} --------------------\n", iErrorCount);
-		parms.data4 = 1;
+		parms.data[3] = 1;
 		funcSYNODiskResetFailReport(parms);
 		printk(KERN_ERR "----------------------- sent event: {Hard reset failed count %d} --------------------\n", iErrorCount);
 	}

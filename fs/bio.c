@@ -550,6 +550,10 @@ void __bio_clone(struct bio *bio, struct bio *bio_src)
 	if (unlikely(bio_flagged(bio_src, BIO_CORRECTION_ABORT)))
 		bio->bi_flags |= 1 << BIO_CORRECTION_ABORT;
 #endif
+#ifdef MY_ABC_HERE
+	if (unlikely(bio_flagged(bio_src, BIO_SYNO_FULL_STRIPE_MERGE)))
+		bio->bi_flags |= 1 << BIO_SYNO_FULL_STRIPE_MERGE;
+#endif /* MY_ABC_HERE */
 	bio->bi_rw = bio_src->bi_rw;
 	bio->bi_vcnt = bio_src->bi_vcnt;
 	bio->bi_size = bio_src->bi_size;

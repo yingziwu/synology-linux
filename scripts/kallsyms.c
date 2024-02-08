@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* Generate assembler source containing symbol information
  *
  * Copyright 2002       by Kai Germaschewski
@@ -178,6 +181,28 @@ static int symbol_valid_tr(struct sym_entry *s)
 
 static int symbol_valid(struct sym_entry *s)
 {
+#if defined(MY_ABC_HERE) || \
+    defined(MY_ABC_HERE)
+	static char *hidden_prefixes[] = {
+		/* libhydrogen */
+		"hydro_",
+		"randombytes_",
+		/* Synology Kexec test
+		 *
+		 * Except syno_kexec_test_init, other symbols will not be exported
+		 * by compiler; but, we add them here to avoid any accident.
+		 */
+		"syno_kexec_test_init",
+		"test_boot_protocol_version",
+		"test_decompression",
+		"test_bootloader",
+		"test_e820_table",
+		"test_setup_data",
+		"remove_decompression_setup_data",
+		NULL
+	};
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
+
 	/* Symbols which vary between passes.  Passes 1 and 2 must have
 	 * identical symbol lists.  The kallsyms_* symbols below are only added
 	 * after pass 1, they would be included in pass 2 when --all-symbols is
@@ -204,6 +229,16 @@ static int symbol_valid(struct sym_entry *s)
 	/* skip prefix char */
 	if (symbol_prefix_char && *(s->sym + 1) == symbol_prefix_char)
 		offset++;
+
+#if defined(MY_ABC_HERE) || \
+    defined(MY_ABC_HERE)
+	for (i = 0; hidden_prefixes[i]; ++i) {
+		if (0 == strncmp(hidden_prefixes[i], (char *)s->sym + offset,
+			         strlen(hidden_prefixes[i]))) {
+			return 0;
+		}
+	}
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
 
 	/* if --all-symbols is not specified, then symbols outside the text
 	 * and inittext sections are discarded */

@@ -826,8 +826,6 @@ nfsd_access(struct svc_rqst *rqstp, struct svc_fh *fhp, u32 *access, u32 *suppor
 					printk(KERN_WARNING "nfsd: (%s) is in acl mode but has no operator \n", dentry->d_iname);
 					err2 = nfs_ok;
 				}
-			} else if (isFSInACLMode && (NFS3_ACCESS_DELETE == map->access)) {
-				err2 = nfserrno(synoacl_op_may_delete(dentry, dentry->d_parent->d_inode));
 			} else
 #endif /* MY_ABC_HERE */
 			err2 = nfsd_permission(rqstp, export, dentry, map->how);
@@ -1152,6 +1150,10 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file *file,
 	dentry = file->f_path.dentry;
 	inode = dentry->d_inode;
 	exp   = fhp->fh_export;
+
+#ifdef MY_ABC_HERE
+	update_syno_file_stats(dentry);
+#endif /* MY_ABC_HERE */
 
 	use_wgather = (rqstp->rq_vers == 2) && EX_WGATHER(exp);
 
