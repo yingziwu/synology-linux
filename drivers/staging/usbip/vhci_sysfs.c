@@ -144,7 +144,7 @@ static int valid_args(__u32 rhport, enum usb_device_speed speed)
 	case USB_SPEED_LOW:
 	case USB_SPEED_FULL:
 	case USB_SPEED_HIGH:
-	case USB_SPEED_VARIABLE:
+	case USB_SPEED_WIRELESS:
 		break;
 	default:
 		usbip_uerr("speed %d\n", speed);
@@ -183,7 +183,6 @@ static ssize_t store_attach(struct device *dev, struct device_attribute *attr,
 
 	usbip_dbg_vhci_sysfs("rhport(%u) sockfd(%u) devid(%u) speed(%u)\n",
 				rhport, sockfd, devid, speed);
-
 
 	/* check received parameters */
 	if (valid_args(rhport, speed) < 0)

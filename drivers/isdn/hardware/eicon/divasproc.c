@@ -1,4 +1,4 @@
-/* $Id: divasproc.c,v 1.19.4.3 2005/01/31 12:22:20 armin Exp $
+/* $Id: divasproc.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Low level driver for Eicon DIVA Server ISDN cards.
  * /proc functions
@@ -30,7 +30,6 @@
 #include "xdi_adapter.h"
 #include "diva.h"
 #include "diva_pci.h"
-
 
 extern PISDN_ADAPTER IoAdapters[MAX_ADAPTER];
 extern void divas_get_version(char *);
@@ -202,7 +201,6 @@ write_d_l1_down(struct file *file, const char __user *buffer, unsigned long coun
 	}
 	return (-EINVAL);
 }
-
 
 /*
 ** read dynamic_l1_down 

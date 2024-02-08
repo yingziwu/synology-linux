@@ -65,7 +65,6 @@ static void radeon_legacy_rmx_mode_set(struct drm_crtc *crtc,
 		crtc_more_cntl |= RADEON_CRTC_H_CUTOFF_ACTIVE_EN;
 	}
 
-
 	fp_crtc_h_total_disp = ((((mode->crtc_htotal / 8) - 1) & 0x3ff)
 				| ((((mode->crtc_hdisplay / 8) - 1) & 0x1ff) << 16));
 
@@ -231,7 +230,6 @@ static void radeon_pll2_wait_for_read_update_complete(struct drm_device *dev)
 	struct radeon_device *rdev = dev->dev_private;
 	int i = 0;
 
-
 	/* FIXME: Certain revisions of R300 can't recover here.  Not sure of
 	   the cause yet, but this workaround will mask the problem for now.
 	   Other chips usually will pass at the very first test, so the
@@ -292,8 +290,7 @@ void radeon_crtc_dpms(struct drm_crtc *crtc, int mode)
 	uint32_t mask;
 
 	if (radeon_crtc->crtc_id)
-		mask = (RADEON_CRTC2_EN |
-			RADEON_CRTC2_DISP_DIS |
+		mask = (RADEON_CRTC2_DISP_DIS |
 			RADEON_CRTC2_VSYNC_DIS |
 			RADEON_CRTC2_HSYNC_DIS |
 			RADEON_CRTC2_DISP_REQ_EN_B);
@@ -305,7 +302,7 @@ void radeon_crtc_dpms(struct drm_crtc *crtc, int mode)
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
 		if (radeon_crtc->crtc_id)
-			WREG32_P(RADEON_CRTC2_GEN_CNTL, RADEON_CRTC2_EN, ~mask);
+			WREG32_P(RADEON_CRTC2_GEN_CNTL, RADEON_CRTC2_EN, ~(RADEON_CRTC2_EN | mask));
 		else {
 			WREG32_P(RADEON_CRTC_GEN_CNTL, RADEON_CRTC_EN, ~(RADEON_CRTC_EN |
 									 RADEON_CRTC_DISP_REQ_EN_B));
@@ -319,7 +316,7 @@ void radeon_crtc_dpms(struct drm_crtc *crtc, int mode)
 	case DRM_MODE_DPMS_OFF:
 		drm_vblank_pre_modeset(dev, radeon_crtc->crtc_id);
 		if (radeon_crtc->crtc_id)
-			WREG32_P(RADEON_CRTC2_GEN_CNTL, mask, ~mask);
+			WREG32_P(RADEON_CRTC2_GEN_CNTL, mask, ~(RADEON_CRTC2_EN | mask));
 		else {
 			WREG32_P(RADEON_CRTC_GEN_CNTL, RADEON_CRTC_DISP_REQ_EN_B, ~(RADEON_CRTC_EN |
 										    RADEON_CRTC_DISP_REQ_EN_B));
@@ -901,7 +898,6 @@ static void radeon_set_pll(struct drm_crtc *crtc, struct drm_display_mode *mode)
 	} else {
 		uint32_t pixclks_cntl;
 
-
 		if (is_tv) {
 			pixclks_cntl = RREG32_PLL(RADEON_PIXCLKS_CNTL);
 			radeon_legacy_tv_adjust_pll1(encoder, &htotal_cntl, &pll_ref_div,
@@ -1059,7 +1055,6 @@ static const struct drm_crtc_helper_funcs legacy_helper_funcs = {
 	.commit = radeon_crtc_commit,
 	.load_lut = radeon_crtc_load_lut,
 };
-
 
 void radeon_legacy_init_crtc(struct drm_device *dev,
 			       struct radeon_crtc *radeon_crtc)

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/kernel/calls.S
  *
@@ -9,6 +12,7 @@
  *
  *  This file is included thrice in entry-common.S
  */
+
 /* 0 */		CALL(sys_restart_syscall)
 		CALL(sys_exit)
 		CALL(sys_fork_wrapper)
@@ -172,7 +176,7 @@
 /* 160 */	CALL(sys_sched_get_priority_min)
 		CALL(sys_sched_rr_get_interval)
 		CALL(sys_nanosleep)
-		CALL(sys_arm_mremap)
+		CALL(sys_mremap)
 		CALL(sys_setresuid16)
 /* 165 */	CALL(sys_getresuid16)
 		CALL(sys_ni_syscall)		/* vm86 */
@@ -374,6 +378,162 @@
 		CALL(sys_pwritev)
 		CALL(sys_rt_tgsigqueueinfo)
 		CALL(sys_perf_event_open)
+#ifdef MY_ABC_HERE
+#ifdef CONFIG_SYNO_PLX_PORTING
+/* 365 */	CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+/* 370 */	CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+/* 375 */	CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+/* 380 */	CALL(sys_ni_syscall)
+ 		CALL(sys_samba_reserve)
+ 		CALL(sys_direct_netrx_write)
+#ifdef CONFIG_OXNAS_FAST_WRITES
+ 		CALL(sys_direct_disk_write)
+#else // CONFIG_OXNAS_FAST_WRITES
+ 		CALL(sys_ni_syscall)
+#endif // CONFIG_OXNAS_FAST_WRITES
+ 		CALL(sys_ni_syscall)
+#ifdef CONFIG_OXNAS_BACKUP
+/* 385 */ 	CALL(sys_init_backup)
+ 		CALL(sys_exit_backup)
+ 		CALL(sys_do_backup)
+#else // CONFIG_OXNAS_BACKUP
+/* 385 */ 	CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+#endif // CONFIG_OXNAS_BACKUP
+ 		CALL(sys_read_zcc)
+#else // CONFIG_SYNO_PLX_PORTING
+/* 365 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 370 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 375 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 380 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 385 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+#endif // CONFIG_SYNO_PLX_PORTING
+		CALL(sys_ni_syscall)
+/* 390 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 395 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+#ifdef MY_ABC_HERE
+		CALL(sys_SYNOUtime)	/* 402 */
+#else
+		CALL(sys_ni_syscall)
+#endif
+#ifdef MY_ABC_HERE
+		CALL(sys_SYNOArchiveBit)	/* 403 */
+#else
+		CALL(sys_ni_syscall)
+#endif
+#ifdef MY_ABC_HERE
+		CALL(sys_recvfile)	/* 404 */
+#else
+		CALL(sys_ni_syscall)
+#endif
+#ifdef MY_ABC_HERE
+		CALL(sys_SYNOMTDAlloc)  	/* 405 */
+#else
+		CALL(sys_ni_syscall)
+#endif
+#ifdef MY_ABC_HERE
+		CALL(sys_SYNOCaselessStat64)	/* 406 */
+		CALL(sys_SYNOCaselessLStat64)	/* 407 */
+		CALL(sys_SYNOCaselessStat)	/* 408 */
+		CALL(sys_SYNOCaselessLStat)	/* 409 */
+#else
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+#endif
+#ifdef MY_ABC_HERE
+		CALL(sys_SYNOEcryptName) /* 410 */
+		CALL(sys_SYNODecryptName) /* 411 */
+#else
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+#endif
+#endif
+#ifdef CONFIG_FS_SYNO_ACL
+		CALL(sys_SYNOACLCheckPerm)	/* 412 */
+		CALL(sys_SYNOACLIsSupport)	/* 413 */
+		CALL(sys_SYNOACLGetPerm)	/* 414 */
+#else
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+#endif
+		CALL(sys_ni_syscall)
+#ifdef MY_ABC_HERE
+        CALL(sys_SYNOStat)                   /* 416 */
+        CALL(sys_SYNOFStat)                  /* 417 */
+        CALL(sys_SYNOLStat)                  /* 418 */
+        CALL(sys_SYNOStat64)                   /* 419 */
+        CALL(sys_SYNOFStat64)                  /* 420 */
+        CALL(sys_SYNOLStat64)                  /* 421 */
+#else
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_SYNOArchiveOverwrite)      /* 427 */
+#else
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+        CALL(sys_ni_syscall)
+#endif
+
 #ifndef syscalls_counted
 .equ syscalls_padding, ((NR_syscalls + 3) & ~3) - NR_syscalls
 #define syscalls_counted

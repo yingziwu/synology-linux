@@ -32,7 +32,6 @@
 #include <asm/uaccess.h>
 #include <asm/pgtable.h>
 
-
 #include <linux/elf.h>
 
 static int load_som_binary(struct linux_binprm * bprm, struct pt_regs * regs);
@@ -179,7 +178,6 @@ out:
 	return retval;
 }
 
-
 /*
  * These are the functions used to load SOM executables and shared
  * libraries.  There is no binary dependent code anywhere else.
@@ -227,6 +225,7 @@ load_som_binary(struct linux_binprm * bprm, struct pt_regs * regs)
 	/* OK, This is the point of no return */
 	current->flags &= ~PF_FORKNOEXEC;
 	current->personality = PER_HPUX;
+	setup_new_exec(bprm);
 
 	/* Set the task size for HP-UX processes such that
 	 * the gateway page is outside the address space.

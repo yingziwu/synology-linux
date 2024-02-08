@@ -1,4 +1,4 @@
-/* $Id: shmem.c,v 1.2.10.1 2001/09/23 22:24:59 kai Exp $
+/* $Id: shmem.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Copyright (C) 1996  SpellCaster Telecommunications Inc.
  *
@@ -82,7 +82,6 @@ void memcpy_fromshmem(int card, void *dest, const void *src, size_t n)
 	 */
 	ch = (unsigned long) src / SRAM_PAGESIZE;
 	pr_debug("%s: loaded page %d\n", sc_adapter[card]->devicename,ch);
-	
 	
 	/*
 	 * Block interrupts and load the page

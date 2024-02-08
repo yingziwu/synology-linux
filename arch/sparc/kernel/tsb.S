@@ -3,7 +3,6 @@
  * Copyright (C) 2006 David S. Miller <davem@davemloft.net>
  */
 
-
 #include <asm/tsb.h>
 #include <asm/hypervisor.h>
 #include <asm/page.h>
@@ -191,10 +190,12 @@ tsb_dtlb_load:
 
 tsb_itlb_load:
 	/* Executable bit must be set.  */
-661:	andcc		%g5, _PAGE_EXEC_4U, %g0
-	.section	.sun4v_1insn_patch, "ax"
+661:	sethi		%hi(_PAGE_EXEC_4U), %g4
+	andcc		%g5, %g4, %g0
+	.section	.sun4v_2insn_patch, "ax"
 	.word		661b
 	andcc		%g5, _PAGE_EXEC_4V, %g0
+	nop
 	.previous
 
 	be,pn		%xcc, tsb_do_fault

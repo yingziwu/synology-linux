@@ -166,7 +166,6 @@ static int via_cable_override(struct pci_dev *pdev)
 	return 0;
 }
 
-
 /**
  *	via_cable_detect	-	cable detection
  *	@ap: ATA port
@@ -226,7 +225,6 @@ static int via_pre_reset(struct ata_link *link, unsigned long deadline)
 
 	return ata_sff_prereset(link, deadline);
 }
-
 
 /**
  *	via_do_set_mode	-	set initial PIO mode data
@@ -661,6 +659,7 @@ static const struct pci_device_id via[] = {
 	{ PCI_VDEVICE(VIA, 0x3164), },
 	{ PCI_VDEVICE(VIA, 0x5324), },
 	{ PCI_VDEVICE(VIA, 0xC409), VIA_IDFLAG_SINGLE },
+	{ PCI_VDEVICE(VIA, 0x9001), VIA_IDFLAG_SINGLE },
 
 	{ },
 };

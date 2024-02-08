@@ -71,7 +71,7 @@ static irqreturn_t ioat_dma_do_interrupt(int irq, void *data)
 	}
 
 	attnstatus = readl(instance->reg_base + IOAT_ATTNSTATUS_OFFSET);
-	for_each_bit(bit, &attnstatus, BITS_PER_LONG) {
+	for_each_set_bit(bit, &attnstatus, BITS_PER_LONG) {
 		chan = ioat_chan_by_index(instance, bit);
 		tasklet_schedule(&chan->cleanup_task);
 	}
@@ -1032,7 +1032,7 @@ int __devinit ioat_probe(struct ioatdma_device *device)
 	dma->dev = &pdev->dev;
 
 	if (!dma->chancnt) {
-		dev_err(dev, "zero channels detected\n");
+		dev_err(dev, "channel enumeration error\n");
 		goto err_setup_interrupts;
 	}
 

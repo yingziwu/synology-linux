@@ -37,7 +37,6 @@
  *     indeed an AC3 stream packed in SPDIF frames (i.e. no real AC3 stream).
  */
 
-
 #include <linux/bitops.h>
 #include <linux/init.h>
 #include <linux/list.h>
@@ -55,12 +54,10 @@
 
 #include "usbaudio.h"
 
-
 MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>");
 MODULE_DESCRIPTION("USB Audio");
 MODULE_LICENSE("GPL");
 MODULE_SUPPORTED_DEVICE("{{Generic,USB Audio}}");
-
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
@@ -97,7 +94,6 @@ MODULE_PARM_DESC(ignore_ctl_error,
  * debug the h/w constraints
  */
 /* #define HW_CONST_DEBUG */
-
 
 /*
  *
@@ -194,7 +190,6 @@ struct snd_usb_substream {
 	struct snd_urb_ops ops;		/* callbacks (must be filled at init) */
 };
 
-
 struct snd_usb_stream {
 	struct snd_usb_audio *chip;
 	struct snd_pcm *pcm;
@@ -204,7 +199,6 @@ struct snd_usb_stream {
 	struct list_head list;
 };
 
-
 /*
  * we keep the snd_usb_audio_t instances by ourselves for merging
  * the all interfaces on the same card as one sound device.
@@ -212,7 +206,6 @@ struct snd_usb_stream {
 
 static DEFINE_MUTEX(register_mutex);
 static struct snd_usb_audio *usb_chip[SNDRV_CARDS];
-
 
 /*
  * convert a sampling rate into our full speed format (fs/1000 in Q16.16)
@@ -243,7 +236,6 @@ static inline unsigned get_high_speed_hz(unsigned int usb_rate)
 {
 	return (usb_rate * 125 + (1 << 9)) >> 10;
 }
-
 
 /*
  * prepare urb for full speed capture sync pipe
@@ -393,7 +385,6 @@ static int retire_paused_capture_urb(struct snd_usb_substream *subs,
 {
 	return 0;
 }
-
 
 /*
  * prepare urb for full speed playback sync pipe
@@ -656,7 +647,6 @@ static int retire_playback_urb(struct snd_usb_substream *subs,
 	return 0;
 }
 
-
 /*
  */
 static struct snd_urb_ops audio_urb_ops[2] = {
@@ -711,7 +701,6 @@ static void snd_complete_urb(struct urb *urb)
 	}
 }
 
-
 /*
  * complete callback from sync urb
  */
@@ -734,7 +723,6 @@ static void snd_complete_sync_urb(struct urb *urb)
 	}
 }
 
-
 /* get the physical page pointer at the given offset */
 static struct page *snd_pcm_get_vmalloc_page(struct snd_pcm_substream *subs,
 					     unsigned long offset)
@@ -752,7 +740,7 @@ static int snd_pcm_alloc_vmalloc_buffer(struct snd_pcm_substream *subs, size_t s
 			return 0; /* already large enough */
 		vfree(runtime->dma_area);
 	}
-	runtime->dma_area = vmalloc(size);
+	runtime->dma_area = vmalloc_user(size);
 	if (!runtime->dma_area)
 		return -ENOMEM;
 	runtime->dma_bytes = size;
@@ -768,7 +756,6 @@ static int snd_pcm_free_vmalloc_buffer(struct snd_pcm_substream *subs)
 	runtime->dma_area = NULL;
 	return 0;
 }
-
 
 /*
  * unlink active urbs.
@@ -814,7 +801,6 @@ static int deactivate_urbs(struct snd_usb_substream *subs, int force, int can_sl
 	}
 	return 0;
 }
-
 
 static const char *usb_error_string(int err)
 {
@@ -904,7 +890,6 @@ static int start_urbs(struct snd_usb_substream *subs, struct snd_pcm_runtime *ru
 	return -EPIPE;
 }
 
-
 /*
  *  wait until all urbs are processed.
  */
@@ -935,7 +920,6 @@ static int wait_clear_urbs(struct snd_usb_substream *subs)
 	return 0;
 }
 
-
 /*
  * return the current pcm pointer.  just return the hwptr_done value.
  */
@@ -950,7 +934,6 @@ static snd_pcm_uframes_t snd_usb_pcm_pointer(struct snd_pcm_substream *substream
 	spin_unlock(&subs->lock);
 	return hwptr_done;
 }
-
 
 /*
  * start/stop playback substream
@@ -999,7 +982,6 @@ static int snd_usb_pcm_capture_trigger(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 }
-
 
 /*
  * release a urb data
@@ -1180,7 +1162,6 @@ out_of_memory:
 	return -ENOMEM;
 }
 
-
 /*
  * find a matching audio format
  */
@@ -1240,7 +1221,6 @@ static struct audioformat *find_format(struct snd_usb_substream *subs, unsigned 
 	}
 	return found;
 }
-
 
 /*
  * initialize the picth control and sample rate
@@ -1666,7 +1646,6 @@ static int hw_rule_rate(struct snd_pcm_hw_params *params,
 	return changed;
 }
 
-
 static int hw_rule_channels(struct snd_pcm_hw_params *params,
 			    struct snd_pcm_hw_rule *rule)
 {
@@ -1828,7 +1807,6 @@ static int snd_usb_pcm_check_knot(struct snd_pcm_runtime *runtime,
 	return 0;
 }
 
-
 /*
  * set up the runtime hardware information.
  */
@@ -1936,7 +1914,7 @@ static int snd_usb_pcm_close(struct snd_pcm_substream *substream, int direction)
 	struct snd_usb_stream *as = snd_pcm_substream_chip(substream);
 	struct snd_usb_substream *subs = &as->substream[direction];
 
-	if (subs->interface >= 0) {
+	if (!as->chip->shutdown && subs->interface >= 0) {
 		usb_set_interface(subs->dev, subs->interface, 0);
 		subs->interface = -1;
 	}
@@ -1987,8 +1965,6 @@ static struct snd_pcm_ops snd_usb_capture_ops = {
 	.pointer =	snd_usb_pcm_pointer,
 	.page =		snd_pcm_get_vmalloc_page,
 };
-
-
 
 /*
  * helper functions
@@ -2072,7 +2048,6 @@ int snd_usb_ctl_msg(struct usb_device *dev, unsigned int pipe, __u8 request,
 	return err;
 }
 
-
 /*
  * entry point for linux usb interface
  */
@@ -2107,7 +2082,6 @@ static struct usb_driver usb_audio_driver = {
 	.resume =	usb_audio_resume,
 	.id_table =	usb_audio_ids,
 };
-
 
 #if defined(CONFIG_PROC_FS) && defined(CONFIG_SND_VERBOSE_PROCFS)
 
@@ -2250,7 +2224,6 @@ static void init_substream(struct snd_usb_stream *as, int stream, struct audiofo
 	subs->fmt_type = fp->fmt_type;
 }
 
-
 /*
  * free a substream
  */
@@ -2267,7 +2240,6 @@ static void free_substream(struct snd_usb_substream *subs)
 	}
 	kfree(subs->rate_list.list);
 }
-
 
 /*
  * free a usb stream instance
@@ -2288,7 +2260,6 @@ static void snd_usb_audio_pcm_free(struct snd_pcm *pcm)
 		snd_usb_audio_stream_free(stream);
 	}
 }
-
 
 /*
  * add this endpoint to the chip instance.
@@ -2365,7 +2336,6 @@ static int add_audio_endpoint(struct snd_usb_audio *chip, int stream, struct aud
 
 	return 0;
 }
-
 
 /*
  * check if the device uses big-endian samples
@@ -2466,7 +2436,6 @@ static int parse_audio_format_i_type(struct snd_usb_audio *chip, struct audiofor
 	}
 	return pcm_format;
 }
-
 
 /*
  * parse the format descriptor and stores the possible sample rates
@@ -2827,7 +2796,6 @@ static int parse_audio_endpoints(struct snd_usb_audio *chip, int iface_no)
 	}
 	return 0;
 }
-
 
 /*
  * disconnect streams
@@ -3231,7 +3199,6 @@ static int ignore_interface_quirk(struct snd_usb_audio *chip,
 	return 0;
 }
 
-
 /*
  * boot quirks
  */
@@ -3326,6 +3293,32 @@ static int snd_usb_cm6206_boot_quirk(struct usb_device *dev)
 }
 
 /*
+ * This call will put the synth in "USB send" mode, i.e it will send MIDI
+ * messages through USB (this is disabled at startup). The synth will
+ * acknowledge by sending a sysex on endpoint 0x85 and by displaying a USB
+ * sign on its LCD. Values here are chosen based on sniffing USB traffic
+ * under Windows.
+ */
+static int snd_usb_accessmusic_boot_quirk(struct usb_device *dev)
+{
+	int err, actual_length;
+
+	/* "midi send" enable */
+	static const u8 seq[] = { 0x4e, 0x73, 0x52, 0x01 };
+
+	void *buf = kmemdup(seq, ARRAY_SIZE(seq), GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+	err = usb_interrupt_msg(dev, usb_sndintpipe(dev, 0x05), buf,
+			ARRAY_SIZE(seq), &actual_length, 1000);
+	kfree(buf);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+/*
  * Setup quirks
  */
 #define AUDIOPHILE_SET			0x01 /* if set, parse device_setup */
@@ -3410,7 +3403,6 @@ static int snd_usb_create_quirk(struct snd_usb_audio *chip,
 	}
 }
 
-
 /*
  * common proc files to show the usb device info
  */
@@ -3457,7 +3449,6 @@ static int snd_usb_audio_dev_free(struct snd_device *device)
 	struct snd_usb_audio *chip = device->device_data;
 	return snd_usb_audio_free(chip);
 }
-
 
 /*
  * create a chip instance and set its names.
@@ -3562,7 +3553,6 @@ static int snd_usb_audio_create(struct usb_device *dev, int idx,
 	return 0;
 }
 
-
 /*
  * probe the active usb device
  *
@@ -3613,6 +3603,12 @@ static void *snd_usb_audio_probe(struct usb_device *dev,
 	/* C-Media CM6206 / CM106-Like Sound Device */
 	if (id == USB_ID(0x0d8c, 0x0102)) {
 		if (snd_usb_cm6206_boot_quirk(dev) < 0)
+			goto __err_val;
+	}
+
+	/* Access Music VirusTI Desktop */
+	if (id == USB_ID(0x133e, 0x0815)) {
+		if (snd_usb_accessmusic_boot_quirk(dev) < 0)
 			goto __err_val;
 	}
 
@@ -3795,7 +3791,6 @@ static int __init snd_usb_audio_init(void)
 	}
 	return usb_register(&usb_audio_driver);
 }
-
 
 static void __exit snd_usb_audio_cleanup(void)
 {

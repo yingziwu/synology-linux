@@ -50,7 +50,6 @@
 #include <sound/initval.h>
 #include "hda_codec.h"
 
-
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;
 static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;
@@ -116,6 +115,7 @@ MODULE_SUPPORTED_DEVICE("{{Intel, ICH6},"
 			 "{Intel, ICH9},"
 			 "{Intel, ICH10},"
 			 "{Intel, PCH},"
+			 "{Intel, CPT},"
 			 "{Intel, SCH},"
 			 "{ATI, SB450},"
 			 "{ATI, SB600},"
@@ -437,6 +437,7 @@ struct azx {
 /* driver types */
 enum {
 	AZX_DRIVER_ICH,
+	AZX_DRIVER_PCH,
 	AZX_DRIVER_SCH,
 	AZX_DRIVER_ATI,
 	AZX_DRIVER_ATIHDMI,
@@ -451,6 +452,7 @@ enum {
 
 static char *driver_short_names[] __devinitdata = {
 	[AZX_DRIVER_ICH] = "HDA Intel",
+	[AZX_DRIVER_PCH] = "HDA Intel PCH",
 	[AZX_DRIVER_SCH] = "HDA Intel MID",
 	[AZX_DRIVER_ATI] = "HDA ATI SB",
 	[AZX_DRIVER_ATIHDMI] = "HDA ATI HDMI",
@@ -879,7 +881,6 @@ static int azx_reset(struct azx *chip)
 	return 0;
 }
 
-
 /*
  * Lowlevel interface
  */  
@@ -966,7 +967,6 @@ static void azx_stream_stop(struct azx *chip, struct azx_dev *azx_dev)
 		   azx_readb(chip, INTCTL) & ~(1 << azx_dev->index));
 }
 
-
 /*
  * reset and start the controller registers
  */
@@ -1039,6 +1039,7 @@ static void azx_init_pci(struct azx *chip)
 				0x01, NVIDIA_HDA_ENABLE_COHBIT);
 		break;
 	case AZX_DRIVER_SCH:
+	case AZX_DRIVER_PCH:
 		pci_read_config_word(chip->pci, INTEL_SCH_HDA_DEVC, &snoop);
 		if (snoop & INTEL_SCH_HDA_DEVC_NOSNOOP) {
 			pci_write_config_word(chip->pci, INTEL_SCH_HDA_DEVC,
@@ -1053,7 +1054,6 @@ static void azx_init_pci(struct azx *chip)
 
         }
 }
-
 
 static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev);
 
@@ -1114,7 +1114,6 @@ static irqreturn_t azx_interrupt(int irq, void *dev_id)
 	
 	return IRQ_HANDLED;
 }
-
 
 /*
  * set up a BDL entry
@@ -1423,7 +1422,6 @@ static int __devinit azx_codec_configure(struct azx *chip)
 	}
 	return 0;
 }
-
 
 /*
  * PCM support
@@ -1858,6 +1856,9 @@ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
 
 	if (!bdl_pos_adj[chip->dev_index])
 		return 1; /* no delayed ack */
+	if (WARN_ONCE(!azx_dev->period_bytes,
+		      "hda-intel: zero azx_dev->period_bytes"))
+		return 0; /* this shouldn't happen! */
 	if (pos % azx_dev->period_bytes > azx_dev->period_bytes / 2)
 		return 0; /* NG - it's below the period boundary */
 	return 1; /* OK, it's fine */
@@ -1992,7 +1993,6 @@ static int __devinit azx_mixer_create(struct azx *chip)
 	return snd_hda_build_controls(chip->bus);
 }
 
-
 /*
  * initialize SD streams
  */
@@ -2034,7 +2034,6 @@ static int azx_acquire_irq(struct azx *chip, int do_disconnect)
 	pci_intx(chip->pci, !chip->msi);
 	return 0;
 }
-
 
 static void azx_stop_chip(struct azx *chip)
 {
@@ -2147,7 +2146,6 @@ static int azx_resume(struct pci_dev *pci)
 }
 #endif /* CONFIG_PM */
 
-
 /*
  * reboot notifier for hang-up problem at power-down
  */
@@ -2221,7 +2219,15 @@ static int azx_dev_free(struct snd_device *device)
 static struct snd_pci_quirk position_fix_list[] __devinitdata = {
 	SND_PCI_QUIRK(0x1028, 0x01cc, "Dell D820", POS_FIX_LPIB),
 	SND_PCI_QUIRK(0x1028, 0x01de, "Dell Precision 390", POS_FIX_LPIB),
+	SND_PCI_QUIRK(0x103c, 0x306d, "HP dv3", POS_FIX_LPIB),
+	SND_PCI_QUIRK(0x1106, 0x3288, "ASUS M2V-MX SE", POS_FIX_LPIB),
 	SND_PCI_QUIRK(0x1043, 0x813d, "ASUS P5AD2", POS_FIX_LPIB),
+	SND_PCI_QUIRK(0x1028, 0x01f6, "Dell Latitude 131L", POS_FIX_LPIB),
+	SND_PCI_QUIRK(0x1458, 0xa022, "ga-ma770-ud3", POS_FIX_LPIB),
+	SND_PCI_QUIRK(0x1462, 0x1002, "MSI Wind U115", POS_FIX_LPIB),
+	SND_PCI_QUIRK(0x1565, 0x820f, "Biostar Microtech", POS_FIX_LPIB),
+	SND_PCI_QUIRK(0x1565, 0x8218, "Biostar Microtech", POS_FIX_LPIB),
+	SND_PCI_QUIRK(0x8086, 0xd601, "eMachines T5212", POS_FIX_LPIB),
 	{}
 };
 
@@ -2309,6 +2315,7 @@ static void __devinit check_probe_mask(struct azx *chip, int dev)
 static struct snd_pci_quirk msi_white_list[] __devinitdata = {
 	SND_PCI_QUIRK(0x103c, 0x30f7, "HP Pavilion dv4t-1300", 1),
 	SND_PCI_QUIRK(0x103c, 0x3607, "HP Compa CQ40", 1),
+	SND_PCI_QUIRK(0x107b, 0x0380, "Gateway M-6866", 1),
 	{}
 };
 
@@ -2325,9 +2332,15 @@ static void __devinit check_msi(struct azx *chip)
 		       "hda_intel: msi for device %04x:%04x set to %d\n",
 		       q->subvendor, q->subdevice, q->value);
 		chip->msi = q->value;
+		return;
+	}
+
+	/* NVidia chipsets seem to cause troubles with MSI */
+	if (chip->driver_type == AZX_DRIVER_NVIDIA) {
+		printk(KERN_INFO "hda_intel: Disable MSI for Nvidia chipset\n");
+		chip->msi = 0;
 	}
 }
-
 
 /*
  * constructor
@@ -2374,6 +2387,7 @@ static int __devinit azx_create(struct snd_card *card, struct pci_dev *pci,
 	if (bdl_pos_adj[dev] < 0) {
 		switch (chip->driver_type) {
 		case AZX_DRIVER_ICH:
+		case AZX_DRIVER_PCH:
 			bdl_pos_adj[dev] = 1;
 			break;
 		default:
@@ -2435,6 +2449,11 @@ static int __devinit azx_create(struct snd_card *card, struct pci_dev *pci,
 			pci_dev_put(p_smbus);
 		}
 	}
+
+	/* disable 64bit DMA address for Teradici */
+	/* it does not work with device 6549:1200 subsys e4a2:040b */
+	if (chip->driver_type == AZX_DRIVER_TERA)
+		gcap &= ~ICH6_GCAP_64OK;
 
 	/* allow 64bit DMA address if supported by H/W */
 	if ((gcap & ICH6_GCAP_64OK) && !pci_set_dma_mask(pci, DMA_BIT_MASK(64)))
@@ -2643,6 +2662,8 @@ static struct pci_device_id azx_ids[] = {
 	{ PCI_DEVICE(0x8086, 0x3a6e), .driver_data = AZX_DRIVER_ICH },
 	/* PCH */
 	{ PCI_DEVICE(0x8086, 0x3b56), .driver_data = AZX_DRIVER_ICH },
+	/* CPT */
+	{ PCI_DEVICE(0x8086, 0x1c20), .driver_data = AZX_DRIVER_PCH },
 	/* SCH */
 	{ PCI_DEVICE(0x8086, 0x811b), .driver_data = AZX_DRIVER_SCH },
 	/* ATI SB 450/600 */
@@ -2689,6 +2710,9 @@ static struct pci_device_id azx_ids[] = {
 	{ PCI_DEVICE(0x10de, 0x0ac1), .driver_data = AZX_DRIVER_NVIDIA },
 	{ PCI_DEVICE(0x10de, 0x0ac2), .driver_data = AZX_DRIVER_NVIDIA },
 	{ PCI_DEVICE(0x10de, 0x0ac3), .driver_data = AZX_DRIVER_NVIDIA },
+	{ PCI_DEVICE(0x10de, 0x0be2), .driver_data = AZX_DRIVER_NVIDIA },
+	{ PCI_DEVICE(0x10de, 0x0be3), .driver_data = AZX_DRIVER_NVIDIA },
+	{ PCI_DEVICE(0x10de, 0x0be4), .driver_data = AZX_DRIVER_NVIDIA },
 	{ PCI_DEVICE(0x10de, 0x0d94), .driver_data = AZX_DRIVER_NVIDIA },
 	{ PCI_DEVICE(0x10de, 0x0d95), .driver_data = AZX_DRIVER_NVIDIA },
 	{ PCI_DEVICE(0x10de, 0x0d96), .driver_data = AZX_DRIVER_NVIDIA },

@@ -7,7 +7,6 @@
  * Federico Ulivi <fulivi@lycos.com>
  */
 
-
 /*
  * Limits of h/v positions (hPos & vPos)
  */
@@ -56,6 +55,10 @@
 #define NTSC_TV_PLL_M_14 33
 #define NTSC_TV_PLL_N_14 693
 #define NTSC_TV_PLL_P_14 7
+
+#define PAL_TV_PLL_M_14 19
+#define PAL_TV_PLL_N_14 353
+#define PAL_TV_PLL_P_14 5
 
 #define VERT_LEAD_IN_LINES 2
 #define FRAC_BITS 0xe
@@ -205,8 +208,23 @@ static const struct radeon_tv_mode_constants available_tv_modes[] = {
 		630627,             /* defRestart */
 		347,                /* crtcPLL_N */
 		14,                 /* crtcPLL_M */
-			8,                  /* crtcPLL_postDiv */
+		8,                  /* crtcPLL_postDiv */
 		1022,               /* pixToTV */
+	},
+	{ /* PAL timing for 14 Mhz ref clk */
+		800,                /* horResolution */
+		600,                /* verResolution */
+		TV_STD_PAL,         /* standard */
+		1131,               /* horTotal */
+		742,                /* verTotal */
+		813,                /* horStart */
+		840,                /* horSyncStart */
+		633,                /* verSyncStart */
+		708369,             /* defRestart */
+		211,                /* crtcPLL_N */
+		9,                  /* crtcPLL_M */
+		8,                  /* crtcPLL_postDiv */
+		759,                /* pixToTV */
 	},
 };
 
@@ -242,7 +260,7 @@ static const struct radeon_tv_mode_constants *radeon_legacy_tv_get_std_mode(stru
 		if (pll->reference_freq == 2700)
 			const_ptr = &available_tv_modes[1];
 		else
-			const_ptr = &available_tv_modes[1]; /* FIX ME */
+			const_ptr = &available_tv_modes[3];
 	}
 	return const_ptr;
 }
@@ -274,7 +292,6 @@ static void radeon_wait_pll_lock(struct drm_encoder *encoder, unsigned n_tests,
 	WREG32_PLL(RADEON_PLL_TEST_CNTL, save_pll_test);
 	WREG32(RADEON_TEST_DEBUG_MUX, RREG32(RADEON_TEST_DEBUG_MUX) & 0xffffe0ff);
 }
-
 
 static void radeon_legacy_tv_write_fifo(struct radeon_encoder *radeon_encoder,
 					uint16_t addr, uint32_t value)
@@ -573,7 +590,6 @@ void radeon_legacy_tv_mode_set(struct drm_encoder *encoder,
 			((62 & RADEON_TV_V_BURST_LEVEL_MASK) << RADEON_TV_V_BURST_LEVEL_SHIFT);
 	}
 
-
 	tv_rgb_cntl = (RADEON_RGB_DITHER_EN
 		       | RADEON_TVOUT_SCALE_EN
 		       | (0x0b << RADEON_UVRAM_READ_MARGIN_SHIFT)
@@ -685,9 +701,9 @@ void radeon_legacy_tv_mode_set(struct drm_encoder *encoder,
 			n = PAL_TV_PLL_N_27;
 			p = PAL_TV_PLL_P_27;
 		} else {
-			m = PAL_TV_PLL_M_27;
-			n = PAL_TV_PLL_N_27;
-			p = PAL_TV_PLL_P_27;
+			m = PAL_TV_PLL_M_14;
+			n = PAL_TV_PLL_N_14;
+			p = PAL_TV_PLL_P_14;
 		}
 	}
 
@@ -901,4 +917,3 @@ void radeon_legacy_tv_adjust_pll2(struct drm_encoder *encoder,
 	*pixclks_cntl &= ~RADEON_PIX2CLK_SRC_SEL_MASK;
 	*pixclks_cntl |= RADEON_PIX2CLK_SRC_SEL_P2PLLCLK | RADEON_PIXCLK_TV_SRC_SEL;
 }
-

@@ -1807,7 +1807,6 @@ static int patch_ad1886(struct snd_ac97 * ac97)
 #define AC97_AD1986_OMS_MLC	0x0700  /* MIX of MIC, LINE_IN, C/LFE pins */
 					/*   are MIC sources */
 
-
 static int snd_ac97_ad198x_spdif_source_info(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_info *uinfo)
 {
 	static char *texts[2] = { "AC-Link", "A/D Converter" };
@@ -1867,11 +1866,14 @@ static unsigned int ad1981_jacks_blacklist[] = {
 	0x10140523, /* Thinkpad R40 */
 	0x10140534, /* Thinkpad X31 */
 	0x10140537, /* Thinkpad T41p */
+	0x1014053e, /* Thinkpad R40e */
 	0x10140554, /* Thinkpad T42p/R50p */
 	0x10140567, /* Thinkpad T43p 2668-G7U */
 	0x10140581, /* Thinkpad X41-2527 */
+	0x10280160, /* Dell Dimension 2400 */
 	0x104380b0, /* Asus A7V8X-MX */
 	0x11790241, /* Toshiba Satellite A-15 S127 */
+	0x1179ff10, /* Toshiba P500 */
 	0x144dc01a, /* Samsung NP-X20C004/SEG */
 	0 /* end */
 };
@@ -2859,7 +2861,6 @@ static int patch_alc655(struct snd_ac97 * ac97)
 	return 0;
 }
 
-
 #define AC97_ALC850_JACK_SELECT	0x76
 #define AC97_ALC850_MISC1	0x7a
 #define AC97_ALC850_MULTICH    0x6a
@@ -2951,7 +2952,6 @@ static int patch_alc850(struct snd_ac97 *ac97)
 	snd_ac97_write_cache(ac97, AC97_ALC650_LFE_DAC_VOL, 0x0808);
 	return 0;
 }
-
 
 /*
  * C-Media CM97xx codecs

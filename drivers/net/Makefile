@@ -6,12 +6,14 @@ obj-$(CONFIG_MII) += mii.o
 obj-$(CONFIG_MDIO) += mdio.o
 obj-$(CONFIG_PHYLIB) += phy/
 
+obj-$(CONFIG_MV_INCLUDE_GIG_ETH) += ../../arch/arm/plat-feroceon/mv_drivers_lsp/mv_network/mv_ethernet/
 obj-$(CONFIG_TI_DAVINCI_EMAC) += davinci_emac.o
 
 obj-$(CONFIG_E1000) += e1000/
 obj-$(CONFIG_E1000E) += e1000e/
 obj-$(CONFIG_IBM_NEW_EMAC) += ibm_newemac/
 obj-$(CONFIG_IGB) += igb/
+obj-$(CONFIG_IGB_2_6_34) += igb_2_6_34/
 obj-$(CONFIG_IGBVF) += igbvf/
 obj-$(CONFIG_IXGBE) += ixgbe/
 obj-$(CONFIG_IXGB) += ixgb/
@@ -25,21 +27,37 @@ obj-$(CONFIG_ATL1) += atlx/
 obj-$(CONFIG_ATL2) += atlx/
 obj-$(CONFIG_ATL1E) += atl1e/
 obj-$(CONFIG_ATL1C) += atl1c/
+ifeq ($(CONFIG_SYNO_QORIQ),y)
+obj-$(CONFIG_GIANFAR) += gianfar_qoriq/
+else
 obj-$(CONFIG_GIANFAR) += gianfar_driver.o
+endif
 obj-$(CONFIG_TEHUTI) += tehuti.o
 obj-$(CONFIG_ENIC) += enic/
 obj-$(CONFIG_JME) += jme.o
 obj-$(CONFIG_BE2NET) += benet/
 obj-$(CONFIG_VMXNET3) += vmxnet3/
+obj-$(CONFIG_SYNOPSYS_GMAC) += gmac/
 
+ifeq ($(CONFIG_SYNO_QORIQ),y)
+else
 gianfar_driver-objs := gianfar.o \
 		gianfar_ethtool.o \
 		gianfar_sysfs.o
+endif
 
 obj-$(CONFIG_UCC_GETH) += ucc_geth_driver.o
 ucc_geth_driver-objs := ucc_geth.o ucc_geth_ethtool.o
+ifeq ($(CONFIG_SYNO_QORIQ),y)
+ifeq ($(CONFIG_MPC85xx),y)
+  obj-$(CONFIG_BOARDNET) += fsl_pci_veth/
+  obj-$(CONFIG_CARDNET) += fsl_pci_veth/
+endif
+else
 
 obj-$(CONFIG_FSL_PQ_MDIO) += fsl_pq_mdio.o
+
+endif
 
 #
 # link order important here
@@ -91,6 +109,7 @@ ps3_gelic-objs += ps3_gelic_net.o $(gelic_wireless-y)
 obj-$(CONFIG_TC35815) += tc35815.o
 obj-$(CONFIG_SKGE) += skge.o
 obj-$(CONFIG_SKY2) += sky2.o
+obj-$(CONFIG_SK98LIN) += sk98lin/
 obj-$(CONFIG_SKFP) += skfp/
 obj-$(CONFIG_KS8842)	+= ks8842.o
 obj-$(CONFIG_KS8851)	+= ks8851.o

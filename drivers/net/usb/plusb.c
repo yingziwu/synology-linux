@@ -30,7 +30,6 @@
 #include <linux/usb.h>
 #include <linux/usb/usbnet.h>
 
-
 /*
  * Prolific PL-2301/PL-2302 driver ... http://www.prolifictech.com
  *
@@ -101,7 +100,6 @@ static const struct driver_info	prolific_info = {
 	.reset =	pl_reset,
 };
 
-
 /*-------------------------------------------------------------------------*/
 
 /*
@@ -130,6 +128,7 @@ static struct usb_driver plusb_driver = {
 	.disconnect =	usbnet_disconnect,
 	.suspend =	usbnet_suspend,
 	.resume =	usbnet_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init plusb_init(void)

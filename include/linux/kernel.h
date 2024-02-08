@@ -159,6 +159,11 @@ static inline void might_fault(void)
 }
 #endif
 
+struct va_format {
+	const char *fmt;
+	va_list *va;
+};
+
 extern struct atomic_notifier_head panic_notifier_list;
 extern long (*panic_blink)(long time);
 NORET_TYPE void panic(const char * fmt, ...)
@@ -218,7 +223,7 @@ extern struct pid *session_of_pgrp(struct pid *pgrp);
  * should be able to fix this issue or at least get a concrete idea of the
  * problem by reading your message without the need of looking at the kernel
  * code.
- * 
+ *
  * Use it for definite and high priority BIOS bugs.
  *
  * FW_WARN
@@ -636,7 +641,6 @@ static inline void ftrace_dump(void) { }
 	__val = __val < __min ? __min: __val;	\
 	__val > __max ? __max: __val; })
 
-
 /*
  * swap - swap value of @a and @b
  */
@@ -659,11 +663,13 @@ extern int do_sysinfo(struct sysinfo *info);
 
 #endif /* __KERNEL__ */
 
+#if 0 /* SYNO */
 #ifndef __EXPORTED_HEADERS__
 #ifndef __KERNEL__
 #warning Attempt to use kernel headers from user space, see http://kernelnewbies.org/KernelHeaders
 #endif /* __KERNEL__ */
 #endif /* __EXPORTED_HEADERS__ */
+#endif
 
 #define SI_LOAD_SHIFT	16
 struct sysinfo {

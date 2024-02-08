@@ -1,4 +1,4 @@
-/* $Id: capifs.c,v 1.1.2.3 2004/01/16 21:09:26 keil Exp $
+/* $Id: capifs.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  * 
  * Copyright 2000 by Carsten Paeth <calle@calle.de>
  *
@@ -25,7 +25,7 @@ MODULE_LICENSE("GPL");
 
 /* ------------------------------------------------------------------ */
 
-static char *revision = "$Revision: 1.1.2.3 $";
+static char *revision = "$Revision: 1.1 $";
 
 /* ------------------------------------------------------------------ */
 
@@ -95,7 +95,6 @@ static const struct super_operations capifs_sops =
 	.remount_fs	= capifs_remount,
 	.show_options	= generic_show_options,
 };
-
 
 static int
 capifs_fill_super(struct super_block *s, void *data, int silent)

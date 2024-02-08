@@ -1,14 +1,7 @@
-/*
- * Simple MTD partitioning layer
- *
- * (C) 2000 Nicolas Pitre <nico@fluxnic.net>
- *
- * This code is GPL
- *
- * 	02-21-2002	Thomas Gleixner <gleixner@autronix.de>
- *			added support for read_oob, write_oob
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
@@ -18,11 +11,26 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/compatmac.h>
+#ifdef MY_ABC_HERE
+#include <linux/rtnetlink.h>
+#include <linux/netdevice.h>
+#include <linux/if_arp.h>
+#endif
 
-/* Our partition linked list */
+#ifdef MY_ABC_HERE
+extern unsigned char grgbLanMac[4][16];
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszSerialNum[];
+extern char gszCustomSerialNum[];
+#define SYNO_SN_TAG "SN="
+#define SYNO_CHKSUM_TAG "CHK="
+#define SYNO_SN_12_SIG SYNO_SN_TAG   
+#endif
+
 static LIST_HEAD(mtd_partitions);
 
-/* Our partition node structure */
 struct mtd_part {
 	struct mtd_info mtd;
 	struct mtd_info *master;
@@ -30,17 +38,7 @@ struct mtd_part {
 	struct list_head list;
 };
 
-/*
- * Given a pointer to the MTD object in the mtd_part structure, we can retrieve
- * the pointer to that structure with this macro.
- */
 #define PART(x)  ((struct mtd_part *)(x))
-
-
-/*
- * MTD methods which simply translate the effective address and pass through
- * to the _real_ device.
- */
 
 static int part_read(struct mtd_info *mtd, loff_t from, size_t len,
 		size_t *retlen, u_char *buf)
@@ -307,11 +305,6 @@ static int part_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	return res;
 }
 
-/*
- * This function unregisters and destroy all slave MTD objects which are
- * attached to the given master MTD object.
- */
-
 int del_mtd_partitions(struct mtd_info *master)
 {
 	struct mtd_part *slave, *next;
@@ -333,7 +326,6 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 {
 	struct mtd_part *slave;
 
-	/* allocate the partition structure */
 	slave = kzalloc(sizeof(*slave), GFP_KERNEL);
 	if (!slave) {
 		printk(KERN_ERR"memory allocation error while creating partitions for \"%s\"\n",
@@ -343,7 +335,6 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 	}
 	list_add(&slave->list, &mtd_partitions);
 
-	/* set up the MTD object for this partition */
 	slave->mtd.type = master->type;
 	slave->mtd.flags = master->flags & ~part->mask_flags;
 	slave->mtd.size = part->size;
@@ -356,9 +347,6 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 	slave->mtd.owner = master->owner;
 	slave->mtd.backing_dev_info = master->backing_dev_info;
 
-	/* NOTE:  we don't arrange MTDs as a tree; it'd be error-prone
-	 * to have the same data be in two different partitions.
-	 */
 	slave->mtd.dev.parent = master->dev.parent;
 
 	slave->mtd.read = part_read;
@@ -415,7 +403,7 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 	if (slave->offset == MTDPART_OFS_NXTBLK) {
 		slave->offset = cur_offset;
 		if (mtd_mod_by_eb(cur_offset, master) != 0) {
-			/* Round up to next erasesize */
+			 
 			slave->offset = (mtd_div_by_eb(cur_offset, master) + 1) * master->erasesize;
 			printk(KERN_NOTICE "Moving partition %d: "
 			       "0x%012llx -> 0x%012llx\n", partno,
@@ -428,9 +416,8 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 	printk(KERN_NOTICE "0x%012llx-0x%012llx : \"%s\"\n", (unsigned long long)slave->offset,
 		(unsigned long long)(slave->offset + slave->mtd.size), slave->mtd.name);
 
-	/* let's do some sanity checks */
 	if (slave->offset >= master->size) {
-		/* let's register it anyway to preserve ordering */
+		 
 		slave->offset = 0;
 		slave->mtd.size = 0;
 		printk(KERN_ERR"mtd: partition \"%s\" is out of reach -- disabled\n",
@@ -443,20 +430,17 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 			part->name, master->name, (unsigned long long)slave->mtd.size);
 	}
 	if (master->numeraseregions > 1) {
-		/* Deal with variable erase size stuff */
+		 
 		int i, max = master->numeraseregions;
 		u64 end = slave->offset + slave->mtd.size;
 		struct mtd_erase_region_info *regions = master->eraseregions;
 
-		/* Find the first erase regions which is part of this
-		 * partition. */
 		for (i = 0; i < max && regions[i].offset <= slave->offset; i++)
 			;
-		/* The loop searched for the region _behind_ the first one */
+		 
 		if (i > 0)
 			i--;
 
-		/* Pick biggest erasesize */
 		for (; i < max && regions[i].offset < end; i++) {
 			if (slave->mtd.erasesize < regions[i].erasesize) {
 				slave->mtd.erasesize = regions[i].erasesize;
@@ -464,15 +448,13 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 		}
 		BUG_ON(slave->mtd.erasesize == 0);
 	} else {
-		/* Single erase size */
+		 
 		slave->mtd.erasesize = master->erasesize;
 	}
 
 	if ((slave->mtd.flags & MTD_WRITEABLE) &&
 	    mtd_mod_by_eb(slave->offset, &slave->mtd)) {
-		/* Doesn't start on a boundary of major erase size */
-		/* FIXME: Let it be writable if it is on a boundary of
-		 * _minor_ erase size though */
+		 
 		slave->mtd.flags &= ~MTD_WRITEABLE;
 		printk(KERN_WARNING"mtd: partition \"%s\" doesn't start on an erase block boundary -- force read-only\n",
 			part->name);
@@ -497,20 +479,143 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 	}
 
 out_register:
-	/* register our partition */
+	 
 	add_mtd_device(&slave->mtd);
+
+#if defined(MY_ABC_HERE) 
+	if ((memcmp(part->name, "vender", 7)==0) ||
+		(memcmp(part->name, "vendor", 7)==0)) {
+			int gVenderMacNumber = 0;
+
+			u_char rgbszBuf[128];
+			size_t retlen;
+			int i, n, x;
+			unsigned int Sum;
+			u_char ucSum;
+			char rgbLanMac[4][6];
+
+			part_read(&slave->mtd, 0, 128, &retlen, rgbszBuf);
+#ifdef MY_ABC_HERE
+			x = 0;
+			gVenderMacNumber = 0;
+			for (n = 0; n<4; n++) {
+				for (Sum=0,ucSum=0,i=0; i<6; i++) {
+					Sum+=rgbszBuf[i+x];
+					ucSum+=rgbszBuf[i+x];
+					rgbLanMac[n][i] = rgbszBuf[i+x];
+				}
+				x+=6;
+
+				if (Sum==0 || ucSum!=rgbszBuf[x]) {
+					printk("vender Mac%d checksum error ucSum:0x%02x Buf:0x%02x Sum:%d.\n", 
+							n, ucSum, rgbszBuf[x], Sum);
+					grgbLanMac[n][0] = '\0';
+				} else {
+					snprintf(grgbLanMac[n], sizeof(grgbLanMac),
+							"%02x%02x%02x%02x%02x%02x",
+					rgbLanMac[n][0],
+					rgbLanMac[n][1],
+					rgbLanMac[n][2],
+					rgbLanMac[n][3],
+					rgbLanMac[n][4],
+					rgbLanMac[n][5]);
+				}
+
+				x++;
+				gVenderMacNumber++;
+			}
+#endif
+
+#ifdef MY_ABC_HERE
+			char szSerialBuffer[32];
+			char *ptr;
+			char szSerial[32];
+			char szCheckSum[32];
+			unsigned int uichksum = 0;
+			unsigned int uiTemp = 0;
+
+			memset(szSerial, 0, sizeof(szSerial));
+			memset(szCheckSum, 0, sizeof(szCheckSum));
+			memset(gszSerialNum, 0, 32);
+			memcpy(szSerialBuffer, &(rgbszBuf[32]), 32);
+
+			if (0 == strncmp(szSerialBuffer, SYNO_SN_12_SIG,strlen(SYNO_SN_12_SIG))) {
+				 
+				ptr = strstr(szSerialBuffer, SYNO_SN_TAG);
+				if (NULL == ptr) {
+					printk("no serial tag found, serial buffer='%s'\n", szSerialBuffer);
+					goto SKIP_SERIAL;
+				}
+				ptr += strlen(SYNO_SN_TAG);
+				i = 0;
+				while (0 != *ptr && ',' != *ptr) {
+					szSerial[i++] = *ptr;
+					ptr++;
+				}
+				szSerial[i] = '\0';
+
+				ptr = strstr(szSerialBuffer, SYNO_CHKSUM_TAG);
+				if (NULL == ptr) {
+					printk("no checksum tag found, serial buffer='%s'\n", szSerialBuffer);
+					goto SKIP_SERIAL;
+				}
+				ptr += strlen(SYNO_CHKSUM_TAG);
+				i = 0;
+				while (0 != *ptr && ',' != *ptr) {
+					szCheckSum[i++] = *ptr;
+					ptr++;
+				}
+				szCheckSum[i] = '\0';
+
+				for (i = 0 ; i < strlen(szSerial); i++) {
+					uichksum += szSerial[i];
+				}
+
+				if (0 != strict_strtoul(szCheckSum, 10, &uiTemp)) {
+					printk("string conversion error: '%s'\n", szCheckSum);
+					goto SKIP_SERIAL;
+				} else if (uichksum != uiTemp) {
+					printk("serial number checksum error, serial='%s', checksum='%u' not '%u'\n", szSerial, uichksum, uiTemp);
+					goto SKIP_SERIAL;
+				}
+			} else {
+				unsigned char ucChkSum = 0;
+				 
+				for (i = 0 ; i < 10; i++) {
+					ucChkSum += szSerialBuffer[i];
+				}
+				 
+				if (ucChkSum != szSerialBuffer[10]) {
+					printk("serial number checksum error, serial='%s', checksum='%d' not '%d'", szSerialBuffer, ucChkSum, szSerialBuffer[10]);
+					goto SKIP_SERIAL;
+				} else {
+					memcpy(szSerial, szSerialBuffer, 10);
+				}
+			}
+			snprintf(gszSerialNum, 32, "%s", szSerial);
+SKIP_SERIAL:
+			printk("serial number='%s'", gszSerialNum);
+
+			x = 64;
+			for (Sum=0,ucSum=0,i=0; i<31; i++) {
+				Sum+=rgbszBuf[i+x];
+				ucSum+=rgbszBuf[i+x];
+				gszCustomSerialNum[i] = rgbszBuf[i+x];
+			}
+			x+=31;
+			if (Sum==0 || ucSum!=rgbszBuf[x]) {
+				for (i=0; i<32; i++) {
+					gszCustomSerialNum[i] = 0;
+				}
+			} else {
+				printk("Custom Serial Number: %s\n", gszCustomSerialNum);
+			}
+#endif
+        }
+#endif
 
 	return slave;
 }
-
-/*
- * This function, given a master MTD object and a partition table, creates
- * and registers slave MTD objects which are bound to the master according to
- * the partition definitions.
- *
- * We don't register the master, or expect the caller to have done so,
- * for reasons of data integrity.
- */
 
 int add_mtd_partitions(struct mtd_info *master,
 		       const struct mtd_partition *parts,
@@ -597,3 +702,29 @@ int parse_mtd_partitions(struct mtd_info *master, const char **types,
 	return ret;
 }
 EXPORT_SYMBOL_GPL(parse_mtd_partitions);
+
+#ifdef MY_ABC_HERE
+int SYNOMTDModifyPartInfo(struct mtd_info *mtd, unsigned long offset, unsigned long length)
+{
+	struct mtd_part *part = PART(mtd);
+
+#ifndef CONFIG_MTD_PHYSMAP_COMPAT
+#ifdef CONFIG_SYNO_MTD_PHYSMAP_START
+	offset -= CONFIG_SYNO_MTD_PHYSMAP_START;
+#else
+#error you should add CONFIG_SYNO_MTD_PHYSMAP_START in your config
+#endif
+#endif
+
+	part->offset = offset;
+	part->offset &= part->master->size-1;
+
+	mtd->size = length;
+
+	if (part->offset + mtd->size > part->master->size) {
+		return -EFAULT;
+	}
+
+	return 0;
+}
+#endif  

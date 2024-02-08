@@ -9,7 +9,6 @@
  * 2 of the License, or (at your option) any later version.
  */
 
-
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/sched.h>
@@ -56,6 +55,11 @@ static LIST_HEAD(nfs_volume_list);
 static DECLARE_WAIT_QUEUE_HEAD(nfs_client_active_wq);
 
 /*
+ * Turn off NFSv4 uid/gid mapping when using AUTH_SYS
+ */
+static int nfs4_disable_idmapping = 0;
+
+/*
  * RPC cruft for NFS
  */
 static struct rpc_version *nfs_version[5] = {
@@ -80,7 +84,6 @@ struct rpc_program nfs_program = {
 struct rpc_stat nfs_rpcstat = {
 	.program		= &nfs_program
 };
-
 
 #ifdef CONFIG_NFS_V3_ACL
 static struct rpc_stat		nfsacl_rpcstat = { &nfsacl_program };
@@ -1251,7 +1254,6 @@ error:
 	return error;
 }
 
-
 /*
  * Session has been established, and the client marked ready.
  * Set the mount rsize and wsize with negotiated fore channel
@@ -1283,7 +1285,8 @@ static int nfs4_init_server(struct nfs_server *server,
 
 	/* Initialise the client representation from the mount data */
 	server->flags = data->flags;
-	server->caps |= NFS_CAP_ATOMIC_OPEN|NFS_CAP_CHANGE_ATTR;
+	server->caps |= NFS_CAP_ATOMIC_OPEN|NFS_CAP_CHANGE_ATTR|
+		NFS_CAP_POSIX_LOCK;
 	server->options = data->options;
 
 	/* Get a client record */
@@ -1298,6 +1301,13 @@ static int nfs4_init_server(struct nfs_server *server,
 			data->minorversion);
 	if (error < 0)
 		goto error;
+
+	/*
+	 * Don't use NFS uid/gid mapping if we're using AUTH_SYS or lower
+	 * authentication.
+	 */
+	if (nfs4_disable_idmapping && data->auth_flavors[0] == RPC_AUTH_UNIX)
+		server->caps |= NFS_CAP_UIDGID_NOMAP;
 
 	if (data->rsize)
 		server->rsize = nfs_block_size(data->rsize, NULL);
@@ -1768,3 +1778,7 @@ void nfs_fs_proc_exit(void)
 }
 
 #endif /* CONFIG_PROC_FS */
+
+module_param(nfs4_disable_idmapping, bool, 0644);
+MODULE_PARM_DESC(nfs4_disable_idmapping,
+		"Turn off NFSv4 idmapping when using 'sec=sys'");

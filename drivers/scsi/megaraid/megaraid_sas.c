@@ -139,7 +139,6 @@ megasas_return_cmd(struct megasas_instance *instance, struct megasas_cmd *cmd)
 	spin_unlock_irqrestore(&instance->cmd_pool_lock, flags);
 }
 
-
 /**
 *	The following functions are defined for xscale 
 *	(deviceid : 1064R, PERC5) controllers
@@ -989,7 +988,6 @@ megasas_queue_command(struct scsi_cmnd *scmd, void (*done) (struct scsi_cmnd *))
 	 */
 	if (poll_mode_io && atomic_read(&instance->fw_outstanding))
 		tasklet_schedule(&instance->isr_tasklet);
-
 
 	return 0;
 
@@ -1841,7 +1839,6 @@ static int megasas_alloc_cmds(struct megasas_instance *instance)
 		printk(KERN_DEBUG "megasas: out of memory\n");
 		return -ENOMEM;
 	}
-
 
 	for (i = 0; i < max_cmd; i++) {
 		instance->cmd_list[i] = kmalloc(sizeof(struct megasas_cmd),
@@ -3032,7 +3029,7 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
 	int error = 0, i;
 	void *sense = NULL;
 	dma_addr_t sense_handle;
-	u32 *sense_ptr;
+	unsigned long *sense_ptr;
 
 	memset(kbuff_arr, 0, sizeof(kbuff_arr));
 
@@ -3109,7 +3106,7 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
 		}
 
 		sense_ptr =
-		    (u32 *) ((unsigned long)cmd->frame + ioc->sense_off);
+		(unsigned long *) ((unsigned long)cmd->frame + ioc->sense_off);
 		*sense_ptr = sense_handle;
 	}
 
@@ -3140,8 +3137,8 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
 		 * sense_ptr points to the location that has the user
 		 * sense buffer address
 		 */
-		sense_ptr = (u32 *) ((unsigned long)ioc->frame.raw +
-				     ioc->sense_off);
+		sense_ptr = (unsigned long *) ((unsigned long)ioc->frame.raw +
+				ioc->sense_off);
 
 		if (copy_to_user((void __user *)((unsigned long)(*sense_ptr)),
 				 sense, ioc->sense_len)) {
@@ -3451,7 +3448,7 @@ out:
 	return retval;
 }
 
-static DRIVER_ATTR(poll_mode_io, S_IRUGO|S_IWUGO,
+static DRIVER_ATTR(poll_mode_io, S_IRUGO|S_IWUSR,
 		megasas_sysfs_show_poll_mode_io,
 		megasas_sysfs_set_poll_mode_io);
 

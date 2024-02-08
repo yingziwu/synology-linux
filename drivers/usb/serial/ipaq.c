@@ -90,7 +90,6 @@ static int ipaq_write_room(struct tty_struct *tty);
 static int ipaq_chars_in_buffer(struct tty_struct *tty);
 static void ipaq_destroy_lists(struct usb_serial_port *port);
 
-
 static struct usb_device_id ipaq_id_table [] = {
 	/* The first entry is a placeholder for the insmod-specified device */
 	{ USB_DEVICE(0x049F, 0x0003) },
@@ -561,7 +560,6 @@ static struct usb_driver ipaq_driver = {
 	.no_dynamic_id = 	1,
 };
 
-
 /* All of the device info needed for the Compaq iPAQ */
 static struct usb_serial_driver ipaq_device = {
 	.driver = {
@@ -705,7 +703,6 @@ error:
 	return result;
 }
 
-
 static void ipaq_close(struct usb_serial_port *port)
 {
 	struct ipaq_private	*priv = usb_get_serial_port_data(port);
@@ -747,7 +744,6 @@ static void ipaq_read_bulk_callback(struct urb *urb)
 
 	tty = tty_port_tty_get(&port->port);
 	if (tty && urb->actual_length) {
-		tty_buffer_request_room(tty, urb->actual_length);
 		tty_insert_flip_string(tty, data, urb->actual_length);
 		tty_flip_buffer_push(tty);
 		bytes_in += urb->actual_length;
@@ -936,7 +932,6 @@ static void ipaq_destroy_lists(struct usb_serial_port *port)
 	}
 }
 
-
 static int ipaq_calc_num_ports(struct usb_serial *serial)
 {
 	/*
@@ -961,7 +956,6 @@ static int ipaq_calc_num_ports(struct usb_serial *serial)
 
 	return ipaq_num_ports;
 }
-
 
 static int ipaq_startup(struct usb_serial *serial)
 {
@@ -1016,13 +1010,11 @@ failed_usb_serial_register:
 	return retval;
 }
 
-
 static void __exit ipaq_exit(void)
 {
 	usb_deregister(&ipaq_driver);
 	usb_serial_deregister(&ipaq_device);
 }
-
 
 module_init(ipaq_init);
 module_exit(ipaq_exit);

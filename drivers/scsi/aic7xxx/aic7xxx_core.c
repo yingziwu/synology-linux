@@ -37,7 +37,7 @@
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
  *
- * $Id: //depot/aic7xxx/aic7xxx/aic7xxx.c#155 $
+ * $Id: aic7xxx_core.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  */
 
 #ifdef __linux__
@@ -2364,7 +2364,6 @@ ahc_find_period(struct ahc_softc *ahc, u_int scsirate, u_int maxsync)
 	    && maxsync < AHC_SYNCRATE_FAST)
 		maxsync = AHC_SYNCRATE_FAST;
 
-
 	syncrate = &ahc_syncrates[maxsync];
 	while (syncrate->rate != NULL) {
 
@@ -2853,7 +2852,6 @@ ahc_scb_devinfo(struct ahc_softc *ahc, struct ahc_devinfo *devinfo,
 	ahc_compile_devinfo(devinfo, our_id, SCB_GET_TARGET(ahc, scb),
 			    SCB_GET_LUN(scb), SCB_GET_CHANNEL(ahc, scb), role);
 }
-
 
 /************************ Message Phase Processing ****************************/
 static void
@@ -4257,7 +4255,6 @@ ahc_handle_ign_wide_residue(struct ahc_softc *ahc, struct ahc_devinfo *devinfo)
 		}
 	}
 }
-
 
 /*
  * Reinitialize the data pointers for the active transfer
@@ -6651,7 +6648,6 @@ ahc_reset_channel(struct ahc_softc *ahc, char channel, int initiate_reset)
 		ahc_unpause(ahc);
 	return found;
 }
-
 
 /***************************** Residual Processing ****************************/
 /*

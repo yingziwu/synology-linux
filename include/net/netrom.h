@@ -132,6 +132,8 @@ static __inline__ void nr_node_put(struct nr_node *nr_node)
 static __inline__ void nr_neigh_put(struct nr_neigh *nr_neigh)
 {
 	if (atomic_dec_and_test(&nr_neigh->refcount)) {
+		if (nr_neigh->ax25)
+			ax25_cb_put(nr_neigh->ax25);
 		kfree(nr_neigh->digipeat);
 		kfree(nr_neigh);
 	}
@@ -162,7 +164,6 @@ static __inline__ void nr_node_unlock(struct nr_node *nr_node)
 
 #define nr_node_for_each_safe(__nr_node, node, node2, list) \
 	hlist_for_each_entry_safe(__nr_node, node, node2, list, node_node)
-
 
 /*********************************************************************/
 

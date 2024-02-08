@@ -1,4 +1,4 @@
-/* $Id: b1dma.c,v 1.1.2.3 2004/02/10 01:07:12 keil Exp $
+/* $Id: b1dma.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  * 
  * Common module for AVM B1 cards that support dma with AMCC
  * 
@@ -27,7 +27,7 @@
 #include <linux/isdn/capicmd.h>
 #include <linux/isdn/capiutil.h>
 
-static char *revision = "$Revision: 1.1.2.3 $";
+static char *revision = "$Revision: 1.1 $";
 
 #undef AVM_B1DMA_DEBUG
 
@@ -916,7 +916,6 @@ int b1dmactl_read_proc(char *page, char **start, off_t off,
 			);
 	}
 	len += sprintf(page+len, "%-16s %s\n", "cardname", cinfo->cardname);
-
 
 	spin_lock_irqsave(&card->lock, flags);
 

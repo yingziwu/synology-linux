@@ -23,7 +23,6 @@
 #include <linux/percpu.h>
 #include <linux/timer.h>
 
-
 struct hrtimer_clock_base;
 struct hrtimer_cpu_base;
 
@@ -162,10 +161,11 @@ struct hrtimer_clock_base {
  * @expires_next:	absolute time of the next event which was scheduled
  *			via clock_set_next_event()
  * @hres_active:	State of high resolution mode
- * @check_clocks:	Indictator, when set evaluate time source and clock
- *			event devices whether high resolution mode can be
- *			activated.
- * @nr_events:		Total number of timer interrupt events
+ * @hang_detected:	The last hrtimer interrupt detected a hang
+ * @nr_events:		Total number of hrtimer interrupt events
+ * @nr_retries:		Total number of hrtimer interrupt retries
+ * @nr_hangs:		Total number of hrtimer interrupt hangs
+ * @max_hang_time:	Maximum time spent in hrtimer_interrupt
  */
 struct hrtimer_cpu_base {
 	spinlock_t			lock;
@@ -173,7 +173,11 @@ struct hrtimer_cpu_base {
 #ifdef CONFIG_HIGH_RES_TIMERS
 	ktime_t				expires_next;
 	int				hres_active;
+	int				hang_detected;
 	unsigned long			nr_events;
+	unsigned long			nr_retries;
+	unsigned long			nr_hangs;
+	ktime_t				max_hang_time;
 #endif
 };
 
@@ -308,9 +312,7 @@ static inline int hrtimer_is_hres_active(struct hrtimer *timer)
 extern ktime_t ktime_get(void);
 extern ktime_t ktime_get_real(void);
 
-
 DECLARE_PER_CPU(struct tick_device, tick_cpu_device);
-
 
 /* Exported timer functions: */
 
@@ -446,7 +448,7 @@ extern void timer_stats_update_stats(void *timer, pid_t pid, void *startf,
 
 static inline void timer_stats_account_hrtimer(struct hrtimer *timer)
 {
-	if (likely(!timer->start_site))
+	if (likely(!timer_stats_active))
 		return;
 	timer_stats_update_stats(timer, timer->start_pid, timer->start_site,
 				 timer->function, timer->start_comm, 0);
@@ -457,8 +459,6 @@ extern void __timer_stats_hrtimer_set_start_info(struct hrtimer *timer,
 
 static inline void timer_stats_hrtimer_set_start_info(struct hrtimer *timer)
 {
-	if (likely(!timer_stats_active))
-		return;
 	__timer_stats_hrtimer_set_start_info(timer, __builtin_return_address(0));
 }
 

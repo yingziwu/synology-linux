@@ -66,7 +66,7 @@
 #ifdef PCMCIA_DEBUG
 static int pc_debug = PCMCIA_DEBUG;
 module_param(pc_debug, int, 0);
-static char *version = "$Revision: 1.2 $";
+static char *version = "$Revision: 1.1 $";
 #define DEBUG(n, args...) if (pc_debug>(n)) printk(KERN_DEBUG args);
 #else
 #define DEBUG(n, args...)
@@ -328,7 +328,6 @@ static int atmel_config(struct pcmcia_device *link)
 				link);
 	if (!((local_info_t*)link->priv)->eth_dev)
 			goto cs_failed;
-
 
 	/*
 	  At this point, the dev_node_t structure(s) need to be

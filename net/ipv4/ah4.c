@@ -9,7 +9,6 @@
 #include <net/icmp.h>
 #include <net/protocol.h>
 
-
 /* Clear mutable options and find final destination to substitute
  * into IP header for icv calculation. Options are already checked
  * for validity, so paranoia is not required. */
@@ -261,7 +260,7 @@ static int ah_init_state(struct xfrm_state *x)
 	}
 
 	ahp->icv_full_len = aalg_desc->uinfo.auth.icv_fullbits/8;
-	ahp->icv_trunc_len = aalg_desc->uinfo.auth.icv_truncbits/8;
+	ahp->icv_trunc_len = x->aalg->alg_trunc_len/8;
 
 	BUG_ON(ahp->icv_trunc_len > MAX_AH_AUTH_LEN);
 
@@ -297,7 +296,6 @@ static void ah_destroy(struct xfrm_state *x)
 	crypto_free_hash(ahp->tfm);
 	kfree(ahp);
 }
-
 
 static const struct xfrm_type ah_type =
 {

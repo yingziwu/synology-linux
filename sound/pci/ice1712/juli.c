@@ -282,7 +282,6 @@ static const struct snd_akm4xxx_dac_channel juli_dac[] = {
 	AK_DAC(MONITOR_DIG_IN_VOLUME, 2),
 };
 
-
 static struct snd_akm4xxx akm_juli_dac __devinitdata = {
 	.type = SND_AK4358,
 	.num_dacs = 8,	/* DAC1 - analog out
@@ -412,7 +411,6 @@ static struct snd_kcontrol_new juli_mute_controls[] __devinitdata = {
 	},
 };
 
-
 static void ak4358_proc_regs_read(struct snd_info_entry *entry,
 		struct snd_info_buffer *buffer)
 {
@@ -502,6 +500,31 @@ static int __devinit juli_add_controls(struct snd_ice1712 *ice)
 		return err;
 	return 0;
 }
+
+/*
+ * suspend/resume
+ * */
+
+#ifdef CONFIG_PM
+static int juli_resume(struct snd_ice1712 *ice)
+{
+	struct snd_akm4xxx *ak = ice->akm;
+	struct juli_spec *spec = ice->spec;
+	/* akm4358 un-reset, un-mute */
+	snd_akm4xxx_reset(ak, 0);
+	/* reinit ak4114 */
+	snd_ak4114_reinit(spec->ak4114);
+	return 0;
+}
+
+static int juli_suspend(struct snd_ice1712 *ice)
+{
+	struct snd_akm4xxx *ak = ice->akm;
+	/* akm4358 reset and soft-mute */
+	snd_akm4xxx_reset(ak, 1);
+	return 0;
+}
+#endif
 
 /*
  * initialize the chip
@@ -646,9 +669,15 @@ static int __devinit juli_init(struct snd_ice1712 *ice)
 	ice->set_spdif_clock = juli_set_spdif_clock;
 
 	ice->spdif.ops.open = juli_spdif_in_open;
+
+#ifdef CONFIG_PM
+	ice->pm_resume = juli_resume;
+	ice->pm_suspend = juli_suspend;
+	ice->pm_suspend_enabled = 1;
+#endif
+
 	return 0;
 }
-
 
 /*
  * Juli@ boards don't provide the EEPROM data except for the vendor IDs.

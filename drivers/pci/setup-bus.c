@@ -142,7 +142,11 @@ static void pci_setup_bridge(struct pci_bus *bus)
 	struct pci_dev *bridge = bus->self;
 	struct pci_bus_region region;
 	u32 l, bu, lu, io_upper16;
-	int pref_mem64;
+
+#ifdef CONFIG_PCIE_VIRTUAL_BRIDGE_SUPPORT
+	u16 flags = PCI_COMMAND_IO | PCI_COMMAND_MEMORY;
+	u16 cmd, old_cmd;
+#endif
 
 	if (pci_is_enabled(bridge))
 		return;
@@ -168,6 +172,9 @@ static void pci_setup_bridge(struct pci_bus *bus)
 		io_upper16 = 0;
 		l = 0x00f0;
 		dev_info(&bridge->dev, "  IO window: disabled\n");
+#ifdef CONFIG_PCIE_VIRTUAL_BRIDGE_SUPPORT
+		flags &= ~PCI_COMMAND_IO;
+#endif
 	}
 	/* Temporarily disable the I/O range before updating PCI_IO_BASE. */
 	pci_write_config_dword(bridge, PCI_IO_BASE_UPPER16, 0x0000ffff);
@@ -189,6 +196,9 @@ static void pci_setup_bridge(struct pci_bus *bus)
 	else {
 		l = 0x0000fff0;
 		dev_info(&bridge->dev, "  MEM window: disabled\n");
+#ifdef CONFIG_PCIE_VIRTUAL_BRIDGE_SUPPORT
+		flags &= ~PCI_COMMAND_MEMORY;
+#endif
 	}
 	pci_write_config_dword(bridge, PCI_MEMORY_BASE, l);
 
@@ -198,7 +208,6 @@ static void pci_setup_bridge(struct pci_bus *bus)
 	pci_write_config_dword(bridge, PCI_PREF_LIMIT_UPPER32, 0);
 
 	/* Set up PREF base/limit. */
-	pref_mem64 = 0;
 	bu = lu = 0;
 	pcibios_resource_to_bus(bridge, &region, bus->resource[2]);
 	if (bus->resource[2]->flags & IORESOURCE_PREFETCH) {
@@ -206,7 +215,6 @@ static void pci_setup_bridge(struct pci_bus *bus)
 		l = (region.start >> 16) & 0xfff0;
 		l |= region.end & 0xfff00000;
 		if (bus->resource[2]->flags & IORESOURCE_MEM_64) {
-			pref_mem64 = 1;
 			bu = upper_32_bits(region.start);
 			lu = upper_32_bits(region.end);
 			width = 16;
@@ -221,13 +229,23 @@ static void pci_setup_bridge(struct pci_bus *bus)
 	}
 	pci_write_config_dword(bridge, PCI_PREF_MEMORY_BASE, l);
 
-	if (pref_mem64) {
-		/* Set the upper 32 bits of PREF base & limit. */
-		pci_write_config_dword(bridge, PCI_PREF_BASE_UPPER32, bu);
-		pci_write_config_dword(bridge, PCI_PREF_LIMIT_UPPER32, lu);
-	}
+	/* Set the upper 32 bits of PREF base & limit. */
+	pci_write_config_dword(bridge, PCI_PREF_BASE_UPPER32, bu);
+	pci_write_config_dword(bridge, PCI_PREF_LIMIT_UPPER32, lu);
 
 	pci_write_config_word(bridge, PCI_BRIDGE_CONTROL, bus->bridge_ctl);
+#ifdef CONFIG_PCIE_VIRTUAL_BRIDGE_SUPPORT
+	if (flags) {
+		pci_read_config_word(bridge, PCI_COMMAND, &old_cmd);
+		cmd  = old_cmd | (PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
+		if (cmd != old_cmd) {
+			printk("PCI: enabling bridge %s (%04x -> %04x)\n",
+			       pci_name(bridge), old_cmd, cmd);
+			pci_write_config_word(bridge, PCI_COMMAND, cmd);
+		}
+		pci_set_master(bridge);
+	}
+#endif
 }
 
 /* Check whether the bridge supports optional I/O and
@@ -593,7 +611,6 @@ static void pci_bus_dump_resources(struct pci_bus *bus)
 {
 	struct pci_bus *b;
 	struct pci_dev *dev;
-
 
 	pci_bus_dump_res(bus);
 

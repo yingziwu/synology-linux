@@ -1079,7 +1079,6 @@ void r600_gpu_init(struct radeon_device *rdev)
 	WREG32(PA_SC_ENHANCE, FORCE_EOV_MAX_CLK_CNT(4095));
 }
 
-
 /*
  * Indirect registers accessor
  */
@@ -1100,7 +1099,6 @@ void r600_pciep_wreg(struct radeon_device *rdev, u32 reg, u32 v)
 	WREG32(PCIE_PORT_DATA, (v));
 	(void)RREG32(PCIE_PORT_DATA);
 }
-
 
 /*
  * CP & Ring
@@ -1324,7 +1322,6 @@ void r600_ring_init(struct radeon_device *rdev, unsigned ring_size)
 	rdev->cp.align_mask = 16 - 1;
 }
 
-
 /*
  * GPU scratch registers helpers function.
  */
@@ -1483,7 +1480,6 @@ void r600_clear_surface_reg(struct radeon_device *rdev, int reg)
 {
 	/* FIXME: implement */
 }
-
 
 bool r600_card_posted(struct radeon_device *rdev)
 {
@@ -1686,13 +1682,14 @@ int r600_init(struct radeon_device *rdev)
 	if (rdev->accel_working) {
 		r = radeon_ib_pool_init(rdev);
 		if (r) {
-			DRM_ERROR("radeon: failled initializing IB pool (%d).\n", r);
+			dev_err(rdev->dev, "IB initialization failed (%d).\n", r);
 			rdev->accel_working = false;
-		}
-		r = r600_ib_test(rdev);
-		if (r) {
-			DRM_ERROR("radeon: failled testing IB (%d).\n", r);
-			rdev->accel_working = false;
+		} else {
+			r = r600_ib_test(rdev);
+			if (r) {
+				dev_err(rdev->dev, "IB test failed (%d).\n", r);
+				rdev->accel_working = false;
+			}
 		}
 	}
 	return 0;
@@ -1718,7 +1715,6 @@ void r600_fini(struct radeon_device *rdev)
 	rdev->bios = NULL;
 	radeon_dummy_page_fini(rdev);
 }
-
 
 /*
  * CS stuff
@@ -1797,9 +1793,6 @@ int r600_ib_test(struct radeon_device *rdev)
 	radeon_ib_free(rdev, &ib);
 	return r;
 }
-
-
-
 
 /*
  * Debugfs info

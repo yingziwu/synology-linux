@@ -52,7 +52,6 @@
 #define DM_RX_OVERHEAD	7	/* 3 byte header + 4 byte crc tail */
 #define DM_TIMEOUT	1000
 
-
 static int dm_read(struct usbnet *dev, u8 reg, u16 length, void *data)
 {
 	void *buf;
@@ -270,8 +269,6 @@ static int dm_read_eeprom_word(struct usbnet *dev, u8 offset, void *value)
 {
 	return dm_read_shared_word(dev, 0, offset, value);
 }
-
-
 
 static int dm9601_get_eeprom_len(struct net_device *dev)
 {
@@ -611,7 +608,7 @@ static int dm9601_link_reset(struct usbnet *dev)
 
 static const struct driver_info dm9601_info = {
 	.description	= "Davicom DM9601 USB Ethernet",
-	.flags		= FLAG_ETHER,
+	.flags		= FLAG_ETHER | FLAG_LINK_INTR,
 	.bind		= dm9601_bind,
 	.rx_fixup	= dm9601_rx_fixup,
 	.tx_fixup	= dm9601_tx_fixup,
@@ -665,6 +662,7 @@ static struct usb_driver dm9601_driver = {
 	.disconnect = usbnet_disconnect,
 	.suspend = usbnet_suspend,
 	.resume = usbnet_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init dm9601_init(void)

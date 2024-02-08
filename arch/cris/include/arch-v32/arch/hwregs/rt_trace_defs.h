@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:09:14 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c --outfile rt_trace_defs.h ../../inst/rt_trace/rtl/rt_regs.r
- *      id: $Id: rt_trace_defs.h,v 1.1 2005/04/24 18:30:58 starvik Exp $
+ *      id: $Id: rt_trace_defs.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -134,7 +134,6 @@ typedef struct {
 /* Register r_redir, scope rt_trace, type r */
 typedef unsigned int reg_rt_trace_r_redir;
 #define REG_RD_ADDR_rt_trace_r_redir 20
-
 
 /* Constants */
 enum {

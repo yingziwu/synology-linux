@@ -1149,7 +1149,6 @@ static const struct rpc_call_ops nfs_write_full_ops = {
 	.rpc_release = nfs_writeback_release_full,
 };
 
-
 /*
  * This function is called when the WRITE call is complete.
  */
@@ -1231,7 +1230,6 @@ int nfs_writeback_done(struct rpc_task *task, struct nfs_write_data *data)
 	nfs4_sequence_free_slot(server->nfs_client, &data->res.seq_res);
 	return 0;
 }
-
 
 #if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
 void nfs_commitdata_release(void *data)
@@ -1542,6 +1540,7 @@ int nfs_wb_page_cancel(struct inode *inode, struct page *page)
 			break;
 		}
 		ret = nfs_wait_on_request(req);
+		nfs_release_request(req);
 		if (ret < 0)
 			goto out;
 	}
@@ -1612,15 +1611,16 @@ int nfs_migrate_page(struct address_space *mapping, struct page *newpage,
 	if (ret)
 		goto out_unlock;
 	page_cache_get(newpage);
+	spin_lock(&mapping->host->i_lock);
 	req->wb_page = newpage;
 	SetPagePrivate(newpage);
-	set_page_private(newpage, page_private(page));
+	set_page_private(newpage, (unsigned long)req);
 	ClearPagePrivate(page);
 	set_page_private(page, 0);
+	spin_unlock(&mapping->host->i_lock);
 	page_cache_release(page);
 out_unlock:
 	nfs_clear_page_tag_locked(req);
-	nfs_release_request(req);
 out:
 	return ret;
 }
@@ -1674,4 +1674,3 @@ void nfs_destroy_writepagecache(void)
 	mempool_destroy(nfs_wdata_mempool);
 	kmem_cache_destroy(nfs_wdata_cachep);
 }
-

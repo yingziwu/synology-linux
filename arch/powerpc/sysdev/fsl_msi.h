@@ -1,15 +1,4 @@
-/*
- * Copyright (C) 2007-2008 Freescale Semiconductor, Inc. All rights reserved.
- *
- * Author: Tony Li <tony.li@freescale.com>
- *	   Jason Jin <Jason.jin@freescale.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; version 2 of the
- * License.
- *
- */
+ 
 #ifndef _POWERPC_SYSDEV_FSL_MSI_H
 #define _POWERPC_SYSDEV_FSL_MSI_H
 
@@ -32,9 +21,15 @@ struct fsl_msi {
 	u32 msi_addr_hi;
 	void __iomem *msi_regs;
 	u32 feature;
+#ifdef CONFIG_SYNO_QORIQ
+	int msi_virqs[NR_MSI_REG];
+#endif
 
 	struct msi_bitmap bitmap;
+#ifdef CONFIG_SYNO_QORIQ
+
+	struct list_head list;           
+#endif
 };
 
-#endif /* _POWERPC_SYSDEV_FSL_MSI_H */
-
+#endif  

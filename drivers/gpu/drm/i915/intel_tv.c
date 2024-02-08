@@ -346,7 +346,6 @@ static const struct video_levels component_levels = {
 	.blank = 279, .black = 279, .burst = 0,
 };
 
-
 struct tv_mode {
 	char *name;
 	int clock;
@@ -378,7 +377,6 @@ struct tv_mode {
 	const u32 *filter_table;
 	int max_srcw;
 };
-
 
 /*
  * Sub carrier DDA
@@ -596,7 +594,6 @@ static const struct tv_mode tv_modes[] = {
 
 		.progressive  = false,    .trilevel_sync = false,
 
-
 		.vsync_start_f1	= 6,	   .vsync_start_f2	= 7,
 		.vsync_len	= 6,
 
@@ -612,7 +609,6 @@ static const struct tv_mode tv_modes[] = {
 		.vburst_start_f2 = 8,	    .vburst_end_f2	= 286,
 		.vburst_start_f3 = 9,	    .vburst_end_f3	= 286,
 		.vburst_start_f4 = 9,	    .vburst_end_f4	= 285,
-
 
 		/* desired 4.4336180 actual 4.4336180 clock 107.52 */
 		.dda1_inc       =    135,
@@ -834,7 +830,6 @@ static const struct tv_mode tv_modes[] = {
 		.veq_ena	= true,		    .veq_start_f1    	= 4,
 		.veq_start_f2   = 4,	    .veq_len		= 10,
 
-
 		.vi_end_f1      = 21,           .vi_end_f2          = 22,
 		.nbr_end        = 539,
 
@@ -860,7 +855,6 @@ static const struct tv_mode tv_modes[] = {
 		.veq_ena	= true,		    .veq_start_f1    	= 4,
 		.veq_start_f2	= 4,		    .veq_len		= 10,
 
-
 		.vi_end_f1      = 21,               .vi_end_f2          = 22,
 		.nbr_end        = 539,
 
@@ -885,7 +879,6 @@ static const struct tv_mode tv_modes[] = {
 
 		.veq_ena	= true,		    .veq_start_f1	= 4,
 		.veq_start_f2 = 4,	    	    .veq_len = 10,
-
 
 		.vi_end_f1      = 21,           .vi_end_f2         	= 22,
 		.nbr_end        = 539,
@@ -1088,7 +1081,6 @@ intel_tv_mode_valid(struct drm_connector *connector, struct drm_display_mode *mo
 	return MODE_CLOCK_RANGE;
 }
 
-
 static bool
 intel_tv_mode_fixup(struct drm_encoder *encoder, struct drm_display_mode *mode,
 		    struct drm_display_mode *adjusted_mode)
@@ -1213,20 +1205,17 @@ intel_tv_mode_set(struct drm_encoder *encoder, struct drm_display_mode *mode,
 		tv_ctl |= TV_TRILEVEL_SYNC;
 	if (tv_mode->pal_burst)
 		tv_ctl |= TV_PAL_BURST;
-	scctl1 = 0;
-	/* dda1 implies valid video levels */
-	if (tv_mode->dda1_inc) {
-		scctl1 |= TV_SC_DDA1_EN;
-	}
 
+	scctl1 = 0;
+	if (tv_mode->dda1_inc)
+		scctl1 |= TV_SC_DDA1_EN;
 	if (tv_mode->dda2_inc)
 		scctl1 |= TV_SC_DDA2_EN;
-
 	if (tv_mode->dda3_inc)
 		scctl1 |= TV_SC_DDA3_EN;
-
 	scctl1 |= tv_mode->sc_reset;
-	scctl1 |= video_levels->burst << TV_BURST_LEVEL_SHIFT;
+	if (video_levels)
+		scctl1 |= video_levels->burst << TV_BURST_LEVEL_SHIFT;
 	scctl1 |= tv_mode->dda1_inc << TV_SCDDA1_INC_SHIFT;
 
 	scctl2 = tv_mode->dda2_size << TV_SCDDA2_SIZE_SHIFT |
@@ -1453,7 +1442,6 @@ static void intel_tv_find_better_format(struct drm_connector *connector)
 		tv_mode->component_only)
 		return;
 
-
 	for (i = 0; i < sizeof(tv_modes) / sizeof(*tv_modes); i++) {
 		tv_mode = tv_modes + i;
 
@@ -1614,7 +1602,6 @@ intel_tv_destroy (struct drm_connector *connector)
 	kfree(intel_output);
 }
 
-
 static int
 intel_tv_set_property(struct drm_connector *connector, struct drm_property *property,
 		      uint64_t val)
@@ -1701,7 +1688,6 @@ static void intel_tv_enc_destroy(struct drm_encoder *encoder)
 static const struct drm_encoder_funcs intel_tv_enc_funcs = {
 	.destroy = intel_tv_enc_destroy,
 };
-
 
 void
 intel_tv_init(struct drm_device *dev)

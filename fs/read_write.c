@@ -1,9 +1,7 @@
-/*
- *  linux/fs/read_write.c
- *
- *  Copyright (C) 1991, 1992  Linus Torvalds
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/slab.h> 
 #include <linux/stat.h>
 #include <linux/fcntl.h>
@@ -16,10 +14,24 @@
 #include <linux/syscalls.h>
 #include <linux/pagemap.h>
 #include <linux/splice.h>
+#ifdef CONFIG_ARCH_FEROCEON
+#include <linux/writeback.h>
+#endif
+#ifdef CONFIG_SYNO_PLX_PORTING
+#include <net/tcp.h>
+#endif
 #include "read_write.h"
 
 #include <asm/uaccess.h>
 #include <asm/unistd.h>
+
+#ifdef CONFIG_ARCH_FEROCEON
+#define WRITE_ARRAY_SIZE (WRITE_RECEIVE_SIZE/PAGE_SIZE +1)
+
+#ifdef COLLECT_WRITE_SOCK_TO_FILE_STAT
+struct write_sock_to_file_stat write_from_sock = {0};
+#endif  
+#endif  
 
 const struct file_operations generic_ro_fops = {
 	.llseek		= generic_file_llseek,
@@ -31,15 +43,6 @@ const struct file_operations generic_ro_fops = {
 
 EXPORT_SYMBOL(generic_ro_fops);
 
-/**
- * generic_file_llseek_unlocked - lockless generic llseek implementation
- * @file:	file structure to seek on
- * @offset:	file offset to seek to
- * @origin:	type of seek
- *
- * Updates the file offset to the value specified by @offset and @origin.
- * Locking must be provided by the caller.
- */
 loff_t
 generic_file_llseek_unlocked(struct file *file, loff_t offset, int origin)
 {
@@ -50,12 +53,7 @@ generic_file_llseek_unlocked(struct file *file, loff_t offset, int origin)
 		offset += inode->i_size;
 		break;
 	case SEEK_CUR:
-		/*
-		 * Here we special-case the lseek(fd, 0, SEEK_CUR)
-		 * position-querying operation.  Avoid rewriting the "same"
-		 * f_pos value back to the file because a concurrent read(),
-		 * write() or lseek() might have altered it
-		 */
+		 
 		if (offset == 0)
 			return file->f_pos;
 		offset += file->f_pos;
@@ -65,7 +63,6 @@ generic_file_llseek_unlocked(struct file *file, loff_t offset, int origin)
 	if (offset < 0 || offset > inode->i_sb->s_maxbytes)
 		return -EINVAL;
 
-	/* Special lock needed here? */
 	if (offset != file->f_pos) {
 		file->f_pos = offset;
 		file->f_version = 0;
@@ -75,16 +72,6 @@ generic_file_llseek_unlocked(struct file *file, loff_t offset, int origin)
 }
 EXPORT_SYMBOL(generic_file_llseek_unlocked);
 
-/**
- * generic_file_llseek - generic llseek implementation for regular files
- * @file:	file structure to seek on
- * @offset:	file offset to seek to
- * @origin:	type of seek
- *
- * This is a generic implemenation of ->llseek useable for all normal local
- * filesystems.  It just updates the file offset to the value specified by
- * @offset and @origin under i_mutex.
- */
 loff_t generic_file_llseek(struct file *file, loff_t offset, int origin)
 {
 	loff_t rval;
@@ -163,7 +150,7 @@ SYSCALL_DEFINE3(lseek, unsigned int, fd, off_t, offset, unsigned int, origin)
 		loff_t res = vfs_llseek(file, offset, origin);
 		retval = res;
 		if (res != (loff_t)retval)
-			retval = -EOVERFLOW;	/* LFS: should only happen on 32 bit platforms */
+			retval = -EOVERFLOW;	 
 	}
 	fput_light(file, fput_needed);
 bad:
@@ -205,11 +192,6 @@ bad:
 }
 #endif
 
-/*
- * rw_verify_area doesn't like huge counts. We limit
- * them to something that fits in "int" so that others
- * won't have to do range checks all the time.
- */
 #define MAX_RW_COUNT (INT_MAX & PAGE_CACHE_MASK)
 
 int rw_verify_area(int read_write, struct file *file, loff_t *ppos, size_t count)
@@ -348,6 +330,11 @@ ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_
 		else
 			ret = do_sync_write(file, buf, count, pos);
 		if (ret > 0) {
+#ifdef SYNO_FORCE_UNMOUNT
+			if (!blSynostate(O_UNMOUNT_OK, file)) {
+				return -EINVAL;
+			}
+#endif
 			fsnotify_modify(file->f_path.dentry);
 			add_wchar(current, ret);
 		}
@@ -369,7 +356,133 @@ static inline void file_pos_write(struct file *file, loff_t pos)
 	file->f_pos = pos;
 }
 
+#ifdef CONFIG_SYNO_PLX_PORTING
+ssize_t do_sync_direct_netrx_write(
+	struct socket *socket,
+	struct file	  *filp,
+	loff_t		  *ppos,
+	size_t		   len)
+{
+	struct kiocb kiocb;
+	ssize_t		 ret = 0;
+
+	if (unlikely(!filp->f_op || !filp->f_op->aio_direct_netrx_write))
+		return -EINVAL;
+
+	init_sync_kiocb(&kiocb, filp);
+	kiocb.ki_pos = *ppos;
+	kiocb.ki_left = len;
+
+	for (;;) {
+		ret = filp->f_op->aio_direct_netrx_write(
+			&kiocb, oxnas_net_get_bytes, socket->sk);
+		if (likely(ret != -EIOCBRETRY))
+			break;
+
+		printk(KERN_WARNING "kiocb requires re-trying, waiting...\n");
+		wait_on_retry_sync_kiocb(&kiocb);
+	}
+
+	if (unlikely(ret == -EIOCBQUEUED)) {
+		printk(KERN_WARNING "kiocb queued, waiting...\n");
+		ret = wait_on_sync_kiocb(&kiocb);
+	}
+
+	*ppos = kiocb.ki_pos;
+
+return ret;
+}
+
+ssize_t vfs_direct_netrx_write(
+	struct socket *socket,
+	struct file	  *file,
+	loff_t		  *pos,
+	size_t		   count)
+{
+	ssize_t ret;
+
+	if (unlikely(!(file->f_mode & FMODE_WRITE))) {
+		return -EBADF;
+	}
+
+	ret = do_sync_direct_netrx_write(socket, file, pos, count);
+	if (likely(ret > 0)) {
+		fsnotify_modify(file->f_path.dentry);
+		add_wchar(current, ret);
+	}
+	inc_syscw(current);
+
+	return ret;
+}
+
+SYSCALL_DEFINE4(direct_netrx_write, int, sock_fd, int, file_fd, loff_t __user *,offset, size_t, count)
+{
+	struct file *out_file;
+	int fput_out_needed;
+	struct file *in_file;
+	int fput_in_needed;
+	loff_t pos;
+	ssize_t ret = -EBADF;
+
+	if (unlikely(!count)) return 0;
+
+	in_file = fget_light(sock_fd, &fput_in_needed);
+	if (unlikely(!in_file)) {
+		goto out;
+	}
+	if (unlikely(!(in_file->f_mode & FMODE_READ))) {
+		goto fput_in;
+	}
+
+	out_file = fget_light(file_fd, &fput_out_needed);
+	if (unlikely(!out_file)) {
+		goto fput_in;
+	}
+	if (unlikely(!(out_file->f_mode & FMODE_WRITE))) {
+		goto fput_out;
+	}
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+#ifndef CONFIG_OXNAS_FAST_WRITES
+#warning "Allowing direct_netrx_write() while FAST reads active"
+#else  
+	if (out_file->inode && out_file->inode->filemap_info.map) {
+printk("direct_netrx_write() File %p denying due to FAST mode\n", out_file);
+		goto fput_out;
+	}
+#endif  
+#endif  
+
+	if (offset) {
+		if (unlikely(copy_from_user(&pos, offset, sizeof(loff_t)))) {
+			ret = -EFAULT;
+			goto fput_out;
+		}
+	} else {
+		pos = file_pos_read(out_file);
+	}
+
+	ret = vfs_direct_netrx_write(in_file->private_data, out_file, &pos, count);
+
+	if (offset) {
+		if (unlikely(put_user(pos, offset))) {
+			ret = -EFAULT;
+			goto fput_out;
+		}
+	}
+	file_pos_write(out_file, pos);
+
+fput_out:
+	fput_light(out_file, fput_out_needed);
+fput_in:
+	fput_light(in_file, fput_in_needed);
+out:
+	return ret;
+}
+
+SYSCALL_DEFINE4(read_zcc, unsigned int, fd, char __user *, buf, size_t, count, int __user *, zcc)
+#else  
 SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
+#endif  
 {
 	struct file *file;
 	ssize_t ret = -EBADF;
@@ -377,14 +490,41 @@ SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
 
 	file = fget_light(fd, &fput_needed);
 	if (file) {
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		if (unlikely(file->inode) && unlikely(file->inode->filemap_info.map)) {
+printk("sys_read_zcc() File %p denying due to FAST mode\n", file);
+			ret = -EPERM;
+		} else {
+#endif  
 		loff_t pos = file_pos_read(file);
 		ret = vfs_read(file, buf, count, &pos);
 		file_pos_write(file, pos);
+
+#ifdef CONFIG_SYNO_PLX_PORTING
+			if (zcc && file->f_op->sendpages) {
+				struct socket *socket = file->private_data;
+
+				if (put_user(sock_flag(socket->sk, SOCK_ZCC), zcc)) {
+printk("sys_read_zcc() Failed to copy zcc into userspace pointer\n");
+					ret = -EFAULT;
+				}
+			}
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		}
+#endif  
+#endif
 		fput_light(file, fput_needed);
 	}
 
 	return ret;
 }
+
+#ifdef CONFIG_SYNO_PLX_PORTING
+SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
+{
+	return sys_read_zcc(fd, buf, count, 0);
+}
+#endif
 
 SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf,
 		size_t, count)
@@ -395,14 +535,154 @@ SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf,
 
 	file = fget_light(fd, &fput_needed);
 	if (file) {
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+#ifndef CONFIG_OXNAS_FAST_WRITES
+#warning "Allowing write() while FAST reads active"
+#else  
+		if (unlikely(file->inode) && unlikely(file->inode->filemap_info.map)) {
+printk("write() File %p denying due to FAST mode\n", file);
+			ret = -EPERM;
+		} else {
+#endif  
+#endif  
 		loff_t pos = file_pos_read(file);
 		ret = vfs_write(file, buf, count, &pos);
 		file_pos_write(file, pos);
+#if defined(CONFIG_OXNAS_FAST_READS_AND_WRITES) && defined(CONFIG_OXNAS_FAST_WRITES)
+		}
+#endif  
 		fput_light(file, fput_needed);
 	}
 
 	return ret;
 }
+
+#ifdef MY_ABC_HERE
+
+asmlinkage ssize_t sys_recvfile(int fd, int s, loff_t *offset, size_t nbytes, size_t *rwbytes)
+{
+	int ret = 0;
+	struct file *file = NULL;                 
+	struct socket *sock = NULL;
+	struct inode *inode;
+	size_t bytes_received = 0;
+	size_t bytes_written = 0;
+	loff_t pos;                  
+
+	if (!offset) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	if(copy_from_user(&pos, offset, sizeof(loff_t))) {
+		ret = -EFAULT;
+		goto out;
+	}
+
+	if (nbytes <= 0) {
+		if (nbytes < 0) {
+			ret = -EINVAL;
+		}
+		goto out;
+	}
+
+	file = fget(fd);
+	if (!file) {
+#ifdef SYNO_FORCE_UNMOUNT
+		ret = -EPIPE;
+#else
+		ret = -EBADF;
+#endif
+		goto out;
+	}
+	if (!(file->f_mode & FMODE_WRITE)) {
+		ret = -EBADF;
+		goto out;
+	}
+
+	sock = sockfd_lookup(s, &ret);
+	if((!sock) || ret)
+		goto out;
+
+	if(!sock->sk) {
+		 
+		ret = -EINVAL;
+		goto out;
+	}
+
+	inode = file->f_dentry->d_inode->i_mapping->host;
+	mutex_lock(&inode->i_mutex);
+	 
+	if (nbytes <= (MAX_PAGES_PER_RECVFILE * PAGE_SIZE)){
+			ret = do_recvfile(file, sock, &pos, nbytes, &bytes_received, &bytes_written);
+	} else {
+		 
+		size_t nbytes_left = nbytes;
+		size_t cBytereceived = 0;
+		size_t cBytewritten = 0;
+
+		do {
+				ret = do_recvfile(file, sock, &pos,
+							  (nbytes_left >= (MAX_PAGES_PER_RECVFILE * PAGE_SIZE)) ?
+							   (MAX_PAGES_PER_RECVFILE * PAGE_SIZE) : nbytes_left
+							  , &cBytereceived, &cBytewritten);
+
+			if(ret > 0) {
+				bytes_received += ret;
+				bytes_written += ret;
+				nbytes_left -= ret;
+			}
+			else  {
+				bytes_received += cBytereceived;
+				bytes_written += cBytewritten;
+				break;
+			}
+#ifdef SYNO_FORCE_UNMOUNT
+			if (!blSynostate(O_UNMOUNT_OK, file)) {
+				printk("recvfile: force unmount hit\n");
+				ret = -EPIPE;
+				mutex_unlock(&inode->i_mutex);
+				goto out;
+			}
+#endif
+		} while(nbytes_left > 0);
+		if(ret >= 0)
+			ret = bytes_received;
+	}
+	mutex_unlock(&inode->i_mutex);
+
+	if(0 > ret && rwbytes) {
+#ifdef CONFIG_IA32_EMULATION
+		rwbytes[0]=bytes_received;
+		rwbytes[1]=bytes_written;
+#else
+		int ret_copy_to_user = 0;
+		ret_copy_to_user = copy_to_user(&rwbytes[0], &bytes_received, sizeof(size_t));
+		if (ret_copy_to_user < 0) {
+			ret = -ENOMEM;
+			goto out;
+		}
+		ret_copy_to_user = copy_to_user(&rwbytes[1], &bytes_written, sizeof(size_t));
+		if (ret_copy_to_user < 0) {
+			ret = -ENOMEM;
+			goto out;
+		}
+#endif
+	}
+
+	if (ret >= 0)
+		fsnotify_modify(file->f_dentry);
+
+out:
+	if(file)
+		fput(file);
+	if(sock)
+		fput(sock->file);
+
+	return ret;
+}
+
+#endif  
 
 SYSCALL_DEFINE(pread64)(unsigned int fd, char __user *buf,
 			size_t count, loff_t pos)
@@ -416,9 +696,18 @@ SYSCALL_DEFINE(pread64)(unsigned int fd, char __user *buf,
 
 	file = fget_light(fd, &fput_needed);
 	if (file) {
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		if (unlikely(file->inode) && unlikely(file->inode->filemap_info.map)) {
+printk("pread64() File %p denying due to FAST mode\n", file);
+			ret = -EPERM;
+		} else {
+#endif  
 		ret = -ESPIPE;
 		if (file->f_mode & FMODE_PREAD)
 			ret = vfs_read(file, buf, count, &pos);
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		}
+#endif  
 		fput_light(file, fput_needed);
 	}
 
@@ -445,9 +734,18 @@ SYSCALL_DEFINE(pwrite64)(unsigned int fd, const char __user *buf,
 
 	file = fget_light(fd, &fput_needed);
 	if (file) {
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		if (unlikely(file->inode) && unlikely(file->inode->filemap_info.map)) {
+printk("pwrite64() File %p denying due to FAST mode\n", file);
+			ret = -EPERM;
+		} else {
+#endif  
 		ret = -ESPIPE;
 		if (file->f_mode & FMODE_PWRITE)  
 			ret = vfs_write(file, buf, count, &pos);
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		}
+#endif  
 		fput_light(file, fput_needed);
 	}
 
@@ -462,9 +760,6 @@ asmlinkage long SyS_pwrite64(long fd, long buf, long count, loff_t pos)
 SYSCALL_ALIAS(sys_pwrite64, SyS_pwrite64);
 #endif
 
-/*
- * Reduce an iovec's length in-place.  Return the resulting number of segments
- */
 unsigned long iov_shorten(struct iovec *iov, unsigned long nr_segs, size_t to)
 {
 	unsigned long seg = 0;
@@ -507,7 +802,6 @@ ssize_t do_sync_readv_writev(struct file *filp, const struct iovec *iov,
 	return ret;
 }
 
-/* Do it by hand, with file-ops */
 ssize_t do_loop_readv_writev(struct file *filp, struct iovec *iov,
 		unsigned long nr_segs, loff_t *ppos, io_fn_t fn)
 {
@@ -539,7 +833,6 @@ ssize_t do_loop_readv_writev(struct file *filp, struct iovec *iov,
 	return ret;
 }
 
-/* A write operation does a read from user space and vice versa */
 #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
 
 ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
@@ -551,20 +844,11 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
   	ssize_t ret;
 	struct iovec *iov = fast_pointer;
 
-  	/*
-  	 * SuS says "The readv() function *may* fail if the iovcnt argument
-  	 * was less than or equal to 0, or greater than {IOV_MAX}.  Linux has
-  	 * traditionally returned zero for zero segments, so...
-  	 */
 	if (nr_segs == 0) {
 		ret = 0;
   		goto out;
 	}
 
-  	/*
-  	 * First get the "struct iovec" from user memory and
-  	 * verify all the pointers
-  	 */
 	if (nr_segs > UIO_MAXIOV) {
 		ret = -EINVAL;
   		goto out;
@@ -581,19 +865,11 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
   		goto out;
 	}
 
-  	/*
-	 * According to the Single Unix Specification we should return EINVAL
-	 * if an element length is < 0 when cast to ssize_t or if the
-	 * total length would overflow the ssize_t return value of the
-	 * system call.
-  	 */
 	ret = 0;
   	for (seg = 0; seg < nr_segs; seg++) {
   		void __user *buf = iov[seg].iov_base;
   		ssize_t len = (ssize_t)iov[seg].iov_len;
 
-		/* see if we we're about to use an invalid len or if
-		 * it's about to overflow ssize_t */
 		if (len < 0 || (ret + len < ret)) {
 			ret = -EINVAL;
   			goto out;
@@ -698,9 +974,18 @@ SYSCALL_DEFINE3(readv, unsigned long, fd, const struct iovec __user *, vec,
 
 	file = fget_light(fd, &fput_needed);
 	if (file) {
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		if (unlikely(file->inode) && unlikely(file->inode->filemap_info.map)) {
+printk("readv() File %p denying due to FAST mode\n", file);
+			ret = -EPERM;
+		} else {
+#endif  
 		loff_t pos = file_pos_read(file);
 		ret = vfs_readv(file, vec, vlen, &pos);
 		file_pos_write(file, pos);
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		}
+#endif  
 		fput_light(file, fput_needed);
 	}
 
@@ -719,9 +1004,18 @@ SYSCALL_DEFINE3(writev, unsigned long, fd, const struct iovec __user *, vec,
 
 	file = fget_light(fd, &fput_needed);
 	if (file) {
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		if (unlikely(file->inode) && unlikely(file->inode->filemap_info.map)) {
+printk("writev() File %p denying due to FAST mode\n", file);
+			ret = -EPERM;
+		} else {
+#endif  
 		loff_t pos = file_pos_read(file);
 		ret = vfs_writev(file, vec, vlen, &pos);
 		file_pos_write(file, pos);
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		}
+#endif  
 		fput_light(file, fput_needed);
 	}
 
@@ -750,9 +1044,18 @@ SYSCALL_DEFINE5(preadv, unsigned long, fd, const struct iovec __user *, vec,
 
 	file = fget_light(fd, &fput_needed);
 	if (file) {
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		if (unlikely(file->inode) && unlikely(file->inode->filemap_info.map)) {
+printk("preadv() File %p denying due to FAST mode\n", file);
+			ret = -EPERM;
+		} else {
+#endif  
 		ret = -ESPIPE;
 		if (file->f_mode & FMODE_PREAD)
 			ret = vfs_readv(file, vec, vlen, &pos);
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		}
+#endif  
 		fput_light(file, fput_needed);
 	}
 
@@ -775,9 +1078,18 @@ SYSCALL_DEFINE5(pwritev, unsigned long, fd, const struct iovec __user *, vec,
 
 	file = fget_light(fd, &fput_needed);
 	if (file) {
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		if (unlikely(file->inode) && unlikely(file->inode->filemap_info.map)) {
+printk("pwritev() File %p denying due to FAST mode\n", file);
+			ret = -EPERM;
+		} else {
+#endif  
 		ret = -ESPIPE;
 		if (file->f_mode & FMODE_PWRITE)
 			ret = vfs_writev(file, vec, vlen, &pos);
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+		}
+#endif  
 		fput_light(file, fput_needed);
 	}
 
@@ -787,6 +1099,14 @@ SYSCALL_DEFINE5(pwritev, unsigned long, fd, const struct iovec __user *, vec,
 	return ret;
 }
 
+#ifdef CONFIG_SYNO_PLX_PORTING
+extern int do_incoherent_sendfile(
+	struct file *in_file,
+	struct file *out_file,
+	loff_t      *ppos,
+	size_t       count);
+#endif
+
 static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
 			   size_t count, loff_t max)
 {
@@ -794,11 +1114,12 @@ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
 	struct inode * in_inode, * out_inode;
 	loff_t pos;
 	ssize_t retval;
+#ifdef CONFIG_SYNO_PLX_PORTING
+	int fput_needed_in, fput_needed_out;
+#else
 	int fput_needed_in, fput_needed_out, fl;
+#endif
 
-	/*
-	 * Get input file, and verify that it is ok..
-	 */
 	retval = -EBADF;
 	in_file = fget_light(in_fd, &fput_needed_in);
 	if (!in_file)
@@ -816,9 +1137,6 @@ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
 		goto fput_in;
 	count = retval;
 
-	/*
-	 * Get output file, and verify that it is ok..
-	 */
 	retval = -EBADF;
 	out_file = fget_light(out_fd, &fput_needed_out);
 	if (!out_file)
@@ -826,8 +1144,10 @@ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
 	if (!(out_file->f_mode & FMODE_WRITE))
 		goto fput_out;
 	retval = -EINVAL;
+#ifndef CONFIG_ARCH_FEROCEON
 	if (!out_file->f_op || !out_file->f_op->sendpage)
 		goto fput_out;
+#endif
 	in_inode = in_file->f_path.dentry->d_inode;
 	out_inode = out_file->f_path.dentry->d_inode;
 	retval = rw_verify_area(WRITE, out_file, &out_file->f_pos, count);
@@ -846,19 +1166,31 @@ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
 		count = max - pos;
 	}
 
+#ifdef CONFIG_SYNO_PLX_PORTING
+	if (in_file->f_op && in_file->f_op->sendfile && out_file->f_op->sendpages) {
+#ifdef CONFIG_OXNAS_FAST_READS_AND_WRITES
+ 
+		retval = do_incoherent_sendfile(in_file, out_file, ppos, count);
+#else  
+ 
+		retval = in_file->f_op->sendfile(in_file, ppos, count, file_send_actor, out_file);
+#endif  
+	} else {
+		int fl = 0;
+#else
 	fl = 0;
+#endif
+
 #if 0
-	/*
-	 * We need to debate whether we can enable this or not. The
-	 * man page documents EAGAIN return for the output at least,
-	 * and the application is arguably buggy if it doesn't expect
-	 * EAGAIN on a non-blocking file descriptor.
-	 */
+	 
 	if (in_file->f_flags & O_NONBLOCK)
 		fl = SPLICE_F_NONBLOCK;
 #endif
 	retval = do_splice_direct(in_file, ppos, out_file, count, fl);
 
+#ifdef CONFIG_SYNO_PLX_PORTING
+	}
+#endif
 	if (retval > 0) {
 		add_rchar(current, retval);
 		add_wchar(current, retval);
@@ -912,3 +1244,152 @@ SYSCALL_DEFINE4(sendfile64, int, out_fd, int, in_fd, loff_t __user *, offset, si
 
 	return do_sendfile(out_fd, in_fd, NULL, count, 0);
 }
+
+#ifdef CONFIG_ARCH_FEROCEON
+static int start_write_procces(struct file *file, loff_t position, size_t buf_size)
+{
+	 
+	int ret_val = 0;
+	struct inode *inode=file->f_mapping->host;
+
+    	mutex_lock(&inode->i_mutex);
+
+	vfs_check_frozen(inode->i_sb, SB_FREEZE_WRITE);
+
+	current->backing_dev_info = file->f_mapping->backing_dev_info;
+
+	ret_val = generic_write_checks(file, &position, &buf_size, S_ISBLK(inode->i_mode));
+	if (ret_val) {
+		dprintk("Failed in call to generic_write_checks(), ret_val=%d\n", ret_val);
+		return -EFAULT;
+	}
+	if (buf_size == 0) {
+		dprintk("Zero buffer returned by generic_write_checks()\n");
+		return -EFAULT;
+	}
+
+	ret_val = file_remove_suid(file);
+	if (ret_val) {
+		dprintk("Failed in call to file_remove_suid(), ret_val=%d\n", ret_val);
+		return -EFAULT;
+	}
+	 
+	file_update_time(file);
+
+ 	return 0;
+}
+
+static inline int release_resources(struct file *file, ssize_t err)
+{
+	mutex_unlock(&file->f_mapping->host->i_mutex);
+	current->backing_dev_info = NULL;
+	return err;
+}
+
+ssize_t write_from_socket_to_file(struct socket *sock,struct file *file, loff_t __user *ppos, size_t len)
+{
+	loff_t position;
+	long j, pages, err = 0;
+	struct msghdr message;
+	size_t ret, buf_size = len;
+	unsigned long shift;
+
+	struct curr_pages {
+		struct page *pagep;
+		loff_t pos;
+		size_t  size;
+		void *fsdata;
+	} curr_page[WRITE_ARRAY_SIZE];
+	struct kvec io_vector[WRITE_ARRAY_SIZE];
+
+	ret = copy_from_user(&position, ppos, sizeof(loff_t));
+    	if(ret) {
+			dprintk("Failed to copy position from user space, ret=%d\n", ret);
+			INC_WRITE_FROM_SOCK_ERR_CNT;
+        	return -EFAULT;
+	}
+
+	ret = start_write_procces(file, position, len);
+	if(ret < 0) {
+		dprintk("Failed in call to start_write_procces(), ret=%d\n", ret);
+		INC_WRITE_FROM_SOCK_ERR_CNT;
+		return release_resources(file, ret);
+	}
+
+	for(pages = 0, j = buf_size; j > 0; pages++, j -= buf_size) {
+		shift = position & (PAGE_CACHE_SIZE - 1);
+		buf_size = PAGE_CACHE_SIZE - shift;
+		buf_size = ((long)buf_size > j) ? j : buf_size;
+
+		curr_page[pages].pos = position;
+		curr_page[pages].size = buf_size;
+		io_vector[pages].iov_len = buf_size;
+		 
+        ret =  file->f_mapping->a_ops->write_begin(file, file->f_mapping,
+				 position, buf_size, AOP_FLAG_UNINTERRUPTIBLE,
+				 &curr_page[pages].pagep, &curr_page[pages].fsdata);
+        if (unlikely(ret)) {
+			dprintk("Failed in call to write_begin() on page %d, ret=%d\n", pages, ret);
+			err = ret;
+			goto unmup_pages;
+		}
+
+		io_vector[pages].iov_base = kmap(curr_page[pages].pagep) + shift;
+		position = position + curr_page[pages].size;
+    }
+
+   	message.msg_iov = (struct iovec *)&io_vector;
+	message.msg_iovlen = pages;
+	message.msg_name = NULL;
+	message.msg_namelen = 0;
+	message.msg_control = NULL;
+	message.msg_controllen = 0;
+  
+	ret = kernel_recvmsg(sock, &message, &io_vector[0], pages, len, MSG_WAITALL);
+	if(ret != len){
+		dprintk("Failed receive packet from socket to IOV, ret=%d\n", ret);
+		err = ret;
+	}
+
+#ifdef COLLECT_WRITE_SOCK_TO_FILE_STAT
+	if (len <= (1 << 12))
+		INC_WRITE_FROM_SOCK_4K_BUF_CNT;
+	else if (len <= (1 << 13))
+		INC_WRITE_FROM_SOCK_8K_BUF_CNT;
+	else if (len <= (1 << 14))
+		INC_WRITE_FROM_SOCK_16K_BUF_CNT;
+	else if (len <= (1 << 15))
+		INC_WRITE_FROM_SOCK_32K_BUF_CNT;
+	else if (len <= (1 << 16))
+		INC_WRITE_FROM_SOCK_64K_BUF_CNT;
+	else
+		INC_WRITE_FROM_SOCK_128K_BUF_CNT;
+#endif  
+
+unmup_pages:
+	 
+	for(j = 0, buf_size = 0; j < pages;buf_size += curr_page[j].size, j++) {
+		kunmap(curr_page[j].pagep);
+		 
+		ret = file->f_mapping->a_ops->write_end(file, file->f_mapping,
+					 curr_page[j].pos, curr_page[j].size, curr_page[j].size,
+					 curr_page[j].pagep, curr_page[j].fsdata);
+
+		if (unlikely(ret < 0)) {
+			dprintk("Failed in call to write_end() on page %d, ret=%d\n", j, ret);
+			INC_WRITE_FROM_SOCK_ERR_CNT;
+			err = ret;
+		}
+	}
+
+	if(!err) {
+		 
+		balance_dirty_pages_ratelimited_nr(file->f_mapping, pages);
+
+		copy_to_user(ppos, &position, sizeof(loff_t));
+		err = buf_size;
+	}
+
+	return release_resources(file, err);
+}
+#endif  

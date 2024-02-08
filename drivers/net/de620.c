@@ -1,5 +1,5 @@
 /*
- *	de620.c $Revision: 1.40 $ BETA
+ *	de620.c $Revision: 1.1 $ BETA
  *
  *
  *	Linux driver for the D-Link DE-620 Ethernet pocket adapter.
@@ -39,7 +39,7 @@
  *
  *****************************************************************************/
 static const char version[] =
-	"de620.c: $Revision: 1.40 $,  Bjorn Ekwall <bj0rn@blox.se>\n";
+	"de620.c: $Revision: 1.1 $,  Bjorn Ekwall <bj0rn@blox.se>\n";
 
 /***********************************************************************
  *
@@ -204,7 +204,6 @@ static int	de620_rx_intr(struct net_device *);
 /* Initialization */
 static int	adapter_init(struct net_device *);
 static int	read_eeprom(struct net_device *);
-
 
 /*
  * D-Link driver variables:
@@ -502,7 +501,6 @@ static int de620_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	using_txbuf = de620_tx_buffs(dev); /* Peek at the adapter */
 
 	netif_stop_queue(dev);
-
 
 	if ((len = skb->len) < RUNT)
 		len = RUNT;

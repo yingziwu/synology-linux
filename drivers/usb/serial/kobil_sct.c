@@ -34,7 +34,6 @@
  *      Initial version.
  */
 
-
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -66,7 +65,6 @@ static int debug;
 #define KOBIL_TIMEOUT		500
 #define KOBIL_BUF_LENGTH	300
 
-
 /* Function prototypes */
 static int  kobil_startup(struct usb_serial *serial);
 static void kobil_release(struct usb_serial *serial);
@@ -75,7 +73,7 @@ static void kobil_close(struct usb_serial_port *port);
 static int  kobil_write(struct tty_struct *tty, struct usb_serial_port *port,
 			 const unsigned char *buf, int count);
 static int  kobil_write_room(struct tty_struct *tty);
-static int  kobil_ioctl(struct tty_struct *tty, struct file *file,
+static int  kobil_ioctl(struct tty_struct *tty,
 			unsigned int cmd, unsigned long arg);
 static int  kobil_tiocmget(struct tty_struct *tty, struct file *file);
 static int  kobil_tiocmset(struct tty_struct *tty, struct file *file,
@@ -86,14 +84,13 @@ static void kobil_set_termios(struct tty_struct *tty,
 			struct usb_serial_port *port, struct ktermios *old);
 static void kobil_init_termios(struct tty_struct *tty);
 
-static struct usb_device_id id_table [] = {
+static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(KOBIL_VENDOR_ID, KOBIL_ADAPTER_B_PRODUCT_ID) },
 	{ USB_DEVICE(KOBIL_VENDOR_ID, KOBIL_ADAPTER_K_PRODUCT_ID) },
 	{ USB_DEVICE(KOBIL_VENDOR_ID, KOBIL_USBTWIN_PRODUCT_ID) },
 	{ USB_DEVICE(KOBIL_VENDOR_ID, KOBIL_KAAN_SIM_PRODUCT_ID) },
 	{ }			/* Terminating entry */
 };
-
 
 MODULE_DEVICE_TABLE(usb, id_table);
 
@@ -104,7 +101,6 @@ static struct usb_driver kobil_driver = {
 	.id_table =	id_table,
 	.no_dynamic_id = 	1,
 };
-
 
 static struct usb_serial_driver kobil_device = {
 	.driver = {
@@ -129,7 +125,6 @@ static struct usb_serial_driver kobil_device = {
 	.read_int_callback =	kobil_read_int_callback,
 };
 
-
 struct kobil_private {
 	int write_int_endpoint_address;
 	int read_int_endpoint_address;
@@ -138,7 +133,6 @@ struct kobil_private {
 	int cur_pos; /* index of the next char to send in buf */
 	__u16 device_type;
 };
-
 
 static int kobil_startup(struct usb_serial *serial)
 {
@@ -199,7 +193,6 @@ static int kobil_startup(struct usb_serial *serial)
 	}
 	return 0;
 }
-
 
 static void kobil_release(struct usb_serial *serial)
 {
@@ -338,7 +331,6 @@ static int kobil_open(struct tty_struct *tty, struct usb_serial_port *port)
 	return 0;
 }
 
-
 static void kobil_close(struct usb_serial_port *port)
 {
 	dbg("%s - port %d", __func__, port->number);
@@ -351,7 +343,6 @@ static void kobil_close(struct usb_serial_port *port)
 	}
 	usb_kill_urb(port->interrupt_in_urb);
 }
-
 
 static void kobil_read_int_callback(struct urb *urb)
 {
@@ -388,7 +379,6 @@ static void kobil_read_int_callback(struct urb *urb)
 		*/
 		/* END DEBUG */
 
-		tty_buffer_request_room(tty, urb->actual_length);
 		tty_insert_flip_string(tty, data, urb->actual_length);
 		tty_flip_buffer_push(tty);
 	}
@@ -401,11 +391,9 @@ static void kobil_read_int_callback(struct urb *urb)
 			__func__, port->number, result);
 }
 
-
 static void kobil_write_callback(struct urb *purb)
 {
 }
-
 
 static int kobil_write(struct tty_struct *tty, struct usb_serial_port *port,
 			const unsigned char *buf, int count)
@@ -495,14 +483,12 @@ static int kobil_write(struct tty_struct *tty, struct usb_serial_port *port,
 	return count;
 }
 
-
 static int kobil_write_room(struct tty_struct *tty)
 {
 	/* dbg("%s - port %d", __func__, port->number); */
 	/* FIXME */
 	return 8;
 }
-
 
 static int kobil_tiocmget(struct tty_struct *tty, struct file *file)
 {
@@ -682,7 +668,7 @@ static void kobil_set_termios(struct tty_struct *tty,
 	kfree(settings);
 }
 
-static int kobil_ioctl(struct tty_struct *tty, struct file *file,
+static int kobil_ioctl(struct tty_struct *tty,
 					unsigned int cmd, unsigned long arg)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -740,7 +726,6 @@ failed_usb_register:
 failed_usb_serial_register:
 	return retval;
 }
-
 
 static void __exit kobil_exit(void)
 {

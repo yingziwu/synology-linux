@@ -1,4 +1,4 @@
-/* $Id: card.h,v 1.1.10.1 2001/09/23 22:24:59 kai Exp $
+/* $Id: card.h,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Driver parameters for SpellCaster ISA ISDN adapters
  *
@@ -99,7 +99,6 @@ typedef struct {
 	int trace_mode;			/* Indicate if tracing is on */
 	spinlock_t lock;		/* local lock */
 } board;
-
 
 extern board *sc_adapter[];
 extern int cinst;

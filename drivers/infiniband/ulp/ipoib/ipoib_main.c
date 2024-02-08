@@ -884,6 +884,7 @@ struct ipoib_neigh *ipoib_neigh_alloc(struct neighbour *neighbour,
 
 	neigh->neighbour = neighbour;
 	neigh->dev = dev;
+	memset(&neigh->dgid.raw, 0, sizeof (union ib_gid));
 	*to_ipoib_neigh(neighbour) = neigh;
 	skb_queue_head_init(&neigh->queue);
 	ipoib_cm_set(neigh, NULL);
@@ -1225,7 +1226,6 @@ int ipoib_set_dev_features(struct ipoib_dev_priv *priv, struct ib_device *hca)
 
 	return 0;
 }
-
 
 static struct net_device *ipoib_add_port(const char *format,
 					 struct ib_device *hca, u8 port)

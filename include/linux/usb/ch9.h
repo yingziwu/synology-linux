@@ -125,7 +125,6 @@
 
 #define USB_ENDPOINT_HALT		0	/* IN/OUT will STALL */
 
-
 /**
  * struct usb_ctrlrequest - SETUP data for a USB device control request
  * @bRequestType: matches the USB bmRequestType field
@@ -191,6 +190,8 @@ struct usb_ctrlrequest {
 #define USB_DT_WIRE_ADAPTER		0x21
 #define USB_DT_RPIPE			0x22
 #define USB_DT_CS_RADIO_CONTROL		0x23
+/* From the T10 UAS specification */
+#define USB_DT_PIPE_USAGE		0x24
 /* From the USB 3.0 spec */
 #define	USB_DT_SS_ENDPOINT_COMP		0x30
 
@@ -209,7 +210,6 @@ struct usb_descriptor_header {
 	__u8  bLength;
 	__u8  bDescriptorType;
 } __attribute__ ((packed));
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -233,7 +233,6 @@ struct usb_device_descriptor {
 } __attribute__ ((packed));
 
 #define USB_DT_DEVICE_SIZE		18
-
 
 /*
  * Device and/or Interface Class codes
@@ -342,7 +341,6 @@ struct usb_endpoint_descriptor {
 
 #define USB_DT_ENDPOINT_SIZE		7
 #define USB_DT_ENDPOINT_AUDIO_SIZE	9	/* Audio extension */
-
 
 /*
  * Endpoints
@@ -552,10 +550,12 @@ struct usb_ss_ep_comp_descriptor {
 
 	__u8  bMaxBurst;
 	__u8  bmAttributes;
-	__u16 wBytesPerInterval;
+	__le16 wBytesPerInterval;
 } __attribute__ ((packed));
 
 #define USB_DT_SS_EP_COMP_SIZE		6
+/* Bits 4:0 of bmAttributes if this is a bulk endpoint */
+#define USB_SS_MAX_STREAMS(p)		(1 << (p & 0x1f))
 
 /*-------------------------------------------------------------------------*/
 
@@ -572,7 +572,6 @@ struct usb_qualifier_descriptor {
 	__u8  bNumConfigurations;
 	__u8  bRESERVED;
 } __attribute__ ((packed));
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -614,7 +613,6 @@ struct usb_interface_assoc_descriptor {
 	__u8  bFunctionProtocol;
 	__u8  iFunction;
 } __attribute__ ((packed));
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -658,7 +656,6 @@ struct usb_encryption_descriptor {
 	__u8  bEncryptionValue;		/* use in SET_ENCRYPTION */
 	__u8  bAuthKeyIndex;
 } __attribute__((packed));
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -775,7 +772,7 @@ enum usb_device_speed {
 	USB_SPEED_UNKNOWN = 0,			/* enumerating */
 	USB_SPEED_LOW, USB_SPEED_FULL,		/* usb 1.1 */
 	USB_SPEED_HIGH,				/* usb 2.0 */
-	USB_SPEED_VARIABLE,			/* wireless (usb 2.5) */
+	USB_SPEED_WIRELESS,			/* wireless (usb 2.5) */
 	USB_SPEED_SUPER,			/* usb 3.0 */
 };
 

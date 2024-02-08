@@ -20,6 +20,9 @@ GZFLAGS		:=-9
 #KBUILD_CFLAGS	+=-pipe
 # Explicitly specifiy 32-bit ARM ISA since toolchain default can be -mthumb:
 KBUILD_CFLAGS	+=$(call cc-option,-marm,)
+ifeq ($(CONFIG_REORDER),y)
+KBUILD_CFLAGS          += -ffunction-sections
+endif
 
 # Do not use arch/arm/defconfig - it's always outdated.
 # Select a platform tht is kept up-to-date
@@ -57,7 +60,15 @@ arch-$(CONFIG_CPU_32v6)		:=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6,
 ifeq ($(CONFIG_CPU_32v6),y)
 arch-$(CONFIG_CPU_32v6K)	:=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6k,-march=armv5t -Wa$(comma)-march=armv6k)
 endif
-arch-$(CONFIG_CPU_32v5)		:=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
+ifneq ($(CONFIG_USE_DSP),y)
+ifeq ($(CONFIG_ARCH_KIRKWOOD),y)
+arch-$(CONFIG_CPU_32v5)         :=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
+else
+arch-$(CONFIG_CPU_32v5)         :=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5t)
+endif
+else
+arch-$(CONFIG_CPU_32v5)		    :=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
+endif
 arch-$(CONFIG_CPU_32v4T)	:=-D__LINUX_ARM_ARCH__=4 -march=armv4t
 arch-$(CONFIG_CPU_32v4)		:=-D__LINUX_ARM_ARCH__=4 -march=armv4
 arch-$(CONFIG_CPU_32v3)		:=-D__LINUX_ARM_ARCH__=3 -march=armv3
@@ -76,11 +87,28 @@ tune-$(CONFIG_CPU_ARM922T)	:=-mtune=arm9tdmi
 tune-$(CONFIG_CPU_ARM925T)	:=-mtune=arm9tdmi
 tune-$(CONFIG_CPU_ARM926T)	:=-mtune=arm9tdmi
 tune-$(CONFIG_CPU_FA526)	:=-mtune=arm9tdmi
+ifeq ($(CONFIG_ARCH_FEROCEON),y)
+  #-KW
+  ifeq ($(CONFIG_ARCH_FEROCEON_KW),y)
+    tune-$(CONFIG_CPU_FEROCEON)	:=$(call cc-option,-mtune=arm9e,-mtune=xscale)
+  endif
+  #-6183
+  ifeq ($(CONFIG_ARCH_FEROCEON_ORION),y)
+    tune-$(CONFIG_CPU_FEROCEON)	:=$(call cc-option,-mtune=arm9e,-mtune=xscale)
+  endif
+  #-DD
+  ifeq ($(CONFIG_ARCH_FEROCEON_MV78XX0),y)
+    tune-$(CONFIG_CPU_FEROCEON)	:=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
+  endif
+else
+  tune-$(CONFIG_CPU_ARM926T)	:=-mtune=arm9tdmi
+  tune-$(CONFIG_CPU_FEROCEON)    :=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
+endif
 tune-$(CONFIG_CPU_SA110)	:=-mtune=strongarm110
 tune-$(CONFIG_CPU_SA1100)	:=-mtune=strongarm1100
 tune-$(CONFIG_CPU_XSCALE)	:=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
 tune-$(CONFIG_CPU_XSC3)		:=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
-tune-$(CONFIG_CPU_FEROCEON)	:=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
+#tune-$(CONFIG_CPU_FEROCEON)	:=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
 tune-$(CONFIG_CPU_V6)		:=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
 
 ifeq ($(CONFIG_AEABI),y)
@@ -134,6 +162,14 @@ machine-$(CONFIG_ARCH_IXP2000)		:= ixp2000
 machine-$(CONFIG_ARCH_IXP23XX)		:= ixp23xx
 machine-$(CONFIG_ARCH_IXP4XX)		:= ixp4xx
 machine-$(CONFIG_ARCH_KIRKWOOD)		:= kirkwood
+machine-$(CONFIG_ARCH_FEROCEON_ORION)  := feroceon-orion
+machine-$(CONFIG_ARCH_FEROCEON_KW) 	:= feroceon-kw
+machine-$(CONFIG_ARCH_FEROCEON_MV78XX0)	:= feroceon-mv78xx0
+plat-$(CONFIG_ARCH_FEROCEON_KW)	:= feroceon
+
+
+
+
 machine-$(CONFIG_ARCH_KS8695)		:= ks8695
 machine-$(CONFIG_ARCH_L7200)		:= l7200
 machine-$(CONFIG_ARCH_LH7A40X)		:= lh7a40x
@@ -170,6 +206,8 @@ machine-$(CONFIG_ARCH_VERSATILE)	:= versatile
 machine-$(CONFIG_ARCH_W90X900)		:= w90x900
 machine-$(CONFIG_FOOTBRIDGE)		:= footbridge
 machine-$(CONFIG_ARCH_MXC91231)		:= mxc91231
+machine-$(CONFIG_ARCH_OXNAS)		:= oxnas
+machine-$(CONFIG_ARCH_OX820)		:= ox820
 
 # Platform directory name.  This list is sorted alphanumerically
 # by CONFIG_* macro name.
@@ -182,6 +220,8 @@ plat-$(CONFIG_PLAT_S3C24XX)	:= s3c24xx s3c
 plat-$(CONFIG_PLAT_S3C64XX)	:= s3c64xx s3c
 plat-$(CONFIG_PLAT_S5PC1XX)	:= s5pc1xx s3c
 plat-$(CONFIG_ARCH_STMP3XXX)	:= stmp3xxx
+plat-$(CONFIG_ARCH_OXNAS)	:= oxnas
+plat-$(CONFIG_ARCH_OX820)	:= oxnas
 
 ifeq ($(CONFIG_ARCH_EBSA110),y)
 # This is what happens if you forget the IOCS16 line.

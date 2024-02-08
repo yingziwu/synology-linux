@@ -28,7 +28,6 @@
 #include "dvb_frontend.h"
 #include "l64781.h"
 
-
 struct l64781_state {
 	struct i2c_adapter* i2c;
 	const struct l64781_config* config;
@@ -47,7 +46,6 @@ static int debug;
 
 module_param(debug, int, 0644);
 MODULE_PARM_DESC(debug, "Turn on/off frontend debugging (default:off).");
-
 
 static int l64781_writereg (struct l64781_state* state, u8 reg, u8 data)
 {
@@ -89,7 +87,6 @@ static void apply_tps (struct l64781_state* state)
 	   to the TPS received from transmission. */
 	l64781_writereg (state, 0x2a, 0x02);
 }
-
 
 static void reset_afc (struct l64781_state* state)
 {
@@ -192,8 +189,8 @@ static int apply_frontend_param (struct dvb_frontend* fe, struct dvb_frontend_pa
 	spi_bias *= qam_tab[p->constellation];
 	spi_bias /= p->code_rate_HP + 1;
 	spi_bias /= (guard_tab[p->guard_interval] + 32);
-	spi_bias *= 1000ULL;
-	spi_bias /= 1000ULL + ppm/1000;
+	spi_bias *= 1000;
+	spi_bias /= 1000 + ppm/1000;
 	spi_bias *= p->code_rate_HP;
 
 	val0x04 = (p->transmission_mode << 2) | p->guard_interval;
@@ -238,7 +235,6 @@ static int get_frontend(struct dvb_frontend* fe, struct dvb_frontend_parameters*
 	struct l64781_state* state = fe->demodulator_priv;
 	int tmp;
 
-
 	tmp = l64781_readreg(state, 0x04);
 	switch(tmp & 3) {
 	case 0:
@@ -264,8 +260,6 @@ static int get_frontend(struct dvb_frontend* fe, struct dvb_frontend_parameters*
 	default:
 		printk("Unexpected value for transmission_mode\n");
 	}
-
-
 
 	tmp = l64781_readreg(state, 0x05);
 	switch(tmp & 7) {
@@ -307,7 +301,6 @@ static int get_frontend(struct dvb_frontend* fe, struct dvb_frontend_parameters*
 		printk("Unexpected value for code_rate_LP\n");
 	}
 
-
 	tmp = l64781_readreg(state, 0x06);
 	switch(tmp & 3) {
 	case 0:
@@ -338,7 +331,6 @@ static int get_frontend(struct dvb_frontend* fe, struct dvb_frontend_parameters*
 	default:
 		printk("Unexpected value for hierarchy\n");
 	}
-
 
 	tmp = l64781_readreg (state, 0x1d);
 	param->inversion = (tmp & 0x80) ? INVERSION_ON : INVERSION_OFF;

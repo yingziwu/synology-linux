@@ -39,8 +39,7 @@ static int drm_ati_alloc_pcigart_table(struct drm_device *dev,
 				       struct drm_ati_pcigart_info *gart_info)
 {
 	gart_info->table_handle = drm_pci_alloc(dev, gart_info->table_size,
-						PAGE_SIZE,
-						gart_info->table_mask);
+						PAGE_SIZE);
 	if (gart_info->table_handle == NULL)
 		return -ENOMEM;
 
@@ -112,6 +111,13 @@ int drm_ati_pcigart_init(struct drm_device *dev, struct drm_ati_pcigart_info *ga
 	if (gart_info->gart_table_location == DRM_ATI_GART_MAIN) {
 		DRM_DEBUG("PCI: no table in VRAM: using normal RAM\n");
 
+		if (pci_set_dma_mask(dev->pdev, gart_info->table_mask)) {
+			DRM_ERROR("fail to set dma mask to 0x%Lx\n",
+				  gart_info->table_mask);
+			ret = 1;
+			goto done;
+		}
+
 		ret = drm_ati_alloc_pcigart_table(dev, gart_info);
 		if (ret) {
 			DRM_ERROR("cannot allocate PCI GART page!\n");
@@ -128,7 +134,6 @@ int drm_ati_pcigart_init(struct drm_device *dev, struct drm_ati_pcigart_info *ga
 			  (unsigned long long)bus_address,
 			  (unsigned long)address);
 	}
-
 
 	max_ati_pages = (gart_info->table_size / sizeof(u32));
 	max_real_pages = max_ati_pages / (PAGE_SIZE / ATI_PCIGART_PAGE_SIZE);

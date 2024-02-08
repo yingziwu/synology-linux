@@ -57,7 +57,6 @@
 
 #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
 
-
 /*
  * Stage 2 of the trace events.
  *
@@ -159,7 +158,7 @@
 #undef __get_str
 
 #undef TP_printk
-#define TP_printk(fmt, args...) "%s, %s\n", #fmt, __stringify(args)
+#define TP_printk(fmt, args...) "\"%s\", %s\n", fmt, __stringify(args)
 
 #undef TP_fast_assign
 #define TP_fast_assign(args...) args
@@ -767,4 +766,3 @@ end:									\
 #endif /* CONFIG_EVENT_PROFILE */
 
 #undef _TRACE_PROFILE_INIT
-

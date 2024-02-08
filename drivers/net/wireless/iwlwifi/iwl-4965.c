@@ -59,7 +59,6 @@ static int iwl4965_hw_get_temperature(struct iwl_priv *priv);
 #define _IWL4965_MODULE_FIRMWARE(api) IWL4965_FW_PRE #api ".ucode"
 #define IWL4965_MODULE_FIRMWARE(api) _IWL4965_MODULE_FIRMWARE(api)
 
-
 /* module parameters */
 static struct iwl_mod_params iwl4965_mod_params = {
 	.num_of_queues = IWL49_NUM_QUEUES,
@@ -205,7 +204,6 @@ static int iwl4965_load_bsm(struct iwl_priv *priv)
 	/* Enable future boot loads whenever power management unit triggers it
 	 *   (e.g. when powering back up after power-save shutdown) */
 	iwl_write_prph(priv, BSM_WR_CTRL_REG, BSM_WR_CTRL_REG_BIT_START_EN);
-
 
 	return 0;
 }
@@ -356,7 +354,6 @@ out:
 	return ret;
 }
 
-
 static void iwl4965_nic_config(struct iwl_priv *priv)
 {
 	unsigned long flags;
@@ -435,7 +432,6 @@ static int iwl4965_apm_reset(struct iwl_priv *priv)
 	int ret = 0;
 
 	iwl4965_apm_stop_master(priv);
-
 
 	iwl_set_bit(priv, CSR_RESET, CSR_RESET_REG_FLAG_SW_RESET);
 
@@ -715,6 +711,8 @@ static int iwl4965_alive_notify(struct iwl_priv *priv)
 
 	iwl4965_set_wr_ptrs(priv, IWL_CMD_QUEUE_NUM, 0);
 
+	/* reset to 0 to enable all the queue first */
+	priv->txq_ctx_active_msk = 0;
 	/* Map each Tx/cmd queue to its corresponding fifo */
 	for (i = 0; i < ARRAY_SIZE(default_queue_to_tx_fifo); i++) {
 		int ac = default_queue_to_tx_fifo[i];
@@ -1337,7 +1335,7 @@ static int iwl4965_fill_txpower_tbl(struct iwl_priv *priv, u8 band, u16 channel,
 	iwl4965_interpolate_chan(priv, channel, &ch_eeprom_info);
 
 	/* calculate tx gain adjustment based on power supply voltage */
-	voltage = priv->calib_info->voltage;
+	voltage = le16_to_cpu(priv->calib_info->voltage);
 	init_voltage = (s32)le32_to_cpu(priv->card_alive_init.voltage);
 	voltage_compensation =
 	    iwl4965_get_voltage_compensation(voltage, init_voltage);
@@ -1856,7 +1854,6 @@ static int iwl4965_tx_queue_set_q2ratid(struct iwl_priv *priv, u16 ra_tid,
 	return 0;
 }
 
-
 /**
  * iwl4965_tx_queue_agg_enable - Set up & enable aggregation for selected queue
  *
@@ -1920,7 +1917,6 @@ static int iwl4965_txq_agg_enable(struct iwl_priv *priv, int txq_id,
 
 	return 0;
 }
-
 
 static u16 iwl4965_get_hcmd_size(u8 cmd_id, u16 len)
 {
@@ -2087,7 +2083,7 @@ static void iwl4965_rx_reply_tx(struct iwl_priv *priv,
 	struct ieee80211_tx_info *info;
 	struct iwl4965_tx_resp *tx_resp = (void *)&pkt->u.raw[0];
 	u32  status = le32_to_cpu(tx_resp->u.status);
-	int tid = MAX_TID_COUNT;
+	int tid = MAX_TID_COUNT - 1;
 	int sta_id;
 	int freed;
 	u8 *qc = NULL;
@@ -2134,7 +2130,9 @@ static void iwl4965_rx_reply_tx(struct iwl_priv *priv,
 			IWL_DEBUG_TX_REPLY(priv, "Retry scheduler reclaim scd_ssn "
 					   "%d index %d\n", scd_ssn , index);
 			freed = iwl_tx_queue_reclaim(priv, txq_id, index);
-			priv->stations[sta_id].tid[tid].tfds_in_queue -= freed;
+			if (qc)
+				iwl_free_tfds_in_queue(priv, sta_id,
+						       tid, freed);
 
 			if (priv->mac80211_registered &&
 			    (iwl_queue_space(&txq->q) > txq->q.low_mark) &&
@@ -2162,13 +2160,14 @@ static void iwl4965_rx_reply_tx(struct iwl_priv *priv,
 
 		freed = iwl_tx_queue_reclaim(priv, txq_id, index);
 		if (qc && likely(sta_id != IWL_INVALID_STATION))
-			priv->stations[sta_id].tid[tid].tfds_in_queue -= freed;
+			iwl_free_tfds_in_queue(priv, sta_id, tid, freed);
+		else if (sta_id == IWL_INVALID_STATION)
+			IWL_DEBUG_TX_REPLY(priv, "Station not known\n");
 
 		if (priv->mac80211_registered &&
 		    (iwl_queue_space(&txq->q) > txq->q.low_mark))
 			iwl_wake_queue(priv, txq_id);
 	}
-
 	if (qc && likely(sta_id != IWL_INVALID_STATION))
 		iwl_txq_check_empty(priv, sta_id, tid, txq_id);
 
@@ -2209,7 +2208,6 @@ static int iwl4965_calc_rssi(struct iwl_priv *priv,
 	 * Higher AGC (higher radio gain) means lower signal. */
 	return max_rssi - agc - IWL49_RSSI_OFFSET;
 }
-
 
 /* Set up 4965-specific Rx frame reply handlers */
 static void iwl4965_rx_handler_setup(struct iwl_priv *priv)

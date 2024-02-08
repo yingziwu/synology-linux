@@ -14,6 +14,7 @@
 #include <linux/nfsd/xdr3.h>
 #include <linux/posix_acl.h>
 #include <linux/nfsacl.h>
+#include "vfs.h"
 
 #define NFSDDBG_FACILITY		NFSDDBG_PROC
 #define RETURN_STATUS(st)	{ resp->status = (st); return (st); }
@@ -168,7 +169,6 @@ static int nfsaclsvc_decode_getaclargs(struct svc_rqst *rqstp, __be32 *p,
 
 	return xdr_argsize_check(rqstp, p);
 }
-
 
 static int nfsaclsvc_decode_setaclargs(struct svc_rqst *rqstp, __be32 *p,
 		struct nfsd3_setaclargs *argp)

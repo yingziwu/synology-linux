@@ -133,7 +133,6 @@ xfs_imap_to_bmap(
 	int		pbm;
 	xfs_fsblock_t	start_block;
 
-
 	for (pbm = 0; imaps && pbm < iomaps; imaps--, iomapp++, imap++, pbm++) {
 		iomapp->iomap_offset = XFS_FSB_TO_B(mp, imap->br_startoff);
 		iomapp->iomap_delta = offset - iomapp->iomap_offset;
@@ -283,7 +282,6 @@ out:
 		xfs_iunlock(ip, lockmode);
 	return XFS_ERROR(error);
 }
-
 
 STATIC int
 xfs_iomap_eof_align_last_fsb(
@@ -860,8 +858,15 @@ xfs_iomap_write_unwritten(
 		 * set up a transaction to convert the range of extents
 		 * from unwritten to real. Do allocations in a loop until
 		 * we have covered the range passed in.
+		 *
+		 * Note that we open code the transaction allocation here
+		 * to pass KM_NOFS--we can't risk to recursing back into
+		 * the filesystem here as we might be asked to write out
+		 * the same inode that we complete here and might deadlock
+		 * on the iolock.
 		 */
-		tp = xfs_trans_alloc(mp, XFS_TRANS_STRAT_WRITE);
+		xfs_wait_for_freeze(mp, SB_FREEZE_TRANS);
+		tp = _xfs_trans_alloc(mp, XFS_TRANS_STRAT_WRITE, KM_NOFS);
 		tp->t_flags |= XFS_TRANS_RESERVE;
 		error = xfs_trans_reserve(tp, resblks,
 				XFS_WRITE_LOG_RES(mp), 0,

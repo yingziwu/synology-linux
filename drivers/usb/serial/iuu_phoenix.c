@@ -30,7 +30,6 @@
 #include "iuu_phoenix.h"
 #include <linux/random.h>
 
-
 #ifdef CONFIG_USB_SERIAL_DEBUG
 static int debug = 1;
 #else
@@ -43,7 +42,7 @@ static int debug;
 #define DRIVER_VERSION "v0.11"
 #define DRIVER_DESC "Infinity USB Unlimited Phoenix driver"
 
-static struct usb_device_id id_table[] = {
+static const struct usb_device_id id_table[] = {
 	{USB_DEVICE(IUU_USB_VENDOR_ID, IUU_USB_PRODUCT_ID)},
 	{}			/* Terminating entry */
 };
@@ -82,7 +81,6 @@ struct iuu_private {
 	u8 len;
 	int vcc;		/* vcc (either 3 or 5 V) */
 };
-
 
 static void iuu_free_buf(struct iuu_private *priv)
 {
@@ -200,7 +198,6 @@ static void iuu_rxcmd(struct urb *urb)
 		/* error stop all */
 		return;
 	}
-
 
 	memset(port->write_urb->transfer_buffer, IUU_UART_RX, 1);
 	usb_fill_bulk_urb(port->write_urb, port->serial->dev,
@@ -434,8 +431,6 @@ static void iuu_led_activity_off(struct urb *urb)
 			  iuu_rxcmd, port);
 	result = usb_submit_urb(port->write_urb, GFP_ATOMIC);
 }
-
-
 
 static int iuu_clk(struct usb_serial_port *port, int dwFrq)
 {
@@ -801,7 +796,6 @@ static void read_rxcmd_callback(struct urb *urb)
 			  iuu_uart_read_callback, port);
 	result = usb_submit_urb(port->read_urb, GFP_ATOMIC);
 	dbg("%s - submit result = %d", __func__, result);
-	return;
 }
 
 static int iuu_uart_on(struct usb_serial_port *port)
@@ -1064,7 +1058,6 @@ static int iuu_open(struct tty_struct *tty, struct usb_serial_port *port)
 					  port->bulk_out_endpointAddress),
 			  port->bulk_out_buffer, 512,
 			  NULL, NULL);
-
 
 	usb_fill_bulk_urb(port->read_urb, port->serial->dev,
 			  usb_rcvbulkpipe(port->serial->dev,

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_STAT_H
 #define _LINUX_STAT_H
 
@@ -63,6 +66,12 @@ struct kstat {
 	u64		ino;
 	dev_t		dev;
 	umode_t		mode;
+#ifdef MY_ABC_HERE
+	__u32		syno_archive_bit;
+#endif
+#ifdef MY_ABC_HERE
+	__u32		syno_archive_version;
+#endif
 	unsigned int	nlink;
 	uid_t		uid;
 	gid_t		gid;
@@ -71,10 +80,61 @@ struct kstat {
 	struct timespec  atime;
 	struct timespec	mtime;
 	struct timespec	ctime;
+#ifdef MY_ABC_HERE
+	struct timespec syno_create_time;
+#endif
 	unsigned long	blksize;
 	unsigned long long	blocks;
 };
 
+#endif
+
+#ifdef MY_ABC_HERE
+#ifdef __KERNEL__
+ 
+struct SYNOSTAT_EXTRA {
+	struct timespec create_time;   
+	unsigned int archive_version;  		 
+	unsigned int archive_bit; 		 
+};
+struct SYNOSTAT {
+	struct stat st;
+	struct SYNOSTAT_EXTRA ext;
+};
+
+#define SYNOST_STAT         0x00000001   
+#define SYNOST_ARCHIVE_BIT  0x00000002   
+#define SYNOST_ARCHIVE_VER  0x00000004   
+#define SYNOST_CREATE_TIME  0x00000008   
+
+#define SYNOST_ALL          SYNOST_STAT|SYNOST_ARCHIVE_BIT|SYNOST_ARCHIVE_VER|SYNOST_CREATE_TIME
+#define SYNOST_IS_CASELESS	0x10000000	 
+
+#endif  
+#endif  
+
+#ifdef MY_ABC_HERE
+#define S2_IARCHIVE    (1<<0)	 
+#define S2_SMB_ARCHIVE (1<<1)	 
+#define S2_SMB_HIDDEN  (1<<2)	 
+#define S2_SMB_SYSTEM  (1<<3)	 
+#define S3_IARCHIVE    (1<<4)	 
+#if defined(MY_ABC_HERE) || defined(CONFIG_FS_SYNO_ACL)
+#define S2_SMB_READONLY    					(1<<5)	 
+#define S2_SYNO_ACL_INHERIT				    (1<<6)	 
+#define S2_SYNO_ACL_IS_OWNER_GROUP			(1<<7)	 
+#define S2_SYNO_ACL_EXIST					(1<<8)	 
+#define S2_SYNO_ACL_SUPPORT  				(1<<9)	 
+#define ALL_SYNO_ACL_ARCHIVE	(S2_SMB_READONLY|S2_SYNO_ACL_INHERIT|S2_SYNO_ACL_IS_OWNER_GROUP|S2_SYNO_ACL_EXIST|S2_SYNO_ACL_SUPPORT)
+#endif
+#define S2_SMB_SPARSE						(1<<10)	 
+#define ALL_IARCHIVE (S2_IARCHIVE|S3_IARCHIVE)	 
+#define ALL_SYNO_ARCHIVE (S2_IARCHIVE|S2_SMB_ARCHIVE|S3_IARCHIVE)	 
+#if defined(MY_ABC_HERE) || defined(CONFIG_FS_SYNO_ACL)
+#define ALL_ARCHIVE_BIT (S2_IARCHIVE|S2_SMB_ARCHIVE|S2_SMB_HIDDEN|S2_SMB_SYSTEM|S3_IARCHIVE|ALL_SYNO_ACL_ARCHIVE|S2_SMB_SPARSE)
+#else
+#define ALL_ARCHIVE_BIT (S2_IARCHIVE|S2_SMB_ARCHIVE|S2_SMB_HIDDEN|S2_SMB_SYSTEM|S3_IARCHIVE|S2_SMB_SPARSE)
+#endif
 #endif
 
 #endif

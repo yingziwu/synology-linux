@@ -1,5 +1,5 @@
 /*
- *	$Header: /cvsroot/osst/Driver/osst.h,v 1.16 2005/01/01 21:13:35 wriede Exp $
+ *	$Header: /synosrc.old/cvs_root/projects/linux-2.6.32/drivers/scsi/osst.h,v 1.1 2010-04-15 12:27:50 khchen Exp $
  */
 
 #include <asm/byteorder.h>
@@ -79,7 +79,6 @@ typedef struct {
 #define LOCATE_STATUS_PAGE_LENGTH  0
 
 #define MODE_HEADER_LENGTH         4
-
 
 /*
  *	REQUEST SENSE packet command result - Data Format.
@@ -497,7 +496,6 @@ typedef struct os_header_s {
 	os_fm_tab_t	qfa_fm_tab;
 	__u8		reserved25960_32767[6808];
 } os_header_t;
-
 
 /*
  * OnStream ADRL frame

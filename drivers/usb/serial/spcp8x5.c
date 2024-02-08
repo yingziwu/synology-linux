@@ -27,7 +27,6 @@
 #include <linux/usb.h>
 #include <linux/usb/serial.h>
 
-
 /* Version Information */
 #define DRIVER_VERSION 	"v0.04"
 #define DRIVER_DESC 	"SPCP8x5 USB to serial adaptor driver"
@@ -45,7 +44,7 @@ static int debug;
 #define SPCP8x5_835_VID		0x04fc
 #define SPCP8x5_835_PID		0x0231
 
-static struct usb_device_id id_table [] = {
+static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(SPCP8x5_PHILIPS_VID , SPCP8x5_PHILIPS_PID)},
 	{ USB_DEVICE(SPCP8x5_INTERMATIC_VID, SPCP8x5_INTERMATIC_PID)},
 	{ USB_DEVICE(SPCP8x5_835_VID, SPCP8x5_835_PID)},
@@ -68,7 +67,6 @@ struct spcp8x5_usb_ctrl_arg {
 #define SPCP8x5_CLOSING_WAIT	(30*HZ)
 
 #define SPCP8x5_BUF_SIZE	1024
-
 
 /* spcp8x5 spec register define */
 #define MCR_CONTROL_LINE_RTS		0x02
@@ -289,7 +287,6 @@ static struct usb_driver spcp8x5_driver = {
 	.id_table =		id_table,
 	.no_dynamic_id =	1,
 };
-
 
 struct spcp8x5_private {
 	spinlock_t 	lock;
@@ -522,7 +519,6 @@ static void spcp8x5_set_termios(struct tty_struct *tty,
 	int i;
 	u8 control;
 
-
 	/* check that they really want us to change something */
 	if (!tty_termios_hw_change(tty->termios, old_termios))
 		return;
@@ -609,14 +605,13 @@ static void spcp8x5_set_termios(struct tty_struct *tty,
 	if (i < 0)
 		dev_err(&port->dev, "Set UART format %#x failed (error = %d)\n",
 			uartdata, i);
-	dbg("0x21:0x40:0:0  %d\n", i);
+	dbg("0x21:0x40:0:0  %d", i);
 
 	if (cflag & CRTSCTS) {
 		/* enable hardware flow control */
 		spcp8x5_set_workMode(serial->dev, 0x000a,
 				     SET_WORKING_MODE_U2C, priv->type);
 	}
-	return;
 }
 
 /* open the serial port. do some usb system call. set termios and get the line
@@ -677,7 +672,6 @@ static void spcp8x5_read_bulk_callback(struct urb *urb)
 	struct tty_struct *tty;
 	unsigned char *data = urb->transfer_buffer;
 	unsigned long flags;
-	int i;
 	int result = urb->status;
 	u8 status;
 	char tty_flag;
@@ -687,8 +681,6 @@ static void spcp8x5_read_bulk_callback(struct urb *urb)
 
 	/* check the urb status */
 	if (result) {
-		if (!port->port.count)
-			return;
 		if (result == -EPROTO) {
 			/* spcp8x5 mysteriously fails with -EPROTO */
 			/* reschedule the read */
@@ -726,26 +718,20 @@ static void spcp8x5_read_bulk_callback(struct urb *urb)
 
 	tty = tty_port_tty_get(&port->port);
 	if (tty && urb->actual_length) {
-		tty_buffer_request_room(tty, urb->actual_length + 1);
 		/* overrun is special, not associated with a char */
 		if (status & UART_OVERRUN_ERROR)
 			tty_insert_flip_char(tty, 0, TTY_OVERRUN);
-		for (i = 0; i < urb->actual_length; ++i)
-			tty_insert_flip_char(tty, data[i], tty_flag);
+		tty_insert_flip_string_fixed_flag(tty, data,
+						urb->actual_length, tty_flag);
 		tty_flip_buffer_push(tty);
 	}
 	tty_kref_put(tty);
 
-	/* Schedule the next read _if_ we are still open */
-	if (port->port.count) {
-		urb->dev = port->serial->dev;
-		result = usb_submit_urb(urb , GFP_ATOMIC);
-		if (result)
-			dev_dbg(&port->dev, "failed submitting read urb %d\n",
-				result);
-	}
-
-	return;
+	/* Schedule the next read */
+	urb->dev = port->serial->dev;
+	result = usb_submit_urb(urb , GFP_ATOMIC);
+	if (result)
+		dev_dbg(&port->dev, "failed submitting read urb %d\n", result);
 }
 
 /* get data from ring buffer and then write to usb bus */
@@ -788,7 +774,6 @@ static void spcp8x5_send(struct usb_serial_port *port)
 		priv->write_urb_in_use = 0;
 		/* TODO: reschedule spcp8x5_send */
 	}
-
 
 	schedule_work(&port->work);
 }
@@ -896,7 +881,7 @@ static int spcp8x5_wait_modem_info(struct usb_serial_port *port,
 	return 0;
 }
 
-static int spcp8x5_ioctl(struct tty_struct *tty, struct file *file,
+static int spcp8x5_ioctl(struct tty_struct *tty,
 			 unsigned int cmd, unsigned long arg)
 {
 	struct usb_serial_port *port = tty->driver_data;

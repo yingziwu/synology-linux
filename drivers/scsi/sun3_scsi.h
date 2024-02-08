@@ -30,7 +30,10 @@
  */
 
 /*
- * $Log: cumana_NCR5380.h,v $
+ * $Log: sun3_scsi.h,v $
+ * Revision 1.1  2010-04-15 12:27:50  khchen
+ * Initial revision
+ *
  */
 
 #ifndef SUN3_NCR5380_H
@@ -373,8 +376,5 @@ struct sun3_udc_regs {
 #define NCR_PRINT_STATUS(mask) \
 	((NDEBUG & (mask)) ? NCR5380_print_status(instance) : (void)0)
 
-
-
 #endif /* ndef HOSTS_C */
 #endif /* SUN3_NCR5380_H */
-

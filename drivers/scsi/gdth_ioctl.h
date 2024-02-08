@@ -2,7 +2,7 @@
 #define _GDTH_IOCTL_H
 
 /* gdth_ioctl.h
- * $Id: gdth_ioctl.h,v 1.14 2004/02/19 15:43:15 achim Exp $
+ * $Id: gdth_ioctl.h,v 1.1 2010-04-15 12:27:50 khchen Exp $
  */
 
 /* IOCTLs */
@@ -184,7 +184,6 @@ typedef struct {
     unchar          reserved;
     gdth_evt_data   event_data;
 } PACKED gdth_evt_str;
-
 
 #ifdef GDTH_IOCTL_PROC
 /* IOCTL structure (write) */

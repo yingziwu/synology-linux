@@ -444,7 +444,6 @@ static void nbd_clear_que(struct nbd_device *lo)
 	}
 }
 
-
 static void nbd_handle_req(struct nbd_device *lo, struct request *req)
 {
 	if (!blk_fs_request(req))
@@ -655,7 +654,9 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *lo,
 
 		mutex_unlock(&lo->tx_lock);
 
-		thread = kthread_create(nbd_thread, lo, lo->disk->disk_name);
+		thread = kthread_create(nbd_thread, lo, "%s",
+					lo->disk->disk_name);
+
 		if (IS_ERR(thread)) {
 			mutex_lock(&lo->tx_lock);
 			return PTR_ERR(thread);

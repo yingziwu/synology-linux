@@ -84,8 +84,6 @@ static inline struct irq_routing_table *pirq_check_routing_table(u8 *addr)
 	return NULL;
 }
 
-
-
 /*
  *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
  */
@@ -422,7 +420,6 @@ static int pirq_sis_set(struct pci_dev *router, struct pci_dev *dev, int pirq, i
 	return 1;
 }
 
-
 /*
  * VLSI: nibble offset 0x74 - educated guess due to routing table and
  *       config space of VLSI 82C534 PCI-bridge/router (1004:0102)
@@ -590,6 +587,8 @@ static __init int intel_router_probe(struct irq_router *r, struct pci_dev *route
 	case PCI_DEVICE_ID_INTEL_ICH10_1:
 	case PCI_DEVICE_ID_INTEL_ICH10_2:
 	case PCI_DEVICE_ID_INTEL_ICH10_3:
+	case PCI_DEVICE_ID_INTEL_CPT_LPC1:
+	case PCI_DEVICE_ID_INTEL_CPT_LPC2:
 		r->name = "PIIX/ICH";
 		r->get = pirq_piix_get;
 		r->set = pirq_piix_set;
@@ -598,6 +597,14 @@ static __init int intel_router_probe(struct irq_router *r, struct pci_dev *route
 
 	if ((device >= PCI_DEVICE_ID_INTEL_PCH_LPC_MIN) && 
 		(device <= PCI_DEVICE_ID_INTEL_PCH_LPC_MAX)) {
+		r->name = "PIIX/ICH";
+		r->get = pirq_piix_get;
+		r->set = pirq_piix_set;
+		return 1;
+	}
+
+	if ((device >= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN) &&
+		(device <= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX)) {
 		r->name = "PIIX/ICH";
 		r->get = pirq_piix_get;
 		r->set = pirq_piix_set;
@@ -673,7 +680,6 @@ static __init int vlsi_router_probe(struct irq_router *r, struct pci_dev *router
 	}
 	return 0;
 }
-
 
 static __init int serverworks_router_probe(struct irq_router *r,
 		struct pci_dev *router, u16 device)
@@ -804,7 +810,6 @@ static __initdata struct irq_router_handler pirq_routers[] = {
 };
 static struct irq_router pirq_router;
 static struct pci_dev *pirq_router_dev;
-
 
 /*
  *	FIXME: should we have an option to say "generic for

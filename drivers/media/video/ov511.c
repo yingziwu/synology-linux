@@ -4551,7 +4551,6 @@ restart:
 		goto restart;
 	}
 
-
 	/* Repeat until we get a snapshot frame */
 	if (ov->snap_enabled)
 		PDEBUG(4, "Waiting snapshot frame");
@@ -5878,7 +5877,7 @@ ov51x_probe(struct usb_interface *intf, const struct usb_device_id *id)
 		goto error;
 	}
 
-	mutex_lock(&ov->lock);
+	mutex_unlock(&ov->lock);
 
 	return 0;
 
@@ -5998,4 +5997,3 @@ usb_ov511_exit(void)
 
 module_init(usb_ov511_init);
 module_exit(usb_ov511_exit);
-

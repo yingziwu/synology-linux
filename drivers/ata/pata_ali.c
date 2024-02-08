@@ -248,7 +248,6 @@ static void ali_set_dmamode(struct ata_port *ap, struct ata_device *adev)
 	unsigned long T =  1000000000 / 33333;	/* PCI clock based */
 	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
 
-
 	if (adev->class == ATA_DEV_ATA)
 		ali_fifo_control(ap, adev, 0x08);
 
@@ -421,7 +420,6 @@ static struct ata_port_operations ali_c5_port_ops = {
 	.cable_detect	= ali_c2_cable_detect,
 };
 
-
 /**
  *	ali_init_chipset	-	chip setup function
  *	@pdev: PCI device of ATA controller
@@ -453,7 +451,9 @@ static void ali_init_chipset(struct pci_dev *pdev)
 			/* Clear CD-ROM DMA write bit */
 			tmp &= 0x7F;
 		/* Cable and UDMA */
-		pci_write_config_byte(pdev, 0x4B, tmp | 0x09);
+		if (pdev->revision >= 0xc2)
+			tmp |= 0x01;
+		pci_write_config_byte(pdev, 0x4B, tmp | 0x08);
 		/*
 		 * CD_ROM DMA on (0x53 bit 0). Enable this even if we want
 		 * to use PIO. 0x53 bit 1 (rev 20 only) - enable FIFO control
@@ -630,13 +630,11 @@ static int __init ali_init(void)
 	return ret;
 }
 
-
 static void __exit ali_exit(void)
 {
 	pci_unregister_driver(&ali_pci_driver);
 	pci_dev_put(ali_isa_bridge);
 }
-
 
 MODULE_AUTHOR("Alan Cox");
 MODULE_DESCRIPTION("low-level driver for ALi PATA");

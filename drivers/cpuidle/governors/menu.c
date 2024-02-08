@@ -18,6 +18,7 @@
 #include <linux/hrtimer.h>
 #include <linux/tick.h>
 #include <linux/sched.h>
+#include <linux/math64.h>
 
 #define BUCKETS 12
 #define RESOLUTION 1024
@@ -106,14 +107,12 @@ struct menu_device {
 	u64		correction_factor[BUCKETS];
 };
 
-
 #define LOAD_INT(x) ((x) >> FSHIFT)
 #define LOAD_FRAC(x) LOAD_INT(((x) & (FIXED_1-1)) * 100)
 
 static int get_loadavg(void)
 {
 	unsigned long this = this_cpu_load();
-
 
 	return LOAD_INT(this) * 10 + LOAD_FRAC(this) / 10;
 }
@@ -169,6 +168,12 @@ static DEFINE_PER_CPU(struct menu_device, menu_devices);
 
 static void menu_update(struct cpuidle_device *dev);
 
+/* This implements DIV_ROUND_CLOSEST but avoids 64 bit division */
+static u64 div_round64(u64 dividend, u32 divisor)
+{
+	return div_u64(dividend + (divisor / 2), divisor);
+}
+
 /**
  * menu_select - selects the next idle state to enter
  * @dev: the CPU
@@ -196,7 +201,6 @@ static int menu_select(struct cpuidle_device *dev)
 	data->expected_us =
 	    DIV_ROUND_UP((u32)ktime_to_ns(tick_nohz_get_sleep_length()), 1000);
 
-
 	data->bucket = which_bucket(data->expected_us);
 
 	multiplier = performance_multiplier();
@@ -209,9 +213,8 @@ static int menu_select(struct cpuidle_device *dev)
 		data->correction_factor[data->bucket] = RESOLUTION * DECAY;
 
 	/* Make sure to round up for half microseconds */
-	data->predicted_us = DIV_ROUND_CLOSEST(
-		data->expected_us * data->correction_factor[data->bucket],
-		RESOLUTION * DECAY);
+	data->predicted_us = div_round64(data->expected_us * data->correction_factor[data->bucket],
+					 RESOLUTION * DECAY);
 
 	/*
 	 * We want to default to C1 (hlt), not to busy polling
@@ -219,7 +222,6 @@ static int menu_select(struct cpuidle_device *dev)
 	 */
 	if (data->expected_us > 5)
 		data->last_state_idx = CPUIDLE_DRIVER_STATE_START;
-
 
 	/* find the deepest idle state that satisfies our constraints */
 	for (i = CPUIDLE_DRIVER_STATE_START; i < dev->state_count; i++) {
@@ -272,7 +274,6 @@ static void menu_update(struct cpuidle_device *dev)
 	if (unlikely(!(target->flags & CPUIDLE_FLAG_TIME_VALID)))
 		last_idle_us = data->expected_us;
 
-
 	measured_us = last_idle_us;
 
 	/*
@@ -281,7 +282,6 @@ static void menu_update(struct cpuidle_device *dev)
 	 */
 	if (measured_us > data->exit_us)
 		measured_us -= data->exit_us;
-
 
 	/* update our correction ratio */
 

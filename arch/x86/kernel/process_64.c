@@ -413,7 +413,6 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	if (unlikely(next->ds | prev->ds))
 		loadsegment(ds, next->ds);
 
-
 	/* We must save %fs and %gs before load_TLS() because
 	 * %fs and %gs may be cleared by load_TLS().
 	 *
@@ -538,6 +537,18 @@ sys_clone(unsigned long clone_flags, unsigned long newsp,
 	if (!newsp)
 		newsp = regs->sp;
 	return do_fork(clone_flags, newsp, regs, 0, parent_tid, child_tid);
+}
+
+void set_personality_ia32(void)
+{
+	/* inherit personality from parent */
+
+	/* Make sure to be in 32bit mode */
+	set_thread_flag(TIF_IA32);
+	current->personality |= force_personality32;
+
+	/* Prepare the first "return" to user space */
+	current_thread_info()->status |= TS_COMPAT;
 }
 
 unsigned long get_wchan(struct task_struct *p)

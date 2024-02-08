@@ -55,12 +55,9 @@
 
 #include "ieee80211.h"
 
-
 /*
 
-
 802.11 Data Frame
-
 
 802.11 frame_contorl for data frames - 2 bytes
      ,-----------------------------------------------------------------------------------------.
@@ -106,7 +103,6 @@ Desc. | IV  | Encrypted | ICV |
       |     | IP Packet |     |
       `-----------------------'
 Total: 8 non-data bytes
-
 
 802.3 Ethernet Data Frame
 
@@ -229,7 +225,6 @@ int ieee80211_encrypt_fragment(
 	return 0;
 }
 
-
 void ieee80211_txb_free(struct ieee80211_txb *txb) {
 	int i;
 	if (unlikely(!txb))
@@ -305,7 +300,7 @@ ieee80211_classify(struct sk_buff *skb, struct ieee80211_network *network)
 }
 
 /* SKBs are added to the ieee->tx_queue. */
-int ieee80211_xmit(struct sk_buff *skb,
+int ieee80211_rtl_xmit(struct sk_buff *skb,
 		   struct net_device *dev)
 {
 	struct ieee80211_device *ieee = netdev_priv(dev);

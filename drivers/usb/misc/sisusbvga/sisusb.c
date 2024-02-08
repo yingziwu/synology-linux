@@ -326,7 +326,6 @@ sisusb_bulkin_msg(struct sisusb_usb_data *sisusb, unsigned int pipe, void *data,
 	return retval;
 }
 
-
 /* Level 1:  */
 
 /* Send a bulk message of variable size
@@ -521,7 +520,6 @@ static int sisusb_recv_bulk_msg(struct sisusb_usb_data *sisusb, int ep, int len,
 
 		} else
 			return -EIO;
-
 
 		if (thispass) {
 
@@ -2284,7 +2282,6 @@ sisusb_init_gfxdevice(struct sisusb_usb_data *sisusb, int initscreen)
 	return ret;
 }
 
-
 #ifdef INCL_SISUSB_CON
 
 /* Set up default text mode:
@@ -2416,21 +2413,28 @@ sisusb_open(struct inode *inode, struct file *file)
 	struct usb_interface *interface;
 	int subminor = iminor(inode);
 
-	if (!(interface = usb_find_interface(&sisusb_driver, subminor)))
+	lock_kernel();
+	if (!(interface = usb_find_interface(&sisusb_driver, subminor))) {
+		unlock_kernel();
 		return -ENODEV;
+	}
 
-	if (!(sisusb = usb_get_intfdata(interface)))
+	if (!(sisusb = usb_get_intfdata(interface))) {
+		unlock_kernel();
 		return -ENODEV;
+	}
 
 	mutex_lock(&sisusb->lock);
 
 	if (!sisusb->present || !sisusb->ready) {
 		mutex_unlock(&sisusb->lock);
+		unlock_kernel();
 		return -ENODEV;
 	}
 
 	if (sisusb->isopen) {
 		mutex_unlock(&sisusb->lock);
+		unlock_kernel();
 		return -EBUSY;
 	}
 
@@ -2439,11 +2443,13 @@ sisusb_open(struct inode *inode, struct file *file)
 			if (sisusb_init_gfxdevice(sisusb, 0)) {
 				mutex_unlock(&sisusb->lock);
 				dev_err(&sisusb->sisusb_dev->dev, "Failed to initialize device\n");
+				unlock_kernel();
 				return -EIO;
 			}
 		} else {
 			mutex_unlock(&sisusb->lock);
 			dev_err(&sisusb->sisusb_dev->dev, "Device not attached to USB 2.0 hub\n");
+			unlock_kernel();
 			return -EIO;
 		}
 	}
@@ -2456,6 +2462,7 @@ sisusb_open(struct inode *inode, struct file *file)
 	file->private_data = sisusb;
 
 	mutex_unlock(&sisusb->lock);
+	unlock_kernel();
 
 	return 0;
 }
@@ -2780,7 +2787,6 @@ sisusb_write(struct file *file, const char __user *buffer, size_t count,
 			errno = -EIO;
 		else
 			bytes_written = 4;
-
 
 	} else {
 
@@ -3245,6 +3251,7 @@ static struct usb_device_id sisusb_table [] = {
 	{ USB_DEVICE(0x0711, 0x0902) },
 	{ USB_DEVICE(0x0711, 0x0903) },
 	{ USB_DEVICE(0x0711, 0x0918) },
+	{ USB_DEVICE(0x0711, 0x0920) },
 	{ USB_DEVICE(0x182d, 0x021c) },
 	{ USB_DEVICE(0x182d, 0x0269) },
 	{ }
@@ -3280,4 +3287,3 @@ module_exit(usb_sisusb_exit);
 MODULE_AUTHOR("Thomas Winischhofer <thomas@winischhofer.net>");
 MODULE_DESCRIPTION("sisusbvga - Driver for Net2280/SiS315-based USB2VGA dongles");
 MODULE_LICENSE("GPL");
-

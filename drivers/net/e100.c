@@ -168,7 +168,6 @@
 #include <linux/firmware.h>
 #include <asm/unaligned.h>
 
-
 #define DRV_NAME		"e100"
 #define DRV_EXT			"-NAPI"
 #define DRV_VERSION		"3.5.24-k2"DRV_EXT
@@ -938,7 +937,6 @@ static u16 mdio_ctrl_hw(struct nic *nic, u32 addr, u32 dir, u32 reg, u16 data)
 	unsigned int i;
 	unsigned long flags;
 
-
 	/*
 	 * Stratus87247: we shouldn't be writing the MDI control
 	 * register until the Ready bit shows True.  Also, since
@@ -1611,7 +1609,6 @@ static void e100_update_stats(struct nic *nic)
 		}
 	}
 
-
 	if (e100_exec_cmd(nic, cuc_dump_reset, 0))
 		DPRINTK(TX_ERR, DEBUG, "exec cuc_dump_reset failed\n");
 }
@@ -1817,6 +1814,7 @@ static int e100_alloc_cbs(struct nic *nic)
 				  &nic->cbs_dma_addr);
 	if (!nic->cbs)
 		return -ENOMEM;
+	memset(nic->cbs, 0, count * sizeof(struct cb));
 
 	for (cb = nic->cbs, i = 0; i < count; cb++, i++) {
 		cb->next = (i + 1 < count) ? cb + 1 : nic->cbs;
@@ -1825,7 +1823,6 @@ static int e100_alloc_cbs(struct nic *nic)
 		cb->dma_addr = nic->cbs_dma_addr + i * sizeof(struct cb);
 		cb->link = cpu_to_le32(nic->cbs_dma_addr +
 			((i+1) % count) * sizeof(struct cb));
-		cb->skb = NULL;
 	}
 
 	nic->cb_to_use = nic->cb_to_send = nic->cb_to_clean = nic->cbs;
@@ -1979,7 +1976,6 @@ static void e100_rx_clean(struct nic *nic, unsigned int *work_done,
 		if (-EAGAIN == err || -ENODATA == err)
 			break;
 	}
-
 
 	/* On EAGAIN, hit quota so have more work to do, restart once
 	 * cleanup is complete.

@@ -70,8 +70,8 @@ static void __cpuinit early_init_intel(struct cpuinfo_x86 *c)
 	if (c->x86_power & (1 << 8)) {
 		set_cpu_cap(c, X86_FEATURE_CONSTANT_TSC);
 		set_cpu_cap(c, X86_FEATURE_NONSTOP_TSC);
-		set_cpu_cap(c, X86_FEATURE_TSC_RELIABLE);
-		sched_clock_stable = 1;
+		if (!check_tsc_unstable())
+			sched_clock_stable = 1;
 	}
 
 	/*
@@ -221,7 +221,6 @@ static void __cpuinit intel_workarounds(struct cpuinfo_x86 *c)
 	if (cpu_has_apic && (c->x86<<8 | c->x86_model<<4) == 0x520 &&
 	    (c->x86_mask < 0x6 || c->x86_mask == 0xb))
 		set_cpu_cap(c, X86_FEATURE_11AP);
-
 
 #ifdef CONFIG_X86_INTEL_USERCOPY
 	/*
@@ -512,4 +511,3 @@ static const struct cpu_dev __cpuinitconst intel_cpu_dev = {
 };
 
 cpu_dev_register(intel_cpu_dev);
-

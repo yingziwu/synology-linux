@@ -1,4 +1,4 @@
-/* $Id: jade_irq.c,v 1.7.2.4 2004/02/11 13:21:34 keil Exp $
+/* $Id: jade_irq.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Low level JADE IRQ stuff (derived from original hscx_irq.c)
  *
@@ -23,7 +23,6 @@ waitforCEC(struct IsdnCardState *cs, int jade, int reg)
   		printk(KERN_WARNING "HiSax: waitforCEC (jade) timeout\n");
 }
 
-
 static inline void
 waitforXFW(struct IsdnCardState *cs, int jade)
 {
@@ -36,8 +35,6 @@ WriteJADECMDR(struct IsdnCardState *cs, int jade, int reg, u_char data)
 	waitforCEC(cs, jade, reg);
 	WRITEJADE(cs, jade, reg, data);
 }
-
-
 
 static void
 jade_empty_fifo(struct BCState *bcs, int count)
@@ -108,7 +105,6 @@ jade_fill_fifo(struct BCState *bcs)
 		debugl1(cs, bcs->blog);
 	}
 }
-
 
 static void
 jade_interrupt(struct IsdnCardState *cs, u_char val, u_char jade)

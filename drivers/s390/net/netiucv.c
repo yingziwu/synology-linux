@@ -476,7 +476,6 @@ static const char *conn_state_names[] = {
 	"Connect error",
 };
 
-
 /**
  * Debug Facility Stuff
  */
@@ -741,13 +740,13 @@ static void conn_action_txdone(fsm_instance *fi, int event, void *arg)
 	if (single_flag) {
 		if ((skb = skb_dequeue(&conn->commit_queue))) {
 			atomic_dec(&skb->users);
-			dev_kfree_skb_any(skb);
 			if (privptr) {
 				privptr->stats.tx_packets++;
 				privptr->stats.tx_bytes +=
 					(skb->len - NETIUCV_HDRLEN
-					 	  - NETIUCV_HDRLEN);
+						  - NETIUCV_HDRLEN);
 			}
+			dev_kfree_skb_any(skb);
 		}
 	}
 	conn->tx_buff->data = conn->tx_buff->head;
@@ -1024,7 +1023,6 @@ static const fsm_node conn_fsm[] = {
 };
 
 static const int CONN_FSM_LEN = sizeof(conn_fsm) / sizeof(fsm_node);
-
 
 /*
  * Actions for interface - statemachine.

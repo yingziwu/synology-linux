@@ -82,10 +82,10 @@
 #include <linux/module.h>
 #include <linux/completion.h>
 #include <linux/mutex.h>
+#include <linux/smp_lock.h>
 #include <asm/uaccess.h>
 #include <linux/usb.h>
 #include <linux/poll.h>
-
 
 #ifdef CONFIG_USB_DEBUG
 	static int debug = 4;
@@ -96,7 +96,6 @@
 /* Use our own dbg macro */
 #undef dbg
 #define dbg(lvl, format, arg...) do { if (debug >= lvl) printk(KERN_DEBUG  __FILE__ ": " format "\n", ## arg); } while (0)
-
 
 /* Version Information */
 #define DRIVER_VERSION "v0.96"
@@ -190,7 +189,6 @@ struct tower_get_version_reply {
 	__le16 build_no;		/* little-endian */
 } __attribute__ ((packed));
 
-
 /* table of devices that work with this driver */
 static struct usb_device_id tower_table [] = {
 	{ USB_DEVICE(LEGO_USB_TOWER_VENDOR_ID, LEGO_USB_TOWER_PRODUCT_ID) },
@@ -201,7 +199,6 @@ MODULE_DEVICE_TABLE (usb, tower_table);
 static DEFINE_MUTEX(open_disc_mutex);
 
 #define LEGO_USB_TOWER_MINOR_BASE	160
-
 
 /* Structure to hold all of our device specific stuff */
 struct lego_usb_tower {
@@ -236,7 +233,6 @@ struct lego_usb_tower {
 
 };
 
-
 /* local function prototypes */
 static ssize_t tower_read	(struct file *file, char __user *buffer, size_t count, loff_t *ppos);
 static ssize_t tower_write	(struct file *file, const char __user *buffer, size_t count, loff_t *ppos);
@@ -253,7 +249,6 @@ static void tower_interrupt_out_callback (struct urb *urb);
 
 static int  tower_probe	(struct usb_interface *interface, const struct usb_device_id *id);
 static void tower_disconnect	(struct usb_interface *interface);
-
 
 /* file operations needed when we register this driver */
 static const struct file_operations tower_fops = {
@@ -282,7 +277,6 @@ static struct usb_class_driver tower_class = {
 	.minor_base =	LEGO_USB_TOWER_MINOR_BASE,
 };
 
-
 /* usb specific object needed to register this driver with the usb subsystem */
 static struct usb_driver tower_driver = {
 	.name =		"legousbtower",
@@ -290,7 +284,6 @@ static struct usb_driver tower_driver = {
 	.disconnect =	tower_disconnect,
 	.id_table =	tower_table,
 };
-
 
 /**
  *	lego_usb_tower_debug_data
@@ -308,7 +301,6 @@ static inline void lego_usb_tower_debug_data (int level, const char *function, i
 	}
 	printk ("\n");
 }
-
 
 /**
  *	tower_delete
@@ -330,7 +322,6 @@ static inline void tower_delete (struct lego_usb_tower *dev)
 	dbg(2, "%s: leave", __func__);
 }
 
-
 /**
  *	tower_open
  */
@@ -345,6 +336,7 @@ static int tower_open (struct inode *inode, struct file *file)
 
 	dbg(2, "%s: enter", __func__);
 
+	lock_kernel();
 	nonseekable_open(inode, file);
 	subminor = iminor(inode);
 
@@ -372,7 +364,6 @@ static int tower_open (struct inode *inode, struct file *file)
 	        retval = -ERESTARTSYS;
 		goto exit;
 	}
-
 
 	/* allow opening only once */
 	if (dev->open_count) {
@@ -430,6 +421,7 @@ unlock_exit:
 	mutex_unlock(&dev->lock);
 
 exit:
+	unlock_kernel();
 	dbg(2, "%s: leave, return value %d ", __func__, retval);
 
 	return retval;
@@ -490,7 +482,6 @@ exit_nolock:
 	return retval;
 }
 
-
 /**
  *	tower_abort_transfers
  *      aborts transfers and frees associated data structures
@@ -518,7 +509,6 @@ exit:
 	dbg(2, "%s: leave", __func__);
 }
 
-
 /**
  *	tower_check_for_read_packet
  *
@@ -538,7 +528,6 @@ static void tower_check_for_read_packet (struct lego_usb_tower *dev)
 	dev->interrupt_in_done = 0;
 	spin_unlock_irq (&dev->read_buffer_lock);
 }
-
 
 /**
  *	tower_poll
@@ -571,7 +560,6 @@ static unsigned int tower_poll (struct file *file, poll_table *wait)
 	return mask;
 }
 
-
 /**
  *	tower_llseek
  */
@@ -579,7 +567,6 @@ static loff_t tower_llseek (struct file *file, loff_t off, int whence)
 {
 	return -ESPIPE;		/* unseekable */
 }
-
 
 /**
  *	tower_read
@@ -671,7 +658,6 @@ exit:
 	return retval;
 }
 
-
 /**
  *	tower_write
  */
@@ -756,7 +742,6 @@ exit:
 	return retval;
 }
 
-
 /**
  *	tower_interrupt_in_callback
  */
@@ -813,7 +798,6 @@ exit:
 	dbg(4, "%s: leave, status %d", __func__, status);
 }
 
-
 /**
  *	tower_interrupt_out_callback
  */
@@ -839,7 +823,6 @@ static void tower_interrupt_out_callback (struct urb *urb)
 	lego_usb_tower_debug_data(5, __func__, urb->actual_length, urb->transfer_buffer);
 	dbg(4, "%s: leave, status %d", __func__, status);
 }
-
 
 /**
  *	tower_probe
@@ -986,7 +969,6 @@ static int tower_probe (struct usb_interface *interface, const struct usb_device
 		 get_version_reply.minor,
 		 le16_to_cpu(get_version_reply.build_no));
 
-
 exit:
 	dbg(2, "%s: leave, return value 0x%.8lx (dev)", __func__, (long) dev);
 
@@ -996,7 +978,6 @@ error:
 	tower_delete(dev);
 	return retval;
 }
-
 
 /**
  *	tower_disconnect
@@ -1040,8 +1021,6 @@ static void tower_disconnect (struct usb_interface *interface)
 	dbg(2, "%s: leave", __func__);
 }
 
-
-
 /**
  *	lego_usb_tower_init
  */
@@ -1068,7 +1047,6 @@ exit:
 
 	return retval;
 }
-
 
 /**
  *	lego_usb_tower_exit

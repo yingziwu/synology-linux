@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:08:46 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c --outfile iop_sap_out_defs.h ../../inst/io_proc/rtl/iop_sap_out.r
- *      id: $Id: iop_sap_out_defs.h,v 1.5 2005/04/24 18:31:05 starvik Exp $
+ *      id: $Id: iop_sap_out_defs.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -226,7 +226,6 @@ typedef struct {
 } reg_iop_sap_out_rw_gio;
 #define REG_RD_ADDR_iop_sap_out_rw_gio 28
 #define REG_WR_ADDR_iop_sap_out_rw_gio 28
-
 
 /* Constants */
 enum {

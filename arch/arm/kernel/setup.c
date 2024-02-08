@@ -1,12 +1,7 @@
-/*
- *  linux/arch/arm/kernel/setup.c
- *
- *  Copyright (C) 1995-2001 Russell King
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/stddef.h>
@@ -47,8 +42,66 @@
 #include "atags.h"
 #include "tcm.h"
 
+#ifdef  MY_ABC_HERE
+extern char gszSynoHWVersion[];
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_internal_hd_num;
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_internal_netif_num;
+long g_egiga = 1;
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_hdd_hotplug;
+#endif
+
+#ifdef MY_ABC_HERE
+extern unsigned char grgbLanMac[4][16];
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszSerialNum[32];
+extern char gszCustomSerialNum[32];
+#endif
+
+#ifdef MY_ABC_HERE
+extern long g_esata_7042;
+#endif
 #ifndef MEM_SIZE
 #define MEM_SIZE	(16*1024*1024)
+#endif
+
+#ifdef MY_ABC_HERE
+extern char gszDiskIdxMap[16];
+#endif
+
+#ifdef MY_ABC_HERE
+extern char giDiskSeqReverse[8];
+#endif
+
+#ifdef MY_ABC_HERE
+extern unsigned int gSwitchDev;
+extern char gDevPCIName[SYNO_MAX_SWITCHABLE_NET_DEVICE][SYNO_NET_DEVICE_ENCODING_LENGTH];
+#endif
+
+#ifdef MY_ABC_HERE
+extern int gSynoHasDynModule;
+#endif
+
+#ifdef MY_ABC_HERE
+extern long gSynoFlashMemorySize;
+#endif
+
+#ifdef MY_ABC_HERE
+extern int gSynoFactoryUSBFastReset;
+#endif
+
+#ifdef MY_ABC_HERE
+extern int gSynoFactoryUSB3Disable;
 #endif
 
 #if defined(CONFIG_FPE_NWFPE) || defined(CONFIG_FPE_FASTFPE)
@@ -61,6 +114,277 @@ static int __init fpe_setup(char *line)
 }
 
 __setup("fpe=", fpe_setup);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_hw_version(char *p)
+{
+	char *szPtr;
+
+	snprintf(gszSynoHWVersion, 16, "%s", p);
+
+	szPtr = gszSynoHWVersion;
+	while ((*szPtr != ' ') && (*szPtr != '\t') && (*szPtr != '\0')) {
+		szPtr++;
+	}
+	*szPtr = 0;
+	strcat(gszSynoHWVersion, "-j");
+
+	printk("Synology Hardware Version: %s\n", gszSynoHWVersion);
+
+	return 1;
+}
+__setup("syno_hw_version=", early_hw_version);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_internal_hd_num(char *p)
+{
+	g_internal_hd_num = simple_strtol(p, NULL, 10);
+
+	printk("Internal HD num: %d\n", (int)g_internal_hd_num);
+
+	return 1;
+}
+__setup("ihd_num=", early_internal_hd_num);
+#endif
+
+#ifdef  MY_ABC_HERE
+static int __init early_internal_netif_num(char *p)
+{
+	g_internal_netif_num = simple_strtol(p, NULL, 10);
+
+	if ( g_internal_netif_num >= 0 ) {
+		printk("Internal netif num: %d\n", (int)g_internal_netif_num);
+	}
+
+	return 1;
+}
+__setup("netif_num=", early_internal_netif_num);
+
+static int __init early_egiga(char *p)
+{
+	g_egiga = simple_strtol(p, NULL, 10);
+
+	if ( g_egiga == 0 ) {
+		printk("egiga port is disabled\n");
+	}
+
+	return 1;
+}
+__setup("egiga=", early_egiga);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_hdd_hotplug(char *p)
+{
+	g_hdd_hotplug = simple_strtol(p, NULL, 10);
+
+	if ( g_hdd_hotplug > 0 ) {
+		printk("Support HDD Hotplug.\n");
+	}
+
+	return 1;
+}
+__setup("HddHotplug=", early_hdd_hotplug);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_mac1(char *p)
+{
+	snprintf(grgbLanMac[0], sizeof(grgbLanMac[0]), "%s", p);
+
+	printk("Mac1: %s\n", grgbLanMac[0]);
+
+	return 1;
+}
+__setup("mac1=", early_mac1);
+
+static int __init early_mac2(char *p)
+{
+	snprintf(grgbLanMac[1], sizeof(grgbLanMac[1]), "%s", p);
+
+	printk("Mac2: %s\n", grgbLanMac[1]);
+
+	return 1;
+}
+__setup("mac2=", early_mac2);
+
+static int __init early_mac3(char *p)
+{
+	snprintf(grgbLanMac[2], sizeof(grgbLanMac[2]), "%s", p);
+
+	printk("Mac3: %s\n", grgbLanMac[2]);
+
+	return 1;
+}
+__setup("mac3=", early_mac3);
+
+static int __init early_mac4(char *p)
+{
+	snprintf(grgbLanMac[3], sizeof(grgbLanMac[3]), "%s", p);
+
+	printk("Mac4: %s\n", grgbLanMac[3]);
+
+	return 1;
+}
+__setup("mac4=", early_mac4);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_netif_seq(char *p)
+{
+	int len;
+	int netDevCount;
+
+	if ((NULL == p) || (0 == (len = strlen(p)))) {
+		return 1;
+	}
+
+	if (len <= SYNO_MAX_SWITCHABLE_NET_DEVICE) {
+		netDevCount = len;
+		for(gSwitchDev = 0 ; gSwitchDev < netDevCount && gSwitchDev < SYNO_MAX_SWITCHABLE_NET_DEVICE ; gSwitchDev++) {
+			gDevPCIName[gSwitchDev][0] = *p++;
+		}
+		return 1;
+	}
+
+	netDevCount = len/SYNO_NET_DEVICE_ENCODING_LENGTH;
+	if (0 == netDevCount) {
+		return 1;
+	}
+
+	for(gSwitchDev = 0 ; gSwitchDev < netDevCount && gSwitchDev < SYNO_MAX_SWITCHABLE_NET_DEVICE ; gSwitchDev++) {
+		 
+		memcpy(gDevPCIName[gSwitchDev], p, SYNO_NET_DEVICE_ENCODING_LENGTH);
+		p += SYNO_NET_DEVICE_ENCODING_LENGTH;
+	}
+	return 1;
+}
+
+__setup("netif_seq=",early_netif_seq);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_sn(char *p)
+{
+        snprintf(gszSerialNum, sizeof(gszSerialNum), "%s", p);
+        printk("Serial Number: %s\n", gszSerialNum);
+        return 1;
+}
+__setup("sn=", early_sn);
+
+static int __init early_custom_sn(char *p)
+{
+        snprintf(gszCustomSerialNum, sizeof(gszCustomSerialNum), "%s", p);
+        printk("Custom Serial Number: %s\n", gszCustomSerialNum);
+        return 1;
+}
+__setup("custom_sn=", early_custom_sn);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_esata_7042(char *p)
+{
+	g_esata_7042 = simple_strtol(p, NULL, 10);
+
+	printk("Esata chip use 7042: %d\n", (int)g_esata_7042);
+
+	return 1;
+}
+__setup("esata_7042=", early_esata_7042);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_disk_idx_map(char *p)
+{
+	snprintf(gszDiskIdxMap, sizeof(gszDiskIdxMap), "%s", p);
+
+	if('\0' != gszDiskIdxMap[0]) {
+		printk("Disk Index Map: %s\n", gszDiskIdxMap);
+	}
+
+	return 1;
+}
+__setup("DiskIdxMap=", early_disk_idx_map);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_disk_seq_reserve(char *p)
+{
+	snprintf(giDiskSeqReverse, sizeof(giDiskSeqReverse), "%s", p);
+
+	if('\0' != giDiskSeqReverse[0]) {
+		printk("Disk Sequence Reverse: %s\n", giDiskSeqReverse);
+	}
+
+	return 1;
+}
+__setup("DiskSeqReverse=", early_disk_seq_reserve);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_is_dyn_module(char *p)
+{
+	int iLen = 0;
+
+	gSynoHasDynModule = 0;
+	
+	if ((NULL == p) || (0 == (iLen = strlen(p)))) {
+		goto END;
+	}
+
+	if ( 0 == strcmp (p, "y")) {
+		gSynoHasDynModule = 1;
+		printk("Synology Dynamic Module support.\n");
+	}
+
+END:
+	return 1;
+}
+__setup("syno_dyn_module=", early_is_dyn_module);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_flash_memory_size(char *p)
+{
+	int iLen = 0;
+
+	if ((NULL == p) || (0 == (iLen = strlen(p)))) {
+		gSynoFlashMemorySize = 4;
+	} else {
+		gSynoFlashMemorySize = simple_strtol(p, NULL, 10);
+	}
+
+	printk("Flash Memory Size: %d MB\n", (int)gSynoFlashMemorySize);
+
+	return 1;
+}
+__setup("flash_size=", early_flash_memory_size);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_factory_usb_fast_reset(char *p)
+{
+	gSynoFactoryUSBFastReset = simple_strtol(p, NULL, 10);
+
+	printk("Factory USB Fast Reset: %d\n", (int)gSynoFactoryUSBFastReset);
+
+	return 1;
+}
+__setup("syno_usb_fast_reset=", early_factory_usb_fast_reset);
+#endif
+
+#ifdef MY_ABC_HERE
+static int __init early_factory_usb3_disable(char *p)
+{
+	gSynoFactoryUSB3Disable = simple_strtol(p, NULL, 10);
+
+	printk("Factory USB3 Disable: %d\n", (int)gSynoFactoryUSB3Disable);
+
+	return 1;
+}
+__setup("syno_disable_usb3=", early_factory_usb3_disable);
 #endif
 
 extern void paging_init(struct machine_desc *desc);
@@ -87,7 +411,6 @@ EXPORT_SYMBOL(system_serial_high);
 unsigned int elf_hwcap;
 EXPORT_SYMBOL(elf_hwcap);
 
-
 #ifdef MULTI_CPU
 struct processor processor;
 #endif
@@ -108,6 +431,11 @@ struct stack {
 	u32 irq[3];
 	u32 abt[3];
 	u32 und[3];
+#ifdef CONFIG_SYNO_PLX_PORTING
+#if defined(CONFIG_ARCH_OX820) && defined(CONFIG_SMP)
+	u32 fiq[128];
+#endif
+#endif
 } ____cacheline_aligned;
 
 static struct stack stacks[NR_CPUS];
@@ -125,9 +453,6 @@ static union { char c[4]; unsigned long l; } endian_test __initdata = { { 'l', '
 
 DEFINE_PER_CPU(struct cpuinfo_arm, cpu_data);
 
-/*
- * Standard memory resources
- */
 static struct resource mem_res[] = {
 	{
 		.name = "Video RAM",
@@ -213,8 +538,6 @@ int cpu_architecture(void)
 	} else if ((read_cpuid_id() & 0x000f0000) == 0x000f0000) {
 		unsigned int mmfr0;
 
-		/* Revised CPUID format. Read the Memory Model Feature
-		 * Register 0 and check for VMSAv7 or PMSAv7 */
 		asm("mrc	p15, 0, %0, c0, c1, 4"
 		    : "=r" (mmfr0));
 		if ((mmfr0 & 0x0000000f) == 0x00000003 ||
@@ -238,7 +561,7 @@ static void __init cacheid_init(void)
 
 	if (arch >= CPU_ARCH_ARMv6) {
 		if ((cachetype & (7 << 29)) == 4 << 29) {
-			/* ARMv7 register format */
+			 
 			cacheid = CACHEID_VIPT_NONALIASING;
 			if ((cachetype & (3 << 14)) == 1 << 14)
 				cacheid |= CACHEID_ASID_TAGGED;
@@ -260,10 +583,6 @@ static void __init cacheid_init(void)
 		cache_is_vipt_nonaliasing() ? "VIPT nonaliasing" : "unknown");
 }
 
-/*
- * These functions re-use the assembly code in head.S, which
- * already provide the required functionality.
- */
 extern struct proc_info_list *lookup_processor_type(unsigned int);
 extern struct machine_desc *lookup_machine_type(unsigned int);
 
@@ -271,11 +590,6 @@ static void __init setup_processor(void)
 {
 	struct proc_info_list *list;
 
-	/*
-	 * locate processor in the list of supported processor
-	 * types.  The linker builds this table for us from the
-	 * entries in arch/arm/mm/proc-*.S
-	 */
 	list = lookup_processor_type(read_cpuid_id());
 	if (!list) {
 		printk("CPU configuration botched (ID %08x), unable "
@@ -313,11 +627,6 @@ static void __init setup_processor(void)
 	cpu_proc_init();
 }
 
-/*
- * cpu_init - initialise one CPU.
- *
- * cpu_init sets up the per-CPU stacks.
- */
 void cpu_init(void)
 {
 	unsigned int cpu = smp_processor_id();
@@ -328,19 +637,14 @@ void cpu_init(void)
 		BUG();
 	}
 
-	/*
-	 * Define the placement constraint for the inline asm directive below.
-	 * In Thumb-2, msr with an immediate value is not allowed.
-	 */
 #ifdef CONFIG_THUMB2_KERNEL
 #define PLC	"r"
 #else
 #define PLC	"I"
 #endif
 
-	/*
-	 * setup stacks for re-entrant exception handlers
-	 */
+#ifdef CONFIG_SYNO_PLX_PORTING
+#if !defined(CONFIG_ARCH_OX820) || !defined(CONFIG_SMP)
 	__asm__ (
 	"msr	cpsr_c, %1\n\t"
 	"add	r14, %0, %2\n\t"
@@ -362,15 +666,60 @@ void cpu_init(void)
 	      "I" (offsetof(struct stack, und[0])),
 	      PLC (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
 	    : "r14");
+#else
+     
+	__asm__ (
+	"msr	cpsr_c, %1\n\t"
+	"add	sp, %0, %2\n\t"
+	"msr	cpsr_c, %3\n\t"
+	"add	sp, %0, %4\n\t"
+	"msr	cpsr_c, %5\n\t"
+	"add	sp, %0, %6\n\t"
+	"msr	cpsr_c, %7\n\t"
+	"add	sp, %0, %8\n\t"
+	"msr	cpsr_c, %9"
+	    :
+	    : "r" (stk),
+	      "I" (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
+	      "I" (offsetof(struct stack, irq[0])),
+	      "I" (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
+	      "I" (offsetof(struct stack, abt[0])),
+	      "I" (PSR_F_BIT | PSR_I_BIT | UND_MODE),
+	      "I" (offsetof(struct stack, und[0])),
+	      "I" (PSR_F_BIT | PSR_I_BIT | FIQ_MODE),
+	      "I" (offsetof(struct stack, fiq[120])),
+	      "I" (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
+	    : "r14");
+#endif
+#else
+	__asm__ (
+	"msr	cpsr_c, %1\n\t"
+	"add	r14, %0, %2\n\t"
+	"mov	sp, r14\n\t"
+	"msr	cpsr_c, %3\n\t"
+	"add	r14, %0, %4\n\t"
+	"mov	sp, r14\n\t"
+	"msr	cpsr_c, %5\n\t"
+	"add	r14, %0, %6\n\t"
+	"mov	sp, r14\n\t"
+	"msr	cpsr_c, %7"
+	    :
+	    : "r" (stk),
+	      PLC (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
+	      "I" (offsetof(struct stack, irq[0])),
+	      PLC (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
+	      "I" (offsetof(struct stack, abt[0])),
+	      PLC (PSR_F_BIT | PSR_I_BIT | UND_MODE),
+	      "I" (offsetof(struct stack, und[0])),
+	      PLC (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
+	    : "r14");
+#endif
 }
 
 static struct machine_desc * __init setup_machine(unsigned int nr)
 {
 	struct machine_desc *list;
 
-	/*
-	 * locate machine in the list of supported machines.
-	 */
 	list = lookup_machine_type(nr);
 	if (!list) {
 		printk("Machine configuration botched (nr %d), unable "
@@ -393,19 +742,14 @@ static int __init arm_add_memory(unsigned long start, unsigned long size)
 		return -EINVAL;
 	}
 
-	/*
-	 * Ensure that start/size are aligned to a page boundary.
-	 * Size is appropriately rounded down, start is rounded up.
-	 */
+#ifdef CONFIG_ARCH_FEROCEON
+       if(size != 0)  
+#endif
 	size -= start & ~PAGE_MASK;
 	bank->start = PAGE_ALIGN(start);
 	bank->size  = size & PAGE_MASK;
 	bank->node  = PHYS_TO_NID(start);
 
-	/*
-	 * Check whether this memory region has non-zero size or
-	 * invalid node number.
-	 */
 	if (bank->size == 0 || bank->node >= MAX_NUMNODES)
 		return -EINVAL;
 
@@ -413,20 +757,11 @@ static int __init arm_add_memory(unsigned long start, unsigned long size)
 	return 0;
 }
 
-/*
- * Pick out the memory size.  We look for mem=size@start,
- * where start and size are "size[KkMm]"
- */
 static void __init early_mem(char **p)
 {
 	static int usermem __initdata = 0;
 	unsigned long size, start;
 
-	/*
-	 * If the user specifies memory size, we
-	 * blow away any automatically generated
-	 * size.
-	 */
 	if (usermem == 0) {
 		usermem = 1;
 		meminfo.nr_banks = 0;
@@ -441,9 +776,6 @@ static void __init early_mem(char **p)
 }
 __early_param("mem=", early_mem);
 
-/*
- * Initial parsing of the command line.
- */
 static void __init parse_cmdline(char **cmdline_p, char *from)
 {
 	char c = ' ', *to = command_line;
@@ -532,10 +864,6 @@ request_standard_resources(struct meminfo *mi, struct machine_desc *mdesc)
 		request_resource(&iomem_resource, &video_ram);
 	}
 
-	/*
-	 * Some machines don't have the possibility of ever
-	 * possessing lp0, lp1 or lp2
-	 */
 	if (mdesc->reserve_lp0)
 		request_resource(&ioport_resource, &lp0);
 	if (mdesc->reserve_lp1)
@@ -544,16 +872,6 @@ request_standard_resources(struct meminfo *mi, struct machine_desc *mdesc)
 		request_resource(&ioport_resource, &lp2);
 }
 
-/*
- *  Tag parsing.
- *
- * This is the new way of passing data to the kernel at boot time.  Rather
- * than passing a fixed inflexible structure to the kernel, we pass a list
- * of variable-sized tags to the kernel.  The first tag must be a ATAG_CORE
- * tag for the list to be recognised (to distinguish the tagged list from
- * a param_struct).  The list is terminated with a zero-length tag (this tag
- * is not parsed in any way).
- */
 static int __init parse_tag_core(const struct tag *tag)
 {
 	if (tag->hdr.size > 2) {
@@ -635,11 +953,6 @@ static int __init parse_tag_cmdline(const struct tag *tag)
 
 __tagtable(ATAG_CMDLINE, parse_tag_cmdline);
 
-/*
- * Scan the tag table for this tag, and call its parse function.
- * The tag table is built by the linker from all the __tagtable
- * declarations.
- */
 static int __init parse_tag(const struct tag *tag)
 {
 	extern struct tagtable __tagtable_begin, __tagtable_end;
@@ -654,10 +967,6 @@ static int __init parse_tag(const struct tag *tag)
 	return t < &__tagtable_end;
 }
 
-/*
- * Parse all tags in the list, checking both the global and architecture
- * specific tag tables.
- */
 static void __init parse_tags(const struct tag *t)
 {
 	for (; t->hdr.size; t = tag_next(t))
@@ -667,9 +976,6 @@ static void __init parse_tags(const struct tag *t)
 				t->hdr.tag);
 }
 
-/*
- * This holds our defaults.
- */
 static struct init_tags {
 	struct tag_header hdr1;
 	struct tag_core   core;
@@ -688,7 +994,7 @@ static void (*init_machine)(void) __initdata;
 
 static int __init customize_machine(void)
 {
-	/* customizes platform devices, or adds new ones */
+	 
 	if (init_machine)
 		init_machine();
 	return 0;
@@ -715,10 +1021,6 @@ void __init setup_arch(char **cmdline_p)
 	else if (mdesc->boot_params)
 		tags = phys_to_virt(mdesc->boot_params);
 
-	/*
-	 * If we have the old style parameters, convert them to
-	 * a tag list.
-	 */
 	if (tags->hdr.tag != ATAG_CORE)
 		convert_to_tag_list(tags);
 	if (tags->hdr.tag != ATAG_CORE)
@@ -743,6 +1045,12 @@ void __init setup_arch(char **cmdline_p)
 	boot_command_line[COMMAND_LINE_SIZE-1] = '\0';
 	parse_cmdline(cmdline_p, from);
 	paging_init(mdesc);
+#ifdef CONFIG_DEBUG_LL
+	{
+		extern int ll_debug;
+		ll_debug=1;
+	}
+#endif
 	request_standard_resources(&meminfo, mdesc);
 
 #ifdef CONFIG_SMP
@@ -752,9 +1060,6 @@ void __init setup_arch(char **cmdline_p)
 	cpu_init();
 	tcm_init();
 
-	/*
-	 * Set up various architecture-specific pointers
-	 */
 	init_arch_irq = mdesc->init_irq;
 	system_timer = mdesc->timer;
 	init_machine = mdesc->init_machine;
@@ -768,7 +1073,6 @@ void __init setup_arch(char **cmdline_p)
 #endif
 	early_trap_init();
 }
-
 
 static int __init topology_init(void)
 {
@@ -813,23 +1117,18 @@ static int c_show(struct seq_file *m, void *v)
 
 #if defined(CONFIG_SMP)
 	for_each_online_cpu(i) {
-		/*
-		 * glibc reads /proc/cpuinfo to determine the number of
-		 * online processors, looking for lines beginning with
-		 * "processor".  Give glibc what it expects.
-		 */
+		 
 		seq_printf(m, "processor\t: %d\n", i);
 		seq_printf(m, "BogoMIPS\t: %lu.%02lu\n\n",
 			   per_cpu(cpu_data, i).loops_per_jiffy / (500000UL/HZ),
 			   (per_cpu(cpu_data, i).loops_per_jiffy / (5000UL/HZ)) % 100);
 	}
-#else /* CONFIG_SMP */
+#else  
 	seq_printf(m, "BogoMIPS\t: %lu.%02lu\n",
 		   loops_per_jiffy / (500000/HZ),
 		   (loops_per_jiffy / (5000/HZ)) % 100);
 #endif
 
-	/* dump out the processor features */
 	seq_puts(m, "Features\t: ");
 
 	for (i = 0; hwcap_str[i]; i++)
@@ -840,15 +1139,15 @@ static int c_show(struct seq_file *m, void *v)
 	seq_printf(m, "CPU architecture: %s\n", proc_arch[cpu_architecture()]);
 
 	if ((read_cpuid_id() & 0x0008f000) == 0x00000000) {
-		/* pre-ARM7 */
+		 
 		seq_printf(m, "CPU part\t: %07x\n", read_cpuid_id() >> 4);
 	} else {
 		if ((read_cpuid_id() & 0x0008f000) == 0x00007000) {
-			/* ARM7 */
+			 
 			seq_printf(m, "CPU variant\t: 0x%02x\n",
 				   (read_cpuid_id() >> 16) & 127);
 		} else {
-			/* post-ARM7 */
+			 
 			seq_printf(m, "CPU variant\t: 0x%x\n",
 				   (read_cpuid_id() >> 20) & 15);
 		}

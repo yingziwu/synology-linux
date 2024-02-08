@@ -30,6 +30,13 @@ config FS_MBCACHE
 source "fs/reiserfs/Kconfig"
 source "fs/jfs/Kconfig"
 
+config FS_SYNO_ACL
+# Synology ACL utility routines (for now, only ext4)
+# ACL depends on SYNO_ARCHIVE_BIT
+	bool
+	default y
+
+
 config FS_POSIX_ACL
 # Posix ACL utility routines (for now, only ext2/ext3/jfs/reiserfs/nfs4)
 #
@@ -54,6 +61,28 @@ config FILE_LOCKING
 	  This option enables standard file locking support, required
           for filesystems like NFS and for the flock() system
           call. Disabling this option saves about 11k.
+
+config OPTIMIZE_SD_PERFORMANCE
+	bool "Improve SD/MMC storage performance"
+	depends on EXT2_FS || EXT4_FS
+	default n
+	help
+	  This option allows you to improve I/O storage performance, optimized
+	  writeback, required filesystems like ext2 and ext4 call. Other
+	  filesystems are not validated.
+
+config DELAY_ASYNC_READAHEAD
+	bool "Enable delay async splice readahead"
+	default n
+	help
+	  This option enables delay async readahead in sendfile that impoves
+	  sendfile performance for large file.
+
+config SEND_PAGES
+	bool "Enable sendpages"
+	default n
+	help
+	  This option enables sendpages mode for sendfile.
 
 source "fs/notify/Kconfig"
 
@@ -188,6 +217,9 @@ source "fs/romfs/Kconfig"
 source "fs/sysv/Kconfig"
 source "fs/ufs/Kconfig"
 source "fs/exofs/Kconfig"
+# SYNO
+source "fs/aufs/Kconfig"
+# SYNO
 
 endif # MISC_FILESYSTEMS
 

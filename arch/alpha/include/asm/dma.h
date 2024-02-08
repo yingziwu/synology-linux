@@ -8,7 +8,7 @@
  * as this will also enable DMA across 64 KB boundaries.
  */
 
-/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
+/* $Id: dma.h,v 1.1 2010-04-15 12:28:08 khchen Exp $
  * linux/include/asm/dma.h: Defines for using and allocating dma channels.
  * Written by Hennus Bergman, 1992.
  * High DMA channel support & info by Hannu Savolainen
@@ -297,7 +297,6 @@ static __inline__ void set_dma_page(unsigned int dmanr, unsigned int pagenr)
 	}
 }
 
-
 /* Set transfer address & page bits for specific DMA channel.
  * Assumes dma flipflop is clear.
  */
@@ -312,7 +311,6 @@ static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
 	}
 	set_dma_page(dmanr, a>>16);	/* set hipage last to enable 32-bit mode */
 }
-
 
 /* Set transfer size (max 64k for DMA1..3, 128k for DMA5..7) for
  * a specific DMA channel.
@@ -333,7 +331,6 @@ static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
 	    dma_outb( (count>>9) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA2_BASE );
         }
 }
-
 
 /* Get DMA residue count. After a DMA transfer, this
  * should return zero. Reading this while a DMA transfer is
@@ -357,7 +354,6 @@ static __inline__ int get_dma_residue(unsigned int dmanr)
 	return (dmanr<=3)? count : (count<<1);
 }
 
-
 /* These are in kernel/dma.c: */
 extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
 extern void free_dma(unsigned int dmanr);	/* release it again */
@@ -371,6 +367,5 @@ extern int isa_dma_bridge_buggy;
 #else
 #define isa_dma_bridge_buggy 	(0)
 #endif
-
 
 #endif /* _ASM_DMA_H */

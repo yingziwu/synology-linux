@@ -83,6 +83,7 @@ static inline void ipv4_devconf_setall(struct in_device *in_dev)
 #define IN_DEV_FORWARD(in_dev)		IN_DEV_CONF_GET((in_dev), FORWARDING)
 #define IN_DEV_MFORWARD(in_dev)		IN_DEV_ANDCONF((in_dev), MC_FORWARDING)
 #define IN_DEV_RPFILTER(in_dev)		IN_DEV_MAXCONF((in_dev), RP_FILTER)
+#define IN_DEV_SRC_VMARK(in_dev)    	IN_DEV_ORCONF((in_dev), SRC_VMARK)
 #define IN_DEV_SOURCE_ROUTE(in_dev)	IN_DEV_ANDCONF((in_dev), \
 						       ACCEPT_SOURCE_ROUTE)
 #define IN_DEV_BOOTP_RELAY(in_dev)	IN_DEV_ANDCONF((in_dev), BOOTP_RELAY)
@@ -163,7 +164,6 @@ static __inline__ int bad_mask(__be32 mask, __be32 addr)
 #define for_ifa(in_dev)	{ struct in_ifaddr *ifa; \
   for (ifa = (in_dev)->ifa_list; ifa; ifa = ifa->ifa_next)
 
-
 #define endfor_ifa(in_dev) }
 
 static inline struct in_device *__in_dev_get_rcu(const struct net_device *dev)
@@ -220,6 +220,5 @@ static __inline__ int inet_mask_len(__be32 mask)
 		return 0;
 	return 32 - ffz(~hmask);
 }
-
 
 #endif /* _LINUX_INETDEVICE_H */

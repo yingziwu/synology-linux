@@ -232,7 +232,6 @@ static inline void __init MP_ioapic_info(struct mpc_ioapic *m) {}
 static inline void __init MP_intsrc_info(struct mpc_intsrc *m) {}
 #endif /* CONFIG_X86_IO_APIC */
 
-
 static void __init MP_lintsrc_info(struct mpc_lintsrc *m)
 {
 	apic_printk(APIC_VERBOSE, "Lint: type %d, pol %d, trig %d, bus %02x,"
@@ -359,13 +358,6 @@ static int __init smp_read_mpc(struct mpc_table *mpc, unsigned early)
 		x86_init.mpparse.mpc_record(1);
 	}
 
-#ifdef CONFIG_X86_BIGSMP
-	generic_bigsmp_probe();
-#endif
-
-	if (apic->setup_apic_routing)
-		apic->setup_apic_routing();
-
 	if (!num_processors)
 		printk(KERN_ERR "MPTABLE: no processors registered!\n");
 	return num_processors;
@@ -450,7 +442,6 @@ static void __init construct_default_ioirq_mptable(int mpc_default_type)
 	intsrc.dstirq = 0;	/* 8259A to INTIN0 */
 	MP_intsrc_info(&intsrc);
 }
-
 
 static void __init construct_ioapic_table(int mpc_default_type)
 {

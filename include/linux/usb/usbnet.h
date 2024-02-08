@@ -55,6 +55,7 @@ struct usbnet {
 	struct sk_buff_head	done;
 	struct sk_buff_head	rxq_pause;
 	struct urb		*interrupt;
+	struct usb_anchor	deferred;
 	struct tasklet_struct	bh;
 
 	struct work_struct	kevent;
@@ -65,6 +66,8 @@ struct usbnet {
 #		define EVENT_STS_SPLIT	3
 #		define EVENT_LINK_RESET	4
 #		define EVENT_RX_PAUSED	5
+#		define EVENT_DEV_WAKING 6
+#		define EVENT_DEV_ASLEEP 7
 };
 
 static inline struct usb_driver *driver_of(struct usb_interface *intf)
@@ -90,7 +93,9 @@ struct driver_info {
 #define FLAG_WLAN	0x0080		/* use "wlan%d" names */
 #define FLAG_AVOID_UNLINK_URBS 0x0100	/* don't unlink urbs at usbnet_stop() */
 #define FLAG_SEND_ZLP	0x0200		/* hw requires ZLPs are sent */
+#define FLAG_WWAN	0x0400		/* use "wwan%d" names */
 
+#define FLAG_LINK_INTR	0x0800		/* updates link (carrier) status */
 
 	/* init device ... can sleep, or cause probe() failure */
 	int	(*bind)(struct usbnet *, struct usb_interface *);
@@ -106,6 +111,9 @@ struct driver_info {
 
 	/* see if peer is connected ... can sleep */
 	int	(*check_connect)(struct usbnet *);
+
+	/* (dis)activate runtime power management */
+	int	(*manage_power)(struct usbnet *, int);
 
 	/* for status polling */
 	void	(*status)(struct usbnet *, struct urb *);
@@ -144,7 +152,6 @@ extern int usbnet_suspend (struct usb_interface *, pm_message_t );
 extern int usbnet_resume (struct usb_interface *);
 extern void usbnet_disconnect(struct usb_interface *);
 
-
 /* Drivers that reuse some of the standard USB CDC infrastructure
  * (notably, using multiple interfaces according to the CDC
  * union descriptor) get some helper code.
@@ -165,7 +172,6 @@ extern void usbnet_cdc_unbind (struct usbnet *, struct usb_interface *);
 			|USB_CDC_PACKET_TYPE_ALL_MULTICAST \
 			|USB_CDC_PACKET_TYPE_PROMISCUOUS \
 			|USB_CDC_PACKET_TYPE_DIRECTED)
-
 
 /* we record the state for each of our queued skbs */
 enum skb_state {
@@ -225,6 +231,5 @@ extern int usbnet_nway_reset(struct net_device *net);
 
 #define devinfo(usbnet, fmt, arg...) \
 	printk(KERN_INFO "%s: " fmt "\n" , (usbnet)->net->name , ## arg); \
-
 
 #endif /* __LINUX_USB_USBNET_H */

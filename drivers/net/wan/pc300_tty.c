@@ -11,6 +11,9 @@
  *  2 of the License, or (at your option) any later version.
  *   
  *  $Log: pc300_tty.c,v $
+ *  Revision 1.1  2010-04-15 12:27:54  khchen
+ *  Initial revision
+ *
  *  Revision 3.7  2002/03/07 14:17:09  henrique
  *  License data fixed
  *
@@ -178,7 +181,6 @@ static void cpc_tty_signal_on(pc300dev_t *pc300dev, unsigned char signal)
 	CPC_TTY_UNLOCK(card,flags); 
 }
 
-
 static const struct tty_operations pc300_ops = {
 	.open = cpc_tty_open,
 	.close = cpc_tty_close,
@@ -190,7 +192,6 @@ static const struct tty_operations pc300_ops = {
 	.flush_buffer = cpc_tty_flush_buffer,
 	.hangup = cpc_tty_hangup,
 };
-
 
 /*
  * PC300 TTY initialization routine

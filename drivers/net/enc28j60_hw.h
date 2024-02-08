@@ -1,7 +1,7 @@
 /*
  * enc28j60_hw.h: EDTP FrameThrower style enc28j60 registers
  *
- * $Id: enc28j60_hw.h,v 1.9 2007/12/14 11:59:16 claudio Exp $
+ * $Id: enc28j60_hw.h,v 1.1 2010-04-15 12:27:53 khchen Exp $
  */
 
 #ifndef _ENC28J60_HW_H
@@ -278,7 +278,6 @@
 #define RSV_BITMASK(x)		(1 << ((x) - 16))
 #define RSV_GETBIT(x, y)	(((x) & RSV_BITMASK(y)) ? 1 : 0)
 
-
 /* SPI operation codes */
 #define ENC28J60_READ_CTRL_REG	0x00
 #define ENC28J60_READ_BUF_MEM	0x3A
@@ -287,7 +286,6 @@
 #define ENC28J60_BIT_FIELD_SET	0x80
 #define ENC28J60_BIT_FIELD_CLR	0xA0
 #define ENC28J60_SOFT_RESET	0xFF
-
 
 /* buffer boundaries applied to internal 8K ram
  * entire available packet buffer space is allocated.

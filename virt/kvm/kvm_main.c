@@ -1021,7 +1021,6 @@ static void kvm_free_physmem_slot(struct kvm_memory_slot *free,
 	if (!dont || free->dirty_bitmap != dont->dirty_bitmap)
 		vfree(free->dirty_bitmap);
 
-
 	for (i = 0; i < KVM_NR_PAGE_SIZES - 1; ++i) {
 		if (!dont || free->lpage_info[i] != dont->lpage_info[i]) {
 			vfree(free->lpage_info[i]);
@@ -1078,7 +1077,6 @@ void kvm_put_kvm(struct kvm *kvm)
 		kvm_destroy_vm(kvm);
 }
 EXPORT_SYMBOL_GPL(kvm_put_kvm);
-
 
 static int kvm_vm_release(struct inode *inode, struct file *filp)
 {
@@ -1226,7 +1224,7 @@ skip_lpage:
 
 	/* Allocate page dirty bitmap if needed */
 	if ((new.flags & KVM_MEM_LOG_DIRTY_PAGES) && !new.dirty_bitmap) {
-		unsigned dirty_bytes = ALIGN(npages, BITS_PER_LONG) / 8;
+		unsigned long dirty_bytes = kvm_dirty_bitmap_bytes(&new);
 
 		new.dirty_bitmap = vmalloc(dirty_bytes);
 		if (!new.dirty_bitmap)
@@ -1309,7 +1307,7 @@ int kvm_get_dirty_log(struct kvm *kvm,
 {
 	struct kvm_memory_slot *memslot;
 	int r, i;
-	int n;
+	unsigned long n;
 	unsigned long any = 0;
 
 	r = -EINVAL;
@@ -1321,7 +1319,7 @@ int kvm_get_dirty_log(struct kvm *kvm,
 	if (!memslot->dirty_bitmap)
 		goto out;
 
-	n = ALIGN(memslot->npages, BITS_PER_LONG) / 8;
+	n = kvm_dirty_bitmap_bytes(memslot);
 
 	for (i = 0; !any && i < n/sizeof(long); ++i)
 		any = memslot->dirty_bitmap[i];
@@ -1663,10 +1661,13 @@ void mark_page_dirty(struct kvm *kvm, gfn_t gfn)
 	memslot = gfn_to_memslot_unaliased(kvm, gfn);
 	if (memslot && memslot->dirty_bitmap) {
 		unsigned long rel_gfn = gfn - memslot->base_gfn;
+		unsigned long *p = memslot->dirty_bitmap +
+					rel_gfn / BITS_PER_LONG;
+		int offset = rel_gfn % BITS_PER_LONG;
 
 		/* avoid RMW */
-		if (!test_bit(rel_gfn, memslot->dirty_bitmap))
-			set_bit(rel_gfn, memslot->dirty_bitmap);
+		if (!test_bit(offset, p))
+			set_bit(offset, p);
 	}
 }
 
@@ -2484,7 +2485,6 @@ static int kvm_cpu_hotplug(struct notifier_block *notifier, unsigned long val,
 	}
 	return NOTIFY_OK;
 }
-
 
 asmlinkage void kvm_handle_fault_on_reboot(void)
 {

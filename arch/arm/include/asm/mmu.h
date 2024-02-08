@@ -6,6 +6,9 @@
 typedef struct {
 #ifdef CONFIG_CPU_HAS_ASID
 	unsigned int id;
+#ifdef CONFIG_SYNO_PLX_PORTING
+	spinlock_t id_lock;
+#endif
 #endif
 	unsigned int kvm_seq;
 } mm_context_t;
@@ -18,11 +21,6 @@ typedef struct {
 
 #else
 
-/*
- * From nommu.h:
- *  Copyright (C) 2002, David McCullough <davidm@snapgear.com>
- *  modified for 2.6 by Hyok S. Choi <hyok.choi@samsung.com>
- */
 typedef struct {
 	unsigned long		end_brk;
 } mm_context_t;

@@ -299,7 +299,6 @@ static int mcs7830_set_autoneg(struct usbnet *dev, int ptrUserPhyMode)
 	return ret < 0 ? : 0;
 }
 
-
 /*
  * if we can read register 22, the chip revision is C or higher
  */
@@ -587,6 +586,7 @@ static struct usb_driver mcs7830_driver = {
 	.disconnect = usbnet_disconnect,
 	.suspend = usbnet_suspend,
 	.resume = usbnet_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init mcs7830_init(void)

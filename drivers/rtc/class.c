@@ -18,7 +18,6 @@
 
 #include "rtc-core.h"
 
-
 static DEFINE_IDR(rtc_idr);
 static DEFINE_MUTEX(idr_lock);
 struct class *rtc_class;
@@ -100,7 +99,6 @@ static int rtc_resume(struct device *dev)
 #define rtc_resume	NULL
 #endif
 
-
 /**
  * rtc_device_register - register w/ RTC class
  * @dev: the device to register
@@ -121,7 +119,6 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
 		err = -ENOMEM;
 		goto exit;
 	}
-
 
 	mutex_lock(&idr_lock);
 	err = idr_get_new(&rtc_idr, NULL, &id);
@@ -184,7 +181,6 @@ exit:
 }
 EXPORT_SYMBOL_GPL(rtc_device_register);
 
-
 /**
  * rtc_device_unregister - removes the previously registered RTC class device
  *
@@ -226,6 +222,7 @@ static void __exit rtc_exit(void)
 {
 	rtc_dev_exit();
 	class_destroy(rtc_class);
+	idr_destroy(&rtc_idr);
 }
 
 subsys_initcall(rtc_init);

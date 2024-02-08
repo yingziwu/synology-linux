@@ -1,6 +1,7 @@
-/*
- * Supplementary group IDs
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/cred.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -8,7 +9,6 @@
 #include <linux/syscalls.h>
 #include <asm/uaccess.h>
 
-/* init to 2 - one for init_task, one to ensure it is never freed */
 struct group_info init_groups = { .usage = ATOMIC_INIT(2) };
 
 struct group_info *groups_alloc(int gidsetsize)
@@ -18,7 +18,7 @@ struct group_info *groups_alloc(int gidsetsize)
 	int i;
 
 	nblocks = (gidsetsize + NGROUPS_PER_BLOCK - 1) / NGROUPS_PER_BLOCK;
-	/* Make sure we always allocate at least one indirect block pointer */
+	 
 	nblocks = nblocks ? : 1;
 	group_info = kmalloc(sizeof(*group_info) + nblocks*sizeof(gid_t *), GFP_USER);
 	if (!group_info)
@@ -62,7 +62,6 @@ void groups_free(struct group_info *group_info)
 
 EXPORT_SYMBOL(groups_free);
 
-/* export the group_info to a user-space array */
 static int groups_to_user(gid_t __user *grouplist,
 			  const struct group_info *group_info)
 {
@@ -82,7 +81,6 @@ static int groups_to_user(gid_t __user *grouplist,
 	return 0;
 }
 
-/* fill a group_info from a user-space array - it must be allocated already */
 static int groups_from_user(struct group_info *group_info,
     gid_t __user *grouplist)
 {
@@ -102,14 +100,13 @@ static int groups_from_user(struct group_info *group_info,
 	return 0;
 }
 
-/* a simple Shell sort */
 static void groups_sort(struct group_info *group_info)
 {
 	int base, max, stride;
 	int gidsetsize = group_info->ngroups;
 
 	for (stride = 1; stride < gidsetsize; stride = 3 * stride + 1)
-		; /* nothing */
+		;  
 	stride /= 3;
 
 	while (stride) {
@@ -131,7 +128,6 @@ static void groups_sort(struct group_info *group_info)
 	}
 }
 
-/* a simple bsearch */
 int groups_search(const struct group_info *group_info, gid_t grp)
 {
 	unsigned int left, right;
@@ -143,6 +139,16 @@ int groups_search(const struct group_info *group_info, gid_t grp)
 	right = group_info->ngroups;
 	while (left < right) {
 		unsigned int mid = (left+right)/2;
+#ifdef MY_ABC_HERE
+		gid_t grg_tmp = GROUP_AT(group_info, mid);
+		if (grp > grg_tmp) {
+			left = mid + 1;
+		} else if (grp < grg_tmp) {
+			right = mid;
+		} else {
+			return 1;
+		}
+#else
 		int cmp = grp - GROUP_AT(group_info, mid);
 		if (cmp > 0)
 			left = mid + 1;
@@ -150,18 +156,11 @@ int groups_search(const struct group_info *group_info, gid_t grp)
 			right = mid;
 		else
 			return 1;
+#endif
 	}
 	return 0;
 }
 
-/**
- * set_groups - Change a group subscription in a set of credentials
- * @new: The newly prepared set of credentials to alter
- * @group_info: The group list to install
- *
- * Validate a group subscription and, if valid, insert it into a set
- * of credentials.
- */
 int set_groups(struct cred *new, struct group_info *group_info)
 {
 	int retval;
@@ -179,13 +178,6 @@ int set_groups(struct cred *new, struct group_info *group_info)
 
 EXPORT_SYMBOL(set_groups);
 
-/**
- * set_current_groups - Change current's group subscription
- * @group_info: The group list to impose
- *
- * Validate a group subscription and, if valid, impose it upon current's task
- * security record.
- */
 int set_current_groups(struct group_info *group_info)
 {
 	struct cred *new;
@@ -214,7 +206,6 @@ SYSCALL_DEFINE2(getgroups, int, gidsetsize, gid_t __user *, grouplist)
 	if (gidsetsize < 0)
 		return -EINVAL;
 
-	/* no need to grab task_lock here; it cannot change */
 	i = cred->group_info->ngroups;
 	if (gidsetsize) {
 		if (i > gidsetsize) {
@@ -229,11 +220,6 @@ SYSCALL_DEFINE2(getgroups, int, gidsetsize, gid_t __user *, grouplist)
 out:
 	return i;
 }
-
-/*
- *	SMP: Our groups are copy-on-write. We can set them safely
- *	without another task interfering.
- */
 
 SYSCALL_DEFINE2(setgroups, int, gidsetsize, gid_t __user *, grouplist)
 {
@@ -260,9 +246,6 @@ SYSCALL_DEFINE2(setgroups, int, gidsetsize, gid_t __user *, grouplist)
 	return retval;
 }
 
-/*
- * Check whether we're fsgid/egid or in the supplemental group..
- */
 int in_group_p(gid_t grp)
 {
 	const struct cred *cred = current_cred();

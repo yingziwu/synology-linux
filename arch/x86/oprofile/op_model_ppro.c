@@ -37,18 +37,13 @@ static void ppro_fill_in_addresses(struct op_msrs * const msrs)
 	for (i = 0; i < num_counters; i++) {
 		if (reserve_perfctr_nmi(MSR_P6_PERFCTR0 + i))
 			msrs->counters[i].addr = MSR_P6_PERFCTR0 + i;
-		else
-			msrs->counters[i].addr = 0;
 	}
 
 	for (i = 0; i < num_counters; i++) {
 		if (reserve_evntsel_nmi(MSR_P6_EVNTSEL0 + i))
 			msrs->controls[i].addr = MSR_P6_EVNTSEL0 + i;
-		else
-			msrs->controls[i].addr = 0;
 	}
 }
-
 
 static void ppro_setup_ctrs(struct op_x86_model_spec const *model,
 			    struct op_msrs const * const msrs)
@@ -57,7 +52,7 @@ static void ppro_setup_ctrs(struct op_x86_model_spec const *model,
 	int i;
 
 	if (!reset_value) {
-		reset_value = kmalloc(sizeof(reset_value[0]) * num_counters,
+		reset_value = kzalloc(sizeof(reset_value[0]) * num_counters,
 					GFP_ATOMIC);
 		if (!reset_value)
 			return;
@@ -111,7 +106,6 @@ static void ppro_setup_ctrs(struct op_x86_model_spec const *model,
 	}
 }
 
-
 static int ppro_check_ctrs(struct pt_regs * const regs,
 			   struct op_msrs const * const msrs)
 {
@@ -150,7 +144,6 @@ out:
 	return 1;
 }
 
-
 static void ppro_start(struct op_msrs const * const msrs)
 {
 	u64 val;
@@ -166,7 +159,6 @@ static void ppro_start(struct op_msrs const * const msrs)
 		}
 	}
 }
-
 
 static void ppro_stop(struct op_msrs const * const msrs)
 {
@@ -201,7 +193,6 @@ static void ppro_shutdown(struct op_msrs const * const msrs)
 		reset_value = NULL;
 	}
 }
-
 
 struct op_x86_model_spec op_ppro_spec = {
 	.num_counters		= 2,

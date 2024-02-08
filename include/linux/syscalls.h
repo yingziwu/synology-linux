@@ -1,13 +1,7 @@
-/*
- * syscalls.h - Linux syscall interfaces (non-arch-specific)
- *
- * Copyright (c) 2004 Randy Dunlap
- * Copyright (c) 2004 Open Source Development Labs
- *
- * This file is released under the GPLv2.
- * See the file COPYING for more details.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef _LINUX_SYSCALLS_H
 #define _LINUX_SYSCALLS_H
 
@@ -307,13 +301,13 @@ static void prof_sysexit_disable_##sname(void)				       \
 	SYSCALL_ALIAS(sys##name, SyS##name);				\
 	static inline long SYSC##name(__SC_DECL##x(__VA_ARGS__))
 
-#else /* CONFIG_HAVE_SYSCALL_WRAPPERS */
+#else  
 
 #define SYSCALL_DEFINE(name) asmlinkage long sys_##name
 #define __SYSCALL_DEFINEx(x, name, ...)					\
 	asmlinkage long sys##name(__SC_DECL##x(__VA_ARGS__))
 
-#endif /* CONFIG_HAVE_SYSCALL_WRAPPERS */
+#endif  
 
 asmlinkage long sys_time(time_t __user *tloc);
 asmlinkage long sys_stime(time_t __user *tptr);
@@ -872,11 +866,35 @@ asmlinkage long sys_pselect6(int, fd_set __user *, fd_set __user *,
 asmlinkage long sys_ppoll(struct pollfd __user *, unsigned int,
 			  struct timespec __user *, const sigset_t __user *,
 			  size_t);
+#ifdef CONFIG_SYNO_PLX_PORTING
+asmlinkage long sys_samba_reserve(int fd, loff_t __user *start, loff_t __user *length);
+asmlinkage long sys_direct_netrx_write(int sock_fd, int file_fd, loff_t __user *offset, size_t count);
+asmlinkage long sys_read_zcc(unsigned int fd, char __user *buf, size_t count, int __user *zcc);
+
+#ifdef CONFIG_OXNAS_FAST_WRITES
+asmlinkage long sys_direct_disk_write(int sock_fd, int file_fd, loff_t __user *offset, size_t count);
+#endif  
+
+#ifdef CONFIG_OXNAS_BACKUP
+asmlinkage long sys_init_backup(int sock_in_fd);
+asmlinkage long sys_exit_backup(int sock_in_fd);
+asmlinkage long sys_xfsbackup(int sock_in_fd, int file_out_fd, loff_t __user *count);
+#endif  
+#endif
 
 int kernel_execve(const char *filename, char *const argv[], char *const envp[]);
 
+#ifdef CONFIG_IA32_EMULATION
+#ifdef MY_ABC_HERE
+asmlinkage ssize_t sys_recvfile(int fd, int s, loff_t *offset, size_t nbytes, size_t *rwbytes);
+#endif
+#endif
 
 asmlinkage long sys_perf_event_open(
 		struct perf_event_attr __user *attr_uptr,
 		pid_t pid, int cpu, int group_fd, unsigned long flags);
+
+asmlinkage long sys_mmap_pgoff(unsigned long addr, unsigned long len,
+			unsigned long prot, unsigned long flags,
+			unsigned long fd, unsigned long pgoff);
 #endif

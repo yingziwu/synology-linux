@@ -290,7 +290,6 @@ int set_dabr(unsigned long dabr)
 	mtspr(SPRN_DABR, dabr);
 #endif
 
-
 	return 0;
 }
 
@@ -379,7 +378,6 @@ struct task_struct *__switch_to(struct task_struct *prev,
 	if (unlikely(__get_cpu_var(current_dabr) != new->thread.dabr))
 		set_dabr(new->thread.dabr);
 #endif
-
 
 	new_thread = &new->thread;
 	old_thread = &current->thread;
@@ -554,18 +552,6 @@ void exit_thread(void)
 
 void flush_thread(void)
 {
-#ifdef CONFIG_PPC64
-	struct thread_info *t = current_thread_info();
-
-	if (test_ti_thread_flag(t, TIF_ABI_PENDING)) {
-		clear_ti_thread_flag(t, TIF_ABI_PENDING);
-		if (test_ti_thread_flag(t, TIF_32BIT))
-			clear_ti_thread_flag(t, TIF_32BIT);
-		else
-			set_ti_thread_flag(t, TIF_32BIT);
-	}
-#endif
-
 	discard_lazy_cpu_state();
 
 	if (current->thread.dabr) {

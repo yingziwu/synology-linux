@@ -210,7 +210,6 @@ static char *statsLabels[] = {
 #define RUN_AT(x) (jiffies+(x))
 #endif
 
-
 /* These variables are for insmod, since it seems that the rates
    can only be set in setup_card.  Rates should be a comma separated
    (no spaces) list of rates (up to 8). */
@@ -1069,7 +1068,6 @@ typedef struct {
         u16 seq;
         char addr4[6];
 } WifiHdr;
-
 
 typedef struct {
 	TxCtlHdr ctlhdr;
@@ -2774,7 +2772,6 @@ static const struct net_device_ops mpi_netdev_ops = {
 	.ndo_validate_addr	= eth_validate_addr,
 };
 
-
 static struct net_device *_init_airo_card( unsigned short irq, int port,
 					   int is_pcmcia, struct pci_dev *pci,
 					   struct device *dmdev )
@@ -4064,7 +4061,6 @@ static int aux_bap_read(struct airo_info *ai, __le16 *pu16Dst,
 	return SUCCESS;
 }
 
-
 /* requires call to bap_setup() first */
 static int fast_bap_read(struct airo_info *ai, __le16 *pu16Dst,
 			 int bytelen, int whichbap)
@@ -5254,11 +5250,7 @@ static int set_wep_key(struct airo_info *ai, u16 index, const char *key,
 	WepKeyRid wkr;
 	int rc;
 
-	if (keylen == 0) {
-		airo_print_err(ai->dev->name, "%s: key length to set was zero",
-			       __func__);
-		return -1;
-	}
+	WARN_ON(keylen == 0);
 
 	memset(&wkr, 0, sizeof(wkr));
 	wkr.len = cpu_to_le16(sizeof(wkr));
@@ -5790,7 +5782,6 @@ static u8 airo_dbm_to_pct (tdsRssiEntry *rssi_rid, u8 dbm)
 
 	return 0;
 }
-
 
 static int airo_get_quality (StatusRid *status_rid, CapabilityRid *cap_rid)
 {
@@ -6404,11 +6395,7 @@ static int airo_set_encode(struct net_device *dev,
 		if (dwrq->length > MIN_KEY_SIZE)
 			key.len = MAX_KEY_SIZE;
 		else
-			if (dwrq->length > 0)
-				key.len = MIN_KEY_SIZE;
-			else
-				/* Disable the key */
-				key.len = 0;
+			key.len = MIN_KEY_SIZE;
 		/* Check if the key is not marked as invalid */
 		if(!(dwrq->flags & IW_ENCODE_NOKEY)) {
 			/* Cleanup */
@@ -6589,12 +6576,22 @@ static int airo_set_encodeext(struct net_device *dev,
 		default:
 			return -EINVAL;
 		}
-		/* Send the key to the card */
-		rc = set_wep_key(local, idx, key.key, key.len, perm, 1);
-		if (rc < 0) {
-			airo_print_err(local->dev->name, "failed to set WEP key"
-			               " at index %d: %d.", idx, rc);
-			return rc;
+		if (key.len == 0) {
+			rc = set_wep_tx_idx(local, idx, perm, 1);
+			if (rc < 0) {
+				airo_print_err(local->dev->name,
+					       "failed to set WEP transmit index to %d: %d.",
+					       idx, rc);
+				return rc;
+			}
+		} else {
+			rc = set_wep_key(local, idx, key.key, key.len, perm, 1);
+			if (rc < 0) {
+				airo_print_err(local->dev->name,
+					       "failed to set WEP key at index %d: %d.",
+					       idx, rc);
+				return rc;
+			}
 		}
 	}
 
@@ -6611,7 +6608,6 @@ static int airo_set_encodeext(struct net_device *dev,
 
 	return -EINPROGRESS;
 }
-
 
 /*------------------------------------------------------------------*/
 /*
@@ -6680,7 +6676,6 @@ static int airo_get_encodeext(struct net_device *dev,
 	return 0;
 }
 
-
 /*------------------------------------------------------------------*/
 /*
  * Wireless Handler : set extended authentication parameters
@@ -6748,7 +6743,6 @@ static int airo_set_auth(struct net_device *dev,
 	return -EINPROGRESS;
 }
 
-
 /*------------------------------------------------------------------*/
 /*
  * Wireless Handler : get extended authentication parameters
@@ -6795,7 +6789,6 @@ static int airo_get_auth(struct net_device *dev,
 	}
 	return 0;
 }
-
 
 /*------------------------------------------------------------------*/
 /*

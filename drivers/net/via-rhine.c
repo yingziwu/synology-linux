@@ -20,7 +20,6 @@
 	410 Severn Ave., Suite 210
 	Annapolis MD 21403
 
-
 	This driver contains some changes from the original Donald Becker
 	version. He may or may not be interested in bug reports on this
 	code. You can find his versions at:
@@ -32,7 +31,6 @@
 #define DRV_NAME	"via-rhine"
 #define DRV_VERSION	"1.4.3"
 #define DRV_RELDATE	"2007-03-06"
-
 
 /* A few user-configurable values.
    These may be modified when a driver module is loaded. */
@@ -62,7 +60,6 @@ static int avoid_D3;
 /* Maximum number of multicast addresses to filter (vs. rx-all-multicast).
    The Rhine has a 64 element 8390-like hash table. */
 static const int multicast_filter_limit = 32;
-
 
 /* Operational parameters that are set at compile time. */
 
@@ -102,6 +99,7 @@ static const int multicast_filter_limit = 32;
 #include <linux/ethtool.h>
 #include <linux/crc32.h>
 #include <linux/bitops.h>
+#include <linux/workqueue.h>
 #include <asm/processor.h>	/* Processor type for cache alignment. */
 #include <asm/io.h>
 #include <asm/irq.h>
@@ -215,7 +213,6 @@ http://www.scyld.com/expert/NWay.html
 ftp://ftp.via.com.tw/public/lan/Products/NIC/VT86C100A/Datasheet/VT86C100A03.pdf
 ftp://ftp.via.com.tw/public/lan/Products/NIC/VT6102/Datasheet/VT6102_021.PDF
 
-
 IVc. Errata
 
 The VT86C100A manual is not reliable information.
@@ -225,7 +222,6 @@ and unaligned IP headers on receive.
 The chip does not pad to minimum transmit length.
 
 */
-
 
 /* This table drives the PCI probe routines. It's mostly boilerplate in all
    of the drivers, and will likely be provided by some future kernel.
@@ -274,7 +270,6 @@ static const struct pci_device_id rhine_pci_tbl[] = {
 	{ }	/* terminate list */
 };
 MODULE_DEVICE_TABLE(pci, rhine_pci_tbl);
-
 
 /* Offsets to the device registers. */
 enum register_offsets {
@@ -389,6 +384,7 @@ struct rhine_private {
 	struct net_device *dev;
 	struct napi_struct napi;
 	spinlock_t lock;
+	struct work_struct reset_task;
 
 	/* Frequently used values: keep some adjacent for cache effect. */
 	u32 quirks;
@@ -407,6 +403,7 @@ struct rhine_private {
 static int  mdio_read(struct net_device *dev, int phy_id, int location);
 static void mdio_write(struct net_device *dev, int phy_id, int location, int value);
 static int  rhine_open(struct net_device *dev);
+static void rhine_reset_task(struct work_struct *work);
 static void rhine_tx_timeout(struct net_device *dev);
 static netdev_tx_t rhine_start_tx(struct sk_buff *skb,
 				  struct net_device *dev);
@@ -775,6 +772,8 @@ static int __devinit rhine_init_one(struct pci_dev *pdev,
 	dev->irq = pdev->irq;
 
 	spin_lock_init(&rp->lock);
+	INIT_WORK(&rp->reset_task, rhine_reset_task);
+
 	rp->mii_if.dev = dev;
 	rp->mii_if.mdio_read = mdio_read;
 	rp->mii_if.mdio_write = mdio_write;
@@ -1179,22 +1178,18 @@ static int rhine_open(struct net_device *dev)
 	return 0;
 }
 
-static void rhine_tx_timeout(struct net_device *dev)
+static void rhine_reset_task(struct work_struct *work)
 {
-	struct rhine_private *rp = netdev_priv(dev);
-	void __iomem *ioaddr = rp->base;
-
-	printk(KERN_WARNING "%s: Transmit timed out, status %4.4x, PHY status "
-	       "%4.4x, resetting...\n",
-	       dev->name, ioread16(ioaddr + IntrStatus),
-	       mdio_read(dev, rp->mii_if.phy_id, MII_BMSR));
+	struct rhine_private *rp = container_of(work, struct rhine_private,
+						reset_task);
+	struct net_device *dev = rp->dev;
 
 	/* protect against concurrent rx interrupts */
 	disable_irq(rp->pdev->irq);
 
 	napi_disable(&rp->napi);
 
-	spin_lock(&rp->lock);
+	spin_lock_bh(&rp->lock);
 
 	/* clear all descriptors */
 	free_tbufs(dev);
@@ -1206,12 +1201,25 @@ static void rhine_tx_timeout(struct net_device *dev)
 	rhine_chip_reset(dev);
 	init_registers(dev);
 
-	spin_unlock(&rp->lock);
+	spin_unlock_bh(&rp->lock);
 	enable_irq(rp->pdev->irq);
 
 	dev->trans_start = jiffies;
 	dev->stats.tx_errors++;
 	netif_wake_queue(dev);
+}
+
+static void rhine_tx_timeout(struct net_device *dev)
+{
+	struct rhine_private *rp = netdev_priv(dev);
+	void __iomem *ioaddr = rp->base;
+
+	printk(KERN_WARNING "%s: Transmit timed out, status %4.4x, PHY status "
+	       "%4.4x, resetting...\n",
+	       dev->name, ioread16(ioaddr + IntrStatus),
+	       mdio_read(dev, rp->mii_if.phy_id, MII_BMSR));
+
+	schedule_work(&rp->reset_task);
 }
 
 static netdev_tx_t rhine_start_tx(struct sk_buff *skb,
@@ -1830,10 +1838,11 @@ static int rhine_close(struct net_device *dev)
 	struct rhine_private *rp = netdev_priv(dev);
 	void __iomem *ioaddr = rp->base;
 
-	spin_lock_irq(&rp->lock);
-
-	netif_stop_queue(dev);
 	napi_disable(&rp->napi);
+	cancel_work_sync(&rp->reset_task);
+	netif_stop_queue(dev);
+
+	spin_lock_irq(&rp->lock);
 
 	if (debug > 1)
 		printk(KERN_DEBUG "%s: Shutting down ethercard, "
@@ -1858,7 +1867,6 @@ static int rhine_close(struct net_device *dev)
 
 	return 0;
 }
-
 
 static void __devexit rhine_remove_one(struct pci_dev *pdev)
 {
@@ -2032,12 +2040,10 @@ static int __init rhine_init(void)
 	return pci_register_driver(&rhine_driver);
 }
 
-
 static void __exit rhine_cleanup(void)
 {
 	pci_unregister_driver(&rhine_driver);
 }
-
 
 module_init(rhine_init);
 module_exit(rhine_cleanup);

@@ -826,7 +826,6 @@ static int if_usb_issue_boot_command(struct if_usb_card *cardp, int ivalue)
 	return 0;
 }
 
-
 /**
  *  @brief This function checks the validity of Boot2/FW image.
  *
@@ -873,7 +872,6 @@ static int check_fwfile_format(const uint8_t *data, uint32_t totlen)
 
 	return ret;
 }
-
 
 /**
 *  @brief This function programs the firmware subject to cmd
@@ -1028,7 +1026,6 @@ restart:
 	return ret;
 }
 
-
 #ifdef CONFIG_PM
 static int if_usb_suspend(struct usb_interface *intf, pm_message_t message)
 {
@@ -1081,6 +1078,7 @@ static struct usb_driver if_usb_driver = {
 	.suspend = if_usb_suspend,
 	.resume = if_usb_resume,
 	.reset_resume = if_usb_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init if_usb_init_module(void)

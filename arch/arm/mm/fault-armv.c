@@ -1,13 +1,4 @@
-/*
- *  linux/arch/arm/mm/fault-armv.c
- *
- *  Copyright (C) 1995  Linus Torvalds
- *  Modifications for ARM processor (c) 1995-2002 Russell King
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+ 
 #include <linux/module.h>
 #include <linux/sched.h>
 #include <linux/kernel.h>
@@ -22,19 +13,35 @@
 #include <asm/cachetype.h>
 #include <asm/pgtable.h>
 #include <asm/tlbflush.h>
+#ifdef CONFIG_SYNO_PLX_PORTING
+#ifdef CONFIG_SMP_LAZY_DCACHE_FLUSH
+#include <mach/lazy-flush.h>
+#endif  
+#endif
 
 static unsigned long shared_pte_mask = L_PTE_MT_BUFFERABLE;
 
-/*
- * We take the easy way out of this problem - we make the
- * PTE uncacheable.  However, we leave the write buffer on.
- *
- * Note that the pte lock held when calling update_mmu_cache must also
- * guard the pte (somewhere else in the same mm) that we modify here.
- * Therefore those configurations which might call adjust_pte (those
- * without CONFIG_CPU_CACHE_VIPT) cannot support split page_table_lock.
- */
+#ifdef CONFIG_SYNO_PLX_PORTING
+#ifdef CONFIG_SMP_LAZY_DCACHE_FLUSH
+ 
+void remote_flush_dcache_page(void *info) {
+	struct address_space *mapping;
+	struct page *page= (struct page *)info;
+
+	mapping = page_mapping(page);
+	__flush_dcache_page(mapping, page);
+}
+#endif
+#endif
+
+#if !defined(CONFIG_SMP) || !defined(CONFIG_SYNO_PLX_PORTING)
+ 
+#ifdef CONFIG_ARM_ARMV5_L2_CACHE_COHERENCY_FIX
+static int adjust_pte(struct vm_area_struct *vma, unsigned long address,
+		int update, int only_shared)
+#else
 static int adjust_pte(struct vm_area_struct *vma, unsigned long address)
+#endif
 {
 	pgd_t *pgd;
 	pmd_t *pmd;
@@ -56,16 +63,15 @@ static int adjust_pte(struct vm_area_struct *vma, unsigned long address)
 	pte = pte_offset_map(pmd, address);
 	entry = *pte;
 
-	/*
-	 * If this page is present, it's actually being shared.
-	 */
 	ret = pte_present(entry);
 
-	/*
-	 * If this page isn't present, or is already setup to
-	 * fault (ie, is old), we can safely ignore any issues.
-	 */
+#ifdef CONFIG_ARM_ARMV5_L2_CACHE_COHERENCY_FIX
+	if (ret &&
+	    (pte_val(entry) & L_PTE_MT_MASK) != shared_pte_mask &&
+	    update) {
+#else
 	if (ret && (pte_val(entry) & L_PTE_MT_MASK) != shared_pte_mask) {
+#endif
 		unsigned long pfn = pte_pfn(entry);
 		flush_cache_page(vma, address, pfn);
 		outer_flush_range((pfn << PAGE_SHIFT),
@@ -74,7 +80,18 @@ static int adjust_pte(struct vm_area_struct *vma, unsigned long address)
 		pte_val(entry) |= shared_pte_mask;
 		set_pte_at(vma->vm_mm, address, pte, entry);
 		flush_tlb_page(vma, address);
+#ifdef CONFIG_ARM_ARMV5_L2_CACHE_COHERENCY_FIX
+		printk(KERN_DEBUG "Uncached vma %08x "
+			"(addr %08lx flags %08lx phy %08x) from pid %d\n",
+			(unsigned int) vma, vma->vm_start, vma->vm_flags,
+			(unsigned int) (pfn << PAGE_SHIFT),
+			current->pid);
+#endif
 	}
+#ifdef CONFIG_ARM_ARMV5_L2_CACHE_COHERENCY_FIX
+	if (only_shared && (pte_val(entry) & L_PTE_MT_MASK) != shared_pte_mask)
+		ret = 0;
+#endif
 	pte_unmap(pte);
 	return ret;
 
@@ -100,48 +117,61 @@ make_coherent(struct address_space *mapping, struct vm_area_struct *vma, unsigne
 	unsigned long offset;
 	pgoff_t pgoff;
 	int aliases = 0;
+#ifdef CONFIG_ARM_ARMV5_L2_CACHE_COHERENCY_FIX
+	int run;
+#endif
 
 	pgoff = vma->vm_pgoff + ((addr - vma->vm_start) >> PAGE_SHIFT);
 
-	/*
-	 * If we have any shared mappings that are in the same mm
-	 * space, then we need to handle them specially to maintain
-	 * cache coherency.
-	 */
 	flush_dcache_mmap_lock(mapping);
+#ifdef CONFIG_ARM_ARMV5_L2_CACHE_COHERENCY_FIX
+	 
+	for (run = 0; run < 3; run++) {
+		vma_prio_tree_foreach(mpnt, &iter, &mapping->i_mmap,
+				pgoff, pgoff) {
+			if ((mpnt->vm_mm != mm || mpnt == vma) && run == 0)
+				continue;
+			if (!(mpnt->vm_flags & VM_MAYSHARE) &&
+				run != 2)  
+				continue;
+			offset = (pgoff - mpnt->vm_pgoff) << PAGE_SHIFT;
+			aliases += adjust_pte(mpnt, mpnt->vm_start + offset,
+					 
+					run == 2,
+					 
+					run == 1);
+		}
+		if (aliases == 0 && run == 1)
+			break;
+	}
+#else
 	vma_prio_tree_foreach(mpnt, &iter, &mapping->i_mmap, pgoff, pgoff) {
-		/*
-		 * If this VMA is not in our MM, we can ignore it.
-		 * Note that we intentionally mask out the VMA
-		 * that we are fixing up.
-		 */
+		 
 		if (mpnt->vm_mm != mm || mpnt == vma)
 			continue;
 		if (!(mpnt->vm_flags & VM_MAYSHARE))
 			continue;
 		offset = (pgoff - mpnt->vm_pgoff) << PAGE_SHIFT;
+#ifdef CONFIG_ARM_ARMV5_L2_CACHE_COHERENCY_FIX
+		aliases += adjust_pte(mpnt, mpnt->vm_start + offset, 1, 0);
+#else
 		aliases += adjust_pte(mpnt, mpnt->vm_start + offset);
+#endif
 	}
+#endif
 	flush_dcache_mmap_unlock(mapping);
 	if (aliases)
+#ifdef CONFIG_ARM_ARMV5_L2_CACHE_COHERENCY_FIX
+		adjust_pte(vma, addr, 1, 0);
+#else
 		adjust_pte(vma, addr);
+#endif
+#ifndef CONFIG_SYNO_PLX_PORTING
 	else
 		flush_cache_page(vma, addr, pfn);
+#endif
 }
 
-/*
- * Take care of architecture specific things when placing a new PTE into
- * a page table, or changing an existing PTE.  Basically, there are two
- * things that we need to take care of:
- *
- *  1. If PG_dcache_dirty is set for the page, we need to ensure
- *     that any cache entries for the kernels virtual memory
- *     range are written back to the page.
- *  2. If we have multiple shared mappings of the same space in
- *     an object, we need to deal with the cache aliasing issues.
- *
- * Note that the pte lock will be held.
- */
 void update_mmu_cache(struct vm_area_struct *vma, unsigned long addr, pte_t pte)
 {
 	unsigned long pfn = pte_pfn(pte);
@@ -153,10 +183,15 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long addr, pte_t pte)
 
 	page = pfn_to_page(pfn);
 	mapping = page_mapping(page);
+#ifdef CONFIG_SYNO_PLX_PORTING
+	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
+		__flush_dcache_page(mapping, page);
+#else  
 #ifndef CONFIG_SMP
 	if (test_and_clear_bit(PG_dcache_dirty, &page->flags))
 		__flush_dcache_page(mapping, page);
 #endif
+#endif  
 	if (mapping) {
 		if (cache_is_vivt())
 			make_coherent(mapping, vma, addr, pfn);
@@ -165,12 +200,8 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long addr, pte_t pte)
 	}
 }
 
-/*
- * Check whether the write buffer has physical address aliasing
- * issues.  If it has, we need to avoid them for the case where
- * we have several shared mappings of the same object in user
- * space.
- */
+#endif	 
+
 static int __init check_writebuffer(unsigned long *p1, unsigned long *p2)
 {
 	register unsigned long zero = 0, one = 1, val;

@@ -53,7 +53,6 @@ static bool vga_arbiter_used;
 static DEFINE_SPINLOCK(vga_lock);
 static DECLARE_WAIT_QUEUE_HEAD(vga_wait_queue);
 
-
 static const char *vga_iostate_to_str(unsigned int iostate)
 {
 	/* Ignore VGA_RSRC_IO and VGA_RSRC_MEM */
@@ -122,7 +121,6 @@ static inline void vga_irq_set_state(struct vga_device *vgadev, bool state)
 	if (vgadev->irq_set_state)
 		vgadev->irq_set_state(vgadev->cookie, state);
 }
-
 
 /* If we don't ever use VGA arb we should avoid
    turning off anything anywhere due to old X servers getting
@@ -328,7 +326,6 @@ int vga_get(struct pci_dev *pdev, unsigned int rsrc, int interruptible)
 		spin_unlock_irqrestore(&vga_lock, flags);
 		if (conflict == NULL)
 			break;
-
 
 		/* We have a conflict, we wait until somebody kicks the
 		 * work queue. Currently we have one work queue that we
@@ -549,7 +546,6 @@ static inline void vga_update_device_decodes(struct vga_device *vgadev,
 		vga_iostate_to_str(vgadev->decodes),
 		vga_iostate_to_str(vgadev->owns));
 
-
 	/* if we own the decodes we should move them along to
 	   another card */
 	if ((vgadev->owns & old_decodes) && (vga_count > 1)) {
@@ -710,7 +706,6 @@ struct vga_arb_private {
 static LIST_HEAD(vga_user_list);
 static DEFINE_SPINLOCK(vga_user_lock);
 
-
 /*
  * This function gets a string in the format: "PCI:domain:bus:dev.fn" and
  * returns the respective values. If the string is not in this format,
@@ -721,7 +716,6 @@ static int vga_pci_str_to_vars(char *buf, int count, unsigned int *domain,
 {
 	int n;
 	unsigned int slot, func;
-
 
 	n = sscanf(buf, "PCI:%x:%x:%x.%x", domain, bus, &slot, &func);
 	if (n != 4)
@@ -813,7 +807,6 @@ static ssize_t vga_arb_write(struct file *file, const char __user * buf,
 
 	int ret_val;
 	int i;
-
 
 	kbuf = kmalloc(count + 1, GFP_KERNEL);
 	if (!kbuf)
@@ -954,6 +947,7 @@ static ssize_t vga_arb_write(struct file *file, const char __user * buf,
 		}
 
 	} else if (strncmp(curr_pos, "target ", 7) == 0) {
+		struct pci_bus *pbus;
 		unsigned int domain, bus, devfn;
 		struct vga_device *vgadev;
 
@@ -961,7 +955,7 @@ static ssize_t vga_arb_write(struct file *file, const char __user * buf,
 		remaining -= 7;
 		pr_devel("client 0x%p called 'target'\n", priv);
 		/* if target is default */
-		if (!strncmp(buf, "default", 7))
+		if (!strncmp(curr_pos, "default", 7))
 			pdev = pci_dev_get(vga_default_device());
 		else {
 			if (!vga_pci_str_to_vars(curr_pos, remaining,
@@ -969,18 +963,31 @@ static ssize_t vga_arb_write(struct file *file, const char __user * buf,
 				ret_val = -EPROTO;
 				goto done;
 			}
+			pr_devel("vgaarb: %s ==> %x:%x:%x.%x\n", curr_pos,
+				domain, bus, PCI_SLOT(devfn), PCI_FUNC(devfn));
 
-			pdev = pci_get_bus_and_slot(bus, devfn);
+			pbus = pci_find_bus(domain, bus);
+			pr_devel("vgaarb: pbus %p\n", pbus);
+			if (pbus == NULL) {
+				pr_err("vgaarb: invalid PCI domain and/or bus address %x:%x\n",
+					domain, bus);
+				ret_val = -ENODEV;
+				goto done;
+			}
+			pdev = pci_get_slot(pbus, devfn);
+			pr_devel("vgaarb: pdev %p\n", pdev);
 			if (!pdev) {
-				pr_info("vgaarb: invalid PCI address!\n");
+				pr_err("vgaarb: invalid PCI address %x:%x\n",
+					bus, devfn);
 				ret_val = -ENODEV;
 				goto done;
 			}
 		}
 
 		vgadev = vgadev_find(pdev);
+		pr_devel("vgaarb: vgadev %p\n", vgadev);
 		if (vgadev == NULL) {
-			pr_info("vgaarb: this pci device is not a vga device\n");
+			pr_err("vgaarb: this pci device is not a vga device\n");
 			pci_dev_put(pdev);
 			ret_val = -ENODEV;
 			goto done;
@@ -998,7 +1005,8 @@ static ssize_t vga_arb_write(struct file *file, const char __user * buf,
 			}
 		}
 		if (i == MAX_USER_CARDS) {
-			pr_err("vgaarb: maximum user cards number reached!\n");
+			pr_err("vgaarb: maximum user cards (%d) number reached!\n",
+				MAX_USER_CARDS);
 			pci_dev_put(pdev);
 			/* XXX: which value to return? */
 			ret_val =  -ENOMEM;
@@ -1008,7 +1016,6 @@ static ssize_t vga_arb_write(struct file *file, const char __user * buf,
 		ret_val = count;
 		pci_dev_put(pdev);
 		goto done;
-
 
 	} else if (strncmp(curr_pos, "decodes ", 8) == 0) {
 		curr_pos += 8;
@@ -1073,7 +1080,6 @@ static int vga_arb_open(struct inode *inode, struct file *file)
 	priv->cards[0].pdev = priv->target;
 	priv->cards[0].io_cnt = 0;
 	priv->cards[0].mem_cnt = 0;
-
 
 	return 0;
 }

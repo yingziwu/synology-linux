@@ -9,7 +9,6 @@
  *
  */
 
-
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/usb.h>
@@ -82,9 +81,13 @@ static ssize_t  show_##name(struct device *dev,				\
 		struct device_attribute *attr, char *buf)		\
 {									\
 	struct usb_device *udev;					\
+	int retval;							\
 									\
 	udev = to_usb_device(dev);					\
-	return sprintf(buf, "%s\n", udev->name);			\
+	usb_lock_device(udev);						\
+	retval = sprintf(buf, "%s\n", udev->name);			\
+	usb_unlock_device(udev);					\
+	return retval;							\
 }									\
 static DEVICE_ATTR(name, S_IRUGO, show_##name, NULL);
 
@@ -110,6 +113,12 @@ show_speed(struct device *dev, struct device_attribute *attr, char *buf)
 		break;
 	case USB_SPEED_HIGH:
 		speed = "480";
+		break;
+	case USB_SPEED_WIRELESS:
+		speed = "480";
+		break;
+	case USB_SPEED_SUPER:
+		speed = "5000";
 		break;
 	default:
 		speed = "unknown";
@@ -179,7 +188,6 @@ show_urbnum(struct device *dev, struct device_attribute *attr, char *buf)
 	return sprintf(buf, "%d\n", atomic_read(&udev->urbnum));
 }
 static DEVICE_ATTR(urbnum, S_IRUGO, show_urbnum, NULL);
-
 
 #ifdef	CONFIG_PM
 
@@ -317,7 +325,6 @@ static DEVICE_ATTR(autosuspend, S_IRUGO | S_IWUSR,
 
 static const char on_string[] = "on";
 static const char auto_string[] = "auto";
-static const char suspend_string[] = "suspend";
 
 static ssize_t
 show_level(struct device *dev, struct device_attribute *attr, char *buf)
@@ -325,13 +332,8 @@ show_level(struct device *dev, struct device_attribute *attr, char *buf)
 	struct usb_device *udev = to_usb_device(dev);
 	const char *p = auto_string;
 
-	if (udev->state == USB_STATE_SUSPENDED) {
-		if (udev->autoresume_disabled)
-			p = suspend_string;
-	} else {
-		if (udev->autosuspend_disabled)
-			p = on_string;
-	}
+	if (udev->state != USB_STATE_SUSPENDED && udev->autosuspend_disabled)
+		p = on_string;
 	return sprintf(buf, "%s\n", p);
 }
 
@@ -343,7 +345,7 @@ set_level(struct device *dev, struct device_attribute *attr,
 	int len = count;
 	char *cp;
 	int rc = 0;
-	int old_autosuspend_disabled, old_autoresume_disabled;
+	int old_autosuspend_disabled;
 
 	cp = memchr(buf, '\n', count);
 	if (cp)
@@ -351,7 +353,6 @@ set_level(struct device *dev, struct device_attribute *attr,
 
 	usb_lock_device(udev);
 	old_autosuspend_disabled = udev->autosuspend_disabled;
-	old_autoresume_disabled = udev->autoresume_disabled;
 
 	/* Setting the flags without calling usb_pm_lock is a subject to
 	 * races, but who cares...
@@ -359,28 +360,18 @@ set_level(struct device *dev, struct device_attribute *attr,
 	if (len == sizeof on_string - 1 &&
 			strncmp(buf, on_string, len) == 0) {
 		udev->autosuspend_disabled = 1;
-		udev->autoresume_disabled = 0;
 		rc = usb_external_resume_device(udev, PMSG_USER_RESUME);
 
 	} else if (len == sizeof auto_string - 1 &&
 			strncmp(buf, auto_string, len) == 0) {
 		udev->autosuspend_disabled = 0;
-		udev->autoresume_disabled = 0;
 		rc = usb_external_resume_device(udev, PMSG_USER_RESUME);
-
-	} else if (len == sizeof suspend_string - 1 &&
-			strncmp(buf, suspend_string, len) == 0) {
-		udev->autosuspend_disabled = 0;
-		udev->autoresume_disabled = 1;
-		rc = usb_external_suspend_device(udev, PMSG_USER_SUSPEND);
 
 	} else
 		rc = -EINVAL;
 
-	if (rc) {
+	if (rc)
 		udev->autosuspend_disabled = old_autosuspend_disabled;
-		udev->autoresume_disabled = old_autoresume_disabled;
-	}
 	usb_unlock_device(udev);
 	return (rc < 0 ? rc : count);
 }
@@ -434,7 +425,6 @@ static void remove_power_attributes(struct device *dev)
 
 #endif	/* CONFIG_USB_SUSPEND */
 
-
 /* Descriptor fields */
 #define usb_descriptor_attr_le16(field, format_string)			\
 static ssize_t								\
@@ -471,8 +461,6 @@ usb_descriptor_attr(bDeviceProtocol, "%02x\n")
 usb_descriptor_attr(bNumConfigurations, "%d\n")
 usb_descriptor_attr(bMaxPacketSize0, "%d\n")
 
-
-
 /* show if the device is authorized (1) or not (0) */
 static ssize_t usb_dev_authorized_show(struct device *dev,
 				       struct device_attribute *attr,
@@ -481,7 +469,6 @@ static ssize_t usb_dev_authorized_show(struct device *dev,
 	struct usb_device *usb_dev = to_usb_device(dev);
 	return snprintf(buf, PAGE_SIZE, "%u\n", usb_dev->authorized);
 }
-
 
 /*
  * Authorize a device to be used in the system
@@ -507,7 +494,6 @@ static ssize_t usb_dev_authorized_store(struct device *dev,
 
 static DEVICE_ATTR(authorized, 0644,
 	    usb_dev_authorized_show, usb_dev_authorized_store);
-
 
 static struct attribute *dev_attrs[] = {
 	/* current configuration's attributes */
@@ -723,7 +709,7 @@ static ssize_t show_modalias(struct device *dev,
 	alt = intf->cur_altsetting;
 
 	return sprintf(buf, "usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02X"
-			"ic%02Xisc%02Xip%02X\n",
+			"ic%02Xisc%02Xip%02Xin%02X\n",
 			le16_to_cpu(udev->descriptor.idVendor),
 			le16_to_cpu(udev->descriptor.idProduct),
 			le16_to_cpu(udev->descriptor.bcdDevice),
@@ -732,7 +718,8 @@ static ssize_t show_modalias(struct device *dev,
 			udev->descriptor.bDeviceProtocol,
 			alt->desc.bInterfaceClass,
 			alt->desc.bInterfaceSubClass,
-			alt->desc.bInterfaceProtocol);
+			alt->desc.bInterfaceProtocol,
+			alt->desc.bInterfaceNumber);
 }
 static DEVICE_ATTR(modalias, S_IRUGO, show_modalias, NULL);
 

@@ -288,7 +288,6 @@ static void hdmi_parse_eld(struct hda_codec *codec)
 		snd_hdmi_show_eld(eld);
 }
 
-
 /*
  * Audio InfoFrame routines
  */
@@ -460,7 +459,6 @@ static void hdmi_setup_channel_mapping(struct hda_codec *codec,
 	hdmi_debug_channel_mapping(codec);
 }
 
-
 static void hdmi_setup_audio_infoframe(struct hda_codec *codec,
 					struct snd_pcm_substream *substream)
 {
@@ -477,7 +475,6 @@ static void hdmi_setup_audio_infoframe(struct hda_codec *codec,
 	hdmi_fill_audio_infoframe(codec, &ai);
 	hdmi_start_infoframe_trans(codec);
 }
-
 
 /*
  * Unsolicited events
@@ -516,7 +513,6 @@ static void hdmi_non_intrinsic_event(struct hda_codec *codec, unsigned int res)
 	if (cp_ready)
 		;
 }
-
 
 static void intel_hdmi_unsol_event(struct hda_codec *codec, unsigned int res)
 {
@@ -684,7 +680,7 @@ static struct hda_codec_preset snd_hda_preset_intelhdmi[] = {
 	{ .id = 0x80862801, .name = "G45 DEVBLC", .patch = patch_intel_hdmi },
 	{ .id = 0x80862802, .name = "G45 DEVCTG", .patch = patch_intel_hdmi },
 	{ .id = 0x80862803, .name = "G45 DEVELK", .patch = patch_intel_hdmi },
-	{ .id = 0x80862804, .name = "G45 DEVIBX", .patch = patch_intel_hdmi },
+	{ .id = 0x80862804, .name = "G45 DEVIBX", .patch = patch_intel_hdmi_ibexpeak },
 	{ .id = 0x80860054, .name = "Q57 DEVIBX", .patch = patch_intel_hdmi_ibexpeak },
 	{ .id = 0x10951392, .name = "SiI1392 HDMI",     .patch = patch_intel_hdmi },
 	{} /* terminator */

@@ -1,4 +1,4 @@
-/* $Id: hscx_irq.c,v 1.18.2.3 2004/02/11 13:21:34 keil Exp $
+/* $Id: hscx_irq.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * low level b-channel stuff for Siemens HSCX
  *
@@ -12,7 +12,6 @@
  *
  */
 
-
 static inline void
 waitforCEC(struct IsdnCardState *cs, int hscx)
 {
@@ -25,7 +24,6 @@ waitforCEC(struct IsdnCardState *cs, int hscx)
 	if (!to)
 		printk(KERN_WARNING "HiSax: waitforCEC timeout\n");
 }
-
 
 static inline void
 waitforXFW(struct IsdnCardState *cs, int hscx)
@@ -46,8 +44,6 @@ WriteHSCXCMDR(struct IsdnCardState *cs, int hscx, u_char data)
 	waitforCEC(cs, hscx);
 	WRITEHSCX(cs, hscx, HSCX_CMDR, data);
 }
-
-
 
 static void
 hscx_empty_fifo(struct BCState *bcs, int count)

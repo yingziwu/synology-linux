@@ -1295,7 +1295,6 @@ static inline void setup_pegasus_II(pegasus_t * pegasus)
 		set_register(pegasus, Reg81, 2);
 }
 
-
 static int pegasus_count;
 static struct workqueue_struct *pegasus_workqueue = NULL;
 #define CARRIER_CHECK_DELAY (2 * HZ)
@@ -1381,7 +1380,6 @@ static int pegasus_probe(struct usb_interface *intf,
 	pegasus->intf = intf;
 	pegasus->usb = dev;
 	pegasus->net = net;
-
 
 	net->watchdog_timeo = PEGASUS_TX_TIMEOUT;
 	net->netdev_ops = &pegasus_netdev_ops;
@@ -1519,6 +1517,7 @@ static struct usb_driver pegasus_driver = {
 	.id_table = pegasus_ids,
 	.suspend = pegasus_suspend,
 	.resume = pegasus_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static void __init parse_id(char *id)

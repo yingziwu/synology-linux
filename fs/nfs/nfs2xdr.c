@@ -294,7 +294,6 @@ nfs_xdr_readres(struct rpc_rqst *req, __be32 *p, struct nfs_readres *res)
 	return count;
 }
 
-
 /*
  * Write arguments. Splice the buffer to be written into the iovec.
  */
@@ -699,7 +698,7 @@ static struct {
 	{ NFSERR_BAD_COOKIE,	-EBADCOOKIE	},
 	{ NFSERR_NOTSUPP,	-ENOTSUPP	},
 	{ NFSERR_TOOSMALL,	-ETOOSMALL	},
-	{ NFSERR_SERVERFAULT,	-ESERVERFAULT	},
+	{ NFSERR_SERVERFAULT,	-EREMOTEIO	},
 	{ NFSERR_BADTYPE,	-EBADTYPE	},
 	{ NFSERR_JUKEBOX,	-EJUKEBOX	},
 	{ -1,			-EIO		}

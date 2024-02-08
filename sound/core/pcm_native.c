@@ -87,8 +87,6 @@ static inline void snd_leave_user(mm_segment_t fs)
 	set_fs(fs);
 }
 
-
-
 int snd_pcm_info(struct snd_pcm_substream *substream, struct snd_pcm_info *info)
 {
 	struct snd_pcm_runtime *runtime;
@@ -314,10 +312,10 @@ int snd_pcm_hw_refine(struct snd_pcm_substream *substream,
 	if (!params->info)
 		params->info = hw->info & ~SNDRV_PCM_INFO_FIFO_IN_FRAMES;
 	if (!params->fifo_size) {
-		if (snd_mask_min(&params->masks[SNDRV_PCM_HW_PARAM_FORMAT]) ==
-		    snd_mask_max(&params->masks[SNDRV_PCM_HW_PARAM_FORMAT]) &&
-                    snd_mask_min(&params->masks[SNDRV_PCM_HW_PARAM_CHANNELS]) ==
-                    snd_mask_max(&params->masks[SNDRV_PCM_HW_PARAM_CHANNELS])) {
+		m = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
+		i = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
+		if (snd_mask_min(m) == snd_mask_max(m) &&
+                    snd_interval_min(i) == snd_interval_max(i)) {
 			changed = substream->ops->ioctl(substream,
 					SNDRV_PCM_IOCTL1_FIFO_SIZE, params);
 			if (changed < 0)
@@ -1526,7 +1524,6 @@ static int snd_pcm_drop(struct snd_pcm_substream *substream)
 
 	return result;
 }
-
 
 /* WARNING: Don't forget to fput back the file */
 static struct file *snd_pcm_file_fd(int fd)

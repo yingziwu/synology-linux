@@ -1,28 +1,7 @@
-/**
- * eCryptfs: Linux filesystem encryption layer
- *
- * Copyright (C) 1997-2003 Erez Zadok
- * Copyright (C) 2001-2003 Stony Brook University
- * Copyright (C) 2004-2006 International Business Machines Corp.
- *   Author(s): Michael A. Halcrow <mahalcro@us.ibm.com>
- *              Michael C. Thompson <mcthomps@us.ibm.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/fs.h>
 #include <linux/mount.h>
 #include <linux/key.h>
@@ -30,22 +9,11 @@
 #include <linux/smp_lock.h>
 #include <linux/file.h>
 #include <linux/crypto.h>
+#include <linux/statfs.h>
 #include "ecryptfs_kernel.h"
 
 struct kmem_cache *ecryptfs_inode_info_cache;
 
-/**
- * ecryptfs_alloc_inode - allocate an ecryptfs inode
- * @sb: Pointer to the ecryptfs super block
- *
- * Called to bring an inode into existence.
- *
- * Only handle allocation, setting up structures should be done in
- * ecryptfs_read_inode. This is because the kernel, between now and
- * then, will 0 out the private data pointer.
- *
- * Returns a pointer to a newly allocated inode, NULL otherwise
- */
 static struct inode *ecryptfs_alloc_inode(struct super_block *sb)
 {
 	struct ecryptfs_inode_info *inode_info;
@@ -56,27 +24,23 @@ static struct inode *ecryptfs_alloc_inode(struct super_block *sb)
 		goto out;
 	ecryptfs_init_crypt_stat(&inode_info->crypt_stat);
 	mutex_init(&inode_info->lower_file_mutex);
+#ifdef MY_ABC_HERE
+	atomic_set(&inode_info->lower_file_count, 0);
+#endif  
 	inode_info->lower_file = NULL;
 	inode = &inode_info->vfs_inode;
 out:
 	return inode;
 }
 
-/**
- * ecryptfs_destroy_inode
- * @inode: The ecryptfs inode
- *
- * This is used during the final destruction of the inode.  All
- * allocation of memory related to the inode, including allocated
- * memory in the crypt_stat struct, will be released here. This
- * function also fput()'s the persistent file for the lower inode.
- * There should be no chance that this deallocation will be missed.
- */
 static void ecryptfs_destroy_inode(struct inode *inode)
 {
 	struct ecryptfs_inode_info *inode_info;
 
 	inode_info = ecryptfs_inode_to_private(inode);
+#ifdef MY_ABC_HERE
+	BUG_ON(inode_info->lower_file);
+#else
 	if (inode_info->lower_file) {
 		struct dentry *lower_dentry =
 			inode_info->lower_file->f_dentry;
@@ -85,19 +49,13 @@ static void ecryptfs_destroy_inode(struct inode *inode)
 		if (lower_dentry->d_inode) {
 			fput(inode_info->lower_file);
 			inode_info->lower_file = NULL;
-			d_drop(lower_dentry);
 		}
 	}
+#endif  
 	ecryptfs_destroy_crypt_stat(&inode_info->crypt_stat);
 	kmem_cache_free(ecryptfs_inode_info_cache, inode_info);
 }
 
-/**
- * ecryptfs_init_inode
- * @inode: The ecryptfs inode
- *
- * Set up the ecryptfs inode.
- */
 void ecryptfs_init_inode(struct inode *inode, struct inode *lower_inode)
 {
 	ecryptfs_set_inode_lower(inode, lower_inode);
@@ -108,13 +66,6 @@ void ecryptfs_init_inode(struct inode *inode, struct inode *lower_inode)
 	inode->i_mapping->a_ops = &ecryptfs_aops;
 }
 
-/**
- * ecryptfs_put_super
- * @sb: Pointer to the ecryptfs super block
- *
- * Final actions when unmounting a file system.
- * This will handle deallocation and release of our private data.
- */
 static void ecryptfs_put_super(struct super_block *sb)
 {
 	struct ecryptfs_sb_info *sb_info = ecryptfs_superblock_to_private(sb);
@@ -128,40 +79,30 @@ static void ecryptfs_put_super(struct super_block *sb)
 	unlock_kernel();
 }
 
-/**
- * ecryptfs_statfs
- * @sb: The ecryptfs super block
- * @buf: The struct kstatfs to fill in with stats
- *
- * Get the filesystem statistics. Currently, we let this pass right through
- * to the lower filesystem and take no action ourselves.
- */
 static int ecryptfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
-	return vfs_statfs(ecryptfs_dentry_to_lower(dentry), buf);
+	struct dentry *lower_dentry = ecryptfs_dentry_to_lower(dentry);
+	int rc;
+
+	if (!lower_dentry->d_sb->s_op->statfs)
+		return -ENOSYS;
+
+	rc = lower_dentry->d_sb->s_op->statfs(lower_dentry, buf);
+	if (rc)
+		return rc;
+
+	buf->f_type = ECRYPTFS_SUPER_MAGIC;
+	rc = ecryptfs_set_f_namelen(&buf->f_namelen, buf->f_namelen,
+	       &ecryptfs_superblock_to_private(dentry->d_sb)->mount_crypt_stat);
+
+	return rc;
 }
 
-/**
- * ecryptfs_clear_inode
- * @inode - The ecryptfs inode
- *
- * Called by iput() when the inode reference count reached zero
- * and the inode is not hashed anywhere.  Used to clear anything
- * that needs to be, before the inode is completely destroyed and put
- * on the inode free list. We use this to drop out reference to the
- * lower inode.
- */
 static void ecryptfs_clear_inode(struct inode *inode)
 {
 	iput(ecryptfs_inode_to_lower(inode));
 }
 
-/**
- * ecryptfs_show_options
- *
- * Prints the mount options for a given superblock.
- * Returns zero; does not fail.
- */
 static int ecryptfs_show_options(struct seq_file *m, struct vfsmount *mnt)
 {
 	struct super_block *sb = mnt->mnt_sb;
@@ -194,11 +135,37 @@ static int ecryptfs_show_options(struct seq_file *m, struct vfsmount *mnt)
 		seq_printf(m, ",ecryptfs_encrypted_view");
 	if (mount_crypt_stat->flags & ECRYPTFS_UNLINK_SIGS)
 		seq_printf(m, ",ecryptfs_unlink_sigs");
+#ifdef MY_ABC_HERE
+	if (mount_crypt_stat->flags & ECRYPTFS_SYNO_ERROR_REPORT)
+		seq_printf(m, ",syno_error_report");
+#endif
 
 	return 0;
 }
 
+#ifdef MY_ABC_HERE
+static int ecryptfs_get_sb_archive_ver(struct super_block *sb, u32 *archive_ver)
+{
+	struct super_block *lower_sb = ecryptfs_superblock_to_lower(sb);
+	if (!lower_sb->s_op->syno_get_sb_archive_ver)
+		return -EINVAL;
+	return lower_sb->s_op->syno_get_sb_archive_ver(lower_sb, archive_ver);
+}
+
+static int ecryptfs_set_sb_archive_ver(struct super_block *sb, u32 archive_ver)
+{
+	struct super_block *lower_sb = ecryptfs_superblock_to_lower(sb);
+	if (!lower_sb->s_op->syno_set_sb_archive_ver)
+		return -EINVAL;
+	return lower_sb->s_op->syno_set_sb_archive_ver(lower_sb, archive_ver);
+}
+#endif  
+
 const struct super_operations ecryptfs_sops = {
+#ifdef MY_ABC_HERE
+	.syno_get_sb_archive_ver = ecryptfs_get_sb_archive_ver,
+	.syno_set_sb_archive_ver = ecryptfs_set_sb_archive_ver,
+#endif
 	.alloc_inode = ecryptfs_alloc_inode,
 	.destroy_inode = ecryptfs_destroy_inode,
 	.drop_inode = generic_delete_inode,

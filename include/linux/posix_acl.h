@@ -1,10 +1,4 @@
-/*
-  File: linux/posix_acl.h
-
-  (C) 2002 Andreas Gruenbacher, <a.gruenbacher@computer.org>
-*/
-
-
+ 
 #ifndef __LINUX_POSIX_ACL_H
 #define __LINUX_POSIX_ACL_H
 
@@ -12,11 +6,9 @@
 
 #define ACL_UNDEFINED_ID	(-1)
 
-/* a_type field in acl_user_posix_entry_t */
 #define ACL_TYPE_ACCESS		(0x8000)
 #define ACL_TYPE_DEFAULT	(0x4000)
 
-/* e_tag entry in struct posix_acl_entry */
 #define ACL_USER_OBJ		(0x01)
 #define ACL_USER		(0x02)
 #define ACL_GROUP_OBJ		(0x04)
@@ -24,13 +16,10 @@
 #define ACL_MASK		(0x10)
 #define ACL_OTHER		(0x20)
 
-/* permissions in the e_perm field */
 #define ACL_READ		(0x04)
 #define ACL_WRITE		(0x02)
 #define ACL_EXECUTE		(0x01)
-//#define ACL_ADD		(0x08)
-//#define ACL_DELETE		(0x10)
-
+ 
 struct posix_acl_entry {
 	short			e_tag;
 	unsigned short		e_perm;
@@ -46,10 +35,6 @@ struct posix_acl {
 #define FOREACH_ACL_ENTRY(pa, acl, pe) \
 	for(pa=(acl)->a_entries, pe=pa+(acl)->a_count; pa<pe; pa++)
 
-
-/*
- * Duplicate an ACL handle.
- */
 static inline struct posix_acl *
 posix_acl_dup(struct posix_acl *acl)
 {
@@ -58,18 +43,12 @@ posix_acl_dup(struct posix_acl *acl)
 	return acl;
 }
 
-/*
- * Free an ACL handle.
- */
 static inline void
 posix_acl_release(struct posix_acl *acl)
 {
 	if (acl && atomic_dec_and_test(&acl->a_refcount))
 		kfree(acl);
 }
-
-
-/* posix_acl.c */
 
 extern struct posix_acl *posix_acl_alloc(int, gfp_t);
 extern struct posix_acl *posix_acl_clone(const struct posix_acl *, gfp_t);
@@ -83,6 +62,7 @@ extern int posix_acl_chmod_masq(struct posix_acl *, mode_t);
 extern struct posix_acl *get_posix_acl(struct inode *, int);
 extern int set_posix_acl(struct inode *, int, struct posix_acl *);
 
+#ifndef CONFIG_FS_SYNO_ACL
 #ifdef CONFIG_FS_POSIX_ACL
 static inline struct posix_acl *get_cached_acl(struct inode *inode, int type)
 {
@@ -148,13 +128,16 @@ static inline void forget_cached_acl(struct inode *inode, int type)
 		posix_acl_release(old);
 }
 #endif
+#endif
 
 static inline void cache_no_acl(struct inode *inode)
 {
+#ifndef CONFIG_FS_SYNO_ACL
 #ifdef CONFIG_FS_POSIX_ACL
 	inode->i_acl = NULL;
 	inode->i_default_acl = NULL;
 #endif
+#endif
 }
 
-#endif  /* __LINUX_POSIX_ACL_H */
+#endif   

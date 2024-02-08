@@ -128,11 +128,15 @@ static inline void l2_inv_all(void)
  * inclusive start and end addresses.
  */
 #define CACHE_LINE_SIZE		32
+#ifdef CONFIG_ARCH_FEROCEON
+#define MAX_RANGE_SIZE		PAGE_SIZE
+#else
 #define MAX_RANGE_SIZE		1024
+#endif
 
 static int l2_wt_override;
 
-static unsigned long calc_range_end(unsigned long start, unsigned long end)
+static inline unsigned long calc_range_end(unsigned long start, unsigned long end)
 {
 	unsigned long range_end;
 
@@ -224,7 +228,6 @@ static void feroceon_l2_flush_range(unsigned long start, unsigned long end)
 
 	dsb();
 }
-
 
 /*
  * Routines to disable and re-enable the D-cache and I-cache at run

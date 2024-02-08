@@ -27,11 +27,10 @@
 
 */
 
-#include "b43.h"
+#include "xmit.h"
 #include "phy_common.h"
 #include "dma.h"
 #include "pio.h"
-
 
 /* Extract the bitrate index out of a CCK PLCP header. */
 static int b43_plcp_get_bitrate_idx_cck(struct b43_plcp_hdr6 *plcp)

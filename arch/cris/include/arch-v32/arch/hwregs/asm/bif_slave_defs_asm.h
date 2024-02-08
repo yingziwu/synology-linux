@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:06:34 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/bif_slave_defs_asm.h ../../inst/bif/rtl/bif_slave_regs.r
- *      id: $Id: bif_slave_defs_asm.h,v 1.1 2005/04/24 18:31:04 starvik Exp $
+ *      id: $Id: bif_slave_defs_asm.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -210,7 +210,6 @@
 #define reg_bif_slave_r_masked_intr___bus_acquire___width 1
 #define reg_bif_slave_r_masked_intr___bus_acquire___bit 1
 #define reg_bif_slave_r_masked_intr_offset 76
-
 
 /* Constants */
 #define regk_bif_slave_active_hi                  0x00000003

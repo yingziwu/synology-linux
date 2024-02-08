@@ -1,5 +1,5 @@
 /*
- *  acpi_fan.c - ACPI Fan Driver ($Revision: 29 $)
+ *  acpi_fan.c - ACPI Fan Driver ($Revision: 1.1 $)
  *
  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
@@ -130,7 +130,6 @@ static int acpi_fan_read_state(struct seq_file *seq, void *offset)
 	struct acpi_device *device = seq->private;
 	int state = 0;
 
-
 	if (device) {
 		if (acpi_bus_get_power(device->handle, &state))
 			seq_printf(seq, "status:                  ERROR\n");
@@ -189,7 +188,6 @@ static const struct file_operations acpi_fan_state_ops = {
 static int acpi_fan_add_fs(struct acpi_device *device)
 {
 	struct proc_dir_entry *entry = NULL;
-
 
 	if (!device)
 		return -EINVAL;
@@ -346,7 +344,6 @@ static int acpi_fan_resume(struct acpi_device *device)
 static int __init acpi_fan_init(void)
 {
 	int result = 0;
-
 
 #ifdef CONFIG_ACPI_PROCFS
 	acpi_fan_dir = proc_mkdir(ACPI_FAN_CLASS, acpi_root_dir);

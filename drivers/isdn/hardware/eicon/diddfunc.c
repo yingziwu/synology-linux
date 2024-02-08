@@ -1,4 +1,4 @@
-/* $Id: diddfunc.c,v 1.14.6.2 2004/08/28 20:03:53 armin Exp $
+/* $Id: diddfunc.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * DIDD Interface module for Eicon active cards.
  * 
@@ -18,7 +18,6 @@
 
 #define DBG_MINIMUM  (DL_LOG + DL_FTL + DL_ERR)
 #define DBG_DEFAULT  (DBG_MINIMUM + DL_XLOG + DL_REG)
-
 
 extern void DIVA_DIDD_Read(void *, int);
 extern char *DRIVERRELEASE_DIDD;

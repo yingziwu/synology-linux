@@ -320,7 +320,6 @@ exit:
 	return result;
 }
 
-
 static void visor_close(struct usb_serial_port *port)
 {
 	struct visor_private *priv = usb_get_serial_port_data(port);
@@ -352,7 +351,6 @@ static void visor_close(struct usb_serial_port *port)
 			 priv->bytes_in, priv->bytes_out);
 }
 
-
 static int visor_write(struct tty_struct *tty, struct usb_serial_port *port,
 					const unsigned char *buf, int count)
 {
@@ -368,7 +366,7 @@ static int visor_write(struct tty_struct *tty, struct usb_serial_port *port,
 	spin_lock_irqsave(&priv->lock, flags);
 	if (priv->outstanding_urbs > URB_UPPER_LIMIT) {
 		spin_unlock_irqrestore(&priv->lock, flags);
-		dbg("%s - write limit hit\n", __func__);
+		dbg("%s - write limit hit", __func__);
 		return 0;
 	}
 	priv->outstanding_urbs++;
@@ -428,7 +426,6 @@ error_no_buffer:
 	return count;
 }
 
-
 static int visor_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -446,14 +443,13 @@ static int visor_write_room(struct tty_struct *tty)
 	spin_lock_irqsave(&priv->lock, flags);
 	if (priv->outstanding_urbs > URB_UPPER_LIMIT * 2 / 3) {
 		spin_unlock_irqrestore(&priv->lock, flags);
-		dbg("%s - write limit hit\n", __func__);
+		dbg("%s - write limit hit", __func__);
 		return 0;
 	}
 	spin_unlock_irqrestore(&priv->lock, flags);
 
 	return 2048;
 }
-
 
 static void visor_write_bulk_callback(struct urb *urb)
 {
@@ -477,7 +473,6 @@ static void visor_write_bulk_callback(struct urb *urb)
 
 	usb_serial_port_softint(port);
 }
-
 
 static void visor_read_bulk_callback(struct urb *urb)
 {
@@ -503,13 +498,9 @@ static void visor_read_bulk_callback(struct urb *urb)
 	if (urb->actual_length) {
 		tty = tty_port_tty_get(&port->port);
 		if (tty) {
-			available_room = tty_buffer_request_room(tty,
-							urb->actual_length);
-			if (available_room) {
-				tty_insert_flip_string(tty, data,
-							available_room);
-				tty_flip_buffer_push(tty);
-			}
+			tty_insert_flip_string(tty, data,
+						urb->actual_length);
+			tty_flip_buffer_push(tty);
 			tty_kref_put(tty);
 		}
 		spin_lock(&priv->lock);
@@ -589,7 +580,6 @@ static void visor_throttle(struct tty_struct *tty)
 	priv->throttled = 1;
 	spin_unlock_irq(&priv->lock);
 }
-
 
 static void visor_unthrottle(struct tty_struct *tty)
 {
@@ -746,7 +736,6 @@ static int palm_os_4_probe(struct usb_serial *serial,
 	kfree(transfer_buffer);
 	return 0;
 }
-
 
 static int visor_probe(struct usb_serial *serial,
 					const struct usb_device_id *id)
@@ -993,7 +982,6 @@ failed_handspring_register:
 	return retval;
 }
 
-
 static void __exit visor_exit (void)
 {
 	usb_deregister(&visor_driver);
@@ -1001,7 +989,6 @@ static void __exit visor_exit (void)
 	usb_serial_deregister(&clie_3_5_device);
 	usb_serial_deregister(&clie_5_device);
 }
-
 
 module_init(visor_init);
 module_exit(visor_exit);
@@ -1019,4 +1006,3 @@ module_param(vendor, ushort, 0);
 MODULE_PARM_DESC(vendor, "User specified vendor ID");
 module_param(product, ushort, 0);
 MODULE_PARM_DESC(product, "User specified product ID");
-

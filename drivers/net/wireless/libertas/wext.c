@@ -21,7 +21,6 @@
 #include "assoc.h"
 #include "cmd.h"
 
-
 static inline void lbs_postpone_association_work(struct lbs_private *priv)
 {
 	if (priv->surpriseremoved)
@@ -44,7 +43,6 @@ static inline void lbs_cancel_association_work(struct lbs_private *priv)
 	kfree(priv->pending_assoc_req);
 	priv->pending_assoc_req = NULL;
 }
-
 
 /**
  *  @brief Find the channel frequency power info with specific channel
@@ -879,7 +877,6 @@ out:
 	lbs_deb_leave(LBS_DEB_WEXT);
 	return &priv->wstats;
 
-
 }
 
 static int lbs_set_freq(struct net_device *dev, struct iw_request_info *info,
@@ -1109,7 +1106,6 @@ out:
 	lbs_deb_leave_args(LBS_DEB_WEXT, "ret %d", ret);
 	return ret;
 }
-
 
 /**
  *  @brief Get Encryption key
@@ -1633,7 +1629,6 @@ out:
 	return ret;
 }
 
-
 static int lbs_set_genie(struct net_device *dev,
 			  struct iw_request_info *info,
 			  struct iw_point *dwrq,
@@ -1706,7 +1701,6 @@ out:
 	lbs_deb_leave_args(LBS_DEB_WEXT, "ret %d", ret);
 	return ret;
 }
-
 
 static int lbs_set_auth(struct net_device *dev,
 			 struct iw_request_info *info,
@@ -1854,7 +1848,6 @@ static int lbs_get_auth(struct net_device *dev,
 	return ret;
 }
 
-
 static int lbs_set_txpow(struct net_device *dev, struct iw_request_info *info,
 		   struct iw_param *vwrq, char *extra)
 {
@@ -1953,10 +1946,8 @@ static int lbs_get_essid(struct net_device *dev, struct iw_request_info *info,
 	if (priv->connect_status == LBS_CONNECTED) {
 		memcpy(extra, priv->curbssparams.ssid,
 		       priv->curbssparams.ssid_len);
-		extra[priv->curbssparams.ssid_len] = '\0';
 	} else {
 		memset(extra, 0, 32);
-		extra[priv->curbssparams.ssid_len] = '\0';
 	}
 	/*
 	 * If none, we may want to get the one that was set

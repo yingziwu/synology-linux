@@ -199,7 +199,6 @@ void acpi_table_print_madt_entry(struct acpi_subtable_header *header)
 	}
 }
 
-
 int __init
 acpi_table_parse_entries(char *id,
 			     unsigned long table_size,
@@ -213,7 +212,7 @@ acpi_table_parse_entries(char *id,
 	unsigned long table_end;
 	acpi_size tbl_size;
 
-	if (acpi_disabled)
+	if (acpi_disabled && !acpi_ht)
 		return -ENODEV;
 
 	if (!handler)
@@ -280,7 +279,7 @@ int __init acpi_table_parse(char *id, acpi_table_handler handler)
 	struct acpi_table_header *table = NULL;
 	acpi_size tbl_size;
 
-	if (acpi_disabled)
+	if (acpi_disabled && !acpi_ht)
 		return -ENODEV;
 
 	if (!handler)

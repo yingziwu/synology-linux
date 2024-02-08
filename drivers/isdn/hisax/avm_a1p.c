@@ -1,4 +1,4 @@
-/* $Id: avm_a1p.c,v 2.9.2.5 2004/01/24 20:47:19 keil Exp $
+/* $Id: avm_a1p.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * low level stuff for the following AVM cards:
  * A1 PCMCIA
@@ -56,7 +56,7 @@
 #define byteout(addr,val) outb(val,addr)
 #define bytein(addr) inb(addr)
 
-static const char *avm_revision = "$Revision: 2.9.2.5 $";
+static const char *avm_revision = "$Revision: 1.1 $";
 
 static inline u_char
 ReadISAC(struct IsdnCardState *cs, u_char offset)
@@ -219,7 +219,6 @@ int __devinit setup_avm_a1_pcmcia(struct IsdnCard *card)
 	struct IsdnCardState *cs = card->cs;
 	char tmp[64];
 
-
 	strcpy(tmp, avm_revision);
 	printk(KERN_INFO "HiSax: AVM A1 PCMCIA driver Rev. %s\n",
 						 HiSax_getrev(tmp));
@@ -228,7 +227,6 @@ int __devinit setup_avm_a1_pcmcia(struct IsdnCard *card)
 
 	cs->hw.avm.cfg_reg = card->para[1];
 	cs->irq = card->para[0];
-
 
 	byteout(cs->hw.avm.cfg_reg+ASL1_OFFSET, ASL1_W_ENABLE_S0);
 	byteout(cs->hw.avm.cfg_reg+ASL0_OFFSET,0x00);

@@ -893,7 +893,6 @@ xfrm_stateonly_find(struct net *net,
 		xfrm_state_hold(rx);
 	spin_unlock(&xfrm_state_lock);
 
-
 	return rx;
 }
 EXPORT_SYMBOL(xfrm_stateonly_find);
@@ -1110,7 +1109,7 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig, int *errp)
 	x->props.saddr = orig->props.saddr;
 
 	if (orig->aalg) {
-		x->aalg = xfrm_algo_clone(orig->aalg);
+		x->aalg = xfrm_algo_auth_clone(orig->aalg);
 		if (!x->aalg)
 			goto error;
 	}
@@ -1577,7 +1576,6 @@ void xfrm_state_walk_done(struct xfrm_state_walk *walk)
 	spin_unlock_bh(&xfrm_state_lock);
 }
 EXPORT_SYMBOL(xfrm_state_walk_done);
-
 
 void xfrm_replay_notify(struct xfrm_state *x, int event)
 {

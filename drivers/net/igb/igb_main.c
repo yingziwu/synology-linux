@@ -63,6 +63,7 @@ static const struct e1000_info *igb_info_tbl[] = {
 static struct pci_device_id igb_pci_tbl[] = {
 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_82576), board_82575 },
 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_82576_NS), board_82575 },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_82576_NS_SERDES), board_82575 },
 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_82576_FIBER), board_82575 },
 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_82576_SERDES), board_82575 },
 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_82576_SERDES_QUAD), board_82575 },
@@ -212,7 +213,6 @@ static struct pci_error_handlers igb_err_handler = {
 	.slot_reset = igb_io_slot_reset,
 	.resume = igb_io_resume,
 };
-
 
 static struct pci_driver igb_driver = {
 	.name     = igb_driver_name,
@@ -579,7 +579,6 @@ static void igb_configure_msix(struct igb_adapter *adapter)
 			writel(1, hw->hw_addr + rx_ring->itr_register);
 	}
 
-
 	/* set vector for other causes, i.e. link changes */
 	switch (hw->mac.type) {
 	case e1000_82575:
@@ -676,7 +675,6 @@ static void igb_reset_interrupt_capability(struct igb_adapter *adapter)
 		pci_disable_msi(adapter->pdev);
 	return;
 }
-
 
 /**
  * igb_set_interrupt_capability - set MSI or MSI-X if supported
@@ -907,7 +905,6 @@ static void igb_release_hw_control(struct igb_adapter *adapter)
 			ctrl_ext & ~E1000_CTRL_EXT_DRV_LOAD);
 }
 
-
 /**
  * igb_get_hw_control - get control of the h/w from f/w
  * @adapter: address of board private structure
@@ -956,10 +953,8 @@ static void igb_configure(struct igb_adapter *adapter)
 		igb_alloc_rx_buffers_adv(ring, igb_desc_unused(ring));
 	}
 
-
 	adapter->tx_queue_len = netdev->tx_queue_len;
 }
-
 
 /**
  * igb_up - Open the interface and prepare it to handle traffic
@@ -2796,7 +2791,6 @@ enum latency_range {
 	latency_invalid = 255
 };
 
-
 /**
  * igb_update_ring_itr - update the dynamic ITR value based on packet size
  *
@@ -2992,7 +2986,6 @@ set_itr_now:
 
 	return;
 }
-
 
 #define IGB_TX_FLAGS_CSUM		0x00000001
 #define IGB_TX_FLAGS_VLAN		0x00000002
@@ -4181,7 +4174,6 @@ static void igb_rcv_ack_from_vf(struct igb_adapter *adapter, u32 vf)
 	if (!adapter->vf_data[vf].clear_to_send)
 		igb_write_mbx(hw, &msg, 1, vf);
 }
-
 
 static void igb_msg_task(struct igb_adapter *adapter)
 {

@@ -334,7 +334,6 @@ static int ad198x_capture_pcm_cleanup(struct hda_pcm_stream *hinfo,
 	return 0;
 }
 
-
 /*
  */
 static struct hda_pcm_stream ad198x_pcm_analog_playback = {
@@ -447,7 +446,6 @@ static struct hda_codec_ops ad198x_patch_ops = {
 #endif
 };
 
-
 /*
  * EAPD control
  * the private value = nid | (invert << 8)
@@ -494,7 +492,6 @@ static int ad198x_ch_mode_get(struct snd_kcontrol *kcontrol,
 static int ad198x_ch_mode_put(struct snd_kcontrol *kcontrol,
 			      struct snd_ctl_elem_value *ucontrol);
 
-
 /*
  * AD1986A specific
  */
@@ -523,7 +520,6 @@ static struct hda_input_mux ad1986a_capture_source = {
 		{ "Phone", 0x7 },
 	},
 };
-
 
 static struct hda_bind_ctls ad1986a_bind_pcm_vol = {
 	.ops = &snd_hda_bind_vol,
@@ -811,7 +807,6 @@ static struct snd_kcontrol_new ad1986a_automute_master_mixers[] = {
 	{ } /* end */
 };
 
-
 /*
  * initialization verbs
  */
@@ -961,7 +956,6 @@ static int ad1986a_samsung_p50_init(struct hda_codec *codec)
 	return 0;
 }
 
-
 /* models */
 enum {
 	AD1986A_6STACK,
@@ -1003,7 +997,7 @@ static struct snd_pci_quirk ad1986a_cfg_tbl[] = {
 	SND_PCI_QUIRK(0x1043, 0x81cb, "ASUS M2N", AD1986A_3STACK),
 	SND_PCI_QUIRK(0x1043, 0x8234, "ASUS M2N", AD1986A_3STACK),
 	SND_PCI_QUIRK(0x10de, 0xcb84, "ASUS A8N-VM", AD1986A_3STACK),
-	SND_PCI_QUIRK(0x1179, 0xff40, "Toshiba", AD1986A_LAPTOP_EAPD),
+	SND_PCI_QUIRK(0x1179, 0xff40, "Toshiba Satellite L40-10Q", AD1986A_3STACK),
 	SND_PCI_QUIRK(0x144d, 0xb03c, "Samsung R55", AD1986A_3STACK),
 	SND_PCI_QUIRK(0x144d, 0xc01e, "FSC V2060", AD1986A_LAPTOP),
 	SND_PCI_QUIRK(0x144d, 0xc024, "Samsung P50", AD1986A_SAMSUNG_P50),
@@ -1367,7 +1361,6 @@ static int patch_ad1983(struct hda_codec *codec)
 
 	return 0;
 }
-
 
 /*
  * AD1981 HD specific
@@ -1789,6 +1782,14 @@ static int patch_ad1981(struct hda_codec *codec)
 	case AD1981_THINKPAD:
 		spec->mixers[0] = ad1981_thinkpad_mixers;
 		spec->input_mux = &ad1981_thinkpad_capture_source;
+		/* set the upper-limit for mixer amp to 0dB for avoiding the
+		 * possible damage by overloading
+		 */
+		snd_hda_override_amp_caps(codec, 0x11, HDA_INPUT,
+					  (0x17 << AC_AMPCAP_OFFSET_SHIFT) |
+					  (0x17 << AC_AMPCAP_NUM_STEPS_SHIFT) |
+					  (0x05 << AC_AMPCAP_STEP_SIZE_SHIFT) |
+					  (1 << AC_AMPCAP_MUTE_SHIFT));
 		break;
 	case AD1981_TOSHIBA:
 		spec->mixers[0] = ad1981_hp_mixers;
@@ -1803,7 +1804,6 @@ static int patch_ad1981(struct hda_codec *codec)
 	}
 	return 0;
 }
-
 
 /*
  * AD1988
@@ -1889,7 +1889,6 @@ static int patch_ad1981(struct hda_codec *codec)
  *      D internal speaker (with EAPD)
  *      E/F quad mic array
  */
-
 
 /* models */
 enum {
@@ -2943,7 +2942,6 @@ static int ad1988_auto_init(struct hda_codec *codec)
 	return 0;
 }
 
-
 /*
  */
 
@@ -3105,7 +3103,6 @@ static int patch_ad1988(struct hda_codec *codec)
 
 	return 0;
 }
-
 
 /*
  * AD1884 / AD1984
@@ -3331,7 +3328,6 @@ static struct hda_input_mux ad1984_thinkpad_capture_source = {
 	},
 };
 
-
 /*
  * Dell Precision T3400
  */
@@ -3343,7 +3339,6 @@ static struct hda_input_mux ad1984_dell_desktop_capture_source = {
 		{ "Mix", 0x3 },
 	},
 };
-
 
 static struct snd_kcontrol_new ad1984_thinkpad_mixers[] = {
 	HDA_CODEC_VOLUME("PCM Playback Volume", 0x04, 0x0, HDA_OUTPUT),
@@ -3536,7 +3531,6 @@ static int patch_ad1984(struct hda_codec *codec)
 	}
 	return 0;
 }
-
 
 /*
  * AD1883 / AD1884A / AD1984A / AD1984B
@@ -4127,7 +4121,6 @@ static void ad1984a_touchsmart_automic(struct hda_codec *codec)
 	}
 }
 
-
 /* unsolicited event for HP jack sensing */
 static void ad1984a_touchsmart_unsol_event(struct hda_codec *codec,
 	unsigned int res)
@@ -4150,7 +4143,6 @@ static int ad1984a_touchsmart_init(struct hda_codec *codec)
 	ad1984a_touchsmart_automic(codec);
 	return 0;
 }
-
 
 /*
  */
@@ -4285,7 +4277,6 @@ static int patch_ad1884a(struct hda_codec *codec)
 
 	return 0;
 }
-
 
 /*
  * AD1882 / AD1882A
@@ -4554,7 +4545,6 @@ static const char *ad1882_models[AD1986A_MODELS] = {
 	[AD1882_6STACK]		= "6stack",
 };
 
-
 static int patch_ad1882(struct hda_codec *codec)
 {
 	struct ad198x_spec *spec;
@@ -4621,7 +4611,6 @@ static int patch_ad1882(struct hda_codec *codec)
 	}
 	return 0;
 }
-
 
 /*
  * patch entries

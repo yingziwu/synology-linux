@@ -12,12 +12,16 @@ config ARM
 	select HAVE_IDE
 	select RTC_LIB
 	select SYS_SUPPORTS_APM_EMULATION
+	select GENERIC_ATOMIC64 if (!CPU_32v6K)
 	select HAVE_OPROFILE
 	select HAVE_ARCH_KGDB
 	select HAVE_KPROBES if (!XIP_KERNEL)
 	select HAVE_KRETPROBES if (HAVE_KPROBES)
 	select HAVE_FUNCTION_TRACER if (!XIP_KERNEL)
 	select HAVE_GENERIC_DMA_COHERENT
+	select HAVE_KERNEL_GZIP
+	select HAVE_KERNEL_LZO
+	select HAVE_KERNEL_LZMA
 	help
 	  The ARM series is a line of low-power-consumption RISC chip designs
 	  licensed by ARM Ltd and targeted at embedded applications and
@@ -223,6 +227,31 @@ config ARCH_INTEGRATOR
 	select ICST525
 	help
 	  Support for ARM's Integrator platform.
+
+config ARCH_FEROCEON_ORION
+	bool "Feroceon-Orion based"
+	select ARCH_FEROCEON
+	select PCI
+	select GENERIC_TIME
+	select GENERIC_CLOCKEVENTS
+
+config ARCH_FEROCEON_KW
+	bool "Feroceon-KW based"
+	select CPU_FEROCEON
+	select ARCH_FEROCEON
+	select PCI
+	select GENERIC_GPIO
+	select ARCH_REQUIRE_GPIOLIB
+	select GENERIC_TIME
+	select GENERIC_CLOCKEVENTS
+	select ARCH_HAS_CPUFREQ
+
+config ARCH_FEROCEON_MV78XX0
+	bool "Feroceon-MV78XX0 based"
+	select ARCH_FEROCEON
+	select PCI
+	select GENERIC_TIME
+	select GENERIC_CLOCKEVENTS
 
 config ARCH_REALVIEW
 	bool "ARM Ltd. RealView family"
@@ -702,7 +731,31 @@ config ARCH_BCMRING
 	help
 	  Support for Broadcom's BCMRing platform.
 
+config ARCH_OXNAS
+	bool "Oxford Semiconductor 810 NAS SoC"
+	help
+		This enables support for Oxsemi 810 NAS SoC
+
+config ARCH_OX820
+	bool "Oxford Semiconductor 815/820/825 NAS SoC"
+	select ARM_GIC
+	select GENERIC_CLOCKEVENTS
+	select LOCAL_TIMERS
+	help
+		This enables support for Oxsemi 815/820/825 NAS SoC
+
 endchoice
+
+if ARCH_FEROCEON_ORION || ARCH_FEROCEON_KW || ARCH_FEROCEON_MV78XX0
+source "arch/arm/plat-feroceon/Kconfig"
+endif
+
+config SYNO_MV_COMMON
+	bool "Synology Platform Utilities"
+	depends on SYNO_MV88F6281
+	default y
+	help
+	  "Choose this for synology functions for marvell platform"
 
 source "arch/arm/mach-clps711x/Kconfig"
 
@@ -804,6 +857,12 @@ source "arch/arm/mach-w90x900/Kconfig"
 
 source "arch/arm/mach-bcmring/Kconfig"
 
+source "arch/arm/mach-oxnas/Kconfig"
+
+source "arch/arm/mach-ox820/Kconfig"
+
+source "arch/arm/plat-oxnas/Kconfig"
+
 # Definitions to make life easier
 config ARCH_ACORN
 	bool
@@ -812,6 +871,9 @@ config PLAT_IOP
 	bool
 
 config PLAT_ORION
+	bool
+
+config ARCH_FEROCEON
 	bool
 
 config PLAT_PXA
@@ -893,8 +955,10 @@ source "arch/arm/common/Kconfig"
 
 config FORCE_MAX_ZONEORDER
 	int
-	depends on SA1111
-	default "9"
+		
+	depends on SA1111 || ARCH_FEROCEON_KW
+    default "9" if SA1111
+    default "19" if ARCH_FEROCEON_KW
 
 menu "Bus support"
 
@@ -920,7 +984,7 @@ config ISA_DMA_API
 	bool
 
 config PCI
-	bool "PCI support" if ARCH_INTEGRATOR_AP || ARCH_VERSATILE_PB || ARCH_IXP4XX || ARCH_KS8695 || MACH_ARMCORE
+	bool "PCI support" if ARCH_INTEGRATOR_AP || ARCH_VERSATILE_PB || ARCH_IXP4XX || ARCH_KS8695 || MACH_ARMCORE || ARCH_FEROCEON || ARCH_OXNAS || ARCH_OX820
 	help
 	  Find out whether you have a PCI motherboard. PCI is the name of a
 	  bus system, i.e. the way the CPU talks to the other stuff inside
@@ -955,10 +1019,11 @@ source "kernel/time/Kconfig"
 config SMP
 	bool "Symmetric Multi-Processing (EXPERIMENTAL)"
 	depends on EXPERIMENTAL && (REALVIEW_EB_ARM11MP || REALVIEW_EB_A9MP ||\
-		 MACH_REALVIEW_PB11MP || MACH_REALVIEW_PBX || ARCH_OMAP4)
+		 MACH_REALVIEW_PB11MP || MACH_REALVIEW_PBX || ARCH_OMAP4 || ARCH_OX820)
 	depends on GENERIC_CLOCKEVENTS
 	select USE_GENERIC_SMP_HELPERS
-	select HAVE_ARM_SCU if (ARCH_REALVIEW || ARCH_OMAP4)
+	select HAVE_ARM_SCU if (ARCH_REALVIEW || ARCH_OMAP4 || ARCH_OX820)
+	select GENERIC_TIME if ARCH_OX820
 	help
 	  This enables support for systems with more than one CPU. If you have
 	  a system with only one CPU, like most personal computers, say N. If
@@ -983,8 +1048,9 @@ config HAVE_ARM_SCU
 	  This option enables support for the ARM system coherency unit
 
 config HAVE_ARM_TWD
-	bool
-	depends on SMP
+	bool "Support for ARM timer/watchodog unit"
+	depends on SMP || ARCH_OX820
+	default y if ARCH_OX820
 	help
 	  This options enables support for the ARM timer and watchdog unit
 
@@ -1027,9 +1093,9 @@ config HOTPLUG_CPU
 config LOCAL_TIMERS
 	bool "Use local timer interrupts"
 	depends on SMP && (REALVIEW_EB_ARM11MP || MACH_REALVIEW_PB11MP || \
-		REALVIEW_EB_A9MP || MACH_REALVIEW_PBX || ARCH_OMAP4)
+		REALVIEW_EB_A9MP || MACH_REALVIEW_PBX || ARCH_OMAP4 || ARCH_OX820)
 	default y
-	select HAVE_ARM_TWD if (ARCH_REALVIEW || ARCH_OMAP4)
+	select HAVE_ARM_TWD if (ARCH_REALVIEW || ARCH_OMAP4 || ARCH_OX820)
 	help
 	  Enable support for local timers on SMP platforms, rather then the
 	  legacy IPI broadcast method.  Local timers allows the system
@@ -1095,6 +1161,14 @@ config OABI_COMPAT
 
 config ARCH_HAS_HOLES_MEMORYMODEL
 	bool
+	default n
+config REORDER
+        bool "Function reordering"
+        default n
+        help
+          This option enables the toolchain to reorder functions for a more
+          optimal TLB/Icache usage. If you have pretty much any version of binutils,
+          this can increase your kernel build time by roughly one minute.
 
 # Discontigmem is deprecated
 config ARCH_DISCONTIGMEM_ENABLE
@@ -1147,7 +1221,8 @@ config LEDS
 		   ARCH_OMAP || ARCH_P720T || ARCH_PXA_IDP || \
 		   ARCH_SA1100 || ARCH_SHARK || ARCH_VERSATILE || \
 		   ARCH_AT91 || ARCH_DAVINCI || \
-		   ARCH_KS8695 || MACH_RD88F5182 || ARCH_REALVIEW
+		   ARCH_KS8695 || MACH_RD88F5182 || ARCH_FEROCEON || \
+		   ARCH_REALVIEW
 	help
 	  If you say Y here, the LEDs on your machine will be used
 	  to provide useful information about your current system status.
@@ -1204,6 +1279,20 @@ config ALIGNMENT_TRAP
 	  here, which has a severe performance impact. This is necessary for
 	  correct operation of some network protocols. With an IP-only
 	  configuration it is safe to say N, otherwise say Y.
+
+config COPY_USER_MEMCPY
+	bool "Use kernel mem{cpy,set}() for {copy_to,clear}_user()"
+	depends on !CONFIG_CPU_32v3
+	default y if CPU_FEROCEON
+	help
+	  Implement {copy_to,clear}_user() by faulting in the userland
+	  pages and then using the regular kernel mem{cpy,set}() to copy
+	  the data (while holding the mmap semaphore).  This is a win if
+	  the regular mem{cpy,set}() implementations are faster than the
+	  user copy functions, which is the case e.g. on Feroceon, where
+	  8-word STMs (which memcpy() uses under the right conditions)
+	  give significantly higher memory write throughput than a
+	  sequence of individual 32bit stores.
 
 config UACCESS_WITH_MEMCPY
 	bool "Use kernel mem{cpy,set}() for {copy_to,clear}_user() (EXPERIMENTAL)"
@@ -1405,6 +1494,14 @@ config CPU_FREQ_S3C24XX_DEBUGFS
 	help
 	  Export status information via debugfs.
 
+config CPU_FREQ_FEROCEON_KW
+	tristate "CPUfreq driver for Kirkwood SoC"
+	depends on CPU_FREQ && ARCH_FEROCEON_KW
+	default n
+	help
+	  This enables the CPUfreq driver for Kirkwood SoC.
+
+	  If in doubt, say N.
 endif
 
 source "drivers/cpuidle/Kconfig"
@@ -1464,6 +1561,18 @@ config VFP
 	  release notes and additional status information.
 
 	  Say N if your target does not have VFP hardware.
+
+config VFP_FASTVFP
+        bool "FastVFP"
+	depends on VFP
+        help
+          Say Y here to include the FAST Vector Floating Point in the kernel.
+	  This means the VFP co-processor runs in a determinable time without
+	  support code assistance, regardless of the characteristics of the input data.
+	  In RunFast mode, no user exception traps are available.
+
+	  It should be sufficient for most programs. It may be not suitable
+	  for scientific calculations, but you have to check this for yourself.
 
 config VFPv3
 	bool

@@ -58,7 +58,7 @@ _GLOBAL(load_up_altivec)
 	 * all 1's
 	 */
 	mfspr	r4,SPRN_VRSAVE
-	cmpdi	0,r4,0
+	cmpwi	0,r4,0
 	bne+	1f
 	li	r4,-1
 	mtspr	SPRN_VRSAVE,r4
@@ -209,7 +209,6 @@ _GLOBAL(__giveup_vsx)
 	blr
 
 #endif /* CONFIG_VSX */
-
 
 /*
  * The routines below are in assembler so we can closely control the

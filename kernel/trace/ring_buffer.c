@@ -582,7 +582,6 @@ EXPORT_SYMBOL_GPL(ring_buffer_normalize_time_stamp);
 #define RB_PAGE_HEAD		1UL
 #define RB_PAGE_UPDATE		2UL
 
-
 #define RB_FLAG_MASK		3UL
 
 /* PAGE_MOVED is not part of the mask */
@@ -2237,11 +2236,11 @@ ring_buffer_lock_reserve(struct ring_buffer *buffer, unsigned long length)
 	if (ring_buffer_flags != RB_BUFFERS_ON)
 		return NULL;
 
-	if (atomic_read(&buffer->record_disabled))
-		return NULL;
-
 	/* If we are tracing schedule, we don't want to recurse */
 	resched = ftrace_preempt_disable();
+
+	if (atomic_read(&buffer->record_disabled))
+		goto out_nocheck;
 
 	if (trace_recursive_lock())
 		goto out_nocheck;
@@ -2474,10 +2473,10 @@ int ring_buffer_write(struct ring_buffer *buffer,
 	if (ring_buffer_flags != RB_BUFFERS_ON)
 		return -EBUSY;
 
-	if (atomic_read(&buffer->record_disabled))
-		return -EBUSY;
-
 	resched = ftrace_preempt_disable();
+
+	if (atomic_read(&buffer->record_disabled))
+		goto out;
 
 	cpu = raw_smp_processor_id();
 
@@ -3820,7 +3819,6 @@ static const struct file_operations rb_simple_fops = {
 	.read		= rb_simple_read,
 	.write		= rb_simple_write,
 };
-
 
 static __init int rb_init_debugfs(void)
 {

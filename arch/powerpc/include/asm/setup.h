@@ -3,4 +3,9 @@
 
 #include <asm-generic/setup.h>
 
-#endif	/* _ASM_POWERPC_SETUP_H */
+#ifdef CONFIG_SYNO_MPC85XX_COMMON
+#define SYNO_CPLD_BASE    0xF8000000     
+#define SYNO_CPLD_SIZE    0x10
+#endif
+
+#endif	 

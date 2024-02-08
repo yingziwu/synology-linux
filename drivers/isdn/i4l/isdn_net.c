@@ -1,4 +1,4 @@
-/* $Id: isdn_net.c,v 1.1.2.2 2004/01/12 22:37:19 keil Exp $
+/* $Id: isdn_net.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Linux ISDN subsystem, network interfaces and related functions (linklevel).
  *
@@ -36,7 +36,6 @@
 #include <linux/concap.h>
 #include "isdn_concap.h"
 #endif
-
 
 /*
  * Outline of new tbusy handling: 
@@ -182,7 +181,7 @@ static netdev_tx_t isdn_net_start_xmit(struct sk_buff *,
 static void isdn_net_ciscohdlck_connected(isdn_net_local *lp);
 static void isdn_net_ciscohdlck_disconnected(isdn_net_local *lp);
 
-char *isdn_net_revision = "$Revision: 1.1.2.2 $";
+char *isdn_net_revision = "$Revision: 1.1 $";
 
  /*
   * Code for raw-networking over ISDN
@@ -1034,7 +1033,6 @@ void isdn_net_writebuf_skb(isdn_net_local *lp, struct sk_buff *skb)
 
 }
 
-
 /*
  *  Helper function for isdn_net_start_xmit.
  *  When called, the connection is already established.
@@ -1126,7 +1124,6 @@ isdn_net_adjust_hdr(struct sk_buff *skb, struct net_device *dev)
 		}
 	}
 }
-
 
 static void isdn_net_tx_timeout(struct net_device * ndev)
 {
@@ -1403,7 +1400,6 @@ isdn_net_type_trans(struct sk_buff *skb, struct net_device *dev)
 	return htons(ETH_P_802_2);
 }
 
-
 /* 
  * CISCO HDLC keepalive specific stuff
  */
@@ -1487,7 +1483,6 @@ isdn_ciscohdlck_dev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	}
 	return (rc);
 }
-
 
 static int isdn_net_ioctl(struct net_device *dev,
 			  struct ifreq *ifr, int cmd)

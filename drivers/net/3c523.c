@@ -1,7 +1,6 @@
 /*
    net-3-driver for the 3c523 Etherlink/MC card (i82586 Ethernet chip)
 
-
    This is an extension to the Linux operating system, and is covered by the
    same GNU General Public License that covers that work.
 
@@ -84,7 +83,7 @@
    Nov 2001
    added support for ethtool (jgarzik)
 
-   $Header: /fsys2/home/chrisb/linux-1.3.59-MCA/drivers/net/RCS/3c523.c,v 1.1 1996/02/05 01:53:46 chrisb Exp chrisb $
+   $Header: /synosrc.old/cvs_root/projects/linux-2.6.32/drivers/net/3c523.c,v 1.1 2010-04-15 12:27:53 khchen Exp $
  */
 
 #define DRV_NAME		"3c523"
@@ -139,7 +138,6 @@ static int shm_table[] __initdata = {
 };
 
 /******************* how to calculate the buffers *****************************
-
 
   * IMPORTANT NOTE: if you configure only one NUM_XMIT_BUFFS, the driver works
   * --------------- in a different (more stable?) mode. Only in this mode it's
@@ -890,7 +888,6 @@ static void *alloc_rfa(struct net_device *dev, void *ptr)
 
 	return ptr;
 }
-
 
 /**************************************************
  * Interrupt Handler ...

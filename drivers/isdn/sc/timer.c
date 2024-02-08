@@ -1,4 +1,4 @@
-/* $Id: timer.c,v 1.3.6.1 2001/09/23 22:24:59 kai Exp $
+/* $Id: timer.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Copyright (C) 1996  SpellCaster Telecommunications Inc.
  *
@@ -19,7 +19,6 @@
 #include "hardware.h"
 #include "message.h"
 #include "card.h"
-
 
 /*
  * Write the proper values into the I/O ports following a reset
@@ -120,4 +119,3 @@ void check_phystat(unsigned long data)
 	sendmessage(card, CEPID,ceReqTypePhy,ceReqClass2,
 		ceReqPhyStatus,0,0,NULL);
 }
-

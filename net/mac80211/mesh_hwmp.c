@@ -44,7 +44,6 @@ static inline u32 u32_field_get(u8 *preq_elem, int offset, bool ae)
 #define PREQ_IE_DST_ADDR(x) 	(AE_F_SET(x) ? x + 33 : x + 27)
 #define PREQ_IE_DST_DSN(x) 	u32_field_get(x, 33, AE_F_SET(x));
 
-
 #define PREP_IE_FLAGS(x)	PREQ_IE_FLAGS(x)
 #define PREP_IE_HOPCOUNT(x)	PREQ_IE_HOPCOUNT(x)
 #define PREP_IE_TTL(x)		PREQ_IE_TTL(x)
@@ -502,7 +501,6 @@ static void hwmp_preq_frame_process(struct ieee80211_sub_if_data *sdata,
 	}
 }
 
-
 static void hwmp_prep_frame_process(struct ieee80211_sub_if_data *sdata,
 				    struct ieee80211_mgmt *mgmt,
 				    u8 *prep_elem, u32 metric)
@@ -595,8 +593,6 @@ static void hwmp_perr_frame_process(struct ieee80211_sub_if_data *sdata,
 	}
 	rcu_read_unlock();
 }
-
-
 
 void mesh_rx_path_sel_frame(struct ieee80211_sub_if_data *sdata,
 			    struct ieee80211_mgmt *mgmt,
@@ -813,7 +809,7 @@ int mesh_nexthop_lookup(struct sk_buff *skb,
 	}
 
 	if (mpath->flags & MESH_PATH_ACTIVE) {
-		if (time_after(jiffies, mpath->exp_time +
+		if (time_after(jiffies, mpath->exp_time -
 			msecs_to_jiffies(sdata->u.mesh.mshcfg.path_refresh_time))
 				&& !memcmp(sdata->dev->dev_addr, hdr->addr4,
 					   ETH_ALEN)

@@ -50,7 +50,6 @@
 #define ACPI_USE_DO_WHILE_0
 #define ACPI_MUTEX_TYPE             ACPI_BINARY_SEMAPHORE
 
-
 #ifdef __KERNEL__
 
 #include <linux/string.h>
@@ -111,7 +110,6 @@
 
 #include "acgcc.h"
 
-
 #ifdef __KERNEL__
 /*
  * Overrides for in-kernel ACPICA
@@ -152,7 +150,7 @@ static inline void *acpi_os_acquire_object(acpi_cache_t * cache)
 #include <linux/hardirq.h>
 #define ACPI_PREEMPTION_POINT() \
 	do { \
-		if (!in_atomic_preempt_off()) \
+		if (!in_atomic_preempt_off() && !irqs_disabled()) \
 			cond_resched(); \
 	} while (0)
 

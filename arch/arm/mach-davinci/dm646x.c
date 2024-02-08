@@ -294,7 +294,6 @@ static struct clk timer2_clk = {
 	.flags = ALWAYS_ENABLED, /* no LPSC, always enabled; c.f. spruep9a */
 };
 
-
 static struct clk ide_clk = {
 	.name = "ide",
 	.parent = &pll1_sysclk4,
@@ -789,7 +788,14 @@ static struct davinci_id dm646x_ids[] = {
 		.part_no	= 0xb770,
 		.manufacturer	= 0x017,
 		.cpu_id		= DAVINCI_CPU_ID_DM6467,
-		.name		= "dm6467",
+		.name		= "dm6467_rev1.x",
+	},
+	{
+		.variant	= 0x1,
+		.part_no	= 0xb770,
+		.manufacturer	= 0x017,
+		.cpu_id		= DAVINCI_CPU_ID_DM6467,
+		.name		= "dm6467_rev3.x",
 	},
 };
 

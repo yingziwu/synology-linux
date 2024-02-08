@@ -59,7 +59,6 @@ static ssize_t show_##field(struct device *dev,				\
 	return netdev_show(dev, attr, buf, format_##field);		\
 }
 
-
 /* use same locking and permission rules as SIF* ioctl's */
 static ssize_t netdev_store(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t len,
@@ -350,7 +349,6 @@ static struct attribute *netstat_attrs[] = {
 	NULL
 };
 
-
 static struct attribute_group netstat_group = {
 	.name  = "statistics",
 	.attrs  = netstat_attrs,
@@ -366,7 +364,8 @@ static ssize_t wireless_show(struct device *d, char *buf,
 	const struct iw_statistics *iw;
 	ssize_t ret = -EINVAL;
 
-	rtnl_lock();
+	if (!rtnl_trylock())
+		return restart_syscall();
 	if (dev_isalive(dev)) {
 		iw = get_wireless_stats(dev);
 		if (iw)

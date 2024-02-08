@@ -1,9 +1,7 @@
-/*
- * Copyright (C) 2001-2003 Sistina Software (UK) Limited.
- *
- * This file is released under the GPL.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include "dm.h"
 #include <linux/module.h>
 #include <linux/init.h>
@@ -14,17 +12,11 @@
 
 #define DM_MSG_PREFIX "linear"
 
-/*
- * Linear: maps a linear range of a device.
- */
 struct linear_c {
 	struct dm_dev *dev;
 	sector_t start;
 };
 
-/*
- * Construct a linear mapping: <dev_path> <offset>
- */
 static int linear_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 {
 	struct linear_c *lc;
@@ -142,6 +134,28 @@ static int linear_iterate_devices(struct dm_target *ti,
 	return fn(ti, lc->dev, lc->start, ti->len, data);
 }
 
+#ifdef MY_ABC_HERE
+extern void SYNOLvInfoSet(struct block_device *bdev, void *private, const char *lv_name);
+static void linear_lv_info_set(struct dm_target *ti)
+{
+	struct linear_c *lc = ti->private;
+	struct block_device *bdev = lc->dev->bdev;
+	struct mapped_device *md = dm_table_get_md(ti->table);
+
+	SYNOLvInfoSet(bdev, (void *)ti, dm_device_name(md));
+	dm_put(md);
+}
+
+static sector_t linear_lg_sector_get(sector_t sector, struct dm_target *ti)
+{
+	struct linear_c *lc = ti->private;
+	sector_t lg_sector;
+	
+	lg_sector = sector - lc->start + ti->begin;
+	return lg_sector;
+}
+#endif
+
 static struct target_type linear_target = {
 	.name   = "linear",
 	.version = {1, 1, 0},
@@ -152,6 +166,10 @@ static struct target_type linear_target = {
 	.status = linear_status,
 	.ioctl  = linear_ioctl,
 	.merge  = linear_merge,
+#ifdef MY_ABC_HERE
+	.lvinfoset = linear_lv_info_set,
+	.lg_sector_get = linear_lg_sector_get,
+#endif
 	.iterate_devices = linear_iterate_devices,
 };
 

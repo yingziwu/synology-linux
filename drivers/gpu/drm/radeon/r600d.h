@@ -363,7 +363,6 @@
 #define			SQ_TEX_VTX_VALID_TEXTURE			0x2
 #define			SQ_TEX_VTX_VALID_BUFFER				0x3
 
-
 #define	SX_MISC						0x28350
 #define	SX_MEMORY_EXPORT_BASE				0x9010
 #define	SX_DEBUG_1					0x9054
@@ -382,7 +381,6 @@
 #define	TC_CNTL						0x9608
 #define		TC_L2_SIZE(x)					((x)<<5)
 #define		L2_DISABLE_LATE_HIT				(1<<9)
-
 
 #define	VGT_CACHE_INVALIDATION				0x88C4
 #define		CACHE_INVALIDATION(x)				((x)<<0)
@@ -455,8 +453,6 @@
 #define         WAIT_3D_IDLE_bit                                (1 << 15)
 #define         WAIT_2D_IDLECLEAN_bit                           (1 << 16)
 #define         WAIT_3D_IDLECLEAN_bit                           (1 << 17)
-
-
 
 /*
  * PM4
@@ -540,7 +536,6 @@
 #define		PACKET3_SET_CTL_CONST_OFFSET			0x0003cff0
 #define		PACKET3_SET_CTL_CONST_END			0x0003e200
 #define	PACKET3_SURFACE_BASE_UPDATE			0x73
-
 
 #define	R_008020_GRBM_SOFT_RESET		0x8020
 #define		S_008020_SOFT_RESET_CP(x)		(((x) & 1) << 0)
@@ -673,5 +668,30 @@
 #define		S_000E60_SOFT_RESET_SEM(x)		(((x) & 1) << 15)
 #define		S_000E60_SOFT_RESET_TSC(x)		(((x) & 1) << 16)
 #define		S_000E60_SOFT_RESET_VMC(x)		(((x) & 1) << 17)
+
+#define R_005480_HDP_MEM_COHERENCY_FLUSH_CNTL		0x5480
+
+#define R_0280E0_CB_COLOR0_FRAG                      0x0280E0
+#define   S_0280E0_BASE_256B(x)                        (((x) & 0xFFFFFFFF) << 0)
+#define   G_0280E0_BASE_256B(x)                        (((x) >> 0) & 0xFFFFFFFF)
+#define   C_0280E0_BASE_256B                           0x00000000
+#define R_0280E4_CB_COLOR1_FRAG                      0x0280E4
+#define R_0280E8_CB_COLOR2_FRAG                      0x0280E8
+#define R_0280EC_CB_COLOR3_FRAG                      0x0280EC
+#define R_0280F0_CB_COLOR4_FRAG                      0x0280F0
+#define R_0280F4_CB_COLOR5_FRAG                      0x0280F4
+#define R_0280F8_CB_COLOR6_FRAG                      0x0280F8
+#define R_0280FC_CB_COLOR7_FRAG                      0x0280FC
+#define R_0280C0_CB_COLOR0_TILE                      0x0280C0
+#define   S_0280C0_BASE_256B(x)                        (((x) & 0xFFFFFFFF) << 0)
+#define   G_0280C0_BASE_256B(x)                        (((x) >> 0) & 0xFFFFFFFF)
+#define   C_0280C0_BASE_256B                           0x00000000
+#define R_0280C4_CB_COLOR1_TILE                      0x0280C4
+#define R_0280C8_CB_COLOR2_TILE                      0x0280C8
+#define R_0280CC_CB_COLOR3_TILE                      0x0280CC
+#define R_0280D0_CB_COLOR4_TILE                      0x0280D0
+#define R_0280D4_CB_COLOR5_TILE                      0x0280D4
+#define R_0280D8_CB_COLOR6_TILE                      0x0280D8
+#define R_0280DC_CB_COLOR7_TILE                      0x0280DC
 
 #endif

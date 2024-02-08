@@ -1,0 +1,157 @@
+# For a description of the syntax of this configuration file,
+# see Documentation/kbuild/kconfig-language.txt.
+#
+
+config SYNO_QORIQ
+	bool "Synology P1022 porting define"
+	depends on P1022_DS
+	default y
+
+config SYNO_QORIQ_FSL_SATA_NRESET
+	bool "Increasing eSATA compatibility on QorIQ eSATA"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_FIX_DEEP_WAKE_FAIL
+	bool "Fix wake from deepsleep fail issue"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_EN_DEEP_WAKE_PIN
+	bool "Let deepsleep can wakeup by GPIO pin"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_ESPI_PM
+	bool "support for pm in espi device"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_WOL_SPECIFY_PATTERN
+	bool "support for wake up from user specify pattern"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_IGNORE_DEFAULT_GATEWAY_ARP
+	bool "support for ignoring default gateway's ARP packet, which will wake up the machine"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_PHY_LED_SET
+	bool "support PHY LED behavior control"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_FIX_DISK_WAKE_BEFORE_DEEPSLEEP
+	bool "Fix disk will wakeup before deepsleep"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_DISABLE_KMSG_BEFORE_SYSSLEEP
+	bool "Disable /proc/kmsg to prevent disk wakeup before system deepsleep, see bug <DSM> #55224"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_TALITOS_PM_SUPPORT
+	bool "let talitos could support power management"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_FIX_SKB_RECYCLE
+	bool "enhance gianfar's skb recycle"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_FIX_OCF_RACE
+	bool "fix ocf race"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_NO_DISABLE_NON_BOOT_CPU
+	bool "fix cannot poweroff DS with iSCSI enabled"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_CONTINUE_RESET_PCI_DEV_WHEN_RESUME_FAIL
+	bool "fix resume failed when wakeup from deepsleep"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_CONTINUE_RESET_PCI_DEV_WHEN_RESUME_FAIL
+	bool "fix resume failed when wakeup from deepsleep"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_QORIQ_TX_RESTART_HANG_FIX
+	bool "fix tx queue restart hang fix"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_SAS_ENCLOSURE_ID_CTRL
+	bool "This mechanism will help kernel to enum enclosure id control interface in sysfs"
+	depends on SCSI_ENCLOSURE && ENCLOSURE_SERVICES
+	default n
+
+config SYNO_NET_INIT_OPERATION
+	bool "fix the default eth0 status when booting without link"
+	depends on SYNO_QORIQ
+	default y
+
+config SYNO_IGNORE_NETBIOS_BROADCAST
+	default y
+	bool "Export syno_ignore_netbios_broadcast to /proc"
+	depends on GIANFAR && SYNO_QORIQ
+
+config SYNO_MPC8533_TIMEBASE_FREQ
+    int "PPC853x Timebase frequency"
+    depends on SYNO_MPC8533
+    default 0
+
+config SYNO_QORIQ_ENABLE_PREFIX_CPU_AFFINITY
+	bool "Choose this to bind irq/kthread on specified cpu"
+	depends on SYNO_QORIQ
+
+config SYNO_QORIQ_DEFAULT_CPU_AFFINITY
+	int "Bind kernel thread on fixed cpu core"
+	depends on SYNO_QORIQ
+	depends on SYNO_QORIQ_ENABLE_PREFIX_CPU_AFFINITY
+	default 0
+
+config SYNO_QORIQ_GIANFAR_DROP_CACHE
+	bool "Drop cache before gianfar device start up"
+	depends on SYNO_QORIQ
+
+config SYNO_213AIR_KERNEL_PANIC_WORK_AROUND
+	bool "213 air xcopy work around"
+	depends on SYNO_MV88F6281 && XFRM
+	default y
+
+config SYNO_DISPLAY_CPUINFO
+    bool "Support display CPU Infomation"
+
+config SYNO_SATA_PM_DEVICE_GPIO
+	bool "Synology Specific PM Device Support"
+	depends on SATA_PMP
+	default y
+
+config SYNO_SATA_INTEL_SSD_COMPATIBILITY
+    bool "Solution of Intel S4500 3.84TB Hotplug 100% failed on Marvell 88SE9235"
+    default y
+
+config SYNO_NF_NAT_WORKAROUND
+	bool "Fix BUG_ON on nf_nat_setup_info"
+	default y
+
+config SYNO_MD_SB_RETRY
+	bool "Add an one-time retry for EIO error when updating superblock"
+	default y
+
+config SYNO_OCF_PERMISSION
+	bool "Adjust /dev/crypto permission to 666"
+	depends on OCF_CRYPTODEV
+	default y
+
+config SYNO_ADD_ROUTE_CHECK
+    bool "check if interface is link up before adding route"
+	default n
+

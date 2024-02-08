@@ -3,7 +3,7 @@
  * controllers
  *
  * This code is based on drivers/scsi/mpt2sas/mpt2_ctl.h
- * Copyright (C) 2007-2009  LSI Corporation
+ * Copyright (C) 2007-2010  LSI Corporation
  *  (mailto:DL-MPTFusionLinux@lsi.com)
  *
  * This program is free software; you can redistribute it and/or
@@ -49,6 +49,18 @@
 #include <linux/miscdevice.h>
 #endif
 
+/**
+ * NOTE
+ * FWDOWNLOAD - PR is let me know if we need to implement this
+ * DIAGBUFFER - PR said hold off
+ */
+
+/**
+ * HACK - changeme (MPT_MINOR = 220 )
+ */
+#ifndef MPT2SAS_MINOR
+#define MPT2SAS_MINOR		(MPT_MINOR + 1)
+#endif
 #define MPT2SAS_DEV_NAME	"mpt2ctl"
 #define MPT2_MAGIC_NUMBER	'L'
 #define MPT2_IOCTL_DEFAULT_TIMEOUT (10) /* in seconds */
@@ -107,7 +119,6 @@ struct mpt2_ioctl_diag_reset {
 	struct mpt2_ioctl_header hdr;
 };
 
-
 /**
  * struct mpt2_ioctl_pci_info - pci device info
  * @device - pci device id
@@ -127,12 +138,12 @@ struct mpt2_ioctl_pci_info {
 	uint32_t segment_id;
 };
 
-
 #define MPT2_IOCTL_INTERFACE_SCSI	(0x00)
 #define MPT2_IOCTL_INTERFACE_FC		(0x01)
 #define MPT2_IOCTL_INTERFACE_FC_IP	(0x02)
 #define MPT2_IOCTL_INTERFACE_SAS	(0x03)
 #define MPT2_IOCTL_INTERFACE_SAS2	(0x04)
+#define MPT2_IOCTL_INTERFACE_SAS2_SSS6200	(0x05)
 #define MPT2_IOCTL_VERSION_LENGTH	(32)
 
 /**
@@ -170,7 +181,6 @@ struct mpt2_ioctl_iocinfo {
 	uint16_t rsvd2;
 	struct mpt2_ioctl_pci_info pci_information;
 };
-
 
 /* number of event log entries */
 #define MPT2SAS_CTL_EVENT_LOG_SIZE (50)
@@ -223,7 +233,7 @@ struct mpt2_ioctl_eventreport {
 };
 
 /**
- * struct mpt2_ioctl_command - generic mpt firmware passthru ioclt
+ * struct mpt2_ioctl_command - generic mpt firmware passthru ioctl
  * @hdr - generic header
  * @timeout - command timeout in seconds. (if zero then use driver default
  *  value).
@@ -293,10 +303,9 @@ struct mpt2_ioctl_btdh_mapping {
 	uint16_t rsvd;
 };
 
-
 /* status bits for ioc->diag_buffer_status */
-#define MPT2_DIAG_BUFFER_IS_REGISTERED	(0x01)
-#define MPT2_DIAG_BUFFER_IS_RELEASED	(0x02)
+#define MPT2_DIAG_BUFFER_IS_REGISTERED 	(0x01)
+#define MPT2_DIAG_BUFFER_IS_RELEASED 	(0x02)
 #define MPT2_DIAG_BUFFER_IS_DIAG_RESET	(0x04)
 
 /* application flags for mpt2_diag_register, mpt2_diag_query */
@@ -313,7 +322,7 @@ struct mpt2_ioctl_btdh_mapping {
  * struct mpt2_diag_register - application register with driver
  * @hdr - generic header
  * @reserved -
- * @buffer_type - specifies either TRACE or SNAPSHOT
+ * @buffer_type - specifies either TRACE, SNAPSHOT, or EXTENDED
  * @application_flags - misc flags
  * @diagnostic_flags - specifies flags affecting command processing
  * @product_specific - product specific information
@@ -352,7 +361,7 @@ struct mpt2_diag_unregister {
  * struct mpt2_diag_query - query relevant info associated with diag buffers
  * @hdr - generic header
  * @reserved -
- * @buffer_type - specifies either TRACE or SNAPSHOT
+ * @buffer_type - specifies either TRACE, SNAPSHOT, or EXTENDED
  * @application_flags - misc flags
  * @diagnostic_flags - specifies flags affecting command processing
  * @product_specific - product specific information
@@ -414,4 +423,6 @@ struct mpt2_diag_read_buffer {
 	uint32_t diagnostic_data[1];
 };
 
+/* Chunk size to use when doing a FW Download */
+#define FW_DL_CHUNK_SIZE 0x4000
 #endif /* MPT2SAS_CTL_H_INCLUDED */

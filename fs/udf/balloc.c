@@ -1,24 +1,7 @@
-/*
- * balloc.c
- *
- * PURPOSE
- *	Block allocation handling routines for the OSTA-UDF(tm) filesystem.
- *
- * COPYRIGHT
- *	This file is distributed under the terms of the GNU General Public
- *	License (GPL). Copies of the GPL can be obtained from:
- *		ftp://prep.ai.mit.edu/pub/gnu/GPL
- *	Each contributing author retains all rights to their own work.
- *
- *  (C) 1999-2001 Ben Fennema
- *  (C) 1999 Stelias Computing Inc
- *
- * HISTORY
- *
- *  02/24/99 blf  Created.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include "udfdecl.h"
 
 #include <linux/quotaops.h>
@@ -189,9 +172,6 @@ static void udf_bitmap_free_blocks(struct super_block *sb,
 		block_group = block >> (sb->s_blocksize_bits + 3);
 		bit = block % (sb->s_blocksize << 3);
 
-		/*
-		* Check to see if we are freeing blocks across a group boundary.
-		*/
 		if (bit + count > (sb->s_blocksize << 3)) {
 			overflow = bit + count - (sb->s_blocksize << 3);
 			count -= overflow;
@@ -208,7 +188,11 @@ static void udf_bitmap_free_blocks(struct super_block *sb,
 					((char *)bh->b_data)[(bit + i) >> 3]);
 			} else {
 				if (inode)
+#ifdef MY_ABC_HERE
+					dquot_free_block(inode, 1);
+#else
 					vfs_dq_free_block(inode, 1);
+#endif
 				udf_add_free_space(sb, sbi->s_partition, 1);
 			}
 		}
@@ -260,11 +244,19 @@ static int udf_bitmap_prealloc_blocks(struct super_block *sb,
 		while (bit < (sb->s_blocksize << 3) && block_count > 0) {
 			if (!udf_test_bit(bit, bh->b_data))
 				goto out;
+#ifdef MY_ABC_HERE
+			else if (dquot_prealloc_block(inode, 1))
+#else
 			else if (vfs_dq_prealloc_block(inode, 1))
+#endif
 				goto out;
 			else if (!udf_clear_bit(bit, bh->b_data)) {
 				udf_debug("bit already cleared for block %d\n", bit);
+#ifdef MY_ABC_HERE
+				dquot_free_block(inode, 1);
+#else
 				vfs_dq_free_block(inode, 1);
+#endif
 				goto out;
 			}
 			block_count--;
@@ -387,14 +379,23 @@ search_back:
 
 got_block:
 
-	/*
-	 * Check quota for allocation of this block.
-	 */
+#ifdef MY_ABC_HERE
+	if (inode) {
+		int ret = dquot_alloc_block(inode, 1);
+
+		if (ret) {
+			mutex_unlock(&sbi->s_alloc_mutex);
+			*err = ret;
+			return 0;
+		}
+	}
+#else
 	if (inode && vfs_dq_alloc_block(inode, 1)) {
 		mutex_unlock(&sbi->s_alloc_mutex);
 		*err = -EDQUOT;
 		return 0;
 	}
+#endif
 
 	newblock = bit + (block_group << (sb->s_blocksize_bits + 3)) -
 		(sizeof(struct spaceBitmapDesc) << 3);
@@ -446,10 +447,13 @@ static void udf_table_free_blocks(struct super_block *sb,
 	}
 
 	iinfo = UDF_I(table);
-	/* We do this up front - There are some error conditions that
-	   could occure, but.. oh well */
+	 
 	if (inode)
+#ifdef MY_ABC_HERE
+		dquot_free_block(inode, count);
+#else
 		vfs_dq_free_block(inode, count);
+#endif
 	udf_add_free_space(sb, sbi->s_partition, count);
 
 	start = bloc->logicalBlockNum + offset;
@@ -514,19 +518,7 @@ static void udf_table_free_blocks(struct super_block *sb,
 	}
 
 	if (count) {
-		/*
-		 * NOTE: we CANNOT use udf_add_aext here, as it can try to
-		 * allocate a new block, and since we hold the super block
-		 * lock already very bad things would happen :)
-		 *
-		 * We copy the behavior of udf_add_aext, but instead of
-		 * trying to allocate a new block close to the existing one,
-		 * we just steal a block from the extent we are trying to add.
-		 *
-		 * It would be nice if the blocks were close together, but it
-		 * isn't required.
-		 */
-
+		 
 		int adsize;
 		struct short_ad *sad = NULL;
 		struct long_ad *lad = NULL;
@@ -553,7 +545,6 @@ static void udf_table_free_blocks(struct super_block *sb,
 			brelse(oepos.bh);
 			oepos = epos;
 
-			/* Steal a block from the extent being free'd */
 			epos.block.logicalBlockNum = eloc.logicalBlockNum;
 			eloc.logicalBlockNum++;
 			elen -= sb->s_blocksize;
@@ -629,7 +620,6 @@ static void udf_table_free_blocks(struct super_block *sb,
 			}
 		}
 
-		/* It's possible that stealing the block emptied the extent */
 		if (elen) {
 			udf_write_aext(table, &epos, &eloc, elen, 1);
 
@@ -687,14 +677,18 @@ static int udf_table_prealloc_blocks(struct super_block *sb,
 	       (etype = udf_next_aext(table, &epos, &eloc, &elen, 1)) != -1) {
 		udf_debug("eloc=%d, elen=%d, first_block=%d\n",
 			  eloc.logicalBlockNum, elen, first_block);
-		; /* empty loop body */
+		;  
 	}
 
 	if (first_block == eloc.logicalBlockNum) {
 		epos.offset -= adsize;
 
 		alloc_count = (elen >> sb->s_blocksize_bits);
+#ifdef MY_ABC_HERE
+		if (inode && dquot_prealloc_block(inode,
+#else
 		if (inode && vfs_dq_prealloc_block(inode,
+#endif
 			alloc_count > block_count ? block_count : alloc_count))
 			alloc_count = 0;
 		else if (alloc_count > block_count) {
@@ -745,11 +739,6 @@ static int udf_table_new_block(struct super_block *sb,
 	if (goal >= sbi->s_partmaps[partition].s_partition_len)
 		goal = 0;
 
-	/* We search for the closest matching block to goal. If we find
-	   a exact hit, we stop. Otherwise we keep going till we run out
-	   of extents. We store the buffer_head, bloc, and extoffset
-	   of the current closest match and use that when we are done.
-	 */
 	epos.offset = sizeof(struct unallocSpaceEntry);
 	epos.block = iinfo->i_location;
 	epos.bh = goal_epos.bh = NULL;
@@ -789,21 +778,26 @@ static int udf_table_new_block(struct super_block *sb,
 		return 0;
 	}
 
-	/* Only allocate blocks from the beginning of the extent.
-	   That way, we only delete (empty) extents, never have to insert an
-	   extent because of splitting */
-	/* This works, but very poorly.... */
-
 	newblock = goal_eloc.logicalBlockNum;
 	goal_eloc.logicalBlockNum++;
 	goal_elen -= sb->s_blocksize;
-
-	if (inode && vfs_dq_alloc_block(inode, 1)) {
-		brelse(goal_epos.bh);
-		mutex_unlock(&sbi->s_alloc_mutex);
-		*err = -EDQUOT;
-		return 0;
+#ifdef MY_ABC_HERE
+	if (inode) {
+		*err = dquot_alloc_block(inode, 1);
+		if (*err) {
+			brelse(goal_epos.bh);
+			mutex_unlock(&sbi->s_alloc_mutex);
+			return 0;
+		}
 	}
+#else
+	if (inode && vfs_dq_alloc_block(inode, 1)) {
+			brelse(goal_epos.bh);
+			mutex_unlock(&sbi->s_alloc_mutex);
+			*err = -EDQUOT;
+			return 0;
+	}
+#endif
 
 	if (goal_elen)
 		udf_write_aext(table, &goal_epos, &goal_eloc, goal_elen, 1);

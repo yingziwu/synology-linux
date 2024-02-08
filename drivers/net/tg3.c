@@ -15,7 +15,6 @@
  *	notice is accompanying it.
  */
 
-
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/kernel.h>
@@ -1558,7 +1557,6 @@ static void tg3_phy_toggle_apd(struct tg3 *tp, bool enable)
 		reg |= MII_TG3_MISC_SHDW_SCR5_DLLAPD;
 
 	tg3_writephy(tp, MII_TG3_MISC_SHDW, reg);
-
 
 	reg = MII_TG3_MISC_SHDW_WREN |
 	      MII_TG3_MISC_SHDW_APD_SEL |
@@ -4995,7 +4993,7 @@ static void tg3_poll_controller(struct net_device *dev)
 	struct tg3 *tp = netdev_priv(dev);
 
 	for (i = 0; i < tp->irq_cnt; i++)
-		tg3_interrupt(tp->napi[i].irq_vec, dev);
+		tg3_interrupt(tp->napi[i].irq_vec, &tp->napi[i]);
 }
 #endif
 
@@ -5392,7 +5390,7 @@ static netdev_tx_t tg3_start_xmit_dma_bug(struct sk_buff *skb,
 	mss = 0;
 	if ((mss = skb_shinfo(skb)->gso_size) != 0) {
 		struct iphdr *iph;
-		int tcp_opt_len, ip_tcp_len, hdr_len;
+		u32 tcp_opt_len, ip_tcp_len, hdr_len;
 
 		if (skb_header_cloned(skb) &&
 		    pskb_expand_head(skb, 0, 0, GFP_ATOMIC)) {
@@ -5423,8 +5421,10 @@ static netdev_tx_t tg3_start_xmit_dma_bug(struct sk_buff *skb,
 								 IPPROTO_TCP,
 								 0);
 
-		if ((tp->tg3_flags2 & TG3_FLG2_HW_TSO) ||
-		    (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5705)) {
+		if (tp->tg3_flags2 & TG3_FLG2_HW_TSO_2)
+			mss |= hdr_len << 9;
+		else if ((tp->tg3_flags2 & TG3_FLG2_HW_TSO_1) ||
+			GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5705) {
 			if (tcp_opt_len || iph->ihl > 5) {
 				int tsflags;
 
@@ -5459,6 +5459,9 @@ static netdev_tx_t tg3_start_xmit_dma_bug(struct sk_buff *skb,
 
 	would_hit_hwbug = 0;
 
+	if ((tp->tg3_flags3 & TG3_FLG3_SHORT_DMA_BUG) && len <= 8)
+		would_hit_hwbug = 1;
+
 	if (tp->tg3_flags3 & TG3_FLG3_5701_DMA_BUG)
 		would_hit_hwbug = 1;
 	else if (tg3_4g_overflow_test(mapping, len))
@@ -5481,6 +5484,10 @@ static netdev_tx_t tg3_start_xmit_dma_bug(struct sk_buff *skb,
 			mapping = sp->dma_maps[i];
 
 			tnapi->tx_buffers[entry].skb = NULL;
+
+			if ((tp->tg3_flags3 & TG3_FLG3_SHORT_DMA_BUG) &&
+				len <= 8)
+					would_hit_hwbug = 1;
 
 			if (tg3_4g_overflow_test(mapping, len))
 				would_hit_hwbug = 1;
@@ -6874,7 +6881,6 @@ static int tg3_load_tso_firmware(struct tg3 *tp)
 	return 0;
 }
 
-
 static int tg3_set_mac_addr(struct net_device *dev, void *p)
 {
 	struct tg3 *tp = netdev_priv(dev);
@@ -7009,7 +7015,6 @@ static void tg3_rings_reset(struct tg3 *tp)
 	     txrcb < limit; txrcb += TG3_BDINFO_SIZE)
 		tg3_write_mem(tp, txrcb + TG3_BDINFO_MAXLEN_FLAGS,
 			      BDINFO_FLAGS_DISABLED);
-
 
 	/* Disable all receive return rings but the first. */
 	if (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5717)
@@ -11168,7 +11173,6 @@ static void __devinit tg3_get_57780_nvram_info(struct tg3 *tp)
 		tp->tg3_flags3 |= TG3_FLG3_NO_NVRAM_ADDR_TRANS;
 }
 
-
 static void __devinit tg3_get_5717_nvram_info(struct tg3 *tp)
 {
 	u32 nvcfg1;
@@ -12608,6 +12612,9 @@ static int __devinit tg3_get_invariants(struct tg3 *tp)
 		}
 	}
 
+	if (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5906)
+		tp->tg3_flags3 |= TG3_FLG3_SHORT_DMA_BUG;
+
 	tp->irq_max = 1;
 
 #ifdef TG3_NAPI
@@ -13975,12 +13982,10 @@ static int __devinit tg3_init_one(struct pci_dev *pdev,
 		goto err_out_iounmap;
 	}
 
-	if ((tp->tg3_flags3 & TG3_FLG3_5755_PLUS) ||
-	    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5906)
+	if (tp->tg3_flags3 & TG3_FLG3_5755_PLUS)
 		dev->netdev_ops = &tg3_netdev_ops;
 	else
 		dev->netdev_ops = &tg3_netdev_ops_dma_bug;
-
 
 	/* The EPB bridge inside 5714, 5715, and 5780 and any
 	 * device behind the EPB cannot support DMA addresses > 40-bit.
@@ -14061,7 +14066,6 @@ static int __devinit tg3_init_one(struct pci_dev *pdev,
 		    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5717)
 			dev->features |= NETIF_F_TSO_ECN;
 	}
-
 
 	if (tp->pci_chip_rev_id == CHIPREV_ID_5705_A1 &&
 	    !(tp->tg3_flags2 & TG3_FLG2_TSO_CAPABLE) &&

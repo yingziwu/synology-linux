@@ -75,7 +75,7 @@ static void omninet_disconnect(struct usb_serial *serial);
 static void omninet_release(struct usb_serial *serial);
 static int omninet_attach(struct usb_serial *serial);
 
-static struct usb_device_id id_table[] = {
+static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNINET_ID) },
 	{ USB_DEVICE(ZYXEL_VENDOR_ID, BT_IGNITIONPRO_ID) },
 	{ }						/* Terminating entry */
@@ -90,7 +90,6 @@ static struct usb_driver omninet_driver = {
 	.id_table =	id_table,
 	.no_dynamic_id = 	1,
 };
-
 
 static struct usb_serial_driver zyxel_omninet_device = {
 	.driver = {
@@ -111,7 +110,6 @@ static struct usb_serial_driver zyxel_omninet_device = {
 	.disconnect =		omninet_disconnect,
 	.release =		omninet_release,
 };
-
 
 /* The protocol.
  *
@@ -194,7 +192,6 @@ static void omninet_close(struct usb_serial_port *port)
 	usb_kill_urb(port->read_urb);
 }
 
-
 #define OMNINET_DATAOFFSET	0x04
 #define OMNINET_HEADERLEN	sizeof(struct omninet_header)
 #define OMNINET_BULKOUTSIZE 	(64 - OMNINET_HEADERLEN)
@@ -246,8 +243,6 @@ static void omninet_read_bulk_callback(struct urb *urb)
 		dev_err(&port->dev,
 			"%s - failed resubmitting read urb, error %d\n",
 			__func__, result);
-
-	return;
 }
 
 static int omninet_write(struct tty_struct *tty, struct usb_serial_port *port,
@@ -307,7 +302,6 @@ static int omninet_write(struct tty_struct *tty, struct usb_serial_port *port,
 	return result;
 }
 
-
 static int omninet_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -332,7 +326,7 @@ static void omninet_write_bulk_callback(struct urb *urb)
 	struct usb_serial_port 	*port   =  urb->context;
 	int status = urb->status;
 
-	dbg("%s - port %0x\n", __func__, port->number);
+	dbg("%s - port %0x", __func__, port->number);
 
 	port->write_urb_busy = 0;
 	if (status) {
@@ -344,7 +338,6 @@ static void omninet_write_bulk_callback(struct urb *urb)
 	usb_serial_port_softint(port);
 }
 
-
 static void omninet_disconnect(struct usb_serial *serial)
 {
 	struct usb_serial_port *wport = serial->port[1];
@@ -354,7 +347,6 @@ static void omninet_disconnect(struct usb_serial *serial)
 	usb_kill_urb(wport->write_urb);
 }
 
-
 static void omninet_release(struct usb_serial *serial)
 {
 	struct usb_serial_port *port = serial->port[0];
@@ -363,7 +355,6 @@ static void omninet_release(struct usb_serial *serial)
 
 	kfree(usb_get_serial_port_data(port));
 }
-
 
 static int __init omninet_init(void)
 {
@@ -383,13 +374,11 @@ failed_usb_serial_register:
 	return retval;
 }
 
-
 static void __exit omninet_exit(void)
 {
 	usb_deregister(&omninet_driver);
 	usb_serial_deregister(&zyxel_omninet_device);
 }
-
 
 module_init(omninet_init);
 module_exit(omninet_exit);

@@ -26,10 +26,9 @@
 #include <linux/serial.h>
 #include <linux/uaccess.h>
 
-
 static int debug;
 
-static struct usb_device_id id_table [] = {
+static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(0x6547, 0x0232) },
 	{ USB_DEVICE(0x18ec, 0x3118) },		/* USB to IrDA adapter */
 	{ },
@@ -182,7 +181,6 @@ static void ark3116_set_termios(struct tty_struct *tty,
 	config = 0;
 
 	dbg("%s - port %d", __func__, port->number);
-
 
 	cflag = termios->c_cflag;
 	termios->c_cflag &= ~(CMSPAR|CRTSCTS);
@@ -369,7 +367,7 @@ err_out:
 	return result;
 }
 
-static int ark3116_ioctl(struct tty_struct *tty, struct file *file,
+static int ark3116_ioctl(struct tty_struct *tty,
 			 unsigned int cmd, unsigned long arg)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -482,4 +480,3 @@ MODULE_LICENSE("GPL");
 
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "Debug enabled or not");
-

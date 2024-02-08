@@ -19,7 +19,6 @@
  *		Linus, Jan 2000
  */
 
-
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
@@ -214,7 +213,7 @@ int __ref cb_alloc(struct pcmcia_socket * s)
 	unsigned int max, pass;
 
 	s->functions = pci_scan_slot(bus, PCI_DEVFN(0, 0));
-//	pcibios_fixup_bus(bus);
+	pci_fixup_cardbus(bus);
 
 	max = bus->secondary;
 	for (pass = 0; pass < 2; pass++)
