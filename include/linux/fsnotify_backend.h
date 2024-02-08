@@ -167,6 +167,7 @@ struct fsnotify_group {
 		struct synotify_group_private_data {
 			struct user_struct *user;
 			unsigned int max_watchers;
+			int event_version;
 		} synotify_data;
 #endif /* MY_ABC_HERE */
 #ifdef CONFIG_FANOTIFY
@@ -266,6 +267,13 @@ struct fsnotify_event {
 #endif
 #endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 	struct pid *tgid;
+#ifdef MY_ABC_HERE
+	int event_version;
+
+	// v2 event
+	pid_t pid;
+	uid_t uid;
+#endif
 
 #if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
 	// do nothing

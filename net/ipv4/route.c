@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -90,6 +93,9 @@
 #include <linux/times.h>
 #include <linux/slab.h>
 #include <linux/jhash.h>
+#ifdef MY_ABC_HERE
+#include <linux/siphash.h>
+#endif /* MY_ABC_HERE */
 #include <net/dst.h>
 #include <net/net_namespace.h>
 #include <net/protocol.h>
@@ -127,6 +133,7 @@ static int ip_rt_mtu_expires __read_mostly	= 10 * 60 * HZ;
 static int ip_rt_min_pmtu __read_mostly		= 512 + 20 + 20;
 static int ip_rt_min_advmss __read_mostly	= 256;
 
+static int ip_rt_gc_timeout __read_mostly	= RT_GC_TIMEOUT;
 /*
  *	Interface to generic destination cache.
  */
@@ -606,33 +613,63 @@ static inline void rt_free(struct rtable *rt)
 
 static DEFINE_SPINLOCK(fnhe_lock);
 
-static struct fib_nh_exception *fnhe_oldest(struct fnhe_hash_bucket *hash)
+static void fnhe_flush_routes(struct fib_nh_exception *fnhe)
 {
-	struct fib_nh_exception *fnhe, *oldest;
-	struct rtable *orig;
+	struct rtable *rt;
 
-	oldest = rcu_dereference(hash->chain);
-	for (fnhe = rcu_dereference(oldest->fnhe_next); fnhe;
-	     fnhe = rcu_dereference(fnhe->fnhe_next)) {
-		if (time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp))
-			oldest = fnhe;
+	rt = rcu_dereference(fnhe->fnhe_rth_input);
+	if (rt) {
+		RCU_INIT_POINTER(fnhe->fnhe_rth_input, NULL);
+		rt_free(rt);
 	}
-	orig = rcu_dereference(oldest->fnhe_rth);
-	if (orig) {
-		RCU_INIT_POINTER(oldest->fnhe_rth, NULL);
-		rt_free(orig);
+	rt = rcu_dereference(fnhe->fnhe_rth_output);
+	if (rt) {
+		RCU_INIT_POINTER(fnhe->fnhe_rth_output, NULL);
+		rt_free(rt);
 	}
-	return oldest;
 }
 
-static inline u32 fnhe_hashfun(__be32 daddr)
+static void fnhe_remove_oldest(struct fnhe_hash_bucket *hash)
 {
-	u32 hval;
+	struct fib_nh_exception __rcu **fnhe_p, **oldest_p;
+	struct fib_nh_exception *fnhe, *oldest = NULL;
 
-	hval = (__force u32) daddr;
-	hval ^= (hval >> 11) ^ (hval >> 22);
+	for (fnhe_p = &hash->chain; ; fnhe_p = &fnhe->fnhe_next) {
+		fnhe = rcu_dereference_protected(*fnhe_p,
+						 lockdep_is_held(&fnhe_lock));
+		if (!fnhe)
+			break;
+		if (!oldest ||
+		    time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp)) {
+			oldest = fnhe;
+			oldest_p = fnhe_p;
+		}
+	}
+	fnhe_flush_routes(oldest);
+	*oldest_p = oldest->fnhe_next;
+	kfree_rcu(oldest, rcu);
+}
 
-	return hval & (FNHE_HASH_SIZE - 1);
+static u32 fnhe_hashfun(__be32 daddr)
+{
+	static siphash_key_t fnhe_hash_key __read_mostly;
+	u64 hval;
+
+	net_get_random_once(&fnhe_hash_key, sizeof(fnhe_hash_key));
+	hval = siphash_1u32((__force u32)daddr, &fnhe_hash_key);
+	return hash_64(hval, FNHE_HASH_SHIFT);
+}
+
+static void fill_route_from_fnhe(struct rtable *rt, struct fib_nh_exception *fnhe)
+{
+	rt->rt_pmtu = fnhe->fnhe_pmtu;
+	rt->dst.expires = fnhe->fnhe_expires;
+
+	if (fnhe->fnhe_gw) {
+		rt->rt_flags |= RTCF_REDIRECTED;
+		rt->rt_gateway = fnhe->fnhe_gw;
+		rt->rt_uses_gateway = 1;
+	}
 }
 
 static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
@@ -640,8 +677,13 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
 {
 	struct fnhe_hash_bucket *hash;
 	struct fib_nh_exception *fnhe;
+	struct rtable *rt;
+	u32 genid, hval;
+	unsigned int i;
 	int depth;
-	u32 hval = fnhe_hashfun(daddr);
+
+	genid = fnhe_genid(dev_net(nh->nh_dev));
+	hval = fnhe_hashfun(daddr);
 
 	spin_lock_bh(&fnhe_lock);
 
@@ -664,27 +706,60 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
 	}
 
 	if (fnhe) {
+		if (fnhe->fnhe_genid != genid)
+			fnhe->fnhe_genid = genid;
 		if (gw)
 			fnhe->fnhe_gw = gw;
 		if (pmtu) {
 			fnhe->fnhe_pmtu = pmtu;
-			fnhe->fnhe_expires = expires;
+			fnhe->fnhe_expires = max(1UL, expires);
 		}
+		/* Update all cached dsts too */
+		rt = rcu_dereference(fnhe->fnhe_rth_input);
+		if (rt)
+			fill_route_from_fnhe(rt, fnhe);
+		rt = rcu_dereference(fnhe->fnhe_rth_output);
+		if (rt)
+			fill_route_from_fnhe(rt, fnhe);
 	} else {
-		if (depth > FNHE_RECLAIM_DEPTH)
-			fnhe = fnhe_oldest(hash);
-		else {
-			fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
-			if (!fnhe)
-				goto out_unlock;
+		/* Randomize max depth to avoid some side channels attacks. */
+		int max_depth = FNHE_RECLAIM_DEPTH +
+				prandom_u32_max(FNHE_RECLAIM_DEPTH);
 
-			fnhe->fnhe_next = hash->chain;
-			rcu_assign_pointer(hash->chain, fnhe);
+		while (depth > max_depth) {
+			fnhe_remove_oldest(hash);
+			depth--;
 		}
+
+		fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
+		if (!fnhe)
+			goto out_unlock;
+
+		fnhe->fnhe_next = hash->chain;
+
+		fnhe->fnhe_genid = genid;
 		fnhe->fnhe_daddr = daddr;
 		fnhe->fnhe_gw = gw;
 		fnhe->fnhe_pmtu = pmtu;
 		fnhe->fnhe_expires = expires;
+
+		rcu_assign_pointer(hash->chain, fnhe);
+
+		/* Exception created; mark the cached routes for the nexthop
+		 * stale, so anyone caching it rechecks if this exception
+		 * applies to them.
+		 */
+		rt = rcu_dereference(nh->nh_rth_input);
+		if (rt)
+			rt->dst.obsolete = DST_OBSOLETE_KILL;
+
+		for_each_possible_cpu(i) {
+			struct rtable __rcu **prt;
+			prt = per_cpu_ptr(nh->nh_pcpu_rth_output, i);
+			rt = rcu_dereference(*prt);
+			if (rt)
+				rt->dst.obsolete = DST_OBSOLETE_KILL;
+		}
 	}
 
 	fnhe->fnhe_stamp = jiffies;
@@ -750,7 +825,7 @@ static void __ip_do_redirect(struct rtable *rt, struct sk_buff *skb, struct flow
 				struct fib_nh *nh = &FIB_RES_NH(res);
 
 				update_or_create_fnhe(nh, fl4->daddr, new_gw,
-						      0, 0);
+						0, jiffies + ip_rt_gc_timeout);
 			}
 			if (kill_route)
 				rt->dst.obsolete = DST_OBSOLETE_KILL;
@@ -969,13 +1044,6 @@ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
 	if (mtu < ip_rt_min_pmtu)
 		mtu = ip_rt_min_pmtu;
 
-	if (!rt->rt_pmtu) {
-		dst->obsolete = DST_OBSOLETE_KILL;
-	} else {
-		rt->rt_pmtu = mtu;
-		dst->expires = max(1UL, jiffies + ip_rt_mtu_expires);
-	}
-
 	rcu_read_lock();
 	if (fib_lookup(dev_net(dst->dev), fl4, &res, 0) == 0) {
 		struct fib_nh *nh = &FIB_RES_NH(res);
@@ -1127,11 +1195,11 @@ static struct dst_entry *ipv4_dst_check(struct dst_entry *dst, u32 cookie)
 	 * DST_OBSOLETE_FORCE_CHK which forces validation calls down
 	 * into this function always.
 	 *
-	 * When a PMTU/redirect information update invalidates a
-	 * route, this is indicated by setting obsolete to
-	 * DST_OBSOLETE_KILL.
+	 * When a PMTU/redirect information update invalidates a route,
+	 * this is indicated by setting obsolete to DST_OBSOLETE_KILL or
+	 * DST_OBSOLETE_DEAD by dst_free().
 	 */
-	if (dst->obsolete == DST_OBSOLETE_KILL || rt_is_expired(rt))
+	if (dst->obsolete != DST_OBSOLETE_FORCE_CHK || rt_is_expired(rt))
 		return NULL;
 	return dst;
 }
@@ -1273,34 +1341,36 @@ static bool rt_bind_exception(struct rtable *rt, struct fib_nh_exception *fnhe,
 	spin_lock_bh(&fnhe_lock);
 
 	if (daddr == fnhe->fnhe_daddr) {
-		struct rtable *orig = rcu_dereference(fnhe->fnhe_rth);
-		if (orig && rt_is_expired(orig)) {
+		struct rtable __rcu **porig;
+		struct rtable *orig;
+		int genid = fnhe_genid(dev_net(rt->dst.dev));
+
+		if (rt_is_input_route(rt))
+			porig = &fnhe->fnhe_rth_input;
+		else
+			porig = &fnhe->fnhe_rth_output;
+		orig = rcu_dereference(*porig);
+
+		if (fnhe->fnhe_genid != genid) {
+			fnhe->fnhe_genid = genid;
 			fnhe->fnhe_gw = 0;
 			fnhe->fnhe_pmtu = 0;
 			fnhe->fnhe_expires = 0;
+			fnhe_flush_routes(fnhe);
+			orig = NULL;
 		}
-		if (fnhe->fnhe_pmtu) {
-			unsigned long expires = fnhe->fnhe_expires;
-			unsigned long diff = expires - jiffies;
-
-			if (time_before(jiffies, expires)) {
-				rt->rt_pmtu = fnhe->fnhe_pmtu;
-				dst_set_expires(&rt->dst, diff);
-			}
-		}
-		if (fnhe->fnhe_gw) {
-			rt->rt_flags |= RTCF_REDIRECTED;
-			rt->rt_gateway = fnhe->fnhe_gw;
-			rt->rt_uses_gateway = 1;
-		} else if (!rt->rt_gateway)
+		fill_route_from_fnhe(rt, fnhe);
+		if (!rt->rt_gateway)
 			rt->rt_gateway = daddr;
 
-		rcu_assign_pointer(fnhe->fnhe_rth, rt);
-		if (orig)
-			rt_free(orig);
+		if (!(rt->dst.flags & DST_NOCACHE)) {
+			rcu_assign_pointer(*porig, rt);
+			if (orig)
+				rt_free(orig);
+			ret = true;
+		}
 
 		fnhe->fnhe_stamp = jiffies;
-		ret = true;
 	}
 	spin_unlock_bh(&fnhe_lock);
 
@@ -1526,12 +1596,43 @@ static void ip_handle_martian_source(struct net_device *dev,
 #endif
 }
 
+static void ip_del_fnhe(struct fib_nh *nh, __be32 daddr)
+{
+	struct fnhe_hash_bucket *hash;
+	struct fib_nh_exception *fnhe, __rcu **fnhe_p;
+	u32 hval = fnhe_hashfun(daddr);
+
+	spin_lock_bh(&fnhe_lock);
+
+	hash = rcu_dereference_protected(nh->nh_exceptions,
+					 lockdep_is_held(&fnhe_lock));
+	hash += hval;
+
+	fnhe_p = &hash->chain;
+	fnhe = rcu_dereference_protected(*fnhe_p, lockdep_is_held(&fnhe_lock));
+	while (fnhe) {
+		if (fnhe->fnhe_daddr == daddr) {
+			rcu_assign_pointer(*fnhe_p, rcu_dereference_protected(
+				fnhe->fnhe_next, lockdep_is_held(&fnhe_lock)));
+			fnhe_flush_routes(fnhe);
+			kfree_rcu(fnhe, rcu);
+			break;
+		}
+		fnhe_p = &fnhe->fnhe_next;
+		fnhe = rcu_dereference_protected(fnhe->fnhe_next,
+						 lockdep_is_held(&fnhe_lock));
+	}
+
+	spin_unlock_bh(&fnhe_lock);
+}
+
 /* called in rcu_read_lock() section */
 static int __mkroute_input(struct sk_buff *skb,
 			   const struct fib_result *res,
 			   struct in_device *in_dev,
 			   __be32 daddr, __be32 saddr, u32 tos)
 {
+	struct fib_nh_exception *fnhe;
 	struct rtable *rth;
 	int err;
 	struct in_device *out_dev;
@@ -1577,8 +1678,22 @@ static int __mkroute_input(struct sk_buff *skb,
 		}
 	}
 
+	fnhe = find_exception(&FIB_RES_NH(*res), daddr);
 	if (do_cache) {
+		if (fnhe) {
+			rth = rcu_dereference(fnhe->fnhe_rth_input);
+			if (rth && rth->dst.expires &&
+			    time_after(jiffies, rth->dst.expires)) {
+				ip_del_fnhe(&FIB_RES_NH(*res), daddr);
+				fnhe = NULL;
+			} else {
+				goto rt_cache;
+			}
+		}
+
 		rth = rcu_dereference(FIB_RES_NH(*res).nh_rth_input);
+
+rt_cache:
 		if (rt_cache_valid(rth)) {
 			skb_dst_set_noref(skb, &rth->dst);
 			goto out;
@@ -1607,7 +1722,7 @@ static int __mkroute_input(struct sk_buff *skb,
 	rth->dst.input = ip_forward;
 	rth->dst.output = ip_output;
 
-	rt_set_nexthop(rth, daddr, res, NULL, res->fi, res->type, itag);
+	rt_set_nexthop(rth, daddr, res, fnhe, res->fi, res->type, itag);
 	skb_dst_set(skb, &rth->dst);
 out:
 	err = 0;
@@ -1937,19 +2052,29 @@ static struct rtable *__mkroute_output(const struct fib_result *res,
 		struct fib_nh *nh = &FIB_RES_NH(*res);
 
 		fnhe = find_exception(nh, fl4->daddr);
-		if (fnhe)
-			prth = &fnhe->fnhe_rth;
-		else {
-			if (unlikely(fl4->flowi4_flags &
-				     FLOWI_FLAG_KNOWN_NH &&
-				     !(nh->nh_gw &&
-				       nh->nh_scope == RT_SCOPE_LINK))) {
-				do_cache = false;
-				goto add;
+		if (fnhe) {
+			prth = &fnhe->fnhe_rth_output;
+			rth = rcu_dereference(*prth);
+			if (rth && rth->dst.expires &&
+			    time_after(jiffies, rth->dst.expires)) {
+				ip_del_fnhe(nh, fl4->daddr);
+				fnhe = NULL;
+			} else {
+				goto rt_cache;
 			}
-			prth = __this_cpu_ptr(nh->nh_pcpu_rth_output);
 		}
+
+		if (unlikely(fl4->flowi4_flags &
+			     FLOWI_FLAG_KNOWN_NH &&
+			     !(nh->nh_gw &&
+			       nh->nh_scope == RT_SCOPE_LINK))) {
+			do_cache = false;
+			goto add;
+		}
+		prth = __this_cpu_ptr(nh->nh_pcpu_rth_output);
 		rth = rcu_dereference(*prth);
+
+rt_cache:
 		if (rt_cache_valid(rth)) {
 			dst_hold(&rth->dst);
 			return rth;
@@ -2521,7 +2646,6 @@ void ip_rt_multicast_event(struct in_device *in_dev)
 }
 
 #ifdef CONFIG_SYSCTL
-static int ip_rt_gc_timeout __read_mostly	= RT_GC_TIMEOUT;
 static int ip_rt_gc_interval __read_mostly  = 60 * HZ;
 static int ip_rt_gc_min_interval __read_mostly	= HZ / 2;
 static int ip_rt_gc_elasticity __read_mostly	= 8;
@@ -2530,8 +2654,11 @@ static int ipv4_sysctl_rtcache_flush(ctl_table *__ctl, int write,
 					void __user *buffer,
 					size_t *lenp, loff_t *ppos)
 {
+	struct net *net = (struct net *)__ctl->extra1;
+
 	if (write) {
-		rt_cache_flush((struct net *)__ctl->extra1);
+		rt_cache_flush(net);
+		fnhe_genid_bump(net);
 		return 0;
 	}
 
@@ -2706,6 +2833,7 @@ static __net_initdata struct pernet_operations sysctl_route_ops = {
 static __net_init int rt_genid_init(struct net *net)
 {
 	atomic_set(&net->rt_genid, 0);
+	atomic_set(&net->fnhe_genid, 0);
 	get_random_bytes(&net->ipv4.dev_addr_genid,
 			 sizeof(net->ipv4.dev_addr_genid));
 	return 0;

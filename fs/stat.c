@@ -1047,3 +1047,14 @@ int vfs_quota_query(struct file *file, u64 *used, u64 *reserved, u64 *limit)
 }
 EXPORT_SYMBOL(vfs_quota_query);
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+int vfs_syno_space_usage(struct file *file, struct syno_space_usage_info *info)
+{
+	if (!file->f_op->syno_space_usage)
+		return -EOPNOTSUPP;
+	return file->f_op->syno_space_usage(file, info);
+}
+EXPORT_SYMBOL(vfs_syno_space_usage);
+#endif /* MY_ABC_HERE */
+

@@ -73,6 +73,8 @@ struct netns_ipv4 {
 
 	int sysctl_tcp_ecn;
 
+	int sysctl_tcp_min_snd_mss;
+
 #if defined(CONFIG_SYNO_LSP_HI3536)
 	int sysctl_fwmark_reflect;
 	int sysctl_tcp_fwmark_accept;

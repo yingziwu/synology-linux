@@ -1238,7 +1238,8 @@ struct ext4_super_block {
 	__le32	s_grp_quota_inum;	/* inode for tracking group quota */
 	__le32	s_overhead_clusters;	/* overhead blocks/clusters in fs */
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
-	__le32	s_reserved[105];	/* Paddint to the end of the block */
+	__le32	s_reserved[99];	/* Paddint to the end of the block */
+	__le32	s_synorbd_reserved[6];	/* Reserve for synorbd */
 	__le32  s_syno_hash_magic;  /* magic number for syno caseless dir_index */
 #if !defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
 	__le32	s_archive_version;	/* Last archived version */
@@ -1694,18 +1695,26 @@ static inline void ext4_clear_state_flags(struct ext4_inode_info *ei)
 #define EXT4_INODE_GET_SYNO_ARCHIVE_BIT(inode, raw_inode) \
 do { \
 	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) { \
-		inode->i_archive_bit = le32_to_cpu(raw_inode->i_syno_archive_bit); \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_syno_archive_bit)) \
+			inode->i_archive_bit = le32_to_cpu(raw_inode->i_syno_archive_bit); \
+		else \
+			inode->i_archive_bit = 0; \
 	} else { \
-		inode->i_archive_bit = le16_to_cpu(raw_inode->i_checksum_hi); \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_checksum_hi)) \
+			inode->i_archive_bit = le16_to_cpu(raw_inode->i_checksum_hi); \
+		else \
+			inode->i_archive_bit = 0; \
 	} \
 } while (0)
 
 #define EXT4_INODE_SET_SYNO_ARCHIVE_BIT(inode, raw_inode) \
 do { \
 	if (EXT4_HAS_RO_COMPAT_FEATURE(inode->i_sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) { \
-		raw_inode->i_syno_archive_bit = cpu_to_le32(inode->i_archive_bit); \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_syno_archive_bit)) \
+			raw_inode->i_syno_archive_bit = cpu_to_le32(inode->i_archive_bit); \
 	} else { \
-		raw_inode->i_checksum_hi = cpu_to_le16(inode->i_archive_bit); /* we'll lost upper 16 bits flags */ \
+		if (EXT4_FITS_IN_INODE(raw_inode, EXT4_I(inode), i_checksum_hi)) \
+			raw_inode->i_checksum_hi = cpu_to_le16(inode->i_archive_bit); /* we'll lost upper 16 bits flags */ \
 	} \
 } while (0)
 

@@ -1795,7 +1795,7 @@ int extent_clear_unlock_delalloc(struct inode *inode, u64 start, u64 end,
 			if (page_ops & PAGE_SET_PRIVATE2)
 				SetPagePrivate2(pages[i]);
 
-			if (pages[i] == locked_page) {
+			if (locked_page && pages[i] == locked_page) {
 				page_cache_release(pages[i]);
 				continue;
 			}
@@ -3189,7 +3189,6 @@ static int merge_bio(int rw, struct extent_io_tree *tree, struct page *page,
 	if (tree->ops && tree->ops->merge_bio_hook)
 		ret = tree->ops->merge_bio_hook(rw, page, offset, size, bio,
 						bio_flags);
-	BUG_ON(ret < 0);
 	return ret;
 
 }
@@ -4877,6 +4876,9 @@ static struct extent_map *get_extent_skip_holes(struct inode *inode,
 		len = last - offset;
 		if (len == 0)
 			break;
+#ifdef MY_ABC_HERE
+		len = min_t(u64, len, SZ_256M);
+#endif /* MY_ABC_HERE */
 		len = ALIGN(len, sectorsize);
 		em = get_extent(inode, NULL, 0, offset, len, 0);
 		if (IS_ERR_OR_NULL(em))
@@ -4889,10 +4891,25 @@ static struct extent_map *get_extent_skip_holes(struct inode *inode,
 		}
 
 		/* this is a hole, advance to the next extent */
+#ifdef MY_ABC_HERE
+		/* we only check that delalloc is SZ_256M after offset,
+		 * so when the hole exceeds 256M, we have to limit it
+		 * to only increase 256M at most once.
+		 */
+		if (offset + SZ_256M > offset)
+			offset += SZ_256M;
+		else
+			offset = U64_MAX;
+		offset = min(offset, extent_map_end(em));
+#else /* MY_ABC_HERE */
 		offset = extent_map_end(em);
+#endif /* MY_ABC_HERE */
 		free_extent_map(em);
 		if (offset >= last)
 			break;
+#ifdef MY_ABC_HERE
+		cond_resched();
+#endif /* MY_ABC_HERE */
 	}
 	return NULL;
 }
@@ -5176,6 +5193,9 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 	u64 em_start = 0;
 	u64 em_len = 0;
 	u64 em_end = 0;
+#ifdef MY_ABC_HERE
+	u64 last_for_user_wanted = 0;
+#endif /* MY_ABC_HERE */
 
 	if (len == 0)
 		return -EINVAL;
@@ -5234,10 +5254,19 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 		last_for_get_extent = isize;
 	}
 
+#ifdef MY_ABC_HERE
+	last_for_user_wanted = min(start + len, last_for_get_extent);
+#endif /* MY_ABC_HERE */
+
 	lock_extent_bits(&BTRFS_I(inode)->io_tree, start, start + len - 1, 0,
 			 &cached_state);
 
-	em = get_extent_skip_holes(inode, start, last_for_get_extent,
+	em = get_extent_skip_holes(inode, start,
+#ifdef MY_ABC_HERE
+				   last_for_user_wanted,
+#else /* MY_ABC_HERE */
+				   last_for_get_extent,
+#endif /* MY_ABC_HERE */
 				   get_extent);
 	if (!em)
 		goto out;
@@ -5358,14 +5387,24 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 		}
 
 		/* now scan forward to see if this is really the last extent. */
-		em = get_extent_skip_holes(inode, off, last_for_get_extent,
+		em = get_extent_skip_holes(inode, off,
+#ifdef MY_ABC_HERE
+					   last_for_user_wanted,
+#else /* MY_ABC_HERE */
+					   last_for_get_extent,
+#endif /* MY_ABC_HERE */
 					   get_extent);
 		if (IS_ERR(em)) {
 			ret = PTR_ERR(em);
 			goto out;
 		}
 		if (!em) {
+#ifdef MY_ABC_HERE
+			if (last_for_user_wanted >= last_for_get_extent)
+				flags |= FIEMAP_EXTENT_LAST;
+#else /* MY_ABC_HERE */
 			flags |= FIEMAP_EXTENT_LAST;
+#endif /* MY_ABC_HERE */
 			end = 1;
 		}
 		ret = emit_fiemap_extent(fieinfo, &cache, em_start, disko,

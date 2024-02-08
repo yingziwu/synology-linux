@@ -252,14 +252,14 @@ int do_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
 		return -EINVAL;
 
 	/* Return error if mode is not supported */
-#ifdef MY_ABC_HERE
+#ifdef CONFIG_SYNO_BTRFS_FALLOCATE_MARK_WRITTEN
 	if (mode & ~(FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE |
 	             FALLOC_FL_MARK_WRITTEN))
 		return -EOPNOTSUPP;
 #else
 	if (mode & ~(FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
 		return -EOPNOTSUPP;
-#endif /* MY_ABC_HERE */
+#endif /* CONFIG_SYNO_BTRFS_FALLOCATE_MARK_WRITTEN */
 
 	/* Punch hole must have keep size set */
 	if ((mode & FALLOC_FL_PUNCH_HOLE) &&

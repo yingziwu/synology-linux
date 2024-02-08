@@ -3912,6 +3912,7 @@ void __init tcp_init(void)
 	int max_rshare, max_wshare, cnt;
 	unsigned int i;
 
+	BUILD_BUG_ON(TCP_MIN_SND_MSS <= MAX_TCP_OPTION_SPACE);
 	BUILD_BUG_ON(sizeof(struct tcp_skb_cb) > sizeof(skb->cb));
 
 	percpu_counter_init(&tcp_sockets_allocated, 0);
@@ -3972,7 +3973,11 @@ void __init tcp_init(void)
 	max_rshare = min(6UL*1024*1024, limit);
 
 	sysctl_tcp_wmem[0] = SK_MEM_QUANTUM;
+#ifdef MY_ABC_HERE
+	sysctl_tcp_wmem[1] = max(2 * SK_MEM_QUANTUM, 64*1024);
+#else /* MY_ABC_HERE */
 	sysctl_tcp_wmem[1] = 16*1024;
+#endif /* MY_ABC_HERE */
 	sysctl_tcp_wmem[2] = max(64*1024, max_wshare);
 
 	sysctl_tcp_rmem[0] = SK_MEM_QUANTUM;
