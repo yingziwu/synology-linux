@@ -321,6 +321,8 @@ int blkdev_hint_unused(struct block_device *bdev, sector_t sector,
 	struct bio *bio;
 	int ret = 0;
 	struct blk_plug plug;
+	sector_t bs_mask = 0;
+	sector_t aligned_sector = 0;
 
 	if (!q)
 		return -ENXIO;
@@ -331,6 +333,17 @@ int blkdev_hint_unused(struct block_device *bdev, sector_t sector,
 	atomic_set(&bb.done, 1);
 	bb.flags = 1 << BIO_UPTODATE;
 	bb.wait = &wait;
+
+	bs_mask = (bdev_logical_block_size(bdev) >> 9) - 1;
+
+	aligned_sector = (sector + bs_mask) & ~bs_mask;
+	if (sector != aligned_sector) {
+		if (nr_sects > aligned_sector - sector)
+			nr_sects -= aligned_sector - sector;
+		else
+			nr_sects = 0;
+		sector = aligned_sector;
+	}
 
 	blk_start_plug(&plug);
 	while (nr_sects) {
@@ -344,7 +357,7 @@ int blkdev_hint_unused(struct block_device *bdev, sector_t sector,
 		}
 
 		/* Make sure bi_size doesn't overflow */
-		req_sects = min_t(sector_t, nr_sects, UINT_MAX >> 9);
+		req_sects = min_t(sector_t, nr_sects, (UINT_MAX >> 9) & ~bs_mask);
 		end_sect = sector + req_sects;
 
 		bio->bi_sector = sector;

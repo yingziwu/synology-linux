@@ -34,6 +34,10 @@
 
 #include <trace/events/ext4.h>
 
+#ifdef MY_ABC_HERE
+#define MAX_U32_IN_U64 ((u64)(~0U))
+#endif /* MY_ABC_HERE */
+
 /*
  * ialloc.c contains the inodes allocation and deallocation routines
  */
@@ -882,7 +886,6 @@ got_group:
 		goto out;
 
 #ifdef MY_ABC_HERE
-#define MAX_U32_IN_U64 ((u64)(~0U))
 	if (MAX_U32_IN_U64 < (u64)group*EXT4_INODES_PER_GROUP(sb)) {
 		u32 max_group =	(u32)((MAX_U32_IN_U64 + 1) / EXT4_INODES_PER_GROUP(sb));
 		group %= max_group;
@@ -921,6 +924,15 @@ repeat_in_this_group:
 					      EXT4_INODES_PER_GROUP(sb), ino);
 		if (ino >= EXT4_INODES_PER_GROUP(sb))
 			goto next_group;
+#ifdef MY_ABC_HERE
+		/*
+		 * Since the inode bitmap is zero-based, so the ino should not
+		 * equal to MAX_U32_IN_U64.
+		 */
+		if (MAX_U32_IN_U64 <= (u64) ino + (u64) group * EXT4_INODES_PER_GROUP(sb))
+			goto next_group;
+#endif /* MY_ABC_HERE */
+
 		if (group == 0 && (ino+1) < EXT4_FIRST_INO(sb)) {
 			ext4_error(sb, "reserved inode found cleared - "
 				   "inode=%lu", ino + 1);

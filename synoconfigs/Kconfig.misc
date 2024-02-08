@@ -143,6 +143,19 @@ config SYNO_KERNEL_MODULE_REMOVAL_LOGGING
 	bool "add logging about kernel module removal"
 	default y
 
+config SYNO_KEXEC_TEST
+	bool "Test whether the kernel is booted with Kexec"
+	default y
+	depends on X86_64
+
+config SYNO_DEV_ALLOC_PAGES
+        bool "Enable synology dev alloc pages"
+        default y
+
+config SYNO_OUT_OF_RESOURCE_LOG
+	bool "log for out of resource event occurrence"
+	default y
+
 endmenu #MISC Features
 
 menu "Cgroup"

@@ -88,9 +88,6 @@ btrfs_read_fs_root_no_name(struct btrfs_fs_info *fs_info,
 int btrfs_cleanup_fs_roots(struct btrfs_fs_info *fs_info);
 void btrfs_btree_balance_dirty(struct btrfs_root *root);
 void btrfs_btree_balance_dirty_nodelay(struct btrfs_root *root);
-#ifdef MY_ABC_HERE
-void btrfs_async_btree_balance_dirty(struct btrfs_fs_info *fs_info);
-#endif /* MY_ABC_HERE */
 void btrfs_drop_and_free_fs_root(struct btrfs_fs_info *fs_info,
 				 struct btrfs_root *root);
 void btrfs_free_fs_root(struct btrfs_root *root);

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * linux/fs/nfs/write.c
  *
@@ -23,6 +26,7 @@
 #include <linux/export.h>
 
 #include <asm/uaccess.h>
+#include <backport.h>
 
 #include "delegation.h"
 #include "internal.h"
@@ -455,6 +459,10 @@ static void nfs_inode_remove_request(struct nfs_page *req)
 	if (likely(!PageSwapCache(req->wb_page))) {
 		set_page_private(req->wb_page, 0);
 		ClearPagePrivate(req->wb_page);
+#ifdef MY_ABC_HERE
+		smp_mb__after_atomic();
+		wake_up_page(req->wb_page, PG_private);
+#endif /* MY_ABC_HERE */
 		clear_bit(PG_MAPPED, &req->wb_flags);
 	}
 	nfsi->npages--;

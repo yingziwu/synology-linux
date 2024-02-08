@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2006 Jens Axboe <axboe@kernel.dk>
  *
@@ -70,6 +73,10 @@ static void trace_note(struct blk_trace *bt, pid_t pid, int action,
 	int pc = 0;
 	int cpu = smp_processor_id();
 	bool blk_tracer = blk_tracer_enabled;
+#ifdef MY_ABC_HERE
+	struct rchan_buf *rchan_buf = bt->rchan->buf[smp_processor_id()];
+	unsigned long flags = 0;
+#endif /* MY_ABC_HERE */
 
 	if (blk_tracer) {
 		buffer = blk_tr->trace_buffer.buffer;
@@ -86,6 +93,9 @@ static void trace_note(struct blk_trace *bt, pid_t pid, int action,
 	if (!bt->rchan)
 		return;
 
+#ifdef MY_ABC_HERE
+	spin_lock_irqsave(&rchan_buf->lock, flags);
+#endif /* MY_ABC_HERE */
 	t = relay_reserve(bt->rchan, sizeof(*t) + len);
 	if (t) {
 		t->magic = BLK_IO_TRACE_MAGIC | BLK_IO_TRACE_VERSION;
@@ -101,6 +111,11 @@ record_it:
 		if (blk_tracer)
 			trace_buffer_unlock_commit(buffer, event, 0, pc);
 	}
+#ifdef MY_ABC_HERE
+	if (!blk_tracer) {
+		spin_unlock_irqrestore(&rchan_buf->lock, flags);
+	}
+#endif /* MY_ABC_HERE */
 }
 
 /*
@@ -194,6 +209,9 @@ static void __blk_add_trace(struct blk_trace *bt, sector_t sector, int bytes,
 	struct ring_buffer *buffer = NULL;
 	struct blk_io_trace *t;
 	unsigned long flags = 0;
+#ifdef MY_ABC_HERE
+	unsigned long lock_flags = 0;
+#endif /* MY_ABC_HERE */
 	unsigned long *sequence;
 	pid_t pid;
 	int cpu, pc = 0;
@@ -239,6 +257,10 @@ static void __blk_add_trace(struct blk_trace *bt, sector_t sector, int bytes,
 	if (unlikely(tsk->btrace_seq != blktrace_seq))
 		trace_note_tsk(bt, tsk);
 
+#ifdef MY_ABC_HERE
+	spin_lock_irqsave(&bt->rchan->buf[smp_processor_id()]->lock, lock_flags);
+#endif /* MY_ABC_HERE */
+
 	t = relay_reserve(bt->rchan, sizeof(*t) + pdu_len);
 	if (t) {
 		sequence = per_cpu_ptr(bt->sequence, cpu);
@@ -272,6 +294,9 @@ record_it:
 		}
 	}
 
+#ifdef MY_ABC_HERE
+	spin_unlock_irqrestore(&bt->rchan->buf[smp_processor_id()]->lock, lock_flags);
+#endif /* MY_ABC_HERE */
 	local_irq_restore(flags);
 }
 

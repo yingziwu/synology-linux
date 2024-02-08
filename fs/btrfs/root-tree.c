@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
  *
@@ -231,6 +234,9 @@ int btrfs_find_orphan_roots(struct btrfs_root *tree_root)
 	int err = 0;
 	int ret;
 	bool can_recover = true;
+#ifdef MY_ABC_HERE
+	int empty = 0;
+#endif /* MY_ABC_HERE */
 
 	if (tree_root->fs_info->sb->s_flags & MS_RDONLY)
 		can_recover = false;
@@ -305,7 +311,20 @@ int btrfs_find_orphan_roots(struct btrfs_root *tree_root)
 		WARN_ON(!test_bit(BTRFS_ROOT_ORPHAN_ITEM_INSERTED, &root->state));
 		if (btrfs_root_refs(&root->root_item) == 0) {
 			set_bit(BTRFS_ROOT_DEAD_TREE, &root->state);
+#ifdef MY_ABC_HERE
+			synchronize_srcu(&tree_root->fs_info->subvol_srcu);
+			spin_lock(&root->inode_lock);
+			empty = RB_EMPTY_ROOT(&root->inode_tree);
+			spin_unlock(&root->inode_lock);
+			if (empty
+#ifdef MY_ABC_HERE
+				&& atomic_read(&root->use_refs) == 0
+#endif /* MY_ABC_HERE */
+				)
+				btrfs_add_dead_root(root);
+#else /* MY_ABC_HERE */
 			btrfs_add_dead_root(root);
+#endif /* MY_ABC_HERE */
 		}
 	}
 
