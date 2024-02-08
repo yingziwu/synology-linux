@@ -116,7 +116,7 @@ static void vp_free_vectors(struct virtio_device *vdev)
 		free_irq(vp_dev->msix_entries[i].vector, vp_dev);
 
 	for (i = 0; i < vp_dev->msix_vectors; i++)
-		if (vp_dev->msix_affinity_masks[i])
+		if (cpumask_available(vp_dev->msix_affinity_masks[i]))
 			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
 
 	if (vp_dev->msix_enabled) {

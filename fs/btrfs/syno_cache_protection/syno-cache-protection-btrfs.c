@@ -10,6 +10,7 @@
 #include "../ctree.h"
 #include "../disk-io.h"
 #include "../transaction.h"
+#include "../volumes.h"
 #include <linux/syno_cache_protection.h>
 #include "syno-cache-protection-btrfs.h"
 #include "syno-cache-protection-btrfs-command.h"
@@ -378,15 +379,15 @@ int btrfs_syno_cache_protection_active_enable(struct btrfs_fs_info *fs_info)
 	if (ret)
 		goto out;
 
-	ret = syno_cache_protection_clear_passive_instance_with_fs(SYNO_CACHE_PROTECTION_ROLE_ACTIVE, SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fsid);
+	ret = syno_cache_protection_clear_passive_instance_with_fs(SYNO_CACHE_PROTECTION_ROLE_ACTIVE, SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fs_devices->fsid);
 	if (ret) {
-		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send clear passive instance command with fsid %pU err %d for enable", fs_info->fsid, ret);
+		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send clear passive instance command with fsid %pU err %d for enable", fs_info->fs_devices->fsid, ret);
 		goto out;
 	}
 
-	ret = syno_cache_protection_alloc_passive_instance_with_fs(SYNO_CACHE_PROTECTION_ROLE_ACTIVE, SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fsid);
+	ret = syno_cache_protection_alloc_passive_instance_with_fs(SYNO_CACHE_PROTECTION_ROLE_ACTIVE, SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fs_devices->fsid);
 	if (ret) {
-		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send alloc passive instance command with fsid %pU err %d for enable", fs_info->fsid, ret);
+		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send alloc passive instance command with fsid %pU err %d for enable", fs_info->fs_devices->fsid, ret);
 		goto out;
 	}
 
@@ -400,7 +401,7 @@ int btrfs_syno_cache_protection_active_enable(struct btrfs_fs_info *fs_info)
 	fs->fs_type = &syno_cache_protection_btrfs_type;
 	fs->role = SYNO_CACHE_PROTECTION_ROLE_ACTIVE;
 	fs->uuid_len = BTRFS_FSID_SIZE;
-	memcpy(fs->uuid, fs_info->fsid, fs->uuid_len);
+	memcpy(fs->uuid, fs_info->fs_devices->fsid, fs->uuid_len);
 	fs->private = fs_info;
 	fs->reclaim = btrfs_syno_cache_protection_active_reclaim;
 	fs->do_command = btrfs_syno_cache_protection_do_command;
@@ -433,7 +434,7 @@ int btrfs_syno_cache_protection_active_enable(struct btrfs_fs_info *fs_info)
 out:
 	syno_cache_protection_fs_put(fs);
 	if (ret) {
-		syno_cache_protection_clear_passive_instance_with_fs(SYNO_CACHE_PROTECTION_ROLE_ACTIVE, SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fsid);
+		syno_cache_protection_clear_passive_instance_with_fs(SYNO_CACHE_PROTECTION_ROLE_ACTIVE, SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fs_devices->fsid);
 		syno_cache_protection_set_status(fs_info, SYNO_CACHE_PROTECTION_STATE_NONE);
 	}
 	return ret;
@@ -469,7 +470,7 @@ again:
 
 	err = syno_cache_protection_clear_passive_instance_with_fs(SYNO_CACHE_PROTECTION_ROLE_ACTIVE, fs->fs_type->id, fs->uuid_len, fs->uuid);
 	if (err)
-		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send clear passive instance command with fsid %pU err %d for disable", fs_info->fsid, err);
+		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send clear passive instance command with fsid %pU err %d for disable", fs_info->fs_devices->fsid, err);
 
 	syno_cache_protection_remove(fs);
 out:
@@ -710,7 +711,7 @@ again:
 
 	err = btrfs_syno_cache_protection_exec_command(SYNO_CACHE_PROTECTION_BTRFS_COMMAND_DATA_RECLAIM, fs_info, NULL);
 	if (err) {
-		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send data reclaim command with fsid %pU err %d", fs_info->fsid, err);
+		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send data reclaim command with fsid %pU err %d", fs_info->fs_devices->fsid, err);
 		syno_cache_protection_set_disable_and_error(fs_info, err);
 		goto out;
 	}
@@ -722,7 +723,7 @@ again:
 
 	err = btrfs_syno_cache_protection_exec_command(SYNO_CACHE_PROTECTION_BTRFS_COMMAND_DATA_RECLAIM, fs_info, NULL);
 	if (err) {
-		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send data reclaim command with fsid %pU err %d", fs_info->fsid, err);
+		btrfs_warn(fs_info, "Failed to SYNO Cache Protection send data reclaim command with fsid %pU err %d", fs_info->fs_devices->fsid, err);
 		syno_cache_protection_set_disable_and_error(fs_info, err);
 		goto out;
 	}
@@ -766,7 +767,7 @@ int btrfs_syno_cache_protection_passive_replay(struct btrfs_fs_info *fs_info, st
 		goto out;
 	}
 
-	cache_protection_fs = syno_cache_protection_get_passive_instance(SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fsid);
+	cache_protection_fs = syno_cache_protection_get_passive_instance(SYNO_CACHE_PROTECTION_FS_BTRFS, BTRFS_FSID_SIZE, fs_info->fs_devices->fsid);
 	if (!cache_protection_fs)
 		goto success;
 	spin_lock(&cache_protection_fs->lock);
@@ -775,7 +776,7 @@ int btrfs_syno_cache_protection_passive_replay(struct btrfs_fs_info *fs_info, st
 
 	ret = syno_cache_protection_recover(fs_info, (struct syno_cache_protection_passive_btrfs_instance *)cache_protection_fs->private, replay_args);
 	if (ret) {
-		btrfs_warn(fs_info, "Failed to syno cache protection recover with fsid %pU err %d", fs_info->fsid, ret);
+		btrfs_warn(fs_info, "Failed to syno cache protection recover with fsid %pU err %d", fs_info->fs_devices->fsid, ret);
 		goto out;
 	}
 

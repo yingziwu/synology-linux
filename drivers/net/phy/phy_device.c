@@ -224,8 +224,8 @@ struct phy_device *phy_device_create(struct mii_bus *bus, int addr, int phy_id,
 	dev->dev.release = phy_device_release;
 #endif /* MY_DEF_HERE || MY_DEF_HERE */
 
-	dev->speed = 0;
-	dev->duplex = -1;
+	dev->speed = SPEED_UNKNOWN;
+	dev->duplex = DUPLEX_UNKNOWN;
 	dev->pause = 0;
 	dev->asym_pause = 0;
 	dev->link = 1;
@@ -249,7 +249,11 @@ struct phy_device *phy_device_create(struct mii_bus *bus, int addr, int phy_id,
 	dev->dev.parent = &bus->dev;
 	dev->dev.bus = &mdio_bus_type;
 #endif /* MY_DEF_HERE || MY_DEF_HERE */
+#ifdef MY_ABC_HERE
+	dev->irq = bus->irq[addr];
+#else
 	dev->irq = bus->irq ? bus->irq[addr] : PHY_POLL;
+#endif /* MY_ABC_HERE */
 #if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 	dev_set_name(&mdiodev->dev, PHY_ID_FMT, bus->id, addr);
 #else /* MY_DEF_HERE  || MY_DEF_HERE */
@@ -586,6 +590,9 @@ int phy_connect_direct(struct net_device *dev, struct phy_device *phydev,
 {
 	int rc;
 
+	if (!dev)
+		return -EINVAL;
+
 	rc = phy_attach_direct(dev, phydev, phydev->dev_flags, interface);
 	if (rc)
 		return rc;
@@ -633,6 +640,7 @@ struct phy_device *phy_connect(struct net_device *dev, const char *bus_id,
 	phydev = to_phy_device(d);
 
 	rc = phy_connect_direct(dev, phydev, handler, interface);
+	put_device(d);
 	if (rc)
 		return ERR_PTR(rc);
 
@@ -866,6 +874,9 @@ struct phy_device *phy_attach(struct net_device *dev, const char *bus_id,
 	struct device *d;
 	int rc;
 
+	if (!dev)
+		return ERR_PTR(-EINVAL);
+
 	/* Search the list of PHY devices on the mdio bus for the
 	 * PHY with the requested name
 	 */
@@ -877,6 +888,7 @@ struct phy_device *phy_attach(struct net_device *dev, const char *bus_id,
 	phydev = to_phy_device(d);
 
 	rc = phy_attach_direct(dev, phydev, phydev->dev_flags, interface);
+	put_device(d);
 	if (rc)
 		return ERR_PTR(rc);
 

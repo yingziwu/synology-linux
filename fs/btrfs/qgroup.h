@@ -59,16 +59,13 @@ struct btrfs_qgroup_extent_record {
 #define QGROUP_FREE		(1<<2)
 
 #ifdef MY_ABC_HERE
-int btrfs_quota_enable(struct btrfs_trans_handle *trans,
-		       struct btrfs_fs_info *fs_info, u64 cmd);
+int btrfs_quota_enable(struct btrfs_fs_info *fs_info, u64 cmd);
 int btrfs_quota_unload(struct btrfs_fs_info *fs_info);
 int btrfs_quota_remove_v1(struct btrfs_fs_info *fs_info);
 #else
-int btrfs_quota_enable(struct btrfs_trans_handle *trans,
-		       struct btrfs_fs_info *fs_info);
+int btrfs_quota_enable(struct btrfs_fs_info *fs_info);
 #endif /* MY_ABC_HERE */
-int btrfs_quota_disable(struct btrfs_trans_handle *trans,
-			struct btrfs_fs_info *fs_info);
+int btrfs_quota_disable(struct btrfs_fs_info *fs_info);
 int btrfs_qgroup_rescan(struct btrfs_fs_info *fs_info);
 void btrfs_qgroup_rescan_resume(struct btrfs_fs_info *fs_info);
 int btrfs_qgroup_wait_for_completion(struct btrfs_fs_info *fs_info,
@@ -95,9 +92,10 @@ int btrfs_quota_accounting(struct btrfs_trans_handle *trans,
 #else
 int btrfs_qgroup_prepare_account_extents(struct btrfs_trans_handle *trans,
 					 struct btrfs_fs_info *fs_info);
-struct btrfs_qgroup_extent_record
-*btrfs_qgroup_insert_dirty_extent(struct btrfs_delayed_ref_root *delayed_refs,
-				  struct btrfs_qgroup_extent_record *record);
+struct btrfs_qgroup_extent_record *
+btrfs_qgroup_insert_dirty_extent(struct btrfs_fs_info *fs_info,
+				 struct btrfs_delayed_ref_root *delayed_refs,
+				 struct btrfs_qgroup_extent_record *record);
 int
 btrfs_qgroup_account_extent(struct btrfs_trans_handle *trans,
 			    struct btrfs_fs_info *fs_info,
@@ -121,7 +119,7 @@ static inline void btrfs_qgroup_free_delayed_ref(struct btrfs_fs_info *fs_info,
 						 u64 ref_root, u64 num_bytes)
 {
 	btrfs_qgroup_free_refroot(fs_info, ref_root, num_bytes);
-	trace_btrfs_qgroup_free_delayed_ref(ref_root, num_bytes);
+	trace_btrfs_qgroup_free_delayed_ref(fs_info, ref_root, num_bytes);
 }
 void assert_qgroups_uptodate(struct btrfs_trans_handle *trans);
 
@@ -254,6 +252,12 @@ static inline bool btrfs_quota_rescan_check(struct btrfs_root *root, u64 ino)
 	else
 		return false;
 }
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+extern u64 qgroup_soft_limit;
+int __init qgroup_netlink_init(void);
+void qgroup_netlink_exit(void);
 #endif /* MY_ABC_HERE */
 
 #endif /* __BTRFS_QGROUP__ */

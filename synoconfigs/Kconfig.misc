@@ -194,6 +194,15 @@ config SYNO_HDD_POWER_CONTROL_TEST
 	tristate "HDD dynamic power control sysfs for testing/verifying"
 	default n
 
+config SYNO_GCC12_COMPAT
+	bool "Fix build failed for GCC 12 toolchain"
+	default y
+
+config SYNO_AHCI_REG_READ_TEST
+	tristate "Test AHCI register read"
+	depends on SATA_AHCI
+	default m
+
 endmenu #MISC Features
 
 menu "Cgroup"

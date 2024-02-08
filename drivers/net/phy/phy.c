@@ -745,37 +745,29 @@ void phy_change(struct work_struct *work)
 	struct phy_device *phydev =
 		container_of(work, struct phy_device, phy_queue);
 
-#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 	if (phy_interrupt_is_valid(phydev)) {
-#endif /* MY_DEF_HERE || MY_DEF_HERE */
-	if (phydev->drv->did_interrupt &&
-	    !phydev->drv->did_interrupt(phydev))
-		goto ignore;
+		if (phydev->drv->did_interrupt &&
+		    !phydev->drv->did_interrupt(phydev))
+			goto ignore;
 
-	if (phy_disable_interrupts(phydev))
-		goto phy_err;
-#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+		if (phy_disable_interrupts(phydev))
+			goto phy_err;
 	}
-#endif /* MY_DEF_HERE || MY_DEF_HERE */
 
 	mutex_lock(&phydev->lock);
 	if ((PHY_RUNNING == phydev->state) || (PHY_NOLINK == phydev->state))
 		phydev->state = PHY_CHANGELINK;
 	mutex_unlock(&phydev->lock);
 
-#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 	if (phy_interrupt_is_valid(phydev)) {
-#endif /* MY_DEF_HERE || MY_DEF_HERE */
-	atomic_dec(&phydev->irq_disable);
-	enable_irq(phydev->irq);
+		atomic_dec(&phydev->irq_disable);
+		enable_irq(phydev->irq);
 
-	/* Reenable interrupts */
-	if (PHY_HALTED != phydev->state &&
-	    phy_config_interrupt(phydev, PHY_INTERRUPT_ENABLED))
-		goto irq_enable_err;
-#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+		/* Reenable interrupts */
+		if (PHY_HALTED != phydev->state &&
+		    phy_config_interrupt(phydev, PHY_INTERRUPT_ENABLED))
+			goto irq_enable_err;
 	}
-#endif /* MY_DEF_HERE || MY_DEF_HERE */
 
 	/* reschedule state queue work to run as soon as possible */
 	cancel_delayed_work_sync(&phydev->state_queue);
@@ -1109,16 +1101,10 @@ void phy_state_machine(struct work_struct *work)
 
 void phy_mac_interrupt(struct phy_device *phydev, int new_link)
 {
-#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 	phydev->link = new_link;
 
 	/* Trigger a state machine change */
 	queue_work(system_power_efficient_wq, &phydev->phy_queue);
-#else /* MY_DEF_HERE || MY_DEF_HERE */
-	cancel_work_sync(&phydev->phy_queue);
-	phydev->link = new_link;
-	schedule_work(&phydev->phy_queue);
-#endif /* MY_DEF_HERE || MY_DEF_HERE */
 }
 EXPORT_SYMBOL(phy_mac_interrupt);
 

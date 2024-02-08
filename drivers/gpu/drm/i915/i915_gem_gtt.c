@@ -520,17 +520,6 @@ static void cleanup_page_dma(struct i915_address_space *vm,
 #define fill_px(ppgtt, px, v) fill_page_dma((vm), px_base(px), (v))
 #define fill32_px(ppgtt, px, v) fill_page_dma_32((vm), px_base(px), (v))
 
-static inline void *memset64(uint64_t *s, uint64_t v, size_t n)
-{
-	long d0, d1;
-	asm volatile("rep\n\t"
-				 "stosq"
-				 : "=&c" (d0), "=&D" (d1)
-				 : "a" (v), "1" (s), "0" (n)
-				 : "memory");
-	return s;
-}
-
 static void fill_page_dma(struct i915_address_space *vm,
 			  struct i915_page_dma *p,
 			  const u64 val)
