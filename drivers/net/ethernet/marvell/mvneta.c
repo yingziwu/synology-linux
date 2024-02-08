@@ -153,7 +153,7 @@ u64 refill_failed = 0;
 #define      MVNETA_DESC_SWAP                    BIT(6)
 #define      MVNETA_TX_BRST_SZ_MASK(burst)       ((burst) << 22)
 #define MVNETA_PORT_STATUS                       0x2444
-#define      MVNETA_TX_IN_PRGRS                  BIT(1)
+#define      MVNETA_TX_IN_PRGRS                  BIT(0)
 #define      MVNETA_TX_FIFO_EMPTY                BIT(8)
 #define MVNETA_RX_MIN_FRAME_SIZE                 0x247c
 #define MVNETA_SERDES_CFG			 0x24A0
@@ -4879,37 +4879,23 @@ static void mvneta_ethtool_update_stats(struct mvneta_port *pp)
 	const struct mvneta_statistic *s;
 	void __iomem *base = pp->base;
 	u32 high, low, val;
-#if defined(MY_ABC_HERE)
 	u64 val64;
-#endif /* MY_ABC_HERE */
 	int i;
 
 	for (i = 0, s = mvneta_statistics;
 	     s < mvneta_statistics + ARRAY_SIZE(mvneta_statistics);
 	     s++, i++) {
-#if defined(MY_ABC_HERE)
-//do nothing
-#else /* MY_ABC_HERE */
-		val = 0;
-
-#endif /* MY_ABC_HERE */
 		switch (s->type) {
 		case T_REG_32:
 			val = readl_relaxed(base + s->offset);
-#if defined(MY_ABC_HERE)
 			pp->ethtool_stats[i] += val;
-#endif /* MY_ABC_HERE */
 			break;
 		case T_REG_64:
 			/* Docs say to read low 32-bit then high */
 			low = readl_relaxed(base + s->offset);
 			high = readl_relaxed(base + s->offset + 4);
-#if defined(MY_ABC_HERE)
 			val64 = (u64)high << 32 | low;
 			pp->ethtool_stats[i] += val64;
-#else /* MY_ABC_HERE */
-			val = (u64)high << 32 | low;
-#endif /* MY_ABC_HERE */
 			break;
 #ifdef MY_ABC_HERE
 		case T_DATA:
@@ -4917,12 +4903,6 @@ static void mvneta_ethtool_update_stats(struct mvneta_port *pp)
 			break;
 #endif /* MY_ABC_HERE*/
 		}
-#if defined(MY_ABC_HERE)
-//do nothing
-#else /* MY_ABC_HERE */
-
-		pp->ethtool_stats[i] += val;
-#endif /* MY_ABC_HERE */
 	}
 }
 
@@ -5849,7 +5829,7 @@ static int mvneta_probe(struct platform_device *pdev)
 #endif /* MY_ABC_HERE */
 	dev->hw_features |= dev->features;
 	dev->vlan_features |= dev->features;
-	dev->priv_flags |= IFF_UNICAST_FLT | IFF_LIVE_ADDR_CHANGE;
+	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
 	dev->gso_max_segs = MVNETA_MAX_TSO_SEGS;
 
 	err = register_netdev(dev);

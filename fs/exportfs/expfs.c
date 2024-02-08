@@ -154,6 +154,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
 	inode_unlock(parent->d_inode);
 	if (IS_ERR(tmp)) {
 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
+		err = PTR_ERR(tmp);
 		goto out_err;
 	}
 	if (tmp != dentry) {

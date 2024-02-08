@@ -300,6 +300,10 @@ config SYNO_MD_RAID_FAIL_FAST_ON_WRITE
 	bool "directly fail device when write error happen"
 	default y
 
+config SYNO_MD_DM_CRYPT_QUEUE_LIMIT
+	bool "limit the io number queue on dm-crypt"
+	default y
+
 endmenu #MD
 
 menu "Block"
@@ -1278,6 +1282,15 @@ config SYNO_RTD1619_R8169_HIGH_LATENCY_FIX
 
 endmenu #Network
 
+menu "MMC"
+
+config SYNO_MMC_IGNORE_NON_MAIN_AREA
+       bool "Ignore all areas besides main data area"
+       depends on MMC
+       default n
+
+endmenu #MMC
+
 menu "USB"
 
 config SYNO_IGNORE_REQUEST_ALSA_MODULE
@@ -1421,6 +1434,11 @@ config SYNO_USB_HC_MORE_TRANSACTION_TRIES
 	default y
 	depends on SYNO_USB_DEVICE_QUIRKS
 
+config SYNO_USB_UAS_ENABLE_CONTROL
+	bool "USB device use uas driver or usb-storage dirver"
+	default y
+	depends on USB_UAS
+
 config SYNO_USB_VBUS_GPIO_CONTROL
 	bool "Vbus GPIO control"
 	default n
@@ -1481,6 +1499,11 @@ config SYNO_SKIP_INTEL_EHCI_CONTROLLER
 	depends on SYNO_BROADWELL
 	default n
 
+config SYNO_USB_EUNIT_CONTROL
+	bool "For an eunit that has a separated usb control port from data port"
+	depends on USB_ACM
+	default n
+
 endmenu #USB
 
 menu "Hardware Monitor"
@@ -1525,6 +1548,11 @@ config SYNO_X86_TTY_CONSOLE_OUTPUT
 config SYNO_X86_SERIAL_PORT_SWAP
 	bool "Swap The First Two Serial Ports"
 	depends on X86
+
+config SYNO_TTY_SHORT_TIME_STUCK_FIX
+	bool "Fix console stuck short time when 8250 probe"
+	depends on SYNO_GEMINILAKE
+	default n
 
 config SYNO_MICROP_CTRL
 	bool "Operating the uP through ttyS1"
@@ -1864,6 +1892,21 @@ config SYNO_NTB_NET_MTU_BACKWARD_COMPAT
 config SYNO_NTB_ENHANCE_TX_HANG_ISSUE_AFTER_NTB_LINK_UP
 	bool "Support backward compatibility of MTU on NTB net device"
 	depends on SYNO_NTB && NTB_TRANSPORT
+	default y
+
+config SYNO_NTB_MEM_ALLOC_ENHANCEMENT
+	bool "Enhace NTB device memory allocation"
+	depends on SYNO_NTB && SYNO_DROP_CACHE_MEM_COMPACT
+	default y
+
+config SYNO_NTB_ENHANCE_LINK
+	bool "Enhance the ability for NTB devices"
+	depends on SYNO_NTB
+	default y
+
+config SYNO_NTB_FIX_CLEANUP_WORK_PANIC
+	bool "Fix NTB QP cleanup work panic issue"
+	depends on SYNO_NTB
 	default y
 
 endmenu #NTB

@@ -91,9 +91,19 @@ __be32		nfsd_open(struct svc_rqst *, struct svc_fh *, umode_t,
 				int, struct file **);
 struct raparms;
 __be32		nfsd_splice_read(struct svc_rqst *,
-				struct file *, loff_t, unsigned long *);
+				struct file *, loff_t, unsigned long *
+#ifdef MY_ABC_HERE
+				, ktime_t
+#endif /* MY_ABC_HERE */
+				);
+
 __be32		nfsd_readv(struct file *, loff_t, struct kvec *, int,
-				unsigned long *);
+				unsigned long *
+#ifdef MY_ABC_HERE
+				, struct svc_rqst *, ktime_t
+#endif /* MY_ABC_HERE */
+				);
+
 __be32 		nfsd_read(struct svc_rqst *, struct svc_fh *,
 				loff_t, struct kvec *, int, unsigned long *);
 __be32 		nfsd_write(struct svc_rqst *, struct svc_fh *,struct file *,
@@ -136,8 +146,11 @@ void		nfsd_put_raparams(struct file *file, struct raparms *ra);
 
 static inline int fh_want_write(struct svc_fh *fh)
 {
-	int ret = mnt_want_write(fh->fh_export->ex_path.mnt);
+	int ret;
 
+	if (fh->fh_want_write)
+		return 0;
+	ret = mnt_want_write(fh->fh_export->ex_path.mnt);
 	if (!ret)
 		fh->fh_want_write = true;
 	return ret;

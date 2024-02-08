@@ -741,6 +741,9 @@ struct request_queue *blk_alloc_queue_node(gfp_t gfp_mask, int node_id)
 
 	kobject_init(&q->kobj, &blk_queue_ktype);
 
+#ifdef CONFIG_BLK_DEV_IO_TRACE
+	mutex_init(&q->blk_trace_mutex);
+#endif
 	mutex_init(&q->sysfs_lock);
 	spin_lock_init(&q->__queue_lock);
 
@@ -2130,7 +2133,7 @@ blk_qc_t generic_make_request(struct bio *bio)
 	 * should be added at the tail
 	 */
 	if (current->bio_list) {
-#ifdef MY_ABC_HERE
+#if defined(MY_ABC_HERE)
 		if (bio_flagged(bio, BIO_DELAYED)) {
 			bio_clear_flag(bio, BIO_DELAYED);
 			bio_list_add_head(&current->bio_list[1], bio);

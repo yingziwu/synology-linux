@@ -19,6 +19,9 @@
 #define EXTENT_FLAG_LOGGING 4 /* Logging this extent */
 #define EXTENT_FLAG_FILLING 5 /* Filling in a preallocated extent */
 #define EXTENT_FLAG_FS_MAPPING 6 /* filesystem extent mapping type */
+#ifdef MY_DEF_HERE
+#define EXTENT_FLAG_DEDUPED 7 /* dedupe processing, don't flush pages */
+#endif /* MY_DEF_HERE */
 
 struct extent_map {
 	struct rb_node rb_node;

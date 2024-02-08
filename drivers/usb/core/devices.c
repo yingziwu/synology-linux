@@ -520,13 +520,13 @@ int blIsUSBDeviceAtFrontPort(struct usb_device *usbdev)
 			return 1;
 		}
 #endif /* MY_DEF_HERE */
-#if defined(MY_DEF_HERE)
+#if defined(CONFIG_SYNO_X86)
 #if defined(CONFIG_ARCH_GEN3)
 		if(!strcmp(buf,"0000:01:0d.0-1")) {
 			return 1;
 		}
 #endif /* defined(CONFIG_ARCH_GEN3) */
-#endif /* defined(MY_DEF_HERE) */
+#endif /* defined(CONFIG_SYNO_X86) */
 #if defined(MY_DEF_HERE)
 		if(!strcmp(buf,"0000:00:1d.7-3") || !strcmp(buf,"0000:00:1d.1-1")) {
 			return 1;
@@ -566,14 +566,14 @@ int blIsCardReader(struct usb_device *usbdev)
 		memset(buf, 0, sizeof(buf));
 		sprintf(buf, "%s-%s", usbdev->bus->bus_name, usbdev->devpath);
 
-#if defined(MY_DEF_HERE)
+#if defined(CONFIG_SYNO_X86)
 #if defined(CONFIG_ARCH_GEN3)
 		if (syno_is_hw_version(HW_DS214play)) {
 			if(!strcmp(buf,"0000:01:0d.1-1")) {
 			return 1;
 			}
 		}
-#endif /* defined(MY_DEF_HERE) */
+#endif /* defined(CONFIG_SYNO_X86) */
 #endif /* defined(CONFIG_ARCH_GEN3) */
 
 #if defined(MY_DEF_HERE)

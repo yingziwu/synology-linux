@@ -533,7 +533,11 @@ nomem:
 }
 
 static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
-				     void *warn_ctx)
+				     void *warn_ctx
+#ifdef MY_DEF_HERE
+				     , int extent_type
+#endif /* MY_DEF_HERE */
+				     )
 {
 	u64 isize;
 	u32 nlink;
@@ -551,7 +555,7 @@ static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
 
 #ifdef MY_DEF_HERE
 	add_cksumfailed_file(root, inum, fs_info);
-	SynoAutoErrorFsBtrfsReport(fs_info->fsid);
+	SynoAutoErrorFsBtrfsReport(fs_info->fs_devices->fsid);
 #endif /* MY_DEF_HERE */
 
 	root_key.objectid = root;
@@ -701,7 +705,11 @@ out:
 	btrfs_free_path(path);
 }
 
-static int scrub_fixup_readpage(u64 inum, u64 offset, u64 root, void *fixup_ctx)
+static int scrub_fixup_readpage(u64 inum, u64 offset, u64 root, void *fixup_ctx
+#ifdef MY_DEF_HERE
+				, int extent_type
+#endif /* MY_DEF_HERE */
+				)
 {
 	struct page *page = NULL;
 	unsigned long index;
@@ -3890,7 +3898,14 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 		 */
 		spin_lock(&cache->lock);
 		if (!cache->removed && !cache->ro && cache->reserved == 0 &&
-		    btrfs_block_group_used(&cache->item) == 0) {
+		    btrfs_block_group_used(&cache->item) == 0
+#ifdef MY_DEF_HERE
+			&& should_add_to_unused_bgs(fs_info, cache)
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+			&& !fs_info->syno_cache_protection_recovering
+#endif /* MY_DEF_HERE */
+			) {
 			spin_unlock(&cache->lock);
 			spin_lock(&fs_info->unused_bgs_lock);
 			if (list_empty(&cache->bg_list)) {
@@ -3975,27 +3990,27 @@ static noinline_for_stack int scrub_workers_get(struct btrfs_fs_info *fs_info,
 	if (fs_info->scrub_workers_refcnt == 0) {
 		if (is_dev_replace)
 			fs_info->scrub_workers =
-				btrfs_alloc_workqueue("scrub", flags,
+				btrfs_alloc_workqueue(fs_info, "scrub", flags,
 						      1, 4);
 		else
 			fs_info->scrub_workers =
-				btrfs_alloc_workqueue("scrub", flags,
+				btrfs_alloc_workqueue(fs_info, "scrub", flags,
 						      max_active, 4);
 		if (!fs_info->scrub_workers)
 			goto fail_scrub_workers;
 
 		fs_info->scrub_wr_completion_workers =
-			btrfs_alloc_workqueue("scrubwrc", flags,
+			btrfs_alloc_workqueue(fs_info, "scrubwrc", flags,
 					      max_active, 2);
 		if (!fs_info->scrub_wr_completion_workers)
 			goto fail_scrub_wr_completion_workers;
 
 		fs_info->scrub_nocow_workers =
-			btrfs_alloc_workqueue("scrubnc", flags, 1, 0);
+			btrfs_alloc_workqueue(fs_info, "scrubnc", flags, 1, 0);
 		if (!fs_info->scrub_nocow_workers)
 			goto fail_scrub_nocow_workers;
 		fs_info->scrub_parity_workers =
-			btrfs_alloc_workqueue("scrubparity", flags,
+			btrfs_alloc_workqueue(fs_info, "scrubparity", flags,
 					      max_active, 2);
 		if (!fs_info->scrub_parity_workers)
 			goto fail_scrub_parity_workers;
@@ -4345,7 +4360,11 @@ static int copy_nocow_pages(struct scrub_ctx *sctx, u64 logical, u64 len,
 	return 0;
 }
 
-static int record_inode_for_nocow(u64 inum, u64 offset, u64 root, void *ctx)
+static int record_inode_for_nocow(u64 inum, u64 offset, u64 root, void *ctx
+#ifdef MY_DEF_HERE
+				  , int extent_type
+#endif /* MY_DEF_HERE */
+				  )
 {
 	struct scrub_copy_nocow_ctx *nocow_ctx = ctx;
 	struct scrub_nocow_inode *nocow_inode;

@@ -331,6 +331,7 @@ extern int syno_pciepath_dts_pattern_get(struct pci_dev *pdev, char *szPciePath,
 static void syno_pciepath_enum(struct device *dev, char *buf) {
 	struct pci_dev *pdev = NULL;
 	char sztemp[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
+	char buftemp[512] = {'\0'};
 
 	if (NULL == buf || NULL == dev) {
 		return;
@@ -341,13 +342,15 @@ static void syno_pciepath_enum(struct device *dev, char *buf) {
 		return;
 	}
 
-	if (NULL != sztemp) {
-		snprintf(buf, 512, "%spciepath=%s", buf, sztemp);
+	if ('\0' != sztemp[0]) {
+		snprintf(buftemp, sizeof(buftemp), "%s", buf);
+		snprintf(buf, 512, "%spciepath=%s", buftemp, sztemp);
 	}
 }
 
 static void syno_platdev_path_enum(struct device *dev, char *buf) {
 	struct platform_device *pdev = NULL;
+	char buftemp[512] = {'\0'};
 
 	if (NULL == buf || NULL == dev) {
 		return;
@@ -355,7 +358,8 @@ static void syno_platdev_path_enum(struct device *dev, char *buf) {
 	pdev = to_platform_device(dev);
 
 	if (NULL != pdev->name) {
-		snprintf(buf, 512, "%splatdev_path=%s", buf, pdev->name);
+		snprintf(buftemp, sizeof(buftemp), "%s", buf);
+		snprintf(buf, 512, "%splatdev_path=%s", buftemp, pdev->name);
 	}
 }
 
@@ -1091,7 +1095,7 @@ static ssize_t show_trans_timeout(struct netdev_queue *queue,
 	trans_timeout = queue->trans_timeout;
 	spin_unlock_irq(&queue->_xmit_lock);
 
-	return sprintf(buf, "%lu", trans_timeout);
+	return sprintf(buf, fmt_ulong, trans_timeout);
 }
 
 #ifdef CONFIG_XPS

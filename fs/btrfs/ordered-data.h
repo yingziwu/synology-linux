@@ -80,6 +80,9 @@ struct btrfs_ordered_sum {
 #define BTRFS_ORDERED_WORK_INITIALIZED 13
 #define BTRFS_ORDERED_HIGH_PRIORITY 14
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#define BTRFS_ORDERED_INLINE_DEDUPE 15
+#endif /* MY_DEF_HERE */
 
 struct btrfs_ordered_extent {
 	/* logical offset in the file */

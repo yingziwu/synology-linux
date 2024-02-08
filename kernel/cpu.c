@@ -761,7 +761,11 @@ void notify_cpu_starting(unsigned int cpu)
 	unsigned long val = CPU_STARTING;
 
 #ifdef CONFIG_PM_SLEEP_SMP
+#if defined (MY_ABC_HERE) && ! defined (CONFIG_CPUMASK_OFFSTACK)
+	if (cpumask_test_cpu(cpu, frozen_cpus))
+#else
 	if (frozen_cpus != NULL && cpumask_test_cpu(cpu, frozen_cpus))
+#endif
 		val = CPU_STARTING_FROZEN;
 #endif /* CONFIG_PM_SLEEP_SMP */
 	cpu_notify(val, (void *)(long)cpu);
@@ -879,6 +883,9 @@ static int __init mitigations_parse_cmdline(char *arg)
 		cpu_mitigations = CPU_MITIGATIONS_OFF;
 	else if (!strcmp(arg, "auto"))
 		cpu_mitigations = CPU_MITIGATIONS_AUTO;
+	else
+		pr_crit("Unsupported mitigations=%s, system may still be vulnerable\n",
+			arg);
 
 	return 0;
 }

@@ -192,6 +192,9 @@ enum bypass_synoacl_type {
 /* Has write method(s) */
 #define FMODE_CAN_WRITE         ((__force fmode_t)0x40000)
 
+/* File is stream-like */
+#define FMODE_STREAM		((__force fmode_t)0x200000)
+
 /* File was opened by fanotify and shouldn't generate fanotify events */
 #define FMODE_NONOTIFY		((__force fmode_t)0x4000000)
 
@@ -1022,7 +1025,7 @@ struct file_handle {
 	__u32 handle_bytes;
 	int handle_type;
 	/* file identifier */
-	unsigned char f_handle[0];
+	unsigned char f_handle[];
 };
 
 static inline struct file *get_file(struct file *f)
@@ -1030,7 +1033,9 @@ static inline struct file *get_file(struct file *f)
 	atomic_long_inc(&f->f_count);
 	return f;
 }
-#define get_file_rcu(x) atomic_long_inc_not_zero(&(x)->f_count)
+#define get_file_rcu_many(x, cnt)	\
+	atomic_long_add_unless(&(x)->f_count, (cnt), 0)
+#define get_file_rcu(x) get_file_rcu_many((x), 1)
 #define fput_atomic(x)	atomic_long_add_unless(&(x)->f_count, -1, 1)
 #define file_count(x)	atomic_long_read(&(x)->f_count)
 
@@ -1906,6 +1911,12 @@ struct inode_operations {
 	int (*syno_acl_sys_is_support)(struct dentry *, int tag);
 	int (*syno_bypass_is_synoacl)(struct dentry *, int cmd, int reterr);
 #endif /* MY_ABC_HERE */
+#ifdef MY_DEF_HERE
+	int (*syno_locker_mode_get)(struct inode *, enum locker_mode *);
+	int (*syno_locker_state_get)(struct inode *, enum locker_state *);
+	int (*syno_locker_state_set)(struct inode *, enum locker_state);
+	int (*syno_locker_period_end_set)(struct inode *, struct timespec64 *);
+#endif /* MY_DEF_HERE */
 #ifdef MY_ABC_HERE
 	int (*syno_get_archive_bit)(struct dentry *, unsigned int *);
 	int (*syno_set_archive_bit)(struct dentry *, unsigned int);
@@ -2104,8 +2115,14 @@ struct super_operations {
 #define IS_I_VERSION(inode)	__IS_FLG(inode, MS_I_VERSION)
 
 #define IS_NOQUOTA(inode)	((inode)->i_flags & S_NOQUOTA)
+#ifdef MY_DEF_HERE
+#define IS_APPEND(inode)	((inode)->i_flags & S_APPEND || syno_op_locker_is_appendable(inode))
+#define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE || syno_op_locker_is_immutable(inode))
+#define IS_EXPIRED(inode)	syno_op_locker_is_expired(inode)
+#else
 #define IS_APPEND(inode)	((inode)->i_flags & S_APPEND)
 #define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE)
+#endif /* MY_DEF_HERE */
 #define IS_POSIXACL(inode)	__IS_FLG(inode, MS_POSIXACL)
 
 #define IS_DEADDIR(inode)	((inode)->i_flags & S_DEAD)
@@ -2190,6 +2207,10 @@ enum trim_act {
  *			wb stat updates to grab mapping->tree_lock.  See
  *			inode_switch_wb_work_fn() for details.
  *
+ * I_SYNC_QUEUED	Inode is queued in b_io or b_more_io writeback lists.
+ *			Used to detect that mark_inode_dirty() should not move
+ * 			inode between dirty lists.
+ *
  * Q: What is the difference between I_WILL_FREE and I_FREEING?
  */
 #define I_DIRTY_SYNC		(1 << 0)
@@ -2207,9 +2228,9 @@ enum trim_act {
 #define I_DIO_WAKEUP		(1 << __I_DIO_WAKEUP)
 #define I_LINKABLE		(1 << 10)
 #define I_DIRTY_TIME		(1 << 11)
-#define __I_DIRTY_TIME_EXPIRED	12
-#define I_DIRTY_TIME_EXPIRED	(1 << __I_DIRTY_TIME_EXPIRED)
+#define I_DIRTY_TIME_EXPIRED	(1 << 12)
 #define I_WB_SWITCH		(1 << 13)
+#define I_SYNC_QUEUED		(1 << 17)
 
 #define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGES)
 #define I_DIRTY_ALL (I_DIRTY | I_DIRTY_TIME)
@@ -3065,6 +3086,7 @@ extern loff_t fixed_size_llseek(struct file *file, loff_t offset,
 		int whence, loff_t size);
 extern int generic_file_open(struct inode * inode, struct file * filp);
 extern int nonseekable_open(struct inode * inode, struct file * filp);
+extern int stream_open(struct inode * inode, struct file * filp);
 
 #ifdef CONFIG_BLOCK
 typedef void (dio_submit_t)(int rw, struct bio *bio, struct inode *inode,
@@ -3230,7 +3252,7 @@ extern void make_empty_dir_inode(struct inode *inode);
 extern bool is_empty_dir_inode(struct inode *inode);
 struct tree_descr { char *name; const struct file_operations *ops; int mode; };
 struct dentry *d_alloc_name(struct dentry *, const char *);
-extern int simple_fill_super(struct super_block *, unsigned long, struct tree_descr *);
+extern int simple_fill_super(struct super_block *, unsigned long, const struct tree_descr *);
 extern int simple_pin_fs(struct file_system_type *, struct vfsmount **mount, int *count);
 extern void simple_release_fs(struct vfsmount **mount, int *count);
 
@@ -3558,6 +3580,105 @@ static inline int syno_op_set_crtime(struct dentry *dentry, struct timespec *tim
 	return error;
 }
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_DEF_HERE
+static inline int syno_op_locker_mode_get(struct inode *inode, enum locker_mode *mode)
+{
+	if (!inode->i_op->syno_locker_mode_get)
+		return -EOPNOTSUPP;
+
+	return inode->i_op->syno_locker_mode_get(inode, mode);
+}
+
+static inline int syno_op_locker_state_get(struct inode *inode, enum locker_state *state)
+{
+	if (!inode->i_op->syno_locker_state_get)
+		return -EOPNOTSUPP;
+
+	return inode->i_op->syno_locker_state_get(inode, state);
+}
+
+static inline int syno_op_locker_state_set(struct inode *inode, enum locker_state state)
+{
+	if (!inode->i_op->syno_locker_state_set)
+		return -EOPNOTSUPP;
+
+	return inode->i_op->syno_locker_state_set(inode, state);
+}
+
+static inline int syno_op_locker_period_end_set(struct inode *inode, struct timespec64 *time)
+{
+	if (!inode->i_op->syno_locker_period_end_set)
+		return -EOPNOTSUPP;
+
+	return inode->i_op->syno_locker_period_end_set(inode, time);
+}
+
+#ifndef SZ_64K
+#define SZ_64K 0x00010000
+#endif
+#define LOCKER_CHUNK_SIZE               SZ_64K
+#define LOCKER_DEFAULT_WAITTIME         TIME64_MAX
+#define LOCKER_DEFAULT_DURATION         TIME64_MAX
+#define LOCKER_DEFAULT_UPDATE_TIME      TIME64_MAX
+#define LOCKER_DEFAULT_PERIOD_BEGIN     TIME64_MAX
+#define LOCKER_DEFAULT_PERIOD_END       TIME64_MIN
+
+#define IS_LOCKER_STATE_APPENDABLE(state) \
+	((state) == LS_APPENDABLE || (state) == LS_EXPIRED_A || (state) == LS_W_APPENDABLE)
+#define IS_LOCKER_STATE_IMMUTABLE(state) \
+	((state) == LS_IMMUTABLE || (state) == LS_EXPIRED_I || (state) == LS_W_IMMUTABLE)
+#define IS_LOCKER_STATE_EXPIRED(state) \
+	((state) == LS_EXPIRED_I || (state) == LS_EXPIRED_A)
+
+static inline bool syno_op_locker_is_open(struct inode *inode)
+{
+	int ret;
+	enum locker_state state;
+
+	ret = syno_op_locker_state_get(inode, &state);
+	if (ret)
+		return true;
+
+	return state == LS_OPEN;
+}
+
+static inline bool syno_op_locker_is_appendable(struct inode *inode)
+{
+	int ret;
+	enum locker_state state;
+
+	ret = syno_op_locker_state_get(inode, &state);
+	if (ret)
+		return false;
+
+	return IS_LOCKER_STATE_APPENDABLE(state);
+}
+
+static inline bool syno_op_locker_is_immutable(struct inode *inode)
+{
+	int ret;
+	enum locker_state state;
+
+	ret = syno_op_locker_state_get(inode, &state);
+	if (ret)
+		return false;
+
+	return IS_LOCKER_STATE_IMMUTABLE(state);
+}
+
+static inline bool syno_op_locker_is_expired(struct inode *inode)
+{
+	int ret;
+	enum locker_state state;
+
+	ret = syno_op_locker_state_get(inode, &state);
+	if (ret)
+		return false;
+
+	return IS_LOCKER_STATE_EXPIRED(state);
+}
+#endif /* MY_DEF_HERE */
 
 #if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
 #define SYNO_MOUNT_PATH_LEN 128

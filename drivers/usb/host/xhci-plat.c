@@ -652,6 +652,7 @@ static struct platform_driver usb_xhci_driver = {
 #else /* MY_ABC_HERE */
 	.probe	= xhci_plat_probe,
 	.remove	= xhci_plat_remove,
+	.shutdown = usb_hcd_platform_shutdown,
 #endif /* MY_ABC_HERE */
 	.driver	= {
 		.name = "xhci-hcd",

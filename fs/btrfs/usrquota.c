@@ -1048,24 +1048,31 @@ int btrfs_usrquota_dumptree(struct btrfs_fs_info *fs_info)
 }
 
 #ifdef MY_DEF_HERE
-int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
-                          struct btrfs_fs_info *fs_info, u64 cmd)
+int btrfs_usrquota_enable(struct btrfs_fs_info *fs_info, u64 cmd)
 #else
-int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
-                          struct btrfs_fs_info *fs_info)
+int btrfs_usrquota_enable(struct btrfs_fs_info *fs_info)
 #endif /* MY_DEF_HERE */
 {
 	struct btrfs_root *usrquota_root;
+	struct btrfs_root *tree_root = fs_info->tree_root;
 	struct btrfs_path *path = NULL;
 	struct btrfs_usrquota_status_item *ptr;
 	struct extent_buffer *leaf;
 	struct btrfs_key key;
+	struct btrfs_trans_handle *trans = NULL;
 	int ret = 0;
 
 #ifdef MY_DEF_HERE
 	// Default using v2 quota.
 	if (cmd == BTRFS_USRQUOTA_CTL_ENABLE)
 		cmd = BTRFS_USRQUOTA_V2_CTL_ENABLE;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+	if (btrfs_test_opt(tree_root, NO_QUOTA_TREE)) {
+		btrfs_info(fs_info, "Can't enable usrquota with mount_opt no_quota_tree");
+		return -EINVAL;
+	}
 #endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
@@ -1089,6 +1096,23 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 		ret = -ENOMEM;
 		goto out;
 	}
+	mutex_unlock(&fs_info->usrquota_ioctl_lock);
+
+	/*
+	 * 1 for usrquota root item
+	 * 1 for BTRFS_USRQUOTA_STATUS item
+	 */
+	trans = btrfs_start_transaction(tree_root, 2);
+
+	mutex_lock(&fs_info->usrquota_ioctl_lock);
+	if (IS_ERR(trans)) {
+		ret = PTR_ERR(trans);
+		trans = NULL;
+		goto out;
+	}
+
+	if (fs_info->usrquota_root)
+		goto out;
 
 	mutex_lock(&fs_info->usrquota_tree_lock);
 #ifdef MY_DEF_HERE
@@ -1101,6 +1125,7 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 	                                  BTRFS_USRQUOTA_TREE_OBJECTID);
 	if (IS_ERR(usrquota_root)) {
 		ret = PTR_ERR(usrquota_root);
+		btrfs_abort_transaction(trans, tree_root, ret);
 		mutex_unlock(&fs_info->usrquota_tree_lock);
 		goto out;
 	}
@@ -1110,6 +1135,7 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 	key.offset = 0;
 	ret = btrfs_insert_empty_item(trans, usrquota_root, path, &key, sizeof(*ptr));
 	if (ret) {
+		btrfs_abort_transaction(trans, tree_root, ret);
 		mutex_unlock(&fs_info->usrquota_tree_lock);
 		goto out_free_root;
 	}
@@ -1141,6 +1167,7 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 		ret = insert_usrquota_compat_item(trans, fs_info, usrquota_root);
 		if (ret) {
 			fs_info->usrquota_compat_flags = 0;
+			btrfs_abort_transaction(trans, tree_root, ret);
 			mutex_unlock(&fs_info->usrquota_tree_lock);
 			goto out_free_root;
 		}
@@ -1154,6 +1181,7 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 	ret = usrquota_subtree_load_all(fs_info);
 	if (ret) {
 		btrfs_err(fs_info, "failed to init usrquota subtree during enable usrquota");
+		btrfs_abort_transaction(trans, tree_root, ret);
 		goto out_free_root;
 	}
 
@@ -1165,6 +1193,11 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 #endif /* MY_DEF_HERE */
 	fs_info->pending_usrquota_state = PENDING_QUOTA_STATE_V1;
 	spin_unlock(&fs_info->usrquota_lock);
+
+	ret = btrfs_commit_transaction(trans, tree_root);
+	trans = NULL;
+	if (ret)
+		goto out_free_root;
 
 out_free_root:
 	if (ret) {
@@ -1178,19 +1211,43 @@ out_free_root:
 out:
 	btrfs_free_path(path);
 	mutex_unlock(&fs_info->usrquota_ioctl_lock);
+	if (ret && trans)
+		btrfs_end_transaction(trans, tree_root);
+	else if (trans)
+		ret = btrfs_end_transaction(trans, tree_root);
 	return ret;
 }
 
-int btrfs_usrquota_disable(struct btrfs_trans_handle *trans,
-                           struct btrfs_fs_info *fs_info)
+int btrfs_usrquota_disable(struct btrfs_fs_info *fs_info)
 {
 	struct btrfs_root *tree_root = fs_info->tree_root;
 	struct btrfs_root *usrquota_root;
+	struct btrfs_trans_handle *trans = NULL;
 	int ret = 0;
 
 	mutex_lock(&fs_info->usrquota_ioctl_lock);
 	if (!fs_info->usrquota_root)
 		goto out;
+	mutex_unlock(&fs_info->usrquota_ioctl_lock);
+
+	/*
+	 * 1 For the root item
+	 *
+	 * We should also reserve enough items for the quota tree deletion in
+	 * btrfs_clean_quota_tree but this is not done.
+	 */
+	trans = btrfs_start_transaction(fs_info->tree_root, 1);
+
+	mutex_lock(&fs_info->usrquota_ioctl_lock);
+	if (IS_ERR(trans)) {
+		ret = PTR_ERR(trans);
+		trans = NULL;
+		goto out;
+	}
+
+	if (!fs_info->usrquota_root)
+		goto out;
+
 	spin_lock(&fs_info->usrquota_lock);
 	fs_info->syno_usrquota_v1_enabled = false;
 	fs_info->syno_usrquota_v2_enabled = false;
@@ -1202,12 +1259,16 @@ int btrfs_usrquota_disable(struct btrfs_trans_handle *trans,
 
 	mutex_lock(&fs_info->usrquota_tree_lock);
 	ret = btrfs_clean_usrquota_tree(trans, usrquota_root);
-	if (ret)
+	if (ret) {
+		btrfs_abort_transaction(trans, tree_root, ret);
 		goto unlock;
+	}
 
 	ret = btrfs_del_root(trans, tree_root, &usrquota_root->root_key);
-	if (ret)
+	if (ret) {
+		btrfs_abort_transaction(trans, tree_root, ret);
 		goto unlock;
+	}
 	list_del(&usrquota_root->dirty_list);
 
 	btrfs_tree_lock(usrquota_root->node);
@@ -1222,6 +1283,11 @@ unlock:
 	mutex_unlock(&fs_info->usrquota_tree_lock);
 out:
 	mutex_unlock(&fs_info->usrquota_ioctl_lock);
+	if (ret && trans)
+		btrfs_end_transaction(trans, tree_root);
+	else if (trans)
+		ret = btrfs_end_transaction(trans, tree_root);
+
 	return ret;
 }
 

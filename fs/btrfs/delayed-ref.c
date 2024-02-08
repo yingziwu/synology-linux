@@ -228,8 +228,6 @@ static inline void drop_delayed_ref(struct btrfs_trans_handle *trans,
 #endif /* MY_DEF_HERE */
 	btrfs_put_delayed_ref(ref);
 	atomic_dec(&delayed_refs->num_entries);
-	if (trans->delayed_ref_updates)
-		trans->delayed_ref_updates--;
 }
 
 static bool merge_ref(struct btrfs_trans_handle *trans,
@@ -588,7 +586,6 @@ add_tail:
 		}
 	}
 #endif /* MY_DEF_HERE */
-	trans->delayed_ref_updates++;
 	spin_unlock(&href->lock);
 	return ret;
 }
@@ -796,7 +793,8 @@ add_delayed_ref_head(struct btrfs_fs_info *fs_info,
 		qrecord->num_bytes = num_bytes;
 		qrecord->old_roots = NULL;
 
-		qexisting = btrfs_qgroup_insert_dirty_extent(delayed_refs,
+		qexisting = btrfs_qgroup_insert_dirty_extent(fs_info,
+							     delayed_refs,
 							     qrecord);
 		if (qexisting)
 			kfree(qrecord);
@@ -806,7 +804,7 @@ add_delayed_ref_head(struct btrfs_fs_info *fs_info,
 	spin_lock_init(&head_ref->lock);
 	mutex_init(&head_ref->mutex);
 
-	trace_add_delayed_ref_head(ref, head_ref, action);
+	trace_add_delayed_ref_head(fs_info, ref, head_ref, action);
 
 	existing = htree_insert(&delayed_refs->href_root,
 				&head_ref->href_node);
@@ -904,7 +902,7 @@ add_delayed_tree_ref(struct btrfs_fs_info *fs_info,
 		ref->type = BTRFS_TREE_BLOCK_REF_KEY;
 	full_ref->level = level;
 
-	trace_add_delayed_tree_ref(ref, full_ref, action);
+	trace_add_delayed_tree_ref(fs_info, ref, full_ref, action);
 
 #ifdef MY_DEF_HERE
 	ret = add_delayed_ref_tail_merge(trans, fs_info, delayed_refs, head_ref, ref);
@@ -996,7 +994,7 @@ add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 	full_ref->syno_usage = syno_usage;
 #endif /* MY_DEF_HERE */
 
-	trace_add_delayed_data_ref(ref, full_ref, action);
+	trace_add_delayed_data_ref(fs_info, ref, full_ref, action);
 
 #ifdef MY_DEF_HERE
 	ret = add_delayed_ref_tail_merge(trans, fs_info, delayed_refs, head_ref, ref);

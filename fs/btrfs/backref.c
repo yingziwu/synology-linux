@@ -72,6 +72,9 @@ enum btrfs_backref_mode {
 struct extent_inode_elem {
 	u64 inum;
 	u64 offset;
+#ifdef MY_DEF_HERE
+	int extent_type;
+#endif /* MY_DEF_HERE */
 	struct extent_inode_elem *next;
 };
 
@@ -364,6 +367,9 @@ static int check_extent_in_eb(struct btrfs_key *key, struct extent_buffer *eb,
 	e->next = *eie;
 	e->inum = key->objectid;
 	e->offset = key->offset + offset;
+#ifdef MY_DEF_HERE
+	e->extent_type = btrfs_file_extent_type(eb, fi);
+#endif /* MY_DEF_HERE */
 	*eie = e;
 
 	return 0;
@@ -1942,7 +1948,12 @@ again:
 	ret = btrfs_search_slot(trans, fs_info->extent_root, &key, path, 0, 0);
 	if (ret < 0)
 		goto out;
-	BUG_ON(ret == 0);
+	if (ret == 0) {
+		/* This shouldn't happen, indicates a bug or fs corruption. */
+		ASSERT(ret != 0);
+		ret = -EUCLEAN;
+		goto out;
+	}
 
 #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
 	if (trans && likely(trans->type != __TRANS_DUMMY) &&
@@ -2174,10 +2185,18 @@ again:
 				goto out;
 			if (!ret && extent_item_pos) {
 				/*
-				 * we've recorded that parent, so we must extend
-				 * its inode list here
+				 * We've recorded that parent, so we must extend
+				 * its inode list here.
+				 *
+				 * However if there was corruption we may not
+				 * have found an eie, return an error in this
+				 * case.
 				 */
-				BUG_ON(!eie);
+				ASSERT(eie);
+				if (!eie) {
+					ret = -EUCLEAN;
+					goto out;
+				}
 				while (eie->next)
 					eie = eie->next;
 				eie->next = ref->inode_list;
@@ -2324,6 +2343,7 @@ static int __btrfs_find_all_roots(struct btrfs_trans_handle *trans,
 		if (ret < 0 && ret != -ENOENT) {
 			ulist_free(tmp);
 			ulist_free(*roots);
+			*roots = NULL;
 			return ret;
 		}
 		node = ulist_next(tmp, &uiter);
@@ -2901,7 +2921,11 @@ static int iterate_leaf_refs(struct extent_inode_elem *inode_list,
 		pr_debug("ref for %llu resolved, key (%llu EXTEND_DATA %llu), "
 			 "root %llu\n", extent_item_objectid,
 			 eie->inum, eie->offset, root);
-		ret = iterate(eie->inum, eie->offset, root, ctx);
+		ret = iterate(eie->inum, eie->offset, root, ctx
+#ifdef MY_DEF_HERE
+			      , eie->extent_type
+#endif /* MY_DEF_HERE */
+			      );
 		if (ret) {
 			pr_debug("stopping iteration for %llu due to ret=%d\n",
 				 extent_item_objectid, ret);
@@ -2936,13 +2960,19 @@ int iterate_extent_inodes(struct btrfs_fs_info *fs_info,
 			extent_item_objectid);
 
 	if (!search_commit_root) {
-		trans = btrfs_join_transaction(fs_info->extent_root);
-		if (IS_ERR(trans))
-			return PTR_ERR(trans);
-		btrfs_get_tree_mod_seq(fs_info, &tree_mod_seq_elem);
-	} else {
-		down_read(&fs_info->commit_root_sem);
+		trans = btrfs_attach_transaction(fs_info->extent_root);
+		if (IS_ERR(trans)) {
+			if (PTR_ERR(trans) != -ENOENT &&
+			    PTR_ERR(trans) != -EROFS)
+				return PTR_ERR(trans);
+			trans = NULL;
+		}
 	}
+
+	if (trans)
+		btrfs_get_tree_mod_seq(fs_info, &tree_mod_seq_elem);
+	else
+		down_read(&fs_info->commit_root_sem);
 
 	ret = btrfs_find_all_leafs(trans, fs_info, extent_item_objectid,
 				   tree_mod_seq_elem.seq, &refs,
@@ -2976,7 +3006,7 @@ int iterate_extent_inodes(struct btrfs_fs_info *fs_info,
 
 	free_leaf_list(refs);
 out:
-	if (!search_commit_root) {
+	if (trans) {
 		btrfs_put_tree_mod_seq(fs_info, &tree_mod_seq_elem);
 		btrfs_end_transaction(trans, fs_info->extent_root);
 	} else {

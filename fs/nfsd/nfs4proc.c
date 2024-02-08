@@ -48,6 +48,9 @@
 #include "acl.h"
 #include "pnfs.h"
 #include "trace.h"
+#ifdef MY_ABC_HERE
+#include "syno_io_stat.h"
+#endif /* MY_ABC_HERE */
 
 #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
 #include <linux/security.h>
@@ -200,8 +203,14 @@ do_open_permission(struct svc_rqst *rqstp, struct svc_fh *current_fh, struct nfs
 
 	if (open->op_share_access & NFS4_SHARE_ACCESS_READ)
 		accmode |= NFSD_MAY_READ;
+#ifdef MY_DEF_HERE
+	/* NFSD_MAY_TRUNC is checked later in nfsd_get_write_access() if size is changed. */
+	if (open->op_share_access & NFS4_SHARE_ACCESS_WRITE)
+		accmode |= NFSD_MAY_WRITE;
+#else
 	if (open->op_share_access & NFS4_SHARE_ACCESS_WRITE)
 		accmode |= (NFSD_MAY_WRITE | NFSD_MAY_TRUNC);
+#endif /* MY_DEF_HERE */
 	if (open->op_share_deny & NFS4_SHARE_DENY_READ)
 		accmode |= NFSD_MAY_WRITE;
 
@@ -1644,6 +1653,19 @@ static void svcxdr_init_encode(struct svc_rqst *rqstp,
 		- rqstp->rq_auth_slack;
 }
 
+#ifdef MY_ABC_HERE
+static void nfsd_store_latency(u64 rpc_lat, u64 vfs_lat, u32 op)
+{
+	enum syno_nfsd_io_stat_type type;
+	if (op != OP_READ && op != OP_WRITE)
+		return;
+	type = (op == OP_READ) ? SYNO_NFSD_IO_READ : SYNO_NFSD_IO_WRITE;
+	syno_nfsd_store_latency_into_histogram(SYNO_NFSD_USEC_TO_SEC(rpc_lat),
+						SYNO_NFSD_USEC_TO_SEC(vfs_lat),
+						SYNO_NFSD_VERSION_4, type);
+}
+#endif /* MY_ABC_HERE */
+
 /*
  * COMPOUND call.
  */
@@ -1658,6 +1680,10 @@ nfsd4_proc_compound(struct svc_rqst *rqstp,
 	struct svc_fh *current_fh = &cstate->current_fh;
 	struct svc_fh *save_fh = &cstate->save_fh;
 	__be32		status;
+#ifdef MY_ABC_HERE
+	ktime_t stime = ktime_get();
+	s64 latency_us;
+#endif /* MY_ABC_HERE */
 
 	svcxdr_init_encode(rqstp, resp);
 	resp->tagp = resp->xdr.p;
@@ -1692,8 +1718,8 @@ nfsd4_proc_compound(struct svc_rqst *rqstp,
 
 	while (!status && resp->opcnt < args->opcnt) {
 #ifdef MY_ABC_HERE
-		ktime_t stime = ktime_get();
-#endif
+		stime = ktime_get();
+#endif /* MY_ABC_HERE */
 
 		op = &args->ops[resp->opcnt++];
 
@@ -1749,6 +1775,9 @@ nfsd4_proc_compound(struct svc_rqst *rqstp,
 			opdesc->op_get_currentstateid(cstate, &op->u);
 		op->status = opdesc->op_func(rqstp, cstate, &op->u);
 
+#ifdef MY_ABC_HERE
+		// ignore internal error for udc.
+#endif /* MY_ABC_HERE */
 		/* Only from SEQUENCE */
 		if (cstate->status == nfserr_replay_cache) {
 			dprintk("%s NFS4.1 replay from cache\n", __func__);
@@ -1766,6 +1795,9 @@ nfsd4_proc_compound(struct svc_rqst *rqstp,
 				op->status = check_nfsd_access(current_fh->fh_export, rqstp);
 		}
 encode_op:
+#ifdef MY_ABC_HERE
+		syno_nfsd_store_error(be32_to_cpu(op->status), SYNO_NFSD_VERSION_4);
+#endif /* MY_ABC_HERE */
 		if (op->status == nfserr_replay_me) {
 			op->replay = &cstate->replay_owner->so_replay;
 			nfsd4_encode_replay(&resp->xdr, op);
@@ -1782,9 +1814,13 @@ encode_op:
 		nfsd4_cstate_clear_replay(cstate);
 		nfsd4_increment_op_stats(op->opnum);
 #ifdef MY_ABC_HERE
+		latency_us = ktime_to_us(ktime_sub(ktime_get(), stime));
 		if (op->opnum >= FIRST_NFS4_OP && op->opnum <= LAST_NFS4_OP)
-			svc_update_lat(&nfsdstats.nfs4_oplatency[op->opnum], stime);
-#endif
+			svc_update_lat(&nfsdstats.nfs4_oplatency[op->opnum], latency_us);
+#ifdef MY_ABC_HERE
+		nfsd_store_latency(latency_us, rqstp->vfs_latency_us, op->opnum);
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 	}
 
 	cstate->status = status;

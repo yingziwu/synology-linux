@@ -22,6 +22,11 @@ btrfs_xattr_syno_set(const struct xattr_handler *handler,
 	struct inode *inode = d_inode(dentry);
 	const char *complete_name = xattr_full_name(handler, name);
 
+#ifdef MY_DEF_HERE
+	if (!strcmp(name, XATTR_SYNO_LOCKER_SUFFIX))
+		return btrfs_xattr_syno_set_locker(inode, value, size);
+#endif /* MY_DEF_HERE */
+
 	ret = __btrfs_setxattr(NULL, inode, complete_name, value, size, flags);
 
 	if (ret)

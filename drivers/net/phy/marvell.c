@@ -1991,8 +1991,8 @@ static void marvell_get_strings(struct phy_device *phydev, u8 *data)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(marvell_hw_stats); i++) {
-		memcpy(data + i * ETH_GSTRING_LEN,
-		       marvell_hw_stats[i].string, ETH_GSTRING_LEN);
+		strlcpy(data + i * ETH_GSTRING_LEN,
+			marvell_hw_stats[i].string, ETH_GSTRING_LEN);
 	}
 }
 
@@ -2722,7 +2722,7 @@ static struct phy_driver marvell_drivers[] = {
 		.probe = marvell_probe,
 #endif /* MY_ABC_HERE */
 		.config_init = &m88e1145_config_init,
-		.config_aneg = &marvell_config_aneg,
+		.config_aneg = &m88e1101_config_aneg,
 		.read_status = &genphy_read_status,
 		.ack_interrupt = &marvell_ack_interrupt,
 		.config_intr = &marvell_config_intr,
