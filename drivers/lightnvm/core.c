@@ -452,6 +452,8 @@ static int nvm_core_init(struct nvm_dev *dev)
 	dev->total_pages = dev->total_blocks * dev->pgs_per_blk;
 	INIT_LIST_HEAD(&dev->online_targets);
 
+	blk_queue_logical_block_size(dev->q, dev->sec_size);
+
 	return 0;
 }
 

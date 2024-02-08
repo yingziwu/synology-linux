@@ -151,9 +151,9 @@
 #define XGBE_RATECHANGE_COUNT		500
 
 /* CDR delay values for KR support (in usec) */
-#define XGBE_CDR_DELAY_INIT		10000
-#define XGBE_CDR_DELAY_INC		10000
-#define XGBE_CDR_DELAY_MAX		100000
+#define XGBE_CDR_DELAY_INIT		22000
+#define XGBE_CDR_DELAY_INC		22000
+#define XGBE_CDR_DELAY_MAX		110000
 
 /* RRC frequency during link status check */
 #define XGBE_RRC_FREQUENCY		10
@@ -373,6 +373,7 @@ struct xgbe_phy_data {
 	/* KR AN support */
 	unsigned int phy_cdr_notrack;
 	unsigned int phy_cdr_delay;
+	unsigned int phy_cdr_delay_required;
 };
 
 /* I2C, MDIO and GPIO lines are muxed, so only one device at a time */
@@ -1832,19 +1833,48 @@ static void xgbe_phy_set_redrv_mode(struct xgbe_prv_data *pdata)
 	xgbe_phy_put_comm_ownership(pdata);
 }
 
-static void xgbe_phy_start_ratechange(struct xgbe_prv_data *pdata)
+static void xgbe_phy_rx_reset(struct xgbe_prv_data *pdata)
 {
-	if (!XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS))
-		return;
+	int reg;
 
-	/* Log if a previous command did not complete */
-	netif_dbg(pdata, link, pdata->netdev,
-		  "firmware mailbox not ready for command\n");
+	reg = XMDIO_READ_BITS(pdata, MDIO_MMD_PCS, MDIO_PCS_DIGITAL_STAT,
+			      XGBE_PCS_PSEQ_STATE_MASK);
+	if (reg == XGBE_PCS_PSEQ_STATE_POWER_GOOD) {
+		/* Mailbox command timed out, reset of RX block is required.
+		 * This can be done by asseting the reset bit and wait for
+		 * its compeletion.
+		 */
+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_CTRL1,
+				 XGBE_PMA_RX_RST_0_MASK, XGBE_PMA_RX_RST_0_RESET_ON);
+		ndelay(20);
+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_CTRL1,
+				 XGBE_PMA_RX_RST_0_MASK, XGBE_PMA_RX_RST_0_RESET_OFF);
+		usleep_range(40, 50);
+		netif_err(pdata, link, pdata->netdev, "firmware mailbox reset performed\n");
+	}
 }
 
-static void xgbe_phy_complete_ratechange(struct xgbe_prv_data *pdata)
+static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+					unsigned int cmd, unsigned int sub_cmd)
 {
+	unsigned int s0 = 0;
 	unsigned int wait;
+
+	/* Log if a previous command did not complete */
+	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS)) {
+		netif_dbg(pdata, link, pdata->netdev,
+			  "firmware mailbox not ready for command\n");
+		xgbe_phy_rx_reset(pdata);
+	}
+
+	/* Construct the command */
+	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, cmd);
+	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, sub_cmd);
+
+	/* Issue the command */
+	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, s0);
+	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
+	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
 
 	/* Wait for command to complete */
 	wait = XGBE_RATECHANGE_COUNT;
@@ -1857,25 +1887,15 @@ static void xgbe_phy_complete_ratechange(struct xgbe_prv_data *pdata)
 
 	netif_dbg(pdata, link, pdata->netdev,
 		  "firmware mailbox command did not complete\n");
+
+	/* Reset on error */
+	xgbe_phy_rx_reset(pdata);
 }
 
 static void xgbe_phy_rrc(struct xgbe_prv_data *pdata)
 {
-	unsigned int s0;
-
-	xgbe_phy_start_ratechange(pdata);
-
 	/* Receiver Reset Cycle */
-	s0 = 0;
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, 5);
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 0);
-
-	/* Call FW to make the change */
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, s0);
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
-	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
-
-	xgbe_phy_complete_ratechange(pdata);
+	xgbe_phy_perform_ratechange(pdata, 5, 0);
 
 	netif_dbg(pdata, link, pdata->netdev, "receiver reset complete\n");
 }
@@ -1884,14 +1904,8 @@ static void xgbe_phy_power_off(struct xgbe_prv_data *pdata)
 {
 	struct xgbe_phy_data *phy_data = pdata->phy_data;
 
-	xgbe_phy_start_ratechange(pdata);
-
-	/* Call FW to make the change */
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, 0);
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
-	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
-
-	xgbe_phy_complete_ratechange(pdata);
+	/* Power off */
+	xgbe_phy_perform_ratechange(pdata, 0, 0);
 
 	phy_data->cur_mode = XGBE_MODE_UNKNOWN;
 
@@ -1901,32 +1915,20 @@ static void xgbe_phy_power_off(struct xgbe_prv_data *pdata)
 static void xgbe_phy_sfi_mode(struct xgbe_prv_data *pdata)
 {
 	struct xgbe_phy_data *phy_data = pdata->phy_data;
-	unsigned int s0;
 
 	xgbe_phy_set_redrv_mode(pdata);
 
-	xgbe_phy_start_ratechange(pdata);
-
 	/* 10G/SFI */
-	s0 = 0;
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, 3);
 	if (phy_data->sfp_cable != XGBE_SFP_CABLE_PASSIVE) {
-		XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 0);
+		xgbe_phy_perform_ratechange(pdata, 3, 0);
 	} else {
 		if (phy_data->sfp_cable_len <= 1)
-			XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 1);
+			xgbe_phy_perform_ratechange(pdata, 3, 1);
 		else if (phy_data->sfp_cable_len <= 3)
-			XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 2);
+			xgbe_phy_perform_ratechange(pdata, 3, 2);
 		else
-			XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 3);
+			xgbe_phy_perform_ratechange(pdata, 3, 3);
 	}
-
-	/* Call FW to make the change */
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, s0);
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
-	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
-
-	xgbe_phy_complete_ratechange(pdata);
 
 	phy_data->cur_mode = XGBE_MODE_SFI;
 
@@ -1936,23 +1938,11 @@ static void xgbe_phy_sfi_mode(struct xgbe_prv_data *pdata)
 static void xgbe_phy_x_mode(struct xgbe_prv_data *pdata)
 {
 	struct xgbe_phy_data *phy_data = pdata->phy_data;
-	unsigned int s0;
 
 	xgbe_phy_set_redrv_mode(pdata);
 
-	xgbe_phy_start_ratechange(pdata);
-
 	/* 1G/X */
-	s0 = 0;
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, 1);
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 3);
-
-	/* Call FW to make the change */
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, s0);
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
-	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
-
-	xgbe_phy_complete_ratechange(pdata);
+	xgbe_phy_perform_ratechange(pdata, 1, 3);
 
 	phy_data->cur_mode = XGBE_MODE_X;
 
@@ -1962,23 +1952,11 @@ static void xgbe_phy_x_mode(struct xgbe_prv_data *pdata)
 static void xgbe_phy_sgmii_1000_mode(struct xgbe_prv_data *pdata)
 {
 	struct xgbe_phy_data *phy_data = pdata->phy_data;
-	unsigned int s0;
 
 	xgbe_phy_set_redrv_mode(pdata);
 
-	xgbe_phy_start_ratechange(pdata);
-
 	/* 1G/SGMII */
-	s0 = 0;
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, 1);
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 2);
-
-	/* Call FW to make the change */
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, s0);
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
-	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
-
-	xgbe_phy_complete_ratechange(pdata);
+	xgbe_phy_perform_ratechange(pdata, 1, 2);
 
 	phy_data->cur_mode = XGBE_MODE_SGMII_1000;
 
@@ -1988,23 +1966,11 @@ static void xgbe_phy_sgmii_1000_mode(struct xgbe_prv_data *pdata)
 static void xgbe_phy_sgmii_100_mode(struct xgbe_prv_data *pdata)
 {
 	struct xgbe_phy_data *phy_data = pdata->phy_data;
-	unsigned int s0;
 
 	xgbe_phy_set_redrv_mode(pdata);
 
-	xgbe_phy_start_ratechange(pdata);
-
-	/* 1G/SGMII */
-	s0 = 0;
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, 1);
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 1);
-
-	/* Call FW to make the change */
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, s0);
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
-	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
-
-	xgbe_phy_complete_ratechange(pdata);
+	/* 100M/SGMII */
+	xgbe_phy_perform_ratechange(pdata, 1, 1);
 
 	phy_data->cur_mode = XGBE_MODE_SGMII_100;
 
@@ -2014,23 +1980,11 @@ static void xgbe_phy_sgmii_100_mode(struct xgbe_prv_data *pdata)
 static void xgbe_phy_kr_mode(struct xgbe_prv_data *pdata)
 {
 	struct xgbe_phy_data *phy_data = pdata->phy_data;
-	unsigned int s0;
 
 	xgbe_phy_set_redrv_mode(pdata);
 
-	xgbe_phy_start_ratechange(pdata);
-
 	/* 10G/KR */
-	s0 = 0;
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, 4);
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 0);
-
-	/* Call FW to make the change */
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, s0);
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
-	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
-
-	xgbe_phy_complete_ratechange(pdata);
+	xgbe_phy_perform_ratechange(pdata, 4, 0);
 
 	phy_data->cur_mode = XGBE_MODE_KR;
 
@@ -2040,23 +1994,11 @@ static void xgbe_phy_kr_mode(struct xgbe_prv_data *pdata)
 static void xgbe_phy_kx_2500_mode(struct xgbe_prv_data *pdata)
 {
 	struct xgbe_phy_data *phy_data = pdata->phy_data;
-	unsigned int s0;
 
 	xgbe_phy_set_redrv_mode(pdata);
 
-	xgbe_phy_start_ratechange(pdata);
-
 	/* 2.5G/KX */
-	s0 = 0;
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, 2);
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 0);
-
-	/* Call FW to make the change */
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, s0);
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
-	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
-
-	xgbe_phy_complete_ratechange(pdata);
+	xgbe_phy_perform_ratechange(pdata, 2, 0);
 
 	phy_data->cur_mode = XGBE_MODE_KX_2500;
 
@@ -2066,23 +2008,11 @@ static void xgbe_phy_kx_2500_mode(struct xgbe_prv_data *pdata)
 static void xgbe_phy_kx_1000_mode(struct xgbe_prv_data *pdata)
 {
 	struct xgbe_phy_data *phy_data = pdata->phy_data;
-	unsigned int s0;
 
 	xgbe_phy_set_redrv_mode(pdata);
 
-	xgbe_phy_start_ratechange(pdata);
-
 	/* 1G/KX */
-	s0 = 0;
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, 1);
-	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, SUB_COMMAND, 3);
-
-	/* Call FW to make the change */
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_0, s0);
-	XP_IOWRITE(pdata, XP_DRIVER_SCRATCH_1, 0);
-	XP_IOWRITE_BITS(pdata, XP_DRIVER_INT_REQ, REQUEST, 1);
-
-	xgbe_phy_complete_ratechange(pdata);
+	xgbe_phy_perform_ratechange(pdata, 1, 3);
 
 	phy_data->cur_mode = XGBE_MODE_KX_1000;
 
@@ -2549,8 +2479,24 @@ static int xgbe_phy_link_status(struct xgbe_prv_data *pdata, int *an_restart)
 	 */
 	reg = XMDIO_READ(pdata, MDIO_MMD_PCS, MDIO_STAT1);
 	reg = XMDIO_READ(pdata, MDIO_MMD_PCS, MDIO_STAT1);
+
 	if (reg & MDIO_STAT1_LSTATUS)
 		return 1;
+
+#if defined(MY_DEF_HERE)
+	if (phy_data->phydev && phy_data->phydev->link) {
+		dev_warn(pdata->dev, "MDIO_STAT1: 0x%x , but phy_data->phydev->link: 0x%x", reg, phy_data->phydev->link);
+		return 1;
+	}
+#endif
+
+	if (pdata->phy.autoneg == AUTONEG_ENABLE &&
+	    phy_data->port_mode == XGBE_PORT_MODE_BACKPLANE) {
+		if (!test_bit(XGBE_LINK_INIT, &pdata->dev_state)) {
+			netif_carrier_off(pdata->netdev);
+			*an_restart = 1;
+		}
+	}
 
 	/* No link, attempt a receiver reset cycle */
 	if (phy_data->rrc_count++ > XGBE_RRC_FREQUENCY) {
@@ -2871,8 +2817,12 @@ static void xgbe_phy_cdr_track(struct xgbe_prv_data *pdata)
 	if (!phy_data->phy_cdr_notrack)
 		return;
 
-	usleep_range(phy_data->phy_cdr_delay,
-		     phy_data->phy_cdr_delay + 500);
+	/* when there is no link, no need to use the cdr delay, whenever a page is
+	 * received , pdata->cdr_delay_required is set to 1
+	 */
+	if (phy_data->phy_cdr_delay_required)
+		usleep_range(phy_data->phy_cdr_delay,
+			     phy_data->phy_cdr_delay + 500);
 
 	XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_VEND2_PMA_CDR_CONTROL,
 			 XGBE_PMA_CDR_TRACK_EN_MASK,
@@ -2900,16 +2850,130 @@ static void xgbe_phy_cdr_notrack(struct xgbe_prv_data *pdata)
 	phy_data->phy_cdr_notrack = 1;
 }
 
+static void xgbe_phy_reset_cdr_delay(struct xgbe_prv_data *pdata)
+{
+	struct xgbe_phy_data *phy_data = pdata->phy_data;
+
+	phy_data->phy_cdr_delay = XGBE_CDR_DELAY_INIT;
+}
+
+static void xgbe_phy_kr_workaround(struct xgbe_prv_data *pdata)
+{
+	struct xgbe_phy_data *phy_data = pdata->phy_data;
+	unsigned int reg;
+
+	/* Disable KR training for now */
+	reg = XMDIO_READ(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_10GBR_PMD_CTRL);
+	reg &= ~XGBE_KR_TRAINING_ENABLE;
+	XMDIO_WRITE(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_10GBR_PMD_CTRL, reg);
+
+	/* step-4 Start AN */
+	reg = XMDIO_READ(pdata, MDIO_MMD_AN, MDIO_CTRL1);
+	reg &= ~MDIO_AN_CTRL1_ENABLE;
+
+	reg |= MDIO_AN_CTRL1_ENABLE;
+
+	reg |= MDIO_AN_CTRL1_RESTART;
+
+	XMDIO_WRITE(pdata, MDIO_MMD_AN, MDIO_CTRL1, reg);
+
+	if (phy_data->cur_mode == XGBE_MODE_KR) {
+		/* step-4 Start AN with KR training auto start */
+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD,
+				 MDIO_PMA_10GBR_PMD_CTRL,
+				 (XGBE_KR_TRAINING_ENABLE | XGBE_KR_TRAINING_START),
+				 (XGBE_KR_TRAINING_ENABLE | XGBE_KR_TRAINING_START));
+
+		/* Step-5 Set RX_EQ_MGMT_MODE to disable RX Adapt Requests */
+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD,
+				 MDIO_PMA_RX_EQ_CTRL,
+				 XGBE_PMA_RX_EQ_MGMT_MODE_MASK,
+				 XGBE_PMA_RX_EQ_MGMT_MODE_OFF);
+	}
+}
+
+static void xgbe_phy_kr_training_cdroff(struct xgbe_prv_data *pdata)
+{
+	struct xgbe_phy_data *phy_data = pdata->phy_data;
+
+	/* set phy_data->phy_cdr_notrack, if it is not set so
+	 * next call to xgbe_phy_cdr_track will work as expected
+	 */
+
+	if (!phy_data->phy_cdr_notrack) {
+		netif_dbg(pdata, link, pdata->netdev, "setting phy_data->phy_cdr_notrack\n");
+		phy_data->phy_cdr_notrack = 1;
+	}
+}
+
+static void xgbe_phy_update_cdr_delay(struct xgbe_prv_data *pdata)
+{
+	struct xgbe_phy_data *phy_data = pdata->phy_data;
+
+	/* step-12 Increment delay by 22ms. if delay is > 110ms, reset to 22ms */
+	if (phy_data->phy_cdr_delay < XGBE_CDR_DELAY_MAX)
+		phy_data->phy_cdr_delay += XGBE_CDR_DELAY_INC;
+	else
+		phy_data->phy_cdr_delay = XGBE_CDR_DELAY_INIT;
+}
+
 static void xgbe_phy_kr_training_post(struct xgbe_prv_data *pdata)
 {
-	if (!pdata->debugfs_an_cdr_track_early)
-		xgbe_phy_cdr_track(pdata);
+	struct xgbe_phy_data *phy_data = pdata->phy_data;
+
+	/* an_kr_workaround is enabled with kr_training_post routine and
+	 * debugfs_an_cdr_track_early should be disabled
+	 */
+
+	if (pdata->debugfs_an_cdr_track_early)
+		return;
+
+	if (pdata->vdata->an_kr_workaround) {
+		xgbe_phy_kr_training_cdroff(pdata);
+
+		/* step-7 Set RX_EQ_MGMT_MODE to disable RX adapt requests */
+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_EQ_CTRL,
+				 XGBE_PMA_RX_EQ_MGMT_MODE_MASK, XGBE_PMA_RX_EQ_MGMT_MODE_OFF);
+		/* step-8 Set CDR_TRACK_EN to 0 */
+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_VEND2_PMA_CDR_CONTROL,
+				 XGBE_PMA_CDR_TRACK_EN_MASK,
+				 XGBE_PMA_CDR_TRACK_EN_OFF);
+		/* step-8 Set rx_data_en =0 (Reference tracking mode) */
+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_CTRL0,
+				 XGBE_PMA_RX_DT_EN_0_MASK, XGBE_PMA_RX_DT_EN_0_OFF);
+	}
+	/* step-9 Delay and step-10 and Set CDR_TRACK_EN to 1 */
+	phy_data->phy_cdr_delay_required = 1;
+	xgbe_phy_cdr_track(pdata);
+	phy_data->phy_cdr_delay_required = 0;
+
+	if (pdata->vdata->an_kr_workaround) {
+		/*step-10 rx_data_en = 1 (Data tracking mode) */
+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_CTRL0,
+				 XGBE_PMA_RX_DT_EN_0_MASK, XGBE_PMA_RX_DT_EN_0_ON);
+		/* step-11. Wait for 1 usec (for CDR to lock to data) */
+		usleep_range(1, 2);
+		/* step-11.  Clear RX_EQ_MGMT_MODE to allow RX Adapt rquests */
+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_EQ_CTRL,
+				 XGBE_PMA_RX_EQ_MGMT_MODE_MASK, XGBE_PMA_RX_EQ_MGMT_MODE_ON);
+	}
+	/* step-12 Increment delay by 22ms. if delay is > 110ms, reset to 22ms */
+	xgbe_phy_update_cdr_delay(pdata);
+
 }
 
 static void xgbe_phy_kr_training_pre(struct xgbe_prv_data *pdata)
 {
-	if (pdata->debugfs_an_cdr_track_early)
+	struct xgbe_phy_data *phy_data = pdata->phy_data;
+
+	/* an_kr_workaround is not enabled with kr_training_pre routine */
+	if (pdata->debugfs_an_cdr_track_early) {
+		phy_data->phy_cdr_delay_required = 1;
 		xgbe_phy_cdr_track(pdata);
+		phy_data->phy_cdr_delay_required = 0;
+		/* step-12 Increment delay by 22ms. if delay is > 110ms, reset to 22ms */
+		xgbe_phy_update_cdr_delay(pdata);
+	}
 }
 
 static void xgbe_phy_an_post(struct xgbe_prv_data *pdata)
@@ -2923,18 +2987,6 @@ static void xgbe_phy_an_post(struct xgbe_prv_data *pdata)
 			break;
 
 		xgbe_phy_cdr_track(pdata);
-
-		switch (pdata->an_result) {
-		case XGBE_AN_READY:
-		case XGBE_AN_COMPLETE:
-			break;
-		default:
-			if (phy_data->phy_cdr_delay < XGBE_CDR_DELAY_MAX)
-				phy_data->phy_cdr_delay += XGBE_CDR_DELAY_INC;
-			else
-				phy_data->phy_cdr_delay = XGBE_CDR_DELAY_INIT;
-			break;
-		}
 		break;
 	default:
 		break;
@@ -2952,6 +3004,14 @@ static void xgbe_phy_an_pre(struct xgbe_prv_data *pdata)
 			break;
 
 		xgbe_phy_cdr_notrack(pdata);
+		if (pdata->vdata->an_kr_workaround) {
+			/* Enable interrupt when KR workaround is used */
+			XMDIO_WRITE(pdata, MDIO_MMD_AN, MDIO_AN_INTMASK, XGBE_AN_CL73_INT_MASK);
+			/* Step 4 and step 5 for KR workaround
+			 * Start AN and disable RX Adapt Requests
+			 */
+			xgbe_phy_kr_workaround(pdata);
+		}
 		break;
 	default:
 		break;
@@ -3345,6 +3405,186 @@ static int xgbe_phy_init(struct xgbe_prv_data *pdata)
 }
 
 #if defined(MY_DEF_HERE)
+static void syno_force_1g(struct xgbe_prv_data *pdata)
+{
+	int reg;
+	struct xgbe_phy_data *phy_data = pdata->phy_data;
+	int temp_m, temp_c;
+	enum xgbe_mode cur_mode;
+
+	reg = xgbe_phy_get_comm_ownership(pdata);
+	if (reg){
+		printk("get ownership fail \n");
+		return ;
+	}
+
+	temp_c = phy_data->conn_type;
+	temp_m = phy_data->phydev_mode;
+
+	phy_data->phydev_mode = XGBE_MDIO_MODE_CL45;
+	phy_data->conn_type = XGBE_CONN_TYPE_MDIO;
+
+	/* Do not advertise PHY as 10G */
+	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0020);
+	reg &= ~0x1000;
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0020, reg);
+
+	/* Disable extended next pages */
+	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0000);
+	reg &= ~0x2000;
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0000, reg);
+
+	/* Extended next page not capable */
+	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0010);
+	reg &= ~0x1000;
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0010, reg);
+
+	/* Speed Select 1000 Mbps */
+	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_PMAPMD << 16) | 0x0000);
+	reg &= ~0x2000;
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_PMAPMD << 16) | 0x0000, reg);
+
+	/* Reset by power cycling the PHY */
+	cur_mode = phy_data->cur_mode;
+	xgbe_phy_power_off(pdata);
+	xgbe_phy_set_mode(pdata, cur_mode);
+	phy_init_hw(phy_data->phydev);
+	
+	/* Disable auto-negotiation for now */
+	reg = XMDIO_READ(pdata, MDIO_MMD_AN, MDIO_CTRL1);
+	reg &= ~MDIO_AN_CTRL1_ENABLE;
+	XMDIO_WRITE(pdata, MDIO_MMD_AN, MDIO_CTRL1, reg);
+	
+	// Disable auto-negotiation interrupts
+	XMDIO_WRITE(pdata, MDIO_MMD_AN, MDIO_AN_INTMASK, 0);
+	pdata->an_start = 0;
+
+	/* Clear auto-negotiation interrupts */
+	XMDIO_WRITE(pdata, MDIO_MMD_AN, MDIO_AN_INT, 0);
+
+	xgbe_phy_put_comm_ownership(pdata);
+
+	phy_data->phydev_mode = temp_m;
+	phy_data->conn_type = temp_c;
+}
+
+static void syno_phy_led_test_mode(struct xgbe_prv_data *pdata, unsigned int test_mode)
+{
+	int reg, reg_led_act, reg_led_orange, reg_led_green;
+	struct xgbe_phy_data *phy_data = pdata->phy_data;
+	int temp_m, temp_c;
+
+	reg = xgbe_phy_get_comm_ownership(pdata);
+	if (reg){
+		printk("get ownership fail \n");
+		return ;
+	}
+
+	temp_c = phy_data->conn_type;
+	temp_m = phy_data->phydev_mode;
+
+	phy_data->phydev_mode = XGBE_MDIO_MODE_CL45;
+	phy_data->conn_type = XGBE_CONN_TYPE_MDIO;
+
+	reg_led_act = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf020);
+	reg_led_orange = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf022);
+	reg_led_green = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf023);
+
+	reg_led_act &= 0xE000;
+	reg_led_orange &= 0xE000;
+	reg_led_green &= 0xE000;
+
+
+	switch (test_mode) {
+		case 0 :
+			reg_led_act |= 0x128;
+			reg_led_orange |= 0x68;
+			reg_led_green |= 0x58;
+			break;
+		case 1 :
+			reg_led_act |= 0x1728;
+			reg_led_orange |= 0xB8;
+			break;
+		case 2 :
+			reg_led_act |= 0x1728;
+			reg_led_green |= 0xB8;
+			break;
+		default :
+			break;
+	}
+
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf020, reg_led_act);
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf022, reg_led_orange);	
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_VEND2 << 16) | 0xf023, reg_led_green);	
+
+	xgbe_phy_put_comm_ownership(pdata);
+	phy_data->phydev_mode = temp_m;
+	phy_data->conn_type = temp_c;
+}
+
+static void syno_resume_autoneg(struct xgbe_prv_data *pdata)
+{
+	int reg;
+	struct xgbe_phy_data *phy_data = pdata->phy_data;
+	int temp_m, temp_c;
+	enum xgbe_mode cur_mode;
+
+	reg = xgbe_phy_get_comm_ownership(pdata);
+	if (reg){
+		printk("get ownership fail \n");
+		return ;
+	}
+
+	temp_c = phy_data->conn_type;
+	temp_m = phy_data->phydev_mode;
+
+	phy_data->phydev_mode = XGBE_MDIO_MODE_CL45;
+	phy_data->conn_type = XGBE_CONN_TYPE_MDIO;
+
+	/* Advertise PHY as 10G */
+	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0020);
+	reg |= 0x1000;
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0020, reg);
+
+	/* Enable extended next pages */
+	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0000);
+	reg |= 0x2000;
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0000, reg);
+
+	/* Extended next page capable */
+	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0010);
+	reg |= 0x1000;
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_AN << 16) | 0x0010, reg);
+
+	/* Speed Select 10 Gbps */
+	reg = xgbe_phy_mdio_mii_read(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_PMAPMD << 16) | 0x0000);
+	reg |= 0x2000;
+	xgbe_phy_mdio_mii_write(pdata, 0, MII_ADDR_C45 | (MDIO_MMD_PMAPMD << 16) | 0x0000, reg);
+
+	/* Reset by power cycling the PHY */
+	cur_mode = phy_data->cur_mode;
+	xgbe_phy_power_off(pdata);
+	xgbe_phy_set_mode(pdata, cur_mode);
+	phy_init_hw(phy_data->phydev);
+	
+	/* Disable auto-negotiation for now */
+	reg = XMDIO_READ(pdata, MDIO_MMD_AN, MDIO_CTRL1);
+	reg &= ~MDIO_AN_CTRL1_ENABLE;
+	XMDIO_WRITE(pdata, MDIO_MMD_AN, MDIO_CTRL1, reg);
+	
+	// Disable auto-negotiation interrupts
+	XMDIO_WRITE(pdata, MDIO_MMD_AN, MDIO_AN_INTMASK, 0);
+	pdata->an_start = 0;
+
+	/* Clear auto-negotiation interrupts */
+	XMDIO_WRITE(pdata, MDIO_MMD_AN, MDIO_AN_INT, 0);
+	
+	xgbe_phy_put_comm_ownership(pdata);
+
+	phy_data->phydev_mode = temp_m;
+	phy_data->conn_type = temp_c;
+}
+
 static void syno_xgbe_wol_enable(struct xgbe_prv_data *pdata)
 {
 	int ret;
@@ -3396,7 +3636,11 @@ void xgbe_init_function_ptrs_phy_v2(struct xgbe_phy_if *phy_if)
 
 	phy_impl->kr_training_pre	= xgbe_phy_kr_training_pre;
 	phy_impl->kr_training_post	= xgbe_phy_kr_training_post;
+	phy_impl->reset_cdr_delay   = xgbe_phy_reset_cdr_delay;
 #if defined(MY_DEF_HERE)
 	phy_impl->wol_enable		= syno_xgbe_wol_enable;
+	phy_impl->force_1g		= syno_force_1g;
+	phy_impl->resume_autoneg	= syno_resume_autoneg;
+	phy_impl->phy_led_test_mode	= syno_phy_led_test_mode;
 #endif /* MY_DEF_HERE */
 }

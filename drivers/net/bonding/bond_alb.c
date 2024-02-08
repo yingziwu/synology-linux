@@ -1788,6 +1788,7 @@ void bond_alb_info_show(struct seq_file *seq)
 	struct slave *slave;
 	u32 index;
 	struct list_head *iter;
+	bool rcinfo_visited[RLB_HASH_TABLE_SIZE] = { false };
 
 	seq_puts(seq, "\nALB info\n");
 	seq_puts(seq, "\n Receive Load Balancing table:\n");
@@ -1796,8 +1797,12 @@ void bond_alb_info_show(struct seq_file *seq)
 
 	spin_lock_bh(&bond->mode_lock);
 	index = bond_info->rx_hashtbl_used_head;
-	for (; index != RLB_NULL_INDEX;
-		index = rclient_info->used_next) {
+	for (; bond_info->rx_hashtbl && index != RLB_NULL_INDEX;
+		 index = rclient_info->used_next) {
+		if (rcinfo_visited[index]) {
+			break;
+		}
+		rcinfo_visited[index] = true;
 		rclient_info = &(bond_info->rx_hashtbl[index]);
 
 		if (rclient_info) {
@@ -1833,6 +1838,7 @@ void bond_alb_info_show(struct seq_file *seq)
 	bond_for_each_slave(bond, slave, iter) {
 
 		if (slave) {
+			bool tcinfo_visited[TLB_HASH_TABLE_SIZE] = { false };
 			seq_puts(seq, "  Slave    Used  Speed    Duplex"
 				      "  Current load\n");
 #ifdef MY_ABC_HERE
@@ -1851,8 +1857,13 @@ void bond_alb_info_show(struct seq_file *seq)
 				      "Load history\n");
 
 			index = SLAVE_TLB_INFO(slave).head;
-			for (; index != TLB_NULL_INDEX;
+			for (; bond_info->tx_hashtbl && index != TLB_NULL_INDEX;
 			     index = tclient_info->next) {
+				if (tcinfo_visited[index]) {
+					break;
+				}
+				tcinfo_visited[index] = true;
+
 				tclient_info = &(bond_info->tx_hashtbl[index]);
 				if (tclient_info)
 					seq_printf(seq,	"            "

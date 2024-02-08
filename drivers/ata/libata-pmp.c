@@ -31,6 +31,119 @@ const struct ata_port_operations sata_pmp_port_ops = {
 	.error_handler		= sata_pmp_error_handler,
 };
 
+#ifdef MY_ABC_HERE
+static u8 syno_i2c_pkg_data_2_tf_offset_mapping[] = {
+	/* data[0] ~ data[3] */
+	offsetof(struct ata_taskfile, lbal),
+	offsetof(struct ata_taskfile, lbam),
+	offsetof(struct ata_taskfile, lbah),
+	offsetof(struct ata_taskfile, hob_lbal),
+	/* data[4] ~ data[7] */
+	offsetof(struct ata_taskfile, hob_lbam),
+	offsetof(struct ata_taskfile, hob_lbah),
+	offsetof(struct ata_taskfile, nsect),
+	offsetof(struct ata_taskfile, hob_nsect),
+};
+
+static void init_tf_data_from_pkg(struct ata_taskfile *tf, int idx, u8 data)
+{
+	u8 *ptr = NULL;
+
+	if (!tf || SYNO_PMP_I2C_MAX_DATA_LEN <= idx || 0 > idx) {
+		goto END;
+	}
+
+	ptr = ((u8*)tf) + syno_i2c_pkg_data_2_tf_offset_mapping[idx];
+	*ptr = data;
+
+END:
+	return;
+}
+
+#define SYNO_JMB575_I2C_NACK 0x51
+static unsigned int sata_pmp_i2c_read_core(struct ata_link *link, SYNO_PM_I2C_PKG *pkg)
+{
+	unsigned int err_mask = 0;
+	struct ata_port *ap = link->ap;
+	struct ata_device *pmp_dev = ap->link.device;
+	struct ata_taskfile tf;
+	int i = 0;
+
+	/* Init tf */
+	ata_tf_init(pmp_dev, &tf);
+	tf.command = ATA_CMD_PMP_SYNO_I2C;
+	tf.protocol = ATA_PROT_NODATA;
+	tf.flags |= ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE | ATA_TFLAG_LBA48;
+	tf.feature = pkg->addr << 1 | 0x01; /* Read */
+	tf.device 	= pkg->len;
+	tf.hob_feature 	= 0x01; /* Randon Read */
+
+	/* data[0]: i2c device offset */
+	init_tf_data_from_pkg(&tf, 0, pkg->offset);
+
+	/* Internal Command */
+	//err_mask = syno_jmb575_internal_command(pmp_dev, &tf, NULL, DMA_NONE, NULL, 0, SATA_PMP_RW_TIMEOUT);
+	err_mask = ata_exec_internal(pmp_dev, &tf, NULL, DMA_NONE, NULL, 0, SATA_PMP_RW_TIMEOUT);
+
+	if (err_mask) {
+		ata_link_err(link, "failed to read PMP I2C(Addr=0x%x, Offset=0x%x ,Emask=0x%x)\n", pkg->addr, pkg->offset, err_mask);
+		pkg->blIsErr = true;
+		goto END;
+	}
+
+	if (SYNO_JMB575_I2C_NACK == tf.hob_nsect) {
+		pkg->blIsErr = true;
+		goto END;
+	}
+
+	for (i = 0; i < pkg->len; i++) {
+		pkg->resultData[i] = *(((u8*)&tf) + syno_i2c_pkg_data_2_tf_offset_mapping[i]) ;
+	}
+
+END:
+	return err_mask;
+}
+
+static unsigned int sata_pmp_i2c_write_core(struct ata_link *link, SYNO_PM_I2C_PKG *pkg)
+{
+	unsigned int err_mask = 0;
+	struct ata_port *ap = link->ap;
+	struct ata_device *pmp_dev = ap->link.device;
+	struct ata_taskfile tf;
+	int i = 0;
+
+	/* Init tf */
+	ata_tf_init(pmp_dev, &tf);
+	tf.command = ATA_CMD_PMP_SYNO_I2C;
+	tf.protocol = ATA_PROT_NODATA;
+	tf.flags |= ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE | ATA_TFLAG_LBA48;
+	tf.feature = pkg->addr << 1;
+	tf.device 	= pkg->len + 1;
+
+	/* data[0]: i2c device offset */
+	init_tf_data_from_pkg(&tf, 0, pkg->offset);
+
+	/* data[1]~data[len]: data to be written */
+	for (i = 1; i <= pkg->len; i++) {
+		init_tf_data_from_pkg(&tf, i, pkg->inputData[i-1]);
+	}
+
+	/* Internal Command */
+	err_mask = ata_exec_internal(pmp_dev, &tf, NULL, DMA_NONE, NULL, 0, SATA_PMP_RW_TIMEOUT);
+	
+	if (err_mask) {
+		ata_link_err(link, "failed to write PMP I2C(Addr=0x%x, Offset=0x%x ,Emask=0x%x)\n", pkg->addr, pkg->offset, err_mask);
+		pkg->blIsErr = true;
+	}
+
+	if (SYNO_JMB575_I2C_NACK == tf.hob_nsect){
+		pkg->blIsErr = true;
+	}
+
+	return err_mask;
+}
+#endif /* MY_ABC_HERE */
+
 /**
  *	sata_pmp_read - read PMP register
  *	@link: link to read PMP register for
@@ -124,6 +237,99 @@ static unsigned int sata_pmp_write(struct ata_link *link, int reg, u32 val)
 }
 
 #ifdef MY_ABC_HERE
+unsigned int syno_sata_pmp_read_i2c_acmd(struct ata_link* link, SYNO_PM_I2C_PKG *pPM_pkg)
+{
+	unsigned int uiRet = 1;
+	unsigned long flags = 0;
+	int iRetries = 0;
+
+	/* Get gpio ctrl lock in 2s */
+	spin_lock_irqsave(link->ap->lock, flags);
+	while ((link->uiStsFlags & SYNO_STATUS_GPIO_CTRL) && (SYNO_PMP_GPIO_TRIES > iRetries)) {
+		spin_unlock_irqrestore(link->ap->lock, flags);
+		schedule_timeout_uninterruptible(HZ/2);
+		spin_lock_irqsave(link->ap->lock, flags);
+		++iRetries;
+	}
+
+	if (SYNO_PMP_GPIO_TRIES <= iRetries) {
+		DBGMESG("syno_sata_pmp_read_i2c_acmd get gpio lock timeout\n");
+		spin_unlock_irqrestore(link->ap->lock, flags);
+		goto END;
+	}
+
+	/* lock to prevent others to do pmp gpio control */
+	link->uiStsFlags |= SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(link->ap->lock, flags);
+
+	uiRet = sata_pmp_i2c_read_core(link, pPM_pkg);
+
+END:
+	/* unlock to let others can do pmp gpio control */
+	spin_lock_irqsave(link->ap->lock, flags);
+	link->uiStsFlags &= ~SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(link->ap->lock, flags);
+
+	return uiRet;
+}
+
+
+unsigned int
+syno_sata_pmp_write_i2c_acmd(struct ata_link *link, SYNO_PM_I2C_PKG *pPM_pkg)
+{
+	unsigned int uiRet = 1;
+	unsigned long flags = 0;
+	int iRetries = 0;
+
+	/* Get gpio ctrl lock in 2s */
+	spin_lock_irqsave(link->ap->lock, flags);
+	while ((link->uiStsFlags & SYNO_STATUS_GPIO_CTRL) && (SYNO_PMP_GPIO_TRIES > iRetries)) {
+		spin_unlock_irqrestore(link->ap->lock, flags);
+		schedule_timeout_uninterruptible(HZ/2);
+		spin_lock_irqsave(link->ap->lock, flags);
+		++iRetries;
+	}
+
+	if (SYNO_PMP_GPIO_TRIES <= iRetries) {
+		DBGMESG("syno_sata_pmp_write_i2c_acmd get gpio lock timeout\n");
+		spin_unlock_irqrestore(link->ap->lock, flags);
+		goto END;
+	}
+
+	/* lock to prevent others to do pmp gpio control */
+	link->uiStsFlags |= SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(link->ap->lock, flags);
+
+	uiRet = sata_pmp_i2c_write_core(link, pPM_pkg);
+
+END:
+	/* unlock to let others can do pmp gpio control */
+	spin_lock_irqsave(link->ap->lock, flags);
+	link->uiStsFlags &= ~SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(link->ap->lock, flags);
+	
+	return uiRet;
+}
+
+unsigned int syno_sata_pmp_read_i2c(struct ata_port *ap, SYNO_PM_I2C_PKG *pPM_pkg)
+{
+	if ((ap->pflags & (ATA_PFLAG_RECOVERED)) || (!ap->link.device->sdev) || (ap->pflags & ATA_PFLAG_PMP_PMCTL))
+		return syno_sata_pmp_read_i2c_acmd(&(ap->link), pPM_pkg);
+	else
+		return syno_i2c_with_scmd(ap, ap->link.device->sdev, pPM_pkg, READ);
+}
+
+unsigned int syno_sata_pmp_write_i2c(struct ata_port *ap, SYNO_PM_I2C_PKG *pPM_pkg)
+{
+	if ((ap->pflags & (ATA_PFLAG_RECOVERED)) || (!ap->link.device->sdev) || (ap->pflags & ATA_PFLAG_PMP_PMCTL))
+		return syno_sata_pmp_write_i2c_acmd(&(ap->link), pPM_pkg);
+	else
+		return syno_i2c_with_scmd(ap, ap->link.device->sdev, pPM_pkg, WRITE);
+}
+
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 /**
  * Some PM chips need to config GPIO related
  * registers before starting using them.
@@ -209,7 +415,14 @@ syno_pm_device_config(struct ata_port *ap)
 		}
 #ifdef MY_ABC_HERE
 		if (syno_is_hw_version(HW_RS2421p) ||
-		    syno_is_hw_version(HW_RS2421rpp)) {
+		    syno_is_hw_version(HW_RS2421rpp) ||
+		    (syno_is_hw_version(HW_RS3621xsp) && syno_is_hw_revision(HW_R1)) ||
+		    (syno_is_hw_version(HW_RS3621rpxs)&& syno_is_hw_revision(HW_R1)) ||
+		    (syno_is_hw_version(HW_RS4021xsp) && syno_is_hw_revision(HW_R1)) ||
+		// RS3621RPxsr1/RS3621xs+r1/RS4021xs+r1 use following value
+		    (syno_is_hw_version(HW_RS3618xs) && syno_is_hw_revision(HW_R1)) ||
+		    syno_is_hw_version(HW_RS2423p) ||
+		    syno_is_hw_version(HW_RS2423rpp)) {
 			if (0 == ap->PMSynoEMID) {
 				sata_pmp_write(&(ap->link), 0x291, 0xD7D);
 			} else if (1 == ap->PMSynoEMID) {
@@ -225,11 +438,12 @@ syno_pm_device_config(struct ata_port *ap)
 			!syno_is_hw_version(HW_RS3617rpxs) 	&&
 			!syno_is_hw_version(HW_RS3617xsp) 	&&
 			!syno_is_hw_version(HW_RS4017xsp) 	&&
-			!syno_is_hw_version(HW_RS3618xs) 	&&
+			!(syno_is_hw_version(HW_RS3618xs)&&(!syno_is_hw_revision(HW_R1))) 	&&
 			!syno_is_hw_version(HW_RS1619xsp) 	&&
-			!syno_is_hw_version(HW_RS3621xsp) 	&&
-			!syno_is_hw_version(HW_RS3621rpxs) 	&&
-			!syno_is_hw_version(HW_RS4021xsp)) {
+			!(syno_is_hw_version(HW_RS3621xsp)&&(!syno_is_hw_revision(HW_R1)))	&&
+			!(syno_is_hw_version(HW_RS3621rpxs)&&(!syno_is_hw_revision(HW_R1)))	&&
+			!(syno_is_hw_version(HW_RS4021xsp)&&(!syno_is_hw_revision(HW_R1)))) {
+		// RS3621RPxs/RS3621xs+/RS4021xs+ don't use following value but default value
 			if (0 == ap->PMSynoEMID) {
 				sata_pmp_write(&(ap->link), 0x291, 0x8f5);
 			} else if (1 == ap->PMSynoEMID) {
@@ -745,6 +959,151 @@ END:
 	return ret;
 }
 
+u8 syno_pm_is_synology_jmb575(const struct ata_port *ap)
+{
+	u8 ret = 0;
+
+	if (!syno_pm_is_jmb575(sata_pmp_gscr_vendor(ap->link.device->gscr),
+						sata_pmp_gscr_devid(ap->link.device->gscr))) {
+		goto END;
+	}
+
+	if (!IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+		goto END;
+	}
+
+	ret = 1;
+
+END:
+	return ret;
+
+}
+
+#ifdef MY_ABC_HERE
+
+#ifdef MY_ABC_HERE
+static int syno_jmb575_get_i2c_info(struct ata_port *ap, struct device_node *pNode, SYNO_JMB575_I2C_DEV_INFO *pI2cInfo)
+{
+	int iRet = -1;
+	SYNO_JMB575_I2C_DEV_INFO i2cInfoTmp;
+
+	if (NULL == ap || NULL == pNode || NULL == pI2cInfo) {
+		goto END;
+	}
+
+	if(of_property_read_u32_index(pNode, SZ_DTS_EBOX_I2C_OFFSET, 0, &i2cInfoTmp.offset)) {
+		printk("Get node %s fail\n", SZ_DTS_EBOX_I2C_OFFSET);
+		goto END;
+	}
+
+	if(of_property_read_u32_index(pNode, SZ_DTS_EBOX_I2C_MASK, 0, &i2cInfoTmp.mask)) {
+		printk("Get node %s fail\n", SZ_DTS_EBOX_I2C_MASK);
+		goto END;
+	}
+	
+	if (syno_pmp_i2c_addr_get(pNode, &i2cInfoTmp.addr)) {
+		printk("Get Power control i2c addr fail\n");
+		goto END;
+	}
+
+	memcpy(pI2cInfo, &i2cInfoTmp, sizeof(SYNO_JMB575_I2C_DEV_INFO));
+
+	iRet = 0;
+END:
+	return iRet;
+
+	
+}
+#endif /* MY_ABC_HERE */
+
+static int syno_sata_jmb575_pwrbtn(struct ata_port *ap, u8 blDisable)
+{
+	int iRet = -1;
+
+	/* CPLD */
+	SYNO_PM_I2C_PKG i2cPkg;
+
+	/* I2C */	
+#ifdef ONFIG_SYNO_PORT_MAPPING_V2
+	struct device_node *pEBoxNode = NULL;
+	struct device_node *pPwrBtnNode = NULL;
+#endif /* MY_ABC_HERE */
+	SYNO_JMB575_I2C_DEV_INFO i2cInfo;
+
+	if (NULL == ap) {
+		goto END;
+	}
+
+#ifdef ONFIG_SYNO_PORT_MAPPING_V2
+	if (syno_pmp_get_ebox_node_by_unique_id(ap->PMSynoUnique, ap->PMSynoIsRP, &pEBoxNode)) {
+		printk("Get EBox node fail");
+		goto END;
+	}
+
+	if (NULL == (pPwrBtnNode = of_get_child_by_name(pEBoxNode, SZ_DTS_EBOX_I2C_PWR_BTN))) {
+		printk("Get node %s fail", SZ_DTS_EBOX_I2C_PWR_BTN);
+		goto END;
+	}
+
+	if (syno_jmb575_get_i2c_info(ap, pPwrBtnNode, &i2cInfo)) {
+		printk("Get i2c device info fail");
+		goto END;
+	}
+#else /* MY_ABC_HERE */
+	if (IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique) ) {
+		i2cInfo.addr = RX1223RP_MP_ADDR;
+		i2cInfo.offset = RX1223RP_PWR_CTL_OFFSET;
+		i2cInfo.mask = RX1223RP_PWR_BTN_MASK;
+	} else {
+		DBGMESG("Not Support Power Button Lock\n");
+		goto END;
+	}
+#endif /* MY_ABC_HERE */
+
+	syno_init_i2c_pkg(&i2cPkg, PM_I2C_OP_READ, i2cInfo.addr, i2cInfo.offset, 1);
+	
+	if (syno_sata_pmp_read_i2c(ap, &i2cPkg)) {
+		goto END;
+	}
+
+	i2cPkg.inputData[0] = blDisable? (i2cPkg.resultData[0] | i2cInfo.mask) : (i2cPkg.resultData[0] & (~i2cInfo.mask));
+
+	if (syno_sata_pmp_write_i2c(ap, &i2cPkg)) {
+		goto END;
+	}
+
+END:
+	return iRet;
+}
+
+/**
+ * syno_sata_jmb575_is_rp
+ *
+ * @return -1: error
+ *          0: not rp
+ *          1: is rp
+ */
+static int syno_sata_jmb575_is_rp(struct ata_port *ap)
+{
+	int iRet = 0;
+
+	if (NULL == ap) {
+		iRet = -1;
+		goto END;
+	}
+
+	if (IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+		iRet = 1;
+	} else {
+		iRet = 0;
+	}
+
+END:
+	return iRet;
+}
+
+#endif /* MY_ABC_HERE */
+
 unsigned int
 syno_sata_pmp_is_rp(struct ata_port *ap)
 {
@@ -789,6 +1148,13 @@ syno_sata_pmp_is_rp(struct ata_port *ap)
 		if (GPI_9705_PSU1_STAT(pm_pkg.var) || GPI_9705_PSU2_STAT(pm_pkg.var)) {
 			res = 1;
 		}
+#ifdef MY_ABC_HERE
+	} else if (syno_pm_is_synology_jmb575(ap)) {
+	
+		if (1 == syno_sata_jmb575_is_rp(ap)) {
+			res = 1;
+		}
+#endif /* MY_ABC_HERE */
 	}
 
 END:
@@ -844,6 +1210,250 @@ END:
 	return iRes;
 }
 
+#ifdef MY_ABC_HERE
+static int syno_sata_jmb575_disk_led_get(struct ata_link *link, u8 *pLedMask)
+{
+	int iRet = -1;
+	struct ata_taskfile tf;
+	struct ata_port *ap = NULL;
+
+	if (NULL == link || NULL == pLedMask) {
+		goto END;
+	}
+
+	ap = link->ap;
+
+	if ((ap->pflags & (ATA_PFLAG_RECOVERED)) || (!link->device->sdev)) {
+		ata_tf_init(link->device, &tf);
+		tf.command = ATA_CMD_PMP_SYNO_LED_GPIO;
+		tf.protocol = ATA_PROT_NODATA;
+		tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE | ATA_TFLAG_LBA48;
+		tf.lbal = 0x40; /* Read GPIO */
+ 
+		if (0 != (iRet = ata_exec_internal(link->device, &tf, NULL, DMA_NONE, NULL, 0, SATA_PMP_RW_TIMEOUT))) {
+			ata_link_err(link, "Failed to read disk led(Emask=0x%x)\n", iRet);
+			goto END;
+		}
+
+		*pLedMask = tf.lbal & 0xFF;
+	} else {
+		iRet = syno_jmb_575_led_ctl_with_scmd(ap, ap->link.device->sdev, pLedMask, READ);
+	}
+
+END:
+	return iRet;
+}
+
+
+#define SYNO_JMB575_MAX_LED_LINK 6
+const int jmb575_mask_shift[SYNO_JMB575_MAX_LED_LINK] = {3, 5, 0, 2, 4, 1};
+int syno_sata_jmb575_disk_led_set_with_scmnd(struct ata_link *link, u8 ledIdx, u8 blLightOn)
+{
+	u8 ledMask = 0;
+	int iRet = -1;
+	struct ata_port *ap = NULL;
+
+	if (NULL == link || SYNO_JMB575_MAX_LED_LINK <= ledIdx) {
+		goto END;
+	}
+
+	if (!link->device->sdev) {
+		DBGMESG("ata%d: Skip JMB575 disk led set\n", ap->print_id);
+		goto END;
+	}
+
+	ap = link->ap;
+
+	/* Read current setting */
+	if (syno_jmb_575_led_ctl_with_scmd(ap, link->device->sdev, &ledMask, READ)) {
+		DBGMESG("ata%d: JMB575 Read disk led with scmnd failed\n", ap->print_id);	
+		goto END;
+	}
+
+	ledMask = (blLightOn? ledMask | (1 << jmb575_mask_shift[ledIdx]): ledMask & (~(1 << jmb575_mask_shift[ledIdx]))) & 0x3F;
+
+	if (0 != (iRet = syno_jmb_575_led_ctl_with_scmd(ap, ap->link.device->sdev, &ledMask, WRITE))) {
+		DBGMESG("ata%d: JMB575 Write disk led with scmnd failed\n", ap->print_id);
+	}
+
+END:
+	return iRet;
+}
+
+
+int syno_sata_jmb575_disk_led_set(struct ata_link *link, u8 ledIdx, u8 blLightOn)
+{
+	u8 ledMask = 0;
+	int iRet = -1;
+	struct ata_taskfile tf;
+	struct ata_port *ap = NULL;
+
+	if (NULL == link || SYNO_JMB575_MAX_LED_LINK <= ledIdx) {
+		goto END;
+	}
+
+	/* Read current setting */
+	if (syno_sata_jmb575_disk_led_get(link, &ledMask)) {
+		printk("Read fail\n");
+		goto END;
+	}
+	
+	ap = link->ap;
+	ledMask = (blLightOn? ledMask | (1 << jmb575_mask_shift[ledIdx]): ledMask & (~(1 << jmb575_mask_shift[ledIdx]))) & 0x3F;
+
+	if ((ap->pflags & (ATA_PFLAG_RECOVERED)) || (!link->device->sdev)) {
+		/* Init task file */
+		ata_tf_init(link->device, &tf);
+		tf.command = ATA_CMD_PMP_SYNO_LED_GPIO;
+		tf.protocol = ATA_PROT_NODATA;
+		tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE | ATA_TFLAG_LBA48;
+		tf.lbal = ledMask;
+
+		if (0 != (iRet = ata_exec_internal(link->device, &tf, NULL, DMA_NONE, NULL, 0, SATA_PMP_RW_TIMEOUT))) {
+			ata_link_err(link, "Failed to set disk led(Emask=0x%x)\n", iRet);
+			goto END;
+		}
+	} else {
+		iRet = syno_jmb_575_led_ctl_with_scmd(ap, ap->link.device->sdev, &ledMask, WRITE);
+ 	}
+
+END:
+	return iRet;
+}
+
+static unsigned int syno_sata_jmb575_info_get(struct ata_link *link, unsigned int *fw, u8 *emid)
+{
+	struct ata_device *pmp_dev = link->device;
+	struct ata_taskfile tf;
+	unsigned int err_mask = 0;
+
+	ata_tf_init(pmp_dev, &tf);
+	tf.command = ATA_CMD_PMP_GET_BOARD_INFO_JMB575;
+	tf.protocol = ATA_PROT_NODATA;
+	tf.flags = ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE | ATA_TFLAG_LBA48;
+	tf.feature = SYNO_JMB575_GET_INFO_FEATURE;
+
+	if(0 != (err_mask = ata_exec_internal(pmp_dev, &tf, NULL, DMA_NONE, NULL, 0, SATA_PMP_RW_TIMEOUT))) {
+		ata_link_err(link, "Failed to get jmb575 board info(Emask=0x%x)\n", err_mask);
+		return err_mask;
+	}
+
+	*fw = (tf.hob_lbah & 0xff) << 24 |
+		  (tf.hob_lbam & 0xff) << 16 |
+		  (tf.hob_lbal & 0xff) << 8 |
+		  (tf.hob_nsect & 0xff);
+
+	*emid = tf.lbam;
+
+	return err_mask;
+}
+
+static int syno_sata_pmp_lock(struct ata_port *ap)
+{
+	int iRet = -1;
+	unsigned long flags = 0;
+	struct ata_link *link = NULL;
+	int iRetries = 0;
+
+	if (NULL == ap) {
+		goto END;
+	}
+
+	link = &(ap->link);
+
+	/* Get gpio ctrl lock in 2s */
+	spin_lock_irqsave(ap->lock, flags);
+	while ((link->uiStsFlags & SYNO_STATUS_GPIO_CTRL) && (SYNO_PMP_GPIO_TRIES > iRetries)) {
+		spin_unlock_irqrestore(ap->lock, flags);
+		schedule_timeout_uninterruptible(HZ/2);
+		spin_lock_irqsave(ap->lock, flags);
+		++iRetries;
+	}
+	if (SYNO_PMP_GPIO_TRIES <= iRetries) {
+		DBGMESG("gpio lock timeout\n");
+		spin_unlock_irqrestore(ap->lock, flags);
+		goto END;
+	}
+	
+	/* lock to prevent others to do pmp gpio control */
+	link->uiStsFlags |= SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(ap->lock, flags);
+
+	iRet = 0;
+END:
+	return iRet;
+}
+
+static void syno_sata_pmp_unlock(struct ata_port *ap)
+{
+	unsigned long flags = 0;
+	struct ata_link *link = NULL;
+
+	if (NULL == ap) {
+		goto END;
+	}
+
+	link = &(ap->link);
+
+	/* unlock to let others can do pmp gpio control */
+	spin_lock_irqsave(ap->lock, flags);
+	link->uiStsFlags &= ~SYNO_STATUS_GPIO_CTRL;
+	spin_unlock_irqrestore(ap->lock, flags);
+
+END:
+	return;
+}
+
+int syno_sata_jmb575_custom_cmd(struct ata_port *ap, SYNO_JMB575_VENDOR_COMMAND cmd, int *var)
+{
+	int iRet = -1;
+	
+	unsigned int fw;
+	u8 emid;
+
+	if (!ap || SYNO_JMB575_COMMAND_UNKNOWN == cmd || !var) {
+		goto END;
+	}
+	
+	if (syno_sata_pmp_lock(ap)) {
+		goto END;
+	}
+	
+	switch (cmd) {
+		case SYNO_JMB575_GET_UNIQUE_ID:
+			if(syno_sata_jmb575_info_get(&(ap->link), &fw, &emid)) {
+				printk("Get Unique ID fail");
+				goto END;
+			}
+			*var = (fw >> 16) & 0xFF;
+			break;
+		case SYNO_JMB575_GET_EMID:
+			if(syno_sata_jmb575_info_get(&(ap->link), &fw, &emid)) {
+				goto END;
+			}
+			*var = emid; 
+			break;
+		case SYNO_JMB575_GET_FW_INFO:
+			if(syno_sata_jmb575_info_get(&(ap->link), &fw, &emid)) {
+				goto END;
+			}
+			*var = fw;
+			break;
+		case SYNO_JMB575_DISK_LED_MASK:
+			iRet = syno_sata_jmb575_disk_led_set(&(ap->link), (*var >> 8) & 0xFF, *var & 0xFF);
+		default:
+			break;
+	}
+
+	iRet = 0;
+
+END:
+	syno_sata_pmp_unlock(ap);
+	return iRet;
+}
+
+#endif /* MY_ABC_HERE */
+
 unsigned int
 syno_sata_pmp_read_emid(struct ata_port *ap)
 {
@@ -855,6 +1465,9 @@ syno_sata_pmp_read_emid(struct ata_port *ap)
 #define GPI_9705_EMID_BIT3(GPIO)	((1<<7)&GPIO)>>5
 	int res = 0;
 	SYNO_PM_PKG pm_pkg;
+#ifdef MY_ABC_HERE
+	int emid = 0;
+#endif /* MY_ABC_HERE */
 
 	if (NULL == ap) {
 		goto END;
@@ -888,12 +1501,47 @@ syno_sata_pmp_read_emid(struct ata_port *ap)
 		ap->PMSynoEMID  =	GPI_9705_EMID_BIT1(pm_pkg.var)|
 							GPI_9705_EMID_BIT2(pm_pkg.var)|
 							GPI_9705_EMID_BIT3(pm_pkg.var);
+#ifdef MY_ABC_HERE
+	} else if (syno_pm_is_synology_jmb575(ap)) {
+		if(syno_sata_jmb575_custom_cmd(ap, SYNO_JMB575_GET_EMID, &emid)) {
+			ata_dev_printk(ap->link.device, KERN_WARNING, "JMB575: Get EMID fail");
+			goto END;
+		} else {
+			ap->PMSynoEMID = emid & 0xFF;
+			ata_dev_printk(ap->link.device, KERN_WARNING, "JMB575: Get EMID %d\n", ap->PMSynoEMID);
+		}
+#endif /* MY_ABC_HERE */
 	}
 
 END:
 	return res;
 }
 
+unsigned int syno_sata_pmp_show_fw_info(struct ata_port *ap)
+{
+	int res = 0;
+	int fw_info = 0;
+
+	if (NULL == ap) {
+		goto END;
+	}
+
+	if (syno_pm_is_synology_jmb575(ap)) {
+		if(syno_sata_jmb575_custom_cmd(ap, SYNO_JMB575_GET_FW_INFO, &fw_info)) {
+			ata_dev_printk(ap->link.device, KERN_WARNING, "JMB575: Get fw info fail\n");
+			goto END;
+		}
+		ata_dev_printk(ap->link.device, KERN_WARNING, "JMB575: FW ver %02x.%02x.%02x.%02x\n", 
+				(fw_info >> 24) & 0xff,
+				(fw_info >> 16) & 0xff,
+				(fw_info >> 8) & 0xff,
+				fw_info& 0xff);
+	}
+
+END:
+	return res;
+}
+ 
 /*
  * Query backplane switch mode
  *
@@ -973,9 +1621,18 @@ syno_sata_pmp_check_powerbtn(struct ata_port *ap)
 	int iRes = 0;
 	SYNO_PM_PKG stPmPkg;
 
+	unsigned short vendor;
+	unsigned short devid;
+#ifdef MY_ABC_HERE
+	const u8 blDisable = 0;
+#endif /* MY_ABC_HERE */
+
 	if (NULL == ap) {
 		goto END;
 	}
+
+	vendor = sata_pmp_gscr_vendor(ap->link.device->gscr);
+	devid = sata_pmp_gscr_devid(ap->link.device->gscr);
 
 	if (IS_SYNOLOGY_RX4(ap->PMSynoUnique) ||
 		IS_SYNOLOGY_DX5(ap->PMSynoUnique) ||
@@ -984,26 +1641,35 @@ syno_sata_pmp_check_powerbtn(struct ata_port *ap)
 		goto END;
 	}
 
-	syno_pm_raidledstate_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
-							sata_pmp_gscr_devid(ap->link.device->gscr),
-							&stPmPkg);
 
-	iRes = syno_sata_pmp_read_gpio(ap, &stPmPkg);
+	if (syno_pm_is_3xxx(vendor, devid) || syno_pm_is_9705(vendor, devid)) {
+		syno_pm_raidledstate_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
+								sata_pmp_gscr_devid(ap->link.device->gscr),
+								&stPmPkg);
 
-	if (0 != iRes) {
-		goto END;
+		iRes = syno_sata_pmp_read_gpio(ap, &stPmPkg);
+
+		if (0 != iRes) {
+			goto END;
+		}
+
+		if ((syno_pm_is_synology_3xxx(ap) && 0 == GPI_3826_POWERDISABLE_BIT(stPmPkg.var)) ||
+			(syno_pm_is_synology_9705(ap) && 1 == GPI_9705_POWERDISABLE_BIT(stPmPkg.var))) {
+			goto END;
+		}
+
+		syno_pm_enable_powerbtn_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
+										sata_pmp_gscr_devid(ap->link.device->gscr),
+										&stPmPkg);
+
+		syno_sata_pmp_write_gpio(ap, &stPmPkg);
+#ifdef MY_ABC_HERE
+	} else if (syno_pm_is_synology_jmb575(ap)) {
+		if (syno_sata_jmb575_pwrbtn(ap, blDisable)) {
+			goto END;
+		}
+#endif /* MY_ABC_HERE */
 	}
-
-	if ((syno_pm_is_synology_3xxx(ap) && 0 == GPI_3826_POWERDISABLE_BIT(stPmPkg.var)) ||
-		(syno_pm_is_synology_9705(ap) && 1 == GPI_9705_POWERDISABLE_BIT(stPmPkg.var))) {
-		goto END;
-	}
-
-	syno_pm_enable_powerbtn_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
-									sata_pmp_gscr_devid(ap->link.device->gscr),
-									&stPmPkg);
-
-	syno_sata_pmp_write_gpio(ap, &stPmPkg);
 
 END:
 	return iRes;
@@ -1034,12 +1700,9 @@ syno_is_synology_pm(const struct ata_port *ap)
 		goto END;
 	}
 
-	if (syno_pm_is_synology_3xxx(ap)) {
-		ret = 1;
-		goto END;
-	}
-
-	if (syno_pm_is_synology_9705(ap)) {
+	if (syno_pm_is_synology_3xxx(ap) ||
+		syno_pm_is_synology_9705(ap) ||
+		syno_pm_is_synology_jmb575(ap)) {
 		ret = 1;
 		goto END;
 	}
@@ -1065,6 +1728,11 @@ syno_pmp_ports_num(struct ata_port *ap)
 			 */
 			ret = 5;
 		}
+
+		if (syno_pm_is_synology_jmb575(ap)) {
+			ret = 5;
+		}
+
 		/* add other quirk of port multiplier here */
 
 #ifdef MY_DEF_HERE
@@ -1083,6 +1751,64 @@ syno_pmp_ports_num(struct ata_port *ap)
 	return ret;
 }
 
+#ifdef MY_ABC_HERE
+static unsigned char syno_jmb575_is_poweron(struct ata_port *ap)
+{
+	int iRes = 0;
+	SYNO_PM_I2C_PKG i2cPkg;
+
+#ifdef MY_ABC_HERE
+	struct device_node *pPwrNode = NULL;
+	struct device_node *pEBoxNode = NULL;
+#endif /* MY_ABC_HERE */
+	SYNO_JMB575_I2C_DEV_INFO i2cInfo;
+
+	if (NULL == ap) {
+		goto END;
+	}
+
+#ifdef MY_ABC_HERE
+	if (syno_pmp_get_ebox_node_by_unique_id(ap->PMSynoUnique, ap->PMSynoIsRP, &pEBoxNode)) {
+			printk("Get EBox node fail");
+			goto END;
+		}
+		
+	if (NULL == (pPwrNode = of_get_child_by_name(pEBoxNode, SZ_DTS_EBOX_I2C_PWR_CTL))) {
+		printk("Get node %s fail", SZ_DTS_EBOX_I2C_PWR_CTL);
+		goto END;
+	}
+
+	if (syno_jmb575_get_i2c_info(ap, pPwrNode, &i2cInfo)) {
+		printk("Get i2c device info fail");
+		goto END;
+	}
+#else /* MY_ABC_HERE */
+	if (IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique) ) {
+		i2cInfo.addr = RX1223RP_MP_ADDR;
+		i2cInfo.offset = RX1223RP_PWR_CTL_OFFSET;
+		i2cInfo.mask = RX1223RP_PWR_CTL_MASK;
+	} else {
+		DBGMESG("Not Support Power Button Lock\n");
+		goto END;
+	}
+#endif /* MY_ABC_HERE */
+
+	syno_init_i2c_pkg(&i2cPkg, PM_I2C_OP_READ, i2cInfo.addr, i2cInfo.offset, 1);
+		
+	if (syno_sata_pmp_read_i2c(ap, &i2cPkg)) {
+		goto END;
+	}
+
+	if (i2cPkg.resultData[0] & i2cInfo.mask) {
+		iRes = 1;
+	}
+		
+END:
+		return iRes;
+
+}
+#endif /* MY_ABC_HERE */
+
 static unsigned char
 syno_pm_is_poweron(struct ata_port *ap)
 {
@@ -1090,27 +1816,41 @@ syno_pm_is_poweron(struct ata_port *ap)
 #define GPI_9705_PSU_OFF(GPIO)		!(0x20&GPIO)
 	int iRes = 0;
 	SYNO_PM_PKG stPmPkg;
+	unsigned short vendor = 0;
+	unsigned short devid = 0;
 
 	if (NULL == ap) {
 		goto END;
 	}
 
-	syno_pm_fanstatus_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
-								sata_pmp_gscr_devid(ap->link.device->gscr),
-								&stPmPkg);
+	vendor = sata_pmp_gscr_vendor(ap->link.device->gscr);
+	devid = sata_pmp_gscr_devid(ap->link.device->gscr);
+	
+	if (syno_pm_is_3xxx(vendor, devid) ||
+		syno_pm_is_9705(vendor, devid)) {
 
-	iRes = syno_sata_pmp_read_gpio(ap, &stPmPkg);
+		syno_pm_fanstatus_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
+									sata_pmp_gscr_devid(ap->link.device->gscr),
+									&stPmPkg);
 
-	if (0 != iRes) {
-		goto END;
+		iRes = syno_sata_pmp_read_gpio(ap, &stPmPkg);
+
+		if (0 != iRes) {
+			goto END;
+		}
+
+		if ((syno_pm_is_synology_3xxx(ap) && GPI_3XXX_PSU_OFF(stPmPkg.var)) ||
+			(syno_pm_is_synology_9705(ap) && GPI_9705_PSU_OFF(stPmPkg.var))) {
+			goto END;
+		}
+
+		iRes = 1;
+#ifdef MY_ABC_HERE
+	} else if (syno_pm_is_jmb575(vendor, devid)) {
+		iRes = syno_jmb575_is_poweron(ap);
+#endif /* MY_ABC_HERE */
 	}
 
-	if ((syno_pm_is_synology_3xxx(ap) && GPI_3XXX_PSU_OFF(stPmPkg.var)) ||
-	    (syno_pm_is_synology_9705(ap) && GPI_9705_PSU_OFF(stPmPkg.var))) {
-		goto END;
-	}
-
-	iRes = 1;
 END:
 	return iRes;
 }
@@ -1155,107 +1895,306 @@ int syno_libata_pmp_deepsleep_indicator_set(struct ata_port *ap, const int blCLR
 	SYNO_PM_PKG pm_pkg;
 	int iRet = -1;
 	unsigned int uiVar = 0;
+	unsigned short vendor;
+	unsigned short devid;
+
+#ifdef MY_ABC_HERE 
+#ifdef MY_ABC_HERE
+	struct device_node *pEBoxNode;
+	struct device_node *pPwrNode;
+#endif /* MY_ABC_HERE */
+	SYNO_JMB575_I2C_DEV_INFO i2cInfo;
+	SYNO_PM_I2C_PKG i2cPkg;
+#endif /* MY_ABC_HERE */
 
 	if (!ap) {
 		goto END;
 	}
 
-	syno_pm_hddled_status_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
-				sata_pmp_gscr_devid(ap->link.device->gscr), &pm_pkg);
+	vendor = sata_pmp_gscr_vendor(ap->link.device->gscr);
+	devid = sata_pmp_gscr_devid(ap->link.device->gscr);
 
-	iRet = syno_sata_pmp_read_gpio(ap, &pm_pkg);
-	if(0 != iRet) {
-		goto END;
-	}
-	uiVar = CLEAR_DEEPSLEEP_BIT(pm_pkg.var);
+	if (syno_pm_is_3xxx(vendor, devid) || syno_pm_is_9705(vendor, devid)) {
+		syno_pm_hddled_status_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
+					sata_pmp_gscr_devid(ap->link.device->gscr), &pm_pkg);
 
-	if (syno_pm_deepsleep_indicator_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
-				sata_pmp_gscr_devid(ap->link.device->gscr), &pm_pkg, blCLR)) {
-		pm_pkg.var |= uiVar;
-		if (syno_sata_pmp_write_gpio(ap, &pm_pkg)) {
-			printk("ata%d pm deepsleep indicator write 0 fail\n", ap->print_id);
-			ata_port_printk(ap, KERN_INFO, "Set PMP deepsleep indicator %d failed\n", blCLR);
+		iRet = syno_sata_pmp_read_gpio(ap, &pm_pkg);
+		if(0 != iRet) {
 			goto END;
 		}
-	}
+		uiVar = CLEAR_DEEPSLEEP_BIT(pm_pkg.var);
 
+		if (syno_pm_deepsleep_indicator_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
+					sata_pmp_gscr_devid(ap->link.device->gscr), &pm_pkg, blCLR)) {
+			pm_pkg.var |= uiVar;
+			if (syno_sata_pmp_write_gpio(ap, &pm_pkg)) {
+				printk("ata%d pm deepsleep indicator write 0 fail\n", ap->print_id);
+				ata_port_printk(ap, KERN_INFO, "Set PMP deepsleep indicator %d failed\n", blCLR);
+				goto END;
+			}
+		}
+	} else if (syno_pm_is_jmb575(vendor, devid)) {
+#ifdef MY_ABC_HERE
+		if (syno_pmp_get_ebox_node_by_unique_id(ap->PMSynoUnique, ap->PMSynoIsRP, &pEBoxNode)) {
+			printk("Get EBox node fail");
+			goto END;
+		}
+		if (NULL == (pPwrNode = of_get_child_by_name(pEBoxNode, SZ_DTS_EBOX_I2C_DEEPSELLP_INDICATOR))) {
+			printk("Get node %s fail\n", SZ_DTS_EBOX_I2C_DEEPSELLP_INDICATOR);
+			goto END;
+		}
+		if (syno_jmb575_get_i2c_info(ap, pPwrNode, &i2cInfo)) {
+			printk("Get i2c device info fail");
+			goto END;
+		}
+		
+#else /* MY_ABC_HERE */
+		if (IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+			i2cInfo.addr = RX1223RP_MP_ADDR;
+			i2cInfo.offset = RX1223RP_PWR_CTL_OFFSET;
+			i2cInfo.mask = RX1223RP_DEEP_CTL_MASK;
+		} else {
+			printk("Get Deep Sleep indicator info fail\n");
+			goto END;
+		}
+#endif /* MY_ABC_HERE */
+	
+		syno_init_i2c_pkg(&i2cPkg, PM_I2C_OP_READ, i2cInfo.addr, i2cInfo.offset, 1);
+
+		if (syno_sata_pmp_read_i2c(ap, &i2cPkg)) {
+			goto END;
+		}
+		
+		if (blCLR) {
+			i2cPkg.inputData[0]= i2cPkg.resultData[0] & (~i2cInfo.mask);
+		} else {
+			i2cPkg.inputData[0]= i2cPkg.resultData[0] | i2cInfo.mask;
+		}
+		
+		if (syno_sata_pmp_write_i2c(ap, &i2cPkg)) {
+ 			goto END;
+ 		}
+
+	}
 	iRet = 0;
 END:
 	return iRet;
 }
 #endif /* MY_ABC_HERE */
 
-int
-syno_libata_pm_power_ctl(struct ata_port *ap, u8 blPowerOn, u8 blCustomInfo)
+ 
+static int syno_sata_pmp_read_unique(struct ata_port *ap)
 {
-	SYNO_PM_PKG pm_pkg;
 	int iRet = -1;
-	int iRetry = 0;
-	unsigned long flags = 0;
+	unsigned short vendor = 0;
+	unsigned short devid = 0;
+	SYNO_PM_PKG pm_pkg;
+#ifdef MY_ABC_HERE
+	unsigned int var = 0;
+#endif /* MY_ABC_HERE */
+
+	if (!ap) {
+		goto END;
+	}
+
+	vendor = sata_pmp_gscr_vendor(ap->link.device->gscr);
+	devid = sata_pmp_gscr_devid(ap->link.device->gscr);
+
+	if (syno_pm_is_3xxx(vendor, devid)) {
+		syno_pm_unique_pkg_init(vendor,	devid, &pm_pkg);
+		
+		if (syno_sata_pmp_read_gpio(ap, &pm_pkg)) {
+			printk("ata%d pm unique read fail\n", ap->print_id);
+			goto END;
+		}
+
+		ap->PMSynoUnique = pm_pkg.var;
+
+	} else if (syno_pm_is_9705(vendor, devid)) {
+		syno_pm_unique_pkg_init(vendor,	devid, &pm_pkg);
+		
+		if (syno_sata_pmp_read_gpio(ap, &pm_pkg)) {
+			printk("ata%d pm unique read fail\n", ap->print_id);
+			goto END;
+		}
+
+		ap->PMSynoUnique = pm_pkg.var & 0x1f;
+		if (!syno_pm_is_synology_9705(ap)) {
+			syno_9705_workaround(ap);
+		}
+#ifdef MY_ABC_HERE
+	} else if (syno_pm_is_jmb575(vendor, devid)) {
+		if(syno_sata_jmb575_custom_cmd(ap, SYNO_JMB575_GET_UNIQUE_ID, &var)) {
+			printk("ata%d jmb575 pm unique read fail\n", ap->print_id);
+			goto END;
+		}
+		ap->PMSynoUnique = var & 0xFF;
+#endif /* MY_ABC_HERE */
+	} else {
+		printk("Get unique fail, unknown pmp\n");
+		goto END;
+	}
+
+	iRet = 0;
+END:
+	return iRet;
+}
+
+static int syno_pm_jmb575_pm_power_ctl(struct ata_port *ap, u8 blPowerOn)
+{
+	int iRet = -1;
+
+#ifdef MY_ABC_HERE
+	struct device_node *pEBoxNode;
+	struct device_node *pPwrNode;
+#endif /* MY_ABC_HERE */
+	SYNO_JMB575_I2C_DEV_INFO i2cInfo;
+	SYNO_PM_I2C_PKG i2cPkg;
 
 	if (NULL == ap) {
 		goto END;
 	}
 
-	spin_lock_irqsave(ap->lock, flags);
-	while (ap->pflags & ATA_PFLAG_PMP_PMCTL) {
-		DBGMESG("port %d can't do pmp power ctl %d, must waiting for others\n", ap->print_id, blPowerOn);
-		spin_unlock_irqrestore(ap->lock, flags);
-		schedule_timeout_uninterruptible(HZ);
-		spin_lock_irqsave(ap->lock, flags);
-	}
-	/* lock to prevent others to do pmp power control */
-	ap->pflags |= ATA_PFLAG_PMP_PMCTL;
-	/* we should make sure this port isn't frozen */
-	if (ap->pflags & ATA_PFLAG_FROZEN) {
-		printk("ata%u: is FROZEN, thaw it now\n", ap->print_id);
-		spin_unlock_irqrestore(ap->lock, flags);
-		ata_eh_thaw_port(ap);
-		spin_lock_irqsave(ap->lock, flags);
-	}
-	DBGMESG("port %d do pmp power ctl %d, and thaw it\n", ap->print_id, blPowerOn);
-	spin_unlock_irqrestore(ap->lock, flags);
-	syno_pm_unique_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
-							sata_pmp_gscr_devid(ap->link.device->gscr),
-							&pm_pkg);
-
-	if (syno_sata_pmp_read_gpio(ap, &pm_pkg)) {
-		printk("ata%d pm unique read fail\n", ap->print_id);
+#ifdef MY_ABC_HERE
+	if (syno_pmp_get_ebox_node_by_unique_id(ap->PMSynoUnique, ap->PMSynoIsRP, &pEBoxNode)) {
+		printk("Get EBox node fail");
 		goto END;
 	}
 
-	if (blCustomInfo) {
-		if (syno_pm_is_3xxx(sata_pmp_gscr_vendor(ap->link.device->gscr),
-							sata_pmp_gscr_devid(ap->link.device->gscr))) {
-			ap->PMSynoUnique = pm_pkg.var;
-		} else if (syno_pm_is_9705(sata_pmp_gscr_vendor(ap->link.device->gscr),
-								   sata_pmp_gscr_devid(ap->link.device->gscr))) {
-			ap->PMSynoUnique = pm_pkg.var & 0x1f;
+	if (NULL == (pPwrNode = of_get_child_by_name(pEBoxNode, SZ_DTS_EBOX_I2C_PWR_CTL))) {
+		printk("Get node %s fail", SZ_DTS_EBOX_I2C_PWR_CTL);
+		goto END;
+	}
 
-			if (!syno_pm_is_synology_9705(ap)) {
-				syno_9705_workaround(ap);
-			}
+	if (syno_jmb575_get_i2c_info(ap, pPwrNode, &i2cInfo)) {
+		printk("Get i2c device info fail");
+		goto END;
+	}
+#else /* MY_ABC_HERE */
+	if(IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+		i2cInfo.addr = RX1223RP_MP_ADDR;
+		i2cInfo.offset = RX1223RP_PWR_CTL_OFFSET;
+		i2cInfo.mask = RX1223RP_PWR_CTL_MASK;
+	} else {
+		goto END;
+	}
+#endif /* MY_ABC_HERE */
+
+	syno_init_i2c_pkg(&i2cPkg, PM_I2C_OP_READ, i2cInfo.addr, i2cInfo.offset, 1);
+
+	if (syno_sata_pmp_read_i2c(ap, &i2cPkg)) {
+		goto END;
+	}
+
+	i2cPkg.inputData[0]= blPowerOn ? (i2cPkg.resultData[0] | i2cInfo.mask) : (i2cPkg.resultData[0] &= (~i2cInfo.mask));
+
+	if (syno_sata_pmp_write_i2c(ap, &i2cPkg)) {
+		goto END;
+	}
+	iRet = 0;
+END:
+	return iRet;
+}
+
+static int syno_pm_cpld_power_ctl(struct ata_port *ap, u8 blPowerOn)
+{
+	int iRet = -1;
+	SYNO_PM_PKG pm_pkg;
+
+	if (NULL == ap) {
+		goto END;
+	}
+	
+	syno_pm_poweron_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
+							 sata_pmp_gscr_devid(ap->link.device->gscr),
+							 &pm_pkg, 0);
+
+	if (syno_sata_pmp_write_gpio(ap, &pm_pkg)) {
+		printk("ata%d pm poweron write 0 fail\n", ap->print_id);
+		goto END;
+	}
+
+	if (blPowerOn) {
+		if (IS_SYNOLOGY_DX213(ap->PMSynoUnique)) {
+			mdelay(700); /* HW spec. DX213 clock cycle too slow, so delay 700 ms */
+		} else {
+			mdelay(5); /* don't do it too fast. Otherwise CPLD might not response */
 		}
+	} else {
+		mdelay(7000); /* hardware spec */
 	}
 
-	if(IS_SYNOLOGY_DXC(ap->PMSynoUnique) ||
-	   IS_SYNOLOGY_RXC(ap->PMSynoUnique) ||
-	   IS_SYNOLOGY_RX1214(ap->PMSynoUnique) ||
-	   IS_SYNOLOGY_RX1217(ap->PMSynoUnique) ||
-	   IS_SYNOLOGY_DX1215(ap->PMSynoUnique) ||
-	   IS_SYNOLOGY_DX1222(ap->PMSynoUnique) ||
-	   IS_SYNOLOGY_DX1215II(ap->PMSynoUnique)) {
-		if(0 != ap->PMSynoEMID) {
-			goto END;
+	syno_pm_poweron_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
+							 sata_pmp_gscr_devid(ap->link.device->gscr),
+							 &pm_pkg, 1);
+
+	if (syno_sata_pmp_write_gpio(ap, &pm_pkg)) {
+		if (system_state != SYSTEM_POWER_OFF) {
+			printk("ata%d pm poweron write 1 fail\n", ap->print_id);
 		}
+		goto END;
 	}
 
-	if (1 == ap->PMSynoPowerDisable) {
-		goto SKIP_POWER_ON;
+	if (blPowerOn) {
+		DBGMESG("port %d delay 3000ms wait for HW ready\n", ap->print_id);
+		mdelay(3000);
+
+		ata_port_printk(ap, KERN_INFO, "PMP Power control set ATA_EH_SYNO_PWON\n");
+		ap->link.eh_context.i.action |= ATA_EH_SYNO_PWON;
 	}
 
-	for (iRetry = 0; blPowerOn ^ syno_pm_is_poweron(ap)
-					 && iRetry < SYNO_PMP_PWR_TRIES; ++iRetry) {
+#ifdef MY_ABC_HERE
+	/* support zero watt model, poweroff EUnit will always fail, so we ignor the
+	 * following test */
+	if (!blPowerOn && PWR_PMP_ZERO_WATT_TYPE == syno_get_deep_sleep_pwr_type(ap)) {
+		iRet = 0;
+		goto END;
+	}
+#endif /* MY_ABC_HERE */
+
+	mdelay(1000);
+		
+	/* test if this power control success */
+	if (syno_sata_pmp_read_unique(ap)) {
+		printk("ata%d re-check pm unique read fail\n", ap->print_id);
+		goto END;
+	}
+
+	iRet = 0;
+END:
+	return iRet;
+}
+
+static int syno_libata_pm_power_ctl_core(struct ata_port *ap, u8 pwrOp)
+{
+	int iRet = -1;
+	int iRetry = 0;
+
+	unsigned short vendor = 0, devid = 0;
+	u8 blPowerOn = (pwrOp & (SYNO_PWR_OP_POWER_ON | SYNO_PWR_OP_WAKE))? 1 : 0;
+
+#ifdef MY_ABC_HERE
+	/* I2C */
+#ifdef MY_ABC_HERE
+	struct device_node *pEBoxNode;
+	struct device_node *pPwrNode;
+	int regManual = 0;
+#else /* MY_ABC_HERE */
+	int rx1223rp_disk_power_reg[3] = {0x2d, 0x2e, 0x2f};
+#endif /* MY_ABC_HERE */
+	SYNO_JMB575_I2C_DEV_INFO i2cInfo;
+	SYNO_PM_I2C_PKG i2cPkg;
+	int i = 0;
+#endif /* MY_ABC_HERE */
+
+	if (!ap) {
+		goto END;
+	}
+
+	vendor = sata_pmp_gscr_vendor(ap->link.device->gscr);
+	devid = sata_pmp_gscr_devid(ap->link.device->gscr);
+
+	for (iRetry = 0; blPowerOn ^ syno_pm_is_poweron(ap) && iRetry < SYNO_PMP_PWR_TRIES; ++iRetry) {
 
 		if (!blPowerOn) {
 			if (syno_sata_pmp_check_powerbtn(ap)) {
@@ -1286,60 +2225,20 @@ syno_libata_pm_power_ctl(struct ata_port *ap, u8 blPowerOn, u8 blCustomInfo)
 		}
 #endif /* MY_ABC_HERE */
 
-		syno_pm_poweron_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
-								 sata_pmp_gscr_devid(ap->link.device->gscr),
-								 &pm_pkg, 0);
-		if (syno_sata_pmp_write_gpio(ap, &pm_pkg)) {
-			printk("ata%d pm poweron write 0 fail\n", ap->print_id);
-			goto END;
-		}
-
-		if (blPowerOn) {
-			if (IS_SYNOLOGY_DX213(ap->PMSynoUnique)) {
-				mdelay(700); /* HW spec. DX213 clock cycle too slow, so delay 700 ms */
-			} else {
-				mdelay(5); /* don't do it too fast. Otherwise CPLD might not response */
+		/* Power Controlled by CPLD */
+		if (syno_pm_is_3xxx(vendor, devid) || syno_pm_is_9705(vendor, devid)) {
+			if (syno_pm_cpld_power_ctl(ap, blPowerOn)) {
+				goto END;
 			}
-		} else {
-			mdelay(7000); /* hardware spec */
-		}
-
-		syno_pm_poweron_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
-								 sata_pmp_gscr_devid(ap->link.device->gscr),
-								 &pm_pkg, 1);
-		if (syno_sata_pmp_write_gpio(ap, &pm_pkg)) {
-			if (system_state != SYSTEM_POWER_OFF) {
-				printk("ata%d pm poweron write 1 fail\n", ap->print_id);
-			}
-			goto END;
-		}
-
-		if (blPowerOn) {
-			DBGMESG("port %d delay 3000ms wait for HW ready\n", ap->print_id);
-			mdelay(3000);
-
-			ata_port_printk(ap, KERN_INFO, "PMP Power control set ATA_EH_SYNO_PWON\n");
-			ap->link.eh_context.i.action |= ATA_EH_SYNO_PWON;
-		}
-
 #ifdef MY_ABC_HERE
-		/* support zero watt model, poweroff EUnit will always fail, so we ignor the
-		 * following test */
-		if (!blPowerOn && PWR_PMP_ZERO_WATT_TYPE == syno_get_deep_sleep_pwr_type(ap)) {
-			iRet = 0;
-			goto END;
-		}
+		} else if (syno_pm_is_jmb575(vendor, devid)) {
+			if (SYNO_PWR_OP_POWER_ON != pwrOp && SYNO_PWR_OP_POWER_OFF != pwrOp) {
+				break;
+			}
+			if (syno_pm_jmb575_pm_power_ctl(ap, blPowerOn)) {
+				goto END;
+			}
 #endif /* MY_ABC_HERE */
-		mdelay(1000);
-
-		/* test if this power control success */
-		syno_pm_unique_pkg_init(sata_pmp_gscr_vendor(ap->link.device->gscr),
-				sata_pmp_gscr_devid(ap->link.device->gscr),
-				&pm_pkg);
-
-		if (syno_sata_pmp_read_gpio(ap, &pm_pkg)) {
-			printk("ata%d re-check pm unique read fail\n", ap->print_id);
-			goto END;
 		}
 
 		if (blPowerOn ^ syno_pm_is_poweron(ap)) {
@@ -1354,10 +2253,212 @@ syno_libata_pm_power_ctl(struct ata_port *ap, u8 blPowerOn, u8 blCustomInfo)
 		}
 	}
 
+#ifdef MY_ABC_HERE
+	if (syno_pm_is_jmb575(vendor, devid) && (SYNO_PWR_OP_DEEPSLEEP == pwrOp || SYNO_PWR_OP_WAKE == pwrOp || SYNO_PWR_OP_POWER_ON == pwrOp)) {
+
+#ifdef MY_ABC_HERE
+		if (syno_pmp_get_ebox_node_by_unique_id(ap->PMSynoUnique, ap->PMSynoIsRP, &pEBoxNode)) {
+			printk("Get EBox node fail");
+			goto END;
+		}
+
+		if (NULL == (pPwrNode = of_get_child_by_name(pEBoxNode, SZ_DTS_EBOX_I2C_DEEPSELLP_CTL))) {
+			printk("Get node %s fail\n", SZ_DTS_EBOX_I2C_DEEPSELLP_CTL);
+			goto END;
+		}
+
+		if (syno_jmb575_get_i2c_info(ap, pPwrNode, &i2cInfo)) {
+			printk("Get i2c device info fail");
+			goto END;
+		}
+#else /* MY_ABC_HERE */
+		if (IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+			i2cInfo.addr = RX1223RP_HDD_PWR_CTL_ADDR;
+			i2cInfo.offset = RX1223RP_HDD_PWR_CTL_OFFSET;
+			i2cInfo.mask = RX1223RP_HDD_PWR_CTL_MASK;
+		}
+#endif /* MY_ABC_HERE */	
+
+		syno_libata_pmp_deepsleep_indicator_set(ap, blPowerOn);
+
+		if (SYNO_PWR_OP_DEEPSLEEP == pwrOp) {
+#ifdef MY_ABC_HERE
+			for (i = 0; 0 == of_property_read_u32_index(pPwrNode, SZ_DTS_EBOX_I2C_REG_MANUAL_ENABLE, i, &regManual); i++) {
+				syno_init_i2c_pkg(&i2cPkg, PM_I2C_OP_WRITE, i2cInfo.addr, regManual, 1);
+				i2cPkg.inputData[0] = 0x00;
+				if (syno_sata_pmp_write_i2c(ap, &i2cPkg)) {
+					printk("PM BP manual reg %d set fail\n", i);
+					goto END;
+				}
+			}
+#else /* MY_ABC_HERE */
+			if (IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+				for (i = 0; i < ARRAY_SIZE(rx1223rp_disk_power_reg); ++i) {
+					syno_init_i2c_pkg(&i2cPkg, PM_I2C_OP_WRITE, RX1223RP_HDD_PWR_CTL_ADDR, rx1223rp_disk_power_reg[i], 1);
+					i2cPkg.inputData[0] = 0x00;
+					if (syno_sata_pmp_write_i2c(ap, &i2cPkg)) {
+						printk("PM BP manual reg %d set fail\n", i);
+						goto END;
+					}
+				}
+			} else {
+				goto END;
+			}
+#endif /* MY_ABC_HERE */	
+		}
+
+		syno_init_i2c_pkg(&i2cPkg, PM_I2C_OP_WRITE, i2cInfo.addr, i2cInfo.offset, 1);
+		
+		if (SYNO_PWR_OP_DEEPSLEEP == pwrOp) {
+			i2cPkg.inputData[0] = i2cInfo.mask;
+		} else if (SYNO_PWR_OP_WAKE == pwrOp || SYNO_PWR_OP_POWER_ON == pwrOp) {
+			i2cPkg.inputData[0] = 0x00;
+		}
+		if (syno_sata_pmp_write_i2c(ap, &i2cPkg)) {
+			printk("pm BP %s fail", blPowerOn? "wake":"deepsleep");
+			goto END;
+		}
+
+	}
+#endif /* MY_ABC_HERE */
+
+	iRet = 0;
+END:
+	return iRet;
+}
+
+#ifdef MY_ABC_HERE
+int syno_pm_show_sn(struct ata_device *dev)
+{
+	struct ata_port *ap = dev->link->ap;
+	int iRet = -1;
+	int i = 0;
+#ifdef MY_ABC_HERE
+	struct device_node *pEBoxNode = NULL;
+	struct device_node *pSnNode = NULL;
+	int slotIdx = -1;
+#endif /* MY_ABC_HERE */
+	SYNO_JMB575_I2C_DEV_INFO snInfo;
+	SYNO_PM_I2C_PKG i2cPkg;
+	
+	char szSn[MAX_EBOX_SN_LEN + 1] = {'\0'};
+	
+	if (NULL == ap) {
+		goto END;
+	}
+
+	if (!dev->sdev) {
+		printk("Failed to read EBox SN");
+		goto END;
+	}
+
+	if (!IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+		goto END;
+	}
+
+	if (0 != ap->PMSynoEMID) {
+		goto END;
+	}
+
+#ifdef MY_ABC_HERE
+	if (syno_pmp_get_ebox_node_by_unique_id(ap->PMSynoUnique, ap->PMSynoIsRP, &pEBoxNode)) {
+		printk("Failed to get EBox node\n");
+		goto END;
+	}
+
+	if (NULL == (pSnNode = of_get_child_by_name(pEBoxNode, SZ_DTS_EBOX_I2C_SN_READ))) {
+		printk("Failed to get node %s\n", SZ_DTS_EBOX_I2C_SN_READ);
+		goto END;
+	}
+
+	if (of_property_read_u32_index(pSnNode, SZ_DTS_EBOX_I2C_OFFSET, 0, &snInfo.offset)) {
+		printk("Failed to get %s\n", SZ_DTS_EBOX_I2C_OFFSET);
+		goto END;
+	}
+
+	if (syno_pmp_i2c_addr_get(pSnNode, &snInfo.addr)) {
+		printk("Failed to get i2c addr\n");
+		goto END;
+	}
+#else /* MY_ABC_HERE */
+	if (IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+		snInfo.addr = RX1223RP_MP_ADDR;
+		snInfo.offset = RX1223RP_SN_OFFSET;
+	} else {
+		goto END;
+	}
+#endif /* MY_ABC_HERE */	
+
+	for (i = 0; i < MAX_EBOX_SN_LEN; ++i) {
+
+		syno_init_i2c_pkg(&i2cPkg, PM_I2C_OP_READ, snInfo.addr, snInfo.offset + i, 1);
+
+		if (syno_i2c_with_scmd(ap, dev->sdev, &i2cPkg, READ)) {
+			printk("Failed to read EBox SN\n");
+			goto END;
+		}
+
+		szSn[i] = i2cPkg.resultData[0];
+	}
+
+#ifdef MY_ABC_HERE
+	slotIdx = syno_external_libata_index_get(ap);
+	if (-1 != slotIdx) {
+		ata_dev_info(dev, "External slot %d Eunit SN: %s\n", slotIdx, szSn);
+	} else {
+		ata_dev_info(dev, "Eunit SN: %s\n", szSn);
+	}
+#else /* CONFIG_SYNO_PORT_MAPIING_V2 */
+		ata_dev_info(dev, "Eunit SN: %s\n", szSn);
+#endif /* MY_ABC_HERE */
+
+	iRet = 0;
+END:
+	return iRet;
+}
+#endif /* MY_ABC_HERE */
+
+int
+syno_libata_pm_power_ctl(struct ata_port *ap, u8 pwrOp, u8 blCustomInfo)
+{
+	int iRet = -1;
+	unsigned long flags = 0;
+	u8 blPowerOn = pwrOp & 0x01; 
+	
+	if (NULL == ap) {
+		goto END;
+	}
+
+	spin_lock_irqsave(ap->lock, flags);
+	while (ap->pflags & ATA_PFLAG_PMP_PMCTL) {
+		DBGMESG("port %d can't do pmp power ctl %d, must waiting for others\n", ap->print_id, blPowerOn);
+		spin_unlock_irqrestore(ap->lock, flags);
+		schedule_timeout_uninterruptible(HZ);
+		spin_lock_irqsave(ap->lock, flags);
+	}
+	/* lock to prevent others to do pmp power control */
+	ap->pflags |= ATA_PFLAG_PMP_PMCTL;
+	/* we should make sure this port isn't frozen */
+	if (ap->pflags & ATA_PFLAG_FROZEN) {
+		printk("ata%u: is FROZEN, thaw it now\n", ap->print_id);
+		spin_unlock_irqrestore(ap->lock, flags);
+		ata_eh_thaw_port(ap);
+		spin_lock_irqsave(ap->lock, flags);
+	}
+	DBGMESG("port %d do pmp power ctl %d, and thaw it\n", ap->print_id, blPowerOn);
+	spin_unlock_irqrestore(ap->lock, flags);
+
+	if (syno_sata_pmp_read_unique(ap)) {
+		printk("ata%d pm unique read fail\n", ap->print_id);
+		goto END;
+	}
+
 	if (blCustomInfo && blPowerOn) {
 		syno_sata_pmp_read_cpld_ver(ap);
 
 		syno_sata_pmp_read_emid(ap);
+
+		syno_sata_pmp_show_fw_info(ap);
 
 		mdelay(1000);
 
@@ -1366,6 +2467,27 @@ syno_libata_pm_power_ctl(struct ata_port *ap, u8 blPowerOn, u8 blCustomInfo)
 		}else{
 			ap->PMSynoIsRP = 0;
 		}
+	}
+
+	if(IS_SYNOLOGY_DXC(ap->PMSynoUnique) ||
+	   IS_SYNOLOGY_RXC(ap->PMSynoUnique) ||
+	   IS_SYNOLOGY_RX1214(ap->PMSynoUnique) ||
+	   IS_SYNOLOGY_RX1217(ap->PMSynoUnique) ||
+	   IS_SYNOLOGY_DX1215(ap->PMSynoUnique) ||
+	   IS_SYNOLOGY_DX1222(ap->PMSynoUnique) ||
+	   IS_SYNOLOGY_DX1215II(ap->PMSynoUnique) ||
+	   IS_SYNOLOGY_RX1223RP(ap->PMSynoUnique)) {
+		if(0 != ap->PMSynoEMID) {
+			goto END;
+		}
+	}
+
+	if (1 == ap->PMSynoPowerDisable) {
+		goto SKIP_POWER_ON;
+	}
+
+	if (syno_libata_pm_power_ctl_core(ap, pwrOp)) {
+		printk("ata%d power control fail\n", ap->print_id);
 	}
 
 SKIP_POWER_ON:

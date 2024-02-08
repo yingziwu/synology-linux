@@ -112,6 +112,9 @@ unsigned dm_get_md_type(struct mapped_device *md);
 struct target_type *dm_get_immutable_target_type(struct mapped_device *md);
 
 int dm_setup_md_queue(struct mapped_device *md);
+#ifdef MY_ABC_HERE
+int syno_dm_table_first_target_data_devices_count(struct dm_table *table);
+#endif /* MY_ABC_HERE */
 
 /*
  * To check the return value from dm_table_find_target().

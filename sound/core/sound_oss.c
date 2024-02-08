@@ -58,7 +58,6 @@ void *snd_lookup_oss_minor_data(unsigned int minor, int type)
 	mutex_unlock(&sound_oss_mutex);
 	return private_data;
 }
-
 EXPORT_SYMBOL(snd_lookup_oss_minor_data);
 
 static int snd_oss_kernel_minor(int type, struct snd_card *card, int dev)
@@ -79,6 +78,7 @@ static int snd_oss_kernel_minor(int type, struct snd_card *card, int dev)
 		} else
 #endif /* MY_ABC_HERE */
 		minor = SNDRV_MINOR_OSS(card->number, (dev ? SNDRV_MINOR_OSS_MIXER1 : SNDRV_MINOR_OSS_MIXER));
+
 		break;
 	case SNDRV_OSS_DEVICE_TYPE_SEQUENCER:
 		minor = SNDRV_MINOR_OSS_SEQUENCER;
@@ -90,13 +90,13 @@ static int snd_oss_kernel_minor(int type, struct snd_card *card, int dev)
 		if (snd_BUG_ON(!card || dev < 0 || dev > 1))
 			return -EINVAL;
 #if defined(MY_ABC_HERE)
-		if (NULL != card) {
-			if (0x0d8c0103 == card->low_level_dev_id) {
-				minor = SNDRV_MINOR_OSS(card->number, (dev ? SNDRV_MINOR_OSS_PCM1 : SNDRV_MINOR_OSS_PCM));
-			} else {
-				minor = SNDRV_MINOR_OSS(card->number + 4, (dev ? SNDRV_MINOR_OSS_PCM1 : SNDRV_MINOR_OSS_PCM));
-			}
-		} else
+                if (NULL != card) {
+                        if (0x0d8c0103 == card->low_level_dev_id) {
+                                minor = SNDRV_MINOR_OSS(card->number, (dev ? SNDRV_MINOR_OSS_PCM1 : SNDRV_MINOR_OSS_PCM));
+                        } else {
+                                minor = SNDRV_MINOR_OSS(card->number + 4, (dev ? SNDRV_MINOR_OSS_PCM1 : SNDRV_MINOR_OSS_PCM));
+                        }
+                } else
 #endif /* MY_ABC_HERE */
 		minor = SNDRV_MINOR_OSS(card->number, (dev ? SNDRV_MINOR_OSS_PCM1 : SNDRV_MINOR_OSS_PCM));
 		break;
@@ -107,13 +107,13 @@ static int snd_oss_kernel_minor(int type, struct snd_card *card, int dev)
 		break;
 	case SNDRV_OSS_DEVICE_TYPE_DMFM:
 #if defined(MY_ABC_HERE)
-		if (NULL != card) {
-			if (0x0d8c0103 == card->low_level_dev_id) {
-				minor = SNDRV_MINOR_OSS(card->number, SNDRV_MINOR_OSS_DMFM);
-			} else {
-				minor = SNDRV_MINOR_OSS(card->number + 4, SNDRV_MINOR_OSS_DMFM);
-			}
-		} else
+                if (NULL != card) {
+                        if (0x0d8c0103 == card->low_level_dev_id) {
+                                minor = SNDRV_MINOR_OSS(card->number, SNDRV_MINOR_OSS_DMFM);
+                        } else {
+                                minor = SNDRV_MINOR_OSS(card->number + 4, SNDRV_MINOR_OSS_DMFM);
+                        }
+                } else
 #endif /* MY_ABC_HERE */
 		minor = SNDRV_MINOR_OSS(card->number, SNDRV_MINOR_OSS_DMFM);
 		break;
@@ -189,7 +189,6 @@ int snd_register_oss_device(int type, struct snd_card *card, int dev,
 	kfree(preg);
       	return -EBUSY;
 }
-
 EXPORT_SYMBOL(snd_register_oss_device);
 
 int snd_unregister_oss_device(int type, struct snd_card *card, int dev)
@@ -230,7 +229,6 @@ int snd_unregister_oss_device(int type, struct snd_card *card, int dev)
 	kfree(mptr);
 	return 0;
 }
-
 EXPORT_SYMBOL(snd_unregister_oss_device);
 
 /*

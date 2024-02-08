@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * File:	portdrv_core.c
  * Purpose:	PCI Express Port Bus Driver's Core Functions
@@ -15,6 +18,10 @@
 #include <linux/slab.h>
 #include <linux/pcieport_if.h>
 #include <linux/aer.h>
+#ifdef MY_ABC_HERE
+#include <linux/synolib.h>
+extern int syno_pci_dev_to_i2c_bus(struct pci_dev *pdev);
+#endif /* MY_ABC_HERE */
 
 #include "../pci.h"
 #include "portdrv.h"
@@ -313,6 +320,12 @@ static int get_port_device_capability(struct pci_dev *dev)
 	}
 	if (pci_find_ext_capability(dev, PCI_EXT_CAP_ID_DPC))
 		services |= PCIE_PORT_SERVICE_DPC;
+
+#ifdef MY_ABC_HERE
+	if (0 <= syno_pci_dev_to_i2c_bus(dev)) {
+		services |= PCIE_PORT_SERVICE_I2C;
+	}
+#endif /* MY_ABC_HERE */
 
 	return services;
 }

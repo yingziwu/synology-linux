@@ -4027,6 +4027,7 @@ static const struct pci_device_id blacklist[] = {
 #else
 	{ PCI_VDEVICE(INTEL, 0x19d8), },
 #endif
+	{ PCI_VDEVICE(INTEL, 0x18d8), },
 };
 
 /*

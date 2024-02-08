@@ -88,6 +88,29 @@ enum nvme_quirks {
 	NVME_QUIRK_NO_DEEPEST_PS		= (1 << 5),
 };
 
+/*
+ * Common request structure for NVMe passthrough.  All drivers must have
+ * this structure as the first member of their request-private data.
+ */
+struct nvme_request {
+	struct nvme_command	*cmd;
+	union nvme_result	result;
+#ifdef MY_ABC_HERE
+	u8			flags;
+#endif /* MY_ABC_HERE */
+};
+
+#ifdef MY_ABC_HERE
+enum {
+	NVME_REQ_USERCMD		= (1 << 1),
+};
+#endif /* MY_ABC_HERE */
+
+static inline struct nvme_request *nvme_req(struct request *req)
+{
+	return blk_mq_rq_to_pdu(req);
+}
+
 /* The below value is the specific amount of delay needed before checking
  * readiness in case of the PCI_DEVICE(0x1c58, 0x0003), which needs the
  * NVME_QUIRK_DELAY_BEFORE_CHK_RDY quirk enabled. The value (in ms) was
@@ -330,7 +353,7 @@ void nvme_requeue_req(struct request *req);
 int nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
 		void *buf, unsigned bufflen);
 int __nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
-		struct nvme_completion *cqe, void *buffer, unsigned bufflen,
+		union nvme_result *result, void *buffer, unsigned bufflen,
 		unsigned timeout, int qid, int at_head, int flags);
 int nvme_submit_user_cmd(struct request_queue *q, struct nvme_command *cmd,
 		void __user *ubuffer, unsigned bufflen, u32 *result,
@@ -340,8 +363,19 @@ int __nvme_submit_user_cmd(struct request_queue *q, struct nvme_command *cmd,
 		void __user *meta_buffer, unsigned meta_len, u32 meta_seed,
 		u32 *result, unsigned timeout);
 int nvme_identify_ctrl(struct nvme_ctrl *dev, struct nvme_id_ctrl **id);
+#ifdef MY_ABC_HERE
+/*
+ * backport nvme: remove nvme_revalidate_ns
+ * Factor out nvme_revalidate_ns() so that we may pick back a mainline
+ * fix. The fix ignores failures during disk revalidation on -ENOMEM or
+ * any failing NVMe return code without DNR bit set. The patch is
+ * incompatable with NVME_SCSI, because nvme scsi emulation was phased
+ * out long before then.
+ */
+#else
 int nvme_identify_ns(struct nvme_ctrl *dev, unsigned nsid,
 		struct nvme_id_ns **id);
+#endif /* MY_ABC_HERE */
 int nvme_get_log_page(struct nvme_ctrl *dev, struct nvme_smart_log **log);
 #ifdef MY_ABC_HERE
 int nvme_get_error_log_page(struct nvme_ctrl *dev,

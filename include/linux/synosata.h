@@ -48,6 +48,12 @@ extern int SynoHaveRPDetectPin(void);
 extern int SynoAllRedundantPowerDetected(void);
 #endif /* MY_DEF_HERE */
 
+#ifdef MY_DEF_HERE
+#include <linux/mutex.h>
+static struct mutex mutex_spin;
+static DEFINE_MUTEX(mutex_spin);
+#endif /* MY_DEF_HERE */
+
 #ifdef MY_ABC_HERE
 static inline void SleepForLatency(void)
 {
@@ -72,6 +78,47 @@ static inline void SleepForHD(int i)
 	syno_boot_hd_count++;
 }
 
+
+#ifdef MY_DEF_HERE
+static inline int SpinupDelayEval(int isExternalPort)
+{
+
+	static int iDisksInSpinupGroup = 0;
+	static int iCurrentSpinupGroup = 0;
+	int iDelay = 0;
+
+	if (0 >= giSynoSpinupGroupNum) {
+		goto END;
+	}
+
+	mutex_lock(&mutex_spin);
+
+	//XXX: Don't count external port, just get last delay
+	//     This is a workaround for DSM#151238
+	if (isExternalPort) {
+		goto EXTERNAL;
+	}
+
+	DBG_SpinupGroupListGpio();
+	if (iDisksInSpinupGroup >= giSynoSpinupGroup[iCurrentSpinupGroup]) {
+		iCurrentSpinupGroup++;
+		iDisksInSpinupGroup = 0;
+	}
+	iDisksInSpinupGroup++;
+
+	if (SynoHaveRPDetectPin() && SynoAllRedundantPowerDetected()) {
+		goto SKIP;
+	}
+
+EXTERNAL:
+	iDelay = iCurrentSpinupGroup * giSynoSpinupGroupDelay;
+SKIP:
+	mutex_unlock(&mutex_spin);
+END:
+	return iDelay;
+}
+#endif /* MY_DEF_HERE */
+
 /*
  * delay for HW ready, if this port already wait for latency,
  * we delay 5s, otherwise we dleay 7s. And the first, last
@@ -81,19 +128,12 @@ static inline void SleepForHD(int i)
  *        iIsDoLatency [IN] is do latency before
  *
  **/
-static inline void SleepForHW(int iDisk, int iIsDoLatency)
+static inline void SleepForHW(int iDisk, int iIsDoLatency, int isExternalPort)
 {
 #ifdef MY_DEF_HERE
-	static int iDisksInSpinupGroup = 0;
-	static int iCurrentSpinupGroup = 0;
-	if(0 < giSynoSpinupGroupNum) {
-		DBG_SpinupGroupListGpio();
-		if (iDisksInSpinupGroup < giSynoSpinupGroup[iCurrentSpinupGroup]) {
-			goto skip_wait_or_wait_done;
-		}
-		if (SynoHaveRPDetectPin() && SynoAllRedundantPowerDetected()) {
-			goto skip_wait_or_wait_done;
-		}
+	int iDelay = 0;
+	if (0 >= (iDelay = SpinupDelayEval(isExternalPort))) {
+		goto skip_wait_or_wait_done;
 	}
 #endif /* MY_DEF_HERE */
 	/* the first shouldn't wait */
@@ -106,12 +146,20 @@ static inline void SleepForHW(int iDisk, int iIsDoLatency)
 		  syno_boot_hd_count < g_syno_hdd_powerup_seq) ) {
 #endif /* MY_ABC_HERE */
 #ifdef MY_DEF_HERE
-		if (0 < giSynoSpinupGroupDelay) {
-			printk("Delay %d seconds to wait for disk %d ready.\n", giSynoSpinupGroupDelay, iDisk);
-			mdelay(giSynoSpinupGroupDelay * 1000);
+		if (0 < iDelay) {
+			if (!isExternalPort) {
+				printk("Delay %d seconds to wait for disk %d ready.\n", iDelay, iDisk);
+			}
+
+			msleep(iDelay * 1000);
 			goto skip_wait_or_wait_done;
 		}
 #endif /* MY_DEF_HERE */
+
+		if (isExternalPort) {
+			return;
+		}
+
 		if (iIsDoLatency) {
 			printk("Delay 5 seconds to wait for disk %d ready.\n", iDisk);
 			mdelay(5000);
@@ -122,17 +170,87 @@ static inline void SleepForHW(int iDisk, int iIsDoLatency)
 	}
 #ifdef MY_DEF_HERE
 skip_wait_or_wait_done:
-	if (0 < giSynoSpinupGroupNum) {
-		if (iDisksInSpinupGroup >= giSynoSpinupGroup[iCurrentSpinupGroup]) {
-			iCurrentSpinupGroup++;
-			iDisksInSpinupGroup = 0;
-		}
-		iDisksInSpinupGroup++;
-	}
 #endif /* MY_DEF_HERE */
-	syno_boot_hd_count++;
+	if (!isExternalPort) {
+		syno_boot_hd_count++;
+	}
 }
 #endif /* MY_ABC_HERE */
+
+
+#ifdef MY_ABC_HERE
+#define SYNO_PMP_I2C_MAX_DATA_LEN 7
+#define MAX_EBOX_SN_LEN 16
+
+typedef enum _tag_SYNO_PM_I2C_OPERATION {
+	PM_I2C_OP_UNKNOWON	= 0x00,
+	PM_I2C_OP_WRITE		= 0x01,
+	PM_I2C_OP_READ		= 0x02,
+} SYNO_PM_I2C_OPERATION;
+
+typedef struct _tag_SYNO_PM_I2C_PKG {
+	SYNO_PM_I2C_OPERATION op;
+	unsigned short addr;
+	unsigned short offset;
+	unsigned short len;
+	unsigned char inputData[SYNO_PMP_I2C_MAX_DATA_LEN];
+	unsigned char resultData[SYNO_PMP_I2C_MAX_DATA_LEN];
+	bool blIsErr;
+} SYNO_PM_I2C_PKG;
+
+static inline void syno_init_i2c_pkg(SYNO_PM_I2C_PKG *pPkg, SYNO_PM_I2C_OPERATION op, \
+									 unsigned short addr, unsigned short offset, unsigned short len)
+{
+	if (!pPkg) {
+		goto END;
+	}
+
+	pPkg->op = op;
+	pPkg->addr = addr;
+	pPkg->offset = offset;
+	pPkg->len = len;
+	pPkg->blIsErr = false;
+
+	memset(pPkg->inputData, 0, SYNO_PMP_I2C_MAX_DATA_LEN);
+	memset(pPkg->resultData, 0, SYNO_PMP_I2C_MAX_DATA_LEN);
+END:
+	return;
+}
+
+
+typedef enum _tag_SYNO_PM_I2C_SYSFS_OP {
+	SYNO_PM_I2C_SYSFS_UNKNOWN  			= 0x00,
+	SYNO_PM_I2C_SYSFS_I2C_READ 			= 0x01,
+	SYNO_PM_I2C_SYSFS_I2C_WRITE			= 0x02,
+	SYNO_PM_I2C_SYSFS_JMB575_LED_CTL	= 0x03,
+	SYNO_PM_I2C_SYSFS_POLLING           = 0x04,
+} SYNO_PM_I2C_SYSFS_OP;
+
+#define RX1223RP_MP_ADDR 0x40
+
+/* RX1223RP Power Control */
+#define RX1223RP_PWR_CTL_OFFSET 0x05
+#define RX1223RP_PWR_BTN_MASK 0x01
+#define RX1223RP_DEEP_CTL_MASK 0x02
+#define RX1223RP_PWR_CTL_MASK 0x04
+
+/* RX1223RP SN */
+#define RX1223RP_SN_OFFSET 0x10
+
+/* RX1223RP HDD Power Control */
+#define RX1223RP_HDD_PWR_CTL_ADDR 0x47
+#define RX1223RP_HDD_PWR_CTL_OFFSET 0x11
+#define RX1223RP_HDD_PWR_CTL_MASK 0x01
+
+#endif /* MY_ABC_HERE */
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+static inline unsigned char
+syno_pm_is_jmb575(unsigned short vendor, unsigned short devid)
+{
+	return (vendor == 0x197b && devid == 0x5755);
+}
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 
 #ifdef MY_ABC_HERE
 #include <linux/fs.h>
@@ -549,6 +667,10 @@ syno_support_disk_num(unsigned short vendor,
 		} else {
 			printk("%s not synology device", __FUNCTION__);
 			ret = 5;
+		}
+	} else if (syno_pm_is_jmb575(vendor, devid)) {
+		if (IS_SYNOLOGY_RX1223RP(syno_uniq)) {
+			ret = 3;
 		}
 	}
 

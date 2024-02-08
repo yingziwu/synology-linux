@@ -71,7 +71,11 @@ static int syno_hddmon_data_init(SynoHddMonData_t *pData)
 	if (syno_is_hw_version(HW_DS220j)) {
 		pData->blHddHotPlugSupport = 1;
 	} else {
+#ifdef MY_ABC_HERE
+		pData->blHddHotPlugSupport = (gSynoHddPowerupSeq | g_hdd_hotplug);
+#else /* MY_ABC_HERE */
 		pData->blHddHotPlugSupport = g_hdd_hotplug;
+#endif /* MY_ABC_HERE */
 	}
 #endif /* MY_ABC_HERE */
 

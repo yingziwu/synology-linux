@@ -1792,3 +1792,23 @@ void dm_table_run_md_queue_async(struct dm_table *t)
 }
 EXPORT_SYMBOL(dm_table_run_md_queue_async);
 
+#ifdef MY_ABC_HERE
+int syno_dm_table_first_target_data_devices_count(struct dm_table *table)
+{
+	struct dm_target *uninitialized_var(ti);
+	unsigned num_devices = 0;
+
+	if(dm_table_get_num_targets(table) <= 0)
+		return -1;
+
+	ti = dm_table_get_target(table, 0);
+
+	if (!ti->type->iterate_devices)
+		return -1;
+
+	ti->type->iterate_devices(ti, count_device, &num_devices);
+
+	return (int)num_devices;
+}
+#endif /* MY_ABC_HERE */
+

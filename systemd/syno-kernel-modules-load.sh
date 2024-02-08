@@ -43,6 +43,12 @@ if [ "$SUPPORT_LP3943" == "yes" ]; then
 	modprobe leds-lp3943
 fi
 
+# load atemga1608
+SUPPORT_ATMEGA1608=`get_key_value $SYNOINFO_DEF support_leds_atmega1608`
+if [ "$SUPPORT_ATMEGA1608" == "yes" ]; then
+        modprobe leds-atmega1608
+fi
+
 # load IPMI
 SUPPORT_IPMI=`get_key_value $SYNOINFO_DEF support_ipmi`
 if [ "$SUPPORT_IPMI" == "yes" ]; then

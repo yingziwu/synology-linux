@@ -1835,6 +1835,9 @@ extern void set_dma_reserve(unsigned long new_dma_reserve);
 extern void memmap_init_zone(unsigned long, int, unsigned long,
 				unsigned long, enum memmap_context);
 extern void setup_per_zone_wmarks(void);
+#ifdef MY_ABC_HERE
+extern void update_kswapd_threads(void);
+#endif /* MY_ABC_HERE */
 extern int __meminit init_per_zone_wmark_min(void);
 extern void mem_init(void);
 extern void __init mmap_init(void);
@@ -1853,7 +1856,11 @@ extern void zone_pcp_update(struct zone *zone);
 extern void zone_pcp_reset(struct zone *zone);
 
 /* page_alloc.c */
+#ifdef MY_ABC_HERE
+extern int kswapd_threads;
+#endif /* MY_ABC_HERE */
 extern int min_free_kbytes;
+extern int watermark_scale_factor;
 
 /* nommu.c */
 extern atomic_long_t mmap_pages_allocated;

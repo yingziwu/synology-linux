@@ -67,6 +67,7 @@ enum SYNO_GPIO_INDEX
 #define HAVE_MUTE_BUTTON_DETECT()              HAVE_GPIO_PIN(1, mute_button_detect)
 #define HAVE_BUZZER_MUTE_CTRL()                HAVE_GPIO_PIN(1, buzzer_mute_ctrl)
 #define HAVE_RP_DETECT(index)                  HAVE_GPIO_PIN(index, redundant_power_detect)
+#define HAVE_RP_FAN_CTRL()                     HAVE_GPIO_PIN(1, redundant_power_fan_ctrl)
 
 #define FAN_CTRL_PIN(index)                    GPIO_PORT(index, fan_ctrl)
 #define FAN_FAIL_PIN(index)                    GPIO_PORT(index, fan_fail)
@@ -101,6 +102,7 @@ enum SYNO_GPIO_INDEX
 #define MUTE_BUTTON_DETECT_PIN()               GPIO_PORT(1, mute_button_detect)
 #define BUZZER_MUTE_CTRL_PIN()                 GPIO_PORT(1, buzzer_mute_ctrl)
 #define RP_DETECT_PIN(index)                   GPIO_PORT(index, redundant_power_detect)
+#define RP_FAN_CTRL_PIN()                      GPIO_PORT(1, redundant_power_fan_ctrl)
 
 #define FAN_CTRL_POLARITY()                    GPIO_POLARITY(fan_ctrl)
 #define FAN_FAIL_POLARITY()                    GPIO_POLARITY(fan_fail)
@@ -130,6 +132,7 @@ enum SYNO_GPIO_INDEX
 #define MUTE_BUTTON_DETECT_POLARITY()          GPIO_POLARITY(mute_button_detect)
 #define BUZZER_MUTE_CTRL_POLARITY()            GPIO_POLARITY(buzzer_mute_ctrl)
 #define RP_DETECT_POLARITY()                   GPIO_POLARITY(redundant_power_detect)
+#define RP_FAN_CTRL_POLARITY()                 GPIO_POLARITY(redundant_power_fan_ctrl)
 
 typedef struct _tag_SYNO_GPIO_INFO {
 	const char *name;
@@ -157,6 +160,7 @@ typedef struct __tag_SYNO_GPIO {
 	SYNO_GPIO_INFO *mute_button_detect;
 	SYNO_GPIO_INFO *buzzer_mute_ctrl;
 	SYNO_GPIO_INFO *redundant_power_detect;
+	SYNO_GPIO_INFO *redundant_power_fan_ctrl;
 } SYNO_GPIO;
 
 #ifdef MY_ABC_HERE

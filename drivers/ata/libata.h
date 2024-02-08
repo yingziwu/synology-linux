@@ -305,6 +305,33 @@ static inline void zpodd_post_poweron(struct ata_device *dev) {}
 #ifdef MY_ABC_HERE
 int syno_gpio_with_scmd(struct ata_port *ap, struct scsi_device *sdev, SYNO_PM_PKG *pPkg, u8 rw);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+typedef enum __tag_SYNO_JMB575_VENDOR_COMMAND {
+	SYNO_JMB575_COMMAND_UNKNOWN = 0x00,
+	SYNO_JMB575_GET_UNIQUE_ID = 0x01,
+	SYNO_JMB575_GET_EMID = 0x02,
+	SYNO_JMB575_DISK_LED_MASK = 0x03,
+	SYNO_JMB575_GET_FW_INFO = 0x04,
+} SYNO_JMB575_VENDOR_COMMAND;
+int syno_sata_jmb575_custom_cmd(struct ata_port *ap, SYNO_JMB575_VENDOR_COMMAND cmd, int *var);
+int syno_sata_jmb575_disk_led_set_with_scmnd(struct ata_link *link, u8 ledIdx, u8 blLightOn);
+unsigned int syno_sata_pmp_read_i2c(struct ata_port *ap, SYNO_PM_I2C_PKG *pPM_pkg);
+unsigned int syno_sata_pmp_write_i2c(struct ata_port *ap, SYNO_PM_I2C_PKG *pPM_pkg);
+int syno_pmp_get_ebox_node_by_unique_id(u8 synoUniqueID, u8 isRP, struct device_node **pEBoxNode);
+int syno_pmp_i2c_addr_get(struct device_node *pNode, unsigned int *addr);
+typedef struct _tag_SYNO_JMB575_I2C_DEV_INFO {
+	unsigned int addr;
+	unsigned int offset;
+	unsigned int mask;
+} SYNO_JMB575_I2C_DEV_INFO;
+int syno_i2c_with_scmd(struct ata_port *ap, struct scsi_device *sdev, SYNO_PM_I2C_PKG *pPkg, u8 rw);
+int syno_jmb_575_led_ctl_with_scmd(struct ata_port *ap, struct scsi_device *sdev, u8 *pLedMask, u8 rw);
+unsigned int syno_jmb575_polling_data(struct ata_port *ap, char *buf, unsigned int sectors);
+/* Command Feature for JMB575 GET_BOARD_INFO */
+#define SYNO_JMB575_GET_INFO_FEATURE 0xE5
+
+#endif /* MY_ABC_HERE */
+
 
 #ifdef MY_DEF_HERE
 void syno_smbus_hdd_powerctl_init(void);
