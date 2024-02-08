@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/idr.h>
 #include <linux/mutex.h>
 #include <linux/device.h>
@@ -528,7 +531,6 @@ static struct class gpio_class = {
 	.class_attrs =	gpio_class_attrs,
 };
 
-
 /**
  * gpiod_export - export a GPIO through sysfs
  * @gpio: gpio to make available, already requested
@@ -605,7 +607,11 @@ int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
 	if (chip->names && chip->names[offset])
 		ioname = chip->names[offset];
 
+#if defined(MY_DEF_HERE)
+	dev = device_create_with_groups(&gpio_class, chip->parent,
+#else /* MY_DEF_HERE */
 	dev = device_create_with_groups(&gpio_class, chip->dev,
+#endif /* MY_DEF_HERE */
 					MKDEV(0, 0), data, gpio_groups,
 					ioname ? ioname : "gpio%u",
 					desc_to_gpio(desc));
@@ -730,7 +736,12 @@ int gpiochip_sysfs_register(struct gpio_chip *chip)
 		return 0;
 
 	/* use chip->base for the ID; it's already known to be unique */
+#if defined(MY_DEF_HERE)
+	dev = device_create_with_groups(&gpio_class, chip->parent,
+					MKDEV(0, 0),
+#else /* MY_DEF_HERE */
 	dev = device_create_with_groups(&gpio_class, chip->dev, MKDEV(0, 0),
+#endif /* MY_DEF_HERE */
 					chip, gpiochip_groups,
 					"gpiochip%d", chip->base);
 	if (IS_ERR(dev))
@@ -801,7 +812,6 @@ static int __init gpiolib_sysfs_init(void)
 		spin_lock_irqsave(&gpio_lock, flags);
 	}
 	spin_unlock_irqrestore(&gpio_lock, flags);
-
 
 	return status;
 }

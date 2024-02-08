@@ -183,7 +183,6 @@ static inline void tcp_event_ack_sent(struct sock *sk, unsigned int pkts)
 	inet_csk_clear_xmit_timer(sk, ICSK_TIME_DACK);
 }
 
-
 u32 tcp_default_init_rwnd(u32 mss)
 {
 	/* Initial receive window should be twice of TCP_INIT_CWND to
@@ -711,7 +710,6 @@ static unsigned int tcp_established_options(struct sock *sk, struct sk_buff *skb
 
 	return size;
 }
-
 
 /* TCP SMALL QUEUES (TSQ)
  *
@@ -1619,7 +1617,6 @@ static int tcp_init_tso_segs(struct sk_buff *skb, unsigned int mss_now)
 	}
 	return tso_segs;
 }
-
 
 /* Return true if the Nagle test allows this packet to be
  * sent now.

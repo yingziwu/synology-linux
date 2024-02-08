@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * This is the Fusion MPT base driver providing common API layer interface
  * for access to MPT (Message Passing Technology) firmware.
@@ -116,7 +119,6 @@
 #define MPT_STRING_LENGTH		64
 
 #define MPT_MAX_CALLBACKS		32
-
 
 #define	 CAN_SLEEP			1
 #define  NO_SLEEP			0
@@ -331,7 +333,6 @@ struct Mpi2ManufacturingPage10_t {
 	U32	Reserved5[18];			/* 24h - 60h*/
 };
 
-
 /* Miscellaneous options */
 struct Mpi2ManufacturingPage11_t {
 	MPI2_CONFIG_PAGE_HEADER Header;		/* 00h */
@@ -366,7 +367,6 @@ struct MPT3SAS_TARGET {
 	u8	tm_busy;
 	struct _sas_device *sdev;
 };
-
 
 /*
  * per device private data
@@ -424,8 +424,6 @@ struct _internal_cmd {
 	u16	smid;
 };
 
-
-
 /**
  * struct _sas_device - attached device information
  * @list: sas device list
@@ -472,6 +470,9 @@ struct _sas_device {
 	u8	enclosure_level;
 	u8	connector_name[4];
 	struct kref refcount;
+#ifdef MY_ABC_HERE
+	u8   any_led_on;
+#endif /* MY_ABC_HERE */
 };
 
 static inline void sas_device_get(struct _sas_device *s)
@@ -678,7 +679,6 @@ struct _tr_list {
 	u16	state;
 };
 
-
 /**
  * struct adapter_reply_queue - the reply queue struct
  * @ioc: per adapter object
@@ -712,8 +712,6 @@ typedef void (*MPT_BUILD_SG)(struct MPT3SAS_ADAPTER *ioc, void *psge,
 		dma_addr_t data_in_dma, size_t data_in_sz);
 typedef void (*MPT_BUILD_ZERO_LEN_SGE)(struct MPT3SAS_ADAPTER *ioc,
 		void *paddr);
-
-
 
 /* IOC Facts and Port Facts converted from little endian to cpu */
 union mpi3_version_union {
@@ -1167,11 +1165,13 @@ struct MPT3SAS_ADAPTER {
 	struct SL_WH_EVENT_TRIGGERS_T diag_trigger_event;
 	struct SL_WH_SCSI_TRIGGERS_T diag_trigger_scsi;
 	struct SL_WH_MPI_TRIGGERS_T diag_trigger_mpi;
+#ifdef MY_ABC_HERE
+	u8		syno_ids;
+#endif /* MY_ABC_HERE */
 };
 
 typedef u8 (*MPT_CALLBACK)(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 	u32 reply);
-
 
 /* base shared API */
 extern struct list_head mpt3sas_ioc_list;
@@ -1247,7 +1247,6 @@ void mpt3sas_base_update_missing_delay(struct MPT3SAS_ADAPTER *ioc,
 	u16 device_missing_delay, u8 io_missing_delay);
 
 int mpt3sas_port_enable(struct MPT3SAS_ADAPTER *ioc);
-
 
 /* scsih shared API */
 u8 mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,

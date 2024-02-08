@@ -4,7 +4,6 @@
 #include <linux/errno.h>
 #include <linux/sched.h>
 
-
 /*
  * The fs value determines whether argument validity checking should be
  * performed or not.  If get_fs() == USER_DS, checking is performed, with
@@ -335,7 +334,6 @@ __asm__ __volatile__("1: stb %r2,%1\n"				\
 		: "r"((unsigned long)(x)), "r"(addr), "0"(__pu_err)); \
 }
 #endif
-
 
 /*
  * Complex access routines

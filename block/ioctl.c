@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/capability.h>
 #include <linux/blkdev.h>
 #include <linux/export.h>
@@ -406,6 +409,62 @@ static inline int is_unrecognized_ioctl(int ret)
 		ret == -ENOIOCTLCMD;
 }
 
+#ifdef CONFIG_FS_DAX
+bool blkdev_dax_capable(struct block_device *bdev)
+{
+	struct gendisk *disk = bdev->bd_disk;
+
+	if (!disk->fops->direct_access)
+		return false;
+
+	/*
+	 * If the partition is not aligned on a page boundary, we can't
+	 * do dax I/O to it.
+	 */
+	if ((bdev->bd_part->start_sect % (PAGE_SIZE / 512))
+			|| (bdev->bd_part->nr_sects % (PAGE_SIZE / 512)))
+		return false;
+
+	return true;
+}
+
+static int blkdev_daxset(struct block_device *bdev, unsigned long argp)
+{
+	unsigned long arg;
+	int rc = 0;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EACCES;
+
+	if (get_user(arg, (int __user *)(argp)))
+		return -EFAULT;
+	arg = !!arg;
+	if (arg == !!(bdev->bd_inode->i_flags & S_DAX))
+		return 0;
+
+	if (arg)
+		arg = S_DAX;
+
+	if (arg && !blkdev_dax_capable(bdev))
+		return -ENOTTY;
+
+	inode_lock(bdev->bd_inode);
+	if (bdev->bd_map_count == 0)
+		inode_set_flags(bdev->bd_inode, arg, S_DAX);
+	else
+		rc = -EBUSY;
+	inode_unlock(bdev->bd_inode);
+	return rc;
+}
+#else
+static int blkdev_daxset(struct block_device *bdev, int arg)
+{
+	if (arg)
+		return -ENOTTY;
+	return 0;
+}
+#endif
+
 static int blkdev_flushbuf(struct block_device *bdev, fmode_t mode,
 		unsigned cmd, unsigned long arg)
 {
@@ -553,9 +612,29 @@ int blkdev_ioctl(struct block_device *bdev, fmode_t mode, unsigned cmd,
 	case BLKBSZSET:
 		return blkdev_bszset(bdev, mode, argp);
 	case BLKPG:
+#ifdef MY_DEF_HERE
+		{
+			int ret = blkpg_ioctl(bdev, argp);
+			if ((0 == ret) && bdev->bd_disk->syno_ops && bdev->bd_disk->syno_ops->multipath_dm_target_blkdev_ioctl) {
+				bdev->bd_disk->syno_ops->multipath_dm_target_blkdev_ioctl(bdev, mode, cmd, arg);
+			}
+			return ret;
+		}
+#else
 		return blkpg_ioctl(bdev, argp);
+#endif
 	case BLKRRPART:
+#ifdef MY_DEF_HERE
+		{
+			int ret = blkdev_reread_part(bdev);
+			if ((0 == ret) && bdev->bd_disk->syno_ops && bdev->bd_disk->syno_ops->multipath_dm_target_blkdev_ioctl) {
+				bdev->bd_disk->syno_ops->multipath_dm_target_blkdev_ioctl(bdev, mode, cmd, arg);
+			}
+			return ret;
+		}
+#else
 		return blkdev_reread_part(bdev);
+#endif
 	case BLKGETSIZE:
 		size = i_size_read(bdev->bd_inode);
 		if ((size >> 9) > ~0UL)
@@ -568,6 +647,11 @@ int blkdev_ioctl(struct block_device *bdev, fmode_t mode, unsigned cmd,
 	case BLKTRACESETUP:
 	case BLKTRACETEARDOWN:
 		return blk_trace_ioctl(bdev, cmd, argp);
+	case BLKDAXSET:
+		return blkdev_daxset(bdev, arg);
+	case BLKDAXGET:
+		return put_int(arg, !!(bdev->bd_inode->i_flags & S_DAX));
+		break;
 	case IOC_PR_REGISTER:
 		return blkdev_pr_register(bdev, argp);
 	case IOC_PR_RESERVE:

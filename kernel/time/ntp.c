@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * NTP state machine interfaces and logic.
  *
@@ -24,7 +27,6 @@
  *
  * Note: All of the NTP state is protected by the timekeeping locks.
  */
-
 
 /* USER_HZ period (usecs): */
 unsigned long			tick_usec = TICK_USEC;
@@ -112,7 +114,6 @@ static long pps_calcnt;		/* calibration intervals */
 static long pps_jitcnt;		/* jitter limit exceeded */
 static long pps_stbcnt;		/* stability limit exceeded */
 static long pps_errcnt;		/* calibration errors */
-
 
 /* PPS kernel consumer compensates the whole phase error immediately.
  * Otherwise, reduce the offset by a fixed factor times the time constant.
@@ -232,7 +233,6 @@ static inline void pps_fill_timex(struct timex *txc)
 
 #endif /* CONFIG_NTP_PPS */
 
-
 /**
  * ntp_synced - Returns 1 if the NTP status is not UNSYNC
  *
@@ -241,7 +241,6 @@ static inline int ntp_synced(void)
 {
 	return !(time_status & STA_UNSYNC);
 }
-
 
 /*
  * NTP methods:
@@ -358,7 +357,6 @@ void ntp_clear(void)
 	pps_clear();
 }
 
-
 u64 ntp_tick_length(void)
 {
 	return tick_length;
@@ -445,7 +443,6 @@ int second_overflow(unsigned long secs)
 		break;
 	}
 
-
 	/* Bump the maxerror field */
 	time_maxerror += MAXFREQ / NSEC_PER_USEC;
 	if (time_maxerror > NTP_PHASE_LIMIT) {
@@ -512,6 +509,10 @@ static void sync_cmos_clock(struct work_struct *work)
 	struct timespec64 next;
 	int fail = 1;
 
+#ifdef MY_ABC_HERE
+		return;
+#endif
+
 	/*
 	 * If we have an externally synchronized Linux clock, then update
 	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
@@ -571,7 +572,6 @@ void ntp_notify_cmos_timer(void)
 void ntp_notify_cmos_timer(void) { }
 #endif
 
-
 /*
  * Propagate a new txc->status value into the NTP state:
  */
@@ -596,7 +596,6 @@ static inline void process_adj_status(struct timex *txc, struct timespec64 *ts)
 	time_status &= STA_RONLY;
 	time_status |= txc->status & ~STA_RONLY;
 }
-
 
 static inline void process_adjtimex_modes(struct timex *txc,
 						struct timespec64 *ts,
@@ -645,8 +644,6 @@ static inline void process_adjtimex_modes(struct timex *txc,
 	if (txc->modes & (ADJ_TICK|ADJ_FREQUENCY|ADJ_OFFSET))
 		ntp_update_frequency();
 }
-
-
 
 /**
  * ntp_validate_timex - Ensures the timex is ok for use in do_adjtimex
@@ -706,7 +703,6 @@ int ntp_validate_timex(struct timex *txc)
 
 	return 0;
 }
-
 
 /*
  * adjtimex mainly allows reading (and writing, if superuser) of

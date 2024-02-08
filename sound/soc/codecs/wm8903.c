@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * wm8903.c  --  WM8903 ALSA SoC Audio driver
  *
@@ -404,7 +407,6 @@ static int wm8903_class_w_put(struct snd_kcontrol *kcontrol,
 	SOC_SINGLE_EXT(xname, reg, shift, max, invert, \
 		snd_soc_dapm_get_volsw, wm8903_class_w_put)
 
-
 static int wm8903_deemph[] = { 0, 32000, 44100, 48000 };
 
 static int wm8903_set_deemph(struct snd_soc_codec *codec)
@@ -603,7 +605,6 @@ static SOC_ENUM_SINGLE_DECL(rinput_enum,
 
 static SOC_ENUM_SINGLE_DECL(rinput_inv_enum,
 			    WM8903_ANALOGUE_RIGHT_INPUT_1, 4, rinput_mux_text);
-
 
 static const char *sidetone_text[] = {
 	"None", "Left", "Right"
@@ -1853,7 +1854,11 @@ static void wm8903_init_gpio(struct wm8903_priv *wm8903)
 
 	wm8903->gpio_chip = wm8903_template_chip;
 	wm8903->gpio_chip.ngpio = WM8903_NUM_GPIO;
+#if defined(MY_DEF_HERE)
+	wm8903->gpio_chip.parent = wm8903->dev;
+#else /* MY_DEF_HERE */
 	wm8903->gpio_chip.dev = wm8903->dev;
+#endif /* MY_DEF_HERE */
 
 	if (pdata->gpio_base)
 		wm8903->gpio_chip.base = pdata->gpio_base;

@@ -1,23 +1,20 @@
-/*
- * usb port device code
- *
- * Copyright (C) 2012 Intel Corp
- *
- * Author: Lan Tianyu <tianyu.lan@intel.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/slab.h>
 #include <linux/pm_qos.h>
+#ifdef MY_ABC_HERE
+#include <linux/gpio.h>
+#endif  
+#ifdef MY_DEF_HERE
+#define SYNO_SERIAL_EXT_HUB "syno.ext.hub"
+#endif  
+
+#ifdef MY_DEF_HERE
+#include <linux/synolib.h>
+#include <linux/syno_gpio.h>
+#endif  
 
 #include "hub.h"
 
@@ -91,10 +88,6 @@ static int usb_port_runtime_resume(struct device *dev)
 		return 0;
 	}
 
-	/*
-	 * Power on our usb3 peer before this usb2 port to prevent a usb3
-	 * device from degrading to its usb2 connection
-	 */
 	if (!port_dev->is_superspeed && peer)
 		pm_runtime_get_sync(&peer->dev);
 
@@ -102,22 +95,13 @@ static int usb_port_runtime_resume(struct device *dev)
 	retval = usb_hub_set_port_power(hdev, hub, port1, true);
 	msleep(hub_power_on_good_delay(hub));
 	if (udev && !retval) {
-		/*
-		 * Our preference is to simply wait for the port to reconnect,
-		 * as that is the lowest latency method to restart the port.
-		 * However, there are cases where toggling port power results in
-		 * the host port and the device port getting out of sync causing
-		 * a link training live lock.  Upon timeout, flag the port as
-		 * needing warm reset recovery (to be performed later by
-		 * usb_port_resume() as requested via usb_wakeup_notification())
-		 */
+		 
 		if (hub_port_debounce_be_connected(hub, port1) < 0) {
 			dev_dbg(&port_dev->dev, "reconnect timeout\n");
 			if (hub_is_superspeed(hdev))
 				set_bit(port1, hub->warm_reset_bits);
 		}
 
-		/* Force the child awake to revalidate after the power loss. */
 		if (!test_and_set_bit(port1, hub->child_usage_bits)) {
 			pm_runtime_get_noresume(&port_dev->dev);
 			pm_request_resume(&udev->dev);
@@ -158,11 +142,6 @@ static int usb_port_runtime_suspend(struct device *dev)
 		usb_clear_port_feature(hdev, port1, USB_PORT_FEAT_C_ENABLE);
 	usb_autopm_put_interface(intf);
 
-	/*
-	 * Our peer usb3 port may now be able to suspend, so
-	 * asynchronously queue a suspend request to observe that this
-	 * usb2 port is now off.
-	 */
 	if (!port_dev->is_superspeed && peer)
 		pm_runtime_put(&peer->dev);
 
@@ -224,11 +203,6 @@ static int link_peers(struct usb_port *left, struct usb_port *right)
 		return rc;
 	}
 
-	/*
-	 * We need to wake the HiSpeed port to make sure we don't race
-	 * setting ->peer with usb_port_runtime_suspend().  Otherwise we
-	 * may miss a suspend event for the SuperSpeed port.
-	 */
 	if (left->is_superspeed) {
 		ss_port = left;
 		WARN_ON(right->is_superspeed);
@@ -243,14 +217,6 @@ static int link_peers(struct usb_port *left, struct usb_port *right)
 	left->peer = right;
 	right->peer = left;
 
-	/*
-	 * The SuperSpeed reference is dropped when the HiSpeed port in
-	 * this relationship suspends, i.e. when it is safe to allow a
-	 * SuperSpeed connection to drop since there is no risk of a
-	 * device degrading to its powered-off HiSpeed connection.
-	 *
-	 * Also, drop the HiSpeed ref taken above.
-	 */
 	pm_runtime_get_sync(&ss_port->dev);
 	pm_runtime_put(&hs_port->dev);
 
@@ -280,11 +246,6 @@ static void unlink_peers(struct usb_port *left, struct usb_port *right)
 			"%s and %s are not peers?\n",
 			dev_name(&left->dev), dev_name(&right->dev));
 
-	/*
-	 * We wake the HiSpeed port to make sure we don't race its
-	 * usb_port_runtime_resume() event which takes a SuperSpeed ref
-	 * when ->peer is !NULL.
-	 */
 	if (left->is_superspeed) {
 		ss_port = left;
 		hs_port = right;
@@ -300,18 +261,11 @@ static void unlink_peers(struct usb_port *left, struct usb_port *right)
 	sysfs_remove_link(&right->dev.kobj, "peer");
 	left->peer = NULL;
 
-	/* Drop the SuperSpeed ref held on behalf of the active HiSpeed port */
 	pm_runtime_put(&ss_port->dev);
 
-	/* Drop the ref taken above */
 	pm_runtime_put(&hs_port->dev);
 }
 
-/*
- * For each usb hub device in the system check to see if it is in the
- * peer domain of the given port_dev, and if it is check to see if it
- * has a port that matches the given port by location
- */
 static int match_location(struct usb_device *peer_hdev, void *p)
 {
 	int port1;
@@ -325,7 +279,7 @@ static int match_location(struct usb_device *peer_hdev, void *p)
 
 	hcd = bus_to_hcd(hdev->bus);
 	peer_hcd = bus_to_hcd(peer_hdev->bus);
-	/* peer_hcd is provisional until we verify it against the known peer */
+	 
 	if (peer_hcd != hcd->shared_hcd)
 		return 0;
 
@@ -333,18 +287,13 @@ static int match_location(struct usb_device *peer_hdev, void *p)
 		peer = peer_hub->ports[port1 - 1];
 		if (peer && peer->location == port_dev->location) {
 			link_peers_report(port_dev, peer);
-			return 1; /* done */
+			return 1;  
 		}
 	}
 
 	return 0;
 }
 
-/*
- * Find the peer port either via explicit platform firmware "location"
- * data, the peer hcd for root hubs, or the upstream peer relationship
- * for all other hubs.
- */
 static void find_and_link_peer(struct usb_hub *hub, int port1)
 {
 	struct usb_port *port_dev = hub->ports[port1 - 1], *peer;
@@ -352,14 +301,8 @@ static void find_and_link_peer(struct usb_hub *hub, int port1)
 	struct usb_device *peer_hdev;
 	struct usb_hub *peer_hub;
 
-	/*
-	 * If location data is available then we can only peer this port
-	 * by a location match, not the default peer (lest we create a
-	 * situation where we need to go back and undo a default peering
-	 * when the port is later peered by location data)
-	 */
 	if (port_dev->location) {
-		/* we link the peer in match_location() if found */
+		 
 		usb_for_each_dev(port_dev, match_location);
 		return;
 	} else if (!hdev->parent) {
@@ -389,19 +332,151 @@ static void find_and_link_peer(struct usb_hub *hub, int port1)
 	if (!peer_hub || port1 > peer_hdev->maxchild)
 		return;
 
-	/*
-	 * we found a valid default peer, last check is to make sure it
-	 * does not have location data
-	 */
 	peer = peer_hub->ports[port1 - 1];
 	if (peer && peer->location == 0)
 		link_peers_report(port_dev, peer);
 }
 
+#ifdef MY_DEF_HERE
+ 
+static struct device_node *__syno_usb_hub_node_get(const struct usb_device *hdev, const int portnum, const char *szNodeName)
+{
+	int size = 0;
+	struct device_node *pUsbSlotNode = NULL, *pUsbNode = NULL;
+	char *szUsbNodeBusPort = NULL;
+	char szUsbBusPort[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
+
+	if (NULL == hdev || NULL == szNodeName || 0 > portnum) {
+		goto END;
+	}
+
+	if (0 == strncmp(dev_name(&hdev->dev), "usb", strlen("usb"))) {
+		snprintf(szUsbBusPort, SYNO_DTS_PROPERTY_CONTENT_LENGTH, "%s-%d", dev_name(&hdev->dev), portnum);
+		sscanf(szUsbBusPort, "usb%s", szUsbBusPort);
+	} else {
+		snprintf(szUsbBusPort, SYNO_DTS_PROPERTY_CONTENT_LENGTH, "%s.%d", dev_name(&hdev->dev), portnum);
+	}
+
+	for_each_child_of_node(of_root, pUsbSlotNode) {
+		if (pUsbSlotNode->name && (strlen(pUsbSlotNode->name) == strlen(szNodeName))
+			&& 0 == (of_node_cmp(pUsbSlotNode->name, szNodeName))) {
+
+			pUsbNode = of_get_child_by_name(pUsbSlotNode, DT_USB2);
+			szUsbNodeBusPort = (char *)of_get_property(pUsbNode, DT_USB_PORT, &size);
+			if (szUsbNodeBusPort && (strlen(szUsbNodeBusPort) == strlen(szUsbBusPort))
+				&& 0 == strncmp(szUsbNodeBusPort, szUsbBusPort, strlen(szUsbBusPort))) {
+				goto END;
+			}
+			of_node_put(pUsbNode);
+
+			pUsbNode = of_get_child_by_name(pUsbSlotNode, DT_USB3);
+			szUsbNodeBusPort = (char *)of_get_property(pUsbNode, DT_USB_PORT, &size);
+			if (szUsbNodeBusPort && (strlen(szUsbNodeBusPort) == strlen(szUsbBusPort))
+				&& 0 == strncmp(szUsbNodeBusPort, szUsbBusPort, strlen(szUsbBusPort))) {
+				goto END;
+			}
+			of_node_put(pUsbNode);
+		}
+	}
+END:
+	return pUsbSlotNode;
+}
+ 
+static struct device_node *syno_usb_hub_node_get(const struct usb_device *hdev, const int portnum)
+{
+	struct device_node *pDeviceNode = NULL;
+	if (NULL == hdev || 0 > portnum) {
+		goto END;
+	}
+	pDeviceNode = __syno_usb_hub_node_get(hdev, portnum, DT_USB_SLOT);
+	if (NULL != pDeviceNode) {
+		goto END;
+	}
+	pDeviceNode = __syno_usb_hub_node_get(hdev, portnum, DT_HUB_SLOT);
+END:
+	return pDeviceNode;
+}
+#endif  
+
+#ifdef MY_ABC_HERE
+ 
+void syno_vbus_gpio_set(const char *vbus_host_addr, const unsigned vbus_gpio_pin, const unsigned vbus_gpio_polarity, const int port1)
+{
+#ifdef MY_ABC_HERE
+	unsigned vbusGPIOValue = 0;
+#endif  
+#ifdef MY_DEF_HERE
+	if (UINT_MAX == vbus_gpio_pin || UINT_MAX == vbus_gpio_polarity || 0 > port1) {
+		return;
+	}
+#endif  
+#ifdef MY_ABC_HERE
+	if (0 == syno_pch_lpc_gpio_pin(vbus_gpio_pin, &vbusGPIOValue, 0) &&
+	    vbus_gpio_polarity != vbusGPIOValue) {
+		vbusGPIOValue = vbus_gpio_polarity;
+		if (0 == syno_pch_lpc_gpio_pin(vbus_gpio_pin, &vbusGPIOValue, 1)) {
+			printk(KERN_INFO " port%d is going to power up Vbus by "
+				"GPIO#%d(%s)\n", port1, vbus_gpio_pin,
+				vbus_gpio_polarity ? "ACTIVE_HIGH" : "ACTIVE_LOW");
+#ifdef MY_DEF_HERE
+			mdelay(1000);
+#else  
+			mdelay(100);
+#endif  
+		}
+	}
+#else  
+	if (vbus_gpio_polarity != SYNO_GPIO_READ(vbus_gpio_pin)) {
+		SYNO_GPIO_WRITE(vbus_gpio_pin, vbus_gpio_polarity);
+		printk(KERN_INFO " port%d is going to power up Vbus by "
+				"GPIO#%d(%s)\n", port1, vbus_gpio_pin,
+				vbus_gpio_polarity ? "ACTIVE_HIGH" : "ACTIVE_LOW");
+#ifdef MY_DEF_HERE
+		if (0 == strncmp(SYNO_SERIAL_EXT_HUB, vbus_host_addr,strlen(SYNO_SERIAL_EXT_HUB))) {
+			mdelay(1000);
+		} else {
+			mdelay(100);
+		}
+#else  
+		mdelay(100);
+#endif  
+	}
+#endif  
+	return;
+}
+#endif  
+
 int usb_hub_create_port_device(struct usb_hub *hub, int port1)
 {
 	struct usb_port *port_dev;
 	int retval;
+#if defined(MY_DEF_HERE) ||\
+	defined(MY_ABC_HERE)
+	struct usb_device *hdev = hub->hdev;
+#endif  
+#ifdef MY_DEF_HERE
+	extern char gSynoCastratedXhcAddr[CONFIG_SYNO_USB_NUM_CASTRATED_XHC][32];
+	extern unsigned gSynoCastratedXhcPortBitmap[CONFIG_SYNO_USB_NUM_CASTRATED_XHC];
+
+	int i = 0;
+#endif  
+#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
+	u32 vbusGpioPin = U32_MAX, vbusGpioPolarity = 0;
+	char *szGpioShared = NULL;
+	struct device_node *pVbusNode = NULL, *pUSBNode = NULL;
+#else
+#ifdef MY_DEF_HERE
+#else
+	int i = 0;
+#endif  
+	extern char gSynoUsbVbusHostAddr[CONFIG_SYNO_USB_VBUS_NUM_GPIO][20];
+	extern int gSynoUsbVbusPort[CONFIG_SYNO_USB_VBUS_NUM_GPIO];
+	extern unsigned gSynoUsbVbusGpp[CONFIG_SYNO_USB_VBUS_NUM_GPIO];
+	extern unsigned gSynoUsbVbusGppPol[CONFIG_SYNO_USB_VBUS_NUM_GPIO];
+	const char *syno_vbus_host_name_prefix = "dev_name:";
+#endif  
+#endif  
 
 	port_dev = kzalloc(sizeof(*port_dev), GFP_KERNEL);
 	if (!port_dev)
@@ -424,6 +499,92 @@ int usb_hub_create_port_device(struct usb_hub *hub, int port1)
 		port_dev->is_superspeed = 1;
 	dev_set_name(&port_dev->dev, "%s-port%d", dev_name(&hub->hdev->dev),
 			port1);
+#if defined (MY_DEF_HERE)
+	port_dev->power_cycle_counter = SYNO_POWER_CYCLE_TRIES;
+#endif  
+#ifdef MY_DEF_HERE
+	port_dev->get_desc_fail_counter = 0;
+#endif	 
+
+#ifdef MY_DEF_HERE
+	if (hdev && hdev->serial) {
+		for (i = 0; i < CONFIG_SYNO_USB_NUM_CASTRATED_XHC; i++) {
+			if (0 == strcmp(gSynoCastratedXhcAddr[i], hdev->serial) &&
+				gSynoCastratedXhcPortBitmap[i] & (0x01 << (port1 - 1))) {
+				 
+				port_dev->flag |= SYNO_USB_PORT_CASTRATED_XHC;
+				if (hub_is_superspeed(hdev))
+					dev_info (&port_dev->dev, "is a castrated xHC-port\n");
+			}
+		}
+	}
+#endif  
+
+#ifdef MY_ABC_HERE
+	port_dev->syno_vbus_gpp = -1;
+	port_dev->syno_vbus_gpp_pol = -1;
+	if (hdev && hdev->serial) {
+#ifdef MY_DEF_HERE
+		pUSBNode = syno_usb_hub_node_get(hdev, port1);
+		if (NULL == pUSBNode) {
+			goto PUT_NODE;
+		}
+
+		pVbusNode = of_get_child_by_name(pUSBNode, DT_VBUS);
+		if (NULL == pVbusNode) {
+			goto PUT_NODE;
+		}
+
+		if (0 != of_property_read_u32_index(pVbusNode, DT_SYNO_GPIO, SYNO_GPIO_PIN, &vbusGpioPin)) {
+			printk(KERN_ERR "%s reading vbus vbusGpioPin failed.\n", __func__);
+			goto PUT_NODE;
+		}
+
+		if (0 != of_property_read_u32_index(pVbusNode, DT_SYNO_GPIO, SYNO_POLARITY_PIN, &vbusGpioPolarity)) {
+			printk(KERN_ERR "%s reading vbus vbusGpioPolarity failed.\n", __func__);
+			goto PUT_NODE;
+		}
+
+		syno_vbus_gpio_set(NULL, vbusGpioPin, vbusGpioPolarity, port1);
+
+		szGpioShared = (char *)of_get_property(pUSBNode, DT_SHARED, NULL);
+
+		if (szGpioShared && 0 == strncmp(szGpioShared, "true", strlen("true"))) {
+			goto PUT_NODE;
+		}
+
+		port_dev->syno_vbus_gpp = vbusGpioPin;
+		port_dev->syno_vbus_gpp_pol = vbusGpioPolarity;
+		printk(KERN_INFO "host %s port %d has Vbus GPIO#%d with polarity "
+				"%s\n",hdev->serial, port1, port_dev->syno_vbus_gpp,
+				port_dev->syno_vbus_gpp_pol ? "ACTIVE_HIGH" : "ACTIVE_LOW");
+PUT_NODE:
+		if (pUSBNode) {
+			of_node_put(pUSBNode);
+		}
+		if (pVbusNode) {
+			of_node_put(pVbusNode);
+		}
+#else
+		for (i = 0; i < CONFIG_SYNO_USB_VBUS_NUM_GPIO; i++) {
+			if (0 == strcmp(gSynoUsbVbusHostAddr[i], hdev->serial) ||
+					( 0 == strncmp(syno_vbus_host_name_prefix, gSynoUsbVbusHostAddr[i], strlen(syno_vbus_host_name_prefix))
+					&& 0 == strcmp(gSynoUsbVbusHostAddr[i] + strlen(syno_vbus_host_name_prefix), dev_name(&hdev->dev)))) {
+				 
+				syno_vbus_gpio_set(gSynoUsbVbusHostAddr[i], gSynoUsbVbusGpp[i], gSynoUsbVbusGppPol[i], port1);
+
+				if (port1 == gSynoUsbVbusPort[i]) {
+					port_dev->syno_vbus_gpp = gSynoUsbVbusGpp[i];
+					port_dev->syno_vbus_gpp_pol = gSynoUsbVbusGppPol[i];
+					printk(KERN_NOTICE "host %s port %d has Vbus GPIO#%d with polarity "
+							"%s\n",hdev->serial, port1, port_dev->syno_vbus_gpp,
+							port_dev->syno_vbus_gpp_pol ? "ACTIVE_HIGH" : "ACTIVE_LOW");
+				}
+			}
+		}
+#endif  
+	}
+#endif  
 	mutex_init(&port_dev->status_lock);
 	retval = device_register(&port_dev->dev);
 	if (retval) {
@@ -431,7 +592,6 @@ int usb_hub_create_port_device(struct usb_hub *hub, int port1)
 		return retval;
 	}
 
-	/* Set default policy of port-poweroff disabled. */
 	retval = dev_pm_qos_add_request(&port_dev->dev, port_dev->req,
 			DEV_PM_QOS_FLAGS, PM_QOS_FLAG_NO_POWER_OFF);
 	if (retval < 0) {
@@ -441,24 +601,14 @@ int usb_hub_create_port_device(struct usb_hub *hub, int port1)
 
 	find_and_link_peer(hub, port1);
 
-	/*
-	 * Enable runtime pm and hold a refernce that hub_configure()
-	 * will drop once the PM_QOS_NO_POWER_OFF flag state has been set
-	 * and the hub has been fully registered (hdev->maxchild set).
-	 */
 	pm_runtime_set_active(&port_dev->dev);
 	pm_runtime_get_noresume(&port_dev->dev);
 	pm_runtime_enable(&port_dev->dev);
 	device_enable_async_suspend(&port_dev->dev);
 
-	/*
-	 * Keep hidden the ability to enable port-poweroff if the hub
-	 * does not support power switching.
-	 */
 	if (!hub_is_port_power_switchable(hub))
 		return 0;
 
-	/* Attempt to let userspace take over the policy. */
 	retval = dev_pm_qos_expose_flags(&port_dev->dev,
 			PM_QOS_FLAG_NO_POWER_OFF);
 	if (retval < 0) {
@@ -466,7 +616,6 @@ int usb_hub_create_port_device(struct usb_hub *hub, int port1)
 		return 0;
 	}
 
-	/* Userspace owns the policy, drop the kernel 'no_poweroff' request. */
 	retval = dev_pm_qos_remove_request(port_dev->req);
 	if (retval >= 0) {
 		kfree(port_dev->req);

@@ -68,7 +68,6 @@
 #define AHCI_CMD_TBL_SGL_OFFSET AHCI_CMD_TBL_HDR_SZ
 #define CMD_DMA_ALLOC_SZ        (AHCI_CMD_TBL_SGL_SZ + AHCI_CMD_TBL_HDR_SZ)
 
-
 #define HOST_CAP_NZDMA		(1 << 19)
 #define HOST_HSORG		0xFC
 #define HSORG_DISABLE_SLOTGRP_INTR (1<<24)
@@ -176,7 +175,7 @@ static struct mtip_cmd *mtip_get_int_command(struct driver_data *dd)
 	if (mtip_check_surprise_removal(dd->pdev))
 		return NULL;
 
-	rq = blk_mq_alloc_request(dd->queue, 0, __GFP_RECLAIM, true);
+	rq = blk_mq_alloc_request(dd->queue, 0, BLK_MQ_REQ_RESERVED);
 	if (IS_ERR(rq))
 		return NULL;
 

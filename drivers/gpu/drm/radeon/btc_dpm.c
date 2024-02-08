@@ -22,7 +22,7 @@
  * Authors: Alex Deucher
  */
 
-#include "drmP.h"
+#include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "btcd.h"
@@ -971,7 +971,6 @@ static const u32 turks_mgcg_enable[] =
 #ifndef BTC_SYSLS_SEQUENCE
 #define BTC_SYSLS_SEQUENCE  100
 
-
 //********* BARTS **************//
 static const u32 barts_sysls_default[] =
 {
@@ -1163,12 +1162,11 @@ u32 btc_valid_sclk[40] =
 	155000, 160000, 165000, 170000, 175000, 180000, 185000, 190000, 195000, 200000
 };
 
-static const struct radeon_blacklist_clocks btc_blacklist_clocks[] =
-{
-        { 10000, 30000, RADEON_SCLK_UP },
-        { 15000, 30000, RADEON_SCLK_UP },
-        { 20000, 30000, RADEON_SCLK_UP },
-        { 25000, 30000, RADEON_SCLK_UP }
+static const struct radeon_blacklist_clocks btc_blacklist_clocks[] = {
+	{ 10000, 30000, RADEON_SCLK_UP },
+	{ 15000, 30000, RADEON_SCLK_UP },
+	{ 20000, 30000, RADEON_SCLK_UP },
+	{ 25000, 30000, RADEON_SCLK_UP }
 };
 
 void btc_get_max_clock_from_voltage_dependency_table(struct radeon_clock_voltage_dependency_table *table,
@@ -1637,14 +1635,14 @@ static int btc_init_smc_table(struct radeon_device *rdev,
 	cypress_populate_smc_voltage_tables(rdev, table);
 
 	switch (rdev->pm.int_thermal_type) {
-        case THERMAL_TYPE_EVERGREEN:
-        case THERMAL_TYPE_EMC2103_WITH_INTERNAL:
+	case THERMAL_TYPE_EVERGREEN:
+	case THERMAL_TYPE_EMC2103_WITH_INTERNAL:
 		table->thermalProtectType = PPSMC_THERMAL_PROTECT_TYPE_INTERNAL;
 		break;
-        case THERMAL_TYPE_NONE:
+	case THERMAL_TYPE_NONE:
 		table->thermalProtectType = PPSMC_THERMAL_PROTECT_TYPE_NONE;
 		break;
-        default:
+	default:
 		table->thermalProtectType = PPSMC_THERMAL_PROTECT_TYPE_EXTERNAL;
 		break;
 	}
@@ -1762,7 +1760,6 @@ void btc_read_arb_registers(struct radeon_device *rdev)
 	arb_registers->mc_arb_burst_time = RREG32(MC_ARB_BURST_TIME);
 }
 
-
 static void btc_set_arb0_registers(struct radeon_device *rdev,
 				   struct evergreen_arb_registers *arb_registers)
 {
@@ -1805,7 +1802,6 @@ static bool btc_is_state_ulv_compatible(struct radeon_device *rdev,
 
 	return true;
 }
-
 
 static int btc_set_ulv_dram_timing(struct radeon_device *rdev)
 {
@@ -1860,37 +1856,37 @@ static bool btc_check_s0_mc_reg_index(u16 in_reg, u16 *out_reg)
 	case MC_SEQ_RAS_TIMING >> 2:
 		*out_reg = MC_SEQ_RAS_TIMING_LP >> 2;
 		break;
-        case MC_SEQ_CAS_TIMING >> 2:
+	case MC_SEQ_CAS_TIMING >> 2:
 		*out_reg = MC_SEQ_CAS_TIMING_LP >> 2;
 		break;
-        case MC_SEQ_MISC_TIMING >> 2:
+	case MC_SEQ_MISC_TIMING >> 2:
 		*out_reg = MC_SEQ_MISC_TIMING_LP >> 2;
 		break;
-        case MC_SEQ_MISC_TIMING2 >> 2:
+	case MC_SEQ_MISC_TIMING2 >> 2:
 		*out_reg = MC_SEQ_MISC_TIMING2_LP >> 2;
 		break;
-        case MC_SEQ_RD_CTL_D0 >> 2:
+	case MC_SEQ_RD_CTL_D0 >> 2:
 		*out_reg = MC_SEQ_RD_CTL_D0_LP >> 2;
 		break;
-        case MC_SEQ_RD_CTL_D1 >> 2:
+	case MC_SEQ_RD_CTL_D1 >> 2:
 		*out_reg = MC_SEQ_RD_CTL_D1_LP >> 2;
 		break;
-        case MC_SEQ_WR_CTL_D0 >> 2:
+	case MC_SEQ_WR_CTL_D0 >> 2:
 		*out_reg = MC_SEQ_WR_CTL_D0_LP >> 2;
 		break;
-        case MC_SEQ_WR_CTL_D1 >> 2:
+	case MC_SEQ_WR_CTL_D1 >> 2:
 		*out_reg = MC_SEQ_WR_CTL_D1_LP >> 2;
 		break;
-        case MC_PMG_CMD_EMRS >> 2:
+	case MC_PMG_CMD_EMRS >> 2:
 		*out_reg = MC_SEQ_PMG_CMD_EMRS_LP >> 2;
 		break;
-        case MC_PMG_CMD_MRS >> 2:
+	case MC_PMG_CMD_MRS >> 2:
 		*out_reg = MC_SEQ_PMG_CMD_MRS_LP >> 2;
 		break;
-        case MC_PMG_CMD_MRS1 >> 2:
+	case MC_PMG_CMD_MRS1 >> 2:
 		*out_reg = MC_SEQ_PMG_CMD_MRS1_LP >> 2;
 		break;
-        default:
+	default:
 		result = false;
 		break;
 	}
