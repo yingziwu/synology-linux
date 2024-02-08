@@ -1209,7 +1209,6 @@ static int hists__browser_title(struct hists *hists, char *bf, size_t size,
 			   "Samples: %lu%c of event '%s', Event count (approx.): %lu",
 			   nr_samples, unit, ev_name, nr_events);
 
-
 	if (hists->uid_filter_str)
 		printed += snprintf(bf + printed, size - printed,
 				    ", UID: %s", hists->uid_filter_str);
@@ -1328,7 +1327,6 @@ close_file_and_continue:
 	free_popup_options(abs_path, nr_options);
 	return ret;
 }
-
 
 static int perf_evsel__hists_browse(struct perf_evsel *evsel, int nr_events,
 				    const char *helpline, const char *ev_name,

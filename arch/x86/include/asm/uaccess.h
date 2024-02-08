@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_UACCESS_H
 #define _ASM_X86_UACCESS_H
 /*
@@ -125,6 +128,17 @@ extern int __get_user_4(void);
 extern int __get_user_8(void);
 extern int __get_user_bad(void);
 
+#ifdef MY_DEF_HERE
+#else
+#define __uaccess_begin() stac()
+#define __uaccess_end()   clac()
+#define __uaccess_begin_nospec()	\
+({					\
+	stac();				\
+	barrier_nospec();		\
+})
+#endif	/* MY_DEF_HERE */
+
 /*
  * This is a type: either unsigned long, if the argument fits into
  * that type, or otherwise unsigned long long.
@@ -175,8 +189,6 @@ __typeof__(__builtin_choose_expr(sizeof(x) > sizeof(0UL), 0ULL, 0UL))
 #define __put_user_x(size, x, ptr, __ret_pu)			\
 	asm volatile("call __put_user_" #size : "=a" (__ret_pu)	\
 		     : "0" ((typeof(*(ptr)))(x)), "c" (ptr) : "ebx")
-
-
 
 #ifdef CONFIG_X86_32
 #define __put_user_asm_u64(x, addr, err, errret)			\
@@ -429,6 +441,7 @@ struct __large_struct { unsigned long buf[100]; };
 /*
  * uaccess_try and catch
  */
+#ifdef MY_DEF_HERE
 #define uaccess_try	do {						\
 	current_thread_info()->uaccess_err = 0;				\
 	stac();								\
@@ -438,6 +451,21 @@ struct __large_struct { unsigned long buf[100]; };
 	clac();								\
 	(err) |= (current_thread_info()->uaccess_err ? -EFAULT : 0);	\
 } while (0)
+#else
+#define uaccess_try	do {						\
+	current_thread_info()->uaccess_err = 0;				\
+	stac();								\
+	barrier();
+
+#define uaccess_try_nospec do {						\
+	current_thread_info()->uaccess_err = 0;				\
+	__uaccess_begin_nospec();					\
+
+#define uaccess_catch(err)						\
+	clac();								\
+	(err) |= (current_thread_info()->uaccess_err ? -EFAULT : 0);	\
+} while (0)
+#endif	/* MY_DEF_HERE */
 
 /**
  * __get_user: - Get a simple variable from user space, with less checking.
@@ -540,4 +568,3 @@ extern struct movsl_mask {
 #endif
 
 #endif /* _ASM_X86_UACCESS_H */
-

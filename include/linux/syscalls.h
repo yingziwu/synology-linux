@@ -1,13 +1,7 @@
-/*
- * syscalls.h - Linux syscall interfaces (non-arch-specific)
- *
- * Copyright (c) 2004 Randy Dunlap
- * Copyright (c) 2004 Open Source Development Labs
- *
- * This file is released under the GPLv2.
- * See the file COPYING for more details.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef _LINUX_SYSCALLS_H
 #define _LINUX_SYSCALLS_H
 
@@ -65,6 +59,11 @@ struct perf_event_attr;
 struct file_handle;
 struct sigaltstack;
 
+#ifdef MY_ABC_HERE
+struct SYNOSTAT;
+struct SYNOSTAT64;
+#endif  
+
 #include <linux/types.h>
 #include <linux/aio_abi.h>
 #include <linux/capability.h>
@@ -78,15 +77,6 @@ struct sigaltstack;
 #include <linux/key.h>
 #include <trace/syscall.h>
 
-/*
- * __MAP - apply a macro to syscall arguments
- * __MAP(n, m, t1, a1, t2, a2, ..., tn, an) will expand to
- *    m(t1, a1), m(t2, a2), ..., m(tn, an)
- * The first argument must be equal to the amount of type/name
- * pairs given.  Note that this list of pairs (i.e. the arguments
- * of __MAP starting at the third one) is in the same format as
- * for SYSCALL_DEFINE<n>/COMPAT_SYSCALL_DEFINE<n>
- */
 #define __MAP0(m,...)
 #define __MAP1(m,t,a) m(t,a)
 #define __MAP2(m,t,a,...) m(t,a), __MAP1(m,__VA_ARGS__)
@@ -152,7 +142,7 @@ extern struct trace_event_functions exit_syscall_print_funcs;
 	static struct syscall_metadata __used			\
 	  __syscall_meta_##sname = {				\
 		.name 		= "sys"#sname,			\
-		.syscall_nr	= -1,	/* Filled in at boot */	\
+		.syscall_nr	= -1,	 	\
 		.nb_args 	= nb,				\
 		.types		= nb ? types_##sname : NULL,	\
 		.args		= nb ? args_##sname : NULL,	\
@@ -846,4 +836,57 @@ asmlinkage long sys_process_vm_writev(pid_t pid,
 asmlinkage long sys_kcmp(pid_t pid1, pid_t pid2, int type,
 			 unsigned long idx1, unsigned long idx2);
 asmlinkage long sys_finit_module(int fd, const char __user *uargs, int flags);
+
+asmlinkage long sys_copy_file_range(int fd_in, loff_t __user *off_in,
+				    int fd_out, loff_t __user *off_out,
+				    size_t len, unsigned int flags);
+
+#ifdef MY_ABC_HERE
+#ifdef MY_ABC_HERE
+  asmlinkage long sys_SYNOUtime(const char __user *filename, struct timespec __user *ctime);
+#endif
+#ifdef MY_ABC_HERE
+  asmlinkage long sys_SYNOArchiveBit(const char __user *filename, int cmd);
+#endif
+  asmlinkage long sys_recvfile(int fd, int s, loff_t *offset, size_t nbytes, size_t *rwbytes);
+ 
+#ifdef MY_ABC_HERE
+#if BITS_PER_LONG == 32
+  asmlinkage long sys_SYNOCaselessStat64(char __user *filename, struct stat64 __user *statbuf);
+  asmlinkage long sys_SYNOCaselessLStat64(char __user *filename, struct stat64 __user *statbuf);
+#else
+  asmlinkage long sys_SYNOCaselessStat(char __user *filename, struct stat __user *statbuf);
+  asmlinkage long sys_SYNOCaselessLStat(char __user *filename, struct stat __user *statbuf);
+#endif  
+#endif  
+#ifdef MY_ABC_HERE
+  asmlinkage long sys_SYNOEcryptName(const char __user *src, char __user *dst);
+  asmlinkage long sys_SYNODecryptName(const char __user *root, const char __user *src, char __user *dst);
+#endif
+  asmlinkage long sys_SYNOACLCheckPerm(const char __user *szPath, int mask);
+  asmlinkage long sys_SYNOACLIsSupport(const char __user *szPath, int fd, int tag);
+  asmlinkage long sys_SYNOACLGetPerm(const char __user *szPath, int __user *pOutPerm);
+  asmlinkage long sys_SYNOFlushAggregate(int fd);
+#ifdef MY_ABC_HERE
+#if BITS_PER_LONG == 32
+  asmlinkage long sys_SYNOStat64(char __user *filename, unsigned int flags, struct SYNOSTAT64 __user *statbuf);
+  asmlinkage long sys_SYNOFStat64(unsigned int fd, unsigned int flags, struct SYNOSTAT64 __user *statbuf);
+  asmlinkage long sys_SYNOLStat64(char __user *filename, unsigned int flags, struct SYNOSTAT64 __user *statbuf);
+#else
+  asmlinkage long sys_SYNOStat(char __user *filename, unsigned int flags, struct SYNOSTAT __user *statbuf);
+  asmlinkage long sys_SYNOFStat(unsigned int fd, unsigned int flags, struct SYNOSTAT __user *statbuf);
+  asmlinkage long sys_SYNOLStat(char __user *filename, unsigned int flags, struct SYNOSTAT __user *statbuf);
+#endif  
+#endif  
+#ifdef MY_ABC_HERE
+  asmlinkage long sys_SYNONotifyInit(unsigned int event_f_flags);
+  asmlinkage long sys_SYNONotifyAddWatch(int synotify_fd, const char  __user *pathname, u64 mask);
+  asmlinkage long sys_SYNONotifyRemoveWatch(int synotify_fd, const char  __user *pathname, u64 mask);
+ 
+#endif  
+#ifdef MY_ABC_HERE
+  asmlinkage long sys_SYNOArchiveOverwrite(unsigned int fd, unsigned int flags);
+#endif
+#endif  
+
 #endif

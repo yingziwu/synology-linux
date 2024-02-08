@@ -135,7 +135,6 @@
 #define ACPI_DISASSEMBLER
 #endif
 
-
 /*! [Begin] no source code translation */
 
 /******************************************************************************

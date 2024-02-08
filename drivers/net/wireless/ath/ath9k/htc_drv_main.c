@@ -1755,7 +1755,6 @@ out:
 	return ret;
 }
 
-
 static int ath9k_htc_get_stats(struct ieee80211_hw *hw,
 			       struct ieee80211_low_level_stats *stats)
 {

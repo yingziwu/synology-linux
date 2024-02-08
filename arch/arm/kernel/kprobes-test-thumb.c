@@ -13,7 +13,6 @@
 
 #include "kprobes-test.h"
 
-
 #define TEST_ISA "16"
 
 #define DONT_TEST_IN_ITBLOCK(tests)			\
@@ -55,7 +54,6 @@
 	".thumb				\n\t"			\
 	"2:	nop			\n\t"			\
 	TESTCASE_END
-
 
 void kprobe_thumb16_test_cases(void)
 {
@@ -328,7 +326,6 @@ CONDITION_INSTRUCTIONS(8,
 
 	verbose("\n");
 }
-
 
 void kprobe_thumb32_test_cases(void)
 {
@@ -1184,4 +1181,3 @@ CONDITION_INSTRUCTIONS(22,
 
 	verbose("\n");
 }
-

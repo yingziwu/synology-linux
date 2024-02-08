@@ -25,7 +25,6 @@ static int __percent_color_snprintf(char *buf, size_t size, double percent)
 	return ret;
 }
 
-
 static int __hpp__color_fmt(struct perf_hpp *hpp, struct hist_entry *he,
 			    u64 (*get_field)(struct hist_entry *))
 {
@@ -104,7 +103,6 @@ __HPP_COLOR_PERCENT_FN(overhead_guest_sys, period_guest_sys)
 __HPP_COLOR_PERCENT_FN(overhead_guest_us, period_guest_us)
 
 #undef __HPP_COLOR_PERCENT_FN
-
 
 void perf_gtk__init_hpp(void)
 {

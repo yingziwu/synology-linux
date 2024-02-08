@@ -120,7 +120,6 @@ nouveau_parent_destroy(struct nouveau_parent *parent)
 	nouveau_object_destroy(&parent->base);
 }
 
-
 void
 _nouveau_parent_dtor(struct nouveau_object *object)
 {

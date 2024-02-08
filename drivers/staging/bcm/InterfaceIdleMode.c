@@ -9,11 +9,9 @@ Description:			This is the hardware specific Function for waking up HW device fr
 
 Input parameters:		IN struct bcm_mini_adapter *Adapter   - Miniport Adapter Context
 
-
 Return:				BCM_STATUS_SUCCESS - If Wakeup of the HW Interface was successful.
 						Other           - If an error occurred.
 */
-
 
 /*
 Function:				InterfaceIdleModeRespond
@@ -23,7 +21,6 @@ Description:			This is the hardware specific Function for responding to Idle mod
 						initializations are performed here.
 
 Input parameters:		IN struct bcm_mini_adapter * Adapter   - Miniport Adapter Context
-
 
 Return:				BCM_STATUS_SUCCESS - If Idle mode response related HW configuration was successful.
 						Other           - If an error occurred.
@@ -40,7 +37,6 @@ d qcslog .. if it shows e means host has not send response to f/w with in 200 ms
 send to f/w with in 200 ms after the Idle/Shutdown req issued
 
 */
-
 
 int InterfaceIdleModeRespond(struct bcm_mini_adapter *Adapter, unsigned int* puiBuffer)
 {
@@ -124,7 +120,6 @@ int InterfaceIdleModeRespond(struct bcm_mini_adapter *Adapter, unsigned int* pui
 					BCM_DEBUG_PRINT(Adapter,DBG_TYPE_OTHERS, IDLE_MODE, DBG_LVL_ALL, "rdm failed while Reading HPM_CONFIG_LDO145 Reg 0\n");
 					return status;
 				}
-
 
 				uiRegRead |= (1<<17);
 
@@ -300,4 +295,3 @@ void InterfaceHandleShutdownModeWakeup(struct bcm_mini_adapter *Adapter)
 		}
 	}
 }
-

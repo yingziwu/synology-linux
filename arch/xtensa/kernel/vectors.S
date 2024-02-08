@@ -54,7 +54,6 @@
 
 #define WINDOW_VECTORS_SIZE   0x180
 
-
 /*
  * User exception vector. (Exceptions with PS.UM == 1, PS.EXCM == 0)
  *
@@ -366,8 +365,6 @@ ENTRY(_DebugInterruptVector)
 
 ENDPROC(_DebugInterruptVector)
 
-
-
 /*
  * Medium priority level interrupt vectors
  *
@@ -404,7 +401,6 @@ ENTRY(_Level\level\()InterruptVector)
 	irq_entry_level 5
 	irq_entry_level 6
 
-
 /* Window overflow and underflow handlers.
  * The handlers must be 64 bytes apart, first starting with the underflow
  * handlers underflow-4 to underflow-12, then the overflow handlers
@@ -421,7 +417,6 @@ ENTRY(_Level\level\()InterruptVector)
 
 	.section		.WindowVectors.text, "ax"
 
-
 /* 4-Register Window Overflow Vector (Handler) */
 
 ENTRY_ALIGN64(_WindowOverflow4)
@@ -433,7 +428,6 @@ ENTRY_ALIGN64(_WindowOverflow4)
 	rfwo
 
 ENDPROC(_WindowOverflow4)
-
 
 #if XCHAL_EXCM_LEVEL >= 2
 	/*  Not a window vector - but a convenient location
@@ -451,7 +445,6 @@ _SimulateUserKernelVectorException:
 1:	rsr	a0, excsave2		# restore a0
 	j	_UserExceptionVector	# simulate user vector exception
 #endif
-
 
 /* 4-Register Window Underflow Vector (Handler) */
 

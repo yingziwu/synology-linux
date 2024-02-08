@@ -83,7 +83,6 @@
 #define ECR_C_BIT_DTLB_LD_MISS		8
 #define ECR_C_BIT_DTLB_ST_MISS		9
 
-
 /* Auxiliary registers */
 #define AUX_IDENTITY		4
 #define AUX_INTR_VEC_BASE	0x25

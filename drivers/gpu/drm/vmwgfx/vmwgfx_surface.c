@@ -78,7 +78,6 @@ static const struct vmw_user_resource_conv user_surface_conv = {
 const struct vmw_user_resource_conv *user_surface_converter =
 	&user_surface_conv;
 
-
 static uint64_t vmw_user_surface_size;
 
 static const struct vmw_res_func vmw_legacy_surface_func = {
@@ -119,7 +118,6 @@ struct vmw_surface_destroy {
 	SVGA3dCmdDestroySurface body;
 };
 
-
 /**
  * vmw_surface_dma_size - Compute fifo size for a dma command.
  *
@@ -132,7 +130,6 @@ static inline uint32_t vmw_surface_dma_size(const struct vmw_surface *srf)
 {
 	return srf->num_sizes * sizeof(struct vmw_surface_dma);
 }
-
 
 /**
  * vmw_surface_define_size - Compute fifo size for a surface define command.
@@ -147,7 +144,6 @@ static inline uint32_t vmw_surface_define_size(const struct vmw_surface *srf)
 	return sizeof(struct vmw_surface_define) + srf->num_sizes *
 		sizeof(SVGA3dSize);
 }
-
 
 /**
  * vmw_surface_destroy_size - Compute fifo size for a surface destroy command.
@@ -273,7 +269,6 @@ static void vmw_surface_dma_encode(struct vmw_surface *srf,
 		++cmd;
 	}
 };
-
 
 /**
  * vmw_hw_surface_destroy - destroy a Device surface
@@ -466,7 +461,6 @@ static int vmw_legacy_srf_bind(struct vmw_resource *res,
 	return vmw_legacy_srf_dma(res, val_buf, true);
 }
 
-
 /**
  * vmw_legacy_srf_unbind - Perform a legacy surface unbind as part of the
  *                         surface eviction process.
@@ -531,7 +525,6 @@ static int vmw_legacy_srf_destroy(struct vmw_resource *res)
 
 	return 0;
 }
-
 
 /**
  * vmw_surface_init - initialize a struct vmw_surface
@@ -687,7 +680,6 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 	size = vmw_user_surface_size + 128 +
 		ttm_round_pot(num_sizes * sizeof(struct drm_vmw_size)) +
 		ttm_round_pot(num_sizes * sizeof(struct vmw_surface_offset));
-
 
 	desc = svga3dsurface_get_desc(req->format);
 	if (unlikely(desc->block_desc == SVGA3DBLOCKDESC_NONE)) {

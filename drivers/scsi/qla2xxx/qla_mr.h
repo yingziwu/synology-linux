@@ -70,7 +70,6 @@ struct mrk_entry_fx00 {
 	uint8_t reserved_3[36];
 };
 
-
 #define	STATUS_TYPE_FX00	0x01		/* Status entry. */
 struct sts_entry_fx00 {
 	uint8_t entry_type;		/* Entry type. */
@@ -95,7 +94,6 @@ struct sts_entry_fx00 {
 	uint32_t sense_len;		/* FCP SENSE length. */
 	uint8_t data[32];		/* FCP response/sense information. */
 };
-
 
 #define MAX_HANDLE_COUNT	15
 #define MULTI_STATUS_TYPE_FX00	0x0D
@@ -134,7 +132,6 @@ struct tsk_mgmt_entry_fx00 {
 
 	uint8_t reserved_2[32];
 };
-
 
 #define	ABORT_IOCB_TYPE_FX00	0x08		/* Abort IOCB status. */
 struct abort_iocb_entry_fx00 {
@@ -299,7 +296,6 @@ struct register_host_info {
 	uint32_t        reserved[64];		/* future additions */
 } __packed;
 
-
 #define QLAFX00_PORT_DATA_INFO (sizeof(struct port_info_data))
 #define QLAFX00_TGT_NODE_LIST_SIZE (sizeof(uint32_t) * 32)
 
@@ -459,7 +455,6 @@ struct qla_mt_iocb_rsp_fx00 {
 
 	uint32_t status;
 };
-
 
 #define MAILBOX_REGISTER_COUNT_FX00	16
 #define AEN_MAILBOX_REGISTER_COUNT_FX00	8

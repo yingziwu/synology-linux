@@ -37,7 +37,6 @@ int gxio_trio_alloc_asids(gxio_trio_context_t * context, unsigned int count,
 
 EXPORT_SYMBOL(gxio_trio_alloc_asids);
 
-
 struct alloc_memory_maps_param {
 	unsigned int count;
 	unsigned int first;
@@ -60,7 +59,6 @@ int gxio_trio_alloc_memory_maps(gxio_trio_context_t * context,
 }
 
 EXPORT_SYMBOL(gxio_trio_alloc_memory_maps);
-
 
 struct alloc_pio_regions_param {
 	unsigned int count;
@@ -109,7 +107,6 @@ int gxio_trio_init_pio_region_aux(gxio_trio_context_t * context,
 }
 
 EXPORT_SYMBOL(gxio_trio_init_pio_region_aux);
-
 
 struct init_memory_map_mmu_aux_param {
 	unsigned int map;
@@ -228,7 +225,6 @@ int gxio_trio_config_msi_intr(gxio_trio_context_t * context, int inter_x,
 }
 
 EXPORT_SYMBOL(gxio_trio_config_msi_intr);
-
 
 struct set_mps_mrs_param {
 	uint16_t mps;

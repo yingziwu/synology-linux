@@ -226,7 +226,6 @@ static int smack_syslog(int typefrom_file)
 	return rc;
 }
 
-
 /*
  * Superblock Hooks.
  */
@@ -1003,7 +1002,6 @@ static int smack_inode_getsecurity(const struct inode *inode,
 	return rc;
 }
 
-
 /**
  * smack_inode_listsecurity - list the Smack attributes
  * @inode: the object
@@ -1147,7 +1145,6 @@ static int smack_file_fcntl(struct file *file, unsigned int cmd,
 {
 	struct smk_audit_info ad;
 	int rc = 0;
-
 
 	switch (cmd) {
 	case F_GETLK:
@@ -1386,7 +1383,6 @@ static int smack_cred_alloc_blank(struct cred *cred, gfp_t gfp)
 	return 0;
 }
 
-
 /**
  * smack_cred_free - "free" task-level security credentials
  * @cred: the credentials in question
@@ -1454,7 +1450,6 @@ static void smack_cred_transfer(struct cred *new, const struct cred *old)
 	new_tsp->smk_forked = old_tsp->smk_task;
 	mutex_init(&new_tsp->smk_rules_lock);
 	INIT_LIST_HEAD(&new_tsp->smk_rules);
-
 
 	/* cbs copy rule list */
 }
@@ -2964,7 +2959,6 @@ static int smack_socket_getpeersec_stream(struct socket *sock,
 	return rc;
 }
 
-
 /**
  * smack_socket_getpeersec_dgram - pull in packet label
  * @sock: the peer socket
@@ -3531,7 +3525,6 @@ struct security_operations smack_ops = {
 	.inode_setsecctx =		smack_inode_setsecctx,
 	.inode_getsecctx =		smack_inode_getsecctx,
 };
-
 
 static __init void init_smack_known_list(void)
 {

@@ -100,7 +100,6 @@ unsigned int bcm63xx_get_cpu_freq(void);
 # define BCMCPU_IS_6362()	(0)
 #endif
 
-
 #ifdef CONFIG_BCM63XX_CPU_6368
 # ifdef bcm63xx_get_cpu_id
 #  undef bcm63xx_get_cpu_id
@@ -419,7 +418,6 @@ enum bcm63xx_regs_set {
 #define BCM_6358_RNG_BASE		(0xdeadbeef)
 #define BCM_6358_MISC_BASE		(0xdeadbeef)
 
-
 /*
  * 6362 register sets base address
  */
@@ -521,7 +519,6 @@ enum bcm63xx_regs_set {
 #define BCM_6368_RNG_BASE		(0xb0004180)
 #define BCM_6368_MISC_BASE		(0xdeadbeef)
 
-
 extern const unsigned long *bcm63xx_regs_base;
 
 #define __GEN_RSET_BASE(__cpu, __rset)					\
@@ -613,7 +610,6 @@ extern const unsigned long *bcm63xx_regs_base;
 	[RSET_PCMDMAS]		= BCM_## __cpu ##_PCMDMAS_BASE,		\
 	[RSET_RNG]		= BCM_## __cpu ##_RNG_BASE,		\
 	[RSET_MISC]		= BCM_## __cpu ##_MISC_BASE,		\
-
 
 static inline unsigned long bcm63xx_regset_address(enum bcm63xx_regs_set set)
 {

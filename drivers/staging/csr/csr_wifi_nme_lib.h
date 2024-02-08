@@ -22,7 +22,6 @@
 #include "csr_wifi_nme_prim.h"
 #include "csr_wifi_nme_task.h"
 
-
 #ifndef CSR_WIFI_NME_ENABLE
 #error CSR_WIFI_NME_ENABLE MUST be defined inorder to use csr_wifi_nme_lib.h
 #endif

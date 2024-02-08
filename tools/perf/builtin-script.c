@@ -828,7 +828,6 @@ static int is_directory(const char *base_path, const struct dirent *dent)
 		    (script_dirent.d_type != DT_UNKNOWN ||		\
 		     !is_directory(lang_path, &script_dirent)))
 
-
 #define RECORD_SUFFIX			"-record"
 #define REPORT_SUFFIX			"-report"
 
@@ -1527,7 +1526,6 @@ int cmd_script(int argc, const char **argv, const char *prefix __maybe_unused)
 			goto out;
 		pr_debug("perf script started with script %s\n\n", script_name);
 	}
-
 
 	err = perf_session__check_output_opt(session);
 	if (err < 0)

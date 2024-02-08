@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (c) 2007 Patrick McHardy <kaber@trash.net>
  *
@@ -112,7 +115,6 @@ static int macvlan_addr_busy(const struct macvlan_port *port,
 	return 0;
 }
 
-
 static int macvlan_broadcast_one(struct sk_buff *skb,
 				 const struct macvlan_dev *vlan,
 				 const struct ethhdr *eth, bool local)
@@ -137,7 +139,6 @@ static u32 macvlan_hash_mix(const struct macvlan_dev *vlan)
 {
 	return (u32)(((unsigned long)vlan) >> L1_CACHE_SHIFT);
 }
-
 
 static unsigned int mc_hash(const struct macvlan_dev *vlan,
 			    const unsigned char *addr)
@@ -630,6 +631,15 @@ static void macvlan_ethtool_get_drvinfo(struct net_device *dev,
 	strlcpy(drvinfo->version, "0.1", sizeof(drvinfo->version));
 }
 
+#if defined(MY_ABC_HERE)
+static int macvlan_ethtool_get_link_ksettings(struct net_device *dev,
+					      struct ethtool_link_ksettings *cmd)
+{
+	const struct macvlan_dev *vlan = netdev_priv(dev);
+
+	return __ethtool_get_link_ksettings(vlan->lowerdev, cmd);
+}
+#else /* MY_ABC_HERE */
 static int macvlan_ethtool_get_settings(struct net_device *dev,
 					struct ethtool_cmd *cmd)
 {
@@ -637,10 +647,15 @@ static int macvlan_ethtool_get_settings(struct net_device *dev,
 
 	return __ethtool_get_settings(vlan->lowerdev, cmd);
 }
+#endif /* MY_ABC_HERE */
 
 static const struct ethtool_ops macvlan_ethtool_ops = {
 	.get_link		= ethtool_op_get_link,
+#if defined(MY_ABC_HERE)
+	.get_link_ksettings	= macvlan_ethtool_get_link_ksettings,
+#else /* MY_ABC_HERE */
 	.get_settings		= macvlan_ethtool_get_settings,
+#endif /* MY_ABC_HERE */
 	.get_drvinfo		= macvlan_ethtool_get_drvinfo,
 };
 

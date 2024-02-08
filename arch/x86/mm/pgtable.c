@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/mm.h>
 #include <linux/gfp.h>
 #include <asm/pgalloc.h>
@@ -93,7 +96,6 @@ static inline void pgd_list_del(pgd_t *pgd)
 
 #define UNSHARED_PTRS_PER_PGD				\
 	(SHARED_KERNEL_PMD ? KERNEL_PGD_BOUNDARY : PTRS_PER_PGD)
-
 
 static void pgd_set_mm(pgd_t *pgd, struct mm_struct *mm)
 {
@@ -260,12 +262,30 @@ static void pgd_prepopulate_pmd(struct mm_struct *mm, pgd_t *pgd, pmd_t *pmds[])
 	}
 }
 
+#ifdef MY_DEF_HERE
+#else
+#ifdef CONFIG_KAISER
+/*
+ * Instead of one pgd, we aquire two pgds.  Being order-1, it is
+ * both 8k in size and 8k-aligned.  That lets us just flip bit 12
+ * in a pointer to swap between the two 4k halves.
+ */
+#define PGD_ALLOCATION_ORDER 1
+#else
+#define PGD_ALLOCATION_ORDER 0
+#endif
+#endif	/* MY_DEF_HERE */
+
 pgd_t *pgd_alloc(struct mm_struct *mm)
 {
 	pgd_t *pgd;
 	pmd_t *pmds[PREALLOCATED_PMDS];
 
+#ifdef MY_DEF_HERE
 	pgd = (pgd_t *)__get_free_page(PGALLOC_GFP);
+#else
+	pgd = (pgd_t *)__get_free_pages(PGALLOC_GFP, PGD_ALLOCATION_ORDER);
+#endif	/* MY_DEF_HERE */
 
 	if (pgd == NULL)
 		goto out;
@@ -295,7 +315,11 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
 out_free_pmds:
 	free_pmds(pmds);
 out_free_pgd:
+#ifdef MY_DEF_HERE
 	free_page((unsigned long)pgd);
+#else
+	free_pages((unsigned long)pgd, PGD_ALLOCATION_ORDER);
+#endif	/* MY_DEF_HERE */
 out:
 	return NULL;
 }
@@ -305,7 +329,11 @@ void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 	pgd_mop_up_pmds(mm, pgd);
 	pgd_dtor(pgd);
 	paravirt_pgd_free(mm, pgd);
+#ifdef MY_DEF_HERE
 	free_page((unsigned long)pgd);
+#else
+	free_pages((unsigned long)pgd, PGD_ALLOCATION_ORDER);
+#endif	/* MY_DEF_HERE */
 }
 
 /*

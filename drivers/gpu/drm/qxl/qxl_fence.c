@@ -23,7 +23,6 @@
  *          Alon Levy
  */
 
-
 #include "qxl_drv.h"
 
 /* QXL fencing-
@@ -49,7 +48,6 @@
 
    For some reason every so often qxl hw fails to release, things go wrong.
 */
-
 
 int qxl_fence_add_release(struct qxl_fence *qfence, uint32_t rel_id)
 {
@@ -80,7 +78,6 @@ int qxl_fence_remove_release(struct qxl_fence *qfence, uint32_t rel_id)
 	spin_unlock(&bo->tbo.bdev->fence_lock);
 	return retval;
 }
-
 
 int qxl_fence_init(struct qxl_device *qdev, struct qxl_fence *qfence)
 {

@@ -3949,7 +3949,6 @@ int omap_hwmod_read_hardreset(struct omap_hwmod *oh, const char *name)
 	return ret;
 }
 
-
 /**
  * omap_hwmod_for_each_by_class - call @fn for each hwmod of class @classname
  * @classname: struct omap_hwmod_class name to search for

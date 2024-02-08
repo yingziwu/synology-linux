@@ -336,7 +336,6 @@ static struct clock_event_device clockevent_davinci = {
 	.set_mode	= davinci_set_mode,
 };
 
-
 void __init davinci_timer_init(void)
 {
 	struct clk *timer_clk;

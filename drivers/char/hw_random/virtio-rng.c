@@ -81,7 +81,6 @@ static void virtio_cleanup(struct hwrng *rng)
 		wait_for_completion(&have_data);
 }
 
-
 static struct hwrng virtio_hwrng = {
 	.name		= "virtio",
 	.cleanup	= virtio_cleanup,

@@ -44,7 +44,6 @@ static void __init glantank_timer_init(void)
 	iop_init_time(200000000);
 }
 
-
 /*
  * GLAN Tank I/O.
  */
@@ -62,7 +61,6 @@ void __init glantank_map_io(void)
 	iop3xx_map_io();
 	iotable_init(glantank_io_desc, ARRAY_SIZE(glantank_io_desc));
 }
-
 
 /*
  * GLAN Tank PCI.
@@ -108,7 +106,6 @@ static int __init glantank_pci_init(void)
 }
 
 subsys_initcall(glantank_pci_init);
-
 
 /*
  * GLAN Tank machine initialization.

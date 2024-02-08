@@ -87,7 +87,6 @@ static int mlx4_en_alloc_frags(struct mlx4_en_priv *priv,
 
 	return 0;
 
-
 out:
 	while (i--) {
 		frag_info = &priv->frag_info[i];
@@ -424,7 +423,6 @@ void mlx4_en_deactivate_rx_ring(struct mlx4_en_priv *priv,
 	mlx4_en_destroy_allocator(priv, ring);
 }
 
-
 static int mlx4_en_complete_rx_desc(struct mlx4_en_priv *priv,
 				    struct mlx4_en_rx_desc *rx_desc,
 				    struct mlx4_en_rx_alloc *frags,
@@ -468,7 +466,6 @@ fail:
 	}
 	return 0;
 }
-
 
 static struct sk_buff *mlx4_en_rx_skb(struct mlx4_en_priv *priv,
 				      struct mlx4_en_rx_desc *rx_desc,
@@ -761,7 +758,6 @@ out:
 	return polled;
 }
 
-
 void mlx4_en_rx_irq(struct mlx4_cq *mcq)
 {
 	struct mlx4_en_cq *cq = container_of(mcq, struct mlx4_en_cq, mcq);
@@ -794,7 +790,6 @@ int mlx4_en_poll_rx_cq(struct napi_struct *napi, int budget)
 	return done;
 }
 
-
 /* Calculate the last offset position that accommodates a full fragment
  * (assuming fagment size = stride-align) */
 static int mlx4_en_last_alloc_offset(struct mlx4_en_priv *priv, u16 stride, u16 align)
@@ -806,7 +801,6 @@ static int mlx4_en_last_alloc_offset(struct mlx4_en_priv *priv, u16 stride, u16 
 			    "res:%d offset:%d\n", stride, align, res, offset);
 	return offset;
 }
-
 
 static int frag_sizes[] = {
 	FRAG_SZ0,

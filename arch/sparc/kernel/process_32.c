@@ -485,4 +485,3 @@ unsigned long get_wchan(struct task_struct *task)
 out:
 	return ret;
 }
-

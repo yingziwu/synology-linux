@@ -282,7 +282,6 @@ static int keypad_probe(struct platform_device *pdev)
 
 	return 0;
 
-
 error_reg:
 	input_free_device(kp->input_dev);
 error_input:

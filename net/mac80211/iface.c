@@ -180,7 +180,6 @@ static int ieee80211_verify_mac(struct ieee80211_sub_if_data *sdata, u8 *addr)
 		((u64)m[2] << 3*8) | ((u64)m[3] << 2*8) |
 		((u64)m[4] << 1*8) | ((u64)m[5] << 0*8);
 
-
 	mutex_lock(&local->iflist_mtx);
 	list_for_each_entry(iter, &local->interfaces, list) {
 		if (iter == sdata)

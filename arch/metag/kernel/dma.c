@@ -333,7 +333,6 @@ no_area:
 }
 EXPORT_SYMBOL(dma_free_coherent);
 
-
 static int dma_mmap(struct device *dev, struct vm_area_struct *vma,
 		    void *cpu_addr, dma_addr_t dma_addr, size_t size)
 {
@@ -362,7 +361,6 @@ static int dma_mmap(struct device *dev, struct vm_area_struct *vma,
 		}
 	}
 
-
 	return ret;
 }
 
@@ -381,9 +379,6 @@ int dma_mmap_writecombine(struct device *dev, struct vm_area_struct *vma,
 	return dma_mmap(dev, vma, cpu_addr, dma_addr, size);
 }
 EXPORT_SYMBOL(dma_mmap_writecombine);
-
-
-
 
 /*
  * Initialise the consistent memory allocation.

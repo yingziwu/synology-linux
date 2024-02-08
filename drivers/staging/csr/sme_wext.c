@@ -42,7 +42,6 @@
 # define UF_RTNL_UNLOCK()
 #endif
 
-
 /*
  * ---------------------------------------------------------------------------
  *      Helper functions
@@ -245,9 +244,7 @@ uf_sme_wext_set_defaults(unifi_priv_t *priv)
     uf_sme_wext_ap_set_defaults(priv);
 #endif
 
-
 } /* uf_sme_wext_set_defaults() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -883,7 +880,6 @@ iwprivswpikey(struct net_device *dev, struct iw_request_info *info,
 }
 #endif
 
-
 static int
 unifi_giwname(struct net_device *dev, struct iw_request_info *info,
         union iwreq_data *wrqu, char *extra)
@@ -900,7 +896,6 @@ unifi_giwname(struct net_device *dev, struct iw_request_info *info,
     }
     return 0;
 } /* unifi_giwname() */
-
 
 static int
 unifi_siwfreq(struct net_device *dev, struct iw_request_info *info,
@@ -919,7 +914,6 @@ unifi_siwfreq(struct net_device *dev, struct iw_request_info *info,
        return -EPERM;
     }
 
-
     /*
      * Channel is stored in the connection configuration,
      * and set later when ask for a connection.
@@ -932,7 +926,6 @@ unifi_siwfreq(struct net_device *dev, struct iw_request_info *info,
 
     return 0;
 } /* unifi_siwfreq() */
-
 
 static int
 unifi_giwfreq(struct net_device *dev, struct iw_request_info *info,
@@ -954,7 +947,6 @@ unifi_giwfreq(struct net_device *dev, struct iw_request_info *info,
        return -EPERM;
     }
 
-
     UF_RTNL_UNLOCK();
     err = sme_mgt_connection_info_get(priv, &connectionInfo);
     UF_RTNL_LOCK();
@@ -965,7 +957,6 @@ unifi_giwfreq(struct net_device *dev, struct iw_request_info *info,
 
     return convert_sme_error(err);
 } /* unifi_giwfreq() */
-
 
 static int
 unifi_siwmode(struct net_device *dev, struct iw_request_info *info,
@@ -982,7 +973,6 @@ unifi_siwmode(struct net_device *dev, struct iw_request_info *info,
                                       interfacePriv->interfaceMode);
        return -EPERM;
     }
-
 
     switch(wrqu->mode) {
         case IW_MODE_ADHOC:
@@ -1004,8 +994,6 @@ unifi_siwmode(struct net_device *dev, struct iw_request_info *info,
 
     return 0;
 } /* unifi_siwmode() */
-
-
 
 static int
 unifi_giwmode(struct net_device *dev, struct iw_request_info *info,
@@ -1061,8 +1049,6 @@ unifi_giwmode(struct net_device *dev, struct iw_request_info *info,
     return r;
 } /* unifi_giwmode() */
 
-
-
 static int
 unifi_giwrange(struct net_device *dev, struct iw_request_info *info,
         union iwreq_data *wrqu, char *extra)
@@ -1087,7 +1073,6 @@ unifi_giwrange(struct net_device *dev, struct iw_request_info *info,
     range->max_qual.qual  = 40;         /* Max expected qual value */
     range->max_qual.level = -120;       /* Noise floor in dBm */
     range->max_qual.noise = -120;       /* Noise floor in dBm */
-
 
     /* space for IW_MAX_BITRATES (8 up to WE15, 32 later) */
     i = 0;
@@ -1167,10 +1152,8 @@ unifi_giwrange(struct net_device *dev, struct iw_request_info *info,
         IW_ENC_CAPA_CIPHER_TKIP | IW_ENC_CAPA_CIPHER_CCMP;
 #endif /* WIRELESS_EXT > 17 */
 
-
     return 0;
 } /* unifi_giwrange() */
-
 
 static int
 unifi_siwap(struct net_device *dev, struct iw_request_info *info,
@@ -1188,7 +1171,6 @@ unifi_siwap(struct net_device *dev, struct iw_request_info *info,
                                       interfacePriv->interfaceMode);
        return -EPERM;
     }
-
 
     if (wrqu->ap_addr.sa_family != ARPHRD_ETHER) {
         return -EINVAL;
@@ -1228,7 +1210,6 @@ unifi_siwap(struct net_device *dev, struct iw_request_info *info,
     return 0;
 } /* unifi_siwap() */
 
-
 static int
 unifi_giwap(struct net_device *dev, struct iw_request_info *info,
         union iwreq_data *wrqu, char *extra)
@@ -1266,7 +1247,6 @@ unifi_giwap(struct net_device *dev, struct iw_request_info *info,
     return 0;
 } /* unifi_giwap() */
 
-
 static int
 unifi_siwscan(struct net_device *dev, struct iw_request_info *info,
         union iwreq_data *wrqu, char *extra)
@@ -1290,7 +1270,6 @@ unifi_siwscan(struct net_device *dev, struct iw_request_info *info,
                                       interfacePriv->interfaceMode);
        return -EPERM;
     }
-
 
 #if WIRELESS_EXT > 17
     /* Providing a valid channel list will force an active scan */
@@ -1346,7 +1325,6 @@ unifi_siwscan(struct net_device *dev, struct iw_request_info *info,
 
 } /* unifi_siwscan() */
 
-
 static const unsigned char *
 unifi_find_info_element(int id, const unsigned char *info, int len)
 {
@@ -1370,7 +1348,6 @@ unifi_find_info_element(int id, const unsigned char *info, int len)
 
     return NULL;
 } /* unifi_find_info_element() */
-
 
 /*
  * Translate scan data returned from the card to a card independent
@@ -1471,7 +1448,6 @@ unifi_translate_scan(struct net_device *dev,
     }
     start_buf += r;
 
-
     /* Add quality statistics */
     iwe.cmd = IWEVQUAL;
     /*
@@ -1529,7 +1505,6 @@ unifi_translate_scan(struct net_device *dev,
         return r;
     }
     start_buf += r;
-
 
     /*
      * Rate : stuffing multiple values in a single event require a bit
@@ -1597,7 +1572,6 @@ unifi_translate_scan(struct net_device *dev,
         start_buf = current_val;
     }
 
-
 #if WIRELESS_EXT > 17
     memset(&iwe, 0, sizeof(iwe));
     iwe.cmd = IWEVGENIE;
@@ -1613,8 +1587,6 @@ unifi_translate_scan(struct net_device *dev,
 
     return (start_buf - current_ev);
 } /* unifi_translate_scan() */
-
-
 
 static int
 unifi_giwscan(struct net_device *dev, struct iw_request_info *info,
@@ -1634,7 +1606,6 @@ unifi_giwscan(struct net_device *dev, struct iw_request_info *info,
        return -EPERM;
     }
 
-
     unifi_trace(priv, UDBG1,
             "unifi_giwscan: buffer (%d bytes) \n",
             dwrq->length);
@@ -1653,7 +1624,6 @@ unifi_giwscan(struct net_device *dev, struct iw_request_info *info,
 
     return 0;
 } /* unifi_giwscan() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -1690,7 +1660,6 @@ unifi_siwessid(struct net_device *dev, struct iw_request_info *info,
                                       interfacePriv->interfaceMode);
        return -EPERM;
     }
-
 
     len = 0;
     if (data->flags & 1) {
@@ -1740,7 +1709,6 @@ unifi_siwessid(struct net_device *dev, struct iw_request_info *info,
     return 0;
 } /* unifi_siwessid() */
 
-
 static int
 unifi_giwessid(struct net_device *dev, struct iw_request_info *info,
                union iwreq_data *wrqu, char *essid)
@@ -1776,10 +1744,8 @@ unifi_giwessid(struct net_device *dev, struct iw_request_info *info,
                 data->length, essid);
     }
 
-
     return 0;
 } /* unifi_giwessid() */
-
 
 static int
 unifi_siwrate(struct net_device *dev, struct iw_request_info *info,
@@ -1831,11 +1797,8 @@ unifi_siwrate(struct net_device *dev, struct iw_request_info *info,
         return r;
     }
 
-
     return 0;
 } /* unifi_siwrate() */
-
-
 
 static int
 unifi_giwrate(struct net_device *dev, struct iw_request_info *info,
@@ -1882,7 +1845,6 @@ unifi_giwrate(struct net_device *dev, struct iw_request_info *info,
     return 0;
 } /* unifi_giwrate() */
 
-
 static int
 unifi_siwrts(struct net_device *dev, struct iw_request_info *info,
              union iwreq_data *wrqu, char *extra)
@@ -1925,7 +1887,6 @@ unifi_siwrts(struct net_device *dev, struct iw_request_info *info,
     return 0;
 }
 
-
 static int
 unifi_giwrts(struct net_device *dev, struct iw_request_info *info,
              union iwreq_data *wrqu, char *extra)
@@ -1958,7 +1919,6 @@ unifi_giwrts(struct net_device *dev, struct iw_request_info *info,
 
     return 0;
 }
-
 
 static int
 unifi_siwfrag(struct net_device *dev, struct iw_request_info *info,
@@ -2000,7 +1960,6 @@ unifi_siwfrag(struct net_device *dev, struct iw_request_info *info,
     return 0;
 }
 
-
 static int
 unifi_giwfrag(struct net_device *dev, struct iw_request_info *info,
               union iwreq_data *wrqu, char *extra)
@@ -2032,7 +1991,6 @@ unifi_giwfrag(struct net_device *dev, struct iw_request_info *info,
     return 0;
 }
 
-
 static int
 unifi_siwencode(struct net_device *dev, struct iw_request_info *info,
                 union iwreq_data *wrqu, char *extra)
@@ -2055,7 +2013,6 @@ unifi_siwencode(struct net_device *dev, struct iw_request_info *info,
                                       interfacePriv->interfaceMode);
        return -EPERM;
     }
-
 
     /*
      * Key index is encoded in the flags.
@@ -2203,8 +2160,6 @@ unifi_siwencode(struct net_device *dev, struct iw_request_info *info,
 
 } /* unifi_siwencode() */
 
-
-
 static int
 unifi_giwencode(struct net_device *dev, struct iw_request_info *info,
                 union iwreq_data *wrqu, char *extra)
@@ -2223,7 +2178,6 @@ unifi_giwencode(struct net_device *dev, struct iw_request_info *info,
                                       interfacePriv->interfaceMode);
        return -EPERM;
     }
-
 
     if (priv->connection_config.authModeMask == CSR_WIFI_SME_AUTH_MODE_80211_SHARED) {
         erq->flags = IW_ENCODE_RESTRICTED;
@@ -2253,7 +2207,6 @@ unifi_giwencode(struct net_device *dev, struct iw_request_info *info,
 
     return 0;
 } /* unifi_giwencode() */
-
 
 static int
 unifi_siwpower(struct net_device *dev, struct iw_request_info *info,
@@ -2342,7 +2295,6 @@ unifi_siwpower(struct net_device *dev, struct iw_request_info *info,
     return 0;
 } /* unifi_siwpower() */
 
-
 static int
 unifi_giwpower(struct net_device *dev, struct iw_request_info *info,
                union iwreq_data *wrqu, char *extra)
@@ -2363,7 +2315,6 @@ unifi_giwpower(struct net_device *dev, struct iw_request_info *info,
                                       interfacePriv->interfaceMode);
        return -EPERM;
     }
-
 
     args->flags = 0;
     UF_RTNL_UNLOCK();
@@ -2395,7 +2346,6 @@ unifi_giwpower(struct net_device *dev, struct iw_request_info *info,
     return 0;
 } /* unifi_giwpower() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_siwcommit - handler for SIOCSIWCOMMIT
@@ -2420,8 +2370,6 @@ unifi_siwcommit(struct net_device *dev, struct iw_request_info *info,
     return 0;
 } /* unifi_siwcommit() */
 
-
-
 static int
 unifi_siwmlme(struct net_device *dev, struct iw_request_info *info,
               union iwreq_data *wrqu, char *extra)
@@ -2440,7 +2388,6 @@ unifi_siwmlme(struct net_device *dev, struct iw_request_info *info,
        return -EPERM;
     }
 
-
     switch (mlme->cmd) {
         case IW_MLME_DEAUTH:
         case IW_MLME_DISASSOC:
@@ -2454,7 +2401,6 @@ unifi_siwmlme(struct net_device *dev, struct iw_request_info *info,
 
     return 0;
 } /* unifi_siwmlme() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -2497,7 +2443,6 @@ unifi_siwgenie(struct net_device *dev, struct iw_request_info *info,
        return -EPERM;
     }
 
-
     if ( priv->connection_config.mlmeAssociateReqInformationElements) {
         kfree( priv->connection_config.mlmeAssociateReqInformationElements);
     }
@@ -2520,7 +2465,6 @@ unifi_siwgenie(struct net_device *dev, struct iw_request_info *info,
     return 0;
 } /* unifi_siwgenie() */
 
-
 static int
 unifi_giwgenie(struct net_device *dev, struct iw_request_info *info,
                union iwreq_data *wrqu, char *extra)
@@ -2538,7 +2482,6 @@ unifi_giwgenie(struct net_device *dev, struct iw_request_info *info,
        return -EPERM;
     }
 
-
     len = priv->connection_config.mlmeAssociateReqInformationElementsLength;
 
     if (len == 0) {
@@ -2555,7 +2498,6 @@ unifi_giwgenie(struct net_device *dev, struct iw_request_info *info,
 
     return 0;
 } /* unifi_giwgenie() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -2588,7 +2530,6 @@ _unifi_siwauth(struct net_device *dev, struct iw_request_info *info,
                                       interfacePriv->interfaceMode);
        return -EPERM;
     }
-
 
     /*
      * This ioctl is safe to call even when UniFi is powered off.
@@ -2804,7 +2745,6 @@ _unifi_siwauth(struct net_device *dev, struct iw_request_info *info,
     return 0;
 } /* _unifi_siwauth() */
 
-
 static int
 unifi_siwauth(struct net_device *dev, struct iw_request_info *info,
         union iwreq_data *wrqu, char *extra)
@@ -2817,7 +2757,6 @@ unifi_siwauth(struct net_device *dev, struct iw_request_info *info,
 
     return err;
 } /* unifi_siwauth() */
-
 
 static int
 unifi_giwauth(struct net_device *dev, struct iw_request_info *info,
@@ -2870,7 +2809,6 @@ _unifi_siwencodeext(struct net_device *dev, struct iw_request_info *info,
                                       interfacePriv->interfaceMode);
        return -EPERM;
     }
-
 
     unifi_trace(priv, UDBG1, "siwencodeext: flags=0x%X, alg=%d, ext_flags=0x%X, len=%d, index=%d,\n",
                 wrqu->encoding.flags, ext->alg, ext->ext_flags,
@@ -3013,7 +2951,6 @@ _unifi_siwencodeext(struct net_device *dev, struct iw_request_info *info,
     return r;
 } /* _unifi_siwencodeext() */
 
-
 static int
 unifi_siwencodeext(struct net_device *dev, struct iw_request_info *info,
         union iwreq_data *wrqu, char *extra)
@@ -3025,14 +2962,12 @@ unifi_siwencodeext(struct net_device *dev, struct iw_request_info *info,
     return err;
 } /* unifi_siwencodeext() */
 
-
 static int
 unifi_giwencodeext(struct net_device *dev, struct iw_request_info *info,
         union iwreq_data *wrqu, char *extra)
 {
     return -EOPNOTSUPP;
 } /* unifi_giwencodeext() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3076,7 +3011,6 @@ unifi_siwpmksa(struct net_device *dev, struct iw_request_info *info,
        return -EPERM;
     }
 
-
 	unifi_trace(priv, UDBG1, "SIWPMKSA: cmd %d, %pM\n", pmksa->cmd,
 		pmksa->bssid.sa_data);
 
@@ -3118,7 +3052,6 @@ unifi_siwpmksa(struct net_device *dev, struct iw_request_info *info,
 
 } /* unifi_siwpmksa() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_get_wireless_stats
@@ -3144,7 +3077,6 @@ unifi_get_wireless_stats(struct net_device *dev)
 
     return &priv->wext_wireless_stats;
 } /* unifi_get_wireless_stats() */
-
 
 /*
  * Structures to export the Wireless Handlers
@@ -3256,7 +3188,6 @@ static const iw_handler unifi_handler[] =
 #endif /* WIRELESS_EXT > 17 */
 };
 
-
 static const iw_handler unifi_private_handler[] =
 {
     iwprivs80211ps,                 /* SIOCIWFIRSTPRIV */
@@ -3323,5 +3254,3 @@ struct iw_handler_def unifi_iw_handler_def =
     .get_wireless_stats = unifi_get_wireless_stats,
 #endif
 };
-
-

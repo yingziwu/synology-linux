@@ -124,7 +124,6 @@ static struct via_camera *via_cam_info;
 #define CF_DMA_ACTIVE	 0	/* A frame is incoming */
 #define CF_CONFIG_NEEDED 1	/* Must configure hardware */
 
-
 /*
  * Nasty ugly v4l2 boilerplate.
  */
@@ -177,7 +176,6 @@ static struct via_format *via_find_format(u32 pixelformat)
 	return via_formats;
 }
 
-
 /*--------------------------------------------------------------------------*/
 /*
  * Sensor power/reset management.  This piece is OLPC-specific for
@@ -227,7 +225,6 @@ static void via_sensor_power_down(struct via_camera *cam)
 	gpio_set_value(cam->reset_gpio, 0);
 }
 
-
 static void via_sensor_power_release(struct via_camera *cam)
 {
 	via_sensor_power_down(cam);
@@ -272,8 +269,6 @@ static int viacam_configure_sensor(struct via_camera *cam)
 	return ret;
 }
 
-
-
 /* --------------------------------------------------------------------------*/
 /*
  * Some simple register accessors; they assume that the lock is held.
@@ -301,7 +296,6 @@ static inline void viacam_write_reg_mask(struct via_camera *cam,
 	tmp = (tmp & ~mask) | (value & mask);
 	viacam_write_reg(cam, reg, tmp);
 }
-
 
 /* --------------------------------------------------------------------------*/
 /* Interrupt management and handling */
@@ -388,7 +382,6 @@ done:
 	return IRQ_HANDLED;
 }
 
-
 /*
  * These functions must mess around with the general interrupt
  * control register, which is relevant to much more than just the
@@ -408,8 +401,6 @@ static void viacam_int_disable(struct via_camera *cam)
 	viafb_irq_disable(VDE_I_C0AVEN);
 	viacam_write_reg(cam, VCR_INTCTRL, 0);
 }
-
-
 
 /* --------------------------------------------------------------------------*/
 /* Controller operations */
@@ -485,7 +476,6 @@ static void viacam_set_scale(struct via_camera *cam)
 	viacam_write_reg(cam, VCR_AVSCALE, avscale);
 }
 
-
 /*
  * Configure image-related information into the capture engine.
  */
@@ -539,7 +529,6 @@ static void viacam_ctlr_image(struct via_camera *cam)
 	viacam_write_reg(cam, VCR_CAPINTC, cicreg);
 }
 
-
 static int viacam_config_controller(struct via_camera *cam)
 {
 	int ret;
@@ -568,7 +557,6 @@ static void viacam_start_engine(struct via_camera *cam)
 	spin_unlock_irq(&cam->viadev->reg_lock);
 }
 
-
 static void viacam_stop_engine(struct via_camera *cam)
 {
 	spin_lock_irq(&cam->viadev->reg_lock);
@@ -578,7 +566,6 @@ static void viacam_stop_engine(struct via_camera *cam)
 	cam->opstate = S_IDLE;
 	spin_unlock_irq(&cam->viadev->reg_lock);
 }
-
 
 /* --------------------------------------------------------------------------*/
 /* Videobuf callback ops */
@@ -772,7 +759,6 @@ out_unlock:
 	return ret;
 }
 
-
 static unsigned int viacam_poll(struct file *filp, struct poll_table_struct *pt)
 {
 	struct via_camera *cam = video_drvdata(filp);
@@ -780,15 +766,12 @@ static unsigned int viacam_poll(struct file *filp, struct poll_table_struct *pt)
 	return videobuf_poll_stream(filp, &cam->vb_queue, pt);
 }
 
-
 static int viacam_mmap(struct file *filp, struct vm_area_struct *vma)
 {
 	struct via_camera *cam = video_drvdata(filp);
 
 	return videobuf_mmap_mapper(&cam->vb_queue, vma);
 }
-
-
 
 static const struct v4l2_file_operations viacam_fops = {
 	.owner		= THIS_MODULE,
@@ -911,7 +894,6 @@ static void viacam_fmt_post(struct v4l2_pix_format *userfmt,
 	userfmt->sizeimage = userfmt->bytesperline * userfmt->height;
 }
 
-
 /*
  * The real work of figuring out a workable format.
  */
@@ -931,8 +913,6 @@ static int viacam_do_try_fmt(struct via_camera *cam,
 	return ret;
 }
 
-
-
 static int viacam_try_fmt_vid_cap(struct file *filp, void *priv,
 		struct v4l2_format *fmt)
 {
@@ -945,7 +925,6 @@ static int viacam_try_fmt_vid_cap(struct file *filp, void *priv,
 	mutex_unlock(&cam->lock);
 	return ret;
 }
-
 
 static int viacam_g_fmt_vid_cap(struct file *filp, void *priv,
 		struct v4l2_format *fmt)
@@ -1170,8 +1149,6 @@ static int viacam_enum_frameintervals(struct file *filp, void *priv,
 	mutex_unlock(&cam->lock);
 	return ret;
 }
-
-
 
 static const struct v4l2_ioctl_ops viacam_ioctl_ops = {
 	.vidioc_g_chip_ident	= viacam_g_chip_ident,

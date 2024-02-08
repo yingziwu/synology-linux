@@ -26,7 +26,6 @@
 #include "at91_aic.h"
 #include "generic.h"
 
-
 static const struct of_device_id irq_of_match[] __initconst = {
 
 	{ .compatible = "atmel,sama5d3-aic", .data = at91_aic5_of_init },

@@ -41,8 +41,6 @@
  * Begin protocol definitions.
  */
 
-
-
 /*
  * Protocol versions. The low word is the minor version, the high word the major
  * version.
@@ -68,8 +66,6 @@ enum {
 
 	DYNMEM_PROTOCOL_VERSION_CURRENT = DYNMEM_PROTOCOL_VERSION_WIN8
 };
-
-
 
 /*
  * Message Types
@@ -99,7 +95,6 @@ enum dm_message_type {
 	DM_VERSION_1_MAX		= 12
 };
 
-
 /*
  * Structures defining the dynamic memory management
  * protocol.
@@ -112,7 +107,6 @@ union dm_version {
 	};
 	__u32 version;
 } __packed;
-
 
 union dm_caps {
 	struct {
@@ -146,8 +140,6 @@ union dm_mem_page_range {
 	__u64  page_range;
 } __packed;
 
-
-
 /*
  * The header for all dynamic memory messages:
  *
@@ -171,7 +163,6 @@ struct dm_message {
 	struct dm_header hdr;
 	__u8 data[]; /* enclosed message */
 } __packed;
-
 
 /*
  * Specific message types supporting the dynamic memory protocol.
@@ -269,7 +260,6 @@ struct dm_status {
 	__u32 io_diff;
 } __packed;
 
-
 /*
  * Message to ask the guest to allocate memory - balloon up message.
  * This message is sent from the host to the guest. The guest may not be
@@ -283,7 +273,6 @@ struct dm_balloon {
 	__u32 num_pages;
 	__u32 reservedz;
 } __packed;
-
 
 /*
  * Balloon response message; this message is sent from the guest
@@ -340,7 +329,6 @@ struct dm_unballoon_response {
 	struct dm_header hdr;
 } __packed;
 
-
 /*
  * Hot add request message. Message sent from the host to the guest.
  *
@@ -389,7 +377,6 @@ enum dm_info_type {
 	INFO_TYPE_MAX_PAGE_CNT = 0,
 	MAX_INFO_TYPE
 };
-
 
 /*
  * Header for the information message.
@@ -486,7 +473,6 @@ enum hv_dm_state {
 	DM_HOT_ADD,
 	DM_INIT_ERROR
 };
-
 
 static __u8 recv_buffer[PAGE_SIZE];
 static __u8 *send_buffer;
@@ -1026,8 +1012,6 @@ static void free_balloon_pages(struct hv_dynmem_device *dm,
 	}
 }
 
-
-
 static int  alloc_balloon_pages(struct hv_dynmem_device *dm, int num_pages,
 			 struct dm_balloon_response *bl_resp, int alloc_unit,
 			 bool *alloc_error)
@@ -1056,7 +1040,6 @@ static int  alloc_balloon_pages(struct hv_dynmem_device *dm, int num_pages,
 			return i * alloc_unit;
 		}
 
-
 		dm->num_pages_ballooned += alloc_unit;
 
 		/*
@@ -1078,8 +1061,6 @@ static int  alloc_balloon_pages(struct hv_dynmem_device *dm, int num_pages,
 	return num_pages;
 }
 
-
-
 static void balloon_up(struct work_struct *dummy)
 {
 	int num_pages = dm_device.balloon_wrk.num_pages;
@@ -1090,7 +1071,6 @@ static void balloon_up(struct work_struct *dummy)
 	bool alloc_error = false;
 	bool done = false;
 	int i;
-
 
 	/*
 	 * We will attempt 2M allocations. However, if we fail to
@@ -1105,7 +1085,6 @@ static void balloon_up(struct work_struct *dummy)
 		bl_resp->hdr.trans_id = atomic_inc_return(&trans_id);
 		bl_resp->hdr.size = sizeof(struct dm_balloon_response);
 		bl_resp->more_pages = 1;
-
 
 		num_pages -= num_ballooned;
 		num_ballooned = alloc_balloon_pages(&dm_device, num_pages,
@@ -1207,7 +1186,6 @@ static int dm_thread_func(void *dm_dev)
 
 	return 0;
 }
-
 
 static void version_resp(struct hv_dynmem_device *dm,
 			struct dm_version_response *vresp)

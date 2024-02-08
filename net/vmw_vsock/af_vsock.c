@@ -1650,7 +1650,6 @@ out:
 	return err;
 }
 
-
 static int
 vsock_stream_recvmsg(struct kiocb *kiocb,
 		     struct socket *sock,

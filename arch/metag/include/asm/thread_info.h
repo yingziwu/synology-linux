@@ -124,7 +124,6 @@ static inline int kstack_end(void *addr)
 #define TIF_MEMDIE		9	/* is terminating due to OOM killer */
 #define TIF_SYSCALL_TRACEPOINT  10	/* syscall tracepoint instrumentation */
 
-
 #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
 #define _TIF_SIGPENDING		(1<<TIF_SIGPENDING)
 #define _TIF_NEED_RESCHED	(1<<TIF_NEED_RESCHED)

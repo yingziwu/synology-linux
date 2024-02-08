@@ -234,7 +234,6 @@ union kvmppc_one_reg {
 	__u;					\
 })
 
-
 #define set_reg_val(id, val)	({		\
 	u64 __v;				\
 	switch (one_reg_size(id)) {		\

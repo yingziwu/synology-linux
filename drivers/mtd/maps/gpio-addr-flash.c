@@ -254,7 +254,6 @@ static int gpio_flash_probe(struct platform_device *pdev)
 		return -ENXIO;
 	}
 
-
 	mtd_device_parse_register(state->mtd, part_probe_types, NULL,
 				  pdata->parts, pdata->nr_parts);
 

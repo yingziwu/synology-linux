@@ -296,4 +296,3 @@ int psb_gem_mmap_ioctl(struct drm_device *dev, void *data,
 	return dev->driver->dumb_map_offset(file, dev,
 						args->handle, &args->offset);
 }
-

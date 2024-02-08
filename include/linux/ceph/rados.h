@@ -34,7 +34,6 @@ struct ceph_timespec {
 	__le32 tv_nsec;
 } __attribute__ ((packed));
 
-
 /*
  * object layout - how objects are mapped into PGs
  */
@@ -132,7 +131,6 @@ extern const char *ceph_osd_state_name(int s);
 /* osd weights.  fixed point value: 0x10000 == 1.0 ("in"), 0 == "out" */
 #define CEPH_OSD_IN  0x10000
 #define CEPH_OSD_OUT 0
-
 
 /*
  * osd map flag bits
@@ -415,6 +413,5 @@ struct ceph_osd_op {
 	};
 	__le32 payload_len;
 } __attribute__ ((packed));
-
 
 #endif

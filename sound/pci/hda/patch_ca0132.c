@@ -878,7 +878,6 @@ static int chipio_write_data_multiple(struct hda_codec *codec,
 	return status;
 }
 
-
 /*
  * Read data through the vendor widget -- NOT protected by the Mutex!
  */
@@ -2040,7 +2039,6 @@ struct dma_engine {
 	struct snd_dma_buffer *dmab;
 	unsigned int buf_size;
 };
-
 
 enum dma_state {
 	DMA_STATE_STOP  = 0,

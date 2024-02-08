@@ -288,7 +288,6 @@ list_set_utest(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 	return 0;
 }
 
-
 static int
 list_set_uadd(struct ip_set *set, void *value, const struct ip_set_ext *ext,
 	      struct ip_set_ext *mext, u32 flags)

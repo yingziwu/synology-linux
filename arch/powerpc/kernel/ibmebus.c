@@ -318,7 +318,6 @@ static ssize_t ibmebus_store_remove(struct bus_type *bus,
 	}
 }
 
-
 static struct bus_attribute ibmebus_bus_attrs[] = {
 	__ATTR(probe, S_IWUSR, NULL, ibmebus_store_probe),
 	__ATTR(remove, S_IWUSR, NULL, ibmebus_store_remove),

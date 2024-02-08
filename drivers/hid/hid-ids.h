@@ -1,19 +1,7 @@
-/*
- *  USB HID quirks support for Linux
- *
- *  Copyright (c) 1999 Andreas Gal
- *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
- *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
- *  Copyright (c) 2006-2007 Jiri Kosina
- */
-
-/*
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef HID_IDS_H_FILE
 #define HID_IDS_H_FILE
 
@@ -579,6 +567,29 @@
 #define USB_VENDOR_ID_MGE		0x0463
 #define USB_DEVICE_ID_MGE_UPS		0xffff
 #define USB_DEVICE_ID_MGE_UPS1		0x0001
+
+#ifdef MY_ABC_HERE
+#define USB_VENDOR_ID_APC               0x051d
+#define USB_DEVICE_ID_APC_UPS1          0x0002
+
+#define USB_VENDOR_ID_CYBERPOWER        0x0764
+#define USB_DEVICE_ID_CYBERPOWER_UPS1   0x0005
+#define USB_DEVICE_ID_CYBERPOWER_UPS2   0x0501
+
+#define USB_VENDOR_ID_TRIPPLITE         0x09ae
+#define USB_DEVICE_ID_TRIPPLITE_UPS1    0x1003
+#define USB_DEVICE_ID_TRIPPLITE_UPS2    0x2005
+#define USB_DEVICE_ID_TRIPPLITE_UPS3    0x3012
+#define USB_DEVICE_ID_TRIPPLITE_UPS4    0x4002
+#define USB_DEVICE_ID_TRIPPLITE_UPS5    0x4003
+
+#define USB_DEVICE_ID_BELKIN_UPS1       0x0980
+#define USB_DEVICE_ID_BELKIN_UPS2       0x0900
+#define USB_DEVICE_ID_BELKIN_UPS3       0x0910
+#define USB_DEVICE_ID_BELKIN_UPS4       0x0912
+#define USB_DEVICE_ID_BELKIN_UPS5       0x0551
+#define USB_DEVICE_ID_BELKIN_UPS6       0x0751
+#endif  
 
 #define USB_VENDOR_ID_MICROCHIP		0x04d8
 #define USB_DEVICE_ID_PICKIT1		0x0032

@@ -96,7 +96,6 @@ static int ieee802154_list_phy(struct sk_buff *skb,
 	if (name[nla_len(info->attrs[IEEE802154_ATTR_PHY_NAME]) - 1] != '\0')
 		return -EINVAL; /* phy name should be null-terminated */
 
-
 	phy = wpan_phy_find(name);
 	if (!phy)
 		return -ENODEV;

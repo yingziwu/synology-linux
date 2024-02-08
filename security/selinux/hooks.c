@@ -5686,7 +5686,6 @@ static struct security_operations selinux_ops = {
 	.sb_clone_mnt_opts =		selinux_sb_clone_mnt_opts,
 	.sb_parse_opts_str = 		selinux_parse_opts_str,
 
-
 	.inode_alloc_security =		selinux_inode_alloc_security,
 	.inode_free_security =		selinux_inode_free_security,
 	.inode_init_security =		selinux_inode_init_security,

@@ -52,7 +52,6 @@ dma_alloc_coherent(struct device *dev,size_t size,dma_addr_t *handle,gfp_t flag)
 	BUG_ON(ret < XCHAL_KSEG_CACHED_VADDR ||
 	       ret > XCHAL_KSEG_CACHED_VADDR + XCHAL_KSEG_SIZE - 1);
 
-
 	if (ret != 0) {
 		memset((void*) ret, 0, size);
 		uncached = ret+XCHAL_KSEG_BYPASS_VADDR-XCHAL_KSEG_CACHED_VADDR;
@@ -76,7 +75,6 @@ void dma_free_coherent(struct device *hwdev, size_t size,
 	free_pages(addr, get_order(size));
 }
 EXPORT_SYMBOL(dma_free_coherent);
-
 
 void consistent_sync(void *vaddr, size_t size, int direction)
 {

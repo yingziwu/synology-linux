@@ -375,7 +375,6 @@ struct srb_iocb {
 #define SRB_FXIOCB_BCMD	11
 #define SRB_ABT_CMD	12
 
-
 typedef struct srb {
 	atomic_t ref_count;
 	struct fc_port *fcport;
@@ -584,7 +583,6 @@ struct device_reg_25xxmq {
 	uint32_t atio_q_out;
 };
 
-
 struct device_reg_fx00 {
 	uint32_t mailbox0;		/* 00 */
 	uint32_t mailbox1;		/* 04 */
@@ -643,8 +641,6 @@ struct device_reg_fx00 {
 	uint32_t initval7;		/* CC */
 	uint32_t fwheartbeat;		/* D0 */
 };
-
-
 
 typedef union {
 		struct device_reg_2xxx isp;
@@ -719,7 +715,6 @@ struct mbx_cmd_32 {
 #define	MBX_DMA_OUT	BIT_1
 #define IOCTL_CMD	BIT_2
 };
-
 
 #define	MBX_TOV_SECONDS	30
 
@@ -1085,7 +1080,6 @@ typedef struct {
 #define PD_STATE_PORT_LOGOUT			10
 #define PD_STATE_WAIT_PORT_LOGOUT_ACK		11
 
-
 #define QLA_ZIO_MODE_6		(BIT_2 | BIT_1)
 #define QLA_ZIO_DISABLED	0
 #define QLA_ZIO_DEFAULT_TIMER	2
@@ -1192,7 +1186,6 @@ typedef struct {
 	uint8_t  reserved_3[26];
 } init_cb_t;
 
-
 struct init_cb_fx {
 	uint16_t	version;
 	uint16_t	reserved_1[13];
@@ -1214,7 +1207,6 @@ struct init_cb_fx {
 	uint32_t	fwoptions3;
 	uint8_t		reserved_7[24];
 };
-
 
 /*
  * Get Link Status mailbox command return buffer.
@@ -1875,7 +1867,6 @@ typedef struct {
 	uint32_t dseg_rsp_length;	/* Data segment 1 length. */
 } ms_iocb_entry_t;
 
-
 /*
  * ISP queue - Mailbox Command entry structure definition.
  */
@@ -1922,7 +1913,6 @@ struct mbx_entry {
  */
 #define RESPONSE_ENTRY_SIZE	(sizeof(response_t))
 #define REQUEST_ENTRY_SIZE	(sizeof(request_t))
-
 
 /*
  * 24 bit port ID type definition.
@@ -2600,7 +2590,6 @@ enum qla_work_type {
 	QLA_EVT_UEVENT,
 	QLA_EVT_AENFX,
 };
-
 
 struct qla_work_evt {
 	struct list_head	list;
@@ -3382,8 +3371,6 @@ typedef struct scsi_qla_host {
 	port_id_t	d_id;			/* Host adapter port id */
 	uint8_t		marker_needed;
 	uint16_t	mgmt_svr_loop_id;
-
-
 
 	/* Timeout timers. */
 	uint8_t         loop_down_abort_time;    /* port down timer */

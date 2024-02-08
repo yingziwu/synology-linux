@@ -199,7 +199,6 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 
 #define pgprot_noncached(prot) __pgprot((pgprot_val(prot) | _PAGE_NO_CACHE))
 
-
 /* pte_val refers to a page in the 0x4xxxxxxx physical DRAM interval
  * __pte_page(pte_val) refers to the "virtual" DRAM interval
  * pte_pagenr refers to the page-number counted starting from the virtual DRAM start
@@ -260,7 +259,6 @@ static inline pgd_t * pgd_offset(const struct mm_struct *mm, unsigned long addre
 
 #define io_remap_pfn_range(vma, vaddr, pfn, size, prot)         \
 		remap_pfn_range(vma, vaddr, pfn, size, prot)
-
 
 extern pgd_t swapper_pg_dir[PTRS_PER_PGD]; /* defined in head.S */
 

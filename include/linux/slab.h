@@ -13,7 +13,6 @@
 #include <linux/types.h>
 #include <linux/workqueue.h>
 
-
 /*
  * Flags to pass to kmem_cache_create().
  * The ones marked DEBUG are only valid if CONFIG_SLAB_DEBUG is set.
@@ -93,7 +92,6 @@
 
 #define ZERO_OR_NULL_PTR(x) ((unsigned long)(x) <= \
 				(unsigned long)ZERO_SIZE_PTR)
-
 
 struct mem_cgroup;
 /*

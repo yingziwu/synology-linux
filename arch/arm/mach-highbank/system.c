@@ -29,4 +29,3 @@ void highbank_restart(char mode, const char *cmd)
 	while (1)
 		cpu_do_idle();
 }
-

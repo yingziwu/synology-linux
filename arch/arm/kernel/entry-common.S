@@ -21,7 +21,6 @@
 
 #include "entry-header.S"
 
-
 	.align	5
 /*
  * This is the fast syscall return path.  We do as little as
@@ -623,4 +622,3 @@ ENTRY(sys_oabi_call_table)
 #undef OBSOLETE
 
 #endif
-

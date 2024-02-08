@@ -1868,7 +1868,6 @@ static int sh_mobile_lcdc_pan(struct fb_var_screeninfo *var,
 	else
 		lcdc_write(ch->lcdc, _LDRCNTR, ldrcntr ^ LDRCNTR_MRS);
 
-
 	sh_mobile_lcdc_deferred_io_touch(info);
 
 	return 0;

@@ -29,7 +29,6 @@
 #include <scsi/scsi_host.h>
 #include <scsi/scsi_transport_fc.h>
 
-
 #include "lpfc_hw4.h"
 #include "lpfc_hw.h"
 #include "lpfc_sli.h"
@@ -157,7 +156,6 @@ lpfc_prep_els_iocb(struct lpfc_vport *vport, uint8_t expectRsp,
 	struct lpfc_dmabuf *pcmd, *prsp, *pbuflist;
 	struct ulp_bde64 *bpl;
 	IOCB_t *icmd;
-
 
 	if (!lpfc_is_link_up(phba))
 		return NULL;
@@ -615,7 +613,6 @@ lpfc_check_clean_addr_bit(struct lpfc_vport *vport,
 
 	return fabric_param_changed;
 }
-
 
 /**
  * lpfc_cmpl_els_flogi_fabric - Completion function for flogi to a fabric port
@@ -3091,7 +3088,6 @@ lpfc_els_retry(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
 	uint32_t cmd = 0;
 	uint32_t did;
 
-
 	/* Note: context2 may be 0 for internal driver abort
 	 * of delays ELS command.
 	 */
@@ -4364,7 +4360,6 @@ lpfc_els_clear_rrq(struct lpfc_vport *vport,
 	uint16_t rxid;
 	uint16_t xri;
 	struct lpfc_node_rrq *prrq;
-
 
 	pcmd = (uint8_t *) (((struct lpfc_dmabuf *) iocb->context2)->virt);
 	pcmd += sizeof(uint32_t);
@@ -5641,7 +5636,6 @@ lpfc_els_rcv_rtv(struct lpfc_vport *vport, struct lpfc_iocbq *cmdiocb,
 	struct lpfc_iocbq *elsiocb;
 	uint32_t cmdsize;
 
-
 	if ((ndlp->nlp_state != NLP_STE_UNMAPPED_NODE) &&
 	    (ndlp->nlp_state != NLP_STE_MAPPED_NODE))
 		/* reject the unsolicited RPS request and done with it */
@@ -5799,7 +5793,6 @@ lpfc_issue_els_rrq(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
 	uint16_t cmdsize;
 	int ret;
 
-
 	if (ndlp != rrq->ndlp)
 		ndlp = rrq->ndlp;
 	if (!ndlp || !NLP_CHK_NODE_ACT(ndlp))
@@ -5825,7 +5818,6 @@ lpfc_issue_els_rrq(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
 	bf_set(rrq_did, els_rrq, vport->fc_myDID);
 	els_rrq->rrq = cpu_to_be32(els_rrq->rrq);
 	els_rrq->rrq_exchg = cpu_to_be32(els_rrq->rrq_exchg);
-
 
 	lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_ELS_CMD,
 		"Issue RRQ:     did:x%x",
@@ -6200,7 +6192,6 @@ lpfc_els_timeout(unsigned long ptr)
 	return;
 }
 
-
 /**
  * lpfc_els_timeout_handler - Process an els timeout event
  * @vport: pointer to a virtual N_Port data structure.
@@ -6223,7 +6214,6 @@ lpfc_els_timeout_handler(struct lpfc_vport *vport)
 	uint32_t remote_ID = 0xffffffff;
 	LIST_HEAD(txcmplq_completions);
 	LIST_HEAD(abort_list);
-
 
 	timeout = (uint32_t)(phba->fc_ratov << 1);
 
@@ -6561,7 +6551,6 @@ lpfc_send_els_event(struct lpfc_vport *vport,
 
 	return;
 }
-
 
 /**
  * lpfc_els_unsol_buffer - Process an unsolicited event data buffer
@@ -8218,4 +8207,3 @@ lpfc_sli_abts_recover_port(struct lpfc_vport *vport,
 	lpfc_issue_els_logo(vport, ndlp, 0);
 	lpfc_nlp_set_state(vport, ndlp, NLP_STE_LOGO_ISSUE);
 }
-

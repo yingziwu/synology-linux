@@ -27,7 +27,6 @@
 #include <linux/types.h>
 #include "csr_wifi_hip_sigs.h"
 
-
 /****************************************************************************/
 /* INFORMATION ELEMENTS */
 /****************************************************************************/
@@ -70,13 +69,11 @@
 #define IE_RCPI_ID                       53
 #define IE_WPA_ID                       221
 
-
 /* The maximum number of data references in a signal structure */
 #define UNIFI_MAX_DATA_REFERENCES 2
 
 /* The space to allow for a wire-format signal structure */
 #define UNIFI_PACKED_SIGBUF_SIZE   64
-
 
 /******************************************************************************/
 /* SIGNAL PARAMETER VALUES */

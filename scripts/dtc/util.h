@@ -93,7 +93,6 @@ char *utilfdt_read(const char *filename);
  */
 int utilfdt_read_err(const char *filename, char **buffp);
 
-
 /**
  * Write a device tree buffer to a file. This will report any errors on
  * stderr.

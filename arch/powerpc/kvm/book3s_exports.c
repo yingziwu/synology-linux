@@ -29,4 +29,3 @@ EXPORT_SYMBOL_GPL(kvmppc_load_up_fpu);
 EXPORT_SYMBOL_GPL(kvmppc_load_up_altivec);
 #endif
 #endif
-

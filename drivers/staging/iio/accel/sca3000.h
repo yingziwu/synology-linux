@@ -266,4 +266,3 @@ static inline void sca3000_ring_int_process(u8 val, void *ring)
 }
 
 #endif
-

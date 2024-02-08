@@ -8,7 +8,6 @@
  *
  */
 
-
 #include <linux/time.h>
 #include <linux/errno.h>
 #include <linux/socket.h>
@@ -96,11 +95,11 @@ static void ncp_req_put(struct ncp_request_reply *req)
 		kfree(req);
 }
 
-void ncp_tcp_data_ready(struct sock *sk, int len)
+void ncp_tcp_data_ready(struct sock *sk)
 {
 	struct ncp_server *server = sk->sk_user_data;
 
-	server->data_ready(sk, len);
+	server->data_ready(sk);
 	schedule_work(&server->rcv.tq);
 }
 

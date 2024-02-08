@@ -325,7 +325,6 @@ typedef enum {
 	 XFS_SB_FEATURES_RO_COMPAT | XFS_SB_FEATURES_INCOMPAT | \
 	 XFS_SB_FEATURES_LOG_INCOMPAT | XFS_SB_PQUOTINO)
 
-
 /*
  * Misc. Flags - warning - these will be cleared by xfs_repair unless
  * a feature bit is set when the flag is used.
@@ -558,7 +557,6 @@ static inline int xfs_sb_version_hascrc(xfs_sb_t *sbp)
 {
 	return XFS_SB_VERSION_NUM(sbp) == XFS_SB_VERSION_5;
 }
-
 
 /*
  * Extended v5 superblock feature masks. These are to be used for new v5

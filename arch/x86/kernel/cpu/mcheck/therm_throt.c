@@ -181,20 +181,11 @@ static int therm_throt_process(bool new_event, int event, int level)
 				this_cpu,
 				level == CORE_LEVEL ? "Core" : "Package",
 				state->count);
-		else
-			printk(KERN_CRIT "CPU%d: %s power limit notification (total events = %lu)\n",
-				this_cpu,
-				level == CORE_LEVEL ? "Core" : "Package",
-				state->count);
 		return 1;
 	}
 	if (old_event) {
 		if (event == THERMAL_THROTTLING_EVENT)
 			printk(KERN_INFO "CPU%d: %s temperature/speed normal\n",
-				this_cpu,
-				level == CORE_LEVEL ? "Core" : "Package");
-		else
-			printk(KERN_INFO "CPU%d: %s power limit normal\n",
 				this_cpu,
 				level == CORE_LEVEL ? "Core" : "Package");
 		return 1;
@@ -439,7 +430,6 @@ void intel_init_thermal(struct cpuinfo_x86 *c)
 	 */
 	if ((h & APIC_DM_FIXED_MASK) != APIC_DM_FIXED)
 		apic_write(APIC_LVTTHMR, lvtthmr_init);
-
 
 	if ((l & MSR_IA32_MISC_ENABLE_TM1) && (h & APIC_DM_SMI)) {
 		printk(KERN_DEBUG

@@ -34,5 +34,4 @@ struct oz_binding_info {
 #define OZ_IOCTL_REMOVE_BINDING	_IOW(OZ_IOCTL_MAGIC, 4, struct oz_binding_info)
 #define OZ_IOCTL_MAX		5
 
-
 #endif /* _OZAPPIF_H */

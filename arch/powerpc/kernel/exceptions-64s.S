@@ -399,7 +399,6 @@ denorm_exception_hv:
 	. = 0x1800
 #endif /* CONFIG_CBE_RAS */
 
-
 /*** Out of line interrupts support ***/
 
 	.align	7
@@ -1041,7 +1040,6 @@ unrecov_user_slb:
 
 #endif /* __DISABLED__ */
 
-
 	.align	7
 	.globl alignment_common
 alignment_common:
@@ -1235,7 +1233,6 @@ _GLOBAL(opal_mc_secondary_handler)
 	b	machine_check_pSeries
 #endif /* CONFIG_PPC_POWERNV */
 
-
 /*
  * r13 points to the PACA, r9 contains the saved CR,
  * r12 contain the saved SRR1, SRR0 is still ready for return
@@ -1297,7 +1294,6 @@ unrecov_slb:
 1:	addi	r3,r1,STACK_FRAME_OVERHEAD
 	bl	.unrecoverable_exception
 	b	1b
-
 
 #ifdef CONFIG_PPC_970_NAP
 power4_fixup_nap:
@@ -1381,7 +1377,6 @@ handle_dabr_fault:
 	addi    r3,r1,STACK_FRAME_OVERHEAD
 	bl      .do_break
 12:	b       .ret_from_except_lite
-
 
 /* We have a page fault that hash_page could handle but HV refused
  * the PTE insertion

@@ -450,7 +450,6 @@ union bfi_ioc_i2h_msg_u {
 	u32			mboxmsg[BFI_IOC_MSGSZ];
 };
 
-
 /*
  *----------------------------------------------------------------------
  *				PBC
@@ -518,7 +517,6 @@ enum bfi_msgq_i2h_msgs_e {
 	BFI_MSGQ_I2H_DOORBELL	= 2,
 };
 
-
 /* Messages(commands/responsed/AENS will have the following header */
 struct bfi_msgq_mhdr_s {
 	u8		msg_class;
@@ -563,7 +561,6 @@ struct bfi_msgq_cfg_rsp_s {
 	u8 cmd_status;
 	u8 rsvd[3];
 };
-
 
 /* BFI_MSGQ_H2I_DOORBELL */
 struct bfi_msgq_h2i_db_s {
@@ -715,7 +712,6 @@ struct bfi_ablk_i2h_rsp_s {
 	u8			pcifn;
 	u8			port_mode;
 };
-
 
 /*
  *	CEE module specific messages

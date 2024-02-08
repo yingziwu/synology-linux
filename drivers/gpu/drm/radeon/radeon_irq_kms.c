@@ -484,4 +484,3 @@ void radeon_irq_kms_disable_hpd(struct radeon_device *rdev, unsigned hpd_mask)
 	radeon_irq_set(rdev);
 	spin_unlock_irqrestore(&rdev->irq.lock, irqflags);
 }
-

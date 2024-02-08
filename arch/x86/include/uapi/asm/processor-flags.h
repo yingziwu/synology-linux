@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _UAPI_ASM_X86_PROCESSOR_FLAGS_H
 #define _UAPI_ASM_X86_PROCESSOR_FLAGS_H
 /* Various flags defined: can be included from assembler. */
@@ -79,7 +82,12 @@
 #define X86_CR3_PWT		_BITUL(X86_CR3_PWT_BIT)
 #define X86_CR3_PCD_BIT		4 /* Page Cache Disable */
 #define X86_CR3_PCD		_BITUL(X86_CR3_PCD_BIT)
+#ifdef MY_DEF_HERE
 #define X86_CR3_PCID_MASK	_AC(0x00000fff,UL) /* PCID Mask */
+#else
+#define X86_CR3_PCID_NOFLUSH_BIT 63 /* Preserve old PCID */
+#define X86_CR3_PCID_NOFLUSH    _BITULL(X86_CR3_PCID_NOFLUSH_BIT)
+#endif	/* MY_DEF_HERE */
 
 /*
  * Intel CPU features in CR4
@@ -148,6 +156,5 @@
 #define CX86_DIR1	0xff
 #define CX86_ARR_BASE	0xc4
 #define CX86_RCR_BASE	0xdc
-
 
 #endif /* _UAPI_ASM_X86_PROCESSOR_FLAGS_H */

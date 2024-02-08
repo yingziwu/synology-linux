@@ -919,7 +919,6 @@ void __init time_init(void)
 	init_decrementer_clockevent();
 }
 
-
 #define FEBRUARY	2
 #define	STARTOFTIME	1970
 #define SECDAY		86400L

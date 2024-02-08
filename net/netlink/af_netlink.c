@@ -214,7 +214,6 @@ err1:
 	return NULL;
 }
 
-
 static void
 __netlink_set_ring(struct sock *sk, struct nl_mmap_req *req, bool tx_ring, void **pg_vec,
 		   unsigned int order)
@@ -1545,7 +1544,7 @@ static int __netlink_sendskb(struct sock *sk, struct sk_buff *skb)
 	else
 #endif /* CONFIG_NETLINK_MMAP */
 		skb_queue_tail(&sk->sk_receive_queue, skb);
-	sk->sk_data_ready(sk, len);
+	sk->sk_data_ready(sk);
 	return len;
 }
 
@@ -2278,7 +2277,7 @@ out:
 	return err ? : copied;
 }
 
-static void netlink_data_ready(struct sock *sk, int len)
+static void netlink_data_ready(struct sock *sk)
 {
 	BUG();
 }
@@ -2561,6 +2560,7 @@ int __netlink_dump_start(struct sock *ssk, struct sk_buff *skb,
 	} else
 		atomic_inc(&skb->users);
 
+	cb->start = control->start;
 	cb->dump = control->dump;
 	cb->done = control->done;
 	cb->nlh = nlh;
@@ -2594,6 +2594,9 @@ int __netlink_dump_start(struct sock *ssk, struct sk_buff *skb,
 
 	nlk->cb = cb;
 	mutex_unlock(nlk->cb_mutex);
+
+	if (cb->start)
+		cb->start(cb);
 
 	ret = netlink_dump(sk);
 out:
@@ -2814,7 +2817,6 @@ static void netlink_seq_stop(struct seq_file *seq, void *v)
 	read_unlock(&nl_table_lock);
 }
 
-
 static int netlink_seq_show(struct seq_file *seq, void *v)
 {
 	if (v == SEQ_START_TOKEN) {
@@ -2848,7 +2850,6 @@ static const struct seq_operations netlink_seq_ops = {
 	.stop   = netlink_seq_stop,
 	.show   = netlink_seq_show,
 };
-
 
 static int netlink_seq_open(struct inode *inode, struct file *file)
 {

@@ -14,7 +14,6 @@
 #include "csr_wifi_hip_unifi.h"
 #include "csr_wifi_hip_conversions.h"
 
-
 /*
  * ---------------------------------------------------------------------------
  *  get_packed_struct_size
@@ -1126,7 +1125,6 @@ s32 get_packed_struct_size(const u8 *buf)
     }
     return size;
 } /* get_packed_struct_size() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -2961,7 +2959,6 @@ CsrResult read_unpack_signal(const u8 *ptr, CSR_SIGNAL *sig)
     }
     return CSR_RESULT_SUCCESS;
 } /* read_unpack_signal() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -4800,5 +4797,3 @@ CsrResult write_pack(const CSR_SIGNAL *sig, u8 *ptr, u16 *sig_len)
 
     return CSR_RESULT_SUCCESS;
 } /* write_pack() */
-
-

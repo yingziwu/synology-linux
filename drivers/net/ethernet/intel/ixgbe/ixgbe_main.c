@@ -248,7 +248,6 @@ static const struct ixgbe_reg_info ixgbe_reg_info_tbl[] = {
 	{}
 };
 
-
 /*
  * ixgbe_regdump - register printout routine
  */
@@ -1051,7 +1050,6 @@ static void ixgbe_update_rx_dca(struct ixgbe_adapter *adapter,
 	struct ixgbe_hw *hw = &adapter->hw;
 	u32 rxctrl = dca3_get_tag(rx_ring->dev, cpu);
 	u8 reg_idx = rx_ring->reg_idx;
-
 
 	switch (hw->mac.type) {
 	case ixgbe_mac_82599EB:
@@ -3344,7 +3342,6 @@ static void ixgbe_configure_virtualization(struct ixgbe_adapter *adapter)
 
 	IXGBE_WRITE_REG(hw, IXGBE_GCR_EXT, gcr_ext);
 
-
 	/* Enable MAC Anti-Spoofing */
 	hw->mac.ops.set_mac_anti_spoofing(hw, (adapter->num_vfs != 0),
 					  adapter->num_vfs);
@@ -5025,7 +5022,6 @@ static int ixgbe_open(struct net_device *netdev)
 					   adapter->num_tx_queues);
 	if (err)
 		goto err_set_queues;
-
 
 	err = netif_set_real_num_rx_queues(netdev,
 					   adapter->num_rx_pools > 1 ? 1 :
@@ -7501,7 +7497,6 @@ skip_sriov:
 				adapter->flags &= ~IXGBE_FLAG_FCOE_CAPABLE;
 		}
 
-
 		fcoe_l = min_t(int, IXGBE_FCRETA_SIZE, num_online_cpus());
 		adapter->ring_feature[RING_F_FCOE].limit = fcoe_l;
 
@@ -7696,7 +7691,6 @@ static void ixgbe_remove(struct pci_dev *pdev)
 
 	set_bit(__IXGBE_DOWN, &adapter->state);
 	cancel_work_sync(&adapter->service_task);
-
 
 #ifdef CONFIG_IXGBE_DCA
 	if (adapter->flags & IXGBE_FLAG_DCA_ENABLED) {

@@ -49,7 +49,6 @@
 #include <linux/miscdevice.h>
 #endif
 
-
 #ifndef MPT3SAS_MINOR
 #define MPT3SAS_MINOR		(MPT_MINOR + 2)
 #endif
@@ -111,7 +110,6 @@ struct mpt3_ioctl_diag_reset {
 	struct mpt3_ioctl_header hdr;
 };
 
-
 /**
  * struct mpt3_ioctl_pci_info - pci device info
  * @device - pci device id
@@ -130,7 +128,6 @@ struct mpt3_ioctl_pci_info {
 	} u;
 	uint32_t segment_id;
 };
-
 
 #define MPT2_IOCTL_INTERFACE_SCSI	(0x00)
 #define MPT2_IOCTL_INTERFACE_FC		(0x01)
@@ -175,7 +172,6 @@ struct mpt3_ioctl_iocinfo {
 	uint16_t rsvd2;
 	struct mpt3_ioctl_pci_info pci_information;
 };
-
 
 /* number of event log entries */
 #define MPT3SAS_CTL_EVENT_LOG_SIZE (50)
@@ -297,8 +293,6 @@ struct mpt3_ioctl_btdh_mapping {
 	uint16_t handle;
 	uint16_t rsvd;
 };
-
-
 
 /* application flags for mpt3_diag_register, mpt3_diag_query */
 #define MPT3_APP_FLAGS_APP_OWNED	(0x0001)

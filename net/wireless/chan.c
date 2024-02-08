@@ -279,7 +279,6 @@ static int cfg80211_get_chans_dfs_required(struct wiphy *wiphy,
 	return 0;
 }
 
-
 int cfg80211_chandef_dfs_required(struct wiphy *wiphy,
 				  const struct cfg80211_chan_def *chandef)
 {

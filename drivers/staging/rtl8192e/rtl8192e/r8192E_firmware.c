@@ -322,7 +322,6 @@ bool init_firmware(struct net_device *dev)
 				break;
 			}
 
-
 		} else if (rst_opt == OPT_FIRMWARE_RESET) {
 			mapped_file = pfirmware->firmware_buf[init_step];
 			file_length = pfirmware->firmware_buf_size[init_step];

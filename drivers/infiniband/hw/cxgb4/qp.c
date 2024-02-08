@@ -1322,7 +1322,7 @@ int c4iw_modify_qp(struct c4iw_dev *rhp, struct c4iw_qp *qhp,
 	case C4IW_QP_STATE_RTS:
 		switch (attrs->next_state) {
 		case C4IW_QP_STATE_CLOSING:
-			BUG_ON(atomic_read(&qhp->ep->com.kref.refcount) < 2);
+			BUG_ON(kref_read(&qhp->ep->com.kref) < 2);
 			set_state(qhp, C4IW_QP_STATE_CLOSING);
 			ep = qhp->ep;
 			if (!internal) {
@@ -1552,7 +1552,6 @@ struct ib_qp *c4iw_create_qp(struct ib_pd *pd, struct ib_qp_init_attr *attrs,
 
 	ucontext = pd->uobject ? to_c4iw_ucontext(pd->uobject->context) : NULL;
 
-
 	qhp = kzalloc(sizeof(*qhp), GFP_KERNEL);
 	if (!qhp)
 		return ERR_PTR(-ENOMEM);
@@ -1748,7 +1747,6 @@ int c4iw_ib_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 	attrs.enable_rdma_write = (attr->qp_access_flags &
 				IB_ACCESS_REMOTE_WRITE) ? 1 : 0;
 	attrs.enable_bind = (attr->qp_access_flags & IB_ACCESS_MW_BIND) ? 1 : 0;
-
 
 	mask |= (attr_mask & IB_QP_STATE) ? C4IW_QP_ATTR_NEXT_STATE : 0;
 	mask |= (attr_mask & IB_QP_ACCESS_FLAGS) ?

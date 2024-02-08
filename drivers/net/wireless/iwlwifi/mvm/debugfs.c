@@ -369,7 +369,6 @@ static ssize_t iwl_dbgfs_mac_params_read(struct file *file,
 	((le32_to_cpu((_notif)->mbox_msg[(_num)]) & BT_MBOX##_num##_##_field)\
 	>> BT_MBOX##_num##_##_field##_POS)
 
-
 #define BT_MBOX_PRINT(_num, _field, _end)				    \
 			pos += scnprintf(buf + pos, bufsz - pos,	    \
 					 "\t%s: %d%s",			    \

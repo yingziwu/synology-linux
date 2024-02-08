@@ -760,7 +760,6 @@ static void xen_netbk_rx_action(struct xen_netbk *netbk)
 			sco->meta_slots_used--;
 		}
 
-
 		vif->dev->stats.tx_bytes += skb->len;
 		vif->dev->stats.tx_packets++;
 
@@ -1774,7 +1773,6 @@ static void xen_netbk_idx_release(struct xen_netbk *netbk, u16 pending_idx,
 	put_page(netbk->mmap_pages[pending_idx]);
 	netbk->mmap_pages[pending_idx] = NULL;
 }
-
 
 static void make_tx_response(struct xenvif *vif,
 			     struct xen_netif_tx_request *txp,

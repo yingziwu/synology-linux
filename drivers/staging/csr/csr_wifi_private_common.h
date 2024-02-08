@@ -22,38 +22,29 @@
 /** Number of only b rates */
 #define CSR_WIFI_SME_AP_MAX_ONLY_B_RATES        4
 
-
 /** Number of mandatory b rates */
 #define CSR_WIFI_SME_AP_MAX_MANDATORY_B_RATES   2
-
 
 /** Number of mandatory bg rates */
 #define CSR_WIFI_SME_AP_MAX_MANDATORY_BG_RATES  4
 
-
 /** Number of bg rates */
 #define CSR_WIFI_SME_AP_MAX_BG_RATES            12
-
 
 /** Number of no b only g rates */
 #define CSR_WIFI_SME_AP_MAX_NO_B_ONLY_G_RATES   8
 
-
 /** Number of mandatory g rates */
 #define CSR_WIFI_SME_AP_MAX_MANDATORY_G_RATES   7
-
 
 /* Number of g mandatory rates */
 #define CSR_WIFI_SME_AP_G_MANDATORY_RATES_NUM   7
 
-
 /* Number of b mandatory rates */
 #define CSR_WIFI_SME_AP_B_MANDATORY_RATES_NUM   2
 
-
 /* Number of b/g mandatory rates */
 #define CSR_WIFI_SME_AP_BG_MANDATORY_RATES_NUM   4
-
 
 /* The maximum allowed length of SSID */
 #define CSR_WIFI_SME_AP_SSID_MAX_LENGTH         32
@@ -63,7 +54,6 @@
 
 /* Refer 7.3.2.9 (ISO/IEC 8802-11:2006) WAPI element - we support WAPI PSK only, no bkid, group cipher suite */
 #define CSR_WIFI_SME_WAPI_PACKED_SIZE (1 + 1 + 2 + 2 + 4 * 1 + 2 + 4 * 1 + 4 + 2 + 24)
-
 
 /* Common structure for NME and SME to maintain Interface mode*/
 typedef u8 CsrWifiInterfaceMode;
@@ -78,4 +68,3 @@ typedef u8 CsrWifiInterfaceMode;
 #define  CSR_WIFI_MODE_IBSS                             ((CsrWifiInterfaceMode) 0x07)
 
 #endif
-

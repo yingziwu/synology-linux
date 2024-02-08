@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 1992 Krishna Balasubramanian and Linus Torvalds
  * Copyright (C) 1999 Ingo Molnar <mingo@redhat.com>
@@ -10,6 +13,10 @@
 #include <linux/gfp.h>
 #include <linux/sched.h>
 #include <linux/string.h>
+#ifdef MY_DEF_HERE
+#else
+#include <linux/kaiser.h>
+#endif	/* MY_DEF_HERE */
 #include <linux/mm.h>
 #include <linux/smp.h>
 #include <linux/vmalloc.h>
@@ -28,10 +35,25 @@ static void flush_ldt(void *current_mm)
 }
 #endif
 
+#ifdef MY_DEF_HERE
+#else
+static void free_ldt(void *ldt, int size)
+{
+	if (size * LDT_ENTRY_SIZE > PAGE_SIZE)
+		vfree(ldt);
+	else
+		put_page(virt_to_page(ldt));
+}
+#endif	/* MY_DEF_HERE */
+
 static int alloc_ldt(mm_context_t *pc, int mincount, int reload)
 {
 	void *oldldt, *newldt;
 	int oldsize;
+#ifdef MY_DEF_HERE
+#else
+	int ret;
+#endif	/* MY_DEF_HERE */
 
 	if (mincount <= pc->size)
 		return 0;
@@ -45,6 +67,16 @@ static int alloc_ldt(mm_context_t *pc, int mincount, int reload)
 
 	if (!newldt)
 		return -ENOMEM;
+#ifdef MY_DEF_HERE
+#else
+	ret = kaiser_add_mapping((unsigned long)newldt,
+				 mincount * LDT_ENTRY_SIZE,
+				 __PAGE_KERNEL | _PAGE_GLOBAL);
+	if (ret) {
+		free_ldt(newldt, mincount);
+		return -ENOMEM;
+	}
+#endif	/* MY_DEF_HERE */
 
 	if (oldsize)
 		memcpy(newldt, pc->ldt, oldsize * LDT_ENTRY_SIZE);
@@ -76,11 +108,18 @@ static int alloc_ldt(mm_context_t *pc, int mincount, int reload)
 #endif
 	}
 	if (oldsize) {
+#ifdef MY_DEF_HERE
 		paravirt_free_ldt(oldldt, oldsize);
 		if (oldsize * LDT_ENTRY_SIZE > PAGE_SIZE)
 			vfree(oldldt);
 		else
 			put_page(virt_to_page(oldldt));
+#else
+		kaiser_remove_mapping((unsigned long)oldldt,
+				      oldsize * LDT_ENTRY_SIZE);
+		paravirt_free_ldt(oldldt, oldsize);
+		free_ldt(oldldt, oldsize);
+#endif	/* MY_DEF_HERE */
 	}
 	return 0;
 }
@@ -131,6 +170,11 @@ void destroy_context(struct mm_struct *mm)
 		if (mm == current->active_mm)
 			clear_LDT();
 #endif
+#ifdef MY_DEF_HERE
+#else
+		kaiser_remove_mapping((unsigned long)mm->context.ldt,
+				      mm->context.size * LDT_ENTRY_SIZE);
+#endif	/* MY_DEF_HERE */
 		paravirt_free_ldt(mm->context.ldt, mm->context.size);
 		if (mm->context.size * LDT_ENTRY_SIZE > PAGE_SIZE)
 			vfree(mm->context.ldt);

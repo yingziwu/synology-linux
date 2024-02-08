@@ -762,7 +762,6 @@ static void atmel_rx_from_ring(struct uart_port *port)
 				flg = TTY_FRAME;
 		}
 
-
 		if (uart_handle_sysrq_char(port, c.ch))
 			continue;
 
@@ -1038,7 +1037,6 @@ static void atmel_shutdown(struct uart_port *port)
 
 	UART_PUT_CR(port, ATMEL_US_RSTSTA);
 	UART_PUT_IDR(port, -1);
-
 
 	/*
 	 * Shut-down the DMA.
@@ -1399,8 +1397,6 @@ atmel_ioctl(struct uart_port *port, unsigned int cmd, unsigned long arg)
 	}
 	return 0;
 }
-
-
 
 static struct uart_ops atmel_pops = {
 	.tx_empty	= atmel_tx_empty,

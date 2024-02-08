@@ -14,7 +14,6 @@
 
 #ifdef UNIFI_SNIFF_ARPHRD
 
-
 #if (UNIFI_SNIFF_ARPHRD == ARPHRD_IEEE80211_RADIOTAP)
 #include <net/ieee80211_radiotap.h>
 #endif
@@ -66,8 +65,6 @@ uf_start_sniff(unifi_priv_t *priv)
 
     return 0;
 } /* uf_start_sniff() */
-
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -162,7 +159,6 @@ netrx_radiotap(unifi_priv_t *priv,
         | (1 << IEEE80211_RADIOTAP_ANTENNA)
         ;
 
-
     /* No flags to set */
     unifi_rt->rt_tsft = (((u64)ind->Timestamp.x[7]) | (((u64)ind->Timestamp.x[6]) << 8) |
                          (((u64)ind->Timestamp.x[5]) << 16) | (((u64)ind->Timestamp.x[4]) << 24) |
@@ -186,7 +182,6 @@ netrx_radiotap(unifi_priv_t *priv,
 
     unifi_rt->rt_antenna = ind->AntennaId;
 
-
     skb->dev = dev;
     skb->mac_header = skb->data;
     skb->pkt_type = PACKET_OTHERHOST;
@@ -204,7 +199,6 @@ netrx_radiotap(unifi_priv_t *priv,
 
 } /* netrx_radiotap() */
 #endif /* RADIOTAP */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -297,7 +291,6 @@ netrx_prism(unifi_priv_t *priv,
     avs->preamble       = htonl(0); /* unknown */
     avs->encoding       = htonl(0); /* unknown */
 
-
     skb->dev = dev;
     skb->mac.raw = skb->data;
     skb->pkt_type = PACKET_OTHERHOST;
@@ -315,7 +308,6 @@ netrx_prism(unifi_priv_t *priv,
 
 } /* netrx_prism() */
 #endif /* PRISM */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -379,6 +371,4 @@ ma_sniffdata_ind(void *ospriv,
 
 } /* ma_sniffdata_ind() */
 
-
 #endif /* UNIFI_SNIFF_ARPHRD */
-

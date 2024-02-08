@@ -167,7 +167,6 @@ static int e100_write_rs485(struct tty_struct *tty,
 #endif
 static int get_lsr_info(struct e100_serial *info, unsigned int *value);
 
-
 #define DEF_BAUD 115200   /* 115.2 kbit/s */
 #define DEF_RX 0x20  /* or SERIAL_CTRL_W >> 8 */
 /* Default value of tx_ctrl register: has txd(bit 7)=1 (idle) as default */
@@ -210,7 +209,6 @@ static int get_lsr_info(struct e100_serial *info, unsigned int *value);
  * We will also use the bits defined for serial port 0 when writing commands
  * to the different ports, as these bits too are the same for all ports.
  */
-
 
 /* Mask for the irqs possibly enabled in R_IRQ_MASK1_RD etc. */
 static const unsigned long e100_ser_int_mask = 0
@@ -450,7 +448,6 @@ static struct e100_serial rs_table[] = {
 #endif
 };
 
-
 #define NR_PORTS (sizeof(rs_table)/sizeof(struct e100_serial))
 
 #ifdef CONFIG_ETRAX_SERIAL_FAST_TIMER
@@ -572,7 +569,6 @@ static unsigned char dummy_ser[NR_PORTS] = {0xFF, 0xFF, 0xFF,0xFF};
 #endif
 
 #endif /* PORT0 */
-
 
 #ifdef CONFIG_ETRAX_SERIAL_PORT1
 
@@ -736,7 +732,6 @@ static unsigned char dummy_ser[NR_PORTS] = {0xFF, 0xFF, 0xFF,0xFF};
 
 #endif /* PORT3 */
 
-
 #if defined(CONFIG_ETRAX_SER0_DTR_RI_DSR_CD_MIXED) || \
     defined(CONFIG_ETRAX_SER1_DTR_RI_DSR_CD_MIXED) || \
     defined(CONFIG_ETRAX_SER2_DTR_RI_DSR_CD_MIXED) || \
@@ -752,7 +747,6 @@ static unsigned char dummy_ser[NR_PORTS] = {0xFF, 0xFF, 0xFF,0xFF};
   &dummy_ser[line], &dummy_ser[line], \
   &dummy_ser[line], &dummy_ser[line], \
   DUMMY_DTR_MASK, DUMMY_RI_MASK, DUMMY_DSR_MASK, DUMMY_CD_MASK
-
 
 struct control_pins
 {
@@ -843,7 +837,6 @@ static const struct control_pins e100_modem_pins[NR_PORTS] =
 #define CONTROL_PINS_PORT_NOT_USED(line) \
   &dummy_ser[line], &dummy_ser[line], \
   DUMMY_DTR_MASK, DUMMY_RI_MASK, DUMMY_DSR_MASK, DUMMY_CD_MASK
-
 
 struct control_pins
 {
@@ -1022,7 +1015,6 @@ cflag_to_etrax_baud(unsigned int cflag)
 	return retval | (retval << 4); /* choose same for both TX and RX */
 }
 
-
 /* Various static support functions */
 
 /* Functions to set or clear DTR/RTS on the requested line */
@@ -1030,7 +1022,6 @@ cflag_to_etrax_baud(unsigned int cflag)
  * DTR might not be implemented in the HW at all, and if it is, it can be on
  * any general port.
  */
-
 
 static inline void
 e100_dtr(struct e100_serial *info, int set)
@@ -1081,7 +1072,6 @@ e100_rts(struct e100_serial *info, int set)
 #endif
 #endif
 }
-
 
 /* If this behaves as a modem, RI and CD is an output */
 static inline void
@@ -1219,7 +1209,6 @@ static void e100_disable_txdma_channel(struct e100_serial *info)
 	local_irq_restore(flags);
 }
 
-
 static void e100_enable_txdma_channel(struct e100_serial *info)
 {
 	unsigned long flags;
@@ -1280,7 +1269,6 @@ static void e100_disable_rxdma_channel(struct e100_serial *info)
 	*R_GEN_CONFIG = genconfig_shadow;
 	local_irq_restore(flags);
 }
-
 
 static void e100_enable_rxdma_channel(struct e100_serial *info)
 {
@@ -1951,7 +1939,6 @@ start_receive(struct e100_serial *info)
 	}
 }
 
-
 /* the bits in the MASK2 register are laid out like this:
    DMAI_EOP DMAI_DESCR DMAO_EOP DMAO_DESCR
    where I is the input channel and O is the output channel for the port.
@@ -2223,7 +2210,6 @@ know if another byte will come and this really is case 2. below
 (e.g F=0xFF or 0xFE)
 If RXD pin is 0 we can expect another character (see 2. below).
 
-
 2.
 
     B          B          E or F__________________..__ V
@@ -2283,7 +2269,6 @@ more_data:
 			log_int(rdpc(), 0, 0);
 		}
 		);
-
 
 		if ( ((data_read & IO_MASK(R_SERIAL0_READ, data_in)) == 0) &&
 		     (data_read & IO_MASK(R_SERIAL0_READ, framing_err)) ) {
@@ -2354,7 +2339,6 @@ more_data:
 	} else {
 		DEBUG_LOG(info->line, "ser_rx int but no data_avail  %08lX\n", data_read);
 	}
-
 
 	info->icount.rx++;
 	data_read = *((unsigned long *)&info->ioport[REG_DATA_STATUS32]);
@@ -2919,7 +2903,6 @@ shutdown(struct e100_serial * info)
 	local_irq_restore(flags);
 }
 
-
 /* change baud rate and other assorted parameters */
 
 static void
@@ -3131,7 +3114,6 @@ static int rs_raw_write(struct tty_struct *tty,
 	DFLOW(DEBUG_LOG(info->line, "write count %i ", count));
 	DFLOW(DEBUG_LOG(info->line, "ldisc %i\n", tty->ldisc.chars_in_buffer(tty)));
 
-
 	/* The local_irq_disable/restore_flags pairs below are needed
 	 * because the DMA interrupt handler moves the info->xmit values.
 	 * the memcpy needs to be in the critical region unfortunately,
@@ -3236,7 +3218,6 @@ rs_write(struct tty_struct *tty,
 
 	return count;
 } /* rs_write */
-
 
 /* how much space is available in the xmit buffer? */
 
@@ -3605,7 +3586,6 @@ rs_tiocmget(struct tty_struct *tty)
 	return result;
 
 }
-
 
 static int
 rs_ioctl(struct tty_struct *tty,
@@ -4178,7 +4158,6 @@ rs_open(struct tty_struct *tty, struct file * filp)
 		return retval;
 	}
 
-
 	retval = block_til_ready(tty, filp, info);
 	if (retval) {
 #ifdef SERIAL_DEBUG_OPEN
@@ -4284,7 +4263,6 @@ static void seq_line_info(struct seq_file *m, struct e100_serial *info)
 	seq_puts(m, "\n");
 }
 
-
 static int crisv10_proc_show(struct seq_file *m, void *v)
 {
 	int i;
@@ -4322,7 +4300,6 @@ static const struct file_operations crisv10_proc_fops = {
 	.release	= single_release,
 };
 #endif
-
 
 /* Finally, routines used to initialize the serial driver. */
 

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * linux/kernel/ptrace.c
  *
@@ -26,7 +29,6 @@
 #include <linux/hw_breakpoint.h>
 #include <linux/cn_proc.h>
 #include <linux/compat.h>
-
 
 static int ptrace_trapping_sleep_fn(void *flags)
 {
@@ -222,17 +224,30 @@ static int ptrace_has_cap(struct user_namespace *ns, unsigned int mode)
 }
 
 /* Returns 0 on success, -errno on denial. */
+#ifdef MY_DEF_HERE
 static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
+#else
+int ___ptrace_may_access(struct task_struct *tracer,
+			 const struct cred *cred, /* tracer cred */
+			 struct task_struct *task,
+			 unsigned int mode)
+#endif	/* MY_DEF_HERE */
 {
+#ifdef MY_DEF_HERE
 	const struct cred *cred = current_cred(), *tcred;
+#else
+	const struct cred *tcred;
+#endif	/* MY_DEF_HERE */
 	int dumpable = 0;
 	kuid_t caller_uid;
 	kgid_t caller_gid;
 
+#ifdef MY_DEF_HERE
 	if (!(mode & PTRACE_MODE_FSCREDS) == !(mode & PTRACE_MODE_REALCREDS)) {
 		WARN(1, "denying ptrace access check without PTRACE_MODE_*CREDS\n");
 		return -EPERM;
 	}
+#endif	/* MY_DEF_HERE */
 
 	/* May we inspect the given task?
 	 * This check is used both for attaching with ptrace
@@ -247,6 +262,17 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
 	if (same_thread_group(task, current))
 		return 0;
 	rcu_read_lock();
+#ifdef MY_DEF_HERE
+#else
+	if (!cred) {
+		WARN_ON_ONCE(tracer == current);
+		WARN_ON_ONCE(task != current);
+		cred = __task_cred(tracer);
+	} else {
+		WARN_ON_ONCE(tracer != current);
+		WARN_ON_ONCE(task == current);
+	}
+#endif	/* MY_DEF_HERE */
 	if (mode & PTRACE_MODE_FSCREDS) {
 		caller_uid = cred->fsuid;
 		caller_gid = cred->fsgid;
@@ -287,8 +313,23 @@ ok:
 	}
 	rcu_read_unlock();
 
+#ifdef MY_DEF_HERE
 	return security_ptrace_access_check(task, mode);
+#else
+	if (!(mode & PTRACE_MODE_NOACCESS_CHK))
+		return security_ptrace_access_check(task, mode);
+
+	return 0;
+#endif	/* MY_DEF_HERE */
 }
+
+#ifdef MY_DEF_HERE
+#else
+int __ptrace_may_access(struct task_struct *task, unsigned int mode)
+{
+	return ___ptrace_may_access(current, current_cred(), task, mode);
+}
+#endif	/* MY_DEF_HERE */
 
 bool ptrace_may_access(struct task_struct *task, unsigned int mode)
 {

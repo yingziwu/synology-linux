@@ -42,7 +42,6 @@ BFA_MODULE(uf);
 #define BFA_LPS_MAX_VPORTS_SUPP_CB  255
 #define BFA_LPS_MAX_VPORTS_SUPP_CT  190
 
-
 /*
  * FC PORT related definitions
  */
@@ -236,7 +235,6 @@ static struct bfa_sm_table_s hal_port_sm_table[] = {
 	{BFA_SM(bfa_fcport_sm_dport), BFA_PORT_ST_DPORT},
 	{BFA_SM(bfa_fcport_sm_faa_misconfig), BFA_PORT_ST_FAA_MISCONFIG},
 };
-
 
 /*
  * forward declaration for RPORT related functions
@@ -434,7 +432,6 @@ bfa_plog_fchdr_and_pl(struct bfa_plog_s *plog, enum bfa_plog_mid mid,
 		bfa_plog_intarr(plog, mid, event, misc, ints, 4);
 	}
 }
-
 
 /*
  *  fcxp_pvt BFA FCXP private functions
@@ -1495,8 +1492,6 @@ bfa_lps_sm_logowait(struct bfa_lps_s *lps, enum bfa_lps_event event)
 	}
 }
 
-
-
 /*
  *  lps_pvt BFA LPS private functions
  */
@@ -1890,8 +1885,6 @@ bfa_lps_cvl_event(struct bfa_lps_s *lps)
 		bfa_cb_lps_cvl_event(lps->bfa->bfad, lps->uarg);
 }
 
-
-
 /*
  *  lps_public BFA LPS public functions
  */
@@ -1970,7 +1963,6 @@ bfa_lps_fdisc(struct bfa_lps_s *lps, void *uarg, u16 pdusz, wwn_t pwwn,
 	bfa_sm_send_event(lps, BFA_LPS_SM_LOGIN);
 }
 
-
 /*
  * Initiate a lport FDSIC logout.
  */
@@ -2006,7 +1998,6 @@ bfa_lps_get_tag_from_pid(struct bfa_s *bfa, u32 pid)
 	/* Return base port tag anyway */
 	return 0;
 }
-
 
 /*
  * return port id assigned to the base lport
@@ -4698,8 +4689,6 @@ bfa_rport_sm_iocdisable(struct bfa_rport_s *rp, enum bfa_rport_event event)
 	}
 }
 
-
-
 /*
  *  bfa_rport_private BFA rport private functions
  */
@@ -4920,8 +4909,6 @@ bfa_rport_send_fwspeed(struct bfa_rport_s *rp)
 	bfa_reqq_produce(rp->bfa, BFA_REQQ_RPORT, m->mh);
 	return BFA_TRUE;
 }
-
-
 
 /*
  *  bfa_rport_public
@@ -5584,8 +5571,6 @@ bfa_uf_free(struct bfa_uf_s *uf)
 	bfa_uf_post_all(BFA_UF_MOD(uf->bfa));
 }
 
-
-
 /*
  *  uf_pub BFA uf module public functions
  */
@@ -6241,7 +6226,6 @@ bfa_dport_sm_disabling(struct bfa_dport_s *dport, enum bfa_dport_sm_event event)
 		bfa_sm_fault(dport->bfa, event);
 	}
 }
-
 
 static bfa_boolean_t
 bfa_dport_send_req(struct bfa_dport_s *dport, enum bfi_dport_req req)

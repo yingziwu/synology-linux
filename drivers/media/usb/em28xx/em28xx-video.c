@@ -76,7 +76,6 @@ MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
 MODULE_VERSION(EM28XX_VERSION);
 
-
 #define EM25XX_FRMDATAHDR_BYTE1			0x02
 #define EM25XX_FRMDATAHDR_BYTE2_STILL_IMAGE	0x20
 #define EM25XX_FRMDATAHDR_BYTE2_FRAME_END	0x02
@@ -84,7 +83,6 @@ MODULE_VERSION(EM28XX_VERSION);
 #define EM25XX_FRMDATAHDR_BYTE2_MASK	(EM25XX_FRMDATAHDR_BYTE2_STILL_IMAGE | \
 					 EM25XX_FRMDATAHDR_BYTE2_FRAME_END |   \
 					 EM25XX_FRMDATAHDR_BYTE2_FRAME_ID)
-
 
 static unsigned int video_nr[] = {[0 ... (EM28XX_MAXBOARDS - 1)] = -1U };
 static unsigned int vbi_nr[]   = {[0 ... (EM28XX_MAXBOARDS - 1)] = -1U };
@@ -536,7 +534,6 @@ static inline int em28xx_urb_data_copy(struct em28xx *dev, struct urb *urb)
 	}
 	return 1;
 }
-
 
 static int get_ressource(enum v4l2_buf_type f_type)
 {
@@ -1455,7 +1452,6 @@ static int vidioc_s_register(struct file *file, void *priv,
 }
 #endif
 
-
 static int vidioc_querycap(struct file *file, void  *priv,
 					struct v4l2_capability *cap)
 {
@@ -1631,7 +1627,6 @@ static int em28xx_v4l2_open(struct file *filp)
 	em28xx_videodbg("open dev=%s type=%s users=%d\n",
 			video_device_node_name(vdev), v4l2_type_names[fh_type],
 			dev->users);
-
 
 	if (mutex_lock_interruptible(&dev->lock))
 		return -ERESTARTSYS;
@@ -1847,8 +1842,6 @@ static struct video_device em28xx_radio_template = {
 };
 
 /******************************** usb interface ******************************/
-
-
 
 static struct video_device *em28xx_vdev_init(struct em28xx *dev,
 					const struct video_device *template,

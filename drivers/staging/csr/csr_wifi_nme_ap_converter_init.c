@@ -64,13 +64,11 @@ CsrMsgConvMsgEntry* CsrWifiNmeApConverterLookup(CsrMsgConvMsgEntry *ce, u16 msgT
     return NULL;
 }
 
-
 void CsrWifiNmeApConverterInit(void)
 {
     CsrMsgConvInsert(CSR_WIFI_NME_AP_PRIM, csrwifinmeap_conv_lut);
     CsrMsgConvCustomLookupRegister(CSR_WIFI_NME_AP_PRIM, CsrWifiNmeApConverterLookup);
 }
-
 
 #ifdef CSR_LOG_ENABLE
 static const CsrLogPrimitiveInformation csrwifinmeap_conv_info = {
@@ -82,7 +80,6 @@ const CsrLogPrimitiveInformation* CsrWifiNmeApTechInfoGet(void)
 {
     return &csrwifinmeap_conv_info;
 }
-
 
 #endif /* CSR_LOG_ENABLE */
 #endif /* EXCLUDE_CSR_WIFI_NME_AP_MODULE */

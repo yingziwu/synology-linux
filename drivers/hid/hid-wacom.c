@@ -207,7 +207,6 @@ static enum led_brightness wacom_leds_get_brightness(struct led_classdev *led_de
 	return value;
 }
 
-
 static int wacom_initialize_leds(struct hid_device *hdev)
 {
 	struct wacom_data *wdata = hid_get_drvdata(hdev);
@@ -869,7 +868,6 @@ OLED_INIT(7);
 	wdata->battery.name = "wacom_battery";
 	wdata->battery.type = POWER_SUPPLY_TYPE_BATTERY;
 	wdata->battery.use_for_apm = 0;
-
 
 	ret = power_supply_register(&hdev->dev, &wdata->battery);
 	if (ret) {

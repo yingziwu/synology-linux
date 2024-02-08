@@ -81,7 +81,6 @@
 		WREG8(VGA_DAC_MASK, v);					\
 	} while (0)						\
 
-
 #define CIRRUS_MAX_FB_HEIGHT 4096
 #define CIRRUS_MAX_FB_WIDTH 4096
 
@@ -147,7 +146,6 @@ struct cirrus_device {
 	bool mm_inited;
 };
 
-
 struct cirrus_fbdev {
 	struct drm_fb_helper helper;
 	struct cirrus_framebuffer gfb;
@@ -174,7 +172,6 @@ cirrus_bo(struct ttm_buffer_object *bo)
 	return container_of(bo, struct cirrus_bo, bo);
 }
 
-
 #define to_cirrus_obj(x) container_of(x, struct cirrus_gem_object, base)
 #define DRM_FILE_PAGE_OFFSET (0x100000000ULL >> PAGE_SHIFT)
 
@@ -183,7 +180,6 @@ void cirrus_crtc_fb_gamma_set(struct drm_crtc *crtc, u16 red, u16 green,
 			     u16 blue, int regno);
 void cirrus_crtc_fb_gamma_get(struct drm_crtc *crtc, u16 *red, u16 *green,
 			     u16 *blue, int regno);
-
 
 				/* cirrus_main.c */
 int cirrus_device_init(struct cirrus_device *cdev,
@@ -219,8 +215,6 @@ void cirrus_modeset_fini(struct cirrus_device *cdev);
 				/* cirrus_fbdev.c */
 int cirrus_fbdev_init(struct cirrus_device *cdev);
 void cirrus_fbdev_fini(struct cirrus_device *cdev);
-
-
 
 				/* cirrus_irq.c */
 void cirrus_driver_irq_preinstall(struct drm_device *dev);
