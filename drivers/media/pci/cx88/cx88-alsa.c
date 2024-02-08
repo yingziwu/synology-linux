@@ -92,6 +92,8 @@ struct cx88_audio_dev {
 };
 typedef struct cx88_audio_dev snd_cx88_card_t;
 
+
+
 /****************************************************************************
 			Module global static vars
  ****************************************************************************/
@@ -105,6 +107,7 @@ MODULE_PARM_DESC(enable, "Enable cx88x soundcard. default enabled.");
 
 module_param_array(index, int, NULL, 0444);
 MODULE_PARM_DESC(index, "Index value for cx88x capture interface(s).");
+
 
 /****************************************************************************
 				Module macros
@@ -286,6 +289,7 @@ static irqreturn_t cx8801_irq(int irq, void *dev_id)
  out:
 	return IRQ_RETVAL(handled);
 }
+
 
 static int dsp_buffer_free(snd_cx88_card_t *chip)
 {
@@ -781,6 +785,7 @@ static void snd_cx88_dev_free(struct snd_card * card)
 	snd_cx88_free(chip);
 }
 
+
 /*
  * Alsa Constructor - Component probe
  */
@@ -817,6 +822,7 @@ static int snd_cx88_create(struct snd_card *card, struct pci_dev *pci,
 		cx88_core_put(core, pci);
 		return err;
 	}
+
 
 	/* pci init */
 	chip->card = card;

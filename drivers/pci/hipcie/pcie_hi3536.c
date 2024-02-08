@@ -225,6 +225,7 @@ static int __arch_pcie_sys_init(struct pcie_info *info)
 	writel(val, dbi_base + PCI_CLASS_REVISION);
 	udelay(1000);
 
+
 	/*
 	 * Enable controller
 	 */
@@ -273,3 +274,4 @@ static void __arch_pcie_sys_exit(void)
 
 	udelay(1000);
 }
+

@@ -418,6 +418,7 @@ int hcd_init(
 	if (retval < 0)
 		goto error2;
 
+
 	dwc_otg_hcd_set_priv_data(dwc_otg_hcd, hcd);
 	return 0;
 
@@ -494,6 +495,7 @@ int hcd_start(struct usb_hcd *hcd)
 	hcd->state = HC_STATE_RUNNING;
 	if (dwc_otg_hcd_start(dwc_otg_hcd, &hcd_fops))
 		return 0;
+
 
 	/* Initialize and connect root hub if one is not already attached */
 	if (bus->root_hub) {

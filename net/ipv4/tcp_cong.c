@@ -95,6 +95,7 @@ void tcp_init_congestion_control(struct sock *sk)
 		rcu_read_unlock();
 	}
 
+	tcp_sk(sk)->prior_ssthresh = 0;
 	if (icsk->icsk_ca_ops->init)
 		icsk->icsk_ca_ops->init(sk);
 }
@@ -143,6 +144,7 @@ static int __init tcp_congestion_default(void)
 	return tcp_set_default_congestion_control(CONFIG_DEFAULT_TCP_CONG);
 }
 late_initcall(tcp_congestion_default);
+
 
 /* Build string with list of available congestion control values */
 void tcp_get_available_congestion_control(char *buf, size_t maxlen)
@@ -230,6 +232,7 @@ out:
 
 	return ret;
 }
+
 
 /* Change congestion control for socket */
 int tcp_set_congestion_control(struct sock *sk, const char *name)

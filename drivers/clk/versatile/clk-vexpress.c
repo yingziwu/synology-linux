@@ -46,6 +46,7 @@ static void __init vexpress_sp810_init(void __iomem *base)
 	}
 }
 
+
 static const char * const vexpress_clk_24mhz_periphs[] __initconst = {
 	"mb:uart0", "mb:uart1", "mb:uart2", "mb:uart3",
 	"mb:mmci", "mb:kmi0", "mb:kmi1"

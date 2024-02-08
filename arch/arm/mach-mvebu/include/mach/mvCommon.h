@@ -104,6 +104,7 @@ static inline MV_U32 mv_jhash_3words(MV_U32 a, MV_U32 b, MV_U32 c, MV_U32 initva
 }
 #endif
 
+
 /* Swap tool */
 
 /* 16bit nibble swap. For example 0x1234 -> 0x2143                          */

@@ -450,6 +450,7 @@ static struct pm8001_hba_info *pm8001_pci_alloc(struct pci_dev *pdev,
 	struct pm8001_hba_info *pm8001_ha;
 	struct sas_ha_struct *sha = SHOST_TO_SAS_HA(shost);
 
+
 	pm8001_ha = sha->lldd_ha;
 	if (!pm8001_ha)
 		return NULL;
@@ -1112,3 +1113,4 @@ MODULE_DESCRIPTION(
 MODULE_VERSION(DRV_VERSION);
 MODULE_LICENSE("GPL");
 MODULE_DEVICE_TABLE(pci, pm8001_pci_table);
+

@@ -185,3 +185,4 @@ module_platform_driver(stih41x_usb_phy_driver);
 MODULE_AUTHOR("Maxime Coquelin <maxime.coquelin@st.com>");
 MODULE_DESCRIPTION("STMicroelectronics USB PHY driver for STiH41x series");
 MODULE_LICENSE("GPL v2");
+

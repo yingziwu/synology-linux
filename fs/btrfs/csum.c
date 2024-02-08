@@ -34,6 +34,7 @@
 
 #include <asm/cputype.h>
 
+
 #ifdef CONFIG_BTRFS_FS_AHASH_CRC
 
 struct crc_req_data {
@@ -52,6 +53,7 @@ struct csum_mpage_data {
 static struct kmem_cache *btrfs_mpage_cache;
 
 DEFINE_PER_CPU(struct crypto_ahash *, tfm_percpu);
+
 
 static void crc_complete(struct crypto_async_request *req, int err)
 {
@@ -227,6 +229,7 @@ void btrfs_csum_exit(void)
 #include "../../arch/arm/mach-alpine/include/al_hal/al_hal_ssm_crc_memcpy.h"
 #include "../../drivers/crypto/al/al_crypto.h"
 
+
 #define CRC_SIZE 4
 
 extern struct al_ssm_dma *al_btrfs_crc_dma[];
@@ -357,6 +360,7 @@ int btrfs_csum_init(void)
 void btrfs_csum_exit(void)
 {
 }
+
 
 #else /* FAST_CRC */
 void btrfs_csum_page_digest(

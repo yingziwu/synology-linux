@@ -54,6 +54,7 @@ struct mtt_outdrv_caps {
 uint32_t devid;
 };
 
+
 /* =====^^^=== ARCH INDEPENDENT STRUCTURES ====^^^===== */
 
 /* Use an ioctl to setup the mtt driver (passing a structure). */

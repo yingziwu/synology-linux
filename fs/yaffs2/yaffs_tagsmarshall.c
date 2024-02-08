@@ -96,6 +96,7 @@ static int yaffs_tags_marshall_read(struct yaffs_dev *dev,
 	else
 		BUG();
 
+
 	if (dev->param.inband_tags) {
 		if (tags) {
 			struct yaffs_packed_tags2_tags_only *pt2tp;
@@ -176,6 +177,7 @@ static int yaffs_tags_marshall_mark_bad(struct yaffs_dev *dev, int block_no)
 	return dev->drv.drv_mark_bad_fn(dev, block_no);
 
 }
+
 
 void yaffs_tags_marshall_install(struct yaffs_dev *dev)
 {

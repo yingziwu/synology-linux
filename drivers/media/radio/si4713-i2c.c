@@ -1024,6 +1024,7 @@ static int si4713_initialize(struct si4713_device *sdev)
 	if (rval < 0)
 		return rval;
 
+
 	sdev->frequency = DEFAULT_FREQUENCY;
 	sdev->stereo = 1;
 	sdev->tune_rnl = DEFAULT_TUNE_RNL;

@@ -37,3 +37,4 @@ int hisi_ipcm_send_thread_data(struct hisi_ipc_transfer_handle *handle,
 				unsigned int len,
 				struct hisi_ipcm_transfer_head *head);
 #endif
+

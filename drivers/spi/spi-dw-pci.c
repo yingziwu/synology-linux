@@ -1,7 +1,25 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * PCI interface driver for DW SPI Core
+ *
+ * Copyright (c) 2009, Intel Corporation.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU General Public License,
+ * version 2, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <linux/interrupt.h>
 #include <linux/pci.h>
 #include <linux/slab.h>
@@ -9,7 +27,7 @@
 #include <linux/module.h>
 #if defined(MY_DEF_HERE)
 #include <linux/of.h>
-#endif  
+#endif /* MY_DEF_HERE */
 
 #include "spi-dw.h"
 
@@ -29,7 +47,7 @@ static int spi_pci_probe(struct pci_dev *pdev,
 	int ret;
 #if defined(MY_DEF_HERE)
 	int num_cs, bus_num;
-#endif  
+#endif /* MY_DEF_HERE */
 
 	printk(KERN_INFO "DW: found PCI SPI controller(ID: %04x:%04x)\n",
 		pdev->vendor, pdev->device);
@@ -47,6 +65,7 @@ static int spi_pci_probe(struct pci_dev *pdev,
 	dwpci->pdev = pdev;
 	dws = &dwpci->dws;
 
+	/* Get basic io resource and map it */
 	dws->paddr = pci_resource_start(pdev, pci_bar);
 	dws->iolen = pci_resource_len(pdev, pci_bar);
 
@@ -75,13 +94,17 @@ static int spi_pci_probe(struct pci_dev *pdev,
 		dws->num_cs = num_cs;
 
 	dws->parent_dev = &pdev->dev;
-#else  
+#else /* MY_DEF_HERE */
 	dws->parent_dev = &pdev->dev;
 	dws->bus_num = 0;
 	dws->num_cs = 4;
-#endif  
+#endif /* MY_DEF_HERE */
 	dws->irq = pdev->irq;
 
+	/*
+	 * Specific handling for Intel MID paltforms, like dma setup,
+	 * clock rate, FIFO depth.
+	 */
 	if (pdev->device == 0x0800) {
 		ret = dw_spi_mid_init(dws);
 		if (ret)
@@ -92,6 +115,7 @@ static int spi_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto err_unmap;
 
+	/* PCI hook and SPI hook use the same drv data */
 	pci_set_drvdata(pdev, dwpci);
 	return 0;
 
@@ -151,7 +175,7 @@ static int spi_resume(struct pci_dev *pdev)
 #endif
 
 static DEFINE_PCI_DEVICE_TABLE(pci_ids) = {
-	 
+	/* Intel MID platform SPI controller 0 */
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x0800) },
 	{},
 };
@@ -159,10 +183,10 @@ static DEFINE_PCI_DEVICE_TABLE(pci_ids) = {
 #if defined(MY_DEF_HERE)
 static struct of_device_id dw_spi_pci_of_match[] = {
 		{ .compatible = "snps,dw-spi-pci", },
-		{  }
+		{ /* sentinel */}
 };
 MODULE_DEVICE_TABLE(of, dw_spi_pci_of_match);
-#endif  
+#endif /* MY_DEF_HERE */
 
 static struct pci_driver dw_spi_driver = {
 	.name =		DRIVER_NAME,
@@ -177,7 +201,7 @@ static struct pci_driver dw_spi_driver = {
 		.owner	= THIS_MODULE,
 		.of_match_table = dw_spi_pci_of_match,
 	},
-#endif  
+#endif /* MY_DEF_HERE */
 };
 
 module_pci_driver(dw_spi_driver);

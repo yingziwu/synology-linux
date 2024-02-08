@@ -414,6 +414,7 @@ static int simple_io(
 	return retval;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /* We use scatterlist primitives to test queued I/O.
@@ -535,6 +536,7 @@ static int perform_sglist(
 				iterations, retval);
 	return retval;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1139,6 +1141,7 @@ cleanup:
 	return context.status;
 }
 #undef NUM_SUBCASES
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -2371,6 +2374,7 @@ static int usbtest_resume(struct usb_interface *intf)
 	return 0;
 }
 
+
 static void usbtest_disconnect(struct usb_interface *intf)
 {
 	struct usbtest_dev	*dev = usb_get_intfdata(intf);
@@ -2463,6 +2467,7 @@ static struct usbtest_info generic_info = {
 	.alt		= -1,
 };
 #endif
+
 
 static const struct usb_device_id id_table[] = {
 
@@ -2568,3 +2573,4 @@ module_exit(usbtest_exit);
 
 MODULE_DESCRIPTION("USB Core/HCD Testing Driver");
 MODULE_LICENSE("GPL");
+

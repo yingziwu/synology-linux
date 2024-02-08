@@ -22,6 +22,7 @@
    the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+
 #include <linux/module.h>
 
 #include <asm/uaccess.h>
@@ -66,6 +67,7 @@ static int drbd_disconnected(struct drbd_conf *mdev);
 
 static enum finish_epoch drbd_may_finish_epoch(struct drbd_tconn *, struct drbd_epoch *, enum epoch_event);
 static int e_end_block(struct drbd_work *, int);
+
 
 #define GFP_TRY	(__GFP_HIGHMEM | __GFP_NOWARN)
 
@@ -2359,6 +2361,7 @@ int drbd_rs_should_slow_down(struct drbd_conf *mdev, sector_t sector)
 	return throttle;
 }
 
+
 static int receive_DataRequest(struct drbd_tconn *tconn, struct packet_info *pi)
 {
 	struct drbd_conf *mdev;
@@ -2905,6 +2908,7 @@ static int drbd_uuid_compare(struct drbd_conf *mdev, int *rule_nr) __must_hold(l
 			return 1;
 		}
 	}
+
 
 	*rule_nr = 80;
 	peer = mdev->p_uuid[UI_CURRENT] & ~((u64)1);

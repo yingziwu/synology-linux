@@ -92,3 +92,4 @@ static int spi_mx25l25635e_qe_enable(struct hifmc_spi *spi)
 
 	return op;
 }
+

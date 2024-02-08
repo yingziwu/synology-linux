@@ -381,6 +381,7 @@ wait_on_recovery:
 	return ret;
 }
 
+
 static void do_renew_lease(struct nfs_client *clp, unsigned long timestamp)
 {
 	spin_lock(&clp->cl_lock);
@@ -711,6 +712,7 @@ void nfs41_init_sequence(struct nfs4_sequence_args *args,
 static void nfs4_set_sequence_privileged(struct nfs4_sequence_args *args)
 {
 }
+
 
 static int nfs4_sequence_done(struct rpc_task *task,
 			       struct nfs4_sequence_res *res)
@@ -1059,6 +1061,7 @@ no_delegation:
 
 	return ret;
 }
+
 
 static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmode)
 {
@@ -2076,6 +2079,7 @@ out_err:
 	*res = NULL;
 	return status;
 }
+
 
 static struct nfs4_state *nfs4_do_open(struct inode *dir,
 					struct dentry *dentry,
@@ -4047,7 +4051,7 @@ out:
  */
 static ssize_t __nfs4_get_acl_uncached(struct inode *inode, void *buf, size_t buflen)
 {
-	struct page *pages[NFS4ACL_MAXPAGES] = {NULL, };
+	struct page *pages[NFS4ACL_MAXPAGES + 1] = {NULL, };
 	struct nfs_getaclargs args = {
 		.fh = NFS_FH(inode),
 		.acl_pages = pages,
@@ -4061,13 +4065,9 @@ static ssize_t __nfs4_get_acl_uncached(struct inode *inode, void *buf, size_t bu
 		.rpc_argp = &args,
 		.rpc_resp = &res,
 	};
-	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE);
+	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE) + 1;
 	int ret = -ENOMEM, i;
 
-	/* As long as we're doing a round trip to the server anyway,
-	 * let's be prepared for a page of acl data. */
-	if (npages == 0)
-		npages = 1;
 	if (npages > ARRAY_SIZE(pages))
 		return -ERANGE;
 
@@ -6971,6 +6971,7 @@ static bool nfs4_match_stateid(const nfs4_stateid *s1,
 {
 	return nfs4_stateid_match(s1, s2);
 }
+
 
 static const struct nfs4_state_recovery_ops nfs40_reboot_recovery_ops = {
 	.owner_flag_bit = NFS_OWNER_RECLAIM_REBOOT,

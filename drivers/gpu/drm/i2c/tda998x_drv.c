@@ -15,12 +15,15 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+
 #include <linux/module.h>
 
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_encoder_slave.h>
 #include <drm/drm_edid.h>
+
 
 #define DBG(fmt, ...) DRM_DEBUG(fmt"\n", ##__VA_ARGS__)
 
@@ -44,6 +47,7 @@ struct tda998x_priv {
 #define REG2PAGE(reg)   (((reg) >> 8) & 0xff)
 
 #define REG_CURPAGE               0xff                /* write */
+
 
 /* Page 00h: General Control */
 #define REG_VERSION_LSB           REG(0x00, 0x00)     /* read */
@@ -168,6 +172,7 @@ struct tda998x_priv {
 # define HVF_CNTRL_1_SEMI_PLANAR  (1 << 6)
 #define REG_RPT_CNTRL             REG(0x00, 0xf0)     /* write */
 
+
 /* Page 02h: PLL settings */
 #define REG_PLL_SERIAL_1          REG(0x02, 0x00)     /* read/write */
 # define PLL_SERIAL_1_SRL_FDN     (1 << 0)
@@ -195,6 +200,7 @@ struct tda998x_priv {
 # define SEL_CLK_ENA_SC_CLK       (1 << 3)
 #define REG_ANA_GENERAL           REG(0x02, 0x12)     /* read/write */
 
+
 /* Page 09h: EDID Control */
 #define REG_EDID_DATA_0           REG(0x09, 0x00)     /* read */
 /* next 127 successive registers are the EDID block */
@@ -204,7 +210,9 @@ struct tda998x_priv {
 #define REG_DDC_SEGM_ADDR         REG(0x09, 0xfd)     /* read/write */
 #define REG_DDC_SEGM              REG(0x09, 0xfe)     /* read/write */
 
+
 /* Page 10h: information frames and packets */
+
 
 /* Page 11h: audio settings and content info packets */
 #define REG_AIP_CNTRL_0           REG(0x11, 0x00)     /* read/write */
@@ -218,12 +226,16 @@ struct tda998x_priv {
 # define ENC_CNTRL_RST_SEL        (1 << 1)
 # define ENC_CNTRL_CTL_CODE(x)    (((x) & 3) << 2)
 
+
 /* Page 12h: HDCP and OTP */
 #define REG_TX3                   REG(0x12, 0x9a)     /* read/write */
 #define REG_TX33                  REG(0x12, 0xb8)     /* read/write */
 # define TX33_HDMI                (1 << 1)
 
+
 /* Page 13h: Gamut related metadata packets */
+
+
 
 /* CEC registers: (not paged)
  */
@@ -242,6 +254,7 @@ struct tda998x_priv {
 # define CEC_ENAMODS_EN_RXSENS    (1 << 2)
 # define CEC_ENAMODS_EN_HDMI      (1 << 1)
 # define CEC_ENAMODS_EN_CEC       (1 << 0)
+
 
 /* Device versions: */
 #define TDA9989N2                 0x0101

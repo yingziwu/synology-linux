@@ -132,6 +132,7 @@ void snd_seq_timer_reset(struct snd_seq_timer *tmr)
 	spin_unlock_irqrestore(&tmr->lock, flags);
 }
 
+
 /* called by timer interrupt routine. the period time since previous invocation is passed */
 static void snd_seq_timer_interrupt(struct snd_timer_instance *timeri,
 				    unsigned long resolution,
@@ -469,6 +470,7 @@ snd_seq_tick_time_t snd_seq_timer_get_cur_tick(struct snd_seq_timer *tmr)
 	return tmr->tick.cur_tick;
 }
 
+
 #ifdef CONFIG_PROC_FS
 /* exported to seq_info.c */
 void snd_seq_info_timer_read(struct snd_info_entry *entry,
@@ -497,3 +499,4 @@ void snd_seq_info_timer_read(struct snd_info_entry *entry,
  	}
 }
 #endif /* CONFIG_PROC_FS */
+

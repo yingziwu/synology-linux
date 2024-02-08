@@ -814,6 +814,7 @@ int hifmc100_spi_nor_init(struct hifmc_host *host)
 	return ret;
 }
 
+
 #ifdef CONFIG_SPI_BLOCK_PROTECT
 /*****************************************************************************/
 unsigned short hifmc100_get_spi_lock_info(struct hifmc_host *host)

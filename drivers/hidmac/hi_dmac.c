@@ -212,6 +212,7 @@ static int dma_update_status(unsigned int channel)
 	return g_channel_status[i];
 }
 
+
 /*
  *	check the state of channels
  */
@@ -351,6 +352,7 @@ int dmac_init(void)
 
 	return 0;
 }
+
 
 /*
  *	alloc_dma_lli_space
@@ -970,6 +972,7 @@ int dmac_p2m_transfer(unsigned int memaddr, unsigned int uwperipheralid,
 	return ulchnn;
 }
 
+
 int do_dma_m2p(unsigned int memaddr, unsigned int peripheral_addr,
 		unsigned int length)
 {
@@ -1114,3 +1117,4 @@ module_exit(dma_driver_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Hisilicon");
+

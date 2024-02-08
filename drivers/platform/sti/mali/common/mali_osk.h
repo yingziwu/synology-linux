@@ -266,6 +266,7 @@ void _mali_osk_wq_delayed_schedule_work(_mali_osk_wq_delayed_work_t *work, u32 d
 
 /** @} */ /* end group _mali_osk_wq */
 
+
 /** @addtogroup _mali_osk_irq
  * @{ */
 
@@ -311,6 +312,7 @@ _mali_osk_irq_t *_mali_osk_irq_init( u32 irqnum, _mali_osk_irq_uhandler_t uhandl
 void _mali_osk_irq_term( _mali_osk_irq_t *irq );
 
 /** @} */ /* end group _mali_osk_irq */
+
 
 /** @addtogroup _mali_osk_atomic
  * @{ */
@@ -376,6 +378,7 @@ void _mali_osk_atomic_term( _mali_osk_atomic_t *atom );
  */
 u32 _mali_osk_atomic_xchg( _mali_osk_atomic_t *atom, u32 val );
 /** @} */  /* end group _mali_osk_atomic */
+
 
 /** @defgroup _mali_osk_memory OSK Memory Allocation
  * @{ */
@@ -516,6 +519,7 @@ void *_mali_osk_memcpy( void *dst, const void *src, u32 len );
 void *_mali_osk_memset( void *s, u32 c, u32 n );
 /** @} */ /* end group _mali_osk_memory */
 
+
 /** @brief Checks the amount of memory allocated
  *
  * Checks that not more than \a max_allocated bytes are allocated.
@@ -530,6 +534,7 @@ void *_mali_osk_memset( void *s, u32 c, u32 n );
  * when at least \a max_allocated bytes are in use.
  */
 mali_bool _mali_osk_mem_check_allocated( u32 max_allocated );
+
 
 /** @addtogroup _mali_osk_low_level_memory
  * @{ */
@@ -738,6 +743,7 @@ void _mali_osk_cache_ensure_uncached_range_flushed( void *uncached_mapping, u32 
 
 /** @} */ /* end group _mali_osk_low_level_memory */
 
+
 /** @addtogroup _mali_osk_notification
  *
  * User space notification framework
@@ -921,6 +927,7 @@ _mali_osk_errcode_t _mali_osk_notification_queue_dequeue( _mali_osk_notification
 
 /** @} */ /* end group _mali_osk_notification */
 
+
 /** @addtogroup _mali_osk_timer
  *
  * Timers use the OS's representation of time, which are 'ticks'. This is to
@@ -1042,6 +1049,7 @@ void _mali_osk_timer_setcallback( _mali_osk_timer_t *tim, _mali_osk_timer_callba
 void _mali_osk_timer_term( _mali_osk_timer_t *tim );
 /** @} */ /* end group _mali_osk_timer */
 
+
 /** @defgroup _mali_osk_time OSK Time functions
  *
  * \ref _mali_osk_time use the OS's representation of time, which are
@@ -1091,6 +1099,7 @@ u32	_mali_osk_time_mstoticks( u32 ms );
  */
 u32	_mali_osk_time_tickstoms( u32 ticks );
 
+
 /** @brief Get the current time in OS 'ticks'.
  * @return the current time in OS 'ticks'.
  */
@@ -1115,6 +1124,7 @@ void _mali_osk_time_ubusydelay( u32 usecs );
  * @return Time in nano seconds
  */
 u64 _mali_osk_time_get_ns( void );
+
 
 /** @} */ /* end group _mali_osk_time */
 
@@ -1189,6 +1199,7 @@ void _mali_osk_wait_queue_wake_up( _mali_osk_wait_queue_t *queue );
 void _mali_osk_wait_queue_term( _mali_osk_wait_queue_t *queue );
 /** @} */ /* end group _mali_osk_wait_queue */
 
+
 /** @addtogroup _mali_osk_miscellaneous
  * @{ */
 
@@ -1258,6 +1269,7 @@ void _mali_osk_pm_dev_enable(void);
  */
 void _mali_osk_pm_dev_disable(void);
 
+
 /** @brief Take a reference to the power manager system for the Mali device.
  *
  * When function returns successfully, Mali is ON.
@@ -1266,6 +1278,7 @@ void _mali_osk_pm_dev_disable(void);
  */
 _mali_osk_errcode_t _mali_osk_pm_dev_ref_add(void);
 
+
 /** @brief Release the reference to the power manger system for the Mali device.
  *
  * When reference count reach zero, the cores can be off.
@@ -1273,6 +1286,7 @@ _mali_osk_errcode_t _mali_osk_pm_dev_ref_add(void);
  * @note This must be used to release references taken with \a _mali_osk_pm_dev_ref_add().
  */
 void _mali_osk_pm_dev_ref_dec(void);
+
 
 /** @brief Take a reference to the power manager system for the Mali device.
  *
@@ -1283,6 +1297,7 @@ void _mali_osk_pm_dev_ref_dec(void);
  * @return MALI_TRUE if the Mali GPU is powered on, otherwise MALI_FALSE.
  */
 mali_bool _mali_osk_pm_dev_ref_add_no_power_on(void);
+
 
 /** @brief Releasing the reference to the power manger system for the Mali device.
  *
@@ -1301,6 +1316,8 @@ void _mali_osk_pm_dev_barrier(void);
 /** @} */ /* end group osuapi */
 
 /** @} */ /* end group uddapi */
+
+
 
 #ifdef __cplusplus
 }

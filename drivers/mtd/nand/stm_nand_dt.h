@@ -22,5 +22,6 @@ static inline int  stm_of_get_nand_banks(struct device *dev,
 	return 0;
 }
 
+
 #endif /* CONFIG_OF */
 #endif /* STM_NAND_DT_H */

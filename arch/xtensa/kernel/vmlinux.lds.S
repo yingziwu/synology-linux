@@ -290,6 +290,7 @@ SECTIONS
     *(.ResetVector.text)
   }
 
+
   /*
    * This is a remapped copy of the Secondary Reset Vector Code.
    * It keeps gdb in sync with the PC after switching
@@ -302,6 +303,7 @@ SECTIONS
   {
 	*(.SecondaryResetVector.remapped_text)
   }
+
 
   .xt.lit : { *(.xt.lit) }
   .xt.prop : { *(.xt.prop) }

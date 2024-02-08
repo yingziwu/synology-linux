@@ -69,6 +69,7 @@ static int ehci_xilinx_port_handed_over(struct usb_hcd *hcd, int portnum)
 	return 0;
 }
 
+
 static const struct hc_driver ehci_xilinx_of_hc_driver = {
 	.description		= hcd_name,
 	.product_desc		= "OF EHCI",
@@ -233,6 +234,7 @@ static void ehci_hcd_xilinx_of_shutdown(struct platform_device *op)
 	if (hcd->driver->shutdown)
 		hcd->driver->shutdown(hcd);
 }
+
 
 static const struct of_device_id ehci_hcd_xilinx_of_match[] = {
 		{.compatible = "xlnx,xps-usb-host-1.00.a",},

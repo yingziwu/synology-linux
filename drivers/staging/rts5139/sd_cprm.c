@@ -616,6 +616,7 @@ int ext_rts51x_sd_execute_write_data(struct rts51x_chip *chip, unsigned int lun,
 		else
 			memcpy(buf, data_buf, data_len);
 
+
 		if (data_len > 256) {
 			rts51x_init_cmd(chip);
 			for (i = 0; i < 256; i++) {

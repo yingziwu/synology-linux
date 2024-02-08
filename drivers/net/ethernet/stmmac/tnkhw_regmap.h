@@ -329,6 +329,7 @@
 #define TNK_REG_DMA_BITMAP_RDATA \
 	(TNK_DMA_TTX_DB_CSR_OFFSET + 0x1f4) /* RW */
 
+
 /* WRADDR register fields */
 #define TNK_OFFSET_CT_CPU_WRADDR_LOC       0
 #define TNK_MASK_CT_CPU_WRADDR_LOC         0x0000001F
@@ -378,6 +379,7 @@
 #define TNK_MASK_CT_CONN_INTR_VALID        0x00000001
 #define TNK_OFFSET_CT_CONN_STAT_CSEL       0
 #define TNK_MASK_CT_CONN_STAT_CSEL         0x000007FF
+
 
 /* TNK_INTR_STAT register fields */
 #define TNK_OFFSET_INTR_STAT_DMA_TTX_ACK   0

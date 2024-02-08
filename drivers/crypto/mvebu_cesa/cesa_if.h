@@ -99,6 +99,7 @@ int cesa_resume(struct platform_device *pdev);
 #define dprintk(a...)
 #endif
 
+
 	MV_STATUS mvCesaIfInit(int numOfSession, int queueDepth, void *osHandle, MV_CESA_HAL_DATA *halData);
 	MV_STATUS mvCesaIfFinish(void);
 	MV_STATUS mvCesaIfSessionOpen(MV_CESA_OPEN_SESSION *pSession, short *pSid);

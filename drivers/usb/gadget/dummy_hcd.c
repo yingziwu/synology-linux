@@ -12,6 +12,7 @@
  * (at your option) any later version.
  */
 
+
 /*
  * This exposes a device side "USB gadget" API, driven by requests to a
  * Linux-USB host controller driver.  USB traffic is simulated; there's
@@ -155,6 +156,7 @@ struct urbp {
 	u32			miter_started;
 };
 
+
 enum dummy_rh_state {
 	DUMMY_RH_RESET,
 	DUMMY_RH_SUSPENDED,
@@ -264,7 +266,7 @@ static void nuke(struct dummy *dum, struct dummy_ep *ep)
 /* caller must hold lock */
 static void stop_activity(struct dummy *dum)
 {
-	struct dummy_ep	*ep;
+	int i;
 
 	/* prevent any more requests */
 	dum->address = 0;
@@ -272,8 +274,8 @@ static void stop_activity(struct dummy *dum)
 	/* The timer is left running so that outstanding URBs can fail */
 
 	/* nuke any pending requests first, so driver i/o is quiesced */
-	list_for_each_entry(ep, &dum->gadget.ep_list, ep.ep_list)
-		nuke(dum, ep);
+	for (i = 0; i < DUMMY_ENDPOINTS; ++i)
+		nuke(dum, &dum->ep[i]);
 
 	/* driver now does any non-usb quiescing necessary */
 }
@@ -1467,6 +1469,7 @@ static struct dummy_ep *find_endpoint(struct dummy *dum, u8 address)
 #define Intf_InRequest	(Intf_Request | USB_DIR_IN)
 #define Ep_Request	(USB_TYPE_STANDARD | USB_RECIP_ENDPOINT)
 #define Ep_InRequest	(Ep_Request | USB_DIR_IN)
+
 
 /**
  * handle_control_request() - handles all control transfers

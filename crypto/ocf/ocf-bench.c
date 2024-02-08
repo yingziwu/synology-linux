@@ -29,6 +29,7 @@
  * and/or fitness for purpose.
  */
 
+
 #include <linux/version.h>
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,38) && !defined(AUTOCONF_INCLUDED)
 #include <linux/config.h>
@@ -186,6 +187,7 @@ ocf_cb(struct cryptop *crp)
 	schedule_work(&r->work);
 	return 0;
 }
+
 
 static void
 ocf_request(void *arg)

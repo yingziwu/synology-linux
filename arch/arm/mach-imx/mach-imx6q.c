@@ -1,7 +1,18 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright 2011-2013 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
 #include <linux/clk.h>
 #include <linux/clkdev.h>
 #include <linux/clocksource.h>
@@ -18,9 +29,9 @@
 #include <linux/of_platform.h>
 #if defined(MY_ABC_HERE)
 #include <linux/pm_opp.h>
-#else  
+#else /* MY_ABC_HERE */
 #include <linux/opp.h>
-#endif  
+#endif /* MY_ABC_HERE */
 #include <linux/phy.h>
 #include <linux/regmap.h>
 #include <linux/micrel_phy.h>
@@ -74,28 +85,33 @@ static void imx6q_restart(char mode, const char *cmd)
 
 	imx_src_prepare_restart();
 
+	/* enable wdog */
 	writew_relaxed(1 << 2, wdog_base);
-	 
+	/* write twice to ensure the request will not get ignored */
 	writew_relaxed(1 << 2, wdog_base);
 
+	/* wait for reset to assert ... */
 	mdelay(500);
 
 	pr_err("Watchdog reset failed to assert reset\n");
 
+	/* delay to allow the serial port to show the message */
 	mdelay(50);
 
 soft:
-	 
+	/* we'll take a jump through zero as a poor second */
 	soft_restart(0);
 }
 
+/* For imx6q sabrelite board: set KSZ9021RN RGMII pad skew */
 static int ksz9021rn_phy_fixup(struct phy_device *phydev)
 {
 	if (IS_BUILTIN(CONFIG_PHYLIB)) {
-		 
+		/* min rx data delay */
 		phy_write(phydev, 0x0b, 0x8105);
 		phy_write(phydev, 0x0c, 0x0000);
 
+		/* max rx/tx clock delay, min rx/tx control delay */
 		phy_write(phydev, 0x0b, 0x8104);
 		phy_write(phydev, 0x0c, 0xf0f0);
 		phy_write(phydev, 0x0b, 0x104);
@@ -192,9 +208,9 @@ static void __init imx6q_opp_check_1p2ghz(struct device *cpu_dev)
 	if ((val & 0x3) != OCOTP_CFG3_SPEED_1P2GHZ)
 #if defined(MY_ABC_HERE)
 		if (dev_pm_opp_disable(cpu_dev, 1200000000))
-#else  
+#else /* MY_ABC_HERE */
 		if (opp_disable(cpu_dev, 1200000000))
-#endif  
+#endif /* MY_ABC_HERE */
 			pr_warn("failed to disable 1.2 GHz OPP\n");
 
 put_node:
@@ -229,7 +245,10 @@ static struct platform_device imx6q_cpufreq_pdev = {
 
 static void __init imx6q_init_late(void)
 {
-	 
+	/*
+	 * WAIT mode is broken on TO 1.0 and 1.1, so there is no point
+	 * to run cpuidle on them.
+	 */
 	if (imx6q_revision() > IMX_CHIP_REVISION_1_1)
 		imx6q_cpuidle_init();
 

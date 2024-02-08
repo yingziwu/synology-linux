@@ -47,4 +47,5 @@ met:
 #define AL_NB_CCU_OFFSET	0x90000
 #define AL_NB_GIC_OFFSET(id)	(0 + (id)*0x8000)
 
+
 #endif /* __AL_HAL_SYS_FABRIC_OFFSETS_H__ */

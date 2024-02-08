@@ -2539,6 +2539,7 @@ static int wm5100_i2c_probe(struct i2c_client *i2c,
 		break;
 	}
 
+
 	wm5100_init_gpio(i2c);
 
 	for (i = 0; i < ARRAY_SIZE(wm5100->pdata.gpio_defaults); i++) {

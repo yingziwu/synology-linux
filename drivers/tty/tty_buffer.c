@@ -402,6 +402,8 @@ int tty_prepare_flip_string_flags(struct tty_port *port,
 }
 EXPORT_SYMBOL_GPL(tty_prepare_flip_string_flags);
 
+
+
 /**
  *	flush_to_ldisc
  *	@work: tty structure passed from work queue.
@@ -543,3 +545,4 @@ void tty_buffer_init(struct tty_port *port)
 	buf->memory_used = 0;
 	INIT_WORK(&buf->work, flush_to_ldisc);
 }
+

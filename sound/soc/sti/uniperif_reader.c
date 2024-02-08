@@ -355,6 +355,7 @@ static int uniperif_reader_prepare_pcm(struct uniperif *reader,
 	/* Data clocking (changing) on the rising edge */
 	SET_UNIPERIF_I2S_FMT_SCLK_EDGE_RISING(reader);
 
+
 	/* Number of channels... */
 
 	if ((runtime->channels % 2) || (runtime->channels < 2) ||

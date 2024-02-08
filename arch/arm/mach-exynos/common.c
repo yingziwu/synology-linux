@@ -508,6 +508,7 @@ static unsigned int max_combiner_nr(void)
 		return EXYNOS4210_MAX_COMBINER_NR;
 }
 
+
 void __init exynos4_init_irq(void)
 {
 	unsigned int gic_bank_offset;

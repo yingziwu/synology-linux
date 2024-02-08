@@ -58,6 +58,12 @@ int iterate_inodes_from_logical(u64 logical, struct btrfs_fs_info *fs_info,
 int paths_from_inode(u64 inum, struct inode_fs_paths *ipath);
 
 #ifdef MY_DEF_HERE
+int check_root_inode_ref(struct btrfs_trans_handle *trans,
+		    struct btrfs_fs_info *fs_info, u64 bytenr,
+		    u64 datao, u64 root_objectid, u64 ino, u64 offset,
+		    int in_run_delayed);
+#endif
+#ifdef MY_DEF_HERE
 int btrfs_find_shared_root(struct btrfs_fs_info *fs_info,
 			 u64 bytenr, u64 parent_bytenr,
 			 u64 datao, u64 *counted_root, struct ulist *root_list,
@@ -87,5 +93,15 @@ int btrfs_check_shared(struct btrfs_trans_handle *trans,
 
 int __init btrfs_prelim_ref_init(void);
 void btrfs_prelim_ref_exit(void);
+
+#ifdef MY_DEF_HERE
+struct u64_list {
+	u64 val1;
+	u64 val2;
+	struct list_head list;
+};
+
+void u64_list_free(struct list_head *target_list);
+#endif /* MY_DEF_HERE */
 
 #endif

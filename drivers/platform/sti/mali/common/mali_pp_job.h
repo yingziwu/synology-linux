@@ -299,6 +299,7 @@ MALI_STATIC_INLINE u32 mali_pp_job_get_perf_counter_flag(struct mali_pp_job *job
 	return job->uargs.perf_counter_flag;
 }
 
+
 MALI_STATIC_INLINE u32 mali_pp_job_get_perf_counter_value0(struct mali_pp_job *job, u32 sub_job)
 {
 	return job->perf_counter_value0[sub_job];

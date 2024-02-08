@@ -1081,6 +1081,7 @@ nouveau_pm_init(struct drm_device *dev)
 		pm->voltage_set = nouveau_voltage_gpio_set;
 	}
 
+
 	/* parse aux tables from vbios */
 	nouveau_volt_init(dev);
 

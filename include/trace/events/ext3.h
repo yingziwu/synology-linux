@@ -256,11 +256,11 @@ DECLARE_EVENT_CLASS(ext3__page_op,
 	TP_printk("dev %d,%d ino %lu page_index %llu",
 		  MAJOR(__entry->dev), MINOR(__entry->dev),
 		  (unsigned long) __entry->ino, (unsigned long long)__entry->index)
-#else  
+#else /* MY_DEF_HERE */
 	TP_printk("dev %d,%d ino %lu page_index %lu",
 		  MAJOR(__entry->dev), MINOR(__entry->dev),
 		  (unsigned long) __entry->ino, __entry->index)
-#endif  
+#endif /* MY_DEF_HERE */
 );
 
 DEFINE_EVENT(ext3__page_op, ext3_ordered_writepage,
@@ -323,12 +323,12 @@ TRACE_EVENT(ext3_invalidatepage,
 		  MAJOR(__entry->dev), MINOR(__entry->dev),
 		  (unsigned long) __entry->ino,
 		  (unsigned long long)__entry->index, __entry->offset)
-#else  
+#else /* MY_DEF_HERE */
 	TP_printk("dev %d,%d ino %lu page_index %lu offset %lu",
 		  MAJOR(__entry->dev), MINOR(__entry->dev),
 		  (unsigned long) __entry->ino,
 		  __entry->index, __entry->offset)
-#endif  
+#endif /* MY_DEF_HERE */
 );
 
 TRACE_EVENT(ext3_discard_blocks,
@@ -874,6 +874,7 @@ TRACE_EVENT(ext3_load_inode,
 		  (unsigned long) __entry->ino)
 );
 
-#endif  
+#endif /* _TRACE_EXT3_H */
 
+/* This part must be outside protection */
 #include <trace/define_trace.h>

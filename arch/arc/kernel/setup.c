@@ -37,6 +37,7 @@ struct task_struct *_current_task[NR_CPUS];	/* For stack switching */
 
 struct cpuinfo_arc cpuinfo_arc700[NR_CPUS];
 
+
 void __cpuinit read_arc_build_cfg_regs(void)
 {
 	struct bcr_perip uncached_space;

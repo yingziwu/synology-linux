@@ -21,6 +21,10 @@
 #ifndef __DELAYED_REF__
 #define __DELAYED_REF__
 
+#ifdef MY_DEF_HERE
+#include "btrfs_inode.h"
+#endif /* MY_DEF_HERE */
+
 /* these are the possible values of struct btrfs_delayed_ref_node->action */
 #define BTRFS_ADD_DELAYED_REF    1 /* add one backref to the tree */
 #define BTRFS_DROP_DELAYED_REF   2 /* delete one backref from the tree */
@@ -129,6 +133,13 @@ struct btrfs_delayed_data_ref {
 	u64 parent;
 	u64 objectid;
 	u64 offset;
+#ifdef MY_DEF_HERE
+	u64 ram_bytes;
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	uid_t uid;
+	struct inode *inode;
+#endif /* MY_DEF_HERE */
 };
 
 struct btrfs_delayed_ref_root {
@@ -170,7 +181,7 @@ extern struct kmem_cache *btrfs_delayed_tree_ref_cachep;
 extern struct kmem_cache *btrfs_delayed_data_ref_cachep;
 extern struct kmem_cache *btrfs_delayed_extent_op_cachep;
 
-int btrfs_delayed_ref_init(void);
+int __init btrfs_delayed_ref_init(void);
 void btrfs_delayed_ref_exit(void);
 
 static inline struct btrfs_delayed_extent_op *
@@ -186,8 +197,17 @@ btrfs_free_delayed_extent_op(struct btrfs_delayed_extent_op *op)
 		kmem_cache_free(btrfs_delayed_extent_op_cachep, op);
 }
 
+#ifdef MY_DEF_HERE
+static inline struct btrfs_delayed_data_ref *
+btrfs_delayed_node_to_data_ref(struct btrfs_delayed_ref_node *node);
+#endif /* MY_DEF_HERE */
+
 static inline void btrfs_put_delayed_ref(struct btrfs_delayed_ref_node *ref)
 {
+#ifdef MY_DEF_HERE
+	struct btrfs_delayed_data_ref *data_ref = NULL;
+#endif /* MY_DEF_HERE */
+
 	WARN_ON(atomic_read(&ref->refs) == 0);
 	if (atomic_dec_and_test(&ref->refs)) {
 		WARN_ON(ref->in_tree);
@@ -198,6 +218,10 @@ static inline void btrfs_put_delayed_ref(struct btrfs_delayed_ref_node *ref)
 			break;
 		case BTRFS_EXTENT_DATA_REF_KEY:
 		case BTRFS_SHARED_DATA_REF_KEY:
+#ifdef MY_DEF_HERE
+			data_ref = btrfs_delayed_node_to_data_ref(ref);
+			syno_usrquota_inode_put(data_ref->inode);
+#endif /* MY_DEF_HERE */
 			kmem_cache_free(btrfs_delayed_data_ref_cachep, ref);
 			break;
 		case 0:
@@ -219,9 +243,16 @@ int btrfs_add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 			       struct btrfs_trans_handle *trans,
 			       u64 bytenr, u64 num_bytes,
 			       u64 parent, u64 ref_root,
-			       u64 owner, u64 offset, int action,
-			       struct btrfs_delayed_extent_op *extent_op,
-			       int no_quota);
+			       u64 owner, u64 offset,
+#ifdef MY_DEF_HERE
+			       u64 ram_bytes,
+#endif /* MY_DEF_HERE */
+			       int no_quota,
+#ifdef MY_DEF_HERE
+			       struct inode *inode, uid_t uid,
+#endif /* MY_DEF_HERE */
+			       int action,
+			       struct btrfs_delayed_extent_op *extent_op);
 int btrfs_add_delayed_extent_op(struct btrfs_fs_info *fs_info,
 				struct btrfs_trans_handle *trans,
 				u64 bytenr, u64 num_bytes,
@@ -241,8 +272,13 @@ static inline void btrfs_delayed_ref_unlock(struct btrfs_delayed_ref_head *head)
 	mutex_unlock(&head->mutex);
 }
 
+
 struct btrfs_delayed_ref_head *
 btrfs_select_ref_head(struct btrfs_trans_handle *trans);
+#ifdef MY_DEF_HERE
+struct btrfs_delayed_ref_head *
+btrfs_select_data_ref_head(struct btrfs_trans_handle *trans);
+#endif
 
 int btrfs_check_delayed_seq(struct btrfs_fs_info *fs_info,
 			    struct btrfs_delayed_ref_root *delayed_refs,

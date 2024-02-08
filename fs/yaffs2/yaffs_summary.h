@@ -18,6 +18,7 @@
 
 #include "yaffs_packedtags2.h"
 
+
 int yaffs_summary_init(struct yaffs_dev *dev);
 void yaffs_summary_deinit(struct yaffs_dev *dev);
 
@@ -31,5 +32,6 @@ int yaffs_summary_read(struct yaffs_dev *dev,
 			struct yaffs_summary_tags *st,
 			int blk);
 void yaffs_summary_gc(struct yaffs_dev *dev, int blk);
+
 
 #endif

@@ -323,6 +323,7 @@ static struct rtl_hal_cfg rtl8723ae_hal_cfg = {
 				     PHIMR_TXBCNOK | PHIMR_TXBCNERR),
 	.maps[RTL_IMR_C2HCMD] = PHIMR_C2HCMD,
 
+
 	.maps[RTL_RC_CCK_RATE1M] = DESC92_RATE1M,
 	.maps[RTL_RC_CCK_RATE2M] = DESC92_RATE2M,
 	.maps[RTL_RC_CCK_RATE5_5M] = DESC92_RATE5_5M,

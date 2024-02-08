@@ -25,9 +25,11 @@
 #include <linux/seq_file.h>
 #include <linux/netdevice.h>
 
+
 #include "ft1000_usb.h"
 
 #define FT1000_PROC_DIR "ft1000"
+
 
 #define seq_putx(m, message, size, var) \
 	seq_printf(m, message);	\
@@ -41,10 +43,13 @@
 		seq_printf(m, "%d.", var[i]); \
 	seq_printf(m, "%d\n", var[i])
 
+
 #define FTNET_PROC init_net.proc_net
+
 
 int ft1000_read_dpram16 (struct ft1000_usb *ft1000dev, u16 indx,
 			 u8 *buffer, u8 highlow);
+
 
 static int ft1000ReadProc(struct seq_file *m, void *v)
 {
@@ -183,6 +188,7 @@ ft1000NotifyProc(struct notifier_block *this, unsigned long event, void *ptr)
 static struct notifier_block ft1000_netdev_notifier = {
 	.notifier_call = ft1000NotifyProc,
 };
+
 
 int ft1000_init_proc(struct net_device *dev)
 {

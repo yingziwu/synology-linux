@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -35,6 +36,7 @@ disclaimer.
 #include "cls/mvPp2Cls3Hw.h"
 
 static MV_PP2_CLS_C3_ENTRY		c3;
+
 
 static ssize_t mv_cls3_help(char *buf)
 {
@@ -101,6 +103,7 @@ static ssize_t mv_cls3_help(char *buf)
 	return off;
 }
 
+
 static ssize_t mv_cls3_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -130,6 +133,8 @@ static ssize_t mv_cls3_show(struct device *dev,
 
 	return off;
 }
+
+
 
 static ssize_t mv_cls3_store(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
@@ -256,6 +261,7 @@ static ssize_t mv_cls3_signed_store(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static DEVICE_ATTR(hw_dump,		S_IRUSR, mv_cls3_show, NULL);
 static DEVICE_ATTR(hw_ms_dump,		S_IRUSR, mv_cls3_show, NULL);/*PPv2.1 new feature MAS 3.7*/
 static DEVICE_ATTR(hw_ext_dump,		S_IRUSR, mv_cls3_show, NULL);
@@ -302,6 +308,8 @@ static DEVICE_ATTR(sc_lkp,		S_IWUSR, NULL, mv_cls3_signed_store);
 static DEVICE_ATTR(sc_start_idx,	S_IWUSR, NULL, mv_cls3_store);
 static DEVICE_ATTR(sc_delay,		S_IWUSR, NULL, mv_cls3_store);
 static DEVICE_ATTR(sc_res_read,		S_IWUSR, NULL, mv_cls3_store);
+
+
 
 static struct attribute *cls3_attrs[] = {
 	&dev_attr_hw_dump.attr,

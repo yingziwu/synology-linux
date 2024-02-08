@@ -98,6 +98,7 @@ static void free_buffer_page(struct ion_system_heap *heap,
 	}
 }
 
+
 static struct page_info *alloc_largest_available(struct ion_system_heap *heap,
 						 struct ion_buffer *buffer,
 						 unsigned long size,
@@ -442,3 +443,4 @@ void ion_system_contig_heap_destroy(struct ion_heap *heap)
 {
 	kfree(heap);
 }
+

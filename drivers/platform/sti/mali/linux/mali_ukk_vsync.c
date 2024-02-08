@@ -16,6 +16,7 @@
 #include "mali_session.h"
 #include "mali_ukk_wrappers.h"
 
+
 int vsync_event_report_wrapper(struct mali_session_data *session_data, _mali_uk_vsync_event_report_s __user *uargs)
 {
 	_mali_uk_vsync_event_report_s kargs;
@@ -35,3 +36,4 @@ int vsync_event_report_wrapper(struct mali_session_data *session_data, _mali_uk_
 
 	return 0;
 }
+

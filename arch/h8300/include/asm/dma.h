@@ -1,6 +1,7 @@
 #ifndef _H8300_DMA_H
 #define _H8300_DMA_H 
  
+
 /*
  * Set number of channels of DMA on ColdFire for different implementations.
  */

@@ -1253,3 +1253,4 @@ module_platform_driver(omap_aes_driver);
 MODULE_DESCRIPTION("OMAP AES hw acceleration support.");
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Dmitry Kasatkin");
+

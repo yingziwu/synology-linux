@@ -197,6 +197,7 @@ struct al_pcie_port {
 	uint32_t __iomem *axi_int_grp_a_base;
 };
 
+
 /** Function mode (endpoint, root complex) */
 enum al_pcie_function_mode {
 	AL_PCIE_FUNCTION_MODE_EP,
@@ -227,6 +228,7 @@ struct al_pcie_max_capability {
 	uint8_t		atu_regions_num;
 	uint32_t	atu_min_size;
 };
+
 
 /** PCIe link related parameters */
 struct al_pcie_link_params {
@@ -491,6 +493,7 @@ void al_pcie_port_ib_hcrd_os_ob_reads_config(
 enum al_pcie_function_mode
 al_pcie_function_type_get(struct al_pcie_port *pcie_port);
 
+
 /**
  * @brief   configure pcie port (mode, link params, etc..)
  * this function must be called before initializing the link
@@ -584,6 +587,7 @@ int al_pcie_link_change_speed(struct al_pcie_port *pcie_port, enum al_pcie_link_
 /* TODO: check if this function needed */
 int al_pcie_link_change_width(struct al_pcie_port *pcie_port, uint8_t width);
 
+
 /* Configuration Space Access Through PCI-E_ECAM_Ext PASW (RC mode only) */
 
 /**
@@ -628,6 +632,7 @@ int al_pcie_secondary_bus_set(struct al_pcie_port *pcie_port, uint8_t secbus);
  * @return 0 if no error found.
  */
 int al_pcie_subordinary_bus_set(struct al_pcie_port *pcie_port,uint8_t subbus);
+
 
 /**
  * @brief   get base address of pci configuration space header

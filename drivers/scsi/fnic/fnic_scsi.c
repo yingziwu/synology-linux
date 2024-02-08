@@ -165,6 +165,7 @@ static int free_wq_copy_descs(struct fnic *fnic, struct vnic_wq_copy *wq)
 	return 0;
 }
 
+
 /**
  * __fnic_set_state_flags
  * Sets/Clears bits in fnic's state_flags
@@ -190,6 +191,7 @@ __fnic_set_state_flags(struct fnic *fnic, unsigned long st_flags,
 
 	return;
 }
+
 
 /*
  * fnic_fw_reset_handler
@@ -234,6 +236,7 @@ int fnic_fw_reset_handler(struct fnic *fnic)
 
 	return ret;
 }
+
 
 /*
  * fnic_flogi_reg_handler
@@ -671,6 +674,7 @@ static inline int is_ack_index_in_range(struct vnic_wq_copy *wq,
 	/* request_out index is in range */
 	return 1;
 }
+
 
 /*
  * Mark that ack received and store the Ack index. If there are multiple

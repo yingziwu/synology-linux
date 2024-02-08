@@ -72,6 +72,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define DB(x)
 #endif
 
+
+
 MV_VOID mvPciHalInit(MV_U32 pciIf, MV_PCI_MOD pciIfmod)
 {
         if (MV_PCI_MOD_HOST == pciIfmod)
@@ -145,7 +147,9 @@ MV_STATUS mvPciCommandSet(MV_U32 pciIf, MV_U32 command)
 
 	return MV_OK;
 
+
 }
+
 
 /*******************************************************************************
 * mvPciModeGet - Get PCI interface mode.
@@ -293,6 +297,7 @@ MV_STATUS mvPciRetrySet(MV_U32 pciIf, MV_U32 counter)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvPciDiscardTimerSet - Set PCI discard timer
 *
@@ -414,6 +419,7 @@ MV_STATUS mvPciArbEnable(MV_U32 pciIf, MV_BOOL enable)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvPciArbParkDis - Disable arbiter parking on agent
 *
@@ -462,6 +468,7 @@ MV_STATUS mvPciArbParkDis(MV_U32 pciIf, MV_U32 pciAgentMask)
 
 	return MV_OK;
 }
+
 
 /*******************************************************************************
 * mvPciArbBrokDetectSet - Set PCI arbiter broken detection
@@ -590,6 +597,7 @@ MV_U32 mvPciConfigRead (MV_U32 pciIf, MV_U32 bus, MV_U32 dev, MV_U32 func,
 		DB(mvOsPrintf("mvPciConfigRead: ERR. bus number illigal %d\n", bus));
 		return MV_ERROR;
 	}
+
 
 	/* Creating PCI address to be passed */
 	pciData |= (bus << PCAR_BUS_NUM_OFFS);
@@ -752,6 +760,7 @@ MV_STATUS mvPciMasterEnable(MV_U32 pciIf, MV_BOOL enable)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvPciSlaveEnable - Enable/disale PCI interface slave transactions.
 *
@@ -836,6 +845,7 @@ MV_STATUS mvPciLocalBusNumSet(MV_U32 pciIf, MV_U32 busNum)
 	MV_U32 localBus;
 	MV_U32 localDev;
 
+
 	/* Parameter checking   */
 	if (pciIf >= mvCtrlPciMaxIfGet())
 	{
@@ -851,6 +861,7 @@ MV_STATUS mvPciLocalBusNumSet(MV_U32 pciIf, MV_U32 busNum)
 
 	localBus = mvPciLocalBusNumGet(pciIf);
 	localDev = mvPciLocalDevNumGet(pciIf);
+
 
 	/* PCI interface mode */
 	mvPciModeGet(pciIf, &pciMode);
@@ -879,8 +890,10 @@ MV_STATUS mvPciLocalBusNumSet(MV_U32 pciIf, MV_U32 busNum)
 
 	}
 
+
 	return MV_OK;
 }
+
 
 /*******************************************************************************
 * mvPciLocalBusNumGet - Get PCI interface local bus number.
@@ -917,6 +930,7 @@ MV_U32 mvPciLocalBusNumGet(MV_U32 pciIf)
 	pciP2PConfig &= PPCR_BUS_NUM_MASK;
 	return (pciP2PConfig >> PPCR_BUS_NUM_OFFS);
 }
+
 
 /*******************************************************************************
 * mvPciLocalDevNumSet - Set PCI interface local device number.

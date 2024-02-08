@@ -21,6 +21,7 @@
 
 struct file_perms nullperms;
 
+
 /**
  * audit_file_mask - convert mask to permission string
  * @buffer: buffer to write string to (NOT NULL)
@@ -109,7 +110,8 @@ int aa_audit_file(struct aa_profile *profile, struct file_perms *perms,
 	int type = AUDIT_APPARMOR_AUTO;
 	struct common_audit_data sa;
 	struct apparmor_audit_data aad = {0,};
-	sa.type = LSM_AUDIT_DATA_NONE;
+	sa.type = LSM_AUDIT_DATA_TASK;
+	sa.u.tsk = NULL;
 	sa.aad = &aad;
 	aad.op = op,
 	aad.fs.request = request;

@@ -67,6 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 int mvClsLkpShadowTbl[2 * MV_PP2_CLS_LKP_TBL_SIZE];
 int mvClsFlowShadowTbl[MV_PP2_CLS_FLOWS_TBL_SIZE];
 
+
 /******************************************************************************/
 /**************** Classifier Top Public initialization APIs *******************/
 /******************************************************************************/
@@ -537,6 +538,7 @@ int mvPp2ClsSwLkpModGet(MV_PP2_CLS_LKP_ENTRY *fe, int *mod_base)
 /***************** Classifier Top Public flows table APIs  ********************/
 /******************************************************************************/
 
+
 int mvPp2ClsHwFlowWrite(int index, MV_PP2_CLS_FLOW_ENTRY *fe)
 {
 	PTR_VALIDATE(fe);
@@ -558,6 +560,7 @@ int mvPp2ClsHwFlowWrite(int index, MV_PP2_CLS_FLOW_ENTRY *fe)
 	return MV_OK;
 }
 /*-------------------------------------------------------------------------------*/
+
 
 int mvPp2ClsHwFlowRead(int index, MV_PP2_CLS_FLOW_ENTRY *fe)
 {
@@ -834,6 +837,7 @@ int mvPp2ClsSwFlowHekGet(MV_PP2_CLS_FLOW_ENTRY *fe, int *num_of_fields, int fiel
 
 	*num_of_fields = (fe->data[1] & FLOW_FIELDS_NUM_MASK) >> FLOW_FIELDS_NUM;
 
+
 	for (index = 0; index < (*num_of_fields); index++)
 		field_ids[index] = ((fe->data[2] & FLOW_FIELED_MASK(index)) >>  FLOW_FIELED_ID(index));
 
@@ -983,6 +987,7 @@ int mvPp2ClsHwRegsDump()
 	mvPp2PrintReg(MV_PP2_CLS_FLOW_TBL0_REG, "MV_PP2_CLS_FLOW_TBL0_REG");
 	mvPp2PrintReg(MV_PP2_CLS_FLOW_TBL1_REG, "MV_PP2_CLS_FLOW_TBL1_REG");
 	mvPp2PrintReg(MV_PP2_CLS_FLOW_TBL2_REG, "MV_PP2_CLS_FLOW_TBL2_REG");
+
 
 	mvPp2PrintReg(MV_PP2_CLS_PORT_SPID_REG, "MV_PP2_CLS_PORT_SPID_REG");
 

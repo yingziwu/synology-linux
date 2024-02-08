@@ -1246,3 +1246,4 @@ void hifmc_spi_nand_ids_register(void)
 	pr_info("SPI Nand ID Table Version %s\n", SPI_NAND_ID_TAB_VER);
 	get_spi_nand_flash_type_hook = spi_nand_get_flash_info;
 }
+

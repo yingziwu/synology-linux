@@ -112,6 +112,7 @@ struct lookup_proc_table start_proc[4] = {
 	{NULL, ICOM_CONTROL_START_D}
 };
 
+
 struct lookup_proc_table stop_proc[4] = {
 	{NULL, ICOM_CONTROL_STOP_A},
 	{NULL, ICOM_CONTROL_STOP_B},
@@ -125,6 +126,7 @@ struct lookup_int_table int_mask_tbl[4] = {
 	{NULL, ICOM_INT_MASK_PRC_C},
 	{NULL, ICOM_INT_MASK_PRC_D},
 };
+
 
 MODULE_DEVICE_TABLE(pci, icom_pci_table);
 
@@ -299,6 +301,7 @@ static void stop_processor(struct icom_port *icom_port)
 		stop_proc[port].global_control_reg = &icom_port->global_reg->control;
 	else
 		stop_proc[port].global_control_reg = &icom_port->global_reg->control_2;
+
 
 	if (port < 4) {
 		temp = readl(stop_proc[port].global_control_reg);
@@ -1522,6 +1525,7 @@ static int icom_probe(struct pci_dev *dev,
 		pci_write_config_dword(dev, 0x48, 0x42004200);
 	}
 
+
 	retval = icom_alloc_adapter(&icom_adapter);
 	if (retval) {
 		 dev_err(&dev->dev, "icom_alloc_adapter FAILED\n");
@@ -1533,6 +1537,7 @@ static int icom_probe(struct pci_dev *dev,
 	icom_adapter->pci_dev = dev;
 	icom_adapter->version = ent->driver_data;
 	icom_adapter->subsystem_id = ent->subdevice;
+
 
 	retval = icom_init_ports(icom_adapter);
 	if (retval) {

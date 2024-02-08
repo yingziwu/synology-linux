@@ -33,6 +33,7 @@
 
 typedef CsrPrim CsrWifiNmeApPrim;
 
+
 /*******************************************************************************
 
   NAME
@@ -51,6 +52,7 @@ typedef CsrPrim CsrWifiNmeApPrim;
 typedef u8 CsrWifiNmeApPersCredentialType;
 #define CSR_WIFI_NME_AP_CREDENTIAL_TYPE_PSK          ((CsrWifiNmeApPersCredentialType) 0x00)
 #define CSR_WIFI_NME_AP_CREDENTIAL_TYPE_PASSPHRASE   ((CsrWifiNmeApPersCredentialType) 0x01)
+
 
 /*******************************************************************************
 
@@ -136,6 +138,7 @@ typedef struct
     } nmeAuthType;
 } CsrWifiNmeApCredentials;
 
+
 /* Downstream */
 #define CSR_WIFI_NME_AP_PRIM_DOWNSTREAM_LOWEST            (0x0000)
 
@@ -145,6 +148,7 @@ typedef struct
 #define CSR_WIFI_NME_AP_STOP_REQ                          ((CsrWifiNmeApPrim) (0x0003 + CSR_WIFI_NME_AP_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_NME_AP_WMM_PARAM_UPDATE_REQ              ((CsrWifiNmeApPrim) (0x0004 + CSR_WIFI_NME_AP_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_NME_AP_STA_REMOVE_REQ                    ((CsrWifiNmeApPrim) (0x0005 + CSR_WIFI_NME_AP_PRIM_DOWNSTREAM_LOWEST))
+
 
 #define CSR_WIFI_NME_AP_PRIM_DOWNSTREAM_HIGHEST           (0x0005 + CSR_WIFI_NME_AP_PRIM_DOWNSTREAM_LOWEST)
 
@@ -487,3 +491,4 @@ typedef struct
 } CsrWifiNmeApStationInd;
 
 #endif /* CSR_WIFI_NME_AP_PRIM_H__ */
+

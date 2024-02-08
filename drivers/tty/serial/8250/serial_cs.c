@@ -51,6 +51,7 @@
 
 #include "8250.h"
 
+
 /*====================================================================*/
 
 /* Parameters that can be set with 'insmod' */
@@ -256,7 +257,9 @@ static const struct serial_quirk quirks[] = {
 	}
 };
 
+
 static int serial_config(struct pcmcia_device * link);
+
 
 static void serial_remove(struct pcmcia_device *link)
 {
@@ -596,6 +599,7 @@ static int serial_check_for_multi(struct pcmcia_device *p_dev,  void *priv_data)
 
 	return 0; /* break */
 }
+
 
 static int serial_config(struct pcmcia_device * link)
 {

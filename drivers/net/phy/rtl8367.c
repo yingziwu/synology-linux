@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Platform driver for the Realtek RTL8367R/M ethernet switches
+ *
+ * Copyright (C) 2011 Gabor Juhos <juhosg@openwrt.org>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 as published
+ * by the Free Software Foundation.
+ */
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -20,7 +29,7 @@
 
 #include "rtl8366_smi.h"
 
-#define RTL8367_RESET_DELAY	1000	 
+#define RTL8367_RESET_DELAY	1000	/* msecs*/
 
 #define RTL8367_PHY_ADDR_MAX	8
 #define RTL8367_PHY_REG_MAX	31
@@ -139,7 +148,8 @@
 #define   RTL8367_DIS_RGMII_SHIFT(_x)		(4 * (_x))
 #define   RTL8367_DIS_RGMII_MASK		0x7
 
-#define RTL8367_DIS_REG_EXT2			0x13c3	 
+/* RGMII 2 external port */
+#define RTL8367_DIS_REG_EXT2			0x13c3	/* RGMII2 ext_port */
 #define RTL8367_DI_FORCE_REG_EXT2		0x13c4
 #define RTL8367_EXT2_RGMXF_REG			0x13c5
 
@@ -238,8 +248,8 @@
 #define RTL8367_PORT_5			BIT(5)
 #define RTL8367_PORT_6			BIT(6)
 #define RTL8367_PORT_7			BIT(7)
-#define RTL8367_PORT_E1			BIT(8)	 
-#define RTL8367_PORT_E0			BIT(9)	 
+#define RTL8367_PORT_E1			BIT(8)	/* external port 1 */
+#define RTL8367_PORT_E0			BIT(9)	/* external port 0 */
 
 #define RTL8367_PORTS_ALL					\
 	(RTL8367_PORT_0 | RTL8367_PORT_1 | RTL8367_PORT_2 |	\
@@ -861,9 +871,11 @@ static int rtl8367_read_phy_reg(struct rtl8366_smi *smi,
 	if (data & RTL8367_IA_STATUS_PHY_BUSY)
 		return -ETIMEDOUT;
 
+	/* prepare address */
 	REG_WR(smi, RTL8367_IA_ADDRESS_REG,
 	       RTL8367_INTERNAL_PHY_REG(phy_addr, phy_reg));
 
+	/* send read command */
 	REG_WR(smi, RTL8367_IA_CTRL_REG,
 	       RTL8367_IA_CTRL_CMD_MASK | RTL8367_IA_CTRL_RW_READ);
 
@@ -881,6 +893,7 @@ static int rtl8367_read_phy_reg(struct rtl8366_smi *smi,
 		udelay(1);
 	} while (1);
 
+	/* read data */
 	REG_RD(smi, RTL8367_IA_READ_DATA_REG, val);
 
 	dev_dbg(smi->parent, "phy_read: addr:%02x, reg:%02x, val:%04x\n",
@@ -908,11 +921,14 @@ static int rtl8367_write_phy_reg(struct rtl8366_smi *smi,
 	if (data & RTL8367_IA_STATUS_PHY_BUSY)
 		return -ETIMEDOUT;
 
+	/* preapre data */
 	REG_WR(smi, RTL8367_IA_WRITE_DATA_REG, val);
 
+	/* prepare address */
 	REG_WR(smi, RTL8367_IA_ADDRESS_REG,
 	       RTL8367_INTERNAL_PHY_REG(phy_addr, phy_reg));
 
+	/* send write command */
 	REG_WR(smi, RTL8367_IA_CTRL_REG,
 	       RTL8367_IA_CTRL_CMD_MASK | RTL8367_IA_CTRL_RW_WRITE);
 
@@ -959,6 +975,8 @@ static int rtl8367_init_regs0(struct rtl8366_smi *smi, unsigned mode)
 	err = rtl8367_write_initvals(smi, initvals, count);
 	if (err)
 		return err;
+
+	/* TODO: complete this */
 
 	return 0;
 }
@@ -1026,6 +1044,9 @@ static int rtl8367rb_init_all_regs(struct rtl8366_smi *smi, u32 mode)
 	return err;
 }
 
+/* This chip has no register where getting an ID so if the device is
+ * compatible then its configuration is loaded suring the setup stage.
+ */
 static int rtl8367rb_init_regs(struct rtl8366_smi *smi)
 {
 	u32 data;
@@ -1146,6 +1167,7 @@ static const struct file_operations rtl8367rb_mac_debug_fops = {
 	.release = single_release,
 };
 
+/* This is to add some extra debug into the main debugfs entry for 8366 */
 static void rtl8367rb_init_debug_fs(struct rtl8366_smi *smi)
 {
 
@@ -1259,6 +1281,7 @@ static int rtl8367_extif_set_mode(struct rtl8366_smi *smi, int id,
 {
 	int err;
 
+	/* set port mode */
 	switch (mode) {
 	case RTL8367_EXTIF_MODE_RGMII:
 	case RTL8367_EXTIF_MODE_RGMII_33V:
@@ -1299,7 +1322,7 @@ static int rtl8367_extif_set_mode(struct rtl8366_smi *smi, int id,
 		REG_RMW(smi, RTL8367_DIS_REG,
 			RTL8367_DIS_RGMII_MASK << RTL8367_DIS_RGMII_SHIFT(id),
 			mode << RTL8367_DIS_RGMII_SHIFT(id));
-	else if (id == 2)	 
+	else if (id == 2)	/* rgmii 2 available on RB series */
 		REG_RMW(smi, RTL8367_DIS_REG_EXT2, 0xF, mode);
 
 	return 0;
@@ -1330,7 +1353,7 @@ static int rtl8367_extif_set_force(struct rtl8366_smi *smi, int id,
 
 	if (0 == id || 1 == id)
 		REG_RMW(smi, RTL8367_DI_FORCE_REG(id), mask, val);
-	else if (id == 2)	 
+	else if (id == 2)	/* rgmii 2 */
 		REG_RMW(smi, RTL8367_DI_FORCE_REG_EXT2, mask, val);
 
 	return 0;
@@ -1352,7 +1375,7 @@ static int rtl8367_extif_set_rgmii_delay(struct rtl8366_smi *smi, int id,
 
 	if (0 == id || 1 == id)
 		REG_RMW(smi, RTL8367_EXT_RGMXF_REG(id), mask, val);
-	else if (id == 2)	 
+	else if (id == 2)	/* rgmii 2 */
 		REG_RMW(smi, RTL8367_EXT2_RGMXF_REG, mask, val);
 
 	return 0;
@@ -1559,7 +1582,7 @@ static void rtl8367_probe_config_dt(struct rtl8366_smi *smi)
 {
 	return NULL;
 }
-#endif  
+#endif /* CONFIG_OF */
 
 static int rtl8367_setup(struct rtl8366_smi *smi)
 {
@@ -1579,7 +1602,7 @@ static int rtl8367_setup(struct rtl8366_smi *smi)
 	if (of_device_is_compatible(np, "realtek,rtl8367rb")) {
 		err = rtl8367rb_init_regs(smi);
 		rtl8367rb_init_debug_fs(smi);
-		 
+		/* FIXME: do not support VLAN yet */
 		smi->ops->enable_vlan = NULL;
 		smi->ops->enable_vlan4k = NULL;
 	} else
@@ -1588,6 +1611,7 @@ static int rtl8367_setup(struct rtl8366_smi *smi)
 	if (err)
 		return err;
 
+	/* Initialize external interfaces if provided from the platform */
 	if (pdata->extif0_cfg) {
 		err = rtl8367_extif_init(smi, 0, pdata->extif0_cfg);
 		if (err)
@@ -1604,9 +1628,11 @@ static int rtl8367_setup(struct rtl8366_smi *smi)
 			return err;
 	}
 
+	/* set maximum packet length to 1536 bytes */
 	REG_RMW(smi, RTL8367_SWC0_REG, RTL8367_SWC0_MAX_LENGTH_MASK,
 		RTL8367_SWC0_MAX_LENGTH_1536);
 
+	/* setup LEDs */
 	err = rtl8367_led_group_set_ports(smi, 0, RTL8367_PORTS_ALL);
 	if (err)
 		return err;
@@ -1646,8 +1672,12 @@ static int rtl8367_get_mib_counter(struct rtl8366_smi *smi, int counter,
 	mib = &rtl8367_mib_counters[counter];
 	addr = RTL8367_MIB_COUNTER_PORT_OFFSET * port + mib->offset;
 
+	/* Writing access counter address first
+	 * then ASIC will prepare 64bits counter wait for being retrived
+	 */
 	REG_WR(smi, RTL8367_MIB_ADDRESS_REG, addr >> 2);
 
+	/* read MIB control register */
 	REG_RD(smi, RTL8367_MIB_CTRL_REG(0), &data);
 
 	if (data & RTL8367_MIB_CTRL_BUSY_MASK)
@@ -1683,8 +1713,10 @@ static int rtl8367_get_vlan_4k(struct rtl8366_smi *smi, u32 vid,
 	if (vid >= RTL8367_NUM_VIDS)
 		return -EINVAL;
 
+	/* write VID */
 	REG_WR(smi, RTL8367_TA_ADDR_REG, vid);
 
+	/* write table access control word */
 	REG_WR(smi, RTL8367_TA_CTRL_REG, RTL8367_TA_CTRL_CVLAN_READ);
 
 	for (i = 0; i < ARRAY_SIZE(data); i++)
@@ -1728,9 +1760,11 @@ static int rtl8367_set_vlan_4k(struct rtl8366_smi *smi,
 	for (i = 0; i < ARRAY_SIZE(data); i++)
 		REG_WR(smi, RTL8367_TA_DATA_REG(i), data[i]);
 
+	/* write VID */
 	REG_WR(smi, RTL8367_TA_ADDR_REG,
 	       vlan4k->vid & RTL8367_TA_VLAN_VID_MASK);
 
+	/* write table access control word */
 	REG_WR(smi, RTL8367_TA_CTRL_REG, RTL8367_TA_CTRL_CVLAN_WRITE);
 
 	return 0;
@@ -1823,8 +1857,12 @@ static int rtl8367_enable_vlan(struct rtl8366_smi *smi, int enable)
 	int i;
 	int err;
 
+	/* discard VLAN tagged packets if the port is not a member of
+	 * the VLAN with which the packets is associated.
+	 */
 	REG_WR(smi, RTL8367_VLAN_INGRESS_REG, RTL8367_PORTS_ALL);
 
+	/* Setup egress tag mode for each port. */
 	for (i = 0; i < RTL8367_NUM_PORTS; i++)
 		REG_RMW(smi,
 			RTL8367_PORT_CFG_REG(i),
@@ -2103,6 +2141,7 @@ static int rtl8367_mii_write(struct mii_bus *bus, int addr, int reg, u16 val)
 	if (err)
 		return err;
 
+	/* flush write */
 	(void) rtl8367_read_phy_reg(smi, addr, reg, &t);
 
 	return err;
@@ -2115,6 +2154,7 @@ static int rtl8367_detect(struct rtl8366_smi *smi)
 	char *chip_name;
 	int ret;
 
+	/* Some chips have not internal register to report ID value */
 	if (of_device_is_compatible(smi->parent->of_node, "realtek,rtl8367rb"))
 		return 0;
 
@@ -2248,6 +2288,7 @@ static const struct of_device_id rtl8367_match[] = {
 MODULE_DEVICE_TABLE(of, rtl83767_match);
 #endif
 
+
 #ifdef CONFIG_PM
 
 static int rtl8367_pm_resume(struct device *dev)
@@ -2282,7 +2323,7 @@ static const struct dev_pm_ops rtl8367_pm_ops = {
 };
 #ifdef MY_DEF_HERE
 #define	rtl8367_pm_ops	(&rtl8367_pm_ops)
-#endif  
+#endif /* MY_DEF_HERE */
 #else
 #define	rtl8367_pm_ops	NULL
 #endif
@@ -2293,9 +2334,9 @@ static struct platform_driver rtl8367_driver = {
 		.owner		= THIS_MODULE,
 #ifdef MY_DEF_HERE
 		.pm		= rtl8367_pm_ops,
-#else  
+#else /* MY_DEF_HERE */
 		.pm		= &rtl8367_pm_ops,
-#endif  
+#endif /* MY_DEF_HERE */
 #ifdef CONFIG_OF
 		.of_match_table = of_match_ptr(rtl8367_match),
 #endif

@@ -18,6 +18,7 @@
 #include <linux/notifier.h>
 #include <asm/processor.h>
 
+
 static DEFINE_PER_CPU(struct llist_head, irq_work_list);
 static DEFINE_PER_CPU(int, irq_work_raised);
 
@@ -105,6 +106,7 @@ static void __irq_work_run(void)
 	struct irq_work *work;
 	struct llist_head *this_list;
 	struct llist_node *llnode;
+
 
 	/*
 	 * Reset the "raised" state right before we check the list because

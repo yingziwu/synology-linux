@@ -17,6 +17,7 @@
 #include "mali_kernel_common.h"
 #include "mali_osk.h"
 
+
 #ifdef DEBUG
 #ifdef LOCK_ORDER_CHECKING
 static DEFINE_SPINLOCK(lock_tracking_lock);
@@ -61,6 +62,7 @@ void _mali_osk_locks_debug_remove(struct _mali_osk_lock_debug_s *checker)
 #endif
 	checker->owner = 0;
 }
+
 
 #ifdef LOCK_ORDER_CHECKING
 /* Lock order checking
@@ -193,6 +195,7 @@ static void remove_lock_from_log(struct _mali_osk_lock_debug_s *lock, uint32_t t
 	}
 
 	MALI_DEBUG_ASSERT_POINTER(curr);
+
 
 	while (lock != curr) {
 		prev = curr;

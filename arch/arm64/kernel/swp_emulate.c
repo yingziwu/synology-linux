@@ -216,6 +216,7 @@ static int __init swp_emulation_init(void)
 	pr_notice("Registering SWP/SWPB emulation handler\n");
 	register_undef_hook(&swp_hook);
 
+
 	return 0;
 }
 

@@ -293,3 +293,4 @@ extern u_char spi_nand_feature_op(struct hifmc_spi *spi, u_char op, u_char addr,
 /*****************************************************************************/
 
 #endif /* End of __HIFMC_SPI_IDS_H__ */
+

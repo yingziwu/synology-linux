@@ -2752,3 +2752,4 @@ static int __init parse_spi_id(const struct tag *tag)
 
 /* turn to ascii is "S_ID" */
 __tagtable(0x535F4944, parse_spi_id);
+

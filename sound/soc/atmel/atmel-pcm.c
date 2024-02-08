@@ -1,7 +1,39 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * atmel-pcm.c  --  ALSA PCM interface for the Atmel atmel SoC.
+ *
+ *  Copyright (C) 2005 SAN People
+ *  Copyright (C) 2008 Atmel
+ *
+ * Authors: Sedji Gaouaou <sedji.gaouaou@atmel.com>
+ *
+ * Based on at91-pcm. by:
+ * Frank Mandarino <fmandarino@endrelia.com>
+ * Copyright 2006 Endrelia Technologies Inc.
+ *
+ * Based on pxa2xx-pcm.c by:
+ *
+ * Author:	Nicolas Pitre
+ * Created:	Nov 30, 2004
+ * Copyright:	(C) 2004 MontaVista Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #include <linux/module.h>
 #include <linux/dma-mapping.h>
 #include <sound/pcm.h>
@@ -40,10 +72,10 @@ int atmel_pcm_mmap(struct snd_pcm_substream *substream,
 EXPORT_SYMBOL_GPL(atmel_pcm_mmap);
 
 #if defined(MY_ABC_HERE)
- 
-#else  
+// do nothing
+#else /* MY_ABC_HERE */
 static u64 atmel_pcm_dmamask = DMA_BIT_MASK(32);
-#endif  
+#endif /* MY_ABC_HERE */
 
 int atmel_pcm_new(struct snd_soc_pcm_runtime *rtd)
 {
@@ -55,14 +87,14 @@ int atmel_pcm_new(struct snd_soc_pcm_runtime *rtd)
 	ret = dma_coerce_mask_and_coherent(card->dev, DMA_BIT_MASK(32));
 	if (ret)
 		return ret;
-#else  
+#else /* MY_ABC_HERE */
 	int ret = 0;
 
 	if (!card->dev->dma_mask)
 		card->dev->dma_mask = &atmel_pcm_dmamask;
 	if (!card->dev->coherent_dma_mask)
 		card->dev->coherent_dma_mask = DMA_BIT_MASK(32);
-#endif  
+#endif /* MY_ABC_HERE */
 
 	if (pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream) {
 		pr_debug("atmel-pcm: allocating PCM playback DMA buffer\n");
@@ -104,3 +136,4 @@ void atmel_pcm_free(struct snd_pcm *pcm)
 	}
 }
 EXPORT_SYMBOL_GPL(atmel_pcm_free);
+

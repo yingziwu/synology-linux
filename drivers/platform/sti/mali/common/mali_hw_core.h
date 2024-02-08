@@ -60,6 +60,7 @@ MALI_STATIC_INLINE void mali_hw_core_register_write_relaxed_conditional(struct m
 	}
 }
 
+
 MALI_STATIC_INLINE void mali_hw_core_register_write(struct mali_hw_core *core, u32 relative_address, u32 new_val)
 {
 	MALI_DEBUG_PRINT(6, ("register_write for core %s, relative addr=0x%04X, val=0x%08X\n",

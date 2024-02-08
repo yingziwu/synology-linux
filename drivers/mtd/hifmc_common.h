@@ -447,3 +447,4 @@ extern void debug_register_dump(void);
 extern void mtd_dev_type_switch(unsigned char type);
 
 #endif /* End of __HIFMC_COMMON_H__ */
+

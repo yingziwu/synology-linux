@@ -405,6 +405,7 @@ struct nv10_graph_chan {
 	u32 lma_window[4];
 };
 
+
 static inline struct nv10_graph_priv *
 nv10_graph_priv(struct nv10_graph_chan *chan)
 {
@@ -665,6 +666,7 @@ nv10_graph_load_pipe(struct nv10_graph_chan *chan)
 
 	nv_wr32(priv, NV10_PGRAPH_PIPE_ADDRESS, 0x00000040);
 	nv_wr32(priv, NV10_PGRAPH_PIPE_DATA, 0x00000008);
+
 
 	PIPE_RESTORE(priv, pipe->pipe_0x0200, 0x0200);
 	nv04_graph_idle(priv);

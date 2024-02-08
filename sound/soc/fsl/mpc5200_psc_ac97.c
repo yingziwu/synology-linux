@@ -274,6 +274,7 @@ static const struct snd_soc_component_driver psc_ac97_component = {
 	.name		= DRV_NAME,
 };
 
+
 /* ---------------------------------------------------------------------
  * OF platform bus binding code:
  * - Probe/remove operations
@@ -343,3 +344,4 @@ module_platform_driver(psc_ac97_driver);
 MODULE_AUTHOR("Jon Smirl <jonsmirl@gmail.com>");
 MODULE_DESCRIPTION("mpc5200 AC97 module");
 MODULE_LICENSE("GPL");
+

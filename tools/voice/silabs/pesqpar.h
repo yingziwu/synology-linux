@@ -78,6 +78,7 @@ The user may:
             commercial use other than making said contribution to the ITU.
             Said permission will be provided on a case-by-case basis.
 
+
 ANY OTHER USE OR APPLICATION OF THE PESQ SOFTWARE AND/OR THE PESQ
 ALGORITHM WILL REQUIRE A PESQ LICENCE AGREEMENT, WHICH MAY BE OBTAINED
 FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
@@ -85,6 +86,7 @@ FROM EITHER OPTICOM GMBH OR PSYTECHNICS LIMITED.
 EACH COMPANY OFFERS OEM LICENSE AGREEMENTS, WHICH COMBINE OEM
 IMPLEMENTATIONS OF THE PESQ ALGORITHM TOGETHER WITH A PESQ PATENT LICENSE
 AGREEMENT. PESQ PATENT-ONLY LICENSE AGREEMENTS MAY BE OBTAINED FROM OPTICOM.
+
 
 ***********************************************************************
 *  OPTICOM GmbH                    *  Psytechnics Limited             *
@@ -145,6 +147,7 @@ float InIIR_Hsos_16k[LINIIR] =
    1.001616361f,        -0.823749013f,  0.439731942f,   -0.885778255f,  0.000000000f,
    0.752472096f,        -0.375388990f,  0.188977609f,   -0.077258216f,  0.247230734f,
    1.023700575f,        0.001661628f,   0.521284240f,   -0.183867259f,  0.354324187f };
+
 
 int nr_of_hz_bands_per_bark_band_8k [42] = { 1,    1,    1,    1,    1,
                                                 1,    1,    1,    2,    1,
@@ -291,5 +294,6 @@ double abs_thresh_power_16k [49] = {51286152.000000,     2454709.500000,     707
                                     0.489779,     0.501187,     0.501187,     0.512861,     0.524807,
                                     0.524807,     0.524807,     0.512861,     0.478630,     0.426580,
                                     0.371535,     0.363078,     0.416869,     0.537032};
+
 
 /* END OF FILE */

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * linux/mm/compaction.c
  *
@@ -1110,6 +1113,7 @@ unsigned long try_to_compact_pages(struct zonelist *zonelist,
 	return rc;
 }
 
+
 /* Compact all zones within a node */
 static void __compact_pgdat(pg_data_t *pgdat, struct compact_control *cc)
 {
@@ -1167,7 +1171,11 @@ static void compact_node(int nid)
 }
 
 /* Compact all nodes in the system */
+#ifdef MY_DEF_HERE
+void compact_nodes(void)
+#else /* MY_DEF_HERE */
 static void compact_nodes(void)
+#endif /* MY_DEF_HERE */
 {
 	int nid;
 
@@ -1177,6 +1185,9 @@ static void compact_nodes(void)
 	for_each_online_node(nid)
 		compact_node(nid);
 }
+#ifdef MY_DEF_HERE
+EXPORT_SYMBOL(compact_nodes);
+#endif /* MY_DEF_HERE */
 
 /* The written value is actually unused, all memory is compacted */
 int sysctl_compact_memory;

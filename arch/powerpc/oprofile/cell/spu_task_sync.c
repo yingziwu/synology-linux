@@ -181,6 +181,7 @@ static struct cached_info *get_cached_info(struct spu *the_spu, int spu_num)
 	return ret_info;
 }
 
+
 /* Looks for cached info for the passed spu.  If not found, the
  * cached info is created for the passed spu.
  * Returns 0 for success; otherwise, -1 for error.
@@ -364,6 +365,8 @@ fail_no_image_cookie:
 		__func__, __LINE__);
 	goto out;
 }
+
+
 
 /* This function finds or creates cached context information for the
  * passed SPU and records SPU context information into the OProfile
@@ -613,6 +616,7 @@ out:
 	spin_unlock_irqrestore(&cache_lock, flags);
 }
 
+
 int spu_sync_stop(void)
 {
 	unsigned long flags = 0;
@@ -653,3 +657,4 @@ int spu_sync_stop(void)
 	pr_debug("spu_sync_stop -- done.\n");
 	return ret;
 }
+

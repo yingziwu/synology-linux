@@ -44,6 +44,8 @@ static void cris_freq_set_cpu_state(struct cpufreq_policy *policy,
 
 	local_irq_disable();
 
+	/* Even though we may be SMP they will share the same clock
+	 * so all settings are made on CPU0. */
 	if (cris_freq_table[state].frequency == 200000)
 		clk_ctrl.pll = 1;
 	else
@@ -79,7 +81,8 @@ static int cris_freq_cpu_init(struct cpufreq_policy *policy)
 {
 	int result;
 
-	policy->cpuinfo.transition_latency = 1000000;  
+	/* cpuinfo and default policy values */
+	policy->cpuinfo.transition_latency = 1000000; /* 1ms */
 	policy->cur = cris_freq_get_cpu_frequency(0);
 
 	result = cpufreq_frequency_table_cpuinfo(policy, cris_freq_table);
@@ -91,11 +94,13 @@ static int cris_freq_cpu_init(struct cpufreq_policy *policy)
 	return 0;
 }
 
+
 static int cris_freq_cpu_exit(struct cpufreq_policy *policy)
 {
 	cpufreq_frequency_table_put_attr(policy->cpu);
 	return 0;
 }
+
 
 static struct freq_attr *cris_freq_attr[] = {
 	&cpufreq_freq_attr_scaling_available_freqs,
@@ -110,10 +115,10 @@ static struct cpufreq_driver cris_freq_driver = {
 	.exit	= cris_freq_cpu_exit,
 	.name	= "cris_freq",
 #if defined(MY_ABC_HERE)
-	 
-#else  
+	// do nothing
+#else /* MY_ABC_HERE */
 	.owner	= THIS_MODULE,
-#endif  
+#endif /* MY_ABC_HERE */
 	.attr	= cris_freq_attr,
 };
 
@@ -143,5 +148,6 @@ cris_sdram_freq_notifier(struct notifier_block *nb, unsigned long val,
 	}
 	return 0;
 }
+
 
 module_init(cris_freq_init);

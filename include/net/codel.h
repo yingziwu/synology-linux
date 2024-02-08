@@ -56,6 +56,7 @@
  * Implemented on linux by Dave Taht and Eric Dumazet
  */
 
+
 /* CoDel uses a 1024 nsec clock, encoded in u32
  * This gives a range of 2199 seconds, because of signed compares
  */
@@ -201,6 +202,7 @@ static codel_time_t codel_control_law(codel_time_t t,
 {
 	return t + reciprocal_divide(interval, rec_inv_sqrt << REC_INV_SQRT_SHIFT);
 }
+
 
 static bool codel_should_drop(const struct sk_buff *skb,
 			      struct Qdisc *sch,

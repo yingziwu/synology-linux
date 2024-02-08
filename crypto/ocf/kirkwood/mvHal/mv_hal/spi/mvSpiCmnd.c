@@ -72,6 +72,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DB(x)
 #endif
 
+
 /*******************************************************************************
 * mvSpiReadAndWrite - Read and Write a buffer simultanuousely
 *

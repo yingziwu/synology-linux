@@ -33,6 +33,7 @@
 #include "target_core_internal.h"
 #include "target_core_ua.h"
 
+
 static sense_reason_t
 sbc_emulate_readcapacity(struct se_cmd *cmd)
 {

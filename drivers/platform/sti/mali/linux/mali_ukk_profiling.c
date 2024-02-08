@@ -164,3 +164,5 @@ int profiling_report_sw_counters_wrapper(struct mali_session_data *session_data,
 
 	return 0;
 }
+
+

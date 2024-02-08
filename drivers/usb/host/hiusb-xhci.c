@@ -248,6 +248,7 @@ static struct platform_driver usb_xhci_driver = {
 };
 MODULE_ALIAS("platform:xhci-hcd");
 
+
 static struct resource hiusb_xhci_res[] = {
 	[0] = {
 		.start  = CONFIG_HIUSB_XHCI_IOBASE,

@@ -1,7 +1,24 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Earlyprintk support.
+ *
+ * Copyright (C) 2012 ARM Ltd.
+ * Author: Catalin Marinas <catalin.marinas@arm.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include <linux/kernel.h>
 #include <linux/console.h>
 #include <linux/init.h>
@@ -13,11 +30,14 @@
 #include <linux/serial_reg.h>
 #if defined (MY_DEF_HERE)
 #include <linux/st-asc.h>
-#endif  
+#endif /* MY_DEF_HERE */
 
 static void __iomem *early_base;
 static void (*printch)(char ch);
 
+/*
+ * PL011 single character TX.
+ */
 static void pl011_printch(char ch)
 {
 	while (readl_relaxed(early_base + UART01x_FR) & UART01x_FR_TXFF)
@@ -27,6 +47,9 @@ static void pl011_printch(char ch)
 		;
 }
 
+/*
+ * Semihosting-based debug console
+ */
 static void smh_printch(char ch)
 {
 	asm volatile("mov  x1, %0\n"
@@ -35,6 +58,9 @@ static void smh_printch(char ch)
 		     : : "r" (&ch) : "x0", "x1", "memory");
 }
 
+/*
+ * 8250/16550 (8-bit aligned registers) single character TX.
+ */
 static void uart8250_8bit_printch(char ch)
 {
 	while (!(readb_relaxed(early_base + UART_LSR) & UART_LSR_THRE))
@@ -42,6 +68,9 @@ static void uart8250_8bit_printch(char ch)
 	writeb_relaxed(ch, early_base + UART_TX);
 }
 
+/*
+ * 8250/16550 (32-bit aligned registers) single character TX.
+ */
 static void uart8250_32bit_printch(char ch)
 {
 	while (!(readl_relaxed(early_base + (UART_LSR << 2)) & UART_LSR_THRE))
@@ -50,7 +79,9 @@ static void uart8250_32bit_printch(char ch)
 }
 
 #if defined (MY_DEF_HERE)
- 
+/*
+ * ST-ASC single character TX.
+ */
 static void st_asc_printch(char ch)
 {
 	while (!(readl_relaxed(early_base + ASC_STA) & ASC_STA_TE))
@@ -59,7 +90,7 @@ static void st_asc_printch(char ch)
 	while (readl_relaxed(early_base + ASC_STA) & ASC_STA_TF)
 		;
 }
-#endif  
+#endif /* MY_DEF_HERE */
 
 struct earlycon_match {
 	const char *name;
@@ -73,7 +104,7 @@ static const struct earlycon_match earlycon_match[] __initconst = {
 	{ .name = "uart8250-32bit", .printch = uart8250_32bit_printch, },
 #if defined (MY_DEF_HERE)
 	{ .name = "st-asc", .printch = st_asc_printch, },
-#endif  
+#endif /* MY_DEF_HERE */
 	{}
 };
 
@@ -94,6 +125,14 @@ static struct console early_console_dev = {
 	.index =	-1,
 };
 
+/*
+ * Parse earlyprintk=... parameter in the format:
+ *
+ *   <name>[,<addr>][,<options>]
+ *
+ * and register the early console. It is assumed that the UART has been
+ * initialised by the bootloader already.
+ */
 static int __init setup_early_printk(char *buf)
 {
 	const struct earlycon_match *match = earlycon_match;
@@ -117,12 +156,14 @@ static int __init setup_early_printk(char *buf)
 		return 0;
 	}
 
+	/* I/O address */
 	if (!strncmp(buf, ",0x", 3)) {
 		char *e;
 		paddr = simple_strtoul(buf + 1, &e, 16);
 		buf = e;
 	}
-	 
+	/* no options parsing yet */
+
 	if (paddr)
 		early_base = early_io_map(paddr, EARLYCON_IOBASE);
 

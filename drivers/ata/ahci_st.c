@@ -230,6 +230,7 @@ static int ahci_st_driver_probe(struct platform_device *pdev)
 	if (ahci_info.id < 0)
 		ahci_info.id =  pdev->id;
 
+
 	drv_data = devm_kzalloc(dev, sizeof(*drv_data), GFP_KERNEL);
 	if (!drv_data)
 		return -ENOMEM;

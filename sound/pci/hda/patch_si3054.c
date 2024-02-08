@@ -80,10 +80,12 @@
 #define SET_REG_CACHE(codec,reg,val) \
 	snd_hda_codec_write_cache(codec,reg,0,SI3054_VERB_WRITE_NODE,val)
 
+
 struct si3054_spec {
 	unsigned international;
 	struct hda_pcm pcm;
 };
+
 
 /*
  * Modem mixer
@@ -128,6 +130,7 @@ static int si3054_switch_put(struct snd_kcontrol *kcontrol,
 	.private_value = PRIVATE_VALUE(reg,mask), \
 }
 		
+
 static const struct snd_kcontrol_new si3054_modem_mixer[] = {
 	SI3054_KCONTROL("Off-hook Switch", SI3054_GPIO_CONTROL, SI3054_GPIO_OH),
 	SI3054_KCONTROL("Caller ID Switch", SI3054_GPIO_CONTROL, SI3054_GPIO_CID),
@@ -138,6 +141,7 @@ static int si3054_build_controls(struct hda_codec *codec)
 {
 	return snd_hda_add_new_ctls(codec, si3054_modem_mixer);
 }
+
 
 /*
  * PCM callbacks
@@ -177,6 +181,7 @@ static int si3054_pcm_open(struct hda_pcm_stream *hinfo,
 			SNDRV_PCM_HW_PARAM_RATE, &hw_constraints_rates);
 }
 
+
 static const struct hda_pcm_stream si3054_pcm = {
 	.substreams = 1,
 	.channels_min = 1,
@@ -190,6 +195,7 @@ static const struct hda_pcm_stream si3054_pcm = {
 		.prepare = si3054_pcm_prepare,
 	},
 };
+
 
 static int si3054_build_pcms(struct hda_codec *codec)
 {
@@ -205,6 +211,7 @@ static int si3054_build_pcms(struct hda_codec *codec)
 	info->pcm_type = HDA_PCM_TYPE_MODEM;
 	return 0;
 }
+
 
 /*
  * Init part
@@ -253,6 +260,7 @@ static void si3054_free(struct hda_codec *codec)
 {
 	kfree(codec->spec);
 }
+
 
 /*
  */

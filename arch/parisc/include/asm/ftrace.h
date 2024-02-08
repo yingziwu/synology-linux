@@ -21,6 +21,7 @@ struct ftrace_ret_stack {
  */
 extern void return_to_handler(void);
 
+
 extern unsigned long return_address(unsigned int);
 
 #define HAVE_ARCH_CALLER_ADDR

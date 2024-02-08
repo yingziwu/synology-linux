@@ -94,6 +94,7 @@ static void pikawdt_ping(unsigned long data)
 		pr_crit("I will reset your machine !\n");
 }
 
+
 static void pikawdt_keepalive(void)
 {
 	pikawdt_private.next_heartbeat = jiffies + heartbeat * HZ;
@@ -203,6 +204,7 @@ static long pikawdt_ioctl(struct file *file,
 	return -ENOTTY;
 }
 
+
 static const struct file_operations pikawdt_fops = {
 	.owner		= THIS_MODULE,
 	.llseek		= no_llseek,
@@ -297,3 +299,4 @@ MODULE_AUTHOR("Sean MacLennan <smaclennan@pikatech.com>");
 MODULE_DESCRIPTION("PIKA FPGA based Watchdog Timer");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+

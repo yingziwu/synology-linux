@@ -404,6 +404,7 @@ static int cx25821_video_mmap(struct file *file, struct vm_area_struct *vma)
 	return videobuf_mmap_mapper(&chan->vidq, vma);
 }
 
+
 static void buffer_queue(struct videobuf_queue *vq, struct videobuf_buffer *vb)
 {
 	struct cx25821_buffer *buf =
@@ -708,6 +709,7 @@ static int vidioc_log_status(struct file *file, void *priv)
 		(tmp & 0x11) ? "streaming" : "stopped");
 	return 0;
 }
+
 
 static int cx25821_vidioc_querycap(struct file *file, void *priv,
 			    struct v4l2_capability *cap)

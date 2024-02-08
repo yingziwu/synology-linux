@@ -89,6 +89,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mvDebug.h"
 #include "mv_cph_header.h"
 
+
 /******************************************************************************
 *                           Global Definition
 ******************************************************************************/
@@ -96,6 +97,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* Total Eth port number */
 static int gs_mv_eth_port_num;
+
 
 #ifdef CONFIG_MV_CPH_UDP_SAMPLE_HANDLE
 static struct mv_port_tx_spec    udp_port_spec_cfg[MV_APP_ETH_PORTS_NUM];
@@ -188,6 +190,7 @@ int cph_udp_spec_print(int port)
 	return 0;
 }
 
+
 void cph_udp_spec_print_all(void)
 {
 	int port;
@@ -221,6 +224,7 @@ MV_STATUS  cph_udp_int_spec_set(struct mv_udp_port_tx_spec *udp_spec, uint16_t u
 	return MV_FULL;
 }
 
+
 MV_STATUS  cph_udp_src_spec_set(int tx_port, uint16_t udp_src_port, uint8_t txp,
 	uint8_t txq, uint16_t flags, uint32_t hw_cmd)
 {
@@ -242,6 +246,7 @@ MV_STATUS  cph_udp_src_spec_set(int tx_port, uint16_t udp_src_port, uint8_t txp,
 }
 EXPORT_SYMBOL(cph_udp_src_spec_set);
 
+
 MV_STATUS  cph_udp_dest_spec_set(int tx_port, uint16_t udp_dest_port, uint8_t txp,
 	uint8_t txq, uint16_t flags, uint32_t hw_cmd)
 {
@@ -262,6 +267,7 @@ MV_STATUS  cph_udp_dest_spec_set(int tx_port, uint16_t udp_dest_port, uint8_t tx
 	return mv_status;
 }
 EXPORT_SYMBOL(cph_udp_dest_spec_set);
+
 
 void cph_udp_table_init(void)
 {
@@ -354,6 +360,7 @@ int cph_udp_port_tx(int port, struct net_device *dev, struct sk_buff *skb,
 	return 0;
 }
 #endif
+
 
 #ifdef CONFIG_MV_CPH_FLOW_MAP_HANDLE
 

@@ -22,6 +22,7 @@
  *-----------------------------------------------------------------------------
  */
 
+
 #include <linux/types.h>
 #include <linux/module.h>
 #include <linux/kernel.h>       /* resolves kmalloc references */
@@ -32,6 +33,7 @@
 /* forward reference */
 u_int32_t   pci_read_32 (u_int32_t *p);
 void        pci_write_32 (u_int32_t *p, u_int32_t v);
+
 
 /*
  * system dependent callbacks
@@ -57,6 +59,7 @@ OS_kfree (void *x)
     kfree (x);
 }
 
+
 /****************/
 /* memory token */
 /****************/
@@ -75,11 +78,13 @@ OS_mem_token_alloc (size_t size)
     return skb;
 }
 
+
 static inline void
 OS_mem_token_free (void *token)
 {
     dev_kfree_skb_any (token);
 }
+
 
 static inline void
 OS_mem_token_free_irq (void *token)
@@ -87,11 +92,13 @@ OS_mem_token_free_irq (void *token)
     dev_kfree_skb_irq (token);
 }
 
+
 static inline void *
 OS_mem_token_data (void *token)
 {
     return ((struct sk_buff *) token)->data;
 }
+
 
 static inline void *
 OS_mem_token_next (void *token)
@@ -99,17 +106,20 @@ OS_mem_token_next (void *token)
     return 0;
 }
 
+
 static inline int
 OS_mem_token_len (void *token)
 {
     return ((struct sk_buff *) token)->len;
 }
 
+
 static inline int
 OS_mem_token_tlen (void *token)
 {
     return ((struct sk_buff *) token)->len;
 }
+
 
 /***************************************/
 /* virtual to physical addr conversion */
@@ -121,17 +131,20 @@ OS_phystov (void *addr)
     return (u_long) __va (addr);
 }
 
+
 static inline u_long
 OS_vtophys (void *addr)
 {
     return __pa (addr);
 }
 
+
 /**********/
 /* semops */
 /**********/
 
 void        OS_sem_init (void *, int);
+
 
 static inline void
 OS_sem_free (void *sem)
@@ -147,6 +160,7 @@ OS_sem_free (void *sem)
 #define SEM_AVAILABLE     1
 #define SEM_TAKEN         0
 
+
 /**********************/
 /* watchdog functions */
 /**********************/
@@ -161,6 +175,7 @@ struct watchdog
     int         init_tq;
 };
 
+
 static inline int
 OS_start_watchdog (struct watchdog * wd)
 {
@@ -169,12 +184,14 @@ OS_start_watchdog (struct watchdog * wd)
     return 0;
 }
 
+
 static inline int
 OS_stop_watchdog (struct watchdog * wd)
 {
     del_timer_sync (&wd->h);
     return 0;
 }
+
 
 static inline int
 OS_free_watchdog (struct watchdog * wd)
@@ -184,11 +201,14 @@ OS_free_watchdog (struct watchdog * wd)
     return 0;
 }
 
+
 /* sleep in microseconds */
 void        OS_uwait (int usec, char *description);
 void        OS_uwait_dummy (void);
 
+
 /* watchdog functions */
 int OS_init_watchdog(struct watchdog *wdp, void (*f) (void *), void *ci, int usec);
+
 
 #endif                          /*** _INC_SBECOM_INLNX_H_ ***/

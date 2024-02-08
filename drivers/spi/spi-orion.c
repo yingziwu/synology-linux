@@ -1,7 +1,17 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Marvell Orion SPI controller driver
+ *
+ * Author: Shadi Ammouri <shadi@marvell.com>
+ * Copyright (C) 2007-2008 Marvell Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/delay.h>
@@ -13,7 +23,7 @@
 #include <linux/of.h>
 #if defined(MY_ABC_HERE)
 #include <linux/of_device.h>
-#endif  
+#endif /* MY_ABC_HERE */
 #include <linux/clk.h>
 #include <asm/unaligned.h>
 
@@ -23,10 +33,10 @@
 #define ORION_NUM_CHIPSELECTS		4
 #define ORION_CHIPSELECTS_OFFS		2
 #define ORION_CHIPSELECTS_MASK		(0x3 << ORION_CHIPSELECTS_OFFS)
-#else  
-#define ORION_NUM_CHIPSELECTS		1  
-#endif  
-#define ORION_SPI_WAIT_RDY_MAX_LOOP	2000  
+#else /* MY_ABC_HERE */
+#define ORION_NUM_CHIPSELECTS		1 /* only one slave is supported*/
+#endif /* MY_ABC_HERE */
+#define ORION_SPI_WAIT_RDY_MAX_LOOP	2000 /* in usec */
 
 #define ORION_SPI_IF_CTRL_REG		0x00
 #define ORION_SPI_IF_CONFIG_REG		0x04
@@ -40,23 +50,23 @@
 #define ORION_SPI_TMISO_SAMPLE_MASK	(0x3 << 6)
 #define ORION_SPI_TMISO_SAMPLE_1	(1 << 6)
 #define ORION_SPI_TMISO_SAMPLE_2	(2 << 6)
-#endif  
+#endif /* MY_ABC_HERE */
 #define ORION_SPI_MODE_CPOL			(1 << 11)
 #define ORION_SPI_MODE_CPHA			(1 << 12)
-#else  
+#else /* MY_ABC_HERE */
 #define ORION_SPI_MODE_CPOL		(1 << 11)
 #define ORION_SPI_MODE_CPHA		(1 << 12)
-#endif  
+#endif /* MY_ABC_HERE */
 #define ORION_SPI_IF_8_16_BIT_MODE	(1 << 5)
 #define ORION_SPI_CLK_PRESCALE_MASK	0x1F
 #if defined(MY_ABC_HERE)
 #define ARMADA_SPI_CLK_PRESCALE_MASK	0xDF
 #define ORION_SPI_MODE_MASK			(ORION_SPI_MODE_CPOL | \
 					 ORION_SPI_MODE_CPHA)
-#else  
+#else /* MY_ABC_HERE */
 #define ORION_SPI_MODE_MASK		(ORION_SPI_MODE_CPOL | \
 					 ORION_SPI_MODE_CPHA)
-#endif  
+#endif /* MY_ABC_HERE */
 
 #if defined(MY_ABC_HERE)
 enum orion_spi_type {
@@ -64,7 +74,7 @@ enum orion_spi_type {
 	ARMADA_SPI,
 #if defined(MY_ABC_HERE)
 	ARMADA_380_SPI,
-#endif  
+#endif /* MY_ABC_HERE */
 };
 
 struct orion_spi_dev {
@@ -73,10 +83,10 @@ struct orion_spi_dev {
 	unsigned int		max_divisor;
 #if defined(MY_ABC_HERE)
 	unsigned int		max_frequency;
-#endif  
+#endif /* MY_ABC_HERE */
 	u32			prescale_mask;
 };
-#endif  
+#endif /* MY_ABC_HERE */
 
 struct orion_spi {
 	struct spi_master	*master;
@@ -85,11 +95,11 @@ struct orion_spi {
 	struct clk			*clk;
 	struct spi_device	*cur_spi;
 	const struct orion_spi_dev *devdata;
-#else  
+#else /* MY_ABC_HERE */
 	unsigned int		max_speed;
 	unsigned int		min_speed;
 	struct clk              *clk;
-#endif  
+#endif /* MY_ABC_HERE */
 };
 
 static inline void __iomem *spi_reg(struct orion_spi *orion_spi, u32 reg)
@@ -145,21 +155,21 @@ static int orion_spi_baudrate_set(struct spi_device *spi, unsigned int speed)
 	struct orion_spi *orion_spi;
 #if defined(MY_ABC_HERE)
 	const struct orion_spi_dev *devdata;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	orion_spi = spi_master_get_devdata(spi->master);
 #if defined(MY_ABC_HERE)
 	devdata = orion_spi->devdata;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	tclk_hz = clk_get_rate(orion_spi->clk);
 
 #if defined(MY_ABC_HERE)
 #if defined(MY_ABC_HERE)
 	if (devdata->typ == ARMADA_SPI || devdata->typ == ARMADA_380_SPI) {
-#else  
+#else /* MY_ABC_HERE */
 	if (devdata->typ == ARMADA_SPI) {
-#endif  
+#endif /* MY_ABC_HERE */
 		unsigned int clk, spr, sppr, sppr2, err;
 		unsigned int best_spr, best_sppr, best_err;
 
@@ -167,6 +177,7 @@ static int orion_spi_baudrate_set(struct spi_device *spi, unsigned int speed)
 		best_spr = 0;
 		best_sppr = 0;
 
+		/* Iterate over the valid range looking for best fit */
 		for (sppr = 0; sppr < 8; sppr++) {
 			sppr2 = 0x1 << sppr;
 
@@ -191,38 +202,48 @@ static int orion_spi_baudrate_set(struct spi_device *spi, unsigned int speed)
 		prescale = ((best_sppr & 0x6) << 5) |
 			((best_sppr & 0x1) << 4) | best_spr;
 	} else {
-		 
+		/*
+		 * the supported rates are: 4,6,8...30
+		 * round up as we look for equal or less speed
+		 */
 		rate = DIV_ROUND_UP(tclk_hz, speed);
 		rate = roundup(rate, 2);
 
+		/* check if requested speed is too small */
 		if (rate > 30)
 			return -EINVAL;
 
 		if (rate < 4)
 			rate = 4;
 
+		/* Convert the rate to SPI clock divisor value.	*/
 		prescale = 0x10 + rate/2;
 	}
-#else  
-	 
+#else /* MY_ABC_HERE */
+	/*
+	 * the supported rates are: 4,6,8...30
+	 * round up as we look for equal or less speed
+	 */
 	rate = DIV_ROUND_UP(tclk_hz, speed);
 	rate = roundup(rate, 2);
 
+	/* check if requested speed is too small */
 	if (rate > 30)
 		return -EINVAL;
 
 	if (rate < 4)
 		rate = 4;
 
+	/* Convert the rate to SPI clock divisor value.	*/
 	prescale = 0x10 + rate/2;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	reg = readl(spi_reg(orion_spi, ORION_SPI_IF_CONFIG_REG));
 #if defined(MY_ABC_HERE)
 	reg = ((reg & ~devdata->prescale_mask) | prescale);
-#else  
+#else /* MY_ABC_HERE */
 	reg = ((reg & ~ORION_SPI_CLK_PRESCALE_MASK) | prescale);
-#endif  
+#endif /* MY_ABC_HERE */
 	writel(reg, spi_reg(orion_spi, ORION_SPI_IF_CONFIG_REG));
 
 	return 0;
@@ -254,6 +275,17 @@ orion_spi_50mhz_ac_timing_erratum(struct spi_device *spi, unsigned int speed)
 
 	orion_spi = spi_master_get_devdata(spi->master);
 
+	/* Erratum description: (Erratum NO. FE-9144572)
+	 * The device SPI interface supports frequencies of up to 50 MHz.
+	 * However, due to this erratum, when the device core clock is 250 MHz
+	 * and the SPI interfaces is configured for 50MHz SPI clock and CPOL=CPHA=1
+	 * there might occur data corruption on reads from the SPI device.
+	 * Erratum Workaround:
+	 * Work in one of the following configurations:
+	 * 1. Set CPOL=CPHA=0 in "SPI Interface Configuration Register".
+	 * 2. Set TMISO_SAMPLE value to 0x2 in "SPI Timing Parameters 1 Register"
+	 *    before setting the interface.
+	 */
 	reg = readl(spi_reg(orion_spi, ORION_SPI_TIMING_PARAMS_REG));
 	reg &= ~ORION_SPI_TMISO_SAMPLE_MASK;
 
@@ -262,12 +294,15 @@ orion_spi_50mhz_ac_timing_erratum(struct spi_device *spi, unsigned int speed)
 			spi->mode & SPI_CPHA)
 		reg |= ORION_SPI_TMISO_SAMPLE_2;
 	else
-		reg |= ORION_SPI_TMISO_SAMPLE_1;  
+		reg |= ORION_SPI_TMISO_SAMPLE_1; /* This is the default value */
 
 	writel(reg, spi_reg(orion_spi, ORION_SPI_TIMING_PARAMS_REG));
 }
-#endif  
+#endif /* MY_ABC_HERE */
 
+/*
+ * called only when no transfer is active on the bus
+ */
 static int
 orion_spi_setup_transfer(struct spi_device *spi, struct spi_transfer *t)
 {
@@ -289,7 +324,7 @@ orion_spi_setup_transfer(struct spi_device *spi, struct spi_transfer *t)
 #if defined(MY_ABC_HERE)
 	if (orion_spi->devdata->typ == ARMADA_380_SPI)
 		orion_spi_50mhz_ac_timing_erratum(spi, speed);
-#endif  
+#endif /* MY_ABC_HERE */
 
 	rc = orion_spi_baudrate_set(spi, speed);
 	if (rc)
@@ -306,12 +341,12 @@ static void orion_spi_set_cs(struct orion_spi *orion_spi, int enable)
 	if (enable)
 		orion_spi_setbits(orion_spi, ORION_SPI_IF_CTRL_REG,
 			0x1 | (orion_spi->cur_spi->chip_select << ORION_CHIPSELECTS_OFFS));
-#else  
+#else /* MY_ABC_HERE */
 	if (enable)
 		orion_spi_setbits(orion_spi, ORION_SPI_IF_CTRL_REG, 0x1);
 	else
 		orion_spi_clrbits(orion_spi, ORION_SPI_IF_CTRL_REG, 0x1);
-#endif  
+#endif /* MY_ABC_HERE */
 }
 
 static inline int orion_spi_wait_till_ready(struct orion_spi *orion_spi)
@@ -338,19 +373,20 @@ orion_spi_write_read_8bit(struct spi_device *spi,
 	bool cs_single_byte;
 
 	cs_single_byte = spi->mode & SPI_1BYTE_CS;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	orion_spi = spi_master_get_devdata(spi->master);
 
 #if defined(MY_ABC_HERE)
 	if (cs_single_byte)
 		orion_spi_set_cs(orion_spi, 1);
-#endif  
+#endif /* MY_ABC_HERE */
 
 	tx_reg = spi_reg(orion_spi, ORION_SPI_DATA_OUT_REG);
 	rx_reg = spi_reg(orion_spi, ORION_SPI_DATA_IN_REG);
 	int_reg = spi_reg(orion_spi, ORION_SPI_INT_CAUSE_REG);
 
+	/* clear the interrupt cause register */
 	writel(0x0, int_reg);
 
 	if (tx_buf && *tx_buf)
@@ -362,10 +398,10 @@ orion_spi_write_read_8bit(struct spi_device *spi,
 #if defined(MY_ABC_HERE)
 		if (cs_single_byte) {
 			orion_spi_set_cs(orion_spi, 0);
-			 
+			/* Satisfy some SLIC devices requirements */
 			udelay(4);
 		}
-#endif  
+#endif /* MY_ABC_HERE */
 		dev_err(&spi->dev, "TXS timed out\n");
 		return -1;
 	}
@@ -376,10 +412,10 @@ orion_spi_write_read_8bit(struct spi_device *spi,
 #if defined(MY_ABC_HERE)
 	if (cs_single_byte) {
 		orion_spi_set_cs(orion_spi, 0);
-		 
+		/* Satisfy some SLIC devices requirements */
 		udelay(4);
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
 	return 1;
 }
@@ -396,6 +432,7 @@ orion_spi_write_read_16bit(struct spi_device *spi,
 	rx_reg = spi_reg(orion_spi, ORION_SPI_DATA_IN_REG);
 	int_reg = spi_reg(orion_spi, ORION_SPI_INT_CAUSE_REG);
 
+	/* clear the interrupt cause register */
 	writel(0x0, int_reg);
 
 	if (tx_buf && *tx_buf)
@@ -449,6 +486,7 @@ out:
 	return xfer->len - count;
 }
 
+
 static int orion_spi_transfer_one_message(struct spi_master *master,
 					   struct spi_message *m)
 {
@@ -457,11 +495,12 @@ static int orion_spi_transfer_one_message(struct spi_master *master,
 	struct spi_transfer *t = NULL;
 #if defined(MY_ABC_HERE)
 	bool cs_single_byte;
-#endif  
+#endif /* MY_ABC_HERE */
 	int par_override = 0;
 	int status = 0;
 	int cs_active = 0;
 
+	/* Load defaults */
 	status = orion_spi_setup_transfer(spi, NULL);
 
 	if (status < 0)
@@ -471,10 +510,11 @@ static int orion_spi_transfer_one_message(struct spi_master *master,
 	orion_spi->cur_spi = spi;
 
 	cs_single_byte = spi->mode & SPI_1BYTE_CS;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	list_for_each_entry(t, &m->transfers, transfer_list) {
-		 
+		/* make sure buffer length is even when working in 16
+		 * bit mode*/
 		if ((t->bits_per_word == 16) && (t->len & 1)) {
 			dev_err(&spi->dev,
 				"message rejected : "
@@ -485,8 +525,8 @@ static int orion_spi_transfer_one_message(struct spi_master *master,
 		}
 
 #if defined(MY_ABC_HERE)
-		 
-#else  
+		// do nothing
+#else /* MY_ABC_HERE */
 		if (t->speed_hz && t->speed_hz < orion_spi->min_speed) {
 			dev_err(&spi->dev,
 				"message rejected : "
@@ -496,7 +536,7 @@ static int orion_spi_transfer_one_message(struct spi_master *master,
 			status = -EIO;
 			goto msg_done;
 		}
-#endif  
+#endif /* MY_ABC_HERE */
 
 		if (par_override || t->speed_hz || t->bits_per_word) {
 			par_override = 1;
@@ -509,9 +549,9 @@ static int orion_spi_transfer_one_message(struct spi_master *master,
 
 #if defined(MY_ABC_HERE)
 		if (!cs_active && !cs_single_byte) {
-#else  
+#else /* MY_ABC_HERE */
 		if (!cs_active) {
-#endif  
+#endif /* MY_ABC_HERE */
 			orion_spi_set_cs(orion_spi, 1);
 			cs_active = 1;
 		}
@@ -524,9 +564,9 @@ static int orion_spi_transfer_one_message(struct spi_master *master,
 
 #if defined(MY_ABC_HERE)
 		if (t->cs_change && !cs_single_byte) {
-#else  
+#else /* MY_ABC_HERE */
 		if (t->cs_change) {
-#endif  
+#endif /* MY_ABC_HERE */
 			orion_spi_set_cs(orion_spi, 0);
 			cs_active = 0;
 		}
@@ -535,9 +575,9 @@ static int orion_spi_transfer_one_message(struct spi_master *master,
 msg_done:
 #if defined(MY_ABC_HERE)
 	if (cs_active && !cs_single_byte)
-#else  
+#else /* MY_ABC_HERE */
 	if (cs_active)
-#endif  
+#endif /* MY_ABC_HERE */
 		orion_spi_set_cs(orion_spi, 0);
 
 	m->status = status;
@@ -548,7 +588,7 @@ msg_done:
 
 static int orion_spi_reset(struct orion_spi *orion_spi)
 {
-	 
+	/* Verify that the CS is deasserted */
 	orion_spi_set_cs(orion_spi, 0);
 
 	return 0;
@@ -561,7 +601,7 @@ static const struct orion_spi_dev orion_spi_dev_data = {
 	.max_divisor = 30,
 #if defined(MY_ABC_HERE)
 	.max_frequency = 0,
-#endif  
+#endif /* MY_ABC_HERE */
 	.prescale_mask = ORION_SPI_CLK_PRESCALE_MASK,
 };
 
@@ -569,13 +609,13 @@ static const struct orion_spi_dev armada_spi_dev_data = {
 	.typ = ARMADA_SPI,
 #if defined(MY_ABC_HERE)
 	.min_divisor = 4,
-#else  
+#else /* MY_ABC_HERE */
 	.min_divisor = 1,
-#endif  
+#endif /* MY_ABC_HERE */
 	.max_divisor = 1920,
 #if defined(MY_ABC_HERE)
 	.max_frequency = 50000000,
-#endif  
+#endif /* MY_ABC_HERE */
 	.prescale_mask = ARMADA_SPI_CLK_PRESCALE_MASK,
 };
 
@@ -587,18 +627,18 @@ static const struct orion_spi_dev armada_380_spi_dev_data = {
 	.max_frequency = 50000000,
 	.prescale_mask = ARMADA_SPI_CLK_PRESCALE_MASK,
 };
-#endif  
+#endif /* MY_ABC_HERE */
 
 static const struct of_device_id orion_spi_of_match_table[] = {
 	{ .compatible = "marvell,orion-spi", .data = &orion_spi_dev_data, },
 	{ .compatible = "marvell,armada-370-spi", .data = &armada_spi_dev_data, },
 #if defined(MY_ABC_HERE)
 	{ .compatible = "marvell,armada-380-spi", .data = &armada_380_spi_dev_data, },
-#endif  
+#endif /* MY_ABC_HERE */
 	{}
 };
 MODULE_DEVICE_TABLE(of, orion_spi_of_match_table);
-#else  
+#else /* MY_ABC_HERE */
 static int orion_spi_setup(struct spi_device *spi)
 {
 	struct orion_spi *orion_spi;
@@ -615,16 +655,19 @@ static int orion_spi_setup(struct spi_device *spi)
 		return -EINVAL;
 	}
 
+	/*
+	 * baudrate & width will be set orion_spi_setup_transfer
+	 */
 	return 0;
 }
-#endif  
+#endif /* MY_ABC_HERE */
 
 static int orion_spi_probe(struct platform_device *pdev)
 {
 #if defined(MY_ABC_HERE)
 	const struct of_device_id *of_id;
 	const struct orion_spi_dev *devdata;
-#endif  
+#endif /* MY_ABC_HERE */
 	struct spi_master *master;
 	struct orion_spi *spi;
 	struct resource *r;
@@ -633,7 +676,7 @@ static int orion_spi_probe(struct platform_device *pdev)
 #if defined(MY_ABC_HERE)
 	u32 ret;
 	unsigned int num_cs;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	master = spi_alloc_master(&pdev->dev, sizeof *spi);
 	if (master == NULL) {
@@ -653,21 +696,21 @@ static int orion_spi_probe(struct platform_device *pdev)
 		ret = of_property_read_u32(pdev->dev.of_node, "num-cs", &num_cs);
 		if (ret < 0)
 			num_cs = ORION_NUM_CHIPSELECTS;
-#endif  
+#endif /* MY_ABC_HERE */
 	}
 
 #if defined(MY_ABC_HERE)
 	master->mode_bits = SPI_CPHA | SPI_CPOL | SPI_1BYTE_CS;
 	master->transfer_one_message = orion_spi_transfer_one_message;
 	master->num_chipselect = num_cs;
-#else  
-	 
+#else /* MY_ABC_HERE */
+	/* we support only mode 0, and no options */
 	master->mode_bits = SPI_CPHA | SPI_CPOL;
 
 	master->setup = orion_spi_setup;
 	master->transfer_one_message = orion_spi_transfer_one_message;
 	master->num_chipselect = ORION_NUM_CHIPSELECTS;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	dev_set_drvdata(&pdev->dev, master);
 
@@ -680,9 +723,9 @@ static int orion_spi_probe(struct platform_device *pdev)
 	spi->devdata = devdata;
 
 	spi->clk = devm_clk_get(&pdev->dev, NULL);
-#else  
+#else /* MY_ABC_HERE */
 	spi->clk = clk_get(&pdev->dev, NULL);
-#endif  
+#endif /* MY_ABC_HERE */
 	if (IS_ERR(spi->clk)) {
 		status = PTR_ERR(spi->clk);
 		goto out;
@@ -697,11 +740,11 @@ static int orion_spi_probe(struct platform_device *pdev)
 #if defined(MY_ABC_HERE)
 	if ((devdata->max_frequency != 0) && (master->max_speed_hz > devdata->max_frequency))
 		master->max_speed_hz = devdata->max_frequency;
-#endif  
-#else  
+#endif /* MY_ABC_HERE */
+#else /* MY_ABC_HERE */
 	spi->max_speed = DIV_ROUND_UP(tclk_hz, 4);
 	spi->min_speed = DIV_ROUND_UP(tclk_hz, 30);
-#endif  
+#endif /* MY_ABC_HERE */
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 #if defined(MY_ABC_HERE)
@@ -713,7 +756,7 @@ static int orion_spi_probe(struct platform_device *pdev)
 
 	if (orion_spi_reset(spi) < 0)
 		goto out_rel_clk;
-#else  
+#else /* MY_ABC_HERE */
 	if (r == NULL) {
 		status = -ENODEV;
 		goto out_rel_clk;
@@ -728,42 +771,43 @@ static int orion_spi_probe(struct platform_device *pdev)
 
 	if (orion_spi_reset(spi) < 0)
 		goto out_rel_mem;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	master->dev.of_node = pdev->dev.of_node;
 	status = spi_register_master(master);
 	if (status < 0)
 #if defined(MY_ABC_HERE)
 		goto out_rel_clk;
-#else  
+#else /* MY_ABC_HERE */
 		goto out_rel_mem;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	return status;
 
 #if defined(MY_ABC_HERE)
 out_rel_clk:
 	clk_disable_unprepare(spi->clk);
-#else  
+#else /* MY_ABC_HERE */
 out_rel_mem:
 	release_mem_region(r->start, resource_size(r));
 out_rel_clk:
 	clk_disable_unprepare(spi->clk);
 	clk_put(spi->clk);
-#endif  
+#endif /* MY_ABC_HERE */
 out:
 	spi_master_put(master);
 	return status;
 }
 
+
 static int orion_spi_remove(struct platform_device *pdev)
 {
 	struct spi_master *master;
 #if defined(MY_ABC_HERE)
-	 
-#else  
+	// do nothing
+#else /* MY_ABC_HERE */
 	struct resource *r;
-#endif  
+#endif /* MY_ABC_HERE */
 	struct orion_spi *spi;
 
 	master = dev_get_drvdata(&pdev->dev);
@@ -771,13 +815,13 @@ static int orion_spi_remove(struct platform_device *pdev)
 
 	clk_disable_unprepare(spi->clk);
 #if defined(MY_ABC_HERE)
-	 
-#else  
+	// do nothing
+#else /* MY_ABC_HERE */
 	clk_put(spi->clk);
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	release_mem_region(r->start, resource_size(r));
-#endif  
+#endif /* MY_ABC_HERE */
 
 	spi_unregister_master(master);
 
@@ -787,14 +831,14 @@ static int orion_spi_remove(struct platform_device *pdev)
 MODULE_ALIAS("platform:" DRIVER_NAME);
 
 #if defined(MY_ABC_HERE)
- 
-#else  
+// do nothing
+#else /* MY_ABC_HERE */
 static const struct of_device_id orion_spi_of_match_table[] = {
 	{ .compatible = "marvell,orion-spi", },
 	{}
 };
 MODULE_DEVICE_TABLE(of, orion_spi_of_match_table);
-#endif  
+#endif /* MY_ABC_HERE */
 
 static struct platform_driver orion_spi_driver = {
 	.driver = {

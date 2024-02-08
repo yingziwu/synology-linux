@@ -330,3 +330,4 @@ extern size_t CsrWifiRouterCtrlWapiUnicastTxEncryptIndSizeof(void *msg);
 extern void CsrWifiRouterCtrlWapiUnicastTxEncryptIndSerFree(void *msg);
 
 #endif /* CSR_WIFI_ROUTER_CTRL_SERIALIZE_H__ */
+

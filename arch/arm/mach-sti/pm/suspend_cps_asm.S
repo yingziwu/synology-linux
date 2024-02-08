@@ -33,6 +33,7 @@ ENTRY(sti_cps_exec)
 	ldr	r11, [r1]		@r11 => way mask
 	mov	r1, r2			@r1 => L2 base
 
+
 	add	r2, r0, #(LOCKING_CODE_ADD_OFFSET)
 
 	ldm     r2, {r4 - r6}	@r4 => sti_locking_code,r6 => nr_tlb_lock

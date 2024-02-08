@@ -192,3 +192,4 @@ static int spi_w25q256fv_qe_enable(struct hifmc_spi *spi)
 
 	return op;
 }
+

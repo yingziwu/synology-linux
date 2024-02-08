@@ -86,4 +86,5 @@ void cryptodev_hash_deinit(struct hash_data *hdata);
 int cryptodev_hash_init(struct hash_data *hdata, const char *alg_name,
 			int hmac_mode, void *mackey, size_t mackeylen);
 
+
 #endif

@@ -593,6 +593,7 @@ static const struct file_operations tnk_ct_proc_ops = {
 	.release = seq_release
 };
 
+
 static const struct file_operations tnk_bypass_proc_ops = {
 	.owner = THIS_MODULE,
 	.open = tnk_bypass_proc_open,

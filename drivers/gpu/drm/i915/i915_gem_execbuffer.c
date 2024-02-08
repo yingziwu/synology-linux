@@ -167,6 +167,7 @@ eb_lookup_vmas(struct eb_vmas *eb,
 
 	return 0;
 
+
 err:
 	while (!list_empty(&objects)) {
 		obj = list_first_entry(&objects,
@@ -1058,6 +1059,7 @@ i915_emit_box(struct intel_engine_cs *ring,
 
 	return 0;
 }
+
 
 int
 i915_gem_ringbuffer_submission(struct drm_device *dev, struct drm_file *file,

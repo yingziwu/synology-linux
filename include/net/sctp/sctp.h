@@ -83,6 +83,7 @@
 #include <net/sctp/structs.h>
 #include <net/sctp/constants.h>
 
+
 /* Set SCTP_DEBUG flag via config if not already set. */
 #ifndef SCTP_DEBUG
 #ifdef CONFIG_SCTP_DBG_MSG
@@ -97,6 +98,7 @@
 #else /* static! */
 #define SCTP_PROTOSW_FLAG INET_PROTOSW_PERMANENT
 #endif
+
 
 /* Certain internal static functions need to be exported when
  * compiled into the test frame.
@@ -179,6 +181,7 @@ void sctp_assocs_proc_exit(struct net *net);
 int sctp_remaddr_proc_init(struct net *net);
 void sctp_remaddr_proc_exit(struct net *net);
 
+
 /*
  * Module global variables
  */
@@ -192,6 +195,7 @@ extern struct kmem_cache *sctp_bucket_cachep __read_mostly;
 /*
  *  Section:  Macros, externs, and inlines
  */
+
 
 #ifdef TEST_FRAME
 #include <test_frame.h>
@@ -335,6 +339,7 @@ do {									\
 
 #endif /* SCTP_DEBUG */
 
+
 /*
  * Macros for keeping a global reference of object allocations.
  */
@@ -413,6 +418,7 @@ static inline int sctp_v6_add_protocol(void) { return 0; }
 static inline void sctp_v6_del_protocol(void) { return; }
 
 #endif /* #if defined(CONFIG_IPV6) */
+
 
 /* Map an association to an assoc_id. */
 static inline sctp_assoc_t sctp_assoc2id(const struct sctp_association *asoc)
@@ -549,6 +555,8 @@ _sctp_walk_params((pos), (chunk), ntohs((chunk)->chunk_hdr.length), member)
 
 #define _sctp_walk_params(pos, chunk, end, member)\
 for (pos.v = chunk->member;\
+     (pos.v + offsetof(struct sctp_paramhdr, length) + sizeof(pos.p->length) <=\
+      (void *)chunk + end) &&\
      pos.v <= (void *)chunk + end - ntohs(pos.p->length) &&\
      ntohs(pos.p->length) >= sizeof(sctp_paramhdr_t);\
      pos.v += WORD_ROUND(ntohs(pos.p->length)))
@@ -559,6 +567,8 @@ _sctp_walk_errors((err), (chunk_hdr), ntohs((chunk_hdr)->length))
 #define _sctp_walk_errors(err, chunk_hdr, end)\
 for (err = (sctp_errhdr_t *)((void *)chunk_hdr + \
 	    sizeof(sctp_chunkhdr_t));\
+     ((void *)err + offsetof(sctp_errhdr_t, length) + sizeof(err->length) <=\
+      (void *)chunk_hdr + end) &&\
      (void *)err <= (void *)chunk_hdr + end - ntohs(err->length) &&\
      ntohs(err->length) >= sizeof(sctp_errhdr_t); \
      err = (sctp_errhdr_t *)((void *)err + WORD_ROUND(ntohs(err->length))))

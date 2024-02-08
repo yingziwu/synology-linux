@@ -55,6 +55,7 @@ static int store_##_name(struct net_bridge_port *p, unsigned long v) \
 static BRPORT_ATTR(_name, S_IRUGO | S_IWUSR,			\
 		   show_##_name, store_##_name)
 
+
 static ssize_t show_path_cost(struct net_bridge_port *p, char *buf)
 {
 	return sprintf(buf, "%d\n", p->path_cost);

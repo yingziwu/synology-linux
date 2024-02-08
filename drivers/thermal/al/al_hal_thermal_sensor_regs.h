@@ -33,6 +33,7 @@ met:
 
 *******************************************************************************/
 
+
 #ifndef __AL_THERMAL_SENSE_REGS_H__
 #define __AL_THERMAL_SENSE_REGS_H__
 
@@ -42,6 +43,8 @@ extern "C" {
 /*
 * Unit Registers
 */
+
+
 
 struct al_thermal_sensor_unit {
 	uint32_t static_config;         /* Thermal Sensor Static Configu ... */
@@ -54,9 +57,11 @@ struct al_thermal_sensor_regs {
 	struct al_thermal_sensor_unit unit;
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** static_config register ****/
 /* SW digital trimming offset */

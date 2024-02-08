@@ -498,6 +498,7 @@ void    mvNetaPmtJump(MV_NETA_PMT *pEntry, MV_U16 target, int type, int cond)
 	MV_NETA_PMT_DATA_SET(pEntry, data);
 }
 
+
 /*******************************************************************************
 * mvNetaPmtDecLSB - Set PMT entry with "Decrement LSB" command
 *

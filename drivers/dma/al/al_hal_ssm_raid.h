@@ -77,6 +77,7 @@ enum al_raid_op {
 	AL_RAID_OP_PQ_VAL, /* P and Q validation */
 };
 
+
 #define AL_RAID_RX_DESC_META		(1<<30)	/* Meta data */
 
 #define AL_RAID_TX_DESC_META_OPCODE_MASK	(0x1f<<20) /* RAID_op & type combined */

@@ -214,6 +214,7 @@ start_thread(struct pt_regs *regs, unsigned long new_ip, unsigned long new_sp)
 }
 EXPORT_SYMBOL_GPL(start_thread);
 
+
 /*
  *	switch_to(x,y) should switch tasks from x to y.
  *
@@ -340,3 +341,4 @@ unsigned long get_wchan(struct task_struct *p)
 	} while (count++ < 16);
 	return 0;
 }
+

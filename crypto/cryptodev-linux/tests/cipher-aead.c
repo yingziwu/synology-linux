@@ -219,6 +219,7 @@ test_crypto(int cfd)
 		return 1;
 	}
 
+
 	for (i=0;i<pad;i++)
 		if (ciphertext[cao.len-1-i] != pad) {
 			fprintf(stderr, "Pad does not match (expected %d)\n", pad);
@@ -227,6 +228,7 @@ test_crypto(int cfd)
 		}
 
 	if (debug) printf("Test passed\n");
+
 
 	/* Finish crypto session */
 	if (ioctl(cfd, CIOCFSESSION, &sess.ses)) {
@@ -376,6 +378,7 @@ test_encrypt_decrypt(int cfd)
 
 	if (debug) printf("Test passed\n");
 
+
 	/* Finish crypto session */
 	if (ioctl(cfd, CIOCFSESSION, &sess.ses)) {
 		perror("ioctl(CIOCFSESSION)");
@@ -510,6 +513,7 @@ test_encrypt_decrypt_error(int cfd, int err)
 		perror("ioctl(CIOCFSESSION)");
 		return 1;
 	}
+
 
 	fprintf(stderr, "Modification to ciphertext was not detected\n");
 	return 1;

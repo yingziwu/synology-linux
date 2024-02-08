@@ -709,6 +709,11 @@ static int uss720_probe(struct usb_interface *intf,
 
 	interface = intf->cur_altsetting;
 
+	if (interface->desc.bNumEndpoints < 3) {
+		usb_put_dev(usbdev);
+		return -ENODEV;
+	}
+
 	/*
 	 * Allocate parport interface 
 	 */
@@ -787,6 +792,7 @@ static const struct usb_device_id uss720_table[] = {
 };
 
 MODULE_DEVICE_TABLE (usb, uss720_table);
+
 
 static struct usb_driver uss720_driver = {
 	.name =		"uss720",

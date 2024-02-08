@@ -824,6 +824,7 @@ static irqreturn_t sahara_irq_handler(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+
 static int sahara_register_algs(struct sahara_dev *dev)
 {
 	int err, i, j;

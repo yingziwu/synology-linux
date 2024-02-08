@@ -812,6 +812,7 @@ void gen8_irq_power_well_post_enable(struct drm_i915_private *dev_priv);
 /* intel_crt.c */
 void intel_crt_init(struct drm_device *dev);
 
+
 /* intel_ddi.c */
 void intel_prepare_ddi(struct drm_device *dev);
 void hsw_fdi_link_train(struct drm_crtc *crtc);
@@ -866,6 +867,7 @@ void intel_frontbuffer_flip(struct drm_device *dev,
 }
 
 void intel_fb_obj_flush(struct drm_i915_gem_object *obj, bool retire);
+
 
 /* intel_audio.c */
 void intel_init_audio(struct drm_device *dev);
@@ -1016,8 +1018,10 @@ void intel_dp_mst_encoder_cleanup(struct intel_digital_port *intel_dig_port);
 /* intel_dsi.c */
 void intel_dsi_init(struct drm_device *dev);
 
+
 /* intel_dvo.c */
 void intel_dvo_init(struct drm_device *dev);
+
 
 /* legacy fbdev emulation in intel_fbdev.c */
 #ifdef CONFIG_DRM_I915_FBDEV
@@ -1058,9 +1062,11 @@ struct intel_hdmi *enc_to_intel_hdmi(struct drm_encoder *encoder);
 bool intel_hdmi_compute_config(struct intel_encoder *encoder,
 			       struct intel_crtc_config *pipe_config);
 
+
 /* intel_lvds.c */
 void intel_lvds_init(struct drm_device *dev);
 bool intel_is_dual_link_lvds(struct drm_device *dev);
+
 
 /* intel_modes.c */
 int intel_connector_update_modes(struct drm_connector *connector,
@@ -1068,6 +1074,7 @@ int intel_connector_update_modes(struct drm_connector *connector,
 int intel_ddc_get_modes(struct drm_connector *c, struct i2c_adapter *adapter);
 void intel_attach_force_audio_property(struct drm_connector *connector);
 void intel_attach_broadcast_rgb_property(struct drm_connector *connector);
+
 
 /* intel_overlay.c */
 void intel_setup_overlay(struct drm_device *dev);
@@ -1077,6 +1084,7 @@ int intel_overlay_put_image(struct drm_device *dev, void *data,
 			    struct drm_file *file_priv);
 int intel_overlay_attrs(struct drm_device *dev, void *data,
 			struct drm_file *file_priv);
+
 
 /* intel_panel.c */
 int intel_panel_init(struct intel_panel *panel,
@@ -1105,6 +1113,7 @@ extern struct drm_display_mode *intel_find_panel_downclock(
 				struct drm_connector *connector);
 void intel_backlight_register(struct drm_device *dev);
 void intel_backlight_unregister(struct drm_device *dev);
+
 
 /* intel_psr.c */
 bool intel_psr_is_enabled(struct drm_device *dev);
@@ -1170,8 +1179,10 @@ void skl_wm_get_hw_state(struct drm_device *dev);
 void skl_ddb_get_hw_state(struct drm_i915_private *dev_priv,
 			  struct skl_ddb_allocation *ddb /* out */);
 
+
 /* intel_sdvo.c */
 bool intel_sdvo_init(struct drm_device *dev, uint32_t sdvo_reg, bool is_sdvob);
+
 
 /* intel_sprite.c */
 int intel_plane_init(struct drm_device *dev, enum pipe pipe, int plane);

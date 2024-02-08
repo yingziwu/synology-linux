@@ -22,6 +22,7 @@
 #define CMAC_TLEN 8 /* CMAC TLen = 64 bits (8 octets) */
 #define AAD_LEN 20
 
+
 static void gf_mulx(u8 *pad)
 {
 	int i, carry;
@@ -33,6 +34,7 @@ static void gf_mulx(u8 *pad)
 	if (carry)
 		pad[AES_BLOCK_SIZE - 1] ^= 0x87;
 }
+
 
 static void aes_128_cmac_vector(struct crypto_cipher *tfm, size_t num_elem,
 				const u8 *addr[], const size_t *len, u8 *mac)
@@ -89,6 +91,7 @@ static void aes_128_cmac_vector(struct crypto_cipher *tfm, size_t num_elem,
 	memcpy(mac, pad, CMAC_TLEN);
 }
 
+
 void ieee80211_aes_cmac(struct crypto_cipher *tfm, const u8 *aad,
 			const u8 *data, size_t data_len, u8 *mic)
 {
@@ -107,6 +110,7 @@ void ieee80211_aes_cmac(struct crypto_cipher *tfm, const u8 *aad,
 	aes_128_cmac_vector(tfm, 3, addr, len, mic);
 }
 
+
 struct crypto_cipher * ieee80211_aes_cmac_key_setup(const u8 key[])
 {
 	struct crypto_cipher *tfm;
@@ -117,6 +121,7 @@ struct crypto_cipher * ieee80211_aes_cmac_key_setup(const u8 key[])
 
 	return tfm;
 }
+
 
 void ieee80211_aes_cmac_key_free(struct crypto_cipher *tfm)
 {

@@ -78,3 +78,4 @@ void stm_hook_ioremap(void)
 	arch_iounmap = __stm_iounmap;
 	printk(KERN_INFO "PCIE tracker fixup enabled\n");
 }
+

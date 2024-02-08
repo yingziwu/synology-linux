@@ -1,7 +1,20 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * cpufreq driver for the SuperH processors.
+ *
+ * Copyright (C) 2002 - 2012 Paul Mundt
+ * Copyright (C) 2002 M. R. Brown
+ *
+ * Clock framework bits from arch/avr32/mach-at32ap/cpufreq.c
+ *
+ *   Copyright (C) 2004-2007 Atmel Corporation
+ *
+ * This file is subject to the terms and conditions of the GNU General Public
+ * License.  See the file "COPYING" in the main directory of this archive
+ * for more details.
+ */
 #define pr_fmt(fmt) "cpufreq: " fmt
 
 #include <linux/types.h>
@@ -13,7 +26,7 @@
 #include <linux/cpumask.h>
 #include <linux/cpu.h>
 #include <linux/smp.h>
-#include <linux/sched.h>	 
+#include <linux/sched.h>	/* set_cpus_allowed() */
 #include <linux/clk.h>
 #include <linux/percpu.h>
 #include <linux/sh_clk.h>
@@ -25,6 +38,9 @@ static unsigned int sh_cpufreq_get(unsigned int cpu)
 	return (clk_get_rate(&per_cpu(sh_cpuclk, cpu)) + 500) / 1000;
 }
 
+/*
+ * Here we notify other drivers of the proposed change and the final change.
+ */
 static int sh_cpufreq_target(struct cpufreq_policy *policy,
 			     unsigned int target_freq,
 			     unsigned int relation)
@@ -43,6 +59,7 @@ static int sh_cpufreq_target(struct cpufreq_policy *policy,
 
 	dev = get_cpu_device(cpu);
 
+	/* Convert target_freq from kHz to Hz */
 	freq = clk_round_rate(cpuclk, target_freq * 1000);
 
 	if (freq < (policy->min * 1000) || freq > (policy->max * 1000))
@@ -75,21 +92,21 @@ static int sh_cpufreq_verify(struct cpufreq_policy *policy)
 
 #if defined(MY_ABC_HERE)
 	cpufreq_verify_within_cpu_limits(policy);
-#else  
+#else /* MY_ABC_HERE */
 	cpufreq_verify_within_limits(policy, policy->cpuinfo.min_freq,
 				     policy->cpuinfo.max_freq);
-#endif  
+#endif /* MY_ABC_HERE */
 
 	policy->min = (clk_round_rate(cpuclk, 1) + 500) / 1000;
 	policy->max = (clk_round_rate(cpuclk, ~0UL) + 500) / 1000;
 
 #if defined(MY_ABC_HERE)
 	cpufreq_verify_within_cpu_limits(policy);
-#else  
+#else /* MY_ABC_HERE */
 	cpufreq_verify_within_limits(policy, policy->cpuinfo.min_freq,
 				     policy->cpuinfo.max_freq);
 
-#endif  
+#endif /* MY_ABC_HERE */
 	return 0;
 }
 
@@ -143,10 +160,10 @@ static int sh_cpufreq_cpu_exit(struct cpufreq_policy *policy)
 	struct clk *cpuclk = &per_cpu(sh_cpuclk, cpu);
 
 #if defined(MY_ABC_HERE)
-	 
-#else  
+	// do nothing
+#else /* MY_ABC_HERE */
 	cpufreq_frequency_table_put_attr(cpu);
-#endif  
+#endif /* MY_ABC_HERE */
 	clk_put(cpuclk);
 
 	return 0;
@@ -159,10 +176,10 @@ static struct freq_attr *sh_freq_attr[] = {
 
 static struct cpufreq_driver sh_cpufreq_driver = {
 #if defined(MY_ABC_HERE)
-	 
-#else  
+	// do nothing
+#else /* MY_ABC_HERE */
 	.owner		= THIS_MODULE,
-#endif  
+#endif /* MY_ABC_HERE */
 	.name		= "sh",
 	.get		= sh_cpufreq_get,
 	.target		= sh_cpufreq_target,

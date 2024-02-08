@@ -11,4 +11,5 @@ int stmnand_scan_bbt(struct mtd_info *mtd);
 
 int stmnand_blocks_all_bad(struct mtd_info *mtd);
 
+
 #endif /* STM_NAND_BBT_H */

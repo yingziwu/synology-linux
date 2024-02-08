@@ -1,7 +1,31 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/**
+ * eCryptfs: Linux filesystem encryption layer
+ *
+ * Copyright (C) 1997-2004 Erez Zadok
+ * Copyright (C) 2001-2004 Stony Brook University
+ * Copyright (C) 2004-2007 International Business Machines Corp.
+ *   Author(s): Michael A. Halcrow <mhalcrow@us.ibm.com>
+ *   		Michael C. Thompson <mcthomps@us.ibm.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ */
+
 #include <linux/file.h>
 #include <linux/poll.h>
 #include <linux/slab.h>
@@ -16,6 +40,16 @@
 #endif
 #include "ecryptfs_kernel.h"
 
+/**
+ * ecryptfs_read_update_atime
+ *
+ * generic_file_read updates the atime of upper layer inode.  But, it
+ * doesn't give us a chance to update the atime of the lower layer
+ * inode.  This function is a wrapper to generic_file_read.  It
+ * updates the atime of the lower level inode if generic_file_read
+ * returns without any errors. This is to be used only for file reads.
+ * The function to be used for directory reads is ecryptfs_read.
+ */
 static ssize_t ecryptfs_read_update_atime(struct kiocb *iocb,
 				const struct iovec *iov,
 				unsigned long nr_segs, loff_t pos)
@@ -25,7 +59,10 @@ static ssize_t ecryptfs_read_update_atime(struct kiocb *iocb,
 	struct file *file = iocb->ki_filp;
 
 	rc = generic_file_aio_read(iocb, iov, nr_segs, pos);
-	 
+	/*
+	 * Even though this is a async interface, we need to wait
+	 * for IO to finish to update atime
+	 */
 	if (-EIOCBQUEUED == rc)
 		rc = wait_on_sync_kiocb(iocb);
 	if (rc >= 0) {
@@ -44,6 +81,7 @@ struct ecryptfs_getdents_callback {
 	int entries_written;
 };
 
+/* Inspired by generic filldir in fs/readdir.c */
 static int
 ecryptfs_filldir(void *dirent, const char *lower_name, int lower_namelen,
 		 loff_t offset, u64 ino, unsigned int d_type)
@@ -72,6 +110,12 @@ out:
 	return rc;
 }
 
+/**
+ * ecryptfs_readdir
+ * @file: The eCryptfs directory file
+ * @dirent: Directory entry handle
+ * @filldir: The filldir callback function
+ */
 static int ecryptfs_readdir(struct file *file, void *dirent, filldir_t filldir)
 {
 	int rc;
@@ -148,20 +192,35 @@ out:
 static int ecryptfs_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	struct file *lower_file = ecryptfs_file_to_lower(file);
-	 
+	/*
+	 * Don't allow mmap on top of file systems that don't support it
+	 * natively.  If FILESYSTEM_MAX_STACK_DEPTH > 2 or ecryptfs
+	 * allows recursive mounting, this will need to be extended.
+	 */
 	if (!lower_file->f_op->mmap)
 		return -ENODEV;
 	return generic_file_mmap(file, vma);
 }
 
+/**
+ * ecryptfs_open
+ * @inode: inode speciying file to open
+ * @file: Structure to return filled in
+ *
+ * Opens the file specified by inode.
+ *
+ * Returns zero on success; non-zero otherwise
+ */
 static int ecryptfs_open(struct inode *inode, struct file *file)
 {
 	int rc = 0;
 	struct ecryptfs_crypt_stat *crypt_stat = NULL;
 	struct dentry *ecryptfs_dentry = file->f_path.dentry;
-	 
+	/* Private value of ecryptfs_dentry allocated in
+	 * ecryptfs_lookup() */
 	struct ecryptfs_file_info *file_info;
 
+	/* Released in ecryptfs_release or end of function if failure */
 	file_info = kmem_cache_zalloc(ecryptfs_file_info_cache, GFP_KERNEL);
 	ecryptfs_set_file_private(file, file_info);
 	if (!file_info) {
@@ -174,7 +233,7 @@ static int ecryptfs_open(struct inode *inode, struct file *file)
 	mutex_lock(&crypt_stat->cs_mutex);
 	if (!(crypt_stat->flags & ECRYPTFS_POLICY_APPLIED)) {
 		ecryptfs_printk(KERN_DEBUG, "Setting flags for stat...\n");
-		 
+		/* Policy code enabled in future release */
 		crypt_stat->flags |= (ECRYPTFS_POLICY_APPLIED
 				      | ECRYPTFS_ENCRYPTED);
 	}
@@ -263,6 +322,42 @@ static int ecryptfs_fasync(int fd, struct file *file, int flag)
 	return rc;
 }
 
+#ifdef MY_ABC_HERE
+static long ecryptfs_fallocate(struct file *file, int mode,
+			    loff_t offset, loff_t len)
+{
+	int rc = 0;
+	struct inode *inode = file_inode(file);
+	struct file *lower_file = ecryptfs_file_to_lower(file);
+	u64 alloc_end = offset + len;
+	struct ecryptfs_crypt_stat *crypt_stat;
+	loff_t lower_header_size;
+
+	if (mode || !lower_file->f_op->fallocate)
+		return -EOPNOTSUPP;
+
+	mutex_lock(&inode->i_mutex);
+	if (alloc_end > i_size_read(inode)) {
+		rc = ecryptfs_truncate(file->f_path.dentry, alloc_end);
+		if (rc) {
+			printk(KERN_ERR "%s: Error on attempt to "
+			       "truncate to (higher) offset [%lld];"
+			       " rc = [%d]\n", __func__,
+			       alloc_end, rc);
+			goto out;
+		}
+	}
+
+	crypt_stat = &ecryptfs_inode_to_private(inode)->crypt_stat;
+	lower_header_size = ecryptfs_lower_header_size(crypt_stat);
+	rc = lower_file->f_op->fallocate(lower_file, mode, lower_header_size + offset, len);
+out:
+	fsstack_copy_attr_all(inode, file_inode(lower_file));
+	mutex_unlock(&inode->i_mutex);
+	return rc;
+}
+#endif /* MY_ABC_HERE */
+
 static long
 ecryptfs_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
@@ -333,4 +428,7 @@ const struct file_operations ecryptfs_main_fops = {
 	.fsync = ecryptfs_fsync,
 	.fasync = ecryptfs_fasync,
 	.splice_read = generic_file_splice_read,
+#ifdef MY_ABC_HERE
+	.fallocate  = ecryptfs_fallocate,
+#endif /* MY_ABC_HERE */
 };

@@ -22,7 +22,9 @@
 #include <linux/serial_reg.h>
 #include <asm/io.h>
 
+
 #define PORT(offset) (0x3f8 + (offset))
+
 
 static inline unsigned int serial_in(int offset)
 {

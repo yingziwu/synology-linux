@@ -33,6 +33,7 @@
 #include <sound/pcm.h>
 #include <sound/mpu401.h>
 
+
 /*
  *  Direct registers
  */
@@ -212,6 +213,7 @@
 #define ICE1712_DMA_MODE_WRITE		0x48
 #define ICE1712_DMA_AUTOINIT		0x10
 
+
 /*
  *
  */
@@ -254,6 +256,7 @@ enum {
 };
 
 #define ice_has_con_ac97(ice)	(!((ice)->eeprom.data[ICE_EEP1_CODEC] & ICE1712_CFG_NO_CON_AC97))
+
 
 struct snd_ak4xxx_private {
 	unsigned int cif:1;		/* CIF mode */
@@ -395,6 +398,7 @@ struct snd_ice1712 {
 #endif
 };
 
+
 /*
  * gpio access functions
  */
@@ -505,6 +509,7 @@ static inline u8 snd_ice1712_read(struct snd_ice1712 *ice, u8 addr)
 	return inb(ICEREG(ice, DATA));
 }
 
+
 /*
  * entry pointer
  */
@@ -525,5 +530,6 @@ struct snd_ice1712_card_info {
 	const unsigned int eeprom_size;
 	const unsigned char *eeprom_data;
 };
+
 
 #endif /* __SOUND_ICE1712_H */

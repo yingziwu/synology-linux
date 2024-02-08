@@ -59,11 +59,13 @@ extern "C" {
 #include "dwc_list.h"
 #include "dwc_notifier.h"
 
+
 /* Notifications */
 #define DWC_CC_LIST_CHANGED_NOTIFICATION "DWC_CC_LIST_CHANGED_NOTIFICATION"
 
 struct dwc_cc_if;
 typedef struct dwc_cc_if dwc_cc_if_t;
+
 
 /** @name Connection Context Operations */
 /** @{ */
@@ -226,3 +228,4 @@ static inline int dwc_print_id_string(char *buffer, uint8_t *id)
 #endif
 
 #endif /* _DWC_CC_H_ */
+

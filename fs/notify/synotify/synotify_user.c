@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/file.h>
 #include <linux/fs.h> /* struct inode */
 #include <linux/fsnotify_backend.h>
@@ -19,6 +22,10 @@
 #include <asm/ioctls.h>
 #include <asm-generic/bitsperlong.h>
 #include "../../mount.h"
+#ifdef MY_ABC_HERE
+#include "../../synoacl_int.h"
+#endif /* MY_ABC_HERE */
+
 
 #define SYNOTIFY_DEFAULT_MAX_EVENTS	16384 /* per group */
 #define SYNOTIFY_DEFAULT_MAX_WATCHERS	8192 /* per group */
@@ -132,6 +139,7 @@ static ssize_t copy_event_to_user(struct fsnotify_group *group,
 
 	return event_size;
 }
+
 
 /* synotifiy userspace file descriptor functions */
 static unsigned int synotify_poll(struct file *file, poll_table *wait)
@@ -274,6 +282,11 @@ static int synotify_find_path(const char __user *filename,
 	if (error)
 		return error;
 	/* you can only watch an inode if you have read permissions on it */
+#ifdef MY_ABC_HERE
+	if (IS_SYNOACL(path->dentry))
+		error = synoacl_op_perm(path->dentry, MAY_READ);
+	else
+#endif /* MY_ABC_HERE */
 	error = inode_permission(path->dentry->d_inode, MAY_READ);
 	if (error)
 		path_put(path);
@@ -375,7 +388,7 @@ err:
 }
 
 /* synotify syscalls */
-SYSCALL_DEFINE1(SYNONotifyInit, unsigned int, flags)
+SYSCALL_DEFINE1(syno_notify_init, unsigned int, flags)
 {
 	struct fsnotify_group *group;
 	int f_flags = 0;
@@ -427,8 +440,12 @@ out_destroy_group:
 	fsnotify_destroy_group(group);
 	return fd;
 }
+SYSCALL_DEFINE1(SYNONotifyInit, unsigned int, flags)
+{
+	return sys_syno_notify_init(flags);
+}
 
-SYSCALL_DEFINE3(SYNONotifyRemoveWatch, int, synotify_fd, const char __user *, pathname, __u64, mask)
+SYSCALL_DEFINE3(syno_notify_remove_watch, int, synotify_fd, const char __user *, pathname, __u64, mask)
 {
 	struct vfsmount *mnt = NULL;
 	struct fsnotify_group *group;
@@ -477,8 +494,12 @@ fput_and_out:
 	fput_light(filp, fput_needed);
 	return ret;
 }
+SYSCALL_DEFINE3(SYNONotifyRemoveWatch, int, synotify_fd, const char __user *, pathname, __u64, mask)
+{
+	return sys_syno_notify_remove_watch(synotify_fd, pathname, mask);
+}
 
-SYSCALL_DEFINE3(SYNONotifyAddWatch, int, synotify_fd, const char __user *, pathname, __u64, mask)
+SYSCALL_DEFINE3(syno_notify_add_watch, int, synotify_fd, const char __user *, pathname, __u64, mask)
 {
 	struct vfsmount *mnt = NULL;
 	struct fsnotify_group *group;
@@ -530,16 +551,31 @@ fput_and_out:
 	fput_light(filp, fput_needed);
 	return ret;
 }
-
-#if BITS_PER_LONG == 32
-SYSCALL_DEFINE3(SYNONotifyRemoveWatch32, int, synotify_fd, const char __user *, pathname, __u32, mask){
-	__u64 mask64 = ((__u64)mask & 0xffffffffULL);
-	return sys_SYNONotifyRemoveWatch(synotify_fd, pathname, mask64);
+SYSCALL_DEFINE3(SYNONotifyAddWatch, int, synotify_fd, const char __user *, pathname, __u64, mask)
+{
+	return sys_syno_notify_add_watch(synotify_fd, pathname, mask);
 }
 
-SYSCALL_DEFINE3(SYNONotifyAddWatch32, int, synotify_fd, const char __user *, pathname, __u32, mask){
+#if BITS_PER_LONG == 32
+SYSCALL_DEFINE3(syno_notify_remove_watch32, int, synotify_fd, const char __user *, pathname, __u32, mask)
+{
 	__u64 mask64 = ((__u64)mask & 0xffffffffULL);
-	return sys_SYNONotifyAddWatch(synotify_fd, pathname, mask64);
+	return sys_syno_notify_remove_watch(synotify_fd, pathname, mask64);
+}
+
+SYSCALL_DEFINE3(syno_notify_add_watch32, int, synotify_fd, const char __user *, pathname, __u32, mask)
+{
+	__u64 mask64 = ((__u64)mask & 0xffffffffULL);
+	return sys_syno_notify_add_watch(synotify_fd, pathname, mask64);
+}
+SYSCALL_DEFINE3(SYNONotifyRemoveWatch32, int, synotify_fd, const char __user *, pathname, __u32, mask)
+{
+	return sys_syno_notify_remove_watch32(synotify_fd, pathname, mask);
+}
+
+SYSCALL_DEFINE3(SYNONotifyAddWatch32, int, synotify_fd, const char __user *, pathname, __u32, mask)
+{
+	return sys_syno_notify_add_watch32(synotify_fd, pathname, mask);
 }
 #endif /* BITS_PER_LONG == 32 */
 

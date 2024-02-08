@@ -850,6 +850,7 @@ svga3dsurface_get_serialized_size(SVGA3dSurfaceFormat format,
 	return total_size;
 }
 
+
 /**
  * svga3dsurface_get_pixel_offset - Compute the offset (in bytes) to a pixel
  * in an image (or volume).
@@ -872,6 +873,7 @@ svga3dsurface_get_pixel_offset(SVGA3dSurfaceFormat format,
 			    x / bw * desc->bytes_per_block);
 	return offset;
 }
+
 
 static inline u32
 svga3dsurface_get_image_offset(SVGA3dSurfaceFormat format,

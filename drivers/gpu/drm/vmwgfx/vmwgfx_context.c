@@ -49,6 +49,7 @@ static const struct vmw_user_resource_conv user_context_conv = {
 const struct vmw_user_resource_conv *user_context_converter =
 	&user_context_conv;
 
+
 static const struct vmw_res_func vmw_legacy_context_func = {
 	.res_type = vmw_res_context,
 	.needs_backup = false,
@@ -73,6 +74,7 @@ static void vmw_hw_context_destroy(struct vmw_resource *res)
 		SVGA3dCmdHeader header;
 		SVGA3dCmdDestroyContext body;
 	} *cmd;
+
 
 	vmw_execbuf_release_pinned_bo(dev_priv);
 	cmd = vmw_fifo_reserve(dev_priv, sizeof(*cmd));
@@ -209,6 +211,7 @@ int vmw_context_define_ioctl(struct drm_device *dev, void *data,
 	struct ttm_object_file *tfile = vmw_fpriv(file_priv)->tfile;
 	struct vmw_master *vmaster = vmw_master(file_priv->master);
 	int ret;
+
 
 	/*
 	 * Approximate idr memory usage with 128 bytes. It will be limited

@@ -476,6 +476,7 @@ static netdev_tx_t isve_xmit(struct sk_buff *skb, struct net_device *dev)
 		print_pkt(p->buffer, len);
 	}
 
+
 	dev_kfree_skb(skb);
 
 	pending = isve_tx_avail(priv->dirty_tx, priv->cur_tx,

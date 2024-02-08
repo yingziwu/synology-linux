@@ -41,7 +41,9 @@
 #include "scsi_priv.h"
 #include "scsi_logging.h"
 
+
 static atomic_t scsi_host_next_hn = ATOMIC_INIT(0);	/* host_no for next new host */
+
 
 static void scsi_host_cls_release(struct device *dev)
 {

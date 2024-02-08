@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 //#define DEBUG
 #include <linux/spinlock.h>
 #include <linux/slab.h>
@@ -680,19 +683,38 @@ static const struct device_attribute dev_attr_cache_type_rw =
 	__ATTR(cache_type, S_IRUGO|S_IWUSR,
 	       virtblk_cache_type_show, virtblk_cache_type_store);
 
+#ifdef MY_DEF_HERE
+static bool isSynobootBlk(int vblk_index)
+{
+	return (0 == vblk_index);
+}
+#endif /* MY_DEF_HERE */
+
 static int virtblk_probe(struct virtio_device *vdev)
 {
 	struct virtio_blk *vblk;
 	struct request_queue *q;
 	int err, index;
 	int pool_size;
+#ifdef MY_DEF_HERE
+	static int syno_blk_index = 0;
+#endif /* MY_DEF_HERE */
+
 	u64 cap;
 	u32 v, blk_size, sg_elems, opt_io_size;
 	u16 min_io_size;
 	u8 physical_block_exp, alignment_offset;
 
+#ifdef MY_DEF_HERE
+	err = minor_to_index(1 << MINORBITS) - 1;
+	if (!isSynobootBlk(syno_blk_index)) {
+		err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS) - 1,
+				 GFP_KERNEL);
+	}
+#else
 	err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
 			     GFP_KERNEL);
+#endif /* MY_DEF_HERE */
 	if (err < 0)
 		goto out;
 	index = err;
@@ -754,7 +776,16 @@ static int virtblk_probe(struct virtio_device *vdev)
 		blk_queue_make_request(q, virtblk_make_request);
 	q->queuedata = vblk;
 
+#ifdef MY_DEF_HERE
+	if (isSynobootBlk(syno_blk_index)) {
+		sprintf(vblk->disk->disk_name, CONFIG_SYNO_USB_FLASH_DEVICE_NAME);
+	} else {
+		virtblk_name_format("sd", index, vblk->disk->disk_name, DISK_NAME_LEN);
+	}
+	syno_blk_index++;
+#else
 	virtblk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
+#endif /* MY_DEF_HERE */
 
 	vblk->disk->major = major;
 	vblk->disk->first_minor = index_to_minor(index);

@@ -397,6 +397,9 @@ static inline int xfrm_replay_verify_len(struct xfrm_replay_state_esn *replay_es
 	    replay_esn->bmp_len != up->bmp_len)
 		return -EINVAL;
 
+	if (up->replay_window > up->bmp_len * sizeof(__u32) * 8)
+		return -EINVAL;
+
 	return 0;
 }
 
@@ -1192,6 +1195,8 @@ static int verify_policy_type(u8 type)
 
 static int verify_newpolicy_info(struct xfrm_userpolicy_info *p)
 {
+	int ret;
+
 	switch (p->share) {
 	case XFRM_SHARE_ANY:
 	case XFRM_SHARE_SESSION:
@@ -1227,7 +1232,13 @@ static int verify_newpolicy_info(struct xfrm_userpolicy_info *p)
 		return -EINVAL;
 	}
 
-	return verify_policy_dir(p->dir);
+	ret = verify_policy_dir(p->dir);
+	if (ret)
+		return ret;
+	if (p->index && (xfrm_policy_id2dir(p->index) != p->dir))
+		return -EINVAL;
+
+	return 0;
 }
 
 static int copy_from_user_sec_ctx(struct xfrm_policy *pol, struct nlattr **attrs)
@@ -3062,3 +3073,4 @@ module_init(xfrm_user_init);
 module_exit(xfrm_user_exit);
 MODULE_LICENSE("GPL");
 MODULE_ALIAS_NET_PF_PROTO(PF_NETLINK, NETLINK_XFRM);
+

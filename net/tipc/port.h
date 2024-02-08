@@ -196,6 +196,7 @@ int tipc_disconnect(u32 portref);
 
 int tipc_shutdown(u32 ref);
 
+
 /*
  * The following routines require that the port be locked on entry
  */

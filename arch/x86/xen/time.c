@@ -237,6 +237,7 @@ static struct clocksource xen_clocksource __read_mostly = {
    This interface is used when available.
 */
 
+
 /*
   Get a hypervisor absolute time.  In theory we could maintain an
   offset between the kernel's time and the hypervisor's time, and
@@ -299,6 +300,8 @@ static const struct clock_event_device xen_timerop_clockevent = {
 	.set_next_event = xen_timerop_set_next_event,
 };
 
+
+
 static void xen_vcpuop_set_mode(enum clock_event_mode mode,
 				struct clock_event_device *evt)
 {
@@ -335,11 +338,11 @@ static int xen_vcpuop_set_next_event(unsigned long delta,
 	WARN_ON(evt->mode != CLOCK_EVT_MODE_ONESHOT);
 
 	single.timeout_abs_ns = get_abs_timeout(delta);
-	single.flags = VCPU_SSHOTTMR_future;
+	/* Get an event anyway, even if the timeout is already expired */
+	single.flags = 0;
 
 	ret = HYPERVISOR_vcpu_op(VCPUOP_set_singleshot_timer, cpu, &single);
-
-	BUG_ON(ret != 0 && ret != -ETIME);
+	BUG_ON(ret != 0);
 
 	return ret;
 }

@@ -1043,6 +1043,7 @@ static void __init tegra20_periph_clk_init(void)
 	}
 }
 
+
 static void __init tegra20_fixed_clk_init(void)
 {
 	struct clk *clk;
@@ -1316,6 +1317,7 @@ void __init tegra20_clock_init(struct device_node *np)
 	tegra20_super_clk_init();
 	tegra20_periph_clk_init();
 	tegra20_audio_clk_init();
+
 
 	for (i = 0; i < ARRAY_SIZE(clks); i++) {
 		if (IS_ERR(clks[i])) {

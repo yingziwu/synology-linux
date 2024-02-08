@@ -54,6 +54,7 @@
 
 #include <net/ip_vs.h>
 
+
 EXPORT_SYMBOL(register_ip_vs_scheduler);
 EXPORT_SYMBOL(unregister_ip_vs_scheduler);
 EXPORT_SYMBOL(ip_vs_proto_name);
@@ -136,6 +137,7 @@ ip_vs_in_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
 	}
 }
 
+
 static inline void
 ip_vs_out_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
 {
@@ -165,6 +167,7 @@ ip_vs_out_stats(struct ip_vs_conn *cp, struct sk_buff *skb)
 	}
 }
 
+
 static inline void
 ip_vs_conn_stats(struct ip_vs_conn *cp, struct ip_vs_service *svc)
 {
@@ -180,6 +183,7 @@ ip_vs_conn_stats(struct ip_vs_conn *cp, struct ip_vs_service *svc)
 	s = this_cpu_ptr(ipvs->tot_stats.cpustats);
 	s->ustats.conns++;
 }
+
 
 static inline void
 ip_vs_set_state(struct ip_vs_conn *cp, int direction,
@@ -362,6 +366,7 @@ ip_vs_sched_persist(struct ip_vs_service *svc,
 	return cp;
 }
 
+
 /*
  *  IPVS main scheduling function
  *  It selects a server according to the virtual service, and
@@ -486,6 +491,7 @@ ip_vs_schedule(struct ip_vs_service *svc, struct sk_buff *skb,
 	ip_vs_conn_stats(cp, svc);
 	return cp;
 }
+
 
 /*
  *  Pass or drop the packet.
@@ -789,10 +795,8 @@ static int handle_response_icmp(int af, struct sk_buff *skb,
 {
 	unsigned int verdict = NF_DROP;
 
-	if (IP_VS_FWD_METHOD(cp) != 0) {
-		pr_err("shouldn't reach here, because the box is on the "
-		       "half connection in the tun/dr module.\n");
-	}
+	if (IP_VS_FWD_METHOD(cp) != IP_VS_CONN_F_MASQ)
+		goto ignore_cp;
 
 	/* Ensure the checksum is correct */
 	if (!skb_csum_unnecessary(skb) && ip_vs_checksum_complete(skb, ihl)) {
@@ -826,6 +830,8 @@ static int handle_response_icmp(int af, struct sk_buff *skb,
 		ip_vs_notrack(skb);
 	else
 		ip_vs_update_conntrack(skb, cp, 0);
+
+ignore_cp:
 	verdict = NF_ACCEPT;
 
 out:
@@ -1176,8 +1182,11 @@ ip_vs_out(unsigned int hooknum, struct sk_buff *skb, int af)
 	 */
 	cp = pp->conn_out_get(af, skb, &iph, 0);
 
-	if (likely(cp))
+	if (likely(cp)) {
+		if (IP_VS_FWD_METHOD(cp) != IP_VS_CONN_F_MASQ)
+			goto ignore_cp;
 		return handle_response(af, skb, pd, cp, &iph, hooknum);
+	}
 	if (sysctl_nat_icmp_send(net) &&
 	    (pp->protocol == IPPROTO_TCP ||
 	     pp->protocol == IPPROTO_UDP ||
@@ -1219,9 +1228,15 @@ ip_vs_out(unsigned int hooknum, struct sk_buff *skb, int af)
 			}
 		}
 	}
+
+out:
 	IP_VS_DBG_PKT(12, af, pp, skb, 0,
 		      "ip_vs_out: packet continues traversal as normal");
 	return NF_ACCEPT;
+
+ignore_cp:
+	__ip_vs_conn_put(cp);
+	goto out;
 }
 
 /*
@@ -1555,6 +1570,7 @@ static int ip_vs_in_icmp_v6(struct sk_buff *skb, int *related,
 }
 #endif
 
+
 /*
  *	Check if it's for virtual services, look it up,
  *	and send it on its way...
@@ -1770,6 +1786,7 @@ ip_vs_local_request6(unsigned int hooknum, struct sk_buff *skb,
 
 #endif
 
+
 /*
  *	It is hooked at the NF_INET_FORWARD chain, in order to catch ICMP
  *      related packets destined for 0.0.0.0/0.
@@ -1824,6 +1841,7 @@ ip_vs_forward_icmp_v6(unsigned int hooknum, struct sk_buff *skb,
 	return ip_vs_in_icmp_v6(skb, &r, hooknum, &iphdr);
 }
 #endif
+
 
 static struct nf_hook_ops ip_vs_ops[] __read_mostly = {
 	/* After packet filtering, change source only for VS/NAT */

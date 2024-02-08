@@ -45,6 +45,8 @@
 #include <net/addrconf.h>
 #include <net/xfrm.h>
 
+
+
 int ip6_rcv_finish(struct sk_buff *skb)
 {
 	if (sysctl_ip_early_demux && !skb_dst(skb) && skb->sk == NULL) {
@@ -191,6 +193,7 @@ drop:
  *	Deliver the packet to the host
  */
 
+
 static int ip6_input_finish(struct sk_buff *skb)
 {
 	struct net *net = dev_net(skb_dst(skb)->dev);
@@ -265,6 +268,7 @@ discard:
 	kfree_skb(skb);
 	return 0;
 }
+
 
 int ip6_input(struct sk_buff *skb)
 {

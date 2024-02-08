@@ -115,6 +115,7 @@ static MV_STATUS dfev_if_init(tal_params_t *tal_params)
 	if (tal_params->total_lines != 2)
 		return MV_ERROR;
 
+
 	switch (tal_params->pcm_format) {
 	case TAL_PCM_FORMAT_1BYTE:
 		wideband = 0;

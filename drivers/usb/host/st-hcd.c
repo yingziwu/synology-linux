@@ -1,7 +1,17 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * STMicroelectronics HCD (Host Controller Driver) for USB 2.0 and 1.1.
+ *
+ * Copyright (c) 2013 STMicroelectronics (R&D) Ltd.
+ * Author: Stephen Gallimore <stephen.gallimore@st.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2, as
+ * published by the Free Software Foundation.
+ */
+
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/dma-mapping.h>
@@ -18,7 +28,7 @@
 #include <linux/regmap.h>
 #ifdef MY_DEF_HERE
 #include <linux/st_amba_bridge.h>
-#endif  
+#endif /* MY_DEF_HERE */
 #include <linux/phy/phy.h>
 #include <linux/mfd/syscon.h>
 #include <linux/usb/ohci_pdriver.h>
@@ -33,8 +43,8 @@ struct st_hcd_dev {
 	int port_nr;
 	struct platform_device *ehci_device;
 	struct platform_device *ohci_device;
-	struct clk *ic_clk;  
-	struct clk *ohci_clk;  
+	struct clk *ic_clk; /* Interconnect clock to the controller block */
+	struct clk *ohci_clk; /* 48MHz clock for OHCI */
 	struct reset_control *pwr;
 	struct reset_control *rst;
 	struct phy *phy;
@@ -42,7 +52,7 @@ struct st_hcd_dev {
 
 static inline void st_ehci_configure_bus(void __iomem *regs)
 {
-	 
+	/* Set EHCI packet buffer IN/OUT threshold to 128 bytes */
 	u32 threshold = 128 | (128 << 16);
 	writel(threshold, regs + AHB2STBUS_INSREG01);
 }
@@ -145,7 +155,11 @@ static int st_hcd_resume(struct device *dev)
 	pinctrl_pm_select_default_state(dev);
 
 	clk_prepare_enable(hcd_dev->ic_clk);
-	 
+	/*
+	 * This assumes that the re-enable will cause the correct
+	 * clock frequency to be reprogrammed after a PM_SUSPEND_MEM
+	 * or hibernate.
+	 */
 	if (!IS_ERR(hcd_dev->ohci_clk))
 		clk_prepare_enable(hcd_dev->ohci_clk);
 
@@ -172,6 +186,7 @@ static int st_hcd_suspend(struct device *dev)
 {
 	struct st_hcd_dev *hcd_dev = dev_get_drvdata(dev);
 	int err;
+
 
 	err = reset_control_assert(hcd_dev->pwr);
 	if (err)
@@ -202,6 +217,7 @@ static SIMPLE_DEV_PM_OPS(st_hcd_pm, st_hcd_suspend, st_hcd_resume);
 #define ST_HCD_PM	NULL
 #endif
 
+
 static struct of_device_id st_hcd_match[] = {
 	{ .compatible = "st,usb-300x" },
 	{},
@@ -221,8 +237,17 @@ static int st_hcd_probe_clocks(struct platform_device *pdev,
 	if (IS_ERR(hcd_dev->ohci_clk))
 		dev_info(&pdev->dev, "48MHz ohci clk not found\n");
 
+	/*
+	 * The interconnect input clock have either fixed
+	 * rate or the rate is defined on boot, so we are only concerned about
+	 * enabling any gates for this clock.
+	 */
 	clk_prepare_enable(hcd_dev->ic_clk);
-	 
+	/*
+	 * The 48MHz OHCI clock is usually provided by a programmable
+	 * frequency synthesizer, which is often not programmed on boot/chip
+	 * reset, so we set its rate here to ensure it is correct.
+	 */
 	if (!IS_ERR(hcd_dev->ohci_clk)) {
 		clk_set_rate(hcd_dev->ohci_clk, 48000000);
 		clk_prepare_enable(hcd_dev->ohci_clk);
@@ -270,7 +295,7 @@ static int st_hcd_probe_ehci_setup(struct platform_device *pdev)
 	struct st_amba_bridge *amba_bridge;
 	struct st_amba_bridge_config *amba_config;
 	void __iomem *amba_base;
-#endif  
+#endif /* MY_DEF_HERE */
 	void __iomem *ehci_regs;
 #ifdef MY_DEF_HERE
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "protocol");
@@ -289,8 +314,13 @@ static int st_hcd_probe_ehci_setup(struct platform_device *pdev)
 		return PTR_ERR(amba_bridge);
 
 	st_amba_bridge_init(amba_bridge);
-#endif  
+#endif /* MY_DEF_HERE */
 
+	/*
+	 * We need to do some integration specific setup in the EHCI
+	 * controller, which the EHCI platform driver does not provide any
+	 * hooks to allow us to do during it's initialisation.
+	 */
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "ehci");
 	if (!res)
 		return -ENODEV;
@@ -369,7 +399,10 @@ static int st_hcd_probe(struct platform_device *pdev)
 static struct platform_driver st_hcd_driver = {
 	.probe = st_hcd_probe,
 	.remove = st_hcd_remove,
-	 
+	/*
+	 * No shutdown required, the EHCI and OHCI device shutdowns will
+	 * stop the controllers ready for the kexec use case.
+	 */
 	.driver = {
 		.name = "st-hcd",
 		.owner = THIS_MODULE,

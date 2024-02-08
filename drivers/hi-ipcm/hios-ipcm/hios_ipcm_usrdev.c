@@ -365,6 +365,7 @@ static struct miscdevice hi_ipcm_userdev = {
 	.name   = "ipcm_userdev"
 };
 
+
 int __init hi_mmc_userdev_init(void)
 {
 	misc_register(&hi_ipcm_userdev);
@@ -381,3 +382,4 @@ module_exit(hi_mmc_userdev_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("chanjinn");
+

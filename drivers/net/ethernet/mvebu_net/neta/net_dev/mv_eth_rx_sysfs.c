@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -117,6 +118,7 @@ static DEVICE_ATTR(rxq,           S_IWUSR, NULL, mv_eth_3_store);
 static DEVICE_ATTR(rxq_regs,      S_IWUSR, NULL, mv_eth_3_store);
 static DEVICE_ATTR(rx_reset,      S_IWUSR, NULL, mv_eth_3_store);
 static DEVICE_ATTR(rx_weight,     S_IWUSR, NULL, mv_eth_3_store);
+
 
 static struct attribute *mv_eth_attrs[] = {
 	&dev_attr_help.attr,

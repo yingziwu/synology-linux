@@ -49,3 +49,4 @@ void hi3536_scu_power_up(int cpu)
 
 	writel(regval, __io_address(REG_BASE_CRG + REG_PERI_CRG10));
 }
+

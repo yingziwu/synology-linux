@@ -268,6 +268,7 @@ void *tipc_ref_lock(u32 ref)
 	return NULL;
 }
 
+
 /**
  * tipc_ref_deref - return pointer referenced object (without locking it)
  */

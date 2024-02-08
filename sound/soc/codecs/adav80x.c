@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * ADAV80X Audio Codec driver supporting ADAV801, ADAV803
+ *
+ * Copyright 2011 Analog Devices Inc.
+ * Author: Yi Li <yi.li@analog.com>
+ * Author: Lars-Peter Clausen <lars@metafoo.de>
+ *
+ * Licensed under the GPL-2 or later.
+ */
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -226,6 +235,7 @@ static int adav80x_dapm_pll_check(struct snd_soc_dapm_widget *source,
 	return adav80x->pll_src == ADAV80X_PLL_SRC_XTAL;
 }
 
+
 static const struct snd_soc_dapm_route adav80x_dapm_routes[] = {
 	{ "DAC Select", "ADC", "ADC" },
 	{ "DAC Select", "Playback", "AIFIN" },
@@ -300,9 +310,9 @@ static int adav80x_put_deemph(struct snd_kcontrol *kcontrol,
 {
 #if defined(MY_ABC_HERE)
 	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
-#else  
+#else /* MY_ABC_HERE */
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-#endif  
+#endif /* MY_ABC_HERE */
 	struct adav80x *adav80x = snd_soc_codec_get_drvdata(codec);
 	unsigned int deemph = ucontrol->value.integer.value[0];
 
@@ -319,9 +329,9 @@ static int adav80x_get_deemph(struct snd_kcontrol *kcontrol,
 {
 #if defined(MY_ABC_HERE)
 	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
-#else  
+#else /* MY_ABC_HERE */
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-#endif  
+#endif /* MY_ABC_HERE */
 	struct adav80x *adav80x = snd_soc_codec_get_drvdata(codec);
 
 	ucontrol->value.integer.value[0] = adav80x->deemph;
@@ -636,6 +646,7 @@ static int adav80x_set_pll(struct snd_soc_codec *codec, int pll_id,
 		freq_out /= 2;
 	}
 
+	/* freq_out = sample_rate * 256 */
 	switch (freq_out) {
 	case 8192000:
 		pll_ctrl2 |= ADAV80X_PLL_CTRL2_FS_32(pll_id);
@@ -694,6 +705,7 @@ static int adav80x_set_bias_level(struct snd_soc_codec *codec,
 	return 0;
 }
 
+/* Enforce the same sample rate on all audio interfaces */
 static int adav80x_dai_startup(struct snd_pcm_substream *substream,
 	struct snd_soc_dai *dai)
 {
@@ -785,11 +797,13 @@ static int adav80x_probe(struct snd_soc_codec *codec)
 		return ret;
 	}
 
+	/* Force PLLs on for SYSCLK output */
 	snd_soc_dapm_force_enable_pin(&codec->dapm, "PLL1");
 	snd_soc_dapm_force_enable_pin(&codec->dapm, "PLL2");
 
+	/* Power down S/PDIF receiver, since it is currently not supported */
 	snd_soc_write(codec, ADAV80X_PLL_OUTE, 0x20);
-	 
+	/* Disable DAC zero flag */
 	snd_soc_write(codec, ADAV80X_DAC_CTRL3, 0x6);
 
 	return adav80x_set_bias_level(codec, SND_SOC_BIAS_STANDBY);

@@ -461,3 +461,5 @@ int hisi_ipcm_shared_mem_init(void)
 	*(p_thr_mem->flag_addr) = IS_THR_SHARED_MEM;
 	return 0;
 }
+
+

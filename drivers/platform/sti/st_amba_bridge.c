@@ -394,6 +394,7 @@ void st_hw_get_amba_config_type2(void __iomem *base,
 
 	config->type2.threshold = 1 << (val & AD_CONFIG_THRESHOLD_MASK);
 
+
 	if (!(val & AD_CONFIG_CHUNKS_IN_MSG_MASK))
 		config->chunks_in_msg = 0;
 	else
@@ -545,3 +546,4 @@ struct st_amba_bridge_config *st_get_amba_config(struct device *dev,
 	return config;
 }
 EXPORT_SYMBOL(st_get_amba_config);
+

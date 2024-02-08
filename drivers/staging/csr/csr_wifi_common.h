@@ -98,3 +98,4 @@ typedef struct
 #define CSR_WIFI_VERSION	"5.1.0.0"
 
 #endif
+

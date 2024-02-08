@@ -754,6 +754,7 @@ int __init db1300_dev_setup(void)
 	return platform_add_devices(db1300_dev, ARRAY_SIZE(db1300_dev));
 }
 
+
 int __init db1300_board_setup(void)
 {
 	unsigned short whoami;

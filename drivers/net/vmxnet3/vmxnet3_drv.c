@@ -57,11 +57,13 @@ vmxnet3_enable_intr(struct vmxnet3_adapter *adapter, unsigned intr_idx)
 	VMXNET3_WRITE_BAR0_REG(adapter, VMXNET3_REG_IMR + intr_idx * 8, 0);
 }
 
+
 static void
 vmxnet3_disable_intr(struct vmxnet3_adapter *adapter, unsigned intr_idx)
 {
 	VMXNET3_WRITE_BAR0_REG(adapter, VMXNET3_REG_IMR + intr_idx * 8, 1);
 }
+
 
 /*
  *    Enable/Disable all intrs used by the device
@@ -77,6 +79,7 @@ vmxnet3_enable_all_intrs(struct vmxnet3_adapter *adapter)
 					cpu_to_le32(~VMXNET3_IC_DISABLE_ALL);
 }
 
+
 static void
 vmxnet3_disable_all_intrs(struct vmxnet3_adapter *adapter)
 {
@@ -88,17 +91,20 @@ vmxnet3_disable_all_intrs(struct vmxnet3_adapter *adapter)
 		vmxnet3_disable_intr(adapter, i);
 }
 
+
 static void
 vmxnet3_ack_events(struct vmxnet3_adapter *adapter, u32 events)
 {
 	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_ECR, events);
 }
 
+
 static bool
 vmxnet3_tq_stopped(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
 {
 	return tq->stopped;
 }
+
 
 static void
 vmxnet3_tq_start(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
@@ -107,12 +113,14 @@ vmxnet3_tq_start(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
 	netif_start_subqueue(adapter->netdev, tq - adapter->tx_queue);
 }
 
+
 static void
 vmxnet3_tq_wake(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
 {
 	tq->stopped = false;
 	netif_wake_subqueue(adapter->netdev, (tq - adapter->tx_queue));
 }
+
 
 static void
 vmxnet3_tq_stop(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
@@ -121,6 +129,7 @@ vmxnet3_tq_stop(struct vmxnet3_tx_queue *tq, struct vmxnet3_adapter *adapter)
 	tq->num_stop++;
 	netif_stop_subqueue(adapter->netdev, (tq - adapter->tx_queue));
 }
+
 
 /*
  * Check the link state. This may start or stop the tx queue.
@@ -236,6 +245,7 @@ static void vmxnet3_TxDescToLe(const struct Vmxnet3_TxDesc *srcDesc,
 	}
 }
 
+
 static void vmxnet3_RxCompToCPU(const struct Vmxnet3_RxCompDesc *srcDesc,
 				struct Vmxnet3_RxCompDesc *dstDesc)
 {
@@ -249,6 +259,7 @@ static void vmxnet3_RxCompToCPU(const struct Vmxnet3_RxCompDesc *srcDesc,
 	}
 }
 
+
 /* Used to read bitfield values from double words. */
 static u32 get_bitfield32(const __le32 *bitfield, u32 pos, u32 size)
 {
@@ -258,6 +269,8 @@ static u32 get_bitfield32(const __le32 *bitfield, u32 pos, u32 size)
 	temp >>= pos;
 	return temp;
 }
+
+
 
 #endif  /* __BIG_ENDIAN_BITFIELD */
 
@@ -294,6 +307,7 @@ static u32 get_bitfield32(const __le32 *bitfield, u32 pos, u32 size)
 
 #endif /* __BIG_ENDIAN_BITFIELD  */
 
+
 static void
 vmxnet3_unmap_tx_buf(struct vmxnet3_tx_buf_info *tbi,
 		     struct pci_dev *pdev)
@@ -309,6 +323,7 @@ vmxnet3_unmap_tx_buf(struct vmxnet3_tx_buf_info *tbi,
 
 	tbi->map_type = VMXNET3_MAP_NONE; /* to help debugging */
 }
+
 
 static int
 vmxnet3_unmap_pkt(u32 eop_idx, struct vmxnet3_tx_queue *tq,
@@ -344,6 +359,7 @@ vmxnet3_unmap_pkt(u32 eop_idx, struct vmxnet3_tx_queue *tq,
 	return entries;
 }
 
+
 static int
 vmxnet3_tq_tx_complete(struct vmxnet3_tx_queue *tq,
 			struct vmxnet3_adapter *adapter)
@@ -373,6 +389,7 @@ vmxnet3_tq_tx_complete(struct vmxnet3_tx_queue *tq,
 	}
 	return completed;
 }
+
 
 static void
 vmxnet3_tq_cleanup(struct vmxnet3_tx_queue *tq,
@@ -406,6 +423,7 @@ vmxnet3_tq_cleanup(struct vmxnet3_tx_queue *tq,
 	tq->comp_ring.next2proc = 0;
 }
 
+
 static void
 vmxnet3_tq_destroy(struct vmxnet3_tx_queue *tq,
 		   struct vmxnet3_adapter *adapter)
@@ -432,6 +450,7 @@ vmxnet3_tq_destroy(struct vmxnet3_tx_queue *tq,
 	tq->buf_info = NULL;
 }
 
+
 /* Destroy all tx queues */
 void
 vmxnet3_tq_destroy_all(struct vmxnet3_adapter *adapter)
@@ -441,6 +460,7 @@ vmxnet3_tq_destroy_all(struct vmxnet3_adapter *adapter)
 	for (i = 0; i < adapter->num_tx_queues; i++)
 		vmxnet3_tq_destroy(&adapter->tx_queue[i], adapter);
 }
+
 
 static void
 vmxnet3_tq_init(struct vmxnet3_tx_queue *tq,
@@ -470,6 +490,7 @@ vmxnet3_tq_init(struct vmxnet3_tx_queue *tq,
 
 	/* stats are not reset */
 }
+
 
 static int
 vmxnet3_tq_create(struct vmxnet3_tx_queue *tq,
@@ -608,6 +629,7 @@ vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
 	return num_allocated;
 }
 
+
 static void
 vmxnet3_append_frag(struct sk_buff *skb, struct Vmxnet3_RxCompDesc *rcd,
 		    struct vmxnet3_rx_buf_info *rbi)
@@ -624,6 +646,7 @@ vmxnet3_append_frag(struct sk_buff *skb, struct Vmxnet3_RxCompDesc *rcd,
 	skb->truesize += PAGE_SIZE;
 	skb_shinfo(skb)->nr_frags++;
 }
+
 
 static void
 vmxnet3_map_pkt(struct sk_buff *skb, struct vmxnet3_tx_ctx *ctx,
@@ -754,6 +777,7 @@ vmxnet3_map_pkt(struct sk_buff *skb, struct vmxnet3_tx_ctx *ctx,
 	tbi->sop_idx = ctx->sop_txd - tq->tx_ring.base;
 }
 
+
 /* Init all tx queues */
 static void
 vmxnet3_tq_init_all(struct vmxnet3_adapter *adapter)
@@ -763,6 +787,7 @@ vmxnet3_tq_init_all(struct vmxnet3_adapter *adapter)
 	for (i = 0; i < adapter->num_tx_queues; i++)
 		vmxnet3_tq_init(&adapter->tx_queue[i], adapter);
 }
+
 
 /*
  *    parse and copy relevant protocol headers:
@@ -841,6 +866,7 @@ vmxnet3_parse_and_copy_hdr(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 err:
 	return -1;
 }
+
 
 static void
 vmxnet3_prepare_tso(struct sk_buff *skb,
@@ -948,6 +974,7 @@ vmxnet3_tq_xmit(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 		return NETDEV_TX_BUSY;
 	}
 
+
 	ret = vmxnet3_parse_and_copy_hdr(skb, tq, &ctx, adapter);
 	if (ret >= 0) {
 		BUG_ON(ret <= 0 && ctx.copy_size != 0);
@@ -1048,6 +1075,7 @@ drop_pkt:
 	return NETDEV_TX_OK;
 }
 
+
 static netdev_tx_t
 vmxnet3_xmit_frame(struct sk_buff *skb, struct net_device *netdev)
 {
@@ -1058,6 +1086,7 @@ vmxnet3_xmit_frame(struct sk_buff *skb, struct net_device *netdev)
 			       &adapter->tx_queue[skb->queue_mapping],
 			       adapter, netdev);
 }
+
 
 static void
 vmxnet3_rx_csum(struct vmxnet3_adapter *adapter,
@@ -1085,6 +1114,7 @@ vmxnet3_rx_csum(struct vmxnet3_adapter *adapter,
 	}
 }
 
+
 static void
 vmxnet3_rx_error(struct vmxnet3_rx_queue *rq, struct Vmxnet3_RxCompDesc *rcd,
 		 struct vmxnet3_rx_ctx *ctx,  struct vmxnet3_adapter *adapter)
@@ -1110,6 +1140,7 @@ vmxnet3_rx_error(struct vmxnet3_rx_queue *rq, struct Vmxnet3_RxCompDesc *rcd,
 
 	ctx->skb = NULL;
 }
+
 
 static int
 vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
@@ -1252,6 +1283,7 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
 			rxd->len = rbi->len;
 		}
 
+
 		skb = ctx->skb;
 		if (rcd->eop) {
 			skb->len += skb->data_len;
@@ -1302,6 +1334,7 @@ rcd_done:
 	return num_rxd;
 }
 
+
 static void
 vmxnet3_rq_cleanup(struct vmxnet3_rx_queue *rq,
 		   struct vmxnet3_adapter *adapter)
@@ -1341,6 +1374,7 @@ vmxnet3_rq_cleanup(struct vmxnet3_rx_queue *rq,
 	rq->comp_ring.next2proc = 0;
 }
 
+
 static void
 vmxnet3_rq_cleanup_all(struct vmxnet3_adapter *adapter)
 {
@@ -1349,6 +1383,7 @@ vmxnet3_rq_cleanup_all(struct vmxnet3_adapter *adapter)
 	for (i = 0; i < adapter->num_rx_queues; i++)
 		vmxnet3_rq_cleanup(&adapter->rx_queue[i], adapter);
 }
+
 
 static void vmxnet3_rq_destroy(struct vmxnet3_rx_queue *rq,
 			       struct vmxnet3_adapter *adapter)
@@ -1363,6 +1398,7 @@ static void vmxnet3_rq_destroy(struct vmxnet3_rx_queue *rq,
 				BUG_ON(rq->buf_info[i][j].page != NULL);
 		}
 	}
+
 
 	kfree(rq->buf_info[0]);
 
@@ -1384,6 +1420,7 @@ static void vmxnet3_rq_destroy(struct vmxnet3_rx_queue *rq,
 		rq->comp_ring.base = NULL;
 	}
 }
+
 
 static int
 vmxnet3_rq_init(struct vmxnet3_rx_queue *rq,
@@ -1436,6 +1473,7 @@ vmxnet3_rq_init(struct vmxnet3_rx_queue *rq,
 	return 0;
 }
 
+
 static int
 vmxnet3_rq_init_all(struct vmxnet3_adapter *adapter)
 {
@@ -1453,6 +1491,7 @@ vmxnet3_rq_init_all(struct vmxnet3_adapter *adapter)
 	return err;
 
 }
+
 
 static int
 vmxnet3_rq_create(struct vmxnet3_rx_queue *rq, struct vmxnet3_adapter *adapter)
@@ -1497,6 +1536,7 @@ err:
 	return -ENOMEM;
 }
 
+
 static int
 vmxnet3_rq_create_all(struct vmxnet3_adapter *adapter)
 {
@@ -1534,6 +1574,7 @@ vmxnet3_do_poll(struct vmxnet3_adapter *adapter, int budget)
 						   adapter, budget);
 	return rcd_done;
 }
+
 
 static int
 vmxnet3_poll(struct napi_struct *napi, int budget)
@@ -1582,6 +1623,7 @@ vmxnet3_poll_rx_only(struct napi_struct *napi, int budget)
 	return rxd_done;
 }
 
+
 #ifdef CONFIG_PCI_MSI
 
 /*
@@ -1612,6 +1654,7 @@ vmxnet3_msix_tx(int irq, void *data)
 
 	return IRQ_HANDLED;
 }
+
 
 /*
  * Handle completion interrupts on rx queues. Returns whether or not the
@@ -1665,6 +1708,7 @@ vmxnet3_msix_event(int irq, void *data)
 
 #endif /* CONFIG_PCI_MSI  */
 
+
 /* Interrupt handler for vmxnet3  */
 static irqreturn_t
 vmxnet3_intr(int irq, void *dev_id)
@@ -1678,6 +1722,7 @@ vmxnet3_intr(int irq, void *dev_id)
 			/* not ours */
 			return IRQ_NONE;
 	}
+
 
 	/* disable intr if needed */
 	if (adapter->intr.mask_mode == VMXNET3_IMM_ACTIVE)
@@ -1815,6 +1860,8 @@ vmxnet3_request_irqs(struct vmxnet3_adapter *adapter)
 			rq->qid2 = i + adapter->num_rx_queues;
 		}
 
+
+
 		/* init our intr settings */
 		for (i = 0; i < intr->num_intrs; i++)
 			intr->mod_levels[i] = UPT1_IML_ADAPTIVE;
@@ -1832,6 +1879,7 @@ vmxnet3_request_irqs(struct vmxnet3_adapter *adapter)
 
 	return err;
 }
+
 
 static void
 vmxnet3_free_irqs(struct vmxnet3_adapter *adapter)
@@ -1876,6 +1924,7 @@ vmxnet3_free_irqs(struct vmxnet3_adapter *adapter)
 	}
 }
 
+
 static void
 vmxnet3_restore_vlan(struct vmxnet3_adapter *adapter)
 {
@@ -1888,6 +1937,7 @@ vmxnet3_restore_vlan(struct vmxnet3_adapter *adapter)
 	for_each_set_bit(vid, adapter->active_vlans, VLAN_N_VID)
 		VMXNET3_SET_VFTABLE_ENTRY(vfTable, vid);
 }
+
 
 static int
 vmxnet3_vlan_rx_add_vid(struct net_device *netdev, __be16 proto, u16 vid)
@@ -1910,6 +1960,7 @@ vmxnet3_vlan_rx_add_vid(struct net_device *netdev, __be16 proto, u16 vid)
 	return 0;
 }
 
+
 static int
 vmxnet3_vlan_rx_kill_vid(struct net_device *netdev, __be16 proto, u16 vid)
 {
@@ -1930,6 +1981,7 @@ vmxnet3_vlan_rx_kill_vid(struct net_device *netdev, __be16 proto, u16 vid)
 
 	return 0;
 }
+
 
 static u8 *
 vmxnet3_copy_mc(struct net_device *netdev)
@@ -1952,6 +2004,7 @@ vmxnet3_copy_mc(struct net_device *netdev)
 	}
 	return buf;
 }
+
 
 static void
 vmxnet3_set_mc(struct net_device *netdev)
@@ -1993,6 +2046,7 @@ vmxnet3_set_mc(struct net_device *netdev)
 			}
 		}
 
+
 	if (!(new_mode & VMXNET3_RXM_MCAST)) {
 		rxConf->mfTableLen = 0;
 		rxConf->mfTablePA = 0;
@@ -2022,6 +2076,7 @@ vmxnet3_rq_destroy_all(struct vmxnet3_adapter *adapter)
 	for (i = 0; i < adapter->num_rx_queues; i++)
 		vmxnet3_rq_destroy(&adapter->rx_queue[i], adapter);
 }
+
 
 /*
  *   Set up driver_shared based on settings in adapter.
@@ -2162,6 +2217,7 @@ vmxnet3_setup_driver_shared(struct vmxnet3_adapter *adapter)
 	/* the rest are already zeroed */
 }
 
+
 int
 vmxnet3_activate_dev(struct vmxnet3_adapter *adapter)
 {
@@ -2244,6 +2300,7 @@ rq_err:
 	return err;
 }
 
+
 void
 vmxnet3_reset_dev(struct vmxnet3_adapter *adapter)
 {
@@ -2253,6 +2310,7 @@ vmxnet3_reset_dev(struct vmxnet3_adapter *adapter)
 	spin_unlock_irqrestore(&adapter->cmd_lock, flags);
 }
 
+
 int
 vmxnet3_quiesce_dev(struct vmxnet3_adapter *adapter)
 {
@@ -2260,6 +2318,7 @@ vmxnet3_quiesce_dev(struct vmxnet3_adapter *adapter)
 	unsigned long flags;
 	if (test_and_set_bit(VMXNET3_STATE_BIT_QUIESCED, &adapter->state))
 		return 0;
+
 
 	spin_lock_irqsave(&adapter->cmd_lock, flags);
 	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
@@ -2279,6 +2338,7 @@ vmxnet3_quiesce_dev(struct vmxnet3_adapter *adapter)
 	return 0;
 }
 
+
 static void
 vmxnet3_write_mac_addr(struct vmxnet3_adapter *adapter, u8 *mac)
 {
@@ -2291,6 +2351,7 @@ vmxnet3_write_mac_addr(struct vmxnet3_adapter *adapter, u8 *mac)
 	VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_MACH, tmp);
 }
 
+
 static int
 vmxnet3_set_mac_addr(struct net_device *netdev, void *p)
 {
@@ -2302,6 +2363,7 @@ vmxnet3_set_mac_addr(struct net_device *netdev, void *p)
 
 	return 0;
 }
+
 
 /* ==================== initialization and cleanup routines ============ */
 
@@ -2374,6 +2436,7 @@ err_set_mask:
 	return err;
 }
 
+
 static void
 vmxnet3_free_pci_resources(struct vmxnet3_adapter *adapter)
 {
@@ -2385,11 +2448,13 @@ vmxnet3_free_pci_resources(struct vmxnet3_adapter *adapter)
 	pci_disable_device(adapter->pdev);
 }
 
+
 static void
 vmxnet3_adjust_rx_ring_size(struct vmxnet3_adapter *adapter)
 {
 	size_t sz, i, ring0_size, ring1_size, comp_size;
 	struct vmxnet3_rx_queue	*rq = &adapter->rx_queue[0];
+
 
 	if (adapter->netdev->mtu <= VMXNET3_MAX_SKB_BUF_SIZE -
 				    VMXNET3_MAX_ETH_HDR_SIZE) {
@@ -2425,6 +2490,7 @@ vmxnet3_adjust_rx_ring_size(struct vmxnet3_adapter *adapter)
 		rq->comp_ring.size = comp_size;
 	}
 }
+
 
 int
 vmxnet3_create_queues(struct vmxnet3_adapter *adapter, u32 tx_ring_size,
@@ -2512,6 +2578,7 @@ queue_err:
 	return err;
 }
 
+
 static int
 vmxnet3_close(struct net_device *netdev)
 {
@@ -2531,8 +2598,10 @@ vmxnet3_close(struct net_device *netdev)
 
 	clear_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state);
 
+
 	return 0;
 }
+
 
 void
 vmxnet3_force_close(struct vmxnet3_adapter *adapter)
@@ -2550,6 +2619,7 @@ vmxnet3_force_close(struct vmxnet3_adapter *adapter)
 		napi_enable(&adapter->rx_queue[i].napi);
 	dev_close(adapter->netdev);
 }
+
 
 static int
 vmxnet3_change_mtu(struct net_device *netdev, int new_mtu)
@@ -2601,6 +2671,7 @@ out:
 	return err;
 }
 
+
 static void
 vmxnet3_declare_features(struct vmxnet3_adapter *adapter, bool dma64)
 {
@@ -2617,6 +2688,7 @@ vmxnet3_declare_features(struct vmxnet3_adapter *adapter, bool dma64)
 				  NETIF_F_HW_VLAN_CTAG_RX);
 	netdev->features = netdev->hw_features | NETIF_F_HW_VLAN_CTAG_FILTER;
 }
+
 
 static void
 vmxnet3_read_mac_addr(struct vmxnet3_adapter *adapter, u8 *mac)
@@ -2678,6 +2750,7 @@ vmxnet3_acquire_msix_vectors(struct vmxnet3_adapter *adapter,
 		 "is lower than min threshold required.\n");
 	return err;
 }
+
 
 #endif /* CONFIG_PCI_MSI */
 
@@ -2768,6 +2841,7 @@ vmxnet3_alloc_intr_resources(struct vmxnet3_adapter *adapter)
 	adapter->intr.num_intrs = 1;
 }
 
+
 static void
 vmxnet3_free_intr_resources(struct vmxnet3_adapter *adapter)
 {
@@ -2779,6 +2853,7 @@ vmxnet3_free_intr_resources(struct vmxnet3_adapter *adapter)
 		BUG_ON(adapter->intr.type != VMXNET3_IT_INTX);
 }
 
+
 static void
 vmxnet3_tx_timeout(struct net_device *netdev)
 {
@@ -2787,8 +2862,8 @@ vmxnet3_tx_timeout(struct net_device *netdev)
 
 	netdev_err(adapter->netdev, "tx hang\n");
 	schedule_work(&adapter->work);
-	netif_wake_queue(adapter->netdev);
 }
+
 
 static void
 vmxnet3_reset_work(struct work_struct *data)
@@ -2813,8 +2888,10 @@ vmxnet3_reset_work(struct work_struct *data)
 	}
 	rtnl_unlock();
 
+	netif_wake_queue(adapter->netdev);
 	clear_bit(VMXNET3_STATE_BIT_RESETTING, &adapter->state);
 }
+
 
 static int
 vmxnet3_probe_device(struct pci_dev *pdev,
@@ -3025,6 +3102,7 @@ err_alloc_shared:
 	return err;
 }
 
+
 static void
 vmxnet3_remove_device(struct pci_dev *pdev)
 {
@@ -3061,6 +3139,7 @@ vmxnet3_remove_device(struct pci_dev *pdev)
 			    adapter->shared, adapter->shared_pa);
 	free_netdev(netdev);
 }
+
 
 #ifdef CONFIG_PM
 
@@ -3174,6 +3253,7 @@ skip_arp:
 	return 0;
 }
 
+
 static int
 vmxnet3_resume(struct device *device)
 {
@@ -3235,6 +3315,7 @@ static struct pci_driver vmxnet3_driver = {
 #endif
 };
 
+
 static int __init
 vmxnet3_init_module(void)
 {
@@ -3244,6 +3325,7 @@ vmxnet3_init_module(void)
 }
 
 module_init(vmxnet3_init_module);
+
 
 static void
 vmxnet3_exit_module(void)

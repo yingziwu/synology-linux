@@ -221,6 +221,7 @@ struct file_operations mali_fops = {
 	.mmap = mali_mmap
 };
 
+
 #if MALI_ENABLE_CPU_CYCLES
 void mali_init_cpu_time_counters(int reset, int enable_divide_by_64)
 {
@@ -230,6 +231,7 @@ void mali_init_cpu_time_counters(int reset, int enable_divide_by_64)
 	/* See B4.1.116 PMCNTENSET, Performance Monitors Count Enable Set register, VMSA */
 	/* setting p15 c9 c12 1 to 0x8000000f==CPU_CYCLE_ENABLE |EVENT_3_ENABLE|EVENT_2_ENABLE|EVENT_1_ENABLE|EVENT_0_ENABLE */
 	asm volatile("mcr p15, 0, %0, c9, c12, 1" :: "r"(0x8000000f));
+
 
 	/* See B4.1.117 PMCR, Performance Monitors Control Register. Writing to p15, c9, c12, 0 */
 	write_value = 1<<0; /* Bit 0 set. Enable counters */
@@ -245,6 +247,7 @@ void mali_init_cpu_time_counters(int reset, int enable_divide_by_64)
 
 	/* PMOVSR Overflow Flag Status Register - Clear Clock and Event overflows */
 	asm volatile ("MCR p15, 0, %0, c9, c12, 3\t\n" :: "r"(0x8000000f));
+
 
 	/* See B4.1.124 PMUSERENR - setting p15 c9 c14 to 1" */
 	/* User mode access to the Performance Monitors enabled. */
@@ -333,6 +336,7 @@ void mali_init_cpu_time_counters_on_all_cpus(int print_only)
 	}
 }
 #endif
+
 
 int mali_module_init(void)
 {
@@ -900,6 +904,7 @@ static int mali_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, 
 
 	return err;
 }
+
 
 module_init(mali_module_init);
 module_exit(mali_module_exit);

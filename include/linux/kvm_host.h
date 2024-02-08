@@ -4,6 +4,11 @@
 #ifndef __KVM_HOST_H
 #define __KVM_HOST_H
 
+/*
+ * This work is licensed under the terms of the GNU GPL, version 2.  See
+ * the COPYING file in the top-level directory.
+ */
+
 #include <linux/types.h>
 #include <linux/hardirq.h>
 #include <linux/list.h>
@@ -35,10 +40,21 @@
 #define KVM_MMIO_SIZE 8
 #endif
 
+/*
+ * The bit 16 ~ bit 31 of kvm_memory_region::flags are internally used
+ * in kvm, other bits are visible for userspace which are defined in
+ * include/linux/kvm_h.
+ */
 #define KVM_MEMSLOT_INVALID	(1UL << 16)
 
+/* Two fragments for cross MMIO pages. */
 #define KVM_MAX_MMIO_FRAGMENTS	2
 
+/*
+ * For the normal pfn, the highest 12 bits should be zero,
+ * so we can mask bit 62 ~ bit 52  to indicate the error pfn,
+ * mask bit 63 to indicate the noslot pfn.
+ */
 #define KVM_PFN_ERR_MASK	(0x7ffULL << 52)
 #define KVM_PFN_ERR_NOSLOT_MASK	(0xfffULL << 52)
 #define KVM_PFN_NOSLOT		(0x1ULL << 63)
@@ -47,16 +63,26 @@
 #define KVM_PFN_ERR_HWPOISON	(KVM_PFN_ERR_MASK + 1)
 #define KVM_PFN_ERR_RO_FAULT	(KVM_PFN_ERR_MASK + 2)
 
+/*
+ * error pfns indicate that the gfn is in slot but faild to
+ * translate it to pfn on host.
+ */
 static inline bool is_error_pfn(pfn_t pfn)
 {
 	return !!(pfn & KVM_PFN_ERR_MASK);
 }
 
+/*
+ * error_noslot pfns indicate that the gfn can not be
+ * translated to pfn - it is not in slot or failed to
+ * translate it to pfn.
+ */
 static inline bool is_error_noslot_pfn(pfn_t pfn)
 {
 	return !!(pfn & KVM_PFN_ERR_NOSLOT_MASK);
 }
 
+/* noslot pfn indicates that the gfn is not in slot. */
 static inline bool is_noslot_pfn(pfn_t pfn)
 {
 	return pfn == KVM_PFN_NOSLOT;
@@ -77,6 +103,9 @@ static inline bool is_error_page(struct page *page)
 	return IS_ERR(page);
 }
 
+/*
+ * vcpu->requests bit members
+ */
 #define KVM_REQ_TLB_FLUSH          0
 #define KVM_REQ_MIGRATE_TIMER      1
 #define KVM_REQ_REPORT_TPR_ACCESS  2
@@ -119,7 +148,8 @@ struct kvm_io_range {
 #define NR_IOBUS_DEVS 1000
 
 struct kvm_io_bus {
-	int                   dev_count;
+	int dev_count;
+	int ioeventfd_count;
 	struct kvm_io_range range[];
 };
 
@@ -136,8 +166,8 @@ int kvm_io_bus_read(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr, int len,
 		    void *val);
 int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
 			    int len, struct kvm_io_device *dev);
-int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
-			      struct kvm_io_device *dev);
+void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+			       struct kvm_io_device *dev);
 
 #ifdef CONFIG_KVM_ASYNC_PF
 struct kvm_async_pf {
@@ -167,6 +197,10 @@ enum {
 	READING_SHADOW_PAGE_TABLES,
 };
 
+/*
+ * Sometimes a large or cross-page mmio needs to be broken up into separate
+ * exits for userspace servicing.
+ */
 struct kvm_mmio_fragment {
 	gpa_t gpa;
 	void *data;
@@ -215,7 +249,12 @@ struct kvm_vcpu {
 #endif
 
 #ifdef CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT
-	 
+	/*
+	 * Cpu relax intercept or pause loop exit optimization
+	 * in_spin_loop: set when a vcpu does a pause loop exit
+	 *  or cpu relax intercepted.
+	 * dy_eligible: indicates whether vcpu is eligible for directed yield.
+	 */
 	struct {
 		bool in_spin_loop;
 		bool dy_eligible;
@@ -230,6 +269,10 @@ static inline int kvm_vcpu_exiting_guest_mode(struct kvm_vcpu *vcpu)
 	return cmpxchg(&vcpu->mode, IN_GUEST_MODE, EXITING_GUEST_MODE);
 }
 
+/*
+ * Some of the bitops functions do not support too long bitmaps.
+ * This number must be determined not to exceed such limits.
+ */
 #define KVM_MEM_MAX_NR_PAGES ((1UL << 31) - 1)
 
 struct kvm_memory_slot {
@@ -269,7 +312,10 @@ struct kvm_irq_routing_table {
 	int chip[KVM_NR_IRQCHIPS][KVM_IRQCHIP_NUM_PINS];
 	struct kvm_kernel_irq_routing_entry *rt_entries;
 	u32 nr_rt_entries;
-	 
+	/*
+	 * Array indexed by gsi. Each entry contains list of irq chips
+	 * the gsi is connected to.
+	 */
 	struct hlist_head map[0];
 };
 
@@ -287,17 +333,22 @@ struct kvm_irq_routing_table {};
 #define KVM_MEM_SLOTS_NUM (KVM_USER_MEM_SLOTS + KVM_PRIVATE_MEM_SLOTS)
 #endif
 
+/*
+ * Note:
+ * memslots are not sorted by id anymore, please use id_to_memslot()
+ * to get the memslot by its id.
+ */
 struct kvm_memslots {
 	u64 generation;
 	struct kvm_memory_slot memslots[KVM_MEM_SLOTS_NUM];
-	 
+	/* The mapping table from slot id to the index in memslots[]. */
 	short id_to_index[KVM_MEM_SLOTS_NUM];
 };
 
 struct kvm {
 	spinlock_t mmu_lock;
 	struct mutex slots_lock;
-	struct mm_struct *mm;  
+	struct mm_struct *mm; /* userspace tied to this vm */
 	struct kvm_memslots *memslots;
 	struct srcu_struct srcu;
 #ifdef CONFIG_KVM_APIC_ARCHITECTURE
@@ -329,7 +380,10 @@ struct kvm {
 
 	struct mutex irq_lock;
 #ifdef CONFIG_HAVE_KVM_IRQCHIP
-	 
+	/*
+	 * Update side is protected by irq_lock and,
+	 * if configured, irqfds.lock.
+	 */
 	struct kvm_irq_routing_table __rcu *irq_routing;
 	struct hlist_head mask_notifier_list;
 	struct hlist_head irq_ack_notifier_list;
@@ -354,6 +408,7 @@ struct kvm {
 	pr_err_ratelimited("kvm [%i]: " fmt, \
 			   task_tgid_nr(current), ## __VA_ARGS__)
 
+/* The guest did something we don't support. */
 #define vcpu_unimpl(vcpu, fmt, ...)					\
 	kvm_pr_unimpl("vcpu%i " fmt, (vcpu)->vcpu_id, ## __VA_ARGS__)
 
@@ -421,6 +476,17 @@ id_to_memslot(struct kvm_memslots *slots, int id)
 	return slot;
 }
 
+/*
+ * KVM_SET_USER_MEMORY_REGION ioctl allows the following operations:
+ * - create a new memory slot
+ * - delete an existing memory slot
+ * - modify an existing memory slot
+ *   -- move it in the guest physical memory space
+ *   -- just change its flags
+ *
+ * Since flags can be changed by some of these operations, the following
+ * differentiation is the best we can do for __kvm_set_memory_region():
+ */
 enum kvm_mr_change {
 	KVM_MR_CREATE,
 	KVM_MR_DELETE,
@@ -445,9 +511,9 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
 				enum kvm_mr_change change);
 bool kvm_largepages_enabled(void);
 void kvm_disable_largepages(void);
- 
+/* flush all memory translations */
 void kvm_arch_flush_shadow_all(struct kvm *kvm);
- 
+/* flush memory translations pointing to 'slot' */
 void kvm_arch_flush_shadow_memslot(struct kvm *kvm,
 				   struct kvm_memory_slot *slot);
 
@@ -669,6 +735,7 @@ void kvm_unregister_irq_ack_notifier(struct kvm *kvm,
 int kvm_request_irq_source_id(struct kvm *kvm);
 void kvm_free_irq_source_id(struct kvm *kvm, int irq_source_id);
 
+/* For vcpu->arch.iommu_flags */
 #define KVM_IOMMU_CACHE_COHERENCY	0x1
 
 #ifdef CONFIG_KVM_DEVICE_ASSIGNMENT
@@ -708,6 +775,13 @@ static inline void kvm_guest_enter(void)
 	guest_enter();
 	local_irq_restore(flags);
 
+	/* KVM does not hold any references to rcu protected data when it
+	 * switches CPU into a guest mode. In fact switching to a guest mode
+	 * is very similar to exiting to userspase from rcu point of view. In
+	 * addition CPU may stay in a guest mode for quite a long time (up to
+	 * one time slice). Lets treat guest mode as quiescent state, just like
+	 * we do with user-mode execution.
+	 */
 	rcu_virt_note_context_switch(smp_processor_id());
 }
 
@@ -720,6 +794,12 @@ static inline void kvm_guest_exit(void)
 	local_irq_restore(flags);
 }
 
+/*
+ * search_memslots() and __gfn_to_memslot() are here because they are
+ * used in non-modular code in arch/powerpc/kvm/book3s_hv_rm_mmu.c.
+ * gfn_to_memslot() itself isn't here as an inline because that would
+ * bloat other code too much.
+ */
 static inline struct kvm_memory_slot *
 search_memslots(struct kvm_memslots *slots, gfn_t gfn)
 {
@@ -752,7 +832,7 @@ static inline int memslot_id(struct kvm *kvm, gfn_t gfn)
 
 static inline gfn_t gfn_to_index(gfn_t gfn, gfn_t base_gfn, int level)
 {
-	 
+	/* KVM_HPAGE_GFN_SHIFT(PT_PAGE_TABLE_LEVEL) must be 0. */
 	return (gfn >> KVM_HPAGE_GFN_SHIFT(level)) -
 		(base_gfn >> KVM_HPAGE_GFN_SHIFT(level));
 }
@@ -804,7 +884,16 @@ static inline int mmu_notifier_retry(struct kvm *kvm, unsigned long mmu_seq)
 {
 	if (unlikely(kvm->mmu_notifier_count))
 		return 1;
-	 
+	/*
+	 * Ensure the read of mmu_notifier_count happens before the read
+	 * of mmu_notifier_seq.  This interacts with the smp_wmb() in
+	 * mmu_notifier_invalidate_range_end to make sure that the caller
+	 * either sees the old (non-zero) value of mmu_notifier_count or
+	 * the new (incremented) value of mmu_notifier_seq.
+	 * PowerPC Book3s HV KVM calls this under a per-page lock
+	 * rather than under kvm->mmu_lock, for scalability, so
+	 * can't rely on kvm->mmu_lock to keep things ordered.
+	 */
 	smp_rmb();
 	if (kvm->mmu_notifier_seq != mmu_seq)
 		return 1;
@@ -841,12 +930,12 @@ int kvm_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args);
 
 #ifdef CONFIG_HAVE_KVM_IRQCHIP
 #if defined(MY_DEF_HERE) && !defined(__KVM_HAVE_IOAPIC)
- 
-#else  
+// do nothing
+#else /* MY_DEF_HERE && !__KVM_HAVE_IOAPIC */
 int kvm_irqfd(struct kvm *kvm, struct kvm_irqfd *args);
 void kvm_irqfd_release(struct kvm *kvm);
 void kvm_irq_routing_update(struct kvm *, struct kvm_irq_routing_table *);
-#endif  
+#endif /* MY_DEF_HERE && !__KVM_HAVE_IOAPIC */
 #else
 static inline int kvm_irqfd(struct kvm *kvm, struct kvm_irqfd *args)
 {
@@ -880,7 +969,7 @@ static inline int kvm_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args)
 	return -ENOSYS;
 }
 
-#endif  
+#endif /* CONFIG_HAVE_KVM_EVENTFD */
 
 #ifdef CONFIG_KVM_APIC_ARCHITECTURE
 static inline bool kvm_vcpu_is_bsp(struct kvm_vcpu *vcpu)
@@ -941,10 +1030,19 @@ struct kvm_device {
 	struct list_head vm_node;
 };
 
+/* create, destroy, and name are mandatory */
 struct kvm_device_ops {
 	const char *name;
 	int (*create)(struct kvm_device *dev, u32 type);
 
+	/*
+	 * Destroy is responsible for freeing dev.
+	 *
+	 * Destroy may be called before or after destructors are called
+	 * on emulated I/O regions, depending on whether a reference is
+	 * held by a vcpu or other kvm component that gets destroyed
+	 * after the emulated I/O.
+	 */
 	void (*destroy)(struct kvm_device *dev);
 
 	int (*set_attr)(struct kvm_device *dev, struct kvm_device_attr *attr);
@@ -972,7 +1070,7 @@ static inline void kvm_vcpu_set_dy_eligible(struct kvm_vcpu *vcpu, bool val)
 	vcpu->spin_loop.dy_eligible = val;
 }
 
-#else  
+#else /* !CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT */
 
 static inline void kvm_vcpu_set_in_spin_loop(struct kvm_vcpu *vcpu, bool val)
 {
@@ -987,5 +1085,6 @@ static inline bool kvm_vcpu_eligible_for_directed_yield(struct kvm_vcpu *vcpu)
 	return true;
 }
 
-#endif  
+#endif /* CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT */
 #endif
+

@@ -25,8 +25,11 @@ struct mv_sata_platform_data;
 #define ORION_MBUS_DEVBUS_ATTR(cs)    (~(1 << cs))
 #define ORION_MBUS_SRAM_TARGET        0x00
 #define ORION_MBUS_SRAM_ATTR          0x00
-#endif  
+#endif /* MY_ABC_HERE */
 
+/*
+ * Basic Orion init functions used early by machine-setup.
+ */
 void orion5x_map_io(void);
 void orion5x_init_early(void);
 void orion5x_init_irq(void);
@@ -50,6 +53,9 @@ void orion5x_uart1_init(void);
 void orion5x_xor_init(void);
 void orion5x_restart(char, const char *);
 
+/*
+ * PCIe/PCI functions.
+ */
 struct pci_bus;
 struct pci_sys_data;
 struct pci_dev;
@@ -61,6 +67,7 @@ int orion5x_pci_sys_setup(int nr, struct pci_sys_data *sys);
 struct pci_bus *orion5x_pci_sys_scan_bus(int nr, struct pci_sys_data *sys);
 int orion5x_pci_map_irq(const struct pci_dev *dev, u8 slot, u8 pin);
 
+/* board init functions for boards not fully converted to fdt */
 #ifdef CONFIG_MACH_EDMINI_V2_DT
 void edmini_v2_init(void);
 #else
@@ -71,6 +78,13 @@ struct meminfo;
 struct tag;
 extern void __init tag_fixup_mem32(struct tag *, char **, struct meminfo *);
 
+/*****************************************************************************
+ * Helpers to access Orion registers
+ ****************************************************************************/
+/*
+ * These are not preempt-safe.  Locks, if needed, must be taken
+ * care of by the caller.
+ */
 #define orion5x_setbits(r, mask)	writel(readl(r) | (mask), (r))
 #define orion5x_clrbits(r, mask)	writel(readl(r) & ~(mask), (r))
 

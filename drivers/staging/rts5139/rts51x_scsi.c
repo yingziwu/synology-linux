@@ -2133,3 +2133,4 @@ struct scsi_host_template rts51x_host_template = {
 	/* module management */
 	.module = THIS_MODULE
 };
+

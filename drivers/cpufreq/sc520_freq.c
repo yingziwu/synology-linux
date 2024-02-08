@@ -1,7 +1,21 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *	sc520_freq.c: cpufreq driver for the AMD Elan sc520
+ *
+ *	Copyright (C) 2005 Sean Young <sean@mess.org>
+ *
+ *	This program is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU General Public License
+ *	as published by the Free Software Foundation; either version
+ *	2 of the License, or (at your option) any later version.
+ *
+ *	Based on elanfreq.c
+ *
+ *	2005-03-30: - initial revision
+ */
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -14,8 +28,8 @@
 #include <asm/cpu_device_id.h>
 #include <asm/msr.h>
 
-#define MMCR_BASE	0xfffef000	 
-#define OFFS_CPUCTL	0x2    
+#define MMCR_BASE	0xfffef000	/* The default base address */
+#define OFFS_CPUCTL	0x2   /* CPU Control Register */
 
 static __u8 __iomem *cpuctl;
 
@@ -87,16 +101,23 @@ static int sc520_freq_target(struct cpufreq_policy *policy,
 	return 0;
 }
 
+
+/*
+ *	Module init and exit code
+ */
+
 static int sc520_freq_cpu_init(struct cpufreq_policy *policy)
 {
 	struct cpuinfo_x86 *c = &cpu_data(0);
 	int result;
 
+	/* capability check */
 	if (c->x86_vendor != X86_VENDOR_AMD ||
 	    c->x86 != 4 || c->x86_model != 9)
 		return -ENODEV;
 
-	policy->cpuinfo.transition_latency = 1000000;  
+	/* cpuinfo and default policy values */
+	policy->cpuinfo.transition_latency = 1000000; /* 1ms */
 	policy->cur = sc520_freq_get_cpu_frequency(0);
 
 	result = cpufreq_frequency_table_cpuinfo(policy, sc520_freq_table);
@@ -108,16 +129,19 @@ static int sc520_freq_cpu_init(struct cpufreq_policy *policy)
 	return 0;
 }
 
+
 static int sc520_freq_cpu_exit(struct cpufreq_policy *policy)
 {
 	cpufreq_frequency_table_put_attr(policy->cpu);
 	return 0;
 }
 
+
 static struct freq_attr *sc520_freq_attr[] = {
 	&cpufreq_freq_attr_scaling_available_freqs,
 	NULL,
 };
+
 
 static struct cpufreq_driver sc520_freq_driver = {
 	.get	= sc520_freq_get_cpu_frequency,
@@ -127,10 +151,10 @@ static struct cpufreq_driver sc520_freq_driver = {
 	.exit	= sc520_freq_cpu_exit,
 	.name	= "sc520_freq",
 #if defined(MY_ABC_HERE)
-	 
-#else  
+	// do nothing
+#else /* MY_ABC_HERE */
 	.owner	= THIS_MODULE,
-#endif  
+#endif /* MY_ABC_HERE */
 	.attr	= sc520_freq_attr,
 };
 
@@ -160,11 +184,13 @@ static int __init sc520_freq_init(void)
 	return err;
 }
 
+
 static void __exit sc520_freq_exit(void)
 {
 	cpufreq_unregister_driver(&sc520_freq_driver);
 	iounmap(cpuctl);
 }
+
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sean Young <sean@mess.org>");
@@ -172,3 +198,4 @@ MODULE_DESCRIPTION("cpufreq driver for AMD's Elan sc520 CPU");
 
 module_init(sc520_freq_init);
 module_exit(sc520_freq_exit);
+

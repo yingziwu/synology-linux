@@ -821,6 +821,7 @@ MV_VOID mvPp2AggrTxqsDestroy(MV_VOID)
 	mvOsFree(mvPp2AggrTxqs);
 }
 
+
 /* Destroy all aggregated TXQs */
 MV_VOID mvPp2AggrTxqDelete(int cpu)
 {
@@ -1080,6 +1081,7 @@ MV_STATUS mvPp2BmPoolBufSizeSet(int pool, int bufsize)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvPp2PortIngressEnable
 *
@@ -1211,6 +1213,7 @@ MV_STATUS mvPp2TxqBmLongPoolSet(int port, int txp, int txq, int longPool)
 
 	return MV_OK;
 }
+
 
 /*-------------------------------------------------------------------------------*/
 
@@ -1646,6 +1649,7 @@ MV_STATUS mvPp2TxqWrrPrioSet(int port, int txp, int txq, int weight)
 		return MV_FAIL;
 	}
 
+
 	regVal = mvPp2RdReg(MV_PP2_TXQ_SCHED_WRR_REG(txq));
 
 	regVal &= ~MV_PP2_TXQ_WRR_WEIGHT_ALL_MASK;
@@ -1809,6 +1813,7 @@ MV_BOOL mvPp2DisableCmdInProgress(void)
 	return regVal;
 }
 
+
 MV_STATUS mvPp2TxqDrainSet(int port, int txp, int txq, MV_BOOL en)
 {
 	MV_U32 regVal;
@@ -1846,6 +1851,7 @@ MV_STATUS mvPp2TxPortFifoFlush(int port, MV_BOOL en)
 
 	return MV_OK;
 }
+
 
 /* Function for swithcing SWF to HWF */
 /* txq is physical (global) txq in range 0..MV_PP2_TXQ_TOTAL_NUM */

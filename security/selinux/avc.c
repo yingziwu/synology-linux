@@ -702,6 +702,7 @@ static noinline int avc_denied(u32 ssid, u32 tsid,
 	return 0;
 }
 
+
 /**
  * avc_has_perm_noaudit - Check permissions but perform no auditing.
  * @ssid: source security identifier

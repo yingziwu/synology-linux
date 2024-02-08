@@ -103,6 +103,7 @@
 #define MVPP2_CLS_SWFWD_PCTRL_REG		0x19d0
 #define     MVPP2_CLS_SWFWD_PCTRL_MASK(port)	(1 << (port))
 
+
 /* Descriptor Manager Top Registers */
 #define MVPP2_RXQ_NUM_REG			0x2040
 #define MVPP2_RXQ_DESC_ADDR_REG			0x2044

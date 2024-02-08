@@ -27,9 +27,11 @@
 #include "yaffs_guts.h"
 #include "yaffs_linux.h"
 
+
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 2, 0))
 #define MTD_OPS_AUTO_OOB MTD_OOB_AUTO
 #endif
+
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 4, 0))
 #define mtd_erase(m, ei) (m)->erase(m, ei)
@@ -38,6 +40,8 @@
 #define mtd_block_isbad(m, offs) (m)->block_isbad(m, offs)
 #define mtd_block_markbad(m, offs) (m)->block_markbad(m, offs)
 #endif
+
+
 
 int nandmtd_erase_block(struct yaffs_dev *dev, int block_no)
 {
@@ -63,6 +67,7 @@ int nandmtd_erase_block(struct yaffs_dev *dev, int block_no)
 
 	return YAFFS_FAIL;
 }
+
 
 static 	int yaffs_mtd_write(struct yaffs_dev *dev, int nand_chunk,
 				   const u8 *data, int data_len,
@@ -212,6 +217,7 @@ static int yaffs_mtd_deinitialise(struct yaffs_dev *dev)
 	return YAFFS_OK;
 }
 
+
 void yaffs_mtd_drv_install(struct yaffs_dev *dev)
 {
 	struct yaffs_driver *drv = &dev->drv;
@@ -224,6 +230,7 @@ void yaffs_mtd_drv_install(struct yaffs_dev *dev)
 	drv->drv_initialise_fn = yaffs_mtd_initialise;
 	drv->drv_deinitialise_fn = yaffs_mtd_deinitialise;
 }
+
 
 struct mtd_info * yaffs_get_mtd_device(dev_t sdev)
 {
@@ -278,6 +285,7 @@ int yaffs_verify_mtd(struct mtd_info *mtd, int yaffs_version, int inband_tags)
 
 	return 0;
 }
+
 
 void yaffs_put_mtd_device(struct mtd_info *mtd)
 {

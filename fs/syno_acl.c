@@ -97,6 +97,7 @@ struct syno_acl *syno_acl_realloc(struct syno_acl *acl, unsigned int counts, gfp
 }
 EXPORT_SYMBOL(syno_acl_realloc);
 
+
 /*---------xattr -------------*/
 static inline int
 ace_syno_from_xattr(struct syno_acl_entry *pAce, syno_acl_xattr_entry *pEntry)
@@ -213,6 +214,7 @@ Err:
 	return ret;
 }
 
+
 /*
  * Convert from extended attribute to in-memory representation.
  */
@@ -295,3 +297,5 @@ int syno_acl_to_xattr(const struct syno_acl *acl, void *buffer, size_t size)
 	return real_size;
 }
 EXPORT_SYMBOL(syno_acl_to_xattr);
+
+

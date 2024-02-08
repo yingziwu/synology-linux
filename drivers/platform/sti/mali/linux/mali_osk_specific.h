@@ -31,6 +31,7 @@
 
 typedef struct dma_pool * mali_dma_pool;
 
+
 MALI_STATIC_INLINE mali_dma_pool mali_dma_pool_create(u32 size, u32 alignment, u32 boundary)
 {
 	return dma_pool_create("mali-dma", &mali_platform_device->dev, size, alignment, boundary);
@@ -50,6 +51,7 @@ MALI_STATIC_INLINE void mali_dma_pool_free(mali_dma_pool pool, void* virt_addr, 
 {
 	dma_pool_free(pool, virt_addr, phys_addr);
 }
+
 
 #if MALI_ENABLE_CPU_CYCLES
 /* Reads out the clock cycle performance counter of the current cpu.
@@ -73,6 +75,7 @@ static inline unsigned int mali_get_cpu_cyclecount(void)
 
 void mali_init_cpu_time_counters(int reset, int enable_divide_by_64);
 #endif
+
 
 MALI_STATIC_INLINE u32 _mali_osk_copy_from_user(void *to, void *from, u32 n)
 {

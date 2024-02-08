@@ -202,6 +202,7 @@ static int drm_dp_dpcd_access(struct drm_dp_aux *aux, u8 request,
 			return err;
 		}
 
+
 		switch (msg.reply & DP_AUX_NATIVE_REPLY_MASK) {
 		case DP_AUX_NATIVE_REPLY_ACK:
 			if (err < size)
@@ -417,6 +418,7 @@ static int drm_dp_i2c_do_msg(struct drm_dp_aux *aux, struct drm_dp_aux_msg *msg)
 			DRM_DEBUG_KMS("transaction failed: %d\n", err);
 			return err;
 		}
+
 
 		switch (msg->reply & DP_AUX_NATIVE_REPLY_MASK) {
 		case DP_AUX_NATIVE_REPLY_ACK:

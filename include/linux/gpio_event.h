@@ -137,6 +137,7 @@ struct gpio_event_output_info {
 	size_t keymap_size;
 };
 
+
 /* axes */
 
 enum gpio_event_axis_flags {

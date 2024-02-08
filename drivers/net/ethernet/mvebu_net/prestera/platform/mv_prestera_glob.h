@@ -99,6 +99,7 @@
 #define mv_kmod_uintptr_t   uintptr_t
 #define mv_kmod_size_t      size_t
 
+
 struct PciConfigReg_STC {
 	uint32_t    busNo;
 	uint32_t    devSel;
@@ -176,6 +177,7 @@ struct GT_PCI_MMAP_INFO_STC {
 	mv_kmod_size_t      length;
 	mv_kmod_size_t      offset;
 };
+
 
 #define PRESTERA_IOC_MAGIC 'p'
 #define PRESTERA_IOC_HWRESET		_IO(PRESTERA_IOC_MAGIC,		0)

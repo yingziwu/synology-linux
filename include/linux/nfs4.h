@@ -223,7 +223,7 @@ enum nfsstat4 {
 
 static inline bool seqid_mutating_err(u32 err)
 {
-	/* rfc 3530 section 8.1.5: */
+	/* See RFC 7530, section 9.1.7 */
 	switch (err) {
 	case NFS4ERR_STALE_CLIENTID:
 	case NFS4ERR_STALE_STATEID:
@@ -232,6 +232,7 @@ static inline bool seqid_mutating_err(u32 err)
 	case NFS4ERR_BADXDR:
 	case NFS4ERR_RESOURCE:
 	case NFS4ERR_NOFILEHANDLE:
+	case NFS4ERR_MOVED:
 		return false;
 	};
 	return true;
@@ -312,6 +313,7 @@ enum lock_type4 {
 	NFS4_READW_LT = 3,
 	NFS4_WRITEW_LT = 4
 };
+
 
 /* Mandatory Attributes */
 #define FATTR4_WORD0_SUPPORTED_ATTRS    (1UL << 0)

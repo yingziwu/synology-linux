@@ -305,6 +305,7 @@ static unsigned int exynos4x12_clkdiv_sclkip[][3] = {
 	{7, 7, 7},
 };
 
+
 static int exynos4210_set_busclk(struct busfreq_data *data,
 				 struct busfreq_opp_info *oppi)
 {
@@ -522,6 +523,7 @@ static int exynos4x12_set_busclk(struct busfreq_data *data,
 
 	return 0;
 }
+
 
 static void busfreq_mon_reset(struct busfreq_data *data)
 {
@@ -878,6 +880,7 @@ static int exynos4210_init_tables(struct busfreq_data *data)
 			return err;
 		}
 	}
+
 
 	return 0;
 }

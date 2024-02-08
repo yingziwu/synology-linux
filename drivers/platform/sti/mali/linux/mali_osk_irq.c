@@ -179,6 +179,7 @@ void _mali_osk_irq_term( _mali_osk_irq_t *irq )
 	kfree(irq_object);
 }
 
+
 /** This function is called directly in interrupt context from the OS just after
  * the CPU get the hw-irq from mali, or other devices on the same IRQ-channel.
  * It is registered one of these function for each mali core. When an interrupt

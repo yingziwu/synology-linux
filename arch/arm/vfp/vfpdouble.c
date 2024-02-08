@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/vfp/vfpdouble.c
  *
@@ -657,6 +660,7 @@ static u32 vfp_double_ftosiz(int dd, int unused, int dm, u32 fpscr)
 	return vfp_double_ftosi(dd, unused, dm, FPSCR_ROUND_TOZERO);
 }
 
+
 static struct op fops_ext[32] = {
 	[FEXT_TO_IDX(FEXT_FCPY)]	= { vfp_double_fcpy,   0 },
 	[FEXT_TO_IDX(FEXT_FABS)]	= { vfp_double_fabs,   0 },
@@ -674,6 +678,9 @@ static struct op fops_ext[32] = {
 	[FEXT_TO_IDX(FEXT_FTOSI)]	= { vfp_double_ftosi,  OP_SCALAR|OP_SD },
 	[FEXT_TO_IDX(FEXT_FTOSIZ)]	= { vfp_double_ftosiz, OP_SCALAR|OP_SD },
 };
+
+
+
 
 static u32
 vfp_double_fadd_nonnumber(struct vfp_double *vdd, struct vfp_double *vdn,
@@ -862,10 +869,10 @@ vfp_double_multiply_accumulate(int dd, int dn, int dm, u32 fpscr, u32 negate, ch
 		vdp.sign = vfp_sign_negate(vdp.sign);
 
 	vfp_double_unpack(&vdn, vfp_get_double(dd));
-#if defined(CONFIG_SYNO_BACKPORT_ARM_CRYPTO)
+#if defined(MY_DEF_HERE)
 	if (vdn.exponent == 0 && vdn.significand)
 		vfp_double_normalise_denormal(&vdn);
-#endif /* CONFIG_SYNO_BACKPORT_ARM_CRYPTO */
+#endif /* MY_DEF_HERE */
 	if (negate & NEG_SUBTRACT)
 		vdn.sign = vfp_sign_negate(vdn.sign);
 

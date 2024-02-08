@@ -397,6 +397,7 @@ struct pktgen_hdr {
 	__be32 tv_usec;
 };
 
+
 static int pg_net_id __read_mostly;
 
 struct pktgen_net {
@@ -711,6 +712,7 @@ static int pktgen_if_show(struct seq_file *seq, void *v)
 
 	return 0;
 }
+
 
 static int hex32_arg(const char __user *user_buffer, unsigned long maxlen,
 		     __u32 *num)
@@ -1261,6 +1263,7 @@ static ssize_t pktgen_if_write(struct file *file,
 		len = strn_len(&user_buffer[i], sizeof(pkt_dev->dst_max) - 1);
 		if (len < 0)
 			return len;
+
 
 		if (copy_from_user(buf, &user_buffer[i], len))
 			return -EFAULT;
@@ -1959,6 +1962,7 @@ static struct net_device *pktgen_dev_get_by_name(const struct pktgen_net *pn,
 	return dev_get_by_name(pn->net, b);
 }
 
+
 /* Associate pktgen_dev with a device. */
 
 static int pktgen_setup_dev(const struct pktgen_net *pn,
@@ -2123,6 +2127,7 @@ static void pktgen_setup_inject(struct pktgen_dev *pkt_dev)
 	pkt_dev->nflows = 0;
 }
 
+
 static void spin(struct pktgen_dev *pkt_dev, ktime_t spin_until)
 {
 	ktime_t start_time, end_time;
@@ -2204,6 +2209,7 @@ static inline int f_pick(struct pktgen_dev *pkt_dev)
 
 	return pkt_dev->curfl;
 }
+
 
 #ifdef CONFIG_XFRM
 /* If there was already an IPSEC SA, we keep it as is, else
@@ -2455,6 +2461,7 @@ static void mod_cur_headers(struct pktgen_dev *pkt_dev)
 	pkt_dev->flows[flow].count++;
 }
 
+
 #ifdef CONFIG_XFRM
 static int pktgen_output_ipsec(struct sk_buff *skb, struct pktgen_dev *pkt_dev)
 {
@@ -2576,6 +2583,7 @@ static void pktgen_finalize_skb(struct pktgen_dev *pkt_dev, struct sk_buff *skb,
 		int frags = pkt_dev->nfrags;
 		int i, len;
 		int frag_len;
+
 
 		if (frags > MAX_SKB_FRAGS)
 			frags = MAX_SKB_FRAGS;

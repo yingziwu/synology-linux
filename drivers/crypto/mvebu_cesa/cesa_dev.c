@@ -28,6 +28,7 @@
 #include "mvCommon.h"
 #include "mvCesa.h"
 
+
 static int debug = 1;
 module_param(debug, int, 0);
 MODULE_PARM_DESC(debug,
@@ -91,6 +92,7 @@ extern void    		mvCesaDebugSram(int mode);
 extern void    		cesaTestPrintReq(int req, int offset, int size);
 extern void	   	    cesaTestPrintSession(int idx);
 extern void	   	    cesaTestPrintStatus(void);
+
 
 int run_cesa_debug(CESA_DEBUG *cesa_debug)
 {
@@ -164,6 +166,7 @@ int run_cesa_debug(CESA_DEBUG *cesa_debug)
 
 	return(-error);
 }
+
 
 static long
 cesadev_ioctl(
@@ -254,6 +257,7 @@ cesadev_release(struct inode *inode, struct file *filp)
 	dprintk("%s()\n", __FUNCTION__);
 	return(0);
 }
+
 
 static struct file_operations cesadev_fops = {
 	.owner = THIS_MODULE,

@@ -2889,6 +2889,7 @@ int mlx4_RTS2RTS_QP_wrapper(struct mlx4_dev *dev, int slave,
 	return mlx4_GEN_QP_wrapper(dev, slave, vhcr, inbox, outbox, cmd);
 }
 
+
 int mlx4_SQERR2RTS_QP_wrapper(struct mlx4_dev *dev, int slave,
 			      struct mlx4_vhcr *vhcr,
 			      struct mlx4_cmd_mailbox *inbox,

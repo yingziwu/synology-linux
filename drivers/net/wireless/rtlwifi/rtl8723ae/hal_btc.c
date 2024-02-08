@@ -1641,6 +1641,7 @@ static void rtl8723ae_dm_bt_bt_enable_disable_check(struct ieee80211_hw *hw)
 	}
 }
 
+
 void rtl8723ae_dm_bt_coexist_8723(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);

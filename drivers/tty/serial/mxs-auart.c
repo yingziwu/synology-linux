@@ -280,6 +280,7 @@ static void mxs_auart_tx_chars(struct mxs_auart_port *s)
 		return;
 	}
 
+
 	while (!(readl(s->port.membase + AUART_STAT) &
 		 AUART_STAT_TXFF)) {
 		if (s->port.x_char) {

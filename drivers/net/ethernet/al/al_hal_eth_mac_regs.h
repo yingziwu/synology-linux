@@ -392,6 +392,7 @@ struct al_eth_mac_regs {
 	struct al_eth_mac_gen_v3 gen_v3;                        /* [0xe00] */
 };
 
+
 /*
 * Registers Fields
 */
@@ -403,6 +404,7 @@ struct al_eth_mac_regs {
 #define AL_ETH_1G_MAC_CTRL_1G_SPD		(1 << 3)
 /* enable 10M speed */
 #define AL_ETH_1G_MAC_CTRL_10M_SPD		(1 << 25)
+
 
 /**** 10G MAC register ****/
 /* mdio_cfg_status */

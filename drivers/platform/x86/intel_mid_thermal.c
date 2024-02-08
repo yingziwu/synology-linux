@@ -182,6 +182,7 @@ static int mid_read_temp(struct thermal_zone_device *tzd, unsigned long *temp)
 	int ret;
 	unsigned long curr_temp;
 
+
 	addr = td_info->chnl_addr;
 
 	/* Enable the msic for conversion before reading */

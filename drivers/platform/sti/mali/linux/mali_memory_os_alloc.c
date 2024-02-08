@@ -280,6 +280,7 @@ void mali_mem_os_release(mali_mem_allocation *descriptor)
 	mali_mem_os_free(descriptor);
 }
 
+
 #define MALI_MEM_OS_PAGE_TABLE_PAGE_POOL_SIZE 128
 static struct {
 	struct {

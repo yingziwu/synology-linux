@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Driver core for serial ports
  *
@@ -37,10 +40,17 @@
 #include <asm/irq.h>
 #include <asm/uaccess.h>
 
+#ifdef MY_ABC_HERE
+extern int gSynoForbidConsole;
+#endif /* MY_ABC_HERE */
+
 /*
  * This is used to lock changes in serial line configuration.
  */
 static DEFINE_MUTEX(port_mutex);
+#ifdef MY_ABC_HERE
+static DEFINE_SPINLOCK(ttyS1_lock);
+#endif /* MY_ABC_HERE */
 
 /*
  * lockdep: port->lock is initialized in two places, but we
@@ -503,6 +513,19 @@ static int uart_write(struct tty_struct *tty,
 	struct circ_buf *circ;
 	unsigned long flags;
 	int c, ret = 0;
+#ifdef MY_ABC_HERE
+	extern void (*funcSYNOConsoleProhibitEvent)(void);
+	static unsigned long last_jiffies = INITIAL_JIFFIES;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	/* We need to delay 150 ms avoid micro p buffer queue overflow */
+	if (!strcmp(tty->name, "ttyS1")) {
+		spin_lock(&ttyS1_lock);
+		mdelay(150);
+		spin_unlock(&ttyS1_lock);
+	}
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * This means you called this function _after_ the port was
@@ -518,6 +541,18 @@ static int uart_write(struct tty_struct *tty,
 
 	if (!circ->buf)
 		return 0;
+
+#ifdef MY_ABC_HERE
+	if (1 == gSynoForbidConsole && !strcmp(tty->name, "ttyS0")) {
+		if (time_after(jiffies, last_jiffies + msecs_to_jiffies(3000))) {
+			if (NULL != funcSYNOConsoleProhibitEvent) {
+				funcSYNOConsoleProhibitEvent();
+			}
+			last_jiffies = jiffies;
+		}
+		return count;
+	}
+#endif /* MY_ABC_HERE */
 
 	spin_lock_irqsave(&port->lock, flags);
 	while (1) {
@@ -729,6 +764,7 @@ static int uart_set_info(struct tty_struct *tty, struct tty_port *port,
 	closing_wait = new_info->closing_wait == ASYNC_CLOSING_WAIT_NONE ?
 			ASYNC_CLOSING_WAIT_NONE :
 			msecs_to_jiffies(new_info->closing_wait * 10);
+
 
 	change_irq  = !(uport->flags & UPF_FIXED_PORT)
 		&& new_info->irq != uport->irq;
@@ -1151,6 +1187,7 @@ uart_ioctl(struct tty_struct *tty, unsigned int cmd,
 	struct tty_port *port = &state->port;
 	void __user *uarg = (void __user *)arg;
 	int ret = -ENOIOCTLCMD;
+
 
 	/*
 	 * These ioctls don't rely on the hardware to be present.
@@ -1736,6 +1773,12 @@ void uart_console_write(struct uart_port *port, const char *s,
 			void (*putchar)(struct uart_port *, int))
 {
 	unsigned int i;
+
+#ifdef MY_ABC_HERE
+	if (1 == gSynoForbidConsole) {
+		return;
+	}
+#endif /* MY_ABC_HERE */
 
 	for (i = 0; i < count; i++, s++) {
 		if (*s == '\n')
@@ -2457,6 +2500,7 @@ static ssize_t uart_get_attr_xmit_fifo_size(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d\n", tmp.xmit_fifo_size);
 }
 
+
 static ssize_t uart_get_attr_close_delay(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
@@ -2466,6 +2510,7 @@ static ssize_t uart_get_attr_close_delay(struct device *dev,
 	uart_get_info(port, &tmp);
 	return snprintf(buf, PAGE_SIZE, "%d\n", tmp.close_delay);
 }
+
 
 static ssize_t uart_get_attr_closing_wait(struct device *dev,
 	struct device_attribute *attr, char *buf)
@@ -2556,6 +2601,7 @@ static const struct attribute_group *tty_dev_attr_groups[] = {
 	&tty_dev_attr_group,
 	NULL
 	};
+
 
 /**
  *	uart_add_one_port - attach a driver-defined port structure

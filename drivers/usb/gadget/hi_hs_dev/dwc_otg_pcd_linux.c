@@ -120,6 +120,7 @@ static struct dwc_otg_pcd_ep *ep_from_handle(dwc_otg_pcd_t *pcd, void *handle)
 	if (pcd->ep0.priv == handle)
 		return &pcd->ep0;
 
+
 	for (i = 0; i < MAX_EPS_CHANNELS - 1; i++) {
 		if (pcd->in_ep[i].priv == handle)
 			return &pcd->in_ep[i];
@@ -224,6 +225,7 @@ static int ep_disable(struct usb_ep *usb_ep)
 	retval = dwc_otg_pcd_ep_disable(gadget_wrapper->pcd, usb_ep);
 	if (retval)
 		retval = -EINVAL;
+
 
 	return retval;
 }
@@ -420,6 +422,7 @@ static int ep_queue(struct usb_ep *usb_ep, struct usb_request *usb_req,
 	if (retval)
 		return -EINVAL;
 
+
 	return 0;
 }
 
@@ -441,6 +444,7 @@ static int ep_dequeue(struct usb_ep *usb_ep, struct usb_request *usb_req)
 	}
 	if (dwc_otg_pcd_ep_dequeue(gadget_wrapper->pcd, usb_ep, usb_req))
 		return -EINVAL;
+
 
 	return 0;
 }
@@ -477,6 +481,7 @@ static int ep_halt(struct usb_ep *usb_ep, int value)
 		return -EAGAIN;
 	else if (retval)
 		retval = -EINVAL;
+
 
 	return retval;
 }
@@ -521,6 +526,7 @@ static int iso_ep_start(struct usb_ep *usb_ep, struct usb_iso_request *req,
 	if (retval)
 		return -EINVAL;
 
+
 	return retval;
 }
 
@@ -533,6 +539,7 @@ static int iso_ep_stop(struct usb_ep *usb_ep, struct usb_iso_request *req)
 	if (!usb_ep)
 		DWC_WARN("bad ep\n");
 
+
 	if (!gadget_wrapper->driver ||
 	    gadget_wrapper->gadget.speed == USB_SPEED_UNKNOWN) {
 		DWC_DEBUGPL(DBG_PCDV, "gadget.speed=%d\n",
@@ -543,6 +550,7 @@ static int iso_ep_stop(struct usb_ep *usb_ep, struct usb_iso_request *req)
 	dwc_otg_pcd_iso_ep_stop(gadget_wrapper->pcd, usb_ep, req);
 	if (retval)
 		retval = -EINVAL;
+
 
 	return retval;
 }
@@ -652,6 +660,7 @@ static int get_frame_number(struct usb_gadget *gadget)
 	if (gadget == 0)
 		return -ENODEV;
 
+
 	d = container_of(gadget, struct gadget_wrapper, gadget);
 	return dwc_otg_pcd_get_frame_number(d->pcd);
 }
@@ -711,6 +720,7 @@ static int _setup(dwc_otg_pcd_t *pcd, uint8_t *bytes)
 	else if (retval < 0)
 		retval = -DWC_E_INVALID;
 
+
 	return retval;
 }
 
@@ -742,6 +752,7 @@ static int _isoc_complete(dwc_otg_pcd_t *pcd, void *ep_handle,
 		default:
 			if (status)
 				DWC_PRINTF("unknown status in isoc packet\n");
+
 
 		}
 		iso_packet[i].status = status;
@@ -883,6 +894,7 @@ static int _resume(dwc_otg_pcd_t *pcd)
 {
 	if (gadget_wrapper->driver && gadget_wrapper->driver->resume)
 		gadget_wrapper->driver->resume(&gadget_wrapper->gadget);
+
 
 	return 0;
 }
@@ -1103,6 +1115,7 @@ static struct gadget_wrapper *alloc_wrapper(struct platform_device *_dev)
 
 	dwc_otg_device_t *otg_dev = platform_get_drvdata(_dev);
 
+
 	struct gadget_wrapper *d;
 	int retval;
 
@@ -1192,6 +1205,7 @@ int pcd_init(struct platform_device *_dev)
 		free_wrapper(gadget_wrapper);
 		return -EBUSY;
 	}
+
 
 	dwc_otg_pcd_start(gadget_wrapper->pcd, &fops);
 

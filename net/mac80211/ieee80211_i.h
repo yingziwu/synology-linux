@@ -95,6 +95,7 @@ struct ieee80211_fragment_entry {
 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
 };
 
+
 struct ieee80211_bss {
 	u32 device_ts_beacon, device_ts_presp;
 
@@ -170,6 +171,7 @@ struct ieee80211_tx_data {
 
 	unsigned int flags;
 };
+
 
 typedef unsigned __bitwise__ ieee80211_rx_result;
 #define RX_CONTINUE		((__force ieee80211_rx_result) 0u)
@@ -1092,6 +1094,7 @@ struct ieee80211_local {
 #define I802_DEBUG_INC(c) do { } while (0)
 #endif /* CONFIG_MAC80211_DEBUG_COUNTERS */
 
+
 	int total_ps_buffered; /* total number of all buffered unicast and
 				* multicast packets for power saving stations
 				*/
@@ -1227,6 +1230,7 @@ static inline struct ieee80211_local *hw_to_local(
 {
 	return container_of(hw, struct ieee80211_local, hw);
 }
+
 
 static inline int ieee80211_bssid_match(const u8 *raddr, const u8 *addr)
 {

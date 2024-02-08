@@ -49,6 +49,7 @@ static const struct of_device_id mvebu_a38x_of_match_table[] = {
 	{},
 };
 
+
 int mvebu_get_soc_id(u32 *dev, u32 *rev)
 {
 	if (is_id_valid) {

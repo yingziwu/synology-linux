@@ -141,6 +141,8 @@ static struct ftdi_sio_quirk ftdi_8u2232c_quirk = {
  * but I don't know if those ever went into mass production. [Ian Abbott]
  */
 
+
+
 /*
  * Device ID not listed? Test via module params product/vendor or
  * /sys/bus/usb/ftdi_sio/new_id, then send patch/report!
@@ -1017,6 +1019,7 @@ static const char *ftdi_chip_name[] = {
 	[FTX]     = "FT-X"
 };
 
+
 /* Used for TIOCMIWAIT */
 #define FTDI_STATUS_B0_MASK	(FTDI_RS0_CTS | FTDI_RS0_DSR | FTDI_RS0_RI | FTDI_RS0_RLSD)
 #define FTDI_STATUS_B1_MASK	(FTDI_RS_BI)
@@ -1086,6 +1089,7 @@ static struct usb_serial_driver ftdi_sio_device = {
 static struct usb_serial_driver * const serial_drivers[] = {
 	&ftdi_sio_device, NULL
 };
+
 
 #define WDR_TIMEOUT 5000 /* default urb timeout */
 #define WDR_SHORT_TIMEOUT 1000	/* shorter urb timeout */
@@ -1223,6 +1227,7 @@ static int update_mctrl(struct usb_serial_port *port, unsigned int set,
 	}
 	return rv;
 }
+
 
 static __u32 get_ftdi_divisor(struct tty_struct *tty,
 						struct usb_serial_port *port)
@@ -1539,6 +1544,7 @@ static int get_lsr_info(struct usb_serial_port *port,
 	return 0;
 }
 
+
 /* Determine type of FTDI chip based on USB config and descriptor. */
 static void ftdi_determine_type(struct usb_serial_port *port)
 {
@@ -1614,6 +1620,7 @@ static void ftdi_determine_type(struct usb_serial_port *port)
 	dev_info(&udev->dev, "Detected %s\n", ftdi_chip_name[priv->chip_type]);
 }
 
+
 /* Determine the maximum packet size for the device.  This depends on the chip
  * type and the USB host capabilities.  The value should be obtained from the
  * device descriptor as the chip will use the appropriate values for the host.*/
@@ -1655,6 +1662,7 @@ static void ftdi_set_max_packet_size(struct usb_serial_port *port)
 	dev_info(&udev->dev, "Setting MaxPacketSize %d\n", priv->max_packet_size);
 }
 
+
 /*
  * ***************************************************************************
  * Sysfs Attribute
@@ -1671,6 +1679,7 @@ static ssize_t show_latency_timer(struct device *dev,
 	else
 		return sprintf(buf, "%i\n", priv->latency);
 }
+
 
 /* Write a new value of the latency timer, in units of milliseconds. */
 static ssize_t store_latency_timer(struct device *dev,
@@ -1794,6 +1803,7 @@ static int ftdi_sio_port_probe(struct usb_serial_port *port)
 	struct ftdi_private *priv;
 	struct ftdi_sio_quirk *quirk = usb_get_serial_data(port->serial);
 
+
 	priv = kzalloc(sizeof(struct ftdi_private), GFP_KERNEL);
 	if (!priv) {
 		dev_err(&port->dev, "%s- kmalloc(%Zd) failed.\n", __func__,
@@ -1802,8 +1812,6 @@ static int ftdi_sio_port_probe(struct usb_serial_port *port)
 	}
 
 	mutex_init(&priv->cfg_lock);
-
-	priv->flags = ASYNC_LOW_LATENCY;
 
 	if (quirk && quirk->port_probe)
 		quirk->port_probe(priv);
@@ -2081,6 +2089,20 @@ static int ftdi_process_packet(struct usb_serial_port *port,
 		priv->prev_status = status;
 	}
 
+	/* save if the transmitter is empty or not */
+	if (packet[1] & FTDI_RS_TEMT)
+		priv->transmit_empty = 1;
+	else
+		priv->transmit_empty = 0;
+
+	len -= 2;
+	if (!len)
+		return 0;	/* status only */
+
+	/*
+	 * Break and error status must only be processed for packets with
+	 * data payload to avoid over-reporting.
+	 */
 	flag = TTY_NORMAL;
 	if (packet[1] & FTDI_RS_ERR_MASK) {
 		/* Break takes precedence over parity, which takes precedence
@@ -2103,15 +2125,6 @@ static int ftdi_process_packet(struct usb_serial_port *port,
 		}
 	}
 
-	/* save if the transmitter is empty or not */
-	if (packet[1] & FTDI_RS_TEMT)
-		priv->transmit_empty = 1;
-	else
-		priv->transmit_empty = 0;
-
-	len -= 2;
-	if (!len)
-		return 0;	/* status only */
 	port->icount.rx += len;
 	ch = packet + 2;
 
@@ -2442,8 +2455,12 @@ static int ftdi_get_modem_status(struct usb_serial_port *port,
 			FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
 			0, priv->interface,
 			buf, len, WDR_TIMEOUT);
-	if (ret < 0) {
+
+	/* NOTE: We allow short responses and handle that below. */
+	if (ret < 1) {
 		dev_err(&port->dev, "failed to get modem status: %d\n", ret);
+		if (ret >= 0)
+			ret = -EIO;
 		ret = usb_translate_errors(ret);
 		goto out;
 	}
@@ -2539,6 +2556,7 @@ static void __exit ftdi_exit(void)
 {
 	usb_serial_deregister_drivers(serial_drivers);
 }
+
 
 module_init(ftdi_init);
 module_exit(ftdi_exit);

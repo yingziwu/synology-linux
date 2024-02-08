@@ -15,6 +15,7 @@
 /* This file is machine-generated; DO NOT EDIT! */
 #include "gxio/iorpc_mpipe_info.h"
 
+
 struct enumerate_aux_param {
 	_gxio_mpipe_link_name_t name;
 	_gxio_mpipe_link_mac_t mac;

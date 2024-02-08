@@ -1,7 +1,14 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
 #include <linux/clk.h>
 #include <linux/cpufreq.h>
 #include <linux/delay.h>
@@ -10,9 +17,9 @@
 #include <linux/of.h>
 #if defined(MY_ABC_HERE)
 #include <linux/pm_opp.h>
-#else  
+#else /* MY_ABC_HERE */
 #include <linux/opp.h>
-#endif  
+#endif /* MY_ABC_HERE */
 #include <linux/platform_device.h>
 #include <linux/regulator/consumer.h>
 
@@ -50,9 +57,9 @@ static int imx6q_set_target(struct cpufreq_policy *policy,
 	struct cpufreq_freqs freqs;
 #if defined(MY_ABC_HERE)
 	struct dev_pm_opp *opp;
-#else  
+#else /* MY_ABC_HERE */
 	struct opp *opp;
-#endif  
+#endif /* MY_ABC_HERE */
 	unsigned long freq_hz, volt, volt_old;
 	unsigned int index;
 	int ret;
@@ -77,9 +84,9 @@ static int imx6q_set_target(struct cpufreq_policy *policy,
 	rcu_read_lock();
 #if defined(MY_ABC_HERE)
 	opp = dev_pm_opp_find_freq_ceil(cpu_dev, &freq_hz);
-#else  
+#else /* MY_ABC_HERE */
 	opp = opp_find_freq_ceil(cpu_dev, &freq_hz);
-#endif  
+#endif /* MY_ABC_HERE */
 	if (IS_ERR(opp)) {
 		rcu_read_unlock();
 		dev_err(cpu_dev, "failed to find OPP for %ld\n", freq_hz);
@@ -88,9 +95,9 @@ static int imx6q_set_target(struct cpufreq_policy *policy,
 
 #if defined(MY_ABC_HERE)
 	volt = dev_pm_opp_get_voltage(opp);
-#else  
+#else /* MY_ABC_HERE */
 	volt = opp_get_voltage(opp);
-#endif  
+#endif /* MY_ABC_HERE */
 	rcu_read_unlock();
 	volt_old = regulator_get_voltage(arm_reg);
 
@@ -98,6 +105,7 @@ static int imx6q_set_target(struct cpufreq_policy *policy,
 		freqs.old / 1000, volt_old / 1000,
 		freqs.new / 1000, volt / 1000);
 
+	/* scaling up?  scale voltage before frequency */
 	if (freqs.new > freqs.old) {
 		ret = regulator_set_voltage_tol(arm_reg, volt, 0);
 		if (ret) {
@@ -106,6 +114,10 @@ static int imx6q_set_target(struct cpufreq_policy *policy,
 			return ret;
 		}
 
+		/*
+		 * Need to increase vddpu and vddsoc for safety
+		 * if we are about to run at 1.2 GHz.
+		 */
 		if (freqs.new == FREQ_1P2_GHZ / 1000) {
 			regulator_set_voltage_tol(pu_reg,
 					PU_SOC_VOLTAGE_HIGH, 0);
@@ -114,12 +126,25 @@ static int imx6q_set_target(struct cpufreq_policy *policy,
 		}
 	}
 
+	/*
+	 * The setpoints are selected per PLL/PDF frequencies, so we need to
+	 * reprogram PLL for frequency scaling.  The procedure of reprogramming
+	 * PLL1 is as below.
+	 *
+	 *  - Enable pll2_pfd2_396m_clk and reparent pll1_sw_clk to it
+	 *  - Reprogram pll1_sys_clk and reparent pll1_sw_clk back to it
+	 *  - Disable pll2_pfd2_396m_clk
+	 */
 	clk_prepare_enable(pll2_pfd2_396m_clk);
 	clk_set_parent(step_clk, pll2_pfd2_396m_clk);
 	clk_set_parent(pll1_sw_clk, step_clk);
 	if (freq_hz > clk_get_rate(pll2_pfd2_396m_clk)) {
 		clk_set_rate(pll1_sys_clk, freqs.new * 1000);
-		 
+		/*
+		 * If we are leaving 396 MHz set-point, we need to enable
+		 * pll1_sys_clk and disable pll2_pfd2_396m_clk to keep
+		 * their use count correct.
+		 */
 		if (freqs.old * 1000 <= clk_get_rate(pll2_pfd2_396m_clk)) {
 			clk_prepare_enable(pll1_sys_clk);
 			clk_disable_unprepare(pll2_pfd2_396m_clk);
@@ -127,10 +152,14 @@ static int imx6q_set_target(struct cpufreq_policy *policy,
 		clk_set_parent(pll1_sw_clk, pll1_sys_clk);
 		clk_disable_unprepare(pll2_pfd2_396m_clk);
 	} else {
-		 
+		/*
+		 * Disable pll1_sys_clk if pll2_pfd2_396m_clk is sufficient
+		 * to provide the frequency.
+		 */
 		clk_disable_unprepare(pll1_sys_clk);
 	}
 
+	/* Ensure the arm clock divider is what we expect */
 	ret = clk_set_rate(arm_clk, freqs.new * 1000);
 	if (ret) {
 		dev_err(cpu_dev, "failed to set clock rate: %d\n", ret);
@@ -138,6 +167,7 @@ static int imx6q_set_target(struct cpufreq_policy *policy,
 		return ret;
 	}
 
+	/* scaling down?  scale voltage after frequency */
 	if (freqs.new < freqs.old) {
 		ret = regulator_set_voltage_tol(arm_reg, volt, 0);
 		if (ret)
@@ -201,9 +231,9 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 	struct device_node *np;
 #if defined(MY_ABC_HERE)
 	struct dev_pm_opp *opp;
-#else  
+#else /* MY_ABC_HERE */
 	struct opp *opp;
-#endif  
+#endif /* MY_ABC_HERE */
 	unsigned long min_volt, max_volt;
 	int num, ret;
 
@@ -238,11 +268,12 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 		goto put_node;
 	}
 
+	/* We expect an OPP table supplied by platform */
 #if defined(MY_ABC_HERE)
 	num = dev_pm_opp_get_opp_count(cpu_dev);
-#else  
+#else /* MY_ABC_HERE */
 	num = opp_get_opp_count(cpu_dev);
-#endif  
+#endif /* MY_ABC_HERE */
 	if (num < 0) {
 		ret = num;
 		dev_err(cpu_dev, "no OPP table is found: %d\n", ret);
@@ -251,9 +282,9 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 
 #if defined(MY_ABC_HERE)
 	ret = dev_pm_opp_init_cpufreq_table(cpu_dev, &freq_table);
-#else  
+#else /* MY_ABC_HERE */
 	ret = opp_init_cpufreq_table(cpu_dev, &freq_table);
-#endif  
+#endif /* MY_ABC_HERE */
 	if (ret) {
 		dev_err(cpu_dev, "failed to init cpufreq table: %d\n", ret);
 		goto put_node;
@@ -262,6 +293,11 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 	if (of_property_read_u32(np, "clock-latency", &transition_latency))
 		transition_latency = CPUFREQ_ETERNAL;
 
+	/*
+	 * OPP is maintained in order of increasing frequency, and
+	 * freq_table initialised from OPP is therefore sorted in the
+	 * same order.
+	 */
 	rcu_read_lock();
 #if defined(MY_ABC_HERE)
 	opp = dev_pm_opp_find_freq_exact(cpu_dev,
@@ -270,19 +306,20 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 	opp = dev_pm_opp_find_freq_exact(cpu_dev,
 				  freq_table[--num].frequency * 1000, true);
 	max_volt = dev_pm_opp_get_voltage(opp);
-#else  
+#else /* MY_ABC_HERE */
 	opp = opp_find_freq_exact(cpu_dev,
 				  freq_table[0].frequency * 1000, true);
 	min_volt = opp_get_voltage(opp);
 	opp = opp_find_freq_exact(cpu_dev,
 				  freq_table[--num].frequency * 1000, true);
 	max_volt = opp_get_voltage(opp);
-#endif  
+#endif /* MY_ABC_HERE */
 	rcu_read_unlock();
 	ret = regulator_set_voltage_time(arm_reg, min_volt, max_volt);
 	if (ret > 0)
 		transition_latency += ret * 1000;
 
+	/* Count vddpu and vddsoc latency in for 1.2 GHz support */
 	if (freq_table[num].frequency == FREQ_1P2_GHZ / 1000) {
 		ret = regulator_set_voltage_time(pu_reg, PU_SOC_VOLTAGE_NORMAL,
 						 PU_SOC_VOLTAGE_HIGH);
@@ -306,9 +343,9 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 free_freq_table:
 #if defined(MY_ABC_HERE)
 	dev_pm_opp_free_cpufreq_table(cpu_dev, &freq_table);
-#else  
+#else /* MY_ABC_HERE */
 	opp_free_cpufreq_table(cpu_dev, &freq_table);
-#endif  
+#endif /* MY_ABC_HERE */
 put_node:
 	of_node_put(np);
 	return ret;
@@ -319,9 +356,9 @@ static int imx6q_cpufreq_remove(struct platform_device *pdev)
 	cpufreq_unregister_driver(&imx6q_cpufreq_driver);
 #if defined(MY_ABC_HERE)
 	dev_pm_opp_free_cpufreq_table(cpu_dev, &freq_table);
-#else  
+#else /* MY_ABC_HERE */
 	opp_free_cpufreq_table(cpu_dev, &freq_table);
-#endif  
+#endif /* MY_ABC_HERE */
 
 	return 0;
 }

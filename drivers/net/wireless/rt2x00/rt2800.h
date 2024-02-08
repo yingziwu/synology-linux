@@ -117,6 +117,7 @@
  * Registers.
  */
 
+
 /*
  * MAC_CSR0_3290: MAC_CSR0 for RT3290 to identity MAC version number.
  */
@@ -239,6 +240,7 @@
 #define PLL_PFD_DELAY_CTRL	FIELD32(0x0c000000)
 #define PLL_LOCK_CTRL		FIELD32(0x70000000)
 #define PLL_VBGBK_EN		FIELD32(0x80000000)
+
 
 /*
  * WLAN_CTRL_CFG
@@ -2618,6 +2620,7 @@ struct mac_iveiv_entry {
 #define TOKEN_SLEEP			1
 #define TOKEN_RADIO_OFF			2
 #define TOKEN_WAKEUP			3
+
 
 /*
  * DMA descriptor defines.

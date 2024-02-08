@@ -71,6 +71,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gbe/mvPp2Gbe.h"
 #include "mvPp2PlcrHw.h"
 
+
 void        mvPp2PlcrHwRegs(void)
 {
 	int    i;
@@ -139,6 +140,7 @@ static void        mvPp2PlcrHwDump(int plcr)
 
 	mvPp2WrReg(MV_PP2_PLCR_TABLE_INDEX_REG, plcr);
 	mvOsPrintf("%3d:  ", plcr);
+
 
 	regVal = mvPp2RdReg(MV_PP2_PLCR_TOKEN_CFG_REG);
 	units = regVal & MV_PP2_PLCR_TOKEN_UNIT_MASK;
@@ -307,6 +309,7 @@ MV_STATUS   mvPp2PlcrHwColorModeSet(int plcr, int enable)
 
 	return MV_OK;
 }
+
 
 MV_STATUS   mvPp2PlcrHwBucketSizeSet(int plcr, int commit, int excess)
 {

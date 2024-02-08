@@ -2015,6 +2015,7 @@ lpfc_idiag_queinfo_read(struct file *file, char __user *buf, size_t nbytes,
 	int max_cnt;
 	struct lpfc_queue *qp = NULL;
 
+
 	if (!debug->buffer)
 		debug->buffer = kmalloc(LPFC_QUE_INFO_GET_BUF_SIZE, GFP_KERNEL);
 	if (!debug->buffer)
@@ -2057,6 +2058,7 @@ lpfc_idiag_queinfo_read(struct file *file, char __user *buf, size_t nbytes,
 				qp->host_index,
 				qp->hba_index);
 
+
 			/* Reset max counter */
 			qp->EQ_max_eqe = 0;
 
@@ -2086,6 +2088,7 @@ proc_cq:
 				qp->queue_id, qp->entry_count,
 				qp->entry_size, qp->host_index,
 				qp->hba_index);
+
 
 			/* Reset max counter */
 			qp->CQ_max_cqe = 0;

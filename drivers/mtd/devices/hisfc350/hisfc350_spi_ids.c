@@ -320,6 +320,7 @@ static struct spi_driver spi_driver_micron = {
 	.qe_enable = spi_do_not_qe_enable,
 };
 
+
 /*****************************************************************************/
 struct spi_info spi_info_table[] = {
 	/* name		id	id_len	chipsize(Bytes)	erasesize */

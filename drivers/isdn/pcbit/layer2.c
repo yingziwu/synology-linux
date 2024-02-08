@@ -38,11 +38,13 @@
 
 #include <asm/io.h>
 
+
 #include "pcbit.h"
 #include "layer2.h"
 #include "edss1.h"
 
 #undef DEBUG_FRAG
+
 
 /*
  *  Prototypes
@@ -63,6 +65,7 @@ pcbit_sched_delivery(struct pcbit_dev *dev)
 {
 	schedule_work(&dev->qdelivery);
 }
+
 
 /*
  *  Called from layer3
@@ -163,6 +166,7 @@ pcbit_transmit(struct pcbit_dev *dev)
 			return;
 		}
 
+
 		frame = dev->write_queue;
 		free = dev->free;
 
@@ -199,6 +203,7 @@ pcbit_transmit(struct pcbit_dev *dev)
 
 			/* TD */
 			pcbit_writew(dev, frame->dt_len);
+
 
 			/*
 			 *  Board level 3 fixed-header
@@ -269,6 +274,7 @@ pcbit_transmit(struct pcbit_dev *dev)
 #endif
 	}
 }
+
 
 /*
  *  deliver a queued frame to the upper layer
@@ -354,6 +360,7 @@ pcbit_receive(struct pcbit_dev *dev)
 
 		cpu = pcbit_readb(dev);
 		proc = pcbit_readb(dev);
+
 
 		if (cpu != 0x06 && cpu != 0x02) {
 			printk(KERN_DEBUG "pcbit: invalid cpu value\n");
@@ -547,6 +554,7 @@ pcbit_irq_handler(int interrupt, void *devptr)
 	return IRQ_HANDLED;
 }
 
+
 static void
 pcbit_l2_active_conf(struct pcbit_dev *dev, u_char info)
 {
@@ -557,6 +565,7 @@ pcbit_l2_active_conf(struct pcbit_dev *dev, u_char info)
 #ifdef DEBUG
 	printk(KERN_DEBUG "layer2_active_confirm\n");
 #endif
+
 
 	if (info & 0x80U) {
 		dev->rcv_seq = info & 0x07U;
@@ -680,6 +689,7 @@ pcbit_recv_ack(struct pcbit_dev *dev, unsigned char ack)
 			}
 		}
 		/* ack is acceptable */
+
 
 		i = dev->unack_seq;
 

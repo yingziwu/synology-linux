@@ -196,3 +196,4 @@
 #define FMC_CLK_SEL_150M	FMC_CRG29_CLK_SEL(CLK_150M)
 
 #endif /* End of __HI_CHIP_REGS_H__ */
+

@@ -553,6 +553,7 @@ enum mac80211_rate_control_flags {
 	IEEE80211_TX_RC_160_MHZ_WIDTH		= BIT(10),
 };
 
+
 /* there are 40 bytes if you don't need the rateset to be kept */
 #define IEEE80211_TX_INFO_DRIVER_DATA_SIZE 40
 
@@ -754,6 +755,7 @@ ieee80211_tx_info_clear_status(struct ieee80211_tx_info *info)
 	       offsetof(struct ieee80211_tx_info, status.ampdu_ack_len));
 }
 
+
 /**
  * enum mac80211_rx_flags - receive flags
  *
@@ -914,6 +916,7 @@ enum ieee80211_conf_flags {
 	IEEE80211_CONF_IDLE		= (1<<2),
 	IEEE80211_CONF_OFFCHANNEL	= (1<<3),
 };
+
 
 /**
  * enum ieee80211_conf_changed - denotes which configuration changed
@@ -4233,6 +4236,7 @@ static inline int rate_supported(struct ieee80211_sta *sta,
 bool rate_control_send_low(struct ieee80211_sta *sta,
 			   void *priv_sta,
 			   struct ieee80211_tx_rate_control *txrc);
+
 
 static inline s8
 rate_lowest_index(struct ieee80211_supported_band *sband,

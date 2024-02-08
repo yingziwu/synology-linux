@@ -179,3 +179,4 @@ static int __init s3c2442_dma_drvinit(void)
 
 arch_initcall(s3c2442_dma_drvinit);
 #endif
+

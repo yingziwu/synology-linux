@@ -54,6 +54,7 @@
 #define ASC_STA_TX_FULL         (1<<9)
 #define ASC_STA_TX_EMPTY        (1<<1)
 
+
 		.macro	addruart, rp, rv, tmp
 		ldr	\rp,      =DEBUG_LL_UART_BASE	@ physical base
 		ldr	\rv,      =VIRT_ADDRESS(DEBUG_LL_UART_BASE) @ virt base

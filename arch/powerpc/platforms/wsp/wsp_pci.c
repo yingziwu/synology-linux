@@ -33,6 +33,7 @@
 #include "wsp_pci.h"
 #include "msi.h"
 
+
 /* Max number of TVTs for one table. Only 32-bit tables can use
  * multiple TVTs and so the max currently supported is thus 8
  * since only 2G of DMA space is supported
@@ -102,6 +103,7 @@ static LIST_HEAD(wsp_phbs);
 
 //#define cfg_debug(fmt...)	pr_debug(fmt)
 #define cfg_debug(fmt...)
+
 
 static int wsp_pcie_read_config(struct pci_bus *bus, unsigned int devfn,
 				  int offset, int len, u32 *val)
@@ -622,6 +624,7 @@ static void wsp_pci_##name at					\
 
 #define DEF_PCI_AC_NORET(name, at, al, space, aa)		\
 	DEF_PCI_AC_NORET_##space(name, at, al, aa)		\
+
 
 #include <asm/io-defs.h>
 

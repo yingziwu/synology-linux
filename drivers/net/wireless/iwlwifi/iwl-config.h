@@ -66,6 +66,7 @@
 #include <linux/types.h>
 #include <net/mac80211.h>
 
+
 enum iwl_device_family {
 	IWL_DEVICE_FAMILY_UNDEFINED,
 	IWL_DEVICE_FAMILY_1000,
@@ -127,6 +128,7 @@ enum iwl_led_mode {
 #define	ANT_AC		(ANT_A | ANT_C)
 #define ANT_BC		(ANT_B | ANT_C)
 #define ANT_ABC		(ANT_A | ANT_B | ANT_C)
+
 
 /*
  * @max_ll_items: max number of OTP blocks

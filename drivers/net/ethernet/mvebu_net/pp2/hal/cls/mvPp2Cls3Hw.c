@@ -219,6 +219,7 @@ int mvPp2ClsC3HwAdd(MV_PP2_CLS_C3_ENTRY *c3, int index, int ext_index)
 	int regStartInd, hekSize, iter = 0;
 	unsigned int regVal = 0;
 
+
 	PTR_VALIDATE(c3);
 	POS_RANGE_VALIDATE(index, MV_PP2_CLS3_HASH_OP_TBL_ADDR_MAX);
 
@@ -243,6 +244,7 @@ int mvPp2ClsC3HwAdd(MV_PP2_CLS_C3_ENTRY *c3, int index, int ext_index)
 
 	for (; regStartInd < MV_PP2_CLS_C3_EXT_HEK_WORDS; regStartInd++)
 		mvPp2WrReg(MV_PP2_CLS3_KEY_HEK_REG(regStartInd), c3->key.hek.words[regStartInd]);
+
 
 	regVal |= (index << MV_PP2_CLS3_HASH_OP_TBL_ADDR);
 	regVal &= ~MV_PP2_CLS3_MISS_PTR_MASK; /*set miss bit to 0, ppv2.1 mas 3.16*/
@@ -269,6 +271,7 @@ int mvPp2ClsC3HwAdd(MV_PP2_CLS_C3_ENTRY *c3, int index, int ext_index)
 	mvPp2WrReg(MV_PP2_CLS3_ACT_SEQ_H_ATTR_REG, c3->sram.regs.seq_h_attr);
 	/* set entry as valid, extesion pointer in use only if size > 12*/
 	mvPp2ClsC3ShadowSet(hekSize, index, ext_index);
+
 
 	return MV_OK;
 }
@@ -319,6 +322,7 @@ int mvPp2ClsC3HwDel(int index)
 	regVal |= (1 << MV_PP2_CLS3_HASH_OP_DEL);
 	regVal &= ~MV_PP2_CLS3_MISS_PTR_MASK;/*set miss bit to 1, ppv2.1 mas 3.16*/
 
+
 	/*trigger del operation*/
 	mvPp2WrReg(MV_PP2_CLS3_HASH_OP_REG, regVal);
 
@@ -365,6 +369,7 @@ static int mvPp2ClsC3HwQueryAddRelocate(int new_idx, int max_depth, int cur_dept
 
 	if (cur_depth >= max_depth)
 		return MV_CLS3_RETRIES_EXCEEDED;
+
 
 	mvPp2ClsC3SwClear(&local_c3);
 
@@ -442,6 +447,7 @@ static int mvPp2ClsC3HwQueryAddRelocate(int new_idx, int max_depth, int cur_dept
 
 	return MV_OK;
 }
+
 
 /*-------------------------------------------------------------------------------*/
 int mvPp2ClsC3HwQueryAdd(MV_PP2_CLS_C3_ENTRY *c3, int max_search_depth, MV_PP2_CLS3_HASH_PAIR *hash_pair_arr)
@@ -644,6 +650,7 @@ int mvPp2ClsC3HwRead(MV_PP2_CLS_C3_ENTRY *c3, int index)
 		for (i = 0; i < MV_PP2_CLS3_HASH_EXT_DATA_REG_NUM; i++)
 			hashExtData[i] = mvPp2RdReg(MV_PP2_CLS3_HASH_EXT_DATA_REG(i));
 
+
 		/* heks bytes 35 - 32 */
 		c3->key.hek.words[8] = ((hashData[2] & 0x00FFFFFF) << 8) | ((hashData[1] & 0xFF000000) >> 24);
 
@@ -672,6 +679,7 @@ int mvPp2ClsC3HwRead(MV_PP2_CLS_C3_ENTRY *c3, int index)
 
 		c3->key.key_ctrl |= ((((hashData[2] & 0xf8000000) >> 27) |
 					((hashData[3] & 0x1) << 5)) << KEY_CTRL_LKP_TYPE);
+
 
 		c3->key.key_ctrl |= (((hashData[2] & KEY_L4_INFO_MASK(isExt)) >>
 					(KEY_L4_INFO(isExt) % DWORD_BITS_LEN)) << KEY_CTRL_L4);
@@ -807,6 +815,7 @@ static int mvPp2ClsC3SwActDump(MV_PP2_CLS_C3_ENTRY *c3)
 	mvOsPrintf("SEQ_ATTR: HIGH[32:37] LOW[0:31]\n");
 	mvOsPrintf("          0x%2.2x        0x%8.8x", c3->sram.regs.seq_h_attr, c3->sram.regs.seq_l_attr);
 
+
 	mvOsPrintf("\n\n");
 
 	return MV_OK;
@@ -852,6 +861,7 @@ int mvPp2ClsC3HwMissDump()
 
 	return MV_OK;
 }
+
 
 /*-------------------------------------------------------------------------------*/
 int mvPp2ClsC3HwExtDump()
@@ -946,6 +956,7 @@ int mvPp2ClsC3SwHekWordSet(MV_PP2_CLS_C3_ENTRY *c3, unsigned int offs, unsigned 
 	return MV_OK;
 }
 
+
 /*-------------------------------------------------------------------------------*/
 /*		APIs for Classification C3 action table fields		   	 */
 /*-------------------------------------------------------------------------------*/
@@ -964,6 +975,7 @@ int mvPp2ClsC3ColorSet(MV_PP2_CLS_C3_ENTRY *c3, int cmd)
 int mvPp2ClsC3QueueHighSet(MV_PP2_CLS_C3_ENTRY *c3, int cmd, int queue)
 {
 	PTR_VALIDATE(c3);
+
 
 	POS_RANGE_VALIDATE(cmd, UPDATE_AND_LOCK);
 	POS_RANGE_VALIDATE(queue, ACT_QOS_ATTR_MDF_HIGH_Q_MAX);
@@ -1084,6 +1096,7 @@ int mvPp2ClsC3ModSet(MV_PP2_CLS_C3_ENTRY *c3, int data_ptr, int instr_offs, int 
 
 	return MV_OK;
 }
+
 
 /*-------------------------------------------------------------------------------*/
 /*
@@ -1228,6 +1241,7 @@ int mvPp2ClsC3HitCntrsMissRead(int lkp_type, MV_U32 *cntr)
 
 	POS_RANGE_VALIDATE(lkp_type, MV_PP2_CLS_C3_MISS_TBL_SIZE - 1);
 
+
 	/*set miss bit to 1, ppv2.1 mas 3.16*/
 	index = (lkp_type | MV_PP2_CLS3_DB_MISS_MASK);
 
@@ -1303,6 +1317,7 @@ int mvPp2ClsC3ScanRegs()
 
 	prop = mvPp2RdReg(MV_PP2_CLS3_SC_PROP_REG);
 	propVal = mvPp2RdReg(MV_PP2_CLS3_SC_PROP_VAL_REG);
+
 
 	mvOsPrintf("%-32s: 0x%x = 0x%08x\n", "MV_PP2_CLS3_SC_PROP_REG", MV_PP2_CLS3_SC_PROP_REG, prop);
 	mvOsPrintf("%-32s: 0x%x = 0x%08x\n", "MV_PP2_CLS3_SC_PROP_VAL_REG", MV_PP2_CLS3_SC_PROP_VAL_REG, propVal);

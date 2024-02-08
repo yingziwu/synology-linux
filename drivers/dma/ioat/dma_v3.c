@@ -786,6 +786,7 @@ static void ioat3_timer_event(unsigned long data)
 		mod_timer(&chan->timer, jiffies + COMPLETION_TIMEOUT);
 	}
 
+
 	if (ioat2_ring_active(ioat))
 		mod_timer(&chan->timer, jiffies + COMPLETION_TIMEOUT);
 	else {
@@ -1149,6 +1150,7 @@ __ioat3_prep_pq_lock(struct dma_chan *c, enum sum_check_flags *result,
 		hw->size = NULL_DESC_BUFFER_SIZE;
 		dump_desc_dbg(ioat, compl_desc);
 	}
+
 
 	/* we leave the channel locked to ensure in order submission */
 	return &compl_desc->txd;
@@ -1935,6 +1937,7 @@ int ioat3_dma_probe(struct ioatdma_device *device, int dca)
 		dma_cap_set(DMA_MEMSET, dma->cap_mask);
 		dma->device_prep_dma_memset = ioat3_prep_memset_lock;
 	}
+
 
 	dma->device_tx_status = ioat3_tx_status;
 	device->cleanup_fn = ioat3_cleanup_event;

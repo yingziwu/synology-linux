@@ -158,6 +158,7 @@ static CsrResult _find_in_slut(card_t *card, symbol_t *psym, u32 *pslut)
     return r;
 }
 
+
 /*
  * ---------------------------------------------------------------------------
  *  do_patch_convert_download
@@ -289,6 +290,7 @@ static CsrResult do_patch_convert_download(card_t *card, void *dlpriv, xbv1_t *p
     }
 }
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_dl_firmware
@@ -365,6 +367,7 @@ CsrResult unifi_dl_firmware(card_t *card, void *dlpriv)
     kfree(fwinfo);
     return r;
 } /* unifi_dl_firmware() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -446,6 +449,7 @@ CsrResult unifi_dl_patch(card_t *card, void *dlpriv, u32 boot_ctrl)
     return r;
 } /* unifi_dl_patch() */
 
+
 void* unifi_dl_fw_read_start(card_t *card, s8 is_fw)
 {
     card_info_t card_info;
@@ -459,6 +463,7 @@ void* unifi_dl_fw_read_start(card_t *card, s8 is_fw)
 
     return unifi_fw_read_start(card->ospriv, is_fw, &card_info);
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -511,6 +516,7 @@ static CsrResult safe_read_shared_location(card_t *card, u32 address, u8 *pdata)
 
     return CSR_RESULT_FAILURE;
 } /* safe_read_shared_location() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -607,6 +613,7 @@ CsrResult unifi_do_loader_op(card_t *card, u32 op_addr, u8 opcode)
 
     return r;
 }     /* unifi_do_loader_op() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -709,6 +716,7 @@ static CsrResult send_ptdl_to_unifi(card_t *card, void *dlpriv,
     return r;
 } /* send_ptdl_to_unifi() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  do_patch_download
@@ -807,3 +815,5 @@ static CsrResult do_patch_download(card_t *card, void *dlpriv, xbv1_t *pfwinfo, 
 
     return CSR_RESULT_SUCCESS;
 } /* do_patch_download() */
+
+

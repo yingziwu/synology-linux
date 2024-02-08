@@ -264,6 +264,7 @@ static void __cpuinit intel_workarounds(struct cpuinfo_x86 *c)
 	    (c->x86_mask < 0x6 || c->x86_mask == 0xb))
 		set_cpu_cap(c, X86_FEATURE_11AP);
 
+
 #ifdef CONFIG_X86_INTEL_USERCOPY
 	/*
 	 * Set up the preferred alignment for movsl bulk memory moves
@@ -738,3 +739,4 @@ static const struct cpu_dev __cpuinitconst intel_cpu_dev = {
 };
 
 cpu_dev_register(intel_cpu_dev);
+

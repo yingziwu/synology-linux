@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -172,6 +173,7 @@ static struct attribute_group mv_pp2_hwf_group = {
 	.name = "hwf",
 	.attrs = mv_pp2_hwf_attrs,
 };
+
 
 int mv_pp2_gbe_hwf_sysfs_init(struct kobject *gbe_kobj)
 {

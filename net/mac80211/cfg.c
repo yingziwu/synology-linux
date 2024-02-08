@@ -633,6 +633,7 @@ static void ieee80211_get_et_stats(struct wiphy *wiphy,
 
 		data[i++] = sta->sta_state;
 
+
 		if (sinfo.filled & STATION_INFO_TX_BITRATE)
 			data[i] = 100000 *
 				cfg80211_calculate_bitrate(&sinfo.txrate);

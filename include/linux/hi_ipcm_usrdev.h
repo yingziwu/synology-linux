@@ -68,6 +68,7 @@ struct hi_ipcm_handle_attr {
 #define HI_IPCM_IOC_ATTR_INIT \
 	_IOW(HI_IOC_IPCM_BASE, 6, struct hi_ipcm_handle_attr)
 
+
 /* Bind a handle to a port */
 #define HI_IPCM_IOC_SETOPTION  \
 	_IOW(HI_IOC_IPCM_BASE, 3, unsigned int)

@@ -38,6 +38,8 @@
 #define ARM_SMMU_GR0_SMR(n)		(0x800 + ((n) << 2))
 #define ARM_SMMU_GR0_S2CR(n)            (0xc00 + ((n) << 2))
 
+
+
 /* Global Register Space 1 */
 #define ARM_SMMU_GR1_CBAR(n)            (0x0 + ((n) << 2))
 #define ARM_SMMU_GR1_CBFRSYNRA(n)	(0x400 + ((n) << 2))
@@ -81,6 +83,7 @@
 #define CBA2R_RW64_32BIT                (0 << 0)
 #define CBA2R_RW64_64BIT                (1 << 0)
 
+
 /* Context Bank registers */
 #define ARM_SMMU_CB_SCTLR		0x0
 #define ARM_SMMU_CB_ACTLR		0x4
@@ -114,6 +117,7 @@
 #define ARM_SMMU_CB_TLBIVAAL_H		0x62c
 #define ARM_SMMU_CB_TLBSYNC		0x7f0
 #define ARM_SMMU_CB_TLBSTATUS		0x7f4
+
 
 #define TTBCR2_SEP_SHIFT                15
 #define ARM_SMMU_CB_TTBCR               0x30

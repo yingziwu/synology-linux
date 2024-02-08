@@ -134,6 +134,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NFC_CMD_BUFF_ADDR		(NFC_COMMAND_BUFF_0_REG_4PDMA)
 #define NFC_DATA_BUFF_ADDR		(NFC_DATA_BUFF_REG_4PDMA)
 
+
 #define TIMING_MAX_tADL		0x1f
 #define TIMING_DEF_SEL_CNTR	0x1
 #define TIMING_MAX_RD_CNT_DEL	0x0
@@ -170,6 +171,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 				 (TIMING_MAX_tWHR << 4) | \
 				 (TIMING_MAX_tAR))
 
+
 /**********/
 /* Macros */
 /**********/
@@ -188,6 +190,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DBGPRINT(x)	printk(x)
 #define DBGLVL		KERN_INFO
 
+
+
 #ifndef MV_NAND_REG_BIT_SET
 #define MV_NAND_REG_BIT_SET	MV_REG_BIT_SET
 #endif
@@ -202,6 +206,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MV_NAND_REG_READ
 #define MV_NAND_REG_READ	MV_REG_READ
 #endif
+
 
 /***********/
 /* Typedef */
@@ -2702,6 +2707,7 @@ static MV_STATUS mvNfcDeviceModeSet(MV_NFC_CTRL *nfcCtrl, MV_NFC_ONFI_MODE mode)
 	return MV_OK;
 }
 
+
 MV_STATUS mvNfcReset(void)
 {
 	MV_U32 reg;
@@ -3053,6 +3059,7 @@ MV_U32 mvNfcBadBlockPageNumber(MV_NFC_CTRL *nfcCtrl)
 {
 	return flashDeviceInfo[nfcCtrl->flashIdx].bb_page;
 }
+
 
 /*******************************************************************************/
 #ifdef MV_CPU_LE

@@ -162,6 +162,7 @@ _mali_osk_errcode_t _mali_ukk_attach_ump_mem(_mali_uk_attach_ump_mem_s *args)
 
 	_mali_osk_mutex_signal(session->memory_lock);
 
+
 	if (_MALI_OSK_ERR_OK != mali_descriptor_mapping_allocate_mapping(session->descriptor_mapping, descriptor, &md)) {
 		ump_dd_reference_release(ump_mem);
 		mali_mem_descriptor_destroy(descriptor);

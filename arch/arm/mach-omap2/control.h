@@ -389,6 +389,7 @@
 #define		FEAT_NEON		0
 #define		FEAT_NEON_NONE		1
 
+
 #ifndef __ASSEMBLY__
 #ifdef CONFIG_ARCH_OMAP2PLUS
 extern void __iomem *omap_ctrl_base_get(void);
@@ -430,3 +431,4 @@ extern void omap2_set_globals_control(void __iomem *ctrl,
 #endif	/* __ASSEMBLY__ */
 
 #endif /* __ARCH_ARM_MACH_OMAP2_CONTROL_H */
+

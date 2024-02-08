@@ -691,6 +691,7 @@ static int skl_calc_wrpll_link(struct drm_i915_private *dev_priv,
 	else
 		p1 = 1;
 
+
 	switch (p0) {
 	case DPLL_CFGCR2_PDIV_1:
 		p0 = 1;
@@ -728,6 +729,7 @@ static int skl_calc_wrpll_link(struct drm_i915_private *dev_priv,
 
 	return dco_freq / (p0 * p1 * p2 * 5);
 }
+
 
 static void skl_ddi_clock_get(struct intel_encoder *encoder,
 				struct intel_crtc_config *pipe_config)
@@ -1084,6 +1086,7 @@ found:
 
 	}
 }
+
 
 static bool
 skl_ddi_pll_select(struct intel_crtc *intel_crtc,

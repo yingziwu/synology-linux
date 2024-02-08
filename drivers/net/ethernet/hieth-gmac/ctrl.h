@@ -98,6 +98,7 @@
 #define RX_FQ_ALFULL_TH			0x051c
 #define BITS_RX_FQ_ALFULL_TH		MK_BITS(0, 16)
 
+
 #define RX_BQ_START_ADDR		0x0520
 #define RX_BQ_DEPTH			0x0524
 #define BITS_RX_BQ_DEPTH		MK_BITS(0, 19)

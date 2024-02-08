@@ -1,7 +1,82 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*******************************************************************************
+   Copyright (C) Marvell International Ltd. and its affiliates
+
+   This software file (the "File") is owned and distributed by Marvell
+   International Ltd. and/or its affiliates ("Marvell") under the following
+   alternative licensing terms.  Once you have made an election to distribute the
+   File under one of the following license alternatives, please (i) delete this
+   introductory statement regarding license alternatives, (ii) delete the two
+   license alternatives that you have not elected to use and (iii) preserve the
+   Marvell copyright notice above.
+
+********************************************************************************
+   Marvell Commercial License Option
+
+   If you received this File from Marvell and you have entered into a commercial
+   license agreement (a "Commercial License") with Marvell, the File is licensed
+   to you under the terms of the applicable Commercial License.
+
+********************************************************************************
+   Marvell GPL License Option
+
+   If you received this File from Marvell, you may opt to use, redistribute and/or
+   modify this File in accordance with the terms and conditions of the General
+   Public License Version 2, June 1991 (the "GPL License"), a copy of which is
+   available along with the File in the license.txt file or by writing to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 or
+   on the worldwide web at http://www.gnu.org/licenses/gpl.txt.
+
+   THE FILE IS DISTRIBUTED AS-IS, WITHOUT WARRANTY OF ANY KIND, AND THE IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY
+   DISCLAIMED.  The GPL License provides additional details about this warranty
+   disclaimer.
+********************************************************************************
+   Marvell BSD License Option
+
+   If you received this File from Marvell, you may opt to use, redistribute and/or
+   modify this File under the following licensing terms.
+   Redistribution and use in source and binary forms, with or without modification,
+   are permitted provided that the following conditions are met:
+
+*   Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+
+*   Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+
+*   Neither the name of Marvell nor the names of its contributors may be
+    used to endorse or promote products derived from this software without
+    specific prior written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+   DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+   ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+   (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+   ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+********************************************************************************
+* mv_prestera.c
+*
+* DESCRIPTION:
+*	functions in kernel mode special for prestera.
+*
+* DEPENDENCIES:
+*
+* COMMENTS:
+*   Please note: this file is shared for:
+*       axp_lsp_3.4.69
+*       msys_lsp_3_4
+*       msys_lsp_2_6_32
+*
+*******************************************************************************/
 #include "mvOs.h"
 #include "mv_prestera_glob.h"
 #include "mv_prestera_smi.h"
@@ -39,6 +114,7 @@
 
 #undef MV_DEBUG
 
+/* defines  */
 #ifdef MV_DEBUG
 #define dprintk(a...) printk(a)
 #else
@@ -56,6 +132,7 @@ struct prvPciDeviceQuirks quirks[] = {
 	{-1, -1, -1, -1}
 };
 
+/* local variables and variables */
 static int			dev_open_nr;
 static struct prestera_device	*prestera_dev;
 static int			prestera_major = PRESTERA_MAJOR;
@@ -75,23 +152,34 @@ unsigned long			dma_base;
 static void			*dma_area;
 static void			*dma_tmp_virt;
 static dma_addr_t		dma_tmp_phys;
- 
+/* info for mmap */
 static struct Mmap_Info_stc mmapInfoArr[PP_MAPPINGS_MAX];
 #define M mmapInfoArr[prestera_dev->mmapInfoArrSize]
 
 #ifdef EXT_ARCH_64_CPU
-int bspAdv64Malloc32bit;  
+int bspAdv64Malloc32bit; /* in bssBspApis.c */
 #endif
 
+/************************************************************************
+ *
+ * get_founddev: retrieve number of detected devices
+ *
+ */
 unsigned int get_founddev(void)
 {
 	return prestera_dev->founddevs;
 }
 
+/************************************************************************
+ *
+ * get_quirks: retrive quirks instance according to board type
+ *
+ */
 static int32_t get_quirks(unsigned short devId)
 {
 	uint32_t index = 0;
 
+	/* Make sure all AC3/BC2 device flavours are handled in the same way */
 	if (((devId & ~MV_DEV_FLAVOUR_MASK) == MV_BOBCAT2_DEV_ID) ||
 		((devId & ~MV_DEV_FLAVOUR_MASK) == MV_ALLEYCAT3_DEV_ID))
 		devId &= ~MV_DEV_FLAVOUR_MASK;
@@ -104,6 +192,12 @@ static int32_t get_quirks(unsigned short devId)
 	return -1;
 }
 
+/************************************************************************
+ *
+ * prestera_mapped_virt2phys: convert userspace address to physical
+ * Only for mmaped areas
+ *
+ */
 static mv_phys_addr_t prestera_mapped_virt2phys(unsigned long address)
 {
 	if (address >= dma_base_vma_start && address < dma_base_vma_end) {
@@ -122,13 +216,19 @@ static mv_phys_addr_t prestera_mapped_virt2phys(unsigned long address)
 				return dev->ppregs.phys + address;
 			}
 		}
-		 
+		/* should never happen? */
 			return 0;
 	}
 
+	/* default */
 	return 0;
 }
 
+
+/************************************************************************
+ *
+ * prestera_DmaRead: bspDmaRead() wrapper
+ */
 static int prestera_dma_read(unsigned long address,
 			     unsigned long length,
 			     unsigned long burstLimit,
@@ -153,6 +253,7 @@ static int prestera_dma_read(unsigned long address,
 	if (bufferPhys)
 		return bspDmaRead(phys, length, burstLimit, (unsigned long *)bufferPhys);
 
+	/* use dma_tmp buffer */
 	while (length > 0) {
 		tmpLength = (length > (PAGE_SIZE / 4)) ? PAGE_SIZE / 4 : length;
 
@@ -170,6 +271,10 @@ static int prestera_dma_read(unsigned long address,
 	return 0;
 }
 
+/************************************************************************
+ *
+ * prestera_DmaWrite: bspDmaRead() wrapper
+ */
 static int prestera_dma_write(unsigned long address,
 				unsigned long length,
 				unsigned long burstLimit,
@@ -193,7 +298,7 @@ static int prestera_dma_write(unsigned long address,
 	bufferPhys = prestera_mapped_virt2phys(buffer);
 	if (bufferPhys)
 		return bspDmaWrite(phys, (unsigned long *)bufferPhys, length, burstLimit);
-	 
+	/* use dma_tmp buffer */
 	while (length > 0) {
 		tmpLength = (length > (PAGE_SIZE / 4)) ? PAGE_SIZE / 4 : length;
 
@@ -224,19 +329,19 @@ static loff_t prestera_lseek(struct file *filp, loff_t off, int whence)
 			(unsigned long)(off));
 
 	switch (whence) {
-	case 0:  
+	case 0: /* SEEK_SET */
 		newpos = off;
 		break;
 
-	case 1:  
+	case 1: /* SEEK_CUR */
 		newpos = filp->f_pos + off;
 		break;
 
-	case 2:  
+	case 2: /* SEEK_END */
 		newpos = dev->size + off;
 		break;
 
-	default:  
+	default: /* can't happend */
 		printk(KERN_ERR "%s whence %d ERROR\n", __func__, whence);
 		return -EINVAL;
 	}
@@ -250,6 +355,10 @@ static loff_t prestera_lseek(struct file *filp, loff_t off, int whence)
 	return newpos;
 }
 
+/*
+ * find device index
+ * return -1 if not found
+ */
 static int find_pp_device(uint32_t busNo, uint32_t devSel, uint32_t funcNo)
 {
 	int             i;
@@ -260,17 +369,21 @@ static int find_pp_device(uint32_t busNo, uint32_t devSel, uint32_t funcNo)
 				pp->devSel != devSel ||
 				pp->funcNo != funcNo)
 			continue;
-		 
+		/* found */
 		return i;
 	}
-	return -1;  
+	return -1; /* not found */
 }
 
+/*
+ * configure virtual addresses
+ */
 static void ppdev_set_vma(struct pp_dev *dev, int devIdx, unsigned long regsSize)
 {
 	if (dev->ppregs.mmapbase != 0)
-		return;  
+		return; /* already configured */
 
+	/* allocate virtual addresses */
 	dev->ppregs.mmapbase = pci_regs_vma_end;
 	dev->ppregs.mmapsize = regsSize;
 	pci_regs_vma_end += dev->ppregs.mmapsize;
@@ -305,7 +418,7 @@ static void ppdev_set_vma(struct pp_dev *dev, int devIdx, unsigned long regsSize
 }
 
 #ifdef PRESTERA_PP_DRIVER
- 
+/* ppDriver */
 static int presteraPpDriver_ioctl(unsigned int cmd, unsigned long arg)
 {
 	struct pp_dev *dev;
@@ -334,17 +447,17 @@ static int presteraPpDriver_ioctl(unsigned int cmd, unsigned long arg)
 
 		i = find_pp_device(info.busNo, info.devSel, info.funcNo);
 		if (i < 0) {
-			 
+			/* device not found */
 			return -EFAULT;
 		}
 		dev = prestera_dev->ppdevs[i];
 
 		if (dev->ppdriver != NULL) {
 			if ((int)info.type != dev->ppdriverType) {
-				 
+				/* driver doesn't match */
 				return -EFAULT;
 			}
-			 
+			/* driver is the same, skip */
 		} else {
 			switch (info.type) {
 			case mvPpDrvDriverType_Pci_E:
@@ -358,7 +471,7 @@ static int presteraPpDriver_ioctl(unsigned int cmd, unsigned long arg)
 				break;
 			}
 			if (dev->ppdriver == NULL) {
-				 
+				/* failed to initialize, return error */
 				return -EFAULT;
 			}
 		}
@@ -371,7 +484,7 @@ static int presteraPpDriver_ioctl(unsigned int cmd, unsigned long arg)
 	}
 	return 0;
 }
-#endif  
+#endif /* defined(PRESTERA_PP_DRIVER) */
 
 #ifdef MV_DEBUG
 static void ioctl_cmd_pr(unsigned int cmd)
@@ -426,6 +539,10 @@ static void ioctl_cmd_pr(unsigned int cmd)
 }
 #endif
 
+/************************************************************************
+ *
+ * prestera_ioctl: The device ioctl() implementation
+ */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 11)
 #ifndef HAVE_UNLOCKED_IOCTL
 #define HAVE_UNLOCKED_IOCTL 1
@@ -454,13 +571,15 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 	struct GT_PCI_MMAP_INFO_STC	mInfo;
 	struct GT_PCI_VMA_ADDRESSES_STC	vmaInfo;
 
+
 #ifdef PRESTERA_PP_DRIVER
 	if (_IOC_TYPE(cmd) == PRESTERA_PP_DRIVER_IOC_MAGIC)
 		return presteraPpDriver_ioctl(cmd, arg);
-#endif  
+#endif /* defined(PRESTERA_PP_DRIVER) */
 	if (_IOC_TYPE(cmd) == PRESTERA_SMI_IOC_MAGIC)
 		return prestera_smi_ioctl(cmd, arg);
 
+	/* don't even decode wrong cmds: better returning  ENOTTY than EFAULT */
 	if (_IOC_TYPE(cmd) != PRESTERA_IOC_MAGIC) {
 		printk(KERN_ERR "wrong ioctl magic key\n");
 		return -ENOTTY;
@@ -469,9 +588,9 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 #ifdef MV_DEBUG
 #if defined(MY_ABC_HERE)
 	if (cmd != PRESTERA_IOC_WAIT && cmd != PRESTERA_IOC_INTENABLE)
-#else  
+#else /* MY_ABC_HERE */
 	if (cmd != PRESTERA_IOC_WAIT)
-#endif  
+#endif /* MY_ABC_HERE */
 		ioctl_cmd_pr(cmd);
 #endif
 
@@ -501,13 +620,14 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		break;
 
 	case PRESTERA_IOC_INTCONNECT:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&vector_cookie, (struct GT_VectorCookie_STC *)arg,
 					sizeof(vector_cookie))) {
 			printk(KERN_ERR "copy_from_user failed\n");
 			return -EFAULT;
 		}
 
+		/* Find ppdevs associated with requested irq nr */
 		for (i = 0; i < prestera_dev->founddevs; i++) {
 			if (prestera_dev->ppdevs[i]->irq_data.intVec == vector_cookie.vector)
 				break;
@@ -523,6 +643,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 
 		dprintk("PRESTERA_IOC_INTCONNECT interrupt %lx\n", vector_cookie.vector);
 
+		/* USER READS */
 		if (copy_to_user((struct GT_VectorCookie_STC *)arg, &vector_cookie,
 				 sizeof(vector_cookie))) {
 			printk(KERN_ERR "copy_to_user failed\n");
@@ -532,12 +653,12 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 
 	case PRESTERA_IOC_INTENABLE:
 #if defined(MY_ABC_HERE)
-		 
-#else  
-		 
+		// do nothing
+#else /* MY_ABC_HERE */
+		/* clear the mask reg on device 0x10 */
 		if (arg > 64)
 			send_sig_info(SIGSTOP, (struct siginfo *)1, current);
-#endif  
+#endif /* MY_ABC_HERE */
 		enable_irq(arg);
 		break;
 
@@ -546,20 +667,21 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		break;
 
 	case PRESTERA_IOC_WAIT:
-		 
+		/* cookie */
 		intData = (struct intData *)arg;
 
+		/* enable the interrupt vector */
 		enable_irq(intData->intVec);
 
 		if (down_interruptible(&intData->sem)) {
-			 
+			/* to avoid unbalanced irq warning when suspended by gdb */
 			disable_irq(intData->intVec);
 			return -ERESTARTSYS;
 		}
 		break;
 
 	case PRESTERA_IOC_FIND_DEV:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&gtDev, (struct GT_PCI_Dev_STC *) arg, sizeof(gtDev))) {
 			printk(KERN_ERR "copy_from_user failed\n");
 			return -EFAULT;
@@ -575,6 +697,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		if (i == prestera_dev->founddevs)
 			return -ENODEV;
 
+		/* Found */
 		gtDev.busNo = dev->busNo;
 		gtDev.devSel = dev->devSel;
 		gtDev.funcNo = dev->funcNo;
@@ -583,6 +706,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 				dev->on_pci_bus, gtDev.busNo, gtDev.devSel,
 				gtDev.funcNo, gtDev.vendorId, gtDev.devId, gtDev.instance);
 
+		/* READ */
 		if (copy_to_user((struct GT_PCI_Dev_STC *)arg, &gtDev, sizeof(gtDev))) {
 			printk(KERN_ERR "copy_from_user failed\n");
 			return -EFAULT;
@@ -590,7 +714,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		break;
 
 	case PRESTERA_IOC_GETMAPPING:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&mapping, (struct GT_PCI_Mapping_STC *)arg,
 					sizeof(mapping))) {
 			printk(KERN_ERR "copy_from_user failed\n");
@@ -602,11 +726,11 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 
 		i = find_pp_device(mapping.busNo, mapping.devSel, mapping.funcNo);
 		if (i < 0) {
-			 
+			/* not found */
 			return -ENODEV;
 		}
 		dev = prestera_dev->ppdevs[i];
-		 
+		/* configure virtual addresses if not configured yet */
 		ppdev_set_vma(dev, i, mapping.regsSize);
 
 		mapping.mapConfig.addr = dev->config.mmapbase;
@@ -626,7 +750,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		break;
 
 	case PRESTERA_IOC_PCICONFIGWRITEREG:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&pciConfReg, (struct PciConfigReg_STC *)arg, sizeof(pciConfReg))) {
 			printk(KERN_ERR "copy_from_user failed\n");
 			return -EFAULT;
@@ -653,7 +777,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		break;
 
 	case PRESTERA_IOC_PCICONFIGREADREG:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&pciConfReg, (struct PciConfigReg_STC *) arg, sizeof(pciConfReg))) {
 			printk(KERN_ERR "copy_from_user failed\n");
 			return -EFAULT;
@@ -723,7 +847,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		break;
 
 	case PRESTERA_IOC_FLUSH:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&range, (struct GT_RANGE_STC *)arg, sizeof(range))) {
 			printk(KERN_ERR "copy_from_user failed\n");
 			return -EFAULT;
@@ -736,7 +860,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		break;
 
 	case PRESTERA_IOC_INVALIDATE:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&range, (struct GT_RANGE_STC *)arg, sizeof(range))) {
 			printk(KERN_ERR "copy_from_user failed\n");
 			return -EFAULT;
@@ -785,7 +909,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		break;
 
 	case PRESTERA_IOC_TWSIWRITE:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&twsiRWparams, (struct GT_TwsiReadWrite_STC *)arg,
 				   sizeof(twsiRWparams))) {
 			printk(KERN_ERR "copy_from_user failed\n");
@@ -800,7 +924,7 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		break;
 
 	case PRESTERA_IOC_TWSIREAD:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&twsiRWparams, (struct GT_TwsiReadWrite_STC *)arg,
 				   sizeof(twsiRWparams))) {
 			printk(KERN_ERR "copy_from_user failed\n");
@@ -825,13 +949,13 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 		return 1;
 
 	case PRESTERA_IOC_GETMMAPINFO:
-		 
+		/* read and parse user data structure */
 		if (copy_from_user(&mInfo, (struct GT_PCI_MMAP_INFO_STC *) arg, sizeof(mInfo))) {
 			printk(KERN_ERR "copy_from_user failed\n");
 			return -EFAULT;
 		}
 		if (mInfo.index < 0 || mInfo.index >= prestera_dev->mmapInfoArrSize) {
-			 
+			/* out of range */
 			return -EFAULT;
 		}
 		mInfo.addr = (mv_kmod_uintptr_t)mmapInfoArr[mInfo.index].addr;
@@ -862,6 +986,11 @@ static int prestera_ioctl(struct inode *inode, struct file *filp, unsigned int c
 	return 0;
 }
 
+/*
+ * open and close: just keep track of how many times the device is
+ * mapped, to avoid releasing it.
+ */
+
 void prestera_vma_open(struct vm_area_struct *vma)
 {
 	dev_open_nr++;
@@ -877,16 +1006,25 @@ struct vm_operations_struct prestera_vm_ops = {
 	.close	= prestera_vma_close,
 };
 
+
+
+/************************************************************************
+ *
+ * prestera_do_mmap: Map physical address to userspace
+ */
 static int prestera_do_mmap(struct vm_area_struct *vma,
 		unsigned long phys,
 		unsigned long pageSize, bool no_cache)
 {
 	int             rc;
 
+	/* bind the prestera_vm_ops */
 	vma->vm_ops = &prestera_vm_ops;
 
+	/* VM_IO for I/O memory */
 	vma->vm_flags |= VM_IO;
 
+	/* disable caching on mapped memory */
 	if (no_cache)
 		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
 
@@ -894,7 +1032,9 @@ static int prestera_do_mmap(struct vm_area_struct *vma,
 
 	vma->vm_pgoff = phys >> PAGE_SHIFT;
 
+	/* fix case when pageSize < length_param_of_mmap */
 	vma->vm_end = vma->vm_start + pageSize;
+
 
 	dprintk(KERN_INFO "%s: remap_pfn_range(0x%lx, 0x%lx, 0x%lx, 0x%lx)\n",
 			__func__, (unsigned long)(vma->vm_start),
@@ -917,6 +1057,12 @@ static int prestera_do_mmap(struct vm_area_struct *vma,
 	return 0;
 }
 
+/************************************************************************
+ *
+ * prestera_mmap_dyn: map to dynamic address (single process only
+ *
+ * Key is vma->vm_pgoff where bit:(31-PAGE_SHIFT) == 1
+ */
 static int prestera_mmap_dyn(struct file *file, struct vm_area_struct *vma)
 {
 	uint32_t busNo, devSel, funcNo, barNo;
@@ -930,7 +1076,7 @@ static int prestera_mmap_dyn(struct file *file, struct vm_area_struct *vma)
 	funcNo = (vma->vm_pgoff >> 2) & 0x07;
 	barNo = vma->vm_pgoff & 0x03;
 	if (busNo == 0xff && devSel == 0x1f && funcNo == 0x07) {
-		 
+		/* xCat */
 		devSel = 0xff;
 		funcNo = 0xff;
 	}
@@ -945,7 +1091,7 @@ static int prestera_mmap_dyn(struct file *file, struct vm_area_struct *vma)
 	pageSize = vma->vm_end - vma->vm_start;
 
 	switch (barNo) {
-	case 0:  
+	case 0: /* config */
 		if (pageSize < ppdev->config.size + ppdev->config.mmapoffset) {
 			printk(KERN_ERR "No enough address space for config: 0x%lx, required 0x%lx\n",
 					(unsigned long)pageSize,
@@ -958,14 +1104,14 @@ static int prestera_mmap_dyn(struct file *file, struct vm_area_struct *vma)
 		vma->vm_start += ppdev->config.mmapoffset;
 		ppdev->config.mmapsize = pageSize;
 		break;
-	case 1:  
+	case 1: /* regs */
 		phys = ppdev->ppregs.phys;
 		ppdev->ppregs.mmapbase = vma->vm_start;
 		ppdev->ppregs.mmapsize = pageSize;
 		break;
-	case 2:  
+	case 2: /* dfx */
 		if (!ppdev->dfx.phys)
-			return -ENXIO;  
+			return -ENXIO; /* ignore */
 		if (pageSize < ppdev->dfx.size) {
 			printk(KERN_ERR "No enough address space for dfx: 0x%lx, required 0x%lx\n",
 					(unsigned long)pageSize,
@@ -985,6 +1131,10 @@ static int prestera_mmap_dyn(struct file *file, struct vm_area_struct *vma)
 	return prestera_do_mmap(vma, phys, pageSize, true);
 }
 
+/************************************************************************
+ *
+ * prestera_mmap: The device mmap() implementation
+ */
 static int prestera_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	unsigned long	phys = 0;
@@ -996,13 +1146,13 @@ static int prestera_mmap(struct file *file, struct vm_area_struct *vma)
 		return prestera_mmap_dyn(file, vma);
 
 	if (((vma->vm_pgoff) << PAGE_SHIFT) & (PAGE_SIZE - 1)) {
-		 
+		/* need aligned offsets */
 		printk(KERN_ERR "prestera_mmap offset not aligned\n");
 		return -ENXIO;
 	}
 
 #define D mmapInfoArr[i]
-	 
+	/* search for mapping */
 	for (i = 0; i < prestera_dev->mmapInfoArrSize; i++) {
 		if (vma->vm_start == D.addr + D.offset)
 			break;
@@ -1048,10 +1198,15 @@ static int prestera_mmap(struct file *file, struct vm_area_struct *vma)
 	return prestera_do_mmap(vma, phys, pageSize, true);
 }
 
+/************************************************************************
+ *
+ * prestera_open: The device open() implementation
+ */
 static int prestera_open(struct inode *inode, struct file *filp)
 {
 	if (down_interruptible(&prestera_dev->sem))
 		return -ERESTARTSYS;
+
 
 	if (!prestera_dev) {
 		up(&prestera_dev->sem);
@@ -1059,7 +1214,8 @@ static int prestera_open(struct inode *inode, struct file *filp)
 	}
 
 #ifndef SHARED_MEMORY
-	 
+	/* Avoid single-usage restriction for shared memory:
+	 * device should be accessible for multiple clients. */
 	if (dev_open_nr) {
 		up(&prestera_dev->sem);
 		return -EBUSY;
@@ -1076,6 +1232,10 @@ static int prestera_open(struct inode *inode, struct file *filp)
 	return 0;
 }
 
+/************************************************************************
+ *
+ * prestera_release: The device close() implementation
+ */
 static int prestera_release(struct inode *inode, struct file *file)
 {
 	dev_open_nr--;
@@ -1088,6 +1248,10 @@ static int prestera_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+/************************************************************************
+ *
+ * proc read data rooutine
+ */
 static inline u32 dbgread_u32(void *addr)
 {
 #if defined EXT_ARCH_64_CPU || defined CONFIG_ARM
@@ -1175,15 +1339,17 @@ static struct dumpregs_stc ppConf_pci[] = {
 	{ "\toff",  0x41808, 0x41808 },
 	{ NULL, 0, 0 }
 };
-#endif  
+#endif /* MY_ABC_HERE */
 
 static struct dumpregs_stc ppConf[] = {
 	{ "\toff",  0,   0x10 },
 	{ "\toff",  0,   0x10 },
 #if 0
-	 
+	/* No idea what are these registers,
+	 * not found in Lion2, Bobcat2 specs
+	 */
 	{ "MASK", 0x118, 0x118 },
-	{ "MASK", 0x114, 0x114 },  
+	{ "MASK", 0x114, 0x114 }, /*cause */
 #endif
 	{ NULL, 0, 0 }
 };
@@ -1240,7 +1406,7 @@ int prestera_read_proc_mem(char		*page,
 #if defined(MY_ABC_HERE)
 		if (ppdev->on_pci_bus)
 			len = dumpregs(page, len, &(ppdev->config), ppConf_pci);
-#endif  
+#endif /* MY_ABC_HERE */
 
 		len += sprintf(page + len, "\tppregs 0x%lx(user virt), phys: 0x%lx, len: 0x%lx\n",
 				ppdev->ppregs.mmapbase, ppdev->ppregs.phys, ppdev->ppregs.size);
@@ -1268,7 +1434,12 @@ static const struct file_operations prestera_fops = {
 };
 
 #ifdef PRESTERA_SYSCALLS
- 
+/************************************************************************
+*
+* syscall entries for fast calls
+*
+************************************************************************/
+/* fast call to prestera_ioctl() */
 asmlinkage long sys_prestera_ctl(unsigned int cmd, unsigned long arg)
 {
 #ifdef HAVE_UNLOCKED_IOCTL
@@ -1296,6 +1467,16 @@ static struct {
 };
 #undef  __TBL_ENTRY
 
+/*******************************************************************************
+* prestera_syscall_init
+*
+* DESCRIPTION:
+*       None
+*
+* COMMENTS:
+*       None
+*
+*******************************************************************************/
 static int prestera_syscall_init(void)
 {
 	int	k;
@@ -1315,6 +1496,25 @@ static int prestera_syscall_init(void)
 	return 0;
 }
 
+/*******************************************************************************
+* prestera_RestoreSyscalls
+*
+* DESCRIPTION:
+*       Restore original syscall entries.
+*
+* INPUTS:
+*       None
+*
+* OUTPUTS:
+*       None
+*
+* RETURNS:
+*       None
+*
+* COMMENTS:
+*       None
+*
+*******************************************************************************/
 static int prestera_syscall_restore(void)
 {
 	int	k;
@@ -1334,7 +1534,9 @@ static int prestera_syscall_restore(void)
 	return 0;
 }
 
-#endif  
+#endif /* PRESTERA_SYSCALLS */
+
+
 
 static int prestera_dma_init(struct device *dev)
 {
@@ -1342,14 +1544,18 @@ static int prestera_dma_init(struct device *dev)
 #if defined(MY_ABC_HERE)
 	struct device *local_device = NULL;
 
+/* - LK3.10: (A38x) during dma_alloc_coherent, arch specific dma ops are called.
+ *   Pass device pointers, so dma allocation will be done by mvebu_hwcc_dma_ops.
+ * - LK3.4 and below: Pass NULL pointers, so dma allocation will be done with
+ *   the default arm_dma_ops are used */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
 	local_device = dev;
 #endif
 
 	dma_area = dma_alloc_coherent(local_device, dma_len, (dma_addr_t *)&dma_base,
-#else  
+#else /* MY_ABC_HERE */
 	dma_area = dma_alloc_coherent(dev, dma_len, (dma_addr_t *)&dma_base,
-#endif  
+#endif /* MY_ABC_HERE */
 				      GFP_DMA | GFP_KERNEL);
 
 	if (!dma_area) {
@@ -1360,11 +1566,12 @@ static int prestera_dma_init(struct device *dev)
 	dprintk("DMA - dma_area: %p(v), dma_base: 0x%lx(p), dma_len: 0x%x\n",
 			dma_area, dma_base, dma_len);
 
+	/* allocate temp area for bspDma operations */
 #if defined(MY_ABC_HERE)
 	dma_tmp_virt = dma_alloc_coherent(local_device, PAGE_SIZE, &dma_tmp_phys,
-#else  
+#else /* MY_ABC_HERE */
 	dma_tmp_virt = dma_alloc_coherent(dev, PAGE_SIZE, &dma_tmp_phys,
-#endif  
+#endif /* MY_ABC_HERE */
 					  GFP_DMA | GFP_KERNEL);
 
 	if (!dma_tmp_virt) {
@@ -1382,6 +1589,10 @@ static int prestera_dma_init(struct device *dev)
 	return 0;
 }
 
+/************************************************************************
+ *
+ * prestera_cleanup:
+ */
 static void prestera_cleanup(struct device *dev)
 {
 	int		i;
@@ -1389,19 +1600,23 @@ static void prestera_cleanup(struct device *dev)
 #if defined(MY_ABC_HERE)
 	struct device *local_device = NULL;
 
+/* - LK3.10: (A38x) during dma_alloc_coherent, arch specific dma ops are called.
+ *   Pass device pointers, so dma allocation will be done by mvebu_hwcc_dma_ops.
+ * - LK3.4 and below: Pass NULL pointers, so dma allocation will be done with
+ *   the default arm_dma_ops are used */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
 	local_device = dev;
 #endif
-#endif  
+#endif /* MY_ABC_HERE */
 
 	prestera_int_cleanup();
 
 	for (i = 0; i < prestera_dev->founddevs; i++) {
 		ppdev = prestera_dev->ppdevs[i];
 #ifdef PRESTERA_PP_DRIVER
-		if (ppdev->ppdriver)  
+		if (ppdev->ppdriver) /* destroy driver */
 			ppdev->ppdriver(ppdev->ppdriverData, NULL);
-#endif  
+#endif /* PRESTERA_PP_DRIVER */
 		kfree(ppdev);
 	}
 	prestera_dev->founddevs = 0;
@@ -1409,18 +1624,18 @@ static void prestera_cleanup(struct device *dev)
 	if (dma_tmp_virt) {
 #if defined(MY_ABC_HERE)
 		dma_free_coherent(local_device, PAGE_SIZE, dma_tmp_virt, dma_tmp_phys);
-#else  
+#else /* MY_ABC_HERE */
 		dma_free_coherent(dev, PAGE_SIZE, dma_tmp_virt, dma_tmp_phys);
-#endif  
+#endif /* MY_ABC_HERE */
 		dma_tmp_virt = NULL;
 	}
 
 	if (dma_area) {
 #if defined(MY_ABC_HERE)
 		dma_free_coherent(local_device, dma_len, (dma_addr_t *)&dma_base,
-#else  
+#else /* MY_ABC_HERE */
 		dma_free_coherent(dev, dma_len, (dma_addr_t *)&dma_base,
-#endif  
+#endif /* MY_ABC_HERE */
 				  GFP_DMA | GFP_KERNEL);
 		dma_area = NULL;
 	}
@@ -1443,6 +1658,7 @@ static uint32_t get_instance(unsigned short vendorId, unsigned short devId)
 	uint32_t instance = 0;
 	unsigned short flavour = 0;
 
+	/* Make sure all AC3/BC2 device flavours are handled in the same way */
 	if (((devId & ~MV_DEV_FLAVOUR_MASK) == MV_BOBCAT2_DEV_ID) ||
 		((devId & ~MV_DEV_FLAVOUR_MASK) == MV_ALLEYCAT3_DEV_ID)) {
 		flavour = devId & MV_DEV_FLAVOUR_MASK;
@@ -1471,6 +1687,11 @@ static uint32_t get_instance(unsigned short vendorId, unsigned short devId)
 	return instance;
 }
 
+/*
+ * XXX: probably not need to distinguish instance of bobcat, lion etc, maybe
+ * it will be enough for CPSS to remove instance variable and assign founddevs
+ * to ppdev->instance - will be check during multi-switch configuration tests
+ */
 int ppdev_conf_set(struct pp_dev *ppdev)
 {
 	uint32_t instance;
@@ -1494,7 +1715,7 @@ int ppdev_conf_set(struct pp_dev *ppdev)
 	}
 
 	if (quirks[quirksInstance].hasDfx == PCI_DEV_DFX_EN) {
-		 
+		/* Has DFX */
 		ppdev->dfx.phys = ppdev->ppregs.phys + _64M;
 		ppdev->dfx.size = _1M;
 		if (ppdev->ppregs.base != 0)
@@ -1517,9 +1738,11 @@ int ppdev_conf_set(struct pp_dev *ppdev)
 			ppdev->config.mmapoffset = quirks[quirksInstance].configOffset;
 		}
 	} else {
-			 
+			/* INTER_REGS address space mapping */
+			/* ppdev->config.mmapoffset = 0; */
 	}
 
+	/* Only for debug purpose */
 	dprintk("%s:pdev: devId 0x%x, vendorId 0x%x, instance 0x%lx\n",
 			__func__, ppdev->devId, ppdev->vendorId, ppdev->instance);
 	dprintk("pdev: busNo 0x%lx, devSel 0x%lx, funcNo 0x%lx\n",
@@ -1531,6 +1754,7 @@ int ppdev_conf_set(struct pp_dev *ppdev)
 	dprintk("config: phys 0x%lx, mmapoffset 0x%x\n",
 			ppdev->config.phys, ppdev->config.mmapoffset);
 
+	/* Add device to ppdevs */
 	prestera_dev->ppdevs[prestera_dev->founddevs++] = ppdev;
 	dprintk("num of devices %d\n", prestera_dev->founddevs);
 
@@ -1568,7 +1792,7 @@ static int proc_status_show(struct seq_file *m, void *v)
 #if defined(MY_ABC_HERE)
 		if (ppdev->on_pci_bus)
 			dumpregs(m, &(ppdev->config), ppConf_pci);
-#endif  
+#endif /* MY_ABC_HERE */
 
 		seq_printf(m, "\tppregs 0x%lx(user virt), phys: 0x%lx, len: 0x%lx\n",
 				ppdev->ppregs.mmapbase, ppdev->ppregs.phys, ppdev->ppregs.size);
@@ -1593,23 +1817,32 @@ static const struct file_operations prestera_read_proc_operations = {
 
 #endif
 
+/************************************************************************
+ *
+ * prestera_init:
+ */
 int prestera_init(struct device *dev)
 {
 	int rc = 0;
 
 	dprintk("%s\n", __func__);
 
+	/* If already initialized skip it */
 	if (prestera_dev) {
 		dprintk("%s: already initialized\n", __func__);
 		return 0;
 	}
 
+	/* init static vars */
 	dev_open_nr = 0;
 	dma_tmp_virt = NULL;
 	dma_base = 0;
 	dma_len = 0;
 	dma_area = NULL;
 
+	/* first thing register the device at OS */
+
+	/* Register your major. */
 	rc = register_chrdev_region(MKDEV(prestera_major, 0), 1, prestera_dev_name);
 	if (rc < 0) {
 		printk(KERN_ERR "%s: register_chrdev_region err= %d\n", __func__, rc);
@@ -1641,6 +1874,7 @@ int prestera_init(struct device *dev)
 		goto fail;
 #endif
 
+	/* create /proc entry */
 #ifdef CONFIG_OF
 	if (!proc_create(prestera_dev_name, S_IRUGO, NULL, &prestera_read_proc_operations))
 		return -ENOMEM;
@@ -1648,6 +1882,7 @@ int prestera_init(struct device *dev)
 	create_proc_read_entry(prestera_dev_name, 0, NULL, prestera_read_proc_mem, NULL);
 #endif
 
+	/* initialize the device main semaphore */
 	sema_init(&prestera_dev->sem, 1);
 
 	prestera_int_init();

@@ -84,6 +84,7 @@
 	MDDI_INT_CRC_ERROR | \
 	MDDI_INT_REV_PKT_RECEIVED)
 
+
 #define MDDI_STAT_LINK_ACTIVE        0x0001
 #define MDDI_STAT_NEW_REV_PTR        0x0002
 #define MDDI_STAT_NEW_PRI_PTR        0x0004
@@ -96,6 +97,7 @@
 #define MDDI_STAT_PENDING_POWERDOWN  0x0200
 #define MDDI_STAT_RTD_MEAS_FAIL      0x0800
 #define MDDI_STAT_CLIENT_WAKEUP_REQ  0x1000
+
 
 #define MDDI_CMD_POWERDOWN           0x0100
 #define MDDI_CMD_POWERUP             0x0200
@@ -111,6 +113,8 @@
 #define MDDI_CMD_PERIODIC_REV_ENCAP  0x0A00
 #define MDDI_CMD_FORCE_NEW_REV_PTR   0x0C00
 
+
+
 #define MDDI_VIDEO_REV_PKT_SIZE              0x40
 #define MDDI_CLIENT_CAPABILITY_REV_PKT_SIZE  0x60
 #define MDDI_MAX_REV_PKT_SIZE                0x60
@@ -123,6 +127,7 @@
 #define MDDI_HOST_BYTES_PER_SUBFRAME  0x3C00
 #define MDDI_HOST_TA2_LEN       0x000c
 #define MDDI_HOST_REV_RATE_DIV  0x0002
+
 
 struct __attribute__((packed)) mddi_rev_packet {
 	uint16_t length;
@@ -186,6 +191,7 @@ struct __attribute__((packed)) mddi_client_caps {
 
 	uint16_t crc16;
 } mddi_client_capability_type;
+
 
 struct __attribute__((packed)) mddi_video_stream {
 	uint16_t length;

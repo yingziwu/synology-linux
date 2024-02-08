@@ -143,6 +143,7 @@ void mv_mux_tool_get_drvinfo(struct net_device *netdev, struct ethtool_drvinfo *
 	if (!root || !root->ethtool_ops || !root->ethtool_ops->get_drvinfo)
 		return;
 
+
 	root->ethtool_ops->get_drvinfo(root, info);
 }
 
@@ -192,6 +193,7 @@ void mv_mux_tool_get_pauseparam(struct net_device *netdev, struct ethtool_pausep
 	root->ethtool_ops->get_pauseparam(root, pause);
 }
 
+
 /******************************************************************************
 * mv_mux_tool_nway_reset
 * Description:
@@ -240,6 +242,7 @@ u32 mv_mux_tool_get_link(struct net_device *mux_dev)
 	return mv_switch_link_status_get(pdev_priv->idx);
 }
 #endif
+
 
 const struct ethtool_ops mv_mux_tool_ops = {
 #if defined(MY_ABC_HERE)

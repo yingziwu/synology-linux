@@ -10,3 +10,4 @@
 #define DMA_ISA_CASCADE         4
 
 #endif /* _ASM_ARCH_DMA_H */
+

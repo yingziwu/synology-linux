@@ -19,6 +19,7 @@
 #ifndef _RTL819XU_HTTYPE_H_
 #define _RTL819XU_HTTYPE_H_
 
+
 #define HT_OPMODE_NO_PROTECT		0
 #define HT_OPMODE_OPTIONAL		1
 #define HT_OPMODE_40MHZ_PROTECT	2
@@ -28,7 +29,10 @@
 #define MIMO_PS_DYNAMIC			1
 #define MIMO_PS_NOLIMIT			3
 
+
+
 #define sHTCLng	4
+
 
 #define HT_SUPPORTED_MCS_1SS_BITMAP			0x000000ff
 #define HT_SUPPORTED_MCS_2SS_BITMAP			0x0000ff00
@@ -123,6 +127,7 @@ enum ht_action {
 	ACT_ANTENNA_SELECT		= 9,
 };
 
+
 enum ht_bw40_sc {
 	SC_MODE_DUPLICATE = 0,
 	SC_MODE_LOWER = 1,
@@ -153,6 +158,7 @@ struct ht_capab_ele {
 
 	u8	MCS[16];
 
+
 	u16	ExtHTCapInfo;
 
 	u8	TxBFCap[4];
@@ -160,6 +166,7 @@ struct ht_capab_ele {
 	u8	ASCap;
 
 } __packed;
+
 
 struct ht_info_ele {
 	u8	ControlChl;
@@ -205,6 +212,7 @@ enum ht_aggre_mode {
 	HT_AGG_FORCE_DISABLE = 2,
 };
 
+
 struct rt_hi_throughput {
 	u8				bEnableHT;
 	u8				bCurrentHTSupport;
@@ -223,11 +231,13 @@ struct rt_hi_throughput {
 
 	enum ht_spec_ver ePeerHTSpecVer;
 
+
 	struct ht_capab_ele SelfHTCap;
 	struct ht_info_ele SelfHTInfo;
 
 	u8				PeerHTCapBuf[32];
 	u8				PeerHTInfoBuf[32];
+
 
 	u8				bAMSDU_Support;
 	u16				nAMSDU_MaxSize;
@@ -287,6 +297,8 @@ struct rt_hi_throughput {
 	u8				bAcceptAddbaReq;
 } __packed;
 
+
+
 struct rt_htinfo_sta_entry {
 	u8			bEnableHT;
 
@@ -316,6 +328,11 @@ struct rt_htinfo_sta_entry {
 	u16                     nAMSDU_MaxSize;
 
 };
+
+
+
+
+
 
 struct bss_ht {
 
@@ -359,6 +376,7 @@ struct false_alarm_stats {
 	u32	Cnt_all;
 };
 
+
 extern u8 MCS_FILTER_ALL[16];
 extern u8 MCS_FILTER_1SS[16];
 
@@ -369,6 +387,8 @@ extern u8 MCS_FILTER_1SS[16];
 #define CURRENT_RATE(WirelessMode, LegacyRate, HTRate)	\
 			((WirelessMode & (LEGACY_WIRELESS_MODE)) != 0) ? \
 			(LegacyRate) : (PICK_RATE(LegacyRate, HTRate))
+
+
 
 #define	RATE_ADPT_1SS_MASK		0xFF
 #define	RATE_ADPT_2SS_MASK		0xF0

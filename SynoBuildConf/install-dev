@@ -10,6 +10,7 @@ ModCrypto=" \
 	${KernelDir}/crypto/cbc.ko \
 	${KernelDir}/crypto/des_generic.ko \
 	${KernelDir}/crypto/ecb.ko \
+	${KernelDir}/crypto/cmac.ko \
 	${KernelDir}/crypto/hmac.ko \
 	${KernelDir}/crypto/md4.ko \
 	${KernelDir}/crypto/md5.ko \
@@ -85,6 +86,7 @@ ModFirewall=" \
 	${KernelDir}/net/netfilter/xt_set.ko \
 	${KernelDir}/net/netfilter/xt_nat.ko \
 	${KernelDir}/net/netfilter/xt_TCPMSS.ko \
+	${KernelDir}/net/netfilter/xt_policy.ko \
 	"
 ModIPv6FW=" \
 	${KernelDir}/net/ipv6/netfilter/ip6_tables.ko \
@@ -133,9 +135,17 @@ ModISCSI=" \
 	${KernelDir}/drivers/scsi/iscsi_tcp.ko \
 	"
 ModNFSD=" \
-	${KernelDir}/fs/exportfs/exportfs.ko \
 	${KernelDir}/fs/nfsd/nfsd.ko \
+	${KernelDir}/fs/lockd/lockd.ko \
+	${KernelDir}/net/sunrpc/sunrpc.ko \
+	${KernelDir}/net/sunrpc/auth_gss/auth_rpcgss.ko \
 	${KernelDir}/net/sunrpc/auth_gss/rpcsec_gss_krb5.ko \
+	"
+ModNFS=" \
+	${KernelDir}/fs/nfs/nfs.ko \
+	${KernelDir}/fs/nfs/nfsv2.ko \
+	${KernelDir}/fs/nfs/nfsv3.ko \
+	${KernelDir}/fs/nfs/nfsv4.ko \
 	"
 ModCIFS=" \
 	${KernelDir}/fs/cifs/cifs.ko \
@@ -250,6 +260,21 @@ ModDocker=" \
 	${KernelDir}/net/netfilter/xt_conntrack.ko \
 	${KernelDir}/fs/aufs/aufs.ko \
 	"
+ModRaid=" \
+	${KernelDir}/drivers/md/dm-mod.ko \
+	${KernelDir}/drivers/md/dm-raid.ko \
+	${KernelDir}/drivers/md/linear.ko \
+	${KernelDir}/drivers/md/raid0.ko \
+	${KernelDir}/drivers/md/raid10.ko \
+	${KernelDir}/drivers/md/raid456.ko \
+	${KernelDir}/lib/raid6/raid6_pq.ko \
+	${KernelDir}/crypto/async_tx/async_tx.ko \
+	${KernelDir}/crypto/async_tx/async_memcpy.ko \
+	${KernelDir}/crypto/async_tx/async_xor.ko \
+	${KernelDir}/crypto/async_tx/async_pq.ko \
+	${KernelDir}/crypto/async_tx/async_raid6_recov.ko \
+	${KernelDir}/crypto/xor.ko \
+	"
 ModuleList=" \
 	${ModCrypto} \
 	${ModFS} \
@@ -265,6 +290,7 @@ ModuleList=" \
 	${ModTunnel} \
 	${ModISCSI} \
 	${ModNFSD} \
+	${ModNFS} \
 	${ModCIFS} \
 	${ModQuota} \
 	${ModSCSI} \
@@ -273,8 +299,8 @@ ModuleList=" \
 	${ModUSB} \
 	${ModUSBIP} \
 	${ModUSBWimax} \
-	${ModAlsa} \
 	${ModDocker} \
+	${ModRaid} \
 	"
 ##################################################
 ModTalitos=" \
@@ -287,32 +313,6 @@ ModOCF=" \
 	${KernelDir}/crypto/ocf/cryptosoft.ko \
 	${KernelDir}/crypto/ocf/ocf.ko \
 	"
-ModRaid=" \
-	${KernelDir}/drivers/md/dm-mod.ko \
-	${KernelDir}/drivers/md/linear.ko \
-	${KernelDir}/drivers/md/md-mod.ko \
-	${KernelDir}/drivers/md/raid0.ko \
-	${KernelDir}/drivers/md/raid1.ko \
-	${KernelDir}/drivers/md/raid10.ko \
-	${KernelDir}/drivers/md/raid456.ko \
-	${KernelDir}/lib/raid6/raid6_pq.ko \
-	${KernelDir}/crypto/async_tx/async_tx.ko \
-	${KernelDir}/crypto/async_tx/async_memcpy.ko \
-	${KernelDir}/crypto/async_tx/async_xor.ko \
-	${KernelDir}/crypto/async_tx/async_pq.ko \
-	${KernelDir}/crypto/async_tx/async_raid6_recov.ko \
-	${KernelDir}/crypto/xor.ko \
-	"
-ModUSBModem=" \
-	${KernelDir}/drivers/usb/serial/usb_wwan.ko \
-	${KernelDir}/drivers/usb/serial/option.ko \
-	${KernelDir}/drivers/usb/class/cdc-acm.ko \
-	${KernelDir}/drivers/usb/serial/sierra.ko \
-	"
-#FIXME: The modules below should be included when porting is done
-#	${KernelDir}/drivers/usb/serial/usb_wwan_syno.ko
-#	${KernelDir}/drivers/usb/class/cdc-wdm_syno.ko
-#	${KernelDir}/drivers/net/usb/qmi_wwan_syno.ko
 
 ##################################################
 
@@ -337,7 +337,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModZram}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
@@ -352,7 +351,6 @@ case "$BUILD_TARGET" in
 		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/crypto/des_generic.ko==g"`
 		;;
 	STM_MONACO)
-		MediaModuleList=`find ${KernelDir}/scripts/DVB/3.10.x -name '*.ko'`
 		ModuleList="${ModuleList} ${KernelDir}/net/ipv4/netfilter/ipt_MASQUERADE.ko"
 		ModuleList="${ModuleList} ${KernelDir}/lib/zlib_deflate/zlib_deflate.ko"
 		ModuleList="${ModuleList} ${KernelDir}/crypto/arc4.ko"
@@ -374,11 +372,11 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModNetlink}"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 		ModuleList="${ModuleList} ${ModNFQ}"
+		ModuleList="${ModuleList} ${ModAlsa}"
 
 		ModuleList=`echo ${ModuleList} | sed -e "s=${KernelDir}/drivers/net/mii.ko==g"`
 		;;
@@ -400,7 +398,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 		ModuleList="${ModuleList} ${ModNFQ}"
@@ -427,7 +424,6 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModVlan}"
 		ModuleList="${ModuleList} ${ModUSBserial}"
 		ModuleList="${ModuleList} ${ModIPsec}"
-		ModuleList="${ModuleList} ${ModUSBModem}"
 		ModuleList="${ModuleList} ${KernelDir}/net/netfilter/xt_mac.ko"
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 		ModuleList="${ModuleList} ${ModNFQ}"
@@ -463,18 +459,6 @@ case "$BUILD_TARGET" in
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/drivers/staging/usbip/usbip-core.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/drivers/net/usb/usbnet.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/drivers/net/usb/cdc_ether.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-pcm.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/usb/snd-usbmidi-lib.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/usb/snd-usb-audio.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/seq/snd-seq-device.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-hwdep.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-rawmidi.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/oss/snd-pcm-oss.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/oss/snd-mixer-oss.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-timer.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-page-alloc.ko==g")
-		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/usb/hiface/snd-usb-hiface.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/net/netfilter/xt_conntrack.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/fs/aufs/aufs.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/net/ipv4/netfilter/ipt_MASQUERADE.ko==g")
@@ -515,14 +499,14 @@ do
 	fi
 done
 
-case "$BUILD_TARGET" in
-	STM_MONACO)
-		mkdir -p ${DebDevBuild}/image/modules/backports_dvb/
-		cp -f ${MediaModuleList} ${DebDevBuild}/image/modules/backports_dvb/
-		;;
-esac
-
 skip=0
+# For auto generate the list of insert modules.
+KERNEL_MODULES_TABLE=".synotmp-module-list.conf"
+if [ -f ${KERNEL_MODULES_TABLE} ];then
+	rm -f ${KERNEL_MODULES_TABLE}
+fi
+echo "$ModuleList" > ${KERNEL_MODULES_TABLE}
+
 case ${BUILD_TARGET} in
 	ALPINE|STM_MONACO|MARVELL_ARMADA38X|HISILICON_HI3536)
 		ZIMAGE="${KernelDir}/arch/arm/boot/uImage"

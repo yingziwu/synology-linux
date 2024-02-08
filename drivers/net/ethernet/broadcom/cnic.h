@@ -8,6 +8,7 @@
  *
  */
 
+
 #ifndef CNIC_H
 #define CNIC_H
 
@@ -467,3 +468,4 @@ struct bnx2x_bd_chain_next {
 #define CNIC_RAMROD_TMO			(HZ / 4)
 
 #endif
+

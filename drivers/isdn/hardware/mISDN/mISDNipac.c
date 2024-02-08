@@ -26,6 +26,7 @@
 #include <linux/mISDNhw.h>
 #include "ipac.h"
 
+
 #define DBUSY_TIMER_VALUE	80
 #define ARCOFI_USE		1
 
@@ -899,6 +900,7 @@ waitforCEC(struct hscx_hw *hx)
 		pr_info("%s: B%1d CEC timeout\n", hx->ip->name, hx->bch.nr);
 }
 
+
 static void
 waitforXFW(struct hscx_hw *hx)
 {
@@ -1435,6 +1437,8 @@ free_ipac(struct ipac_hw *ipac)
 static const char *HSCXVer[] =
 {"A1", "?1", "A2", "?3", "A3", "V2.1", "?6", "?7",
  "?8", "?9", "?10", "?11", "?12", "?13", "?14", "???"};
+
+
 
 static void
 hscx_init(struct hscx_hw *hx)

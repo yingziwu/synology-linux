@@ -590,6 +590,7 @@ err:
 }
 EXPORT_SYMBOL(irttp_udata_request);
 
+
 /*
  * Function irttp_data_request (handle, skb)
  *
@@ -946,6 +947,7 @@ static int irttp_data_indication(void *instance, void *sap,
 		/* Dataless flowdata TTP-PDU */
 		dev_kfree_skb(skb);
 	}
+
 
 	/* Push data to the higher layer.
 	 * We do it synchronously because running the todo timer for each

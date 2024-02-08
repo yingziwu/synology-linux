@@ -66,6 +66,7 @@ met:
 #define AL_SERDES_RX_EYE_CAL_MDELAY		50
 #define AL_SERDES_RX_EYE_CAL_TRIES		70
 
+
 /**
  * SERDES core reg read
  */
@@ -1323,6 +1324,7 @@ void al_serdes_tx_advanced_params_get(struct al_serdes_obj	     	*obj,
 	tx_params->override = ((reg_val & SERDES_IREG_FLD_TX_DRV_OVERRIDE_EN) == 0);
 }
 
+
 void al_serdes_rx_advanced_params_set(struct al_serdes_obj	      *obj,
 				      enum al_serdes_group	      grp,
 				      enum al_serdes_lane	      lane,
@@ -2281,6 +2283,7 @@ int al_serdes_rx_equalization(
 			SERDES_IREG_FLD_PCSRXEQ_LOCWREN_REG_NUM,
 			temp_val );
 
+
 	/*
 	 * Start/Stop RxEQ Cal is via PCSRXEQ_START: 1=START. 0=STOP.
 	 * Clear Bit SERDES_IREG_FLD_PCSRXEQ_START
@@ -2471,6 +2474,7 @@ int al_serdes_calc_eye_size(
 			SERDES_IREG_FLD_RXLOCK2REF_OVREN |
 			SERDES_IREG_FLD_RXROAM_XORBITSEL,
 			SERDES_IREG_FLD_RXLOCK2REF_OVREN);
+
 
 	/*
 	 * Clear Bit:

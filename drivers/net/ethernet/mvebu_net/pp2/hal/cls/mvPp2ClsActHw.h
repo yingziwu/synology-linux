@@ -65,6 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __MV_CLS_ACT_HW_H__
 #define __MV_CLS_ACT_HW_H__
 
+
 /*-------------------------------------------------------------------------------*/
 /*		Classifier engines Actions Table offsets	    		 */
 /*-------------------------------------------------------------------------------*/
@@ -102,6 +103,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ACT_PRI_MASK			(((1 << ACT_PRI_BITS) - 1) << ACT_PRI)
 #define ACT_PRI_MAX			((1 << ACT_PRI_BITS) - 1)
 
+
 #define ACT_DSCP			5
 #define ACT_DSCP_BITS			2
 #define ACT_DSCP_MASK			(((1 << ACT_DSCP_BITS) - 1) << ACT_DSCP)
@@ -113,6 +115,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ACT_LOW_Q			9
 #define ACT_LOW_Q_BITS			2
 #define ACT_LOW_Q_MASK			(((1 << ACT_LOW_Q_BITS) - 1) << ACT_LOW_Q)
+
 
 #define ACT_HIGH_Q			11
 #define ACT_HIGH_Q_BITS			2
@@ -144,6 +147,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ACT_QOS_ATTR_GEM_ID_BITS	12
 #define ACT_QOS_ATTR_MDF_GEM_ID_MASK	(((1 << ACT_QOS_ATTR_GEM_ID_BITS) - 1) << ACT_QOS_ATTR_MDF_GEM_ID)
 #define ACT_QOS_ATTR_GEM_ID_MAX		((1 << ACT_QOS_ATTR_GEM_ID_BITS) - 1)
+
 
 #define ACT_QOS_ATTR_MDF_LOW_Q		21
 #define ACT_QOS_ATTR_MDF_LOW_Q_BITS	3
@@ -179,11 +183,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ACT_HWF_ATTR_MTU_INX_MAX	((1 << ACT_HWF_ATTR_MTU_INX_BITS) - 1)
 #define	ACT_HWF_ATTR_MTU_INX_MASK	((ACT_HWF_ATTR_MTU_INX_MAX) << ACT_HWF_ATTR_MTU_INX)
 
+
 /*MV_U32 dup_attr*/
 #define ACT_DUP_FID			0
 #define ACT_DUP_FID_BITS		8
 #define ACT_DUP_FID_MASK		(((1 << ACT_DUP_FID_BITS) - 1) << ACT_DUP_FID)
 #define ACT_DUP_FID_MAX			((1 << ACT_DUP_FID_BITS) - 1)
+
 
 #define ACT_DUP_COUNT			8
 #define ACT_DUP_COUNT_BITS		4
@@ -199,6 +205,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*only in ppv2.1*/
 #define ACT_DUP_POLICER_BANK_BIT	29
 #define ACT_DUP_POLICER_BANK_MASK	(1 << ACT_DUP_POLICER_BANK_BIT)
+
 
 /*-------------------------------------------------------------------------------*/
 /*		Classifier engines Actions Table offsets	    		 */

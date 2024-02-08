@@ -1,29 +1,42 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (C) 2012 Freescale Semiconductor, Inc.
+ *
+ * Copyright (C) 2014 Linaro.
+ * Viresh Kumar <viresh.kumar@linaro.org>
+ *
+ * The OPP code in function cpu0_set_target() is reused from
+ * drivers/cpufreq/omap-cpufreq.c
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
 
 #include <linux/clk.h>
 #ifdef MY_DEF_HERE
 #include <linux/cpu.h>
-#endif  
+#endif /* MY_DEF_HERE */
 #if defined(MY_ABC_HERE)
 #include <linux/cpu.h>
 #include <linux/cpu_cooling.h>
-#endif  
+#endif /* MY_ABC_HERE */
 #include <linux/cpufreq.h>
 #if defined(MY_ABC_HERE)
 #include <linux/cpumask.h>
-#endif  
+#endif /* MY_ABC_HERE */
 #include <linux/err.h>
 #include <linux/module.h>
 #include <linux/of.h>
 #if defined(MY_ABC_HERE)
 #include <linux/pm_opp.h>
-#else  
+#else /* MY_ABC_HERE */
 #include <linux/opp.h>
-#endif  
+#endif /* MY_ABC_HERE */
 #include <linux/platform_device.h>
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
@@ -34,24 +47,24 @@ struct private_data {
 	struct device *cpu_dev;
 	struct regulator *cpu_reg;
 	struct thermal_cooling_device *cdev;
-	unsigned int voltage_tolerance;  
+	unsigned int voltage_tolerance; /* in percentage */
 };
-#else  
+#else /* MY_ABC_HERE */
 
 static unsigned int transition_latency;
-static unsigned int voltage_tolerance;  
+static unsigned int voltage_tolerance; /* in percentage */
 
 static struct device *cpu_dev;
 static struct clk *cpu_clk;
 static struct regulator *cpu_reg;
 static struct cpufreq_frequency_table *freq_table;
-#endif  
+#endif /* MY_ABC_HERE */
 
 #if defined(MY_ABC_HERE)
 static int cpu0_set_target(struct cpufreq_policy *policy, unsigned int index)
-#else  
+#else /* MY_ABC_HERE */
 static int cpu0_verify_speed(struct cpufreq_policy *policy)
-#endif  
+#endif /* MY_ABC_HERE */
 {
 	return cpufreq_frequency_table_verify(policy, freq_table);
 }
@@ -104,6 +117,7 @@ static int cpu0_set_target(struct cpufreq_policy *policy,
 		old_freq / 1000, volt_old ? volt_old / 1000 : -1,
 		new_freq / 1000, volt ? volt / 1000 : -1);
 
+	/* scaling up?  scale voltage before frequency */
 	if (!IS_ERR(cpu_reg) && new_freq > old_freq) {
 		ret = regulator_set_voltage_tol(cpu_reg, volt, tol);
 		if (ret) {
@@ -121,6 +135,7 @@ static int cpu0_set_target(struct cpufreq_policy *policy,
 		return ret;
 	}
 
+	/* scaling down?  scale voltage after frequency */
 	if (!IS_ERR(cpu_reg) && new_freq < old_freq) {
 		ret = regulator_set_voltage_tol(cpu_reg, volt, tol);
 		if (ret) {
@@ -148,6 +163,7 @@ static int allocate_resources(int cpu, struct device **cdev,
 		return -ENODEV;
 	}
 
+	/* Try "cpu0" for older DTs */
 	if (!cpu)
 		reg = reg_cpu0;
 	else
@@ -157,13 +173,17 @@ try_again:
 	cpu_reg = regulator_get_optional(cpu_dev, reg);
 
 	if (IS_ERR(cpu_reg)) {
-		 
+		/*
+		 * If cpu's regulator supply node is present, but regulator is
+		 * not yet registered, we should try defering probe.
+		 */
 		if (PTR_ERR(cpu_reg) == -EPROBE_DEFER) {
 			dev_dbg(cpu_dev, "cpu%d regulator not ready, retry\n",
 				cpu);
 			return -EPROBE_DEFER;
 		}
 
+		/* Try with "cpu-supply" */
 		if (reg == reg_cpu0) {
 			reg = reg_cpu;
 			goto try_again;
@@ -175,12 +195,16 @@ try_again:
 
 	cpu_clk = clk_get(cpu_dev, NULL);
 	if (IS_ERR(cpu_clk)) {
-		 
+		/* put regulator */
 		if (!IS_ERR(cpu_reg))
 			regulator_put(cpu_reg);
 
 		ret = PTR_ERR(cpu_clk);
 
+		/*
+		 * If cpu's clk node is present, but clock is not yet
+		 * registered, we should try defering probe.
+		 */
 		if (ret == -EPROBE_DEFER)
 			dev_dbg(cpu_dev, "cpu%d clock not ready, retry\n", cpu);
 		else
@@ -220,6 +244,7 @@ static int cpu0_cpufreq_init(struct cpufreq_policy *policy)
 		goto out_put_reg_clk;
 	}
 
+	/* OPPs might be populated at runtime, don't check for error here */
 	of_init_opp_table(cpu_dev);
 
 	ret = dev_pm_opp_init_cpufreq_table(cpu_dev, &freq_table);
@@ -244,6 +269,11 @@ static int cpu0_cpufreq_init(struct cpufreq_policy *policy)
 		unsigned long min_uV, max_uV;
 		int i;
 
+		/*
+		 * OPP is maintained in order of increasing frequency, and
+		 * freq_table initialised from OPP is therefore sorted in the
+		 * same order.
+		 */
 		for (i = 0; freq_table[i].frequency != CPUFREQ_TABLE_END; i++)
 			;
 		rcu_read_lock();
@@ -259,6 +289,10 @@ static int cpu0_cpufreq_init(struct cpufreq_policy *policy)
 			transition_latency += ret * 1000;
 	}
 
+	/*
+	 * For now, just loading the cooling device;
+	 * thermal DT code takes care of matching them.
+	 */
 	if (of_find_property(np, "#cooling-cells", NULL)) {
 		cdev = of_cpufreq_cooling_register(np, cpu_present_mask);
 		if (IS_ERR(cdev))
@@ -321,6 +355,7 @@ static int cpu0_cpufreq_init(struct cpufreq_policy *policy)
 		goto out_put_reg_clk;
 	}
 
+	/* OPPs might be populated at runtime, don't check for error here */
 	of_init_opp_table(cpu_dev);
 
 	ret = dev_pm_opp_init_cpufreq_table(cpu_dev, &freq_table);
@@ -345,6 +380,11 @@ static int cpu0_cpufreq_init(struct cpufreq_policy *policy)
 		unsigned long min_uV, max_uV;
 		int i;
 
+		/*
+		 * OPP is maintained in order of increasing frequency, and
+		 * freq_table initialised from OPP is therefore sorted in the
+		 * same order.
+		 */
 		for (i = 0; freq_table[i].frequency != CPUFREQ_TABLE_END; i++)
 			;
 		rcu_read_lock();
@@ -360,6 +400,10 @@ static int cpu0_cpufreq_init(struct cpufreq_policy *policy)
 			transition_latency += ret * 1000;
 	}
 
+	/*
+	 * For now, just loading the cooling device;
+	 * thermal DT code takes care of matching them.
+	 */
 	if (of_find_property(np, "#cooling-cells", NULL)) {
 		cdev = of_cpufreq_cooling_register(np, cpu_present_mask);
 		if (IS_ERR(cdev))
@@ -429,6 +473,13 @@ static int cpu0_cpufreq_probe(struct platform_device *pdev)
 	struct clk *cpu_clk;
 	int ret;
 
+	/*
+	 * All per-cluster (CPUs sharing clock/voltages) initialization is done
+	 * from ->init(). In probe(), we just need to make sure that clk and
+	 * regulators are available. Else defer probe and retry.
+	 *
+	 * FIXME: Is checking this only for CPU0 sufficient ?
+	 */
 	ret = allocate_resources(0, &cpu_dev, &cpu_reg, &cpu_clk);
 	if (ret)
 		return ret;
@@ -449,7 +500,7 @@ static int cpu0_cpufreq_remove(struct platform_device *pdev)
 	cpufreq_unregister_driver(&cpu0_cpufreq_driver);
 	return 0;
 }
-#else  
+#else /* MY_ABC_HERE */
 static int cpu0_set_target(struct cpufreq_policy *policy,
 			   unsigned int target_freq, unsigned int relation)
 {
@@ -500,6 +551,7 @@ static int cpu0_set_target(struct cpufreq_policy *policy,
 		 freqs.old / 1000, volt_old ? volt_old / 1000 : -1,
 		 freqs.new / 1000, volt ? volt / 1000 : -1);
 
+	/* scaling up?  scale voltage before frequency */
 	if (cpu_reg && freqs.new > freqs.old) {
 		ret = regulator_set_voltage_tol(cpu_reg, volt, tol);
 		if (ret) {
@@ -518,6 +570,7 @@ static int cpu0_set_target(struct cpufreq_policy *policy,
 		goto post_notify;
 	}
 
+	/* scaling down?  scale voltage after frequency */
 	if (cpu_reg && freqs.new < freqs.old) {
 		ret = regulator_set_voltage_tol(cpu_reg, volt, tol);
 		if (ret) {
@@ -546,6 +599,11 @@ static int cpu0_cpufreq_init(struct cpufreq_policy *policy)
 	policy->cpuinfo.transition_latency = transition_latency;
 	policy->cur = clk_get_rate(cpu_clk) / 1000;
 
+	/*
+	 * The driver only supports the SMP configuartion where all processors
+	 * share the clock and voltage and clock.  Use cpufreq affected_cpus
+	 * interface to have all CPUs scaled together.
+	 */
 	cpumask_setall(policy->cpus);
 
 	cpufreq_frequency_table_get_attr(freq_table, policy->cpu);
@@ -593,7 +651,7 @@ static int cpu0_cpufreq_probe(struct platform_device *pdev)
 		pr_err("failed to find cpu0 node\n");
 		return -ENOENT;
 	}
-#else  
+#else /* MY_DEF_HERE */
 	struct device_node *np, *parent;
 	int ret;
 
@@ -616,11 +674,14 @@ static int cpu0_cpufreq_probe(struct platform_device *pdev)
 
 	cpu_dev = &pdev->dev;
 	cpu_dev->of_node = np;
-#endif  
+#endif /* MY_DEF_HERE */
 
 	cpu_reg = devm_regulator_get(cpu_dev, "cpu0");
 	if (IS_ERR(cpu_reg)) {
-		 
+		/*
+		 * If cpu0 regulator supply node is present, but regulator is
+		 * not yet registered, we should try defering probe.
+		 */
 		if (PTR_ERR(cpu_reg) == -EPROBE_DEFER) {
 			dev_err(cpu_dev, "cpu0 regulator not ready, retry\n");
 			ret = -EPROBE_DEFER;
@@ -639,15 +700,15 @@ static int cpu0_cpufreq_probe(struct platform_device *pdev)
 	}
 
 #ifdef MY_DEF_HERE
-	 
+	/* OPPs might be populated at runtime, don't check for error here */
 	of_init_opp_table(cpu_dev);
-#else  
+#else /* MY_DEF_HERE */
 	ret = of_init_opp_table(cpu_dev);
 	if (ret) {
 		pr_err("failed to init OPP table: %d\n", ret);
 		goto out_put_node;
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 	ret = opp_init_cpufreq_table(cpu_dev, &freq_table);
 	if (ret) {
@@ -665,6 +726,11 @@ static int cpu0_cpufreq_probe(struct platform_device *pdev)
 		unsigned long min_uV, max_uV;
 		int i;
 
+		/*
+		 * OPP is maintained in order of increasing frequency, and
+		 * freq_table initialised from OPP is therefore sorted in the
+		 * same order.
+		 */
 		for (i = 0; freq_table[i].frequency != CPUFREQ_TABLE_END; i++)
 			;
 		rcu_read_lock();
@@ -688,9 +754,9 @@ static int cpu0_cpufreq_probe(struct platform_device *pdev)
 
 	of_node_put(np);
 #ifdef MY_DEF_HERE
-#else  
+#else /* MY_DEF_HERE */
 	of_node_put(parent);
-#endif  
+#endif /* MY_DEF_HERE */
 	return 0;
 
 out_free_table:
@@ -698,10 +764,10 @@ out_free_table:
 out_put_node:
 	of_node_put(np);
 #ifdef MY_DEF_HERE
-#else  
+#else /* MY_DEF_HERE */
 out_put_parent:
 	of_node_put(parent);
-#endif  
+#endif /* MY_DEF_HERE */
 	return ret;
 }
 
@@ -712,7 +778,7 @@ static int cpu0_cpufreq_remove(struct platform_device *pdev)
 
 	return 0;
 }
-#endif  
+#endif /* MY_ABC_HERE */
 
 static struct platform_driver cpu0_cpufreq_platdrv = {
 	.driver = {
@@ -726,7 +792,7 @@ module_platform_driver(cpu0_cpufreq_platdrv);
 
 #if defined(MY_ABC_HERE)
 MODULE_AUTHOR("Viresh Kumar <viresh.kumar@linaro.org>");
-#endif  
+#endif /* MY_ABC_HERE */
 MODULE_AUTHOR("Shawn Guo <shawn.guo@linaro.org>");
 MODULE_DESCRIPTION("Generic CPU0 cpufreq driver");
 MODULE_LICENSE("GPL");

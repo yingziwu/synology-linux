@@ -370,6 +370,7 @@ struct mali_gpu_device_data {
 	 */
 	u32 pmu_switch_delay;
 
+
 	/* Mali Dynamic power domain configuration in sequence from 0-11
 	 *  GP  PP0 PP1  PP2  PP3  PP4  PP5  PP6  PP7, L2$0 L2$1 L2$2
 	 */
@@ -384,6 +385,7 @@ struct mali_gpu_device_data {
  * called to power down all cores
  */
 int mali_pmu_powerdown(void);
+
 
 /** @brief MALI GPU power up using MALI in-built PMU
  *

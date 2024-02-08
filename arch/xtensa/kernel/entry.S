@@ -1170,6 +1170,7 @@ CATCH
 
 ENDPROC(fast_syscall_xtensa)
 
+
 /* fast_syscall_spill_registers.
  *
  * Entry condition:
@@ -1328,6 +1329,7 @@ fast_syscall_spill_registers_fixup_return:
 	xsr	a3, excsave1
 
 	rfde
+
 
 /*
  * spill all registers.
@@ -1592,6 +1594,7 @@ ENTRY(fast_second_level_miss)
 	l32i	a0, a1, TASK_MM		# tsk->mm
 	beqz	a0, 9f
 
+
 	/* We deliberately destroy a3 that holds the exception table. */
 
 8:	rsr	a3, excvaddr		# fault address
@@ -1734,7 +1737,9 @@ ENTRY(fast_second_level_miss)
 	isync
 	j	4b
 
+
 #endif	// DCACHE_WAY_SIZE > PAGE_SIZE
+
 
 2:	/* Invalid PGD, default exception handling */
 

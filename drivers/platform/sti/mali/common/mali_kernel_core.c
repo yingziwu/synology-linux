@@ -42,6 +42,7 @@
 #include "mali_profiling_internal.h"
 #endif
 
+
 /* Mali GPU memory. Real values come from module parameter or from device specific data */
 unsigned int mali_dedicated_mem_start = 0;
 unsigned int mali_dedicated_mem_size = 0;
@@ -178,6 +179,7 @@ static _mali_osk_errcode_t mali_parse_product_info(void)
 
 	return _MALI_OSK_ERR_FAULT;
 }
+
 
 static void mali_resource_count(u32 *pp_count, u32 *l2_count)
 {
@@ -512,6 +514,7 @@ static _mali_osk_errcode_t mali_parse_config_groups(void)
 	resource_pp_mmu_found[5] = _mali_osk_resource_find(global_gpu_base_address + 0x1D000, &(resource_pp_mmu[5]));
 	resource_pp_mmu_found[6] = _mali_osk_resource_find(global_gpu_base_address + 0x1E000, &(resource_pp_mmu[6]));
 	resource_pp_mmu_found[7] = _mali_osk_resource_find(global_gpu_base_address + 0x1F000, &(resource_pp_mmu[7]));
+
 
 	if (mali_is_mali450()) {
 		resource_bcast_found = _mali_osk_resource_find(global_gpu_base_address + 0x13000, &resource_bcast);

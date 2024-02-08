@@ -114,6 +114,7 @@ xlog_cil_prepare_log_vecs(
 	struct xfs_log_vec	*lv = NULL;
 	struct xfs_log_vec	*ret_lv = NULL;
 
+
 	/* Bail out if we didn't find a log item.  */
 	if (list_empty(&tp->t_items)) {
 		ASSERT(0);
@@ -414,6 +415,7 @@ xlog_cil_push(
 		goto out_skip;
 	}
 	spin_unlock(&cil->xc_cil_lock);
+
 
 	/* check for a previously pushed seqeunce */
 	if (push_seq < cil->xc_ctx->sequence)
@@ -874,3 +876,4 @@ xlog_cil_destroy(
 	ASSERT(list_empty(&log->l_cilp->xc_cil));
 	kmem_free(log->l_cilp);
 }
+

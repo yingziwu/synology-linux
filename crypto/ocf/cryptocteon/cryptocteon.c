@@ -105,7 +105,9 @@ int octo_debug = 0;
 module_param(octo_debug, int, 0644);
 MODULE_PARM_DESC(octo_debug, "Enable debug");
 
+
 #include "cavium_crypto.c"
+
 
 /*
  * Generate a new octo session.  We artifically limit it to a single
@@ -204,6 +206,7 @@ octo_newsession(device_t dev, u_int32_t *sid, struct cryptoini *cri)
 
 	ocd = &octo_sessions[i];
 	*sid = i;
+
 
 	*ocd = (struct octo_sess *) kmalloc(sizeof(struct octo_sess), SLAB_ATOMIC);
 	if (*ocd == NULL) {
@@ -450,6 +453,7 @@ octo_process(device_t dev, struct cryptop *crp, int hint)
 		icv_off  = maccrd->crd_inject;
 	}
 
+
 	/*
 	 * setup the SG list to cover the buffer
 	 */
@@ -517,6 +521,7 @@ octo_process(device_t dev, struct cryptop *crp, int hint)
 			od->octo_mackey_set = 1;
 		}
 	}
+
 
 	if (!enccrd || (enccrd->crd_flags & CRD_F_ENCRYPT))
 		(*od->octo_encrypt)(od, sg, sg_len,

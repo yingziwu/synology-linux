@@ -373,6 +373,7 @@ out:
 	return ret;
 }
 
+
 int batadv_recv_icmp_packet(struct sk_buff *skb,
 			    struct batadv_hard_iface *recv_if)
 {
@@ -1147,6 +1148,7 @@ rx_success:
 
 	return batadv_route_unicast_packet(skb, recv_if);
 }
+
 
 int batadv_recv_bcast_packet(struct sk_buff *skb,
 			     struct batadv_hard_iface *recv_if)

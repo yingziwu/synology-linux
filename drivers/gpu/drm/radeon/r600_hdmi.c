@@ -70,6 +70,7 @@ static const struct radeon_hdmi_acr r600_hdmi_predefined_acr[] = {
     { 148500,  4096, 148500,  6272, 165000,  6144, 148500 }, /* 148.50       MHz */
 };
 
+
 /*
  * calculate CTS and N values if they are not found in the table
  */
@@ -557,3 +558,4 @@ void r600_hdmi_enable(struct drm_encoder *encoder, bool enable)
 	DRM_DEBUG("%sabling HDMI interface @ 0x%04X for encoder 0x%x\n",
 		  enable ? "En" : "Dis", dig->afmt->offset, radeon_encoder->encoder_id);
 }
+

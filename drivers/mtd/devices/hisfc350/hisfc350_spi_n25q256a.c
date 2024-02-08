@@ -48,3 +48,4 @@ static int spi_n25q256a_entry_4addr(struct hisfc_spi *spi, int enable)
 
 	return 0;
 }
+

@@ -106,6 +106,7 @@ met:
 #include "al_hal_eth.h"
 #include "al_init_eth_kr.h"
 
+
 enum al_eth_lm_link_mode {
 	AL_ETH_LM_MODE_DISCONNECTED,
 	AL_ETH_LM_MODE_10G_OPTIC,

@@ -71,6 +71,7 @@ unsigned long irq_hwmask[NR_IRQS];
  * Data structures purely associated with SMTC parallelism
  */
 
+
 /*
  * Table for tracking ASIDs whose lifetime is prolonged.
  */
@@ -86,11 +87,13 @@ asiduse smtc_live_asid[MAX_SMTC_TLBS][MAX_SMTC_ASIDS];
 struct smtc_ipi_q IPIQ[NR_CPUS];
 static struct smtc_ipi_q freeIPIq;
 
+
 /*
  * Number of FPU contexts for each VPE
  */
 
 static int smtc_nconf1[MAX_SMTC_VPES];
+
 
 /* Forward declarations */
 
@@ -164,6 +167,7 @@ static int __init hangtrig_enable(char *s)
 	hang_trig = 1;
 	return 1;
 }
+
 
 __setup("hangtrig", hangtrig_enable);
 
@@ -280,6 +284,7 @@ static void smtc_configure_tlb(void)
 	    }
 	}
 }
+
 
 /*
  * Incrementally build the CPU map out of constituent MIPS MT cores,
@@ -630,6 +635,7 @@ void smtc_prepare_cpus(int cpus)
 	/* Initialize SMTC /proc statistics/diagnostics */
 	init_smtc_stats();
 }
+
 
 /*
  * Setup the PC, SP, and GP of a secondary processor and start it
@@ -1355,6 +1361,7 @@ void smtc_soft_dump(void)
 	printk("%d Recoveries of \"stolen\" FPU\n",
 	       atomic_read(&smtc_fpu_recoveries));
 }
+
 
 /*
  * TLB management routines special to SMTC

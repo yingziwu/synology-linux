@@ -74,6 +74,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 MV_PP2_QUEUE_CTRL *mvPp2DpiReqQ;
 MV_PP2_QUEUE_CTRL *mvPp2DpiResQ;
 
+
 void	mvPp2DpiInit(void)
 {
 	int i;
@@ -118,6 +119,7 @@ void	mvPp2DpiRegs(void)
 	for (i = 0; i < MV_PP2_DPI_CNTRS; i++)
 		mvPp2PrintReg2(MV_PP2_DPI_CNTR_WIN_REG(i),   "MV_PP2_DPI_CNTR_WIN_REG", i);
 }
+
 
 MV_STATUS	mvPp2DpiCntrWinSet(int cntr, int offset, int size)
 {
@@ -304,6 +306,7 @@ MV_STATUS mvPp2DpiQueuesDelete(void)
 		mvPp2DpiReqQ = NULL;
 	} else
 		mvOsPrintf("%s: DPI Request queue is not initialized\n", __func__);
+
 
 	if (mvPp2DpiResQ) {
 		mvPp2DescrMemoryFree(mvPp2DpiResQ->descBuf.bufSize, (MV_ULONG *)mvPp2DpiResQ->descBuf.bufPhysAddr,

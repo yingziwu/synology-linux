@@ -121,6 +121,7 @@ struct cache_head *sunrpc_cache_lookup(struct cache_detail *detail,
 }
 EXPORT_SYMBOL_GPL(sunrpc_cache_lookup);
 
+
 static void cache_dequeue(struct cache_detail *detail, struct cache_head *ch);
 
 static void cache_fresh_locked(struct cache_head *head, time_t expiry)
@@ -483,6 +484,7 @@ static void do_cache_clean(struct work_struct *work)
 		schedule_delayed_work(&cache_cleaner, delay);
 }
 
+
 /*
  * Clean all caches promptly.  This just calls cache_clean
  * repeatedly until we are sure that every cache has had a chance to
@@ -505,6 +507,7 @@ void cache_purge(struct cache_detail *detail)
 	detail->flush_time = 1;
 }
 EXPORT_SYMBOL_GPL(cache_purge);
+
 
 /*
  * Deferral and Revisiting of Requests.
@@ -692,6 +695,7 @@ void cache_clean_deferred(void *owner)
 {
 	struct cache_deferred_req *dreq, *tmp;
 	struct list_head pending;
+
 
 	INIT_LIST_HEAD(&pending);
 	spin_lock(&cache_defer_lock);
@@ -1028,6 +1032,8 @@ static int cache_release(struct inode *inode, struct file *filp,
 	return 0;
 }
 
+
+
 static void cache_dequeue(struct cache_detail *detail, struct cache_head *ch)
 {
 	struct cache_queue *cq;
@@ -1259,6 +1265,7 @@ int qword_get(char **bpp, char *dest, int bufsize)
 }
 EXPORT_SYMBOL_GPL(qword_get);
 
+
 /*
  * support /proc/sunrpc/cache/$CACHENAME/content
  * as a seqfile.
@@ -1277,6 +1284,7 @@ static void *c_start(struct seq_file *m, loff_t *pos)
 	unsigned int hash, entry;
 	struct cache_head *ch;
 	struct cache_detail *cd = ((struct handle*)m->private)->cd;
+
 
 	read_lock(&cd->hash_lock);
 	if (!n--)
@@ -1826,3 +1834,4 @@ void sunrpc_cache_unregister_pipefs(struct cache_detail *cd)
 	cd->u.pipefs.dir = NULL;
 }
 EXPORT_SYMBOL_GPL(sunrpc_cache_unregister_pipefs);
+

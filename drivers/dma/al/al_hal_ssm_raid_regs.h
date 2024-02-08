@@ -105,6 +105,7 @@ struct raid_accelerator_perfm_cnt_cntl {
 
 };
 
+
 struct raid_accelerator_regs {
 	struct raid_accelerator_configuration configuration;
 	struct raid_accelerator_error error;
@@ -116,9 +117,11 @@ struct raid_accelerator_regs {
 	struct raid_accelerator_raid_status raid_status;
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** unit_conf register ****/
 /* When this bit is set to 1, the raid engine accept n ... */

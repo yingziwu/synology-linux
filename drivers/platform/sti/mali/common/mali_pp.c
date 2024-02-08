@@ -506,6 +506,7 @@ static _mali_osk_errcode_t mali_pp_irq_probe_ack(void *data)
 	return _MALI_OSK_ERR_FAULT;
 }
 
+
 #if 0
 static void mali_pp_print_registers(struct mali_pp_core *core)
 {

@@ -67,6 +67,7 @@ MALI_STATIC_INLINE int _mali_internal_find_first_zero_bit( u32 value )
 	return 31 - leading_zeros;
 }
 
+
 /** @defgroup _mali_osk_bitops OSK Non-atomic Bit-operations
  * @{ */
 

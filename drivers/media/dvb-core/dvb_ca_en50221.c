@@ -76,6 +76,7 @@ MODULE_PARM_DESC(cam_debug, "enable verbose debug messages");
 #define STATUSREG_DA  0x80	/* data available */
 #define STATUSREG_TXERR (STATUSREG_RE|STATUSREG_WE)	/* general transfer error */
 
+
 #define DVB_CA_SLOTSTATE_NONE           0
 #define DVB_CA_SLOTSTATE_UNINITIALISED  1
 #define DVB_CA_SLOTSTATE_RUNNING        2
@@ -84,6 +85,7 @@ MODULE_PARM_DESC(cam_debug, "enable verbose debug messages");
 #define DVB_CA_SLOTSTATE_VALIDATE       5
 #define DVB_CA_SLOTSTATE_WAITFR         6
 #define DVB_CA_SLOTSTATE_LINKINIT       7
+
 
 /* Information on a CA slot */
 struct dvb_ca_slot {
@@ -163,6 +165,7 @@ static void dvb_ca_en50221_thread_wakeup(struct dvb_ca_private *ca);
 static int dvb_ca_en50221_read_data(struct dvb_ca_private *ca, int slot, u8 * ebuf, int ecount);
 static int dvb_ca_en50221_write_data(struct dvb_ca_private *ca, int slot, u8 * ebuf, int ecount);
 
+
 /**
  * Safely find needle in haystack.
  *
@@ -187,8 +190,11 @@ static char *findstr(char * haystack, int hlen, char * needle, int nlen)
 	return NULL;
 }
 
+
+
 /* ******************************************************************************** */
 /* EN50221 physical interface functions */
+
 
 /**
  * Check CAM status.
@@ -231,6 +237,7 @@ static int dvb_ca_en50221_check_camstatus(struct dvb_ca_private *ca, int slot)
 
 	return cam_changed;
 }
+
 
 /**
  * Wait for flags to become set on the STATUS register on a CAM interface,
@@ -280,6 +287,7 @@ static int dvb_ca_en50221_wait_if_status(struct dvb_ca_private *ca, int slot,
 	/* if we get here, we've timed out */
 	return -ETIMEDOUT;
 }
+
 
 /**
  * Initialise the link layer connection to a CAM.
@@ -389,6 +397,7 @@ static int dvb_ca_en50221_read_tuple(struct dvb_ca_private *ca, int slot,
 	return 0;
 }
 
+
 /**
  * Parse attribute memory of a CAM module, extracting Config register, and checking
  * it is a DVB CAM module.
@@ -413,12 +422,15 @@ static int dvb_ca_en50221_parse_attributes(struct dvb_ca_private *ca, int slot)
 	u16 manfid = 0;
 	u16 devid = 0;
 
+
 	// CISTPL_DEVICE_0A
 	if ((status =
 	     dvb_ca_en50221_read_tuple(ca, slot, &address, &tupleType, &tupleLength, tuple)) < 0)
 		return status;
 	if (tupleType != 0x1D)
 		return -EINVAL;
+
+
 
 	// CISTPL_DEVICE_0C
 	if ((status =
@@ -427,12 +439,16 @@ static int dvb_ca_en50221_parse_attributes(struct dvb_ca_private *ca, int slot)
 	if (tupleType != 0x1C)
 		return -EINVAL;
 
+
+
 	// CISTPL_VERS_1
 	if ((status =
 	     dvb_ca_en50221_read_tuple(ca, slot, &address, &tupleType, &tupleLength, tuple)) < 0)
 		return status;
 	if (tupleType != 0x15)
 		return -EINVAL;
+
+
 
 	// CISTPL_MANFID
 	if ((status = dvb_ca_en50221_read_tuple(ca, slot, &address, &tupleType,
@@ -444,6 +460,8 @@ static int dvb_ca_en50221_parse_attributes(struct dvb_ca_private *ca, int slot)
 		return -EINVAL;
 	manfid = (tuple[1] << 8) | tuple[0];
 	devid = (tuple[3] << 8) | tuple[2];
+
+
 
 	// CISTPL_CONFIG
 	if ((status = dvb_ca_en50221_read_tuple(ca, slot, &address, &tupleType,
@@ -526,6 +544,7 @@ static int dvb_ca_en50221_parse_attributes(struct dvb_ca_private *ca, int slot)
 	return 0;
 }
 
+
 /**
  * Set CAM's configoption correctly.
  *
@@ -552,6 +571,7 @@ static int dvb_ca_en50221_set_configoption(struct dvb_ca_private *ca, int slot)
 	return 0;
 
 }
+
 
 /**
  * This function talks to an EN50221 CAM control interface. It reads a buffer of
@@ -676,6 +696,7 @@ exit:
 	return status;
 }
 
+
 /**
  * This function talks to an EN50221 CAM control interface. It writes a buffer of data
  * to a CAM.
@@ -694,6 +715,7 @@ static int dvb_ca_en50221_write_data(struct dvb_ca_private *ca, int slot, u8 * b
 	int i;
 
 	dprintk("%s\n", __func__);
+
 
 	/* sanity check */
 	if (bytes_write > ca->slot_info[slot].link_buf_size)
@@ -761,8 +783,11 @@ exitnowrite:
 }
 EXPORT_SYMBOL(dvb_ca_en50221_camchange_irq);
 
+
+
 /* ******************************************************************************** */
 /* EN50221 higher level functions */
+
 
 /**
  * A CAM has been removed => shut it down.
@@ -787,6 +812,7 @@ static int dvb_ca_en50221_slot_shutdown(struct dvb_ca_private *ca, int slot)
 	return 0;
 }
 EXPORT_SYMBOL(dvb_ca_en50221_camready_irq);
+
 
 /**
  * A CAMCHANGE IRQ has occurred.
@@ -816,6 +842,7 @@ void dvb_ca_en50221_camchange_irq(struct dvb_ca_en50221 *pubca, int slot, int ch
 }
 EXPORT_SYMBOL(dvb_ca_en50221_frda_irq);
 
+
 /**
  * A CAMREADY IRQ has occurred.
  *
@@ -833,6 +860,7 @@ void dvb_ca_en50221_camready_irq(struct dvb_ca_en50221 *pubca, int slot)
 		dvb_ca_en50221_thread_wakeup(ca);
 	}
 }
+
 
 /**
  * An FR or DA IRQ has occurred.
@@ -862,6 +890,8 @@ void dvb_ca_en50221_frda_irq(struct dvb_ca_en50221 *pubca, int slot)
 		break;
 	}
 }
+
+
 
 /* ******************************************************************************** */
 /* EN50221 thread functions */
@@ -935,6 +965,8 @@ static void dvb_ca_en50221_thread_update_delay(struct dvb_ca_private *ca)
 
 	ca->delay = curdelay;
 }
+
+
 
 /**
  * Kernel thread which monitors CA slots for CAM changes, and performs data transfers.
@@ -1136,6 +1168,8 @@ static int dvb_ca_en50221_thread(void *data)
 	return 0;
 }
 
+
+
 /* ******************************************************************************** */
 /* EN50221 IO interface functions */
 
@@ -1220,6 +1254,7 @@ out_unlock:
 	return err;
 }
 
+
 /**
  * Wrapper for ioctl implementation.
  *
@@ -1235,6 +1270,7 @@ static long dvb_ca_en50221_io_ioctl(struct file *file,
 {
 	return dvb_usercopy(file, cmd, arg, dvb_ca_en50221_io_do_ioctl);
 }
+
 
 /**
  * Implementation of write() syscall.
@@ -1329,6 +1365,7 @@ exit:
 	return status;
 }
 
+
 /**
  * Condition for waking up in dvb_ca_en50221_io_read_condition
  */
@@ -1374,6 +1411,7 @@ nextslot:
 	ca->next_read_slot = slot;
 	return found;
 }
+
 
 /**
  * Implementation of read() syscall.
@@ -1477,6 +1515,7 @@ exit:
 	return status;
 }
 
+
 /**
  * Implementation of file open syscall.
  *
@@ -1521,6 +1560,7 @@ static int dvb_ca_en50221_io_open(struct inode *inode, struct file *file)
 	return 0;
 }
 
+
 /**
  * Implementation of file close syscall.
  *
@@ -1547,6 +1587,7 @@ static int dvb_ca_en50221_io_release(struct inode *inode, struct file *file)
 
 	return err;
 }
+
 
 /**
  * Implementation of poll() syscall.
@@ -1585,6 +1626,7 @@ static unsigned int dvb_ca_en50221_io_poll(struct file *file, poll_table * wait)
 }
 EXPORT_SYMBOL(dvb_ca_en50221_init);
 
+
 static const struct file_operations dvb_ca_fops = {
 	.owner = THIS_MODULE,
 	.read = dvb_ca_en50221_io_read,
@@ -1604,8 +1646,10 @@ static struct dvb_device dvbdev_ca = {
 	.fops = &dvb_ca_fops,
 };
 
+
 /* ******************************************************************************** */
 /* Initialisation/shutdown functions */
+
 
 /**
  * Initialise a new DVB CA EN50221 interface device.
@@ -1691,6 +1735,8 @@ error:
 	return ret;
 }
 EXPORT_SYMBOL(dvb_ca_en50221_release);
+
+
 
 /**
  * Release a DVB CA EN50221 interface device.

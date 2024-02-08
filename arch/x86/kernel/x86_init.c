@@ -1,7 +1,11 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (C) 2009 Thomas Gleixner <tglx@linutronix.de>
+ *
+ *  For licencing details see kernel-base/COPYING
+ */
 #include <linux/init.h>
 #include <linux/ioport.h>
 #include <linux/module.h>
@@ -29,6 +33,10 @@ void __init x86_init_uint_noop(unsigned int unused) { }
 int __init iommu_init_noop(void) { return 0; }
 void iommu_shutdown_noop(void) { }
 
+/*
+ * The platform setup functions are preset with the default functions
+ * for standard PC hardware.
+ */
 struct x86_init_ops x86_init __initdata = {
 
 	.resources = {
@@ -115,7 +123,7 @@ struct x86_msi_ops x86_msi = {
 #endif
 
 #if defined(MY_ABC_HERE) && defined(CONFIG_PCI_MSI)
- 
+/* MSI arch specific hooks */
 int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
 {
 	return x86_msi.setup_msi_irqs(dev, nvec, type);
@@ -135,7 +143,7 @@ void arch_restore_msi_irqs(struct pci_dev *dev, int irq)
 {
 	x86_msi.restore_msi_irqs(dev, irq);
 }
-#endif  
+#endif /* MY_ABC_HERE && CONFIG_PCI_MSI */
 
 struct x86_io_apic_ops x86_io_apic_ops = {
 	.init			= native_io_apic_init_mappings,

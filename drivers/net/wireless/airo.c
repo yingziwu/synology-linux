@@ -209,6 +209,7 @@ static const char *statsLabels[] = {
 #define RUN_AT(x) (jiffies+(x))
 #endif
 
+
 /* These variables are for insmod, since it seems that the rates
    can only be set in setup_card.  Rates should be a comma separated
    (no spaces) list of rates (up to 8). */
@@ -1068,6 +1069,7 @@ typedef struct {
         u16 seq;
         char addr4[6];
 } WifiHdr;
+
 
 typedef struct {
 	TxCtlHdr ctlhdr;
@@ -2771,6 +2773,7 @@ static const struct net_device_ops mpi_netdev_ops = {
 	.ndo_validate_addr	= eth_validate_addr,
 };
 
+
 static struct net_device *_init_airo_card( unsigned short irq, int port,
 					   int is_pcmcia, struct pci_dev *pci,
 					   struct device *dmdev )
@@ -4062,6 +4065,7 @@ static int aux_bap_read(struct airo_info *ai, __le16 *pu16Dst,
 	spin_unlock_irqrestore(&ai->aux_lock, flags);
 	return SUCCESS;
 }
+
 
 /* requires call to bap_setup() first */
 static int fast_bap_read(struct airo_info *ai, __le16 *pu16Dst,
@@ -5731,6 +5735,7 @@ static u8 airo_dbm_to_pct (tdsRssiEntry *rssi_rid, u8 dbm)
 	return 0;
 }
 
+
 static int airo_get_quality (StatusRid *status_rid, CapabilityRid *cap_rid)
 {
 	int quality = 0;
@@ -6555,6 +6560,7 @@ static int airo_set_encodeext(struct net_device *dev,
 	return -EINPROGRESS;
 }
 
+
 /*------------------------------------------------------------------*/
 /*
  * Wireless Handler : get extended Encryption parameters
@@ -6621,6 +6627,7 @@ static int airo_get_encodeext(struct net_device *dev,
 
 	return 0;
 }
+
 
 /*------------------------------------------------------------------*/
 /*
@@ -6689,6 +6696,7 @@ static int airo_set_auth(struct net_device *dev,
 	return -EINPROGRESS;
 }
 
+
 /*------------------------------------------------------------------*/
 /*
  * Wireless Handler : get extended authentication parameters
@@ -6735,6 +6743,7 @@ static int airo_get_auth(struct net_device *dev,
 	}
 	return 0;
 }
+
 
 /*------------------------------------------------------------------*/
 /*

@@ -1,7 +1,27 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Faraday FTGMAC100 Gigabit Ethernet
+ *
+ * (C) Copyright 2009-2011 Faraday Technology
+ * Po-Yu Chuang <ratbert@faraday-tech.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
 
 #include <linux/dma-mapping.h>
@@ -21,12 +41,15 @@
 #define DRV_NAME	"ftgmac100"
 #define DRV_VERSION	"0.7"
 
-#define RX_QUEUE_ENTRIES	256	 
-#define TX_QUEUE_ENTRIES	512	 
+#define RX_QUEUE_ENTRIES	256	/* must be power of 2 */
+#define TX_QUEUE_ENTRIES	512	/* must be power of 2 */
 
 #define MAX_PKT_SIZE		1518
-#define RX_BUF_SIZE		PAGE_SIZE	 
+#define RX_BUF_SIZE		PAGE_SIZE	/* must be smaller than 0x3fff */
 
+/******************************************************************************
+ * private data
+ *****************************************************************************/
 struct ftgmac100_descs {
 	struct ftgmac100_rxdes rxdes[RX_QUEUE_ENTRIES];
 	struct ftgmac100_txdes txdes[TX_QUEUE_ENTRIES];
@@ -60,6 +83,9 @@ struct ftgmac100 {
 static int ftgmac100_alloc_rx_page(struct ftgmac100 *priv,
 				   struct ftgmac100_rxdes *rxdes, gfp_t gfp);
 
+/******************************************************************************
+ * internal functions (hardware register access)
+ *****************************************************************************/
 #define INT_MASK_ALL_ENABLED	(FTGMAC100_INT_RPKT_LOST	| \
 				 FTGMAC100_INT_XPKT_ETH		| \
 				 FTGMAC100_INT_XPKT_LOST	| \
@@ -96,6 +122,7 @@ static int ftgmac100_reset_hw(struct ftgmac100 *priv)
 	struct net_device *netdev = priv->netdev;
 	int i;
 
+	/* NOTE: reset clears all registers */
 	iowrite32(FTGMAC100_MACCR_SW_RST, priv->base + FTGMAC100_OFFSET_MACCR);
 	for (i = 0; i < 5; i++) {
 		unsigned int maccr;
@@ -122,7 +149,7 @@ static void ftgmac100_set_mac(struct ftgmac100 *priv, const unsigned char *mac)
 
 static void ftgmac100_init_hw(struct ftgmac100 *priv)
 {
-	 
+	/* setup ring buffer base registers */
 	ftgmac100_set_rx_ring_base(priv,
 				   priv->descs_dma_addr +
 				   offsetof(struct ftgmac100_descs, rxdes));
@@ -172,6 +199,9 @@ static void ftgmac100_stop_hw(struct ftgmac100 *priv)
 	iowrite32(0, priv->base + FTGMAC100_OFFSET_MACCR);
 }
 
+/******************************************************************************
+ * internal functions (receive descriptor)
+ *****************************************************************************/
 static bool ftgmac100_rxdes_first_segment(struct ftgmac100_rxdes *rxdes)
 {
 	return rxdes->rxdes0 & cpu_to_le32(FTGMAC100_RXDES0_FRS);
@@ -189,7 +219,7 @@ static bool ftgmac100_rxdes_packet_ready(struct ftgmac100_rxdes *rxdes)
 
 static void ftgmac100_rxdes_set_dma_own(struct ftgmac100_rxdes *rxdes)
 {
-	 
+	/* clear status bits */
 	rxdes->rxdes0 &= cpu_to_le32(FTGMAC100_RXDES0_EDORR);
 }
 
@@ -271,6 +301,10 @@ static bool ftgmac100_rxdes_ipcs_err(struct ftgmac100_rxdes *rxdes)
 	return rxdes->rxdes1 & cpu_to_le32(FTGMAC100_RXDES1_IP_CHKSUM_ERR);
 }
 
+/*
+ * rxdes2 is not used by hardware. We use it to keep track of page.
+ * Since hardware does not touch it, we can skip cpu_to_le32()/le32_to_cpu().
+ */
 static void ftgmac100_rxdes_set_page(struct ftgmac100_rxdes *rxdes, struct page *page)
 {
 	rxdes->rxdes2 = (unsigned int)page;
@@ -281,6 +315,9 @@ static struct page *ftgmac100_rxdes_get_page(struct ftgmac100_rxdes *rxdes)
 	return (struct page *)rxdes->rxdes2;
 }
 
+/******************************************************************************
+ * internal functions (receive)
+ *****************************************************************************/
 static int ftgmac100_next_rx_pointer(int pointer)
 {
 	return (pointer + 1) & (RX_QUEUE_ENTRIES - 1);
@@ -400,6 +437,7 @@ static bool ftgmac100_rx_packet(struct ftgmac100 *priv, int *processed)
 		return true;
 	}
 
+	/* start processing */
 	skb = netdev_alloc_skb_ip_align(netdev, 128);
 	if (unlikely(!skb)) {
 		if (net_ratelimit())
@@ -412,6 +450,11 @@ static bool ftgmac100_rx_packet(struct ftgmac100 *priv, int *processed)
 	if (unlikely(ftgmac100_rxdes_multicast(rxdes)))
 		netdev->stats.multicast++;
 
+	/*
+	 * It seems that HW does checksum incorrectly with fragmented packets,
+	 * so we are conservative here - if HW checksum error, let software do
+	 * the checksum again.
+	 */
 	if ((ftgmac100_rxdes_is_tcp(rxdes) && !ftgmac100_rxdes_tcpcs_err(rxdes)) ||
 	    (ftgmac100_rxdes_is_udp(rxdes) && !ftgmac100_rxdes_udpcs_err(rxdes)))
 		skb->ip_summed = CHECKSUM_UNNECESSARY;
@@ -439,11 +482,12 @@ static bool ftgmac100_rx_packet(struct ftgmac100 *priv, int *processed)
 		rxdes = ftgmac100_current_rxdes(priv);
 	} while (!done);
 
+	/* Small frames are copied into linear part of skb to free one page */
 	if (skb->len <= 128) {
 		skb->truesize -= PAGE_SIZE;
 		__pskb_pull_tail(skb, skb->len);
 	} else {
-		 
+		/* We pull the minimum amount into linear part */
 		__pskb_pull_tail(skb, ETH_HLEN);
 	}
 	skb->protocol = eth_type_trans(skb, netdev);
@@ -451,15 +495,19 @@ static bool ftgmac100_rx_packet(struct ftgmac100 *priv, int *processed)
 	netdev->stats.rx_packets++;
 	netdev->stats.rx_bytes += skb->len;
 
+	/* push packet to protocol stack */
 	napi_gro_receive(&priv->napi, skb);
 
 	(*processed)++;
 	return true;
 }
 
+/******************************************************************************
+ * internal functions (transmit descriptor)
+ *****************************************************************************/
 static void ftgmac100_txdes_reset(struct ftgmac100_txdes *txdes)
 {
-	 
+	/* clear all except end of ring bit */
 	txdes->txdes0 &= cpu_to_le32(FTGMAC100_TXDES0_EDOTR);
 	txdes->txdes1 = 0;
 	txdes->txdes2 = 0;
@@ -473,7 +521,10 @@ static bool ftgmac100_txdes_owned_by_dma(struct ftgmac100_txdes *txdes)
 
 static void ftgmac100_txdes_set_dma_own(struct ftgmac100_txdes *txdes)
 {
-	 
+	/*
+	 * Make sure dma own bit will not be set before any other
+	 * descriptor fields.
+	 */
 	wmb();
 	txdes->txdes0 |= cpu_to_le32(FTGMAC100_TXDES0_TXDMA_OWN);
 }
@@ -530,6 +581,10 @@ static dma_addr_t ftgmac100_txdes_get_dma_addr(struct ftgmac100_txdes *txdes)
 	return le32_to_cpu(txdes->txdes3);
 }
 
+/*
+ * txdes2 is not used by hardware. We use it to keep track of socket buffer.
+ * Since hardware does not touch it, we can skip cpu_to_le32()/le32_to_cpu().
+ */
 static void ftgmac100_txdes_set_skb(struct ftgmac100_txdes *txdes,
 				    struct sk_buff *skb)
 {
@@ -541,6 +596,9 @@ static struct sk_buff *ftgmac100_txdes_get_skb(struct ftgmac100_txdes *txdes)
 	return (struct sk_buff *)txdes->txdes2;
 }
 
+/******************************************************************************
+ * internal functions (transmit)
+ *****************************************************************************/
 static int ftgmac100_next_tx_pointer(int pointer)
 {
 	return (pointer + 1) & (TX_QUEUE_ENTRIES - 1);
@@ -620,6 +678,7 @@ static int ftgmac100_xmit(struct ftgmac100 *priv, struct sk_buff *skb,
 	txdes = ftgmac100_current_txdes(priv);
 	ftgmac100_tx_pointer_advance(priv);
 
+	/* setup TX descriptor */
 	ftgmac100_txdes_set_skb(txdes, skb);
 	ftgmac100_txdes_set_dma_addr(txdes, map);
 	ftgmac100_txdes_set_buffer_size(txdes, len);
@@ -646,6 +705,7 @@ static int ftgmac100_xmit(struct ftgmac100 *priv, struct sk_buff *skb,
 	if (priv->tx_pending == TX_QUEUE_ENTRIES)
 		netif_stop_queue(netdev);
 
+	/* start transmit */
 	ftgmac100_txdes_set_dma_own(txdes);
 	spin_unlock(&priv->tx_lock);
 
@@ -654,6 +714,9 @@ static int ftgmac100_xmit(struct ftgmac100 *priv, struct sk_buff *skb,
 	return NETDEV_TX_OK;
 }
 
+/******************************************************************************
+ * internal functions (buffer)
+ *****************************************************************************/
 static int ftgmac100_alloc_rx_page(struct ftgmac100 *priv,
 				   struct ftgmac100_rxdes *rxdes, gfp_t gfp)
 {
@@ -725,6 +788,7 @@ static int ftgmac100_alloc_buffers(struct ftgmac100 *priv)
 	if (!priv->descs)
 		return -ENOMEM;
 
+	/* initialize RX ring */
 	ftgmac100_rxdes_set_end_of_ring(&priv->descs->rxdes[RX_QUEUE_ENTRIES - 1]);
 
 	for (i = 0; i < RX_QUEUE_ENTRIES; i++) {
@@ -734,6 +798,7 @@ static int ftgmac100_alloc_buffers(struct ftgmac100 *priv)
 			goto err;
 	}
 
+	/* initialize TX ring */
 	ftgmac100_txdes_set_end_of_ring(&priv->descs->txdes[TX_QUEUE_ENTRIES - 1]);
 	return 0;
 
@@ -742,6 +807,9 @@ err:
 	return -ENOMEM;
 }
 
+/******************************************************************************
+ * internal functions (mdio)
+ *****************************************************************************/
 static void ftgmac100_adjust_link(struct net_device *netdev)
 {
 	struct ftgmac100 *priv = netdev_priv(netdev);
@@ -755,6 +823,7 @@ static void ftgmac100_adjust_link(struct net_device *netdev)
 
 	ier = ioread32(priv->base + FTGMAC100_OFFSET_IER);
 
+	/* disable all interrupts */
 	iowrite32(0, priv->base + FTGMAC100_OFFSET_IER);
 
 	netif_stop_queue(netdev);
@@ -764,6 +833,7 @@ static void ftgmac100_adjust_link(struct net_device *netdev)
 	ftgmac100_init_hw(priv);
 	ftgmac100_start_hw(priv, phydev->speed);
 
+	/* re-enable interrupts */
 	iowrite32(ier, priv->base + FTGMAC100_OFFSET_IER);
 }
 
@@ -773,6 +843,7 @@ static int ftgmac100_mii_probe(struct ftgmac100 *priv)
 	struct phy_device *phydev = NULL;
 	int i;
 
+	/* search for connect PHY device */
 	for (i = 0; i < PHY_MAX_ADDR; i++) {
 		struct phy_device *tmp = priv->mii_bus->phy_map[i];
 
@@ -782,6 +853,7 @@ static int ftgmac100_mii_probe(struct ftgmac100 *priv)
 		}
 	}
 
+	/* now we are supposed to have a proper phydev, to attach to... */
 	if (!phydev) {
 		netdev_info(netdev, "%s: no PHY found\n", netdev->name);
 		return -ENODEV;
@@ -799,6 +871,9 @@ static int ftgmac100_mii_probe(struct ftgmac100 *priv)
 	return 0;
 }
 
+/******************************************************************************
+ * struct mii_bus functions
+ *****************************************************************************/
 static int ftgmac100_mdiobus_read(struct mii_bus *bus, int phy_addr, int regnum)
 {
 	struct net_device *netdev = bus->priv;
@@ -808,6 +883,7 @@ static int ftgmac100_mdiobus_read(struct mii_bus *bus, int phy_addr, int regnum)
 
 	phycr = ioread32(priv->base + FTGMAC100_OFFSET_PHYCR);
 
+	/* preserve MDC cycle threshold */
 	phycr &= FTGMAC100_PHYCR_MDC_CYCTHR_MASK;
 
 	phycr |= FTGMAC100_PHYCR_PHYAD(phy_addr) |
@@ -844,6 +920,7 @@ static int ftgmac100_mdiobus_write(struct mii_bus *bus, int phy_addr,
 
 	phycr = ioread32(priv->base + FTGMAC100_OFFSET_PHYCR);
 
+	/* preserve MDC cycle threshold */
 	phycr &= FTGMAC100_PHYCR_MDC_CYCTHR_MASK;
 
 	phycr |= FTGMAC100_PHYCR_PHYAD(phy_addr) |
@@ -873,6 +950,9 @@ static int ftgmac100_mdiobus_reset(struct mii_bus *bus)
 	return 0;
 }
 
+/******************************************************************************
+ * struct ethtool_ops functions
+ *****************************************************************************/
 static void ftgmac100_get_drvinfo(struct net_device *netdev,
 				  struct ethtool_drvinfo *info)
 {
@@ -904,13 +984,16 @@ static const struct ethtool_ops ftgmac100_ethtool_ops = {
 	.get_link		= ethtool_op_get_link,
 };
 
+/******************************************************************************
+ * interrupt handler
+ *****************************************************************************/
 static irqreturn_t ftgmac100_interrupt(int irq, void *dev_id)
 {
 	struct net_device *netdev = dev_id;
 	struct ftgmac100 *priv = netdev_priv(netdev);
 
 	if (likely(netif_running(netdev))) {
-		 
+		/* Disable interrupts for polling */
 		iowrite32(0, priv->base + FTGMAC100_OFFSET_IER);
 		napi_schedule(&priv->napi);
 	}
@@ -918,6 +1001,9 @@ static irqreturn_t ftgmac100_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+/******************************************************************************
+ * struct napi_struct functions
+ *****************************************************************************/
 static int ftgmac100_poll(struct napi_struct *napi, int budget)
 {
 	struct ftgmac100 *priv = container_of(napi, struct ftgmac100, napi);
@@ -930,7 +1016,13 @@ static int ftgmac100_poll(struct napi_struct *napi, int budget)
 	iowrite32(status, priv->base + FTGMAC100_OFFSET_ISR);
 
 	if (status & (FTGMAC100_INT_RPKT_BUF | FTGMAC100_INT_NO_RXBUF)) {
-		 
+		/*
+		 * FTGMAC100_INT_RPKT_BUF:
+		 *	RX DMA has received packets into RX buffer successfully
+		 *
+		 * FTGMAC100_INT_NO_RXBUF:
+		 *	RX buffer unavailable
+		 */
 		bool retry;
 
 		do {
@@ -942,7 +1034,14 @@ static int ftgmac100_poll(struct napi_struct *napi, int budget)
 	}
 
 	if (status & (FTGMAC100_INT_XPKT_ETH | FTGMAC100_INT_XPKT_LOST)) {
-		 
+		/*
+		 * FTGMAC100_INT_XPKT_ETH:
+		 *	packet transmitted to ethernet successfully
+		 *
+		 * FTGMAC100_INT_XPKT_LOST:
+		 *	packet transmitted to ethernet lost due to late
+		 *	collision or excessive collision
+		 */
 		ftgmac100_tx_complete(priv);
 	}
 
@@ -956,12 +1055,12 @@ static int ftgmac100_poll(struct napi_struct *napi, int budget)
 				    status & FTGMAC100_INT_PHYSTS_CHG ? "PHYSTS_CHG" : "");
 
 		if (status & FTGMAC100_INT_NO_RXBUF) {
-			 
+			/* RX buffer unavailable */
 			netdev->stats.rx_over_errors++;
 		}
 
 		if (status & FTGMAC100_INT_RPKT_LOST) {
-			 
+			/* received packet lost due to RX FIFO full */
 			netdev->stats.rx_fifo_errors++;
 		}
 	}
@@ -969,12 +1068,16 @@ static int ftgmac100_poll(struct napi_struct *napi, int budget)
 	if (completed) {
 		napi_complete(napi);
 
+		/* enable all interrupts */
 		iowrite32(INT_MASK_ALL_ENABLED, priv->base + FTGMAC100_OFFSET_IER);
 	}
 
 	return rx;
 }
 
+/******************************************************************************
+ * struct net_device_ops functions
+ *****************************************************************************/
 static int ftgmac100_open(struct net_device *netdev)
 {
 	struct ftgmac100 *priv = netdev_priv(netdev);
@@ -1009,6 +1112,7 @@ static int ftgmac100_open(struct net_device *netdev)
 	napi_enable(&priv->napi);
 	netif_start_queue(netdev);
 
+	/* enable all interrupts */
 	iowrite32(INT_MASK_ALL_ENABLED, priv->base + FTGMAC100_OFFSET_IER);
 	return 0;
 
@@ -1024,6 +1128,7 @@ static int ftgmac100_stop(struct net_device *netdev)
 {
 	struct ftgmac100 *priv = netdev_priv(netdev);
 
+	/* disable all interrupts */
 	iowrite32(0, priv->base + FTGMAC100_OFFSET_IER);
 
 	netif_stop_queue(netdev);
@@ -1054,7 +1159,7 @@ static int ftgmac100_hard_start_xmit(struct sk_buff *skb,
 
 	map = dma_map_single(priv->dev, skb->data, skb_headlen(skb), DMA_TO_DEVICE);
 	if (unlikely(dma_mapping_error(priv->dev, map))) {
-		 
+		/* drop packet */
 		if (net_ratelimit())
 			netdev_err(netdev, "map socket buffer failed\n");
 
@@ -1066,6 +1171,7 @@ static int ftgmac100_hard_start_xmit(struct sk_buff *skb,
 	return ftgmac100_xmit(priv, skb, map);
 }
 
+/* optional */
 static int ftgmac100_do_ioctl(struct net_device *netdev, struct ifreq *ifr, int cmd)
 {
 	struct ftgmac100 *priv = netdev_priv(netdev);
@@ -1082,6 +1188,9 @@ static const struct net_device_ops ftgmac100_netdev_ops = {
 	.ndo_do_ioctl		= ftgmac100_do_ioctl,
 };
 
+/******************************************************************************
+ * struct platform_driver functions
+ *****************************************************************************/
 static int ftgmac100_probe(struct platform_device *pdev)
 {
 	struct resource *res;
@@ -1102,6 +1211,7 @@ static int ftgmac100_probe(struct platform_device *pdev)
 	if (irq < 0)
 		return irq;
 
+	/* setup net_device */
 	netdev = alloc_etherdev(sizeof(*priv));
 	if (!netdev) {
 		err = -ENOMEM;
@@ -1116,14 +1226,17 @@ static int ftgmac100_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, netdev);
 
+	/* setup private data */
 	priv = netdev_priv(netdev);
 	priv->netdev = netdev;
 	priv->dev = &pdev->dev;
 
 	spin_lock_init(&priv->tx_lock);
 
+	/* initialize NAPI */
 	netif_napi_add(netdev, &priv->napi, ftgmac100_poll, 64);
 
+	/* map io memory */
 	priv->res = request_mem_region(res->start, resource_size(res),
 				       dev_name(&pdev->dev));
 	if (!priv->res) {
@@ -1141,6 +1254,7 @@ static int ftgmac100_probe(struct platform_device *pdev)
 
 	priv->irq = irq;
 
+	/* initialize mdio bus */
 	priv->mii_bus = mdiobus_alloc();
 	if (!priv->mii_bus) {
 		err = -EIO;
@@ -1171,6 +1285,7 @@ static int ftgmac100_probe(struct platform_device *pdev)
 		goto err_mii_probe;
 	}
 
+	/* register network device */
 	err = register_netdev(netdev);
 	if (err) {
 		dev_err(&pdev->dev, "Failed to register netdev\n");
@@ -1200,9 +1315,9 @@ err_ioremap:
 err_req_mem:
 	netif_napi_del(&priv->napi);
 #if defined (MY_DEF_HERE)
-#else  
+#else /* MY_DEF_HERE */
 	platform_set_drvdata(pdev, NULL);
-#endif  
+#endif /* MY_DEF_HERE */
 	free_netdev(netdev);
 err_alloc_etherdev:
 	return err;
@@ -1227,9 +1342,9 @@ static int __exit ftgmac100_remove(struct platform_device *pdev)
 
 	netif_napi_del(&priv->napi);
 #if defined (MY_DEF_HERE)
-#else  
+#else /* MY_DEF_HERE */
 	platform_set_drvdata(pdev, NULL);
-#endif  
+#endif /* MY_DEF_HERE */
 	free_netdev(netdev);
 	return 0;
 }

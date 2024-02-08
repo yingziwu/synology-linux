@@ -1,7 +1,29 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *   STMicroelectronics System-on-Chips' generic converters infrastructure
+ *
+ *   Copyright (c) 2005-2007 STMicroelectronics Limited
+ *
+ *   Author: Pawel Moll <pawel.moll@st.com>
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, write to the Free Software
+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ *
+ */
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -11,6 +33,10 @@
 #include "common.h"
 
 extern int snd_stm_debug_level;
+
+/*
+ * Converters infrastructure description
+ */
 
 struct snd_stm_conv_group;
 struct snd_stm_conv_source;
@@ -29,7 +55,7 @@ struct snd_stm_conv_converter {
 	int enabled;
 	int muted_by_source;
 	int muted_by_user;
-	spinlock_t status_lock;  
+	spinlock_t status_lock; /* Protects enabled and muted_by_* */
 	struct snd_kcontrol *ctl_mute;
 
 	snd_stm_magic_field;
@@ -47,7 +73,7 @@ struct snd_stm_conv_group {
 
 	snd_stm_magic_field;
 
-	char name[1];  
+	char name[1]; /* "Expandable" */
 };
 
 struct snd_stm_conv_source {
@@ -67,12 +93,16 @@ struct snd_stm_conv_source {
 	snd_stm_magic_field;
 };
 
-static LIST_HEAD(snd_stm_conv_sources);  
+static LIST_HEAD(snd_stm_conv_sources); /* Sources list */
 #ifdef MY_DEF_HERE
 spinlock_t snd_stm_conv_lock;
-#else  
-static DEFINE_MUTEX(snd_stm_conv_mutex);  
-#endif  
+#else /* MY_DEF_HERE */
+static DEFINE_MUTEX(snd_stm_conv_mutex); /* Big Converters Structure Lock ;-) */
+#endif /* MY_DEF_HERE */
+
+/*
+ * Converter control interface implementation
+ */
 
 const char *snd_stm_conv_get_name(struct snd_stm_conv_group *group)
 {
@@ -93,6 +123,10 @@ unsigned int snd_stm_conv_get_format(struct snd_stm_conv_group *group)
 
 	BUG_ON(!group);
 	BUG_ON(!snd_stm_magic_valid(group));
+
+	/* All configured converters must share the same input format -
+	 * get first of them and check the rest; if any of converters
+	 * has different opinion than others - raise an error! */
 
 	list_for_each_entry(converter, &group->converters, list) {
 		unsigned int format = converter->ops->get_format(
@@ -122,6 +156,10 @@ int snd_stm_conv_get_oversampling(struct snd_stm_conv_group *group)
 
 	BUG_ON(!group);
 	BUG_ON(!snd_stm_magic_valid(group));
+
+	/* All configured converters must share the same oversampling value -
+	 * get first of them and check the rest; if any of converters
+	 * has different opinion than others - raise an error! */
 
 	list_for_each_entry(converter, &group->converters, list) {
 		int oversampling;
@@ -325,6 +363,10 @@ int snd_stm_conv_unmute(struct snd_stm_conv_group *group)
 }
 EXPORT_SYMBOL(snd_stm_conv_unmute);
 
+/*
+ * ALSA controls
+ */
+
 static int snd_stm_conv_ctl_mute_get(struct snd_kcontrol *kcontrol,
 		struct snd_ctl_elem_value *ucontrol)
 {
@@ -412,7 +454,8 @@ static int snd_stm_conv_ctl_mute_add(struct snd_stm_conv_converter *converter)
 	ctl_mute = snd_ctl_new1(&snd_stm_conv_ctl_mute, converter);
 	result = snd_ctl_add(source->card, ctl_mute);
 	if (result >= 0) {
-		 
+		/* We will have to manually dispose "hot-plugged" controls...
+		 * ("normal" ones will be disposed during snd_card_free) */
 		if (snd_stm_card_is_registered(SND_STM_CARD_TYPE_AUDIO))
 			converter->ctl_mute = ctl_mute;
 
@@ -424,6 +467,8 @@ static int snd_stm_conv_ctl_mute_add(struct snd_stm_conv_converter *converter)
 
 	return result;
 }
+
+
 
 static int snd_stm_conv_ctl_route_info(struct snd_kcontrol *kcontrol,
 		struct snd_ctl_elem_info *uinfo)
@@ -443,9 +488,9 @@ static int snd_stm_conv_ctl_route_info(struct snd_kcontrol *kcontrol,
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	list_for_each_entry(group, &source->groups, list) {
 		if (list_is_last(&group->list, &source->groups) &&
@@ -461,9 +506,9 @@ static int snd_stm_conv_ctl_route_info(struct snd_kcontrol *kcontrol,
 
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return 0;
 }
@@ -483,11 +528,11 @@ static int snd_stm_conv_ctl_route_get(struct snd_kcontrol *kcontrol,
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
-	ucontrol->value.enumerated.item[0] = 0;  
+	ucontrol->value.enumerated.item[0] = 0; /* First is default ;-) */
 
 	list_for_each_entry(group, &source->groups, list) {
 		if (group == source->group_selected) {
@@ -499,9 +544,9 @@ static int snd_stm_conv_ctl_route_get(struct snd_kcontrol *kcontrol,
 
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return 0;
 }
@@ -522,9 +567,9 @@ static int snd_stm_conv_ctl_route_put(struct snd_kcontrol *kcontrol,
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	list_for_each_entry(group, &source->groups, list) {
 		if (item == ucontrol->value.enumerated.item[0]) {
@@ -539,9 +584,9 @@ static int snd_stm_conv_ctl_route_put(struct snd_kcontrol *kcontrol,
 
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return changed;
 }
@@ -569,7 +614,9 @@ static int snd_stm_conv_ctl_route_add(struct snd_stm_conv_source *source)
 	ctl_route = snd_ctl_new1(&snd_stm_conv_ctl_route, source);
 	result = snd_ctl_add(source->card, ctl_route);
 	if (result >= 0) {
-		 
+		/* We will have to manually dispose "hot-plugged"
+		 * controls... ("normal" ones will be disposed
+		 * during snd_card_free) */
 		if (snd_stm_card_is_registered(SND_STM_CARD_TYPE_AUDIO))
 			source->ctl_route = ctl_route;
 
@@ -581,6 +628,10 @@ static int snd_stm_conv_ctl_route_add(struct snd_stm_conv_source *source)
 
 	return result;
 }
+
+/*
+ * Converters router implementation
+ */
 
 static inline int snd_stm_conv_more_than_one_entry(const struct list_head *head)
 {
@@ -599,13 +650,15 @@ static struct snd_stm_conv_source *snd_stm_conv_get_source(
 	BUG_ON(!bus_id);
 
 #ifdef MY_DEF_HERE
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	list_for_each_entry(source, &snd_stm_conv_sources, list)
 		if ((bus == source->bus) && (bus_id == source->bus_id))
-			goto done;  
+			goto done; /* Already known source */
+
+	/* First time see... */
 
 	source = kzalloc(sizeof(*source), GFP_KERNEL);
 	if (!source) {
@@ -622,9 +675,9 @@ static struct snd_stm_conv_source *snd_stm_conv_get_source(
 
 done:
 #ifdef MY_DEF_HERE
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return source;
 }
@@ -662,13 +715,17 @@ struct snd_stm_conv_source *snd_stm_conv_register_source(struct bus_type *bus,
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
+
+	/* Add route ALSA control if needed */
 
 	if (snd_stm_conv_more_than_one_entry(&source->groups) &&
 			snd_stm_conv_ctl_route_add(source) != 0)
 		snd_stm_printe("Failed to add route ALSA control!\n");
+
+	/* Add mute ALSA controls for already registered converters */
 
 	list_for_each_entry(group, &source->groups, list) {
 		struct snd_stm_conv_converter *converter;
@@ -688,9 +745,9 @@ struct snd_stm_conv_source *snd_stm_conv_register_source(struct bus_type *bus,
 
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return source;
 }
@@ -706,13 +763,14 @@ int snd_stm_conv_unregister_source(struct snd_stm_conv_source *source)
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	list_del(&source->list);
 	source->channels_num = 0;
 
+	/* If there is no more registered converters... */
 	if (list_empty(&source->groups)) {
 		snd_stm_magic_clear(source);
 		kfree(source);
@@ -720,13 +778,14 @@ int snd_stm_conv_unregister_source(struct snd_stm_conv_source *source)
 
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return 0;
 }
 EXPORT_SYMBOL(snd_stm_conv_unregister_source);
+
 
 static struct snd_stm_conv_group *snd_stm_conv_get_group(
 		struct snd_stm_conv_source *source, const char *name)
@@ -740,17 +799,20 @@ static struct snd_stm_conv_group *snd_stm_conv_get_group(
 	BUG_ON(!snd_stm_magic_valid(source));
 	BUG_ON(!name);
 
+	/* Random memory fuse */
 	BUG_ON(strlen(name) > 1024);
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	list_for_each_entry(group, &source->groups, list)
 		if (strcmp(name, group->name) == 0)
-			goto done;  
+			goto done; /* Already known group */
+
+	/* First time see... */
 
 	group = kzalloc(sizeof(*group) + strlen(name), GFP_KERNEL);
 	if (!group) {
@@ -771,15 +833,18 @@ static struct snd_stm_conv_group *snd_stm_conv_get_group(
 
 	list_add_tail(&group->list, &source->groups);
 
+	/* If this is a second group attached to this source,
+	 * and the source has been already registered, we need
+	 * to add a route ALSA control... */
 	if (source->card && snd_stm_conv_more_than_one_entry(&source->groups))
 		snd_stm_conv_ctl_route_add(source);
 
 done:
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return group;
 }
@@ -804,16 +869,19 @@ static int snd_stm_conv_remove_group(struct snd_stm_conv_group *group)
 		snd_stm_printe("WARNING! Removing active converters group! "
 				"I hope you know what are you doing...\n");
 
+	/* Removing actually selected group? */
 	if (group == source->group_selected) {
 		if (list_empty(&source->groups)) {
-			 
+			/* This was the last group... */
 			source->group_selected = NULL;
 		} else {
-			 
+			/* If there is only one group left, the route control
+			 * is not needed anymore */
 			if (!snd_stm_conv_more_than_one_entry(&source->groups)
 					&& source->ctl_route)
 				snd_ctl_remove(source->card, source->ctl_route);
 
+			/* The first group on list is considered default... */
 			source->group_selected = list_first_entry(
 					&source->groups,
 					struct snd_stm_conv_group, list);
@@ -823,6 +891,7 @@ static int snd_stm_conv_remove_group(struct snd_stm_conv_group *group)
 	snd_stm_magic_clear(group);
 	kfree(group);
 
+	/* Release the source resources, if not used anymore */
 	if (list_empty(&source->groups) && source->channels_num == 0) {
 		snd_stm_magic_clear(source);
 		kfree(source);
@@ -856,6 +925,8 @@ struct snd_stm_conv_converter *snd_stm_conv_register_converter(
 	BUG_ON(source_channel_from < 0);
 	BUG_ON(source_channel_to < source_channel_from);
 
+	/* Create converter description */
+
 	converter = kzalloc(sizeof(*converter), GFP_KERNEL);
 	if (!converter) {
 		snd_stm_printe("Can't allocate memory for converter!\n");
@@ -871,6 +942,8 @@ struct snd_stm_conv_converter *snd_stm_conv_register_converter(
 	converter->muted_by_source = 1;
 
 	spin_lock_init(&converter->status_lock);
+
+	/* And link it with the source */
 
 	source = snd_stm_conv_get_source(source_bus, source_bus_id);
 	if (!source) {
@@ -890,18 +963,20 @@ struct snd_stm_conv_converter *snd_stm_conv_register_converter(
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	converter->group = group;
 	list_add_tail(&converter->list, &group->converters);
 
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
+
+	/* Add mute ALSA control if muting is supported and source is known */
 
 	if (source->card && ops->set_muted &&
 			snd_stm_conv_ctl_mute_add(converter) < 0) {
@@ -943,9 +1018,9 @@ int snd_stm_conv_unregister_converter(struct snd_stm_conv_converter *converter)
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	list_del(&converter->list);
 
@@ -960,9 +1035,9 @@ int snd_stm_conv_unregister_converter(struct snd_stm_conv_converter *converter)
 
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return 0;
 }
@@ -980,6 +1055,7 @@ int snd_stm_conv_get_card_device(struct snd_stm_conv_converter *converter)
 }
 EXPORT_SYMBOL(snd_stm_conv_get_card_device);
 
+
 struct snd_stm_conv_group *snd_stm_conv_request_group(
 		struct snd_stm_conv_source *source)
 {
@@ -991,17 +1067,17 @@ struct snd_stm_conv_group *snd_stm_conv_request_group(
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	source->group_active = source->group_selected;
 
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return source->group_active;
 }
@@ -1019,21 +1095,25 @@ int snd_stm_conv_release_group(struct snd_stm_conv_group *group)
 
 #ifdef MY_DEF_HERE
 	spin_lock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_lock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	group->source->group_active = NULL;
 
 #ifdef MY_DEF_HERE
 	spin_unlock(&snd_stm_conv_lock);
-#else  
+#else /* MY_DEF_HERE */
 	mutex_unlock(&snd_stm_conv_mutex);
-#endif  
+#endif /* MY_DEF_HERE */
 
 	return 0;
 }
 EXPORT_SYMBOL(snd_stm_conv_release_group);
+
+/*
+ * Converters information view
+ */
 
 static struct snd_info_entry *snd_stm_conv_proc_entry;
 
@@ -1081,9 +1161,14 @@ static void snd_stm_conv_info(struct snd_info_entry *entry,
 	snd_iprintf(buffer, "\n");
 }
 
+/*
+ * Initialization
+ */
+
 int snd_stm_conv_init(void)
 {
-	 
+	/* Register converters information file in ALSA's procfs */
+
 	snd_stm_info_register(&snd_stm_conv_proc_entry, "converters",
 			snd_stm_conv_info, NULL);
 

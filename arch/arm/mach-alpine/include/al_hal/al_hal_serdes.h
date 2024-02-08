@@ -527,6 +527,7 @@ int al_serdes_digital_test_bus(
 	uint8_t			sel,
 	uint8_t			*sampled_data);
 
+
 /* KR link training */
 /**
  * Set the tx de-emphasis to preset values
@@ -656,6 +657,7 @@ al_bool al_serdes_signal_is_detected(
 		struct al_serdes_obj	*obj,
 		enum al_serdes_group	grp,
 		enum al_serdes_lane	lane);
+
 
 struct al_serdes_adv_tx_params {
 	/*
