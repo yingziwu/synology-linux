@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_WAIT_H
 #define _LINUX_WAIT_H
 
@@ -24,6 +27,9 @@ struct wait_bit_key {
 	void *flags;
 	int bit_nr;
 #define WAIT_ATOMIC_T_BIT_NR -1
+#ifdef MY_ABC_HERE
+	unsigned long		timeout;
+#endif /* MY_ABC_HERE */
 };
 
 struct wait_bit_queue {
@@ -140,6 +146,9 @@ static inline void __remove_wait_queue(wait_queue_head_t *head,
 	list_del(&old->task_list);
 }
 
+#ifdef MY_ABC_HERE
+typedef int wait_bit_action_f(struct wait_bit_key *);
+#endif /* MY_ABC_HERE */
 void __wake_up(wait_queue_head_t *q, unsigned int mode, int nr, void *key);
 void __wake_up_locked_key(wait_queue_head_t *q, unsigned int mode, void *key);
 void __wake_up_sync_key(wait_queue_head_t *q, unsigned int mode, int nr,
@@ -147,11 +156,17 @@ void __wake_up_sync_key(wait_queue_head_t *q, unsigned int mode, int nr,
 void __wake_up_locked(wait_queue_head_t *q, unsigned int mode, int nr);
 void __wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr);
 void __wake_up_bit(wait_queue_head_t *, void *, int);
+#ifdef MY_ABC_HERE
+int __wait_on_bit_action_f(wait_queue_head_t *, struct wait_bit_queue *, wait_bit_action_f *, unsigned);
+#endif /* MY_ABC_HERE */
 int __wait_on_bit(wait_queue_head_t *, struct wait_bit_queue *, int (*)(void *), unsigned);
 int __wait_on_bit_lock(wait_queue_head_t *, struct wait_bit_queue *, int (*)(void *), unsigned);
 void wake_up_bit(void *, int);
 void wake_up_atomic_t(atomic_t *);
 int out_of_line_wait_on_bit(void *, int, int (*)(void *), unsigned);
+#ifdef MY_ABC_HERE
+int out_of_line_wait_on_bit_timeout(void *, int, wait_bit_action_f *, unsigned, unsigned long);
+#endif /* MY_ABC_HERE */
 int out_of_line_wait_on_bit_lock(void *, int, int (*)(void *), unsigned);
 int out_of_line_wait_on_atomic_t(atomic_t *, int (*)(atomic_t *), unsigned);
 wait_queue_head_t *bit_waitqueue(void *, int);
@@ -919,6 +934,12 @@ int wake_bit_function(wait_queue_t *wait, unsigned mode, int sync, void *key);
 		INIT_LIST_HEAD(&(wait)->task_list);			\
 		(wait)->flags = 0;					\
 	} while (0)
+
+
+#ifdef MY_ABC_HERE
+extern int bit_wait_timeout(struct wait_bit_key *);
+extern int bit_wait_io_timeout(struct wait_bit_key *);
+#endif /* MY_ABC_HERE */
 
 /**
  * wait_on_bit - wait for a bit to be cleared

@@ -341,6 +341,7 @@ ModuleList=" \
 	${ModUSB} \
 	${ModUSBIP} \
 	${ModUSBWimax} \
+	${ModAlsa} \
 	${ModDocker} \
 	${ModRaid} \
 	"

@@ -1150,7 +1150,11 @@ int btrfs_usrquota_limit(struct btrfs_trans_handle *trans,
 
 	mutex_lock(&fs_info->usrquota_ioctl_lock);
 	if (!fs_info->usrquota_root) {
+#ifdef MY_ABC_HERE
+		ret = -ESRCH;
+#else
 		ret = -EINVAL;
+#endif /* MY_ABC_HERE */
 		goto out;
 	}
 
@@ -1184,7 +1188,11 @@ int btrfs_usrquota_clean(struct btrfs_trans_handle *trans,
 	u64 objectid = 0;
 
 	if (!fs_info->usrquota_enabled)
+#ifdef MY_ABC_HERE
+		return -ESRCH;
+#else
 		return 0;
+#endif /* MY_ABC_HERE */
 	mutex_lock(&fs_info->usrquota_ioctl_lock);
 	if (!fs_info->usrquota_root) {
 		ret = -EINVAL;
@@ -1450,12 +1458,10 @@ int btrfs_usrquota_reserve(struct btrfs_root *root, struct inode *inode, uid_t u
 	}
 
 	usrquota = add_usrquota_rb(fs_info, rootid, uid);
-	if (IS_ERR(usrquota)) {
-		ret = PTR_ERR(usrquota);
+	if (IS_ERR(usrquota))
 		goto out;
-	}
 
-	if (usrquota->uq_rfer_hard && !capable(CAP_SYS_RESOURCE)) {
+	if (usrquota->uq_rfer_hard) {
 #ifdef MY_ABC_HERE
 		if (usrquota->uq_rfer_used + usrquota->uq_reserved + usrquota->uq_delayed_free + num_bytes > usrquota->uq_rfer_hard) {
 #else
@@ -1807,7 +1813,11 @@ static int usrquota_rescan_init(struct btrfs_fs_info *fs_info, u64 rootid, u64 o
 	if (fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_RESCAN)
 		ret = -EINPROGRESS;
 	else if (!(fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_ON))
+#ifdef MY_ABC_HERE
+		ret = -ESRCH;
+#else
 		ret = -EINVAL;
+#endif /* MY_ABC_HERE */
 
 	if (ret) {
 		spin_unlock(&fs_info->usrquota_lock);
@@ -2460,14 +2470,17 @@ out:
 /*
  * struct btrfs_ioctl_usrquota_query_args should be initialized to zero
  */
-void btrfs_usrquota_query(struct btrfs_fs_info *fs_info, u64 rootid,
+int btrfs_usrquota_query(struct btrfs_fs_info *fs_info, u64 rootid,
                           struct btrfs_ioctl_usrquota_query_args *uqa)
 {
 	struct btrfs_usrquota *usrquota;
+	int ret = 0;
 
 	mutex_lock(&fs_info->usrquota_ioctl_lock);
-	if (!fs_info->usrquota_enabled)
+	if (!fs_info->usrquota_enabled) {
+		ret = -ESRCH;
 		goto unlock;
+	}
 
 	if (usrquota_subtree_load(fs_info, rootid))
 		goto unlock;
@@ -2484,4 +2497,5 @@ unload:
 	usrquota_subtree_unload(fs_info, rootid);
 unlock:
 	mutex_unlock(&fs_info->usrquota_ioctl_lock);
+	return ret;
 }

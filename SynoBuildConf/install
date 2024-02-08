@@ -39,7 +39,7 @@ SYNOAutoGenerateModulesConfig () {
 IPV6_COMMON_LIST="ipv6 ip_tunnel tunnel4 sit"
 CRYPTO_MODULES_X86_64_COMMON_LIST="cbc md5 cts ansi_cprng des_generic authenc aes-x86_64 ecb sha1_generic sha256_generic arc4"
 CPUFREQ_MODULES_COMMON_LIST="freq_table cpufreq_stats thermal_sys processor mperf acpi-cpufreq cpufreq_performance cpufreq_powersave"
-MISC_MODULES_COMMON_LIST="hmac md4 hfsplus libcrc32c zlib_deflate llc p8022 psnap crc-ccitt crc-itu-t dm-snapshot sg"
+MISC_MODULES_COMMON_LIST="hmac md4 hfsplus libcrc32c zlib_deflate llc p8022 psnap crc-ccitt crc-itu-t dm-snapshot sg loop"
 USB_MODULES_COMMON_LIST="usb-common usbcore xhci-hcd usb-storage"
 
 if [ -f "${KERNEL_MODULES_TABLE}" ]; then

@@ -96,6 +96,12 @@ static int comp_data_refs(struct btrfs_delayed_data_ref *ref2,
 		if (ref1->parent > ref2->parent)
 			return 1;
 	}
+#ifdef MY_ABC_HERE
+	if (ref1->syno_usage < ref2->syno_usage)
+			return -1;
+	if (ref1->syno_usage > ref2->syno_usage)
+			return 1;
+#endif /* MY_ABC_HERE */
 	return 0;
 }
 
@@ -278,14 +284,29 @@ static inline void drop_delayed_ref(struct btrfs_trans_handle *trans,
 				    struct btrfs_delayed_ref_head *head,
 				    struct btrfs_delayed_ref_node *ref)
 {
+#ifdef MY_ABC_HERE
+	struct btrfs_delayed_data_ref *data_ref = NULL;
+#endif /* MY_ABC_HERE */
 	if (btrfs_delayed_ref_is_head(ref)) {
 		head = btrfs_delayed_node_to_head(ref);
 		rb_erase(&head->href_node, &delayed_refs->href_root);
 	} else {
 		assert_spin_locked(&head->lock);
 		rb_erase(&ref->rb_node, &head->ref_root);
+#ifdef MY_ABC_HERE
+		if (!list_empty(&ref->syno_list))
+			list_del(&ref->syno_list);
+#endif /* MY_ABC_HERE */
 	}
 	ref->in_tree = 0;
+#ifdef MY_ABC_HERE
+	if (ref->type == BTRFS_EXTENT_DATA_REF_KEY || ref->type == BTRFS_SHARED_DATA_REF_KEY) {
+		data_ref = btrfs_delayed_node_to_data_ref(ref);
+		if (data_ref->syno_usage) {
+			atomic_dec(&delayed_refs->num_syno_usage_entries);
+		}
+	}
+#endif /* MY_ABC_HERE */
 	btrfs_put_delayed_ref(ref);
 	atomic_dec(&delayed_refs->num_entries);
 	if (trans->delayed_ref_updates)
@@ -452,6 +473,12 @@ again:
 	head->processing = 1;
 	WARN_ON(delayed_refs->num_heads_ready == 0);
 	delayed_refs->num_heads_ready--;
+#ifdef MY_ABC_HERE
+	if (head->syno_usage) {
+		WARN_ON(delayed_refs->num_syno_usage_heads_ready == 0);
+		delayed_refs->num_syno_usage_heads_ready--;
+	}
+#endif /* MY_ABC_HERE */
 	delayed_refs->run_delayed_start = head->node.bytenr +
 		head->node.num_bytes;
 	return head;
@@ -493,6 +520,12 @@ btrfs_select_data_ref_head(struct btrfs_trans_handle *trans)
 	head->processing = 1;
 	WARN_ON(delayed_refs->num_heads_ready == 0);
 	delayed_refs->num_heads_ready--;
+#ifdef MY_ABC_HERE
+	if (head->syno_usage) {
+		WARN_ON(delayed_refs->num_syno_usage_heads_ready == 0);
+		delayed_refs->num_syno_usage_heads_ready--;
+	}
+#endif /* MY_ABC_HERE */
 	delayed_refs->run_delayed_start = head->node.bytenr +
 		head->node.num_bytes;
 	return head;
@@ -632,6 +665,14 @@ update_existing_head_ref(struct btrfs_delayed_ref_root *delayed_refs,
 	existing->ref_mod += update->ref_mod;
 	existing_ref->total_ref_mod += update->ref_mod;
 
+#ifdef MY_ABC_HERE
+	if (!existing_ref->syno_usage && ref->syno_usage) {
+		existing_ref->syno_usage = ref->syno_usage;
+		if (existing_ref->processing == 0)
+			delayed_refs->num_syno_usage_heads_ready++;
+	}
+#endif /* MY_ABC_HERE */
+
 	/*
 	 * If we are going to from a positive ref mod to a negative or vice
 	 * versa we need to make sure to adjust pending_csums accordingly.
@@ -666,7 +707,11 @@ static noinline struct btrfs_delayed_ref_head *
 add_delayed_ref_head(struct btrfs_fs_info *fs_info,
 		     struct btrfs_trans_handle *trans,
 		     struct btrfs_delayed_ref_node *ref, u64 bytenr,
-		     u64 num_bytes, int action, int is_data)
+		     u64 num_bytes, int action, int is_data
+#ifdef MY_ABC_HERE
+		     ,int syno_usage
+#endif /* MY_ABC_HERE */
+		     )
 {
 	struct btrfs_delayed_ref_head *existing;
 	struct btrfs_delayed_ref_head *head_ref = NULL;
@@ -711,6 +756,9 @@ add_delayed_ref_head(struct btrfs_fs_info *fs_info,
 	ref->is_head = 1;
 	ref->in_tree = 1;
 	ref->seq = 0;
+#ifdef MY_ABC_HERE
+	INIT_LIST_HEAD(&ref->syno_list);
+#endif /* MY_ABC_HERE */
 
 	head_ref = btrfs_delayed_node_to_head(ref);
 	head_ref->must_insert_reserved = must_insert_reserved;
@@ -718,6 +766,10 @@ add_delayed_ref_head(struct btrfs_fs_info *fs_info,
 	head_ref->ref_root = RB_ROOT;
 	head_ref->processing = 0;
 	head_ref->total_ref_mod = count_mod;
+#ifdef MY_ABC_HERE
+	head_ref->syno_usage = syno_usage;
+	INIT_LIST_HEAD(&head_ref->ref_syno_list);
+#endif /* MY_ABC_HERE */
 
 	spin_lock_init(&head_ref->lock);
 	mutex_init(&head_ref->mutex);
@@ -750,6 +802,10 @@ add_delayed_ref_head(struct btrfs_fs_info *fs_info,
 #endif /* MY_ABC_HERE */
 		delayed_refs->num_heads++;
 		delayed_refs->num_heads_ready++;
+#ifdef MY_ABC_HERE
+		if (head_ref->syno_usage)
+			delayed_refs->num_syno_usage_heads_ready++;
+#endif /* MY_ABC_HERE */
 		atomic_inc(&delayed_refs->num_entries);
 		trans->delayed_ref_updates++;
 	}
@@ -801,6 +857,9 @@ add_delayed_tree_ref(struct btrfs_fs_info *fs_info,
 	ref->no_quota = no_quota;
 #endif /* MY_ABC_HERE */
 	ref->seq = seq;
+#ifdef MY_ABC_HERE
+	INIT_LIST_HEAD(&ref->syno_list);
+#endif /* MY_ABC_HERE */
 
 	full_ref = btrfs_delayed_node_to_tree_ref(ref);
 	full_ref->parent = parent;
@@ -851,6 +910,9 @@ add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 #ifdef MY_ABC_HERE
 		     struct inode *inode, uid_t uid,
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+		     int syno_usage,
+#endif /* MY_ABC_HERE */
 		     u64 offset, int action)
 {
 	struct btrfs_delayed_ref_node *existing;
@@ -876,6 +938,9 @@ add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 	ref->in_tree = 1;
 	ref->no_quota = no_quota;
 	ref->seq = seq;
+#ifdef MY_ABC_HERE
+	INIT_LIST_HEAD(&ref->syno_list);
+#endif /* MY_ABC_HERE */
 
 	full_ref = btrfs_delayed_node_to_data_ref(ref);
 	full_ref->parent = parent;
@@ -897,6 +962,9 @@ add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 	} else {
 		full_ref->inode = NULL;
 	}
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	full_ref->syno_usage = syno_usage;
 #endif /* MY_ABC_HERE */
 
 	trace_add_delayed_data_ref(ref, full_ref, action);
@@ -921,6 +989,10 @@ add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 		kmem_cache_free(btrfs_delayed_data_ref_cachep, full_ref);
 	} else {
 		atomic_inc(&delayed_refs->num_entries);
+#ifdef MY_ABC_HERE
+		if (full_ref->syno_usage)
+			atomic_inc(&delayed_refs->num_syno_usage_entries);
+#endif /* MY_ABC_HERE */
 		trans->delayed_ref_updates++;
 	}
 	spin_unlock(&head_ref->lock);
@@ -984,7 +1056,11 @@ int btrfs_add_delayed_tree_ref(struct btrfs_fs_info *fs_info,
 	 * the spin lock
 	 */
 	head_ref = add_delayed_ref_head(fs_info, trans, &head_ref->node,
-					bytenr, num_bytes, action, 0);
+					bytenr, num_bytes, action, 0
+#ifdef MY_ABC_HERE
+					,0
+#endif /* MY_ABC_HERE */
+					);
 
 	add_delayed_tree_ref(fs_info, trans, head_ref, &ref->node, bytenr,
 				   num_bytes, parent, ref_root, level, action,
@@ -1008,6 +1084,9 @@ int btrfs_add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 			       int no_quota,
 #ifdef MY_ABC_HERE
 			       struct inode *inode, uid_t uid,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+			       int syno_usage,
 #endif /* MY_ABC_HERE */
 			       int action,
 			       struct btrfs_delayed_extent_op *extent_op)
@@ -1058,7 +1137,11 @@ int btrfs_add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 	 * the spin lock
 	 */
 	head_ref = add_delayed_ref_head(fs_info, trans, &head_ref->node,
-					bytenr, num_bytes, action, 1);
+					bytenr, num_bytes, action, 1
+#ifdef MY_ABC_HERE
+					,syno_usage
+#endif /* MY_ABC_HERE */
+					);
 
 	add_delayed_data_ref(fs_info, trans, head_ref, &ref->node, bytenr,
 				   num_bytes, parent, ref_root, owner,
@@ -1068,6 +1151,9 @@ int btrfs_add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 				   inode, uid,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+				   syno_usage,
 #endif /* MY_ABC_HERE */
 				   offset, action);
 	spin_unlock(&delayed_refs->lock);
@@ -1094,7 +1180,11 @@ int btrfs_add_delayed_extent_op(struct btrfs_fs_info *fs_info,
 
 	add_delayed_ref_head(fs_info, trans, &head_ref->node, bytenr,
 				   num_bytes, BTRFS_UPDATE_DELAYED_HEAD,
-				   extent_op->is_data);
+				   extent_op->is_data
+#ifdef MY_ABC_HERE
+				   ,0
+#endif /* MY_ABC_HERE */
+				   );
 
 	spin_unlock(&delayed_refs->lock);
 	return 0;

@@ -4295,6 +4295,7 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 	EXT4_INODE_GET_XTIME(i_atime, inode, raw_inode);
 	EXT4_EINODE_GET_XTIME(i_crtime, ei, raw_inode);
 #ifdef MY_ABC_HERE
+	if (EXT4_FITS_IN_INODE(raw_inode, ei, i_crtime_extra)) {
 #ifdef MY_DEF_HERE
 	if (EXT4_SB(sb)->s_swap_create_time) {
 		inode->i_create_time.tv_sec = (signed)le32_to_cpu(raw_inode->i_crtime);
@@ -4307,6 +4308,7 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 	inode->i_create_time.tv_sec = (signed)le32_to_cpu(raw_inode->i_crtime);
 	inode->i_create_time.tv_nsec = (signed)le32_to_cpu(raw_inode->i_crtime_extra);
 #endif /* MY_DEF_HERE */
+	}
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	EXT4_INODE_GET_SYNO_ARCHIVE_BIT(inode, raw_inode);
@@ -4494,6 +4496,7 @@ static int ext4_do_update_inode(handle_t *handle,
 	EXT4_INODE_SET_XTIME(i_mtime, inode, raw_inode);
 	EXT4_INODE_SET_XTIME(i_atime, inode, raw_inode);
 #ifdef MY_ABC_HERE
+	if (EXT4_FITS_IN_INODE(raw_inode, ei, i_crtime_extra)) {
 #ifdef MY_DEF_HERE
 	if (EXT4_SB(inode->i_sb)->s_swap_create_time) {
 		raw_inode->i_crtime = cpu_to_le32(inode->i_create_time.tv_sec);
@@ -4506,6 +4509,7 @@ static int ext4_do_update_inode(handle_t *handle,
 	raw_inode->i_crtime = cpu_to_le32(inode->i_create_time.tv_sec);
 	raw_inode->i_crtime_extra = cpu_to_le32(inode->i_create_time.tv_nsec);
 #endif /* MY_DEF_HERE */
+	}
 #else
 	EXT4_EINODE_SET_XTIME(i_crtime, ei, raw_inode);
 #endif /* MY_ABC_HERE */
@@ -5137,9 +5141,24 @@ static int ext4_expand_extra_isize(struct inode *inode,
 {
 	struct ext4_inode *raw_inode;
 	struct ext4_xattr_ibody_header *header;
+	unsigned int inode_size = EXT4_INODE_SIZE(inode->i_sb);
+	struct ext4_inode_info *ei = EXT4_I(inode);
 
 	if (EXT4_I(inode)->i_extra_isize >= new_extra_isize)
 		return 0;
+
+	/* this was checked at iget time, but double check for good measure */
+	if ((EXT4_GOOD_OLD_INODE_SIZE + ei->i_extra_isize > inode_size) ||
+	    (ei->i_extra_isize & 3)) {
+		EXT4_ERROR_INODE(inode, "bad extra_isize %u (inode size %u)",
+				 ei->i_extra_isize,
+				 EXT4_INODE_SIZE(inode->i_sb));
+		return -EIO;
+	}
+	if ((new_extra_isize < ei->i_extra_isize) ||
+	    (new_extra_isize < 4) ||
+	    (new_extra_isize > inode_size - EXT4_GOOD_OLD_INODE_SIZE))
+		return -EINVAL;	/* Should never happen */
 
 	raw_inode = ext4_raw_inode(&iloc);
 

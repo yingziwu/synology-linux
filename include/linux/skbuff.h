@@ -2004,6 +2004,21 @@ static inline struct sk_buff *netdev_alloc_skb_ip_align(struct net_device *dev,
 	return __netdev_alloc_skb_ip_align(dev, length, GFP_ATOMIC);
 }
 
+#ifdef MY_ABC_HERE
+static inline struct page *___skb_alloc_pages(gfp_t gfp_mask,
+					      struct sk_buff *skb,
+					      unsigned int order)
+{
+	struct page *page;
+
+	gfp_mask |= __GFP_COLD;
+
+	page = alloc_pages_node(NUMA_NO_NODE, gfp_mask, order);
+	if (skb && page && page->pfmemalloc)
+		skb->pfmemalloc = true;
+
+	return page;
+}
 /*
  *	__skb_alloc_page - allocate pages for ps-rx on a skb and preserve pfmemalloc data
  *	@gfp_mask: alloc_pages_node mask. Set __GFP_NOMEMALLOC if not for network packet RX
@@ -2014,6 +2029,22 @@ static inline struct sk_buff *netdev_alloc_skb_ip_align(struct net_device *dev,
  *
  * 	%NULL is returned if there is no free memory.
 */
+static inline struct page *__skb_alloc_pages(gfp_t gfp_mask,
+					      struct sk_buff *skb,
+					      unsigned int order)
+{
+	if (!(gfp_mask & __GFP_NOMEMALLOC))
+		gfp_mask |= __GFP_MEMALLOC;
+
+	return ___skb_alloc_pages(gfp_mask, skb, order);
+}
+static inline struct page *__skb_alloc_pages_wo_memalloc(gfp_t gfp_mask,
+					      struct sk_buff *skb,
+					      unsigned int order)
+{
+	return ___skb_alloc_pages(gfp_mask, skb, order);
+}
+#else /* MY_ABC_HERE */
 static inline struct page *__skb_alloc_pages(gfp_t gfp_mask,
 					      struct sk_buff *skb,
 					      unsigned int order)
@@ -2031,6 +2062,7 @@ static inline struct page *__skb_alloc_pages(gfp_t gfp_mask,
 
 	return page;
 }
+#endif /* MY_ABC_HERE */
 
 /**
  *	__skb_alloc_page - allocate a page for ps-rx for a given skb and preserve pfmemalloc data

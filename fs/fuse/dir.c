@@ -223,7 +223,7 @@ static int fuse_dentry_revalidate(struct dentry *entry, unsigned int flags)
 	struct fuse_conn *fc;
 
 	inode = ACCESS_ONCE(entry->d_inode);
-	if (inode && is_bad_inode(inode))
+	if (inode && fuse_is_bad(inode))
 		return 0;
 	else if (fuse_dentry_time(entry) < get_jiffies_64()) {
 		int err;
@@ -454,6 +454,9 @@ static struct dentry *fuse_lookup(struct inode *dir, struct dentry *entry,
 	struct fuse_conn *fc = get_fuse_conn(dir);
 	bool outarg_valid = true;
 
+	if (fuse_is_bad(dir))
+		return ERR_PTR(-EIO);
+
 #ifdef MY_ABC_HERE
 	if ((flags & LOOKUP_CASELESS_COMPARE) && IS_GLUSTER_FS(dir)) {
 		synostat = kmalloc(FUSE_SYNOSTAT_SIZE, GFP_KERNEL);
@@ -620,6 +623,9 @@ static int fuse_atomic_open(struct inode *dir, struct dentry *entry,
 	struct fuse_conn *fc = get_fuse_conn(dir);
 	struct dentry *res = NULL;
 
+	if (fuse_is_bad(dir))
+		return -EIO;
+
 	if (d_unhashed(entry)) {
 		res = fuse_lookup(dir, entry, 0);
 		if (IS_ERR(res))
@@ -666,6 +672,9 @@ static int create_new_entry(struct fuse_conn *fc, struct fuse_req *req,
 	struct inode *inode;
 	int err;
 	struct fuse_forget_link *forget;
+
+	if (fuse_is_bad(dir))
+		return -EIO;
 
 	forget = fuse_alloc_forget();
 	if (!forget) {
@@ -808,6 +817,11 @@ static int fuse_unlink(struct inode *dir, struct dentry *entry)
 	if (IS_ERR(req))
 		return PTR_ERR(req);
 
+	if (fuse_is_bad(dir)) {
+		fuse_put_request(fc, req);
+		return -EIO;
+	}
+
 	req->in.h.opcode = FUSE_UNLINK;
 	req->in.h.nodeid = get_node_id(dir);
 	req->in.numargs = 1;
@@ -847,6 +861,11 @@ static int fuse_rmdir(struct inode *dir, struct dentry *entry)
 	if (IS_ERR(req))
 		return PTR_ERR(req);
 
+	if (fuse_is_bad(dir)) {
+		fuse_put_request(fc, req);
+		return -EIO;
+	}
+
 	req->in.h.opcode = FUSE_RMDIR;
 	req->in.h.nodeid = get_node_id(dir);
 	req->in.numargs = 1;
@@ -874,6 +893,11 @@ static int fuse_rename(struct inode *olddir, struct dentry *oldent,
 
 	if (IS_ERR(req))
 		return PTR_ERR(req);
+
+	if (fuse_is_bad(olddir)) {
+		fuse_put_request(fc, req);
+		return -EIO;
+	}
 
 	memset(&inarg, 0, sizeof(inarg));
 	inarg.newdir = get_node_id(newdir);
@@ -1026,7 +1050,7 @@ static int fuse_do_getattr(struct inode *inode, struct kstat *stat,
 	fuse_put_request(fc, req);
 	if (!err) {
 		if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-			make_bad_inode(inode);
+			fuse_make_bad(inode);
 			err = -EIO;
 		} else {
 			fuse_change_attributes(inode, &outarg.attr,
@@ -1230,6 +1254,9 @@ static int fuse_permission(struct inode *inode, int mask)
 	bool refreshed = false;
 	int err = 0;
 
+	if (fuse_is_bad(inode))
+		return -EIO;
+
 	if (!fuse_allow_current_process(fc))
 		return -EACCES;
 
@@ -1374,7 +1401,7 @@ static int fuse_direntplus_link(struct file *file,
 			err = d_invalidate(dentry);
 			if (err)
 				goto out;
-		} else if (is_bad_inode(inode)) {
+		} else if (fuse_is_bad(inode)) {
 			err = -EIO;
 			goto out;
 		} else {
@@ -1490,7 +1517,7 @@ static int fuse_readdir(struct file *file, void *dstbuf, filldir_t filldir)
 	struct fuse_req *req;
 	u64 attr_version = 0;
 
-	if (is_bad_inode(inode))
+	if (fuse_is_bad(inode))
 		return -EIO;
 
 	req = fuse_get_req(fc, 1);
@@ -1793,7 +1820,7 @@ int fuse_do_setattr(struct inode *inode, struct iattr *attr,
 	}
 
 	if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-		make_bad_inode(inode);
+		fuse_make_bad(inode);
 		err = -EIO;
 		goto error;
 	}
@@ -1839,6 +1866,9 @@ static int fuse_setattr(struct dentry *entry, struct iattr *attr)
 {
 	struct inode *inode = entry->d_inode;
 
+	if (fuse_is_bad(inode))
+		return -EIO;
+
 	if (!fuse_allow_current_process(get_fuse_conn(inode)))
 		return -EACCES;
 
@@ -1853,6 +1883,9 @@ static int fuse_getattr(struct vfsmount *mnt, struct dentry *entry,
 {
 	struct inode *inode = entry->d_inode;
 	struct fuse_conn *fc = get_fuse_conn(inode);
+
+	if (fuse_is_bad(inode))
+		return -EIO;
 
 	if (!fuse_allow_current_process(fc))
 		return -EACCES;
@@ -1968,6 +2001,9 @@ static ssize_t fuse_listxattr(struct dentry *entry, char *list, size_t size)
 	struct fuse_getxattr_in inarg;
 	struct fuse_getxattr_out outarg;
 	ssize_t ret;
+
+	if (fuse_is_bad(inode))
+		return -EIO;
 
 	if (!fuse_allow_current_process(fc))
 		return -EACCES;

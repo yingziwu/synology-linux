@@ -66,6 +66,27 @@ struct inodes_stat_t {
 	int dummy[5];		/* padding for sysctl ABI compatibility */
 };
 
+#ifdef MY_ABC_HERE
+/* request */
+#define SYNO_SPACE_USAGE_REQUEST_DATA_USED (1ULL << 0) /* Want/got data used */
+#define SYNO_SPACE_USAGE_REQUEST_DATA_DELAY_ALLOCATED (1ULL << 1) /* Want/got data delay allocated */
+#define SYNO_SPACE_USAGE_REQUEST_METADATA_USED (1ULL << 2) /* Want/got metadata used */
+
+/* flags */
+#define SYNO_SPACE_USAGE_FLAG_RESCAN (1ULL << 0)
+
+struct syno_space_usage_info {
+	/* in */
+	__u64 request_mask;
+	/* out */
+	__u64 result_mask;
+	__u64 flags;
+	__u64 data_used;
+	__u64 data_delay_allocated;
+	__u64 metadata_used;
+	__u64 reserved[10]; /* pad to 128 bytes */
+};
+#endif /* MY_ABC_HERE */
 
 #define NR_FILE  8192	/* this can well be larger on a larger system */
 
@@ -189,6 +210,10 @@ struct inodes_stat_t {
 
 #ifdef MY_ABC_HERE
 #define FIHINTUNUSED			_IOWR('x', 129, unsigned int)	/* search unused space as hints */
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define FISPACEUSAGE			_IOWR('x', 131, struct syno_space_usage_info)	/* get space usage */
 #endif /* MY_ABC_HERE */
 
 #define	FS_IOC_GETFLAGS			_IOR('f', 1, long)

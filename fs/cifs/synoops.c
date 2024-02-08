@@ -1353,6 +1353,16 @@ syno_is_status_pending(char *buf, struct TCP_Server_Info *server, int length)
 	return smb20_operations.is_status_pending(buf, server, length);
 }
 
+//	bool (*is_session_expired)(char *);
+static bool
+syno_is_session_expired(char *buf)
+{
+	if (0xFF == (__u8)buf[4]) {
+		return false;
+	}
+	return smb20_operations.is_session_expired(buf);
+}
+
 //	int (*oplock_response)(struct cifs_tcon *, struct cifs_fid *, struct cifsInodeInfo *);
 static int
 syno_oplock_response(struct cifs_tcon *tcon, struct cifs_fid *fid,
@@ -1627,10 +1637,6 @@ syno_duplicate_extents(const unsigned int xid,
 static int
 syno_validate_negotiate(const unsigned int xid, struct cifs_tcon *tcon)
 {
-	//this function call by SMB2_tcon. if not supported protocol will keep return value (0)
-	if (tcon && tcon->ses && tcon->ses->server && SMB30_PROT_ID == tcon->ses->server->dialect) {
-		return smb30_operations.validate_negotiate(xid, tcon);
-	}
 	return 0;
 }
 //only SMB1 with XATTR config
@@ -1739,6 +1745,7 @@ struct smb_version_operations synocifs_operations = {
 	.close_dir = syno_close_dir,
 	.calc_smb_size = syno_calc_smb_size,
 	.is_status_pending = syno_is_status_pending,
+	.is_session_expired = syno_is_session_expired,
 	.oplock_response = syno_oplock_response,
 	.queryfs = syno_queryfs,
 	.mand_lock = syno_mand_lock,
