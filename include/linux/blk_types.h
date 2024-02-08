@@ -159,6 +159,9 @@ struct bio {
 #ifdef MY_ABC_HERE
 #define BIO_TRACE_COMPLETION 19 /* bio_endio() should trace the final completion of this bio */
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BIO_SYNO_FULL_STRIPE_MERGE 21 /* This bio should apply full stripe merge */
+#endif /* MY_ABC_HERE */
 
 #define bio_flagged(bio, flag)	((bio)->bi_flags & (1 << (flag)))
 

@@ -299,6 +299,7 @@ ModuleList=" \
 	${ModUSB} \
 	${ModUSBIP} \
 	${ModUSBWimax} \
+	${ModAlsa} \
 	${ModDocker} \
 	${ModRaid} \
 	"
@@ -459,6 +460,18 @@ case "$BUILD_TARGET" in
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/drivers/staging/usbip/usbip-core.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/drivers/net/usb/usbnet.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/drivers/net/usb/cdc_ether.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-pcm.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/usb/snd-usbmidi-lib.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/usb/snd-usb-audio.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/seq/snd-seq-device.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-hwdep.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-rawmidi.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/oss/snd-pcm-oss.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/oss/snd-mixer-oss.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-timer.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/core/snd-page-alloc.ko==g")
+		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/sound/usb/hiface/snd-usb-hiface.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/net/netfilter/xt_conntrack.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/fs/aufs/aufs.ko==g")
 		ModuleList=$(echo ${ModuleList} | sed -e "s=${KernelDir}/net/ipv4/netfilter/ipt_MASQUERADE.ko==g")

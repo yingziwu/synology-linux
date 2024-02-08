@@ -1307,6 +1307,10 @@ static void clone_split_bio(struct dm_target_io *tio, struct bio *bio,
 	if (unlikely(bio_flagged(bio, BIO_CORRECTION_ABORT)))
 		clone->bi_flags |= 1 << BIO_CORRECTION_ABORT;
 #endif
+#ifdef MY_ABC_HERE
+	if (unlikely(bio_flagged(bio, BIO_SYNO_FULL_STRIPE_MERGE)))
+		clone->bi_flags |= 1 << BIO_SYNO_FULL_STRIPE_MERGE;
+#endif /* MY_ABC_HERE */
 
 	clone_bio_integrity(bio, clone, idx, len, offset, 1);
 }

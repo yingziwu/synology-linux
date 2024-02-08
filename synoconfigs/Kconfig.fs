@@ -93,6 +93,14 @@ config SYNO_FS_FIX_SWITCH_NAMES
 	bool "fix switch_names"
 	default y
 
+config SYNO_FS_SPACE_USAGE
+	bool "Support query space usage in vfs operations"
+	default y
+
+config SYNO_FS_SHOW_INCOMPAT_SUPP
+	bool "Show file system's incompatible support flags"
+	default y
+
 endmenu #Basic
 
 menu "CIFS"
@@ -319,11 +327,6 @@ config SYNO_EXT4_PARALLEL_GROUP_DESC_PREFETCH_WHEN_MOUNT
 	default y
 	depends on EXT4_FS
 
-config SYNO_EXT4_AVOID_DANGEROUS_DIR_ENTRY
-	bool "Avoid first dirent entry which malformed form . to /"
-	default y
-	depends on EXT4_FS
-
 config SYNO_EXT4_UNUSED_HINT
 	bool "FIHINTUNUSED ioctl to send free space information to underly layers"
 	default y
@@ -447,7 +450,7 @@ config SYNO_BTRFS_CASELESS_STAT
 config SYNO_BTRFS_SEND
 	bool "Add syno btrfs send"
 	default y
-	depends on BTRFS_FS
+	depends on BTRFS_FS && SYNO_BTRFS_SEND_FLAGS_SUPPORT
 
 config SYNO_BTRFS_FIX_ASYNC_DIRECT_IO_CSUM_FAILED
 	bool "Disable btrfs async read on direct io."
@@ -517,12 +520,12 @@ config SYNO_BTRFS_REVERT_BIO_COUNT_FOR_DEV_REPLACING
 config SYNO_BTRFS_SEND_CALCULATE_TOTAL_DATA_SIZE
 	bool "add btrfs calculate send data size"
 	default y
-	depends on BTRFS_FS
+	depends on BTRFS_FS && SYNO_BTRFS_SEND_FLAGS_SUPPORT
 
 config SYNO_BTRFS_SEND_SUBVOL_FLAG
 	bool "add btrfs send subvol flag"
 	default y
-	depends on BTRFS_FS
+	depends on BTRFS_FS && SYNO_BTRFS_SEND_FLAGS_SUPPORT
 
 config SYNO_BTRFS_REVERT_DELAYED_DELETE_INODE
 	bool "Fix dbench hang on delayed_delete_inode"
@@ -702,7 +705,7 @@ config SYNO_BTRFS_IOC_SYNC_SYNO
 config SYNO_BTRFS_SEND_SKIP_FIND_CLONE
 	bool "add a send flag to skip find_extent_clone process"
 	default y
-	depends on BTRFS_FS
+	depends on BTRFS_FS && SYNO_BTRFS_SEND_FLAGS_SUPPORT
 
 config SYNO_BTRFS_SEND_ENHANCE_SMALL_FILE
 	bool "enhance send/receive for small file"
@@ -712,12 +715,12 @@ config SYNO_BTRFS_SEND_ENHANCE_SMALL_FILE
 config SYNO_BTRFS_SEND_FALLOCATE_SUPPORT
 	bool "to fallocate to pre-allocate file extents as sending subvols"
 	default y
-	depends on BTRFS_FS
+	depends on BTRFS_FS && SYNO_BTRFS_SEND_FLAGS_SUPPORT
 
 config SYNO_BTRFS_SEND_FALLBACK_COMPRESSION
 	bool "add a send flag to convert file compression algorithm from zstd to lzo"
 	default y
-	depends on BTRFS_FS
+	depends on BTRFS_FS && SYNO_BTRFS_SEND_FLAGS_SUPPORT
 
 config SYNO_BTRFS_AVOID_NULL_POINTER_DEREFERENCE_WHEN_MOUNT
 	bool "avoid null pointer dereference when mount"
@@ -766,11 +769,6 @@ config SYNO_BTRFS_CLONE_RANGE_V2
 
 config SYNO_BTRFS_AVOID_FALLOCATE_RUN_BLOCKING_DELAYEDREF
 	bool "Not running blocking async delayed ref for fallocate"
-	default y
-	depends on BTRFS_FS
-
-config SYNO_BTRFS_FIX_RANDOM_WRITE_OOM
-	bool "fix random write OOM"
 	default y
 	depends on BTRFS_FS
 
@@ -900,6 +898,11 @@ config SYNO_BTRFS_TUNE_DEFAULT_MAX_INLINE_SIZE
 	default y
 	depends on BTRFS_FS
 
+config SYNO_BTRFS_FEATURE_METADATA_CACHE
+	bool "add metadata cache feature with ssd cache"
+	default y
+	depends on BTRFS_FS
+
 config SYNO_BTRFS_VFS_INO_TO_PATH
 	bool "Query ino to path in vfs"
 	default y
@@ -929,6 +932,11 @@ config SYNO_BTRFS_DELAYED_REF_RESERVED_REWORK
 	bool "Rework delayed ref reserved"
 	default y
 	depends on BTRFS_FS
+
+config SYNO_BTRFS_FEATURE_SPACE_USAGE
+	bool "add space usage feature for each type, each subvol has own type"
+	default y
+	depends on BTRFS_FS && SYNO_BTRFS_FIX_SRCU_IGET_DEADLOCK
 
 config SYNO_BTRFS_MOUNT_OPTION_EXPAND_64BIT
 	bool "Btrfs mount option expand to 64-bit"
@@ -977,6 +985,87 @@ config SYNO_BTRFS_FIX_PAGE_REFERENCE_LEAK
 
 config SYNO_BTRFS_SCRUB_CANCEL
 	bool "Let btrfs cancel scrubbing faster"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_SEND_FLAGS_SUPPORT
+	bool "Support syno btrfs send flags"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_DROP_LOG_TREE
+	bool "add mount option to drop log tree"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FIX_DROP_PROGRESS_INCONSISTENT
+	bool "fix drop progress inconsistent when drop snapshot error"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_ASYNC_DATA_FLUSH
+	bool "improve latency with async flush"
+	default y
+	depends on BTRFS_FS && SYNO_BTRFS_MULTIPLE_WRITEBACK
+
+config SYNO_BTRFS_ASYNC_METADATA_FLUSH_AND_THROTTLE
+	bool "improve latency with async metadata flush and throttle"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_CLEANER_THROTTLE
+	bool "Throttle cleaner"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_BALANCE_DRY_RUN
+	bool "add btrfs balance dry run"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_SYNO_QUOTA
+	bool "To query btrfs quota version"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FIX_PARTIAL_WRITE_END_DEADLOCK
+	bool "fix partial write end deadlock"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_LIST_HARDLINKS
+	bool "list hardlinks with inum"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_ALLOCATOR
+	bool "synology btrfs allocator"
+	default y
+	depends on BTRFS_FS
+	select SYNO_BTRFS_MOUNT_OPTION_EXPAND_64BIT
+
+config SYNO_BTRFS_MOUNT_STATS
+	bool "Btrfs performance stats about mount."
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_FIX_UNNECESSARY_FLUSH_WITH_OLD_SIZE_IS_ZERO_WHEN_TRUNCATE
+	bool "Fix unnecessary flush with old size is zero when truncate"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_LIMIT_PRE_RUN_DELAYED_REFS_FOR_COMMIT_TRANSACTION
+	bool "Limit pre-run delayed-refs for commit transaction"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_IMPROVE_FIEMAP_FOR_LARGE_SPARSE_FILE
+	bool "Fiemap improve for large sparse file"
+	default y
+	depends on BTRFS_FS
+
+config SYNO_BTRFS_HIBERNATION_MONITOR
+	bool "Monitor modified log for hibernation"
 	default y
 	depends on BTRFS_FS
 
@@ -1149,6 +1238,16 @@ config SYNO_NFSD_LATENCY_REPORT
 	bool "Add /proc/net/rpc/nfsd_lat to monitor nfsd latency"
 	default y
 
+config SYNO_NFS_RELEASE_PAGE_TIMEOUT
+	bool "Add timeout check when NFS client release page"
+	default y
+	depends on SYNO_WAIT_ON_PAGE_BIT_TIMEOUT
+
+config SYNO_NFSD_SYNO_FILE_STATS
+	bool "Add /proc/fs/nfsd/syno_file_stats to spot check file write"
+	default y
+	depends on NFSD
+
 endmenu #NFS
 
 menu "HFSPLUS"
@@ -1291,5 +1390,14 @@ config SYNO_CONFIGFS_SIMPLE_ATTR_SIZE_AS_PAGE_SIZE
 	depends on CONFIGFS_FS
 
 endmenu #ConfigFS
+
+menu "sysfs"
+
+config SYNO_SYSFS_EMIT_OFFSET_WARNON
+	bool "skip page offset checking and warnon in sysfs_emit"
+	default y
+	depends on SYSFS
+
+endmenu #sysfs
 
 endmenu #File Systems

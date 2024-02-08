@@ -78,9 +78,6 @@ int __ext4_check_dir_entry(const char *function, unsigned int line,
 	const char *error_msg = NULL;
 	const int rlen = ext4_rec_len_from_disk(de->rec_len,
 						dir->i_sb->s_blocksize);
-#ifdef MY_ABC_HERE
-	int dangerous_entry = 0;
-#endif /*MY_ABC_HERE */
 
 	if (unlikely(rlen < EXT4_DIR_REC_LEN(1)))
 		error_msg = "rec_len is smaller than minimal";
@@ -93,12 +90,6 @@ int __ext4_check_dir_entry(const char *function, unsigned int line,
 	else if (unlikely(le32_to_cpu(de->inode) >
 			le32_to_cpu(EXT4_SB(dir->i_sb)->s_es->s_inodes_count)))
 		error_msg = "inode out of bounds";
-#ifdef MY_ABC_HERE
-	else if (unlikely((!strncmp(de->name, "/", 1) && le32_to_cpu(de->inode)))) {
-		error_msg = "dangerous dot entry";
-		dangerous_entry = 1;
-	}
-#endif /*MY_ABC_HERE */
 	else
 		return 0;
 
@@ -131,11 +122,6 @@ int __ext4_check_dir_entry(const char *function, unsigned int line,
 				error_msg, (unsigned) (offset % size),
 				offset, le32_to_cpu(de->inode),
 				rlen, de->name_len);
-#ifdef MY_ABC_HERE
-	/* do not bother if failure of such type */
-	if (dangerous_entry)
-		return 0;
-#endif /*MY_ABC_HERE */
 
 	return 1;
 }
@@ -291,13 +277,6 @@ revalidate:
 				 */
 				u64 version = filp->f_version;
 
-#ifdef MY_ABC_HERE
-				if (unlikely(!strncmp(de->name, "/", 1)))
-					error = filldir(dirent, ".", 1, 0,
-							le32_to_cpu(de->inode),
-							get_dtype(sb, de->file_type));
-				else
-#endif /*MY_ABC_HERE */
 				error = filldir(dirent, de->name,
 						de->name_len,
 						filp->f_pos,

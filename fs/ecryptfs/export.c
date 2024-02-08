@@ -80,20 +80,12 @@ struct ecryptfs_fh {
 
 #define ECRYPTFS_FH_HEADER_SIZE (offsetof(struct ecryptfs_fh, fid))
 
-/**
- * Encode filehandle to @fid from ecryptfs @dentry
- * @dentry:      The ecryptfs dentry to encode
- * @fid:         Where to store the file handle fragment
- * @max_dwords:  Maximum length to store there (in 4 byte unit)
- *               On error @max_len contains the min size needed to encode.
- * @connectable: Encode file parent directory or not.
- *
- * @return:      the fileid_type on success, FILEID_INVALID on error
- */
-static int ecryptfs_dentry_to_fh(struct dentry *dentry, u32 *fid,
-				 int *max_dwords, int connectable)
+static int ecryptfs_encode_fh(struct inode *inode, u32 *fid, int *max_dwords,
+			      struct inode *parent)
 {
+	struct dentry *dentry;
 	struct ecryptfs_fh *fh = (struct ecryptfs_fh *)fid;
+	struct inode *lower_inode;
 	int lower_dwords = *max_dwords - (ECRYPTFS_FH_HEADER_SIZE >> 2);
 	int type;
 
@@ -105,11 +97,25 @@ static int ecryptfs_dentry_to_fh(struct dentry *dentry, u32 *fid,
 	if (lower_dwords < 0)
 		lower_dwords = 0;
 
-	type = exportfs_encode_fh(ecryptfs_dentry_to_lower(dentry),
-				  (struct fid *)fh->fid,
-				  &lower_dwords,
-				  connectable);
+	dentry = d_find_any_alias(inode);
+	if (dentry) {
+		type = exportfs_encode_fh(ecryptfs_dentry_to_lower(dentry),
+			(struct fid *)fh->fid, &lower_dwords, !!parent);
+		dput(dentry);
+		goto done;
+	}
 
+	lower_inode = ecryptfs_inode_to_lower(inode);
+	if (lower_inode) {
+		type = exportfs_encode_inode_fh(lower_inode, (struct fid *)fh->fid,
+			&lower_dwords, NULL);
+		goto done;
+	}
+
+	// No dentry and no lower inode, return failure.
+	return FILEID_INVALID;
+
+done:
 	BUILD_BUG_ON(0 != (ECRYPTFS_FH_HEADER_SIZE % 4));
 	*max_dwords = lower_dwords + (ECRYPTFS_FH_HEADER_SIZE >> 2);
 
@@ -118,24 +124,11 @@ static int ecryptfs_dentry_to_fh(struct dentry *dentry, u32 *fid,
 		return FILEID_INVALID;
 
 	fh->len = *max_dwords << 2;
-	fh->flags = connectable ? ECRYPTFS_FH_FLAG_CONNECTABLE : 0;
+	if (dentry && parent)
+		fh->flags = ECRYPTFS_FH_FLAG_CONNECTABLE;
+	else
+		fh->flags = 0;
 
-	return type;
-}
-
-static int ecryptfs_encode_fh(struct inode *inode, u32 *fid, int *max_len,
-			      struct inode *parent)
-{
-	struct dentry *dentry;
-	int type;
-
-	dentry = d_find_any_alias(inode);
-	if (WARN_ON(!dentry))
-		return FILEID_INVALID;
-
-	type = ecryptfs_dentry_to_fh(dentry, fid, max_len, !!parent);
-
-	dput(dentry);
 	return type;
 }
 

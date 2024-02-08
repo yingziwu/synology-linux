@@ -4463,6 +4463,39 @@ int SynoScsiDeviceToDiskIndex(const struct scsi_device *psdev)
 	return psdisk->index;
 }
 EXPORT_SYMBOL(SynoScsiDeviceToDiskIndex);
+
+/**
+ * We established disk health prediction rule fot SAS at DSM#137866, DSM#106198
+ * It only considers device types with SAS, SATA and NVC
+ *
+ * @param scsi_device
+ * @return Check if it belongs to physical drive(HDD, SSD..)
+ **/
+bool SynoIsPhysicalDrive(const struct scsi_device *psdev)
+{
+	bool ret = false;
+	struct scsi_disk *psdisk = NULL;
+	if (!psdev || TYPE_DISK != psdev->type) {
+		goto END;
+	}
+
+	psdisk = dev_get_drvdata(&psdev->sdev_gendev);
+	if (NULL == psdisk) {
+		goto END;
+	}
+
+	if(SYNO_DISK_SATA == psdisk->synodisktype
+		|| SYNO_DISK_SAS == psdisk->synodisktype
+#ifdef MY_DEF_HERE
+		|| SYNO_DISK_CACHE == psdisk->synodisktype /* only for nvc */
+#endif /* MY_DEF_HERE */
+	){
+		ret = true;
+	}
+END:
+	return ret;
+}
+EXPORT_SYMBOL(SynoIsPhysicalDrive);
 #endif /* MY_ABC_HERE */
 
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)

@@ -1864,6 +1864,9 @@ void generic_make_request(struct bio *bio)
 	 * yet.
 	 */
 	struct bio_list bio_list_on_stack[2];
+#ifdef MY_ABC_HERE
+	unsigned int noio_flag;
+#endif /* MY_ABC_HERE */
 
 	if (!generic_make_request_checks(bio))
 		return;
@@ -1898,6 +1901,9 @@ void generic_make_request(struct bio *bio)
 	 * bio_list, and call into ->make_request() again.
 	 */
 	BUG_ON(bio->bi_next);
+#ifdef MY_ABC_HERE
+	noio_flag = memalloc_noio_save();
+#endif /* MY_ABC_HERE */
 	bio_list_init(&bio_list_on_stack[0]);
 	current->bio_list = bio_list_on_stack;
 	do {
@@ -1928,6 +1934,9 @@ void generic_make_request(struct bio *bio)
 		bio = bio_list_pop(&bio_list_on_stack[0]);
 	} while (bio);
 	current->bio_list = NULL; /* deactivate */
+#ifdef MY_ABC_HERE
+	memalloc_noio_restore(noio_flag);
+#endif /* MY_ABC_HERE */
 }
 EXPORT_SYMBOL(generic_make_request);
 
