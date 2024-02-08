@@ -133,6 +133,11 @@ case "$BUILD_TARGET" in
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
 		KernelTarget=bzImage
 		;;
+	GEMINILAKEVS)
+		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
+		KernelTarget=bzImage
+		;;
+
 	*)
 		SkipThisProject
 		return

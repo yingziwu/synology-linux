@@ -2450,6 +2450,7 @@ static int nvme_reset(struct nvme_dev *dev)
 static void syno_pciepath_enum(struct device *dev, char *buf) {
 	struct pci_dev *pdev = NULL;
 	char sztemp[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
+	char buftemp[BLOCK_INFO_SIZE] = {'\0'};
 
 	if (NULL == buf || NULL == dev) {
 		return;
@@ -2460,8 +2461,9 @@ static void syno_pciepath_enum(struct device *dev, char *buf) {
 		return;
 	}
 
-	if (NULL != sztemp) {
-		snprintf(buf, BLOCK_INFO_SIZE, "%spciepath=%s\n", buf, sztemp);
+	if ('\0' != sztemp[0]) {
+		snprintf(buftemp, sizeof(buftemp), "%s", buf);
+		snprintf(buf, BLOCK_INFO_SIZE, "%spciepath=%s\n", buftemp, sztemp);
 	}
 }
 #endif /* MY_ABC_HERE */

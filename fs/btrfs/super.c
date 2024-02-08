@@ -1140,8 +1140,8 @@ out:
 	return error;
 }
 
-static char *get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
-					   u64 subvol_objectid)
+char *btrfs_get_subvol_name_from_objectid(struct btrfs_fs_info *fs_info,
+					  u64 subvol_objectid)
 {
 	struct btrfs_root *root = fs_info->tree_root;
 	struct btrfs_root *fs_root;
@@ -1405,7 +1405,7 @@ int btrfs_sync_fs(struct super_block *sb, int wait)
 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
 	struct btrfs_root *root = fs_info->tree_root;
 
-	trace_btrfs_sync_fs(wait);
+	trace_btrfs_sync_fs(fs_info, wait);
 
 	if (!wait) {
 		filemap_flush(fs_info->btree_inode->i_mapping);
@@ -1447,6 +1447,7 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
 	struct btrfs_fs_info *info = btrfs_sb(dentry->d_sb);
 	struct btrfs_root *root = info->tree_root;
 	char *compress_type;
+	const char *subvol_name;
 
 	if (btrfs_test_opt(root, DEGRADED))
 		seq_puts(seq, ",degraded");
@@ -1582,8 +1583,13 @@ static int btrfs_show_options(struct seq_file *seq, struct dentry *dentry)
 #endif /* MY_ABC_HERE */
 	seq_printf(seq, ",subvolid=%llu",
 		  BTRFS_I(d_inode(dentry))->root->root_key.objectid);
-	seq_puts(seq, ",subvol=");
-	seq_dentry(seq, dentry, " \t\n\\");
+	subvol_name = btrfs_get_subvol_name_from_objectid(info,
+			BTRFS_I(d_inode(dentry))->root->root_key.objectid);
+	if (!IS_ERR(subvol_name)) {
+		seq_puts(seq, ",subvol=");
+		seq_escape(seq, subvol_name, " \t\n\\");
+		kfree(subvol_name);
+	}
 	return 0;
 }
 
@@ -1701,8 +1707,8 @@ static struct dentry *mount_subvol(const char *subvol_name, u64 subvol_objectid,
 				goto out;
 			}
 		}
-		subvol_name = get_subvol_name_from_objectid(btrfs_sb(mnt->mnt_sb),
-							    subvol_objectid);
+		subvol_name = btrfs_get_subvol_name_from_objectid(
+					btrfs_sb(mnt->mnt_sb), subvol_objectid);
 		if (IS_ERR(subvol_name)) {
 			root = ERR_CAST(subvol_name);
 			subvol_name = NULL;
@@ -2109,6 +2115,21 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 		if (ret)
 			goto restore;
 	} else {
+#ifdef MY_ABC_HERE
+		if (btrfs_super_compat_ro_flags(fs_info->super_copy) & ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
+			btrfs_err(fs_info, "cannot mount read-write because of unsupported optional features");
+			ret = -EINVAL;
+			goto restore;
+		}
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+		if (btrfs_fs_compat_ro(fs_info, LOCKER) &&
+		    !btrfs_syno_locker_feature_is_support()) {
+			btrfs_err(fs_info, "cannot mount read-write because of no locker support");
+			ret = -EINVAL;
+			goto restore;
+		}
+#endif /* MY_ABC_HERE */
 		if (test_bit(BTRFS_FS_STATE_ERROR, &root->fs_info->fs_state)) {
 			btrfs_err(fs_info,
 				"Remounting read-write after error is not allowed");
@@ -2130,13 +2151,18 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 		}
 
 		if (btrfs_super_log_root(fs_info->super_copy) != 0) {
+			btrfs_warn(fs_info,
+		"mount required to replay tree-log, cannot remount read-write");
 			ret = -EINVAL;
 			goto restore;
 		}
 
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		ret = btrfs_cleanup_fs_roots(fs_info);
 		if (ret)
 			goto restore;
+#endif /* MY_ABC_HERE */
 
 		/* recover relocation */
 		mutex_lock(&fs_info->cleaner_mutex);
@@ -2411,7 +2437,7 @@ static int btrfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	u64 total_free_data = 0;
 	u64 total_free_meta = 0;
 	int bits = dentry->d_sb->s_blocksize_bits;
-	__be32 *fsid = (__be32 *)fs_info->fsid;
+	__be32 *fsid = (__be32 *)fs_info->fs_devices->fsid;
 	unsigned factor = 1;
 	struct btrfs_block_rsv *block_rsv = &fs_info->global_block_rsv;
 	int ret;
@@ -2538,8 +2564,22 @@ static int btrfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	 */
 	thresh = 4 * 1024 * 1024;
 
-	if (!mixed && total_free_meta - thresh < block_rsv->size)
+	/*
+	 * We only want to claim there's no available space if we can no longer
+	 * allocate chunks for our metadata profile and our global reserve will
+	 * not fit in the free metadata space.  If we aren't ->full then we
+	 * still can allocate chunks and thus are fine using the currently
+	 * calculated f_bavail.
+	 */
+#ifdef MY_ABC_HERE
+	if (!mixed && block_rsv->space_info && block_rsv->space_info->full &&
+	    total_free_meta - thresh < block_rsv->size)
 		buf->f_bavail = 0;
+#else
+	if (!mixed && block_rsv->space_info->full &&
+	    total_free_meta - thresh < block_rsv->size)
+		buf->f_bavail = 0;
+#endif /* MY_ABC_HERE */
 
 	buf->f_type = BTRFS_SUPER_MAGIC;
 	buf->f_bsize = dentry->d_sb->s_blocksize;
@@ -2580,6 +2620,11 @@ static struct file_system_type btrfs_fs_type = {
 	.kill_sb	= btrfs_kill_super,
 	.fs_flags	= FS_REQUIRES_DEV | FS_BINARY_MOUNTDATA,
 };
+
+#ifdef MY_ABC_HERE
+struct file_system_type *__btrfs_root_fs_type = &btrfs_fs_type;
+#endif /* MY_ABC_HERE */
+
 MODULE_ALIAS_FS("btrfs");
 
 static int btrfs_control_open(struct inode *inode, struct file *file)
@@ -2904,7 +2949,7 @@ static int btrfs_syno_rbd_set_first_mapping_table_offset(struct super_block *sb,
 	if (IS_ERR(trans))
 		return PTR_ERR(trans);
 
-	fs_info->syno_rbd_first_mapping_table_offset = offset;
+	fs_info->syno_rbd.first_mapping_table_offset = offset;
 
 	return btrfs_commit_transaction(trans, root);
 }
@@ -3102,8 +3147,14 @@ static int __init init_btrfs_fs(void)
 #ifdef MY_DEF_HERE
 	err = btrfs_syno_cache_protection_init();
 	if (err)
-		goto unregister_ioctl;
+		goto free_btrfs_interface;
 #endif /* MY_DEF_HERE */
+
+#ifdef MY_ABC_HERE
+	err = qgroup_netlink_init();
+	if (err)
+		goto free_btrfs_syno_cache_protection;
+#endif /* MY_ABC_HERE */
 
 	btrfs_init_lockdep();
 
@@ -3124,8 +3175,13 @@ static int __init init_btrfs_fs(void)
 	return 0;
 
 unregister_ioctl:
+#ifdef MY_ABC_HERE
+	qgroup_netlink_exit();
+free_btrfs_syno_cache_protection:
+#endif /* MY_ABC_HERE */
 #ifdef MY_DEF_HERE
 	btrfs_syno_cache_protection_exit();
+free_btrfs_interface:
 #endif /* MY_DEF_HERE */
 	btrfs_interface_exit();
 free_end_io_wq:
@@ -3156,6 +3212,9 @@ free_hash:
 
 static void __exit exit_btrfs_fs(void)
 {
+#ifdef MY_ABC_HERE
+	qgroup_netlink_exit();
+#endif /* MY_ABC_HERE */
 #ifdef MY_DEF_HERE
 	btrfs_syno_cache_protection_exit();
 #endif /* MY_DEF_HERE */

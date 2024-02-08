@@ -14,6 +14,7 @@
 #include <linux/mm.h>
 #include <linux/printk.h>
 #include <linux/string_helpers.h>
+#include <linux/pagemap.h>
 
 #include <asm/uaccess.h>
 #include <asm/page.h>
@@ -27,6 +28,9 @@ static void *seq_buf_alloc(unsigned long size)
 {
 	void *buf;
 	gfp_t gfp = GFP_KERNEL;
+
+	if (unlikely(size > MAX_RW_COUNT))
+		return NULL;
 
 	/*
 	 * For high order allocations, use __GFP_NORETRY to avoid oom-killing -
@@ -394,6 +398,17 @@ void seq_escape(struct seq_file *m, const char *s, const char *esc)
 	seq_commit(m, ret < size ? ret : -1);
 }
 EXPORT_SYMBOL(seq_escape);
+
+void seq_escape_mem_ascii(struct seq_file *m, const char *src, size_t isz)
+{
+	char *buf;
+	size_t size = seq_get_buf(m, &buf);
+	int ret;
+
+	ret = string_escape_mem_ascii(src, isz, buf, size);
+	seq_commit(m, ret < size ? ret : -1);
+}
+EXPORT_SYMBOL(seq_escape_mem_ascii);
 
 void seq_vprintf(struct seq_file *m, const char *f, va_list args)
 {

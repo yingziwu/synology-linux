@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Central processing for nfsd.
  *
@@ -22,6 +25,10 @@
 #include "cache.h"
 #include "vfs.h"
 #include "netns.h"
+
+#ifdef MY_ABC_HERE
+#include "syno_io_stat.h"
+#endif /* MY_ABC_HERE */
 
 #define NFSDDBG_FACILITY	NFSDDBG_SVC
 
@@ -298,6 +305,9 @@ static void nfsd_shutdown_net(struct net *net)
 {
 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
 
+#ifdef MY_ABC_HERE
+	syno_nfsd_clients_destroy_all();
+#endif /* MY_ABC_HERE */
 	nfs4_state_shutdown_net(net);
 	if (nn->lockd_up) {
 		lockd_down(net);

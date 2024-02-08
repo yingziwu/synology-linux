@@ -505,7 +505,9 @@ static void __init mm_init(void)
 	ioremap_huge_init();
 	kaiser_init();
 }
-
+#ifdef MY_ABC_HERE
+extern void syno_smbus_setting_override(void);
+#endif /* MY_ABC_HERE */
 asmlinkage __visible void __init start_kernel(void)
 {
 	char *command_line;
@@ -558,7 +560,9 @@ asmlinkage __visible void __init start_kernel(void)
 	if (!IS_ERR_OR_NULL(after_dashes))
 		parse_args("Setting init args", after_dashes, NULL, 0, -1, -1,
 			   NULL, set_init_arg);
-
+#ifdef MY_ABC_HERE
+	syno_smbus_setting_override();
+#endif /* MY_ABC_HERE */
 	/*
 	 * These use large bootmem allocations and must precede
 	 * kmem_cache_init()
@@ -704,6 +708,8 @@ asmlinkage __visible void __init start_kernel(void)
 
 	/* Do the rest non-__init'ed, we're now alive */
 	rest_init();
+
+	prevent_tail_call_optimization();
 }
 
 /* Call all constructor functions linked into the kernel. */
@@ -1016,7 +1022,7 @@ static noinline void __init kernel_init_freeable(void)
 	 */
 	set_cpus_allowed_ptr(current, cpu_all_mask);
 
-	cad_pid = task_pid(current);
+	cad_pid = get_pid(task_pid(current));
 
 	smp_prepare_cpus(setup_max_cpus);
 
