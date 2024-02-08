@@ -21,6 +21,7 @@
 /* flags used for synotify_init() */
 #define SYNO_CLOEXEC		0x00000001
 #define SYNO_NONBLOCK		0x00000002
+#define SYNO_EVENT_V2		0x00000004
 
 /* flags used for synotify_add_watch() */
 #define SYNO_DONT_FOLLOW		0x01000000	/* don't follow a sym link */
@@ -49,6 +50,22 @@ struct synotify_event {
 	__u32		cookie;		/* cookie to synchronize two events */
 	__u32		len;		/* length (including nulls) of name */
 	char		name[0];	/* stub for possible name */
+};
+
+struct synotify_event_v2 {
+	// v1 event
+	__u32		mask;		/* watch mask */
+	__u32		cookie;		/* cookie to synchronize two events */
+	__u32		len;		/* length (including nulls) of name (full path, actually) */
+
+	// v2 event
+	__u32		pid;
+	__u32		uid;
+
+	// v3 event, must be before name[0]
+	// future new members...
+
+	char		name[0];	/* stub for possible name (full path, actually) */
 };
 
 #ifdef __KERNEL__

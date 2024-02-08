@@ -800,6 +800,7 @@ void add_interrupt_randomness(int irq, int irq_flags)
 	}
 
 	fast_mix(fast_pool, input, sizeof(input));
+	this_cpu_add(net_rand_state.s1, fast_pool->pool[cycles & 3]);
 
 	if ((fast_pool->count & 1023) &&
 	    !time_after(now, fast_pool->last + HZ))

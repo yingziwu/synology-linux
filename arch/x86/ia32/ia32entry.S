@@ -947,7 +947,7 @@ ia32_sys_call_table:
 #else
 	.quad sys_ni_syscall
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	.quad sys_SYNOArchiveBit	/* 403 */
 #else
 	.quad sys_ni_syscall
@@ -1397,7 +1397,7 @@ ia32_sys_call_table:
 #else
 	.quad sys_ni_syscall
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	.quad sys_syno_archive_bit	/* 803 */
 #else
 	.quad sys_ni_syscall

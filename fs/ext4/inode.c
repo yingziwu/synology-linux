@@ -3972,7 +3972,7 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 		}
 		if (ei->i_extra_isize == 0) {
 			/* The extra space is currently unused. Use it. */
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 			if (EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) {
 				ei->i_extra_isize = sizeof(struct ext4_inode) - EXT4_GOOD_OLD_INODE_SIZE;
 			} else {
@@ -3981,7 +3981,7 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 #else
 			ei->i_extra_isize = sizeof(struct ext4_inode) -
 					    EXT4_GOOD_OLD_INODE_SIZE;
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 		} else {
 			__le32 *magic = (void *)raw_inode +
 					EXT4_GOOD_OLD_INODE_SIZE +
@@ -3997,6 +3997,7 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 	EXT4_INODE_GET_XTIME(i_atime, inode, raw_inode);
 	EXT4_EINODE_GET_XTIME(i_crtime, ei, raw_inode);
 #ifdef MY_ABC_HERE
+	if (EXT4_FITS_IN_INODE(raw_inode, ei, i_crtime_extra)) {
 #ifdef SYNO_CREATE_TIME_BIG_ENDIAN_SWAP
 	if (EXT4_SB(sb)->s_swap_create_time) {
 		inode->i_create_time.tv_sec = (signed)le32_to_cpu(raw_inode->i_crtime);
@@ -4009,8 +4010,9 @@ struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 	inode->i_create_time.tv_sec = (signed)le32_to_cpu(raw_inode->i_crtime);
 	inode->i_create_time.tv_nsec = (signed)le32_to_cpu(raw_inode->i_crtime_extra);
 #endif
+	}
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	EXT4_INODE_GET_SYNO_ARCHIVE_BIT(inode, raw_inode);
 #endif
 
@@ -4184,6 +4186,7 @@ static int ext4_do_update_inode(handle_t *handle,
 	EXT4_INODE_SET_XTIME(i_mtime, inode, raw_inode);
 	EXT4_INODE_SET_XTIME(i_atime, inode, raw_inode);
 #ifdef MY_ABC_HERE
+	if (EXT4_FITS_IN_INODE(raw_inode, ei, i_crtime_extra)) {
 #ifdef SYNO_CREATE_TIME_BIG_ENDIAN_SWAP
 	if (EXT4_SB(inode->i_sb)->s_swap_create_time) {
 		raw_inode->i_crtime = cpu_to_le32(inode->i_create_time.tv_sec);
@@ -4196,10 +4199,11 @@ static int ext4_do_update_inode(handle_t *handle,
 	raw_inode->i_crtime = cpu_to_le32(inode->i_create_time.tv_sec);
 	raw_inode->i_crtime_extra = cpu_to_le32(inode->i_create_time.tv_nsec);
 #endif
+	}
 #else
 	EXT4_EINODE_SET_XTIME(i_crtime, ei, raw_inode);
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	EXT4_INODE_SET_SYNO_ARCHIVE_BIT(inode, raw_inode);
 #endif
 
@@ -4559,7 +4563,7 @@ int syno_ext4_getattr(struct dentry *d, struct kstat *stat, int flags)
 		stat->syno_create_time = inode->i_create_time;
 	}
 #endif
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	if (flags & SYNOST_ARCHIVE_BIT) {
 		stat->syno_archive_bit = inode->i_archive_bit;
 	}
