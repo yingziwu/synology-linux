@@ -19,3 +19,4 @@ obj-$(CONFIG_SYNO_PCIEHP_FORCE) += syno_pciehp_force.o
 obj-$(CONFIG_SYNO_PCIE_I2C) += syno_pcie_i2c.o
 obj-$(CONFIG_SYNO_NVME_SW_ACTIVITY) += syno_nvme_index_fill.o
 obj-$(CONFIG_SYNO_HDD_POWER_CONTROL_TEST) += syno_hddpwrctl_test.o
+obj-$(CONFIG_SYNO_AHCI_REG_READ_TEST) += syno_ahci_reg_read_test.o

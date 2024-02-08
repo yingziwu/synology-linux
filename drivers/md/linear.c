@@ -31,14 +31,25 @@
 /*
  * find which device holds a particular offset
  */
+#ifdef MY_ABC_HERE
+static inline struct dev_info *which_dev(struct mddev *mddev, sector_t sector, bool take_rcu)
+#else /* MY_ABC_HERE */
 static inline struct dev_info *which_dev(struct mddev *mddev, sector_t sector)
+#endif /* MY_ABC_HERE */
 {
 	int lo, mid, hi;
 	struct linear_conf *conf;
 
 	lo = 0;
 	hi = mddev->raid_disks - 1;
+#ifdef MY_ABC_HERE
+	if (take_rcu)
+		conf = rcu_dereference(mddev->private);
+	else
+		conf = mddev->private;
+#else /* MY_ABC_HERE */
 	conf = mddev->private;
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * Binary Search
@@ -302,14 +313,12 @@ SynoLinearEndRequest(struct bio *bio)
 {
 	int bio_error = bio->bi_error;
 	struct mddev *mddev = NULL;
-	struct dev_info *dev_info = NULL;
 	struct md_rdev *rdev = NULL;
 	struct bio *orig_bio;
 
 	orig_bio = bio->bi_private;
 
-	dev_info = (struct dev_info *)orig_bio->bi_next;
-	rdev = dev_info->rdev;
+	rdev = (struct md_rdev *)orig_bio->bi_next;
 	mddev = rdev->mddev;
 	orig_bio->bi_next = bio->bi_next;
 	orig_bio->bi_error = bio->bi_error;
@@ -320,9 +329,15 @@ SynoLinearEndRequest(struct bio *bio)
 			syno_md_error(mddev, rdev);
 		} else {
 #ifdef MY_ABC_HERE
-			sector_t report_sector = orig_bio->bi_iter.bi_sector -
-			                         (dev_info->end_sector - rdev->sectors) +
-			                         rdev->data_offset;
+			struct dev_info *tmp_dev;
+			sector_t report_sector;
+
+			rcu_read_lock();
+			tmp_dev = which_dev(mddev, orig_bio->bi_iter.bi_sector, true);
+			report_sector = orig_bio->bi_iter.bi_sector -
+			                (tmp_dev->end_sector - rdev->sectors) +
+			                rdev->data_offset;
+			rcu_read_unlock();
 #ifdef MY_ABC_HERE
 			if (bio_flagged(bio, BIO_AUTO_REMAP)) {
 				SynoReportBadSector(report_sector, bio->bi_rw, mddev->md_minor,
@@ -377,7 +392,11 @@ static void linear_make_request(struct mddev *mddev, struct bio *bio)
 		return;
 	}
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	tmp_dev = which_dev(mddev, bio_sector, false);
+#else /* MY_ABC_HERE */
 	tmp_dev = which_dev(mddev, bio_sector);
+#endif /* MY_ABC_HERE */
 	start_sector = tmp_dev->end_sector - tmp_dev->rdev->sectors;
 	end_sector = tmp_dev->end_sector;
 	data_offset = tmp_dev->rdev->data_offset;
@@ -410,7 +429,7 @@ static void linear_make_request(struct mddev *mddev, struct bio *bio)
 		cloned_bio->bi_private = bio;
 
 		orig_bio = bio;
-		orig_bio->bi_next = (void *)tmp_dev;
+		orig_bio->bi_next = (void *)tmp_dev->rdev;
 		bio = cloned_bio;
 	}
 #endif /* MY_ABC_HERE */

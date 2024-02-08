@@ -503,6 +503,9 @@ static int esdhc_of_suspend(struct device *dev)
 
 	esdhc_proctl = sdhci_readl(host, SDHCI_HOST_CONTROL);
 
+	if (host->tuning_mode != SDHCI_TUNING_MODE_3)
+		mmc_retune_needed(host->mmc);
+
 	return sdhci_suspend_host(host);
 }
 
@@ -623,6 +626,11 @@ static int sdhci_esdhc_probe(struct platform_device *pdev)
 
 	if (esdhc->vendor_ver > VENDOR_V_22)
 		host->quirks &= ~SDHCI_QUIRK_NO_BUSY_IRQ;
+
+	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc")) {
+		host->quirks |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
+		host->quirks |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
+	}
 
 	if (of_device_is_compatible(np, "fsl,p5040-esdhc") ||
 	    of_device_is_compatible(np, "fsl,p5020-esdhc") ||

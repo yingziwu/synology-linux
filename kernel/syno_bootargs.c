@@ -43,6 +43,12 @@ extern long g_smbus_hdd_powerctl;
 extern char gSynoSmbusHddType[16];
 extern int gSynoSmbusHddAdapter;
 extern int gSynoSmbusHddAddress;
+#ifdef MY_DEF_HERE
+#else /* MY_DEF_HERE */
+extern int gSynoSmbusSwitchAdapter;
+extern int gSynoSmbusSwitchAddr;
+extern int gSynoSmbusSwitchVal;
+#endif /* MY_DEF_HERE */
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -359,6 +365,68 @@ static int __init early_smbus_hdd_address(char *p)
 	return 1;
 }
 __setup("syno_smbus_hdd_address=", early_smbus_hdd_address);
+
+#ifdef MY_DEF_HERE
+#else /* MY_DEF_HERE */
+static int __init early_smbus_switch_config(char *p)
+{
+	long temp;
+	char *sz_adap;
+	char *sz_addr;
+	char *sz_val;
+
+	sz_adap = p;
+	if((sz_addr = strchr(sz_adap, ','))) {
+		*sz_addr++ = '\0';
+	} else {
+		goto FMT_ERR;
+	}
+	if((sz_val = strchr(sz_addr, ','))) {
+		*sz_val++ = '\0';
+	} else {
+		goto FMT_ERR;
+	}
+
+	if (kstrtol(sz_adap, 16, &temp)) {
+		goto FMT_ERR;
+	}
+	gSynoSmbusSwitchAdapter = (int)temp;
+	if (kstrtol(sz_addr, 16, &temp)) {
+		goto FMT_ERR;
+	}
+	gSynoSmbusSwitchAddr = (int)temp;
+	if (kstrtol(sz_val, 16, &temp)) {
+		goto FMT_ERR;
+	}
+	gSynoSmbusSwitchVal = (int)temp;
+	printk("SYNO Smbus switch config string: %d, 0x%02x, 0x%02x\n", gSynoSmbusSwitchAdapter, gSynoSmbusSwitchAddr, gSynoSmbusSwitchVal);
+
+	return 1;
+FMT_ERR:
+	/* format error */
+	printk(KERN_ERR "SYNO: Parsing smbus switch format error, ignore.\n");
+	gSynoSmbusSwitchAddr = 0;
+	return -1;
+}
+__setup("syno_smbus_switch_config=", early_smbus_switch_config);
+#endif /* MY_DEF_HERE */
+
+void __init syno_smbus_setting_override(void)
+{
+	if((syno_is_hw_version(HW_RS4021xsp) && syno_is_hw_revision(HW_R1)) ||
+	    (syno_is_hw_version(HW_RS3621xsp)&& syno_is_hw_revision(HW_R1)) ||
+	    (syno_is_hw_version(HW_RS3621rpxs) && syno_is_hw_revision(HW_R1)) ||
+	    (syno_is_hw_version(HW_RS3618xs) && syno_is_hw_revision(HW_R1))) {
+		early_smbus_hdd_powerctl("1");
+		early_smbus_hdd_type("microp");
+		early_smbus_hdd_adapter("0");
+		early_smbus_hdd_address("0x47");
+#ifdef MY_DEF_HERE
+#else /* MY_DEF_HERE */
+		early_smbus_switch_config("0,0x70,0x04");
+#endif /* MY_DEF_HERE */
+	}
+}
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
