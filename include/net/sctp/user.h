@@ -166,13 +166,11 @@ enum sctp_sinfo_flags {
 	SCTP_EOF=MSG_FIN,    /* Initiate graceful shutdown process. */	
 };
 
-
 /* These are cmsg_types.  */
 typedef enum sctp_cmsg_type {
 	SCTP_INIT,              /* 5.2.1 SCTP Initiation Structure */
 	SCTP_SNDRCV,            /* 5.2.2 SCTP Header Information Structure */
 } sctp_cmsg_t;
-
 
 /*
  * 5.3.1.1 SCTP_ASSOC_CHANGE
@@ -244,7 +242,6 @@ enum sctp_spc_state {
 	SCTP_ADDR_CONFIRMED,
 };
 
-
 /*
  * 5.3.1.3 SCTP_REMOTE_ERROR
  *
@@ -263,7 +260,6 @@ struct sctp_remote_error {
 	sctp_assoc_t sre_assoc_id;
 	__u8 sre_data[0];
 };
-
 
 /*
  * 5.3.1.4 SCTP_SEND_FAILED
@@ -592,7 +588,6 @@ struct sctp_authkeyid {
 	sctp_assoc_t	scact_assoc_id;
 	__u16		scact_keynumber;
 };
-
 
 /*
  * 7.1.23.  Get or set delayed ack timer (SCTP_DELAYED_SACK)

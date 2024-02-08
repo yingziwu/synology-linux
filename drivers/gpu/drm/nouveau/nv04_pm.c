@@ -91,4 +91,3 @@ nv04_pm_clock_set(struct drm_device *dev, void *pre_state)
 
 	kfree(state);
 }
-

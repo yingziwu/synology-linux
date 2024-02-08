@@ -3306,7 +3306,6 @@ bnad_pci_probe(struct pci_dev *pdev,
 	if (err)
 		goto res_free;
 
-
 	/* Set up timers */
 	setup_timer(&bnad->bna.ioceth.ioc.ioc_timer, bnad_ioc_timeout,
 				((unsigned long)bnad));

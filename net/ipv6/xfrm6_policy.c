@@ -1,16 +1,7 @@
-/*
- * xfrm6_policy.c: based on xfrm4_policy.c
- *
- * Authors:
- *	Mitsuru KANDA @USAGI
- * 	Kazunori MIYAZAWA @USAGI
- * 	Kunihiro Ishiguro <kunihiro@ipinfusion.com>
- * 		IPv6 support
- * 	YOSHIFUJI Hideaki
- * 		Split up af-specific portion
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
@@ -103,8 +94,6 @@ static int xfrm6_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
 	if (rt->rt6i_peer)
 		atomic_inc(&rt->rt6i_peer->refcnt);
 
-	/* Sheit... I remember I did this right. Apparently,
-	 * it was magically lost, so this code needs audit */
 	xdst->u.rt6.rt6i_flags = rt->rt6i_flags & (RTF_ANYCAST |
 						   RTF_LOCAL);
 	xdst->u.rt6.rt6i_metric = rt->rt6i_metric;
@@ -123,11 +112,27 @@ _decode_session6(struct sk_buff *skb, struct flowi *fl, int reverse)
 {
 	struct flowi6 *fl6 = &fl->u.ip6;
 	int onlyproto = 0;
+#if defined(MY_ABC_HERE)
+	 
+#ifdef NET_SKBUFF_NF_DEFRAG_NEEDED
+	struct sk_buff *whole_skb = (skb->nfct_reasm) ? skb->nfct_reasm : skb;
+#else
+	struct sk_buff *whole_skb = skb;
+#endif
+	u16 offset = skb_network_header_len(whole_skb);
+	const struct ipv6hdr *hdr = ipv6_hdr(whole_skb);
+#else
 	u16 offset = skb_network_header_len(skb);
 	const struct ipv6hdr *hdr = ipv6_hdr(skb);
+#endif
 	struct ipv6_opt_hdr *exthdr;
+#if defined(MY_ABC_HERE)
+	const unsigned char *nh = skb_network_header(whole_skb);
+	u8 nexthdr = nh[IP6CB(whole_skb)->nhoff];
+#else
 	const unsigned char *nh = skb_network_header(skb);
 	u8 nexthdr = nh[IP6CB(skb)->nhoff];
+#endif
 
 	memset(fl6, 0, sizeof(struct flowi6));
 	fl6->flowi6_mark = skb->mark;
@@ -135,9 +140,15 @@ _decode_session6(struct sk_buff *skb, struct flowi *fl, int reverse)
 	ipv6_addr_copy(&fl6->daddr, reverse ? &hdr->saddr : &hdr->daddr);
 	ipv6_addr_copy(&fl6->saddr, reverse ? &hdr->daddr : &hdr->saddr);
 
+#if defined(MY_ABC_HERE)
+	while (nh + offset + 1 < whole_skb->data ||
+		pskb_may_pull(whole_skb, nh + offset + 1 - whole_skb->data)) {
+		nh = skb_network_header(whole_skb);
+#else
 	while (nh + offset + 1 < skb->data ||
 	       pskb_may_pull(skb, nh + offset + 1 - skb->data)) {
 		nh = skb_network_header(skb);
+#endif
 		exthdr = (struct ipv6_opt_hdr *)(nh + offset);
 
 		switch (nexthdr) {
@@ -156,8 +167,13 @@ _decode_session6(struct sk_buff *skb, struct flowi *fl, int reverse)
 		case IPPROTO_TCP:
 		case IPPROTO_SCTP:
 		case IPPROTO_DCCP:
+#if defined(MY_ABC_HERE)
+			if (!onlyproto && (nh + offset + 4 < whole_skb->data ||
+			pskb_may_pull(whole_skb, nh + offset + 4 - whole_skb->data))) {
+#else
 			if (!onlyproto && (nh + offset + 4 < skb->data ||
 			     pskb_may_pull(skb, nh + offset + 4 - skb->data))) {
+#endif
 				__be16 *ports = (__be16 *)exthdr;
 
 				fl6->fl6_sport = ports[!!reverse];
@@ -188,7 +204,6 @@ _decode_session6(struct sk_buff *skb, struct flowi *fl, int reverse)
 			return;
 #endif
 
-		/* XXX Why are there these headers? */
 		case IPPROTO_AH:
 		case IPPROTO_ESP:
 		case IPPROTO_COMP:
@@ -309,17 +324,6 @@ int __init xfrm6_init(void)
 	int ret;
 	unsigned int gc_thresh;
 
-	/*
-	 * We need a good default value for the xfrm6 gc threshold.
-	 * In ipv4 we set it to the route hash table size * 8, which
-	 * is half the size of the maximaum route cache for ipv4.  It
-	 * would be good to do the same thing for v6, except the table is
-	 * constructed differently here.  Here each table for a net namespace
-	 * can have FIB_TABLE_HASHSZ entries, so lets go with the same
-	 * computation that we used for ipv4 here.  Also, lets keep the initial
-	 * gc_thresh to a minimum of 1024, since, the ipv6 route cache defaults
-	 * to that as a minimum as well
-	 */
 	gc_thresh = FIB6_TABLE_HASHSZ * 8;
 	xfrm6_dst_ops.gc_thresh = (gc_thresh < 1024) ? 1024 : gc_thresh;
 	dst_entries_init(&xfrm6_dst_ops);
@@ -350,7 +354,7 @@ void xfrm6_fini(void)
 	if (sysctl_hdr)
 		unregister_net_sysctl_table(sysctl_hdr);
 #endif
-	//xfrm6_input_fini();
+	 
 	xfrm6_policy_fini();
 	xfrm6_state_fini();
 	dst_entries_destroy(&xfrm6_dst_ops);

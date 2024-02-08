@@ -1,23 +1,7 @@
-/*
- *	IPv6 tunneling device
- *	Linux INET6 implementation
- *
- *	Authors:
- *	Ville Nuorvala		<vnuorval@tcs.hut.fi>
- *	Yasuyuki Kozakai	<kozakai@linux-ipv6.org>
- *
- *      Based on:
- *      linux/net/ipv6/sit.c and linux/net/ipv4/ipip.c
- *
- *      RFC 2473
- *
- *	This program is free software; you can redistribute it and/or
- *      modify it under the terms of the GNU General Public License
- *      as published by the Free Software Foundation; either version
- *      2 of the License, or (at your option) any later version.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/capability.h>
 #include <linux/errno.h>
@@ -37,6 +21,9 @@
 #include <linux/route.h>
 #include <linux/rtnetlink.h>
 #include <linux/netfilter_ipv6.h>
+#if defined(MY_ABC_HERE)
+#include <linux/netfilter/nf_conntrack_proto_gre.h>
+#endif
 #include <linux/slab.h>
 
 #include <asm/uaccess.h>
@@ -74,20 +61,24 @@ MODULE_ALIAS_NETDEV("ip6tnl0");
 		     (addr)->s6_addr32[2] ^ (addr)->s6_addr32[3]) & \
 		    (HASH_SIZE - 1))
 
+#if defined(MY_ABC_HERE)
+#define for_each_ip6_tunnel_rcu(start) \
+	for (t = rcu_dereference(start); t; t = rcu_dereference(t->next))
+#endif
+
 static int ip6_tnl_dev_init(struct net_device *dev);
 static void ip6_tnl_dev_setup(struct net_device *dev);
 
 static int ip6_tnl_net_id __read_mostly;
 struct ip6_tnl_net {
-	/* the IPv6 tunnel fallback device */
+	 
 	struct net_device *fb_tnl_dev;
-	/* lists for storing tunnels in use */
+	 
 	struct ip6_tnl __rcu *tnls_r_l[HASH_SIZE];
 	struct ip6_tnl __rcu *tnls_wc[1];
 	struct ip6_tnl __rcu **tnls[2];
 };
 
-/* often modified stats are per cpu, other are shared (netdev->stats) */
 struct pcpu_tstats {
 	unsigned long	rx_packets;
 	unsigned long	rx_bytes;
@@ -115,9 +106,531 @@ static struct net_device_stats *ip6_get_stats(struct net_device *dev)
 	return &dev->stats;
 }
 
-/*
- * Locking : hash tables are protected by RCU and RTNL
- */
+#if defined(MY_ABC_HERE)
+static struct kmem_cache *mr_kmem __read_mostly;
+int mr_kmem_alloced = 0;
+
+static inline size_t  ip6_4rd_nlmsg_size(void)
+{
+	return NLMSG_ALIGN(sizeof(struct ip6_4rd_map_msg));
+}
+
+static int ip6_4rd_fill_node( struct sk_buff *skb, struct ip6_tnl_4rd_map_rule *mr,
+			u32 pid, u32 seq,int type, unsigned int flags, int reset, unsigned int ifindex)
+{
+	struct ip6_4rd_map_msg *mr_msg;
+	struct nlmsghdr *nlh;
+
+	nlh = nlmsg_put(skb, pid , seq, type, sizeof(*mr_msg), flags);
+	if (nlh == NULL)
+		return -EMSGSIZE;
+
+	mr_msg = nlmsg_data(nlh);
+	if(reset)
+	{
+		memset(mr_msg,0,sizeof(*mr_msg));
+		mr_msg->reset = 1;
+		mr_msg->ifindex = ifindex;
+		
+	}
+	else
+	{
+		 
+		memset(mr_msg,0,sizeof(*mr_msg));
+		mr_msg->prefix = mr->prefix;
+		mr_msg->prefixlen = mr->prefixlen ;
+		ipv6_addr_copy(&mr_msg->relay_prefix, &mr->relay_prefix);
+		ipv6_addr_copy(&mr_msg->relay_suffix, &mr->relay_suffix);
+		mr_msg->relay_prefixlen = mr->relay_prefixlen ;
+		mr_msg->relay_suffixlen = mr->relay_suffixlen ;
+		mr_msg->psid_offsetlen = mr->psid_offsetlen ;
+		mr_msg->eabit_len = mr->eabit_len ;
+		mr_msg->entry_num = mr->entry_num ;
+		mr_msg->ifindex = ifindex;
+	}
+	return nlmsg_end(skb, nlh);
+
+}
+
+static int inet6_dump4rd_mrule(struct sk_buff *skb, struct netlink_callback *cb)
+{
+	struct net *net = sock_net(skb->sk);
+	unsigned int h, s_h;
+	int s_idx, s_ip_idx;
+	int idx, ip_idx;
+	struct ip6_tnl_4rd_map_rule *mr ;
+	int err = 0;
+
+	struct ip6_tnl *t;
+	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
+
+	s_h = cb->args[0];
+	s_idx = idx = cb->args[1];
+	s_ip_idx = ip_idx = cb->args[2];
+
+	for (h = s_h; h < HASH_SIZE ; h++, s_idx = 0) {
+		idx = 0;
+		for_each_ip6_tunnel_rcu(ip6n->tnls_r_l[h])
+		{
+			if (idx < s_idx)
+				goto cont_tunnel;
+			if (idx > s_idx)
+				s_ip_idx = 0;
+			ip_idx = 0;
+			read_lock(&t->ip4rd.map_lock);
+			list_for_each_entry (mr, &t->ip4rd.map_list, mr_list){
+				if (ip_idx < s_ip_idx)
+					goto cont_mr;
+				err = ip6_4rd_fill_node(skb, mr,NETLINK_CB(cb->skb).pid,
+						cb->nlh->nlmsg_seq,RTM_NEW4RD, NLM_F_MULTI , 0, t->dev->ifindex);
+				if (err < 0) {
+					WARN_ON(err == -EMSGSIZE);
+					kfree_skb(skb);
+					read_unlock(&t->ip4rd.map_lock);
+					goto out;
+				}
+cont_mr:
+				ip_idx++;
+			}
+			read_unlock(&t->ip4rd.map_lock);
+cont_tunnel:
+			idx++;	
+		}
+	}
+out:
+	cb->args[0] = h;
+	cb->args[1] = idx;
+	cb->args[2] = ip_idx;
+	
+	return skb->len;
+}
+
+void ip6_4rd_notify(int event, struct ip6_tnl_4rd_map_rule *mr ,struct net_device *dev, int reset)
+{
+	struct sk_buff *skb;
+	struct net *net = dev_net(dev);
+	int err;
+
+	err = -ENOBUFS;
+
+	skb = nlmsg_new(ip6_4rd_nlmsg_size(), gfp_any());
+	if (skb == NULL)
+		goto errout;
+
+	err = ip6_4rd_fill_node(skb, mr,0,0,event,  0, reset, dev->ifindex);
+	if (err < 0) {
+		 
+		WARN_ON(err == -EMSGSIZE);
+		kfree_skb(skb);
+		goto errout;
+	}
+	rtnl_notify(skb, net, 0, RTNLGRP_IPV6_IFADDR,
+		    NULL, gfp_any());
+	return;
+errout:
+	if (err < 0)
+		rtnl_set_sk_err(net, RTNLGRP_IPV6_IFADDR, err);
+}
+
+static inline void
+ip6_tnl_4rd_mr_destroy(char *f, struct ip6_tnl_4rd_map_rule *mr)
+{
+	list_del(&mr->mr_list);
+	kmem_cache_free(mr_kmem, mr);
+	--mr_kmem_alloced;
+}
+
+static int
+ip6_tnl_4rd_mr_create(struct ip6_tnl_4rd *ip4rd, struct ip6_tnl_4rd_parm *parm, struct net_device *dev)
+{
+	struct ip6_tnl_4rd_map_rule *mr ;
+	int err = 0;
+
+       write_lock_bh(&parm->map_lock);
+       list_for_each_entry (mr, &parm->map_list, mr_list){
+               if( mr->entry_num == ip4rd->entry_num ){
+                       printk(KERN_DEBUG "ip6_tnl_4rd_mr_create: map rule found update");
+                       mr->prefix = ip4rd->prefix ;
+                       ipv6_addr_copy(&mr->relay_prefix, &ip4rd->relay_prefix);
+                       ipv6_addr_copy(&mr->relay_suffix, &ip4rd->relay_suffix);
+                       mr->prefixlen = ip4rd->prefixlen ;
+                       mr->relay_prefixlen = ip4rd->relay_prefixlen ;
+                       mr->relay_suffixlen = ip4rd->relay_suffixlen ;
+                       mr->psid_offsetlen = ip4rd->psid_offsetlen ;
+                       mr->eabit_len = ip4rd->eabit_len ;
+                       mr->entry_num = ip4rd->entry_num ;
+                       goto out;
+               }
+       }
+
+       mr = kmem_cache_alloc(mr_kmem, GFP_KERNEL);
+
+       if (!mr) {
+               printk(KERN_INFO "ip6_tnl_4rd_mr_create: kmem_cache_alloc fail");
+               err = -1 ;
+               goto out;
+       }
+
+       mr->prefix = ip4rd->prefix ;
+       ipv6_addr_copy(&mr->relay_prefix, &ip4rd->relay_prefix);
+       ipv6_addr_copy(&mr->relay_suffix, &ip4rd->relay_suffix);
+       mr->prefixlen = ip4rd->prefixlen ;
+       mr->relay_prefixlen = ip4rd->relay_prefixlen ;
+       mr->relay_suffixlen = ip4rd->relay_suffixlen ;
+       mr->psid_offsetlen = ip4rd->psid_offsetlen ;
+       mr->eabit_len = ip4rd->eabit_len ;
+       mr->entry_num = ip4rd->entry_num ;
+
+       ++mr_kmem_alloced;
+       list_add_tail(&mr->mr_list, &parm->map_list);
+
+out:
+	ip6_4rd_notify(RTM_NEW4RD,mr, dev,0);  
+	write_unlock_bh(&parm->map_lock);
+	return err;
+}
+
+static void
+ip6_tnl_4rd_mr_delete_all(struct ip6_tnl_4rd_parm *parm, struct net_device *dev)
+{
+	struct ip6_tnl_4rd_map_rule *mr, *mr_rule;
+
+	write_lock_bh(&parm->map_lock);
+	list_for_each_entry_safe (mr, mr_rule, &parm->map_list, mr_list){
+		ip6_tnl_4rd_mr_destroy("all", mr);
+	}
+	ip6_4rd_notify(RTM_DEL4RD,mr, dev ,1);
+	write_unlock_bh(&parm->map_lock);
+
+}
+
+static int
+ip6_tnl_4rd_mr_delete(__u16 entry_num , struct ip6_tnl_4rd_parm *parm, struct net_device *dev)
+{
+	struct ip6_tnl_4rd_map_rule *mr, *mr_rule;
+	int err = -1 ;
+
+	write_lock_bh(&parm->map_lock);
+	list_for_each_entry_safe (mr, mr_rule, &parm->map_list, mr_list){
+		if( mr->entry_num == entry_num ){
+			printk(KERN_DEBUG "ip6_tnl_4rd_mr_delete: map rule found delete");
+			ip6_tnl_4rd_mr_destroy("one", mr);
+			err = 0 ;
+			break;
+		}
+	}
+	ip6_4rd_notify(RTM_DEL4RD,mr,dev,0);
+	write_unlock_bh(&parm->map_lock);
+	return err ;
+}
+
+static void
+ip6_tnl_4rd_mr_show(struct ip6_tnl_4rd_parm *parm)
+{
+	struct ip6_tnl_4rd_map_rule *mr;
+
+       printk(KERN_DEBUG "-- 4rd mapping rule list\n");
+       printk(KERN_DEBUG "-- entry num = %d \n",mr_kmem_alloced);
+
+	read_lock(&parm->map_lock);
+	list_for_each_entry(mr, &parm->map_list, mr_list){
+		printk(KERN_DEBUG "%03d : %03d.%03d.%03d.%03d/%02d %02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x/%03d %02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x/%03d eabit:%03d offset:%03d \n",
+			mr->entry_num,
+			(ntohl(mr->prefix) >> 24) & 0xff,
+			(ntohl(mr->prefix) >> 16) & 0xff,
+			(ntohl(mr->prefix) >>  8) & 0xff,
+			ntohl(mr->prefix) & 0xff,
+			mr->prefixlen,
+			mr->relay_prefix.s6_addr[0],
+			mr->relay_prefix.s6_addr[1],
+			mr->relay_prefix.s6_addr[2],
+			mr->relay_prefix.s6_addr[3],
+			mr->relay_prefix.s6_addr[4],
+			mr->relay_prefix.s6_addr[5],
+			mr->relay_prefix.s6_addr[6],
+			mr->relay_prefix.s6_addr[7],
+			mr->relay_prefix.s6_addr[8],
+			mr->relay_prefix.s6_addr[9],
+			mr->relay_prefix.s6_addr[10],
+			mr->relay_prefix.s6_addr[11],
+			mr->relay_prefix.s6_addr[12],
+			mr->relay_prefix.s6_addr[13],
+			mr->relay_prefix.s6_addr[14],
+			mr->relay_prefix.s6_addr[15],
+			mr->relay_prefixlen,
+			mr->relay_suffix.s6_addr[0],
+			mr->relay_suffix.s6_addr[1],
+			mr->relay_suffix.s6_addr[2],
+			mr->relay_suffix.s6_addr[3],
+			mr->relay_suffix.s6_addr[4],
+			mr->relay_suffix.s6_addr[5],
+			mr->relay_suffix.s6_addr[6],
+			mr->relay_suffix.s6_addr[7],
+			mr->relay_suffix.s6_addr[8],
+			mr->relay_suffix.s6_addr[9],
+			mr->relay_suffix.s6_addr[10],
+			mr->relay_suffix.s6_addr[11],
+			mr->relay_suffix.s6_addr[12],
+			mr->relay_suffix.s6_addr[13],
+			mr->relay_suffix.s6_addr[14],
+			mr->relay_suffix.s6_addr[15],
+			mr->relay_suffixlen,
+			mr->eabit_len,
+			mr->psid_offsetlen );
+	}
+	read_unlock(&parm->map_lock);
+}
+
+static int
+ip6_tnl_4rd_modify_daddr(struct in6_addr *daddr6, __be32 daddr4, __be16 dport4,
+		struct ip6_tnl_4rd_map_rule *mr)
+{
+       int i, pbw0, pbi0, pbi1;
+       __u32 daddr[4];
+       __u32 port_set_id = 0;
+       __u32 mask;
+       __u32 da = ntohl(daddr4);
+       __u16 dp = ntohs(dport4);
+       __u32 diaddr[4];
+       int port_set_id_len = ( mr->eabit_len ) - ( 32 - mr->prefixlen ) ;
+
+       if ( port_set_id_len < 0) {
+               printk(KERN_DEBUG "ip6_tnl_4rd_modify_daddr: PSID length ERROR %d\n", port_set_id_len);
+               return -1;
+       }
+
+       if ( port_set_id_len > 0) {
+               mask = 0xffffffff >> (32 - port_set_id_len);
+               port_set_id = ( dp >> (16 - mr->psid_offsetlen - port_set_id_len ) & mask ) ;
+       }
+
+       for (i = 0; i < 4; ++i)
+               daddr[i] = ntohl(mr->relay_prefix.s6_addr32[i])
+                       | ntohl(mr->relay_suffix.s6_addr32[i]);
+
+       if( mr->prefixlen < 32 ) {
+               pbw0 = mr->relay_prefixlen >> 5;
+               pbi0 = mr->relay_prefixlen & 0x1f;
+               daddr[pbw0] |= (da << mr->prefixlen) >> pbi0;
+               pbi1 = pbi0 - mr->prefixlen;
+               if (pbi1 > 0)
+                       daddr[pbw0+1] |= da << (32 - pbi1);
+	}
+       if ( port_set_id_len > 0) {
+	       pbw0 = (mr->relay_prefixlen + 32 - mr->prefixlen) >> 5;
+	       pbi0 = (mr->relay_prefixlen + 32 - mr->prefixlen) & 0x1f;
+	       daddr[pbw0] |= (port_set_id << (32 - port_set_id_len)) >> pbi0;
+	       pbi1 = pbi0 - (32 - port_set_id_len);
+	       if (pbi1 > 0)
+		       daddr[pbw0+1] |= port_set_id << (32 - pbi1);
+       }
+
+       memset(diaddr, 0, sizeof(diaddr));
+
+       diaddr[2] = ( da >> 8 ) ;
+       diaddr[3] = ( da << 24 ) ;
+       diaddr[3] |= ( port_set_id << 8 ) ;
+
+       for (i = 0; i < 4; ++i)
+               daddr[i] = daddr[i] | diaddr[i] ;
+
+       for (i = 0; i < 4; ++i)
+               daddr6->s6_addr32[i] = htonl(daddr[i]);
+
+       printk(KERN_DEBUG "ip6_tnl_4rd_modify_daddr: %08x %08x %08x %08x  PSID:%04x\n",
+               daddr[0], daddr[1], daddr[2], daddr[3], port_set_id);
+
+       return 0;
+}
+
+static int
+ip6_tnl_4rd_rcv_helper(struct sk_buff *skb, struct ip6_tnl *t)
+{
+       int err = 0;
+       struct iphdr *iph;
+
+       iph = ip_hdr(skb);
+
+       switch (iph->protocol) {
+       case IPPROTO_TCP:
+       case IPPROTO_UDP:
+       case IPPROTO_ICMP:
+       case IPPROTO_GRE:
+               break;
+       default:
+               err = -1;
+               break;
+       }
+
+       return err;
+}
+
+static int
+ip6_tnl_4rd_xmit_helper(struct sk_buff *skb, struct flowi6 *fl6,
+		struct ip6_tnl *t)
+{
+       int err = 0;
+       struct iphdr *iph, *icmpiph;
+       __be16  *idp;
+       struct tcphdr *tcph, *icmptcph;
+       struct udphdr *udph, *icmpudph;
+       struct icmphdr *icmph;
+       struct gre_hdr *greh;
+       __u32 mask;
+       __be16 *sportp = NULL;
+       __be32 daddr;
+       __be16 dport;
+       u8 *ptr;
+       int no_dst_chg = 0;
+       struct ip6_tnl_4rd_map_rule *mr,*mr_tmp;
+       int mr_prefixlen ;
+       int count ;
+
+       iph = ip_hdr(skb);
+
+       daddr = iph->daddr;
+       idp = &iph->id;
+
+       ptr = (u8 *)iph;
+       ptr += iph->ihl * 4;
+       switch (iph->protocol) {
+       case IPPROTO_TCP:
+               tcph = (struct tcphdr *)ptr;
+               sportp = &tcph->source;
+               dport = tcph->dest;
+               break;
+       case IPPROTO_UDP:
+               udph = (struct udphdr *)ptr;
+               sportp = &udph->source;
+               dport = udph->dest;
+               break;
+       case IPPROTO_ICMP:
+               icmph = (struct icmphdr *)ptr;
+               switch (icmph->type) {
+               case ICMP_DEST_UNREACH:
+               case ICMP_SOURCE_QUENCH:
+               case ICMP_REDIRECT:
+               case ICMP_TIME_EXCEEDED:
+               case ICMP_PARAMETERPROB:
+                       ptr = (u8 *)icmph;
+                       ptr += sizeof(struct icmphdr);
+                       icmpiph = (struct iphdr*)ptr;
+                       if (ntohs(iph->tot_len) < icmpiph->ihl * 4 + 12) {
+                               err = -1;
+                               goto out;
+                       }
+                       daddr = icmpiph->saddr;
+                       ptr += icmpiph->ihl * 4;
+                       switch (icmpiph->protocol) {
+                       case IPPROTO_TCP:
+                               icmptcph = (struct tcphdr *)ptr;
+                               sportp = &icmptcph->dest;
+                               dport = icmptcph->source;
+                               break;
+                       case IPPROTO_UDP:
+                               icmpudph = (struct udphdr *)ptr;
+                               sportp = &icmpudph->dest;
+                               dport = icmpudph->source;
+                               break;
+                       default:
+                               err = -1;
+                               goto out;
+                       }
+                       break;
+               default:
+                       no_dst_chg = 1;
+                       break;
+               }
+               break;
+       case IPPROTO_GRE:
+               greh = (struct gre_hdr *)ptr;
+               if(greh->protocol != GRE_PROTOCOL_PPTP){
+                       err = -1;
+                       goto out;
+               }
+               no_dst_chg = 1;
+               break;
+       default:
+               err = -1;
+               goto out;
+       }
+
+       if ( no_dst_chg == 0 ){
+
+               count = 0;
+               mr_prefixlen = 0;
+
+               read_lock(&t->ip4rd.map_lock);
+               list_for_each_entry (mr, &t->ip4rd.map_list, mr_list){
+                       mask = 0xffffffff << (32 - mr->prefixlen) ;
+                       if( (htonl(daddr) & mask ) == htonl( mr->prefix) ) {
+                               if ( mr->prefixlen >= mr_prefixlen ){
+                                       mr_prefixlen = mr->prefixlen ;
+                                       mr_tmp = mr;
+                                       count++;
+                               }
+                       }
+               }
+
+               if (count){
+                       err = ip6_tnl_4rd_modify_daddr(&fl6->daddr, daddr, dport, mr_tmp );
+                       if (err){
+                                       read_unlock(&t->ip4rd.map_lock);
+                                       goto out;
+                       }
+               }
+               read_unlock(&t->ip4rd.map_lock);
+
+               if(sportp && idp){
+                       *idp=*sportp;
+               }
+       }
+
+       iph->check = 0;
+       iph->check = ip_fast_csum((unsigned char *)iph, iph->ihl);
+
+       skb->local_df = 1;
+
+out:
+	return err;
+}
+
+static void
+ip6_tnl_4rd_update_parms(struct ip6_tnl *t)
+{
+	int pbw0, pbi0, pbi1;
+	__u32 d;
+
+	t->ip4rd.port_set_id_len = t->ip4rd.relay_suffixlen
+				- t->ip4rd.relay_prefixlen
+				- (32 - t->ip4rd.prefixlen);
+	pbw0 = (t->ip4rd.relay_suffixlen - t->ip4rd.port_set_id_len) >> 5;
+	pbi0 = (t->ip4rd.relay_suffixlen - t->ip4rd.port_set_id_len) & 0x1f;
+	d = (ntohl(t->parms.laddr.s6_addr32[pbw0]) << pbi0)
+		>> (32 - t->ip4rd.port_set_id_len);
+	pbi1 = pbi0 - (32 - t->ip4rd.port_set_id_len);
+
+	if (pbi1 > 0)
+		d |= ntohl(t->parms.laddr.s6_addr32[pbw0+1]) >> (32 - pbi1);
+	t->ip4rd.port_set_id = d;
+
+	t->ip4rd.laddr4 = t->ip4rd.prefix;
+	pbw0 = t->ip4rd.relay_prefixlen >> 5;
+	pbi0 = t->ip4rd.relay_prefixlen & 0x1f;
+	d = (ntohl(t->parms.laddr.s6_addr32[pbw0]) << pbi0)
+		>> t->ip4rd.prefixlen;
+	pbi1 = pbi0 - t->ip4rd.prefixlen;
+	if (pbi1 > 0)
+		d |= ntohl(t->parms.laddr.s6_addr32[pbw0+1]) >> (32 - pbi1);
+	t->ip4rd.laddr4 |= htonl(d);
+	if (t->ip4rd.port_set_id_len < 0) {
+		d = ntohl(t->ip4rd.laddr4);
+		d &= 0xffffffff << -t->ip4rd.port_set_id_len;
+		t->ip4rd.laddr4 = htonl(d);
+	}
+
+}
+#endif
 
 static inline struct dst_entry *ip6_tnl_dst_check(struct ip6_tnl *t)
 {
@@ -147,33 +660,39 @@ static inline void ip6_tnl_dst_store(struct ip6_tnl *t, struct dst_entry *dst)
 	t->dst_cache = dst;
 }
 
-/**
- * ip6_tnl_lookup - fetch tunnel matching the end-point addresses
- *   @remote: the address of the tunnel exit-point
- *   @local: the address of the tunnel entry-point
- *
- * Return:
- *   tunnel matching given end-points if found,
- *   else fallback tunnel if its device is up,
- *   else %NULL
- **/
-
+#if !defined(MY_ABC_HERE)
 #define for_each_ip6_tunnel_rcu(start) \
 	for (t = rcu_dereference(start); t; t = rcu_dereference(t->next))
+#endif
 
 static struct ip6_tnl *
 ip6_tnl_lookup(struct net *net, const struct in6_addr *remote, const struct in6_addr *local)
 {
+#if defined(MY_ABC_HERE)
+ 
+#else
 	unsigned int h0 = HASH(remote);
+#endif
 	unsigned int h1 = HASH(local);
 	struct ip6_tnl *t;
 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
 
+#if defined(MY_ABC_HERE)
+	for_each_ip6_tunnel_rcu(ip6n->tnls_r_l[h1]) {
+#else
 	for_each_ip6_tunnel_rcu(ip6n->tnls_r_l[h0 ^ h1]) {
+#endif
 		if (ipv6_addr_equal(local, &t->parms.laddr) &&
 		    ipv6_addr_equal(remote, &t->parms.raddr) &&
 		    (t->dev->flags & IFF_UP))
 			return t;
+#if defined(MY_ABC_HERE)
+                if (t->ip4rd.prefix &&
+                   ipv6_addr_equal(local, &t->parms.laddr) &&
+                 
+                   (t->dev->flags & IFF_UP))
+                       return t;
+#endif
 	}
 	t = rcu_dereference(ip6n->tnls_wc[0]);
 	if (t && (t->dev->flags & IFF_UP))
@@ -182,36 +701,30 @@ ip6_tnl_lookup(struct net *net, const struct in6_addr *remote, const struct in6_
 	return NULL;
 }
 
-/**
- * ip6_tnl_bucket - get head of list matching given tunnel parameters
- *   @p: parameters containing tunnel end-points
- *
- * Description:
- *   ip6_tnl_bucket() returns the head of the list matching the
- *   &struct in6_addr entries laddr and raddr in @p.
- *
- * Return: head of IPv6 tunnel list
- **/
-
 static struct ip6_tnl __rcu **
 ip6_tnl_bucket(struct ip6_tnl_net *ip6n, const struct ip6_tnl_parm *p)
 {
+#if !defined(MY_ABC_HERE)
 	const struct in6_addr *remote = &p->raddr;
+#endif
 	const struct in6_addr *local = &p->laddr;
 	unsigned h = 0;
 	int prio = 0;
 
+#if defined(MY_ABC_HERE)
+	if (!ipv6_addr_any(local)) {        
+#else
 	if (!ipv6_addr_any(remote) || !ipv6_addr_any(local)) {
+#endif
 		prio = 1;
+#if defined(MY_ABC_HERE)
+		h = HASH(local);	
+#else
 		h = HASH(remote) ^ HASH(local);
+#endif
 	}
 	return &ip6n->tnls[prio][h];
 }
-
-/**
- * ip6_tnl_link - add tunnel to hash table
- *   @t: tunnel to be added
- **/
 
 static void
 ip6_tnl_link(struct ip6_tnl_net *ip6n, struct ip6_tnl *t)
@@ -221,11 +734,6 @@ ip6_tnl_link(struct ip6_tnl_net *ip6n, struct ip6_tnl *t)
 	rcu_assign_pointer(t->next , rtnl_dereference(*tp));
 	rcu_assign_pointer(*tp, t);
 }
-
-/**
- * ip6_tnl_unlink - remove tunnel from hash table
- *   @t: tunnel to be removed
- **/
 
 static void
 ip6_tnl_unlink(struct ip6_tnl_net *ip6n, struct ip6_tnl *t)
@@ -248,18 +756,6 @@ static void ip6_dev_free(struct net_device *dev)
 	free_percpu(dev->tstats);
 	free_netdev(dev);
 }
-
-/**
- * ip6_tnl_create() - create a new tunnel
- *   @p: tunnel parameters
- *   @pt: pointer to new tunnel
- *
- * Description:
- *   Create tunnel matching given parameters.
- *
- * Return:
- *   created tunnel or NULL
- **/
 
 static struct ip6_tnl *ip6_tnl_create(struct net *net, struct ip6_tnl_parm *p)
 {
@@ -291,6 +787,11 @@ static struct ip6_tnl *ip6_tnl_create(struct net *net, struct ip6_tnl_parm *p)
 
 	strcpy(t->parms.name, dev->name);
 
+#if defined(MY_ABC_HERE)
+	rwlock_init(&t->ip4rd.map_lock);
+	INIT_LIST_HEAD(&t->ip4rd.map_list); 
+#endif
+
 	dev_hold(dev);
 	ip6_tnl_link(ip6n, t);
 	return t;
@@ -300,20 +801,6 @@ failed_free:
 failed:
 	return NULL;
 }
-
-/**
- * ip6_tnl_locate - find or create tunnel matching given parameters
- *   @p: tunnel parameters
- *   @create: != 0 if allowed to create new tunnel if no match found
- *
- * Description:
- *   ip6_tnl_locate() first tries to locate an existing tunnel
- *   based on @parms. If this is unsuccessful, but @create is set a new
- *   tunnel device is created and registered for use.
- *
- * Return:
- *   matching tunnel or NULL
- **/
 
 static struct ip6_tnl *ip6_tnl_locate(struct net *net,
 		struct ip6_tnl_parm *p, int create)
@@ -336,14 +823,6 @@ static struct ip6_tnl *ip6_tnl_locate(struct net *net,
 	return ip6_tnl_create(net, p);
 }
 
-/**
- * ip6_tnl_dev_uninit - tunnel device uninitializer
- *   @dev: the device to be destroyed
- *
- * Description:
- *   ip6_tnl_dev_uninit() removes tunnel from its list
- **/
-
 static void
 ip6_tnl_dev_uninit(struct net_device *dev)
 {
@@ -358,15 +837,6 @@ ip6_tnl_dev_uninit(struct net_device *dev)
 	ip6_tnl_dst_reset(t);
 	dev_put(dev);
 }
-
-/**
- * parse_tvl_tnl_enc_lim - handle encapsulation limit option
- *   @skb: received socket buffer
- *
- * Return:
- *   0 if none was found,
- *   else index to encapsulation limit
- **/
 
 static __u16
 parse_tlv_tnl_enc_lim(struct sk_buff *skb, __u8 * raw)
@@ -398,16 +868,15 @@ parse_tlv_tnl_enc_lim(struct sk_buff *skb, __u8 * raw)
 			while (1) {
 				struct ipv6_tlv_tnl_enc_lim *tel;
 
-				/* No more room for encapsulation limit */
 				if (i + sizeof (*tel) > off + optlen)
 					break;
 
 				tel = (struct ipv6_tlv_tnl_enc_lim *) &raw[i];
-				/* return index of option if found and valid */
+				 
 				if (tel->type == IPV6_TLV_TNL_ENCAP_LIMIT &&
 				    tel->length == 1)
 					return i;
-				/* else jump to next option */
+				 
 				if (tel->type)
 					i += tel->length + 2;
 				else
@@ -419,14 +888,6 @@ parse_tlv_tnl_enc_lim(struct sk_buff *skb, __u8 * raw)
 	}
 	return 0;
 }
-
-/**
- * ip6_tnl_err - tunnel error handler
- *
- * Description:
- *   ip6_tnl_err() should handle errors in the tunnel according
- *   to the specifications in RFC 2473.
- **/
 
 static int
 ip6_tnl_err(struct sk_buff *skb, __u8 ipproto, struct inet6_skb_parm *opt,
@@ -440,10 +901,6 @@ ip6_tnl_err(struct sk_buff *skb, __u8 ipproto, struct inet6_skb_parm *opt,
 	__u32 rel_info = 0;
 	__u16 len;
 	int err = -ENOENT;
-
-	/* If the packet doesn't contain the original IPv6 header we are
-	   in trouble since we might need the source address for further
-	   processing of the error. */
 
 	rcu_read_lock();
 	if ((t = ip6_tnl_lookup(dev_net(skb->dev), &ipv6h->daddr,
@@ -574,7 +1031,6 @@ ip4ip6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 	skb_reset_network_header(skb2);
 	eiph = ip_hdr(skb2);
 
-	/* Try to guess incoming interface */
 	rt = ip_route_output_ports(dev_net(skb->dev), &fl4, NULL,
 				   eiph->saddr, 0,
 				   0, 0,
@@ -584,7 +1040,6 @@ ip4ip6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 
 	skb2->dev = rt->dst.dev;
 
-	/* route "incoming" packet */
 	if (rt->rt_flags & RTCF_LOCAL) {
 		ip_rt_put(rt);
 		rt = NULL;
@@ -608,7 +1063,6 @@ ip4ip6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 			goto out;
 	}
 
-	/* change mtu on this route */
 	if (rel_type == ICMP_DEST_UNREACH && rel_code == ICMP_FRAG_NEEDED) {
 		if (rel_info > dst_mtu(skb_dst(skb2)))
 			goto out;
@@ -649,7 +1103,6 @@ ip6ip6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 		skb_pull(skb2, offset);
 		skb_reset_network_header(skb2);
 
-		/* Try to guess incoming interface */
 		rt = rt6_lookup(dev_net(skb->dev), &ipv6_hdr(skb2)->saddr,
 				NULL, 0, 0);
 
@@ -691,7 +1144,6 @@ static void ip6ip6_dscp_ecn_decapsulate(const struct ip6_tnl *t,
 		IP6_ECN_set_ce(ipv6_hdr(skb));
 }
 
-/* called with rcu_read_lock() */
 static inline int ip6_tnl_rcv_ctl(struct ip6_tnl *t)
 {
 	struct ip6_tnl_parm *p = &t->parms;
@@ -712,15 +1164,6 @@ static inline int ip6_tnl_rcv_ctl(struct ip6_tnl *t)
 	}
 	return ret;
 }
-
-/**
- * ip6_tnl_rcv - decapsulate IPv6 packet and retransmit it locally
- *   @skb: received socket buffer
- *   @protocol: ethernet protocol ID
- *   @dscp_ecn_decapsulate: the function to decapsulate DSCP code and ECN
- *
- * Return: 0
- **/
 
 static int ip6_tnl_rcv(struct sk_buff *skb, __u16 protocol,
 		       __u8 ipproto,
@@ -766,6 +1209,12 @@ static int ip6_tnl_rcv(struct sk_buff *skb, __u16 protocol,
 		__skb_tunnel_rx(skb, t->dev);
 
 		dscp_ecn_decapsulate(t, ipv6h, skb);
+#if defined(MY_ABC_HERE)
+                if (ip6_tnl_4rd_rcv_helper(skb, t)) {
+                        rcu_read_unlock();
+                        goto discard;
+                }
+#endif
 
 		netif_rx(skb);
 
@@ -811,20 +1260,6 @@ static void init_tel_txopt(struct ipv6_tel_txoption *opt, __u8 encap_limit)
 	opt->ops.opt_nflen = 8;
 }
 
-/**
- * ip6_tnl_addr_conflict - compare packet addresses to tunnel's own
- *   @t: the outgoing tunnel device
- *   @hdr: IPv6 header from the incoming packet
- *
- * Description:
- *   Avoid trivial tunneling loop by checking that tunnel exit-point
- *   doesn't match source of incoming packet.
- *
- * Return:
- *   1 if conflict,
- *   0 else
- **/
-
 static inline int
 ip6_tnl_addr_conflict(const struct ip6_tnl *t, const struct ipv6hdr *hdr)
 {
@@ -860,25 +1295,7 @@ static inline int ip6_tnl_xmit_ctl(struct ip6_tnl *t)
 	}
 	return ret;
 }
-/**
- * ip6_tnl_xmit2 - encapsulate packet and send
- *   @skb: the outgoing socket buffer
- *   @dev: the outgoing tunnel device
- *   @dsfield: dscp code for outer header
- *   @fl: flow of tunneled packet
- *   @encap_limit: encapsulation limit
- *   @pmtu: Path MTU is stored if packet is too big
- *
- * Description:
- *   Build new header and do some sanity checks on the packet before sending
- *   it.
- *
- * Return:
- *   0 on success
- *   -1 fail
- *   %-EMSGSIZE message too big. return mtu in this case.
- **/
-
+ 
 static int ip6_tnl_xmit2(struct sk_buff *skb,
 			 struct net_device *dev,
 			 __u8 dsfield,
@@ -898,6 +1315,9 @@ static int ip6_tnl_xmit2(struct sk_buff *skb,
 	u8 proto;
 	int err = -1;
 	int pkt_len;
+#if defined(MY_ABC_HERE)
+	__u8 hop_limit;    
+#endif
 
 	if (!fl6->flowi6_mark)
 		dst = ip6_tnl_dst_check(t);
@@ -934,15 +1354,27 @@ static int ip6_tnl_xmit2(struct sk_buff *skb,
 		mtu = IPV6_MIN_MTU;
 	if (skb_dst(skb))
 		skb_dst(skb)->ops->update_pmtu(skb_dst(skb), mtu);
+#if defined(MY_ABC_HERE)
+        if (!t->ip4rd.prefix) {     
+#endif
 	if (skb->len > mtu) {
 		*pmtu = mtu;
 		err = -EMSGSIZE;
 		goto tx_err_dst_release;
 	}
+#if defined(MY_ABC_HERE)
+        }                        
 
-	/*
-	 * Okay, now see if we can stuff it in the buffer as-is.
-	 */
+	if (t->ip4rd.prefix) {
+		struct iphdr *iph;
+		iph = ip_hdr(skb);
+		hop_limit = iph->ttl;
+	}
+	else {
+		hop_limit = t->parms.hop_limit;
+	}
+#endif
+
 	max_headroom += LL_RESERVED_SPACE(tdev);
 
 	if (skb_headroom(skb) < max_headroom || skb_shared(skb) ||
@@ -977,7 +1409,11 @@ static int ip6_tnl_xmit2(struct sk_buff *skb,
 	*(__be32*)ipv6h = fl6->flowlabel | htonl(0x60000000);
 	dsfield = INET_ECN_encapsulate(0, dsfield);
 	ipv6_change_dsfield(ipv6h, ~INET_ECN_MASK, dsfield);
+#if defined(MY_ABC_HERE)
+	ipv6h->hop_limit = hop_limit;
+#else
 	ipv6h->hop_limit = t->parms.hop_limit;
+#endif
 	ipv6h->nexthdr = proto;
 	ipv6_addr_copy(&ipv6h->saddr, &fl6->saddr);
 	ipv6_addr_copy(&ipv6h->daddr, &fl6->daddr);
@@ -1034,9 +1470,14 @@ ip4ip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev)
 	if (t->parms.flags & IP6_TNL_F_USE_ORIG_FWMARK)
 		fl6.flowi6_mark = skb->mark;
 
+#if defined(MY_ABC_HERE)
+        if (t->ip4rd.prefix && ip6_tnl_4rd_xmit_helper(skb, &fl6, t))
+                return -1;
+#endif
+
 	err = ip6_tnl_xmit2(skb, dev, dsfield, &fl6, encap_limit, &mtu);
 	if (err != 0) {
-		/* XXX: send ICMP error even if DF is not set. */
+		 
 		if (err == -EMSGSIZE)
 			icmp_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
 				  htonl(mtu));
@@ -1105,6 +1546,10 @@ ip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	switch (skb->protocol) {
 	case htons(ETH_P_IP):
+#if defined(MY_ABC_HERE)
+                if (t->ip4rd.prefix && ip_defrag(skb, IP_DEFRAG_IP6_TNL_4RD))
+                        return NETDEV_TX_OK;
+#endif
 		ret = ip4ip6_tnl_xmit(skb, dev);
 		break;
 	case htons(ETH_P_IPV6):
@@ -1143,6 +1588,13 @@ static void ip6_tnl_set_cap(struct ip6_tnl *t)
 		if (rtype&IPV6_ADDR_UNICAST)
 			p->flags |= IP6_TNL_F_CAP_RCV;
 	}
+
+#if defined(MY_ABC_HERE)
+        if (t->ip4rd.prefix) {
+                p->flags |= IP6_TNL_F_CAP_XMIT;
+                p->flags |= IP6_TNL_F_CAP_RCV;
+        }
+#endif
 }
 
 static void ip6_tnl_link_config(struct ip6_tnl *t)
@@ -1154,7 +1606,6 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
 	memcpy(dev->dev_addr, &p->laddr, sizeof(struct in6_addr));
 	memcpy(dev->broadcast, &p->raddr, sizeof(struct in6_addr));
 
-	/* Set up flowi template */
 	ipv6_addr_copy(&fl6->saddr, &p->laddr);
 	ipv6_addr_copy(&fl6->daddr, &p->raddr);
 	fl6->flowi6_oif = p->link;
@@ -1200,15 +1651,6 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
 	}
 }
 
-/**
- * ip6_tnl_change - update the tunnel parameters
- *   @t: tunnel to be changed
- *   @p: tunnel configuration parameters
- *
- * Description:
- *   ip6_tnl_change() updates the tunnel parameters
- **/
-
 static int
 ip6_tnl_change(struct ip6_tnl *t, struct ip6_tnl_parm *p)
 {
@@ -1220,38 +1662,13 @@ ip6_tnl_change(struct ip6_tnl *t, struct ip6_tnl_parm *p)
 	t->parms.flowinfo = p->flowinfo;
 	t->parms.link = p->link;
 	t->parms.proto = p->proto;
+#if defined(MY_ABC_HERE)
+        ip6_tnl_4rd_update_parms(t);        
+#endif
 	ip6_tnl_dst_reset(t);
 	ip6_tnl_link_config(t);
 	return 0;
 }
-
-/**
- * ip6_tnl_ioctl - configure ipv6 tunnels from userspace
- *   @dev: virtual device associated with tunnel
- *   @ifr: parameters passed from userspace
- *   @cmd: command to be performed
- *
- * Description:
- *   ip6_tnl_ioctl() is used for managing IPv6 tunnels
- *   from userspace.
- *
- *   The possible commands are the following:
- *     %SIOCGETTUNNEL: get tunnel parameters for device
- *     %SIOCADDTUNNEL: add tunnel matching given tunnel parameters
- *     %SIOCCHGTUNNEL: change tunnel parameters to those given
- *     %SIOCDELTUNNEL: delete tunnel
- *
- *   The fallback device "ip6tnl0", created during module
- *   initialization, can be used for creating other tunnel devices.
- *
- * Return:
- *   0 on success,
- *   %-EFAULT if unable to copy data to or from userspace,
- *   %-EPERM if current process hasn't %CAP_NET_ADMIN set
- *   %-EINVAL if passed tunnel parameters are invalid,
- *   %-EEXIST if changing a tunnel's parameters would cause a conflict
- *   %-ENODEV if attempting to change or delete a nonexisting device
- **/
 
 static int
 ip6_tnl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
@@ -1261,6 +1678,10 @@ ip6_tnl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	struct ip6_tnl *t = NULL;
 	struct net *net = dev_net(dev);
 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
+#if defined(MY_ABC_HERE)
+        struct ip6_tnl_4rd ip4rd, *ip4rdp;  
+        struct ip6_tnl_4rd_map_rule *mr;   
+#endif
 
 	switch (cmd) {
 	case SIOCGETTUNNEL:
@@ -1334,21 +1755,120 @@ ip6_tnl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		err = 0;
 		unregister_netdevice(dev);
 		break;
+#if defined(MY_ABC_HERE)
+	case SIOCADD4RD:
+	case SIOCDEL4RD:
+		err = -EPERM;
+		if (!capable(CAP_NET_ADMIN))
+			goto done;
+
+		err = -EFAULT;
+		if (copy_from_user(&ip4rd, ifr->ifr_ifru.ifru_data, sizeof(ip4rd)))
+			goto done;
+
+		t = netdev_priv(dev);
+
+		if (cmd == SIOCADD4RD) {
+
+			__be32 prefix;
+			struct in6_addr relay_prefix, relay_suffix;
+
+			err = -EINVAL;
+
+			if (ip4rd.relay_suffixlen > 64)
+				goto done;
+
+			if (ip4rd.relay_suffixlen <= ip4rd.relay_prefixlen)
+				goto done;
+
+			prefix = ip4rd.prefix & htonl(0xffffffffUL << (32 - ip4rd.prefixlen));
+			if (prefix != ip4rd.prefix)
+				goto done;
+
+			ipv6_addr_prefix(&relay_prefix, &ip4rd.relay_prefix, ip4rd.relay_prefixlen);
+			if (!ipv6_addr_equal(&relay_prefix, &ip4rd.relay_prefix))
+				goto done;
+
+			ipv6_addr_prefix(&relay_suffix, &ip4rd.relay_suffix, ip4rd.relay_suffixlen);
+			if (!ipv6_addr_equal(&relay_suffix, &ip4rd.relay_suffix))
+				goto done;
+
+			err = ip6_tnl_4rd_mr_create(&ip4rd, &t->ip4rd, t->dev);  
+
+			if ( ip4rd.entry_num == 0 ){
+
+				t->ip4rd.prefix = prefix;
+				ipv6_addr_copy(&t->ip4rd.relay_prefix, &relay_prefix);
+				ipv6_addr_copy(&t->ip4rd.relay_suffix, &relay_suffix);
+				t->ip4rd.prefixlen = ip4rd.prefixlen;
+				t->ip4rd.relay_prefixlen = ip4rd.relay_prefixlen;
+				t->ip4rd.relay_suffixlen = ip4rd.relay_suffixlen;
+				t->ip4rd.psid_offsetlen = ip4rd.psid_offsetlen;
+
+				ip6_tnl_4rd_update_parms(t);
+				ip6_tnl_dst_reset(t);
+				ip6_tnl_link_config(t);
+			}
+			 
+			ip6_tnl_4rd_mr_show(&t->ip4rd);
+		}else if(cmd == SIOCDEL4RD){
+			if ( ip4rd.entry_num == 0 ){
+				ip6_tnl_4rd_mr_delete_all(&t->ip4rd, t->dev);
+				t->ip4rd.prefix = 0;
+				memset(&t->ip4rd.relay_prefix, 0, sizeof(t->ip4rd.relay_prefix));
+				memset(&t->ip4rd.relay_suffix, 0, sizeof(t->ip4rd.relay_suffix));
+				t->ip4rd.prefixlen = 0;
+				t->ip4rd.relay_prefixlen = 0;
+				t->ip4rd.relay_suffixlen = 0;
+				t->ip4rd.psid_offsetlen = 0;
+				t->ip4rd.laddr4 = 0;
+				t->ip4rd.port_set_id = t->ip4rd.port_set_id_len = 0;
+
+				ip6_tnl_dst_reset(t);
+				ip6_tnl_link_config(t);
+			}else{
+				err = ip6_tnl_4rd_mr_delete( ip4rd.entry_num , &t->ip4rd, t->dev);   
+			}
+			 
+			ip6_tnl_4rd_mr_show(&t->ip4rd);
+		}else{
+			printk(KERN_ERR "=== ioctl_cmd 0x%x \n",cmd );
+		}
+		err = 0;
+		break;
+        case SIOCGET4RD:
+                t = netdev_priv(dev);
+                ip4rdp = (struct ip6_tnl_4r *)ifr->ifr_ifru.ifru_data;
+ 
+                read_lock(&t->ip4rd.map_lock);
+                list_for_each_entry (mr, &t->ip4rd.map_list, mr_list){
+                        ipv6_addr_copy(&ip4rd.relay_prefix, &mr->relay_prefix);
+                        ipv6_addr_copy(&ip4rd.relay_suffix, &mr->relay_suffix);
+                        ip4rd.prefix = mr->prefix;
+                        ip4rd.relay_prefixlen = mr->relay_prefixlen;
+                        ip4rd.relay_suffixlen = mr->relay_suffixlen;
+                        ip4rd.prefixlen = mr->prefixlen;
+                        ip4rd.eabit_len = mr->eabit_len;
+                        ip4rd.psid_offsetlen = mr->psid_offsetlen;
+                        ip4rd.entry_num = mr->entry_num;
+ 
+                        if (copy_to_user(ip4rdp, &ip4rd, sizeof(ip4rd))) {
+                                read_unlock(&t->ip4rd.map_lock);
+                                err = -EFAULT;
+                        }
+                        ip4rdp++;
+                }
+                read_unlock(&t->ip4rd.map_lock);
+                break;
+#endif
 	default:
 		err = -EINVAL;
 	}
+#if defined(MY_ABC_HERE)
+done:
+#endif
 	return err;
 }
-
-/**
- * ip6_tnl_change_mtu - change mtu manually for tunnel device
- *   @dev: virtual device associated with tunnel
- *   @new_mtu: the new mtu
- *
- * Return:
- *   0 on success,
- *   %-EINVAL if mtu too small
- **/
 
 static int
 ip6_tnl_change_mtu(struct net_device *dev, int new_mtu)
@@ -1360,7 +1880,6 @@ ip6_tnl_change_mtu(struct net_device *dev, int new_mtu)
 	return 0;
 }
 
-
 static const struct net_device_ops ip6_tnl_netdev_ops = {
 	.ndo_uninit	= ip6_tnl_dev_uninit,
 	.ndo_start_xmit = ip6_tnl_xmit,
@@ -1368,15 +1887,6 @@ static const struct net_device_ops ip6_tnl_netdev_ops = {
 	.ndo_change_mtu = ip6_tnl_change_mtu,
 	.ndo_get_stats	= ip6_get_stats,
 };
-
-
-/**
- * ip6_tnl_dev_setup - setup virtual tunnel device
- *   @dev: virtual device associated with tunnel
- *
- * Description:
- *   Initialize function pointers and device parameters
- **/
 
 static void ip6_tnl_dev_setup(struct net_device *dev)
 {
@@ -1397,12 +1907,6 @@ static void ip6_tnl_dev_setup(struct net_device *dev)
 	dev->priv_flags &= ~IFF_XMIT_DST_RELEASE;
 }
 
-
-/**
- * ip6_tnl_dev_init_gen - general initializer for all tunnel devices
- *   @dev: virtual device associated with tunnel
- **/
-
 static inline int
 ip6_tnl_dev_init_gen(struct net_device *dev)
 {
@@ -1415,11 +1919,6 @@ ip6_tnl_dev_init_gen(struct net_device *dev)
 	return 0;
 }
 
-/**
- * ip6_tnl_dev_init - initializer for all non fallback tunnel devices
- *   @dev: virtual device associated with tunnel
- **/
-
 static int ip6_tnl_dev_init(struct net_device *dev)
 {
 	struct ip6_tnl *t = netdev_priv(dev);
@@ -1430,13 +1929,6 @@ static int ip6_tnl_dev_init(struct net_device *dev)
 	ip6_tnl_link_config(t);
 	return 0;
 }
-
-/**
- * ip6_fb_tnl_dev_init - initializer for fallback tunnel device
- *   @dev: fallback device
- *
- * Return: 0
- **/
 
 static int __net_init ip6_fb_tnl_dev_init(struct net_device *dev)
 {
@@ -1537,19 +2029,30 @@ static struct pernet_operations ip6_tnl_net_ops = {
 	.size = sizeof(struct ip6_tnl_net),
 };
 
-/**
- * ip6_tunnel_init - register protocol and reserve needed resources
- *
- * Return: 0 on success
- **/
-
 static int __init ip6_tunnel_init(void)
 {
+#if defined(MY_ABC_HERE)
+        int err = 0;                
+ 
+        mr_kmem = kmem_cache_create("ip6_tnl_4rd_map_rule",
+                sizeof(struct ip6_tnl_4rd_map_rule), 0, SLAB_HWCACHE_ALIGN,
+                NULL);
+        if (!mr_kmem)
+	{
+		err= -ENOMEM; 
+                goto out_pernet;
+	}
+#else
 	int  err;
+#endif
 
 	err = register_pernet_device(&ip6_tnl_net_ops);
 	if (err < 0)
+#if defined(MY_ABC_HERE)
+		goto out_kmem;
+#else
 		goto out_pernet;
+#endif
 
 	err = xfrm6_tunnel_register(&ip4ip6_handler, AF_INET);
 	if (err < 0) {
@@ -1563,19 +2066,25 @@ static int __init ip6_tunnel_init(void)
 		goto out_ip6ip6;
 	}
 
+#if defined(MY_ABC_HERE)
+        err =__rtnl_register(PF_UNSPEC, RTM_GET4RD, NULL , inet6_dump4rd_mrule, NULL);
+        if(err < 0)
+                goto out_ip6ip6;
+#endif
+
 	return 0;
 
 out_ip6ip6:
 	xfrm6_tunnel_deregister(&ip4ip6_handler, AF_INET);
 out_ip4ip6:
 	unregister_pernet_device(&ip6_tnl_net_ops);
+#if defined(MY_ABC_HERE)
+out_kmem:
+	kmem_cache_destroy(mr_kmem);
+#endif
 out_pernet:
 	return err;
 }
-
-/**
- * ip6_tunnel_cleanup - free resources and unregister protocol
- **/
 
 static void __exit ip6_tunnel_cleanup(void)
 {
@@ -1585,7 +2094,16 @@ static void __exit ip6_tunnel_cleanup(void)
 	if (xfrm6_tunnel_deregister(&ip6ip6_handler, AF_INET6))
 		printk(KERN_INFO "ip6_tunnel close: can't deregister ip6ip6\n");
 
+#if defined(MY_ABC_HERE)
+        kmem_cache_destroy(mr_kmem);     
+#endif
+ 
 	unregister_pernet_device(&ip6_tnl_net_ops);
+
+#if defined(MY_ABC_HERE)
+        rtnl_unregister(PF_UNSPEC, RTM_GET4RD);
+#endif
+ 
 }
 
 module_init(ip6_tunnel_init);

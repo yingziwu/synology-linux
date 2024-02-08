@@ -774,5 +774,3 @@ void mdfld_dbi_dpu_exit(struct drm_device *dev)
 	kfree(dpu_info);
 	dev_priv->dbi_dpu_info = NULL;
 }
-
-

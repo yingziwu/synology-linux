@@ -209,7 +209,6 @@ static int iwm_cfg80211_get_key(struct wiphy *wiphy, struct net_device *ndev,
 	return key->key_len ? 0 : -ENOENT;
 }
 
-
 static int iwm_cfg80211_del_key(struct wiphy *wiphy, struct net_device *ndev,
 				u8 key_index, bool pairwise, const u8 *mac_addr)
 {
@@ -265,7 +264,6 @@ static int iwm_cfg80211_get_station(struct wiphy *wiphy,
 
 	return 0;
 }
-
 
 int iwm_cfg80211_inform_bss(struct iwm_priv *iwm)
 {
@@ -548,7 +546,6 @@ static int iwm_set_key_mgt(struct iwm_priv *iwm, u32 key_mgt)
 	return 0;
 }
 
-
 static int iwm_cfg80211_connect(struct wiphy *wiphy, struct net_device *dev,
 				 struct cfg80211_connect_params *sme)
 {
@@ -765,7 +762,6 @@ static int iwm_cfg80211_flush_pmksa(struct wiphy *wiphy,
 
 	return iwm_send_pmkid_update(iwm, &pmksa, IWM_CMD_PMKID_FLUSH);
 }
-
 
 static struct cfg80211_ops iwm_cfg80211_ops = {
 	.change_virtual_intf = iwm_cfg80211_change_iface,

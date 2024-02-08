@@ -10,7 +10,7 @@
  *
  * <achim_leubner@adaptec.com>
  *
- * $Id: gdth.h,v 1.58 2006/01/11 16:14:09 achim Exp $
+ * $Id: gdth.h,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  */
 
 #include <linux/types.h>
@@ -329,7 +329,6 @@ typedef struct {
     u8      msg_reserved[2];
     char        msg_text[MSGLEN+2];             /* the message text */
 } __attribute__((packed)) gdth_msg_str;
-
 
 /* IOCTL data structures */
 
@@ -682,7 +681,6 @@ typedef struct {
     gdth_hentry_str entry[MAX_HDRIVES];         /* entries */
 } __attribute__((packed)) gdth_hget_str;    
 
-
 /* DPRAM structures */
 
 /* interface area ISA/PCI */
@@ -724,7 +722,6 @@ typedef struct {
     u8      switch_support;                 /* see need_deinit */
     u8      padding;
 } __attribute__((packed)) gdt_eisa_sram;
-
 
 /* DPRAM ISA controllers */
 typedef struct {
@@ -833,14 +830,12 @@ typedef struct {
     gdt_pci_sram        gdt6sr;                 /* SRAM structure */
 } __attribute__((packed)) gdt6m_dpram_str;
 
-
 /* PCI resources */
 typedef struct {
     struct pci_dev      *pdev;
     unsigned long               dpmem;                  /* DPRAM address */
     unsigned long               io;                     /* IO address */
 } gdth_pci_str;
-
 
 /* controller information structure */
 typedef struct {
@@ -1012,7 +1007,6 @@ typedef struct {
 typedef struct {
     unsigned long       b[10];                          /* 32/64 bit compiler ! */
 } __attribute__((packed)) gdth_stackframe;
-
 
 /* function prototyping */
 

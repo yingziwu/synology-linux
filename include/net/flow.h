@@ -1,9 +1,7 @@
-/*
- *
- *	Generic internet FLOW.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef _NET_FLOW_H
 #define _NET_FLOW_H
 
@@ -91,7 +89,6 @@ static inline void flowi4_init_output(struct flowi4 *fl4, int oif,
 	fl4->fl4_sport = sport;
 }
 
-/* Reset some input parameters after previous lookup */
 static inline void flowi4_update_output(struct flowi4 *fl4, int oif, __u8 tos,
 					__be32 daddr, __be32 saddr)
 {
@@ -101,7 +98,6 @@ static inline void flowi4_update_output(struct flowi4 *fl4, int oif, __u8 tos,
 	fl4->saddr = saddr;
 }
 				      
-
 struct flowi6 {
 	struct flowi_common	__fl_common;
 #define flowi6_oif		__fl_common.flowic_oif
@@ -212,9 +208,17 @@ typedef struct flow_cache_object *(*flow_resolve_t)(
 		struct net *net, const struct flowi *key, u16 family,
 		u8 dir, struct flow_cache_object *oldobj, void *ctx);
 
+#if defined(MY_ABC_HERE) && (defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD))
+extern struct flow_cache_object *flow_cache_lookup(
+		struct net *net, const struct flowi *key, u16 family,
+		u8 dir, u8 *new_flow, flow_resolve_t resolver, void *ctx);
+extern void flow_cache_remove(
+				const struct flowi *fl, unsigned short family, unsigned short dir);
+#else
 extern struct flow_cache_object *flow_cache_lookup(
 		struct net *net, const struct flowi *key, u16 family,
 		u8 dir, flow_resolve_t resolver, void *ctx);
+#endif
 
 extern void flow_cache_flush(void);
 extern void flow_cache_flush_deferred(void);

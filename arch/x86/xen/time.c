@@ -250,7 +250,6 @@ static struct clocksource xen_clocksource __read_mostly = {
    This interface is used when available.
 */
 
-
 /*
   Get a hypervisor absolute time.  In theory we could maintain an
   offset between the kernel's time and the hypervisor's time, and
@@ -312,8 +311,6 @@ static const struct clock_event_device xen_timerop_clockevent = {
 	.set_mode = xen_timerop_set_mode,
 	.set_next_event = xen_timerop_set_next_event,
 };
-
-
 
 static void xen_vcpuop_set_mode(enum clock_event_mode mode,
 				struct clock_event_device *evt)

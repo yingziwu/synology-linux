@@ -1,14 +1,7 @@
-/**
- * @file common.c
- *
- * @remark Copyright 2004 Oprofile Authors
- * @remark Copyright 2010 ARM Ltd.
- * @remark Read the file COPYING
- *
- * @author Zwane Mwaikambo
- * @author Will Deacon [move to perf]
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/cpumask.h>
 #include <linux/init.h>
 #include <linux/mutex.h>
@@ -40,6 +33,10 @@ char *op_name_from_perf_id(void)
 		return "arm/armv7";
 	case ARM_PERF_PMU_ID_CA9:
 		return "arm/armv7-ca9";
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+	case MRVL_PERF_PMU_ID_PJ4B:
+		return "arm/mrvl_pj4b";
+#endif
 	default:
 		return NULL;
 	}
@@ -58,12 +55,6 @@ static int report_trace(struct stackframe *frame, void *d)
 	return *depth == 0;
 }
 
-/*
- * The registers we're interested in are at the end of the variable
- * length saved register structure. The fp points at the end of this
- * structure so the address of this struct is:
- * (struct frame_tail *)(xxx->fp)-1
- */
 struct frame_tail {
 	struct frame_tail *fp;
 	unsigned long sp;
@@ -74,7 +65,6 @@ static struct frame_tail* user_backtrace(struct frame_tail *tail)
 {
 	struct frame_tail buftail[2];
 
-	/* Also check accessibility of one struct frame_tail beyond */
 	if (!access_ok(VERIFY_READ, tail, sizeof(buftail)))
 		return NULL;
 	if (__copy_from_user_inatomic(buftail, tail, sizeof(buftail)))
@@ -82,8 +72,6 @@ static struct frame_tail* user_backtrace(struct frame_tail *tail)
 
 	oprofile_add_trace(buftail[0].lr);
 
-	/* frame pointers should strictly progress back up the stack
-	 * (towards higher addresses) */
 	if (tail + 1 >= buftail[0].fp)
 		return NULL;
 
@@ -110,7 +98,7 @@ static void arm_backtrace(struct pt_regs * const regs, unsigned int depth)
 
 int __init oprofile_arch_init(struct oprofile_operations *ops)
 {
-	/* provide backtrace support also in timer mode: */
+	 
 	ops->backtrace		= arm_backtrace;
 
 	return oprofile_perf_init(ops);

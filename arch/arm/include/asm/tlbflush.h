@@ -1,12 +1,7 @@
-/*
- *  arch/arm/include/asm/tlbflush.h
- *
- *  Copyright (C) 1999-2003 Russell King
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef _ASMARM_TLBFLUSH_H
 #define _ASMARM_TLBFLUSH_H
 
@@ -34,30 +29,15 @@
 #define TLB_V6_D_ASID	(1 << 17)
 #define TLB_V6_I_ASID	(1 << 18)
 
-/* Unified Inner Shareable TLB operations (ARMv7 MP extensions) */
 #define TLB_V7_UIS_PAGE	(1 << 19)
 #define TLB_V7_UIS_FULL (1 << 20)
 #define TLB_V7_UIS_ASID (1 << 21)
 
 #define TLB_BARRIER	(1 << 28)
-#define TLB_L2CLEAN_FR	(1 << 29)		/* Feroceon */
+#define TLB_L2CLEAN_FR	(1 << 29)		 
 #define TLB_DCLEAN	(1 << 30)
 #define TLB_WB		(1 << 31)
 
-/*
- *	MMU TLB Model
- *	=============
- *
- *	We have the following to choose from:
- *	  v3    - ARMv3
- *	  v4    - ARMv4 without write buffer
- *	  v4wb  - ARMv4 with write buffer without I TLB flush entry instruction
- *	  v4wbi - ARMv4 with write buffer with I TLB flush entry instruction
- *	  fr    - Feroceon (v4wbi with non-outer-cacheable page table walks)
- *	  fa    - Faraday (v4 with write buffer with UTLB)
- *	  v6wbi - ARMv6 with write buffer with I TLB flush entry instruction
- *	  v7wbi - identical to v6wbi
- */
 #undef _TLB
 #undef MULTI_TLB
 
@@ -168,8 +148,13 @@
 			 TLB_V6_I_ASID | TLB_V6_D_ASID)
 
 #ifdef CONFIG_CPU_TLB_V6
+#if (defined(MY_DEF_HERE) || defined(MY_DEF_HERE)) && (defined (CONFIG_ARCH_ARMADA_XP) && !defined (CONFIG_AURORA_L2_PT_WALK))
+# define v6wbi_possible_flags	(v6wbi_tlb_flags | TLB_L2CLEAN_FR)
+# define v6wbi_always_flags	(v6wbi_tlb_flags | TLB_L2CLEAN_FR)
+#else
 # define v6wbi_possible_flags	v6wbi_tlb_flags
 # define v6wbi_always_flags	v6wbi_tlb_flags
+#endif
 # ifdef _TLB
 #  define MULTI_TLB 1
 # else
@@ -215,15 +200,15 @@
 
 #include <linux/sched.h>
 
+#if (defined(MY_DEF_HERE) || defined(MY_DEF_HERE)) && defined(CONFIG_CACHE_AURORA_L2)
+extern void l2_clean_pa(unsigned int pa); 
+#endif
 struct cpu_tlb_fns {
 	void (*flush_user_range)(unsigned long, unsigned long, struct vm_area_struct *);
 	void (*flush_kern_range)(unsigned long, unsigned long);
 	unsigned long tlb_flags;
 };
 
-/*
- * Select the calling method
- */
 #ifdef MULTI_TLB
 
 #define __cpu_flush_user_tlb_range	cpu_tlb.flush_user_range
@@ -243,61 +228,6 @@ extern struct cpu_tlb_fns cpu_tlb;
 
 #define __cpu_tlb_flags			cpu_tlb.tlb_flags
 
-/*
- *	TLB Management
- *	==============
- *
- *	The arch/arm/mm/tlb-*.S files implement these methods.
- *
- *	The TLB specific code is expected to perform whatever tests it
- *	needs to determine if it should invalidate the TLB for each
- *	call.  Start addresses are inclusive and end addresses are
- *	exclusive; it is safe to round these addresses down.
- *
- *	flush_tlb_all()
- *
- *		Invalidate the entire TLB.
- *
- *	flush_tlb_mm(mm)
- *
- *		Invalidate all TLB entries in a particular address
- *		space.
- *		- mm	- mm_struct describing address space
- *
- *	flush_tlb_range(mm,start,end)
- *
- *		Invalidate a range of TLB entries in the specified
- *		address space.
- *		- mm	- mm_struct describing address space
- *		- start - start address (may not be aligned)
- *		- end	- end address (exclusive, may not be aligned)
- *
- *	flush_tlb_page(vaddr,vma)
- *
- *		Invalidate the specified page in the specified address range.
- *		- vaddr - virtual address (may not be aligned)
- *		- vma	- vma_struct describing address range
- *
- *	flush_kern_tlb_page(kaddr)
- *
- *		Invalidate the TLB entry for the specified page.  The address
- *		will be in the kernels virtual memory space.  Current uses
- *		only require the D-TLB to be invalidated.
- *		- kaddr - Kernel virtual memory address
- */
-
-/*
- * We optimise the code below by:
- *  - building a set of TLB flags that might be set in __cpu_tlb_flags
- *  - building a set of TLB flags that will always be set in __cpu_tlb_flags
- *  - if we're going to need __cpu_tlb_flags, access it once and only once
- *
- * This allows us to build optimal assembly for the single-CPU type case,
- * and as close to optimal given the compiler constrants for multi-CPU
- * case.  We could do better for the multi-CPU case if the compiler
- * implemented the "%?" method, but this has been discontinued due to too
- * many people getting it wrong.
- */
 #define possible_tlb_flags	(v3_possible_flags | \
 				 v4_possible_flags | \
 				 v4wbi_possible_flags | \
@@ -384,14 +314,39 @@ static inline void local_flush_tlb_mm(struct mm_struct *mm)
 static inline void
 local_flush_tlb_page(struct vm_area_struct *vma, unsigned long uaddr)
 {
+#ifdef MY_DEF_HERE
+#if !defined(CONFIG_MV_LARGE_PAGE_SUPPORT) || defined(CONFIG_MV_64KB_MMU_PAGE_SIZE_SUPPORT)
 	const int zero = 0;
-	const unsigned int __tlb_flag = __cpu_tlb_flags;
+#endif
+#else  
+	const int zero = 0;
+#endif  
 
+	const unsigned int __tlb_flag = __cpu_tlb_flags;
+#ifdef MY_DEF_HERE
+	unsigned long uaddr_last;
+#endif
+
+#if defined(MY_DEF_HERE) && (defined(CONFIG_MV_LARGE_PAGE_SUPPORT) && !defined(CONFIG_MV_64KB_MMU_PAGE_SIZE_SUPPORT))
+	if (tlb_flag(TLB_WB))
+		dsb();
+
+	uaddr = (uaddr & PAGE_MASK);
+	__cpu_flush_user_tlb_range(uaddr, uaddr + PAGE_SIZE, vma);
+
+#else
 	uaddr = (uaddr & PAGE_MASK) | ASID(vma->vm_mm);
+#ifdef MY_DEF_HERE
+	uaddr_last = uaddr+PAGE_SIZE;
+#endif
 
 	if (tlb_flag(TLB_WB))
 		dsb();
 
+#ifdef MY_DEF_HERE
+	 
+	for (; uaddr < uaddr_last; uaddr += HW_PAGE_SIZE) {
+#endif
 	if (cpumask_test_cpu(smp_processor_id(), mm_cpumask(vma->vm_mm))) {
 		if (tlb_flag(TLB_V3_PAGE))
 			asm("mcr p15, 0, %0, c6, c0, 0" : : "r" (uaddr) : "cc");
@@ -417,21 +372,47 @@ local_flush_tlb_page(struct vm_area_struct *vma, unsigned long uaddr)
 #else
 		asm("mcr p15, 0, %0, c8, c3, 1" : : "r" (uaddr) : "cc");
 #endif
+#ifdef MY_DEF_HERE
+	}
+#endif
 
+#endif  
 	if (tlb_flag(TLB_BARRIER))
 		dsb();
 }
 
 static inline void local_flush_tlb_kernel_page(unsigned long kaddr)
 {
+#ifdef MY_DEF_HERE
+#if !defined(CONFIG_MV_LARGE_PAGE_SUPPORT) || defined(CONFIG_MV_64KB_MMU_PAGE_SIZE_SUPPORT)
 	const int zero = 0;
+#endif
+#else  
+	const int zero = 0;
+#endif  
 	const unsigned int __tlb_flag = __cpu_tlb_flags;
+#ifdef MY_DEF_HERE
+	unsigned long kaddr_last;
+#endif
 
 	kaddr &= PAGE_MASK;
+#ifdef MY_DEF_HERE
+	kaddr_last = kaddr+PAGE_SIZE;
+#endif
+
+#if defined(MY_DEF_HERE) && (defined(CONFIG_MV_LARGE_PAGE_SUPPORT) && !defined(CONFIG_MV_64KB_MMU_PAGE_SIZE_SUPPORT))
+	if (tlb_flag(TLB_WB))
+		dsb();
+
+	__cpu_flush_kern_tlb_range(kaddr, kaddr + PAGE_SIZE);
+#else
 
 	if (tlb_flag(TLB_WB))
 		dsb();
 
+#ifdef MY_DEF_HERE
+	for (; kaddr < kaddr_last; kaddr += HW_PAGE_SIZE) {
+#endif
 	if (tlb_flag(TLB_V3_PAGE))
 		asm("mcr p15, 0, %0, c6, c0, 0" : : "r" (kaddr) : "cc");
 	if (tlb_flag(TLB_V4_U_PAGE))
@@ -451,6 +432,11 @@ static inline void local_flush_tlb_kernel_page(unsigned long kaddr)
 		asm("mcr p15, 0, %0, c8, c5, 1" : : "r" (kaddr) : "cc");
 	if (tlb_flag(TLB_V7_UIS_PAGE))
 		asm("mcr p15, 0, %0, c8, c3, 1" : : "r" (kaddr) : "cc");
+#ifdef MY_DEF_HERE
+	}
+#endif 
+
+#endif  
 
 	if (tlb_flag(TLB_BARRIER)) {
 		dsb();
@@ -458,31 +444,38 @@ static inline void local_flush_tlb_kernel_page(unsigned long kaddr)
 	}
 }
 
-/*
- *	flush_pmd_entry
- *
- *	Flush a PMD entry (word aligned, or double-word aligned) to
- *	RAM if the TLB for the CPU we are running on requires this.
- *	This is typically used when we are creating PMD entries.
- *
- *	clean_pmd_entry
- *
- *	Clean (but don't drain the write buffer) if the CPU requires
- *	these operations.  This is typically used when we are removing
- *	PMD entries.
- */
+#if !defined(MY_ABC_HERE) || !defined(CONFIG_COMCERTO_64K_PAGES)
 static inline void flush_pmd_entry(void *pmd)
 {
 	const unsigned int __tlb_flag = __cpu_tlb_flags;
 
 	if (tlb_flag(TLB_DCLEAN))
+#if (defined(MY_DEF_HERE)||defined(MY_DEF_HERE)) && defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_4611)
+	{
+		unsigned long flags;
+        	raw_local_irq_save(flags);
+		dmb();
+#endif
+#if (defined(MY_DEF_HERE) || defined(MY_DEF_HERE)) && (defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_6043) || defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_6124))
+		asm("mcr	p15, 0, %0, c7, c14, 1  @ flush_pmd"
+			: : "r" (pmd) : "cc");
+#else
 		asm("mcr	p15, 0, %0, c7, c10, 1	@ flush_pmd"
 			: : "r" (pmd) : "cc");
+#endif
+#if (defined(MY_DEF_HERE)||defined(MY_DEF_HERE)) && defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_4611)
+		raw_local_irq_restore(flags);
+	}
+#endif
 
+#if (defined(MY_DEF_HERE)||defined(MY_DEF_HERE)) && defined(CONFIG_CACHE_AURORA_L2)
+	if (tlb_flag(TLB_L2CLEAN_FR)) 
+        	l2_clean_pa(__pa((unsigned long)pmd));
+#else
 	if (tlb_flag(TLB_L2CLEAN_FR))
 		asm("mcr	p15, 1, %0, c15, c9, 1  @ L2 flush_pmd"
 			: : "r" (pmd) : "cc");
-
+#endif
 	if (tlb_flag(TLB_WB))
 		dsb();
 }
@@ -492,21 +485,71 @@ static inline void clean_pmd_entry(void *pmd)
 	const unsigned int __tlb_flag = __cpu_tlb_flags;
 
 	if (tlb_flag(TLB_DCLEAN))
+#if (defined(MY_DEF_HERE)||defined(MY_DEF_HERE)) && defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_4611)
+	{
+		unsigned long flags;
+                raw_local_irq_save(flags);
+                dmb();
+#endif
+#if (defined(MY_DEF_HERE)||defined(MY_DEF_HERE)) && (defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_6043) || defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_6124))
+		asm("mcr	p15, 0, %0, c7, c14, 1  @ flush_pmd"
+			: : "r" (pmd) : "cc");
+#else
 		asm("mcr	p15, 0, %0, c7, c10, 1	@ flush_pmd"
 			: : "r" (pmd) : "cc");
+#endif
+#if (defined(MY_DEF_HERE)||defined(MY_DEF_HERE)) && defined(CONFIG_SHEEVA_ERRATA_ARM_CPU_4611)
+		raw_local_irq_restore(flags);
+	}
+#endif
 
+#if (defined(MY_DEF_HERE)||defined(MY_DEF_HERE)) && defined(CONFIG_CACHE_AURORA_L2)
+	if (tlb_flag(TLB_L2CLEAN_FR))
+		l2_clean_pa(__pa((unsigned long)pmd));
+#else
 	if (tlb_flag(TLB_L2CLEAN_FR))
 		asm("mcr	p15, 1, %0, c15, c9, 1  @ L2 flush_pmd"
 			: : "r" (pmd) : "cc");
+#endif
 }
+#else
+static inline void flush_pmd_entry(void *pmd)
+{
+	const unsigned int __tlb_flag = __cpu_tlb_flags;
+	char *p = (char *)pmd;
+
+	if (tlb_flag(TLB_DCLEAN)) {
+		while (p < ((char *)pmd + (LINKED_PMDS * sizeof(u32)))) {  
+			asm("mcr	p15, 0, %0, c7, c10, 1	@ flush_pmd"
+					: : "r" (p) : "cc");
+			p += 32;  
+		}
+	}
+
+	if (tlb_flag(TLB_WB))
+		dsb();
+}
+
+static inline void clean_pmd_entry(void *pmd)
+{
+	const unsigned int __tlb_flag = __cpu_tlb_flags;
+	char *p = (char *)pmd;
+
+	if (tlb_flag(TLB_DCLEAN)) {
+		while (p < ((char *)pmd + (LINKED_PMDS * sizeof(u32)))) {  
+			asm("mcr	p15, 0, %0, c7, c10, 1	@ flush_pmd"
+					: : "r" (p) : "cc");
+			p += 32;  
+		}
+	}
+}
+
+#endif
 
 #undef tlb_flag
 #undef always_tlb_flags
 #undef possible_tlb_flags
 
-/*
- * Convert calls to our calling convention.
- */
 #define local_flush_tlb_range(vma,start,end)	__cpu_flush_user_tlb_range(start,end,vma)
 #define local_flush_tlb_kernel_range(s,e)	__cpu_flush_kern_tlb_range(s,e)
 
@@ -526,12 +569,6 @@ extern void flush_tlb_range(struct vm_area_struct *vma, unsigned long start, uns
 extern void flush_tlb_kernel_range(unsigned long start, unsigned long end);
 #endif
 
-/*
- * If PG_dcache_clean is not set for the page, we need to ensure that any
- * cache entries for the kernels virtual memory range are written
- * back to the page. On ARMv6 and later, the cache coherency is handled via
- * the set_pte_at() function.
- */
 #if __LINUX_ARM_ARCH__ < 6
 extern void update_mmu_cache(struct vm_area_struct *vma, unsigned long addr,
 	pte_t *ptep);
@@ -544,6 +581,6 @@ static inline void update_mmu_cache(struct vm_area_struct *vma,
 
 #endif
 
-#endif /* CONFIG_MMU */
+#endif  
 
 #endif

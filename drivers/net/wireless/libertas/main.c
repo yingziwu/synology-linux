@@ -32,7 +32,6 @@ const char lbs_driver_version[] = "COMM-USB8388-" DRIVER_RELEASE_VERSION
 #endif
     "";
 
-
 /* Module parameters */
 unsigned int lbs_debug;
 EXPORT_SYMBOL_GPL(lbs_debug);
@@ -42,13 +41,11 @@ unsigned int lbs_disablemesh;
 EXPORT_SYMBOL_GPL(lbs_disablemesh);
 module_param_named(libertas_disablemesh, lbs_disablemesh, int, 0644);
 
-
 /*
  * This global structure is used to send the confirm_sleep command as
  * fast as possible down to the firmware.
  */
 struct cmd_confirm_sleep confirm_sleep;
-
 
 /*
  * the table to keep region code
@@ -316,7 +313,6 @@ int lbs_set_mac_address(struct net_device *dev, void *addr)
 	return ret;
 }
 
-
 static inline int mac_in_list(unsigned char *list, int list_len,
 			      unsigned char *mac)
 {
@@ -328,7 +324,6 @@ static inline int mac_in_list(unsigned char *list, int list_len,
 	}
 	return 0;
 }
-
 
 static int lbs_add_mcast_addrs(struct cmd_ds_mac_multicast_adr *cmd,
 			       struct net_device *dev, int nr_addrs)
@@ -1025,7 +1020,6 @@ done:
 }
 EXPORT_SYMBOL_GPL(lbs_add_card);
 
-
 void lbs_remove_card(struct lbs_private *priv)
 {
 	struct net_device *dev = priv->dev;
@@ -1068,7 +1062,6 @@ void lbs_remove_card(struct lbs_private *priv)
 }
 EXPORT_SYMBOL_GPL(lbs_remove_card);
 
-
 int lbs_rtap_supported(struct lbs_private *priv)
 {
 	if (MRVL_FW_MAJOR_REV(priv->fwrelease) == MRVL_FW_V5)
@@ -1078,7 +1071,6 @@ int lbs_rtap_supported(struct lbs_private *priv)
 	return ((MRVL_FW_MAJOR_REV(priv->fwrelease) >= MRVL_FW_V10) &&
 		(priv->fwcapinfo & MESH_CAPINFO_ENABLE_MASK));
 }
-
 
 int lbs_start_card(struct lbs_private *priv)
 {
@@ -1117,7 +1109,6 @@ done:
 }
 EXPORT_SYMBOL_GPL(lbs_start_card);
 
-
 void lbs_stop_card(struct lbs_private *priv)
 {
 	struct net_device *dev;
@@ -1139,7 +1130,6 @@ out:
 	lbs_deb_leave(LBS_DEB_MAIN);
 }
 EXPORT_SYMBOL_GPL(lbs_stop_card);
-
 
 void lbs_queue_event(struct lbs_private *priv, u32 event)
 {

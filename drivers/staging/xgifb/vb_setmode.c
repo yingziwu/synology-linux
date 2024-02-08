@@ -4,7 +4,6 @@
 #include <linux/types.h>
 #include "XGIfb.h"
 
-
 #include "vb_def.h"
 #include "vgatypes.h"
 #include "vb_struct.h"
@@ -12,7 +11,6 @@
 #include "vb_util.h"
 #include "vb_table.h"
 #include "vb_setmode.h"
-
 
 #define  IndexMask 0xff
 

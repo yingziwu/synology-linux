@@ -679,7 +679,6 @@ long compat_sys_rt_sigpending(compat_sigset_t __user *set, compat_size_t sigsets
 	return ret;
 }
 
-
 int copy_siginfo_to_user32(struct compat_siginfo __user *d, siginfo_t *s)
 {
 	int err;

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/linkage.h>
 #include <linux/threads.h>
 #include <asm/asm-offsets.h>
@@ -5,6 +8,13 @@
 #include <asm/glue-cache.h>
 #include <asm/glue-proc.h>
 #include <asm/system.h>
+
+#if defined(MY_ABC_HERE) && defined(CONFIG_ARCH_M86XXX)
+/* 
+ * IRAM Location to restore the banked registers
+ */
+#define SCRATCHPAD_CPU_CONTEXT_LOC_DBG	 (0xf0802570)
+#endif
 	.text
 
 /*
@@ -56,17 +66,78 @@ ENDPROC(cpu_suspend_abort)
 	.align	5
 ENTRY(cpu_resume_mmu)
 	ldr	r3, =cpu_resume_after_mmu
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+	instr_sync
+#endif
 	mcr	p15, 0, r0, c1, c0, 0	@ turn on MMU, I-cache, etc
 	mrc	p15, 0, r0, c0, c0, 0	@ read id reg
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+	instr_sync
+#endif
 	mov	r0, r0
 	mov	r0, r0
 	mov	pc, r3			@ jump to virtual address
 ENDPROC(cpu_resume_mmu)
 cpu_resume_after_mmu:
 	bl	cpu_init		@ restore the und/abt/irq banked regs
+
+#if defined(MY_ABC_HERE) && defined(CONFIG_ARCH_M86XXX)
+	/* 
+	 * This code is added to restore the banked registers
+	 * This restore has to be kept here as it has to happen 
+	 * after MMU int.
+	 */
+
+	/* Restore cpsr and spsr */
+        ldr 	r7, scratchpad_cpu_context_loc_dbg
+
+	/* Restoring all the banked registers */
+        mrs     r0, cpsr
+
+        /* Restore the Undef mode reisters */
+        bic     r1, r0, #0x1f
+        orr     r1, r1, #0x1b
+        msr     cpsr_c, r1
+	ARM ( ldmia	r7!, {r13-r14} )
+	ldmia	r7!, {r6}
+	msr	spsr, r6
+
+        /* Restore the Abort mode reisters */
+        bic     r1, r0, #0x1f
+        orr     r1, r1, #0x17
+        msr     cpsr_c, r1
+	ARM ( ldmia	r7!, {r13-r14} )
+	ldmia	r7!, {r6}
+	msr	spsr, r6
+
+        /* Restore the IRQ mode reisters */
+        bic     r1, r0, #0x1f
+        orr     r1, r1, #0x12
+        msr     cpsr_c, r1
+	ARM ( ldmia	r7!, {r13-r14} )
+	ldmia	r7!, {r6}
+	msr	spsr, r6
+
+        /* Restore the FIQ mode reisters */
+        bic     r1, r0, #0x1f
+        orr     r1, r1, #0x11
+        msr     cpsr_c, r1
+	ARM ( ldmia	r7!, {r8-r14} )
+	THUMB ( ldmia	r7!, {r8-r12} )
+	ldmia	r7!, {r6}
+	msr	spsr, r6
+
+        /* Return to the original mode */
+        msr     cpsr_c, r0
+#endif
 	mov	r0, #0			@ return zero on success
 	ldmfd	sp!, {r4 - r11, pc}
 ENDPROC(cpu_resume_after_mmu)
+
+#if defined(MY_ABC_HERE) && defined(CONFIG_ARCH_M86XXX)
+scratchpad_cpu_context_loc_dbg:
+        .word   SCRATCHPAD_CPU_CONTEXT_LOC_DBG
+#endif
 
 /*
  * Note: Yes, part of the following code is located into the .data section.

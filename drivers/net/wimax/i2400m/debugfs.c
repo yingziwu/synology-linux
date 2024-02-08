@@ -29,7 +29,6 @@
 #include <linux/export.h>
 #include "i2400m.h"
 
-
 #define D_SUBMODULE debugfs
 #include "debug-levels.h"
 
@@ -44,7 +43,6 @@ DEFINE_SIMPLE_ATTRIBUTE(fops_netdev_queue_stopped,
 			debugfs_netdev_queue_stopped_get,
 			NULL, "%llu\n");
 
-
 static
 struct dentry *debugfs_create_netdev_queue_stopped(
 	const char *name, struct dentry *parent, struct i2400m *i2400m)
@@ -52,7 +50,6 @@ struct dentry *debugfs_create_netdev_queue_stopped(
 	return debugfs_create_file(name, 0400, parent, i2400m,
 				   &fops_netdev_queue_stopped);
 }
-
 
 /*
  * inode->i_private has the @data argument to debugfs_create_file()
@@ -93,7 +90,6 @@ ssize_t i2400m_rx_stats_read(struct file *filp, char __user *buffer,
 	return simple_read_from_buffer(buffer, count, ppos, buf, strlen(buf));
 }
 
-
 /* Any write clears the stats */
 static
 ssize_t i2400m_rx_stats_write(struct file *filp, const char __user *buffer,
@@ -122,7 +118,6 @@ const struct file_operations i2400m_rx_stats_fops = {
 	.write =	i2400m_rx_stats_write,
 	.llseek =	default_llseek,
 };
-
 
 /* See i2400m_rx_stats_read() */
 static
@@ -176,7 +171,6 @@ const struct file_operations i2400m_tx_stats_fops = {
 	.llseek =	default_llseek,
 };
 
-
 /* Write 1 to ask the device to go into suspend */
 static
 int debugfs_i2400m_suspend_set(void *data, u64 val)
@@ -199,7 +193,6 @@ struct dentry *debugfs_create_i2400m_suspend(
 	return debugfs_create_file(name, 0200, parent, i2400m,
 				   &fops_i2400m_suspend);
 }
-
 
 /*
  * Reset the device
@@ -237,14 +230,12 @@ struct dentry *debugfs_create_i2400m_reset(
 				   &fops_i2400m_reset);
 }
 
-
 #define __debugfs_register(prefix, name, parent)			\
 do {									\
 	result = d_level_register_debugfs(prefix, name, parent);	\
 	if (result < 0)							\
 		goto error;						\
 } while (0)
-
 
 int i2400m_debugfs_add(struct i2400m *i2400m)
 {

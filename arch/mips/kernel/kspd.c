@@ -172,7 +172,6 @@ static unsigned int translate_open_flags(int flags)
 	return ret;
 }
 
-
 static int sp_setfsuidgid(uid_t uid, gid_t gid)
 {
 	struct cred *new;

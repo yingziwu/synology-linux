@@ -144,7 +144,6 @@ int genl_register_mc_group(struct genl_family *family,
 		id = find_first_zero_bit(mc_groups,
 					 mc_groups_longs * BITS_PER_LONG);
 
-
 	if (id >= mc_groups_longs * BITS_PER_LONG) {
 		size_t nlen = (mc_groups_longs + 1) * sizeof(unsigned long);
 
@@ -524,8 +523,14 @@ static int genl_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 			return -EOPNOTSUPP;
 
 		genl_unlock();
-		err = netlink_dump_start(net->genl_sock, skb, nlh,
-					 ops->dumpit, ops->done, 0);
+		{
+			struct netlink_dump_control c = {
+				.start = ops->start,
+				.dump = ops->dumpit,
+				.done = ops->done,
+			};
+			err = netlink_dump_start(net->genl_sock, skb, nlh, &c);
+		}
 		genl_lock();
 		return err;
 	}

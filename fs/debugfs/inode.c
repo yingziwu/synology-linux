@@ -521,7 +521,6 @@ bool debugfs_initialized(void)
 }
 EXPORT_SYMBOL_GPL(debugfs_initialized);
 
-
 static struct kobject *debug_kobj;
 
 static int __init debugfs_init(void)
@@ -541,4 +540,3 @@ static int __init debugfs_init(void)
 	return retval;
 }
 core_initcall(debugfs_init);
-

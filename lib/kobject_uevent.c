@@ -1,19 +1,7 @@
-/*
- * kernel userspace event delivery
- *
- * Copyright (C) 2004 Red Hat, Inc.  All rights reserved.
- * Copyright (C) 2004 Novell, Inc.  All rights reserved.
- * Copyright (C) 2004 IBM, Inc. All rights reserved.
- *
- * Licensed under the GNU GPL v2.
- *
- * Authors:
- *	Robert Love		<rml@novell.com>
- *	Kay Sievers		<kay.sievers@vrfy.org>
- *	Arjan van de Ven	<arjanv@redhat.com>
- *	Greg Kroah-Hartman	<greg@kroah.com>
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/spinlock.h>
 #include <linux/string.h>
 #include <linux/kobject.h>
@@ -26,7 +14,6 @@
 #include <net/sock.h>
 #include <net/net_namespace.h>
 
-
 u64 uevent_seqnum;
 char uevent_helper[UEVENT_HELPER_PATH_LEN] = CONFIG_UEVENT_HELPER_PATH;
 #ifdef CONFIG_NET
@@ -37,10 +24,8 @@ struct uevent_sock {
 static LIST_HEAD(uevent_sock_list);
 #endif
 
-/* This lock protects uevent_seqnum and uevent_sock_list */
 static DEFINE_MUTEX(uevent_sock_mutex);
 
-/* the strings here must match the enum in include/linux/kobject.h */
 static const char *kobject_actions[] = {
 	[KOBJ_ADD] =		"add",
 	[KOBJ_REMOVE] =		"remove",
@@ -50,15 +35,20 @@ static const char *kobject_actions[] = {
 	[KOBJ_OFFLINE] =	"offline",
 };
 
-/**
- * kobject_action_type - translate action string to numeric type
- *
- * @buf: buffer containing the action string, newline is ignored
- * @len: length of buffer
- * @type: pointer to the location to store the action type
- *
- * Returns 0 if the action string was recognized.
- */
+#if defined(MY_ABC_HERE)
+u64 uevent_next_seqnum(void)
+{
+	u64 seq;
+
+	mutex_lock(&uevent_sock_mutex);
+	seq = ++uevent_seqnum;
+	mutex_unlock(&uevent_sock_mutex);
+
+	return seq;
+}
+EXPORT_SYMBOL_GPL(uevent_next_seqnum);
+#endif
+
 int kobject_action_type(const char *buf, size_t count,
 			enum kobject_action *type)
 {
@@ -117,16 +107,6 @@ static int kobj_usermode_filter(struct kobject *kobj)
 	return 0;
 }
 
-/**
- * kobject_uevent_env - send an uevent with environmental data
- *
- * @action: action that is happening
- * @kobj: struct kobject that the action is happening to
- * @envp_ext: pointer to environmental data
- *
- * Returns 0 if kobject_uevent_env() is completed with success or the
- * corresponding error when it fails.
- */
 int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 		       char *envp_ext[])
 {
@@ -139,6 +119,9 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 	const struct kset_uevent_ops *uevent_ops;
 	int i = 0;
 	int retval = 0;
+#ifdef SYNO_SLOW_DOWN_UEVENT
+	static u32 ullCount = 0;
+#endif
 #ifdef CONFIG_NET
 	struct uevent_sock *ue_sk;
 #endif
@@ -146,7 +129,6 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 	pr_debug("kobject: '%s' (%p): %s\n",
 		 kobject_name(kobj), kobj, __func__);
 
-	/* search the kset we belong to */
 	top_kobj = kobj;
 	while (!top_kobj->kset && top_kobj->parent)
 		top_kobj = top_kobj->parent;
@@ -161,14 +143,13 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 	kset = top_kobj->kset;
 	uevent_ops = kset->uevent_ops;
 
-	/* skip the event, if uevent_suppress is set*/
 	if (kobj->uevent_suppress) {
 		pr_debug("kobject: '%s' (%p): %s: uevent_suppress "
 				 "caused the event to drop!\n",
 				 kobject_name(kobj), kobj, __func__);
 		return 0;
 	}
-	/* skip the event, if the filter returns zero. */
+	 
 	if (uevent_ops && uevent_ops->filter)
 		if (!uevent_ops->filter(kset, kobj)) {
 			pr_debug("kobject: '%s' (%p): %s: filter function "
@@ -177,7 +158,6 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 			return 0;
 		}
 
-	/* originating subsystem */
 	if (uevent_ops && uevent_ops->name)
 		subsystem = uevent_ops->name(kset, kobj);
 	else
@@ -189,19 +169,16 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 		return 0;
 	}
 
-	/* environment buffer */
 	env = kzalloc(sizeof(struct kobj_uevent_env), GFP_KERNEL);
 	if (!env)
 		return -ENOMEM;
 
-	/* complete object path */
 	devpath = kobject_get_path(kobj, GFP_KERNEL);
 	if (!devpath) {
 		retval = -ENOENT;
 		goto exit;
 	}
 
-	/* default keys */
 	retval = add_uevent_var(env, "ACTION=%s", action_string);
 	if (retval)
 		goto exit;
@@ -212,7 +189,6 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 	if (retval)
 		goto exit;
 
-	/* keys passed in from the caller */
 	if (envp_ext) {
 		for (i = 0; envp_ext[i]; i++) {
 			retval = add_uevent_var(env, "%s", envp_ext[i]);
@@ -221,7 +197,6 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 		}
 	}
 
-	/* let the kset specific function add its stuff */
 	if (uevent_ops && uevent_ops->uevent) {
 		retval = uevent_ops->uevent(kset, kobj, env);
 		if (retval) {
@@ -232,19 +207,13 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 		}
 	}
 
-	/*
-	 * Mark "add" and "remove" events in the object to ensure proper
-	 * events to userspace during automatic cleanup. If the object did
-	 * send an "add" event, "remove" will automatically generated by
-	 * the core, if not already done by the caller.
-	 */
 	if (action == KOBJ_ADD)
 		kobj->state_add_uevent_sent = 1;
 	else if (action == KOBJ_REMOVE)
 		kobj->state_remove_uevent_sent = 1;
 
 	mutex_lock(&uevent_sock_mutex);
-	/* we will send an event, so request a new sequence number */
+	 
 	retval = add_uevent_var(env, "SEQNUM=%llu", (unsigned long long)++uevent_seqnum);
 	if (retval) {
 		mutex_unlock(&uevent_sock_mutex);
@@ -252,23 +221,20 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 	}
 
 #if defined(CONFIG_NET)
-	/* send netlink message */
+	 
 	list_for_each_entry(ue_sk, &uevent_sock_list, list) {
 		struct sock *uevent_sock = ue_sk->sk;
 		struct sk_buff *skb;
 		size_t len;
 
-		/* allocate message with the maximum possible size */
 		len = strlen(action_string) + strlen(devpath) + 2;
 		skb = alloc_skb(len + env->buflen, GFP_KERNEL);
 		if (skb) {
 			char *scratch;
 
-			/* add header */
 			scratch = skb_put(skb, len);
 			sprintf(scratch, "%s@%s", action_string, devpath);
 
-			/* copy keys to our continuous event payload buffer */
 			for (i = 0; i < env->envp_idx; i++) {
 				len = strlen(env->envp[i]) + 1;
 				scratch = skb_put(skb, len);
@@ -280,7 +246,7 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 							    0, 1, GFP_KERNEL,
 							    kobj_bcast_filter,
 							    kobj);
-			/* ENOBUFS should be handled in userspace */
+			 
 			if (retval == -ENOBUFS || retval == -ESRCH)
 				retval = 0;
 		} else
@@ -289,7 +255,6 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 #endif
 	mutex_unlock(&uevent_sock_mutex);
 
-	/* call uevent_helper, usually only enabled during early boot */
 	if (uevent_helper[0] && !kobj_usermode_filter(kobj)) {
 		char *argv [3];
 
@@ -304,6 +269,12 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
 		if (retval)
 			goto exit;
 
+#ifdef SYNO_SLOW_DOWN_UEVENT
+		ullCount++;
+		if (0 == ullCount % 30 && subsystem && strstr((char *)subsystem, "block")) {
+			msleep(10000);
+		}
+#endif
 		retval = call_usermodehelper(argv[0], argv,
 					     env->envp, UMH_WAIT_EXEC);
 	}
@@ -315,29 +286,12 @@ exit:
 }
 EXPORT_SYMBOL_GPL(kobject_uevent_env);
 
-/**
- * kobject_uevent - notify userspace by sending an uevent
- *
- * @action: action that is happening
- * @kobj: struct kobject that the action is happening to
- *
- * Returns 0 if kobject_uevent() is completed with success or the
- * corresponding error when it fails.
- */
 int kobject_uevent(struct kobject *kobj, enum kobject_action action)
 {
 	return kobject_uevent_env(kobj, action, NULL);
 }
 EXPORT_SYMBOL_GPL(kobject_uevent);
 
-/**
- * add_uevent_var - add key value string to the environment buffer
- * @env: environment buffer structure
- * @format: printf format for the key=value pair
- *
- * Returns 0 if environment variable was added successfully or -ENOMEM
- * if no space was available.
- */
 int add_uevent_var(struct kobj_uevent_env *env, const char *format, ...)
 {
 	va_list args;
@@ -364,6 +318,44 @@ int add_uevent_var(struct kobj_uevent_env *env, const char *format, ...)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(add_uevent_var);
+
+#if defined(MY_ABC_HERE)
+#if defined(CONFIG_NET)
+int broadcast_uevent(struct sk_buff *skb, __u32 pid, __u32 group,
+		     gfp_t allocation)
+{
+	struct uevent_sock *ue_sk;
+	int err = 0;
+
+	mutex_lock(&uevent_sock_mutex);
+	list_for_each_entry(ue_sk, &uevent_sock_list, list) {
+		struct sock *uevent_sock = ue_sk->sk;
+		struct sk_buff *skb2;
+
+		skb2 = skb_clone(skb, allocation);
+		if (!skb2)
+			break;
+
+		err = netlink_broadcast(uevent_sock, skb2, pid, group,
+					allocation);
+		if (err)
+			break;
+	}
+	mutex_unlock(&uevent_sock_mutex);
+
+	kfree_skb(skb);
+	return err;
+}
+#else
+int broadcast_uevent(struct sk_buff *skb, __u32 pid, __u32 group,
+		     gfp_t allocation)
+{
+	kfree_skb(skb);
+	return 0;
+}
+#endif
+EXPORT_SYMBOL_GPL(broadcast_uevent);
+#endif
 
 #if defined(CONFIG_NET)
 static int uevent_net_init(struct net *net)
@@ -418,7 +410,6 @@ static int __init kobject_uevent_init(void)
 	netlink_set_nonroot(NETLINK_KOBJECT_UEVENT, NL_NONROOT_RECV);
 	return register_pernet_subsys(&uevent_net_ops);
 }
-
 
 postcore_initcall(kobject_uevent_init);
 #endif

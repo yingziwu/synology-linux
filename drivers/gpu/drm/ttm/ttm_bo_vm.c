@@ -299,7 +299,6 @@ int ttm_fbdev_mmap(struct vm_area_struct *vma, struct ttm_buffer_object *bo)
 }
 EXPORT_SYMBOL(ttm_fbdev_mmap);
 
-
 ssize_t ttm_bo_io(struct ttm_bo_device *bdev, struct file *filp,
 		  const char __user *wbuf, char __user *rbuf, size_t count,
 		  loff_t *f_pos, bool write)

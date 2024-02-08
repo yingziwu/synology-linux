@@ -35,7 +35,6 @@ static int panel_id = GCT_DETECT;
 module_param_named(panel_id, panel_id, int, 0600);
 MODULE_PARM_DESC(panel_id, "Panel Identifier");
 
-
 static void mid_get_fuse_settings(struct drm_device *dev)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;

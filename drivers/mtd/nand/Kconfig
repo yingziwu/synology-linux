@@ -46,6 +46,18 @@ config MTD_NAND_ECC_BCH
 	  ECC codes. They are used with NAND devices requiring more than 1 bit
 	  of error correction.
 
+config NAND_COMCERTO_ECC_8_HW_BCH
+	bool
+	depends on MTD_NAND_COMCERTO && SYNO_COMCERTO
+	default n
+	prompt "Comcerto ECC-8 syndrome calculation using BCH"
+
+config NAND_COMCERTO_ECC_24_HW_BCH
+	bool
+	depends on MTD_NAND_COMCERTO && SYNO_COMCERTO
+	default y
+	prompt "Comcerto ECC-24 syndrome calculation using BCH"
+
 config MTD_SM_COMMON
 	tristate
 	default n
@@ -453,6 +465,12 @@ config MTD_NAND_ORION
 	  No board specific support is done by this driver, each board
 	  must advertise a platform_device for the driver to attach.
 
+config MTD_NAND_RS_ECC
+	bool "Support 4-bit RS NAND ECC"
+	depends on MTD_NAND_ORION
+	help
+	  Add support for 4-bit NAND ECC RS (Reed Solomon).
+
 config MTD_NAND_FSL_ELBC
 	tristate "NAND support for Freescale eLBC controllers"
 	depends on PPC_OF
@@ -536,5 +554,17 @@ config MTD_NAND_FSMC
 	help
 	  Enables support for NAND Flash chips on the ST Microelectronics
 	  Flexible Static Memory Controller (FSMC)
+
+config MTD_NAND_COMCERTO
+        tristate "Comcerto NAND driver"
+	depends on MTD_NAND && (ARCH_COMCERTO) && SYNO_COMCERTO
+	help
+		Comcerto NAND Driver.
+
+config MTD_NAND_AL
+	bool "NAND support for Annapurna Labs NAND controller"
+	depends on MTD_NAND && SYNO_ALPINE
+	help
+	  Enable support for NAND Flash chips on Annapurna Labs NAND controllers.
 
 endif # MTD_NAND

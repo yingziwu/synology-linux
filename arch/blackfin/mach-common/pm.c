@@ -20,7 +20,6 @@
 #include <asm/dma.h>
 #include <asm/dpmc.h>
 
-
 void bfin_pm_suspend_standby_enter(void)
 {
 	bfin_pm_standby_setup();

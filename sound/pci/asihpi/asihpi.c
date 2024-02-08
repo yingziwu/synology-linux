@@ -331,7 +331,6 @@ static snd_pcm_format_t hpi_to_alsa_formats[] = {
 #endif
 };
 
-
 static int snd_card_asihpi_format_alsa2hpi(snd_pcm_format_t alsa_format,
 					   u16 *hpi_format)
 {
@@ -1112,8 +1111,6 @@ static int snd_card_asihpi_capture_prepare(struct snd_pcm_substream *substream)
 	return 0;
 }
 
-
-
 static void snd_card_asihpi_capture_format(struct snd_card_asihpi *asihpi,
 					u32 h_stream,
 					 struct snd_pcm_hardware *pcmhw)
@@ -1147,7 +1144,6 @@ static void snd_card_asihpi_capture_format(struct snd_card_asihpi *asihpi,
 				(1ULL << hpi_to_alsa_formats[format]);
 	}
 }
-
 
 static struct snd_pcm_hardware snd_card_asihpi_capture = {
 	.channels_min = 1,
@@ -1183,7 +1179,6 @@ static int snd_card_asihpi_capture_open(struct snd_pcm_substream *substream)
 		return -EBUSY;
 	if (err)
 		return -EIO;
-
 
 	init_timer(&dpcm->timer);
 	dpcm->timer.data = (unsigned long) dpcm;
@@ -1723,7 +1718,6 @@ static int __devinit snd_asihpi_aesebu_rx_add(struct snd_card_asihpi *asihpi,
 	snd_control.get = snd_asihpi_aesebu_rx_format_get;
 	snd_control.put = snd_asihpi_aesebu_rx_format_put;
 
-
 	if (ctl_add(card, &snd_control, asihpi) < 0)
 		return -EINVAL;
 
@@ -1747,7 +1741,6 @@ static int snd_asihpi_aesebu_tx_format_put(struct snd_kcontrol *kcontrol,
 	return snd_asihpi_aesebu_format_put(kcontrol, ucontrol,
 					hpi_aesebu_transmitter_set_format);
 }
-
 
 static int __devinit snd_asihpi_aesebu_tx_add(struct snd_card_asihpi *asihpi,
 					struct hpi_control *hpi_ctl)
@@ -2202,7 +2195,6 @@ static int snd_asihpi_mux_put(struct snd_kcontrol *kcontrol,
 	return change;
 }
 
-
 static int  __devinit snd_asihpi_mux_add(struct snd_card_asihpi *asihpi,
 					struct hpi_control *hpi_ctl)
 {
@@ -2287,7 +2279,6 @@ static int snd_asihpi_cmode_put(struct snd_kcontrol *kcontrol,
 			   ucontrol->value.enumerated.item[0] + 1));
 	return change;
 }
-
 
 static int __devinit snd_asihpi_cmode_add(struct snd_card_asihpi *asihpi,
 					struct hpi_control *hpi_ctl)
@@ -2509,14 +2500,12 @@ static int __devinit snd_asihpi_sampleclock_add(struct snd_card_asihpi *asihpi,
 	if (ctl_add(card, &snd_control, asihpi) < 0)
 		return -EINVAL;
 
-
 	if (clkcache->has_local) {
 		asihpi_ctl_init(&snd_control, hpi_ctl, "Localrate");
 		snd_control.access = SNDRV_CTL_ELEM_ACCESS_READWRITE ;
 		snd_control.info = snd_asihpi_clklocal_info;
 		snd_control.get = snd_asihpi_clklocal_get;
 		snd_control.put = snd_asihpi_clklocal_put;
-
 
 		if (ctl_add(card, &snd_control, asihpi) < 0)
 			return -EINVAL;
@@ -2701,7 +2690,6 @@ snd_asihpi_proc_read(struct snd_info_entry *entry,
 
 }
 
-
 static void __devinit snd_asihpi_proc_init(struct snd_card_asihpi *asihpi)
 {
 	struct snd_info_entry *entry;
@@ -2739,7 +2727,6 @@ static int snd_asihpi_hpi_ioctl(struct snd_hwdep *hw, struct file *file,
 	else
 		return -ENODEV;
 }
-
 
 /* results in /dev/snd/hwC#D0 file for each card with index #
    also /proc/asound/hwdep will contain '#-00: asihpi (HPI) for each card'
@@ -2979,4 +2966,3 @@ static void __exit snd_asihpi_exit(void)
 
 module_init(snd_asihpi_init)
 module_exit(snd_asihpi_exit)
-

@@ -17,7 +17,6 @@
 #include <linux/delay.h>
 #include <asm/system.h>
 
-
 #ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
 #define dma_outb	outb_p
 #else
@@ -242,7 +241,6 @@ static __inline__ void set_dma_page(unsigned int dmanr, char pagenr)
 	}
 }
 
-
 /* Set transfer address & page bits for specific DMA channel.
  * Assumes dma flipflop is clear.
  */
@@ -257,7 +255,6 @@ static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
 	    dma_outb( (a>>9) & 0xff, ((dmanr&3)<<2) + IO_DMA2_BASE );
 	}
 }
-
 
 /* Set transfer size (max 64k for DMA0..3, 128k for DMA5..7) for
  * a specific DMA channel.
@@ -278,7 +275,6 @@ static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
 	    dma_outb( (count>>9) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA2_BASE );
         }
 }
-
 
 /* Get DMA residue count. After a DMA transfer, this
  * should return zero. Reading this while a DMA transfer is
@@ -301,7 +297,6 @@ static __inline__ int get_dma_residue(unsigned int dmanr)
 
 	return (dmanr<=3)? count : (count<<1);
 }
-
 
 /* These are in kernel/dma.c: */
 extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */

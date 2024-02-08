@@ -111,8 +111,6 @@ show_case_temperature( struct device *dev, struct device_attribute *attr, char *
 static DEVICE_ATTR(cpu_temperature, S_IRUGO, show_cpu_temperature, NULL );
 static DEVICE_ATTR(case_temperature, S_IRUGO, show_case_temperature, NULL );
 
-
-
 /************************************************************************/
 /*	controller thread						*/
 /************************************************************************/
@@ -205,7 +203,6 @@ poll_temp( void )
 		tune_fan( level );
 }
 
-
 static void
 setup_hardware( void )
 {
@@ -295,7 +292,6 @@ static int control_loop(void *dummy)
 
 	return 0;
 }
-
 
 /************************************************************************/
 /*	i2c probing and setup						*/
@@ -437,7 +433,6 @@ static struct i2c_driver g4fan_driver = {
 	.remove		= do_remove,
 	.id_table	= therm_windtunnel_id,
 };
-
 
 /************************************************************************/
 /*	initialization / cleanup					*/

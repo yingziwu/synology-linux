@@ -25,7 +25,6 @@
 #include "reg.h"
 #include "debug.h"
 
-
 /************************\
 * TX Control descriptors *
 \************************/
@@ -345,7 +344,6 @@ ath5k_hw_setup_mrr_tx_desc(struct ath5k_hw *ah, struct ath5k_desc *desc,
 	return 0;
 }
 
-
 /***********************\
 * TX Status descriptors *
 \***********************/
@@ -454,7 +452,6 @@ static int ath5k_hw_proc_4word_tx_status(struct ath5k_hw *ah,
 
 	return 0;
 }
-
 
 /****************\
 * RX Descriptors *
@@ -640,7 +637,6 @@ static int ath5k_hw_proc_5212_rx_status(struct ath5k_hw *ah,
 	}
 	return 0;
 }
-
 
 /********\
 * Attach *

@@ -34,7 +34,6 @@
 
 #include "svga_reg.h"
 
-
 /*
  * 3D Hardware Version
  *
@@ -389,7 +388,6 @@ typedef enum {
    SVGA3D_RS_SLOPESCALEDEPTHBIAS       = 63,    /* float */
    SVGA3D_RS_DEPTHBIAS                 = 64,    /* float */
 
-
    /*
     * Output Gamma Level
     *
@@ -457,7 +455,6 @@ typedef enum {
    SVGA3D_FILLMODE_FILL    = 3,
    SVGA3D_FILLMODE_MAX
 } SVGA3dFillModeType;
-
 
 typedef
 union {
@@ -684,7 +681,6 @@ typedef enum {
    SVGA3D_TS_TEXTURE_LOD_BIAS           = 22,   /* float */
    SVGA3D_TS_TEXTURE_ANISOTROPIC_LEVEL  = 23,   /* uint32 */
    SVGA3D_TS_ADDRESSW                   = 24,   /* SVGA3dTextureAddress */
-
 
    /*
     * Sampler Gamma Level
@@ -1108,7 +1104,6 @@ struct SVGA3dGuestImage {
     */
    uint32 pitch;
 } SVGA3dGuestImage;
-
 
 /*
  * FIFO command format definitions:
@@ -1747,7 +1742,6 @@ struct {
    uint32               sid;
    SVGA3dTextureFilter  filter;
 } SVGA3dCmdGenerateMipmaps;             /* SVGA_3D_CMD_GENERATE_MIPMAPS */
-
 
 /*
  * Capability query index.

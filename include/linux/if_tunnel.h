@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _IF_TUNNEL_H_
 #define _IF_TUNNEL_H_
 
@@ -21,6 +24,12 @@
 #define SIOCADD6RD      (SIOCDEVPRIVATE + 9)
 #define SIOCDEL6RD      (SIOCDEVPRIVATE + 10)
 #define SIOCCHG6RD      (SIOCDEVPRIVATE + 11)
+#if defined(MY_ABC_HERE)
+#define SIOCGET4RD      (SIOCDEVPRIVATE + 12)  
+#define SIOCADD4RD      (SIOCDEVPRIVATE + 13) 
+#define SIOCDEL4RD      (SIOCDEVPRIVATE + 14)
+#define SIOCCHG4RD      (SIOCDEVPRIVATE + 15)
+#endif
 
 #define GRE_CSUM	__cpu_to_be16(0x8000)
 #define GRE_ROUTING	__cpu_to_be16(0x4000)
@@ -41,7 +50,6 @@ struct ip_tunnel_parm {
 	struct iphdr		iph;
 };
 
-/* SIT-mode i_flags */
 #define	SIT_ISATAP	0x0001
 
 struct ip_tunnel_prl {
@@ -50,10 +58,9 @@ struct ip_tunnel_prl {
 	__u16			__reserved;
 	__u32			datalen;
 	__u32			__reserved2;
-	/* data follows */
+	 
 };
 
-/* PRL flags */
 #define	PRL_DEFAULT		0x0001
 
 struct ip_tunnel_6rd {
@@ -62,6 +69,22 @@ struct ip_tunnel_6rd {
 	__u16			prefixlen;
 	__u16			relay_prefixlen;
 };
+
+#if defined(MY_ABC_HERE)
+  
+struct ip6_tnl_4rd {
+       __be32                  prefix;
+       struct in6_addr         relay_prefix;
+       struct in6_addr         relay_suffix;
+       __u16                   prefixlen;
+       __u16                   relay_prefixlen;
+       __u16                   relay_suffixlen;
+       __u16                   psid_offsetlen;
+       __u16                   eabit_len;
+       __u16                   entry_num;
+};
+  
+#endif
 
 enum {
 	IFLA_GRE_UNSPEC,
@@ -80,4 +103,4 @@ enum {
 
 #define IFLA_GRE_MAX	(__IFLA_GRE_MAX - 1)
 
-#endif /* _IF_TUNNEL_H_ */
+#endif  

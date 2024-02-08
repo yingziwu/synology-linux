@@ -58,7 +58,6 @@ static struct inode *coda_alloc_inode(struct super_block *sb)
 static void coda_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(coda_inode_cachep, ITOC(inode));
 }
 
@@ -87,6 +86,11 @@ int coda_init_inodecache(void)
 
 void coda_destroy_inodecache(void)
 {
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
 	kmem_cache_destroy(coda_inode_cachep);
 }
 
@@ -326,4 +330,3 @@ struct file_system_type coda_fs_type = {
 	.kill_sb	= kill_anon_super,
 	.fs_flags	= FS_BINARY_MOUNTDATA,
 };
-

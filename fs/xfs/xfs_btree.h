@@ -67,7 +67,6 @@ struct xfs_btree_block {
 #define XFS_BTREE_SBLOCK_LEN	16	/* size of a short form block */
 #define XFS_BTREE_LBLOCK_LEN	24	/* size of a long form block */
 
-
 /*
  * Generic key, ptr and record wrapper structures.
  *
@@ -208,7 +207,6 @@ struct xfs_btree_ops {
 #define LASTREC_INSREC	1
 #define LASTREC_DELREC	2
 
-
 /*
  * Btree cursor structure.
  * This collects all information needed by the btree code in one place.
@@ -255,7 +253,6 @@ typedef struct xfs_btree_cur
 #define XFS_BTREE_ROOT_IN_INODE		(1<<1)	/* root may be variable size */
 #define XFS_BTREE_LASTREC_UPDATE	(1<<2)	/* track last rec externally */
 
-
 #define	XFS_BTREE_NOERROR	0
 #define	XFS_BTREE_ERROR		1
 
@@ -263,7 +260,6 @@ typedef struct xfs_btree_cur
  * Convert from buffer to btree block header.
  */
 #define	XFS_BUF_TO_BLOCK(bp)	((struct xfs_btree_block *)((bp)->b_addr))
-
 
 /*
  * Check that block header is ok.
@@ -378,7 +374,6 @@ xfs_btree_reada_bufs(
 	xfs_agblock_t		agbno,	/* allocation group block number */
 	xfs_extlen_t		count);	/* count of filesystem blocks */
 
-
 /*
  * Common btree core entry points.
  */
@@ -415,7 +410,6 @@ static inline int xfs_btree_get_level(struct xfs_btree_block *block)
 {
 	return be16_to_cpu(block->bb_level);
 }
-
 
 /*
  * Min and max functions for extlen, agblock, fileoff, and filblks types.

@@ -117,7 +117,6 @@ static struct name_table table;
 static atomic_t rsv_publ_ok = ATOMIC_INIT(0);
 DEFINE_RWLOCK(tipc_nametbl_lock);
 
-
 static int hash(int x)
 {
 	return x & (tipc_nametbl_size - 1);
@@ -782,7 +781,6 @@ void tipc_nametbl_unsubscribe(struct subscription *s)
 	write_unlock_bh(&tipc_nametbl_lock);
 }
 
-
 /**
  * subseq_list: print specified sub-sequence contents into the given buffer
  */
@@ -985,4 +983,3 @@ void tipc_nametbl_stop(void)
 	table.types = NULL;
 	write_unlock_bh(&tipc_nametbl_lock);
 }
-

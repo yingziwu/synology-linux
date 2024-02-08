@@ -186,7 +186,6 @@ struct nfs4_state {
 	atomic_t count;
 };
 
-
 struct nfs4_exception {
 	long timeout;
 	int retry;

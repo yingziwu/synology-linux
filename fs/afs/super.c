@@ -123,6 +123,11 @@ void __exit afs_fs_exit(void)
 		BUG();
 	}
 
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
 	kmem_cache_destroy(afs_inode_cachep);
 	_leave("");
 }
@@ -495,7 +500,6 @@ static void afs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
 	struct afs_vnode *vnode = AFS_FS_I(inode);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(afs_inode_cachep, vnode);
 }
 

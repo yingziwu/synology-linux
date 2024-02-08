@@ -31,7 +31,6 @@
 #include <arch/interrupts.h>
 #include <arch/spr_def.h>
 
-
 /*
  * This data structure tracks the rectangle data, etc., associated
  * one-to-one with a "struct file *" from opening HARDWALL_FILE.
@@ -81,7 +80,6 @@ static int __init noudn(char *str)
 }
 early_param("noudn", noudn);
 
-
 /*
  * Low-level primitives
  */
@@ -91,7 +89,6 @@ early_param("noudn", noudn);
 	if (cpu_online(cpu))          \
 		cpumask_set_cpu(cpu, dst);    \
 } while (0)
-
 
 /* Does the given rectangle contain the given x,y coordinate? */
 static int contains(struct hardwall_info *r, int x, int y)
@@ -145,7 +142,6 @@ static int overlaps(struct hardwall_info *a, struct hardwall_info *b)
 		a->ulhc_y + a->height > b->ulhc_y &&  /* A not above */
 		b->ulhc_y + b->height > a->ulhc_y;    /* B not above */
 }
-
 
 /*
  * Hardware management of hardwall setup, teardown, trapping,
@@ -329,7 +325,6 @@ void restrict_network_mpls(void)
 	__insn_mtspr(SPR_MPL_UDN_CA_SET_1, 1);
 #endif
 }
-
 
 /*
  * Code to create, activate, deactivate, and destroy hardwall rectangles.
@@ -670,7 +665,6 @@ static void hardwall_destroy(struct hardwall_info *rect)
 	kfree(rect);
 }
 
-
 static int hardwall_proc_show(struct seq_file *sf, void *v)
 {
 	struct hardwall_info *rect = sf->private;
@@ -721,7 +715,6 @@ void proc_tile_hardwall_init(struct proc_dir_entry *root)
 	if (!udn_disabled)
 		hardwall_proc_dir = proc_mkdir("hardwall", root);
 }
-
 
 /*
  * Character device support via ioctl/close.

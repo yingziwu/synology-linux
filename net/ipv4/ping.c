@@ -47,7 +47,6 @@
 #include <net/inet_common.h>
 #include <net/checksum.h>
 
-
 static struct ping_table ping_table;
 
 static u16 ping_port_rover;
@@ -139,6 +138,7 @@ static void ping_v4_unhash(struct sock *sk)
 	if (sk_hashed(sk)) {
 		write_lock_bh(&ping_table.lock);
 		hlist_nulls_del(&sk->sk_nulls_node);
+		sk_nulls_node_init(&sk->sk_nulls_node);
 		sock_put(sk);
 		isk->inet_num = isk->inet_sport = 0;
 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
@@ -196,7 +196,6 @@ static void inet_get_ping_group_range_net(struct net *net, gid_t *low,
 		*high = data[1];
 	} while (read_seqretry(&sysctl_local_ports.lock, seq));
 }
-
 
 static int ping_init_sock(struct sock *sk)
 {
@@ -465,9 +464,12 @@ static int ping_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 
 	pr_debug("ping_sendmsg(sk=%p,sk->num=%u)\n", inet, inet->inet_num);
 
-
 	if (len > 0xFFFF)
 		return -EMSGSIZE;
+
+	/* Must have at least a full ICMP header. */
+	if (len < sizeof(struct icmphdr))
+		return -EINVAL;
 
 	/*
 	 *	Check the flags.
@@ -623,7 +625,6 @@ static int ping_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 			size_t len, int noblock, int flags, int *addr_len)
 {
 	struct inet_sock *isk = inet_sk(sk);
-	struct sockaddr_in *sin = (struct sockaddr_in *)msg->msg_name;
 	struct sk_buff *skb;
 	int copied, err;
 
@@ -631,9 +632,6 @@ static int ping_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 
 	if (flags & MSG_OOB)
 		goto out;
-
-	if (addr_len)
-		*addr_len = sizeof(*sin);
 
 	if (flags & MSG_ERRQUEUE)
 		return ip_recv_error(sk, msg, len);
@@ -656,11 +654,14 @@ static int ping_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	sock_recv_timestamp(msg, sk, skb);
 
 	/* Copy the address. */
-	if (sin) {
+	if (msg->msg_name) {
+		struct sockaddr_in *sin = (struct sockaddr_in *)msg->msg_name;
+
 		sin->sin_family = AF_INET;
 		sin->sin_port = 0 /* skb->h.uh->source */;
 		sin->sin_addr.s_addr = ip_hdr(skb)->saddr;
 		memset(sin->sin_zero, 0, sizeof(sin->sin_zero));
+		*addr_len = sizeof(*sin);
 	}
 	if (isk->cmsg_flags)
 		ip_cmsg_recv(msg, skb);
@@ -684,7 +685,6 @@ static int ping_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 	}
 	return 0;
 }
-
 
 /*
  *	All we need to do is get the socket.
@@ -891,7 +891,6 @@ static void ping_proc_unregister(struct net *net)
 {
 	proc_net_remove(net, "icmp");
 }
-
 
 static int __net_init ping_proc_init_net(struct net *net)
 {

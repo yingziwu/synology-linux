@@ -246,4 +246,3 @@ static int __init davinci_cpufreq_init(void)
 							davinci_cpufreq_probe);
 }
 late_initcall(davinci_cpufreq_init);
-

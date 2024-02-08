@@ -412,7 +412,6 @@ int lis3lv02d_poweron(struct lis3lv02d *lis3)
 }
 EXPORT_SYMBOL_GPL(lis3lv02d_poweron);
 
-
 static void lis3lv02d_joystick_poll(struct input_polled_dev *pidev)
 {
 	struct lis3lv02d *lis3 = pidev->private;
@@ -824,7 +823,6 @@ static struct attribute *lis3lv02d_attributes[] = {
 static struct attribute_group lis3lv02d_attribute_group = {
 	.attrs = lis3lv02d_attributes
 };
-
 
 static int lis3lv02d_add_fs(struct lis3lv02d *lis3)
 {

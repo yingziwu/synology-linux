@@ -190,7 +190,6 @@ static __inline__ void ip4_frag_free(struct inet_frag_queue *q)
 		inet_putpeer(qp->peer);
 }
 
-
 /* Destruction primitives. */
 
 static __inline__ void ipq_put(struct ipq *ipq)
@@ -265,7 +264,6 @@ static void ip_expire(unsigned long arg)
 		    (qp->user == IP_DEFRAG_CONNTRACK_IN &&
 		     skb_rtable(head)->rt_type != RTN_LOCAL))
 			goto out_rcu_unlock;
-
 
 		/* Send an ICMP "Fragment Reassembly Timeout" message. */
 		icmp_send(head, ICMP_TIME_EXCEEDED, ICMP_EXC_FRAGTIME, 0);
@@ -530,7 +528,6 @@ err:
 	kfree_skb(skb);
 	return err;
 }
-
 
 /* Build a new IP datagram from all its fragments. */
 

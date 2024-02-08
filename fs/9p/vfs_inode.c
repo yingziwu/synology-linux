@@ -251,7 +251,6 @@ struct inode *v9fs_alloc_inode(struct super_block *sb)
 static void v9fs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(v9fs_inode_cache, V9FS_I(inode));
 }
 
@@ -424,7 +423,6 @@ error:
 	return ERR_PTR(err);
 }
 */
-
 
 /**
  * v9fs_clear_inode - release an inode
@@ -703,7 +701,7 @@ error:
  */
 
 static int
-v9fs_vfs_create(struct inode *dir, struct dentry *dentry, int mode,
+v9fs_vfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		struct nameidata *nd)
 {
 	int err;
@@ -786,7 +784,7 @@ error:
  *
  */
 
-static int v9fs_vfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+static int v9fs_vfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	int err;
 	u32 perm;
@@ -1398,7 +1396,7 @@ clunk_fid:
  */
 
 static int
-v9fs_vfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t rdev)
+v9fs_vfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t rdev)
 {
 	int retval;
 	char *name;
@@ -1506,4 +1504,3 @@ static const struct inode_operations v9fs_symlink_inode_operations = {
 	.getattr = v9fs_vfs_getattr,
 	.setattr = v9fs_vfs_setattr,
 };
-

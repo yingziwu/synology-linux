@@ -404,4 +404,3 @@ failed_find:
 	drm_connector_cleanup(connector);
 	kfree(connector);
 }
-

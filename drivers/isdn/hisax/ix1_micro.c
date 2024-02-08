@@ -1,4 +1,4 @@
-/* $Id: ix1_micro.c,v 2.12.2.4 2004/01/13 23:48:39 keil Exp $
+/* $Id: ix1_micro.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * low level stuff for ITK ix1-micro Rev.2 isdn cards
  * derived from the original file teles3.c from Karsten Keil
@@ -24,7 +24,7 @@
 #include "hscx.h"
 #include "isdnl1.h"
 
-static const char *ix1_revision = "$Revision: 2.12.2.4 $";
+static const char *ix1_revision = "$Revision: 1.1.1.1 $";
 
 #define byteout(addr,val) outb(val,addr)
 #define bytein(addr) inb(addr)
@@ -54,7 +54,6 @@ readfifo(unsigned int ale, unsigned int adr, u_char off, u_char * data, int size
 	byteout(ale, off);
 	insb(adr, data, size);
 }
-
 
 static inline void
 writereg(unsigned int ale, unsigned int adr, u_char off, u_char data)
@@ -222,7 +221,6 @@ static struct isapnp_device_id itk_ids[] __devinitdata = {
 static struct isapnp_device_id *ipid __devinitdata = &itk_ids[0];
 static struct pnp_card *pnp_c __devinitdata = NULL;
 #endif
-
 
 int __devinit
 setup_ix1micro(struct IsdnCard *card)

@@ -71,7 +71,6 @@ static struct inode *minix_alloc_inode(struct super_block *sb)
 static void minix_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(minix_inode_cachep, minix_i(inode));
 }
 
@@ -101,6 +100,11 @@ static int init_inodecache(void)
 
 static void destroy_inodecache(void)
 {
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
 	kmem_cache_destroy(minix_inode_cachep);
 }
 
@@ -678,4 +682,3 @@ static void __exit exit_minix_fs(void)
 module_init(init_minix_fs)
 module_exit(exit_minix_fs)
 MODULE_LICENSE("GPL");
-

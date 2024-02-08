@@ -1,15 +1,7 @@
-/*
- *  linux/arch/arm/kernel/module.c
- *
- *  Copyright (C) 2002 Russell King.
- *  Modified for nommu by Hyok S. Choi
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * Module allocation method suggested by Andi Kleen.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/moduleloader.h>
 #include <linux/kernel.h>
@@ -26,12 +18,7 @@
 #include <asm/unwind.h>
 
 #ifdef CONFIG_XIP_KERNEL
-/*
- * The XIP kernel text is mapped in the module area for modules and
- * some other stuff to work without any indirect relocations.
- * MODULES_VADDR is redefined here and not in asm/memory.h to avoid
- * recompiling the whole kernel when CONFIG_XIP_KERNEL is turned on/off.
- */
+ 
 #undef MODULES_VADDR
 #define MODULES_VADDR	(((unsigned long)_etext + ~PMD_MASK) & PMD_MASK)
 #endif
@@ -43,6 +30,20 @@ void *module_alloc(unsigned long size)
 				GFP_KERNEL, PAGE_KERNEL_EXEC, -1,
 				__builtin_return_address(0));
 }
+#endif
+
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+#ifdef CONFIG_CPU_ENDIAN_BE8
+#define read_instr32(c)                        __swab32(*(u32 *)c)
+#define read_instr16(c)                        __swab16(*(u16 *)c)
+#define write_instr32(v,a)             (*(u32 *)(a) = __swab32((__force __u32)(v)))
+#define write_instr16(v,a)             (*(u16 *)(a) = __swab16((__force __u16)(v)))
+#else
+#define read_instr32(c)                        (*(u32 *)c)
+#define read_instr16(c)                        (*(u16 *)c)
+#define write_instr32(v,a)             (*(u32 *)(a) = (v))
+#define write_instr16(v,a)             (*(u16 *)(a) = (v))
+#endif
 #endif
 
 int
@@ -80,12 +81,17 @@ apply_relocate(Elf32_Shdr *sechdrs, const char *strtab, unsigned int symindex,
 			       rel->r_offset, dstsec->sh_size);
 			return -ENOEXEC;
 		}
+#if defined(MY_ABC_HERE)
+		if ((IS_ERR_VALUE(sym->st_value) || !sym->st_value) &&
+		    ELF_ST_BIND(sym->st_info) == STB_WEAK)
+			continue;
+#endif
 
 		loc = dstsec->sh_addr + rel->r_offset;
 
 		switch (ELF32_R_TYPE(rel->r_info)) {
 		case R_ARM_NONE:
-			/* ignore */
+			 
 			break;
 
 		case R_ARM_ABS32:
@@ -95,7 +101,11 @@ apply_relocate(Elf32_Shdr *sechdrs, const char *strtab, unsigned int symindex,
 		case R_ARM_PC24:
 		case R_ARM_CALL:
 		case R_ARM_JUMP24:
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+			offset = (read_instr32(loc) & 0x00ffffff) << 2;
+#else
 			offset = (*(u32 *)loc & 0x00ffffff) << 2;
+#endif
 			if (offset & 0x02000000)
 				offset -= 0x04000000;
 
@@ -112,15 +122,21 @@ apply_relocate(Elf32_Shdr *sechdrs, const char *strtab, unsigned int symindex,
 
 			offset >>= 2;
 
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+			write_instr32((read_instr32(loc) & 0xff000000) |
+				(offset & 0x00ffffff), loc);
+#else
 			*(u32 *)loc &= 0xff000000;
 			*(u32 *)loc |= offset & 0x00ffffff;
+#endif
 			break;
 
 	       case R_ARM_V4BX:
-		       /* Preserve Rm and the condition code. Alter
-			* other bits to re-code instruction as
-			* MOV PC,Rm.
-			*/
+		        
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+			write_instr32((read_instr32(loc) & 0xf000000f) |
+						0x01a0f000, loc);
+#endif
 		       *(u32 *)loc &= 0xf000000f;
 		       *(u32 *)loc |= 0x01a0f000;
 		       break;
@@ -132,7 +148,12 @@ apply_relocate(Elf32_Shdr *sechdrs, const char *strtab, unsigned int symindex,
 
 		case R_ARM_MOVW_ABS_NC:
 		case R_ARM_MOVT_ABS:
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+			offset = read_instr32(loc);
+#else
 			offset = *(u32 *)loc;
+#endif
+			
 			offset = ((offset & 0xf0000) >> 4) | (offset & 0xfff);
 			offset = (offset ^ 0x8000) - 0x8000;
 
@@ -140,30 +161,27 @@ apply_relocate(Elf32_Shdr *sechdrs, const char *strtab, unsigned int symindex,
 			if (ELF32_R_TYPE(rel->r_info) == R_ARM_MOVT_ABS)
 				offset >>= 16;
 
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+			write_instr32((read_instr32(loc) & 0xfff0f000) |
+				((offset & 0xf000) << 4) |
+					(offset & 0x0fff), loc);
+#else
 			*(u32 *)loc &= 0xfff0f000;
 			*(u32 *)loc |= ((offset & 0xf000) << 4) |
 					(offset & 0x0fff);
+#endif
 			break;
 
 #ifdef CONFIG_THUMB2_KERNEL
 		case R_ARM_THM_CALL:
 		case R_ARM_THM_JUMP24:
 			upper = *(u16 *)loc;
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+			lower = read_instr16(loc + 2);
+#else
 			lower = *(u16 *)(loc + 2);
+#endif
 
-			/*
-			 * 25 bit signed address range (Thumb-2 BL and B.W
-			 * instructions):
-			 *   S:I1:I2:imm10:imm11:0
-			 * where:
-			 *   S     = upper[10]   = offset[24]
-			 *   I1    = ~(J1 ^ S)   = offset[23]
-			 *   I2    = ~(J2 ^ S)   = offset[22]
-			 *   imm10 = upper[9:0]  = offset[21:12]
-			 *   imm11 = lower[10:0] = offset[11:1]
-			 *   J1    = lower[13]
-			 *   J2    = lower[11]
-			 */
 			sign = (upper >> 10) & 1;
 			j1 = (lower >> 13) & 1;
 			j2 = (lower >> 11) & 1;
@@ -175,15 +193,6 @@ apply_relocate(Elf32_Shdr *sechdrs, const char *strtab, unsigned int symindex,
 				offset -= 0x02000000;
 			offset += sym->st_value - loc;
 
-			/*
-			 * For function symbols, only Thumb addresses are
-			 * allowed (no interworking).
-			 *
-			 * For non-function symbols, the destination
-			 * has no specific ARM/Thumb disposition, so
-			 * the branch is resolved under the assumption
-			 * that interworking is not required.
-			 */
 			if ((ELF32_ST_TYPE(sym->st_info) == STT_FUNC &&
 				!(offset & 1)) ||
 			    offset <= (s32)0xff000000 ||
@@ -198,28 +207,32 @@ apply_relocate(Elf32_Shdr *sechdrs, const char *strtab, unsigned int symindex,
 			sign = (offset >> 24) & 1;
 			j1 = sign ^ (~(offset >> 23) & 1);
 			j2 = sign ^ (~(offset >> 22) & 1);
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+			write_instr16((u16)((upper & 0xf800) | (sign << 10) |
+						((offset >> 12) & 0x03ff)),loc);
+			write_instr16((u16)((lower & 0xd000) |
+						(j1 << 13) | (j2 << 11) |
+						((offset >> 1) & 0x07ff)),loc + 2);
+#else
 			*(u16 *)loc = (u16)((upper & 0xf800) | (sign << 10) |
 					    ((offset >> 12) & 0x03ff));
 			*(u16 *)(loc + 2) = (u16)((lower & 0xd000) |
 						  (j1 << 13) | (j2 << 11) |
 						  ((offset >> 1) & 0x07ff));
+#endif
 			break;
 
 		case R_ARM_THM_MOVW_ABS_NC:
 		case R_ARM_THM_MOVT_ABS:
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+			upper = read_instr16(loc);
+
+			lower = read_instr16(loc + 2);
+#else
 			upper = *(u16 *)loc;
 			lower = *(u16 *)(loc + 2);
+#endif
 
-			/*
-			 * MOVT/MOVW instructions encoding in Thumb-2:
-			 *
-			 * i	= upper[10]
-			 * imm4	= upper[3:0]
-			 * imm3	= lower[14:12]
-			 * imm8	= lower[7:0]
-			 *
-			 * imm16 = imm4:i:imm3:imm8
-			 */
 			offset = ((upper & 0x000f) << 12) |
 				((upper & 0x0400) << 1) |
 				((lower & 0x7000) >> 4) | (lower & 0x00ff);
@@ -229,12 +242,32 @@ apply_relocate(Elf32_Shdr *sechdrs, const char *strtab, unsigned int symindex,
 			if (ELF32_R_TYPE(rel->r_info) == R_ARM_THM_MOVT_ABS)
 				offset >>= 16;
 
+#if defined(MY_DEF_HERE)
+				write_instr16((u16)((upper & 0xfbf0) |
+ 					    ((offset & 0xf000) >> 12) |
+					    ((offset & 0x0800) >> 1)),
+					doc);
+			write_instr16((u16)((lower & 0x8f00) |
+ 						  ((offset & 0x0700) << 4) |
+						  (offset & 0x00ff)),
+					doc + 2);
+#elif defined(MY_DEF_HERE)
+				write_instr16((u16)((upper & 0xfbf0) |
+ 					    ((offset & 0xf000) >> 12) |
+					    ((offset & 0x0800) >> 1)),
+					loc);
+			write_instr16((u16)((lower & 0x8f00) |
+ 						  ((offset & 0x0700) << 4) |
+						  (offset & 0x00ff)),
+					loc + 2);
+#else
 			*(u16 *)loc = (u16)((upper & 0xfbf0) |
 					    ((offset & 0xf000) >> 12) |
 					    ((offset & 0x0800) >> 1));
 			*(u16 *)(loc + 2) = (u16)((lower & 0x8f00) |
 						  ((offset & 0x0700) << 4) |
 						  (offset & 0x00ff));
+#endif
 			break;
 #endif
 

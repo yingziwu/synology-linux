@@ -2833,7 +2833,6 @@ static ssize_t netxen_sysfs_write_mem(struct file *filp, struct kobject *kobj,
 	return size;
 }
 
-
 static struct bin_attribute bin_attr_crb = {
 	.attr = {.name = "crb", .mode = (S_IRUGO | S_IWUSR)},
 	.size = 0,
@@ -2847,7 +2846,6 @@ static struct bin_attribute bin_attr_mem = {
 	.read = netxen_sysfs_read_mem,
 	.write = netxen_sysfs_write_mem,
 };
-
 
 static void
 netxen_create_sysfs_entries(struct netxen_adapter *adapter)
@@ -2888,7 +2886,6 @@ netxen_create_diag_entries(struct netxen_adapter *adapter)
 	if (device_create_bin_file(dev, &bin_attr_mem))
 		dev_info(dev, "failed to create mem sysfs entry\n");
 }
-
 
 static void
 netxen_remove_diag_entries(struct netxen_adapter *adapter)

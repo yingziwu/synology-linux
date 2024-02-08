@@ -125,7 +125,7 @@ static int cap_inode_init_security(struct inode *inode, struct inode *dir,
 }
 
 static int cap_inode_create(struct inode *inode, struct dentry *dentry,
-			    int mask)
+			    umode_t mask)
 {
 	return 0;
 }
@@ -148,7 +148,7 @@ static int cap_inode_symlink(struct inode *inode, struct dentry *dentry,
 }
 
 static int cap_inode_mkdir(struct inode *inode, struct dentry *dentry,
-			   int mask)
+			   umode_t mask)
 {
 	return 0;
 }
@@ -159,7 +159,7 @@ static int cap_inode_rmdir(struct inode *inode, struct dentry *dentry)
 }
 
 static int cap_inode_mknod(struct inode *inode, struct dentry *dentry,
-			   int mode, dev_t dev)
+			   umode_t mode, dev_t dev)
 {
 	return 0;
 }
@@ -349,7 +349,7 @@ static int cap_file_receive(struct file *file)
 	return 0;
 }
 
-static int cap_dentry_open(struct file *file, const struct cred *cred)
+static int cap_file_open(struct file *file, const struct cred *cred)
 {
 	return 0;
 }
@@ -953,7 +953,7 @@ void __init security_fixup_ops(struct security_operations *ops)
 	set_to_cap_if_null(ops, file_set_fowner);
 	set_to_cap_if_null(ops, file_send_sigiotask);
 	set_to_cap_if_null(ops, file_receive);
-	set_to_cap_if_null(ops, dentry_open);
+	set_to_cap_if_null(ops, file_open);
 	set_to_cap_if_null(ops, task_create);
 	set_to_cap_if_null(ops, cred_alloc_blank);
 	set_to_cap_if_null(ops, cred_free);

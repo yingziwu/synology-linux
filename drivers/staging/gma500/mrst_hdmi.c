@@ -305,7 +305,6 @@ void mrst_crtc_hdmi_dpms(struct drm_crtc *crtc, int mode)
 	REG_WRITE(0x70400, 0x4000);
 }
 
-
 static void mrst_hdmi_dpms(struct drm_encoder *encoder, int mode)
 {
 	static int dpms_mode = -1;
@@ -698,7 +697,6 @@ void mrst_hdmi_setup(struct drm_device *dev)
 		dev_err(dev->dev, "failed to allocate memory\n");
 		goto out;
 	}
-
 
 	ret = pci_enable_device(pdev);
 	if (ret) {

@@ -89,7 +89,6 @@ static const struct usb_descriptor_header *otg_desc[] = {
 	NULL,
 };
 
-
 /* string IDs are assigned dynamically */
 
 #define STRING_MANUFACTURER_IDX		0
@@ -133,7 +132,6 @@ static int __init acm_ms_do_config(struct usb_configuration *c)
 		c->descriptors = otg_desc;
 		c->bmAttributes |= USB_CONFIG_ATT_WAKEUP;
 	}
-
 
 	status = acm_bind_config(c, 0);
 	if (status < 0)

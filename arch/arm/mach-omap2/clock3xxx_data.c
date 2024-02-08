@@ -1698,8 +1698,6 @@ static struct clk ssi_sst_fck_3430es2 = {
 	.recalc		= &omap_fixed_divisor_recalc,
 };
 
-
-
 /* CORE_L3_ICK based clocks */
 
 /*
@@ -2439,8 +2437,6 @@ static struct clk gpt1_ick = {
 	.clkdm_name	= "wkup_clkdm",
 	.recalc		= &followparent_recalc,
 };
-
-
 
 /* PER clock domain */
 
@@ -3489,7 +3485,6 @@ static struct omap_clk omap3xxx_clks[] = {
 	CLK("omap_timer.11",	"sys_ck",	&sys_ck,	CK_3XXX),
 	CLK("omap_timer.12",	"sys_ck",	&sys_ck,	CK_3XXX),
 };
-
 
 int __init omap3xxx_clk_init(void)
 {

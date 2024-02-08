@@ -19,7 +19,6 @@
 
 #include "u_ether.h"
 
-
 /*
  * This function is a "CDC Ethernet Networking Control Model" (CDC ECM)
  * Ethernet link.  The data transfer model is simple (packets sent and
@@ -36,7 +35,6 @@
  * interface.  This means that the set_alt() method has real work to do,
  * and also means that a get_alt() method is required.
  */
-
 
 enum ecm_notify_state {
 	ECM_NOTIFY_NONE,		/* don't notify */
@@ -93,7 +91,6 @@ static inline unsigned ecm_bitrate(struct usb_gadget *g)
 
 #define LOG2_STATUS_INTERVAL_MSEC	5	/* 1 << 5 == 32 msec */
 #define ECM_STATUS_BYTECOUNT		16	/* 8 byte header + data */
-
 
 /* interface descriptor: */
 
@@ -508,7 +505,6 @@ invalid:
 	/* device either stalls (value < 0) or reports success */
 	return value;
 }
-
 
 static int ecm_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 {

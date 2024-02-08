@@ -183,7 +183,6 @@ void fsl_pq_mdio_bus_name(char *name, struct device_node *np)
 }
 EXPORT_SYMBOL_GPL(fsl_pq_mdio_bus_name);
 
-
 static u32 __iomem *get_gfar_tbipa(struct fsl_pq_mdio __iomem *regs, struct device_node *np)
 {
 #if defined(CONFIG_GIANFAR) || defined(CONFIG_GIANFAR_MODULE)
@@ -206,7 +205,6 @@ static u32 __iomem *get_gfar_tbipa(struct fsl_pq_mdio __iomem *regs, struct devi
 #endif
 	return NULL;
 }
-
 
 static int get_ucc_id_for_range(u64 start, u64 end, u32 *ucc_id)
 {
@@ -384,7 +382,6 @@ err_free_priv:
 	kfree(priv);
 	return err;
 }
-
 
 static int fsl_pq_mdio_remove(struct platform_device *ofdev)
 {

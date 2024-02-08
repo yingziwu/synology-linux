@@ -1067,7 +1067,6 @@ void evergreen_pcie_gart_fini(struct radeon_device *rdev)
 	radeon_gart_fini(rdev);
 }
 
-
 void evergreen_agp_enable(struct radeon_device *rdev)
 {
 	u32 tmp;
@@ -1279,7 +1278,6 @@ void evergreen_ring_ib_execute(struct radeon_device *rdev, struct radeon_ib *ib)
 	radeon_ring_write(rdev, upper_32_bits(ib->gpu_addr) & 0xFF);
 	radeon_ring_write(rdev, ib->length_dw);
 }
-
 
 static int evergreen_cp_load_microcode(struct radeon_device *rdev)
 {
@@ -1868,7 +1866,6 @@ static void evergreen_gpu_init(struct radeon_device *rdev)
 		BACKEND_DISABLE((EVERGREEN_MAX_BACKENDS_MASK << rdev->config.evergreen.max_backends)
 				& EVERGREEN_MAX_BACKENDS_MASK);
 
-
 	mc_shared_chmap = RREG32(MC_SHARED_CHMAP);
 	if (rdev->flags & RADEON_IS_IGP)
 		mc_arb_ramcfg = RREG32(FUS_MC_ARB_RAMCFG);
@@ -2099,7 +2096,6 @@ static void evergreen_gpu_init(struct radeon_device *rdev)
 	sx_debug_1 = RREG32(SX_DEBUG_1);
 	sx_debug_1 |= ENABLE_NEW_SMX_ADDRESS;
 	WREG32(SX_DEBUG_1, sx_debug_1);
-
 
 	smx_dc_ctl0 = RREG32(SMX_DC_CTL0);
 	smx_dc_ctl0 &= ~NUMBER_OF_SETS(0x1ff);

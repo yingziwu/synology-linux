@@ -411,7 +411,6 @@ error_free:
 	return ret;
 }
 
-
 static int __devexit ad5064_remove(struct spi_device *spi)
 {
 	struct iio_dev *indio_dev = spi_get_drvdata(spi);

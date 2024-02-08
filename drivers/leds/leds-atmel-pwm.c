@@ -6,7 +6,6 @@
 #include <linux/slab.h>
 #include <linux/module.h>
 
-
 struct pwmled {
 	struct led_classdev	cdev;
 	struct pwm_channel	pwmc;
@@ -14,7 +13,6 @@ struct pwmled {
 	u32			mult;
 	u8			active_low;
 };
-
 
 /*
  * For simplicity, we use "brightness" as if it were a linear function

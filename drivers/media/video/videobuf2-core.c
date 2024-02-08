@@ -1426,7 +1426,6 @@ int vb2_streamon(struct vb2_queue *q, enum v4l2_buf_type type)
 }
 EXPORT_SYMBOL_GPL(vb2_streamon);
 
-
 /**
  * vb2_streamoff - stop streaming
  * @q:		videobuf2 queue

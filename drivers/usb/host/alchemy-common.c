@@ -52,9 +52,7 @@
 				 USBCFG_EBE | USBCFG_EME | USBCFG_OBE |	       \
 				 USBCFG_OME)
 
-
 static DEFINE_SPINLOCK(alchemy_usb_lock);
-
 
 static inline void __au1200_ohci_control(void __iomem *base, int enable)
 {
@@ -143,7 +141,6 @@ out:
 	return ret;
 }
 
-
 /* initialize USB block(s) to a known working state */
 static inline void au1200_usb_init(void)
 {
@@ -168,7 +165,6 @@ static inline void au1000_usb_init(unsigned long rb, int reg)
 	wmb();
 	udelay(1000);
 }
-
 
 static inline void __au1xx0_ohci_control(int enable, unsigned long rb, int creg)
 {
@@ -240,7 +236,6 @@ int alchemy_usb_control(int block, int enable)
 	return ret;
 }
 EXPORT_SYMBOL_GPL(alchemy_usb_control);
-
 
 static unsigned long alchemy_usb_pmdata[2];
 

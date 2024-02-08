@@ -691,7 +691,6 @@ static int do_exit(void)
 	return 0;
 }
 
-
 static void search_conf(void)
 {
 	struct symbol **sym_arr;
@@ -727,7 +726,6 @@ again:
 			_("Search Results"), str_get(&res));
 	str_free(&res);
 }
-
 
 static void build_conf(struct menu *menu)
 {
@@ -1543,4 +1541,3 @@ int main(int ac, char **av)
 	endwin();
 	return 0;
 }
-

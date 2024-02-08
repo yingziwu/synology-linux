@@ -56,7 +56,6 @@ static void ipc_memory_notifier(struct work_struct *work)
 
 static DECLARE_WORK(ipc_memory_wq, ipc_memory_notifier);
 
-
 static int ipc_memory_callback(struct notifier_block *self,
 				unsigned long action, void *arg)
 {
@@ -411,7 +410,6 @@ retry:
 	return err;
 }
 
-
 /**
  *	ipc_rmid	-	remove an IPC identifier
  *	@ids: IPC identifier set
@@ -485,7 +483,6 @@ struct ipc_rcu_hdr
 	int is_vmalloc;
 	void *data[0];
 };
-
 
 struct ipc_rcu_grace
 {
@@ -639,7 +636,6 @@ int ipcperms(struct ipc_namespace *ns, struct kern_ipc_perm *ipcp, short flag)
  *	for returning to userspace (@out).
  */
  
-
 void kernel_to_ipc64_perm (struct kern_ipc_perm *in, struct ipc64_perm *out)
 {
 	out->key	= in->key;
@@ -805,7 +801,6 @@ out_up:
 }
 
 #ifdef __ARCH_WANT_IPC_PARSE_VERSION
-
 
 /**
  *	ipc_parse_version	-	IPC call version

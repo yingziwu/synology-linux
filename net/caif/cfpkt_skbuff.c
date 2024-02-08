@@ -63,7 +63,6 @@ static inline struct cfpkt *skb_to_pkt(struct sk_buff *skb)
 	return (struct cfpkt *) skb;
 }
 
-
 struct cfpkt *cfpkt_fromnative(enum caif_direction dir, void *nativepkt)
 {
 	struct cfpkt *pkt = skb_to_pkt(nativepkt);
@@ -105,13 +104,11 @@ void cfpkt_destroy(struct cfpkt *pkt)
 	kfree_skb(skb);
 }
 
-
 inline bool cfpkt_more(struct cfpkt *pkt)
 {
 	struct sk_buff *skb = pkt_to_skb(pkt);
 	return skb->len > 0;
 }
-
 
 int cfpkt_peek_head(struct cfpkt *pkt, void *data, u16 len)
 {
@@ -170,12 +167,10 @@ int cfpkt_extr_trail(struct cfpkt *pkt, void *dta, u16 len)
 	return 0;
 }
 
-
 int cfpkt_pad_trail(struct cfpkt *pkt, u16 len)
 {
 	return cfpkt_add_body(pkt, NULL, len);
 }
-
 
 int cfpkt_add_body(struct cfpkt *pkt, const void *data, u16 len)
 {
@@ -183,7 +178,6 @@ int cfpkt_add_body(struct cfpkt *pkt, const void *data, u16 len)
 	struct sk_buff *lastskb;
 	u8 *to;
 	u16 addlen = 0;
-
 
 	if (unlikely(is_erronous(pkt)))
 		return -EPROTO;
@@ -256,19 +250,16 @@ int cfpkt_add_head(struct cfpkt *pkt, const void *data2, u16 len)
 	return 0;
 }
 
-
 inline int cfpkt_add_trail(struct cfpkt *pkt, const void *data, u16 len)
 {
 	return cfpkt_add_body(pkt, data, len);
 }
-
 
 inline u16 cfpkt_getlen(struct cfpkt *pkt)
 {
 	struct sk_buff *skb = pkt_to_skb(pkt);
 	return skb->len;
 }
-
 
 inline u16 cfpkt_iterate(struct cfpkt *pkt,
 			    u16 (*iter_func)(u16, void *, u16),
@@ -287,11 +278,9 @@ inline u16 cfpkt_iterate(struct cfpkt *pkt,
 	return iter_func(data, pkt->skb.data, cfpkt_getlen(pkt));
 }
 
-
 int cfpkt_setlen(struct cfpkt *pkt, u16 len)
 {
 	struct sk_buff *skb = pkt_to_skb(pkt);
-
 
 	if (unlikely(is_erronous(pkt)))
 		return -EPROTO;
@@ -375,7 +364,6 @@ struct cfpkt *cfpkt_split(struct cfpkt *pkt, u16 pos)
 	if (tmppkt == NULL)
 		return NULL;
 	skb2 = pkt_to_skb(tmppkt);
-
 
 	if (skb2 == NULL)
 		return NULL;

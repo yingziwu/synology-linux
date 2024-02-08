@@ -1,13 +1,7 @@
-/*
- *  linux/arch/arm/kernel/smp_scu.c
- *
- *  Copyright (C) 2002 ARM Ltd.
- *  All Rights Reserved
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/init.h>
 #include <linux/io.h>
 
@@ -22,55 +16,66 @@
 #define SCU_FPGA_REVISION	0x10
 
 #ifdef CONFIG_SMP
-/*
- * Get the number of CPU cores from the SCU configuration
- */
+ 
 unsigned int __init scu_get_core_count(void __iomem *scu_base)
 {
+#if defined(MY_DEF_HERE)
+	unsigned int ncores = readl_relaxed(scu_base + SCU_CONFIG);
+#else
 	unsigned int ncores = __raw_readl(scu_base + SCU_CONFIG);
+#endif
 	return (ncores & 0x03) + 1;
 }
+#endif
 
-/*
- * Enable the SCU
- */
+#if defined(CONFIG_SMP) || defined(MY_DEF_HERE) 
+ 
 void scu_enable(void __iomem *scu_base)
 {
 	u32 scu_ctrl;
 
 #ifdef CONFIG_ARM_ERRATA_764369
-	/* Cortex-A9 only */
+	 
 	if ((read_cpuid(CPUID_ID) & 0xff0ffff0) == 0x410fc090) {
+#if defined(MY_DEF_HERE)
+		scu_ctrl = readl_relaxed(scu_base + 0x30);
+#else
 		scu_ctrl = __raw_readl(scu_base + 0x30);
+#endif
 		if (!(scu_ctrl & 1))
+#if defined(MY_DEF_HERE)
+			writel_relaxed(scu_ctrl | 0x1, scu_base + 0x30);
+#else
 			__raw_writel(scu_ctrl | 0x1, scu_base + 0x30);
+#endif
 	}
 #endif
 
+#if defined(MY_DEF_HERE)
+	scu_ctrl = readl_relaxed(scu_base + SCU_CTRL);
+#else
 	scu_ctrl = __raw_readl(scu_base + SCU_CTRL);
-	/* already enabled? */
+#endif
+	 
 	if (scu_ctrl & 1)
 		return;
 
-	scu_ctrl |= 1;
-	__raw_writel(scu_ctrl, scu_base + SCU_CTRL);
+#if (defined(MY_ABC_HERE) && defined(CONFIG_SCU_SPECULATIVE_LINE_FILLS)) || \
+     (defined(MY_DEF_HERE) && defined(CONFIG_SCU_SPECULATIVE_LINEFILLS_ENABLE))
+	scu_ctrl |= (1 << 3);
+#endif
 
-	/*
-	 * Ensure that the data accessed by CPU0 before the SCU was
-	 * initialised is visible to the other CPUs.
-	 */
+	scu_ctrl |= 1;
+#if defined(MY_DEF_HERE)
+	writel_relaxed(scu_ctrl, scu_base + SCU_CTRL);
+#else
+	__raw_writel(scu_ctrl, scu_base + SCU_CTRL);
+#endif
+
 	flush_cache_all();
 }
 #endif
 
-/*
- * Set the executing CPUs power mode as defined.  This will be in
- * preparation for it executing a WFI instruction.
- *
- * This function must be called with preemption disabled, and as it
- * has the side effect of disabling coherency, caches must have been
- * flushed.  Interrupts must also have been disabled.
- */
 int scu_power_mode(void __iomem *scu_base, unsigned int mode)
 {
 	unsigned int val;

@@ -391,7 +391,6 @@ out:
 	return ret;
 }
 
-
 int recv_icmp_packet(struct sk_buff *skb, struct hard_iface *recv_if)
 {
 	struct bat_priv *bat_priv = netdev_priv(recv_if->soft_iface);
@@ -998,7 +997,6 @@ int recv_ucast_frag_packet(struct sk_buff *skb, struct hard_iface *recv_if)
 
 	return route_unicast_packet(skb, recv_if);
 }
-
 
 int recv_bcast_packet(struct sk_buff *skb, struct hard_iface *recv_if)
 {

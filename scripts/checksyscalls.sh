@@ -194,11 +194,19 @@ cat << EOF
 #define __IGNORE_getpmsg
 #define __IGNORE_putpmsg
 #define __IGNORE_vserver
+
+/* SYNOStat and SYNOCaselessStat for 32bit application version*/
+#define __IGNORE_SYNOStat64
+#define __IGNORE_SYNOFStat64
+#define __IGNORE_SYNOLStat64
+#define __IGNORE_SYNOCaselessStat64
+#define __IGNORE_SYNOCaselessLStat64
+
 EOF
 }
 
 syscall_list() {
-sed -n -e '/^\#define/ s/[^_]*__NR_\([^[:space:]]*\).*/\
+sed -n -e '/^\#define __NR_/ s/[^_]*__NR_\([^[:space:]]*\).*/\
 \#if !defined \(__NR_\1\) \&\& !defined \(__IGNORE_\1\)\
 \#warning syscall \1 not implemented\
 \#endif/p' $1

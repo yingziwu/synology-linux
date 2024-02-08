@@ -23,7 +23,6 @@
 #include "ics.h"
 #include "wsp.h"
 
-
 static void psr2_spin(void)
 {
 	hard_irq_disable();

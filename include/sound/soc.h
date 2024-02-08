@@ -185,7 +185,6 @@
 		 .rreg = xreg_right, .shift = xshift, \
 		 .min = xmin, .max = xmax} }
 
-
 /*
  * Simplified versions of above macros, declaring a struct and calculating
  * ARRAY_SIZE internally

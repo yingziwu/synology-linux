@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/init.h>
 #include <linux/linkage.h>
 
@@ -108,11 +111,22 @@
 	movs	pc, lr				@ return & move spsr_svc into cpsr
 	.endm
 
+#if !defined(MY_ABC_HERE) || !defined(CONFIG_COMCERTO_64K_PAGES)
 	.macro	get_thread_info, rd
+#ifdef MY_DEF_HERE
+	mov	\rd, sp, lsr #(PAGE_SHIFT + THREAD_SIZE_ORDER)
+	mov	\rd, \rd, lsl #(PAGE_SHIFT + THREAD_SIZE_ORDER)
+#else
 	mov	\rd, sp, lsr #13
 	mov	\rd, \rd, lsl #13
+#endif
 	.endm
-
+#else
+	.macro	get_thread_info, rd
+	mov	\rd, sp, lsr #16
+	mov	\rd, \rd, lsl #16
+	.endm
+#endif
 	@
 	@ 32-bit wide "mov pc, reg"
 	@
@@ -148,11 +162,18 @@
 	movs	pc, lr				@ return & move spsr_svc into cpsr
 	.endm
 
+#if !defined(MY_ABC_HERE) || !defined(CONFIG_COMCERTO_64K_PAGES)
 	.macro	get_thread_info, rd
 	mov	\rd, sp
 	lsr	\rd, \rd, #13
 	mov	\rd, \rd, lsl #13
 	.endm
+#else
+	.macro	get_thread_info, rd
+	mov	\rd, sp, lsr #16
+	mov	\rd, \rd, lsl #16
+	.endm
+#endif
 
 	@
 	@ 32-bit wide "mov pc, reg"

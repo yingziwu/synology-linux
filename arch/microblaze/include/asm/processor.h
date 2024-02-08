@@ -125,7 +125,6 @@ struct thread_struct {
 	.pgdir = swapper_pg_dir, \
 }
 
-
 /* Free all resources held by a thread. */
 extern inline void release_thread(struct task_struct *dead_task)
 {

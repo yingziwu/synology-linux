@@ -412,7 +412,6 @@ static int init_pmd(struct dm_pool_metadata *pmd,
 		}
 	}
 
-
 	r = dm_tm_unlock(tm, sblock);
 	if (r < 0) {
 		DMERR("couldn't unlock superblock");
@@ -688,7 +687,6 @@ struct dm_pool_metadata *dm_pool_metadata_open(struct block_device *bdev,
 		kfree(pmd);
 		return ERR_PTR(r);
 	}
-
 
 	r = init_pmd(pmd, bm, 0, create);
 	if (r) {

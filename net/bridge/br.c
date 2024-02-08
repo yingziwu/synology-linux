@@ -1,16 +1,7 @@
-/*
- *	Generic parts
- *	Linux ethernet bridge
- *
- *	Authors:
- *	Lennert Buytenhek		<buytenh@gnu.org>
- *
- *	This program is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU General Public License
- *	as published by the Free Software Foundation; either version
- *	2 of the License, or (at your option) any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
@@ -90,7 +81,7 @@ static void __exit br_deinit(void)
 
 	unregister_pernet_subsys(&br_net_ops);
 
-	rcu_barrier(); /* Wait for completion of call_rcu()'s */
+	rcu_barrier();  
 
 	br_netfilter_fini();
 #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
@@ -99,6 +90,32 @@ static void __exit br_deinit(void)
 
 	br_fdb_fini();
 }
+
+#if defined(MY_ABC_HERE) && defined(CONFIG_ARCH_COMCERTO)
+static ATOMIC_NOTIFIER_HEAD(brevent_notif_chain);
+
+int register_brevent_notifier(struct notifier_block *nb)
+{
+	int err;
+
+	err = atomic_notifier_chain_register(&brevent_notif_chain, nb);
+	return err;
+}
+
+int unregister_brevent_notifier(struct notifier_block *nb)
+{
+	return atomic_notifier_chain_unregister(&brevent_notif_chain, nb);
+}
+
+int call_brevent_notifiers(unsigned long val, void *v)
+{
+	return atomic_notifier_call_chain(&brevent_notif_chain, val, v);
+}
+
+EXPORT_SYMBOL_GPL(register_brevent_notifier);
+EXPORT_SYMBOL_GPL(unregister_brevent_notifier);
+EXPORT_SYMBOL_GPL(call_brevent_notifiers);
+#endif
 
 module_init(br_init)
 module_exit(br_deinit)

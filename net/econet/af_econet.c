@@ -838,7 +838,6 @@ static void aun_send_response(__u32 addr, unsigned long seq, int code, int cb)
 	kernel_sendmsg(udpsock, &udpmsg, &iov, 1, sizeof(ah));
 }
 
-
 /*
  *	Handle incoming AUN packets.  Work out if anybody wants them,
  *	and send positive or negative acknowledgements as appropriate.

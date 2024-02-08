@@ -906,12 +906,12 @@ long ocfs2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		if (get_user(flags, (int __user *) arg))
 			return -EFAULT;
 
-		status = mnt_want_write(filp->f_path.mnt);
+		status = mnt_want_write_file(filp);
 		if (status)
 			return status;
 		status = ocfs2_set_inode_attr(inode, flags,
 			OCFS2_FL_MODIFIABLE);
-		mnt_drop_write(filp->f_path.mnt);
+		mnt_drop_write_file(filp);
 		return status;
 	case OCFS2_IOC_RESVSP:
 	case OCFS2_IOC_RESVSP64:
@@ -928,7 +928,12 @@ long ocfs2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		if (get_user(new_clusters, (int __user *)arg))
 			return -EFAULT;
 
-		return ocfs2_group_extend(inode, new_clusters);
+		status = mnt_want_write_file(filp);
+		if (status)
+			return status;
+		status = ocfs2_group_extend(inode, new_clusters);
+		mnt_drop_write_file(filp);
+		return status;
 	case OCFS2_IOC_GROUP_ADD:
 	case OCFS2_IOC_GROUP_ADD64:
 		if (!capable(CAP_SYS_RESOURCE))
@@ -937,7 +942,12 @@ long ocfs2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		if (copy_from_user(&input, (int __user *) arg, sizeof(input)))
 			return -EFAULT;
 
-		return ocfs2_group_add(inode, &input);
+		status = mnt_want_write_file(filp);
+		if (status)
+			return status;
+		status = ocfs2_group_add(inode, &input);
+		mnt_drop_write_file(filp);
+		return status;
 	case OCFS2_IOC_REFLINK:
 		if (copy_from_user(&args, (struct reflink_arguments *)arg,
 				   sizeof(args)))

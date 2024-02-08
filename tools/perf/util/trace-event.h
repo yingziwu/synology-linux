@@ -7,7 +7,6 @@
 
 #define __unused __attribute__((unused))
 
-
 #ifndef PAGE_MASK
 #define PAGE_MASK (page_size - 1)
 #endif
@@ -274,7 +273,6 @@ struct tracing_data {
 struct tracing_data *tracing_data_get(struct list_head *pattrs,
 				      int fd, bool temp);
 void tracing_data_put(struct tracing_data *tdata);
-
 
 /* taken from kernel/trace/trace.h */
 enum trace_flag_type {

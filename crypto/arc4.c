@@ -89,7 +89,6 @@ static int __init arc4_init(void)
 	return crypto_register_alg(&arc4_alg);
 }
 
-
 static void __exit arc4_exit(void)
 {
 	crypto_unregister_alg(&arc4_alg);
@@ -101,3 +100,4 @@ module_exit(arc4_exit);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("ARC4 Cipher Algorithm");
 MODULE_AUTHOR("Jon Oberheide <jon@oberheide.org>");
+MODULE_ALIAS_CRYPTO("arc4");

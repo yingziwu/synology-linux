@@ -234,7 +234,6 @@ static inline int sound_set_format(int format)
 	return dmasound.mach.setFormat(format);
 }
 
-
 static int sound_set_speed(int speed)
 {
 	if (speed < 0)
@@ -403,7 +402,6 @@ static void mixer_init(void)
 	    dmasound.mach.mixer_init();
 }
 
-
     /*
      *  Sound queue stuff, the heart of the driver
      */
@@ -446,7 +444,6 @@ static void sq_release_buffers(struct sound_queue *sq)
 		sq->buffers = NULL;
 	}
 }
-
 
 static int sq_setup(struct sound_queue *sq)
 {
@@ -1189,7 +1186,6 @@ static int sq_init(void)
 	return 0 ;
 }
 
-
     /*
      *  /dev/sndstat
      */
@@ -1376,7 +1372,6 @@ static int state_init(void)
 	state.busy = 0;
 	return 0 ;
 }
-
 
     /*
      *  Config & Setup

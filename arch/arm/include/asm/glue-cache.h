@@ -1,21 +1,12 @@
-/*
- *  arch/arm/include/asm/glue-cache.h
- *
- *  Copyright (C) 1999-2002 Russell King
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef ASM_GLUE_CACHE_H
 #define ASM_GLUE_CACHE_H
 
 #include <asm/glue.h>
 
-/*
- *	Cache Model
- *	===========
- */
 #undef _CACHE
 #undef MULTI_CACHE
 
@@ -110,19 +101,15 @@
 #endif
 
 #if defined(CONFIG_CPU_V6) || defined(CONFIG_CPU_V6K)
-//# ifdef _CACHE
+ 
 #  define MULTI_CACHE 1
-//# else
-//#  define _CACHE v6
-//# endif
+ 
 #endif
 
 #if defined(CONFIG_CPU_V7)
-//# ifdef _CACHE
+ 
 #  define MULTI_CACHE 1
-//# else
-//#  define _CACHE v7
-//# endif
+ 
 #endif
 
 #if !defined(_CACHE) && !defined(MULTI_CACHE)
@@ -132,6 +119,9 @@
 #ifndef MULTI_CACHE
 #define __cpuc_flush_icache_all		__glue(_CACHE,_flush_icache_all)
 #define __cpuc_flush_kern_all		__glue(_CACHE,_flush_kern_cache_all)
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+#define __cpuc_flush_kern_louis		__glue(_CACHE,_flush_kern_cache_louis)
+#endif
 #define __cpuc_flush_user_all		__glue(_CACHE,_flush_user_cache_all)
 #define __cpuc_flush_user_range		__glue(_CACHE,_flush_user_cache_range)
 #define __cpuc_coherent_kern_range	__glue(_CACHE,_coherent_kern_range)

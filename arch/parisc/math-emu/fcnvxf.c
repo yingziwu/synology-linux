@@ -22,7 +22,7 @@
  * BEGIN_DESC
  *
  *  File:
- *	@(#)	pa/spmath/fcnvxf.c		$Revision: 1.1 $
+ *	@(#)	pa/spmath/fcnvxf.c		$Revision: 1.1.1.1 $
  *
  *  Purpose:
  *	Single Fixed-point to Single Floating-point
@@ -43,7 +43,6 @@
  *
  * END_DESC
 */
-
 
 #include "float.h"
 #include "sgl_float.h"

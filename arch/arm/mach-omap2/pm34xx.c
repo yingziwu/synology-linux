@@ -599,7 +599,6 @@ static const struct platform_suspend_ops omap_pm_ops = {
 };
 #endif /* CONFIG_SUSPEND */
 
-
 /**
  * omap3_iva_idle(): ensure IVA is in idle so it can be put into
  *                   retention

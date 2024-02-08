@@ -18,7 +18,6 @@
 #define MCFSLT_TIMER0		0x900	/* Base address of TIMER0 */
 #define MCFSLT_TIMER1		0x910	/* Base address of TIMER1 */
 
-
 /*
  *	Define the SLT timer register set addresses.
  */

@@ -264,7 +264,6 @@ static inline struct fd_request *FILE_REQ(struct se_task *task)
 	return container_of(task, struct fd_request, fd_task);
 }
 
-
 static struct se_task *
 fd_alloc_task(unsigned char *cdb)
 {

@@ -103,5 +103,4 @@
 /* Clocks */
 #define AT91_SLOW_CLOCK		32768		/* slow clock */
 
-
 #endif

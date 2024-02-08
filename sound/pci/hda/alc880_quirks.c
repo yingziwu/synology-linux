@@ -169,7 +169,6 @@ static const struct hda_channel_mode alc880_fivestack_modes[2] = {
 	{ 8, alc880_fivestack_ch8_init },
 };
 
-
 /*
  * ALC880 6-stack model
  *
@@ -228,7 +227,6 @@ static const struct snd_kcontrol_new alc880_six_stack_mixer[] = {
 	{ } /* end */
 };
 
-
 /*
  * ALC880 W810 model
  *
@@ -278,7 +276,6 @@ static const struct snd_kcontrol_new alc880_w810_base_mixer[] = {
 	{ } /* end */
 };
 
-
 /*
  * Z710V model
  *
@@ -308,7 +305,6 @@ static const struct snd_kcontrol_new alc880_z71v_mixer[] = {
 	HDA_CODEC_MUTE("Mic Playback Switch", 0x0b, 0x0, HDA_INPUT),
 	{ } /* end */
 };
-
 
 /*
  * ALC880 F1734 model
@@ -341,7 +337,6 @@ static const struct hda_input_mux alc880_f1734_capture_source = {
 		{ "CD", 0x4 },
 	},
 };
-
 
 /*
  * ALC880 ASUS model
@@ -1890,4 +1885,3 @@ static const struct alc_config_preset alc880_presets[] = {
 	},
 #endif
 };
-

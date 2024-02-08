@@ -762,6 +762,13 @@ config RTC_DRV_S3C
 	  This driver can also be build as a module. If so, the module
 	  will be called rtc-s3c.
 
+config RTC_DRV_C2K
+	tristate "Mindspeed C2000 SoC RTC"
+	depends on ARCH_M86XXX && SYNO_COMCERTO
+	default y
+	help
+		Comcerto C2000 RTC (Realtime Clock) driver.
+
 config RTC_DRV_EP93XX
 	tristate "Cirrus Logic EP93XX"
 	depends on ARCH_EP93XX
@@ -950,7 +957,7 @@ config RTC_DRV_TX4939
 
 config RTC_DRV_MV
 	tristate "Marvell SoC RTC"
-	depends on ARCH_KIRKWOOD || ARCH_DOVE
+	depends on ARCH_KIRKWOOD || ARCH_DOVE || ARCH_ARMADA_XP || ARCH_ARMADA370 || ARCH_ARMADA375 || ARCH_ARMADA38X
 	help
 	  If you say yes here you will get support for the in-chip RTC
 	  that can be found in some of Marvell's SoC devices, such as

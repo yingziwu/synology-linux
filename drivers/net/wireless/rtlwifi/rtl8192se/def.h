@@ -564,4 +564,3 @@ struct phy_sts_cck_8192s_t {
 };
 
 #endif
-

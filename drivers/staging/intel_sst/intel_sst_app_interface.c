@@ -49,7 +49,6 @@
 #define AM_MODULE 1
 #define STREAM_MODULE 0
 
-
 /**
 * intel_sst_check_device - checks SST device
 *
@@ -470,7 +469,6 @@ static int snd_sst_fill_kernel_list(struct stream_info *stream,
 		if ((copied_size + size) > mmap_len)
 			size = mmap_len - copied_size;
 
-
 		if (stream->ops == STREAM_OPS_PLAYBACK) {
 			if (copy_from_user((void *)
 					(stream_bufs->addr + copied_size),
@@ -582,7 +580,6 @@ static int snd_sst_userbufs_play_cap(const struct iovec *iovec,
 {
 	int retval;
 	LIST_HEAD(copy_to_list);
-
 
 	retval = snd_sst_fill_kernel_list(stream, iovec, nr_segs,
 		       &copy_to_list);
@@ -962,7 +959,6 @@ free_mem:
 	}
 	return retval;
 }
-
 
 int sst_ioctl_tuning_params(unsigned long arg)
 {
@@ -1457,4 +1453,3 @@ free_iobufs:
 	pr_debug("intel_sst_ioctl:complete ret code = %d\n", retval);
 	return retval;
 }
-

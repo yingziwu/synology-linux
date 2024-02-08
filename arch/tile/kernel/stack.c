@@ -411,7 +411,6 @@ void tile_show_stack(struct KBacktraceIterator *kbt, int headers)
 }
 EXPORT_SYMBOL(tile_show_stack);
 
-
 /* This is called from show_regs() and _dump_stack() */
 void dump_stack_regs(struct pt_regs *regs)
 {

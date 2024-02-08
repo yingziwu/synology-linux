@@ -74,7 +74,6 @@ void jz4740_dma_free(struct jz4740_dma_chan *dma);
 void jz4740_dma_configure(struct jz4740_dma_chan *dma,
 	const struct jz4740_dma_config *config);
 
-
 void jz4740_dma_enable(struct jz4740_dma_chan *dma);
 void jz4740_dma_disable(struct jz4740_dma_chan *dma);
 

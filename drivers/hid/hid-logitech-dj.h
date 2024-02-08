@@ -60,7 +60,6 @@
 /* Device Un-Paired Notification */
 #define REPORT_TYPE_NOTIF_DEVICE_UNPAIRED	0x40
 
-
 /* Connection Status Notification */
 #define REPORT_TYPE_NOTIF_CONNECTION_STATUS	0x42
 #define CONNECTION_STATUS_PARAM_STATUS		0x00

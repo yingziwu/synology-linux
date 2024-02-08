@@ -32,7 +32,6 @@
 #define PCMCIA_S0_RDYINT	IRQ_GPIO(GPIO_PCMCIA_S0_RDYINT)
 #define PCMCIA_S1_RDYINT	IRQ_GPIO(GPIO_PCMCIA_S1_RDYINT)
 
-
 static struct pcmcia_irqs irqs[] = {
 	{ 0, PCMCIA_S0_CD_VALID, "PCMCIA0 CD" },
 	{ 1, PCMCIA_S1_CD_VALID, "PCMCIA1 CD" },
@@ -59,7 +58,6 @@ static void cmx255_pcmcia_shutdown(struct soc_pcmcia_socket *skt)
 	gpio_free(GPIO_PCMCIA_RESET);
 }
 
-
 static void cmx255_pcmcia_socket_state(struct soc_pcmcia_socket *skt,
 				       struct pcmcia_state *state)
 {
@@ -74,7 +72,6 @@ static void cmx255_pcmcia_socket_state(struct soc_pcmcia_socket *skt,
 	state->vs_Xv  = 0;
 	state->wrprot = 0;  /* not available */
 }
-
 
 static int cmx255_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
 					  const socket_state_t *state)

@@ -761,7 +761,6 @@ int of_property_read_string_index(struct device_node *np, const char *propname,
 }
 EXPORT_SYMBOL_GPL(of_property_read_string_index);
 
-
 /**
  * of_property_count_strings - Find and return the number of strings from a
  * multiple strings property.

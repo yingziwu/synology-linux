@@ -9,7 +9,6 @@
  *
  */
 
-
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/usb.h>
@@ -229,7 +228,6 @@ show_urbnum(struct device *dev, struct device_attribute *attr, char *buf)
 	return sprintf(buf, "%d\n", atomic_read(&udev->urbnum));
 }
 static DEVICE_ATTR(urbnum, S_IRUGO, show_urbnum, NULL);
-
 
 #ifdef	CONFIG_PM
 
@@ -502,7 +500,6 @@ static void remove_power_attributes(struct device *dev)
 
 #endif	/* CONFIG_USB_SUSPEND */
 
-
 /* Descriptor fields */
 #define usb_descriptor_attr_le16(field, format_string)			\
 static ssize_t								\
@@ -539,8 +536,6 @@ usb_descriptor_attr(bDeviceProtocol, "%02x\n")
 usb_descriptor_attr(bNumConfigurations, "%d\n")
 usb_descriptor_attr(bMaxPacketSize0, "%d\n")
 
-
-
 /* show if the device is authorized (1) or not (0) */
 static ssize_t usb_dev_authorized_show(struct device *dev,
 				       struct device_attribute *attr,
@@ -549,7 +544,6 @@ static ssize_t usb_dev_authorized_show(struct device *dev,
 	struct usb_device *usb_dev = to_usb_device(dev);
 	return snprintf(buf, PAGE_SIZE, "%u\n", usb_dev->authorized);
 }
-
 
 /*
  * Authorize a device to be used in the system
@@ -597,7 +591,6 @@ static ssize_t usb_remove_store(struct device *dev,
 	return rc;
 }
 static DEVICE_ATTR(remove, 0200, NULL, usb_remove_store);
-
 
 static struct attribute *dev_attrs[] = {
 	/* current configuration's attributes */
@@ -817,7 +810,7 @@ static ssize_t show_modalias(struct device *dev,
 	alt = intf->cur_altsetting;
 
 	return sprintf(buf, "usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02X"
-			"ic%02Xisc%02Xip%02X\n",
+			"ic%02Xisc%02Xip%02Xin%02X\n",
 			le16_to_cpu(udev->descriptor.idVendor),
 			le16_to_cpu(udev->descriptor.idProduct),
 			le16_to_cpu(udev->descriptor.bcdDevice),
@@ -826,7 +819,8 @@ static ssize_t show_modalias(struct device *dev,
 			udev->descriptor.bDeviceProtocol,
 			alt->desc.bInterfaceClass,
 			alt->desc.bInterfaceSubClass,
-			alt->desc.bInterfaceProtocol);
+			alt->desc.bInterfaceProtocol,
+			alt->desc.bInterfaceNumber);
 }
 static DEVICE_ATTR(modalias, S_IRUGO, show_modalias, NULL);
 

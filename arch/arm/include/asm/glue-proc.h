@@ -1,27 +1,14 @@
-/*
- *  arch/arm/include/asm/glue-proc.h
- *
- *  Copyright (C) 1997-1999 Russell King
- *  Copyright (C) 2000 Deep Blue Solutions Ltd
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef ASM_GLUE_PROC_H
 #define ASM_GLUE_PROC_H
 
 #include <asm/glue.h>
 
-/*
- * Work out if we need multiple CPU support
- */
 #undef MULTI_CPU
 #undef CPU_NAME
-
-/*
- * CPU_NAME - the prefix for CPU related functions
- */
 
 #ifdef CONFIG_CPU_ARM610
 # ifdef CPU_NAME
@@ -248,6 +235,26 @@
 # endif
 #endif
 
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
+#ifdef CONFIG_CPU_SHEEVA_PJ4B_V6
+# ifdef CPU_NAME
+#  undef  MULTI_CPU
+#  define MULTI_CPU
+# else
+#  define CPU_NAME cpu_sheeva_pj4b_v6
+# endif
+#endif
+
+#ifdef CONFIG_CPU_SHEEVA_PJ4B_V7
+# ifdef CPU_NAME
+#  undef  MULTI_CPU
+#  define MULTI_CPU
+# else
+#  define CPU_NAME cpu_sheeva_pj4b_v7
+# endif
+#endif
+#endif
+
 #ifndef MULTI_CPU
 #define cpu_proc_init			__glue(CPU_NAME,_proc_init)
 #define cpu_proc_fin			__glue(CPU_NAME,_proc_fin)
@@ -256,6 +263,9 @@
 #define cpu_dcache_clean_area		__glue(CPU_NAME,_dcache_clean_area)
 #define cpu_do_switch_mm		__glue(CPU_NAME,_switch_mm)
 #define cpu_set_pte_ext			__glue(CPU_NAME,_set_pte_ext)
+#if defined(MY_ABC_HERE)
+#define cpu_uncache_pte_ext		__glue(CPU_NAME,_uncache_pte_ext)
+#endif
 #define cpu_suspend_size		__glue(CPU_NAME,_suspend_size)
 #define cpu_do_suspend			__glue(CPU_NAME,_do_suspend)
 #define cpu_do_resume			__glue(CPU_NAME,_do_resume)

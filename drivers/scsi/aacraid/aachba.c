@@ -226,7 +226,6 @@ MODULE_PARM_DESC(wwn, "Select a WWN type for the arrays:\n"
 	"\t1 - Array Meta Data Signature (default)\n"
 	"\t2 - Adapter Serial Number");
 
-
 static inline int aac_valid_context(struct scsi_cmnd *scsicmd,
 		struct fib *fibptr) {
 	struct scsi_device *device;
@@ -513,7 +512,6 @@ static void _aac_probe_container2(void * context, struct fib * fibptr)
 	struct fsa_dev_info *fsa_dev_ptr;
 	int (*callback)(struct scsi_cmnd *);
 	struct scsi_cmnd * scsicmd = (struct scsi_cmnd *)context;
-
 
 	if (!aac_valid_context(scsicmd, fibptr))
 		return;
@@ -1304,7 +1302,6 @@ int aac_get_adapter_info(struct aac_dev* dev)
 
 	}
 
-
 	/*
 	 * GetBusInfo
 	 */
@@ -1512,7 +1509,6 @@ int aac_get_adapter_info(struct aac_dev* dev)
 
 	return rcode;
 }
-
 
 static void io_callback(void *context, struct fib * fibptr)
 {
@@ -1829,7 +1825,6 @@ static void synchronize_callback(void *context, struct fib *fibptr)
 				smp_processor_id(), jiffies));
 	BUG_ON(fibptr == NULL);
 
-
 	synchronizereply = fib_data(fibptr);
 	if (le32_to_cpu(synchronizereply->status) == CT_OK)
 		cmd->result = DID_OK << 16 |
@@ -2142,7 +2137,6 @@ int aac_scsi_cmd(struct scsi_cmnd * scsicmd)
 		scsicmd->scsi_done(scsicmd);
 		return 0;
 	}
-
 
 	/* Handle commands here that don't really require going out to the adapter */
 	switch (scsicmd->cmnd[0]) {
@@ -2856,7 +2850,6 @@ static unsigned long aac_build_sg(struct scsi_cmnd* scsicmd, struct sgmap* psg)
 	return byte_count;
 }
 
-
 static unsigned long aac_build_sg64(struct scsi_cmnd* scsicmd, struct sgmap64* psg)
 {
 	struct aac_dev *dev;
@@ -2956,7 +2949,6 @@ struct aac_srb_status_info {
 	u32	status;
 	char	*str;
 };
-
 
 static struct aac_srb_status_info srb_status_info[] = {
 	{ SRB_STATUS_PENDING,		"Pending Status"},

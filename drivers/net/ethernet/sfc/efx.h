@@ -123,7 +123,6 @@ extern void efx_get_irq_moderation(struct efx_nic *efx, unsigned int *tx_usecs,
 extern int efx_port_dummy_op_int(struct efx_nic *efx);
 extern void efx_port_dummy_op_void(struct efx_nic *efx);
 
-
 /* MTD */
 #ifdef CONFIG_SFC_MTD
 extern int efx_mtd_probe(struct efx_nic *efx);

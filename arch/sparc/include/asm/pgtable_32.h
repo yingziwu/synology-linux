@@ -23,7 +23,6 @@
 #include <asm/btfixup.h>
 #include <asm/system.h>
 
-
 struct vm_area_struct;
 struct page;
 
@@ -473,7 +472,6 @@ static inline int io_remap_pfn_range(struct vm_area_struct *vma,
 #define VMALLOC_START           _AC(0xfe600000,UL)
 /* XXX Alter this when I get around to fixing sun4c - Anton */
 #define VMALLOC_END             _AC(0xffc00000,UL)
-
 
 /* We provide our own get_unmapped_area to cope with VA holes for userland */
 #define HAVE_ARCH_UNMAPPED_AREA

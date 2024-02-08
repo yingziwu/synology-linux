@@ -23,7 +23,6 @@ enum fsid_source {
 };
 extern enum fsid_source fsid_source(struct svc_fh *fhp);
 
-
 /* This might look a little large to "inline" but in all calls except
  * one, 'vers' is constant so moste of the function disappears.
  */
@@ -102,7 +101,7 @@ extern char * SVCFH_fmt(struct svc_fh *fhp);
 /*
  * Function prototypes
  */
-__be32	fh_verify(struct svc_rqst *, struct svc_fh *, int, int);
+__be32	fh_verify(struct svc_rqst *, struct svc_fh *, umode_t, int);
 __be32	fh_compose(struct svc_fh *, struct svc_export *, struct dentry *, struct svc_fh *);
 __be32	fh_update(struct svc_fh *);
 void	fh_put(struct svc_fh *);
@@ -155,7 +154,6 @@ extern void fill_post_wcc(struct svc_fh *);
 #define	fill_pre_wcc(ignored)
 #define fill_post_wcc(notused)
 #endif /* CONFIG_NFSD_V3 */
-
 
 /*
  * Lock a file handle/inode

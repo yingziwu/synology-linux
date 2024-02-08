@@ -803,7 +803,6 @@ static int __init macfb_init(void)
 			civic_cmap_regs = ioremap(CIVIC_BASE, 0x1000);
 			break;
 
-		
 		/*
 		 * Assorted weirdos
 		 * We think this may be like the LC II

@@ -38,7 +38,6 @@ void flush_dcache_page_asm(unsigned long phys_addr, unsigned long vaddr);
 EXPORT_SYMBOL(flush_dcache_page_asm);
 void flush_icache_page_asm(unsigned long phys_addr, unsigned long vaddr);
 
-
 /* On some machines (e.g. ones with the Merced bus), there can be
  * only a single PxTLB broadcast at a time; this must be guaranteed
  * by software.  We put a spinlock around all TLB flushes  to
@@ -504,7 +503,6 @@ flush_user_icache_range(unsigned long start, unsigned long end)
 	else
 		flush_instruction_cache();
 }
-
 
 void flush_cache_range(struct vm_area_struct *vma,
 		unsigned long start, unsigned long end)

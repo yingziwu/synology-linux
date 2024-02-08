@@ -6,6 +6,16 @@ menu "File systems"
 
 if BLOCK
 
+config LFS_ON_32CPU
+	bool "Support for large (16TB+) filesystems on 32-bit cpu"
+	depends on LBDAF && SYNO_ALPINE
+	depends on !HUGETLBFS #hugetlbfs not supported yet
+	default n
+	help
+	  Enable support of running filesystem on block devices that are larger
+	  than 16TB on 32bit cpus
+
+
 source "fs/ext2/Kconfig"
 source "fs/ext3/Kconfig"
 source "fs/ext4/Kconfig"
@@ -29,6 +39,22 @@ config FS_MBCACHE
 
 source "fs/reiserfs/Kconfig"
 source "fs/jfs/Kconfig"
+
+config FS_SYNO_ACL
+# Synology ACL utility routines (for now, only ext4)
+# ACL depends on SYNO_ARCHIVE_BIT
+	bool
+	default y
+
+
+config FS_POSIX_ACL
+# Posix ACL utility routines (for now, only ext2/ext3/jfs/reiserfs/nfs4)
+#
+# NOTE: you can implement Posix ACLs without these helpers (XFS does).
+# 	Never use this symbol for ifdefs.
+#
+	bool
+	default n
 
 source "fs/xfs/Kconfig"
 source "fs/gfs2/Kconfig"
@@ -63,16 +89,6 @@ source "fs/quota/Kconfig"
 
 source "fs/autofs4/Kconfig"
 source "fs/fuse/Kconfig"
-
-config CUSE
-	tristate "Character device in Userspace support"
-	depends on FUSE_FS
-	help
-	  This FUSE extension allows character devices to be
-	  implemented in userspace.
-
-	  If you want to develop or use userspace character device
-	  based on CUSE, answer Y or M.
 
 config GENERIC_ACL
 	bool
@@ -215,6 +231,9 @@ source "fs/pstore/Kconfig"
 source "fs/sysv/Kconfig"
 source "fs/ufs/Kconfig"
 source "fs/exofs/Kconfig"
+# SYNO
+source "fs/aufs/Kconfig"
+# SYNO
 
 endif # MISC_FILESYSTEMS
 

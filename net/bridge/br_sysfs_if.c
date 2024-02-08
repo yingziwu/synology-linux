@@ -1,16 +1,7 @@
-/*
- *	Sysfs attributes of bridge ports
- *	Linux ethernet bridge
- *
- *	Authors:
- *	Stephen Hemminger		<shemminger@osdl.org>
- *
- *	This program is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU General Public License
- *	as published by the Free Software Foundation; either version
- *	2 of the License, or (at your option) any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/capability.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
@@ -128,7 +119,7 @@ static BRPORT_ATTR(hold_timer, S_IRUGO, show_hold_timer, NULL);
 
 static int store_flush(struct net_bridge_port *p, unsigned long v)
 {
-	br_fdb_delete_by_port(p->br, p, 0); // Don't delete local entry
+	br_fdb_delete_by_port(p->br, p, 0);  
 	return 0;
 }
 static BRPORT_ATTR(flush, S_IWUSR, NULL, store_flush);
@@ -148,6 +139,24 @@ static int store_hairpin_mode(struct net_bridge_port *p, unsigned long v)
 }
 static BRPORT_ATTR(hairpin_mode, S_IRUGO | S_IWUSR,
 		   show_hairpin_mode, store_hairpin_mode);
+
+#if defined(MY_ABC_HERE)
+static ssize_t show_isolate_mode(struct net_bridge_port *p, char *buf)
+{
+	int isolate_mode = (p->flags & BR_ISOLATE_MODE) ? 1 : 0;
+	return sprintf(buf, "%d\n", isolate_mode);
+}
+static ssize_t store_isolate_mode(struct net_bridge_port *p, unsigned long v)
+{
+	if (v)
+		p->flags |= BR_ISOLATE_MODE;
+	else
+		p->flags &= ~BR_ISOLATE_MODE;
+	return 0;
+}
+static BRPORT_ATTR(isolate_mode, S_IRUGO | S_IWUSR,
+		   show_isolate_mode, store_isolate_mode);
+#endif
 
 #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
 static ssize_t show_multicast_router(struct net_bridge_port *p, char *buf)
@@ -181,6 +190,9 @@ static struct brport_attribute *brport_attrs[] = {
 	&brport_attr_hold_timer,
 	&brport_attr_flush,
 	&brport_attr_hairpin_mode,
+#if defined(MY_ABC_HERE)
+	&brport_attr_isolate_mode,
+#endif
 #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
 	&brport_attr_multicast_router,
 #endif
@@ -233,11 +245,6 @@ const struct sysfs_ops brport_sysfs_ops = {
 	.store = brport_store,
 };
 
-/*
- * Add sysfs entries to ethernet device added to a bridge.
- * Creates a brport subdirectory with bridge attributes.
- * Puts symlink in bridge's brif subdirectory
- */
 int br_sysfs_addif(struct net_bridge_port *p)
 {
 	struct net_bridge *br = p->br;
@@ -259,15 +266,11 @@ int br_sysfs_addif(struct net_bridge_port *p)
 	return sysfs_create_link(br->ifobj, &p->kobj, p->sysfs_name);
 }
 
-/* Rename bridge's brif symlink */
 int br_sysfs_renameif(struct net_bridge_port *p)
 {
 	struct net_bridge *br = p->br;
 	int err;
 
-	/* If a rename fails, the rollback will cause another
-	 * rename call with the existing name.
-	 */
 	if (!strncmp(p->sysfs_name, p->dev->name, IFNAMSIZ))
 		return 0;
 

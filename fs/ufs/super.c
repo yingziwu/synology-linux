@@ -65,7 +65,6 @@
  * Evgeniy Dushistov <dushistov@mail.ru>, 2007
  */
 
-
 #include <linux/exportfs.h>
 #include <linux/module.h>
 #include <linux/bitops.h>
@@ -661,7 +660,6 @@ static void ufs_put_super_internal(struct super_block *sb)
 	unsigned char * base, * space;
 	unsigned blks, size, i;
 
-	
 	UFSD("ENTER\n");
 
 	ufs_put_cstotal(sb);
@@ -1257,7 +1255,6 @@ static void ufs_put_super(struct super_block *sb)
 	return;
 }
 
-
 static int ufs_remount (struct super_block *sb, int *mount_flags, char *data)
 {
 	struct ufs_sb_private_info * uspi;
@@ -1425,7 +1422,6 @@ static struct inode *ufs_alloc_inode(struct super_block *sb)
 static void ufs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(ufs_inode_cachep, UFS_I(inode));
 }
 
@@ -1455,6 +1451,11 @@ static int init_inodecache(void)
 
 static void destroy_inodecache(void)
 {
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
 	kmem_cache_destroy(ufs_inode_cachep);
 }
 

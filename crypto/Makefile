@@ -91,6 +91,10 @@ obj-$(CONFIG_CRYPTO_USER_API) += af_alg.o
 obj-$(CONFIG_CRYPTO_USER_API_HASH) += algif_hash.o
 obj-$(CONFIG_CRYPTO_USER_API_SKCIPHER) += algif_skcipher.o
 
+obj-$(CONFIG_OCF_OCF) += ocf/
+
+obj-$(CONFIG_SYNO_CRYPTODEV_LINUX) += cryptodev-linux/
+
 #
 # generic algorithms and the async_tx api
 #

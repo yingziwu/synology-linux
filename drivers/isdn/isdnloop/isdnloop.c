@@ -1,4 +1,4 @@
-/* $Id: isdnloop.c,v 1.11.6.7 2001/11/11 19:54:31 kai Exp $
+/* $Id: isdnloop.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * ISDN low-level module implementing a dummy loop driver.
  *
@@ -169,7 +169,6 @@ static isdnloop_stat isdnloop_stat_table[] =
 	{NULL, 0, -1}
 };
 /* *INDENT-ON* */
-
 
 /*
  * Parse Status message-strings from virtual card.
@@ -507,7 +506,6 @@ static isdnloop_stat isdnloop_cmd_table[] =
 	{NULL, 0, -1}
 };
 /* *INDENT-ON* */
-
 
 /*
  * Simulate an error-response from a card.

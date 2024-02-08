@@ -167,7 +167,6 @@ enum {
 };
 #define QUOTA_NL_A_MAX (__QUOTA_NL_A_MAX - 1)
 
-
 #ifdef __KERNEL__
 #include <linux/list.h>
 #include <linux/mutex.h>
@@ -415,6 +414,14 @@ struct quota_module_name {
 	{QFMT_VFS_V0, "quota_v2"},\
 	{QFMT_VFS_V1, "quota_v2"},\
 	{0, NULL}}
+
+#else
+
+# /* nodep */ include <sys/cdefs.h>
+
+__BEGIN_DECLS
+long quotactl __P ((unsigned int, const char *, int, caddr_t));
+__END_DECLS
 
 #endif /* __KERNEL__ */
 #endif /* _QUOTA_ */

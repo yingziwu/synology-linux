@@ -182,7 +182,6 @@ static int vmw_cmd_sid_check(struct vmw_private *dev_priv,
 	return 0;
 }
 
-
 static int vmw_cmd_set_render_target_check(struct vmw_private *dev_priv,
 					   struct vmw_sw_context *sw_context,
 					   SVGA3dCmdHeader *header)
@@ -263,7 +262,6 @@ static int vmw_cmd_present_check(struct vmw_private *dev_priv,
 		SVGA3dCmdHeader header;
 		SVGA3dCmdPresent body;
 	} *cmd;
-
 
 	cmd = container_of(header, struct vmw_sid_cmd, header);
 
@@ -353,7 +351,6 @@ static int vmw_query_bo_switch_prepare(struct vmw_private *dev_priv,
 	}
 	return 0;
 }
-
 
 /**
  * vmw_query_bo_switch_commit - Finalize switching pinned query buffer
@@ -652,7 +649,6 @@ static int vmw_cmd_draw(struct vmw_private *dev_priv,
 	return 0;
 }
 
-
 static int vmw_cmd_tex_state(struct vmw_private *dev_priv,
 			     struct vmw_sw_context *sw_context,
 			     SVGA3dCmdHeader *header)
@@ -807,7 +803,6 @@ static int vmw_cmd_check(struct vmw_private *dev_priv,
 	if (unlikely(cmd_id < SVGA_CMD_MAX))
 		return vmw_cmd_check_not_3d(dev_priv, sw_context, buf, size);
 
-
 	cmd_id = le32_to_cpu(header->id);
 	*size = le32_to_cpu(header->size) + sizeof(SVGA3dCmdHeader);
 
@@ -912,7 +907,6 @@ static int vmw_validate_single_buffer(struct vmw_private *dev_priv,
 {
 	int ret;
 
-
 	/*
 	 * Don't validate pinned buffers.
 	 */
@@ -942,7 +936,6 @@ static int vmw_validate_single_buffer(struct vmw_private *dev_priv,
 	ret = ttm_bo_validate(bo, &vmw_vram_placement, true, false, false);
 	return ret;
 }
-
 
 static int vmw_validate_buffers(struct vmw_private *dev_priv,
 				struct vmw_sw_context *sw_context)
@@ -1128,7 +1121,6 @@ int vmw_execbuf_process(struct drm_file *file_priv,
 		if (unlikely(ret != 0))
 			goto out_unlock;
 
-
 		ret = copy_from_user(sw_context->cmd_bounce,
 				     user_commands, command_size);
 
@@ -1244,7 +1236,6 @@ static void vmw_execbuf_unpin_panic(struct vmw_private *dev_priv)
 	dev_priv->dummy_query_bo_pinned = false;
 }
 
-
 /**
  * vmw_execbuf_release_pinned_bo - Flush queries and unpin the pinned
  * query bo.
@@ -1331,7 +1322,6 @@ out_no_reserve:
 	ttm_bo_unref(&dev_priv->pinned_bo);
 	mutex_unlock(&dev_priv->cmdbuf_mutex);
 }
-
 
 int vmw_execbuf_ioctl(struct drm_device *dev, void *data,
 		      struct drm_file *file_priv)

@@ -278,4 +278,3 @@ MACHINE_START(FSG, "Freecom FSG-3")
 	.dma_zone_size	= SZ_64M,
 #endif
 MACHINE_END
-

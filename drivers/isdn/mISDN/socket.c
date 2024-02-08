@@ -117,7 +117,6 @@ mISDN_sock_recvmsg(struct kiocb *iocb, struct socket *sock,
 {
 	struct sk_buff		*skb;
 	struct sock		*sk = sock->sk;
-	struct sockaddr_mISDN	*maddr;
 
 	int		copied, err;
 
@@ -135,9 +134,9 @@ mISDN_sock_recvmsg(struct kiocb *iocb, struct socket *sock,
 	if (!skb)
 		return err;
 
-	if (msg->msg_namelen >= sizeof(struct sockaddr_mISDN)) {
-		msg->msg_namelen = sizeof(struct sockaddr_mISDN);
-		maddr = (struct sockaddr_mISDN *)msg->msg_name;
+	if (msg->msg_name) {
+		struct sockaddr_mISDN *maddr = msg->msg_name;
+
 		maddr->family = AF_ISDN;
 		maddr->dev = _pms(sk)->dev->id;
 		if ((sk->sk_protocol == ISDN_P_LAPD_TE) ||
@@ -150,11 +149,7 @@ mISDN_sock_recvmsg(struct kiocb *iocb, struct socket *sock,
 			maddr->sapi = _pms(sk)->ch.addr & 0xFF;
 			maddr->tei =  (_pms(sk)->ch.addr >> 8) & 0xFF;
 		}
-	} else {
-		if (msg->msg_namelen)
-			printk(KERN_WARNING "%s: too small namelen %d\n",
-			    __func__, msg->msg_namelen);
-		msg->msg_namelen = 0;
+		msg->msg_namelen = sizeof(*maddr);
 	}
 
 	copied = skb->len + MISDN_HEADER_LEN;
@@ -761,7 +756,6 @@ static const struct proto_ops base_sock_ops = {
 	.mmap		= sock_no_mmap
 };
 
-
 static int
 base_sock_create(struct net *net, struct socket *sock, int protocol)
 {
@@ -838,4 +832,3 @@ misdn_sock_cleanup(void)
 {
 	sock_unregister(PF_ISDN);
 }
-

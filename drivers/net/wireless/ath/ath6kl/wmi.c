@@ -2500,7 +2500,6 @@ int ath6kl_wmi_test_cmd(struct wmi *wmi, void *buf, size_t len)
 	return ret;
 }
 
-
 s32 ath6kl_wmi_get_rate(s8 rate_index)
 {
 	if (rate_index == RATE_AUTO)

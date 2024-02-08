@@ -1,14 +1,7 @@
-/*
- * xfrm6_input.c: based on net/ipv4/xfrm4_input.c
- *
- * Authors:
- *	Mitsuru KANDA @USAGI
- * 	Kazunori MIYAZAWA @USAGI
- * 	Kunihiro Ishiguro <kunihiro@ipinfusion.com>
- *	YOSHIFUJI Hideaki @USAGI
- *		IPv6 support
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/string.h>
 #include <linux/netfilter.h>
@@ -20,6 +13,17 @@ int xfrm6_extract_input(struct xfrm_state *x, struct sk_buff *skb)
 {
 	return xfrm6_extract_header(skb);
 }
+
+#if defined(MY_ABC_HERE)
+int xfrm6_rcv_encap(struct sk_buff *skb, int nexthdr, __be32 spi,
+		    int encap_type)
+{
+	XFRM_SPI_SKB_CB(skb)->family = AF_INET6;
+	XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct ipv6hdr, daddr);
+	return xfrm_input(skb, nexthdr, spi, encap_type);
+}
+EXPORT_SYMBOL(xfrm6_rcv_encap);
+#endif
 
 int xfrm6_rcv_spi(struct sk_buff *skb, int nexthdr, __be32 spi)
 {
@@ -46,6 +50,83 @@ int xfrm6_transport_finish(struct sk_buff *skb, int async)
 		ip6_rcv_finish);
 	return -1;
 }
+#if defined(MY_ABC_HERE)
+ 
+int xfrm6_udp_encap_rcv(struct sock *sk, struct sk_buff *skb)
+{
+
+#ifndef CONFIG_XFRM
+	return 1;
+#else
+	struct udp_sock *up = udp_sk(sk);
+	struct udphdr *uh;
+	struct ipv6hdr *iph;
+	int iphlen, len;
+
+	__u8 *udpdata;
+	__be32 *udpdata32;
+	__u16 encap_type = up->encap_type;
+
+	if (!encap_type)
+		return 1;
+
+	len = skb->len - sizeof(struct udphdr);
+	if (!pskb_may_pull(skb, sizeof(struct udphdr) + min(len, 8)))
+		return 1;
+
+	uh = udp_hdr(skb);
+	udpdata = (__u8 *)uh + sizeof(struct udphdr);
+	udpdata32 = (__be32 *)udpdata;
+
+	switch (encap_type) {
+	default:
+	case UDP_ENCAP_ESPINUDP:
+		 
+		if (len == 1 && udpdata[0] == 0xff) {
+			goto drop;
+		} else if (len > sizeof(struct ip_esp_hdr) && udpdata32[0] != 0) {
+			 
+			len = sizeof(struct udphdr);
+		} else
+			 
+			return 1;
+		break;
+	case UDP_ENCAP_ESPINUDP_NON_IKE:
+		 
+		if (len == 1 && udpdata[0] == 0xff) {
+			goto drop;
+		} else if (len > 2 * sizeof(u32) + sizeof(struct ip_esp_hdr) &&
+			   udpdata32[0] == 0 && udpdata32[1] == 0) {
+
+			len = sizeof(struct udphdr) + 2 * (sizeof(u32) * 4);
+		} else
+			 
+			return 1;
+		break;
+	}
+
+	if (skb_cloned(skb) && pskb_expand_head(skb, 0, 0, GFP_ATOMIC)){
+		goto drop;
+	}
+
+	iph = ipv6_hdr(skb);
+	iphlen = ntohs(iph->payload_len);
+	if (skb->len < iphlen) {
+		 
+		goto drop;
+	}
+
+	__skb_pull(skb, len);
+	skb_reset_transport_header(skb);
+
+	return xfrm6_rcv_encap(skb, IPPROTO_ESP, 0, encap_type);
+
+drop:
+	kfree_skb(skb);
+	return 0;
+#endif
+}
+#endif
 
 int xfrm6_rcv(struct sk_buff *skb)
 {
@@ -62,7 +143,6 @@ int xfrm6_input_addr(struct sk_buff *skb, xfrm_address_t *daddr,
 	struct xfrm_state *x = NULL;
 	int i = 0;
 
-	/* Allocate new secpath or COW existing one. */
 	if (!skb->sp || atomic_read(&skb->sp->refcnt) != 1) {
 		struct sec_path *sp;
 
@@ -90,12 +170,12 @@ int xfrm6_input_addr(struct sk_buff *skb, xfrm_address_t *daddr,
 			src = saddr;
 			break;
 		case 1:
-			/* lookup state with wild-card source address */
+			 
 			dst = daddr;
 			src = (xfrm_address_t *)&in6addr_any;
 			break;
 		default:
-			/* lookup state with wild-card addresses */
+			 
 			dst = (xfrm_address_t *)&in6addr_any;
 			src = (xfrm_address_t *)&in6addr_any;
 			break;
@@ -112,7 +192,7 @@ int xfrm6_input_addr(struct sk_buff *skb, xfrm_address_t *daddr,
 		    !xfrm_state_check_expire(x)) {
 			spin_unlock(&x->lock);
 			if (x->type->input(x, skb) > 0) {
-				/* found a valid state */
+				 
 				break;
 			}
 		} else

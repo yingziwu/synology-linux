@@ -53,7 +53,6 @@ static struct pt_types sgi_pt_types[] = {
 	{0,		NULL}
 };
 
-
 static struct kmem_cache * efs_inode_cachep;
 
 static struct inode *efs_alloc_inode(struct super_block *sb)
@@ -68,7 +67,6 @@ static struct inode *efs_alloc_inode(struct super_block *sb)
 static void efs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(efs_inode_cachep, INODE_INFO(inode));
 }
 
@@ -97,6 +95,11 @@ static int init_inodecache(void)
 
 static void destroy_inodecache(void)
 {
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
 	kmem_cache_destroy(efs_inode_cachep);
 }
 
@@ -356,4 +359,3 @@ static int efs_statfs(struct dentry *dentry, struct kstatfs *buf) {
 
 	return 0;
 }
-

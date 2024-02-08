@@ -42,7 +42,6 @@
 #include "iwl-sta.h"
 #include "iwl-helpers.h"
 
-
 MODULE_DESCRIPTION("iwl-legacy: common functions for 3945 and 4965");
 MODULE_VERSION(IWLWIFI_VERSION);
 MODULE_AUTHOR(DRV_COPYRIGHT " " DRV_AUTHOR);
@@ -73,7 +72,6 @@ EXPORT_SYMBOL(iwlegacy_debug_level);
 
 const u8 iwlegacy_bcast_addr[ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 EXPORT_SYMBOL(iwlegacy_bcast_addr);
-
 
 /* This function both allocates and initializes hw and priv. */
 struct ieee80211_hw *iwl_legacy_alloc_all(struct iwl_cfg *cfg)
@@ -991,7 +989,6 @@ void iwl_legacy_apm_stop(struct iwl_priv *priv)
 }
 EXPORT_SYMBOL(iwl_legacy_apm_stop);
 
-
 /*
  * Start up NIC's basic functionality after it has been reset
  * (e.g. after platform boot, or shutdown via iwl_legacy_apm_stop())
@@ -1104,7 +1101,6 @@ out:
 	return ret;
 }
 EXPORT_SYMBOL(iwl_legacy_apm_init);
-
 
 int iwl_legacy_set_tx_power(struct iwl_priv *priv, s8 tx_power, bool force)
 {

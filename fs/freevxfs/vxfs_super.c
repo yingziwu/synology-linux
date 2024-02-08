@@ -47,13 +47,11 @@
 #include "vxfs_dir.h"
 #include "vxfs_inode.h"
 
-
 MODULE_AUTHOR("Christoph Hellwig");
 MODULE_DESCRIPTION("Veritas Filesystem (VxFS) driver");
 MODULE_LICENSE("Dual BSD/GPL");
 
 MODULE_ALIAS("vxfs"); /* makes mount -t vxfs autoload the module */
-
 
 static void		vxfs_put_super(struct super_block *);
 static int		vxfs_statfs(struct dentry *, struct kstatfs *);
@@ -280,6 +278,11 @@ static void __exit
 vxfs_cleanup(void)
 {
 	unregister_filesystem(&vxfs_fs_type);
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
 	kmem_cache_destroy(vxfs_inode_cachep);
 }
 

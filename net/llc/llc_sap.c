@@ -294,7 +294,10 @@ static void llc_sap_rcv(struct llc_sap *sap, struct sk_buff *skb,
 
 	ev->type   = LLC_SAP_EV_TYPE_PDU;
 	ev->reason = 0;
+	skb_orphan(skb);
+	sock_hold(sk);
 	skb->sk = sk;
+	skb->destructor = sock_efree;
 	llc_sap_state_process(sap, skb);
 }
 
@@ -421,7 +424,6 @@ static void llc_sap_mcast(struct llc_sap *sap,
 
 	llc_do_mcast(sap, skb, stack, i);
 }
-
 
 void llc_sap_handler(struct llc_sap *sap, struct sk_buff *skb)
 {

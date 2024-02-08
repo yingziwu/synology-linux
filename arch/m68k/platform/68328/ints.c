@@ -185,4 +185,3 @@ void __init init_IRQ(void)
 		irq_set_handler(i, handle_level_irq);
 	}
 }
-

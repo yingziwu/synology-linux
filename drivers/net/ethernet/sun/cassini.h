@@ -1,4 +1,4 @@
-/* $Id: cassini.h,v 1.16 2004/08/17 21:15:16 zaumen Exp $
+/* $Id: cassini.h,v 1.1.1.1 2010/04/15 12:27:53 khchen Exp $
  * cassini.h: Definitions for Sun Microsystems Cassini(+) ethernet driver.
  *
  * Copyright (C) 2004 Sun Microsystems Inc.
@@ -427,7 +427,6 @@
 						    1 = mac core led ctrl
 						    polarity active low. */
 
-
 /** transmit dma registers **/
 #define MAX_TX_RINGS_SHIFT            2
 #define MAX_TX_RINGS                  (1 << MAX_TX_RINGS_SHIFT)
@@ -650,7 +649,6 @@
 							 RX free desc ring 2.
 							 def: 0x8 = 8k */
 #define    RX_CFG_DESC_RING1_SHIFT      16
-
 
 /* the page size register allows cassini chips to do the following with
  * received data:
@@ -1234,7 +1232,6 @@
 							 RAM */
 #define    HP_RAM_BIST_SUMMARY             0x00000002 /* all BIST tests */
 #define    HP_RAM_BIST_START               0x00000001 /* start/stop BIST */
-
 
 /** MAC registers.  **/
 /* reset bits are set using a PIO write and self-cleared after the command
@@ -2714,7 +2711,6 @@ typedef struct cas_page {
 	dma_addr_t dma_addr;
 	int used;
 } cas_page_t;
-
 
 /* some alignment constraints:
  * TX DESC, RX DESC, and RX COMP must each be 8K aligned.

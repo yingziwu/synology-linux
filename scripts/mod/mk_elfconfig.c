@@ -1,7 +1,14 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if !defined(MY_ABC_HERE) || !defined(__APPLE__)
 #include <elf.h>
+#else
+#include "../../../../../tools/sstrip/include/elf.h"
+#endif
 
 int
 main(int argc, char **argv)
@@ -54,4 +61,3 @@ main(int argc, char **argv)
 
 	return 0;
 }
-

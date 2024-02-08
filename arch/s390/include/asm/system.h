@@ -149,7 +149,6 @@ extern int copy_from_user_real(void *dest, void __user *src, size_t count);
 #define smp_mb__before_clear_bit()     smp_mb()
 #define smp_mb__after_clear_bit()      smp_mb()
 
-
 #define set_mb(var, value)      do { var = value; mb(); } while (0)
 
 #ifdef __s390x__

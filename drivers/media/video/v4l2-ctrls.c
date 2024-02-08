@@ -1795,8 +1795,6 @@ int v4l2_subdev_querymenu(struct v4l2_subdev *sd, struct v4l2_querymenu *qm)
 }
 EXPORT_SYMBOL(v4l2_subdev_querymenu);
 
-
-
 /* Some general notes on the atomic requirements of VIDIOC_G/TRY/S_EXT_CTRLS:
 
    It is not a fully atomic operation, just best-effort only. After all, if
@@ -1926,8 +1924,6 @@ static int class_check(struct v4l2_ctrl_handler *hdl, u32 ctrl_class)
 	return find_ref_lock(hdl, ctrl_class | 1) ? 0 : -EINVAL;
 }
 
-
-
 /* Get extended controls. Allocates the helpers array if needed. */
 int v4l2_g_ext_ctrls(struct v4l2_ctrl_handler *hdl, struct v4l2_ext_controls *cs)
 {
@@ -2056,7 +2052,6 @@ s32 v4l2_ctrl_g_ctrl(struct v4l2_ctrl *ctrl)
 	return val;
 }
 EXPORT_SYMBOL(v4l2_ctrl_g_ctrl);
-
 
 /* Core function that calls try/s_ctrl and ensures that the new value is
    copied to the current value on a set.

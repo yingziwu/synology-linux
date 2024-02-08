@@ -10,7 +10,6 @@
  *
  */
 
-
 #include <linux/time.h>
 #include <linux/errno.h>
 #include <linux/stat.h>
@@ -30,15 +29,15 @@ static void ncp_do_readdir(struct file *, void *, filldir_t,
 
 static int ncp_readdir(struct file *, void *, filldir_t);
 
-static int ncp_create(struct inode *, struct dentry *, int, struct nameidata *);
+static int ncp_create(struct inode *, struct dentry *, umode_t, struct nameidata *);
 static struct dentry *ncp_lookup(struct inode *, struct dentry *, struct nameidata *);
 static int ncp_unlink(struct inode *, struct dentry *);
-static int ncp_mkdir(struct inode *, struct dentry *, int);
+static int ncp_mkdir(struct inode *, struct dentry *, umode_t);
 static int ncp_rmdir(struct inode *, struct dentry *);
 static int ncp_rename(struct inode *, struct dentry *,
 	  	      struct inode *, struct dentry *);
 static int ncp_mknod(struct inode * dir, struct dentry *dentry,
-		     int mode, dev_t rdev);
+		     umode_t mode, dev_t rdev);
 #if defined(CONFIG_NCPFS_EXTRAS) || defined(CONFIG_NCPFS_NFS_NS)
 extern int ncp_symlink(struct inode *, struct dentry *, const char *);
 #else
@@ -186,11 +185,9 @@ static inline int ncp_is_server_root(struct inode *inode)
 		inode == inode->i_sb->s_root->d_inode);
 }
 
-
 /*
  * This is the callback when the dcache has a lookup hit.
  */
-
 
 #ifdef CONFIG_NCPFS_STRONG
 /* try to delete a readonly file (NW R bit set) */
@@ -287,7 +284,6 @@ leave_me:;
         return(res);
 }
 #endif	/* CONFIG_NCPFS_STRONG */
-
 
 static int
 ncp_lookup_validate(struct dentry *dentry, struct nameidata *nd)
@@ -979,13 +975,13 @@ out:
 	return error;
 }
 
-static int ncp_create(struct inode *dir, struct dentry *dentry, int mode,
+static int ncp_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		struct nameidata *nd)
 {
 	return ncp_create_new(dir, dentry, mode, 0, 0);
 }
 
-static int ncp_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+static int ncp_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	struct ncp_entry_info finfo;
 	struct ncp_server *server = NCP_SERVER(dir);
@@ -1201,12 +1197,12 @@ out:
 }
 
 static int ncp_mknod(struct inode * dir, struct dentry *dentry,
-		     int mode, dev_t rdev)
+		     umode_t mode, dev_t rdev)
 {
 	if (!new_valid_dev(rdev))
 		return -EINVAL;
 	if (ncp_is_nfs_extras(NCP_SERVER(dir), NCP_FINFO(dir)->volNumber)) {
-		DPRINTK(KERN_DEBUG "ncp_mknod: mode = 0%o\n", mode);
+		DPRINTK(KERN_DEBUG "ncp_mknod: mode = 0%ho\n", mode);
 		return ncp_create_new(dir, dentry, mode, rdev, 0);
 	}
 	return -EPERM; /* Strange, but true */
@@ -1219,7 +1215,6 @@ static int ncp_mknod(struct inode * dir, struct dentry *dentry,
 static int day_n[] =
 {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 0, 0, 0, 0};
 /* Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec */
-
 
 extern struct timezone sys_tz;
 
@@ -1250,7 +1245,6 @@ ncp_date_dos2unix(__le16 t, __le16 d)
 	/* days since 1.1.70 plus 80's leap day */
 	return local2utc(secs);
 }
-
 
 /* Convert linear UNIX date to a MS-DOS time/date pair. */
 void

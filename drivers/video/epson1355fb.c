@@ -149,7 +149,6 @@ static void set_lut(struct epson1355_par *par, u8 index, u8 r, u8 g, u8 b)
 	epson1355_write_reg(par, b, REG_LUT_DATA);
 }
 
-
 /**
  *  	epson1355fb_setcolreg - sets a color register.
  *      @regno: Which register in the CLUT we are programming
@@ -254,7 +253,6 @@ static void backlight_enable(int enable)
 {
 }
 #endif
-
 
 /**
  *      epson1355fb_blank - blanks the display.
@@ -388,7 +386,6 @@ static inline unsigned long copy_to_user16(void *to, const void *from,
 	}
 	return 0;
 }
-
 
 static ssize_t
 epson1355fb_read(struct fb_info *info, char *buf, size_t count, loff_t * ppos)
@@ -562,7 +559,6 @@ static void __init fetch_hw_state(struct fb_info *info, struct epson1355_par *pa
 	       bpp, lcd_bpp, crt_enabled, lcd_enabled);
 #endif
 }
-
 
 static void clearfb16(struct fb_info *info)
 {

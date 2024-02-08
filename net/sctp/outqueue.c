@@ -712,7 +712,6 @@ int sctp_outq_uncork(struct sctp_outq *q)
 	return error;
 }
 
-
 /*
  * Try to flush an outqueue.
  *

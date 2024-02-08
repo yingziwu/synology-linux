@@ -542,4 +542,3 @@ struct clk_functions omap2_clk_functions = {
 	.clk_exit_cpufreq_table	= omap2_clk_exit_cpufreq_table,
 #endif
 };
-

@@ -1503,4 +1503,3 @@ out_stop:
 	ext4_journal_stop(handle);
 	trace_ext4_truncate_exit(inode);
 }
-

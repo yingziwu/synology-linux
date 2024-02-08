@@ -203,7 +203,6 @@ struct ip_vs_sync_thread_data {
 #define FULL_CONN_SIZE  \
 (sizeof(struct ip_vs_sync_conn_v0) + sizeof(struct ip_vs_sync_conn_options))
 
-
 /*
   The master mulitcasts messages (Datagrams) to the backup load balancers
   in the following format.
@@ -1147,7 +1146,6 @@ static void ip_vs_process_message(struct net *net, __u8 *buffer,
 	}
 }
 
-
 /*
  *      Setup loopback of outgoing multicasts on a sending socket
  */
@@ -1198,7 +1196,6 @@ static int set_mcast_if(struct sock *sk, char *ifname)
 	return 0;
 }
 
-
 /*
  *	Set the maximum length of sync message according to the
  *	specified interface's MTU.
@@ -1235,7 +1232,6 @@ static int set_sync_mesg_maxlen(struct net *net, int sync_state)
 	return 0;
 }
 
-
 /*
  *      Join a multicast group.
  *      the group is specified by a class D multicast address 224.0.0.0/8
@@ -1266,7 +1262,6 @@ join_mcast_group(struct sock *sk, struct in_addr *addr, char *ifname)
 
 	return ret;
 }
-
 
 static int bind_mcastif_addr(struct socket *sock, char *ifname)
 {
@@ -1345,7 +1340,6 @@ error:
 	return ERR_PTR(result);
 }
 
-
 /*
  *      Set up receiving multicast socket over UDP
  */
@@ -1392,7 +1386,6 @@ error:
 	sk_release_kernel(sock->sk);
 	return ERR_PTR(result);
 }
-
 
 static int
 ip_vs_send_async(struct socket *sock, const char *buffer, const size_t length)
@@ -1447,7 +1440,6 @@ ip_vs_receive(struct socket *sock, char *buffer, const size_t buflen)
 	return len;
 }
 
-
 static int sync_thread_master(void *data)
 {
 	struct ip_vs_sync_thread_data *tinfo = data;
@@ -1490,7 +1482,6 @@ static int sync_thread_master(void *data)
 	return 0;
 }
 
-
 static int sync_thread_backup(void *data)
 {
 	struct ip_vs_sync_thread_data *tinfo = data;
@@ -1531,7 +1522,6 @@ static int sync_thread_backup(void *data)
 	return 0;
 }
 
-
 int start_sync_thread(struct net *net, int state, char *mcast_ifn, __u8 syncid)
 {
 	struct ip_vs_sync_thread_data *tinfo;
@@ -1545,7 +1535,6 @@ int start_sync_thread(struct net *net, int state, char *mcast_ifn, __u8 syncid)
 	IP_VS_DBG(7, "%s(): pid %d\n", __func__, task_pid_nr(current));
 	IP_VS_DBG(7, "Each ip_vs_sync_conn entry needs %Zd bytes\n",
 		  sizeof(struct ip_vs_sync_conn_v0));
-
 
 	if (state == IP_VS_STATE_MASTER) {
 		if (ipvs->master_thread)
@@ -1617,7 +1606,6 @@ outsocket:
 out:
 	return result;
 }
-
 
 int stop_sync_thread(struct net *net, int state)
 {

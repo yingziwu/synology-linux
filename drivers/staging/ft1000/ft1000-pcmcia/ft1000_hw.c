@@ -553,7 +553,6 @@ static int ft1000_chkcard(struct net_device *dev)
 	return true;
 }
 
-
 //---------------------------------------------------------------------------
 //
 // Function:   ft1000_hbchk

@@ -1165,7 +1165,6 @@ build_fast_tlb_refill_handler (u32 **p, struct uasm_label **l,
 		uasm_i_nop(p);
 #endif /* CONFIG_HUGETLB_PAGE */
 
-
 	/* build_update_entries */
 	if (use_lwx_insns()) {
 		even = ptr;
@@ -1630,7 +1629,6 @@ build_pte_modifiable(u32 **p, struct uasm_reloc **r,
 }
 
 #ifndef CONFIG_MIPS_PGD_C0_CONTEXT
-
 
 /*
  * R3000 style TLB load/store/modify handlers.

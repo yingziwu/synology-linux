@@ -1,17 +1,7 @@
-/*
- * AHCI SATA platform driver
- *
- * Copyright 2004-2005  Red Hat, Inc.
- *   Jeff Garzik <jgarzik@pobox.com>
- * Copyright 2010  MontaVista Software, LLC.
- *   Anton Vorontsov <avorontsov@ru.mvista.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/gfp.h>
 #include <linux/module.h>
@@ -21,11 +11,29 @@
 #include <linux/platform_device.h>
 #include <linux/libata.h>
 #include <linux/ahci_platform.h>
+#if defined(MY_ABC_HERE)
+#include <linux/clk.h>
+#include <mach/reset.h>
+#include <mach/comcerto-2000/pm.h>
+#endif
 #include "ahci.h"
+#if defined(MY_ABC_HERE)
+#include <mach/serdes-c2000.h>
+#endif
+
+#if defined(MY_ABC_HERE) && defined(CONFIG_ARCH_M86XXX)
+ 
+static struct clk *sata_oob_clk;  
+static struct clk *sata_pmu_clk;  
+static struct clk *sata_clk;	 
+#if defined(CONFIG_COMCERTO_SATA_OCC_CLOCK)
+static struct clk *sata_occ_clk;  
+#endif
+#endif 
 
 enum ahci_type {
-	AHCI,		/* standard platform ahci */
-	IMX53_AHCI,	/* ahci on i.mx53 */
+	AHCI,		 
+	IMX53_AHCI,	 
 };
 
 static struct platform_device_id ahci_devtype[] = {
@@ -36,14 +44,13 @@ static struct platform_device_id ahci_devtype[] = {
 		.name = "imx53-ahci",
 		.driver_data = IMX53_AHCI,
 	}, {
-		/* sentinel */
+		 
 	}
 };
 MODULE_DEVICE_TABLE(platform, ahci_devtype);
 
-
 static const struct ata_port_info ahci_port_info[] = {
-	/* by features */
+	 
 	[AHCI] = {
 		.flags		= AHCI_FLAG_COMMON,
 		.pio_mask	= ATA_PIO4,
@@ -62,6 +69,73 @@ static struct scsi_host_template ahci_platform_sht = {
 	AHCI_SHT("ahci_platform"),
 };
 
+#if defined(MY_ABC_HERE) && defined(CONFIG_PM)
+static int ahci_platform_suspend(struct platform_device *pdev, pm_message_t state)
+{
+        struct ata_host *host = platform_get_drvdata(pdev);
+	int ret=0;
+
+#ifdef CONFIG_ARCH_M86XXX
+	  
+	if ( !(host_utilpe_shared_pmu_bitmask & SATA_IRQ )){
+
+		return ret;
+	}
+#endif
+
+        if (host)
+		ret = ata_host_suspend(host, state);
+
+#ifdef CONFIG_ARCH_M86XXX
+	if (!ret)  
+	{
+		 
+		clk_disable(sata_clk);
+		clk_disable(sata_oob_clk);
+		clk_disable(sata_pmu_clk);
+
+		if (readl(COMCERTO_GPIO_SYSTEM_CONFIG) & BOOT_SERDES1_CNF_SATA0)
+			writel((readl((COMCERTO_DWC1_CFG_BASE+0x44)) | 0xCC), (COMCERTO_DWC1_CFG_BASE+0x44));
+		else if (readl(COMCERTO_GPIO_SYSTEM_CONFIG) & BOOT_SERDES2_CNF_SATA1)
+			writel((readl((COMCERTO_DWC1_CFG_BASE+0x54)) | 0xCC), (COMCERTO_DWC1_CFG_BASE+0x54));
+
+	}
+#endif
+	
+        return ret;
+}
+
+static int ahci_platform_resume(struct platform_device *pdev)
+{
+        struct ata_host *host = platform_get_drvdata(pdev);
+
+#ifdef CONFIG_ARCH_M86XXX
+	 
+	if (readl(COMCERTO_GPIO_SYSTEM_CONFIG) & BOOT_SERDES1_CNF_SATA0)
+ 		writel((readl((COMCERTO_DWC1_CFG_BASE+0x44)) & ~0xCC), (COMCERTO_DWC1_CFG_BASE+0x44));
+	else if (readl(COMCERTO_GPIO_SYSTEM_CONFIG) & BOOT_SERDES2_CNF_SATA1)
+		writel((readl((COMCERTO_DWC1_CFG_BASE+0x54)) & ~0xCC), (COMCERTO_DWC1_CFG_BASE+0x54));
+
+	if ( !(host_utilpe_shared_pmu_bitmask & SATA_IRQ )){
+
+		return 0;
+	}
+
+	clk_enable(sata_clk);
+	clk_enable(sata_oob_clk);
+	clk_enable(sata_pmu_clk);
+#endif
+
+        if (host) 
+		ata_host_resume(host);
+
+	return 0;
+}
+#else
+#define ahci_platform_suspend NULL
+#define ahci_platform_resume NULL
+#endif
+
 static int __init ahci_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -76,6 +150,64 @@ static int __init ahci_probe(struct platform_device *pdev)
 	int n_ports;
 	int i;
 	int rc;
+#if defined(MY_ABC_HERE) && defined(CONFIG_ARCH_M86XXX)
+	 
+	sata_clk = clk_get(NULL,"sata");
+	 
+	if (IS_ERR(sata_clk)) {
+		pr_err("%s: Unable to obtain SATA(AXI) clock: %ld\n",__func__,PTR_ERR(sata_clk));
+		return PTR_ERR(sata_clk);
+ 	}
+
+        rc = clk_enable(sata_clk);
+	if (rc){
+		pr_err("%s: SATA(AXI) clock enable failed \n",__func__);
+                return rc;
+	}
+	sata_oob_clk = clk_get(NULL,"sata_oob");
+	 
+	if (IS_ERR(sata_oob_clk)) {
+		pr_err("%s: Unable to obtain SATA_OOB clock: %ld\n",__func__,PTR_ERR(sata_oob_clk));
+		return PTR_ERR(sata_oob_clk);
+ 	}
+
+	sata_pmu_clk = clk_get(NULL,"sata_pmu");
+	 
+	if (IS_ERR(sata_pmu_clk)) {
+		pr_err("%s: Unable to obtain SATA_PMU clock: %ld\n",__func__,PTR_ERR(sata_pmu_clk));
+		return PTR_ERR(sata_pmu_clk);
+	}
+	 
+        rc = clk_enable(sata_oob_clk);
+	if (rc){
+		pr_err("%s: SATA_OOB clock enable failed \n",__func__);
+                return rc;
+	}
+
+        rc = clk_enable(sata_pmu_clk);
+	if (rc){
+		pr_err("%s: SATA_PMU clock enable failed \n",__func__);
+		return rc;
+	}
+#if defined(CONFIG_COMCERTO_SATA_OCC_CLOCK)
+	sata_occ_clk = clk_get(NULL,"sata_occ");
+	 
+	if (IS_ERR(sata_occ_clk)) {
+		pr_err("%s: Unable to obtain sata occ clock: %ld\n",__func__,PTR_ERR(sata_occ_clk));
+		return PTR_ERR(sata_occ_clk);
+ 	}
+	 
+        rc = clk_enable(sata_occ_clk);
+	if (rc){
+		pr_err("%s: sata occ clock enable failed \n",__func__);
+		return rc;
+	}
+#endif
+	 
+	clk_set_rate(sata_oob_clk,125000000);
+	clk_set_rate(sata_pmu_clk,30000000);
+	
+#endif
 
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!mem) {
@@ -106,12 +238,6 @@ static int __init ahci_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 
-	/*
-	 * Some platforms might need to prepare for mmio region access,
-	 * which could be done in the following init call. So, the mmio
-	 * region shouldn't be accessed before init (if provided) has
-	 * returned successfully.
-	 */
 	if (pdata && pdata->init) {
 		rc = pdata->init(dev, hpriv->mmio);
 		if (rc)
@@ -122,7 +248,6 @@ static int __init ahci_probe(struct platform_device *pdev)
 		pdata ? pdata->force_port_map : 0,
 		pdata ? pdata->mask_port_map  : 0);
 
-	/* prepare host */
 	if (hpriv->cap & HOST_CAP_NCQ)
 		pi.flags |= ATA_FLAG_NCQ;
 
@@ -131,11 +256,6 @@ static int __init ahci_probe(struct platform_device *pdev)
 
 	ahci_set_em_messages(hpriv, &pi);
 
-	/* CAP.NP sometimes indicate the index of the last enabled
-	 * port, at other times, that of the last possible port, so
-	 * determining the maximum port number requires looking at
-	 * both CAP.NP and port_map.
-	 */
 	n_ports = max(ahci_nr_ports(hpriv->cap), fls(hpriv->port_map));
 
 	host = ata_host_alloc_pinfo(dev, ppi, n_ports);
@@ -160,11 +280,14 @@ static int __init ahci_probe(struct platform_device *pdev)
 		ata_port_desc(ap, "mmio %pR", mem);
 		ata_port_desc(ap, "port 0x%x", 0x100 + ap->port_no * 0x80);
 
-		/* set enclosure management message type */
 		if (ap->flags & ATA_FLAG_EM)
 			ap->em_message_type = hpriv->em_msg_type;
 
-		/* disabled/not-implemented port */
+#if defined(MY_ABC_HERE) && defined(CONFIG_ARCH_M86XXX)
+		 
+		writel(0x41, ahci_port_base(ap) + 0x70);
+#endif
+
 		if (!(hpriv->port_map & (1 << i)))
 			ap->ops = &ata_dummy_port_ops;
 	}
@@ -198,6 +321,27 @@ static int __devexit ahci_remove(struct platform_device *pdev)
 
 	if (pdata && pdata->exit)
 		pdata->exit(dev);
+#if defined(MY_ABC_HERE) && defined(CONFIG_ARCH_M86XXX)
+	 
+	clk_disable(sata_clk);
+	clk_put(sata_clk);
+	clk_disable(sata_oob_clk);
+	clk_put(sata_oob_clk);
+	clk_disable(sata_pmu_clk);
+	clk_put(sata_pmu_clk);
+#if defined(CONFIG_COMCERTO_SATA_OCC_CLOCK)
+	clk_disable(sata_occ_clk);
+	clk_put(sata_occ_clk);
+#endif
+	 
+	c2000_block_reset(COMPONENT_AXI_SATA,1);
+
+	c2000_block_reset(COMPONENT_SERDES1,1);
+	c2000_block_reset(COMPONENT_SERDES_SATA0,1);
+
+	c2000_block_reset(COMPONENT_SERDES2,1);
+	c2000_block_reset(COMPONENT_SERDES_SATA1,1);
+#endif
 
 	return 0;
 }
@@ -209,13 +353,17 @@ static const struct of_device_id ahci_of_match[] = {
 MODULE_DEVICE_TABLE(of, ahci_of_match);
 
 static struct platform_driver ahci_driver = {
-	.remove = __devexit_p(ahci_remove),
-	.driver = {
-		.name = "ahci",
-		.owner = THIS_MODULE,
-		.of_match_table = ahci_of_match,
+	.remove  = __devexit_p(ahci_remove),
+#if defined(MY_ABC_HERE) && defined(CONFIG_PM)
+	.suspend = ahci_platform_suspend,
+	.resume  = ahci_platform_resume,
+#endif
+	.driver  = {
+		 .name = "ahci",
+		 .owner = THIS_MODULE,
+		 .of_match_table = ahci_of_match,
 	},
-	.id_table	= ahci_devtype,
+	.id_table = ahci_devtype,
 };
 
 static int __init ahci_init(void)

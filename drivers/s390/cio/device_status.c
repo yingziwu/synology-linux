@@ -397,4 +397,3 @@ ccw_device_accumulate_and_sense(struct ccw_device *cdev, struct irb *irb)
 	}
 	return 0;
 }
-

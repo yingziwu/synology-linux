@@ -397,7 +397,6 @@ static void atombios_disable_ss(struct drm_crtc *crtc)
 	}
 }
 
-
 union atom_enable_ss {
 	ENABLE_LVDS_SS_PARAMETERS lvds_ss;
 	ENABLE_LVDS_SS_PARAMETERS_V2 lvds_ss_2;

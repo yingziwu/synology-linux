@@ -213,7 +213,6 @@ extern struct task_group root_task_group;
 	INIT_CPUSET_SEQ							\
 }
 
-
 #define INIT_CPU_TIMERS(cpu_timers)					\
 {									\
 	LIST_HEAD_INIT(cpu_timers[0]),					\
@@ -223,6 +222,5 @@ extern struct task_group root_task_group;
 
 /* Attach to the init_task data structure for proper alignment */
 #define __init_task_data __attribute__((__section__(".data..init_task")))
-
 
 #endif

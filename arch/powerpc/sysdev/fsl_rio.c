@@ -1321,7 +1321,6 @@ static int fsl_rio_port_write_init(struct rio_mport *mport)
 	out_be32(&priv->msg_regs->pwmr,
 		 RIO_IPWMR_SEN | RIO_IPWMR_QFIE | RIO_IPWMR_EIE | RIO_IPWMR_CQ);
 
-
 	/* Hook up port-write handler */
 	rc = request_irq(IRQ_RIO_PW(mport), fsl_rio_port_write_handler,
 			IRQF_SHARED, "port-write", (void *)mport);

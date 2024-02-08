@@ -33,7 +33,6 @@ fixup_clep7312(struct tag *tags, char **cmdline, struct meminfo *mi)
 	mi->bank[0].size = 0x01000000;
 }
 
-
 MACHINE_START(CLEP7212, "Cirrus Logic 7212/7312")
 	/* Maintainer: Nobody */
 	.atag_offset	= 0x0100,
@@ -42,4 +41,3 @@ MACHINE_START(CLEP7212, "Cirrus Logic 7212/7312")
 	.init_irq	= clps711x_init_irq,
 	.timer		= &clps711x_timer,
 MACHINE_END
-

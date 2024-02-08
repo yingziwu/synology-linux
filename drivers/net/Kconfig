@@ -271,6 +271,19 @@ config NET_SB1000
 
 	  If you don't have this card, of course say N.
 
+config UDMA
+	tristate "Intel(R) UDMA Driver support"
+        depends on ARCH_GEN3
+	default y
+	---help---
+	  For general information and support, go to the Intel support
+	  website at:
+
+	  <http://support.intel.com>
+
+	  To compile this driver as a module, choose M here. The module
+	  will be called udma.ko
+
 source "drivers/net/phy/Kconfig"
 
 source "drivers/net/plip/Kconfig"
@@ -320,6 +333,7 @@ config XEN_NETDEV_BACKEND
 	  The corresponding Linux frontend driver is enabled by the
 	  CONFIG_XEN_NETDEV_FRONTEND configuration option.
 
+
 	  The backend driver presents a standard network device
 	  endpoint for each paravirtual network device to the driver
 	  domain network stack. These can then be bridged or routed
@@ -329,6 +343,34 @@ config XEN_NETDEV_BACKEND
 	  domain (often this is domain 0) you should say Y here. To
 	  compile this driver as a module, chose M here: the module
 	  will be called xen-netback.
+
+config SK98LIN
+        tristate "Marvell Yukon Chipset / SysKonnect SK-98xx Support"
+        depends on PCI && !SKGE && !SKY2
+        ---help---
+          Say Y here if you have a Marvell Yukon or SysKonnect SK-98xx/SK-95xx
+          compliant Gigabit Ethernet Adapter.
+
+          The adapters support Jumbo Frames.
+          The dual link adapters support link-failover and dual port features.
+          Both Marvell Yukon and SysKonnect SK-98xx/SK-95xx adapters support
+          the scatter-gather functionality with sendfile(). Please refer to
+          Documentation/networking/sk98lin.txt for more information about
+          optional driver parameters.
+          Questions concerning this driver may be addressed to:
+              linux@syskonnect.de
+
+          If you want to compile this driver as a module ( = code which can be
+          inserted in and removed from the running kernel whenever you want),
+          say M here and read Documentation/modules.txt. This is recommended.
+          The module will be called sk98lin. This is recommended.
+
+config SK98LIN_NAPI
+        bool "Use Rx polling (NAPI)"
+        depends on SK98LIN
+        help
+          NAPI is a new driver API designed to reduce CPU and interrupt load
+          when the driver is receiving lots of packets from the card.
 
 config VMXNET3
 	tristate "VMware VMXNET3 ethernet driver"

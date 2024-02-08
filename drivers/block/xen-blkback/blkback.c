@@ -123,7 +123,6 @@ static inline unsigned long vaddr(struct pending_req *req, int seg)
 #define pending_handle(_req, _seg) \
 	(blkbk->pending_grant_handles[vaddr_pagenr(_req, _seg)])
 
-
 static int do_block_io_op(struct xen_blkif *blkif);
 static int dispatch_rw_block_io(struct xen_blkif *blkif,
 				struct blkif_request *req,
@@ -519,8 +518,6 @@ static void end_block_io_op(struct bio *bio, int error)
 	bio_put(bio);
 }
 
-
-
 /*
  * Function to copy the from the ring buffer the 'struct blkif_request'
  * (which has the sectors we want, number of them, grant references, etc),
@@ -796,8 +793,6 @@ static int dispatch_rw_block_io(struct xen_blkif *blkif,
 	msleep(1); /* back off a bit */
 	return -EIO;
 }
-
-
 
 /*
  * Put a response on the ring on how the operation fared.

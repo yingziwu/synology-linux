@@ -1,9 +1,7 @@
-/*
- * decompress.c
- *
- * Detect the decompression method based on magic number
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/decompress/generic.h>
 
 #include <linux/decompress/bunzip2.h>
@@ -40,6 +38,9 @@ static const struct compress_format {
 	{ {037, 0236}, "gzip", gunzip },
 	{ {0x42, 0x5a}, "bzip2", bunzip2 },
 	{ {0x5d, 0x00}, "lzma", unlzma },
+#if defined(MY_ABC_HERE)
+	{ {0x6d, 0x00}, "lzma-openwrt", unlzma },
+#endif
 	{ {0xfd, 0x37}, "xz", unxz },
 	{ {0x89, 0x4c}, "lzo", unlzo },
 	{ {0, 0}, NULL, NULL }
@@ -51,7 +52,7 @@ decompress_fn decompress_method(const unsigned char *inbuf, int len,
 	const struct compress_format *cf;
 
 	if (len < 2)
-		return NULL;	/* Need at least this much... */
+		return NULL;	 
 
 	for (cf = compressed_formats; cf->name; cf++) {
 		if (!memcmp(inbuf, cf->magic, 2))

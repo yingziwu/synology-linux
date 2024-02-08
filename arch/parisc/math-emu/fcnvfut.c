@@ -22,7 +22,7 @@
  * BEGIN_DESC
  *
  *  File:
- *	@(#)	pa/spmath/fcnvfut.c		$Revision: 1.1 $
+ *	@(#)	pa/spmath/fcnvfut.c		$Revision: 1.1.1.1 $
  *
  *  Purpose:
  *	Floating-point to Unsigned Fixed-point Converts with Truncation
@@ -40,7 +40,6 @@
  *
  * END_DESC
 */
-
 
 #include "float.h"
 #include "sgl_float.h"

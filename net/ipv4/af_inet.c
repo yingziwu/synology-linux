@@ -118,7 +118,6 @@
 #include <linux/mroute.h>
 #endif
 
-
 /* The inetsw table contains everything that inet_create needs to
  * build a new socket.
  */
@@ -279,6 +278,9 @@ static int inet_create(struct net *net, struct socket *sock, int protocol,
 	int try_loading_module = 0;
 	int err;
 
+	if (protocol < 0 || protocol >= IPPROTO_MAX)
+		return -EINVAL;
+
 	if (unlikely(!inet_ehash_secret))
 		if (sock->type != SOCK_RAW && sock->type != SOCK_DGRAM)
 			build_ehash_secret();
@@ -411,7 +413,6 @@ out_rcu_unlock:
 	rcu_read_unlock();
 	goto out;
 }
-
 
 /*
  *	The peer socket should always be NULL (or else). When we call this
@@ -701,7 +702,6 @@ do_err:
 	return err;
 }
 EXPORT_SYMBOL(inet_accept);
-
 
 /*
  *	This does both peername and sockname.
@@ -1806,4 +1806,3 @@ static int __init ipv4_proc_init(void)
 #endif /* CONFIG_PROC_FS */
 
 MODULE_ALIAS_NETPROTO(PF_INET);
-

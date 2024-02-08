@@ -387,7 +387,6 @@ int perf_event__parse_sample(const union perf_event *event, u64 type,
 		u32 val32[2];
 	} u;
 
-
 	data->cpu = data->pid = data->tid = -1;
 	data->stream_id = data->id = data->time = -1ULL;
 	data->period = 1;

@@ -11,7 +11,6 @@
  * (at your option) any later version.
  */
 
-
 /*
  * This file requires the following identifiers used in USB strings to
  * be defined (each of type pointer to char):
@@ -49,11 +48,9 @@
  * The valid range of num_buffers is: num >= 2 && num <= 4.
  */
 
-
 #include <linux/usb/storage.h>
 #include <scsi/scsi.h>
 #include <asm/unaligned.h>
-
 
 /*
  * Thanks to NetChip Technologies for donating this product ID.
@@ -64,9 +61,7 @@
 #define FSG_VENDOR_ID	0x0525	/* NetChip */
 #define FSG_PRODUCT_ID	0xa4a5	/* Linux-USB File-backed Storage Gadget */
 
-
 /*-------------------------------------------------------------------------*/
-
 
 #ifndef DEBUG
 #undef VERBOSE_DEBUG
@@ -111,8 +106,6 @@
 #define WARNING(d, fmt, args...) dev_warn(&(d)->gadget->dev , fmt , ## args)
 #define INFO(d, fmt, args...)    dev_info(&(d)->gadget->dev , fmt , ## args)
 
-
-
 #ifdef DUMP_MSGS
 
 #  define dump_msg(fsg, /* const char * */ label,			\
@@ -144,10 +137,6 @@
 #  endif /* VERBOSE_DEBUG */
 
 #endif /* DUMP_MSGS */
-
-
-
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -186,7 +175,6 @@ struct bulk_cs_wrap {
 #define USB_BULK_RESET_REQUEST		0xff
 #define USB_BULK_GET_MAX_LUN_REQUEST	0xfe
 
-
 /* CBI Interrupt data structure */
 struct interrupt_data {
 	u8	bType;
@@ -197,7 +185,6 @@ struct interrupt_data {
 
 /* CBI Accept Device-Specific Command request */
 #define USB_CBI_ADSC_REQUEST		0x00
-
 
 /* Length of a SCSI Command Data Block */
 #define MAX_COMMAND_SIZE	16
@@ -222,9 +209,7 @@ struct interrupt_data {
 #define ASC(x)		((u8) ((x) >> 8))
 #define ASCQ(x)		((u8) (x))
 
-
 /*-------------------------------------------------------------------------*/
-
 
 struct fsg_lun {
 	struct file	*filp;
@@ -256,25 +241,20 @@ static struct fsg_lun *fsg_lun_from_dev(struct device *dev)
 	return container_of(dev, struct fsg_lun, dev);
 }
 
-
 /* Big enough to hold our biggest descriptor */
 #define EP0_BUFSIZE	256
 #define DELAYED_STATUS	(EP0_BUFSIZE + 999)	/* An impossibly large value */
 
 #ifdef CONFIG_USB_GADGET_DEBUG_FILES
-
 static unsigned int fsg_num_buffers = CONFIG_USB_GADGET_STORAGE_NUM_BUFFERS;
 module_param_named(num_buffers, fsg_num_buffers, uint, S_IRUGO);
 MODULE_PARM_DESC(num_buffers, "Number of pipeline buffers");
-
 #else
-
 /*
  * Number of buffers we will use.
  * 2 is usually enough for good buffering pipeline
  */
 #define fsg_num_buffers	CONFIG_USB_GADGET_STORAGE_NUM_BUFFERS
-
 #endif /* CONFIG_USB_DEBUG */
 
 /* check if fsg_num_buffers is within a valid range */
@@ -305,6 +285,9 @@ struct fsg_buffhd {
 #else
 	void				*buf;
 #endif
+#ifdef CONFIG_USB_GADGET_MRVL
+	dma_addr_t			dma;
+#endif
 	enum fsg_buffer_state		state;
 	struct fsg_buffhd		*next;
 
@@ -318,6 +301,15 @@ struct fsg_buffhd {
 	struct usb_request		*inreq;
 	int				inreq_busy;
 	struct usb_request		*outreq;
+#ifdef CONFIG_USB_GADGET_MRVL
+	volatile int			outreq_busy;
+
+	/* added to support async wr */
+	struct file			*file;
+	unsigned int			amount;
+	loff_t				file_offset;
+	struct fsg_buffhd		*next_to_wr;
+#endif
 	int				outreq_busy;
 };
 
@@ -344,18 +336,14 @@ enum data_direction {
 	DATA_DIR_NONE
 };
 
-
 /*-------------------------------------------------------------------------*/
-
 
 static inline u32 get_unaligned_be24(u8 *buf)
 {
 	return 0xffffff & (u32) get_unaligned_be32(buf - 1);
 }
 
-
 /*-------------------------------------------------------------------------*/
-
 
 enum {
 #ifndef FSG_NO_DEVICE_STRINGS
@@ -366,7 +354,6 @@ enum {
 #endif
 	FSG_STRING_INTERFACE
 };
-
 
 #ifndef FSG_NO_OTG
 static struct usb_otg_descriptor
@@ -450,7 +437,6 @@ static struct usb_descriptor_header *fsg_fs_function[] = {
 #endif
 	NULL,
 };
-
 
 /*
  * USB 2.0 devices need to expose both high speed and full speed
@@ -641,7 +627,6 @@ fsg_ep_desc(struct usb_gadget *g, struct usb_endpoint_descriptor *fs,
 	return fs;
 }
 
-
 /* Static strings, in UTF-8 (for simplicity we use only ASCII characters) */
 static struct usb_string		fsg_strings[] = {
 #ifndef FSG_NO_DEVICE_STRINGS
@@ -658,7 +643,6 @@ static struct usb_gadget_strings	fsg_stringtab = {
 	.language	= 0x0409,		/* en-us */
 	.strings	= fsg_strings,
 };
-
 
  /*-------------------------------------------------------------------------*/
 
@@ -680,6 +664,11 @@ static int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
 	/* R/W if we can, R/O if we must */
 	ro = curlun->initially_ro;
 	if (!ro) {
+#ifdef CONFIG_USB_GADGET_MRVL
+		if (mod_data.use_directio)
+			filp = filp_open(filename, O_RDWR | O_LARGEFILE | O_DIRECT, 0);
+		else
+#endif
 		filp = filp_open(filename, O_RDWR | O_LARGEFILE, 0);
 		if (PTR_ERR(filp) == -EROFS || PTR_ERR(filp) == -EACCES)
 			ro = 1;
@@ -760,7 +749,6 @@ out:
 	return rc;
 }
 
-
 static void fsg_lun_close(struct fsg_lun *curlun)
 {
 	if (curlun->filp) {
@@ -769,7 +757,6 @@ static void fsg_lun_close(struct fsg_lun *curlun)
 		curlun->filp = NULL;
 	}
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -780,9 +767,22 @@ static void fsg_lun_close(struct fsg_lun *curlun)
 static int fsg_lun_fsync_sub(struct fsg_lun *curlun)
 {
 	struct file	*filp = curlun->filp;
+#ifdef CONFIG_USB_GADGET_MRVL
+	int 		rc;
+	struct fsg_dev	*fsg = the_fsg;
+#endif
 
 	if (curlun->ro || !filp)
 		return 0;
+#ifdef CONFIG_USB_GADGET_MRVL
+	if(mod_data.use_wr_thread) {
+		/* wait for write to complete */
+		while(fsg->num_wr_buf != 0) {
+			if ((rc = sleep_thread(fsg)) != 0)
+				return rc;
+		}
+	}
+#endif
 	return vfs_fsync(filp, 1);
 }
 
@@ -804,9 +804,7 @@ static void store_cdrom_address(u8 *dest, int msf, u32 addr)
 	}
 }
 
-
 /*-------------------------------------------------------------------------*/
-
 
 static ssize_t fsg_show_ro(struct device *dev, struct device_attribute *attr,
 			   char *buf)
@@ -852,7 +850,6 @@ static ssize_t fsg_show_file(struct device *dev, struct device_attribute *attr,
 	up_read(filesem);
 	return rc;
 }
-
 
 static ssize_t fsg_store_ro(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t count)

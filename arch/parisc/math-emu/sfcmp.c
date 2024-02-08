@@ -22,7 +22,7 @@
  * BEGIN_DESC
  *
  *  File:
- *	@(#)	pa/spmath/sfcmp.c		$Revision: 1.1 $
+ *	@(#)	pa/spmath/sfcmp.c		$Revision: 1.1.1.1 $
  *
  *  Purpose:
  *	sgl_cmp: compare two values
@@ -37,7 +37,6 @@
  *
  * END_DESC
 */
-
 
 #include "float.h"
 #include "sgl_float.h"

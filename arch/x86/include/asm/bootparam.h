@@ -14,6 +14,11 @@
 #define SETUP_E820_EXT			1
 #define SETUP_DTB			2
 
+#ifdef CONFIG_ARCH_GEN3
+#define SETUP_BOARD_TYPE          (0x1000)
+#define SETUP_GMAC_PHY_MODE		  (0x1001)
+#endif
+
 /* extensible setup data list node */
 struct setup_data {
 	__u64 next;
@@ -128,7 +133,5 @@ enum {
 	X86_SUBARCH_CE4100,
 	X86_NR_SUBARCHS,
 };
-
-
 
 #endif /* _ASM_X86_BOOTPARAM_H */

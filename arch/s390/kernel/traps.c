@@ -495,7 +495,6 @@ static void __kprobes illegal_op(struct pt_regs *regs, long pgm_int_code,
 	}
 }
 
-
 #ifdef CONFIG_MATHEMU
 void specification_exception(struct pt_regs *regs, long pgm_int_code,
 			     unsigned long trans_exc_code)

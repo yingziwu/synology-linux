@@ -162,7 +162,6 @@ void read_persistent_clock(struct timespec *ts)
 	ts->tv_nsec = (INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
 }
 
-
 void __init time_init(void)
 {
 #if defined(CONFIG_CHIP_M32102) || defined(CONFIG_CHIP_XNUX2) \

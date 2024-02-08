@@ -260,7 +260,6 @@
 #define WELP_ARM_COMMAND               (REGISTERS_BASE + 0x6100)
 #define DRPW_SCRATCH_START             (DRPW_BASE + 0x002C)
 
-
 #define ACX_SLV_SOFT_RESET_BIT   BIT(1)
 #define ACX_REG_EEPROM_START_BIT BIT(1)
 
@@ -406,7 +405,6 @@
 #define SOFT_RESET_STALL_TIME               1000
 #define NVS_DATA_BUNDARY_ALIGNMENT          4
 
-
 /* Firmware image load chunk size */
 #define CHUNK_SIZE          512
 
@@ -415,13 +413,11 @@
 
 #define ECPU_CONTROL_HALT					0x00000101
 
-
 /******************************************************************************
 
     CHANNELS, BAND & REG DOMAINS definitions
 
 ******************************************************************************/
-
 
 enum {
 	RADIO_BAND_2_4GHZ = 0,  /* 2.4 Ghz band */
@@ -465,7 +461,6 @@ b12-b0 - Supported Rate indicator bits as defined below.
 
 ******************************************************************************/
 
-
 /*************************************************************************
 
     Interrupt Trigger Register (Host -> WiLink)
@@ -507,7 +502,6 @@ b12-b0 - Supported Rate indicator bits as defined below.
 #define INTR_TRIG_DEBUG_ACK BIT(4)
 
 #define INTR_TRIG_STATE_CHANGED BIT(5)
-
 
 /* Hardware to Embedded CPU Interrupts - second 32-bit register set */
 

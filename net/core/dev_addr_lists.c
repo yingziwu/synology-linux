@@ -46,7 +46,6 @@ static int __hw_addr_add_ex(struct netdev_hw_addr_list *list,
 		}
 	}
 
-
 	alloc_size = sizeof(*ha);
 	if (alloc_size < L1_CACHE_BYTES)
 		alloc_size = L1_CACHE_BYTES;
@@ -732,4 +731,3 @@ void __init dev_mcast_init(void)
 {
 	register_pernet_subsys(&dev_mc_net_ops);
 }
-

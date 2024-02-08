@@ -306,7 +306,6 @@ static ssize_t iwm_debugfs_sdio_read(struct file *filp, char __user *buffer,
 	}
 	len += snprintf(buf + len, buf_len - len, "CCCR_IORx:  0x%x\n", cccr);
 
-
 	cccr =  sdio_f0_readb(hw->func, SDIO_CCCR_IENx, &ret);
 	if (ret) {
 		IWM_ERR(iwm, "Could not read SDIO_CCCR_IENx\n");
@@ -314,14 +313,12 @@ static ssize_t iwm_debugfs_sdio_read(struct file *filp, char __user *buffer,
 	}
 	len += snprintf(buf + len, buf_len - len, "CCCR_IENx:  0x%x\n", cccr);
 
-
 	cccr =  sdio_f0_readb(hw->func, SDIO_CCCR_INTx, &ret);
 	if (ret) {
 		IWM_ERR(iwm, "Could not read SDIO_CCCR_INTx\n");
 		goto err;
 	}
 	len += snprintf(buf + len, buf_len - len, "CCCR_INTx:  0x%x\n", cccr);
-
 
 	cccr =  sdio_f0_readb(hw->func, SDIO_CCCR_ABORT, &ret);
 	if (ret) {
@@ -336,7 +333,6 @@ static ssize_t iwm_debugfs_sdio_read(struct file *filp, char __user *buffer,
 		goto err;
 	}
 	len += snprintf(buf + len, buf_len - len, "CCCR_IF:    0x%x\n", cccr);
-
 
 	cccr =  sdio_f0_readb(hw->func, SDIO_CCCR_CAPS, &ret);
 	if (ret) {

@@ -393,7 +393,6 @@ static struct pci_driver rdc_pci_driver = {
 #endif
 };
 
-
 static int __init rdc_init(void)
 {
 	return pci_register_driver(&rdc_pci_driver);

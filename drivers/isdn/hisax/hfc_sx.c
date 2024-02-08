@@ -1,4 +1,4 @@
-/* $Id: hfc_sx.c,v 1.12.2.5 2004/02/11 13:21:33 keil Exp $
+/* $Id: hfc_sx.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * level driver for Cologne Chip Designs hfc-s+/sp based cards
  *
@@ -19,7 +19,7 @@
 #include <linux/isapnp.h>
 #include <linux/slab.h>
 
-static const char *hfcsx_revision = "$Revision: 1.12.2.5 $";
+static const char *hfcsx_revision = "$Revision: 1.1.1.1 $";
 
 /***************************************/
 /* IRQ-table for CCDs demo board       */
@@ -75,7 +75,6 @@ Read_hfc(struct IsdnCardState *cs, u_char regnum)
 	return(ret);
 } 
 
-
 /**************************************************/
 /* select a fifo and remember which one for reuse */
 /**************************************************/
@@ -106,7 +105,6 @@ reset_fifo(struct IsdnCardState *cs, u_char fifo)
 	udelay(1);
 	while (bytein(cs->hw.hfcsx.base+1) & 1); /* wait for busy */
 } 
-
 
 /*************************************************************/
 /* write_fifo writes the skb contents to the desired fifo    */
@@ -586,8 +584,6 @@ dch_nt_l2l1(struct PStack *st, int pr, void *arg)
 	}
 }
 
-
-
 /***********************/
 /* set/reset echo mode */
 /***********************/
@@ -685,7 +681,6 @@ receive_emsg(struct IsdnCardState *cs)
 	test_and_clear_bit(FLG_LOCK_ATOMIC, &cs->HW_Flags);
 	return;
 }				/* receive_emsg */
-
 
 /*********************/
 /* Interrupt handler */
@@ -1324,7 +1319,6 @@ hfcsx_bh(struct work_struct *work)
 		DChannel_proc_xmt(cs);
 }
 
-
 /********************************/
 /* called for card init message */
 /********************************/
@@ -1339,8 +1333,6 @@ static void inithfcsx(struct IsdnCardState *cs)
 	mode_hfcsx(cs->bcs, 0, 0);
 	mode_hfcsx(cs->bcs + 1, 0, 1);
 }
-
-
 
 /*******************************************/
 /* handle card messages from control layer */
