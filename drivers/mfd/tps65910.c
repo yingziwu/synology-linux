@@ -52,7 +52,6 @@ static struct mfd_cell tps65910s[] = {
 	},
 };
 
-
 static const struct regmap_irq tps65911_irqs[] = {
 	/* INT_STS */
 	[TPS65911_IRQ_PWRHOLD_F] = {
@@ -536,7 +535,6 @@ static const struct i2c_device_id tps65910_i2c_id[] = {
        { }
 };
 MODULE_DEVICE_TABLE(i2c, tps65910_i2c_id);
-
 
 static struct i2c_driver tps65910_i2c_driver = {
 	.driver = {

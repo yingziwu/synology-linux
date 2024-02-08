@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Helper macros to support writing architecture specific
  * linker scripts.
@@ -424,7 +427,6 @@
 	MEM_KEEP(exit.text)						\
 		*(.text.unlikely)
 
-
 /* sched.text is aling to function alignment to secure we have same
  * address even at second ld pass when generating System.map */
 #define SCHED_TEXT							\
@@ -717,6 +719,7 @@
  * @cacheline is used to align subsections to avoid false cacheline
  * sharing between subsections for different purposes.
  */
+#ifdef MY_ABC_HERE
 #define PERCPU_INPUT(cacheline)						\
 	VMLINUX_SYMBOL(__per_cpu_start) = .;				\
 	*(.data..percpu..first)						\
@@ -728,6 +731,26 @@
 	*(.data..percpu)						\
 	*(.data..percpu..shared_aligned)				\
 	VMLINUX_SYMBOL(__per_cpu_end) = .;
+#else
+#define PERCPU_INPUT(cacheline)						\
+	VMLINUX_SYMBOL(__per_cpu_start) = .;				\
+	*(.data..percpu..first)						\
+	. = ALIGN(PAGE_SIZE);						\
+	VMLINUX_SYMBOL(__per_cpu_user_mapped_start) = .;		\
+	*(.data..percpu..user_mapped..page_aligned)			\
+	. = ALIGN(cacheline);						\
+	*(.data..percpu..user_mapped)					\
+	*(.data..percpu..user_mapped..shared_aligned)			\
+	VMLINUX_SYMBOL(__per_cpu_user_mapped_end) = .;			\
+	. = ALIGN(PAGE_SIZE);						\
+	*(.data..percpu..page_aligned)					\
+	. = ALIGN(cacheline);						\
+	*(.data..percpu..readmostly)					\
+	. = ALIGN(cacheline);						\
+	*(.data..percpu)						\
+	*(.data..percpu..shared_aligned)				\
+	VMLINUX_SYMBOL(__per_cpu_end) = .;
+#endif	/* MY_ABC_HERE */
 
 /**
  * PERCPU_VADDR - define output section for percpu area
@@ -780,12 +803,10 @@
 		PERCPU_INPUT(cacheline)					\
 	}
 
-
 /*
  * Definition of the high level *_SECTION macros
  * They will fit only a subset of the architectures
  */
-
 
 /*
  * Writeable data.

@@ -56,7 +56,6 @@ irqreturn_t vmw_irq_handler(DRM_IRQ_ARGS)
 	if (masked_status & SVGA_IRQFLAG_FIFO_PROGRESS)
 		wake_up_all(&dev_priv->fifo_queue);
 
-
 	return IRQ_HANDLED;
 }
 
@@ -211,7 +210,6 @@ void vmw_seqno_waiter_remove(struct vmw_private *dev_priv)
 	}
 	mutex_unlock(&dev_priv->hw_mutex);
 }
-
 
 void vmw_goal_waiter_add(struct vmw_private *dev_priv)
 {

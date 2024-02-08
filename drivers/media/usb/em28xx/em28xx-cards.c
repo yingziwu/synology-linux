@@ -65,7 +65,6 @@ module_param(usb_xfer_mode, int, 0444);
 MODULE_PARM_DESC(usb_xfer_mode,
 		 "USB transfer mode for frame data (-1 = auto, 0 = prefer isoc, 1 = prefer bulk)");
 
-
 /* Bitmask marking allocated devices from 0 to EM28XX_MAXBOARDS - 1 */
 static unsigned long em28xx_devused;
 
@@ -282,7 +281,6 @@ static struct em28xx_reg_seq dikom_dk300_digital[] = {
 	{EM2880_R04_GPO,	0x08,	0xff,		10},
 	{ -1,			-1,	-1,		-1},
 };
-
 
 /* Reset for the most [digital] boards */
 static struct em28xx_reg_seq leadership_digital[] = {
@@ -2788,7 +2786,6 @@ static void em28xx_card_setup(struct em28xx *dev)
 
 	em28xx_init_camera(dev);
 }
-
 
 static void request_module_async(struct work_struct *work)
 {

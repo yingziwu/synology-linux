@@ -24,17 +24,14 @@
 #include <linux/pci.h>
 #include <linux/kdev_t.h>
 
-
 #define PORTSERVER_DIVIDEND 1843200
 #define SERIAL_TYPE_NORMAL      1
 #define SERIAL_TYPE_CALLOUT     2
 #define SERIAL_TYPE_XPRINT      3
 
-
 static struct class *dgrp_class;
 static struct device *dgrp_class_nodes_dev;
 static struct device *dgrp_class_global_settings_dev;
-
 
 static ssize_t dgrp_class_version_show(struct class *class,
 				       struct class_attribute *attr, char *buf)
@@ -42,7 +39,6 @@ static ssize_t dgrp_class_version_show(struct class *class,
 	return snprintf(buf, PAGE_SIZE, "%s\n", DIGI_VERSION);
 }
 static CLASS_ATTR(driver_version, 0400, dgrp_class_version_show, NULL);
-
 
 static ssize_t dgrp_class_register_with_sysfs_show(struct device *c,
 						   struct device_attribute *attr,
@@ -52,7 +48,6 @@ static ssize_t dgrp_class_register_with_sysfs_show(struct device *c,
 }
 static DEVICE_ATTR(register_with_sysfs, 0400,
 		   dgrp_class_register_with_sysfs_show, NULL);
-
 
 static ssize_t dgrp_class_pollrate_show(struct device *c,
 					struct device_attribute *attr,
@@ -77,13 +72,10 @@ static struct attribute *dgrp_sysfs_global_settings_entries[] = {
 	NULL
 };
 
-
 static struct attribute_group dgrp_global_settings_attribute_group = {
 	.name = NULL,
 	.attrs = dgrp_sysfs_global_settings_entries,
 };
-
-
 
 int dgrp_create_class_sysfs_files(void)
 {
@@ -130,7 +122,6 @@ err_class:
 	class_destroy(dgrp_class);
 	return ret;
 }
-
 
 void dgrp_remove_class_sysfs_files(void)
 {
@@ -216,7 +207,6 @@ static ssize_t dgrp_node_hw_id_show(struct device *c,
 	if (!nd)
 		return 0;
 
-
 	if (nd->nd_state == NS_READY)
 		return snprintf(buf, PAGE_SIZE, "%d\n", nd->nd_hw_id);
 	return 0;
@@ -245,7 +235,6 @@ static ssize_t dgrp_node_sw_version_show(struct device *c,
 }
 static DEVICE_ATTR(sw_version_info, 0600, dgrp_node_sw_version_show, NULL);
 
-
 static struct attribute *dgrp_sysfs_node_entries[] = {
 	&dev_attr_state.attr,
 	&dev_attr_description_info.attr,
@@ -255,12 +244,10 @@ static struct attribute *dgrp_sysfs_node_entries[] = {
 	NULL
 };
 
-
 static struct attribute_group dgrp_node_attribute_group = {
 	.name = NULL,
 	.attrs = dgrp_sysfs_node_entries,
 };
-
 
 void dgrp_create_node_class_sysfs_files(struct nd_struct *nd)
 {
@@ -290,7 +277,6 @@ void dgrp_create_node_class_sysfs_files(struct nd_struct *nd)
 
 }
 
-
 void dgrp_remove_node_class_sysfs_files(struct nd_struct *nd)
 {
 	if (nd->nd_class_dev) {
@@ -301,8 +287,6 @@ void dgrp_remove_node_class_sysfs_files(struct nd_struct *nd)
 		nd->nd_class_dev = NULL;
 	}
 }
-
-
 
 static ssize_t dgrp_tty_state_show(struct device *d,
 				   struct device_attribute *attr, char *buf)
@@ -339,7 +323,6 @@ static ssize_t dgrp_tty_baud_show(struct device *d,
 }
 static DEVICE_ATTR(baud_info, 0400, dgrp_tty_baud_show, NULL);
 
-
 static ssize_t dgrp_tty_msignals_show(struct device *d,
 				      struct device_attribute *attr, char *buf)
 {
@@ -368,7 +351,6 @@ static ssize_t dgrp_tty_msignals_show(struct device *d,
 }
 static DEVICE_ATTR(msignals_info, 0400, dgrp_tty_msignals_show, NULL);
 
-
 static ssize_t dgrp_tty_iflag_show(struct device *d,
 				   struct device_attribute *attr, char *buf)
 {
@@ -386,7 +368,6 @@ static ssize_t dgrp_tty_iflag_show(struct device *d,
 	return snprintf(buf, PAGE_SIZE, "%x\n", ch->ch_s_iflag);
 }
 static DEVICE_ATTR(iflag_info, 0600, dgrp_tty_iflag_show, NULL);
-
 
 static ssize_t dgrp_tty_cflag_show(struct device *d,
 				   struct device_attribute *attr, char *buf)
@@ -406,7 +387,6 @@ static ssize_t dgrp_tty_cflag_show(struct device *d,
 }
 static DEVICE_ATTR(cflag_info, 0600, dgrp_tty_cflag_show, NULL);
 
-
 static ssize_t dgrp_tty_oflag_show(struct device *d,
 				   struct device_attribute *attr, char *buf)
 {
@@ -424,7 +404,6 @@ static ssize_t dgrp_tty_oflag_show(struct device *d,
 	return snprintf(buf, PAGE_SIZE, "%x\n", ch->ch_s_oflag);
 }
 static DEVICE_ATTR(oflag_info, 0600, dgrp_tty_oflag_show, NULL);
-
 
 static ssize_t dgrp_tty_digi_flag_show(struct device *d,
 				       struct device_attribute *attr, char *buf)
@@ -444,7 +423,6 @@ static ssize_t dgrp_tty_digi_flag_show(struct device *d,
 }
 static DEVICE_ATTR(digi_flag_info, 0600, dgrp_tty_digi_flag_show, NULL);
 
-
 static ssize_t dgrp_tty_rxcount_show(struct device *d,
 				     struct device_attribute *attr, char *buf)
 {
@@ -463,7 +441,6 @@ static ssize_t dgrp_tty_rxcount_show(struct device *d,
 }
 static DEVICE_ATTR(rxcount_info, 0600, dgrp_tty_rxcount_show, NULL);
 
-
 static ssize_t dgrp_tty_txcount_show(struct device *d,
 				     struct device_attribute *attr, char *buf)
 {
@@ -481,7 +458,6 @@ static ssize_t dgrp_tty_txcount_show(struct device *d,
 	return snprintf(buf, PAGE_SIZE, "%d\n", ch->ch_txcount);
 }
 static DEVICE_ATTR(txcount_info, 0600, dgrp_tty_txcount_show, NULL);
-
 
 static ssize_t dgrp_tty_name_show(struct device *d,
 				  struct device_attribute *attr, char *buf)
@@ -511,7 +487,6 @@ static ssize_t dgrp_tty_name_show(struct device *d,
 }
 static DEVICE_ATTR(custom_name, 0600, dgrp_tty_name_show, NULL);
 
-
 static struct attribute *dgrp_sysfs_tty_entries[] = {
 	&dev_attr_state_info.attr,
 	&dev_attr_baud_info.attr,
@@ -526,12 +501,10 @@ static struct attribute *dgrp_sysfs_tty_entries[] = {
 	NULL
 };
 
-
 static struct attribute_group dgrp_tty_attribute_group = {
 	.name = NULL,
 	.attrs = dgrp_sysfs_tty_entries,
 };
-
 
 void dgrp_create_tty_sysfs(struct un_struct *un, struct device *c)
 {
@@ -548,7 +521,6 @@ void dgrp_create_tty_sysfs(struct un_struct *un, struct device *c)
 	dev_set_drvdata(c, un);
 
 }
-
 
 void dgrp_remove_tty_sysfs(struct device *c)
 {

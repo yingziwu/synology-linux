@@ -155,7 +155,6 @@ static int demote_ok(const struct gfs2_glock *gl)
 	return 1;
 }
 
-
 void gfs2_glock_add_to_lru(struct gfs2_glock *gl)
 {
 	spin_lock(&lru_lock);
@@ -1502,7 +1501,6 @@ static void glock_hash_walk(glock_examiner examiner, const struct gfs2_sbd *sdp)
 	for (x = 0; x < GFS2_GL_HASH_SIZE; x++)
 		examine_bucket(examiner, sdp, x);
 }
-
 
 /**
  * thaw_glock - thaw out a glock which has an unprocessed reply waiting

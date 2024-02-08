@@ -17,7 +17,6 @@
 #include <linux/vmalloc.h>
 #include "ft1000_usb.h"
 
-
 #define  DWNLD_HANDSHAKE_LOC     0x02
 #define  DWNLD_TYPE_LOC          0x04
 #define  DWNLD_SIZE_MSW_LOC      0x06
@@ -77,7 +76,6 @@
 
 #define  HANDSHAKE_MAG_TIMEOUT_VALUE 0xF1F1
 
-
 // New Magnemite downloader
 #define  DWNLD_MAG1_HANDSHAKE_LOC     0x00
 #define  DWNLD_MAG1_TYPE_LOC          0x01
@@ -109,7 +107,6 @@ struct dsp_image_info {
    unsigned short    checksum;            // DSP File checksum
    unsigned short    pad1;
 };
-
 
 //---------------------------------------------------------------------------
 // Function:    check_usb_db
@@ -415,7 +412,6 @@ static long get_request_value(struct ft1000_usb *ft1000dev)
 	return value;
 }
 
-
 //---------------------------------------------------------------------------
 // Function:    put_request_value
 //
@@ -439,8 +435,6 @@ static void put_request_value(struct ft1000_usb *ft1000dev, long lvalue)
 					  (u8 *)&tempx);
 }
 
-
-
 //---------------------------------------------------------------------------
 // Function:    hdr_checksum
 //
@@ -457,7 +451,6 @@ static u16 hdr_checksum(struct pseudo_hdr *pHdr)
 {
 	u16   *usPtr = (u16 *)pHdr;
 	u16   chksum;
-
 
 	chksum = ((((((usPtr[0] ^ usPtr[1]) ^ usPtr[2]) ^ usPtr[3]) ^
 	usPtr[4]) ^ usPtr[5]) ^ usPtr[6]);
@@ -1226,4 +1219,3 @@ u16 scram_dnldr(struct ft1000_usb *ft1000dev, void *pFileStart,
 
 	return status;
 }
-

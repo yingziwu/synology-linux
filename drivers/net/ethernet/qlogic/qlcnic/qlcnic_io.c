@@ -963,7 +963,6 @@ struct sk_buff *qlcnic_process_rxbuf(struct qlcnic_adapter *adapter,
 		skb_checksum_none_assert(skb);
 	}
 
-
 	buffer->skb = NULL;
 
 	return skb;

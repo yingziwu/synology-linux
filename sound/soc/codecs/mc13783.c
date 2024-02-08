@@ -206,7 +206,6 @@ static int mc13783_set_fmt(struct snd_soc_dai *dai, unsigned int fmt,
 	unsigned int mask = AUDIO_CFS(3) | AUDIO_BCL_INV | AUDIO_CFS_INV |
 				AUDIO_CSM | AUDIO_C_CLK_EN | AUDIO_C_RESET;
 
-
 	/* DAI mode */
 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
 	case SND_SOC_DAIFMT_I2S:
@@ -440,7 +439,6 @@ static const struct snd_kcontrol_new mc2_amp_ctl =
 
 static const struct snd_kcontrol_new atx_amp_ctl =
 	SOC_DAPM_SINGLE("Switch", MC13783_AUDIO_TX, 11, 1, 0);
-
 
 /* Virtual mux. The chip does the input selection automatically
  * as soon as we enable one input. */
@@ -736,7 +734,6 @@ static int mc13783_codec_probe(struct platform_device *pdev)
 	int ret;
 
 	mc13xxx = dev_get_drvdata(pdev->dev.parent);
-
 
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 	if (priv == NULL)

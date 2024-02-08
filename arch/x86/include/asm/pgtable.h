@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_PGTABLE_H
 #define _ASM_X86_PGTABLE_H
 
@@ -591,7 +594,16 @@ static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
 
 static inline int pgd_bad(pgd_t pgd)
 {
+#ifdef MY_ABC_HERE
 	return (pgd_flags(pgd) & ~_PAGE_USER) != _KERNPG_TABLE;
+#else
+	unsigned long ignore_flags = _PAGE_USER;
+
+    if (IS_ENABLED(CONFIG_KAISER))
+	ignore_flags |= _PAGE_NX;
+
+    return (pgd_flags(pgd) & ~ignore_flags) != _KERNPG_TABLE;
+#endif	/* MY_ABC_HERE */
 }
 
 static inline int pgd_none(pgd_t pgd)
@@ -620,7 +632,6 @@ static inline int pgd_none(pgd_t pgd)
  * of a process's
  */
 #define pgd_offset_k(address) pgd_offset(&init_mm, (address))
-
 
 #define KERNEL_PGD_BOUNDARY	pgd_index(PAGE_OFFSET)
 #define KERNEL_PGD_PTRS		(PTRS_PER_PGD - KERNEL_PGD_BOUNDARY)
@@ -753,7 +764,6 @@ extern int pmdp_test_and_clear_young(struct vm_area_struct *vma,
 extern int pmdp_clear_flush_young(struct vm_area_struct *vma,
 				  unsigned long address, pmd_t *pmdp);
 
-
 #define __HAVE_ARCH_PMDP_SPLITTING_FLUSH
 extern void pmdp_splitting_flush(struct vm_area_struct *vma,
 				 unsigned long addr, pmd_t *pmdp);
@@ -794,6 +804,15 @@ static inline void pmdp_set_wrprotect(struct mm_struct *mm,
 static inline void clone_pgd_range(pgd_t *dst, pgd_t *src, int count)
 {
        memcpy(dst, src, count * sizeof(pgd_t));
+#ifdef MY_ABC_HERE
+#else
+#ifdef CONFIG_KAISER
+        /* Clone the shadow pgd part as well */
+        memcpy(kernel_to_shadow_pgdp(dst), kernel_to_shadow_pgdp(src),
+               count * sizeof(pgd_t));
+#endif
+#endif	/* MY_ABC_HERE */
+
 }
 
 #define PTE_SHIFT ilog2(PTRS_PER_PTE)

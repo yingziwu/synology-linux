@@ -33,7 +33,6 @@
  * ---------------------------------------------------------------------------
  */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_fw_read_start
@@ -80,8 +79,6 @@ unifi_fw_read_start(void *ospriv, s8 is_fw, const card_info_t *info)
     return NULL;
 } /* unifi_fw_read_start() */
 
-
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_fw_read_stop
@@ -111,7 +108,6 @@ unifi_fw_read_stop(void *ospriv, void *dlpriv)
     }
 
 } /* unifi_fw_read_stop() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -207,9 +203,6 @@ unifi_fw_read(void *ospriv, void *arg, u32 offset, void *buf, u32 len)
     return len;
 
 } /* unifi_fw_read() */
-
-
-
 
 #define UNIFIHELPER_INIT_MODE_SMEUSER   2
 #define UNIFIHELPER_INIT_MODE_NATIVE    1

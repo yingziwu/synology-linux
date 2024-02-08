@@ -123,7 +123,6 @@ struct mpoa_client *mpcs = NULL; /* FIXME */
 static struct atm_mpoa_qos *qos_head = NULL;
 static DEFINE_TIMER(mpc_timer, NULL, 0, 0);
 
-
 static struct mpoa_client *find_mpc_by_itfnum(int itf)
 {
 	struct mpoa_client *mpc;
@@ -706,7 +705,7 @@ static void mpc_push(struct atm_vcc *vcc, struct sk_buff *skb)
 		dprintk("(%s) control packet arrived\n", dev->name);
 		/* Pass control packets to daemon */
 		skb_queue_tail(&sk->sk_receive_queue, skb);
-		sk->sk_data_ready(sk, skb->len);
+		sk->sk_data_ready(sk);
 		return;
 	}
 
@@ -992,7 +991,7 @@ int msg_to_mpoad(struct k_message *mesg, struct mpoa_client *mpc)
 
 	sk = sk_atm(mpc->mpoad_vcc);
 	skb_queue_tail(&sk->sk_receive_queue, skb);
-	sk->sk_data_ready(sk, skb->len);
+	sk->sk_data_ready(sk);
 
 	return 0;
 }
@@ -1078,7 +1077,6 @@ static int mpoa_event_listener(struct notifier_block *mpoa_notifier,
  * Functions which are called after a message is received from mpcd.
  * Msg is reused on purpose.
  */
-
 
 static void MPOA_trigger_rcvd(struct k_message *msg, struct mpoa_client *mpc)
 {
@@ -1275,7 +1273,7 @@ static void purge_egress_shortcut(struct atm_vcc *vcc, eg_cache_entry *entry)
 
 	sk = sk_atm(vcc);
 	skb_queue_tail(&sk->sk_receive_queue, skb);
-	sk->sk_data_ready(sk, skb->len);
+	sk->sk_data_ready(sk);
 	dprintk("exiting\n");
 }
 
@@ -1393,7 +1391,6 @@ static void clean_up(struct k_message *msg, struct mpoa_client *mpc, int action)
 
 	eg_cache_entry *entry;
 	msg->type = SND_EGRESS_PURGE;
-
 
 	/* FIXME: This knows too much of the cache structure */
 	read_lock_irq(&mpc->egress_lock);

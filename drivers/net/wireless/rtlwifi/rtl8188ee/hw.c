@@ -746,7 +746,6 @@ static bool _rtl88ee_llt_table_init(struct ieee80211_hw *hw)
 	rtl_write_byte(rtlpriv, REG_RQPN_NPQ, 0x01);
 	rtl_write_dword(rtlpriv, REG_RQPN, 0x80730d29);
 
-
 	rtl_write_dword(rtlpriv, REG_TRXFF_BNDY, (0x25FF0000 | txpktbuf_bndy));
 	rtl_write_byte(rtlpriv, REG_TDECTRL + 1, txpktbuf_bndy);
 
@@ -859,7 +858,6 @@ static bool _rtl88ee_init_mac(struct ieee80211_hw *hw)
 			return false;
 		}
 	}
-
 
 	rtl_write_dword(rtlpriv, REG_HISR, 0xffffffff);
 	rtl_write_dword(rtlpriv, REG_HISRE, 0xffffffff);
@@ -2257,7 +2255,6 @@ bool rtl88ee_gpio_radio_on_off_checking(struct ieee80211_hw *hw, u8 *valid)
 
 	u4tmp = rtl_read_dword(rtlpriv, REG_GPIO_OUTPUT);
 	state_toset = (u4tmp & BIT(31)) ? ERFON : ERFOFF;
-
 
 	if ((ppsc->hwradiooff == true) && (state_toset == ERFON)) {
 		RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,

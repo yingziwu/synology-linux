@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /******************************************************************************
  * x86_emulate.h
  *
@@ -275,6 +278,10 @@ struct x86_emulate_ctxt {
 	bool guest_mode; /* guest running a nested guest */
 	bool perm_ok; /* do not check permissions if true */
 	bool only_vendor_specific_insn;
+#ifdef MY_ABC_HERE
+#else
+	bool tf;	/* TF value before instruction (after for syscall/sysret) */
+#endif	/* MY_ABC_HERE */
 
 	bool have_exception;
 	struct x86_exception exception;

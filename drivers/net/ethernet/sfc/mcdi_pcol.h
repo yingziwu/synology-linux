@@ -7,7 +7,6 @@
  * by the Free Software Foundation, incorporated herein by reference.
  */
 
-
 #ifndef MCDI_PCOL_H
 #define MCDI_PCOL_H
 
@@ -144,7 +143,6 @@
  */
 #define FSE_AZ_EV_CODE_MCDI_EVRESPONSE 0xc
 
-
 /* Non-existent command target */
 #define MC_CMD_ERR_ENOENT 2
 /* assert() has killed the MC */
@@ -207,7 +205,6 @@
 	(MC_CMD_DBI_WRITE_IN_DBIWROP_OFST +		\
 	 MC_CMD_DBIWROP_TYPEDEF_VALUE_OFST +		\
 	 (n) * MC_CMD_DBIWROP_TYPEDEF_LEN)
-
 
 /* MCDI_EVENT structuredef */
 #define    MCDI_EVENT_LEN 8
@@ -315,7 +312,6 @@
 #define       MCDI_EVENT_PTP_UUID_LBN 0
 #define       MCDI_EVENT_PTP_UUID_WIDTH 32
 
-
 /***********************************/
 /* MC_CMD_READ32
  * Read multiple 32byte words from MC memory.
@@ -336,7 +332,6 @@
 #define       MC_CMD_READ32_OUT_BUFFER_MINNUM 1
 #define       MC_CMD_READ32_OUT_BUFFER_MAXNUM 63
 
-
 /***********************************/
 /* MC_CMD_WRITE32
  * Write multiple 32byte words to MC memory.
@@ -356,7 +351,6 @@
 /* MC_CMD_WRITE32_OUT msgresponse */
 #define    MC_CMD_WRITE32_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_COPYCODE
  * Copy MC code between two locations and jump.
@@ -374,7 +368,6 @@
 /* MC_CMD_COPYCODE_OUT msgresponse */
 #define    MC_CMD_COPYCODE_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_SET_FUNC
  */
@@ -386,7 +379,6 @@
 
 /* MC_CMD_SET_FUNC_OUT msgresponse */
 #define    MC_CMD_SET_FUNC_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_GET_BOOT_STATUS
@@ -406,7 +398,6 @@
 #define        MC_CMD_GET_BOOT_STATUS_OUT_FLAGS_PRIMARY_WIDTH 1
 #define        MC_CMD_GET_BOOT_STATUS_OUT_FLAGS_BACKUP_LBN 2
 #define        MC_CMD_GET_BOOT_STATUS_OUT_FLAGS_BACKUP_WIDTH 1
-
 
 /***********************************/
 /* MC_CMD_GET_ASSERTS
@@ -432,7 +423,6 @@
 #define       MC_CMD_GET_ASSERTS_OUT_THREAD_OFFS_OFST 132
 #define       MC_CMD_GET_ASSERTS_OUT_RESERVED_OFST 136
 
-
 /***********************************/
 /* MC_CMD_LOG_CTRL
  * Configure the output stream for various events and messages.
@@ -448,7 +438,6 @@
 
 /* MC_CMD_LOG_CTRL_OUT msgresponse */
 #define    MC_CMD_LOG_CTRL_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_GET_VERSION
@@ -478,7 +467,6 @@
 #define       MC_CMD_GET_VERSION_OUT_VERSION_LO_OFST 24
 #define       MC_CMD_GET_VERSION_OUT_VERSION_HI_OFST 28
 
-
 /***********************************/
 /* MC_CMD_GET_FPGAREG
  * Read multiple bytes from PTP FPGA.
@@ -499,7 +487,6 @@
 #define       MC_CMD_GET_FPGAREG_OUT_BUFFER_MINNUM 1
 #define       MC_CMD_GET_FPGAREG_OUT_BUFFER_MAXNUM 252
 
-
 /***********************************/
 /* MC_CMD_PUT_FPGAREG
  * Write multiple bytes to PTP FPGA.
@@ -518,7 +505,6 @@
 
 /* MC_CMD_PUT_FPGAREG_OUT msgresponse */
 #define    MC_CMD_PUT_FPGAREG_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_PTP
@@ -693,7 +679,6 @@
 #define       MC_CMD_PTP_OUT_MANFTEST_PACKET_TEST_FPGACOUNT_OFST 4
 #define       MC_CMD_PTP_OUT_MANFTEST_PACKET_TEST_FILTERCOUNT_OFST 8
 
-
 /***********************************/
 /* MC_CMD_CSR_READ32
  * Read 32bit words from the indirect memory map.
@@ -714,7 +699,6 @@
 #define       MC_CMD_CSR_READ32_OUT_BUFFER_LEN 4
 #define       MC_CMD_CSR_READ32_OUT_BUFFER_MINNUM 1
 #define       MC_CMD_CSR_READ32_OUT_BUFFER_MAXNUM 63
-
 
 /***********************************/
 /* MC_CMD_CSR_WRITE32
@@ -737,7 +721,6 @@
 #define    MC_CMD_CSR_WRITE32_OUT_LEN 4
 #define       MC_CMD_CSR_WRITE32_OUT_STATUS_OFST 0
 
-
 /***********************************/
 /* MC_CMD_STACKINFO
  * Get stack information.
@@ -755,7 +738,6 @@
 #define       MC_CMD_STACKINFO_OUT_THREAD_INFO_LEN 12
 #define       MC_CMD_STACKINFO_OUT_THREAD_INFO_MINNUM 1
 #define       MC_CMD_STACKINFO_OUT_THREAD_INFO_MAXNUM 21
-
 
 /***********************************/
 /* MC_CMD_MDIO_READ
@@ -779,7 +761,6 @@
 #define       MC_CMD_MDIO_READ_OUT_STATUS_OFST 4
 #define          MC_CMD_MDIO_STATUS_GOOD 0x8 /* enum */
 
-
 /***********************************/
 /* MC_CMD_MDIO_WRITE
  * MDIO register write.
@@ -801,7 +782,6 @@
 #define    MC_CMD_MDIO_WRITE_OUT_LEN 4
 #define       MC_CMD_MDIO_WRITE_OUT_STATUS_OFST 0
 /*               MC_CMD_MDIO_STATUS_GOOD 0x8 */
-
 
 /***********************************/
 /* MC_CMD_DBI_WRITE
@@ -833,7 +813,6 @@
 #define       MC_CMD_DBIWROP_TYPEDEF_VALUE_LBN 64
 #define       MC_CMD_DBIWROP_TYPEDEF_VALUE_WIDTH 32
 
-
 /***********************************/
 /* MC_CMD_PORT_READ32
  * Read a 32-bit register from the indirect port register map.
@@ -849,7 +828,6 @@
 #define       MC_CMD_PORT_READ32_OUT_VALUE_OFST 0
 #define       MC_CMD_PORT_READ32_OUT_STATUS_OFST 4
 
-
 /***********************************/
 /* MC_CMD_PORT_WRITE32
  * Write a 32-bit register to the indirect port register map.
@@ -864,7 +842,6 @@
 /* MC_CMD_PORT_WRITE32_OUT msgresponse */
 #define    MC_CMD_PORT_WRITE32_OUT_LEN 4
 #define       MC_CMD_PORT_WRITE32_OUT_STATUS_OFST 0
-
 
 /***********************************/
 /* MC_CMD_PORT_READ128
@@ -882,7 +859,6 @@
 #define       MC_CMD_PORT_READ128_OUT_VALUE_LEN 16
 #define       MC_CMD_PORT_READ128_OUT_STATUS_OFST 16
 
-
 /***********************************/
 /* MC_CMD_PORT_WRITE128
  * Write a 128-bit register to the indirect port register map.
@@ -898,7 +874,6 @@
 /* MC_CMD_PORT_WRITE128_OUT msgresponse */
 #define    MC_CMD_PORT_WRITE128_OUT_LEN 4
 #define       MC_CMD_PORT_WRITE128_OUT_STATUS_OFST 0
-
 
 /***********************************/
 /* MC_CMD_GET_BOARD_CFG
@@ -941,7 +916,6 @@
 #define       MC_CMD_GET_BOARD_CFG_OUT_FW_SUBTYPE_LIST_MINNUM 12
 #define       MC_CMD_GET_BOARD_CFG_OUT_FW_SUBTYPE_LIST_MAXNUM 32
 
-
 /***********************************/
 /* MC_CMD_DBI_READX
  * Read DBI register(s).
@@ -968,7 +942,6 @@
 #define       MC_CMD_DBI_READX_OUT_VALUE_MINNUM 1
 #define       MC_CMD_DBI_READX_OUT_VALUE_MAXNUM 63
 
-
 /***********************************/
 /* MC_CMD_SET_RAND_SEED
  * Set the 16byte seed for the MC pseudo-random generator.
@@ -982,7 +955,6 @@
 
 /* MC_CMD_SET_RAND_SEED_OUT msgresponse */
 #define    MC_CMD_SET_RAND_SEED_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_LTSSM_HIST
@@ -1002,7 +974,6 @@
 #define       MC_CMD_LTSSM_HIST_OUT_DATA_MINNUM 0
 #define       MC_CMD_LTSSM_HIST_OUT_DATA_MAXNUM 63
 
-
 /***********************************/
 /* MC_CMD_DRV_ATTACH
  * Inform MCPU that this port is managed on the host.
@@ -1017,7 +988,6 @@
 /* MC_CMD_DRV_ATTACH_OUT msgresponse */
 #define    MC_CMD_DRV_ATTACH_OUT_LEN 4
 #define       MC_CMD_DRV_ATTACH_OUT_OLD_STATE_OFST 0
-
 
 /***********************************/
 /* MC_CMD_NCSI_PROD
@@ -1041,7 +1011,6 @@
 /* MC_CMD_NCSI_PROD_OUT msgresponse */
 #define    MC_CMD_NCSI_PROD_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_SHMUART
  * Route UART output to circular buffer in shared memory instead.
@@ -1054,7 +1023,6 @@
 
 /* MC_CMD_SHMUART_OUT msgresponse */
 #define    MC_CMD_SHMUART_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_ENTITY_RESET
@@ -1070,7 +1038,6 @@
 
 /* MC_CMD_ENTITY_RESET_OUT msgresponse */
 #define    MC_CMD_ENTITY_RESET_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_PCIE_CREDITS
@@ -1101,7 +1068,6 @@
 #define       MC_CMD_PCIE_CREDITS_OUT_MINIMUM_NP_HDR_LEN 2
 #define       MC_CMD_PCIE_CREDITS_OUT_MINIMUM_NP_DATA_OFST 14
 #define       MC_CMD_PCIE_CREDITS_OUT_MINIMUM_NP_DATA_LEN 2
-
 
 /***********************************/
 /* MC_CMD_RXD_MONITOR
@@ -1138,7 +1104,6 @@
 #define       MC_CMD_RXD_MONITOR_OUT_CACHE_LT_32_OFST 72
 #define       MC_CMD_RXD_MONITOR_OUT_CACHE_GE_32_OFST 76
 
-
 /***********************************/
 /* MC_CMD_PUTS
  * puts(3) implementation over MCDI
@@ -1163,7 +1128,6 @@
 
 /* MC_CMD_PUTS_OUT msgresponse */
 #define    MC_CMD_PUTS_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_GET_PHY_CFG
@@ -1240,7 +1204,6 @@
 #define       MC_CMD_GET_PHY_CFG_OUT_REVISION_OFST 52
 #define       MC_CMD_GET_PHY_CFG_OUT_REVISION_LEN 20
 
-
 /***********************************/
 /* MC_CMD_START_BIST
  * Start a BIST test on the PHY.
@@ -1258,7 +1221,6 @@
 
 /* MC_CMD_START_BIST_OUT msgresponse */
 #define    MC_CMD_START_BIST_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_POLL_BIST
@@ -1319,7 +1281,6 @@
 #define          MC_CMD_POLL_BIST_MRSFP_TEST_MODULE_ID_I2C_ACCESS 0x7 /* enum */
 #define          MC_CMD_POLL_BIST_MRSFP_TEST_MODULE_ID_SANE_VALUE 0x8 /* enum */
 
-
 /***********************************/
 /* MC_CMD_FLUSH_RX_QUEUES
  * Flush receive queue(s).
@@ -1337,7 +1298,6 @@
 
 /* MC_CMD_FLUSH_RX_QUEUES_OUT msgresponse */
 #define    MC_CMD_FLUSH_RX_QUEUES_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_GET_LOOPBACK_MODES
@@ -1400,7 +1360,6 @@
 /*            Enum values, see field(s): */
 /*               100M */
 
-
 /***********************************/
 /* MC_CMD_GET_LINK
  * Read the unified MAC/PHY link state.
@@ -1441,7 +1400,6 @@
 #define        MC_CMD_MAC_FAULT_PENDING_RECONFIG_LBN 3
 #define        MC_CMD_MAC_FAULT_PENDING_RECONFIG_WIDTH 1
 
-
 /***********************************/
 /* MC_CMD_SET_LINK
  * Write the unified MAC/PHY link configuration.
@@ -1466,7 +1424,6 @@
 /* MC_CMD_SET_LINK_OUT msgresponse */
 #define    MC_CMD_SET_LINK_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_SET_ID_LED
  * Set indentification LED state.
@@ -1482,7 +1439,6 @@
 
 /* MC_CMD_SET_ID_LED_OUT msgresponse */
 #define    MC_CMD_SET_ID_LED_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_SET_MAC
@@ -1511,7 +1467,6 @@
 
 /* MC_CMD_SET_MAC_OUT msgresponse */
 #define    MC_CMD_SET_MAC_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_PHY_STATS
@@ -1558,7 +1513,6 @@
 #define          MC_CMD_AN_10GBT_STATUS  0x15 /* enum */
 #define          MC_CMD_CL22_LINK_UP  0x16 /* enum */
 #define          MC_CMD_PHY_NSTATS  0x17 /* enum */
-
 
 /***********************************/
 /* MC_CMD_MAC_STATS
@@ -1664,7 +1618,6 @@
 #define          MC_CMD_MAC_GENERATION_END 0x60 /* enum */
 #define          MC_CMD_MAC_NSTATS  0x61 /* enum */
 
-
 /***********************************/
 /* MC_CMD_SRIOV
  * to be documented
@@ -1710,7 +1663,6 @@
 #define       MC_CMD_MEMCPY_RECORD_TYPEDEF_LENGTH_LBN 224
 #define       MC_CMD_MEMCPY_RECORD_TYPEDEF_LENGTH_WIDTH 32
 
-
 /***********************************/
 /* MC_CMD_MEMCPY
  * Perform memory copy operation.
@@ -1728,7 +1680,6 @@
 
 /* MC_CMD_MEMCPY_OUT msgresponse */
 #define    MC_CMD_MEMCPY_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_WOL_FILTER_SET
@@ -1815,7 +1766,6 @@
 #define    MC_CMD_WOL_FILTER_SET_OUT_LEN 4
 #define       MC_CMD_WOL_FILTER_SET_OUT_FILTER_ID_OFST 0
 
-
 /***********************************/
 /* MC_CMD_WOL_FILTER_REMOVE
  * Remove a WoL filter.
@@ -1828,7 +1778,6 @@
 
 /* MC_CMD_WOL_FILTER_REMOVE_OUT msgresponse */
 #define    MC_CMD_WOL_FILTER_REMOVE_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_WOL_FILTER_RESET
@@ -1845,7 +1794,6 @@
 /* MC_CMD_WOL_FILTER_RESET_OUT msgresponse */
 #define    MC_CMD_WOL_FILTER_RESET_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_SET_MCAST_HASH
  * Set the MCASH hash value.
@@ -1861,7 +1809,6 @@
 
 /* MC_CMD_SET_MCAST_HASH_OUT msgresponse */
 #define    MC_CMD_SET_MCAST_HASH_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_NVRAM_TYPES
@@ -1890,7 +1837,6 @@
 #define          MC_CMD_NVRAM_TYPE_LOG 0xc /* enum */
 #define          MC_CMD_NVRAM_TYPE_FPGA 0xd /* enum */
 
-
 /***********************************/
 /* MC_CMD_NVRAM_INFO
  * Read info about a virtual NVRAM partition.
@@ -1916,7 +1862,6 @@
 #define       MC_CMD_NVRAM_INFO_OUT_PHYSDEV_OFST 16
 #define       MC_CMD_NVRAM_INFO_OUT_PHYSADDR_OFST 20
 
-
 /***********************************/
 /* MC_CMD_NVRAM_UPDATE_START
  * Start a group of update operations on a virtual NVRAM partition.
@@ -1931,7 +1876,6 @@
 
 /* MC_CMD_NVRAM_UPDATE_START_OUT msgresponse */
 #define    MC_CMD_NVRAM_UPDATE_START_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_NVRAM_READ
@@ -1956,7 +1900,6 @@
 #define       MC_CMD_NVRAM_READ_OUT_READ_BUFFER_MINNUM 1
 #define       MC_CMD_NVRAM_READ_OUT_READ_BUFFER_MAXNUM 252
 
-
 /***********************************/
 /* MC_CMD_NVRAM_WRITE
  * Write data to a virtual NVRAM partition.
@@ -1980,7 +1923,6 @@
 /* MC_CMD_NVRAM_WRITE_OUT msgresponse */
 #define    MC_CMD_NVRAM_WRITE_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_NVRAM_ERASE
  * Erase sector(s) from a virtual NVRAM partition.
@@ -1998,7 +1940,6 @@
 /* MC_CMD_NVRAM_ERASE_OUT msgresponse */
 #define    MC_CMD_NVRAM_ERASE_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_NVRAM_UPDATE_FINISH
  * Finish a group of update operations on a virtual NVRAM partition.
@@ -2015,7 +1956,6 @@
 /* MC_CMD_NVRAM_UPDATE_FINISH_OUT msgresponse */
 #define    MC_CMD_NVRAM_UPDATE_FINISH_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_REBOOT
  * Reboot the MC.
@@ -2029,7 +1969,6 @@
 
 /* MC_CMD_REBOOT_OUT msgresponse */
 #define    MC_CMD_REBOOT_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_SCHEDINFO
@@ -2049,7 +1988,6 @@
 #define       MC_CMD_SCHEDINFO_OUT_DATA_MINNUM 1
 #define       MC_CMD_SCHEDINFO_OUT_DATA_MAXNUM 63
 
-
 /***********************************/
 /* MC_CMD_REBOOT_MODE
  */
@@ -2064,7 +2002,6 @@
 /* MC_CMD_REBOOT_MODE_OUT msgresponse */
 #define    MC_CMD_REBOOT_MODE_OUT_LEN 4
 #define       MC_CMD_REBOOT_MODE_OUT_VALUE_OFST 0
-
 
 /***********************************/
 /* MC_CMD_SENSOR_INFO
@@ -2121,7 +2058,6 @@
 #define       MC_CMD_SENSOR_INFO_ENTRY_TYPEDEF_MAX2_LBN 48
 #define       MC_CMD_SENSOR_INFO_ENTRY_TYPEDEF_MAX2_WIDTH 16
 
-
 /***********************************/
 /* MC_CMD_READ_SENSORS
  * Returns the current reading from each sensor.
@@ -2153,7 +2089,6 @@
 #define       MC_CMD_SENSOR_VALUE_ENTRY_TYPEDEF_STATE_LBN 16
 #define       MC_CMD_SENSOR_VALUE_ENTRY_TYPEDEF_STATE_WIDTH 8
 
-
 /***********************************/
 /* MC_CMD_GET_PHY_STATE
  * Report current state of PHY.
@@ -2169,7 +2104,6 @@
 #define          MC_CMD_PHY_STATE_OK 0x1 /* enum */
 #define          MC_CMD_PHY_STATE_ZOMBIE 0x2 /* enum */
 
-
 /***********************************/
 /* MC_CMD_SETUP_8021QBB
  * 802.1Qbb control.
@@ -2184,7 +2118,6 @@
 /* MC_CMD_SETUP_8021QBB_OUT msgresponse */
 #define    MC_CMD_SETUP_8021QBB_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_WOL_FILTER_GET
  * Retrieve ID of any WoL filters.
@@ -2197,7 +2130,6 @@
 /* MC_CMD_WOL_FILTER_GET_OUT msgresponse */
 #define    MC_CMD_WOL_FILTER_GET_OUT_LEN 4
 #define       MC_CMD_WOL_FILTER_GET_OUT_FILTER_ID_OFST 0
-
 
 /***********************************/
 /* MC_CMD_ADD_LIGHTSOUT_OFFLOAD
@@ -2238,7 +2170,6 @@
 #define    MC_CMD_ADD_LIGHTSOUT_OFFLOAD_OUT_LEN 4
 #define       MC_CMD_ADD_LIGHTSOUT_OFFLOAD_OUT_FILTER_ID_OFST 0
 
-
 /***********************************/
 /* MC_CMD_REMOVE_LIGHTSOUT_OFFLOAD
  * Remove a protocol offload from NIC for lights-out state.
@@ -2253,7 +2184,6 @@
 /* MC_CMD_REMOVE_LIGHTSOUT_OFFLOAD_OUT msgresponse */
 #define    MC_CMD_REMOVE_LIGHTSOUT_OFFLOAD_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_MAC_RESET_RESTORE
  * Restore MAC after block reset.
@@ -2266,7 +2196,6 @@
 /* MC_CMD_MAC_RESET_RESTORE_OUT msgresponse */
 #define    MC_CMD_MAC_RESET_RESTORE_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_TESTASSERT
  */
@@ -2277,7 +2206,6 @@
 
 /* MC_CMD_TESTASSERT_OUT msgresponse */
 #define    MC_CMD_TESTASSERT_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_WORKAROUND
@@ -2293,7 +2221,6 @@
 
 /* MC_CMD_WORKAROUND_OUT msgresponse */
 #define    MC_CMD_WORKAROUND_OUT_LEN 0
-
 
 /***********************************/
 /* MC_CMD_GET_PHY_MEDIA_INFO
@@ -2315,7 +2242,6 @@
 #define       MC_CMD_GET_PHY_MEDIA_INFO_OUT_DATA_MINNUM 1
 #define       MC_CMD_GET_PHY_MEDIA_INFO_OUT_DATA_MAXNUM 248
 
-
 /***********************************/
 /* MC_CMD_NVRAM_TEST
  * Test a particular NVRAM partition.
@@ -2334,7 +2260,6 @@
 #define          MC_CMD_NVRAM_TEST_PASS 0x0 /* enum */
 #define          MC_CMD_NVRAM_TEST_FAIL 0x1 /* enum */
 #define          MC_CMD_NVRAM_TEST_NOTSUPP 0x2 /* enum */
-
 
 /***********************************/
 /* MC_CMD_MRSFP_TWEAK
@@ -2360,7 +2285,6 @@
 #define          MC_CMD_MRSFP_TWEAK_OUT_IOEXP_DIRECTION_OUT 0x0 /* enum */
 #define          MC_CMD_MRSFP_TWEAK_OUT_IOEXP_DIRECTION_IN 0x1 /* enum */
 
-
 /***********************************/
 /* MC_CMD_SENSOR_SET_LIMS
  * Adjusts the sensor limits.
@@ -2380,7 +2304,6 @@
 /* MC_CMD_SENSOR_SET_LIMS_OUT msgresponse */
 #define    MC_CMD_SENSOR_SET_LIMS_OUT_LEN 0
 
-
 /***********************************/
 /* MC_CMD_GET_RESOURCE_LIMITS
  */
@@ -2399,6 +2322,5 @@
 /* MC_CMD_RESOURCE_SPECIFIER enum */
 #define          MC_CMD_RESOURCE_INSTANCE_ANY 0xffffffff /* enum */
 #define          MC_CMD_RESOURCE_INSTANCE_NONE 0xfffffffe /* enum */
-
 
 #endif /* MCDI_PCOL_H */

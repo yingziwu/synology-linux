@@ -30,7 +30,6 @@
 #define SIZEOF_SIGNAL_HEADER    6
 #define SIZEOF_DATAREF          4
 
-
 /*
  * Macro to retrieve the signal ID from a wire-format signal.
  */
@@ -64,10 +63,8 @@
 #define GET_PACKED_MA_PACKET_CONFIRM_TRANSMISSION_STATUS(_buf)                     \
     CSR_GET_UINT16_FROM_LITTLE_ENDIAN(((_buf) + SIZEOF_SIGNAL_HEADER + UNIFI_MAX_DATA_REFERENCES * SIZEOF_DATAREF + 2))
 
-
 s32 get_packed_struct_size(const u8 *buf);
 CsrResult read_unpack_signal(const u8 *ptr, CSR_SIGNAL *sig);
 CsrResult write_pack(const CSR_SIGNAL *sig, u8 *ptr, u16 *sig_len);
 
 #endif /* __CSR_WIFI_HIP_CONVERSIONS_H__ */
-

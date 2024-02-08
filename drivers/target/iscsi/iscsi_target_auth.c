@@ -73,7 +73,6 @@ static void chap_gen_challenge(
 			challenge_asciihex);
 }
 
-
 static struct iscsi_chap *chap_server_open(
 	struct iscsi_conn *conn,
 	struct iscsi_node_auth *auth,

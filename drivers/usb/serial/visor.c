@@ -252,7 +252,6 @@ exit:
 	return result;
 }
 
-
 static void visor_close(struct usb_serial_port *port)
 {
 	unsigned char *transfer_buffer;
@@ -439,7 +438,6 @@ static int palm_os_4_probe(struct usb_serial *serial,
 	kfree(transfer_buffer);
 	return 0;
 }
-
 
 static int visor_probe(struct usb_serial *serial,
 					const struct usb_device_id *id)

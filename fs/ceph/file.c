@@ -33,7 +33,6 @@
  * need to wait for MDS acknowledgement.
  */
 
-
 /*
  * Prepare an open request.  Preallocate ceph_cap to avoid an
  * inopportune ENOMEM later.
@@ -203,7 +202,6 @@ int ceph_open(struct inode *inode, struct file *file)
 out:
 	return err;
 }
-
 
 /*
  * Do a lookup + open with a single request.  If we get a non-existent
@@ -894,4 +892,3 @@ const struct file_operations ceph_file_fops = {
 	.unlocked_ioctl = ceph_ioctl,
 	.compat_ioctl	= ceph_ioctl,
 };
-

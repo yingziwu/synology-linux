@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2005 Intel Corporation
  * 	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
@@ -15,6 +18,10 @@
 #include <asm/acpi.h>
 #include <asm/mwait.h>
 #include <asm/special_insns.h>
+#ifdef MY_ABC_HERE
+#else
+#include <asm/spec_ctrl.h>
+#endif	/* MY_ABC_HERE */
 
 /*
  * Initialize bm_flags based on the CPU cache properties
@@ -166,10 +173,23 @@ void mwait_idle_with_hints(unsigned long ax, unsigned long cx)
 		if (this_cpu_has(X86_FEATURE_CLFLUSH_MONITOR))
 			clflush((void *)&current_thread_info()->flags);
 
+#ifdef MY_ABC_HERE
+#else
+			/*
+             * IRQs must be disabled here and nmi uses the
+             * save_paranoid model which always enables ibrs on
+             * exception entry before any indirect jump can run.
+             */
+        spec_ctrl_ibrs_off();
+#endif	/* MY_ABC_HERE */
 		__monitor((void *)&current_thread_info()->flags, 0, 0);
 		smp_mb();
 		if (!need_resched())
 			__mwait(ax, cx);
+#ifdef MY_ABC_HERE
+#else
+		spec_ctrl_ibrs_on();
+#endif	/* MY_ABC_HERE */
 	}
 }
 

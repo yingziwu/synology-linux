@@ -29,7 +29,6 @@
 
 /* ----------------------- trace_seq ----------------------- */
 
-
 #ifndef TRACE_SEQ_BUF_SIZE
 #define TRACE_SEQ_BUF_SIZE 4096
 #endif
@@ -82,7 +81,6 @@ extern int trace_seq_putc(struct trace_seq *s, unsigned char c);
 extern void trace_seq_terminate(struct trace_seq *s);
 
 extern int trace_seq_do_printf(struct trace_seq *s);
-
 
 /* ----------------------- pevent ----------------------- */
 
@@ -411,7 +409,6 @@ struct pevent {
 	struct printk_map *printk_map;
 	struct printk_list *printklist;
 	unsigned int printk_count;
-
 
 	struct event_format **events;
 	int nr_events;
@@ -810,7 +807,6 @@ enum filter_trivial_type {
 int pevent_filter_add_filter_str(struct event_filter *filter,
 				 const char *filter_str,
 				 char **error_str);
-
 
 int pevent_filter_match(struct event_filter *filter,
 			struct pevent_record *record);

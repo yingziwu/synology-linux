@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright (C) 2001 Andrea Arcangeli <andrea@suse.de> SuSE
  *  Copyright 2003 Andi Kleen, SuSE Labs.
@@ -56,7 +59,11 @@
 DEFINE_VVAR(int, vgetcpu_mode);
 DEFINE_VVAR(struct vsyscall_gtod_data, vsyscall_gtod_data);
 
+#ifdef MY_ABC_HERE
 static enum { EMULATE, NATIVE, NONE } vsyscall_mode = EMULATE;
+#else
+enum { EMULATE, NATIVE, NONE } vsyscall_mode = EMULATE;
+#endif	/* MY_ABC_HERE */
 
 static int __init vsyscall_setup(char *str)
 {

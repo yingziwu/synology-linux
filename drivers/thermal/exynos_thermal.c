@@ -198,7 +198,6 @@ static int exynos_set_mode(struct thermal_zone_device *thermal,
 	return 0;
 }
 
-
 /* Get trip type callback functions for thermal zone */
 static int exynos_get_trip_type(struct thermal_zone_device *thermal, int trip,
 				 enum thermal_trip_type *type)

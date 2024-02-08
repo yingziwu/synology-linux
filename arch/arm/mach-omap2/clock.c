@@ -26,7 +26,6 @@
 #include <linux/clk-private.h>
 #include <asm/cpu.h>
 
-
 #include <trace/events/power.h>
 
 #include "soc.h"
@@ -83,7 +82,6 @@ unsigned long omap_fixed_divisor_recalc(struct clk_hw *hw,
  */
 
 /* Private functions */
-
 
 /**
  * _wait_idlest_generic - wait for a module to leave the idle state

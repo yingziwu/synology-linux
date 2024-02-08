@@ -58,7 +58,6 @@ err:
 	return;
 }
 
-
 static void gpio_system_reset(void)
 {
 	if (gpio_is_valid(handle))

@@ -1032,7 +1032,6 @@ done:
 	dd->f_set_armlaunch(dd, 1);
 }
 
-
 void qib_free_devdata(struct qib_devdata *dd)
 {
 	unsigned long flags;

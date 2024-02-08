@@ -356,7 +356,6 @@ static void pci_fixup_video(struct pci_dev *pdev)
 DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_ANY_ID, PCI_ANY_ID,
 				PCI_CLASS_DISPLAY_VGA, 8, pci_fixup_video);
 
-
 static const struct dmi_system_id msi_k8t_dmi_table[] = {
 	{
 		.ident = "MSI-K8T-Neo2Fir",
@@ -466,7 +465,6 @@ static void pci_post_fixup_toshiba_ohci1394(struct pci_dev *dev)
 DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_TI, 0x8032,
 			 pci_post_fixup_toshiba_ohci1394);
 
-
 /*
  * Prevent the BIOS trapping accesses to the Cyrix CS5530A video device
  * configuration space.
@@ -539,3 +537,10 @@ static void twinhead_reserve_killing_zone(struct pci_dev *dev)
         }
 }
 DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x27B9, twinhead_reserve_killing_zone);
+
+static void pci_bdwep_bar(struct pci_dev *dev)
+{
+	dev->non_compliant_bars = 1;
+}
+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6fa0, pci_bdwep_bar);
+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6fc0, pci_bdwep_bar);

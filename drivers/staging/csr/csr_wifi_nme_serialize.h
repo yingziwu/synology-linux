@@ -163,4 +163,3 @@ extern size_t CsrWifiNmeSimUmtsAuthIndSizeof(void *msg);
 #define CsrWifiNmeEventMaskSetCfmSerFree CsrWifiNmePfree
 
 #endif /* CSR_WIFI_NME_SERIALIZE_H__ */
-

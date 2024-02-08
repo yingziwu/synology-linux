@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * x86_64/AVX/AES-NI assembler implementation of Camellia
  *
@@ -16,6 +19,10 @@
  */
 
 #include <linux/linkage.h>
+#ifdef MY_ABC_HERE
+#else
+#include <asm/nospec-branch.h>
+#endif	/* MY_ABC_HERE */
 
 #define CAMELLIA_TABLE_BYTE_LEN 272
 
@@ -1210,7 +1217,11 @@ camellia_xts_crypt_16way:
 	vpxor 14 * 16(%rax), %xmm15, %xmm14;
 	vpxor 15 * 16(%rax), %xmm15, %xmm15;
 
+#ifdef MY_ABC_HERE
 	call *%r9;
+#else
+	CALL_NOSPEC %r9;
+#endif	/* MY_ABC_HERE */
 
 	addq $(16 * 16), %rsp;
 

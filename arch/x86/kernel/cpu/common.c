@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/bootmem.h>
 #include <linux/linkage.h>
 #include <linux/bitops.h>
@@ -39,6 +42,10 @@
 #include <asm/pat.h>
 #include <asm/microcode.h>
 #include <asm/microcode_intel.h>
+#ifdef MY_ABC_HERE
+#else
+#include <asm/kaiser.h>
+#endif	/* MY_ABC_HERE */
 
 #ifdef CONFIG_X86_LOCAL_APIC
 #include <asm/uv/uv.h>
@@ -88,7 +95,11 @@ static const struct cpu_dev __cpuinitconst default_cpu = {
 
 static const struct cpu_dev *this_cpu __cpuinitdata = &default_cpu;
 
+#ifdef MY_ABC_HERE
 DEFINE_PER_CPU_PAGE_ALIGNED(struct gdt_page, gdt_page) = { .gdt = {
+#else
+DEFINE_PER_CPU_PAGE_ALIGNED_USER_MAPPED(struct gdt_page, gdt_page) = { .gdt = {
+#endif	/* MY_ABC_HERE */
 #ifdef CONFIG_X86_64
 	/*
 	 * We need valid kernel segments for data and code in long mode too
@@ -160,6 +171,42 @@ static int __init x86_xsaveopt_setup(char *s)
 	return 1;
 }
 __setup("noxsaveopt", x86_xsaveopt_setup);
+#ifdef MY_ABC_HERE
+#else
+#ifdef CONFIG_X86_64
+static int __init x86_nopcid_setup(char *s)
+{
+	/* nopcid doesn't accept parameters */
+	if (s)
+		return -EINVAL;
+
+	/* do not emit a message if the feature is not present */
+	if (!boot_cpu_has(X86_FEATURE_PCID))
+		return 0;
+
+	setup_clear_cpu_cap(X86_FEATURE_PCID);
+	pr_info("nopcid: PCID feature disabled\n");
+	return 0;
+}
+early_param("nopcid", x86_nopcid_setup);
+
+static int __init x86_noinvpcid_setup(char *s)
+{
+	/* noinvpcid doesn't accept parameters */
+	if (s)
+		return -EINVAL;
+
+	/* do not emit a message if the feature is not present */
+	if (!boot_cpu_has(X86_FEATURE_INVPCID))
+		return 0;
+
+	setup_clear_cpu_cap(X86_FEATURE_INVPCID);
+	pr_info("noinvpcid: INVPCID feature disabled\n");
+	return 0;
+}
+early_param("noinvpcid", x86_noinvpcid_setup);
+#endif
+#endif	/* MY_ABC_HERE */
 
 #ifdef CONFIG_X86_32
 static int cachesize_override __cpuinitdata = -1;
@@ -880,6 +927,10 @@ static void __cpuinit identify_cpu(struct cpuinfo_x86 *c)
 	setup_smep(c);
 	setup_smap(c);
 
+#ifdef MY_ABC_HERE
+#else
+	spec_ctrl_cpu_init();
+#endif	/* MY_ABC_HERE */
 	/*
 	 * The vendor-specific functions might have changed features.
 	 * Now we do "generic changes."
@@ -1077,8 +1128,13 @@ __setup("clearcpuid=", setup_disablecpuid);
 
 #ifdef CONFIG_X86_64
 struct desc_ptr idt_descr = { NR_VECTORS * 16 - 1, (unsigned long) idt_table };
+#ifdef MY_ABC_HERE
 struct desc_ptr nmi_idt_descr = { NR_VECTORS * 16 - 1,
-				    (unsigned long) nmi_idt_table };
+                    (unsigned long) nmi_idt_table };
+#else
+struct desc_ptr debug_idt_descr = { NR_VECTORS * 16 - 1,
+                    (unsigned long) debug_idt_table };
+#endif /* MY_ABC_HERE */
 
 DEFINE_PER_CPU_FIRST(union irq_stack_union,
 		     irq_stack_union) __aligned(PAGE_SIZE);
@@ -1099,6 +1155,13 @@ DEFINE_PER_CPU(char *, irq_stack_ptr) =
 	init_per_cpu_var(irq_stack_union.irq_stack) + IRQ_STACK_SIZE - 64;
 
 DEFINE_PER_CPU(unsigned int, irq_count) = -1;
+#ifdef MY_ABC_HERE
+#else
+DEFINE_PER_CPU_USER_MAPPED(unsigned int, kaiser_enabled_pcp) ____cacheline_aligned;
+DEFINE_PER_CPU_USER_MAPPED(unsigned int, spec_ctrl_pcp);
+EXPORT_PER_CPU_SYMBOL_GPL(spec_ctrl_pcp);
+DEFINE_PER_CPU_USER_MAPPED(unsigned long, kaiser_scratch);
+#endif	/* MY_ABC_HERE */
 
 DEFINE_PER_CPU(struct task_struct *, fpu_owner_task);
 
@@ -1113,8 +1176,13 @@ static const unsigned int exception_stack_sizes[N_EXCEPTION_STACKS] = {
 	  [DEBUG_STACK - 1]			= DEBUG_STKSZ
 };
 
+#ifdef MY_ABC_HERE
 static DEFINE_PER_CPU_PAGE_ALIGNED(char, exception_stacks
 	[(N_EXCEPTION_STACKS - 1) * EXCEPTION_STKSZ + DEBUG_STKSZ]);
+#else
+DEFINE_PER_CPU_PAGE_ALIGNED_USER_MAPPED(char, exception_stacks
+	[(N_EXCEPTION_STACKS - 1) * EXCEPTION_STKSZ + DEBUG_STKSZ]);
+#endif	/* MY_ABC_HERE */
 
 /* May not be marked __init: used by software suspend */
 void syscall_init(void)
@@ -1154,20 +1222,36 @@ int is_debug_stack(unsigned long addr)
 		 addr > (__get_cpu_var(debug_stack_addr) - DEBUG_STKSZ));
 }
 
+#ifdef MY_ABC_HERE
 static DEFINE_PER_CPU(u32, debug_stack_use_ctr);
+#else
+DEFINE_PER_CPU(u32, debug_idt_ctr);
+#endif /* MY_ABC_HERE */
 
 void debug_stack_set_zero(void)
 {
+#ifdef MY_ABC_HERE
 	this_cpu_inc(debug_stack_use_ctr);
 	load_idt((const struct desc_ptr *)&nmi_idt_descr);
+#else
+	this_cpu_inc(debug_idt_ctr);
+	load_current_idt();
+#endif /* MY_ABC_HERE */
 }
 
 void debug_stack_reset(void)
 {
+#ifdef MY_ABC_HERE
 	if (WARN_ON(!this_cpu_read(debug_stack_use_ctr)))
 		return;
 	if (this_cpu_dec_return(debug_stack_use_ctr) == 0)
 		load_idt((const struct desc_ptr *)&idt_descr);
+#else
+	if (WARN_ON(!this_cpu_read(debug_idt_ctr)))
+		return;
+	if (this_cpu_dec_return(debug_idt_ctr) == 0)
+		load_current_idt();
+#endif /* MY_ABC_HERE */
 }
 
 #else	/* CONFIG_X86_64 */
@@ -1304,7 +1388,13 @@ void __cpuinit cpu_init(void)
 	BUG_ON(me->mm);
 	enter_lazy_tlb(&init_mm, me);
 
+#ifdef MY_ABC_HERE
 	load_sp0(t, &current->thread);
+#else
+	__this_cpu_write(init_tss.x86_tss.sp0,
+			 (unsigned long) t + offsetofend(struct tss_struct,
+							 stack));
+#endif	/* MY_ABC_HERE */
 	set_tss_desc(cpu, t);
 	load_TR_desc();
 	load_LDT(&init_mm.context);
@@ -1316,6 +1406,10 @@ void __cpuinit cpu_init(void)
 
 	if (is_uv_system())
 		uv_cpu_init();
+#ifdef MY_ABC_HERE
+#else
+	WARN_ON((unsigned long) &t->x86_tss & ~PAGE_MASK);
+#endif	/* MY_ABC_HERE */
 }
 
 #else

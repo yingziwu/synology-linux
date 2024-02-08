@@ -27,7 +27,6 @@ void CsrUint24Des(u32 *v, u8 *buffer, size_t *offset)
     *v = val;
 }
 
-
 /* Big endian :e.g WSC, TCLAS */
 void CsrUint16DesBigEndian(u16 *v, u8 *buffer, size_t *offset)
 {
@@ -38,7 +37,6 @@ void CsrUint16DesBigEndian(u16 *v, u8 *buffer, size_t *offset)
 
     *v = val;
 }
-
 
 void CsrUint24DesBigEndian(u32 *v, u8 *buffer, size_t *offset)
 {
@@ -51,7 +49,6 @@ void CsrUint24DesBigEndian(u32 *v, u8 *buffer, size_t *offset)
     *offset += 3;
     *v = val;
 }
-
 
 void CsrUint32DesBigEndian(u32 *v, u8 *buffer, size_t *offset)
 {
@@ -66,7 +63,6 @@ void CsrUint32DesBigEndian(u32 *v, u8 *buffer, size_t *offset)
     *v = val;
 }
 
-
 void CsrUint24Ser(u8 *ptr, size_t *len, u32 v)
 {
     ptr[(*len) + 2] = (u8)((v & 0x00ff0000) >> 16);
@@ -76,7 +72,6 @@ void CsrUint24Ser(u8 *ptr, size_t *len, u32 v)
     *len += 3;
 }
 
-
 /* Big endian :e.g WSC, TCLAS */
 void CsrUint16SerBigEndian(u8 *ptr, size_t *len, u16 v)
 {
@@ -85,7 +80,6 @@ void CsrUint16SerBigEndian(u8 *ptr, size_t *len, u16 v)
 
     *len += 2;
 }
-
 
 void CsrUint32SerBigEndian(u8 *ptr, size_t *len, u32 v)
 {
@@ -97,7 +91,6 @@ void CsrUint32SerBigEndian(u8 *ptr, size_t *len, u32 v)
     *len += 4;
 }
 
-
 void CsrUint24SerBigEndian(u8 *ptr, size_t *len, u32 v)
 {
     ptr[(*len)] = (u8)((v & 0x00ff0000) >> 16);
@@ -106,7 +99,6 @@ void CsrUint24SerBigEndian(u8 *ptr, size_t *len, u32 v)
 
     *len += 3;
 }
-
 
 size_t CsrWifiEventSizeof(void *msg)
 {
@@ -149,7 +141,6 @@ u8* CsrWifiEventCsrUint8Ser(u8 *ptr, size_t *len, void *msg)
 }
 EXPORT_SYMBOL_GPL(CsrWifiEventCsrUint8Ser);
 
-
 void* CsrWifiEventCsrUint8Des(u8 *buffer, size_t length)
 {
     CsrWifiEventCsrUint8 *primitive = kmalloc(sizeof(CsrWifiEventCsrUint8), GFP_KERNEL);
@@ -162,13 +153,11 @@ void* CsrWifiEventCsrUint8Des(u8 *buffer, size_t length)
 }
 EXPORT_SYMBOL_GPL(CsrWifiEventCsrUint8Des);
 
-
 size_t CsrWifiEventCsrUint16Sizeof(void *msg)
 {
     return 4;
 }
 EXPORT_SYMBOL_GPL(CsrWifiEventCsrUint16Sizeof);
-
 
 u8* CsrWifiEventCsrUint16Ser(u8 *ptr, size_t *len, void *msg)
 {
@@ -192,7 +181,6 @@ void* CsrWifiEventCsrUint16Des(u8 *buffer, size_t length)
 }
 EXPORT_SYMBOL_GPL(CsrWifiEventCsrUint16Des);
 
-
 size_t CsrWifiEventCsrUint32Sizeof(void *msg)
 {
     return 6;
@@ -208,7 +196,6 @@ u8* CsrWifiEventCsrUint32Ser(u8 *ptr, size_t *len, void *msg)
     return(ptr);
 }
 EXPORT_SYMBOL_GPL(CsrWifiEventCsrUint32Ser);
-
 
 void* CsrWifiEventCsrUint32Des(u8 *buffer, size_t length)
 {
@@ -239,7 +226,6 @@ u8* CsrWifiEventCsrUint16CsrUint8Ser(u8 *ptr, size_t *len, void *msg)
 }
 EXPORT_SYMBOL_GPL(CsrWifiEventCsrUint16CsrUint8Ser);
 
-
 void* CsrWifiEventCsrUint16CsrUint8Des(u8 *buffer, size_t length)
 {
     CsrWifiEventCsrUint16CsrUint8 *primitive = kmalloc(sizeof(CsrWifiEventCsrUint16CsrUint8), GFP_KERNEL);
@@ -252,5 +238,3 @@ void* CsrWifiEventCsrUint16CsrUint8Des(u8 *buffer, size_t length)
     return primitive;
 }
 EXPORT_SYMBOL_GPL(CsrWifiEventCsrUint16CsrUint8Des);
-
-

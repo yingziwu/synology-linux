@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/clocksource.h>
 #include <linux/clockchips.h>
 #include <linux/interrupt.h>
@@ -11,6 +14,10 @@
 #include <linux/cpu.h>
 #include <linux/pm.h>
 #include <linux/io.h>
+#ifdef MY_ABC_HERE
+#else
+#include <linux/kaiser.h>
+#endif	/* MY_ABC_HERE */
 
 #include <asm/fixmap.h>
 #include <asm/hpet.h>
@@ -76,6 +83,11 @@ static inline void hpet_set_mapping(void)
 	hpet_virt_address = ioremap_nocache(hpet_address, HPET_MMAP_SIZE);
 #ifdef CONFIG_X86_64
 	__set_fixmap(VSYSCALL_HPET, hpet_address, PAGE_KERNEL_VVAR_NOCACHE);
+#ifdef MY_ABC_HERE
+#else
+	kaiser_add_mapping(__fix_to_virt(VSYSCALL_HPET), PAGE_SIZE,
+						__PAGE_KERNEL_VVAR_NOCACHE | _PAGE_GLOBAL);
+#endif	/* MY_ABC_HERE */
 #endif
 }
 

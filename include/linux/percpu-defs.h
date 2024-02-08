@@ -1,5 +1,17 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_PERCPU_DEFS_H
 #define _LINUX_PERCPU_DEFS_H
+
+#ifdef MY_ABC_HERE
+#else
+#ifdef CONFIG_KAISER
+#define USER_MAPPED_SECTION "..user_mapped"
+#else
+#define USER_MAPPED_SECTION ""
+#endif
+#endif	/* MY_ABC_HERE */
 
 /*
  * Base implementations of per-CPU variable declarations and definitions, where
@@ -90,6 +102,15 @@
 #define DEFINE_PER_CPU(type, name)					\
 	DEFINE_PER_CPU_SECTION(type, name, "")
 
+#ifdef MY_ABC_HERE
+#else
+#define DECLARE_PER_CPU_USER_MAPPED(type, name)				\
+	DECLARE_PER_CPU_SECTION(type, name, USER_MAPPED_SECTION)
+
+#define DEFINE_PER_CPU_USER_MAPPED(type, name)				\
+	DEFINE_PER_CPU_SECTION(type, name, USER_MAPPED_SECTION)
+#endif	/* MY_ABC_HERE */
+
 /*
  * Declaration/definition used for per-CPU variables that must come first in
  * the set of variables.
@@ -119,6 +140,17 @@
 	DEFINE_PER_CPU_SECTION(type, name, PER_CPU_SHARED_ALIGNED_SECTION) \
 	____cacheline_aligned_in_smp
 
+#ifdef MY_ABC_HERE
+#else
+#define DECLARE_PER_CPU_SHARED_ALIGNED_USER_MAPPED(type, name)		\
+	DECLARE_PER_CPU_SECTION(type, name, USER_MAPPED_SECTION PER_CPU_SHARED_ALIGNED_SECTION) \
+	____cacheline_aligned_in_smp
+
+#define DEFINE_PER_CPU_SHARED_ALIGNED_USER_MAPPED(type, name)		\
+	DEFINE_PER_CPU_SECTION(type, name, USER_MAPPED_SECTION PER_CPU_SHARED_ALIGNED_SECTION) \
+	____cacheline_aligned_in_smp
+#endif	/* MY_ABC_HERE */
+
 #define DECLARE_PER_CPU_ALIGNED(type, name)				\
 	DECLARE_PER_CPU_SECTION(type, name, PER_CPU_ALIGNED_SECTION)	\
 	____cacheline_aligned
@@ -137,6 +169,19 @@
 #define DEFINE_PER_CPU_PAGE_ALIGNED(type, name)				\
 	DEFINE_PER_CPU_SECTION(type, name, "..page_aligned")		\
 	__aligned(PAGE_SIZE)
+#ifdef MY_ABC_HERE
+#else
+/*
+ * Declaration/definition used for per-CPU variables that must be page aligned and need to be mapped in user mode.
+ */
+#define DECLARE_PER_CPU_PAGE_ALIGNED_USER_MAPPED(type, name)		\
+	DECLARE_PER_CPU_SECTION(type, name, USER_MAPPED_SECTION"..page_aligned") \
+	__aligned(PAGE_SIZE)
+
+#define DEFINE_PER_CPU_PAGE_ALIGNED_USER_MAPPED(type, name)		\
+	DEFINE_PER_CPU_SECTION(type, name, USER_MAPPED_SECTION"..page_aligned") \
+	__aligned(PAGE_SIZE)
+#endif	/* MY_ABC_HERE */
 
 /*
  * Declaration/definition used for per-CPU variables that must be read mostly.

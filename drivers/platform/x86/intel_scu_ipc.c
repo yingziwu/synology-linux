@@ -346,7 +346,6 @@ int intel_scu_ipc_writev(u16 *addr, u8 *data, int len)
 }
 EXPORT_SYMBOL(intel_scu_ipc_writev);
 
-
 /**
  *	intel_scu_ipc_update_register	-	r/m/w a register
  *	@addr: register address
@@ -575,7 +574,6 @@ static struct pci_driver ipc_driver = {
 	.probe = ipc_probe,
 	.remove = ipc_remove,
 };
-
 
 static int __init intel_scu_ipc_init(void)
 {

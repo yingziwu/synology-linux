@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright (C) 1995  Linus Torvalds
  *
@@ -280,9 +283,10 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 
 	fpu = switch_fpu_prepare(prev_p, next_p, cpu);
 
+#ifdef MY_ABC_HERE
 	/* Reload esp0 and ss1. */
 	load_sp0(tss, next);
-
+#endif	/* MY_ABC_HERE */
 	/* We must save %fs and %gs before load_TLS() because
 	 * %fs and %gs may be cleared by load_TLS().
 	 *

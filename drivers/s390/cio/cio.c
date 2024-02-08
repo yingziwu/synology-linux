@@ -309,7 +309,6 @@ cio_cancel (struct subchannel *sch)
 	}
 }
 
-
 static void cio_apply_config(struct subchannel *sch, struct schib *schib)
 {
 	schib->pmcw.intparm = sch->config.intparm;

@@ -374,7 +374,6 @@ static int power7_cache_events[C(MAX)][C(OP_MAX)][C(RESULT_MAX)] = {
 	},
 };
 
-
 GENERIC_EVENT_ATTR(cpu-cycles,			CYC);
 GENERIC_EVENT_ATTR(stalled-cycles-frontend,	GCT_NOSLOT_CYC);
 GENERIC_EVENT_ATTR(stalled-cycles-backend,	CMPLU_STALL);
@@ -413,7 +412,6 @@ static struct attribute *power7_events_attr[] = {
 	POWER_EVENT_PTR(BRU_MPRED),
 	NULL
 };
-
 
 static struct attribute_group power7_pmu_events_group = {
 	.name = "events",

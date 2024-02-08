@@ -2075,7 +2075,6 @@ int qlt_xmit_response(struct qla_tgt_cmd *cmd, int xmit_type,
 	if (unlikely(res != 0))
 		goto out_unmap_unlock;
 
-
 	pkt = (struct ctio7_to_24xx *)prm.pkt;
 
 	if (qlt_has_data(cmd) && (xmit_type & QLA_TGT_XMIT_DATA)) {
@@ -2129,7 +2128,6 @@ int qlt_xmit_response(struct qla_tgt_cmd *cmd, int xmit_type,
 		}
 	} else
 		qlt_24xx_init_ctio_to_isp(pkt, &prm);
-
 
 	cmd->state = QLA_TGT_STATE_PROCESSED; /* Mid-level is done processing */
 

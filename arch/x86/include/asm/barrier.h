@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_BARRIER_H
 #define _ASM_X86_BARRIER_H
 
@@ -23,6 +26,35 @@
 #define rmb()	asm volatile("lfence":::"memory")
 #define wmb()	asm volatile("sfence" ::: "memory")
 #endif
+
+#ifdef MY_ABC_HERE
+#else
+#define gmb() alternative(ASM_NOP3, "lfence", X86_FEATURE_LFENCE_RDTSC)
+
+/**
+ * array_index_mask_nospec() - generate a mask that is ~0UL when the
+ * 	bounds check succeeds and 0 otherwise
+ * @index: array element index
+ * @size: number of elements in array
+ *
+ * Returns:
+ *     0 - (index < size)
+ */
+static inline unsigned long array_index_mask_nospec(unsigned long index,
+		unsigned long size)
+{
+	unsigned long mask;
+
+	asm ("cmp %1,%2; sbb %0,%0;"
+			:"=r" (mask)
+			:"r"(size),"r" (index)
+			:"cc");
+	return mask;
+}
+
+/* Override the default implementation from linux/nospec.h. */
+#define array_index_mask_nospec array_index_mask_nospec
+#endif	/* MY_ABC_HERE */
 
 /**
  * read_barrier_depends - Flush all pending reads that subsequents reads
@@ -109,7 +141,9 @@
  */
 static __always_inline void rdtsc_barrier(void)
 {
+#ifdef MY_ABC_HERE
 	alternative(ASM_NOP3, "mfence", X86_FEATURE_MFENCE_RDTSC);
+#endif	/* MY_ABC_HERE */
 	alternative(ASM_NOP3, "lfence", X86_FEATURE_LFENCE_RDTSC);
 }
 

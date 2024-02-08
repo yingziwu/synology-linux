@@ -375,7 +375,6 @@
 #define AM33XX_CM_CEFUSE_CEFUSE_CLKCTRL_OFFSET		0x0020
 #define AM33XX_CM_CEFUSE_CEFUSE_CLKCTRL			AM33XX_CM_REGADDR(AM33XX_CM_CEFUSE_MOD, 0x0020)
 
-
 #ifndef __ASSEMBLER__
 extern bool am33xx_cm_is_clkdm_in_hwsup(s16 inst, u16 cdoffs);
 extern void am33xx_cm_clkdm_enable_hwsup(s16 inst, u16 cdoffs);

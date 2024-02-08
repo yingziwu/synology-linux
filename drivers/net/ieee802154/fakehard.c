@@ -270,7 +270,6 @@ static netdev_tx_t ieee802154_fake_xmit(struct sk_buff *skb,
 	return NETDEV_TX_OK;
 }
 
-
 static int ieee802154_fake_ioctl(struct net_device *dev, struct ifreq *ifr,
 		int cmd)
 {
@@ -331,7 +330,6 @@ static void ieee802154_fake_setup(struct net_device *dev)
 	dev->watchdog_timeo	= 0;
 	dev->destructor		= ieee802154_fake_destruct;
 }
-
 
 static int ieee802154fake_probe(struct platform_device *pdev)
 {

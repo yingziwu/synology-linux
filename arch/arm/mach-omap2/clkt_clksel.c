@@ -343,7 +343,6 @@ u8 omap2_clksel_find_parent_index(struct clk_hw *hw)
 	return ret;
 }
 
-
 /**
  * omap2_clksel_recalc() - function ptr to pass via struct clk .recalc field
  * @clk: struct clk *

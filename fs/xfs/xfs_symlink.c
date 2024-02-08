@@ -46,7 +46,6 @@
 #include "xfs_cksum.h"
 #include "xfs_buf_item.h"
 
-
 /*
  * Each contiguous block has a header, so it is not just a simple pathlen
  * to FSB conversion.
@@ -316,7 +315,6 @@ xfs_readlink(
 		error = XFS_ERROR(EFSCORRUPTED);
 		goto out;
 	}
-
 
 	if (ip->i_df.if_flags & XFS_IFINLINE) {
 		memcpy(link, ip->i_df.if_u1.if_data, pathlen);

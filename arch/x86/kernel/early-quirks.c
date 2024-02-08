@@ -43,7 +43,6 @@ static void __init fix_hypertransport_config(int num, int slot, int func)
 		}
 	}
 
-
 }
 
 static void __init via_bugs(int  num, int slot, int func)

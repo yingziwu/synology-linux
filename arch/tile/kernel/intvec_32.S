@@ -361,7 +361,6 @@ intvec_\vecname:
 
 	.endm
 
-
 	/*
 	 * Save the rest of the registers that we didn't save in the actual
 	 * vector itself.  We can't use r0-r10 inclusive here.
@@ -860,7 +859,6 @@ STD_ENTRY(interrupt_return)
 	IRQ_DISABLE(r20, r21)
 	TRACE_IRQS_OFF  /* Note: clobbers registers r0-r29 */
 
-
 	/* Check to see if there is any work to do before returning to user. */
 	{
 	 addi   r29, r32, THREAD_INFO_FLAGS_OFFSET
@@ -938,7 +936,6 @@ STD_ENTRY(interrupt_return)
 	IRQ_ENABLE(r20, r21)
 	bzt     r30, .Lrestore_regs
 3:
-
 
 	/*
 	 * We now commit to returning from this interrupt, since we will be
@@ -1853,7 +1850,6 @@ __sys_cmpxchg_grab_lock:
 .Lcmpxchg64_tns:
 	cmpxchg_lock 64
 
-
 	/*
 	 * Reset sp and revector to sys_cmpxchg_badaddr(), which will
 	 * just raise the appropriate signal and exit.  Doing it this
@@ -1868,7 +1864,6 @@ __sys_cmpxchg_grab_lock:
 	j       intvec_SWINT_1
 	ENDPROC(sys_cmpxchg)
 	ENTRY(__sys_cmpxchg_end)
-
 
 /* The single-step support may need to read all the registers. */
 int_unalign:

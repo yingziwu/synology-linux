@@ -30,13 +30,10 @@
 #include <linux/if_packet.h>
 #include <linux/if_link.h>
 
-
 #define MAX_ADDR_LEN	32		/* Largest hardware address length */
 
 /* Initial net device group. All devices belong to group 0 by default. */
 #define INIT_NETDEV_GROUP	0
-
-
 
 /* Media selection options. */
 enum {
@@ -48,6 +45,5 @@ enum {
         IF_PORT_100BASETX,
         IF_PORT_100BASEFX
 };
-
 
 #endif /* _UAPI_LINUX_NETDEVICE_H */

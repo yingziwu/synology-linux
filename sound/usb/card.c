@@ -32,7 +32,6 @@
  *     indeed an AC3 stream packed in SPDIF frames (i.e. no real AC3 stream).
  */
 
-
 #include <linux/bitops.h>
 #include <linux/init.h>
 #include <linux/list.h>
@@ -71,7 +70,6 @@ MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>");
 MODULE_DESCRIPTION("USB Audio");
 MODULE_LICENSE("GPL");
 MODULE_SUPPORTED_DEVICE("{{Generic,USB Audio}}");
-
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
@@ -566,9 +564,12 @@ snd_usb_audio_probe(struct usb_device *dev,
 
  __error:
 	if (chip) {
+		/* chip->active is inside the chip->card object,
+		 * decrement before memory is possibly returned.
+		 */
+		chip->probing = 0;
 		if (!chip->num_interfaces)
 			snd_card_free(chip->card);
-		chip->probing = 0;
 	}
 	mutex_unlock(&register_mutex);
  __err_val:

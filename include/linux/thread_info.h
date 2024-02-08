@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* thread_info.h: common low-level thread information accessors
  *
  * Copyright (C) 2002  David Howells (dhowells@redhat.com)
@@ -88,7 +91,11 @@ static inline int test_and_clear_ti_thread_flag(struct thread_info *ti, int flag
 	return test_and_clear_bit(flag, (unsigned long *)&ti->flags);
 }
 
+#ifdef MY_ABC_HERE
 static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
+#else
+static __always_inline int test_ti_thread_flag(struct thread_info *ti, int flag)
+#endif	/* MY_ABC_HERE */
 {
 	return test_bit(flag, (unsigned long *)&ti->flags);
 }

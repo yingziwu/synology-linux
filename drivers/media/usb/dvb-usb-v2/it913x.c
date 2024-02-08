@@ -256,7 +256,6 @@ static int it913x_pid_filter(struct dvb_usb_adapter *adap,
 	return 0;
 }
 
-
 static int it913x_return_status(struct dvb_usb_device *d)
 {
 	struct it913x_state *st = d->priv;
@@ -745,7 +744,6 @@ static struct dvb_usb_device_properties it913x_properties = {
 	.get_adapter_count = it913x_get_adapter_count,
 	.streaming_ctrl   = it913x_streaming_ctrl,
 
-
 	.adapter = {
 		{
 			.caps = DVB_USB_ADAP_HAS_PID_FILTER|
@@ -819,4 +817,3 @@ MODULE_LICENSE("GPL");
 MODULE_FIRMWARE(FW_IT9135_V1);
 MODULE_FIRMWARE(FW_IT9135_V2);
 MODULE_FIRMWARE(FW_IT9137);
-

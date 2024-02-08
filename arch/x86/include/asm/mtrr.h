@@ -25,7 +25,6 @@
 
 #include <uapi/asm/mtrr.h>
 
-
 /*  The following functions are for use by other drivers  */
 # ifdef CONFIG_MTRR
 extern u8 mtrr_type_lookup(u64 addr, u64 end);

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright (C) 1991, 1992  Linus Torvalds
  *  Copyright (C) 2000, 2001, 2002 Andi Kleen, SuSE Labs
@@ -63,6 +66,12 @@
 #include <asm/x86_init.h>
 #include <asm/pgalloc.h>
 #include <asm/proto.h>
+
+#ifdef MY_ABC_HERE
+#else
+/* No need to be aligned, but done to keep all IDTs defined the same way. */
+gate_desc debug_idt_table[NR_VECTORS] __page_aligned_bss;
+#endif	/* MY_ABC_HERE */
 #else
 #include <asm/processor-flags.h>
 #include <asm/setup.h>
@@ -140,7 +149,6 @@ do_trap(int trapnr, int signr, char *str, struct pt_regs *regs,
 	long error_code, siginfo_t *info)
 {
 	struct task_struct *tsk = current;
-
 
 	if (!do_trap_no_signal(tsk, trapnr, str, regs, error_code))
 		return;
@@ -318,7 +326,6 @@ exit:
 	exception_exit(prev_state);
 }
 
-/* May run on IST stack. */
 dotraplinkage void __kprobes notrace do_int3(struct pt_regs *regs, long error_code)
 {
 	enum ctx_state prev_state;
@@ -343,15 +350,10 @@ dotraplinkage void __kprobes notrace do_int3(struct pt_regs *regs, long error_co
 			SIGTRAP) == NOTIFY_STOP)
 		goto exit;
 
-	/*
-	 * Let others (NMI) know that the debug stack is in use
-	 * as we may switch to the interrupt stack.
-	 */
-	debug_stack_usage_inc();
 	preempt_conditional_sti(regs);
 	do_trap(X86_TRAP_BP, SIGTRAP, "int3", regs, error_code, NULL);
 	preempt_conditional_cli(regs);
-	debug_stack_usage_dec();
+
 exit:
 	exception_exit(prev_state);
 }
@@ -741,7 +743,7 @@ void __init early_trap_init(void)
 {
 	set_intr_gate_ist(X86_TRAP_DB, &debug, DEBUG_STACK);
 	/* int3 can be called from all */
-	set_system_intr_gate_ist(X86_TRAP_BP, &int3, DEBUG_STACK);
+	set_system_intr_gate(X86_TRAP_BP, &int3);
 #ifdef CONFIG_X86_32
 	set_intr_gate(X86_TRAP_PF, &page_fault);
 #endif
@@ -822,7 +824,11 @@ void __init trap_init(void)
 	x86_init.irqs.trap_init();
 
 #ifdef CONFIG_X86_64
+#ifdef MY_ABC_HERE
 	memcpy(&nmi_idt_table, &idt_table, IDT_ENTRIES * 16);
+#else
+	memcpy(&debug_idt_table, &idt_table, IDT_ENTRIES * 16);
+#endif /* MY_ABC_HERE */
 	set_nmi_gate(X86_TRAP_DB, &debug);
 	set_nmi_gate(X86_TRAP_BP, &int3);
 #endif

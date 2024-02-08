@@ -1082,7 +1082,6 @@ out:
 	return;
 }
 
-
 static void
 lpfc_mbx_cmpl_local_config_link(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
 {
@@ -2975,7 +2974,6 @@ lpfc_mbx_cmpl_read_sparam(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
 	struct lpfc_dmabuf *mp = (struct lpfc_dmabuf *) pmb->context1;
 	struct lpfc_vport  *vport = pmb->vport;
 
-
 	/* Check for error */
 	if (mb->mbxStatus) {
 		/* READ_SPARAM mbox error <mbxStatus> state <hba_state> */
@@ -3247,7 +3245,6 @@ lpfc_mbx_issue_link_down(struct lpfc_hba *phba)
 	lpfc_unregister_unused_fcf(phba);
 	/* turn on Link Attention interrupts - no CLEAR_LA needed */
 }
-
 
 /*
  * This routine handles processing a READ_TOPOLOGY mailbox
@@ -3644,7 +3641,6 @@ lpfc_create_static_vport(struct lpfc_hba *phba)
 
 	} while (byte_count &&
 		offset < sizeof(struct static_vport_info));
-
 
 	if ((le32_to_cpu(vport_info->signature) != VPORT_INFO_SIG) ||
 		((le32_to_cpu(vport_info->rev) & VPORT_INFO_REV_MASK)
@@ -4194,7 +4190,7 @@ lpfc_enable_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
 				"0277 lpfc_enable_node: ndlp:x%p "
 				"usgmap:x%x refcnt:%d\n",
 				(void *)ndlp, ndlp->nlp_usg_map,
-				atomic_read(&ndlp->kref.refcount));
+				kref_read(&ndlp->kref));
 		return NULL;
 	}
 	/* The ndlp should not already be in active mode */
@@ -4204,7 +4200,7 @@ lpfc_enable_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
 				"0278 lpfc_enable_node: ndlp:x%p "
 				"usgmap:x%x refcnt:%d\n",
 				(void *)ndlp, ndlp->nlp_usg_map,
-				atomic_read(&ndlp->kref.refcount));
+				kref_read(&ndlp->kref));
 		return NULL;
 	}
 
@@ -4265,7 +4261,6 @@ lpfc_set_disctmo(struct lpfc_vport *vport)
 		 */
 		tmo = ((phba->fc_ratov * 3) + 3);
 	}
-
 
 	if (!timer_pending(&vport->fc_disctmo)) {
 		lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_ELS_CMD,
@@ -4604,17 +4599,16 @@ lpfc_cleanup_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 				"0280 lpfc_cleanup_node: ndlp:x%p "
 				"usgmap:x%x refcnt:%d\n",
 				(void *)ndlp, ndlp->nlp_usg_map,
-				atomic_read(&ndlp->kref.refcount));
+				kref_read(&ndlp->kref));
 		lpfc_dequeue_node(vport, ndlp);
 	} else {
 		lpfc_printf_vlog(vport, KERN_WARNING, LOG_NODE,
 				"0281 lpfc_cleanup_node: ndlp:x%p "
 				"usgmap:x%x refcnt:%d\n",
 				(void *)ndlp, ndlp->nlp_usg_map,
-				atomic_read(&ndlp->kref.refcount));
+				kref_read(&ndlp->kref));
 		lpfc_disable_node(vport, ndlp);
 	}
-
 
 	/* Don't need to clean up REG_LOGIN64 cmds for Default RPI cleanup */
 
@@ -5635,7 +5629,7 @@ lpfc_nlp_release(struct kref *kref)
 			"0279 lpfc_nlp_release: ndlp:x%p did %x "
 			"usgmap:x%x refcnt:%d\n",
 			(void *)ndlp, ndlp->nlp_DID, ndlp->nlp_usg_map,
-			atomic_read(&ndlp->kref.refcount));
+			kref_read(&ndlp->kref));
 
 	/* remove ndlp from action. */
 	lpfc_nlp_remove(ndlp->vport, ndlp);
@@ -5669,7 +5663,7 @@ lpfc_nlp_get(struct lpfc_nodelist *ndlp)
 		lpfc_debugfs_disc_trc(ndlp->vport, LPFC_DISC_TRC_NODE,
 			"node get:        did:x%x flg:x%x refcnt:x%x",
 			ndlp->nlp_DID, ndlp->nlp_flag,
-			atomic_read(&ndlp->kref.refcount));
+			kref_read(&ndlp->kref));
 		/* The check of ndlp usage to prevent incrementing the
 		 * ndlp reference count that is in the process of being
 		 * released.
@@ -5682,7 +5676,7 @@ lpfc_nlp_get(struct lpfc_nodelist *ndlp)
 				"0276 lpfc_nlp_get: ndlp:x%p "
 				"usgmap:x%x refcnt:%d\n",
 				(void *)ndlp, ndlp->nlp_usg_map,
-				atomic_read(&ndlp->kref.refcount));
+				kref_read(&ndlp->kref));
 			return NULL;
 		} else
 			kref_get(&ndlp->kref);
@@ -5709,7 +5703,7 @@ lpfc_nlp_put(struct lpfc_nodelist *ndlp)
 	lpfc_debugfs_disc_trc(ndlp->vport, LPFC_DISC_TRC_NODE,
 	"node put:        did:x%x flg:x%x refcnt:x%x",
 		ndlp->nlp_DID, ndlp->nlp_flag,
-		atomic_read(&ndlp->kref.refcount));
+		kref_read(&ndlp->kref));
 	phba = ndlp->phba;
 	spin_lock_irqsave(&phba->ndlp_lock, flags);
 	/* Check the ndlp memory free acknowledge flag to avoid the
@@ -5722,7 +5716,7 @@ lpfc_nlp_put(struct lpfc_nodelist *ndlp)
 				"0274 lpfc_nlp_put: ndlp:x%p "
 				"usgmap:x%x refcnt:%d\n",
 				(void *)ndlp, ndlp->nlp_usg_map,
-				atomic_read(&ndlp->kref.refcount));
+				kref_read(&ndlp->kref));
 		return 1;
 	}
 	/* Check the ndlp inactivate log flag to avoid the possible
@@ -5735,7 +5729,7 @@ lpfc_nlp_put(struct lpfc_nodelist *ndlp)
 				"0275 lpfc_nlp_put: ndlp:x%p "
 				"usgmap:x%x refcnt:%d\n",
 				(void *)ndlp, ndlp->nlp_usg_map,
-				atomic_read(&ndlp->kref.refcount));
+				kref_read(&ndlp->kref));
 		return 1;
 	}
 	/* For last put, mark the ndlp usage flags to make sure no
@@ -5743,7 +5737,7 @@ lpfc_nlp_put(struct lpfc_nodelist *ndlp)
 	 * in between the process when the final kref_put has been
 	 * invoked on this ndlp.
 	 */
-	if (atomic_read(&ndlp->kref.refcount) == 1) {
+	if (kref_read(&ndlp->kref) == 1) {
 		/* Indicate ndlp is put to inactive state. */
 		NLP_SET_IACT_REQ(ndlp);
 		/* Acknowledge ndlp memory free has been seen. */
@@ -5771,8 +5765,8 @@ lpfc_nlp_not_used(struct lpfc_nodelist *ndlp)
 	lpfc_debugfs_disc_trc(ndlp->vport, LPFC_DISC_TRC_NODE,
 		"node not used:   did:x%x flg:x%x refcnt:x%x",
 		ndlp->nlp_DID, ndlp->nlp_flag,
-		atomic_read(&ndlp->kref.refcount));
-	if (atomic_read(&ndlp->kref.refcount) == 1)
+		kref_read(&ndlp->kref));
+	if (kref_read(&ndlp->kref) == 1)
 		if (lpfc_nlp_put(ndlp))
 			return 1;
 	return 0;

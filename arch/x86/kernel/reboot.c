@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/module.h>
@@ -135,7 +138,6 @@ static int __init reboot_setup(char *str)
 
 __setup("reboot=", reboot_setup);
 
-
 /*
  * Reboot options and system auto-detection code provided by
  * Dell Inc. so their systems "just work". :-)
@@ -180,6 +182,13 @@ void __noreturn machine_real_restart(unsigned int type)
 	load_cr3(initial_page_table);
 #else
 	write_cr3(real_mode_header->trampoline_pgd);
+
+#ifdef MY_ABC_HERE
+#else
+	/* Exiting long mode will fail if CR4.PCIDE is set. */
+	if (static_cpu_has(X86_FEATURE_PCID))
+		clear_in_cr4(X86_CR4_PCIDE);
+#endif	/* MY_ABC_HERE */
 #endif
 
 	/* Jump to the identity-mapped low memory code */
@@ -537,7 +546,6 @@ static void emergency_vmx_disable_all(void)
 	}
 }
 
-
 void __attribute__((weak)) mach_reboot_fixups(void)
 {
 }
@@ -756,7 +764,6 @@ void machine_crash_shutdown(struct pt_regs *regs)
 	machine_ops.crash_shutdown(regs);
 }
 #endif
-
 
 #if defined(CONFIG_SMP)
 

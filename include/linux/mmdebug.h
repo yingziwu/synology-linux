@@ -1,11 +1,26 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef LINUX_MM_DEBUG_H
 #define LINUX_MM_DEBUG_H 1
 
+#ifdef MY_ABC_HERE
 #ifdef CONFIG_DEBUG_VM
 #define VM_BUG_ON(cond) BUG_ON(cond)
 #else
 #define VM_BUG_ON(cond) BUILD_BUG_ON_INVALID(cond)
 #endif
+#else
+#ifdef CONFIG_DEBUG_VM
+#define VM_BUG_ON(cond) BUG_ON(cond)
+#define VM_WARN_ON(cond) WARN_ON(cond)
+#define VM_WARN_ON_ONCE(cond) WARN_ON_ONCE(cond)
+#else
+#define VM_BUG_ON(cond) BUILD_BUG_ON_INVALID(cond)
+#define VM_WARN_ON(cond) BUILD_BUG_ON_INVALID(cond)
+#define VM_WARN_ON_ONCE(cond) BUILD_BUG_ON_INVALID(cond)
+#endif
+#endif	/* MY_ABC_HERE */
 
 #ifdef CONFIG_DEBUG_VIRTUAL
 #define VIRTUAL_BUG_ON(cond) BUG_ON(cond)

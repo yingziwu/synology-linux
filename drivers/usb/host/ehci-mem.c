@@ -63,7 +63,6 @@ static inline void ehci_qtd_free (struct ehci_hcd *ehci, struct ehci_qtd *qtd)
 	dma_pool_free (ehci->qtd_pool, qtd, qtd->qtd_dma);
 }
 
-
 static void qh_destroy(struct ehci_hcd *ehci, struct ehci_qh *qh)
 {
 	/* clean qtds first, and know this is not linked */
@@ -93,6 +92,7 @@ static struct ehci_qh *ehci_qh_alloc (struct ehci_hcd *ehci, gfp_t flags)
 	qh->qh_dma = dma;
 	// INIT_LIST_HEAD (&qh->qh_list);
 	INIT_LIST_HEAD (&qh->qtd_list);
+	INIT_LIST_HEAD(&qh->unlink_node);
 
 	/* dummy td enables safe urb queuing */
 	qh->dummy = ehci_qtd_alloc (ehci, flags);

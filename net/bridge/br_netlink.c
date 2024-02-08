@@ -195,7 +195,6 @@ errout:
 		rtnl_set_sk_err(net, RTNLGRP_LINK, err);
 }
 
-
 /*
  * Dump information about all ports, in response to GETLINK
  */

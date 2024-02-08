@@ -77,7 +77,6 @@ struct af9033_config {
 	bool spec_inv;
 };
 
-
 #if IS_ENABLED(CONFIG_DVB_AF9033)
 extern struct dvb_frontend *af9033_attach(const struct af9033_config *config,
 	struct i2c_adapter *i2c);

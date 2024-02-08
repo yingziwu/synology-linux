@@ -181,7 +181,6 @@ static struct omap_hwmod am33xx_l4_hs_hwmod = {
 	},
 };
 
-
 /* l4_wkup */
 static struct omap_hwmod am33xx_l4_wkup_hwmod = {
 	.name		= "l4_wkup",
@@ -1294,7 +1293,6 @@ static struct omap_hwmod am33xx_i2c3_hwmod = {
 	.dev_attr	= &i2c_dev_attr,
 };
 
-
 /* lcdc */
 static struct omap_hwmod_class_sysconfig lcdc_sysc = {
 	.rev_offs	= 0x0,
@@ -2202,7 +2200,6 @@ static struct omap_hwmod am33xx_usbss_hwmod = {
 	},
 };
 
-
 /*
  * Interfaces
  */
@@ -2724,7 +2721,6 @@ static struct omap_hwmod_ocp_if am33xx_epwmss0__ehrpwm0 = {
 	.addr		= am33xx_ehrpwm0_addr_space,
 	.user		= OCP_USER_MPU,
 };
-
 
 static struct omap_hwmod_addr_space am33xx_epwmss1_addr_space[] = {
 	{

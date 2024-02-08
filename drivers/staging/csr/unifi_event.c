@@ -14,7 +14,6 @@
  * ***************************************************************************
  */
 
-
 /*
  * Porting notes:
  * The implementation of unifi_receive_event() in Linux is fairly complicated.
@@ -31,7 +30,6 @@
 #include "csr_wifi_hip_unifi.h"
 #include "csr_wifi_hip_conversions.h"
 #include "unifi_priv.h"
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -301,7 +299,6 @@ static u8 check_routing_pkt_data_ind(unifi_priv_t *priv,
 	}
 #endif
 
-
     switch ((frmCtrl & 0x000c)>>FRAME_CONTROL_TYPE_FIELD_OFFSET) {
         case IEEE802_11_FRAMETYPE_MANAGEMENT:
             *freeBulkData = TRUE;       /* Free (after SME handler copies it) */
@@ -391,8 +388,6 @@ unifi_process_receive_event(void *ospriv,
     receiver_id = CSR_GET_UINT16_FROM_LITTLE_ENDIAN((sigdata) + sizeof(s16)) & 0xFF00;
     client_id = (receiver_id & 0x0F00) >> UDI_SENDER_ID_SHIFT;
     signal_id = CSR_GET_UINT16_FROM_LITTLE_ENDIAN(sigdata);
-
-
 
     /* check for the type of frame received (checks for 802.11 management frames) */
     if (signal_id == CSR_MA_PACKET_INDICATION_ID)
@@ -572,7 +567,6 @@ unifi_process_receive_event(void *ospriv,
 
 } /* unifi_process_receive_event() */
 
-
 #ifdef CSR_WIFI_RX_PATH_SPLIT
 static u8 signal_buffer_is_full(unifi_priv_t* priv)
 {
@@ -608,8 +602,6 @@ void rx_wq_handler(struct work_struct *work)
     unifi_rx_queue_flush(priv);
 }
 #endif
-
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -689,4 +681,3 @@ unifi_receive_event(void *ospriv,
     unifi_process_receive_event(ospriv, sigdata, siglen, bulkdata);
 #endif
 } /* unifi_receive_event() */
-

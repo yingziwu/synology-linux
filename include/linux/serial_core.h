@@ -20,7 +20,6 @@
 #ifndef LINUX_SERIAL_CORE_H
 #define LINUX_SERIAL_CORE_H
 
-
 #include <linux/compiler.h>
 #include <linux/interrupt.h>
 #include <linux/circ_buf.h>
@@ -30,6 +29,13 @@
 #include <linux/mutex.h>
 #include <linux/sysrq.h>
 #include <uapi/linux/serial_core.h>
+
+#ifdef CONFIG_SERIAL_CORE_CONSOLE
+#define uart_console(port) \
+	((port)->cons && (port)->cons->index == (port)->line)
+#else
+#define uart_console(port)      (0)
+#endif
 
 struct uart_port;
 struct serial_struct;
@@ -231,7 +237,6 @@ struct uart_state {
 };
 
 #define UART_XMIT_SIZE	PAGE_SIZE
-
 
 /* number of characters left in xmit buffer before we ask for more */
 #define WAKEUP_CHARS		256

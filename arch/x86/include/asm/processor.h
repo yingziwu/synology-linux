@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_PROCESSOR_H
 #define _ASM_X86_PROCESSOR_H
 
@@ -30,6 +33,10 @@ struct mm_struct;
 #include <linux/init.h>
 #include <linux/err.h>
 #include <linux/irqflags.h>
+#ifdef MY_ABC_HERE
+#else
+#include <linux/magic.h>
+#endif	/* MY_ABC_HERE */
 
 /*
  * We handle most unaligned accesses in hardware.  On the other hand
@@ -130,6 +137,16 @@ struct cpuinfo_x86 {
 	u32			microcode;
 } __attribute__((__aligned__(SMP_CACHE_BYTES)));
 
+#ifdef MY_ABC_HERE
+#else
+enum cpuid_regs_idx {
+	CPUID_EAX = 0,
+	CPUID_EBX,
+	CPUID_ECX,
+	CPUID_EDX,
+};
+#endif	/* MY_ABC_HERE */
+
 #define X86_VENDOR_INTEL	0
 #define X86_VENDOR_CYRIX	1
 #define X86_VENDOR_AMD		2
@@ -171,6 +188,12 @@ extern void identify_secondary_cpu(struct cpuinfo_x86 *);
 extern void print_cpu_info(struct cpuinfo_x86 *);
 void print_cpu_msr(struct cpuinfo_x86 *);
 extern void init_scattered_cpuid_features(struct cpuinfo_x86 *c);
+#ifdef MY_ABC_HERE
+#else
+extern u32 get_scattered_cpuid_leaf(unsigned int level,
+				    unsigned int sub_leaf,
+				    enum cpuid_regs_idx reg);
+#endif	/* MY_ABC_HERE */
 extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
 extern void init_amd_cacheinfo(struct cpuinfo_x86 *c);
 
@@ -197,11 +220,12 @@ static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
 	    : "0" (*eax), "2" (*ecx)
 	    : "memory");
 }
-
+#ifdef MY_ABC_HERE
 static inline void load_cr3(pgd_t *pgdir)
 {
 	write_cr3(__pa(pgdir));
 }
+#endif	/* MY_ABC_HERE */
 
 #ifdef CONFIG_X86_32
 /* This is the TSS defined by the hardware. */
@@ -261,6 +285,7 @@ struct x86_hw_tss {
 #define IO_BITMAP_OFFSET		offsetof(struct tss_struct, io_bitmap)
 #define INVALID_IO_BITMAP_OFFSET	0x8000
 
+#ifdef MY_ABC_HERE
 struct tss_struct {
 	/*
 	 * The hardware state:
@@ -281,8 +306,53 @@ struct tss_struct {
 	unsigned long		stack[64];
 
 } ____cacheline_aligned;
+#else
+struct tss_struct {
+	/*
+	 * The hardware state:
+	 */
+	struct x86_hw_tss	x86_tss;
 
+	/*
+	 * The extra 1 is there because the CPU will access an
+	 * additional byte beyond the end of the IO permission
+	 * bitmap. The extra byte must be all 1 bits, and must
+	 * be within the limit.
+	 */
+	unsigned long		io_bitmap[IO_BITMAP_LONGS + 1];
+
+	/*
+	 * .. and then another 0x100 bytes for the emergency kernel stack:
+	 */
+	unsigned long		stack_canary;
+	unsigned long		stack[64];
+
+		/*
+         *
+         * The Intel SDM says (Volume 3, 7.2.1):
+         *
+         *  Avoid placing a page boundary in the part of the TSS that the
+         *  processor reads during a task switch (the first 104 bytes). The
+         *  processor may not correctly perform address translations if a
+         *  boundary occurs in this area. During a task switch, the processor
+         *  reads and writes into the first 104 bytes of each TSS (using
+         *  contiguous physical addresses beginning with the physical address
+         *  of the first byte of the TSS). So, after TSS access begins, if
+         *  part of the 104 bytes is not physically contiguous, the processor
+         *  will access incorrect information without generating a page-fault
+         *  exception.
+         *
+         * There are also a lot of errata involving the TSS spanning a page
+         * boundary.  Assert that we're not doing that.
+         */
+} __attribute__((__aligned__(PAGE_SIZE)));
+#endif	/* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 DECLARE_PER_CPU_SHARED_ALIGNED(struct tss_struct, init_tss);
+#else
+DECLARE_PER_CPU_PAGE_ALIGNED_USER_MAPPED(struct tss_struct, init_tss);
+#endif	/* MY_ABC_HERE */
 
 /*
  * Save the original ist values for checking stack pointers during debugging
@@ -557,8 +627,18 @@ static inline void set_in_cr4(unsigned long mask)
 	unsigned long cr4;
 
 	mmu_cr4_features |= mask;
+#ifdef MY_ABC_HERE
 	if (trampoline_cr4_features)
 		*trampoline_cr4_features = mmu_cr4_features;
+#else
+	if (trampoline_cr4_features) {
+                /*
+                 * Mask off features that don't work outside long mode (just
+                 * PCIDE for now).
+                 */
+                *trampoline_cr4_features = mmu_cr4_features & ~X86_CR4_PCIDE;
+    }
+#endif	/* MY_ABC_HERE */
 	cr4 = read_cr4();
 	cr4 |= mask;
 	write_cr4(cr4);
@@ -579,7 +659,6 @@ static inline void clear_in_cr4(unsigned long mask)
 typedef struct {
 	unsigned long		seg;
 } mm_segment_t;
-
 
 /* Free all resources held by a thread. */
 extern void release_thread(struct task_struct *);
@@ -690,15 +769,24 @@ static inline void sync_core(void)
 #endif
 }
 
+#ifdef MY_ABC_HERE
 static inline void __monitor(const void *eax, unsigned long ecx,
 			     unsigned long edx)
+#else
+static __always_inline void __monitor(const void *eax, unsigned long ecx,
+			     unsigned long edx)
+#endif	/* MY_ABC_HERE */
 {
 	/* "monitor %eax, %ecx, %edx;" */
 	asm volatile(".byte 0x0f, 0x01, 0xc8;"
 		     :: "a" (eax), "c" (ecx), "d"(edx));
 }
 
+#ifdef MY_ABC_HERE
 static inline void __mwait(unsigned long eax, unsigned long ecx)
+#else
+static __always_inline void __mwait(unsigned long eax, unsigned long ecx)
+#endif	/* MY_ABC_HERE */
 {
 	/* "mwait %eax, %ecx;" */
 	asm volatile(".byte 0x0f, 0x01, 0xc9;"
@@ -901,9 +989,16 @@ extern unsigned long thread_saved_pc(struct task_struct *tsk);
 	.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
 }
 
+#ifdef MY_ABC_HERE
 #define INIT_TSS  { \
 	.x86_tss.sp0 = (unsigned long)&init_stack + sizeof(init_stack) \
 }
+#else
+#define INIT_TSS  { \
+	.x86_tss.sp0 = (unsigned long)&init_stack + sizeof(init_stack), \
+	.stack_canary		= STACK_END_MAGIC, \
+}
+#endif	/* MY_ABC_HERE */
 
 /*
  * Return saved PC of a blocked thread.

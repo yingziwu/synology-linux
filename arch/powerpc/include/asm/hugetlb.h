@@ -47,7 +47,6 @@ static inline unsigned int hugepd_shift(hugepd_t hpd)
 
 #endif /* CONFIG_PPC_BOOK3S_64 */
 
-
 static inline pte_t *hugepte_offset(hugepd_t *hpdp, unsigned long addr,
 				    unsigned pdshift)
 {
@@ -115,7 +114,6 @@ static inline int prepare_hugepage_range(struct file *file,
 static inline void hugetlb_prefault_arch_hook(struct mm_struct *mm)
 {
 }
-
 
 static inline void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
 				   pte_t *ptep, pte_t pte)
@@ -192,7 +190,6 @@ static inline void flush_hugetlb_page(struct vm_area_struct *vma,
 {
 }
 #endif /* CONFIG_HUGETLB_PAGE */
-
 
 /*
  * FSL Book3E platforms require special gpage handling - the gpages

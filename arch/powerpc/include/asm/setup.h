@@ -26,4 +26,3 @@ extern void reloc_got2(unsigned long);
 #endif /* !__ASSEMBLY__ */
 
 #endif	/* _ASM_POWERPC_SETUP_H */
-

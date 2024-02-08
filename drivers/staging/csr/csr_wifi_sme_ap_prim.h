@@ -28,7 +28,6 @@
 
 typedef CsrPrim CsrWifiSmeApPrim;
 
-
 /*******************************************************************************
 
   NAME
@@ -146,7 +145,6 @@ typedef u8 CsrWifiSmeApType;
 #define CSR_WIFI_AP_TYPE_LEGACY   ((CsrWifiSmeApType) 0x00)
 #define CSR_WIFI_AP_TYPE_P2P      ((CsrWifiSmeApType) 0x01)
 
-
 /*******************************************************************************
 
   NAME
@@ -208,7 +206,6 @@ typedef u16 CsrWifiSmeApWapiCapabilities;
 
 *******************************************************************************/
 typedef u16 CsrWifiSmeApWapiCapabilitiesMask;
-
 
 /*******************************************************************************
 
@@ -479,7 +476,6 @@ typedef struct
     u8                 wpsEnabled;
 } CsrWifiSmeApSecConfig;
 
-
 /* Downstream */
 #define CSR_WIFI_SME_AP_PRIM_DOWNSTREAM_LOWEST            (0x0000)
 
@@ -492,7 +488,6 @@ typedef struct
 #define CSR_WIFI_SME_AP_WPS_CONFIGURATION_REQ             ((CsrWifiSmeApPrim) (0x0006 + CSR_WIFI_SME_AP_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_SME_AP_ACTIVE_BA_GET_REQ                 ((CsrWifiSmeApPrim) (0x0007 + CSR_WIFI_SME_AP_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_SME_AP_BA_DELETE_REQ                     ((CsrWifiSmeApPrim) (0x0008 + CSR_WIFI_SME_AP_PRIM_DOWNSTREAM_LOWEST))
-
 
 #define CSR_WIFI_SME_AP_PRIM_DOWNSTREAM_HIGHEST           (0x0008 + CSR_WIFI_SME_AP_PRIM_DOWNSTREAM_LOWEST)
 
@@ -1025,6 +1020,4 @@ typedef struct
     CsrWifiSmeApBaSession baSession;
 } CsrWifiSmeApBaDeleteCfm;
 
-
 #endif /* CSR_WIFI_SME_AP_PRIM_H__ */
-

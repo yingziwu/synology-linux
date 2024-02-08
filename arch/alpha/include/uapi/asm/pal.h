@@ -48,5 +48,4 @@
 #define PAL_retsys	61
 #define PAL_rti		63
 
-
 #endif /* _UAPI__ALPHA_PAL_H */

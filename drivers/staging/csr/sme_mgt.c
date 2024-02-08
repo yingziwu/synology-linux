@@ -54,7 +54,6 @@
  * CsrWifiSmeIbssStationIndSend()
  */
 
-
 void CsrWifiSmeMicFailureIndHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 #ifdef CSR_SUPPORT_WEXT
@@ -73,7 +72,6 @@ void CsrWifiSmeMicFailureIndHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     wext_send_michaelmicfailure_event(priv, ind->count, ind->address, ind->keyType, ind->interfaceTag);
 #endif
 }
-
 
 void CsrWifiSmePmkidCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -94,7 +92,6 @@ void CsrWifiSmePmkidCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     sme_complete_request(priv, cfm->status);
 #endif
 }
-
 
 void CsrWifiSmePmkidCandidateListIndHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -161,7 +158,6 @@ void CsrWifiSmeScanResultsGetCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 #endif
 }
 
-
 void CsrWifiSmeScanFullCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 #ifdef CSR_SUPPORT_WEXT
@@ -177,12 +173,10 @@ void CsrWifiSmeScanFullCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 #endif
 }
 
-
 void CsrWifiSmeScanResultIndHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 
 }
-
 
 void CsrWifiSmeConnectCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -199,7 +193,6 @@ void CsrWifiSmeConnectCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 #endif
 }
 
-
 void CsrWifiSmeDisconnectCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 #ifdef CSR_SUPPORT_WEXT
@@ -215,7 +208,6 @@ void CsrWifiSmeDisconnectCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 #endif
 }
 
-
 void CsrWifiSmeKeyCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 #ifdef CSR_SUPPORT_WEXT
@@ -230,7 +222,6 @@ void CsrWifiSmeKeyCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     sme_complete_request(priv, cfm->status);
 #endif
 }
-
 
 void CsrWifiSmeMulticastAddressCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -296,7 +287,6 @@ void CsrWifiSmeWifiOffCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     sme_complete_request(priv, cfm->status);
 #endif
 }
-
 
 void CsrWifiSmeWifiOffIndHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -628,7 +618,6 @@ void CsrWifiSmeEventMaskSetCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 }
 
-
 void CsrWifiSmeRoamStartIndHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 }
@@ -661,7 +650,6 @@ void CsrWifiSmeRestrictedAccessEnableCfmHandler(void* drvpriv, CsrWifiFsmEvent* 
 void CsrWifiSmeRestrictedAccessDisableCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 }
-
 
 void CsrWifiSmeAdhocConfigGetCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -739,7 +727,6 @@ void CsrWifiSmeCloakedSsidsSetCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 #endif
 }
 
-
 void CsrWifiSmeCoexConfigSetCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 #ifdef CSR_SUPPORT_WEXT
@@ -771,7 +758,6 @@ void CsrWifiSmeHostConfigSetCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 void CsrWifiSmeLinkQualityGetCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 }
-
 
 void CsrWifiSmeMibConfigSetCfmHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {

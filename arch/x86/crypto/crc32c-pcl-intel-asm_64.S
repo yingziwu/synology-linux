@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Implement fast CRC32C with PCLMULQDQ instructions. (x86_64)
  *
@@ -45,6 +48,10 @@
 
 #include <asm/inst.h>
 #include <linux/linkage.h>
+#ifdef MY_ABC_HERE
+#else
+#include <asm/nospec-branch.h>
+#endif	/* MY_ABC_HERE */
 
 ## ISCSI CRC 32 Implementation with crc32 and pclmulqdq Instruction
 
@@ -171,7 +178,11 @@ continue_block:
 	movzxw  (bufp, %rax, 2), len
 	offset=crc_array-jump_table
 	lea     offset(bufp, len, 1), bufp
+#ifdef MY_ABC_HERE
 	jmp     *bufp
+#else
+	JMP_NOSPEC bufp
+#endif	/* MY_ABC_HERE */
 
 	################################################################
 	## 2a) PROCESS FULL BLOCKS:

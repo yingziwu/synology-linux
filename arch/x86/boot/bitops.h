@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright (C) 1991, 1992 Linus Torvalds
@@ -16,7 +19,11 @@
 #define BOOT_BITOPS_H
 #define _LINUX_BITOPS_H		/* Inhibit inclusion of <linux/bitops.h> */
 
+#ifdef MY_ABC_HERE
 static inline int constant_test_bit(int nr, const void *addr)
+#else
+static __always_inline int constant_test_bit(int nr, const void *addr)
+#endif	/* MY_ABC_HERE */
 {
 	const u32 *p = (const u32 *)addr;
 	return ((1UL << (nr & 31)) & (p[nr >> 5])) != 0;

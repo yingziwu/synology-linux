@@ -11,7 +11,6 @@ static int SearchVcid(struct bcm_mini_adapter *Adapter,unsigned short usVcid)
 
 }
 
-
 static struct bcm_usb_rcb *
 GetBulkInRcb(struct bcm_interface_adapter *psIntfAdapter)
 {
@@ -234,8 +233,6 @@ Description:			This is the hardware specific Function for Receiving
 
 Input parameters:		IN struct bcm_mini_adapter *Adapter   - Miniport Adapter Context
 
-
-
 Return:				TRUE  - If Rx was successful.
 					Other - If an error occurred.
 */
@@ -261,4 +258,3 @@ BOOLEAN InterfaceRx (struct bcm_interface_adapter *psIntfAdapter)
     }
 	return TRUE;
 }
-

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <asm/ia32.h>
 
 #define __SYSCALL_64(nr, sym, compat) [nr] = 1,
@@ -78,6 +81,12 @@ int main(void)
 #undef ENTRY
 
 	OFFSET(TSS_ist, tss_struct, x86_tss.ist);
+#ifdef MY_ABC_HERE
+#else
+	OFFSET(TSS_sp0, tss_struct, x86_tss.sp0);
+	OFFSET(TSS_stack, tss_struct, stack);
+	DEFINE(TSS_stack_size, sizeof(init_tss.stack));
+#endif	/* MY_ABC_HERE */
 	BLANK();
 
 	DEFINE(__NR_syscall_max, sizeof(syscalls_64) - 1);

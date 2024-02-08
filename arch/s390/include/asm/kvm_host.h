@@ -10,7 +10,6 @@
  *    Author(s): Carsten Otte <cotte@de.ibm.com>
  */
 
-
 #ifndef ASM_KVM_HOST_H
 #define ASM_KVM_HOST_H
 #include <linux/hrtimer.h>
@@ -22,13 +21,14 @@
 #define KVM_MAX_VCPUS 64
 #define KVM_USER_MEM_SLOTS 32
 
+#define KVM_HALT_POLL_NS_DEFAULT 0
+
 struct sca_entry {
 	atomic_t scn;
 	__u32	reserved;
 	__u64	sda;
 	__u64	reserved2[2];
 } __attribute__((packed));
-
 
 struct sca_block {
 	__u64	ipte_control;
@@ -116,6 +116,9 @@ struct kvm_vcpu_stat {
 	u32 exit_stop_request;
 	u32 exit_validity;
 	u32 exit_instruction;
+	u32 halt_successful_poll;
+	u32 halt_attempted_poll;
+	u32 halt_wakeup;
 	u32 instruction_lctl;
 	u32 instruction_lctlg;
 	u32 exit_program_interruption;
@@ -233,7 +236,6 @@ struct kvm_s390_float_interrupt {
 				/ sizeof(long)];
 	struct kvm_s390_local_interrupt *local_int[KVM_MAX_VCPUS];
 };
-
 
 struct kvm_vcpu_arch {
 	struct kvm_s390_sie_block *sie_block;

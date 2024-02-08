@@ -3,7 +3,6 @@
 
 #include <uapi/linux/netfilter/nfnetlink_acct.h>
 
-
 struct nf_acct;
 
 extern struct nf_acct *nfnl_acct_find_get(const char *filter_name);

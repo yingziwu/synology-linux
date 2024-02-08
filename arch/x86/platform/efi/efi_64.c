@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * x86_64 specific EFI support functions
  * Based on Extensible Firmware Interface Specification version 1.0
@@ -73,6 +76,10 @@ void __init efi_call_phys_prelog(void)
 		save_pgd[pgd] = *pgd_offset_k(pgd * PGDIR_SIZE);
 		vaddress = (unsigned long)__va(pgd * PGDIR_SIZE);
 		set_pgd(pgd_offset_k(pgd * PGDIR_SIZE), *pgd_offset_k(vaddress));
+#ifdef MY_ABC_HERE
+#else
+		pgd_offset_k(pgd * PGDIR_SIZE)->pgd &= ~_PAGE_NX;
+#endif	/* MY_ABC_HERE */
 	}
 	__flush_tlb_all();
 }
@@ -84,8 +91,9 @@ void __init efi_call_phys_epilog(void)
 	 */
 	int pgd;
 	int n_pgds = DIV_ROUND_UP((max_pfn << PAGE_SHIFT) , PGDIR_SIZE);
-	for (pgd = 0; pgd < n_pgds; pgd++)
+	for (pgd = 0; pgd < n_pgds; pgd++) {
 		set_pgd(pgd_offset_k(pgd * PGDIR_SIZE), save_pgd[pgd]);
+	}
 	kfree(save_pgd);
 	__flush_tlb_all();
 	early_code_mapping_set_exec(0);

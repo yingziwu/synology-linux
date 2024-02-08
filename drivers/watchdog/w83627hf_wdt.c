@@ -42,7 +42,6 @@
 #include <linux/io.h>
 #include <linux/uaccess.h>
 
-
 #define WATCHDOG_NAME "w83627hf/thf/hg/dhg WDT"
 #define WATCHDOG_TIMEOUT 60		/* 60 sec default timeout */
 

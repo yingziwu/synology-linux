@@ -579,7 +579,6 @@ static const char *const flags_strings[] = {
 	" 4", " Waited", " PrimaryTC", " SecondaryTC",
 };
 
-
 static void ni_pcidio_print_flags(unsigned int flags)
 {
 	pr_debug("group_1_flags:%s%s%s%s%s%s%s%s\n",

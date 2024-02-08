@@ -57,7 +57,6 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
-
 #define TIPC_MOD_VER "2.0.0"
 
 #define ULTRA_STRING_MAX_LEN	32768

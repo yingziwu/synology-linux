@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /******************************************************************************
  * emulate.c
  *
@@ -25,6 +28,10 @@
 #include <linux/module.h>
 #include <asm/kvm_emulate.h>
 #include <linux/stringify.h>
+#ifdef MY_ABC_HERE
+#else
+#include <asm/nospec-branch.h>
+#endif	/* MY_ABC_HERE */
 
 #include "x86.h"
 #include "tss.h"
@@ -338,7 +345,6 @@ static void invalidate_registers(struct x86_emulate_ctxt *ctxt)
 			  "=&r" (_tmp)					\
 			: _y ((ctxt)->src.val), "i" (EFLAGS_MASK));	\
 	} while (0)
-
 
 /* Raw emulation: instruction has two explicit operands. */
 #define __emulate_2op_nobyte(ctxt,_op,_wx,_wy,_lx,_ly,_qx,_qy)		\
@@ -891,7 +897,6 @@ static int linearize(struct x86_emulate_ctxt *ctxt,
 	return __linearize(ctxt, addr, size, write, false, linear);
 }
 
-
 static int segmented_read_std(struct x86_emulate_ctxt *ctxt,
 			      struct segmented_address addr,
 			      void *data,
@@ -1046,8 +1051,13 @@ static u8 test_cc(unsigned int condition, unsigned long flags)
 	void (*fop)(void) = (void *)em_setcc + 4 * (condition & 0xf);
 
 	flags = (flags & EFLAGS_MASK) | X86_EFLAGS_IF;
+#ifdef MY_ABC_HERE
 	asm("push %[flags]; popf; call *%[fastop]"
 	    : "=a"(rc) : [fastop]"r"(fop), [flags]"r"(flags));
+#else
+	asm("push %[flags]; popf; " CALL_NOSPEC
+	    : "=a"(rc) : [thunk_target]"r"(fop), [flags]"r"(flags));
+#endif	/* MY_ABC_HERE */
 	return rc;
 }
 
@@ -2099,7 +2109,6 @@ static int emulate_iret_real(struct x86_emulate_ctxt *ctxt)
 
 	ctxt->_eip = temp_eip;
 
-
 	if (ctxt->op_bytes == 4)
 		ctxt->eflags = ((temp_eflags & mask) | (ctxt->eflags & vm86_mask));
 	else if (ctxt->op_bytes == 2) {
@@ -2915,7 +2924,6 @@ static int emulator_do_task_switch(struct x86_emulate_ctxt *ctxt,
 		if ((tss_selector & 3) > dpl || ops->cpl(ctxt) > dpl)
 			return emulate_gp(ctxt, tss_selector);
 	}
-
 
 	desc_limit = desc_limit_scaled(&next_tss_desc);
 	if (!next_tss_desc.p ||
@@ -4595,11 +4603,22 @@ static void fetch_possible_mmx_operand(struct x86_emulate_ctxt *ctxt,
 
 static int fastop(struct x86_emulate_ctxt *ctxt, void (*fop)(struct fastop *))
 {
+#ifdef MY_ABC_HERE
 	ulong flags = (ctxt->eflags & EFLAGS_MASK) | X86_EFLAGS_IF;
 	fop += __ffs(ctxt->dst.bytes) * FASTOP_SIZE;
 	asm("push %[flags]; popf; call *%[fastop]; pushf; pop %[flags]\n"
 	    : "+a"(ctxt->dst.val), "+b"(ctxt->src.val), [flags]"+D"(flags)
 	: "c"(ctxt->src2.val), [fastop]"S"(fop));
+#else
+	register void *__sp asm("rsp");
+	ulong flags = (ctxt->eflags & EFLAGS_MASK) | X86_EFLAGS_IF;
+	fop += __ffs(ctxt->dst.bytes) * FASTOP_SIZE;
+	asm("push %[flags]; popf; " CALL_NOSPEC " ; pushf; pop %[flags]\n"
+	    : "+a"(ctxt->dst.val), "+b"(ctxt->src.val), [flags]"+D"(flags),
+		[thunk_target]"+S"(fop), "+r"(__sp)
+	    : "c"(ctxt->src2.val));
+#endif	/* MY_ABC_HERE */
+
 	ctxt->eflags = (ctxt->eflags & ~EFLAGS_MASK) | (flags & EFLAGS_MASK);
 	return X86EMUL_CONTINUE;
 }
@@ -4712,7 +4731,6 @@ int x86_emulate_insn(struct x86_emulate_ctxt *ctxt)
 
 	if ((ctxt->d & DstMask) == ImplicitOps)
 		goto special_insn;
-
 
 	if ((ctxt->dst.type == OP_MEM) && !(ctxt->d & Mov)) {
 		/* optimisation - avoid slow emulated read if Mov */

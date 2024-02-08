@@ -90,7 +90,6 @@ static void iwlagn_tx_cmd_build_basic(struct iwl_priv *priv,
 		 skb->protocol == cpu_to_be16(ETH_P_PAE)))
 		tx_flags |= TX_CMD_FLG_IGNORE_BT;
 
-
 	tx_cmd->sta_id = sta_id;
 	if (ieee80211_has_morefrags(fc))
 		tx_flags |= TX_CMD_FLG_MORE_FRAG_MSK;

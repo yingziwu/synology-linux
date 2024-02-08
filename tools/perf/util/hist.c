@@ -770,7 +770,6 @@ static void hists__remove_entry_filter(struct hists *hists, struct hist_entry *h
 	hists__calc_col_len(hists, h);
 }
 
-
 static bool hists__filter_entry_by_dso(struct hists *hists,
 				       struct hist_entry *he)
 {

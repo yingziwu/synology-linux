@@ -49,17 +49,13 @@ err:
 	return NULL;
 }
 
-
-
 static int parse_status(char *value)
 {
 	int ret = 0;
 	char *c;
 
-
 	for (int i = 0; i < vhci_driver->nports; i++)
 		memset(&vhci_driver->idev[i], 0, sizeof(vhci_driver->idev[i]));
-
 
 	/* skip a header line */
 	c = strchr(value, '\n');
@@ -84,7 +80,6 @@ static int parse_status(char *value)
 		dbg("port %d status %d speed %d devid %x",
 				port, status, speed, devid);
 		dbg("socket %lx lbusid %s", socket, lbusid);
-
 
 		/* if a device is connected, look at it */
 		{
@@ -114,7 +109,6 @@ static int parse_status(char *value)
 			}
 		}
 
-
 		/* go to the next line */
 		c = strchr(c, '\n');
 		if (!c)
@@ -126,7 +120,6 @@ static int parse_status(char *value)
 
 	return 0;
 }
-
 
 static int check_usbip_device(struct sysfs_class_device *cdev)
 {
@@ -161,7 +154,6 @@ static int check_usbip_device(struct sysfs_class_device *cdev)
 	return 0;
 }
 
-
 static int search_class_for_usbip_device(char *cname)
 {
 	struct sysfs_class *class;
@@ -194,7 +186,6 @@ out:
 
 	return ret;
 }
-
 
 static int refresh_class_device_list(void)
 {
@@ -238,11 +229,9 @@ static int refresh_class_device_list(void)
 	return 0;
 }
 
-
 static int refresh_imported_device_list(void)
 {
 	struct sysfs_attribute *attr_status;
-
 
 	attr_status = sysfs_get_device_attr(vhci_driver->hc_device, "status");
 	if (!attr_status) {
@@ -337,7 +326,6 @@ err:
 	return -1;
 }
 
-
 /* ---------------------------------------------------------------------- */
 
 int usbip_vhci_driver_open(void)
@@ -383,9 +371,7 @@ int usbip_vhci_driver_open(void)
 	if (refresh_imported_device_list())
 		goto err;
 
-
 	return 0;
-
 
 err:
 	if (vhci_driver->cdev_list)
@@ -398,7 +384,6 @@ err:
 	vhci_driver = NULL;
 	return -1;
 }
-
 
 void usbip_vhci_driver_close()
 {
@@ -420,12 +405,10 @@ void usbip_vhci_driver_close()
 	vhci_driver = NULL;
 }
 
-
 int usbip_vhci_refresh_device_list(void)
 {
 	if (vhci_driver->cdev_list)
 		dlist_destroy(vhci_driver->cdev_list);
-
 
 	for (int i = 0; i < vhci_driver->nports; i++) {
 		if (vhci_driver->idev[i].cdev_list)
@@ -455,7 +438,6 @@ err:
 	dbg("failed to refresh device list");
 	return -1;
 }
-
 
 int usbip_vhci_get_free_port(void)
 {

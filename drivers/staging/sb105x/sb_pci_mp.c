@@ -345,7 +345,6 @@ static void SendATCommand(struct mp_port * mtpt)
 	serial_outp(mtpt,UART_DLL,(Divisor & 0xff));
 	serial_outp(mtpt,UART_DLM,(Divisor & 0xff00)>>8); //baudrate is 4800
 
-
 	serial_outp(mtpt,UART_LCR,lineControl);	
 	serial_outp(mtpt,UART_LCR,0x03); // N-8-1
 	serial_outp(mtpt,UART_FCR,7); 
@@ -356,7 +355,6 @@ static void SendATCommand(struct mp_port * mtpt)
 		}
 		serial_outp(mtpt,0,ch[i++]);
 	}
-
 
 }// end of SendATCommand()
 
@@ -548,7 +546,6 @@ static int mp_startup(struct sb_uart_state *state, int init_hw)
 		}
 
 		info->flags |= UIF_INITIALIZED;
-
 
 		clear_bit(TTY_IO_ERROR, &info->tty->flags);
 	}
@@ -923,7 +920,6 @@ exit:
 	return retval;
 }
 
-
 static int mp_get_lsr_info(struct sb_uart_state *state, unsigned int *value)
 {
 	struct sb_uart_port *port = state->port;
@@ -961,7 +957,6 @@ static int mp_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int cl
 	struct sb_uart_state *state = tty->driver_data;
 	struct sb_uart_port *port = state->port;
 	int ret = -EIO;
-
 
 	MP_STATE_LOCK(state);
 	if (!(tty->flags & (1 << TTY_IO_ERROR))) {
@@ -1091,7 +1086,6 @@ static int mp_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned long arg)
 	struct sb_uart_state *state = tty->driver_data;
 	struct mp_port *info = (struct mp_port *)state->port;
 	int ret = -ENOIOCTLCMD;
-
 
 	switch (cmd) {
 		case TIOCSMULTIDROP:
@@ -1603,7 +1597,6 @@ fail:
 	return retval;
 }
 
-
 static const char *mp_type(struct sb_uart_port *port)
 {
 	const char *str = NULL;
@@ -1653,7 +1646,6 @@ static inline void mp_report_port(struct uart_driver *drv, struct sb_uart_port *
 static void mp_configure_port(struct uart_driver *drv, struct sb_uart_state *state, struct sb_uart_port *port)
 {
 	unsigned int flags;
-
 
 	if (!port->iobase && !port->mapbase && !port->membase)
 	{
@@ -1807,7 +1799,6 @@ void mp_unregister_driver(struct uart_driver *drv)
     put_tty_driver(normal);
     drv->tty_driver = NULL;
 
-
     if (drv->state)
     {
         kfree(drv->state);
@@ -1819,7 +1810,6 @@ static int mp_add_one_port(struct uart_driver *drv, struct sb_uart_port *port)
 {
 	struct sb_uart_state *state;
 	int ret = 0;
-
 
 	if (port->line >= drv->nr)
 		return -EINVAL;
@@ -1844,7 +1834,6 @@ static int mp_add_one_port(struct uart_driver *drv, struct sb_uart_port *port)
 
 out:
 	MP_MUTEX_UNLOCK(mp_mutex);
-
 
 	return ret;
 }
@@ -2070,7 +2059,6 @@ static void multi_enable_ms(struct sb_uart_port *port)
 	serial_out(mtpt, UART_IER, mtpt->ier);
 }
 
-
 static _INLINE_ void receive_chars(struct mp_port *mtpt, int *status )
 {
 	struct tty_struct *tty = mtpt->port.info->tty;
@@ -2129,9 +2117,6 @@ ignore_char:
 	tty_flip_buffer_push(tty);
 }
 
-
-
-
 static _INLINE_ void transmit_chars(struct mp_port *mtpt)
 {
 	struct circ_buf *xmit = &mtpt->port.info->xmit;
@@ -2175,8 +2160,6 @@ static _INLINE_ void transmit_chars(struct mp_port *mtpt)
 	} while (--count > 0);
 }
 
-
-
 static _INLINE_ void check_modem_status(struct mp_port *mtpt)
 {
 	int status;
@@ -2219,7 +2202,6 @@ static inline void multi_handle_port(struct mp_port *mtpt)
 			
 			transmit_chars(mtpt);
 
-
 			if (mtpt->interface >= RS485NE)
 			{
 				while((status=serial_in(mtpt,UART_LSR) &0x60)!=0x60);
@@ -2229,14 +2211,11 @@ static inline void multi_handle_port(struct mp_port *mtpt)
 	}
 }
 
-
-
 static irqreturn_t multi_interrupt(int irq, void *dev_id)
 {
 	struct irq_info *iinfo = dev_id;
 	struct list_head *lhead, *end = NULL;
 	int pass_counter = 0;
-
 
 	spin_lock(&iinfo->lock);
 
@@ -2272,7 +2251,6 @@ static irqreturn_t multi_interrupt(int irq, void *dev_id)
 	} while (lhead != end);
 
 	spin_unlock(&iinfo->lock);
-
 
         return IRQ_HANDLED;
 }
@@ -2317,9 +2295,6 @@ static int serial_link_irq_chain(struct mp_port *mtpt)
 	return ret;
 }
 
-
-
-
 static void serial_unlink_irq_chain(struct mp_port *mtpt)
 {
 	struct irq_info *i = irq_lists + mtpt->port.irq;
@@ -2334,7 +2309,6 @@ static void serial_unlink_irq_chain(struct mp_port *mtpt)
 static void multi_timeout(unsigned long data)
 {
 	struct mp_port *mtpt = (struct mp_port *)data;
-
 
 	spin_lock(&mtpt->port.lock);
 	multi_handle_port(mtpt);
@@ -2355,7 +2329,6 @@ static unsigned int multi_tx_empty(struct sb_uart_port *port)
 
 	return ret;
 }
-
 
 static unsigned int multi_get_mctrl(struct sb_uart_port *port)
 {
@@ -2395,10 +2368,8 @@ static void multi_set_mctrl(struct sb_uart_port *port, unsigned int mctrl)
 	if (mctrl & TIOCM_LOOP)
 		mcr |= UART_MCR_LOOP;
 
-
 	serial_out(mtpt, UART_MCR, mcr);
 }
-
 
 static void multi_break_ctl(struct sb_uart_port *port, int break_state)
 {
@@ -2413,8 +2384,6 @@ static void multi_break_ctl(struct sb_uart_port *port, int break_state)
 	serial_out(mtpt, UART_LCR, mtpt->lcr);
 	spin_unlock_irqrestore(&mtpt->port.lock, flags);
 }
-
-
 
 static int multi_startup(struct sb_uart_port *port)
 {
@@ -2438,7 +2407,6 @@ static int multi_startup(struct sb_uart_port *port)
 	(void) serial_inp(mtpt, UART_MSR);
 	//test-wlee 9-bit disable
 	serial_outp(mtpt, UART_MSR, 0);
-
 
 	if (!(mtpt->port.flags & UPF_BUGGY_UART) &&
 			(serial_inp(mtpt, UART_LSR) == 0xff)) {
@@ -2470,7 +2438,6 @@ static int multi_startup(struct sb_uart_port *port)
 	multi_set_mctrl(&mtpt->port, mtpt->port.mctrl);
 	spin_unlock_irqrestore(&mtpt->port.lock, flags);
 
-	
 	mtpt->ier = UART_IER_RLSI | UART_IER_RDI;
 	serial_outp(mtpt, UART_IER, mtpt->ier);
 
@@ -2482,13 +2449,10 @@ static int multi_startup(struct sb_uart_port *port)
 	return 0;
 }
 
-
-
 static void multi_shutdown(struct sb_uart_port *port)
 {
 	struct mp_port *mtpt = (struct mp_port *)port;
 	unsigned long flags;
-
 
 	mtpt->ier = 0;
 	serial_outp(mtpt, UART_IER, 0);
@@ -2505,7 +2469,6 @@ static void multi_shutdown(struct sb_uart_port *port)
 			UART_FCR_CLEAR_XMIT);
 	serial_outp(mtpt, UART_FCR, 0);
 
-
 	(void) serial_in(mtpt, UART_RX);
 
 	if ((!is_real_interrupt(mtpt->port.irq))||(mtpt->poll_type==TYPE_POLL))
@@ -2517,8 +2480,6 @@ static void multi_shutdown(struct sb_uart_port *port)
 		serial_unlink_irq_chain(mtpt);
 	}
 }
-
-
 
 static unsigned int multi_get_divisor(struct sb_uart_port *port, unsigned int baud)
 {
@@ -2535,9 +2496,6 @@ static unsigned int multi_get_divisor(struct sb_uart_port *port, unsigned int ba
 
 	return quot;
 }
-
-
-
 
 static void multi_set_termios(struct sb_uart_port *port, struct MP_TERMIOS *termios, struct MP_TERMIOS *old)
 {
@@ -2635,7 +2593,6 @@ static void multi_set_termios(struct sb_uart_port *port, struct MP_TERMIOS *term
 	}
 
 	serial_outp(mtpt, UART_FCR, fcr);     /* set fcr */
-
 
 	if ((mtpt->port.type == PORT_16C105X)
 		|| (mtpt->port.type == PORT_16C105XA))
@@ -3082,7 +3039,6 @@ static int init_mp_dev(struct pci_dev *pcidev, mppcibrd_t brd)
 		ret = request_region(sbdev->option_reg_addr, 0x20, sbdev->name);
 	}
 
-
 	NR_BOARD++;
 	NR_PORTS += sbdev->nr_ports;
 
@@ -3135,7 +3091,6 @@ static int __init multi_init(void)
                         ttr[i] = 0x38;
                 }
         }
-
 
 printk("MULTI INIT\n");
 	for( i=0; i< mp_nrpcibrds; i++)

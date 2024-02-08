@@ -264,7 +264,6 @@
 #define SB105X_FUR		6	/* Flow Control Upper Threshold Register */
 #define SB105X_FLR		7	/* Flow Control Lower Threshold Register */
 
-
 /* page 0 */
 
 #define SB105X_GET_CHAR(port)	inb((port)->iobase + SB105X_RX)
@@ -282,7 +281,6 @@
 #define SB105X_PUT_LCR(port,v)	outb((v),(port)->iobase + SB105X_LCR )
 #define SB105X_PUT_MCR(port,v)	outb((v),(port)->iobase + SB105X_MCR )
 #define SB105X_PUT_SPR(port,v)	outb((v),(port)->iobase + SB105X_SPR )
-
 
 /* page 1 */
 #define SB105X_GET_REG(port,reg)	inb((port)->iobase + (reg))

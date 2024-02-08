@@ -367,7 +367,6 @@ module_param(pad_thresh, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(pad_thresh, "Threshold at which a pad push registers as an "
 		 "arrow key in kbd mode (default: 28)");
 
-
 static void free_imon_context(struct imon_context *ictx)
 {
 	struct device *dev = ictx->dev;
@@ -788,7 +787,6 @@ exit:
 
 	return retval;
 }
-
 
 static DEVICE_ATTR(imon_clock, S_IWUSR | S_IRUGO, show_imon_clock,
 		   store_imon_clock);

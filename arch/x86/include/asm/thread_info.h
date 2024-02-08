@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* thread_info.h: low-level thread information
  *
  * Copyright (C) 2002  David Howells (dhowells@redhat.com)
@@ -167,7 +170,11 @@ struct thread_info {
  * preempt_count needs to be 1 initially, until the scheduler is functional.
  */
 #ifndef __ASSEMBLY__
-
+#ifdef MY_ABC_HERE
+#else
+DECLARE_PER_CPU_USER_MAPPED(unsigned int, kaiser_enabled_pcp);
+DECLARE_PER_CPU_USER_MAPPED(unsigned int, spec_ctrl_pcp);
+#endif	/* MY_ABC_HERE */
 
 /* how to get the current stack pointer from C */
 register unsigned long current_stack_pointer asm("esp") __used;

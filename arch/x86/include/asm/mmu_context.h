@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_MMU_CONTEXT_H
 #define _ASM_X86_MMU_CONTEXT_H
 
@@ -6,6 +9,10 @@
 #include <asm/pgalloc.h>
 #include <asm/tlbflush.h>
 #include <asm/paravirt.h>
+#ifdef MY_ABC_HERE
+#else
+#include <asm/spec_ctrl.h>
+#endif	/* MY_ABC_HERE */
 #ifndef CONFIG_PARAVIRT
 #include <asm-generic/mm_hooks.h>
 
@@ -21,7 +28,6 @@ static inline void paravirt_activate_mm(struct mm_struct *prev,
 int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
 void destroy_context(struct mm_struct *mm);
 
-
 static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 {
 #ifdef CONFIG_SMP
@@ -29,6 +35,14 @@ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 		this_cpu_write(cpu_tlbstate.state, TLBSTATE_LAZY);
 #endif
 }
+
+#ifdef MY_ABC_HERE
+#else
+static inline void load_cr3(pgd_t *pgdir)
+{
+        __load_cr3(__pa(pgdir));
+}
+#endif	/* MY_ABC_HERE */
 
 static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
 			     struct task_struct *tsk)
@@ -41,6 +55,15 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
 		this_cpu_write(cpu_tlbstate.active_mm, next);
 #endif
 		cpumask_set_cpu(cpu, mm_cpumask(next));
+
+#ifdef MY_ABC_HERE
+#else
+#ifndef CONFIG_PREEMPT_RCU
+                spec_ctrl_ibpb_if_different_creds(tsk);
+#else
+                spec_ctrl_ibpb();
+#endif
+#endif	/* MY_ABC_HERE */
 
 		/*
 		 * Re-load page tables.

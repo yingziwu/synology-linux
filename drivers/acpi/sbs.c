@@ -316,7 +316,6 @@ static enum power_supply_property sbs_energy_battery_props[] = {
 	POWER_SUPPLY_PROP_MANUFACTURER,
 };
 
-
 /* --------------------------------------------------------------------------
                             Smart Battery System Management
    -------------------------------------------------------------------------- */
@@ -416,7 +415,6 @@ static int acpi_battery_set_alarm(struct acpi_battery *battery)
 	u16 value, sel = 1 << (battery->id + 12);
 
 	int ret;
-
 
 	if (sbs->manager_present) {
 		ret = acpi_smbus_read(sbs->hc, SMBUS_READ_WORD, ACPI_SBS_MANAGER,
@@ -528,7 +526,6 @@ static inline char *acpi_battery_units(struct acpi_battery *battery)
 {
 	return acpi_battery_mode(battery) ? " mW" : " mA";
 }
-
 
 static int acpi_battery_read_info(struct seq_file *seq, void *offset)
 {
