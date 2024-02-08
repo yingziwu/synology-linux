@@ -53,7 +53,6 @@
 #define PCI_CHIP_AST2100 0x2010
 #define PCI_CHIP_AST1180 0x1180
 
-
 enum ast_chip {
 	AST2000,
 	AST2100,
@@ -204,7 +203,6 @@ static inline void ast_open_key(struct ast_private *ast)
 #define AST_HWC_SIGNATURE_HOTSPOTX  0x14
 #define AST_HWC_SIGNATURE_HOTSPOTY  0x18
 
-
 struct ast_i2c_chan {
 	struct i2c_adapter adapter;
 	struct drm_device *dev;
@@ -313,7 +311,6 @@ ast_bo(struct ttm_buffer_object *bo)
 {
 	return container_of(bo, struct ast_bo, bo);
 }
-
 
 #define to_ast_obj(x) container_of(x, struct ast_gem_object, base)
 

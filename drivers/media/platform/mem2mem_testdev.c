@@ -73,7 +73,6 @@ MODULE_PARM_DESC(debug, "activates debug info");
 #define dprintk(dev, fmt, arg...) \
 	v4l2_dbg(1, debug, &dev->v4l2_dev, "%s: " fmt, __func__, ## arg)
 
-
 static void m2mtest_dev_release(struct device *dev)
 {}
 
@@ -201,7 +200,6 @@ static struct m2mtest_q_data *get_q_data(struct m2mtest_ctx *ctx,
 	}
 	return NULL;
 }
-
 
 static int device_process(struct m2mtest_ctx *ctx,
 			  struct vb2_buffer *in_vb,
@@ -372,7 +370,6 @@ static void m2mtest_unlock(void *priv)
 	struct m2mtest_dev *dev = ctx->dev;
 	mutex_unlock(&dev->dev_mutex);
 }
-
 
 /* device_run() - prepares and starts the device
  *
@@ -734,7 +731,6 @@ static const struct v4l2_ctrl_ops m2mtest_ctrl_ops = {
 	.s_ctrl = m2mtest_s_ctrl,
 };
 
-
 static const struct v4l2_ioctl_ops m2mtest_ioctl_ops = {
 	.vidioc_querycap	= vidioc_querycap,
 
@@ -759,7 +755,6 @@ static const struct v4l2_ioctl_ops m2mtest_ioctl_ops = {
 	.vidioc_subscribe_event = v4l2_ctrl_subscribe_event,
 	.vidioc_unsubscribe_event = v4l2_event_unsubscribe,
 };
-
 
 /*
  * Queue operations
@@ -1133,4 +1128,3 @@ static int __init m2mtest_init(void)
 
 module_init(m2mtest_init);
 module_exit(m2mtest_exit);
-

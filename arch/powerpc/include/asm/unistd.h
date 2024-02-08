@@ -11,7 +11,6 @@
 
 #include <uapi/asm/unistd.h>
 
-
 #define __NR_syscalls		355
 
 #define __NR__exit __NR_exit

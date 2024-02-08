@@ -16,7 +16,6 @@
 #include "u_ether.h"
 #include "u_serial.h"
 
-
 #define DRIVER_DESC		"CDC Composite Gadget"
 #define DRIVER_VERSION		"King Kamehameha Day 2008"
 
@@ -82,7 +81,6 @@ static const struct usb_descriptor_header *otg_desc[] = {
 	(struct usb_descriptor_header *) &otg_descriptor,
 	NULL,
 };
-
 
 /* string IDs are assigned dynamically */
 static struct usb_string strings_dev[] = {

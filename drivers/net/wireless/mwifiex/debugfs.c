@@ -22,7 +22,6 @@
 #include "main.h"
 #include "11n.h"
 
-
 static struct dentry *mwifiex_dfs_dir;
 
 static char *bss_modes[] = {
@@ -328,7 +327,6 @@ mwifiex_getlog_read(struct file *file, char __user *ubuf,
 		     stats.wep_icv_error[2],
 		     stats.wep_icv_error[3]);
 
-
 	ret = simple_read_from_buffer(ubuf, count, ppos, (char *) page,
 				      (unsigned long) p - page);
 
@@ -500,7 +498,6 @@ mwifiex_regrdwr_write(struct file *file,
 	if (!buf)
 		return -ENOMEM;
 
-
 	if (copy_from_user(buf, ubuf, buf_size)) {
 		ret = -EFAULT;
 		goto done;
@@ -601,7 +598,6 @@ mwifiex_rdeeprom_write(struct file *file,
 	if (!buf)
 		return -ENOMEM;
 
-
 	if (copy_from_user(buf, ubuf, buf_size)) {
 		ret = -EFAULT;
 		goto done;
@@ -669,7 +665,6 @@ out_free:
 	return ret;
 }
 
-
 #define MWIFIEX_DFS_ADD_FILE(name) do {                                 \
 	if (!debugfs_create_file(#name, 0644, priv->dfs_dev_dir,        \
 			priv, &mwifiex_dfs_##name##_fops))              \
@@ -694,7 +689,6 @@ static const struct file_operations mwifiex_dfs_##name##_fops = {       \
 	.write = mwifiex_##name##_write,                                \
 	.open = simple_open,                                            \
 };
-
 
 MWIFIEX_DFS_FILE_READ_OPS(info);
 MWIFIEX_DFS_FILE_READ_OPS(debug);

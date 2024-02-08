@@ -106,7 +106,6 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
 }
 EXPORT_SYMBOL(pcibios_align_resource);
 
-
 /*
  * Pick a CPU to receive and handle the PCIe interrupts, based on the IRQ #.
  * For now, we simply send interrupts to non-dataplane CPUs.
@@ -273,7 +272,6 @@ static int tile_init_irqs(struct pci_controller *controller)
 	int result;
 
 	cpumask_copy(&intr_cpus_map, cpu_online_mask);
-
 
 	for (i = 0; i < 4; i++) {
 		gxio_trio_context_t *context = controller->trio;
@@ -457,7 +455,6 @@ static int tile_map_irq(const struct pci_dev *dev, u8 device, u8 pin)
 		(struct pci_controller *)dev->sysdata;
 	return controller->irq_intx_table[pin - 1];
 }
-
 
 static void fixup_read_and_payload_sizes(struct pci_controller *controller)
 {
@@ -1262,7 +1259,6 @@ invalid_device:
 	return 0;
 }
 
-
 /*
  * See tile_cfg_read() for relevent comments.
  * Note that "val" is the value to write, not a pointer to that value.
@@ -1372,12 +1368,10 @@ invalid_device:
 	return 0;
 }
 
-
 static struct pci_ops tile_cfg_ops = {
 	.read =         tile_cfg_read,
 	.write =        tile_cfg_write,
 };
-
 
 /*
  * MSI support starts here.

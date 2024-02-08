@@ -44,6 +44,10 @@ const char *const op_table[] = {
 	"file_mmap",
 	"file_mprotect",
 
+	"pivotroot",
+	"mount",
+	"umount",
+
 	"create",
 	"post_create",
 	"bind",
@@ -88,7 +92,7 @@ static const char *const aa_audit_type[] = {
 	"HINT",
 	"STATUS",
 	"ERROR",
-	"KILLED"
+	"KILLED",
 	"AUTO"
 };
 

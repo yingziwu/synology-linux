@@ -1,0 +1,4 @@
+version="$(grep -m1 VERSION Makefile | cut -d'=' -f2)"
+patchlevel="$(grep -m1 PATCHLEVEL Makefile | cut -d'=' -f2)"
+sublevel="$(grep -m1 SUBLEVEL Makefile | cut -d'=' -f2)"
+echo $version.$patchlevel.$sublevel | tr -d ' '

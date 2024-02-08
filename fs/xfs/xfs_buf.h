@@ -100,7 +100,6 @@ typedef struct xfs_buftarg {
 struct xfs_buf;
 typedef void (*xfs_buf_iodone_t)(struct xfs_buf *);
 
-
 #define XB_PAGES	2
 
 struct xfs_buf_map {

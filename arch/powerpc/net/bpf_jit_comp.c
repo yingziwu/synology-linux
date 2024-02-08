@@ -24,7 +24,6 @@
 
 int bpf_jit_enable __read_mostly;
 
-
 static inline void bpf_flush_icache(void *start, void *end)
 {
 	smp_wmb();

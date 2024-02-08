@@ -248,7 +248,6 @@ minstrel_tx_status(void *priv, struct ieee80211_supported_band *sband,
 		minstrel_update_stats(mp, mi);
 }
 
-
 static inline unsigned int
 minstrel_get_retry_count(struct minstrel_rate *mr,
                          struct ieee80211_tx_info *info)
@@ -261,7 +260,6 @@ minstrel_get_retry_count(struct minstrel_rate *mr,
 		retry = max(2U, min(mr->retry_count_cts, retry));
 	return retry;
 }
-
 
 static int
 minstrel_get_next_sample(struct minstrel_sta_info *mi)
@@ -378,7 +376,6 @@ minstrel_get_rate(void *priv, struct ieee80211_sta *sta,
 	rate->idx = mi->r[ndx].rix;
 	rate->count = minstrel_get_retry_count(&mi->r[ndx], info);
 }
-
 
 static void
 calc_rate_durations(enum ieee80211_band band,
@@ -651,4 +648,3 @@ rc80211_minstrel_exit(void)
 {
 	ieee80211_rate_control_unregister(&mac80211_minstrel);
 }
-

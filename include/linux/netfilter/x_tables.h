@@ -1,7 +1,6 @@
 #ifndef _X_TABLES_H
 #define _X_TABLES_H
 
-
 #include <linux/netdevice.h>
 #include <uapi/linux/netfilter/x_tables.h>
 

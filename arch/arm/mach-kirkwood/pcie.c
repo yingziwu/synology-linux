@@ -1,23 +1,32 @@
-/*
- * arch/arm/mach-kirkwood/pcie.c
- *
- * PCIe functions for Marvell Kirkwood SoCs
- *
- * This file is licensed under the terms of the GNU General Public
- * License version 2.  This program is licensed "as is" without any
- * warranty of any kind, whether express or implied.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/pci.h>
 #include <linux/slab.h>
 #include <linux/clk.h>
+#if defined(MY_DEF_HERE)
+#include <linux/mbus.h>
+#endif  
 #include <video/vga.h>
 #include <asm/irq.h>
 #include <asm/mach/pci.h>
 #include <plat/pcie.h>
 #include <mach/bridge-regs.h>
 #include "common.h"
+
+#if defined(MY_DEF_HERE)
+ 
+#define KIRKWOOD_MBUS_PCIE0_MEM_TARGET    0x4
+#define KIRKWOOD_MBUS_PCIE0_MEM_ATTR      0xe8
+#define KIRKWOOD_MBUS_PCIE0_IO_TARGET     0x4
+#define KIRKWOOD_MBUS_PCIE0_IO_ATTR       0xe0
+#define KIRKWOOD_MBUS_PCIE1_MEM_TARGET    0x4
+#define KIRKWOOD_MBUS_PCIE1_MEM_ATTR      0xd8
+#define KIRKWOOD_MBUS_PCIE1_IO_TARGET     0x4
+#define KIRKWOOD_MBUS_PCIE1_IO_ATTR       0xd0
+#endif  
 
 static void kirkwood_enable_pcie_clk(const char *port)
 {
@@ -32,10 +41,6 @@ static void kirkwood_enable_pcie_clk(const char *port)
 	clk_put(clk);
 }
 
-/* This function is called very early in the boot when probing the
-   hardware to determine what we actually are, and what rate tclk is
-   ticking at. Hence calling kirkwood_enable_pcie_clk() is not
-   possible since the clk tree has not been created yet. */
 void kirkwood_enable_pcie(void)
 {
 	u32 curr = readl(CLOCK_GATING_CTRL);
@@ -63,11 +68,7 @@ static int num_pcie_ports;
 
 static int pcie_valid_config(struct pcie_port *pp, int bus, int dev)
 {
-	/*
-	 * Don't go out when trying to access --
-	 * 1. nonexisting device on local bus
-	 * 2. where there's no device connected (no link)
-	 */
+	 
 	if (bus == pp->root_bus_nr && dev == 0)
 		return 1;
 
@@ -79,13 +80,6 @@ static int pcie_valid_config(struct pcie_port *pp, int bus, int dev)
 
 	return 1;
 }
-
-
-/*
- * PCIe config cycles are done by programming the PCIE_CONF_ADDR register
- * and then reading the PCIE_CONF_DATA register. Need to make sure these
- * transactions are atomic.
- */
 
 static int pcie_rd_conf(struct pci_bus *bus, u32 devfn, int where,
 			int size, u32 *val)
@@ -135,9 +129,6 @@ static void __init pcie0_ioresources_init(struct pcie_port *pp)
 	pp->base = PCIE_VIRT_BASE;
 	pp->irq	= IRQ_KIRKWOOD_PCIE;
 
-	/*
-	 * IORESOURCE_MEM
-	 */
 	pp->res.name = "PCIe 0 MEM";
 	pp->res.start = KIRKWOOD_PCIE_MEM_PHYS_BASE;
 	pp->res.end = pp->res.start + KIRKWOOD_PCIE_MEM_SIZE - 1;
@@ -149,9 +140,6 @@ static void __init pcie1_ioresources_init(struct pcie_port *pp)
 	pp->base = PCIE1_VIRT_BASE;
 	pp->irq	= IRQ_KIRKWOOD_PCIE1;
 
-	/*
-	 * IORESOURCE_MEM
-	 */
 	pp->res.name = "PCIe 1 MEM";
 	pp->res.start = KIRKWOOD_PCIE1_MEM_PHYS_BASE;
 	pp->res.end = pp->res.start + KIRKWOOD_PCIE1_MEM_SIZE - 1;
@@ -197,9 +185,6 @@ static int __init kirkwood_pcie_setup(int nr, struct pci_sys_data *sys)
 
 	pci_add_resource_offset(&sys->resources, &pp->res, sys->mem_offset);
 
-	/*
-	 * Generic PCIe unit setup.
-	 */
 	orion_pcie_set_local_bus_nr(pp->base, sys->busnr);
 
 	orion_pcie_setup(pp->base);
@@ -207,12 +192,6 @@ static int __init kirkwood_pcie_setup(int nr, struct pci_sys_data *sys)
 	return 1;
 }
 
-/*
- * The root complex has a hardwired class of PCI_CLASS_MEMORY_OTHER, when it
- * is operating as a root complex this needs to be switched to
- * PCI_CLASS_BRIDGE_HOST or Linux will errantly try to process the BAR's on
- * the device. Decoding setup is handled by the orion code.
- */
 static void rc_pci_fixup(struct pci_dev *dev)
 {
 	if (dev->bus->parent == NULL && dev->devfn == 0) {
@@ -253,6 +232,27 @@ static void __init add_pcie_port(int index, void __iomem *base)
 
 void __init kirkwood_pcie_init(unsigned int portmask)
 {
+#if defined(MY_DEF_HERE)
+	mvebu_mbus_add_window_remap_by_id(KIRKWOOD_MBUS_PCIE0_IO_TARGET,
+					  KIRKWOOD_MBUS_PCIE0_IO_ATTR,
+					  KIRKWOOD_PCIE_IO_PHYS_BASE,
+					  KIRKWOOD_PCIE_IO_SIZE,
+					  KIRKWOOD_PCIE_IO_BUS_BASE);
+	mvebu_mbus_add_window_by_id(KIRKWOOD_MBUS_PCIE0_MEM_TARGET,
+				    KIRKWOOD_MBUS_PCIE0_MEM_ATTR,
+				    KIRKWOOD_PCIE_MEM_PHYS_BASE,
+				    KIRKWOOD_PCIE_MEM_SIZE);
+	mvebu_mbus_add_window_remap_by_id(KIRKWOOD_MBUS_PCIE1_IO_TARGET,
+					  KIRKWOOD_MBUS_PCIE1_IO_ATTR,
+					  KIRKWOOD_PCIE1_IO_PHYS_BASE,
+					  KIRKWOOD_PCIE1_IO_SIZE,
+					  KIRKWOOD_PCIE1_IO_BUS_BASE);
+	mvebu_mbus_add_window_by_id(KIRKWOOD_MBUS_PCIE1_MEM_TARGET,
+				    KIRKWOOD_MBUS_PCIE1_MEM_ATTR,
+				    KIRKWOOD_PCIE1_MEM_PHYS_BASE,
+				    KIRKWOOD_PCIE1_MEM_SIZE);
+#endif  
+
 	vga_base = KIRKWOOD_PCIE_MEM_PHYS_BASE;
 
 	if (portmask & KW_PCIE0)

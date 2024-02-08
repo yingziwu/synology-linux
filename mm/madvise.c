@@ -102,7 +102,12 @@ static long madvise_behavior(struct vm_area_struct * vma,
 
 	pgoff = vma->vm_pgoff + ((start - vma->vm_start) >> PAGE_SHIFT);
 	*prev = vma_merge(mm, *prev, start, end, new_flags, vma->anon_vma,
+#if defined(CONFIG_SYNO_LSP_HI3536)
+				vma->vm_file, pgoff, vma_policy(vma),
+				vma_get_anon_name(vma));
+#else /* CONFIG_SYNO_LSP_HI3536 */
 				vma->vm_file, pgoff, vma_policy(vma));
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	if (*prev) {
 		vma = *prev;
 		goto success;
@@ -327,12 +332,20 @@ static long madvise_remove(struct vm_area_struct *vma,
 	 * vma's reference to the file) can go away as soon as we drop
 	 * mmap_sem.
 	 */
+#ifdef CONFIG_AUFS_FHSM
+	vma_get_file(vma);
+#else
 	get_file(f);
+#endif /* CONFIG_AUFS_FHSM */
 	up_read(&current->mm->mmap_sem);
 	error = do_fallocate(f,
 				FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
 				offset, end - start);
+#ifdef CONFIG_AUFS_FHSM
+	vma_fput(vma);
+#else
 	fput(f);
+#endif /* CONFIG_AUFS_FHSM */
 	down_read(&current->mm->mmap_sem);
 	return error;
 }

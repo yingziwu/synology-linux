@@ -91,7 +91,6 @@ void gsc_m2m_job_finish(struct gsc_ctx *ctx, int vb_state)
 	}
 }
 
-
 static void gsc_m2m_job_abort(void *priv)
 {
 	struct gsc_ctx *ctx = priv;

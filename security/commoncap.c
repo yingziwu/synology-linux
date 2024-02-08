@@ -31,6 +31,12 @@
 #include <linux/binfmts.h>
 #include <linux/personality.h>
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+#ifdef CONFIG_ANDROID_PARANOID_NETWORK
+#include <linux/android_aid.h>
+#endif
+#endif /* CONFIG_SYNO_LSP_HI3536 */
+
 /*
  * If a non-root user executes a setuid-root binary in
  * !secure(SECURE_NOROOT) mode, then we raise capabilities.
@@ -77,6 +83,15 @@ int cap_capable(const struct cred *cred, struct user_namespace *targ_ns,
 		int cap, int audit)
 {
 	struct user_namespace *ns = targ_ns;
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+#ifdef CONFIG_ANDROID_PARANOID_NETWORK
+	if (cap == CAP_NET_RAW && in_egroup_p(AID_NET_RAW))
+		return 0;
+	if (cap == CAP_NET_ADMIN && in_egroup_p(AID_NET_ADMIN))
+		return 0;
+#endif
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	/* See if cred has the capability in the target user namespace
 	 * by examining the target user namespace and all of the target
@@ -529,7 +544,6 @@ skip:
 	/* if we have fs caps, clear dangerous personality flags */
 	if (!cap_issubset(new->cap_permitted, old->cap_permitted))
 		bprm->per_clear |= PER_CLEAR_ON_SETID;
-
 
 	/* Don't let someone trace a set[ug]id/setpcap binary with the revised
 	 * credentials unless they have the appropriate permit.
@@ -996,9 +1010,15 @@ int cap_mmap_addr(unsigned long addr)
 	}
 	return ret;
 }
+#ifdef CONFIG_AUFS_FHSM
+EXPORT_SYMBOL(cap_mmap_addr);
+#endif /* CONFIG_AUFS_FHSM */
 
 int cap_mmap_file(struct file *file, unsigned long reqprot,
 		  unsigned long prot, unsigned long flags)
 {
 	return 0;
 }
+#ifdef CONFIG_AUFS_FHSM
+EXPORT_SYMBOL(cap_mmap_file);
+#endif /* CONFIG_AUFS_FHSM */

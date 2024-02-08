@@ -72,5 +72,4 @@ static inline struct dvb_frontend *rtl2832_attach(
 }
 #endif
 
-
 #endif /* RTL2832_H */

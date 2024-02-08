@@ -28,7 +28,6 @@
 #include "xenbus_comms.h"
 #include "xenbus_probe.h"
 
-
 static struct workqueue_struct *xenbus_frontend_wq;
 
 /* device/<type>/<id> => <type>-<id> */
@@ -83,7 +82,6 @@ static int xenbus_uevent_frontend(struct device *_dev,
 
 	return 0;
 }
-
 
 static void backend_changed(struct xenbus_watch *watch,
 			    const char **vec, unsigned int len)
@@ -156,7 +154,6 @@ static void frontend_changed(struct xenbus_watch *watch,
 
 	xenbus_dev_changed(vec[XS_WATCH_PATH], &xenbus_frontend);
 }
-
 
 /* We watch for devices appearing and vanishing. */
 static struct xenbus_watch fe_watch = {
@@ -455,7 +452,6 @@ static int frontend_probe_and_watch(struct notifier_block *notifier,
 
 	return NOTIFY_DONE;
 }
-
 
 static int __init xenbus_probe_frontend_init(void)
 {

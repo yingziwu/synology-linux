@@ -14,7 +14,6 @@
 #include <linux/clk-provider.h>
 #include <linux/io.h>
 
-
 #include "clock.h"
 #include "clock2xxx.h"
 #include "cm2xxx_3xxx.h"
@@ -59,6 +58,3 @@ const struct clk_hw_omap_ops clkhwops_iclk_wait = {
 	.find_idlest	= omap2_clk_dflt_find_idlest,
 	.find_companion	= omap2_clk_dflt_find_companion,
 };
-
-
-

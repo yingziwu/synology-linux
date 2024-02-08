@@ -42,7 +42,6 @@ void handle_IPI(int ipinr, struct pt_regs *regs);
  */
 extern void smp_init_cpus(void);
 
-
 /*
  * Provide a function to raise an IPI cross call on CPUs in callmap.
  */
@@ -59,7 +58,6 @@ extern int boot_secondary(unsigned int cpu, struct task_struct *);
  * secondary CPU entry point.
  */
 asmlinkage void secondary_start_kernel(void);
-
 
 /*
  * Initial data for bringing up a secondary CPU.
@@ -80,6 +78,10 @@ extern void cpu_die(void);
 extern void arch_send_call_function_single_ipi(int cpu);
 extern void arch_send_call_function_ipi_mask(const struct cpumask *mask);
 extern void arch_send_wakeup_ipi_mask(const struct cpumask *mask);
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+extern void smp_send_all_cpu_backtrace(void);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 struct smp_operations {
 #ifdef CONFIG_SMP

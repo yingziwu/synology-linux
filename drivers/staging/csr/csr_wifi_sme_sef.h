@@ -17,7 +17,6 @@ typedef void (*CsrWifiSmeStateHandlerType)(void *drvpriv, CsrWifiFsmEvent *msg);
 extern const CsrWifiSmeStateHandlerType
 	CsrWifiSmeUpstreamStateHandlers[CSR_WIFI_SME_PRIM_UPSTREAM_COUNT];
 
-
 extern void CsrWifiSmeActivateCfmHandler(void *drvpriv, CsrWifiFsmEvent *msg);
 extern void CsrWifiSmeAdhocConfigGetCfmHandler(void *drvpriv,
 	CsrWifiFsmEvent *msg);

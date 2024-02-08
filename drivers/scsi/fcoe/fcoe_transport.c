@@ -335,7 +335,6 @@ int fcoe_start_io(struct sk_buff *skb)
 }
 EXPORT_SYMBOL_GPL(fcoe_start_io);
 
-
 /**
  * fcoe_clean_pending_queue() - Dequeue a skb and free it
  * @lport: The local port to dequeue a skb on
@@ -604,7 +603,6 @@ static int fcoe_transport_exit(void)
 	return 0;
 }
 
-
 static int fcoe_add_netdev_mapping(struct net_device *netdev,
 					struct fcoe_transport *ft)
 {
@@ -625,7 +623,6 @@ static int fcoe_add_netdev_mapping(struct net_device *netdev,
 	return 0;
 }
 
-
 static void fcoe_del_netdev_mapping(struct net_device *netdev)
 {
 	struct fcoe_netdev_mapping *nm = NULL, *tmp;
@@ -641,7 +638,6 @@ static void fcoe_del_netdev_mapping(struct net_device *netdev)
 	}
 	mutex_unlock(&fn_mutex);
 }
-
 
 /**
  * fcoe_netdev_map_lookup - find the fcoe transport that matches the netdev on which

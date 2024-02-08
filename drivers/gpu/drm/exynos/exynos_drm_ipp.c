@@ -2064,4 +2064,3 @@ struct platform_driver ipp_driver = {
 		.pm	= &ipp_pm_ops,
 	},
 };
-

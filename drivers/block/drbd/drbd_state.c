@@ -203,7 +203,6 @@ static bool no_peer_wf_report_params(struct drbd_tconn *tconn)
 	return rv;
 }
 
-
 /**
  * cl_wide_st_chg() - true if the state change is a cluster wide one
  * @mdev:	DRBD device.
@@ -499,7 +498,6 @@ static void conn_pr_state_change(struct drbd_tconn *tconn, union drbd_state os, 
 		conn_info(tconn, "%s\n", pb);
 }
 
-
 /**
  * is_valid_state() - Returns an SS_ error code if ns is not valid
  * @mdev:	DRBD device.
@@ -679,7 +677,6 @@ is_valid_conn_transition(enum drbd_conns oc, enum drbd_conns nc)
 
 	return SS_SUCCESS;
 }
-
 
 /**
  * is_valid_transition() - Returns an SS_ error code if the state transition is not possible

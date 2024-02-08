@@ -275,7 +275,6 @@ static int regcache_rbtree_read(struct regmap *map,
 	return 0;
 }
 
-
 static int regcache_rbtree_insert_to_block(struct regmap *map,
 					   struct regcache_rbtree_node *rbnode,
 					   unsigned int pos, unsigned int reg,

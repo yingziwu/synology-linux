@@ -9,6 +9,9 @@ obj-$(CONFIG_PROC_FS) += proc.o
 obj-$(CONFIG_SYSFS) += slot.o
 
 obj-$(CONFIG_PCI_QUIRKS) += quirks.o
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+obj-$(CONFIG_HIPCIE) += hipcie/
+endif # CONFIG_SYNO_LSP_HI3536
 
 # Build PCI Express stuff if needed
 obj-$(CONFIG_PCIEPORTBUS) += pcie/
@@ -67,3 +70,8 @@ obj-$(CONFIG_XEN_PCIDEV_FRONTEND) += xen-pcifront.o
 obj-$(CONFIG_OF) += of.o
 
 ccflags-$(CONFIG_PCI_DEBUG) := -DDEBUG
+
+ifeq (y, $(filter y, $(CONFIG_ARCH_STI) $(CONFIG_SYNO_LSP_ARMADA)))
+# PCI host controller drivers
+obj-y += host/
+endif

@@ -65,4 +65,3 @@
 #define SAA7115_FREQ_FL_DOUBLE_ASCLK (1 << 3) /* SA 39, LRDIV, SAA7114/5 only */
 
 #endif
-

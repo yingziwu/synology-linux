@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM ext3
 
@@ -249,9 +252,15 @@ DECLARE_EVENT_CLASS(ext3__page_op,
 		__entry->dev	= page->mapping->host->i_sb->s_dev;
 	),
 
+#ifdef MY_ABC_HERE
+	TP_printk("dev %d,%d ino %lu page_index %llu",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino, (unsigned long long)__entry->index)
+#else  
 	TP_printk("dev %d,%d ino %lu page_index %lu",
 		  MAJOR(__entry->dev), MINOR(__entry->dev),
 		  (unsigned long) __entry->ino, __entry->index)
+#endif  
 );
 
 DEFINE_EVENT(ext3__page_op, ext3_ordered_writepage,
@@ -309,10 +318,17 @@ TRACE_EVENT(ext3_invalidatepage,
 		__entry->dev	= page->mapping->host->i_sb->s_dev;
 	),
 
+#ifdef MY_ABC_HERE
+	TP_printk("dev %d,%d ino %lu page_index %llu offset %lu",
+		  MAJOR(__entry->dev), MINOR(__entry->dev),
+		  (unsigned long) __entry->ino,
+		  (unsigned long long)__entry->index, __entry->offset)
+#else  
 	TP_printk("dev %d,%d ino %lu page_index %lu offset %lu",
 		  MAJOR(__entry->dev), MINOR(__entry->dev),
 		  (unsigned long) __entry->ino,
 		  __entry->index, __entry->offset)
+#endif  
 );
 
 TRACE_EVENT(ext3_discard_blocks,
@@ -858,7 +874,6 @@ TRACE_EVENT(ext3_load_inode,
 		  (unsigned long) __entry->ino)
 );
 
-#endif /* _TRACE_EXT3_H */
+#endif  
 
-/* This part must be outside protection */
 #include <trace/define_trace.h>

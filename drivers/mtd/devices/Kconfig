@@ -109,6 +109,19 @@ config MTD_SPEAR_SMI
 	help
 	  This enable SNOR support on SPEAR platforms using SMI controller
 
+config MTD_STM_SPI_FSM
+	tristate "ST Microelectronics SPI-FSM Serial Flash Controller"
+	help
+	  This provides a MTD device driver for the ST Microelectronics SPI
+	  FSM Serial Flash Controller, and connected Serial Flash device.
+
+config STM_SPI_FSM_DEBUG
+	bool "STM SPI FSM debug support"
+	depends on MTD_STM_SPI_FSM
+	default n
+	help
+	  Display debug messages on the console.
+
 config MTD_SST25L
 	tristate "Support SST25L (non JEDEC) SPI Flash chips"
 	depends on SPI_MASTER
@@ -278,5 +291,19 @@ config MTD_DOCPROBE_55AA
 	  Millennium will it be absent.  Enable this option if you are using
 	  LinuxBIOS or if you need to recover a DiskOnChip Millennium on which
 	  you have managed to wipe the first block.
+	  
+config MTD_SPI_IDS
+	bool "SPI Flash Timing Cycles Probe Function"
+	default n
+	depends on SYNO_LSP_HI3536
+	help
+	  This option enables hisfc300/hisfc350 used spi flash timing cylces
+	  probe function.
+	  If your use hisfc300 and hisfc350, this function should be select.
+
+if SYNO_LSP_HI3536
+source "drivers/mtd/devices/hisfc350/Kconfig"
+source "drivers/mtd/devices/hifmc100/Kconfig"
+endif # SYNO_LSP_HI3536
 
 endmenu

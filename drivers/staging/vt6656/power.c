@@ -327,4 +327,3 @@ int PSbIsNextTBTTWakeUp(struct vnt_private *pDevice)
 	}
 	return bWakeUp;
 }
-

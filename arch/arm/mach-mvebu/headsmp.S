@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * SMP support: Entry point for secondary CPUs
  *
@@ -21,11 +24,15 @@
 #include <linux/linkage.h>
 #include <linux/init.h>
 
+#if defined(MY_DEF_HERE)
+#include <asm/assembler.h>
+#else /* MY_DEF_HERE */
 /*
  * At this stage the secondary CPUs don't have acces yet to the MMU, so
  * we have to provide physical addresses
  */
 #define ARMADA_XP_CFB_BASE	     0xD0020200
+#endif /* MY_DEF_HERE */
 
 	__CPUINIT
 
@@ -35,6 +42,13 @@
  * startup
  */
 ENTRY(armada_xp_secondary_startup)
+#if defined(MY_DEF_HERE)
+ ARM_BE8(setend	be )			@ go BE8 if entered LE
+
+	bl	ll_add_cpu_to_smp_group
+
+	bl	ll_enable_coherency
+#else /* MY_DEF_HERE */
 
 	/* Read CPU id */
 	mrc     p15, 0, r1, c0, c0, 5
@@ -44,6 +58,7 @@ ENTRY(armada_xp_secondary_startup)
 	ldr     r0, =ARMADA_XP_CFB_BASE
 
 	bl	ll_set_cpu_coherent
+#endif /* MY_DEF_HERE */
 	b	secondary_startup
 
 ENDPROC(armada_xp_secondary_startup)

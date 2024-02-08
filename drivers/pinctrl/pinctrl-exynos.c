@@ -33,7 +33,6 @@
 #include "pinctrl-samsung.h"
 #include "pinctrl-exynos.h"
 
-
 static struct samsung_pin_bank_type bank_type_off = {
 	.fld_width = { 4, 1, 2, 2, 2, 2, },
 	.reg_offset = { 0x00, 0x04, 0x08, 0x0c, 0x10, 0x14, },

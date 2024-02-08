@@ -1,15 +1,7 @@
-/*
- * intel_pstate.c: Native P state management for Intel processors
- *
- * (C) Copyright 2012 Intel Corporation
- * Author: Dirk Brandewie <dirk.j.brandewie@intel.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; version 2
- * of the License.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/kernel_stat.h>
 #include <linux/module.h>
@@ -168,7 +160,6 @@ static signed int pid_calc(struct _pid *pid, int32_t busy)
 
 	pid->integral += fp_error;
 
-	/* limit the integral term */
 	integral_limit = int_tofp(30);
 	if (pid->integral > integral_limit)
 		pid->integral = integral_limit;
@@ -205,7 +196,6 @@ static inline void intel_pstate_reset_all_pid(void)
 	}
 }
 
-/************************** debugfs begin ************************/
 static int pid_param_set(void *data, u64 val)
 {
 	*(u32 *)data = val;
@@ -251,9 +241,6 @@ static void intel_pstate_debug_expose_params(void)
 	}
 }
 
-/************************** debugfs end ************************/
-
-/************************** sysfs begin ************************/
 #define show_one(file_name, object)					\
 	static ssize_t show_##file_name					\
 	(struct kobject *kobj, struct attribute *attr, char *buf)	\
@@ -334,8 +321,6 @@ static void intel_pstate_sysfs_expose_params(void)
 				&intel_pstate_attr_group);
 	BUG_ON(rc);
 }
-
-/************************** sysfs end ************************/
 
 static int intel_pstate_min_pstate(void)
 {
@@ -424,10 +409,6 @@ static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
 	cpu->pstate.max_pstate = intel_pstate_max_pstate();
 	cpu->pstate.turbo_pstate = intel_pstate_turbo_pstate();
 
-	/*
-	 * goto max pstate so we don't slow up boot if we are built-in if we are
-	 * a module we will take care of it during normal operation
-	 */
 	intel_pstate_set_pstate(cpu, cpu->pstate.max_pstate);
 }
 
@@ -619,9 +600,13 @@ static int intel_pstate_set_policy(struct cpufreq_policy *policy)
 
 static int intel_pstate_verify_policy(struct cpufreq_policy *policy)
 {
+#if defined(MY_DEF_HERE)
+	cpufreq_verify_within_cpu_limits(policy);
+#else  
 	cpufreq_verify_within_limits(policy,
 				policy->cpuinfo.min_freq,
 				policy->cpuinfo.max_freq);
+#endif  
 
 	if ((policy->policy != CPUFREQ_POLICY_POWERSAVE) &&
 		(policy->policy != CPUFREQ_POLICY_PERFORMANCE))
@@ -630,7 +615,11 @@ static int intel_pstate_verify_policy(struct cpufreq_policy *policy)
 	return 0;
 }
 
+#if defined(MY_DEF_HERE)
+static int intel_pstate_cpu_exit(struct cpufreq_policy *policy)
+#else  
 static int __cpuinit intel_pstate_cpu_exit(struct cpufreq_policy *policy)
+#endif  
 {
 	int cpu = policy->cpu;
 
@@ -640,7 +629,11 @@ static int __cpuinit intel_pstate_cpu_exit(struct cpufreq_policy *policy)
 	return 0;
 }
 
+#if defined(MY_DEF_HERE)
+static int intel_pstate_cpu_init(struct cpufreq_policy *policy)
+#else  
 static int __cpuinit intel_pstate_cpu_init(struct cpufreq_policy *policy)
+#endif  
 {
 	struct cpudata *cpu;
 	int rc;
@@ -660,7 +653,6 @@ static int __cpuinit intel_pstate_cpu_init(struct cpufreq_policy *policy)
 	policy->min = cpu->pstate.min_pstate * 100000;
 	policy->max = cpu->pstate.turbo_pstate * 100000;
 
-	/* cpuinfo and default policy values */
 	policy->cpuinfo.min_freq = cpu->pstate.min_pstate * 100000;
 	policy->cpuinfo.max_freq = cpu->pstate.turbo_pstate * 100000;
 	policy->cpuinfo.transition_latency = CPUFREQ_ETERNAL;
@@ -677,14 +669,18 @@ static struct cpufreq_driver intel_pstate_driver = {
 	.init		= intel_pstate_cpu_init,
 	.exit		= intel_pstate_cpu_exit,
 	.name		= "intel_pstate",
+#if defined(MY_DEF_HERE)
+	 
+#else  
 	.owner		= THIS_MODULE,
+#endif  
 };
 
 static int __initdata no_load;
 
 static int intel_pstate_msrs_not_valid(void)
 {
-	/* Check that all the msr's we are using are valid. */
+	 
 	u64 aperf, mperf, tmp;
 
 	rdmsrl(MSR_IA32_APERF, aperf);

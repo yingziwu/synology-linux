@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/cpufreq.h>
@@ -41,8 +44,6 @@ static void cris_freq_set_cpu_state(struct cpufreq_policy *policy,
 
 	local_irq_disable();
 
-	/* Even though we may be SMP they will share the same clock
-	 * so all settings are made on CPU0. */
 	if (cris_freq_table[state].frequency == 200000)
 		clk_ctrl.pll = 1;
 	else
@@ -77,8 +78,7 @@ static int cris_freq_cpu_init(struct cpufreq_policy *policy)
 {
 	int result;
 
-	/* cpuinfo and default policy values */
-	policy->cpuinfo.transition_latency = 1000000;	/* 1ms */
+	policy->cpuinfo.transition_latency = 1000000;	 
 	policy->cur = cris_freq_get_cpu_frequency(0);
 
 	result = cpufreq_frequency_table_cpuinfo(policy, cris_freq_table);
@@ -108,7 +108,11 @@ static struct cpufreq_driver cris_freq_driver = {
 	.init = cris_freq_cpu_init,
 	.exit = cris_freq_cpu_exit,
 	.name = "cris_freq",
+#if defined(MY_DEF_HERE)
+	 
+#else  
 	.owner = THIS_MODULE,
+#endif  
 	.attr = cris_freq_attr,
 };
 

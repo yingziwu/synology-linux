@@ -214,7 +214,6 @@ out:
 	sock_put(sk);
 }
 
-
 static int dccp_v6_send_response(struct sock *sk, struct request_sock *req)
 {
 	struct inet6_request_sock *ireq6 = inet6_rsk(req);
@@ -234,7 +233,6 @@ static int dccp_v6_send_response(struct sock *sk, struct request_sock *req)
 	fl6.fl6_dport = inet_rsk(req)->rmt_port;
 	fl6.fl6_sport = inet_rsk(req)->loc_port;
 	security_req_classify_flow(req, flowi6_to_flowi(&fl6));
-
 
 	final_p = fl6_update_dst(&fl6, np->opt, &final);
 
@@ -495,7 +493,6 @@ static struct sock *dccp_v6_request_recv_sock(struct sock *sk,
 
 		return newsk;
 	}
-
 
 	if (sk_acceptq_is_full(sk))
 		goto out_overflow;

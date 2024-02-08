@@ -50,12 +50,6 @@ static struct lock_class_key port_lock_key;
 
 #define HIGH_BITS_OFFSET	((sizeof(long)-sizeof(int))*8)
 
-#ifdef CONFIG_SERIAL_CORE_CONSOLE
-#define uart_console(port)	((port)->cons && (port)->cons->index == (port)->line)
-#else
-#define uart_console(port)	(0)
-#endif
-
 static void uart_change_speed(struct tty_struct *tty, struct uart_state *state,
 					struct ktermios *old_termios);
 static void uart_wait_until_sent(struct tty_struct *tty, int timeout);
@@ -94,6 +88,11 @@ static void __uart_start(struct tty_struct *tty)
 {
 	struct uart_state *state = tty->driver_data;
 	struct uart_port *port = state->uart_port;
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	if (port->ops->wake_peer)
+		port->ops->wake_peer(port);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	if (!uart_circ_empty(&state->xmit) && state->xmit.buf &&
 	    !tty->stopped && !tty->hw_stopped)
@@ -731,7 +730,6 @@ static int uart_set_info(struct tty_struct *tty, struct tty_port *port,
 			ASYNC_CLOSING_WAIT_NONE :
 			msecs_to_jiffies(new_info->closing_wait * 10);
 
-
 	change_irq  = !(uport->flags & UPF_FIXED_PORT)
 		&& new_info->irq != uport->irq;
 
@@ -1153,7 +1151,6 @@ uart_ioctl(struct tty_struct *tty, unsigned int cmd,
 	struct tty_port *port = &state->port;
 	void __user *uarg = (void __user *)arg;
 	int ret = -ENOIOCTLCMD;
-
 
 	/*
 	 * These ioctls don't rely on the hardware to be present.
@@ -2460,7 +2457,6 @@ static ssize_t uart_get_attr_xmit_fifo_size(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d\n", tmp.xmit_fifo_size);
 }
 
-
 static ssize_t uart_get_attr_close_delay(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
@@ -2470,7 +2466,6 @@ static ssize_t uart_get_attr_close_delay(struct device *dev,
 	uart_get_info(port, &tmp);
 	return snprintf(buf, PAGE_SIZE, "%d\n", tmp.close_delay);
 }
-
 
 static ssize_t uart_get_attr_closing_wait(struct device *dev,
 	struct device_attribute *attr, char *buf)
@@ -2561,7 +2556,6 @@ static const struct attribute_group *tty_dev_attr_groups[] = {
 	&tty_dev_attr_group,
 	NULL
 	};
-
 
 /**
  *	uart_add_one_port - attach a driver-defined port structure

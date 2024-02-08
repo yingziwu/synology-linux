@@ -383,7 +383,6 @@ static inline void emit_swap16(u8 r_dst __maybe_unused,
 
 #endif /* __LINUX_ARM_ARCH__ < 6 */
 
-
 /* Compute the immediate value for a PC-relative branch. */
 static inline u32 b_imm(unsigned tgt, struct jit_ctx *ctx)
 {
@@ -856,7 +855,6 @@ b_epilogue:
 
 	return 0;
 }
-
 
 void bpf_jit_compile(struct sk_filter *fp)
 {

@@ -28,7 +28,6 @@
 #include "tpm.h"
 #include "tpm_eventlog.h"
 
-
 static const char* tcpa_event_type_strings[] = {
 	"PREBOOT",
 	"POST CODE",

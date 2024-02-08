@@ -39,4 +39,3 @@ typedef struct CsrWifiFsmEvent
 } CsrWifiFsmEvent;
 
 #endif /* CSR_WIFI_FSM_EVENT_H */
-

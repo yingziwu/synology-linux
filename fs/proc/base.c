@@ -139,6 +139,14 @@ struct pid_entry {
 		NULL, &proc_single_file_operations,	\
 		{ .proc_show = show } )
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+/* ANDROID is for special files in /proc. */
+#define ANDROID(NAME, MODE, OTYPE)			\
+	NOD(NAME, (S_IFREG|(MODE)),			\
+		&proc_##OTYPE##_inode_operations,	\
+		&proc_##OTYPE##_operations, {})
+#endif /* CONFIG_SYNO_LSP_HI3536 */
+
 /*
  * Count the number of hardlinks for the pid_entry table, excluding the .
  * and .. links.
@@ -254,7 +262,6 @@ static int proc_pid_auxv(struct task_struct *task, char *buffer)
 	}
 	return res;
 }
-
 
 #ifdef CONFIG_KALLSYMS
 /*
@@ -595,7 +602,6 @@ static bool has_pid_permissions(struct pid_namespace *pid,
 	return ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS);
 }
 
-
 static int proc_pid_permission(struct inode *inode, int mask)
 {
 	struct pid_namespace *pid = inode->i_sb->s_fs_info;
@@ -623,8 +629,6 @@ static int proc_pid_permission(struct inode *inode, int mask)
 	}
 	return generic_permission(inode, mask);
 }
-
-
 
 static const struct inode_operations proc_def_inode_operations = {
 	.setattr	= proc_setattr,
@@ -843,6 +847,7 @@ static ssize_t environ_read(struct file *file, char __user *buf,
 	unsigned long src = *ppos;
 	int ret = 0;
 	struct mm_struct *mm = file->private_data;
+	unsigned long env_start, env_end;
 
 	/* Ensure the process spawned far enough to have an environment. */
 	if (!mm || !mm->env_end)
@@ -855,19 +860,25 @@ static ssize_t environ_read(struct file *file, char __user *buf,
 	ret = 0;
 	if (!atomic_inc_not_zero(&mm->mm_users))
 		goto free;
+
+	down_read(&mm->mmap_sem);
+	env_start = mm->env_start;
+	env_end = mm->env_end;
+	up_read(&mm->mmap_sem);
+
 	while (count > 0) {
 		size_t this_len, max_len;
 		int retval;
 
-		if (src >= (mm->env_end - mm->env_start))
+		if (src >= (env_end - env_start))
 			break;
 
-		this_len = mm->env_end - (mm->env_start + src);
+		this_len = env_end - (env_start + src);
 
 		max_len = min_t(size_t, PAGE_SIZE, count);
 		this_len = min(max_len, this_len);
 
-		retval = access_remote_vm(mm, (mm->env_start + src),
+		retval = access_remote_vm(mm, (env_start + src),
 			page, this_len, 0);
 
 		if (retval <= 0) {
@@ -1000,6 +1011,37 @@ err_task_lock:
 out:
 	return err < 0 ? err : count;
 }
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+static int oom_adjust_permission(struct inode *inode, int mask)
+{
+	uid_t uid;
+	struct task_struct *p;
+
+	p = get_proc_task(inode);
+	if(p) {
+		uid = task_uid(p);
+		put_task_struct(p);
+	}
+
+	/*
+	 * System Server (uid == 1000) is granted access to oom_adj of all 
+	 * android applications (uid > 10000) as and services (uid >= 1000)
+	 */
+	if (p && (current_fsuid() == 1000) && (uid >= 1000)) {
+		if (inode->i_mode >> 6 & mask) {
+			return 0;
+		}
+	}
+
+	/* Fall back to default. */
+	return generic_permission(inode, mask);
+}
+
+static const struct inode_operations proc_oom_adj_inode_operations = {
+	.permission	= oom_adjust_permission,
+};
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 static const struct file_operations proc_oom_adj_operations = {
 	.read		= oom_adj_read,
@@ -1246,7 +1288,6 @@ static const struct file_operations proc_fault_inject_operations = {
 	.llseek		= generic_file_llseek,
 };
 #endif
-
 
 #ifdef CONFIG_SCHED_DEBUG
 /*
@@ -1524,7 +1565,6 @@ const struct inode_operations proc_pid_link_inode_operations = {
 	.follow_link	= proc_pid_follow_link,
 	.setattr	= proc_setattr,
 };
-
 
 /* building an inode */
 
@@ -1830,7 +1870,11 @@ static int proc_map_files_get_link(struct dentry *dentry, struct path *path)
 	down_read(&mm->mmap_sem);
 	vma = find_exact_vma(mm, vm_start, vm_end);
 	if (vma && vma->vm_file) {
+#ifdef CONFIG_AUFS_FHSM
+		*path = vma_pr_or_file(vma)->f_path;
+#else
 		*path = vma->vm_file->f_path;
+#endif /* CONFIG_AUFS_FHSM */
 		path_get(path);
 		rc = 0;
 	}
@@ -2750,7 +2794,11 @@ static const struct pid_entry tgid_base_stuff[] = {
 	REG("cgroup",  S_IRUGO, proc_cgroup_operations),
 #endif
 	INF("oom_score",  S_IRUGO, proc_oom_score),
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	ANDROID("oom_adj", S_IRUGO|S_IWUSR, oom_adj),
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	REG("oom_adj",    S_IRUGO|S_IWUSR, proc_oom_adj_operations),
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	REG("oom_score_adj", S_IRUGO|S_IWUSR, proc_oom_score_adj_operations),
 #ifdef CONFIG_AUDITSYSCALL
 	REG("loginuid",   S_IWUSR|S_IRUGO, proc_loginuid_operations),

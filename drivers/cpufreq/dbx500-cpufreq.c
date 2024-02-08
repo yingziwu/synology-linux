@@ -1,13 +1,7 @@
-/*
- * Copyright (C) STMicroelectronics 2009
- * Copyright (C) ST-Ericsson SA 2010-2012
- *
- * License Terms: GNU General Public License v2
- * Author: Sundar Iyer <sundar.iyer@stericsson.com>
- * Author: Martin Persson <martin.persson@stericsson.com>
- * Author: Jonas Aaberg <jonas.aberg@stericsson.com>
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/cpufreq.h>
@@ -37,7 +31,6 @@ static int dbx500_cpufreq_target(struct cpufreq_policy *policy,
 	unsigned int idx;
 	int ret;
 
-	/* Lookup the next frequency */
 	if (cpufreq_frequency_table_target(policy, freq_table, target_freq,
 					relation, &idx))
 		return -EINVAL;
@@ -48,10 +41,8 @@ static int dbx500_cpufreq_target(struct cpufreq_policy *policy,
 	if (freqs.old == freqs.new)
 		return 0;
 
-	/* pre-change notification */
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_PRECHANGE);
 
-	/* update armss clk frequency */
 	ret = clk_set_rate(armss_clk, freqs.new * 1000);
 
 	if (ret) {
@@ -60,7 +51,6 @@ static int dbx500_cpufreq_target(struct cpufreq_policy *policy,
 		return ret;
 	}
 
-	/* post change notification */
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_POSTCHANGE);
 
 	return 0;
@@ -71,7 +61,6 @@ static unsigned int dbx500_cpufreq_getspeed(unsigned int cpu)
 	int i = 0;
 	unsigned long freq = clk_get_rate(armss_clk) / 1000;
 
-	/* The value is rounded to closest frequency in the defined table. */
 	while (freq_table[i + 1].frequency != CPUFREQ_TABLE_END) {
 		if (freq < freq_table[i].frequency +
 		   (freq_table[i + 1].frequency - freq_table[i].frequency) / 2)
@@ -82,11 +71,14 @@ static unsigned int dbx500_cpufreq_getspeed(unsigned int cpu)
 	return freq_table[i].frequency;
 }
 
+#if defined(MY_DEF_HERE)
+static int dbx500_cpufreq_init(struct cpufreq_policy *policy)
+#else  
 static int __cpuinit dbx500_cpufreq_init(struct cpufreq_policy *policy)
+#endif  
 {
 	int res;
 
-	/* get policy fields based on the table */
 	res = cpufreq_frequency_table_cpuinfo(policy, freq_table);
 	if (!res)
 		cpufreq_frequency_table_get_attr(freq_table, policy->cpu);
@@ -100,14 +92,8 @@ static int __cpuinit dbx500_cpufreq_init(struct cpufreq_policy *policy)
 	policy->cur = dbx500_cpufreq_getspeed(policy->cpu);
 	policy->governor = CPUFREQ_DEFAULT_GOVERNOR;
 
-	/*
-	 * FIXME : Need to take time measurement across the target()
-	 *	   function with no/some/all drivers in the notification
-	 *	   list.
-	 */
-	policy->cpuinfo.transition_latency = 20 * 1000; /* in ns */
+	policy->cpuinfo.transition_latency = 20 * 1000;  
 
-	/* policy sharing between dual CPUs */
 	cpumask_setall(policy->cpus);
 
 	return 0;

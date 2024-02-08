@@ -71,7 +71,6 @@ int pxa2xx_spi_map_dma_buffers(struct driver_data *drv_data)
 	} else
 		drv_data->rx_map_len = drv_data->len;
 
-
 	/* Modify setup if tx buffer is null */
 	if (drv_data->tx == NULL) {
 		*drv_data->null_dma_buf = 0;

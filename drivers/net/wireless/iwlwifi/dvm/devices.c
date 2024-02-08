@@ -35,7 +35,6 @@
 #include "dev.h"
 #include "commands.h"
 
-
 /*
  * 1000 series
  * ===========
@@ -179,7 +178,6 @@ struct iwl_lib_ops iwl1000_lib = {
 	.nic_config = iwl1000_nic_config,
 	.temperature = iwlagn_temperature,
 };
-
 
 /*
  * 2000 series
@@ -431,8 +429,6 @@ struct iwl_lib_ops iwl5150_lib = {
 	.set_channel_switch = iwl5000_hw_channel_switch,
 	.temperature = iwl5150_temperature,
 };
-
-
 
 /*
  * 6000 series

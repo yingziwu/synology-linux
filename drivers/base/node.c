@@ -24,7 +24,6 @@ static struct bus_type node_subsys = {
 	.dev_name = "node",
 };
 
-
 static ssize_t node_read_cpumap(struct device *dev, int type, char *buf)
 {
 	struct node *node_dev = to_node(dev);

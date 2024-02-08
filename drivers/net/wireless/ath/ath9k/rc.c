@@ -924,7 +924,6 @@ static void ath_rc_update_per(struct ath_softc *sc,
 				     (nretry_to_per_lookup[retries] >> 3));
 		}
 
-
 		/*
 		 * If we got at most one retry then increase the max rate if
 		 * this was a probe.  Otherwise, ignore the probe.
@@ -1229,7 +1228,6 @@ static bool ath_tx_aggr_check(struct ath_softc *sc, struct ieee80211_sta *sta,
 	txtid = ATH_AN_2_TID(an, tidno);
 	return !txtid->active;
 }
-
 
 /***********************************/
 /* mac80211 Rate Control callbacks */

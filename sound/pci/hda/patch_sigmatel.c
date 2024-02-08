@@ -239,7 +239,6 @@ static const hda_nid_t stac92hd71bxx_pwr_nids[3] = {
 	0x0a, 0x0d, 0x0f
 };
 
-
 /*
  * PCM hooks
  */
@@ -1227,7 +1226,6 @@ static const struct hda_pintbl dell9200_d23_pin_configs[] = {
 	{}
 };
 
-
 /* 
     STAC 9200-32 pin configs for
     102801B5 (Dell Inspiron 630m)
@@ -1364,7 +1362,6 @@ static const struct hda_pintbl oqo9200_pin_configs[] = {
 	{}
 };
 
-
 static void stac9200_fixup_panasonic(struct hda_codec *codec,
 				     const struct hda_fixup *fix, int action)
 {
@@ -1379,7 +1376,6 @@ static void stac9200_fixup_panasonic(struct hda_codec *codec,
 		spec->gen.suppress_auto_mute = 1;
 	}
 }
-
 
 static const struct hda_fixup stac9200_fixups[] = {
 	[STAC_REF] = {
@@ -2520,7 +2516,6 @@ static void stac92hd71bxx_fixup_hp_hdx(struct hda_codec *codec,
 		return;
 	spec->gpio_led = 0x08;
 }
-
 
 static void stac92hd71bxx_fixup_hp(struct hda_codec *codec,
 				   const struct hda_fixup *fix, int action)
@@ -4399,7 +4394,6 @@ static int patch_stac9872(struct hda_codec *codec)
 
 	return 0;
 }
-
 
 /*
  * patch entries

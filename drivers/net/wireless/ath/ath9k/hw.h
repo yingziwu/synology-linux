@@ -1136,7 +1136,6 @@ ath9k_hw_get_btcoex_scheme(struct ath_hw *ah)
 }
 #endif /* CONFIG_ATH9K_BTCOEX_SUPPORT */
 
-
 #ifdef CONFIG_PM_SLEEP
 const char *ath9k_hw_wow_event_to_string(u32 wow_event);
 void ath9k_hw_wow_apply_pattern(struct ath_hw *ah, u8 *user_pattern,
@@ -1164,8 +1163,6 @@ static inline void ath9k_hw_wow_enable(struct ath_hw *ah, u32 pattern_enable)
 {
 }
 #endif
-
-
 
 #define ATH9K_CLOCK_RATE_CCK		22
 #define ATH9K_CLOCK_RATE_5GHZ_OFDM	40

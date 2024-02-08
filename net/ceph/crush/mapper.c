@@ -48,7 +48,6 @@ int crush_find_rule(const struct crush_map *map, int ruleset, int type, int size
 	return -1;
 }
 
-
 /*
  * bucket choose methods
  *
@@ -157,7 +156,6 @@ static int bucket_list_choose(struct crush_bucket_list *bucket,
 	return bucket->h.items[0];
 }
 
-
 /* (binary) tree */
 static int height(int n)
 {
@@ -213,7 +211,6 @@ static int bucket_tree_choose(struct crush_bucket_tree *bucket,
 
 	return bucket->h.items[n >> 1];
 }
-
 
 /* straw */
 
@@ -462,7 +459,6 @@ reject:
 	return outpos;
 }
 
-
 /**
  * crush_do_rule - calculate a mapping with the given input and rule
  * @map: the crush_map
@@ -565,7 +561,6 @@ int crush_do_rule(const struct crush_map *map,
 			wsize = osize;
 			break;
 
-
 		case CRUSH_RULE_EMIT:
 			for (i = 0; i < wsize && result_len < result_max; i++) {
 				result[result_len] = w[i];
@@ -582,5 +577,3 @@ int crush_do_rule(const struct crush_map *map,
 	}
 	return result_len;
 }
-
-

@@ -414,7 +414,6 @@ no_route:
 }
 EXPORT_SYMBOL(ip_queue_xmit);
 
-
 static void ip_copy_metadata(struct sk_buff *to, struct sk_buff *from)
 {
 	to->pkt_type = from->pkt_type;
@@ -1166,7 +1165,6 @@ ssize_t	ip_append_page(struct sock *sk, struct flowi4 *fl4, struct page *page,
 		skb_shinfo(skb)->gso_type = SKB_GSO_UDP;
 	}
 
-
 	while (size > 0) {
 		int i;
 
@@ -1485,12 +1483,22 @@ void ip_send_unicast_reply(struct sock *sk, struct sk_buff *skb, __be32 daddr,
 			daddr = replyopts.opt.opt.faddr;
 	}
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	flowi4_init_output(&fl4, arg->bound_dev_if,
+			   IP4_REPLY_MARK(net, skb->mark),
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	flowi4_init_output(&fl4, arg->bound_dev_if, 0,
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 			   RT_TOS(arg->tos),
 			   RT_SCOPE_UNIVERSE, ip_hdr(skb)->protocol,
 			   ip_reply_arg_flowi_flags(arg),
 			   daddr, saddr,
+#if defined(CONFIG_SYNO_LSP_HI3536)
+			   tcp_hdr(skb)->source, tcp_hdr(skb)->dest,
+			   arg->uid);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 			   tcp_hdr(skb)->source, tcp_hdr(skb)->dest);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	security_skb_classify_flow(skb, flowi4_to_flowi(&fl4));
 	rt = ip_route_output_key(net, &fl4);
 	if (IS_ERR(rt))

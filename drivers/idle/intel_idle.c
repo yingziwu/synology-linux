@@ -612,7 +612,6 @@ static int intel_idle_cpuidle_driver_init(void)
 	return 0;
 }
 
-
 /*
  * intel_idle_cpu_init()
  * allocate, initialize, register cpuidle_devices
@@ -708,7 +707,6 @@ static void __exit intel_idle_exit(void)
 {
 	intel_idle_cpuidle_devices_uninit();
 	cpuidle_unregister_driver(&intel_idle_driver);
-
 
 	if (lapic_timer_reliable_states != LAPIC_TIMER_ALWAYS_RELIABLE)
 		on_each_cpu(__setup_broadcast_timer, (void *)false, 1);

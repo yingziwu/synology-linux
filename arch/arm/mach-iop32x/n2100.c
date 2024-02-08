@@ -50,7 +50,6 @@ static void __init n2100_timer_init(void)
 	iop_init_time(198000000);
 }
 
-
 /*
  * N2100 I/O.
  */
@@ -68,7 +67,6 @@ void __init n2100_map_io(void)
 	iop3xx_map_io();
 	iotable_init(n2100_io_desc, ARRAY_SIZE(n2100_io_desc));
 }
-
 
 /*
  * N2100 PCI.
@@ -141,7 +139,6 @@ static int __init n2100_pci_init(void)
 
 subsys_initcall(n2100_pci_init);
 
-
 /*
  * N2100 machine initialisation.
  */
@@ -164,7 +161,6 @@ static struct platform_device n2100_flash_device = {
 	.num_resources	= 1,
 	.resource	= &n2100_flash_resource,
 };
-
 
 static struct plat_serial8250_port n2100_serial_port[] = {
 	{
@@ -294,7 +290,6 @@ static void n2100_restart(char mode, const char *cmd)
 		;
 }
 
-
 static struct timer_list power_button_poll_timer;
 
 static void power_button_poll(unsigned long dummy)
@@ -307,7 +302,6 @@ static void power_button_poll(unsigned long dummy)
 	power_button_poll_timer.expires = jiffies + (HZ / 10);
 	add_timer(&power_button_poll_timer);
 }
-
 
 static void __init n2100_init_machine(void)
 {

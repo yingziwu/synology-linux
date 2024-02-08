@@ -41,7 +41,6 @@
 #include "fimc-is-param.h"
 #include "fimc-is-regs.h"
 
-
 static char *fimc_is_clocks[ISS_CLKS_MAX] = {
 	[ISS_CLK_PPMUISPX]		= "ppmuispx",
 	[ISS_CLK_PPMUISPMX]		= "ppmuispmx",
@@ -649,7 +648,6 @@ static int fimc_is_hw_open_sensor(struct fimc_is *is,
 	return fimc_is_wait_event(is, IS_ST_OPEN_SENSOR, 1,
 				  FIMC_IS_SENSOR_OPEN_TIMEOUT);
 }
-
 
 int fimc_is_hw_initialize(struct fimc_is *is)
 {

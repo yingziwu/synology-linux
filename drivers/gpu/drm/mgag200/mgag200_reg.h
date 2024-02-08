@@ -15,7 +15,6 @@
  *		MGA1064SG Mystique register file
  */
 
-
 #ifndef _MGA_REG_H_
 #define _MGA_REG_H_
 
@@ -235,8 +234,6 @@
 #define MGAREG_CRTCEXT_INDEX	0x1fde
 #define MGAREG_CRTCEXT_DATA	0x1fdf
 
-
-
 /* MGA bits for registers PCI_OPTION_REG */
 #define MGA1064_OPT_SYS_CLK_PCI   		( 0x00 << 0 )
 #define MGA1064_OPT_SYS_CLK_PLL   		( 0x01 << 0 )
@@ -307,7 +304,6 @@
 #define TVP3026_CRC_CTL		0x3e
 #define TVP3026_ID		0x3f
 #define TVP3026_RESET		0xff
-
 
 /* MGA1064 DAC Register file */
 /* MGA1064 direct registers */

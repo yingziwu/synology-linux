@@ -466,14 +466,14 @@ static void l2cap_chan_destroy(struct kref *kref)
 
 void l2cap_chan_hold(struct l2cap_chan *c)
 {
-	BT_DBG("chan %p orig refcnt %d", c, atomic_read(&c->kref.refcount));
+	BT_DBG("chan %p orig refcnt %d", c, kref_read(&c->kref));
 
 	kref_get(&c->kref);
 }
 
 void l2cap_chan_put(struct l2cap_chan *c)
 {
-	BT_DBG("chan %p orig refcnt %d", c, atomic_read(&c->kref.refcount));
+	BT_DBG("chan %p orig refcnt %d", c, kref_read(&c->kref));
 
 	kref_put(&c->kref, l2cap_chan_destroy);
 }
@@ -1793,10 +1793,18 @@ int l2cap_chan_connect(struct l2cap_chan *chan, __le16 psm, u16 cid,
 	auth_type = l2cap_get_auth_type(chan);
 
 	if (chan->dcid == L2CAP_CID_LE_DATA)
+#if defined(CONFIG_SYNO_LSP_HI3536)
+		hcon = hci_connect(hdev, LE_LINK, 0, dst, dst_type,
+#else /* CONFIG_SYNO_LSP_HI3536 */
 		hcon = hci_connect(hdev, LE_LINK, dst, dst_type,
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 				   chan->sec_level, auth_type);
 	else
+#if defined(CONFIG_SYNO_LSP_HI3536)
+		hcon = hci_connect(hdev, ACL_LINK, 0, dst, dst_type,
+#else /* CONFIG_SYNO_LSP_HI3536 */
 		hcon = hci_connect(hdev, ACL_LINK, dst, dst_type,
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 				   chan->sec_level, auth_type);
 
 	if (IS_ERR(hcon)) {

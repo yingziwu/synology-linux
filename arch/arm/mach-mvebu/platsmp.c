@@ -1,26 +1,14 @@
-/*
- * Symmetric Multi Processing (SMP) support for Armada XP
- *
- * Copyright (C) 2012 Marvell
- *
- * Lior Amsalem <alior@marvell.com>
- * Yehuda Yitschak <yehuday@marvell.com>
- * Gregory CLEMENT <gregory.clement@free-electrons.com>
- * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
- *
- * This file is licensed under the terms of the GNU General Public
- * License version 2.  This program is licensed "as is" without any
- * warranty of any kind, whether express or implied.
- *
- * The Armada XP SoC has 4 ARMv7 PJ4B CPUs running in full HW coherency
- * This file implements the routines for preparing the SMP infrastructure
- * and waking up the secondary CPUs
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/init.h>
 #include <linux/smp.h>
 #include <linux/clk.h>
 #include <linux/of.h>
+#if defined(MY_DEF_HERE)
+#include <linux/of_address.h>
+#endif  
 #include <linux/mbus.h>
 #include <asm/cacheflush.h>
 #include <asm/smp_plat.h>
@@ -28,6 +16,11 @@
 #include "armada-370-xp.h"
 #include "pmsu.h"
 #include "coherency.h"
+
+#if defined(MY_DEF_HERE)
+#define AXP_BOOTROM_BASE 0xfff00000
+#define AXP_BOOTROM_SIZE 0x100000
+#endif  
 
 void __init set_secondary_cpus_clock(void)
 {
@@ -55,7 +48,6 @@ void __init set_secondary_cpus_clock(void)
 	clk_prepare_enable(cpu_clk);
 	rate = clk_get_rate(cpu_clk);
 
-	/* set all the other CPU clk to the same rate than the boot CPU */
 	for_each_node_by_type(np, "cpu") {
 		int err;
 		int cpu;
@@ -67,6 +59,9 @@ void __init set_secondary_cpus_clock(void)
 		if (cpu != thiscpu) {
 			cpu_clk = of_clk_get(np, 0);
 			clk_set_rate(cpu_clk, rate);
+#if defined(MY_DEF_HERE)
+			clk_prepare_enable(cpu_clk);
+#endif  
 		}
 	}
 }
@@ -81,17 +76,55 @@ static int __cpuinit armada_xp_boot_secondary(unsigned int cpu,
 {
 	pr_info("Booting CPU %d\n", cpu);
 
+#if defined(MY_DEF_HERE)
+	mvebu_pmsu_set_cpu_boot_addr(cpu, armada_xp_secondary_startup);
+	mvebu_boot_cpu(cpu);
+#else  
 	armada_xp_boot_cpu(cpu, armada_xp_secondary_startup);
+#endif  
 
 	return 0;
 }
 
+#if defined(MY_DEF_HERE)
+static void __init armada_xp_smp_init_cpus(void)
+{
+	unsigned int ncores = num_possible_cpus();
+
+	if (ncores == 0 || ncores > ARMADA_XP_MAX_CPUS)
+		panic("Invalid number of CPUs in DT\n");
+
+	set_smp_cross_call(armada_mpic_send_doorbell);
+}
+
+void __init armada_xp_smp_prepare_cpus(unsigned int max_cpus)
+{
+	struct device_node *node;
+	struct resource res;
+	int err;
+
+	set_secondary_cpus_clock();
+	flush_cache_all();
+	set_cpu_coherent();
+
+	node = of_find_compatible_node(NULL, NULL, "marvell,bootrom");
+	if (!node)
+		panic("Cannot find 'marvell,bootrom' compatible node");
+
+	err = of_address_to_resource(node, 0, &res);
+	if (err < 0)
+		panic("Cannot get 'bootrom' node address");
+
+	if (res.start != AXP_BOOTROM_BASE ||
+	    resource_size(&res) != AXP_BOOTROM_SIZE)
+		panic("The address for the BootROM is incorrect");
+}
+#else  
 static void __init armada_xp_smp_init_cpus(void)
 {
 	unsigned int i, ncores;
 	ncores = coherency_get_cpu_count();
 
-	/* Limit possible CPUs to defconfig */
 	if (ncores > nr_cpu_ids) {
 		pr_warn("SMP: %d CPUs physically present. Only %d configured.",
 			ncores, nr_cpu_ids);
@@ -112,6 +145,7 @@ void __init armada_xp_smp_prepare_cpus(unsigned int max_cpus)
 	set_cpu_coherent(cpu_logical_map(smp_processor_id()), 0);
 	mvebu_mbus_add_window("bootrom", 0xfff00000, SZ_1M);
 }
+#endif  
 
 struct smp_operations armada_xp_smp_ops __initdata = {
 	.smp_init_cpus		= armada_xp_smp_init_cpus,

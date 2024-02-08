@@ -75,7 +75,6 @@ struct perf_probe_event {
 	struct perf_probe_arg	*args;	/* Arguments */
 };
 
-
 /* Line number container */
 struct line_node {
 	struct list_head	list;

@@ -589,4 +589,3 @@ void __init zone_sizes_init(void)
 
 	free_area_init_nodes(max_zone_pfns);
 }
-

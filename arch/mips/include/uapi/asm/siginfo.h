@@ -9,7 +9,6 @@
 #ifndef _UAPI_ASM_SIGINFO_H
 #define _UAPI_ASM_SIGINFO_H
 
-
 #define __ARCH_SIGEV_PREAMBLE_SIZE (sizeof(long) + 2*sizeof(int))
 #undef __ARCH_SI_TRAPNO /* exception code needs to fill this ...  */
 
@@ -109,6 +108,5 @@ typedef struct siginfo {
 #define SI_ASYNCIO	-2	/* sent by AIO completion */
 #define SI_TIMER __SI_CODE(__SI_TIMER, -3) /* sent by timer expiration */
 #define SI_MESGQ __SI_CODE(__SI_MESGQ, -4) /* sent by real time mesq state change */
-
 
 #endif /* _UAPI_ASM_SIGINFO_H */

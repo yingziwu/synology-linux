@@ -415,7 +415,6 @@ static void sdh_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		cfg &= ~SD_CMD_OD;
 # endif
 
-
 	if (ios->power_mode != MMC_POWER_OFF)
 		cfg |= PWR_ON;
 	else

@@ -841,7 +841,6 @@ int kvmppc_xics_hcall(struct kvm_vcpu *vcpu, u32 req)
 	return rc;
 }
 
-
 /* -- Initialisation code etc. -- */
 
 static int xics_debug_show(struct seq_file *m, void *private)

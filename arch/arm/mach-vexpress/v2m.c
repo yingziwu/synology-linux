@@ -67,7 +67,6 @@ static void __init v2m_sp804_init(void __iomem *base, unsigned int irq)
 	sp804_clockevents_init(base + TIMER_1_BASE, irq, "v2m-timer0");
 }
 
-
 static struct resource v2m_pcie_i2c_resource = {
 	.start	= V2M_SERIAL_BUS_PCI,
 	.end	= V2M_SERIAL_BUS_PCI + SZ_4K - 1,

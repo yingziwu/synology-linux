@@ -2202,7 +2202,6 @@ __init int intel_pmu_init(void)
 		pr_cont("IvyBridge events, ");
 		break;
 
-
 	default:
 		switch (x86_pmu.version) {
 		case 1:

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	PCI Bus Services, see include/linux/pci.h for further explanation.
  *
@@ -78,7 +81,11 @@ unsigned long pci_cardbus_mem_size = DEFAULT_CARDBUS_MEM_SIZE;
 unsigned long pci_hotplug_io_size  = DEFAULT_HOTPLUG_IO_SIZE;
 unsigned long pci_hotplug_mem_size = DEFAULT_HOTPLUG_MEM_SIZE;
 
+#ifdef MY_DEF_HERE
+enum pcie_bus_config_types pcie_bus_config = PCIE_BUS_SAFE;
+#else /* MY_DEF_HERE */
 enum pcie_bus_config_types pcie_bus_config = PCIE_BUS_TUNE_OFF;
+#endif /* MY_DEF_HERE */
 
 /*
  * The default CLS is used if arch didn't set CLS explicitly and not
@@ -833,7 +840,6 @@ EXPORT_SYMBOL(pci_choose_state);
 
 #define PCI_EXP_SAVE_REGS	7
 
-
 static struct pci_cap_saved_state *pci_find_saved_cap(
 	struct pci_dev *pci_dev, char cap)
 {
@@ -893,7 +899,6 @@ static void pci_restore_pcie_state(struct pci_dev *dev)
 	pcie_capability_write_word(dev, PCI_EXP_SLTCTL2, cap[i++]);
 }
 
-
 static int pci_save_pcix_state(struct pci_dev *dev)
 {
 	int pos;
@@ -929,7 +934,6 @@ static void pci_restore_pcix_state(struct pci_dev *dev)
 
 	pci_write_config_word(dev, pos + PCI_X_CMD, cap[i++]);
 }
-
 
 /**
  * pci_save_state - save the PCI configuration space of a device before suspending
@@ -2645,7 +2649,6 @@ err_out:
 
 	return -EBUSY;
 }
-
 
 /**
  * pci_request_selected_regions - Reserve selected PCI I/O and memory resources

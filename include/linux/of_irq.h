@@ -1,8 +1,15 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef __OF_IRQ_H
 #define __OF_IRQ_H
 
-#if defined(CONFIG_OF)
+#if defined(CONFIG_OF) || defined(MY_DEF_HERE)
+#if defined(MY_DEF_HERE)
+ 
+#else  
 struct of_irq;
+#endif  
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <linux/irq.h>
@@ -10,54 +17,60 @@ struct of_irq;
 #include <linux/ioport.h>
 #include <linux/of.h>
 
-/*
- * irq_of_parse_and_map() is used by all OF enabled platforms; but SPARC
- * implements it differently.  However, the prototype is the same for all,
- * so declare it here regardless of the CONFIG_OF_IRQ setting.
- */
+#if defined(MY_DEF_HERE)
+ 
+#else  
+ 
 extern unsigned int irq_of_parse_and_map(struct device_node *node, int index);
 
 #if defined(CONFIG_OF_IRQ)
-/**
- * of_irq - container for device_node/irq_specifier pair for an irq controller
- * @controller: pointer to interrupt controller device tree node
- * @size: size of interrupt specifier
- * @specifier: array of cells @size long specifing the specific interrupt
- *
- * This structure is returned when an interrupt is mapped. The controller
- * field needs to be put() after use
- */
-#define OF_MAX_IRQ_SPEC		4 /* We handle specifiers of at most 4 cells */
+ 
+#define OF_MAX_IRQ_SPEC		4  
 struct of_irq {
-	struct device_node *controller; /* Interrupt controller node */
-	u32 size; /* Specifier size */
-	u32 specifier[OF_MAX_IRQ_SPEC]; /* Specifier copy */
+	struct device_node *controller;  
+	u32 size;  
+	u32 specifier[OF_MAX_IRQ_SPEC];  
 };
+#endif  
+#endif  
 
+#if defined(CONFIG_OF_IRQ) || defined(MY_DEF_HERE)
 typedef int (*of_irq_init_cb_t)(struct device_node *, struct device_node *);
 
-/*
- * Workarounds only applied to 32bit powermac machines
- */
 #define OF_IMAP_OLDWORLD_MAC	0x00000001
 #define OF_IMAP_NO_PHANDLE	0x00000002
 
 #if defined(CONFIG_PPC32) && defined(CONFIG_PPC_PMAC)
 extern unsigned int of_irq_workarounds;
 extern struct device_node *of_irq_dflt_pic;
+#if defined(MY_DEF_HERE)
+extern int of_irq_parse_oldworld(struct device_node *device, int index,
+			       struct of_phandle_args *out_irq);
+#else  
 extern int of_irq_map_oldworld(struct device_node *device, int index,
 			       struct of_irq *out_irq);
-#else /* CONFIG_PPC32 && CONFIG_PPC_PMAC */
+#endif  
+#else  
 #define of_irq_workarounds (0)
 #define of_irq_dflt_pic (NULL)
+#if defined(MY_DEF_HERE)
+static inline int of_irq_parse_oldworld(struct device_node *device, int index,
+				      struct of_phandle_args *out_irq)
+#else  
 static inline int of_irq_map_oldworld(struct device_node *device, int index,
 				      struct of_irq *out_irq)
+#endif  
 {
 	return -EINVAL;
 }
-#endif /* CONFIG_PPC32 && CONFIG_PPC_PMAC */
+#endif  
 
-
+#if defined(MY_DEF_HERE)
+extern int of_irq_parse_raw(const __be32 *addr, struct of_phandle_args *out_irq);
+extern int of_irq_parse_one(struct device_node *device, int index,
+			  struct of_phandle_args *out_irq);
+extern unsigned int irq_create_of_mapping(struct of_phandle_args *irq_data);
+#else  
 extern int of_irq_map_raw(struct device_node *parent, const __be32 *intspec,
 			  u32 ointsize, const __be32 *addr,
 			  struct of_irq *out_irq);
@@ -66,18 +79,29 @@ extern int of_irq_map_one(struct device_node *device, int index,
 extern unsigned int irq_create_of_mapping(struct device_node *controller,
 					  const u32 *intspec,
 					  unsigned int intsize);
+#endif  
 extern int of_irq_to_resource(struct device_node *dev, int index,
 			      struct resource *r);
 extern int of_irq_count(struct device_node *dev);
 extern int of_irq_to_resource_table(struct device_node *dev,
 		struct resource *res, int nr_irqs);
+#if defined(MY_DEF_HERE)
+ 
+#else  
 extern struct device_node *of_irq_find_parent(struct device_node *child);
+#endif  
 
 extern void of_irq_init(const struct of_device_id *matches);
 
-#endif /* CONFIG_OF_IRQ */
+#endif  
 
-#else /* !CONFIG_OF */
+#if defined(MY_DEF_HERE) && defined(CONFIG_OF)
+ 
+extern unsigned int irq_of_parse_and_map(struct device_node *node, int index);
+extern struct device_node *of_irq_find_parent(struct device_node *child);
+#endif  
+
+#else  
 static inline unsigned int irq_of_parse_and_map(struct device_node *dev,
 						int index)
 {
@@ -88,6 +112,6 @@ static inline void *of_irq_find_parent(struct device_node *child)
 {
 	return NULL;
 }
-#endif /* !CONFIG_OF */
+#endif  
 
-#endif /* __OF_IRQ_H */
+#endif  

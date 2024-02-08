@@ -219,4 +219,3 @@ aoenet_exit(void)
 	skb_queue_purge(&skbtxq);
 	dev_remove_pack(&aoe_pt);
 }
-

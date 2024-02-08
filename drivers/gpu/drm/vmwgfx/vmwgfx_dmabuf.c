@@ -30,7 +30,6 @@
 #include <drm/drmP.h>
 #include "vmwgfx_drv.h"
 
-
 /**
  * vmw_dmabuf_to_placement - Validate a buffer to placement.
  *
@@ -126,7 +125,6 @@ int vmw_dmabuf_to_vram_or_gmr(struct vmw_private *dev_priv,
 	ret = ttm_bo_validate(bo, placement, interruptible, false);
 	if (likely(ret == 0) || ret == -ERESTARTSYS)
 		goto err_unreserve;
-
 
 	/**
 	 * If that failed, try VRAM again, this time evicting
@@ -237,7 +235,6 @@ err_unlock:
 	return ret;
 }
 
-
 /**
  * vmw_dmabuf_upin - Unpin the buffer given buffer, does not move the buffer.
  *
@@ -266,7 +263,6 @@ int vmw_dmabuf_unpin(struct vmw_private *dev_priv,
 				       interruptible);
 }
 
-
 /**
  * vmw_bo_get_guest_ptr - Get the guest ptr representing the current placement
  * of a buffer.
@@ -285,7 +281,6 @@ void vmw_bo_get_guest_ptr(const struct ttm_buffer_object *bo,
 		ptr->offset = 0;
 	}
 }
-
 
 /**
  * vmw_bo_pin - Pin or unpin a buffer object without moving it.

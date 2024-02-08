@@ -155,5 +155,4 @@ static inline int rndis_bind_config(struct usb_configuration *c,
 	return rndis_bind_config_vendor(c, ethaddr, 0, NULL, dev);
 }
 
-
 #endif /* __U_ETHER_H */

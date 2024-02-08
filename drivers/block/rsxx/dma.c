@@ -97,7 +97,6 @@ struct dma_tracker_list {
 	struct dma_tracker	list[0];
 };
 
-
 /*----------------- Misc Utility Functions -------------------*/
 static unsigned int rsxx_addr8_to_laddr(u64 addr8, struct rsxx_cardinfo *card)
 {
@@ -132,7 +131,6 @@ static unsigned int get_dma_size(struct rsxx_dma *dma)
 	else
 		return RSXX_HW_BLK_SIZE;
 }
-
 
 /*----------------- DMA Tracker -------------------*/
 static void set_tracker_dma(struct dma_tracker_list *trackers,
@@ -172,7 +170,6 @@ static void push_tracker(struct dma_tracker_list *trackers, int tag)
 	spin_unlock(&trackers->lock);
 }
 
-
 /*----------------- Interrupt Coalescing -------------*/
 /*
  * Interrupt Coalescing Register Format:
@@ -187,7 +184,6 @@ static void push_tracker(struct dma_tracker_list *trackers, int tag)
 #define INTR_COAL_COUNT_MASK         (((1 << INTR_COAL_COUNT_BITS) - 1) << \
 					INTR_COAL_COUNT_SHIFT)
 #define INTR_COAL_LATENCY_UNITS_NS   64
-
 
 static u32 dma_intr_coal_val(u32 mode, u32 count, u32 latency)
 {
@@ -717,7 +713,6 @@ bvec_err:
 	return st;
 }
 
-
 /*----------------- DMA Engine Initialization & Setup -------------------*/
 int rsxx_hw_buffers_init(struct pci_dev *dev, struct rsxx_dma_ctrl *ctrl)
 {
@@ -918,7 +913,6 @@ failed_dma_setup:
 	return st;
 }
 
-
 void rsxx_dma_destroy(struct rsxx_cardinfo *card)
 {
 	struct rsxx_dma_ctrl *ctrl;
@@ -1087,9 +1081,7 @@ int rsxx_dma_init(void)
 	return 0;
 }
 
-
 void rsxx_dma_cleanup(void)
 {
 	kmem_cache_destroy(rsxx_dma_pool);
 }
-

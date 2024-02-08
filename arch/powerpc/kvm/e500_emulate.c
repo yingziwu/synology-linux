@@ -354,4 +354,3 @@ int kvmppc_core_emulate_mfspr(struct kvm_vcpu *vcpu, int sprn, ulong *spr_val)
 
 	return emulated;
 }
-

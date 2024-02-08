@@ -34,7 +34,6 @@ size_t ubi_calc_fm_size(struct ubi_device *ubi)
 	return roundup(size, ubi->leb_size);
 }
 
-
 /**
  * new_fm_vhdr - allocate a new volume header for fastmap usage.
  * @ubi: UBI device description object
@@ -621,7 +620,6 @@ static int ubi_attach_fastmap(struct ubi_device *ubi,
 		goto fail_bad;
 	}
 
-
 	if (fm->max_pool_size > UBI_FM_MAX_POOL_SIZE ||
 	    fm->max_pool_size < 0) {
 		ubi_err("bad maximal pool size: %i", fm->max_pool_size);
@@ -1175,7 +1173,6 @@ static int ubi_write_fastmap(struct ubi_device *ubi,
 		ubi_assert(fm_pos <= ubi->fm_size);
 	}
 	fmh->scrub_peb_count = cpu_to_be32(scrub_peb_count);
-
 
 	list_for_each_entry(ubi_wrk, &ubi->works, list) {
 		if (ubi_is_erase_work(ubi_wrk)) {

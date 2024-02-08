@@ -59,7 +59,6 @@ static int no_imr_cal;
 module_param(no_imr_cal, int, 0444);
 MODULE_PARM_DESC(no_imr_cal, "Disable IMR calibration at module init");
 
-
 /*
  * enums and structures
  */
@@ -797,7 +796,6 @@ static int r820t_sysfreq_sel(struct r820t_priv *priv, u32 freq,
 		cable2_in = 0x00;
 	}
 
-
 	if (priv->cfg->use_predetect) {
 		rc = r820t_write_reg_mask(priv, 0x06, pre_dect, 0x40);
 		if (rc < 0)
@@ -1115,7 +1113,6 @@ static int r820t_set_tv_standard(struct r820t_priv *priv,
 	rc = r820t_write_reg_mask(priv, 0x0b, hp_cor, 0xef);
 	if (rc < 0)
 		return rc;
-
 
 	/* Set Img_R */
 	rc = r820t_write_reg_mask(priv, 0x07, img_r, 0x80);
@@ -1920,7 +1917,6 @@ static int r820t_imr(struct r820t_priv *priv, unsigned imr_mem, bool im_flag)
 		reg1f |= 0x01;  /* pw_ring 01 */
 		break;
 	}
-
 
 	/* write pw_ring, n_ring, ringdiv2 registers */
 

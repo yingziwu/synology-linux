@@ -31,7 +31,6 @@
 #define MEI_IAMTHIF_STALL_TIMER    12  /* HPS */
 #define MEI_IAMTHIF_READ_TIMER     10  /* HPS */
 
-
 /*
  * MEI Version
  */
@@ -115,7 +114,6 @@ struct mei_msg_hdr {
 	u32 msg_complete:1;
 } __packed;
 
-
 struct mei_bus_message {
 	u8 hbm_cmd;
 	u8 data[0];
@@ -197,7 +195,6 @@ struct hbm_props_request {
 	u8 reserved[2];
 } __packed;
 
-
 struct hbm_props_response {
 	u8 hbm_cmd;
 	u8 address;
@@ -236,7 +233,6 @@ struct hbm_client_connect_response {
 	u8 status;
 } __packed;
 
-
 #define MEI_FC_MESSAGE_RESERVED_LENGTH           5
 
 struct hbm_flow_control {
@@ -245,6 +241,5 @@ struct hbm_flow_control {
 	u8 host_addr;
 	u8 reserved[MEI_FC_MESSAGE_RESERVED_LENGTH];
 } __packed;
-
 
 #endif

@@ -87,7 +87,7 @@ xfs_destroy_ioend(
 	}
 
 	if (ioend->io_iocb) {
-		inode_dio_done(ioend->io_inode);
+		inode_dio_end(ioend->io_inode);
 		if (ioend->io_isasync) {
 			aio_complete(ioend->io_iocb, ioend->io_error ?
 					ioend->io_error : ioend->io_result, 0);
@@ -1117,7 +1117,6 @@ xfs_vm_writepage(
 		xfs_cluster_write(inode, page->index + 1, &imap, &ioend,
 				  wbc, end_index);
 	}
-
 
 	/*
 	 * Reserve log space if we might write beyond the on-disk inode size.

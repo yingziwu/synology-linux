@@ -1118,7 +1118,6 @@ static u16 b43_nphy_gen_load_samples(struct b43_wldev *dev, u32 freq, u16 max,
 	u16 bw, len, rot, angle;
 	struct b43_c32 *samples;
 
-
 	bw = (dev->phy.is_40mhz) ? 40 : 20;
 	len = bw << 3;
 

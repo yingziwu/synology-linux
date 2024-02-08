@@ -285,7 +285,6 @@ out:
 	return err;
 }
 
-
 static int process_sample_event(struct perf_tool *tool,
 				union perf_event *event,
 				struct perf_sample *sample,

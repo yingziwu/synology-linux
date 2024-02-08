@@ -21,7 +21,6 @@ struct termio {
 	unsigned char c_cc[NCC];	/* control characters */
 };
 
-
 /* modem lines */
 #define TIOCM_LE	0x001
 #define TIOCM_DTR	0x002
@@ -39,6 +38,5 @@ struct termio {
 #define TIOCM_LOOP	0x8000
 
 /* ioctl (fd, TIOCSERGETLSR, &result) where result may be as below */
-
 
 #endif /* _UAPI_H8300_TERMIOS_H */

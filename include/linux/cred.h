@@ -122,6 +122,9 @@ struct cred {
 	kernel_cap_t	cap_permitted;	/* caps we're permitted */
 	kernel_cap_t	cap_effective;	/* caps we can actually use */
 	kernel_cap_t	cap_bset;	/* capability bounding set */
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+	// do nothing
+#else /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 #ifdef CONFIG_KEYS
 	unsigned char	jit_keyring;	/* default keyring to attach requested
 					 * keys to */
@@ -133,10 +136,24 @@ struct cred {
 #ifdef CONFIG_SECURITY
 	void		*security;	/* subjective LSM security */
 #endif
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 	struct user_struct *user;	/* real user ID subscription */
 	struct user_namespace *user_ns; /* user_ns the caps and keyrings are relative to. */
 	struct group_info *group_info;	/* supplementary groups for euid/fsgid */
 	struct rcu_head	rcu;		/* RCU deletion hook */
+#if defined(CONFIG_SYNO_HI3536_ALIGN_STRUCTURES)
+#ifdef CONFIG_KEYS
+	unsigned char	jit_keyring;	/* default keyring to attach requested
+					 * keys to */
+	struct key __rcu *session_keyring; /* keyring inherited over fork */
+	struct key	*process_keyring; /* keyring private to this process */
+	struct key	*thread_keyring; /* keyring private to this thread */
+	struct key	*request_key_auth; /* assumed request_key authority */
+#endif
+#ifdef CONFIG_SECURITY
+	void		*security;	/* subjective LSM security */
+#endif
+#endif /* CONFIG_SYNO_HI3536_ALIGN_STRUCTURES */
 };
 
 extern void __put_cred(struct cred *);
@@ -260,6 +277,15 @@ static inline void put_cred(const struct cred *_cred)
 	rcu_dereference_protected(current->cred, 1)
 
 /**
+ * current_real_cred - Access the current task's objective credentials
+ *
+ * Access the objective credentials of the current task.  RCU-safe,
+ * since nobody else can modify it.
+ */
+#define current_real_cred() \
+	rcu_dereference_protected(current->real_cred, 1)
+
+/**
  * __task_cred - Access a task's objective credentials
  * @task: The task to query
  *
@@ -347,7 +373,6 @@ extern struct user_namespace init_user_ns;
 #else
 #define current_user_ns()	(&init_user_ns)
 #endif
-
 
 #define current_uid_gid(_uid, _gid)		\
 do {						\

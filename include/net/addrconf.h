@@ -45,7 +45,6 @@ struct prefix_info {
 	struct in6_addr		prefix;
 };
 
-
 #include <linux/netdevice.h>
 #include <net/if_inet6.h>
 #include <net/ipv6.h>
@@ -190,6 +189,10 @@ static inline bool ipv6_is_mld(struct sk_buff *skb, int nexthdr, int offset)
 extern void addrconf_prefix_rcv(struct net_device *dev,
 				u8 *opt, int len, bool sllao);
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+u32 addrconf_rt_table(const struct net_device *dev, u32 default_table);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
+
 /*
  *	anycast prototypes (anycast.c)
  */
@@ -201,7 +204,6 @@ extern int ipv6_dev_ac_inc(struct net_device *dev, const struct in6_addr *addr);
 extern int __ipv6_dev_ac_dec(struct inet6_dev *idev, const struct in6_addr *addr);
 extern bool ipv6_chk_acast_addr(struct net *net, struct net_device *dev,
 				const struct in6_addr *addr);
-
 
 /* Device notifier */
 extern int register_inet6addr_notifier(struct notifier_block *nb);
@@ -278,7 +280,6 @@ static inline void in6_ifa_hold(struct inet6_ifaddr *ifp)
 {
 	atomic_inc(&ifp->refcnt);
 }
-
 
 /*
  *	compute link-local solicited-node multicast address

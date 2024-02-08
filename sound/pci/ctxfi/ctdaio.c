@@ -759,4 +759,3 @@ int daio_mgr_destroy(struct daio_mgr *daio_mgr)
 
 	return 0;
 }
-

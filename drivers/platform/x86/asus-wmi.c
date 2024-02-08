@@ -580,7 +580,6 @@ error:
 	return rv;
 }
 
-
 /*
  * PCI hotplug (for wlan rfkill)
  */

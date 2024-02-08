@@ -167,7 +167,6 @@ static void delayed_put_task_struct(struct rcu_head *rhp)
 	put_task_struct(tsk);
 }
 
-
 void release_task(struct task_struct * p)
 {
 	struct task_struct *leader;
@@ -841,7 +840,11 @@ void do_exit(long code)
 	/*
 	 * Make sure we are holding no locks:
 	 */
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	debug_check_no_locks_held();
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	debug_check_no_locks_held(tsk);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	/*
 	 * We can do this unlocked here. The futex code uses this flag
 	 * just to verify whether the pi state cleanup has been done

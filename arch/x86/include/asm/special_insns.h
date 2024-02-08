@@ -1,7 +1,6 @@
 #ifndef _ASM_X86_SPECIAL_INSNS_H
 #define _ASM_X86_SPECIAL_INSNS_H
 
-
 #ifdef __KERNEL__
 
 static inline void native_clts(void)
@@ -192,7 +191,6 @@ static inline void clflush(volatile void *__p)
 }
 
 #define nop() asm volatile ("nop")
-
 
 #endif /* __KERNEL__ */
 

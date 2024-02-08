@@ -63,7 +63,6 @@
 #include <linux/uaccess.h>
 #include <net/tcp.h>
 
-
 #include "heartbeat.h"
 #include "tcp.h"
 #include "nodemanager.h"

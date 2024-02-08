@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 
 #include <linux/wait.h>
 #include <linux/backing-dev.h>
@@ -21,6 +24,16 @@ struct backing_dev_info default_backing_dev_info = {
 	.capabilities	= BDI_CAP_MAP_COPY,
 };
 EXPORT_SYMBOL_GPL(default_backing_dev_info);
+
+#ifdef MY_ABC_HERE
+struct backing_dev_info syno_backing_dev_info = {
+	.name           = "syno",
+	.ra_pages       = VM_MAX_READAHEAD * 1024 / PAGE_CACHE_SIZE,
+	.state          = 0,
+	.capabilities   = BDI_CAP_MAP_COPY,
+};
+EXPORT_SYMBOL_GPL(syno_backing_dev_info);
+#endif /* MY_ABC_HERE */
 
 struct backing_dev_info noop_backing_dev_info = {
 	.name		= "noop",
@@ -232,13 +245,40 @@ static ssize_t stable_pages_required_show(struct device *dev,
 			bdi_cap_stable_pages_required(bdi) ? 1 : 0);
 }
 
+#ifdef MY_ABC_HERE
+static ssize_t stable_pages_required_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	ssize_t ret;
+	unsigned int value;
+	struct backing_dev_info *bdi = dev_get_drvdata(dev);
+
+	ret = kstrtouint(buf, 10, &value);
+	if (ret < 0)
+		return ret;
+
+	value = !!value;
+	if (value) {
+		bdi->capabilities |= BDI_CAP_STABLE_WRITES;
+	} else {
+		bdi->capabilities &= ~BDI_CAP_STABLE_WRITES;
+	}
+
+	return count;                                                          
+}
+#endif /* MY_ABC_HERE */
+
 #define __ATTR_RW(attr) __ATTR(attr, 0644, attr##_show, attr##_store)
 
 static struct device_attribute bdi_dev_attrs[] = {
 	__ATTR_RW(read_ahead_kb),
 	__ATTR_RW(min_ratio),
 	__ATTR_RW(max_ratio),
+#ifdef MY_ABC_HERE
+	__ATTR_RW(stable_pages_required),
+#else /* MY_ABC_HERE */
 	__ATTR_RO(stable_pages_required),
+#endif /* MY_ABC_HERE */
 	__ATTR_NULL,
 };
 
@@ -266,6 +306,13 @@ static int __init default_bdi_init(void)
 	err = bdi_init(&default_backing_dev_info);
 	if (!err)
 		bdi_register(&default_backing_dev_info, NULL, "default");
+
+#ifdef MY_ABC_HERE
+	err = bdi_init(&syno_backing_dev_info);
+	if (!err)
+		bdi_register(&syno_backing_dev_info, NULL, "syno");
+#endif /* MY_ABC_HERE */
+
 	err = bdi_init(&noop_backing_dev_info);
 
 	return err;
@@ -297,7 +344,11 @@ void bdi_wakeup_thread_delayed(struct backing_dev_info *bdi)
 
 	timeout = msecs_to_jiffies(dirty_writeback_interval * 10);
 	spin_lock_bh(&bdi->wb_lock);
+#if defined(CONFIG_SYNO_HI3536)
+	if (test_bit(BDI_REGISTERED, &bdi->state))
+#else /* CONFIG_SYNO_HI3536 */
 	if (test_bit(BDI_registered, &bdi->state))
+#endif /* CONFIG_SYNO_HI3536 */
 		queue_delayed_work(bdi_wq, &bdi->wb.dwork, timeout);
 	spin_unlock_bh(&bdi->wb_lock);
 }
@@ -332,7 +383,11 @@ int bdi_register(struct backing_dev_info *bdi, struct device *parent,
 	bdi->dev = dev;
 
 	bdi_debug_register(bdi, dev_name(dev));
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	set_bit(BDI_REGISTERED, &bdi->state);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	set_bit(BDI_registered, &bdi->state);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	spin_lock_bh(&bdi_lock);
 	list_add_tail_rcu(&bdi->bdi_list, &bdi_list);
@@ -364,7 +419,11 @@ static void bdi_wb_shutdown(struct backing_dev_info *bdi)
 
 	/* Make sure nobody queues further work */
 	spin_lock_bh(&bdi->wb_lock);
+#if defined(CONFIG_SYNO_HI3536)
+	clear_bit(BDI_REGISTERED, &bdi->state);
+#else /* CONFIG_SYNO_HI3536 */
 	clear_bit(BDI_registered, &bdi->state);
+#endif /* CONFIG_SYNO_HI3536 */
 	spin_unlock_bh(&bdi->wb_lock);
 
 	/*

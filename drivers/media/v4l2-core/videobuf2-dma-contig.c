@@ -49,7 +49,6 @@ struct vb2_dc_buf {
 /*        scatterlist table functions        */
 /*********************************************/
 
-
 static void vb2_dc_sgt_foreach_page(struct sg_table *sgt,
 	void (*cb)(struct page *pg))
 {
