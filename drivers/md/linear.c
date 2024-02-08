@@ -388,14 +388,12 @@ SynoLinearEndRequest(struct bio *bio, int error)
 {
 	int uptodate = test_bit(BIO_UPTODATE, &bio->bi_flags);
 	struct mddev *mddev = NULL;
-	struct dev_info *dev_info = NULL;
 	struct md_rdev *rdev = NULL;
 	struct bio *orig_bio;
 
 	orig_bio = bio->bi_private;
 
-	dev_info = (struct dev_info *)orig_bio->bi_next;
-	rdev = dev_info->rdev;
+	rdev = (struct md_rdev *)orig_bio->bi_next;
 	mddev = rdev->mddev;
 	orig_bio->bi_next = bio->bi_next;
 
@@ -405,9 +403,15 @@ SynoLinearEndRequest(struct bio *bio, int error)
 			syno_md_error(mddev, rdev);
 		} else {
 #ifdef MY_ABC_HERE
-			sector_t report_sector = orig_bio->bi_sector -
-			                         (dev_info->end_sector - rdev->sectors) +
-			                         rdev->data_offset;
+			struct dev_info *tmp_dev;
+			sector_t report_sector;
+
+			rcu_read_lock();
+			tmp_dev = which_dev(mddev, orig_bio->bi_sector);
+			report_sector = orig_bio->bi_sector -
+			                (tmp_dev->end_sector - rdev->sectors) +
+			                rdev->data_offset;
+			rcu_read_unlock();
 #ifdef MY_ABC_HERE
 			if (bio_flagged(bio, BIO_AUTO_REMAP)) {
 				SynoReportBadSector(report_sector, bio->bi_rw, mddev->md_minor, bio->bi_bdev, __FUNCTION__);
@@ -503,7 +507,7 @@ static void linear_make_request(struct mddev *mddev, struct bio *bio)
 		cloned_bio->bi_private = bio;
 
 		orig_bio = bio;
-		orig_bio->bi_next = (void *)tmp_dev;
+		orig_bio->bi_next = (void *)tmp_dev->rdev;
 		bio = cloned_bio;
 	}
 #endif /* MY_ABC_HERE */
