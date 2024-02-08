@@ -1,0 +1,212 @@
+[
+  {
+    "base": "v2.6.32",
+    "platform": "qoriq",
+    "name": "linux-2.6.32.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/qoriq/linux-2.6.32.txz",
+    "md5": "11b13a474f2b9dc1c3b353a672cea437"
+  },
+  {
+    "base": "v2.6.32",
+    "platform": "6281",
+    "name": "linux-2.6.32.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/6281/linux-2.6.32.txz",
+    "md5": "0a68ce6f5cff3637b6221aab0ea797a0"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "armada38x",
+    "name": "linux-3.10.x-bsp.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/armada38x/linux-3.10.x-bsp.txz",
+    "md5": "ca1cd1471481fe1347ac1bf937c69bb0"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "alpine",
+    "name": "linux-3.10.x-bsp.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/alpine/linux-3.10.x-bsp.txz",
+    "md5": "cf24e603df9de7c49bf9b524f0f48404"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "alpine4k",
+    "name": "linux-3.10.x-bsp.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/alpine4k/linux-3.10.x-bsp.txz",
+    "md5": "07db301aba2d74eff2cee2c376c21049"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "monaco",
+    "name": "linux-3.10.x-bsp.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/monaco/linux-3.10.x-bsp.txz",
+    "md5": "103108e7b7020eb49eea6558246d4f63"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "braswell",
+    "name": "linux-3.10.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/braswell/linux-3.10.x.txz",
+    "md5": "9959e4af20c9ae8a95357ef7e5e3b0df"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "cedarview",
+    "name": "linux-3.10.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/cedarview/linux-3.10.x.txz",
+    "md5": "f75739a15e87647e3065a3182d01bd27"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "bromolow",
+    "name": "linux-3.10.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/bromolow/linux-3.10.x.txz",
+    "md5": "9a89711206450e053b7efd28f55db4d0"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "broadwell",
+    "name": "linux-3.10.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/broadwell/linux-3.10.x.txz",
+    "md5": "2df466b5b8ffd8042ddb3e8fe28f3532"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "avoton",
+    "name": "linux-3.10.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/avoton/linux-3.10.x.txz",
+    "md5": "62f83626381f79ec1735719706ee85f1"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "x64",
+    "name": "linux-3.10.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/x64/linux-3.10.x.txz",
+    "md5": "ab36c867d3598106bdee58d839947633"
+  },
+  {
+    "base": "v3.10.105",
+    "platform": "grantley",
+    "name": "linux-3.10.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/grantley/linux-3.10.x.txz",
+    "md5": "97da35e5f431a66bda4587d584783727"
+  },
+  {
+    "base": "v3.4.35",
+    "platform": "hi3535",
+    "name": "linux-3.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/hi3535/linux-3.4.x.txz",
+    "md5": "885da069d233daf06557546216199380"
+  },
+  {
+    "base": "v3.2.40",
+    "platform": "armada375",
+    "name": "linux-3.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/armada375/linux-3.x.txz",
+    "md5": "d2645e58c58239590cbf5c913801d27e"
+  },
+  {
+    "base": "v3.2.40",
+    "platform": "armada370",
+    "name": "linux-3.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/armada370/linux-3.x.txz",
+    "md5": "8c0dcf78af26dd61330c8b9c90067d92"
+  },
+  {
+    "base": "v3.2.40",
+    "platform": "armadaxp",
+    "name": "linux-3.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/armadaxp/linux-3.x.txz",
+    "md5": "ea1052f46dfc56d29740e200982fc87c"
+  },
+  {
+    "base": "v3.2.40",
+    "platform": "evansport",
+    "name": "linux-3.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/evansport/linux-3.x.txz",
+    "md5": "ef90096fb9d58314fb73596f7c0d8775"
+  },
+  {
+    "base": "v3.2.40",
+    "platform": "comcerto2k",
+    "name": "linux-3.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/comcerto2k/linux-3.x.txz",
+    "md5": "1102dd8c4f112a23e9bb6630e6329119"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "apollolake",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/apollolake/linux-4.4.x.txz",
+    "md5": "b0105c224ce0468391ce1027a90d944a"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "armada37xx",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/armada37xx/linux-4.4.x.txz",
+    "md5": "853d6c012c2ce5763fdc5686b26f4198"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "kvmx64",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/kvmx64/linux-4.4.x.txz",
+    "md5": "74a8ad1565c663d57d2abe4b4a689a8e"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "broadwellntbap",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/broadwellntbap/linux-4.4.x.txz",
+    "md5": "8755a2c9e84a6ec91c7afaf52315378f"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "rtd1296",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/rtd1296/linux-4.4.x.txz",
+    "md5": "ae211eb52055d2495556c0312325c4a7"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "v1000",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/v1000/linux-4.4.x.txz",
+    "md5": "189d96a110c0802a0690b5affc08b04a"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "purley",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/purley/linux-4.4.x.txz",
+    "md5": "90f897643494d5a78e94abd861160893"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "broadwellnk",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/broadwellnk/linux-4.4.x.txz",
+    "md5": "ec30943f1ddcd99e40b238b8284e58ca"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "geminilake",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/geminilake/linux-4.4.x.txz",
+    "md5": "ed9da5032482a2d108353818411d340e"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "denverton",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/denverton/linux-4.4.x.txz",
+    "md5": "c5253b2f042242c72c1979ee23b76d86"
+  },
+  {
+    "base": "v4.4.59",
+    "platform": "kvmcloud",
+    "name": "linux-4.4.x.txz",
+    "tar_url": "https://global.synologydownload.com/download/ToolChain/Synology%20NAS%20GPL%20Source/6.2-25556/kvmcloud/linux-4.4.x.txz",
+    "md5": "094b1e094d15f2a917a7ab72c604f1f7"
+  }
+]
