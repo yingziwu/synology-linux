@@ -21,7 +21,6 @@
 #include "syno-rbd-meta.h"
 
 static int btrfs_pin_rbd_meta_file(struct inode *inode);
-static void btrfs_unpin_rbd_meta_file(struct inode *inode);
 static int insert_rbd_meta_file_record(struct inode *inode);
 static int delete_rbd_meta_file_record(struct inode *inode);
 static int lookup_rbd_meta_file_extent(struct btrfs_fs_info *fs_info,
@@ -73,8 +72,8 @@ int btrfs_rbd_meta_file_mapping(struct inode *inode,
 			struct syno_rbd_meta_ioctl_args *args)
 {
 	int ret;
-	unsigned int i;
-	unsigned int max_cnt;
+	unsigned long long i;
+	unsigned long long max_cnt;
 	struct btrfs_root *root = BTRFS_I(inode)->root;
 	struct btrfs_fs_info *fs_info = root->fs_info;
 	struct extent_io_tree *io_tree = &BTRFS_I(inode)->io_tree;
@@ -85,8 +84,11 @@ int btrfs_rbd_meta_file_mapping(struct inode *inode,
 	if (args->start == (u64)-1)
 		return -EINVAL;
 
-	max_cnt = (args->size - sizeof(struct syno_rbd_meta_ioctl_args)) /
-		  sizeof(struct syno_rbd_meta_file_mapping);
+	if (args->act == SYNO_RBD_META_MAPPING)
+		max_cnt = (args->size - sizeof(struct syno_rbd_meta_ioctl_args)) /
+			sizeof(struct syno_rbd_meta_file_mapping);
+	else
+		max_cnt = U64_MAX;
 
 	isize = ALIGN_DOWN(inode->i_size, root->sectorsize);
 
@@ -108,11 +110,16 @@ int btrfs_rbd_meta_file_mapping(struct inode *inode,
 		unlock_extent_cached(io_tree, args->start, isize - 1, &cached_state, GFP_NOFS);
 		if (ret)
 			goto out;
-		args->mappings[i].length = len;
-		args->mappings[i].dev_offset = physical_block_start;
+		if (args->act == SYNO_RBD_META_MAPPING) {
+			args->mappings[i].length = len;
+			args->mappings[i].dev_offset = physical_block_start;
+		}
 		args->start += len;
 		args->cnt++;
 	}
+
+	if (args->start >= isize)
+		args->start = (u64)-1;
 
 	ret = 0;
 out:
@@ -796,7 +803,7 @@ static int lookup_rbd_meta_file_extent(struct btrfs_fs_info *fs_info,
 	else if (!ret) {
 		btrfs_info(fs_info,
 			   "rbd meta file must not be copy-on-write");
-		ret = -EINVAL;
+		ret = -EAGAIN;
 		goto out;
 	}
 
@@ -835,20 +842,32 @@ out:
 	return ret;
 }
 
-static void btrfs_unpin_rbd_meta_file(struct inode *inode)
+void btrfs_unpin_rbd_meta_file(struct inode *inode)
 {
-	if (list_empty(&(BTRFS_I(inode)->syno_rbd_meta_file)))
-		return;
+	struct btrfs_fs_info *fs_info;
 
+	if (!inode || list_empty(&(BTRFS_I(inode)->syno_rbd_meta_file)))
+		goto out;
+
+	fs_info = BTRFS_I(inode)->root->fs_info;
+	spin_lock(&fs_info->syno_rbd.lock);
+	if (!list_empty(&(BTRFS_I(inode)->syno_rbd_meta_file))) {
+		list_del_init(&(BTRFS_I(inode)->syno_rbd_meta_file));
+	} else {
+		spin_unlock(&fs_info->syno_rbd.lock);
+		goto out;
+	}
+	spin_unlock(&fs_info->syno_rbd.lock);
 	btrfs_free_swapfile_pins(inode);
 	atomic_dec(&BTRFS_I(inode)->root->nr_swapfiles);
-	list_del_init(&(BTRFS_I(inode)->syno_rbd_meta_file));
 
 	inode_lock(inode);
 	inode->i_flags &= ~S_SWAPFILE;
 	inode_unlock(inode);
 
 	iput(inode);
+out:
+	return;
 }
 
 static int btrfs_pin_rbd_meta_file(struct inode *inode)
@@ -919,8 +938,10 @@ static int btrfs_pin_rbd_meta_file(struct inode *inode)
 	 * snapshot to run after we've already checked the extents.
 	 */
 	atomic_inc(&BTRFS_I(inode)->root->nr_swapfiles);
+	spin_lock(&fs_info->syno_rbd.lock);
 	list_add(&(BTRFS_I(inode)->syno_rbd_meta_file),
-		 &fs_info->pinned_syno_rbd_meta_files);
+		 &fs_info->syno_rbd.pinned_meta_files);
+	spin_unlock(&fs_info->syno_rbd.lock);
 	// We need to hold inode until this inode been deactivated.
 	ihold(inode);
 

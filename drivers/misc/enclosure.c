@@ -513,10 +513,9 @@ int enclosure_remove_device(struct enclosure_device *edev, struct device *dev)
 			}
 #endif /* MY_DEF_HERE */
 			enclosure_remove_links(cdev);
-			device_del(&cdev->cdev);
 			put_device(dev);
 			cdev->dev = NULL;
-			return device_add(&cdev->cdev);
+			return 0;
 		}
 	}
 	return -ENODEV;

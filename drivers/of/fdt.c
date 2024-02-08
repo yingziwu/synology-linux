@@ -49,6 +49,10 @@ extern int giSynoSpinupGroupDelay;
 extern int gSynoSmbusHddAdapter;
 extern int gSynoSmbusHddAddress;
 extern char gSynoSmbusHddType[16];
+extern int gSynoSmbusSwitchCount;
+extern int gSynoSmbusSwitchAdapters[SMBUS_SWITCH_MAX_COUNT+1];
+extern int gSynoSmbusSwitchAddrs[SMBUS_SWITCH_MAX_COUNT+1];
+extern int gSynoSmbusSwitchVals[SMBUS_SWITCH_MAX_COUNT+1];
 #endif /* MY_DEF_HERE */
 
 #ifdef MY_ABC_HERE
@@ -104,6 +108,10 @@ void __init syno_init_smbus_hdd_pwrctl(void)
 	int smbushddadapter = 0;
 	int smbushddaddress = 0;
 	char *smbushddtype = NULL;
+	int i;
+	int smbusSwitchAdapter = 0;
+	int smbusSwitchAddr = 0;
+	int smbusSwitchVal = 0;
 
 	smbushddtype = (char *)of_get_property(of_root, DT_SYNO_HDD_SMBUS_TYPE, NULL);
 
@@ -124,6 +132,53 @@ void __init syno_init_smbus_hdd_pwrctl(void)
 		gSynoSmbusHddAddress = smbushddaddress;
 		printk("SYNO Smbus Hdd Address: 0x%02x\n", gSynoSmbusHddAddress);
 	}
+	// set the smbus switch settings to open the switches early
+	// the last position in the array is used to handle the errors
+	// note:
+	//     gSynoSmbusSwitchCount is used to record the last index. When there is
+	//     an error occurs, it means the array size is stop here, and therefore 
+	//     gSynoSmbusSwitchCount is updated at that moment. After the update,  
+	//     break the for loop.
+	for (i = 0;i <= SMBUS_SWITCH_MAX_COUNT;i++){
+		retReadDT = of_property_read_u32_index(of_root, DT_SYNO_SMBUS_SWITCH_ADAPTERS, i, &smbusSwitchAdapter);
+		if (0 == retReadDT) {
+			// if the number of switches are more than the maximum setting
+			if (i == SMBUS_SWITCH_MAX_COUNT){
+				printk(KERN_ERR "Smbus switch settings are more than %d. The rest of settings will not be applied.\n",
+					SMBUS_SWITCH_MAX_COUNT);
+				gSynoSmbusSwitchCount = i;
+				break;
+			}
+			gSynoSmbusSwitchAdapters[i] = smbusSwitchAdapter;
+			printk("SYNO Smbus Switch Adapter[%d]: %d\n", i, gSynoSmbusSwitchAdapters[i]);
+		} else {
+			gSynoSmbusSwitchCount = i;
+			printk("System reads %d pairs of smbus configs", i);
+			break;
+		}
+		retReadDT = of_property_read_u32_index(of_root, DT_SYNO_SMBUS_SWITCH_ADDRS, i, &smbusSwitchAddr);
+		if (0 == retReadDT) {
+			gSynoSmbusSwitchAddrs[i] = smbusSwitchAddr;
+			printk("SYNO Smbus Switch Addr[%d]: 0x%02x\n", i, gSynoSmbusSwitchAddrs[i]);
+		} else {
+			gSynoSmbusSwitchCount = i;
+			printk("SYNO Smbus Switch Addr[%d] loads fail, please check\n", i);
+			break;
+		}
+		retReadDT = of_property_read_u32_index(of_root, DT_SYNO_SMBUS_SWITCH_VALS, i, &smbusSwitchVal);
+		if (0 == retReadDT) {
+			gSynoSmbusSwitchVals[i] = smbusSwitchVal;
+			printk("SYNO Smbus Switch Val[%d]: 0x%02x\n", i, gSynoSmbusSwitchVals[i]);
+		} else {
+			gSynoSmbusSwitchCount = i;
+			printk("SYNO Smbus Switch Val[%d] loads fail, please check\n", i);
+			break;
+		}
+	}
+	gSynoSmbusSwitchAdapters[gSynoSmbusSwitchCount] = -1;
+	gSynoSmbusSwitchAddrs[gSynoSmbusSwitchCount] = 0;
+	gSynoSmbusSwitchVals[gSynoSmbusSwitchCount] = 0xff;
+	return;
 }
 #endif /*MY_DEF_HERE */
 #endif /* MY_ABC_HERE */

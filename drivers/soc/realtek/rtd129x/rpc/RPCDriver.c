@@ -324,8 +324,8 @@ int my_copy_from_user(volatile void __iomem *des, const void *src, int size)
 
 	char buf[256];
 	int ret = 0;
-	int i = 0;
-	char *cdes;
+	/*int i = 0;
+	char *cdes;*/
 
 	if (size > 256) {
 		BUG();
@@ -338,10 +338,11 @@ int my_copy_from_user(volatile void __iomem *des, const void *src, int size)
 		return ret;
 	}
 
-	cdes = (char *)des;
+	/*cdes = (char *)des;
 	for (i = 0 ; i < size ; i++) {
 		cdes[i] = buf[i];
-	}
+	}*/
+	memcpy_toio((int *)des, (int *)buf, size);
 
 	return 0;
 }

@@ -131,9 +131,8 @@
 #define  SDHCI_INT_CARD_INSERT	0x00000040
 #define  SDHCI_INT_CARD_REMOVE	0x00000080
 #define  SDHCI_INT_CARD_INT	0x00000100
-#if defined(MY_DEF_HERE)
 #define  SDHCI_INT_RETUNE	0x00001000
-#endif /* MY_DEF_HERE */
+#define  SDHCI_INT_CQE		0x00004000
 #define  SDHCI_INT_ERROR	0x00008000
 #define  SDHCI_INT_TIMEOUT	0x00010000
 #define  SDHCI_INT_CRC		0x00020000
@@ -157,6 +156,13 @@
 		SDHCI_INT_DATA_END_BIT | SDHCI_INT_ADMA_ERROR | \
 		SDHCI_INT_BLK_GAP)
 #define SDHCI_INT_ALL_MASK	((unsigned int)-1)
+
+#define SDHCI_CQE_INT_ERR_MASK ( \
+	SDHCI_INT_ADMA_ERROR | SDHCI_INT_BUS_POWER | SDHCI_INT_DATA_END_BIT | \
+	SDHCI_INT_DATA_CRC | SDHCI_INT_DATA_TIMEOUT | SDHCI_INT_INDEX | \
+	SDHCI_INT_END_BIT | SDHCI_INT_CRC | SDHCI_INT_TIMEOUT)
+
+#define SDHCI_CQE_INT_MASK (SDHCI_CQE_INT_ERR_MASK | SDHCI_INT_CQE)
 
 #define SDHCI_ACMD12_ERR	0x3C
 
@@ -242,6 +248,7 @@
 
 /* 60-FB reserved */
 
+#define SDHCI_PRESET_FOR_HIGH_SPEED	0x64
 #define SDHCI_PRESET_FOR_SDR12 0x66
 #define SDHCI_PRESET_FOR_SDR25 0x68
 #define SDHCI_PRESET_FOR_SDR50 0x6A
@@ -372,6 +379,8 @@ struct sdhci_host {
 #define SDHCI_QUIRK_INVERTED_WRITE_PROTECT		(1<<16)
 /* Controller does not like fast PIO transfers */
 #define SDHCI_QUIRK_PIO_NEEDS_DELAY			(1<<18)
+/* Controller does not have a LED */
+#define SDHCI_QUIRK_NO_LED				(1<<19)
 /* Controller has to be forced to use block size of 2048 bytes */
 #define SDHCI_QUIRK_FORCE_BLK_SZ_2048			(1<<20)
 /* Controller cannot do multi-block transfers */
@@ -522,14 +531,20 @@ struct sdhci_host {
 	/* cached registers */
 	u32			ier;
 
+	bool			cqe_on;		/* CQE is operating */
+	u32			cqe_ier;	/* CQE interrupt mask */
+	u32			cqe_err_ier;	/* CQE error interrupt mask */
+
 	wait_queue_head_t	buf_ready_int;	/* Waitqueue for Buffer Read Ready interrupt */
 	unsigned int		tuning_done;	/* Condition flag set when CMD19 succeeds */
 
 	unsigned int		tuning_count;	/* Timer count for re-tuning */
 	unsigned int		tuning_mode;	/* Re-tuning mode supported by host */
 #define SDHCI_TUNING_MODE_1	0
+#define SDHCI_TUNING_MODE_2	1
+#define SDHCI_TUNING_MODE_3	2
 
-	unsigned long private[0] ____cacheline_aligned;
+	unsigned long private[] ____cacheline_aligned;
 };
 
 struct sdhci_ops {
@@ -543,6 +558,10 @@ struct sdhci_ops {
 #endif
 
 	void	(*set_clock)(struct sdhci_host *host, unsigned int clock);
+	void	(*set_power)(struct sdhci_host *host, unsigned char mode,
+			     unsigned short vdd);
+
+	u32		(*irq)(struct sdhci_host *host, u32 intmask);
 
 	int		(*enable_dma)(struct sdhci_host *host);
 	unsigned int	(*get_max_clock)(struct sdhci_host *host);
@@ -666,6 +685,9 @@ static inline void *sdhci_priv(struct sdhci_host *host)
 }
 
 extern void sdhci_card_detect(struct sdhci_host *host);
+extern int sdhci_setup_host(struct sdhci_host *host);
+extern void sdhci_cleanup_host(struct sdhci_host *host);
+extern int __sdhci_add_host(struct sdhci_host *host);
 extern int sdhci_add_host(struct sdhci_host *host);
 extern void sdhci_remove_host(struct sdhci_host *host, int dead);
 extern void sdhci_send_command(struct sdhci_host *host,
@@ -677,17 +699,17 @@ static inline bool sdhci_sdio_irq_enabled(struct sdhci_host *host)
 }
 
 void sdhci_set_clock(struct sdhci_host *host, unsigned int clock);
+void sdhci_set_power(struct sdhci_host *host, unsigned char mode,
+		     unsigned short vdd);
 void sdhci_set_bus_width(struct sdhci_host *host, int width);
 void sdhci_reset(struct sdhci_host *host, u8 mask);
 void sdhci_set_uhs_signaling(struct sdhci_host *host, unsigned timing);
-#if defined(MY_DEF_HERE)
 void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios);
 int sdhci_start_signal_voltage_switch(struct mmc_host *mmc,
 				      struct mmc_ios *ios);
-#if defined(MY_DEF_HERE)
 int sdhci_execute_tuning(struct mmc_host *mmc, u32 opcode);
+#if defined(MY_DEF_HERE)
 void sdhci_enable_sdio_irq(struct mmc_host *mmc, int enable);
-#endif /* MY_DEF_HERE */
 #endif /* MY_DEF_HERE */
 
 #if defined(CONFIG_SYNO_LSP_RTD1619)
@@ -703,5 +725,12 @@ extern void sdhci_enable_irq_wakeups(struct sdhci_host *host);
 extern int sdhci_runtime_suspend_host(struct sdhci_host *host);
 extern int sdhci_runtime_resume_host(struct sdhci_host *host);
 #endif
+
+void sdhci_cqe_enable(struct mmc_host *mmc);
+void sdhci_cqe_disable(struct mmc_host *mmc, bool recovery);
+bool sdhci_cqe_irq(struct sdhci_host *host, u32 intmask, int *cmd_error,
+		   int *data_error);
+
+void sdhci_dumpregs(struct sdhci_host *host);
 
 #endif /* __SDHCI_HW_H */

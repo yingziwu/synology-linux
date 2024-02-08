@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Realtek SD card driver
  *
@@ -1285,7 +1288,10 @@ int rtk_sdmmc_int_wait(char* drv_name, struct rtk_sdmmc_host *rtk_host, u8 cmdco
 poll=0;
     if(broken_flag==true) return CR_TRANSFER_FAIL;
     /* timeout timer fire */
+#ifdef MY_ABC_HERE
+#else
     if (&rtk_host->timer){
+#endif /* MY_ABC_HERE */
 	if(rtk_host!=NULL && rtk_host->mrq!=NULL && rtk_host->mrq->cmd!=NULL &&
 	   (rtk_host->mrq->cmd->opcode==55 || rtk_host->mrq->cmd->opcode==41 || rtk_host->mrq->cmd->opcode==8 || (pre_cmd==41 && rtk_host->mrq->cmd->opcode==1))){
 		timeout = msecs_to_jiffies(100) + rtk_host->timeout;
@@ -1301,7 +1307,10 @@ poll=0;
 		cmd_type=3;
 	}
         mod_timer(&rtk_host->timer, (jiffies + timeout));
+#ifdef MY_ABC_HERE
+#else
     }
+#endif /* MY_ABC_HERE */
     writel(0x00000016, sdmmc_base + CR_SD_ISREN); //disable all
     switch( data_xfer_mode ) {
         case CMD_RSP_ONLY:
