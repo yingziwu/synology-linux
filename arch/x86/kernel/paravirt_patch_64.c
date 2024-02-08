@@ -1,5 +1,12 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <asm/paravirt.h>
 #include <asm/asm-offsets.h>
+#ifdef MY_DEF_HERE
+#else
+#include <asm/processor.h>
+#endif	/* MY_DEF_HERE */
 #include <linux/stringify.h>
 
 DEF_NATIVE(pv_irq_ops, irq_disable, "cli");
@@ -57,7 +64,18 @@ unsigned native_patch(u8 type, u16 clobbers, void *ibuf,
 		PATCH_SITE(pv_mmu_ops, read_cr3);
 		PATCH_SITE(pv_mmu_ops, write_cr3);
 		PATCH_SITE(pv_cpu_ops, clts);
+#ifdef MY_DEF_HERE
 		PATCH_SITE(pv_mmu_ops, flush_tlb_single);
+#else
+		case PARAVIRT_PATCH(pv_mmu_ops.flush_tlb_single):
+			if (!boot_cpu_has(X86_FEATURE_PCID)) {
+				start = start_pv_mmu_ops_flush_tlb_single;
+				end   = end_pv_mmu_ops_flush_tlb_single;
+				goto patch_site;
+			} else {
+				goto patch_default;
+			}
+#endif	/* MY_DEF_HERE */
 		PATCH_SITE(pv_cpu_ops, wbinvd);
 
 	patch_site:

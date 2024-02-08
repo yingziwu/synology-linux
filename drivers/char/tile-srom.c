@@ -137,7 +137,6 @@ static int srom_open(struct inode *inode, struct file *filp)
 	return 0;
 }
 
-
 /**
  * srom_release() - Device release routine.
  * @inode: Inode for this device.
@@ -160,7 +159,6 @@ static int srom_release(struct inode *inode, struct file *filp)
 
 	return 0;
 }
-
 
 /**
  * srom_read() - Read data from the device.

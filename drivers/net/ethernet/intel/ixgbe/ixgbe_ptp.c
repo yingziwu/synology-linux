@@ -567,7 +567,6 @@ void __ixgbe_ptp_rx_hwtstamp(struct ixgbe_q_vector *q_vector,
 	regval |= (u64)IXGBE_READ_REG(hw, IXGBE_RXSTMPL);
 	regval |= (u64)IXGBE_READ_REG(hw, IXGBE_RXSTMPH) << 32;
 
-
 	spin_lock_irqsave(&adapter->tmreg_lock, flags);
 	ns = timecounter_cyc2time(&adapter->tc, regval);
 	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
@@ -679,7 +678,6 @@ int ixgbe_ptp_hwtstamp_ioctl(struct ixgbe_adapter *adapter,
 				 ETH_P_1588));     /* 1588 eth protocol type */
 	else
 		IXGBE_WRITE_REG(hw, IXGBE_ETQF(IXGBE_ETQF_FILTER_1588), 0);
-
 
 	/* enable/disable TX */
 	regval = IXGBE_READ_REG(hw, IXGBE_TSYNCTXCTL);

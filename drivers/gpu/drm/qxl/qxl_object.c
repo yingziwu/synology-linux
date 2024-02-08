@@ -71,7 +71,6 @@ void qxl_ttm_placement_from_domain(struct qxl_bo *qbo, u32 domain)
 	qbo->placement.num_busy_placement = c;
 }
 
-
 int qxl_bo_create(struct qxl_device *qdev,
 		  unsigned long size, bool kernel, u32 domain,
 		  struct qxl_surface *surf,

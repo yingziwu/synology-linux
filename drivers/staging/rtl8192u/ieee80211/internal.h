@@ -12,7 +12,6 @@
 #ifndef _CRYPTO_INTERNAL_H
 #define _CRYPTO_INTERNAL_H
 
-
 //#include <linux/crypto.h>
 #include "rtl_crypto.h"
 #include <linux/mm.h>
@@ -21,7 +20,6 @@
 #include <asm/hardirq.h>
 #include <asm/softirq.h>
 #include <asm/kmap_types.h>
-
 
 static inline void crypto_yield(struct crypto_tfm *tfm)
 {

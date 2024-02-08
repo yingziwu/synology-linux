@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
  *
@@ -63,14 +66,107 @@ struct buffer_head *btrfs_read_dev_super(struct block_device *bdev);
 int btrfs_commit_super(struct btrfs_root *root);
 struct extent_buffer *btrfs_find_tree_block(struct btrfs_root *root,
 					    u64 bytenr, u32 blocksize);
-struct btrfs_root *btrfs_read_fs_root_no_radix(struct btrfs_root *tree_root,
-					       struct btrfs_key *location);
-struct btrfs_root *btrfs_read_fs_root_no_name(struct btrfs_fs_info *fs_info,
-					      struct btrfs_key *location);
+struct btrfs_root *btrfs_read_fs_root(struct btrfs_root *tree_root,
+				      struct btrfs_key *location);
+int btrfs_init_fs_root(struct btrfs_root *root);
+struct btrfs_root *btrfs_lookup_fs_root(struct btrfs_fs_info *fs_info,
+					u64 root_id);
+int btrfs_insert_fs_root(struct btrfs_fs_info *fs_info,
+			 struct btrfs_root *root);
+void btrfs_free_fs_roots(struct btrfs_fs_info *fs_info);
+
+struct btrfs_root *btrfs_get_fs_root(struct btrfs_fs_info *fs_info,
+				     struct btrfs_key *key,
+				     bool check_ref);
+static inline struct btrfs_root *
+btrfs_read_fs_root_no_name(struct btrfs_fs_info *fs_info,
+			   struct btrfs_key *location)
+{
+	return btrfs_get_fs_root(fs_info, location, true);
+}
+
 int btrfs_cleanup_fs_roots(struct btrfs_fs_info *fs_info);
 void btrfs_btree_balance_dirty(struct btrfs_root *root);
 void btrfs_btree_balance_dirty_nodelay(struct btrfs_root *root);
-void btrfs_free_fs_root(struct btrfs_fs_info *fs_info, struct btrfs_root *root);
+#ifdef MY_DEF_HERE
+void btrfs_async_btree_balance_dirty(struct btrfs_fs_info *fs_info);
+#endif /* MY_DEF_HERE */
+void btrfs_drop_and_free_fs_root(struct btrfs_fs_info *fs_info,
+				 struct btrfs_root *root);
+void btrfs_free_fs_root(struct btrfs_root *root);
+
+#ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
+struct btrfs_root *btrfs_alloc_dummy_root(void);
+#endif
+
+#ifdef MY_DEF_HERE
+void btrfs_add_dead_root(struct btrfs_root *root);
+
+static inline void btrfs_hold_fs_root(struct btrfs_root *root)
+{
+	atomic_inc(&root->use_refs);
+}
+
+static inline void btrfs_release_fs_root(struct btrfs_root *root)
+{
+	int empty = 0;
+
+	WARN_ON(atomic_read(&root->use_refs) == 0);
+	if(!atomic_dec_and_test(&root->use_refs))
+		return;
+
+	if (btrfs_root_refs(&root->root_item) != 0)
+		return;
+	synchronize_srcu(&root->fs_info->subvol_srcu);
+	spin_lock(&root->inode_lock);
+	empty = RB_EMPTY_ROOT(&root->inode_tree);
+	spin_unlock(&root->inode_lock);
+	if (empty && atomic_read(&root->use_refs) == 0)
+		btrfs_add_dead_root(root);
+	return;
+}
+#endif /* MY_DEF_HERE */
+
+/*
+ * This function is used to grab the root, and avoid it is freed when we
+ * access it. But it doesn't ensure that the tree is not dropped.
+ *
+ * If you want to ensure the whole tree is safe, you should use
+ * 	fs_info->subvol_srcu
+ */
+static inline struct btrfs_root *btrfs_grab_fs_root(struct btrfs_root *root)
+{
+	if (atomic_inc_not_zero(&root->refs))
+		return root;
+	return NULL;
+}
+
+#ifdef MY_DEF_HERE
+static inline void btrfs_free_root_eb_monitor(struct btrfs_root *root)
+{
+	if (root) {
+		percpu_counter_destroy(&root->eb_hit);
+		percpu_counter_destroy(&root->eb_miss);
+	}
+}
+
+void debugfs_remove_root_hook(struct btrfs_root *root);
+#endif /* MY_DEF_HERE */
+
+static inline void btrfs_put_fs_root(struct btrfs_root *root)
+{
+#ifdef MY_DEF_HERE
+	if (atomic_dec_and_test(&root->refs)) {
+		debugfs_remove_root_hook(root);
+		btrfs_free_root_eb_monitor(root);
+		kfree(root);
+	}
+#else
+	if (atomic_dec_and_test(&root->refs))
+		kfree(root);
+#endif /* MY_DEF_HERE */
+}
+
 void btrfs_mark_buffer_dirty(struct extent_buffer *buf);
 int btrfs_buffer_uptodate(struct extent_buffer *buf, u64 parent_transid,
 			  int atomic);
@@ -80,11 +176,19 @@ u32 btrfs_csum_data(char *data, u32 seed, size_t len);
 void btrfs_csum_final(u32 crc, char *result);
 int btrfs_bio_wq_end_io(struct btrfs_fs_info *info, struct bio *bio,
 			int metadata);
+#ifdef MY_DEF_HERE
+int btrfs_wq_submit_bio(struct btrfs_fs_info *fs_info, struct inode *inode,
+			int rw, struct bio *bio, int mirror_num,
+			unsigned long bio_flags, u64 bio_offset,
+			extent_submit_bio_hook_t *submit_bio_start,
+			extent_submit_bio_hook_t *submit_bio_done, int throttle);
+#else
 int btrfs_wq_submit_bio(struct btrfs_fs_info *fs_info, struct inode *inode,
 			int rw, struct bio *bio, int mirror_num,
 			unsigned long bio_flags, u64 bio_offset,
 			extent_submit_bio_hook_t *submit_bio_start,
 			extent_submit_bio_hook_t *submit_bio_done);
+#endif /* MY_DEF_HERE */
 unsigned long btrfs_async_submit_limit(struct btrfs_fs_info *info);
 int btrfs_write_tree_block(struct extent_buffer *buf);
 int btrfs_wait_tree_block_writeback(struct extent_buffer *buf);

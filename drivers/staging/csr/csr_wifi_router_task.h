@@ -22,4 +22,3 @@ void CsrWifiRouterDeinit(void **gash);
 void CsrWifiRouterHandler(void **gash);
 
 #endif /* CSR_WIFI_ROUTER_TASK_H__ */
-

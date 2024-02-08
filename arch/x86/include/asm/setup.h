@@ -3,7 +3,6 @@
 
 #include <uapi/asm/setup.h>
 
-
 #define COMMAND_LINE_SIZE 2048
 
 #ifdef __i386__

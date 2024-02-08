@@ -78,7 +78,6 @@ struct zpci_fib {
 	u64 reserved7;
 } __packed;
 
-
 int s390pci_mod_fc(u64 req, struct zpci_fib *fib);
 int s390pci_refresh_trans(u64 fn, u64 addr, u64 range);
 int s390pci_load(u64 *data, u64 req, u64 offset);

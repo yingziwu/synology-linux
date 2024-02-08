@@ -50,7 +50,6 @@ static DEFINE_PER_CPU(struct dtl, cpu_dtl);
  */
 static u8 dtl_event_mask = 0x7;
 
-
 /*
  * Size of per-cpu log buffers. Firmware requires that the buffer does
  * not cross a 4k boundary.

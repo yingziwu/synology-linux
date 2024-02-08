@@ -113,7 +113,6 @@ static int pps_gpio_probe(struct platform_device *pdev)
 	int pps_default_params;
 	const struct pps_gpio_platform_data *pdata = pdev->dev.platform_data;
 
-
 	/* GPIO setup */
 	ret = pps_gpio_setup(pdev);
 	if (ret)

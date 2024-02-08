@@ -1078,7 +1078,6 @@ struct dma_async_tx_descriptor *tegra_dma_prep_dma_cyclic(
 	if (ret < 0)
 		return NULL;
 
-
 	ahb_seq = TEGRA_APBDMA_AHBSEQ_INTR_ENB;
 	ahb_seq |= TEGRA_APBDMA_AHBSEQ_WRAP_NONE <<
 					TEGRA_APBDMA_AHBSEQ_WRAP_SHIFT;
@@ -1228,7 +1227,6 @@ static const struct tegra_dma_chip_data tegra114_dma_chip_data = {
 	.max_dma_count		= 1024UL * 64,
 	.support_channel_pause	= true,
 };
-
 
 static const struct of_device_id tegra_dma_of_match[] = {
 	{

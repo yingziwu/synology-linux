@@ -67,7 +67,6 @@ void __init early_init_devtree(void *params)
 	/* Setup flat device-tree pointer */
 	initial_boot_params = params;
 
-
 	/* Retrieve various informations from the /chosen node of the
 	 * device-tree, including the platform type, initrd location and
 	 * size, TCE reserve, and more ...

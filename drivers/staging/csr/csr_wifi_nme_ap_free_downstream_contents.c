@@ -80,5 +80,3 @@ void CsrWifiNmeApFreeDownstreamMessageContents(u16 eventClass, void *message)
             break;
     }
 }
-
-

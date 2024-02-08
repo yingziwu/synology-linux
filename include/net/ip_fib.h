@@ -119,7 +119,6 @@ struct fib_info {
 #define fib_dev		fib_nh[0].nh_dev
 };
 
-
 #ifdef CONFIG_IP_MULTIPLE_TABLES
 struct fib_rule;
 #endif
@@ -193,8 +192,6 @@ extern int fib_table_dump(struct fib_table *table, struct sk_buff *skb,
 			  struct netlink_callback *cb);
 extern int fib_table_flush(struct fib_table *table);
 extern void fib_free_table(struct fib_table *tb);
-
-
 
 #ifndef CONFIG_IP_MULTIPLE_TABLES
 

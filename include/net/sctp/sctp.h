@@ -83,7 +83,6 @@
 #include <net/sctp/structs.h>
 #include <net/sctp/constants.h>
 
-
 /* Set SCTP_DEBUG flag via config if not already set. */
 #ifndef SCTP_DEBUG
 #ifdef CONFIG_SCTP_DBG_MSG
@@ -98,7 +97,6 @@
 #else /* static! */
 #define SCTP_PROTOSW_FLAG INET_PROTOSW_PERMANENT
 #endif
-
 
 /* Certain internal static functions need to be exported when
  * compiled into the test frame.
@@ -127,7 +125,7 @@ extern void sctp_addr_wq_mgmt(struct net *, struct sctp_sockaddr_entry *, int);
 int sctp_backlog_rcv(struct sock *sk, struct sk_buff *skb);
 int sctp_inet_listen(struct socket *sock, int backlog);
 void sctp_write_space(struct sock *sk);
-void sctp_data_ready(struct sock *sk, int len);
+void sctp_data_ready(struct sock *sk);
 unsigned int sctp_poll(struct file *file, struct socket *sock,
 		poll_table *wait);
 void sctp_sock_rfree(struct sk_buff *skb);
@@ -181,7 +179,6 @@ void sctp_assocs_proc_exit(struct net *net);
 int sctp_remaddr_proc_init(struct net *net);
 void sctp_remaddr_proc_exit(struct net *net);
 
-
 /*
  * Module global variables
  */
@@ -195,7 +192,6 @@ extern struct kmem_cache *sctp_bucket_cachep __read_mostly;
 /*
  *  Section:  Macros, externs, and inlines
  */
-
 
 #ifdef TEST_FRAME
 #include <test_frame.h>
@@ -339,7 +335,6 @@ do {									\
 
 #endif /* SCTP_DEBUG */
 
-
 /*
  * Macros for keeping a global reference of object allocations.
  */
@@ -418,7 +413,6 @@ static inline int sctp_v6_add_protocol(void) { return 0; }
 static inline void sctp_v6_del_protocol(void) { return; }
 
 #endif /* #if defined(CONFIG_IPV6) */
-
 
 /* Map an association to an assoc_id. */
 static inline sctp_assoc_t sctp_assoc2id(const struct sctp_association *asoc)

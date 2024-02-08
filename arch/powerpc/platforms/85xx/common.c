@@ -56,7 +56,6 @@ static void cpm2_cascade(unsigned int irq, struct irq_desc *desc)
 	chip->irq_eoi(&desc->irq_data);
 }
 
-
 void __init mpc85xx_cpm2_pic_init(void)
 {
 	struct device_node *np;

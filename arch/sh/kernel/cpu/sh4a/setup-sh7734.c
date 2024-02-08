@@ -258,7 +258,6 @@ static struct platform_device tmu2_device = {
 	.num_resources	= ARRAY_SIZE(tmu2_resources),
 };
 
-
 static struct sh_timer_config tmu3_platform_data = {
 	.channel_offset = 0x04,
 	.timer_bit = 0,

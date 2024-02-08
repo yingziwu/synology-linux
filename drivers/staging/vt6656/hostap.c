@@ -775,4 +775,3 @@ int vt6656_hostap_ioctl(struct vnt_private *pDevice, struct iw_point *p)
 
 	return ret;
 }
-

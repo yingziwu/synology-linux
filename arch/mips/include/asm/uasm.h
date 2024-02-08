@@ -156,7 +156,6 @@ Ip_0(_tlbwr);
 Ip_u3u1u2(_xor);
 Ip_u2u1u3(_xori);
 
-
 /* Handle labels. */
 struct uasm_label {
 	u32 *addr;

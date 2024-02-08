@@ -1003,7 +1003,6 @@ static int mlx4_init_icm(struct mlx4_dev *dev, struct mlx4_dev_cap *dev_cap,
 		goto err_unmap_aux;
 	}
 
-
 	num_eqs = (mlx4_is_master(dev)) ? dev->phys_caps.num_phys_eqs :
 		   dev->caps.num_eqs;
 	err = mlx4_init_icm_table(dev, &priv->eq_table.table,
@@ -1251,7 +1250,6 @@ cycle_t mlx4_read_clock(struct mlx4_dev *dev)
 	return cycles;
 }
 EXPORT_SYMBOL_GPL(mlx4_read_clock);
-
 
 static int map_internal_clock(struct mlx4_dev *dev)
 {

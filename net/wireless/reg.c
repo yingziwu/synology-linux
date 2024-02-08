@@ -17,7 +17,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
 /**
  * DOC: Wireless regulatory infrastructure
  *
@@ -978,7 +977,6 @@ static bool reg_dev_ignore_cell_hint(struct wiphy *wiphy)
 	return true;
 }
 #endif
-
 
 static bool ignore_reg_update(struct wiphy *wiphy,
 			      enum nl80211_reg_initiator initiator)
@@ -2219,7 +2217,6 @@ static int __set_regdom(const struct ieee80211_regdomain *rd)
 
 	return -EINVAL;
 }
-
 
 /*
  * Use this call to set the current regulatory domain. Conflicts with

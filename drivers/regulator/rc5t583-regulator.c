@@ -140,7 +140,6 @@ static int rc5t583_regulator_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 
-
 	for (id = 0; id < RC5T583_REGULATOR_MAX; ++id) {
 		reg_data = pdata->reg_init_data[id];
 

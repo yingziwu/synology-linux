@@ -668,7 +668,6 @@ enum {
 	MCAST_DEFAULT		= 2
 };
 
-
 struct mlx4_set_port_general_context {
 	u8 reserved[3];
 	u8 flags;

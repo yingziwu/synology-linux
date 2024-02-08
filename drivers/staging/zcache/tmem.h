@@ -153,7 +153,6 @@ static inline struct tmem_xhandle tmem_xhandle_fill(uint16_t client_id,
 }
 #endif
 
-
 /*
  * A tmem_obj contains an identifier (oid), pointers to the parent
  * pool and the rb_tree to which it belongs, counters, and an ordered
@@ -203,7 +202,6 @@ struct tmem_handle {
 	uint16_t pool_id;
 	uint16_t client_id;
 };
-
 
 /* pampd abstract datatype methods provided by the PAM implementation */
 struct tmem_pamops {

@@ -30,7 +30,6 @@
 #include <linux/usb.h>
 #include <linux/usb/usbnet.h>
 
-
 /*
  * Prolific PL-2301/PL-2302 driver ... http://www.prolific.com.tw/ 
  *
@@ -109,7 +108,6 @@ static const struct driver_info	prolific_info = {
 		/* some PL-2302 versions seem to fail usb_set_interface() */
 	.reset =	pl_reset,
 };
-
 
 /*-------------------------------------------------------------------------*/
 

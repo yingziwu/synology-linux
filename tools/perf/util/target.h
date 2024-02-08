@@ -26,7 +26,6 @@ enum perf_target_errno {
 	 */
 	__PERF_ERRNO_TARGET__START		= -10000,
 
-
 	/* for perf_target__validate() */
 	PERF_ERRNO_TARGET__PID_OVERRIDE_CPU	= __PERF_ERRNO_TARGET__START,
 	PERF_ERRNO_TARGET__PID_OVERRIDE_UID,

@@ -132,7 +132,6 @@ static inline void check_stack_overflow(void)
 static inline void check_stack_overflow(void) {}
 #endif
 
-
 /*
  * do_IRQ handles all normal device IRQ's (the special
  * SMP cross-CPU interrupts have their own specific

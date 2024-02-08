@@ -91,8 +91,9 @@
 #include <linux/list.h>
 #include <linux/init.h>
 #include <linux/bio.h>
-#endif
 #include <linux/log2.h>
+#include <linux/hash.h>
+#endif
 
 static struct kmem_cache *jbd2_revoke_record_cache;
 static struct kmem_cache *jbd2_revoke_table_cache;
@@ -108,7 +109,6 @@ struct jbd2_revoke_record_s
 	unsigned long long	  blocknr;
 };
 
-
 /* The revoke table is just a simple hash table of revoke records. */
 struct jbd2_revoke_table_s
 {
@@ -119,7 +119,6 @@ struct jbd2_revoke_table_s
 	struct list_head *hash_table;
 };
 
-
 #ifdef __KERNEL__
 static void write_one_revoke_record(journal_t *, transaction_t *,
 				    struct journal_head **, int *,
@@ -129,16 +128,9 @@ static void flush_descriptor(journal_t *, struct journal_head *, int, int);
 
 /* Utility functions to maintain the revoke table */
 
-/* Borrowed from buffer.c: this is a tried and tested block hash function */
 static inline int hash(journal_t *journal, unsigned long long block)
 {
-	struct jbd2_revoke_table_s *table = journal->j_revoke;
-	int hash_shift = table->hash_shift;
-	int hash = (int)block ^ (int)((block >> 31) >> 1);
-
-	return ((hash << (hash_shift - 6)) ^
-		(hash >> 13) ^
-		(hash << (hash_shift - 12))) & (table->hash_size - 1);
+	return hash_64(block, journal->j_revoke->hash_shift);
 }
 
 static int insert_revoke_hash(journal_t *journal, unsigned long long blocknr,
@@ -303,7 +295,6 @@ void jbd2_journal_destroy_revoke(journal_t *journal)
 	if (journal->j_revoke_table[1])
 		jbd2_journal_destroy_revoke_table(journal->j_revoke_table[1]);
 }
-
 
 #ifdef __KERNEL__
 
@@ -594,7 +585,7 @@ static void write_one_revoke_record(journal_t *journal,
 	offset = *offsetp;
 
 	/* Do we need to leave space at the end for a checksum? */
-	if (JBD2_HAS_INCOMPAT_FEATURE(journal, JBD2_FEATURE_INCOMPAT_CSUM_V2))
+	if (jbd2_journal_has_csum_v2or3(journal))
 		csum_size = sizeof(struct jbd2_journal_revoke_tail);
 
 	/* Make sure we have a descriptor with space left for the record */
@@ -642,7 +633,7 @@ static void jbd2_revoke_csum_set(journal_t *j,
 	struct jbd2_journal_revoke_tail *tail;
 	__u32 csum;
 
-	if (!JBD2_HAS_INCOMPAT_FEATURE(j, JBD2_FEATURE_INCOMPAT_CSUM_V2))
+	if (!jbd2_journal_has_csum_v2or3(j))
 		return;
 
 	tail = (struct jbd2_journal_revoke_tail *)

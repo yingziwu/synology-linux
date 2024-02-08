@@ -2788,7 +2788,6 @@ static void si_gpu_init(struct radeon_device *rdev)
 		     rdev->config.si.max_sh_per_se,
 		     rdev->config.si.max_cu_per_sh);
 
-
 	/* set HW defaults for 3D engine */
 	WREG32(CP_QUEUE_THRESHOLDS, (ROQ_IB1_START(0x16) |
 				     ROQ_IB2_START(0x2b)));

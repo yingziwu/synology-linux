@@ -27,7 +27,6 @@
 #include "nx_csbcpb.h"
 #include "nx.h"
 
-
 static int nx_sha512_init(struct shash_desc *desc)
 {
 	struct sha512_state *sctx = shash_desc_ctx(desc);

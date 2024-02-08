@@ -1014,5 +1014,3 @@ struct device_attribute *bfad_im_vport_attrs[] = {
 	&dev_attr_number_of_discovered_ports,
 	NULL,
 };
-
-

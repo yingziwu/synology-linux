@@ -60,7 +60,6 @@ typedef struct ta_data
     ta_l4stats_t ta_l4stats;
 } ta_data_t;
 
-
 void unifi_ta_sampling_init(card_t *card);
 
 #endif /* __TA_SAMPLING_H__ */

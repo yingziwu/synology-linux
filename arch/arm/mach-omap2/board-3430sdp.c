@@ -162,7 +162,6 @@ static struct omap_dss_device sdp3430_tv_device = {
 	.phy.venc.type		= OMAP_DSS_VENC_TYPE_SVIDEO,
 };
 
-
 static struct omap_dss_device *sdp3430_dss_devices[] = {
 	&sdp3430_lcd_device,
 	&sdp3430_dvi_device,

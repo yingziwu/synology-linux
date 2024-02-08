@@ -444,7 +444,6 @@ static int fimc_m2m_expbuf(struct file *file, void *fh,
 	return v4l2_m2m_expbuf(file, ctx->m2m_ctx, eb);
 }
 
-
 static int fimc_m2m_streamon(struct file *file, void *fh,
 			     enum v4l2_buf_type type)
 {
@@ -774,7 +773,6 @@ static unsigned int fimc_m2m_poll(struct file *file,
 
 	return ret;
 }
-
 
 static int fimc_m2m_mmap(struct file *file, struct vm_area_struct *vma)
 {

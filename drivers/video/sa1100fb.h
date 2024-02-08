@@ -93,4 +93,3 @@ struct sa1100fb_info {
  */
 #define MIN_XRES	64
 #define MIN_YRES	64
-

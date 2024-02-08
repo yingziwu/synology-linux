@@ -431,4 +431,3 @@ static void __exit keene_exit(void)
 
 module_init(keene_init);
 module_exit(keene_exit);
-

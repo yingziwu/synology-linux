@@ -27,7 +27,6 @@
 #include <linux/interrupt.h>
 #include <linux/llist.h>
 
-
 /**
  * llist_add_batch - add several linked entries in batch
  * @new_first:	first entry in batch to be added

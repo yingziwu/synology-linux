@@ -80,7 +80,6 @@ enum bp_state {
 	BP_ECANCELED
 };
 
-
 static DEFINE_MUTEX(balloon_mutex);
 
 struct balloon_stats balloon_stats;

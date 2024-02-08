@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
  /*
  *	x86 SMP booting functions
  *
@@ -79,6 +82,10 @@
 
 #include <asm/realmode.h>
 
+#ifdef MY_DEF_HERE
+#else
+#include <asm/spec_ctrl.h>
+#endif	/* MY_DEF_HERE */
 /* State of each CPU */
 DEFINE_PER_CPU(int, cpu_state) = { 0 };
 
@@ -239,11 +246,21 @@ static int enable_start_cpu0;
  */
 notrace static void __cpuinit start_secondary(void *unused)
 {
+#ifdef MY_DEF_HERE
 	/*
 	 * Don't put *anything* before cpu_init(), SMP booting is too
 	 * fragile that we want to limit the things done here to the
 	 * most necessary things.
 	 */
+#else
+	/*
+	 * Don't put *anything* except direct CPU state initialization
+	 * before cpu_init(), SMP booting is too fragile that we want to
+	 * limit the things done here to the most necessary things.
+	 */
+	 if (boot_cpu_has(X86_FEATURE_PCID))
+		write_cr4(read_cr4() | X86_CR4_PCIDE);
+#endif	/* MY_DEF_HERE */
 	cpu_init();
 	x86_cpuinit.early_percpu_clock_init();
 	preempt_disable();
@@ -1099,7 +1116,6 @@ void __init native_smp_prepare_cpus(unsigned int max_cpus)
 	}
 	set_cpu_sibling_map(0);
 
-
 	if (smp_sanity_check(max_cpus) < 0) {
 		pr_info("SMP disabled\n");
 		disable_smp();
@@ -1197,7 +1213,6 @@ static int __init _setup_possible_cpus(char *str)
 	return 0;
 }
 early_param("possible_cpus", _setup_possible_cpus);
-
 
 /*
  * cpu_possible_mask should be static, it cannot change as cpu's
@@ -1456,9 +1471,17 @@ void native_play_dead(void)
 	play_dead_common();
 	tboot_shutdown(TB_SHUTDOWN_WFS);
 
+#ifdef MY_DEF_HERE
+#else
+	spec_ctrl_ibrs_off();
+#endif	/* MY_DEF_HERE */
 	mwait_play_dead();	/* Only returns on failure */
 	if (cpuidle_play_dead())
 		hlt_play_dead();
+#ifdef MY_DEF_HERE
+#else
+	spec_ctrl_ibrs_on();
+#endif	/* MY_DEF_HERE */
 }
 
 #else /* ... !CONFIG_HOTPLUG_CPU */

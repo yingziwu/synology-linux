@@ -7,16 +7,13 @@ Module Name:
 
 Abstract:
 
-
 --*/
 
 #ifndef VERSION_H
 #define VERSION_H
 
-
 #define VER_FILETYPE                VFT_DRV
 #define VER_FILESUBTYPE             VFT2_DRV_NETWORK
-
 
 #define VER_FILEVERSION             5.2.45
 #define VER_FILEVERSION_STR         "5.2.45"
@@ -26,9 +23,6 @@ Abstract:
 
 #undef VER_PRODUCTVERSION_STR
 #define VER_PRODUCTVERSION_STR      VER_FILEVERSION_STR
-
-
-
 
 //#include "common.ver"
 

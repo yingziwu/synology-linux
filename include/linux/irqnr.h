@@ -3,7 +3,6 @@
 
 #include <uapi/linux/irqnr.h>
 
-
 #ifndef CONFIG_GENERIC_HARDIRQS
 #include <asm/irq.h>
 
@@ -31,7 +30,6 @@ unsigned int irq_get_next_irq(unsigned int offset);
 		if (!desc)						\
 			;						\
 		else
-
 
 # define for_each_irq_desc_reverse(irq, desc)				\
 	for (irq = nr_irqs - 1, desc = irq_to_desc(irq); irq >= 0;	\

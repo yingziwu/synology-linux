@@ -22,7 +22,6 @@
 #include <hv/hypervisor.h>
 #include <arch/chip.h>
 
-
 #if !CHIP_HAS_COHERENT_LOCAL_CACHE()
 
 /* Defined in memcpy.S */

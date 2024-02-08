@@ -851,7 +851,6 @@ error:
 	return ret;
 }
 
-
 /**
  * ehv_bc_exit - ePAPR hypervisor byte channel driver termination
  *

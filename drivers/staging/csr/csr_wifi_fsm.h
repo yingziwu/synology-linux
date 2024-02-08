@@ -160,7 +160,6 @@ extern void CsrWifiFsmSendEventExternal(CsrWifiFsmContext *context, CsrWifiFsmEv
         CsrWifiFsmSendEventExternal(_context, (CsrWifiFsmEvent *)_evt, _source, _destination, _primtype, _id); \
     }
 
-
 /**
  * @brief
  *   Current time of day in ms
@@ -237,4 +236,3 @@ extern u8 CsrWifiFsmHasEvents(CsrWifiFsmContext *context);
 extern void CsrWifiFsmInstallWakeupCallback(CsrWifiFsmContext *context, CsrWifiFsmExternalWakupCallbackPtr callback);
 
 #endif /* CSR_WIFI_FSM_H */
-

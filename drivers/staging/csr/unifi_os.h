@@ -28,7 +28,6 @@
  */
 #include <stddef.h>
 
-
 /* Define INLINE directive*/
 #define INLINE      inline
 
@@ -69,7 +68,6 @@ extern int unifi_debug;
         }                                                           \
     } while (0)
 
-
 void unifi_dump(void *ospriv, int lvl, const char *msg, void *mem, u16 len);
 void dump(void *mem, u16 len);
 void dump16(void *mem, u16 len);
@@ -107,7 +105,6 @@ void unifi_trace_nop(void* ospriv, int level, const char *fmt, ...);
 
 #endif /* UNIFI_DEBUG */
 
-
 /* Different levels of diagnostic detail... */
 #define UDBG0       0   /* always prints in debug build */
 #define UDBG1       1
@@ -117,6 +114,5 @@ void unifi_trace_nop(void* ospriv, int level, const char *fmt, ...);
 #define UDBG5       5
 #define UDBG6       6
 #define UDBG7       7
-
 
 #endif /* __UNIFI_OS_LINUX_H__ */

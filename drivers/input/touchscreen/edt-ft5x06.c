@@ -568,7 +568,6 @@ out:
 	return error ?: read;
 };
 
-
 static const struct file_operations debugfs_raw_data_fops = {
 	.open = simple_open,
 	.read = edt_ft5x06_debugfs_raw_data_read,
@@ -613,8 +612,6 @@ edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
 }
 
 #endif /* CONFIG_DEBUGFS */
-
-
 
 static int edt_ft5x06_ts_reset(struct i2c_client *client,
 					 int reset_pin)

@@ -829,11 +829,9 @@
 
 #define __NR_Linux_syscalls	(__NR_finit_module + 1)
 
-
 #define __IGNORE_select		/* newselect */
 #define __IGNORE_fadvise64	/* fadvise64_64 */
 #define __IGNORE_utimes		/* utime */
-
 
 #define HPUX_GATEWAY_ADDR       0xC0000004
 #define LINUX_GATEWAY_ADDR      0x100

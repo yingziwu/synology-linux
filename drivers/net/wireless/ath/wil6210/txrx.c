@@ -718,7 +718,6 @@ static int wil_tx_vring(struct wil6210_priv *wil, struct vring *vring,
 	return -EINVAL;
 }
 
-
 netdev_tx_t wil_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 {
 	struct wil6210_priv *wil = ndev_to_wil(ndev);

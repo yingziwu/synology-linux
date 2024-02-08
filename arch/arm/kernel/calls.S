@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/kernel/calls.S
  *
@@ -389,6 +392,57 @@
 		CALL(sys_process_vm_writev)
 		CALL(sys_kcmp)
 		CALL(sys_finit_module)
+/* 380 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 385 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 390 */	CALL(sys_ni_syscall)
+		CALL(sys_copy_file_range)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+#ifdef MY_ABC_HERE
+/* 395 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 400 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)	
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 405 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 410 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 415 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 420 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+/* 425 */	CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+		CALL(sys_ni_syscall)
+#endif /* MY_ABC_HERE */
+
 #ifndef syscalls_counted
 .equ syscalls_padding, ((NR_syscalls + 3) & ~3) - NR_syscalls
 #define syscalls_counted

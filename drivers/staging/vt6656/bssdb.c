@@ -1432,4 +1432,3 @@ static void s_vCheckPreEDThreshold(struct vnt_private *pDevice)
         }
     }
 }
-

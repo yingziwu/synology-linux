@@ -544,7 +544,6 @@ int radeon_uvd_cs_parse(struct radeon_cs_parser *p)
 		return -EINVAL;
 	}
 
-
 	do {
 		r = radeon_cs_packet_parse(p, &pkt, p->idx);
 		if (r)

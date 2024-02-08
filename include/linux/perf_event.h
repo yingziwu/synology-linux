@@ -543,7 +543,6 @@ extern void perf_pmu_migrate_context(struct pmu *pmu,
 extern u64 perf_event_read_value(struct perf_event *event,
 				 u64 *enabled, u64 *running);
 
-
 struct perf_sample_data {
 	u64				type;
 
@@ -700,7 +699,6 @@ extern int perf_cpu_time_max_percent_handler(struct ctl_table *table, int write,
 		void __user *buffer, size_t *lenp,
 		loff_t *ppos);
 
-
 static inline bool perf_paranoid_tracepoint_raw(void)
 {
 	return sysctl_perf_event_paranoid > -1;
@@ -821,7 +819,6 @@ do {									\
 		(void *)(unsigned long)cpu);				\
 	register_cpu_notifier(&fn##_nb);				\
 } while (0)
-
 
 struct perf_pmu_events_attr {
 	struct device_attribute attr;

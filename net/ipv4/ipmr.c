@@ -644,7 +644,6 @@ static void ipmr_destroy_unres(struct mr_table *mrt, struct mfc_cache *c)
 	ipmr_cache_free(c);
 }
 
-
 /* Timer process for the unresolved queue. */
 
 static void ipmr_expire_process(unsigned long arg)
@@ -1612,7 +1611,6 @@ int ipmr_compat_ioctl(struct sock *sk, unsigned int cmd, void __user *arg)
 }
 #endif
 
-
 static int ipmr_device_event(struct notifier_block *this, unsigned long event, void *ptr)
 {
 	struct net_device *dev = ptr;
@@ -1633,7 +1631,6 @@ static int ipmr_device_event(struct notifier_block *this, unsigned long event, v
 	}
 	return NOTIFY_DONE;
 }
-
 
 static struct notifier_block ip_mr_notifier = {
 	.notifier_call = ipmr_device_event,
@@ -2530,7 +2527,6 @@ struct ipmr_mfc_iter {
 	int ct;
 };
 
-
 static struct mfc_cache *ipmr_mfc_seq_idx(struct net *net,
 					  struct ipmr_mfc_iter *it, loff_t pos)
 {
@@ -2556,7 +2552,6 @@ static struct mfc_cache *ipmr_mfc_seq_idx(struct net *net,
 	it->cache = NULL;
 	return NULL;
 }
-
 
 static void *ipmr_mfc_seq_start(struct seq_file *seq, loff_t *pos)
 {
@@ -2698,7 +2693,6 @@ static const struct net_protocol pim_protocol = {
 	.netns_ok	=	1,
 };
 #endif
-
 
 /*
  *	Setup for IP multicast routing

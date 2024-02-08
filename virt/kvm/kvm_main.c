@@ -65,6 +65,18 @@
 MODULE_AUTHOR("Qumranet");
 MODULE_LICENSE("GPL");
 
+/* Architectures should define their poll value according to the halt latency */
+static unsigned int halt_poll_ns = KVM_HALT_POLL_NS_DEFAULT;
+module_param(halt_poll_ns, uint, S_IRUGO | S_IWUSR);
+
+/* Default doubles per-vcpu halt_poll_ns. */
+static unsigned int halt_poll_ns_grow = 2;
+module_param(halt_poll_ns_grow, int, S_IRUGO);
+
+/* Default resets per-vcpu halt_poll_ns . */
+static unsigned int halt_poll_ns_shrink;
+module_param(halt_poll_ns_shrink, int, S_IRUGO);
+
 /*
  * Ordering of locks:
  *
@@ -233,6 +245,7 @@ int kvm_vcpu_init(struct kvm_vcpu *vcpu, struct kvm *kvm, unsigned id)
 	vcpu->kvm = kvm;
 	vcpu->vcpu_id = id;
 	vcpu->pid = NULL;
+	vcpu->halt_poll_ns = 0;
 	init_waitqueue_head(&vcpu->wq);
 	kvm_async_pf_vcpu_init(vcpu);
 
@@ -636,7 +649,6 @@ void kvm_put_kvm(struct kvm *kvm)
 		kvm_destroy_vm(kvm);
 }
 EXPORT_SYMBOL_GPL(kvm_put_kvm);
-
 
 static int kvm_vm_release(struct inode *inode, struct file *filp)
 {
@@ -1668,29 +1680,110 @@ void mark_page_dirty(struct kvm *kvm, gfn_t gfn)
 	mark_page_dirty_in_slot(kvm, memslot, gfn);
 }
 
+static void grow_halt_poll_ns(struct kvm_vcpu *vcpu)
+{
+	int old, val;
+
+	old = val = vcpu->halt_poll_ns;
+	/* 10us base */
+	if (val == 0 && halt_poll_ns_grow)
+		val = 10000;
+	else
+		val *= halt_poll_ns_grow;
+
+	if (val > halt_poll_ns)
+		val = halt_poll_ns;
+
+	vcpu->halt_poll_ns = val;
+	trace_kvm_halt_poll_ns_grow(vcpu->vcpu_id, val, old);
+}
+
+static void shrink_halt_poll_ns(struct kvm_vcpu *vcpu)
+{
+	int old, val;
+
+	old = val = vcpu->halt_poll_ns;
+	if (halt_poll_ns_shrink == 0)
+		val = 0;
+	else
+		val /= halt_poll_ns_shrink;
+
+	vcpu->halt_poll_ns = val;
+	trace_kvm_halt_poll_ns_shrink(vcpu->vcpu_id, val, old);
+}
+
+static int kvm_vcpu_check_block(struct kvm_vcpu *vcpu)
+{
+	if (kvm_arch_vcpu_runnable(vcpu)) {
+		kvm_make_request(KVM_REQ_UNHALT, vcpu);
+		return -EINTR;
+	}
+	if (kvm_cpu_has_pending_timer(vcpu))
+		return -EINTR;
+	if (signal_pending(current))
+		return -EINTR;
+
+	return 0;
+}
+
 /*
  * The vCPU has executed a HLT instruction with in-kernel mode enabled.
  */
 void kvm_vcpu_block(struct kvm_vcpu *vcpu)
 {
+	ktime_t start, cur;
 	DEFINE_WAIT(wait);
+	bool waited = false;
+	u64 block_ns;
+
+	start = cur = ktime_get();
+	if (vcpu->halt_poll_ns) {
+		ktime_t stop = ktime_add_ns(ktime_get(), vcpu->halt_poll_ns);
+
+		++vcpu->stat.halt_attempted_poll;
+		do {
+			/*
+			 * This sets KVM_REQ_UNHALT if an interrupt
+			 * arrives.
+			 */
+			if (kvm_vcpu_check_block(vcpu) < 0) {
+				++vcpu->stat.halt_successful_poll;
+				goto out;
+			}
+			cur = ktime_get();
+		} while (single_task_running() && ktime_before(cur, stop));
+	}
 
 	for (;;) {
 		prepare_to_wait(&vcpu->wq, &wait, TASK_INTERRUPTIBLE);
 
-		if (kvm_arch_vcpu_runnable(vcpu)) {
-			kvm_make_request(KVM_REQ_UNHALT, vcpu);
-			break;
-		}
-		if (kvm_cpu_has_pending_timer(vcpu))
-			break;
-		if (signal_pending(current))
+		if (kvm_vcpu_check_block(vcpu) < 0)
 			break;
 
+		waited = true;
 		schedule();
 	}
 
 	finish_wait(&vcpu->wq, &wait);
+	cur = ktime_get();
+
+out:
+	block_ns = ktime_to_ns(cur) - ktime_to_ns(start);
+
+	if (halt_poll_ns) {
+		if (block_ns <= vcpu->halt_poll_ns)
+			;
+		/* we had a long block, shrink polling */
+		else if (vcpu->halt_poll_ns && block_ns > halt_poll_ns)
+			shrink_halt_poll_ns(vcpu);
+		/* we had a short halt and our poll time is too small */
+		else if (vcpu->halt_poll_ns < halt_poll_ns &&
+			block_ns < halt_poll_ns)
+			grow_halt_poll_ns(vcpu);
+	} else
+		vcpu->halt_poll_ns = 0;
+
+	trace_kvm_vcpu_wakeup(block_ns, waited);
 }
 
 #ifndef CONFIG_S390
@@ -1994,7 +2087,6 @@ static long kvm_vcpu_ioctl(struct file *filp,
 	if (ioctl == KVM_S390_INTERRUPT || ioctl == KVM_INTERRUPT)
 		return kvm_arch_vcpu_ioctl(filp, ioctl, arg);
 #endif
-
 
 	r = vcpu_load(vcpu);
 	if (r)
@@ -2310,14 +2402,15 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
 		return ret;
 	}
 
+	kvm_get_kvm(kvm);
 	ret = anon_inode_getfd(ops->name, &kvm_device_fops, dev, O_RDWR);
 	if (ret < 0) {
+		kvm_put_kvm(kvm);
 		ops->destroy(dev);
 		return ret;
 	}
 
 	list_add(&dev->vm_node, &kvm->devices);
-	kvm_get_kvm(kvm);
 	cd->fd = ret;
 	return 0;
 }

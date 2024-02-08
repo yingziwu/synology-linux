@@ -30,7 +30,6 @@
 #include <linux/slab.h>
 #include <linux/types.h>
 
-
 #include "dvb_frontend.h"
 #include "m88rs2000.h"
 
@@ -241,7 +240,6 @@ static int m88rs2000_send_diseqc_msg(struct dvb_frontend *fe,
 	reg |= 0x80;
 	m88rs2000_writereg(state, 0xb2, reg);
 	m88rs2000_writereg(state, 0x9a, 0xb0);
-
 
 	return 0;
 }
@@ -568,7 +566,6 @@ static int m88rs2000_set_fec(struct m88rs2000_state *state,
 	return 0;
 }
 
-
 static fe_code_rate_t m88rs2000_get_fec(struct m88rs2000_state *state)
 {
 	u8 reg;
@@ -816,4 +813,3 @@ MODULE_DESCRIPTION("M88RS2000 DVB-S Demodulator driver");
 MODULE_AUTHOR("Malcolm Priestley tvboxspy@gmail.com");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("1.13");
-

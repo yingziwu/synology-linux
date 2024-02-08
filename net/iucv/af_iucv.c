@@ -1666,7 +1666,6 @@ static int iucv_sock_getsockopt(struct socket *sock, int level, int optname,
 	return 0;
 }
 
-
 /* Callback wrappers - called from iucv base support */
 static int iucv_callback_connreq(struct iucv_path *path,
 				 u8 ipvmid[8], u8 ipuser[16])
@@ -1756,7 +1755,7 @@ static int iucv_callback_connreq(struct iucv_path *path,
 
 	/* Wake up accept */
 	nsk->sk_state = IUCV_CONNECTED;
-	sk->sk_data_ready(sk, 1);
+	sk->sk_data_ready(sk);
 	err = 0;
 fail:
 	bh_unlock_sock(sk);
@@ -1967,7 +1966,7 @@ static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
 	if (!err) {
 		iucv_accept_enqueue(sk, nsk);
 		nsk->sk_state = IUCV_CONNECTED;
-		sk->sk_data_ready(sk, 1);
+		sk->sk_data_ready(sk);
 	} else
 		iucv_sock_kill(nsk);
 	bh_unlock_sock(sk);
@@ -2457,4 +2456,3 @@ MODULE_DESCRIPTION("IUCV Sockets ver " VERSION);
 MODULE_VERSION(VERSION);
 MODULE_LICENSE("GPL");
 MODULE_ALIAS_NETPROTO(PF_IUCV);
-

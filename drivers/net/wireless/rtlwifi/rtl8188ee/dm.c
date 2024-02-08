@@ -263,7 +263,6 @@ void rtl88e_dm_txpower_track_adjust(struct ieee80211_hw *hw,
 			 (pwr_val << 24);
 }
 
-
 static void rtl88e_chk_tx_track(struct ieee80211_hw *hw,
 				enum pwr_track_control_method method,
 				u8 rfpath, u8 index)
@@ -1528,7 +1527,6 @@ static void rtl88e_dm_hw_ant_div(struct ieee80211_hw *hw)
 			target_ant = (main_rssi == aux_rssi) ?
 				      fat_tbl->rx_idle_ant : ((main_rssi >=
 				      aux_rssi) ? MAIN_ANT : AUX_ANT);
-
 
 			local_max_rssi = max_t(u32, main_rssi, aux_rssi);
 			if ((local_max_rssi > ant_div_max_rssi) &&

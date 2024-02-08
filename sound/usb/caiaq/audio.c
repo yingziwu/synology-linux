@@ -900,4 +900,3 @@ void snd_usb_caiaq_audio_free(struct snd_usb_caiaqdev *cdev)
 	free_urbs(cdev->data_urbs_out);
 	kfree(cdev->data_cb_info);
 }
-

@@ -138,7 +138,6 @@ unsigned long calculate_alignment(unsigned long flags,
 	return ALIGN(align, sizeof(void *));
 }
 
-
 /*
  * kmem_cache_create - Create a cache.
  * @name: A string which is used in /proc/slabinfo to identify this cache.
@@ -496,7 +495,6 @@ void __init create_kmalloc_caches(unsigned long flags)
 #endif
 }
 #endif /* !CONFIG_SLOB */
-
 
 #ifdef CONFIG_SLABINFO
 void print_slabinfo_header(struct seq_file *m)

@@ -124,7 +124,6 @@ enum chips {
 #define EMC6D102_REG_EXTEND_ADC3	0x87
 #define EMC6D102_REG_EXTEND_ADC4	0x88
 
-
 /*
  * Conversions. Rounding and limit checking is only done on the TO_REG
  * variants. Note that you should be a bit careful with which arguments
@@ -165,7 +164,6 @@ static inline u16 FAN_TO_REG(unsigned long val)
 
 #define PWM_TO_REG(val)			clamp_val(val, 0, 255)
 #define PWM_FROM_REG(val)		(val)
-
 
 /*
  * ZONEs have the following parameters:
@@ -346,7 +344,6 @@ static int lm85_read_value(struct i2c_client *client, u8 reg);
 static void lm85_write_value(struct i2c_client *client, u8 reg, int value);
 static struct lm85_data *lm85_update_device(struct device *dev);
 
-
 static const struct i2c_device_id lm85_id[] = {
 	{ "adm1027", adm1027 },
 	{ "adt7463", adt7463 },
@@ -374,7 +371,6 @@ static struct i2c_driver lm85_driver = {
 	.detect		= lm85_detect,
 	.address_list	= normal_i2c,
 };
-
 
 /* 4 Fans */
 static ssize_t show_fan(struct device *dev, struct device_attribute *attr,
@@ -833,7 +829,6 @@ static SENSOR_DEVICE_ATTR(temp##offset##_max, S_IRUGO | S_IWUSR,	\
 show_temp_reg(1);
 show_temp_reg(2);
 show_temp_reg(3);
-
 
 /* Automatic PWM control */
 
@@ -1479,7 +1474,6 @@ static int lm85_remove(struct i2c_client *client)
 	lm85_remove_files(client, data);
 	return 0;
 }
-
 
 static int lm85_read_value(struct i2c_client *client, u8 reg)
 {

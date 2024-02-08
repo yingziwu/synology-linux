@@ -534,7 +534,6 @@ EXPORT_SYMBOL_GPL(inet_csk_reqsk_queue_hash_add);
 /* Only thing we need from tcp.h */
 extern int sysctl_tcp_synack_retries;
 
-
 /* Decide when to expire the request and when to resend SYN-ACK */
 static inline void syn_ack_recalc(struct request_sock *req, const int thresh,
 				  const int max_retries,
@@ -687,6 +686,8 @@ struct sock *inet_csk_clone_lock(const struct sock *sk,
 		inet_sk(newsk)->inet_num = ntohs(inet_rsk(req)->loc_port);
 		inet_sk(newsk)->inet_sport = inet_rsk(req)->loc_port;
 		newsk->sk_write_space = sk_stream_write_space;
+
+		inet_sk(newsk)->mc_list = NULL;
 
 		newicsk->icsk_retransmits = 0;
 		newicsk->icsk_backoff	  = 0;

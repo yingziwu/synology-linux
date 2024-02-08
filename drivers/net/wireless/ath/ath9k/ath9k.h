@@ -821,7 +821,6 @@ struct ath_ht20_40_fft_packet {
 	struct ath_radar_info radar_info;
 } __packed;
 
-
 #define SPECTRAL_HT20_40_TOTAL_DATA_LEN	(sizeof(struct ath_ht20_40_fft_packet))
 
 /* grabs the max magnitude from the all/upper/lower bins */
@@ -913,7 +912,6 @@ bool ath9k_uses_beacons(int type);
 void ath9k_spectral_scan_trigger(struct ieee80211_hw *hw);
 int ath9k_spectral_scan_config(struct ieee80211_hw *hw,
 			       enum spectral_mode spectral_mode);
-
 
 #ifdef CONFIG_ATH9K_PCI
 int ath_pci_init(void);

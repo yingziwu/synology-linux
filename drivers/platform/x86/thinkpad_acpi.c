@@ -88,7 +88,6 @@
 
 #include <linux/pci_ids.h>
 
-
 /* ThinkPad CMOS commands */
 #define TP_CMOS_VOLUME_DOWN	0
 #define TP_CMOS_VOLUME_UP	1
@@ -252,7 +251,6 @@ enum tpacpi_hkey_event_t {
 #define enabled(status, bit) ((status) & (1 << (bit)) ? "enabled" : "disabled")
 #define strlencmp(a, b) (strncmp((a), (b), strlen(b)))
 
-
 /****************************************************************************
  * Driver-wide structs and misc. variables
  */
@@ -385,7 +383,6 @@ static bool tpacpi_wwan_emulstate;
 static int dbg_uwbemul;
 static bool tpacpi_uwb_emulstate;
 #endif
-
 
 /*************************************************************************
  *  Debugging helpers
@@ -824,7 +821,6 @@ static int __init register_tpacpi_subdriver(struct ibm_struct *ibm)
 	return rc;
 }
 
-
 /****************************************************************************
  ****************************************************************************
  *
@@ -904,7 +900,6 @@ static char *next_cmd(char **cmds)
 	*cmds = end + 1;
 	return start;
 }
-
 
 /****************************************************************************
  ****************************************************************************
@@ -5527,7 +5522,6 @@ enum { /* TPACPI_THERMAL_TPEC_* */
 	TPACPI_THERMAL_SENSOR_NA = -128000, /* Sensor not available */
 };
 
-
 #define TPACPI_MAX_THERMAL_SENSORS 16	/* Max thermal sensors supported */
 struct ibm_thermal_sensors_struct {
 	s32 temp[TPACPI_MAX_THERMAL_SENSORS];
@@ -5958,7 +5952,6 @@ unlock:
 	mutex_unlock(&brightness_mutex);
 }
 
-
 /* call with brightness_mutex held! */
 static int tpacpi_brightness_get_raw(int *status)
 {
@@ -6126,7 +6119,6 @@ static int __init tpacpi_query_bcl_levels(acpi_handle handle)
 	kfree(buffer.pointer);
 	return rc;
 }
-
 
 /*
  * Returns 0 (no ACPI _BCL or _BCL invalid), or size of brightness map
@@ -8968,7 +8960,6 @@ static void thinkpad_acpi_module_exit(void)
 	kfree(thinkpad_id.nummodel_str);
 }
 
-
 static int __init thinkpad_acpi_module_init(void)
 {
 	int ret, i;
@@ -9042,7 +9033,6 @@ static int __init thinkpad_acpi_module_init(void)
 		return ret;
 	}
 	tp_features.sensors_pdrv_attrs_registered = 1;
-
 
 	/* Device initialization */
 	tpacpi_pdev = platform_device_register_simple(TPACPI_DRVR_NAME, -1,

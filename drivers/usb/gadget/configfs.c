@@ -129,7 +129,6 @@ CONFIGFS_ATTR_STRUCT(config_usb_cfg);
 	return sprintf(page, "0x%04x\n", le16_to_cpup(&gi->cdev.desc.__name)); \
 }
 
-
 #define GI_DEVICE_DESC_SIMPLE_W_u8(_name)		\
 	static ssize_t gadget_dev_desc_##_name##_store(struct gadget_info *gi, \
 		const char *page, size_t len)		\
@@ -453,7 +452,6 @@ static struct configfs_item_operations gadget_config_item_ops = {
 	.drop_link              = config_usb_cfg_unlink,
 };
 
-
 static ssize_t gadget_config_desc_MaxPower_show(struct config_usb_cfg *cfg,
 		char *page)
 {
@@ -559,7 +557,7 @@ static struct config_group *function_make(
 	if (IS_ERR(fi))
 		return ERR_PTR(PTR_ERR(fi));
 
-	ret = config_item_set_name(&fi->group.cg_item, name);
+	ret = config_item_set_name(&fi->group.cg_item, "%s", name);
 	if (ret) {
 		usb_put_function_instance(fi);
 		return ERR_PTR(ret);
@@ -790,7 +788,6 @@ static int configfs_composite_bind(struct usb_gadget *gadget,
 				gi->composite.name);
 		goto err_comp_cleanup;
 	}
-
 
 	list_for_each_entry(c, &gi->cdev.configs, list) {
 		struct config_usb_cfg *cfg;

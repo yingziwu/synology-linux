@@ -56,7 +56,6 @@ struct cros_ec_keyb {
 	struct notifier_block notifier;
 };
 
-
 static bool cros_ec_keyb_row_has_ghosting(struct cros_ec_keyb *ckdev,
 					  uint8_t *buf, int row)
 {

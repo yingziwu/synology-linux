@@ -121,7 +121,6 @@ DEFINE_SPINLOCK(unix_table_lock);
 EXPORT_SYMBOL_GPL(unix_table_lock);
 static atomic_long_t unix_nr_socks;
 
-
 static struct hlist_head *unix_sockets_unbound(void *addr)
 {
 	unsigned long hash = (unsigned long)addr;
@@ -416,7 +415,12 @@ static int unix_dgram_peer_wake_me(struct sock *sk, struct sock *other)
 
 	connected = unix_dgram_peer_wake_connect(sk, other);
 
-	if (unix_recvq_full(other))
+	/* If other is SOCK_DEAD, we want to make sure we signal
+	 * POLLOUT, such that a subsequent write() can get a
+	 * -ECONNREFUSED. Otherwise, if we haven't queued any skbs
+	 * to other and its full, we will hang waiting for POLLOUT.
+	 */
+	if (unix_recvq_full(other) && !sock_flag(other, SOCK_DEAD))
 		return 1;
 
 	if (connected)
@@ -654,7 +658,6 @@ static int unix_set_peek_off(struct sock *sk, int val)
 
 	return 0;
 }
-
 
 static const struct proto_ops unix_stream_ops = {
 	.family =	PF_UNIX,
@@ -1331,7 +1334,7 @@ restart:
 	__skb_queue_tail(&other->sk_receive_queue, skb);
 	spin_unlock(&other->sk_receive_queue.lock);
 	unix_state_unlock(other);
-	other->sk_data_ready(other, 0);
+	other->sk_data_ready(other);
 	sock_put(other);
 	return 0;
 
@@ -1420,7 +1423,6 @@ static int unix_accept(struct socket *sock, struct socket *newsock, int flags)
 out:
 	return err;
 }
-
 
 static int unix_getname(struct socket *sock, struct sockaddr *uaddr, int *uaddr_len, int peer)
 {
@@ -1714,7 +1716,12 @@ restart_locked:
 			goto out_unlock;
 	}
 
-	if (unlikely(unix_peer(other) != sk && unix_recvq_full(other))) {
+	/* other == sk && unix_peer(other) != sk if
+	 * - unix_peer(sk) == NULL, destination address bound to sk
+	 * - unix_peer(sk) == sk by time of get but disconnected before lock
+	 */
+	if (other != sk &&
+	    unlikely(unix_peer(other) != sk && unix_recvq_full(other))) {
 		if (timeo) {
 			timeo = unix_wait_for_peer(other, timeo);
 
@@ -1753,7 +1760,7 @@ restart_locked:
 	if (max_level > unix_sk(other)->recursion_level)
 		unix_sk(other)->recursion_level = max_level;
 	unix_state_unlock(other);
-	other->sk_data_ready(other, len);
+	other->sk_data_ready(other);
 	sock_put(other);
 	scm_destroy(siocb->scm);
 	return len;
@@ -1770,7 +1777,6 @@ out:
 	scm_destroy(siocb->scm);
 	return err;
 }
-
 
 static int unix_stream_sendmsg(struct kiocb *kiocb, struct socket *sock,
 			       struct msghdr *msg, size_t len)
@@ -1843,7 +1849,6 @@ static int unix_stream_sendmsg(struct kiocb *kiocb, struct socket *sock,
 		 */
 		size = min_t(int, size, skb_tailroom(skb));
 
-
 		/* Only send the fds in the first buffer */
 		err = unix_scm_to_skb(siocb->scm, skb, !fds_sent);
 		if (err < 0) {
@@ -1870,7 +1875,7 @@ static int unix_stream_sendmsg(struct kiocb *kiocb, struct socket *sock,
 		if (max_level > unix_sk(other)->recursion_level)
 			unix_sk(other)->recursion_level = max_level;
 		unix_state_unlock(other);
-		other->sk_data_ready(other, size);
+		other->sk_data_ready(other);
 		sent += size;
 	}
 
@@ -2582,7 +2587,6 @@ static const struct net_proto_family unix_family_ops = {
 	.create = unix_create,
 	.owner	= THIS_MODULE,
 };
-
 
 static int __net_init unix_net_init(struct net *net)
 {

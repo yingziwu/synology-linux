@@ -282,7 +282,6 @@ struct rng_alg {
 	unsigned int seedsize;
 };
 
-
 #define cra_ablkcipher	cra_u.ablkcipher
 #define cra_aead	cra_u.aead
 #define cra_blkcipher	cra_u.blkcipher
@@ -1305,4 +1304,3 @@ static inline int crypto_comp_decompress(struct crypto_comp *tfm,
 }
 
 #endif	/* _LINUX_CRYPTO_H */
-

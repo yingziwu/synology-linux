@@ -95,7 +95,6 @@ static int phy_config_interrupt(struct phy_device *phydev, u32 interrupts)
 	return err;
 }
 
-
 /**
  * phy_aneg_done - return auto-negotiation status
  * @phydev: target phy_device struct
@@ -437,7 +436,6 @@ out_unlock:
 }
 EXPORT_SYMBOL(phy_start_aneg);
 
-
 static void phy_change(struct work_struct *work);
 
 /**
@@ -637,7 +635,6 @@ int phy_stop_interrupts(struct phy_device *phydev)
 }
 EXPORT_SYMBOL(phy_stop_interrupts);
 
-
 /**
  * phy_change - Scheduled by the phy_interrupt/timer to handle PHY changes
  * @work: work_struct that describes the work to be done
@@ -720,7 +717,6 @@ out_unlock:
 	 * will not reenable interrupts.
 	 */
 }
-
 
 /**
  * phy_start - start or restart a PHY device

@@ -296,7 +296,6 @@ static int be_get_coalesce(struct net_device *netdev,
 	struct be_adapter *adapter = netdev_priv(netdev);
 	struct be_eq_obj *eqo = &adapter->eq_obj[0];
 
-
 	et->rx_coalesce_usecs = eqo->cur_eqd;
 	et->rx_coalesce_usecs_high = eqo->max_eqd;
 	et->rx_coalesce_usecs_low = eqo->min_eqd;
@@ -672,7 +671,6 @@ be_set_phys_id(struct net_device *netdev,
 
 	return 0;
 }
-
 
 static void
 be_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)

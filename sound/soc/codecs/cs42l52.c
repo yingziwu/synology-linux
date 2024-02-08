@@ -385,7 +385,6 @@ static const struct soc_enum pcmb_swap_enum =
 static const struct snd_kcontrol_new pcmb_mixer =
 	SOC_DAPM_ENUM("Route", pcmb_swap_enum);
 
-
 static const struct snd_kcontrol_new passthrul_ctl =
 	SOC_DAPM_SINGLE("Switch", CS42L52_MISC_CTL, 6, 1, 0);
 
