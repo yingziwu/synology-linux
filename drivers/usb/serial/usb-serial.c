@@ -1216,6 +1216,7 @@ static const struct tty_operations serial_ops = {
 	.proc_fops =		&serial_proc_fops,
 };
 
+
 struct tty_driver *usb_serial_tty_driver;
 
 /* Driver structure we register with the USB core */
@@ -1295,6 +1296,7 @@ exit_bus:
 	return result;
 }
 
+
 static void __exit usb_serial_exit(void)
 {
 	usb_serial_console_exit();
@@ -1307,6 +1309,7 @@ static void __exit usb_serial_exit(void)
 	bus_unregister(&usb_serial_bus_type);
 	idr_destroy(&serial_minors);
 }
+
 
 module_init(usb_serial_init);
 module_exit(usb_serial_exit);

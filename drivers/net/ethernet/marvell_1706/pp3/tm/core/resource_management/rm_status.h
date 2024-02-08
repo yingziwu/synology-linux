@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -48,6 +49,7 @@ disclaimer.
 int rm_node_status(rmctl_t hndl, enum tm_level lvl, uint32_t node_ind,
 					uint8_t *status);
 
+
 /** Get WRED Queue Curve status.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -62,6 +64,7 @@ int rm_node_status(rmctl_t hndl, enum tm_level lvl, uint32_t node_ind,
  */
 int rm_wred_queue_curve_status(rmctl_t hndl, uint8_t entry_ind,
 								uint8_t *status);
+
 
 /** Get WRED A-node Curve status.
  *
@@ -78,6 +81,7 @@ int rm_wred_queue_curve_status(rmctl_t hndl, uint8_t entry_ind,
 int rm_wred_a_node_curve_status(rmctl_t hndl, uint8_t entry_ind,
 								uint8_t *status);
 
+
 /** Get WRED B-node Curve status.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -92,6 +96,7 @@ int rm_wred_a_node_curve_status(rmctl_t hndl, uint8_t entry_ind,
  */
 int rm_wred_b_node_curve_status(rmctl_t hndl, uint8_t entry_ind,
 								uint8_t *status);
+
 
 /** Get WRED C-node Curve status.
  *
@@ -109,6 +114,7 @@ int rm_wred_b_node_curve_status(rmctl_t hndl, uint8_t entry_ind,
 int rm_wred_c_node_curve_status(rmctl_t hndl, uint8_t cos, uint8_t entry_ind,
 								uint8_t *status);
 
+
 /** Get WRED Port Curve status.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -124,6 +130,7 @@ int rm_wred_c_node_curve_status(rmctl_t hndl, uint8_t cos, uint8_t entry_ind,
 int rm_wred_port_curve_status(rmctl_t hndl,
 							uint8_t entry_ind,
 							uint8_t *status);
+
 
 /* not used for HX/AX */
 /** Get WRED Port Curve status per Cos.
@@ -144,6 +151,7 @@ int rm_wred_port_curve_status_cos(rmctl_t hndl,
 								uint8_t entry_ind,
 								uint8_t *status);
 
+
 /** Get Queue Drop Profile status.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -158,6 +166,7 @@ int rm_wred_port_curve_status_cos(rmctl_t hndl,
  */
 int rm_queue_drop_profile_status(rmctl_t hndl, uint16_t entry_ind,
 								uint8_t *status);
+
 
 /** Get A-node Drop Profile status.
  *
@@ -174,6 +183,7 @@ int rm_queue_drop_profile_status(rmctl_t hndl, uint16_t entry_ind,
 int rm_a_node_drop_profile_status(rmctl_t hndl, uint16_t entry_ind,
 								uint8_t *status);
 
+
 /** Get B-node Drop Profile status.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -188,6 +198,7 @@ int rm_a_node_drop_profile_status(rmctl_t hndl, uint16_t entry_ind,
  */
 int rm_b_node_drop_profile_status(rmctl_t hndl, uint16_t entry_ind,
 								uint8_t *status);
+
 
 /** Get C-node Drop Profile status.
  *
@@ -205,6 +216,7 @@ int rm_b_node_drop_profile_status(rmctl_t hndl, uint16_t entry_ind,
 int rm_c_node_drop_profile_status(rmctl_t hndl, uint8_t cos, uint16_t entry_ind,
 								uint8_t *status);
 
+
 /** Get Port Drop Profile status.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -220,6 +232,8 @@ int rm_c_node_drop_profile_status(rmctl_t hndl, uint8_t cos, uint16_t entry_ind,
 int rm_port_drop_profile_status(rmctl_t hndl,
 								uint16_t entry_ind,
 								uint8_t *status);
+
+
 
 /* not used for Hx/AX*/
 /** Get Port Drop Profile status per Cos.
@@ -239,5 +253,6 @@ int rm_port_drop_profile_status_cos(rmctl_t hndl,
 									uint8_t cos,
 									uint16_t entry_ind,
 									uint8_t *status);
+
 
 #endif   /* RM_STATUS_H */

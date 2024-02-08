@@ -107,6 +107,7 @@ void __init syno_init_smbus_hdd_pwrctl(void)
 
 	smbushddtype = (char *)of_get_property(of_root, DT_SYNO_HDD_SMBUS_TYPE, NULL);
 
+
 	if (smbushddtype != NULL) {
 		snprintf(gSynoSmbusHddType, sizeof(gSynoSmbusHddType), "%s", smbushddtype);
 		printk("SYNO Smbus Hdd Type: %s\n", gSynoSmbusHddType);
@@ -737,9 +738,12 @@ int __init of_scan_flat_dt(int (*it)(unsigned long node,
 	const char *pathp;
 	int offset, rc = 0, depth = -1;
 
-        for (offset = fdt_next_node(blob, -1, &depth);
-             offset >= 0 && depth >= 0 && !rc;
-             offset = fdt_next_node(blob, offset, &depth)) {
+	if (!blob)
+		return 0;
+
+	for (offset = fdt_next_node(blob, -1, &depth);
+	     offset >= 0 && depth >= 0 && !rc;
+	     offset = fdt_next_node(blob, offset, &depth)) {
 
 		pathp = fdt_get_name(blob, offset, NULL);
 		if (*pathp == '/')
@@ -947,6 +951,7 @@ static inline void early_init_dt_check_for_cma(unsigned long node)
 	pr_debug("#CONFIG_CMA_AREA is not set\n");
 }
 #endif
+
 
 #ifdef CONFIG_SERIAL_EARLYCON
 extern struct of_device_id __earlycon_of_table[];
@@ -1290,6 +1295,7 @@ bool __init early_init_dt_verify(void *params)
 	return true;
 }
 
+
 void __init early_init_dt_scan_nodes(void)
 {
 	/* Retrieve various information from the /chosen node */
@@ -1358,6 +1364,7 @@ void __init unflatten_and_copy_device_tree(void)
 {
 	int size;
 	void *dt;
+
 
 	if (!initial_boot_params) {
 		pr_warn("No valid device tree found, continuing without\n");

@@ -21,6 +21,8 @@
 #ifndef _mmhub_9_1_OFFSET_HEADER
 #define _mmhub_9_1_OFFSET_HEADER
 
+
+
 // addressBlock: mmhub_dagbdec
 // base address: 0x68000
 #define mmDAGB0_RDCLI0                                                                                 0x0000
@@ -535,6 +537,7 @@
 #define mmDAGB0_RESERVE100_BASE_IDX                                                                    0
 #define mmDAGB0_RESERVE101                                                                             0x00ff
 #define mmDAGB0_RESERVE101_BASE_IDX                                                                    0
+
 
 // addressBlock: mmhub_ea_mmeadec
 // base address: 0x68400
@@ -1119,6 +1122,7 @@
 #define mmMMEA1_MISC2                                                                                  0x034d
 #define mmMMEA1_MISC2_BASE_IDX                                                                         0
 
+
 // addressBlock: mmhub_pctldec
 // base address: 0x68e00
 #define mmPCTL_MISC                                                                                    0x0380
@@ -1186,6 +1190,7 @@
 #define mmPCTL2_STCTRL_REGISTER_SAVE_EXCL_SET1                                                         0x039f
 #define mmPCTL2_STCTRL_REGISTER_SAVE_EXCL_SET1_BASE_IDX                                                0
 
+
 // addressBlock: mmhub_l1tlb_vml1dec
 // base address: 0x69600
 #define mmMC_VM_MX_L1_TLB0_STATUS                                                                      0x0588
@@ -1205,6 +1210,7 @@
 #define mmMC_VM_MX_L1_TLB7_STATUS                                                                      0x058f
 #define mmMC_VM_MX_L1_TLB7_STATUS_BASE_IDX                                                             0
 
+
 // addressBlock: mmhub_l1tlb_vml1pldec
 // base address: 0x69650
 #define mmMC_VM_MX_L1_PERFCOUNTER0_CFG                                                                 0x0594
@@ -1218,12 +1224,14 @@
 #define mmMC_VM_MX_L1_PERFCOUNTER_RSLT_CNTL                                                            0x0598
 #define mmMC_VM_MX_L1_PERFCOUNTER_RSLT_CNTL_BASE_IDX                                                   0
 
+
 // addressBlock: mmhub_l1tlb_vml1prdec
 // base address: 0x69670
 #define mmMC_VM_MX_L1_PERFCOUNTER_LO                                                                   0x059c
 #define mmMC_VM_MX_L1_PERFCOUNTER_LO_BASE_IDX                                                          0
 #define mmMC_VM_MX_L1_PERFCOUNTER_HI                                                                   0x059d
 #define mmMC_VM_MX_L1_PERFCOUNTER_HI_BASE_IDX                                                          0
+
 
 // addressBlock: mmhub_l1tlb_vmtlspfdec
 // base address: 0x69680
@@ -1256,6 +1264,7 @@
 #define mmVM_L2_SAW_PIPES_BUSY                                                                         0x060d
 #define mmVM_L2_SAW_PIPES_BUSY_BASE_IDX                                                                0
 
+
 // addressBlock: mmhub_utcl2_atcl2dec
 // base address: 0x69900
 #define mmATC_L2_CNTL                                                                                  0x0640
@@ -1280,6 +1289,7 @@
 #define mmATC_L2_MEM_POWER_LS_BASE_IDX                                                                 0
 #define mmATC_L2_CGTT_CLK_CTRL                                                                         0x064c
 #define mmATC_L2_CGTT_CLK_CTRL_BASE_IDX                                                                0
+
 
 // addressBlock: mmhub_utcl2_vml2pfdec
 // base address: 0x69a00
@@ -1339,6 +1349,7 @@
 #define mmVM_L2_CACHE_PARITY_CNTL_BASE_IDX                                                             0
 #define mmVM_L2_CGTT_CLK_CTRL                                                                          0x069e
 #define mmVM_L2_CGTT_CLK_CTRL_BASE_IDX                                                                 0
+
 
 // addressBlock: mmhub_utcl2_vml2vcdec
 // base address: 0x69b00
@@ -1749,6 +1760,7 @@
 #define mmVM_CONTEXT15_PAGE_TABLE_END_ADDR_HI32                                                        0x078a
 #define mmVM_CONTEXT15_PAGE_TABLE_END_ADDR_HI32_BASE_IDX                                               0
 
+
 // addressBlock: mmhub_utcl2_vml2pldec
 // base address: 0x69e90
 #define mmMC_VM_L2_PERFCOUNTER0_CFG                                                                    0x07a4
@@ -1770,12 +1782,14 @@
 #define mmMC_VM_L2_PERFCOUNTER_RSLT_CNTL                                                               0x07ac
 #define mmMC_VM_L2_PERFCOUNTER_RSLT_CNTL_BASE_IDX                                                      0
 
+
 // addressBlock: mmhub_utcl2_vml2prdec
 // base address: 0x69ee0
 #define mmMC_VM_L2_PERFCOUNTER_LO                                                                      0x07b8
 #define mmMC_VM_L2_PERFCOUNTER_LO_BASE_IDX                                                             0
 #define mmMC_VM_L2_PERFCOUNTER_HI                                                                      0x07b9
 #define mmMC_VM_L2_PERFCOUNTER_HI_BASE_IDX                                                             0
+
 
 // addressBlock: mmhub_utcl2_vmsharedhvdec
 // base address: 0x69f30
@@ -1902,6 +1916,7 @@
 #define mmUTCL2_CGTT_CLK_CTRL                                                                          0x0808
 #define mmUTCL2_CGTT_CLK_CTRL_BASE_IDX                                                                 0
 
+
 // addressBlock: mmhub_utcl2_vmsharedpfdec
 // base address: 0x6a040
 #define mmMC_VM_NB_MMIOBASE                                                                            0x0810
@@ -1943,6 +1958,7 @@
 #define mmMC_VM_LOCAL_HBM_ADDRESS_LOCK_CNTL                                                            0x0822
 #define mmMC_VM_LOCAL_HBM_ADDRESS_LOCK_CNTL_BASE_IDX                                                   0
 
+
 // addressBlock: mmhub_utcl2_vmsharedvcdec
 // base address: 0x6a0b0
 #define mmMC_VM_FB_LOCATION_BASE                                                                       0x082c
@@ -1962,12 +1978,14 @@
 #define mmMC_VM_MX_L1_TLB_CNTL                                                                         0x0833
 #define mmMC_VM_MX_L1_TLB_CNTL_BASE_IDX                                                                0
 
+
 // addressBlock: mmhub_utcl2_atcl2pfcntrdec
 // base address: 0x6a100
 #define mmATC_L2_PERFCOUNTER_LO                                                                        0x0840
 #define mmATC_L2_PERFCOUNTER_LO_BASE_IDX                                                               0
 #define mmATC_L2_PERFCOUNTER_HI                                                                        0x0841
 #define mmATC_L2_PERFCOUNTER_HI_BASE_IDX                                                               0
+
 
 // addressBlock: mmhub_utcl2_atcl2pfcntldec
 // base address: 0x6a120

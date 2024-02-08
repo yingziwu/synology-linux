@@ -432,6 +432,7 @@ static int cz_smu_construct_toc_for_vddgfx_enter(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 static int cz_smu_construct_toc_for_vddgfx_exit(struct pp_hwmgr *hwmgr)
 {
 	struct cz_smumgr *cz_smu = (struct cz_smumgr *)hwmgr->smu_backend;
@@ -713,6 +714,7 @@ static int cz_start_smu(struct pp_hwmgr *hwmgr)
 			 SMU8_FIRMWARE_HEADER_LOCATION +
 			 offsetof(struct SMU8_Firmware_Header, Version);
 
+
 	if (hwmgr == NULL || hwmgr->device == NULL)
 		return -EINVAL;
 
@@ -866,3 +868,4 @@ const struct pp_smumgr_func cz_smu_funcs = {
 	.download_pptable_settings = cz_download_pptable_settings,
 	.upload_pptable_settings = cz_upload_pptable_settings,
 };
+

@@ -385,6 +385,7 @@ static int atmci_regs_show(struct seq_file *s, void *v)
 	u32			*buf;
 	int			ret = 0;
 
+
 	buf = kmalloc(ATMCI_REGS_SIZE, GFP_KERNEL);
 	if (!buf)
 		return -ENOMEM;
@@ -1839,13 +1840,14 @@ static void atmci_tasklet_func(unsigned long priv)
 			}
 
 			atmci_request_end(host, host->mrq);
-			state = STATE_IDLE;
+			goto unlock; /* atmci_request_end() sets host->state */
 			break;
 		}
 	} while (state != prev_state);
 
 	host->state = state;
 
+unlock:
 	spin_unlock(&host->lock);
 }
 
@@ -1998,6 +2000,7 @@ static void atmci_sdio_interrupt(struct atmel_mci *host, u32 status)
 		}
 	}
 }
+
 
 static irqreturn_t atmci_interrupt(int irq, void *dev_id)
 {

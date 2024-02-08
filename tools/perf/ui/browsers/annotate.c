@@ -755,11 +755,11 @@ static int annotate_browser__run(struct annotate_browser *browser,
 				nd = browser->curr_hot;
 			break;
 		case K_UNTAB:
-			if (nd != NULL)
+			if (nd != NULL) {
 				nd = rb_next(nd);
 				if (nd == NULL)
 					nd = rb_first(&browser->entries);
-			else
+			} else
 				nd = browser->curr_hot;
 			break;
 		case K_F1:
@@ -893,6 +893,7 @@ int hist_entry__tui_annotate(struct hist_entry *he, struct perf_evsel *evsel,
 
 	return map_symbol__tui_annotate(&he->ms, evsel, hbt);
 }
+
 
 static unsigned count_insn(struct annotate_browser *browser, u64 start, u64 end)
 {

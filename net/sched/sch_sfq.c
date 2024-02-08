@@ -25,6 +25,7 @@
 #include <net/pkt_sched.h>
 #include <net/red.h>
 
+
 /*	Stochastic Fairness Queuing algorithm.
 	=======================================
 
@@ -35,9 +36,11 @@
 	Paul E. McKenney "Stochastic Fairness Queuing",
 	"Interworking: Research and Experience", v.2, 1991, p.113-131.
 
+
 	See also:
 	M. Shreedhar and George Varghese "Efficient Fair
 	Queuing using Deficit Round Robin", Proc. SIGCOMM 95.
+
 
 	This is not the thing that is usually called (W)FQ nowadays.
 	It does not use any timestamp mechanism, but instead
@@ -219,6 +222,7 @@ static inline void sfq_link(struct sfq_sched_data *q, sfq_index x)
 		sfq_dep_head(q, p)->next = n;	\
 		sfq_dep_head(q, n)->prev = p;	\
 	} while (0)
+
 
 static inline void sfq_dec(struct sfq_sched_data *q, sfq_index x)
 {
@@ -430,6 +434,7 @@ congestion_drop:
 		qdisc_drop(head, sch);
 
 		slot_queue_add(slot, skb);
+		qdisc_tree_reduce_backlog(sch, 0, delta);
 		return NET_XMIT_CN;
 	}
 
@@ -461,8 +466,10 @@ enqueue:
 	/* Return Congestion Notification only if we dropped a packet
 	 * from this flow.
 	 */
-	if (qlen != slot->qlen)
+	if (qlen != slot->qlen) {
+		qdisc_tree_reduce_backlog(sch, 0, dropped - qdisc_pkt_len(skb));
 		return NET_XMIT_CN;
+	}
 
 	/* As we dropped a packet, better let upper stack know this */
 	qdisc_tree_reduce_backlog(sch, 1, dropped);
@@ -626,6 +633,9 @@ static int sfq_change(struct Qdisc *sch, struct nlattr *opt)
 	if (ctl->divisor &&
 	    (!is_power_of_2(ctl->divisor) || ctl->divisor > 65536))
 		return -EINVAL;
+	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+					ctl_v1->Wlog))
+		return -EINVAL;
 	if (ctl_v1 && ctl_v1->qth_min) {
 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 		if (!p)
@@ -738,9 +748,10 @@ static int sfq_init(struct Qdisc *sch, struct nlattr *opt)
 	q->ht = sfq_alloc(sizeof(q->ht[0]) * q->divisor);
 	q->slots = sfq_alloc(sizeof(q->slots[0]) * q->maxflows);
 	if (!q->ht || !q->slots) {
-		sfq_destroy(sch);
+		/* Note: sfq_destroy() will be called by our caller */
 		return -ENOMEM;
 	}
+
 	for (i = 0; i < q->divisor; i++)
 		q->ht[i] = SFQ_EMPTY_SLOT;
 

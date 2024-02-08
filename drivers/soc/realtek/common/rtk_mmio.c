@@ -60,6 +60,7 @@ static int __init secure_register_init(void)
 }
 arch_initcall(secure_register_init);
 
+
 static struct rtk_regmap_config *match_config_by_addr(unsigned long addr)
 {
 	struct rtk_regmap_config **p;
@@ -198,6 +199,7 @@ static struct rtk_mmio *create_rtk_mmio(struct device_node *np)
 		mmio->cfg->lock = regmap_sb2_lock;
 		mmio->cfg->unlock = regmap_sb2_unlock;
 	}
+
 
 	if (conf)
 		regmap = rtk_regmap_init_secure_mmio(NULL, reg, conf);

@@ -343,6 +343,7 @@ static void RTK_pctrl_dbg_show(struct pinctrl_dev *pctldev, struct seq_file *s,
 		seq_printf(s, "[not defined] ");
 }
 
+
 static const struct pinctrl_ops RTK_pctrl_ops = {
 	.dt_node_to_map		= RTK_pctrl_dt_node_to_map,
 	.dt_free_map		= RTK_pctrl_dt_free_map,
@@ -644,6 +645,8 @@ RTK_pmx_gpio_disable_free(struct pinctrl_dev *pctldev,
 /*TODO : need to add gpio related api*/
 }
 
+
+
 static const struct pinmux_ops RTK_pmx_ops = {
 	.get_functions_count = RTK_pmx_get_funcs_cnt,
 	.get_function_name = RTK_pmx_get_func_name,
@@ -658,6 +661,7 @@ static struct pinctrl_desc RTK_pctrl_desc = {
 	.pctlops	= &RTK_pctrl_ops,
 	.pmxops		= &RTK_pmx_ops,
 };
+
 
 static const struct of_device_id RTK_pinctrl_match[] = {
 	{ .compatible = "realtek,rtk139x-pinctrl",

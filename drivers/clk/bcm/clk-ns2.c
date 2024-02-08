@@ -49,6 +49,7 @@ static const struct iproc_pll_ctrl genpll_scr = {
 	.status = REG_VAL(0x0, 27, 1),
 };
 
+
 static const struct iproc_clk_ctrl genpll_scr_clk[] = {
 	/* bypass_shift, the last value passed into ENABLE_VAL(), is not defined
 	 * in NS2.  However, it doesn't appear to be used anywhere, so setting
@@ -102,7 +103,7 @@ CLK_OF_DECLARE(ns2_genpll_src_clk, "brcm,ns2-genpll-scr",
 
 static const struct iproc_pll_ctrl genpll_sw = {
 	.flags = IPROC_CLK_AON | IPROC_CLK_PLL_SPLIT_STAT_CTRL,
-	.aon = AON_VAL(0x0, 2, 9, 8),
+	.aon = AON_VAL(0x0, 1, 11, 10),
 	.reset = RESET_VAL(0x4, 2, 1),
 	.dig_filter = DF_VAL(0x0, 9, 3, 5, 4, 2, 3),
 	.ndiv_int = REG_VAL(0x8, 4, 10),

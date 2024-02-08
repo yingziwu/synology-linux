@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -30,6 +31,7 @@ disclaimer.
 
 #include "rm_interface.h"
 
+
 /** Find index of matching chunk and update internal DB.
  *
  *   @param[in]		hndl			  Resource Manager handle.
@@ -44,6 +46,7 @@ disclaimer.
  *   @retval -ENOMEM if no free space in needed size.
  */
 int rm_get_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t size, uint32_t *index);
+
 
 /** Add chunk of the nodes that became free and update internal DB.
  *
@@ -60,6 +63,7 @@ int rm_get_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t size, uint32_t *index
  */
 int rm_release_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t size, uint32_t index);
 
+
 /** Find free chunk that includes index and get from it node to expand used nodes range.
  *
  *   @param[in]		hndl				Resource Manager handle.
@@ -74,6 +78,7 @@ int rm_release_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t size, uint32_t in
  */
 int rm_expand_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t index);
 
+
 /** Create new chunk and add it to free chunk list ( list elements are stay in decending order of chunk size)
  *
  *   @param[in]	    index		  Index of starting node.
@@ -84,10 +89,12 @@ int rm_expand_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t index);
  */
 chunk_ptr rm_new_chunk(uint32_t start_index, uint32_t length, struct rm_chunk *chunk_list);
 
+
 /** Deallocate chunk list and releases allocated memory
  *
  *   @param[in]	    chunk_list	  Pointer to chunk list to free *
  */
 void clear_chunk_list(chunk_ptr list);
+
 
 #endif   /* RM_CHUNK_H */

@@ -1437,6 +1437,7 @@
 #	define SE_YSEL(x)				((x) << 28)
 #	define SE_YSEL_MASK				(0x3 << 28)
 
+
 #define VGT_EVENT_INITIATOR                             0xA2A4
 #       define SAMPLE_STREAMOUTSTATS1                   (1 << 0)
 #       define SAMPLE_STREAMOUTSTATS2                   (2 << 0)
@@ -1987,6 +1988,7 @@
 #define VCE_CMD_IB_AUTO					0x00000005
 #define VCE_CMD_SEMAPHORE				0x00000006
 
+
 //#dce stupp
 /* display controller offsets used for crtc/cur/lut/grph/viewport/etc. */
 #define SI_CRTC0_REGISTER_OFFSET                0 //(0x6df0 - 0x6df0)/4
@@ -2259,6 +2261,7 @@
 #       define EVERGREEN_CURSOR_UPDATE_LOCK             (1 << 16)
 #       define EVERGREEN_CURSOR_DISABLE_MULTIPLE_UPDATE (1 << 24)
 
+
 #define NI_INPUT_CSC_CONTROL                           0x1a35
 #       define NI_INPUT_CSC_GRPH_MODE(x)               (((x) & 0x3) << 0)
 #       define NI_INPUT_CSC_BYPASS                     0
@@ -2301,6 +2304,7 @@
 #       define NI_REGAMMA_PROG_A                       3
 #       define NI_REGAMMA_PROG_B                       4
 #       define NI_OVL_REGAMMA_MODE(x)                  (((x) & 0x7) << 4)
+
 
 #define NI_PRESCALE_GRPH_CONTROL                       0x1a2d
 #       define NI_GRPH_PRESCALE_BYPASS                 (1 << 4)
@@ -2417,6 +2421,7 @@
 #define SRBM_STATUS__MCD_BUSY__SHIFT 0xc
 #define SRBM_STATUS__VMC_BUSY_MASK 0x100
 #define SRBM_STATUS__VMC_BUSY__SHIFT 0x8
+
 
 #define GRBM_STATUS__GUI_ACTIVE_MASK 0x80000000
 #define CP_INT_CNTL_RING__TIME_STAMP_INT_ENABLE_MASK 0x4000000

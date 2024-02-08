@@ -44,6 +44,7 @@
 #include "pp_endian.h"
 #include "processpptables.h"
 
+
 #include "smu/smu_7_1_1_d.h"
 #include "smu/smu_7_1_1_sh_mask.h"
 #include "smu71_discrete.h"
@@ -55,6 +56,7 @@
 #include "bif/bif_5_0_sh_mask.h"
 #include "dce/dce_10_0_d.h"
 #include "dce/dce_10_0_sh_mask.h"
+
 
 #define ICELAND_SMC_SIZE               0x20000
 
@@ -121,6 +123,7 @@ static void iceland_reset_smc(struct pp_hwmgr *hwmgr)
 				  rst_reg, 1);
 }
 
+
 static void iceland_stop_smc_clock(struct pp_hwmgr *hwmgr)
 {
 	PHM_WRITE_INDIRECT_FIELD(hwmgr->device, CGS_IND_REG__SMC,
@@ -152,6 +155,7 @@ static int iceland_smu_start_smc(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 static int iceland_upload_smc_firmware_data(struct pp_hwmgr *hwmgr,
 					uint32_t length, const uint8_t *src,
 					uint32_t limit, uint32_t start_addr)
@@ -177,6 +181,7 @@ static int iceland_upload_smc_firmware_data(struct pp_hwmgr *hwmgr,
 
 	return 0;
 }
+
 
 static int iceland_smu_upload_firmware_image(struct pp_hwmgr *hwmgr)
 {
@@ -275,6 +280,7 @@ static int iceland_smu_init(struct pp_hwmgr *hwmgr)
 
 	return 0;
 }
+
 
 static void iceland_initialize_power_tune_defaults(struct pp_hwmgr *hwmgr)
 {
@@ -431,6 +437,8 @@ static int iceland_populate_vddc_vid(struct pp_hwmgr *hwmgr)
 
 	return 0;
 }
+
+
 
 static int iceland_populate_pm_fuses(struct pp_hwmgr *hwmgr)
 {
@@ -689,6 +697,7 @@ static int iceland_populate_smc_mvdd_table(struct pp_hwmgr *hwmgr,
 
 	return 0;
 }
+
 
 static int iceland_populate_smc_voltage_tables(struct pp_hwmgr *hwmgr,
 	SMU71_Discrete_DpmTable *table)
@@ -1022,6 +1031,7 @@ static int iceland_populate_all_graphic_levels(struct pp_hwmgr *hwmgr)
 	mid_pcie_level_enabled = (lowest_pcie_level_enabled+1+count) < highest_pcie_level_enabled ?
 		(lowest_pcie_level_enabled+1+count) : highest_pcie_level_enabled;
 
+
 	/* set pcieDpmLevel to highest_pcie_level_enabled*/
 	for (i = 2; i < dpm_table->sclk_table.count; i++) {
 		smu_data->smc_state_table.GraphicsLevel[i].pcieDpmLevel = highest_pcie_level_enabled;
@@ -1149,6 +1159,7 @@ static int iceland_calculate_mclk_params(
 		MCLK_PWRMGT_CNTL, MRDCK0_PDNB, dllStateOn);
 	mclk_pwrmgt_cntl = PHM_SET_FIELD(mclk_pwrmgt_cntl,
 		MCLK_PWRMGT_CNTL, MRDCK1_PDNB, dllStateOn);
+
 
 	/* Save the result data to outpupt memory level structure */
 	mclk->MclkFrequency   = memory_clock;
@@ -1433,6 +1444,7 @@ static int iceland_populate_smc_acpi_level(struct pp_hwmgr *hwmgr,
 	uint32_t dll_cntl          = data->clock_registers.vDLL_CNTL;
 	uint32_t mclk_pwrmgt_cntl  = data->clock_registers.vMCLK_PWRMGT_CNTL;
 
+
 	/* The ACPI state should not do DPM on DC (or ever).*/
 	table->ACPILevel.Flags &= ~PPSMC_SWSTATE_FLAG_DC;
 
@@ -1472,6 +1484,7 @@ static int iceland_populate_smc_acpi_level(struct pp_hwmgr *hwmgr,
 	table->ACPILevel.SpllSpreadSpectrum2 = data->clock_registers.vCG_SPLL_SPREAD_SPECTRUM_2;
 	table->ACPILevel.CcPwrDynRm = 0;
 	table->ACPILevel.CcPwrDynRm1 = 0;
+
 
 	/* For various features to be enabled/disabled while this level is active.*/
 	CONVERT_FROM_HOST_TO_SMC_UL(table->ACPILevel.Flags);
@@ -1786,12 +1799,14 @@ static int iceland_update_and_upload_mc_reg_table(struct pp_hwmgr *hwmgr)
 	if (0 == (data->need_update_smu7_dpm_table & DPMTABLE_OD_UPDATE_MCLK))
 		return 0;
 
+
 	memset(&smu_data->mc_regs, 0, sizeof(SMU71_Discrete_MCRegisters));
 
 	result = iceland_convert_mc_reg_table_to_smc(hwmgr, &(smu_data->mc_regs));
 
 	if (result != 0)
 		return result;
+
 
 	address = smu_data->smu7_data.mc_reg_table_start + (uint32_t)offsetof(SMU71_Discrete_MCRegisters, data[0]);
 
@@ -1859,6 +1874,7 @@ static int iceland_populate_bapm_parameters_in_dpm_table(struct pp_hwmgr *hwmgr)
 	const uint16_t *def1, *def2;
 	int i, j, k;
 
+
 	/*
 	 * TDP number of fraction bits are changed from 8 to 7 for Iceland
 	 * as requested by SMC team
@@ -1866,6 +1882,7 @@ static int iceland_populate_bapm_parameters_in_dpm_table(struct pp_hwmgr *hwmgr)
 
 	dpm_table->DefaultTdp = PP_HOST_TO_SMC_US((uint16_t)(cac_dtp_table->usTDP * 256));
 	dpm_table->TargetTdp = PP_HOST_TO_SMC_US((uint16_t)(cac_dtp_table->usConfigurableTDP * 256));
+
 
 	dpm_table->DTETjOffset = 0;
 
@@ -1933,6 +1950,7 @@ static int iceland_init_smc_table(struct pp_hwmgr *hwmgr)
 	struct iceland_smumgr *smu_data = (struct iceland_smumgr *)(hwmgr->smu_backend);
 	SMU71_Discrete_DpmTable  *table = &(smu_data->smc_state_table);
 
+
 	iceland_initialize_power_tune_defaults(hwmgr);
 	memset(&(smu_data->smc_state_table), 0x00, sizeof(smu_data->smc_state_table));
 
@@ -1944,12 +1962,14 @@ static int iceland_init_smc_table(struct pp_hwmgr *hwmgr)
 			PHM_PlatformCaps_AutomaticDCTransition))
 		table->SystemFlags |= PPSMC_SYSTEMFLAG_GPIO_DC;
 
+
 	if (phm_cap_enabled(hwmgr->platform_descriptor.platformCaps,
 			PHM_PlatformCaps_StepVddc))
 		table->SystemFlags |= PPSMC_SYSTEMFLAG_STEPVDDC;
 
 	if (data->is_memory_gddr5)
 		table->SystemFlags |= PPSMC_SYSTEMFLAG_GDDR5;
+
 
 	if (data->ulv_supported) {
 		result = iceland_populate_ulv_state(hwmgr, &(smu_data->ulv_setting));
@@ -2071,6 +2091,7 @@ static int iceland_init_smc_table(struct pp_hwmgr *hwmgr)
 			sizeof(SMU71_Discrete_Ulv),
 			SMC_RAM_END);
 
+
 	result = iceland_populate_initial_mc_reg_table(hwmgr);
 	PP_ASSERT_WITH_CODE((0 == result),
 		"Failed to populate initialize MC Reg table!", return result);
@@ -2158,6 +2179,7 @@ int iceland_thermal_setup_fan_table(struct pp_hwmgr *hwmgr)
 
 	return 0;
 }
+
 
 static int iceland_program_mem_timing_parameters(struct pp_hwmgr *hwmgr)
 {
@@ -2301,6 +2323,7 @@ static int iceland_process_firmware_header(struct pp_hwmgr *hwmgr)
 
 	error |= (0 != result);
 
+
 	result = smu7_read_smc_sram_dword(hwmgr,
 				SMU71_FIRMWARE_HEADER_LOCATION +
 				offsetof(SMU71_Firmware_Header, mcRegisterTable),
@@ -2331,6 +2354,7 @@ static int iceland_process_firmware_header(struct pp_hwmgr *hwmgr)
 	}
 
 	error |= (0 != result);
+
 
 	result = smu7_read_smc_sram_dword(hwmgr,
 				SMU71_FIRMWARE_HEADER_LOCATION +
@@ -2676,3 +2700,4 @@ const struct pp_smumgr_func iceland_smu_funcs = {
 	.initialize_mc_reg_table = iceland_initialize_mc_reg_table,
 	.is_dpm_running = iceland_is_dpm_running,
 };
+

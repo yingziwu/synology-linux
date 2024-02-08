@@ -33,6 +33,7 @@ Marvell copyright notice above.
 #define PTP_RX_TS_DBG_CFG(val1, val2, val3)	0
 #endif
 
+
 /*******************************************************************************
  * Delay Req/Resp roundtrip measurement;
  * trace: TX-TimeStamp, RX-packet-TS, RX-TS
@@ -102,6 +103,7 @@ static inline void PTP_RX_TS_DBG(u8 *pkt_data, int ptp_ts_offs, u32 rx32b)
 }
 #endif /*PTP_DELAY_TRACE*/
 
+
 /*******************************************************************************
  * All Ingress packets have 32bits timestamp in CFH->tag2
  * Captire all packets from all ports into buffer to check timestamp consistency
@@ -140,6 +142,8 @@ static u32 sniff_ts_inconsistency_port_no;
 #endif /*SNIFF_TS_INCONSISTENCY_ON_RANGE*/
 
 static u32 rx_ts_dbg_idx;
+
+
 
 static inline u32 convert2nnsec(u32 sec, u32 nsec)
 {
@@ -304,6 +308,7 @@ clear_exit:
 	rx_ts_dbg_idx = 0;
 }
 #endif/*PTP_ALL_RX_TS_DBG_CAPTURE*/
+
 
 /*******************************************************************************
  *  General purpose packet dump utility

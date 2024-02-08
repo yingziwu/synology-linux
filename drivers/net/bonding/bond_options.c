@@ -77,6 +77,7 @@ static int bond_option_ad_actor_system_set(struct bonding *bond,
 static int bond_option_ad_user_port_key_set(struct bonding *bond,
 					    const struct bond_opt_value *newval);
 
+
 static const struct bond_opt_value bond_mode_tbl[] = {
 	{ "balance-rr",    BOND_MODE_ROUNDROBIN,   BOND_VALFLAG_DEFAULT},
 	{ "active-backup", BOND_MODE_ACTIVEBACKUP, 0},
@@ -1065,13 +1066,6 @@ static int bond_option_arp_validate_set(struct bonding *bond,
 {
 	netdev_info(bond->dev, "Setting arp_validate to %s (%llu)\n",
 		    newval->string, newval->value);
-
-	if (bond->dev->flags & IFF_UP) {
-		if (!newval->value)
-			bond->recv_probe = NULL;
-		else if (bond->params.arp_interval)
-			bond->recv_probe = bond_arp_rcv;
-	}
 	bond->params.arp_validate = newval->value;
 
 	return 0;
@@ -1114,6 +1108,7 @@ static int bond_option_primary_set(struct bonding *bond,
 				    slave->dev->name);
 			rcu_assign_pointer(bond->primary_slave, slave);
 			strcpy(bond->params.primary, slave->dev->name);
+			bond->force_primary = true;
 			bond_select_active_slave(bond);
 			goto out;
 		}

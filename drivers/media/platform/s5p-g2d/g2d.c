@@ -87,6 +87,7 @@ static struct g2d_fmt *find_fmt(struct v4l2_format *f)
 	return NULL;
 }
 
+
 static struct g2d_frame *get_frame(struct g2d_ctx *ctx,
 							enum v4l2_buf_type type)
 {
@@ -288,6 +289,7 @@ static int g2d_release(struct file *file)
 	v4l2_info(&dev->v4l2_dev, "instance closed\n");
 	return 0;
 }
+
 
 static int vidioc_querycap(struct file *file, void *priv,
 				struct v4l2_capability *cap)
@@ -495,7 +497,7 @@ static void device_run(void *prv)
 {
 	struct g2d_ctx *ctx = prv;
 	struct g2d_dev *dev = ctx->dev;
-	struct vb2_buffer *src, *dst;
+	struct vb2_v4l2_buffer *src, *dst;
 	unsigned long flags;
 	u32 cmd = 0;
 
@@ -510,10 +512,10 @@ static void device_run(void *prv)
 	spin_lock_irqsave(&dev->ctrl_lock, flags);
 
 	g2d_set_src_size(dev, &ctx->in);
-	g2d_set_src_addr(dev, vb2_dma_contig_plane_dma_addr(src, 0));
+	g2d_set_src_addr(dev, vb2_dma_contig_plane_dma_addr(&src->vb2_buf, 0));
 
 	g2d_set_dst_size(dev, &ctx->out);
-	g2d_set_dst_addr(dev, vb2_dma_contig_plane_dma_addr(dst, 0));
+	g2d_set_dst_addr(dev, vb2_dma_contig_plane_dma_addr(&dst->vb2_buf, 0));
 
 	g2d_set_rop4(dev, ctx->rop);
 	g2d_set_flip(dev, ctx->flip);

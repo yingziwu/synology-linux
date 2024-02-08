@@ -186,6 +186,7 @@ struct neigh_hash_table {
 	struct rcu_head		rcu;
 };
 
+
 struct neigh_table {
 	int			family;
 	int			entry_size;
@@ -245,6 +246,7 @@ static inline void *neighbour_priv(const struct neighbour *n)
 #define NEIGH_UPDATE_F_OVERRIDE_ISROUTER	0x00000004
 #define NEIGH_UPDATE_F_ISROUTER			0x40000000
 #define NEIGH_UPDATE_F_ADMIN			0x80000000
+
 
 static inline bool neigh_key_eq16(const struct neighbour *n, const void *pkey)
 {
@@ -446,6 +448,7 @@ static inline int neigh_hh_bridge(struct hh_cache *hh, struct sk_buff *skb)
 
 static inline int neigh_hh_output(const struct hh_cache *hh, struct sk_buff *skb)
 {
+	unsigned int hh_alen = 0;
 	unsigned int seq;
 	int hh_len;
 
@@ -453,16 +456,33 @@ static inline int neigh_hh_output(const struct hh_cache *hh, struct sk_buff *skb
 		seq = read_seqbegin(&hh->hh_lock);
 		hh_len = hh->hh_len;
 		if (likely(hh_len <= HH_DATA_MOD)) {
-			/* this is inlined by gcc */
-			memcpy(skb->data - HH_DATA_MOD, hh->hh_data, HH_DATA_MOD);
-		} else {
-			int hh_alen = HH_DATA_ALIGN(hh_len);
+			hh_alen = HH_DATA_MOD;
 
-			memcpy(skb->data - hh_alen, hh->hh_data, hh_alen);
+			/* skb_push() would proceed silently if we have room for
+			 * the unaligned size but not for the aligned size:
+			 * check headroom explicitly.
+			 */
+			if (likely(skb_headroom(skb) >= HH_DATA_MOD)) {
+				/* this is inlined by gcc */
+				memcpy(skb->data - HH_DATA_MOD, hh->hh_data,
+				       HH_DATA_MOD);
+			}
+		} else {
+			hh_alen = HH_DATA_ALIGN(hh_len);
+
+			if (likely(skb_headroom(skb) >= hh_alen)) {
+				memcpy(skb->data - hh_alen, hh->hh_data,
+				       hh_alen);
+			}
 		}
 	} while (read_seqretry(&hh->hh_lock, seq));
 
-	skb_push(skb, hh_len);
+	if (WARN_ON_ONCE(skb_headroom(skb) < hh_alen)) {
+		kfree_skb(skb);
+		return NET_XMIT_DROP;
+	}
+
+	__skb_push(skb, hh_len);
 	return dev_queue_xmit(skb);
 }
 
@@ -509,5 +529,6 @@ static inline void neigh_ha_snapshot(char *dst, const struct neighbour *n,
 		memcpy(dst, n->ha, dev->addr_len);
 	} while (read_seqretry(&n->ha_lock, seq));
 }
+
 
 #endif

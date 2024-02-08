@@ -58,6 +58,7 @@ static long rtk_uctrl_ioctl(struct file *filp, unsigned int cmd,
 		break;
 	}
 
+
 	return ret;
 }
 
@@ -71,6 +72,7 @@ static int rtk_uctrl_open(struct inode *inode, struct file *filp)
 {
 	return 0;
 }
+
 
 static int rtk_uctrl_release(struct inode *inode, struct file *filp)
 {

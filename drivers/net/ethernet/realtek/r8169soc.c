@@ -171,6 +171,7 @@ enum mode_access {
 
 #endif /* _LINUX_RTLTOOL_H */
 
+
 /* write/read MMIO register */
 #define RTL_W8(reg, val8)	writeb ((val8), ioaddr + (reg))
 #define RTL_W16(reg, val16)	writew ((val16), ioaddr + (reg))
@@ -797,6 +798,7 @@ struct rtl8169_stats {
 	struct u64_stats_sync	syncp;
 };
 
+
 #ifdef RTL_PROC
 static struct proc_dir_entry *rtw_proc;
 static u8 wol_enable=0;
@@ -821,9 +823,9 @@ struct rtl8169_private {
 	u32 last_cur_rx;
 	u32 rx_reset_count;
 	u8 checkRDU;
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	u64 rx_buffer_exhausted_count;
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 	struct rtl8169_stats rx_stats;
 	struct rtl8169_stats tx_stats;
 	struct TxDesc *TxDescArray;	/* 256-aligned Tx descriptor ring */
@@ -1613,6 +1615,7 @@ static void __rtl8169_check_link_status(struct net_device *dev,
 		speed_str = "unknown";
 #endif /* MY_ABC_HERE */
 
+
 	if (tp->link_ok(ioaddr)) {
 		rtl_link_chg_patch(tp);
 		/* This is to cancel a scheduled suspend if there's one. */
@@ -1621,14 +1624,26 @@ static void __rtl8169_check_link_status(struct net_device *dev,
 		netif_carrier_on(dev);
 		if (net_ratelimit()){
 #ifdef MY_ABC_HERE
+#ifdef MY_ABC_HERE
+			netif_notice(tp, ifup, dev, "link up %s\n", speed_str);
+#else /* MY_ABC_HERE */
 			netif_info(tp, ifup, dev, "link up %s\n", speed_str);
+#endif /* MY_ABC_HERE */
+#else /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+			netif_notice(tp, ifup, dev, "link up\n");
 #else /* MY_ABC_HERE */
 			netif_info(tp, ifup, dev, "link up\n");
+#endif /* MY_ABC_HERE */
 #endif /* MY_ABC_HERE */
 		}
 	} else {
 		netif_carrier_off(dev);
+#ifdef MY_ABC_HERE
+		netif_notice(tp, ifdown, dev, "link down\n");
+#else /* MY_ABC_HERE */
 		netif_info(tp, ifdown, dev, "link down\n");
+#endif /* MY_ABC_HERE */
 		if (pm)
 			pm_schedule_suspend(&tp->pdev->dev, 5000);
 	}
@@ -1867,6 +1882,8 @@ int rtl8169tool_ioctl(struct rtl8169_private *tp, struct ifreq *ifr)
 
         return ret;
 }
+
+
 
 #define WAKE_ANY (WAKE_PHY | WAKE_MAGIC | WAKE_UCAST | WAKE_BCAST | WAKE_MCAST)
 
@@ -2140,6 +2157,7 @@ static int rtl8169_set_features(struct net_device *dev,
 	return 0;
 }
 
+
 static inline u32 rtl8169_tx_vlan_tag(struct sk_buff *skb)
 {
 	return (skb_vlan_tag_present(skb)) ?
@@ -2235,9 +2253,9 @@ static const char rtl8169_gstrings[][ETH_GSTRING_LEN] = {
 	"multicast",
 	"tx_aborted",
 	"tx_underrun",
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	"rx_buffer_exhausted",
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 };
 
 static int rtl8169_get_sset_count(struct net_device *dev, int sset)
@@ -2313,9 +2331,9 @@ static void rtl8169_get_ethtool_stats(struct net_device *dev,
 	data[10] = le32_to_cpu(tp->counters.rx_multicast);
 	data[11] = le16_to_cpu(tp->counters.tx_aborted);
 	data[12] = le16_to_cpu(tp->counters.tx_underun);
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	data[13] = tp->rx_buffer_exhausted_count;
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 }
 
 static void rtl8169_get_strings(struct net_device *dev, u32 stringset, u8 *data)
@@ -3661,6 +3679,7 @@ static void rtl8411_hw_phy_config(struct rtl8169_private *tp)
 		{ 0x1f, 0x0000 }
 	};
 
+
 	rtl_apply_firmware(tp);
 
 	rtl8168f_hw_phy_config(tp);
@@ -4315,6 +4334,7 @@ static void rtl_phy_work(struct rtl8169_private *tp)
 	gphy_status = gphy_status & 0x0F00;
 	gphy_status = gphy_status >>8;
 
+
 	if((gphy_status>=3)&&(gphy_code==0x6329))
 	{
 		goto out_mod_timer;
@@ -4332,6 +4352,7 @@ static void rtl_phy_work(struct rtl8169_private *tp)
 	j=readl(IOMEM(0xFE007088));
 	j = j & 0xfffff9ff;
 	writel(j,IOMEM(0xFE007088));
+
 
 	i=readl(IOMEM(0xFE000000));
 	i = i | 0x00004000;
@@ -4368,6 +4389,7 @@ out_mod_timer:*/
 	mod_timer(timer, jiffies + timeout);
 
 }
+
 
 static void rtl8169_phy_timer(unsigned long __opaque)
 {
@@ -4454,6 +4476,7 @@ static void rtl8169_init_phy(struct net_device *dev, struct rtl8169_private *tp)
 	if (rtl_tbi_enabled(tp))
 		netif_info(tp, link, dev, "TBI auto-negotiating\n");
 }
+
 
 static int rtl_set_mac_address(struct net_device *dev, void *p)
 {
@@ -6367,6 +6390,7 @@ static int rtl8169_change_mtu(struct net_device *dev, int new_mtu)
 	rtl_hw_start(dev);
 	rtl_unlock_work(tp);
 
+
         //rtl8169_set_speed(dev, tp->autoneg, tp->speed, tp->duplex);
 	rtl8169_set_speed(dev, AUTONEG_ENABLE, SPEED_1000, DUPLEX_FULL,
 			  ADVERTISED_10baseT_Half | ADVERTISED_10baseT_Full |
@@ -7133,6 +7157,7 @@ process_pkt:
 	count = cur_rx - tp->cur_rx;
 	tp->cur_rx = cur_rx;
 
+
 	delta = rtl8168_rx_fill(tp, dev, tp->dirty_rx, tp->cur_rx);
 	//netif_err(tp, drv, tp->dev, "delta =%x \n",delta);
 	tp->dirty_rx += delta;
@@ -7145,14 +7170,14 @@ process_pkt:
 #endif /* MY_ABC_HERE */
 		rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 #endif /* MY_DEF_HERE */
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 #ifdef MY_DEF_HERE
 		printk_syno_ratelimited(KERN_ERR"%s: Rx buffers exhausted\n", dev->name);
 #endif /* MY_DEF_HERE */
 		tp->rx_buffer_exhausted_count ++;
-#else /* MY_DEF_HERE */
+#else /* MY_ABC_HERE */
 		netif_err(tp, drv, tp->dev, "%s: Rx buffers exhausted\n", dev->name);
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 	}
 
 	return count;
@@ -7249,6 +7274,7 @@ static void rtl_slow_event_work(struct rtl8169_private *tp)
 
 */			mod_timer(&tp->timer, jiffies + RTL8169_PHY_TIMEOUT);
 		}
+
 
 		if (gpio_is_valid(nic_gpio_iso)) {
 			if (tp->link_ok(ioaddr)){
@@ -7513,6 +7539,7 @@ rtl8169_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 		stats->rx_bytes	= tp->rx_stats.bytes;
 	} while (u64_stats_fetch_retry_irq(&tp->rx_stats.syncp, start));
 
+
 	do {
 		start = u64_stats_fetch_begin_irq(&tp->tx_stats.syncp);
 		stats->tx_packets = tp->tx_stats.packets;
@@ -7579,6 +7606,7 @@ static int rtl8169_suspend(struct device *dev)
 		printk(KERN_ERR "[RTK_ETN] %s Suspend mode\n", __func__);
 	}
 
+
 	printk(KERN_ERR "[RTK_ETN] Exit %s\n", __func__);
 
 	return 0;
@@ -7601,6 +7629,7 @@ static void __rtl8169_resume(struct net_device *dev)
 	j=readl(IOMEM(0xFE007088));
 	j = j & 0xfffff9ff;
 	writel(j,IOMEM(0xFE007088));
+
 
 	i=readl(IOMEM(0xFE000000));
 	i = i | 0x00004000;
@@ -8044,6 +8073,7 @@ static const struct file_operations proc_fops = {
 .write= write_proc,
 };
 
+
 static int driver_var_read_proc(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -8104,6 +8134,7 @@ static const struct file_operations driver_var_proc_fops = {
 	.release        = single_release,
 };
 
+
 static int tally_read_proc(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -8146,6 +8177,7 @@ static const struct file_operations tally_proc_fops = {
 	.llseek         = seq_lseek,
 	.release        = single_release,
 };
+
 
 static int registers_read_proc(struct seq_file *m, void *v)
 {
@@ -8286,6 +8318,7 @@ rtl_init_one(struct platform_device *pdev)
 		pdev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
 
 	ioaddr = of_iomap(pdev->dev.of_node, 0);
+
 
 	clkaddr = of_iomap(pdev->dev.of_node, 1);
 
@@ -8465,6 +8498,7 @@ rtl_init_one(struct platform_device *pdev)
 			break;
 		}
 
+
 		entry = proc_create_data("wol_enable", S_IFREG | S_IRUGO,
 				   dir_dev, &proc_fops, NULL);
 		if (!entry) {
@@ -8509,9 +8543,9 @@ rtl_init_one(struct platform_device *pdev)
 	if(tp->led_cfg)
 		tp->syno_lan_led_status = tp->led_cfg & 0xF;
 #endif /* MY_DEF_HERE */
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	tp->rx_buffer_exhausted_count = 0;
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 //	if (!pci_is_pcie(pdev))
 //		netif_info(tp, probe, dev, "not PCI Express\n");
@@ -8603,6 +8637,7 @@ rtl_init_one(struct platform_device *pdev)
 	if (retry == RETRY_MAX)
 		printk(KERN_ERR "%s get invalid MAC address %pM, give up!\n",
 			rtl_chip_infos[chipset].name, ndev->dev_addr);
+
 
 	ndev->ethtool_ops = &rtl8169_ethtool_ops;
 	ndev->watchdog_timeo = RTL8169_TX_TIMEOUT;

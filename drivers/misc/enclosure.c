@@ -159,7 +159,7 @@ enclosure_register(struct device *dev, const char *name, int components,
 	for (i = 0; i < components; i++) {
 		edev->component[i].number = -1;
 		edev->component[i].slot = -1;
-		edev->component[i].power_status = 1;
+		edev->component[i].power_status = -1;
 	}
 
 	mutex_lock(&container_list_lock);
@@ -429,6 +429,7 @@ int enclosure_add_device(struct enclosure_device *edev, int component,
 			 struct device *dev)
 {
 	struct enclosure_component *cdev;
+	int err;
 #ifdef MY_ABC_HERE
 	struct scsi_device *scsi_dev = NULL;
 	struct scsi_device *scsi_enc = NULL;
@@ -442,10 +443,10 @@ int enclosure_add_device(struct enclosure_device *edev, int component,
 	if (cdev->dev == dev)
 		return -EEXIST;
 
-	if (cdev->dev)
+	if (cdev->dev) {
 		enclosure_remove_links(cdev);
-
-	put_device(cdev->dev);
+		put_device(cdev->dev);
+	}
 	cdev->dev = get_device(dev);
 
 #ifdef MY_ABC_HERE
@@ -464,7 +465,12 @@ int enclosure_add_device(struct enclosure_device *edev, int component,
 	}
 #endif /* MY_ABC_HERE */
 
-	return enclosure_add_links(cdev);
+	err = enclosure_add_links(cdev);
+	if (err) {
+		put_device(cdev->dev);
+		cdev->dev = NULL;
+	}
+	return err;
 }
 EXPORT_SYMBOL_GPL(enclosure_add_device);
 
@@ -688,6 +694,11 @@ static ssize_t get_component_power_status(struct device *cdev,
 
 	if (edev->cb->get_power_status)
 		edev->cb->get_power_status(edev, ecomp);
+
+	/* If still uninitialized, the callback failed or does not exist. */
+	if (ecomp->power_status == -1)
+		return (edev->cb->get_power_status) ? -EIO : -ENOTTY;
+
 	return snprintf(buf, 40, "%s\n", ecomp->power_status ? "on" : "off");
 }
 

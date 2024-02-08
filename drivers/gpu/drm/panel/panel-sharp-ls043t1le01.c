@@ -109,6 +109,7 @@ static int sharp_nt_panel_off(struct sharp_nt_panel *sharp_nt)
 	return 0;
 }
 
+
 static int sharp_nt_panel_disable(struct drm_panel *panel)
 {
 	struct sharp_nt_panel *sharp_nt = to_sharp_nt_panel(panel);

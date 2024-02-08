@@ -73,6 +73,8 @@ ast_pci_remove(struct pci_dev *pdev)
 	drm_put_dev(dev);
 }
 
+
+
 static int ast_drm_freeze(struct drm_device *dev)
 {
 	drm_kms_helper_poll_disable(dev);
@@ -230,3 +232,4 @@ module_exit(ast_exit);
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL and additional rights");
+

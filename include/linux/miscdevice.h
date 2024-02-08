@@ -23,10 +23,6 @@
 #define PC110PAD_MINOR		9	/* unused */
 /*#define ADB_MOUSE_MINOR	10	FIXME OBSOLETE */
 #if defined(MY_DEF_HERE)
-/* for kernel 3.10.x proting */
-#define CRYPTODEV_MINOR     70
-#endif /*MY_DEF_HERE*/
-#if defined(MY_DEF_HERE)
 #define SLICDEV_MINOR           73      /* Marvell SLIC control device */
 #define TALDEV_MINOR            74      /* Marvell TAL device */
 #endif /* MY_DEF_HERE */

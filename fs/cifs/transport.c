@@ -389,7 +389,7 @@ uncork:
 	if (rc < 0 && rc != -EINTR)
 		cifs_dbg(VFS, "Error %d sending data on socket to server\n",
 			 rc);
-	else
+	else if (rc > 0)
 		rc = 0;
 
 	return rc;
@@ -598,6 +598,7 @@ cifs_call_async(struct TCP_Server_Info *server, struct smb_rqst *rqst,
 	spin_lock(&GlobalMid_Lock);
 	list_add_tail(&mid->qhead, &server->pending_mid_q);
 	spin_unlock(&GlobalMid_Lock);
+
 
 	cifs_in_send_inc(server);
 	rc = smb_send_rqst(server, rqst);
@@ -841,9 +842,11 @@ SendReceive2(const unsigned int xid, struct cifs_ses *ses,
 
 	rc = wait_for_response(ses->server, midQ);
 	if (rc != 0) {
+		cifs_dbg(FYI, "Cancelling wait for mid %llu\n",	midQ->mid);
 		send_cancel(ses->server, buf, midQ);
 		spin_lock(&GlobalMid_Lock);
 		if (midQ->mid_state == MID_REQUEST_SUBMITTED) {
+			midQ->mid_flags |= MID_WAIT_CANCELLED;
 			midQ->callback = DeleteMidQEntry;
 			spin_unlock(&GlobalMid_Lock);
 			cifs_small_buf_release(buf);

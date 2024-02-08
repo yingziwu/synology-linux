@@ -434,7 +434,7 @@ ssize_t rpc_poll_write(struct file *filp, const char *buf, size_t count,
     temp = dev->ringEnd - dev->ringIn;
     if (temp >= count) {
 #ifdef MY_COPY
-        r = my_copy_user((int *)AVCPU2SCPU(dev->ringIn), (int *)buf, count);
+        r = my_copy_from_user((int *)AVCPU2SCPU(dev->ringIn), (int *)buf, count);
 #else
         r = copy_from_user((int *)AVCPU2SCPU(dev->ringIn), (int *)buf, count);
 #endif
@@ -457,7 +457,7 @@ ssize_t rpc_poll_write(struct file *filp, const char *buf, size_t count,
         //pr_debug("RPC Write is in 1st kind...\n");
     } else {
 #ifdef MY_COPY
-        r = my_copy_user((int *)AVCPU2SCPU(dev->ringIn), (int *)buf, temp);
+        r = my_copy_from_user((int *)AVCPU2SCPU(dev->ringIn), (int *)buf, temp);
 #else
         r = copy_from_user((int *)AVCPU2SCPU(dev->ringIn), (int *)buf, temp);
 #endif
@@ -468,7 +468,7 @@ ssize_t rpc_poll_write(struct file *filp, const char *buf, size_t count,
         count -= temp;
 
 #ifdef MY_COPY
-        r = my_copy_user((int *)AVCPU2SCPU(dev->ringStart), (int *)(buf+temp), count);
+        r = my_copy_from_user((int *)AVCPU2SCPU(dev->ringStart), (int *)(buf+temp), count);
 #else
         r = copy_from_user((int *)AVCPU2SCPU(dev->ringStart), (int *)(buf+temp), count);
 #endif
@@ -635,3 +635,4 @@ struct file_operations rpc_ctrl_fops = {
     .compat_ioctl=	rpc_ctrl_ioctl,
     .open=              rpc_ctrl_open,
 };
+

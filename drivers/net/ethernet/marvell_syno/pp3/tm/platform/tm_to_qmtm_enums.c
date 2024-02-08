@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -28,8 +29,11 @@ disclaimer.
 #include "tm_to_qmtm_enums.h"
 #include "tm_errcodes.h"
 
+
 /*#define CONVERT_ERROR_CODE(code)  if (rc==code) return QM##code;*/
 #define CONVERT_ERROR_CODE(code)  if (rc == code) return code;
+
+
 
 int	tm_to_qmtm_errcode(int rc)
 {
@@ -73,6 +77,7 @@ int	tm_to_qmtm_errcode(int rc)
 	CONVERT_ERROR_CODE(TM_HW_TM2TM_CHANNEL_CONF_FAILED)
 	CONVERT_ERROR_CODE(TM_HW_TM2TM_LC_CONF_FAILED)
 	CONVERT_ERROR_CODE(TM_HW_TM2TM_ENABLE_FAILED)
+
 
 /** configuration  error codes */
 	CONVERT_ERROR_CODE(TM_CONF_INVALID_PROD_NAME)
@@ -160,3 +165,5 @@ int	tm_to_qmtm_errcode(int rc)
 
 	return rc;
 }
+
+

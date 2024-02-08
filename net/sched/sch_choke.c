@@ -407,6 +407,7 @@ static const struct nla_policy choke_policy[TCA_CHOKE_MAX + 1] = {
 	[TCA_CHOKE_MAX_P]	= { .type = NLA_U32 },
 };
 
+
 static void choke_free(void *addr)
 {
 	kvfree(addr);
@@ -436,6 +437,9 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt)
 	max_P = tb[TCA_CHOKE_MAX_P] ? nla_get_u32(tb[TCA_CHOKE_MAX_P]) : 0;
 
 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+
+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
+		return -EINVAL;
 
 	if (ctl->limit > CHOKE_MAX_QUEUE)
 		return -EINVAL;

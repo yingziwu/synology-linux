@@ -54,6 +54,11 @@
 #include <asm/ptrace.h>
 #include <asm/irq_regs.h>
 
+#if defined(MY_ABC_HERE)
+bool gBlSynoSysrqB = false;
+EXPORT_SYMBOL(gBlSynoSysrqB);
+#endif /* defined(MY_ABC_HERE) */
+
 /* Whether we react on sysrq keys or just ignore them */
 static int __read_mostly sysrq_enabled = CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE;
 static bool __read_mostly sysrq_always_enabled;
@@ -82,6 +87,7 @@ static int __init sysrq_always_enabled_setup(char *str)
 }
 
 __setup("sysrq_always_enabled", sysrq_always_enabled_setup);
+
 
 static void sysrq_handle_loglevel(int key)
 {
@@ -135,6 +141,12 @@ static void sysrq_handle_crash(int key)
 {
 	char *killer = NULL;
 
+	/* we need to release the RCU read lock here,
+	 * otherwise we get an annoying
+	 * 'BUG: sleeping function called from invalid context'
+	 * complaint from the kernel before the panic.
+	 */
+	rcu_read_unlock();
 	panic_on_oops = 1;	/* force panic */
 	wmb();
 	*killer = 1;
@@ -148,6 +160,9 @@ static struct sysrq_key_op sysrq_crash_op = {
 
 static void sysrq_handle_reboot(int key)
 {
+#if defined(MY_ABC_HERE)
+	gBlSynoSysrqB = true;
+#endif /* defined(MY_ABC_HERE) */
 	lockdep_off();
 	local_irq_enable();
 	emergency_restart();
@@ -255,8 +270,10 @@ static void sysrq_handle_showallcpus(int key)
 	 * architecture has no support for it:
 	 */
 	if (!trigger_all_cpu_backtrace()) {
-		struct pt_regs *regs = get_irq_regs();
+		struct pt_regs *regs = NULL;
 
+		if (in_irq())
+			regs = get_irq_regs();
 		if (regs) {
 			pr_info("CPU%d:\n", smp_processor_id());
 			show_regs(regs);
@@ -275,7 +292,10 @@ static struct sysrq_key_op sysrq_showallcpus_op = {
 
 static void sysrq_handle_showregs(int key)
 {
-	struct pt_regs *regs = get_irq_regs();
+	struct pt_regs *regs = NULL;
+
+	if (in_irq())
+		regs = get_irq_regs();
 	if (regs)
 		show_regs(regs);
 	perf_event_print_debug();

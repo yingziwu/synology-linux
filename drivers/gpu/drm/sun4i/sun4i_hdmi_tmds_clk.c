@@ -26,6 +26,7 @@ static inline struct sun4i_tmds *hw_to_tmds(struct clk_hw *hw)
 	return container_of(hw, struct sun4i_tmds, hw);
 }
 
+
 static unsigned long sun4i_tmds_calc_divider(unsigned long rate,
 					     unsigned long parent_rate,
 					     u8 div_offset,
@@ -63,6 +64,7 @@ static unsigned long sun4i_tmds_calc_divider(unsigned long rate,
 
 	return best_rate;
 }
+
 
 static int sun4i_tmds_determine_rate(struct clk_hw *hw,
 				     struct clk_rate_request *req)

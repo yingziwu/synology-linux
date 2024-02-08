@@ -29,12 +29,14 @@
 
 #include "etuas.h"
 
+
 #define DRIVER_AUTHOR		"Matthew Wilcox and Sarah Sharp"
 #define DRIVER_DESCRIPTION	"USB Attached SCSI Driver"
 
 MODULE_DESCRIPTION(DRIVER_DESCRIPTION);
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_LICENSE("GPL");
+
 
 /* Overrides scsi_pointer */
 struct uas_cmd_info {
@@ -101,6 +103,7 @@ struct uas_dev_info {
 
 #define IS_ONE_COMMAND_ONLY(quirk)	((quirk) & (UAS_QUIRK_ONE_STREAM_ID | UAS_QUIRK_SERIAL_STREAM_ID))
 
+
 #define UAS_SUBCLASS_SCSI	0x06
 #define UAS_PROTOCOL_BULK	0x50
 #define UAS_PROTOCOL_UAS	0x62
@@ -117,6 +120,7 @@ struct uas_dev_info {
 
 #define UAS_MAX_COMMANDS	UAS_MAX_AVAILABLE_STREAMS
 
+
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35))
 extern int usb_alloc_streams(struct usb_interface *interface,
 		struct usb_host_endpoint **eps, unsigned int num_eps,
@@ -127,6 +131,7 @@ extern void usb_free_streams(struct usb_interface *interface,
 #endif
 extern void usb_run_bot_mode_notification(struct usb_device *hdev,
 		unsigned int portnum);
+
 
 static void initialize_stream_id(struct uas_dev_info *devinfo)
 {
@@ -900,6 +905,7 @@ static void log_scsi_command_state(struct scsi_cmnd *cmnd)
 	scsi_print_command(cmnd);
 }
 
+
 static int scsi_target_alloc(struct scsi_target *starget)
 {
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(3,4,0))
@@ -1113,6 +1119,7 @@ static struct scsi_host_template uas_host_template = {
 	.eh_bus_reset_handler	= scsi_reset_bus_handler,
 };
 
+
 static int probe_device(struct usb_interface *intf, const struct usb_device_id *id)
 {
 	struct usb_device *udev = interface_to_usbdev(intf);
@@ -1290,6 +1297,7 @@ static struct usb_driver uas_driver = {
 	.post_reset	= post_reset_device,
 };
 
+
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(3,3,0))
 module_usb_driver(uas_driver);
 #else
@@ -1306,3 +1314,4 @@ static void etuas_exit(void)
 module_init(etuas_init);
 module_exit(etuas_exit);
 #endif
+

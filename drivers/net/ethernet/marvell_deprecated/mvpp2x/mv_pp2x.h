@@ -89,6 +89,7 @@
 
 #define SRAM_BIT_TO_BYTE(_bit_) HW_BYTE_OFFS((_bit_) / 8)
 
+
 #define TCAM_DATA_BYTE_OFFS_LE(_offs_)		(((_offs_) - \
 	((_offs_) % 2)) * 2 + ((_offs_) % 2))
 #define TCAM_DATA_MASK_OFFS_LE(_offs_) (((_offs_) * 2) - ((_offs_) % 2)  + 2)

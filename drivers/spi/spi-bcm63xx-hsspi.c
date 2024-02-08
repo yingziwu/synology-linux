@@ -75,6 +75,7 @@
 
 #define HSSPI_FIFO_REG(x)			(0x200 + (x) * 0x200)
 
+
 #define HSSPI_OP_MULTIBIT			BIT(11)
 #define HSSPI_OP_CODE_SHIFT			13
 #define HSSPI_OP_SLEEP				(0 << HSSPI_OP_CODE_SHIFT)
@@ -335,8 +336,8 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
-		dev_err(dev, "no irq\n");
-		return -ENXIO;
+		dev_err(dev, "no irq: %d\n", irq);
+		return irq;
 	}
 
 	res_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -415,6 +416,7 @@ out_disable_clk:
 	clk_disable_unprepare(clk);
 	return ret;
 }
+
 
 static int bcm63xx_hsspi_remove(struct platform_device *pdev)
 {

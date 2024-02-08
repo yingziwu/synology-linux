@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -61,6 +62,7 @@ disclaimer.
 #define BM_GP_BANK_NUM				4
 #define BM_BANK_NUM				(BM_QM_BANK_NUM + BM_GP_BANK_NUM)
 
+
 #define BM_QM_BANK_POOLS_NUM			(BM_QM_GPM_POOLS_NUM + BM_QM_DRAM_POOLS_NUM)
 #define BM_GP_BANK_POOLS_NUM			7
 #define BM_BANK_POOLS_NUM(bank)			((bank == 0) ? BM_QM_BANK_POOLS_NUM : BM_GP_BANK_POOLS_NUM)
@@ -100,6 +102,7 @@ disclaimer.
 #define BM_DRAM_AF(_buf_num_)			MV_ALIGN_DOWN((_buf_num_ * 3/4), 16)
 #endif /* !CONFIG_MV_PP3_FPGA */
 
+
 /*--------------------------- pools definitions --------------------------*/
 #define BM_TOT_AE				300 /* total almost empty threshold */
 #define BM_TOT_AAE				400 /* total almost almost empty threshold */
@@ -122,6 +125,8 @@ disclaimer.
 
 /* pool 2 buffer size is 1024, pool 3 buffer size is 16 */
 #define BM_QM_DRAM_POOL_BUF_SIZE(pool)		((pool == 2) ? 1024 : 16)
+
+
 
 /*--------------------------- global definitions --------------------------*/
 
@@ -196,6 +201,7 @@ void bm_enable(void);
  */
 void bm_disable(void);
 
+
 /**
  *  Print all global registers
  *  Return values:
@@ -214,6 +220,7 @@ void bm_pool_registers_dump(int pool);
  *  Print parsed values of all BM pool registers
  */
 void bm_pool_registers_parse(int pool);
+
 
 /**
  *  Print values of all BM bank registers
@@ -261,6 +268,7 @@ int bm_pool_enable(int pool);
  *		0 - success
  */
 int bm_pool_disable(int pool);
+
 
 /**
  *  Print pool status

@@ -50,9 +50,31 @@ enum {
 	MAX_NUMBER_OF_ENTRIES = 256
 };
 
+
 enum {
 	OUTPUT_CSC_MATRIX_SIZE = 12
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
  *****************************************************************************
@@ -71,6 +93,8 @@ enum {
  *****************************************************************************
  */
 
+
+
 /**
  *	set_truncation
  *	1) set truncation depth: 0 for 18 bpp or 1 for 24 bpp
@@ -86,6 +110,7 @@ static void set_truncation(
 			FMT_TRUNCATE_EN, 0,
 			FMT_TRUNCATE_DEPTH, 0,
 			FMT_TRUNCATE_MODE, 0);
+
 
 	if (params->pixel_encoding == PIXEL_ENCODING_YCBCR422) {
 		/*  8bpc trunc on YCbCr422*/
@@ -113,6 +138,7 @@ static void set_truncation(
 				FMT_TRUNCATE_MODE,
 				params->flags.TRUNCATE_MODE);
 }
+
 
 /**
  *	set_spatial_dither
@@ -498,6 +524,10 @@ void dce110_opp_program_fmt(
 	return;
 }
 
+
+
+
+
 /*****************************************/
 /* Constructor, Destructor               */
 /*****************************************/
@@ -533,3 +563,4 @@ void dce110_opp_destroy(struct output_pixel_processor **opp)
 		kfree(FROM_DCE11_OPP(*opp));
 	*opp = NULL;
 }
+

@@ -177,6 +177,7 @@ int vega10_send_msg_to_smc_with_parameter(struct pp_hwmgr *hwmgr,
 	return 0;
 }
 
+
 /*
  * Send a message to the SMC with parameter, do not wait for response
  * @param    hwmgr:  the address of the powerplay hardware manager.

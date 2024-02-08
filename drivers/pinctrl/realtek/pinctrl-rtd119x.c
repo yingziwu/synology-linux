@@ -221,6 +221,7 @@ static int RTK119X_pctrl_dt_node_to_map(struct pinctrl_dev *pctldev,
 		if (of_find_property(node, "rtk119x,pull_sel", NULL))
 			configlen++;
 
+
 		pinconfig = kzalloc(configlen * sizeof(*pinconfig), GFP_KERNEL);
 
 		if (!of_property_read_u32(node, "rtk119x,schmitt", &val)) {
@@ -323,6 +324,7 @@ static int RTK119X_pconf_group_set(struct pinctrl_dev *pctldev,
 	 else
 		addr = pctl->iso_membase + pin_regmap[g->pin].pcof_regoff;
 
+
 	switch (pinconf_to_config_param(config)) {
 
 		case PIN_CONFIG_INPUT_SCHMITT:
@@ -338,6 +340,7 @@ static int RTK119X_pconf_group_set(struct pinctrl_dev *pctldev,
 			mask =  1 << (pin_regmap[g->pin].pcof_regbit + RTK119X_PCONF_SCHM);
 			writel(((val & ~mask)|(set_val<<(pin_regmap[g->pin].pcof_regbit+RTK119X_PCONF_SCHM))), addr);
 			break;
+
 
 		case PIN_CONFIG_DRIVE_STRENGTH:
 			strength = pinconf_to_config_argument(config);
@@ -447,6 +450,7 @@ static int RTK119X_pmx_enable(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
+
 static int
 RTK119X_pmx_gpio_request_enable (struct pinctrl_dev *pctldev,
 				    struct pinctrl_gpio_range *range,
@@ -484,6 +488,8 @@ RTK119X_pmx_gpio_disable_free (struct pinctrl_dev *pctldev,
 /*TODO : need to add gpio related api*/
 	return ;
 }
+
+
 
 static const struct pinmux_ops RTK119X_pmx_ops = {
 	.get_functions_count	= RTK119X_pmx_get_funcs_cnt,
@@ -747,6 +753,7 @@ static int RTK119X_pinctrl_probe(struct platform_device *pdev)
 
 	last_pin = pctl->desc->pins[pctl->desc->npins - 1].pin.number;
 
+
 	pctl->chip = &RTK119X_pinctrl_gpio_chip;
 	pctl->chip->ngpio = round_up(last_pin, PINS_PER_BANK);
 	pctl->chip->label = dev_name(&pdev->dev);
@@ -769,6 +776,7 @@ static int RTK119X_pinctrl_probe(struct platform_device *pdev)
 		if (ret)
 			goto gpiochip_error;
 	}
+
 
 	clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(clk)) {
@@ -801,6 +809,8 @@ static struct platform_driver RTK119X_pinctrl_driver = {
 	},
 };
 //early_platform_init("RTK119XPinctrlDriver", &RTK119X_pinctrl_driver);
+
+
 
 static int  rtk119x_pinctrl_init(void)
 {

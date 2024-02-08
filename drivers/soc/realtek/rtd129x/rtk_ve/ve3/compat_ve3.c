@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * drivers/soc/realtek/rtd129x/rtk_ve/ve3/compat_ve3.h
  *
@@ -160,8 +163,13 @@ long compat_hantrodec_ioctl(struct file *filp, unsigned int cmd, unsigned long a
             return err;
 
         ret = filp->f_op->unlocked_ioctl(filp, HANTRODEC_IOC_MC_OFFSETS, (unsigned long)data);
+#ifdef MY_ABC_HERE
+	err = copy_from_user(n, data, sizeof(n));
+	err |= copy_to_user(data32, n, sizeof(data32));
+#else /* MY_ABC_HERE */
         err = copy_from_user(n, data, sizeof(data));
         err |= copy_to_user(n, data32, sizeof(n));
+#endif /* MY_ABC_HERE */
         return ret ? ret : err;
     }
 
@@ -225,6 +233,7 @@ long compat_hantrodec_ioctl(struct file *filp, unsigned int cmd, unsigned long a
         err = compat_put_ve3_core_desc_data(data32, data);
         return ret ? ret : err;
     }
+
 
     case COMPAT_HANTRODEC_IOCX_DEC_WAIT:
     {

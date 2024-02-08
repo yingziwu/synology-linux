@@ -464,6 +464,7 @@ module_param(pad_thresh, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(pad_thresh, "Threshold at which a pad push registers as an "
 		 "arrow key in kbd mode (default: 28)");
 
+
 static void free_imon_context(struct imon_context *ictx)
 {
 	struct device *dev = ictx->dev;
@@ -884,6 +885,7 @@ exit:
 
 	return retval;
 }
+
 
 static DEVICE_ATTR(imon_clock, S_IWUSR | S_IRUGO, show_imon_clock,
 		   store_imon_clock);
@@ -1627,7 +1629,7 @@ static void imon_incoming_packet(struct imon_context *ictx,
 	if (kc == KEY_KEYBOARD && !ictx->release_code) {
 		ictx->last_keycode = kc;
 		if (!nomouse) {
-			ictx->pad_mouse = ~(ictx->pad_mouse) & 0x1;
+			ictx->pad_mouse = !ictx->pad_mouse;
 			dev_dbg(dev, "toggling to %s mode\n",
 				ictx->pad_mouse ? "mouse" : "keyboard");
 			spin_unlock_irqrestore(&ictx->kc_lock, flags);
@@ -2417,6 +2419,11 @@ static int imon_probe(struct usb_interface *interface,
 	mutex_lock(&driver_lock);
 
 	first_if = usb_ifnum_to_if(usbdev, 0);
+	if (!first_if) {
+		ret = -ENODEV;
+		goto fail;
+	}
+
 	first_if_ctx = usb_get_intfdata(first_if);
 
 	if (ifnum == 0) {

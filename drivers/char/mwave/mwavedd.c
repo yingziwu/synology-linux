@@ -411,6 +411,7 @@ static long mwave_ioctl(struct file *file, unsigned int iocmd,
 	return retval;
 }
 
+
 static ssize_t mwave_read(struct file *file, char __user *buf, size_t count,
                           loff_t * ppos)
 {
@@ -420,6 +421,7 @@ static ssize_t mwave_read(struct file *file, char __user *buf, size_t count,
 
 	return -EINVAL;
 }
+
 
 static ssize_t mwave_write(struct file *file, const char __user *buf,
                            size_t count, loff_t * ppos)
@@ -431,6 +433,7 @@ static ssize_t mwave_write(struct file *file, const char __user *buf,
 
 	return -EINVAL;
 }
+
 
 static int register_serial_portandirq(unsigned int port, int irq)
 {
@@ -476,6 +479,7 @@ static int register_serial_portandirq(unsigned int port, int irq)
 	return serial8250_register_8250_port(&uart);
 }
 
+
 static const struct file_operations mwave_fops = {
 	.owner		= THIS_MODULE,
 	.read		= mwave_read,
@@ -485,6 +489,7 @@ static const struct file_operations mwave_fops = {
 	.release	= mwave_close,
 	.llseek		= default_llseek,
 };
+
 
 static struct miscdevice mwave_misc_dev = { MWAVE_MINOR, "mwave", &mwave_fops };
 
@@ -696,3 +701,4 @@ cleanup_error:
 }
 
 module_init(mwave_init);
+

@@ -28,6 +28,7 @@
 
 #pragma pack(push, 1)
 
+
 #define NUM_SCLK_RANGE 8
 
 #define VCO_3_6 1
@@ -248,6 +249,7 @@ struct SMU74_Discrete_DpmTable {
 
 	uint32_t                            MvddLevelCount;
 
+
 	uint8_t                             BapmVddcVidHiSidd[SMU74_MAX_LEVELS_VDDC];
 	uint8_t                             BapmVddcVidLoSidd[SMU74_MAX_LEVELS_VDDC];
 	uint8_t                             BapmVddcVidHiSidd2[SMU74_MAX_LEVELS_VDDC];
@@ -369,6 +371,7 @@ struct SMU74_Discrete_DpmTable {
 
 typedef struct SMU74_Discrete_DpmTable SMU74_Discrete_DpmTable;
 
+
 struct SMU74_Discrete_FanTable {
 	uint16_t FdoMode;
 	int16_t  TempMin;
@@ -394,6 +397,7 @@ typedef struct SMU74_Discrete_FanTable SMU74_Discrete_FanTable;
 
 #define SMU7_DISCRETE_GPIO_SCLK_DEBUG             4
 #define SMU7_DISCRETE_GPIO_SCLK_DEBUG_BIT         (0x1 << SMU7_DISCRETE_GPIO_SCLK_DEBUG)
+
 
 struct SMU7_MclkDpmScoreboard {
 	uint32_t PercentageBusy;
@@ -552,6 +556,7 @@ struct SMU7_BapmScoreboard {
 	uint32_t measured_temperature;
 };
 
+
 typedef struct SMU7_BapmScoreboard SMU7_BapmScoreboard;
 
 struct SMU7_AcpiScoreboard {
@@ -648,6 +653,7 @@ typedef struct SMU7_Discrete_Log_Cntl SMU7_Discrete_Log_Cntl;
 #if defined SMU__DGPU_ONLY
 #define CAC_ACC_NW_NUM_OF_SIGNALS 87
 #endif
+
 
 struct SMU7_Discrete_Cac_Collection_Table {
 	uint32_t temperature;
@@ -835,6 +841,9 @@ typedef struct SMU7_GfxCuPgScoreboard SMU7_GfxCuPgScoreboard;
 #define AVFSGB0_Vdroop_Enable_SHIFT 2
 #define AVFSGB1_Vdroop_Enable_SHIFT 3
 
+
 #pragma pack(pop)
 
+
 #endif
+

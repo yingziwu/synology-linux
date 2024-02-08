@@ -1305,6 +1305,7 @@ static void atl2_poll_controller(struct net_device *netdev)
 }
 #endif
 
+
 static const struct net_device_ops atl2_netdev_ops = {
 	.ndo_open		= atl2_open,
 	.ndo_stop		= atl2_close,
@@ -1337,12 +1338,10 @@ static int atl2_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	struct net_device *netdev;
 	struct atl2_adapter *adapter;
-	static int cards_found;
+	static int cards_found = 0;
 	unsigned long mmio_start;
 	int mmio_len;
 	int err;
-
-	cards_found = 0;
 
 	err = pci_enable_device(pdev);
 	if (err)

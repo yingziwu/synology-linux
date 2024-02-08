@@ -141,6 +141,7 @@ static int ks8995_read(struct ks8995_switch *ks, char *buf,
 	return err ? err : count;
 }
 
+
 static int ks8995_write(struct ks8995_switch *ks, char *buf,
 		 unsigned offset, size_t count)
 {
@@ -309,6 +310,7 @@ static int ks8995_probe(struct spi_device *spi)
 	if (err)
 		return err;
 
+	sysfs_attr_init(&ks->regs_attr.attr);
 	err = sysfs_create_bin_file(&spi->dev.kobj, &ks->regs_attr);
 	if (err) {
 		dev_err(&spi->dev, "unable to create sysfs file, err=%d\n",

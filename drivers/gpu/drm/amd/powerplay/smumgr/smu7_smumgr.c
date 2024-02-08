@@ -21,6 +21,7 @@
  *
  */
 
+
 #include "pp_debug.h"
 #include "smumgr.h"
 #include "smu_ucode_xfer_vi.h"
@@ -43,6 +44,7 @@ static int smu7_set_smc_sram_address(struct pp_hwmgr *hwmgr, uint32_t smc_addr, 
 	PHM_WRITE_FIELD(hwmgr->device, SMC_IND_ACCESS_CNTL, AUTO_INCREMENT_IND_11, 0); /* on ci, SMC_IND_ACCESS_CNTL is different */
 	return 0;
 }
+
 
 int smu7_copy_bytes_from_smc(struct pp_hwmgr *hwmgr, uint32_t smc_start_address, uint32_t *dest, uint32_t byte_count, uint32_t limit)
 {
@@ -78,6 +80,7 @@ int smu7_copy_bytes_from_smc(struct pp_hwmgr *hwmgr, uint32_t smc_start_address,
 
 	return 0;
 }
+
 
 int smu7_copy_bytes_to_smc(struct pp_hwmgr *hwmgr, uint32_t smc_start_address,
 				const uint8_t *src, uint32_t byte_count, uint32_t limit)
@@ -118,6 +121,7 @@ int smu7_copy_bytes_to_smc(struct pp_hwmgr *hwmgr, uint32_t smc_start_address,
 		if (0 != result)
 			return result;
 
+
 		original_data = cgs_read_register(hwmgr->device, mmSMC_IND_DATA_11);
 
 		extra_shift = 8 * (4 - byte_count);
@@ -143,6 +147,7 @@ int smu7_copy_bytes_to_smc(struct pp_hwmgr *hwmgr, uint32_t smc_start_address,
 	return 0;
 }
 
+
 int smu7_program_jump_on_start(struct pp_hwmgr *hwmgr)
 {
 	static const unsigned char data[4] = { 0xE0, 0x00, 0x80, 0x40 };
@@ -164,6 +169,7 @@ int smu7_send_msg_to_smc(struct pp_hwmgr *hwmgr, uint16_t msg)
 
 	if (!smu7_is_smc_ram_running(hwmgr))
 		return -EINVAL;
+
 
 	PHM_WAIT_FIELD_UNEQUAL(hwmgr, SMC_RESP_0, SMC_RESP, 0);
 
@@ -234,6 +240,7 @@ int smu7_wait_for_smc_inactive(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 enum cgs_ucode_id smu7_convert_fw_type_to_cgs(uint32_t fw_type)
 {
 	enum cgs_ucode_id result = CGS_UCODE_ID_MAXIMUM;
@@ -281,6 +288,7 @@ enum cgs_ucode_id smu7_convert_fw_type_to_cgs(uint32_t fw_type)
 
 	return result;
 }
+
 
 int smu7_read_smc_sram_dword(struct pp_hwmgr *hwmgr, uint32_t smc_addr, uint32_t *value, uint32_t limit)
 {
@@ -511,6 +519,7 @@ static int smu7_upload_smc_firmware_data(struct pp_hwmgr *hwmgr, uint32_t length
 	return 0;
 }
 
+
 int smu7_upload_smu_firmware_image(struct pp_hwmgr *hwmgr)
 {
 	int result = 0;
@@ -635,6 +644,7 @@ int smu7_init(struct pp_hwmgr *hwmgr)
 
 	return 0;
 }
+
 
 int smu7_smu_fini(struct pp_hwmgr *hwmgr)
 {

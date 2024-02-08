@@ -168,3 +168,4 @@ int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait)
 	ttm_bo_unreserve(&bo->tbo);
 	return r;
 }
+

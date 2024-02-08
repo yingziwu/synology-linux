@@ -106,6 +106,7 @@ struct thermal_cooling_device *cpu_core_cooling_register(struct cpumask *cpus)
     if (!priv)
         return NULL;
 
+
     mutex_lock(&cpu_core_cooling_mutex);
     priv->id = gid ++;
     mutex_unlock(&cpu_core_cooling_mutex);

@@ -51,10 +51,12 @@
 #include <soc/realtek/rtd129x_lockapi.h>
 #endif
 
+
 /*
  * Mapping drivers for chip access
  */
 #undef CONFIG_MTD_COMPLEX_MAPPINGS
+
 
 /*
  * Definitions
@@ -126,6 +128,7 @@ static int *dbg_counter = NULL;
 static DESCRIPTOR_TABLE *dbg_table = NULL;
 #endif
 
+
 /*
  * Global Variables
  */
@@ -162,6 +165,7 @@ static void *write_dma_buf = NULL;
 static dma_addr_t write_dma_handle;
 #endif
 
+
 /*
  * Function Prototype
  */
@@ -170,6 +174,7 @@ static int rtk_sfc_attach(struct mtd_info *mtd_info);
 static inline void sfc_delay(void);
 #define delaymicro 50
 #endif
+
 
 #if defined(CONFIG_MTD_RTK_SFC_DEBUG)
 static inline void add_debug_entry(int from, int to, int length, PROGRESS_STATUS status) {
@@ -191,6 +196,7 @@ static inline void change_status(PROGRESS_STATUS status) {
         dbg_table[*dbg_counter].status |= status;
 }
 #endif
+
 
 void inline setSSTWrteStutReg(void)//Only for MXIC 256/128 MB . Add by alexchang 1217-2010
 {
@@ -590,6 +596,7 @@ static int spansion_init(rtk_sfc_info_t *sfc_info) {
   [MXIC MX25L6405D]
   erase size: 4KB / 64KB
 
+
   [MXIC MX25L6445E]
   erase size: 4KB / 32KB / 64KB
 
@@ -683,6 +690,7 @@ static int mxic_init(rtk_sfc_info_t *sfc_info) {
                     read_rems(sfc_info, &manufacturer_id, &device_id);
                     if(manufacturer_id == 0xc2 && device_id == 0x18) {
                         printk(KERN_NOTICE "RtkSFC MTD: MXIC MX25L25635E detected.\n");
+
 
                         SYS_REG_TRY_LOCK(0);//add by alexchang 0722-200
 
@@ -901,6 +909,7 @@ static int stm_init(rtk_sfc_info_t *sfc_info) {
     return 0;
 }
 
+
 /*--------------------------------------------------------------------------------
   EON serial flash information list
   [EON EN25B64-100FIP]64Mbits
@@ -911,6 +920,7 @@ static int stm_init(rtk_sfc_info_t *sfc_info) {
 
   [EON EN25Q64]
   erase size: 4KB 
+
 
   [EON EN25Q128]
   erase size: 4KB / 64KB
@@ -1667,6 +1677,7 @@ static int _sfc_write_bytes(struct mtd_info *mtd, loff_t to, size_t len,
     SYS_REG_TRY_UNLOCK;//add by alexchang 0722-2010
     SFC_SYNC;
 
+
     *retlen = written_count;
 
     return 0;
@@ -1700,6 +1711,7 @@ static int _sfc_write_small_pages(struct mtd_info *mtd, loff_t to, size_t len,
     
 	rtk_sfc_info_t *sfc_info = (rtk_sfc_info_t*)mtd->priv;
     (void)sfc_info;
+
 
 	// support write fewer than 256 bytes and size must be multiples of 4-bytes
 	if(unlikely((len >= MD_PP_DATA_SIZE) || (len & RTK_SFC_SMALL_PAGE_WRITE_MASK)))
@@ -1793,6 +1805,7 @@ static int _sfc_write_small_pages(struct mtd_info *mtd, loff_t to, size_t len,
 		//REG_WRITE_U32(((unsigned long)virt_to_phys(data_buf)), MD_FDMA_DDR_SADDR);
         REG_WRITE_U32(((unsigned long)write_dma_handle), MD_FDMA_DDR_SADDR);
 		REG_WRITE_U32(((unsigned long)dest), MD_FDMA_FL_SADDR);
+
 
  		//setup MD direction and move data length
 		val = (0x2E000000 | len);               // do swap
@@ -2333,6 +2346,7 @@ retry_mdwrite:
 }
 #endif
 
+
 static int rtk_sfc_write(struct mtd_info *mtd, loff_t to, size_t len,
         size_t *retlen, const u_char *buf) {
     int retval;
@@ -2694,6 +2708,7 @@ static int rtk_sfc_erase(struct mtd_info *mtd, struct erase_info *instr)
 #ifdef EMMC_ISSUE_LOCK
         rtk_lockapi_unlock(lock_flag, (char *)__FUNCTION__);
 #endif
+
 
         /* using RDSR to make sure the operation is completed. */
         while(1) {
@@ -3193,10 +3208,12 @@ static int __init rtk_sfc_init(void)
     write_dma_buf= dma_alloc_coherent(NULL, MD_PP_DATA_SIZE, &write_dma_handle, GFP_ATOMIC);
 #endif
 
+
     rtk_sfc_init_1();
 
     return 0;
 }
+
 
 static const char * const part_probes[] = { "cmdlinepart", "RedBoot", NULL };
 static int rtk_sfc_attach(struct mtd_info *mtd_info) 
@@ -3263,6 +3280,7 @@ static int rtk_sfc_attach(struct mtd_info *mtd_info)
     return 0;
 }
 
+
 static void __exit rtk_sfc_exit(void)
 {
 #ifdef EMMC_ISSUE_LOCK
@@ -3309,6 +3327,7 @@ static void __exit rtk_sfc_exit(void)
         dma_free_coherent(NULL, MD_PP_DATA_SIZE, (void *)write_dma_buf, write_dma_handle);
 #endif
 }
+
 
 module_init(rtk_sfc_init);
 module_exit(rtk_sfc_exit);

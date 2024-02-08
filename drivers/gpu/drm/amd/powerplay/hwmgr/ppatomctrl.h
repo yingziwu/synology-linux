@@ -34,6 +34,7 @@
 #define MEM_TYPE_DDR3   0xb0
 #define MEM_TYPE_MASK   0xF0
 
+
 /* As returned from PowerConnectorDetectionTable. */
 #define PP_ATOM_POWER_BUDGET_DISABLE_OVERDRIVE  0x80
 #define PP_ATOM_POWER_BUDGET_SHOW_WARNING       0x40
@@ -72,6 +73,7 @@ struct pp_atomctrl_clock_dividers_rv730 {
 	uint32_t vco_mode;
 };
 typedef struct pp_atomctrl_clock_dividers_rv730 pp_atomctrl_clock_dividers_rv730;
+
 
 struct pp_atomctrl_clock_dividers_kong {
 	uint32_t    pll_post_divider;
@@ -114,6 +116,7 @@ struct pp_atomctrl_clock_dividers_ai {
 	u16  usPcc_fcw_slew_frac;
 };
 typedef struct pp_atomctrl_clock_dividers_ai pp_atomctrl_clock_dividers_ai;
+
 
 union pp_atomctrl_s_mpll_fb_divider {
 	struct {
@@ -228,6 +231,7 @@ struct pp_atom_ctrl_sclk_range_table_entry{
 	uint16_t usRcw_trans_lower;
 };
 
+
 struct pp_atom_ctrl_sclk_range_table{
 	struct pp_atom_ctrl_sclk_range_table_entry entry[MAX_SCLK_RANGE];
 };
@@ -317,3 +321,4 @@ extern int atomctrl_get_leakage_vddc_base_on_leakage(struct pp_hwmgr *hwmgr,
 					uint16_t efuse_voltage_id);
 extern int atomctrl_get_leakage_id_from_efuse(struct pp_hwmgr *hwmgr, uint16_t *virtual_voltage_id);
 #endif
+

@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -38,6 +39,7 @@ disclaimer.
 #include "rm_internal_types.h"
 #include "rm_status.h"
 #include "set_hw_registers.h"
+
 
 /***************************************************************************
  * Read Configuration
@@ -80,6 +82,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */
@@ -132,6 +135,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_read_b_node_configuration(tm_handle hndl, uint32_t node_index,
@@ -181,6 +185,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */
@@ -330,6 +335,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_read_a_node_configuration_hw(tm_handle hndl, uint32_t node_index,
@@ -377,6 +383,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_read_b_node_configuration_hw(tm_handle hndl, uint32_t node_index,
@@ -422,6 +429,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */
@@ -509,6 +517,7 @@ int tm_read_port_configuration_hw(tm_handle hndl, uint32_t port_index,
 
 	params->elig_prio_func_ptr = port.elig_prio_func_ptr;
 	params->num_of_children = port.last_child_c_node - port.first_child_c_node + 1;
+
 
 	*p_first_child = port.first_child_c_node;
 	*p_last_child = port.last_child_c_node;

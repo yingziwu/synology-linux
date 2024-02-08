@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -31,6 +32,7 @@ disclaimer.
 
 #ifndef RM_REORDER_H
 #define RM_REORDER_H
+
 
 #include "rm_interface.h"
 
@@ -56,6 +58,7 @@ int rm_nodes_move(rmctl_t hndl,
 		  uint32_t number_of_children,
 		  uint32_t first_child_to_move);
 
+
 /** Switch children between two nodes.
  *
  *   @param[in]		hndl		     Resource Manager handle.
@@ -80,6 +83,7 @@ int rm_nodes_switch(rmctl_t hndl,
 			uint32_t last_a_child,
 			uint32_t first_b_child,
 			uint32_t last_b_child);
+
 
 #endif   /* RM_REORDER_H */
 

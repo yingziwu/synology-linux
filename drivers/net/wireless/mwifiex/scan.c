@@ -54,6 +54,7 @@
 				+ RATE_TLV_MAX_SIZE                 \
 				+ WILDCARD_SSID_TLV_MAX_SIZE)
 
+
 union mwifiex_scan_cmd_config_tlv {
 	/* Scan configuration (variable length) */
 	struct mwifiex_scan_cmd_config config;
@@ -1165,6 +1166,7 @@ mwifiex_ret_802_11_scan_get_tlv_ptrs(struct mwifiex_adapter *adapter,
 		if (*tlv_data)
 			break;
 
+
 		tlv_buf_left -= (sizeof(tlv->header) + tlv_len);
 		current_tlv =
 			(struct mwifiex_ie_types_data *) (current_tlv->data +
@@ -2043,6 +2045,7 @@ int mwifiex_ret_802_11_scan(struct mwifiex_private *priv,
 	else
 		scan_rsp = &resp->params.scan_resp;
 
+
 	if (scan_rsp->number_of_sets > MWIFIEX_MAX_AP) {
 		mwifiex_dbg(adapter, ERROR,
 			    "SCAN_RESP: too many AP returned (%d)\n",
@@ -2167,6 +2170,12 @@ mwifiex_update_chan_statistics(struct mwifiex_private *priv,
 					      sizeof(struct mwifiex_chan_stats);
 
 	for (i = 0 ; i < num_chan; i++) {
+		if (adapter->survey_idx >= adapter->num_in_chan_stats) {
+			mwifiex_dbg(adapter, WARN,
+				    "FW reported too many channel results (max %d)\n",
+				    adapter->num_in_chan_stats);
+			return;
+		}
 		chan_stats.chan_num = fw_chan_stats->chan_num;
 		chan_stats.bandcfg = fw_chan_stats->bandcfg;
 		chan_stats.flags = fw_chan_stats->flags;

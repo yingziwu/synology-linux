@@ -1196,6 +1196,7 @@ static int ci_fan_ctrl_start_smc_fan_control(struct amdgpu_device *adev)
 	return 0;
 }
 
+
 static int ci_fan_ctrl_stop_smc_fan_control(struct amdgpu_device *adev)
 {
 	PPSMC_Result ret;
@@ -2139,6 +2140,7 @@ static void ci_program_display_gap(struct amdgpu_device *adev)
 	WREG32_SMC(ixCG_DISPLAY_GAP_CNTL2, tmp);
 	ci_write_smc_soft_register(adev, offsetof(SMU7_SoftRegisters, PreVBlankGap), 0x64);
 	ci_write_smc_soft_register(adev, offsetof(SMU7_SoftRegisters, VBlankTimeout), (frame_time_in_us - pre_vbi_time_in_us));
+
 
 	ci_notify_smc_display_change(adev, (adev->pm.dpm.new_active_crtc_count == 1));
 
@@ -3240,6 +3242,7 @@ static int ci_populate_smc_acpi_level(struct amdgpu_device *adev,
 
 	return 0;
 }
+
 
 static int ci_enable_ulv(struct amdgpu_device *adev, bool enable)
 {
@@ -4380,6 +4383,7 @@ static u32 ci_get_lowest_enabled_level(struct amdgpu_device *adev,
 	return level;
 }
 
+
 static int ci_dpm_force_performance_level(void *handle,
 					  enum amd_dpm_forced_level level)
 {
@@ -5312,6 +5316,7 @@ static void ci_dpm_post_set_power_state(void *handle)
 
 	ci_update_current_ps(adev, new_ps);
 }
+
 
 static void ci_dpm_setup_asic(struct amdgpu_device *adev)
 {
@@ -6862,6 +6867,7 @@ static int ci_set_power_profile_state(struct amdgpu_device *adev,
 				mclk_dpm_enable_mask &
 				mclk_mask);
 	}
+
 
 	return result;
 }

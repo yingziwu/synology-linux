@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/module.h>
 #include <linux/delay.h>
 #include <linux/i2c.h>
@@ -180,6 +183,7 @@ err_occur:
     return ret;
 }
 
+
 static const struct i2c_algorithm rtk_i2c_algo = {
 	.master_xfer	= i2c_venus_xfer,
 	.functionality	= rtk_i2c_func,
@@ -333,7 +337,14 @@ static int  rtk_i2c_init(struct rtk_i2c_dev *i2c_dev){
 	i2c_dev->p_this = create_venus_i2c_handle(i2c_dev->id, VENUS_MASTER_7BIT_ADDR, ADDR_MODE_7BITS, SPD_MODE_SS, i2c_dev->irq);
 
     if (i2c_dev->p_this==NULL)
+#ifdef MY_ABC_HERE
+    {
+#endif /* MY_ABC_HERE */
         printk("[I2C%d] p_this is NULL, FAIL!!!!!!!!!!!!!!\n", i);
+#ifdef MY_ABC_HERE
+	return -EINVAL;
+    }
+#endif /* MY_ABC_HERE */
 
 	rtk_i2c_setup_reg_base(i2c_dev);
 

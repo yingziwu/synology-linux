@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -4238,6 +4239,7 @@ void mv_pp3_cmac_config(void)
 	mv_pp3_cmac_reg_write(MV_EIP197_TRC_0_PARAMS_REG, 0x01400430);
 	mv_pp3_cmac_reg_write(MV_CMAC_CMAC_IL_NEXT_HOP_C1_FIELD_CHANGE_REG, 1);
 }
+
 
 /* check CMAC idle state */
 bool mv_cmac_idle_state_check(void)

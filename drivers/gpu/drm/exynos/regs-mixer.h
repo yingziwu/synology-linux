@@ -156,3 +156,4 @@
 #define MXR_CM_COEFF_RGB_FULL		(1 << 30)
 
 #endif /* SAMSUNG_REGS_MIXER_H */
+

@@ -134,6 +134,7 @@ int etnaviv_gpu_get_param(struct etnaviv_gpu *gpu, u32 param, u64 *value)
 	return 0;
 }
 
+
 #define etnaviv_is_model_rev(gpu, mod, rev) \
 	((gpu)->identity.model == chipModel_##mod && \
 	 (gpu)->identity.revision == rev)
@@ -1339,6 +1340,7 @@ static void sync_point_perfmon_sample_post(struct etnaviv_gpu *gpu,
 	val |= VIVS_PM_POWER_CONTROLS_ENABLE_MODULE_CLOCK_GATING;
 	gpu_write(gpu, VIVS_PM_POWER_CONTROLS, val);
 }
+
 
 /* add bo's to gpu's ring, and kick gpu: */
 int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,

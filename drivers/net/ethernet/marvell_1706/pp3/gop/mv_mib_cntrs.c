@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -28,6 +29,7 @@ disclaimer.
 #include "platform/mv_pp3_defs.h"
 #include "gop/mv_gop_if.h"
 #include "mv_mib_regs.h"
+
 
 static u32 pp3_port_mib_shadow[MV_PP3_GOP_MAC_NUM][MV_PP3_MIB_LATE_COLLISION/sizeof(u32)+1];
 

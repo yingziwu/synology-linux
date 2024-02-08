@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright © 2007 Eugene Konev <ejka@openwrt.org>
  *
@@ -43,11 +46,11 @@ struct ar7_bin_rec {
 };
 
 static int create_mtd_partitions(struct mtd_info *master,
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 				 const struct mtd_partition **pparts,
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 				 struct mtd_partition **pparts,
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 				 struct mtd_part_parser_data *data)
 {
 	struct ar7_bin_rec header;

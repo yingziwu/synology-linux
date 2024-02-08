@@ -23,6 +23,7 @@
 #ifndef _CZ_SMUMGR_H_
 #define _CZ_SMUMGR_H_
 
+
 #define MAX_NUM_FIRMWARE                        8
 #define MAX_NUM_SCRATCH                         11
 #define CZ_SCRATCH_SIZE_NONGFX_CLOCKGATING      1024

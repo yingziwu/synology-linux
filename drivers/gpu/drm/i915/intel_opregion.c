@@ -470,6 +470,7 @@ static u32 asle_set_backlight(struct drm_i915_private *dev_priv, u32 bclp)
 
 	drm_modeset_unlock(&dev->mode_config.connection_mutex);
 
+
 	return 0;
 }
 

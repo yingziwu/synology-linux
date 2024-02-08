@@ -262,6 +262,7 @@ bail:
 	conn_request_state(connection, NS(conn, C_PROTOCOL_ERROR), CS_HARD);
 }
 
+
 /**
  * _tl_restart() - Walks the transfer log, and applies an action to all requests
  * @connection:	DRBD connection to operate on.
@@ -445,6 +446,7 @@ int drbd_thread_start(struct drbd_thread *thi)
 
 	return true;
 }
+
 
 void _drbd_thread_stop(struct drbd_thread *thi, int restart, int wait)
 {
@@ -2016,6 +2018,7 @@ void drbd_device_cleanup(struct drbd_device *device)
 	drbd_set_defaults(device);
 }
 
+
 static void drbd_destroy_mempools(void)
 {
 	struct page *page;
@@ -2390,7 +2393,7 @@ static int drbd_congested(void *congested_data, int bdi_bits)
 
 	if (get_ldev(device)) {
 		q = bdev_get_queue(device->ldev->backing_bdev);
-		r = bdi_congested(&q->backing_dev_info, bdi_bits);
+		r = bdi_congested(q->backing_dev_info, bdi_bits);
 		put_ldev(device);
 		if (r)
 			reason = 'b';
@@ -2762,8 +2765,8 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
 	/* we have no partitions. we contain only ourselves. */
 	device->this_bdev->bd_contains = device->this_bdev;
 
-	q->backing_dev_info.congested_fn = drbd_congested;
-	q->backing_dev_info.congested_data = device;
+	q->backing_dev_info->congested_fn = drbd_congested;
+	q->backing_dev_info->congested_data = device;
 
 	blk_queue_make_request(q, drbd_make_request);
 	blk_queue_flush(q, REQ_FLUSH | REQ_FUA);
@@ -3046,6 +3049,8 @@ struct meta_data_on_disk {
 	u8 reserved_u8[4096 - (7*8 + 10*4)];
 } __packed;
 
+
+
 void drbd_md_write(struct drbd_device *device, void *b)
 {
 	struct meta_data_on_disk *buffer = b;
@@ -3243,6 +3248,7 @@ err:
 	return -EINVAL;
 }
 
+
 /**
  * drbd_md_read() - Reads in the meta data super block
  * @device:	DRBD device.
@@ -3304,6 +3310,7 @@ int drbd_md_read(struct drbd_device *device, struct drbd_backing_dev *bdev)
 		    be32_to_cpu(buffer->bm_bytes_per_bit), BM_BLOCK_SIZE);
 		goto err;
 	}
+
 
 	/* convert to in_core endian */
 	bdev->md.la_size_sect = be64_to_cpu(buffer->la_size_sect);

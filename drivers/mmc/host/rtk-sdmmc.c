@@ -238,6 +238,7 @@ static void rtk_sdmmc_pm_complete(struct device *dev)
                         writel(0xaaaaaaaa, rtk_host->emmc + 0x638);
                 }
 
+		
 		rtk_lockapi_unlock(flags2, (char *)__FUNCTION__);  //unlock
        } else if(mmc->ios.clock >= UHS_SDR50_MAX_DTR && mmc->ios.timing == MMC_TIMING_UHS_SDR50) {
 		printk(KERN_ERR "[SD] restore SDR50 card driving capability!!!\n");
@@ -414,6 +415,7 @@ static int rtk_sdmmc_pm_suspend(struct device *dev)
 	else suspend_SD_insert_flag=false;
         return ret;
 }
+
 
 static int rtk_sdmmc_pm_resume(struct device *dev)
 {
@@ -2484,6 +2486,7 @@ static void rtk_sdmmc_hw_initial(struct rtk_sdmmc_host *rtk_host)
     writel(0x33333333, emmc_base + 0x638);
     rtk_lockapi_unlock(flags2, (char *)__FUNCTION__);
     
+    
     writel(0x00000000, sdmmc_base + CR_SD_PAD_CTL); //change to 3.3v
 
     writel(0x00000016, sdmmc_base + CR_SD_ISR); //enable interrupt
@@ -3044,6 +3047,7 @@ static int rtk_sdmmc_probe(struct platform_device *pdev)
     }else
         printk(KERN_ERR "%s: gpio %d is not valid\n", __func__, rtk_host->sdmmc_gpio);
 
+    
     rtk_host->mmc = mmc;
     rtk_host->dev = &pdev->dev;
     rtk_host->ops = &sdmmc_ops;

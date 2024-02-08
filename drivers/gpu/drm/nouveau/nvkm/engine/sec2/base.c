@@ -69,6 +69,7 @@ nvkm_sec2_recv(struct work_struct *work)
 	nvkm_msgqueue_recv(sec2->queue);
 }
 
+
 static int
 nvkm_sec2_oneinit(struct nvkm_engine *engine)
 {

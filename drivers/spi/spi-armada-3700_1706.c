@@ -26,6 +26,7 @@
 #include <linux/of_device.h>
 #include <linux/spi/spi.h>
 
+
 #define DRIVER_NAME					"armada_3700_spi"
 
 #define A3700_SPI_TIMEOUT			10 /* 10 msec */
@@ -184,6 +185,7 @@ struct a3700_spi {
 	int (*spi_post_xfer)(struct spi_device *spi, struct spi_transfer *xfer);
 	bool (*spi_wait_xfer)(struct spi_device *spi);
 };
+
 
 static u32 spireg_read(struct a3700_spi *a3700_spi, u32 offset)
 {
@@ -1183,6 +1185,7 @@ out:
 	return 0;
 }
 
+
 static const struct a3700_spi_initdata armada_3700_spi_initdata = {
 	.cs_num             = 4,
 	.mode               = SPI_CPHA | SPI_CPOL,
@@ -1469,6 +1472,7 @@ static const struct dev_pm_ops a3700_spi_pm_ops = {
 
 #endif /* MY_DEF_HERE */
 MODULE_ALIAS("platform:" DRIVER_NAME);
+
 
 static struct platform_driver a3700_spi_driver = {
 	.driver = {

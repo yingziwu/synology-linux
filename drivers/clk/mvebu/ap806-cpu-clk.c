@@ -33,6 +33,7 @@
 #define APN806_CLUSTER_NUM_OFFSET	8
 #define APN806_CLUSTER_NUM_MASK		(1 << APN806_CLUSTER_NUM_OFFSET)
 
+
 #define KHZ_TO_HZ			1000
 
 /* CPU DFS register mapping*/

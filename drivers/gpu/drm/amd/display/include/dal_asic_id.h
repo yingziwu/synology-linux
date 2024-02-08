@@ -119,6 +119,7 @@
 #define RAVEN1_F0 0xF0
 #define ASICREV_IS_RV1_F0(eChipRev) ((eChipRev >= RAVEN1_F0) && (eChipRev < RAVEN_UNKNOWN))
 
+
 #define FAMILY_RV 142 /* DCN 1*/
 
 /*

@@ -1803,6 +1803,7 @@ struct file_operations vpu_fops = {
 	.mmap = vpu_mmap,
 };
 
+
 static int vpu_probe(struct platform_device *pdev)
 {
 	int err = 0;
@@ -1971,6 +1972,7 @@ static int vpu_probe(struct platform_device *pdev)
 
 	return 0;
 
+
 ERROR_PROVE_DEVICE:
 
 	misc_deregister(&s_vpu_dev);
@@ -2013,6 +2015,7 @@ static int vpu_remove(struct platform_device *pdev)
 	if (s_ve2_irq)
 		free_irq(s_ve2_irq, &s_vpu_drv_context);
 #endif /* VPU_SUPPORT_ISR */
+
 
 	vpu_clk_put(s_vpu_clk_ve3);
 	vpu_clk_put(s_vpu_clk_ve1);

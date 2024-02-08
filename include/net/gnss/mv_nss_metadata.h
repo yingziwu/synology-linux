@@ -98,6 +98,7 @@ struct mv_nss_metadata {
 	uint8_t reserved[18];
 };
 
+
 /*
 * typedef: struct mv_nss_metadata_wlan_t
 *
@@ -131,6 +132,9 @@ struct mv_nss_metadata_wlan {
 	uint32_t lifetime;
 	uint8_t  reserved2[12];
 };
+
+
+
 
 #endif /* __MV_NSS_METADATA_H__ */
 #endif /* MY_DEF_HERE */

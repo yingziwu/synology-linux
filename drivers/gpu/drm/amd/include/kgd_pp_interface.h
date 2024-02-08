@@ -38,6 +38,7 @@ struct amd_vce_state {
 	u8 pstate;
 };
 
+
 enum amd_dpm_forced_level {
 	AMD_DPM_FORCED_LEVEL_AUTO = 0x1,
 	AMD_DPM_FORCED_LEVEL_MANUAL = 0x2,
@@ -138,6 +139,8 @@ struct amd_pp_init {
 	bool pm_en;
 	uint32_t feature_mask;
 };
+
+
 
 enum {
 	PP_GROUP_UNKNOWN = 0,

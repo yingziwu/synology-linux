@@ -288,6 +288,7 @@ static const struct intel_limit intel_limits_i9xx_lvds = {
 		.p2_slow = 14, .p2_fast = 7 },
 };
 
+
 static const struct intel_limit intel_limits_g4x_sdvo = {
 	.dot = { .min = 25000, .max = 270000 },
 	.vco = { .min = 1750000, .max = 3500000},
@@ -1417,6 +1418,7 @@ static void vlv_enable_pll(struct intel_crtc *crtc,
 	I915_WRITE(DPLL_MD(pipe), pipe_config->dpll_hw_state.dpll_md);
 	POSTING_READ(DPLL_MD(pipe));
 }
+
 
 static void _chv_enable_pll(struct intel_crtc *crtc,
 			    const struct intel_crtc_state *pipe_config)
@@ -2679,6 +2681,7 @@ intel_alloc_initial_plane_obj(struct intel_crtc *crtc,
 		goto out_unref_obj;
 	}
 
+
 	DRM_DEBUG_KMS("initial plane fb obj %p\n", obj);
 	return true;
 
@@ -3594,6 +3597,7 @@ void intel_prepare_reset(struct drm_i915_private *dev_priv)
 	struct drm_modeset_acquire_ctx *ctx = &dev_priv->reset_ctx;
 	struct drm_atomic_state *state;
 	int ret;
+
 
 	/* reset doesn't touch the display */
 	if (!i915_modparams.force_reset_modeset_test &&
@@ -10451,6 +10455,7 @@ compute_baseline_pipe_bpp(struct intel_crtc *crtc,
 	else
 		bpp = 8*3;
 
+
 	pipe_config->pipe_bpp = bpp;
 
 	state = pipe_config->base.state;
@@ -12171,6 +12176,7 @@ static void intel_atomic_commit_fence_wait(struct intel_atomic_state *intel_stat
 				&wait_fence, TASK_UNINTERRUPTIBLE);
 		prepare_to_wait(&dev_priv->gpu_error.wait_queue,
 				&wait_reset, TASK_UNINTERRUPTIBLE);
+
 
 		if (i915_sw_fence_done(&intel_state->commit_ready)
 		    || test_bit(I915_RESET_MODESET, &dev_priv->gpu_error.flags))

@@ -411,6 +411,7 @@ acpi_i2c_space_handler(u32 function, acpi_physical_address command,
 	return ret;
 }
 
+
 static int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
 {
 	acpi_handle handle;
@@ -521,6 +522,7 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
 
 	return 0;
 }
+
 
 /* uevent helps with hotplug: modprobe -q $(MODALIAS) */
 static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
@@ -830,6 +832,7 @@ static struct device_type i2c_client_type = {
 	.release	= i2c_client_dev_release,
 };
 
+
 /**
  * i2c_verify_client - return parameter as i2c_client, or NULL
  * @dev: device, probably from some driver model iterator
@@ -846,6 +849,7 @@ struct i2c_client *i2c_verify_client(struct device *dev)
 			: NULL;
 }
 EXPORT_SYMBOL(i2c_verify_client);
+
 
 /* Return a unique address which takes the flags of the client into account */
 static unsigned short i2c_encode_flags_to_addr(struct i2c_client *client)
@@ -1094,6 +1098,7 @@ out_err_silent:
 }
 EXPORT_SYMBOL_GPL(i2c_new_device);
 
+
 /**
  * i2c_unregister_device - reverse effect of i2c_new_device()
  * @client: value returned from i2c_new_device()
@@ -1106,6 +1111,7 @@ void i2c_unregister_device(struct i2c_client *client)
 	device_unregister(&client->dev);
 }
 EXPORT_SYMBOL_GPL(i2c_unregister_device);
+
 
 static const struct i2c_device_id dummy_id[] = {
 	{ "dummy", 0 },
@@ -2943,16 +2949,16 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
 				   the underlying bus driver */
 		break;
 	case I2C_SMBUS_I2C_BLOCK_DATA:
+		if (data->block[0] > I2C_SMBUS_BLOCK_MAX) {
+			dev_err(&adapter->dev, "Invalid block %s size %d\n",
+				read_write == I2C_SMBUS_READ ? "read" : "write",
+				data->block[0]);
+			return -EINVAL;
+		}
 		if (read_write == I2C_SMBUS_READ) {
 			msg[1].len = data->block[0];
 		} else {
 			msg[0].len = data->block[0] + 1;
-			if (msg[0].len > I2C_SMBUS_BLOCK_MAX + 1) {
-				dev_err(&adapter->dev,
-					"Invalid block write size %d\n",
-					data->block[0]);
-				return -EINVAL;
-			}
 			for (i = 1; i <= data->block[0]; i++)
 				msgbuf0[i] = data->block[i];
 		}

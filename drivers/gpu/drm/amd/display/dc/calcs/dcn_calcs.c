@@ -372,6 +372,7 @@ static void pipe_ctx_to_e2e_pipe_params (
 		input->scale_ratio_depth.lb_depth = 24; break;
 	}
 
+
 	input->dest.vactive        = pipe->stream->timing.v_addressable + pipe->stream->timing.v_border_top
 			+ pipe->stream->timing.v_border_bottom;
 
@@ -813,6 +814,7 @@ bool dcn_validate_bandwidth(
 	v->synchronized_vblank = dcn_bw_no;
 	v->ta_pscalculation = dcn_bw_override;
 	v->allow_different_hratio_vratio = dcn_bw_yes;
+
 
 	for (i = 0, input_idx = 0; i < pool->pipe_count; i++) {
 		struct pipe_ctx *pipe = &context->res_ctx.pipe_ctx[i];
@@ -1368,6 +1370,7 @@ void dcn_bw_notify_pplib_of_wm_ranges(struct dc *dc)
 	ranges.writer_wm_sets[1].min_drain_clk_khz = mid_fclk_khz;
 	ranges.writer_wm_sets[1].max_drain_clk_khz = mid_fclk_khz;
 
+
 	ranges.reader_wm_sets[2].wm_inst = WM_C;
 	ranges.reader_wm_sets[2].min_drain_clk_khz = min_fclk_khz;
 	ranges.reader_wm_sets[2].max_drain_clk_khz = max_dcfclk_khz;
@@ -1412,6 +1415,7 @@ void dcn_bw_notify_pplib_of_wm_ranges(struct dc *dc)
 		ranges.writer_wm_sets[1].max_fill_clk_khz = 757000;
 		ranges.writer_wm_sets[1].min_drain_clk_khz = 933000;
 		ranges.writer_wm_sets[1].max_drain_clk_khz = 933000;
+
 
 		ranges.reader_wm_sets[2].wm_inst = WM_C;
 		ranges.reader_wm_sets[2].min_drain_clk_khz = 300000;

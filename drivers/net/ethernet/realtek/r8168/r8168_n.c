@@ -695,6 +695,7 @@ static inline unsigned long _kc_msecs_to_jiffies(const unsigned int m)
 }
 #endif  //LINUX_VERSION_CODE < KERNEL_VERSION(2,6,7)
 
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,11)
 
 /* copied from linux kernel 2.6.12.6 /include/linux/pm.h */
@@ -1741,6 +1742,7 @@ static inline u16 map_phy_ocp_addr(u16 PageNum, u8 RegNum)
                 OcpPhyAddress = OcpPageNum + OcpRegNum;
         }
 
+
         return OcpPhyAddress;
 }
 
@@ -1996,6 +1998,7 @@ u32 rtl8168_mdio_prot_read_phy_ocp(struct rtl8168_private *tp,
 static void ClearAndSetEthPhyBit(struct rtl8168_private *tp, u8  addr, u16 clearmask, u16 setmask)
 {
         u16 PhyRegValue;
+
 
         PhyRegValue = rtl8168_mdio_read(tp, addr);
         PhyRegValue &= ~clearmask;
@@ -3211,6 +3214,7 @@ rtl8168_disable_hw_interrupt(struct rtl8168_private *tp, void __iomem *ioaddr)
 #endif
 }
 
+
 static inline void
 rtl8168_switch_to_hw_interrupt(struct rtl8168_private *tp, void __iomem *ioaddr)
 {
@@ -4345,6 +4349,7 @@ rtl8168_get_hw_wol(struct net_device *dev)
         u32 csi_tmp;
         unsigned long flags;
 
+
         spin_lock_irqsave(&tp->lock, flags);
 
         tp->wol_opts = 0;
@@ -4570,6 +4575,7 @@ static void rtl8168_powerup_pll(struct net_device *dev)
 {
         struct rtl8168_private *tp = netdev_priv(dev);
         void __iomem *ioaddr = tp->mmio_addr;
+
 
         switch (tp->mcfg) {
         case CFG_METHOD_9:
@@ -6510,6 +6516,7 @@ static u8 rtl8168_calc_efuse_dummy_bit(u16 reg)
         int s,a,b;
         u8 dummyBitPos = 0;
 
+
         s=reg% 32;
         a=s % 16;
         b=s/16;
@@ -6529,6 +6536,7 @@ static u32 rtl8168_decode_efuse_cmd(struct rtl8168_private *tp, u32 DwCmd)
         u32 DummyPos = rtl8168_calc_efuse_dummy_bit(reg);
         u32 DeCodeDwCmd = DwCmd;
         u32 Dw17BitData;
+
 
         if (tp->efuse_ver < 3) {
                 DeCodeDwCmd = (DwCmd>>(DummyPos+1))<<DummyPos;
@@ -7694,6 +7702,7 @@ rtl8168_set_mac_mcu_8168gu_2(struct net_device *dev)
         rtl8168_mac_ocp_write( tp, 0xFB2A, 0x0481 );
         rtl8168_mac_ocp_write( tp, 0xFB2C, 0x0C81 );
         rtl8168_mac_ocp_write( tp, 0xFB2E, 0x0AE0 );
+
 
         rtl8168_mac_ocp_write( tp, 0xFC26, 0x8000 );
 
@@ -9707,6 +9716,7 @@ rtl8168_phy_ram_code_check(struct net_device *dev)
                 PhyRegValue = rtl8168_mdio_read(tp, 0x10);
                 PhyRegValue &= ~(BIT_11);
                 rtl8168_mdio_write(tp, 0x10, PhyRegValue);
+
 
                 rtl8168_mdio_write(tp, 0x1f, 0x0A00);
                 PhyRegValue = rtl8168_mdio_read(tp, 0x10);
@@ -20423,6 +20433,7 @@ rtl8168_set_phy_mcu_8411b_1(struct net_device *dev)
         rtl8168_mdio_write(tp,0x13, 0xB82E);
         rtl8168_mdio_write(tp,0x14, 0x0001);
 
+
         rtl8168_mdio_write(tp,0x1F, 0x0A43);
         rtl8168_mdio_write(tp, 0x13, 0xb820);
         rtl8168_mdio_write(tp, 0x14, 0x0290);
@@ -20448,6 +20459,7 @@ rtl8168_set_phy_mcu_8411b_1(struct net_device *dev)
         rtl8168_mdio_write(tp, 0x14, 0x107c);
         rtl8168_mdio_write(tp, 0x13, 0xb820);
         rtl8168_mdio_write(tp, 0x14, 0x0210);
+
 
         rtl8168_mdio_write(tp, 0x1F, 0x0A43);
         rtl8168_mdio_write(tp, 0x13, 0x0000);
@@ -20537,6 +20549,7 @@ rtl8168_set_phy_mcu_8168h_1(struct net_device *dev)
         rtl8168_mdio_write(tp, 0x13, 0xB82E);
         rtl8168_mdio_write(tp, 0x14, 0x0001);
 
+
         rtl8168_mdio_write(tp, 0x1F, 0x0A43);
         rtl8168_mdio_write(tp, 0x13, 0xB820);
         rtl8168_mdio_write(tp, 0x14, 0x0290);
@@ -20572,6 +20585,7 @@ rtl8168_set_phy_mcu_8168h_1(struct net_device *dev)
         rtl8168_mdio_write(tp, 0x13, 0xB820);
         rtl8168_mdio_write(tp, 0x14, 0x0210);
 
+
         rtl8168_mdio_write(tp, 0x1F, 0x0A43);
         rtl8168_mdio_write(tp, 0x13, 0x0000);
         rtl8168_mdio_write(tp, 0x14, 0x0000);
@@ -20600,6 +20614,7 @@ rtl8168_set_phy_mcu_8168h_2(struct net_device *dev)
         rtl8168_mdio_write(tp, 0x13, 0xB82E);
         rtl8168_mdio_write(tp, 0x14, 0x0001);
 
+
         rtl8168_mdio_write(tp, 0x1F, 0x0A43);
         rtl8168_mdio_write(tp, 0x13, 0xB820);
         rtl8168_mdio_write(tp, 0x14, 0x0290);
@@ -20627,6 +20642,7 @@ rtl8168_set_phy_mcu_8168h_2(struct net_device *dev)
         rtl8168_mdio_write(tp, 0x14, 0x136b);
         rtl8168_mdio_write(tp, 0x13, 0xB820);
         rtl8168_mdio_write(tp, 0x14, 0x0210);
+
 
         rtl8168_mdio_write(tp, 0x1F, 0x0A43);
         rtl8168_mdio_write(tp, 0x13, 0x0000);
@@ -22871,6 +22887,7 @@ rtl8168_hw_phy_config(struct net_device *dev)
                                               dout_tapbin
                                             );
 
+
                         rtl8168_mdio_write( tp, 0x13, 0x827B );
                         ClearAndSetEthPhyBit( tp,
                                               0x14,
@@ -22878,12 +22895,14 @@ rtl8168_hw_phy_config(struct net_device *dev)
                                               dout_tapbin
                                             );
 
+
                         rtl8168_mdio_write( tp, 0x13, 0x827C );
                         ClearAndSetEthPhyBit( tp,
                                               0x14,
                                               BIT_15|BIT_14|BIT_13|BIT_12,
                                               dout_tapbin
                                             );
+
 
                         rtl8168_mdio_write( tp, 0x13, 0x827D );
                         ClearAndSetEthPhyBit( tp,
@@ -22902,6 +22921,7 @@ rtl8168_hw_phy_config(struct net_device *dev)
                 rtl8168_mdio_write(tp, 0x1F, 0x0A44);
                 rtl8168_set_eth_phy_bit( tp, 0x11, BIT_11 );
                 rtl8168_mdio_write(tp, 0x1F, 0x0000);
+
 
                 rtl8168_mdio_write(tp, 0x1F, 0x0BCA);
                 ClearAndSetEthPhyBit( tp,
@@ -25914,6 +25934,7 @@ rtl8168_hw_config(struct net_device *dev)
                         RTL_W8(Config3, RTL_R8(Config3) & ~Jumbo_En0);
                         RTL_W8(Config4, RTL_R8(Config4) & ~Jumbo_En1);
 
+
                         set_offset79(tp, 0x50);
                 }
         } else if (tp->mcfg == CFG_METHOD_8) {
@@ -26567,6 +26588,7 @@ rtl8168_hw_config(struct net_device *dev)
                 tp->tx_ipv6_csum_cmd = TxIPV6F_C;
         }
 
+
         //other hw parameters
         if (tp->mcfg == CFG_METHOD_21 || tp->mcfg == CFG_METHOD_22 ||
             tp->mcfg == CFG_METHOD_23 || tp->mcfg == CFG_METHOD_24 ||
@@ -26765,6 +26787,7 @@ rtl8168_hw_start(struct net_device *dev)
 
         rtl8168_enable_hw_interrupt(tp, ioaddr);
 }
+
 
 static int
 rtl8168_change_mtu(struct net_device *dev,

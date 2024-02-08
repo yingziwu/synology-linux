@@ -41,6 +41,7 @@ struct mutex *kfd_get_dbgmgr_mutex(void)
 	return &kfd_dbgmgr_mutex;
 }
 
+
 static void kfd_dbgmgr_uninitialize(struct kfd_dbgmgr *pmgr)
 {
 	kfree(pmgr->dbgdev);
@@ -153,3 +154,4 @@ long kfd_dbgmgr_address_watch(struct kfd_dbgmgr *pmgr,
 	return (long) pmgr->dbgdev->dbgdev_address_watch(pmgr->dbgdev,
 							adw_info);
 }
+

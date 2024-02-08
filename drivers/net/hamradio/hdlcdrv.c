@@ -82,6 +82,7 @@
  * by Dieter Deyke
  */
 
+
 /*---------------------------------------------------------------------------*/
 
 static inline void append_crc_ccitt(unsigned char *buffer, int len)
@@ -573,6 +574,8 @@ static int hdlcdrv_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	case HDLCDRVCTL_CALIBRATE:
 		if(!capable(CAP_SYS_RAWIO))
 			return -EPERM;
+		if (s->par.bitrate <= 0)
+			return -EINVAL;
 		if (bi.data.calibrate > INT_MAX / s->par.bitrate)
 			return -EINVAL;
 		s->hdlctx.calibrate = bi.data.calibrate * s->par.bitrate / 16;
@@ -668,6 +671,7 @@ static void hdlcdrv_setup(struct net_device *dev)
 	s->bitbuf_hdlc.rd = s->bitbuf_hdlc.wr = 0;
 	s->bitbuf_hdlc.shreg = 0x80;
 #endif /* HDLCDRV_DEBUG */
+
 
 	/* Fill in the fields of the device structure */
 

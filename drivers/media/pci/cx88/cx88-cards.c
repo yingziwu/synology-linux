@@ -64,6 +64,7 @@ MODULE_PARM_DESC(disable_ir, "Disable IR support");
 		printk(KERN_DEBUG "%s: " fmt, core->name , ## arg);	\
 	} while(0)
 
+
 /* ------------------------------------------------------------------ */
 /* board config info                                                  */
 
@@ -2993,6 +2994,7 @@ static int cx88_dvico_xc2028_callback(struct cx88_core *core,
 	return 0;
 }
 
+
 /* ----------------------------------------------------------------------- */
 /* some Geniatech specific stuff                                           */
 
@@ -3551,6 +3553,7 @@ static void cx88_card_setup(struct cx88_core *core)
 		break;
 	} /*end switch() */
 
+
 	/* Setup tuners */
 	if ((core->board.radio_type != UNSET)) {
 		tun_setup.mode_mask      = T_RADIO;
@@ -3688,7 +3691,14 @@ struct cx88_core *cx88_core_create(struct pci_dev *pci, int nr)
 	core->nr = nr;
 	sprintf(core->name, "cx88[%d]", core->nr);
 
-	core->tvnorm = V4L2_STD_NTSC_M;
+	/*
+	 * Note: Setting initial standard here would cause first call to
+	 * cx88_set_tvnorm() to return without programming any registers.  Leave
+	 * it blank for at this point and it will get set later in
+	 * cx8800_initdev()
+	 */
+	core->tvnorm  = 0;
+
 	core->width   = 320;
 	core->height  = 240;
 	core->field   = V4L2_FIELD_INTERLACED;

@@ -7,6 +7,7 @@
  * Copyright (C) 1996, Linus Torvalds
  */
 
+#include <linux/sched.h>
 #include <asm/machvec.h>
 #include <asm/compiler.h>
 #include <asm-generic/mm_hooks.h>
@@ -20,6 +21,7 @@
 #ifndef __EXTERN_INLINE
 #include <asm/io.h>
 #endif
+
 
 static inline unsigned long
 __reload_thread(struct pcb_struct *pcb)
@@ -36,6 +38,7 @@ __reload_thread(struct pcb_struct *pcb)
 
 	return v0;
 }
+
 
 /*
  * The maximum ASN's the processor supports.  On the EV4 this is 63

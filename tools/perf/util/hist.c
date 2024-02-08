@@ -720,7 +720,7 @@ iter_prepare_cumulative_entry(struct hist_entry_iter *iter,
 	 * cumulated only one time to prevent entries more than 100%
 	 * overhead.
 	 */
-	he_cache = malloc(sizeof(*he_cache) * (iter->max_stack + 1));
+	he_cache = malloc(sizeof(*he_cache) * (callchain_cursor.nr + 1));
 	if (he_cache == NULL)
 		return -ENOMEM;
 
@@ -880,8 +880,6 @@ int hist_entry_iter__add(struct hist_entry_iter *iter, struct addr_location *al,
 					iter->evsel, al, max_stack_depth);
 	if (err)
 		return err;
-
-	iter->max_stack = max_stack_depth;
 
 	err = iter->ops->prepare_entry(iter, al);
 	if (err)
@@ -1215,6 +1213,7 @@ static void hists__remove_entry_filter(struct hists *hists, struct hist_entry *h
 	hists__calc_col_len(hists, h);
 }
 
+
 static bool hists__filter_entry_by_dso(struct hists *hists,
 				       struct hist_entry *he)
 {
@@ -1529,6 +1528,7 @@ size_t perf_evlist__fprintf_nr_events(struct perf_evlist *evlist, FILE *fp)
 
 	return ret;
 }
+
 
 u64 hists__total_period(struct hists *hists)
 {

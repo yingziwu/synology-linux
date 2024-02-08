@@ -6,6 +6,7 @@
 #include <linux/mm.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
+#include <linux/syscalls.h>
 #include <linux/uaccess.h>
 #include <asm/unistd.h>
 #include <os.h>
@@ -302,6 +303,7 @@ long init_new_ldt(struct mm_context *new_mm, struct mm_context *from_mm)
 	long page, err=0;
 	void *addr = NULL;
 
+
 	mutex_init(&new_mm->arch.ldt.lock);
 
 	if (!from_mm) {
@@ -355,6 +357,7 @@ long init_new_ldt(struct mm_context *new_mm, struct mm_context *from_mm)
 	return err;
 }
 
+
 void free_ldt(struct mm_context *mm)
 {
 	int i;
@@ -367,7 +370,9 @@ void free_ldt(struct mm_context *mm)
 	mm->arch.ldt.entry_count = 0;
 }
 
-int sys_modify_ldt(int func, void __user *ptr, unsigned long bytecount)
+SYSCALL_DEFINE3(modify_ldt, int , func , void __user * , ptr ,
+		unsigned long , bytecount)
 {
-	return do_modify_ldt_skas(func, ptr, bytecount);
+	/* See non-um modify_ldt() for why we do this cast */
+	return (unsigned int)do_modify_ldt_skas(func, ptr, bytecount);
 }

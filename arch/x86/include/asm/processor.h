@@ -492,6 +492,7 @@ typedef struct {
 	unsigned long		seg;
 } mm_segment_t;
 
+
 /* Free all resources held by a thread. */
 extern void release_thread(struct task_struct *);
 
@@ -578,7 +579,7 @@ static inline void sync_core(void)
 {
 	int tmp;
 
-#ifdef CONFIG_M486
+#ifdef CONFIG_X86_32
 	/*
 	 * Do a CPUID if available, otherwise do a jump.  The jump
 	 * can conveniently enough be the jump around CPUID.

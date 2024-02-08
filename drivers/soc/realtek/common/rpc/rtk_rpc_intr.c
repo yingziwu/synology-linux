@@ -26,6 +26,7 @@
 #include <linux/uaccess.h>
 #include <linux/kthread.h>
 
+
 #include "rtk_rpc.h"
 
 #include "uapi/ion.h"
@@ -42,6 +43,7 @@
 DEFINE_RATELIMIT_STATE(ring_dump_state, 3 * HZ, 1);
 static DEFINE_SPINLOCK(rpc_alloc_lock);
 
+
 volatile RPC_DEV *rpc_intr_devices;
 int rpc_intr_is_paused;
 int rpc_intr_is_suspend;
@@ -53,6 +55,7 @@ RPC_DEV_EXTRA rpc_intr_extra[RPC_NR_DEVS / RPC_NR_PAIR];
 extern void rpc_send_interrupt(void);
 
 int rpc_destroy_flow(int pid);
+
 
 struct ion_client *fw_rpc_ion_client;
 extern struct ion_device *rtk_phoenix_ion_device;
@@ -212,6 +215,7 @@ out:
 
 }
 
+
 ssize_t r_program_write(RPC_DEV_EXTRA *extra, RPC_DEV *dev, char *buf, size_t count)
 {
 
@@ -314,6 +318,8 @@ out:
 	return ret;
 }
 
+
+
 void rpc_ion_handler(RPC_DEV_EXTRA *extra)
 {
 	struct ion_handle *handle = NULL;
@@ -328,6 +334,7 @@ void rpc_ion_handler(RPC_DEV_EXTRA *extra)
 	RPC_STRUCT *rrpc;
 	RPC_DEV_EXTRA *extra_w = &rpc_intr_extra[0];
 	r_program_entry_t *rpc_entry;
+
 
 	if (r_program_read(extra, extra->dev, (char *) &tmpbuf, sizeof(RPC_STRUCT) + sizeof(uint32_t)) != (sizeof(RPC_STRUCT) + sizeof(uint32_t))) {
 		pr_err("[%s] remote allocate read error...\n", __func__);
@@ -441,6 +448,7 @@ void rpc_ion_handler(RPC_DEV_EXTRA *extra)
 	}
 
 }
+
 
 static int remote_alloc_thread(void * p)
 {
@@ -912,6 +920,7 @@ wait_again:
 	if (count > size)
 		count = size;
 
+
 	temp = dev->ringEnd - dev->ringOut;
 	rtk_rpc_wmb(AVCPU2SCPU(dev->ringStart), PAGE_ALIGN(rpc_ring_size));
 
@@ -1186,6 +1195,7 @@ out:
 	return ret;
 }
 
+
 int rpc_destroy_flow(int pid)
 {
 	AUDIO_RPC_PRIVATEINFO_PARAMETERS *cmd = NULL;
@@ -1236,6 +1246,7 @@ exit:
 	}
 	return RPC_ret;
 }
+
 
 long rpc_intr_ioctl(struct file *filp, unsigned int cmd,
 			unsigned long arg)

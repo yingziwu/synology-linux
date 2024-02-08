@@ -7022,6 +7022,7 @@ static void valleyview_check_pctx(struct drm_i915_private *dev_priv)
 			     dev_priv->vlv_pctx->stolen->start);
 }
 
+
 /* Check that the pcbr address is not empty. */
 static void cherryview_check_pctx(struct drm_i915_private *dev_priv)
 {

@@ -818,6 +818,8 @@ static int dvico_bluebird_xc2028_callback(void *ptr, int component,
 	case XC2028_RESET_CLK:
 		deb_info("%s: XC2028_RESET_CLK %d\n", __func__, arg);
 		break;
+	case XC2028_I2C_FLUSH:
+		break;
 	default:
 		deb_info("%s: unknown command %d, arg %d\n", __func__,
 			 command, arg);
@@ -1280,6 +1282,7 @@ static int cxusb_mygica_d689_frontend_attach(struct dvb_usb_adapter *adap)
 		usb_rcvbulkpipe(d->udev, d->props.generic_bulk_ctrl_endpoint));
 	usb_clear_halt(d->udev,
 		usb_rcvbulkpipe(d->udev, d->props.adapter[0].fe[0].stream.endpoint));
+
 
 	/* Reset the tuner */
 	if (cxusb_d680_dmb_gpio_tuner(d, 0x07, 0) < 0) {

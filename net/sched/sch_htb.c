@@ -357,6 +357,7 @@ static void htb_safe_rb_erase(struct rb_node *rb, struct rb_root *root)
 	}
 }
 
+
 /**
  * htb_remove_class_from_row - removes class from its row
  *
@@ -477,6 +478,7 @@ static inline s64 htb_hiwater(const struct htb_class *cl)
 	else
 		return 0;
 }
+
 
 /**
  * htb_class_mode - computes and returns current class mode
@@ -1023,6 +1025,9 @@ static int htb_init(struct Qdisc *sch, struct nlattr *opt)
 	int err;
 	int i;
 
+	qdisc_watchdog_init(&q->watchdog, sch);
+	INIT_WORK(&q->work, htb_work_func);
+
 	if (!opt)
 		return -EINVAL;
 
@@ -1043,8 +1048,6 @@ static int htb_init(struct Qdisc *sch, struct nlattr *opt)
 	for (i = 0; i < TC_HTB_NUMPRIO; i++)
 		INIT_LIST_HEAD(q->drops + i);
 
-	qdisc_watchdog_init(&q->watchdog, sch);
-	INIT_WORK(&q->work, htb_work_func);
 	__skb_queue_head_init(&q->direct_queue);
 
 	if (tb[TCA_HTB_DIRECT_QLEN])

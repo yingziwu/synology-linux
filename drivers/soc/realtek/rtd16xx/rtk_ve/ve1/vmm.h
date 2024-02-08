@@ -138,6 +138,7 @@ static avl_node_t* rotation_left(avl_node_t *tree)
 	return rchild;
 }
 
+
 /*
  * Reft Rotation
  *
@@ -247,6 +248,7 @@ static avl_node_t *unlink_end_node(avl_node_t *tree, int dir, avl_node_t **found
 
 	return do_balance(tree);
 }
+
 
 static avl_node_t *avltree_insert(avl_node_t *tree, vmem_key_t key, page_t *page)
 {
@@ -422,6 +424,7 @@ static void set_blocks_alloc(video_mm_t *mm, int pageno, int npages)
 	mm->alloc_tree = avltree_insert(mm->alloc_tree, MAKE_KEY(page->addr, 0), page);
 }
 
+
 int vmem_init(video_mm_t *mm, unsigned long addr, unsigned long size)
 {
 	int i;
@@ -523,6 +526,7 @@ unsigned long vmem_alloc(video_mm_t *mm, int size, unsigned long pid)
 	mm->alloc_page_count += npages;
 	mm->free_page_count  -= npages;
 
+
 	return ptr;
 }
 
@@ -534,6 +538,7 @@ int vmem_free(video_mm_t *mm, unsigned long ptr, unsigned long pid)
 	int pageno, prev_free_pageno, next_free_pageno;
 	int prev_size, next_size;
 	int merge_page_no, merge_page_size, free_page_size;
+
 
 	if (mm == NULL) {
 		printk(KERN_INFO "vmem_free: invalid handle\n");

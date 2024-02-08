@@ -791,8 +791,6 @@ static int mlx4_slave_cap(struct mlx4_dev *dev)
 		return -ENOSYS;
 	}
 
-	mlx4_log_num_mgm_entry_size = hca_param.log_mc_entry_sz;
-
 	dev->caps.hca_core_clock = hca_param.hca_core_clock;
 
 	memset(&dev_cap, 0, sizeof(dev_cap));
@@ -1261,6 +1259,7 @@ int mlx4_unbond(struct mlx4_dev *dev)
 }
 EXPORT_SYMBOL_GPL(mlx4_unbond);
 
+
 int mlx4_port_map_set(struct mlx4_dev *dev, struct mlx4_port_map *v2p)
 {
 	u8 port1 = v2p->port1;
@@ -1434,6 +1433,7 @@ static int mlx4_init_icm(struct mlx4_dev *dev, struct mlx4_dev_cap *dev_cap,
 		mlx4_err(dev, "Failed to map cMPT context memory, aborting\n");
 		goto err_unmap_aux;
 	}
+
 
 	num_eqs = dev->phys_caps.num_phys_eqs;
 	err = mlx4_init_icm_table(dev, &priv->eq_table.table,
@@ -1683,6 +1683,7 @@ cycle_t mlx4_read_clock(struct mlx4_dev *dev)
 }
 EXPORT_SYMBOL_GPL(mlx4_read_clock);
 
+
 static int map_internal_clock(struct mlx4_dev *dev)
 {
 	struct mlx4_priv *priv = mlx4_priv(dev);
@@ -1762,6 +1763,14 @@ static int mlx4_comm_check_offline(struct mlx4_dev *dev)
 			       (u32)(1 << COMM_CHAN_OFFLINE_OFFSET));
 		if (!offline_bit)
 			return 0;
+
+		/* If device removal has been requested,
+		 * do not continue retrying.
+		 */
+		if (dev->persist->interface_state &
+		    MLX4_INTERFACE_STATE_NOWAIT)
+			break;
+
 		/* There are cases as part of AER/Reset flow that PF needs
 		 * around 100 msec to load. We therefore sleep for 100 msec
 		 * to allow other tasks to make use of that CPU during this
@@ -3689,6 +3698,9 @@ static void mlx4_remove_one(struct pci_dev *pdev)
 	struct mlx4_priv *priv = mlx4_priv(dev);
 	int active_vfs = 0;
 
+	if (mlx4_is_slave(dev))
+		persist->interface_state |= MLX4_INTERFACE_STATE_NOWAIT;
+
 	mutex_lock(&persist->interface_state_mutex);
 	persist->interface_state |= MLX4_INTERFACE_STATE_DELETION;
 	mutex_unlock(&persist->interface_state_mutex);
@@ -3954,6 +3966,7 @@ static int __init mlx4_init(void)
 
 	if (mlx4_verify_params())
 		return -EINVAL;
+
 
 	mlx4_wq = create_singlethread_workqueue("mlx4");
 	if (!mlx4_wq)

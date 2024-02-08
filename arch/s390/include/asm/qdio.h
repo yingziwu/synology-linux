@@ -261,10 +261,10 @@ struct qdio_outbuf_state {
 	void *user;
 };
 
-#define QDIO_OUTBUF_STATE_FLAG_NONE	0x00
 #define QDIO_OUTBUF_STATE_FLAG_PENDING	0x01
 
 #define CHSC_AC1_INITIATE_INPUTQ	0x80
+
 
 /* qdio adapter-characteristics-1 flag */
 #define AC1_SIGA_INPUT_NEEDED		0x40	/* process input queues */

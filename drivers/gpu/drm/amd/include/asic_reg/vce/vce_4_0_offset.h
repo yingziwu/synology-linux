@@ -21,6 +21,8 @@
 #ifndef _vce_4_0_OFFSET_HEADER
 #define _vce_4_0_OFFSET_HEADER
 
+
+
 // addressBlock: vce0_vce_dec
 // base address: 0x22000
 #define mmVCE_STATUS                                                                                   0x0a01
@@ -108,6 +110,7 @@
 #define mmVCE_SYS_INT_STATUS                                                                           0x0b01
 #define mmVCE_SYS_INT_STATUS_BASE_IDX                                                                  0
 
+
 // addressBlock: vce0_ctl_dec
 // base address: 0x22780
 #define mmVCE_UENC_CLOCK_GATING                                                                        0x0bef
@@ -116,6 +119,7 @@
 #define mmVCE_UENC_REG_CLOCK_GATING_BASE_IDX                                                           0
 #define mmVCE_UENC_CLOCK_GATING_2                                                                      0x0c10
 #define mmVCE_UENC_CLOCK_GATING_2_BASE_IDX                                                             0
+
 
 // addressBlock: vce0_vce_sclk_dec
 // base address: 0x23700
@@ -172,6 +176,7 @@
 #define mmVCE_LMI_VCPU_CACHE_40BIT_BAR7                                                                0x109d
 #define mmVCE_LMI_VCPU_CACHE_40BIT_BAR7_BASE_IDX                                                       0
 
+
 // addressBlock: vce0_mmsch_dec
 // base address: 0x23b00
 #define mmVCE_MMSCH_VF_VMID                                                                            0x10cb
@@ -193,9 +198,11 @@
 #define mmVCE_MMSCH_VF_MAILBOX_RESP                                                                    0x10d3
 #define mmVCE_MMSCH_VF_MAILBOX_RESP_BASE_IDX                                                           0
 
+
 // addressBlock: vce0_vce_rb_pg_dec
 // base address: 0x23fa0
 #define mmVCE_HW_VERSION                                                                               0x11e8
 #define mmVCE_HW_VERSION_BASE_IDX                                                                      0
+
 
 #endif

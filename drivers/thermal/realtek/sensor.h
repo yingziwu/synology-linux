@@ -155,6 +155,7 @@ static inline bool cdev_is_cpufreq(struct thermal_cooling_device *cdev)
 	return !strncmp("thermal-cpufreq-0", cdev->type, THERMAL_NAME_LENGTH);
 }
 
+
 #ifdef CONFIG_RTK_THERMAL_EOH
 void thermal_sensor_eoh_handle_restore(struct thermal_sensor_device *tdev);
 void thermal_sensor_eoh_handle_overheat(struct thermal_sensor_device *tdev,

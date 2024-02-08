@@ -11,6 +11,7 @@
 #ifndef __IRDA_SW_DECODER__H__
 #define __IRDA_SW_DECODER__H__
 
+
 struct swdec_priv {
 	unsigned int fifostate;
 	unsigned int length_hb;

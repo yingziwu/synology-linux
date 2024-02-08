@@ -82,3 +82,4 @@ void hwss_edp_wait_for_hpd_ready(
 		bool power_up);
 
 #endif /* __DC_HWSS_DCE110_H__ */
+

@@ -1,6 +1,3 @@
-#ifndef MY_ABC_HERE
-#define MY_ABC_HERE
-#endif
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -190,7 +187,7 @@ static void fib_flush(struct net *net)
 		struct fib_table *tb;
 
 		hlist_for_each_entry_safe(tb, tmp, head, tb_hlist)
-			flushed += fib_table_flush(tb);
+			flushed += fib_table_flush(tb, false);
 	}
 
 	if (flushed)
@@ -292,18 +289,19 @@ __be32 fib_compute_spec_dst(struct sk_buff *skb)
 		return ip_hdr(skb)->daddr;
 
 	in_dev = __in_dev_get_rcu(dev);
-	BUG_ON(!in_dev);
 
 	net = dev_net(dev);
 
 	scope = RT_SCOPE_UNIVERSE;
 	if (!ipv4_is_zeronet(ip_hdr(skb)->saddr)) {
+		bool vmark = in_dev && IN_DEV_SRC_VMARK(in_dev);
 		struct flowi4 fl4 = {
 			.flowi4_iif = LOOPBACK_IFINDEX,
+			.flowi4_oif = l3mdev_master_ifindex_rcu(dev),
 			.daddr = ip_hdr(skb)->saddr,
 			.flowi4_tos = RT_TOS(ip_hdr(skb)->tos),
 			.flowi4_scope = scope,
-			.flowi4_mark = IN_DEV_SRC_VMARK(in_dev) ? skb->mark : 0,
+			.flowi4_mark = vmark ? skb->mark : 0,
 		};
 		if (!fib_lookup(net, &fl4, &res, 0))
 			return FIB_RES_PREFSRC(net, res);
@@ -760,7 +758,7 @@ static int inet_dump_fib(struct sk_buff *skb, struct netlink_callback *cb)
 	unsigned int e = 0, s_e;
 	struct fib_table *tb;
 	struct hlist_head *head;
-	int dumped = 0;
+	int dumped = 0, err;
 
 	if (nlmsg_len(cb->nlh) >= sizeof(struct rtmsg) &&
 	    ((struct rtmsg *) nlmsg_data(cb->nlh))->rtm_flags & RTM_F_CLONED)
@@ -780,20 +778,27 @@ static int inet_dump_fib(struct sk_buff *skb, struct netlink_callback *cb)
 			if (dumped)
 				memset(&cb->args[2], 0, sizeof(cb->args) -
 						 2 * sizeof(cb->args[0]));
-			if (fib_table_dump(tb, skb, cb) < 0)
-				goto out;
+			err = fib_table_dump(tb, skb, cb);
+			if (err < 0) {
+				if (likely(skb->len))
+					goto out;
+
+				goto out_err;
+			}
 			dumped = 1;
 next:
 			e++;
 		}
 	}
 out:
+	err = skb->len;
+out_err:
 	rcu_read_unlock();
 
 	cb->args[1] = e;
 	cb->args[0] = h;
 
-	return skb->len;
+	return err;
 }
 
 /* Prepare and feed intra-kernel routing request.
@@ -848,9 +853,6 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
 	__be32 mask = ifa->ifa_mask;
 	__be32 addr = ifa->ifa_local;
 	__be32 prefix = ifa->ifa_address & mask;
-#ifdef MY_ABC_HERE
-	unsigned int flags = 0;
-#endif
 
 	if (ifa->ifa_flags & IFA_F_SECONDARY) {
 		prim = inet_ifa_byprefix(in_dev, prefix, mask);
@@ -862,25 +864,8 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
 
 	fib_magic(RTM_NEWROUTE, RTN_LOCAL, addr, 32, prim);
 
-#ifdef MY_ABC_HERE
-	flags = dev_get_flags(dev);
-	if (0 == strncmp("tun0", dev->name, 4) || 
-		0 == strncmp("ppp200", dev->name, 6) ||
-		0 == strncmp("ppp300", dev->name, 6) ||
-		0 == strncmp("ntb_eth", dev->name, 7) ||
-		0 == strncmp("docker", dev->name, 6)) {
-		if (!(flags & IFF_UP)) {
-			return;
-		}
-	} else {
-		if (!(flags & IFF_UP) || !(flags & (IFF_RUNNING | IFF_LOWER_UP))) {
-			return;
-		}
-	}
-#else /* MY_ABC_HERE */
 	if (!(dev->flags & IFF_UP))
 		return;
-#endif /* MY_ABC_HERE */
 
 	/* Add broadcast address, if it is explicitly assigned. */
 	if (ifa->ifa_broadcast && ifa->ifa_broadcast != htonl(0xFFFFFFFF))
@@ -1185,7 +1170,8 @@ static int fib_inetaddr_event(struct notifier_block *this, unsigned long event, 
 static int fib_netdev_event(struct notifier_block *this, unsigned long event, void *ptr)
 {
 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
-	struct netdev_notifier_changeupper_info *info;
+	struct netdev_notifier_changeupper_info *upper_info = ptr;
+	struct netdev_notifier_info_ext *info_ext = ptr;
 	struct in_device *in_dev;
 	struct net *net = dev_net(dev);
 	unsigned int flags;
@@ -1220,16 +1206,19 @@ static int fib_netdev_event(struct notifier_block *this, unsigned long event, vo
 			fib_sync_up(dev, RTNH_F_LINKDOWN);
 		else
 			fib_sync_down_dev(dev, event, false);
-		/* fall through */
+		rt_cache_flush(net);
+		break;
 	case NETDEV_CHANGEMTU:
+		fib_sync_mtu(dev, info_ext->ext.mtu);
 		rt_cache_flush(net);
 		break;
 	case NETDEV_CHANGEUPPER:
-		info = ptr;
+		upper_info = ptr;
 		/* flush all routes if dev is linked to or unlinked from
 		 * an L3 master device (e.g., VRF)
 		 */
-		if (info->upper_dev && netif_is_l3_master(info->upper_dev))
+		if (upper_info->upper_dev &&
+		    netif_is_l3_master(upper_info->upper_dev))
 			fib_disable_ip(dev, NETDEV_DOWN, true);
 		break;
 	}
@@ -1268,7 +1257,7 @@ fail:
 
 static void ip_fib_net_exit(struct net *net)
 {
-	unsigned int i;
+	int i;
 
 	rtnl_lock();
 #ifdef CONFIG_IP_MULTIPLE_TABLES
@@ -1276,14 +1265,19 @@ static void ip_fib_net_exit(struct net *net)
 	RCU_INIT_POINTER(net->ipv4.fib_main, NULL);
 	RCU_INIT_POINTER(net->ipv4.fib_default, NULL);
 #endif
-	for (i = 0; i < FIB_TABLE_HASHSZ; i++) {
+	/* Destroy the tables in reverse order to guarantee that the
+	 * local table, ID 255, is destroyed before the main table, ID
+	 * 254. This is necessary as the local table may contain
+	 * references to data contained in the main table.
+	 */
+	for (i = FIB_TABLE_HASHSZ - 1; i >= 0; i--) {
 		struct hlist_head *head = &net->ipv4.fib_table_hash[i];
 		struct hlist_node *tmp;
 		struct fib_table *tb;
 
 		hlist_for_each_entry_safe(tb, tmp, head, tb_hlist) {
 			hlist_del(&tb->tb_hlist);
-			fib_table_flush(tb);
+			fib_table_flush(tb, true);
 			fib_free_table(tb);
 		}
 	}
@@ -1335,13 +1329,14 @@ static struct pernet_operations fib_net_ops = {
 
 void __init ip_fib_init(void)
 {
-	rtnl_register(PF_INET, RTM_NEWROUTE, inet_rtm_newroute, NULL, NULL);
-	rtnl_register(PF_INET, RTM_DELROUTE, inet_rtm_delroute, NULL, NULL);
-	rtnl_register(PF_INET, RTM_GETROUTE, NULL, inet_dump_fib, NULL);
+	fib_trie_init();
 
 	register_pernet_subsys(&fib_net_ops);
+
 	register_netdevice_notifier(&fib_netdev_notifier);
 	register_inetaddr_notifier(&fib_inetaddr_notifier);
 
-	fib_trie_init();
+	rtnl_register(PF_INET, RTM_NEWROUTE, inet_rtm_newroute, NULL, NULL);
+	rtnl_register(PF_INET, RTM_DELROUTE, inet_rtm_delroute, NULL, NULL);
+	rtnl_register(PF_INET, RTM_GETROUTE, NULL, inet_dump_fib, NULL);
 }

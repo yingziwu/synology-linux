@@ -22,6 +22,7 @@
 #include <linux/of.h>
 #include "common.h"
 
+
 /* For Msys AlleyCat3 Sample At Reset the CPU, DDR and Main PLL clocks are all
  * defined in the same time
  *
@@ -115,6 +116,7 @@ static const struct coreclk_soc_desc msys_core_clocks = {
 	.ratios = msys_core_ratios,
 	.num_ratios = ARRAY_SIZE(msys_core_ratios),
 };
+
 
 /*
  * Clock Gating Control

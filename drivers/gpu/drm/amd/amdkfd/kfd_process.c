@@ -54,6 +54,7 @@ static struct kfd_process *create_process(const struct task_struct *thread,
 					struct file *filep);
 static int kfd_process_init_cwsr(struct kfd_process *p, struct file *filep);
 
+
 void kfd_process_create_wq(void)
 {
 	if (!kfd_process_wq)

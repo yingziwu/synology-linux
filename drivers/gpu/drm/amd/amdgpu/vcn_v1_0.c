@@ -1102,6 +1102,7 @@ static void vcn_v1_0_ring_insert_nop(struct amdgpu_ring *ring, uint32_t count)
 
 }
 
+
 static const struct amd_ip_funcs vcn_v1_0_ip_funcs = {
 	.name = "vcn_v1_0",
 	.early_init = vcn_v1_0_early_init,

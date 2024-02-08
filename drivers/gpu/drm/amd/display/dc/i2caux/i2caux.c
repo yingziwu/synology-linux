@@ -482,3 +482,4 @@ void dal_i2caux_destruct(
 		++i;
 	} while (i < GPIO_DDC_LINE_COUNT);
 }
+

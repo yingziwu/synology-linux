@@ -10,3 +10,4 @@ extern int (*funcSYNOSendRaidSyncEvent)(const char *szSyncType, int isSyncFinish
 void SynoReportSyncStatus(const char *szSyncType, int isSyncFinish, int isSyncInterrupt, int md_minor);
 #endif /* MY_ABC_HERE */
 #endif /* _LIBMD_SYNC_REPORT_H */
+

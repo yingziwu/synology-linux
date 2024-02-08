@@ -151,6 +151,7 @@ static void program_gamut_remap(
 	gam_regs.shifts.csc_c12 = dpp->tf_shift->CM_GAMUT_REMAP_C12;
 	gam_regs.masks.csc_c12 = dpp->tf_mask->CM_GAMUT_REMAP_C12;
 
+
 	if (select == GAMUT_REMAP_COEFF) {
 		gam_regs.csc_c11_c12 = REG(CM_GAMUT_REMAP_C11_C12);
 		gam_regs.csc_c33_c34 = REG(CM_GAMUT_REMAP_C33_C34);
@@ -461,6 +462,7 @@ void dpp1_program_input_csc(
 	gam_regs.shifts.csc_c12 = dpp->tf_shift->CM_ICSC_C12;
 	gam_regs.masks.csc_c12 = dpp->tf_mask->CM_ICSC_C12;
 
+
 	if (select == INPUT_CSC_SELECT_ICSC) {
 
 		gam_regs.csc_c11_c12 = REG(CM_ICSC_C11_C12);
@@ -527,6 +529,7 @@ void dpp1_program_degamma_lutb_settings(
 	gam_regs.start_end_cntl2_r = REG(CM_DGAM_RAMB_END_CNTL2_R);
 	gam_regs.region_start = REG(CM_DGAM_RAMB_REGION_0_1);
 	gam_regs.region_end = REG(CM_DGAM_RAMB_REGION_14_15);
+
 
 	cm_helper_program_xfer_func(dpp->base.ctx, params, &gam_regs);
 }

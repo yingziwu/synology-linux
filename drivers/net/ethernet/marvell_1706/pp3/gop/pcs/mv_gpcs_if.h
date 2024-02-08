@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -32,5 +33,6 @@ disclaimer.
 
 int mv_gpcs_mode_cfg(int pcs_num, bool en);
 int mv_gpcs_reset(int pcs_num, enum mv_reset act);
+
 
 #endif /* __mv_gpcs_if_h__ */

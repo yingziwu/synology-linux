@@ -248,6 +248,7 @@ TRACE_EVENT(gvt_command,
 		memcpy(__get_dynamic_array(raw_cmd), cmd_va, cmd_len * sizeof(*cmd_va));
 	),
 
+
 	TP_printk("vgpu%d ring %d: buf_type %u, ip_gma %08x, raw cmd %s",
 		__entry->vgpu_id,
 		__entry->ring_id,

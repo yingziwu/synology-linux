@@ -68,10 +68,6 @@ config SYNO_BROADWELLNTB
 	bool "Intel Broadwell with ntb"
 	depends on X86_64
 
-config SYNO_BROADWELLNTBAP
-	bool "Intel Broadwell with ntb in AP mode"
-	depends on X86_64
-
 config SYNO_NEXTKVMX64
 	bool "Next OS KVM X64 Virtual Machine"
 	depends on X86_64
@@ -85,8 +81,16 @@ config SYNO_RTD1619
 	depends on ARM64
 	select SYNO_LSP_RTD1619
 
+config SYNO_SKYLAKED
+	bool "Intel Skylake-D"
+	depends on X86_64
+
 config SYNO_V1000
 	bool "AMD Ryzen Embedded V1000"
+	depends on X86_64
+
+config SYNO_BROADWELLNTBAP
+	bool "Intel Broadwell with ntb in AP mode"
 	depends on X86_64
 
 config SYNO_KVMCLOUD

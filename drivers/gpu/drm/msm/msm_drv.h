@@ -326,6 +326,7 @@ void msm_submitqueue_close(struct msm_file_private *ctx);
 
 void msm_submitqueue_destroy(struct kref *kref);
 
+
 #define DBG(fmt, ...) DRM_DEBUG_DRIVER(fmt"\n", ##__VA_ARGS__)
 #define VERB(fmt, ...) if (0) DRM_DEBUG_DRIVER(fmt"\n", ##__VA_ARGS__)
 
@@ -340,6 +341,7 @@ static inline int align_pitch(int width, int bpp)
 #define INVALID_IDX(idx) ({BUG(); 0;})
 #define fui(x)                ({BUG(); 0;})
 #define util_float_to_half(x) ({BUG(); 0;})
+
 
 #define FIELD(val, name) (((val) & name ## __MASK) >> name ## __SHIFT)
 

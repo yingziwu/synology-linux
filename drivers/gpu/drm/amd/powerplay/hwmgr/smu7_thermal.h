@@ -55,3 +55,4 @@ extern int smu7_fan_ctrl_start_smc_fan_control(struct pp_hwmgr *hwmgr);
 extern int smu7_start_thermal_controller(struct pp_hwmgr *hwmgr,
 				struct PP_TemperatureRange *temperature_range);
 #endif
+

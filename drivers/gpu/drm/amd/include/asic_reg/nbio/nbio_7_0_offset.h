@@ -21,6 +21,8 @@
 #ifndef _nbio_7_0_OFFSET_HEADER
 #define _nbio_7_0_OFFSET_HEADER
 
+
+
 // addressBlock: nbio_iohub_nb_nbcfg_nb_cfgdec
 // base address: 0x0
 #define cfgNB_NBCFG0_NB_VENDOR_ID                                                                       0x0000
@@ -71,6 +73,7 @@
 #define cfgNB_NBCFG0_NB_SMN_INDEX_6                                                                     0x00f8
 #define cfgNB_NBCFG0_NB_SMN_DATA_6                                                                      0x00fc
 
+
 // addressBlock: nbio_iohub_iommu_l2_iommul2cfg
 // base address: 0x0
 #define cfgIOMMU_L2_0_IOMMU_VENDOR_ID                                                                   0x0000
@@ -118,6 +121,7 @@
 #define cfgIOMMU_L2_0_SMMU_MMIO_IDR5_W                                                                  0x00b8
 #define cfgIOMMU_L2_0_SMMU_MMIO_IIDR_W                                                                  0x00bc
 #define cfgIOMMU_L2_0_SMMU_AIDR_W                                                                       0x00c0
+
 
 // addressBlock: nbio_nbif0_bif_cfg_dev0_rc_bifcfgdecp
 // base address: 0x0
@@ -244,6 +248,7 @@
 #define cfgBIF_CFG_DEV0_RC0_PCIE_ACS_CAP                                                                0x02a4
 #define cfgBIF_CFG_DEV0_RC0_PCIE_ACS_CNTL                                                               0x02a6
 
+
 // addressBlock: nbio_nbif0_bif_cfg_dev1_rc_bifcfgdecp
 // base address: 0x0
 #define cfgBIF_CFG_DEV1_RC0_VENDOR_ID                                                                   0x0000
@@ -369,6 +374,7 @@
 #define cfgBIF_CFG_DEV1_RC0_PCIE_ACS_CAP                                                                0x02a4
 #define cfgBIF_CFG_DEV1_RC0_PCIE_ACS_CNTL                                                               0x02a6
 
+
 // addressBlock: nbio_iohub_nb_pciedummy0_pciedummy_cfgdec
 // base address: 0x0
 #define cfgNB_PCIEDUMMY0_0_DEVICE_VENDOR_ID                                                             0x0000
@@ -377,6 +383,7 @@
 #define cfgNB_PCIEDUMMY0_0_HEADER_TYPE                                                                  0x000c
 #define cfgNB_PCIEDUMMY0_0_HEADER_TYPE_W                                                                0x0040
 
+
 // addressBlock: nbio_iohub_nb_pciedummy1_pciedummy_cfgdec
 // base address: 0x0
 #define cfgNB_PCIEDUMMY1_0_DEVICE_VENDOR_ID                                                             0x0000
@@ -384,6 +391,7 @@
 #define cfgNB_PCIEDUMMY1_0_CLASS_CODE_REVID                                                             0x0008
 #define cfgNB_PCIEDUMMY1_0_HEADER_TYPE                                                                  0x000c
 #define cfgNB_PCIEDUMMY1_0_HEADER_TYPE_W                                                                0x0040
+
 
 // addressBlock: nbio_nbif0_bif_cfg_dev0_epf0_bifcfgdecp
 // base address: 0x0
@@ -890,6 +898,7 @@
 //#define cfgBIF_CFG_DEV0_EPF0_PCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW7                                 0x04ec
 //#define cfgBIF_CFG_DEV0_EPF0_PCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW8                                 0x04f0
 
+
 // addressBlock: nbio_nbif0_bif_cfg_dev0_epf1_bifcfgdecp
 // base address: 0x0
 #define cfgBIF_CFG_DEV0_EPF1_0_VENDOR_ID                                                                0x0000
@@ -1144,6 +1153,7 @@
 #define cfgBIF_CFG_DEV0_EPF1_0_PCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW7                               0x04ec
 #define cfgBIF_CFG_DEV0_EPF1_0_PCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW8                               0x04f0
 
+
 // addressBlock: nbio_nbif0_bif_cfg_dev0_epf2_bifcfgdecp
 // base address: 0x0
 #define cfgBIF_CFG_DEV0_EPF2_0_VENDOR_ID                                                                0x0000
@@ -1269,6 +1279,7 @@
 #define cfgBIF_CFG_DEV0_EPF2_0_PCIE_ARI_ENH_CAP_LIST                                                    0x0328
 #define cfgBIF_CFG_DEV0_EPF2_0_PCIE_ARI_CAP                                                             0x032c
 #define cfgBIF_CFG_DEV0_EPF2_0_PCIE_ARI_CNTL                                                            0x032e
+
 
 // addressBlock: nbio_nbif0_bif_cfg_dev0_epf3_bifcfgdecp
 // base address: 0x0
@@ -1396,6 +1407,7 @@
 #define cfgBIF_CFG_DEV0_EPF3_0_PCIE_ARI_CAP                                                             0x032c
 #define cfgBIF_CFG_DEV0_EPF3_0_PCIE_ARI_CNTL                                                            0x032e
 
+
 // addressBlock: nbio_nbif0_bif_cfg_dev0_epf4_bifcfgdecp
 // base address: 0x0
 #define cfgBIF_CFG_DEV0_EPF4_0_VENDOR_ID                                                                0x0000
@@ -1521,6 +1533,7 @@
 #define cfgBIF_CFG_DEV0_EPF4_0_PCIE_ARI_ENH_CAP_LIST                                                    0x0328
 #define cfgBIF_CFG_DEV0_EPF4_0_PCIE_ARI_CAP                                                             0x032c
 #define cfgBIF_CFG_DEV0_EPF4_0_PCIE_ARI_CNTL                                                            0x032e
+
 
 // addressBlock: nbio_nbif0_bif_cfg_dev0_epf5_bifcfgdecp
 // base address: 0x0
@@ -1648,6 +1661,7 @@
 #define cfgBIF_CFG_DEV0_EPF5_0_PCIE_ARI_CAP                                                             0x032c
 #define cfgBIF_CFG_DEV0_EPF5_0_PCIE_ARI_CNTL                                                            0x032e
 
+
 // addressBlock: nbio_nbif0_bif_cfg_dev0_epf6_bifcfgdecp
 // base address: 0x0
 #define cfgBIF_CFG_DEV0_EPF6_0_VENDOR_ID                                                                0x0000
@@ -1774,6 +1788,7 @@
 #define cfgBIF_CFG_DEV0_EPF6_0_PCIE_ARI_CAP                                                             0x032c
 #define cfgBIF_CFG_DEV0_EPF6_0_PCIE_ARI_CNTL                                                            0x032e
 
+
 // addressBlock: nbio_nbif0_bif_cfg_dev0_epf7_bifcfgdecp
 // base address: 0x0
 #define cfgBIF_CFG_DEV0_EPF7_0_VENDOR_ID                                                                0x0000
@@ -1899,6 +1914,7 @@
 #define cfgBIF_CFG_DEV0_EPF7_0_PCIE_ARI_ENH_CAP_LIST                                                    0x0328
 #define cfgBIF_CFG_DEV0_EPF7_0_PCIE_ARI_CAP                                                             0x032c
 #define cfgBIF_CFG_DEV0_EPF7_0_PCIE_ARI_CNTL                                                            0x032e
+
 
 // addressBlock: nbio_nbif0_bif_cfg_dev1_epf0_bifcfgdecp
 // base address: 0x0
@@ -2055,6 +2071,7 @@
 #define cfgBIF_CFG_DEV1_EPF0_0_PCIE_ARI_CAP                                                             0x032c
 #define cfgBIF_CFG_DEV1_EPF0_0_PCIE_ARI_CNTL                                                            0x032e
 
+
 // addressBlock: nbio_nbif0_bif_cfg_dev1_epf1_bifcfgdecp
 // base address: 0x0
 #define cfgBIF_CFG_DEV1_EPF1_0_VENDOR_ID                                                                0x0000
@@ -2181,6 +2198,7 @@
 #define cfgBIF_CFG_DEV1_EPF1_0_PCIE_ARI_CAP                                                             0x032c
 #define cfgBIF_CFG_DEV1_EPF1_0_PCIE_ARI_CNTL                                                            0x032e
 
+
 // addressBlock: nbio_nbif0_bif_cfg_dev1_epf2_bifcfgdecp
 // base address: 0x0
 #define cfgBIF_CFG_DEV1_EPF2_0_VENDOR_ID                                                                0x0000
@@ -2306,6 +2324,7 @@
 #define cfgBIF_CFG_DEV1_EPF2_0_PCIE_ARI_ENH_CAP_LIST                                                    0x0328
 #define cfgBIF_CFG_DEV1_EPF2_0_PCIE_ARI_CAP                                                             0x032c
 #define cfgBIF_CFG_DEV1_EPF2_0_PCIE_ARI_CNTL                                                            0x032e
+
 
 // addressBlock: nbio_pcie0_bifplr0_cfgdecp
 // base address: 0x0
@@ -2479,6 +2498,7 @@
 #define cfgBIFPLR0_0_PCIE_ESM_CAP_6                                                                     0x03e8
 #define cfgBIFPLR0_0_PCIE_ESM_CAP_7                                                                     0x03ec
 
+
 // addressBlock: nbio_pcie0_bifplr1_cfgdecp
 // base address: 0x0
 #define cfgBIFPLR1_0_VENDOR_ID                                                                          0x0000
@@ -2650,6 +2670,7 @@
 #define cfgBIFPLR1_0_PCIE_ESM_CAP_5                                                                     0x03e4
 #define cfgBIFPLR1_0_PCIE_ESM_CAP_6                                                                     0x03e8
 #define cfgBIFPLR1_0_PCIE_ESM_CAP_7                                                                     0x03ec
+
 
 // addressBlock: nbio_pcie0_bifplr2_cfgdecp
 // base address: 0x0
@@ -2823,6 +2844,7 @@
 #define cfgBIFPLR2_0_PCIE_ESM_CAP_6                                                                     0x03e8
 #define cfgBIFPLR2_0_PCIE_ESM_CAP_7                                                                     0x03ec
 
+
 // addressBlock: nbio_pcie0_bifplr3_cfgdecp
 // base address: 0x0
 #define cfgBIFPLR3_0_VENDOR_ID                                                                          0x0000
@@ -2994,6 +3016,7 @@
 #define cfgBIFPLR3_0_PCIE_ESM_CAP_5                                                                     0x03e4
 #define cfgBIFPLR3_0_PCIE_ESM_CAP_6                                                                     0x03e8
 #define cfgBIFPLR3_0_PCIE_ESM_CAP_7                                                                     0x03ec
+
 
 // addressBlock: nbio_pcie0_bifplr4_cfgdecp
 // base address: 0x0
@@ -3167,6 +3190,7 @@
 #define cfgBIFPLR4_0_PCIE_ESM_CAP_6                                                                     0x03e8
 #define cfgBIFPLR4_0_PCIE_ESM_CAP_7                                                                     0x03ec
 
+
 // addressBlock: nbio_pcie0_bifplr5_cfgdecp
 // base address: 0x0
 #define cfgBIFPLR5_0_VENDOR_ID                                                                          0x0000
@@ -3338,6 +3362,7 @@
 #define cfgBIFPLR5_0_PCIE_ESM_CAP_5                                                                     0x03e4
 #define cfgBIFPLR5_0_PCIE_ESM_CAP_6                                                                     0x03e8
 #define cfgBIFPLR5_0_PCIE_ESM_CAP_7                                                                     0x03ec
+
 
 // addressBlock: nbio_pcie0_bifplr6_cfgdecp
 // base address: 0x0
@@ -3511,6 +3536,7 @@
 #define cfgBIFPLR6_0_PCIE_ESM_CAP_6                                                                     0x03e8
 #define cfgBIFPLR6_0_PCIE_ESM_CAP_7                                                                     0x03ec
 
+
 // addressBlock: nbio_dbgu0_dbgudec
 // base address: 0x700
 #define mmport_a_addr                                                                                  0x01ac
@@ -3537,6 +3563,7 @@
 #define mmport_d_data_lo_BASE_IDX                                                                      1
 #define mmport_d_data_hi                                                                               0x01b7
 #define mmport_d_data_hi_BASE_IDX                                                                      1
+
 
 // addressBlock: nbio_iohub_iommu_l2mmio_l2mmiocfg
 // base address: 0x0
@@ -3981,6 +4008,7 @@
 #define mmIOMMU_MMIO_COUNTER_RPT_BANK_1_CNT_3_1                                                        0x00cb
 #define mmIOMMU_MMIO_COUNTER_RPT_BANK_1_CNT_3_1_BASE_IDX                                               3
 
+
 // addressBlock: nbio_nbif0_bif_bx_pf_SYSPFVFDEC
 // base address: 0x0
 #define mmMM_INDEX                                                                                     0x0000
@@ -3989,6 +4017,7 @@
 #define mmMM_DATA_BASE_IDX                                                                             0
 #define mmMM_INDEX_HI                                                                                  0x0006
 #define mmMM_INDEX_HI_BASE_IDX                                                                         0
+
 
 // addressBlock: nbio_nbif0_bif_bx_pf_SYSDEC
 // base address: 0x0
@@ -4091,6 +4120,7 @@
 #define mmGFX_MMIOREG_CAM_PROGRAMMABLE_CPL                                                             0x007f
 #define mmGFX_MMIOREG_CAM_PROGRAMMABLE_CPL_BASE_IDX                                                    1
 
+
 // addressBlock: nbio_nbif0_syshub_mmreg_ind_syshubdec
 // base address: 0x0
 #define mmSYSHUB_INDEX                                                                                 0x0008
@@ -4098,10 +4128,12 @@
 #define mmSYSHUB_DATA                                                                                  0x0009
 #define mmSYSHUB_DATA_BASE_IDX                                                                         0
 
+
 // addressBlock: nbio_nbif0_rcc_strap_BIFDEC1
 // base address: 0x0
 #define mmRCC_DEV0_EPF0_STRAP0                                                                         0x000f
 #define mmRCC_DEV0_EPF0_STRAP0_BASE_IDX                                                                2
+
 
 // addressBlock: nbio_nbif0_rcc_ep_dev0_BIFDEC1
 // base address: 0x0
@@ -4174,6 +4206,7 @@
 #define mmEP_PCIE_LC_SPEED_CNTL                                                                        0x003c
 #define mmEP_PCIE_LC_SPEED_CNTL_BASE_IDX                                                               2
 
+
 // addressBlock: nbio_nbif0_rcc_dwn_dev0_BIFDEC1
 // base address: 0x0
 #define mmDN_PCIE_RESERVED                                                                             0x0040
@@ -4191,6 +4224,7 @@
 #define mmDN_PCIE_CFG_CNTL                                                                             0x0047
 #define mmDN_PCIE_CFG_CNTL_BASE_IDX                                                                    2
 
+
 // addressBlock: nbio_nbif0_rcc_dwnp_dev0_BIFDEC1
 // base address: 0x0
 #define mmPCIE_ERR_CNTL                                                                                0x004f
@@ -4206,6 +4240,7 @@
 #define mmLTR_MSG_INFO_FROM_EP                                                                         0x0054
 #define mmLTR_MSG_INFO_FROM_EP_BASE_IDX                                                                2
 
+
 // addressBlock: nbio_nbif0_rcc_dev0_BIFPFVFDEC1
 // base address: 0x0
 #define mmRCC_ERR_LOG                                                                                  0x0085
@@ -4218,6 +4253,7 @@
 #define mmRCC_CONFIG_RESERVED_BASE_IDX                                                                 2
 #define mmRCC_IOV_FUNC_IDENTIFIER                                                                      0x00c5
 #define mmRCC_IOV_FUNC_IDENTIFIER_BASE_IDX                                                             2
+
 
 // addressBlock: nbio_nbif0_rcc_dev0_BIFDEC1
 // base address: 0x0
@@ -4285,6 +4321,7 @@
 #define mmRCC_LTR_LSWITCH_CNTL_BASE_IDX                                                                2
 #define mmRCC_MH_ARB_CNTL                                                                              0x00e1
 #define mmRCC_MH_ARB_CNTL_BASE_IDX                                                                     2
+
 
 // addressBlock: nbio_nbif0_bif_bx_pf_BIFDEC1
 // base address: 0x0
@@ -4421,6 +4458,7 @@
 #define mmBIF_CLKREQB_PAD_CNTL                                                                         0x014b
 #define mmBIF_CLKREQB_PAD_CNTL_BASE_IDX                                                                2
 
+
 // addressBlock: nbio_nbif0_bif_bx_pf_BIFPFVFDEC1
 // base address: 0x0
 #define mmBIF_BME_STATUS                                                                               0x00eb
@@ -4466,6 +4504,7 @@
 #define mmBIF_VMHV_MAILBOX                                                                             0x0140
 #define mmBIF_VMHV_MAILBOX_BASE_IDX                                                                    2
 
+
 // addressBlock: nbio_nbif0_gdc_GDCDEC
 // base address: 0x0
 #define mmNGDC_SDP_PORT_CTRL                                                                           0x01c2
@@ -4495,6 +4534,7 @@
 #define mmGDC_PG_MISC_CNTL                                                                             0x01f0
 #define mmGDC_PG_MISC_CNTL_BASE_IDX                                                                    2
 
+
 // addressBlock: nbio_nbif0_rcc_dev0_BIFDEC2
 // base address: 0x0
 #define mmGFXMSIX_VECT0_ADDR_LO                                                                        0x0400
@@ -4523,6 +4563,7 @@
 #define mmGFXMSIX_VECT2_CONTROL_BASE_IDX                                                               3
 #define mmGFXMSIX_PBA                                                                                  0x0800
 #define mmGFXMSIX_PBA_BASE_IDX                                                                         3
+
 
 // addressBlock: syshub_mmreg_ind_syshubind
 // base address: 0x0

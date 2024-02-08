@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -29,6 +30,7 @@ disclaimer.
 #include "tm_nodes_tree.h"
 #include "tm_nodes_update.h"
 #include "tm_elig_prio_func.h"
+
 
 int mv_tm_quantum_range_get(uint32_t mtu, uint32_t *min_quantum, uint32_t *max_quantum)
 {
@@ -164,6 +166,7 @@ int mv_tm_dwrr_weight(enum mv_tm_level level,
 	TM_WRAPPER_END(qmtm_hndl);
 }
 EXPORT_SYMBOL(mv_tm_dwrr_weight);
+
 
 int mv_tm_dwrr_enable(enum mv_tm_level level,
 					uint32_t index,

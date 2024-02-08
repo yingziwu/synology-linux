@@ -863,6 +863,7 @@ csio_scsis_tm_active(struct csio_ioreq *req, enum csio_scsi_ev evt)
 		}
 		break;
 
+
 	case CSIO_SCSIE_CLOSE:
 		csio_scsi_abrt_cls(req, SCSI_CLOSE);
 		if (req->drv_status == 0) {
@@ -1566,6 +1567,7 @@ csio_scsi_err_handler(struct csio_hw *hw, struct csio_ioreq *req)
 	uint32_t rsp_len = 0, sns_len = 0;
 	struct csio_rnode *rn = (struct csio_rnode *)(cmnd->device->hostdata);
 
+
 	switch (req->wr_status) {
 	case FW_HOSTERROR:
 		if (unlikely(!csio_is_hw_ready(hw)))
@@ -1711,8 +1713,11 @@ csio_scsi_err_handler(struct csio_hw *hw, struct csio_ioreq *req)
 	}
 
 out:
-	if (req->nsge > 0)
+	if (req->nsge > 0) {
 		scsi_dma_unmap(cmnd);
+		if (req->dcopy && (host_status == DID_OK))
+			host_status = csio_scsi_copy_to_sgl(hw, req);
+	}
 
 	cmnd->result = (((host_status) << 16) | scsi_status);
 	cmnd->scsi_done(cmnd);

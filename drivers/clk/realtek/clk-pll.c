@@ -49,6 +49,7 @@ DEFINE_SIMPLE_ATTRIBUTE(clk_pll_rate_op,
 			clk_pll_debugfs_u64_set,
 			"%llu\n");
 
+
 static int clk_pll_conf_show(struct seq_file *s, void *data)
 {
 	struct clk_hw *hw = s->private;
@@ -336,6 +337,7 @@ static unsigned int __clk_pll_div_get_div_reg(struct clk_pll_div *plld)
 	return (clk_reg_read(&plld->clkp.base, plld->div_offset) & m) >> s;
 }
 
+
 static long clk_pll_div_round_rate(struct clk_hw *hw,
 				   unsigned long rate,
 				   unsigned long *parent_rate)
@@ -520,6 +522,7 @@ static int clk_pll_dif_is_enabled(struct clk_hw *hw)
 	pr_debug("%pC: %s\n", hw->clk, __func__);
 	return !!(pll->status & CLK_PLL_ENABLED);
 }
+
 
 static void clk_pll_dif_disable_unused(struct clk_hw *hw)
 {

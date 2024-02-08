@@ -1428,6 +1428,7 @@ static int sd_switch_function(struct rtsx_chip *chip, u8 bus_width)
 			continue;
 		}
 
+
 		if (func_to_switch)
 			break;
 
@@ -2974,6 +2975,7 @@ SD_UNLOCK_ENTRY:
 	return STATUS_SUCCESS;
 }
 
+
 static int mmc_test_switch_bus(struct rtsx_chip *chip, u8 width)
 {
 	struct sd_info *sd_card = &(chip->sd_card);
@@ -3103,6 +3105,7 @@ static int mmc_test_switch_bus(struct rtsx_chip *chip, u8 width)
 	return SWITCH_FAIL;
 }
 
+
 static int mmc_switch_timing_bus(struct rtsx_chip *chip, bool switch_ddr)
 {
 	struct sd_info *sd_card = &(chip->sd_card);
@@ -3226,6 +3229,7 @@ static int mmc_switch_timing_bus(struct rtsx_chip *chip, bool switch_ddr)
 
 	return STATUS_SUCCESS;
 }
+
 
 static int reset_mmc(struct rtsx_chip *chip)
 {
@@ -4161,12 +4165,6 @@ RTY_SEND_CMD:
 					rtsx_trace(chip);
 					return STATUS_FAIL;
 				}
-
-			} else if (rsp_type == SD_RSP_TYPE_R0) {
-				if ((ptr[3] & 0x1E) != 0x03) {
-					rtsx_trace(chip);
-					return STATUS_FAIL;
-				}
 			}
 		}
 	}
@@ -5027,7 +5025,7 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 			goto SD_Execute_Write_Cmd_Failed;
 		}
 
-		rtsx_write_register(chip, SD_BYTE_CNT_L, 0xFF, 0x00);
+		retval = rtsx_write_register(chip, SD_BYTE_CNT_L, 0xFF, 0x00);
 		if (retval != STATUS_SUCCESS) {
 			rtsx_trace(chip);
 			goto SD_Execute_Write_Cmd_Failed;

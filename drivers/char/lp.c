@@ -178,12 +178,15 @@ static void lp_release_parport(struct lp_struct *this_lp)
 	}
 }
 
+
+
 static int lp_preempt(void *handle)
 {
 	struct lp_struct *this_lp = (struct lp_struct *)handle;
 	set_bit(LP_PREEMPT_REQUEST, &this_lp->bits);
 	return (1);
 }
+
 
 /* 
  * Try to negotiate to a new mode; if unsuccessful negotiate to
@@ -856,7 +859,11 @@ static int __init lp_setup (char *str)
 	} else if (!strcmp(str, "auto")) {
 		parport_nr[0] = LP_PARPORT_AUTO;
 	} else if (!strcmp(str, "none")) {
-		parport_nr[parport_ptr++] = LP_PARPORT_NONE;
+		if (parport_ptr < LP_NO)
+			parport_nr[parport_ptr++] = LP_PARPORT_NONE;
+		else
+			printk(KERN_INFO "lp: too many ports, %s ignored.\n",
+			       str);
 	} else if (!strcmp(str, "reset")) {
 		reset = 1;
 	}

@@ -587,6 +587,7 @@ xfs_qm_log_quotaoff_end(
 	return xfs_trans_commit(tp);
 }
 
+
 STATIC int
 xfs_qm_log_quotaoff(
 	xfs_mount_t	       *mp,
@@ -629,6 +630,7 @@ xfs_qm_log_quotaoff(
 out:
 	return error;
 }
+
 
 int
 xfs_qm_scall_getquota(
@@ -715,6 +717,7 @@ out_put:
 	return error;
 }
 
+
 STATIC int
 xfs_dqrele_inode(
 	struct xfs_inode	*ip,
@@ -748,6 +751,7 @@ xfs_dqrele_inode(
 	return 0;
 }
 
+
 /*
  * Go thru all the inodes in the file system, releasing their dquots.
  *
@@ -760,5 +764,6 @@ xfs_qm_dqrele_all_inodes(
 	uint		 flags)
 {
 	ASSERT(mp->m_quotainfo);
-	xfs_inode_ag_iterator(mp, xfs_dqrele_inode, flags, NULL);
+	xfs_inode_ag_iterator_flags(mp, xfs_dqrele_inode, flags, NULL,
+				    XFS_AGITER_INEW_WAIT);
 }

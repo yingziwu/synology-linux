@@ -238,6 +238,7 @@ typedef struct _ATOM_Polaris10_PCIE_Table {
 	ATOM_Polaris10_PCIE_Record entries[1];                      /* Dynamically allocate entries. */
 } ATOM_Polaris10_PCIE_Table;
 
+
 typedef struct _ATOM_Tonga_MM_Dependency_Record {
 	UCHAR   ucVddcInd;											 /* VDDC voltage */
 	USHORT  usVddgfxOffset;									  /* Offset relative to VDDC voltage */
@@ -428,6 +429,8 @@ typedef struct _PPTable_Generic_SubTable_Header {
 	UCHAR  ucRevId;
 } PPTable_Generic_SubTable_Header;
 
+
 #pragma pack(pop)
+
 
 #endif

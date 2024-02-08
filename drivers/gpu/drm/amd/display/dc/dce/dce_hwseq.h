@@ -360,6 +360,7 @@ struct dce_hwseq_registers {
 #define HWS_SF1(blk_name, reg_name, field_name, post_fix)\
 	.field_name = blk_name ## reg_name ## __ ## blk_name ## field_name ## post_fix
 
+
 #define HWSEQ_DCEF_MASK_SH_LIST(mask_sh, blk)\
 	HWS_SF(blk, CLOCK_CONTROL, DCFE_CLOCK_ENABLE, mask_sh),\
 	SF(DC_MEM_GLOBAL_PWR_REQ_CNTL, DC_MEM_GLOBAL_PWR_REQ_DIS, mask_sh)
@@ -607,6 +608,7 @@ struct dce_hwseq_mask {
 	HWSEQ_REG_FIELD_LIST(uint32_t)
 	HWSEQ_DCN_REG_FIELD_LIST(uint32_t)
 };
+
 
 enum blnd_mode {
 	BLND_MODE_CURRENT_PIPE = 0,/* Data from current pipe only */

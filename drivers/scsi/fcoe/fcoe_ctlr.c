@@ -752,9 +752,9 @@ int fcoe_ctlr_els_send(struct fcoe_ctlr *fip, struct fc_lport *lport,
 	case ELS_LOGO:
 		if (fip->mode == FIP_MODE_VN2VN) {
 			if (fip->state != FIP_ST_VNMP_UP)
-				return -EINVAL;
+				goto drop;
 			if (ntoh24(fh->fh_d_id) == FC_FID_FLOGI)
-				return -EINVAL;
+				goto drop;
 		} else {
 			if (fip->state != FIP_ST_ENABLED)
 				return 0;
@@ -1697,6 +1697,7 @@ static int fcoe_ctlr_flogi_retry(struct fcoe_ctlr *fip)
 	mutex_unlock(&fip->ctlr_mutex);
 	return error;
 }
+
 
 /**
  * fcoe_ctlr_flogi_send() - Handle sending of FIP FLOGI.
