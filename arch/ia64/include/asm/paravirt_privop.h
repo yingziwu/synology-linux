@@ -133,6 +133,7 @@ void paravirt_cpu_asm_init(const struct pv_cpu_asm_switch *cpu_asm_switch);
 	IA64_PARAVIRT_ASM_FUNC(work_processed_syscall)
 #define ia64_leave_kernel		IA64_PARAVIRT_ASM_FUNC(leave_kernel)
 
+
 #if defined(CONFIG_PARAVIRT)
 /******************************************************************************
  * binary patching infrastructure
@@ -349,6 +350,7 @@ void paravirt_cpu_asm_init(const struct pv_cpu_asm_switch *cpu_asm_switch);
 		      : PARAVIRT_OP(op), "0"(__##arg1), "1"(__##arg2)	\
 		      : PARAVIRT_CLOBBERS2)
 
+
 #define PARAVIRT_DEFINE_CPU_OP0(op, type)		\
 	static inline void				\
 	paravirt_ ## op (void)				\
@@ -393,6 +395,7 @@ void paravirt_cpu_asm_init(const struct pv_cpu_asm_switch *cpu_asm_switch);
 	{						\
 		PARAVIRT_BR2(op, type, arg1, arg2);	\
 	}
+
 
 PARAVIRT_DEFINE_CPU_OP1_VOID(fc, FC);
 PARAVIRT_DEFINE_CPU_OP1_RET(thash, THASH)

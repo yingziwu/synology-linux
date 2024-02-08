@@ -96,6 +96,7 @@ struct hdmi_spec {
 	struct hda_pcm_stream pcm_playback;
 };
 
+
 struct hdmi_audio_infoframe {
 	u8 type; /* 0x84 */
 	u8 ver;  /* 0x01 */
@@ -294,6 +295,7 @@ static struct cea_channel_speaker_allocation channel_allocations[] = {
 { .ca_index = 0x31,  .speakers = { FRW,  FLW,  RR,  RL,  FC,  LFE,  FR,  FL } },
 };
 
+
 /*
  * HDMI routines
  */
@@ -486,6 +488,7 @@ static void hdmi_set_channel_count(struct hda_codec *codec,
 				    AC_VERB_SET_CVT_CHAN_COUNT, chs - 1);
 }
 
+
 /*
  * Channel mapping routines
  */
@@ -596,6 +599,7 @@ static void hdmi_debug_channel_mapping(struct hda_codec *codec,
 	}
 #endif
 }
+
 
 static void hdmi_std_setup_channel_mapping(struct hda_codec *codec,
 				       hda_nid_t pin_nid,
@@ -967,6 +971,7 @@ static void hdmi_setup_audio_infoframe(struct hda_codec *codec,
 	per_pin->non_pcm = non_pcm;
 }
 
+
 /*
  * Unsolicited events
  */
@@ -1021,6 +1026,7 @@ static void hdmi_non_intrinsic_event(struct hda_codec *codec, unsigned int res)
 	if (cp_ready)
 		;
 }
+
 
 static void hdmi_unsol_event(struct hda_codec *codec, unsigned int res)
 {
@@ -1463,6 +1469,7 @@ static bool check_non_pcm_per_cvt(struct hda_codec *codec, hda_nid_t cvt_nid)
 	return non_pcm;
 }
 
+
 /*
  * HDMI callbacks
  */
@@ -1863,6 +1870,7 @@ static const struct hda_codec_ops generic_hdmi_patch_ops = {
 	.build_controls		= generic_hdmi_build_controls,
 	.unsol_event		= hdmi_unsol_event,
 };
+
 
 static void intel_haswell_fixup_connect_list(struct hda_codec *codec,
 					     hda_nid_t nid)

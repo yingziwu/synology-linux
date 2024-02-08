@@ -1243,6 +1243,7 @@ static int __init alsa_card_loopback_init(void)
 	if (err < 0)
 		return err;
 
+
 	cards = 0;
 	for (i = 0; i < SNDRV_CARDS; i++) {
 		struct platform_device *device;

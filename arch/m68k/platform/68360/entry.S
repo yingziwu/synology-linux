@@ -152,6 +152,7 @@ ret_from_interrupt:
 	pea	ret_from_exception
 	jra	do_softirq
 
+
 /*
  * Handler for uninitialized and spurious interrupts.
  */
@@ -178,3 +179,4 @@ ENTRY(resume)
 	RESTORE_SWITCH_STACK
 	movew	%a1@(TASK_THREAD+THREAD_SR),%sr	/* restore thread status reg */
 	rts
+

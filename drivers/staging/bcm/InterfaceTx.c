@@ -29,6 +29,8 @@ static void write_bulk_callback(struct urb *urb/*, struct pt_regs *regs*/)
 	pTcb->bUsed = FALSE;
 	atomic_dec(&psIntfAdapter->uNumTcbUsed);
 
+
+
 	if(TRUE == psAdapter->bPreparingForLowPowerMode)
 	{
 
@@ -103,6 +105,7 @@ err_exit :
 	usb_free_coherent(urb->dev, urb->transfer_buffer_length,
  			urb->transfer_buffer, urb->transfer_dma);
 }
+
 
 static struct bcm_usb_tcb *GetBulkOutTcb(struct bcm_interface_adapter *psIntfAdapter)
 {
@@ -190,3 +193,5 @@ int InterfaceTransmitPacket(PVOID arg, PVOID data, UINT len)
 	}
 	return TransmitTcb(psIntfAdapter, pTcb, data, len);
 }
+
+

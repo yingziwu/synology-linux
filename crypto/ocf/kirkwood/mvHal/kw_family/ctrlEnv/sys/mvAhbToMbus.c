@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 /* includes */
 #include "ctrlEnv/sys/mvAhbToMbus.h"
 #include "ctrlEnv/mvCtrlEnvAddrDec.h"
@@ -75,6 +76,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 /* typedefs */
+
 
 /* CPU address remap registers offsets are inconsecutive. This struct 		*/
 /* describes address remap register offsets									*/
@@ -145,6 +147,7 @@ MV_STATUS mvAhbToMbusWinSet(MV_U32 winNum, MV_AHB_TO_MBUS_DEC_WIN *pAddrDecWin)
 		mvOsPrintf("mvAhbToMbusWinSet: ERR. Invalid winNum %d\n", winNum);
 		return MV_NOT_SUPPORTED;
 	}
+
 
 	/* read base register*/
 	if (winNum != MV_AHB_TO_MBUS_INTREG_WIN)
@@ -218,6 +221,7 @@ MV_STATUS mvAhbToMbusWinSet(MV_U32 winNum, MV_AHB_TO_MBUS_DEC_WIN *pAddrDecWin)
 		MV_REG_WRITE(AHB_TO_MBUS_WIN_INTEREG_REG, decRegs.baseReg);
 	}
 
+
 	/* Internal register space have no size	*/
 	/* register. Do not perform size register assigment for those targets 	*/
 	if (winNum != MV_AHB_TO_MBUS_INTREG_WIN)
@@ -250,12 +254,14 @@ MV_STATUS mvAhbToMbusWinGet(MV_U32 winNum, MV_AHB_TO_MBUS_DEC_WIN *pAddrDecWin)
 	MV_DEC_REGS decRegs;
 	MV_TARGET_ATTRIB targetAttrib;
 
+
 	/* Parameter checking   */
 	if (winNum >= MAX_AHB_TO_MBUS_WINS)
 	{
 		mvOsPrintf("mvAhbToMbusWinGet: ERR. Invalid winNum %d\n", winNum);
 		return MV_NOT_SUPPORTED;
 	}
+
 
 	/* Internal register space size have no size register*/
 	if (winNum != MV_AHB_TO_MBUS_INTREG_WIN)
@@ -267,6 +273,7 @@ MV_STATUS mvAhbToMbusWinGet(MV_U32 winNum, MV_AHB_TO_MBUS_DEC_WIN *pAddrDecWin)
 		decRegs.sizeReg = 0;
 	}
 
+
 	/* Read base and size	*/
 	if (winNum != MV_AHB_TO_MBUS_INTREG_WIN)
 	{
@@ -276,6 +283,8 @@ MV_STATUS mvAhbToMbusWinGet(MV_U32 winNum, MV_AHB_TO_MBUS_DEC_WIN *pAddrDecWin)
 	{
 		decRegs.baseReg = MV_REG_READ(AHB_TO_MBUS_WIN_INTEREG_REG);
 	}
+
+
 
 	if (MV_OK != mvCtrlRegToAddrDec(&decRegs,&(pAddrDecWin->addrWin)))
 	{
@@ -292,6 +301,7 @@ MV_STATUS mvAhbToMbusWinGet(MV_U32 winNum, MV_AHB_TO_MBUS_DEC_WIN *pAddrDecWin)
 		return MV_OK;
 	}
 
+
 	if (decRegs.sizeReg & ATMWCR_WIN_ENABLE)
 	{
 		pAddrDecWin->enable = MV_TRUE;
@@ -301,6 +311,8 @@ MV_STATUS mvAhbToMbusWinGet(MV_U32 winNum, MV_AHB_TO_MBUS_DEC_WIN *pAddrDecWin)
 		pAddrDecWin->enable = MV_FALSE;
 
 	}
+
+
 
 	if (-1 == pAddrDecWin->addrWin.size)
 	{
@@ -372,6 +384,7 @@ MV_U32	  mvAhbToMbusWinTargetGet(MV_TARGET target)
 
 	return 0xFFFFFFFF;
 
+
 }
 
 /*******************************************************************************
@@ -412,6 +425,7 @@ MV_U32    mvAhbToMbusWinAvailGet(MV_VOID)
 
         return 0xFFFFFFFF;
 }
+
 
 /*******************************************************************************
 * mvAhbToMbusWinEnable - Enable/disable a CPU address decode window
@@ -463,6 +477,7 @@ MV_STATUS mvAhbToMbusWinEnable(MV_U32 winNum, MV_BOOL enable)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvAhbToMbusWinRemap - Set CPU remap register for address windows.
 *
@@ -494,6 +509,7 @@ MV_U32 mvAhbToMbusWinRemap(MV_U32 winNum, MV_ADDR_WIN *pAddrWin)
     MV_U32 effectiveBaseAddress=0,
 		   baseAddrValue=0,windowSizeValue=0;
 
+
 	/* Get registers offsets of given winNum 		*/
 	if (MV_NO_SUCH == ahbToMbusRemapRegOffsGet(winNum, &remapRegOffs))
 	{
@@ -520,6 +536,7 @@ MV_U32 mvAhbToMbusWinRemap(MV_U32 winNum, MV_ADDR_WIN *pAddrWin)
 
 	MV_REG_WRITE(remapRegOffs.highRegOffs, pAddrWin->baseHigh);
 
+
 	baseAddrValue = MV_REG_READ(AHB_TO_MBUS_WIN_BASE_REG(winNum));
 	windowSizeValue = MV_REG_READ(AHB_TO_MBUS_WIN_CTRL_REG(winNum));
 
@@ -544,6 +561,7 @@ MV_U32 mvAhbToMbusWinRemap(MV_U32 winNum, MV_ADDR_WIN *pAddrWin)
 
 	return effectiveBaseAddress;
 
+
 }
 /*******************************************************************************
 * mvAhbToMbusWinTargetSwap - Swap AhbToMbus windows between targets
@@ -564,6 +582,7 @@ MV_U32 mvAhbToMbusWinRemap(MV_U32 winNum, MV_ADDR_WIN *pAddrWin)
 *
 *******************************************************************************/
 
+
 MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 {
 	MV_U32 winNum1,winNum2;
@@ -571,6 +590,7 @@ MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 	AHB_TO_MBUS_REMAP_REG_OFFS remapRegs1,remapRegs2;
 	MV_U32 remapBaseLow1=0,remapBaseLow2=0;
 	MV_U32 remapBaseHigh1=0,remapBaseHigh2=0;
+
 
 	/* Check parameters */
 	if (target1 >= MAX_TARGETS)
@@ -584,6 +604,7 @@ MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 		mvOsPrintf("mvAhbToMbusWinTargetSwap: target %d is Illigal\n", target1);
 		return MV_ERROR;
 	}
+
 
     /* get window associated with this target */
 	winNum1 = mvAhbToMbusWinTargetGet(target1);
@@ -623,6 +644,7 @@ MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 
 	}
 
+
 	/* disable both windows */
 	if (MV_OK != mvAhbToMbusWinEnable(winNum1,MV_FALSE))
 	{
@@ -638,6 +660,7 @@ MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 		return MV_ERROR;
 
 	}
+
 
 	/* now swap targets */
 
@@ -655,6 +678,7 @@ MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 	winDec2.enable = winDec1.enable;
 	winDec2.target = winDec1.target;
 
+
 	/* winDec1 = winDecTemp */
 	winDec1.addrWin.baseHigh = winDecTemp.addrWin.baseHigh;
 	winDec1.addrWin.baseLow = winDecTemp.addrWin.baseLow;
@@ -662,12 +686,19 @@ MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 	winDec1.enable = winDecTemp.enable;
 	winDec1.target = winDecTemp.target;
 
+
 	/* now set the new values */
+
 
     mvAhbToMbusWinSet(winNum1,&winDec1);
 	mvAhbToMbusWinSet(winNum2,&winDec2);
 
+
+
+
+
 	/* now we will treat the remap windows if exist */
+
 
 	/* now check if one or both windows has a remap window
 	as well after the swap ! */
@@ -688,6 +719,7 @@ MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 		remapBaseLow2 = MV_REG_READ(remapRegs2.lowRegOffs);
 	    remapBaseHigh2 = MV_REG_READ(remapRegs2.highRegOffs);
 
+
 	}
 
 	/* now do the swap */
@@ -702,6 +734,8 @@ MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 
 			MV_REG_WRITE(remapRegs1.highRegOffs,remapBaseHigh2);
 			MV_REG_WRITE(remapRegs1.lowRegOffs,remapBaseLow2);
+
+
 
 		}
 		else
@@ -721,9 +755,14 @@ MV_STATUS mvAhbToMbusWinTargetSwap(MV_TARGET target1,MV_TARGET target2)
 
 	}
 
+
+
 	return MV_OK;
 
+
 }
+
+
 
 #if defined(MV_88F1181)
 
@@ -889,10 +928,13 @@ MV_STATUS mvMbusArbCtrlGet(MV_MBUS_ARB_CTRL *ctrl)
 		ctrl->starvEn = MV_FALSE;
 	}
 
+
 	return MV_OK;
 }
 
 #endif  /* #if defined(MV_88F1181) */
+
+
 
 /*******************************************************************************
 * ahbToMbusRemapRegOffsGet - Get CPU address remap register offsets

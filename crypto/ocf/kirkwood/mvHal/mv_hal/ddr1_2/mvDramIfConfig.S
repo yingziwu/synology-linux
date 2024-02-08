@@ -346,6 +346,7 @@ glMem2Start:
 
         MV_REG_WRITE_ASM (r3, r1, SDRAM_ADDR_CTRL_PADS_CAL_REG)
 
+
         /* DDR SDRAM Data Pads Calibration                         	*/
         MV_REG_READ_ASM (r3, r1, SDRAM_DATA_PADS_CAL_REG)
 
@@ -371,6 +372,7 @@ glMem2Start:
         MV_REG_WRITE_ASM (r3, r1, SDRAM_DATA_PADS_CAL_REG)
 
 glMem2End:
+
 
         /* Implement Guideline (GL# MEM-3) Drive Strength Value         */
         /* Relevant for: 88F5181-A1/B0/B1, 88F5281-A0/B0/C/D, 88F5182,  */
@@ -405,6 +407,7 @@ setDrvStrength:
         orr   r3, r4, r3                /* Set default value for DDR    */
 
         MV_REG_WRITE_ASM (r3, r1, SDRAM_ADDR_CTRL_PADS_CAL_REG)
+
 
         /* DDR SDRAM Data Pads Calibration                         	      */
         MV_REG_READ_ASM (r3, r1, SDRAM_DATA_PADS_CAL_REG)
@@ -651,6 +654,7 @@ restoreTmpRegs:
 
         ldr     r4, =DRAM_BUF_REG10_DV
         MV_REG_WRITE_ASM (r4, r1, DRAM_BUF_REG10)
+
 
         /* Restore registers */
         /* Save register on stack */

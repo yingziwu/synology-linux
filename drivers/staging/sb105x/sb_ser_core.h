@@ -58,6 +58,7 @@
 					 (cflag) & CRTSCTS || \
 					 !((cflag) & CLOCAL))
 
+
 struct sb_uart_port;
 struct sb_uart_info;
 struct serial_struct;
@@ -91,6 +92,7 @@ struct sb_uart_ops {
 	int		(*ioctl)(struct sb_uart_port *, unsigned int, unsigned long);
 };
 
+
 struct sb_uart_icount {
 	__u32	cts;
 	__u32	dsr;
@@ -117,6 +119,7 @@ struct sb_uart_port {
 	unsigned char		regshift;		/* reg offset shift */
 	unsigned char		iotype;			/* io access style */
 	unsigned char		unused1;
+
 
 	unsigned int		read_status_mask;	/* driver specific */
 	unsigned int		ignore_status_mask;	/* driver specific */
@@ -152,6 +155,7 @@ struct sb_uart_state {
 	unsigned int		close_delay;		/* msec */
 	unsigned int		closing_wait;		/* msec */
 
+
 	int			count;
 	int			pm_state;
 	struct sb_uart_info	*info;
@@ -174,6 +178,7 @@ struct sb_uart_info {
 	wait_queue_head_t	open_wait;
 	wait_queue_head_t	delta_msr_wait;
 };
+
 
 struct module;
 struct tty_driver;
@@ -311,6 +316,8 @@ unsigned int sb_uart_get_divisor(struct sb_uart_port *port, unsigned int baud)
         return quot;
 }
 
+
+
 static inline int sb_uart_handle_break(struct sb_uart_port *port)
 {
 	struct sb_uart_info *info = port->info;
@@ -356,3 +363,6 @@ static inline void sb_uart_handle_cts_change(struct sb_uart_port *port, unsigned
 		}
 	}
 }
+
+
+

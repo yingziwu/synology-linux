@@ -93,6 +93,7 @@ struct srcpos {
 		}								\
 	} while (0)
 
+
 /*
  * Fictional source position used for IR nodes that are
  * created without otherwise knowing a true source position.

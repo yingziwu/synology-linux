@@ -241,6 +241,7 @@ static const struct comedi_lrange range_apci3120_ao = {
 	}
 };
 
+
 /* FUNCTION DEFINITIONS */
 
 /*

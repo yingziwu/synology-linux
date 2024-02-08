@@ -45,7 +45,7 @@ extern gate_desc nmi_idt_table[];
 #else
 extern struct desc_ptr debug_idt_descr;
 extern gate_desc debug_idt_table[];
-#endif	/* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 
 struct gdt_page {
 	struct desc_struct gdt[GDT_ENTRIES];
@@ -55,7 +55,7 @@ struct gdt_page {
 DECLARE_PER_CPU_PAGE_ALIGNED(struct gdt_page, gdt_page);
 #else
 DECLARE_PER_CPU_PAGE_ALIGNED_USER_MAPPED(struct gdt_page, gdt_page);
-#endif	/* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 
 static inline struct desc_struct *get_cpu_gdt_table(unsigned int cpu)
 {
@@ -162,6 +162,7 @@ static inline void pack_descriptor(struct desc_struct *desc, unsigned long base,
 		((flags & 0xf) << 20);
 	desc->p = 1;
 }
+
 
 static inline void set_tssldt_descriptor(void *d, unsigned long addr, unsigned type, unsigned size)
 {
@@ -340,7 +341,6 @@ static inline void set_nmi_gate(int gate, void *addr)
 #else
 	write_idt_entry(debug_idt_table, gate, &s);
 #endif /* MY_ABC_HERE */
-
 }
 #endif
 
@@ -373,7 +373,7 @@ static inline void write_trace_idt_entry(int entry, const gate_desc *gate)
 
 #define _trace_set_gate(gate, type, addr, dpl, ist, seg)
 #endif
-#endif	/* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 
 static inline void _set_gate(int gate, unsigned type, void *addr,
 			     unsigned dpl, unsigned ist, unsigned seg)
@@ -398,10 +398,6 @@ static inline void set_intr_gate(unsigned int n, void *addr)
 {
 	BUG_ON((unsigned)n > 0xFF);
 	_set_gate(n, GATE_INTERRUPT, addr, 0, 0, __KERNEL_CS);
-#ifdef MY_ABC_HERE
-#else
-	_trace_set_gate(n, GATE_INTERRUPT, (void *)trace_##addr, 0, 0, __KERNEL_CS);
-#endif	/* MY_ABC_HERE */
 }
 
 extern int first_system_vector;
@@ -464,6 +460,7 @@ static inline void set_system_intr_gate_ist(int n, void *addr, unsigned ist)
 	_set_gate(n, GATE_INTERRUPT, addr, 0x3, ist, __KERNEL_CS);
 }
 
+
 #ifdef MY_ABC_HERE
 #else
 #ifdef CONFIG_X86_64
@@ -490,6 +487,7 @@ static inline void load_debug_idt(void)
 {
 }
 #endif
+
 
 #ifdef CONFIG_TRACING
 extern atomic_t trace_idt_ctr;
@@ -532,5 +530,5 @@ static inline void load_current_idt(void)
 	else
 		load_idt((const struct desc_ptr *)&idt_descr);
 }
-#endif	/* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 #endif /* _ASM_X86_DESC_H */

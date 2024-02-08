@@ -1007,6 +1007,7 @@ void drm_connector_unregister(struct drm_connector *connector)
 }
 EXPORT_SYMBOL(drm_connector_unregister);
 
+
 /**
  * drm_connector_unplug_all - unregister connector userspace interfaces
  * @dev: drm device
@@ -1773,6 +1774,7 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
 		return -EINVAL;
+
 
 	mutex_lock(&file_priv->fbs_lock);
 	/*
@@ -2924,6 +2926,7 @@ out:
 
 }
 
+
 /**
  * drm_mode_cursor_ioctl - set CRTC's cursor configuration
  * @dev: drm device for the ioctl
@@ -3443,6 +3446,7 @@ out_err1:
 
 	return ret;
 }
+
 
 /**
  * drm_fb_release - remove and free the FBs on this file

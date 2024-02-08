@@ -53,6 +53,7 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
+
 static void __init ek_init_early(void)
 {
 	/* Initialize processor: 16.367 MHz crystal */
@@ -76,6 +77,7 @@ static struct at91_udc_data __initdata ek_udc_data = {
 	.vbus_pin	= AT91_PIN_PA25,
 	.pullup_pin	= -EINVAL,		/* pull-up driven by UDC */
 };
+
 
 /*
  * ADS7846 Touchscreen
@@ -135,6 +137,7 @@ static struct spi_board_info ek_spi_devices[] = {
 #endif
 };
 
+
 /*
  * MCI (SD/MMC)
  */
@@ -146,6 +149,7 @@ static struct mci_platform_data __initdata mci1_data = {
 	},
 };
 
+
 /*
  * MACB Ethernet device
  */
@@ -153,6 +157,7 @@ static struct macb_platform_data __initdata ek_macb_data = {
 	.phy_irq_pin	= AT91_PIN_PE31,
 	.is_rmii	= 1,
 };
+
 
 /*
  * NAND flash
@@ -215,6 +220,7 @@ static void __init ek_add_device_nand(void)
 	at91_add_device_nand(&ek_nand_data);
 }
 
+
 /*
  * I2C devices
  */
@@ -223,6 +229,7 @@ static struct at24_platform_data at24c512 = {
 	.page_size	= 128,
 	.flags		= AT24_FLAG_ADDR16,
 };
+
 
 static struct i2c_board_info __initdata ek_i2c_devices[] = {
 	{
@@ -288,6 +295,7 @@ static struct atmel_lcdfb_info __initdata ek_lcdc_data = {
 static struct atmel_lcdfb_info __initdata ek_lcdc_data;
 #endif
 
+
 /*
  * GPIO Buttons
  */
@@ -336,6 +344,7 @@ static void __init ek_add_device_buttons(void)
 static void __init ek_add_device_buttons(void) {}
 #endif
 
+
 /*
  * AC97
  * reset_pin is not connected: NRST
@@ -343,6 +352,7 @@ static void __init ek_add_device_buttons(void) {}
 static struct ac97c_platform_data ek_ac97_data = {
 	.reset_pin	= -EINVAL,
 };
+
 
 /*
  * LEDs ... these could all be PWM-driven, for variable brightness

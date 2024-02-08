@@ -294,6 +294,7 @@ static const struct file_operations user_fops = {
 	.write		= hwsampler_user_write,
 };
 
+
 /*
  * File ops used for: /dev/oprofile/timer/enabled
  * The value always has to be the inverted value of hwsampler_enabled. So
@@ -343,6 +344,7 @@ static const struct file_operations timer_enabled_fops = {
 	.read		= timer_enabled_read,
 	.write		= timer_enabled_write,
 };
+
 
 static int oprofile_create_hwsampling_files(struct super_block *sb,
 					    struct dentry *root)

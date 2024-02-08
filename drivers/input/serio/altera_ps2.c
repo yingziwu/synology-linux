@@ -110,6 +110,7 @@ static int altera_ps2_probe(struct platform_device *pdev)
 		goto err_free_mem;
 	}
 
+
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
 		error = -ENXIO;

@@ -416,6 +416,7 @@ static int intel_overlay_release_old_vid(struct intel_overlay *overlay)
 
 	intel_overlay_release_old_vid_tail(overlay);
 
+
 	i915_gem_track_fb(overlay->old_vid_bo, NULL,
 			  INTEL_FRONTBUFFER_OVERLAY(overlay->crtc->pipe));
 	return 0;
@@ -1449,6 +1450,7 @@ static void intel_overlay_unmap_regs_atomic(struct intel_overlay *overlay,
 	if (!OVERLAY_NEEDS_PHYSICAL(overlay->dev))
 		io_mapping_unmap_atomic(regs);
 }
+
 
 struct intel_overlay_error_state *
 intel_overlay_capture_error_state(struct drm_device *dev)

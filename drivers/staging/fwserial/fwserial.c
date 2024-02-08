@@ -277,6 +277,7 @@ static void fwtty_send_txn_async(struct fwtty_peer *peer,
 			len, fwtty_common_callback, txn);
 }
 
+
 static void __fwtty_restart_tx(struct fwtty_port *port)
 {
 	int len, avail;
@@ -494,6 +495,7 @@ static void fwtty_do_hangup(struct work_struct *work)
 		tty_vhangup(tty);
 	tty_kref_put(tty);
 }
+
 
 static void fwtty_emit_breaks(struct work_struct *work)
 {
@@ -1687,6 +1689,7 @@ static inline int mgmt_pkt_expected_len(__be16 code)
 
 	case FWSC_VIRT_CABLE_PLUG_RSP:  /* | FWSC_RSP_OK */
 		return sizeof(pkt.hdr) + sizeof(pkt.plug_rsp);
+
 
 	case FWSC_VIRT_CABLE_UNPLUG:
 	case FWSC_VIRT_CABLE_UNPLUG_RSP:

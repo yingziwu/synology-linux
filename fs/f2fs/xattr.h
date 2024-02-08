@@ -69,6 +69,7 @@ struct f2fs_xattr_entry {
 				!IS_XATTR_LAST_ENTRY(entry);\
 				entry = XATTR_NEXT_ENTRY(entry))
 
+
 #define MIN_OFFSET	XATTR_ALIGN(PAGE_SIZE - \
 			sizeof(struct node_footer) - \
 			sizeof(__u32))

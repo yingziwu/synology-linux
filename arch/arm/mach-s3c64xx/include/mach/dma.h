@@ -101,6 +101,7 @@ struct s3c2410_dma_chan {
 	unsigned int		 flags;
 	enum dma_data_direction	 source;
 
+
 	dma_addr_t		dev_addr;
 
 	struct s3c2410_dma_client *client;

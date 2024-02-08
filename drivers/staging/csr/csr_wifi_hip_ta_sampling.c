@@ -41,12 +41,14 @@
 /* This is correct for TA_INTERVALS_NUM=10 */
 #define TA_INTERVALS_STEP               10
 
+
 enum ta_frame_identity
 {
     TA_FRAME_UNKNOWN,
     TA_FRAME_ETHERNET_UNINTERESTING,
     TA_FRAME_ETHERNET_INTERESTING
 };
+
 
 #define TA_ETHERNET_TYPE_OFFSET     6
 #define TA_LLC_HEADER_SIZE          8
@@ -71,6 +73,7 @@ enum ta_frame_identity
 #define oui_rfc1042                 0x00000000
 #define oui_8021h                   0x0000f800
 static const u8 aironet_snap[5] = { 0x00, 0x40, 0x96, 0x00, 0x00 };
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -265,6 +268,7 @@ static enum ta_frame_identity ta_detect_protocol(card_t *card, CsrWifiRouterCtrl
     return TA_FRAME_ETHERNET_UNINTERESTING;
 } /* ta_detect_protocol() */
 
+
 static void tas_reset_data(ta_data_t *tad)
 {
     s16 i;
@@ -287,6 +291,7 @@ static void tas_reset_data(ta_data_t *tad)
     tad->ta_l4stats.rxUdpBytesCount = 0;
     tad->ta_l4stats.txUdpBytesCount = 0;
 } /* tas_reset_data() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -313,6 +318,7 @@ void unifi_ta_sampling_init(card_t *card)
     card->ta_sampling.packet_filter = CSR_WIFI_ROUTER_CTRL_TRAFFIC_PACKET_TYPE_NONE;
     card->ta_sampling.traffic_type = CSR_WIFI_ROUTER_CTRL_TRAFFIC_TYPE_OCCASIONAL;
 } /* unifi_ta_sampling_init() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -347,6 +353,8 @@ void unifi_ta_sample(card_t                            *card,
     enum ta_frame_identity identity;
     u32 time_delta;
 
+
+
     /* Step1: Check for specific frames */
     if (tad->packet_filter != CSR_WIFI_ROUTER_CTRL_TRAFFIC_PACKET_TYPE_NONE)
     {
@@ -356,6 +364,7 @@ void unifi_ta_sample(card_t                            *card,
     {
         identity = TA_FRAME_ETHERNET_INTERESTING;
     }
+
 
     /* Step2: Update the information in the current record */
     if (direction == CSR_WIFI_ROUTER_CTRL_PROTOCOL_DIRECTION_RX)
@@ -451,6 +460,7 @@ void unifi_ta_sample(card_t                            *card,
     }
 } /* unifi_ta_sample() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  External API.
@@ -501,6 +511,7 @@ CsrResult unifi_ta_configure(card_t                               *card,
     return CSR_RESULT_SUCCESS;
 } /* unifi_ta_configure() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  External API.
@@ -526,3 +537,5 @@ void unifi_ta_classification(card_t                      *card,
 
     card->ta_sampling.traffic_type = traffic_type;
 }
+
+

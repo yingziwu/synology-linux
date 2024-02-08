@@ -273,6 +273,7 @@ _GLOBAL(real_writeb)
 
 #endif /* CONFIG_40x */
 
+
 /*
  * Flush instruction cache.
  * This is a no-op on the 601.
@@ -294,7 +295,7 @@ _GLOBAL(flush_instruction_cache)
 	lis	r3, KERNELBASE@h
 	iccci	0,r3
 #endif
-#elif CONFIG_FSL_BOOKE
+#elif defined(CONFIG_FSL_BOOKE)
 BEGIN_FTR_SECTION
 	mfspr   r3,SPRN_L1CSR0
 	ori     r3,r3,L1CSR0_CFI|L1CSR0_CLFC
@@ -920,6 +921,7 @@ setup_map_47x:
 	tlbre	r25, r23, 1			/* TLB Word 1 */
 	tlbre	r26, r23, 2			/* TLB Word 2 */
 
+
 	/*
 	 * Invalidates all the tlb entries by writing to 256 RPNs(r4)
 	 * of 4k page size in all  4 ways (0-3 in r3).
@@ -1062,6 +1064,7 @@ write_utlb:
 #endif
 
 ppc44x_map_done:
+
 
 	/* Restore the parameters */
 	mr	r3, r29

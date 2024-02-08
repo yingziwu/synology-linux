@@ -138,6 +138,11 @@ config SYNO_MD_SB_RETRY
 	bool "Add an one-time retry for EIO error when updating superblock"
 	default y
 
+config SYNO_MD_DATA_CORRECTION
+	bool "Try to use md redundancy to re-compute data when fs ask to retry"
+	default n
+	depends on SYNO_DATA_CORRECTION
+
 config SYNO_MD_RAID5D_PROXY
 	bool "run proxy thread when raid5 finish reshaping"
 	default y
@@ -180,20 +185,69 @@ config SYNO_MD_RAID1_ADD_DISK_CHECK
 	bool "check if raid1 is crash when add disk"
 	default y
 
+config SYNO_MD_FIX_RESYNC_STATUS
+	bool "Fix incorrect display of resync status"
+	default y
+
 config SYNO_MD_RAID1_ASSIGN_READ_TARGET
 	bool "Assign read target to raid1"
 	default y
 	depends on SYNO_MD_RAID1_SYSFS_INTERFACE
+
+config SYNO_MD_UNUSED_HINT
+	bool "Feature: Infrastructure for Fast Rebuild"
+	default y
 
 config SYNO_MD_SKIP_RESYNC_WHEN_SB_NOT_CLEAN
         bool "Skip resync after assemble md when super block is not clean"
         default y
 
 config SYNO_MD_ALLOW_MD_RUN_WHEN_RESHAPE_POSITION_IS_ZERO
-	bool "Allow md run when its reshape position is zero"
+	bool "Allow md run when it's reshape position is zero"
+	default y
+
+config SYNO_MD_DM_DUMMY_CACHE_NOCLONE_BIO
+	bool "Do not clone bio when bio send to a dummy cache"
+	default y
+
+config SYNO_MD_RAID0_LAYOUT_IN_MERGEABLE_BVEC
+	bool "Fix raid0 layout issues in raid0 mergeable bvec"
+	default y
+
+config SYNO_MD_RESTORE_RAID0_LAYOUT_FEATURE
+	bool "Restore MD_FEATURE_RAID0_LAYOUT to feature map when update super block"
+	default y
+
+config SYNO_MD_RAID_PERF_STAT
+	bool "Record overhead and infos of handle stripe in RAID5"
+	default y
+
+config SYNO_MD_RAID10_SYSFS_INTERFACE
+	bool "Add sysfs interface to raid10"
+	default y
+
+config SYNO_MD_RAID10_FLUSH_THRESHOLD
+	bool "Add threshold for raid10 plug"
+	default y
+	depends on SYNO_MD_RAID10_SYSFS_INTERFACE
+
+config SYNO_MD_UPDATE_SB_AT_RESYNC_START
+	bool "update superblock at resync start"
+	default y
+
+config SYNO_MD_RAID1_FIX_ASSEMBLE_CRASHED_HANG
+	bool "Fix null pointer dereference after assembling crashed raid1"
 	default y
 
 endmenu #MD
+
+menu "Block"
+
+config SYNO_BLOCK_BLKTRACE_FIX
+	bool "Make all block layers to have corrent complete and queue blktrace event"
+	default y
+
+endmenu #Block
 
 menu "SCSI"
 
@@ -203,6 +257,10 @@ config SYNO_WAIT_DISK_READY
 
 config SYNO_SCSI_PROMOTE_INFO_LOG_LEVEL
 	bool "Promote the info level log into notice level"
+	default y
+
+config SYNO_SCSI_DISK_ERROR_REPORT
+	bool "Report scsi disk error to user space."
 	default y
 
 menu "SATA"
@@ -345,17 +403,61 @@ config SYNO_SCSI_DEVICE_INDEX
 	bool "Get device index from scsi layer"
 	default y
 
+config SYNO_SATA_IRQ_OFF
+	bool "Interfaces For HDD Deep Sleep"
+	depends on SYNO_ATA_PWR_CTRL && SYNO_SATA_PM_DEVICE_GPIO
+	default y
+
+config SYNO_MAX_SATA_ID
+	int "Maximum SATA ID"
+	depends on SYNO_SATA_IRQ_OFF
+	default "20"
+
+config SYNO_PWRPIN_ENCODE_LEN
+	int "Power Pin Encode Length"
+	depends on SYNO_SATA_IRQ_OFF
+	default "2"
+
+config SYNO_PORT_SIGN
+	string "Power Pin Signature"
+	depends on SYNO_SATA_IRQ_OFF
+	default "N"
+
+config SYNO_SATA_COMPATIBILITY
+	bool "Sata Compatibility Issue Fix"
+	default y
+
 config SYNO_DISK_MONITOR_TOOL
 	bool "Disk performance monitor tool"
 	default y
+
+config SYNO_SAMPLE_SEQ_IO
+	bool "Sample HDD seq IO"
+	depends on SYNO_DISK_MONITOR_TOOL
+	default y
+
+config SYNO_SATA_RETRY_TIMES
+	int "Retry Times of Sata Compatibility Mechanism"
+	depends on SYNO_SATA_COMPATIBILITY
+	default "1"
 
 config SYNO_PM_DISABLE_LINK_LIMIT
 	bool "Clear the link speed limit when pmp attach"
 	default y
 
+config SYNO_ATA_SHUTDOWN_FIX
+	bool "Add shutdown function for ATA host"
+	depends on SYNO_SATA_IRQ_OFF
+	default y
+
 config SYNO_SATA_EBOX_REFRESH
 	bool "Send ebox refresh event to userspace"
 	depends on SYNO_SATA_PM_DEVICE_GPIO
+	default y
+
+config SYNO_SATA_ERROR_REPORT
+	bool "Report sata error to user space"
+	depends on SYNO_FIXED_DISK_NAME
 	default y
 
 config SYNO_SATA_88SX7042_MSI
@@ -423,8 +525,16 @@ config SYNO_SATA_PM_SAMSUNG_PROBE_TIME_FIX
 	bool "Samsung HDD/PMP probing workaround"
 	default y
 
+config SYNO_FIX_MV_IRQ_MISSING
+	bool "Marvell 88SX7042 IRQ missing workarounds"
+	default y
+
 config SYNO_UNC_LBA_RESTORE
 	bool "ATA UNC LBA return error workaround"
+	default y
+
+config SYNO_FIX_HORKAGE_15G_MISSING
+	bool "Fix missing 'HORKAGE 1.5G'"
 	default y
 
 config SYNO_SATA_WCACHE_DISABLE
@@ -487,6 +597,11 @@ config SYNO_SATA_PM_CLEANUP_CLASS
 	bool "Cleanup port multiplier class"
 	default y
 
+config SYNO_SATA_ICH_COMPATIBILITY
+	bool "ICH SATA compatible issue fix"
+	depends on SYNO_SATA_COMPATIBILITY && SYNO_BROMOLOW
+	default y
+
 config SYNO_AHCI_SOFTWARE_ACITIVITY
 	bool "AHCI software acitivty led"
 	depends on SYNO_LEDS_TRIGGER
@@ -520,6 +635,11 @@ config SYNO_SATA_PM_LINK_RETRY
 config SYNO_SATA_PM_FIRST_PORT_DELAY
 	bool "Delay 2 secs for port multiplier first port reset"
 	default n
+
+config SYNO_DETECT_DISK_POWER_SHORT_BREAK
+	bool "Send disk power short brake event to userspace"
+	default y
+	depends on SYNO_SATA_WCACHE_DISABLE
 
 config SYNO_CUSTOM_SCMD_TIMEOUT
 	bool "Customize SCSI commands timeout value per disk"
@@ -628,6 +748,10 @@ config SYNO_ATA_PRINT_SN
 
 config SYNO_BLOCK_MONITOR_TOOL
 	bool "Disk block layer performance monitor tool"
+	default y
+
+config SYNO_DISK_TLER_RETRY
+	bool "Retry command if error is caused by TLER"
 	default y
 
 config SYNO_SATA_NCQ_EH_ENHANCE
@@ -784,6 +908,11 @@ config SYNO_MPT3_HBA_TEMPERATURE_READ
 	depends on SCSI_MPT3SAS
 	default y
 
+config SYNO_MPT3_SINGLE_CHANNEL_ENHANCED
+	bool "Add an sysfs entry for reading HBA temperature"
+	depends on SCSI_MPT3SAS && SYNO_GRANTLEY
+	default y
+
 config SYNO_MPT3_DEVICE_SPINDOWN_BEFORE_POWEROFF
 	bool "Make kernel to issue START_STOP to spin down drive"
 	depends on SCSI_MPT3SAS
@@ -809,9 +938,9 @@ config SYNO_SAS_SATA_EARLY_WAKEUP
 	depends on SCSI_MPT3SAS
 	default y
 
-config SYNO_MPT3_SINGLE_CHANNEL_ENHANCED
-	bool "Add an sysfs entry for reading HBA temperature"
-	depends on SCSI_MPT3SAS && SYNO_GRANTLEY
+config SYNO_SAS_SES_DIAGNOSTIC_PAGE_ENHANCE
+	bool "Add retry mechanism for diagnostic page 1 & 2 & 10"
+	depends on SYNO_SAS_DISK_NAME
 	default y
 
 endmenu #SAS
@@ -1000,6 +1129,10 @@ config SYNO_USB_HAS_EXTERNAL_ETRON_CONTROLLER
 	depends on SYNO_USB_VBUS_GPIO_CONTROL
 	default n
 
+config SYNO_USB_FORBID
+	bool "Apply Syno USB Forbid Mechanism"
+	default n
+
 endmenu #USB
 
 menu "Hardware Monitor"
@@ -1033,6 +1166,19 @@ config SYNO_MICROP_CTRL
 config SYNO_TTY_EXPORT
 	bool "Export uP symbol for synobios"
 	default y
+
+config SYNO_TTY_RECEIVE
+	bool "Handle the result from ttyS1"
+	default y
+
+config SYNO_TTY_COMMAND
+	bool "Remove prefix for uP protection command"
+	default y
+	depends on SYNO_MICROP_CTRL
+
+config SYNO_SERIAL_CONSOLE_FORBID
+	bool "Apply Syno Serial Console Forbid Mechanism"
+	default n
 
 config SYNO_SERIAL_8250_DISABLE_CONSOLE_DMA
 	bool "Avoid 8250 console port allocation DMA failure"
@@ -1116,6 +1262,15 @@ config SYNO_XR17V35X_SERIAL
 	  default n
 
 endmenu #ALSA
+
+menu Virtio
+
+config SYNO_CLOUD_DSM_BOOT
+	  bool "Map virtio block devices from vdx to sdx"
+	  depends on SYNO_KVMX64
+	  default y
+
+endmenu #Virtio
 
 menu "IOMMU"
 

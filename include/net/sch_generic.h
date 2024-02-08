@@ -177,6 +177,7 @@ struct Qdisc_ops {
 	struct module		*owner;
 };
 
+
 struct tcf_result {
 	unsigned long	class;
 	u32		classid;
@@ -470,6 +471,7 @@ static inline int qdisc_enqueue_root(struct sk_buff *skb, struct Qdisc *sch)
 	qdisc_skb_cb(skb)->pkt_len = skb->len;
 	return qdisc_enqueue(skb, sch) & NET_XMIT_MASK;
 }
+
 
 static inline void bstats_update(struct gnet_stats_basic_packed *bstats,
 				 const struct sk_buff *skb)

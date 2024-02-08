@@ -81,6 +81,7 @@ static void assabet_ucb1x00_reset(enum ucb1x00_reset state)
 		ASSABET_BCR_set(ASSABET_BCR_CODEC_RST);
 }
 
+
 /*
  * Assabet flash support code.
  */
@@ -139,6 +140,7 @@ static struct resource assabet_flash_resources[] = {
 	DEFINE_RES_MEM(SA1100_CS0_PHYS, SZ_32M),
 	DEFINE_RES_MEM(SA1100_CS1_PHYS, SZ_32M),
 };
+
 
 /*
  * Assabet IrDA support code.
@@ -409,6 +411,7 @@ fixup_assabet(struct tag *tags, char **cmdline, struct meminfo *mi)
 	if (machine_has_neponset())
 		printk("Neponset expansion board detected\n");
 }
+
 
 static void assabet_uart_pm(struct uart_port *port, u_int state, u_int oldstate)
 {

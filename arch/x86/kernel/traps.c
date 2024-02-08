@@ -66,12 +66,11 @@
 #include <asm/x86_init.h>
 #include <asm/pgalloc.h>
 #include <asm/proto.h>
-
 #ifdef MY_ABC_HERE
 #else
 /* No need to be aligned, but done to keep all IDTs defined the same way. */
 gate_desc debug_idt_table[NR_VECTORS] __page_aligned_bss;
-#endif	/* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 #else
 #include <asm/processor-flags.h>
 #include <asm/setup.h>
@@ -149,6 +148,7 @@ do_trap(int trapnr, int signr, char *str, struct pt_regs *regs,
 	long error_code, siginfo_t *info)
 {
 	struct task_struct *tsk = current;
+
 
 	if (!do_trap_no_signal(tsk, trapnr, str, regs, error_code))
 		return;

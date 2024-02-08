@@ -142,6 +142,7 @@ struct smsc47m1_sio_data {
 	u8 activate;		/* Remember initial device state */
 };
 
+
 static int __exit smsc47m1_remove(struct platform_device *pdev);
 static struct smsc47m1_data *smsc47m1_update_device(struct device *dev,
 		int init);

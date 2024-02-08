@@ -153,6 +153,7 @@ struct system_summary {
 	struct pkg_data packages;
 } sum, average;
 
+
 struct topo_params {
 	int num_packages;
 	int num_cpus;
@@ -647,6 +648,7 @@ delta_thread(struct thread_data *new, struct thread_data *old,
 		skip_c1 = 1;
 	}
 
+
 	/*
 	 * As counter collection is not atomic,
 	 * it is possible for mperf's non-halted cycles + idle states
@@ -821,6 +823,7 @@ static unsigned long long rdtsc(void)
 	return low | ((unsigned long long)high) << 32;
 }
 
+
 /*
  * get_counters(...)
  * migrate to cpu
@@ -890,6 +893,7 @@ int get_counters(struct thread_data *t, struct core_data *c, struct pkg_data *p)
 			return -9;
 		c->core_temp_c = tcc_activation_temp - ((msr >> 16) & 0x7F);
 	}
+
 
 	/* collect package counters only for 1st core in package */
 	if (!(t->flags & CPU_IS_FIRST_CORE_IN_PACKAGE))
@@ -1039,6 +1043,7 @@ print_nhm_turbo_ratio_limits:
 		(msr & NHM_C1_AUTO_DEMOTE) ? "demote-C1, " : "",
 		(msr & (1 << 15)) ? "" : "UN",
 		(unsigned int)msr & 7);
+
 
 	switch(msr & 0x7) {
 	case 0:
@@ -1339,6 +1344,7 @@ void re_initialize(void)
 	printf("turbostat: re-initialized with num_cpus %d\n", topo.num_cpus);
 }
 
+
 /*
  * count_cpus()
  * remember the last one seen, it will be the max
@@ -1621,6 +1627,7 @@ int print_thermal(struct thread_data *t, struct core_data *c, struct pkg_data *p
 #endif
 	}
 
+
 	if (do_dts) {
 		unsigned int resolution;
 
@@ -1700,6 +1707,7 @@ int print_rapl(struct thread_data *t, struct core_data *c, struct pkg_data *p)
 		if (get_msr(cpu, MSR_PKG_POWER_INFO, &msr))
                 	return -5;
 
+
 		fprintf(stderr, "cpu%d: MSR_PKG_POWER_INFO: 0x%08llx (%.0f W TDP, RAPL %.0f - %.0f W, %f sec.)\n",
 			cpu, msr,
 			((msr >>  0) & RAPL_POWER_GRANULARITY) * rapl_power_units,
@@ -1726,12 +1734,14 @@ int print_rapl(struct thread_data *t, struct core_data *c, struct pkg_data *p)
 		if (get_msr(cpu, MSR_DRAM_POWER_INFO, &msr))
                 	return -6;
 
+
 		fprintf(stderr, "cpu%d: MSR_DRAM_POWER_INFO,: 0x%08llx (%.0f W TDP, RAPL %.0f - %.0f W, %f sec.)\n",
 			cpu, msr,
 			((msr >>  0) & RAPL_POWER_GRANULARITY) * rapl_power_units,
 			((msr >> 16) & RAPL_POWER_GRANULARITY) * rapl_power_units,
 			((msr >> 32) & RAPL_POWER_GRANULARITY) * rapl_power_units,
 			((msr >> 48) & RAPL_TIME_GRANULARITY) * rapl_time_units);
+
 
 		if (get_msr(cpu, MSR_DRAM_POWER_LIMIT, &msr))
 			return -9;
@@ -1771,6 +1781,7 @@ int print_rapl(struct thread_data *t, struct core_data *c, struct pkg_data *p)
 	return 0;
 }
 
+
 int is_snb(unsigned int family, unsigned int model)
 {
 	if (!genuine_intel)
@@ -1801,6 +1812,7 @@ int has_c8_c9_c10(unsigned int family, unsigned int model)
 	}
 	return 0;
 }
+
 
 double discover_bclk(unsigned int family, unsigned int model)
 {
@@ -1968,12 +1980,14 @@ void check_cpuid()
 	return;
 }
 
+
 void usage()
 {
 	fprintf(stderr, "%s: [-v][-R][-T][-p|-P|-S][-c MSR# | -s]][-C MSR#][-m MSR#][-M MSR#][-i interval_sec | command ...]\n",
 		progname);
 	exit(1);
 }
+
 
 /*
  * in /dev/cpu/ return success for names that are numbers
@@ -2041,6 +2055,7 @@ void topology_probe()
 	}
 	cpu_affinity_setsize = CPU_ALLOC_SIZE((topo.max_cpu_num + 1));
 	CPU_ZERO_S(cpu_affinity_setsize, cpu_affinity_set);
+
 
 	/*
 	 * For online cpus
@@ -2154,6 +2169,7 @@ void init_counter(struct thread_data *thread_base, struct core_data *core_base,
 	c->core_id = core_num;
 	p->package_id = pkg_num;
 }
+
 
 int initialize_counters(int cpu_id)
 {

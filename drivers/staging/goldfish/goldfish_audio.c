@@ -98,7 +98,9 @@ enum {
 					  AUDIO_INT_READ_BUFFER_FULL,
 };
 
+
 static atomic_t open_count = ATOMIC_INIT(0);
+
 
 static ssize_t goldfish_audio_read(struct file *fp, char __user *buf,
 						size_t count, loff_t *pos)

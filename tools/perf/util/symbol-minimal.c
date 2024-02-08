@@ -6,6 +6,7 @@
 #include <byteswap.h>
 #include <sys/stat.h>
 
+
 static bool check_need_swap(int file_endian)
 {
 	const int data = 1;

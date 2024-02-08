@@ -18,6 +18,7 @@
 #include <asm/octeon/cvmx-ipd-defs.h>
 #include <asm/octeon/cvmx-mio-defs.h>
 
+
 static u64 f;
 static u64 rdiv;
 static u64 sdiv;
@@ -163,6 +164,7 @@ void __delay(unsigned long loops)
 		cur = read_c0_cvmcount();
 }
 EXPORT_SYMBOL(__delay);
+
 
 /**
  * octeon_io_clk_delay - wait for a given number of io clock cycles to pass.

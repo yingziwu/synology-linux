@@ -1523,3 +1523,4 @@ int saa7164_api_clear_gpiobit(struct saa7164_dev *dev, u8 unitid,
 {
 	return saa7164_api_modify_gpio(dev, unitid, pin, 0);
 }
+

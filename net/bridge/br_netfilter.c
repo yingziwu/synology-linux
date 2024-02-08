@@ -719,6 +719,7 @@ static unsigned int br_nf_pre_routing(unsigned int hook, struct sk_buff *skb,
 	return NF_STOLEN;
 }
 
+
 /* PF_BRIDGE/LOCAL_IN ************************************************/
 /* The packet is locally destined, which requires a real
  * dst_entry, so detach the fake one.  On the way up, the
@@ -757,6 +758,7 @@ static int br_nf_forward_finish(struct sk_buff *skb)
 		       skb->dev, br_forward_finish, 1);
 	return 0;
 }
+
 
 /* This is the 'purely bridged' case.  For IP, we pass the packet to
  * netfilter with indev and outdev set to the bridge device,

@@ -36,6 +36,7 @@
 #include "target_core_pr.h"
 #include "target_core_ua.h"
 
+
 static void spc_fill_alua_data(struct se_port *port, unsigned char *buf)
 {
 	struct t10_alua_tg_pt_gp *tg_pt_gp;

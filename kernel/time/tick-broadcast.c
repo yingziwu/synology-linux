@@ -467,6 +467,7 @@ int tick_resume_broadcast(void)
 	return broadcast;
 }
 
+
 #ifdef CONFIG_TICK_ONESHOT
 
 static cpumask_var_t tick_broadcast_oneshot_mask;
@@ -774,6 +775,9 @@ void tick_broadcast_setup_oneshot(struct clock_event_device *bc)
 {
 	int cpu = smp_processor_id();
 
+	if (!bc)
+		return;
+
 	/* Set it up only once ! */
 	if (bc->event_handler != tick_handle_oneshot_broadcast) {
 		int was_periodic = bc->mode == CLOCK_EVT_MODE_PERIODIC;
@@ -827,6 +831,7 @@ void tick_broadcast_switch_to_oneshot(void)
 
 	raw_spin_unlock_irqrestore(&tick_broadcast_lock, flags);
 }
+
 
 /*
  * Remove a dead CPU from broadcasting

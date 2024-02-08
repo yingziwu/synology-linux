@@ -440,6 +440,7 @@ static inline void usb_ep_fifo_flush(struct usb_ep *ep)
 		ep->ops->fifo_flush(ep);
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 struct usb_dcd_config_params {
@@ -448,6 +449,7 @@ struct usb_dcd_config_params {
 	__le16 bU2DevExitLat;	/* U2 Device exit Latency */
 #define USB_DEFAULT_U2_DEV_EXIT_LAT	0x1F4	/* Less then 500 microsec */
 };
+
 
 struct usb_gadget;
 struct usb_gadget_driver;
@@ -549,6 +551,7 @@ static inline struct usb_gadget *dev_to_usb_gadget(struct device *dev)
 /* iterates the non-control endpoints; 'tmp' is a struct usb_ep pointer */
 #define gadget_for_each_ep(tmp, gadget) \
 	list_for_each_entry(tmp, &(gadget)->ep_list, ep_list)
+
 
 /**
  * gadget_is_dualspeed - return true iff the hardware handles high speed
@@ -746,6 +749,7 @@ static inline int usb_gadget_disconnect(struct usb_gadget *gadget)
 	return gadget->ops->pullup(gadget, 0);
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /**
@@ -829,6 +833,8 @@ struct usb_gadget_driver {
 	/* FIXME support safe rmmod */
 	struct device_driver	driver;
 };
+
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -967,6 +973,7 @@ extern void usb_gadget_set_state(struct usb_gadget *gadget,
 
 extern struct usb_ep *usb_ep_autoconfig(struct usb_gadget *,
 			struct usb_endpoint_descriptor *);
+
 
 extern struct usb_ep *usb_ep_autoconfig_ss(struct usb_gadget *,
 			struct usb_endpoint_descriptor *,

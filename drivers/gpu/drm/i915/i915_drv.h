@@ -1233,6 +1233,7 @@ struct i915_gpu_error {
 	struct drm_i915_error_state *first_error;
 	struct work_struct work;
 
+
 	unsigned long missed_irq_rings;
 
 	/**
@@ -1523,6 +1524,7 @@ struct drm_i915_private {
 	struct intel_uncore uncore;
 
 	struct intel_gmbus gmbus[GMBUS_NUM_PORTS];
+
 
 	/** gmbus_mutex protects against concurrent usage of the single hw gmbus
 	 * controller on different i2c buses. */
@@ -2651,6 +2653,7 @@ i915_vm_to_ppgtt(struct i915_address_space *vm)
 	return container_of(vm, struct i915_hw_ppgtt, base);
 }
 
+
 static inline bool i915_gem_obj_ggtt_bound(struct drm_i915_gem_object *obj)
 {
 	return i915_gem_obj_bound(obj, i915_obj_to_ggtt(obj));
@@ -2963,6 +2966,7 @@ int vlv_freq_opcode(struct drm_i915_private *dev_priv, int val);
 #define FORCEWAKE_BLITTER	(1 << 2)
 #define FORCEWAKE_ALL		(FORCEWAKE_RENDER | FORCEWAKE_MEDIA | \
 					FORCEWAKE_BLITTER)
+
 
 #define I915_READ8(reg)		dev_priv->uncore.funcs.mmio_readb(dev_priv, (reg), true)
 #define I915_WRITE8(reg, val)	dev_priv->uncore.funcs.mmio_writeb(dev_priv, (reg), (val), true)

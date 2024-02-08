@@ -660,6 +660,7 @@ typedef struct {
 	unsigned long		seg;
 } mm_segment_t;
 
+
 /* Free all resources held by a thread. */
 extern void release_thread(struct task_struct *);
 

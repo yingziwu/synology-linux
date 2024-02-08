@@ -597,6 +597,7 @@ static void hdmi_write_eld_info(struct snd_info_entry *entry,
 	mutex_unlock(&eld->lock);
 }
 
+
 int snd_hda_eld_proc_new(struct hda_codec *codec, struct hdmi_eld *eld,
 			 int index)
 {

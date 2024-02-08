@@ -32,6 +32,7 @@ MODULE_AUTHOR("Jouni Malinen");
 MODULE_DESCRIPTION("Host AP crypt: CCMP");
 MODULE_LICENSE("GPL");
 
+
 #define AES_BLOCK_LEN 16
 #define CCMP_HDR_LEN 8
 #define CCMP_MIC_LEN 8
@@ -93,6 +94,7 @@ fail:
 	return NULL;
 }
 
+
 static void ieee80211_ccmp_deinit(void *priv)
 {
 	struct ieee80211_ccmp_data *_priv = priv;
@@ -101,6 +103,7 @@ static void ieee80211_ccmp_deinit(void *priv)
 		crypto_free_cipher((void *)_priv->tfm);
 	kfree(priv);
 }
+
 
 static inline void xor_block(u8 *b, u8 *a, size_t len)
 {
@@ -256,6 +259,7 @@ static int ieee80211_ccmp_encrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	return 0;
 }
 
+
 static int ieee80211_ccmp_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 {
 	struct ieee80211_ccmp_data *key = priv;
@@ -353,6 +357,7 @@ static int ieee80211_ccmp_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	return keyidx;
 }
 
+
 static int ieee80211_ccmp_set_key(void *key, int len, u8 *seq, void *priv)
 {
 	struct ieee80211_ccmp_data *data = priv;
@@ -383,6 +388,7 @@ static int ieee80211_ccmp_set_key(void *key, int len, u8 *seq, void *priv)
 	return 0;
 }
 
+
 static int ieee80211_ccmp_get_key(void *key, int len, u8 *seq, void *priv)
 {
 	struct ieee80211_ccmp_data *data = priv;
@@ -405,6 +411,7 @@ static int ieee80211_ccmp_get_key(void *key, int len, u8 *seq, void *priv)
 
 	return CCMP_TK_LEN;
 }
+
 
 static char *ieee80211_ccmp_print_stats(char *p, void *priv)
 {
@@ -442,10 +449,12 @@ static struct ieee80211_crypto_ops ieee80211_crypt_ccmp = {
 	.owner			= THIS_MODULE,
 };
 
+
 int ieee80211_crypto_ccmp_init(void)
 {
 	return ieee80211_register_crypto_ops(&ieee80211_crypt_ccmp);
 }
+
 
 void ieee80211_crypto_ccmp_exit(void)
 {

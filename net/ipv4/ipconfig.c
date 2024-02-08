@@ -175,6 +175,7 @@ static volatile int ic_got_reply __initdata = 0;    /* Proto(s) that replied */
 static int ic_dhcp_msgtype __initdata = 0;	/* DHCP msg type received */
 #endif
 
+
 /*
  *	Network devices
  */
@@ -583,6 +584,7 @@ drop:
 	return 0;
 }
 
+
 /*
  *  Send RARP request packet over a single interface.
  */
@@ -651,6 +653,7 @@ static struct packet_type bootp_packet_type __initdata = {
 	.type =	cpu_to_be16(ETH_P_IP),
 	.func =	ic_bootp_recv,
 };
+
 
 /*
  *  Initialize DHCP/BOOTP extension fields in the request.
@@ -763,6 +766,7 @@ static void __init ic_bootp_init_ext(u8 *e)
 	*e++ = 255;		/* End of the list */
 }
 
+
 /*
  *  Initialize the DHCP/BOOTP mechanism.
  */
@@ -773,6 +777,7 @@ static inline void __init ic_bootp_init(void)
 	dev_add_pack(&bootp_packet_type);
 }
 
+
 /*
  *  DHCP/BOOTP cleanup.
  */
@@ -780,6 +785,7 @@ static inline void __init ic_bootp_cleanup(void)
 {
 	dev_remove_pack(&bootp_packet_type);
 }
+
 
 /*
  *  Send DHCP/BOOTP request to single interface.
@@ -859,6 +865,7 @@ static void __init ic_bootp_send_if(struct ic_device *d, unsigned long jiffies_d
 		printk("E");
 }
 
+
 /*
  *  Copy BOOTP-supplied string if not already set.
  */
@@ -872,6 +879,7 @@ static int __init ic_bootp_string(char *dest, char *src, int len, int max)
 	dest[len] = '\0';
 	return 1;
 }
+
 
 /*
  *  Process BOOTP extensions.
@@ -932,6 +940,7 @@ static void __init ic_do_bootp_ext(u8 *ext)
 		break;
 	}
 }
+
 
 /*
  *  Receive BOOTP reply.
@@ -1136,7 +1145,9 @@ drop:
 	return 0;
 }
 
+
 #endif
+
 
 /*
  *	Dynamic IP configuration -- DHCP, BOOTP, RARP.
@@ -1530,6 +1541,7 @@ static int __init ip_auto_config(void)
 }
 
 late_initcall(ip_auto_config);
+
 
 /*
  *  Decode any IP configuration options in the "ip=" or "nfsaddrs=" kernel

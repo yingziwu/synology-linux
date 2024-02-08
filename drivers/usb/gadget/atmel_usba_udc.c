@@ -27,6 +27,7 @@
 
 #include "atmel_usba_udc.h"
 
+
 static struct usba_udc the_udc;
 static struct usba_ep *usba_ep;
 

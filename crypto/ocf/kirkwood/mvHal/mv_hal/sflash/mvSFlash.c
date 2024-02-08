@@ -220,6 +220,7 @@ static MV_STATUS mvWriteEnable(MV_SFLASH_INFO * pFlinfo)
 {
 	MV_U8 cmd[MV_SFLASH_WREN_CMND_LENGTH];
 
+
     cmd[0] = sflash[pFlinfo->index].opcdWREN;
 
 	return mvSpiWriteThenRead(cmd, MV_SFLASH_WREN_CMND_LENGTH, NULL, 0, 0);
@@ -237,6 +238,9 @@ static MV_STATUS mvStatusRegGet(MV_SFLASH_INFO * pFlinfo, MV_U8 * pStatReg)
     MV_STATUS ret;
 	MV_U8 cmd[MV_SFLASH_RDSR_CMND_LENGTH];
 	MV_U8 sr[MV_SFLASH_RDSR_REPLY_LENGTH];
+
+
+
 
 	cmd[0] = sflash[pFlinfo->index].opcdRDSR;
 
@@ -315,6 +319,7 @@ static MV_STATUS mvStatusRegSet(MV_SFLASH_INFO * pFlinfo, MV_U8 sr)
     MV_STATUS ret;
 	MV_U8 cmd[MV_SFLASH_WRSR_CMND_LENGTH];
 
+
     /* Issue the Write enable command prior the WRSR command */
 	if ((ret = mvWriteEnable(pFlinfo)) != MV_OK)
 		return ret;
@@ -347,6 +352,7 @@ static MV_STATUS mvSFlashPageWr (MV_SFLASH_INFO * pFlinfo, MV_U32 offset,
 {
     MV_STATUS ret;
 	MV_U8 cmd[MV_SFLASH_PP_CMND_LENGTH];
+
 
     /* Protection - check if the model was detected */
     if (pFlinfo->index >= MV_ARRAY_SIZE(sflash))
@@ -395,6 +401,8 @@ static MV_STATUS mvSFlashWithDefaultsIdGet (MV_SFLASH_INFO * pFlinfo, MV_U8* man
     MV_STATUS ret;
     MV_U8 cmdRDID[MV_SFLASH_RDID_CMND_LENGTH];
 	MV_U8 id[MV_SFLASH_RDID_REPLY_LENGTH];
+
+
 
     /* Use the default RDID opcode to read the IDs */
     cmdRDID[0] = MV_SFLASH_DEFAULT_RDID_OPCD;   /* unknown model try default */
@@ -618,6 +626,7 @@ MV_STATUS mvSFlashChipErase (MV_SFLASH_INFO * pFlinfo)
     MV_STATUS ret;
 	MV_U8 cmd[MV_SFLASH_BE_CMND_LENGTH];
 
+
     /* check for NULL pointer */
     if (pFlinfo == NULL)
     {
@@ -671,6 +680,7 @@ MV_STATUS mvSFlashBlockRd (MV_SFLASH_INFO * pFlinfo, MV_U32 offset,
 						   MV_U8* pReadBuff, MV_U32 buffSize)
 {
 	MV_U8 cmd[MV_SFLASH_READ_CMND_LENGTH];
+
 
     /* check for NULL pointer */
     if ((pFlinfo == NULL) || (pReadBuff == NULL))
@@ -747,6 +757,7 @@ MV_STATUS mvSFlashFastBlockRd (MV_SFLASH_INFO * pFlinfo, MV_U32 offset,
     cmd[2] = ((offset >> 8) & 0xFF);
     cmd[3] = (offset & 0xFF);
 
+
     ret = mvSpiWriteThenRead(cmd, MV_SFLASH_READ_CMND_LENGTH, pReadBuff, buffSize,
                              sflash[pFlinfo->index].spiFastRdDummyBytes);
 
@@ -759,6 +770,7 @@ MV_STATUS mvSFlashFastBlockRd (MV_SFLASH_INFO * pFlinfo, MV_U32 offset,
 
     return ret;
 }
+
 
 /*******************************************************************************
 * mvSFlashBlockWr - Write a buffer with any size
@@ -887,6 +899,8 @@ MV_STATUS mvSFlashIdGet (MV_SFLASH_INFO * pFlinfo, MV_U8* pManId, MV_U16* pDevId
     MV_STATUS ret;
 	MV_U8 cmd[MV_SFLASH_RDID_CMND_LENGTH];
 	MV_U8 id[MV_SFLASH_RDID_REPLY_LENGTH];
+
+
 
     /* check for NULL pointer */
     if ((pFlinfo == NULL) || (pManId == NULL) || (pDevId == NULL))
@@ -1079,6 +1093,7 @@ MV_STATUS mvSFlashWpRegionSet (MV_SFLASH_INFO * pFlinfo, MV_SFLASH_WP_REGION wpR
             case MV_WP_ALL:
                 wpMask = MV_S25FL_STATUS_BP_ALL;
                 break;
+
 
             default:
                 DB(mvOsPrintf("%s WARNING: Invaild parameter WP region!\n", __FUNCTION__);)
@@ -1380,6 +1395,7 @@ MV_STATUS mvSFlashPowerSaveEnter(MV_SFLASH_INFO * pFlinfo)
     MV_STATUS ret;
 	MV_U8 cmd[MV_SFLASH_DP_CMND_LENGTH];
 
+
     /* check for NULL pointer */
     if (pFlinfo == NULL)
     {
@@ -1431,6 +1447,7 @@ MV_STATUS mvSFlashPowerSaveExit (MV_SFLASH_INFO * pFlinfo)
 {
     MV_STATUS ret;
 	MV_U8 cmd[MV_SFLASH_RES_CMND_LENGTH];
+
 
     /* check for NULL pointer */
     if (pFlinfo == NULL)

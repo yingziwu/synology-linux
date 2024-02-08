@@ -1220,7 +1220,9 @@ clock_set:
 			return;
 		}
 		timeout--;
-		mdelay(1);
+		spin_unlock_irq(&host->lock);
+		usleep_range(900, 1100);
+		spin_lock_irq(&host->lock);
 	}
 
 	clk |= SDHCI_CLOCK_CARD_EN;
@@ -1514,6 +1516,7 @@ static void sdhci_do_set_ios(struct sdhci_host *host, struct mmc_ios *ios)
 			/* Re-enable SD Clock */
 			sdhci_update_clock(host);
 		}
+
 
 		/* Reset SD Clock Enable */
 		clk = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
@@ -2014,6 +2017,7 @@ out:
 
 	return err;
 }
+
 
 static void sdhci_enable_preset_value(struct sdhci_host *host, bool enable)
 {

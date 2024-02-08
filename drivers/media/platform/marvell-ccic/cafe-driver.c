@@ -37,6 +37,7 @@
 
 #define CAFE_VERSION 0x000002
 
+
 /*
  * Parameters.
  */
@@ -44,6 +45,9 @@ MODULE_AUTHOR("Jonathan Corbet <corbet@lwn.net>");
 MODULE_DESCRIPTION("Marvell 88ALP01 CMOS Camera Controller driver");
 MODULE_LICENSE("GPL");
 MODULE_SUPPORTED_DEVICE("Video");
+
+
+
 
 struct cafe_camera {
 	int registered;			/* Fully initialized? */
@@ -121,6 +125,7 @@ struct cafe_camera {
 
 #define REG_LEN		       (REG_GL_IMASK + 4)
 
+
 /*
  * Debugging and related.
  */
@@ -142,6 +147,7 @@ static inline struct cafe_camera *to_cam(struct v4l2_device *dev)
 	struct mcam_camera *m = container_of(dev, struct mcam_camera, v4l2_dev);
 	return container_of(m, struct cafe_camera, mcam);
 }
+
 
 static int cafe_smbus_write_done(struct mcam_camera *mcam)
 {
@@ -218,6 +224,8 @@ static int cafe_smbus_write_data(struct cafe_camera *cam,
 	return 0;
 }
 
+
+
 static int cafe_smbus_read_done(struct mcam_camera *mcam)
 {
 	unsigned long flags;
@@ -234,6 +242,8 @@ static int cafe_smbus_read_done(struct mcam_camera *mcam)
 	spin_unlock_irqrestore(&mcam->dev_lock, flags);
 	return c1 & (TWSIC1_RVALID|TWSIC1_ERROR);
 }
+
+
 
 static int cafe_smbus_read_data(struct cafe_camera *cam,
 		u16 addr, u8 command, u8 *value)
@@ -301,6 +311,7 @@ static int cafe_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
 	return ret;
 }
 
+
 static void cafe_smbus_enable_irq(struct cafe_camera *cam)
 {
 	unsigned long flags;
@@ -348,6 +359,7 @@ static void cafe_smbus_shutdown(struct cafe_camera *cam)
 	kfree(cam->mcam.i2c_adapter);
 }
 
+
 /*
  * Controller-level stuff
  */
@@ -387,6 +399,7 @@ static void cafe_ctlr_init(struct mcam_camera *mcam)
 	spin_unlock_irqrestore(&mcam->dev_lock, flags);
 }
 
+
 static void cafe_ctlr_power_up(struct mcam_camera *mcam)
 {
 	/*
@@ -411,6 +424,8 @@ static void cafe_ctlr_power_down(struct mcam_camera *mcam)
 	mcam_reg_write(mcam, REG_GL_GPIOR, GGPIO_OUT);
 }
 
+
+
 /*
  * The platform interrupt handler.
  */
@@ -431,6 +446,7 @@ static irqreturn_t cafe_irq(int irq, void *data)
 	spin_unlock(&mcam->dev_lock);
 	return IRQ_RETVAL(handled);
 }
+
 
 /* -------------------------------------------------------------------------- */
 /*
@@ -524,6 +540,7 @@ out:
 	return ret;
 }
 
+
 /*
  * Shut down an initialized device
  */
@@ -534,6 +551,7 @@ static void cafe_shutdown(struct cafe_camera *cam)
 	free_irq(cam->pdev->irq, cam);
 	pci_iounmap(cam->pdev, cam->mcam.regs);
 }
+
 
 static void cafe_pci_remove(struct pci_dev *pdev)
 {
@@ -547,6 +565,7 @@ static void cafe_pci_remove(struct pci_dev *pdev)
 	cafe_shutdown(cam);
 	kfree(cam);
 }
+
 
 #ifdef CONFIG_PM
 /*
@@ -565,6 +584,7 @@ static int cafe_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 	pci_disable_device(pdev);
 	return 0;
 }
+
 
 static int cafe_pci_resume(struct pci_dev *pdev)
 {
@@ -604,6 +624,9 @@ static struct pci_driver cafe_pci_driver = {
 #endif
 };
 
+
+
+
 static int __init cafe_init(void)
 {
 	int ret;
@@ -620,6 +643,7 @@ static int __init cafe_init(void)
 out:
 	return ret;
 }
+
 
 static void __exit cafe_exit(void)
 {

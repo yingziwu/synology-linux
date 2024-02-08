@@ -39,6 +39,7 @@
 #include "board.h"
 #include "generic.h"
 
+
 static void __init eb9200_init_early(void)
 {
 	/* Initialize processor: 18.432 MHz crystal */
@@ -81,6 +82,7 @@ static struct i2c_board_info __initdata eb9200_i2c_devices[] = {
 		I2C_BOARD_INFO("24c512", 0x50),
 	},
 };
+
 
 static void __init eb9200_board_init(void)
 {

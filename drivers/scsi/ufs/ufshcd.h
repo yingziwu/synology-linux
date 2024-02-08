@@ -115,6 +115,7 @@ struct ufshcd_lrb {
 	unsigned int lun;
 };
 
+
 /**
  * struct ufs_hba - per adapter private structure
  * @mmio_base: UFSHCI base register address

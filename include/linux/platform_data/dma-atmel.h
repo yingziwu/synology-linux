@@ -33,6 +33,7 @@ struct at_dma_slave {
 	u32			cfg;
 };
 
+
 /* Platform-configurable bits in CFG */
 #define	ATC_SRC_PER(h)		(0xFU & (h))	/* Channel src rq associated with periph handshaking ifc h */
 #define	ATC_DST_PER(h)		((0xFU & (h)) <<  4)	/* Channel dst rq associated with periph handshaking ifc h */
@@ -55,5 +56,6 @@ struct at_dma_slave {
 #define		ATC_FIFOCFG_LARGESTBURST	(0x0 << 28)
 #define		ATC_FIFOCFG_HALFFIFO		(0x1 << 28)
 #define		ATC_FIFOCFG_ENOUGHSPACE		(0x2 << 28)
+
 
 #endif /* AT_HDMAC_H */

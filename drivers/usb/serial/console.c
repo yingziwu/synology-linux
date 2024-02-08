@@ -47,6 +47,7 @@ static struct console usbcons;
  * ------------------------------------------------------------
  */
 
+
 /*
  * The parsing of the command line works exactly like the
  * serial.c code, except that the specifier is "ttyUSB" instead
@@ -187,6 +188,7 @@ static int usb_console_setup(struct console *co, char *options)
 	kfree(tty);
  reset_open_count:
 	port->port.count = 0;
+	info->port = NULL;
 	usb_autopm_put_interface(serial->interface);
  error_get_interface:
 	usb_serial_put(serial);
@@ -309,3 +311,4 @@ void usb_serial_console_exit(void)
 		usbcons_info.port = NULL;
 	}
 }
+

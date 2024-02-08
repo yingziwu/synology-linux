@@ -550,6 +550,7 @@ out_unlock:
 	return count;
 }
 
+
 static const struct file_operations fops_retp_enabled = {
 	.read = retp_enabled_read,
 	.write = retp_enabled_write,

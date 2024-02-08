@@ -68,6 +68,7 @@ static int get_wcap_ioctl(struct hda_codec *codec,
 	return 0;
 }
 
+
 /*
  */
 static int hda_hwdep_ioctl(struct snd_hwdep *hw, struct file *file,
@@ -757,6 +758,7 @@ static void parse_##name##_mode(char *buf, struct hda_bus *bus, \
 DEFINE_PARSE_ID_MODE(vendor_id);
 DEFINE_PARSE_ID_MODE(subsystem_id);
 DEFINE_PARSE_ID_MODE(revision_id);
+
 
 struct hda_patch_item {
 	const char *tag;

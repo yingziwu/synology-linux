@@ -42,4 +42,6 @@ typedef unsigned int UINT32;
 #define NULL 0
 #endif
 
+
 #endif	//__TYPEDEFS_H__
+

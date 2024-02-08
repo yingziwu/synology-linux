@@ -168,6 +168,7 @@ xlog_align(
 	return bp->b_addr + BBTOB(offset);
 }
 
+
 /*
  * nbblks should be uint, but oh well.  Just want to catch that 32-bit length.
  */
@@ -2807,6 +2808,7 @@ xlog_recover_dquot_pass2(
 	xfs_dq_logformat_t	*dq_f;
 	uint			type;
 
+
 	/*
 	 * Filesystems are required to send in quota flags at mount time.
 	 */
@@ -2921,6 +2923,7 @@ xlog_recover_efi_pass2(
 	xfs_trans_ail_update(log->l_ailp, &efip->efi_item, lsn);
 	return 0;
 }
+
 
 /*
  * This routine is called when an efd format structure is found in
@@ -3379,6 +3382,7 @@ xlog_recover_clear_agi_bucket(
 	agi->agi_unlinked[bucket] = cpu_to_be32(NULLAGINO);
 	offset = offsetof(xfs_agi_t, agi_unlinked) +
 		 (sizeof(xfs_agino_t) * bucket);
+	xfs_trans_buf_set_type(tp, agibp, XFS_BLFT_AGI_BUF);
 	xfs_trans_log_buf(tp, agibp, offset,
 			  (offset + sizeof(xfs_agino_t) - 1));
 
@@ -4135,6 +4139,7 @@ xlog_recover_finish(
 	}
 	return 0;
 }
+
 
 #if defined(DEBUG)
 /*

@@ -22,6 +22,7 @@
 #include "csr_wifi_sme_prim.h"
 #include "csr_wifi_sme_task.h"
 
+
 #ifndef CSR_WIFI_SME_LIB_DESTINATION_QUEUE
 # ifdef CSR_WIFI_NME_ENABLE
 # include "csr_wifi_nme_task.h"
@@ -102,6 +103,7 @@ const char* CsrWifiSmeWpsDeviceCategoryToString(CsrWifiSmeWpsDeviceCategory valu
 const char* CsrWifiSmeWpsDeviceSubCategoryToString(CsrWifiSmeWpsDeviceSubCategory value);
 const char* CsrWifiSmeWpsDpidToString(CsrWifiSmeWpsDpid value);
 const char* CsrWifiSmeWpsRegistrationToString(CsrWifiSmeWpsRegistration value);
+
 
 /*----------------------------------------------------------------------------*
  * CsrPrim Type toString function.

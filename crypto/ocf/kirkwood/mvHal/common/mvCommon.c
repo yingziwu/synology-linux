@@ -66,6 +66,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mv802_3.h"
 #include "mvCommon.h"
 
+
 /*******************************************************************************
 * mvMacStrToHex - Convert MAC format string to hex.
 *
@@ -220,6 +221,7 @@ void     mvAsciiToHex(const char* asciiStr, char* hexStr)
 	}
 	hexStr[i*2] = 0;
 }
+
 
 void    mvBinToHex(const MV_U8* bin, char* hexStr, int size)
 {

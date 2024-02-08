@@ -11,6 +11,7 @@
 #include <asm/time.h>
 #include "nonstdio.h"
 
+
 static int xmon_write(const void *ptr, int nb)
 {
 	return udbg_write(ptr, nb);

@@ -255,6 +255,7 @@ static int proc_pid_auxv(struct task_struct *task, char *buffer)
 	return res;
 }
 
+
 #ifdef CONFIG_KALLSYMS
 /*
  * Provides a wchan file via kallsyms in a proper one-value-per-file format.
@@ -594,6 +595,7 @@ static bool has_pid_permissions(struct pid_namespace *pid,
 	return ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS);
 }
 
+
 static int proc_pid_permission(struct inode *inode, int mask)
 {
 	struct pid_namespace *pid = inode->i_sb->s_fs_info;
@@ -621,6 +623,8 @@ static int proc_pid_permission(struct inode *inode, int mask)
 	}
 	return generic_permission(inode, mask);
 }
+
+
 
 static const struct inode_operations proc_def_inode_operations = {
 	.setattr	= proc_setattr,
@@ -1250,6 +1254,7 @@ static const struct file_operations proc_fault_inject_operations = {
 };
 #endif
 
+
 #ifdef CONFIG_SCHED_DEBUG
 /*
  * Print out various scheduling related per-task fields:
@@ -1526,6 +1531,7 @@ const struct inode_operations proc_pid_link_inode_operations = {
 	.follow_link	= proc_pid_follow_link,
 	.setattr	= proc_setattr,
 };
+
 
 /* building an inode */
 

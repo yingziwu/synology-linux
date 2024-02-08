@@ -42,6 +42,7 @@
 //
 //-----------------------------------------------------------------------*/
 
+
 #ifndef _ELPSPACCHW_
 #define _ELPSPACCHW_
 #include "m86xxx_types.h"
@@ -124,6 +125,7 @@
 #define SPACC_ID_VIDX(x)    (((x) >> 12) & 0x07)
 #define SPACC_ID_PROJECT(x) ((x)>>16)
 
+
 /********** Context Offsets **********/
 
 #define SPACC_CTX_CIPH_KEY     SPACC_CRYPTO_BASE + 0x04000L
@@ -187,6 +189,7 @@
 #endif
 
 #endif
+
 
 /********** IRQ_EN Bit Masks **********/
 
@@ -336,6 +339,7 @@
 #define _SPACC_CTRL_KEY_EXP         29
 #define _SPACC_CTRL_SEC_KEY         31
 
+
 /********* Virtual Spacc Priority Bitmasks **********/
 #define _SPACC_VPRIO_MODE          0
 #define _SPACC_VPRIO_WEIGHT        8
@@ -364,6 +368,7 @@
 #define _SPACC_KEY_SZ_CIPHER        31
 
 #define SPACC_KEY_SZ_CIPHER        (1UL << _SPACC_KEY_SZ_CIPHER)
+
 
 #define SPACC_SET_CIPHER_KEY_SZ(z,ctx)         (((z) & 0x7F) | (1UL << _SPACC_KEY_SZ_CIPHER) | ((ctx) << _SPACC_KEY_SZ_CTX_IDX))
 #define SPACC_SET_HASH_KEY_SZ(z,ctx)           (((z) & 0x7F) | ((ctx) << _SPACC_KEY_SZ_CTX_IDX))
@@ -435,6 +440,7 @@
 
 #define SPACC_CTX_C_MASK    0x0000ffff
 #define SPACC_CTX_H_MASK    0xffff0000
+
 
 /***********************************************************************************/
 /***********************************************************************************/
@@ -513,6 +519,7 @@ enum ehashmode
   HM_MAX
 };
 
+
 enum eicvmode
 {
   IM_ICV_HASH         = 0,      /* HASH of plaintext */
@@ -522,6 +529,7 @@ enum eicvmode
 
   IM_MAX
 };
+
 
 enum eicvpos
 {
@@ -538,6 +546,7 @@ enum spacc_ret_code
   SPACC_MEMERR,
   SPACC_BLOCKERR,
 };
+
 
 #define ELP_READ_UINT(mem)		     readl(mem)
 #define ELP_WRITE_UINT(mem, val)	     writel(val, mem)
@@ -685,6 +694,7 @@ enum spacc_ret_code
 #define CLUE_REASON_INVALID_EXPONENT	253
 #define CLUE_REASON_UNLICENSED_SIZE	254
 
+
 // CONTROL REGISTERS definition in 0x0020
 #define CLUE_STATUS_BIT_BUSY          31
 #define CLUE_STATUS_BIT_IRQ           CLUE_INT_BIT_IRQ_EN
@@ -755,6 +765,8 @@ enum spacc_ret_code
 
 #define CLUE_SEQUENCE_SIZE   4096
 
+
+
 // for CLUE RSA, 32 bit memory access only!!!
 // Basic 32 bit memory access macros
 // 32 memory write byte operation
@@ -773,6 +785,7 @@ enum spacc_ret_code
 #define CLUE_READ_CYCLES(mmap)    CLUE_READ_UINT((U32)mmap+CLUE_CYCLE_SINCE_GO)
 #define CLUE_READ_INSTS(mmap)     CLUE_READ_UINT((U32)mmap+CLUE_INST_SINCE_GO)
 
+
 #define CLUE_READ_I(mmap)  CLUE_READ_UINT((U32)mmap+CLUE_INDEX_I)
 #define CLUE_READ_J(mmap)  CLUE_READ_UINT((U32)mmap+CLUE_INDEX_J)
 #define CLUE_READ_K(mmap)  CLUE_READ_UINT((U32)mmap+CLUE_INDEX_K)
@@ -790,6 +803,7 @@ enum spacc_ret_code
 #define CLUE_CLEAR_CARRY(mmap)         CLUE_WRITE_UINT(((U32)mmap+CLUE_FLAGS),CLUE_READ_FLAGS(mmap)&~CLUE_FLAGS_CARRY)
 #define CLUE_SET_ENDIAN_SWAP(mmap)     CLUE_WRITE_UINT(((U32)mmap+CLUE_CTRL),CLUE_READ_CTRL(mmap)|CLUE_CTRL_ENDIAN_SWAP)
 #define CLUE_CLEAR_ENDIAN_SWAP(mmap)   CLUE_WRITE_UINT(((U32)mmap+CLUE_CTRL),CLUE_READ_CTRL(mmap)&~CLUE_CTRL_ENDIAN_SWAP)
+
 
 // -------------------------------------------------
 #define CLUE_CALC_MP(mmap)		CLUE_WRITE_UINT(((U32)mmap+CLUE_ENTRY),0x30)
@@ -817,6 +831,8 @@ enum spacc_ret_code
 #define CLUE_MOD_RED(mmap)		CLUE_WRITE_UINT(((U32)mmap+CLUE_ENTRY),0x2e)
 // std_prj_to_affine
 
+
+
 // Acknowledge interrupt macro
 #define CLUE_INT_ACK(mmap)      CLUE_WRITE_UINT(((U32)mmap+CLUE_STATUS),CLUE_READ_STATUS(mmap)|CLUE_STATUS_IRQ)
 
@@ -830,5 +846,6 @@ enum spacc_ret_code
 
 // Wait loop expire counter
 #define CLUE_LOOP_WAIT      10000000
+
 
 #endif

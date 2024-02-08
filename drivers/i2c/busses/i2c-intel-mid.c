@@ -92,6 +92,7 @@ struct intel_mid_i2c_private {
 #define ACTIVE			0
 #define STANDBY			1
 
+
 /* Control register */
 #define IC_CON			0x00
 #define SLV_DIS			(1 << 6)	/* Disable slave mode */
@@ -727,6 +728,7 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
 	dev_dbg(&adap->dev, "intel_mid_i2c_xfer, process %d msg(s)\n", num);
 	dev_dbg(&adap->dev, "slave address is %x\n", pmsg->addr);
 
+
 	if (i2c->status != STATUS_IDLE) {
 		dev_err(&adap->dev, "Adapter %d in transfer/standby\n",
 								adap->nr);
@@ -734,6 +736,7 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
 		pm_runtime_put(i2c->dev);
 		return -1;
 	}
+
 
 	for (i = 1; i < num; i++) {
 		/* Message address equal? */
@@ -918,6 +921,7 @@ static struct i2c_algorithm intel_mid_i2c_algorithm = {
 	.master_xfer	= intel_mid_i2c_xfer,
 	.functionality	= intel_mid_i2c_func,
 };
+
 
 static const struct dev_pm_ops intel_mid_i2c_pm_ops = {
 	.runtime_suspend = intel_mid_i2c_runtime_suspend,

@@ -34,9 +34,11 @@
 #include <linux/mutex.h>
 #include <sound/memalloc.h>
 
+
 MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>");
 MODULE_DESCRIPTION("Memory allocator for ALSA system.");
 MODULE_LICENSE("GPL");
+
 
 /*
  */
@@ -163,6 +165,7 @@ static void snd_free_dev_pages(struct device *dev, size_t size, void *ptr,
  *
  */
 
+
 /**
  * snd_dma_alloc_pages - allocate the buffer area according to the given type
  * @type: the DMA buffer type
@@ -252,6 +255,7 @@ int snd_dma_alloc_pages_fallback(int type, struct device *device, size_t size,
 	return 0;
 }
 
+
 /**
  * snd_dma_free_pages - release the allocated buffer
  * @dmab: the buffer allocation record to release
@@ -278,6 +282,7 @@ void snd_dma_free_pages(struct snd_dma_buffer *dmab)
 		printk(KERN_ERR "snd-malloc: invalid device type %d\n", dmab->dev.type);
 	}
 }
+
 
 /**
  * snd_dma_get_reserved - get the reserved buffer for the given device
@@ -359,6 +364,7 @@ static void free_all_reserved_pages(void)
 	}
 	mutex_unlock(&list_mutex);
 }
+
 
 #ifdef CONFIG_PROC_FS
 /*
@@ -522,8 +528,10 @@ static void __exit snd_mem_exit(void)
 		printk(KERN_ERR "snd-malloc: Memory leak?  pages not freed = %li\n", snd_allocated_pages);
 }
 
+
 module_init(snd_mem_init)
 module_exit(snd_mem_exit)
+
 
 /*
  * exports

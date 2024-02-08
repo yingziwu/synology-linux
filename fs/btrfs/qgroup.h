@@ -1,10 +1,47 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (C) 2014 Facebook.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License v2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 021110-1307, USA.
+ */
+
 #ifndef __BTRFS_QGROUP__
 #define __BTRFS_QGROUP__
 
+/*
+ * A description of the operations, all of these operations only happen when we
+ * are adding the 1st reference for that subvolume in the case of adding space
+ * or on the last reference delete in the case of subtraction.  The only
+ * exception is the last one, which is added for confusion.
+ *
+ * BTRFS_QGROUP_OPER_ADD_EXCL: adding bytes where this subvolume is the only
+ * one pointing at the bytes we are adding.  This is called on the first
+ * allocation.
+ *
+ * BTRFS_QGROUP_OPER_ADD_SHARED: adding bytes where this bytenr is going to be
+ * shared between subvols.  This is called on the creation of a ref that already
+ * has refs from a different subvolume, so basically reflink.
+ *
+ * BTRFS_QGROUP_OPER_SUB_EXCL: removing bytes where this subvolume is the only
+ * one referencing the range.
+ *
+ * BTRFS_QGROUP_OPER_SUB_SHARED: removing bytes where this subvolume shares with
+ * refs with other subvolumes.
+ */
 enum btrfs_qgroup_operation_type {
 	BTRFS_QGROUP_OPER_ADD_EXCL,
 	BTRFS_QGROUP_OPER_ADD_SHARED,
@@ -16,11 +53,22 @@ struct btrfs_qgroup_operation {
 	u64 ref_root;
 	u64 bytenr;
 	u64 num_bytes;
+#ifdef MY_ABC_HERE
+	u64 ram_bytes;
+#endif /* MY_ABC_HERE */
 	u64 seq;
 	enum btrfs_qgroup_operation_type type;
 	struct seq_list elem;
 	struct rb_node n;
 	struct list_head list;
+#ifdef MY_ABC_HERE
+	unsigned int ref_type:8;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	u64 objectid;
+	uid_t uid;
+	struct inode *inode;
+#endif /* MY_ABC_HERE */
 };
 
 int btrfs_quota_enable(struct btrfs_trans_handle *trans,
@@ -45,11 +93,20 @@ int btrfs_limit_qgroup(struct btrfs_trans_handle *trans,
 int btrfs_read_qgroup_config(struct btrfs_fs_info *fs_info);
 void btrfs_free_qgroup_config(struct btrfs_fs_info *fs_info);
 struct btrfs_delayed_extent_op;
+#ifdef MY_ABC_HERE
+int btrfs_qgroup_record_ref(struct btrfs_trans_handle *trans,
+			    struct btrfs_fs_info *fs_info, u64 ref_root,
+			    u64 bytenr, u64 num_bytes,
+			    enum btrfs_qgroup_operation_type type,
+			    int mod_seq,
+			    struct btrfs_delayed_ref_node *node);
+#else
 int btrfs_qgroup_record_ref(struct btrfs_trans_handle *trans,
 			    struct btrfs_fs_info *fs_info, u64 ref_root,
 			    u64 bytenr, u64 num_bytes,
 			    enum btrfs_qgroup_operation_type type,
 			    int mod_seq);
+#endif
 int btrfs_delayed_qgroup_accounting(struct btrfs_trans_handle *trans,
 				    struct btrfs_fs_info *fs_info);
 void btrfs_remove_qgroup_operation(struct btrfs_trans_handle *trans,
@@ -62,11 +119,16 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans,
 			 struct btrfs_qgroup_inherit *inherit);
 int btrfs_qgroup_reserve(struct btrfs_root *root, u64 num_bytes);
 void btrfs_qgroup_free(struct btrfs_root *root, u64 num_bytes);
+#ifdef MY_ABC_HERE
+void __btrfs_qgroup_free(struct btrfs_root *root, u64 num_bytes, int add_delay);
+void btrfs_qgroup_free_add_delay(struct btrfs_root *root, u64 num_bytes);
+void btrfs_qgroup_release_delayed_free(struct btrfs_root *root, u64 num_bytes);
+#endif
 
 #ifdef MY_ABC_HERE
 void btrfs_qgroup_query(struct btrfs_fs_info *fs_info, u64 qgroupid,
                         struct btrfs_ioctl_qgroup_query_args *qqa);
-#endif  
+#endif /* MY_ABC_HERE */
 void assert_qgroups_uptodate(struct btrfs_trans_handle *trans);
 
 #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
@@ -74,4 +136,5 @@ int btrfs_verify_qgroup_counts(struct btrfs_fs_info *fs_info, u64 qgroupid,
 			       u64 rfer, u64 excl);
 #endif
 
-#endif  
+
+#endif /* __BTRFS_QGROUP__ */

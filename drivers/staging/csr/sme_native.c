@@ -35,6 +35,7 @@ uf_sme_init(unifi_priv_t *priv)
     return 0;
 } /* uf_sme_init() */
 
+
 void
 uf_sme_deinit(unifi_priv_t *priv)
 {
@@ -50,6 +51,7 @@ uf_sme_deinit(unifi_priv_t *priv)
 #endif
 
 } /* uf_sme_deinit() */
+
 
 int sme_mgt_wifi_on(unifi_priv_t *priv)
 {
@@ -115,6 +117,7 @@ int sme_mgt_wifi_on(unifi_priv_t *priv)
                       "sme_mgt_wifi_on: unifi_configure_low_power_mode() returned an error\n");
     }
 
+
     /* Start the I/O thread */
     CsrSdioClaim(priv->sdio);
     r = uf_init_bh(priv);
@@ -156,6 +159,7 @@ sme_sys_suspend(unifi_priv_t *priv)
     return 0;
 } /* sme_sys_suspend() */
 
+
 int
 sme_sys_resume(unifi_priv_t *priv)
 {
@@ -168,6 +172,7 @@ sme_sys_resume(unifi_priv_t *priv)
 #endif
     return 0;
 } /* sme_sys_resume() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -318,6 +323,7 @@ sme_native_log_event(ul_client_t *pcli,
 
 } /* sme_native_log_event() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  unifi_ta_indicate_protocol
@@ -367,6 +373,7 @@ unifi_ta_indicate_sampling(void *ospriv, CsrWifiRouterCtrlTrafficStats *stats)
 
 } /* unifi_ta_indicate_sampling() */
 
+
 void
 unifi_ta_indicate_l4stats(void *ospriv,
                             u32 rxTcpThroughput,
@@ -403,6 +410,7 @@ uf_native_process_udi_signal(ul_client_t *pcli,
 {
 
 } /* uf_native_process_udi_signal() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -519,6 +527,8 @@ sme_native_mlme_event_handler(ul_client_t *pcli,
 
 } /* sme_native_mlme_event_handler() */
 
+
+
 /*
  * -------------------------------------------------------------------------
  *  unifi_reset_state
@@ -553,3 +563,4 @@ unifi_reset_state(unifi_priv_t *priv, unsigned char *macaddr,
 
     return r;
 } /* unifi_reset_state() */
+

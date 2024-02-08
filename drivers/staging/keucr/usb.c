@@ -32,6 +32,7 @@ static struct usb_device_id eucr_usb_ids [] = {
 };
 MODULE_DEVICE_TABLE (usb, eucr_usb_ids);
 
+
 #ifdef CONFIG_PM
 
 static int eucr_suspend(struct usb_interface *iface, pm_message_t message)
@@ -58,6 +59,7 @@ static int eucr_resume(struct usb_interface *iface)
 
 	if (us->suspend_resume_hook)
 		(us->suspend_resume_hook)(us, US_RESUME);
+
 
 	mutex_unlock(&us->dev_mutex);
 

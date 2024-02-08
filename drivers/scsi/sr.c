@@ -60,6 +60,7 @@
 #include "scsi_logging.h"
 #include "sr.h"
 
+
 MODULE_DESCRIPTION("SCSI cdrom (sr) driver");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS_BLOCKDEV_MAJOR(SCSI_CDROM_MAJOR);
@@ -486,6 +487,7 @@ static int sr_prep_fn(struct request_queue *q, struct request *rq)
 
 	this_count = (scsi_bufflen(SCpnt) >> 9) / (s_size >> 9);
 
+
 	SCSI_LOG_HLQUEUE(2, printk("%s : %s %d/%u 512 byte blocks.\n",
 				cd->cdi.name,
 				(rq_data_dir(rq) == WRITE) ?
@@ -766,6 +768,7 @@ fail:
 	return error;
 }
 
+
 static void get_sectorsize(struct scsi_cd *cd)
 {
 	unsigned char cmd[10];
@@ -787,6 +790,7 @@ static void get_sectorsize(struct scsi_cd *cd)
 		retries--;
 
 	} while (the_result && retries);
+
 
 	if (the_result) {
 		cd->capacity = 0x1fffff;
@@ -851,6 +855,7 @@ static void get_capabilities(struct scsi_cd *cd)
 	unsigned char *buffer;
 	struct scsi_mode_data data;
 	struct scsi_sense_hdr sshdr;
+	unsigned int ms_len = 128;
 	int rc, n;
 
 	static const char *loadmech[] =
@@ -865,6 +870,7 @@ static void get_capabilities(struct scsi_cd *cd)
 		""
 	};
 
+
 	/* allocate transfer buffer */
 	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
 	if (!buffer) {
@@ -876,10 +882,11 @@ static void get_capabilities(struct scsi_cd *cd)
 	scsi_test_unit_ready(cd->device, SR_TIMEOUT, MAX_RETRIES, &sshdr);
 
 	/* ask for mode page 0x2a */
-	rc = scsi_mode_sense(cd->device, 0, 0x2a, buffer, 128,
+	rc = scsi_mode_sense(cd->device, 0, 0x2a, buffer, ms_len,
 			     SR_TIMEOUT, 3, &data, NULL);
 
-	if (!scsi_status_is_good(rc)) {
+	if (!scsi_status_is_good(rc) || data.length > ms_len ||
+	    data.header_length + data.block_descriptor_length > data.length) {
 		/* failed, drive doesn't have capabilities mode page */
 		cd->cdi.speed = 1;
 		cd->cdi.mask |= (CDC_CD_R | CDC_CD_RW | CDC_DVD_R |

@@ -36,3 +36,4 @@
 int  ircomm_open_tsap(struct ircomm_cb *self);
 
 #endif
+

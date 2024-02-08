@@ -84,6 +84,7 @@ void __init qnap_tsx1x_register_flash(void)
 	kirkwood_spi_init();
 }
 
+
 /*****************************************************************************
  * QNAP TS-x1x specific power off method via UART1-attached PIC
  ****************************************************************************/
@@ -109,3 +110,4 @@ void qnap_tsx1x_power_off(void)
 	/* send the power-off command 'A' to PIC */
 	writel('A', UART1_REG(TX));
 }
+

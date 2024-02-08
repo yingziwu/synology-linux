@@ -72,6 +72,7 @@ struct sctp_ulpq *sctp_ulpq_init(struct sctp_ulpq *ulpq,
 	return ulpq;
 }
 
+
 /* Flush the reassembly and ordering queues.  */
 void sctp_ulpq_flush(struct sctp_ulpq *ulpq)
 {
@@ -400,6 +401,7 @@ static struct sctp_ulpevent *sctp_make_reassembled_event(struct net *net,
 	return event;
 }
 
+
 /* Helper function to check if an incoming chunk has filled up the last
  * missing fragment in a SCTP datagram and return the corresponding event.
  */
@@ -578,6 +580,7 @@ done:
 	return retval;
 }
 
+
 /* Helper function to reassemble chunks.  Hold chunks on the reasm queue that
  * need reassembling.
  */
@@ -745,6 +748,7 @@ static void sctp_ulpq_reasm_drain(struct sctp_ulpq *ulpq)
 	}
 }
 
+
 /* Helper function to gather skbs that have possibly become
  * ordered by an an incoming chunk.
  */
@@ -833,6 +837,7 @@ static void sctp_ulpq_store_ordered(struct sctp_ulpq *ulpq,
 		if (csid == sid && SSN_lt(ssn, cssn))
 			break;
 	}
+
 
 	/* Insert before pos. */
 	__skb_queue_before(&ulpq->lobby, pos, sctp_event2skb(event));
@@ -1111,6 +1116,8 @@ void sctp_ulpq_renege(struct sctp_ulpq *ulpq, struct sctp_chunk *chunk,
 
 	sk_mem_reclaim(asoc->base.sk);
 }
+
+
 
 /* Notify the application if an association is aborted and in
  * partial delivery mode.  Send up any pending received messages.

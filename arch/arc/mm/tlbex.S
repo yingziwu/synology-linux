@@ -76,6 +76,7 @@ ex_saved_reg1:
 ; In bizzare scenrios SW and HW ASID can get out-of-sync which is trouble.
 ; So we try to detect this in TLB Mis shandler
 
+
 .macro DBG_ASID_MISMATCH
 
 #ifdef CONFIG_ARC_DBG_TLB_PARANOIA

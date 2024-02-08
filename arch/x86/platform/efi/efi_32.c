@@ -38,6 +38,7 @@
  * say 0 - 3G.
  */
 
+
 void efi_call_phys_prelog(void)
 {
 	struct desc_ptr gdt_descr;

@@ -152,6 +152,7 @@ const struct xfs_buf_ops xfs_dir3_free_buf_ops = {
 	.verify_write = xfs_dir3_free_write_verify,
 };
 
+
 static int
 __xfs_dir3_free_read(
 	struct xfs_trans	*tp,
@@ -190,6 +191,7 @@ xfs_dir2_free_try_read(
 {
 	return __xfs_dir3_free_read(tp, dp, fbno, -2, bpp);
 }
+
 
 void
 xfs_dir3_free_hdr_from_disk(

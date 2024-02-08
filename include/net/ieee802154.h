@@ -58,6 +58,7 @@
 #define IEEE802154_FC_DAMODE(x)		\
 	(((x) & IEEE802154_FC_DAMODE_MASK) >> IEEE802154_FC_DAMODE_SHIFT)
 
+
 /* MAC footer size */
 #define IEEE802154_MFR_SIZE	2 /* 2 octets */
 
@@ -159,4 +160,7 @@ enum {
 	IEEE802154_SCAN_IN_PROGRESS = 0xfc,
 };
 
+
 #endif
+
+

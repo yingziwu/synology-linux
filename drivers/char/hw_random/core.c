@@ -30,6 +30,7 @@
 
  */
 
+
 #include <linux/device.h>
 #include <linux/hw_random.h>
 #include <linux/module.h>
@@ -42,9 +43,11 @@
 #include <linux/slab.h>
 #include <asm/uaccess.h>
 
+
 #define RNG_MODULE_NAME		"hw_random"
 #define PFX			RNG_MODULE_NAME ": "
 #define RNG_MISCDEV_MINOR	183 /* official */
+
 
 static struct hwrng *current_rng;
 static LIST_HEAD(rng_list);
@@ -166,6 +169,7 @@ out_unlock:
 	goto out;
 }
 
+
 static const struct file_operations rng_chrdev_ops = {
 	.owner		= THIS_MODULE,
 	.open		= rng_dev_open,
@@ -179,6 +183,7 @@ static struct miscdevice rng_miscdev = {
 	.nodename	= "hwrng",
 	.fops		= &rng_chrdev_ops,
 };
+
 
 static ssize_t hwrng_attr_current_store(struct device *dev,
 					struct device_attribute *attr,
@@ -261,6 +266,7 @@ static DEVICE_ATTR(rng_current, S_IRUGO | S_IWUSR,
 static DEVICE_ATTR(rng_available, S_IRUGO,
 		   hwrng_attr_available_show,
 		   NULL);
+
 
 static void unregister_miscdev(void)
 {

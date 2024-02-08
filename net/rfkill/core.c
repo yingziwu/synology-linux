@@ -91,10 +91,12 @@ struct rfkill_data {
 	bool			input_handler;
 };
 
+
 MODULE_AUTHOR("Ivo van Doorn <IvDoorn@gmail.com>");
 MODULE_AUTHOR("Johannes Berg <johannes@sipsolutions.net>");
 MODULE_DESCRIPTION("RF switch support");
 MODULE_LICENSE("GPL");
+
 
 /*
  * The locking here should be made much smarter, we currently have
@@ -121,6 +123,7 @@ static struct {
 } rfkill_global_states[NUM_RFKILL_TYPES];
 
 static bool rfkill_epo_lock_active;
+
 
 #ifdef CONFIG_RFKILL_LEDS
 static void rfkill_led_trigger_event(struct rfkill *rfkill)
@@ -467,6 +470,7 @@ bool rfkill_get_global_sw_state(const enum rfkill_type type)
 	return rfkill_global_states[type].cur;
 }
 #endif
+
 
 bool rfkill_set_hw_state(struct rfkill *rfkill, bool blocked)
 {
@@ -844,6 +848,7 @@ bool rfkill_blocked(struct rfkill *rfkill)
 	return !!(state & RFKILL_BLOCK_ANY);
 }
 EXPORT_SYMBOL(rfkill_blocked);
+
 
 struct rfkill * __must_check rfkill_alloc(const char *name,
 					  struct device *parent,

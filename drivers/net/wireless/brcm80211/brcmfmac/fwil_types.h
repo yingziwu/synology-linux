@@ -14,10 +14,12 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 #ifndef FWIL_TYPES_H_
 #define FWIL_TYPES_H_
 
 #include <linux/if_ether.h>
+
 
 #define BRCMF_FIL_ACTION_FRAME_SIZE	1800
 
@@ -26,6 +28,7 @@
 #define BRCMF_ARP_OL_SNOOP		0x00000002
 #define BRCMF_ARP_OL_HOST_AUTO_REPLY	0x00000004
 #define BRCMF_ARP_OL_PEER_AUTO_REPLY	0x00000008
+
 
 enum brcmf_fil_p2p_if_types {
 	BRCMF_FIL_P2P_IF_CLIENT,

@@ -378,6 +378,7 @@ enum brcmf_fws_hanger_item_state {
 	BRCMF_FWS_HANGER_ITEM_STATE_INUSE_SUPPRESSED
 };
 
+
 /**
  * struct brcmf_fws_hanger_item - single entry for tx pending packet.
  *
@@ -1678,6 +1679,7 @@ brcmf_fws_rollback_toq(struct brcmf_fws_info *fws, struct sk_buff *skb)
 		brcmf_err("no mac entry linked\n");
 		rc = -ENOENT;
 	}
+
 
 fail:
 	if (rc) {

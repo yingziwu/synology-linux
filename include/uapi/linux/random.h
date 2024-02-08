@@ -46,4 +46,5 @@ struct rnd_state {
 
 /* Exported functions */
 
+
 #endif /* _UAPI_LINUX_RANDOM_H */

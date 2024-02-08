@@ -337,6 +337,7 @@ void module_update_tracepoints(void)
 }
 #endif /* CONFIG_MODULES */
 
+
 /*
  * Update probes, removing the faulty probes.
  * Called with tracepoints_mutex held.

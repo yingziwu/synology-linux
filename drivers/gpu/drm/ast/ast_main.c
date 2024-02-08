@@ -28,6 +28,7 @@
 #include <drm/drmP.h>
 #include "ast_drv.h"
 
+
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_crtc_helper.h>
 
@@ -60,6 +61,7 @@ uint8_t ast_get_index_reg_mask(struct ast_private *ast,
 	ret = ast_io_read8(ast, base + 1) & mask;
 	return ret;
 }
+
 
 static int ast_detect_chip(struct drm_device *dev)
 {
@@ -114,10 +116,12 @@ static int ast_get_dram_info(struct drm_device *dev)
 	ast_write32(ast, 0xf004, 0x1e6e0000);
 	ast_write32(ast, 0xf000, 0x1);
 
+
 	ast_write32(ast, 0x10000, 0xfc600309);
 
 	do {
-		;
+		if (pci_channel_offline(dev->pdev))
+			return -EIO;
 	} while (ast_read32(ast, 0x10000) != 0x01);
 	data = ast_read32(ast, 0x10004);
 
@@ -247,6 +251,7 @@ static const struct drm_framebuffer_funcs ast_fb_funcs = {
 	.destroy = ast_user_framebuffer_destroy,
 };
 
+
 int ast_framebuffer_init(struct drm_device *dev,
 			 struct ast_framebuffer *ast_fb,
 			 struct drm_mode_fb_cmd2 *mode_cmd,
@@ -339,7 +344,9 @@ int ast_driver_load(struct drm_device *dev, unsigned long flags)
 	ast_detect_chip(dev);
 
 	if (ast->chip != AST1180) {
-		ast_get_dram_info(dev);
+		ret = ast_get_dram_info(dev);
+		if (ret)
+			goto out_free;
 		ast->vram_size = ast_get_vram_info(dev);
 		DRM_INFO("dram %d %d %d %08x\n", ast->mclk, ast->dram_type, ast->dram_bus_width, ast->vram_size);
 	}
@@ -481,6 +488,7 @@ void ast_gem_free_object(struct drm_gem_object *obj)
 	ast_bo_unref(&ast_bo);
 }
 
+
 static inline u64 ast_bo_mmap_offset(struct ast_bo *bo)
 {
 	return bo->bo.addr_space_offset;
@@ -512,3 +520,4 @@ out_unlock:
 	return ret;
 
 }
+

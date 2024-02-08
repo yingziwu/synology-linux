@@ -34,6 +34,7 @@
 
 #define NUM_PINS	11
 
+
 /* board config type */
 enum {
 	CMI_MINIMAL,	/* back 3-jack */
@@ -459,6 +460,7 @@ static int cmi9880_capture_pcm_cleanup(struct hda_pcm_stream *hinfo,
 	snd_hda_codec_cleanup_stream(codec, spec->adc_nids[substream->number]);
 	return 0;
 }
+
 
 /*
  */

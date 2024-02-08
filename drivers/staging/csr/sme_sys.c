@@ -65,6 +65,7 @@ void send_auto_ma_packet_confirm(unifi_priv_t *priv,
     u8 sigbuf[UNIFI_PACKED_SIGBUF_SIZE];
     u16 packed_siglen;
 
+
     list_for_each_safe(listHead, placeHolder, buffered_frames_list)
     {
         buffered_frame_item = list_entry(listHead, tx_buffered_packets_t, q);
@@ -264,6 +265,7 @@ void CsrWifiRouterCtrlMediaStatusReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
         }
     }
 }
+
 
 void CsrWifiRouterCtrlHipReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -653,6 +655,7 @@ configure_data_port(unifi_priv_t *priv,
     return 0;
 } /* configure_data_port() */
 
+
 void CsrWifiRouterCtrlPortConfigureReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     unifi_priv_t *priv = (unifi_priv_t*)drvpriv;
@@ -713,6 +716,7 @@ void CsrWifiRouterCtrlPortConfigureReqHandler(void* drvpriv, CsrWifiFsmEvent* ms
                                       CSR_RESULT_SUCCESS, req->macAddress);
     unifi_trace(priv, UDBG3, "leaving CsrWifiRouterCtrlPortConfigureReqHandler\n");
 }
+
 
 void CsrWifiRouterCtrlWifiOnReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -823,6 +827,7 @@ void CsrWifiRouterCtrlWifiOnReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     priv->CSR_WIFI_SME_IFACEQUEUE = msg->source;
     CSR_WIFI_SME_IFACEQUEUE = msg->source;
 
+
     /* Copy to the unifiio_card_info structure. */
     versions.chipId = priv->card_info.chip_id;
     versions.chipVersion = priv->card_info.chip_version;
@@ -837,6 +842,7 @@ void CsrWifiRouterCtrlWifiOnReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     priv->wifi_on_state = wifi_on_done;
 }
 
+
 /*
  * wifi_off:
  *      Common code for CsrWifiRouterCtrlWifiOffReqHandler() and
@@ -849,6 +855,7 @@ wifi_off(unifi_priv_t *priv)
     int priv_instance;
     int i;
     CsrResult csrResult;
+
 
     /* Already off? */
     if (priv->wifi_on_state == wifi_on_unspecified) {
@@ -922,7 +929,9 @@ wifi_off(unifi_priv_t *priv)
     priv->init_progress = UNIFI_INIT_NONE;
     priv->wifi_on_state = wifi_on_unspecified;
 
+
 } /* wifi_off() */
+
 
 void CsrWifiRouterCtrlWifiOffReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -962,6 +971,7 @@ void CsrWifiRouterCtrlWifiOffReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
      */
 }
 
+
 void CsrWifiRouterCtrlQosControlReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     unifi_priv_t *priv = (unifi_priv_t*)drvpriv;
@@ -998,6 +1008,7 @@ void CsrWifiRouterCtrlQosControlReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     }
 }
 
+
 void CsrWifiRouterCtrlTclasAddReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     unifi_priv_t *priv = (unifi_priv_t*)drvpriv;
@@ -1024,6 +1035,7 @@ void CsrWifiRouterCtrlTclasDelReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     CsrWifiRouterCtrlTclasDelCfmSend(msg->source, req->clientData, req->interfaceTag, CSR_RESULT_SUCCESS);
 }
 
+
 void CsrWifiRouterCtrlConfigurePowerModeReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     unifi_priv_t *priv = (unifi_priv_t*)drvpriv;
@@ -1048,6 +1060,7 @@ void CsrWifiRouterCtrlConfigurePowerModeReqHandler(void* drvpriv, CsrWifiFsmEven
     csrResult = unifi_configure_low_power_mode(priv->card, pm,
                                                (req->wakeHost ? UNIFI_PERIODIC_WAKE_HOST_ENABLED : UNIFI_PERIODIC_WAKE_HOST_DISABLED));
 }
+
 
 void CsrWifiRouterCtrlWifiOnResHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -1179,13 +1192,16 @@ void CsrWifiRouterCtrlWifiOnResHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     }
 }
 
+
 void CsrWifiRouterCtrlWifiOffResHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 }
 
+
 void CsrWifiRouterCtrlMulticastAddressResHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
 }
+
 
 void CsrWifiRouterMaPacketSubscribeReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -1226,6 +1242,7 @@ void CsrWifiRouterMaPacketSubscribeReqHandler(void* drvpriv, CsrWifiFsmEvent* ms
     CsrWifiRouterMaPacketSubscribeCfmSend(msg->source,req->interfaceTag, i, result, 0);
 }
 
+
 void CsrWifiRouterMaPacketUnsubscribeReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     unifi_priv_t *priv = (unifi_priv_t*)drvpriv;
@@ -1254,6 +1271,7 @@ void CsrWifiRouterMaPacketUnsubscribeReqHandler(void* drvpriv, CsrWifiFsmEvent* 
     CsrWifiRouterMaPacketUnsubscribeCfmSend(msg->source,req->interfaceTag, result);
 }
 
+
 void CsrWifiRouterCtrlCapabilitiesReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     unifi_priv_t *priv = (unifi_priv_t*)drvpriv;
@@ -1269,6 +1287,7 @@ void CsrWifiRouterCtrlCapabilitiesReqHandler(void* drvpriv, CsrWifiFsmEvent* msg
             UNIFI_SOFT_TRAFFIC_Q_LENGTH - 1);
 }
 
+
 void CsrWifiRouterCtrlSuspendResHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     unifi_priv_t *priv = (unifi_priv_t*)drvpriv;
@@ -1282,6 +1301,7 @@ void CsrWifiRouterCtrlSuspendResHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     sme_complete_request(priv, res->status);
 }
 
+
 void CsrWifiRouterCtrlResumeResHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     unifi_priv_t *priv = (unifi_priv_t*)drvpriv;
@@ -1294,6 +1314,7 @@ void CsrWifiRouterCtrlResumeResHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 
     sme_complete_request(priv, res->status);
 }
+
 
 void CsrWifiRouterCtrlTrafficConfigReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
@@ -1758,6 +1779,7 @@ void CsrWifiRouterCtrlInterfaceReset(unifi_priv_t *priv, u16 interfaceTag)
     interfacePriv->sta_activity_check_enabled = FALSE;
 }
 
+
 void CsrWifiRouterCtrlModeSetReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     unifi_priv_t *priv = (unifi_priv_t*)drvpriv;
@@ -1961,6 +1983,7 @@ static int peer_delete_record(unifi_priv_t *priv, CsrWifiRouterCtrlPeerDelReq *r
             update_tim(priv,staInfo->aid,0,req->interfaceTag, req->peerRecordHandle);
         }
 
+
         /* Stop BA session if it is active, for this peer address all BA sessions
         (per tID per role) are closed */
 
@@ -2021,6 +2044,7 @@ static int peer_delete_record(unifi_priv_t *priv, CsrWifiRouterCtrlPeerDelReq *r
         /* after the critical region process the list of frames that requested cfm
         and send cfm to requestor one by one */
         send_auto_ma_packet_confirm(priv, interfacePriv, &send_cfm_list);
+
 
     }
     else
@@ -2190,6 +2214,7 @@ static int peer_add_new_record(unifi_priv_t *priv,CsrWifiRouterCtrlPeerAddReq *r
                 configure_data_port(priv, CSR_WIFI_ROUTER_CTRL_PORT_ACTION_8021X_PORT_CLOSED_DISCARD, &newRecord->peerMacAddress,
                                     UF_CONTROLLED_PORT_Q, req->interfaceTag);
             }
+
 
             spin_lock_irqsave(&priv->staRecord_lock,lock_flags);
             /* Port status must be already set before calling the Add Peer request */
@@ -2377,6 +2402,7 @@ static void check_inactivity_timer_expire_func(unsigned long data)
 
 }
 
+
 void uf_send_disconnected_ind_wq(struct work_struct *work)
 {
 
@@ -2439,8 +2465,10 @@ void uf_send_disconnected_ind_wq(struct work_struct *work)
                                       staInfo->peerMacAddress,
                                       CSR_WIFI_ROUTER_CTRL_PEER_DISCONNECTED);
 
+
     return;
 }
+
 
 #endif
 void CsrWifiRouterCtrlPeerAddReqHandler(void* drvpriv,CsrWifiFsmEvent* msg)
@@ -2502,6 +2530,7 @@ void CsrWifiRouterCtrlPeerUpdateReqHandler(void* drvpriv,CsrWifiFsmEvent* msg)
     unifi_trace(priv, UDBG2, "leaving CsrWifiRouterCtrlPeerUpdateReqHandler \n");
 }
 
+
  void CsrWifiRouterCtrlRawSdioDeinitialiseReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     /* This will never be called as it is intercepted in the Userspace */
@@ -2555,6 +2584,7 @@ uf_send_ba_err_wq(struct work_struct *work)
                     CSR_RESULT_SUCCESS);
 }
 
+
 static void ba_session_terminate_timer_func(unsigned long data)
 {
     ba_session_rx_struct *ba_session = (ba_session_rx_struct*)data;
@@ -2577,6 +2607,7 @@ static void ba_session_terminate_timer_func(unsigned long data)
 
     queue_work(priv->unifi_workqueue, &ba_session->send_ba_err_task);
 }
+
 
 u8 blockack_session_stop(unifi_priv_t *priv,
                                      u16 interfaceTag,
@@ -2635,6 +2666,7 @@ u8 blockack_session_stop(unifi_priv_t *priv,
             return FALSE;
         }
 
+
         if(ba_session_rx->timeout) {
             del_timer_sync(&ba_session_rx->timer);
         }
@@ -2671,6 +2703,7 @@ u8 blockack_session_stop(unifi_priv_t *priv,
     return TRUE;
 }
 
+
 void CsrWifiRouterCtrlBlockAckDisableReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
 {
     CsrWifiRouterCtrlBlockAckDisableReq* req = (CsrWifiRouterCtrlBlockAckDisableReq*)msg;
@@ -2695,6 +2728,7 @@ void CsrWifiRouterCtrlBlockAckDisableReqHandler(void* drvpriv, CsrWifiFsmEvent* 
     unifi_trace(priv, UDBG6, "%s: out ok\n", __FUNCTION__);
 }
 
+
 u8 blockack_session_start(unifi_priv_t *priv,
                                u16 interfaceTag,
                                u16 tID,
@@ -2709,6 +2743,7 @@ u8 blockack_session_start(unifi_priv_t *priv,
     ba_session_rx_struct *ba_session_rx = NULL;
     ba_session_tx_struct *ba_session_tx = NULL;
     u8 ba_session_idx = 0;
+
 
     if (interfaceTag >= CSR_WIFI_NUM_INTERFACES) {
         unifi_error(priv, "%s: bad interfaceTag = %d\n", __FUNCTION__, interfaceTag);
@@ -3026,6 +3061,7 @@ void CsrWifiRouterCtrlWapiRxPktReqHandler(void* drvpriv, CsrWifiFsmEvent* msg)
     if (CSR_WIFI_ROUTER_CTRL_MODE_STA == interfacePriv->interfaceMode) {
 
     	unifi_trace(priv, UDBG6, ">>%s\n", __FUNCTION__);
+
 
         if (req->dataLength == 0 || req->data == NULL) {
              unifi_error(priv, "CsrWifiRouterCtrlWapiRxPktReq: invalid request\n",__FUNCTION__);

@@ -110,3 +110,4 @@ int shpchp_unconfigure_device(struct slot *p_slot)
 	}
 	return rc;
 }
+

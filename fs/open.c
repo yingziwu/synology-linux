@@ -1,7 +1,12 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/fs/open.c
+ *
+ *  Copyright (C) 1991, 1992  Linus Torvalds
+ */
+
 #include <linux/string.h>
 #include <linux/mm.h>
 #include <linux/file.h>
@@ -41,6 +46,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
 	int ret;
 	struct iattr newattrs;
 
+	/* Not pretty: "inode->i_size" shouldn't really be signed. But it is. */
 	if (length < 0)
 		return -EINVAL;
 
@@ -51,6 +57,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
 		newattrs.ia_valid |= ATTR_FILE;
 	}
 
+	/* Remove suid/sgid on truncate too */
 	ret = should_remove_suid(dentry);
 	if (ret)
 		newattrs.ia_valid |= ret | ATTR_FORCE;
@@ -62,7 +69,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
 }
 #ifdef CONFIG_AUFS_FHSM
 EXPORT_SYMBOL(do_truncate);
-#endif  
+#endif /* CONFIG_AUFS_FHSM */
 
 long vfs_truncate(struct path *path, loff_t length)
 {
@@ -71,6 +78,7 @@ long vfs_truncate(struct path *path, loff_t length)
 
 	inode = path->dentry->d_inode;
 
+	/* For directories it's -EISDIR, for other non-regulars - -EINVAL */
 	if (S_ISDIR(inode->i_mode))
 		return -EISDIR;
 	if (!S_ISREG(inode->i_mode))
@@ -97,6 +105,10 @@ long vfs_truncate(struct path *path, loff_t length)
 	if (error)
 		goto mnt_drop_write_and_out;
 
+	/*
+	 * Make sure that there are no leases.  get_write_access() protects
+	 * against the truncate racing with a lease-granting setlease().
+	 */
 	error = break_lease(inode, O_WRONLY);
 	if (error)
 		goto put_write_and_out;
@@ -116,13 +128,21 @@ out:
 }
 EXPORT_SYMBOL_GPL(vfs_truncate);
 
+#ifdef MY_ABC_HERE
+long syno_vfs_truncate(struct path *path, loff_t length)
+{
+	return vfs_truncate(path, length);
+}
+EXPORT_SYMBOL(syno_vfs_truncate);
+#endif
+
 static long do_sys_truncate(const char __user *pathname, loff_t length)
 {
 	unsigned int lookup_flags = LOOKUP_FOLLOW;
 	struct path path;
 	int error;
 
-	if (length < 0)	 
+	if (length < 0)	/* sorry, but loff_t says... */
 		return -EINVAL;
 
 retry:
@@ -165,6 +185,7 @@ static long do_sys_ftruncate(unsigned int fd, loff_t length, int small)
 	if (!f.file)
 		goto out;
 
+	/* explicitly opened as large or we are on 64-bit box */
 	if (f.file->f_flags & O_LARGEFILE)
 		small = 0;
 
@@ -175,7 +196,7 @@ static long do_sys_ftruncate(unsigned int fd, loff_t length, int small)
 		goto out_putf;
 
 	error = -EINVAL;
-	 
+	/* Cannot ftruncate over 2^31 bytes without large file support */
 	if (small && length > MAX_NON_LFS)
 		goto out_putf;
 
@@ -208,6 +229,7 @@ COMPAT_SYSCALL_DEFINE2(ftruncate, unsigned int, fd, compat_ulong_t, length)
 }
 #endif
 
+/* LFS versions of truncate are only needed on 32 bit machines */
 #if BITS_PER_LONG == 32
 SYSCALL_DEFINE2(truncate64, const char __user *, path, loff_t, length)
 {
@@ -218,7 +240,8 @@ SYSCALL_DEFINE2(ftruncate64, unsigned int, fd, loff_t, length)
 {
 	return do_sys_ftruncate(fd, length, 0);
 }
-#endif  
+#endif /* BITS_PER_LONG == 32 */
+
 
 int do_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
 {
@@ -228,32 +251,35 @@ int do_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
 	if (offset < 0 || len <= 0)
 		return -EINVAL;
 
+	/* Return error if mode is not supported */
+#ifdef MY_ABC_HERE
 	if (mode & ~(FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE |
-		     FALLOC_FL_COLLAPSE_RANGE | FALLOC_FL_ZERO_RANGE))
+	             FALLOC_FL_MARK_WRITTEN))
 		return -EOPNOTSUPP;
-
-	if ((mode & (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE)) ==
-	    (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE))
+#else
+	if (mode & ~(FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
 		return -EOPNOTSUPP;
+#endif /* MY_ABC_HERE */
 
+	/* Punch hole must have keep size set */
 	if ((mode & FALLOC_FL_PUNCH_HOLE) &&
 	    !(mode & FALLOC_FL_KEEP_SIZE))
 		return -EOPNOTSUPP;
 
-	if ((mode & FALLOC_FL_COLLAPSE_RANGE) &&
-	    (mode & ~FALLOC_FL_COLLAPSE_RANGE))
-		return -EINVAL;
-
 	if (!(file->f_mode & FMODE_WRITE))
 		return -EBADF;
 
-	if (mode & (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_COLLAPSE_RANGE)
-	    && IS_APPEND(inode))
+	/* It's not possible punch hole on append only file */
+	if (mode & FALLOC_FL_PUNCH_HOLE && IS_APPEND(inode))
 		return -EPERM;
 
 	if (IS_IMMUTABLE(inode))
 		return -EPERM;
 
+	/*
+	 * Revalidate the write permissions, in case security policy has
+	 * changed since the files were opened.
+	 */
 	ret = security_file_permission(file, MAY_WRITE);
 	if (ret)
 		return ret;
@@ -261,15 +287,16 @@ int do_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
 	if (S_ISFIFO(inode->i_mode))
 		return -ESPIPE;
 
-	if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode) && !S_ISBLK(inode->i_mode))
+	/*
+	 * Let individual file system decide if it supports preallocation
+	 * for directories or not.
+	 */
+	if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode))
 		return -ENODEV;
 
+	/* Check for wrap through zero too */
 	if (((offset + len) > inode->i_sb->s_maxbytes) || ((offset + len) < 0))
 		return -EFBIG;
-
-	if ((mode & FALLOC_FL_COLLAPSE_RANGE) &&
-	    (offset + len >= i_size_read(inode)))
-		return -EINVAL;
 
 	if (!file->f_op->fallocate)
 		return -EOPNOTSUPP;
@@ -294,8 +321,13 @@ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
 
 #if defined(MY_ABC_HERE) || defined(CONFIG_AUFS_FHSM)
 EXPORT_SYMBOL(do_fallocate);
-#endif  
+#endif /* MY_ABC_HERE || CONFIG_AUFS_FHSM */
 
+/*
+ * access() needs to use the real uid/gid, not the effective uid/gid.
+ * We do this by temporarily clearing all FS-related capabilities and
+ * switching the fsuid/fsgid around to the real ones.
+ */
 SYSCALL_DEFINE3(faccessat, int, dfd, const char __user *, filename, int, mode)
 {
 	const struct cred *old_cred;
@@ -305,7 +337,7 @@ SYSCALL_DEFINE3(faccessat, int, dfd, const char __user *, filename, int, mode)
 	int res;
 	unsigned int lookup_flags = LOOKUP_FOLLOW;
 
-	if (mode & ~S_IRWXO)	 
+	if (mode & ~S_IRWXO)	/* where's F_OK, X_OK, W_OK, R_OK? */
 		return -EINVAL;
 
 	override_cred = prepare_creds();
@@ -316,7 +348,7 @@ SYSCALL_DEFINE3(faccessat, int, dfd, const char __user *, filename, int, mode)
 	override_cred->fsgid = override_cred->gid;
 
 	if (!issecure(SECURE_NO_SETUID_FIXUP)) {
-		 
+		/* Clear the capabilities if we switch to a non-root user */
 		kuid_t root_uid = make_kuid(override_cred->user_ns, 0);
 		if (!uid_eq(override_cred->uid, root_uid))
 			cap_clear(override_cred->cap_effective);
@@ -334,7 +366,10 @@ retry:
 	inode = path.dentry->d_inode;
 
 	if ((mode & MAY_EXEC) && S_ISREG(inode->i_mode)) {
-		 
+		/*
+		 * MAY_EXEC on regular files is denied if the fs is mounted
+		 * with the "noexec" flag.
+		 */
 		res = -EACCES;
 		if (path.mnt->mnt_flags & MNT_NOEXEC)
 			goto out_path_release;
@@ -346,10 +381,19 @@ retry:
 	} else
 #endif
 	res = inode_permission(inode, mode | MAY_ACCESS);
-	 
+	/* SuS v2 requires we report a read only fs too */
 	if (res || !(mode & S_IWOTH) || special_file(inode->i_mode))
 		goto out_path_release;
-	 
+	/*
+	 * This is a rare case where using __mnt_is_readonly()
+	 * is OK without a mnt_want/drop_write() pair.  Since
+	 * no actual write to the fs is performed here, we do
+	 * not need to telegraph to that to anyone.
+	 *
+	 * By doing this, we accept that this access is
+	 * inherently racy and know that the fs may change
+	 * state before we even see this result.
+	 */
 	if (__mnt_is_readonly(path.mnt))
 		res = -EROFS;
 
@@ -428,7 +472,7 @@ SYSCALL_DEFINE1(fchdir, unsigned int, fd)
 	if (IS_SYNOACL(f.file->f_path.dentry)) {
 		error = synoacl_op_perm(f.file->f_path.dentry, MAY_EXEC);
 	} else
-#endif  
+#endif /* MY_ABC_HERE */
 	error = inode_permission(inode, MAY_EXEC | MAY_CHDIR);
 	if (!error)
 		set_fs_pwd(current->fs, &f.file->f_path);
@@ -445,7 +489,7 @@ SYSCALL_DEFINE1(chroot, const char __user *, filename)
 	unsigned int lookup_flags = LOOKUP_FOLLOW | LOOKUP_DIRECTORY;
 #ifdef MY_ABC_HERE
 	struct inode *inode;
-#endif  
+#endif /* MY_ABC_HERE */
 retry:
 	error = user_path_at(AT_FDCWD, filename, lookup_flags, &path);
 	if (error)
@@ -460,7 +504,7 @@ retry:
 	}
 #else
 	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
-#endif  
+#endif /* MY_ABC_HERE */
 	if (error)
 		goto dput_and_out;
 
@@ -641,6 +685,12 @@ out:
 	return error;
 }
 
+/*
+ * You have to be very careful that these write
+ * counts get cleaned up in error cases and
+ * upon __fput().  This should probably never
+ * be called outside of __dentry_open().
+ */
 static inline int __get_file_write_access(struct inode *inode,
 					  struct vfsmount *mnt)
 {
@@ -655,7 +705,7 @@ static inline int __get_file_write_access(struct inode *inode,
 
 int open_check_o_direct(struct file *f)
 {
-	 
+	/* NB: we're sure to have correct a_ops only after f_op->open */
 	if (f->f_flags & O_DIRECT) {
 		if (!f->f_mapping->a_ops ||
 		    ((!f->f_mapping->a_ops->direct_IO) &&
@@ -692,7 +742,11 @@ static int do_dentry_open(struct file *f,
 	f->f_mapping = inode->i_mapping;
 	file_sb_list_add(f, inode->i_sb);
 
+#ifdef MY_ABC_HERE
+	if (unlikely(f->f_mode & FMODE_PATH && !S_ISLNK(inode->i_mode))) {
+#else
 	if (unlikely(f->f_mode & FMODE_PATH)) {
+#endif
 		f->f_op = &empty_fops;
 		return 0;
 	}
@@ -736,7 +790,12 @@ cleanup_all:
 	file_sb_list_del(f);
 	if (f->f_mode & FMODE_WRITE) {
 		if (!special_file(inode->i_mode)) {
-			 
+			/*
+			 * We don't consider this a real
+			 * mnt_want/drop_write() pair
+			 * because it all happenend right
+			 * here, so just reset the state.
+			 */
 			put_write_access(inode);
 			file_reset_write(f);
 			__mnt_drop_write(f->f_path.mnt);
@@ -750,12 +809,23 @@ cleanup_file:
 	return error;
 }
 
+/**
+ * finish_open - finish opening a file
+ * @od: opaque open data
+ * @dentry: pointer to dentry
+ * @open: open callback
+ *
+ * This can be used to finish opening a file passed to i_op->atomic_open().
+ *
+ * If the open callback is set to NULL, then the standard f_op->open()
+ * filesystem callback is substituted.
+ */
 int finish_open(struct file *file, struct dentry *dentry,
 		int (*open)(struct inode *, struct file *),
 		int *opened)
 {
 	int error;
-	BUG_ON(*opened & FILE_OPENED);  
+	BUG_ON(*opened & FILE_OPENED); /* once it's opened, it's opened */
 
 	file->f_path.dentry = dentry;
 	error = do_dentry_open(file, open, current_cred());
@@ -766,6 +836,15 @@ int finish_open(struct file *file, struct dentry *dentry,
 }
 EXPORT_SYMBOL(finish_open);
 
+/**
+ * finish_no_open - finish ->atomic_open() without opening the file
+ *
+ * @od: opaque open data
+ * @dentry: dentry or NULL (as returned from ->lookup())
+ *
+ * This can be used to set the result of a successful lookup in ->atomic_open().
+ * The filesystem's atomic_open() method shall return NULL after calling this.
+ */
 int finish_no_open(struct file *file, struct dentry *dentry)
 {
 	file->f_path.dentry = dentry;
@@ -781,6 +860,7 @@ struct file *dentry_open(const struct path *path, int flags,
 
 	validate_creds(cred);
 
+	/* We must always pass in a valid mount pointer. */
 	BUG_ON(!path->mnt);
 
 	f = get_empty_filp();
@@ -789,7 +869,7 @@ struct file *dentry_open(const struct path *path, int flags,
 		f->f_path = *path;
 		error = do_dentry_open(f, NULL, cred);
 		if (!error) {
-			 
+			/* from now on we need fput() to dispose of f */
 			error = open_check_o_direct(f);
 			if (error) {
 				fput(f);
@@ -814,11 +894,22 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
 	else
 		op->mode = 0;
 
+	/* Must never be set by userspace */
 	flags &= ~FMODE_NONOTIFY & ~O_CLOEXEC;
 
+	/*
+	 * O_SYNC is implemented as __O_SYNC|O_DSYNC.  As many places only
+	 * check for O_DSYNC if the need any syncing at all we enforce it's
+	 * always set instead of having to deal with possibly weird behaviour
+	 * for malicious applications setting only __O_SYNC.
+	 */
 	if (flags & __O_SYNC)
 		flags |= O_DSYNC;
 
+	/*
+	 * If we have O_PATH in the open flag. Then we
+	 * cannot have anything other than the below set of flags
+	 */
 	if (flags & O_PATH) {
 		flags &= O_DIRECTORY | O_NOFOLLOW | O_PATH;
 		acc_mode = 0;
@@ -828,9 +919,12 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
 
 	op->open_flag = flags;
 
+	/* O_TRUNC implies we need access checks for write permissions */
 	if (flags & O_TRUNC)
 		acc_mode |= MAY_WRITE;
 
+	/* Allow the LSM permission hook to distinguish append
+	   access from general write access. */
 	if (flags & O_APPEND)
 		acc_mode |= MAY_APPEND;
 
@@ -851,6 +945,17 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
 	return lookup_flags;
 }
 
+/**
+ * file_open_name - open file and return file pointer
+ *
+ * @name:	struct filename containing path to open
+ * @flags:	open flags as per the open(2) second argument
+ * @mode:	mode for the new file if O_CREAT is set, else ignored
+ *
+ * This is the helper to open a file from kernelspace if you really
+ * have to.  But in generally you should not do this, so please move
+ * along, nothing to see here..
+ */
 struct file *file_open_name(struct filename *name, int flags, umode_t mode)
 {
 	struct open_flags op;
@@ -858,6 +963,17 @@ struct file *file_open_name(struct filename *name, int flags, umode_t mode)
 	return do_filp_open(AT_FDCWD, name, &op, lookup);
 }
 
+/**
+ * filp_open - open file and return file pointer
+ *
+ * @filename:	path to open
+ * @flags:	open flags as per the open(2) second argument
+ * @mode:	mode for the new file if O_CREAT is set, else ignored
+ *
+ * This is the helper to open a file from kernelspace if you really
+ * have to.  But in generally you should not do this, so please move
+ * along, nothing to see here..
+ */
 struct file *filp_open(const char *filename, int flags, umode_t mode)
 {
 	struct filename name = {.name = filename};
@@ -902,11 +1018,14 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 	}
 	return fd;
 }
+#ifdef MY_ABC_HERE
+EXPORT_SYMBOL(do_sys_open);
+#endif
 
 #ifdef MY_ABC_HERE
 #include <linux/synolib.h>
 extern int syno_hibernation_log_level;
-#endif  
+#endif /* MY_ABC_HERE */
 
 SYSCALL_DEFINE3(open, const char __user *, filename, int, flags, umode_t, mode)
 {
@@ -917,7 +1036,7 @@ SYSCALL_DEFINE3(open, const char __user *, filename, int, flags, umode_t, mode)
 	if(syno_hibernation_log_level > 0) {
 		syno_do_hibernation_filename_log(filename);
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
 	return do_sys_open(AT_FDCWD, filename, flags, mode);
 }
@@ -933,6 +1052,10 @@ SYSCALL_DEFINE4(openat, int, dfd, const char __user *, filename, int, flags,
 
 #ifndef __alpha__
 
+/*
+ * For backward compatibility?  Maybe this should be moved
+ * into arch/i386 instead?
+ */
 SYSCALL_DEFINE2(creat, const char __user *, pathname, umode_t, mode)
 {
 	return sys_open(pathname, O_CREAT | O_WRONLY | O_TRUNC, mode);
@@ -940,6 +1063,10 @@ SYSCALL_DEFINE2(creat, const char __user *, pathname, umode_t, mode)
 
 #endif
 
+/*
+ * "id" is the POSIX thread ID. We use the
+ * files pointer for this..
+ */
 int filp_close(struct file *filp, fl_owner_t id)
 {
 	int retval = 0;
@@ -962,10 +1089,16 @@ int filp_close(struct file *filp, fl_owner_t id)
 
 EXPORT_SYMBOL(filp_close);
 
+/*
+ * Careful here! We test whether the file pointer is NULL before
+ * releasing the fd. This ensures that one clone task can't release
+ * an fd while another clone is opening it.
+ */
 SYSCALL_DEFINE1(close, unsigned int, fd)
 {
 	int retval = __close_fd(current->files, fd);
 
+	/* can't restart close syscall because file table entry was cleared */
 	if (unlikely(retval == -ERESTARTSYS ||
 		     retval == -ERESTARTNOINTR ||
 		     retval == -ERESTARTNOHAND ||
@@ -976,6 +1109,10 @@ SYSCALL_DEFINE1(close, unsigned int, fd)
 }
 EXPORT_SYMBOL(sys_close);
 
+/*
+ * This routine simulates a hangup on the tty, to arrange that users
+ * are given clean terminals at login time.
+ */
 SYSCALL_DEFINE0(vhangup)
 {
 	if (capable(CAP_SYS_TTY_CONFIG)) {
@@ -985,6 +1122,12 @@ SYSCALL_DEFINE0(vhangup)
 	return -EPERM;
 }
 
+/*
+ * Called when an inode is about to be open.
+ * We use this to disallow opening large files on 32bit systems if
+ * the caller didn't specify O_LARGEFILE.  On 64bit systems we force
+ * on this flag in sys_open.
+ */
 int generic_file_open(struct inode * inode, struct file * filp)
 {
 	if (!(filp->f_flags & O_LARGEFILE) && i_size_read(inode) > MAX_NON_LFS)
@@ -994,6 +1137,12 @@ int generic_file_open(struct inode * inode, struct file * filp)
 
 EXPORT_SYMBOL(generic_file_open);
 
+/*
+ * This is used by subsystems that don't want seekable
+ * file descriptors. The function is not supposed to ever fail, the only
+ * reason it returns an 'int' and not 'void' is so that it can be plugged
+ * directly into file_operations structure.
+ */
 int nonseekable_open(struct inode *inode, struct file *filp)
 {
 	filp->f_mode &= ~(FMODE_LSEEK | FMODE_PREAD | FMODE_PWRITE);
@@ -1004,7 +1153,7 @@ EXPORT_SYMBOL(nonseekable_open);
 
 #ifdef MY_ABC_HERE
 extern long __SYNOArchiveSet(struct dentry *dentry, unsigned int cmd);
-SYSCALL_DEFINE2(SYNOArchiveBit, const char __user *, filename, int, cmd)
+SYSCALL_DEFINE2(syno_archive_bit, const char __user *, filename, int, cmd)
 {
 	struct path path;
 	long error;
@@ -1028,9 +1177,13 @@ out_release:
 	path_put(&path);
 	return error;
 }
+SYSCALL_DEFINE2(SYNOArchiveBit, const char __user *, filename, int, cmd)
+{
+	return sys_syno_archive_bit(filename, cmd);
+}
 
 extern long __SYNOArchiveOverwrite(struct dentry *dentry, unsigned int flags);
-SYSCALL_DEFINE2(SYNOArchiveOverwrite, unsigned int, fd, unsigned int, flags)
+SYSCALL_DEFINE2(syno_archive_overwrite, unsigned int, fd, unsigned int, flags)
 {
 	int ret = -EBADF;
 	struct file *file;
@@ -1051,7 +1204,11 @@ fput_out:
 	fput_light(file, fput_needed);
 	return ret;
 }
-#endif  
+SYSCALL_DEFINE2(SYNOArchiveOverwrite, unsigned int, fd, unsigned int, flags)
+{
+	return sys_syno_archive_overwrite(fd, flags);
+}
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #include "../fs/ecryptfs/ecryptfs_kernel.h"
@@ -1061,7 +1218,7 @@ int (*fecryptfs_decode_and_decrypt_filename)(char **plaintext_name,
                                         const char *name, size_t name_size) = NULL;
 EXPORT_SYMBOL(fecryptfs_decode_and_decrypt_filename);
 
-SYSCALL_DEFINE2(SYNOEcryptName, const char __user *, src, char __user *, dst)
+SYSCALL_DEFINE2(syno_ecrypt_name, const char __user *, src, char __user *, dst)
 {
 	int                               err = -1;
 	struct qstr                      *lower_path = NULL;
@@ -1095,8 +1252,12 @@ OUT_RELEASE:
 
 	return err;
 }
+SYSCALL_DEFINE2(SYNOEcryptName, const char __user *, src, char __user *, dst)
+{
+	return sys_syno_ecrypt_name(src, dst);
+}
 
-SYSCALL_DEFINE3(SYNODecryptName, const char __user *, root, const char __user *, src, char __user *, dst)
+SYSCALL_DEFINE3(syno_decrypt_name, const char __user *, root, const char __user *, src, char __user *, dst)
 {
 	int                           err;
 	size_t                        plaintext_name_size = 0;
@@ -1121,7 +1282,7 @@ SYSCALL_DEFINE3(SYNODecryptName, const char __user *, root, const char __user *,
 		err = PTR_ERR(src_name);
 		goto OUT_RELEASE;
 	}
-	 
+	// strsep() will move src_walk, so we should keep the head for free mem
 	src_walk = kstrdup(src_name->name, GFP_KERNEL);
 	if (!src_walk) {
 		err = -ENOMEM;
@@ -1192,4 +1353,8 @@ OUT_RELEASE:
 
 	return err;
 }
-#endif  
+SYSCALL_DEFINE3(SYNODecryptName, const char __user *, root, const char __user *, src, char __user *, dst)
+{
+	return sys_syno_decrypt_name(root, src, dst);
+}
+#endif /* MY_ABC_HERE */

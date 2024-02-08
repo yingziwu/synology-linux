@@ -805,6 +805,7 @@ void dpm_resume_end(pm_message_t state)
 }
 EXPORT_SYMBOL_GPL(dpm_resume_end);
 
+
 /*------------------------- Suspend routines -------------------------*/
 
 /**

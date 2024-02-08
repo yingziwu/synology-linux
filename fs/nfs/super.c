@@ -1907,6 +1907,7 @@ static int nfs23_validate_mount_data(void *options,
 			args->version = 2;
 		}
 
+
 		memcpy(mntfh->data, data->root.data, mntfh->size);
 		if (mntfh->size < sizeof(mntfh->data))
 			memset(mntfh->data + mntfh->size, 0,

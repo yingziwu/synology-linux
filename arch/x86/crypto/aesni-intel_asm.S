@@ -63,7 +63,9 @@ F_MIN_MASK: .octa 0xf1f2f3f4f5f6f7f8f9fafbfcfdfeff0
 dec:        .octa 0x1
 enc:        .octa 0x2
 
+
 .text
+
 
 #define	STACK_OFFSET    8*3
 #define	HashKey		16*0	// store HashKey <<1 mod poly here
@@ -95,6 +97,7 @@ enc:        .octa 0x2
 #define arg9 STACK_OFFSET+24(%r14)
 #define arg10 STACK_OFFSET+32(%r14)
 #endif
+
 
 #define STATE1	%xmm0
 #define STATE2	%xmm4
@@ -140,6 +143,7 @@ enc:        .octa 0x2
 #define T1	%ecx
 #define TKEYP	T1
 #endif
+
 
 #ifdef __x86_64__
 /* GHASH_MUL MACRO to implement: Data*HashKey mod (128,127,126,121,0)
@@ -212,6 +216,7 @@ enc:        .octa 0x2
 * are clobbered
 * arg1, %arg2, %arg3, %r14 are used as a pointer only, not modified
 */
+
 
 .macro INITIAL_BLOCKS_DEC num_initial_blocks TMP1 TMP2 TMP3 TMP4 TMP5 XMM0 XMM1 \
 XMM2 XMM3 XMM4 XMMDst TMP6 TMP7 i i_seq operation
@@ -438,6 +443,7 @@ _initial_blocks_done\num_initial_blocks\operation:
 
 .endm
 
+
 /*
 * if a = number of total plaintext bytes
 * b = floor(a/16)
@@ -448,6 +454,7 @@ _initial_blocks_done\num_initial_blocks\operation:
 * are clobbered
 * arg1, %arg2, %arg3, %r14 are used as a pointer only, not modified
 */
+
 
 .macro INITIAL_BLOCKS_ENC num_initial_blocks TMP1 TMP2 TMP3 TMP4 TMP5 XMM0 XMM1 \
 XMM2 XMM3 XMM4 XMMDst TMP6 TMP7 i i_seq operation
@@ -1181,6 +1188,7 @@ TMP7 XMM1 XMM2 XMM3 XMM4 XMMDst
 	AESENCLAST	\TMP1, \XMM0
 .endm
 
+
 /*****************************************************************************
 * void aesni_gcm_dec(void *aes_ctx,    // AES Key schedule. Starts on a 16 byte boundary.
 *                   u8 *out,           // Plaintext output. Encrypt in-place is allowed.
@@ -1283,6 +1291,7 @@ ENTRY(aesni_gcm_dec)
         movdqa  SHUF_MASK(%rip), %xmm2
 	PSHUFB_XMM %xmm2, %xmm13
 
+
 # Precompute HashKey<<1 (mod poly) from the hash key (required for GHASH)
 
 	movdqa	%xmm13, %xmm2
@@ -1299,6 +1308,7 @@ ENTRY(aesni_gcm_dec)
 	pcmpeqd TWOONE(%rip), %xmm2
 	pand	POLY(%rip), %xmm2
 	pxor	%xmm2, %xmm13     # %xmm13 holds the HashKey<<1 (mod poly)
+
 
         # Decrypt first few blocks
 
@@ -1441,6 +1451,7 @@ _return_T_done_decrypt:
 	ret
 ENDPROC(aesni_gcm_dec)
 
+
 /*****************************************************************************
 * void aesni_gcm_enc(void *aes_ctx,      // AES Key schedule. Starts on a 16 byte boundary.
 *                    u8 *out,            // Ciphertext output. Encrypt in-place is allowed.
@@ -1540,6 +1551,7 @@ ENTRY(aesni_gcm_enc)
         movdqa  SHUF_MASK(%rip), %xmm2
 	PSHUFB_XMM %xmm2, %xmm13
 
+
 # precompute HashKey<<1 mod poly from the HashKey (required for GHASH)
 
 	movdqa	%xmm13, %xmm2
@@ -1612,6 +1624,7 @@ _zero_cipher_left_encrypt:
 	paddd ONE(%rip), %xmm0                # INCR CNT to get Yn
         movdqa SHUF_MASK(%rip), %xmm10
 	PSHUFB_XMM %xmm10, %xmm0
+
 
 	ENCRYPT_SINGLE_BLOCK	%xmm0, %xmm1        # Encrypt(K, Yn)
 	sub $16, %r11
@@ -1703,6 +1716,7 @@ _return_T_done_encrypt:
 ENDPROC(aesni_gcm_enc)
 
 #endif
+
 
 .align 4
 _key_expansion_128:

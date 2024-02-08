@@ -85,6 +85,7 @@ ConvertSdioToCsrSdioResult(int r)
     return csrResult;
 }
 
+
 static int
 csr_io_rw_direct(struct mmc_card *card, int write, uint8_t fn,
                  uint32_t addr, uint8_t in, uint8_t* out)
@@ -137,6 +138,7 @@ csr_io_rw_direct(struct mmc_card *card, int write, uint8_t fn,
 
     return CSR_RESULT_SUCCESS;
 }
+
 
 CsrResult
 CsrSdioRead8(CsrSdioFunction *function, u32 address, u8 *data)
@@ -198,6 +200,7 @@ CsrSdioRead16(CsrSdioFunction *function, u32 address, u16 *data)
     return CSR_RESULT_SUCCESS;
 } /* CsrSdioRead16() */
 
+
 CsrResult
 CsrSdioWrite16(CsrSdioFunction *function, u32 address, u16 data)
 {
@@ -223,6 +226,7 @@ CsrSdioWrite16(CsrSdioFunction *function, u32 address, u16 data)
     _sdio_release_host(func);
     return CSR_RESULT_SUCCESS;
 } /* CsrSdioWrite16() */
+
 
 CsrResult
 CsrSdioF0Read8(CsrSdioFunction *function, u32 address, u8 *data)
@@ -266,6 +270,7 @@ CsrSdioF0Write8(CsrSdioFunction *function, u32 address, u8 data)
     return CSR_RESULT_SUCCESS;
 } /* CsrSdioF0Write8() */
 
+
 CsrResult
 CsrSdioRead(CsrSdioFunction *function, u32 address, void *data, u32 length)
 {
@@ -299,6 +304,7 @@ CsrSdioWrite(CsrSdioFunction *function, u32 address, const void *data, u32 lengt
 
     return CSR_RESULT_SUCCESS;
 } /* CsrSdioWrite() */
+
 
 static int
 csr_sdio_enable_hs(struct mmc_card *card)
@@ -373,6 +379,7 @@ csr_sdio_disable_hs(struct mmc_card *card)
     return 0;
 }
 
+
 /*
  * ---------------------------------------------------------------------------
  *  CsrSdioMaxBusClockFrequencySet
@@ -425,6 +432,7 @@ CsrSdioMaxBusClockFrequencySet(CsrSdioFunction *function, u32 maxFrequency)
 
 	return CSR_RESULT_SUCCESS;
 } /* CsrSdioMaxBusClockFrequencySet() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -499,9 +507,11 @@ CsrSdioInterruptDisable(CsrSdioFunction *function)
     return CSR_RESULT_SUCCESS;
 } /* CsrSdioInterruptDisable() */
 
+
 void CsrSdioInterruptAcknowledge(CsrSdioFunction *function)
 {
 }
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -533,6 +543,7 @@ CsrSdioFunctionEnable(CsrSdioFunction *function)
     return ConvertSdioToCsrSdioResult(err);
 } /* CsrSdioFunctionEnable() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  CsrSdioFunctionDisable
@@ -562,6 +573,7 @@ CsrSdioFunctionDisable(CsrSdioFunction *function)
 
     return ConvertSdioToCsrSdioResult(err);
 } /* CsrSdioFunctionDisable() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -593,6 +605,7 @@ void
 CsrSdioFunctionIdle(CsrSdioFunction *function)
 {
 } /* CsrSdioFunctionIdle() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -647,6 +660,7 @@ CsrSdioPowerOff(CsrSdioFunction *function)
     }
     _sdio_release_host(func);
 } /* CsrSdioPowerOff() */
+
 
 static int
 sdio_set_block_size_ignore_first_error(struct sdio_func *func, unsigned blksz)
@@ -717,6 +731,7 @@ CsrSdioBlockSizeSet(CsrSdioFunction *function, u16 blockSize)
     return ConvertSdioToCsrSdioResult(r);
 } /* CsrSdioBlockSizeSet() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  CsrSdioHardReset
@@ -732,6 +747,8 @@ CsrSdioHardReset(CsrSdioFunction *function)
 {
     return CSR_RESULT_FAILURE;
 } /* CsrSdioHardReset() */
+
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -791,6 +808,8 @@ uf_glue_sdio_int_handler(struct sdio_func *func)
 
 } /* uf_glue_sdio_int_handler() */
 
+
+
 /*
  * ---------------------------------------------------------------------------
  *  csr_sdio_linux_remove_irq
@@ -819,6 +838,7 @@ int csr_sdio_linux_remove_irq(CsrSdioFunction *function)
 	return r;
 
 } /* csr_sdio_linux_remove_irq() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1068,6 +1088,7 @@ uf_glue_sdio_probe(struct sdio_func *func,
     return 0;
 } /* uf_glue_sdio_probe() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  uf_glue_sdio_remove
@@ -1108,6 +1129,7 @@ uf_glue_sdio_remove(struct sdio_func *func)
 
 } /* uf_glue_sdio_remove */
 
+
 /*
  * SDIO ids *must* be statically declared, so we can't take
  * them from the list passed in csr_sdio_register_driver().
@@ -1142,6 +1164,7 @@ uf_glue_sdio_suspend(struct device *dev)
 
     return 0;
 } /* uf_glue_sdio_suspend */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1190,6 +1213,7 @@ static struct sdio_driver unifi_driver = {
     .id_table	= unifi_ids,
     .drv.pm     = UNIFI_PM_OPS,
 };
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -1246,6 +1270,8 @@ CsrSdioFunctionDriverRegister(CsrSdioFunctionDriver *sdio_drv)
     return CSR_RESULT_SUCCESS;
 } /* CsrSdioFunctionDriverRegister() */
 
+
+
 void
 CsrSdioFunctionDriverUnregister(CsrSdioFunctionDriver *sdio_drv)
 {
@@ -1259,3 +1285,4 @@ CsrSdioFunctionDriverUnregister(CsrSdioFunctionDriver *sdio_drv)
     sdio_func_drv = NULL;
 
 } /* CsrSdioFunctionDriverUnregister() */
+

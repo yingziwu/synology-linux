@@ -138,6 +138,7 @@ static int __init reboot_setup(char *str)
 
 __setup("reboot=", reboot_setup);
 
+
 /*
  * Reboot options and system auto-detection code provided by
  * Dell Inc. so their systems "just work". :-)
@@ -546,6 +547,7 @@ static void emergency_vmx_disable_all(void)
 	}
 }
 
+
 void __attribute__((weak)) mach_reboot_fixups(void)
 {
 }
@@ -764,6 +766,7 @@ void machine_crash_shutdown(struct pt_regs *regs)
 	machine_ops.crash_shutdown(regs);
 }
 #endif
+
 
 #if defined(CONFIG_SMP)
 

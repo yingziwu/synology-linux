@@ -602,6 +602,7 @@ static void esp_autosense(struct esp *esp, struct esp_cmd_entry *ent)
 	tgt = dev->id;
 	lun = dev->lun;
 
+
 	if (!ent->sense_ptr) {
 		esp_log_autosense("esp%d: Doing auto-sense for "
 				  "tgt[%d] lun[%d]\n",

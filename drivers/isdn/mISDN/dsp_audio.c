@@ -34,6 +34,7 @@ u8 dsp_audio_alaw_to_ulaw[256];
 static u8 dsp_audio_ulaw_to_alaw[256];
 u8 dsp_silence;
 
+
 /*****************************************************
  * generate table for conversion of s16 to alaw/ulaw *
  *****************************************************/
@@ -68,6 +69,7 @@ static inline unsigned char linear2alaw(short int linear)
 	return  ((seg << 4) |
 		 ((pcm_val >> ((seg)  ?  (seg + 3)  :  4)) & 0x0F)) ^ mask;
 }
+
 
 static inline short int alaw2linear(unsigned char alaw)
 {
@@ -147,6 +149,7 @@ static int reverse_bits(int i)
 	return z;
 }
 
+
 void dsp_audio_generate_law_tables(void)
 {
 	int i;
@@ -183,6 +186,7 @@ dsp_audio_generate_s2law_table(void)
 		}
 	}
 }
+
 
 /*
  * the seven bit sample is the number of every second alaw-sample ordered by
@@ -235,6 +239,7 @@ dsp_audio_generate_seven(void)
 	}
 }
 
+
 /* mix 2*law -> law */
 u8 dsp_audio_mix_law[65536];
 
@@ -265,6 +270,7 @@ dsp_audio_generate_mix_table(void)
 		i++;
 	}
 }
+
 
 /*************************************
  * generate different volume changes *
@@ -384,6 +390,7 @@ dsp_audio_generate_volume_changes(void)
 		i++;
 	}
 }
+
 
 /**************************************
  * change the volume of the given skb *

@@ -234,8 +234,7 @@ int ipoib_set_mode(struct net_device *dev, const char *buf)
 		priv->tx_wr.send_flags &= ~IB_SEND_IP_CSUM;
 
 		ipoib_flush_paths(dev);
-		rtnl_lock();
-		return 0;
+		return (!rtnl_trylock()) ? -EBUSY : 0;
 	}
 
 	if (!strcmp(buf, "datagram\n")) {
@@ -244,8 +243,7 @@ int ipoib_set_mode(struct net_device *dev, const char *buf)
 		dev_set_mtu(dev, min(priv->mcast_mtu, dev->mtu));
 		rtnl_unlock();
 		ipoib_flush_paths(dev);
-		rtnl_lock();
-		return 0;
+		return (!rtnl_trylock()) ? -EBUSY : 0;
 	}
 
 	return -EINVAL;
@@ -963,6 +961,7 @@ static void ipoib_reap_neigh(struct work_struct *work)
 				   arp_tbl.gc_interval);
 }
 
+
 static struct ipoib_neigh *ipoib_neigh_ctor(u8 *daddr,
 				      struct net_device *dev)
 {
@@ -1258,6 +1257,7 @@ static void ipoib_neigh_hash_uninit(struct net_device *dev)
 
 	wait_for_completion(&priv->ntbl.deleted);
 }
+
 
 int ipoib_dev_init(struct net_device *dev, struct ib_device *ca, int port)
 {

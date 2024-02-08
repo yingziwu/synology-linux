@@ -85,6 +85,7 @@ extern struct mutex xfrm_cfg_mutex;
 
    Bundles are cached at xrfm_policy struct (field ->bundles).
 
+
    Resolution of xrfm_tmpl
    -----------------------
    Template contains:

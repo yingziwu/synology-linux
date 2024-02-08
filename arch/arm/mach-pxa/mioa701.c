@@ -440,6 +440,7 @@ static void install_bootstrap(void)
 		rom_bootstrap[i] = src[i];
 }
 
+
 static int mioa701_sys_suspend(void)
 {
 	int i = 0, is_bt_on;
@@ -722,6 +723,7 @@ static void __init mioa701_machine_init(void)
 	__raw_writel(0x0001c391, MCMEM0);
 	__raw_writel(0x0001c391, MCATT0);
 	__raw_writel(0x0001c391, MCIO0);
+
 
 	pxa2xx_mfp_config(ARRAY_AND_SIZE(mioa701_pin_config));
 	pxa_set_ffuart_info(NULL);

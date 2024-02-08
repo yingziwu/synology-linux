@@ -51,6 +51,7 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
+
 static void __init ek_init_early(void)
 {
 	/* Initialize processor: 12.000 MHz crystal */
@@ -67,12 +68,14 @@ static struct at91_usbh_data __initdata ek_usbh_hs_data = {
 	.overcurrent_pin= {-EINVAL, -EINVAL},
 };
 
+
 /*
  * USB HS Device port
  */
 static struct usba_platform_data __initdata ek_usba_udc_data = {
 	.vbus_pin	= AT91_PIN_PB19,
 };
+
 
 /*
  * SPI devices.
@@ -85,6 +88,7 @@ static struct spi_board_info ek_spi_devices[] = {
 		.bus_num	= 0,
 	},
 };
+
 
 /*
  * MCI (SD/MMC)
@@ -105,6 +109,7 @@ static struct mci_platform_data __initdata mci1_data = {
 	},
 };
 
+
 /*
  * MACB Ethernet device
  */
@@ -112,6 +117,7 @@ static struct macb_platform_data __initdata ek_macb_data = {
 	.phy_irq_pin	= AT91_PIN_PD5,
 	.is_rmii	= 1,
 };
+
 
 /*
  * NAND flash
@@ -175,6 +181,7 @@ static void __init ek_add_device_nand(void)
 	at91_add_device_nand(&ek_nand_data);
 }
 
+
 /*
  *  ISI
  */
@@ -186,6 +193,7 @@ static struct isi_platform_data __initdata isi_data = {
 	/* ISI_MCK is provided by programmable clock or external clock */
 	.mck_hz			= 25000000,
 };
+
 
 /*
  * soc-camera OV2640
@@ -238,6 +246,7 @@ static struct platform_device isi_ov2640 = {
 };
 #endif
 
+
 /*
  * LCD Controller
  */
@@ -288,6 +297,7 @@ static struct atmel_lcdfb_info __initdata ek_lcdc_data = {
 #else
 static struct atmel_lcdfb_info __initdata ek_lcdc_data;
 #endif
+
 
 /*
  * Touchscreen
@@ -388,6 +398,7 @@ static void __init ek_add_device_buttons(void)
 static void __init ek_add_device_buttons(void) {}
 #endif
 
+
 /*
  * AC97
  * reset_pin is not connected: NRST
@@ -395,6 +406,7 @@ static void __init ek_add_device_buttons(void) {}
 static struct ac97c_platform_data ek_ac97_data = {
 	.reset_pin	= -EINVAL,
 };
+
 
 /*
  * LEDs ... these could all be PWM-driven, for variable brightness
@@ -420,6 +432,7 @@ static struct gpio_led ek_leds[] = {
 	},
 #endif
 };
+
 
 /*
  * PWM Leds

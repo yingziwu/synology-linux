@@ -51,6 +51,7 @@
 #include "board.h"
 #include "generic.h"
 
+
 static void __init yl9200_init_early(void)
 {
 	/* Set cpu type: PQFP */
@@ -369,6 +370,7 @@ static struct spi_board_info yl9200_spi_devices[] = {
 #if defined(CONFIG_FB_S1D13XXX) || defined(CONFIG_FB_S1D13XXX_MODULE)
 #include <video/s1d13xxxfb.h>
 
+
 static void yl9200_init_video(void)
 {
 	/* NWAIT Signal */
@@ -536,6 +538,7 @@ void __init yl9200_add_device_video(void)
 #else
 void __init yl9200_add_device_video(void) {}
 #endif
+
 
 static void __init yl9200_board_init(void)
 {

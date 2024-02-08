@@ -46,6 +46,7 @@ void kvmppc_set_pending_interrupt(struct kvm_vcpu *vcpu, enum int_class type)
 		return;
 	}
 
+
 	tag = PPC_DBELL_LPID(vcpu->kvm->arch.lpid) | vcpu->vcpu_id;
 	mb();
 	ppc_msgsnd(dbell_type, 0, tag);

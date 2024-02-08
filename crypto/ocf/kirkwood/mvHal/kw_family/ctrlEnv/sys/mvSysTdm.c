@@ -64,6 +64,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "mvSysTdm.h"
 
+
 /* defines  */
 #ifdef MV_DEBUG
 	#define DB(x)	x
@@ -356,6 +357,7 @@ MV_STATUS mvTdmWinEnable(int winNum, MV_BOOL enable)
 	}
 	return MV_OK;
 }
+
 
 /*******************************************************************************
 * tdmWinOverlapDetect - Detect TDM address windows overlapping

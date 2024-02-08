@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 /* includes */
 #include "mvCommon.h"
 #include "mvCtrlEnvLib.h"
@@ -440,6 +441,7 @@ MV_U32 mvCtrlUsbMaxGet(void)
 	return MV_USB_MAX_PORTS;
 }
 #endif
+
 
 #if defined(MV_INCLUDE_NAND)
 /*******************************************************************************
@@ -825,6 +827,7 @@ MV_STATUS mvCtrlModelRevNameGet(char *pNameBuff)
         return MV_OK;
 }
 
+
 /*******************************************************************************
 * ctrlWinOverlapTest - Test address windows for overlaping.
 *
@@ -858,6 +861,7 @@ MV_STATUS ctrlWinOverlapTest(MV_ADDR_WIN *pAddrWin1, MV_ADDR_WIN *pAddrWin2)
     winBase2 = pAddrWin2->baseLow;
     winTop1  = winBase1 + pAddrWin1->size-1;
     winTop2  = winBase2 + pAddrWin2->size-1;
+
 
     if (((winBase1 <= winTop2 ) && ( winTop2 <= winTop1)) ||
         ((winBase1 <= winBase2) && (winBase2 <= winTop1)))
@@ -1092,6 +1096,7 @@ MV_U32	ctrlRegToSize(MV_U32 regSize, MV_U32 alignment)
 		return -1;
 	}
 
+
 	/* Check that aligment is a power of two					*/
 	temp = alignment - 1;/* Now the alignmet is a sequance of '1' (0xffff) 		*/
 
@@ -1122,6 +1127,7 @@ MV_U32	ctrlRegToSize(MV_U32 regSize, MV_U32 alignment)
 
     return regSize;
 }
+
 
 /*******************************************************************************
 * ctrlSizeRegRoundUp - Round up given size
@@ -1282,6 +1288,8 @@ MV_VOID   mvCtrlPwrSaveOn(MV_VOID)
 			     : "r" (old)
 			     : "memory");
 }
+
+
 
 /*******************************************************************************
 * mvCtrlPwrSaveOff - Go out of power save mode
@@ -1554,6 +1562,7 @@ MV_BOOL		mvCtrlPwrClckGet(MV_UNIT_ID unitId, MV_U32 index)
 		break;
 	}
 
+
 	return state;
 }
 /*******************************************************************************
@@ -1750,12 +1759,14 @@ MV_BOOL		mvCtrlPwrMemGet(MV_UNIT_ID unitId, MV_U32 index)
 		break;
 	}
 
+
 	return state;
 }
 #else
 MV_VOID   mvCtrlPwrClckSet(MV_UNIT_ID unitId, MV_U32 index, MV_BOOL enable) {return;}
 MV_BOOL	  mvCtrlPwrClckGet(MV_UNIT_ID unitId, MV_U32 index) {return MV_TRUE;}
 #endif /* #if defined(MV_INCLUDE_CLK_PWR_CNTRL) */
+
 
 /*******************************************************************************
 * mvMPPConfigToSPI - Change MPP[3:0] configuration to SPI mode
@@ -1782,6 +1793,7 @@ MV_VOID   mvMPPConfigToSPI(MV_VOID)
 
     MV_REG_WRITE(mvCtrlMppRegGet(0), mppVal);
 }
+
 
 /*******************************************************************************
 * mvMPPConfigToDefault - Change MPP[7:0] configuration to default configuration

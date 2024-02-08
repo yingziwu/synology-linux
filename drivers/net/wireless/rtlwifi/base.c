@@ -251,6 +251,7 @@ static void _rtl_init_mac80211(struct ieee80211_hw *hw)
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
 	struct ieee80211_supported_band *sband;
 
+
 	if (rtlhal->macphymode == SINGLEMAC_SINGLEPHY && rtlhal->bandset ==
 	    BAND_ON_BOTH) {
 		/* 1: 2.4 G bands */

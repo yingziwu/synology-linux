@@ -1212,6 +1212,7 @@ static void mlx4_en_tx_timeout(struct net_device *dev)
 	queue_work(mdev->workqueue, &priv->watchdog_task);
 }
 
+
 static struct net_device_stats *mlx4_en_get_stats(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
@@ -1401,6 +1402,7 @@ static void mlx4_en_linkstate(struct work_struct *work)
 	mutex_unlock(&mdev->state_lock);
 }
 
+
 int mlx4_en_start_port(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
@@ -1581,6 +1583,7 @@ cq_err:
 
 	return err; /* need to close devices */
 }
+
 
 void mlx4_en_stop_port(struct net_device *dev, int detach)
 {
@@ -1768,6 +1771,7 @@ out:
 	return err;
 }
 
+
 static int mlx4_en_close(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
@@ -1862,6 +1866,7 @@ err:
 	en_err(priv, "Failed to allocate NIC resources\n");
 	return -ENOMEM;
 }
+
 
 void mlx4_en_destroy_netdev(struct net_device *dev)
 {
@@ -2306,3 +2311,4 @@ out:
 	mlx4_en_destroy_netdev(dev);
 	return err;
 }
+

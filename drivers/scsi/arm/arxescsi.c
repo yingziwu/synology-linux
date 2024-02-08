@@ -355,3 +355,4 @@ module_exit(exit_arxe_scsi_driver);
 MODULE_AUTHOR("Stefan Hanske");
 MODULE_DESCRIPTION("ARXESCSI driver for Acorn machines");
 MODULE_LICENSE("GPL");
+

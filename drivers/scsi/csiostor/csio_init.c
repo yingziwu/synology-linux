@@ -1216,6 +1216,7 @@ static DEFINE_PCI_DEVICE_TABLE(csio_pci_tbl) = {
 	{ 0, 0, 0, 0, 0, 0, 0 }
 };
 
+
 static struct pci_driver csio_pci_driver = {
 	.name		= KBUILD_MODNAME,
 	.driver		= {

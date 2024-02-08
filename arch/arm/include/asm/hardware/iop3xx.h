@@ -32,6 +32,7 @@ extern int init_atu;
 extern int iop3xx_get_init_atu(void);
 #endif
 
+
 /*
  * IOP3XX processor registers
  */
@@ -209,6 +210,7 @@ extern int iop3xx_get_init_atu(void);
 #define IOP3XX_IDBR1		(volatile u32 *)IOP3XX_REG_ADDR(0x16ac)
 #define IOP3XX_IBMR1		(volatile u32 *)IOP3XX_REG_ADDR(0x16b4)
 
+
 /*
  * IOP3XX I/O and Mem space regions for PCI autoconfiguration
  */
@@ -316,5 +318,6 @@ extern struct platform_device iop3xx_i2c0_device;
 extern struct platform_device iop3xx_i2c1_device;
 
 #endif
+
 
 #endif

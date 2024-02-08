@@ -159,6 +159,7 @@
 #define THMOVLD_115C		2
 #define THMOVLD_098C		3
 
+
 /* CS42L73_ASPC, CS42L73_XSPC, CS42L73_VSPC */
 #define	SP_3ST			(1 << 7)
 #define SPDIF_I2S		(0 << 6)
@@ -174,6 +175,7 @@
 
 /* CS42L73_xSPMMCC */
 #define MS_MASTER		(1 << 7)
+
 
 /* CS42L73_DMMCC */
 #define MCLKDIS			(1 << 0)

@@ -740,6 +740,7 @@ struct qlcnic_cardrsp_tx_ctx {
 #define QLCNIC_HOST_INT_CRB_MODE_NOTX	3
 #define QLCNIC_HOST_INT_CRB_MODE_NORXTX	4
 
+
 /* MAC */
 
 #define MC_COUNT_P3P	38
@@ -1172,6 +1173,7 @@ struct qlcnic_eswitch {
 #define QLCNIC_SWITCH_PROMISC_MODE	BIT_3
 #define QLCNIC_SWITCH_PORT_MIRRORING	BIT_4
 };
+
 
 /* Return codes for Error handling */
 #define QL_STATUS_INVALID_PARAM	-1

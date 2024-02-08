@@ -87,6 +87,7 @@ void DoTxHighPower(struct net_device *dev)
 	}
 }
 
+
 /*
  *	Description:
  *		Callback function of UpdateTxPowerWorkItem.
@@ -101,6 +102,7 @@ void rtl8180_tx_pw_wq(struct work_struct *work)
 
 	DoTxHighPower(dev);
 }
+
 
 /*
  *	Return TRUE if we shall perform DIG Mechanism, FALSE otherwise.
@@ -214,6 +216,7 @@ void rtl8180_hw_dig_wq(struct work_struct *work)
 
 	/* Read CCK and OFDM False Alarm. */
 	priv->FalseAlarmRegValue = read_nic_dword(dev, CCK_FALSE_ALARM);
+
 
 	/* Adjust Initial Gain dynamically. */
 	DynamicInitGain(dev);
@@ -451,6 +454,7 @@ void StaRateAdaptive87SE(struct net_device *dev)
 
 	priv->RateAdaptivePeriod = RATE_ADAPTIVE_TIMER_PERIOD;
 
+
 	CurrRetryCnt	= priv->CurrRetryCnt;
 	CurrTxokCnt	= priv->NumTxOkTotal - priv->LastTxokCnt;
 	CurrRxokCnt	= priv->ieee80211->NumRxOkTotal - priv->LastRxokCnt;
@@ -491,6 +495,7 @@ void StaRateAdaptive87SE(struct net_device *dev)
 	} else {
 		priv->TryupingCountNoData = 0; /*Reset trying up times. */
 	}
+
 
 	/*
 	 * For Netgear case, I comment out the following signal strength estimation,
@@ -784,6 +789,7 @@ void StaRateAdaptive87SE(struct net_device *dev)
 		(!bTryUp && !bTryDown && priv->TryDownCountLowData == 0 && priv->TryupingCount && priv->FailTxRateCount > 0x6)) {
 		priv->FailTxRateCount--;
 	}
+
 
 	OfdmTxPwrIdx  = priv->chtxpwr_ofdm[priv->ieee80211->current_network.channel];
 	CckTxPwrIdx  = priv->chtxpwr[priv->ieee80211->current_network.channel];
@@ -1107,6 +1113,7 @@ bool CheckTxPwrTracking(struct net_device *dev)
 	return true;
 }
 
+
  /*	Timer callback function of SW Antenna Diversity. */
 void SwAntennaDiversityTimerCallback(struct net_device *dev)
 {
@@ -1131,3 +1138,4 @@ void SwAntennaDiversityTimerCallback(struct net_device *dev)
 		add_timer(&priv->SwAntennaDiversityTimer);
 	}
 }
+

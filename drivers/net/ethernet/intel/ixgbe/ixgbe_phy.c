@@ -1514,6 +1514,7 @@ static s32 ixgbe_get_i2c_ack(struct ixgbe_hw *hw)
 
 	ixgbe_raise_i2c_clk(hw, &i2cctl);
 
+
 	/* Minimum high period of clock is 4us */
 	udelay(IXGBE_I2C_T_HIGH);
 

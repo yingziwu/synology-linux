@@ -54,6 +54,7 @@ const char* CsrWifiRouterEncapsulationToString(CsrWifiRouterEncapsulation value)
 const char* CsrWifiRouterOuiToString(CsrWifiRouterOui value);
 const char* CsrWifiRouterPriorityToString(CsrWifiRouterPriority value);
 
+
 /*----------------------------------------------------------------------------*
  * CsrPrim Type toString function.
  * Converts a message type to the String name of the Message

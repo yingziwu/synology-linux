@@ -62,6 +62,7 @@ static struct fb_ops radeonfb_ops = {
 	.fb_debug_leave = drm_fb_helper_debug_leave,
 };
 
+
 int radeon_align_pitch(struct radeon_device *rdev, int width, int bpp, bool tiled)
 {
 	int aligned = width;
@@ -157,6 +158,7 @@ static int radeonfb_create_pinned_object(struct radeon_fbdev *rfbdev,
 		if (ret)
 			dev_err(rdev->dev, "FB failed to set tiling flags\n");
 	}
+
 
 	ret = radeon_bo_reserve(rbo, false);
 	if (unlikely(ret != 0))
