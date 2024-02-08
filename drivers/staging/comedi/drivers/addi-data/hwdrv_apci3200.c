@@ -130,6 +130,7 @@ struct {
 } Config_Parameters_Module1, Config_Parameters_Module2,
     Config_Parameters_Module3, Config_Parameters_Module4;
 
+
 struct str_ADDIDATA_RTDStruct {
 	unsigned int ul_NumberOfValue;
 	unsigned int *pul_ResistanceValue;
@@ -321,6 +322,7 @@ static int i_AddiHeaderRW_ReadEeprom(int i_NbOfWordsToRead,
 				b_ReadLowByte = pb_ReadByte[0];
 			else
 				b_ReadHighByte = pb_ReadByte[0];
+
 
 			/* Sleep */
 			msleep(1);

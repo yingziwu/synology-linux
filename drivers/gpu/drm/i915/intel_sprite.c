@@ -1355,6 +1355,7 @@ intel_commit_sprite_plane(struct drm_plane *plane,
 			intel_plane->disable_plane(plane, crtc);
 		}
 
+
 		intel_frontbuffer_flip(dev, INTEL_FRONTBUFFER_SPRITE(pipe));
 
 		if (!primary_was_enabled && primary_enabled)

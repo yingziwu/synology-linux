@@ -73,6 +73,7 @@ static struct notifier_block pvpanic_panic_nb = {
 	.notifier_call = pvpanic_panic_notify,
 };
 
+
 static acpi_status
 pvpanic_walk_resources(struct acpi_resource *res, void *context)
 {

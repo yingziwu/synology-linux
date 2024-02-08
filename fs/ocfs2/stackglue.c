@@ -48,6 +48,12 @@ static char ocfs2_hb_ctl_path[OCFS2_MAX_HB_CTL_PATH] = "/sbin/ocfs2_hb_ctl";
  */
 static struct ocfs2_stack_plugin *active_stack;
 
+inline int ocfs2_is_o2cb_active(void)
+{
+	return !strcmp(active_stack->sp_name, OCFS2_STACK_PLUGIN_O2CB);
+}
+EXPORT_SYMBOL_GPL(ocfs2_is_o2cb_active);
+
 static struct ocfs2_stack_plugin *ocfs2_stack_lookup(const char *name)
 {
 	struct ocfs2_stack_plugin *p;
@@ -230,6 +236,7 @@ void ocfs2_stack_glue_set_max_proto_version(struct ocfs2_protocol_version *max_p
 	spin_unlock(&ocfs2_stack_lock);
 }
 EXPORT_SYMBOL_GPL(ocfs2_stack_glue_set_max_proto_version);
+
 
 /*
  * The ocfs2_dlm_lock() and ocfs2_dlm_unlock() functions take no argument
@@ -465,6 +472,7 @@ int ocfs2_cluster_this_node(unsigned int *node)
 }
 EXPORT_SYMBOL_GPL(ocfs2_cluster_this_node);
 
+
 /*
  * Sysfs bits
  */
@@ -587,6 +595,7 @@ static ssize_t ocfs2_cluster_stack_store(struct kobject *kobj,
 	return ret;
 }
 
+
 static struct kobj_attribute ocfs2_attr_cluster_stack =
 	__ATTR(cluster_stack, S_IFREG | S_IRUGO | S_IWUSR,
 	       ocfs2_cluster_stack_show,
@@ -685,6 +694,7 @@ static ctl_table ocfs2_root_table[] = {
 };
 
 static struct ctl_table_header *ocfs2_table_header = NULL;
+
 
 /*
  * Initialization

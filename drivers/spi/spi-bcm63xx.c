@@ -364,6 +364,7 @@ static irqreturn_t bcm63xx_spi_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+
 static int bcm63xx_spi_probe(struct platform_device *pdev)
 {
 	struct resource *r;

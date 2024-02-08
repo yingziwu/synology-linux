@@ -1500,3 +1500,4 @@ void saa7164_encoder_unregister(struct saa7164_port *port)
 
 	dprintk(DBGLVL_ENC, "%s(port=%d) done\n", __func__, port->nr);
 }
+

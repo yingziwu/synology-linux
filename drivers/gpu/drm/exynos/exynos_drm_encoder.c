@@ -245,6 +245,7 @@ void exynos_drm_encoder_complete_scanout(struct drm_framebuffer *fb)
 	}
 }
 
+
 static void exynos_drm_encoder_disable(struct drm_encoder *encoder)
 {
 	struct drm_plane *plane;

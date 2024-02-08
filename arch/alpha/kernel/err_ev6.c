@@ -273,3 +273,4 @@ ev6_machine_check(unsigned long vector, unsigned long la_ptr)
 	wrmces(0x7);
 	mb();
 }
+

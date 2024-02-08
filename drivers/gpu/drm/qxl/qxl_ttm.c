@@ -359,6 +359,7 @@ static int qxl_bo_move(struct ttm_buffer_object *bo,
 	return ttm_bo_move_memcpy(bo, evict, no_wait_gpu, new_mem);
 }
 
+
 static int qxl_sync_obj_wait(void *sync_obj,
 			     bool lazy, bool interruptible)
 {
@@ -478,6 +479,8 @@ static struct ttm_bo_driver qxl_bo_driver = {
 	.move_notify = &qxl_bo_move_notify,
 };
 
+
+
 int qxl_ttm_init(struct qxl_device *qdev)
 {
 	int r;
@@ -530,6 +533,7 @@ void qxl_ttm_fini(struct qxl_device *qdev)
 	qxl_ttm_global_fini(qdev);
 	DRM_INFO("qxl: ttm finalized\n");
 }
+
 
 #define QXL_DEBUGFS_MEM_TYPES 2
 

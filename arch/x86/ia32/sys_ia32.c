@@ -1,7 +1,28 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * sys_ia32.c: Conversion between 32bit and 64bit native syscalls. Based on
+ *             sys_sparc32
+ *
+ * Copyright (C) 2000		VA Linux Co
+ * Copyright (C) 2000		Don Dugger <n0ano@valinux.com>
+ * Copyright (C) 1999		Arun Sharma <arun.sharma@intel.com>
+ * Copyright (C) 1997,1998	Jakub Jelinek (jj@sunsite.mff.cuni.cz)
+ * Copyright (C) 1997		David S. Miller (davem@caip.rutgers.edu)
+ * Copyright (C) 2000		Hewlett-Packard Co.
+ * Copyright (C) 2000		David Mosberger-Tang <davidm@hpl.hp.com>
+ * Copyright (C) 2000,2001,2002	Andi Kleen, SuSE Labs (x86-64 port)
+ *
+ * These routines maintain argument size conversion between 32bit and 64bit
+ * environment. In 2.5 most of this should be moved to a generic directory.
+ *
+ * This file assumes that there is a hole at the end of user address space.
+ *
+ * Some of the functions are LE specific currently. These are
+ * hopefully all marked.  This should be fixed.
+ */
+
 #include <linux/kernel.h>
 #include <linux/sched.h>
 #include <linux/fs.h>
@@ -31,6 +52,7 @@
 
 #define AA(__x)		((unsigned long)(__x))
 
+
 asmlinkage long sys32_truncate64(const char __user *filename,
 				 unsigned long offset_low,
 				 unsigned long offset_high)
@@ -44,6 +66,10 @@ asmlinkage long sys32_ftruncate64(unsigned int fd, unsigned long offset_low,
        return sys_ftruncate(fd, ((loff_t) offset_high << 32) | offset_low);
 }
 
+/*
+ * Another set for IA32/LFS -- x86_64 struct stat is different due to
+ * support for 64bit inode numbers.
+ */
 static int cp_stat64(struct stat64 __user *ubuf, struct kstat *stat)
 {
 	typeof(ubuf->st_uid) uid = 0;
@@ -75,14 +101,14 @@ static int cp_stat64(struct stat64 __user *ubuf, struct kstat *stat)
 #ifdef MY_ABC_HERE
 #include <linux/synolib.h>
 extern int syno_hibernation_log_level;
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 extern int __SYNOCaselessStat(char __user * filename, int no_follow_link, struct kstat *stat, int flags);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
-asmlinkage long sys32_SYNOCaselessStat64(char __user *filename, struct stat64 __user *statbuf)
+asmlinkage long sys32_syno_caseless_stat64(char __user *filename, struct stat64 __user *statbuf)
 {
 #ifdef MY_ABC_HERE
 	long error = -1;
@@ -96,10 +122,14 @@ asmlinkage long sys32_SYNOCaselessStat64(char __user *filename, struct stat64 __
 	return error;
 #else
 	return -EOPNOTSUPP;
-#endif  
+#endif /* MY_ABC_HERE */
+}
+asmlinkage long sys32_SYNOCaselessStat64(char __user *filename, struct stat64 __user *statbuf)
+{
+	return sys32_syno_caseless_stat64(filename, statbuf);
 }
 
-asmlinkage long sys32_SYNOCaselessLStat64(char __user *filename, struct stat64 __user *statbuf)
+asmlinkage long sys32_syno_caseless_lstat64(char __user *filename, struct stat64 __user *statbuf)
 {
 #ifdef MY_ABC_HERE
 	long error = -1;
@@ -113,9 +143,13 @@ asmlinkage long sys32_SYNOCaselessLStat64(char __user *filename, struct stat64 _
 	return error;
 #else
 	return -EOPNOTSUPP;
-#endif  
+#endif /* MY_ABC_HERE */
 }
-#endif  
+asmlinkage long sys32_SYNOCaselessLStat64(char __user *filename, struct stat64 __user *statbuf)
+{
+	return sys32_syno_caseless_lstat64(filename, statbuf);
+}
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 
@@ -140,7 +174,7 @@ static int SYNOStat64CopyToUser(struct kstat *pKst, unsigned int flags, struct S
 			goto Out;
 		}
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	if (flags & SYNOST_ARCHIVE_VER) {
@@ -148,7 +182,7 @@ static int SYNOStat64CopyToUser(struct kstat *pKst, unsigned int flags, struct S
 			goto Out;
 		}
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	if (flags & SYNOST_CREATE_TIME) {
@@ -159,7 +193,7 @@ static int SYNOStat64CopyToUser(struct kstat *pKst, unsigned int flags, struct S
 			goto Out;
 		}
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 	error = 0;
 Out:
 	return error;
@@ -170,12 +204,13 @@ static long do_SYNOStat64(char __user * filename, int no_follow_link, unsigned i
 	long error = -EINVAL;
 	struct kstat kst;
 
+	memset(&kst, 0, sizeof(kst));
 	if (flags & SYNOST_IS_CASELESS) {
 #ifdef MY_ABC_HERE
 		error = __SYNOCaselessStat(filename, no_follow_link, &kst, flags);
 #else
 		error = -EOPNOTSUPP;
-#endif  
+#endif /* MY_ABC_HERE */
 	} else if (no_follow_link) {
 		error = syno_vfs_fstatat(filename, &kst, 0, flags);
 	} else {
@@ -183,7 +218,7 @@ static long do_SYNOStat64(char __user * filename, int no_follow_link, unsigned i
 			if(syno_hibernation_log_level > 0) {
 				syno_do_hibernation_filename_log(filename);
 			}
-#endif  
+#endif /* MY_ABC_HERE */
 		error = syno_vfs_fstatat(filename, &kst, LOOKUP_FOLLOW, flags);
 	}
 
@@ -196,16 +231,17 @@ Out:
 	return error;
 }
 
-asmlinkage long sys32_SYNOStat64(char __user * filename, unsigned int flags, struct SYNOSTAT64 __user * pSt)
+asmlinkage long sys32_syno_stat64(char __user * filename, unsigned int flags, struct SYNOSTAT64 __user * pSt)
 {
 	return do_SYNOStat64(filename, 0, flags, pSt);
 }
 
-asmlinkage long sys32_SYNOFStat64(unsigned int fd, unsigned int flags, struct SYNOSTAT64 __user * pSt)
+asmlinkage long sys32_syno_fstat64(unsigned int fd, unsigned int flags, struct SYNOSTAT64 __user * pSt)
 {
 	int error;
 	struct kstat kst;
 
+	memset(&kst, 0, sizeof(kst));
 	error = syno_vfs_fstat(fd, &kst, flags);
 	if (!error) {
 		error = SYNOStat64CopyToUser(&kst, flags, pSt);
@@ -213,11 +249,26 @@ asmlinkage long sys32_SYNOFStat64(unsigned int fd, unsigned int flags, struct SY
 	return error;
 }
 
-asmlinkage long sys32_SYNOLStat64(char __user * filename, unsigned int flags, struct SYNOSTAT64 __user * pSt)
+asmlinkage long sys32_syno_lstat64(char __user * filename, unsigned int flags, struct SYNOSTAT64 __user * pSt)
 {
 	return do_SYNOStat64(filename, 1, flags, pSt);
 }
-#endif  
+
+asmlinkage long sys32_SYNOStat64(char __user * filename, unsigned int flags, struct SYNOSTAT64 __user * pSt)
+{
+	return sys32_syno_stat64(filename, flags, pSt);
+}
+
+asmlinkage long sys32_SYNOFStat64(unsigned int fd, unsigned int flags, struct SYNOSTAT64 __user * pSt)
+{
+	return sys32_syno_fstat64(fd, flags, pSt);
+}
+
+asmlinkage long sys32_SYNOLStat64(char __user * filename, unsigned int flags, struct SYNOSTAT64 __user * pSt)
+{
+	return sys32_syno_lstat64(filename, flags, pSt);
+}
+#endif /* MY_ABC_HERE */
 
 asmlinkage long sys32_stat64(const char __user *filename,
 			     struct stat64 __user *statbuf)
@@ -261,6 +312,12 @@ asmlinkage long sys32_fstatat(unsigned int dfd, const char __user *filename,
 	return cp_stat64(statbuf, &stat);
 }
 
+/*
+ * Linux/i386 didn't use to be able to handle more than
+ * 4 system call parameters, so these system calls used a memory
+ * block for parameter passing..
+ */
+
 struct mmap_arg_struct32 {
 	unsigned int addr;
 	unsigned int len;
@@ -290,6 +347,7 @@ asmlinkage long sys32_waitpid(compat_pid_t pid, unsigned int __user *stat_addr,
 	return compat_sys_wait4(pid, stat_addr, options, NULL);
 }
 
+/* warning: next two assume little endian */
 asmlinkage long sys32_pread(unsigned int fd, char __user *ubuf, u32 count,
 			    u32 poslo, u32 poshi)
 {
@@ -304,6 +362,11 @@ asmlinkage long sys32_pwrite(unsigned int fd, const char __user *ubuf,
 			  ((loff_t)AA(poshi) << 32) | AA(poslo));
 }
 
+
+/*
+ * Some system calls that need sign extended arguments. This could be
+ * done by a generic wrapper.
+ */
 long sys32_fadvise64_64(int fd, __u32 offset_low, __u32 offset_high,
 			__u32 len_low, __u32 len_high, int advice)
 {

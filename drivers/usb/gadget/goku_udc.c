@@ -46,6 +46,7 @@
 #include <asm/irq.h>
 #include <asm/unaligned.h>
 
+
 #include "goku_udc.h"
 
 #define	DRIVER_DESC		"TC86C001 USB Device Controller"
@@ -57,6 +58,7 @@ static const char driver_desc [] = DRIVER_DESC;
 MODULE_AUTHOR("source@mvista.com");
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
+
 
 /*
  * IN dma behaves ok under testing, though the IN-dma abort paths don't
@@ -522,6 +524,7 @@ pio_advance(struct goku_ep *ep)
 	req = list_entry(ep->queue.next, struct goku_request, queue);
 	(ep->is_in ? write_fifo : read_fifo)(ep, req);
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1051,6 +1054,7 @@ static void dump_intmask(struct seq_file *m, const char *label, u32 mask)
 		(mask & INT_USBRESET) ? " reset" : "",
 		(mask & INT_SUSPEND) ? " suspend" : "");
 }
+
 
 static int udc_proc_read(struct seq_file *m, void *v)
 {
@@ -1779,6 +1783,7 @@ static int goku_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (use_dma)
 		pci_set_master(pdev);
 
+
 #ifdef CONFIG_USB_GADGET_DEBUG_FILES
 	proc_create_data(proc_node_name, 0, NULL, &udc_proc_fops, dev);
 #endif
@@ -1795,6 +1800,7 @@ err:
 		goku_remove (pdev);
 	return retval;
 }
+
 
 /*-------------------------------------------------------------------------*/
 

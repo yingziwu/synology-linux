@@ -41,6 +41,7 @@
 #include <msp_prom.h>
 #include <msp_regs.h>
 
+
 static struct mtd_info **msp_flash;
 static struct mtd_partition **msp_parts;
 static struct map_info *msp_maps;
@@ -138,14 +139,12 @@ static int __init init_msp_flash(void)
 		}
 
 		msp_maps[i].bankwidth = 1;
-		msp_maps[i].name = kmalloc(7, GFP_KERNEL);
+		msp_maps[i].name = kstrndup(flash_name, 7, GFP_KERNEL);
 		if (!msp_maps[i].name) {
 			iounmap(msp_maps[i].virt);
 			kfree(msp_parts[i]);
 			goto cleanup_loop;
 		}
-
-		msp_maps[i].name = strncpy(msp_maps[i].name, flash_name, 7);
 
 		for (j = 0; j < pcnt; j++) {
 			part_name[5] = '0' + i;

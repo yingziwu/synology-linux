@@ -1773,6 +1773,7 @@ static void tegra30_cpu_out_of_reset(u32 cpu)
 	wmb();
 }
 
+
 static void tegra30_enable_cpu_clock(u32 cpu)
 {
 	unsigned int reg;

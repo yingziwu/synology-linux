@@ -134,6 +134,7 @@
 	;;							\
 (pred)	st8 [clob] = reg
 
+
 #define MOV_TO_IFA(reg, clob)	\
 	movl clob = XSI_IFA;	\
 	;;			\
@@ -212,6 +213,7 @@
 
 #define MOV_TO_KR(kr, reg, clob0, clob1) \
 	__MOV_TO_KR IA64_KR_ ## kr, reg, clob0, clob1
+
 
 .macro __ITC_I pred, reg, clob
 	.ifc "\reg", "r8"
@@ -431,6 +433,7 @@
 	;;						\
 	st4 [clob0] = r0
 
+
 	/* FIXME: THIS CODE IS NOT NaT SAFE! */
 #define XEN_BSW_1(clob)			\
 	mov clob = ar.unat;		\
@@ -473,6 +476,7 @@
 	mov ar.unat = clob
 
 #define BSW_1(clob0, clob1)	XEN_BSW_1(clob1)
+
 
 #define COVER	\
 	XEN_HYPER_COVER

@@ -51,6 +51,7 @@ static void process_signal_queue(unsigned long dummy);
 
 static DECLARE_TASKLET_DISABLED(tipc_tasklet, process_signal_queue, 0);
 
+
 unsigned int tipc_k_signal(Handler routine, unsigned long argument)
 {
 	struct queue_item *item;

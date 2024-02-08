@@ -167,6 +167,8 @@ irqreturn_t esas2r_msi_interrupt(int irq, void *dev_id)
 	return 1;
 }
 
+
+
 static void esas2r_handle_outbound_rsp_err(struct esas2r_adapter *a,
 					   struct esas2r_request *rq,
 					   struct atto_vda_ob_rsp *rsp)
@@ -611,6 +613,7 @@ static void esas2r_handle_chip_rst_during_tasklet(struct esas2r_adapter *a)
 	}
 }
 
+
 /* Perform deferred tasks when chip interrupts are disabled */
 void esas2r_do_tasklet_tasks(struct esas2r_adapter *a)
 {
@@ -694,6 +697,7 @@ void esas2r_force_interrupt(struct esas2r_adapter *a)
 				    DRBL_DRV_VER);
 }
 
+
 static void esas2r_lun_event(struct esas2r_adapter *a, union atto_vda_ae *ae,
 			     u16 target, u32 length)
 {
@@ -737,6 +741,8 @@ static void esas2r_lun_event(struct esas2r_adapter *a, union atto_vda_ae *ae,
 
 	spin_unlock_irqrestore(&a->mem_lock, flags);
 }
+
+
 
 void esas2r_ae_complete(struct esas2r_adapter *a, struct esas2r_request *rq)
 {
@@ -905,6 +911,7 @@ static void esas2r_check_req_rsp_sense(struct esas2r_adapter *a,
 
 	rq->sense_len = snslen;
 }
+
 
 void esas2r_complete_request(struct esas2r_adapter *a,
 			     struct esas2r_request *rq)

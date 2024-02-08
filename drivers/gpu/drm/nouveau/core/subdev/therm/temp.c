@@ -49,6 +49,7 @@ nouveau_therm_temp_set_defaults(struct nouveau_therm *therm)
 	priv->bios_sensor.thrs_shutdown.hysteresis = 5; /*not that it matters */
 }
 
+
 static void
 nouveau_therm_temp_safety_checks(struct nouveau_therm *therm)
 {

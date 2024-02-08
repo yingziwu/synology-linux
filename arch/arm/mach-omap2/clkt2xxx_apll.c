@@ -21,6 +21,7 @@
 #include <linux/clk.h>
 #include <linux/io.h>
 
+
 #include "clock.h"
 #include "clock2xxx.h"
 #include "cm2xxx.h"
@@ -138,3 +139,4 @@ u32 omap2xxx_get_apll_clkin(void)
 
 	return srate;
 }
+

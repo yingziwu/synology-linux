@@ -14,3 +14,4 @@
 #include <trace/events/power.h>
 
 EXPORT_TRACEPOINT_SYMBOL_GPL(cpu_idle);
+

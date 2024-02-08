@@ -675,6 +675,7 @@ smb2_read_data_length(char *buf)
 	return le32_to_cpu(rsp->DataLength);
 }
 
+
 static int
 smb2_sync_read(const unsigned int xid, struct cifs_fid *pfid,
 	       struct cifs_io_parms *parms, unsigned int *bytes_read,
@@ -868,7 +869,7 @@ smb2_query_dir_first(const unsigned int xid, struct cifs_tcon *tcon,
 	}
 
 	srch_inf->entries_in_buffer = 0;
-	srch_inf->index_of_last_entry = 0;
+	srch_inf->index_of_last_entry = 2;
 
 	rc = SMB2_query_directory(xid, tcon, fid->persistent_fid,
 				  fid->volatile_fid, 0, srch_inf);
@@ -1208,9 +1209,11 @@ static long smb3_simple_falloc(struct file *file, struct cifs_tcon *tcon,
 	}
 	/* BB: else ... in future add code to extend file and set sparse */
 
+
 	free_xid(xid);
 	return rc;
 }
+
 
 #ifndef FALLOC_FL_ZERO_RANGE
 #define FALLOC_FL_ZERO_RANGE		0x10

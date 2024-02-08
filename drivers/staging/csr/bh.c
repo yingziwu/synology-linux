@@ -77,6 +77,7 @@ int uf_start_thread(unifi_priv_t *priv,
 	return 0;
 } /* uf_start_thread() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  uf_stop_thread
@@ -105,6 +106,8 @@ void uf_stop_thread(unifi_priv_t *priv, struct uf_thread *thread)
 	thread->thread_task = NULL;
 
 } /* uf_stop_thread() */
+
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -139,6 +142,7 @@ uf_wait_for_thread_to_stop(unifi_priv_t *priv, struct uf_thread *thread)
 	unifi_trace(priv, UDBG2, "%s exiting....\n", thread->name);
 } /* uf_wait_for_thread_to_stop() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  handle_bh_error
@@ -162,6 +166,7 @@ handle_bh_error(unifi_priv_t *priv)
 	netInterface_priv_t *interfacePriv;
 	u8 conf_param = CONFIG_IND_ERROR;
 	u8 interfaceTag;
+
 
 	/* Block unifi_run_bh() until the error has been handled. */
 	priv->bh_thread.block_thread = 1;
@@ -192,6 +197,8 @@ handle_bh_error(unifi_priv_t *priv)
 	ul_log_config_ind(priv, &conf_param, sizeof(u8));
 
 } /* handle_bh_error() */
+
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -297,6 +304,7 @@ static int bh_thread_function(void *arg)
     return 0;
 } /* bh_thread_function() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  uf_init_bh
@@ -319,6 +327,7 @@ uf_init_bh(unifi_priv_t *priv)
     /* Enable mlme interface. */
     priv->io_aborted = 0;
 
+
     /* Start the BH thread */
     r = uf_start_thread(priv, &priv->bh_thread, bh_thread_function);
     if (r) {
@@ -338,6 +347,7 @@ uf_init_bh(unifi_priv_t *priv)
 
     return r;
 } /* uf_init_bh() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -384,3 +394,4 @@ CsrResult unifi_run_bh(void *ospriv)
 
     return CSR_RESULT_SUCCESS;
 } /* unifi_run_bh() */
+

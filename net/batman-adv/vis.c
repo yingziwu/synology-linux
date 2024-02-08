@@ -699,6 +699,7 @@ static void batadv_broadcast_vis_packet(struct batadv_priv *bat_priv,
 	struct sk_buff *skb;
 	uint32_t i;
 
+
 	packet = (struct batadv_vis_packet *)info->skb_packet->data;
 
 	/* send to all routers in range. */

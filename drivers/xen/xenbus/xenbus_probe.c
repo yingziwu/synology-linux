@@ -62,6 +62,7 @@
 #include "xenbus_comms.h"
 #include "xenbus_probe.h"
 
+
 int xen_store_evtchn;
 EXPORT_SYMBOL_GPL(xen_store_evtchn);
 
@@ -97,11 +98,13 @@ int xenbus_match(struct device *_dev, struct device_driver *_drv)
 }
 EXPORT_SYMBOL_GPL(xenbus_match);
 
+
 static void free_otherend_details(struct xenbus_device *dev)
 {
 	kfree(dev->otherend);
 	dev->otherend = NULL;
 }
+
 
 static void free_otherend_watch(struct xenbus_device *dev)
 {
@@ -111,6 +114,7 @@ static void free_otherend_watch(struct xenbus_device *dev)
 		dev->otherend_watch.node = NULL;
 	}
 }
+
 
 static int talk_to_otherend(struct xenbus_device *dev)
 {
@@ -122,6 +126,8 @@ static int talk_to_otherend(struct xenbus_device *dev)
 	return drv->read_otherend_details(dev);
 }
 
+
+
 static int watch_otherend(struct xenbus_device *dev)
 {
 	struct xen_bus_type *bus =
@@ -131,6 +137,7 @@ static int watch_otherend(struct xenbus_device *dev)
 				    bus->otherend_changed,
 				    "%s/%s", dev->otherend, "state");
 }
+
 
 int xenbus_read_otherend_details(struct xenbus_device *xendev,
 				 char *id_node, char *path_node)
@@ -632,6 +639,7 @@ EXPORT_SYMBOL_GPL(xenbus_dev_cancel);
 
 /* A flag to determine if xenstored is 'ready' (i.e. has started) */
 int xenstored_ready;
+
 
 int register_xenstore_notifier(struct notifier_block *nb)
 {

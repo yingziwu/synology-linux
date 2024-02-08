@@ -170,6 +170,7 @@ typedef struct _symbol
  */
 typedef struct card card_t;
 
+
 /*
  * This structure describes all of the bulk data that 'might' be
  * associated with a signal.
@@ -178,6 +179,7 @@ typedef struct _bulk_data_param
 {
     bulk_data_desc_t d[UNIFI_MAX_DATA_REFERENCES];
 } bulk_data_param_t;
+
 
 /*
  * This structure describes the chip and HIP core lib
@@ -191,6 +193,7 @@ typedef struct _card_info
     u16 fw_hip_version;
     u32 sdio_block_size;
 } card_info_t;
+
 
 /*
  * Mini-coredump definitions
@@ -226,6 +229,7 @@ typedef struct unifi_coredump_req
     s32  value;                    /* register value */
 } unifi_coredump_req_t;                 /* mini-coredumped reg value request */
 
+
 /**
  * @defgroup upperedge Upper edge API
  *
@@ -247,6 +251,7 @@ typedef struct unifi_coredump_req
  * @ingroup upperedge
  */
 card_t* unifi_alloc_card(CsrSdioFunction *sdiopriv, void *ospriv);
+
 
 /**
  *
@@ -364,6 +369,7 @@ void unifi_card_info(card_t *card, card_info_t *card_info);
  */
 CsrResult unifi_check_io_status(card_t *card, s32 *status);
 
+
 /**
  *
  * Run the HIP core lib Botton-Half.
@@ -386,6 +392,7 @@ CsrResult unifi_check_io_status(card_t *card, s32 *status);
  * @ingroup upperedge
  */
 CsrResult unifi_bh(card_t *card, u32 *remaining);
+
 
 /**
  * UniFi Low Power Mode (Deep Sleep Signaling)
@@ -530,9 +537,11 @@ void unifi_ta_classification(card_t                      *card,
  */
 CsrResult unifi_card_hard_reset(card_t *card);
 
+
 CsrResult unifi_card_readn(card_t *card, u32 unifi_addr, void *pdata, u16 len);
 CsrResult unifi_card_read16(card_t *card, u32 unifi_addr, u16 *pdata);
 CsrResult unifi_card_write16(card_t *card, u32 unifi_addr, u16 data);
+
 
 enum unifi_dbg_processors_select
 {
@@ -656,6 +665,7 @@ typedef struct
 } unifi_HipQosInfo;
 
 void unifi_get_hip_qos_info(card_t *card, unifi_HipQosInfo *hipqosinfo);
+
 
 /**
  * Functions that read a portion of a firmware file.
@@ -809,6 +819,7 @@ void unifi_rx_queue_flush(void *ospriv);
  */
 void unifi_sdio_interrupt_handler(card_t *card);
 
+
 /* HELPER FUNCTIONS */
 
 /*
@@ -838,6 +849,7 @@ void unifi_set_interrupt_mode(card_t *card, u32 mode);
  * next suitable opportunity.
  */
 void unifi_request_max_sdio_clock(card_t *card);
+
 
 /* Functions to lookup bulk data command names. */
 const char* lookup_bulkcmd_name(u16 id);

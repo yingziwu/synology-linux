@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/capability.h>
 #include <linux/blkdev.h>
 #include <linux/export.h>
@@ -185,6 +188,37 @@ static int blk_ioctl_discard(struct block_device *bdev, uint64_t start,
 	return blkdev_issue_discard(bdev, start, len, GFP_KERNEL, flags);
 }
 
+#ifdef MY_ABC_HERE
+static int blk_ioctl_hint_unused(struct block_device *bdev, fmode_t mode,
+		unsigned long arg)
+{
+	uint64_t range[2];			/* [0]: start [1]: len in unit of byte */
+	uint64_t start, len, total;	/* unit: sector */
+
+	if (!(mode & FMODE_WRITE))
+		return -EBADF;
+
+	if (copy_from_user(range, (void __user *)arg, sizeof(range)))
+		return -EFAULT;
+
+	/*
+	 * start should be aligned to sector (512 bytes)
+	 * len doesn't need this because it'll be trimmed while doing bitwise shift
+	 */
+	if (range[0] & 511)
+		return -EINVAL;
+
+	start = range[0] >> 9;
+	len = range[1] >> 9;
+	total = i_size_read(bdev->bd_inode) >> 9;
+
+	if (start + len > total)
+		len = total - start;
+
+	return blkdev_hint_unused(bdev, start, len, GFP_KERNEL);
+}
+#endif /* MY_ABC_HERE */
+
 static int blk_ioctl_zeroout(struct block_device *bdev, uint64_t start,
 			     uint64_t len)
 {
@@ -316,6 +350,10 @@ int blkdev_ioctl(struct block_device *bdev, fmode_t mode, unsigned cmd,
 		return blk_ioctl_discard(bdev, range[0], range[1],
 					 cmd == BLKSECDISCARD);
 	}
+	#ifdef MY_ABC_HERE
+	case BLKHINTUNUSED:
+		return blk_ioctl_hint_unused(bdev, mode, arg);
+	#endif /* MY_ABC_HERE */
 	case BLKZEROOUT: {
 		uint64_t range[2];
 

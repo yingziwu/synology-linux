@@ -1104,11 +1104,13 @@ static int vlv_calc_delay_from_C0_counters(struct drm_i915_private *dev_priv)
 
 	WARN_ON(!mutex_is_locked(&dev_priv->rps.hw_lock));
 
+
 	if (dev_priv->rps.up_ei.cz_clock == 0) {
 		vlv_c0_residency(dev_priv, &dev_priv->rps.up_ei);
 		vlv_c0_residency(dev_priv, &dev_priv->rps.down_ei);
 		return dev_priv->rps.cur_freq;
 	}
+
 
 	/*
 	 * To down throttle, C0 residency should be less than down threshold
@@ -1242,6 +1244,7 @@ static void gen6_pm_rps_work(struct work_struct *work)
 
 	mutex_unlock(&dev_priv->rps.hw_lock);
 }
+
 
 /**
  * ivybridge_parity_work - Workqueue called when a parity error interrupt
@@ -1689,6 +1692,7 @@ display_pipe_crc_irq_handler(struct drm_device *dev, enum pipe pipe,
 			     uint32_t crc2, uint32_t crc3,
 			     uint32_t crc4) {}
 #endif
+
 
 static void hsw_pipe_crc_irq_handler(struct drm_device *dev, enum pipe pipe)
 {
@@ -2345,6 +2349,7 @@ static irqreturn_t gen8_irq_handler(int irq, void *arg)
 			if (pipe_iir & GEN8_PIPE_FIFO_UNDERRUN)
 				intel_cpu_fifo_underrun_irq_handler(dev_priv,
 								    pipe);
+
 
 			if (IS_GEN9(dev))
 				fault_errors = pipe_iir & GEN9_DE_PIPE_IRQ_FAULT_ERRORS;

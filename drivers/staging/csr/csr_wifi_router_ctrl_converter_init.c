@@ -110,11 +110,13 @@ CsrMsgConvMsgEntry* CsrWifiRouterCtrlConverterLookup(CsrMsgConvMsgEntry *ce, u16
     return NULL;
 }
 
+
 void CsrWifiRouterCtrlConverterInit(void)
 {
     CsrMsgConvInsert(CSR_WIFI_ROUTER_CTRL_PRIM, csrwifirouterctrl_conv_lut);
     CsrMsgConvCustomLookupRegister(CSR_WIFI_ROUTER_CTRL_PRIM, CsrWifiRouterCtrlConverterLookup);
 }
+
 
 #ifdef CSR_LOG_ENABLE
 static const CsrLogPrimitiveInformation csrwifirouterctrl_conv_info = {
@@ -126,6 +128,7 @@ const CsrLogPrimitiveInformation* CsrWifiRouterCtrlTechInfoGet(void)
 {
     return &csrwifirouterctrl_conv_info;
 }
+
 
 #endif /* CSR_LOG_ENABLE */
 #endif /* EXCLUDE_CSR_WIFI_ROUTER_CTRL_MODULE */

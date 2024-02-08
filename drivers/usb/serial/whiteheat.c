@@ -74,6 +74,7 @@ static const struct usb_device_id id_table_combined[] = {
 
 MODULE_DEVICE_TABLE(usb, id_table_combined);
 
+
 /* function prototypes for the Connect Tech WhiteHEAT prerenumeration device */
 static int  whiteheat_firmware_download(struct usb_serial *serial,
 					const struct usb_device_id *id);
@@ -152,6 +153,7 @@ struct whiteheat_private {
 	__u8			mcr;		/* FIXME: no locking on mcr */
 };
 
+
 /* local function prototypes */
 static int start_command_port(struct usb_serial *serial);
 static void stop_command_port(struct usb_serial *serial);
@@ -170,10 +172,12 @@ static int firm_purge(struct usb_serial_port *port, __u8 rxtx);
 static int firm_get_dtr_rts(struct usb_serial_port *port);
 static int firm_report_tx_done(struct usb_serial_port *port);
 
+
 #define COMMAND_PORT		4
 #define COMMAND_TIMEOUT		(2*HZ)	/* 2 second timeout for a command */
 #define	COMMAND_TIMEOUT_MS	2000
 #define CLOSING_DELAY		(30 * HZ)
+
 
 /*****************************************************************************
  * Connect Tech's White Heat prerenumeration driver functions
@@ -206,11 +210,13 @@ static int whiteheat_firmware_download(struct usb_serial *serial,
 	return -ENOENT;
 }
 
+
 static int whiteheat_firmware_attach(struct usb_serial *serial)
 {
 	/* We want this device to fail to have a driver assigned to it */
 	return 1;
 }
+
 
 /*****************************************************************************
  * Connect Tech's White Heat serial driver functions
@@ -425,6 +431,7 @@ exit:
 	return retval;
 }
 
+
 static void whiteheat_close(struct usb_serial_port *port)
 {
 	firm_report_tx_done(port);
@@ -471,6 +478,7 @@ static int whiteheat_tiocmset(struct tty_struct *tty,
 	return 0;
 }
 
+
 static int whiteheat_ioctl(struct tty_struct *tty,
 					unsigned int cmd, unsigned long arg)
 {
@@ -503,6 +511,7 @@ static int whiteheat_ioctl(struct tty_struct *tty,
 	return -ENOIOCTLCMD;
 }
 
+
 static void whiteheat_set_termios(struct tty_struct *tty,
 	struct usb_serial_port *port, struct ktermios *old_termios)
 {
@@ -514,6 +523,7 @@ static void whiteheat_break_ctl(struct tty_struct *tty, int break_state)
 	struct usb_serial_port *port = tty->driver_data;
 	firm_set_break(port, break_state);
 }
+
 
 /*****************************************************************************
  * Connect Tech's White Heat callback routines
@@ -527,6 +537,7 @@ static void command_port_write_callback(struct urb *urb)
 		return;
 	}
 }
+
 
 static void command_port_read_callback(struct urb *urb)
 {
@@ -580,6 +591,7 @@ static void command_port_read_callback(struct urb *urb)
 		dev_dbg(&urb->dev->dev, "%s - failed resubmitting read urb, error %d\n",
 			__func__, result);
 }
+
 
 /*****************************************************************************
  * Connect Tech's White Heat firmware interface
@@ -645,6 +657,7 @@ exit:
 	return retval;
 }
 
+
 static int firm_open(struct usb_serial_port *port)
 {
 	struct whiteheat_simple open_command;
@@ -654,6 +667,7 @@ static int firm_open(struct usb_serial_port *port)
 		(__u8 *)&open_command, sizeof(open_command));
 }
 
+
 static int firm_close(struct usb_serial_port *port)
 {
 	struct whiteheat_simple close_command;
@@ -662,6 +676,7 @@ static int firm_close(struct usb_serial_port *port)
 	return firm_send_command(port, WHITEHEAT_CLOSE,
 			(__u8 *)&close_command, sizeof(close_command));
 }
+
 
 static void firm_setup_port(struct tty_struct *tty)
 {
@@ -742,6 +757,7 @@ static void firm_setup_port(struct tty_struct *tty)
 			(__u8 *)&port_settings, sizeof(port_settings));
 }
 
+
 static int firm_set_rts(struct usb_serial_port *port, __u8 onoff)
 {
 	struct whiteheat_set_rdb rts_command;
@@ -751,6 +767,7 @@ static int firm_set_rts(struct usb_serial_port *port, __u8 onoff)
 	return firm_send_command(port, WHITEHEAT_SET_RTS,
 			(__u8 *)&rts_command, sizeof(rts_command));
 }
+
 
 static int firm_set_dtr(struct usb_serial_port *port, __u8 onoff)
 {
@@ -762,6 +779,7 @@ static int firm_set_dtr(struct usb_serial_port *port, __u8 onoff)
 			(__u8 *)&dtr_command, sizeof(dtr_command));
 }
 
+
 static int firm_set_break(struct usb_serial_port *port, __u8 onoff)
 {
 	struct whiteheat_set_rdb break_command;
@@ -771,6 +789,7 @@ static int firm_set_break(struct usb_serial_port *port, __u8 onoff)
 	return firm_send_command(port, WHITEHEAT_SET_BREAK,
 			(__u8 *)&break_command, sizeof(break_command));
 }
+
 
 static int firm_purge(struct usb_serial_port *port, __u8 rxtx)
 {
@@ -782,6 +801,7 @@ static int firm_purge(struct usb_serial_port *port, __u8 rxtx)
 			(__u8 *)&purge_command, sizeof(purge_command));
 }
 
+
 static int firm_get_dtr_rts(struct usb_serial_port *port)
 {
 	struct whiteheat_simple get_dr_command;
@@ -791,6 +811,7 @@ static int firm_get_dtr_rts(struct usb_serial_port *port)
 			(__u8 *)&get_dr_command, sizeof(get_dr_command));
 }
 
+
 static int firm_report_tx_done(struct usb_serial_port *port)
 {
 	struct whiteheat_simple close_command;
@@ -799,6 +820,7 @@ static int firm_report_tx_done(struct usb_serial_port *port)
 	return firm_send_command(port, WHITEHEAT_REPORT_TX_DONE,
 			(__u8 *)&close_command, sizeof(close_command));
 }
+
 
 /*****************************************************************************
  * Connect Tech's White Heat utility functions
@@ -830,6 +852,7 @@ exit:
 	mutex_unlock(&command_info->mutex);
 	return retval;
 }
+
 
 static void stop_command_port(struct usb_serial *serial)
 {

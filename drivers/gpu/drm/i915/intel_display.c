@@ -207,6 +207,7 @@ static const intel_limit_t intel_limits_i9xx_lvds = {
 		.p2_slow = 14, .p2_fast = 7 },
 };
 
+
 static const intel_limit_t intel_limits_g4x_sdvo = {
 	.dot = { .min = 25000, .max = 270000 },
 	.vco = { .min = 1750000, .max = 3500000},
@@ -3449,6 +3450,7 @@ static void ironlake_fdi_pll_enable(struct intel_crtc *intel_crtc)
 	int pipe = intel_crtc->pipe;
 	u32 reg, temp;
 
+
 	/* enable PCH FDI RX PLL, wait warmup plus DMI latency */
 	reg = FDI_RX_CTL(pipe);
 	temp = I915_READ(reg);
@@ -4656,6 +4658,7 @@ static void ironlake_crtc_off(struct drm_crtc *crtc)
 	struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
 	intel_put_shared_dpll(intel_crtc);
 }
+
 
 static void i9xx_pfit_enable(struct intel_crtc *crtc)
 {
@@ -9223,6 +9226,7 @@ void intel_prepare_page_flip(struct drm_device *dev, int plane)
 		to_intel_crtc(dev_priv->plane_to_crtc_mapping[plane]);
 	unsigned long flags;
 
+
 	/*
 	 * This is called both by irq handlers and the reset code (to complete
 	 * lost pageflips) so needs the full irqsave spinlocks.
@@ -11394,6 +11398,7 @@ intel_modeset_stage_output_state(struct drm_device *dev,
 				connector->base.name);
 		}
 
+
 		if (&connector->new_encoder->base != connector->base.encoder) {
 			DRM_DEBUG_KMS("encoder changed, full mode switch\n");
 			config->mode_changed = true;
@@ -12084,6 +12089,7 @@ intel_check_cursor_plane(struct drm_plane *plane,
 					    true, true, &state->visible);
 	if (ret)
 		return ret;
+
 
 	/* if we want to turn off the cursor ignore width and height */
 	if (!obj)

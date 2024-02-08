@@ -62,10 +62,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvBoardEnvSpech
 #define __INCmvBoardEnvSpech
 
 #include "mvSysHwConfig.h"
+
 
 /* For future use */
 #define BD_ID_DATA_START_OFFS		0x0

@@ -495,6 +495,7 @@ mi_set_context(struct intel_engine_cs *ring,
 	if (!IS_HASWELL(ring->dev) && INTEL_INFO(ring->dev)->gen < 8)
 		flags |= (MI_SAVE_EXT_STATE_EN | MI_RESTORE_EXT_STATE_EN);
 
+
 	len = 4;
 	if (INTEL_INFO(ring->dev)->gen >= 7)
 		len += 2 + (num_rings ? 4*num_rings + 2 : 0);

@@ -347,3 +347,4 @@ void Wb35Rx_destroy(struct hw_data *pHwData)
 		usb_free_urb(pWb35Rx->RxUrb);
 	pr_debug("Wb35Rx_destroy OK\n");
 }
+

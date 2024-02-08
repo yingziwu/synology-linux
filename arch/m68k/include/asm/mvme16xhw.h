@@ -20,6 +20,7 @@ typedef struct {
 	u_long	option2;
 } t_bdid, *p_bdid;
 
+
 typedef struct {
 	u_char	ack_icr,
 		flt_icr,

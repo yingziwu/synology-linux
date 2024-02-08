@@ -1648,6 +1648,7 @@ static void s5p_mfc_try_run_v6(struct s5p_mfc_dev *dev)
 	}
 }
 
+
 static void s5p_mfc_cleanup_queue_v6(struct list_head *lh, struct vb2_queue *vq)
 {
 	struct s5p_mfc_buf *b;

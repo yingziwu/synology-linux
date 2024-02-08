@@ -306,6 +306,7 @@ static inline void skb_dst_force(struct sk_buff *skb)
 	}
 }
 
+
 /**
  *	__skb_tunnel_rx - prepare skb for rx reinsert
  *	@skb: buffer

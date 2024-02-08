@@ -1,7 +1,29 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * SCSI Enclosure Services
+ *
+ * Copyright (C) 2008 James Bottomley <James.Bottomley@HansenPartnership.com>
+ *
+**-----------------------------------------------------------------------------
+**
+**  This program is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU General Public License
+**  version 2 as published by the Free Software Foundation.
+**
+**  This program is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  GNU General Public License for more details.
+**
+**  You should have received a copy of the GNU General Public License
+**  along with this program; if not, write to the Free Software
+**  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+**
+**-----------------------------------------------------------------------------
+*/
+
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -54,7 +76,7 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
 	int ret;
 	unsigned char cmd[] = {
 		RECEIVE_DIAGNOSTIC,
-		1,		 
+		1,		/* Set PCV bit */
 		page_code,
 		bufflen >> 8,
 		bufflen & 0xff,
@@ -72,6 +94,9 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
 	if (likely(recv_page_code == page_code))
 		return ret;
 
+	/* successful diagnostic but wrong page code.  This happens to some
+	 * USB devices, just print a message and pretend there was an error */
+
 	sdev_printk(KERN_ERR, sdev,
 		    "Wrong diagnostic page; asked for %d got %u\n",
 		    page_code, recv_page_code);
@@ -86,7 +111,7 @@ static int ses_send_diag(struct scsi_device *sdev, int page_code,
 
 	unsigned char cmd[] = {
 		SEND_DIAGNOSTIC,
-		0x10,		 
+		0x10,		/* Set PF bit */
 		0,
 		bufflen >> 8,
 		bufflen & 0xff,
@@ -111,6 +136,7 @@ static int ses_set_page2_descriptor(struct enclosure_device *edev,
 	unsigned char *type_ptr = ses_dev->page1_types;
 	unsigned char *desc_ptr = ses_dev->page2 + 8;
 
+	/* Clear everything */
 	memset(desc_ptr, 0, ses_dev->page2_len - 8);
 	for (i = 0; i < ses_dev->page1_num_types; i++, type_ptr += 4) {
 		for (j = 0; j < type_ptr[1]; j++) {
@@ -120,22 +146,22 @@ static int ses_set_page2_descriptor(struct enclosure_device *edev,
 #ifdef MY_DEF_HERE
 			    type_ptr[0] != ENCLOSURE_COMPONENT_ARRAY_DEVICE &&
 			    type_ptr[0] != ENCLOSURE_COMPONENT_ENCLOSURE)
-#else  
+#else /* MY_DEF_HERE */
 			    type_ptr[0] != ENCLOSURE_COMPONENT_ARRAY_DEVICE)
-#endif  
+#endif /* MY_DEF_HERE */
 				continue;
 
 			if (count++ == descriptor) {
 				memcpy(desc_ptr, desc, 4);
-				 
+				/* set select */
 				desc_ptr[0] |= 0x80;
-				 
+				/* clear reserved, just in case */
 				desc_ptr[0] &= 0xf0;
 			}
 		}
 #ifdef MY_DEF_HERE
 		desc_ptr += 4;
-#endif  
+#endif /* MY_DEF_HERE */
 	}
 
 	return ses_send_diag(sdev, 2, ses_dev->page2, ses_dev->page2_len);
@@ -159,20 +185,24 @@ static unsigned char *ses_get_page2_descriptor(struct enclosure_device *edev,
 #ifdef MY_DEF_HERE
 			    type_ptr[0] != ENCLOSURE_COMPONENT_ARRAY_DEVICE &&
 			    type_ptr[0] != ENCLOSURE_COMPONENT_ENCLOSURE)
-#else  
+#else /* MY_DEF_HERE */
 			    type_ptr[0] != ENCLOSURE_COMPONENT_ARRAY_DEVICE)
-#endif  
+#endif /* MY_DEF_HERE */
 				continue;
 			if (count++ == descriptor)
 				return desc_ptr;
 		}
 #ifdef MY_DEF_HERE
 		desc_ptr += 4;
-#endif  
+#endif /* MY_DEF_HERE */
 	}
 	return NULL;
 }
 
+/* For device slot and array device slot elements, byte 3 bit 6
+ * is "fault sensed" while byte 3 bit 5 is "fault reqstd". As this
+ * code stands these bits are shifted 4 positions right so in
+ * sysfs they will appear as bits 2 and 1 respectively. Strange. */
 static void ses_get_fault(struct enclosure_device *edev,
 			  struct enclosure_component *ecomp)
 {
@@ -191,13 +221,13 @@ static int ses_set_fault(struct enclosure_device *edev,
 
 	switch (val) {
 	case ENCLOSURE_SETTING_DISABLED:
-		 
+		/* zero is disabled */
 		break;
 	case ENCLOSURE_SETTING_ENABLED:
 		desc[3] = 0x20;
 		break;
 	default:
-		 
+		/* SES doesn't do the SGPIO blink settings */
 		return -EINVAL;
 	}
 
@@ -232,13 +262,13 @@ static int ses_set_locate(struct enclosure_device *edev,
 
 	switch (val) {
 	case ENCLOSURE_SETTING_DISABLED:
-		 
+		/* zero is disabled */
 		break;
 	case ENCLOSURE_SETTING_ENABLED:
 		desc[2] = 0x02;
 		break;
 	default:
-		 
+		/* SES doesn't do the SGPIO blink settings */
 		return -EINVAL;
 	}
 	return ses_set_page2_descriptor(edev, ecomp, desc);
@@ -253,13 +283,14 @@ static int syno_ses_set_poweroff(struct enclosure_device *edev,
 
 	desc_get = ses_get_page2_descriptor(edev, ecomp);
 
+	/* power cycle request: bit 7,6 = 10, bit 5~0 = 000000 */
 	desc[2] = 0x40;
-	 
+	/* power off duration: bit 7~2 = 111111 */
 	desc[3] = ((desc_get[3] & 0x3) | (63 << 2));
 
 	return ses_set_page2_descriptor(edev, ecomp, desc);
 }
-#endif  
+#endif /* MY_DEF_HERE */
 
 static int ses_set_active(struct enclosure_device *edev,
 			  struct enclosure_component *ecomp,
@@ -269,7 +300,7 @@ static int ses_set_active(struct enclosure_device *edev,
 
 	switch (val) {
 	case ENCLOSURE_SETTING_DISABLED:
-		 
+		/* zero is disabled */
 		ecomp->active = 0;
 		break;
 	case ENCLOSURE_SETTING_ENABLED:
@@ -277,7 +308,7 @@ static int ses_set_active(struct enclosure_device *edev,
 		ecomp->active = 1;
 		break;
 	default:
-		 
+		/* SES doesn't do the SGPIO blink settings */
 		return -EINVAL;
 	}
 	return ses_set_page2_descriptor(edev, ecomp, desc);
@@ -314,7 +345,7 @@ int ses_match_host(struct enclosure_device *edev, void *data)
 	sed->edev = edev;
 	return 1;
 }
-#endif   
+#endif  /*  0  */
 
 static void ses_process_descriptor(struct enclosure_component *ecomp,
 				   unsigned char *desc)
@@ -337,7 +368,7 @@ static void ses_process_descriptor(struct enclosure_component *ecomp,
 			d = desc + 8;
 		else
 			d = desc + 4;
-		 
+		/* only take the phy0 addr */
 		addr = (u64)d[12] << 56 |
 			(u64)d[13] << 48 |
 			(u64)d[14] << 40 |
@@ -348,7 +379,7 @@ static void ses_process_descriptor(struct enclosure_component *ecomp,
 			(u64)d[19];
 		break;
 	default:
-		 
+		/* FIXME: Need to add more protocols than just SAS */
 		break;
 	}
 	scomp->addr = addr;
@@ -396,15 +427,16 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
 	if (!hdr_buf)
 		goto simple_populate;
 
+	/* re-read page 10 */
 	if (ses_dev->page10)
 		ses_recv_diag(sdev, 10, ses_dev->page10, ses_dev->page10_len);
-	 
+	/* Page 7 for the descriptors is optional */
 	result = ses_recv_diag(sdev, 7, hdr_buf, INIT_ALLOC_SIZE);
 	if (result)
 		goto simple_populate;
 
 	page7_len = len = (hdr_buf[2] << 8) + hdr_buf[3] + 4;
-	 
+	/* add 1 for trailing '\0' we'll use */
 	buf = kzalloc(len + 1, GFP_KERNEL);
 	if (!buf)
 		goto simple_populate;
@@ -419,7 +451,7 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
 	} else {
 		desc_ptr = buf + 8;
 		len = (desc_ptr[2] << 8) + desc_ptr[3];
-		 
+		/* skip past overall descriptor */
 		desc_ptr += len + 4;
 	}
 	if (ses_dev->page10)
@@ -437,7 +469,8 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
 				} else {
 					len = (desc_ptr[2] << 8) + desc_ptr[3];
 					desc_ptr += 4;
-					 
+					/* Add trailing zero - pushes into
+					 * reserved space */
 					desc_ptr[len] = '\0';
 					name = desc_ptr;
 				}
@@ -447,9 +480,9 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
 #ifdef MY_DEF_HERE
 			    type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE ||
 			    type_ptr[0] == ENCLOSURE_COMPONENT_ENCLOSURE) {
-#else  
+#else /* MY_DEF_HERE */
 			    type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE) {
-#endif  
+#endif /* MY_DEF_HERE */
 
 				if (create)
 					ecomp =	enclosure_component_register(edev,
@@ -467,11 +500,11 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
 				desc_ptr += len;
 
 			if (addl_desc_ptr &&
-			     
+			    /* only find additional descriptions for specific devices */
 			    (type_ptr[0] == ENCLOSURE_COMPONENT_DEVICE ||
 			     type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE ||
 			     type_ptr[0] == ENCLOSURE_COMPONENT_SAS_EXPANDER ||
-			      
+			     /* these elements are optional */
 			     type_ptr[0] == ENCLOSURE_COMPONENT_SCSI_TARGET_PORT ||
 			     type_ptr[0] == ENCLOSURE_COMPONENT_SCSI_INITIATOR_PORT ||
 			     type_ptr[0] == ENCLOSURE_COMPONENT_CONTROLLER_ELECTRONICS))
@@ -550,9 +583,12 @@ static int ses_intf_add(struct device *cdev,
 	int num_enclosures;
 	struct enclosure_device *edev;
 	struct ses_component *scomp = NULL;
+#ifdef MY_ABC_HERE
+	int retry_count = SES_RETRIES;
+#endif
 
 	if (!scsi_device_enclosure(sdev)) {
-		 
+		/* not an enclosure, but might be in one */
 		struct enclosure_device *prev = NULL;
 
 		while ((edev = enclosure_find(&sdev->host->shost_gendev, prev)) != NULL) {
@@ -567,8 +603,9 @@ static int ses_intf_add(struct device *cdev,
 			SYNO_PORT_TYPE_USB == sdev->host->hostt->syno_port_type) {
 		return -ENODEV;
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
+	/* TYPE_ENCLOSURE prints a message in probe */
 	if (sdev->type != TYPE_ENCLOSURE)
 		sdev_printk(KERN_NOTICE, sdev, "Embedded Enclosure Device\n");
 
@@ -577,7 +614,17 @@ static int ses_intf_add(struct device *cdev,
 	if (!hdr_buf || !ses_dev)
 		goto err_init_free;
 
+#ifdef MY_ABC_HERE
+	retry_count = SES_RETRIES;
+	do {
+		result = ses_recv_diag(sdev, 1, hdr_buf, INIT_ALLOC_SIZE);
+		if (result) {
+			sdev_printk(KERN_ERR, sdev, "result(%x), page1 retry_count(%d)\n", result, retry_count);
+		}
+	} while (result && ((--retry_count) >= 0));
+#else
 	result = ses_recv_diag(sdev, 1, hdr_buf, INIT_ALLOC_SIZE);
+#endif
 	if (result)
 		goto recv_failed;
 
@@ -586,16 +633,29 @@ static int ses_intf_add(struct device *cdev,
 	if (!buf)
 		goto err_free;
 
+#ifdef MY_ABC_HERE
+	retry_count = SES_RETRIES;
+	do {
+		result = ses_recv_diag(sdev, 1, buf, len);
+		if (result) {
+			sdev_printk(KERN_ERR, sdev, "result(%x), page1 retry_count(%d)\n", result, retry_count);
+		}
+	} while (result && ((--retry_count) >= 0));
+#else
 	result = ses_recv_diag(sdev, 1, buf, len);
+#endif
 	if (result)
 		goto recv_failed;
 
 	types = 0;
 
+	/* we always have one main enclosure and the rest are referred
+	 * to as secondary subenclosures */
 	num_enclosures = buf[1] + 1;
 
+	/* begin at the enclosure descriptor */
 	type_ptr = buf + 8;
-	 
+	/* skip all the enclosure descriptors */
 	for (i = 0; i < num_enclosures && type_ptr < buf + len; i++) {
 		types += type_ptr[2];
 		type_ptr += type_ptr[3] + 4;
@@ -609,16 +669,26 @@ static int ses_intf_add(struct device *cdev,
 #ifdef MY_DEF_HERE
 		    type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE ||
 		    type_ptr[0] == ENCLOSURE_COMPONENT_ENCLOSURE)
-#else  
+#else /* MY_DEF_HERE */
 		    type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE)
-#endif  
+#endif /* MY_DEF_HERE */
 			components += type_ptr[1];
 	}
 	ses_dev->page1 = buf;
 	ses_dev->page1_len = len;
 	buf = NULL;
 
+#ifdef MY_ABC_HERE
+	retry_count = SES_RETRIES;
+	do {
+		result = ses_recv_diag(sdev, 2, hdr_buf, INIT_ALLOC_SIZE);
+		if (result) {
+			sdev_printk(KERN_ERR, sdev, "result(%x), page2 retry_count(%d)\n", result, retry_count);
+		}
+	} while (result && ((--retry_count) >= 0));
+#else
 	result = ses_recv_diag(sdev, 2, hdr_buf, INIT_ALLOC_SIZE);
+#endif
 	if (result)
 		goto recv_failed;
 
@@ -626,15 +696,35 @@ static int ses_intf_add(struct device *cdev,
 	buf = kzalloc(len, GFP_KERNEL);
 	if (!buf)
 		goto err_free;
-
+#ifdef MY_ABC_HERE
+	retry_count = SES_RETRIES;
+	do {
+		/* make sure getting page 2 actually works */
+		result = ses_recv_diag(sdev, 2, buf, len);
+		if (result) {
+			sdev_printk(KERN_ERR, sdev, "result(%x), page2 retry_count(%d)\n", result, retry_count);
+		}
+	} while (result && ((--retry_count) >= 0));
+#else
+	/* make sure getting page 2 actually works */
 	result = ses_recv_diag(sdev, 2, buf, len);
+#endif
 	if (result)
 		goto recv_failed;
 	ses_dev->page2 = buf;
 	ses_dev->page2_len = len;
 	buf = NULL;
 
+	/* The additional information page --- allows us
+	 * to match up the devices */
+#ifdef MY_ABC_HERE
+	retry_count = SES_RETRIES;
+	do {
+		result = ses_recv_diag(sdev, 10, hdr_buf, INIT_ALLOC_SIZE);
+	} while (result && ((--retry_count) >= 0));
+#else
 	result = ses_recv_diag(sdev, 10, hdr_buf, INIT_ALLOC_SIZE);
+#endif
 	if (!result) {
 
 		len = (hdr_buf[2] << 8) + hdr_buf[3] + 4;
@@ -642,7 +732,17 @@ static int ses_intf_add(struct device *cdev,
 		if (!buf)
 			goto err_free;
 
+#ifdef MY_ABC_HERE
+		retry_count = SES_RETRIES;
+		do {
+			result = ses_recv_diag(sdev, 10, buf, len);
+			if (result) {
+				sdev_printk(KERN_ERR, sdev, "result(%x), page10 retry_count(%d)\n", result, retry_count);
+			}
+		} while (result && ((--retry_count) >= 0));
+#else
 		result = ses_recv_diag(sdev, 10, buf, len);
+#endif
 		if (result)
 			goto recv_failed;
 		ses_dev->page10 = buf;
@@ -668,6 +768,8 @@ static int ses_intf_add(struct device *cdev,
 
 	ses_enclosure_data_process(edev, sdev, 1);
 
+	/* see if there are any devices matching before
+	 * we found the enclosure */
 	shost_for_each_device(tmp_sdev, sdev->host) {
 		if (tmp_sdev->lun != 0 || scsi_device_enclosure(tmp_sdev))
 			continue;
@@ -719,7 +821,7 @@ static void syno_ses_shutdown(struct device *dev)
 		}
 	}
 }
-#endif  
+#endif /* MY_DEF_HERE */
 
 static int ses_remove(struct device *dev)
 {
@@ -730,11 +832,12 @@ static void ses_intf_remove_component(struct scsi_device *sdev)
 {
 	struct enclosure_device *edev, *prev = NULL;
 #ifdef MY_ABC_HERE
-	 
+	// for #41463, the data structure of ses_component in enclosure_component does not clear when device removed
+	// after checking related function and we decide that here is the best position to clear it
 	struct enclosure_component *cdev;
 	struct ses_component *scomp;
 	int i;
-#endif  
+#endif /* MY_ABC_HERE */
 
 	while ((edev = enclosure_find(&sdev->host->shost_gendev, prev)) != NULL) {
 		prev = edev;
@@ -748,7 +851,7 @@ static void ses_intf_remove_component(struct scsi_device *sdev)
 				scomp->desc = NULL;
 			}
 		}
-#endif  
+#endif /* MY_ABC_HERE */
 
 		if (!enclosure_remove_device(edev, &sdev->sdev_gendev))
 			break;
@@ -762,6 +865,7 @@ static void ses_intf_remove_enclosure(struct scsi_device *sdev)
 	struct enclosure_device *edev;
 	struct ses_device *ses_dev;
 
+	/*  exact match to this enclosure */
 	edev = enclosure_find(&sdev->sdev_gendev, NULL);
 	if (!edev)
 		return;
@@ -804,7 +908,7 @@ static struct scsi_driver ses_template = {
 		.remove		= ses_remove,
 #ifdef MY_DEF_HERE
 		.shutdown	= syno_ses_shutdown,
-#endif  
+#endif /* MY_DEF_HERE */
 	},
 };
 

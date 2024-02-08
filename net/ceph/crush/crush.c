@@ -122,3 +122,5 @@ void crush_destroy(struct crush_map *map)
 
 	kfree(map);
 }
+
+

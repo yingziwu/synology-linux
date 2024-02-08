@@ -45,6 +45,7 @@
 /*									     */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/slab.h>
@@ -354,6 +355,7 @@ static const struct snd_kcontrol_new via_pin_power_ctl_enum[] = {
 	{} /* terminator */
 };
 
+
 /* check AA path's mute status */
 static bool is_aa_path_mute(struct hda_codec *codec)
 {
@@ -518,6 +520,7 @@ static const struct hda_codec_ops via_patch_ops = {
 	.check_power_status = via_check_power_status,
 #endif
 };
+
 
 static const struct hda_verb vt1708_init_verbs[] = {
 	/* power down jack detect function */
@@ -1146,6 +1149,7 @@ static int add_secret_dac_path(struct hda_codec *codec)
 	return 0;
 }
 
+
 static int patch_vt1718S(struct hda_codec *codec)
 {
 	struct via_spec *spec;
@@ -1230,6 +1234,7 @@ static const struct snd_kcontrol_new vt1716s_dmic_mixer[] = {
 	 },
 	{}			/* end */
 };
+
 
 /* mono-out mixer elements */
 static const struct snd_kcontrol_new vt1716S_mono_out_mixer[] = {
@@ -1629,6 +1634,7 @@ static void set_widgets_power_state_vt1812(struct hda_codec *codec)
 		update_power_state(codec, 0x14, AC_PWRST_D0);
 		update_power_state(codec, 0x34, AC_PWRST_D0);
 	}
+
 
 	/* Mono Out */
 	/* PW13 (31h), MW13(1ch), MUX13(3ch), MW14(3eh) */

@@ -224,6 +224,7 @@ int hw_device_reset(struct ci13xxx *ci, u32 mode)
 	while (hw_read(ci, OP_USBCMD, USBCMD_RST))
 		udelay(10);		/* not RTOS friendly */
 
+
 	if (ci->platdata->notify_event)
 		ci->platdata->notify_event(ci,
 			CI13XXX_CONTROLLER_RESET_EVENT);

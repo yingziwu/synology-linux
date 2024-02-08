@@ -1903,7 +1903,7 @@ static int xs_local_setup_socket(struct sock_xprt *transport)
 	struct socket *sock;
 	int status = -EIO;
 
-	current->flags |= PF_FSTRANS;
+	current->flags |= PF_MEMALLOC_NOFS;
 
 	clear_bit(XPRT_CONNECTION_ABORT, &xprt->state);
 	status = __sock_create(xprt->xprt_net, AF_LOCAL,
@@ -1942,7 +1942,7 @@ static int xs_local_setup_socket(struct sock_xprt *transport)
 out:
 	xprt_clear_connecting(xprt);
 	xprt_wake_pending_tasks(xprt, status);
-	current->flags &= ~PF_FSTRANS;
+	current->flags &= ~PF_MEMALLOC_NOFS;
 	return status;
 }
 
@@ -2046,7 +2046,7 @@ static void xs_udp_setup_socket(struct work_struct *work)
 	struct socket *sock = transport->sock;
 	int status = -EIO;
 
-	current->flags |= PF_FSTRANS;
+	current->flags |= PF_MEMALLOC_NOFS;
 
 	/* Start by resetting any existing state */
 	xs_reset_transport(transport);
@@ -2066,7 +2066,7 @@ static void xs_udp_setup_socket(struct work_struct *work)
 out:
 	xprt_clear_connecting(xprt);
 	xprt_wake_pending_tasks(xprt, status);
-	current->flags &= ~PF_FSTRANS;
+	current->flags &= ~PF_MEMALLOC_NOFS;
 }
 
 /*
@@ -2188,7 +2188,7 @@ static void xs_tcp_setup_socket(struct work_struct *work)
 	struct rpc_xprt *xprt = &transport->xprt;
 	int status = -EIO;
 
-	current->flags |= PF_FSTRANS;
+	current->flags |= PF_MEMALLOC_NOFS;
 
 	if (!sock) {
 		clear_bit(XPRT_CONNECTION_ABORT, &xprt->state);
@@ -2234,7 +2234,7 @@ static void xs_tcp_setup_socket(struct work_struct *work)
 	case -EINPROGRESS:
 	case -EALREADY:
 		xprt_clear_connecting(xprt);
-		current->flags &= ~PF_FSTRANS;
+		current->flags &= ~PF_MEMALLOC_NOFS;
 		return;
 	case -EINVAL:
 		/* Happens, for instance, if the user specified a link
@@ -2251,7 +2251,7 @@ out_eagain:
 out:
 	xprt_clear_connecting(xprt);
 	xprt_wake_pending_tasks(xprt, status);
-	current->flags &= ~PF_FSTRANS;
+	current->flags &= ~PF_MEMALLOC_NOFS;
 }
 
 /**
@@ -3083,3 +3083,4 @@ module_param_named(tcp_max_slot_table_entries, xprt_max_tcp_slot_table_entries,
 		   max_slot_table_size, 0644);
 module_param_named(udp_slot_table_entries, xprt_udp_slot_table_entries,
 		   slot_table_size, 0644);
+

@@ -248,6 +248,7 @@ static int omap_control_usb_probe(struct platform_device *pdev)
 		}
 	}
 
+
 	dev_set_drvdata(control_usb->dev, control_usb);
 
 	return 0;

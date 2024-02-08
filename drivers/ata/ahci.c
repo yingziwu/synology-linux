@@ -1,7 +1,40 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  ahci.c - AHCI SATA support
+ *
+ *  Maintained by:  Tejun Heo <tj@kernel.org>
+ *    		    Please ALWAYS copy linux-ide@vger.kernel.org
+ *		    on emails.
+ *
+ *  Copyright 2004-2005 Red Hat, Inc.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2, or (at your option)
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; see the file COPYING.  If not, write to
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *
+ * libata documentation is available via 'make {ps|pdf}docs',
+ * as Documentation/DocBook/libata.*
+ *
+ * AHCI hardware documentation:
+ * http://www.intel.com/technology/serialata/pdf/rev1_0.pdf
+ * http://www.intel.com/technology/serialata/pdf/rev1_1.pdf
+ *
+ */
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/pci.h>
@@ -21,20 +54,20 @@
 #include <scsi/scsi_device.h>
 #include <scsi/scsi_tcq.h>
 #include <scsi/scsi_transport.h>
-#endif  
+#endif /* MY_DEF_HERE */
 #include <linux/libata.h>
 #include "ahci.h"
 
 #ifdef MY_ABC_HERE
 #include <linux/synolib.h>
-#endif  
+#endif /* MY_ABC_HERE */
 
 #define DRV_NAME	"ahci"
 #define DRV_VERSION	"3.0"
 
 #ifdef MY_ABC_HERE
 extern char g_ahci_switch;
-#endif  
+#endif /* MY_ABC_HERE */
 
 enum {
 	AHCI_PCI_BAR_STA2X11	= 0,
@@ -43,7 +76,7 @@ enum {
 };
 
 enum board_ids {
-	 
+	/* board IDs by feature in alphabetical order */
 	board_ahci,
 	board_ahci_ign_iferr,
 	board_ahci_nomsi,
@@ -52,16 +85,18 @@ enum board_ids {
 	board_ahci_yes_fbs,
 #ifdef MY_DEF_HERE
 	board_ahci_yes_fbs_no_ncq,
-#endif  
+#endif /* MY_DEF_HERE */
 
+	/* board IDs for specific chipsets in alphabetical order */
 	board_ahci_mcp65,
 	board_ahci_mcp77,
 	board_ahci_mcp89,
 	board_ahci_mv,
 	board_ahci_sb600,
-	board_ahci_sb700,	 
+	board_ahci_sb700,	/* for SB700 and SB800 */
 	board_ahci_vt8251,
 
+	/* aliases */
 	board_ahci_mcp_linux	= board_ahci_mcp65,
 	board_ahci_mcp67	= board_ahci_mcp65,
 	board_ahci_mcp73	= board_ahci_mcp65,
@@ -88,7 +123,7 @@ static struct ata_port_operations ahci_pmp_ops = {
 
 	.qc_defer		= sata_syno_ahci_defer_cmd,
 };
-#endif  
+#endif /* MY_DEF_HERE */
 
 static struct ata_port_operations ahci_vt8251_ops = {
 	.inherits		= &ahci_ops,
@@ -101,7 +136,7 @@ static struct ata_port_operations ahci_p5wdh_ops = {
 };
 
 static const struct ata_port_info ahci_port_info[] = {
-	 
+	/* by features */
 	[board_ahci] = {
 		.flags		= AHCI_FLAG_COMMON,
 		.pio_mask	= ATA_PIO4,
@@ -138,7 +173,7 @@ static const struct ata_port_info ahci_port_info[] = {
 		.port_ops	= &ahci_pmp_ops,
 #else
 		.port_ops	= &ahci_ops,
-#endif  
+#endif /* MY_DEF_HERE */
 	},
 	[board_ahci_yes_fbs] = {
 		AHCI_HFLAGS	(AHCI_HFLAG_YES_FBS),
@@ -156,8 +191,8 @@ static const struct ata_port_info ahci_port_info[] = {
 		.udma_mask	= ATA_UDMA6,
 		.port_ops	= &ahci_ops,
 	},
-#endif  
-	 
+#endif /* MY_DEF_HERE */
+	/* by chipsets */
 	[board_ahci_mcp65] = {
 		AHCI_HFLAGS	(AHCI_HFLAG_NO_FPDMA_AA | AHCI_HFLAG_NO_PMP |
 				 AHCI_HFLAG_YES_NCQ),
@@ -197,7 +232,7 @@ static const struct ata_port_info ahci_port_info[] = {
 		.udma_mask	= ATA_UDMA6,
 		.port_ops	= &ahci_pmp_retry_srst_ops,
 	},
-	[board_ahci_sb700] = {	 
+	[board_ahci_sb700] = {	/* for SB700 and SB800 */
 		AHCI_HFLAGS	(AHCI_HFLAG_IGN_SERR_INTERNAL),
 		.flags		= AHCI_FLAG_COMMON,
 		.pio_mask	= ATA_PIO4,
@@ -214,282 +249,290 @@ static const struct ata_port_info ahci_port_info[] = {
 };
 
 static const struct pci_device_id ahci_pci_tbl[] = {
-	 
-	{ PCI_VDEVICE(INTEL, 0x2652), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2653), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x27c1), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x27c5), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x27c3), board_ahci },  
-	{ PCI_VDEVICE(AL, 0x5288), board_ahci_ign_iferr },  
-	{ PCI_VDEVICE(INTEL, 0x2681), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2682), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2683), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x27c6), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2821), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2822), board_ahci_nosntf },  
-	{ PCI_VDEVICE(INTEL, 0x2824), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2829), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x282a), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2922), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2923), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2924), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2925), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2927), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2929), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x292a), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x292b), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x292c), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x292f), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x294d), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x294e), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x502a), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x502b), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3a05), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3a22), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3a25), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3b22), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3b23), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3b24), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3b25), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3b29), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3b2b), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3b2c), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x3b2f), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19b0), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19b1), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19b2), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19b3), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19b4), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19b5), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19b6), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19b7), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19bE), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19bF), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19c0), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19c1), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19c2), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19c3), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19c4), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19c5), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19c6), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19c7), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19cE), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x19cF), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1c02), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1c03), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1c04), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1c05), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1c06), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1c07), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1d02), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1d04), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1d06), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2826), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2323), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1e02), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1e03), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1e04), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1e05), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1e06), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1e07), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1e0e), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c02), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c03), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c04), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c05), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c06), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c07), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c0e), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c0f), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c02), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c03), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c04), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c05), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c06), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c07), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c0e), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c0f), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f22), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f23), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f24), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f25), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f26), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f27), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f2e), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f2f), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f32), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f33), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f34), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f35), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f36), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f37), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f3e), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x1f3f), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2823), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x2827), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8d02), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8d04), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8d06), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8d0e), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8d62), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8d64), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8d66), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8d6e), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x23a3), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c83), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c85), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c87), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9c8f), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c82), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c83), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c84), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c85), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c86), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c87), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c8e), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x8c8f), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9d03), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9d05), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0x9d07), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0xa103), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0xa103), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0xa105), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0xa107), board_ahci },  
-	{ PCI_VDEVICE(INTEL, 0xa10f), board_ahci },  
+	/* Intel */
+	{ PCI_VDEVICE(INTEL, 0x2652), board_ahci }, /* ICH6 */
+	{ PCI_VDEVICE(INTEL, 0x2653), board_ahci }, /* ICH6M */
+	{ PCI_VDEVICE(INTEL, 0x27c1), board_ahci }, /* ICH7 */
+	{ PCI_VDEVICE(INTEL, 0x27c5), board_ahci }, /* ICH7M */
+	{ PCI_VDEVICE(INTEL, 0x27c3), board_ahci }, /* ICH7R */
+	{ PCI_VDEVICE(AL, 0x5288), board_ahci_ign_iferr }, /* ULi M5288 */
+	{ PCI_VDEVICE(INTEL, 0x2681), board_ahci }, /* ESB2 */
+	{ PCI_VDEVICE(INTEL, 0x2682), board_ahci }, /* ESB2 */
+	{ PCI_VDEVICE(INTEL, 0x2683), board_ahci }, /* ESB2 */
+	{ PCI_VDEVICE(INTEL, 0x27c6), board_ahci }, /* ICH7-M DH */
+	{ PCI_VDEVICE(INTEL, 0x2821), board_ahci }, /* ICH8 */
+	{ PCI_VDEVICE(INTEL, 0x2822), board_ahci_nosntf }, /* ICH8 */
+	{ PCI_VDEVICE(INTEL, 0x2824), board_ahci }, /* ICH8 */
+	{ PCI_VDEVICE(INTEL, 0x2829), board_ahci }, /* ICH8M */
+	{ PCI_VDEVICE(INTEL, 0x282a), board_ahci }, /* ICH8M */
+	{ PCI_VDEVICE(INTEL, 0x2922), board_ahci }, /* ICH9 */
+	{ PCI_VDEVICE(INTEL, 0x2923), board_ahci }, /* ICH9 */
+	{ PCI_VDEVICE(INTEL, 0x2924), board_ahci }, /* ICH9 */
+	{ PCI_VDEVICE(INTEL, 0x2925), board_ahci }, /* ICH9 */
+	{ PCI_VDEVICE(INTEL, 0x2927), board_ahci }, /* ICH9 */
+	{ PCI_VDEVICE(INTEL, 0x2929), board_ahci }, /* ICH9M */
+	{ PCI_VDEVICE(INTEL, 0x292a), board_ahci }, /* ICH9M */
+	{ PCI_VDEVICE(INTEL, 0x292b), board_ahci }, /* ICH9M */
+	{ PCI_VDEVICE(INTEL, 0x292c), board_ahci }, /* ICH9M */
+	{ PCI_VDEVICE(INTEL, 0x292f), board_ahci }, /* ICH9M */
+	{ PCI_VDEVICE(INTEL, 0x294d), board_ahci }, /* ICH9 */
+	{ PCI_VDEVICE(INTEL, 0x294e), board_ahci }, /* ICH9M */
+	{ PCI_VDEVICE(INTEL, 0x502a), board_ahci }, /* Tolapai */
+	{ PCI_VDEVICE(INTEL, 0x502b), board_ahci }, /* Tolapai */
+	{ PCI_VDEVICE(INTEL, 0x3a05), board_ahci }, /* ICH10 */
+	{ PCI_VDEVICE(INTEL, 0x3a22), board_ahci }, /* ICH10 */
+	{ PCI_VDEVICE(INTEL, 0x3a25), board_ahci }, /* ICH10 */
+	{ PCI_VDEVICE(INTEL, 0x3b22), board_ahci }, /* PCH AHCI */
+	{ PCI_VDEVICE(INTEL, 0x3b23), board_ahci }, /* PCH AHCI */
+	{ PCI_VDEVICE(INTEL, 0x3b24), board_ahci }, /* PCH RAID */
+	{ PCI_VDEVICE(INTEL, 0x3b25), board_ahci }, /* PCH RAID */
+	{ PCI_VDEVICE(INTEL, 0x3b29), board_ahci }, /* PCH AHCI */
+	{ PCI_VDEVICE(INTEL, 0x3b2b), board_ahci }, /* PCH RAID */
+	{ PCI_VDEVICE(INTEL, 0x3b2c), board_ahci }, /* PCH RAID */
+	{ PCI_VDEVICE(INTEL, 0x3b2f), board_ahci }, /* PCH AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19b0), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19b1), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19b2), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19b3), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19b4), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19b5), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19b6), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19b7), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19bE), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19bF), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19c0), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19c1), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19c2), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19c3), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19c4), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19c5), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19c6), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19c7), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19cE), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x19cF), board_ahci }, /* DNV AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1c02), board_ahci }, /* CPT AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1c03), board_ahci }, /* CPT AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1c04), board_ahci }, /* CPT RAID */
+	{ PCI_VDEVICE(INTEL, 0x1c05), board_ahci }, /* CPT RAID */
+	{ PCI_VDEVICE(INTEL, 0x1c06), board_ahci }, /* CPT RAID */
+	{ PCI_VDEVICE(INTEL, 0x1c07), board_ahci }, /* CPT RAID */
+	{ PCI_VDEVICE(INTEL, 0x1d02), board_ahci }, /* PBG AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1d04), board_ahci }, /* PBG RAID */
+	{ PCI_VDEVICE(INTEL, 0x1d06), board_ahci }, /* PBG RAID */
+	{ PCI_VDEVICE(INTEL, 0x2826), board_ahci }, /* PBG RAID */
+	{ PCI_VDEVICE(INTEL, 0x2323), board_ahci }, /* DH89xxCC AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1e02), board_ahci }, /* Panther Point AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1e03), board_ahci }, /* Panther Point AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1e04), board_ahci }, /* Panther Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x1e05), board_ahci }, /* Panther Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x1e06), board_ahci }, /* Panther Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x1e07), board_ahci }, /* Panther Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x1e0e), board_ahci }, /* Panther Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c02), board_ahci }, /* Lynx Point AHCI */
+	{ PCI_VDEVICE(INTEL, 0x8c03), board_ahci }, /* Lynx Point AHCI */
+	{ PCI_VDEVICE(INTEL, 0x8c04), board_ahci }, /* Lynx Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c05), board_ahci }, /* Lynx Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c06), board_ahci }, /* Lynx Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c07), board_ahci }, /* Lynx Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c0e), board_ahci }, /* Lynx Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c0f), board_ahci }, /* Lynx Point RAID */
+	{ PCI_VDEVICE(INTEL, 0x9c02), board_ahci }, /* Lynx Point-LP AHCI */
+	{ PCI_VDEVICE(INTEL, 0x9c03), board_ahci }, /* Lynx Point-LP AHCI */
+	{ PCI_VDEVICE(INTEL, 0x9c04), board_ahci }, /* Lynx Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x9c05), board_ahci }, /* Lynx Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x9c06), board_ahci }, /* Lynx Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x9c07), board_ahci }, /* Lynx Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x9c0e), board_ahci }, /* Lynx Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x9c0f), board_ahci }, /* Lynx Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f22), board_ahci }, /* Avoton AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1f23), board_ahci }, /* Avoton AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1f24), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f25), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f26), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f27), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f2e), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f2f), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f32), board_ahci }, /* Avoton AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1f33), board_ahci }, /* Avoton AHCI */
+	{ PCI_VDEVICE(INTEL, 0x1f34), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f35), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f36), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f37), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f3e), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x1f3f), board_ahci }, /* Avoton RAID */
+	{ PCI_VDEVICE(INTEL, 0x2823), board_ahci }, /* Wellsburg RAID */
+	{ PCI_VDEVICE(INTEL, 0x2827), board_ahci }, /* Wellsburg RAID */
+	{ PCI_VDEVICE(INTEL, 0x8d02), board_ahci }, /* Wellsburg AHCI */
+	{ PCI_VDEVICE(INTEL, 0x8d04), board_ahci }, /* Wellsburg RAID */
+	{ PCI_VDEVICE(INTEL, 0x8d06), board_ahci }, /* Wellsburg RAID */
+	{ PCI_VDEVICE(INTEL, 0x8d0e), board_ahci }, /* Wellsburg RAID */
+	{ PCI_VDEVICE(INTEL, 0x8d62), board_ahci }, /* Wellsburg AHCI */
+	{ PCI_VDEVICE(INTEL, 0x8d64), board_ahci }, /* Wellsburg RAID */
+	{ PCI_VDEVICE(INTEL, 0x8d66), board_ahci }, /* Wellsburg RAID */
+	{ PCI_VDEVICE(INTEL, 0x8d6e), board_ahci }, /* Wellsburg RAID */
+	{ PCI_VDEVICE(INTEL, 0x23a3), board_ahci }, /* Coleto Creek AHCI */
+	{ PCI_VDEVICE(INTEL, 0x9c83), board_ahci }, /* Wildcat Point-LP AHCI */
+	{ PCI_VDEVICE(INTEL, 0x9c85), board_ahci }, /* Wildcat Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x9c87), board_ahci }, /* Wildcat Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x9c8f), board_ahci }, /* Wildcat Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c82), board_ahci }, /* 9 Series AHCI */
+	{ PCI_VDEVICE(INTEL, 0x8c83), board_ahci }, /* 9 Series AHCI */
+	{ PCI_VDEVICE(INTEL, 0x8c84), board_ahci }, /* 9 Series RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c85), board_ahci }, /* 9 Series RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c86), board_ahci }, /* 9 Series RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c87), board_ahci }, /* 9 Series RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c8e), board_ahci }, /* 9 Series RAID */
+	{ PCI_VDEVICE(INTEL, 0x8c8f), board_ahci }, /* 9 Series RAID */
+	{ PCI_VDEVICE(INTEL, 0x9d03), board_ahci }, /* Sunrise Point-LP AHCI */
+	{ PCI_VDEVICE(INTEL, 0x9d05), board_ahci }, /* Sunrise Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0x9d07), board_ahci }, /* Sunrise Point-LP RAID */
+	{ PCI_VDEVICE(INTEL, 0xa103), board_ahci }, /* Sunrise Point-H AHCI */
+	{ PCI_VDEVICE(INTEL, 0xa103), board_ahci }, /* Sunrise Point-H RAID */
+	{ PCI_VDEVICE(INTEL, 0xa105), board_ahci }, /* Sunrise Point-H RAID */
+	{ PCI_VDEVICE(INTEL, 0xa107), board_ahci }, /* Sunrise Point-H RAID */
+	{ PCI_VDEVICE(INTEL, 0xa10f), board_ahci }, /* Sunrise Point-H RAID */
 
+	/* JMicron 360/1/3/5/6, match class to avoid IDE function */
 	{ PCI_VENDOR_ID_JMICRON, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
 	  PCI_CLASS_STORAGE_SATA_AHCI, 0xffffff, board_ahci_ign_iferr },
-	 
+	/* JMicron 362B and 362C have an AHCI function with IDE class code */
 	{ PCI_VDEVICE(JMICRON, 0x2362), board_ahci_ign_iferr },
 	{ PCI_VDEVICE(JMICRON, 0x236f), board_ahci_ign_iferr },
 
-	{ PCI_VDEVICE(ATI, 0x4380), board_ahci_sb600 },  
-	{ PCI_VDEVICE(ATI, 0x4390), board_ahci_sb700 },  
-	{ PCI_VDEVICE(ATI, 0x4391), board_ahci_sb700 },  
-	{ PCI_VDEVICE(ATI, 0x4392), board_ahci_sb700 },  
-	{ PCI_VDEVICE(ATI, 0x4393), board_ahci_sb700 },  
-	{ PCI_VDEVICE(ATI, 0x4394), board_ahci_sb700 },  
-	{ PCI_VDEVICE(ATI, 0x4395), board_ahci_sb700 },  
+	/* ATI */
+	{ PCI_VDEVICE(ATI, 0x4380), board_ahci_sb600 }, /* ATI SB600 */
+	{ PCI_VDEVICE(ATI, 0x4390), board_ahci_sb700 }, /* ATI SB700/800 */
+	{ PCI_VDEVICE(ATI, 0x4391), board_ahci_sb700 }, /* ATI SB700/800 */
+	{ PCI_VDEVICE(ATI, 0x4392), board_ahci_sb700 }, /* ATI SB700/800 */
+	{ PCI_VDEVICE(ATI, 0x4393), board_ahci_sb700 }, /* ATI SB700/800 */
+	{ PCI_VDEVICE(ATI, 0x4394), board_ahci_sb700 }, /* ATI SB700/800 */
+	{ PCI_VDEVICE(ATI, 0x4395), board_ahci_sb700 }, /* ATI SB700/800 */
 
-	{ PCI_VDEVICE(AMD, 0x7800), board_ahci },  
-	{ PCI_VDEVICE(AMD, 0x7900), board_ahci },  
-	 
+	/* AMD */
+	{ PCI_VDEVICE(AMD, 0x7800), board_ahci }, /* AMD Hudson-2 */
+	{ PCI_VDEVICE(AMD, 0x7900), board_ahci }, /* AMD CZ */
+	/* AMD is using RAID class only for ahci controllers */
 	{ PCI_VENDOR_ID_AMD, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
 	  PCI_CLASS_STORAGE_RAID << 8, 0xffffff, board_ahci },
 
-	{ PCI_VDEVICE(VIA, 0x3349), board_ahci_vt8251 },  
-	{ PCI_VDEVICE(VIA, 0x6287), board_ahci_vt8251 },  
+	/* VIA */
+	{ PCI_VDEVICE(VIA, 0x3349), board_ahci_vt8251 }, /* VIA VT8251 */
+	{ PCI_VDEVICE(VIA, 0x6287), board_ahci_vt8251 }, /* VIA VT8251 */
 
-	{ PCI_VDEVICE(NVIDIA, 0x044c), board_ahci_mcp65 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x044d), board_ahci_mcp65 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x044e), board_ahci_mcp65 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x044f), board_ahci_mcp65 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x045c), board_ahci_mcp65 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x045d), board_ahci_mcp65 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x045e), board_ahci_mcp65 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x045f), board_ahci_mcp65 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0550), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0551), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0552), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0553), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0554), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0555), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0556), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0557), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0558), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0559), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x055a), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x055b), board_ahci_mcp67 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0580), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0581), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0582), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0583), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0584), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0585), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0586), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0587), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0588), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0589), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x058a), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x058b), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x058c), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x058d), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x058e), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x058f), board_ahci_mcp_linux },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f0), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f1), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f2), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f3), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f4), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f5), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f6), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f7), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f8), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07f9), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07fa), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x07fb), board_ahci_mcp73 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad0), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad1), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad2), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad3), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad4), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad5), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad6), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad7), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad8), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ad9), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ada), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0adb), board_ahci_mcp77 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ab4), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ab5), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ab6), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ab7), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ab8), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0ab9), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0aba), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0abb), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0abc), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0abd), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0abe), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0abf), board_ahci_mcp79 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d84), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d85), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d86), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d87), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d88), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d89), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d8a), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d8b), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d8c), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d8d), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d8e), board_ahci_mcp89 },	 
-	{ PCI_VDEVICE(NVIDIA, 0x0d8f), board_ahci_mcp89 },	 
+	/* NVIDIA */
+	{ PCI_VDEVICE(NVIDIA, 0x044c), board_ahci_mcp65 },	/* MCP65 */
+	{ PCI_VDEVICE(NVIDIA, 0x044d), board_ahci_mcp65 },	/* MCP65 */
+	{ PCI_VDEVICE(NVIDIA, 0x044e), board_ahci_mcp65 },	/* MCP65 */
+	{ PCI_VDEVICE(NVIDIA, 0x044f), board_ahci_mcp65 },	/* MCP65 */
+	{ PCI_VDEVICE(NVIDIA, 0x045c), board_ahci_mcp65 },	/* MCP65 */
+	{ PCI_VDEVICE(NVIDIA, 0x045d), board_ahci_mcp65 },	/* MCP65 */
+	{ PCI_VDEVICE(NVIDIA, 0x045e), board_ahci_mcp65 },	/* MCP65 */
+	{ PCI_VDEVICE(NVIDIA, 0x045f), board_ahci_mcp65 },	/* MCP65 */
+	{ PCI_VDEVICE(NVIDIA, 0x0550), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0551), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0552), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0553), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0554), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0555), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0556), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0557), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0558), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0559), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x055a), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x055b), board_ahci_mcp67 },	/* MCP67 */
+	{ PCI_VDEVICE(NVIDIA, 0x0580), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x0581), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x0582), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x0583), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x0584), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x0585), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x0586), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x0587), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x0588), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x0589), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x058a), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x058b), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x058c), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x058d), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x058e), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x058f), board_ahci_mcp_linux },	/* Linux ID */
+	{ PCI_VDEVICE(NVIDIA, 0x07f0), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07f1), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07f2), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07f3), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07f4), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07f5), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07f6), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07f7), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07f8), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07f9), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07fa), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x07fb), board_ahci_mcp73 },	/* MCP73 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad0), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad1), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad2), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad3), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad4), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad5), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad6), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad7), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad8), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ad9), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ada), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0adb), board_ahci_mcp77 },	/* MCP77 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ab4), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ab5), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ab6), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ab7), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ab8), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0ab9), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0aba), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0abb), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0abc), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0abd), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0abe), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0abf), board_ahci_mcp79 },	/* MCP79 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d84), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d85), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d86), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d87), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d88), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d89), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d8a), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d8b), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d8c), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d8d), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d8e), board_ahci_mcp89 },	/* MCP89 */
+	{ PCI_VDEVICE(NVIDIA, 0x0d8f), board_ahci_mcp89 },	/* MCP89 */
 
-	{ PCI_VDEVICE(SI, 0x1184), board_ahci },		 
-	{ PCI_VDEVICE(SI, 0x1185), board_ahci },		 
-	{ PCI_VDEVICE(SI, 0x0186), board_ahci },		 
+	/* SiS */
+	{ PCI_VDEVICE(SI, 0x1184), board_ahci },		/* SiS 966 */
+	{ PCI_VDEVICE(SI, 0x1185), board_ahci },		/* SiS 968 */
+	{ PCI_VDEVICE(SI, 0x0186), board_ahci },		/* SiS 968 */
 
-	{ PCI_VDEVICE(STMICRO, 0xCC06), board_ahci },		 
+	/* ST Microelectronics */
+	{ PCI_VDEVICE(STMICRO, 0xCC06), board_ahci },		/* ST ConneXt */
 
-	{ PCI_VDEVICE(MARVELL, 0x6145), board_ahci_mv },	 
-	{ PCI_VDEVICE(MARVELL, 0x6121), board_ahci_mv },	 
+	/* Marvell */
+	{ PCI_VDEVICE(MARVELL, 0x6145), board_ahci_mv },	/* 6145 */
+	{ PCI_VDEVICE(MARVELL, 0x6121), board_ahci_mv },	/* 6121 */
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x9123),
 	  .class = PCI_CLASS_STORAGE_SATA_AHCI,
 	  .class_mask = 0xffffff,
-	  .driver_data = board_ahci_yes_fbs },			 
+	  .driver_data = board_ahci_yes_fbs },			/* 88se9128 */
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x9125),
-	  .driver_data = board_ahci_yes_fbs },			 
+	  .driver_data = board_ahci_yes_fbs },			/* 88se9125 */
 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_MARVELL_EXT, 0x9178,
 			 PCI_VENDOR_ID_MARVELL_EXT, 0x9170),
-	  .driver_data = board_ahci_yes_fbs },			 
+	  .driver_data = board_ahci_yes_fbs },			/* 88se9170 */
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x917a),
-	  .driver_data = board_ahci_yes_fbs },			 
+	  .driver_data = board_ahci_yes_fbs },			/* 88se9172 */
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x9172),
-	  .driver_data = board_ahci_yes_fbs },			 
+	  .driver_data = board_ahci_yes_fbs },			/* 88se9182 */
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x9182),
-	  .driver_data = board_ahci_yes_fbs },			 
+	  .driver_data = board_ahci_yes_fbs },			/* 88se9172 */
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x9192),
-	  .driver_data = board_ahci_yes_fbs },			 
+	  .driver_data = board_ahci_yes_fbs },			/* 88se9172 on some Gigabyte */
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x91a0),
 	  .driver_data = board_ahci_yes_fbs },
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x91a3),
@@ -500,44 +543,190 @@ static const struct pci_device_id ahci_pci_tbl[] = {
 	  .driver_data = board_ahci_yes_fbs },
 #ifdef MY_DEF_HERE
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x9235),
-	  .driver_data = board_ahci_yes_fbs },			 
+	  .driver_data = board_ahci_yes_fbs },			/* 88se9235 */
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x9215),
-	  .driver_data = board_ahci_yes_fbs },			 
-#endif  
+	  .driver_data = board_ahci_yes_fbs },			/* 88se9215 */
+#endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL_EXT, 0x9170),
-	  .driver_data = board_ahci_yes_fbs_no_ncq },    
-#endif  
+	  .driver_data = board_ahci_yes_fbs_no_ncq },   /* 88se9170 */
+#endif /* MY_DEF_HERE */
 
-	{ PCI_VDEVICE(PROMISE, 0x3f20), board_ahci },	 
-	{ PCI_VDEVICE(PROMISE, 0x3781), board_ahci },    
+	/* Promise */
+	{ PCI_VDEVICE(PROMISE, 0x3f20), board_ahci },	/* PDC42819 */
+	{ PCI_VDEVICE(PROMISE, 0x3781), board_ahci },   /* FastTrak TX8660 ahci-mode */
 
-	{ PCI_VDEVICE(ASMEDIA, 0x0601), board_ahci },	 
-	{ PCI_VDEVICE(ASMEDIA, 0x0602), board_ahci },	 
-	{ PCI_VDEVICE(ASMEDIA, 0x0611), board_ahci },	 
-	{ PCI_VDEVICE(ASMEDIA, 0x0612), board_ahci },	 
+	/* Asmedia */
+	{ PCI_VDEVICE(ASMEDIA, 0x0601), board_ahci },	/* ASM1060 */
+	{ PCI_VDEVICE(ASMEDIA, 0x0602), board_ahci },	/* ASM1060 */
+	{ PCI_VDEVICE(ASMEDIA, 0x0611), board_ahci },	/* ASM1061 */
+	{ PCI_VDEVICE(ASMEDIA, 0x0612), board_ahci },	/* ASM1062 */
 
+	/*
+	 * Samsung SSDs found on some macbooks.  NCQ times out if MSI is
+	 * enabled.  https://bugzilla.kernel.org/show_bug.cgi?id=60731
+	 */
 	{ PCI_VDEVICE(SAMSUNG, 0x1600), board_ahci_nomsi },
 	{ PCI_VDEVICE(SAMSUNG, 0xa800), board_ahci_nomsi },
 
+	/* Enmotus */
 	{ PCI_DEVICE(0x1c44, 0x8000), board_ahci },
 
+	/* Generic, PCI class code for AHCI */
 	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
 	  PCI_CLASS_STORAGE_SATA_AHCI, 0xffffff, board_ahci },
 
-	{ }	 
+	{ }	/* terminate list */
 };
 
+#if defined(MY_ABC_HERE) && \
+	(defined(MY_DEF_HERE) || defined(MY_DEF_HERE))
+#define SYNO_SATA_MAX_PORTS_CNT 32
+
+static struct {
+	const char *model_name;
+
+	/* switch information on the adapter card */
+	u8 switch_layer;
+	u16 switch_vid;
+	u16 switch_pid;
+
+	/* for extracting model ID:
+	 *	mid_off:   the offset of GPIO in config space of switch
+	 *	mid_mask:  the mask of model ID in GPIO pins
+	 *	mid_shift: the shift of model ID in GPIO pins
+	 * (for more details, please refer product PRD and switch manual)
+	 */
+	u16 mid_off;
+	u16 mid_mask;
+	u16 mid_shift;
+
+	/* model ID of the adapter card */
+	u16 mid;
+
+	/* maximum ports of the sata controller (e.g. MV9235: 4 ports) */
+	u8 max_ports;
+
+	/* amplifying parameters - if some ports do not
+	 * need to adjust amplifying parameters, you
+	 * can leave it blank or manually set it to zero
+	 */
+	u32 amp_param_g2[SYNO_SATA_MAX_PORTS_CNT];
+	u32 amp_param_g3[SYNO_SATA_MAX_PORTS_CNT];
+} syno_m2d_models[] = {
+	{	/* M2D17 */
+		.model_name = "M2D17",
+		.switch_layer = 2,
+		.switch_vid = 0x111D,
+		.switch_pid = 0x806E,
+		.mid_off = 0x420,
+		.mid_mask = 0x780,
+		.mid_shift = 7,
+		.mid = 0x0,
+		.max_ports = 4,
+	},
+	{	/* M2D18 */
+		.model_name = "M2D18",
+		.switch_layer = 2,
+		.switch_vid = 0x111D,
+		.switch_pid = 0x806E,
+		.mid_off = 0x420,
+		.mid_mask = 0x780,
+		.mid_shift = 7,
+		.mid = 0x1,
+		.max_ports = 4,
+		.amp_param_g3 = {
+			0xFF5,
+		},
+	},
+	{	/* terminated with NULL model_name */
+		.model_name = NULL,
+	},
+};
+
+static int m2d_switch_match(struct pci_dev *pdev, int idx)
+{
+	int ret = -1;
+	u16 val = 0;
+	struct pci_dev *pdev_cur = NULL;
+	int layer_cnt = 0;
+
+	layer_cnt = syno_m2d_models[idx].switch_layer;
+	pdev_cur = pdev;
+
+	while (NULL != pdev_cur && 0 < layer_cnt) {
+		pdev_cur = pdev_cur->bus->self;
+		layer_cnt -= 1;
+	}
+
+	if (NULL == pdev_cur) {
+		goto END;
+	}
+
+	if (pdev_cur->vendor != syno_m2d_models[idx].switch_vid ||
+	    pdev_cur->device != syno_m2d_models[idx].switch_pid) {
+		goto END;
+	}
+
+	if (0 > pci_read_config_word(pdev_cur, syno_m2d_models[idx].mid_off, &val)) {
+		goto END;
+	}
+
+	val = (val & syno_m2d_models[idx].mid_mask)
+			>> syno_m2d_models[idx].mid_shift;
+
+	if (val != syno_m2d_models[idx].mid) {
+		goto END;
+	}
+
+	ret = 0;
+END:
+	return ret;
+}
+
+static int syno_m2d_model_get(struct pci_dev *pdev)
+{
+	int ret = -1;
+	int idx = 0;
+
+	if (NULL == pdev) {
+		printk(KERN_WARNING "Bad parameter!\n");
+		goto END;
+	}
+
+	if (1 != syno_check_on_option_pci_slot(pdev)) {
+		goto END;
+	}
+
+	for (idx = 0; syno_m2d_models[idx].model_name; idx++) {
+		if (0 != m2d_switch_match(pdev, idx)) {
+			continue;
+		}
+
+		ret = idx;
+		goto END;
+	}
+
+END:
+	return ret;
+}
+#endif /* MY_ABC_HERE && (MY_DEF_HERE || MY_DEF_HERE) */
+
 #ifdef MY_DEF_HERE
- 
+/*
+ * 9170 gpio mmio address, to control 9170 GPIO, please read register manual(AN-ML-10-051513_GPIO)
+ */
 enum {
 	MV_9170_GPIO_DATA_OUT			= 0x220,
 	MV_9170_GPIO_DATA_OUT_ENABLE		= 0x224,
 	MV_9170_GPIO_ACTIVE			= 0x258,
-	MV_9170_VENDOR_SPEC1_ADDR_OFFSET	= 0xA8,			 
+	MV_9170_VENDOR_SPEC1_ADDR_OFFSET	= 0xA8,			/* To manipulate GPIO via Vendor specific register */
 	MV_9170_VENDOR_SPEC1_DATA_OFFSET	= 0xAC,
 };
 
+/*
+ *	Read value from 9170 gpio register
+ */
 u32 syno_mv_9170_gpio_reg_read(struct ata_host *host, const unsigned int gpioaddr)
 {
 	void __iomem *host_mmio = NULL;
@@ -548,13 +737,17 @@ u32 syno_mv_9170_gpio_reg_read(struct ata_host *host, const unsigned int gpioadd
 		goto END;
 	}
 
+	/* write to 9170 gpio active register address to VENDER_SPEC_ADDR1 */
 	writel(gpioaddr, host_mmio + MV_9170_VENDOR_SPEC1_ADDR_OFFSET);
-	 
+	/* read original value from vendor specific data1 */
 	value = readl(host_mmio + MV_9170_VENDOR_SPEC1_DATA_OFFSET);
 END:
 	return value;
 }
 
+/*
+ *	9170 GPIO register set
+ */
 void syno_mv_9170_gpio_reg_set(struct ata_host *host, const unsigned int gpioaddr, u32 value)
 {
 	void __iomem *host_mmio = NULL;
@@ -565,21 +758,25 @@ void syno_mv_9170_gpio_reg_set(struct ata_host *host, const unsigned int gpioadd
 		goto END;
 	}
 
+	/* write to 9170 gpio active register address to VENDER_SPEC_ADDR1 */
 	writel(gpioaddr, host_mmio + MV_9170_VENDOR_SPEC1_ADDR_OFFSET);
-	 
+	/* read original value from vendor specific data1 */
 	reg_val = readl(host_mmio + MV_9170_VENDOR_SPEC1_DATA_OFFSET);
-	 
+	/* then write value to it */
 	writel(value, host_mmio + MV_9170_VENDOR_SPEC1_DATA_OFFSET);
 END:
 	return;
 }
 
+/*
+ *	9170 GPIO init
+ */
 void syno_mv_9170_gpio_active_init(struct ata_host *host)
 {
-	 
+	/* gpio enable is low active */
 	syno_mv_9170_gpio_reg_set(host, MV_9170_GPIO_DATA_OUT_ENABLE, 0x0);
 	syno_mv_9170_gpio_reg_set(host, MV_9170_GPIO_DATA_OUT, 0x0);
-	 
+	/* set the GPIO[4] as active to disk 2 and GPIO[5] as faulty LED to disk 2 */
 	syno_mv_9170_gpio_reg_set(host, MV_9170_GPIO_ACTIVE, 0x00740000);
 }
 
@@ -600,6 +797,7 @@ int syno_mv_9170_disk_led_get(const unsigned short hostnum)
 		goto END;
 	}
 
+	/* faulty LED pin is GPIO[5] */
 	led_idx = 5;
 
 	value = syno_mv_9170_gpio_reg_read(ap->host, MV_9170_GPIO_DATA_OUT);
@@ -617,6 +815,9 @@ END:
 }
 EXPORT_SYMBOL(syno_mv_9170_disk_led_get);
 
+/*
+ *	Write value to 9170 gpio
+ */
 int syno_mv_9170_disk_led_set(const unsigned short hostnum, int iValue)
 {
 	struct Scsi_Host *shost = scsi_host_lookup(hostnum);
@@ -634,6 +835,7 @@ int syno_mv_9170_disk_led_set(const unsigned short hostnum, int iValue)
 		goto END;
 	}
 
+	/* faulty LED pin is GPIO[5] */
 	led_idx = 5;
 	value = syno_mv_9170_gpio_reg_read(ap->host, MV_9170_GPIO_DATA_OUT);
 	if (1 == iValue) {
@@ -650,26 +852,32 @@ END:
 	return ret;
 }
 EXPORT_SYMBOL(syno_mv_9170_disk_led_set);
-#endif  
+#endif /* MY_DEF_HERE*/
 
 #ifdef MY_DEF_HERE
 
 #define MV_GEN 3
 #define MV_PORT 4
- 
+/* The register addrs are provided by Marvell and no description on spec */
 const unsigned int mv_sata_gen[MV_GEN] = {0x8D, 0x8F, 0x91};
 const unsigned mv_port_addr[MV_PORT] = {0x178, 0x1f8, 0x278, 0x2f8};
 const unsigned mv_port_data[MV_PORT] = {0x17c, 0x1fc, 0x27c, 0x2fc};
 
+/*
+ * 9235 gpio mmio address, to control 9235 GPIO, please read register manual section 1.6
+ */
 enum {
-	 
+	/* MV_9235_GPIO_DATA_OUT the actual address is 0x71020, the 0x07000000 is MBUS_ID for vendor specific register 1 */
 	MV_9235_GPIO_DATA_OUT			= 0x07071020,
 	MV_9235_GPIO_DATA_OUT_ENABLE		= 0x07071024,
 	MV_9235_GPIO_ACTIVE			= 0x07071058,
-	MV_9235_VENDOR_SPEC1_ADDR_OFFSET	= 0xA8,			 
+	MV_9235_VENDOR_SPEC1_ADDR_OFFSET	= 0xA8,			/* To manipulate GPIO via Vendor specific register */
 	MV_9235_VENDOR_SPEC1_DATA_OFFSET	= 0xAC,
 };
 
+/*
+ *	Read value from 9235 gpio register
+ */
 u32 syno_mv_9235_gpio_reg_read(struct ata_host *host, const unsigned int gpioaddr)
 {
 	void __iomem *host_mmio = NULL;
@@ -679,13 +887,17 @@ u32 syno_mv_9235_gpio_reg_read(struct ata_host *host, const unsigned int gpioadd
 		goto END;
 	}
 
+	// write to 9235 gpio active register address to VENDER_SPEC_ADDR1
 	writel(gpioaddr, host_mmio + MV_9235_VENDOR_SPEC1_ADDR_OFFSET);
-	 
+	// read original value from vendor specific data1
 	value = readl(host_mmio + MV_9235_VENDOR_SPEC1_DATA_OFFSET);
 END:
 	return value;
 }
 
+/*
+ *	9235 GPIO register set
+ */
 void syno_mv_9235_gpio_reg_set(struct ata_host *host, const unsigned int gpioaddr, u32 value)
 {
 	void __iomem *host_mmio = NULL;
@@ -695,15 +907,19 @@ void syno_mv_9235_gpio_reg_set(struct ata_host *host, const unsigned int gpioadd
 		goto END;
 	}
 
+	// write to 9235 gpio active register address to VENDER_SPEC_ADDR1
 	writel(gpioaddr, host_mmio + MV_9235_VENDOR_SPEC1_ADDR_OFFSET);
-	 
+	// read original value from vendor specific data1
 	reg_val = readl(host_mmio + MV_9235_VENDOR_SPEC1_DATA_OFFSET);
-	 
+	// then write value to it
 	writel(value, host_mmio + MV_9235_VENDOR_SPEC1_DATA_OFFSET);
 END:
 	return;
 }
 
+/*
+ *	Get value from 9xxx vendor spec register2
+ */
 static u32 syno_mv_9xxx_reg_get(struct ata_host *host, const unsigned int reg_addr, unsigned int addr_offset, unsigned int data_offset)
 {
 	void __iomem *host_mmio = NULL;
@@ -713,13 +929,17 @@ static u32 syno_mv_9xxx_reg_get(struct ata_host *host, const unsigned int reg_ad
 		goto END;
 	}
 
+	// write to 9xxx from register
 	writel(reg_addr, host_mmio + addr_offset);
-	 
+	// read original value from register
 	value = readl(host_mmio + data_offset);
 END:
 	return value;
 }
 
+/*
+ *	Set value to 9xxx vendor spec register2
+ */
 static void syno_mv_9xxx_reg_set(struct ata_host *host, const unsigned int reg_addr, u32 value, const unsigned int addr_offset, const unsigned int data_offset)
 {
 	void __iomem *host_mmio = NULL;
@@ -728,19 +948,23 @@ static void syno_mv_9xxx_reg_set(struct ata_host *host, const unsigned int reg_a
 		goto END;
 	}
 
+	// set 9xxx register for writting
 	writel(reg_addr, host_mmio + addr_offset);
-	 
+	// then write value to it
 	writel(value, host_mmio + data_offset);
 END:
 	return;
 }
 
+/*
+ *	9235 GPIO init
+ */
 void syno_mv_9235_gpio_active_init(struct ata_host *host)
 {
-	 
+	// gpio enable is low active
 	syno_mv_9235_gpio_reg_set(host, MV_9235_GPIO_DATA_OUT_ENABLE, 0x0);
 	syno_mv_9235_gpio_reg_set(host, MV_9235_GPIO_DATA_OUT, 0x0);
-	 
+	// set the lower 4 GPIO as link/active to disk 1~4 and upper 4 GPIO as faulty to disk 1~4
 	syno_mv_9235_gpio_reg_set(host, MV_9235_GPIO_ACTIVE, 0x00B6D8D1);
 }
 
@@ -751,46 +975,66 @@ void syno_mv_9xxx_amp_adjust_by_port(struct ata_host *host, u32 val, unsigned in
 	reg_val = syno_mv_9xxx_reg_get(host, 0x0E, addr_offset, data_offset);
 	syno_mv_9xxx_reg_set(host, 0xE, reg_val & ~0x100, addr_offset, data_offset);
 	reg_val = syno_mv_9xxx_reg_get(host, reg_addr, addr_offset, data_offset);
-	 
+	// Make sure we only modify the necessary bits
 	val &= 0xFBE;
 	reg_val &= ~0xFBE;
 	reg_val |= val;
 	syno_mv_9xxx_reg_set(host, reg_addr, reg_val, addr_offset, data_offset);
 }
 
+
 void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 {
 	int port = 0;
+#ifdef MY_ABC_HERE
+	int idx = 0;
 
+	if (0 <= (idx = syno_m2d_model_get(pdev))) {
+		for (port = 0; port < syno_m2d_models[idx].max_ports; port++) {
+			if (syno_m2d_models[idx].amp_param_g2[port]) {
+				syno_mv_9xxx_amp_adjust_by_port(host,
+				    syno_m2d_models[idx].amp_param_g2[port],
+				    mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
+			}
+
+			if (syno_m2d_models[idx].amp_param_g3[port]) {
+				syno_mv_9xxx_amp_adjust_by_port(host,
+				    syno_m2d_models[idx].amp_param_g3[port],
+				    mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
+			}
+		}
+	} else {
+#endif /* MY_ABC_HERE */
 	if (syno_is_hw_version(HW_RS2416p) || syno_is_hw_version(HW_RS2416rpp)) {
 		for (port = 0; port < 4; port++) {
-			 
+			// set G3_TX_EMPH_EN = 1, G3_TX_EMPH_AMP = 0xF, G3_TX_AMP = 0x1F
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xFBE, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 		}
 	} else if (syno_is_hw_version(HW_DS916p) || syno_is_hw_version(HW_DS416play)) {
-		 
+		// set port1 & port2 G3_TX_EMPH_EN = 1, G3_TX_EMPH_AMP = 0xF, G3_TX_AMP = 0x1F
 		port = 0;
 		syno_mv_9xxx_amp_adjust_by_port(host, 0xFBE, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 		port = 1;
 		syno_mv_9xxx_amp_adjust_by_port(host, 0xFBE, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 
+		// ESATA port
 		port = 2;
 		syno_mv_9xxx_amp_adjust_by_port(host, 0xFBE, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 	} else if (syno_is_hw_version(HW_DS716p) || syno_is_hw_version(HW_DS716pII)) {
-		 
+		// set port0  GX_TX_EMPH_EN = 1, GX_TX_EMPH_AMP = 0xF, GX_TX_AMP = 0x1F
 		port = 0;
 		syno_mv_9xxx_amp_adjust_by_port(host, 0xFBE, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 		syno_mv_9xxx_amp_adjust_by_port(host, 0xFBE, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
 		syno_mv_9xxx_amp_adjust_by_port(host, 0xFBE, mv_port_addr[port], mv_port_data[port], mv_sata_gen[0]);
 	} else if (syno_is_hw_version(HW_DS1616p)) {
-		 
+		// set port0 port1 G2_TX_EMPH_EN = 1, G2_TX_EMPH_AMP = 0xC, G2_TX_AMP = 0x1F
 		port = 0;
 		syno_mv_9xxx_amp_adjust_by_port(host, 0xE3E, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
 		port = 1;
 		syno_mv_9xxx_amp_adjust_by_port(host, 0xE3E, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
 	} else if (syno_is_hw_version(HW_DS1517p)) {
 		if (0x02 == PCI_SLOT(pdev->bus->self->devfn)) {
-			 
+			/* 1b4b:9235 chip pci address is 0000:00:02.0 */
 			port = 0;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xD75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xAE7E, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
@@ -801,7 +1045,7 @@ void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xD75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xAE7E, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
 		} else if (0x03 == PCI_SLOT(pdev->bus->self->devfn)) {
-			 
+			/* 1b4b:9170 chip pci address is 0000:00:03.0 */
 			port = 0;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xD75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xAE7E, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
@@ -811,7 +1055,7 @@ void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 		}
 	} else if (syno_is_hw_version(HW_DS1817p)) {
 		if (0x02 == PCI_SLOT(pdev->bus->self->devfn)) {
-			 
+			/* 1b4b:9235 chip 1 pci address is 0000:00:02.0 */
 			port = 0;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xD75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xAE7E, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
@@ -825,7 +1069,7 @@ void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xE75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xAE7E, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
 		} else if (0x03 == PCI_SLOT(pdev->bus->self->devfn)) {
-			 
+			/* 1b4b:9235 chip 2 pci address is 0000:00:03.0 */
 			port = 0;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xCF5, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xAE7E, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
@@ -841,7 +1085,7 @@ void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 		}
 	} else if (syno_is_hw_version(HW_DS3017xs)) {
 		if (0x03 == PCI_SLOT(pdev->bus->self->devfn) && (0x00 == PCI_FUNC(pdev->bus->self->devfn) || 0x01 == PCI_FUNC(pdev->bus->self->devfn))) {
-			 
+			/* 1b4b:9235 chip 1,2 pci address is 00:03.0 00:03.1 for eunit 1,2 */
 			port = 0;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xF7B, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			port = 1;
@@ -851,7 +1095,7 @@ void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 			port = 3;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xF77, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 		} else if (0x03 == PCI_SLOT(pdev->bus->self->devfn) && 0x02 == PCI_FUNC(pdev->bus->self->devfn)) {
-			 
+			/* 1b4b:9235 chip 3 pci address is 00:03.2. internal */
 			port = 0;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xD7F, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			port = 1;
@@ -859,7 +1103,7 @@ void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 		}
 	} else if (syno_is_hw_version(HW_RS818p) || syno_is_hw_version(HW_RS818rpp)) {
 		if (0x02 == PCI_SLOT(pdev->bus->self->devfn)) {
-			 
+			/* 1b4b:9235 chip pci address is 0000:00:02.0 */
 			port = 2;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xFFF, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xAE7E, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
@@ -867,14 +1111,14 @@ void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xE75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xAA62, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
 		} else if (0x03 == PCI_SLOT(pdev->bus->self->devfn)) {
-			 
+			/* 1b4b:9170 chip pci address is 0000:00:03.0 */
 			port = 1;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xB75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xAA62, mv_port_addr[port], mv_port_data[port], mv_sata_gen[1]);
 		}
 	} else if (syno_is_hw_version(HW_RS1219p)) {
 		if (0x02 == PCI_SLOT(pdev->bus->self->devfn)) {
-			 
+			/* 1b4b:9235 chip 1 pci address is 0000:00:02.0 */
 			port = 1;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xD75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			port = 2;
@@ -882,7 +1126,7 @@ void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 			port = 3;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xE75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 		} else if (0x03 == PCI_SLOT(pdev->bus->self->devfn)) {
-			 
+			/* 1b4b:9235 chip 2 pci address is 0000:00:03.0 */
 			port = 0;
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xE7F, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 			port = 1;
@@ -893,7 +1137,9 @@ void syno_mv_9xxx_amp_adjust(struct ata_host *host, struct pci_dev *pdev)
 			syno_mv_9xxx_amp_adjust_by_port(host, 0xD75, mv_port_addr[port], mv_port_data[port], mv_sata_gen[2]);
 		}
 	}
-
+#ifdef MY_ABC_HERE
+	}
+#endif /* MY_ABC_HERE */
 }
 
 int syno_mv_9235_disk_led_get(const unsigned short hostnum)
@@ -912,6 +1158,7 @@ int syno_mv_9235_disk_led_get(const unsigned short hostnum)
 		goto END;
 	}
 
+	// fault pins on last 4 pins
 	led_idx = ap->print_id - ap->host->ports[0]->print_id + 4;
 
 	value = syno_mv_9235_gpio_reg_read(ap->host, MV_9235_GPIO_DATA_OUT);
@@ -929,6 +1176,9 @@ END:
 }
 EXPORT_SYMBOL(syno_mv_9235_disk_led_get);
 
+/*
+ *	Write value to 9235 gpio
+ */
 int syno_mv_9235_disk_led_set(const unsigned short hostnum, int iValue)
 {
 	struct Scsi_Host *shost = scsi_host_lookup(hostnum);
@@ -962,13 +1212,86 @@ END:
 }
 
 EXPORT_SYMBOL(syno_mv_9235_disk_led_set);
-#endif  
+#endif /* MY_DEF_HERE*/
+
+#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
+#include <linux/gpio.h>
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+extern u32 syno_pch_lpc_gpio_pin(int pin, int *pValue, int isWrite);
+#endif /* MY_DEF_HERE */
+extern int grgPwrCtlPin[];
+static int syno_pulldown_eunit_gpio(struct ata_port *ap)
+{
+	int iRet = -1;
+	int iValue = 0;
+	int iPin = -1;
+
+	/* Due to EUnit is edge trigger, we have to pull the GPIO PIN to low before EUnit poweroff */
+	if (!(iPin = grgPwrCtlPin[ap->print_id])) { /* get pwrctl GPIO pin */
+		goto END;
+	}
+	iValue = 0;
+#if defined(MY_DEF_HERE)
+	if (syno_pch_lpc_gpio_pin(iPin, &iValue, 1)) {
+		goto END;
+	}
+#elif defined(MY_DEF_HERE)
+	if (syno_gpio_value_set(iPin, iValue)) {
+		goto END;
+	}
+#endif
+	mdelay(1000); /* HW say should delay >1.38ms and suggest 1s when trigger edge (0->1) */
+
+	iRet = 0;
+END:
+	return iRet;
+}
+#endif /* MY_ABC_HERE */
+
+extern int gSynoSystemShutdown;
+void ahci_pci_shutdown(struct pci_dev *pdev){
+	int i;
+	struct ata_host *host = dev_get_drvdata(&pdev->dev);
+	struct Scsi_Host *shost;
+
+	if (NULL == host) {
+		goto END;
+	}
+
+	// gSynoSystemShutdown = 1 means the host is going to poweroff
+	if (1 == gSynoSystemShutdown) {
+		for (i = 0; i < host->n_ports; i++) {
+			shost = host->ports[i]->scsi_host;
+			if (shost->hostt->syno_host_poweroff_task) {
+				shost->hostt->syno_host_poweroff_task(shost);
+			}
+#ifdef MY_ABC_HERE
+			syno_pulldown_eunit_gpio(host->ports[i]);
+#endif /* MY_ABC_HERE */
+		}
+	}
+
+	if (pdev->irq >= 0) {
+		free_irq(pdev->irq, host);
+		pci_disable_msi(pdev);
+		pci_intx(pdev, 0);
+	}
+END:
+	return;
+}
+#endif /* MY_DEF_HERE */
 
 static struct pci_driver ahci_pci_driver = {
 	.name			= DRV_NAME,
 	.id_table		= ahci_pci_tbl,
 	.probe			= ahci_init_one,
 	.remove			= ata_pci_remove_one,
+#ifdef MY_DEF_HERE
+	.shutdown		= ahci_pci_shutdown,
+#endif /* MY_DEF_HERE */
 #ifdef CONFIG_PM
 	.suspend		= ahci_pci_device_suspend,
 	.resume			= ahci_pci_device_resume,
@@ -983,6 +1306,7 @@ static int marvell_enable = 1;
 module_param(marvell_enable, int, 0644);
 MODULE_PARM_DESC(marvell_enable, "Marvell SATA via AHCI (1 = enabled)");
 
+
 static void ahci_pci_save_initial_config(struct pci_dev *pdev,
 					 struct ahci_host_priv *hpriv)
 {
@@ -994,6 +1318,11 @@ static void ahci_pci_save_initial_config(struct pci_dev *pdev,
 		force_port_map = 1;
 	}
 
+	/*
+	 * Temporary Marvell 6145 hack: PATA port presence
+	 * is asserted through the standard AHCI port
+	 * presence register, as bit 4 (counting from 0)
+	 */
 	if (hpriv->flags & AHCI_HFLAG_MV_PATA) {
 		if (pdev->device == 0x6121)
 			mask_port_map = 0x3;
@@ -1017,6 +1346,7 @@ static int ahci_pci_reset_controller(struct ata_host *host)
 		struct ahci_host_priv *hpriv = host->private_data;
 		u16 tmp16;
 
+		/* configure PCS */
 		pci_read_config_word(pdev, 0x92, &tmp16);
 		if ((tmp16 & hpriv->port_map) != hpriv->port_map) {
 			tmp16 |= hpriv->port_map;
@@ -1044,6 +1374,7 @@ static void ahci_pci_init_controller(struct ata_host *host)
 
 		writel(0, port_mmio + PORT_IRQ_MASK);
 
+		/* clear port IRQ */
 		tmp = readl(port_mmio + PORT_IRQ_STAT);
 		VPRINTK("PORT_IRQ_STAT 0x%x\n", tmp);
 		if (tmp)
@@ -1071,6 +1402,9 @@ static int ahci_vt8251_hardreset(struct ata_link *link, unsigned int *class,
 
 	DPRINTK("EXIT, rc=%d, class=%u\n", rc, *class);
 
+	/* vt8251 doesn't clear BSY on signature FIS reception,
+	 * request follow-up softreset.
+	 */
 	return online ? -EAGAIN : rc;
 }
 
@@ -1086,6 +1420,7 @@ static int ahci_p5wdh_hardreset(struct ata_link *link, unsigned int *class,
 
 	ahci_stop_engine(ap);
 
+	/* clear D2H reception area to properly wait for D2H FIS */
 	ata_tf_init(link->device, &tf);
 	tf.command = 0x80;
 	ata_tf_to_fis(&tf, 0, 0, d2h_fis);
@@ -1095,6 +1430,19 @@ static int ahci_p5wdh_hardreset(struct ata_link *link, unsigned int *class,
 
 	ahci_start_engine(ap);
 
+	/* The pseudo configuration device on SIMG4726 attached to
+	 * ASUS P5W-DH Deluxe doesn't send signature FIS after
+	 * hardreset if no device is attached to the first downstream
+	 * port && the pseudo device locks up on SRST w/ PMP==0.  To
+	 * work around this, wait for !BSY only briefly.  If BSY isn't
+	 * cleared, perform CLO and proceed to IDENTIFY (achieved by
+	 * ATA_LFLAG_NO_SRST and ATA_LFLAG_ASSUME_ATA).
+	 *
+	 * Wait for two seconds.  Devices attached to downstream port
+	 * which can't process the following IDENTIFY after this will
+	 * have to be reset again.  For most cases, this should
+	 * suffice while making probing snappish enough.
+	 */
 	if (online) {
 		rc = ata_wait_after_reset(link, jiffies + 2 * HZ,
 					  ahci_check_ready);
@@ -1120,11 +1468,14 @@ static int ahci_pci_device_suspend(struct pci_dev *pdev, pm_message_t mesg)
 	}
 
 	if (mesg.event & PM_EVENT_SLEEP) {
-		 
+		/* AHCI spec rev1.1 section 8.3.3:
+		 * Software must disable interrupts prior to requesting a
+		 * transition of the HBA to D3 state.
+		 */
 		ctl = readl(mmio + HOST_CTL);
 		ctl &= ~HOST_IRQ_EN;
 		writel(ctl, mmio + HOST_CTL);
-		readl(mmio + HOST_CTL);  
+		readl(mmio + HOST_CTL); /* flush */
 	}
 
 	return ata_pci_device_suspend(pdev, mesg);
@@ -1157,6 +1508,10 @@ static int ahci_configure_dma_masks(struct pci_dev *pdev, int using_dac)
 {
 	int rc;
 
+	/*
+	 * If the device fixup already set the dma_mask to some non-standard
+	 * value, don't extend it here. This happens on STA2X11, for example.
+	 */
 	if (pdev->dma_mask && pdev->dma_mask < DMA_BIT_MASK(32))
 		return 0;
 
@@ -1206,6 +1561,24 @@ static void ahci_pci_print_info(struct ata_host *host)
 	ahci_print_info(host, scc_s);
 }
 
+/* On ASUS P5W DH Deluxe, the second port of PCI device 00:1f.2 is
+ * hardwired to on-board SIMG 4726.  The chipset is ICH8 and doesn't
+ * support PMP and the 4726 either directly exports the device
+ * attached to the first downstream port or acts as a hardware storage
+ * controller and emulate a single ATA device (can be RAID 0/1 or some
+ * other configuration).
+ *
+ * When there's no device attached to the first downstream port of the
+ * 4726, "Config Disk" appears, which is a pseudo ATA device to
+ * configure the 4726.  However, ATA emulation of the device is very
+ * lame.  It doesn't send signature D2H Reg FIS after the initial
+ * hardreset, pukes on SRST w/ PMP==0 and has bunch of other issues.
+ *
+ * The following function works around the problem by always using
+ * hardreset on the port and not depending on receiving signature FIS
+ * afterward.  If signature FIS isn't received soon, ATA class is
+ * assumed without follow-up softreset.
+ */
 static void ahci_p5wdh_workaround(struct ata_host *host)
 {
 	static struct dmi_system_id sysids[] = {
@@ -1233,10 +1606,17 @@ static void ahci_p5wdh_workaround(struct ata_host *host)
 	}
 }
 
+/* only some SB600 ahci controllers can do 64bit DMA */
 static bool ahci_sb600_enable_64bit(struct pci_dev *pdev)
 {
 	static const struct dmi_system_id sysids[] = {
-		 
+		/*
+		 * The oldest version known to be broken is 0901 and
+		 * working is 1501 which was released on 2007-10-26.
+		 * Enable 64bit DMA on 1501 and anything newer.
+		 *
+		 * Please read bko#9412 for more info.
+		 */
 		{
 			.ident = "ASUS M2A-VM",
 			.matches = {
@@ -1244,9 +1624,24 @@ static bool ahci_sb600_enable_64bit(struct pci_dev *pdev)
 					  "ASUSTeK Computer INC."),
 				DMI_MATCH(DMI_BOARD_NAME, "M2A-VM"),
 			},
-			.driver_data = "20071026",	 
+			.driver_data = "20071026",	/* yyyymmdd */
 		},
-		 
+		/*
+		 * All BIOS versions for the MSI K9A2 Platinum (MS-7376)
+		 * support 64bit DMA.
+		 *
+		 * BIOS versions earlier than 1.5 had the Manufacturer DMI
+		 * fields as "MICRO-STAR INTERANTIONAL CO.,LTD".
+		 * This spelling mistake was fixed in BIOS version 1.5, so
+		 * 1.5 and later have the Manufacturer as
+		 * "MICRO-STAR INTERNATIONAL CO.,LTD".
+		 * So try to match on DMI_BOARD_VENDOR of "MICRO-STAR INTER".
+		 *
+		 * BIOS versions earlier than 1.9 had a Board Product Name
+		 * DMI field of "MS-7376". This was changed to be
+		 * "K9A2 Platinum (MS-7376)" in version 1.9, but we can still
+		 * match on DMI_BOARD_NAME of "MS-7376".
+		 */
 		{
 			.ident = "MSI K9A2 Platinum",
 			.matches = {
@@ -1255,7 +1650,14 @@ static bool ahci_sb600_enable_64bit(struct pci_dev *pdev)
 				DMI_MATCH(DMI_BOARD_NAME, "MS-7376"),
 			},
 		},
-		 
+		/*
+		 * All BIOS versions for the MSI K9AGM2 (MS-7327) support
+		 * 64bit DMA.
+		 *
+		 * This board also had the typo mentioned above in the
+		 * Manufacturer DMI field (fixed in BIOS version 1.5), so
+		 * match on DMI_BOARD_VENDOR of "MICRO-STAR INTER" again.
+		 */
 		{
 			.ident = "MSI K9AGM2",
 			.matches = {
@@ -1264,7 +1666,10 @@ static bool ahci_sb600_enable_64bit(struct pci_dev *pdev)
 				DMI_MATCH(DMI_BOARD_NAME, "MS-7327"),
 			},
 		},
-		 
+		/*
+		 * All BIOS versions for the Asus M3A support 64bit DMA.
+		 * (all release versions from 0301 to 1206 were tested)
+		 */
 		{
 			.ident = "ASUS M3A",
 			.matches = {
@@ -1313,7 +1718,7 @@ static bool ahci_broken_system_poweroff(struct pci_dev *pdev)
 				DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
 				DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq nx6310"),
 			},
-			 
+			/* PCI slot number of the controller */
 			.driver_data = (void *)0x1FUL,
 		},
 		{
@@ -1322,17 +1727,17 @@ static bool ahci_broken_system_poweroff(struct pci_dev *pdev)
 				DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
 				DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq 6720s"),
 			},
-			 
+			/* PCI slot number of the controller */
 			.driver_data = (void *)0x1FUL,
 		},
 
-		{ }	 
+		{ }	/* terminate list */
 	};
 	const struct dmi_system_id *dmi = dmi_first_match(broken_systems);
 
 	if (dmi) {
 		unsigned long slot = (unsigned long)dmi->driver_data;
-		 
+		/* apply the quirk only to on-board controllers */
 		return slot == PCI_SLOT(pdev->devfn);
 	}
 
@@ -1342,7 +1747,19 @@ static bool ahci_broken_system_poweroff(struct pci_dev *pdev)
 static bool ahci_broken_suspend(struct pci_dev *pdev)
 {
 	static const struct dmi_system_id sysids[] = {
-		 
+		/*
+		 * On HP dv[4-6] and HDX18 with earlier BIOSen, link
+		 * to the harddisk doesn't become online after
+		 * resuming from STR.  Warn and fail suspend.
+		 *
+		 * http://bugzilla.kernel.org/show_bug.cgi?id=12276
+		 *
+		 * Use dates instead of versions to match as HP is
+		 * apparently recycling both product and version
+		 * strings.
+		 *
+		 * http://bugzilla.kernel.org/show_bug.cgi?id=15462
+		 */
 		{
 			.ident = "dv4",
 			.matches = {
@@ -1350,7 +1767,7 @@ static bool ahci_broken_suspend(struct pci_dev *pdev)
 				DMI_MATCH(DMI_PRODUCT_NAME,
 					  "HP Pavilion dv4 Notebook PC"),
 			},
-			.driver_data = "20090105",	 
+			.driver_data = "20090105",	/* F.30 */
 		},
 		{
 			.ident = "dv5",
@@ -1359,7 +1776,7 @@ static bool ahci_broken_suspend(struct pci_dev *pdev)
 				DMI_MATCH(DMI_PRODUCT_NAME,
 					  "HP Pavilion dv5 Notebook PC"),
 			},
-			.driver_data = "20090506",	 
+			.driver_data = "20090506",	/* F.16 */
 		},
 		{
 			.ident = "dv6",
@@ -1368,7 +1785,7 @@ static bool ahci_broken_suspend(struct pci_dev *pdev)
 				DMI_MATCH(DMI_PRODUCT_NAME,
 					  "HP Pavilion dv6 Notebook PC"),
 			},
-			.driver_data = "20090423",	 
+			.driver_data = "20090423",	/* F.21 */
 		},
 		{
 			.ident = "HDX18",
@@ -1377,18 +1794,26 @@ static bool ahci_broken_suspend(struct pci_dev *pdev)
 				DMI_MATCH(DMI_PRODUCT_NAME,
 					  "HP HDX18 Notebook PC"),
 			},
-			.driver_data = "20090430",	 
+			.driver_data = "20090430",	/* F.23 */
 		},
-		 
+		/*
+		 * Acer eMachines G725 has the same problem.  BIOS
+		 * V1.03 is known to be broken.  V3.04 is known to
+		 * work.  Between, there are V1.06, V2.06 and V3.03
+		 * that we don't have much idea about.  For now,
+		 * blacklist anything older than V3.04.
+		 *
+		 * http://bugzilla.kernel.org/show_bug.cgi?id=15104
+		 */
 		{
 			.ident = "G725",
 			.matches = {
 				DMI_MATCH(DMI_SYS_VENDOR, "eMachines"),
 				DMI_MATCH(DMI_PRODUCT_NAME, "eMachines G725"),
 			},
-			.driver_data = "20091216",	 
+			.driver_data = "20091216",	/* V3.04 */
 		},
-		{ }	 
+		{ }	/* terminate list */
 	};
 	const struct dmi_system_id *dmi = dmi_first_match(sysids);
 	int year, month, date;
@@ -1408,7 +1833,19 @@ static bool ahci_broken_online(struct pci_dev *pdev)
 #define ENCODE_BUSDEVFN(bus, slot, func)			\
 	(void *)(unsigned long)(((bus) << 8) | PCI_DEVFN((slot), (func)))
 	static const struct dmi_system_id sysids[] = {
-		 
+		/*
+		 * There are several gigabyte boards which use
+		 * SIMG5723s configured as hardware RAID.  Certain
+		 * 5723 firmware revisions shipped there keep the link
+		 * online but fail to answer properly to SRST or
+		 * IDENTIFY when no device is attached downstream
+		 * causing libata to retry quite a few times leading
+		 * to excessive detection delay.
+		 *
+		 * As these firmwares respond to the second reset try
+		 * with invalid device signature, considering unknown
+		 * sig as offline works around the problem acceptably.
+		 */
 		{
 			.ident = "EP45-DQ6",
 			.matches = {
@@ -1427,7 +1864,7 @@ static bool ahci_broken_online(struct pci_dev *pdev)
 			},
 			.driver_data = ENCODE_BUSDEVFN(0x03, 0x00, 0),
 		},
-		{ }	 
+		{ }	/* terminate list */
 	};
 #undef ENCODE_BUSDEVFN
 	const struct dmi_system_id *dmi = dmi_first_match(sysids);
@@ -1445,7 +1882,14 @@ static bool ahci_broken_online(struct pci_dev *pdev)
 static void ahci_gtf_filter_workaround(struct ata_host *host)
 {
 	static const struct dmi_system_id sysids[] = {
-		 
+		/*
+		 * Aspire 3810T issues a bunch of SATA enable commands
+		 * via _GTF including an invalid one and one which is
+		 * rejected by the device.  Among the successful ones
+		 * is FPDMA non-zero offset enable which when enabled
+		 * only on the drive side leads to NCQ command
+		 * failures.  Filter it out.
+		 */
 		{
 			.ident = "Aspire 3810T",
 			.matches = {
@@ -1492,7 +1936,10 @@ int ahci_init_interrupts(struct pci_dev *pdev, struct ahci_host_priv *hpriv)
 		if (rc > 0) {
 			if ((rc == maxvec) || (rc == 1))
 				return rc;
-			 
+			/*
+			 * Assume that advantage of multipe MSIs is negated,
+			 * so fallback to single MSI mode to save resources
+			 */
 			pci_disable_msi(pdev);
 			if (!pci_enable_msi(pdev))
 				return 1;
@@ -1503,10 +1950,29 @@ int ahci_init_interrupts(struct pci_dev *pdev, struct ahci_host_priv *hpriv)
 	return 0;
 }
 
+/**
+ *	ahci_host_activate - start AHCI host, request IRQs and register it
+ *	@host: target ATA host
+ *	@irq: base IRQ number to request
+ *	@n_msis: number of MSIs allocated for this host
+ *	@irq_handler: irq_handler used when requesting IRQs
+ *	@irq_flags: irq_flags used when requesting IRQs
+ *
+ *	Similar to ata_host_activate, but requests IRQs according to AHCI-1.1
+ *	when multiple MSIs were allocated. That is one MSI per port, starting
+ *	from @irq.
+ *
+ *	LOCKING:
+ *	Inherited from calling layer (may sleep).
+ *
+ *	RETURNS:
+ *	0 on success, -errno otherwise.
+ */
 int ahci_host_activate(struct ata_host *host, int irq, unsigned int n_msis)
 {
 	int i, rc;
 
+	/* Sharing Last Message among several ports is not supported */
 	if (n_msis < host->n_ports)
 		return -EINVAL;
 
@@ -1563,10 +2029,17 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		return 0;
 	}
 
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
-	 
+	/* There's optional M.2 PCIe adapter card with PCIe gen2 switch
+	 * [111d:806e] with a mv9235 as SATA controllor on it.
+	 * If this adapter card being used with some models we haven't customized,
+	 * the disk order would be disrupted. So if you want to use it, you
+	 * have to indicate your optional PCIe slot and enable config
+	 * SYNO_PCI_HOST_SATA_CACHE. Otherwise, we disable the ahci driver
+	 * of [111d:806e] for backward compatibility, because we can't update
+	 * bootargs of those old models. */
 	pdev_cur = pdev;
 	while (NULL != pdev_cur) {
 		if (pdev_cur->vendor == 0x111d && pdev_cur->device == 0x806e) {
@@ -1596,49 +2069,65 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 				}
 
 				if (!disableDriver) {
-					 
+					/* If it on specific optional slot */
 					break;
 				} else {
-					 
+					/* Not found, default not support */
 					printk("Not found in optional PCIe slot. Skip this AHCI device.\n");
 					return -ENODEV;
 				}
 			}
-#else  
+#else /* MY_DEF_HERE */
 			printk("SYNO_PCI_HOST_SATA_CACHE is disable. Skip this AHCI device on\n");
 			return -ENODEV;
-#endif  
+#endif /* MY_DEF_HERE */
 		}
 		pdev_cur = pdev_cur->bus->self;
 	}
-#endif  
+#endif /* MY_ABC_HERE */
 
 	WARN_ON((int)ATA_MAX_QUEUE > AHCI_MAX_CMDS);
 
 	ata_print_version_once(&pdev->dev, DRV_VERSION);
 
+	/* The AHCI driver can only drive the SATA ports, the PATA driver
+	   can drive them all so if both drivers are selected make sure
+	   AHCI stays out of the way */
 	if (pdev->vendor == PCI_VENDOR_ID_MARVELL && !marvell_enable)
 		return -ENODEV;
 
+	/*
+	 * For some reason, MCP89 on MacBook 7,1 doesn't work with
+	 * ahci, use ata_generic instead.
+	 */
 	if (pdev->vendor == PCI_VENDOR_ID_NVIDIA &&
 	    pdev->device == PCI_DEVICE_ID_NVIDIA_NFORCE_MCP89_SATA &&
 	    pdev->subsystem_vendor == PCI_VENDOR_ID_APPLE &&
 	    pdev->subsystem_device == 0xcb89)
 		return -ENODEV;
 
+	/* Promise's PDC42819 is a SAS/SATA controller that has an AHCI mode.
+	 * At the moment, we can only use the AHCI mode. Let the users know
+	 * that for SAS drives they're out of luck.
+	 */
 	if (pdev->vendor == PCI_VENDOR_ID_PROMISE)
 		dev_info(&pdev->dev,
 			 "PDC42819 can only drive SATA devices with this driver\n");
 
+	/* Both Connext and Enmotus devices use non-standard BARs */
 	if (pdev->vendor == PCI_VENDOR_ID_STMICRO && pdev->device == 0xCC06)
 		ahci_pci_bar = AHCI_PCI_BAR_STA2X11;
 	else if (pdev->vendor == 0x1c44 && pdev->device == 0x8000)
 		ahci_pci_bar = AHCI_PCI_BAR_ENMOTUS;
 
+	/* acquire resources */
 	rc = pcim_enable_device(pdev);
 	if (rc)
 		return rc;
 
+	/* AHCI controllers often implement SFF compatible interface.
+	 * Grab all PCI BARs just in case.
+	 */
 	rc = pcim_iomap_regions_request_all(pdev, 1 << ahci_pci_bar, DRV_NAME);
 	if (rc == -EBUSY)
 		pcim_pin_device(pdev);
@@ -1649,6 +2138,10 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	    (pdev->device == 0x2652 || pdev->device == 0x2653)) {
 		u8 map;
 
+		/* ICH6s share the same PCI ID for both piix and ahci
+		 * modes.  Enabling ahci mode while MAP indicates
+		 * combined mode is a bad idea.  Yield to ata_piix.
+		 */
 		pci_read_config_byte(pdev, ICH_MAP, &map);
 		if (map & 0x3) {
 			dev_info(&pdev->dev,
@@ -1662,13 +2155,16 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		return -ENOMEM;
 	hpriv->flags |= (unsigned long)pi.private_data;
 
+	/* MCP65 revision A1 and A2 can't do MSI */
 	if (board_id == board_ahci_mcp65 &&
 	    (pdev->revision == 0xa1 || pdev->revision == 0xa2))
 		hpriv->flags |= AHCI_HFLAG_NO_MSI;
 
+	/* SB800 does NOT need the workaround to ignore SERR_INTERNAL */
 	if (board_id == board_ahci_sb700 && pdev->revision >= 0x40)
 		hpriv->flags &= ~AHCI_HFLAG_IGN_SERR_INTERNAL;
 
+	/* only some SB600s can do 64bit DMA */
 	if (ahci_sb600_enable_64bit(pdev))
 		hpriv->flags &= ~AHCI_HFLAG_32BIT_ONLY;
 
@@ -1678,11 +2174,18 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (n_msis > 1)
 		hpriv->flags |= AHCI_HFLAG_MULTI_MSI;
 
+	/* save initial config */
 	ahci_pci_save_initial_config(pdev, hpriv);
 
+	/* prepare host */
 	if (hpriv->cap & HOST_CAP_NCQ) {
 		pi.flags |= ATA_FLAG_NCQ;
-		 
+		/*
+		 * Auto-activate optimization is supposed to be
+		 * supported on all AHCI controllers indicating NCQ
+		 * capability, but it seems to be broken on some
+		 * chipsets including NVIDIAs.
+		 */
 		if (!(hpriv->flags & AHCI_HFLAG_NO_FPDMA_AA))
 			pi.flags |= ATA_FLAG_FPDMA_AA;
 	}
@@ -1710,15 +2213,20 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 			 "online status unreliable, applying workaround\n");
 	}
 
+	/* CAP.NP sometimes indicate the index of the last enabled
+	 * port, at other times, that of the last possible port, so
+	 * determining the maximum port number requires looking at
+	 * both CAP.NP and port_map.
+	 */
 #ifdef MY_DEF_HERE
 	if(gSynoSataHostCnt < sizeof(gszSataPortMap) && 0 != gszSataPortMap[gSynoSataHostCnt]) {
 		n_ports = gszSataPortMap[gSynoSataHostCnt] - '0';
 	}else{
-#endif  
+#endif /* MY_DEF_HERE */
 	n_ports = max(ahci_nr_ports(hpriv->cap), fls(hpriv->port_map));
 #ifdef MY_DEF_HERE
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 	host = ata_host_alloc_pinfo(&pdev->dev, ppi, n_ports);
 	if (!host)
@@ -1734,7 +2242,7 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 			ap->link.uiStsFlags |= SYNO_STATUS_IS_MV9235;
 		}
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 	if (!(hpriv->cap & HOST_CAP_SSS) || ahci_ignore_sss)
 		host->flags |= ATA_HOST_PARALLEL_SCAN;
@@ -1751,9 +2259,12 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		ata_port_pbar_desc(ap, ahci_pci_bar,
 				   0x100 + ap->port_no * 0x80, "port");
 
+		/* set enclosure management message type */
 		if (ap->flags & ATA_FLAG_EM)
 			ap->em_message_type = hpriv->em_msg_type;
 
+
+		/* disabled/not-implemented port */
 		if (!(hpriv->port_map & (1 << i)))
 			ap->ops = &ata_dummy_port_ops;
 	}
@@ -1766,8 +2277,13 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 			ap->ops->qc_defer = &ahci_syno_pmp_3x26_qc_defer;
 		}
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
+/* On Marvell 9215 the external port compatibility is
+ * not well that we get many DRDY messages after stressing.
+ * but some model use it as internel port so we need to
+ * use port number to limit it.
+ */
 #ifdef MY_DEF_HERE
 	if (syno_is_hw_version(HW_DS916p) ||
 			syno_is_hw_version(HW_DS416play)) {
@@ -1776,12 +2292,14 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 			host->ports[2]->flags &= ~ATA_FLAG_FPDMA_AA;
 		}
 	}
-#endif  
-	 
+#endif /* MY_DEF_HERE */
+	/* apply workaround for ASUS P5W DH Deluxe mainboard */
 	ahci_p5wdh_workaround(host);
 
+	/* apply gtf filter quirk */
 	ahci_gtf_filter_workaround(host);
 
+	/* initialize adapter */
 	rc = ahci_configure_dma_masks(pdev, hpriv->cap & HOST_CAP_64);
 	if (rc)
 		return rc;
@@ -1801,13 +2319,13 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (pdev->vendor == 0x1b4b && (pdev->device == 0x9235 || pdev->device == 0x9215 || pdev->device == 0x9170)) {
 		syno_mv_9xxx_amp_adjust(host, pdev);
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
 	if (pdev->vendor == 0x1b4b && pdev->device == 0x9170) {
 		syno_mv_9170_gpio_active_init(host);
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 
 	if (hpriv->flags & AHCI_HFLAG_MULTI_MSI)
 		return ahci_host_activate(host, pdev->irq, n_msis);

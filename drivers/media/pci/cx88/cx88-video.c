@@ -681,6 +681,7 @@ static const struct videobuf_queue_ops cx8800_video_qops = {
 
 /* ------------------------------------------------------------------ */
 
+
 /* ------------------------------------------------------------------ */
 
 static struct videobuf_queue *get_queue(struct file *file)

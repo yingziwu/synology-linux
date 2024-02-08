@@ -101,6 +101,7 @@ static struct cx231xx_fmt format[] = {
 	 },
 };
 
+
 /* ------------------------------------------------------------------
 	Video buffer and parser functions
    ------------------------------------------------------------------*/
@@ -381,6 +382,7 @@ static inline int cx231xx_bulk_copy(struct cx231xx *dev, struct urb *urb)
 	}
 	return rc;
 }
+
 
 u8 cx231xx_find_boundary_SAV_EAV(u8 *p_buffer, u8 *partial_buf,
 				 u32 *p_bytes_used)

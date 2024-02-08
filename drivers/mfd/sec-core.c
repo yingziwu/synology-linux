@@ -105,6 +105,7 @@ static struct regmap_config sec_regmap_config = {
 	.val_bits = 8,
 };
 
+
 #ifdef CONFIG_OF
 /*
  * Only the common platform data elements for s5m8767 are parsed here from the

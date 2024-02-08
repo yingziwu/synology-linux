@@ -16,6 +16,7 @@
 //#include <linux/crypto.h>
 #include "rtl_crypto.h"
 
+
 struct michael_mic_ctx {
 	u8 pending[4];
 	size_t pending_len;
@@ -23,20 +24,24 @@ struct michael_mic_ctx {
 	u32 l, r;
 };
 
+
 static inline u32 rotl(u32 val, int bits)
 {
 	return (val << bits) | (val >> (32 - bits));
 }
+
 
 static inline u32 rotr(u32 val, int bits)
 {
 	return (val >> bits) | (val << (32 - bits));
 }
 
+
 static inline u32 xswap(u32 val)
 {
 	return ((val & 0x00ff00ff) << 8) | ((val & 0xff00ff00) >> 8);
 }
+
 
 #define michael_block(l, r)	\
 do {				\
@@ -50,10 +55,12 @@ do {				\
 	l += r;			\
 } while (0)
 
+
 static inline u32 get_le32(const u8 *p)
 {
 	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
 }
+
 
 static inline void put_le32(u8 *p, u32 v)
 {
@@ -63,11 +70,13 @@ static inline void put_le32(u8 *p, u32 v)
 	p[3] = v >> 24;
 }
 
+
 static void michael_init(void *ctx)
 {
 	struct michael_mic_ctx *mctx = ctx;
 	mctx->pending_len = 0;
 }
+
 
 static void michael_update(void *ctx, const u8 *data, unsigned int len)
 {
@@ -103,6 +112,7 @@ static void michael_update(void *ctx, const u8 *data, unsigned int len)
 	}
 }
 
+
 static void michael_final(void *ctx, u8 *out)
 {
 	struct michael_mic_ctx *mctx = ctx;
@@ -132,6 +142,7 @@ static void michael_final(void *ctx, u8 *out)
 	put_le32(out + 4, mctx->r);
 }
 
+
 static int michael_setkey(void *ctx, const u8 *key, unsigned int keylen,
 			  u32 *flags)
 {
@@ -145,6 +156,7 @@ static int michael_setkey(void *ctx, const u8 *key, unsigned int keylen,
 	mctx->r = get_le32(key + 4);
 	return 0;
 }
+
 
 static struct crypto_alg michael_mic_alg = {
 	.cra_name	= "michael_mic",
@@ -161,15 +173,18 @@ static struct crypto_alg michael_mic_alg = {
 	.dia_setkey	= michael_setkey } }
 };
 
+
 static int __init michael_mic_init(void)
 {
 	return crypto_register_alg(&michael_mic_alg);
 }
 
+
 static void __exit michael_mic_exit(void)
 {
 	crypto_unregister_alg(&michael_mic_alg);
 }
+
 
 module_init(michael_mic_init);
 module_exit(michael_mic_exit);

@@ -69,10 +69,6 @@ config SYNO_BACKPORT_GLINKSETTINGS
 	bool "ethtool get_link_ksettings/set_link_ksettings"
 	default y
 
-config SYNO_ADD_ROUTE_CHECK
-    bool "check if interface is link up before adding route"
-	default n
-
 config SYNO_FIX_ALB_OVERFLOW
 	bool "Fix the overflow bug in alb tx balance mechanism"
 	default y

@@ -424,6 +424,7 @@ void __init mem_init(void)
 		if (pgdat->node_spanned_pages)
 			totalram_pages += free_all_bootmem_node(pgdat);
 
+
 		node_high_memory = (void *)__va((pgdat->node_start_pfn +
 						 pgdat->node_spanned_pages) <<
 						 PAGE_SHIFT);

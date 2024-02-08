@@ -14,6 +14,7 @@
  * (at your option) any later version.
  */
 
+
 /* #define DEBUG */
 /* #define VERBOSE_DEBUG */
 
@@ -26,7 +27,9 @@
 #include <linux/usb/composite.h>
 #include <linux/usb/functionfs.h>
 
+
 #define FUNCTIONFS_MAGIC	0xa647361 /* Chosen by a honest dice roll ;) */
+
 
 /* Debugging ****************************************************************/
 
@@ -44,6 +47,7 @@
 #endif /* VERBOSE_DEBUG */
 
 #define ENTER()    pr_vdebug("%s()\n", __func__)
+
 
 /* The data structure and setup file ****************************************/
 
@@ -84,6 +88,7 @@ enum ffs_state {
 	FFS_CLOSING
 };
 
+
 enum ffs_setup_state {
 	/* There is no setup request pending. */
 	FFS_NO_SETUP,
@@ -101,6 +106,8 @@ enum ffs_setup_state {
 	 */
 	FFS_SETUP_CANCELED
 };
+
+
 
 struct ffs_epfile;
 struct ffs_function;
@@ -244,6 +251,7 @@ __ffs_data_got_descs(struct ffs_data *ffs, char *data, size_t len);
 static int __must_check
 __ffs_data_got_strings(struct ffs_data *ffs, char *data, size_t len);
 
+
 /* The function structure ***************************************************/
 
 struct ffs_ep;
@@ -259,6 +267,7 @@ struct ffs_function {
 
 	struct usb_function		function;
 };
+
 
 static struct ffs_function *ffs_func_from_usb(struct usb_function *f)
 {
@@ -281,8 +290,10 @@ static int ffs_func_setup(struct usb_function *,
 static void ffs_func_suspend(struct usb_function *);
 static void ffs_func_resume(struct usb_function *);
 
+
 static int ffs_func_revmap_ep(struct ffs_function *func, u8 num);
 static int ffs_func_revmap_intf(struct ffs_function *func, u8 intf);
+
 
 /* The endpoints structures *************************************************/
 
@@ -324,12 +335,14 @@ ffs_sb_create_file(struct super_block *sb, const char *name, void *data,
 		   const struct file_operations *fops,
 		   struct dentry **dentry_p);
 
+
 /* Misc helper functions ****************************************************/
 
 static int ffs_mutex_lock(struct mutex *mutex, unsigned nonblock)
 	__attribute__((warn_unused_result, nonnull));
 static char *ffs_prepare_buffer(const char __user *buf, size_t len)
 	__attribute__((warn_unused_result, nonnull));
+
 
 /* Control file aka ep0 *****************************************************/
 
@@ -723,6 +736,7 @@ static const struct file_operations ffs_ep0_operations = {
 	.unlocked_ioctl =	ffs_ep0_ioctl,
 };
 
+
 /* "Normal" endpoints operations ********************************************/
 
 static void ffs_epfile_io_complete(struct usb_ep *_ep, struct usb_request *req)
@@ -940,6 +954,7 @@ static const struct file_operations ffs_epfile_operations = {
 	.release =	ffs_epfile_release,
 	.unlocked_ioctl =	ffs_epfile_ioctl,
 };
+
 
 /* File system and super block operations ***********************************/
 
@@ -1212,6 +1227,7 @@ static struct file_system_type ffs_fs_type = {
 };
 MODULE_ALIAS_FS("functionfs");
 
+
 /* Driver's main init/cleanup functions *************************************/
 
 static int functionfs_init(void)
@@ -1236,6 +1252,7 @@ static void functionfs_cleanup(void)
 	pr_info("unloading\n");
 	unregister_filesystem(&ffs_fs_type);
 }
+
 
 /* ffs_data and ffs_function construction and destruction code **************/
 
@@ -1348,6 +1365,7 @@ static void ffs_data_reset(struct ffs_data *ffs)
 	ffs->setup_state = FFS_NO_SETUP;
 	ffs->flags = 0;
 }
+
 
 static int functionfs_bind(struct ffs_data *ffs, struct usb_composite_dev *cdev)
 {
@@ -1567,6 +1585,7 @@ static int ffs_func_eps_enable(struct ffs_function *func)
 
 	return ret;
 }
+
 
 /* Parsing and building descriptors and strings *****************************/
 
@@ -1977,6 +1996,7 @@ error:
 	return -EINVAL;
 }
 
+
 /* Events handling and management *******************************************/
 
 static void __ffs_event_add(struct ffs_data *ffs,
@@ -2044,6 +2064,7 @@ static void ffs_event_add(struct ffs_data *ffs,
 	__ffs_event_add(ffs, type);
 	spin_unlock_irqrestore(&ffs->ev.waitq.lock, flags);
 }
+
 
 /* Bind/unbind USB function hooks *******************************************/
 
@@ -2260,6 +2281,7 @@ error:
 	return ret;
 }
 
+
 /* Other USB function hooks *************************************************/
 
 static void ffs_func_unbind(struct usb_configuration *c,
@@ -2383,6 +2405,7 @@ static void ffs_func_resume(struct usb_function *f)
 	ffs_event_add(ffs_func_from_usb(f)->ffs, FUNCTIONFS_RESUME);
 }
 
+
 /* Endpoint and interface numbers reverse mapping ***************************/
 
 static int ffs_func_revmap_ep(struct ffs_function *func, u8 num)
@@ -2403,6 +2426,7 @@ static int ffs_func_revmap_intf(struct ffs_function *func, u8 intf)
 
 	return -EDOM;
 }
+
 
 /* Misc helper functions ****************************************************/
 

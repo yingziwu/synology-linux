@@ -215,6 +215,7 @@ static struct platform_driver ct82c710_driver = {
 	.remove		= ct82c710_remove,
 };
 
+
 static int __init ct82c710_init(void)
 {
 	int error;

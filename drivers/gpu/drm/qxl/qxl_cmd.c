@@ -369,6 +369,7 @@ void qxl_io_flush_surfaces(struct qxl_device *qdev)
 	wait_for_io_cmd(qdev, 0, QXL_IO_FLUSH_SURFACES_ASYNC);
 }
 
+
 void qxl_io_destroy_primary(struct qxl_device *qdev)
 {
 	wait_for_io_cmd(qdev, 0, QXL_IO_DESTROY_PRIMARY_ASYNC);
@@ -573,6 +574,7 @@ int qxl_hw_surface_dealloc(struct qxl_device *qdev,
 	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
 
 	qxl_release_unreserve(qdev, release);
+
 
 	return 0;
 }

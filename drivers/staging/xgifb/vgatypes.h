@@ -48,3 +48,4 @@ struct xgi_hw_device_info {
 /* Additional IOCTL for communication xgifb <> X driver        */
 /* If changing this, xgifb.h must also be changed (for xgifb) */
 #endif
+

@@ -381,6 +381,7 @@ static void __init intcp_map_io_atag(void)
 	intcp_map_io();
 }
 
+
 /*
  * This is where non-devicetree initialization code is collected and stashed
  * for eventual deletion.

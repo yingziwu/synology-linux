@@ -920,6 +920,7 @@ static const struct data_queue_desc rt2800usb_queue_bcn_5592 = {
 	.priv_size		= sizeof(struct queue_entry_priv_usb),
 };
 
+
 static const struct rt2x00_ops rt2800usb_ops_5592 = {
 	.name			= KBUILD_MODNAME,
 	.drv_data_size		= sizeof(struct rt2800_drv_data),

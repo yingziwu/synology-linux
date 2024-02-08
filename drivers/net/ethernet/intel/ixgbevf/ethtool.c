@@ -188,6 +188,7 @@ static char *ixgbevf_reg_names[] = {
 	"IXGBE_VFTDWBAH1"
 };
 
+
 static int ixgbevf_get_regs_len(struct net_device *netdev)
 {
 	return (ARRAY_SIZE(ixgbevf_reg_names)) * sizeof(u32);

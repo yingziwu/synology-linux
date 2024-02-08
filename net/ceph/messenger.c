@@ -6,6 +6,7 @@
 #include <linux/inet.h>
 #include <linux/kthread.h>
 #include <linux/net.h>
+#include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/socket.h>
 #include <linux/string.h>
@@ -460,6 +461,7 @@ static void set_sock_callbacks(struct socket *sock,
 	sk->sk_state_change = ceph_sock_state_change;
 }
 
+
 /*
  * socket helpers
  */
@@ -471,11 +473,16 @@ static int ceph_tcp_connect(struct ceph_connection *con)
 {
 	struct sockaddr_storage *paddr = &con->peer_addr.in_addr;
 	struct socket *sock;
+	unsigned int noio_flag;
 	int ret;
 
 	BUG_ON(con->sock);
+
+	/* sock_create_kern() allocates with GFP_KERNEL */
+	noio_flag = memalloc_noio_save();
 	ret = sock_create_kern(con->peer_addr.in_addr.ss_family, SOCK_STREAM,
 			       IPPROTO_TCP, &sock);
+	memalloc_noio_restore(noio_flag);
 	if (ret)
 		return ret;
 	sock->sk->sk_allocation = GFP_NOFS;
@@ -739,6 +746,7 @@ void ceph_con_init(struct ceph_connection *con, void *private,
 	con->state = CON_STATE_CLOSED;
 }
 EXPORT_SYMBOL(ceph_con_init);
+
 
 /*
  * We maintain a global counter to order connection attempts.  Get
@@ -1610,6 +1618,7 @@ static int prepare_read_message(struct ceph_connection *con)
 	return 0;
 }
 
+
 static int read_partial(struct ceph_connection *con,
 			int end, int size, void *object)
 {
@@ -1623,6 +1632,7 @@ static int read_partial(struct ceph_connection *con,
 	}
 	return 1;
 }
+
 
 /*
  * Read all or part of the connect-side handshake on a new connection
@@ -1965,6 +1975,19 @@ static int process_connect(struct ceph_connection *con)
 
 	dout("process_connect on %p tag %d\n", con, (int)con->in_tag);
 
+	if (con->auth_reply_buf) {
+		/*
+		 * Any connection that defines ->get_authorizer()
+		 * should also define ->verify_authorizer_reply().
+		 * See get_connect_authorizer().
+		 */
+		ret = con->ops->verify_authorizer_reply(con, 0);
+		if (ret < 0) {
+			con->error_msg = "bad authorize reply";
+			return ret;
+		}
+	}
+
 	switch (con->in_reply.tag) {
 	case CEPH_MSGR_TAG_FEATURES:
 		pr_err("%s%lld %s feature set mismatch,"
@@ -2123,6 +2146,7 @@ static int process_connect(struct ceph_connection *con)
 	return 0;
 }
 
+
 /*
  * read (part of) an ack
  */
@@ -2156,6 +2180,7 @@ static void process_ack(struct ceph_connection *con)
 	}
 	prepare_read_tag(con);
 }
+
 
 static int read_partial_message_section(struct ceph_connection *con,
 					struct kvec *section,
@@ -2410,6 +2435,7 @@ static void process_message(struct ceph_connection *con)
 	mutex_lock(&con->mutex);
 }
 
+
 /*
  * Write something to the socket.  Called in a worker thread when the
  * socket appears to be writeable and we have something ready to send.
@@ -2501,6 +2527,8 @@ out:
 	dout("try_write done on %p ret %d\n", con, ret);
 	return ret;
 }
+
+
 
 /*
  * Read what we can from the socket.
@@ -2643,6 +2671,7 @@ bad_tag:
 	ret = -1;
 	goto out;
 }
+
 
 /*
  * Atomically queue work on a connection after the specified delay.
@@ -2854,6 +2883,8 @@ static void con_fault(struct ceph_connection *con)
 		queue_con(con);
 	}
 }
+
+
 
 /*
  * initialize a new messenger instance
@@ -3255,6 +3286,7 @@ static int ceph_con_in_msg_alloc(struct ceph_connection *con, int *skip)
 
 	return ret;
 }
+
 
 /*
  * Free a generically kmalloc'd message.

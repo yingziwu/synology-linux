@@ -1025,6 +1025,7 @@ out:
 }
 EXPORT_SYMBOL_GPL(tpm_show_pubek);
 
+
 ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
 		      char *buf)
 {
@@ -1486,6 +1487,7 @@ void tpm_dev_vendor_release(struct tpm_chip *chip)
 	kfree(chip->vendor.miscdev.name);
 }
 EXPORT_SYMBOL_GPL(tpm_dev_vendor_release);
+
 
 /*
  * Once all references to platform device are down to 0,

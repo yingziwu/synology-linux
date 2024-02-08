@@ -367,6 +367,7 @@ out:
 	return result;
 }
 
+
 /**
  * int journal_restart() - restart a handle.
  * @handle:  handle to restart
@@ -418,6 +419,7 @@ int journal_restart(handle_t *handle, int nblocks)
 	ret = start_this_handle(journal, handle);
 	return ret;
 }
+
 
 /**
  * void journal_lock_updates () - establish a transaction barrier.
@@ -690,6 +692,7 @@ repeat:
 		jh->b_next_transaction = transaction;
 	}
 
+
 	/*
 	 * Finally, if the buffer is not journaled right now, we need to make
 	 * sure it doesn't get written to disk before the caller actually
@@ -757,6 +760,7 @@ int journal_get_write_access(handle_t *handle, struct buffer_head *bh)
 	journal_put_journal_head(jh);
 	return rc;
 }
+
 
 /*
  * When the user wants to journal a newly created buffer_head

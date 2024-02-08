@@ -2333,6 +2333,7 @@ jme_change_mtu(struct net_device *netdev, int new_mtu)
 		((new_mtu) < IPV6_MIN_MTU))
 		return -EINVAL;
 
+
 	netdev->mtu = new_mtu;
 	netdev_update_features(netdev);
 

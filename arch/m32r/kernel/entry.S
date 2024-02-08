@@ -476,6 +476,7 @@ inst:
 	bra	ret_from_intr
 #endif  /* CONFIG_MMU */
 
+
 ENTRY(alignment_check)
 	/* void alignment_check(int error_code) */
 	SWITCH_TO_KERNEL_STACK

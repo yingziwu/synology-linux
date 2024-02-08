@@ -549,6 +549,7 @@ void cvm_oct_rx_initialize(void)
 	int_pc.s.pc_thr = 5;
 	cvmx_write_csr(CVMX_POW_WQ_INT_PC, int_pc.u64);
 
+
 	/* Scheduld NAPI now.  This will indirectly enable interrupts. */
 	cvm_oct_enable_one_cpu();
 }

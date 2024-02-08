@@ -181,6 +181,7 @@ static inline void shm_rmid(struct ipc_namespace *ns, struct shmid_kernel *s)
 	ipc_rmid(&shm_ids(ns), &s->shm_perm);
 }
 
+
 /* This is called by fork, once for every shm attach. */
 static void shm_open(struct vm_area_struct *vma)
 {
@@ -327,6 +328,7 @@ void shm_destroy_orphaned(struct ipc_namespace *ns)
 		idr_for_each(&shm_ids(ns).ipcs_idr, &shm_try_destroy_orphaned, ns);
 	up_write(&shm_ids(ns).rwsem);
 }
+
 
 void exit_shm(struct task_struct *task)
 {
@@ -1039,8 +1041,8 @@ out_unlock1:
  * "raddr" thing points to kernel space, and there has to be a wrapper around
  * this.
  */
-long do_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr,
-	      unsigned long shmlba)
+long do_shmat(int shmid, char __user *shmaddr, int shmflg,
+	      ulong *raddr, unsigned long shmlba)
 {
 	struct shmid_kernel *shp;
 	unsigned long addr;
@@ -1061,8 +1063,13 @@ long do_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr,
 		goto out;
 	else if ((addr = (ulong)shmaddr)) {
 		if (addr & (shmlba - 1)) {
-			if (shmflg & SHM_RND)
-				addr &= ~(shmlba - 1);	   /* round down */
+			/*
+			 * Round down to the nearest multiple of shmlba.
+			 * For sane do_mmap_pgoff() parameters, avoid
+			 * round downs that trigger nil-page and MAP_FIXED.
+			 */
+			if ((shmflg & SHM_RND) && addr >= shmlba)
+				addr &= ~(shmlba - 1);
 			else
 #ifndef __ARCH_FORCE_SHMLBA
 				if (addr & ~PAGE_MASK)
@@ -1266,6 +1273,7 @@ SYSCALL_DEFINE1(shmdt, char __user *, shmaddr)
 		 */
 		if ((vma->vm_ops == &shm_vm_ops) &&
 			(vma->vm_start - addr)/PAGE_SIZE == vma->vm_pgoff) {
+
 
 			size = file_inode(vma->vm_file)->i_size;
 			do_munmap(mm, vma->vm_start, vma->vm_end - vma->vm_start);

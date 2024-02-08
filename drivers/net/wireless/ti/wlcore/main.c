@@ -415,6 +415,7 @@ static int wlcore_fw_status(struct wl1271 *wl,
 		wl->tx_pkts_freed[i] = status_2->counters.tx_released_pkts[i];
 	}
 
+
 	for_each_set_bit(i, wl->links_map, WL12XX_MAX_LINKS) {
 		u8 diff;
 		lnk = &wl->links[i];
@@ -922,6 +923,7 @@ static void wlcore_print_recovery(struct wl1271 *wl)
 	wlcore_set_partition(wl, &wl->ptable[PART_WORK]);
 }
 
+
 static void wl1271_recovery_work(struct work_struct *work)
 {
 	struct wl1271 *wl =
@@ -1322,6 +1324,7 @@ static struct sk_buff *wl12xx_alloc_dummy_packet(struct wl1271 *wl)
 
 	return skb;
 }
+
 
 #ifdef CONFIG_PM
 static int
@@ -2410,6 +2413,7 @@ static int wl1271_op_add_interface(struct ieee80211_hw *hw,
 		ret = -EBUSY;
 		goto out;
 	}
+
 
 	ret = wl12xx_init_vif_data(wl, vif);
 	if (ret < 0)
@@ -4510,6 +4514,7 @@ static int wl1271_allocate_sta(struct wl1271 *wl,
 	struct wl1271_station *wl_sta;
 	int ret;
 
+
 	if (wl->active_sta_count >= AP_MAX_STATIONS) {
 		wl1271_warning("could not allocate HLID - too much stations");
 		return -EBUSY;
@@ -5376,6 +5381,7 @@ static const struct ieee80211_ops wl1271_ops = {
 	.get_rssi = wlcore_op_get_rssi,
 	CFG80211_TESTMODE_CMD(wl1271_tm_cmd)
 };
+
 
 u8 wlcore_rate_to_idx(struct wl1271 *wl, u8 rate, enum ieee80211_band band)
 {

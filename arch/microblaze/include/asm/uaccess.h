@@ -246,6 +246,7 @@ extern long __user_bad(void);
 	__gu_err;							\
 })
 
+
 #define __put_user_asm(insn, __gu_ptr, __gu_val, __gu_err)	\
 ({								\
 	__asm__ __volatile__ (					\
@@ -358,6 +359,7 @@ extern long __user_bad(void);
 	}								\
 	__gu_err;							\
 })
+
 
 /* copy_to_from_user */
 #define __copy_from_user(to, from, n)	\

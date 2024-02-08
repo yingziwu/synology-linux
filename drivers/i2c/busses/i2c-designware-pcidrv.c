@@ -144,6 +144,7 @@ static int i2c_dw_pci_suspend(struct device *dev)
 	struct dw_i2c_dev *i2c = pci_get_drvdata(pdev);
 	int err;
 
+
 	i2c_dw_disable(i2c);
 
 	err = pci_save_state(pdev);

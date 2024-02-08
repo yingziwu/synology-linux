@@ -74,6 +74,7 @@ static const u16 ssm2602_reg[SSM2602_CACHEREGNUM] = {
 	0x0000, 0x0000
 };
 
+
 /*Appending several "None"s just for OSS mixer use*/
 static const char *ssm2602_input_select[] = {
 	"Line", "Mic", "None", "None", "None",
@@ -361,6 +362,7 @@ static void ssm2602_shutdown(struct snd_pcm_substream *substream,
 
 	ssm2602->slave_substream = NULL;
 }
+
 
 static int ssm2602_mute(struct snd_soc_dai *dai, int mute)
 {
@@ -782,6 +784,7 @@ static struct i2c_driver ssm2602_i2c_driver = {
 	.id_table = ssm2602_i2c_id,
 };
 #endif
+
 
 static int __init ssm2602_modinit(void)
 {

@@ -20,6 +20,7 @@
 #include <linux/list.h>
 #include <linux/mutex.h>
 #include <linux/limits.h>
+#include <linux/mm.h>
 #include <asm/uaccess.h>
 
 #include "sysfs.h"
@@ -175,6 +176,7 @@ fill_write_buffer(struct sysfs_buffer * buffer, const char __user * buf, size_t 
 	return error ? -EFAULT : count;
 }
 
+
 /**
  *	flush_write_buffer - push buffer to kobject.
  *	@dentry:	dentry to the attribute
@@ -204,6 +206,7 @@ flush_write_buffer(struct dentry * dentry, struct sysfs_buffer * buffer, size_t 
 
 	return rc;
 }
+
 
 /**
  *	sysfs_write_file - write an attribute.
@@ -552,11 +555,13 @@ int sysfs_add_file_mode(struct sysfs_dirent *dir_sd,
 	return rc;
 }
 
+
 int sysfs_add_file(struct sysfs_dirent *dir_sd, const struct attribute *attr,
 		   int type)
 {
 	return sysfs_add_file_mode(dir_sd, attr, type, attr->mode);
 }
+
 
 /**
  *	sysfs_create_file - create an attribute file for an object.
@@ -648,6 +653,7 @@ int sysfs_chmod_file(struct kobject *kobj, const struct attribute *attr,
 }
 EXPORT_SYMBOL_GPL(sysfs_chmod_file);
 
+
 /**
  *	sysfs_remove_file - remove an object attribute.
  *	@kobj:	object we're acting for.
@@ -694,6 +700,60 @@ void sysfs_remove_file_from_group(struct kobject *kobj,
 	}
 }
 EXPORT_SYMBOL_GPL(sysfs_remove_file_from_group);
+
+/**
+ *	sysfs_emit - scnprintf equivalent, aware of PAGE_SIZE buffer.
+ *	@buf:	start of PAGE_SIZE buffer.
+ *	@fmt:	format
+ *	@...:	optional arguments to @format
+ *
+ *
+ * Returns number of characters written to @buf.
+ */
+int sysfs_emit(char *buf, const char *fmt, ...)
+{
+	va_list args;
+	int len;
+
+	if (WARN(!buf || offset_in_page(buf),
+		 "invalid sysfs_emit: buf:%p\n", buf))
+		return 0;
+
+	va_start(args, fmt);
+	len = vscnprintf(buf, PAGE_SIZE, fmt, args);
+	va_end(args);
+
+	return len;
+}
+EXPORT_SYMBOL_GPL(sysfs_emit);
+
+/**
+ *	sysfs_emit_at - scnprintf equivalent, aware of PAGE_SIZE buffer.
+ *	@buf:	start of PAGE_SIZE buffer.
+ *	@at:	offset in @buf to start write in bytes
+ *		@at must be >= 0 && < PAGE_SIZE
+ *	@fmt:	format
+ *	@...:	optional arguments to @fmt
+ *
+ *
+ * Returns number of characters written starting at &@buf[@at].
+ */
+int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
+{
+	va_list args;
+	int len;
+
+	if (WARN(!buf || offset_in_page(buf) || at < 0 || at >= PAGE_SIZE,
+		 "invalid sysfs_emit_at: buf:%p at:%d\n", buf, at))
+		return 0;
+
+	va_start(args, fmt);
+	len = vscnprintf(buf + at, PAGE_SIZE - at, fmt, args);
+	va_end(args);
+
+	return len;
+}
+EXPORT_SYMBOL_GPL(sysfs_emit_at);
 
 struct sysfs_schedule_callback_struct {
 	struct list_head	workq_list;
@@ -786,6 +846,7 @@ int sysfs_schedule_callback(struct kobject *kobj, void (*func)(void *),
 	return 0;
 }
 EXPORT_SYMBOL_GPL(sysfs_schedule_callback);
+
 
 EXPORT_SYMBOL_GPL(sysfs_create_file);
 EXPORT_SYMBOL_GPL(sysfs_remove_file);

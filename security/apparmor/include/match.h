@@ -20,6 +20,7 @@
 #define DFA_NOMATCH			0
 #define DFA_START			1
 
+
 /**
  * The format used for transition tables is based on the GNU flex table
  * file format (--tables-file option; see Table File Format in the flex
@@ -61,6 +62,7 @@ struct table_set_header {
 #define YYTD_ID_ACCEPT2 6
 #define YYTD_ID_NXT	7
 #define YYTD_ID_TSIZE	8
+#define YYTD_ID_MAX	8
 
 #define YYTD_DATA8	1
 #define YYTD_DATA16	2

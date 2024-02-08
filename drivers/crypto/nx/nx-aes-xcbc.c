@@ -30,6 +30,7 @@
 #include "nx_csbcpb.h"
 #include "nx.h"
 
+
 struct xcbc_state {
 	u8 state[AES_BLOCK_SIZE];
 	unsigned int count;

@@ -46,6 +46,7 @@
 #define PM_EVGENONTIM					0x00d8
 #define PM_EVGENOFFTIM					0x00dc
 
+
 #ifndef __ASSEMBLER__
 
 #include <linux/io.h>
@@ -177,6 +178,7 @@ extern int omap2_clkdm_clear_all_wkdeps(struct clockdomain *clkdm);
 #define OMAP_RST_DPLL3_MASK				(1 << 2)
 #define OMAP_RST_GS_MASK				(1 << 1)
 
+
 /*
  * Bits common to module-shared registers
  *
@@ -238,5 +240,6 @@ extern int omap2_clkdm_clear_all_wkdeps(struct clockdomain *clkdm);
  *	 PM_PWSTCTRL_NEON
  */
 #define OMAP_LOGICRETSTATE_MASK				(1 << 2)
+
 
 #endif

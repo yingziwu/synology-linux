@@ -41,6 +41,7 @@ enum {
 #define BLOCK_OPS_IDX(block, stage, end) \
 	(2*(((block)*NUM_OF_INIT_PHASES) + (stage)) + (end))
 
+
 /* structs for the various opcodes */
 struct raw_op {
 	u32 op:8;
@@ -84,6 +85,7 @@ struct op_if_mode {
 	u32 mode_bit_map;
 };
 
+
 union init_op {
 	struct op_read		read;
 	struct op_write		write;
@@ -92,6 +94,7 @@ union init_op {
 	struct raw_op		raw;
 	struct op_if_mode	if_mode;
 };
+
 
 /* Init Phases */
 enum {
@@ -197,6 +200,7 @@ enum {
 #define BNX2X_PF_Q_NUM(q_num, port, vnic)\
 	((((port) << 1) | (vnic)) * 16 + (q_num))
 
+
 /* Maps the specified queue to the specified COS */
 static inline void bnx2x_map_q_cos(struct bnx2x *bp, u32 q_num, u32 new_cos)
 {
@@ -273,6 +277,7 @@ static inline void bnx2x_dcb_config_qm(struct bnx2x *bp, enum cos_mode mode,
 	}
 }
 
+
 /* congestion managment port init api description
  * the api works as follows:
  * the driver should pass the cmng_init_input struct, the port_init function
@@ -322,6 +327,7 @@ static inline void bnx2x_dcb_config_qm(struct bnx2x *bp, enum cos_mode mode,
 #define SAFC_TIMEOUT_USEC 52
 
 #define SDM_TICKS 4
+
 
 static inline void bnx2x_init_max(const struct cmng_init_input *input_data,
 				  u32 r_param, struct cmng_init *ram_data)
@@ -478,9 +484,12 @@ static inline void bnx2x_init_cmng(const struct cmng_init_input *input_data,
 	bnx2x_init_safc(input_data, ram_data);
 }
 
+
+
 /* Returns the index of start or end of a specific block stage in ops array */
 #define BLOCK_OPS_IDX(block, stage, end) \
 			(2*(((block)*NUM_OF_INIT_PHASES) + (stage)) + (end))
+
 
 #define INITOP_SET		0	/* set the HW directly */
 #define INITOP_CLEAR		1	/* clear the HW directly */
@@ -625,6 +634,7 @@ static const struct {
 	BLOCK_PRTY_INFO_1(XSEM, 0, 0x3, 0x1f, 0x3f, 0x3f),
 };
 
+
 /* [28] MCP Latched rom_parity
  * [29] MCP Latched ump_rx_parity
  * [30] MCP Latched ump_tx_parity
@@ -759,4 +769,6 @@ static inline void bnx2x_enable_blocks_parity(struct bnx2x *bp)
 	bnx2x_set_mcp_parity(bp, true);
 }
 
+
 #endif /* BNX2X_INIT_H */
+

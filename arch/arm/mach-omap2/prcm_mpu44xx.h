@@ -46,6 +46,7 @@ extern void __iomem *prcm_mpu_base;
 #define OMAP4430_PRCM_MPU_CPU0_CPU0_CDOFFS	0x0018
 #define OMAP4430_PRCM_MPU_CPU1_CPU1_CDOFFS	0x0018
 
+
 /*
  * PRCM_MPU
  *

@@ -37,6 +37,7 @@
 #include <linux/ti_wilink_st.h>
 #include <linux/module.h>
 
+
 #define MAX_ST_DEVICES	3	/* Imagine 1 on each UART for now */
 static struct platform_device *st_kim_devices[MAX_ST_DEVICES];
 

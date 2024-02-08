@@ -310,6 +310,7 @@ no_stack_l:
 
         mov     pc, lr
 
+
 /*******************************************************************************
 * _mvDramIfEccMemInit - Basic DRAM ECC initialization.
 *
@@ -458,6 +459,7 @@ load_from_stack1:
         ldmia	sp!, {r0, r1, r2, r3, r4, r5, r6}
 no_stack_l1:
         mov     pc, lr
+
 
 /*******************************************************************************
 * mvDramIfMemInit - Use XOR to clear all memory.

@@ -414,6 +414,7 @@ static int speedtch_heavy_init(struct usbatm_data *usbatm, struct usb_interface 
 	return ret;
 }
 
+
 /**********
 **  ATM  **
 **********/
@@ -730,6 +731,7 @@ static int speedtch_post_reset(struct usb_interface *intf)
 	return 0;
 }
 
+
 /**********
 **  USB  **
 **********/
@@ -928,6 +930,7 @@ static void speedtch_unbind(struct usbatm_data *usbatm, struct usb_interface *in
 	usb_free_urb(instance->int_urb);
 	kfree(instance);
 }
+
 
 /***********
 **  init  **

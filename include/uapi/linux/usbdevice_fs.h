@@ -145,6 +145,7 @@ struct usbdevfs_disconnect_claim {
 	char driver[USBDEVFS_MAXDRIVERNAME + 1];
 };
 
+
 #define USBDEVFS_CONTROL           _IOWR('U', 0, struct usbdevfs_ctrltransfer)
 #define USBDEVFS_CONTROL32           _IOWR('U', 0, struct usbdevfs_ctrltransfer32)
 #define USBDEVFS_BULK              _IOWR('U', 2, struct usbdevfs_bulktransfer)

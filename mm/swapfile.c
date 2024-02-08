@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/mm/swapfile.c
  *
@@ -1396,12 +1399,13 @@ static void destroy_swap_extents(struct swap_info_struct *sis)
 		kfree(se);
 	}
 
-	if (sis->flags & SWP_FILE) {
+	if (sis->flags & SWP_ACTIVATED) {
 		struct file *swap_file = sis->swap_file;
 		struct address_space *mapping = swap_file->f_mapping;
 
-		sis->flags &= ~SWP_FILE;
-		mapping->a_ops->swap_deactivate(swap_file);
+		sis->flags &= ~SWP_ACTIVATED;
+		if (mapping->a_ops->swap_deactivate)
+			mapping->a_ops->swap_deactivate(swap_file);
 	}
 }
 
@@ -1450,6 +1454,7 @@ add_swap_extent(struct swap_info_struct *sis, unsigned long start_page,
 	list_add_tail(&new_se->list, &sis->first_swap_extent.list);
 	return 1;
 }
+EXPORT_SYMBOL_GPL(add_swap_extent);
 
 /*
  * A `swap extent' is a simple thing which maps a contiguous range of pages
@@ -1497,8 +1502,10 @@ static int setup_swap_extents(struct swap_info_struct *sis, sector_t *span)
 
 	if (mapping->a_ops->swap_activate) {
 		ret = mapping->a_ops->swap_activate(sis, swap_file, span);
+		if (ret >= 0)
+			sis->flags |= SWP_ACTIVATED;
 		if (!ret) {
-			sis->flags |= SWP_FILE;
+			sis->flags |= SWP_FS;
 			ret = add_swap_extent(sis, 0, sis->max, 0);
 			*span = sis->pages;
 		}
@@ -1568,6 +1575,9 @@ SYSCALL_DEFINE1(swapoff, const char __user *, specialfile)
 	struct filename *pathname;
 	int i, type, prev;
 	int err;
+#ifdef MY_ABC_HERE
+	extern int gSynoSwapFlag;
+#endif /* MY_ABC_HERE */
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
@@ -1577,6 +1587,15 @@ SYSCALL_DEFINE1(swapoff, const char __user *, specialfile)
 	pathname = getname(specialfile);
 	if (IS_ERR(pathname))
 		return PTR_ERR(pathname);
+
+#ifdef MY_ABC_HERE
+	if (0 == gSynoSwapFlag) {
+		printk(KERN_ERR
+			"*ERROR*, ppid:%d(%s), pid:%d(%s), use swapoff without syno framework!\n",
+			task_pid_nr(current->parent), current->parent->comm,
+			task_pid_nr(current), current->comm);
+	}
+#endif /* MY_ABC_HERE */
 
 	victim = file_open_name(pathname, O_RDWR|O_LARGEFILE, 0);
 	err = PTR_ERR(victim);
@@ -2035,12 +2054,24 @@ SYSCALL_DEFINE2(swapon, const char __user *, specialfile, int, swap_flags)
 	unsigned long *frontswap_map = NULL;
 	struct page *page = NULL;
 	struct inode *inode = NULL;
+#ifdef MY_ABC_HERE
+	extern int gSynoSwapFlag;
+#endif /* MY_ABC_HERE */
 
 	if (swap_flags & ~SWAP_FLAGS_VALID)
 		return -EINVAL;
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
+
+#ifdef MY_ABC_HERE
+	if (0 == gSynoSwapFlag) {
+		printk(KERN_ERR
+			"*ERROR*, ppid:%d(%s), pid:%d(%s), use swapon without syno framework!\n",
+			task_pid_nr(current->parent), current->parent->comm,
+			task_pid_nr(current), current->comm);
+	}
+#endif /* MY_ABC_HERE */
 
 	p = alloc_swap_info();
 	if (IS_ERR(p))

@@ -247,6 +247,7 @@ static const struct file_operations rt_cache_seq_fops = {
 	.release = seq_release,
 };
 
+
 static void *rt_cpu_seq_start(struct seq_file *seq, loff_t *pos)
 {
 	int cpu;
@@ -322,6 +323,7 @@ static const struct seq_operations rt_cpu_seq_ops = {
 	.stop   = rt_cpu_seq_stop,
 	.show   = rt_cpu_seq_show,
 };
+
 
 static int rt_cpu_seq_open(struct inode *inode, struct file *file)
 {
@@ -718,7 +720,7 @@ static void __ip_do_redirect(struct rtable *rt, struct sk_buff *skb, struct flow
 		if (!(n->nud_state & NUD_VALID)) {
 			neigh_event_send(n, NULL);
 		} else {
-			if (fib_lookup(net, fl4, &res) == 0) {
+			if (fib_lookup(net, fl4, &res, 0) == 0) {
 				struct fib_nh *nh = &FIB_RES_NH(res);
 
 				update_or_create_fnhe(nh, fl4->daddr, new_gw,
@@ -949,7 +951,7 @@ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
 	}
 
 	rcu_read_lock();
-	if (fib_lookup(dev_net(dst->dev), fl4, &res) == 0) {
+	if (fib_lookup(dev_net(dst->dev), fl4, &res, 0) == 0) {
 		struct fib_nh *nh = &FIB_RES_NH(res);
 
 		update_or_create_fnhe(nh, fl4->daddr, 0, mtu,
@@ -1149,7 +1151,7 @@ void ip_rt_get_source(u8 *addr, struct sk_buff *skb, struct rtable *rt)
 		fl4.flowi4_mark = skb->mark;
 
 		rcu_read_lock();
-		if (fib_lookup(dev_net(rt->dst.dev), &fl4, &res) == 0)
+		if (fib_lookup(dev_net(rt->dst.dev), &fl4, &res, 0) == 0)
 			src = FIB_RES_PREFSRC(dev_net(rt->dst.dev), res);
 		else
 			src = inet_select_addr(rt->dst.dev,
@@ -1461,6 +1463,7 @@ e_err:
 	return err;
 }
 
+
 static void ip_handle_martian_source(struct net_device *dev,
 				     struct in_device *in_dev,
 				     struct sk_buff *skb,
@@ -1660,7 +1663,7 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 	fl4.flowi4_scope = RT_SCOPE_UNIVERSE;
 	fl4.daddr = daddr;
 	fl4.saddr = saddr;
-	err = fib_lookup(net, &fl4, &res);
+	err = fib_lookup(net, &fl4, &res, 0);
 	if (err != 0)
 		goto no_route;
 
@@ -1786,6 +1789,7 @@ int ip_route_input_noref(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 {
 	int res;
 
+	tos &= IPTOS_RT_MASK;
 	rcu_read_lock();
 
 	/* Multicast recognition logic is moved from route cache to here.
@@ -2035,6 +2039,7 @@ struct rtable *__ip_route_output_key(struct net *net, struct flowi4 *fl4)
 		}
 	}
 
+
 	if (fl4->flowi4_oif) {
 		dev_out = dev_get_by_index_rcu(net, fl4->flowi4_oif);
 		rth = ERR_PTR(-ENODEV);
@@ -2074,7 +2079,7 @@ struct rtable *__ip_route_output_key(struct net *net, struct flowi4 *fl4)
 		goto make_route;
 	}
 
-	if (fib_lookup(net, fl4, &res)) {
+	if (fib_lookup(net, fl4, &res, 0)) {
 		res.fi = NULL;
 		res.table = NULL;
 		if (fl4->flowi4_oif) {
@@ -2090,6 +2095,7 @@ struct rtable *__ip_route_output_key(struct net *net, struct flowi4 *fl4)
 			   direct. Moreover, if MSG_DONTROUTE is set,
 			   we send packet, ignoring both routing tables
 			   and ifaddr state. --ANK
+
 
 			   We could make it even if oif is unknown,
 			   likely IPv6, but we do not.
@@ -2133,6 +2139,7 @@ struct rtable *__ip_route_output_key(struct net *net, struct flowi4 *fl4)
 
 	dev_out = FIB_RES_DEV(res);
 	fl4->flowi4_oif = dev_out->ifindex;
+
 
 make_route:
 	rth = __mkroute_output(&res, fl4, orig_oif, dev_out, flags);

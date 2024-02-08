@@ -1,7 +1,24 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (C) 2011 STRATO.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License v2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 021110-1307, USA.
+ */
+
 #ifndef __BTRFS_BACKREF__
 #define __BTRFS_BACKREF__
 
@@ -41,12 +58,18 @@ int iterate_inodes_from_logical(u64 logical, struct btrfs_fs_info *fs_info,
 int paths_from_inode(u64 inum, struct inode_fs_paths *ipath);
 
 #ifdef MY_ABC_HERE
+int check_root_inode_ref(struct btrfs_trans_handle *trans,
+		    struct btrfs_fs_info *fs_info, u64 bytenr,
+		    u64 datao, u64 root_objectid, u64 ino, u64 offset,
+		    int in_run_delayed);
+#endif
+#ifdef MY_ABC_HERE
 int btrfs_find_shared_root(struct btrfs_fs_info *fs_info,
 			 u64 bytenr, u64 parent_bytenr,
 			 u64 datao, u64 *counted_root, struct ulist *root_list,
 			 struct btrfs_snapshot_size_entry *entry,
 			 struct btrfs_snapshot_size_ctx *ctx);
-#endif  
+#endif /* MY_ABC_HERE */
 int btrfs_find_all_roots(struct btrfs_trans_handle *trans,
 			 struct btrfs_fs_info *fs_info, u64 bytenr,
 			 u64 time_seq, struct ulist **roots);
@@ -70,5 +93,15 @@ int btrfs_check_shared(struct btrfs_trans_handle *trans,
 
 int __init btrfs_prelim_ref_init(void);
 void btrfs_prelim_ref_exit(void);
+
+#ifdef MY_ABC_HERE
+struct u64_list {
+	u64 val1;
+	u64 val2;
+	struct list_head list;
+};
+
+void u64_list_free(struct list_head *target_list);
+#endif /* MY_ABC_HERE */
 
 #endif

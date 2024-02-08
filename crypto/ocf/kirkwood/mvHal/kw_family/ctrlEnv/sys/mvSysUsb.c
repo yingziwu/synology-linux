@@ -87,6 +87,8 @@ MV_TARGET usbAddrDecPrioTab[] =
     TBL_TERM
 };
 
+
+
 MV_STATUS   mvUsbInit(int dev, MV_BOOL isHost)
 {
     MV_STATUS       status;
@@ -97,6 +99,7 @@ MV_STATUS   mvUsbInit(int dev, MV_BOOL isHost)
 
     return mvUsbHalInit(dev, isHost);
 }
+
 
 /*******************************************************************************
 * usbWinOverlapDetect - Detect USB address windows overlapping

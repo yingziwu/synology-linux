@@ -103,6 +103,8 @@
 #define HPSA_TMF_QUERY_TASK_SET 0x05
 #define HPSA_TMF_QUERY_ASYNCEVENT 0x06
 
+
+
 /* config space register offsets */
 #define CFG_VENDORID            0x00
 #define CFG_DEVICEID            0x02

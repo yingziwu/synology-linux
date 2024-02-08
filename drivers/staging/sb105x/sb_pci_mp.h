@@ -23,9 +23,11 @@
 #include <asm/serial.h>
 #include <linux/interrupt.h>
 
+
 #include <linux/parport.h>
 #include <linux/ctype.h>
 #include <linux/poll.h>
+
 
 #define MP_TERMIOS  ktermios
 
@@ -122,6 +124,7 @@
 #define TIOCGMDADDR   		0x5472
 #define TIOCSENDADDR		0x5473
 
+
 /* serial interface */
 #define RS232		1 
 #define RS422PTP	2
@@ -143,10 +146,12 @@ static DEFINE_MUTEX(mp_mutex);
 #define MP_STATE_LOCK(x) mutex_lock(&((x)->mutex)) 
 #define MP_STATE_UNLOCK(x) mutex_unlock(&((x)->mutex)) 
         
+
 #define UART_LSR_SPECIAL    0x1E
         
 #define HIGH_BITS_OFFSET        ((sizeof(long)-sizeof(int))*8)
 #define uart_users(state)       ((state)->count + ((state)->info ? (state)->info->blocked_open : 0))
+
 
 //#define MP_DEBUG 1
 #undef MP_DEBUG
@@ -180,6 +185,7 @@ static DEFINE_MUTEX(mp_mutex);
 
 #define TYPE_POLL	1
 #define TYPE_INTERRUPT	2
+
 
 struct mp_device_t {
         unsigned short  device_id;
@@ -282,3 +288,6 @@ static const struct sb105x_uart_config uart_config[] = {
         { "SB16C1050",    128,    UART_CLEAR_FIFO | UART_USE_FIFO | UART_STARTECH },
         { "SB16C1050A",    128,    UART_CLEAR_FIFO | UART_USE_FIFO | UART_STARTECH },
 };
+
+
+

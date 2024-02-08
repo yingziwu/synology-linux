@@ -132,6 +132,7 @@ static int psbfb_2d_submit(struct drm_psb_private *dev_priv, uint32_t *cmdbuf,
 	return ret;
 }
 
+
 /**
  *	psb_accel_2d_copy_direction	-	compute blit order
  *	@xdir: X direction of move

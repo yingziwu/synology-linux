@@ -98,6 +98,7 @@ nouveau_agp_reset(struct nouveau_drm *drm)
 			return;
 	}
 
+
 	/* clear busmaster bit, and disable AGP */
 	save[0] = nv_mask(device, NV04_PBUS_PCI_NV_1, 0x00000004, 0x00000000);
 	nv_wr32(device, NV04_PBUS_PCI_NV_19, 0);

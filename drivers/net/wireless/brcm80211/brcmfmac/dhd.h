@@ -602,6 +602,7 @@ struct brcmf_if {
 	wait_queue_head_t pend_8021x_wait;
 };
 
+
 extern int brcmf_netdev_wait_pend8021x(struct net_device *ndev);
 
 /* Return pointer to interface name */

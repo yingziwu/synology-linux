@@ -23,6 +23,7 @@
 #define DRV_NAME	"pata_rz1000"
 #define DRV_VERSION	"0.2.4"
 
+
 /**
  *	rz1000_set_mode		-	mode setting function
  *	@link: ATA link
@@ -47,6 +48,7 @@ static int rz1000_set_mode(struct ata_link *link, struct ata_device **unused)
 	}
 	return 0;
 }
+
 
 static struct scsi_host_template rz1000_sht = {
 	ATA_PIO_SHT(DRV_NAME),

@@ -26,6 +26,7 @@ struct module;
 struct cpuidle_device;
 struct cpuidle_driver;
 
+
 /****************************
  * CPUIDLE DEVICE INTERFACE *
  ****************************/
@@ -93,6 +94,7 @@ static inline int cpuidle_get_last_residency(struct cpuidle_device *dev)
 {
 	return dev->last_residency;
 }
+
 
 /****************************
  * CPUIDLE DRIVER INTERFACE *

@@ -52,6 +52,7 @@
 #define EEPROM_2000_TX_POWER_VERSION	(6)
 #define EEPROM_2000_EEPROM_VERSION	(0x805)
 
+
 #define IWL2030_FW_PRE "iwlwifi-2030-"
 #define IWL2030_MODULE_FIRMWARE(api) IWL2030_FW_PRE __stringify(api) ".ucode"
 
@@ -80,6 +81,7 @@ static const struct iwl_base_params iwl2000_base_params = {
 	.shadow_reg_enable = false, /* TODO: fix bugs using this feature */
 	.hd_v2 = true,
 };
+
 
 static const struct iwl_base_params iwl2030_base_params = {
 	.eeprom_size = OTP_LOW_IMAGE_SIZE,

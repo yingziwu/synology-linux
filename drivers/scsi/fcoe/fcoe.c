@@ -121,6 +121,7 @@ static int fcoe_disable(struct net_device *netdev);
 static int fcoe_ctlr_alloc(struct net_device *netdev);
 static int fcoe_ctlr_enabled(struct fcoe_ctlr_device *cdev);
 
+
 static struct fc_seq *fcoe_elsct_send(struct fc_lport *,
 				      u32 did, struct fc_frame *,
 				      unsigned int op,
@@ -480,6 +481,7 @@ static void fcoe_interface_remove(struct fcoe_interface *fcoe)
 	fcoe->removed = 1;
 }
 
+
 /**
  * fcoe_interface_cleanup() - Clean up a FCoE interface
  * @fcoe: The FCoE interface to be cleaned up
@@ -756,6 +758,7 @@ static int fcoe_shost_config(struct fc_lport *lport, struct device *dev)
 
 	return 0;
 }
+
 
 /**
  * fcoe_fdmi_info() - Get FDMI related info from net devive for SW FCoE
@@ -1052,6 +1055,7 @@ static int fcoe_ddp_target(struct fc_lport *lport, u16 xid,
 
 	return 0;
 }
+
 
 /**
  * fcoe_ddp_done() - Call a LLD's ddp_done through the net device

@@ -62,6 +62,7 @@ static netdev_tx_t bcm_transmit(struct sk_buff *skb, struct net_device *dev)
 	struct bcm_mini_adapter *Adapter = GET_BCM_ADAPTER(dev);
 	u16 qindex = skb_get_queue_mapping(skb);
 
+
 	if (Adapter->device_removed || !Adapter->LinkUpStatus)
 		goto drop;
 
@@ -101,6 +102,8 @@ static netdev_tx_t bcm_transmit(struct sk_buff *skb, struct net_device *dev)
 	dev_kfree_skb(skb);
 	return NETDEV_TX_OK;
 }
+
+
 
 /**
 @ingroup init_functions

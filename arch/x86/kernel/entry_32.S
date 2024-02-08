@@ -1,6 +1,3 @@
-#ifndef MY_ABC_HERE
-#define MY_ABC_HERE
-#endif
 /*
  *
  *  Copyright (C) 1991, 1992  Linus Torvalds
@@ -438,11 +435,6 @@ sysenter_past_esp:
 sysenter_do_call:
 	cmpl $(NR_syscalls), %eax
 	jae sysenter_badsys
-#ifdef MY_DEF_HERE
-#else
-	sbb %edx, %edx				/* array_index_mask_nospec() */
-	and %edx, %eax
-#endif	/* MY_DEF_HERE */
 	call *sys_call_table(,%eax,4)
 sysenter_after_call:
 	movl %eax,PT_EAX(%esp)
@@ -524,11 +516,6 @@ ENTRY(system_call)
 	cmpl $(NR_syscalls), %eax
 	jae syscall_badsys
 syscall_call:
-#ifdef MY_DEF_HERE
-#else
-	sbb %edx, %edx				/* array_index_mask_nospec() */
-	and %edx, %eax
-#endif	/* MY_DEF_HERE */
 	call *sys_call_table(,%eax,4)
 syscall_after_call:
 	movl %eax,PT_EAX(%esp)		# store the return value
@@ -1116,8 +1103,8 @@ ftrace_graph_call:
 	jmp ftrace_stub
 #endif
 
-.globl ftrace_stub
-ftrace_stub:
+/* This is weak to keep gas from relaxing the jumps */
+WEAK(ftrace_stub)
 	ret
 END(ftrace_caller)
 

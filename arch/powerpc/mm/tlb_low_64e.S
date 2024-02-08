@@ -245,6 +245,7 @@ itlb_miss_fault_bolted:
  *                                                                    *
  **********************************************************************/
 
+
 /* Data TLB miss */
 	START_EXCEPTION(data_tlb_miss)
 	TLB_MISS_PROLOG
@@ -489,6 +490,7 @@ normal_tlb_miss_access_fault:
 	TLB_MISS_EPILOG_ERROR
 	b	exc_instruction_storage_book3e
 
+
 /*
  * This is the guts of the second-level TLB miss handler for direct
  * misses. We are entered with:
@@ -676,11 +678,13 @@ virt_page_table_tlb_miss_whacko_fault:
 	TLB_MISS_EPILOG_ERROR
 	b	exc_data_storage_book3e
 
+
 /**************************************************************
  *                                                            *
  * TLB miss handling for Book3E with hw page table support    *
  *                                                            *
  **************************************************************/
+
 
 /* Data TLB miss */
 	START_EXCEPTION(data_tlb_miss_htw)
@@ -760,6 +764,7 @@ virt_page_table_tlb_miss_whacko_fault:
 	TLB_MISS_STATS_I(MMSTAT_TLB_MISS_NORM_FAULT)
 	TLB_MISS_EPILOG_ERROR
 	b	exc_instruction_storage_book3e
+
 
 /*
  * This is the guts of the second-level TLB miss handler for direct
@@ -963,6 +968,7 @@ tlb_load_linear_fault:
 	b	exc_data_storage_book3e
 1:	TLB_MISS_EPILOG_ERROR_SPECIAL
 	b	exc_instruction_storage_book3e
+
 
 #ifdef CONFIG_BOOK3E_MMU_TLB_STATS
 .tlb_stat_inc:

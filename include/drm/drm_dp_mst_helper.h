@@ -133,6 +133,7 @@ struct drm_dp_mst_branch {
 	bool link_address_sent;
 };
 
+
 /* sideband msg header - not bit struct */
 struct drm_dp_sideband_msg_hdr {
 	u8 lct;
@@ -201,6 +202,7 @@ struct drm_dp_remote_i2c_write_ack_reply {
 	u8 port_number;
 };
 
+
 struct drm_dp_sideband_msg_rx {
 	u8 chunk[48];
 	u8 msg[256];
@@ -212,6 +214,7 @@ struct drm_dp_sideband_msg_rx {
 	bool have_eomt;
 	struct drm_dp_sideband_msg_hdr initial_hdr;
 };
+
 
 struct drm_dp_allocate_payload {
 	u8 port_number;
@@ -466,27 +469,37 @@ int drm_dp_mst_topology_mgr_init(struct drm_dp_mst_topology_mgr *mgr, struct dev
 
 void drm_dp_mst_topology_mgr_destroy(struct drm_dp_mst_topology_mgr *mgr);
 
+
 int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool mst_state);
 
+
 int drm_dp_mst_hpd_irq(struct drm_dp_mst_topology_mgr *mgr, u8 *esi, bool *handled);
+
 
 enum drm_connector_status drm_dp_mst_detect_port(struct drm_connector *connector, struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
 
 struct edid *drm_dp_mst_get_edid(struct drm_connector *connector, struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
 
+
 int drm_dp_calc_pbn_mode(int clock, int bpp);
+
 
 bool drm_dp_mst_allocate_vcpi(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port, int pbn, int *slots);
 
+
 void drm_dp_mst_reset_vcpi_slots(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
+
 
 void drm_dp_mst_deallocate_vcpi(struct drm_dp_mst_topology_mgr *mgr,
 				struct drm_dp_mst_port *port);
 
+
 int drm_dp_find_vcpi_slots(struct drm_dp_mst_topology_mgr *mgr,
 			   int pbn);
 
+
 int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr);
+
 
 int drm_dp_update_payload_part2(struct drm_dp_mst_topology_mgr *mgr);
 

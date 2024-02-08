@@ -2738,6 +2738,7 @@ i915_gem_retire_requests_ring(struct intel_engine_cs *ring)
 		i915_gem_object_move_to_inactive(obj);
 	}
 
+
 	while (!list_empty(&ring->request_list)) {
 		struct drm_i915_gem_request *request;
 		struct intel_ringbuffer *ringbuf;

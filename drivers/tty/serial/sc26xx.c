@@ -713,6 +713,7 @@ out_free_port:
 	return err;
 }
 
+
 static int __exit sc26xx_driver_remove(struct platform_device *dev)
 {
 	struct uart_sc26xx_port *up = dev_get_drvdata(&dev->dev);

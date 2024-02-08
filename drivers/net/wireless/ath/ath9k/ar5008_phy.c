@@ -475,6 +475,7 @@ static int ar5008_hw_rf_alloc_ext_banks(struct ath_hw *ah)
 	return 0;
 }
 
+
 /* *
  * ar5008_hw_set_rf_regs - programs rf registers based on EEPROM
  * @ah: atheros hardware structure
@@ -559,6 +560,7 @@ static void ar5008_hw_init_chain_masks(struct ath_hw *ah)
 
 	rx_chainmask = ah->rxchainmask;
 	tx_chainmask = ah->txchainmask;
+
 
 	switch (rx_chainmask) {
 	case 0x5:
@@ -673,6 +675,7 @@ static void ar5008_hw_set_channel_regs(struct ath_hw *ah,
 
 	REGWRITE_BUFFER_FLUSH(ah);
 }
+
 
 static int ar5008_hw_process_ini(struct ath_hw *ah,
 				 struct ath9k_channel *chan)

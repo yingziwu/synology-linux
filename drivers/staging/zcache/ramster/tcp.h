@@ -62,6 +62,7 @@ typedef void (r2net_post_msg_handler_func)(int status, void *data,
 #define R2NET_KEEPALIVE_DELAY_MS_DEFAULT	2000
 #define R2NET_IDLE_TIMEOUT_MS_DEFAULT		30000
 
+
 /* TODO: figure this out.... */
 static inline int r2net_link_down(int err, struct socket *sock)
 {

@@ -86,6 +86,7 @@ struct omap_hwmod_class omap2_venc_hwmod_class = {
 	.name = "venc",
 };
 
+
 /* Common DMA request line data */
 struct omap_hwmod_dma_info omap2_uart1_sdma_reqs[] = {
 	{ .name = "rx", .dma_req = OMAP24XX_DMA_UART1_RX, },
@@ -156,6 +157,7 @@ struct omap_hwmod_dma_info omap2_mcbsp3_sdma_reqs[] = {
 };
 
 /* Other IP block data */
+
 
 /*
  * omap_hwmod class data
@@ -321,3 +323,4 @@ struct omap_hwmod_irq_info omap2_hdq1w_mpu_irqs[] = {
 	{ .irq = 58 + OMAP_INTC_START, },
 	{ .irq = -1 },
 };
+

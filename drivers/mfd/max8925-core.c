@@ -661,6 +661,7 @@ static struct irq_domain_ops max8925_irq_domain_ops = {
 	.xlate	= irq_domain_xlate_onetwocell,
 };
 
+
 static int max8925_irq_init(struct max8925_chip *chip, int irq,
 			    struct max8925_platform_data *pdata)
 {
@@ -919,6 +920,7 @@ void max8925_device_exit(struct max8925_chip *chip)
 		free_irq(chip->tsc_irq, chip);
 	mfd_remove_devices(chip->dev);
 }
+
 
 MODULE_DESCRIPTION("PMIC Driver for Maxim MAX8925");
 MODULE_AUTHOR("Haojian Zhuang <haojian.zhuang@marvell.com");

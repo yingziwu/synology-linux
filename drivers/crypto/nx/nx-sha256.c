@@ -27,6 +27,7 @@
 #include "nx_csbcpb.h"
 #include "nx.h"
 
+
 static int nx_sha256_init(struct shash_desc *desc)
 {
 	struct sha256_state *sctx = shash_desc_ctx(desc);
@@ -129,6 +130,7 @@ static int nx_sha256_final(struct shash_desc *desc, u8 *out)
 	struct nx_csbcpb *csbcpb = (struct nx_csbcpb *)nx_ctx->csbcpb;
 	struct nx_sg *in_sg, *out_sg;
 	int rc;
+
 
 	if (NX_CPB_FDM(csbcpb) & NX_FDM_CONTINUATION) {
 		/* we've hit the nx chip previously, now we're finalizing,

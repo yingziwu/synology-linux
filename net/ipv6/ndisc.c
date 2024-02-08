@@ -110,6 +110,7 @@ static const struct neigh_ops ndisc_hh_ops = {
 	.connected_output =	neigh_resolve_output,
 };
 
+
 static const struct neigh_ops ndisc_direct_ops = {
 	.family =		AF_INET6,
 	.output =		neigh_direct_output,
@@ -518,6 +519,7 @@ static void ndisc_send_na(struct net_device *dev, struct neighbour *neigh,
 		ndisc_fill_addr_option(skb, ND_OPT_TARGET_LL_ADDR,
 				       dev->dev_addr);
 
+
 	ndisc_send_skb(skb, daddr, src_addr);
 }
 
@@ -633,6 +635,7 @@ void ndisc_send_rs(struct net_device *dev, const struct in6_addr *saddr,
 
 	ndisc_send_skb(skb, daddr, saddr);
 }
+
 
 static void ndisc_error_report(struct neighbour *neigh, struct sk_buff *skb)
 {
@@ -1663,6 +1666,7 @@ int ndisc_ifinfo_sysctl_change(struct ctl_table *ctl, int write, void __user *bu
 	}
 	return ret;
 }
+
 
 #endif
 

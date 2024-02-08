@@ -3,6 +3,7 @@
 
 #include <uapi/linux/if_link.h>
 
+
 /* We don't want this structure exposed to user space */
 struct ifla_vf_info {
 	__u32 vf;

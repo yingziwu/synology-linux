@@ -68,6 +68,7 @@ ul_init_clients(unifi_priv_t *priv)
     }
 } /* ul_init_clients() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  ul_register_client
@@ -130,6 +131,7 @@ ul_register_client(unifi_priv_t *priv, unsigned int configuration,
     return NULL;
 } /* ul_register_client() */
 
+
 /*
  * ---------------------------------------------------------------------------
  *  ul_deregister_client
@@ -180,6 +182,8 @@ ul_deregister_client(ul_client_t *ul_client)
     return 0;
 } /* ul_deregister_client() */
 
+
+
 /*
  * ---------------------------------------------------------------------------
  *  logging_handler
@@ -223,6 +227,8 @@ logging_handler(void *ospriv,
     up(&priv->udi_logging_mutex);
 
 } /* logging_handler() */
+
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -280,6 +286,7 @@ ul_log_config_ind(unifi_priv_t *priv, u8 *conf_param, int len)
 #endif /* CSR_SUPPORT_SME */
 
 } /* ul_log_config_ind */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -348,6 +355,7 @@ _align_bulk_data_buffers(unifi_priv_t *priv, u8 *signal,
                         "Align f-h buffer (0x%p) by %d bytes (skb->data: 0x%p)\n",
                         bulkdata->d[i].os_data_ptr, align_offset, skb->data);
 
+
             /* Check if there is enough headroom... */
             if (unlikely(skb_headroom(skb) < align_offset))
             {
@@ -376,6 +384,7 @@ _align_bulk_data_buffers(unifi_priv_t *priv, u8 *signal,
     }
     return 0;
 } /* _align_bulk_data_buffers() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -409,6 +418,7 @@ ul_send_signal_unpacked(unifi_priv_t *priv, CSR_SIGNAL *sigptr,
     unsigned long lock_flags;
     int r;
 
+
     csrResult = write_pack(sigptr, sigbuf, &packed_siglen);
     if (csrResult != CSR_RESULT_SUCCESS) {
         unifi_error(priv, "Malformed HIP signal in ul_send_signal_unpacked()\n");
@@ -430,6 +440,7 @@ ul_send_signal_unpacked(unifi_priv_t *priv, CSR_SIGNAL *sigptr,
 
     return 0;
 } /* ul_send_signal_unpacked() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -458,6 +469,7 @@ reset_driver_status(unifi_priv_t *priv)
 #endif
 #endif
 } /* reset_driver_status() */
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -512,3 +524,5 @@ ul_send_signal_raw(unifi_priv_t *priv, unsigned char *sigptr, int siglen,
 
     return 0;
 } /* ul_send_signal_raw() */
+
+

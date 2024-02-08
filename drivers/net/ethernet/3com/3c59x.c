@@ -28,7 +28,10 @@
  * elimination of all the tests and reduced cache footprint.
  */
 
+
 #define DRV_NAME	"3c59x"
+
+
 
 /* A few values that may be tweaked. */
 /* Keep the ring sizes a power of two for efficiency. */
@@ -98,12 +101,14 @@ static int vortex_debug = 1;
 
 #include <linux/delay.h>
 
+
 static const char version[] =
 	DRV_NAME ": Donald Becker and others.\n";
 
 MODULE_AUTHOR("Donald Becker <becker@scyld.com>");
 MODULE_DESCRIPTION("3Com 3c59x/3c9xx ethernet driver ");
 MODULE_LICENSE("GPL");
+
 
 /* Operational parameter that usually are not changed. */
 
@@ -120,6 +125,8 @@ MODULE_LICENSE("GPL");
 static char mii_preamble_required;
 
 #define PFX DRV_NAME ": "
+
+
 
 /*
 				Theory of Operation
@@ -260,6 +267,7 @@ enum vortex_chips {
 	CH_920B_EMB_WNM,
 };
 
+
 /* note: this array directly indexed by above enums, and MUST
  * be kept in sync with both the enums above, and the PCI device
  * table below
@@ -366,6 +374,7 @@ static struct vortex_chip_info {
 	{NULL,}, /* NULL terminated list. */
 };
 
+
 static DEFINE_PCI_DEVICE_TABLE(vortex_pci_tbl) = {
 	{ 0x10B7, 0x5900, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C590 },
 	{ 0x10B7, 0x5920, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C592 },
@@ -417,6 +426,7 @@ static DEFINE_PCI_DEVICE_TABLE(vortex_pci_tbl) = {
 	{0,}						/* 0 terminated list. */
 };
 MODULE_DEVICE_TABLE(pci, vortex_pci_tbl);
+
 
 /* Operational definitions.
    These are not used by other compilation units and thus are not
@@ -1311,6 +1321,7 @@ static int vortex_probe1(struct device *gendev, void __iomem *ioaddr, int irq,
 			step, (eeprom[4]>>5) & 15, eeprom[4] & 31, eeprom[4]>>9);
 	}
 
+
 	if (pdev && vci->drv_flags & HAS_CB_FNS) {
 		unsigned short n;
 
@@ -1628,6 +1639,7 @@ vortex_up(struct net_device *dev)
 	 * Don't reset the PHY - that upsets autonegotiation during DHCP operations.
 	 */
 	issue_and_wait(dev, RxReset|0x04);
+
 
 	iowrite16(SetStatusEnb | 0x00, ioaddr + EL3_CMD);
 
@@ -2083,6 +2095,7 @@ vortex_start_xmit(struct sk_buff *skb, struct net_device *dev)
 		}
 	}
 
+
 	/* Clear the Tx status stack. */
 	{
 		int tx_status;
@@ -2338,6 +2351,7 @@ boomerang_interrupt(int irq, void *dev_id)
 	int work_done = max_interrupt_work;
 
 	ioaddr = vp->ioaddr;
+
 
 	/*
 	 * It seems dopey to put the spinlock this early, but we could race against vortex_tx_timeout
@@ -2895,6 +2909,7 @@ static void vortex_get_ethtool_stats(struct net_device *dev,
 	data[4] = vp->xstats.rx_bad_ssd;
 }
 
+
 static void vortex_get_strings(struct net_device *dev, u32 stringset, u8 *data)
 {
 	switch (stringset) {
@@ -2999,6 +3014,7 @@ static int vortex_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 }
 #endif
 
+
 /* Pre-Cyclone chips have no documented multicast filter, so the only
    multicast setting is to receive all multicast frames.  At least
    the chip has a very clean way to set the mode, unlike many others. */
@@ -3064,6 +3080,7 @@ static void set_8021q_mode(struct net_device *dev, int enable)
 static void set_8021q_mode(struct net_device *dev, int enable)
 {
 }
+
 
 #endif
 
@@ -3202,6 +3219,7 @@ static void acpi_set_WOL(struct net_device *dev)
 	}
 }
 
+
 static void vortex_remove_one(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -3242,6 +3260,7 @@ static void vortex_remove_one(struct pci_dev *pdev)
 	free_netdev(dev);
 }
 
+
 static struct pci_driver vortex_driver = {
 	.name		= "3c59x",
 	.probe		= vortex_init_one,
@@ -3250,8 +3269,10 @@ static struct pci_driver vortex_driver = {
 	.driver.pm	= VORTEX_PM_OPS,
 };
 
+
 static int vortex_have_pci;
 static int vortex_have_eisa;
+
 
 static int __init vortex_init(void)
 {
@@ -3267,6 +3288,7 @@ static int __init vortex_init(void)
 
 	return (vortex_have_pci + vortex_have_eisa) ? 0 : -ENODEV;
 }
+
 
 static void __exit vortex_eisa_cleanup(void)
 {
@@ -3292,6 +3314,7 @@ static void __exit vortex_eisa_cleanup(void)
 	}
 }
 
+
 static void __exit vortex_cleanup(void)
 {
 	if (vortex_have_pci)
@@ -3299,6 +3322,7 @@ static void __exit vortex_cleanup(void)
 	if (vortex_have_eisa)
 		vortex_eisa_cleanup();
 }
+
 
 module_init(vortex_init);
 module_exit(vortex_cleanup);

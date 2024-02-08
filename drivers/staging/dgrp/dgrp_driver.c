@@ -30,6 +30,7 @@
  */
 #include "dgrp_common.h"
 
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Digi International, http://www.digi.com");
 MODULE_DESCRIPTION("RealPort driver for Digi's ethernet-based serial connectivity product line");
@@ -84,6 +85,7 @@ static int dgrp_init_module(void)
 	return 0;
 }
 
+
 /*
  *	Module unload.  This is where it all ends.
  */
@@ -99,6 +101,7 @@ static void dgrp_cleanup_module(void)
 	dgrp_unregister_proc();
 
 	dgrp_remove_class_sysfs_files();
+
 
 	list_for_each_entry_safe(nd, next, &nd_struct_list, list) {
 		dgrp_tty_uninit(nd);

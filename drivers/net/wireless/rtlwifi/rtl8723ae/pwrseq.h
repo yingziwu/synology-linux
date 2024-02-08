@@ -63,6 +63,7 @@
 #define	RTL8723A_TRANS_LPS_TO_ACT_STPS		15
 #define	RTL8723A_TRANS_END_STPS			1
 
+
 #define RTL8723A_TRANS_CARDEMU_TO_ACT					\
 	/* format */							\
 	/* { offset, cut_msk, fab_msk|interface_msk, base|cmd, msk, value }, \
