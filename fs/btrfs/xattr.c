@@ -247,8 +247,15 @@ int __btrfs_setxattr(struct btrfs_trans_handle *trans,
 	int syno_cp_err;
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+	/*
+	 * this check has been removed in commit 353c2ea735e4 ("btrfs: remove
+	 * redundant readonly root check in btrfs_setxattr_trans")
+	 */
+#else
 	if (btrfs_root_readonly(root))
 		return -EROFS;
+#endif
 
 	if (trans)
 		return do_setxattr(trans, inode, name, value, size, flags);
@@ -448,8 +455,33 @@ static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
 					const char *name, const void *value,
 					size_t size, int flags)
 {
+	int ret;
+	struct inode *inode = d_inode(dentry);
+	struct btrfs_trans_handle *trans;
+	struct btrfs_root *root = BTRFS_I(inode)->root;
+
 	name = xattr_full_name(handler, name);
-	return btrfs_set_prop(d_inode(dentry), name, value, size, flags);
+	ret = btrfs_validate_prop(BTRFS_I(inode), name, value, size);
+	if (ret)
+		return ret;
+
+	trans = btrfs_start_transaction(root, 2);
+	if (IS_ERR(trans))
+		return PTR_ERR(trans);
+
+	ret = btrfs_set_prop(trans, inode, name, value, size, flags);
+	if (!ret) {
+		inode_inc_iversion(inode);
+		inode->i_ctime = current_fs_time(inode->i_sb);
+		set_bit(BTRFS_INODE_COPY_EVERYTHING,
+			&BTRFS_I(inode)->runtime_flags);
+		ret = btrfs_update_inode(trans, root, inode);
+		BUG_ON(ret);
+	}
+
+	btrfs_end_transaction(trans, root);
+
+	return ret;
 }
 
 static const struct xattr_handler btrfs_security_xattr_handler = {

@@ -45,7 +45,7 @@ do
 done
 
 case ${BUILD_TARGET} in
-	APOLLOLAKE|DENVERTON|KVMX64|BROADWELL|BROADWELLNK|PURLEY|COFFEELAKE|BROADWELLNTB|NEXTKVMX64|GEMINILAKE|SKYLAKED|V1000|BROADWELLNTBAP|KVMCLOUD|EPYC7002|R1000|ICELAKED|BROADWELLNKV2)
+	APOLLOLAKE|DENVERTON|KVMX64|BROADWELL|BROADWELLNK|PURLEY|COFFEELAKE|BROADWELLNTB|NEXTKVMX64|GEMINILAKE|SKYLAKED|V1000|BROADWELLNTBAP|KVMCLOUD|EPYC7002|R1000|ICELAKED|BROADWELLNKV2|GEMINILAKEVS)
 		ZIMAGE="${KernelDir}/arch/x86_64/boot/bzImage"
 		;;
 	REALTEK_RTD1296)
@@ -60,15 +60,15 @@ case ${BUILD_TARGET} in
 		fi
 		cp -fv ${ZIMAGE}_cksum ${DebDevBuild}/image/zImage_with_cksum
 
-		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1296-synology-DS418.dtb ${DebDevBuild}/image/dtb_ds418.bin
-		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1293-synology-DS418j.dtb ${DebDevBuild}/image/dtb_ds418j.bin
-		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1296-synology-DS218play.dtb ${DebDevBuild}/image/dtb_ds218play.bin
-		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1296-synology-DS118.dtb ${DebDevBuild}/image/dtb_ds118.bin
-		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1296-synology-DS218.dtb ${DebDevBuild}/image/dtb_ds218.bin
-		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1296-synology-EDS19.dtb ${DebDevBuild}/image/dtb_eds19.bin
-		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1296-synology-RS819.dtb ${DebDevBuild}/image/dtb_rs819.bin
-		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1296-synology-DS220j.dtb ${DebDevBuild}/image/dtb_ds220j.bin
-		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1296-synology-DS420j.dtb ${DebDevBuild}/image/dtb_ds420j.bin
+		# folder for dtb
+		mkdir -p ${DebDevBuild}/image/files/sds-sii
+		# copy ds418j dtb, ds418j is rtd1293
+		cp -vf ${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1293-synology-ds418j.dtb ${DebDevBuild}/image/files/sds-sii/dtb_ds418j.bin
+		# copy other rtd1296 models dtb
+		for model in ds418 ds218play ds118 ds218 eds19 rs819 ds220j ds420j ; do
+			DTBIMG=${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1296-synology-${model}.dtb
+			cp -vf ${DTBIMG} ${DebDevBuild}/image/files/sds-sii/dtb_${model}.bin
+		done
 		;;
 	MARVELL_ARMADA37XX)
 		lzma -z ${KernelDir}/arch/arm64/boot/Image

@@ -65,11 +65,9 @@ static int of_mdiobus_register_phy(struct mii_bus *mdio, struct device_node *chi
 	rc = irq_of_parse_and_map(child, 0);
 	if (rc > 0) {
 		phy->irq = rc;
-		if (mdio->irq)
-			mdio->irq[addr] = rc;
+		mdio->irq[addr] = rc;
 	} else {
-		if (mdio->irq)
-			phy->irq = mdio->irq[addr];
+		phy->irq = mdio->irq[addr];
 	}
 
 	if (of_property_read_bool(child, "broken-turn-around"))
@@ -441,8 +439,11 @@ int of_phy_register_fixed_link(struct device_node *np)
 		status.link = 1;
 		status.duplex = of_property_read_bool(fixed_link_node,
 						      "full-duplex");
-		if (of_property_read_u32(fixed_link_node, "speed", &status.speed))
+		if (of_property_read_u32(fixed_link_node, "speed",
+					 &status.speed)) {
+			of_node_put(fixed_link_node);
 			return -EINVAL;
+		}
 		status.pause = of_property_read_bool(fixed_link_node, "pause");
 		status.asym_pause = of_property_read_bool(fixed_link_node,
 							  "asym-pause");

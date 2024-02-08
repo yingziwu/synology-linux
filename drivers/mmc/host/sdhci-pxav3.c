@@ -429,12 +429,34 @@ static void pxav3_set_uhs_signaling(struct sdhci_host *host, unsigned int uhs)
 		__func__, uhs, ctrl_2);
 }
 
+static void pxav3_set_power(struct sdhci_host *host, unsigned char mode,
+			    unsigned short vdd)
+{
+	struct mmc_host *mmc = host->mmc;
+	u8 pwr = host->pwr;
+
+	sdhci_set_power(host, mode, vdd);
+
+	if (host->pwr == pwr)
+		return;
+
+	if (host->pwr == 0)
+		vdd = 0;
+
+	if (!IS_ERR(mmc->supply.vmmc)) {
+		spin_unlock_irq(&host->lock);
+		mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, vdd);
+		spin_lock_irq(&host->lock);
+	}
+}
+
 static const struct sdhci_ops pxav3_sdhci_ops = {
 #if defined(MY_DEF_HERE)
 	.set_clock = pxav3_set_clock,
 #else /* MY_DEF_HERE */
 	.set_clock = sdhci_set_clock,
 #endif /* MY_DEF_HERE */
+	.set_power = pxav3_set_power,
 	.platform_send_init_74_clocks = pxav3_gen_init_74_clocks,
 	.get_max_clock = sdhci_pltfm_clk_get_max_clock,
 	.set_bus_width = sdhci_set_bus_width,
@@ -671,6 +693,8 @@ static int sdhci_pxav3_suspend(struct device *dev)
 	if (!pxa->dat3_cd_enabled)
 #endif /* MY_DEF_HERE */
 	pm_runtime_get_sync(dev);
+	if (host->tuning_mode != SDHCI_TUNING_MODE_3)
+		mmc_retune_needed(host->mmc);
 	ret = sdhci_suspend_host(host);
 #if defined(MY_DEF_HERE)
 	if (pxa->dat3_cd_enabled)
@@ -724,6 +748,9 @@ static int sdhci_pxav3_runtime_suspend(struct device *dev)
 	ret = sdhci_runtime_suspend_host(host);
 	if (ret)
 		return ret;
+
+	if (host->tuning_mode != SDHCI_TUNING_MODE_3)
+		mmc_retune_needed(host->mmc);
 
 	clk_disable_unprepare(pxa->clk_io);
 	if (!IS_ERR(pxa->clk_core))

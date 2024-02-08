@@ -61,6 +61,12 @@
 #include <linux/proc_fs.h>
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+#include <linux/node.h>
+#include <linux/compaction.h>
+#define SYNO_NTB_ALLOC_RETRY 5
+#endif /* MY_ABC_HERE */
+
 #define NTB_NETDEV_VER	"0.7"
 
 MODULE_DESCRIPTION(KBUILD_MODNAME);
@@ -335,7 +341,7 @@ static void ntb_netdev_tx_timer(unsigned long data)
 	struct ntb_netdev *dev = netdev_priv(ndev);
 
 	if (ntb_transport_tx_free_entry(dev->qp) < tx_stop) {
-		mod_timer(&dev->tx_timer, jiffies + msecs_to_jiffies(tx_time));
+		mod_timer(&dev->tx_timer, jiffies + usecs_to_jiffies(tx_time));
 	} else {
 		/* Make sure anybody stopping the queue after this sees the new
 		 * value of ntb_transport_tx_free_entry()
@@ -401,14 +407,33 @@ static int ntb_netdev_open(struct net_device *ndev)
 	struct ntb_netdev *dev = netdev_priv(ndev);
 	struct sk_buff *skb;
 	int rc, i, len;
+#ifdef MY_ABC_HERE
+	int iRetry = 0;
+#endif /* MY_ABC_HERE */
 
 	/* Add some empty rx bufs */
 	for (i = 0; i < NTB_RXQ_SIZE; i++) {
+#ifdef MY_ABC_HERE
+		skb = NULL;
+		skb = netdev_alloc_skb(ndev, ndev->mtu + ETH_HLEN);
+		for (iRetry = 0; iRetry < SYNO_NTB_ALLOC_RETRY && NULL == skb; iRetry++) {
+			printk("NTB netdev alloc skb failed! size=%d retry: %d\n", ndev->mtu + ETH_HLEN, iRetry);
+			syno_drop_caches();
+			compact_nodes();
+			skb = netdev_alloc_skb(ndev, ndev->mtu + ETH_HLEN);
+		}
+		if (!skb) {
+			printk("NTB netdev alloc skb failed!\n");
+			rc = -ENOMEM;
+			goto err;
+		}
+#else /* MY_ABC_HERE */
 		skb = netdev_alloc_skb(ndev, ndev->mtu + ETH_HLEN);
 		if (!skb) {
 			rc = -ENOMEM;
 			goto err;
 		}
+#endif /* MY_ABC_HERE */
 
 		rc = ntb_transport_rx_enqueue(dev->qp, skb, skb->data,
 					      ndev->mtu + ETH_HLEN);

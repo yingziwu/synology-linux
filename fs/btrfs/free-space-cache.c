@@ -157,7 +157,7 @@ static int __create_free_space_inode(struct btrfs_root *root,
 	inode_item = btrfs_item_ptr(leaf, path->slots[0],
 				    struct btrfs_inode_item);
 	btrfs_item_key(leaf, &disk_key, path->slots[0]);
-	memset_extent_buffer(leaf, 0, (unsigned long)inode_item,
+	memzero_extent_buffer(leaf, (unsigned long)inode_item,
 			     sizeof(*inode_item));
 	btrfs_set_inode_generation(leaf, inode_item, trans->transid);
 	btrfs_set_inode_size(leaf, inode_item, 0);
@@ -188,7 +188,7 @@ static int __create_free_space_inode(struct btrfs_root *root,
 	leaf = path->nodes[0];
 	header = btrfs_item_ptr(leaf, path->slots[0],
 				struct btrfs_free_space_header);
-	memset_extent_buffer(leaf, 0, (unsigned long)header, sizeof(*header));
+	memzero_extent_buffer(leaf, (unsigned long)header, sizeof(*header));
 	btrfs_set_free_space_key(leaf, header, &disk_key);
 	btrfs_mark_buffer_dirty(leaf);
 	btrfs_release_path(path);
@@ -396,6 +396,12 @@ static int io_ctl_prepare_pages(struct btrfs_io_ctl *io_ctl, struct inode *inode
 		if (uptodate && !PageUptodate(page)) {
 			btrfs_readpage(NULL, page);
 			lock_page(page);
+			if (page->mapping != inode->i_mapping) {
+				btrfs_err(BTRFS_I(inode)->root->fs_info,
+					  "free space cache page truncated");
+				io_ctl_drop_pages(io_ctl);
+				return -EIO;
+			}
 			if (!PageUptodate(page)) {
 				btrfs_err(BTRFS_I(inode)->root->fs_info,
 					   "error reading free space cache");
@@ -753,8 +759,10 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
 	while (num_entries) {
 		e = kmem_cache_zalloc(btrfs_free_space_cachep,
 				      GFP_NOFS);
-		if (!e)
+		if (!e) {
+			ret = -ENOMEM;
 			goto free_cache;
+		}
 #ifdef MY_ABC_HERE
 		RB_CLEAR_NODE(&e->bytes_index_with_extent);
 #endif /* MY_ABC_HERE */
@@ -766,6 +774,7 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
 		}
 
 		if (!e->bytes) {
+			ret = -1;
 			kmem_cache_free(btrfs_free_space_cachep, e);
 			goto free_cache;
 		}
@@ -785,6 +794,7 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
 			num_bitmaps--;
 			e->bitmap = kzalloc(PAGE_CACHE_SIZE, GFP_NOFS);
 			if (!e->bitmap) {
+				ret = -ENOMEM;
 				kmem_cache_free(
 					btrfs_free_space_cachep, e);
 				goto free_cache;
@@ -2306,7 +2316,7 @@ out:
 static bool try_merge_free_space(struct btrfs_free_space_ctl *ctl,
 			  struct btrfs_free_space *info, bool update_stat)
 {
-	struct btrfs_free_space *left_info;
+	struct btrfs_free_space *left_info = NULL;
 	struct btrfs_free_space *right_info;
 	bool merged = false;
 	u64 offset = info->offset;
@@ -2321,7 +2331,7 @@ static bool try_merge_free_space(struct btrfs_free_space_ctl *ctl,
 	if (right_info && rb_prev(&right_info->offset_index))
 		left_info = rb_entry(rb_prev(&right_info->offset_index),
 				     struct btrfs_free_space, offset_index);
-	else
+	else if (!right_info)
 		left_info = tree_search_offset(ctl, offset - 1, 0, 0);
 
 	if (right_info && !right_info->bitmap) {
@@ -3593,28 +3603,28 @@ static int trim_no_bitmap(struct btrfs_block_group_cache *block_group,
 	while (start < end) {
 		struct btrfs_trim_range trim_entry;
 
-		mutex_lock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 		down_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
+		mutex_lock(&ctl->cache_writeout_mutex);
 		spin_lock(&ctl->tree_lock);
 
 		if (ctl->free_space < minlen) {
 			spin_unlock(&ctl->tree_lock);
+			mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 			up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-			mutex_unlock(&ctl->cache_writeout_mutex);
 			break;
 		}
 
 		entry = tree_search_offset(ctl, start, 0, 1);
 		if (!entry) {
 			spin_unlock(&ctl->tree_lock);
+			mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 			up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-			mutex_unlock(&ctl->cache_writeout_mutex);
 			break;
 		}
 
@@ -3623,10 +3633,10 @@ static int trim_no_bitmap(struct btrfs_block_group_cache *block_group,
 			node = rb_next(&entry->offset_index);
 			if (!node) {
 				spin_unlock(&ctl->tree_lock);
+				mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 				up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-				mutex_unlock(&ctl->cache_writeout_mutex);
 				goto out;
 			}
 			entry = rb_entry(node, struct btrfs_free_space,
@@ -3635,10 +3645,10 @@ static int trim_no_bitmap(struct btrfs_block_group_cache *block_group,
 
 		if (entry->offset >= end) {
 			spin_unlock(&ctl->tree_lock);
+			mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 			up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-			mutex_unlock(&ctl->cache_writeout_mutex);
 			break;
 		}
 
@@ -3649,10 +3659,10 @@ static int trim_no_bitmap(struct btrfs_block_group_cache *block_group,
 
 		if (bytes < minlen) {
 			spin_unlock(&ctl->tree_lock);
+			mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 			up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-			mutex_unlock(&ctl->cache_writeout_mutex);
 			goto next;
 		}
 
@@ -3663,11 +3673,11 @@ static int trim_no_bitmap(struct btrfs_block_group_cache *block_group,
 		trim_entry.start = extent_start;
 		trim_entry.bytes = extent_bytes;
 		list_add_tail(&trim_entry.list, &ctl->trimming_ranges);
+		mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 		btrfs_syno_allocator_relink_block_group(block_group);
 		up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-		mutex_unlock(&ctl->cache_writeout_mutex);
 
 #ifdef MY_ABC_HERE
 		ret = do_trimming(block_group, total_trimmed, start, bytes,
@@ -3710,28 +3720,28 @@ static int trim_bitmaps(struct btrfs_block_group_cache *block_group,
 		bool next_bitmap = false;
 		struct btrfs_trim_range trim_entry;
 
-		mutex_lock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 		down_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
+		mutex_lock(&ctl->cache_writeout_mutex);
 		spin_lock(&ctl->tree_lock);
 
 		if (ctl->free_space < minlen) {
 			spin_unlock(&ctl->tree_lock);
+			mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 			up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-			mutex_unlock(&ctl->cache_writeout_mutex);
 			break;
 		}
 
 		entry = tree_search_offset(ctl, offset, 1, 0);
 		if (!entry) {
 			spin_unlock(&ctl->tree_lock);
+			mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 			up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-			mutex_unlock(&ctl->cache_writeout_mutex);
 			next_bitmap = true;
 			goto next;
 		}
@@ -3740,10 +3750,10 @@ static int trim_bitmaps(struct btrfs_block_group_cache *block_group,
 		ret2 = search_bitmap(ctl, entry, &start, &bytes, false);
 		if (ret2 || start >= end) {
 			spin_unlock(&ctl->tree_lock);
+			mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 			up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-			mutex_unlock(&ctl->cache_writeout_mutex);
 			next_bitmap = true;
 			goto next;
 		}
@@ -3751,10 +3761,10 @@ static int trim_bitmaps(struct btrfs_block_group_cache *block_group,
 		bytes = min(bytes, end - start);
 		if (bytes < minlen) {
 			spin_unlock(&ctl->tree_lock);
+			mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 			up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-			mutex_unlock(&ctl->cache_writeout_mutex);
 			goto next;
 		}
 
@@ -3766,11 +3776,11 @@ static int trim_bitmaps(struct btrfs_block_group_cache *block_group,
 		trim_entry.start = start;
 		trim_entry.bytes = bytes;
 		list_add_tail(&trim_entry.list, &ctl->trimming_ranges);
+		mutex_unlock(&ctl->cache_writeout_mutex);
 #ifdef MY_ABC_HERE
 		btrfs_syno_allocator_relink_block_group(block_group);
 		up_write(&block_group->syno_allocator.space_info->syno_allocator.allocation_sem);
 #endif /* MY_ABC_HERE */
-		mutex_unlock(&ctl->cache_writeout_mutex);
 
 		ret = do_trimming(block_group, total_trimmed, start, bytes,
 				  start, bytes, &trim_entry

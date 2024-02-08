@@ -61,6 +61,11 @@
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+/* these two bits are mutually exclusive */
+#define BTRFS_INODE_LOCKER_NOLOCK		27
+#define BTRFS_INODE_LOCKER_LOCKABLE		28
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 #define BTRFS_INODE_USRQUOTA_META_RESERVED	29
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
@@ -162,6 +167,13 @@ struct btrfs_inode {
 	u64 delalloc_bytes;
 
 	/*
+	 * Total number of bytes pending delalloc that fall within a file
+	 * range that is either a hole or beyond EOF (and no prealloc extent
+	 * exists in the range). This is always <= delalloc_bytes.
+	 */
+	u64 new_delalloc_bytes;
+
+	/*
 	 * total number of bytes pending defrag, used by stat to check whether
 	 * it needs COW.
 	 */
@@ -189,6 +201,17 @@ struct btrfs_inode {
 	 * details
 	 */
 	u64 last_unlink_trans;
+
+	/*
+	 * The id/generation of the last transaction where this inode was
+	 * either the source or the destination of a clone/dedupe operation.
+	 * Used when logging an inode to know if there are shared extents that
+	 * need special care when logging checksum items, to avoid duplicate
+	 * checksum items in a log (which can lead to a corruption where we end
+	 * up with missing checksum ranges after log replay).
+	 * Protected by the vfs inode lock.
+	 */
+	u64 last_reflink_trans;
 
 	/*
 	 * Number of bytes outstanding that are going to need csums.  This is
@@ -233,6 +256,27 @@ struct btrfs_inode {
 	struct rw_semaphore dio_sem;
 
 	struct inode vfs_inode;
+
+#ifdef MY_ABC_HERE
+	union {
+		enum locker_state __locker_state;
+		const enum locker_state locker_state;
+	};
+	union {
+		time64_t __locker_update_time;          // in volume clock
+		const time64_t locker_update_time;
+	};
+	union {
+		time64_t __locker_period_begin;         // in volume clock
+		const time64_t locker_period_begin;
+	};
+	union {
+		time64_t __locker_period_end;           // in volume clock
+		const time64_t locker_period_end;
+	};
+	bool locker_dirty;
+	spinlock_t locker_lock;
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	struct list_head free_extent_map_inode;
@@ -337,6 +381,17 @@ static inline int btrfs_inode_in_log(struct inode *inode, u64 generation)
 }
 
 #define BTRFS_DIO_ORIG_BIO_SUBMITTED	0x1
+
+/*
+ * Check if the inode has flags compatible with compression
+ */
+static inline bool btrfs_inode_can_compress(const struct btrfs_inode *inode)
+{
+	if (inode->flags & BTRFS_INODE_NODATACOW ||
+	    inode->flags & BTRFS_INODE_NODATASUM)
+		return false;
+	return true;
+}
 
 struct btrfs_dio_private {
 	struct inode *inode;

@@ -321,7 +321,7 @@ fail:
 	return ERR_PTR(ret);
 }
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 int btrfs_lookup_file_extent_by_file_offset(struct btrfs_trans_handle *trans,
 			     struct btrfs_root *root,
 			     struct btrfs_path *path, u64 inode_num,
@@ -789,7 +789,8 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 	u16 csum_size = btrfs_super_csum_size(root->fs_info->super_copy);
 	int blocksize_bits = root->fs_info->sb->s_blocksize_bits;
 
-	root = root->fs_info->csum_root;
+	ASSERT(root == root->fs_info->csum_root ||
+	       root->root_key.objectid == BTRFS_TREE_LOG_OBJECTID);
 
 	path = btrfs_alloc_path();
 	if (!path)
@@ -892,7 +893,7 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 			item_offset = btrfs_item_ptr_offset(leaf,
 							    path->slots[0]);
 
-			memset_extent_buffer(leaf, 0, item_offset + offset,
+			memzero_extent_buffer(leaf, item_offset + offset,
 					     shift_len);
 			key.offset = bytenr;
 
@@ -982,10 +983,12 @@ again:
 		nritems = btrfs_header_nritems(path->nodes[0]);
 		if (!nritems || (path->slots[0] >= nritems - 1)) {
 			ret = btrfs_next_leaf(root, path);
-			if (ret == 1)
+			if (ret < 0) {
+				goto out;
+			} else if (ret > 0) {
 				found_next = 1;
-			if (ret != 0)
 				goto insert;
+			}
 			slot = path->slots[0];
 		}
 		btrfs_item_key_to_cpu(path->nodes[0], &found_key, slot);
