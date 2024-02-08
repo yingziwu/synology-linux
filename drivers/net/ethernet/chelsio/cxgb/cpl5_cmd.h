@@ -1,8 +1,8 @@
 /*****************************************************************************
  *                                                                           *
  * File: cpl5_cmd.h                                                          *
- * $Revision: 1.6 $                                                          *
- * $Date: 2005/06/21 18:29:47 $                                              *
+ * $Revision: 1.1.1.1 $                                                          *
+ * $Date: 2010/04/15 12:27:53 $                                              *
  * Description:                                                              *
  *  part of the Chelsio 10Gb Ethernet Driver.                                *
  *                                                                           *
@@ -71,7 +71,6 @@ enum CPL_opcode {
 
 	CPL_PCMD_READ         = 0x31,
 	CPL_PCMD_READ_RPL     = 0x32,
-
 
 	CPL_RX_DATA           = 0xA0,
 	CPL_RX_DATA_DDP       = 0xA1,
@@ -636,4 +635,3 @@ struct cpl_mss_change {
 };
 
 #endif /* _CXGB_CPL5_CMD_H_ */
-

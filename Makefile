@@ -192,8 +192,11 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 # Default value for CROSS_COMPILE is not to prefix executables
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
-ARCH		?= $(SUBARCH)
-CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
+#ARCH		?= $(SUBARCH)
+#CROSS_COMPILE	?=
+ARCH		?= arm
+CROSS_COMPILE	?= /usr/local/arm-marvell-linux-gnueabi/bin/arm-marvell-linux-gnueabi-
+#CROSS_COMPILE	?= /usr/local/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -360,7 +363,8 @@ CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
                    -Iarch/$(hdr-arch)/include/generated -Iinclude \
                    $(if $(KBUILD_SRC), -I$(srctree)/include) \
-                   -include $(srctree)/include/linux/kconfig.h
+                   -include $(srctree)/include/linux/kconfig.h \
+                   -include $(if $(KBUILD_SRC),$(srctree)/)include/linux/syno.h
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
@@ -405,10 +409,13 @@ export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn --exc
 
 # ===========================================================================
 # Rules shared between *config targets and build targets
-
 # Basic helpers built in scripts/
 PHONY += scripts_basic
+
 scripts_basic:
+ifeq ($(CONFIG_SYNO_ARMADA_ARCH_COMM),)
+	./syno_check_env.sh
+endif
 	$(Q)$(MAKE) $(build)=scripts/basic
 	$(Q)rm -f .tmp_quiet_recordmcount
 
@@ -536,8 +543,9 @@ else
 # but do not care if they are up-to-date. Use auto.conf to trigger the test
 PHONY += include/config/auto.conf
 
+
 include/config/auto.conf:
-	$(Q)test -e include/generated/autoconf.h -a -e $@ || (		\
+	@$(Q)test -e include/generated/autoconf.h -a -e $@ || (		\
 	echo;								\
 	echo "  ERROR: Kernel configuration is invalid.";		\
 	echo "         include/generated/autoconf.h or $@ are missing.";\
@@ -559,9 +567,21 @@ endif # $(dot-config)
 all: vmlinux
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+ifdef CONFIG_SYNO_COMCERTO
+KBUILD_CFLAGS	+= -Os -fno-caller-saves
+else
 KBUILD_CFLAGS	+= -Os
+endif
+else
+ifdef CONFIG_SYNO_COMCERTO
+ifdef CONFIG_COMCERTO_CC_OPTIMIZE_O3
+KBUILD_CFLAGS	+= -O3
 else
 KBUILD_CFLAGS	+= -O2
+endif
+else
+KBUILD_CFLAGS	+= -O2
+endif
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
@@ -619,6 +639,11 @@ endif
 # arch Makefile may override CC so keep this after arch Makefile is included
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 CHECKFLAGS     += $(NOSTDINC_FLAGS)
+
+ifdef CONFIG_SYNO_COMCERTO
+# improve gcc optimization
+CFLAGS += $(call cc-option,-funit-at-a-time,)
+endif
 
 # warn about C99 declaration after statement
 KBUILD_CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)

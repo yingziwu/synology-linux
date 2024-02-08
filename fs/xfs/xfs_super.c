@@ -130,7 +130,6 @@ static const match_table_t tokens = {
 	{Opt_err, NULL}
 };
 
-
 STATIC unsigned long
 suffix_strtoul(char *s, char **endp, unsigned int base)
 {
@@ -1599,6 +1598,11 @@ xfs_init_zones(void)
 STATIC void
 xfs_destroy_zones(void)
 {
+	/*
+	 * Make sure all delayed rcu free are flushed before we
+	 * destroy caches.
+	 */
+	rcu_barrier();
 	kmem_zone_destroy(xfs_ili_zone);
 	kmem_zone_destroy(xfs_inode_zone);
 	kmem_zone_destroy(xfs_efi_zone);

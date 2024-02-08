@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/arch/arm/kernel/entry-common.S
  *
@@ -14,7 +17,9 @@
 #include <asm/unwind.h>
 
 #include "entry-header.S"
-
+#if defined(MY_DEF_HERE)
+#include <asm/page.h>
+#endif
 
 	.align	5
 /*
@@ -577,12 +582,25 @@ sys_fstatfs64_wrapper:
 		b	sys_fstatfs64
 ENDPROC(sys_fstatfs64_wrapper)
 
+#ifndef MY_DEF_HERE
 /*
  * Note: off_4k (r5) is always units of 4K.  If we can't do the requested
  * offset, we return EINVAL.
  */
+#endif
 sys_mmap2:
+#ifdef MY_DEF_HERE
+		str	r5, [sp, #4]
+#if (PAGE_SHIFT > 12)
+		b	sys_arm_mmap_4koff
+#else
+		b	sys_mmap_pgoff
+#endif
+#else
 #if PAGE_SHIFT > 12
+#if defined(MY_DEF_HERE)
+#define PGOFF_MASK ((1 << (PAGE_SHIFT - 12)) - 1)
+#endif
 		tst	r5, #PGOFF_MASK
 		moveq	r5, r5, lsr #PAGE_SHIFT - 12
 		streq	r5, [sp, #4]
@@ -593,6 +611,7 @@ sys_mmap2:
 		str	r5, [sp, #4]
 		b	sys_mmap_pgoff
 #endif
+#endif //end of MY_DEF_HERE
 ENDPROC(sys_mmap2)
 
 #ifdef CONFIG_OABI_COMPAT
@@ -644,4 +663,3 @@ ENTRY(sys_oabi_call_table)
 #undef OBSOLETE
 
 #endif
-

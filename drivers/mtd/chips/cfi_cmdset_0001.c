@@ -94,8 +94,6 @@ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr
 static void put_chip(struct map_info *map, struct flchip *chip, unsigned long adr);
 #include "fwh_lock.h"
 
-
-
 /*
  *  *********** SETUP AND PROBE BITS  ***********
  */
@@ -765,6 +763,13 @@ static int chip_ready (struct map_info *map, struct flchip *chip, unsigned long 
 
 	case FL_STATUS:
 		for (;;) {
+#ifdef CONFIG_ARCH_GEN3
+			/* Add issuing READ STATUS command before reading 
+			 * flash status to guarantee the status read is
+			 * correct.
+			 */		
+			map_write(map, CMD(0x70), adr);
+#endif
 			status = map_read(map, adr);
 			if (map_word_andequal(map, status, status_OK, status_OK))
 				break;
@@ -792,7 +797,6 @@ static int chip_ready (struct map_info *map, struct flchip *chip, unsigned long 
 		    !(mode == FL_READY || mode == FL_POINT ||
 		     (mode == FL_WRITING && (cfip->SuspendCmdSupport & 1))))
 			goto sleep;
-
 
 		/* Erase suspend */
 		map_write(map, CMD(0xB0), adr);
@@ -1287,7 +1291,6 @@ static int inval_cache_and_wait_for_operation(
 #define WAIT_TIMEOUT(map, chip, adr, udelay, udelay_max) \
 	INVAL_CACHE_AND_WAIT(map, chip, adr, 0, 0, udelay, udelay_max);
 
-
 static int do_point_onechip (struct map_info *map, struct flchip *chip, loff_t adr, size_t len)
 {
 	unsigned long cmd_addr;
@@ -1556,7 +1559,6 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
 	return ret;
 }
 
-
 static int cfi_intelext_write_words (struct mtd_info *mtd, loff_t to , size_t len, size_t *retlen, const u_char *buf)
 {
 	struct map_info *map = mtd->priv;
@@ -1638,7 +1640,6 @@ static int cfi_intelext_write_words (struct mtd_info *mtd, loff_t to , size_t le
 
 	return 0;
 }
-
 
 static int __xipram do_write_buffer(struct map_info *map, struct flchip *chip,
 				    unsigned long adr, const struct kvec **pvec,
@@ -2086,6 +2087,10 @@ static int __xipram do_xxlock_oneblock(struct map_info *map, struct flchip *chip
 	}
 
 	xip_enable(map, chip, adr);
+#ifdef CONFIG_ARCH_GEN3
+	// Intel specs require this call. Because I don't know how xip works I simply add this call. It shouldn't harm
+	map_write(map, CMD(0xFF), adr);
+#endif
 out:	put_chip(map, chip, adr);
 	mutex_unlock(&chip->mutex);
 	return ret;

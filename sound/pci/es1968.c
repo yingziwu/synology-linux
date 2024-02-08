@@ -166,7 +166,6 @@ module_param_array(joystick, bool, NULL, 0444);
 MODULE_PARM_DESC(joystick, "Enable joystick.");
 #endif
 
-
 #define NR_APUS			64
 #define NR_APU_REGS		16
 
@@ -428,14 +427,12 @@ MODULE_PARM_DESC(joystick, "Enable joystick.");
 #define	ESM_APU_ATFP_FLG_DONE			0x02
 #define	ESM_APU_ATFP_FLG_INPROCESS		0x03
 
-
 /* capture mixing buffer size */
 #define ESM_MEM_ALIGN		0x1000
 #define ESM_MIXBUF_SIZE		0x400
 
 #define ESM_MODE_PLAY		0
 #define ESM_MODE_CAPTURE	1
-
 
 /* APU use in the driver */
 enum snd_enum_apu_type {
@@ -895,7 +892,6 @@ snd_es1968_calc_bob_rate(struct es1968 *chip, struct esschan *es,
 	return freq;
 }
 
-
 /*************
  *  PCM Part *
  *************/
@@ -992,7 +988,6 @@ static void snd_es1968_program_wavecache(struct es1968 *chip, struct esschan *es
 	es->wc_map[channel] = tmpval;
 #endif
 }
-
 
 static void snd_es1968_playback_setup(struct es1968 *chip, struct esschan *es,
 				      struct snd_pcm_runtime *runtime)
@@ -1095,7 +1090,6 @@ static void snd_es1968_playback_setup(struct es1968 *chip, struct esschan *es,
 	snd_es1968_apu_set_freq(chip, es->apu[0], freq);
 	snd_es1968_apu_set_freq(chip, es->apu[1], freq);
 }
-
 
 static void init_capture_apu(struct es1968 *chip, struct esschan *es, int channel,
 			     unsigned int pa, unsigned int bsize,
@@ -1509,7 +1503,6 @@ static int snd_es1968_hw_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
-
 /*
  * allocate APU pair
  */
@@ -1534,7 +1527,6 @@ static void snd_es1968_free_apu_pair(struct es1968 *chip, int apu)
 {
 	chip->apu[apu] = chip->apu[apu + 1] = ESM_APU_FREE;
 }
-
 
 /******************
  * PCM open/close *
@@ -1693,7 +1685,6 @@ static struct snd_pcm_ops snd_es1968_capture_ops = {
 	.pointer =	snd_es1968_pcm_pointer,
 };
 
-
 /*
  * measure clock
  */
@@ -1789,7 +1780,6 @@ static void __devinit es1968_measure_clock(struct es1968 *chip)
 	snd_es1968_free_memory(chip, memory);
 	snd_es1968_free_apu_pair(chip, apu);
 }
-
 
 /*
  */
@@ -2314,7 +2304,6 @@ static void snd_es1968_chip_init(struct es1968 *chip)
 	wave_set_register(chip, IDR7_WAVE_ROMRAM,
 			  wave_get_register(chip, IDR7_WAVE_ROMRAM) | ~0x400);
 
-
 	maestro_write(chip, IDR2_CRAM_DATA, 0x0000);
 	/* Now back to the DirectSound stuff */
 	/* audio serial configuration.. ? */
@@ -2763,7 +2752,6 @@ static int __devinit snd_es1968_create(struct snd_card *card,
 
 	return 0;
 }
-
 
 /*
  */

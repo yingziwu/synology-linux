@@ -368,4 +368,3 @@ static void __exit radio_si4713_module_exit(void)
 
 module_init(radio_si4713_module_init);
 module_exit(radio_si4713_module_exit);
-

@@ -2342,7 +2342,6 @@ static void vmclear_local_loaded_vmcss(void)
 		__loaded_vmcs_clear(v);
 }
 
-
 /* Just like cpu_vmxoff(), but with the __kvm_handle_fault_on_reboot()
  * tricks.
  */
@@ -3138,7 +3137,6 @@ static int vmx_get_cpl(struct kvm_vcpu *vcpu)
 	}
 	return to_vmx(vcpu)->cpl;
 }
-
 
 static u32 vmx_segment_access_rights(struct kvm_segment *var)
 {
@@ -5381,7 +5379,6 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
 	return 1;
 }
 
-
 static int handle_vmwrite(struct kvm_vcpu *vcpu)
 {
 	unsigned long field;
@@ -5416,7 +5413,6 @@ static int handle_vmwrite(struct kvm_vcpu *vcpu)
 			return 1;
 		}
 	}
-
 
 	field = kvm_register_read(vcpu, (((vmx_instruction_info) >> 28) & 0xf));
 	if (vmcs_field_readonly(field)) {
@@ -6568,7 +6564,6 @@ static void prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 		vmcs_write32(SECONDARY_VM_EXEC_CONTROL, exec_control);
 	}
 
-
 	/*
 	 * Set host-state according to L0's settings (vmcs12 is irrelevant here)
 	 * Some constant fields are set here by vmx_set_constant_host_state().
@@ -6619,7 +6614,6 @@ static void prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 		vmcs_write64(GUEST_IA32_PAT, vmcs12->guest_ia32_pat);
 	else if (vmcs_config.vmentry_ctrl & VM_ENTRY_LOAD_IA32_PAT)
 		vmcs_write64(GUEST_IA32_PAT, vmx->vcpu.arch.pat);
-
 
 	set_cr4_guest_host_mask(vmx);
 
@@ -6981,7 +6975,6 @@ void load_vmcs12_host_state(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
 		 */
 		vmx_flush_tlb(vcpu);
 	}
-
 
 	vmcs_write32(GUEST_SYSENTER_CS, vmcs12->host_ia32_sysenter_cs);
 	vmcs_writel(GUEST_SYSENTER_ESP, vmcs12->host_ia32_sysenter_esp);

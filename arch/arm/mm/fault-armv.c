@@ -38,7 +38,7 @@ static pteval_t shared_pte_mask = L_PTE_MT_BUFFERABLE;
  * without CONFIG_CPU_CACHE_VIPT) cannot support split page_table_lock.
  */
 static int do_adjust_pte(struct vm_area_struct *vma, unsigned long address,
-	unsigned long pfn, pte_t *ptep)
+		unsigned long pfn, pte_t *ptep)
 {
 	pte_t entry = *ptep;
 	int ret;

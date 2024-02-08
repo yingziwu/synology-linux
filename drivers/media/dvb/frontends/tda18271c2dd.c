@@ -965,7 +965,6 @@ static int RFTrackingFiltersCorrection(struct tda_state *state,
 		else if (Capprox > 255)
 			Capprox = 255;
 
-
 		/* TODO Temperature compensation. There is defenitely a scale factor */
 		/*      missing in the datasheet, so leave it out for now.           */
 		state->m_Regs[EB14] = Capprox;
@@ -1209,7 +1208,6 @@ static int get_bandwidth(struct dvb_frontend *fe, u32 *bandwidth)
 	/* *bandwidth = priv->bandwidth; */
 	return 0;
 }
-
 
 static struct dvb_tuner_ops tuner_ops = {
 	.info = {

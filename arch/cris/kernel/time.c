@@ -39,7 +39,6 @@ int have_rtc;  /* used to remember if we have an RTC or not */;
 extern unsigned long loops_per_jiffy; /* init/main.c */
 unsigned long loops_per_usec;
 
-
 #ifdef CONFIG_ARCH_USES_GETTIMEOFFSET
 extern unsigned long do_slow_gettimeoffset(void);
 static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;
@@ -124,7 +123,6 @@ get_cmos_time(void)
 	return mktime(year, mon, day, hour, min, sec);
 }
 
-
 int update_persistent_clock(struct timespec now)
 {
 	return set_rtc_mmss(now.tv_sec);
@@ -135,7 +133,6 @@ void read_persistent_clock(struct timespec *ts)
 	ts->tv_sec = get_cmos_time();
 	ts->tv_nsec = 0;
 }
-
 
 extern void cris_profile_sample(struct pt_regs* regs);
 

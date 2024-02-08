@@ -118,7 +118,6 @@
 #define IGMP_Query_Response_Interval		(10*HZ)
 #define IGMP_Unsolicited_Report_Count		2
 
-
 #define IGMP_Initial_Report_Delay		(1)
 
 /* IGMP_Initial_Report_Delay is not from IGMP specs!
@@ -228,13 +227,11 @@ static void igmp_mod_timer(struct ip_mc_list *im, int max_delay)
 	spin_unlock_bh(&im->lock);
 }
 
-
 /*
  *	Send an IGMP report.
  */
 
 #define IGMP_SIZE (sizeof(struct igmphdr)+sizeof(struct iphdr)+4)
-
 
 static int is_in(struct ip_mc_list *pmc, struct ip_sf_list *psf, int type,
 	int gdeleted, int sdeleted)
@@ -729,7 +726,6 @@ static void igmp_ifc_event(struct in_device *in_dev)
 	igmp_ifc_start_timer(in_dev, 1);
 }
 
-
 static void igmp_timer_expire(unsigned long data)
 {
 	struct ip_mc_list *im=(struct ip_mc_list *)data;
@@ -839,7 +835,6 @@ static void igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
 	__be32			group = ih->group;
 	int			max_delay;
 	int			mark = 0;
-
 
 	if (len == 8) {
 		if (ih->code == 0) {
@@ -998,7 +993,6 @@ drop:
 }
 
 #endif
-
 
 /*
  *	Add a filter to a device
@@ -1200,11 +1194,9 @@ static void igmp_group_added(struct ip_mc_list *im)
 #endif
 }
 
-
 /*
  *	Multicast list managers
  */
-
 
 /*
  *	A socket has joined a multicast group on device dev.
@@ -1458,7 +1450,6 @@ static struct in_device *ip_mc_find_dev(struct net *net, struct ip_mreqn *imr)
  */
 int sysctl_igmp_max_memberships __read_mostly = IP_MAX_MEMBERSHIPS;
 int sysctl_igmp_max_msf __read_mostly = IP_MAX_MSF;
-
 
 static int ip_mc_del1_src(struct ip_mc_list *pmc, int sfmode,
 	__be32 *psfsrc)
@@ -1768,7 +1759,6 @@ static void ip_mc_clear_src(struct ip_mc_list *pmc)
 	pmc->sfcount[MCAST_INCLUDE] = 0;
 	pmc->sfcount[MCAST_EXCLUDE] = 1;
 }
-
 
 /*
  * Join a multicast group

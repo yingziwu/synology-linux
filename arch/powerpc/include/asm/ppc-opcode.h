@@ -184,7 +184,6 @@
 #define PPC_ERATSX_DOT(t, a, w)	stringify_in_c(.long PPC_INST_ERATSX_DOT | \
 					__PPC_RS(t) | __PPC_RA(a) | __PPC_RB(b))
 
-
 /*
  * Define what the VSX XX1 form instructions will look like, then add
  * the 128 bit load store instructions based on that.

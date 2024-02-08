@@ -108,7 +108,6 @@ struct efi_variable {
 	__u32         Attributes;
 } __attribute__((packed));
 
-
 struct efivar_entry {
 	struct efivars *efivars;
 	struct efi_variable var;
@@ -1268,4 +1267,3 @@ efivars_exit(void)
 
 module_init(efivars_init);
 module_exit(efivars_exit);
-

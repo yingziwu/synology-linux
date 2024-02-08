@@ -1396,7 +1396,6 @@ static int vgacon_scroll(struct vc_data *c, int t, int b, int dir,
 	return 1;
 }
 
-
 /*
  *  The console `switch' structure for the VGA based console
  */

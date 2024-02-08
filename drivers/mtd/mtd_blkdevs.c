@@ -74,7 +74,6 @@ static void blktrans_dev_put(struct mtd_blktrans_dev *dev)
 	mutex_unlock(&blktrans_ref_mutex);
 }
 
-
 static int do_blktrans_request(struct mtd_blktrans_ops *tr,
 			       struct mtd_blktrans_dev *dev,
 			       struct request *req)
@@ -136,6 +135,9 @@ static int mtd_blktrans_thread(void *arg)
 	struct request *req = NULL;
 	int background_done = 0;
 
+#ifdef CONFIG_ARCH_GEN3	
+	down(&dev->thread_sem);
+#endif
 	spin_lock_irq(rq->queue_lock);
 
 	while (!kthread_should_stop()) {
@@ -162,7 +164,13 @@ static int mtd_blktrans_thread(void *arg)
 				set_current_state(TASK_RUNNING);
 
 			spin_unlock_irq(rq->queue_lock);
+#ifdef CONFIG_ARCH_GEN3	
+			up(&dev->thread_sem);
+#endif
 			schedule();
+#ifdef CONFIG_ARCH_GEN3	
+			down(&dev->thread_sem);
+#endif
 			spin_lock_irq(rq->queue_lock);
 			continue;
 		}
@@ -185,6 +193,9 @@ static int mtd_blktrans_thread(void *arg)
 		__blk_end_request_all(req, -EIO);
 
 	spin_unlock_irq(rq->queue_lock);
+#ifdef CONFIG_ARCH_GEN3	
+	up(&dev->thread_sem);
+#endif
 
 	return 0;
 }
@@ -436,6 +447,9 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 
 	gd->queue = new->rq;
 
+#ifdef CONFIG_ARCH_GEN3
+	sema_init(&new->thread_sem, 1);
+#endif
 	/* Create processing thread */
 	/* TODO: workqueue ? */
 	new->thread = kthread_run(mtd_blktrans_thread, new,
@@ -482,7 +496,6 @@ int del_mtd_blktrans_dev(struct mtd_blktrans_dev *old)
 
 	/* Stop new requests to arrive */
 	del_gendisk(old->disk);
-
 
 	/* Stop the thread */
 	kthread_stop(old->thread);
@@ -546,7 +559,6 @@ int register_mtd_blktrans(struct mtd_blktrans_ops *tr)
 	   us over. */
 	if (!blktrans_notifier.list.next)
 		register_mtd_user(&blktrans_notifier);
-
 
 	mutex_lock(&mtd_table_mutex);
 

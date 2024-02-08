@@ -752,7 +752,6 @@ static int mwl8k_load_firmware(struct ieee80211_hw *hw)
 	return loops ? 0 : -ETIMEDOUT;
 }
 
-
 /* DMA header used by firmware and hardware.  */
 struct mwl8k_dma_data {
 	__le16 fwlen;
@@ -1101,7 +1100,6 @@ static struct rxd_ops rxd_sta_ops = {
 	.rxd_process	= mwl8k_rxd_sta_process,
 };
 
-
 #define MWL8K_RX_DESCS		256
 #define MWL8K_RX_MAXSZ		3800
 
@@ -1218,7 +1216,6 @@ static void mwl8k_rxq_deinit(struct ieee80211_hw *hw, int index)
 			    rxq->rxd, rxq->rxd_dma);
 	rxq->rxd = NULL;
 }
-
 
 /*
  * Scan a list of BSSIDs to process for finalize join.
@@ -1363,7 +1360,6 @@ static int rxq_process(struct ieee80211_hw *hw, int index, int limit)
 
 	return processed;
 }
-
 
 /*
  * Packet transmission.
@@ -2029,7 +2025,6 @@ mwl8k_txq_xmit(struct ieee80211_hw *hw, int index, struct sk_buff *skb)
 	}
 }
 
-
 /*
  * Firmware access.
  *
@@ -2082,7 +2077,6 @@ static void mwl8k_fw_unlock(struct ieee80211_hw *hw)
 		mutex_unlock(&priv->fw_mutex);
 	}
 }
-
 
 /*
  * Command processing.
@@ -3554,7 +3548,6 @@ static void mwl8k_watchdog_ba_events(struct work_struct *work)
 	return;
 }
 
-
 /*
  * CMD_BSS_START.
  */
@@ -3600,7 +3593,6 @@ enum ba_stream_action_type {
 	MWL8K_BA_FLUSH,
 	MWL8K_BA_CHECK,
 };
-
 
 struct mwl8k_create_ba_stream {
 	__le32	flags;
@@ -3673,7 +3665,6 @@ mwl8k_create_ba(struct ieee80211_hw *hw, struct mwl8k_ampdu_stream *stream,
 	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
 	if (cmd == NULL)
 		return -ENOMEM;
-
 
 	cmd->header.code = cpu_to_le16(MWL8K_CMD_BASTREAM);
 	cmd->header.length = cpu_to_le16(sizeof(*cmd));
@@ -4222,7 +4213,6 @@ static int mwl8k_cmd_update_stadb_del(struct ieee80211_hw *hw,
 	return rc;
 }
 
-
 /*
  * Interrupt handling.
  */
@@ -4314,7 +4304,6 @@ static void mwl8k_rx_poll(unsigned long data)
 		tasklet_schedule(&priv->poll_rx_task);
 	}
 }
-
 
 /*
  * Core driver operations.
@@ -5591,7 +5580,6 @@ static int __devinit mwl8k_probe(struct pci_dev *pdev,
 		printed_version = 1;
 	}
 
-
 	rc = pci_enable_device(pdev);
 	if (rc) {
 		printk(KERN_ERR "%s: Cannot enable new PCI device\n",
@@ -5608,7 +5596,6 @@ static int __devinit mwl8k_probe(struct pci_dev *pdev,
 
 	pci_set_master(pdev);
 
-
 	hw = ieee80211_alloc_hw(sizeof(*priv), &mwl8k_ops);
 	if (hw == NULL) {
 		printk(KERN_ERR "%s: ieee80211 alloc failed\n", MWL8K_NAME);
@@ -5623,7 +5610,6 @@ static int __devinit mwl8k_probe(struct pci_dev *pdev,
 	priv->hw = hw;
 	priv->pdev = pdev;
 	priv->device_info = &mwl8k_info_tbl[id->driver_data];
-
 
 	priv->sram = pci_iomap(pdev, 0, 0x10000);
 	if (priv->sram == NULL) {

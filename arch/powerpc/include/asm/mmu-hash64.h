@@ -154,7 +154,6 @@ struct mmu_psize_def
 #define MMU_SEGSIZE_256M	0
 #define MMU_SEGSIZE_1T		1
 
-
 #ifndef __ASSEMBLY__
 
 /*
@@ -377,7 +376,6 @@ extern void slb_set_size(u16 size);
 	srdi	rx,rx,VSID_BITS_##size;	/* extract 2^VSID_BITS bit */	\
 	add	rt,rt,rx
 
-
 #ifndef __ASSEMBLY__
 
 #ifdef CONFIG_PPC_SUBPAGE_PROT
@@ -435,7 +433,6 @@ typedef struct {
 	unsigned int cop_pid;	/* pid value used with coprocessors */
 #endif /* CONFIG_PPC_ICSWX */
 } mm_context_t;
-
 
 #if 0
 /*

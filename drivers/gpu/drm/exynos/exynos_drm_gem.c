@@ -403,7 +403,6 @@ int exynos_drm_gem_mmap(struct file *filp, struct vm_area_struct *vma)
 	return ret;
 }
 
-
 int exynos_drm_gem_dumb_destroy(struct drm_file *file_priv,
 		struct drm_device *dev, unsigned int handle)
 {

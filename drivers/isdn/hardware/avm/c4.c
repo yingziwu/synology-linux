@@ -1,4 +1,4 @@
-/* $Id: c4.c,v 1.1.2.2 2004/01/16 21:09:27 keil Exp $
+/* $Id: c4.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  * 
  * Module for AVM C4 & C2 card.
  * 
@@ -36,7 +36,7 @@
 
 /* ------------------------------------------------------------- */
 
-static char *revision = "$Revision: 1.1.2.2 $";
+static char *revision = "$Revision: 1.1.1.1 $";
 
 /* ------------------------------------------------------------- */
 
@@ -416,7 +416,6 @@ static void c4_dispatch_tx(avmcard *card)
 	u32 txlen;
 	void *p;
 
-
 	if (card->csr & DBELL_DOWN_ARM) { /* tx busy */
 		return;
 	}
@@ -510,7 +509,6 @@ static void c4_handle_rx(avmcard *card)
 	u32 ApplId, MsgLen, DataB3Len, NCCI, WindowSize;
 	u8 b1cmd =  _get_byte(&p);
 	u32 cidx;
-
 
 #ifdef AVM_C4_DEBUG
 	printk(KERN_DEBUG "%s: rx 0x%x len=%lu\n", card->name,
@@ -895,7 +893,6 @@ static int c4_load_firmware(struct capi_ctr *ctrl, capiloaddata *data)
 	return 0;
 }
 
-
 static void c4_reset_ctr(struct capi_ctr *ctrl)
 {
 	avmcard *card = ((avmctrl_info *)(ctrl->driverdata))->card;
@@ -942,7 +939,6 @@ static void c4_remove(struct pci_dev *pdev)
 }
 
 /* ------------------------------------------------------------- */
-
 
 static void c4_register_appl(struct capi_ctr *ctrl,
 				u16 appl,
@@ -1023,7 +1019,6 @@ static void c4_release_appl(struct capi_ctr *ctrl, u16 appl)
 }
 
 /* ------------------------------------------------------------- */
-
 
 static u16 c4_send_message(struct capi_ctr *ctrl, struct sk_buff *skb)
 {

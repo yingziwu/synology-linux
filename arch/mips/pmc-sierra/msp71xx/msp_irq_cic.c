@@ -27,7 +27,6 @@
 extern void msp_per_irq_init(void);
 extern void msp_per_irq_dispatch(void);
 
-
 /*
  * Convenience Macro.  Should be somewhere generic.
  */

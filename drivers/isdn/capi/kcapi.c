@@ -1,4 +1,4 @@
-/* $Id: kcapi.c,v 1.1.2.8 2004/03/26 19:57:20 armin Exp $
+/* $Id: kcapi.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  * 
  * Kernel CAPI 2.0 Module
  * 
@@ -167,7 +167,6 @@ register_appl(struct capi_ctr *ctr, u16 applid, capi_register_params *rparam)
 		printk(KERN_WARNING "%s: cannot get controller resources\n",
 		       __func__);
 }
-
 
 static void release_appl(struct capi_ctr *ctr, u16 applid)
 {

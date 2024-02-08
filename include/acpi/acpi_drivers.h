@@ -1,5 +1,5 @@
 /*
- *  acpi_drivers.h  ($Revision: 31 $)
+ *  acpi_drivers.h  ($Revision: 1.1.1.1 $)
  *
  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
@@ -81,7 +81,6 @@
 /* --------------------------------------------------------------------------
                                        PCI
    -------------------------------------------------------------------------- */
-
 
 /* ACPI PCI Interrupt Link (pci_link.c) */
 

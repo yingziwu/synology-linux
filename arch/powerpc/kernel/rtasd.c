@@ -30,7 +30,6 @@
 #include <linux/atomic.h>
 #include <asm/machdep.h>
 
-
 static DEFINE_SPINLOCK(rtasd_log_lock);
 
 static DECLARE_WAIT_QUEUE_HEAD(rtas_log_wait);

@@ -501,7 +501,6 @@ static void mixdev_close_devices(void)
 	}
 }
 
-
 static void mousedev_attach_client(struct mousedev *mousedev,
 				   struct mousedev_client *client)
 {

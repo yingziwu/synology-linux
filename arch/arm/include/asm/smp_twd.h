@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef __ASMARM_SMP_TWD_H
 #define __ASMARM_SMP_TWD_H
 
@@ -24,5 +27,8 @@ extern void __iomem *twd_base;
 
 void twd_timer_setup(struct clock_event_device *);
 void twd_timer_stop(struct clock_event_device *);
+#if defined(MY_DEF_HERE) && defined(CONFIG_LOCAL_TIMERS)
+int twd_timer_ack(void);
+#endif
 
 #endif

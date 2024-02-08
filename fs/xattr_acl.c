@@ -10,7 +10,6 @@
 #include <linux/posix_acl_xattr.h>
 #include <linux/gfp.h>
 
-
 /*
  * Convert from extended attribute to in-memory representation.
  */

@@ -905,7 +905,6 @@ static int taos_resume(struct i2c_client *client)
 	return ret;
 }
 
-
 static int __devexit taos_remove(struct i2c_client *client)
 {
 	iio_device_unregister(i2c_get_clientdata(client));

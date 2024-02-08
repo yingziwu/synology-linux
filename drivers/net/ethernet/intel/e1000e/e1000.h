@@ -57,7 +57,6 @@ struct e1000_info;
 #define e_notice(format, arg...) \
 	netdev_notice(adapter->netdev, format, ## arg)
 
-
 /* Interrupt modes, as used by the IntMode parameter */
 #define E1000E_INT_MODE_LEGACY		0
 #define E1000E_INT_MODE_MSI		1
@@ -160,6 +159,12 @@ struct e1000_info;
 
 /* Time to wait before putting the device into D3 if there's no link (in ms). */
 #define LINK_TIMEOUT		100
+
+/*
+ * Count for polling __E1000_RESET condition every 10-20msec.
+ * Experimentation has shown the reset can take approximately 210msec.
+ */
+#define E1000_CHECK_RESET_COUNT		25
 
 #define DEFAULT_RDTR			0
 #define DEFAULT_RADV			8

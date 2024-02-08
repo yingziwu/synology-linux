@@ -891,6 +891,10 @@ config RELAY
 
 	  If unsure, say N.
 
+config CRASHLOG
+	bool "Crash logging"
+	depends on !NO_BOOTMEM && !HAVE_MEMBLOCK && SYNO_COMCERTO
+
 config BLK_DEV_INITRD
 	bool "Initial RAM filesystem and RAM disk (initramfs/initrd) support"
 	depends on BROKEN || !FRV
@@ -1295,6 +1299,8 @@ config TRACEPOINTS
 source "arch/Kconfig"
 
 endmenu		# General setup
+
+source "synoconfigs/Kconfig"
 
 config HAVE_GENERIC_DMA_COHERENT
 	bool

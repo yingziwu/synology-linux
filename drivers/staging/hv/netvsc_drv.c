@@ -47,7 +47,6 @@ struct net_device_context {
 	struct delayed_work dwork;
 };
 
-
 #define PACKET_PAGES_LOWATER  8
 /* Need this many pages to handle worst case fragmented packet */
 #define PACKET_PAGES_HIWATER  (MAX_SKB_FRAGS + 2)
@@ -332,7 +331,6 @@ static void netvsc_send_garp(struct work_struct *w)
 	net = net_device->ndev;
 	netif_notify_peers(net);
 }
-
 
 static int netvsc_probe(struct hv_device *dev,
 			const struct hv_vmbus_device_id *dev_id)

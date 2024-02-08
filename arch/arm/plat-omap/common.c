@@ -21,7 +21,6 @@
 #include <plat/vram.h>
 #include <plat/dsp.h>
 
-
 #define NO_LENGTH_CHECK 0xffffffff
 
 struct omap_board_config_kernel *omap_board_config __initdata;

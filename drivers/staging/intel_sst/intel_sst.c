@@ -44,7 +44,6 @@
 #include "intel_sst_fw_ipc.h"
 #include "intel_sst_common.h"
 
-
 MODULE_AUTHOR("Vinod Koul <vinod.koul@intel.com>");
 MODULE_AUTHOR("Harsha Priya <priya.harsha@intel.com>");
 MODULE_AUTHOR("Dharageswari R <dharageswari.r@intel.com>");
@@ -81,7 +80,6 @@ static struct miscdevice lpe_dev = {
 	.name = "intel_sst",/* /dev/intel_sst */
 	.fops = &intel_sst_fops
 };
-
 
 static struct miscdevice lpe_ctrl = {
 	.minor = MISC_DYNAMIC_MINOR,/* dynamic allocation */
@@ -160,7 +158,6 @@ static irqreturn_t intel_sst_interrupt(int irq, void *context)
 		return IRQ_NONE;
 
 }
-
 
 /*
 * intel_sst_probe - PCI probe function

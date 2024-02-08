@@ -179,7 +179,6 @@ static int ucd9200_remove(struct i2c_client *client)
 	return 0;
 }
 
-
 /* This is the driver that will be inserted */
 static struct i2c_driver ucd9200_driver = {
 	.driver = {

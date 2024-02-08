@@ -945,7 +945,6 @@ nlmsg_failure:
 	return -1;
 }
 
-
 static int
 tcf_action_add(struct net *net, struct nlattr *nla, struct nlmsghdr *n,
 	       u32 pid, int ovr)

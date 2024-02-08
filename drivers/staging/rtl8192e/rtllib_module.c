@@ -53,7 +53,6 @@
 
 #include "rtllib.h"
 
-
 #define DRV_NAME "rtllib_92e"
 
 void _setup_timer(struct timer_list *ptimer, void *fun, unsigned long data)
@@ -123,7 +122,6 @@ struct net_device *alloc_rtllib(int sizeof_priv)
 		goto failed;
 	}
 	rtllib_networks_initialize(ieee);
-
 
 	/* Default fragmentation threshold is maximum payload size */
 	ieee->fts = DEFAULT_FTS;

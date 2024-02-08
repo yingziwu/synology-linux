@@ -37,7 +37,6 @@
  */
 #define MAX_BRIGHT	0x07
 
-
 #define SABI_IFACE_MAIN			0x00
 #define SABI_IFACE_SUB			0x02
 #define SABI_IFACE_COMPLETE		0x04
@@ -541,7 +540,6 @@ static ssize_t set_performance_level(struct device *dev,
 }
 static DEVICE_ATTR(performance_level, S_IWUSR | S_IRUGO,
 		   get_performance_level, set_performance_level);
-
 
 static struct dmi_system_id __initdata samsung_dmi_table[] = {
 	{

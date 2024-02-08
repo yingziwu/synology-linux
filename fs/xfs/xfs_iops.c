@@ -102,7 +102,6 @@ xfs_mark_inode_dirty(
 
 }
 
-
 int xfs_initxattrs(struct inode *inode, const struct xattr *xattr_array,
 		   void *fs_info)
 {
@@ -168,7 +167,7 @@ STATIC int
 xfs_vn_mknod(
 	struct inode	*dir,
 	struct dentry	*dentry,
-	int		mode,
+	umode_t		mode,
 	dev_t		rdev)
 {
 	struct inode	*inode;
@@ -216,7 +215,6 @@ xfs_vn_mknod(
 			goto out_cleanup_inode;
 	}
 
-
 	d_instantiate(dentry, inode);
 	return -error;
 
@@ -231,7 +229,7 @@ STATIC int
 xfs_vn_create(
 	struct inode	*dir,
 	struct dentry	*dentry,
-	int		mode,
+	umode_t		mode,
 	struct nameidata *nd)
 {
 	return xfs_vn_mknod(dir, dentry, mode, 0);
@@ -241,7 +239,7 @@ STATIC int
 xfs_vn_mkdir(
 	struct inode	*dir,
 	struct dentry	*dentry,
-	int		mode)
+	umode_t		mode)
 {
 	return xfs_vn_mknod(dir, dentry, mode|S_IFDIR, 0);
 }
@@ -480,7 +478,6 @@ xfs_vn_getattr(
 	stat->ctime = inode->i_ctime;
 	stat->blocks =
 		XFS_FSB_TO_BB(mp, ip->i_d.di_nblocks + ip->i_delayed_blks);
-
 
 	switch (inode->i_mode & S_IFMT) {
 	case S_IFBLK:

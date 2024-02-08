@@ -88,7 +88,6 @@
 #define MC_EXCEPTION_PROLOG(n, addition)				    \
 	EXCEPTION_PROLOG(n, MC, addition##_MC)
 
-
 /* Variants of the "addition" argument for the prolog
  */
 #define PROLOG_ADDITION_NONE_GEN
@@ -124,7 +123,6 @@
 	lbz	r11,PACASOFTIRQEN(r13); /* are irqs soft-disabled ? */	    \
 	cmpwi	cr0,r11,0;		/* yes -> go out of line */	    \
 	beq	masked_doorbell_book3e
-
 
 /* Core exception code for all exceptions except TLB misses.
  * XXX: Needs to make SPRN_SPRG_GEN depend on exception type
@@ -234,7 +232,6 @@ exc_##n##_bad_stack:							    \
 	std	r7,TI_LOCAL_FLAGS(r11);					\
 1:
 
-
 #define MASKABLE_EXCEPTION(trapnum, label, hdlr, ack)			\
 	START_EXCEPTION(label);						\
 	NORMAL_EXCEPTION_PROLOG(trapnum, PROLOG_ADDITION_MASKABLE)	\
@@ -249,7 +246,6 @@ exc_##n##_bad_stack:							    \
 	.section	".toc","aw"
 exception_marker:
 	.tc	ID_EXC_MARKER[TC],STACK_FRAME_REGS_MARKER
-
 
 /*
  * And here we have the exception vectors !
@@ -551,7 +547,6 @@ kernel_dbg_exc:
 	MASKABLE_EXCEPTION(0x2e0, guest_doorbell_crit, .unknown_exception, ACK_NONE)
 	MASKABLE_EXCEPTION(0x310, hypercall, .unknown_exception, ACK_NONE)
 	MASKABLE_EXCEPTION(0x320, ehpriv, .unknown_exception, ACK_NONE)
-
 
 /*
  * An interrupt came in while soft-disabled; clear EE in SRR1,
@@ -1114,7 +1109,6 @@ _GLOBAL(start_initialization_book3e)
 	tovirt(r28,r28)
 	mtlr	r28
 	blr
-
 
 /*
  * Secondary core/processor entry

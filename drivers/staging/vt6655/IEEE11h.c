@@ -120,7 +120,6 @@ static bool s_bRxMSRReq(PSMgmtObject pMgmt, PWLAN_FRAME_MSRREQ pMSRReq,
 	return bResult;
 }
 
-
 static bool s_bRxTPCReq(PSMgmtObject pMgmt,
 			PWLAN_FRAME_TPCREQ pTPCReq,
 			unsigned char byRate,
@@ -198,11 +197,9 @@ sizeof(WLAN_FRAME_TPCREP))); */
 
 }
 
-
 /*---------------------  Export Variables  --------------------------*/
 
 /*---------------------  Export Functions  --------------------------*/
-
 
 /*+
  *
@@ -285,7 +282,6 @@ uLength));*/
 	return true;
 }
 
-
 bool IEEE11hbMSRRepTx(void *pMgmtHandle)
 {
 	PSMgmtObject            pMgmt = (PSMgmtObject) pMgmtHandle;
@@ -326,4 +322,3 @@ sizeof(STxMgmtPacket));
 uLength)); */
 
 }
-

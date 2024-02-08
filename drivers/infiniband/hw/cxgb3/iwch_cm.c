@@ -150,7 +150,7 @@ static int iwch_l2t_send(struct t3cdev *tdev, struct sk_buff *skb, struct l2t_en
 	error = l2t_send(tdev, skb, l2e);
 	if (error < 0)
 		kfree_skb(skb);
-	return error;
+	return error < 0 ? error : 0;
 }
 
 int iwch_cxgb3_ofld_send(struct t3cdev *tdev, struct sk_buff *skb)
@@ -166,7 +166,7 @@ int iwch_cxgb3_ofld_send(struct t3cdev *tdev, struct sk_buff *skb)
 	error = cxgb3_ofld_send(tdev, skb);
 	if (error < 0)
 		kfree_skb(skb);
-	return error;
+	return error < 0 ? error : 0;
 }
 
 static void release_tid(struct t3cdev *tdev, u32 hwtid, struct sk_buff *skb)
@@ -1861,7 +1861,6 @@ int iwch_accept_cr(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
 	if (err)
 		goto err1;
 
-
 	state_set(&ep->com, FPDU_MODE);
 	established_upcall(ep);
 	put_ep(&ep->com);
@@ -1987,7 +1986,6 @@ int iwch_create_listen(struct iw_cm_id *cm_id, int backlog)
 	int err = 0;
 	struct iwch_dev *h = to_iwch_dev(cm_id->device);
 	struct iwch_listen_ep *ep;
-
 
 	might_sleep();
 

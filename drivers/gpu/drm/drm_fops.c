@@ -274,7 +274,6 @@ static int drm_open_helper(struct inode *inode, struct file *filp,
 			goto out_free;
 	}
 
-
 	/* if there is no current master make this fd it */
 	mutex_lock(&dev->struct_mutex);
 	if (!priv->minor->master) {
@@ -417,7 +416,6 @@ static void drm_master_release(struct drm_device *dev, struct file *filp)
 		dev->driver->reclaim_buffers_idlelocked(dev, file_priv);
 		drm_idlelock_release(&file_priv->master->lock);
 	}
-
 
 	if (drm_i_have_hw_lock(dev, file_priv)) {
 		DRM_DEBUG("File %p released, freeing lock for context %d\n",

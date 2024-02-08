@@ -126,7 +126,6 @@ static struct kobj_type ttm_bo_glob_kobj_type  = {
 	.default_attrs = ttm_bo_global_attrs
 };
 
-
 static inline uint32_t ttm_bo_type_flags(unsigned type)
 {
 	return 1 << (type);
@@ -1030,7 +1029,6 @@ int ttm_bo_mem_space(struct ttm_buffer_object *bo,
 		ttm_flag_masked(&cur_flags, placement->busy_placement[i],
 				~TTM_PL_MASK_MEMTYPE);
 
-
 		if (mem_type == TTM_PL_SYSTEM) {
 			mem->mem_type = mem_type;
 			mem->placement = cur_flags;
@@ -1487,7 +1485,6 @@ out_no_drp:
 }
 EXPORT_SYMBOL(ttm_bo_global_init);
 
-
 int ttm_bo_device_release(struct ttm_bo_device *bdev)
 {
 	int ret = 0;
@@ -1623,7 +1620,6 @@ void ttm_bo_unmap_virtual(struct ttm_buffer_object *bo)
 	ttm_bo_unmap_virtual_locked(bo);
 	ttm_mem_io_unlock(man);
 }
-
 
 EXPORT_SYMBOL(ttm_bo_unmap_virtual);
 

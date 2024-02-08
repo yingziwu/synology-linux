@@ -74,7 +74,6 @@ spufs_alloc_inode(struct super_block *sb)
 static void spufs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(spufs_inode_cache, SPUFS_I(inode));
 }
 
@@ -120,7 +119,6 @@ spufs_setattr(struct dentry *dentry, struct iattr *attr)
 	mark_inode_dirty(inode);
 	return 0;
 }
-
 
 static int
 spufs_new_file(struct super_block *sb, struct dentry *dentry,
@@ -608,7 +606,6 @@ out:
 	return ret;
 }
 
-
 static struct file_system_type spufs_type;
 
 long spufs_create(struct path *path, struct dentry *dentry,
@@ -863,4 +860,3 @@ module_exit(spufs_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Arnd Bergmann <arndb@de.ibm.com>");
-

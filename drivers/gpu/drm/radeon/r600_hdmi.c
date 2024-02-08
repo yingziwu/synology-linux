@@ -310,7 +310,6 @@ void r600_hdmi_audio_workaround(struct drm_encoder *encoder)
 	}
 }
 
-
 /*
  * update the info frames with the data from the current display mode
  */

@@ -26,7 +26,6 @@
 #include <linux/xattr.h>
 #include <linux/posix_acl_xattr.h>
 
-
 /*
  * Locking scheme:
  *  - all ACL updates are protected by inode->i_mutex, which is taken before
@@ -383,17 +382,14 @@ xfs_xattr_acl_set(struct dentry *dentry, const char *name,
 		goto out_release;
 
 	if (type == ACL_TYPE_ACCESS) {
-		umode_t mode = inode->i_mode;
-		error = posix_acl_equiv_mode(acl, &mode);
+		struct posix_acl *saved_acl = acl;
+		umode_t mode;
 
-		if (error <= 0) {
-			posix_acl_release(acl);
-			acl = NULL;
-
-			if (error < 0)
-				return error;
-		}
-
+		error = posix_acl_update_mode(inode, &mode, &acl);
+		if (error || acl == NULL)
+			posix_acl_release(saved_acl);
+		if (error)
+			return error;
 		error = xfs_set_mode(inode, mode);
 		if (error)
 			goto out_release;

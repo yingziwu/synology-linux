@@ -99,7 +99,6 @@ struct cf_mod {
 	} csumfunc;
 };
 
-
 /*
  * So far we just support CAN -> CAN routing and frame modifications.
  *

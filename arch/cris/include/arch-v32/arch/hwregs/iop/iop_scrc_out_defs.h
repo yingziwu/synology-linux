@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:08:46 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c --outfile iop_scrc_out_defs.h ../../inst/io_proc/rtl/iop_scrc_out.r
- *      id: $Id: iop_scrc_out_defs.h,v 1.4 2005/04/24 18:31:05 starvik Exp $
+ *      id: $Id: iop_scrc_out_defs.h,v 1.1.1.1 2010/04/15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -123,7 +123,6 @@ typedef struct {
 /* Register r_computed_crc, scope iop_scrc_out, type r */
 typedef unsigned int reg_iop_scrc_out_r_computed_crc;
 #define REG_RD_ADDR_iop_scrc_out_r_computed_crc 20
-
 
 /* Constants */
 enum {

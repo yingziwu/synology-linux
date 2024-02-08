@@ -537,7 +537,6 @@ int              write_vt(struct usb_device *, u16, u16);
 int		isdongle(struct easycap *);
 /*---------------------------------------------------------------------------*/
 
-
 /*---------------------------------------------------------------------------*/
 /*
  *  MACROS SAM(...) AND JOM(...) ALLOW DIAGNOSTIC OUTPUT TO BE TAGGED WITH

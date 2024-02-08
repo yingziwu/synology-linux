@@ -148,7 +148,6 @@ syscall_exit_work:
 	pea	resume_userspace
 	jra	schedule
 
-
 ENTRY(ret_from_exception)
 .Lret_from_exception:
 	btst	#5,%sp@(PT_OFF_SR)	| check if returning to kernel
@@ -171,7 +170,6 @@ exit_work:
 	pea	resume_userspace
 	jra	schedule
 
-
 do_signal_return:
 	|andw	#ALLOWINT,%sr
 	subql	#4,%sp			| dummy return address
@@ -192,7 +190,6 @@ do_delayed_trace:
 	addql	#8,%sp
 	addql	#4,%sp
 	jbra	resume_userspace
-
 
 /* This is the main interrupt handler for autovector interrupts */
 
@@ -261,7 +258,6 @@ ENTRY(bad_inthandler)
 	subqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
 	jeq	ret_from_last_interrupt
 	RESTORE_ALL
-
 
 ENTRY(sys_fork)
 	SAVE_SWITCH_STACK
@@ -405,4 +401,3 @@ resume:
 	movew	%a1@(TASK_THREAD+THREAD_SR),%sr
 
 	rts
-

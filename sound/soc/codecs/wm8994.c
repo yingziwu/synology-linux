@@ -1030,7 +1030,6 @@ static int aif2clk_ev(struct snd_soc_dapm_widget *w,
 		else
 			adc = WM8994_AIF2ADCL_ENA | WM8994_AIF2ADCR_ENA;
 
-
 		val = snd_soc_read(codec, WM8994_AIF2_CONTROL_2);
 		if ((val & WM8994_AIF2DACL_SRC) &&
 		    (val & WM8994_AIF2DACR_SRC))
@@ -2303,7 +2302,6 @@ static int wm8994_set_bias_level(struct snd_soc_codec *codec,
 					    WM8994_LINEOUT1_DISCH |
 					    WM8994_LINEOUT2_DISCH);
 		}
-
 
 		break;
 
@@ -3633,7 +3631,6 @@ static int wm8994_codec_probe(struct snd_soc_codec *codec)
 		break;
 	}
 		
-
 	wm_hubs_add_analogue_routes(codec, 0, 0);
 	snd_soc_dapm_add_routes(dapm, intercon, ARRAY_SIZE(intercon));
 
@@ -3796,7 +3793,6 @@ static __exit void wm8994_exit(void)
 	platform_driver_unregister(&wm8994_codec_driver);
 }
 module_exit(wm8994_exit);
-
 
 MODULE_DESCRIPTION("ASoC WM8994 driver");
 MODULE_AUTHOR("Mark Brown <broonie@opensource.wolfsonmicro.com>");

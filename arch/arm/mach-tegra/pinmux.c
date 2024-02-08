@@ -147,7 +147,6 @@ static const char *func_name(enum tegra_mux_func func)
 	return tegra_mux_names[func];
 }
 
-
 static const char *tri_name(unsigned long val)
 {
 	return val ? "TRISTATE" : "NORMAL";
@@ -271,7 +270,6 @@ int tegra_pinmux_set_pullupdown(enum tegra_pingroup pg,
 	    pupd != TEGRA_PUPD_PULL_DOWN &&
 	    pupd != TEGRA_PUPD_PULL_UP)
 		return -EINVAL;
-
 
 	spin_lock_irqsave(&mux_lock, flags);
 
@@ -857,7 +855,6 @@ static int dbg_drive_pinmux_show(struct seq_file *s, void *unused)
 			drive_pingroups[i].name);
 		len = strlen(drive_pingroups[i].name);
 		dbg_pad_field(s, 7 - len);
-
 
 		reg = pg_readl(drive_pingroups[i].reg_bank,
 				drive_pingroups[i].reg);

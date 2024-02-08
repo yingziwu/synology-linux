@@ -18,7 +18,6 @@
 #include <net/pkt_sched.h>
 #include <net/pkt_cls.h>
 
-
 /*  Quick Fair Queueing
     ===================
 
@@ -564,7 +563,6 @@ static int qfq_calc_state(struct qfq_sched *q, const struct qfq_group *grp)
 	return state;
 }
 
-
 /*
  * In principle
  *	q->bitmaps[dst] |= q->bitmaps[src] & mask;
@@ -615,7 +613,6 @@ static void qfq_make_eligible(struct qfq_sched *q, u64 old_V)
 		qfq_move_groups(q, mask, IB, EB);
 	}
 }
-
 
 /*
  * XXX we should make sure that slot becomes less than 32.
@@ -921,7 +918,6 @@ skip_update:
 
 	return err;
 }
-
 
 static void qfq_slot_remove(struct qfq_sched *q, struct qfq_group *grp,
 			    struct qfq_class *cl)

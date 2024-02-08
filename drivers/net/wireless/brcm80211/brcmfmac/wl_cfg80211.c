@@ -1026,7 +1026,6 @@ brcmf_cfg80211_join_ibss(struct wiphy *wiphy, struct net_device *ndev,
 
 	cfg_priv->ibss_starter = false;
 
-
 	err = brcmf_exec_dcmd(ndev, BRCMF_C_SET_SSID,
 			   &join_params, join_params_size);
 	if (err) {

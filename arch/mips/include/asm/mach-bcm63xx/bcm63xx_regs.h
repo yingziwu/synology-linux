@@ -190,7 +190,6 @@
 				((m1bus) << ADSLPLLCTL_M1BUS_SHIFT) |	\
 				((m2bus) << ADSLPLLCTL_M2BUS_SHIFT))
 
-
 /*************************************************************************
  * _REG relative to RSET_TIMER
  *************************************************************************/
@@ -222,7 +221,6 @@
 #define TIMER_CTL_MONOTONIC_MASK	(1 << 30)
 #define TIMER_CTL_ENABLE_MASK		(1 << 31)
 
-
 /*************************************************************************
  * _REG relative to RSET_WDT
  *************************************************************************/
@@ -241,7 +239,6 @@
 
 /* Watchdog reset length register */
 #define WDT_RSTLEN_REG			0x8
-
 
 /*************************************************************************
  * _REG relative to RSET_UARTx
@@ -362,7 +359,6 @@
 					UART_FIFO_PARERR_MASK |		\
 					UART_FIFO_BRKDET_MASK)
 
-
 /*************************************************************************
  * _REG relative to RSET_GPIO
  *************************************************************************/
@@ -401,7 +397,6 @@
 #define GPIO_MODE_6358_EXTRA_SPI_SS	(1 << 7)
 #define GPIO_MODE_6358_SERIAL_LED	(1 << 10)
 #define GPIO_MODE_6358_UTOPIA		(1 << 12)
-
 
 /*************************************************************************
  * _REG relative to RSET_ENET
@@ -493,7 +488,6 @@
 #define ENET_MIB_REG(x)			(0x200 + (x) * 4)
 #define ENET_MIB_REG_COUNT		55
 
-
 /*************************************************************************
  * _REG relative to RSET_ENETDMA
  *************************************************************************/
@@ -546,7 +540,6 @@
 /* State Ram Word 4 */
 #define ENETDMA_SRAM4_REG(x)		(0x20c + (x) * 0x10)
 
-
 /*************************************************************************
  * _REG relative to RSET_OHCI_PRIV
  *************************************************************************/
@@ -556,7 +549,6 @@
 #define OHCI_PRIV_PORT1_HOST_MASK	(1 << OHCI_PRIV_PORT1_HOST_SHIFT)
 #define OHCI_PRIV_REG_SWAP_SHIFT	3
 #define OHCI_PRIV_REG_SWAP_MASK		(1 << OHCI_PRIV_REG_SWAP_SHIFT)
-
 
 /*************************************************************************
  * _REG relative to RSET_USBH_PRIV
@@ -573,7 +565,6 @@
 #define USBH_PRIV_SWAP_OHCI_DATA_MASK	(1 << USBH_PRIV_SWAP_OHCI_DATA_SHIFT)
 
 #define USBH_PRIV_TEST_REG		0x24
-
 
 /*************************************************************************
  * _REG relative to RSET_MPI
@@ -688,7 +679,6 @@
 #define REG_TIMER_RETRY_SHIFT		8
 #define REG_TIMER_RETRY_MASK		(0xff << REG_TIMER_RETRY_SHIFT)
 
-
 /*************************************************************************
  * _REG relative to RSET_PCMCIA
  *************************************************************************/
@@ -719,7 +709,6 @@
 #define PCMCIA_C2_HOLD_SHIFT		24
 #define PCMCIA_C2_HOLD_MASK		(0x3f << PCMCIA_C2_HOLD_SHIFT)
 
-
 /*************************************************************************
  * _REG relative to RSET_SDRAM
  *************************************************************************/
@@ -742,7 +731,6 @@
 #define SDRAM_PRIO_EN_SHIFT		31
 #define SDRAM_PRIO_EN_MASK		(1 << SDRAM_PRIO_EN_SHIFT)
 
-
 /*************************************************************************
  * _REG relative to RSET_MEMC
  *************************************************************************/
@@ -754,7 +742,6 @@
 #define MEMC_CFG_COL_MASK		(0x3 << MEMC_CFG_COL_SHIFT)
 #define MEMC_CFG_ROW_SHIFT		6
 #define MEMC_CFG_ROW_MASK		(0x3 << MEMC_CFG_ROW_SHIFT)
-
 
 /*************************************************************************
  * _REG relative to RSET_DDR

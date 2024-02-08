@@ -17,7 +17,6 @@
 #include "u_ether.h"
 #include "u_serial.h"
 
-
 #define DRIVER_DESC		"CDC Composite Gadget"
 #define DRIVER_VERSION		"King Kamehameha Day 2008"
 
@@ -89,7 +88,6 @@ static const struct usb_descriptor_header *otg_desc[] = {
 	(struct usb_descriptor_header *) &otg_descriptor,
 	NULL,
 };
-
 
 /* string IDs are assigned dynamically */
 
@@ -186,7 +184,6 @@ static int __init cdc_bind(struct usb_composite_dev *cdev)
 		device_desc.bcdDevice =
 			cpu_to_le16(0x0300 | 0x0099);
 	}
-
 
 	/* Allocate string descriptor numbers ... note that string
 	 * contents can be overridden by the composite_dev glue.

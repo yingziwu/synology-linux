@@ -422,7 +422,6 @@ extern u32 omap_features;
 #define OMAP4_HAS_MPU_1_2GHZ		BIT(10)
 #define OMAP4_HAS_MPU_1_5GHZ		BIT(11)
 
-
 #define OMAP3_HAS_FEATURE(feat,flag)			\
 static inline unsigned int omap3_has_ ##feat(void)	\
 {							\

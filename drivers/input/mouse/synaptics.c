@@ -77,7 +77,6 @@ static int synaptics_invert_y(int y)
 	return YMAX_NOMINAL + YMIN_NOMINAL - y;
 }
 
-
 /*****************************************************************************
  *	Stuff we need even when we do not want native Synaptics support
  ****************************************************************************/

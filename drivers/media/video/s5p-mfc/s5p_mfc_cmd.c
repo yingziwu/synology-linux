@@ -68,7 +68,6 @@ int s5p_mfc_wakeup_cmd(struct s5p_mfc_dev *dev)
 	return s5p_mfc_cmd_host2risc(dev, S5P_FIMV_H2R_CMD_WAKEUP, &h2r_args);
 }
 
-
 int s5p_mfc_open_inst_cmd(struct s5p_mfc_ctx *ctx)
 {
 	struct s5p_mfc_dev *dev = ctx->dev;
@@ -117,4 +116,3 @@ int s5p_mfc_close_inst_cmd(struct s5p_mfc_ctx *ctx)
 	}
 	return 0;
 }
-

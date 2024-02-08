@@ -1,4 +1,4 @@
-/* $Id: newport.h,v 1.5 1999/08/04 06:01:51 ulfc Exp $
+/* $Id: newport.h,v 1.1.1.1 2010/04/15 12:28:22 khchen Exp $
  *
  * newport.h: Defines and register layout for NEWPORT graphics
  *            hardware.
@@ -10,7 +10,6 @@
 
 #ifndef _SGI_NEWPORT_H
 #define _SGI_NEWPORT_H
-
 
 typedef volatile unsigned int npireg_t;
 
@@ -535,7 +534,6 @@ static __inline__ int newport_bfwait(struct newport_regs *regs)
 #   define XM9_CRS_MODE_REG_DATA     (5 << DCB_CRS_SHIFT)
 #   define XM9_CRS_MODE_REG_INDEX    (7 << DCB_CRS_SHIFT)
 
-
 #define DCB_CYCLES(setup,hold,width)                \
                   ((hold << DCB_CSHOLD_SHIFT)  |    \
 		   (setup << DCB_CSSETUP_SHIFT)|    \
@@ -580,4 +578,3 @@ xmap9SetModeReg (struct newport_regs *rex, unsigned int modereg, unsigned int da
 #define BT445_REVISION_REG	0x01
 
 #endif /* !(_SGI_NEWPORT_H) */
-

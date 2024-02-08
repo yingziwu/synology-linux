@@ -26,7 +26,6 @@
 #include <asm/udbg.h>
 #include <asm/code-patching.h>
 
-
 extern void slb_allocate_realmode(unsigned long ea);
 extern void slb_allocate_user(unsigned long ea);
 

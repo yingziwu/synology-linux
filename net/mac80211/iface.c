@@ -42,7 +42,6 @@
  * by either the RTNL, the iflist_mtx or RCU.
  */
 
-
 static int ieee80211_change_mtu(struct net_device *dev, int new_mtu)
 {
 	int meshhdrlen;
@@ -843,7 +842,6 @@ static void ieee80211_iface_work(struct work_struct *work)
 	}
 }
 
-
 /*
  * Helper function to initialise an interface to a specific type.
  */
@@ -1034,7 +1032,6 @@ static void ieee80211_assign_perm_addr(struct ieee80211_local *local,
 	if (is_zero_ether_addr(local->hw.wiphy->addr_mask) &&
 	    local->hw.wiphy->n_addresses <= 1)
 		return;
-
 
 	mutex_lock(&local->iflist_mtx);
 

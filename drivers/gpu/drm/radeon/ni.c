@@ -474,7 +474,6 @@ static u32 cayman_get_tile_pipe_to_backend_map(struct radeon_device *rdev,
 		}
 	}
 
-
 	memset((uint8_t *)&swizzle_pipe[0], 0, sizeof(u32) * CAYMAN_MAX_PIPES);
 	switch (rdev->family) {
 	case CHIP_CAYMAN:
@@ -881,7 +880,6 @@ static void cayman_gpu_init(struct radeon_device *rdev)
 	WREG32(PA_SC_FIFO_SIZE, (SC_PRIM_FIFO_SIZE(rdev->config.cayman.sc_prim_fifo_size) |
 				 SC_HIZ_TILE_FIFO_SIZE(rdev->config.cayman.sc_hiz_tile_fifo_size) |
 				 SC_EARLYZ_TILE_FIFO_SIZE(rdev->config.cayman.sc_earlyz_tile_fifo_size)));
-
 
 	WREG32(VGT_NUM_INSTANCES, 1);
 
@@ -1573,4 +1571,3 @@ void cayman_fini(struct radeon_device *rdev)
 	kfree(rdev->bios);
 	rdev->bios = NULL;
 }
-

@@ -32,7 +32,6 @@
  *      - Uses video_ioctl2 for parsing and to add debug support
  */
 
-
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/ioport.h>
@@ -46,7 +45,6 @@
 #include <media/v4l2-ioctl.h>
 
 #define DRIVER_VERSION	"0.7.8"
-
 
 MODULE_AUTHOR("Dimitromanolakis Apostolos, apdim@grecian.net");
 MODULE_DESCRIPTION("Radio driver for the Guillemot Maxi Radio FM2000 radio.");
@@ -72,7 +70,6 @@ MODULE_PARM_DESC(debug, "activates debug info");
 #define PCI_DEVICE_ID_GUILLEMOT_MAXIRADIO 0x1001
 #endif
 
-
 /* TEA5757 pin mappings */
 static const int clk = 1, data = 2, wren = 4, mo_st = 8, power = 16;
 
@@ -87,7 +84,6 @@ static const int clk = 1, data = 2, wren = 4, mo_st = 8, power = 16;
   ((((unsigned int)(x) + FREQ_IF + (FREQ_STEP << 1)) / (FREQ_STEP << 2)) << 2)
 
 #define BITS2FREQ(x)	((x) * FREQ_STEP - FREQ_IF)
-
 
 struct maxiradio
 {
@@ -185,7 +181,6 @@ static int get_tune(u16 io)
 	return !(inb(io) & mo_st);
 }
 
-
 static int vidioc_querycap(struct file *file, void  *priv,
 			    struct v4l2_capability *v)
 {
@@ -248,7 +243,6 @@ static int vidioc_g_audio(struct file *file, void *priv,
 	a->capability = V4L2_AUDCAP_STEREO;
 	return 0;
 }
-
 
 static int vidioc_s_audio(struct file *file, void *priv,
 			   struct v4l2_audio *a)

@@ -1,12 +1,7 @@
-/* (C) 1999-2001 Paul `Rusty' Russell
- * (C) 2002-2006 Netfilter Core Team <coreteam@netfilter.org>
- * (C) 2008 Patrick McHardy <kaber@trash.net>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/types.h>
 #include <linux/random.h>
 #include <linux/ip.h>
@@ -51,14 +46,13 @@ void nf_nat_proto_unique_tuple(struct nf_conntrack_tuple *tuple,
 	else
 		portptr = &tuple->dst.u.all;
 
-	/* If no range specified... */
 	if (!(range->flags & IP_NAT_RANGE_PROTO_SPECIFIED)) {
-		/* If it's dst rewrite, can't change port */
+		 
 		if (maniptype == IP_NAT_MANIP_DST)
 			return;
 
 		if (ntohs(*portptr) < 1024) {
-			/* Loose convention: >> 512 is credential passing */
+			 
 			if (ntohs(*portptr) < 512) {
 				min = 1;
 				range_size = 511 - min + 1;
@@ -83,6 +77,114 @@ void nf_nat_proto_unique_tuple(struct nf_conntrack_tuple *tuple,
 	else
 		off = *rover;
 
+#if defined(MY_DEF_HERE)
+        
+       if ((range->flags & IP_NAT_RANGE_4RD_NAPT) && (maniptype == IP_NAT_MANIP_SRC)){
+               __be16 fix_port;
+               __be16 port_min, port_max;
+               u_int16_t port_set_id;
+               u_int16_t mbitlen   = 0 ;
+               u_int16_t offsetlen = 0 ;
+               u_int16_t psidlen   = 0 ;
+               u_int16_t range_total_size = 0 ;
+               u_int16_t offset_4rd;
+               u_int16_t o_state;
+               u_int16_t m_state;
+
+               u_int16_t offset_min;
+               u_int16_t offset_max;
+               u_int16_t offset_cnt;
+               u_int16_t mbit_cnt;
+
+               # define MAXBITLEN 16
+               port_min = ntohs(range->min.all);
+               port_max = ntohs(range->max.all);
+
+               for(i = 0; i < MAXBITLEN; i++){
+                       if( ((port_min >> i) & 0x0001) == ((port_max >> i) & 0x0001) ){
+                               psidlen++;
+                               i++;
+                               break;
+                       }
+                       else{
+                               mbitlen++;
+                       }
+               }
+
+               for( ; i < MAXBITLEN; i++){
+                       if( ((port_min >> i) & 0x0001) == ((port_max >> i) & 0x0001) ){
+                               psidlen++;
+                       }
+                       else{
+                               break;
+                       }
+               }
+
+               offsetlen = MAXBITLEN - psidlen - mbitlen;
+
+               if((psidlen == 0) || (mbitlen == 0)){
+                        
+                       printk(KERN_INFO "4rd parameter INVALID");
+               }
+
+               port_set_id = (port_min & port_max) >> mbitlen;
+
+               if( offsetlen ){
+                       if(port_min < 4096){
+                               if(offsetlen > 4){
+
+                                       offset_min = 0x1000 >> (psidlen + mbitlen);
+                                       offset_max = (1 << offsetlen) - 1;
+                                       offset_cnt = offset_max - offset_min + 1;
+                                       mbit_cnt = 1 << mbitlen;
+                                       range_total_size = offset_cnt * mbit_cnt;
+                               }
+                               else{
+                                       offset_min = 0x0001;
+                                       offset_cnt = (1 << offsetlen) - 1;
+                                       mbit_cnt = 1 << mbitlen;
+                                       range_total_size = offset_cnt * mbit_cnt;
+                               }
+                       }
+                       else{
+                               offset_min = 0x0000;
+                               offset_cnt = 1 << offsetlen;
+                               mbit_cnt = 1 << mbitlen;
+                               range_total_size = offset_cnt * mbit_cnt;
+                       }
+               }
+               else{
+                       offset_min = 0;
+                       range_total_size = ( 1 << mbitlen ) ;
+               }
+
+               for (i = 0; ; ++off) {
+
+                       offset_4rd = off % range_total_size ;
+
+                       if ( mbitlen != 0 ){
+                               o_state = offset_4rd / ( 1 << mbitlen ) ;
+                               m_state = offset_4rd % ( 1 << mbitlen ) ;
+                       }else{
+                               o_state = offset_4rd / ( 1 << mbitlen ) ;
+                               m_state = 0 ;
+                       }
+
+                       fix_port = (( offset_min + o_state ) << ( mbitlen + psidlen ));
+                       fix_port |= ( port_set_id << mbitlen );
+                       fix_port |= m_state;
+
+                       *portptr = htons(fix_port);
+
+                       if ((++i != range_total_size) && nf_nat_used_tuple(tuple, ct))
+                               continue;
+
+                       return ;
+               }
+       }  
+       else{
+#endif
+
 	for (i = 0; ; ++off) {
 		*portptr = htons(min + off % range_size);
 		if (++i != range_size && nf_nat_used_tuple(tuple, ct))
@@ -91,6 +193,9 @@ void nf_nat_proto_unique_tuple(struct nf_conntrack_tuple *tuple,
 			*rover = off;
 		return;
 	}
+#if defined(MY_DEF_HERE)
+       }
+#endif
 	return;
 }
 EXPORT_SYMBOL_GPL(nf_nat_proto_unique_tuple);

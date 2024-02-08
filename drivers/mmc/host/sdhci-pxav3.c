@@ -1,21 +1,7 @@
-/*
- * Copyright (C) 2010 Marvell International Ltd.
- *		Zhangfei Gao <zhangfei.gao@marvell.com>
- *		Kevin Wang <dwang4@marvell.com>
- *		Mingwei Wang <mwwang@marvell.com>
- *		Philip Rakity <prakity@marvell.com>
- *		Mark Brown <markb@marvell.com>
- *
- * This software is licensed under the terms of the GNU General Public
- * License version 2, as published by the Free Software Foundation, and
- * may be copied, distributed, and modified under those terms.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- */
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/platform_device.h>
@@ -28,6 +14,9 @@
 #include <linux/slab.h>
 #include <linux/delay.h>
 #include <linux/module.h>
+#ifdef MY_DEF_HERE
+#include <linux/mbus.h>
+#endif
 #include "sdhci.h"
 #include "sdhci-pltfm.h"
 
@@ -48,16 +37,59 @@
 #define SDCE_MISC_INT		(1<<2)
 #define SDCE_MISC_INT_EN	(1<<1)
 
+#ifdef MY_DEF_HERE
+ 
+#define SDHCI_WINDOW_CTRL(i)	(0x80 + ((i) << 3))
+#define SDHCI_WINDOW_BASE(i)	(0x84 + ((i) << 3))
+#define SDHCI_MAX_WIN_NUM	8
+
+static int mv_conf_mbus_windows(struct platform_device *pdev,
+				const struct mbus_dram_target_info *dram)
+{
+	int i;
+	void __iomem *regs;
+	struct resource *res;
+
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+	if (!res) {
+		dev_err(&pdev->dev, "cannot get mbus registers\n");
+		return -EINVAL;
+	}
+
+	regs = ioremap(res->start, resource_size(res));
+	if (!regs) {
+		dev_err(&pdev->dev, "cannot map mbus registers\n");
+		return -ENOMEM;
+	}
+
+	for (i = 0; i < SDHCI_MAX_WIN_NUM; i++) {
+		writel(0, regs + SDHCI_WINDOW_CTRL(i));
+		writel(0, regs + SDHCI_WINDOW_BASE(i));
+	}
+
+	for (i = 0; i < dram->num_cs; i++) {
+		const struct mbus_dram_window *cs = dram->cs + i;
+
+		writel(((cs->size - 1) & 0xffff0000) |
+			(cs->mbus_attr << 8) |
+			(dram->mbus_dram_target_id << 4) | 1,
+			regs + SDHCI_WINDOW_CTRL(i));
+		 
+		writel(cs->base, regs + SDHCI_WINDOW_BASE(i));
+	}
+
+	iounmap(regs);
+
+	return 0;
+}
+#endif
 static void pxav3_set_private_registers(struct sdhci_host *host, u8 mask)
 {
 	struct platform_device *pdev = to_platform_device(mmc_dev(host->mmc));
 	struct sdhci_pxa_platdata *pdata = pdev->dev.platform_data;
 
 	if (mask == SDHCI_RESET_ALL) {
-		/*
-		 * tune timing of read data/command when crc error happen
-		 * no performance impact
-		 */
+		 
 		if (pdata && 0 != pdata->clk_delay_cycles) {
 			u16 tmp;
 
@@ -88,17 +120,14 @@ static void pxav3_gen_init_74_clocks(struct sdhci_host *host, u8 power_mode)
 				pxa->power_mode,
 				power_mode);
 
-		/* set we want notice of when 74 clocks are sent */
 		tmp = readw(host->ioaddr + SD_CE_ATA_2);
 		tmp |= SDCE_MISC_INT_EN;
 		writew(tmp, host->ioaddr + SD_CE_ATA_2);
 
-		/* start sending the 74 clocks */
 		tmp = readw(host->ioaddr + SD_CFG_FIFO_PARAM);
 		tmp |= SDCFG_GEN_PAD_CLK_ON;
 		writew(tmp, host->ioaddr + SD_CFG_FIFO_PARAM);
 
-		/* slowest speed is about 100KHz or 10usec per clock */
 		udelay(740);
 		count = 0;
 
@@ -112,7 +141,6 @@ static void pxav3_gen_init_74_clocks(struct sdhci_host *host, u8 power_mode)
 		if (count == MAX_WAIT_COUNT)
 			dev_warn(mmc_dev(host->mmc), "74 clock interrupt not cleared\n");
 
-		/* clear the interrupt bit if posted */
 		tmp = readw(host->ioaddr + SD_CE_ATA_2);
 		tmp |= SDCE_MISC_INT;
 		writew(tmp, host->ioaddr + SD_CE_ATA_2);
@@ -124,13 +152,8 @@ static int pxav3_set_uhs_signaling(struct sdhci_host *host, unsigned int uhs)
 {
 	u16 ctrl_2;
 
-	/*
-	 * Set V18_EN -- UHS modes do not work without this.
-	 * does not change signaling voltage
-	 */
 	ctrl_2 = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 
-	/* Select Bus Speed Mode for host */
 	ctrl_2 &= ~SDHCI_CTRL_UHS_MASK;
 	switch (uhs) {
 	case MMC_TIMING_UHS_SDR12:
@@ -186,6 +209,14 @@ static int __devinit sdhci_pxav3_probe(struct platform_device *pdev)
 	pltfm_host = sdhci_priv(host);
 	pltfm_host->priv = pxa;
 
+#ifdef MY_DEF_HERE
+	if (pdata->dram != NULL) {
+		ret = mv_conf_mbus_windows(pdev, pdata->dram);
+		if (ret < 0)
+			goto err_clk_get;
+	}
+#endif
+
 	clk = clk_get(dev, "PXA-SDHCLK");
 	if (IS_ERR(clk)) {
 		dev_err(dev, "failed to get io clock\n");
@@ -199,17 +230,15 @@ static int __devinit sdhci_pxav3_probe(struct platform_device *pdev)
 		| SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC
 		| SDHCI_QUIRK_32BIT_ADMA_SIZE;
 
-	/* enable 1/8V DDR capable */
 	host->mmc->caps |= MMC_CAP_1_8V_DDR;
 
 	if (pdata) {
 		if (pdata->flags & PXA_FLAG_CARD_PERMANENT) {
-			/* on-chip device */
+			 
 			host->quirks |= SDHCI_QUIRK_BROKEN_CARD_DETECTION;
 			host->mmc->caps |= MMC_CAP_NONREMOVABLE;
 		}
 
-		/* If slot design supports 8 bit data, indicate this to MMC. */
 		if (pdata->flags & PXA_FLAG_SD_8_BIT_CAPABLE_SLOT)
 			host->mmc->caps |= MMC_CAP_8_BIT_DATA;
 
@@ -285,4 +314,3 @@ module_exit(sdhci_pxav3_exit);
 MODULE_DESCRIPTION("SDHCI driver for pxav3");
 MODULE_AUTHOR("Marvell International Ltd.");
 MODULE_LICENSE("GPL v2");
-

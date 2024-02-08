@@ -44,8 +44,6 @@
 
 #define NEXTHDR_MAX		255
 
-
-
 #define IPV6_DEFAULT_HOPLIMIT   64
 #define IPV6_DEFAULT_MCASTHOPS	1
 
@@ -257,6 +255,15 @@ struct ipv6_txoptions *ipv6_fixup_options(struct ipv6_txoptions *opt_space,
 					  struct ipv6_txoptions *opt);
 
 extern int ipv6_opt_accepted(struct sock *sk, struct sk_buff *skb);
+
+static inline bool ipv6_accept_ra(struct inet6_dev *idev)
+{
+	/* If forwarding is enabled, RA are not accepted unless the special
+	 * hybrid mode (accept_ra=2) is enabled.
+	 */
+	return idev->cnf.forwarding ? idev->cnf.accept_ra == 2 :
+	    idev->cnf.accept_ra;
+}
 
 int ip6_frag_nqueues(struct net *net);
 int ip6_frag_mem(struct net *net);

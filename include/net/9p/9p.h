@@ -80,7 +80,6 @@ do {  \
 #define P9_DPRINTK(level, format, arg...)  do { } while (0)
 #endif
 
-
 #define P9_EPRINTK(level, format, arg...) \
 do { \
 	printk(level "9p: %s (%d): " \

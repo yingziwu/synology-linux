@@ -55,7 +55,6 @@
 #define dbg(x)
 #endif
 
-
 /* special size referring to all the remaining space in a partition */
 #define SIZE_REMAINING UINT_MAX
 #define OFFSET_CONTINUOUS UINT_MAX
@@ -290,7 +289,6 @@ static int mtdpart_setup_real(char *s)
 		dbg(("mtdid=<%s> num_parts=<%d>\n",
 		     this_mtd->mtd_id, this_mtd->num_parts));
 
-
 		/* EOS - we're done */
 		if (*s == 0)
 			break;
@@ -358,7 +356,6 @@ static int parse_cmdline_partitions(struct mtd_info *master,
 	}
 	return 0;
 }
-
 
 /*
  * This is the handler for our kernel parameter, called from

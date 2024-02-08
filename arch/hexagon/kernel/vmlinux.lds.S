@@ -39,7 +39,6 @@ See asm-generic/sections.h for seemingly required labels.
 /*  This LOAD_OFFSET is temporary for debugging on the simulator; it may change
     for hypervisor pseudo-physical memory.  */
 
-
 SECTIONS
 {
 	. = PAGE_OFFSET + LOAD_ADDRESS;

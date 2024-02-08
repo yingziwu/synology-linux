@@ -101,7 +101,6 @@
 #undef memcpy
 #define memzero(s, n)	memset((s), 0, (n))
 
-
 static void error(char *m);
 
 /*
@@ -162,7 +161,11 @@ static void scroll(void)
 #define LSR             5       /*  Line Status               */
 static void serial_putchar(int ch)
 {
+#ifdef CONFIG_ARCH_GEN3
+	unsigned timeout = 0x8fffff;
+#else
 	unsigned timeout = 0xffff;
+#endif
 
 	while ((inb(early_serial_base + LSR) & XMTRDY) == 0 && --timeout)
 		cpu_relax();

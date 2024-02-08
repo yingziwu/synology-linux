@@ -155,7 +155,6 @@ static void alc262_hippo1_setup(struct hda_codec *codec)
 	alc_simple_setup_automute(spec, ALC_AUTOMUTE_AMP);
 }
 
-
 static const struct snd_kcontrol_new alc262_sony_mixer[] = {
 	HDA_CODEC_VOLUME("Master Playback Volume", 0x0c, 0x0, HDA_OUTPUT),
 	ALC262_HIPPO_MASTER_SWITCH,
@@ -217,7 +216,6 @@ static void alc262_tyan_setup(struct hda_codec *codec)
 	spec->autocfg.speaker_pins[0] = 0x15;
 	alc_simple_setup_automute(spec, ALC_AUTOMUTE_AMP);
 }
-
 
 #define alc262_capture_mixer		alc882_capture_mixer
 #define alc262_capture_alt_mixer	alc882_capture_alt_mixer
@@ -872,4 +870,3 @@ static const struct alc_config_preset alc262_presets[] = {
 		.init_hook = alc_hp_automute,
 	},
 };
-

@@ -74,7 +74,6 @@ static int really_do_swap_account __initdata = 0;
 #define do_swap_account		(0)
 #endif
 
-
 /*
  * Statistics for memory cgroup.
  */
@@ -457,7 +456,6 @@ mem_cgroup_remove_exceeded(struct mem_cgroup *memcg,
 	__mem_cgroup_remove_exceeded(memcg, mz, mctz);
 	spin_unlock(&mctz->lock);
 }
-
 
 static void mem_cgroup_update_tree(struct mem_cgroup *memcg, struct page *page)
 {
@@ -864,7 +862,6 @@ static struct mem_cgroup *mem_cgroup_get_next(struct mem_cgroup *iter,
 #define for_each_mem_cgroup_all(iter) \
 	for_each_mem_cgroup_tree_cond(iter, NULL, true)
 
-
 static inline bool mem_cgroup_is_root(struct mem_cgroup *memcg)
 {
 	return (memcg == root_mem_cgroup);
@@ -1076,7 +1073,6 @@ static void mem_cgroup_lru_add_after_commit(struct page *page)
 		mem_cgroup_add_lru_list(page, page_lru(page));
 	spin_unlock_irqrestore(&zone->lru_lock, flags);
 }
-
 
 void mem_cgroup_move_lists(struct page *page,
 			   enum lru_list from, enum lru_list to)
@@ -1392,7 +1388,6 @@ void mem_cgroup_print_oom_info(struct mem_cgroup *memcg, struct task_struct *p)
 
 	if (!memcg || !p)
 		return;
-
 
 	rcu_read_lock();
 
@@ -2196,7 +2191,6 @@ static int __cpuinit memcg_cpu_hotplug_callback(struct notifier_block *nb,
 	drain_stock(stock);
 	return NOTIFY_OK;
 }
-
 
 /* See __mem_cgroup_try_charge() for details */
 enum {
@@ -3841,7 +3835,6 @@ int mem_cgroup_force_empty_write(struct cgroup *cont, unsigned int event)
 	return mem_cgroup_force_empty(mem_cgroup_from_cont(cont), true);
 }
 
-
 static u64 mem_cgroup_hierarchy_read(struct cgroup *cont, struct cftype *cft)
 {
 	return mem_cgroup_from_cont(cont)->use_hierarchy;
@@ -3879,7 +3872,6 @@ static int mem_cgroup_hierarchy_write(struct cgroup *cont, struct cftype *cft,
 
 	return retval;
 }
-
 
 static unsigned long mem_cgroup_recursive_stat(struct mem_cgroup *memcg,
 					       enum mem_cgroup_stat_index idx)
@@ -4080,7 +4072,6 @@ static int mem_cgroup_move_charge_write(struct cgroup *cgrp,
 }
 #endif
 
-
 /* For read statistics */
 enum {
 	MCS_CACHE,
@@ -4121,7 +4112,6 @@ struct {
 	{"active_file", "total_active_file"},
 	{"unevictable", "total_unevictable"}
 };
-
 
 static void
 mem_cgroup_get_local_stat(struct mem_cgroup *memcg, struct mcs_total_stat *s)
@@ -4226,7 +4216,6 @@ static int mem_control_stat_show(struct cgroup *cont, struct cftype *cft,
 
 	memset(&mystat, 0, sizeof(mystat));
 	mem_cgroup_get_local_stat(mem_cont, &mystat);
-
 
 	for (i = 0; i < NR_MCS_STAT; i++) {
 		if (i == MCS_SWAP && !do_swap_account)

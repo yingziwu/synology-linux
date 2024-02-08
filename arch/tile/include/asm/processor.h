@@ -217,7 +217,6 @@ extern int kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
 
 extern int do_work_pending(struct pt_regs *regs, u32 flags);
 
-
 /*
  * Return saved (kernel) PC of a blocked thread.
  * Only used in a printk() in kernel/sched.c, so don't work too hard.

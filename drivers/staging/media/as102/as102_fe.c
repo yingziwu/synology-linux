@@ -104,7 +104,6 @@ static int as102_fe_get_tune_settings(struct dvb_frontend *fe,
 	return 0;
 }
 
-
 static int as102_fe_read_status(struct dvb_frontend *fe, fe_status_t *status)
 {
 	int ret = 0;

@@ -177,7 +177,6 @@ static struct mtd_partition partition_info_128KB_blk[] = {
 	},
 };
 
-
 /**
  * struct fsmc_nand_data - structure for FSMC NAND device state
  *

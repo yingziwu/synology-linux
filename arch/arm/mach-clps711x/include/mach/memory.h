@@ -34,7 +34,6 @@
 
 #endif
 
-
 /*
  * Like the SA1100, the EDB7211 has a large gap between physical RAM
  * banks.  In 2.2, the Psion (CL-PS7110) port added custom support for
@@ -75,4 +74,3 @@
 #define MAX_PHYSMEM_BITS	32
 
 #endif
-

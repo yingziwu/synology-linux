@@ -37,7 +37,6 @@
 
 #include <asm/uaccess.h>
 
-
 /*
  * This supports access to SPI devices using normal userspace I/O calls.
  * Note that while traditional UNIX/POSIX I/O semantics are half duplex,
@@ -55,7 +54,6 @@
 #define N_SPI_MINORS			32	/* ... up to 256 */
 
 static DECLARE_BITMAP(minors, N_SPI_MINORS);
-
 
 /* Bit masks for spi_device.mode management.  Note that incorrect
  * settings for some settings can cause *lots* of trouble for other
@@ -85,8 +83,15 @@ struct spidev_data {
 	u8			*buffer;
 };
 
+#ifdef CONFIG_GEN3_SPI
+LIST_HEAD(device_list);
+DEFINE_MUTEX(device_list_lock);
+EXPORT_SYMBOL(device_list);
+EXPORT_SYMBOL(device_list_lock);
+#else
 static LIST_HEAD(device_list);
 static DEFINE_MUTEX(device_list_lock);
+#endif
 
 static unsigned bufsiz = 4096;
 module_param(bufsiz, uint, S_IRUGO);
@@ -103,8 +108,13 @@ static void spidev_complete(void *arg)
 	complete(arg);
 }
 
+#ifdef CONFIG_GEN3_SPI
+ssize_t
+spidev_sync(struct spidev_data *spidev, struct spi_message *message)
+#else
 static ssize_t
 spidev_sync(struct spidev_data *spidev, struct spi_message *message)
+#endif
 {
 	DECLARE_COMPLETION_ONSTACK(done);
 	int status;
@@ -127,9 +137,17 @@ spidev_sync(struct spidev_data *spidev, struct spi_message *message)
 	}
 	return status;
 }
+#ifdef CONFIG_GEN3_SPI
+EXPORT_SYMBOL(spidev_sync);
+#endif
 
+#ifdef CONFIG_GEN3_SPI
+ssize_t
+spidev_sync_write(struct spidev_data *spidev, size_t len)
+#else
 static inline ssize_t
 spidev_sync_write(struct spidev_data *spidev, size_t len)
+#endif
 {
 	struct spi_transfer	t = {
 			.tx_buf		= spidev->buffer,
@@ -141,9 +159,17 @@ spidev_sync_write(struct spidev_data *spidev, size_t len)
 	spi_message_add_tail(&t, &m);
 	return spidev_sync(spidev, &m);
 }
+#ifdef CONFIG_GEN3_SPI
+EXPORT_SYMBOL(spidev_sync_write);
+#endif
 
+#ifdef CONFIG_GEN3_SPI
+ssize_t
+spidev_sync_read(struct spidev_data *spidev, size_t len)
+#else
 static inline ssize_t
 spidev_sync_read(struct spidev_data *spidev, size_t len)
+#endif
 {
 	struct spi_transfer	t = {
 			.rx_buf		= spidev->buffer,
@@ -155,6 +181,9 @@ spidev_sync_read(struct spidev_data *spidev, size_t len)
 	spi_message_add_tail(&t, &m);
 	return spidev_sync(spidev, &m);
 }
+#ifdef CONFIG_GEN3_SPI
+EXPORT_SYMBOL(spidev_sync_read);
+#endif
 
 /*-------------------------------------------------------------------------*/
 
@@ -266,6 +295,13 @@ static int spidev_message(struct spidev_data *spidev,
 		k_tmp->bits_per_word = u_tmp->bits_per_word;
 		k_tmp->delay_usecs = u_tmp->delay_usecs;
 		k_tmp->speed_hz = u_tmp->speed_hz;
+#ifdef CONFIG_GEN3_SPI
+		if ((k_tmp->len*8) < k_tmp->bits_per_word) {
+		  printk(KERN_ERR "error :transfer data lenth < bits_per_word\n");
+		  status = -EMSGSIZE;
+		  goto done;
+		}
+#endif
 #ifdef VERBOSE
 		dev_dbg(&spidev->spi->dev,
 			"  xfer len %zd %s%s%s%dbits %u usec %uHz\n",
@@ -502,6 +538,10 @@ static int spidev_open(struct inode *inode, struct file *filp)
 				dev_dbg(&spidev->spi->dev, "open/ENOMEM\n");
 				status = -ENOMEM;
 			}
+#ifdef CONFIG_GEN3_SPI
+            if (spidev->spi->master->using_slave)
+                spidev->spi->master->setup(spidev->spi);
+#endif
 		}
 		if (status == 0) {
 			spidev->users++;
@@ -532,6 +572,10 @@ static int spidev_release(struct inode *inode, struct file *filp)
 		kfree(spidev->buffer);
 		spidev->buffer = NULL;
 
+#ifdef CONFIG_GEN3_SPI
+        if (spidev->spi->master->using_slave)
+            spidev->spi->master->cleanup(spidev->spi);
+#endif
 		/* ... after we unbound from the underlying device? */
 		spin_lock_irq(&spidev->spi_lock);
 		dofree = (spidev->spi == NULL);

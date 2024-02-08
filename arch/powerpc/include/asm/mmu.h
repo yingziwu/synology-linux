@@ -206,6 +206,5 @@ extern u64 ppc64_rma_size;
 #  include <asm/mmu-8xx.h>
 #endif
 
-
 #endif /* __KERNEL__ */
 #endif /* _ASM_POWERPC_MMU_H_ */

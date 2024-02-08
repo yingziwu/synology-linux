@@ -16,7 +16,6 @@
 #include <asm/unaligned.h>
 #include "ieee80211_i.h"
 
-
 /* Data structures */
 
 /**

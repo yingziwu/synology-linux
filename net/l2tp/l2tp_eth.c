@@ -292,12 +292,10 @@ static struct pernet_operations l2tp_eth_net_ops = {
 	.size = sizeof(struct l2tp_eth_net),
 };
 
-
 static const struct l2tp_nl_cmd_ops l2tp_eth_nl_cmd_ops = {
 	.session_create	= l2tp_eth_create,
 	.session_delete	= l2tp_session_delete,
 };
-
 
 static int __init l2tp_eth_init(void)
 {

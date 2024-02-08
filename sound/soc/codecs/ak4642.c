@@ -152,7 +152,6 @@ static const struct snd_kcontrol_new ak4642_snd_controls[] = {
 			 0, 0xFF, 1, out_tlv),
 };
 
-
 /* codec private data */
 struct ak4642_priv {
 	unsigned int sysclk;
@@ -407,7 +406,6 @@ static int ak4642_resume(struct snd_soc_codec *codec)
 	snd_soc_cache_sync(codec);
 	return 0;
 }
-
 
 static int ak4642_probe(struct snd_soc_codec *codec)
 {

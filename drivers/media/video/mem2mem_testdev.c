@@ -63,7 +63,6 @@ MODULE_VERSION("0.1.1");
 #define dprintk(dev, fmt, arg...) \
 	v4l2_dbg(1, 1, &dev->v4l2_dev, "%s: " fmt, __func__, ## arg)
 
-
 void m2mtest_dev_release(struct device *dev)
 {}
 
@@ -312,7 +311,6 @@ static void m2mtest_unlock(void *priv)
 	struct m2mtest_dev *dev = ctx->dev;
 	mutex_unlock(&dev->dev_mutex);
 }
-
 
 /* device_run() - prepares and starts the device
  *
@@ -705,7 +703,6 @@ static int vidioc_s_ctrl(struct file *file, void *priv,
 	return 0;
 }
 
-
 static const struct v4l2_ioctl_ops m2mtest_ioctl_ops = {
 	.vidioc_querycap	= vidioc_querycap,
 
@@ -732,7 +729,6 @@ static const struct v4l2_ioctl_ops m2mtest_ioctl_ops = {
 	.vidioc_g_ctrl		= vidioc_g_ctrl,
 	.vidioc_s_ctrl		= vidioc_s_ctrl,
 };
-
 
 /*
  * Queue operations
@@ -1047,4 +1043,3 @@ static int __init m2mtest_init(void)
 
 module_init(m2mtest_init);
 module_exit(m2mtest_exit);
-

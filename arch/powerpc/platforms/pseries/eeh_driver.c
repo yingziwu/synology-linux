@@ -34,7 +34,6 @@
 #include <asm/prom.h>
 #include <asm/rtas.h>
 
-
 static inline const char * pcid_name (struct pci_dev *pdev)
 {
 	if (pdev && pdev->dev.driver)

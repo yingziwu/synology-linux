@@ -37,7 +37,6 @@
 #define TERMIOS_TERMIO	4
 #define TERMIOS_OLD	8
 
-
 /**
  *	tty_chars_in_buffer	-	characters pending
  *	@tty: terminal
@@ -161,7 +160,6 @@ void tty_wait_until_sent(struct tty_struct *tty, long timeout)
 	}
 }
 EXPORT_SYMBOL(tty_wait_until_sent);
-
 
 /*
  *		Termios Helper Methods
@@ -506,7 +504,6 @@ int tty_set_termios(struct tty_struct *tty, struct ktermios *new_termios)
 	 *	Perform the actual termios internal changes under lock.
 	 */
 
-
 	/* FIXME: we need to decide on some locking/ordering semantics
 	   for the set_termios notification eventually */
 	mutex_lock(&tty->termios_mutex);
@@ -653,7 +650,6 @@ static int get_termio(struct tty_struct *tty, struct termio __user *termio)
 	return 0;
 }
 
-
 #ifdef TCGETX
 
 /**
@@ -696,7 +692,6 @@ static int set_termiox(struct tty_struct *tty, void __user *arg, int opt)
 }
 
 #endif
-
 
 #ifdef TIOCGETP
 /*
@@ -1195,4 +1190,3 @@ long n_tty_compat_ioctl_helper(struct tty_struct *tty, struct file *file,
 }
 EXPORT_SYMBOL(n_tty_compat_ioctl_helper);
 #endif
-

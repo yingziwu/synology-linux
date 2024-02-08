@@ -398,7 +398,6 @@ static const struct hda_codec_ops ca0110_patch_ops = {
 	.free = ca0110_free,
 };
 
-
 static void parse_line_outs(struct hda_codec *codec)
 {
 	struct ca0110_spec *spec = codec->spec;
@@ -510,7 +509,6 @@ static int ca0110_parse_auto_config(struct hda_codec *codec)
 	return 0;
 }
 
-
 static int patch_ca0110(struct hda_codec *codec)
 {
 	struct ca0110_spec *spec;
@@ -536,7 +534,6 @@ static int patch_ca0110(struct hda_codec *codec)
 	codec->spec = NULL;
 	return err;
 }
-
 
 /*
  * patch entries

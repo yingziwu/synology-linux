@@ -127,7 +127,6 @@ static int gp8psk_fe_get_property(struct dvb_frontend *fe,
 	return 0;
 }
 
-
 static int gp8psk_fe_set_frontend(struct dvb_frontend* fe,
 				  struct dvb_frontend_parameters *fep)
 {
@@ -339,7 +338,6 @@ error:
 success:
 	return &s->fe;
 }
-
 
 static struct dvb_frontend_ops gp8psk_fe_ops = {
 	.info = {

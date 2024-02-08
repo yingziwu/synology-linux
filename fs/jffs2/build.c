@@ -1,15 +1,7 @@
-/*
- * JFFS2 -- Journalling Flash File System, Version 2.
- *
- * Copyright © 2001-2007 Red Hat, Inc.
- * Copyright © 2004-2010 David Woodhouse <dwmw2@infradead.org>
- *
- * Created by David Woodhouse <dwmw2@infradead.org>
- *
- * For licensing information, see the file 'LICENCE' in this directory.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
@@ -33,7 +25,7 @@ first_inode_chain(int *i, struct jffs2_sb_info *c)
 static inline struct jffs2_inode_cache *
 next_inode(int *i, struct jffs2_inode_cache *ic, struct jffs2_sb_info *c)
 {
-	/* More in this chain? */
+	 
 	if (ic->next)
 		return ic->next;
 	(*i)++;
@@ -45,7 +37,6 @@ next_inode(int *i, struct jffs2_inode_cache *ic, struct jffs2_sb_info *c)
 	     ic;					\
 	     ic = next_inode(&i, ic, (c)))
 
-
 static void jffs2_build_inode_pass1(struct jffs2_sb_info *c,
 				    struct jffs2_inode_cache *ic)
 {
@@ -53,13 +44,10 @@ static void jffs2_build_inode_pass1(struct jffs2_sb_info *c,
 
 	dbg_fsbuild("building directory inode #%u\n", ic->ino);
 
-	/* For each child, increase nlink */
 	for(fd = ic->scan_dents; fd; fd = fd->next) {
 		struct jffs2_inode_cache *child_ic;
 		if (!fd->ino)
 			continue;
-
-		/* we can get high latency here with huge directories */
 
 		child_ic = jffs2_get_ino_cache(c, fd->ino);
 		if (!child_ic) {
@@ -73,7 +61,7 @@ static void jffs2_build_inode_pass1(struct jffs2_sb_info *c,
 			if (child_ic->pino_nlink) {
 				JFFS2_ERROR("child dir \"%s\" (ino #%u) of dir ino #%u appears to be a hard link\n",
 					    fd->name, fd->ino, ic->ino);
-				/* TODO: What do we do about it? */
+				 
 			} else {
 				child_ic->pino_nlink = ic->ino;
 			}
@@ -81,15 +69,10 @@ static void jffs2_build_inode_pass1(struct jffs2_sb_info *c,
 			child_ic->pino_nlink++;
 
 		dbg_fsbuild("increased nlink for child \"%s\" (ino #%u)\n", fd->name, fd->ino);
-		/* Can't free scan_dents so far. We might need them in pass 2 */
+		 
 	}
 }
 
-/* Scan plan:
- - Scan physical nodes. Build map of inodes/dirents. Allocate inocaches as we go
- - Scan directory tree from top down, setting nlink in inocaches
- - Scan inocaches for inodes with nlink==0
-*/
 static int jffs2_build_filesystem(struct jffs2_sb_info *c)
 {
 	int ret;
@@ -100,9 +83,6 @@ static int jffs2_build_filesystem(struct jffs2_sb_info *c)
 
 	dbg_fsbuild("build FS data structures\n");
 
-	/* First, scan the medium and build all the inode caches with
-	   lists of physical nodes */
-
 	c->flags |= JFFS2_SB_FLAG_SCANNING;
 	ret = jffs2_scan_medium(c);
 	c->flags &= ~JFFS2_SB_FLAG_SCANNING;
@@ -112,9 +92,22 @@ static int jffs2_build_filesystem(struct jffs2_sb_info *c)
 	dbg_fsbuild("scanned flash completely\n");
 	jffs2_dbg_dump_block_lists_nolock(c);
 
+#if defined(MY_DEF_HERE)
+	if (c->flags & (1 << 7)) {
+		printk("%s(): unlocking the mtd device... ", __func__);
+		if (c->mtd->unlock)
+			c->mtd->unlock(c->mtd, 0, c->mtd->size);
+		printk("done.\n");
+
+		printk("%s(): erasing all blocks after the end marker... ", __func__);
+		jffs2_erase_pending_blocks(c, -1);
+		printk("done.\n");
+	}
+#endif
+
 	dbg_fsbuild("pass 1 starting\n");
 	c->flags |= JFFS2_SB_FLAG_BUILDING;
-	/* Now scan the directory tree, increasing nlink according to every dirent found. */
+	 
 	for_each_inode(i, c, ic) {
 		if (ic->scan_dents) {
 			jffs2_build_inode_pass1(c, ic);
@@ -124,11 +117,6 @@ static int jffs2_build_filesystem(struct jffs2_sb_info *c)
 
 	dbg_fsbuild("pass 1 complete\n");
 
-	/* Next, scan for inodes with nlink == 0 and remove them. If
-	   they were directories, then decrement the nlink of their
-	   children too, and repeat the scan. As that's going to be
-	   a fairly uncommon occurrence, it's not so evil to do it this
-	   way. Recursion bad. */
 	dbg_fsbuild("pass 2 starting\n");
 
 	for_each_inode(i, c, ic) {
@@ -155,7 +143,6 @@ static int jffs2_build_filesystem(struct jffs2_sb_info *c)
 	dbg_fsbuild("pass 2a complete\n");
 	dbg_fsbuild("freeing temporary data structures\n");
 
-	/* Finally, we can scan again and free the dirent structs */
 	for_each_inode(i, c, ic) {
 		while(ic->scan_dents) {
 			fd = ic->scan_dents;
@@ -170,7 +157,6 @@ static int jffs2_build_filesystem(struct jffs2_sb_info *c)
 
 	dbg_fsbuild("FS build complete\n");
 
-	/* Rotate the lists by some number to ensure wear levelling */
 	jffs2_rotate_lists(c);
 
 	ret = 0;
@@ -218,7 +204,7 @@ static void jffs2_build_remove_unlinked_inode(struct jffs2_sb_info *c,
 			ic->scan_dents = fd->next;
 
 			if (!fd->ino) {
-				/* It's a deletion dirent. Ignore it */
+				 
 				dbg_fsbuild("child \"%s\" is a deletion dirent, skipping...\n", fd->name);
 				jffs2_free_full_dirent(fd);
 				continue;
@@ -235,9 +221,6 @@ static void jffs2_build_remove_unlinked_inode(struct jffs2_sb_info *c,
 				jffs2_free_full_dirent(fd);
 				continue;
 			}
-
-			/* Reduce nlink of the child. If it's now zero, stick it on the
-			   dead_fds list to be cleaned up later. Else just free the fd */
 
 			if (fd->type == DT_DIR)
 				child_ic->pino_nlink = 0;
@@ -257,54 +240,30 @@ static void jffs2_build_remove_unlinked_inode(struct jffs2_sb_info *c,
 		}
 	}
 
-	/*
-	   We don't delete the inocache from the hash list and free it yet.
-	   The erase code will do that, when all the nodes are completely gone.
-	*/
 }
 
 static void jffs2_calc_trigger_levels(struct jffs2_sb_info *c)
 {
 	uint32_t size;
 
-	/* Deletion should almost _always_ be allowed. We're fairly
-	   buggered once we stop allowing people to delete stuff
-	   because there's not enough free space... */
 	c->resv_blocks_deletion = 2;
 
-	/* Be conservative about how much space we need before we allow writes.
-	   On top of that which is required for deletia, require an extra 2%
-	   of the medium to be available, for overhead caused by nodes being
-	   split across blocks, etc. */
-
-	size = c->flash_size / 50; /* 2% of flash size */
-	size += c->nr_blocks * 100; /* And 100 bytes per eraseblock */
-	size += c->sector_size - 1; /* ... and round up */
+	size = c->flash_size / 50;  
+	size += c->nr_blocks * 100;  
+	size += c->sector_size - 1;  
 
 	c->resv_blocks_write = c->resv_blocks_deletion + (size / c->sector_size);
 
-	/* When do we let the GC thread run in the background */
-
 	c->resv_blocks_gctrigger = c->resv_blocks_write + 1;
 
-	/* When do we allow garbage collection to merge nodes to make
-	   long-term progress at the expense of short-term space exhaustion? */
 	c->resv_blocks_gcmerge = c->resv_blocks_deletion + 1;
 
-	/* When do we allow garbage collection to eat from bad blocks rather
-	   than actually making progress? */
-	c->resv_blocks_gcbad = 0;//c->resv_blocks_deletion + 2;
+	c->resv_blocks_gcbad = 0; 
 
-	/* What number of 'very dirty' eraseblocks do we allow before we
-	   trigger the GC thread even if we don't _need_ the space. When we
-	   can't mark nodes obsolete on the medium, the old dirty nodes cause
-	   performance problems because we have to inspect and discard them. */
 	c->vdirty_blocks_gctrigger = c->resv_blocks_gctrigger;
 	if (jffs2_can_mark_obsolete(c))
 		c->vdirty_blocks_gctrigger *= 10;
 
-	/* If there's less than this amount of dirty space, don't bother
-	   trying to GC to make more space. It'll be a fruitless task */
 	c->nospc_dirty_size = c->sector_size + (c->flash_size / 100);
 
 	dbg_fsbuild("JFFS2 trigger levels (size %d KiB, block size %d KiB, %d blocks)\n",

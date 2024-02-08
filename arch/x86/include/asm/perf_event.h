@@ -81,7 +81,6 @@ union cpuid10_edx {
 	unsigned int full;
 };
 
-
 /*
  * Fixed-purpose performance events:
  */

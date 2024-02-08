@@ -1006,4 +1006,3 @@ module_exit(davinci_mcasp_exit);
 MODULE_AUTHOR("Steve Chen");
 MODULE_DESCRIPTION("TI DAVINCI McASP SoC Interface");
 MODULE_LICENSE("GPL");
-

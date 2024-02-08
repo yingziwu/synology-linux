@@ -86,4 +86,3 @@ struct omap_vc_channel omap4_vc_core = {
 	.smps_cmdra_mask = OMAP4430_CMDRA_VDD_CORE_L_MASK,
 	.cfg_channel_sa_shift = OMAP4430_SA_VDD_CORE_L_SHIFT,
 };
-

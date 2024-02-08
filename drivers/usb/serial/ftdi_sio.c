@@ -151,8 +151,6 @@ static struct ftdi_sio_quirk ftdi_8u2232c_quirk = {
  * but I don't know if those ever went into mass production. [Ian Abbott]
  */
 
-
-
 /*
  * Device ID not listed? Test via module params product/vendor or
  * /sys/bus/usb/ftdi_sio/new_id, then send patch/report!
@@ -911,7 +909,6 @@ static const char *ftdi_chip_name[] = {
 	[FTX]     = "FT-X"
 };
 
-
 /* Used for TIOCMIWAIT */
 #define FTDI_STATUS_B0_MASK	(FTDI_RS0_CTS | FTDI_RS0_DSR | FTDI_RS0_RI | FTDI_RS0_RLSD)
 #define FTDI_STATUS_B1_MASK	(FTDI_RS_BI)
@@ -977,7 +974,6 @@ static struct usb_serial_driver ftdi_sio_device = {
 	.set_termios =		ftdi_set_termios,
 	.break_ctl =		ftdi_break_ctl,
 };
-
 
 #define WDR_TIMEOUT 5000 /* default urb timeout */
 #define WDR_SHORT_TIMEOUT 1000	/* shorter urb timeout */
@@ -1117,7 +1113,6 @@ static int update_mctrl(struct usb_serial_port *port, unsigned int set,
 	}
 	return rv;
 }
-
 
 static __u32 get_ftdi_divisor(struct tty_struct *tty,
 						struct usb_serial_port *port)
@@ -1435,7 +1430,6 @@ static int get_lsr_info(struct usb_serial_port *port,
 	return 0;
 }
 
-
 /* Determine type of FTDI chip based on USB config and descriptor. */
 static void ftdi_determine_type(struct usb_serial_port *port)
 {
@@ -1510,7 +1504,6 @@ static void ftdi_determine_type(struct usb_serial_port *port)
 	dev_info(&udev->dev, "Detected %s\n", ftdi_chip_name[priv->chip_type]);
 }
 
-
 /* Determine the maximum packet size for the device.  This depends on the chip
  * type and the USB host capabilities.  The value should be obtained from the
  * device descriptor as the chip will use the appropriate values for the host.*/
@@ -1549,7 +1542,6 @@ static void ftdi_set_max_packet_size(struct usb_serial_port *port)
 	dev_info(&udev->dev, "Setting MaxPacketSize %d\n", priv->max_packet_size);
 }
 
-
 /*
  * ***************************************************************************
  * Sysfs Attribute
@@ -1566,7 +1558,6 @@ static ssize_t show_latency_timer(struct device *dev,
 	else
 		return sprintf(buf, "%i\n", priv->latency);
 }
-
 
 /* Write a new value of the latency timer, in units of milliseconds. */
 static ssize_t store_latency_timer(struct device *dev,
@@ -1693,7 +1684,6 @@ static int ftdi_sio_port_probe(struct usb_serial_port *port)
 {
 	struct ftdi_private *priv;
 	struct ftdi_sio_quirk *quirk = usb_get_serial_data(port->serial);
-
 
 	dbg("%s", __func__);
 
@@ -2489,7 +2479,6 @@ static void __exit ftdi_exit(void)
 	usb_deregister(&ftdi_driver);
 	usb_serial_deregister(&ftdi_sio_device);
 }
-
 
 module_init(ftdi_init);
 module_exit(ftdi_exit);

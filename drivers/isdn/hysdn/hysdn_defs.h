@@ -1,4 +1,4 @@
-/* $Id: hysdn_defs.h,v 1.5.6.3 2001/09/23 22:24:54 kai Exp $
+/* $Id: hysdn_defs.h,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * Linux driver for HYSDN cards
  * global definitions and exported vars and functions.
@@ -216,13 +216,10 @@ typedef struct HYSDN_CARD {
 typedef struct hycapictrl_info hycapictrl_info;
 #endif /* CONFIG_HYSDN_CAPI */
 
-
 /*****************/
 /* exported vars */
 /*****************/
 extern hysdn_card *card_root;	/* pointer to first card */
-
-
 
 /*************************/
 /* im/exported functions */

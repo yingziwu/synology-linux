@@ -149,7 +149,6 @@ static int __init pb1200_init_irq(void)
 }
 arch_initcall(pb1200_init_irq);
 
-
 int board_au1200fb_panel(void)
 {
 	return (bcsr_read(BCSR_SWITCHES) >> 8) & 0x0f;

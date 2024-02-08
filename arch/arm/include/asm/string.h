@@ -13,6 +13,7 @@ extern char * strrchr(const char * s, int c);
 extern char * strchr(const char * s, int c);
 
 #define __HAVE_ARCH_MEMCPY
+
 extern void * memcpy(void *, const void *, __kernel_size_t);
 
 #define __HAVE_ARCH_MEMMOVE

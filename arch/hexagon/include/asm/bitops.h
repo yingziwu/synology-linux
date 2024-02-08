@@ -85,7 +85,6 @@ static inline int test_and_set_bit(int nr, volatile void *addr)
 	: "r10", "r11", "r12", "p0", "p1", "memory"
 	);
 
-
 	return oldval;
 
 }
@@ -134,7 +133,6 @@ static inline void change_bit(int nr, volatile void *addr)
 {
 	test_and_change_bit(nr, addr);
 }
-
 
 /*
  * These are allowed to be non-atomic.  In fact the generic flavors are

@@ -415,7 +415,6 @@ static MANAGER_ATTR(cpr_coef, S_IRUGO|S_IWUSR,
 		manager_cpr_coef_show,
 		manager_cpr_coef_store);
 
-
 static struct attribute *manager_sysfs_attrs[] = {
 	&manager_attr_name.attr,
 	&manager_attr_display.attr,
@@ -546,8 +545,6 @@ static struct {
 
 	bool irq_enabled;
 } dss_cache;
-
-
 
 static int omap_dss_set_device(struct omap_overlay_manager *mgr,
 		struct omap_dss_device *dssdev)
@@ -1642,4 +1639,3 @@ struct omap_overlay_manager *omap_dss_get_overlay_manager(int num)
 	return NULL;
 }
 EXPORT_SYMBOL(omap_dss_get_overlay_manager);
-

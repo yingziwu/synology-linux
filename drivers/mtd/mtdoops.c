@@ -408,7 +408,6 @@ static void mtdoops_notify_remove(struct mtd_info *mtd)
 	flush_work_sync(&cxt->work_write);
 }
 
-
 static struct mtd_notifier mtdoops_notifier = {
 	.add	= mtdoops_notify_add,
 	.remove	= mtdoops_notify_remove,
@@ -461,7 +460,6 @@ static void __exit mtdoops_exit(void)
 	vfree(cxt->oops_buf);
 	vfree(cxt->oops_page_used);
 }
-
 
 module_init(mtdoops_init);
 module_exit(mtdoops_exit);

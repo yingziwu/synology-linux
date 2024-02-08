@@ -172,7 +172,6 @@ void parse_proc_kallsyms(char *file, unsigned int size __unused)
 		if (item->mod)
 			item->mod[strlen(item->mod) - 1] = 0;
 
-
 		item->next = list;
 		list = item;
 		line = strtok_r(NULL, "\n", &next);
@@ -444,7 +443,6 @@ static enum event_type __read_token(char **tok)
 	enum event_type type;
 
 	*tok = NULL;
-
 
 	ch = __read_char();
 	if (ch < 0)
@@ -1653,7 +1651,6 @@ process_paren(struct event *event, struct print_arg *arg, char **tok)
 	*tok = token;
 	return type;
 }
-
 
 static enum event_type
 process_str(struct event *event __unused, struct print_arg *arg, char **tok)

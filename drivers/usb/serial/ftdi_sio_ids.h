@@ -7,14 +7,11 @@
  *
  */
 
-
 /**********************************/
 /***** devices using FTDI VID *****/
 /**********************************/
 
-
 #define FTDI_VID	0x0403	/* Vendor Id */
-
 
 /*** "original" FTDI device PIDs ***/
 
@@ -26,7 +23,6 @@
 #define FTDI_FTX_PID   0x6015 /* FT-X series (FT201X, FT230X, FT231X, etc) */
 #define FTDI_SIO_PID	0x8372	/* Product Id SIO application of 8U100AX */
 #define FTDI_232RL_PID  0xFBFA  /* Product ID for FT232RL */
-
 
 /*** third-party PIDs (using FTDI_VID) ***/
 
@@ -530,12 +526,9 @@
  */
 #define FTDI_TIAO_UMPA_PID	0x8a98	/* TIAO/DIYGADGET USB Multi-Protocol Adapter */
 
-
 /********************************/
 /** third-party VID/PID combos **/
 /********************************/
-
-
 
 /*
  * Atmel STK541
@@ -809,7 +802,6 @@
 #define RTSYSTEMS_SERIAL_VX7_PID	0x9e52	/* Serial converter for VX-7 Radios using FT232RL */
 #define RTSYSTEMS_CT29B_PID		0x9e54	/* CT29B Radio Cable */
 #define RTSYSTEMS_RTS01_PID		0x9e57	/* USB-RTS01 Radio Cable */
-
 
 /*
  * Physik Instrumente
@@ -1113,8 +1105,6 @@
 #define MTXORB_FTDI_RANGE_01FE_PID	0x01FE
 #define MTXORB_FTDI_RANGE_01FF_PID	0x01FF
 
-
-
 /*
  * The Mobility Lab (TML)
  * Submitted by Pierre Castella
@@ -1222,7 +1212,6 @@
  * Submitted by John G. Rogers
  */
 #define SEGWAY_RMP200_PID	0xe729
-
 
 /*
  * Accesio USB Data Acquisition products (http://www.accesio.com/)

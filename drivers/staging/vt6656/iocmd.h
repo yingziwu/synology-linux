@@ -181,13 +181,11 @@ typedef struct tagSBSSIDItem {
 
 } __packed SBSSIDItem;
 
-
 typedef struct tagSBSSIDList {
 
 	u32		    uItem;
 	SBSSIDItem	sBSSIDList[0];
 } __packed SBSSIDList, *PSBSSIDList;
-
 
 typedef struct tagSNodeItem {
     // STA info
@@ -209,14 +207,12 @@ typedef struct tagSNodeItem {
 
 } __packed SNodeItem;
 
-
 typedef struct tagSNodeList {
 
 	u32		    uItem;
 	SNodeItem	sNodeList[0];
 
 } __packed SNodeList, *PSNodeList;
-
 
 typedef struct tagSCmdLinkStatus {
 
@@ -247,8 +243,6 @@ typedef struct tagSDot11MIBCount {
     u32 MulticastReceivedFrameCount;
     u32 FCSErrorCount;
 } __packed SDot11MIBCount, *PSDot11MIBCount;
-
-
 
 //
 // statistic counter

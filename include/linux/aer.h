@@ -55,4 +55,3 @@ extern int cper_severity_to_aer(int cper_severity);
 extern void aer_recover_queue(int domain, unsigned int bus, unsigned int devfn,
 			      int severity);
 #endif //_AER_H_
-

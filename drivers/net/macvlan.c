@@ -104,7 +104,6 @@ static int macvlan_addr_busy(const struct macvlan_port *port,
 	return 0;
 }
 
-
 static int macvlan_broadcast_one(struct sk_buff *skb,
 				 const struct macvlan_dev *vlan,
 				 const struct ethhdr *eth, bool local)

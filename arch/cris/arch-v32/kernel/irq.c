@@ -264,7 +264,6 @@ static int irq_cpu(int irq)
 		return smp_processor_id();
         }
 
-
 	/* Let the interrupt stay if possible */
 	if (cpumask_test_cpu(cpu, &irq_allocations[irq - FIRST_IRQ].mask))
 		goto out;
@@ -289,7 +288,6 @@ void crisv32_unmask_irq(int irq)
 {
 	unblock_irq(irq, irq_cpu(irq));
 }
-
 
 static void enable_crisv32_irq(struct irq_data *data)
 {
@@ -498,4 +496,3 @@ init_IRQ(void)
 	breakpoint();
 #endif
 }
-

@@ -173,7 +173,6 @@ static struct omap_dss_device devkit8000_tv_device = {
 	.phy.venc.type          = OMAP_DSS_VENC_TYPE_SVIDEO,
 };
 
-
 static struct omap_dss_device *devkit8000_dss_devices[] = {
 	&devkit8000_lcd_device,
 	&devkit8000_dvi_device,

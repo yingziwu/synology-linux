@@ -123,7 +123,6 @@ static int get_tclk(void)
 	return tclk;
 }
 
-
 /*****************************************************************************
  * I/O Address Mapping
  ****************************************************************************/
@@ -164,7 +163,6 @@ void __init mv78xx0_map_io(void)
 	iotable_init(mv78xx0_io_desc, ARRAY_SIZE(mv78xx0_io_desc));
 }
 
-
 /*****************************************************************************
  * EHCI
  ****************************************************************************/
@@ -173,7 +171,6 @@ void __init mv78xx0_ehci0_init(void)
 	orion_ehci_init(&mv78xx0_mbus_dram_info,
 			USB0_PHYS_BASE, IRQ_MV78XX0_USB_0, EHCI_PHY_NA);
 }
-
 
 /*****************************************************************************
  * EHCI1
@@ -184,7 +181,6 @@ void __init mv78xx0_ehci1_init(void)
 			  USB1_PHYS_BASE, IRQ_MV78XX0_USB_1);
 }
 
-
 /*****************************************************************************
  * EHCI2
  ****************************************************************************/
@@ -193,7 +189,6 @@ void __init mv78xx0_ehci2_init(void)
 	orion_ehci_2_init(&mv78xx0_mbus_dram_info,
 			  USB2_PHYS_BASE, IRQ_MV78XX0_USB_2);
 }
-
 
 /*****************************************************************************
  * GE00
@@ -206,7 +201,6 @@ void __init mv78xx0_ge00_init(struct mv643xx_eth_platform_data *eth_data)
 			MV643XX_TX_CSUM_DEFAULT_LIMIT);
 }
 
-
 /*****************************************************************************
  * GE01
  ****************************************************************************/
@@ -217,7 +211,6 @@ void __init mv78xx0_ge01_init(struct mv643xx_eth_platform_data *eth_data)
 			NO_IRQ, get_tclk(),
 			MV643XX_TX_CSUM_DEFAULT_LIMIT);
 }
-
 
 /*****************************************************************************
  * GE10
@@ -241,7 +234,6 @@ void __init mv78xx0_ge10_init(struct mv643xx_eth_platform_data *eth_data)
 			GE10_PHYS_BASE, IRQ_MV78XX0_GE10_SUM,
 			NO_IRQ, get_tclk());
 }
-
 
 /*****************************************************************************
  * GE11
@@ -284,7 +276,6 @@ void __init mv78xx0_sata_init(struct mv_sata_platform_data *sata_data)
 			SATA_PHYS_BASE, IRQ_MV78XX0_SATA);
 }
 
-
 /*****************************************************************************
  * UART0
  ****************************************************************************/
@@ -294,7 +285,6 @@ void __init mv78xx0_uart0_init(void)
 			 IRQ_MV78XX0_UART_0, get_tclk());
 }
 
-
 /*****************************************************************************
  * UART1
  ****************************************************************************/
@@ -303,7 +293,6 @@ void __init mv78xx0_uart1_init(void)
 	orion_uart1_init(UART1_VIRT_BASE, UART1_PHYS_BASE,
 			 IRQ_MV78XX0_UART_1, get_tclk());
 }
-
 
 /*****************************************************************************
  * UART2
@@ -340,7 +329,6 @@ static void mv78xx0_timer_init(void)
 struct sys_timer mv78xx0_timer = {
 	.init = mv78xx0_timer_init,
 };
-
 
 /*****************************************************************************
  * General

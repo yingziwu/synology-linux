@@ -28,7 +28,6 @@
 #include <asm/nops.h>
 #include <asm/nmi.h>
 
-
 #ifdef CONFIG_DYNAMIC_FTRACE
 
 /*

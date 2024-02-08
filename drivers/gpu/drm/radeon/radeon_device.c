@@ -466,7 +466,6 @@ void radeon_dummy_page_fini(struct radeon_device *rdev)
 	rdev->dummy_page.page = NULL;
 }
 
-
 /* ATOM accessor methods */
 static uint32_t cail_pll_read(struct card_info *info, uint32_t reg)
 {
@@ -693,7 +692,6 @@ static bool radeon_switcheroo_can_switch(struct pci_dev *pdev)
 	return can_switch;
 }
 
-
 int radeon_device_init(struct radeon_device *rdev,
 		       struct drm_device *ddev,
 		       struct pci_dev *pdev,
@@ -843,7 +841,6 @@ void radeon_device_fini(struct radeon_device *rdev)
 	rdev->rmmio = NULL;
 }
 
-
 /*
  * Suspend & resume.
  */
@@ -989,7 +986,6 @@ int radeon_gpu_reset(struct radeon_device *rdev)
 
 	return r;
 }
-
 
 /*
  * Debugfs

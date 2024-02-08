@@ -103,7 +103,6 @@ static inline struct net *seq_file_single_net(struct seq_file *seq)
 /* Connections' size value needed by ip_vs_ctl.c */
 extern int ip_vs_conn_tab_size;
 
-
 struct ip_vs_iphdr {
 	int len;
 	__u8 protocol;
@@ -255,7 +254,6 @@ static inline const char *ip_vs_dbg_addr(int af, char *buf, size_t buf_len,
 #endif
 
 #define	IP_VS_WAIT_WHILE(expr)	while (expr) { cpu_relax(); }
-
 
 /*
  *      The port number of FTP service (in network order).
@@ -584,7 +582,6 @@ struct ip_vs_service_user_kern {
 	u32			netmask;	/* persistent netmask */
 };
 
-
 struct ip_vs_dest_user_kern {
 	/* destination server address */
 	union nf_inet_addr	addr;
@@ -598,7 +595,6 @@ struct ip_vs_dest_user_kern {
 	u32			u_threshold;	/* upper threshold */
 	u32			l_threshold;	/* lower threshold */
 };
-
 
 /*
  *	The information about the virtual service offered to the net
@@ -633,7 +629,6 @@ struct ip_vs_service {
 	/* alternate persistence engine */
 	struct ip_vs_pe		*pe;
 };
-
 
 /*
  *	The real server destination forwarding entry
@@ -674,7 +669,6 @@ struct ip_vs_dest {
 	union nf_inet_addr	vaddr;		/* virtual IP address */
 	__u32			vfwmark;	/* firewall mark of service */
 };
-
 
 /*
  *	The scheduler object
@@ -751,7 +745,6 @@ struct ip_vs_app {
 
 	/* ip_vs_app finish */
 	int (*done_conn)(struct ip_vs_app *, struct ip_vs_conn *);
-
 
 	/* not used now */
 	int (*bind_conn)(struct ip_vs_app *, struct ip_vs_conn *,
@@ -1178,7 +1171,6 @@ extern int ip_vs_leave(struct ip_vs_service *svc, struct sk_buff *skb,
 
 extern void ip_vs_scheduler_err(struct ip_vs_service *svc, const char *msg);
 
-
 /*
  *      IPVS control data and functions (from ip_vs_ctl.c)
  */
@@ -1210,7 +1202,6 @@ ip_vs_find_dest(struct net *net, int af, const union nf_inet_addr *daddr,
 		__u16 protocol, __u32 fwmark, __u32 flags);
 extern struct ip_vs_dest *ip_vs_try_bind_dest(struct ip_vs_conn *cp);
 
-
 /*
  *      IPVS sync daemon data and function prototypes
  *      (from ip_vs_sync.c)
@@ -1219,7 +1210,6 @@ extern int start_sync_thread(struct net *net, int state, char *mcast_ifn,
 			     __u8 syncid);
 extern int stop_sync_thread(struct net *net, int state);
 extern void ip_vs_sync_conn(struct net *net, struct ip_vs_conn *cp);
-
 
 /*
  *      IPVS rate estimator prototypes (from ip_vs_est.c)

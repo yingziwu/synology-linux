@@ -71,7 +71,6 @@ static int ignore_interface_quirk(struct snd_usb_audio *chip,
 	return 0;
 }
 
-
 /*
  * Allow alignment on audio sub-slot (channel samples) rather than
  * on audio slots (audio frames)
@@ -161,6 +160,12 @@ static int create_fixed_stream_quirk(struct snd_usb_audio *chip,
 		return -EINVAL;
 	}
 	alts = &iface->altsetting[fp->altset_idx];
+	if (get_iface_desc(alts)->bNumEndpoints < 1) {
+		kfree(fp);
+		kfree(rate_table);
+		return -EINVAL;
+	}
+
 	fp->datainterval = snd_usb_parse_datainterval(chip, alts);
 	fp->maxpacksize = le16_to_cpu(get_endpoint(alts, 0)->wMaxPacketSize);
 	usb_set_interface(chip->dev, fp->iface, 0);
@@ -571,7 +576,6 @@ static int audiophile_skip_setting_quirk(struct snd_usb_audio *chip,
 	return 0; /* keep this altsetting */
 }
 
-
 static int fasttrackpro_skip_setting_quirk(struct snd_usb_audio *chip,
 					   int iface, int altno)
 {
@@ -758,4 +762,3 @@ void snd_usb_set_format_quirk(struct snd_usb_substream *subs,
 		break;
 	}
 }
-

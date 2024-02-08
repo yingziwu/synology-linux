@@ -19,7 +19,6 @@
 #include "../sysfs.h"
 #include "../buffer_generic.h"
 
-
 #include "ad7887.h"
 
 static int ad7887_scan_direct(struct ad7887_state *st, unsigned ch)
@@ -64,7 +63,6 @@ static int ad7887_read_raw(struct iio_dev *indio_dev,
 	}
 	return -EINVAL;
 }
-
 
 static const struct ad7887_chip_info ad7887_chip_info_tbl[] = {
 	/*

@@ -586,7 +586,6 @@ static int __init pSeries_probe(void)
 	return 1;
 }
 
-
 DECLARE_PER_CPU(long, smt_snooze_delay);
 
 static void pseries_dedicated_idle_sleep(void)

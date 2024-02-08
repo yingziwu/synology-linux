@@ -477,4 +477,3 @@ static void alc88x_simple_mic_automute(struct hda_codec *codec)
 	bits = present ? HDA_AMP_MUTE : 0;
 	snd_hda_codec_amp_stereo(codec, 0x0b, HDA_INPUT, 1, HDA_AMP_MUTE, bits);
 }
-

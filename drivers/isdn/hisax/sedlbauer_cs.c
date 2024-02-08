@@ -55,7 +55,6 @@ MODULE_DESCRIPTION("ISDN4Linux: PCMCIA client driver for Sedlbauer cards");
 MODULE_AUTHOR("Marcus Niemann");
 MODULE_LICENSE("Dual MPL/GPL");
 
-
 /*====================================================================*/
 
 /* Parameters that can be set with 'insmod' */
@@ -184,7 +183,6 @@ static int sedlbauer_resume(struct pcmcia_device *link)
 
 	return 0;
 }
-
 
 static const struct pcmcia_device_id sedlbauer_ids[] = {
 	PCMCIA_DEVICE_PROD_ID123("SEDLBAUER", "speed star II", "V 3.1", 0x81fb79f5, 0xf3612e1d, 0x6b95c78a),

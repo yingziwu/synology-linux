@@ -1,0 +1,63 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
+#ifndef __INCmvRtcRegh
+#define __INCmvRtcRegh
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "mvSysRtcConfig.h"
+
+#define RTC_TIME_REG				(MV_RTC_REGS_BASE + 0)
+
+#define RTC_DATE_REG				(MV_RTC_REGS_BASE + 4)
+#ifdef MY_ABC_HERE
+#define RTC_EXT_ALARM_CTRL_REG				(MV_RTC_EXTERNAL_ALARM_OFFSET + 0)
+#define RTC_EXT_ALARM_CONFIG_REG				(MV_RTC_EXTERNAL_ALARM_OFFSET + 4)
+#endif
+
+#define RTC_TIME_SECONDS_SHF			0
+#define RTC_TIME_SECONDS_MSK			(0xF << RTC_TIME_SECONDS_SHF)
+#define RTC_TIME_10SECONDS_SHF			4
+#define RTC_TIME_10SECONDS_MSK			(0x7 << RTC_TIME_10SECONDS_SHF)
+
+#define RTC_TIME_MINUTES_SHF			8
+#define RTC_TIME_MINUTES_MSK			(0xF << RTC_TIME_MINUTES_SHF)
+#define RTC_TIME_10MINUTES_SHF			12
+#define RTC_TIME_10MINUTES_MSK			(0x7 << RTC_TIME_10MINUTES_SHF)
+
+#define RTC_TIME_HOUR_SHF			16
+#define RTC_TIME_HOUR_MSK			(0xF << RTC_TIME_HOUR_SHF)
+#define RTC_TIME_10HOUR_SHF			20
+#define RTC_TIME_10HOUR_MSK			(0x3 << RTC_TIME_10HOUR_SHF)
+
+#define RTC_TIME_HOUR_FORMAT_SHF		22
+#define RTC_TIME_HOUR_FORMAT_12_MSK		(1 << RTC_TIME_HOUR_FORMAT_SHF)
+#define RTC_TIME_HOUR_FORMAT_24_MSK		(0 << RTC_TIME_HOUR_FORMAT_SHF)
+
+#define RTC_TIME_DAY_SHF			24
+#define RTC_TIME_DAY_MSK			(0x7 << RTC_TIME_DAY_SHF)
+
+#define RTC_DATE_DAY_SHF			0
+#define RTC_DATE_DAY_MSK			(0xF << RTC_DATE_DAY_SHF)
+#define RTC_DATE_10DAY_SHF			4
+#define RTC_DATE_10DAY_MSK			(0x3 << RTC_DATE_10DAY_SHF)
+
+#define RTC_DATE_MONTH_SHF			8
+#define RTC_DATE_MONTH_MSK			(0xF << RTC_DATE_MONTH_SHF)
+#define RTC_DATE_10MONTH_SHF			12
+#define RTC_DATE_10MONTH_MSK			(0x1 << RTC_DATE_10MONTH_SHF)
+
+#define RTC_DATE_YEAR_SHF			16
+#define RTC_DATE_YEAR_MSK			(0xF << RTC_DATE_YEAR_SHF)
+#define RTC_DATE_10YEAR_SHF			20
+#define RTC_DATE_10YEAR_MSK			(0xF << RTC_DATE_10YEAR_SHF)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  

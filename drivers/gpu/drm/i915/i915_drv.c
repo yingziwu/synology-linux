@@ -467,7 +467,6 @@ int i915_suspend(struct drm_device *dev, pm_message_t state)
 	if (state.event == PM_EVENT_PRETHAW)
 		return 0;
 
-
 	if (dev->switch_power_state == DRM_SWITCH_POWER_OFF)
 		return 0;
 
@@ -730,7 +729,6 @@ int i915_reset(struct drm_device *dev, u8 flags)
 
 	return 0;
 }
-
 
 static int __devinit
 i915_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)

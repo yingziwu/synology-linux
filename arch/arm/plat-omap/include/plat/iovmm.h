@@ -71,7 +71,6 @@ struct iovm_struct {
 
 #define IOVMF_DA_FIXED		(1 << (4 + IOVMF_SW_SHIFT))
 
-
 extern struct iovm_struct *omap_find_iovm_area(struct omap_iommu *obj, u32 da);
 extern u32
 omap_iommu_vmap(struct iommu_domain *domain, struct omap_iommu *obj, u32 da,

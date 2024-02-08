@@ -163,7 +163,6 @@ static const struct v4l2_pix_format mcam_def_pix_format = {
 static const enum v4l2_mbus_pixelcode mcam_def_mbus_code =
 					V4L2_MBUS_FMT_YUYV8_2X8;
 
-
 /*
  * The two-word DMA descriptor format used by the Armada 610 and like.  There
  * Is a three-word format as well (set C1_DESC_3WORD) where the third
@@ -205,8 +204,6 @@ static void mcam_buffer_done(struct mcam_camera *cam, int frame,
 	vb2_buffer_done(vbuf, VB2_BUF_STATE_DONE);
 }
 
-
-
 /*
  * Debugging and related.
  */
@@ -216,7 +213,6 @@ static void mcam_buffer_done(struct mcam_camera *cam, int frame,
 	dev_warn((cam)->dev, fmt, ##arg);
 #define cam_dbg(cam, fmt, arg...) \
 	dev_dbg((cam)->dev, fmt, ##arg);
-
 
 /*
  * Flag manipulation helpers
@@ -323,7 +319,6 @@ static void mcam_free_dma_bufs(struct mcam_camera *cam)
 	cam->nbufs = 0;
 }
 
-
 /*
  * Set up DMA buffers when operating in vmalloc mode
  */
@@ -387,7 +382,6 @@ static void mcam_frame_tasklet(unsigned long data)
 	spin_unlock_irqrestore(&cam->dev_lock, flags);
 }
 
-
 /*
  * Make sure our allocated buffers are up to the task.
  */
@@ -422,10 +416,7 @@ static inline int mcam_check_dma_buffers(struct mcam_camera *cam)
 	return 0;
 }
 
-
-
 #endif /* MCAM_MODE_VMALLOC */
-
 
 #ifdef MCAM_MODE_DMA_CONTIG
 /* ---------------------------------------------------------------------- */
@@ -528,7 +519,6 @@ static void mcam_ctlr_dma_sg(struct mcam_camera *cam)
 	cam->nbufs = 3;
 }
 
-
 /*
  * Frame completion with S/G is trickier.  We can't muck with
  * a descriptor chain on the fly, since the controller buffers it
@@ -573,7 +563,6 @@ static void mcam_dma_sg_done(struct mcam_camera *cam, int frame)
 	delivered++;
 	mcam_buffer_done(cam, frame, &buf->vb_buf);
 }
-
 
 /*
  * Scatter/gather mode requires stopping the controller between
@@ -651,7 +640,6 @@ static void mcam_ctlr_image(struct mcam_camera *cam)
 			C0_SIFM_MASK);
 }
 
-
 /*
  * Configure the controller for operation; caller holds the
  * device mutex.
@@ -684,8 +672,6 @@ static void mcam_ctlr_irq_disable(struct mcam_camera *cam)
 	mcam_reg_clear_bit(cam, REG_IRQMASK, FRAMEIRQS);
 }
 
-
-
 static void mcam_ctlr_init(struct mcam_camera *cam)
 {
 	unsigned long flags;
@@ -707,7 +693,6 @@ static void mcam_ctlr_init(struct mcam_camera *cam)
 	mcam_reg_write_mask(cam, REG_CLKCTRL, 2, CLK_DIV_MASK);
 	spin_unlock_irqrestore(&cam->dev_lock, flags);
 }
-
 
 /*
  * Stop the controller, and don't return until we're really sure that no
@@ -826,7 +811,6 @@ static int mcam_cam_set_flip(struct mcam_camera *cam)
 	return sensor_call(cam, core, s_ctrl, &ctrl);
 }
 
-
 static int mcam_cam_configure(struct mcam_camera *cam)
 {
 	struct v4l2_mbus_framefmt mbus_fmt;
@@ -900,7 +884,6 @@ static int mcam_vb_queue_setup(struct vb2_queue *vq,
 	return 0;
 }
 
-
 static void mcam_vb_buf_queue(struct vb2_buffer *vb)
 {
 	struct mcam_vb_buffer *mvb = vb_to_mvb(vb);
@@ -917,7 +900,6 @@ static void mcam_vb_buf_queue(struct vb2_buffer *vb)
 	if (start)
 		mcam_read_setup(cam);
 }
-
 
 /*
  * vb2 uses these to release the mutex when waiting in dqbuf.  I'm
@@ -987,7 +969,6 @@ static int mcam_vb_stop_streaming(struct vb2_queue *vq)
 	return 0;
 }
 
-
 static const struct vb2_ops mcam_vb2_ops = {
 	.queue_setup		= mcam_vb_queue_setup,
 	.buf_queue		= mcam_vb_buf_queue,
@@ -996,7 +977,6 @@ static const struct vb2_ops mcam_vb2_ops = {
 	.wait_prepare		= mcam_vb_wait_prepare,
 	.wait_finish		= mcam_vb_wait_finish,
 };
-
 
 #ifdef MCAM_MODE_DMA_SG
 /*
@@ -1058,7 +1038,6 @@ static void mcam_vb_sg_buf_cleanup(struct vb2_buffer *vb)
 	dma_free_coherent(cam->dev, ndesc * sizeof(struct mcam_dma_desc),
 			mvb->dma_desc, mvb->dma_desc_pa);
 }
-
 
 static const struct vb2_ops mcam_vb2_sg_ops = {
 	.queue_setup		= mcam_vb_queue_setup,
@@ -1128,7 +1107,6 @@ static void mcam_cleanup_vb2(struct mcam_camera *cam)
 #endif
 }
 
-
 /* ---------------------------------------------------------------------- */
 /*
  * The long list of V4L2 ioctl() operations.
@@ -1146,7 +1124,6 @@ static int mcam_vidioc_streamon(struct file *filp, void *priv,
 	return ret;
 }
 
-
 static int mcam_vidioc_streamoff(struct file *filp, void *priv,
 		enum v4l2_buf_type type)
 {
@@ -1159,7 +1136,6 @@ static int mcam_vidioc_streamoff(struct file *filp, void *priv,
 	return ret;
 }
 
-
 static int mcam_vidioc_reqbufs(struct file *filp, void *priv,
 		struct v4l2_requestbuffers *req)
 {
@@ -1171,7 +1147,6 @@ static int mcam_vidioc_reqbufs(struct file *filp, void *priv,
 	mutex_unlock(&cam->s_mutex);
 	return ret;
 }
-
 
 static int mcam_vidioc_querybuf(struct file *filp, void *priv,
 		struct v4l2_buffer *buf)
@@ -1209,8 +1184,6 @@ static int mcam_vidioc_dqbuf(struct file *filp, void *priv,
 	return ret;
 }
 
-
-
 static int mcam_vidioc_queryctrl(struct file *filp, void *priv,
 		struct v4l2_queryctrl *qc)
 {
@@ -1222,7 +1195,6 @@ static int mcam_vidioc_queryctrl(struct file *filp, void *priv,
 	mutex_unlock(&cam->s_mutex);
 	return ret;
 }
-
 
 static int mcam_vidioc_g_ctrl(struct file *filp, void *priv,
 		struct v4l2_control *ctrl)
@@ -1236,7 +1208,6 @@ static int mcam_vidioc_g_ctrl(struct file *filp, void *priv,
 	return ret;
 }
 
-
 static int mcam_vidioc_s_ctrl(struct file *filp, void *priv,
 		struct v4l2_control *ctrl)
 {
@@ -1249,7 +1220,6 @@ static int mcam_vidioc_s_ctrl(struct file *filp, void *priv,
 	return ret;
 }
 
-
 static int mcam_vidioc_querycap(struct file *file, void *priv,
 		struct v4l2_capability *cap)
 {
@@ -1260,7 +1230,6 @@ static int mcam_vidioc_querycap(struct file *file, void *priv,
 		V4L2_CAP_READWRITE | V4L2_CAP_STREAMING;
 	return 0;
 }
-
 
 static int mcam_vidioc_enum_fmt_vid_cap(struct file *filp,
 		void *priv, struct v4l2_fmtdesc *fmt)
@@ -1539,7 +1508,6 @@ out:
 	return ret;
 }
 
-
 static int mcam_v4l_release(struct file *filp)
 {
 	struct mcam_camera *cam = filp->private_data;
@@ -1575,8 +1543,6 @@ static ssize_t mcam_v4l_read(struct file *filp,
 	return ret;
 }
 
-
-
 static unsigned int mcam_v4l_poll(struct file *filp,
 		struct poll_table_struct *pt)
 {
@@ -1589,7 +1555,6 @@ static unsigned int mcam_v4l_poll(struct file *filp,
 	return ret;
 }
 
-
 static int mcam_v4l_mmap(struct file *filp, struct vm_area_struct *vma)
 {
 	struct mcam_camera *cam = filp->private_data;
@@ -1601,8 +1566,6 @@ static int mcam_v4l_mmap(struct file *filp, struct vm_area_struct *vma)
 	return ret;
 }
 
-
-
 static const struct v4l2_file_operations mcam_v4l_fops = {
 	.owner = THIS_MODULE,
 	.open = mcam_v4l_open,
@@ -1612,7 +1575,6 @@ static const struct v4l2_file_operations mcam_v4l_fops = {
 	.mmap = mcam_v4l_mmap,
 	.unlocked_ioctl = video_ioctl2,
 };
-
 
 /*
  * This template device holds all of those v4l2 methods; we
@@ -1652,7 +1614,6 @@ static void mcam_frame_complete(struct mcam_camera *cam, int frame)
 	 */
 	cam->frame_complete(cam, frame);
 }
-
 
 /*
  * The interrupt handler; this needs to be called from the
@@ -1704,7 +1665,6 @@ static struct ov7670_config sensor_cfg = {
 	.min_width = 320,
 	.min_height = 240,
 };
-
 
 int mccic_register(struct mcam_camera *cam)
 {
@@ -1790,7 +1750,6 @@ out_unregister:
 	v4l2_device_unregister(&cam->v4l2_dev);
 	return ret;
 }
-
 
 void mccic_shutdown(struct mcam_camera *cam)
 {

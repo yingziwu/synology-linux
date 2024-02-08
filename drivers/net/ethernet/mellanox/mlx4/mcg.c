@@ -763,7 +763,6 @@ int mlx4_qp_detach_common(struct mlx4_dev *dev, struct mlx4_qp *qp, u8 gid[16],
 		goto out;
 	}
 
-
 	mgm->members_count = cpu_to_be32(--members_count | (u32) prot << 30);
 	mgm->qp[loc]       = mgm->qp[i - 1];
 	mgm->qp[i - 1]     = 0;
@@ -828,7 +827,6 @@ out:
 	return err;
 }
 
-
 int mlx4_multicast_attach(struct mlx4_dev *dev, struct mlx4_qp *qp, u8 gid[16],
 			  int block_mcast_loopback, enum mlx4_protocol prot)
 {
@@ -868,12 +866,10 @@ int mlx4_multicast_detach(struct mlx4_dev *dev, struct mlx4_qp *qp, u8 gid[16],
 }
 EXPORT_SYMBOL_GPL(mlx4_multicast_detach);
 
-
 int mlx4_multicast_promisc_add(struct mlx4_dev *dev, u32 qpn, u8 port)
 {
 	if (!(dev->caps.flags & MLX4_DEV_CAP_FLAG_VEP_MC_STEER))
 		return 0;
-
 
 	return add_promisc_qp(dev, 0, port, MLX4_MC_STEER, qpn);
 }
@@ -884,7 +880,6 @@ int mlx4_multicast_promisc_remove(struct mlx4_dev *dev, u32 qpn, u8 port)
 	if (!(dev->caps.flags & MLX4_DEV_CAP_FLAG_VEP_MC_STEER))
 		return 0;
 
-
 	return remove_promisc_qp(dev, 0, port, MLX4_MC_STEER, qpn);
 }
 EXPORT_SYMBOL_GPL(mlx4_multicast_promisc_remove);
@@ -893,7 +888,6 @@ int mlx4_unicast_promisc_add(struct mlx4_dev *dev, u32 qpn, u8 port)
 {
 	if (!(dev->caps.flags & MLX4_DEV_CAP_FLAG_VEP_MC_STEER))
 		return 0;
-
 
 	return add_promisc_qp(dev, 0, port, MLX4_UC_STEER, qpn);
 }

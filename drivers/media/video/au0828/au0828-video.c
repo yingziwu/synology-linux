@@ -480,7 +480,6 @@ static void au0828_copy_vbi(struct au0828_dev *dev,
 	dma_q->pos += len;
 }
 
-
 /*
  * video-buf generic routine to get the next available VBI buffer
  */
@@ -853,7 +852,6 @@ void au0828_analog_unregister(struct au0828_dev *dev)
 	mutex_unlock(&au0828_sysfs_lock);
 }
 
-
 /* Usage lock check functions */
 static int res_get(struct au0828_fh *fh, unsigned int bit)
 {
@@ -963,7 +961,6 @@ void au0828_vbi_buffer_timeout(unsigned long data)
 		mod_timer(&dev->vbi_timeout, jiffies + (HZ / 10));
 	spin_unlock_irqrestore(&dev->slock, flags);
 }
-
 
 static int au0828_v4l2_open(struct file *filp)
 {
@@ -1227,7 +1224,6 @@ static int au0828_set_format(struct au0828_dev *dev, unsigned int cmd,
 
 	return 0;
 }
-
 
 static int vidioc_queryctrl(struct file *file, void *priv,
 			    struct v4l2_queryctrl *qc)
@@ -1552,7 +1548,6 @@ static int vidioc_s_frequency(struct file *file, void *priv,
 
 	return 0;
 }
-
 
 /* RAW VBI ioctls */
 
@@ -1994,4 +1989,3 @@ int au0828_analog_register(struct au0828_dev *dev,
 
 	return 0;
 }
-

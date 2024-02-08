@@ -1,6 +1,6 @@
 #ifndef _LMC_IOCTL_H_
 #define _LMC_IOCTL_H_
-/*	$Id: lmc_ioctl.h,v 1.15 2000/04/06 12:16:43 asj Exp $	*/
+/*	$Id: lmc_ioctl.h,v 1.1.1.1 2010/04/15 12:27:54 khchen Exp $	*/
 
  /*
   * Copyright (c) 1997-2000 LAN Media Corporation (LMC)
@@ -50,7 +50,6 @@
 #define LMC_CTL_CRC_LENGTH_32		32
 #define LMC_CTL_CRC_BYTESIZE_2          2
 #define LMC_CTL_CRC_BYTESIZE_4          4
-
 
 #define LMC_CTL_CABLE_LENGTH_LT_100FT	0	/* DS3 cable < 100 feet */
 #define LMC_CTL_CABLE_LENGTH_GT_100FT	1	/* DS3 cable >= 100 feet */
@@ -197,7 +196,6 @@
 
 #define LMC_MII16_T1_CRC                0x1000  /* CRC select - RW */
 #define LMC_MII16_T1_UNUSED2    0xe000
-
 
 /* 8370 framer registers  */
 

@@ -12,6 +12,9 @@ obj-$(CONFIG_SPI_SPIDEV)		+= spidev.o
 # SPI master controller drivers (bus)
 obj-$(CONFIG_SPI_ALTERA)		+= spi-altera.o
 obj-$(CONFIG_SPI_ATMEL)			+= spi-atmel.o
+ifeq ($(CONFIG_ARCH_GEN3),y)
+obj-$(CONFIG_SPI_CE5XX_SPI_FLASH)       += ce5xx_spi_flash.o
+endif
 obj-$(CONFIG_SPI_ATH79)			+= spi-ath79.o
 obj-$(CONFIG_SPI_AU1550)		+= spi-au1550.o
 obj-$(CONFIG_SPI_BFIN)			+= spi-bfin5xx.o
@@ -19,8 +22,32 @@ obj-$(CONFIG_SPI_BFIN_SPORT)		+= spi-bfin-sport.o
 obj-$(CONFIG_SPI_BITBANG)		+= spi-bitbang.o
 obj-$(CONFIG_SPI_BUTTERFLY)		+= spi-butterfly.o
 obj-$(CONFIG_SPI_COLDFIRE_QSPI)		+= spi-coldfire-qspi.o
+
+ifeq ($(CONFIG_SYNO_COMCERTO),y)
+SPI_MSPD=n
+ifeq ($(CONFIG_SPI_MSPD_HIGH_SPEED),m)
+    SPI_MSPD=m
+endif
+ifeq ($(CONFIG_SPI_MSPD_LOW_SPEED),m)
+    SPI_MSPD=m
+endif
+ifeq ($(CONFIG_SPI_MSPD_HIGH_SPEED),y)
+    SPI_MSPD=y
+endif
+ifeq ($(CONFIG_SPI_MSPD_LOW_SPEED),y)
+    SPI_MSPD=y
+endif
+#obj-$(SPI_MSPD)				+= spi-c2000-dma.o
+#obj-$(SPI_MSPD)				+= spi-c2000.o
+endif
+
 obj-$(CONFIG_SPI_DAVINCI)		+= spi-davinci.o
+ifeq ($(CONFIG_SYNO_COMCERTO),y)
+obj-$(CONFIG_SPI_DESIGNWARE)		+= designware_spi.o
+obj-$(CONFIG_SPI_DESIGNWARE)		+= designware_spi_dma.o
+else
 obj-$(CONFIG_SPI_DESIGNWARE)		+= spi-dw.o
+endif
 obj-$(CONFIG_SPI_DW_MMIO)		+= spi-dw-mmio.o
 obj-$(CONFIG_SPI_DW_PCI)		+= spi-dw-midpci.o
 spi-dw-midpci-objs			:= spi-dw-pci.o spi-dw-mid.o
@@ -44,6 +71,9 @@ obj-$(CONFIG_SPI_PL022)			+= spi-pl022.o
 obj-$(CONFIG_SPI_PPC4xx)		+= spi-ppc4xx.o
 obj-$(CONFIG_SPI_PXA2XX)		+= spi-pxa2xx.o
 obj-$(CONFIG_SPI_PXA2XX_PCI)		+= spi-pxa2xx-pci.o
+ifeq ($(CONFIG_ARCH_GEN3),y)
+obj-$(CONFIG_SPI_CE5XX_SPI_SLAVE) += ce5xx_spi_slv.o
+endif
 obj-$(CONFIG_SPI_S3C24XX)		+= spi-s3c24xx-hw.o
 spi-s3c24xx-hw-y			:= spi-s3c24xx.o
 spi-s3c24xx-hw-$(CONFIG_SPI_S3C24XX_FIQ) += spi-s3c24xx-fiq.o

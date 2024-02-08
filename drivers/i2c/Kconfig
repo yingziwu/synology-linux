@@ -24,6 +24,13 @@ menuconfig I2C
 
 if I2C
 
+config GEN3_I2C
+  	bool "Intel Media SOC I2C support"
+   	depends on I2C && ARCH_GEN3
+    	default y
+     	help
+          This option enables Intel Media SOC I2C support.
+
 config I2C_BOARDINFO
 	boolean
 	default y
@@ -44,7 +51,7 @@ config I2C_CHARDEV
 	  programs use the I2C bus.  Information on how to do this is
 	  contained in the file <file:Documentation/i2c/dev-interface>.
 
-	  This support is also available as a module.  If so, the module 
+	  This support is also available as a module.  If so, the module
 	  will be called i2c-dev.
 
 config I2C_MUX
@@ -86,6 +93,7 @@ config I2C_SMBUS
 
 source drivers/i2c/algos/Kconfig
 source drivers/i2c/busses/Kconfig
+source drivers/i2c/chips/Kconfig
 
 config I2C_DEBUG_CORE
 	bool "I2C Core debugging messages"

@@ -166,7 +166,6 @@ static struct inode *exofs_alloc_inode(struct super_block *sb)
 static void exofs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
-	INIT_LIST_HEAD(&inode->i_dentry);
 	kmem_cache_free(exofs_inode_cachep, exofs_i(inode));
 }
 
@@ -207,6 +206,11 @@ static int init_inodecache(void)
  */
 static void destroy_inodecache(void)
 {
+	/*
+	 * Make sure all delayed rcu free inodes are flushed before we
+	 * destroy cache.
+	 */
+	rcu_barrier();
 	kmem_cache_destroy(exofs_inode_cachep);
 }
 
@@ -332,7 +336,6 @@ int exofs_sbi_write_stats(struct exofs_sb_info *sbi)
 	sbi->s_ess.s_numfiles = cpu_to_le64(sbi->s_numfiles);
 	attrs[0].val_ptr = &sbi->s_ess;
 
-
 	ios->done = stats_done;
 	ios->private = sbi;
 	ios->out_attr = attrs;
@@ -403,7 +406,6 @@ static int exofs_sync_fs(struct super_block *sb, int wait)
 		EXOFS_ERR("%s: ore_write failed.\n", __func__);
 	else
 		sb->s_dirt = 0;
-
 
 	unlock_super(sb);
 out:

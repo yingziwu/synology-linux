@@ -129,7 +129,6 @@ static void ttm_object_file_destroy(struct kref *kref)
 	kfree(tfile);
 }
 
-
 static inline void ttm_object_file_unref(struct ttm_object_file **p_tfile)
 {
 	struct ttm_object_file *tfile = *p_tfile;
@@ -137,7 +136,6 @@ static inline void ttm_object_file_unref(struct ttm_object_file **p_tfile)
 	*p_tfile = NULL;
 	kref_put(&tfile->refcount, ttm_object_file_destroy);
 }
-
 
 int ttm_base_object_init(struct ttm_object_file *tfile,
 			 struct ttm_base_object *base,

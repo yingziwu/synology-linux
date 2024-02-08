@@ -21,7 +21,6 @@
  *
  */
 
-
 #include <linux/device.h>
 #include <linux/hid.h>
 #include <linux/module.h>
@@ -176,7 +175,6 @@ static const u8 hid_reportid_size_map[NUMBER_OF_HID_REPORTS] = {
 	[4] = 2,		/* System control */
 	[8] = 2,		/* Media Center */
 };
-
 
 #define LOGITECH_DJ_INTERFACE_NUMBER 0x02
 
@@ -446,7 +444,6 @@ static void logi_dj_recv_forward_report(struct dj_receiver_dev *djrcv_dev,
 	}
 }
 
-
 static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
 				    struct dj_report *dj_report)
 {
@@ -486,7 +483,6 @@ static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
 	return retval;
 }
 
-
 static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
 					  unsigned timeout)
 {
@@ -505,7 +501,6 @@ static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
 	kfree(dj_report);
 	return retval;
 }
-
 
 static int logi_dj_ll_open(struct hid_device *hid)
 {
@@ -668,7 +663,6 @@ static void logi_dj_ll_stop(struct hid_device *hid)
 	dbg_hid("%s\n", __func__);
 }
 
-
 static struct hid_ll_driver logi_dj_ll_driver = {
 	.parse = logi_dj_ll_parse,
 	.start = logi_dj_ll_start,
@@ -677,7 +671,6 @@ static struct hid_ll_driver logi_dj_ll_driver = {
 	.close = logi_dj_ll_close,
 	.hidinput_input_event = logi_dj_ll_input_event,
 };
-
 
 static int logi_dj_raw_event(struct hid_device *hdev,
 			     struct hid_report *report, u8 *data,
@@ -927,7 +920,6 @@ static struct hid_driver logi_djreceiver_driver = {
 #endif
 };
 
-
 static const struct hid_device_id logi_dj_devices[] = {
 	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
 		USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER)},
@@ -941,7 +933,6 @@ static struct hid_driver logi_djdevice_driver = {
 	.id_table = logi_dj_devices,
 	.probe = logi_djdevice_probe,
 };
-
 
 static int __init logi_dj_init(void)
 {

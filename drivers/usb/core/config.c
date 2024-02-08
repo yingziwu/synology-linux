@@ -9,12 +9,10 @@
 #include <asm/byteorder.h>
 #include "usb.h"
 
-
 #define USB_MAXALTSETTING		128	/* Hard limit */
 #define USB_MAXENDPOINTS		30	/* Hard limit */
 
 #define USB_MAXCONFIG			8	/* Arbitrary limit */
-
 
 static inline const char *plural(int n)
 {
@@ -643,7 +641,6 @@ void usb_destroy_configuration(struct usb_device *dev)
 	kfree(dev->config);
 	dev->config = NULL;
 }
-
 
 /*
  * Get the USB config descriptors, cache and parse'em

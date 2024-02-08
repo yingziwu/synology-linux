@@ -175,7 +175,6 @@ fill_write_buffer(struct sysfs_buffer * buffer, const char __user * buf, size_t 
 	return error ? -EFAULT : count;
 }
 
-
 /**
  *	flush_write_buffer - push buffer to kobject.
  *	@dentry:	dentry to the attribute
@@ -205,7 +204,6 @@ flush_write_buffer(struct dentry * dentry, struct sysfs_buffer * buffer, size_t 
 
 	return rc;
 }
-
 
 /**
  *	sysfs_write_file - write an attribute.
@@ -554,13 +552,11 @@ int sysfs_add_file_mode(struct sysfs_dirent *dir_sd,
 	return rc;
 }
 
-
 int sysfs_add_file(struct sysfs_dirent *dir_sd, const struct attribute *attr,
 		   int type)
 {
 	return sysfs_add_file_mode(dir_sd, attr, type, attr->mode);
 }
-
 
 /**
  *	sysfs_create_file - create an attribute file for an object.
@@ -651,7 +647,6 @@ int sysfs_chmod_file(struct kobject *kobj, const struct attribute *attr,
 	return rc;
 }
 EXPORT_SYMBOL_GPL(sysfs_chmod_file);
-
 
 /**
  *	sysfs_remove_file - remove an object attribute.
@@ -791,7 +786,6 @@ int sysfs_schedule_callback(struct kobject *kobj, void (*func)(void *),
 	return 0;
 }
 EXPORT_SYMBOL_GPL(sysfs_schedule_callback);
-
 
 EXPORT_SYMBOL_GPL(sysfs_create_file);
 EXPORT_SYMBOL_GPL(sysfs_remove_file);

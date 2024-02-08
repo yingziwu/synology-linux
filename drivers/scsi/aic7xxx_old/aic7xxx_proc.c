@@ -26,9 +26,8 @@
  *
  *  Dean W. Gehnert, deang@teleport.com, 05/01/96
  *
- *  $Id: aic7xxx_proc.c,v 4.1 1997/06/97 08:23:42 deang Exp $
+ *  $Id: aic7xxx_proc.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *-M*************************************************************************/
-
 
 #define	BLS	(&aic7xxx_buffer[size])
 #define HDRB \
@@ -55,7 +54,6 @@ proc_debug(const char *fmt, ...)
 static int aic7xxx_buffer_size = 0;
 static char *aic7xxx_buffer = NULL;
 
-
 /*+F*************************************************************************
  * Function:
  *   aic7xxx_set_info
@@ -69,7 +67,6 @@ aic7xxx_set_info(char *buffer, int length, struct Scsi_Host *HBAptr)
   proc_debug("aic7xxx_set_info(): %s\n", buffer);
   return (-ENOSYS);  /* Currently this is a no-op */
 }
-
 
 /*+F*************************************************************************
  * Function:

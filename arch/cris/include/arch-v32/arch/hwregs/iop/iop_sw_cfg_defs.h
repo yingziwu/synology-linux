@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:10:19 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c --outfile iop_sw_cfg_defs.h ../../inst/io_proc/rtl/guinness/iop_sw_cfg.r
- *      id: $Id: iop_sw_cfg_defs.h,v 1.4 2005/04/24 18:31:05 starvik Exp $
+ *      id: $Id: iop_sw_cfg_defs.h,v 1.1.1.1 2010/04/15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -716,7 +716,6 @@ typedef struct {
 } reg_iop_sw_cfg_rw_sdp_cfg;
 #define REG_RD_ADDR_iop_sw_cfg_rw_sdp_cfg 236
 #define REG_WR_ADDR_iop_sw_cfg_rw_sdp_cfg 236
-
 
 /* Constants */
 enum {

@@ -29,7 +29,6 @@
 #include <linux/export.h>
 #include <net/mac80211.h>
 
-
 #include "iwl-dev.h"
 #include "iwl-debug.h"
 #include "iwl-core.h"
@@ -68,7 +67,6 @@ static ssize_t iwl_legacy_dbgfs_##name##_read(struct file *file,               \
 static ssize_t iwl_legacy_dbgfs_##name##_write(struct file *file,              \
 					const char __user *user_buf,    \
 					size_t count, loff_t *ppos);
-
 
 static int
 iwl_legacy_dbgfs_open_file_generic(struct inode *inode, struct file *file)
@@ -949,7 +947,6 @@ static ssize_t iwl_legacy_dbgfs_sensitivity_read(struct file *file,
 	kfree(buf);
 	return ret;
 }
-
 
 static ssize_t iwl_legacy_dbgfs_chain_noise_read(struct file *file,
 					char __user *user_buf,

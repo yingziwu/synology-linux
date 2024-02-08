@@ -1,4 +1,4 @@
-/* $Id: hycapi.c,v 1.8.6.4 2001/09/23 22:24:54 kai Exp $
+/* $Id: hycapi.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * Linux driver for HYSDN cards, CAPI2.0-Interface.
  *
@@ -31,7 +31,7 @@
 #include "hysdn_defs.h"
 #include <linux/kernelcapi.h>
 
-static char hycapi_revision[]="$Revision: 1.8.6.4 $";
+static char hycapi_revision[]="$Revision: 1.1.1.1 $";
 
 unsigned int hycapi_enable = 0xffffffff; 
 module_param(hycapi_enable, uint, 0);
@@ -103,7 +103,6 @@ hycapi_remove_ctr(struct capi_ctr *ctrl)
 	ctrl->driverdata = NULL;
 	kfree(card->hyctrlinfo);
 
-		
 	card->hyctrlinfo = NULL;
 }
 
@@ -315,7 +314,6 @@ hycapi_release_appl(struct capi_ctr *ctrl, __u16 appl)
 	}
 }
 
-
 /**************************************************************
 Kill a single controller.
 **************************************************************/
@@ -496,7 +494,6 @@ static int hycapi_load_firmware(struct capi_ctr *ctrl, capiloaddata *data)
 	return 0;
 }
 
-
 static char *hycapi_procinfo(struct capi_ctr *ctrl)
 {
 	hycapictrl_info *cinfo = (hycapictrl_info *)(ctrl->driverdata);
@@ -669,7 +666,6 @@ hycapi_tx_capiget(hysdn_card *card)
 
 	return (cinfo->skbs[cinfo->out_idx]);		/* next packet to send */
 }
-
 
 /**********************************************************
 int hycapi_init()

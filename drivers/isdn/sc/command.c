@@ -1,4 +1,4 @@
-/* $Id: command.c,v 1.4.10.1 2001/09/23 22:24:59 kai Exp $
+/* $Id: command.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * Copyright (C) 1996  SpellCaster Telecommunications Inc.
  *
@@ -153,7 +153,6 @@ int startproc(int card)
 	
 	return status;
 }
-
 
 /*
  * Dials the number passed in 

@@ -1,4 +1,4 @@
-/* $Id: capifunc.c,v 1.61.4.7 2005/02/11 19:40:25 armin Exp $
+/* $Id: capifunc.c,v 1.1.1.1 2010/04/15 12:27:50 khchen Exp $
  *
  * ISDN interface module for Eicon active cards DIVA.
  * CAPI Interface common functions
@@ -47,7 +47,6 @@ static void DIRequest(ENTITY * e);
 static DESCRIPTOR MAdapter;
 static DESCRIPTOR DAdapter;
 static byte ControllerMap[MAX_DESCRIPTORS + 1];
-
 
 static void diva_register_appl(struct capi_ctr *, __u16,
 			       capi_register_params *);
@@ -734,7 +733,6 @@ static void diva_register_appl(struct capi_ctr *ctrl, __u16 appl,
 	unsigned int mem_len;
 	int nconn = rp->level3cnt;
 
-
 	if (diva_os_in_irq()) {
 		DBG_ERR(("CAPI_REGISTER - in irq context !"))
 		return;
@@ -1003,7 +1001,6 @@ static u16 diva_send_message(struct capi_ctr *ctrl,
 	return retval;
 }
 
-
 /*
  * cards request function
  */
@@ -1186,7 +1183,6 @@ int DIVA_INIT_FUNCTION init_capifunc(void)
 	diva_os_initialize_spin_lock(&api_lock, "capifunc");
 	memset(ControllerMap, 0, MAX_DESCRIPTORS + 1);
 	max_adapter = 0;
-
 
 	if (!init_main_structs()) {
 		DBG_ERR(("init: failed to init main structs."))

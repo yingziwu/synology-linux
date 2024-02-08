@@ -142,7 +142,6 @@ static void quanta_filter_event(struct quanta_data *td, struct input_dev *input)
 	}
 }
 
-
 static int quanta_event(struct hid_device *hid, struct hid_field *field,
 				struct hid_usage *usage, __s32 value)
 {
@@ -258,4 +257,3 @@ static void __exit quanta_exit(void)
 
 module_init(quanta_init);
 module_exit(quanta_exit);
-

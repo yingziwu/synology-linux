@@ -509,6 +509,10 @@ config MTD_VMU
 	  To build this as a module select M here, the module will be called
 	  vmu-flash.
 
+config SYNO_MTD_PHYMAPS
+	bool "Flash device mapped on Synology Board"
+	depends on MTD_CFI && ( SYNO_MPC85XX_COMMON)
+
 config MTD_PISMO
 	tristate "MTD discovery driver for PISMO modules"
 	depends on I2C
@@ -534,5 +538,9 @@ config MTD_LATCH_ADDR
           and have the upper address lines set by a board specific code.
 
           If compiled as a module, it will be called latch-addr-flash.
+
+config SYNO_MTD_PHYMAPS
+        bool "Flash device mapped on Synology Board"
+        depends on MTD_CFI && ( SYNO_MPC85XX_COMMON || SYNO_PLX_PORTING || SYNO_ARMADA|| SYNO_ARMADA_V2)
 
 endmenu

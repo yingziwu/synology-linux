@@ -1502,7 +1502,6 @@ static void ftrace_bug(int failed, unsigned long ip)
 	}
 }
 
-
 /* Return 1 if the address range is reserved for ftrace */
 int ftrace_text_reserved(void *start, void *end)
 {
@@ -1516,7 +1515,6 @@ int ftrace_text_reserved(void *start, void *end)
 	} while_for_each_ftrace_rec();
 	return 0;
 }
-
 
 static int
 __ftrace_replace_code(struct dyn_ftrace *rec, int update)
@@ -2317,7 +2315,7 @@ ftrace_notrace_open(struct inode *inode, struct file *file)
 }
 
 static loff_t
-ftrace_regex_lseek(struct file *file, loff_t offset, int origin)
+ftrace_filter_lseek(struct file *file, loff_t offset, int origin)
 {
 	loff_t ret;
 
@@ -2594,7 +2592,6 @@ static void __disable_ftrace_function_probe(void)
 	ftrace_probe_registered = 0;
 }
 
-
 static void ftrace_free_entry_rcu(struct rcu_head *rhp)
 {
 	struct ftrace_func_probe *entry =
@@ -2604,7 +2601,6 @@ static void ftrace_free_entry_rcu(struct rcu_head *rhp)
 		entry->ops->free(&entry->data);
 	kfree(entry);
 }
-
 
 int
 register_ftrace_function_probe(char *glob, struct ftrace_probe_ops *ops,
@@ -3135,7 +3131,7 @@ static const struct file_operations ftrace_filter_fops = {
 	.open = ftrace_filter_open,
 	.read = seq_read,
 	.write = ftrace_filter_write,
-	.llseek = ftrace_regex_lseek,
+	.llseek = ftrace_filter_lseek,
 	.release = ftrace_regex_release,
 };
 
@@ -3143,7 +3139,7 @@ static const struct file_operations ftrace_notrace_fops = {
 	.open = ftrace_notrace_open,
 	.read = seq_read,
 	.write = ftrace_notrace_write,
-	.llseek = ftrace_regex_lseek,
+	.llseek = ftrace_filter_lseek,
 	.release = ftrace_regex_release,
 };
 
@@ -3351,8 +3347,8 @@ static const struct file_operations ftrace_graph_fops = {
 	.open		= ftrace_graph_open,
 	.read		= seq_read,
 	.write		= ftrace_graph_write,
+	.llseek		= ftrace_filter_lseek,
 	.release	= ftrace_graph_release,
-	.llseek		= seq_lseek,
 };
 #endif /* CONFIG_FUNCTION_GRAPH_TRACER */
 
@@ -3844,7 +3840,7 @@ static const struct file_operations ftrace_pid_fops = {
 	.open		= ftrace_pid_open,
 	.write		= ftrace_pid_write,
 	.read		= seq_read,
-	.llseek		= seq_lseek,
+	.llseek		= ftrace_filter_lseek,
 	.release	= ftrace_pid_release,
 };
 
@@ -3912,7 +3908,6 @@ int register_ftrace_function(struct ftrace_ops *ops)
 	ret = __register_ftrace_function(ops);
 	if (!ret)
 		ret = ftrace_startup(ops, 0);
-
 
  out_unlock:
 	mutex_unlock(&ftrace_lock);

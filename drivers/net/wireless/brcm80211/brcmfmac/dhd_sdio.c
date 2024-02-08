@@ -113,7 +113,6 @@ struct rte_console {
 
 #define BRCMF_FIRSTREAD	(1 << 6)
 
-
 /* SBSDIO_DEVICE_CTL */
 
 /* 1: device will assert busy signal when receiving CMD53 */
@@ -521,7 +520,6 @@ struct sdpcm_shared_le {
 	__le32 msgtrace_addr;
 	u8 tag[32];
 };
-
 
 /* misc chip info needed by some of the routines */
 struct chip_info {

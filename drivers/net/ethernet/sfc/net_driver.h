@@ -303,7 +303,6 @@ struct efx_buffer {
 	unsigned int len;
 };
 
-
 enum efx_rx_alloc_method {
 	RX_ALLOC_METHOD_AUTO = 0,
 	RX_ALLOC_METHOD_SKB = 1,
@@ -1035,7 +1034,6 @@ static inline void clear_bit_le(unsigned nr, unsigned char *addr)
 	addr[nr / 8] &= ~(1 << (nr % 8));
 }
 
-
 /**
  * EFX_MAX_FRAME_LEN - calculate maximum frame length
  *
@@ -1055,6 +1053,5 @@ static inline void clear_bit_le(unsigned nr, unsigned char *addr)
  */
 #define EFX_MAX_FRAME_LEN(mtu) \
 	((((mtu) + ETH_HLEN + VLAN_HLEN + 4/* FCS */ + 7) & ~7) + 16)
-
 
 #endif /* EFX_NET_DRIVER_H */

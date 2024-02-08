@@ -254,7 +254,6 @@ static inline void iwl_trans_wake_any_queue(struct iwl_trans *trans,
 	trans->ops->wake_any_queue(trans, ctx);
 }
 
-
 static inline int iwl_trans_send_cmd(struct iwl_trans *trans,
 				struct iwl_host_cmd *cmd)
 {
@@ -291,7 +290,6 @@ static inline int iwl_trans_tx_agg_alloc(struct iwl_trans *trans,
 {
 	return trans->ops->tx_agg_alloc(trans, ctx, sta_id, tid, ssn);
 }
-
 
 static inline void iwl_trans_tx_agg_setup(struct iwl_trans *trans,
 					   enum iwl_rxon_context_id ctx,

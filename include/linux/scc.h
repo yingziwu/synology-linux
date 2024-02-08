@@ -1,8 +1,7 @@
-/* $Id: scc.h,v 1.29 1997/04/02 14:56:45 jreuter Exp jreuter $ */
+/* $Id: scc.h,v 1.1.1.1 2010/04/15 12:28:23 khchen Exp $ */
 
 #ifndef	_SCC_H
 #define	_SCC_H
-
 
 /* selection of hardware types */
 
@@ -158,7 +157,6 @@ struct scc_hw_config {
 
 /* (#) only one INTACK latch allowed. */
 
-
 struct scc_mem_config {
 	unsigned int dummy;
 	unsigned int bufsize;
@@ -207,7 +205,6 @@ struct scc_kiss {
 	unsigned char mode;		/* 'normal' or 'hwctrl' mode (unused) */
 	unsigned char softdcd;		/* Use DPLL instead of DCD pin for carrier detect */
 };
-
 
 /* SCC channel structure */
 

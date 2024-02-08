@@ -112,7 +112,6 @@ struct plat_smp_ops msmtc_smp_ops = {
  * IRQ affinity hook
  */
 
-
 int plat_set_irq_affinity(struct irq_data *d, const struct cpumask *affinity,
 			  bool force)
 {

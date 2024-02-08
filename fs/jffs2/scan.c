@@ -1,14 +1,7 @@
-/*
- * JFFS2 -- Journalling Flash File System, Version 2.
- *
- * Copyright © 2001-2007 Red Hat, Inc.
- *
- * Created by David Woodhouse <dwmw2@infradead.org>
- *
- * For licensing information, see the file 'LICENCE' in this directory.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
@@ -21,6 +14,10 @@
 #include "debug.h"
 
 #define DEFAULT_EMPTY_SCAN_SIZE 256
+
+#if defined(MY_DEF_HERE) && defined(CONFIG_MTD_NAND_COMCERTO)
+#define BIT_FLIP_TOLERENCE	7
+#endif
 
 #define noisy_printk(noise, args...) do { \
 	if (*(noise)) { \
@@ -37,10 +34,6 @@ static uint32_t pseudo_random;
 static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb,
 				  unsigned char *buf, uint32_t buf_size, struct jffs2_summary *s);
 
-/* These helper functions _must_ increase ofs and also do the dirty/used space accounting.
- * Returning an error will abort the mount - bad checksums etc. should just mark the space
- * as dirty.
- */
 static int jffs2_scan_inode_node(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb,
 				 struct jffs2_raw_inode *ri, uint32_t ofs, struct jffs2_summary *s);
 static int jffs2_scan_dirent_node(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb,
@@ -64,6 +57,17 @@ static inline uint32_t EMPTY_SCAN_SIZE(uint32_t sector_size) {
 		return DEFAULT_EMPTY_SCAN_SIZE;
 }
 
+#if defined(MY_DEF_HERE) && defined(CONFIG_MTD_NAND_COMCERTO)
+static inline uint32_t count_zero_bits( uint32_t value) {
+	uint32_t num_zeros = 0;
+	size_t i;
+	for (i = 0; i < sizeof value; ++i, value >>= 1) {
+		if ((value & 1) == 0)
+			++num_zeros;
+	}
+}
+#endif
+
 static int file_dirty(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb)
 {
 	int ret;
@@ -72,8 +76,7 @@ static int file_dirty(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb)
 		return ret;
 	if ((ret = jffs2_scan_dirty_space(c, jeb, jeb->free_size)))
 		return ret;
-	/* Turned wasted size into dirty, since we apparently 
-	   think it's recoverable now. */
+	 
 	jeb->dirty_size += jeb->wasted_size;
 	c->dirty_size += jeb->wasted_size;
 	c->wasted_size -= jeb->wasted_size;
@@ -92,7 +95,7 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 	uint32_t empty_blocks = 0, bad_blocks = 0;
 	unsigned char *flashbuf = NULL;
 	uint32_t buf_size = 0;
-	struct jffs2_summary *s = NULL; /* summary info collected by the scan process */
+	struct jffs2_summary *s = NULL;  
 #ifndef __ECOS
 	size_t pointlen, try_size;
 
@@ -100,7 +103,7 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 		ret = c->mtd->point(c->mtd, 0, c->mtd->size, &pointlen,
 				    (void **)&flashbuf, NULL);
 		if (!ret && pointlen < c->mtd->size) {
-			/* Don't muck about if it won't let us point to the whole flash */
+			 
 			D1(printk(KERN_DEBUG "MTD point returned len too short: 0x%zx\n", pointlen));
 			c->mtd->unpoint(c->mtd, 0, pointlen);
 			flashbuf = NULL;
@@ -110,8 +113,7 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 	}
 #endif
 	if (!flashbuf) {
-		/* For NAND it's quicker to read a whole eraseblock at a time,
-		   apparently */
+		 
 		if (jffs2_cleanmarker_oob(c))
 			try_size = c->sector_size;
 		else
@@ -144,40 +146,40 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 
 		cond_resched();
 
-		/* reset summary info for next eraseblock scan */
 		jffs2_sum_reset_collected(s);
 
+#if defined(MY_DEF_HERE)
+		if (c->flags & (1 << 7))
+			ret = BLK_STATE_ALLFF;
+		else
+			ret = jffs2_scan_eraseblock(c, jeb, buf_size?flashbuf:(flashbuf+jeb->offset),
+							buf_size, s);
+#else
 		ret = jffs2_scan_eraseblock(c, jeb, buf_size?flashbuf:(flashbuf+jeb->offset),
 						buf_size, s);
+#endif
 
 		if (ret < 0)
 			goto out;
 
 		jffs2_dbg_acct_paranoia_check_nolock(c, jeb);
 
-		/* Now decide which list to put it on */
 		switch(ret) {
 		case BLK_STATE_ALLFF:
-			/*
-			 * Empty block.   Since we can't be sure it
-			 * was entirely erased, we just queue it for erase
-			 * again.  It will be marked as such when the erase
-			 * is complete.  Meanwhile we still count it as empty
-			 * for later checks.
-			 */
+			 
 			empty_blocks++;
 			list_add(&jeb->list, &c->erase_pending_list);
 			c->nr_erasing_blocks++;
 			break;
 
 		case BLK_STATE_CLEANMARKER:
-			/* Only a CLEANMARKER node is valid */
+			 
 			if (!jeb->dirty_size) {
-				/* It's actually free */
+				 
 				list_add(&jeb->list, &c->free_list);
 				c->nr_free_blocks++;
 			} else {
-				/* Dirt */
+				 
 				D1(printk(KERN_DEBUG "Adding all-dirty block at 0x%08x to erase_pending_list\n", jeb->offset));
 				list_add(&jeb->list, &c->erase_pending_list);
 				c->nr_erasing_blocks++;
@@ -185,25 +187,23 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 			break;
 
 		case BLK_STATE_CLEAN:
-			/* Full (or almost full) of clean data. Clean list */
+			 
 			list_add(&jeb->list, &c->clean_list);
 			break;
 
 		case BLK_STATE_PARTDIRTY:
-			/* Some data, but not full. Dirty list. */
-			/* We want to remember the block with most free space
-			and stick it in the 'nextblock' position to start writing to it. */
+			 
 			if (jeb->free_size > min_free(c) &&
 					(!c->nextblock || c->nextblock->free_size < jeb->free_size)) {
-				/* Better candidate for the next writes to go to */
+				 
 				if (c->nextblock) {
 					ret = file_dirty(c, c->nextblock);
 					if (ret)
 						goto out;
-					/* deleting summary information of the old nextblock */
+					 
 					jffs2_sum_reset_collected(c->summary);
 				}
-				/* update collected summary information for the current nextblock */
+				 
 				jffs2_sum_move_collected(c, s);
 				D1(printk(KERN_DEBUG "jffs2_scan_medium(): new nextblock = 0x%08x\n", jeb->offset));
 				c->nextblock = jeb;
@@ -215,8 +215,7 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 			break;
 
 		case BLK_STATE_ALLDIRTY:
-			/* Nothing valid - not even a clean marker. Needs erasing. */
-			/* For now we just put it on the erasing list. We'll start the erases later */
+			 
 			D1(printk(KERN_NOTICE "JFFS2: Erase block at 0x%08x is not formatted. It will be erased\n", jeb->offset));
 			list_add(&jeb->list, &c->erase_pending_list);
 			c->nr_erasing_blocks++;
@@ -235,7 +234,6 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 		}
 	}
 
-	/* Nextblock dirty is always seen as wasted, because we cannot recycle it now */
 	if (c->nextblock && (c->nextblock->dirty_size)) {
 		c->nextblock->wasted_size += c->nextblock->dirty_size;
 		c->wasted_size += c->nextblock->dirty_size;
@@ -244,10 +242,7 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
 	}
 #ifdef CONFIG_JFFS2_FS_WRITEBUFFER
 	if (!jffs2_can_mark_obsolete(c) && c->wbuf_pagesize && c->nextblock && (c->nextblock->free_size % c->wbuf_pagesize)) {
-		/* If we're going to start writing into a block which already
-		   contains data, and the end of the data isn't page-aligned,
-		   skip a little and align it. */
-
+		 
 		uint32_t skip = c->nextblock->free_size % c->wbuf_pagesize;
 
 		D1(printk(KERN_DEBUG "jffs2_scan_medium(): Skipping %d bytes in nextblock to ensure page alignment\n",
@@ -303,7 +298,6 @@ int jffs2_scan_classify_jeb(struct jffs2_sb_info *c, struct jffs2_eraseblock *je
 	    && (!jeb->first_node || !ref_next(jeb->first_node)) )
 		return BLK_STATE_CLEANMARKER;
 
-	/* move blocks with max 4 byte dirty space to cleanlist */
 	else if (!ISDIRTY(c->sector_size - (jeb->used_size + jeb->unchecked_size))) {
 		c->dirty_size -= jeb->dirty_size;
 		c->wasted_size += jeb->dirty_size;
@@ -403,15 +397,6 @@ static int jffs2_scan_xref_node(struct jffs2_sb_info *c, struct jffs2_eraseblock
 	if (!ref)
 		return -ENOMEM;
 
-	/* BEFORE jffs2_build_xattr_subsystem() called, 
-	 * and AFTER xattr_ref is marked as a dead xref,
-	 * ref->xid is used to store 32bit xid, xd is not used
-	 * ref->ino is used to store 32bit inode-number, ic is not used
-	 * Thoes variables are declared as union, thus using those
-	 * are exclusive. In a similar way, ref->next is temporarily
-	 * used to chain all xattr_ref object. It's re-chained to
-	 * jffs2_inode_cache in jffs2_build_xattr_subsystem() correctly.
-	 */
 	ref->ino = je32_to_cpu(rr->ino);
 	ref->xid = je32_to_cpu(rr->xid);
 	ref->xseqno = je32_to_cpu(rr->xseqno);
@@ -430,8 +415,6 @@ static int jffs2_scan_xref_node(struct jffs2_sb_info *c, struct jffs2_eraseblock
 }
 #endif
 
-/* Called with 'buf_size == 0' if buf is in fact a pointer _directly_ into
-   the flash, XIP-style */
 static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb,
 				  unsigned char *buf, uint32_t buf_size, struct jffs2_summary *s) {
 	struct jffs2_unknown_node *node;
@@ -440,7 +423,6 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 	uint32_t hdr_crc, buf_ofs, buf_len;
 	int err;
 	int noise = 0;
-
 
 #ifdef CONFIG_JFFS2_FS_WRITEBUFFER
 	int cleanmarkerfound = 0;
@@ -461,9 +443,6 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 		ret = jffs2_check_nand_cleanmarker(c, jeb);
 		D2(printk(KERN_NOTICE "jffs_check_nand_cleanmarker returned %d\n",ret));
 
-		/* Even if it's not found, we still scan to see
-		   if the block is empty. We use this information
-		   to decide whether to erase it or not. */
 		switch (ret) {
 		case 0:		cleanmarkerfound = 1; break;
 		case 1: 	break;
@@ -476,25 +455,24 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 		struct jffs2_sum_marker *sm;
 		void *sumptr = NULL;
 		uint32_t sumlen;
-	      
+
 		if (!buf_size) {
-			/* XIP case. Just look, point at the summary if it's there */
+			 
 			sm = (void *)buf + c->sector_size - sizeof(*sm);
 			if (je32_to_cpu(sm->magic) == JFFS2_SUM_MAGIC) {
 				sumptr = buf + je32_to_cpu(sm->offset);
 				sumlen = c->sector_size - je32_to_cpu(sm->offset);
 			}
 		} else {
-			/* If NAND flash, read a whole page of it. Else just the end */
+			 
 			if (c->wbuf_pagesize)
 				buf_len = c->wbuf_pagesize;
 			else
 				buf_len = sizeof(*sm);
 
-			/* Read as much as we want into the _end_ of the preallocated buffer */
-			err = jffs2_fill_scan_buf(c, buf + buf_size - buf_len, 
+			err = jffs2_fill_scan_buf(c, buf + buf_size - buf_len,
 						  jeb->offset + c->sector_size - buf_len,
-						  buf_len);				
+						  buf_len);
 			if (err)
 				return err;
 
@@ -503,19 +481,18 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 				sumlen = c->sector_size - je32_to_cpu(sm->offset);
 				sumptr = buf + buf_size - sumlen;
 
-				/* Now, make sure the summary itself is available */
 				if (sumlen > buf_size) {
-					/* Need to kmalloc for this. */
+					 
 					sumptr = kmalloc(sumlen, GFP_KERNEL);
 					if (!sumptr)
 						return -ENOMEM;
 					memcpy(sumptr + sumlen - buf_len, buf + buf_size - buf_len, buf_len);
 				}
 				if (buf_len < sumlen) {
-					/* Need to read more so that the entire summary node is present */
-					err = jffs2_fill_scan_buf(c, sumptr, 
+					 
+					err = jffs2_fill_scan_buf(c, sumptr,
 								  jeb->offset + c->sector_size - sumlen,
-								  sumlen - buf_len);				
+								  sumlen - buf_len);
 					if (err)
 						return err;
 				}
@@ -528,10 +505,7 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 
 			if (buf_size && sumlen > buf_size)
 				kfree(sumptr);
-			/* If it returns with a real error, bail. 
-			   If it returns positive, that's a block classification
-			   (i.e. BLK_STATE_xxx) so return that too.
-			   If it returns zero, fall through to full scan. */
+			 
 			if (err)
 				return err;
 		}
@@ -540,7 +514,7 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 	buf_ofs = jeb->offset;
 
 	if (!buf_size) {
-		/* This is the XIP case -- we're reading _directly_ from the flash chip */
+		 
 		buf_len = c->sector_size;
 	} else {
 		buf_len = EMPTY_SCAN_SIZE(c->sector_size);
@@ -549,17 +523,29 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 			return err;
 	}
 
-	/* We temporarily use 'ofs' as a pointer into the buffer/jeb */
+#if defined(MY_DEF_HERE)
+	if ((buf[0] == 0xde) &&
+		(buf[1] == 0xad) &&
+		(buf[2] == 0xc0) &&
+		(buf[3] == 0xde)) {
+		 
+		printk("%s(): End of filesystem marker found at 0x%x\n", __func__, jeb->offset);
+		c->flags |= (1 << 7);
+
+		return BLK_STATE_ALLFF;
+	}
+#endif
+
 	ofs = 0;
 	max_ofs = EMPTY_SCAN_SIZE(c->sector_size);
-	/* Scan only EMPTY_SCAN_SIZE of 0xFF before declaring it's empty */
+	 
 	while(ofs < max_ofs && *(uint32_t *)(&buf[ofs]) == 0xFFFFFFFF)
 		ofs += 4;
 
 	if (ofs == max_ofs) {
 #ifdef CONFIG_JFFS2_FS_WRITEBUFFER
 		if (jffs2_cleanmarker_oob(c)) {
-			/* scan oob, take care of cleanmarker */
+			 
 			int ret = jffs2_check_oob_empty(c, jeb, cleanmarkerfound);
 			D2(printk(KERN_NOTICE "jffs2_check_oob_empty returned %d\n",ret));
 			switch (ret) {
@@ -571,10 +557,38 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 #endif
 		D1(printk(KERN_DEBUG "Block at 0x%08x is empty (erased)\n", jeb->offset));
 		if (c->cleanmarker_size == 0)
-			return BLK_STATE_CLEANMARKER;	/* don't bother with re-erase */
+			return BLK_STATE_CLEANMARKER;	 
 		else
-			return BLK_STATE_ALLFF;	/* OK to erase if all blocks are like this */
+			return BLK_STATE_ALLFF;	 
 	}
+
+#if defined(MY_DEF_HERE) && defined(CONFIG_MTD_NAND_COMCERTO)
+	else if (cleanmarkerfound) {
+			ofs = 0;
+			uint32_t num_zeros = 0;
+			while((ofs < max_ofs) && (num_zeros < BIT_FLIP_TOLERENCE)) {
+				if (!(*(uint32_t *)(&buf[ofs]) == 0xFFFFFFFF))
+					num_zeros = count_zero_bits(*(uint32_t *)(&buf[ofs]));
+				ofs += 4;
+			}
+#ifdef CONFIG_JFFS2_FS_WRITEBUFFER
+		if ((num_zeros < BIT_FLIP_TOLERENCE) && jffs2_cleanmarker_oob(c)) {
+			 
+			int ret = jffs2_check_oob_empty(c, jeb, cleanmarkerfound);
+			D2(printk(KERN_NOTICE "jffs2_check_oob_empty returned %d\n",ret));
+			switch (ret) {
+			case 0:		return cleanmarkerfound ? BLK_STATE_CLEANMARKER : BLK_STATE_ALLFF;
+			case 1: 	return BLK_STATE_ALLDIRTY;
+			default: 	return ret;
+			}
+		} else {
+			return BLK_STATE_ALLDIRTY;
+		}
+#endif
+
+	}
+#endif
+
 	if (ofs) {
 		D1(printk(KERN_DEBUG "Free space at %08x ends at %08x\n", jeb->offset,
 			  jeb->offset + ofs));
@@ -584,7 +598,6 @@ static int jffs2_scan_eraseblock (struct jffs2_sb_info *c, struct jffs2_eraseblo
 			return err;
 	}
 
-	/* Now ofs is a complete physical flash offset as it always was... */
 	ofs += jeb->offset;
 
 	noise = 10;
@@ -596,7 +609,6 @@ scan_more:
 
 		jffs2_dbg_acct_paranoia_check_nolock(c, jeb);
 
-		/* Make sure there are node refs available for use */
 		err = jffs2_prealloc_raw_node_refs(c, jeb, 2);
 		if (err)
 			return err;
@@ -660,31 +672,27 @@ scan_more:
 				inbuf_ofs+=4;
 				ofs += 4;
 			}
-			/* Ran off end. */
+			 
 			D1(printk(KERN_DEBUG "Empty flash to end of buffer at 0x%08x\n", ofs));
 
-			/* If we're only checking the beginning of a block with a cleanmarker,
-			   bail now */
 			if (buf_ofs == jeb->offset && jeb->used_size == PAD(c->cleanmarker_size) &&
 			    c->cleanmarker_size && !jeb->dirty_size && !ref_next(jeb->first_node)) {
 				D1(printk(KERN_DEBUG "%d bytes at start of block seems clean... assuming all clean\n", EMPTY_SCAN_SIZE(c->sector_size)));
 				return BLK_STATE_CLEANMARKER;
 			}
-			if (!buf_size && (scan_end != buf_len)) {/* XIP/point case */
+			if (!buf_size && (scan_end != buf_len)) { 
 				scan_end = buf_len;
 				goto more_empty;
 			}
-			
-			/* See how much more there is to read in this eraseblock... */
+
 			buf_len = min_t(uint32_t, buf_size, jeb->offset + c->sector_size - ofs);
 			if (!buf_len) {
-				/* No more to read. Break out of main loop without marking
-				   this range of empty space as dirty (because it's not) */
+				 
 				D1(printk(KERN_DEBUG "Empty flash at %08x runs to end of block. Treating as free_space\n",
 					  empty_start));
 				break;
 			}
-			/* point never reaches here */
+			 
 			scan_end = buf_len;
 			D1(printk(KERN_DEBUG "Reading another 0x%x at 0x%08x\n", buf_len, ofs));
 			err = jffs2_fill_scan_buf(c, buf, ofs, buf_len);
@@ -717,7 +725,7 @@ scan_more:
 			continue;
 		}
 		if (je16_to_cpu(node->magic) != JFFS2_MAGIC_BITMASK) {
-			/* OK. We're out of possibilities. Whinge and move on */
+			 
 			noisy_printk(&noise, "jffs2_scan_eraseblock(): Magic bitmask 0x%04x not found at 0x%08x: 0x%04x instead\n",
 				     JFFS2_MAGIC_BITMASK, ofs,
 				     je16_to_cpu(node->magic));
@@ -726,7 +734,7 @@ scan_more:
 			ofs += 4;
 			continue;
 		}
-		/* We seem to have a node of sorts. Check the CRC */
+		 
 		crcnode.magic = node->magic;
 		crcnode.nodetype = cpu_to_je16( je16_to_cpu(node->nodetype) | JFFS2_NODE_ACCURATE);
 		crcnode.totlen = node->totlen;
@@ -746,7 +754,7 @@ scan_more:
 		}
 
 		if (ofs + je32_to_cpu(node->totlen) > jeb->offset + c->sector_size) {
-			/* Eep. Node goes over the end of the erase block. */
+			 
 			printk(KERN_WARNING "Node at 0x%08x with length 0x%08x would run over the end of the erase block\n",
 			       ofs, je32_to_cpu(node->totlen));
 			printk(KERN_WARNING "Perhaps the file system was created with the wrong erase size?\n");
@@ -757,7 +765,7 @@ scan_more:
 		}
 
 		if (!(je16_to_cpu(node->nodetype) & JFFS2_NODE_ACCURATE)) {
-			/* Wheee. This is an obsoleted node */
+			 
 			D2(printk(KERN_DEBUG "Node at 0x%08x is obsolete. Skipping\n", ofs));
 			if ((err = jffs2_scan_dirty_space(c, jeb, PAD(je32_to_cpu(node->totlen)))))
 				return err;
@@ -833,7 +841,7 @@ scan_more:
 				return err;
 			ofs += PAD(je32_to_cpu(node->totlen));
 			break;
-#endif	/* CONFIG_JFFS2_FS_XATTR */
+#endif	 
 
 		case JFFS2_NODETYPE_CLEANMARKER:
 			D1(printk(KERN_DEBUG "CLEANMARKER node found at 0x%08x\n", ofs));
@@ -891,7 +899,6 @@ scan_more:
 
 				jffs2_link_node_ref(c, jeb, ofs | REF_PRISTINE, PAD(je32_to_cpu(node->totlen)), NULL);
 
-				/* We can't summarise nodes we don't grok */
 				jffs2_sum_disable_collecting(s);
 				ofs += PAD(je32_to_cpu(node->totlen));
 				break;
@@ -910,8 +917,7 @@ scan_more:
 
 	D1(printk(KERN_DEBUG "Block at 0x%08x: free 0x%08x, dirty 0x%08x, unchecked 0x%08x, used 0x%08x, wasted 0x%08x\n",
 		  jeb->offset,jeb->free_size, jeb->dirty_size, jeb->unchecked_size, jeb->used_size, jeb->wasted_size));
-	
-	/* mark_node_obsolete can add to wasted !! */
+
 	if (jeb->wasted_size) {
 		jeb->dirty_size += jeb->wasted_size;
 		c->dirty_size += jeb->wasted_size;
@@ -956,25 +962,12 @@ static int jffs2_scan_inode_node(struct jffs2_sb_info *c, struct jffs2_erasebloc
 
 	D1(printk(KERN_DEBUG "jffs2_scan_inode_node(): Node at 0x%08x\n", ofs));
 
-	/* We do very little here now. Just check the ino# to which we should attribute
-	   this node; we can do all the CRC checking etc. later. There's a tradeoff here --
-	   we used to scan the flash once only, reading everything we want from it into
-	   memory, then building all our in-core data structures and freeing the extra
-	   information. Now we allow the first part of the mount to complete a lot quicker,
-	   but we have to go _back_ to the flash in order to finish the CRC checking, etc.
-	   Which means that the _full_ amount of time to get to proper write mode with GC
-	   operational may actually be _longer_ than before. Sucks to be me. */
-
-	/* Check the node CRC in any case. */
 	crc = crc32(0, ri, sizeof(*ri)-8);
 	if (crc != je32_to_cpu(ri->node_crc)) {
 		printk(KERN_NOTICE "jffs2_scan_inode_node(): CRC failed on "
 		       "node at 0x%08x: Read 0x%08x, calculated 0x%08x\n",
 		       ofs, je32_to_cpu(ri->node_crc), crc);
-		/*
-		 * We believe totlen because the CRC on the node
-		 * _header_ was OK, just the node itself failed.
-		 */
+		 
 		return jffs2_scan_dirty_space(c, jeb,
 					      PAD(je32_to_cpu(ri->totlen)));
 	}
@@ -986,7 +979,6 @@ static int jffs2_scan_inode_node(struct jffs2_sb_info *c, struct jffs2_erasebloc
 			return -ENOMEM;
 	}
 
-	/* Wheee. It worked */
 	jffs2_link_node_ref(c, jeb, ofs | REF_UNCHECKED, PAD(je32_to_cpu(ri->totlen)), ic);
 
 	D1(printk(KERN_DEBUG "Node is ino #%u, version %d. Range 0x%x-0x%x\n",
@@ -1014,14 +1006,12 @@ static int jffs2_scan_dirent_node(struct jffs2_sb_info *c, struct jffs2_eraseblo
 
 	D1(printk(KERN_DEBUG "jffs2_scan_dirent_node(): Node at 0x%08x\n", ofs));
 
-	/* We don't get here unless the node is still valid, so we don't have to
-	   mask in the ACCURATE bit any more. */
 	crc = crc32(0, rd, sizeof(*rd)-8);
 
 	if (crc != je32_to_cpu(rd->node_crc)) {
 		printk(KERN_NOTICE "jffs2_scan_dirent_node(): Node CRC failed on node at 0x%08x: Read 0x%08x, calculated 0x%08x\n",
 		       ofs, je32_to_cpu(rd->node_crc), crc);
-		/* We believe totlen because the CRC on the node _header_ was OK, just the node itself failed. */
+		 
 		if ((err = jffs2_scan_dirty_space(c, jeb, PAD(je32_to_cpu(rd->totlen)))))
 			return err;
 		return 0;
@@ -1029,7 +1019,6 @@ static int jffs2_scan_dirent_node(struct jffs2_sb_info *c, struct jffs2_eraseblo
 
 	pseudo_random += je32_to_cpu(rd->version);
 
-	/* Should never happen. Did. (OLPC trac #4184)*/
 	checkedlen = strnlen(rd->name, rd->nsize);
 	if (checkedlen < rd->nsize) {
 		printk(KERN_ERR "Dirent at %08x has zeroes in name. Truncating to %d chars\n",
@@ -1048,8 +1037,7 @@ static int jffs2_scan_dirent_node(struct jffs2_sb_info *c, struct jffs2_eraseblo
 		       ofs, je32_to_cpu(rd->name_crc), crc);
 		D1(printk(KERN_NOTICE "Name for which CRC failed is (now) '%s', ino #%d\n", fd->name, je32_to_cpu(rd->ino)));
 		jffs2_free_full_dirent(fd);
-		/* FIXME: Why do we believe totlen? */
-		/* We believe totlen because the CRC on the node _header_ was OK, just the name failed. */
+		 
 		if ((err = jffs2_scan_dirty_space(c, jeb, PAD(je32_to_cpu(rd->totlen)))))
 			return err;
 		return 0;
@@ -1088,8 +1076,6 @@ static int count_list(struct list_head *l)
 	return count;
 }
 
-/* Note: This breaks if list_empty(head). I don't care. You
-   might, if you copy this code and use it elsewhere :) */
 static void rotate_list(struct list_head *head, uint32_t count)
 {
 	struct list_head *n = head->next;

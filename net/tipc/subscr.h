@@ -80,5 +80,4 @@ int tipc_subscr_start(void);
 
 void tipc_subscr_stop(void);
 
-
 #endif

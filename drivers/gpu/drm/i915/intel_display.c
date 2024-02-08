@@ -161,7 +161,6 @@ static const intel_limit_t intel_limits_i9xx_lvds = {
 	.find_pll = intel_find_best_PLL,
 };
 
-
 static const intel_limit_t intel_limits_g4x_sdvo = {
 	.dot = { .min = 25000, .max = 270000 },
 	.vco = { .min = 1750000, .max = 3500000},
@@ -3522,7 +3521,6 @@ ironlake_compute_m_n(int bits_per_pixel, int nlanes, int pixel_clock,
 	fdi_reduce_ratio(&m_n->link_m, &m_n->link_n);
 }
 
-
 struct intel_watermark_params {
 	unsigned long fifo_size;
 	unsigned long max_wm;
@@ -3667,7 +3665,6 @@ static const struct intel_watermark_params sandybridge_cursor_srwm_info = {
 	2,
 	SNB_FIFO_LINE_SIZE
 };
-
 
 /**
  * intel_calculate_wm - calculate watermark level
@@ -6829,7 +6826,6 @@ static void intel_idle_update(struct work_struct *work)
 			intel_decrease_pllclock(crtc);
 	}
 
-
 	mutex_unlock(&dev->struct_mutex);
 }
 
@@ -9001,7 +8997,6 @@ void intel_modeset_cleanup(struct drm_device *dev)
 	mutex_lock(&dev->struct_mutex);
 
 	intel_unregister_dsm_handler();
-
 
 	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
 		/* Skip inactive CRTCs */

@@ -449,7 +449,6 @@ static void iommu_set_intr_remapping(struct intel_iommu *iommu, int mode)
 	raw_spin_unlock_irqrestore(&iommu->register_lock, flags);
 }
 
-
 static int setup_intr_remapping(struct intel_iommu *iommu, int mode)
 {
 	struct ir_table *ir_table;
@@ -839,4 +838,3 @@ error:
 	 */
 	return -1;
 }
-

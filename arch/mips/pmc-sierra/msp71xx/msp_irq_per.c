@@ -21,7 +21,6 @@
 #include <msp_cic_int.h>
 #include <msp_regs.h>
 
-
 /*
  * Convenience Macro.  Should be somewhere generic.
  */

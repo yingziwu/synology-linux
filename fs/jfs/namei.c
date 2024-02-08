@@ -72,7 +72,7 @@ static inline void free_ea_wmap(struct inode *inode)
  * RETURN:	Errors from subroutines
  *
  */
-static int jfs_create(struct inode *dip, struct dentry *dentry, int mode,
+static int jfs_create(struct inode *dip, struct dentry *dentry, umode_t mode,
 		struct nameidata *nd)
 {
 	int rc = 0;
@@ -189,7 +189,6 @@ static int jfs_create(struct inode *dip, struct dentry *dentry, int mode,
 	return rc;
 }
 
-
 /*
  * NAME:	jfs_mkdir(dip, dentry, mode)
  *
@@ -205,7 +204,7 @@ static int jfs_create(struct inode *dip, struct dentry *dentry, int mode,
  * note:
  * EACCESS: user needs search+write permission on the parent directory
  */
-static int jfs_mkdir(struct inode *dip, struct dentry *dentry, int mode)
+static int jfs_mkdir(struct inode *dip, struct dentry *dentry, umode_t mode)
 {
 	int rc = 0;
 	tid_t tid;		/* transaction id */
@@ -321,7 +320,6 @@ static int jfs_mkdir(struct inode *dip, struct dentry *dentry, int mode)
 
       out2:
 	free_UCSname(&dname);
-
 
       out1:
 
@@ -683,7 +681,6 @@ static s64 commitZeroLink(tid_t tid, struct inode *ip)
 
 	return 0;
 }
-
 
 /*
  * NAME:	jfs_free_zero_link()
@@ -1064,7 +1061,6 @@ static int jfs_symlink(struct inode *dip, struct dentry *dentry,
 	return rc;
 }
 
-
 /*
  * NAME:	jfs_rename
  *
@@ -1089,7 +1085,6 @@ static int jfs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	struct tblock *tblk;
 	s64 new_size = 0;
 	int commit_flag;
-
 
 	jfs_info("jfs_rename: %s %s", old_dentry->d_name.name,
 		 new_dentry->d_name.name);
@@ -1346,14 +1341,13 @@ static int jfs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	return rc;
 }
 
-
 /*
  * NAME:	jfs_mknod
  *
  * FUNCTION:	Create a special file (device)
  */
 static int jfs_mknod(struct inode *dir, struct dentry *dentry,
-		int mode, dev_t rdev)
+		umode_t mode, dev_t rdev)
 {
 	struct jfs_inode_info *jfs_ip;
 	struct btstack btstack;
