@@ -57,6 +57,7 @@
 #ifdef MY_DEF_HERE
 #define MCI_STATUS_TCC		(1ULL<<55)  /* Task context corrupt */
 #define MCI_STATUS_SYNDV	(1ULL<<53)  /* synd reg. valid */
+#define MCI_STATUS_SCRUB	(1ULL<<40)  /* Error detected during scrub operation */
 
 /*
  * McaX field if set indicates a given bank supports MCA extensions:
@@ -212,6 +213,15 @@ extern struct mca_config mca_cfg;
 #ifdef MY_DEF_HERE
 extern struct mca_msr_regs msr_ops;
 #endif /* MY_DEF_HERE */
+
+enum mce_notifier_prios {
+	MCE_PRIO_SRAO		= INT_MAX,
+	MCE_PRIO_EXTLOG		= INT_MAX - 1,
+	MCE_PRIO_NFIT		= INT_MAX - 2,
+	MCE_PRIO_EDAC		= INT_MAX - 3,
+	MCE_PRIO_LOWEST		= 0,
+};
+
 extern void mce_register_decode_chain(struct notifier_block *nb);
 extern void mce_unregister_decode_chain(struct notifier_block *nb);
 
@@ -367,15 +377,22 @@ enum smca_bank_types {
 	SMCA_IF,	/* Instruction Fetch */
 	SMCA_L2_CACHE,	/* L2 Cache */
 	SMCA_DE,	/* Decoder Unit */
+	SMCA_RESERVED,	/* Reserved */
 	SMCA_EX,	/* Execution Unit */
 	SMCA_FP,	/* Floating Point */
 	SMCA_L3_CACHE,	/* L3 Cache */
 	SMCA_CS,	/* Coherent Slave */
+	SMCA_CS_V2,	/* Coherent Slave */
 	SMCA_PIE,	/* Power, Interrupts, etc. */
 	SMCA_UMC,	/* Unified Memory Controller */
 	SMCA_PB,	/* Parameter Block */
 	SMCA_PSP,	/* Platform Security Processor */
+	SMCA_PSP_V2,	/* Platform Security Processor */
 	SMCA_SMU,	/* System Management Unit */
+	SMCA_SMU_V2,	/* System Management Unit */
+	SMCA_MP5,	/* Microprocessor 5 Unit */
+	SMCA_NBIO,	/* Northbridge IO Unit */
+	SMCA_PCIE,	/* PCI Express Unit */
 	N_SMCA_BANK_TYPES
 };
 

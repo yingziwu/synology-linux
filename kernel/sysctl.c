@@ -275,11 +275,20 @@ EXPORT_SYMBOL(g_nvc_map_index);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+/*
+ * Note: g_internal_netif_num only represents the number of internal netif in this model,
+ *       user shouldn't regard it as ethernet numbering.
+ *       (i.e., internal eth interfaces aren't always eth 0~g_internal_netif_num-1)
+ */
 long g_internal_netif_num = -1;
 EXPORT_SYMBOL(g_internal_netif_num);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+/*
+ * Note: OOB MAC address is stored in network card instead of synoboot vendor file,
+ *       You shouldn't access OOB(eth99) MAC address from grgbLanMac.
+ */
 unsigned char grgbLanMac[SYNO_MAC_MAX_NUMBER][16];
 EXPORT_SYMBOL(grgbLanMac);
 int giVenderFormatVersion = 1;
@@ -528,6 +537,21 @@ EXPORT_SYMBOL(giSynoDSleepCurrentPoweronDisks);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+int giSynoAtmegaNum = 0;
+EXPORT_SYMBOL(giSynoAtmegaNum);
+long gSynoAtmegaAddr[SYNO_ATMEGA_NUM_MAX];
+EXPORT_SYMBOL(gSynoAtmegaAddr);
+#endif
+
+#ifdef MY_ABC_HERE
+bool gSynoAtaInternal[MAX_INTERNAL_ATA_PORT];
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+bool gSynoAtaAhciHardIrq = false;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 int gSynoDiskReadyCheck = 1;
 EXPORT_SYMBOL(gSynoDiskReadyCheck);
 extern int syno_scsi_disk_ready_check(void);
@@ -573,9 +597,13 @@ static unsigned long zero_ul;
 static unsigned long one_ul = 1;
 static unsigned long long_max = LONG_MAX;
 static int one_hundred = 100;
+static int one_thousand = 1000;
 #ifdef CONFIG_PRINTK
 static int ten_thousand = 10000;
 #endif
+#ifdef MY_ABC_HERE
+static int max_kswapd_threads = MAX_KSWAPD_THREADS;
+#endif /* MY_ABC_HERE */
 
 /* this is needed for the proc_doulongvec_minmax of vm_dirty_bytes */
 static unsigned long dirty_bytes_min = 2 * PAGE_SIZE;
@@ -2242,6 +2270,30 @@ static struct ctl_table vm_table[] = {
 		.proc_handler	= min_free_kbytes_sysctl_handler,
 		.extra1		= &zero,
 	},
+#ifdef MY_ABC_HERE
+	{
+		.procname	= "kswapd_threads",
+		.data		= &kswapd_threads,
+		.maxlen		= sizeof(kswapd_threads),
+		.mode		= 0644,
+		.proc_handler	= kswapd_threads_sysctl_handler,
+		.extra1		= &one,
+		.extra2		= &max_kswapd_threads,
+	},
+#endif /* MY_ABC_HERE */
+	{
+		.procname	= "watermark_scale_factor",
+		.data		= &watermark_scale_factor,
+		.maxlen		= sizeof(watermark_scale_factor),
+		.mode		= 0644,
+		.proc_handler	= watermark_scale_factor_sysctl_handler,
+#if defined(MY_ABC_HERE)
+		.extra1		= &zero,
+#else /* MY_ABC_HERE */
+		.extra1		= &one,
+#endif /* MY_ABC_HERE */
+		.extra2		= &one_thousand,
+	},
 	{
 		.procname	= "percpu_pagelist_fraction",
 		.data		= &percpu_pagelist_fraction,
@@ -3812,7 +3864,7 @@ int SynoProcDoStringVec(struct ctl_table *table, int write,
 			if (0 == iLen) {
 				break;
 			}
-			strncpy(pBuf, pStr, iLen);
+			memcpy(pBuf, pStr, iLen);
 			pBuf[iLen] = '\n';
 			iLenSum += iLen + 1;
 			pBuf += iLen + 1;
@@ -4082,6 +4134,8 @@ int (*funcSYNOReadAdtVoltageSensor)(struct _SYNO_HWMON_SENSOR_TYPE *) = NULL;
 EXPORT_SYMBOL(funcSYNOReadAdtVoltageSensor);
 int (*funcSYNOReadAdtThermalSensor)(struct _SYNO_HWMON_SENSOR_TYPE *) = NULL;
 EXPORT_SYMBOL(funcSYNOReadAdtThermalSensor);
+int (*funcSYNOReadAdtFanSpeedRpmByOrder)(struct _SYNO_HWMON_SENSOR_TYPE *, struct _SYNO_HWMON_FAN_ORDER *) = NULL;
+EXPORT_SYMBOL(funcSYNOReadAdtFanSpeedRpmByOrder);
 
 int syno_get_adt_peci(struct _SynoCpuTemp *cpu_temp)
 {
@@ -4120,4 +4174,13 @@ int syno_get_adt_voltage_sensor(struct _SYNO_HWMON_SENSOR_TYPE *SysVoltage)
 	return ret;
 }
 EXPORT_SYMBOL(syno_get_adt_voltage_sensor);
+int syno_get_adt_fan_speed_rpm_by_order(struct _SYNO_HWMON_SENSOR_TYPE *FanSpeedRpm, SYNO_HWMON_FAN_ORDER *FanOrder)
+{
+	int ret = -1;
+	if (funcSYNOReadAdtFanSpeedRpmByOrder) {
+		ret = funcSYNOReadAdtFanSpeedRpmByOrder(FanSpeedRpm, FanOrder);
+	}
+	return ret;
+}
+EXPORT_SYMBOL(syno_get_adt_fan_speed_rpm_by_order);
 #endif /* MY_ABC_HERE */

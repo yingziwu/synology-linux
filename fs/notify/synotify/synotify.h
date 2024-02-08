@@ -31,6 +31,11 @@ struct synotify_event_info {
 	 */
 	const char *file_name;
 	int data_type;
+	int event_version;
+
+	// v2 event
+	pid_t pid;
+	uid_t uid;
 };
 
 static inline struct synotify_event_info *SYNOTIFY_E(struct fsnotify_event *fse)

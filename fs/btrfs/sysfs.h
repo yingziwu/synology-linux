@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _BTRFS_SYSFS_H_
 #define _BTRFS_SYSFS_H_
 
@@ -10,6 +13,9 @@ enum btrfs_feature_set {
 	FEAT_COMPAT,
 	FEAT_COMPAT_RO,
 	FEAT_INCOMPAT,
+#ifdef MY_ABC_HERE
+	FEAT_SYNO_CAPABILITY,
+#endif /* MY_ABC_HERE */
 	FEAT_MAX
 };
 
@@ -59,6 +65,10 @@ static struct btrfs_feature_attr btrfs_attr_##_name = {			     \
 	BTRFS_FEAT_ATTR(name, FEAT_COMPAT_RO, BTRFS_FEATURE_COMPAT_RO, feature)
 #define BTRFS_FEAT_ATTR_INCOMPAT(name, feature) \
 	BTRFS_FEAT_ATTR(name, FEAT_INCOMPAT, BTRFS_FEATURE_INCOMPAT, feature)
+#ifdef MY_ABC_HERE
+#define BTRFS_FEAT_ATTR_SYNO_CAPABILITY(name, feature) \
+	BTRFS_FEAT_ATTR(name, FEAT_SYNO_CAPABILITY, BTRFS_FEATURE_SYNO_CAPABILITY, feature)
+#endif /* MY_ABC_HERE */
 
 /* convert from attribute */
 static inline struct btrfs_feature_attr *
@@ -79,7 +89,11 @@ attr_to_btrfs_feature_attr(struct attribute *attr)
 }
 
 char *btrfs_printable_features(enum btrfs_feature_set set, u64 flags);
+#ifdef MY_ABC_HERE
+extern const char * const btrfs_feature_set_names[FEAT_MAX];
+#else /* MY_ABC_HERE */
 extern const char * const btrfs_feature_set_names[3];
+#endif /* MY_ABC_HERE */
 extern struct kobj_type space_info_ktype;
 extern struct kobj_type btrfs_raid_ktype;
 int btrfs_sysfs_add_device_link(struct btrfs_fs_devices *fs_devices,

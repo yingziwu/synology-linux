@@ -51,6 +51,10 @@
 #ifdef MY_DEF_HERE
 #include <linux/pci_regs.h>
 #include <asm/pci-direct.h>
+#include <linux/pci.h>
+#ifdef MY_DEF_HERE
+#include <linux/synolib.h>
+#endif /* MY_DEF_HERE */
 
 extern char gszSynoTtyS0[50];
 extern char gszSynoTtyS1[50];
@@ -1013,39 +1017,183 @@ static unsigned long syno_parse_ttys_pci(char *s)
 	char *e;
 
 	if (*s == ',')
-                ++s;
+		++s;
 
-        if (*s == 0)
-                goto End;
-        bus = (u8)simple_strtoul(s, &e, 16);
-        s = e;
-        if (*s != ':')
-                goto End;
-        ++s;
-        slot = (u8)simple_strtoul(s, &e, 16);
-        s = e;
-        if (*s != '.')
-                goto End;
-        ++s;
-        func = (u8)simple_strtoul(s, &e, 16);
-        s = e;
+	if (*s == 0)
+		goto End;
+	bus = (u8)simple_strtoul(s, &e, 16);
+	s = e;
+	if (*s != ':')
+		goto End;
+	++s;
+	slot = (u8)simple_strtoul(s, &e, 16);
+	s = e;
+	if (*s != '.')
+		goto End;
+	++s;
+	func = (u8)simple_strtoul(s, &e, 16);
+	s = e;
 
-        /* A baud might be following */
-        if (*s == ',')
-                s++;
+	/* A baud might be following */
+	if (*s == ',')
+		s++;
 
-	bar0 = read_pci_config(bus, slot, func, PCI_BASE_ADDRESS_0);		
-	
+	bar0 = read_pci_config(bus, slot, func, PCI_BASE_ADDRESS_0);
+
 	if (bar0 & 0x01) {
-                /* pci is IO mapped and port is also IO mapped */
+		/* pci is IO mapped and port is also IO mapped */
 		Ret = bar0 & 0xfffffffc;
-        } else if (!(bar0 & 0x01)) {
-                /* pci is IO mapped and port is also IO mapped */
+	} else if (!(bar0 & 0x01)) {
+		/* pci is IO mapped and port is also IO mapped */
 		Ret = bar0 & 0xfffffff0;
-        }		
+	}
 
+End:
+	return Ret;
+}
+
+static bool syno_compare_tty_pci(char *str1, char *str2)
+{
+	bool bRet = false;
+	u8 bus, slot, func;
+	u8 bus2, slot2, func2;
+	char *e;
+
+	//,0x0:0x1a.0x0,115200
+	if (*str1 == ',')
+		++str1;
+	bus = (u8)simple_strtoul(str1, &e, 16);
+	str1 = e;
+
+	if (*str1 != ':')
+		goto End;
+	++str1;
+	slot = (u8)simple_strtoul(str1, &e, 16);
+
+	str1 = e;
+	if (*str1 != '.')
+		goto End;
+	++str1;
+	func = (u8)simple_strtoul(str1, &e, 16);
+
+	//0000:02:00.1
+	str2+=5;
+	bus2 = (u8)simple_strtoul(str2, &e, 16);
+	str2 = e;
+
+	if (*str2 != ':')
+		goto End;
+	++str2;
+	slot2 = (u8)simple_strtoul(str2, &e, 16);
+
+	str2 = e;
+	if (*str2 != '.')
+		goto End;
+	++str2;
+	func2 = (u8)simple_strtoul(str2, &e, 16);
+
+	if(bus == bus2 && slot == slot2 && func == func2) {
+		bRet = true;
+	}
 End:	
-	return Ret;	
+	return bRet;
+}
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+
+#define DT_TTY_NODE "ttyS"
+extern int syno_pciepath_dts_pattern_get(struct pci_dev *pdev, char *szPciePath, const int size);
+extern int syno_compare_dts_pciepath(const struct pci_dev *pdev, const struct device_node *pDeviceNode);
+
+/**
+ * lookup_internal_slot - lookup device tree to find corresponding internal slot of the ata_port
+ * @ap [IN]: query ata_port
+ *
+ * return  1: match
+ *         0: slot not found
+ */
+int pcipath_uart_port_match(char* str, const struct uart_port *port)
+{
+	int ret = 0;
+	char sztemp[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
+
+	if (NULL == str || NULL == port) {
+		goto END;
+	}
+
+	if (*str == ',')
+        ++str;
+
+	if (-1 == syno_pciepath_dts_pattern_get(to_pci_dev(port->dev), sztemp, sizeof(sztemp))) {
+		goto END;
+	}
+
+	if (0 == strncmp(str, sztemp, strlen(sztemp))) {
+		ret = 1;
+	}
+
+END:
+	return ret;
+}
+
+bool dts_uart_port_match(struct uart_port *port, const int uart_index)
+{
+	bool ret = false;
+	int index = -1;
+	struct device_node *pSlotNode = NULL;
+	const char *addr_type = NULL;
+	int err = 0;
+	u32 base_addr = 0;
+
+	if (NULL == of_root) {
+		goto END;
+	}
+	for_each_child_of_node(of_root, pSlotNode) {
+		// get index number of tty, e.g. /ttyS@2 --> 2
+		if (!pSlotNode->full_name || 1 != sscanf(pSlotNode->full_name, "/"DT_TTY_NODE"@%d", &index)) {
+			continue;
+		}
+		if (uart_index == index) {
+			break;
+		}
+	}
+
+	if (NULL == pSlotNode) {
+		goto END;
+	}
+
+	err = of_property_read_string(pSlotNode, "addr_type", &addr_type);
+	if (err < 0) {
+		of_node_put(pSlotNode);
+		goto END;
+	}
+
+	if (!strcmp(addr_type, "pcie")) {
+		ret = (0 == syno_compare_dts_pciepath(to_pci_dev(port->dev), pSlotNode) ? true : false);
+	} else if (!strcmp(addr_type, "io")){
+		of_property_read_u32(pSlotNode, "base", &base_addr);
+		ret = (port->iobase == base_addr? true : false);
+	} else if (!strcmp(addr_type, "mmio")){
+		of_property_read_u32(pSlotNode, "base", &base_addr);
+		ret = ((virt_to_phys((volatile void *)port->mapbase) & 0xffffffff) == base_addr? true : false);
+	} else {
+		// unknown type
+		ret = false;
+	}
+
+	//
+	// TODO: Uart port is found
+	//       Set uart configs if there are some settings in dts.
+	//
+	//if (ret) {
+		// Set configs
+	//}
+
+	of_node_put(pSlotNode);
+
+END:
+	return ret;
 }
 #endif /* MY_DEF_HERE */
 
@@ -1055,6 +1203,20 @@ static struct uart_8250_port *serial8250_find_match_or_unused(struct uart_port *
 
 #ifdef MY_DEF_HERE
 	char *str;
+	struct pci_dev *pdev = NULL;
+	char *root_port = NULL;
+	int iTtyCount = 0;
+
+	if (0 != strcmp(gszSynoTtyS0, "")) {
+		iTtyCount++;
+	}
+	if (0 != strcmp(gszSynoTtyS1, "")) {
+		iTtyCount++;
+	}
+	if (0 != strcmp(gszSynoTtyS2, "")) {
+		iTtyCount++;
+	}
+
 	switch (port->iotype) {
 		case UPIO_PORT:
 		case UPIO_HUB6:
@@ -1079,27 +1241,62 @@ static struct uart_8250_port *serial8250_find_match_or_unused(struct uart_port *
 				}
 			}
 
-			break;
+#ifdef MY_DEF_HERE
+			if (!strcmp(gszSynoTtyS0, "")) {
+				if (dts_uart_port_match(port, 0)) {
+					iTtyCount++;
+					return &serial8250_ports[0];
+				}
+			}
+
+			if (!strcmp(gszSynoTtyS1, "")) {
+				if (dts_uart_port_match(port, 1)) {
+					iTtyCount++;
+					return &serial8250_ports[1];
+				}
+			}
+
+			if (!strcmp(gszSynoTtyS2, "")) {
+				if (dts_uart_port_match(port, 2)) {
+					iTtyCount++;
+					return &serial8250_ports[2];
+				}
+			}
+#endif /* MY_DEF_HERE */
+
+			/* fall through */
 		case UPIO_MEM:
 		case UPIO_MEM32:
 		case UPIO_MEM32BE:
 		case UPIO_AU:
 		case UPIO_TSI:
+			if (port->dev->bus && !strncmp("pci", port->dev->bus->name, 3)) {
+				pdev = to_pci_dev(port->dev);
+				if (pdev && pdev->bus->self) {
+					root_port = (char*)(dev_name(&(pdev->bus->self->dev)));
+				}
+			}
 			if (!strncmp(gszSynoTtyS0, "pciserial", 9)) {
 				str = &gszSynoTtyS0[9];
-				if ((virt_to_phys((volatile void *)port->mapbase) & 0xffffffff) == syno_parse_ttys_pci(str)) {
+				if((syno_compare_tty_pci(str, (char*)dev_name(port->dev))) ||
+						(root_port && syno_compare_tty_pci(str, root_port)) ||
+						((virt_to_phys((volatile void *)port->mapbase) & 0xffffffff) == syno_parse_ttys_pci(str))) {
 					return &serial8250_ports[0];
 				}
 			}
 			if (!strncmp(gszSynoTtyS1, "pciserial", 9)) {
 				str = &gszSynoTtyS1[9];
-				if ((virt_to_phys((volatile void *)port->mapbase) & 0xffffffff) == syno_parse_ttys_pci(str)) {
+				if((syno_compare_tty_pci(str, (char*)dev_name(port->dev))) ||
+						(root_port && syno_compare_tty_pci(str, root_port)) ||
+						((virt_to_phys((volatile void *)port->mapbase) & 0xffffffff) == syno_parse_ttys_pci(str))) {
 					return &serial8250_ports[1];
 				}
 			}
 			if (!strncmp(gszSynoTtyS2, "pciserial", 9)) {
 				str = &gszSynoTtyS2[9];
-				if ((virt_to_phys((volatile void *)port->mapbase) & 0xffffffff) == syno_parse_ttys_pci(str)) {
+				if((syno_compare_tty_pci(str, (char*)dev_name(port->dev))) ||
+						(root_port && syno_compare_tty_pci(str, root_port)) ||
+						((virt_to_phys((volatile void *)port->mapbase) & 0xffffffff) == syno_parse_ttys_pci(str))) {
 					return &serial8250_ports[2];
 				}
 			}
@@ -1124,6 +1321,49 @@ static struct uart_8250_port *serial8250_find_match_or_unused(struct uart_port *
 				}
 			}
 
+#ifdef MY_DEF_HERE
+			if (!strncmp(gszSynoTtyS0, "pcifull", 7)) {
+				str = &gszSynoTtyS0[7];
+				if (1 == pcipath_uart_port_match(str, port)) {
+					return &serial8250_ports[0];
+				}
+			}
+
+			if (!strncmp(gszSynoTtyS1, "pcifull", 7)) {
+				str = &gszSynoTtyS1[7];
+				if (1 == pcipath_uart_port_match(str, port)) {
+					return &serial8250_ports[1];
+				}
+			}
+
+			if (!strncmp(gszSynoTtyS2, "pcifull", 7)) {
+				str = &gszSynoTtyS2[7];
+				if (1 == pcipath_uart_port_match(str, port)) {
+					return &serial8250_ports[2];
+				}
+			}
+
+			if (!strcmp(gszSynoTtyS0, "")) {
+				if (dts_uart_port_match(port, 0)) {
+					iTtyCount++;
+					return &serial8250_ports[0];
+				}
+			}
+
+			if (!strcmp(gszSynoTtyS1, "")) {
+				if (dts_uart_port_match(port, 1)) {
+					iTtyCount++;
+					return &serial8250_ports[1];
+				}
+			}
+
+			if (!strcmp(gszSynoTtyS2, "")) {
+				if (dts_uart_port_match(port, 2)) {
+					iTtyCount++;
+					return &serial8250_ports[2];
+				}
+			}
+#endif /* MY_DEF_HERE */
 			break;
 		default:
 			break;	
@@ -1135,7 +1375,7 @@ static struct uart_8250_port *serial8250_find_match_or_unused(struct uart_port *
 	 */
 
 #ifdef MY_DEF_HERE
-	for (i = CONFIG_SYNO_TTYS_FUN_NUM; i < nr_uarts; i++)
+	for (i = iTtyCount; i < nr_uarts; i++)
 #else /* MY_DEF_HERE */
 	for (i = 0; i < nr_uarts; i++)
 #endif /* MY_DEF_HERE */
@@ -1147,7 +1387,7 @@ static struct uart_8250_port *serial8250_find_match_or_unused(struct uart_port *
 	if (i < nr_uarts && serial8250_ports[i].port.type == PORT_UNKNOWN &&
 			serial8250_ports[i].port.iobase == 0
 #ifdef MY_DEF_HERE
-			&& i > (CONFIG_SYNO_TTYS_FUN_NUM - 1)
+			&& i > (iTtyCount - 1)
 #endif /* MY_DEF_HERE */
 	)
 		return &serial8250_ports[i];
@@ -1157,7 +1397,7 @@ static struct uart_8250_port *serial8250_find_match_or_unused(struct uart_port *
 	 * used (indicated by zero iobase).
 	 */
 #ifdef MY_DEF_HERE
-	for (i = CONFIG_SYNO_TTYS_FUN_NUM; i < nr_uarts; i++)
+	for (i = iTtyCount; i < nr_uarts; i++)
 #else /* MY_DEF_HERE */
 	for (i = 0; i < nr_uarts; i++)
 #endif /* MY_DEF_HERE */
@@ -1170,7 +1410,7 @@ static struct uart_8250_port *serial8250_find_match_or_unused(struct uart_port *
 	 * doesn't have a real port associated with it.
 	 */
 #ifdef MY_DEF_HERE
-	for (i = CONFIG_SYNO_TTYS_FUN_NUM; i < nr_uarts; i++)
+	for (i = iTtyCount; i < nr_uarts; i++)
 #else /* MY_DEF_HERE */
 	for (i = 0; i < nr_uarts; i++)
 #endif /* MY_DEF_HERE */
