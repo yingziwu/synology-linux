@@ -29,7 +29,6 @@
 #define IOCTL_GET_HARD_VERSION	1
 #define IOCTL_GET_DRV_VERSION	2
 
-
 static struct usb_device_id id_table [] = {
 	{ .idVendor = 0x10D2, .match_flags = USB_DEVICE_ID_MATCH_VENDOR, },
 	{ },
@@ -37,7 +36,6 @@ static struct usb_device_id id_table [] = {
 MODULE_DEVICE_TABLE (usb, id_table);
 
 static DEFINE_MUTEX(open_disc_mutex);
-
 
 struct usb_lcd {
 	struct usb_device *	udev;			/* init: probe_lcd */
@@ -57,7 +55,6 @@ struct usb_lcd {
 
 static struct usb_driver lcd_driver;
 
-
 static void lcd_delete(struct kref *kref)
 {
 	struct usb_lcd *dev = to_lcd_dev(kref);
@@ -67,17 +64,18 @@ static void lcd_delete(struct kref *kref)
 	kfree (dev);
 }
 
-
 static int lcd_open(struct inode *inode, struct file *file)
 {
 	struct usb_lcd *dev;
 	struct usb_interface *interface;
 	int subminor, r;
 
+	lock_kernel();
 	subminor = iminor(inode);
 
 	interface = usb_find_interface(&lcd_driver, subminor);
 	if (!interface) {
+		unlock_kernel();
 		err ("USBLCD: %s - error, can't find device for minor %d",
 		     __func__, subminor);
 		return -ENODEV;
@@ -87,6 +85,7 @@ static int lcd_open(struct inode *inode, struct file *file)
 	dev = usb_get_intfdata(interface);
 	if (!dev) {
 		mutex_unlock(&open_disc_mutex);
+		unlock_kernel();
 		return -ENODEV;
 	}
 
@@ -98,11 +97,13 @@ static int lcd_open(struct inode *inode, struct file *file)
 	r = usb_autopm_get_interface(interface);
 	if (r < 0) {
 		kref_put(&dev->kref, lcd_delete);
+		unlock_kernel();
 		return r;
 	}
 
 	/* save our object in the file's private structure */
 	file->private_data = dev;
+	unlock_kernel();
 
 	return 0;
 }
@@ -439,7 +440,6 @@ static int __init usb_lcd_init(void)
 
 	return result;
 }
-
 
 static void __exit usb_lcd_exit(void)
 {

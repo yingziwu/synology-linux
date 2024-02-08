@@ -194,9 +194,11 @@ static ssize_t set_enabled(struct device *dev, struct device_attribute *attr,
 {
 	struct usb_interface *intf = to_usb_interface(dev);
 	struct asus_oled_dev *odev = usb_get_intfdata(intf);
-	int temp = strict_strtoul(buf, 10, NULL);
+	unsigned long value;
+	if (strict_strtoul(buf, 10, &value))
+		return -EINVAL;
 
-	enable_oled(odev, temp);
+	enable_oled(odev, value);
 
 	return count;
 }
@@ -207,10 +209,12 @@ static ssize_t class_set_enabled(struct device *device,
 {
 	struct asus_oled_dev *odev =
 		(struct asus_oled_dev *) dev_get_drvdata(device);
+	unsigned long value;
 
-	int temp = strict_strtoul(buf, 10, NULL);
+	if (strict_strtoul(buf, 10, &value))
+		return -EINVAL;
 
-	enable_oled(odev, temp);
+	enable_oled(odev, value);
 
 	return count;
 }
@@ -292,7 +296,6 @@ static void send_packet(struct usb_device *udev,
 		dev_dbg(&udev->dev, "retval = %d\n", retval);
 }
 
-
 static void send_packets_g50(struct usb_device *udev,
 			     struct asus_oled_packet *packet, char *buf)
 {
@@ -308,7 +311,6 @@ static void send_packets_g50(struct usb_device *udev,
 	send_packet(udev, packet, 0x380, 0x080, buf,
 		    0x11, 0x00, 0x03, 0x03, 0x80, 0x00);
 }
-
 
 static void send_data(struct asus_oled_dev *odev)
 {
@@ -446,7 +448,6 @@ static ssize_t odev_set_picture(struct asus_oled_dev *odev,
 
 		if (count < 10 || buf[2] != ':')
 			goto error_header;
-
 
 		switch (tolower(buf[1])) {
 		case ASUS_OLED_STATIC:
@@ -803,4 +804,3 @@ static void __exit asus_oled_exit(void)
 
 module_init(asus_oled_init);
 module_exit(asus_oled_exit);
-

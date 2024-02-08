@@ -394,7 +394,6 @@ static int usbfs_rmdir(struct inode *dir, struct dentry *dentry)
 	return error;
 }
 
-
 /* default file operations */
 static ssize_t default_read_file (struct file *file, char __user *buf,
 				  size_t count, loff_t *ppos)
@@ -515,13 +514,13 @@ static int fs_create_by_name (const char *name, mode_t mode,
 	*dentry = NULL;
 	mutex_lock(&parent->d_inode->i_mutex);
 	*dentry = lookup_one_len(name, parent, strlen(name));
-	if (!IS_ERR(dentry)) {
+	if (!IS_ERR(*dentry)) {
 		if ((mode & S_IFMT) == S_IFDIR)
 			error = usbfs_mkdir (parent->d_inode, *dentry, mode);
 		else 
 			error = usbfs_create (parent->d_inode, *dentry, mode);
 	} else
-		error = PTR_ERR(dentry);
+		error = PTR_ERR(*dentry);
 	mutex_unlock(&parent->d_inode->i_mutex);
 
 	return error;
@@ -775,4 +774,3 @@ void usbfs_cleanup(void)
 	if (usbdir)
 		remove_proc_entry("bus/usb", NULL);
 }
-

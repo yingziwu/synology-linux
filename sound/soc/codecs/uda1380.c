@@ -137,7 +137,7 @@ static void uda1380_flush_work(struct work_struct *work)
 {
 	int bit, reg;
 
-	for_each_bit(bit, &uda1380_cache_dirty, UDA1380_CACHEREGNUM - 0x10) {
+	for_each_set_bit(bit, &uda1380_cache_dirty, UDA1380_CACHEREGNUM - 0x10) {
 		reg = 0x10 + bit;
 		pr_debug("uda1380: flush reg %x val %x:\n", reg,
 				uda1380_read_reg_cache(uda1380_codec, reg));
@@ -308,7 +308,6 @@ static const struct snd_kcontrol_new uda1380_output_mux_control =
 /* Capture mux */
 static const struct snd_kcontrol_new uda1380_capture_mux_control =
 	SOC_DAPM_ENUM("Route", uda1380_capture_sel_enum);
-
 
 static const struct snd_soc_dapm_widget uda1380_dapm_widgets[] = {
 	SND_SOC_DAPM_MUX("Input Mux", SND_SOC_NOPM, 0, 0,

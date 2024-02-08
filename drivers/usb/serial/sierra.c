@@ -59,9 +59,7 @@ struct sierra_intf_private {
 
 static int sierra_set_power_state(struct usb_device *udev, __u16 swiState)
 {
-	int result;
-	dev_dbg(&udev->dev, "%s\n", __func__);
-	result = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+	return usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
 			SWIMS_USB_REQUEST_SetPower,	/* __u8 request      */
 			USB_TYPE_VENDOR,		/* __u8 request type */
 			swiState,			/* __u16 value       */
@@ -69,14 +67,11 @@ static int sierra_set_power_state(struct usb_device *udev, __u16 swiState)
 			NULL,				/* void *data        */
 			0,				/* __u16 size 	     */
 			USB_CTRL_SET_TIMEOUT);		/* int timeout 	     */
-	return result;
 }
 
 static int sierra_vsc_set_nmea(struct usb_device *udev, __u16 enable)
 {
-	int result;
-	dev_dbg(&udev->dev, "%s\n", __func__);
-	result = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+	return usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
 			SWIMS_USB_REQUEST_SetNmea,	/* __u8 request      */
 			USB_TYPE_VENDOR,		/* __u8 request type */
 			enable,				/* __u16 value       */
@@ -84,15 +79,12 @@ static int sierra_vsc_set_nmea(struct usb_device *udev, __u16 enable)
 			NULL,				/* void *data        */
 			0,				/* __u16 size 	     */
 			USB_CTRL_SET_TIMEOUT);		/* int timeout       */
-	return result;
 }
 
 static int sierra_calc_num_ports(struct usb_serial *serial)
 {
 	int num_ports = 0;
 	u8 ifnum, numendpoints;
-
-	dev_dbg(&serial->dev->dev, "%s\n", __func__);
 
 	ifnum = serial->interface->cur_altsetting->desc.bInterfaceNumber;
 	numendpoints = serial->interface->cur_altsetting->desc.bNumEndpoints;
@@ -129,7 +121,6 @@ static int sierra_calc_interface(struct usb_serial *serial)
 	int interface;
 	struct usb_interface *p_interface;
 	struct usb_host_interface *p_host_interface;
-	dev_dbg(&serial->dev->dev, "%s\n", __func__);
 
 	/* Get the interface structure pointer from the serial struct */
 	p_interface = serial->interface;
@@ -154,9 +145,8 @@ static int sierra_probe(struct usb_serial *serial,
 	u8 ifnum;
 
 	udev = serial->dev;
-	dev_dbg(&udev->dev, "%s\n", __func__);
-
 	ifnum = sierra_calc_interface(serial);
+
 	/*
 	 * If this interface supports more than 1 alternate
 	 * select the 2nd one
@@ -186,13 +176,14 @@ static int sierra_probe(struct usb_serial *serial,
 	return result;
 }
 
-static const u8 direct_ip_non_serial_ifaces[] = { 7, 8, 9, 10, 11 };
+/* 'blacklist' of interfaces not served by this driver */
+static const u8 direct_ip_non_serial_ifaces[] = { 7, 8, 9, 10, 11, 19, 20 };
 static const struct sierra_iface_info direct_ip_interface_blacklist = {
 	.infolen = ARRAY_SIZE(direct_ip_non_serial_ifaces),
 	.ifaceinfo = direct_ip_non_serial_ifaces,
 };
 
-static struct usb_device_id id_table [] = {
+static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(0x0F3D, 0x0112) }, /* Airprime/Sierra PC 5220 */
 	{ USB_DEVICE(0x03F0, 0x1B1D) },	/* HP ev2200 a.k.a MC5720 */
 	{ USB_DEVICE(0x03F0, 0x1E1D) },	/* HP hs2300 a.k.a MC8775 */
@@ -261,7 +252,17 @@ static struct usb_device_id id_table [] = {
 	/* Sierra Wireless HSPA Non-Composite Device */
 	{ USB_DEVICE_AND_INTERFACE_INFO(0x1199, 0x6892, 0xFF, 0xFF, 0xFF)},
 	{ USB_DEVICE(0x1199, 0x6893) },	/* Sierra Wireless Device */
+	{ USB_DEVICE(0x1199, 0x68A2),   /* Sierra Wireless MC77xx in QMI mode */
+	  .driver_info = (kernel_ulong_t)&direct_ip_interface_blacklist
+	},
 	{ USB_DEVICE(0x1199, 0x68A3), 	/* Sierra Wireless Direct IP modems */
+	  .driver_info = (kernel_ulong_t)&direct_ip_interface_blacklist
+	},
+	/* AT&T Direct IP LTE modems */
+	{ USB_DEVICE_AND_INTERFACE_INFO(0x0F3D, 0x68AA, 0xFF, 0xFF, 0xFF),
+	  .driver_info = (kernel_ulong_t)&direct_ip_interface_blacklist
+	},
+	{ USB_DEVICE(0x0f3d, 0x68A3), 	/* Airprime/Sierra Wireless Direct IP modems */
 	  .driver_info = (kernel_ulong_t)&direct_ip_interface_blacklist
 	},
 
@@ -308,8 +309,6 @@ static int sierra_send_setup(struct usb_serial_port *port)
 	int do_send = 0;
 	int retval;
 
-	dev_dbg(&port->dev, "%s\n", __func__);
-
 	portdata = usb_get_serial_port_data(port);
 
 	if (portdata->dtr_state)
@@ -343,8 +342,11 @@ static int sierra_send_setup(struct usb_serial_port *port)
 	if (!do_send)
 		return 0;
 
-	usb_autopm_get_interface(serial->interface);
-	retval = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
+	retval = usb_autopm_get_interface(serial->interface);
+	if (retval < 0)
+		return retval;
+
+	retval = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
 		0x22, 0x21, val, interface, NULL, 0, USB_CTRL_SET_TIMEOUT);
 	usb_autopm_put_interface(serial->interface);
 
@@ -354,7 +356,6 @@ static int sierra_send_setup(struct usb_serial_port *port)
 static void sierra_set_termios(struct tty_struct *tty,
 		struct usb_serial_port *port, struct ktermios *old_termios)
 {
-	dev_dbg(&port->dev, "%s\n", __func__);
 	tty_termios_copy_hw(tty->termios, old_termios);
 	sierra_send_setup(port);
 }
@@ -365,7 +366,6 @@ static int sierra_tiocmget(struct tty_struct *tty, struct file *file)
 	unsigned int value;
 	struct sierra_port_private *portdata;
 
-	dev_dbg(&port->dev, "%s\n", __func__);
 	portdata = usb_get_serial_port_data(port);
 
 	value = ((portdata->rts_state) ? TIOCM_RTS : 0) |
@@ -400,10 +400,7 @@ static int sierra_tiocmset(struct tty_struct *tty, struct file *file,
 
 static void sierra_release_urb(struct urb *urb)
 {
-	struct usb_serial_port *port;
 	if (urb) {
-		port =  urb->context;
-		dev_dbg(&port->dev, "%s: %p\n", __func__, urb);
 		kfree(urb->transfer_buffer);
 		usb_free_urb(urb);
 	}
@@ -416,7 +413,6 @@ static void sierra_outdat_callback(struct urb *urb)
 	struct sierra_intf_private *intfdata;
 	int status = urb->status;
 
-	dev_dbg(&port->dev, "%s - port %d\n", __func__, port->number);
 	intfdata = port->serial->private;
 
 	/* free up the transfer buffer, as usb_free_urb() does not do this */
@@ -559,22 +555,21 @@ static void sierra_indat_callback(struct urb *urb)
 	endpoint = usb_pipeendpoint(urb->pipe);
 	port = urb->context;
 
-	dev_dbg(&port->dev, "%s: %p\n", __func__, urb);
-
 	if (status) {
 		dev_dbg(&port->dev, "%s: nonzero status: %d on"
 			" endpoint %02x\n", __func__, status, endpoint);
 	} else {
 		if (urb->actual_length) {
 			tty = tty_port_tty_get(&port->port);
+			if (tty) {
+				tty_insert_flip_string(tty, data,
+					urb->actual_length);
+				tty_flip_buffer_push(tty);
 
-			tty_buffer_request_room(tty, urb->actual_length);
-			tty_insert_flip_string(tty, data, urb->actual_length);
-			tty_flip_buffer_push(tty);
-
-			tty_kref_put(tty);
-			usb_serial_debug_data(debug, &port->dev, __func__,
-				urb->actual_length, data);
+				tty_kref_put(tty);
+				usb_serial_debug_data(debug, &port->dev,
+					__func__, urb->actual_length, data);
+			}
 		} else {
 			dev_dbg(&port->dev, "%s: empty read urb"
 				" received\n", __func__);
@@ -582,15 +577,13 @@ static void sierra_indat_callback(struct urb *urb)
 	}
 
 	/* Resubmit urb so we continue receiving */
-	if (port->port.count && status != -ESHUTDOWN && status != -EPERM) {
+	if (status != -ESHUTDOWN && status != -EPERM) {
 		usb_mark_last_busy(port->serial->dev);
 		err = usb_submit_urb(urb, GFP_ATOMIC);
-		if (err)
+		if (err && err != -EPERM)
 			dev_err(&port->dev, "resubmit read urb failed."
 				"(%d)\n", err);
 	}
-
-	return;
 }
 
 static void sierra_instat_callback(struct urb *urb)
@@ -644,11 +637,11 @@ static void sierra_instat_callback(struct urb *urb)
 		dev_dbg(&port->dev, "%s: error %d\n", __func__, status);
 
 	/* Resubmit urb so we continue receiving IRQ data */
-	if (port->port.count && status != -ESHUTDOWN && status != -ENOENT) {
+	if (status != -ESHUTDOWN && status != -ENOENT) {
 		usb_mark_last_busy(serial->dev);
 		urb->dev = serial->dev;
 		err = usb_submit_urb(urb, GFP_ATOMIC);
-		if (err)
+		if (err && err != -EPERM)
 			dev_err(&port->dev, "%s: resubmit intr urb "
 				"failed. (%d)\n", __func__, err);
 	}
@@ -659,8 +652,6 @@ static int sierra_write_room(struct tty_struct *tty)
 	struct usb_serial_port *port = tty->driver_data;
 	struct sierra_port_private *portdata = usb_get_serial_port_data(port);
 	unsigned long flags;
-
-	dev_dbg(&port->dev, "%s - port %d\n", __func__, port->number);
 
 	/* try to give a good number back based on if we have any free urbs at
 	 * this point in time */
@@ -730,9 +721,6 @@ static struct urb *sierra_setup_urb(struct usb_serial *serial, int endpoint,
 	struct urb	*urb;
 	u8		*buf;
 
-	if (endpoint == -1)
-		return NULL;
-
 	urb = usb_alloc_urb(0, mem_flags);
 	if (urb == NULL) {
 		dev_dbg(&serial->dev->dev, "%s: alloc for endpoint %d failed\n",
@@ -768,8 +756,6 @@ static void sierra_close(struct usb_serial_port *port)
 	struct sierra_port_private *portdata;
 	struct sierra_intf_private *intfdata = port->serial->private;
 
-
-	dev_dbg(&port->dev, "%s\n", __func__);
 	portdata = usb_get_serial_port_data(port);
 
 	portdata->rts_state = 0;
@@ -779,14 +765,17 @@ static void sierra_close(struct usb_serial_port *port)
 		mutex_lock(&serial->disc_mutex);
 		if (!serial->disconnected) {
 			serial->interface->needs_remote_wakeup = 0;
-			usb_autopm_get_interface(serial->interface);
-			sierra_send_setup(port);
+			/* odd error handling due to pm counters */
+			if (!usb_autopm_get_interface(serial->interface))
+				sierra_send_setup(port);
+			else
+				usb_autopm_get_interface_no_resume(serial->interface);
+				
 		}
 		mutex_unlock(&serial->disc_mutex);
 		spin_lock_irq(&intfdata->susp_lock);
 		portdata->opened = 0;
 		spin_unlock_irq(&intfdata->susp_lock);
-
 
 		/* Stop reading urbs */
 		sierra_stop_rx_urbs(port);
@@ -810,12 +799,9 @@ static int sierra_open(struct tty_struct *tty, struct usb_serial_port *port)
 
 	portdata = usb_get_serial_port_data(port);
 
-	dev_dbg(&port->dev, "%s\n", __func__);
-
 	/* Set some sane defaults */
 	portdata->rts_state = 1;
 	portdata->dtr_state = 1;
-
 
 	endpoint = port->bulk_in_endpointAddress;
 	for (i = 0; i < ARRAY_SIZE(portdata->in_urbs); i++) {
@@ -833,7 +819,8 @@ static int sierra_open(struct tty_struct *tty, struct usb_serial_port *port)
 		/* get rid of everything as in close */
 		sierra_close(port);
 		/* restore balance for autopm */
-		usb_autopm_put_interface(serial->interface);
+		if (!serial->disconnected)
+			usb_autopm_put_interface(serial->interface);
 		return err;
 	}
 	sierra_send_setup(port);
@@ -847,22 +834,15 @@ static int sierra_open(struct tty_struct *tty, struct usb_serial_port *port)
 	return 0;
 }
 
-
 static void sierra_dtr_rts(struct usb_serial_port *port, int on)
 {
-	struct usb_serial *serial = port->serial;
 	struct sierra_port_private *portdata;
 
 	portdata = usb_get_serial_port_data(port);
 	portdata->rts_state = on;
 	portdata->dtr_state = on;
 
-	if (serial->dev) {
-		mutex_lock(&serial->disc_mutex);
-		if (!serial->disconnected)
-			sierra_send_setup(port);
-		mutex_unlock(&serial->disc_mutex);
-	}
+	sierra_send_setup(port);
 }
 
 static int sierra_startup(struct usb_serial *serial)
@@ -870,8 +850,6 @@ static int sierra_startup(struct usb_serial *serial)
 	struct usb_serial_port *port;
 	struct sierra_port_private *portdata;
 	int i;
-
-	dev_dbg(&serial->dev->dev, "%s\n", __func__);
 
 	/* Set Device mode to D0 */
 	sierra_set_power_state(serial->dev, 0x0000);
@@ -888,7 +866,7 @@ static int sierra_startup(struct usb_serial *serial)
 			dev_dbg(&port->dev, "%s: kmalloc for "
 				"sierra_port_private (%d) failed!.\n",
 				__func__, i);
-			return -ENOMEM;
+			goto err;
 		}
 		spin_lock_init(&portdata->lock);
 		init_usb_anchor(&portdata->active);
@@ -898,6 +876,13 @@ static int sierra_startup(struct usb_serial *serial)
 	}
 
 	return 0;
+err:
+	for (--i; i >= 0; --i) {
+		portdata = usb_get_serial_port_data(serial->port[i]);
+		kfree(portdata);
+	}
+
+	return -ENOMEM;
 }
 
 static void sierra_release(struct usb_serial *serial)
@@ -905,8 +890,6 @@ static void sierra_release(struct usb_serial *serial)
 	int i;
 	struct usb_serial_port *port;
 	struct sierra_port_private *portdata;
-
-	dev_dbg(&serial->dev->dev, "%s\n", __func__);
 
 	for (i = 0; i < serial->num_ports; ++i) {
 		port = serial->port[i];
@@ -917,6 +900,7 @@ static void sierra_release(struct usb_serial *serial)
 			continue;
 		kfree(portdata);
 	}
+	kfree(serial->private);
 }
 
 #ifdef CONFIG_PM
@@ -977,10 +961,18 @@ static int sierra_resume(struct usb_serial *serial)
 			intfdata->in_flight++;
 			err = usb_submit_urb(urb, GFP_ATOMIC);
 			if (err < 0) {
+				dev_err(&port->dev,
+					"%s - submit urb failed: %d",
+					__func__, err);
+				ec++;
 				intfdata->in_flight--;
 				usb_unanchor_urb(urb);
-				usb_scuttle_anchored_urbs(&portdata->delayed);
-				break;
+				kfree(urb->transfer_buffer);
+				usb_free_urb(urb);
+				spin_lock(&portdata->lock);
+				portdata->outstanding_urbs--;
+				spin_unlock(&portdata->lock);
+				continue;
 			}
 		}
 
@@ -1032,7 +1024,6 @@ static int __init sierra_init(void)
 	retval = usb_serial_register(&sierra_device);
 	if (retval)
 		goto failed_device_register;
-
 
 	retval = usb_register(&sierra_driver);
 	if (retval)

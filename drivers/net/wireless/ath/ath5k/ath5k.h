@@ -429,7 +429,6 @@ enum ath5k_ant_mode {
 	AR5K_ANTMODE_MAX,
 };
 
-
 /****************\
   TX DEFINITIONS
 \****************/
@@ -540,13 +539,12 @@ struct ath5k_txq_info {
 	u32	tqi_cbr_period; /* Constant bit rate period */
 	u32	tqi_cbr_overflow_limit;
 	u32	tqi_burst_time;
-	u32	tqi_ready_time; /* Not used */
+	u32	tqi_ready_time; /* Time queue waits after an event */
 };
 
 /*
  * Transmit packet types.
  * used on tx control descriptor
- * TODO: Use them inside base.c corectly
  */
 enum ath5k_pkt_type {
 	AR5K_PKT_TYPE_NORMAL		= 0,
@@ -583,7 +581,6 @@ enum ath5k_dmasize {
 	AR5K_DMASIZE_512B
 };
 
-
 /****************\
   RX DEFINITIONS
 \****************/
@@ -610,7 +607,6 @@ struct ath5k_rx_status {
 #define AR5K_RXERR_MIC		0x10
 #define AR5K_RXKEYIX_INVALID	((u8) - 1)
 #define AR5K_TXKEYIX_INVALID	((u32) - 1)
-
 
 /**************************\
  BEACON TIMERS DEFINITIONS
@@ -642,7 +638,6 @@ struct ath5k_beacon_state {
 };
 #endif
 
-
 /*
  * TSF to TU conversion:
  *
@@ -651,7 +646,6 @@ struct ath5k_beacon_state {
  * time equal to 1024 usec", so it's roughly milliseconds (usec / 1024).
  */
 #define TSF_TO_TU(_tsf) (u32)((_tsf) >> 10)
-
 
 /*******************************\
   GAIN OPTIMIZATION DEFINITIONS
@@ -724,7 +718,6 @@ struct ath5k_athchan_2ghz {
 	u32	a2_flags;
 	u16	a2_athchan;
 };
-
 
 /******************\
   RATE DEFINITIONS
@@ -980,7 +973,6 @@ enum ath5k_capability_type {
 	AR5K_CAP_RFSILENT		= 20,	/* Supports RFsilent */
 };
 
-
 /* XXX: we *may* move cap_range stuff to struct wiphy */
 struct ath5k_capabilities {
 	/*
@@ -1011,7 +1003,6 @@ struct ath5k_capabilities {
 		u8	q_tx_num;
 	} cap_queues;
 };
-
 
 /***************************************\
   HARDWARE ABSTRACTION LAYER STRUCTURE
@@ -1096,7 +1087,6 @@ struct ath5k_hw {
 	size_t			ah_rf_regs_count;
 	struct ath5k_gain	ah_gain;
 	u8			ah_offset[AR5K_MAX_RF_BANKS];
-
 
 	struct {
 		/* Temporary tables used for interpolation */

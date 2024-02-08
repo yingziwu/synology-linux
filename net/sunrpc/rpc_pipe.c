@@ -33,7 +33,6 @@ static int rpc_mount_count;
 
 static struct file_system_type rpc_pipe_fs_type;
 
-
 static struct kmem_cache *rpc_inode_cachep __read_mostly;
 
 #define RPC_UPCALL_TIMEOUT (30*HZ)
@@ -397,7 +396,6 @@ static const struct file_operations rpc_info_operations = {
 	.release	= rpc_info_release,
 };
 
-
 /*
  * Description of fs contents.
  */
@@ -587,6 +585,8 @@ static struct dentry *__rpc_lookup_create_exclusive(struct dentry *parent,
 	struct dentry *dentry;
 
 	dentry = __rpc_lookup_create(parent, name);
+	if (IS_ERR(dentry))
+		return dentry;
 	if (dentry->d_inode == NULL)
 		return dentry;
 	dput(dentry);

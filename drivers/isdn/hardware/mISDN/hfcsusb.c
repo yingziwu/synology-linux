@@ -43,7 +43,6 @@ static int poll = DEFAULT_TRANSP_BURST_SZ;
 static LIST_HEAD(HFClist);
 static DEFINE_RWLOCK(HFClock);
 
-
 MODULE_AUTHOR("Martin Bachem");
 MODULE_LICENSE("GPL");
 module_param(debug, uint, S_IRUGO | S_IWUSR);
@@ -1718,7 +1717,6 @@ hfcsusb_stop_endpoint(struct hfcsusb *hw, int channel)
 		stop_iso_gracefull(hw->fifos + channel*2);
 }
 
-
 /* Hardware Initialization */
 static int
 setup_hfcsusb(struct hfcsusb *hw)
@@ -2151,6 +2149,7 @@ static struct usb_driver hfcsusb_drv = {
 	.id_table = hfcsusb_idtab,
 	.probe = hfcsusb_probe,
 	.disconnect = hfcsusb_disconnect,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init

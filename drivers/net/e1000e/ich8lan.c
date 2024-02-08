@@ -86,7 +86,6 @@
 #define ICH_FLASH_SEG_SIZE_8K		8192
 #define ICH_FLASH_SEG_SIZE_64K		65536
 
-
 #define E1000_ICH_FWSM_RSPCIPHY	0x00000040 /* Reset PHY on PCI Reset */
 
 #define E1000_ICH_MNG_IAMT_MODE		0x2
@@ -1127,7 +1126,6 @@ out:
 
 	return ret_val;
 }
-
 
 /**
  *  e1000_hv_phy_workarounds_ich8lan - A series of Phy workarounds to be
@@ -3209,6 +3207,7 @@ void e1000e_disable_gig_wol_ich8lan(struct e1000_hw *hw)
 	u32 phy_ctrl;
 
 	switch (hw->mac.type) {
+	case e1000_ich8lan:
 	case e1000_ich9lan:
 	case e1000_ich10lan:
 	case e1000_pchlan:

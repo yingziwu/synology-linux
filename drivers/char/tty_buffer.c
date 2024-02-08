@@ -247,7 +247,8 @@ int tty_insert_flip_string(struct tty_struct *tty, const unsigned char *chars,
 {
 	int copied = 0;
 	do {
-		int space = tty_buffer_request_room(tty, size - copied);
+		int goal = min(size - copied, TTY_BUFFER_PAGE);
+		int space = tty_buffer_request_room(tty, goal);
 		struct tty_buffer *tb = tty->buf.tail;
 		/* If there is no space then tb may be NULL */
 		if (unlikely(space == 0))
@@ -283,7 +284,8 @@ int tty_insert_flip_string_flags(struct tty_struct *tty,
 {
 	int copied = 0;
 	do {
-		int space = tty_buffer_request_room(tty, size - copied);
+		int goal = min(size - copied, TTY_BUFFER_PAGE);
+		int space = tty_buffer_request_room(tty, goal);
 		struct tty_buffer *tb = tty->buf.tail;
 		/* If there is no space then tb may be NULL */
 		if (unlikely(space == 0))
@@ -381,8 +383,6 @@ int tty_prepare_flip_string_flags(struct tty_struct *tty,
 	return space;
 }
 EXPORT_SYMBOL_GPL(tty_prepare_flip_string_flags);
-
-
 
 /**
  *	flush_to_ldisc
@@ -518,4 +518,3 @@ void tty_buffer_init(struct tty_struct *tty)
 	tty->buf.memory_used = 0;
 	INIT_DELAYED_WORK(&tty->buf.work, flush_to_ldisc);
 }
-

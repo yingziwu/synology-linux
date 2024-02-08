@@ -1,4 +1,4 @@
-/* $Id: kcapi.c,v 1.1.2.8 2004/03/26 19:57:20 armin Exp $
+/* $Id: kcapi.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  * 
  * Kernel CAPI 2.0 Module
  * 
@@ -35,7 +35,7 @@
 #endif
 #include <linux/mutex.h>
 
-static char *revision = "$Revision: 1.1.2.8 $";
+static char *revision = "$Revision: 1.1 $";
 
 /* ------------------------------------------------------------- */
 
@@ -158,7 +158,6 @@ static void register_appl(struct capi_ctr *card, u16 applid, capi_register_param
 		printk(KERN_WARNING "%s: cannot get card resources\n", __func__);
 }
 
-
 static void release_appl(struct capi_ctr *card, u16 applid)
 {
 	DBG("applid %#x", applid);
@@ -247,7 +246,6 @@ static int notify_push(unsigned int cmd, u32 controller, u16 applid, u32 ncci)
 	return 0;
 }
 
-	
 /* -------- Receiver ------------------------------------------ */
 
 static void recv_handler(struct work_struct *work)

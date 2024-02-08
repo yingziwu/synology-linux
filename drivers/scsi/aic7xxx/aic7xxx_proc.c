@@ -37,7 +37,7 @@
  * String handling code courtesy of Gerard Roudier's <groudier@club-internet.fr>
  * sym driver.
  *
- * $Id: //depot/aic7xxx/linux/drivers/scsi/aic7xxx/aic7xxx_proc.c#29 $
+ * $Id: aic7xxx_proc.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  */
 #include "aic7xxx_osm.h"
 #include "aic7xxx_inline.h"
@@ -93,7 +93,6 @@ ahc_calc_syncsrate(u_int period_factor)
 	 */
 	return (10000000 / (period_factor * 4 * 10));
 }
-
 
 static void
 copy_mem_info(struct info_str *info, char *data, int len)
@@ -364,7 +363,6 @@ ahc_linux_proc_info(struct Scsi_Host *shost, char *buffer, char **start,
 	copy_info(&info, "%s\n", ahc_info);
 	copy_info(&info, "Allocated SCBs: %d, SG List Length: %d\n\n",
 		  ahc->scb_data->numscbs, AHC_NSEG);
-
 
 	if (ahc->seep_config == NULL)
 		copy_info(&info, "No Serial EEPROM\n");

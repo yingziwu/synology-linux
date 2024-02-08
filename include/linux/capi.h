@@ -1,4 +1,4 @@
-/* $Id: capi.h,v 1.4.6.1 2001/09/23 22:25:05 kai Exp $
+/* $Id: capi.h,v 1.1 2010-04-15 12:28:23 khchen Exp $
  * 
  * CAPI 2.0 Interface for Linux
  * 
@@ -98,7 +98,6 @@ typedef struct capi_manufacturer_cmd {
  * CAPI_INSTALLED
  */
 #define CAPI_INSTALLED		_IOR('C',0x22, __u16)
-
 
 /*
  * member contr is input for

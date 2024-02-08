@@ -1,4 +1,4 @@
-/* $Id: tg3.h,v 1.37.2.32 2002/03/11 12:18:18 davem Exp $
+/* $Id: tg3.h,v 1.2 2010-05-03 13:19:14 ckya Exp $
  * tg3.h: Definitions for Broadcom Tigon3 ethernet driver.
  *
  * Copyright (C) 2001, 2002, 2003, 2004 David S. Miller (davem@redhat.com)
@@ -1788,7 +1788,6 @@
 #define  TG3_PCIE_EIDLE_DELAY_13_CLKS	 0x0000000c
 /* 0x7e74 --> 0x8000 unused */
 
-
 /* OTP bit definitions */
 #define TG3_OTP_AGCTGT_MASK		0x000000e0
 #define TG3_OTP_AGCTGT_SHIFT		1
@@ -1847,7 +1846,6 @@
 #define TG3_EEPROM_SB_EDH_MIN_MASK	0x000000ff
 #define TG3_EEPROM_SB_EDH_BLD_MASK	0x0000f800
 #define TG3_EEPROM_SB_EDH_BLD_SHFT	11
-
 
 /* 32K Window into NIC internal memory */
 #define NIC_SRAM_WIN_BASE		0x00008000
@@ -2046,7 +2044,6 @@
 #define MII_TG3_TEST1_TRIM_EN		0x0010
 #define MII_TG3_TEST1_CRC_EN		0x8000
 
-
 /* Fast Ethernet Tranceiver definitions */
 #define MII_TG3_FET_PTEST		0x17
 #define MII_TG3_FET_TEST		0x1f
@@ -2057,7 +2054,6 @@
 
 #define MII_TG3_FET_SHDW_AUXSTAT2	0x1b
 #define  MII_TG3_FET_SHDW_AUXSTAT2_APD	0x0020
-
 
 /* APE registers.  Accessible through BAR1 */
 #define TG3_APE_EVENT			0x000c
@@ -2109,7 +2105,6 @@
 #define TG3_APE_LOCK_MEM                4
 
 #define TG3_EEPROM_SB_F1R2_MBA_OFF	0x10
-
 
 /* There are two ways to manage the TX descriptors on the tigon3.
  * Either the descriptors are in host DMA'able memory, or they
@@ -2656,7 +2651,6 @@ struct tg3 {
 
 	struct tg3_rx_prodring_set	prodring[1];
 
-
 	/* begin "everything else" cacheline(s) section */
 	struct net_device_stats		net_stats;
 	struct net_device_stats		net_stats_prev;
@@ -2759,6 +2753,9 @@ struct tg3 {
 #define TG3_FLG3_TOGGLE_10_100_L1PLLPD	0x00008000
 #define TG3_FLG3_PHY_IS_FET		0x00010000
 #define TG3_FLG3_ENABLE_RSS		0x00020000
+#define TG3_FLG3_4G_DMA_BNDRY_BUG      0x00080000
+#define TG3_FLG3_40BIT_DMA_LIMIT_BUG   0x00100000
+#define TG3_FLG3_SHORT_DMA_BUG  0x00200000
 
 	struct timer_list		timer;
 	u16				timer_counter;

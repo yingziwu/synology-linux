@@ -140,14 +140,16 @@ int drm_open(struct inode *inode, struct file *filp)
 		spin_unlock(&dev->count_lock);
 	}
 out:
-	mutex_lock(&dev->struct_mutex);
-	if (minor->type == DRM_MINOR_LEGACY) {
-		BUG_ON((dev->dev_mapping != NULL) &&
-			(dev->dev_mapping != inode->i_mapping));
-		if (dev->dev_mapping == NULL)
-			dev->dev_mapping = inode->i_mapping;
+	if (!retcode) {
+		mutex_lock(&dev->struct_mutex);
+		if (minor->type == DRM_MINOR_LEGACY) {
+			if (dev->dev_mapping == NULL)
+				dev->dev_mapping = inode->i_mapping;
+			else if (dev->dev_mapping != inode->i_mapping)
+				retcode = -ENODEV;
+		}
+		mutex_unlock(&dev->struct_mutex);
 	}
-	mutex_unlock(&dev->struct_mutex);
 
 	return retcode;
 }
@@ -266,7 +268,6 @@ static int drm_open_helper(struct inode *inode, struct file *filp,
 		if (ret < 0)
 			goto out_free;
 	}
-
 
 	/* if there is no current master make this fd it */
 	mutex_lock(&dev->struct_mutex);
@@ -398,7 +399,6 @@ static void drm_master_release(struct drm_device *dev, struct file *filp)
 		dev->driver->reclaim_buffers_idlelocked(dev, file_priv);
 		drm_idlelock_release(&file_priv->master->lock);
 	}
-
 
 	if (drm_i_have_hw_lock(dev, file_priv)) {
 		DRM_DEBUG("File %p released, freeing lock for context %d\n",

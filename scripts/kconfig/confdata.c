@@ -1,8 +1,7 @@
-/*
- * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
- * Released under the terms of the GNU GPL v2.0.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <sys/stat.h>
 #include <ctype.h>
 #include <fcntl.h>
@@ -334,7 +333,7 @@ int conf_read(const char *name)
 		if (sym_is_choice(sym) || (sym->flags & SYMBOL_AUTO))
 			goto sym_ok;
 		if (sym_has_value(sym) && (sym->flags & SYMBOL_WRITE)) {
-			/* check that calculated value agrees with saved value */
+			 
 			switch (sym->type) {
 			case S_BOOLEAN:
 			case S_TRISTATE:
@@ -348,16 +347,14 @@ int conf_read(const char *name)
 				break;
 			}
 		} else if (!sym_has_value(sym) && !(sym->flags & SYMBOL_WRITE))
-			/* no previous value and not saved */
+			 
 			goto sym_ok;
 		conf_unsaved++;
-		/* maybe print value in verbose mode... */
+		 
 	sym_ok:
 		if (!sym_is_choice(sym))
 			continue;
-		/* The choice symbol only has a set value (and thus is not new)
-		 * if all its visible childs have values.
-		 */
+		 
 		prop = sym_get_choice_prop(sym);
 		flags = sym->flags;
 		expr_list_for_each_sym(prop->expr, e, choice_sym)
@@ -368,18 +365,14 @@ int conf_read(const char *name)
 
 	for_all_symbols(i, sym) {
 		if (sym_has_value(sym) && !sym_is_choice_value(sym)) {
-			/* Reset values of generates values, so they'll appear
-			 * as new, if they should become visible, but that
-			 * doesn't quite work if the Kconfig and the saved
-			 * configuration disagree.
-			 */
+			 
 			if (sym->visible == no && !conf_unsaved)
 				sym->flags &= ~SYMBOL_DEF_USER;
 			switch (sym->type) {
 			case S_STRING:
 			case S_INT:
 			case S_HEX:
-				/* Reset a string value if it's out of range */
+				 
 				if (sym_string_within_range(sym, sym->def[S_DEF_USER].val))
 					break;
 				sym->flags &= ~(SYMBOL_VALID|SYMBOL_DEF_USER);
@@ -582,10 +575,7 @@ static int conf_split_config(void)
 			continue;
 		if (sym->flags & SYMBOL_WRITE) {
 			if (sym->flags & SYMBOL_DEF_AUTO) {
-				/*
-				 * symbol has old and new value,
-				 * so compare them...
-				 */
+				 
 				switch (sym->type) {
 				case S_BOOLEAN:
 				case S_TRISTATE:
@@ -604,10 +594,7 @@ static int conf_split_config(void)
 					break;
 				}
 			} else {
-				/*
-				 * If there is no old value, only 'no' (unset)
-				 * is allowed as new value.
-				 */
+				 
 				switch (sym->type) {
 				case S_BOOLEAN:
 				case S_TRISTATE:
@@ -619,15 +606,9 @@ static int conf_split_config(void)
 				}
 			}
 		} else if (!(sym->flags & SYMBOL_DEF_AUTO))
-			/* There is neither an old nor a new value. */
+			 
 			continue;
-		/* else
-		 *	There is an old value, but no new value ('no' (unset)
-		 *	isn't saved in auto.conf, so the old value is always
-		 *	different from 'no').
-		 */
-
-		/* Replace all '_' and append ".h" */
+		 
 		s = sym->name;
 		d = path;
 		while ((c = *s++)) {
@@ -636,17 +617,13 @@ static int conf_split_config(void)
 		}
 		strcpy(d, ".h");
 
-		/* Assume directory path already exists. */
 		fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (fd == -1) {
 			if (errno != ENOENT) {
 				res = 1;
 				break;
 			}
-			/*
-			 * Create directory components,
-			 * unless they exist already.
-			 */
+			 
 			d = path;
 			while ((d = strchr(d, '/'))) {
 				*d = 0;
@@ -656,7 +633,7 @@ static int conf_split_config(void)
 				}
 				*d++ = '/';
 			}
-			/* Try it again. */
+			 
 			fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 			if (fd == -1) {
 				res = 1;
@@ -672,6 +649,18 @@ out:
 	return res;
 }
 
+#ifdef MY_ABC_HERE
+static int syno_autoconf_check(const char *name) 
+{
+	int ret; 
+	
+	if (strncmp(name, "SYNO", 4) == 0)
+		return 1;
+	if (strcmp(name, "FS_SYNO_ACL") == 0)
+		return 1;
+	return 0;
+}
+#endif
 int conf_write_autoconf(void)
 {
 	struct symbol *sym;
@@ -680,7 +669,10 @@ int conf_write_autoconf(void)
 	FILE *out, *out_h;
 	time_t now;
 	int i, l;
-
+#ifdef MY_ABC_HERE
+	FILE *syno_h;
+	int syno_write_string = 0;
+#endif
 	sym_clear_all_valid();
 
 	file_write_dep("include/config/auto.conf.cmd");
@@ -697,6 +689,15 @@ int conf_write_autoconf(void)
 		fclose(out);
 		return 1;
 	}
+
+#ifdef MY_ABC_HERE
+	syno_h = fopen(".tmpsynoconfig.h", "w");
+	if (!syno_h) {
+		fclose(out);
+		fclose(out_h);
+		return 1;
+	}
+#endif
 
 	sym = sym_lookup("KERNELVERSION", 0);
 	sym_calc_value(sym);
@@ -715,6 +716,17 @@ int conf_write_autoconf(void)
 		       "#define AUTOCONF_INCLUDED\n",
 		       sym_get_string_value(sym), ctime(&now));
 
+#ifdef MY_ABC_HERE
+	fprintf(syno_h, "/*\n"
+		        " * Automatically generated C config: don't edit\n"
+		        " * Linux kernel version: %s\n"
+		        " * %s"
+		        " */\n"
+		        "#ifndef __SYNO_AUTOCONF_H__\n"
+		        "#define __SYNO_AUTOCONF_H__\n",
+		        sym_get_string_value(sym), ctime(&now));
+#endif
+
 	for_all_symbols(i, sym) {
 		sym_calc_value(sym);
 		if (!(sym->flags & SYMBOL_WRITE) || !sym->name)
@@ -728,10 +740,20 @@ int conf_write_autoconf(void)
 			case mod:
 				fprintf(out, "CONFIG_%s=m\n", sym->name);
 				fprintf(out_h, "#define CONFIG_%s_MODULE 1\n", sym->name);
+#ifdef MY_ABC_HERE
+				if (syno_autoconf_check(sym->name)) {
+					fprintf(syno_h, "#define CONFIG_%s_MODULE 1\n", sym->name);
+				}
+#endif
 				break;
 			case yes:
 				fprintf(out, "CONFIG_%s=y\n", sym->name);
 				fprintf(out_h, "#define CONFIG_%s 1\n", sym->name);
+#ifdef MY_ABC_HERE
+				if (syno_autoconf_check(sym->name)) {
+					fprintf(syno_h, "#define CONFIG_%s 1\n", sym->name);
+				}
+#endif
 				break;
 			}
 			break;
@@ -739,33 +761,66 @@ int conf_write_autoconf(void)
 			str = sym_get_string_value(sym);
 			fprintf(out, "CONFIG_%s=\"", sym->name);
 			fprintf(out_h, "#define CONFIG_%s \"", sym->name);
+#ifdef MY_ABC_HERE
+			syno_write_string = 0;
+			if (syno_autoconf_check(sym->name)) {
+				syno_write_string = 1;
+				fprintf(syno_h, "#define CONFIG_%s \"", sym->name);
+			}
+#endif
+
 			while (1) {
 				l = strcspn(str, "\"\\");
 				if (l) {
 					fwrite(str, l, 1, out);
 					fwrite(str, l, 1, out_h);
+#ifdef MY_ABC_HERE
+					if (syno_write_string) {
+						fwrite(str, l, 1, syno_h);
+					}
+#endif
 					str += l;
 				}
 				if (!*str)
 					break;
 				fprintf(out, "\\%c", *str);
 				fprintf(out_h, "\\%c", *str);
+#ifdef MY_ABC_HERE
+				if (syno_write_string) {
+					fprintf(syno_h, "\\%c", *str);
+				}
+#endif
 				str++;
 			}
 			fputs("\"\n", out);
 			fputs("\"\n", out_h);
+#ifdef MY_ABC_HERE
+			if (syno_write_string) {
+				fputs("\"\n", syno_h);
+			}
+#endif
 			break;
 		case S_HEX:
 			str = sym_get_string_value(sym);
 			if (str[0] != '0' || (str[1] != 'x' && str[1] != 'X')) {
 				fprintf(out, "CONFIG_%s=%s\n", sym->name, str);
 				fprintf(out_h, "#define CONFIG_%s 0x%s\n", sym->name, str);
+#ifdef MY_ABC_HERE
+				if (syno_autoconf_check(sym->name)) {
+					fprintf(syno_h, "#define CONFIG_%s 0x%s\n", sym->name, str);
+				}
+#endif
 				break;
 			}
 		case S_INT:
 			str = sym_get_string_value(sym);
 			fprintf(out, "CONFIG_%s=%s\n", sym->name, str);
 			fprintf(out_h, "#define CONFIG_%s %s\n", sym->name, str);
+#ifdef MY_ABC_HERE
+			if (syno_autoconf_check(sym->name)) {
+				fprintf(syno_h, "#define CONFIG_%s %s\n", sym->name, str);
+			}
+#endif
 			break;
 		default:
 			break;
@@ -773,17 +828,19 @@ int conf_write_autoconf(void)
 	}
 	fclose(out);
 	fclose(out_h);
-
+#ifdef MY_ABC_HERE
+	fprintf(syno_h, "#endif /* __SYNO_AUTOCONF_H__ */\n");
+	fclose(syno_h);
+	if (rename(".tmpsynoconfig.h", "include/linux/syno_autoconf.h"))
+		return 1;
+#endif
 	name = getenv("KCONFIG_AUTOHEADER");
 	if (!name)
 		name = "include/linux/autoconf.h";
 	if (rename(".tmpconfig.h", name))
 		return 1;
 	name = conf_get_autoconfig_name();
-	/*
-	 * This must be the last step, kbuild has a dependency on auto.conf
-	 * and this marks the successful completion of the previous steps.
-	 */
+	 
 	if (rename(".tmpconfig", name))
 		return 1;
 
@@ -816,7 +873,6 @@ void conf_set_changed_callback(void (*fn)(void))
 {
 	conf_changed_callback = fn;
 }
-
 
 void conf_set_all_new_symbols(enum conf_def_mode mode)
 {
@@ -860,15 +916,7 @@ void conf_set_all_new_symbols(enum conf_def_mode mode)
 
 	if (mode != def_random)
 		return;
-	/*
-	 * We have different type of choice blocks.
-	 * If curr.tri equal to mod then we can select several
-	 * choice symbols in one block.
-	 * In this case we do nothing.
-	 * If curr.tri equal yes then only one symbol can be
-	 * selected in a choice block and we set it to yes,
-	 * and the rest to no.
-	 */
+	 
 	for_all_symbols(i, csym) {
 		if (sym_has_value(csym) || !sym_is_choice(csym))
 			continue;
@@ -880,15 +928,10 @@ void conf_set_all_new_symbols(enum conf_def_mode mode)
 
 		prop = sym_get_choice_prop(csym);
 
-		/* count entries in choice block */
 		cnt = 0;
 		expr_list_for_each_sym(prop->expr, e, sym)
 			cnt++;
 
-		/*
-		 * find a random value and set it to yes,
-		 * set the rest to no so we have only one set
-		 */
 		def = (rand() % cnt);
 
 		cnt = 0;
@@ -902,7 +945,7 @@ void conf_set_all_new_symbols(enum conf_def_mode mode)
 			}
 		}
 		csym->flags |= SYMBOL_DEF_USER;
-		/* clear VALID to get value calculated */
+		 
 		csym->flags &= ~(SYMBOL_VALID);
 	}
 }

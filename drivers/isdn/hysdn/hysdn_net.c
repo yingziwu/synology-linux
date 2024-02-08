@@ -1,4 +1,4 @@
-/* $Id: hysdn_net.c,v 1.8.6.4 2001/09/23 22:24:54 kai Exp $
+/* $Id: hysdn_net.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Linux driver for HYSDN cards, net (ethernet type) handling routines.
  *
@@ -27,7 +27,7 @@ unsigned int hynet_enable = 0xffffffff;
 module_param(hynet_enable, uint, 0);
 
 /* store the actual version for log reporting */
-char *hysdn_net_revision = "$Revision: 1.8.6.4 $";
+char *hysdn_net_revision = "$Revision: 1.1 $";
 
 #define MAX_SKB_BUFFERS 20	/* number of buffers for keeping TX-data */
 
@@ -49,8 +49,6 @@ struct net_local {
 	int in_idx, out_idx;	/* indexes to buffer ring */
 	int sk_count;		/* number of buffers currently in ring */
 };				/* net_local */
-
-
 
 /*********************************************************************/
 /* Open/initialize the board. This is called (in the current kernel) */
@@ -98,7 +96,6 @@ flush_tx_buffers(struct net_local *nl)
 		nl->sk_count--;
 	}
 }				/* flush_tx_buffers */
-
 
 /*********************************************************************/
 /* close/decativate the device. The device is not removed, but only  */
@@ -151,8 +148,6 @@ net_send_packet(struct sk_buff *skb, struct net_device *dev)
 	return NETDEV_TX_OK;	/* success */
 }				/* net_send_packet */
 
-
-
 /***********************************************************************/
 /* acknowlegde a packet send. The network layer will be informed about */
 /* completion                                                          */
@@ -164,7 +159,6 @@ hysdn_tx_netack(hysdn_card * card)
 
 	if (!lp)
 		return;		/* non existing device */
-
 
 	if (!lp->sk_count)
 		return;		/* error condition */
@@ -238,7 +232,6 @@ static const struct net_device_ops hysdn_netdev_ops = {
 	.ndo_set_mac_address 	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 };
-
 
 /*****************************************************************************/
 /* hysdn_net_create creates a new net device for the given card. If a device */

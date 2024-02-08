@@ -16,7 +16,6 @@
 #include <asm/unaligned.h>
 #include "ieee80211_i.h"
 
-
 /* Data structures */
 
 /**
@@ -161,7 +160,6 @@ struct mesh_rmc {
 	u32 idx_mask;
 };
 
-
 /*
  * MESH_CFG_COMP_LEN Includes:
  * 	- Active path selection protocol ID.
@@ -186,8 +184,9 @@ struct mesh_rmc {
  */
 #define MESH_PREQ_MIN_INT	10
 #define MESH_DIAM_TRAVERSAL_TIME 50
-/* Paths will be refreshed if they are closer than PATH_REFRESH_TIME to their
- * expiration
+/* A path will be refreshed if it is used PATH_REFRESH_TIME milliseconds before
+ * timing out.  This way it will remain ACTIVE and no data frames will be
+ * unnecesarily held in the pending queue.
  */
 #define MESH_PATH_REFRESH_TIME			1000
 #define MESH_MIN_DISCOVERY_TIMEOUT (2 * MESH_DIAM_TRAVERSAL_TIME)

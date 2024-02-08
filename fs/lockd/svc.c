@@ -243,11 +243,9 @@ static int make_socks(struct svc_serv *serv)
 	if (err < 0)
 		goto out_err;
 
-#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
 	err = create_lockd_family(serv, PF_INET6);
 	if (err < 0 && err != -EAFNOSUPPORT)
 		goto out_err;
-#endif	/* CONFIG_IPV6 || CONFIG_IPV6_MODULE */
 
 	warned = 0;
 	return 0;
@@ -477,7 +475,6 @@ static inline int is_callback(u32 proc)
 		|| proc == NLMPROC_NSM_NOTIFY;
 }
 
-
 static int lockd_authenticate(struct svc_rqst *rqstp)
 {
 	rqstp->rq_client = NULL;
@@ -496,7 +493,6 @@ static int lockd_authenticate(struct svc_rqst *rqstp)
 	}
 	return SVC_DENIED;
 }
-
 
 param_set_min_max(port, int, simple_strtol, 0, 65535)
 param_set_min_max(grace_period, unsigned long, simple_strtoul,

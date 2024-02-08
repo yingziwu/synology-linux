@@ -29,6 +29,10 @@
 #include <asm/ptrace.h>
 #include "proc-macros.S"
 
+#ifdef CONFIG_ARCH_FEROCEON_KW
+#include <mach/kw_macro.h>
+#endif
+
 /*
  * This is the maximum size of an area which will be invalidated
  * using the single invalidate entry instructions.  Anything larger
@@ -52,6 +56,56 @@ __cache_params_loc:
 	.text
 __cache_params:
 	.word	__cache_params_loc
+
+#ifdef CONFIG_ARCH_FEROCEON
+/*
+ *      mv_l2_inv_range(start, end)
+ *
+ *      Invalidate (discard) the specified virtual address range on L2.
+ *      May not write back any entries.  If 'start' or 'end'
+ *      are not cache line aligned, those lines must be written
+ *      back.
+ *
+ *      - start - virtual start address
+ *      - end   - virtual end address
+ *
+ */
+#ifdef CONFIG_CACHE_FEROCEON_L2
+ENTRY(mv_l2_inv_range)
+#ifndef CONFIG_CPU_L2_DCACHE_WRITETHROUGH
+        tst     r0, #CACHE_DLINESIZE - 1
+        mcrne   p15, 1, r0, c15, c9, 1          @ clean L2 entry
+        tst     r1, #CACHE_DLINESIZE - 1
+        mcrne   p15, 1, r1, c15, c9, 1          @ clean L2 entry
+        mcr     p15, 0, r0, c7, c10, 4          @ drain WB
+#endif
+        cmp     r1, r0
+        subne   r1, r1, #1                      @ Prevent cleaning of top address
+                                                @ cache line when top is cache line aligned
+        mrs     r2, cpsr
+        orr     r3, r2, #PSR_F_BIT | PSR_I_BIT
+        msr     cpsr_c, r3                      @ Disable interrupts
+        mcr     p15, 1, r0, c15, c11, 4         @ L2 invalidation zone start addr
+        mcr     p15, 1, r1, c15, c11, 5         @ L2 invalidation zone end addr and
+                                                @ invalidate procedure trigger
+        msr     cpsr_c, r2                      @ Restore interrupts
+        mov     pc, lr
+
+ENTRY(mv_l2_inv_range_pa)
+#ifndef CONFIG_CPU_L2_DCACHE_WRITETHROUGH
+	tst     r0, #CACHE_DLINESIZE - 1
+	mcrne   p15, 1, r0, c15, c9, 3          @ clean L2 entry by PA
+	tst     r1, #CACHE_DLINESIZE - 1
+	mcrne   p15, 1, r1, c15, c9, 3          @ clean L2 entry by PA
+	mcr     p15, 0, r0, c7, c10, 4          @ drain WB
+#endif
+1:	mcr     p15, 0, r0, c15, c11, 3          @ invalidate L2 entry by PA
+	add     r0, r0, #CACHE_DLINESIZE
+	cmp     r0, r1
+	blo     1b
+	mov     pc, lr
+#endif
+#endif
 
 /*
  * cpu_feroceon_proc_init()
@@ -123,9 +177,18 @@ ENTRY(cpu_feroceon_reset)
  */
 	.align	5
 ENTRY(cpu_feroceon_do_idle)
+#ifdef CONFIG_ARCH_FEROCEON_KW
+        ldr     r0, support_wait_for_interrupt_address /* this variable set in core.c*/
+        ldr     r0, [r0]
+        cmp     r0, #1    /* check if the device doesn't support wait for interrupt*/
+        bne     1f        /* if yes, then go out*/
+#endif
 	mov	r0, #0
 	mcr	p15, 0, r0, c7, c10, 4		@ Drain write buffer
 	mcr	p15, 0, r0, c7, c0, 4		@ Wait for interrupt
+#ifdef CONFIG_ARCH_FEROCEON
+1:
+#endif
 	mov	pc, lr
 
 /*
@@ -226,16 +289,30 @@ ENTRY(feroceon_coherent_user_range)
 	mov	pc, lr
 
 /*
+#ifdef CONFIG_SYNO_PLX_PORTING
+ *	flush_kern_dcache_area(void *addr, size_t size)
+#else
  *	flush_kern_dcache_page(void *page)
+#endif
  *
  *	Ensure no D cache aliasing occurs, either with itself or
  *	the I cache
  *
+#ifdef CONFIG_SYNO_PLX_PORTING
+ *	- addr	- kernel address
+ *	- size	- region size
+#else
  *	- addr	- page aligned address
+#endif
  */
 	.align	5
+#ifdef CONFIG_SYNO_PLX_PORTING
+ENTRY(feroceon_flush_kern_dcache_area)
+	add	r1, r0, r1
+#else
 ENTRY(feroceon_flush_kern_dcache_page)
 	add	r1, r0, #PAGE_SZ
+#endif
 1:	mcr	p15, 0, r0, c7, c14, 1		@ clean+invalidate D entry
 	add	r0, r0, #CACHE_DLINESIZE
 	cmp	r0, r1
@@ -246,7 +323,11 @@ ENTRY(feroceon_flush_kern_dcache_page)
 	mov	pc, lr
 
 	.align	5
+#ifdef CONFIG_SYNO_PLX_PORTING
+ENTRY(feroceon_range_flush_kern_dcache_area)
+#else
 ENTRY(feroceon_range_flush_kern_dcache_page)
+#endif
 	mrs	r2, cpsr
 	add	r1, r0, #PAGE_SZ - CACHE_DLINESIZE	@ top addr is inclusive
 	orr	r3, r2, #PSR_I_BIT
@@ -372,7 +453,11 @@ ENTRY(feroceon_cache_fns)
 	.long	feroceon_flush_user_cache_range
 	.long	feroceon_coherent_kern_range
 	.long	feroceon_coherent_user_range
+#ifdef CONFIG_SYNO_PLX_PORTING
+	.long	feroceon_flush_kern_dcache_area
+#else
 	.long	feroceon_flush_kern_dcache_page
+#endif
 	.long	feroceon_dma_inv_range
 	.long	feroceon_dma_clean_range
 	.long	feroceon_dma_flush_range
@@ -383,7 +468,11 @@ ENTRY(feroceon_range_cache_fns)
 	.long	feroceon_flush_user_cache_range
 	.long	feroceon_coherent_kern_range
 	.long	feroceon_coherent_user_range
+#ifdef CONFIG_SYNO_PLX_PORTING
+	.long	feroceon_range_flush_kern_dcache_area
+#else
 	.long	feroceon_range_flush_kern_dcache_page
+#endif
 	.long	feroceon_range_dma_inv_range
 	.long	feroceon_range_dma_clean_range
 	.long	feroceon_range_dma_flush_range

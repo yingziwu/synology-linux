@@ -158,7 +158,6 @@
 #define SEQ_CIDMODE	10
 #define SEQ_UMMODE	11
 
-
 // 100: init, 200: dle0, 250:dle1, 300: get cid (dial), 350: "hup" (no cid), 400: hup, 500: reset, 600: dial, 700: ring
 struct reply_t gigaset_tab_nocid[] =
 {
@@ -377,7 +376,6 @@ struct reply_t gigaset_tab_cid[] =
 	{RSP_ANY,      -1, -1, -1,                 -1,-1, {ACT_WARN}},
 	{RSP_LAST}
 };
-
 
 static const struct resp_type_t resp_type[] =
 {
@@ -917,7 +915,6 @@ static void start_dial(struct at_state_t *at_state, void *data, unsigned seq_ind
 	if (retval != 0)
 		goto error;
 
-
 	at_state->pending_commands |= PC_CID;
 	gig_dbg(DEBUG_CMD, "Scheduling PC_CID");
 	cs->commands_pending = 1;
@@ -1243,14 +1240,10 @@ static void do_action(int action, struct cardstate *cs,
 		 * note that bcs may be NULL if no B channel is free
 		 */
 		at_state2->ConState = 700;
-		kfree(at_state2->str_var[STR_NMBR]);
-		at_state2->str_var[STR_NMBR] = NULL;
-		kfree(at_state2->str_var[STR_ZCPN]);
-		at_state2->str_var[STR_ZCPN] = NULL;
-		kfree(at_state2->str_var[STR_ZBC]);
-		at_state2->str_var[STR_ZBC] = NULL;
-		kfree(at_state2->str_var[STR_ZHLC]);
-		at_state2->str_var[STR_ZHLC] = NULL;
+		for (i = 0; i < STR_NUM; ++i) {
+			kfree(at_state2->str_var[i]);
+			at_state2->str_var[i] = NULL;
+		}
 		at_state2->int_var[VAR_ZCTP] = -1;
 
 		spin_lock_irqsave(&cs->lock, flags);
@@ -1541,7 +1534,6 @@ static void do_action(int action, struct cardstate *cs,
 	case ACT_SHUTDOWN:
 		do_shutdown(cs);
 		break;
-
 
 	default:
 		if (action >= ACT_CMD && action < ACT_CMD + AT_NUM) {

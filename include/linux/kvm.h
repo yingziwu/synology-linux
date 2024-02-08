@@ -40,7 +40,6 @@ struct kvm_userspace_memory_region {
 /* for kvm_memory_region::flags */
 #define KVM_MEM_LOG_DIRTY_PAGES  1UL
 
-
 /* for KVM_IRQ_LINE */
 struct kvm_irq_level {
 	/*
@@ -54,7 +53,6 @@ struct kvm_irq_level {
 	};
 	__u32 level;
 };
-
 
 struct kvm_irqchip {
 	__u32 chip_id;
@@ -116,6 +114,11 @@ struct kvm_run {
 	__u64 cr8;
 	__u64 apic_base;
 
+#ifdef __KVM_S390
+	/* the processor status word for s390 */
+	__u64 psw_mask; /* psw upper half */
+	__u64 psw_addr; /* psw lower half */
+#endif
 	union {
 		/* KVM_EXIT_UNKNOWN */
 		struct {
@@ -167,8 +170,6 @@ struct kvm_run {
 		/* KVM_EXIT_S390_SIEIC */
 		struct {
 			__u8 icptcode;
-			__u64 mask; /* psw upper half */
-			__u64 addr; /* psw lower half */
 			__u16 ipa;
 			__u32 ipb;
 		} s390_sieic;
@@ -436,6 +437,7 @@ struct kvm_ioeventfd {
 #endif
 #define KVM_CAP_IOEVENTFD 36
 #define KVM_CAP_SET_IDENTITY_MAP_ADDR 37
+#define KVM_CAP_ADJUST_CLOCK 39
 
 #ifdef KVM_CAP_IRQ_ROUTING
 
@@ -474,6 +476,7 @@ struct kvm_irq_routing {
 };
 
 #endif
+#define KVM_CAP_S390_PSW 42
 
 #ifdef KVM_CAP_MCE
 /* x86 MCE */
@@ -495,6 +498,12 @@ struct kvm_irqfd {
 	__u32 gsi;
 	__u32 flags;
 	__u8  pad[20];
+};
+
+struct kvm_clock_data {
+	__u64 clock;
+	__u32 flags;
+	__u32 pad[9];
 };
 
 /*
@@ -546,6 +555,8 @@ struct kvm_irqfd {
 #define KVM_CREATE_PIT2		   _IOW(KVMIO, 0x77, struct kvm_pit_config)
 #define KVM_SET_BOOT_CPU_ID        _IO(KVMIO, 0x78)
 #define KVM_IOEVENTFD             _IOW(KVMIO, 0x79, struct kvm_ioeventfd)
+#define KVM_SET_CLOCK             _IOW(KVMIO, 0x7b, struct kvm_clock_data)
+#define KVM_GET_CLOCK             _IOR(KVMIO, 0x7c, struct kvm_clock_data)
 
 /*
  * ioctls for vcpu fds
@@ -680,7 +691,6 @@ struct kvm_assigned_irq {
 		__u32 reserved[12];
 	};
 };
-
 
 struct kvm_assigned_msix_nr {
 	__u32 assigned_dev_id;

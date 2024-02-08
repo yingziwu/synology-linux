@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:08:03 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/intr_vect_defs_asm.h ../../inst/intr_vect/rtl/guinness/ivmask.config.r
- *      id: $Id: intr_vect_defs_asm.h,v 1.1 2005/04/24 18:31:04 starvik Exp $
+ *      id: $Id: intr_vect_defs_asm.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -346,7 +346,6 @@
 #define reg_intr_vect_r_guru___jtag___width 1
 #define reg_intr_vect_r_guru___jtag___bit 0
 #define reg_intr_vect_r_guru_offset 16
-
 
 /* Constants */
 #define regk_intr_vect_off                        0x00000000

@@ -1,4 +1,4 @@
-/* $Id: interrupt.c,v 1.4.8.3 2001/09/23 22:24:59 kai Exp $
+/* $Id: interrupt.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Copyright (C) 1996  SpellCaster Telecommunications Inc.
  *
@@ -198,7 +198,6 @@ irqreturn_t interrupt_handler(int dummy, void *card_inst)
 				sc_adapter[card]->nphystat);
 			continue;
 		}
-
 
 		/* 
 		 * Handle a GetFramFormat

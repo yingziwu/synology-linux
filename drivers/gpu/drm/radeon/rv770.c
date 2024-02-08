@@ -40,7 +40,6 @@
 static void rv770_gpu_init(struct radeon_device *rdev);
 void rv770_fini(struct radeon_device *rdev);
 
-
 /*
  * GART
  */
@@ -124,7 +123,6 @@ void rv770_pcie_gart_fini(struct radeon_device *rdev)
 	radeon_gart_table_vram_free(rdev);
 	radeon_gart_fini(rdev);
 }
-
 
 void rv770_agp_enable(struct radeon_device *rdev)
 {
@@ -221,7 +219,6 @@ static void rv770_mc_program(struct radeon_device *rdev)
 	rv515_vga_render_disable(rdev);
 }
 
-
 /*
  * CP.
  */
@@ -229,7 +226,6 @@ void r700_cp_stop(struct radeon_device *rdev)
 {
 	WREG32(CP_ME_CNTL, (CP_ME_HALT | CP_PFP_HALT));
 }
-
 
 static int rv770_cp_load_microcode(struct radeon_device *rdev)
 {
@@ -264,7 +260,6 @@ static int rv770_cp_load_microcode(struct radeon_device *rdev)
 	WREG32(CP_ME_RAM_RADDR, 0);
 	return 0;
 }
-
 
 /*
  * Core functions
@@ -1034,13 +1029,14 @@ int rv770_init(struct radeon_device *rdev)
 	if (rdev->accel_working) {
 		r = radeon_ib_pool_init(rdev);
 		if (r) {
-			DRM_ERROR("radeon: failled initializing IB pool (%d).\n", r);
+			dev_err(rdev->dev, "IB initialization failed (%d).\n", r);
 			rdev->accel_working = false;
-		}
-		r = r600_ib_test(rdev);
-		if (r) {
-			DRM_ERROR("radeon: failled testing IB (%d).\n", r);
-			rdev->accel_working = false;
+		} else {
+			r = r600_ib_test(rdev);
+			if (r) {
+				dev_err(rdev->dev, "IB test failed (%d).\n", r);
+				rdev->accel_working = false;
+			}
 		}
 	}
 	return 0;

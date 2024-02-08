@@ -49,7 +49,6 @@ static void emi62_disconnect(struct usb_interface *intf);
 static int __init emi62_init (void);
 static void __exit emi62_exit (void);
 
-
 /* thanks to drivers/usb/serial/keyspan_pda.c code */
 static int emi62_writememory(struct usb_device *dev, int address,
 			     const unsigned char *data, int length,
@@ -167,7 +166,7 @@ static int emi62_load_firmware (struct usb_device *dev)
 			err("%s - error loading firmware: error = %d", __func__, err);
 			goto wraperr;
 		}
-	} while (i > 0);
+	} while (rec);
 
 	/* Assert reset (stop the CPU in the EMI) */
 	err = emi62_set_reset(dev,1);

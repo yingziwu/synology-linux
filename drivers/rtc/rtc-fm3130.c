@@ -153,7 +153,6 @@ static int fm3130_get_time(struct device *dev, struct rtc_time *t)
 	return rtc_valid_tm(t);
 }
 
-
 static int fm3130_set_time(struct device *dev, struct rtc_time *t)
 {
 	struct fm3130 *fm3130 = dev_get_drvdata(dev);
@@ -220,7 +219,6 @@ static int fm3130_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 			fm3130->regs[FM3130_ALARM_HOURS],
 			fm3130->regs[FM3130_ALARM_DATE],
 			fm3130->regs[FM3130_ALARM_MONTHS]);
-
 
 	tm->tm_sec	= bcd2bin(fm3130->regs[FM3130_ALARM_SECONDS] & 0x7F);
 	tm->tm_min	= bcd2bin(fm3130->regs[FM3130_ALARM_MINUTES] & 0x7F);
@@ -376,20 +374,22 @@ static int __devinit fm3130_probe(struct i2c_client *client,
 	}
 
 	/* Disabling calibration mode */
-	if (fm3130->regs[FM3130_RTC_CONTROL] & FM3130_RTC_CONTROL_BIT_CAL)
+	if (fm3130->regs[FM3130_RTC_CONTROL] & FM3130_RTC_CONTROL_BIT_CAL) {
 		i2c_smbus_write_byte_data(client, FM3130_RTC_CONTROL,
 			fm3130->regs[FM3130_RTC_CONTROL] &
 				~(FM3130_RTC_CONTROL_BIT_CAL));
 		dev_warn(&client->dev, "Disabling calibration mode!\n");
+	}
 
 	/* Disabling read and write modes */
 	if (fm3130->regs[FM3130_RTC_CONTROL] & FM3130_RTC_CONTROL_BIT_WRITE ||
-	    fm3130->regs[FM3130_RTC_CONTROL] & FM3130_RTC_CONTROL_BIT_READ)
+	    fm3130->regs[FM3130_RTC_CONTROL] & FM3130_RTC_CONTROL_BIT_READ) {
 		i2c_smbus_write_byte_data(client, FM3130_RTC_CONTROL,
 			fm3130->regs[FM3130_RTC_CONTROL] &
 				~(FM3130_RTC_CONTROL_BIT_READ |
 					FM3130_RTC_CONTROL_BIT_WRITE));
 		dev_warn(&client->dev, "Disabling READ or WRITE mode!\n");
+	}
 
 	/* oscillator off?  turn it on, so clock can tick. */
 	if (fm3130->regs[FM3130_CAL_CONTROL] & FM3130_CAL_CONTROL_BIT_nOSCEN)
@@ -498,4 +498,3 @@ module_exit(fm3130_exit);
 MODULE_DESCRIPTION("RTC driver for FM3130");
 MODULE_AUTHOR("Sergey Lapin <slapin@ossfans.org>");
 MODULE_LICENSE("GPL");
-

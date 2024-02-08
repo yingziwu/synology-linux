@@ -1,4 +1,4 @@
-/* $Id: hysdn_proclog.c,v 1.9.6.3 2001/09/23 22:24:54 kai Exp $
+/* $Id: hysdn_proclog.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Linux driver for HYSDN cards, /proc/net filesystem log functions.
  *
@@ -45,7 +45,6 @@ struct procdata {
 	unsigned char logtmp[LOG_MAX_LINELEN];
 	wait_queue_head_t rd_queue;
 };
-
 
 /**********************************************/
 /* log function for cards error log interface */
@@ -140,7 +139,6 @@ put_log_buffer(hysdn_card * card, char *cp)
 	pd->del_lock--;		/* release lock level */
 	wake_up_interruptible(&(pd->rd_queue));		/* announce new entry */
 }				/* put_log_buffer */
-
 
 /******************************/
 /* file operations and tables */
@@ -389,7 +387,6 @@ static const struct file_operations log_fops =
 	.open           = hysdn_log_open,
 	.release        = hysdn_log_close,                                        
 };
-
 
 /***********************************************************************************/
 /* hysdn_proclog_init is called when the module is loaded after creating the cards */

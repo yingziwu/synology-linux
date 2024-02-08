@@ -1,25 +1,77 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_FS_NOTIFY_H
 #define _LINUX_FS_NOTIFY_H
-
-/*
- * include/linux/fsnotify.h - generic hooks for filesystem notification, to
- * reduce in-source duplication from both dnotify and inotify.
- *
- * We don't compile any of this away in some complicated menagerie of ifdefs.
- * Instead, we rely on the code inside to optimize away as needed.
- *
- * (C) Copyright 2005 Robert Love
- */
 
 #include <linux/dnotify.h>
 #include <linux/inotify.h>
 #include <linux/fsnotify_backend.h>
 #include <linux/audit.h>
+#ifdef MY_ABC_HERE
+#include <linux/xattr.h>
+#endif
 
-/*
- * fsnotify_d_instantiate - instantiate a dentry for inode
- * Called with dcache_lock held.
- */
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+static inline void SYNO_ArchiveModify(struct inode * TargetInode, int blSetSMBArchive)
+{
+	struct dentry *dentry;
+#ifdef MY_ABC_HERE
+	u32 new_archive_bit;
+#endif
+#ifdef MY_ABC_HERE
+	u32 old_version;
+	u32 new_version;
+	int err;
+#endif
+	if (NULL == TargetInode) {
+		printk("%s %d: Set backup archive bit on null inode!\n", __FUNCTION__, __LINE__);
+		return;
+	}
+	if (S_ISCHR(TargetInode->i_mode) || S_ISBLK(TargetInode->i_mode) ||
+		S_ISFIFO(TargetInode->i_mode) || S_ISSOCK(TargetInode->i_mode)) {
+		return;
+	}
+	dentry = d_find_alias(TargetInode);
+	if (!dentry)
+		return;
+
+#ifdef MY_ABC_HERE
+	mutex_lock(&TargetInode->i_syno_mutex);
+	if (blSetSMBArchive) {
+		new_archive_bit = TargetInode->i_archive_bit | (S2_SMB_ARCHIVE|ALL_IARCHIVE);
+	} else {
+		new_archive_bit = TargetInode->i_archive_bit | ALL_IARCHIVE;
+	}
+	if (new_archive_bit == TargetInode->i_archive_bit)
+		goto next;
+	syno_op_set_archive_bit_nolock(dentry, new_archive_bit);
+next:
+	mutex_unlock(&TargetInode->i_syno_mutex);
+#endif
+#ifdef MY_ABC_HERE
+	if (!TargetInode->i_op->syno_get_archive_ver)
+		goto out;
+
+	err = TargetInode->i_op->syno_get_archive_ver(dentry, &old_version);
+	if (err)
+		goto out;
+
+	TargetInode->i_sb->s_op->syno_get_sb_archive_ver(TargetInode->i_sb, &new_version);
+	if (err)
+		goto out;
+
+	new_version += 1;
+	if (new_version != old_version)
+		TargetInode->i_op->syno_set_archive_ver(dentry, new_version);
+out:
+#endif
+	if (dentry) {
+		dput(dentry);
+	}
+}
+#endif
+
 static inline void fsnotify_d_instantiate(struct dentry *entry,
 						struct inode *inode)
 {
@@ -28,7 +80,6 @@ static inline void fsnotify_d_instantiate(struct dentry *entry,
 	inotify_d_instantiate(entry, inode);
 }
 
-/* Notify this dentry's parent about a child's events. */
 static inline void fsnotify_parent(struct dentry *dentry, __u32 mask)
 {
 	__fsnotify_parent(dentry, mask);
@@ -36,24 +87,14 @@ static inline void fsnotify_parent(struct dentry *dentry, __u32 mask)
 	inotify_dentry_parent_queue_event(dentry, mask, 0, dentry->d_name.name);
 }
 
-/*
- * fsnotify_d_move - entry has been moved
- * Called with dcache_lock and entry->d_lock held.
- */
 static inline void fsnotify_d_move(struct dentry *entry)
 {
-	/*
-	 * On move we need to update entry->d_flags to indicate if the new parent
-	 * cares about events from this entry.
-	 */
+	 
 	__fsnotify_update_dcache_flags(entry);
 
 	inotify_d_move(entry);
 }
 
-/*
- * fsnotify_link_count - inode's link count changed
- */
 static inline void fsnotify_link_count(struct inode *inode)
 {
 	inotify_inode_queue_event(inode, IN_ATTRIB, 0, NULL, NULL);
@@ -61,9 +102,6 @@ static inline void fsnotify_link_count(struct inode *inode)
 	fsnotify(inode, FS_ATTRIB, inode, FSNOTIFY_EVENT_INODE, NULL, 0);
 }
 
-/*
- * fsnotify_move - file old_name at old_dir was moved to new_name at new_dir
- */
 static inline void fsnotify_move(struct inode *old_dir, struct inode *new_dir,
 				 const char *old_name, const char *new_name,
 				 int isdir, struct inode *target, struct dentry *moved)
@@ -88,6 +126,12 @@ static inline void fsnotify_move(struct inode *old_dir, struct inode *new_dir,
 	inotify_inode_queue_event(new_dir, IN_MOVED_TO|isdir, in_cookie, new_name,
 				  source);
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	SYNO_ArchiveModify(old_dir, 0);
+	if (old_dir != new_dir) {
+		SYNO_ArchiveModify(new_dir, 0);
+	}
+#endif
 	fsnotify(old_dir, old_dir_mask, old_dir, FSNOTIFY_EVENT_INODE, old_name, fs_cookie);
 	fsnotify(new_dir, new_dir_mask, new_dir, FSNOTIFY_EVENT_INODE, new_name, fs_cookie);
 
@@ -95,28 +139,28 @@ static inline void fsnotify_move(struct inode *old_dir, struct inode *new_dir,
 		inotify_inode_queue_event(target, IN_DELETE_SELF, 0, NULL, NULL);
 		inotify_inode_is_dead(target);
 
-		/* this is really a link_count change not a removal */
 		fsnotify_link_count(target);
+
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+		SYNO_ArchiveModify(target, 0);
+#endif
 	}
 
 	if (source) {
 		inotify_inode_queue_event(source, IN_MOVE_SELF, 0, NULL, NULL);
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+		SYNO_ArchiveModify(source, 1);
+#endif
 		fsnotify(source, FS_MOVE_SELF, moved->d_inode, FSNOTIFY_EVENT_INODE, NULL, 0);
 	}
 	audit_inode_child(new_name, moved, new_dir);
 }
 
-/*
- * fsnotify_inode_delete - and inode is being evicted from cache, clean up is needed
- */
 static inline void fsnotify_inode_delete(struct inode *inode)
 {
 	__fsnotify_inode_delete(inode);
 }
 
-/*
- * fsnotify_nameremove - a filename was removed from a directory
- */
 static inline void fsnotify_nameremove(struct dentry *dentry, int isdir)
 {
 	__u32 mask = FS_DELETE;
@@ -124,12 +168,13 @@ static inline void fsnotify_nameremove(struct dentry *dentry, int isdir)
 	if (isdir)
 		mask |= FS_IN_ISDIR;
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	SYNO_ArchiveModify(dentry->d_parent->d_inode, 0);
+#endif
+
 	fsnotify_parent(dentry, mask);
 }
 
-/*
- * fsnotify_inoderemove - an inode is going away
- */
 static inline void fsnotify_inoderemove(struct inode *inode)
 {
 	inotify_inode_queue_event(inode, IN_DELETE_SELF, 0, NULL, NULL);
@@ -139,23 +184,19 @@ static inline void fsnotify_inoderemove(struct inode *inode)
 	__fsnotify_inode_delete(inode);
 }
 
-/*
- * fsnotify_create - 'name' was linked in
- */
 static inline void fsnotify_create(struct inode *inode, struct dentry *dentry)
 {
 	inotify_inode_queue_event(inode, IN_CREATE, 0, dentry->d_name.name,
 				  dentry->d_inode);
 	audit_inode_child(dentry->d_name.name, dentry, inode);
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	SYNO_ArchiveModify(dentry->d_inode, 0);
+#endif
+
 	fsnotify(inode, FS_CREATE, dentry->d_inode, FSNOTIFY_EVENT_INODE, dentry->d_name.name, 0);
 }
 
-/*
- * fsnotify_link - new hardlink in 'inode' directory
- * Note: We have to pass also the linked inode ptr as some filesystems leave
- *   new_dentry->d_inode NULL and instantiate inode pointer later
- */
 static inline void fsnotify_link(struct inode *dir, struct inode *inode, struct dentry *new_dentry)
 {
 	inotify_inode_queue_event(dir, IN_CREATE, 0, new_dentry->d_name.name,
@@ -166,9 +207,6 @@ static inline void fsnotify_link(struct inode *dir, struct inode *inode, struct 
 	fsnotify(dir, FS_CREATE, inode, FSNOTIFY_EVENT_INODE, new_dentry->d_name.name, 0);
 }
 
-/*
- * fsnotify_mkdir - directory 'name' was created
- */
 static inline void fsnotify_mkdir(struct inode *inode, struct dentry *dentry)
 {
 	__u32 mask = (FS_CREATE | FS_IN_ISDIR);
@@ -177,12 +215,13 @@ static inline void fsnotify_mkdir(struct inode *inode, struct dentry *dentry)
 	inotify_inode_queue_event(inode, mask, 0, dentry->d_name.name, d_inode);
 	audit_inode_child(dentry->d_name.name, dentry, inode);
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	SYNO_ArchiveModify(dentry->d_inode, 0);
+#endif
+
 	fsnotify(inode, mask, d_inode, FSNOTIFY_EVENT_INODE, dentry->d_name.name, 0);
 }
 
-/*
- * fsnotify_access - file was read
- */
 static inline void fsnotify_access(struct dentry *dentry)
 {
 	struct inode *inode = dentry->d_inode;
@@ -197,9 +236,6 @@ static inline void fsnotify_access(struct dentry *dentry)
 	fsnotify(inode, mask, inode, FSNOTIFY_EVENT_INODE, NULL, 0);
 }
 
-/*
- * fsnotify_modify - file was modified
- */
 static inline void fsnotify_modify(struct dentry *dentry)
 {
 	struct inode *inode = dentry->d_inode;
@@ -210,13 +246,14 @@ static inline void fsnotify_modify(struct dentry *dentry)
 
 	inotify_inode_queue_event(inode, mask, 0, NULL, NULL);
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	SYNO_ArchiveModify(inode, 1);
+#endif
+
 	fsnotify_parent(dentry, mask);
 	fsnotify(inode, mask, inode, FSNOTIFY_EVENT_INODE, NULL, 0);
 }
 
-/*
- * fsnotify_open - file was opened
- */
 static inline void fsnotify_open(struct dentry *dentry)
 {
 	struct inode *inode = dentry->d_inode;
@@ -231,9 +268,6 @@ static inline void fsnotify_open(struct dentry *dentry)
 	fsnotify(inode, mask, inode, FSNOTIFY_EVENT_INODE, NULL, 0);
 }
 
-/*
- * fsnotify_close - file was closed
- */
 static inline void fsnotify_close(struct file *file)
 {
 	struct dentry *dentry = file->f_path.dentry;
@@ -250,9 +284,6 @@ static inline void fsnotify_close(struct file *file)
 	fsnotify(inode, mask, file, FSNOTIFY_EVENT_FILE, NULL, 0);
 }
 
-/*
- * fsnotify_xattr - extended attributes were changed
- */
 static inline void fsnotify_xattr(struct dentry *dentry)
 {
 	struct inode *inode = dentry->d_inode;
@@ -262,15 +293,14 @@ static inline void fsnotify_xattr(struct dentry *dentry)
 		mask |= FS_IN_ISDIR;
 
 	inotify_inode_queue_event(inode, mask, 0, NULL, NULL);
-
+	
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	SYNO_ArchiveModify(inode, 1);
+#endif
 	fsnotify_parent(dentry, mask);
 	fsnotify(inode, mask, inode, FSNOTIFY_EVENT_INODE, NULL, 0);
 }
 
-/*
- * fsnotify_change - notify_change event.  file was modified and/or metadata
- * was changed.
- */
 static inline void fsnotify_change(struct dentry *dentry, unsigned int ia_valid)
 {
 	struct inode *inode = dentry->d_inode;
@@ -281,9 +311,15 @@ static inline void fsnotify_change(struct dentry *dentry, unsigned int ia_valid)
 	if (ia_valid & ATTR_GID)
 		mask |= FS_ATTRIB;
 	if (ia_valid & ATTR_SIZE)
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	{
 		mask |= FS_MODIFY;
+		SYNO_ArchiveModify(inode, 1);
+	}
+#else
+		mask |= FS_MODIFY;
+#endif
 
-	/* both times implies a utime(s) call */
 	if ((ia_valid & (ATTR_ATIME | ATTR_MTIME)) == (ATTR_ATIME | ATTR_MTIME))
 		mask |= FS_ATTRIB;
 	else if (ia_valid & ATTR_ATIME)
@@ -304,25 +340,19 @@ static inline void fsnotify_change(struct dentry *dentry, unsigned int ia_valid)
 	}
 }
 
-#if defined(CONFIG_INOTIFY) || defined(CONFIG_FSNOTIFY)	/* notify helpers */
+#if defined(CONFIG_INOTIFY) || defined(CONFIG_FSNOTIFY)	 
 
-/*
- * fsnotify_oldname_init - save off the old filename before we change it
- */
 static inline const char *fsnotify_oldname_init(const char *name)
 {
 	return kstrdup(name, GFP_KERNEL);
 }
 
-/*
- * fsnotify_oldname_free - free the name we got from fsnotify_oldname_init
- */
 static inline void fsnotify_oldname_free(const char *old_name)
 {
 	kfree(old_name);
 }
 
-#else	/* CONFIG_INOTIFY || CONFIG_FSNOTIFY */
+#else	 
 
 static inline const char *fsnotify_oldname_init(const char *name)
 {
@@ -333,6 +363,6 @@ static inline void fsnotify_oldname_free(const char *old_name)
 {
 }
 
-#endif	/* ! CONFIG_INOTIFY */
+#endif	 
 
-#endif	/* _LINUX_FS_NOTIFY_H */
+#endif	 

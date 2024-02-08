@@ -25,7 +25,6 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 #include <linux/module.h>
 #include <linux/if_vlan.h>
 #include <linux/inet_lro.h>
@@ -339,10 +338,30 @@ static int __lro_proc_skb(struct net_lro_mgr *lro_mgr, struct sk_buff *skb,
 	u64 flags;
 	int vlan_hdr_len = 0;
 
+#if defined(CONFIG_MV_ETHERNET) && defined(CONFIG_ARCH_FEROCEON)
+/* Only BSP net driver has this request(No this call back but support LRO...) */
+/*
 	if (!lro_mgr->get_skb_header
 	    || lro_mgr->get_skb_header(skb, (void *)&iph, (void *)&tcph,
 				       &flags, priv))
 		goto out;
+*/
+	if (!lro_mgr->get_skb_header) {
+		skb_reset_network_header(skb);
+		skb_set_transport_header(skb, ip_hdrlen(skb));
+		iph = ip_hdr(skb);
+		tcph = tcp_hdr(skb);
+		flags = LRO_IPV4 | LRO_TCP;
+	}
+	else if (lro_mgr->get_skb_header(skb, (void *)&iph, (void *)&tcph,
+				       &flags, priv))
+		goto out;
+#else
+	if (!lro_mgr->get_skb_header
+	    || lro_mgr->get_skb_header(skb, (void *)&iph, (void *)&tcph,
+				       &flags, priv))
+		goto out;
+#endif
 
 	if (!(flags & LRO_IPV4) || !(flags & LRO_TCP))
 		goto out;
@@ -386,7 +405,6 @@ out2: /* send aggregated SKBs to stack */
 out:
 	return 1;
 }
-
 
 static struct sk_buff *lro_gen_skb(struct net_lro_mgr *lro_mgr,
 				   struct skb_frag_struct *frags,

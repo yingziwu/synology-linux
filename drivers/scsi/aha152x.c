@@ -13,9 +13,12 @@
  * General Public License for more details.
  *
  *
- * $Id: aha152x.c,v 2.7 2004/01/24 11:42:59 fischer Exp $
+ * $Id: aha152x.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * $Log: aha152x.c,v $
+ * Revision 1.1  2010-04-15 12:27:50  khchen
+ * Initial revision
+ *
  * Revision 2.7  2004/01/24 11:42:59  fischer
  * - gather code that is not used by PCMCIA at the end
  * - move request_region for !PCMCIA case to detection
@@ -264,7 +267,6 @@
 #include "aha152x.h"
 
 static LIST_HEAD(aha152x_host_list);
-
 
 /* DEFINES */
 
@@ -551,7 +553,6 @@ struct aha152x_hostdata {
 	struct list_head host_list;
 };
 
-
 /*
  * host specific command extension
  *
@@ -684,7 +685,6 @@ static void disp_ports(struct Scsi_Host *shpnt);
 static void show_command(Scsi_Cmnd * ptr);
 static void show_queues(struct Scsi_Host *shpnt);
 static void disp_enintr(struct Scsi_Host *shpnt);
-
 
 /*
  *  queue services:
@@ -877,7 +877,6 @@ struct Scsi_Host *aha152x_probe_one(struct aha152x_setup *setup)
 	}
 	printk("ok.\n");
 
-
 	/* clear interrupts */
 	SETPORT(SSTAT0, 0x7f);
 	SETPORT(SSTAT1, 0xef);
@@ -927,7 +926,6 @@ void aha152x_release(struct Scsi_Host *shpnt)
 	scsi_host_put(shpnt);
 }
 
-
 /*
  * setup controller to generate interrupts depending
  * on current state (lock has to be acquired)
@@ -966,7 +964,6 @@ static int setup_expected_interrupts(struct Scsi_Host *shpnt)
 
 	return TESTHI(DMASTAT, INTSTAT);
 }
-
 
 /* 
  *  Queue a command and setup interrupts for a free bus.
@@ -1068,7 +1065,6 @@ static int aha152x_queue(Scsi_Cmnd *SCpnt, void (*done)(Scsi_Cmnd *))
 
 	return aha152x_internal_queue(SCpnt, NULL, 0, done);
 }
-
 
 /*
  *  
@@ -1775,7 +1771,6 @@ static void seldi_run(struct Scsi_Host *shpnt)
 		       HOSTNO, selid);
 	}
 
-
 	SETPORT(SCSIID, (shpnt->this_id << OID_) | target);
 	SETPORT(SCSISEQ, 0);
 
@@ -2030,7 +2025,6 @@ static void msgo_run(struct Scsi_Host *shpnt)
 			/* Leave MESSAGE OUT after transfer */
 			SETPORT(SSTAT1, CLRATNO);
 		}
-
 
 		if (MSGO(MSGO_I) & IDENTIFY_BASE)
 			CURRENT_SC->SCp.phase |= identified;
@@ -2488,7 +2482,6 @@ static void rsti_run(struct Scsi_Host *shpnt)
 		done(shpnt, DID_RESET << 16 );
 }
 
-
 /*
  * bottom-half handler
  *
@@ -2614,7 +2607,6 @@ static void is_complete(struct Scsi_Host *shpnt)
 	DO_UNLOCK(flags);
 }
 
-
 /* 
  * Dump the current driver status and panic
  */
@@ -2725,7 +2717,6 @@ static void disp_ports(struct Scsi_Host *shpnt)
 	if (s & REQINIT)
 		printk("REQINIT ");
 	printk("); ");
-
 
 	printk("SSTAT( ");
 
@@ -3099,7 +3090,6 @@ static int get_ports(struct Scsi_Host *shpnt, char *pos)
 		SPRINTF("REQINIT ");
 	SPRINTF("); ");
 
-
 	SPRINTF("SSTAT( ");
 
 	s = GETPORT(SSTAT0) & GETPORT(SIMODE0);
@@ -3305,7 +3295,6 @@ static int aha152x_set_info(char *buffer, int length, struct Scsi_Host *shpnt)
 		return -EINVAL;
 	}
 
-
 	return length;
 }
 
@@ -3325,7 +3314,6 @@ static int aha152x_proc_info(struct Scsi_Host *shpnt, char *buffer, char **start
 	DPRINTK(debug_procinfo, 
 	       KERN_DEBUG "aha152x_proc_info: buffer=%p offset=%ld length=%d hostno=%d inout=%d\n",
 	       buffer, offset, length, shpnt->host_no, inout);
-
 
 	if (inout)
 		return aha152x_set_info(buffer, length, shpnt);
@@ -3572,7 +3560,6 @@ static int tc1550_porttest(int io_port)
 	return (i == 16);
 }
 
-
 static int checksetup(struct aha152x_setup *setup)
 {
 	int i;
@@ -3616,10 +3603,8 @@ static int checksetup(struct aha152x_setup *setup)
 	if ((setup->ext_trans < 0) || (setup->ext_trans > 1))
 		return 0;
 
-
 	return 1;
 }
-
 
 static int __init aha152x_init(void)
 {

@@ -26,12 +26,14 @@
  */
 
 /*
- * $Log: generic_NCR5380.h,v $
+ * $Log: g_NCR5380.h,v $
+ * Revision 1.1  2010-04-15 12:27:50  khchen
+ * Initial revision
+ *
  */
 
 #ifndef GENERIC_NCR5380_H
 #define GENERIC_NCR5380_H
-
 
 #define GENERIC_NCR5380_PUBLIC_RELEASE 1
 
@@ -134,4 +136,3 @@ static const char* generic_NCR5380_info(struct Scsi_Host *);
 #endif /* else def HOSTS_C */
 #endif /* ndef ASM */
 #endif /* GENERIC_NCR5380_H */
-

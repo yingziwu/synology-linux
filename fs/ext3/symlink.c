@@ -1,22 +1,7 @@
-/*
- *  linux/fs/ext3/symlink.c
- *
- * Only fast symlinks left here - the rest is done by generic code. AV, 1999
- *
- * Copyright (C) 1992, 1993, 1994, 1995
- * Remy Card (card@masi.ibp.fr)
- * Laboratoire MASI - Institut Blaise Pascal
- * Universite Pierre et Marie Curie (Paris VI)
- *
- *  from
- *
- *  linux/fs/minix/symlink.c
- *
- *  Copyright (C) 1991, 1992  Linus Torvalds
- *
- *  ext3 symlink handling code
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/fs.h>
 #include <linux/jbd.h>
 #include <linux/ext3_fs.h>
@@ -31,6 +16,10 @@ static void * ext3_follow_link(struct dentry *dentry, struct nameidata *nd)
 }
 
 const struct inode_operations ext3_symlink_inode_operations = {
+#ifdef MY_ABC_HERE
+	.syno_get_archive_ver = syno_ext3_get_archive_ver,
+	.syno_set_archive_ver = syno_ext3_set_archive_ver,
+#endif
 	.readlink	= generic_readlink,
 	.follow_link	= page_follow_link_light,
 	.put_link	= page_put_link,
@@ -43,6 +32,10 @@ const struct inode_operations ext3_symlink_inode_operations = {
 };
 
 const struct inode_operations ext3_fast_symlink_inode_operations = {
+#ifdef MY_ABC_HERE
+	.syno_get_archive_ver = syno_ext3_get_archive_ver,
+	.syno_set_archive_ver = syno_ext3_set_archive_ver,
+#endif
 	.readlink	= generic_readlink,
 	.follow_link	= ext3_follow_link,
 #ifdef CONFIG_EXT3_FS_XATTR

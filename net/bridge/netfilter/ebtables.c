@@ -15,7 +15,6 @@
  *  2 of the License, or (at your option) any later version.
  */
 
-
 #include <linux/kmod.h>
 #include <linux/module.h>
 #include <linux/vmalloc.h>
@@ -37,8 +36,6 @@
 					 ": out of memory: "format, ## args)
 /* #define MEMPRINT(format, args...) */
 
-
-
 /*
  * Each cpu has its own set of counters, so there is no need for write_lock in
  * the softirq
@@ -51,8 +48,6 @@
 #define COUNTER_OFFSET(n) (SMP_ALIGN(n * sizeof(struct ebt_counter)))
 #define COUNTER_BASE(c, n, cpu) ((struct ebt_counter *)(((char *)c) + \
    COUNTER_OFFSET(n) * cpu))
-
-
 
 static DEFINE_MUTEX(ebt_mutex);
 
@@ -1406,6 +1401,9 @@ static int do_ebt_set_ctl(struct sock *sk,
 {
 	int ret;
 
+	if (!capable(CAP_NET_ADMIN))
+		return -EPERM;
+
 	switch(cmd) {
 	case EBT_SO_SET_ENTRIES:
 		ret = do_replace(sock_net(sk), user, len);
@@ -1424,6 +1422,9 @@ static int do_ebt_get_ctl(struct sock *sk, int cmd, void __user *user, int *len)
 	int ret;
 	struct ebt_replace tmp;
 	struct ebt_table *t;
+
+	if (!capable(CAP_NET_ADMIN))
+		return -EPERM;
 
 	if (copy_from_user(&tmp, user, sizeof(tmp)))
 		return -EFAULT;

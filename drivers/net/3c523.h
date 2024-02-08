@@ -15,14 +15,13 @@
  *
  * See 3c523.c for details.
  *
- * $Header: /home/chrisb/linux-1.2.13-3c523/drivers/net/RCS/3c523.h,v 1.6 1996/01/20 05:09:00 chrisb Exp chrisb $
+ * $Header: /synosrc.old/cvs_root/projects/linux-2.6.32/drivers/net/3c523.h,v 1.1 2010-04-15 12:27:53 khchen Exp $
  */
 
 /*
  * where to find the System Configuration Pointer (SCP)
  */
 #define SCP_DEFAULT_ADDRESS 0xfffff4
-
 
 /*
  * System Configuration Pointer Struct
@@ -37,7 +36,6 @@ struct scp_struct
   unsigned short zero_dum3;
   char          *iscp;		/* pointer to the iscp-block */
 };
-
 
 /*
  * Intermediate System Configuration Pointer (ISCP)

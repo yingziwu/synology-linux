@@ -156,7 +156,6 @@ static const int FSCHMD_NO_FAN_SENSORS[7] = { 3, 3, 6, 4, 5, 5, 7 };
 #define FSCHMD_FAN_NOT_PRESENT	0x08
 #define FSCHMD_FAN_DISABLED	0x80
 
-
 /* actual temperature registers */
 static const u8 FSCHMD_REG_TEMP_ACT[7][11] = {
 	{ 0x64, 0x32, 0x35 },				/* pos */
@@ -333,7 +332,6 @@ static ssize_t show_in_value(struct device *dev,
 			max_reading[index] + 128) / 255);
 }
 
-
 #define TEMP_FROM_REG(val)	(((val) - 128) * 1000)
 
 static ssize_t show_temp_value(struct device *dev,
@@ -397,7 +395,6 @@ static ssize_t show_temp_alarm(struct device *dev,
 	else
 		return sprintf(buf, "0\n");
 }
-
 
 #define RPM_FROM_REG(val)	((val) * 60)
 
@@ -482,7 +479,6 @@ static ssize_t show_fan_fault(struct device *dev,
 		return sprintf(buf, "0\n");
 }
 
-
 static ssize_t show_pwm_auto_point1_pwm(struct device *dev,
 	struct device_attribute *devattr, char *buf)
 {
@@ -520,7 +516,6 @@ static ssize_t store_pwm_auto_point1_pwm(struct device *dev,
 
 	return count;
 }
-
 
 /* The FSC hwmon family has the ability to force an attached alert led to flash
    from software, we export this as an alert_led sysfs attr */
@@ -663,7 +658,6 @@ static struct sensor_device_attribute fschmd_fan_attr[] = {
 		store_pwm_auto_point1_pwm, 6),
 };
 
-
 /*
  * Watchdog routines
  */
@@ -767,6 +761,7 @@ leave:
 static int watchdog_open(struct inode *inode, struct file *filp)
 {
 	struct fschmd_data *pos, *data = NULL;
+	int watchdog_is_open;
 
 	/* We get called from drivers/char/misc.c with misc_mtx hold, and we
 	   call misc_register() from fschmd_probe() with watchdog_data_mutex
@@ -781,10 +776,12 @@ static int watchdog_open(struct inode *inode, struct file *filp)
 		}
 	}
 	/* Note we can never not have found data, so we don't check for this */
-	kref_get(&data->kref);
+	watchdog_is_open = test_and_set_bit(0, &data->watchdog_is_open);
+	if (!watchdog_is_open)
+		kref_get(&data->kref);
 	mutex_unlock(&watchdog_data_mutex);
 
-	if (test_and_set_bit(0, &data->watchdog_is_open))
+	if (watchdog_is_open)
 		return -EBUSY;
 
 	/* Start the watchdog */
@@ -923,7 +920,6 @@ static const struct file_operations watchdog_fops = {
 	.write = watchdog_write,
 	.ioctl = watchdog_ioctl,
 };
-
 
 /*
  * Detect, register, unregister and update device functions

@@ -594,7 +594,6 @@ static int if_usb_issue_boot_command(struct if_usb_card *cardp, int ivalue)
 	return 0;
 }
 
-
 /**
  *  check_fwfile_format - Check the validity of Boot2/FW image.
  *
@@ -640,7 +639,6 @@ static int check_fwfile_format(const u8 *data, u32 totlen)
 		       "libertastf: firmware file format check failed\n");
 	return ret;
 }
-
 
 static int if_usb_prog_firmware(struct if_usb_card *cardp)
 {
@@ -731,7 +729,6 @@ restart:
 }
 EXPORT_SYMBOL_GPL(if_usb_prog_firmware);
 
-
 #define if_usb_suspend NULL
 #define if_usb_resume NULL
 
@@ -742,6 +739,7 @@ static struct usb_driver if_usb_driver = {
 	.id_table = if_usb_table,
 	.suspend = if_usb_suspend,
 	.resume = if_usb_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init if_usb_init_module(void)

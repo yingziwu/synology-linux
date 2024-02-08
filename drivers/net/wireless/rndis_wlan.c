@@ -46,7 +46,6 @@
 #include <linux/usb/usbnet.h>
 #include <linux/usb/rndis_host.h>
 
-
 /* NOTE: All these are settings for Broadcom chipset */
 static char modparam_country[4] = "EU";
 module_param_string(country, modparam_country, 4, 0444);
@@ -83,12 +82,11 @@ MODULE_PARM_DESC(roamdelta,
 	"set roaming tendency: 0=aggressive, 1=moderate, "
 				"2=conservative (default: moderate)");
 
-static int modparam_workaround_interval = 500;
+static int modparam_workaround_interval;
 module_param_named(workaround_interval, modparam_workaround_interval,
 							int, 0444);
 MODULE_PARM_DESC(workaround_interval,
-	"set stall workaround interval in msecs (default: 500)");
-
+	"set stall workaround interval in msecs (0=disabled) (default: 0)");
 
 /* various RNDIS OID defs */
 #define OID_GEN_LINK_SPEED			cpu_to_le32(0x00010107)
@@ -129,11 +127,9 @@ MODULE_PARM_DESC(workaround_interval,
 #define OID_802_11_CONFIGURATION		cpu_to_le32(0x0d010211)
 #define OID_802_11_BSSID_LIST			cpu_to_le32(0x0d010217)
 
-
 /* Typical noise/maximum signal level values taken from ndiswrapper iw_ndis.h */
 #define	WL_NOISE	-96	/* typical noise level in dBm */
 #define	WL_SIGMAX	-32	/* typical maximum signal level in dBm */
-
 
 /* Assume that Broadcom 4320 (only chipset at time of writing known to be
  * based on wireless rndis) has default txpower of 13dBm.
@@ -148,11 +144,9 @@ MODULE_PARM_DESC(workaround_interval,
 #define BCM4320_DEFAULT_TXPOWER_DBM_50  10
 #define BCM4320_DEFAULT_TXPOWER_DBM_25  7
 
-
 /* codes for "status" field of completion messages */
 #define RNDIS_STATUS_ADAPTER_NOT_READY		cpu_to_le32(0xc0010011)
 #define RNDIS_STATUS_ADAPTER_NOT_OPEN		cpu_to_le32(0xc0010012)
-
 
 /* NDIS data structures. Taken from wpa_supplicant driver_ndis.c
  * slightly modified for datatype endianess, etc
@@ -554,7 +548,6 @@ static struct cfg80211_ops rndis_config_ops = {
 
 static void *rndis_wiphy_privid = &rndis_wiphy_privid;
 
-
 static struct rndis_wlan_private *get_rndis_wlan_priv(struct usbnet *dev)
 {
 	return (struct rndis_wlan_private *)dev->driver_priv;
@@ -733,12 +726,13 @@ static int rndis_query_oid(struct usbnet *dev, __le32 oid, void *data, int *len)
 			le32_to_cpu(u.get_c->status));
 
 	if (ret == 0) {
+		memcpy(data, u.buf + le32_to_cpu(u.get_c->offset) + 8, *len);
+
 		ret = le32_to_cpu(u.get_c->len);
 		if (ret > *len)
 			*len = ret;
-		memcpy(data, u.buf + le32_to_cpu(u.get_c->offset) + 8, *len);
-		ret = rndis_error_status(u.get_c->status);
 
+		ret = rndis_error_status(u.get_c->status);
 		if (ret < 0)
 			devdbg(dev, "rndis_query_oid(%s): device returned "
 				"error,  0x%08x (%d)", oid_to_string(oid),
@@ -1072,6 +1066,8 @@ static int set_auth_mode(struct usbnet *usbdev, u32 wpa_version,
 		auth_mode = NDIS_80211_AUTH_SHARED;
 	else if (auth_type == NL80211_AUTHTYPE_OPEN_SYSTEM)
 		auth_mode = NDIS_80211_AUTH_OPEN;
+	else if (auth_type == NL80211_AUTHTYPE_AUTOMATIC)
+		auth_mode = NDIS_80211_AUTH_AUTO_SWITCH;
 	else
 		return -ENOTSUPP;
 
@@ -2547,7 +2543,7 @@ static void rndis_device_poller(struct work_struct *work)
 	/* Workaround transfer stalls on poor quality links.
 	 * TODO: find right way to fix these stalls (as stalls do not happen
 	 * with ndiswrapper/windows driver). */
-	if (priv->last_qual <= 25) {
+	if (priv->param_workaround_interval > 0 && priv->last_qual <= 25) {
 		/* Decrease stats worker interval to catch stalls.
 		 * faster. Faster than 400-500ms causes packet loss,
 		 * Slower doesn't catch stalls fast enough.
@@ -3038,6 +3034,7 @@ static struct usb_driver rndis_wlan_driver = {
 	.disconnect =	usbnet_disconnect,
 	.suspend =	usbnet_suspend,
 	.resume =	usbnet_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init rndis_wlan_init(void)
@@ -3056,4 +3053,3 @@ MODULE_AUTHOR("Bjorge Dijkstra");
 MODULE_AUTHOR("Jussi Kivilinna");
 MODULE_DESCRIPTION("Driver for RNDIS based USB Wireless adapters");
 MODULE_LICENSE("GPL");
-

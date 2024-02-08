@@ -1,17 +1,7 @@
-/*
- * Copyright (C) 2008 Freescale Semiconductor, Inc. All rights reserved.
- *
- * Author: Yu Liu, <yu.liu@freescale.com>
- *
- * Description:
- * This file is derived from arch/powerpc/kvm/44x_emulate.c,
- * by Hollis Blanchard <hollisb@us.ibm.com>.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License, version 2, as
- * published by the Free Software Foundation.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <asm/kvm_ppc.h>
 #include <asm/disassemble.h>
 #include <asm/kvm_e500.h>
@@ -98,6 +88,12 @@ int kvmppc_core_emulate_mtspr(struct kvm_vcpu *vcpu, int sprn, int rs)
 		vcpu_e500->mas6 = vcpu->arch.gpr[rs]; break;
 	case SPRN_MAS7:
 		vcpu_e500->mas7 = vcpu->arch.gpr[rs]; break;
+#ifdef MY_ABC_HERE
+	case SPRN_L1CSR0:
+		vcpu_e500->l1csr0 = vcpu->arch.gpr[rs];
+		vcpu_e500->l1csr0 &= ~(L1CSR0_DCFI | L1CSR0_CLFC);
+		break;
+#endif
 	case SPRN_L1CSR1:
 		vcpu_e500->l1csr1 = vcpu->arch.gpr[rs]; break;
 	case SPRN_HID0:
@@ -110,7 +106,6 @@ int kvmppc_core_emulate_mtspr(struct kvm_vcpu *vcpu, int sprn, int rs)
 				vcpu->arch.gpr[rs]);
 		break;
 
-	/* extra exceptions */
 	case SPRN_IVOR32:
 		vcpu->arch.ivor[BOOKE_IRQPRIO_SPE_UNAVAIL] = vcpu->arch.gpr[rs];
 		break;
@@ -170,6 +165,10 @@ int kvmppc_core_emulate_mfspr(struct kvm_vcpu *vcpu, int sprn, int rt)
 		vcpu->arch.gpr[rt] |= vcpu_e500->guest_tlb_size[1];
 		break;
 
+#ifdef MY_ABC_HERE
+	case SPRN_L1CSR0:
+		vcpu->arch.gpr[rt] = vcpu_e500->l1csr0; break;
+#endif
 	case SPRN_L1CSR1:
 		vcpu->arch.gpr[rt] = vcpu_e500->l1csr1; break;
 	case SPRN_HID0:
@@ -183,7 +182,6 @@ int kvmppc_core_emulate_mfspr(struct kvm_vcpu *vcpu, int sprn, int rt)
 	case SPRN_MMUCFG:
 		vcpu->arch.gpr[rt] = mfspr(SPRN_MMUCFG); break;
 
-	/* extra exceptions */
 	case SPRN_IVOR32:
 		vcpu->arch.gpr[rt] = vcpu->arch.ivor[BOOKE_IRQPRIO_SPE_UNAVAIL];
 		break;
@@ -202,4 +200,3 @@ int kvmppc_core_emulate_mfspr(struct kvm_vcpu *vcpu, int sprn, int rt)
 
 	return emulated;
 }
-

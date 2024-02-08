@@ -925,7 +925,7 @@ static int wm8350_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
 		iface |= 0x3 << 8;
 		break;
 	case SND_SOC_DAIFMT_DSP_B:
-		iface |= 0x3 << 8;	/* lg not sure which mode */
+		iface |= 0x3 << 8 | WM8350_AIF_LRCLK_INV;
 		break;
 	default:
 		return -EINVAL;
@@ -1230,7 +1230,6 @@ static int wm8350_set_bias_level(struct snd_soc_codec *codec,
 				(platform->codec_current_standby << 14);
 			wm8350_reg_write(wm8350, WM8350_POWER_MGMT_1,
 					 pm1);
-
 
 			/* enable analogue bias */
 			pm1 |= WM8350_BIASEN;

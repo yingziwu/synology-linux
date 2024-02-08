@@ -66,7 +66,6 @@ struct xfs_nameops;
 struct xfs_ail;
 struct xfs_quotainfo;
 
-
 /*
  * Prototypes and functions for the Data Migration subsystem.
  */
@@ -107,7 +106,6 @@ typedef struct xfs_dmops {
 	(*(mp)->m_dm_ops->xfs_send_mount)(mp,right,path,name)
 #define XFS_SEND_UNMOUNT(mp, ip,right,mode,rval,fl) \
 	(*(mp)->m_dm_ops->xfs_send_unmount)(mp,ip,right,mode,rval,fl)
-
 
 #ifdef HAVE_PERCPU_SB
 
@@ -209,6 +207,7 @@ typedef struct xfs_mount {
 	__uint64_t		m_maxioffset;	/* maximum inode offset */
 	__uint64_t		m_resblks;	/* total reserved blocks */
 	__uint64_t		m_resblks_avail;/* available reserved blocks */
+	__uint64_t		m_resblks_save;	/* reserved blks @ remount,ro */
 	int			m_dalign;	/* stripe unit */
 	int			m_swidth;	/* stripe width */
 	int			m_sinoalign;	/* stripe unit inode alignment */
@@ -282,7 +281,6 @@ typedef struct xfs_mount {
 #define XFS_MOUNT_FILESTREAMS	(1ULL << 24)	/* enable the filestreams
 						   allocator */
 #define XFS_MOUNT_NOATTR2	(1ULL << 25)	/* disable use of attr2 format */
-
 
 /*
  * Default minimum read and write sizes.

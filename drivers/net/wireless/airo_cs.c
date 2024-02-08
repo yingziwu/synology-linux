@@ -53,7 +53,7 @@
 #ifdef PCMCIA_DEBUG
 static int pc_debug = PCMCIA_DEBUG;
 module_param(pc_debug, int, 0);
-static char *version = "$Revision: 1.2 $";
+static char *version = "$Revision: 1.1 $";
 #define DEBUG(n, args...) if (pc_debug > (n)) printk(KERN_DEBUG args);
 #else
 #define DEBUG(n, args...)
@@ -285,7 +285,6 @@ static int airo_cs_config_check(struct pcmcia_device *p_dev,
 	/* If we got this far, we're cool! */
 	return 0;
 }
-
 
 static int airo_config(struct pcmcia_device *link)
 {

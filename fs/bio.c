@@ -542,13 +542,18 @@ static int __bio_add_page(struct request_queue *q, struct bio *bio, struct page
 
 		if (page == prev->bv_page &&
 		    offset == prev->bv_offset + prev->bv_len) {
+			unsigned int prev_bv_len = prev->bv_len;
 			prev->bv_len += len;
 
 			if (q->merge_bvec_fn) {
 				struct bvec_merge_data bvm = {
+					/* prev_bvec is already charged in
+					   bi_size, discharge it in order to
+					   simulate merging updated prev_bvec
+					   as new bvec. */
 					.bi_bdev = bio->bi_bdev,
 					.bi_sector = bio->bi_sector,
-					.bi_size = bio->bi_size,
+					.bi_size = bio->bi_size - prev_bv_len,
 					.bi_rw = bio->bi_rw,
 				};
 
@@ -1136,6 +1141,15 @@ EXPORT_SYMBOL(bio_unmap_user);
 
 static void bio_map_kern_endio(struct bio *bio, int err)
 {
+#ifdef CONFIG_ARM_MARVELL_BSP_MM_ADD_API_FOR_DMA
+	void *kaddr = bio->bi_private;
+	if (is_vmalloc_addr(kaddr)) {
+		void *addr;
+		for (addr = kaddr; addr < kaddr + bio->bi_size;
+		     addr += PAGE_SIZE)
+			invalidate_kernel_dcache_addr(addr);
+	}
+#endif
 	bio_put(bio);
 }
 
@@ -1153,9 +1167,17 @@ static struct bio *__bio_map_kern(struct request_queue *q, void *data,
 	if (!bio)
 		return ERR_PTR(-ENOMEM);
 
+#ifdef CONFIG_ARM_MARVELL_BSP_MM_ADD_API_FOR_DMA
+	bio->bi_private = data;
+#endif
+
 	offset = offset_in_page(kaddr);
 	for (i = 0; i < nr_pages; i++) {
 		unsigned int bytes = PAGE_SIZE - offset;
+
+#ifdef CONFIG_ARM_MARVELL_BSP_MM_ADD_API_FOR_DMA
+		struct page *page;
+#endif
 
 		if (len <= 0)
 			break;
@@ -1163,9 +1185,20 @@ static struct bio *__bio_map_kern(struct request_queue *q, void *data,
 		if (bytes > len)
 			bytes = len;
 
+#ifdef CONFIG_ARM_MARVELL_BSP_MM_ADD_API_FOR_DMA
+		if (is_vmalloc_addr(data)) {
+			flush_kernel_dcache_addr(data);
+			page = vmalloc_to_page(data);
+		} else
+			page = virt_to_page(data);
+
+		if (bio_add_pc_page(q, bio, page, bytes, offset) < bytes)
+			break;
+#else
 		if (bio_add_pc_page(q, bio, virt_to_page(data), bytes,
 				    offset) < bytes)
 			break;
+#endif
 
 		data += bytes;
 		len -= bytes;

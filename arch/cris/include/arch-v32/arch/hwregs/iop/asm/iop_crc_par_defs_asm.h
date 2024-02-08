@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:08:45 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/iop_crc_par_defs_asm.h ../../inst/io_proc/rtl/iop_crc_par.r
- *      id: $Id: iop_crc_par_defs_asm.h,v 1.5 2005/04/24 18:31:06 starvik Exp $
+ *      id: $Id: iop_crc_par_defs_asm.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -149,7 +149,6 @@
 #define reg_iop_crc_par_rw_strb_rec_dif_in___last___lsb 0
 #define reg_iop_crc_par_rw_strb_rec_dif_in___last___width 2
 #define reg_iop_crc_par_rw_strb_rec_dif_in_offset 64
-
 
 /* Constants */
 #define regk_iop_crc_par_calc                     0x00000001

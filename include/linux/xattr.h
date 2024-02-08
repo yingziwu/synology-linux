@@ -1,23 +1,17 @@
-/*
-  File: linux/xattr.h
-
-  Extended attributes handling.
-
-  Copyright (C) 2001 by Andreas Gruenbacher <a.gruenbacher@computer.org>
-  Copyright (c) 2001-2002 Silicon Graphics, Inc.  All Rights Reserved.
-  Copyright (c) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
-*/
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef _LINUX_XATTR_H
 #define _LINUX_XATTR_H
 
-#define XATTR_CREATE	0x1	/* set value, fail if attr already exists */
-#define XATTR_REPLACE	0x2	/* set value, fail if attr does not exist */
+#define XATTR_CREATE	0x1	 
+#define XATTR_REPLACE	0x2	 
 
 #ifdef  __KERNEL__
 
 #include <linux/types.h>
 
-/* Namespaces */
 #define XATTR_OS2_PREFIX "os2."
 #define XATTR_OS2_PREFIX_LEN (sizeof (XATTR_OS2_PREFIX) - 1)
 
@@ -33,6 +27,15 @@
 #define XATTR_USER_PREFIX "user."
 #define XATTR_USER_PREFIX_LEN (sizeof (XATTR_USER_PREFIX) - 1)
 
+#ifdef MY_ABC_HERE
+#define XATTR_SYNO_PREFIX "syno."
+#define XATTR_SYNO_PREFIX_LEN (sizeof (XATTR_SYNO_PREFIX) - 1)
+#endif
+
+#ifdef MY_ABC_HERE
+#define XATTR_SYNO_ARCHIVE_VERSION "archive_version"
+#endif
+
 struct inode;
 struct dentry;
 
@@ -46,6 +49,14 @@ struct xattr_handler {
 		   size_t size, int flags);
 };
 
+#ifdef MY_ABC_HERE
+struct syno_xattr_archive_version {
+	__le16	v_magic;
+	__le16	v_struct_version;
+	__le32	v_archive_version;
+} __attribute__ ((__packed__));
+#endif
+
 ssize_t xattr_getsecurity(struct inode *, const char *, void *, size_t);
 ssize_t vfs_getxattr(struct dentry *, const char *, void *, size_t);
 ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
@@ -58,6 +69,9 @@ ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t buffer_siz
 int generic_setxattr(struct dentry *dentry, const char *name, const void *value, size_t size, int flags);
 int generic_removexattr(struct dentry *dentry, const char *name);
 
-#endif  /*  __KERNEL__  */
+#ifdef MY_ABC_HERE
+int syno_generic_setxattr(struct inode *inode, const char *name, const void *value, size_t size, int flags);
+#endif
+#endif   
 
-#endif	/* _LINUX_XATTR_H */
+#endif	 

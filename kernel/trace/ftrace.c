@@ -1015,7 +1015,6 @@ static void ftrace_bug(int failed, unsigned long ip)
 	}
 }
 
-
 static int
 __ftrace_replace_code(struct dyn_ftrace *rec, int enable)
 {
@@ -1570,7 +1569,6 @@ ftrace_failures_open(struct inode *inode, struct file *file)
 	return ret;
 }
 
-
 static void ftrace_filter_reset(int enable)
 {
 	struct ftrace_page *pg;
@@ -1967,7 +1965,6 @@ static void __disable_ftrace_function_probe(void)
 	ftrace_probe_registered = 0;
 }
 
-
 static void ftrace_free_entry_rcu(struct rcu_head *rhp)
 {
 	struct ftrace_func_probe *entry =
@@ -1977,7 +1974,6 @@ static void ftrace_free_entry_rcu(struct rcu_head *rhp)
 		entry->ops->free(&entry->data);
 	kfree(entry);
 }
-
 
 int
 register_ftrace_function_probe(char *glob, struct ftrace_probe_ops *ops,
@@ -3258,6 +3254,7 @@ void ftrace_graph_init_task(struct task_struct *t)
 {
 	/* Make sure we do not use the parent ret_stack */
 	t->ret_stack = NULL;
+	t->curr_ret_stack = -1;
 
 	if (ftrace_graph_active) {
 		struct ftrace_ret_stack *ret_stack;
@@ -3267,7 +3264,6 @@ void ftrace_graph_init_task(struct task_struct *t)
 				GFP_KERNEL);
 		if (!ret_stack)
 			return;
-		t->curr_ret_stack = -1;
 		atomic_set(&t->tracing_graph_pause, 0);
 		atomic_set(&t->trace_overrun, 0);
 		t->ftrace_timestamp = 0;
@@ -3293,4 +3289,3 @@ void ftrace_graph_stop(void)
 	ftrace_stop();
 }
 #endif
-

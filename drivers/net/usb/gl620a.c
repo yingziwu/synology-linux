@@ -31,7 +31,6 @@
 #include <linux/usb.h>
 #include <linux/usb/usbnet.h>
 
-
 /*
  * GeneSys GL620USB-A (www.genesyslogic.com.tw)
  *
@@ -224,6 +223,7 @@ static struct usb_driver gl620a_driver = {
 	.disconnect =	usbnet_disconnect,
 	.suspend =	usbnet_suspend,
 	.resume =	usbnet_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init usbnet_init(void)
@@ -241,4 +241,3 @@ module_exit(usbnet_exit);
 MODULE_AUTHOR("Jiun-Jie Huang");
 MODULE_DESCRIPTION("GL620-USB-A Host-to-Host Link cables");
 MODULE_LICENSE("GPL");
-

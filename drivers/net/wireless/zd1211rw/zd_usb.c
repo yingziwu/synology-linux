@@ -297,7 +297,6 @@ static int upload_firmware(struct zd_usb *usb)
 			"actual device id\n", fw_bcdDevice);
 	}
 
-
 	r = request_fw_file(&uph_fw,
 		get_fw_name(usb, fw_name, sizeof(fw_name), "uphr"),
 		&udev->dev);
@@ -1243,6 +1242,7 @@ static struct usb_driver driver = {
 	.id_table	= usb_ids,
 	.probe		= probe,
 	.disconnect	= disconnect,
+	.disable_hub_initiated_lpm = 1,
 };
 
 struct workqueue_struct *zd_workqueue;

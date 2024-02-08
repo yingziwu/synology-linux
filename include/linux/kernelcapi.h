@@ -1,5 +1,5 @@
 /*
- * $Id: kernelcapi.h,v 1.8.6.2 2001/02/07 11:31:31 kai Exp $
+ * $Id: kernelcapi.h,v 1.1 2010-04-15 12:28:23 khchen Exp $
  * 
  * Kernel CAPI 2.0 Interface for Linux
  * 
@@ -13,7 +13,6 @@
 #define CAPI_MAXAPPL	240	/* maximum number of applications  */
 #define CAPI_MAXCONTR	32	/* maximum number of controller    */
 #define CAPI_MAXDATAWINDOW	8
-
 
 typedef struct kcapi_flagdef {
 	int contr;
@@ -41,7 +40,6 @@ typedef struct kcapi_carddef {
 #define KCAPI_TRACE_FULL_NO_DATA	2
 #define KCAPI_TRACE_SHORT		3
 #define KCAPI_TRACE_FULL		4
-
 
 #ifdef __KERNEL__
 
@@ -87,8 +85,6 @@ int capi20_manufacturer(unsigned int cmd, void __user *data);
 /* temporary hack XXX */
 void capi20_set_callback(struct capi20_appl *ap, 
 			 void (*callback) (unsigned int cmd, __u32 contr, void *data));
-
-
 
 #define CAPI_NOERROR                      0x0000
 

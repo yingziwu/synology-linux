@@ -1,13 +1,7 @@
-/*
- * drivers/pci/pci-driver.c
- *
- * (C) Copyright 2002-2004, 2007 Greg Kroah-Hartman <greg@kroah.com>
- * (C) Copyright 2007 Novell Inc.
- *
- * Released under the GPL v2 only.
- *
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/pci.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -19,32 +13,15 @@
 #include <linux/cpu.h>
 #include "pci.h"
 
+#ifdef MY_ABC_HERE
+#include <linux/delay.h>
+#endif
+
 struct pci_dynid {
 	struct list_head node;
 	struct pci_device_id id;
 };
 
-/**
- * pci_add_dynid - add a new PCI device ID to this driver and re-probe devices
- * @drv: target pci driver
- * @vendor: PCI vendor ID
- * @device: PCI device ID
- * @subvendor: PCI subvendor ID
- * @subdevice: PCI subdevice ID
- * @class: PCI class
- * @class_mask: PCI class mask
- * @driver_data: private driver data
- *
- * Adds a new dynamic pci device ID to this driver and causes the
- * driver to probe for all devices again.  @drv must have been
- * registered prior to calling this function.
- *
- * CONTEXT:
- * Does GFP_KERNEL allocation.
- *
- * RETURNS:
- * 0 on success, -errno on failure.
- */
 int pci_add_dynid(struct pci_driver *drv,
 		  unsigned int vendor, unsigned int device,
 		  unsigned int subvendor, unsigned int subdevice,
@@ -89,18 +66,8 @@ static void pci_free_dynids(struct pci_driver *drv)
 	spin_unlock(&drv->dynids.lock);
 }
 
-/*
- * Dynamic device ID manipulation via sysfs is disabled for !CONFIG_HOTPLUG
- */
 #ifdef CONFIG_HOTPLUG
-/**
- * store_new_id - sysfs frontend to pci_add_dynid()
- * @driver: target device driver
- * @buf: buffer for scanning device ID data
- * @count: input size
- *
- * Allow PCI IDs to be added to an existing driver via sysfs.
- */
+ 
 static ssize_t
 store_new_id(struct device_driver *driver, const char *buf, size_t count)
 {
@@ -118,8 +85,6 @@ store_new_id(struct device_driver *driver, const char *buf, size_t count)
 	if (fields < 2)
 		return -EINVAL;
 
-	/* Only accept driver_data values that match an existing id_table
-	   entry */
 	if (ids) {
 		retval = -EINVAL;
 		while (ids->vendor || ids->subvendor || ids->class_mask) {
@@ -129,7 +94,7 @@ store_new_id(struct device_driver *driver, const char *buf, size_t count)
 			}
 			ids++;
 		}
-		if (retval)	/* No match */
+		if (retval)	 
 			return retval;
 	}
 
@@ -141,14 +106,6 @@ store_new_id(struct device_driver *driver, const char *buf, size_t count)
 }
 static DRIVER_ATTR(new_id, S_IWUSR, NULL, store_new_id);
 
-/**
- * store_remove_id - remove a PCI device ID from this driver
- * @driver: target device driver
- * @buf: buffer for scanning device ID data
- * @count: input size
- *
- * Removes a dynamic pci device ID to this driver.
- */
 static ssize_t
 store_remove_id(struct device_driver *driver, const char *buf, size_t count)
 {
@@ -214,7 +171,7 @@ static void pci_remove_removeid_file(struct pci_driver *drv)
 {
 	driver_remove_file(&drv->driver, &driver_attr_remove_id);
 }
-#else /* !CONFIG_HOTPLUG */
+#else  
 static inline int pci_create_newid_file(struct pci_driver *drv)
 {
 	return 0;
@@ -227,18 +184,6 @@ static inline int pci_create_removeid_file(struct pci_driver *drv)
 static inline void pci_remove_removeid_file(struct pci_driver *drv) {}
 #endif
 
-/**
- * pci_match_id - See if a pci device matches a given pci_id table
- * @ids: array of PCI device id structures to search in
- * @dev: the PCI device structure to match against.
- *
- * Used by a driver to check whether a PCI device present in the
- * system is in its list of supported devices.  Returns the matching
- * pci_device_id structure or %NULL if there is no match.
- *
- * Deprecated, don't use this as it will not catch any dynamic ids
- * that a driver might want to check for.
- */
 const struct pci_device_id *pci_match_id(const struct pci_device_id *ids,
 					 struct pci_dev *dev)
 {
@@ -252,21 +197,11 @@ const struct pci_device_id *pci_match_id(const struct pci_device_id *ids,
 	return NULL;
 }
 
-/**
- * pci_match_device - Tell if a PCI device structure has a matching PCI device id structure
- * @drv: the PCI driver to match against
- * @dev: the PCI device structure to match against
- *
- * Used by a driver to check whether a PCI device present in the
- * system is in its list of supported devices.  Returns the matching
- * pci_device_id structure or %NULL if there is no match.
- */
 static const struct pci_device_id *pci_match_device(struct pci_driver *drv,
 						    struct pci_dev *dev)
 {
 	struct pci_dynid *dynid;
 
-	/* Look at the dynamic ids first, before the static ones */
 	spin_lock(&drv->dynids.lock);
 	list_for_each_entry(dynid, &drv->dynids.list, node) {
 		if (pci_match_one_device(&dynid->id, dev)) {
@@ -298,10 +233,6 @@ static int pci_call_probe(struct pci_driver *drv, struct pci_dev *dev,
 	int error, node;
 	struct drv_dev_and_id ddi = { drv, dev, id };
 
-	/* Execute driver initialization on node where the device's
-	   bus is attached to.  This way the driver likely allocates
-	   its local memory on the right node without any need to
-	   change it. */
 	node = dev_to_node(&dev->dev);
 	if (node >= 0) {
 		int cpu;
@@ -318,14 +249,6 @@ static int pci_call_probe(struct pci_driver *drv, struct pci_dev *dev,
 	return error;
 }
 
-/**
- * __pci_device_probe()
- * @drv: driver to call to check if it wants the PCI device
- * @pci_dev: PCI device being probed
- * 
- * returns 0 on success, else error.
- * side-effect: pci_dev->driver is set to drv when drv claims pci_dev.
- */
 static int
 __pci_device_probe(struct pci_driver *drv, struct pci_dev *pci_dev)
 {
@@ -373,21 +296,8 @@ static int pci_device_remove(struct device * dev)
 		pci_dev->driver = NULL;
 	}
 
-	/*
-	 * If the device is still on, set the power state as "unknown",
-	 * since it might change by the next time we load the driver.
-	 */
 	if (pci_dev->current_state == PCI_D0)
 		pci_dev->current_state = PCI_UNKNOWN;
-
-	/*
-	 * We would love to complain here if pci_dev->is_enabled is set, that
-	 * the driver should have called pci_disable_device(), but the
-	 * unfortunate fact is there are too many odd BIOS and bridge setups
-	 * that don't like drivers doing that all of the time.  
-	 * Oh well, we can dream of sane hardware when we sleep, no matter how
-	 * horrible the crap we have to deal with is when we are awake...
-	 */
 
 	pci_dev_put(pci_dev);
 	return 0;
@@ -406,34 +316,19 @@ static void pci_device_shutdown(struct device *dev)
 
 #ifdef CONFIG_PM_SLEEP
 
-/*
- * Default "suspend" method for devices that have no driver provided suspend,
- * or not even a driver at all (second part).
- */
 static void pci_pm_set_unknown_state(struct pci_dev *pci_dev)
 {
-	/*
-	 * mark its power state as "unknown", since we don't know if
-	 * e.g. the BIOS will change its device state when we suspend.
-	 */
+	 
 	if (pci_dev->current_state == PCI_D0)
 		pci_dev->current_state = PCI_UNKNOWN;
 }
 
-/*
- * Default "resume" method for devices that have no driver provided resume,
- * or not even a driver at all (second part).
- */
 static int pci_pm_reenable_device(struct pci_dev *pci_dev)
 {
 	int retval;
 
-	/* if the device was enabled before suspend, reenable */
 	retval = pci_reenable_device(pci_dev);
-	/*
-	 * if the device was busmaster before the suspend, make it busmaster
-	 * again
-	 */
+	 
 	if (pci_dev->is_busmaster)
 		pci_set_master(pci_dev);
 
@@ -518,18 +413,19 @@ static int pci_legacy_resume(struct device *dev)
 			drv->resume(pci_dev) : pci_pm_reenable_device(pci_dev);
 }
 
-/* Auxiliary functions used by the new power management framework */
-
-/**
- * pci_restore_standard_config - restore standard config registers of PCI device
- * @pci_dev: PCI device to handle
- */
 static int pci_restore_standard_config(struct pci_dev *pci_dev)
 {
 	pci_update_current_state(pci_dev, PCI_UNKNOWN);
 
 	if (pci_dev->current_state != PCI_D0) {
 		int error = pci_set_power_state(pci_dev, PCI_D0);
+#ifdef MY_ABC_HERE
+		while (error) {
+			printk("Last set pci_set_power_state failed. error: %d %s(%d), try set power state again\n", error, __func__, __LINE__);
+			msleep(3000);
+			error = pci_set_power_state(pci_dev, PCI_D0);
+		}
+#endif
 		if (error)
 			return error;
 	}
@@ -553,7 +449,7 @@ static void pci_pm_default_resume(struct pci_dev *pci_dev)
 
 static void pci_pm_default_suspend(struct pci_dev *pci_dev)
 {
-	/* Disable non-bridge devices without PM support */
+	 
 	if (!pci_is_bridge(pci_dev))
 		pci_disable_enabled_device(pci_dev);
 }
@@ -564,17 +460,10 @@ static bool pci_has_legacy_pm_support(struct pci_dev *pci_dev)
 	bool ret = drv && (drv->suspend || drv->suspend_late || drv->resume
 		|| drv->resume_early);
 
-	/*
-	 * Legacy PM support is used by default, so warn if the new framework is
-	 * supported as well.  Drivers are supposed to support either the
-	 * former, or the latter, but not both at the same time.
-	 */
 	WARN_ON(ret && drv->driver.pm);
 
 	return ret;
 }
-
-/* New power management framework */
 
 static int pci_pm_prepare(struct device *dev)
 {
@@ -596,6 +485,136 @@ static void pci_pm_complete(struct device *dev)
 }
 
 #ifdef CONFIG_SUSPEND
+
+#ifdef MY_ABC_HERE
+#include <asm/io.h>
+#include <sysdev/fsl_pci.h>
+#define PCIE_POW_NUMBER	5
+#define PCIE_POW_BIAS	0xc00
+#define PCIE_PIW_NUMBER 3
+#define PCIE_PIW_BIAS   0xda0
+static int pcie_saved_pow_piw=0;
+struct pci_outbound_window_regs pcie_saved_pow[PCIE_POW_NUMBER];
+struct pci_inbound_window_regs pcie_saved_piw[PCIE_PIW_NUMBER];
+
+static int fsl_pcie_save_pow_piw(struct resource *pcie_rsrc)
+{
+	struct pci_outbound_window_regs __iomem *pcie_pow;
+	struct pci_inbound_window_regs __iomem *pcie_piw;
+	unsigned int i;
+
+	pcie_pow = ioremap(pcie_rsrc->start + PCIE_POW_BIAS,
+			sizeof(struct pci_outbound_window_regs)
+			* PCIE_POW_NUMBER);
+	if (!pcie_pow) {
+		printk("pcie_pow ioremap error!\n");
+		return -1;
+	}
+
+	for(i = 0; i < PCIE_POW_NUMBER; i++) {
+		pcie_saved_pow[i].potar = in_be32(&pcie_pow[i].potar);
+		pcie_saved_pow[i].potear = in_be32(&pcie_pow[i].potear);
+		pcie_saved_pow[i].powbar = in_be32(&pcie_pow[i].powbar);
+		pcie_saved_pow[i].powar = in_be32(&pcie_pow[i].powar);
+	}
+	iounmap(pcie_pow);
+
+	pcie_piw = ioremap(pcie_rsrc->start + PCIE_PIW_BIAS,
+			sizeof(struct pci_inbound_window_regs)
+			* PCIE_PIW_NUMBER);
+	if (!pcie_piw) {
+		printk("pcie_piw ioremap error!\n");
+		return -1;
+	}
+
+	for(i = 0; i < PCIE_PIW_NUMBER; i++) {
+		pcie_saved_piw[i].pitar = in_be32(&pcie_piw[i].pitar);
+		pcie_saved_piw[i].piwbar = in_be32(&pcie_piw[i].piwbar);
+		pcie_saved_piw[i].piwbear = in_be32(&pcie_piw[i].piwbear);
+		pcie_saved_piw[i].piwar = in_be32(&pcie_piw[i].piwar);
+	}
+	iounmap(pcie_piw);
+
+	return 0;
+}
+
+static int fsl_pcie_restore_pow_piw(struct resource *pcie_rsrc)
+{
+	struct pci_outbound_window_regs __iomem *pcie_pow;
+	struct pci_inbound_window_regs __iomem *pcie_piw;
+	unsigned int i;
+
+	pcie_pow = ioremap(pcie_rsrc->start + PCIE_POW_BIAS,
+			sizeof(struct pci_outbound_window_regs)
+			* PCIE_POW_NUMBER);
+	if (!pcie_pow) {
+		printk("pcie_pow ioremap error!\n");
+		return -1;
+	}
+
+	for(i = 0; i < PCIE_POW_NUMBER; i++) {
+		out_be32(&pcie_pow[i].potar, pcie_saved_pow[i].potar);
+		out_be32(&pcie_pow[i].potear, pcie_saved_pow[i].potear);
+		out_be32(&pcie_pow[i].powbar, pcie_saved_pow[i].powbar);
+		out_be32(&pcie_pow[i].powar, pcie_saved_pow[i].powar);
+	}
+	iounmap(pcie_pow);
+
+	pcie_piw = ioremap(pcie_rsrc->start + PCIE_PIW_BIAS,
+			sizeof(struct pci_inbound_window_regs)
+			* PCIE_PIW_NUMBER);
+	if (!pcie_piw) {
+		printk("pcie_piw ioremap error!\n");
+		return -1;
+	}
+
+	for(i = 0; i < PCIE_PIW_NUMBER; i++) {
+		out_be32(&pcie_piw[i].pitar, pcie_saved_piw[i].pitar);
+		out_be32(&pcie_piw[i].piwbar, pcie_saved_piw[i].piwbar);
+		out_be32(&pcie_piw[i].piwbear, pcie_saved_piw[i].piwbear);
+		out_be32(&pcie_piw[i].piwar, pcie_saved_piw[i].piwar);
+	}
+	iounmap(pcie_piw);
+
+	return 0;
+}
+
+static int fsl_pcie_suspend_save(void)
+{
+	struct device_node *np;
+	struct resource rsrc;
+
+	if (pcie_saved_pow_piw == 1)
+		return 0;
+
+	for_each_node_by_type(np, "pci") {
+		if (of_device_is_compatible(np, "fsl,p1022-pcie")) {
+			of_address_to_resource(np, 0, &rsrc);
+			fsl_pcie_save_pow_piw(&rsrc);
+		}
+	}
+	pcie_saved_pow_piw = 1;
+	return 0;
+}
+
+static int fsl_pcie_resume_restore(void)
+{
+	struct device_node *np;
+	struct resource rsrc;
+
+	if (pcie_saved_pow_piw == 0)
+		return 0;
+
+	for_each_node_by_type(np, "pci") {
+		if (of_device_is_compatible(np, "fsl,p1022-pcie")) {
+			of_address_to_resource(np, 0, &rsrc);
+			fsl_pcie_restore_pow_piw(&rsrc);
+		}
+	}
+	pcie_saved_pow_piw = 0;
+	return 0;
+}
+#endif
 
 static int pci_pm_suspend(struct device *dev)
 {
@@ -629,6 +648,10 @@ static int pci_pm_suspend(struct device *dev)
 
  Fixup:
 	pci_fixup_device(pci_fixup_suspend, pci_dev);
+
+#ifdef MY_ABC_HERE
+	fsl_pcie_suspend_save();
+#endif
 
 	return 0;
 }
@@ -689,6 +712,10 @@ static int pci_pm_resume_noirq(struct device *dev)
 	if (drv && drv->pm && drv->pm->resume_noirq)
 		error = drv->pm->resume_noirq(dev);
 
+#ifdef MY_ABC_HERE
+	fsl_pcie_resume_restore();
+#endif
+
 	return error;
 }
 
@@ -698,10 +725,6 @@ static int pci_pm_resume(struct device *dev)
 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
 	int error = 0;
 
-	/*
-	 * This is necessary for the suspend error path in which resume is
-	 * called without restoring the standard config registers of the device.
-	 */
 	if (pci_dev->state_saved)
 		pci_restore_standard_config(pci_dev);
 
@@ -720,14 +743,14 @@ static int pci_pm_resume(struct device *dev)
 	return error;
 }
 
-#else /* !CONFIG_SUSPEND */
+#else  
 
 #define pci_pm_suspend		NULL
 #define pci_pm_suspend_noirq	NULL
 #define pci_pm_resume		NULL
 #define pci_pm_resume_noirq	NULL
 
-#endif /* !CONFIG_SUSPEND */
+#endif  
 
 #ifdef CONFIG_HIBERNATION
 
@@ -896,10 +919,6 @@ static int pci_pm_restore(struct device *dev)
 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
 	int error = 0;
 
-	/*
-	 * This is necessary for the hibernation error path in which restore is
-	 * called without restoring the standard config registers of the device.
-	 */
 	if (pci_dev->state_saved)
 		pci_restore_standard_config(pci_dev);
 
@@ -918,7 +937,7 @@ static int pci_pm_restore(struct device *dev)
 	return error;
 }
 
-#else /* !CONFIG_HIBERNATION */
+#else  
 
 #define pci_pm_freeze		NULL
 #define pci_pm_freeze_noirq	NULL
@@ -929,7 +948,7 @@ static int pci_pm_restore(struct device *dev)
 #define pci_pm_restore		NULL
 #define pci_pm_restore_noirq	NULL
 
-#endif /* !CONFIG_HIBERNATION */
+#endif  
 
 const struct dev_pm_ops pci_dev_pm_ops = {
 	.prepare = pci_pm_prepare,
@@ -950,29 +969,17 @@ const struct dev_pm_ops pci_dev_pm_ops = {
 
 #define PCI_PM_OPS_PTR	(&pci_dev_pm_ops)
 
-#else /* !CONFIG_PM_SLEEP */
+#else  
 
 #define PCI_PM_OPS_PTR	NULL
 
-#endif /* !CONFIG_PM_SLEEP */
+#endif  
 
-/**
- * __pci_register_driver - register a new pci driver
- * @drv: the driver structure to register
- * @owner: owner module of drv
- * @mod_name: module name string
- * 
- * Adds the driver structure to the list of registered drivers.
- * Returns a negative value on error, otherwise 0. 
- * If no error occurred, the driver remains registered even if 
- * no device was claimed during registration.
- */
 int __pci_register_driver(struct pci_driver *drv, struct module *owner,
 			  const char *mod_name)
 {
 	int error;
 
-	/* initialize common driver fields */
 	drv->driver.name = drv->name;
 	drv->driver.bus = &pci_bus_type;
 	drv->driver.owner = owner;
@@ -981,7 +988,6 @@ int __pci_register_driver(struct pci_driver *drv, struct module *owner,
 	spin_lock_init(&drv->dynids.lock);
 	INIT_LIST_HEAD(&drv->dynids.list);
 
-	/* register with core */
 	error = driver_register(&drv->driver);
 	if (error)
 		goto out;
@@ -1003,16 +1009,6 @@ out_newid:
 	goto out;
 }
 
-/**
- * pci_unregister_driver - unregister a pci driver
- * @drv: the driver structure to unregister
- * 
- * Deletes the driver structure from the list of registered PCI drivers,
- * gives it a chance to clean up by calling its remove() function for
- * each device it was responsible for, and marks those devices as
- * driverless.
- */
-
 void
 pci_unregister_driver(struct pci_driver *drv)
 {
@@ -1026,13 +1022,6 @@ static struct pci_driver pci_compat_driver = {
 	.name = "compat"
 };
 
-/**
- * pci_dev_driver - get the pci_driver of a device
- * @dev: the device to query
- *
- * Returns the appropriate pci_driver structure or %NULL if there is no 
- * registered driver for the device.
- */
 struct pci_driver *
 pci_dev_driver(const struct pci_dev *dev)
 {
@@ -1047,15 +1036,6 @@ pci_dev_driver(const struct pci_dev *dev)
 	return NULL;
 }
 
-/**
- * pci_bus_match - Tell if a PCI device structure has a matching PCI device id structure
- * @dev: the PCI device structure to match against
- * @drv: the device driver to search for matching PCI device id structures
- * 
- * Used by a driver to check whether a PCI device present in the
- * system is in its list of supported devices. Returns the matching
- * pci_device_id structure or %NULL if there is no match.
- */
 static int pci_bus_match(struct device *dev, struct device_driver *drv)
 {
 	struct pci_dev *pci_dev = to_pci_dev(dev);
@@ -1069,18 +1049,6 @@ static int pci_bus_match(struct device *dev, struct device_driver *drv)
 	return 0;
 }
 
-/**
- * pci_dev_get - increments the reference count of the pci device structure
- * @dev: the device being referenced
- *
- * Each live reference to a device should be refcounted.
- *
- * Drivers for PCI devices should normally record such references in
- * their probe() methods, when they bind to a device, and release
- * them by calling pci_dev_put(), in their disconnect() methods.
- *
- * A pointer to the device with the incremented reference counter is returned.
- */
 struct pci_dev *pci_dev_get(struct pci_dev *dev)
 {
 	if (dev)
@@ -1088,13 +1056,6 @@ struct pci_dev *pci_dev_get(struct pci_dev *dev)
 	return dev;
 }
 
-/**
- * pci_dev_put - release a use of the pci device structure
- * @dev: device that's been disconnected
- *
- * Must be called when a user of a device is finished with it.  When the last
- * user of the device calls this function, the memory of the device is freed.
- */
 void pci_dev_put(struct pci_dev *dev)
 {
 	if (dev)

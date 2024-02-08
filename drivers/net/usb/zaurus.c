@@ -31,7 +31,6 @@
 #include <linux/usb/cdc.h>
 #include <linux/usb/usbnet.h>
 
-
 /*
  * All known Zaurii lie about their standards conformance.  At least
  * the earliest SA-1100 models lie by saying they support CDC Ethernet.
@@ -129,7 +128,6 @@ static const struct driver_info	olympus_mxl_info = {
 	.tx_fixup =	zaurus_tx_fixup,
 };
 #define	OLYMPUS_MXL_INFO	((unsigned long)&olympus_mxl_info)
-
 
 /* Some more recent products using Lineo/Belcarra code will wrongly claim
  * CDC MDLM conformance.  They aren't conformant:  data endpoints live
@@ -332,7 +330,6 @@ static const struct usb_device_id	products [] = {
 	.driver_info = ZAURUS_PXA_INFO,
 },
 
-
 /* At least some of the newest PXA units have very different lies about
  * their standards support:  they claim to be cell phones offering
  * direct access to their radios!  (No, they don't conform to CDC MDLM.)
@@ -359,6 +356,13 @@ static const struct usb_device_id	products [] = {
 	ZAURUS_MASTER_INTERFACE,
 	.driver_info = OLYMPUS_MXL_INFO,
 },
+
+/* Logitech Harmony 900 - uses the pseudo-MDLM (BLAN) driver */
+{
+	USB_DEVICE_AND_INTERFACE_INFO(0x046d, 0xc11f, USB_CLASS_COMM,
+			USB_CDC_SUBCLASS_MDLM, USB_CDC_PROTO_NONE),
+	.driver_info = (unsigned long) &bogus_mdlm_info,
+},
 	{ },		// END
 };
 MODULE_DEVICE_TABLE(usb, products);
@@ -370,6 +374,7 @@ static struct usb_driver zaurus_driver = {
 	.disconnect =	usbnet_disconnect,
 	.suspend =	usbnet_suspend,
 	.resume =	usbnet_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init zaurus_init(void)

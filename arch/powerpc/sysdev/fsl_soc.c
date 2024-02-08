@@ -1,17 +1,7 @@
-/*
- * FSL SoC setup code
- *
- * Maintained by Kumar Gala (see MAINTAINERS for contact information)
- *
- * 2006 (c) MontaVista Software, Inc.
- * Vitaly Bordug <vbordug@ru.mvista.com>
- *
- * This program is free software; you can redistribute  it and/or modify it
- * under  the terms of  the GNU General  Public License as published by the
- * Free Software Foundation;  either version 2 of the  License, or (at your
- * option) any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/stddef.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -41,6 +31,9 @@
 #include <sysdev/fsl_soc.h>
 #include <mm/mmu_decl.h>
 #include <asm/cpm2.h>
+#ifdef CONFIG_SYNO_MPC85XX_COMMON
+#include <asm/fsl_errata.h>
+#endif
 
 extern void init_fcc_ioports(struct fs_platform_info*);
 extern void init_fec_ioports(struct fs_platform_info*);
@@ -127,7 +120,6 @@ u32 get_brgfreq(void)
 		return brgfreq;
 	}
 
-	/* Legacy device binding -- will go away when no users are left. */
 	node = of_find_node_by_type(NULL, "cpm");
 	if (!node)
 		node = of_find_compatible_node(NULL, NULL, "fsl,qe");
@@ -176,7 +168,7 @@ u32 get_baudrate(void)
 }
 
 EXPORT_SYMBOL(get_baudrate);
-#endif /* CONFIG_CPM2 */
+#endif  
 
 #ifdef CONFIG_FIXED_PHY
 static int __init of_add_fixed_phys(void)
@@ -207,7 +199,7 @@ static int __init of_add_fixed_phys(void)
 	return 0;
 }
 arch_initcall(of_add_fixed_phys);
-#endif /* CONFIG_FIXED_PHY */
+#endif  
 
 static enum fsl_usb2_phy_modes determine_usb_phy(const char *phy_type)
 {
@@ -394,12 +386,78 @@ static int __init setup_rstcr(void)
 
 arch_initcall(setup_rstcr);
 
+#ifdef CONFIG_SYNO_MPC85XX_COMMON
+static int __init fsl_sec2_of_init(void)
+{
+	struct device_node *np;
+	unsigned int i;
+	struct platform_device *sec2_dev;
+	int ret;
+
+	printk(KERN_DEBUG "fsl_sec2_of_init: start\n");
+	for (np = NULL, i = 0;
+		 (np = of_find_compatible_node(np, "crypto", "talitos")) != NULL;
+		 i++) {
+		struct resource r[2];
+
+		memset(&r, 0, sizeof(r));
+
+		ret = of_address_to_resource(np, 0, &r[0]);
+		if (ret) {
+			printk(KERN_DEBUG "fsl_sec2_of_init: address");
+			goto err;
+		}
+		r[1].start = irq_of_parse_and_map(np, 0);
+		r[1].end = irq_of_parse_and_map(np, 0);
+		r[1].flags = IORESOURCE_IRQ;
+
+		sec2_dev = platform_device_register_simple("fsl-sec2", i, r, 2);
+		if (IS_ERR(sec2_dev)) {
+			ret = PTR_ERR(sec2_dev);
+			printk(KERN_DEBUG "fsl_sec2_of_init: register");
+			goto err;
+		}
+	}
+	return 0;
+err:
+	printk(KERN_DEBUG " error: %d\n", ret);
+	return ret;
+}
+
+arch_initcall(fsl_sec2_of_init);
+#endif
+
+#ifdef MY_ABC_HERE
+#define UART2_TX        0x0
+#define UART2_LCR       0x3
+#define UART2_BASE      0x4600
+
+#define ENABLE_DUART            0x01
+#define SET8N1                  0x3
+#define SOFTWARE_SHUTDOWN       0x31
+#define SOFTWARE_REBOOT         0x43
+#endif
 void fsl_rstcr_restart(char *cmd)
 {
+#if defined(MY_ABC_HERE)
+	u32 __iomem *pUP = ioremap(get_immrbase() + UART2_BASE, 0x10);
+
+	if (pUP) {
+		 
+		out_8((unsigned char *)(pUP + 0), 0xD90 & 0xFF);
+		out_8((unsigned char *)(pUP + 1), 0xD90 >> 8);
+		out_8((unsigned char *)(pUP + UART2_LCR), SET8N1);
+		out_8((unsigned char *)(pUP + UART2_TX), SOFTWARE_REBOOT);
+		iounmap(pUP);
+		while (1) ;
+	} else {
+		printk("HW Settings Error: Failed to get immr_base\n");
+	}
+#endif
 	local_irq_disable();
 	if (rstcr)
-		/* set reset control register */
-		out_be32(rstcr, 0x2);	/* HRESET_REQ */
+		 
+		out_be32(rstcr, 0x2);	 
 
 	while (1) ;
 }

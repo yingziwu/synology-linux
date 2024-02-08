@@ -564,6 +564,9 @@ void pcibios_align_resource(void *, struct resource *, resource_size_t,
 				resource_size_t);
 void pcibios_update_irq(struct pci_dev *, int irq);
 
+/* Weak but can be overriden by arch */
+void pci_fixup_cardbus(struct pci_bus *);
+
 /* Generic PCI functions used internally */
 
 extern struct pci_bus *pci_find_bus(int domain, int busnr);
@@ -841,7 +844,6 @@ struct msix_entry {
 	u16	entry;	/* driver uses to specify entry, OS writes */
 };
 
-
 #ifndef CONFIG_PCI_MSI
 static inline int pci_enable_msi_block(struct pci_dev *dev, unsigned int nvec)
 {
@@ -941,6 +943,11 @@ static inline int pci_proc_domain(struct pci_bus *bus)
 	return 0;
 }
 #endif /* CONFIG_PCI_DOMAINS */
+
+/* some architectures require additional setup to direct VGA traffic */
+typedef int (*arch_set_vga_state_t)(struct pci_dev *pdev, bool decode,
+		      unsigned int command_bits, bool change_bridge);
+extern void pci_register_set_vga_state(arch_set_vga_state_t func);
 
 #else /* CONFIG_PCI is not enabled */
 
@@ -1161,7 +1168,6 @@ static inline const char *pci_name(const struct pci_dev *pdev)
 	return dev_name(&pdev->dev);
 }
 
-
 /* Some archs don't want to expose struct resource to userland as-is
  * in sysfs and /proc
  */
@@ -1174,7 +1180,6 @@ static inline void pci_resource_to_user(const struct pci_dev *dev, int bar,
 	*end = rsrc->end;
 }
 #endif /* HAVE_ARCH_PCI_RESOURCE_TO_USER */
-
 
 /*
  *  The world is not perfect and supplies us with broken PCI devices.
@@ -1223,7 +1228,6 @@ enum pci_fixup_pass {
 #define DECLARE_PCI_FIXUP_SUSPEND(vendor, device, hook)			\
 	DECLARE_PCI_FIXUP_SECTION(.pci_fixup_suspend,			\
 			suspend##vendor##device##hook, vendor, device, hook)
-
 
 void pci_fixup_device(enum pci_fixup_pass pass, struct pci_dev *dev);
 

@@ -121,7 +121,7 @@ static int idr_callback(int id, void *p, void *data)
 	if (warned)
 		return 0;
 
-	warned = false;
+	warned = true;
 	entry = p;
 	ientry = container_of(entry, struct inotify_inode_mark_entry, fsn_entry);
 
@@ -151,7 +151,6 @@ static void inotify_free_group_priv(struct fsnotify_group *group)
 void inotify_free_event_priv(struct fsnotify_event_private_data *fsn_event_priv)
 {
 	struct inotify_event_private_data *event_priv;
-
 
 	event_priv = container_of(fsn_event_priv, struct inotify_event_private_data,
 				  fsnotify_event_priv_data);

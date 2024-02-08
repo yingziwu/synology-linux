@@ -1,4 +1,4 @@
-/* $Id: message.h,v 1.1.10.1 2001/09/23 22:24:59 kai Exp $
+/* $Id: message.h,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Copyright (C) 1996  SpellCaster Telecommunications Inc.
  *
@@ -79,7 +79,6 @@
 #define	cmRspReadMem		cmReqReadMem
 #define cmRspMiscEngineUp	1			/* 5,0,1 */
 #define cmRspInvalid		0			/* 0,0,0 */
-
 
 /*
  * Firmware Request and Response Messages
@@ -184,7 +183,6 @@ typedef struct {
 	unsigned long buff_offset;
 	unsigned short msg_len;
 } LLData;
-
 
 /* 
  * Message payload template for an HWConfig message

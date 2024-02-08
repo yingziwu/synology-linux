@@ -50,7 +50,6 @@
 /* Thanks to Jiang Zhang for providing links and for general help. */
 /* Code originates and was built up from ftdi_sio, belkin, pl2303 and others.*/
 
-
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -68,7 +67,6 @@
 #include <linux/uaccess.h>
 
 #include "cypress_m8.h"
-
 
 #ifdef CONFIG_USB_SERIAL_DEBUG
 	static int debug = 1;
@@ -89,24 +87,24 @@ static int interval;
 #define CYPRESS_BUF_SIZE	1024
 #define CYPRESS_CLOSING_WAIT	(30*HZ)
 
-static struct usb_device_id id_table_earthmate [] = {
+static const struct usb_device_id id_table_earthmate[] = {
 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB) },
 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB_LT20) },
 	{ }						/* Terminating entry */
 };
 
-static struct usb_device_id id_table_cyphidcomrs232 [] = {
+static const struct usb_device_id id_table_cyphidcomrs232[] = {
 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
 	{ USB_DEVICE(VENDOR_ID_POWERCOM, PRODUCT_ID_UPS) },
 	{ }						/* Terminating entry */
 };
 
-static struct usb_device_id id_table_nokiaca42v2 [] = {
+static const struct usb_device_id id_table_nokiaca42v2[] = {
 	{ USB_DEVICE(VENDOR_ID_DAZZLE, PRODUCT_ID_CA42) },
 	{ }						/* Terminating entry */
 };
 
-static struct usb_device_id id_table_combined [] = {
+static const struct usb_device_id id_table_combined[] = {
 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB) },
 	{ USB_DEVICE(VENDOR_ID_DELORME, PRODUCT_ID_EARTHMATEUSB_LT20) },
 	{ USB_DEVICE(VENDOR_ID_CYPRESS, PRODUCT_ID_CYPHIDCOM) },
@@ -179,7 +177,7 @@ static int  cypress_write(struct tty_struct *tty, struct usb_serial_port *port,
 			const unsigned char *buf, int count);
 static void cypress_send(struct usb_serial_port *port);
 static int  cypress_write_room(struct tty_struct *tty);
-static int  cypress_ioctl(struct tty_struct *tty, struct file *file,
+static int  cypress_ioctl(struct tty_struct *tty,
 			unsigned int cmd, unsigned long arg);
 static void cypress_set_termios(struct tty_struct *tty,
 			struct usb_serial_port *port, struct ktermios *old);
@@ -202,7 +200,6 @@ static unsigned int cypress_buf_put(struct cypress_buf *cb,
 					const char *buf, unsigned int count);
 static unsigned int cypress_buf_get(struct cypress_buf *cb,
 					char *buf, unsigned int count);
-
 
 static struct usb_serial_driver cypress_earthmate_device = {
 	.driver = {
@@ -289,7 +286,6 @@ static struct usb_serial_driver cypress_ca42v2_device = {
  * Cypress serial helper functions
  *****************************************************************************/
 
-
 static int analyze_baud_rate(struct usb_serial_port *port, speed_t new_rate)
 {
 	struct cypress_private *priv;
@@ -334,7 +330,6 @@ static int analyze_baud_rate(struct usb_serial_port *port, speed_t new_rate)
 	}
 	return new_rate;
 }
-
 
 /* This function can either set or retrieve the current serial line settings */
 static int cypress_serial_control(struct tty_struct *tty,
@@ -465,7 +460,6 @@ static int cypress_serial_control(struct tty_struct *tty,
 	return retval;
 } /* cypress_serial_control */
 
-
 static void cypress_set_dead(struct usb_serial_port *port)
 {
 	struct cypress_private *priv = usb_get_serial_port_data(port);
@@ -483,11 +477,9 @@ static void cypress_set_dead(struct usb_serial_port *port)
 		"interval might be too short\n", port->number);
 }
 
-
 /*****************************************************************************
  * Cypress serial driver functions
  *****************************************************************************/
-
 
 static int generic_startup(struct usb_serial *serial)
 {
@@ -543,7 +535,6 @@ static int generic_startup(struct usb_serial *serial)
 	return 0;
 }
 
-
 static int cypress_earthmate_startup(struct usb_serial *serial)
 {
 	struct cypress_private *priv;
@@ -576,7 +567,6 @@ static int cypress_earthmate_startup(struct usb_serial *serial)
 	return 0;
 } /* cypress_earthmate_startup */
 
-
 static int cypress_hidcom_startup(struct usb_serial *serial)
 {
 	struct cypress_private *priv;
@@ -594,7 +584,6 @@ static int cypress_hidcom_startup(struct usb_serial *serial)
 
 	return 0;
 } /* cypress_hidcom_startup */
-
 
 static int cypress_ca42v2_startup(struct usb_serial *serial)
 {
@@ -614,7 +603,6 @@ static int cypress_ca42v2_startup(struct usb_serial *serial)
 	return 0;
 } /* cypress_ca42v2_startup */
 
-
 static void cypress_release(struct usb_serial *serial)
 {
 	struct cypress_private *priv;
@@ -630,7 +618,6 @@ static void cypress_release(struct usb_serial *serial)
 		kfree(priv);
 	}
 }
-
 
 static int cypress_open(struct tty_struct *tty, struct usb_serial_port *port)
 {
@@ -718,13 +705,11 @@ static void cypress_close(struct usb_serial_port *port)
 	usb_kill_urb(port->interrupt_in_urb);
 	usb_kill_urb(port->interrupt_out_urb);
 
-
 	if (stats)
 		dev_info(&port->dev, "Statistics: %d Bytes In | %d Bytes Out | %d Commands Issued\n",
 			priv->bytes_in, priv->bytes_out, priv->cmd_count);
 	mutex_unlock(&port->serial->disc_mutex);
 } /* cypress_close */
-
 
 static int cypress_write(struct tty_struct *tty, struct usb_serial_port *port,
 					const unsigned char *buf, int count)
@@ -754,7 +739,6 @@ finish:
 
 	return count;
 } /* cypress_write */
-
 
 static void cypress_send(struct usb_serial_port *port)
 {
@@ -863,7 +847,6 @@ send:
 	usb_serial_port_softint(port);
 } /* cypress_send */
 
-
 /* returns how much space is available in the soft buffer */
 static int cypress_write_room(struct tty_struct *tty)
 {
@@ -881,7 +864,6 @@ static int cypress_write_room(struct tty_struct *tty)
 	dbg("%s - returns %d", __func__, room);
 	return room;
 }
-
 
 static int cypress_tiocmget(struct tty_struct *tty, struct file *file)
 {
@@ -910,7 +892,6 @@ static int cypress_tiocmget(struct tty_struct *tty, struct file *file)
 	return result;
 }
 
-
 static int cypress_tiocmset(struct tty_struct *tty, struct file *file,
 			       unsigned int set, unsigned int clear)
 {
@@ -935,8 +916,7 @@ static int cypress_tiocmset(struct tty_struct *tty, struct file *file,
 	return cypress_write(tty, port, NULL, 0);
 }
 
-
-static int cypress_ioctl(struct tty_struct *tty, struct file *file,
+static int cypress_ioctl(struct tty_struct *tty,
 					unsigned int cmd, unsigned long arg)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -980,7 +960,6 @@ static int cypress_ioctl(struct tty_struct *tty, struct file *file,
 	dbg("%s - arg not supported - it was 0x%04x - check include/asm/ioctls.h", __func__, cmd);
 	return -ENOIOCTLCMD;
 } /* cypress_ioctl */
-
 
 static void cypress_set_termios(struct tty_struct *tty,
 	struct usb_serial_port *port, struct ktermios *old_termios)
@@ -1131,7 +1110,6 @@ static void cypress_set_termios(struct tty_struct *tty,
 	}
 } /* cypress_set_termios */
 
-
 /* returns amount of data still left in soft buffer */
 static int cypress_chars_in_buffer(struct tty_struct *tty)
 {
@@ -1150,7 +1128,6 @@ static int cypress_chars_in_buffer(struct tty_struct *tty)
 	return chars;
 }
 
-
 static void cypress_throttle(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -1162,7 +1139,6 @@ static void cypress_throttle(struct tty_struct *tty)
 	priv->rx_flags = THROTTLED;
 	spin_unlock_irq(&priv->lock);
 }
-
 
 static void cypress_unthrottle(struct tty_struct *tty)
 {
@@ -1191,7 +1167,6 @@ static void cypress_unthrottle(struct tty_struct *tty)
 		}
 	}
 }
-
 
 static void cypress_read_int_callback(struct urb *urb)
 {
@@ -1307,13 +1282,9 @@ static void cypress_read_int_callback(struct urb *urb)
 		spin_unlock_irqrestore(&priv->lock, flags);
 
 	/* process read if there is data other than line status */
-	if (tty && (bytes > i)) {
-		bytes = tty_buffer_request_room(tty, bytes);
-		for (; i < bytes ; ++i) {
-			dbg("pushing byte number %d - %d - %c", i, data[i],
-					data[i]);
-			tty_insert_flip_char(tty, data[i], tty_flag);
-		}
+	if (tty && bytes > i) {
+		tty_insert_flip_string_fixed_flag(tty, data + i,
+				bytes - i, tty_flag);
 		tty_flip_buffer_push(tty);
 	}
 
@@ -1325,9 +1296,9 @@ static void cypress_read_int_callback(struct urb *urb)
 continue_read:
 	tty_kref_put(tty);
 
-	/* Continue trying to always read... unless the port has closed. */
+	/* Continue trying to always read */
 
-	if (port->port.count > 0 && priv->comm_is_ok) {
+	if (priv->comm_is_ok) {
 		usb_fill_int_urb(port->interrupt_in_urb, port->serial->dev,
 				usb_rcvintpipe(port->serial->dev,
 					port->interrupt_in_endpointAddress),
@@ -1336,17 +1307,14 @@ continue_read:
 				cypress_read_int_callback, port,
 				priv->read_urb_interval);
 		result = usb_submit_urb(port->interrupt_in_urb, GFP_ATOMIC);
-		if (result) {
+		if (result && result != -EPERM) {
 			dev_err(&urb->dev->dev, "%s - failed resubmitting "
 					"read urb, error %d\n", __func__,
 					result);
 			cypress_set_dead(port);
 		}
 	}
-
-	return;
 } /* cypress_read_int_callback */
-
 
 static void cypress_write_int_callback(struct urb *urb)
 {
@@ -1399,7 +1367,6 @@ static void cypress_write_int_callback(struct urb *urb)
 	cypress_send(port);
 }
 
-
 /*****************************************************************************
  * Write buffer functions - buffering code from pl2303 used
  *****************************************************************************/
@@ -1414,7 +1381,6 @@ static struct cypress_buf *cypress_buf_alloc(unsigned int size)
 {
 
 	struct cypress_buf *cb;
-
 
 	if (size == 0)
 		return NULL;
@@ -1436,7 +1402,6 @@ static struct cypress_buf *cypress_buf_alloc(unsigned int size)
 
 }
 
-
 /*
  * cypress_buf_free
  *
@@ -1451,7 +1416,6 @@ static void cypress_buf_free(struct cypress_buf *cb)
 	}
 }
 
-
 /*
  * cypress_buf_clear
  *
@@ -1464,7 +1428,6 @@ static void cypress_buf_clear(struct cypress_buf *cb)
 		cb->buf_get = cb->buf_put;
 		/* equivalent to a get of all data available */
 }
-
 
 /*
  * cypress_buf_data_avail
@@ -1482,7 +1445,6 @@ static unsigned int cypress_buf_data_avail(struct cypress_buf *cb)
 		return 0;
 }
 
-
 /*
  * cypress_buf_space_avail
  *
@@ -1499,7 +1461,6 @@ static unsigned int cypress_buf_space_avail(struct cypress_buf *cb)
 		return 0;
 }
 
-
 /*
  * cypress_buf_put
  *
@@ -1514,7 +1475,6 @@ static unsigned int cypress_buf_put(struct cypress_buf *cb, const char *buf,
 {
 
 	unsigned int len;
-
 
 	if (cb == NULL)
 		return 0;
@@ -1543,7 +1503,6 @@ static unsigned int cypress_buf_put(struct cypress_buf *cb, const char *buf,
 
 }
 
-
 /*
  * cypress_buf_get
  *
@@ -1558,7 +1517,6 @@ static unsigned int cypress_buf_get(struct cypress_buf *cb, char *buf,
 {
 
 	unsigned int len;
-
 
 	if (cb == NULL)
 		return 0;
@@ -1624,7 +1582,6 @@ failed_em_register:
 	return retval;
 }
 
-
 static void __exit cypress_exit(void)
 {
 	dbg("%s", __func__);
@@ -1634,7 +1591,6 @@ static void __exit cypress_exit(void)
 	usb_serial_deregister(&cypress_hidcom_device);
 	usb_serial_deregister(&cypress_ca42v2_device);
 }
-
 
 module_init(cypress_init);
 module_exit(cypress_exit);

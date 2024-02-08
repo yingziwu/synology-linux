@@ -45,7 +45,6 @@ module_param(ap, int, 0);
 MODULE_PARM_DESC(ap, "If non-zero Access Point firmware will be loaded");
 MODULE_DEVICE_TABLE(usb, zd1201_table);
 
-
 static int zd1201_fw_upload(struct usb_device *dev, int apfw)
 {
 	const struct firmware *fw_entry;
@@ -1555,7 +1554,6 @@ static int zd1201_get_power(struct net_device *dev,
 	return 0;
 }
 
-
 static const iw_handler zd1201_iw_handler[] =
 {
 	(iw_handler) zd1201_config_commit,	/* SIOCSIWCOMMIT */
@@ -1906,6 +1904,7 @@ static struct usb_driver zd1201_usb = {
 	.id_table = zd1201_table,
 	.suspend = zd1201_suspend,
 	.resume = zd1201_resume,
+	.disable_hub_initiated_lpm = 1,
 };
 
 static int __init zd1201_init(void)

@@ -1,6 +1,6 @@
 /* -*- linux-c -*-
  *
- *	$Id: sysrq.c,v 1.15 1998/08/23 14:56:41 mj Exp $
+ *	$Id: sysrq.c,v 1.1 2010-04-15 12:27:55 khchen Exp $
  *
  *	Linux Magic System Request Key Hacks
  *
@@ -70,7 +70,6 @@ static int __init sysrq_always_enabled_setup(char *str)
 }
 
 __setup("sysrq_always_enabled", sysrq_always_enabled_setup);
-
 
 static void sysrq_handle_loglevel(int key, struct tty_struct *tty)
 {

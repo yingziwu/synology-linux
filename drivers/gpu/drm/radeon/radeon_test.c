@@ -26,7 +26,6 @@
 #include "radeon_reg.h"
 #include "radeon.h"
 
-
 /* Test BO GTT->VRAM and VRAM->GTT GPU copies across the whole GTT aperture */
 void radeon_test_moves(struct radeon_device *rdev)
 {
@@ -42,8 +41,8 @@ void radeon_test_moves(struct radeon_device *rdev)
 	/* Number of tests =
 	 * (Total GTT - IB pool - writeback page - ring buffer) / test size
 	 */
-	n = (rdev->mc.gtt_size - RADEON_IB_POOL_SIZE*64*1024 - RADEON_GPU_PAGE_SIZE -
-	     rdev->cp.ring_size) / size;
+	n = ((u32)(rdev->mc.gtt_size - RADEON_IB_POOL_SIZE*64*1024 - RADEON_GPU_PAGE_SIZE -
+	     rdev->cp.ring_size)) / size;
 
 	gtt_obj = kzalloc(n * sizeof(*gtt_obj), GFP_KERNEL);
 	if (!gtt_obj) {
@@ -206,4 +205,3 @@ out_cleanup:
 		printk(KERN_WARNING "Error while testing BO move.\n");
 	}
 }
-

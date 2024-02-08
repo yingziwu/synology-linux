@@ -12,7 +12,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *
- *  $Id: tun.c,v 1.15 2002/03/01 02:44:24 maxk Exp $
+ *  $Id: tun.c,v 1.1 2010-04-15 12:27:52 khchen Exp $
  */
 
 /*
@@ -1456,7 +1456,6 @@ static const struct ethtool_ops tun_ethtool_ops = {
 	.get_rx_csum	= tun_get_rx_csum,
 	.set_rx_csum	= tun_set_rx_csum
 };
-
 
 static int __init tun_init(void)
 {

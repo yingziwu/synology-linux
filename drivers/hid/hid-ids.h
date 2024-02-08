@@ -1,20 +1,7 @@
-/*
- *  USB HID quirks support for Linux
- *
- *  Copyright (c) 1999 Andreas Gal
- *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
- *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
- *  Copyright (c) 2006-2007 Jiri Kosina
- *  Copyright (c) 2007 Paul Walmsley
- */
-
-/*
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef HID_IDS_H_FILE
 #define HID_IDS_H_FILE
 
@@ -88,6 +75,9 @@
 #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
 #define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
 #define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
+#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
+#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
+#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
 #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
 #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
 #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
@@ -317,6 +307,29 @@
 #define USB_DEVICE_ID_MGE_UPS		0xffff
 #define USB_DEVICE_ID_MGE_UPS1		0x0001
 
+#ifdef MY_ABC_HERE
+#define USB_VENDOR_ID_APC               0x051d
+#define USB_DEVICE_ID_APC_UPS1          0x0002
+
+#define USB_VENDOR_ID_CYBERPOWER        0x0764
+#define USB_DEVICE_ID_CYBERPOWER_UPS1   0x0005
+#define USB_DEVICE_ID_CYBERPOWER_UPS2   0x0501
+
+#define USB_VENDOR_ID_TRIPPLITE         0x09ae
+#define USB_DEVICE_ID_TRIPPLITE_UPS1    0x1003
+#define USB_DEVICE_ID_TRIPPLITE_UPS2    0x2005
+#define USB_DEVICE_ID_TRIPPLITE_UPS3    0x3012
+#define USB_DEVICE_ID_TRIPPLITE_UPS4    0x4002
+#define USB_DEVICE_ID_TRIPPLITE_UPS5    0x4003
+
+#define USB_DEVICE_ID_BELKIN_UPS1       0x0980
+#define USB_DEVICE_ID_BELKIN_UPS2       0x0900
+#define USB_DEVICE_ID_BELKIN_UPS3       0x0910
+#define USB_DEVICE_ID_BELKIN_UPS4       0x0912
+#define USB_DEVICE_ID_BELKIN_UPS5       0x0551
+#define USB_DEVICE_ID_BELKIN_UPS6       0x0751
+#endif  
+
 #define USB_VENDOR_ID_MICROCHIP		0x04d8
 #define USB_DEVICE_ID_PICKIT1		0x0032
 #define USB_DEVICE_ID_PICKIT2		0x0033
@@ -328,7 +341,6 @@
 #define USB_DEVICE_ID_MS_LK6K		0x00f9
 #define USB_DEVICE_ID_MS_PRESENTER_8K_BT	0x0701
 #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
-
 
 #define USB_VENDOR_ID_MONTEREY		0x0566
 #define USB_DEVICE_ID_GENIUS_KB29E	0x3004
@@ -345,6 +357,9 @@
 
 #define USB_VENDOR_ID_NEC		0x073e
 #define USB_DEVICE_ID_NEC_USB_GAME_PAD	0x0301
+
+#define USB_VENDOR_ID_NEXTWINDOW	0x1926
+#define USB_DEVICE_ID_NEXTWINDOW_TOUCHSCREEN	0x0003
 
 #define USB_VENDOR_ID_NTRIG                0x1b96
 #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN   0x0001
@@ -388,10 +403,6 @@
 
 #define USB_VENDOR_ID_SUNPLUS		0x04fc
 #define USB_DEVICE_ID_SUNPLUS_WDESKTOP	0x05d8
-
-#define USB_VENDOR_ID_TENX		0x1130
-#define USB_DEVICE_ID_TENX_IBUDDY1	0x0001
-#define USB_DEVICE_ID_TENX_IBUDDY2	0x0002
 
 #define USB_VENDOR_ID_THRUSTMASTER	0x044f
 
@@ -440,6 +451,5 @@
 #define USB_VENDOR_ID_KYE		0x0458
 #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
 #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
-
 
 #endif

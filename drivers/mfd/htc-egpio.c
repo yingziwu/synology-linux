@@ -108,7 +108,7 @@ static void egpio_handler(unsigned int irq, struct irq_desc *desc)
 	ack_irqs(ei);
 	/* Process all set pins. */
 	readval &= ei->irqs_enabled;
-	for_each_bit(irqpin, &readval, ei->nirqs) {
+	for_each_set_bit(irqpin, &readval, ei->nirqs) {
 		/* Run irq handler */
 		pr_debug("got IRQ %d\n", irqpin);
 		irq = ei->irq_start + irqpin;
@@ -173,7 +173,6 @@ static int egpio_direction_input(struct gpio_chip *chip, unsigned offset)
 	egpio = container_of(chip, struct egpio_chip, chip);
 	return test_bit(offset, &egpio->is_out) ? -EINVAL : 0;
 }
-
 
 /*
  * Output pins
@@ -253,7 +252,6 @@ static void egpio_write_cache(struct egpio_info *ei)
 		}
 	}
 }
-
 
 /*
  * Setup
@@ -413,7 +411,6 @@ static int egpio_resume(struct platform_device *pdev)
 #define egpio_suspend NULL
 #define egpio_resume NULL
 #endif
-
 
 static struct platform_driver egpio_driver = {
 	.driver = {

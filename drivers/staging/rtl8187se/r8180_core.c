@@ -65,7 +65,6 @@ static struct pci_device_id rtl8180_pci_id_tbl[] __devinitdata = {
         }
 };
 
-
 static char* ifname = "wlan%d";
 static int hwseqnum = 0;
 static int hwwep = 0;
@@ -78,7 +77,6 @@ MODULE_DEVICE_TABLE(pci, rtl8180_pci_id_tbl);
 MODULE_AUTHOR("Andrea Merello <andreamrl@tiscali.it>");
 MODULE_DESCRIPTION("Linux driver for Realtek RTL8180 / RTL8185 WiFi cards");
 
-
 module_param(ifname, charp, S_IRUGO|S_IWUSR );
 module_param(hwseqnum,int, S_IRUGO|S_IWUSR);
 module_param(hwwep,int, S_IRUGO|S_IWUSR);
@@ -88,7 +86,6 @@ MODULE_PARM_DESC(devname," Net interface name, wlan%d=default");
 MODULE_PARM_DESC(hwseqnum," Try to use hardware 802.11 header sequence numbers. Zero=default");
 MODULE_PARM_DESC(hwwep," Try to use hardware WEP support. Still broken and not available on all cards");
 MODULE_PARM_DESC(channels," Channel bitmask for specific locales. NYI");
-
 
 static int __devinit rtl8180_pci_probe(struct pci_dev *pdev,
 				       const struct pci_device_id *id);
@@ -361,7 +358,6 @@ void rtl8180_proc_init_one(struct net_device *dev)
 		      "/proc/net/r8180/%s/stats-rx\n",
 		      dev->name);
 	}
-
 
 	e = create_proc_read_entry("stats-tx", S_IFREG | S_IRUGO,
 				   priv->dir_dev, proc_get_stats_tx, dev);
@@ -1288,7 +1284,6 @@ short alloc_rx_desc_ring(struct net_device *dev, u16 bufsize, int count)
 	return 0;
 }
 
-
 void set_nic_rxring(struct net_device *dev)
 {
 	u8 pgreg;
@@ -1830,7 +1825,7 @@ void rtl8180_rx(struct net_device *dev)
 			if(priv->rx_skb->len > 4)
 				skb_trim(priv->rx_skb,priv->rx_skb->len-4);
 #ifndef RX_DONT_PASS_UL
-			if(!ieee80211_rx(priv->ieee80211,
+			if(!ieee80211_rtl_rx(priv->ieee80211,
 					 priv->rx_skb, &stats)){
 #endif // RX_DONT_PASS_UL
 
@@ -1866,7 +1861,6 @@ drop: // this is used when we have not enought mem
 		priv->rxbuffer=(priv->rxbuffer->next);
 	}
 }
-
 
 void rtl8180_dma_kick(struct net_device *dev, int priority)
 {
@@ -1936,11 +1930,11 @@ rate)
 	if (!check_nic_enought_desc(dev, priority)){
 		DMESGW("Error: no descriptor left by previous TX (avail %d) ",
 			get_curr_tx_free_desc(dev, priority));
-		ieee80211_stop_queue(priv->ieee80211);
+		ieee80211_rtl_stop_queue(priv->ieee80211);
 	}
 	rtl8180_tx(dev, skb->data, skb->len, priority, morefrag,0,rate);
 	if (!check_nic_enought_desc(dev, priority))
-		ieee80211_stop_queue(priv->ieee80211);
+		ieee80211_rtl_stop_queue(priv->ieee80211);
 
 	spin_unlock_irqrestore(&priv->tx_lock,flags);
 }
@@ -3216,7 +3210,6 @@ void rtl8180_set_hw_wep(struct net_device *dev)
 	      read_nic_dword(dev,KEY0));
 }
 
-
 void rtl8185_rf_pins_enable(struct net_device *dev)
 {
 //	u16 tmp;
@@ -3846,7 +3839,7 @@ static const struct net_device_ops rtl8180_netdev_ops = {
 	.ndo_set_mac_address	= r8180_set_mac_adr,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_change_mtu		= eth_change_mtu,
-	.ndo_start_xmit		= ieee80211_xmit,
+	.ndo_start_xmit		= ieee80211_rtl_xmit,
 };
 
 static int __devinit rtl8180_pci_probe(struct pci_dev *pdev,
@@ -4066,7 +4059,7 @@ void rtl8180_try_wake_queue(struct net_device *dev, int pri)
 	spin_unlock_irqrestore(&priv->tx_lock,flags);
 
 	if(enough_desc)
-		ieee80211_wake_queue(priv->ieee80211);
+		ieee80211_rtl_wake_queue(priv->ieee80211);
 }
 
 void rtl8180_tx_isr(struct net_device *dev, int pri,short error)

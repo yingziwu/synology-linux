@@ -41,7 +41,6 @@
 #include "iwl-sta.h"
 #include "iwl-helpers.h"
 
-
 MODULE_DESCRIPTION("iwl core");
 MODULE_VERSION(IWLWIFI_VERSION);
 MODULE_AUTHOR(DRV_COPYRIGHT " " DRV_AUTHOR);
@@ -181,7 +180,6 @@ u8 iwl_toggle_tx_ant(struct iwl_priv *priv, u8 ant)
 
 const u8 iwl_bcast_addr[ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 EXPORT_SYMBOL(iwl_bcast_addr);
-
 
 /* This function both allocates and initializes hw and priv. */
 struct ieee80211_hw *iwl_alloc_all(struct iwl_cfg *cfg,
@@ -472,7 +470,6 @@ static void iwlcore_init_hw_rates(struct iwl_priv *priv,
 		}
 	}
 }
-
 
 /**
  * iwlcore_init_geos - Initialize mac80211's geo/channel info based from eeprom
@@ -1051,7 +1048,6 @@ void iwl_set_rxon_chain(struct iwl_priv *priv)
 	active_rx_cnt = iwl_get_active_rx_chain_count(priv);
 	idle_rx_cnt = iwl_get_idle_rx_chain_count(priv, active_rx_cnt);
 
-
 	/* correct rx chain count according hw settings
 	 * and chain noise calibration
 	 */
@@ -1598,14 +1594,13 @@ EXPORT_SYMBOL(iwl_uninit_drv);
 void iwl_free_isr_ict(struct iwl_priv *priv)
 {
 	if (priv->ict_tbl_vir) {
-		pci_free_consistent(priv->pci_dev, (sizeof(u32) * ICT_COUNT) +
-					PAGE_SIZE, priv->ict_tbl_vir,
-					priv->ict_tbl_dma);
+		dma_free_coherent(&priv->pci_dev->dev,
+				  (sizeof(u32) * ICT_COUNT) + PAGE_SIZE,
+				  priv->ict_tbl_vir, priv->ict_tbl_dma);
 		priv->ict_tbl_vir = NULL;
 	}
 }
 EXPORT_SYMBOL(iwl_free_isr_ict);
-
 
 /* allocate dram shared table it is a PAGE_SIZE aligned
  * also reset all data related to ICT table interrupt.
@@ -1616,9 +1611,9 @@ int iwl_alloc_isr_ict(struct iwl_priv *priv)
 	if (priv->cfg->use_isr_legacy)
 		return 0;
 	/* allocate shrared data table */
-	priv->ict_tbl_vir = pci_alloc_consistent(priv->pci_dev, (sizeof(u32) *
-						  ICT_COUNT) + PAGE_SIZE,
-						  &priv->ict_tbl_dma);
+	priv->ict_tbl_vir = dma_alloc_coherent(&priv->pci_dev->dev,
+					(sizeof(u32) * ICT_COUNT) + PAGE_SIZE,
+					&priv->ict_tbl_dma, GFP_KERNEL);
 	if (!priv->ict_tbl_vir)
 		return -ENOMEM;
 
@@ -1727,7 +1722,6 @@ irqreturn_t iwl_isr_ict(int irq, void *data)
 	inta_mask = iwl_read32(priv, CSR_INT_MASK);  /* just for debug */
 	iwl_write32(priv, CSR_INT_MASK, 0x00000000);
 
-
 	/* Ignore interrupt if there's nothing in NIC to service.
 	 * This may be due to IRQ shared with another device,
 	 * or due to sporadic interrupts thrown from our NIC. */
@@ -1785,7 +1779,6 @@ irqreturn_t iwl_isr_ict(int irq, void *data)
 	return IRQ_NONE;
 }
 EXPORT_SYMBOL(iwl_isr_ict);
-
 
 static irqreturn_t iwl_isr(int irq, void *data)
 {
@@ -2063,7 +2056,6 @@ int iwl_verify_ucode(struct iwl_priv *priv)
 }
 EXPORT_SYMBOL(iwl_verify_ucode);
 
-
 void iwl_rf_kill_ct_config(struct iwl_priv *priv)
 {
 	struct iwl_ct_kill_config cmd;
@@ -2115,7 +2107,6 @@ void iwl_rf_kill_ct_config(struct iwl_priv *priv)
 	}
 }
 EXPORT_SYMBOL(iwl_rf_kill_ct_config);
-
 
 /*
  * CARD_STATE_CMD
@@ -2238,7 +2229,6 @@ static void iwl_ht_conf(struct iwl_priv *priv,
 
 	if (!iwl_conf->is_ht)
 		return;
-
 
 	/*
 	 * It is totally wrong to base global information on something
@@ -2456,7 +2446,6 @@ int iwl_mac_beacon_update(struct ieee80211_hw *hw, struct sk_buff *skb)
 
 	priv->cfg->ops->lib->post_associate(priv);
 
-
 	return 0;
 }
 EXPORT_SYMBOL(iwl_mac_beacon_update);
@@ -2587,7 +2576,6 @@ int iwl_mac_config(struct ieee80211_hw *hw, u32 changed)
 		IWL_DEBUG_MAC80211(priv, "leave - scanning\n");
 	}
 
-
 	/* during scanning mac80211 will delay channel setting until
 	 * scan finish with changed = 0
 	 */
@@ -2646,6 +2634,7 @@ int iwl_mac_config(struct ieee80211_hw *hw, u32 changed)
 			priv->staging_rxon.flags = 0;
 
 		iwl_set_rxon_channel(priv, conf->channel);
+		iwl_set_rxon_ht(priv, ht_conf);
 
 		iwl_set_flags_for_band(priv, conf->channel->band);
 		spin_unlock_irqrestore(&priv->lock, flags);
@@ -2686,7 +2675,6 @@ int iwl_mac_config(struct ieee80211_hw *hw, u32 changed)
 		iwlcore_commit_rxon(priv);
 	else
 		IWL_DEBUG_INFO(priv, "Not re-sending same RXON configuration.\n");
-
 
 out:
 	IWL_DEBUG_MAC80211(priv, "leave\n");

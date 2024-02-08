@@ -1,18 +1,4 @@
-/*
- *  linux/arch/arm/lib/copypage-xscale.S
- *
- *  Copyright (C) 1995-2005 Russell King
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This handles the mini data cache, as found on SA11x0 and XScale
- * processors.  When we copy a user page page, we map it in such a way
- * that accesses to this page will not touch the main data cache, but
- * will be cached in the mini data cache.  This prevents us thrashing
- * the main data cache on page faults.
- */
+ 
 #include <linux/init.h>
 #include <linux/mm.h>
 #include <linux/highmem.h>
@@ -23,10 +9,6 @@
 
 #include "mm.h"
 
-/*
- * 0xffff8000 to 0xffffffff is reserved for any ARM architecture
- * specific hacks for copying pages efficiently.
- */
 #define COPYPAGE_MINICACHE	0xffff8000
 
 #define minicache_pgprot __pgprot(L_PTE_PRESENT | L_PTE_YOUNG | \
@@ -34,21 +16,10 @@
 
 static DEFINE_SPINLOCK(minicache_lock);
 
-/*
- * XScale mini-dcache optimised copy_user_highpage
- *
- * We flush the destination cache lines just before we write the data into the
- * corresponding address.  Since the Dcache is read-allocate, this removes the
- * Dcache aliasing issue.  The writes will be forwarded to the write buffer,
- * and merged as appropriate.
- */
 static void __naked
 mc_copy_user_page(void *from, void *to)
 {
-	/*
-	 * Strangely enough, best performance is achieved
-	 * when prefetching destination as well.  (NP)
-	 */
+	 
 	asm volatile(
 	"stmfd	sp!, {r4, r5, lr}		\n\
 	mov	lr, %2				\n\
@@ -95,7 +66,11 @@ void xscale_mc_copy_user_highpage(struct page *to, struct page *from,
 {
 	void *kto = kmap_atomic(to, KM_USER1);
 
+#ifdef CONFIG_SYNO_PLX_PORTING
+	if (!test_and_set_bit(PG_dcache_clean, &from->flags))
+#else
 	if (test_and_clear_bit(PG_dcache_dirty, &from->flags))
+#endif
 		__flush_dcache_page(page_mapping(from), from);
 
 	spin_lock(&minicache_lock);
@@ -110,9 +85,6 @@ void xscale_mc_copy_user_highpage(struct page *to, struct page *from,
 	kunmap_atomic(kto, KM_USER1);
 }
 
-/*
- * XScale optimised clear_user_page
- */
 void
 xscale_mc_clear_user_highpage(struct page *page, unsigned long vaddr)
 {

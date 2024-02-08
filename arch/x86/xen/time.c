@@ -100,7 +100,7 @@ bool xen_vcpu_stolen(int vcpu)
 	return per_cpu(runstate, vcpu).state == RUNSTATE_runnable;
 }
 
-static void setup_runstate_info(int cpu)
+void xen_setup_runstate_info(int cpu)
 {
 	struct vcpu_register_runstate_memory_area area;
 
@@ -192,7 +192,6 @@ unsigned long long xen_sched_clock(void)
 	return ret;
 }
 
-
 /* Get the TSC speed from Xen */
 unsigned long xen_tsc_khz(void)
 {
@@ -276,7 +275,6 @@ static struct clocksource xen_clocksource __read_mostly = {
    This interface is used when available.
 */
 
-
 /*
   Get a hypervisor absolute time.  In theory we could maintain an
   offset between the kernel's time and the hypervisor's time, and
@@ -338,8 +336,6 @@ static const struct clock_event_device xen_timerop_clockevent = {
 	.set_mode = xen_timerop_set_mode,
 	.set_next_event = xen_timerop_set_next_event,
 };
-
-
 
 static void xen_vcpuop_set_mode(enum clock_event_mode mode,
 				struct clock_event_device *evt)
@@ -434,7 +430,7 @@ void xen_setup_timer(int cpu)
 		name = "<timer kasprintf failed>";
 
 	irq = bind_virq_to_irqhandler(VIRQ_TIMER, cpu, xen_timer_interrupt,
-				      IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING,
+				      IRQF_DISABLED|IRQF_PERCPU|IRQF_NOBALANCING|IRQF_TIMER,
 				      name, NULL);
 
 	evt = &per_cpu(xen_clock_events, cpu);
@@ -442,8 +438,6 @@ void xen_setup_timer(int cpu)
 
 	evt->cpumask = cpumask_of(cpu);
 	evt->irq = irq;
-
-	setup_runstate_info(cpu);
 }
 
 void xen_teardown_timer(int cpu)
@@ -494,6 +488,7 @@ __init void xen_time_init(void)
 
 	setup_force_cpu_cap(X86_FEATURE_TSC);
 
+	xen_setup_runstate_info(cpu);
 	xen_setup_timer(cpu);
 	xen_setup_cpu_clockevents();
 }

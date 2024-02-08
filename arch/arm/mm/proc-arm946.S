@@ -183,16 +183,30 @@ ENTRY(arm946_coherent_user_range)
 	mov	pc, lr
 
 /*
+#ifdef CONFIG_SYNO_PLX_PORTING
+ *	flush_kern_dcache_area(void *addr, size_t size)
+#else
  *	flush_kern_dcache_page(void *page)
+#endif
  *
  *	Ensure no D cache aliasing occurs, either with itself or
  *	the I cache
  *
+#ifdef CONFIG_SYNO_PLX_PORTING
+ *	- addr	- kernel address
+ *	- size	- region size
+#else
  *	- addr	- page aligned address
+#endif
  * (same as arm926)
  */
+#ifdef CONFIG_SYNO_PLX_PORTING
+ENTRY(arm946_flush_kern_dcache_area)
+	add	r1, r0, r1
+#else
 ENTRY(arm946_flush_kern_dcache_page)
 	add	r1, r0, #PAGE_SZ
+#endif
 1:	mcr	p15, 0, r0, c7, c14, 1		@ clean+invalidate D entry
 	add	r0, r0, #CACHE_DLINESIZE
 	cmp	r0, r1
@@ -280,11 +294,14 @@ ENTRY(arm946_cache_fns)
 	.long	arm946_flush_user_cache_range
 	.long	arm946_coherent_kern_range
 	.long	arm946_coherent_user_range
+#ifdef CONFIG_SYNO_PLX_PORTING
+	.long	arm946_flush_kern_dcache_area
+#else
 	.long	arm946_flush_kern_dcache_page
+#endif
 	.long	arm946_dma_inv_range
 	.long	arm946_dma_clean_range
 	.long	arm946_dma_flush_range
-
 
 ENTRY(cpu_arm946_dcache_clean_area)
 #ifndef CONFIG_CPU_DCACHE_WRITETHROUGH
@@ -423,4 +440,3 @@ __arm946_proc_info:
 	.long	0
 	.long	arm940_cache_fns
 	.size	__arm946_proc_info, . - __arm946_proc_info
-

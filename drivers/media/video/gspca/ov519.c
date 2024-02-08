@@ -1056,6 +1056,10 @@ static int reg_w(struct sd *sd, __u16 index, __u8 value)
 			sd->gspca_dev.usb_buf, 1, 500);
 	if (ret < 0)
 		PDEBUG(D_ERR, "Write reg [%02x] %02x failed", index, value);
+
+#ifdef CONFIG_ARCH_FEROCEON
+	msleep(1);
+#endif
 	return ret;
 }
 
@@ -1076,6 +1080,10 @@ static int reg_r(struct sd *sd, __u16 index)
 		ret = sd->gspca_dev.usb_buf[0];
 	else
 		PDEBUG(D_ERR, "Read reg [0x%02x] failed", index);
+
+#ifdef CONFIG_ARCH_FEROCEON
+	msleep(1);
+#endif
 	return ret;
 }
 
@@ -1095,6 +1103,10 @@ static int reg_r8(struct sd *sd,
 		ret = sd->gspca_dev.usb_buf[0];
 	else
 		PDEBUG(D_ERR, "Read reg 8 [0x%02x] failed", index);
+
+#ifdef CONFIG_ARCH_FEROCEON
+	msleep(1);
+#endif
 	return ret;
 }
 
@@ -1453,6 +1465,9 @@ static int init_ov_sensor(struct sd *sd)
 		if (i2c_r(sd, 0x00) < 0)
 			return -EIO;
 	}
+#ifdef CONFIG_ARCH_FEROCEON
+    PDEBUG(D_PROBE, "init_ov_sensor failed after %d attempt(s)", i);
+#endif
 	return -EIO;
 }
 
@@ -1540,7 +1555,6 @@ static int ov8xx0_configure(struct sd *sd)
 static int ov7xx0_configure(struct sd *sd)
 {
 	int rc, high, low;
-
 
 	PDEBUG(D_PROBE, "starting OV7xx0 configuration");
 
@@ -2383,7 +2397,6 @@ static int ov518_mode_init_regs(struct sd *sd)
 
 	return 0;
 }
-
 
 /* Sets up the OV519 with the given image parameters
  *
@@ -3364,6 +3377,7 @@ static const __devinitdata struct usb_device_id device_table[] = {
 	{USB_DEVICE(0x041e, 0x4061), .driver_info = BRIDGE_OV519 },
 	{USB_DEVICE(0x041e, 0x4064),
 	 .driver_info = BRIDGE_OV519 | BRIDGE_INVERT_LED },
+	{USB_DEVICE(0x041e, 0x4067), .driver_info = BRIDGE_OV519 },
 	{USB_DEVICE(0x041e, 0x4068),
 	 .driver_info = BRIDGE_OV519 | BRIDGE_INVERT_LED },
 	{USB_DEVICE(0x045e, 0x028c), .driver_info = BRIDGE_OV519 },

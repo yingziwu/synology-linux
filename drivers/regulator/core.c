@@ -511,7 +511,6 @@ static ssize_t regulator_suspend_standby_state_show(struct device *dev,
 static DEVICE_ATTR(suspend_standby_state, 0444,
 		regulator_suspend_standby_state_show, NULL);
 
-
 /*
  * These are the only attributes are present for all regulators.
  * Other attributes are a function of regulator functionality.
@@ -640,7 +639,7 @@ static int suspend_prepare(struct regulator_dev *rdev, suspend_state_t state)
 static void print_constraints(struct regulator_dev *rdev)
 {
 	struct regulation_constraints *constraints = rdev->constraints;
-	char buf[80];
+	char buf[80] = "";
 	int count;
 
 	if (rdev->desc->type == REGULATOR_VOLTAGE) {

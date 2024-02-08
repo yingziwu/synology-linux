@@ -1,4 +1,4 @@
-/* $Id: netjet.c,v 1.29.2.4 2004/02/11 13:21:34 keil Exp $
+/* $Id: netjet.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * low level stuff for Traverse Technologie NETJet ISDN cards
  *
@@ -391,8 +391,6 @@ static void got_frame(struct BCState *bcs, int count) {
 	if (bcs->cs->debug & L1_DEB_RECEIVE_FRAME)
 		printframe(bcs->cs, bcs->hw.tiger.rcvbuf, count, "rec");
 }
-
-
 
 static void read_raw(struct BCState *bcs, u_int *buf, int cnt){
 	int i;
@@ -848,7 +846,6 @@ tiger_l2l1(struct PStack *st, int pr, void *arg)
 	}
 }
 
-
 static void
 close_tigerstate(struct BCState *bcs)
 {
@@ -907,7 +904,6 @@ setstack_tiger(struct PStack *st, struct BCState *bcs)
 	return (0);
 }
 
- 
 void
 inittiger(struct IsdnCardState *cs)
 {
@@ -978,4 +974,3 @@ release_io_netjet(struct IsdnCardState *cs)
 	releasetiger(cs);
 	release_region(cs->hw.njet.base, 256);
 }
-

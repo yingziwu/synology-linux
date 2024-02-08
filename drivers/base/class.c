@@ -59,6 +59,8 @@ static void class_release(struct kobject *kobj)
 	else
 		pr_debug("class '%s' does not have a release() function, "
 			 "be careful\n", class->name);
+
+	kfree(cp);
 }
 
 static struct sysfs_ops class_sysfs_ops = {
@@ -73,7 +75,6 @@ static struct kobj_type class_ktype = {
 
 /* Hotplug events for classes go to the class class_subsys */
 static struct kset *class_kset;
-
 
 int class_create_file(struct class *cls, const struct class_attribute *attr)
 {

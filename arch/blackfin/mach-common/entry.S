@@ -88,7 +88,6 @@ ENDPROC(_ex_workaround_261)
 #define _ex_dmult _ex_trap_c
 #endif
 
-
 ENTRY(_ex_dcplb_viol)
 ENTRY(_ex_dcplb_miss)
 ENTRY(_ex_icplb_miss)
@@ -1422,7 +1421,7 @@ ENTRY(_sys_call_table)
 	.long _sys_ni_syscall	/* streams2 */
 	.long _sys_vfork		/* 190 */
 	.long _sys_getrlimit
-	.long _sys_mmap2
+	.long _sys_mmap_pgoff
 	.long _sys_truncate64
 	.long _sys_ftruncate64
 	.long _sys_stat64	/* 195 */

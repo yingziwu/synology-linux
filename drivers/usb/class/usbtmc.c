@@ -26,9 +26,9 @@
 #include <linux/uaccess.h>
 #include <linux/kref.h>
 #include <linux/mutex.h>
+#include <linux/smp_lock.h>
 #include <linux/usb.h>
 #include <linux/usb/tmc.h>
-
 
 #define USBTMC_MINOR_BASE	176
 
@@ -48,7 +48,7 @@
  */
 #define USBTMC_MAX_READS_TO_CLEAR_BULK_IN	100
 
-static struct usb_device_id usbtmc_devices[] = {
+static const struct usb_device_id usbtmc_devices[] = {
 	{ USB_INTERFACE_INFO(USB_CLASS_APP_SPEC, 3, 0), },
 	{ USB_INTERFACE_INFO(USB_CLASS_APP_SPEC, 3, 1), },
 	{ 0, } /* terminating entry */
@@ -113,6 +113,7 @@ static int usbtmc_open(struct inode *inode, struct file *filp)
 	struct usbtmc_device_data *data;
 	int retval = 0;
 
+	lock_kernel();
 	intf = usb_find_interface(&usbtmc_driver, iminor(inode));
 	if (!intf) {
 		printk(KERN_ERR KBUILD_MODNAME
@@ -128,6 +129,7 @@ static int usbtmc_open(struct inode *inode, struct file *filp)
 	filp->private_data = data;
 
 exit:
+	unlock_kernel();
 	return retval;
 }
 
@@ -562,10 +564,16 @@ static ssize_t usbtmc_write(struct file *filp, const char __user *buf,
 		n_bytes = roundup(12 + this_part, 4);
 		memset(buffer + 12 + this_part, 0, n_bytes - (12 + this_part));
 
-		retval = usb_bulk_msg(data->usb_dev,
-				      usb_sndbulkpipe(data->usb_dev,
-						      data->bulk_out),
-				      buffer, n_bytes, &actual, USBTMC_TIMEOUT);
+		do {
+			retval = usb_bulk_msg(data->usb_dev,
+					      usb_sndbulkpipe(data->usb_dev,
+							      data->bulk_out),
+					      buffer, n_bytes,
+					      &actual, USBTMC_TIMEOUT);
+			if (retval != 0)
+				break;
+			n_bytes -= actual;
+		} while (n_bytes);
 
 		data->bTag_last_write = data->bTag;
 		data->bTag++;
@@ -1007,7 +1015,6 @@ static struct usb_class_driver usbtmc_class = {
 	.fops =		&fops,
 	.minor_base =	USBTMC_MINOR_BASE,
 };
-
 
 static int usbtmc_probe(struct usb_interface *intf,
 			const struct usb_device_id *id)

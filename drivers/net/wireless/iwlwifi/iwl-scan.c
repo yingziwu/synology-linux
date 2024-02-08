@@ -54,8 +54,6 @@
 #define IWL_PASSIVE_DWELL_BASE      (100)
 #define IWL_CHANNEL_TUNE_TIME       5
 
-
-
 /**
  * iwl_scan_cancel - Cancel any currently executing HW scan
  *
@@ -405,21 +403,6 @@ void iwl_init_scan_params(struct iwl_priv *priv)
 
 static int iwl_scan_initiate(struct iwl_priv *priv)
 {
-	if (!iwl_is_ready_rf(priv)) {
-		IWL_DEBUG_SCAN(priv, "Aborting scan due to not ready.\n");
-		return -EIO;
-	}
-
-	if (test_bit(STATUS_SCANNING, &priv->status)) {
-		IWL_DEBUG_SCAN(priv, "Scan already in progress.\n");
-		return -EAGAIN;
-	}
-
-	if (test_bit(STATUS_SCAN_ABORTING, &priv->status)) {
-		IWL_DEBUG_SCAN(priv, "Scan request while abort pending\n");
-		return -EAGAIN;
-	}
-
 	IWL_DEBUG_INFO(priv, "Starting scan...\n");
 	set_bit(STATUS_SCANNING, &priv->status);
 	priv->scan_start = jiffies;
@@ -447,6 +430,18 @@ int iwl_mac_hw_scan(struct ieee80211_hw *hw,
 	if (!iwl_is_ready_rf(priv)) {
 		ret = -EIO;
 		IWL_DEBUG_MAC80211(priv, "leave - not ready or exit pending\n");
+		goto out_unlock;
+	}
+
+	if (test_bit(STATUS_SCANNING, &priv->status)) {
+		IWL_DEBUG_SCAN(priv, "Scan already in progress.\n");
+		ret = -EAGAIN;
+		goto out_unlock;
+	}
+
+	if (test_bit(STATUS_SCAN_ABORTING, &priv->status)) {
+		IWL_DEBUG_SCAN(priv, "Scan request while abort pending\n");
+		ret = -EAGAIN;
 		goto out_unlock;
 	}
 
@@ -696,7 +691,6 @@ static void iwl_bg_request_scan(struct work_struct *data)
 	scan->tx_cmd.sta_id = priv->hw_params.bcast_sta_id;
 	scan->tx_cmd.stop_time.life_time = TX_CMD_LIFE_TIME_INFINITE;
 
-
 	if (priv->scan_bands & BIT(IEEE80211_BAND_2GHZ)) {
 		band = IEEE80211_BAND_2GHZ;
 		scan->flags = RXON_FLG_BAND_24G_MSK | RXON_FLG_AUTO_DETECT_MSK;
@@ -839,4 +833,3 @@ void iwl_setup_scan_deferred_work(struct iwl_priv *priv)
 	INIT_DELAYED_WORK(&priv->scan_check, iwl_bg_scan_check);
 }
 EXPORT_SYMBOL(iwl_setup_scan_deferred_work);
-

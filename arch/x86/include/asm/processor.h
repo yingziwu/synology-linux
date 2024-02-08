@@ -180,7 +180,7 @@ static inline void native_cpuid(unsigned int *eax, unsigned int *ebx,
 				unsigned int *ecx, unsigned int *edx)
 {
 	/* ecx is often an input as well as an output. */
-	asm("cpuid"
+	asm volatile("cpuid"
 	    : "=a" (*eax),
 	      "=b" (*ebx),
 	      "=c" (*ecx),
@@ -625,7 +625,6 @@ static inline void clear_in_cr4(unsigned long mask)
 typedef struct {
 	unsigned long		seg;
 } mm_segment_t;
-
 
 /*
  * create a kernel thread without removing it from tasklists

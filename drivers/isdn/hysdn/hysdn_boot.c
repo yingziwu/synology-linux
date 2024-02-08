@@ -1,4 +1,4 @@
-/* $Id: hysdn_boot.c,v 1.4.6.4 2001/09/23 22:24:54 kai Exp $
+/* $Id: hysdn_boot.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Linux driver for HYSDN cards
  * specific routines for booting and pof handling
@@ -58,7 +58,6 @@ StartDecryption(struct boot_data *boot)
 {
 	boot->Cryptor = CRYPT_STARTTERM;
 }				/* StartDecryption */
-
 
 /***************************************************************/
 /* decrypt complete BootBuf                                    */
@@ -162,7 +161,6 @@ pof_handle_data(hysdn_card * card, int datlen)
 	return (0);
 }				/* pof_handle_data */
 
-
 /******************************************************************************/
 /* pof_write_buffer is called when the buffer has been filled with the needed */
 /* number of data bytes. The number delivered is additionally supplied for    */
@@ -259,7 +257,6 @@ pof_write_buffer(hysdn_card * card, int datlen)
 
 	return (boot->last_error);
 }				/* pof_write_buffer */
-
 
 /*******************************************************************************/
 /* pof_write_open is called when an open for boot on the cardlog device occurs. */

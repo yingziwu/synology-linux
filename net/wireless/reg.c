@@ -686,7 +686,6 @@ static struct ieee80211_regdomain *country_ie_2_rd(
 	return rd;
 }
 
-
 /*
  * Helper for regdom_intersect(), this does the real
  * mathematical intersection fun
@@ -1714,7 +1713,7 @@ int regulatory_hint_user(const char *alpha2)
 	request->wiphy_idx = WIPHY_IDX_STALE;
 	request->alpha2[0] = alpha2[0];
 	request->alpha2[1] = alpha2[1];
-	request->initiator = NL80211_REGDOM_SET_BY_USER,
+	request->initiator = NL80211_REGDOM_SET_BY_USER;
 
 	queue_regulatory_request(request);
 
@@ -1908,7 +1907,6 @@ int regulatory_hint_found_beacon(struct wiphy *wiphy,
 #endif
 	memcpy(&reg_beacon->chan, beacon_chan,
 		sizeof(struct ieee80211_channel));
-
 
 	/*
 	 * Since we can be called from BH or and non-BH context
@@ -2190,7 +2188,6 @@ static int __set_regdom(const struct ieee80211_regdomain *rd)
 
 	return 0;
 }
-
 
 /*
  * Use this call to set the current regulatory domain. Conflicts with

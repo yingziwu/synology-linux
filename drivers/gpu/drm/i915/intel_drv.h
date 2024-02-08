@@ -94,7 +94,6 @@ struct intel_framebuffer {
 	struct drm_gem_object *obj;
 };
 
-
 struct intel_output {
 	struct drm_connector base;
 
@@ -134,6 +133,8 @@ void intel_i2c_destroy(struct i2c_adapter *adapter);
 int intel_ddc_get_modes(struct intel_output *intel_output);
 extern bool intel_ddc_probe(struct intel_output *intel_output);
 void intel_i2c_quirk_set(struct drm_device *dev, bool enable);
+void intel_i2c_reset_gmbus(struct drm_device *dev);
+
 extern void intel_crt_init(struct drm_device *dev);
 extern void intel_hdmi_init(struct drm_device *dev, int sdvox_reg);
 extern bool intel_sdvo_init(struct drm_device *dev, int output_device);
@@ -146,7 +147,6 @@ void
 intel_dp_set_m_n(struct drm_crtc *crtc, struct drm_display_mode *mode,
 		 struct drm_display_mode *adjusted_mode);
 extern void intel_edp_link_config (struct intel_output *, int *, int *);
-
 
 extern void intel_crtc_load_lut(struct drm_crtc *crtc);
 extern void intel_encoder_prepare (struct drm_encoder *encoder);

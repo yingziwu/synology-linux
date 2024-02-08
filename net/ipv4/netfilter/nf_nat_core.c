@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* NAT for netfilter; shared with compatibility layer. */
 
 /* (C) 1999-2001 Paul `Rusty' Russell
@@ -31,12 +34,16 @@
 #include <net/netfilter/nf_conntrack_l3proto.h>
 #include <net/netfilter/nf_conntrack_l4proto.h>
 
+#ifdef CONFIG_MV_ETH_NFP_NAT_SUPPORT
+extern int fp_disable_flag;
+extern int fp_nat_info_set(u32 src_ip, u32 dst_ip, u16 src_port, u16 dst_port, u8 proto,
+		u32 new_src_ip, u32 new_dst_ip, u16 new_src_port, u16 new_dst_port,
+		int if_index, enum nf_nat_manip_type maniptype);
+#endif /* CONFIG_MV_ETH_NFP_NAT_SUPPORT */
+
 static DEFINE_SPINLOCK(nf_nat_lock);
 
 static struct nf_conntrack_l3proto *l3proto __read_mostly;
-
-/* Calculated at init based on memory size */
-static unsigned int nf_nat_htable_size __read_mostly;
 
 #define MAX_IP_NAT_PROTO 256
 static const struct nf_nat_protocol *nf_nat_protos[MAX_IP_NAT_PROTO]
@@ -72,7 +79,7 @@ EXPORT_SYMBOL_GPL(nf_nat_proto_put);
 
 /* We keep an extra hash for each conntrack, for fast searching. */
 static inline unsigned int
-hash_by_src(const struct nf_conntrack_tuple *tuple)
+hash_by_src(const struct net *net, const struct nf_conntrack_tuple *tuple)
 {
 	unsigned int hash;
 
@@ -80,7 +87,7 @@ hash_by_src(const struct nf_conntrack_tuple *tuple)
 	hash = jhash_3words((__force u32)tuple->src.u3.ip,
 			    (__force u32)tuple->src.u.all,
 			    tuple->dst.protonum, 0);
-	return ((u64)hash * nf_nat_htable_size) >> 32;
+	return ((u64)hash * net->ipv4.nat_htable_size) >> 32;
 }
 
 /* Is this tuple already taken? (not by us) */
@@ -147,7 +154,7 @@ find_appropriate_src(struct net *net,
 		     struct nf_conntrack_tuple *result,
 		     const struct nf_nat_range *range)
 {
-	unsigned int h = hash_by_src(tuple);
+	unsigned int h = hash_by_src(net, tuple);
 	const struct nf_conn_nat *nat;
 	const struct nf_conn *ct;
 	const struct hlist_node *n;
@@ -278,6 +285,37 @@ out:
 	rcu_read_unlock();
 }
 
+#ifdef MY_ABC_HERE
+/* bridge netfilter uses cloned skbs when forwarding to multiple bridge ports.
+ * when userspace queueing is involved, we might try to set up NAT bindings
+ * on the same conntrack simultaneoulsy.  Can happen e.g. when broadcast has
+ * to be forwarded by the bridge but is also passed up the stack.
+ *
+ * Thus, when bridge netfilter is enabled, we need to serialize and silently
+ * accept the packet in the collision case.
+ */
+static inline bool nf_nat_bridge_lock(struct nf_conn *ct, enum nf_nat_manip_type maniptype)
+{
+#ifdef CONFIG_BRIDGE_NETFILTER
+	spin_lock_bh(&ct->lock);
+
+	if (unlikely(nf_nat_initialized(ct, maniptype))) {
+		pr_debug("race with cloned skb? Not adding NAT extension\n");
+		spin_unlock_bh(&ct->lock);
+		return false;
+	}
+#endif
+	return true;
+}
+
+static inline void nf_nat_bridge_unlock(struct nf_conn *ct)
+{
+#ifdef CONFIG_BRIDGE_NETFILTER
+	spin_unlock_bh(&ct->lock);
+#endif
+}
+#endif /* MY_ABC_HERE */
+
 unsigned int
 nf_nat_setup_info(struct nf_conn *ct,
 		  const struct nf_nat_range *range,
@@ -288,18 +326,32 @@ nf_nat_setup_info(struct nf_conn *ct,
 	struct nf_conn_nat *nat;
 	int have_to_hash = !(ct->status & IPS_NAT_DONE_MASK);
 
+#ifdef MY_ABC_HERE
+	NF_CT_ASSERT(maniptype == NF_NAT_MANIP_SRC ||
+			maniptype == NF_NAT_MANIP_DST);
+
+	if (!nf_nat_bridge_lock(ct, maniptype))
+		return NF_ACCEPT;
+#endif /* MY_ABC_HERE */
+
 	/* nat helper or nfctnetlink also setup binding */
 	nat = nfct_nat(ct);
 	if (!nat) {
 		nat = nf_ct_ext_add(ct, NF_CT_EXT_NAT, GFP_ATOMIC);
 		if (nat == NULL) {
+#ifdef MY_ABC_HERE
+			nf_nat_bridge_unlock(ct);
+#endif /* MY_ABC_HERE */
 			pr_debug("failed to add NAT extension\n");
 			return NF_ACCEPT;
 		}
 	}
 
+#ifdef MY_ABC_HERE
+#else
 	NF_CT_ASSERT(maniptype == IP_NAT_MANIP_SRC ||
 		     maniptype == IP_NAT_MANIP_DST);
+#endif /* MY_ABC_HERE */
 	BUG_ON(nf_nat_initialized(ct, maniptype));
 
 	/* What we've got will look like inverse of reply. Normally
@@ -330,7 +382,7 @@ nf_nat_setup_info(struct nf_conn *ct,
 	if (have_to_hash) {
 		unsigned int srchash;
 
-		srchash = hash_by_src(&ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
+		srchash = hash_by_src(net, &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
 		spin_lock_bh(&nf_nat_lock);
 		/* nf_conntrack_alter_reply might re-allocate exntension aera */
 		nat = nfct_nat(ct);
@@ -346,6 +398,9 @@ nf_nat_setup_info(struct nf_conn *ct,
 	else
 		set_bit(IPS_SRC_NAT_DONE_BIT, &ct->status);
 
+#ifdef MY_ABC_HERE
+	nf_nat_bridge_unlock(ct);
+#endif /* MY_ABC_HERE */
 	return NF_ACCEPT;
 }
 EXPORT_SYMBOL(nf_nat_setup_info);
@@ -365,6 +420,29 @@ manip_pkt(u_int16_t proto,
 		return false;
 
 	iph = (void *)skb->data + iphdroff;
+
+#ifdef CONFIG_MV_ETH_NFP_NAT_SUPPORT
+	if( (!fp_disable_flag) && ((proto == IPPROTO_TCP) || (proto == IPPROTO_UDP)) )
+	{
+		u16 src_port = 0, dst_port = 0;
+		int if_index = skb->dev ? skb->dev->ifindex : -1;
+
+		if (proto == IPPROTO_TCP) {
+			struct tcphdr *hdr = (struct tcphdr *)(skb->data + iphdroff + iph->ihl*4);
+			src_port = hdr->source;
+			dst_port = hdr->dest;
+		}
+		else if (proto == IPPROTO_UDP) {
+			struct udphdr *hdr = (struct udphdr *)(skb->data + iphdroff + iph->ihl*4);
+			src_port = hdr->source;
+			dst_port = hdr->dest;
+		}
+
+		fp_nat_info_set(iph->saddr, iph->daddr, src_port, dst_port, proto,
+				target->src.u3.ip, target->dst.u3.ip, target->src.u.all, target->dst.u.all,
+				if_index, maniptype);
+	}
+#endif /* CONFIG_MV_ETH_NFP_NAT_SUPPORT */
 
 	/* Manipulate protcol part. */
 
@@ -679,8 +757,10 @@ nfnetlink_parse_nat_setup(struct nf_conn *ct,
 
 static int __net_init nf_nat_net_init(struct net *net)
 {
-	net->ipv4.nat_bysource = nf_ct_alloc_hashtable(&nf_nat_htable_size,
-						      &net->ipv4.nat_vmalloced, 0);
+	/* Leave them the same for the moment. */
+	net->ipv4.nat_htable_size = net->ct.htable_size;
+	net->ipv4.nat_bysource = nf_ct_alloc_hashtable(&net->ipv4.nat_htable_size,
+						       &net->ipv4.nat_vmalloced, 0);
 	if (!net->ipv4.nat_bysource)
 		return -ENOMEM;
 	return 0;
@@ -703,7 +783,7 @@ static void __net_exit nf_nat_net_exit(struct net *net)
 	nf_ct_iterate_cleanup(net, &clean_nat, NULL);
 	synchronize_rcu();
 	nf_ct_free_hashtable(net->ipv4.nat_bysource, net->ipv4.nat_vmalloced,
-			     nf_nat_htable_size);
+			     net->ipv4.nat_htable_size);
 }
 
 static struct pernet_operations nf_nat_net_ops = {
@@ -723,9 +803,6 @@ static int __init nf_nat_init(void)
 		printk(KERN_ERR "nf_nat_core: Unable to register extension\n");
 		return ret;
 	}
-
-	/* Leave them the same for the moment. */
-	nf_nat_htable_size = nf_conntrack_htable_size;
 
 	ret = register_pernet_subsys(&nf_nat_net_ops);
 	if (ret < 0)

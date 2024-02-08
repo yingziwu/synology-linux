@@ -20,6 +20,7 @@
 #include <linux/usb/serial.h>
 #include <linux/uaccess.h>
 #include <linux/kfifo.h>
+#include <linux/serial.h>
 
 static int debug;
 
@@ -41,7 +42,7 @@ static struct usb_device_id generic_device_ids[2]; /* Initially all zeroes. */
 
 /* we want to look at all devices, as the vendor/product id can change
  * depending on the command line argument */
-static struct usb_device_id generic_serial_ids[] = {
+static const struct usb_device_id generic_serial_ids[] = {
 	{.driver_info = 42},
 	{}
 };
@@ -194,7 +195,7 @@ static int usb_serial_multi_urb_write(struct tty_struct *tty,
 		if (port->urbs_in_flight >
 		    port->serial->type->max_in_flight_urbs) {
 			spin_unlock_irqrestore(&port->lock, flags);
-			dbg("%s - write limit hit\n", __func__);
+			dbg("%s - write limit hit", __func__);
 			return bwrite;
 		}
 		port->tx_bytes_flight += towrite;
@@ -397,7 +398,6 @@ int usb_serial_generic_chars_in_buffer(struct tty_struct *tty)
 	return chars;
 }
 
-
 void usb_serial_generic_resubmit_read_urb(struct usb_serial_port *port,
 			gfp_t mem_flags)
 {
@@ -489,6 +489,8 @@ void usb_serial_generic_write_bulk_callback(struct urb *urb)
 	dbg("%s - port %d", __func__, port->number);
 
 	if (port->serial->type->max_in_flight_urbs) {
+		kfree(urb->transfer_buffer);
+
 		spin_lock_irqsave(&port->lock, flags);
 		--port->urbs_in_flight;
 		port->tx_bytes_flight -= urb->transfer_buffer_length;
@@ -583,7 +585,7 @@ int usb_serial_generic_resume(struct usb_serial *serial)
 
 	for (i = 0; i < serial->num_ports; i++) {
 		port = serial->port[i];
-		if (!port->port.count)
+		if (!test_bit(ASYNCB_INITIALIZED, &port->port.flags))
 			continue;
 
 		if (port->read_urb) {

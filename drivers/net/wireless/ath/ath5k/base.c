@@ -68,7 +68,6 @@ static int modparam_all_channels;
 module_param_named(all_channels, modparam_all_channels, bool, S_IRUGO);
 MODULE_PARM_DESC(all_channels, "Expose all channels the device can use.");
 
-
 /******************\
 * Internal defines *
 \******************/
@@ -80,7 +79,6 @@ MODULE_DESCRIPTION("Support for 5xxx series of Atheros 802.11 wireless LAN cards
 MODULE_SUPPORTED_DEVICE("Atheros 5xxx WLAN cards");
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_VERSION("0.6.0 (EXPERIMENTAL)");
-
 
 /* Known PCI ids */
 static const struct pci_device_id ath5k_pci_id_table[] = {
@@ -212,8 +210,6 @@ static struct pci_driver ath5k_pci_driver = {
 	.resume		= ath5k_pci_resume,
 };
 
-
-
 /*
  * Prototypes - MAC 802.11 stack related functions
  */
@@ -332,7 +328,6 @@ static inline void ath5k_rxbuf_free(struct ath5k_softc *sc,
 	bf->skb = NULL;
 }
 
-
 /* Queues setup */
 static struct 	ath5k_txq *ath5k_txq_setup(struct ath5k_softc *sc,
 				int qtype, int subtype);
@@ -410,7 +405,6 @@ exit_ath5k_pci(void)
 
 module_init(init_ath5k_pci);
 module_exit(exit_ath5k_pci);
-
 
 /********************\
 * PCI Initialization *
@@ -631,7 +625,6 @@ ath5k_pci_probe(struct pci_dev *pdev,
 		}
 	}
 
-
 	/* ready to process interrupts */
 	__clear_bit(ATH_STAT_INVALID, sc->status);
 
@@ -708,7 +701,6 @@ ath5k_pci_resume(struct pci_dev *pdev)
 	return 0;
 }
 #endif /* CONFIG_PM */
-
 
 /***********************\
 * Driver Initialization *
@@ -877,9 +869,6 @@ ath5k_detach(struct pci_dev *pdev, struct ieee80211_hw *hw)
 	 * state and potentially want to use them.
 	 */
 }
-
-
-
 
 /********************\
 * Channel/mode setup *
@@ -1220,6 +1209,29 @@ ath5k_rxbuf_setup(struct ath5k_softc *sc, struct ath5k_buf *bf)
 	return 0;
 }
 
+static enum ath5k_pkt_type get_hw_packet_type(struct sk_buff *skb)
+{
+	struct ieee80211_hdr *hdr;
+	enum ath5k_pkt_type htype;
+	__le16 fc;
+
+	hdr = (struct ieee80211_hdr *)skb->data;
+	fc = hdr->frame_control;
+
+	if (ieee80211_is_beacon(fc))
+		htype = AR5K_PKT_TYPE_BEACON;
+	else if (ieee80211_is_probe_resp(fc))
+		htype = AR5K_PKT_TYPE_PROBE_RESP;
+	else if (ieee80211_is_atim(fc))
+		htype = AR5K_PKT_TYPE_ATIM;
+	else if (ieee80211_is_pspoll(fc))
+		htype = AR5K_PKT_TYPE_PSPOLL;
+	else
+		htype = AR5K_PKT_TYPE_NORMAL;
+
+	return htype;
+}
+
 static int
 ath5k_txbuf_setup(struct ath5k_softc *sc, struct ath5k_buf *bf,
 		  struct ath5k_txq *txq)
@@ -1274,7 +1286,8 @@ ath5k_txbuf_setup(struct ath5k_softc *sc, struct ath5k_buf *bf,
 			sc->vif, pktlen, info));
 	}
 	ret = ah->ah_setup_tx_desc(ah, ds, pktlen,
-		ieee80211_get_hdrlen_from_skb(skb), AR5K_PKT_TYPE_NORMAL,
+		ieee80211_get_hdrlen_from_skb(skb),
+		get_hw_packet_type(skb),
 		(sc->power_level * 2),
 		hw_rate,
 		info->control.rates[0].count, keyidx, ah->ah_tx_ant, flags,
@@ -1403,10 +1416,6 @@ ath5k_desc_free(struct ath5k_softc *sc, struct pci_dev *pdev)
 	sc->bufptr = NULL;
 }
 
-
-
-
-
 /**************\
 * Queues setup *
 \**************/
@@ -1487,7 +1496,8 @@ ath5k_beaconq_config(struct ath5k_softc *sc)
 
 	ret = ath5k_hw_get_tx_queueprops(ah, sc->bhalq, &qi);
 	if (ret)
-		return ret;
+		goto err;
+
 	if (sc->opmode == NL80211_IFTYPE_AP ||
 		sc->opmode == NL80211_IFTYPE_MESH_POINT) {
 		/*
@@ -1514,10 +1524,25 @@ ath5k_beaconq_config(struct ath5k_softc *sc)
 	if (ret) {
 		ATH5K_ERR(sc, "%s: unable to update parameters for beacon "
 			"hardware queue!\n", __func__);
-		return ret;
+		goto err;
 	}
+	ret = ath5k_hw_reset_tx_queue(ah, sc->bhalq); /* push to h/w */
+	if (ret)
+		goto err;
 
-	return ath5k_hw_reset_tx_queue(ah, sc->bhalq); /* push to h/w */;
+	/* reconfigure cabq with ready time to 80% of beacon_interval */
+	ret = ath5k_hw_get_tx_queueprops(ah, AR5K_TX_QUEUE_ID_CAB, &qi);
+	if (ret)
+		goto err;
+
+	qi.tqi_ready_time = (sc->bintval * 80) / 100;
+	ret = ath5k_hw_set_tx_queueprops(ah, AR5K_TX_QUEUE_ID_CAB, &qi);
+	if (ret)
+		goto err;
+
+	ret = ath5k_hw_reset_tx_queue(ah, AR5K_TX_QUEUE_ID_CAB);
+err:
+	return ret;
 }
 
 static void
@@ -1590,9 +1615,6 @@ ath5k_txq_release(struct ath5k_softc *sc)
 			txq->setup = false;
 		}
 }
-
-
-
 
 /*************\
 * RX Handling *
@@ -1678,7 +1700,6 @@ ath5k_rx_decrypted(struct ath5k_softc *sc, struct ath5k_desc *ds,
 
 	return 0;
 }
-
 
 static void
 ath5k_check_ibss_tsf(struct ath5k_softc *sc, struct sk_buff *skb,
@@ -1907,9 +1928,6 @@ unlock:
 	spin_unlock(&sc->rxbuflock);
 }
 
-
-
-
 /*************\
 * TX Handling *
 \*************/
@@ -1997,7 +2015,6 @@ ath5k_tasklet_tx(unsigned long data)
 			ath5k_tx_processq(sc, &sc->txqs[i]);
 }
 
-
 /*****************\
 * Beacon handling *
 \*****************/
@@ -2055,7 +2072,6 @@ ath5k_beacon_setup(struct ath5k_softc *sc, struct ath5k_buf *bf)
 	 */
 	if (ah->ah_ant_mode == AR5K_ANTMODE_SECTOR_AP)
 		antenna = sc->bsent & 4 ? 2 : 1;
-
 
 	/* FIXME: If we are in g mode and rate is a CCK rate
 	 * subtract ah->ah_txpower.txp_cck_ofdm_pwr_delta
@@ -2151,7 +2167,6 @@ ath5k_beacon_send(struct ath5k_softc *sc)
 
 	sc->bsent++;
 }
-
 
 /**
  * ath5k_beacon_update_timers - update beacon timers
@@ -2254,7 +2269,6 @@ ath5k_beacon_update_timers(struct ath5k_softc *sc, u64 bc_tsf)
 		intval & AR5K_BEACON_RESET_TSF ? "AR5K_BEACON_RESET_TSF" : "");
 }
 
-
 /**
  * ath5k_beacon_config - Configure the beacon queues and interrupts
  *
@@ -2328,7 +2342,6 @@ static void ath5k_tasklet_beacon(unsigned long data)
 	}
 }
 
-
 /********************\
 * Interrupt handling *
 \********************/
@@ -2348,6 +2361,9 @@ ath5k_init(struct ath5k_softc *sc)
 	 * no matter this is the first time through or not.
 	 */
 	ath5k_stop_locked(sc);
+
+	/* Set PHY calibration interval */
+	ah->ah_cal_intval = ath5k_calinterval;
 
 	/*
 	 * The basic interface to setting the hardware in a good
@@ -2376,10 +2392,6 @@ ath5k_init(struct ath5k_softc *sc)
 
 	/* Set ack to be sent at low bit-rates */
 	ath5k_hw_set_ack_bitrate_high(ah, false);
-
-	/* Set PHY calibration inteval */
-	ah->ah_cal_intval = ath5k_calinterval;
-
 	ret = 0;
 done:
 	mmiowb();
@@ -2603,7 +2615,6 @@ ath5k_tasklet_calibrate(unsigned long data)
 	ieee80211_wake_queues(sc->hw);
 
 }
-
 
 /********************\
 * Mac80211 functions *

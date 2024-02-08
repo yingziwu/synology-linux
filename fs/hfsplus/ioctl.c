@@ -1,17 +1,7 @@
-/*
- *  linux/fs/hfsplus/ioctl.c
- *
- * Copyright (C) 2003
- * Ethan Benson <erbenson@alaska.net>
- * partially derived from linux/fs/ext2/ioctl.c
- * Copyright (C) 1993, 1994, 1995
- * Remy Card (card@masi.ibp.fr)
- * Laboratoire MASI - Institut Blaise Pascal
- * Universite Pierre et Marie Curie (Paris VI)
- *
- * hfsplus ioctls
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/capability.h>
 #include <linux/fs.h>
 #include <linux/mount.h>
@@ -29,11 +19,11 @@ int hfsplus_ioctl(struct inode *inode, struct file *filp, unsigned int cmd,
 	case HFSPLUS_IOC_EXT2_GETFLAGS:
 		flags = 0;
 		if (HFSPLUS_I(inode).rootflags & HFSPLUS_FLG_IMMUTABLE)
-			flags |= FS_IMMUTABLE_FL; /* EXT2_IMMUTABLE_FL */
+			flags |= FS_IMMUTABLE_FL;  
 		if (HFSPLUS_I(inode).rootflags & HFSPLUS_FLG_APPEND)
-			flags |= FS_APPEND_FL; /* EXT2_APPEND_FL */
+			flags |= FS_APPEND_FL;  
 		if (HFSPLUS_I(inode).userflags & HFSPLUS_FLG_NODUMP)
-			flags |= FS_NODUMP_FL; /* EXT2_NODUMP_FL */
+			flags |= FS_NODUMP_FL;  
 		return put_user(flags, (int __user *)arg);
 	case HFSPLUS_IOC_EXT2_SETFLAGS: {
 		int err = 0;
@@ -57,26 +47,25 @@ int hfsplus_ioctl(struct inode *inode, struct file *filp, unsigned int cmd,
 			}
 		}
 
-		/* don't silently ignore unsupported ext2 flags */
 		if (flags & ~(FS_IMMUTABLE_FL|FS_APPEND_FL|FS_NODUMP_FL)) {
 			err = -EOPNOTSUPP;
 			goto setflags_out;
 		}
-		if (flags & FS_IMMUTABLE_FL) { /* EXT2_IMMUTABLE_FL */
+		if (flags & FS_IMMUTABLE_FL) {  
 			inode->i_flags |= S_IMMUTABLE;
 			HFSPLUS_I(inode).rootflags |= HFSPLUS_FLG_IMMUTABLE;
 		} else {
 			inode->i_flags &= ~S_IMMUTABLE;
 			HFSPLUS_I(inode).rootflags &= ~HFSPLUS_FLG_IMMUTABLE;
 		}
-		if (flags & FS_APPEND_FL) { /* EXT2_APPEND_FL */
+		if (flags & FS_APPEND_FL) {  
 			inode->i_flags |= S_APPEND;
 			HFSPLUS_I(inode).rootflags |= HFSPLUS_FLG_APPEND;
 		} else {
 			inode->i_flags &= ~S_APPEND;
 			HFSPLUS_I(inode).rootflags &= ~HFSPLUS_FLG_APPEND;
 		}
-		if (flags & FS_NODUMP_FL) /* EXT2_NODUMP_FL */
+		if (flags & FS_NODUMP_FL)  
 			HFSPLUS_I(inode).userflags |= HFSPLUS_FLG_NODUMP;
 		else
 			HFSPLUS_I(inode).userflags &= ~HFSPLUS_FLG_NODUMP;
@@ -92,6 +81,7 @@ setflags_out:
 	}
 }
 
+#ifndef MY_ABC_HERE
 int hfsplus_setxattr(struct dentry *dentry, const char *name,
 		     const void *value, size_t size, int flags)
 {
@@ -196,3 +186,4 @@ ssize_t hfsplus_listxattr(struct dentry *dentry, char *buffer, size_t size)
 
 	return HFSPLUS_ATTRLIST_SIZE;
 }
+#endif

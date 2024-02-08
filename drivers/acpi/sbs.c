@@ -1,5 +1,5 @@
 /*
- *  sbs.c - ACPI Smart Battery System Driver ($Revision: 2.0 $)
+ *  sbs.c - ACPI Smart Battery System Driver ($Revision: 1.1 $)
  *
  *  Copyright (c) 2007 Alexey Starikovskiy <astarikovskiy@suse.de>
  *  Copyright (c) 2005-2007 Vladimir Lebedev <vladimir.p.lebedev@intel.com>
@@ -410,7 +410,6 @@ static int acpi_battery_set_alarm(struct acpi_battery *battery)
 
 	int ret;
 
-
 	if (sbs->manager_present) {
 		ret = acpi_smbus_read(sbs->hc, SMBUS_READ_WORD, ACPI_SBS_MANAGER,
 				0x01, (u8 *)&value);
@@ -534,7 +533,6 @@ static inline char *acpi_battery_units(struct acpi_battery *battery)
 {
 	return acpi_battery_mode(battery) ? " mW" : " mA";
 }
-
 
 static int acpi_battery_read_info(struct seq_file *seq, void *offset)
 {

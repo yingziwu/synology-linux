@@ -18,6 +18,9 @@ static char rcsid[] =
  *	Using tabstop = 4.
  * 
  * $Log: pc300_drv.c,v $
+ * Revision 1.1  2010-04-15 12:27:54  khchen
+ * Initial revision
+ *
  * Revision 3.23  2002/03/20 13:58:40  henrique
  * Fixed ortographic mistakes
  *
@@ -3676,4 +3679,3 @@ MODULE_DESCRIPTION("Cyclades-PC300 cards driver");
 MODULE_AUTHOR(  "Author: Ivan Passos <ivan@cyclades.com>\r\n"
                 "Maintainer: PC300 Maintainer <pc300@cyclades.com");
 MODULE_LICENSE("GPL");
-

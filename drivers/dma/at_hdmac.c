@@ -48,10 +48,8 @@ module_param(init_nr_desc_per_channel, uint, 0644);
 MODULE_PARM_DESC(init_nr_desc_per_channel,
 		 "initial descriptors per channel (default: 64)");
 
-
 /* prototypes */
 static dma_cookie_t atc_tx_submit(struct dma_async_tx_descriptor *tx);
-
 
 /*----------------------------------------------------------------------*/
 
@@ -371,7 +369,6 @@ static void atc_advance_work(struct at_dma_chan *atchan)
 	}
 }
 
-
 /**
  * atc_handle_error - handle errors reported by DMA controller
  * @atchan: channel where error occurs
@@ -417,7 +414,6 @@ static void atc_handle_error(struct at_dma_chan *atchan)
 	/* Pretend the descriptor completed successfully */
 	atc_chain_complete(atchan, bad_desc);
 }
-
 
 /*--  IRQ & Tasklet  ---------------------------------------------------*/
 
@@ -479,7 +475,6 @@ static irqreturn_t at_dma_interrupt(int irq, void *dev_id)
 
 	return ret;
 }
-
 
 /*--  DMA Engine API  --------------------------------------------------*/
 
@@ -611,7 +606,6 @@ err_desc_get:
 	atc_desc_put(atchan, first);
 	return NULL;
 }
-
 
 /**
  * atc_prep_slave_sg - prepare descriptors for a DMA_SLAVE transaction
@@ -815,7 +809,7 @@ atc_is_tx_complete(struct dma_chan *chan,
 	dev_vdbg(chan2dev(chan), "is_tx_complete: %d (d%d, u%d)\n",
 			cookie, done ? *done : 0, used ? *used : 0);
 
-	spin_lock_bh(atchan->lock);
+	spin_lock_bh(&atchan->lock);
 
 	last_complete = atchan->completed_cookie;
 	last_used = chan->cookie;
@@ -830,7 +824,7 @@ atc_is_tx_complete(struct dma_chan *chan,
 		ret = dma_async_is_complete(cookie, last_complete, last_used);
 	}
 
-	spin_unlock_bh(atchan->lock);
+	spin_unlock_bh(&atchan->lock);
 
 	if (done)
 		*done = last_complete;
@@ -959,7 +953,6 @@ static void atc_free_chan_resources(struct dma_chan *chan)
 
 	dev_vdbg(chan2dev(chan), "free_chan_resources: done\n");
 }
-
 
 /*--  Module Management  -----------------------------------------------*/
 

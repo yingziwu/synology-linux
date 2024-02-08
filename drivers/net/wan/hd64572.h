@@ -12,6 +12,9 @@
  *	2 of the License, or (at your option) any later version.
  *
  * $Log: hd64572.h,v $
+ * Revision 1.1  2010-04-15 12:27:54  khchen
+ * Initial revision
+ *
  * Revision 3.1  2001/06/15 12:41:10  regina
  * upping major version number
  *
@@ -187,7 +190,6 @@ typedef struct {
 	u8 stat;		/* status */
 	u8 unused;		/* pads to 4-byte boundary */
 }pkt_desc;
-
 
 /*
 	Descriptor Status definitions:

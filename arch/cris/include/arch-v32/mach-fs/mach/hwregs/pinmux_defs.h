@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:09:11 2005
  * 
  *   by /n/asic/design/tools/rdesc/src/rdes2c --outfile pinmux_defs.h ../../inst/pinmux/rtl/guinness/pinmux_regs.r
- *      id: $Id: pinmux_defs.h,v 1.1 2007/02/13 11:55:30 starvik Exp $
+ *      id: $Id: pinmux_defs.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -336,7 +336,6 @@ typedef struct {
 } reg_pinmux_rw_usb_phy;
 #define REG_RD_ADDR_pinmux_rw_usb_phy 40
 #define REG_WR_ADDR_pinmux_rw_usb_phy 40
-
 
 /* Constants */
 enum {

@@ -1,25 +1,4 @@
-/*
- * coretemp.c - Linux kernel module for hardware monitoring
- *
- * Copyright (C) 2007 Rudolf Marek <r.marek@assembler.cz>
- *
- * Inspired from many hwmon drivers
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 2 of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301 USA.
- */
-
+ 
 #include <linux/module.h>
 #include <linux/delay.h>
 #include <linux/init.h>
@@ -33,6 +12,7 @@
 #include <linux/list.h>
 #include <linux/platform_device.h>
 #include <linux/cpu.h>
+#include <linux/pci.h>
 #include <asm/msr.h>
 #include <asm/processor.h>
 
@@ -41,10 +21,6 @@
 typedef enum { SHOW_TEMP, SHOW_TJMAX, SHOW_TTARGET, SHOW_LABEL,
 		SHOW_NAME } SHOW;
 
-/*
- * Functions declaration
- */
-
 static struct coretemp_data *coretemp_update_device(struct device *dev);
 
 struct coretemp_data {
@@ -52,17 +28,13 @@ struct coretemp_data {
 	struct mutex update_lock;
 	const char *name;
 	u32 id;
-	char valid;		/* zero until following fields are valid */
-	unsigned long last_updated;	/* in jiffies */
+	char valid;		 
+	unsigned long last_updated;	 
 	int temp;
 	int tjmax;
 	int ttarget;
 	u8 alarm;
 };
-
-/*
- * Sysfs stuff
- */
 
 static ssize_t show_name(struct device *dev, struct device_attribute
 			  *devattr, char *buf)
@@ -73,7 +45,7 @@ static ssize_t show_name(struct device *dev, struct device_attribute
 
 	if (attr->index == SHOW_NAME)
 		ret = sprintf(buf, "%s\n", data->name);
-	else	/* show label */
+	else	 
 		ret = sprintf(buf, "Core %d\n", data->id);
 	return ret;
 }
@@ -82,7 +54,7 @@ static ssize_t show_alarm(struct device *dev, struct device_attribute
 			  *devattr, char *buf)
 {
 	struct coretemp_data *data = coretemp_update_device(dev);
-	/* read the Out-of-spec log, never clear */
+	 
 	return sprintf(buf, "%d\n", data->alarm);
 }
 
@@ -137,7 +109,7 @@ static struct coretemp_data *coretemp_update_device(struct device *dev)
 		data->valid = 0;
 		rdmsr_on_cpu(data->id, MSR_IA32_THERM_STATUS, &eax, &edx);
 		data->alarm = (eax >> 5) & 1;
-		/* update only if data has been valid */
+		 
 		if (eax & 0x80000000) {
 			data->temp = data->tjmax - (((eax >> 16)
 							& 0x7f) * 1000);
@@ -154,34 +126,35 @@ static struct coretemp_data *coretemp_update_device(struct device *dev)
 
 static int __devinit adjust_tjmax(struct cpuinfo_x86 *c, u32 id, struct device *dev)
 {
-	/* The 100C is default for both mobile and non mobile CPUs */
-
+	 
 	int tjmax = 100000;
 	int tjmax_ee = 85000;
 	int usemsr_ee = 1;
 	int err;
 	u32 eax, edx;
-
-	/* Early chips have no MSR for TjMax */
+	struct pci_dev *host_bridge;
 
 	if ((c->x86_model == 0xf) && (c->x86_mask < 4)) {
 		usemsr_ee = 0;
 	}
 
-	/* Atoms seems to have TjMax at 90C */
-
 	if (c->x86_model == 0x1c) {
 		usemsr_ee = 0;
-		tjmax = 90000;
+
+		host_bridge = pci_get_bus_and_slot(0, PCI_DEVFN(0, 0));
+
+		if (host_bridge && host_bridge->vendor == PCI_VENDOR_ID_INTEL
+		    && (host_bridge->device == 0xa000	 
+		    || host_bridge->device == 0xa010))	 
+			tjmax = 100000;
+		else
+			tjmax = 90000;
+
+		pci_dev_put(host_bridge);
 	}
 
 	if ((c->x86_model > 0xe) && (usemsr_ee)) {
 		u8 platform_id;
-
-		/* Now we can detect the mobile CPU using Intel provided table
-		   http://softwarecommunity.intel.com/Wiki/Mobility/720.htm
-		   For Core2 cores, check MSR 0x17, bit 28 1 = Mobile CPU
-		*/
 
 		err = rdmsr_safe_on_cpu(id, 0x17, &eax, &edx);
 		if (err) {
@@ -190,20 +163,15 @@ static int __devinit adjust_tjmax(struct cpuinfo_x86 *c, u32 id, struct device *
 				 " CPU\n");
 			usemsr_ee = 0;
 		} else if (c->x86_model < 0x17 && !(eax & 0x10000000)) {
-			/* Trust bit 28 up to Penryn, I could not find any
-			   documentation on that; if you happen to know
-			   someone at Intel please ask */
+			 
 			usemsr_ee = 0;
 		} else {
-			/* Platform ID bits 52:50 (EDX starts at bit 32) */
+			 
 			platform_id = (edx >> 18) & 0x7;
 
-			/* Mobile Penryn CPU seems to be platform ID 7 or 5
-			  (guesswork) */
 			if ((c->x86_model == 0x17) &&
 			    ((platform_id == 5) || (platform_id == 7))) {
-				/* If MSR EE bit is set, set it to 90 degrees C,
-				   otherwise 105 degrees C */
+				 
 				tjmax_ee = 90000;
 				tjmax = 105000;
 			}
@@ -216,12 +184,11 @@ static int __devinit adjust_tjmax(struct cpuinfo_x86 *c, u32 id, struct device *
 		if (err) {
 			dev_warn(dev,
 				 "Unable to access MSR 0xEE, for Tjmax, left"
-				 " at default");
+				 " at default\n");
 		} else if (eax & 0x40000000) {
 			tjmax = tjmax_ee;
 		}
-	/* if we dont use msr EE it means we are desktop CPU (with exeception
-	   of Atom) */
+	 
 	} else if (tjmax == 100000) {
 		dev_warn(dev, "Using relative temperature scale!\n");
 	}
@@ -244,9 +211,12 @@ static int __devinit coretemp_probe(struct platform_device *pdev)
 
 	data->id = pdev->id;
 	data->name = "coretemp";
+#ifdef SYNO_PINEVIEW_CORETEMP
+	 
+	data->temp = 20 * 1000;
+#endif
 	mutex_init(&data->update_lock);
 
-	/* test if we can access the THERM_STATUS MSR */
 	err = rdmsr_safe_on_cpu(data->id, MSR_IA32_THERM_STATUS, &eax, &edx);
 	if (err) {
 		dev_err(&pdev->dev,
@@ -254,13 +224,8 @@ static int __devinit coretemp_probe(struct platform_device *pdev)
 		goto exit_free;
 	}
 
-	/* Check if we have problem with errata AE18 of Core processors:
-	   Readings might stop update when processor visited too deep sleep,
-	   fixed for stepping D0 (6EC).
-	*/
-
 	if ((c->x86_model == 0xe) && (c->x86_mask < 0xc)) {
-		/* check for microcode update */
+		 
 		rdmsr_on_cpu(data->id, MSR_IA32_UCODE_REV, &eax, &edx);
 		if (edx < 0x39) {
 			err = -ENODEV;
@@ -274,15 +239,16 @@ static int __devinit coretemp_probe(struct platform_device *pdev)
 	data->tjmax = adjust_tjmax(c, data->id, &pdev->dev);
 	platform_set_drvdata(pdev, data);
 
-	/* read the still undocumented IA32_TEMPERATURE_TARGET it exists
-	   on older CPUs but not in this register, Atoms don't have it either */
-
 	if ((c->x86_model > 0xe) && (c->x86_model != 0x1c)) {
 		err = rdmsr_safe_on_cpu(data->id, 0x1a2, &eax, &edx);
+#ifdef SYNO_CEDARVIEW_CORETEMP
+		if (!err) {
+#else
 		if (err) {
 			dev_warn(&pdev->dev, "Unable to read"
 					" IA32_TEMPERATURE_TARGET MSR\n");
 		} else {
+#endif
 			data->ttarget = data->tjmax -
 					(((eax >> 8) & 0xff) * 1000);
 			err = device_create_file(&pdev->dev,
@@ -422,14 +388,13 @@ static int __cpuinit coretemp_cpu_callback(struct notifier_block *nfb,
 static struct notifier_block coretemp_cpu_notifier __refdata = {
 	.notifier_call = coretemp_cpu_callback,
 };
-#endif				/* !CONFIG_HOTPLUG_CPU */
+#endif				 
 
 static int __init coretemp_init(void)
 {
 	int i, err = -ENODEV;
 	struct pdev_entry *p, *n;
 
-	/* quick check if we run Intel */
 	if (cpu_data(0).x86_vendor != X86_VENDOR_INTEL)
 		goto exit;
 
@@ -440,18 +405,18 @@ static int __init coretemp_init(void)
 	for_each_online_cpu(i) {
 		struct cpuinfo_x86 *c = &cpu_data(i);
 
-		/* check if family 6, models 0xe (Pentium M DC),
-		  0xf (Core 2 DC 65nm), 0x16 (Core 2 SC 65nm),
-		  0x17 (Penryn 45nm), 0x1a (Nehalem), 0x1c (Atom),
-		  0x1e (Lynnfield) */
 		if ((c->cpuid_level < 0) || (c->x86 != 0x6) ||
 		    !((c->x86_model == 0xe) || (c->x86_model == 0xf) ||
 			(c->x86_model == 0x16) || (c->x86_model == 0x17) ||
 			(c->x86_model == 0x1a) || (c->x86_model == 0x1c) ||
+#ifdef SYNO_BROMOLOW_CORETEMP
+			(c->x86_model == 0x2a) ||
+#endif
+#ifdef SYNO_CEDARVIEW_CORETEMP
+			(c->x86_model == 0x36) ||
+#endif
 			(c->x86_model == 0x1e))) {
 
-			/* supported CPU not found, but report the unknown
-			   family 6 CPU */
 			if ((c->x86 == 0x6) && (c->x86_model > 0xf))
 				printk(KERN_WARNING DRVNAME ": Unknown CPU "
 					"model %x\n", c->x86_model);
@@ -501,6 +466,49 @@ static void __exit coretemp_exit(void)
 	mutex_unlock(&pdev_list_mutex);
 	platform_driver_unregister(&coretemp_driver);
 }
+
+#ifdef SYNO_PINEVIEW_CORETEMP
+#include <linux/synobios.h>
+int syno_cpu_temperature(struct _SynoCpuTemp *pCpuTemp)
+{
+    struct coretemp_data *data;
+    struct pdev_entry *p, *n;
+    int    iCpuCount = 0;
+    int        iIndex = 0;
+
+    if ( NULL == pCpuTemp ) {
+        printk("coretemp: parameter error.\n");
+        return -1;
+    }
+
+    mutex_lock(&pdev_list_mutex);
+    list_for_each_entry_safe(p, n, &pdev_list, list) {
+        data = coretemp_update_device(&p->pdev->dev);
+        ++iCpuCount;
+#ifdef CONFIG_X86_HT
+        iIndex = p->cpu/2;
+#else
+        iIndex = p->cpu;
+#endif
+        if( MAX_CPU < iIndex ) {
+            printk("Wrong cpu core: %d\n",  iIndex);
+        } else {
+			 
+            pCpuTemp->cpu_temp[iIndex] = data->temp / 1000;
+        }
+    }
+    mutex_unlock(&pdev_list_mutex);
+
+#ifdef CONFIG_X86_HT
+    pCpuTemp->cpu_num = iCpuCount / 2;
+#else
+    pCpuTemp->cpu_num = iCpuCount;
+#endif
+
+    return 0;
+}
+EXPORT_SYMBOL(syno_cpu_temperature);
+#endif
 
 MODULE_AUTHOR("Rudolf Marek <r.marek@assembler.cz>");
 MODULE_DESCRIPTION("Intel Core temperature monitor");

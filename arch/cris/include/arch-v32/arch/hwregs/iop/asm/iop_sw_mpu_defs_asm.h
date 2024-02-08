@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:10:19 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/iop_sw_mpu_defs_asm.h ../../inst/io_proc/rtl/guinness/iop_sw_mpu.r
- *      id: $Id: iop_sw_mpu_defs_asm.h,v 1.5 2005/04/24 18:31:07 starvik Exp $
+ *      id: $Id: iop_sw_mpu_defs_asm.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -1741,7 +1741,6 @@
 #define reg_iop_sw_mpu_r_masked_intr_grp3___dmc_in1___width 1
 #define reg_iop_sw_mpu_r_masked_intr_grp3___dmc_in1___bit 31
 #define reg_iop_sw_mpu_r_masked_intr_grp3_offset 156
-
 
 /* Constants */
 #define regk_iop_sw_mpu_copy                      0x00000000

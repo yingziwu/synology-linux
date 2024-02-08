@@ -1,7 +1,7 @@
-/*
- * Implement the manual drop-all-pagecache function
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/mm.h>
 #include <linux/fs.h>
@@ -9,7 +9,6 @@
 #include <linux/sysctl.h>
 #include <linux/gfp.h>
 
-/* A global variable is a bit ugly, but it keeps the code simple */
 int sysctl_drop_caches;
 
 static void drop_pagecache_sb(struct super_block *sb)
@@ -74,3 +73,22 @@ int drop_caches_sysctl_handler(ctl_table *table, int write,
 	}
 	return 0;
 }
+
+#if defined(MY_ABC_HERE)
+
+#include <linux/syno_qoriq.h>
+
+void syno_drop_caches(unsigned int cache_type)
+{
+	if (cache_type & SYNO_DROP_CACHE_PAGE) {
+		drop_pagecache();
+	}
+
+	if (cache_type & SYNO_DROP_CACHE_SLAB) {
+		drop_slab();
+	}
+}
+
+EXPORT_SYMBOL(syno_drop_caches);
+
+#endif

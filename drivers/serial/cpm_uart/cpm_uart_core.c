@@ -62,7 +62,6 @@
 
 #include "cpm_uart.h"
 
-
 /**************************************************************/
 
 static int  cpm_uart_tx_pump(struct uart_port *port);
@@ -1210,7 +1209,6 @@ static void cpm_uart_console_write(struct console *co, const char *s,
 	}
 }
 
-
 static int __init cpm_uart_console_setup(struct console *co, char *options)
 {
 	int baud = 38400;
@@ -1401,6 +1399,6 @@ module_init(cpm_uart_init);
 module_exit(cpm_uart_exit);
 
 MODULE_AUTHOR("Kumar Gala/Antoniou Pantelis");
-MODULE_DESCRIPTION("CPM SCC/SMC port driver $Revision: 0.01 $");
+MODULE_DESCRIPTION("CPM SCC/SMC port driver $Revision: 1.1 $");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS_CHARDEV(SERIAL_CPM_MAJOR, SERIAL_CPM_MINOR);

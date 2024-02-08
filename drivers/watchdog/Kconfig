@@ -240,7 +240,7 @@ config DAVINCI_WATCHDOG
 
 config ORION_WATCHDOG
 	tristate "Orion watchdog"
-	depends on ARCH_ORION5X || ARCH_KIRKWOOD
+	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_FEROCEON_KW
 	help
 	  Say Y here if to include support for the watchdog timer
 	  in the Marvell Orion5x and Kirkwood ARM SoCs.
@@ -894,6 +894,14 @@ config BOOKE_WDT
 	---help---
 	  Please see Documentation/watchdog/watchdog-api.txt for
 	  more information.
+
+config BOOKE_WDT_TESTER
+	tristate "PowerPC Book-E Watchdog Timer Tester(only used as moduler)"
+	depends on BOOKE_WDT
+	default m
+	---help---
+	  This moduler will block kernel by loop occupy cpu resource, and
+	  then watchdog will timeout and reset system. Only used as moduler.
 
 # PPC64 Architecture
 

@@ -1,8 +1,7 @@
-/* $Id: diva.h,v 1.1.2.2 2001/02/08 12:25:43 armin Exp $ */
+/* $Id: diva.h,v 1.1 2010-04-15 12:27:50 khchen Exp $ */
 
 #ifndef __DIVA_XDI_OS_PART_H__
 #define __DIVA_XDI_OS_PART_H__
-
 
 int divasa_xdi_driver_entry(void);
 void divasa_xdi_driver_unload(void);
@@ -26,6 +25,5 @@ void *diva_xdi_open_adapter(void *os_handle, const void __user *src,
 			    divas_xdi_copy_from_user_fn_t cp_fn);
 
 void diva_xdi_close_adapter(void *adapter, void *os_handle);
-
 
 #endif

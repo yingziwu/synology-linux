@@ -62,6 +62,22 @@ static int verify_one_alg(struct nlattr **attrs, enum xfrm_attr_type_t type)
 	return 0;
 }
 
+static int verify_auth_trunc(struct nlattr **attrs)
+{
+	struct nlattr *rt = attrs[XFRMA_ALG_AUTH_TRUNC];
+	struct xfrm_algo_auth *algp;
+
+	if (!rt)
+		return 0;
+
+	algp = nla_data(rt);
+	if (nla_len(rt) < xfrm_alg_auth_len(algp))
+		return -EINVAL;
+
+	algp->alg_name[CRYPTO_MAX_ALG_NAME - 1] = '\0';
+	return 0;
+}
+
 static int verify_aead(struct nlattr **attrs)
 {
 	struct nlattr *rt = attrs[XFRMA_ALG_AEAD];
@@ -102,7 +118,6 @@ static inline int verify_sec_ctx_len(struct nlattr **attrs)
 	return 0;
 }
 
-
 static int verify_newsa_info(struct xfrm_usersa_info *p,
 			     struct nlattr **attrs)
 {
@@ -128,7 +143,8 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
 	err = -EINVAL;
 	switch (p->id.proto) {
 	case IPPROTO_AH:
-		if (!attrs[XFRMA_ALG_AUTH]	||
+		if ((!attrs[XFRMA_ALG_AUTH]	&&
+		     !attrs[XFRMA_ALG_AUTH_TRUNC]) ||
 		    attrs[XFRMA_ALG_AEAD]	||
 		    attrs[XFRMA_ALG_CRYPT]	||
 		    attrs[XFRMA_ALG_COMP])
@@ -139,10 +155,12 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
 		if (attrs[XFRMA_ALG_COMP])
 			goto out;
 		if (!attrs[XFRMA_ALG_AUTH] &&
+		    !attrs[XFRMA_ALG_AUTH_TRUNC] &&
 		    !attrs[XFRMA_ALG_CRYPT] &&
 		    !attrs[XFRMA_ALG_AEAD])
 			goto out;
 		if ((attrs[XFRMA_ALG_AUTH] ||
+		     attrs[XFRMA_ALG_AUTH_TRUNC] ||
 		     attrs[XFRMA_ALG_CRYPT]) &&
 		    attrs[XFRMA_ALG_AEAD])
 			goto out;
@@ -152,6 +170,7 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
 		if (!attrs[XFRMA_ALG_COMP]	||
 		    attrs[XFRMA_ALG_AEAD]	||
 		    attrs[XFRMA_ALG_AUTH]	||
+		    attrs[XFRMA_ALG_AUTH_TRUNC]	||
 		    attrs[XFRMA_ALG_CRYPT])
 			goto out;
 		break;
@@ -161,6 +180,7 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
 	case IPPROTO_ROUTING:
 		if (attrs[XFRMA_ALG_COMP]	||
 		    attrs[XFRMA_ALG_AUTH]	||
+		    attrs[XFRMA_ALG_AUTH_TRUNC]	||
 		    attrs[XFRMA_ALG_AEAD]	||
 		    attrs[XFRMA_ALG_CRYPT]	||
 		    attrs[XFRMA_ENCAP]		||
@@ -175,6 +195,8 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
 	}
 
 	if ((err = verify_aead(attrs)))
+		goto out;
+	if ((err = verify_auth_trunc(attrs)))
 		goto out;
 	if ((err = verify_one_alg(attrs, XFRMA_ALG_AUTH)))
 		goto out;
@@ -225,6 +247,66 @@ static int attach_one_algo(struct xfrm_algo **algpp, u8 *props,
 		return -ENOMEM;
 
 	strcpy(p->alg_name, algo->name);
+	*algpp = p;
+	return 0;
+}
+
+static int attach_auth(struct xfrm_algo_auth **algpp, u8 *props,
+		       struct nlattr *rta)
+{
+	struct xfrm_algo *ualg;
+	struct xfrm_algo_auth *p;
+	struct xfrm_algo_desc *algo;
+
+	if (!rta)
+		return 0;
+
+	ualg = nla_data(rta);
+
+	algo = xfrm_aalg_get_byname(ualg->alg_name, 1);
+	if (!algo)
+		return -ENOSYS;
+	*props = algo->desc.sadb_alg_id;
+
+	p = kmalloc(sizeof(*p) + (ualg->alg_key_len + 7) / 8, GFP_KERNEL);
+	if (!p)
+		return -ENOMEM;
+
+	strcpy(p->alg_name, algo->name);
+	p->alg_key_len = ualg->alg_key_len;
+	p->alg_trunc_len = algo->uinfo.auth.icv_truncbits;
+	memcpy(p->alg_key, ualg->alg_key, (ualg->alg_key_len + 7) / 8);
+
+	*algpp = p;
+	return 0;
+}
+
+static int attach_auth_trunc(struct xfrm_algo_auth **algpp, u8 *props,
+			     struct nlattr *rta)
+{
+	struct xfrm_algo_auth *p, *ualg;
+	struct xfrm_algo_desc *algo;
+
+	if (!rta)
+		return 0;
+
+	ualg = nla_data(rta);
+
+	algo = xfrm_aalg_get_byname(ualg->alg_name, 1);
+	if (!algo)
+		return -ENOSYS;
+	if (ualg->alg_trunc_len > algo->uinfo.auth.icv_fullbits)
+		return -EINVAL;
+	*props = algo->desc.sadb_alg_id;
+
+	p = kmemdup(ualg, xfrm_alg_auth_len(ualg), GFP_KERNEL);
+	if (!p)
+		return -ENOMEM;
+
+	strcpy(p->alg_name, algo->name);
+	if (!p->alg_trunc_len)
+		p->alg_trunc_len = algo->uinfo.auth.icv_truncbits;
+
 	*algpp = p;
 	return 0;
 }
@@ -332,10 +414,14 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
 	if ((err = attach_aead(&x->aead, &x->props.ealgo,
 			       attrs[XFRMA_ALG_AEAD])))
 		goto error;
-	if ((err = attach_one_algo(&x->aalg, &x->props.aalgo,
-				   xfrm_aalg_get_byname,
-				   attrs[XFRMA_ALG_AUTH])))
+	if ((err = attach_auth_trunc(&x->aalg, &x->props.aalgo,
+				     attrs[XFRMA_ALG_AUTH_TRUNC])))
 		goto error;
+	if (!x->props.aalgo) {
+		if ((err = attach_auth(&x->aalg, &x->props.aalgo,
+				       attrs[XFRMA_ALG_AUTH])))
+			goto error;
+	}
 	if ((err = attach_one_algo(&x->ealg, &x->props.ealgo,
 				   xfrm_ealg_get_byname,
 				   attrs[XFRMA_ALG_CRYPT])))
@@ -548,6 +634,24 @@ static int copy_sec_ctx(struct xfrm_sec_ctx *s, struct sk_buff *skb)
 	return 0;
 }
 
+static int copy_to_user_auth(struct xfrm_algo_auth *auth, struct sk_buff *skb)
+{
+	struct xfrm_algo *algo;
+	struct nlattr *nla;
+
+	nla = nla_reserve(skb, XFRMA_ALG_AUTH,
+			  sizeof(*algo) + (auth->alg_key_len + 7) / 8);
+	if (!nla)
+		return -EMSGSIZE;
+
+	algo = nla_data(nla);
+	strcpy(algo->alg_name, auth->alg_name);
+	memcpy(algo->alg_key, auth->alg_key, (auth->alg_key_len + 7) / 8);
+	algo->alg_key_len = auth->alg_key_len;
+
+	return 0;
+}
+
 /* Don't change this without updating xfrm_sa_len! */
 static int copy_to_user_state_extra(struct xfrm_state *x,
 				    struct xfrm_usersa_info *p,
@@ -563,8 +667,13 @@ static int copy_to_user_state_extra(struct xfrm_state *x,
 
 	if (x->aead)
 		NLA_PUT(skb, XFRMA_ALG_AEAD, aead_len(x->aead), x->aead);
-	if (x->aalg)
-		NLA_PUT(skb, XFRMA_ALG_AUTH, xfrm_alg_len(x->aalg), x->aalg);
+	if (x->aalg) {
+		if (copy_to_user_auth(x->aalg, skb))
+			goto nla_put_failure;
+
+		NLA_PUT(skb, XFRMA_ALG_AUTH_TRUNC,
+			xfrm_alg_auth_len(x->aalg), x->aalg);
+	}
 	if (x->ealg)
 		NLA_PUT(skb, XFRMA_ALG_CRYPT, xfrm_alg_len(x->ealg), x->ealg);
 	if (x->calg)
@@ -1265,30 +1374,32 @@ nlmsg_failure:
 
 static int xfrm_dump_policy_done(struct netlink_callback *cb)
 {
-	struct xfrm_policy_walk *walk = (struct xfrm_policy_walk *) &cb->args[1];
+	struct xfrm_policy_walk *walk = (struct xfrm_policy_walk *)cb->args;
 
 	xfrm_policy_walk_done(walk);
+	return 0;
+}
+
+static int xfrm_dump_policy_start(struct netlink_callback *cb)
+{
+	struct xfrm_policy_walk *walk = (struct xfrm_policy_walk *)cb->args;
+
+	BUILD_BUG_ON(sizeof(*walk) > sizeof(cb->args));
+
+	xfrm_policy_walk_init(walk, XFRM_POLICY_TYPE_ANY);
 	return 0;
 }
 
 static int xfrm_dump_policy(struct sk_buff *skb, struct netlink_callback *cb)
 {
 	struct net *net = sock_net(skb->sk);
-	struct xfrm_policy_walk *walk = (struct xfrm_policy_walk *) &cb->args[1];
+	struct xfrm_policy_walk *walk = (struct xfrm_policy_walk *)cb->args;
 	struct xfrm_dump_info info;
-
-	BUILD_BUG_ON(sizeof(struct xfrm_policy_walk) >
-		     sizeof(cb->args) - sizeof(cb->args[0]));
 
 	info.in_skb = cb->skb;
 	info.out_skb = skb;
 	info.nlmsg_seq = cb->nlh->nlmsg_seq;
 	info.nlmsg_flags = NLM_F_MULTI;
-
-	if (!cb->args[0]) {
-		cb->args[0] = 1;
-		xfrm_policy_walk_init(walk, XFRM_POLICY_TYPE_ANY);
-	}
 
 	(void) xfrm_policy_walk(net, walk, dump_one_policy, &info);
 
@@ -1962,6 +2073,7 @@ static const struct nla_policy xfrma_policy[XFRMA_MAX+1] = {
 
 static struct xfrm_link {
 	int (*doit)(struct sk_buff *, struct nlmsghdr *, struct nlattr **);
+	int (*start)(struct netlink_callback *);
 	int (*dump)(struct sk_buff *, struct netlink_callback *);
 	int (*done)(struct netlink_callback *);
 } xfrm_dispatch[XFRM_NR_MSGTYPES] = {
@@ -1973,6 +2085,7 @@ static struct xfrm_link {
 	[XFRM_MSG_NEWPOLICY   - XFRM_MSG_BASE] = { .doit = xfrm_add_policy    },
 	[XFRM_MSG_DELPOLICY   - XFRM_MSG_BASE] = { .doit = xfrm_get_policy    },
 	[XFRM_MSG_GETPOLICY   - XFRM_MSG_BASE] = { .doit = xfrm_get_policy,
+						   .start = xfrm_dump_policy_start,
 						   .dump = xfrm_dump_policy,
 						   .done = xfrm_dump_policy_done },
 	[XFRM_MSG_ALLOCSPI    - XFRM_MSG_BASE] = { .doit = xfrm_alloc_userspi },
@@ -2014,7 +2127,14 @@ static int xfrm_user_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 		if (link->dump == NULL)
 			return -EINVAL;
 
-		return netlink_dump_start(net->xfrm.nlsk, skb, nlh, link->dump, link->done);
+		{
+			struct netlink_dump_control c = {
+				.start = link->start,
+				.dump = link->dump,
+				.done = link->done,
+			};
+			return netlink_dump_start(net->xfrm.nlsk, skb, nlh, &c);
+		}
 	}
 
 	err = nlmsg_parse(nlh, xfrm_msg_min[type], attrs, XFRMA_MAX,
@@ -2117,8 +2237,11 @@ static inline size_t xfrm_sa_len(struct xfrm_state *x)
 	size_t l = 0;
 	if (x->aead)
 		l += nla_total_size(aead_len(x->aead));
-	if (x->aalg)
-		l += nla_total_size(xfrm_alg_len(x->aalg));
+	if (x->aalg) {
+		l += nla_total_size(sizeof(struct xfrm_algo) +
+				    (x->aalg->alg_key_len + 7) / 8);
+		l += nla_total_size(xfrm_alg_auth_len(x->aalg));
+	}
 	if (x->ealg)
 		l += nla_total_size(xfrm_alg_len(x->ealg));
 	if (x->calg)
@@ -2651,4 +2774,3 @@ module_init(xfrm_user_init);
 module_exit(xfrm_user_exit);
 MODULE_LICENSE("GPL");
 MODULE_ALIAS_NET_PF_PROTO(PF_NETLINK, NETLINK_XFRM);
-

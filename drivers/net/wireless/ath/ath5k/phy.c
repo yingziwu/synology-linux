@@ -491,12 +491,9 @@ int ath5k_hw_rfgain_init(struct ath5k_hw *ah, unsigned int freq)
 	return 0;
 }
 
-
-
 /********************\
 * RF Registers setup *
 \********************/
-
 
 /*
  * Setup RF registers by writing rf buffer on hw
@@ -818,7 +815,6 @@ int ath5k_hw_rfregs_init(struct ath5k_hw *ah, struct ieee80211_channel *channel,
 
 	return 0;
 }
-
 
 /**************************\
   PHY/RF channel functions
@@ -1875,7 +1871,6 @@ ath5k_hw_set_antenna_mode(struct ath5k_hw *ah, u8 ant_mode)
 	ath5k_hw_set_def_antenna(ah, def_ant);
 }
 
-
 /****************\
 * TX power setup *
 \****************/
@@ -2266,7 +2261,6 @@ ath5k_get_max_ctl_power(struct ath5k_hw *ah,
 		ah->ah_txpower.txp_max_pwr = 4*min(edge_pwr, max_chan_pwr);
 }
 
-
 /*
  * Power to PCDAC table functions
  */
@@ -2448,7 +2442,6 @@ ath5k_setup_pcdac_table(struct ath5k_hw *ah)
 			AR5K_PHY_PCDAC_TXPOWER(i));
 	}
 }
-
 
 /*
  * Power to PDADC table functions
@@ -2633,7 +2626,6 @@ ath5k_setup_pwr_to_pdadc_table(struct ath5k_hw *ah,
 			AR5K_PHY_PDADC_TXPOWER(i));
 	}
 }
-
 
 /*
  * Common code for PCDAC/PDADC tables
@@ -2845,7 +2837,6 @@ ath5k_setup_channel_powertable(struct ath5k_hw *ah,
 	return 0;
 }
 
-
 /*
  * Per-rate tx power setting
  *
@@ -2937,7 +2928,6 @@ ath5k_setup_rate_powertable(struct ath5k_hw *ah, u16 max_pwr,
 	ah->ah_txpower.txp_ofdm = rates[7];
 }
 
-
 /*
  * Set transmition power
  */
@@ -2954,8 +2944,6 @@ ath5k_hw_txpower(struct ath5k_hw *ah, struct ieee80211_channel *channel,
 		ATH5K_ERR(ah->ah_sc, "invalid tx power: %u\n", txpower);
 		return -EINVAL;
 	}
-	if (txpower == 0)
-		txpower = AR5K_TUNE_DEFAULT_TXPOWER;
 
 	/* Reset TX power values */
 	memset(&ah->ah_txpower, 0, sizeof(ah->ah_txpower));

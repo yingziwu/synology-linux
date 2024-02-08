@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:12:16 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c --outfile marb_defs.h ../../inst/memarb/rtl/guinness/marb_top.r
- *      id: $Id: marb_defs.h,v 1.3 2005/04/24 18:30:58 starvik Exp $
+ *      id: $Id: marb_defs.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -225,7 +225,6 @@ typedef struct {
 #define REG_RD_ADDR_marb_rw_no_snoop_rq 836
 #define REG_WR_ADDR_marb_rw_no_snoop_rq 836
 
-
 /* Constants */
 enum {
   regk_marb_cpud                           = 0x0000000b,
@@ -267,7 +266,7 @@ enum {
  *     last modfied: Mon Apr 11 16:12:16 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c --outfile marb_defs.h ../../inst/memarb/rtl/guinness/marb_top.r
- *      id: $Id: marb_defs.h,v 1.3 2005/04/24 18:30:58 starvik Exp $
+ *      id: $Id: marb_defs.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -463,7 +462,6 @@ typedef unsigned int reg_marb_bp_r_brk_size;
 typedef unsigned int reg_marb_bp_rw_ack;
 #define REG_RD_ADDR_marb_bp_rw_ack 40
 #define REG_WR_ADDR_marb_bp_rw_ack 40
-
 
 /* Constants */
 enum {

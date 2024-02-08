@@ -1,4 +1,4 @@
-/* $Id: isdn_common.c,v 1.1.2.3 2004/02/10 01:07:13 keil Exp $
+/* $Id: isdn_common.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Linux ISDN subsystem, common used functions (linklevel).
  *
@@ -41,7 +41,7 @@ MODULE_LICENSE("GPL");
 
 isdn_dev *dev;
 
-static char *isdn_revision = "$Revision: 1.1.2.3 $";
+static char *isdn_revision = "$Revision: 1.1 $";
 
 extern char *isdn_net_revision;
 extern char *isdn_tty_revision;
@@ -60,7 +60,6 @@ extern char *isdn_v110_revision;
 #ifdef CONFIG_ISDN_DIVERSION
 static isdn_divert_if *divert_if; /* = NULL */
 #endif /* CONFIG_ISDN_DIVERSION */
-
 
 static int isdn_writebuf_stub(int, int, const u_char __user *, int);
 static void set_global_features(void);
@@ -980,7 +979,6 @@ isdn_readbchan_tty(int di, int channel, struct tty_struct *tty, int cisco_hack)
 	return count;
 }
 
-
 static inline int
 isdn_minor2drv(int minor)
 {
@@ -1268,7 +1266,6 @@ isdn_poll(struct file *file, poll_table * wait)
 	unlock_kernel();
 	return mask;
 }
-
 
 static int
 isdn_ioctl(struct inode *inode, struct file *file, uint cmd, ulong arg)
@@ -2209,7 +2206,6 @@ int DIVERT_REG_NAME(isdn_divert_if *i_div)
 EXPORT_SYMBOL(DIVERT_REG_NAME);
 
 #endif /* CONFIG_ISDN_DIVERSION */
-
 
 EXPORT_SYMBOL(register_isdn);
 #ifdef CONFIG_ISDN_PPP

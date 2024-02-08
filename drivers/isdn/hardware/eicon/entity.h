@@ -1,4 +1,4 @@
-/* $Id: entity.h,v 1.4 2004/03/21 17:26:01 armin Exp $ */
+/* $Id: entity.h,v 1.1 2010-04-15 12:27:50 khchen Exp $ */
 
 #ifndef __DIVAS_USER_MODE_IDI_ENTITY__
 #define __DIVAS_USER_MODE_IDI_ENTITY__
@@ -23,6 +23,5 @@ typedef struct _divas_um_idi_entity {
 	BUFFERS                   RData;
 	byte                      buffer[2048+512];
 } divas_um_idi_entity_t;
-
 
 #endif

@@ -234,6 +234,8 @@ static void rose_remove_neigh(struct rose_neigh *rose_neigh)
 
 	if ((s = rose_neigh_list) == rose_neigh) {
 		rose_neigh_list = rose_neigh->next;
+		if (rose_neigh->ax25)
+			ax25_cb_put(rose_neigh->ax25);
 		kfree(rose_neigh->digipeat);
 		kfree(rose_neigh);
 		return;
@@ -242,6 +244,8 @@ static void rose_remove_neigh(struct rose_neigh *rose_neigh)
 	while (s != NULL && s->next != NULL) {
 		if (s->next == rose_neigh) {
 			s->next = rose_neigh->next;
+			if (rose_neigh->ax25)
+				ax25_cb_put(rose_neigh->ax25);
 			kfree(rose_neigh->digipeat);
 			kfree(rose_neigh);
 			return;
@@ -646,9 +650,6 @@ out:
 	return dev != NULL;
 }
 
-
-
-
 struct rose_route *rose_route_free_lci(unsigned int lci, struct rose_neigh *neigh)
 {
 	struct rose_route *rose_route;
@@ -810,6 +811,7 @@ void rose_link_failed(ax25_cb *ax25, int reason)
 
 	if (rose_neigh != NULL) {
 		rose_neigh->ax25 = NULL;
+		ax25_cb_put(ax25);
 
 		rose_del_route_by_neigh(rose_neigh);
 		rose_kill_by_neigh(rose_neigh);
@@ -1210,7 +1212,6 @@ static int rose_neigh_show(struct seq_file *seq, void *v)
 	return 0;
 }
 
-
 static const struct seq_operations rose_neigh_seqops = {
 	.start = rose_neigh_start,
 	.next = rose_neigh_next,
@@ -1230,7 +1231,6 @@ const struct file_operations rose_neigh_fops = {
 	.llseek = seq_lseek,
 	.release = seq_release,
 };
-
 
 static void *rose_route_start(struct seq_file *seq, loff_t *pos)
 	__acquires(rose_route_list_lock)

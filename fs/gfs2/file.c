@@ -606,7 +606,7 @@ static int gfs2_lock(struct file *file, int cmd, struct file_lock *fl)
 
 	if (!(fl->fl_flags & FL_POSIX))
 		return -ENOLCK;
-	if (__mandatory_lock(&ip->i_inode))
+	if (__mandatory_lock(&ip->i_inode) && fl->fl_type != F_UNLCK)
 		return -ENOLCK;
 
 	if (cmd == F_CANCELLK) {
@@ -759,4 +759,3 @@ const struct file_operations gfs2_dir_fops_nolock = {
 	.release	= gfs2_close,
 	.fsync		= gfs2_fsync,
 };
-

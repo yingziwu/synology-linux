@@ -1,4 +1,4 @@
-/* $Id: isar.h,v 1.11.2.2 2004/01/12 22:52:27 keil Exp $
+/* $Id: isar.h,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * ISAR (Siemens PSB 7110) specific defines
  *
@@ -47,7 +47,6 @@
 
 #define ISAR_CMD_TIMERIRQ_OFF	0x20
 #define ISAR_CMD_TIMERIRQ_ON	0x21
-
 
 #define ISAR_IIS_MSCMSD		0x3f
 #define ISAR_IIS_VNR		0x15

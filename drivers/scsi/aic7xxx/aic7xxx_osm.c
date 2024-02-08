@@ -1,7 +1,7 @@
 /*
  * Adaptec AIC7xxx device driver for Linux.
  *
- * $Id: //depot/aic7xxx/linux/drivers/scsi/aic7xxx/aic7xxx_osm.c#235 $
+ * $Id: aic7xxx_osm.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Copyright (c) 1994 John Aycock
  *   The University of Calgary Department of Computer Science.
@@ -129,7 +129,6 @@ static struct scsi_transport_template *ahc_linux_transport_template = NULL;
 #include <linux/mm.h>		/* For fetching system memory size */
 #include <linux/blkdev.h>		/* For block_size() */
 #include <linux/delay.h>	/* For ssleep/msleep */
-
 
 /*
  * Set this to the delay in seconds after SCSI bus reset.
@@ -386,7 +385,6 @@ static void ahc_linux_setup_tag_info_global(char *p);
 static int  aic7xxx_setup(char *s);
 
 static int ahc_linux_unit;
-
 
 /************************** OS Utility Wrappers *******************************/
 void
@@ -2584,8 +2582,6 @@ static struct spi_function_template ahc_linux_transport_functions = {
 #endif
 	.get_signalling	= ahc_linux_get_signalling,
 };
-
-
 
 static int __init
 ahc_linux_init(void)

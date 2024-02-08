@@ -23,7 +23,7 @@
 #define MAX_RID_LEN 1024
 
 /* Helper routine to record keys
- * Do not call from interrupt context */
+ * It is called under orinoco_lock so it may not sleep */
 static int orinoco_set_key(struct orinoco_private *priv, int index,
 			   enum orinoco_alg alg, const u8 *key, int key_len,
 			   const u8 *seq, int seq_len)
@@ -32,14 +32,14 @@ static int orinoco_set_key(struct orinoco_private *priv, int index,
 	kzfree(priv->keys[index].seq);
 
 	if (key_len) {
-		priv->keys[index].key = kzalloc(key_len, GFP_KERNEL);
+		priv->keys[index].key = kzalloc(key_len, GFP_ATOMIC);
 		if (!priv->keys[index].key)
 			goto nomem;
 	} else
 		priv->keys[index].key = NULL;
 
 	if (seq_len) {
-		priv->keys[index].seq = kzalloc(seq_len, GFP_KERNEL);
+		priv->keys[index].seq = kzalloc(seq_len, GFP_ATOMIC);
 		if (!priv->keys[index].seq)
 			goto free_key;
 	} else
@@ -1458,7 +1458,6 @@ static int orinoco_ioctl_getrid(struct net_device *dev,
 	return err;
 }
 
-
 /* Commit handler, called after set operations */
 static int orinoco_ioctl_commit(struct net_device *dev,
 				struct iw_request_info *info,
@@ -1499,7 +1498,6 @@ static const struct iw_priv_args orinoco_privtab[] = {
 	{ SIOCIWFIRSTPRIV + 0x9, 0, IW_PRIV_TYPE_BYTE | MAX_RID_LEN,
 	  "get_rid" },
 };
-
 
 /*
  * Structures to export the Wireless Handlers
@@ -1546,7 +1544,6 @@ static const iw_handler	orinoco_handler[] = {
 	STD_IW_HANDLER(SIOCSIWENCODEEXT, orinoco_ioctl_set_encodeext),
 	STD_IW_HANDLER(SIOCGIWENCODEEXT, orinoco_ioctl_get_encodeext),
 };
-
 
 /*
   Added typecasting since we no longer use iwreq_data -- Moustafa

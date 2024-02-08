@@ -1,4 +1,4 @@
-/* $Id: isdnl2.c,v 2.30.2.4 2004/02/11 13:21:34 keil Exp $
+/* $Id: isdnl2.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Author       Karsten Keil
  *              based on the teles driver from Jan den Ouden
@@ -19,7 +19,7 @@
 #include "hisax.h"
 #include "isdnl2.h"
 
-const char *l2_revision = "$Revision: 2.30.2.4 $";
+const char *l2_revision = "$Revision: 1.1 $";
 
 static void l2m_debug(struct FsmInst *fi, char *fmt, ...);
 
@@ -296,13 +296,11 @@ iframe_error(struct PStack *st, struct sk_buff *skb)
 	if (rsp)
 		return 'L';
 
-
 	if (skb->len < i)
 		return 'N';
 
 	if ((skb->len - i) > st->l2.maxlen)
 		return 'O';
-
 
 	return 0;
 }
@@ -625,7 +623,6 @@ l2_got_ui(struct FsmInst *fi, int event, void *arg)
  *		in states 1-3 for broadcast
  */
 
-
 }
 
 static void
@@ -917,7 +914,6 @@ transmit_enquiry(struct PStack *st)
 	test_and_clear_bit(FLG_ACK_PEND, &st->l2.flag);
 	start_t200(st, 9);
 }
-
 
 static void
 nrerrorrecovery(struct FsmInst *fi)

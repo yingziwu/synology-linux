@@ -37,7 +37,7 @@
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
  *
- * $Id: //depot/aic7xxx/aic7xxx/aicasm/aicasm.c#23 $
+ * $Id: aicasm.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * $FreeBSD$
  */
@@ -562,7 +562,6 @@ output_listing(char *ifilename)
 		 * Ask the user to fill in the return values for
 		 * the rest of the functions.
 		 */
-		
 		
 		for (cur_func = SLIST_FIRST(&patch_functions);
 		     cur_func != NULL && SLIST_NEXT(cur_func, links) != NULL;

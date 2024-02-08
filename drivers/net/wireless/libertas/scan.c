@@ -83,7 +83,6 @@ static void lbs_unset_basic_rate_flags(u8 *rates, size_t len)
 		rates[i] &= 0x7f;
 }
 
-
 static inline void clear_bss_descriptor(struct bss_descriptor *bss)
 {
 	/* Don't blow away ->list, just BSS data */
@@ -118,9 +117,6 @@ static inline int is_same_network(struct bss_descriptor *src,
 		!compare_ether_addr(src->bssid, dst->bssid) &&
 		!memcmp(src->ssid, dst->ssid, src->ssid_len));
 }
-
-
-
 
 /*********************************************************************/
 /*                                                                   */
@@ -399,11 +395,8 @@ int lbs_scan_networks(struct lbs_private *priv, int full_scan)
 	chan_count = lbs_scan_create_channel_list(priv, chan_list);
 
 	netif_stop_queue(priv->dev);
-	netif_carrier_off(priv->dev);
-	if (priv->mesh_dev) {
+	if (priv->mesh_dev)
 		netif_stop_queue(priv->mesh_dev);
-		netif_carrier_off(priv->mesh_dev);
-	}
 
 	/* Prepare to continue an interrupted scan */
 	lbs_deb_scan("chan_count %d, scan_channel %d\n",
@@ -467,16 +460,13 @@ out2:
 	priv->scan_channel = 0;
 
 out:
-	if (priv->connect_status == LBS_CONNECTED) {
-		netif_carrier_on(priv->dev);
-		if (!priv->tx_pending_len)
-			netif_wake_queue(priv->dev);
-	}
-	if (priv->mesh_dev && (priv->mesh_connect_status == LBS_CONNECTED)) {
-		netif_carrier_on(priv->mesh_dev);
-		if (!priv->tx_pending_len)
-			netif_wake_queue(priv->mesh_dev);
-	}
+	if (priv->connect_status == LBS_CONNECTED && !priv->tx_pending_len)
+		netif_wake_queue(priv->dev);
+
+	if (priv->mesh_dev && (priv->mesh_connect_status == LBS_CONNECTED) &&
+	    !priv->tx_pending_len)
+		netif_wake_queue(priv->mesh_dev);
+
 	kfree(chan_list);
 
 	lbs_deb_leave_args(LBS_DEB_SCAN, "ret %d", ret);
@@ -492,7 +482,6 @@ void lbs_scan_worker(struct work_struct *work)
 	lbs_scan_networks(priv, 0);
 	lbs_deb_leave(LBS_DEB_SCAN);
 }
-
 
 /*********************************************************************/
 /*                                                                   */
@@ -768,15 +757,11 @@ out:
 	return ret;
 }
 
-
-
-
 /*********************************************************************/
 /*                                                                   */
 /*  Support for Wireless Extensions                                  */
 /*                                                                   */
 /*********************************************************************/
-
 
 #define MAX_CUSTOM_LEN 64
 
@@ -930,7 +915,6 @@ out:
 	return start;
 }
 
-
 /**
  *  @brief Handle Scan Network ioctl
  *
@@ -992,7 +976,6 @@ out:
 	lbs_deb_leave_args(LBS_DEB_WEXT, "ret %d", ret);
 	return ret;
 }
-
 
 /**
  *  @brief  Handle Retrieve scan table ioctl
@@ -1063,15 +1046,11 @@ int lbs_get_scan(struct net_device *dev, struct iw_request_info *info,
 	return err;
 }
 
-
-
-
 /*********************************************************************/
 /*                                                                   */
 /*  Command execution                                                */
 /*                                                                   */
 /*********************************************************************/
-
 
 /**
  *  @brief This function handles the command response of scan

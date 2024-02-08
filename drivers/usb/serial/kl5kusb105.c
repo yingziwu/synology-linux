@@ -44,7 +44,6 @@
  *   pieces of code shamelessly copied from the drivers/usb/serial/ directory.
  */
 
-
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -67,7 +66,6 @@ static int debug;
 #define DRIVER_VERSION "v0.3a"
 #define DRIVER_AUTHOR "Utz-Uwe Haus <haus@uuhaus.de>"
 #define DRIVER_DESC "KLSI KL5KUSB105 chipset USB->Serial Converter driver"
-
 
 /*
  * Function prototypes
@@ -94,7 +92,7 @@ static int  klsi_105_tiocmset(struct tty_struct *tty, struct file *file,
 /*
  * All of the device info needed for the KLSI converters.
  */
-static struct usb_device_id id_table [] = {
+static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(PALMCONNECT_VID, PALMCONNECT_PID) },
 	{ USB_DEVICE(KLSI_VID, KLSI_KL5KUSB105D_PID) },
 	{ }		/* Terminating entry */
@@ -159,11 +157,9 @@ struct klsi_105_private {
 	unsigned long			bytes_out;
 };
 
-
 /*
  * Handle vendor specific USB requests
  */
-
 
 #define KLSI_TIMEOUT	 5000 /* default urb timeout */
 
@@ -238,7 +234,6 @@ static int klsi_105_get_line_state(struct usb_serial_port *port,
 	}
 	return rc;
 }
-
 
 /*
  * Driver's tty interface functions
@@ -315,7 +310,6 @@ err_cleanup:
 	return -ENOMEM;
 } /* klsi_105_startup */
 
-
 static void klsi_105_disconnect(struct usb_serial *serial)
 {
 	int i;
@@ -341,7 +335,6 @@ static void klsi_105_disconnect(struct usb_serial *serial)
 		}
 	}
 } /* klsi_105_disconnect */
-
 
 static void klsi_105_release(struct usb_serial *serial)
 {
@@ -444,7 +437,6 @@ exit:
 	return retval;
 } /* klsi_105_open */
 
-
 static void klsi_105_close(struct usb_serial_port *port)
 {
 	struct klsi_105_private *priv = usb_get_serial_port_data(port);
@@ -481,13 +473,11 @@ static void klsi_105_close(struct usb_serial_port *port)
 		 priv->bytes_in, priv->bytes_out);
 } /* klsi_105_close */
 
-
 /* We need to write a complete 64-byte data block and encode the
  * number actually sent in the first double-byte, LSB-order. That
  * leaves at most 62 bytes of payload.
  */
 #define KLSI_105_DATA_OFFSET	2   /* in the bulk urb data block */
-
 
 static int klsi_105_write(struct tty_struct *tty,
 	struct usb_serial_port *port, const unsigned char *buf, int count)
@@ -585,7 +575,6 @@ static void klsi_105_write_bulk_callback(struct urb *urb)
 	usb_serial_port_softint(port);
 } /* klsi_105_write_bulk_completion_callback */
 
-
 /* return number of characters currently in the writing process */
 static int klsi_105_chars_in_buffer(struct tty_struct *tty)
 {
@@ -627,8 +616,6 @@ static int klsi_105_write_room(struct tty_struct *tty)
 	dbg("%s - returns %d", __func__, room);
 	return room;
 }
-
-
 
 static void klsi_105_read_bulk_callback(struct urb *urb)
 {
@@ -681,7 +668,6 @@ static void klsi_105_read_bulk_callback(struct urb *urb)
 			bytes_sent = urb->actual_length - 2;
 		}
 
-		tty_buffer_request_room(tty, bytes_sent);
 		tty_insert_flip_string(tty, data + 2, bytes_sent);
 		tty_flip_buffer_push(tty);
 		tty_kref_put(tty);
@@ -703,7 +689,6 @@ static void klsi_105_read_bulk_callback(struct urb *urb)
 			"%s - failed resubmitting read urb, error %d\n",
 			__func__, rc);
 } /* klsi_105_read_bulk_callback */
-
 
 static void klsi_105_set_termios(struct tty_struct *tty,
 				 struct usb_serial_port *port,
@@ -863,7 +848,6 @@ static void klsi_105_set_termios(struct tty_struct *tty,
 	klsi_105_chg_port_settings(port, &cfg);
 } /* klsi_105_set_termios */
 
-
 #if 0
 static void mct_u232_break_ctl(struct tty_struct *tty, int break_state)
 {
@@ -958,8 +942,6 @@ static void klsi_105_unthrottle(struct tty_struct *tty)
 			__func__, result);
 }
 
-
-
 static int __init klsi_105_init(void)
 {
 	int retval;
@@ -979,13 +961,11 @@ failed_usb_serial_register:
 	return retval;
 }
 
-
 static void __exit klsi_105_exit(void)
 {
 	usb_deregister(&kl5kusb105d_driver);
 	usb_serial_deregister(&kl5kusb105d_device);
 }
-
 
 module_init(klsi_105_init);
 module_exit(klsi_105_exit);
@@ -993,7 +973,6 @@ module_exit(klsi_105_exit);
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
-
 
 module_param(debug, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug, "enable extensive debugging messages");

@@ -4,7 +4,6 @@
 
     This driver is for the Elsa PCM ISDN Cards, i.e. the MicroLink
 
-
     The contents of this file are subject to the Mozilla Public
     License Version 1.1 (the "License"); you may not use this file
     except in compliance with the License. You may obtain a copy of
@@ -70,7 +69,7 @@ static int pc_debug = PCMCIA_DEBUG;
 module_param(pc_debug, int, 0);
 #define DEBUG(n, args...) if (pc_debug>(n)) printk(KERN_DEBUG args);
 static char *version =
-"elsa_cs.c $Revision: 1.2.2.4 $ $Date: 2004/01/25 15:07:06 $ (K.Lichtenwalder)";
+"elsa_cs.c $Revision: 1.1 $ $Date: 2010-04-15 12:27:50 $ (K.Lichtenwalder)";
 #else
 #define DEBUG(n, args...)
 #endif

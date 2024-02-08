@@ -219,7 +219,6 @@ static int configfs_dirent_exists(struct configfs_dirent *parent_sd,
 	return 0;
 }
 
-
 int configfs_make_dirent(struct configfs_dirent * parent_sd,
 			 struct dentry * dentry, void * element,
 			 umode_t mode, int type)
@@ -291,7 +290,6 @@ static int create_dir(struct config_item * k, struct dentry * p,
 	}
 	return error;
 }
-
 
 /**
  *	configfs_create_dir - create a directory for an config_item.
@@ -429,7 +427,6 @@ static void configfs_remove_dir(struct config_item * item)
 	 */
 	dput(dentry);
 }
-
 
 /* attaches attribute's configfs_dirent to the dentry corresponding to the
  * attribute file
@@ -982,7 +979,6 @@ static int configfs_dump(struct configfs_dirent *sd, int level)
 }
 #endif
 
-
 /*
  * configfs_depend_item() and configfs_undepend_item()
  *
@@ -1143,8 +1139,7 @@ EXPORT_SYMBOL(configfs_depend_item);
  * configfs_depend_item() because we know that that the client driver is
  * pinned, thus the subsystem is pinned, and therefore configfs is pinned.
  */
-void configfs_undepend_item(struct configfs_subsystem *subsys,
-			    struct config_item *target)
+void configfs_undepend_item(struct config_item *target)
 {
 	struct configfs_dirent *sd;
 

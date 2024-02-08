@@ -246,7 +246,7 @@ static int modern_apic(void)
  */
 static void native_apic_write_dummy(u32 reg, u32 v)
 {
-	WARN_ON_ONCE((cpu_has_apic || !disable_apic));
+	WARN_ON_ONCE(cpu_has_apic && !disable_apic);
 }
 
 static u32 native_apic_read_dummy(u32 reg)
@@ -991,7 +991,6 @@ void lapic_shutdown(void)
 #endif
 		disable_local_APIC();
 
-
 	local_irq_restore(flags);
 }
 
@@ -1165,7 +1164,6 @@ static void __cpuinit lapic_setup_esr(void)
 			"vector: 0x%08x  after: 0x%08x\n",
 			oldvalue, value);
 }
-
 
 /**
  * setup_local_APIC - setup the local APIC
@@ -1664,8 +1662,8 @@ int __init APIC_init_uniprocessor(void)
 	}
 #endif
 
+#ifndef CONFIG_SMP
 	enable_IR_x2apic();
-#ifdef CONFIG_X86_64
 	default_setup_apic_routing();
 #endif
 
@@ -1914,18 +1912,6 @@ void __cpuinit generic_processor_info(int apicid, int version)
 	}
 	if (apicid > max_physical_apicid)
 		max_physical_apicid = apicid;
-
-#ifdef CONFIG_X86_32
-	switch (boot_cpu_data.x86_vendor) {
-	case X86_VENDOR_INTEL:
-		if (num_processors > 8)
-			def_to_bigsmp = 1;
-		break;
-	case X86_VENDOR_AMD:
-		if (max_physical_apicid >= 8)
-			def_to_bigsmp = 1;
-	}
-#endif
 
 #if defined(CONFIG_SMP) || defined(CONFIG_X86_64)
 	early_per_cpu(x86_cpu_to_apicid, cpu) = apicid;

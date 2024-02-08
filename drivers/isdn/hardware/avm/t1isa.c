@@ -1,4 +1,4 @@
-/* $Id: t1isa.c,v 1.1.2.3 2004/02/10 01:07:12 keil Exp $
+/* $Id: t1isa.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  * 
  * Module for AVM T1 HEMA-card.
  * 
@@ -29,7 +29,7 @@
 
 /* ------------------------------------------------------------- */
 
-static char *revision = "$Revision: 1.1.2.3 $";
+static char *revision = "$Revision: 1.1 $";
 
 /* ------------------------------------------------------------- */
 
@@ -263,7 +263,6 @@ static irqreturn_t t1isa_interrupt(int interrupt, void *devptr)
 			}
 			printk(KERN_INFO "%s: DEBUG: %s\n", card->name, card->msgbuf);
 			break;
-
 
 		case 0xff:
 			spin_unlock_irqrestore(&card->lock, flags);
@@ -505,7 +504,6 @@ static char *t1isa_procinfo(struct capi_ctr *ctrl)
 		);
 	return cinfo->infobuf;
 }
-
 
 /* ------------------------------------------------------------- */
 

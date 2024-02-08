@@ -1,7 +1,7 @@
 /*
  * Adaptec AIC79xx device driver for Linux.
  *
- * $Id: //depot/aic7xxx/linux/drivers/scsi/aic7xxx/aic79xx_osm.c#171 $
+ * $Id: aic79xx_osm.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * --------------------------------------------------------------------------
  * Copyright (c) 1994-2000 Justin T. Gibbs.
@@ -368,7 +368,6 @@ static void ahd_release_simq(struct ahd_softc *ahd);
 
 static int ahd_linux_unit;
 
-
 /************************** OS Utility Wrappers *******************************/
 void ahd_delay(long);
 void
@@ -384,7 +383,6 @@ ahd_delay(long usec)
 		usec -= 1024;
 	}
 }
-
 
 /***************************** Low Level I/O **********************************/
 uint8_t ahd_inb(struct ahd_softc * ahd, long port);

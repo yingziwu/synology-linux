@@ -104,6 +104,7 @@ int drm_helper_probe_single_connector_modes(struct drm_connector *connector,
 	if (connector->status == connector_status_disconnected) {
 		DRM_DEBUG_KMS("%s is disconnected\n",
 			  drm_get_connector_name(connector));
+		drm_mode_connector_update_edid_property(connector, NULL);
 		goto prune;
 	}
 
@@ -735,7 +736,6 @@ done:
 }
 EXPORT_SYMBOL(drm_crtc_helper_set_mode);
 
-
 /**
  * drm_crtc_helper_set_config - set a new config from userspace
  * @crtc: CRTC to setup
@@ -1019,6 +1019,9 @@ bool drm_helper_plugged_event(struct drm_device *dev)
 bool drm_helper_initial_config(struct drm_device *dev)
 {
 	int count = 0;
+
+	/* disable all the possible outputs/crtcs before entering KMS mode */
+	drm_helper_disable_unused_functions(dev);
 
 	drm_fb_helper_parse_command_line(dev);
 

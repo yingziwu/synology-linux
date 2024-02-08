@@ -45,7 +45,6 @@
 
 #include "musb_core.h"
 
-
 static void musb_port_suspend(struct musb *musb, bool do_suspend)
 {
 	u8		power;
@@ -213,7 +212,6 @@ void musb_root_disconnect(struct musb *musb)
 	}
 }
 
-
 /*---------------------------------------------------------------------*/
 
 /* Caller may or may not hold musb->lock */
@@ -306,8 +304,13 @@ int musb_hub_control(
 		desc->bHubContrCurrent = 0;
 
 		/* workaround bogus struct definition */
-		desc->DeviceRemovable[0] = 0x02;	/* port 1 */
+#ifdef CONFIG_USB_ETRON_HUB
+		desc->bitmap[0] = 0x02; /* port 1 */
+		desc->bitmap[1] = 0xff;
+#else
+		desc->DeviceRemovable[0] = 0x02;        /* port 1 */
 		desc->DeviceRemovable[1] = 0xff;
+#endif
 		}
 		break;
 	case GetHubStatus:

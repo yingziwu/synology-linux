@@ -7,7 +7,7 @@ source "lib/Kconfig.debug"
 # traces, you can get a slightly smaller kernel by setting this option to
 # n, but then RMK will have to kill you ;).
 config FRAME_POINTER
-	bool
+	bool "Frame pointer present"
 	depends on !THUMB2_KERNEL
 	default y if !ARM_UNWIND
 	help
@@ -111,5 +111,12 @@ config DEBUG_S3C_UART
 
 	  The uncompressor code port configuration is now handled
 	  by CONFIG_S3C_LOWLEVEL_UART_PORT.
+
+config SYNO_EARLY_PRINT
+	bool "Kernel low-level debug print"
+	depends on SYNO_MV88F6281
+	help
+	  <DSM> #94762 DS212+ would hang before console initialize
+	  We use debug print to avoid boot hang
 
 endmenu

@@ -15,6 +15,7 @@
 #include <linux/kernel.h>
 #define RPCDBG_FACILITY	RPCDBG_AUTH
 
+#include <linux/sunrpc/clnt.h>
 
 /*
  * AUTHUNIX and AUTHNULL credentials are both handled here.
@@ -22,7 +23,6 @@
  * are always nobody (-2).  i.e. we do the same IP address checks for
  * AUTHNULL as for AUTHUNIX, and that is done here.
  */
-
 
 struct unix_domain {
 	struct auth_domain	h;
@@ -73,7 +73,6 @@ static void svcauth_unix_domain_release(struct auth_domain *dom)
 	kfree(dom->name);
 	kfree(ud);
 }
-
 
 /**************************************************
  * cache for IP address to unix_domain
@@ -187,10 +186,13 @@ static int ip_map_parse(struct cache_detail *cd,
 	 * for scratch: */
 	char *buf = mesg;
 	int len;
-	int b1, b2, b3, b4, b5, b6, b7, b8;
-	char c;
 	char class[8];
-	struct in6_addr addr;
+	union {
+		struct sockaddr		sa;
+		struct sockaddr_in	s4;
+		struct sockaddr_in6	s6;
+	} address;
+	struct sockaddr_in6 sin6;
 	int err;
 
 	struct ip_map *ipmp;
@@ -209,24 +211,24 @@ static int ip_map_parse(struct cache_detail *cd,
 	len = qword_get(&mesg, buf, mlen);
 	if (len <= 0) return -EINVAL;
 
-	if (sscanf(buf, "%u.%u.%u.%u%c", &b1, &b2, &b3, &b4, &c) == 4) {
-		addr.s6_addr32[0] = 0;
-		addr.s6_addr32[1] = 0;
-		addr.s6_addr32[2] = htonl(0xffff);
-		addr.s6_addr32[3] =
-			htonl((((((b1<<8)|b2)<<8)|b3)<<8)|b4);
-       } else if (sscanf(buf, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x%c",
-			&b1, &b2, &b3, &b4, &b5, &b6, &b7, &b8, &c) == 8) {
-		addr.s6_addr16[0] = htons(b1);
-		addr.s6_addr16[1] = htons(b2);
-		addr.s6_addr16[2] = htons(b3);
-		addr.s6_addr16[3] = htons(b4);
-		addr.s6_addr16[4] = htons(b5);
-		addr.s6_addr16[5] = htons(b6);
-		addr.s6_addr16[6] = htons(b7);
-		addr.s6_addr16[7] = htons(b8);
-       } else
+	if (rpc_pton(buf, len, &address.sa, sizeof(address)) == 0)
 		return -EINVAL;
+	switch (address.sa.sa_family) {
+	case AF_INET:
+		/* Form a mapped IPv4 address in sin6 */
+		memset(&sin6, 0, sizeof(sin6));
+		sin6.sin6_family = AF_INET6;
+		sin6.sin6_addr.s6_addr32[2] = htonl(0xffff);
+		sin6.sin6_addr.s6_addr32[3] = address.s4.sin_addr.s_addr;
+		break;
+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+	case AF_INET6:
+		memcpy(&sin6, &address.s6, sizeof(sin6));
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
 
 	expiry = get_expiry(&mesg);
 	if (expiry ==0)
@@ -243,7 +245,8 @@ static int ip_map_parse(struct cache_detail *cd,
 	} else
 		dom = NULL;
 
-	ipmp = ip_map_lookup(class, &addr);
+	/* IPv6 scope IDs are ignored for now */
+	ipmp = ip_map_lookup(class, &sin6.sin6_addr);
 	if (ipmp) {
 		err = ip_map_update(ipmp,
 			     container_of(dom, struct unix_domain, h),
@@ -286,7 +289,6 @@ static int ip_map_show(struct seq_file *m,
 	}
 	return 0;
 }
-
 
 struct cache_detail ip_map_cache = {
 	.owner		= THIS_MODULE,
@@ -655,23 +657,25 @@ static struct unix_gid *unix_gid_lookup(uid_t uid)
 		return NULL;
 }
 
-static int unix_gid_find(uid_t uid, struct group_info **gip,
-			 struct svc_rqst *rqstp)
+static struct group_info *unix_gid_find(uid_t uid, struct svc_rqst *rqstp)
 {
-	struct unix_gid *ug = unix_gid_lookup(uid);
+	struct unix_gid *ug;
+	struct group_info *gi;
+	int ret;
+
+	ug = unix_gid_lookup(uid);
 	if (!ug)
-		return -EAGAIN;
-	switch (cache_check(&unix_gid_cache, &ug->h, &rqstp->rq_chandle)) {
+		return ERR_PTR(-EAGAIN);
+	ret = cache_check(&unix_gid_cache, &ug->h, &rqstp->rq_chandle);
+	switch (ret) {
 	case -ENOENT:
-		*gip = NULL;
-		return 0;
+		return ERR_PTR(-ENOENT);
 	case 0:
-		*gip = ug->gi;
-		get_group_info(*gip);
+		gi = get_group_info(ug->gi);
 		cache_put(&ug->h, &unix_gid_cache);
-		return 0;
+		return gi;
 	default:
-		return -EAGAIN;
+		return ERR_PTR(-EAGAIN);
 	}
 }
 
@@ -681,6 +685,8 @@ svcauth_unix_set_client(struct svc_rqst *rqstp)
 	struct sockaddr_in *sin;
 	struct sockaddr_in6 *sin6, sin6_storage;
 	struct ip_map *ipm;
+	struct group_info *gi;
+	struct svc_cred *cred = &rqstp->rq_cred;
 
 	switch (rqstp->rq_addr.ss_family) {
 	case AF_INET:
@@ -721,6 +727,17 @@ svcauth_unix_set_client(struct svc_rqst *rqstp)
 			kref_get(&rqstp->rq_client->ref);
 			ip_map_cached_put(rqstp, ipm);
 			break;
+	}
+
+	gi = unix_gid_find(cred->cr_uid, rqstp);
+	switch (PTR_ERR(gi)) {
+	case -EAGAIN:
+		return SVC_DROP;
+	case -ENOENT:
+		break;
+	default:
+		put_group_info(cred->cr_group_info);
+		cred->cr_group_info = gi;
 	}
 	return SVC_OK;
 }
@@ -779,7 +796,6 @@ svcauth_null_release(struct svc_rqst *rqstp)
 	return 0; /* don't drop */
 }
 
-
 struct auth_ops svcauth_null = {
 	.name		= "null",
 	.owner		= THIS_MODULE,
@@ -788,7 +804,6 @@ struct auth_ops svcauth_null = {
 	.release	= svcauth_null_release,
 	.set_client	= svcauth_unix_set_client,
 };
-
 
 static int
 svcauth_unix_accept(struct svc_rqst *rqstp, __be32 *authp)
@@ -818,19 +833,11 @@ svcauth_unix_accept(struct svc_rqst *rqstp, __be32 *authp)
 	slen = svc_getnl(argv);			/* gids length */
 	if (slen > 16 || (len -= (slen + 2)*4) < 0)
 		goto badcred;
-	if (unix_gid_find(cred->cr_uid, &cred->cr_group_info, rqstp)
-	    == -EAGAIN)
+	cred->cr_group_info = groups_alloc(slen);
+	if (cred->cr_group_info == NULL)
 		return SVC_DROP;
-	if (cred->cr_group_info == NULL) {
-		cred->cr_group_info = groups_alloc(slen);
-		if (cred->cr_group_info == NULL)
-			return SVC_DROP;
-		for (i = 0; i < slen; i++)
-			GROUP_AT(cred->cr_group_info, i) = svc_getnl(argv);
-	} else {
-		for (i = 0; i < slen ; i++)
-			svc_getnl(argv);
-	}
+	for (i = 0; i < slen; i++)
+		GROUP_AT(cred->cr_group_info, i) = svc_getnl(argv);
 	if (svc_getu32(argv) != htonl(RPC_AUTH_NULL) || svc_getu32(argv) != 0) {
 		*authp = rpc_autherr_badverf;
 		return SVC_DENIED;
@@ -863,7 +870,6 @@ svcauth_unix_release(struct svc_rqst *rqstp)
 	return 0;
 }
 
-
 struct auth_ops svcauth_unix = {
 	.name		= "unix",
 	.owner		= THIS_MODULE,
@@ -873,4 +879,3 @@ struct auth_ops svcauth_unix = {
 	.domain_release	= svcauth_unix_domain_release,
 	.set_client	= svcauth_unix_set_client,
 };
-

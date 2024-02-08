@@ -1,17 +1,7 @@
-/*
- * Copyright (C) 2008 Freescale Semiconductor, Inc. All rights reserved.
- *
- * Author: Yu Liu, <yu.liu@freescale.com>
- *
- * Description:
- * This file is derived from arch/powerpc/include/asm/kvm_44x.h,
- * by Hollis Blanchard <hollisb@us.ibm.com>.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License, version 2, as
- * published by the Free Software Foundation.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef __ASM_KVM_E500_H__
 #define __ASM_KVM_E500_H__
 
@@ -30,11 +20,11 @@ struct tlbe{
 };
 
 struct kvmppc_vcpu_e500 {
-	/* Unmodified copy of the guest's TLB. */
+	 
 	struct tlbe *guest_tlb[E500_TLB_NUM];
-	/* TLB that's actually used when the guest is running. */
+	 
 	struct tlbe *shadow_tlb[E500_TLB_NUM];
-	/* Pages which are referenced in the shadow TLB. */
+	 
 	struct page **shadow_pages[E500_TLB_NUM];
 
 	unsigned int guest_tlb_size[E500_TLB_NUM];
@@ -52,6 +42,9 @@ struct kvmppc_vcpu_e500 {
 	u32 mas5;
 	u32 mas6;
 	u32 mas7;
+#ifdef MY_ABC_HERE
+	u32 l1csr0;
+#endif
 	u32 l1csr1;
 	u32 hid0;
 	u32 hid1;
@@ -64,4 +57,4 @@ static inline struct kvmppc_vcpu_e500 *to_e500(struct kvm_vcpu *vcpu)
 	return container_of(vcpu, struct kvmppc_vcpu_e500, vcpu);
 }
 
-#endif /* __ASM_KVM_E500_H__ */
+#endif  

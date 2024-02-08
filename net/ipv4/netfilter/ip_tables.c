@@ -33,6 +33,15 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Netfilter Core Team <coreteam@netfilter.org>");
 MODULE_DESCRIPTION("IPv4 packet filter");
 
+#ifdef CONFIG_MV_ETH_NFP_NAT_SUPPORT
+#include <net/netfilter/nf_nat.h>
+extern void init_fp_user_nat_tables(void);
+extern int add_fp_user_nat_rule(struct ipt_entry *e, int table);
+extern void clear_fp_user_nat_table(int table);
+extern void compare_fp_user_nat_tables(void);
+extern int curr_table, old_table;	/* 0 or 1 */
+#endif /* CONFIG_MV_ETH_NFP_NAT_SUPPORT */
+
 /*#define DEBUG_IP_FIREWALL*/
 /*#define DEBUG_ALLOW_ALL*/ /* Useful for remote debugging */
 /*#define DEBUG_IP_FIREWALL_USER*/
@@ -406,7 +415,6 @@ ipt_do_table(struct sk_buff *skb,
 		tgpar.target   = t->u.kernel.target;
 		tgpar.targinfo = t->data;
 
-
 #ifdef CONFIG_NETFILTER_DEBUG
 		tb_comefrom = 0xeeeeeeec;
 #endif
@@ -699,6 +707,10 @@ find_check_entry(struct ipt_entry *e, const char *name, unsigned int size,
 	if (ret)
 		goto err;
 
+#ifdef CONFIG_MV_ETH_NFP_NAT_SUPPORT
+	add_fp_user_nat_rule(e, curr_table);
+#endif /* CONFIG_MV_ETH_NFP_NAT_SUPPORT */
+
 	(*i)++;
 	return 0;
  err:
@@ -861,6 +873,15 @@ translate_table(const char *name,
 	i = 0;
 	ret = IPT_ENTRY_ITERATE(entry0, newinfo->size,
 				find_check_entry, name, size, &i);
+
+#ifdef CONFIG_MV_ETH_NFP_NAT_SUPPORT
+	old_table = 1 - curr_table;
+	/* compare tables to detect newly deleted rules and newly deleted rules */
+	compare_fp_user_nat_tables();
+	/* prepare for next time */
+	curr_table = old_table;
+	clear_fp_user_nat_table(curr_table);
+#endif /* CONFIG_MV_ETH_NFP_NAT_SUPPORT */
 
 	if (ret != 0) {
 		IPT_ENTRY_ITERATE(entry0, newinfo->size,
@@ -1132,10 +1153,10 @@ static int get_info(struct net *net, void __user *user, int *len, int compat)
 	if (t && !IS_ERR(t)) {
 		struct ipt_getinfo info;
 		const struct xt_table_info *private = t->private;
-
 #ifdef CONFIG_COMPAT
+		struct xt_table_info tmp;
+
 		if (compat) {
-			struct xt_table_info tmp;
 			ret = compat_table_info(private, &tmp);
 			xt_compat_flush_offsets(AF_INET);
 			private = &tmp;
@@ -2255,6 +2276,10 @@ static int __init ip_tables_init(void)
 	if (ret < 0)
 		goto err5;
 
+#ifdef CONFIG_MV_ETH_NFP_NAT_SUPPORT
+	init_fp_user_nat_tables();
+#endif
+
 	printk(KERN_INFO "ip_tables: (C) 2000-2006 Netfilter Core Team\n");
 	return 0;
 
@@ -2277,6 +2302,11 @@ static void __exit ip_tables_fini(void)
 	xt_unregister_match(&icmp_matchstruct);
 	xt_unregister_target(&ipt_error_target);
 	xt_unregister_target(&ipt_standard_target);
+
+#ifdef CONFIG_MV_ETH_NFP_NAT_SUPPORT
+	clear_fp_user_nat_table(0);
+	clear_fp_user_nat_table(1);
+#endif /* CONFIG_MV_ETH_NFP_NAT_SUPPORT */
 
 	unregister_pernet_subsys(&ip_tables_net_ops);
 }

@@ -1,6 +1,6 @@
 /* drivers/char/ser_a2232.c */
 
-/* $Id: ser_a2232.c,v 0.4 2000/01/25 12:00:00 ehaase Exp $ */
+/* $Id: ser_a2232.c,v 1.1 2010-04-15 12:27:55 khchen Exp $ */
 
 /* Linux serial driver for the Amiga A2232 board */
 
@@ -397,14 +397,12 @@ static int  a2232_set_real_termios(void *ptr)
 	}
 	else a2232_cmd |= A2232CMD_NoParity;
 
-
 	/*	Hmm. Maybe an own a2232_port structure
 		member would be cleaner?	*/
 	if (cflag & CLOCAL)
 		port->gs.port.flags &= ~ASYNC_CHECK_CD;
 	else
 		port->gs.port.flags |= ASYNC_CHECK_CD;
-
 
 	/* Now we have all parameters and can go to set them: */
 	local_irq_save(flags);

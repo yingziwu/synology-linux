@@ -189,7 +189,7 @@ __SYSCALL( 79, sys_fremovexattr, 2)
 /* File Map / Shared Memory Operations */
 
 #define __NR_mmap2 				 80
-__SYSCALL( 80, xtensa_mmap2, 6)
+__SYSCALL( 80, sys_mmap_pgoff, 6)
 #define __NR_munmap 				 81
 __SYSCALL( 81, sys_munmap, 2)
 #define __NR_mprotect 				 82
@@ -576,7 +576,6 @@ __SYSCALL(257, sys_request_key, 5)
 __SYSCALL(258, sys_keyctl, 5)
 #define __NR_available259			259
 __SYSCALL(259, sys_ni_syscall, 0)
-
 
 #define __NR_readahead				260
 __SYSCALL(260, sys_readahead, 5)

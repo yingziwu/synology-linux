@@ -421,7 +421,6 @@ static int philips_europa_tuner_init(struct dvb_frontend *fe)
 	static u8 msg[] = { 0x00, 0x40};
 	struct i2c_msg init_msg = {.addr = 0x43,.flags = 0,.buf = msg,.len = sizeof(msg) };
 
-
 	if (philips_td1316_tuner_init(fe))
 		return -EIO;
 	msleep(1);
@@ -1116,6 +1115,7 @@ static int dvb_init(struct saa7134_dev *dev)
 		break;
 	case SAA7134_BOARD_PHILIPS_EUROPA:
 	case SAA7134_BOARD_VIDEOMATE_DVBT_300:
+	case SAA7134_BOARD_ASUS_EUROPA_HYBRID:
 		fe0->dvb.frontend = dvb_attach(tda10046_attach,
 					       &philips_europa_config,
 					       &dev->i2c_adap);

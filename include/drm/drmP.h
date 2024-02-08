@@ -549,7 +549,6 @@ struct drm_sigdata {
 	struct drm_hw_lock *lock;
 };
 
-
 /**
  * Kernel side of a mapping
  */
@@ -837,7 +836,6 @@ struct drm_driver {
 #define DRM_MINOR_LEGACY 1
 #define DRM_MINOR_CONTROL 2
 #define DRM_MINOR_RENDER 3
-
 
 /**
  * debugfs node list. This structure represents a debugfs file to
@@ -1295,6 +1293,7 @@ extern u32 drm_vblank_count(struct drm_device *dev, int crtc);
 extern void drm_handle_vblank(struct drm_device *dev, int crtc);
 extern int drm_vblank_get(struct drm_device *dev, int crtc);
 extern void drm_vblank_put(struct drm_device *dev, int crtc);
+extern void drm_vblank_off(struct drm_device *dev, int crtc);
 extern void drm_vblank_cleanup(struct drm_device *dev);
 /* Modesetting support */
 extern void drm_vblank_pre_modeset(struct drm_device *dev, int crtc);
@@ -1401,7 +1400,7 @@ extern int drm_ati_pcigart_cleanup(struct drm_device *dev,
 				   struct drm_ati_pcigart_info * gart_info);
 
 extern drm_dma_handle_t *drm_pci_alloc(struct drm_device *dev, size_t size,
-				       size_t align, dma_addr_t maxaddr);
+				       size_t align);
 extern void __drm_pci_free(struct drm_device *dev, drm_dma_handle_t * dmah);
 extern void drm_pci_free(struct drm_device *dev, drm_dma_handle_t * dmah);
 
@@ -1515,7 +1514,6 @@ static __inline__ int drm_device_is_pcie(struct drm_device *dev)
 static __inline__ void drm_core_dropmap(struct drm_local_map *map)
 {
 }
-
 
 static __inline__ void *drm_calloc_large(size_t nmemb, size_t size)
 {

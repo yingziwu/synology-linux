@@ -1,5 +1,5 @@
 /***************************************************************/
-/*  $Id: hfc4s8s_l1.h,v 1.1 2005/02/02 17:28:55 martinb1 Exp $ */
+/*  $Id: hfc4s8s_l1.h,v 1.1 2010-04-15 12:27:50 khchen Exp $ */
 /*                                                             */
 /*  This file is a minimal required extraction of hfc48scu.h   */
 /*  (Genero 3.2, HFC XML 1.7a for HFC-E1, HFC-4S and HFC-8S)   */
@@ -12,7 +12,6 @@
 
 #ifndef _HFC4S8S_L1_H_
 #define _HFC4S8S_L1_H_
-
 
 /*
 *  include Genero generated HFC-4S/8S header file hfc48scu.h

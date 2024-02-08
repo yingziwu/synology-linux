@@ -574,7 +574,6 @@ static int acpi_start_single_object(struct acpi_device *device)
 	int result = 0;
 	struct acpi_driver *driver;
 
-
 	if (!(driver = device->driver))
 		return 0;
 
@@ -800,7 +799,6 @@ static int acpi_bus_get_power_flags(struct acpi_device *device)
 	acpi_handle handle = NULL;
 	u32 i = 0;
 
-
 	/*
 	 * Power Management Flags
 	 */
@@ -860,7 +858,6 @@ static int acpi_bus_get_flags(struct acpi_device *device)
 {
 	acpi_status status = AE_OK;
 	acpi_handle temp = NULL;
-
 
 	/* Presence of _STA indicates 'dynamic_status' */
 	status = acpi_get_handle(device->handle, "_STA", &temp);
@@ -1356,6 +1353,9 @@ EXPORT_SYMBOL(acpi_bus_add);
 int acpi_bus_start(struct acpi_device *device)
 {
 	struct acpi_bus_ops ops;
+
+	if (!device)
+		return -EINVAL;
 
 	memset(&ops, 0, sizeof(ops));
 	ops.acpi_op_start = 1;

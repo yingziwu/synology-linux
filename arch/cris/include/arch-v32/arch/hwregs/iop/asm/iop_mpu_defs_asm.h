@@ -8,7 +8,7 @@
  *     last modfied: Mon Apr 11 16:08:45 2005
  *
  *   by /n/asic/design/tools/rdesc/src/rdes2c -asm --outfile asm/iop_mpu_defs_asm.h ../../inst/io_proc/rtl/iop_mpu.r
- *      id: $Id: iop_mpu_defs_asm.h,v 1.5 2005/04/24 18:31:06 starvik Exp $
+ *      id: $Id: iop_mpu_defs_asm.h,v 1.1 2010-04-15 12:28:03 khchen Exp $
  * Any changes here will be lost.
  *
  * -*- buffer-read-only: t -*-
@@ -163,7 +163,6 @@
 #define reg_iop_mpu_rw_intr___addr___lsb 0
 #define reg_iop_mpu_rw_intr___addr___width 12
 #define reg_iop_mpu_rw_intr_offset 196
-
 
 /* Constants */
 #define regk_iop_mpu_no                           0x00000000

@@ -197,7 +197,6 @@ static int vol_cdev_fsync(struct file *file, struct dentry *dentry,
 	return ubi_sync(ubi->ubi_num);
 }
 
-
 static ssize_t vol_cdev_read(struct file *file, __user char *buf, size_t count,
 			     loff_t *offp)
 {
@@ -853,7 +852,6 @@ static long ubi_cdev_ioctl(struct file *file, unsigned int cmd,
 			break;
 		}
 
-		req.name[req.name_len] = '\0';
 		err = verify_mkvol_req(ubi, &req);
 		if (err)
 			break;

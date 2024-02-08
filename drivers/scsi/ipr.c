@@ -2514,7 +2514,6 @@ static ssize_t ipr_show_write_caching(struct device *dev,
 	return len;
 }
 
-
 /**
  * ipr_store_write_caching - Enable/disable adapter write cache
  * @dev:	device struct
@@ -6516,6 +6515,7 @@ static int ipr_reset_restore_cfg_space(struct ipr_cmnd *ipr_cmd)
 	int rc;
 
 	ENTER;
+	ioa_cfg->pdev->state_saved = true;
 	rc = pci_restore_state(ioa_cfg->pdev);
 
 	if (rc != PCIBIOS_SUCCESSFUL) {

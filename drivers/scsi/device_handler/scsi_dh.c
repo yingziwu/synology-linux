@@ -50,7 +50,6 @@ static struct scsi_device_handler *get_device_handler(const char *name)
 	return found;
 }
 
-
 static struct scsi_device_handler *
 scsi_dh_cache_lookup(struct scsi_device *sdev)
 {
@@ -304,18 +303,15 @@ static int scsi_dh_notifier(struct notifier_block *nb,
 	sdev = to_scsi_device(dev);
 
 	if (action == BUS_NOTIFY_ADD_DEVICE) {
+		err = device_create_file(dev, &scsi_dh_state_attr);
+		/* don't care about err */
 		devinfo = device_handler_match(NULL, sdev);
-		if (!devinfo)
-			goto out;
-
-		err = scsi_dh_handler_attach(sdev, devinfo);
-		if (!err)
-			err = device_create_file(dev, &scsi_dh_state_attr);
+		if (devinfo)
+			err = scsi_dh_handler_attach(sdev, devinfo);
 	} else if (action == BUS_NOTIFY_DEL_DEVICE) {
 		device_remove_file(dev, &scsi_dh_state_attr);
 		scsi_dh_handler_detach(sdev, NULL);
 	}
-out:
 	return err;
 }
 

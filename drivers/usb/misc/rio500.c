@@ -77,7 +77,7 @@ static struct rio_usb_data rio_instance;
 static int open_rio(struct inode *inode, struct file *file)
 {
 	struct rio_usb_data *rio = &rio_instance;
-
+	lock_kernel();
 	mutex_lock(&(rio->lock));
 
 	if (rio->isopen || !rio->present) {
@@ -91,6 +91,7 @@ static int open_rio(struct inode *inode, struct file *file)
 	mutex_unlock(&(rio->lock));
 
 	dev_info(&rio->rio_dev->dev, "Rio opened.\n");
+	unlock_kernel();
 
 	return 0;
 }
@@ -251,7 +252,6 @@ static long ioctl_rio(struct file *file, unsigned int cmd, unsigned long arg)
 		break;
 	}
 
-
 err_out:
 	mutex_unlock(&(rio->lock));
 	unlock_kernel();
@@ -282,8 +282,6 @@ write_rio(struct file *file, const char __user *buffer,
 		mutex_unlock(&(rio->lock));
 		return -ENODEV;
 	}
-
-
 
 	do {
 		unsigned long thistime;
@@ -372,7 +370,6 @@ read_rio(struct file *file, char __user *buffer, size_t count, loff_t * ppos)
 	ibuf = rio->ibuf;
 
 	read_count = 0;
-
 
 	while (count > 0) {
 		if (signal_pending(current)) {
@@ -538,14 +535,12 @@ out:
 	return retval;
 }
 
-
 static void __exit usb_rio_cleanup(void)
 {
 	struct rio_usb_data *rio = &rio_instance;
 
 	rio->present = 0;
 	usb_deregister(&rio_driver);
-
 
 }
 
@@ -555,4 +550,3 @@ module_exit(usb_rio_cleanup);
 MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
 MODULE_LICENSE("GPL");
-

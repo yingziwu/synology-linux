@@ -1,4 +1,4 @@
-/* $Id: hysdn_pof.h,v 1.2.6.1 2001/09/23 22:24:54 kai Exp $
+/* $Id: hysdn_pof.h,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Linux driver for HYSDN cards, definitions used for handling pof-files.
  *
@@ -43,7 +43,6 @@
 		    /* offset in boot page, where loader code may start */
 					    /* =0x3800= 14336U */
 #define POF_BOOT_LOADER_OFF_IN_PAGE (POF_BOOT_LOADER_PAGE_SIZE-POF_BOOT_LOADER_CODE_SIZE)
-
 
 /*--------------------------------------POF file record structs------------*/
 typedef struct PofFileHdr_tag {	/* Pof file header */

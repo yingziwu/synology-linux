@@ -7,7 +7,7 @@
 
   */
 
-/* $Id: nsp_io.h,v 1.3 2003/08/04 21:15:26 elca Exp $ */
+/* $Id: nsp_io.h,v 1.1 2010-04-15 12:27:50 khchen Exp $ */
 
 #ifndef __NSP_IO_H__
 #define __NSP_IO_H__
@@ -39,7 +39,6 @@ static inline unsigned char nsp_read(unsigned int base,
 {
 	return inb(base + index);
 }
-
 
 /**********************************************************************
  * Indexed IO
@@ -172,7 +171,6 @@ static inline void nsp_fifo32_write(unsigned int   base,
 	nsp_multi_write_4(base, FIFODATA, buf, count);
 }
 
-
 /*====================================================================*/
 
 static inline void nsp_mmio_write(unsigned long base,
@@ -267,8 +265,6 @@ static inline void nsp_mmio_fifo32_write(unsigned int   base,
 	//nsp_dbg(NSP_DEBUG_DATA_IO, "buf=0x%p, count=0x%lx*4", buf, count);
 	nsp_mmio_multi_write_4(base, FIFODATA, buf, count);
 }
-
-
 
 #endif
 /* end */

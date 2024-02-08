@@ -1,4 +1,4 @@
-/* $Id: callc.c,v 2.59.2.4 2004/02/11 13:21:32 keil Exp $
+/* $Id: callc.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Author       Karsten Keil
  * Copyright    by Karsten Keil      <keil@isdn4linux.de>
@@ -21,7 +21,7 @@
 #include "hisax.h"
 #include <linux/isdn/capicmd.h>
 
-const char *lli_revision = "$Revision: 2.59.2.4 $";
+const char *lli_revision = "$Revision: 1.1 $";
 
 extern struct IsdnCard cards[];
 
@@ -93,7 +93,6 @@ enum {
 	ST_IN_PROCEED_SEND,	/* 12 incoming call, proceeding send */ 
 };
   
-
 #define STATE_COUNT (ST_IN_PROCEED_SEND + 1)
 
 static char *strState[] =
@@ -168,7 +167,6 @@ static char *strEvent[] =
 	"EV_REDIR",
 };
 
-
 static inline void
 HL_LL(struct Channel *chanp, int command)
 {
@@ -242,7 +240,6 @@ lli_leased_in(struct FsmInst *fi, int event, void *arg)
 	}
 }
 
-
 /*
  * Dial out
  */
@@ -301,7 +298,6 @@ lli_go_active(struct FsmInst *fi, int event, void *arg)
 	struct Channel *chanp = fi->userdata;
 	isdn_ctrl ic;
 
-
 	FsmChangeState(fi, ST_ACTIVE);
 	chanp->data_open = !0;
 	if (chanp->bcs->conmsg)
@@ -316,7 +312,6 @@ lli_go_active(struct FsmInst *fi, int event, void *arg)
 	chanp->cs->iif.statcallb(&ic);
 	chanp->cs->cardmsg(chanp->cs, MDL_INFO_CONN, (void *) (long)chanp->chan);
 }
-
 
 /*
  * RESUME
@@ -608,7 +603,6 @@ lli_release_bchan(struct FsmInst *fi, int event, void *arg)
 	chanp->b_st->lli.l4l3(chanp->b_st, DL_RELEASE | REQUEST, NULL);
 }
 
-
 static void
 lli_rel_b_dhup(struct FsmInst *fi, int event, void *arg)
 {
@@ -672,7 +666,6 @@ lli_bhup_release_req(struct FsmInst *fi, int event, void *arg)
 	HL_LL(chanp, ISDN_STAT_BHUP);
 	lli_rel_b_release_req(fi, event, arg);
 }
-
 
 /* processing charge info */
 static void
@@ -1460,7 +1453,6 @@ lli_got_manufacturer(struct Channel *chanp, struct IsdnCardState *cs, capi_msg *
 		}
 	}
 }
-
 
 /***************************************************************/
 /* Limit the available number of channels for the current card */

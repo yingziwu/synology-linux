@@ -1,3 +1,8 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+#include <linux/syno.h>
+
 ENTRY(sys_call_table)
 	.long sys_restart_syscall	/* 0 - old "setup()" system call, used for restarting */
 	.long sys_exit
@@ -191,7 +196,7 @@ ENTRY(sys_call_table)
 	.long sys_ni_syscall	/* reserved for streams2 */
 	.long ptregs_vfork	/* 190 */
 	.long sys_getrlimit
-	.long sys_mmap2
+	.long sys_mmap_pgoff
 	.long sys_truncate64
 	.long sys_ftruncate64
 	.long sys_stat64	/* 195 */
@@ -336,3 +341,144 @@ ENTRY(sys_call_table)
 	.long sys_pwritev
 	.long sys_rt_tgsigqueueinfo	/* 335 */
 	.long sys_perf_event_open
+#ifdef MY_ABC_HERE
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 340 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 345 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 350 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 355 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 360 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 365 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 370 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 375 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 380 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 385 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 390 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall        /* 395 */
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#ifdef MY_ABC_HERE
+    .long sys_SYNOUtime		/* 402 */
+#else
+    .long sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+    .long sys_SYNOArchiveBit	/* 403 */
+#else
+    .long sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+    .long sys_recvfile		/* 404 */
+#else
+    .long sys_ni_syscall
+#endif
+    .long sys_ni_syscall        /* 405 */
+#ifdef MY_ABC_HERE
+    .long sys_SYNOCaselessStat64    /* 406 */
+    .long sys_SYNOCaselessLStat64   /* 407 */
+    .long sys_SYNOCaselessStat      /* 408 */
+    .long sys_SYNOCaselessLStat     /* 409 */
+#else
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#endif
+#ifdef MY_ABC_HERE
+    .long sys_SYNOEcryptName /* 410 */
+    .long sys_SYNODecryptName /* 411 */
+#else
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#endif
+#ifdef CONFIG_FS_SYNO_ACL
+    .long sys_SYNOACLCheckPerm /* 412 */
+    .long sys_SYNOACLIsSupport /* 413 */
+    .long sys_SYNOACLGetPerm /* 414 */
+#else
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#endif
+    .long sys_ni_syscall
+#ifdef MY_ABC_HERE
+    .long sys_SYNOStat                   /* 416 */
+    .long sys_SYNOFStat                  /* 417 */
+    .long sys_SYNOLStat                  /* 418 */
+    .long sys_SYNOStat64                   /* 419 */
+    .long sys_SYNOFStat64                  /* 420 */
+    .long sys_SYNOLStat64                  /* 421 */
+#else
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_SYNOArchiveBit	/* 427 */
+#else
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+    .long sys_ni_syscall
+#endif
+#endif

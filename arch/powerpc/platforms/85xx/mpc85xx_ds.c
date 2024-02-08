@@ -1,17 +1,7 @@
-/*
- * MPC85xx DS Board Setup
- *
- * Author Xianghua Xiao (x.xiao@freescale.com)
- * Roy Zang <tie-fei.zang@freescale.com>
- * 	- Add PCI/PCI Exprees support
- * Copyright 2007 Freescale Semiconductor Inc.
- *
- * This program is free software; you can redistribute  it and/or modify it
- * under  the terms of  the GNU General  Public License as published by the
- * Free Software Foundation;  either version 2 of the  License, or (at your
- * option) any later version.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/stddef.h>
 #include <linux/kernel.h>
 #include <linux/pci.h>
@@ -54,7 +44,7 @@ static void mpc85xx_8259_cascade(unsigned int irq, struct irq_desc *desc)
 	}
 	desc->chip->eoi(irq);
 }
-#endif	/* CONFIG_PPC_I8259 */
+#endif	 
 
 void __init mpc85xx_ds_pic_init(void)
 {
@@ -79,7 +69,12 @@ void __init mpc85xx_ds_pic_init(void)
 		return;
 	}
 
+#ifdef MY_ABC_HERE
+	if (of_flat_dt_is_compatible(root, "fsl,MPC8572DS-CAMP") ||
+		of_flat_dt_is_compatible(root, "fsl,P2020DS-CAMP")) {
+#else
 	if (of_flat_dt_is_compatible(root, "fsl,MPC8572DS-CAMP")) {
+#endif
 		mpic = mpic_alloc(np, r.start,
 			MPIC_PRIMARY |
 			MPIC_BIG_ENDIAN | MPIC_BROKEN_FRR_NIRQS,
@@ -98,7 +93,7 @@ void __init mpc85xx_ds_pic_init(void)
 	mpic_init(mpic);
 
 #ifdef CONFIG_PPC_I8259
-	/* Initialize the i8259 controller */
+	 
 	for_each_node_by_type(np, "interrupt-controller")
 	    if (of_device_is_compatible(np, "chrp,iic")) {
 		cascade_node = np;
@@ -122,17 +117,20 @@ void __init mpc85xx_ds_pic_init(void)
 	of_node_put(cascade_node);
 
 	set_irq_chained_handler(cascade_irq, mpc85xx_8259_cascade);
-#endif	/* CONFIG_PPC_I8259 */
+#endif	 
 }
 
 #ifdef CONFIG_PCI
+#ifndef CONFIG_SYNO_MPC8533
 static int primary_phb_addr;
 extern int uli_exclude_device(struct pci_controller *hose,
 				u_char bus, u_char devfn);
+#endif
 
 static int mpc85xx_exclude_device(struct pci_controller *hose,
 				   u_char bus, u_char devfn)
 {
+#ifndef CONFIG_SYNO_MPC8533
 	struct device_node* node;
 	struct resource rsrc;
 
@@ -142,14 +140,12 @@ static int mpc85xx_exclude_device(struct pci_controller *hose,
 	if ((rsrc.start & 0xfffff) == primary_phb_addr) {
 		return uli_exclude_device(hose, bus, devfn);
 	}
+#endif
 
 	return PCIBIOS_SUCCESSFUL;
 }
-#endif	/* CONFIG_PCI */
+#endif	 
 
-/*
- * Setup the architecture
- */
 #ifdef CONFIG_SMP
 extern void __init mpc85xx_smp_init(void);
 #endif
@@ -171,9 +167,11 @@ static void __init mpc85xx_ds_setup_arch(void)
 		    of_device_is_compatible(np, "fsl,p2020-pcie")) {
 			struct resource rsrc;
 			of_address_to_resource(np, 0, &rsrc);
+#ifndef CONFIG_SYNO_MPC8533
 			if ((rsrc.start & 0xfffff) == primary_phb_addr)
 				fsl_add_bridge(np, 1);
 			else
+#endif
 				fsl_add_bridge(np, 0);
 
 			hose = pci_find_hose_for_OF_device(np);
@@ -197,19 +195,48 @@ static void __init mpc85xx_ds_setup_arch(void)
 	}
 #endif
 
+#ifndef CONFIG_SYNO_MPC853
 	printk("MPC85xx DS board from Freescale Semiconductor\n");
+#endif
 }
 
-/*
- * Called very early, device-tree isn't unflattened
- */
+#ifdef MY_ABC_HERE
+#ifdef CONFIG_P2020DS_EVENT_IRQ
+static irqreturn_t event_isr(int irq, void *dev_id)
+{
+
+	printk(KERN_INFO "MPC85xxDS: Event button been pushed.\n");
+	return IRQ_HANDLED;
+}
+
+static int __init p2020ds_ngpixis_init(void)
+{
+	int event_irq, ret;
+	struct device_node *np;
+
+	np = of_find_compatible_node(NULL, NULL, "fsl,p2020ds-fpga");
+	if (np) {
+		event_irq = irq_of_parse_and_map(np, 0);
+		ret = request_irq(event_irq, event_isr, 0, "event", NULL);
+		if (ret)
+			printk(KERN_ERR "Can't request board event int\n");
+		of_node_put(np);
+	}
+	return 0;
+}
+machine_device_initcall(p2020_ds, p2020ds_ngpixis_init);
+#endif
+#endif
+
 static int __init mpc8544_ds_probe(void)
 {
 	unsigned long root = of_get_flat_dt_root();
 
 	if (of_flat_dt_is_compatible(root, "MPC8544DS")) {
 #ifdef CONFIG_PCI
+#ifndef CONFIG_SYNO_MPC8533
 		primary_phb_addr = 0xb000;
+#endif
 #endif
 		return 1;
 	}
@@ -222,24 +249,50 @@ static struct of_device_id __initdata mpc85xxds_ids[] = {
 	{ .compatible = "soc", },
 	{ .compatible = "simple-bus", },
 	{ .compatible = "gianfar", },
+#ifdef MY_ABC_HERE
+	{ .compatible = "fsl,rapidio-delta", },
+#endif
 	{},
 };
+
+#ifdef CONFIG_SYNO_MPC8533
+static void mpc8544_ds_show_cpuinfo(struct seq_file *m)
+{
+	uint pvid, svid, phid1;
+	uint memsize = total_memory;
+
+	pvid = mfspr(SPRN_PVR);
+	svid = mfspr(SPRN_SVR);
+
+	seq_printf(m, "Vendor\t\t: Freescale Semiconductor\n");
+	seq_printf(m, "PVR\t\t: 0x%x\n", pvid);
+	seq_printf(m, "SVR\t\t: 0x%x\n", svid);
+
+	phid1 = mfspr(SPRN_HID1);
+	seq_printf(m, "PLL setting\t: 0x%x\n", ((phid1 >> 24) & 0x3f));
+
+	seq_printf(m, "Memory\t\t: %d MB\n", memsize / (1024 * 1024));
+}
+#endif
 
 static int __init mpc85xxds_publish_devices(void)
 {
 	return of_platform_bus_probe(NULL, mpc85xxds_ids, NULL);
 }
 machine_device_initcall(mpc8544_ds, mpc85xxds_publish_devices);
+#ifndef CONFIG_SYNO_MPC8533
 machine_device_initcall(mpc8572_ds, mpc85xxds_publish_devices);
 machine_device_initcall(p2020_ds, mpc85xxds_publish_devices);
+#endif
 
+#ifndef CONFIG_SYNO_MPC8533
 machine_arch_initcall(mpc8544_ds, swiotlb_setup_bus_notifier);
 machine_arch_initcall(mpc8572_ds, swiotlb_setup_bus_notifier);
 machine_arch_initcall(p2020_ds, swiotlb_setup_bus_notifier);
+#endif
 
-/*
- * Called very early, device-tree isn't unflattened
- */
+#ifndef CONFIG_SYNO_MPC8533
+ 
 static int __init mpc8572_ds_probe(void)
 {
 	unsigned long root = of_get_flat_dt_root();
@@ -254,9 +307,6 @@ static int __init mpc8572_ds_probe(void)
 	return 0;
 }
 
-/*
- * Called very early, device-tree isn't unflattened
- */
 static int __init p2020_ds_probe(void)
 {
 	unsigned long root = of_get_flat_dt_root();
@@ -270,6 +320,7 @@ static int __init p2020_ds_probe(void)
 
 	return 0;
 }
+#endif
 
 define_machine(mpc8544_ds) {
 	.name			= "MPC8544 DS",
@@ -279,12 +330,16 @@ define_machine(mpc8544_ds) {
 #ifdef CONFIG_PCI
 	.pcibios_fixup_bus	= fsl_pcibios_fixup_bus,
 #endif
+#ifdef CONFIG_SYNO_MPC8533
+	.show_cpuinfo           = mpc8544_ds_show_cpuinfo,
+#endif
 	.get_irq		= mpic_get_irq,
 	.restart		= fsl_rstcr_restart,
 	.calibrate_decr		= generic_calibrate_decr,
 	.progress		= udbg_progress,
 };
 
+#ifndef CONFIG_SYNO_MPC8533
 define_machine(mpc8572_ds) {
 	.name			= "MPC8572 DS",
 	.probe			= mpc8572_ds_probe,
@@ -312,3 +367,4 @@ define_machine(p2020_ds) {
 	.calibrate_decr		= generic_calibrate_decr,
 	.progress		= udbg_progress,
 };
+#endif

@@ -148,7 +148,6 @@ static int hidinput_setkeycode(struct input_dev *dev, int scancode,
 	return -EINVAL;
 }
 
-
 static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_field *field,
 				     struct hid_usage *usage)
 {
@@ -513,7 +512,6 @@ mapped:
 	if (usage->code > max)
 		goto ignore;
 
-
 	if (usage->type == EV_ABS) {
 
 		int a = field->logical_minimum;
@@ -697,6 +695,16 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 	int i, j, k;
 	int max_report_type = HID_OUTPUT_REPORT;
 
+#ifdef CONFIG_MV_INCLUDE_USB
+       /**
+        * To Check: On 6281 platform, hid-core fail to handle hid-input disconnect action
+        *           when device is usb speaker. Because 6281 will not support usb input
+        *           device (remote controller is of hid-dev), we reject all hid-input 
+        *           registration here on 6281 platform.
+        */
+       return -1;
+#endif
+
 	INIT_LIST_HEAD(&hid->inputs);
 
 	if (!force) {
@@ -796,4 +804,3 @@ void hidinput_disconnect(struct hid_device *hid)
 	}
 }
 EXPORT_SYMBOL_GPL(hidinput_disconnect);
-

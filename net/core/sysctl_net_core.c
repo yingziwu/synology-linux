@@ -1,10 +1,7 @@
-/* -*- linux-c -*-
- * sysctl_net_core.c: sysctl interface to net core subsystem.
- *
- * Begun April 1, 1996, Mike Shaver.
- * Added /proc/sys/net/core directory entry (empty =) ). [MS]
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/mm.h>
 #include <linux/sysctl.h>
 #include <linux/module.h>
@@ -13,6 +10,16 @@
 #include <linux/init.h>
 #include <net/ip.h>
 #include <net/sock.h>
+
+#ifdef MY_ABC_HERE
+#ifdef CONFIG_NET_GIANFAR_FP
+extern int netdev_fastroute;
+#endif
+
+#ifdef CONFIG_GFAR_SW_PKT_STEERING
+extern int rcv_pkt_steering;
+#endif
+#endif
 
 static struct ctl_table net_core_table[] = {
 #ifdef CONFIG_NET
@@ -32,6 +39,28 @@ static struct ctl_table net_core_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec
 	},
+#ifdef MY_ABC_HERE
+#ifdef CONFIG_NET_GIANFAR_FP
+	{
+		.ctl_name	= NET_CORE_FASTROUTE,
+		.procname	= "netdev_fastroute",
+		.data		= &netdev_fastroute,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= &proc_dointvec
+	},
+#endif
+#ifdef CONFIG_GFAR_SW_PKT_STEERING
+	{
+		.ctl_name	= RCV_PKT_STEERING,
+		.procname	= "rcv_pkt_steering",
+		.data		= &rcv_pkt_steering,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= &proc_dointvec
+	},
+#endif
+#endif
 	{
 		.ctl_name	= NET_CORE_WMEM_DEFAULT,
 		.procname	= "wmem_default",
@@ -89,7 +118,7 @@ static struct ctl_table net_core_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec
 	},
-#endif /* CONFIG_NET */
+#endif  
 	{
 		.ctl_name	= NET_CORE_BUDGET,
 		.procname	= "netdev_budget",

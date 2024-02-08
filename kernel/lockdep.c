@@ -591,9 +591,9 @@ static int static_obj(void *obj)
 	 * percpu var?
 	 */
 	for_each_possible_cpu(i) {
-		start = (unsigned long) &__per_cpu_start + per_cpu_offset(i);
-		end   = (unsigned long) &__per_cpu_start + PERCPU_ENOUGH_ROOM
-					+ per_cpu_offset(i);
+		start = (unsigned long) per_cpu_ptr(&__per_cpu_start, i);
+		end   = (unsigned long) per_cpu_ptr(&__per_cpu_start, i)
+					+ PERCPU_ENOUGH_ROOM;
 
 		if ((addr >= start) && (addr < end))
 			return 1;
@@ -1224,8 +1224,6 @@ static inline int usage_match(struct lock_list *entry, void *bit)
 {
 	return entry->class->usage_mask & (1 << (enum lock_usage_bit)bit);
 }
-
-
 
 /*
  * Find a node in the forwards-direction dependency sub-graph starting

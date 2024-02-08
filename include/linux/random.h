@@ -1,9 +1,7 @@
-/*
- * include/linux/random.h
- *
- * Include file for the random number generator.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef _LINUX_RANDOM_H
 #define _LINUX_RANDOM_H
 
@@ -11,27 +9,16 @@
 #include <linux/ioctl.h>
 #include <linux/irqnr.h>
 
-/* ioctl()'s for the random number generator */
-
-/* Get the entropy count. */
 #define RNDGETENTCNT	_IOR( 'R', 0x00, int )
 
-/* Add to (or subtract from) the entropy count.  (Superuser only.) */
 #define RNDADDTOENTCNT	_IOW( 'R', 0x01, int )
 
-/* Get the contents of the entropy pool.  (Superuser only.) */
 #define RNDGETPOOL	_IOR( 'R', 0x02, int [2] )
 
-/* 
- * Write bytes into the entropy pool and add to the entropy count.
- * (Superuser only.)
- */
 #define RNDADDENTROPY	_IOW( 'R', 0x03, int [2] )
 
-/* Clear entropy count to 0.  (Superuser only.) */
 #define RNDZAPENTCNT	_IO( 'R', 0x04 )
 
-/* Clear the entropy pool and associated counters.  (Superuser only.) */
 #define RNDCLEARPOOL	_IO( 'R', 0x06 )
 
 struct rand_pool_info {
@@ -40,8 +27,6 @@ struct rand_pool_info {
 	__u32	buf[0];
 };
 
-/* Exported functions */
-
 #ifdef __KERNEL__
 
 extern void rand_initialize_irq(int irq);
@@ -49,6 +34,12 @@ extern void rand_initialize_irq(int irq);
 extern void add_input_randomness(unsigned int type, unsigned int code,
 				 unsigned int value);
 extern void add_interrupt_randomness(int irq);
+
+#ifdef MY_ABC_HERE
+extern void random_input_words(__u32 *buf, size_t wordcount, int ent_count);
+extern int random_input_wait(void);
+#define HAS_RANDOM_INPUT_WAIT 1
+#endif
 
 extern void get_random_bytes(void *buf, int nbytes);
 void generate_random_uuid(unsigned char uuid_out[16]);
@@ -74,6 +65,6 @@ unsigned long randomize_range(unsigned long start, unsigned long end, unsigned l
 u32 random32(void);
 void srandom32(u32 seed);
 
-#endif /* __KERNEL___ */
+#endif  
 
-#endif /* _LINUX_RANDOM_H */
+#endif  

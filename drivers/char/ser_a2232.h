@@ -1,6 +1,6 @@
 /* drivers/char/ser_a2232.h */
 
-/* $Id: ser_a2232.h,v 0.4 2000/01/25 12:00:00 ehaase Exp $ */
+/* $Id: ser_a2232.h,v 1.1 2010-04-15 12:27:55 khchen Exp $ */
 
 /* Linux serial driver for the Amiga A2232 board */
 
@@ -64,11 +64,9 @@ struct a2232_port{
 #define	A2232_IOBUFLEN		256	/* number of bytes per buffer */
 #define	A2232_IOBUFLENMASK	0xff	/* mask for maximum number of bytes */
 
-
 #define	A2232_UNKNOWN	0	/* crystal not known */
 #define	A2232_NORMAL	1	/* normal A2232 (1.8432 MHz oscillator) */
 #define	A2232_TURBO	2	/* turbo A2232 (3.6864 MHz oscillator) */
-
 
 struct a2232common {
 	char   Crystal;	/* normal (1) or turbo (2) board? */
@@ -168,7 +166,6 @@ struct a2232memory {
 #define	A2232PARAM_6Bit		0x40
 #define	A2232PARAM_5Bit		0x60
 #define	A2232PARAM_BitMask	0x60	/* numbers of bits mask */
-
 
 /* Standard speeds tables, -1 means unavailable, -2 means 0 baud: switch off line */
 #define A2232_BAUD_TABLE_NOAVAIL -1

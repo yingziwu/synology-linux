@@ -1,4 +1,4 @@
-/* $Id: divasi.c,v 1.25.6.2 2005/01/31 12:22:20 armin Exp $
+/* $Id: divasi.c,v 1.1 2010-04-15 12:27:50 khchen Exp $
  *
  * Driver for Eicon DIVA Server ISDN cards.
  * User Mode IDI Interface 
@@ -26,7 +26,7 @@
 #include "um_xdi.h"
 #include "um_idi.h"
 
-static char *main_revision = "$Revision: 1.25.6.2 $";
+static char *main_revision = "$Revision: 1.1 $";
 
 static int major;
 
@@ -197,7 +197,6 @@ static int DIVA_INIT_FUNCTION divasi_init(void)
 	return (ret);
 }
 
-
 /*
 ** Driver Unload
 */
@@ -212,7 +211,6 @@ static void DIVA_EXIT_FUNCTION divasi_exit(void)
 
 module_init(divasi_init);
 module_exit(divasi_exit);
-
 
 /*
  *  FILE OPERATIONS
@@ -277,7 +275,6 @@ um_idi_read(struct file *file, char __user *buf, size_t count, loff_t * offset)
 	DBG_TRC(("read: ret %d", ret));
 	return (ret);
 }
-
 
 static int
 divas_um_idi_copy_from_user(void *os_handle, void *dst, const void *src,
@@ -403,7 +400,6 @@ static int um_idi_open(struct inode *inode, struct file *file)
 	cycle_kernel_lock();
 	return (0);
 }
-
 
 static int um_idi_release(struct inode *inode, struct file *file)
 {

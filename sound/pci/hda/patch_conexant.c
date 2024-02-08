@@ -45,7 +45,6 @@
 #define CXT5051_PORTB_EVENT	0x38
 #define CXT5051_PORTC_EVENT	0x39
 
-
 struct conexant_jack {
 
 	hda_nid_t nid;
@@ -197,8 +196,6 @@ static int conexant_capture_pcm_cleanup(struct hda_pcm_stream *hinfo,
 	return 0;
 }
 
-
-
 static struct hda_pcm_stream conexant_pcm_analog_playback = {
 	.substreams = 1,
 	.channels_min = 2,
@@ -221,7 +218,6 @@ static struct hda_pcm_stream conexant_pcm_analog_capture = {
 		.cleanup = conexant_capture_pcm_cleanup
 	},
 };
-
 
 static struct hda_pcm_stream conexant_pcm_digital_playback = {
 	.substreams = 1,
@@ -620,8 +616,6 @@ static int cxt_eapd_put(struct snd_kcontrol *kcontrol,
 	  .put = cxt_eapd_put, \
 	  .private_value = nid | (mask<<16) }
 
-
-
 static int conexant_ch_mode_info(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_info *uinfo)
 {
@@ -757,7 +751,6 @@ static void cxt5045_hp_automic(struct hda_codec *codec)
 	else
 		snd_hda_sequence_write(codec, mic_jack_off);
 }
-
 
 /* mute internal speaker if HP is plugged */
 static void cxt5045_hp_automute(struct hda_codec *codec)
@@ -1033,7 +1026,6 @@ static struct hda_verb cxt5045_test_init_verbs[] = {
 };
 #endif
 
-
 /* initialize jack-sensing, too */
 static int cxt5045_init(struct hda_codec *codec)
 {
@@ -1041,7 +1033,6 @@ static int cxt5045_init(struct hda_codec *codec)
 	cxt5045_hp_automute(codec);
 	return 0;
 }
-
 
 enum {
 	CXT5045_LAPTOP_HPSENSE,
@@ -1111,7 +1102,6 @@ static int patch_cxt5045(struct hda_codec *codec)
 	spec->spdif_route = 0;
 	spec->num_channel_mode = ARRAY_SIZE(cxt5045_modes),
 	spec->channel_mode = cxt5045_modes,
-
 
 	codec->patch_ops = conexant_patch_ops;
 
@@ -1189,7 +1179,6 @@ static int patch_cxt5045(struct hda_codec *codec)
 
 	return 0;
 }
-
 
 /* Conexant 5047 specific */
 #define CXT5047_SPDIF_OUT	0x11
@@ -1484,7 +1473,6 @@ static struct hda_verb cxt5047_test_init_verbs[] = {
 };
 #endif
 
-
 /* initialize jack-sensing, too */
 static int cxt5047_hp_init(struct hda_codec *codec)
 {
@@ -1492,7 +1480,6 @@ static int cxt5047_hp_init(struct hda_codec *codec)
 	cxt5047_hp_automute(codec);
 	return 0;
 }
-
 
 enum {
 	CXT5047_LAPTOP,		/* Laptops w/o EAPD support */
@@ -1581,6 +1568,21 @@ static int patch_cxt5047(struct hda_codec *codec)
 #endif	
 	}
 	spec->vmaster_nid = 0x13;
+
+	switch (codec->subsystem_id >> 16) {
+	case 0x103c:
+		/* HP laptops have really bad sound over 0 dB on NID 0x10.
+		 * Fix max PCM level to 0 dB (originally it has 0x1e steps
+		 * with 0 dB offset 0x17)
+		 */
+		snd_hda_override_amp_caps(codec, 0x10, HDA_INPUT,
+					  (0x17 << AC_AMPCAP_OFFSET_SHIFT) |
+					  (0x17 << AC_AMPCAP_NUM_STEPS_SHIFT) |
+					  (0x05 << AC_AMPCAP_STEP_SIZE_SHIFT) |
+					  (1 << AC_AMPCAP_MUTE_SHIFT));
+		break;
+	}
+
 	return 0;
 }
 
@@ -1842,7 +1844,6 @@ static int cxt5051_init(struct hda_codec *codec)
 	}
 	return 0;
 }
-
 
 enum {
 	CXT5051_LAPTOP,	 /* Laptops w/ EAPD support */

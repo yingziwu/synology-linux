@@ -36,7 +36,6 @@ static unsigned int nf_ct_helper_hsize __read_mostly;
 static unsigned int nf_ct_helper_count __read_mostly;
 static int nf_ct_helper_vmalloc;
 
-
 /* Stupid hash, but collision free for the default registrations of the
  * helpers currently in the kernel. */
 static unsigned int helper_hash(const struct nf_conntrack_tuple *tuple)
@@ -192,7 +191,7 @@ static void __nf_conntrack_helper_unregister(struct nf_conntrack_helper *me,
 	/* Get rid of expecteds, set helpers to NULL. */
 	hlist_nulls_for_each_entry(h, nn, &net->ct.unconfirmed, hnnode)
 		unhelp(h, me);
-	for (i = 0; i < nf_conntrack_htable_size; i++) {
+	for (i = 0; i < net->ct.htable_size; i++) {
 		hlist_nulls_for_each_entry(h, nn, &net->ct.hash[i], hnnode)
 			unhelp(h, me);
 	}

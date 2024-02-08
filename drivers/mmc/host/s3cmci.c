@@ -1178,7 +1178,7 @@ static int s3cmci_card_present(struct mmc_host *mmc)
 	struct s3c24xx_mci_pdata *pdata = host->pdata;
 	int ret;
 
-	if (pdata->gpio_detect == 0)
+	if (pdata->no_detect)
 		return -ENOSYS;
 
 	ret = gpio_get_value(pdata->gpio_detect) ? 0 : 1;
@@ -1361,6 +1361,8 @@ static struct mmc_host_ops s3cmci_ops = {
 static struct s3c24xx_mci_pdata s3cmci_def_pdata = {
 	/* This is currently here to avoid a number of if (host->pdata)
 	 * checks. Any zero fields to ensure reaonable defaults are picked. */
+	.no_wprotect = 1,
+	.no_detect = 1,
 };
 
 #ifdef CONFIG_CPU_FREQ
@@ -1417,7 +1419,6 @@ static inline void s3cmci_cpufreq_deregister(struct s3cmci_host *host)
 {
 }
 #endif
-
 
 #ifdef CONFIG_DEBUG_FS
 
@@ -1850,7 +1851,6 @@ static int __devexit s3cmci_remove(struct platform_device *pdev)
 	for (i = S3C2410_GPE(5); i <= S3C2410_GPE(10); i++)
 		gpio_free(i);
 
-
 	iounmap(host->base);
 	release_mem_region(host->mem->start, resource_size(host->mem));
 
@@ -1873,7 +1873,6 @@ static struct platform_device_id s3cmci_driver_ids[] = {
 };
 
 MODULE_DEVICE_TABLE(platform, s3cmci_driver_ids);
-
 
 #ifdef CONFIG_PM
 
@@ -1901,7 +1900,6 @@ static struct dev_pm_ops s3cmci_pm = {
 #else /* CONFIG_PM */
 #define s3cmci_pm_ops NULL
 #endif /* CONFIG_PM */
-
 
 static struct platform_driver s3cmci_driver = {
 	.driver	= {

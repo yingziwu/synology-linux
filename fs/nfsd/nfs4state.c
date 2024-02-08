@@ -56,6 +56,7 @@
 #include <linux/module.h>
 #include <linux/sunrpc/svcauth_gss.h>
 #include <linux/sunrpc/clnt.h>
+#include "vfs.h"
 
 #define NFSDDBG_FACILITY                NFSDDBG_PROC
 
@@ -1586,7 +1587,6 @@ out:
 	return status;
 }
 
-
 /*
  * Section 14.2.34 of RFC 3530 (under the heading "IMPLEMENTATION") has
  * a description of SETCLIENTID_CONFIRM request processing consisting of 4
@@ -2002,7 +2002,9 @@ nfs4_file_downgrade(struct file *filp, unsigned int share_access)
 {
 	if (share_access & NFS4_SHARE_ACCESS_WRITE) {
 		drop_file_write_access(filp);
+		spin_lock(&filp->f_lock);
 		filp->f_mode = (filp->f_mode | FMODE_READ) & ~FMODE_WRITE;
+		spin_unlock(&filp->f_lock);
 	}
 }
 
@@ -2099,7 +2101,6 @@ int nfsd_same_client_deleg_cb(struct file_lock *onlist, struct file_lock *try)
 	return onlistd->dl_client == tryd->dl_client;
 }
 
-
 static
 int nfsd_change_deleg_cb(struct file_lock **onlist, int arg)
 {
@@ -2116,7 +2117,6 @@ static const struct lock_manager_operations nfsd_lease_mng_ops = {
 	.fl_mylease = nfsd_same_client_deleg_cb,
 	.fl_change = nfsd_change_deleg_cb,
 };
-
 
 __be32
 nfsd4_process_open1(struct nfsd4_compound_state *cstate,
@@ -2331,7 +2331,6 @@ nfs4_upgrade_open(struct svc_rqst *rqstp, struct svc_fh *cur_fh, struct nfs4_sta
 
 	return nfs_ok;
 }
-
 
 static void
 nfs4_set_claim_prev(struct nfsd4_open *open)
@@ -3036,7 +3035,6 @@ out:
 	return status;
 }
 
-
 /*
  * unset all bits in union bitmap (bmap) that
  * do not exist in share (from successful OPEN_DOWNGRADE)
@@ -3202,7 +3200,6 @@ out:
 
 	return status;
 }
-
 
 /* 
  * Lock owner state (byte-range locks)
@@ -3904,7 +3901,6 @@ nfs4_find_reclaim_client(clientid_t *clid)
 	unsigned int strhashval;
 	struct nfs4_client *clp;
 	struct nfs4_client_reclaim *crp = NULL;
-
 
 	/* find clientid in conf_id_hashtbl */
 	clp = find_confirmed_client(clid);

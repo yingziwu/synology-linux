@@ -1444,7 +1444,6 @@ static void fas216_busservice_intr(FAS216_Info *info, unsigned int stat, unsigne
 		info->scsi.phase = PHASE_COMMAND;
 		return;
 
-
 	/*
 	 * Selection    -> Message Out
 	 */
@@ -2099,7 +2098,6 @@ done:
 	panic("scsi%d.H: null scsi_done function in fas216_done",
 		info->host->host_no);
 
-
 request_sense:
 	if (SCpnt->cmnd[0] == REQUEST_SENSE)
 		goto done;
@@ -2446,7 +2444,6 @@ int fas216_eh_abort(struct scsi_cmnd *SCpnt)
 	 */
 	case res_hw_abort:
 		
-
 	/*
 	 * We are unable to abort the command for some reason.
 	 */
@@ -2516,7 +2513,7 @@ int fas216_eh_device_reset(struct scsi_cmnd *SCpnt)
 		if (info->scsi.phase == PHASE_IDLE)
 			fas216_kick(info);
 
-		mod_timer(&info->eh_timer, 30 * HZ);
+		mod_timer(&info->eh_timer, jiffies + 30 * HZ);
 		spin_unlock_irqrestore(&info->host_lock, flags);
 
 		/*
