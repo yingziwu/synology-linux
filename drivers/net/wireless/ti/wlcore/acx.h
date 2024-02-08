@@ -191,6 +191,7 @@ struct acx_slot {
 	u8 reserved[5];
 } __packed;
 
+
 #define ACX_MC_ADDRESS_GROUP_MAX	(8)
 #define ADDRESS_GROUP_MAX_LEN	        (ETH_ALEN * ACX_MC_ADDRESS_GROUP_MAX)
 
@@ -537,6 +538,7 @@ struct wl1271_acx_rx_config_opt {
 	u8 reserved;
 } __packed;
 
+
 struct wl1271_acx_bet_enable {
 	struct acx_header header;
 
@@ -662,6 +664,7 @@ struct wl1271_acx_rssi_snr_avg_weights {
 	u8 snr_beacon;
 	u8 snr_data;
 };
+
 
 /* special capability bit (not employed by the 802.11n spec) */
 #define WL12XX_HT_CAP_HT_OPERATION BIT(16)
@@ -925,6 +928,7 @@ struct wl12xx_acx_config_hangover {
 	u8 padding[2];
 } __packed;
 
+
 struct acx_default_rx_filter {
 	struct acx_header header;
 	u8 enable;
@@ -934,6 +938,7 @@ struct acx_default_rx_filter {
 
 	u8 pad[2];
 } __packed;
+
 
 struct acx_rx_filter_cfg {
 	struct acx_header header;
@@ -1033,6 +1038,7 @@ enum {
 	ACX_PROTECTION_CFG               = 0x0044,
 };
 
+
 int wl1271_acx_wake_up_conditions(struct wl1271 *wl,
 				  struct wl12xx_vif *wlvif,
 				  u8 wake_up_event, u8 listen_interval);
@@ -1106,7 +1112,8 @@ int wl1271_acx_set_ht_information(struct wl1271 *wl,
 int wl12xx_acx_set_ba_initiator_policy(struct wl1271 *wl,
 				       struct wl12xx_vif *wlvif);
 int wl12xx_acx_set_ba_receiver_session(struct wl1271 *wl, u8 tid_index,
-				       u16 ssn, bool enable, u8 peer_hlid);
+				       u16 ssn, bool enable, u8 peer_hlid,
+				       u8 win_size);
 int wl12xx_acx_tsf_info(struct wl1271 *wl, struct wl12xx_vif *wlvif,
 			u64 *mactime);
 int wl1271_acx_ps_rx_streaming(struct wl1271 *wl, struct wl12xx_vif *wlvif,

@@ -50,6 +50,7 @@
 #include "mem_input.h"
 #include "hubp.h"
 
+
 /*******************************************************************************
  * Private functions
  ******************************************************************************/
@@ -491,6 +492,7 @@ struct dc *dc_create(const struct dc_init_data *init_params)
 	dm_logger_write(dc->ctx->logger, LOG_DC,
 			"Display Core initialized\n");
 
+
 	/* TODO: missing feature to be enabled */
 	dc->debug.disable_dfs_bypass = true;
 
@@ -647,6 +649,7 @@ bool dc_enable_stereo(
 
 	return ret;
 }
+
 
 /*
  * Applies given context to HW and copy it into current context.
@@ -1170,6 +1173,7 @@ static struct dc_stream_status *stream_get_status(
 
 static const enum surface_update_type update_surface_trace_level = UPDATE_TYPE_FULL;
 
+
 static void commit_planes_for_stream(struct dc *dc,
 		struct dc_surface_update *srf_updates,
 		int surface_count,
@@ -1271,6 +1275,7 @@ void dc_commit_updates_for_stream(struct dc *dc,
 	if (update_type >= update_surface_trace_level)
 		update_surface_trace(dc, srf_updates, surface_count);
 
+
 	if (update_type >= UPDATE_TYPE_FULL) {
 
 		/* initialize scratch memory for building context */
@@ -1282,6 +1287,7 @@ void dc_commit_updates_for_stream(struct dc *dc,
 
 		dc_resource_state_copy_construct(state, context);
 	}
+
 
 	for (i = 0; i < surface_count; i++) {
 		struct dc_plane_state *surface = srf_updates[i].surface;

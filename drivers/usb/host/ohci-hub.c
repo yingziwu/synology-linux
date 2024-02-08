@@ -645,6 +645,7 @@ static int ohci_start_port_reset (struct usb_hcd *hcd, unsigned port)
 
 /*-------------------------------------------------------------------------*/
 
+
 /* See usb 7.1.7.5:  root hubs must issue at least 50 msec reset signaling,
  * not necessarily continuous ... to guard against resume signaling.
  */

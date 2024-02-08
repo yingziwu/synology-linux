@@ -140,6 +140,7 @@ static long memalloc_ioctl(struct file *filp, unsigned int cmd,
         break;
     }
 
+
     return ret ? -EFAULT : 0;
 }
 

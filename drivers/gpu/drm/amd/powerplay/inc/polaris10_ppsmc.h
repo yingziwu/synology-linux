@@ -24,6 +24,7 @@
 #ifndef POLARIS10_PP_SMC_H
 #define POLARIS10_PP_SMC_H
 
+
 #pragma pack(push, 1)
 
 #define PPSMC_MSG_SetGBDroopSettings          ((uint16_t) 0x305)
@@ -51,12 +52,15 @@
 #define PPSMC_EXTRAFLAGS_AC2DC_ACTION_GOTODPMLOWSTATE   0x00
 #define PPSMC_EXTRAFLAGS_AC2DC_ACTION_GOTOINITIALSTATE  0x01
 
+
 #define PPSMC_DPM2FLAGS_TDPCLMP                         0x01
 #define PPSMC_DPM2FLAGS_PWRSHFT                         0x02
 #define PPSMC_DPM2FLAGS_OCP                             0x04
 
+
 #define PPSMC_DISPLAY_WATERMARK_LOW                     0
 #define PPSMC_DISPLAY_WATERMARK_HIGH                    1
+
 
 #define PPSMC_STATEFLAG_AUTO_PULSE_SKIP    0x01
 #define PPSMC_STATEFLAG_POWERBOOST         0x02
@@ -66,6 +70,7 @@
 #define PPSMC_STATEFLAG_DEEPSLEEP_THROTTLE 0x20
 #define PPSMC_STATEFLAG_DEEPSLEEP_BYPASS   0x40
 
+
 #define FDO_MODE_HARDWARE 0
 #define FDO_MODE_PIECE_WISE_LINEAR 1
 
@@ -73,6 +78,7 @@ enum FAN_CONTROL {
 	FAN_CONTROL_FUZZY,
 	FAN_CONTROL_TABLE
 };
+
 
 #define PPSMC_Result_OK             ((uint16_t)0x01)
 #define PPSMC_Result_NoMore         ((uint16_t)0x02)
@@ -85,6 +91,7 @@ enum FAN_CONTROL {
 typedef uint16_t PPSMC_Result;
 
 #define PPSMC_isERROR(x) ((uint16_t)0x80 & (x))
+
 
 #define PPSMC_MSG_Halt                      ((uint16_t)0x10)
 #define PPSMC_MSG_Resume                    ((uint16_t)0x11)
@@ -402,3 +409,4 @@ typedef uint16_t PPSMC_Msg;
 #pragma pack(pop)
 
 #endif
+

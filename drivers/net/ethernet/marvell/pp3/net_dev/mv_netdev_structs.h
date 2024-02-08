@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -30,6 +31,7 @@ disclaimer.
 
 #include <linux/interrupt.h>
 #include <net/gnss/mv_nss_defs.h>
+
 
 #include "common/mv_sw_if.h"
 #include "platform/mv_pp3.h"
@@ -122,3 +124,4 @@ struct pp3_dev_priv {
 };
 /*---------------------------------------------------------------------------*/
 #endif /* __mv_netdev_structs_h__ */
+

@@ -68,8 +68,7 @@ void rtk_machine_restart(char mode, const char *cmd)
 	}
 
 #if defined(MY_ABC_HERE) && defined(MY_ABC_HERE)
-	syno_uart1_write(SOFTWARE_POWER_LED_BLINK);
-	syno_uart1_write(SOFTWARE_STATUS_LED_OFF);
+	syno_uart1_write(SOFTWARE_REBOOT);
 #endif /* MY_ABC_HERE && MY_ABC_HERE */
 
 	if (wdt_oe >= 0)

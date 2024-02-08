@@ -225,6 +225,7 @@ static void flush_send_queue(struct cardstate *cs)
 		dev_kfree_skb_any(skb);
 }
 
+
 /* Gigaset Driver Interface */
 /* ======================== */
 
@@ -372,13 +373,7 @@ static void gigaset_freecshw(struct cardstate *cs)
 
 static void gigaset_device_release(struct device *dev)
 {
-	struct cardstate *cs = dev_get_drvdata(dev);
-
-	if (!cs)
-		return;
-	dev_set_drvdata(dev, NULL);
-	kfree(cs->hw.ser);
-	cs->hw.ser = NULL;
+	kfree(container_of(dev, struct ser_cardstate, dev.dev));
 }
 
 /*
@@ -407,7 +402,6 @@ static int gigaset_initcshw(struct cardstate *cs)
 		cs->hw.ser = NULL;
 		return rc;
 	}
-	dev_set_drvdata(&cs->hw.ser->dev.dev, cs);
 
 	tasklet_init(&cs->write_tasklet,
 		     gigaset_modem_fill, (unsigned long) cs);
@@ -468,6 +462,7 @@ static const struct gigaset_ops ops = {
 	gigaset_m10x_send_skb,	/* asyncdata.c */
 	gigaset_m10x_input,	/* asyncdata.c */
 };
+
 
 /* Line Discipline Interface */
 /* ========================= */
@@ -740,6 +735,7 @@ static struct tty_ldisc_ops gigaset_ldisc = {
 	.receive_buf	= gigaset_tty_receive,
 	.write_wakeup	= gigaset_tty_wakeup,
 };
+
 
 /* Initialization / Shutdown */
 /* ========================= */

@@ -75,6 +75,7 @@ struct usb_yurex {
 static struct usb_driver yurex_driver;
 static const struct file_operations yurex_fops;
 
+
 static void yurex_control_callback(struct urb *urb)
 {
 	struct usb_yurex *dev = urb->context;
@@ -227,6 +228,7 @@ static int yurex_probe(struct usb_interface *interface, const struct usb_device_
 		goto error;
 	}
 
+
 	/* allocate control URB */
 	dev->cntl_urb = usb_alloc_urb(0, GFP_KERNEL);
 	if (!dev->cntl_urb) {
@@ -263,6 +265,7 @@ static int yurex_probe(struct usb_interface *interface, const struct usb_device_
 			     (void *)dev->cntl_req, dev->cntl_buffer,
 			     YUREX_BUF_SIZE, yurex_control_callback, dev);
 	dev->cntl_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+
 
 	/* allocate interrupt URB */
 	dev->urb = usb_alloc_urb(0, GFP_KERNEL);
@@ -329,6 +332,7 @@ static void yurex_disconnect(struct usb_interface *interface)
 	usb_deregister_dev(interface, &yurex_class);
 
 	/* prevent more I/O from starting */
+	usb_poison_urb(dev->urb);
 	mutex_lock(&dev->io_mutex);
 	dev->interface = NULL;
 	mutex_unlock(&dev->io_mutex);
@@ -349,6 +353,7 @@ static struct usb_driver yurex_driver = {
 	.disconnect =	yurex_disconnect,
 	.id_table =	yurex_table,
 };
+
 
 static int yurex_fasync(int fd, struct file *file, int on)
 {
@@ -410,8 +415,7 @@ static ssize_t yurex_read(struct file *file, char __user *buffer, size_t count,
 			  loff_t *ppos)
 {
 	struct usb_yurex *dev;
-	int retval = 0;
-	int bytes_read = 0;
+	int len = 0;
 	char in_buffer[20];
 	unsigned long flags;
 
@@ -419,26 +423,19 @@ static ssize_t yurex_read(struct file *file, char __user *buffer, size_t count,
 
 	mutex_lock(&dev->io_mutex);
 	if (!dev->interface) {		/* already disconnected */
-		retval = -ENODEV;
-		goto exit;
+		mutex_unlock(&dev->io_mutex);
+		return -ENODEV;
 	}
 
 	spin_lock_irqsave(&dev->lock, flags);
-	bytes_read = snprintf(in_buffer, 20, "%lld\n", dev->bbu);
+	len = snprintf(in_buffer, 20, "%lld\n", dev->bbu);
 	spin_unlock_irqrestore(&dev->lock, flags);
-
-	if (*ppos < bytes_read) {
-		if (copy_to_user(buffer, in_buffer + *ppos, bytes_read - *ppos))
-			retval = -EFAULT;
-		else {
-			retval = bytes_read - *ppos;
-			*ppos += bytes_read;
-		}
-	}
-
-exit:
 	mutex_unlock(&dev->io_mutex);
-	return retval;
+
+	if (WARN_ON_ONCE(len >= sizeof(in_buffer)))
+		return -EIO;
+
+	return simple_read_from_buffer(buffer, count, ppos, in_buffer, len);
 }
 
 static ssize_t yurex_write(struct file *file, const char __user *user_buffer,
@@ -446,13 +443,13 @@ static ssize_t yurex_write(struct file *file, const char __user *user_buffer,
 {
 	struct usb_yurex *dev;
 	int i, set = 0, retval = 0;
-	char buffer[16];
+	char buffer[16 + 1];
 	char *data = buffer;
 	unsigned long long c, c2 = 0;
 	signed long timeout = 0;
 	DEFINE_WAIT(wait);
 
-	count = min(sizeof(buffer), count);
+	count = min(sizeof(buffer) - 1, count);
 	dev = file->private_data;
 
 	/* verify that we actually have some data to write */
@@ -471,6 +468,7 @@ static ssize_t yurex_write(struct file *file, const char __user *user_buffer,
 		retval = -EFAULT;
 		goto error;
 	}
+	buffer[count] = 0;
 	memset(dev->cntl_buffer, CMD_PADDING, YUREX_BUF_SIZE);
 
 	switch (buffer[0]) {

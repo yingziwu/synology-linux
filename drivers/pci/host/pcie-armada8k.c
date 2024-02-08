@@ -84,6 +84,8 @@ struct armada8k_pcie {
 #define AX_USER_DOMAIN_MASK		0x3
 #define AX_USER_DOMAIN_OFFSET		4
 
+
+
 #define to_armada8k_pcie(x)	container_of(x, struct armada8k_pcie, pp)
 
 static int armada8k_pcie_link_up(struct pcie_port *pp)
@@ -231,6 +233,7 @@ static int armada8k_add_pcie_port(struct pcie_port *pp,
 		dev_err(dev, "failed to request irq %d\n", pp->irq);
 		return ret;
 	}
+
 
 	ret = dw_pcie_host_init(pp);
 	if (ret) {

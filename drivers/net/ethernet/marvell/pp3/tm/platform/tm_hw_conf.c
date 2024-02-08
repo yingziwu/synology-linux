@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -41,6 +42,7 @@ disclaimer.
 /** Max number of Ports supported by HW */
 #define NSS_TM_MAX_PORTS    16 /* SN 192 */
 
+
 #define NSS_QUEUE_MIN_PERIODIC_INTERVAL			512
 #define NSS_A_LEVEL__MIN_PERIODIC_INTERVAL		512
 #define NSS_B_LEVEL__MIN_PERIODIC_INTERVAL		1024
@@ -61,6 +63,7 @@ static	unsigned int	__b_LevelMinPeriodicInterval;
 static	unsigned int	__c_LevelMinPeriodicInterval;
 static	unsigned int	__portMinPeriodicInterval;
 
+
 unsigned int init_tm_hardware_configuration(const char *cProductName)
 {
 /* here all parameters should be readed from database or hardware ...
@@ -80,10 +83,12 @@ unsigned int init_tm_hardware_configuration(const char *cProductName)
 	__c_LevelMinPeriodicInterval = NSS_C_LEVEL__MIN_PERIODIC_INTERVAL;
 	__portMinPeriodicInterval = NSS_PORT__MIN_PERIODIC_INTERVAL;
 
+
 	/* successful initialization */
 	__isInitialized = 1;
 	return 0;
 }
+
 
 unsigned int	is_tm_initialized()
 {
@@ -110,6 +115,7 @@ unsigned int	get_tm_queues_count()
 {
 	return __totalQueuesCount;
 }
+
 
 unsigned int	get_queue_min_periodic_interval()
 {
@@ -141,5 +147,6 @@ unsigned int	get_TM_min_frequency() { return TM_MIN_FREQUENCY; }
 unsigned int	get_TM_max_frequency() { return TM_MAX_FREQUENCY; }
 
 #define PROFILE_TD_THRESHOLD	0x7FFFF /* 19 bits */
+
 
 unsigned int	get_drop_threshold_definition() { return PROFILE_TD_THRESHOLD; }

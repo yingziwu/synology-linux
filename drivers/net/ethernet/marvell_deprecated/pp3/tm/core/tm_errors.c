@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -33,6 +34,7 @@ disclaimer.
 #include "tm_errcodes.h"
 #include "set_hw_registers.h"
 
+
 /**
  */
 int tm_sched_get_errors(tm_handle hndl, struct tm_error_info *info)
@@ -45,6 +47,7 @@ int tm_sched_get_errors(tm_handle hndl, struct tm_error_info *info)
 		return TM_HW_SCHED_GET_ERRORS_FAILED;
 	return rc;
 }
+
 
 /**
  */

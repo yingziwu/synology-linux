@@ -623,6 +623,7 @@ norbuff:
 	return -ENOMEM;
 }
 
+
 /* Close the low-level part of the AX25 channel. Easy! */
 static int ax_close(struct net_device *dev)
 {
@@ -647,12 +648,13 @@ static void ax_setup(struct net_device *dev)
 {
 	/* Finish setting up the DEVICE info. */
 	dev->mtu             = AX_MTU;
-	dev->hard_header_len = 0;
-	dev->addr_len        = 0;
+	dev->hard_header_len = AX25_MAX_HEADER_LEN;
+	dev->addr_len        = AX25_ADDR_LEN;
 	dev->type            = ARPHRD_AX25;
 	dev->tx_queue_len    = 10;
 	dev->header_ops      = &ax25_header_ops;
 	dev->netdev_ops	     = &ax_netdev_ops;
+
 
 	memcpy(dev->broadcast, &ax25_bcast, AX25_ADDR_LEN);
 	memcpy(dev->dev_addr,  &ax25_defaddr,  AX25_ADDR_LEN);

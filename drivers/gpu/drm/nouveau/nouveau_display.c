@@ -296,6 +296,7 @@ static const struct drm_mode_config_funcs nouveau_mode_config_funcs = {
 	.output_poll_changed = drm_fb_helper_output_poll_changed,
 };
 
+
 struct nouveau_drm_prop_enum_list {
 	u8 gen_mask;
 	int type;

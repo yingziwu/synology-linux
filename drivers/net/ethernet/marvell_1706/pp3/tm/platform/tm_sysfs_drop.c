@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -559,3 +560,5 @@ int tm_sysfs_drop_profile_set(int level, uint16_t index, int cos)
 
 	TM_WRAPPER_END(qmtm_hndl);
 }
+
+

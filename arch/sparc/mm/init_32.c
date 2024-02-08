@@ -65,6 +65,7 @@ void show_mem(unsigned int filter)
 	printk("%ld free pages\n", nr_free_pages());
 }
 
+
 unsigned long last_valid_pfn;
 
 unsigned long calc_highpages(void)
@@ -298,8 +299,9 @@ void __init mem_init(void)
 		prom_halt();
 	}
 
+
 	/* Saves us work later. */
-	memset((void *)&empty_zero_page, 0, PAGE_SIZE);
+	memset((void *)empty_zero_page, 0, PAGE_SIZE);
 
 	i = last_valid_pfn >> ((20 - PAGE_SHIFT) + 5);
 	i += 1;

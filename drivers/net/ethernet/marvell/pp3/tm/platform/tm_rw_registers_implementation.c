@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -32,6 +33,7 @@ disclaimer.
 #include "tm_rw_registers_interface.h"
 #include "tm_core_types.h"
 
+
 #define QMTM_REGISTER_SIZE	2 /* All register size is 8 Bytes - 64 bits */
 
 #define MV_PP3_HW_READ	mv_pp3_hw_read
@@ -43,6 +45,7 @@ disclaimer.
 static void tm_regs_get_address_string(u32 address, int index, char *regName);
 static void tm_regs_get_offset(u32 address, int index, u32 *offset);
 
+
 /**
  */
 int set_hw_connection(void *handle)
@@ -50,6 +53,7 @@ int set_hw_connection(void *handle)
 	int rc = 0;
 	return rc;
 }
+
 
 /**
  */
@@ -59,6 +63,7 @@ int flush_hw_connection(void *handle)
 	return rc;
 }
 
+
 /**
  */
 int reset_hw_connection(void *handle, int error)
@@ -67,6 +72,7 @@ int reset_hw_connection(void *handle, int error)
 	return rc;
 }
 
+
 /**
  */
 int close_hw_connection(void *handle)
@@ -74,6 +80,7 @@ int close_hw_connection(void *handle)
 	int rc = 0;
 	return rc;
 }
+
 
 /**
  */
@@ -97,6 +104,7 @@ int tm_table_entry_read(void *handle,
 
 	return rc;
 }
+
 
 /**
  */
@@ -130,6 +138,7 @@ int tm_table_entry_write(void *handle,
 	return rc;
 }
 
+
 /**
  */
 int tm_register_write(void *handle, void *vpAddress, void *vpData)
@@ -137,11 +146,13 @@ int tm_register_write(void *handle, void *vpAddress, void *vpData)
 	return tm_table_entry_write(handle, vpAddress, 0, vpData);
 }
 
+
 int tm_register_read(void *handle, void *vpAddress, void *vpData)
 {
 	return tm_table_entry_read(handle, vpAddress, 0, vpData);
 
 }
+
 
 static void tm_regs_get_address_string(u32 address, int index, char *regName)
 {
@@ -474,6 +485,7 @@ static void tm_regs_get_address_string(u32 address, int index, char *regName)
 
 	/*end of unit Sched*/
 }
+
 
 static void tm_regs_get_offset(u32 address, int index, u32 *offset)
 {

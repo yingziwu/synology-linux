@@ -415,6 +415,7 @@ static inline void  cxl_afu_put(struct cxl_afu *afu)
 	put_device(&afu->dev);
 }
 
+
 struct cxl_irq_name {
 	struct list_head list;
 	char *name;
@@ -466,6 +467,7 @@ struct cxl_context {
 	 */
 	enum cxl_context_status status;
 	struct mutex status_mutex;
+
 
 	/* XXX: Is it possible to need multiple work items at once? */
 	struct work_struct fault_work;
@@ -642,6 +644,7 @@ u8 cxl_afu_cr_read8(struct cxl_afu *afu, int cr, u64 off);
 
 ssize_t cxl_afu_read_err_buffer(struct cxl_afu *afu, char *buf,
 				loff_t off, size_t count);
+
 
 struct cxl_calls {
 	void (*cxl_slbia)(struct mm_struct *mm);

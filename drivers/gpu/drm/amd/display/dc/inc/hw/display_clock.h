@@ -28,6 +28,7 @@
 
 #include "dm_services_types.h"
 
+
 struct clocks_value {
 	int dispclk_in_khz;
 	int max_pixelclk_in_khz;
@@ -42,6 +43,7 @@ struct clocks_value {
 	int phyclk_in_khz;
 	int common_vdd_level;
 };
+
 
 /* Structure containing all state-dependent clocks
  * (dependent on "enum clocks_state") */

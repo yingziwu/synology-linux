@@ -161,6 +161,7 @@ struct SMU71_Discrete_LinkLevel
 
 typedef struct SMU71_Discrete_LinkLevel SMU71_Discrete_LinkLevel;
 
+
 #ifdef SMU__DYNAMIC_MCARB_SETTINGS
 // MC ARB DRAM Timing registers.
 struct SMU71_Discrete_MCArbDramTimingTableEntry
@@ -233,6 +234,7 @@ struct SMU71_Discrete_StateInfo
 };
 
 typedef struct SMU71_Discrete_StateInfo SMU71_Discrete_StateInfo;
+
 
 struct SMU71_Discrete_DpmTable
 {
@@ -370,6 +372,7 @@ struct SMU71_Discrete_MCRegisters
 
 typedef struct SMU71_Discrete_MCRegisters SMU71_Discrete_MCRegisters;
 
+
 // --------------------------------------------------- Fan Table -----------------------------------------------------------
 struct SMU71_Discrete_FanTable
 {
@@ -500,6 +503,7 @@ struct SMU71_AcpiScoreboard {
 
 typedef struct SMU71_AcpiScoreboard SMU71_AcpiScoreboard;
 
+
 struct SMU71_Discrete_PmFuses {
   // dw0-dw1
   uint8_t BapmVddCVidHiSidd[8];
@@ -583,6 +587,7 @@ typedef struct SMU71_Discrete_Log_Cntl SMU71_Discrete_Log_Cntl;
   #define CAC_ACC_NW_NUM_OF_SIGNALS 83
 #endif
 
+
 struct SMU71_Discrete_Cac_Collection_Table {
   uint32_t temperature;
   uint32_t cac_acc_nw[CAC_ACC_NW_NUM_OF_SIGNALS];
@@ -621,4 +626,6 @@ typedef struct SMU71_Discrete_Cac_Verification_Table SMU71_Discrete_Cac_Verifica
 #pragma pack(pop)
 #endif
 
+
 #endif
+

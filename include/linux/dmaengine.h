@@ -227,6 +227,7 @@ enum sum_check_flags {
 	SUM_CHECK_Q_RESULT = (1 << SUM_CHECK_Q),
 };
 
+
 /**
  * dma_cap_mask_t - capabilities bitmap modeled after cpumask_t.
  * See linux/cpumask.h
@@ -794,6 +795,9 @@ static inline struct dma_async_tx_descriptor *dmaengine_prep_slave_single(
 	sg_dma_address(&sg) = buf;
 	sg_dma_len(&sg) = len;
 
+	if (!chan || !chan->device || !chan->device->device_prep_slave_sg)
+		return NULL;
+
 	return chan->device->device_prep_slave_sg(chan, &sg, 1,
 						  dir, flags, NULL);
 }
@@ -802,6 +806,9 @@ static inline struct dma_async_tx_descriptor *dmaengine_prep_slave_sg(
 	struct dma_chan *chan, struct scatterlist *sgl,	unsigned int sg_len,
 	enum dma_transfer_direction dir, unsigned long flags)
 {
+	if (!chan || !chan->device || !chan->device->device_prep_slave_sg)
+		return NULL;
+
 	return chan->device->device_prep_slave_sg(chan, sgl, sg_len,
 						  dir, flags, NULL);
 }
@@ -813,6 +820,9 @@ static inline struct dma_async_tx_descriptor *dmaengine_prep_rio_sg(
 	enum dma_transfer_direction dir, unsigned long flags,
 	struct rio_dma_ext *rio_ext)
 {
+	if (!chan || !chan->device || !chan->device->device_prep_slave_sg)
+		return NULL;
+
 	return chan->device->device_prep_slave_sg(chan, sgl, sg_len,
 						  dir, flags, rio_ext);
 }
@@ -823,6 +833,9 @@ static inline struct dma_async_tx_descriptor *dmaengine_prep_dma_cyclic(
 		size_t period_len, enum dma_transfer_direction dir,
 		unsigned long flags)
 {
+	if (!chan || !chan->device || !chan->device->device_prep_dma_cyclic)
+		return NULL;
+
 	return chan->device->device_prep_dma_cyclic(chan, buf_addr, buf_len,
 						period_len, dir, flags);
 }
@@ -831,6 +844,9 @@ static inline struct dma_async_tx_descriptor *dmaengine_prep_interleaved_dma(
 		struct dma_chan *chan, struct dma_interleaved_template *xt,
 		unsigned long flags)
 {
+	if (!chan || !chan->device || !chan->device->device_prep_interleaved_dma)
+		return NULL;
+
 	return chan->device->device_prep_interleaved_dma(chan, xt, flags);
 }
 
@@ -838,7 +854,7 @@ static inline struct dma_async_tx_descriptor *dmaengine_prep_dma_memset(
 		struct dma_chan *chan, dma_addr_t dest, int value, size_t len,
 		unsigned long flags)
 {
-	if (!chan || !chan->device)
+	if (!chan || !chan->device || !chan->device->device_prep_dma_memset)
 		return NULL;
 
 	return chan->device->device_prep_dma_memset(chan, dest, value,
@@ -851,6 +867,9 @@ static inline struct dma_async_tx_descriptor *dmaengine_prep_dma_sg(
 		struct scatterlist *src_sg, unsigned int src_nents,
 		unsigned long flags)
 {
+	if (!chan || !chan->device || !chan->device->device_prep_dma_sg)
+		return NULL;
+
 	return chan->device->device_prep_dma_sg(chan, dst_sg, dst_nents,
 			src_sg, src_nents, flags);
 }

@@ -208,6 +208,7 @@ static inline u64 __raw_readq_no_log(const volatile void __iomem *addr)
 	return val;
 }
 
+
 #endif /* CONFIG_SYNO_LSP_RTD1619 */
 /* IO barriers */
 #define __iormb()		rmb()

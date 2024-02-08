@@ -52,7 +52,6 @@
 static int sockstat_seq_show(struct seq_file *seq, void *v)
 {
 	struct net *net = seq->private;
-	unsigned int frag_mem;
 	int orphans, sockets;
 
 	local_bh_disable();
@@ -72,8 +71,9 @@ static int sockstat_seq_show(struct seq_file *seq, void *v)
 		   sock_prot_inuse_get(net, &udplite_prot));
 	seq_printf(seq, "RAW: inuse %d\n",
 		   sock_prot_inuse_get(net, &raw_prot));
-	frag_mem = ip_frag_mem(net);
-	seq_printf(seq,  "FRAG: inuse %u memory %u\n", !!frag_mem, frag_mem);
+	seq_printf(seq,  "FRAG: inuse %u memory %lu\n",
+		   atomic_read(&net->ipv4.frags.rhashtable.nelems),
+		   frag_mem_limit(&net->ipv4.frags));
 	return 0;
 }
 
@@ -132,6 +132,7 @@ static const struct snmp_mib snmp4_ipextstats_list[] = {
 	SNMP_MIB_ITEM("InECT1Pkts", IPSTATS_MIB_ECT1PKTS),
 	SNMP_MIB_ITEM("InECT0Pkts", IPSTATS_MIB_ECT0PKTS),
 	SNMP_MIB_ITEM("InCEPkts", IPSTATS_MIB_CEPKTS),
+	SNMP_MIB_ITEM("ReasmOverlaps", IPSTATS_MIB_REASM_OVERLAPS),
 	SNMP_MIB_SENTINEL
 };
 
@@ -152,6 +153,7 @@ static const struct {
 	{ "AddrMaskReps", ICMP_ADDRESSREPLY },
 	{ NULL, 0 }
 };
+
 
 static const struct snmp_mib snmp4_tcp_list[] = {
 	SNMP_MIB_ITEM("RtoAlgorithm", TCP_MIB_RTOALGORITHM),
@@ -456,6 +458,8 @@ static const struct file_operations snmp_seq_fops = {
 	.release = single_release_net,
 };
 
+
+
 /*
  *	Output /proc/net/netstat
  */
@@ -538,3 +542,4 @@ int __init ip_misc_proc_init(void)
 {
 	return register_pernet_subsys(&ip_proc_ops);
 }
+

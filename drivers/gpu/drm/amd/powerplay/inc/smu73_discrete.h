@@ -137,6 +137,7 @@ struct SMU73_Discrete_LinkLevel
 
 typedef struct SMU73_Discrete_LinkLevel SMU73_Discrete_LinkLevel;
 
+
 // MC ARB DRAM Timing registers.
 struct SMU73_Discrete_MCArbDramTimingTableEntry
 {
@@ -222,6 +223,7 @@ struct SMU73_Discrete_DpmTable
     SMIO_Table                          SmioTable2;
 
     uint32_t                            MvddLevelCount;
+
 
     uint8_t                             BapmVddcVidHiSidd        [SMU73_MAX_LEVELS_VDDC];
     uint8_t                             BapmVddcVidLoSidd        [SMU73_MAX_LEVELS_VDDC];
@@ -364,6 +366,7 @@ struct SMU73_Discrete_DpmTable
 
 typedef struct SMU73_Discrete_DpmTable SMU73_Discrete_DpmTable;
 
+
 // --------------------------------------------------- Fan Table -----------------------------------------------------------
 struct SMU73_Discrete_FanTable
 {
@@ -391,6 +394,8 @@ typedef struct SMU73_Discrete_FanTable SMU73_Discrete_FanTable;
 
 #define SMU7_DISCRETE_GPIO_SCLK_DEBUG             4
 #define SMU7_DISCRETE_GPIO_SCLK_DEBUG_BIT         (0x1 << SMU7_DISCRETE_GPIO_SCLK_DEBUG)
+
+
 
 struct SMU7_MclkDpmScoreboard
 {
@@ -557,6 +562,7 @@ struct SMU7_BapmScoreboard {
   int32_t temperature_gradient;
   uint32_t measured_temperature;
 };
+
 
 typedef struct SMU7_BapmScoreboard SMU7_BapmScoreboard;
 
@@ -790,3 +796,4 @@ typedef struct SMU7_Discrete_Pm_Status_Table SMU7_Discrete_Pm_Status_Table;
 #pragma pack(pop)
 
 #endif
+

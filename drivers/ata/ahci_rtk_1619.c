@@ -22,11 +22,11 @@
 #include <soc/realtek/rtk_chip.h>
 
 #define DRV_NAME_RTK	"ahci_rtk"
-#ifdef CONFIG_SYNO_RTD1619
+#ifdef MY_DEF_HERE
 #define POWER_SAVEING	0
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 #define POWER_SAVEING	1
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 #define MAC_MAX_CLK	5
 #define MAC_MAX_RST	5
 #define MAX_GPIO_CTL	10

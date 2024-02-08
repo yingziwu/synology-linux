@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -212,6 +213,7 @@ void mv_debug_mem_dump(void *addr, int size, int access)
 	}
 	pr_cont("\n");
 }
+
 
 /*
 Description:

@@ -297,6 +297,7 @@ static int rtk_erase_block(struct mtd_info *mtd, u16 chipnr, int page)
 
 	REG_WRITE_U32( REG_MULTI_CHNL_MODE+map_base,NF_MULTI_CHNL_MODE_no_wait_busy(1)|NF_MULTI_CHNL_MODE_edo(1));
 
+
 	REG_WRITE_U32( REG_ND_CMD+map_base,NF_ND_CMD_cmd(CMD_BLK_ERASE_C1) );
 	REG_WRITE_U32( REG_CMD2+map_base,NF_CMD2_cmd2(CMD_BLK_ERASE_C2) );
 	REG_WRITE_U32( REG_CMD3+map_base,NF_CMD3_cmd3(CMD_BLK_ERASE_C3) );
@@ -688,6 +689,7 @@ static int rtk_mtd_add_partitions(struct mtd_info *mtd, struct mtd_partitions *p
 
         return 0;
 }
+
 
 static int rtk_nand_profile (void)
 {

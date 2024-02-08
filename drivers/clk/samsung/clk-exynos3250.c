@@ -683,7 +683,7 @@ static struct samsung_pll_rate_table exynos3250_epll_rates[] = {
 	PLL_36XX_RATE(144000000,  96, 2, 3,     0),
 	PLL_36XX_RATE( 96000000, 128, 2, 4,     0),
 	PLL_36XX_RATE( 84000000, 112, 2, 4,     0),
-	PLL_36XX_RATE( 80000004, 106, 2, 4, 43691),
+	PLL_36XX_RATE( 80000003, 106, 2, 4, 43691),
 	PLL_36XX_RATE( 73728000,  98, 2, 4, 19923),
 	PLL_36XX_RATE( 67737598, 270, 3, 5, 62285),
 	PLL_36XX_RATE( 65535999, 174, 2, 5, 49982),
@@ -719,7 +719,7 @@ static struct samsung_pll_rate_table exynos3250_vpll_rates[] = {
 	PLL_36XX_RATE(148352005,  98, 2, 3, 59070),
 	PLL_36XX_RATE(108000000, 144, 2, 4,     0),
 	PLL_36XX_RATE( 74250000,  99, 2, 4,     0),
-	PLL_36XX_RATE( 74176002,  98, 3, 4, 59070),
+	PLL_36XX_RATE( 74176002,  98, 2, 4, 59070),
 	PLL_36XX_RATE( 54054000, 216, 3, 5, 14156),
 	PLL_36XX_RATE( 54000000, 144, 2, 5,     0),
 	{ /* sentinel */ }
@@ -921,6 +921,7 @@ static void __init exynos3250_cmu_dmc_init(struct device_node *np)
 CLK_OF_DECLARE(exynos3250_cmu_dmc, "samsung,exynos3250-cmu-dmc",
 		exynos3250_cmu_dmc_init);
 
+
 /*
  * CMU ISP
  */
@@ -1081,3 +1082,4 @@ static int __init exynos3250_cmu_platform_init(void)
 					exynos3250_cmu_isp_probe);
 }
 subsys_initcall(exynos3250_cmu_platform_init);
+

@@ -231,6 +231,7 @@ int msm_hdmi_audio_info_setup(struct hdmi *hdmi, bool enabled,
 	uint32_t level_shift, bool down_mix);
 void msm_hdmi_audio_set_sample_rate(struct hdmi *hdmi, int rate);
 
+
 /*
  * hdmi bridge:
  */

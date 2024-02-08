@@ -94,14 +94,21 @@ static struct ip6_flowlabel *fl_lookup(struct net *net, __be32 label)
 	return fl;
 }
 
+static void fl_free_rcu(struct rcu_head *head)
+{
+	struct ip6_flowlabel *fl = container_of(head, struct ip6_flowlabel, rcu);
+
+	if (fl->share == IPV6_FL_S_PROCESS)
+		put_pid(fl->owner.pid);
+	kfree(fl->opt);
+	kfree(fl);
+}
+
+
 static void fl_free(struct ip6_flowlabel *fl)
 {
-	if (fl) {
-		if (fl->share == IPV6_FL_S_PROCESS)
-			put_pid(fl->owner.pid);
-		kfree(fl->opt);
-		kfree_rcu(fl, rcu);
-	}
+	if (fl)
+		call_rcu(&fl->rcu, fl_free_rcu);
 }
 
 static void fl_release(struct ip6_flowlabel *fl)
@@ -233,6 +240,8 @@ static struct ip6_flowlabel *fl_intern(struct net *net,
 	return NULL;
 }
 
+
+
 /* Socket flowlabel lists */
 
 struct ip6_flowlabel *fl6_sock_lookup(struct sock *sk, __be32 label)
@@ -281,6 +290,7 @@ void fl6_free_socklist(struct sock *sk)
 
 /* Service routines */
 
+
 /*
    It is the only difficult place. flowlabel enforces equal headers
    before and including routing header, however user may supply options
@@ -311,6 +321,7 @@ struct ipv6_txoptions *fl6_merge_options(struct ipv6_txoptions *opt_space,
 	}
 	opt_space->dst1opt = fopt->dst1opt;
 	opt_space->opt_flen = fopt->opt_flen;
+	opt_space->tot_len = fopt->tot_len;
 	return opt_space;
 }
 EXPORT_SYMBOL_GPL(fl6_merge_options);
@@ -516,6 +527,7 @@ int ipv6_flowlabel_opt(struct sock *sk, char __user *optval, int optlen)
 	struct ipv6_fl_socklist __rcu **sflp;
 	struct ip6_flowlabel *fl, *fl1 = NULL;
 
+
 	if (optlen < sizeof(freq))
 		return -EINVAL;
 
@@ -627,9 +639,9 @@ recheck:
 				if (fl1->share == IPV6_FL_S_EXCL ||
 				    fl1->share != fl->share ||
 				    ((fl1->share == IPV6_FL_S_PROCESS) &&
-				     (fl1->owner.pid == fl->owner.pid)) ||
+				     (fl1->owner.pid != fl->owner.pid)) ||
 				    ((fl1->share == IPV6_FL_S_USER) &&
-				     uid_eq(fl1->owner.uid, fl->owner.uid)))
+				     !uid_eq(fl1->owner.uid, fl->owner.uid)))
 					goto release;
 
 				err = -ENOMEM;

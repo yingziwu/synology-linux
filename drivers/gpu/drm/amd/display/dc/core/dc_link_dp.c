@@ -1004,6 +1004,7 @@ enum link_training_result dc_link_dp_perform_link_training(
 	return status;
 }
 
+
 bool perform_link_training_with_retries(
 	struct dc_link *link,
 	const struct dc_link_settings *link_setting,
@@ -1149,6 +1150,7 @@ bool dp_hbr_verify_link_cap(
 		link->verified_link_cap.link_spread =
 		LINK_SPREAD_DISABLED;
 	}
+
 
 	return success;
 }
@@ -1628,6 +1630,7 @@ static bool handle_hpd_irq_psr_sink(const struct dc_link *link)
 		&psr_configuration.raw,
 		sizeof(psr_configuration.raw));
 
+
 	if (psr_configuration.bits.ENABLE) {
 		unsigned char dpcdbuf[3] = {0};
 		union psr_error_status psr_error_status;
@@ -1932,6 +1935,7 @@ bool dc_link_handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd
 	dm_logger_write(link->ctx->logger, LOG_HW_HPD_IRQ,
 		"%s: Got short pulse HPD on link %d\n",
 		__func__, link->link_index);
+
 
 	 /* All the "handle_hpd_irq_xxx()" methods
 		 * should be called only after

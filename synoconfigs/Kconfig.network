@@ -46,8 +46,8 @@ config SYNO_IPV6_EXPORT_IN6ADDR_ANY
 	bool "Export in6addr_any value for modules"
 	default y
 
-config SYNO_SYSFS_EXPORT_OVS_BONDS
-	bool "To export OVS bond information on sysfs"
+config SYNO_OVS_MODE_REFINEMENT
+	bool "Refine Synology Open vSwitch Mode"
 	default y
 
 config SYNO_NF_NAT_WORKAROUND
@@ -82,18 +82,10 @@ config SYNO_BACKPORT_GLINKSETTINGS
 	bool "ethtool get_link_ksettings/set_link_ksettings"
 	default y
 
-config SYNO_RTK_NETWORK_LOG_REDUCE
-	bool "reduce realtek network driver rx buffer exhausted log"
-	default n
-
 config SYNO_AMD_XGBE_PORTING
 	bool "AMD Xgbe driver porting"
 	default n
 	depends on AMD_XGBE
-
-config SYNO_ADD_ROUTE_CHECK
-    bool "check if interface is link up before adding route"
-	default n
 
 config SYNO_FIX_ALB_OVERFLOW
 	bool "Fix the overflow bug in alb tx balance mechanism"

@@ -21,6 +21,8 @@
 #ifndef _uvd_7_0_OFFSET_HEADER
 #define _uvd_7_0_OFFSET_HEADER
 
+
+
 // addressBlock: uvd0_uvd_pg_dec
 // base address: 0x1fb00
 #define mmUVD_POWER_STATUS                                                                             0x00c4
@@ -43,6 +45,7 @@
 #define mmUVD_DPG_LMI_VCPU_CACHE_64BIT_BAR_HIGH_BASE_IDX                                               1
 #define mmUVD_DPG_VCPU_CACHE_OFFSET0                                                                   0x00e7
 #define mmUVD_DPG_VCPU_CACHE_OFFSET0_BASE_IDX                                                          1
+
 
 // addressBlock: uvd0_uvdnpdec
 // base address: 0x20000
@@ -112,6 +115,7 @@
 #define mmUVD_LMI_RBC_RB_64BIT_BAR_HIGH_BASE_IDX                                                       1
 #define mmUVD_LMI_RBC_RB_64BIT_BAR_LOW                                                                 0x0469
 #define mmUVD_LMI_RBC_RB_64BIT_BAR_LOW_BASE_IDX                                                        1
+
 
 // addressBlock: uvd0_uvddec
 // base address: 0x20c00
@@ -213,5 +217,6 @@
 #define mmUVD_CONTEXT_ID_BASE_IDX                                                                      1
 #define mmUVD_CONTEXT_ID2                                                                              0x05bf
 #define mmUVD_CONTEXT_ID2_BASE_IDX                                                                     1
+
 
 #endif

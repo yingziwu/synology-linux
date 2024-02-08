@@ -43,6 +43,7 @@
 #include <linux/usb/usbnet.h>
 #include <linux/usb/rndis_host.h>
 
+
 /* NOTE: All these are settings for Broadcom chipset */
 static char modparam_country[4] = "EU";
 module_param_string(country, modparam_country, 4, 0444);
@@ -89,6 +90,7 @@ MODULE_PARM_DESC(workaround_interval,
 #define	WL_NOISE	-96	/* typical noise level in dBm */
 #define	WL_SIGMAX	-32	/* typical maximum signal level in dBm */
 
+
 /* Assume that Broadcom 4320 (only chipset at time of writing known to be
  * based on wireless rndis) has default txpower of 13dBm.
  * This value is from Linksys WUSB54GSC User Guide, Appendix F: Specifications.
@@ -106,6 +108,7 @@ MODULE_PARM_DESC(workaround_interval,
 #define RNDIS_UNKNOWN	0
 #define RNDIS_BCM4320A	1
 #define RNDIS_BCM4320B	2
+
 
 /* NDIS data structures. Taken from wpa_supplicant driver_ndis.c
  * slightly modified for datatype endianess, etc
@@ -557,6 +560,7 @@ static const struct cfg80211_ops rndis_config_ops = {
 };
 
 static void *rndis_wiphy_privid = &rndis_wiphy_privid;
+
 
 static struct rndis_wlan_private *get_rndis_wlan_priv(struct usbnet *dev)
 {
@@ -2915,6 +2919,8 @@ static void rndis_wlan_auth_indication(struct usbnet *usbdev,
 
 	while (buflen >= sizeof(*auth_req)) {
 		auth_req = (void *)buf;
+		if (buflen < le32_to_cpu(auth_req->length))
+			return;
 		type = "unknown";
 		flags = le32_to_cpu(auth_req->flags);
 		pairwise_error = false;
@@ -3421,6 +3427,10 @@ static int rndis_wlan_bind(struct usbnet *usbdev, struct usb_interface *intf)
 
 	/* because rndis_command() sleeps we need to use workqueue */
 	priv->workqueue = create_singlethread_workqueue("rndis_wlan");
+	if (!priv->workqueue) {
+		wiphy_free(wiphy);
+		return -ENOMEM;
+	}
 	INIT_WORK(&priv->work, rndis_wlan_worker);
 	INIT_DELAYED_WORK(&priv->dev_poller_work, rndis_device_poller);
 	INIT_DELAYED_WORK(&priv->scan_work, rndis_get_scan_results);
@@ -3761,3 +3771,4 @@ MODULE_AUTHOR("Bjorge Dijkstra");
 MODULE_AUTHOR("Jussi Kivilinna");
 MODULE_DESCRIPTION("Driver for RNDIS based USB Wireless adapters");
 MODULE_LICENSE("GPL");
+

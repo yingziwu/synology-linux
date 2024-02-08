@@ -29,6 +29,7 @@ struct phy_data {
     struct rtk_usb_phy_data_s *page1;
 };
 
+
 #define WAIT_VBUSY_RETRY	3
 
 #define OFFEST_PHY_READ 0x20
@@ -51,6 +52,7 @@ char  efuse_mapping[16] = {
     0xa1, 0x85, 0x89, 0x8d, 0x91, 0x95, 0x99, 0x9d, 0xa1, 0xa5, 0xa9, 0xad, 0xb1, 0xb5, 0xb9, 0xbd,
 
 };
+
 
 int utmi_wait_register(void __iomem *reg, u32 mask, u32 result)
 {

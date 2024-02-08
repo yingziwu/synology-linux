@@ -365,6 +365,8 @@ static int __init tsc_setup(char *str)
 		tsc_clocksource_reliable = 1;
 	if (!strncmp(str, "noirqtime", 9))
 		no_sched_irq_time = 1;
+	if (!strcmp(str, "unstable"))
+		mark_tsc_unstable("boot parameter");
 	return 1;
 }
 
@@ -406,7 +408,7 @@ static unsigned long calc_hpet_ref(u64 deltatsc, u64 hpet1, u64 hpet2)
 	hpet2 -= hpet1;
 	tmp = ((u64)hpet2 * hpet_readl(HPET_PERIOD));
 	do_div(tmp, 1000000);
-	do_div(deltatsc, tmp);
+	deltatsc = div64_u64(deltatsc, tmp);
 
 	return (unsigned long) deltatsc;
 }
@@ -438,6 +440,7 @@ static unsigned long calc_pmtimer_ref(u64 deltatsc, u64 pm1, u64 pm2)
 #define CAL2_MS		50
 #define CAL2_LATCH	(PIT_TICK_RATE / (1000 / CAL2_MS))
 #define CAL2_PIT_LOOPS	5000
+
 
 /*
  * Try to calibrate the TSC against the Programmable
@@ -844,6 +847,7 @@ int recalibrate_cpu_khz(void)
 
 EXPORT_SYMBOL(recalibrate_cpu_khz);
 
+
 static unsigned long long cyc2ns_suspend;
 
 void tsc_save_sched_clock_state(void)
@@ -1069,6 +1073,7 @@ int unsynchronized_tsc(void)
 	return 0;
 }
 
+
 static void tsc_refine_calibration_work(struct work_struct *work);
 static DECLARE_DELAYED_WORK(tsc_irqwork, tsc_refine_calibration_work);
 /**
@@ -1141,6 +1146,7 @@ static void tsc_refine_calibration_work(struct work_struct *work)
 out:
 	clocksource_register_khz(&clocksource_tsc, tsc_khz);
 }
+
 
 static int __init init_tsc_clocksource(void)
 {

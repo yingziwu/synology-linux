@@ -90,6 +90,7 @@ static int crypto_authenc_esn_setkey(struct crypto_aead *authenc_esn, const u8 *
 					   CRYPTO_TFM_RES_MASK);
 
 out:
+	memzero_explicit(&keys, sizeof(keys));
 	return err;
 
 badkey:
@@ -165,6 +166,7 @@ static int crypto_authenc_esn_genicv(struct aead_request *req,
 	return crypto_ahash_digest(ahreq) ?:
 	       crypto_authenc_esn_genicv_tail(req, aead_request_flags(req));
 }
+
 
 static void crypto_authenc_esn_encrypt_done(struct crypto_async_request *req,
 					    int err)
@@ -244,6 +246,9 @@ static int crypto_authenc_esn_decrypt_tail(struct aead_request *req,
 	u8 *ihash = ohash + crypto_ahash_digestsize(auth);
 	u32 tmp[2];
 
+	if (!authsize)
+		goto decrypt;
+
 	/* Move high-order bits of sequence number back. */
 	scatterwalk_map_and_copy(tmp, dst, 4, 4, 0);
 	scatterwalk_map_and_copy(tmp + 1, dst, assoclen + cryptlen, 4, 0);
@@ -251,6 +256,8 @@ static int crypto_authenc_esn_decrypt_tail(struct aead_request *req,
 
 	if (crypto_memneq(ihash, ohash, authsize))
 		return -EBADMSG;
+
+decrypt:
 
 	sg_init_table(areq_ctx->dst, 2);
 	dst = scatterwalk_ffwd(areq_ctx->dst, dst, assoclen);
@@ -269,7 +276,7 @@ static void authenc_esn_verify_ahash_done(struct crypto_async_request *areq,
 	struct aead_request *req = areq->data;
 
 	err = err ?: crypto_authenc_esn_decrypt_tail(req, 0);
-	aead_request_complete(req, err);
+	authenc_esn_request_complete(req, err);
 }
 
 static int crypto_authenc_esn_decrypt(struct aead_request *req)

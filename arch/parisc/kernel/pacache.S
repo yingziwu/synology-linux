@@ -36,6 +36,7 @@
 #include <asm/assembly.h>
 #include <asm/pgtable.h>
 #include <asm/cache.h>
+#include <asm/ldcw.h>
 #include <linux/linkage.h>
 
 	.text
@@ -159,6 +160,7 @@ fdtonemiddle:					/* Loop if LOOP = 1 */
 	addib,COND(>)		-1, %r22, fdtoneloop	/* Outer loop count decr */
 	add		%r21, %r20, %r20	/* increment space */
 
+
 fdtdone:
 	/*
 	 * Switch back to virtual mode
@@ -258,6 +260,7 @@ fisync:
 	.procend
 ENDPROC(flush_instruction_cache_local)
 
+
 	.import cache_info, data
 ENTRY(flush_data_cache_local)
 	.proc
@@ -331,8 +334,12 @@ ENDPROC(flush_data_cache_local)
 
 	.macro	tlb_lock	la,flags,tmp
 #ifdef CONFIG_SMP
-	ldil		L%pa_tlb_lock,%r1
-	ldo		R%pa_tlb_lock(%r1),\la
+#if __PA_LDCW_ALIGNMENT > 4
+	load32		pa_tlb_lock + __PA_LDCW_ALIGNMENT-1, \la
+	depi		0,31,__PA_LDCW_ALIGN_ORDER, \la
+#else
+	load32		pa_tlb_lock, \la
+#endif
 	rsm		PSW_SM_I,\flags
 1:	LDCW		0(\la),\tmp
 	cmpib,<>,n	0,\tmp,3f
@@ -347,6 +354,7 @@ ENDPROC(flush_data_cache_local)
 	.macro	tlb_unlock	la,flags,tmp
 #ifdef CONFIG_SMP
 	ldi		1,\tmp
+	sync
 	stw		\tmp,0(\la)
 	mtsm		\flags
 #endif
@@ -868,6 +876,7 @@ ENTRY(flush_dcache_page_asm)
 	add		%r28, %r25, %r25
 	sub		%r25, r31, %r25
 
+
 1:      fdc,m		r31(%r28)
 	fdc,m		r31(%r28)
 	fdc,m		r31(%r28)
@@ -939,6 +948,7 @@ ENTRY(flush_icache_page_asm)
 	add		%r28, %r25, %r25
 	sub		%r25, %r31, %r25
 
+
 	/* fic only has the type 26 form on PA1.1, requiring an
 	 * explicit space specification, so use %sr4 */
 1:      fic,m		%r31(%sr4,%r28)
@@ -982,6 +992,7 @@ ENTRY(flush_kernel_dcache_page_asm)
 #endif
 	add		%r26, %r25, %r25
 	sub		%r25, %r23, %r25
+
 
 1:      fdc,m		%r23(%r26)
 	fdc,m		%r23(%r26)
@@ -1131,6 +1142,7 @@ ENTRY(flush_kernel_icache_page)
 	add		%r26, %r25, %r25
 	sub		%r25, %r23, %r25
 
+
 1:      fic,m		%r23(%sr4, %r26)
 	fic,m		%r23(%sr4, %r26)
 	fic,m		%r23(%sr4, %r26)
@@ -1242,6 +1254,7 @@ srdis_pa20:
 	.word		0x144008bc		/* mfdiag %dr2, %r28 */
 	depdi		0, 54,1, %r28		/* clear DIAG_SPHASH_ENAB (bit 54) */
 	.word		0x145c1840		/* mtdiag %r28, %dr2 */
+
 
 srdis_done:
 	/* Switch back to virtual mode */

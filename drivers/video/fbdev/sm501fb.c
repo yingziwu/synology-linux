@@ -890,6 +890,7 @@ static int sm501fb_set_par_pnl(struct fb_info *info)
 	return 0;
 }
 
+
 /* chan_to_field
  *
  * convert a colour value into a field position
@@ -1442,6 +1443,7 @@ static void sm501fb_fillrect(struct fb_info *info, const struct fb_fillrect *rec
 	smc501_writel(0x800100cc, fbi->regs2d + SM501_2D_CONTROL);
 }
 
+
 static struct fb_ops sm501fb_ops_crt = {
 	.owner		= THIS_MODULE,
 	.fb_check_var	= sm501fb_check_var_crt,
@@ -1598,6 +1600,7 @@ static int sm501fb_start(struct sm501fb_info *info,
 	info->fbmem = ioremap(res->start, resource_size(res));
 	if (info->fbmem == NULL) {
 		dev_err(dev, "cannot remap framebuffer\n");
+		ret = -ENXIO;
 		goto err_mem_res;
 	}
 
@@ -2056,6 +2059,7 @@ err_alloc:
 	return ret;
 }
 
+
 /*
  *  Cleanup
  */
@@ -2167,6 +2171,7 @@ static void sm501fb_resume_fb(struct sm501fb_info *info,
 	vfree(par->store_cursor);
 }
 
+
 /* suspend and resume support */
 
 static int sm501fb_suspend(struct platform_device *pdev, pm_message_t state)
@@ -2187,6 +2192,7 @@ static int sm501fb_suspend(struct platform_device *pdev, pm_message_t state)
 
 #define SM501_CRT_CTRL_SAVE (SM501_DC_CRT_CONTROL_TVP |        \
 			     SM501_DC_CRT_CONTROL_SEL)
+
 
 static int sm501fb_resume(struct platform_device *pdev)
 {

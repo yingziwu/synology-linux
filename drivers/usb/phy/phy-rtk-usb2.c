@@ -307,6 +307,7 @@ static int rtk_usb2phy_probe(struct platform_device *pdev)
         rtk_usb_phy->phy_data = phy_data;
     }
 
+
     platform_set_drvdata(pdev, rtk_usb_phy);
 
     //ret = usb_add_phy(&rtk_usb_phy->phy, USB_PHY_TYPE_USB2);

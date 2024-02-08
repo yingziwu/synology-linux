@@ -201,6 +201,7 @@ static int __update_mqd(struct mqd_manager *mm, void *mqd,
 	return 0;
 }
 
+
 static int update_mqd(struct mqd_manager *mm, void *mqd,
 			struct queue_properties *q)
 {
@@ -270,6 +271,7 @@ static int init_mqd_sdma(struct mqd_manager *mm, void **mqd,
 {
 	int retval;
 	struct vi_sdma_mqd *m;
+
 
 	retval = kfd_gtt_sa_allocate(mm->dev,
 			sizeof(struct vi_sdma_mqd),

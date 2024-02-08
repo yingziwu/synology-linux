@@ -79,7 +79,7 @@ struct qin64 {
 struct dcss_segment {
 	struct list_head list;
 	char dcss_name[8];
-	char res_name[15];
+	char res_name[16];
 	unsigned long start_addr;
 	unsigned long end;
 	atomic_t ref_count;
@@ -162,6 +162,7 @@ dcss_mkname(char *name, char *dcss_name)
 	ASCEBC(dcss_name, 8);
 }
 
+
 /*
  * search all segments in dcss_list, and return the one
  * namend *name. If not found, return NULL.
@@ -184,6 +185,7 @@ segment_by_name (char *name)
 	}
 	return retval;
 }
+
 
 /*
  * Perform a function on a dcss segment.
@@ -232,6 +234,7 @@ dcss_diag_translate_rc (int vm_rc) {
 		return -ENOENT;
 	return -EIO;
 }
+
 
 /* do a diag to get info about a segment.
  * fills start_address, end and vm_segtype fields
@@ -431,7 +434,7 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
 	memcpy(&seg->res_name, seg->dcss_name, 8);
 	EBCASC(seg->res_name, 8);
 	seg->res_name[8] = '\0';
-	strncat(seg->res_name, " (DCSS)", 7);
+	strlcat(seg->res_name, " (DCSS)", sizeof(seg->res_name));
 	seg->res->name = seg->res_name;
 	rc = seg->vm_segtype;
 	if (rc == SEG_TYPE_SC ||

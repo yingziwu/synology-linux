@@ -991,6 +991,7 @@ static int armada_37xx_pinctrl_register(struct platform_device *pdev,
 	if (!info->funcs)
 		return -ENOMEM;
 
+
 	ret = armada_37xx_fill_group(info);
 	if (ret)
 		return ret;

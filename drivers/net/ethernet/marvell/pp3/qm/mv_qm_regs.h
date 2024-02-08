@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -35,6 +36,7 @@ disclaimer.
 #define     DMA_UNIT_OFFSET 0x00430000
 #define REORDER_UNIT_OFFSET 0x00500000
 #define     GPM_UNIT_OFFSET 0x00600000
+
 
 /* --------------------------------------- */
 /*     registers global defenitions        */
@@ -241,6 +243,9 @@ struct ql_rule_bpi {
 	struct ql_rule_bpi_entry reg_rule_bpi_entry;
 } __ATTRIBUTE_PACKED__;
 
+
+
+
 struct ql_ql_entry {
 	int ql:24;							/* byte[ 0- 3] ,bit[ 0-23] */
 	int qstatus:2;							/* byte[ 0- 3] ,bit[24-25] */
@@ -393,6 +398,8 @@ struct pfe_queue_qece {
 /*	int _reserved:32;						 byte[ 0- 3] ,bit[ 0-31]  DUMMY*/
 } __ATTRIBUTE_PACKED__;
 
+
+
 /* REORDER */
 struct reorder_ru_pool {
 	int sid_limit:32;					/* byte[ 0- 3] ,bit[ 0-31] */
@@ -448,6 +455,7 @@ struct reorder_ru_port2class {
 	int _reserved_1:25;					/* byte[ 0- 3] ,bit[ 7-31] */
 } __ATTRIBUTE_PACKED__;
 
+
 /* GPM */
 struct gpm_gpm_pl {
 /*	int gpm_pl:512;						 byte[ 0-63] ,bit[  0-511] */
@@ -476,6 +484,8 @@ struct gpm_gpm_qe {
 	int gpm_qe_02:32;					/* byte[ 0- 7] ,bit[ 64- 95] */
 	int gpm_qe_03:32;					/* byte[ 0- 7] ,bit[ 96-127] */
 } __ATTRIBUTE_PACKED__;
+
+
 
 /* DQF */
 struct dqf_Data_FIFO_params_p {
@@ -785,7 +795,10 @@ struct dqf_dqf_macs_desc {
 	struct desc reg_desc;
 } __ATTRIBUTE_PACKED__;
 
+
+
 /* QM General */
+
 
 struct qm_alias {
 
@@ -942,3 +955,4 @@ void  qm_reg_size_alias_init(void);
 void qm_reg_offset_alias_init(void);
 
 #endif   /* __mv_qm_regs_h__ */
+

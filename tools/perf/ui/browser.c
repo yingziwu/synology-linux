@@ -553,6 +553,7 @@ static struct ui_browser_colorset {
 	}
 };
 
+
 static int ui_browser__color_config(const char *var, const char *value,
 				    void *data __maybe_unused)
 {
@@ -701,7 +702,7 @@ static void __ui_browser__line_arrow_down(struct ui_browser *browser,
 		ui_browser__gotorc(browser, row, column + 1);
 		SLsmg_draw_hline(2);
 
-		if (row++ == 0)
+		if (++row == 0)
 			goto out;
 	} else
 		row = 0;

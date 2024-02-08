@@ -672,6 +672,7 @@ static int __blk_label_update(struct nd_region *nd_region,
 	}
 	/* from here on we need to abort on error */
 
+
 	/* assign all resources to the namespace before writing the labels */
 	nsblk->res = NULL;
 	nsblk->num_resources = 0;
@@ -822,7 +823,7 @@ static int init_labels(struct nd_mapping *nd_mapping, int num_labels)
 	nsindex = to_namespace_index(ndd, 0);
 	memset(nsindex, 0, ndd->nsarea.config_size);
 	for (i = 0; i < 2; i++) {
-		int rc = nd_label_write_index(ndd, i, i*2, ND_NSINDEX_INIT);
+		int rc = nd_label_write_index(ndd, i, 3 - i, ND_NSINDEX_INIT);
 
 		if (rc)
 			return rc;

@@ -21,6 +21,7 @@
 #ifndef _nbif_6_1_OFFSET_HEADER
 #define _nbif_6_1_OFFSET_HEADER
 
+
 // addressBlock: bif_cfg_dev0_epf0_bifcfgdecp
 // base address: 0x0
 #define cfgVENDOR_ID                                                                                    0x0000 // duplicate 
@@ -275,6 +276,7 @@
 #define cfgPCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW6                                                   0x04c8 // duplicate 
 #define cfgPCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW7                                                   0x04cc // duplicate 
 
+
 // addressBlock: bif_cfg_dev0_swds_bifcfgdecp
 // base address: 0x0
 #define mmSUB_BUS_NUMBER_LATENCY                                                                       0x0006 // duplicate 
@@ -306,6 +308,7 @@
 #define mmSSID_CAP                                                                                     0x0031 // duplicate 
 #define mmSSID_CAP_BASE_IDX                                                                            0
 
+
 // addressBlock: rcc_shadow_reg_shadowdec
 // base address: 0x0
 #define ixSHADOW_COMMAND                                                                               0x0004 // duplicate 
@@ -322,10 +325,12 @@
 #define ixSUC_INDEX                                                                                    0x00e0 // duplicate 
 #define ixSUC_DATA                                                                                     0x00e4 // duplicate 
 
+
 // addressBlock: bif_bx_pf_SUMDEC
 // base address: 0x0
 #define ixSUM_INDEX                                                                                    0x00e0 // duplicate 
 #define ixSUM_DATA                                                                                     0x00e4 // duplicate 
+
 
 // addressBlock: gdc_GDCDEC
 // base address: 0x1400000
@@ -377,6 +382,7 @@
 #define mmA2S_CNTL2_SEC_CL3_BASE_IDX                                                                   3
 #define mmA2S_CNTL2_SEC_CL4                                                                            0x4f0b04 // duplicate 
 #define mmA2S_CNTL2_SEC_CL4_BASE_IDX                                                                   3
+
 
 // addressBlock: nbif_sion_SIONDEC
 // base address: 0x1400000
@@ -503,6 +509,7 @@
 #define ixSION_CNTL_REG0                                                                               0x1e1e0 
 #define ixSION_CNTL_REG1                                                                               0x1e1e4 
 
+
 // addressBlock: syshub_mmreg_direct_syshubdirect
 // base address: 0x1400000
 #define ixSYSHUB_DS_CTRL_SOCCLK                                                                        0x10000 // duplicate 
@@ -540,6 +547,7 @@
 #define ixDMA_CLK1_SW1_CL3_CNTL                                                                        0x11038 // duplicate 
 #define ixDMA_CLK1_SW1_CL4_CNTL                                                                        0x1103c // duplicate 
 
+
 // addressBlock: gdc_ras_gdc_ras_regblk
 // base address: 0x1400000
 #define ixGDC_RAS_LEAF0_CTRL                                                                           0x1f800 
@@ -548,6 +556,7 @@
 #define ixGDC_RAS_LEAF3_CTRL                                                                           0x1f80c 
 #define ixGDC_RAS_LEAF4_CTRL                                                                           0x1f810 
 #define ixGDC_RAS_LEAF5_CTRL                                                                           0x1f814 
+
 
 // addressBlock: gdc_rst_GDCRST_DEC
 // base address: 0x1400000
@@ -559,7 +568,9 @@
 #define ixSHUB_SOFT_RST_CTRL                                                                           0x1f044 
 #define ixSHUB_SDP_PORT_RST                                                                            0x1f048 
 
+
 // memoryMap:EP0F0Reg
+
 
 // addressBlock: bif_bx_pf_SYSDEC
 // base address: 0x0
@@ -650,6 +661,7 @@
 #define mmGFX_MMIOREG_CAM_PROGRAMMABLE_CPL                                                             0x0093 // duplicate 
 #define mmGFX_MMIOREG_CAM_PROGRAMMABLE_CPL_BASE_IDX                                                    0
 
+
 // addressBlock: bif_bx_pf_SYSPFVFDEC
 // base address: 0x0
 #define mmMM_INDEX                                                                                     0x0000 // duplicate 
@@ -670,6 +682,7 @@
 #define mmPCIE_INDEX2_BASE_IDX                                                                         0
 #define mmPCIE_DATA2                                                                                   0x000f // duplicate 
 #define mmPCIE_DATA2_BASE_IDX                                                                          0
+
 
 // addressBlock: rcc_dwn_BIFDEC1
 // base address: 0x0
@@ -694,6 +707,7 @@
 #define mmDN_PCIE_STRAP_MISC2                                                                          0x0d6a // duplicate 
 #define mmDN_PCIE_STRAP_MISC2_BASE_IDX                                                                 0
 
+
 // addressBlock: rcc_dwnp_BIFDEC1
 // base address: 0x0
 #define mmPCIEP_RESERVED                                                                               0x0d6c // duplicate 
@@ -712,6 +726,7 @@
 #define mmPCIEP_STRAP_MISC_BASE_IDX                                                                    0
 #define mmLTR_MSG_INFO_FROM_EP                                                                         0x0d74 // duplicate 
 #define mmLTR_MSG_INFO_FROM_EP_BASE_IDX                                                                0
+
 
 // addressBlock: rcc_ep_BIFDEC1
 // base address: 0x0
@@ -775,6 +790,7 @@
 #define mmEP_PCIE_RX_CNTL_BASE_IDX                                                                     0
 #define mmEP_PCIE_LC_SPEED_CNTL                                                                        0x0d5c // duplicate 
 #define mmEP_PCIE_LC_SPEED_CNTL_BASE_IDX                                                               0
+
 
 // addressBlock: bif_bx_pf_BIFDEC1
 // base address: 0x0
@@ -929,6 +945,7 @@
 #define mmBIF_CLKREQB_PAD_CNTL                                                                         0x0e6b // duplicate 
 #define mmBIF_CLKREQB_PAD_CNTL_BASE_IDX                                                                0
 
+
 // addressBlock: rcc_pf_0_BIFDEC1
 // base address: 0x0
 #define mmRCC_BACO_CNTL_MISC                                                                           0x0da7 // duplicate 
@@ -1000,6 +1017,7 @@
 #define mmRCC_MH_ARB_CNTL                                                                              0x0e01 // duplicate 
 #define mmRCC_MH_ARB_CNTL_BASE_IDX                                                                     0
 
+
 // addressBlock: rcc_pf_0_BIFDEC2
 // base address: 0x0
 #define mmGFXMSIX_VECT0_ADDR_LO                                                                        0x10800 // duplicate 
@@ -1028,6 +1046,7 @@
 #define mmGFXMSIX_VECT2_CONTROL_BASE_IDX                                                               0
 #define mmGFXMSIX_PBA                                                                                  0x10c00 // duplicate 
 #define mmGFXMSIX_PBA_BASE_IDX                                                                         0
+
 
 // addressBlock: rcc_strap_BIFDEC1
 // base address: 0x0
@@ -1088,6 +1107,7 @@
 #define mmRCC_DEV0_EPF1_STRAP7                                                                         0x0d42 // duplicate 
 #define mmRCC_DEV0_EPF1_STRAP7_BASE_IDX                                                                0
 
+
 // addressBlock: bif_bx_pf_BIFPFVFDEC1
 // base address: 0x0
 #define mmBIF_BME_STATUS                                                                               0x0e0b // duplicate 
@@ -1133,6 +1153,7 @@
 #define mmBIF_VMHV_MAILBOX                                                                             0x0e60 // duplicate 
 #define mmBIF_VMHV_MAILBOX_BASE_IDX                                                                    0
 
+
 // addressBlock: rcc_pf_0_BIFPFVFDEC1
 // base address: 0x0
 #define mmRCC_DOORBELL_APER_EN                                                                         0x0de0 // duplicate 
@@ -1144,12 +1165,14 @@
 #define mmRCC_IOV_FUNC_IDENTIFIER                                                                      0x0de5 // duplicate 
 #define mmRCC_IOV_FUNC_IDENTIFIER_BASE_IDX                                                             0
 
+
 // addressBlock: syshub_mmreg_ind_syshubdec
 // base address: 0x0
 #define mmSYSHUB_INDEX                                                                                 0x0008 
 #define mmSYSHUB_INDEX_BASE_IDX                                                                        0
 #define mmSYSHUB_DATA                                                                                  0x0009 
 #define mmSYSHUB_DATA_BASE_IDX                                                                         0
+
 
 // addressBlock: rcc_strap_rcc_strap_internal
 // base address: 0x10100000
@@ -1352,6 +1375,7 @@
 #define mmRCC_DEV1_EPF2_STRAP13                                                                        0x403d10d 
 #define mmRCC_DEV1_EPF2_STRAP13_BASE_IDX                                                               3
 
+
 // addressBlock: bif_rst_bif_rst_regblk
 // base address: 0x10100000
 #define ixHARD_RST_CTRL                                                                                0x38000 
@@ -1402,6 +1426,7 @@
 #define ixDEV0_PF7_D3HOTD0_RST_CTRL                                                                    0x381fc 
 #define ixBIF_PORT0_DSTATE_VALUE                                                                       0x388c0 
 
+
 // addressBlock: bif_misc_bif_misc_regblk
 // base address: 0x10100000
 #define ixMISC_SCRATCH                                                                                 0x3a000 
@@ -1449,6 +1474,7 @@
 #define ixBIF_SELFRING_BUFFER_VID                                                                      0x3a100 
 #define ixBIF_SELFRING_VECTOR_CNTL                                                                     0x3a104 
 
+
 // addressBlock: bif_ras_bif_ras_regblk
 // base address: 0x10100000
 #define ixBIF_RAS_LEAF0_CTRL                                                                           0x39000 
@@ -1457,6 +1483,7 @@
 #define ixBIF_RAS_MISC_CTRL                                                                            0x39100 
 #define ixBIF_IOHUB_RAS_IH_CNTL                                                                        0x39ff8 
 #define ixBIF_RAS_VWR_FROM_IOHUB                                                                       0x39ffc 
+
 
 // addressBlock: rcc_pfc_amdgfx_RCCPFCDEC
 // base address: 0x10134000
@@ -1470,6 +1497,7 @@
 #define ixRCC_PFC_STICKY_RESTORE_5                                                                     0x011c // duplicate 
 #define ixRCC_PFC_AUXPWR_CNTL                                                                          0x0120 // duplicate 
 
+
 // addressBlock: rcc_pfc_amdgfxaz_RCCPFCDEC
 // base address: 0x10134200
 #define ixRCCPFCAMDGFXAZ_RCC_PFC_LTR_CNTL                                                              0x0100 // duplicate 
@@ -1481,6 +1509,7 @@
 #define ixRCCPFCAMDGFXAZ_RCC_PFC_STICKY_RESTORE_4                                                      0x0118 // duplicate 
 #define ixRCCPFCAMDGFXAZ_RCC_PFC_STICKY_RESTORE_5                                                      0x011c // duplicate 
 #define ixRCCPFCAMDGFXAZ_RCC_PFC_AUXPWR_CNTL                                                           0x0120 // duplicate 
+
 
 // addressBlock: pciemsix_amdgfx_MSIXTDEC
 // base address: 0x10170000
@@ -1613,9 +1642,11 @@
 #define ixPCIEMSIX_VECT31_MSG_DATA                                                                     0x01f8 
 #define ixPCIEMSIX_VECT31_CONTROL                                                                      0x01fc 
 
+
 // addressBlock: pciemsix_amdgfx_MSIXPDEC
 // base address: 0x10171000
 #define ixPCIEMSIX_PBA                                                                                 0x0000 
+
 
 // addressBlock: syshub_mmreg_ind_syshubind
 // base address: 0x0

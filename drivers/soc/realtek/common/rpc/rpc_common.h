@@ -14,11 +14,13 @@
 
 #define S_OK        0x10000000
 
+
 #if defined(CONFIG_ARCH_RTD129x) || defined(CONFIG_ARCH_RTD119X)
 #define CONVERT_FOR_AVCPU(x)        ((unsigned int)(x) | 0xA0000000)
 #else
 #define CONVERT_FOR_AVCPU(x)        (x)
 #endif
+
 
 typedef enum
 {
@@ -194,6 +196,7 @@ enum AUDIO_ENUM_PRIVAETINFO {
 };
 typedef enum AUDIO_ENUM_PRIVAETINFO AUDIO_ENUM_PRIVAETINFO;
 
+
 typedef struct {
     int instanceID;
     enum AUDIO_ENUM_PRIVAETINFO type;
@@ -204,5 +207,7 @@ typedef struct {
     int instanceID;
     int privateInfo[16];
 }AUDIO_RPC_PRIVATEINFO_RETURNVAL;
+
+
 
 #endif

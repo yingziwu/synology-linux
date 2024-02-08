@@ -67,3 +67,4 @@ void dcn10_ipp_construct(
 	ippn10->ipp_shift = ipp_shift;
 	ippn10->ipp_mask = ipp_mask;
 }
+

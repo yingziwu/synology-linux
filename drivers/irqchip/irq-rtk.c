@@ -227,6 +227,7 @@ static void mux_unmask_irq(struct irq_data *data)
     else if(en_offset==MISC_INT_FAIL)
         pr_err("[IRQ MUX] Enable irq(%lu) fail\n",data->hwirq);
 
+
 }
 
 static void mux_disable_irq(struct irq_data *data)
@@ -245,6 +246,7 @@ static void mux_disable_irq(struct irq_data *data)
         rtd_clearbits(base+reg_en, BIT(en_offset));
     else if(en_offset==MISC_INT_FAIL)
         pr_err("[IRQ MUX] Disable irq(%lu) fail\n",data->hwirq);
+
 
 }
 
@@ -319,6 +321,7 @@ static void mux_irq_handle(struct irq_desc *desc)
                 pr_err("[IRQ MUX Err] mux_irq(%u) should not happen (st:0x%08x en:0x%08x)\n", mux_irq, status, enable);
         }
     }
+
 
     spin_lock(&irq_mux_lock);
     check_status = __raw_readl(mux_data->base+reg_st);

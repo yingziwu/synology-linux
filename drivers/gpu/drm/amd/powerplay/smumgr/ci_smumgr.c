@@ -85,11 +85,13 @@ static const struct ci_pt_defaults defaults_bonaire_xt = {
 	{ 0x17C, 0x172, 0x180, 0x1BC, 0x1B3, 0x1BD, 0x206, 0x200, 0x203, 0x25D, 0x25A, 0x255, 0x2C3, 0x2C5, 0x2B4 }
 };
 
+
 static const struct ci_pt_defaults defaults_saturn_xt = {
 	1, 0xF, 0xFD, 0x19, 5, 55, 0, 0x70000,
 	{ 0x8C,  0x247, 0x249, 0xA6,  0x80,  0x81,  0x8B,  0x89,  0x86,  0xC9,  0xCA,  0xC9,  0x4D,  0x4D,  0x4D  },
 	{ 0x187, 0x187, 0x187, 0x1C7, 0x1C7, 0x1C7, 0x210, 0x210, 0x210, 0x266, 0x266, 0x266, 0x2C9, 0x2C9, 0x2C9 }
 };
+
 
 static int ci_set_smc_sram_address(struct pp_hwmgr *hwmgr,
 					uint32_t smc_addr, uint32_t limit)
@@ -147,6 +149,7 @@ static int ci_copy_bytes_to_smc(struct pp_hwmgr *hwmgr, uint32_t smc_start_addre
 		if (0 != result)
 			return result;
 
+
 		original_data = cgs_read_register(hwmgr->device, mmSMC_IND_DATA_0);
 
 		extra_shift = 8 * (4 - byte_count);
@@ -171,6 +174,7 @@ static int ci_copy_bytes_to_smc(struct pp_hwmgr *hwmgr, uint32_t smc_start_addre
 
 	return 0;
 }
+
 
 static int ci_program_jump_on_start(struct pp_hwmgr *hwmgr)
 {
@@ -413,6 +417,7 @@ static int ci_populate_single_graphic_level(struct pp_hwmgr *hwmgr,
 	int result;
 	struct smu7_hwmgr *data = (struct smu7_hwmgr *)(hwmgr->backend);
 
+
 	result = ci_calculate_sclk_params(hwmgr, clock, level);
 
 	/* populate graphics levels */
@@ -443,6 +448,7 @@ static int ci_populate_single_graphic_level(struct pp_hwmgr *hwmgr,
 	level->DownH = 0;
 	level->VoltageDownH = 0;
 	level->PowerThrottle = 0;
+
 
 	if (phm_cap_enabled(hwmgr->platform_descriptor.platformCaps,
 			PHM_PlatformCaps_SclkDeepSleep))
@@ -915,6 +921,7 @@ static int ci_populate_smc_mvdd_table(struct pp_hwmgr *hwmgr,
 	return 0;
 }
 
+
 static int ci_populate_smc_voltage_tables(struct pp_hwmgr *hwmgr,
 	SMU7_Discrete_DpmTable *table)
 {
@@ -1091,6 +1098,7 @@ static int ci_calculate_mclk_params(
 		MCLK_PWRMGT_CNTL, MRDCK0_PDNB, dllStateOn);
 	mclk_pwrmgt_cntl = PHM_SET_FIELD(mclk_pwrmgt_cntl,
 		MCLK_PWRMGT_CNTL, MRDCK1_PDNB, dllStateOn);
+
 
 	mclk->MclkFrequency   = memory_clock;
 	mclk->MpllFuncCntl    = mpll_func_cntl;
@@ -1381,6 +1389,7 @@ static int ci_populate_smc_acpi_level(struct pp_hwmgr *hwmgr,
 	uint32_t dll_cntl          = data->clock_registers.vDLL_CNTL;
 	uint32_t mclk_pwrmgt_cntl  = data->clock_registers.vMCLK_PWRMGT_CNTL;
 
+
 	/* The ACPI state should not do DPM on DC (or ever).*/
 	table->ACPILevel.Flags &= ~PPSMC_SWSTATE_FLAG_DC;
 
@@ -1433,6 +1442,7 @@ static int ci_populate_smc_acpi_level(struct pp_hwmgr *hwmgr,
 	CONVERT_FROM_HOST_TO_SMC_UL(table->ACPILevel.SpllSpreadSpectrum2);
 	CONVERT_FROM_HOST_TO_SMC_UL(table->ACPILevel.CcPwrDynRm);
 	CONVERT_FROM_HOST_TO_SMC_UL(table->ACPILevel.CcPwrDynRm1);
+
 
 	/* table->MemoryACPILevel.MinVddcPhases = table->ACPILevel.MinVddcPhases;*/
 	table->MemoryACPILevel.MinVddc = table->ACPILevel.MinVddc;
@@ -1840,6 +1850,7 @@ static int ci_update_and_upload_mc_reg_table(struct pp_hwmgr *hwmgr)
 	if (0 == (data->need_update_smu7_dpm_table & DPMTABLE_OD_UPDATE_MCLK))
 		return 0;
 
+
 	memset(&smu_data->mc_regs, 0, sizeof(SMU7_Discrete_MCRegisters));
 
 	result = ci_convert_mc_reg_table_to_smc(hwmgr, &(smu_data->mc_regs));
@@ -1948,6 +1959,7 @@ static int ci_init_smc_table(struct pp_hwmgr *hwmgr)
 	if (phm_cap_enabled(hwmgr->platform_descriptor.platformCaps,
 			PHM_PlatformCaps_AutomaticDCTransition))
 		table->SystemFlags |= PPSMC_SYSTEMFLAG_GPIO_DC;
+
 
 	if (phm_cap_enabled(hwmgr->platform_descriptor.platformCaps,
 			PHM_PlatformCaps_StepVddc))
@@ -2740,6 +2752,7 @@ static int ci_populate_requested_graphic_levels(struct pp_hwmgr *hwmgr,
 	return ci_copy_bytes_to_smc(hwmgr, array, (uint8_t *)levels,
 				array_size, SMC_RAM_END);
 }
+
 
 static int ci_smu_init(struct pp_hwmgr *hwmgr)
 {

@@ -58,6 +58,7 @@ void __iomem *RTK_MISC_BASE;
 void __iomem *RTK_GIC_DIST_BASE;
 void __iomem *RTK_CPU_WRAPPER_BASE;
 
+
 #define rtk_suspend_shm_func(_name, _offset, _def)                                  \
 void rtk_suspend_##_name##_set(unsigned int val)                                    \
 {                                                                                   \
@@ -375,6 +376,7 @@ static int rtk_suspend_to_wfi(void)
     return 0;
 }
 
+
 static int rtk_suspend_to_ram(void)
 {
     const int  MEM_VERIFIED_CNT = 20;
@@ -431,6 +433,7 @@ static int rtk_suspend_to_ram(void)
     printk(KERN_INFO "[RTD129x_PM] Resume Memory Verifying ... State 0\n");
     for (i=0; i<MEM_VERIFIED_CNT; i++)
         memory_verified_release(mem_vhandle[i]);
+
 
     printk(KERN_INFO "[RTD129x_PM] Resume Memory Verifying ... State 1\n");
     for (i=0; i<MEM_VERIFIED_CNT; i++)
@@ -631,6 +634,7 @@ static void rtk_poweroff_to_suspend_prepare(void)
 
 #if defined(MY_ABC_HERE) && defined(MY_ABC_HERE)
     syno_uart1_write(SOFTWARE_POWER_LED_BLINK);
+    syno_uart1_write(SOFTWARE_STATUS_LED_OFF);
     syno_uart1_write(SOFTWARE_SHUTDOWN); // clear AC recovery flag
 #endif /* MY_ABC_HERE && MY_ABC_HERE */
 

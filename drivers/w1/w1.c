@@ -729,6 +729,7 @@ int w1_attach_slave_device(struct w1_master *dev, struct w1_reg_num *rn)
 		return -ENOMEM;
 	}
 
+
 	sl->owner = THIS_MODULE;
 	sl->master = dev;
 	set_bit(W1_SLAVE_ACTIVE, &sl->flags);
@@ -740,7 +741,7 @@ int w1_attach_slave_device(struct w1_master *dev, struct w1_reg_num *rn)
 
 	/* slave modules need to be loaded in a context with unlocked mutex */
 	mutex_unlock(&dev->mutex);
-	request_module("w1-family-0x%02x", rn->family);
+	request_module("w1-family-0x%02X", rn->family);
 	mutex_lock(&dev->mutex);
 
 	spin_lock(&w1_flock);
@@ -755,6 +756,7 @@ int w1_attach_slave_device(struct w1_master *dev, struct w1_reg_num *rn)
 	spin_unlock(&w1_flock);
 
 	sl->family = f;
+
 
 	err = __w1_attach_slave_device(sl);
 	if (err < 0) {

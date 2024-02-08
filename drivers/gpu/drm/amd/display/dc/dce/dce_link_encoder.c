@@ -1275,6 +1275,7 @@ void dce110_link_encoder_update_mst_stream_allocation_table(
 	 * then double buffers the SAT into the hardware
 	 * making the new allocation active on the DP MST mode link */
 
+
 	/* DP_MSE_SAT_UPDATE:
 	 * 0 - No Action
 	 * 1 - Update SAT with trigger

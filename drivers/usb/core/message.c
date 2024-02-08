@@ -36,6 +36,7 @@ static void usb_api_blocking_completion(struct urb *urb)
 	complete(&ctx->done);
 }
 
+
 /*
  * Starts urb and waits for completion or timeout. Note that this call
  * is NOT interruptible. Many device driver i/o requests should be
@@ -148,6 +149,10 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe, __u8 request,
 	dr->wLength = cpu_to_le16(size);
 
 	ret = usb_internal_control_msg(dev, pipe, dr, data, size, timeout);
+
+	/* Linger a bit, prior to the next control message. */
+	if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
+		msleep(200);
 
 	kfree(dr);
 
@@ -329,6 +334,7 @@ static void sg_complete(struct urb *urb)
 
 	spin_unlock(&io->lock);
 }
+
 
 /**
  * usb_sg_init - initializes scatterlist-based bulk/interrupt I/O request
@@ -817,9 +823,11 @@ int usb_string(struct usb_device *dev, int index, char *buf, size_t size)
 
 	if (dev->state == USB_STATE_SUSPENDED)
 		return -EHOSTUNREACH;
-	if (size <= 0 || !buf || !index)
+	if (size <= 0 || !buf)
 		return -EINVAL;
 	buf[0] = 0;
+	if (index <= 0 || index >= 256)
+		return -EINVAL;
 	tbuf = kmalloc(256, GFP_NOIO);
 	if (!tbuf)
 		return -ENOMEM;
@@ -1110,6 +1118,7 @@ void usb_reset_endpoint(struct usb_device *dev, unsigned int epaddr)
 }
 EXPORT_SYMBOL_GPL(usb_reset_endpoint);
 
+
 /**
  * usb_disable_interface -- Disable all endpoints for an interface
  * @dev: the device whose interface is being disabled
@@ -1180,8 +1189,7 @@ void usb_disable_device(struct usb_device *dev, int skip_ep0)
 			dev->actconfig->interface[i] = NULL;
 		}
 
-		if (dev->usb2_hw_lpm_enabled == 1)
-			usb_set_usb2_hardware_lpm(dev, 0);
+		usb_disable_usb2_hardware_lpm(dev);
 		usb_unlocked_disable_lpm(dev);
 		usb_disable_ltm(dev);
 
@@ -1278,6 +1286,11 @@ void usb_enable_interface(struct usb_device *dev,
  * is submitted that needs that bandwidth.  Some other operating systems
  * allocate bandwidth early, when a configuration is chosen.
  *
+ * xHCI reserves bandwidth and configures the alternate setting in
+ * usb_hcd_alloc_bandwidth(). If it fails the original interface altsetting
+ * may be disabled. Drivers cannot rely on any particular alternate
+ * setting being in effect after a failure.
+ *
  * This call is synchronous, and may not be used in an interrupt context.
  * Also, drivers must not change altsettings while urbs are scheduled for
  * endpoints in that interface; all such urbs must first be completed
@@ -1313,6 +1326,12 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate)
 			 alternate);
 		return -EINVAL;
 	}
+	/*
+	 * usb3 hosts configure the interface in usb_hcd_alloc_bandwidth,
+	 * including freeing dropped endpoint ring buffers.
+	 * Make sure the interface endpoints are flushed before that
+	 */
+	usb_disable_interface(dev, iface, false);
 
 #ifdef MY_ABC_HERE
 	/* Cancel URBs */
@@ -1665,6 +1684,7 @@ static struct usb_interface_assoc_descriptor *find_iad(struct usb_device *dev,
 	return retval;
 }
 
+
 /*
  * Internal function to queue a device reset
  * See usb_queue_reset_device() for more details
@@ -1683,6 +1703,7 @@ static void __usb_queue_reset_device(struct work_struct *ws)
 	}
 	usb_put_intf(iface);	/* Undo _get_ in usb_queue_reset_device() */
 }
+
 
 /*
  * usb_set_configuration - Makes a particular device setting be current

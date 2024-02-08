@@ -85,6 +85,7 @@ struct ea_buffer {
 #define EA_NEW		0x0004
 #define EA_MALLOC	0x0008
 
+
 static int is_known_namespace(const char *name)
 {
 	if (strncmp(name, XATTR_SYSTEM_PREFIX, XATTR_SYSTEM_PREFIX_LEN) &&
@@ -492,15 +493,17 @@ static int ea_get(struct inode *inode, struct ea_buffer *ea_buf, int min_size)
 	if (size > PSIZE) {
 		/*
 		 * To keep the rest of the code simple.  Allocate a
-		 * contiguous buffer to work with
+		 * contiguous buffer to work with. Make the buffer large
+		 * enough to make use of the whole extent.
 		 */
-		ea_buf->xattr = kmalloc(size, GFP_KERNEL);
+		ea_buf->max_size = (size + sb->s_blocksize - 1) &
+		    ~(sb->s_blocksize - 1);
+
+		ea_buf->xattr = kmalloc(ea_buf->max_size, GFP_KERNEL);
 		if (ea_buf->xattr == NULL)
 			return -ENOMEM;
 
 		ea_buf->flag = EA_MALLOC;
-		ea_buf->max_size = (size + sb->s_blocksize - 1) &
-		    ~(sb->s_blocksize - 1);
 
 		if (ea_size == 0)
 			return 0;
@@ -1066,6 +1069,7 @@ const struct xattr_handler *jfs_xattr_handlers[] = {
 #endif
 	NULL,
 };
+
 
 #ifdef CONFIG_JFS_SECURITY
 static int jfs_initxattrs(struct inode *inode, const struct xattr *xattr_array,

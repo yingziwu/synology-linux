@@ -18,6 +18,7 @@
 
 #include <soc/realtek/rtk_sha1.h>
 
+
 /*
  * sftware base SHA1 tool
  * porting form http://svn.ghostscript.com/jbig2dec/trunk/sha1.c
@@ -199,6 +200,7 @@ void SHA1_Transform(unsigned int state[5], const unsigned char buffer[64])
 	a = b = c = d = e = 0;
 }
 
+
 /* SHA1Init - Initialize new context */
 void SHA1_Init(SHA1_CTX* context)
 {
@@ -210,6 +212,7 @@ void SHA1_Init(SHA1_CTX* context)
 	context->state[4] = 0xC3D2E1F0;
 	context->count[0] = context->count[1] = 0;
 }
+
 
 /* Run your data through this. */
 void SHA1_Update(SHA1_CTX* context, const unsigned char * data, const size_t len)
@@ -242,6 +245,7 @@ void SHA1_Update(SHA1_CTX* context, const unsigned char * data, const size_t len
 	SHAPrintContext(context, "after ");
 #endif
 }
+
 
 /* Add padding and return the message digest. */
 void SHA1_Final(SHA1_CTX* context, unsigned char digest[SHA1_DIGEST_SIZE])

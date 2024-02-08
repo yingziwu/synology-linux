@@ -25,7 +25,6 @@
 #include <asm/processor-flags.h>
 #include <asm/fpu/internal.h>
 #include <asm/msr.h>
-#include <asm/vmx.h>
 #include <asm/paravirt.h>
 #include <asm/alternative.h>
 #include <asm/hypervisor.h>
@@ -593,7 +592,18 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
 
 	ret = cmdline_find_option(boot_command_line, "spectre_v2", arg, sizeof(arg));
 	if (ret < 0)
-		return SPECTRE_V2_CMD_AUTO;
+#ifdef MY_DEF_HERE
+	if (ret < 0) {
+		if (cmdline_find_option_bool(boot_command_line, "SpectreAll_on") ||
+			cmdline_find_option_bool(boot_command_line, "SpectreV2_on")) {
+			return SPECTRE_V2_CMD_AUTO;
+		} else {
+			return SPECTRE_V2_CMD_NONE;
+		}
+	}
+#else
+	return SPECTRE_V2_CMD_AUTO;
+#endif
 
 	for (i = 0; i < ARRAY_SIZE(mitigation_options); i++) {
 		if (!match_option(arg, ret, mitigation_options[i].option))
@@ -695,14 +705,8 @@ specv2_set_mode:
 
 #ifdef MY_DEF_HERE
 	if (cmdline_find_option_bool(boot_command_line, "SpectreAll_on") ||
-		cmdline_find_option_bool(boot_command_line, "SpectreV2_on") ||
-		/* For models upgrade to DSM6.2.2 need to pass the old config 
-		 * FIXME The best way is to use updater convert the KPTI config to ALL
-		 * For now the KPTI config is equal to ALL
-		 */
-		cmdline_find_option_bool(boot_command_line, "KPTI_on")) {
+		cmdline_find_option_bool(boot_command_line, "SpectreV2_on")) {
 #endif /* MY_DEF_HERE */
-
 	/*
 	 * If spectre v2 protection has been enabled, unconditionally fill
 	 * RSB during a context switch; this protects against two independent
@@ -733,7 +737,7 @@ specv2_set_mode:
 	/* Set up IBPB and STIBP depending on the general spectre V2 command */
 	spectre_v2_user_select_mitigation(cmd);
 #ifdef MY_DEF_HERE
-    }
+	}
 #endif /* MY_DEF_HERE */
 }
 
@@ -867,16 +871,10 @@ static enum ssb_mitigation_cmd __init ssb_parse_cmdline(void)
 
 #ifdef MY_DEF_HERE
 	if (cmdline_find_option_bool(boot_command_line, "SpectreAll_on") ||
-		cmdline_find_option_bool(boot_command_line, "SSBD_on") ||
-		/* For models upgrade to DSM6.2.2 need to pass the old config
-		 * FIXME The best way is to use updater convert the KPTI config to ALL
-		 * For now the KPTI config is equal to ALL
-		 */
-		cmdline_find_option_bool(boot_command_line, "KPTI_on")) {
+		cmdline_find_option_bool(boot_command_line, "SSBD_on")) {
 		return SPEC_STORE_BYPASS_CMD_ON;
 	}
 #endif /* MY_DEF_HERE */
-
 	if (cmdline_find_option_bool(boot_command_line, "nospec_store_bypass_disable") ||
 	    cpu_mitigations_off()) {
 		return SPEC_STORE_BYPASS_CMD_NONE;
@@ -940,16 +938,6 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
 	}
 
 	/*
-	 * If SSBD is controlled by the SPEC_CTRL MSR, then set the proper
-	 * bit in the mask to allow guests to use the mitigation even in the
-	 * case where the host does not enable it.
-	 */
-	if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
-	    static_cpu_has(X86_FEATURE_AMD_SSBD)) {
-		x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
-	}
-
-	/*
 	 * We have three CPU feature flags that are in play here:
 	 *  - X86_BUG_SPEC_STORE_BYPASS - CPU is susceptible.
 	 *  - X86_FEATURE_SSBD - CPU is able to turn off speculative store bypass
@@ -966,6 +954,7 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
 			x86_amd_ssb_disable();
 		} else {
 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+			x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
 			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
 		}
 	}
@@ -1192,10 +1181,6 @@ static void override_cache_bits(struct cpuinfo_x86 *c)
 		break;
 	}
 }
-#if IS_ENABLED(CONFIG_KVM_INTEL)
-enum vmx_l1d_flush_state l1tf_vmx_mitigation = VMENTER_L1D_FLUSH_AUTO;
-EXPORT_SYMBOL_GPL(l1tf_vmx_mitigation);
-#endif
 
 static void __init l1tf_select_mitigation(void)
 {
@@ -1217,7 +1202,7 @@ static void __init l1tf_select_mitigation(void)
 		pr_info("You may make it effective by booting the kernel with mem=%llu parameter.\n",
 				half_pa);
 		pr_info("However, doing so will make a part of your RAM unusable.\n");
-		pr_info("Reading https://www.kernel.org/doc/html/latest/admin-guide/l1tf.html might help you decide.\n");
+		pr_info("Reading https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/l1tf.html might help you decide.\n");
 		return;
 	}
 
@@ -1228,35 +1213,10 @@ static void __init l1tf_select_mitigation(void)
 
 #ifdef CONFIG_SYSFS
 
-#define L1TF_DEFAULT_MSG "Mitigation: PTE Inversion"
-
-#if IS_ENABLED(CONFIG_KVM_INTEL)
-static const char *l1tf_vmx_states[] = {
-	[VMENTER_L1D_FLUSH_AUTO]	= "auto",
-	[VMENTER_L1D_FLUSH_NEVER]	= "vulnerable",
-	[VMENTER_L1D_FLUSH_COND]	= "conditional cache flushes",
-	[VMENTER_L1D_FLUSH_ALWAYS]	= "cache flushes",
-};
-
-static ssize_t l1tf_show_state(char *buf)
-{
-	if (l1tf_vmx_mitigation == VMENTER_L1D_FLUSH_AUTO)
-		return sprintf(buf, "%s\n", L1TF_DEFAULT_MSG);
-
-	return sprintf(buf, "%s; VMX: SMT %s, L1D %s\n", L1TF_DEFAULT_MSG,
-		       "vulnerable",
-		       l1tf_vmx_states[l1tf_vmx_mitigation]);
-}
-#else
-static ssize_t l1tf_show_state(char *buf)
-{
-	return sprintf(buf, "%s\n", L1TF_DEFAULT_MSG);
-}
-#endif
 static ssize_t mds_show_state(char *buf)
 {
 #ifdef CONFIG_HYPERVISOR_GUEST
-	if (boot_cpu_has(X86_FEATURE_HYPERVISOR)) {
+	if (x86_hyper) {
 		return sprintf(buf, "%s; SMT Host state unknown\n",
 			       mds_strings[mds_mitigation]);
 	}
@@ -1331,7 +1291,7 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
 
 	case X86_BUG_L1TF:
 		if (boot_cpu_has(X86_FEATURE_L1TF_PTEINV))
-			return l1tf_show_state(buf);
+			return sprintf(buf, "Mitigation: PTE Inversion\n");
 		break;
 
 	case X86_BUG_MDS:

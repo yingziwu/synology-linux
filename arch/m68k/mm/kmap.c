@@ -41,6 +41,7 @@ static inline struct vm_struct *get_io_area(unsigned long size)
 	return get_vm_area(size, VM_IOREMAP);
 }
 
+
 static inline void free_io_area(void *addr)
 {
 	vfree((void *)(PAGE_MASK & (unsigned long)addr));
@@ -87,7 +88,8 @@ static inline void free_io_area(void *addr)
 	for (p = &iolist ; (tmp = *p) ; p = &tmp->next) {
 		if (tmp->addr == addr) {
 			*p = tmp->next;
-			__iounmap(tmp->addr, tmp->size);
+			/* remove gap added in get_io_area() */
+			__iounmap(tmp->addr, tmp->size - IO_SIZE);
 			kfree(tmp);
 			return;
 		}

@@ -8,7 +8,9 @@ enum pid_type
 	PIDTYPE_PID,
 	PIDTYPE_PGID,
 	PIDTYPE_SID,
-	PIDTYPE_MAX
+	PIDTYPE_MAX,
+	/* only valid to __task_pid_nr_ns() */
+	__PIDTYPE_TGID
 };
 
 /*
@@ -39,6 +41,7 @@ enum pid_type
  * value is reused (when pids wrap around) we don't mistakenly refer to new
  * processes.
  */
+
 
 /*
  * struct upid is used to get the id of the struct pid, as it is

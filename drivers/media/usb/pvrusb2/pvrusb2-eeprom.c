@@ -26,6 +26,8 @@
 
 #define trace_eeprom(...) pvr2_trace(PVR2_TRACE_EEPROM,__VA_ARGS__)
 
+
+
 /*
 
    Read and analyze data in the eeprom.  Use tveeprom to figure out
@@ -111,6 +113,7 @@ static u8 *pvr2_eeprom_fetch(struct pvr2_hdw *hdw)
 	return eeprom;
 }
 
+
 /* Directly call eeprom analysis function within tveeprom. */
 int pvr2_eeprom_analyze(struct pvr2_hdw *hdw)
 {
@@ -120,15 +123,10 @@ int pvr2_eeprom_analyze(struct pvr2_hdw *hdw)
 	memset(&tvdata,0,sizeof(tvdata));
 
 	eeprom = pvr2_eeprom_fetch(hdw);
-	if (!eeprom) return -EINVAL;
+	if (!eeprom)
+		return -EINVAL;
 
-	{
-		struct i2c_client fake_client;
-		/* Newer version expects a useless client interface */
-		fake_client.addr = hdw->eeprom_addr;
-		fake_client.adapter = &hdw->i2c_adap;
-		tveeprom_hauppauge_analog(&fake_client,&tvdata,eeprom);
-	}
+	tveeprom_hauppauge_analog(NULL, &tvdata, eeprom);
 
 	trace_eeprom("eeprom assumed v4l tveeprom module");
 	trace_eeprom("eeprom direct call results:");

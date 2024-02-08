@@ -64,6 +64,7 @@ static inline void __hse_cq_add_data_one(struct hse_command_queue *cq, u32 data)
 	hse_flush_dcache_area(cq->virt, cq->pos);
 }
 
+
 void hse_cq_add_data(struct hse_command_queue *cq, u32 *data, size_t size)
 {
 	int i;

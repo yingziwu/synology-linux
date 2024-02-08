@@ -53,6 +53,7 @@ inline static int power_control_is_powered_on(struct power_control *pctrl)
     return -EINVAL;
 }
 
+
 inline static struct power_control *power_control_get(const char *name)
 {
     WARN_ON(1);

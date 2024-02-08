@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * 2.5 block I/O model
  *
@@ -106,6 +109,9 @@ static inline bool bio_has_data(struct bio *bio)
 {
 	if (bio &&
 	    bio->bi_iter.bi_size &&
+#ifdef MY_ABC_HERE
+		!(bio->bi_rw & REQ_UNUSED_HINT) &&
+#endif /* MY_ABC_HERE */
 	    !(bio->bi_rw & REQ_DISCARD))
 		return true;
 
@@ -219,6 +225,7 @@ static inline void bvec_iter_advance(struct bio_vec *bv, struct bvec_iter *iter,
 		((bvl = bvec_iter_bvec((bio_vec), (iter))), 1);	\
 	     bvec_iter_advance((bio_vec), &(iter), (bvl).bv_len))
 
+
 static inline void bio_advance_iter(struct bio *bio, struct bvec_iter *iter,
 				    unsigned bytes)
 {
@@ -254,6 +261,11 @@ static inline unsigned bio_segments(struct bio *bio)
 
 	if (bio->bi_rw & REQ_DISCARD)
 		return 1;
+
+#ifdef MY_ABC_HERE
+	if (bio->bi_rw & REQ_UNUSED_HINT)
+		return 1;
+#endif /* MY_ABC_HERE */
 
 	if (bio->bi_rw & REQ_WRITE_SAME)
 		return 1;
@@ -511,6 +523,7 @@ static inline void bio_flush_dcache_pages(struct bio *bi)
 
 extern void bio_copy_data(struct bio *dst, struct bio *src);
 extern int bio_alloc_pages(struct bio *bio, gfp_t gfp);
+extern void bio_free_pages(struct bio *bio);
 
 extern struct bio *bio_copy_user_iov(struct request_queue *,
 				     struct rq_map_data *,
@@ -702,6 +715,17 @@ static inline struct bio *bio_list_get(struct bio_list *bl)
 	bl->head = bl->tail = NULL;
 
 	return bio;
+}
+
+/*
+ * Increment chain count for the bio. Make sure the CHAIN flag update
+ * is visible before the raised count.
+ */
+static inline void bio_inc_remaining(struct bio *bio)
+{
+	bio_set_flag(bio, BIO_CHAIN);
+	smp_mb__before_atomic();
+	atomic_inc(&bio->__bi_remaining);
 }
 
 /*

@@ -46,6 +46,7 @@
 #define GET_MUX_PAD5()                  rd_reg(MARS_0_SYS_MUXPAD5)
 #define SET_MUX_PAD5(x)                 wr_reg(MARS_0_SYS_MUXPAD5, x)
 
+
 #define SET_I2C_ISR(adp,x)              wr_reg(adp->reg_map.I2C_ISR, x)
 #define GET_I2C_ISR(adp)                rd_reg(adp->reg_map.I2C_ISR)
 #define SET_IC_ENABLE(adp,x)            wr_reg(adp->reg_map.IC_ENABLE,x)
@@ -87,8 +88,10 @@
 #define NOT_TXFULL(adp)                 (GET_IC_STATUS(adp) & ST_TFNF_BIT)
 #define NOT_RXEMPTY(adp)                (GET_IC_STATUS(adp) & ST_RFNE_BIT)
 
+
 ////////////////////////////////////////////////////////////////////
 #define MAX_I2C_CNT                 3
+
 
 #define VERSION                "2.2"
 
@@ -114,6 +117,8 @@ typedef enum {
     SPD_MODE_HS = 1000
 }SPD_MODE;
 
+
+
 typedef enum {
     ADDR_MODE_7BITS   = 7,
     ADDR_MODE_10BITS  = 10
@@ -127,10 +132,12 @@ enum {
     EADDROVERRANGE = 44,      // invalid Address
 };
 
+
 enum {
     NON_STOP    = 0,       // stop detected during transfer
     WAIT_STOP   = 1,
 };
+
 
 enum {
     G2C_STATE_START = 0,
@@ -170,6 +177,7 @@ enum {
     G2C_ST_STOP     = G2C_ST(G2C_STATE_STOP, 0),
     G2C_ST_DONE     = G2C_ST(G2C_STATE_DONE, 0)
 };
+
 
 typedef struct {
     unsigned char       mode;
@@ -220,6 +228,7 @@ typedef struct {
                                                 //---------------------------------------------------------------------
 
 }venus_i2c_xfer;
+
 
 typedef struct venus_i2c_reg_map_t    venus_i2c_reg_map;
 
@@ -289,6 +298,7 @@ struct venus_i2c_gpio_map_t
     unsigned long  muxpad_i2c;
 };
 
+
 typedef struct venus_i2c_phy_t          venus_i2c_phy;
 typedef struct venus_input_mux_reg_t    venus_input_mux_reg;
 typedef struct venus_pin_mux_reg_t      venus_pin_mux_reg;
@@ -301,6 +311,7 @@ struct venus_input_mux_reg_t
    unsigned long    val;
 };
 
+
 struct venus_pin_mux_reg_t
 {
    unsigned long    addr;
@@ -308,6 +319,7 @@ struct venus_pin_mux_reg_t
    unsigned long    i2c_val;
    unsigned long    gpio_val;
 };
+
 
 struct venus_i2c_port_t
 {
@@ -318,6 +330,7 @@ struct venus_i2c_port_t
     venus_pin_mux_reg   pin_mux[2];
 };
 
+
 struct venus_i2c_phy_t
 {
     const venus_i2c_reg_map*  p_reg_map;
@@ -325,11 +338,13 @@ struct venus_i2c_phy_t
     const venus_i2c_port*     p_port;
 };
 
+
 typedef struct
 {
     int (*handle_command)(int id, unsigned char* cmd, unsigned char len);
     unsigned char (*read_data)(int id);   // read data form i2c slave
 }venus_i2c_slave_ops;
+
 
 typedef struct venus_i2c_t    venus_i2c;
 
@@ -416,6 +431,7 @@ const venus_i2c_port saturn_i2c0_port[] = {
     },
 };
 
+
 const venus_i2c_port saturn_i2c1_port[] = {
     {
         // PHY1 SRC-0
@@ -449,6 +465,7 @@ const venus_i2c_port saturn_i2c2_port[] = {
         .pin_mux[1]    = {0},
     },
 };
+
 
 const venus_i2c_port saturn_i2c3_port[] = {
     {
@@ -526,6 +543,7 @@ venus_i2c_port* venus_i2c_find_current_port(venus_i2c* p_this);
 #define I2C_ID_MASK 0x3B
 
 #endif
+
 
 /* DEFINE FLAG ENABLE */
 #define MINIMUM_DELAY_EN

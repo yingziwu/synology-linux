@@ -506,6 +506,7 @@ static int vega10_get_evv_voltages(struct pp_hwmgr *hwmgr)
 					"Error retrieving EVV voltage value!",
 					continue);
 
+
 			/* need to make sure vddc is less than 2v or else, it could burn the ASIC. */
 			PP_ASSERT_WITH_CODE((vddc < 2000 && vddc != 0),
 					"Invalid VDDC value", result = -EINVAL;);
@@ -626,6 +627,7 @@ static int vega10_patch_voltage_dependency_tables_with_lookup_table(
 		mclk_table->entries[entry_id].mvdd =
 				table_info->vddmem_lookup_table->entries[voltage_id].us_vdd;
 	}
+
 
 	return 0;
 
@@ -1139,6 +1141,7 @@ static int vega10_construct_voltage_tables(struct pp_hwmgr *hwmgr)
 			"Too many voltage values for MVDD. Trimming to fit state table.",
 			vega10_trim_voltage_table_to_fit_state_table(hwmgr,
 					16, &(data->mvdd_voltage_table)));
+
 
 	return 0;
 }
@@ -2771,6 +2774,7 @@ static int vega10_stop_dpm(struct pp_hwmgr *hwmgr, uint32_t bitmap)
 			(struct vega10_hwmgr *)(hwmgr->backend);
 	uint32_t i, feature_mask = 0;
 
+
 	if(data->smu_features[GNLD_LED_DISPLAY].supported == true){
 		PP_ASSERT_WITH_CODE(!vega10_enable_smc_features(hwmgr,
 				false, data->smu_features[GNLD_LED_DISPLAY].smu_feature_bitmap),
@@ -2966,6 +2970,7 @@ static int vega10_get_pp_table_entry_callback_func(struct pp_hwmgr *hwmgr,
 			(ATOM_Vega10_MCLK_Dependency_Table *)
 			(((unsigned long)powerplay_table) +
 			le16_to_cpu(powerplay_table->usMclkDependencyTableOffset));
+
 
 	/* The following fields are not initialized here:
 	 * id orderedList allStatesList
@@ -3749,6 +3754,7 @@ static int vega10_generate_dpm_level_enable_mask(
 			return -1);
 	for(i = data->smc_state_table.gfx_boot_level; i < data->smc_state_table.gfx_max_level; i++)
 		data->dpm_table.gfx_table.dpm_levels[i].enabled = true;
+
 
 	for(i = data->smc_state_table.mem_boot_level; i < data->smc_state_table.mem_max_level; i++)
 		data->dpm_table.mem_table.dpm_levels[i].enabled = true;

@@ -21,6 +21,8 @@
 #ifndef _vcn_1_0_OFFSET_HEADER
 #define _vcn_1_0_OFFSET_HEADER
 
+
+
 // addressBlock: uvd_uvd_pg_dec
 // base address: 0x1fb00
 #define mmUVD_PGFSM_CONFIG                                                                             0x00c0
@@ -66,10 +68,12 @@
 #define mmUVD_DPG_VCPU_CACHE_OFFSET0                                                                   0x00e7
 #define mmUVD_DPG_VCPU_CACHE_OFFSET0_BASE_IDX                                                          1
 
+
 // addressBlock: uvd_uvdgendec
 // base address: 0x1fc00
 #define mmUVD_LCM_CGC_CNTRL                                                                            0x0123
 #define mmUVD_LCM_CGC_CNTRL_BASE_IDX                                                                   1
+
 
 // addressBlock: uvd_uvdnpdec
 // base address: 0x20000
@@ -211,6 +215,7 @@
 #define mmUVD_LMI_RBC_RB_64BIT_BAR_HIGH_BASE_IDX                                                       1
 #define mmUVD_LMI_RBC_RB_64BIT_BAR_LOW                                                                 0x0469
 #define mmUVD_LMI_RBC_RB_64BIT_BAR_LOW_BASE_IDX                                                        1
+
 
 // addressBlock: uvd_uvddec
 // base address: 0x20c00
@@ -366,5 +371,6 @@
 #define mmUVD_RB_SIZE4_BASE_IDX                                                                        1
 #define mmUVD_RB_RPTR4                                                                                 0x05e2
 #define mmUVD_RB_RPTR4_BASE_IDX                                                                        1
+
 
 #endif

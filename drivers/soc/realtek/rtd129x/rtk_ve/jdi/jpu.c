@@ -57,6 +57,7 @@ typedef struct jpu_drv_context_t {
     unsigned long interrupt_reason;
 } jpu_drv_context_t;
 
+
 /* To track the allocated memory buffer */
 typedef struct jpudrv_buffer_pool_t {
     struct list_head list;
@@ -71,6 +72,7 @@ typedef struct jpudrv_instanace_list_t {
     struct file *filp;
 } jpudrv_instanace_list_t;
 
+
 typedef struct jpudrv_instance_pool_t {
     unsigned char jpgInstPool[MAX_NUM_INSTANCE][MAX_INST_HANDLE_SIZE];
 } jpudrv_instance_pool_t;
@@ -82,6 +84,7 @@ typedef struct jpudrv_instance_pool_t {
 static jpu_mm_t s_jmem;
 static jpudrv_buffer_t s_image_memory = {0};
 #endif
+
 
 static int jpu_hw_reset(void);
 static void jpu_clk_disable(struct clk *clk);
@@ -112,6 +115,7 @@ static wait_queue_head_t s_interrupt_wait_q;
 static int dbus_en = 1;
 
 #define JPEG_DBUS_REG                         (0x0000 + 0xF00)
+
 
 static spinlock_t s_jpu_lock = __SPIN_LOCK_UNLOCKED(s_jpu_lock);
 static DEFINE_SEMAPHORE(s_jpu_sem);
@@ -255,6 +259,7 @@ static int jpu_free_buffers(struct file *filp)
     return 0;
 }
 
+
 #ifdef JPU_SUPPORT_ISR
 static irqreturn_t jpu_irq_handler(int irq, void *dev_id)
 {
@@ -267,6 +272,7 @@ static irqreturn_t jpu_irq_handler(int irq, void *dev_id)
     WriteJpuRegister(0x004, dev->interrupt_reason);
     if (dev->async_queue)
         kill_fasync(&dev->async_queue, SIGIO, POLL_IN);	// notify the interrupt to userspace
+
 
     atomic_set(&s_interrupt_flag, 1);
     smp_wmb();
@@ -281,6 +287,7 @@ static irqreturn_t jpu_irq_handler(int irq, void *dev_id)
 static int jpu_open(struct inode *inode, struct file *filp)
 {
     spin_lock(&s_jpu_lock);
+
 
     filp->private_data = (void *)(&s_jpu_drv_context);
     spin_unlock(&s_jpu_lock);
@@ -613,6 +620,7 @@ static int jpu_release(struct inode *inode, struct file *filp)
 
     spin_lock(&s_jpu_lock);
 
+
     if (s_jpu_open_count > 0)
     {
         /* found and free the not handled buffer by user applications */
@@ -643,11 +651,13 @@ static int jpu_release(struct inode *inode, struct file *filp)
     return 0;
 }
 
+
 static int jpu_fasync(int fd, struct file *filp, int mode)
 {
     struct jpu_drv_context_t *dev = (struct jpu_drv_context_t *)filp->private_data;
     return fasync_helper(fd, filp, mode, &dev->async_queue);
 }
+
 
 static int jpu_map_to_register(struct file *fp, struct vm_area_struct *vm)
 {
@@ -861,6 +871,7 @@ static int jpu_probe(struct platform_device *pdev)
 
     return 0;
 
+
 ERROR_PROVE_DEVICE:
 
     misc_deregister(&s_jpu_dev);
@@ -1044,6 +1055,7 @@ static void __exit jpu_exit(void)
 
     jpu_clk_put(s_jpu_clk);
 
+
     if (s_jpu_reg_virt_base) {
         iounmap(s_jpu_reg_virt_base);
         s_jpu_reg_virt_base = (void *)0x00;
@@ -1074,6 +1086,7 @@ int jpu_hw_reset(void)
     WriteJpuRegister(JPEG_DBUS_REG, val);
     return 0;
 }
+
 
 struct clk *jpu_clk_get(struct device *dev)
 {

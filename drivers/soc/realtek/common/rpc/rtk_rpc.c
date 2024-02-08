@@ -390,6 +390,7 @@ int my_copy_from_user(volatile void __iomem *des, const void *src, int size)
 	return 0;
 }
 
+
 int my_copy_user(int *des, int *src, int size)
 {
 	char *csrc, *cdes;
@@ -492,12 +493,14 @@ static char *rpc_devnode(struct device *dev, umode_t *mode)
 	return NULL;
 }
 
+
 static ssize_t kernel_remote_allocate_show(struct class *class, struct class_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%d\n", 1);
 }
 
 static CLASS_ATTR(kernel_remote_allocate, 0444, kernel_remote_allocate_show, NULL);
+
 
 static int __maybe_unused rtk_rpc_probe(struct platform_device *pdev)
 {

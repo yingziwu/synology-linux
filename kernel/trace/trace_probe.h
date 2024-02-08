@@ -61,10 +61,12 @@
 			return ret;					\
 	} while (0)
 
+
 /* Flags for trace_probe */
 #define TP_FLAG_TRACE		1
 #define TP_FLAG_PROFILE		2
 #define TP_FLAG_REGISTERED	4
+
 
 /* data_rloc: data relative location, compatible with u32 */
 #define make_data_rloc(len, roffs)	\
@@ -333,7 +335,7 @@ extern int traceprobe_conflict_field_name(const char *name,
 extern void traceprobe_update_arg(struct probe_arg *arg);
 extern void traceprobe_free_probe_arg(struct probe_arg *arg);
 
-extern int traceprobe_split_symbol_offset(char *symbol, unsigned long *offset);
+extern int traceprobe_split_symbol_offset(char *symbol, long *offset);
 
 extern ssize_t traceprobe_probes_write(struct file *file,
 		const char __user *buffer, size_t count, loff_t *ppos,

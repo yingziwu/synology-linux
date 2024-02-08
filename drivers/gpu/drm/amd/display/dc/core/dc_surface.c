@@ -189,3 +189,5 @@ struct dc_transfer_func *dc_create_transfer_func(void)
 alloc_fail:
 	return NULL;
 }
+
+

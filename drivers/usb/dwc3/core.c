@@ -1056,7 +1056,7 @@ static int dwc3_probe(struct platform_device *pdev)
 #endif /* CONFIG_USB_DWC3_RTK && (MY_ABC_HERE || CONFIG_SYNO_LSP_RTD1619) */
 
 	/* default to highest possible threshold */
-	lpm_nyet_threshold = 0xff;
+	lpm_nyet_threshold = 0xf;
 
 	/* default to -3.5dB de-emphasis */
 	tx_de_emphasis = 1;

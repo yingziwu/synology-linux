@@ -59,6 +59,7 @@ static void rtk_thermal_error_check(struct thermal_zone_device *thermal)
     }
 }
 
+
 static int rtk_thermal_get_temp(struct thermal_zone_device *thermal, int *temp)
 {
     struct rtk_thermal_priv *priv = thermal->devdata;
@@ -112,6 +113,7 @@ static int rtk_thermal_get_trip_type(struct thermal_zone_device *thermal,
     return 0;
 }
 
+
 static int rtk_thermal_get_trip_temp(struct thermal_zone_device *thermal,
                                      int trip, int *temp)
 {
@@ -162,6 +164,7 @@ static int rtk_thermal_set_trip_hyst(struct thermal_zone_device *thermal,
     return 0;
 }
 
+
 static int pr_temp_once = 0;
 
 static int rtk_thermal_get_trend(struct thermal_zone_device *thermal,
@@ -183,7 +186,13 @@ static int rtk_thermal_get_trend(struct thermal_zone_device *thermal,
     else if (priv->flags & TREND_URGENT)
         *trend = THERMAL_TREND_DROP_FULL;
     else
+#ifdef MY_ABC_HERE
+    {
+#endif /* MY_ABC_HERE */
         *trend = THERMAL_TREND_DROPPING;
+#ifdef MY_ABC_HERE
+    }
+#endif /* MY_ABC_HERE */
 	
 	if (!pr_temp_once) {
 		dev_info(&thermal->device, "current temp is %d C\n", thermal->temperature/1000);
@@ -212,8 +221,10 @@ static enum rtk_cdev_id rtk_thermal_get_cdev_id(struct thermal_cooling_device *c
     if (!strncmp(cdev->type, "thermal-cpu-core", 16))
         return CDEV_CPU_CORE_CTRL;
 
+
     return CDEV_INVALID;
 }
+
 
 static int rtk_thermal_bind(struct thermal_zone_device *thermal,
                             struct thermal_cooling_device *cdev)
@@ -337,6 +348,7 @@ static struct thermal_zone_device_ops rtk_tz_ops = {
     .set_trip_hyst  = rtk_thermal_set_trip_hyst,
     .get_crit_temp  = rtk_thermal_get_crit_temp,
 };
+
 
 void modifyFlags(struct rtk_thermal_priv *priv, unsigned int value, enum FlagMode mode)
 {

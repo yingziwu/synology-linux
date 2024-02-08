@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -150,6 +151,7 @@ void mv_pp3_hmac_frame_cfg(u32 frame, u8 vm_id)
 #endif
 	mv_pp3_hmac_gl_reg_write(MV_HMAC_EVENT_ADDR_HIGH_REG(frame), 0);
 }
+
 
 /* configure queue to be used like BM queue */
 void mv_pp3_hmac_queue_bm_mode_cfg(int frame, int queue)
@@ -820,6 +822,7 @@ static void mv_pp3_hmac_txq_status_show(int frame, int queue)
 	pr_info("\n");
 }
 
+
 void mv_pp3_hmac_rx_queue_show(int frame, int queue)
 {
 	pr_info("\n-------------- HMAC RX frame: #%d, queue: #%d --------------\n", frame, queue);
@@ -913,3 +916,4 @@ void mv_pp3_hmac_rxq_delete(int frame, int queue)
 
 	mv_hmac_rxq_handle[frame][queue] = NULL;
 }
+

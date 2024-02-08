@@ -29,6 +29,7 @@
 #include <scsi/scsi_host.h>
 #include <scsi/scsi_transport_fc.h>
 
+
 #include "lpfc_hw4.h"
 #include "lpfc_hw.h"
 #include "lpfc_sli.h"
@@ -156,6 +157,7 @@ lpfc_prep_els_iocb(struct lpfc_vport *vport, uint8_t expectRsp,
 	struct lpfc_dmabuf *pcmd, *prsp, *pbuflist;
 	struct ulp_bde64 *bpl;
 	IOCB_t *icmd;
+
 
 	if (!lpfc_is_link_up(phba))
 		return NULL;
@@ -622,6 +624,7 @@ lpfc_check_clean_addr_bit(struct lpfc_vport *vport,
 	return fabric_param_changed;
 }
 
+
 /**
  * lpfc_cmpl_els_flogi_fabric - Completion function for flogi to a fabric port
  * @vport: pointer to a host virtual N_Port data structure.
@@ -1051,7 +1054,10 @@ stop_rr_fcf_flogi:
 					lpfc_sli4_unreg_all_rpis(vport);
 				}
 			}
-			lpfc_issue_reg_vfi(vport);
+
+			/* Do not register VFI if the driver aborted FLOGI */
+			if (!lpfc_error_lost_link(irsp))
+				lpfc_issue_reg_vfi(vport);
 			lpfc_nlp_put(ndlp);
 			goto out;
 		}
@@ -1975,6 +1981,9 @@ lpfc_issue_els_plogi(struct lpfc_vport *vport, uint32_t did, uint8_t retry)
 
 	if (sp->cmn.fcphHigh < FC_PH3)
 		sp->cmn.fcphHigh = FC_PH3;
+
+	sp->cmn.valid_vendor_ver_level = 0;
+	memset(sp->vendorVersion, 0, sizeof(sp->vendorVersion));
 
 	lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_ELS_CMD,
 		"Issue PLOGI:     did:x%x",
@@ -3085,6 +3094,7 @@ lpfc_els_retry(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
 	uint32_t cmd = 0;
 	uint32_t did;
 
+
 	/* Note: context2 may be 0 for internal driver abort
 	 * of delays ELS command.
 	 */
@@ -3559,12 +3569,14 @@ lpfc_els_free_iocb(struct lpfc_hba *phba, struct lpfc_iocbq *elsiocb)
 		} else {
 			buf_ptr1 = (struct lpfc_dmabuf *) elsiocb->context2;
 			lpfc_els_free_data(phba, buf_ptr1);
+			elsiocb->context2 = NULL;
 		}
 	}
 
 	if (elsiocb->context3) {
 		buf_ptr = (struct lpfc_dmabuf *) elsiocb->context3;
 		lpfc_els_free_bpl(phba, buf_ptr);
+		elsiocb->context3 = NULL;
 	}
 	lpfc_sli_release_iocbq(phba, elsiocb);
 	return 0;
@@ -3957,6 +3969,9 @@ lpfc_els_rsp_acc(struct lpfc_vport *vport, uint32_t flag,
 		} else {
 			memcpy(pcmd, &vport->fc_sparam,
 			       sizeof(struct serv_parm));
+
+			sp->cmn.valid_vendor_ver_level = 0;
+			memset(sp->vendorVersion, 0, sizeof(sp->vendorVersion));
 		}
 
 		lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_ELS_RSP,
@@ -4380,6 +4395,7 @@ lpfc_els_clear_rrq(struct lpfc_vport *vport,
 	uint16_t rxid;
 	uint16_t xri;
 	struct lpfc_node_rrq *prrq;
+
 
 	pcmd = (uint8_t *) (((struct lpfc_dmabuf *) iocb->context2)->virt);
 	pcmd += sizeof(uint32_t);
@@ -4948,6 +4964,7 @@ lpfc_els_rcv_rdp(struct lpfc_vport *vport, struct lpfc_iocbq *cmdiocb,
 	pcmd = (struct lpfc_dmabuf *) cmdiocb->context2;
 	rdp_req = (struct fc_rdp_req_frame *) pcmd->virt;
 
+
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_ELS,
 			 "2422 ELS RDP Request "
 			 "dec len %d tag x%x port_id %d len %d\n",
@@ -4997,6 +5014,7 @@ error:
 	lpfc_els_rsp_reject(vport, stat.un.lsRjtError, cmdiocb, ndlp, NULL);
 	return 1;
 }
+
 
 static void
 lpfc_els_lcb_rsp(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
@@ -5087,6 +5105,9 @@ error:
 	stat = (struct ls_rjt *)(pcmd + sizeof(uint32_t));
 	stat->un.b.lsRjtRsnCode = LSRJT_UNABLE_TPC;
 
+	if (shdr_add_status == ADD_STATUS_OPERATION_ALREADY_ACTIVE)
+		stat->un.b.lsRjtRsnCodeExp = LSEXP_CMD_IN_PROGRESS;
+
 	elsiocb->iocb_cmpl = lpfc_cmpl_els_rsp;
 	phba->fc_stat.elsXmitLSRJT++;
 	rc = lpfc_sli_issue_iocb(phba, LPFC_ELS_RING, elsiocb, 0);
@@ -5132,6 +5153,7 @@ lpfc_sli4_set_beacon(struct lpfc_vport *vport,
 
 	return 0;
 }
+
 
 /**
  * lpfc_els_rcv_lcb - Process an unsolicited LCB
@@ -5237,6 +5259,7 @@ rjt:
 	lpfc_els_rsp_reject(vport, stat.un.lsRjtError, cmdiocb, ndlp, NULL);
 	return 1;
 }
+
 
 /**
  * lpfc_els_flush_rscn - Clean up any rscn activities with a vport
@@ -5771,6 +5794,7 @@ lpfc_els_rcv_flogi(struct lpfc_vport *vport, struct lpfc_iocbq *cmdiocb,
 
 	(void) lpfc_check_sparm(vport, ndlp, sp, CLASS3, 1);
 
+
 	/*
 	 * If our portname is greater than the remote portname,
 	 * then we initiate Nport login.
@@ -6260,6 +6284,7 @@ lpfc_els_rcv_rtv(struct lpfc_vport *vport, struct lpfc_iocbq *cmdiocb,
 	struct lpfc_iocbq *elsiocb;
 	uint32_t cmdsize;
 
+
 	if ((ndlp->nlp_state != NLP_STE_UNMAPPED_NODE) &&
 	    (ndlp->nlp_state != NLP_STE_MAPPED_NODE))
 		/* reject the unsolicited RPS request and done with it */
@@ -6416,6 +6441,7 @@ lpfc_issue_els_rrq(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
 	uint16_t cmdsize;
 	int ret;
 
+
 	if (ndlp != rrq->ndlp)
 		ndlp = rrq->ndlp;
 	if (!ndlp || !NLP_CHK_NODE_ACT(ndlp))
@@ -6440,6 +6466,7 @@ lpfc_issue_els_rrq(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
 	bf_set(rrq_did, els_rrq, vport->fc_myDID);
 	els_rrq->rrq = cpu_to_be32(els_rrq->rrq);
 	els_rrq->rrq_exchg = cpu_to_be32(els_rrq->rrq_exchg);
+
 
 	lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_ELS_CMD,
 		"Issue RRQ:     did:x%x",
@@ -6814,6 +6841,7 @@ lpfc_els_timeout(unsigned long ptr)
 	return;
 }
 
+
 /**
  * lpfc_els_timeout_handler - Process an els timeout event
  * @vport: pointer to a virtual N_Port data structure.
@@ -6835,6 +6863,7 @@ lpfc_els_timeout_handler(struct lpfc_vport *vport)
 	uint32_t timeout;
 	uint32_t remote_ID = 0xffffffff;
 	LIST_HEAD(abort_list);
+
 
 	timeout = (uint32_t)(phba->fc_ratov << 1);
 
@@ -7184,6 +7213,7 @@ lpfc_send_els_event(struct lpfc_vport *vport,
 	return;
 }
 
+
 /**
  * lpfc_els_unsol_buffer - Process an unsolicited event data buffer
  * @phba: pointer to lpfc hba data structure.
@@ -7464,7 +7494,8 @@ lpfc_els_unsol_buffer(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
 			did, vport->port_state, ndlp->nlp_flag);
 
 		phba->fc_stat.elsRcvPRLI++;
-		if (vport->port_state < LPFC_DISC_AUTH) {
+		if ((vport->port_state < LPFC_DISC_AUTH) &&
+		    (vport->fc_flag & FC_FABRIC)) {
 			rjt_err = LSRJT_UNABLE_TPC;
 			rjt_exp = LSEXP_NOTHING_MORE;
 			break;
@@ -7860,11 +7891,17 @@ lpfc_cmpl_reg_new_vport(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
 			spin_lock_irq(shost->host_lock);
 			vport->fc_flag |= FC_VPORT_NEEDS_REG_VPI;
 			spin_unlock_irq(shost->host_lock);
-			if (vport->port_type == LPFC_PHYSICAL_PORT
-				&& !(vport->fc_flag & FC_LOGO_RCVD_DID_CHNG))
-				lpfc_issue_init_vfi(vport);
-			else
+			if (mb->mbxStatus == MBX_NOT_FINISHED)
+				break;
+			if ((vport->port_type == LPFC_PHYSICAL_PORT) &&
+			    !(vport->fc_flag & FC_LOGO_RCVD_DID_CHNG)) {
+				if (phba->sli_rev == LPFC_SLI_REV4)
+					lpfc_issue_init_vfi(vport);
+				else
+					lpfc_initial_flogi(vport);
+			} else {
 				lpfc_initial_fdisc(vport);
+			}
 			break;
 		}
 	} else {
@@ -8863,3 +8900,4 @@ lpfc_sli_abts_recover_port(struct lpfc_vport *vport,
 	lpfc_issue_els_logo(vport, ndlp, 0);
 	lpfc_nlp_set_state(vport, ndlp, NLP_STE_LOGO_ISSUE);
 }
+

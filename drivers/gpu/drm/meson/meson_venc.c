@@ -927,6 +927,7 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 			writel_relaxed(vmode->enci.yc_delay,
 					priv->io_base + _REG(ENCI_YC_DELAY));
 
+
 		/* UNreset Interlaced TV Encoder */
 		writel_relaxed(0, priv->io_base + _REG(ENCI_DBG_PX_RST));
 

@@ -23,6 +23,7 @@
 #include <linux/fs.h>
 #include <soc/realtek/rtk_sb2_sem.h>
 
+
 #define SB2_SEM_TRYLOCK_MAX 1024
 #define SB2_SEM_RETRY_MAX 10
 
@@ -251,6 +252,7 @@ static const struct of_device_id sb2_sem_ids[] = {
 	 { .compatible = "realtek,sb2-sem-dev" },
 	 {}
 };
+
 
 static struct platform_driver sb2_sem_drv = {
 	.driver = {

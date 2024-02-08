@@ -71,6 +71,7 @@ unsigned long pll_size_register = 0;
 rtkdrv_dovi_flag_t dovi_flag = {-1, -1, 0};
 static DEFINE_MUTEX(s_dovi_mutex);
 
+
 #define PU_PLATFORM_DEVICE_NAME "rtk_puwrap"
 
 #ifdef CONFIG_RTK_RESERVE_MEMORY
@@ -357,7 +358,9 @@ static int pu_probe(struct platform_device *pdev)
     printk(KERN_INFO "[PUWRAP] success to probe pu wrapper device\n");
 #endif /* endif CONFIG_RTK_RESERVE_MEMORY */
 
+
     return 0;
+
 
 #ifdef CONFIG_RTK_RESERVE_MEMORY
 #ifndef USE_ION_ALLOCATOR
@@ -447,6 +450,7 @@ static void __exit pu_exit(void)
     //platform_driver_unregister(&pu_driver);
     return;
 }
+
 
 static const struct of_device_id rtk_pu_dt_match[] = {
     { .compatible = "Realtek,rtk16xx-pu_pll" },

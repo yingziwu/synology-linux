@@ -28,6 +28,7 @@ extern void rtk_cpu_power_down(int cpu);
 extern void rtk_cpu_power_up(int cpu);
 #endif
 
+
 static DEFINE_PER_CPU(struct device *, cpu_sys_devices);
 
 static int cpu_subsys_match(struct device *dev, struct device_driver *drv)

@@ -81,6 +81,7 @@
 	SRI(OTG_TEST_PATTERN_CONTROL, OTG, inst),\
 	SRI(OTG_TEST_PATTERN_COLOR, OTG, inst)
 
+
 struct dcn_optc_registers {
 	uint32_t OTG_VERT_SYNC_CONTROL;
 	uint32_t OTG_MASTER_UPDATE_MODE;
@@ -224,6 +225,7 @@ struct dcn_optc_registers {
 	SF(OTG0_OTG_GSL_CONTROL, OTG_GSL_FORCE_DELAY, mask_sh),\
 	SF(OTG0_OTG_GSL_CONTROL, OTG_GSL_CHECK_ALL_FIELDS, mask_sh)
 
+
 #define TG_COMMON_MASK_SH_LIST_DCN1_0(mask_sh)\
 	TG_COMMON_MASK_SH_LIST_DCN(mask_sh),\
 	SF(OTG0_OTG_TEST_PATTERN_PARAMETERS, OTG_TEST_PATTERN_INC0, mask_sh),\
@@ -353,6 +355,7 @@ struct dcn_optc_registers {
 	type OTG_DSC_START_POSITION_X;\
 	type OTG_DSC_START_POSITION_LINE_NUM;\
 	type OTG_MASTER_UPDATE_LOCK_VUPDATE_KEEPOUT_EN;
+
 
 struct dcn_optc_shift {
 	TG_REG_FIELD_LIST(uint8_t)

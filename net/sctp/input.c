@@ -74,6 +74,7 @@ static struct sctp_association *__sctp_lookup_association(
 
 static int sctp_add_backlog(struct sock *sk, struct sk_buff *skb);
 
+
 /* Calculate the SCTP checksum of an SCTP packet.  */
 static inline int sctp_rcv_checksum(struct net *net, struct sk_buff *skb)
 {
@@ -419,7 +420,7 @@ void sctp_icmp_redirect(struct sock *sk, struct sctp_transport *t,
 {
 	struct dst_entry *dst;
 
-	if (!t)
+	if (sock_owned_by_user(sk) || !t)
 		return;
 	dst = sctp_transport_dst_check(t);
 	if (dst)
@@ -471,15 +472,14 @@ struct sock *sctp_err_lookup(struct net *net, int family, struct sk_buff *skb,
 			     struct sctp_association **app,
 			     struct sctp_transport **tpp)
 {
+	struct sctp_init_chunk *chunkhdr, _chunkhdr;
 	union sctp_addr saddr;
 	union sctp_addr daddr;
 	struct sctp_af *af;
 	struct sock *sk = NULL;
 	struct sctp_association *asoc;
 	struct sctp_transport *transport = NULL;
-	struct sctp_init_chunk *chunkhdr;
 	__u32 vtag = ntohl(sctphdr->vtag);
-	int len = skb->len - ((void *)sctphdr - (void *)skb->data);
 
 	*app = NULL; *tpp = NULL;
 
@@ -514,13 +514,16 @@ struct sock *sctp_err_lookup(struct net *net, int family, struct sk_buff *skb,
 	 * discard the packet.
 	 */
 	if (vtag == 0) {
-		chunkhdr = (void *)sctphdr + sizeof(struct sctphdr);
-		if (len < sizeof(struct sctphdr) + sizeof(sctp_chunkhdr_t)
-			  + sizeof(__be32) ||
+		/* chunk header + first 4 octects of init header */
+		chunkhdr = skb_header_pointer(skb, skb_transport_offset(skb) +
+					      sizeof(struct sctphdr),
+					      sizeof(struct sctp_chunkhdr) +
+					      sizeof(__be32), &_chunkhdr);
+		if (!chunkhdr ||
 		    chunkhdr->chunk_hdr.type != SCTP_CID_INIT ||
-		    ntohl(chunkhdr->init_hdr.init_tag) != asoc->c.my_vtag) {
+		    ntohl(chunkhdr->init_hdr.init_tag) != asoc->c.my_vtag)
 			goto out;
-		}
+
 	} else if (vtag != asoc->c.peer_vtag) {
 		goto out;
 	}
@@ -1016,6 +1019,7 @@ static struct sctp_association *__sctp_rcv_asconf_lookup(
 
 	return __sctp_lookup_association(net, laddr, &paddr, transportp);
 }
+
 
 /* SCTP-AUTH, Section 6.3:
 *    If the receiver does not find a STCB for a packet containing an AUTH

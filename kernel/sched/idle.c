@@ -135,7 +135,7 @@ static int call_cpuidle(struct cpuidle_driver *drv, struct cpuidle_device *dev,
  */
 static void cpuidle_idle_call(void)
 {
-	struct cpuidle_device *dev = __this_cpu_read(cpuidle_devices);
+	struct cpuidle_device *dev = cpuidle_get_device();
 	struct cpuidle_driver *drv = cpuidle_get_cpu_driver(dev);
 	int next_state, entered_state;
 
@@ -153,7 +153,8 @@ static void cpuidle_idle_call(void)
 	 * so no more rcu read side critical sections and one more
 	 * step to the grace period
 	 */
-#ifndef MY_DEF_HERE
+#ifdef MY_DEF_HERE
+#else
 	rcu_idle_enter();
 #endif
 
@@ -236,6 +237,7 @@ static void cpu_idle_loop(void)
 		 */
 
 		__current_set_polling();
+		quiet_vmstat();
 		tick_nohz_idle_enter();
 
 		while (!need_resched()) {

@@ -808,7 +808,7 @@ static int ocfs2_write_zero_page(struct inode *inode, u64 abs_from,
 	/* We know that zero_from is block aligned */
 	for (block_start = zero_from; block_start < zero_to;
 	     block_start = block_end) {
-		block_end = block_start + (1 << inode->i_blkbits);
+		block_end = block_start + i_blocksize(inode);
 
 		/*
 		 * block_start is block-aligned.  Bump it by one to force
@@ -821,6 +821,7 @@ static int ocfs2_write_zero_page(struct inode *inode, u64 abs_from,
 			mlog_errno(ret);
 			goto out_unlock;
 		}
+
 
 		/* must not update i_size! */
 		ret = block_commit_write(page, block_start + 1,
@@ -2489,6 +2490,7 @@ static ssize_t ocfs2_file_read_iter(struct kiocb *iocb,
 			filp->f_path.dentry->d_name.len,
 			filp->f_path.dentry->d_name.name,
 			to->nr_segs);	/* GRRRRR */
+
 
 	if (!inode) {
 		ret = -EINVAL;

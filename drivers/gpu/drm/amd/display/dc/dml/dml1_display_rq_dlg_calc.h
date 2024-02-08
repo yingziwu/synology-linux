@@ -48,6 +48,7 @@ void dml1_rq_dlg_get_rq_params(
 		struct _vcs_dpi_display_rq_params_st *rq_param,
 		const struct _vcs_dpi_display_pipe_source_params_st pipe_src_param);
 
+
 /* Function: dml_rq_dlg_get_dlg_params
  *  Calculate deadline related parameters
  */

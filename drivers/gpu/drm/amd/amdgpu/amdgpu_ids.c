@@ -220,6 +220,7 @@ int amdgpu_vmid_grab(struct amdgpu_vm *vm, struct amdgpu_ring *ring,
 			goto error;
 		}
 
+
 		r = amdgpu_sync_fence(ring->adev, sync, &array->base, false);
 		dma_fence_put(&array->base);
 		if (r)

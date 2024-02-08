@@ -33,6 +33,7 @@
 #pragma pack(1)
 #endif
 
+
 /****************************************************
 * Display Object Type Definition 
 *****************************************************/
@@ -53,6 +54,7 @@ ENCODER_OBJECT_ID_INTERNAL_UNIPHY1				 =0x02,
 ENCODER_OBJECT_ID_INTERNAL_UNIPHY2				 =0x03,
 };
 
+
 /****************************************************
 * Connector Object ID Definition 
 *****************************************************/
@@ -67,6 +69,7 @@ CONNECTOR_OBJECT_ID_DISPLAYPORT					  =0x05,
 CONNECTOR_OBJECT_ID_eDP							  =0x06,
 CONNECTOR_OBJECT_ID_OPM							  =0x07
 };
+
 
 /****************************************************
 * Protection Object ID Definition 
@@ -97,6 +100,7 @@ OBJECT_ID_SHIFT									  =0x00,
 ENUM_ID_SHIFT									  =0x08,
 OBJECT_TYPE_SHIFT								  =0x0C
 };
+
 
 /****************************************************
 * GPU Object definition - Shared with BIOS
@@ -135,14 +139,17 @@ ENCODER_INTERNAL_UNIPHY2_ENUM_ID2        =( DISPLAY_OBJECT_TYPE_ENCODER << OBJEC
                                                  ENCODER_OBJECT_ID_INTERNAL_UNIPHY2 << OBJECT_ID_SHIFT)
 };
 
+
 /****************************************************
 * Connector Object definition - Shared with BIOS
 *****************************************************/
+
 
 enum connector_objet_def{
 CONNECTOR_LVDS_ENUM_ID1							=( DISPLAY_OBJECT_TYPE_CONNECTOR << OBJECT_TYPE_SHIFT |\
                                                  OBJECT_ENUM_ID1 << ENUM_ID_SHIFT |\
                                                  CONNECTOR_OBJECT_ID_LVDS << OBJECT_ID_SHIFT),
+
 
 CONNECTOR_eDP_ENUM_ID1							=( DISPLAY_OBJECT_TYPE_CONNECTOR << OBJECT_TYPE_SHIFT |\
                                                  OBJECT_ENUM_ID1 << ENUM_ID_SHIFT |\
@@ -155,6 +162,7 @@ CONNECTOR_SINGLE_LINK_DVI_D_ENUM_ID1			=( DISPLAY_OBJECT_TYPE_CONNECTOR << OBJEC
 CONNECTOR_SINGLE_LINK_DVI_D_ENUM_ID2			=( DISPLAY_OBJECT_TYPE_CONNECTOR << OBJECT_TYPE_SHIFT |\
                                                  OBJECT_ENUM_ID2 << ENUM_ID_SHIFT |\
                                                  CONNECTOR_OBJECT_ID_SINGLE_LINK_DVI_D << OBJECT_ID_SHIFT),
+
 
 CONNECTOR_DUAL_LINK_DVI_D_ENUM_ID1				=( DISPLAY_OBJECT_TYPE_CONNECTOR << OBJECT_TYPE_SHIFT |\
                                                  OBJECT_ENUM_ID1 << ENUM_ID_SHIFT |\
@@ -208,6 +216,7 @@ CONNECTOR_OPM_ENUM_ID5							=( DISPLAY_OBJECT_TYPE_CONNECTOR << OBJECT_TYPE_SHI
                                                  OBJECT_ENUM_ID5 << ENUM_ID_SHIFT |\
                                                  CONNECTOR_OBJECT_ID_OPM << OBJECT_ID_SHIFT),          //Mapping to MXM_LVDS_TXxx
 
+
 CONNECTOR_OPM_ENUM_ID6							=( DISPLAY_OBJECT_TYPE_CONNECTOR << OBJECT_TYPE_SHIFT |\
                                                  OBJECT_ENUM_ID6 << ENUM_ID_SHIFT |\
                                                  CONNECTOR_OBJECT_ID_OPM << OBJECT_ID_SHIFT)         //Mapping to MXM_LVDS_TXxx
@@ -217,6 +226,7 @@ CONNECTOR_OPM_ENUM_ID6							=( DISPLAY_OBJECT_TYPE_CONNECTOR << OBJECT_TYPE_SHI
 * Router Object ID definition - Shared with BIOS
 *****************************************************/
 //No Need, in future we ever need, we can define a record in atomfirwareSoC15.h associated with an object that has this router
+
 
 /****************************************************
 * PROTECTION Object ID definition - Shared with BIOS
@@ -228,8 +238,12 @@ CONNECTOR_OPM_ENUM_ID6							=( DISPLAY_OBJECT_TYPE_CONNECTOR << OBJECT_TYPE_SHI
 *****************************************************/
 //No need, in future we ever need like GLsync, we can define a record in atomfirwareSoC15.h associated with an object.
 
+
 #if defined(_X86_)
 #pragma pack()
 #endif
 
 #endif
+
+
+

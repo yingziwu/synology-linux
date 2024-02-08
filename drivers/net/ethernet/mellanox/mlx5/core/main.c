@@ -153,8 +153,9 @@ static struct mlx5_profile profile[] = {
 	},
 };
 
-#define FW_INIT_TIMEOUT_MILI	2000
-#define FW_INIT_WAIT_MS		2
+#define FW_INIT_TIMEOUT_MILI		2000
+#define FW_INIT_WAIT_MS			2
+#define FW_PRE_INIT_TIMEOUT_MILI	10000
 
 static int wait_fw_init(struct mlx5_core_dev *dev, u32 max_wait_mili)
 {
@@ -302,6 +303,7 @@ struct mlx5_reg_host_endianess {
 	u8	he;
 	u8      rsvd[15];
 };
+
 
 #define CAP_MASK(pos, size) ((u64)((1 << (size)) - 1) << (pos))
 
@@ -511,7 +513,6 @@ static int mlx5_irq_set_affinity_hint(struct mlx5_core_dev *mdev, int i)
 	struct mlx5_priv *priv  = &mdev->priv;
 	struct msix_entry *msix = priv->msix_arr;
 	int irq                 = msix[i + MLX5_EQ_VEC_COMP_BASE].vector;
-	int err;
 
 	if (!zalloc_cpumask_var(&priv->irq_info[i].mask, GFP_KERNEL)) {
 		mlx5_core_warn(mdev, "zalloc_cpumask_var failed");
@@ -521,18 +522,11 @@ static int mlx5_irq_set_affinity_hint(struct mlx5_core_dev *mdev, int i)
 	cpumask_set_cpu(cpumask_local_spread(i, priv->numa_node),
 			priv->irq_info[i].mask);
 
-	err = irq_set_affinity_hint(irq, priv->irq_info[i].mask);
-	if (err) {
-		mlx5_core_warn(mdev, "irq_set_affinity_hint failed,irq 0x%.4x",
-			       irq);
-		goto err_clear_mask;
-	}
+	if (IS_ENABLED(CONFIG_SMP) &&
+	    irq_set_affinity_hint(irq, priv->irq_info[i].mask))
+		mlx5_core_warn(mdev, "irq_set_affinity_hint failed, irq 0x%.4x", irq);
 
 	return 0;
-
-err_clear_mask:
-	free_cpumask_var(priv->irq_info[i].mask);
-	return err;
 }
 
 static void mlx5_irq_clear_affinity_hint(struct mlx5_core_dev *mdev, int i)
@@ -933,6 +927,15 @@ static int mlx5_load_one(struct mlx5_core_dev *dev, struct mlx5_priv *priv)
 	 */
 	dev->state = MLX5_DEVICE_STATE_UP;
 
+	/* wait for firmware to accept initialization segments configurations
+	 */
+	err = wait_fw_init(dev, FW_PRE_INIT_TIMEOUT_MILI);
+	if (err) {
+		dev_err(&dev->pdev->dev, "Firmware over %d MS in pre-initializing state, aborting\n",
+			FW_PRE_INIT_TIMEOUT_MILI);
+		goto out;
+	}
+
 	err = mlx5_cmd_init(dev);
 	if (err) {
 		dev_err(&pdev->dev, "Failed initializing command interface, aborting\n");
@@ -1186,6 +1189,7 @@ struct mlx5_core_event_handler {
 		      enum mlx5_dev_event event,
 		      void *data);
 };
+
 
 static int init_one(struct pci_dev *pdev,
 		    const struct pci_device_id *id)

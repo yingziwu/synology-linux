@@ -70,6 +70,7 @@ const void __iomem        *const_tp_addr = base_tp_addr;*/
 #define GET_TP_KEYINFO_0( tp_offset)         readl((volatile unsigned long*)( tp_offset + TP_KEY_INFO_0))
 #define GET_TP_KEYINFO_1( tp_offset)             readl((volatile unsigned long*)( tp_offset + TP_KEY_INFO_1))
 
+
 #define GET_TP_CLOCK(tp_offset)           readl((volatile unsigned long*)(tp_offset + TP_CLOCK))
 #define GET_TP_RESET( tp_offset)         readl((volatile unsigned long*)( tp_offset + TP_RESET))
 #define GET_DMY_0( tp_offset)             readl((volatile unsigned long*)( tp_offset + TP_DMY_0))
@@ -77,6 +78,7 @@ const void __iomem        *const_tp_addr = base_tp_addr;*/
 
 #define SET_TP_CLOCK(tp_offset, x)           writel((x), (volatile unsigned long*)(tp_offset + TP_CLOCK))
 #define SET_TP_RESET( tp_offset, x)         writel((x), (volatile unsigned long*)( tp_offset + TP_RESET))
+
 
 #define GET_SRAM_CHECK(cp_offset)             readl((volatile unsigned long*)(cp_offset + K_MCP_DES_COUNT))
 #define SET_SRAM_CHECK(x, cp_offset)           writel((x), (volatile unsigned int*)(cp_offset + K_MCP_DES_COUNT))

@@ -156,6 +156,7 @@
 #define GNPTXSTS_NPTxFSpcAvail_SHIFT		(0)
 #define GNPTXSTS_NPTxFSpcAvail_GET(_v)		(((_v) >> 0) & 0xffff)
 
+
 #define HPTXFSIZ				HSOTG_REG(0x100)
 
 #define DPTXFSIZn(_a)		HSOTG_REG(0x104 + (((_a) - 1) * 4))

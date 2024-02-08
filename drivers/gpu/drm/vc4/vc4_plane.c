@@ -632,6 +632,7 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 	/* Position Word 3: Context.  Written by the HVS. */
 	vc4_dlist_write(vc4_state, 0xc0c0c0c0);
 
+
 	/* Pointer Word 0/1/2: RGB / Y / Cb / Cr Pointers
 	 *
 	 * The pointers may be any byte address.

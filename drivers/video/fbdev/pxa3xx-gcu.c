@@ -417,6 +417,7 @@ pxa3xx_gcu_write(struct file *file, const char *buff,
 	priv->free = buffer->next;
 	spin_unlock_irqrestore(&priv->spinlock, flags);
 
+
 	/* Copy data from user into buffer */
 	ret = copy_from_user(buffer->ptr, buff, words * 4);
 	if (ret) {
@@ -455,6 +456,7 @@ pxa3xx_gcu_write(struct file *file, const char *buff,
 
 	return words * 4;
 }
+
 
 static long
 pxa3xx_gcu_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
@@ -506,6 +508,7 @@ pxa3xx_gcu_mmap(struct file *file, struct vm_area_struct *vma)
 
 	return -EINVAL;
 }
+
 
 #ifdef PXA3XX_GCU_DEBUG_TIMER
 static struct timer_list pxa3xx_gcu_debug_timer;
@@ -623,8 +626,8 @@ static int pxa3xx_gcu_probe(struct platform_device *pdev)
 	/* request the IRQ */
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
-		dev_err(dev, "no IRQ defined\n");
-		return -ENODEV;
+		dev_err(dev, "no IRQ defined: %d\n", irq);
+		return irq;
 	}
 
 	ret = devm_request_irq(dev, irq, pxa3xx_gcu_handle_irq,

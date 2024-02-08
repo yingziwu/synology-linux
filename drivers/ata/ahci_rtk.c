@@ -121,6 +121,7 @@ void ahci_rtk_issue_intr(int port_num)
 }
 EXPORT_SYMBOL_GPL(ahci_rtk_issue_intr);
 
+
 void ahci_rtk_reset_mac(int port_num)
 {
 	struct ata_host *host = dev_get_drvdata(ahci_dev->dev);
@@ -812,6 +813,54 @@ static ssize_t switch_present_print_state(struct switch_dev *sdev, char *buffer)
 	return sprintf(buffer, "%d\n", ret);
 }
 #endif
+
+#ifdef MY_ABC_HERE
+void rtk_reset_host(int port_num)
+{
+	struct device *dev = ahci_dev->dev;
+	struct ata_host *host = dev_get_drvdata(dev);
+	struct ahci_host_priv *hpriv = host->private_data;
+	void __iomem *mmio = hpriv->mmio;
+	struct ata_port *ap;
+	unsigned int i;
+	unsigned int tmp;
+
+	spin_lock(&host->lock);
+	ap = host->ports[port_num];
+	if (!ap || !(ap->pflags & ATA_PFLAG_SYNO_IRQ_OFF)) {
+		spin_unlock(&host->lock);
+		return ;
+	}
+	spin_unlock(&host->lock);
+
+	pr_info("Enter %s\n", __func__);
+	ahci_platform_disable_clks(hpriv);
+
+	for (i=0; i<host->n_ports; i++) {
+		reset_control_assert(ahci_dev->port[i]->rstc[0]);
+		reset_control_assert(ahci_dev->port[i]->rstc[2]);
+		reset_control_deassert(ahci_dev->port[i]->rstc[0]);
+	}
+	ahci_platform_enable_clks(hpriv);
+
+	for (i = 0; i < host->n_ports; i++)
+		config_sata_mac(i);
+
+	ahci_reset_controller(host);
+
+	tmp = readl(mmio + HOST_CTL);
+	writel(tmp | HOST_IRQ_EN, mmio + HOST_CTL);
+	tmp = readl(mmio + HOST_CTL);
+
+	for (i = 0; i < host->n_ports; i++) {
+		struct ata_port *ap = host->ports[i];
+		ahci_port_resume(ap);
+		ahci_stop_engine(ap);
+		reset_control_deassert(ahci_dev->port[i]->rstc[2]);
+	}
+}
+EXPORT_SYMBOL(rtk_reset_host);
+#endif /* MY_ABC_HERE */
 
 static int ahci_probe(struct platform_device *pdev)
 {

@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -48,6 +49,7 @@ disclaimer.
  */
 int rm_free_queue(rmctl_t hndl, uint32_t queue_ind);
 
+
 /** Free A-node.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -63,6 +65,7 @@ int rm_free_queue(rmctl_t hndl, uint32_t queue_ind);
  *   @retval –EBUSY if any of children is still in use.
  */
 int rm_free_a_node(rmctl_t hndl, uint32_t a_node_ind, uint32_t range);
+
 
 /** Free B-node.
  *
@@ -80,6 +83,7 @@ int rm_free_a_node(rmctl_t hndl, uint32_t a_node_ind, uint32_t range);
  */
 int rm_free_b_node(rmctl_t hndl, uint32_t b_node_ind, uint32_t range);
 
+
 /** Free C-node.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -95,6 +99,7 @@ int rm_free_b_node(rmctl_t hndl, uint32_t b_node_ind, uint32_t range);
  *   @retval –EBUSY if any of children is still in use.
  */
 int rm_free_c_node(rmctl_t hndl, uint32_t c_node_ind, uint32_t range);
+
 
 /** Free Port.
  *
@@ -113,6 +118,7 @@ int rm_free_c_node(rmctl_t hndl, uint32_t c_node_ind, uint32_t range);
  */
 int rm_free_port(rmctl_t hndl, uint8_t port_ind, uint32_t range);
 
+
 /** Free WRED Queue Curve entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -126,6 +132,7 @@ int rm_free_port(rmctl_t hndl, uint8_t port_ind, uint32_t range);
  *   @retval -ENOMSG if entry_ind is already free.
  */
 int rm_free_wred_queue_curve(rmctl_t hndl, uint16_t entry_ind);
+
 
 /** Free WRED A-node Curve entry.
  *
@@ -141,6 +148,7 @@ int rm_free_wred_queue_curve(rmctl_t hndl, uint16_t entry_ind);
  */
 int rm_free_wred_a_node_curve(rmctl_t hndl, uint16_t entry_ind);
 
+
 /** Free WRED B-node Curve entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -154,6 +162,7 @@ int rm_free_wred_a_node_curve(rmctl_t hndl, uint16_t entry_ind);
  *   @retval -ENOMSG if entry_ind is already free.
  */
 int rm_free_wred_b_node_curve(rmctl_t hndl, uint16_t entry_ind);
+
 
 /** Free WRED C-node Curve entry.
  *
@@ -169,6 +178,7 @@ int rm_free_wred_b_node_curve(rmctl_t hndl, uint16_t entry_ind);
  *   @retval -ENOMSG if entry_ind is already free.
  */
 int rm_free_wred_c_node_curve(rmctl_t hndl, uint8_t cos, uint16_t entry_ind);
+
 
 /** Free WRED Port Curve entry.
  *
@@ -200,6 +210,8 @@ int rm_free_wred_port_curve(rmctl_t hndl, uint16_t entry_ind);
  */
 int rm_free_wred_port_curve_cos(rmctl_t hndl, uint8_t cos, uint16_t entry_ind);
 
+
+
 /** Free Queue Drop Profile entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -213,6 +225,7 @@ int rm_free_wred_port_curve_cos(rmctl_t hndl, uint8_t cos, uint16_t entry_ind);
  *   @retval -ENOMSG if entry_ind is already free.
  */
 int rm_free_queue_drop_profile(rmctl_t hndl, uint16_t entry_ind);
+
 
 /** Free A-node Drop Profile entry.
  *
@@ -228,6 +241,7 @@ int rm_free_queue_drop_profile(rmctl_t hndl, uint16_t entry_ind);
  */
 int rm_free_a_node_drop_profile(rmctl_t hndl, uint16_t entry_ind);
 
+
 /** Free B-node Drop Profile entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -241,6 +255,7 @@ int rm_free_a_node_drop_profile(rmctl_t hndl, uint16_t entry_ind);
  *   @retval -ENOMSG if entry_ind is already free.
  */
 int rm_free_b_node_drop_profile(rmctl_t hndl, uint16_t entry_ind);
+
 
 /** Free C-node Drop Profile entry.
  *
@@ -257,6 +272,7 @@ int rm_free_b_node_drop_profile(rmctl_t hndl, uint16_t entry_ind);
  */
 int rm_free_c_node_drop_profile(rmctl_t hndl, uint8_t cos, uint16_t entry_ind);
 
+
 /** Free Port Drop Profile entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -270,6 +286,7 @@ int rm_free_c_node_drop_profile(rmctl_t hndl, uint8_t cos, uint16_t entry_ind);
  *   @retval -ENOMSG if entry_ind is already free.
  */
 int rm_free_port_drop_profile(rmctl_t hndl, uint16_t entry_ind);
+
 
 /* not used for HX/AX */
 /** Free Port Drop Profile entry per Cos.
@@ -286,6 +303,7 @@ int rm_free_port_drop_profile(rmctl_t hndl, uint16_t entry_ind);
  *   @retval -ENOMSG if entry_ind is already free.
  */
 int rm_free_port_drop_profile_cos(rmctl_t hndl, uint8_t cos, uint16_t entry_ind);
+
 
 #endif   /* RM_FREE_H */
 #endif /* MY_DEF_HERE */

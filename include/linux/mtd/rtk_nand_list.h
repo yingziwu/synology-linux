@@ -90,6 +90,7 @@
 #define MX30LF2G28AC		0xC2DA9095	//Macronix 2Gb
 #define MX30LF4G28AC		0xC2DC9095	//Macronix 4Gb
 
+
 #define EN27LN4G08		0xC8DC9095
 
 /* ESMT */

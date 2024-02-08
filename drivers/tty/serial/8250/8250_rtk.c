@@ -36,9 +36,9 @@
 #include <asm/byteorder.h>
 
 #include "8250.h"
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 #include "../../../soc/realtek/common/rtd_syno_uart1.h"
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 /* Offsets for the DesignWare specific registers */
 #define DW_UART_USR	0x1f /* UART Status Register */
@@ -60,6 +60,7 @@
 #define DW_UART_CPR_FIFO_MODE		(0xff << 16)
 /* Helper for fifo size calculation */
 #define DW_UART_CPR_FIFO_SIZE(a)	(((a >> 16) & 0xff) * 16)
+
 
 struct dw8250_data {
 	u8			usr_reg;
@@ -521,11 +522,11 @@ static int dw8250_probe(struct platform_device *pdev)
 	pm_runtime_set_active(&pdev->dev);
 	pm_runtime_enable(&pdev->dev);
 
-#if defined(MY_ABC_HERE) && defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_ABC_HERE) && defined(MY_DEF_HERE)
 	if (1 == data->line) {
 		syno_uart1_init();
 	}
-#endif /* MY_ABC_HERE && CONFIG_SYNO_RTD1619 */
+#endif /* MY_ABC_HERE && MY_DEF_HERE */
 	return 0;
 
 err_reset:

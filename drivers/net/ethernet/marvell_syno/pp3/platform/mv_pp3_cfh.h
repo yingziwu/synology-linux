@@ -62,6 +62,7 @@ enum mv_pp3_cfh_pp_mode_rx {
 	PP_RX_MESSAGE
 };
 
+
 enum mv_pp3_cfh_l4_info_rx {
 	L4_RX_UNKNOWN = 0,
 	L4_RX_TCP,
@@ -130,6 +131,7 @@ enum mv_pp3_l4_csum {
 #define MV_CFH_PKT_LEN_SET(v)		(((v) & MV_CFH_PKT_LEN_MASK) << MV_CFH_PKT_LEN_OFFS)
 #define MV_CFH_PKT_LEN_GET(v)		(((v) >> MV_CFH_PKT_LEN_OFFS) & MV_CFH_PKT_LEN_MASK)
 
+
 #define MV_CFH_REORDER_OFFS		(28)
 #define MV_CFH_REORDER_MASK		(0x3)
 #define MV_CFH_REORDER_SET(v)		(((v) & MV_CFH_REORDER_MASK) << MV_CFH_REORDER_OFFS)
@@ -163,6 +165,8 @@ enum mv_pp3_l4_csum {
 #define MV_CFH_SWQ_MASK			(0xFF)
 #define MV_CFH_SWQ_GET(v)		(((v) >> MV_CFH_SWQ_OFFS) & MV_CFH_SWQ_MASK)
 
+
+
 #define MV_CFH_LEN_OFFS			(16)
 #define MV_CFH_LEN_MASK			(0xFF)
 #define MV_CFH_LEN_SET(v)		(((v) & MV_CFH_LEN_MASK) << MV_CFH_LEN_OFFS)
@@ -171,6 +175,7 @@ enum mv_pp3_l4_csum {
 #define MV_CFH_MODE_OFFS		(24)
 #define MV_CFH_MODE_MASK		(0x3)
 #define MV_CFH_MODE_SET(v)		(((v) & MV_CFH_MODE_MASK) << MV_CFH_MODE_OFFS)
+
 
 #define MV_CFH_MDATA_BIT_OFFS		(26)
 #define MV_CFH_MDATA_BIT_SET		(0x1 << MV_CFH_MDATA_BIT_OFFS)
@@ -262,6 +267,7 @@ enum mv_pp3_l4_csum {
 #define MV_CFH_VIRT_L_OFFS		(0)
 #define MV_CFH_VIRT_L_MASK		(0xFF)
 
+
 /* CFH word 7 - received packet parsing*/
 
 #define MV_CFH_VIRT_H_OFFS		(0x0)
@@ -317,3 +323,7 @@ enum mv_pp3_l4_csum {
 #define MV_CFH_L3_INFO_TX_SET(v)	(((v) & MV_CFH_L3_INFO_TX_MASK) << MV_CFH_L3_INFO_TX_OFFS)
 
 #endif /* __mv_pp3_cfh_h__ */
+
+
+
+

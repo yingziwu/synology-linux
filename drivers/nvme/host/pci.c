@@ -64,7 +64,6 @@ extern void syno_disk_not_ready_count_decrease(void);
 #endif /* MY_DEF_HERE */
 
 #define NVME_Q_DEPTH		1024
-#define NVME_AQ_DEPTH		256
 #define SQ_SIZE(depth)		(depth * sizeof(struct nvme_command))
 #define CQ_SIZE(depth)		(depth * sizeof(struct nvme_completion))
 		
@@ -1131,7 +1130,7 @@ static int process_req(struct nvme_ctrl *ctrl,
 		goto end;
 	}
 
-	if (0 != nvme_lba_write_zero(ns, err_idx->lba)) {
+	if (0 != nvme_lba_write_pattern(ns, err_idx->lba)) {
 		dev_warn(ctrl->device, "failed to remap lba at %llu\n",
 				err_idx->lba);
 		goto err;
@@ -1499,9 +1498,6 @@ static void nvme_disable_admin_queue(struct nvme_dev *dev, bool shutdown)
 
 	if (!nvmeq)
 		return;
-	if (nvme_suspend_queue(nvmeq))
-		return;
-
 	if (shutdown)
 		nvme_shutdown_ctrl(&dev->ctrl);
 	else
@@ -2029,9 +2025,9 @@ static int nvme_delete_queue(struct nvme_queue *nvmeq, u8 opcode)
 	return 0;
 }
 
-static void nvme_disable_io_queues(struct nvme_dev *dev, int queues)
+static void nvme_disable_io_queues(struct nvme_dev *dev)
 {
-	int pass;
+	int pass, queues = dev->online_queues - 1;
 	unsigned long timeout;
 	u8 opcode = nvme_admin_delete_sq;
 
@@ -2228,7 +2224,7 @@ static void nvme_pci_disable(struct nvme_dev *dev)
 
 static void nvme_dev_disable(struct nvme_dev *dev, bool shutdown)
 {
-	int i, queues;
+	int i;
 	bool dead = true;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 
@@ -2256,21 +2252,13 @@ static void nvme_dev_disable(struct nvme_dev *dev, bool shutdown)
 		nvme_wait_freeze_timeout(&dev->ctrl, NVME_IO_TIMEOUT);
 	nvme_stop_queues(&dev->ctrl);
 
-	queues = dev->online_queues - 1;
-	for (i = dev->queue_count - 1; i > 0; i--)
-		nvme_suspend_queue(dev->queues[i]);
-
-	if (dead) {
-		/* A device might become IO incapable very soon during
-		 * probe, before the admin queue is configured. Thus,
-		 * queue_count can be 0 here.
-		 */
-		if (dev->queue_count)
-			nvme_suspend_queue(dev->queues[0]);
-	} else {
-		nvme_disable_io_queues(dev, queues);
+	if (!dead) {
+		nvme_disable_io_queues(dev);
 		nvme_disable_admin_queue(dev, shutdown);
 	}
+	for (i = dev->queue_count - 1; i >= 0; i--)
+		nvme_suspend_queue(dev->queues[i]);
+
 	nvme_pci_disable(dev);
 
 	blk_mq_tagset_busy_iter(&dev->tagset, nvme_cancel_io, dev);

@@ -19,6 +19,7 @@ The rules-ng-ng source files this header was generated from are:
 Copyright (C) 2015
 */
 
+
 #define VARYING_COMPONENT_USE_UNUSED				0x00000000
 #define VARYING_COMPONENT_USE_USED				0x00000001
 #define VARYING_COMPONENT_USE_POINTCOORD_X			0x00000002
@@ -346,5 +347,6 @@ Copyright (C) 2015
 #define VIVS_DUMMY						0x00000000
 
 #define VIVS_DUMMY_DUMMY					0x0003fffc
+
 
 #endif /* STATE_XML */

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -50,11 +51,13 @@ int mv_tm_set_min_shaping(enum mv_tm_level level, uint32_t index, uint32_t cir);
 /* disable shaping for node */
 int mv_tm_set_no_shaping(enum mv_tm_level level, uint32_t index);
 
+
 /* show shaping
 get shaping (CIR & EIR) [in resolution of 1Mb, in steps of 10Mb]
 passing NULL to parameter prevents it from reading
 */
 int mv_tm_get_shaping(enum mv_tm_level level, uint32_t index, uint32_t *cir, uint32_t *eir);
+
 
 /* retrieve shaping parameters:
 shaping (CIR & EIR) [in resolution of 1Mb, in steps of 10Mb]  and CBS & EBS [in KB]
@@ -71,6 +74,7 @@ cir_eir_mask :  if (mask & 1)- cir shaper used, if (mask & 2) - eir shaper used,
 shaping (CIR & EIR) [in resolution of 1Mb, in steps of 10Mb]  and CBS & EBS [in KB]
 passing NULL to parameter prevents it from reading
 */
+
 
 int mv_tm_get_shaping_full_info(enum mv_tm_level level, uint32_t index, uint8_t *elig_fun, uint8_t *cir_eir_mask,
 						uint32_t *cir, uint32_t *eir, uint32_t *pcbs, uint32_t *pebs);

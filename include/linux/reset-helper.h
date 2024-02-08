@@ -17,6 +17,7 @@ static inline struct reset_control * rstc_get(const char * name)
     return NULL;    
 }
 
+
 static inline int rstc_add(struct reset_control *rstc, const char * name)
 {
     WARN_ON(1);

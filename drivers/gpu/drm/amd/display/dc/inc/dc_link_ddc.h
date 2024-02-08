@@ -138,3 +138,4 @@ struct ddc *dal_ddc_service_get_ddc_pin(struct ddc_service *ddc_service);
 uint32_t get_defer_delay(struct ddc_service *ddc);
 
 #endif /* __DAL_DDC_SERVICE_H__ */
+

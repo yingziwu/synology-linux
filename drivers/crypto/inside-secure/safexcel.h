@@ -85,6 +85,8 @@
 #define EIP197_TRC_RECORD_SIZE_OFFSET			18
 #define EIP197_TRC_RECORD_SIZE_MASK			(GENMASK(8, 0))
 
+
+
 /* EIP197_TRC_PARAMS2 */
 #define EIP197_TRC_HASH_TABLE_START_MASK		(GENMASK(9, 0))
 #define EIP197_TRC_DMA_WR_COMB_DLY_OFFSET		10
@@ -413,6 +415,7 @@ struct safexcel_context_record {
 #define CONTEXT_CONTROL_COUNTER_MODE		BIT(10)
 #define CONTEXT_CONTROL_HASH_STORE		BIT(19)
 
+
 /* Result data */
 struct result_data_desc {
 	u32 packet_length:17;
@@ -433,6 +436,7 @@ struct result_data_desc {
 
 	u32 rsvd2;
 } __packed;
+
 
 /* Basic Result Descriptor format */
 struct safexcel_result_desc {
