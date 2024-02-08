@@ -1251,8 +1251,24 @@
 #define MDIO_PMA_10GBR_FECCTRL		0x00ab
 #endif
 
+#ifndef MDIO_PMA_RX_EQ_CTRL
+#define MDIO_PMA_RX_EQ_CTRL		0x8009
+#endif
+
+#ifndef MDIO_PMA_RX_CTRL0
+#define MDIO_PMA_RX_CTRL0		0x8050
+#endif
+
+#ifndef MDIO_PMA_RX_CTRL1
+#define MDIO_PMA_RX_CTRL1		0x8051
+#endif
+
 #ifndef MDIO_PCS_DIG_CTRL
 #define MDIO_PCS_DIG_CTRL		0x8000
+#endif
+
+#ifndef MDIO_PCS_DIGITAL_STAT
+#define MDIO_PCS_DIGITAL_STAT		0x8010
 #endif
 
 #ifndef MDIO_AN_XNP
@@ -1330,6 +1346,8 @@
 #define XGBE_KR_TRAINING_ENABLE		BIT(1)
 
 #define XGBE_PCS_CL37_BP		BIT(12)
+#define XGBE_PCS_PSEQ_STATE_MASK	0x1c
+#define XGBE_PCS_PSEQ_STATE_POWER_GOOD	0x10
 
 #define XGBE_AN_CL37_INT_CMPLT		BIT(0)
 #define XGBE_AN_CL37_INT_MASK		0x01
@@ -1345,6 +1363,18 @@
 #define XGBE_PMA_CDR_TRACK_EN_MASK	0x01
 #define XGBE_PMA_CDR_TRACK_EN_OFF	0x00
 #define XGBE_PMA_CDR_TRACK_EN_ON	0x01
+
+#define XGBE_PMA_RX_RST_0_MASK		BIT(4)
+#define XGBE_PMA_RX_RST_0_RESET_ON	0x10
+#define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
+
+#define XGBE_PMA_RX_EQ_MGMT_MODE_MASK	BIT(15)
+#define XGBE_PMA_RX_EQ_MGMT_MODE_OFF	BIT(15)
+#define XGBE_PMA_RX_EQ_MGMT_MODE_ON	0x0
+
+#define XGBE_PMA_RX_DT_EN_0_MASK	BIT(8)
+#define XGBE_PMA_RX_DT_EN_0_ON		0x0100
+#define XGBE_PMA_RX_DT_EN_0_OFF		0x0000
 
 /* Bit setting and getting macros
  *  The get macro will extract the current bit field value from within

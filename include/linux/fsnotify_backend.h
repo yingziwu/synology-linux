@@ -185,6 +185,7 @@ struct fsnotify_group {
 			unsigned int max_watchers;
 			char *synotify_full_path_buf;
 			char *synotify_d_path_buf;
+			int event_version;
 		} synotify_data;
 #endif /* MY_ABC_HERE */
 #ifdef CONFIG_FANOTIFY

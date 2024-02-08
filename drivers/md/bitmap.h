@@ -258,8 +258,13 @@ void bitmap_dirty_bits(struct bitmap *bitmap, unsigned long s, unsigned long e);
 /* these are exported */
 int bitmap_startwrite(struct bitmap *bitmap, sector_t offset,
 			unsigned long sectors, int behind);
+#ifdef MY_DEF_HERE
+void bitmap_endwrite(struct bitmap *bitmap, sector_t offset,
+			unsigned long sectors, int success, int behind, int cnt);
+#else /* MY_DEF_HERE */
 void bitmap_endwrite(struct bitmap *bitmap, sector_t offset,
 			unsigned long sectors, int success, int behind);
+#endif /* MY_DEF_HERE */
 int bitmap_start_sync(struct bitmap *bitmap, sector_t offset, sector_t *blocks, int degraded);
 void bitmap_end_sync(struct bitmap *bitmap, sector_t offset, sector_t *blocks, int aborted);
 void bitmap_close_sync(struct bitmap *bitmap);

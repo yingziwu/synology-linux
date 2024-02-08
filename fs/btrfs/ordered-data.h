@@ -116,6 +116,9 @@ struct btrfs_ordered_extent {
 	/* compression algorithm */
 	int compress_type;
 
+	/* Qgroup reserved space */
+	int qgroup_rsv;
+
 	/* reference count */
 	atomic_t refs;
 

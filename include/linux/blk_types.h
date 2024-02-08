@@ -179,6 +179,9 @@ struct bio {
  */
 #define BIO_DELAYED 20
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BIO_SYNO_FULL_STRIPE_MERGE 21 /* This bio should apply full stripe merge */
+#endif /* MY_ABC_HERE */
 
 /*
  * top 4 bits of bio flags indicate the pool this bio came from
@@ -221,6 +224,9 @@ enum rq_flag_bits {
 	__REQ_RAHEAD,		/* read ahead, can fail anytime */
 	__REQ_THROTTLED,	/* This bio has already been subjected to
 				 * throttling rules. Don't do it again. */
+#ifdef MY_ABC_HERE
+	__REQ_SYNO_RBD, /* synorbd : this only for bio flag */
+#endif /* MY_ABC_HERE */
 
 	/* request only flags */
 	__REQ_SORTED,		/* elevator knows about this request */
@@ -244,6 +250,9 @@ enum rq_flag_bits {
 	__REQ_HASHED,		/* on IO scheduler merge hash */
 	__REQ_MQ_INFLIGHT,	/* track inflight for MQ */
 	__REQ_NO_TIMEOUT,	/* requests may never expire */
+#ifdef MY_DEF_HERE
+	__REQ_SYNO_COMPELETED_HARDIRQ_DONE, /* finish hard irq runtine after being marked compelete */
+#endif
 	__REQ_NR_BITS,		/* stops here */
 #ifdef MY_ABC_HERE
 	__REQ_SYNO_PATTERN_CHECK, /* pattern debug check flag */
@@ -307,6 +316,9 @@ enum rq_flag_bits {
 
 #define REQ_RAHEAD		(1ULL << __REQ_RAHEAD)
 #define REQ_THROTTLED		(1ULL << __REQ_THROTTLED)
+#ifdef MY_ABC_HERE
+#define REQ_SYNO_RBD		(1ULL << __REQ_SYNO_RBD)
+#endif /* MY_ABC_HERE */
 
 #define REQ_SORTED		(1ULL << __REQ_SORTED)
 #define REQ_SOFTBARRIER		(1ULL << __REQ_SOFTBARRIER)
@@ -330,6 +342,9 @@ enum rq_flag_bits {
 #define REQ_HASHED		(1ULL << __REQ_HASHED)
 #define REQ_MQ_INFLIGHT		(1ULL << __REQ_MQ_INFLIGHT)
 #define REQ_NO_TIMEOUT		(1ULL << __REQ_NO_TIMEOUT)
+#ifdef MY_DEF_HERE
+#define REQ_SYNO_COMPELETED_HARDIRQ_DONE	(1ULL << __REQ_SYNO_COMPELETED_HARDIRQ_DONE)
+#endif
 
 typedef unsigned int blk_qc_t;
 #define BLK_QC_T_NONE	-1U

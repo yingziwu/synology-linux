@@ -238,6 +238,24 @@ config SYNO_DROP_CACHE_MEM_COMPACT
 	default y
 	depends on COMPACTION
 
+config SYNO_I2C_OF_PROBE
+	bool "driver probe by device tree"
+	default n
+	depends on SYNO_PORT_MAPPING_V2
+
+config SYNO_AMD_EDAC_PORTING
+	bool "AMD EDAC driver porting"
+	default n
+	depends on X86_MCE_AMD && EDAC
+
+config SYNO_MULTI_KSWAPD
+	bool "support multiple kswapd"
+	default y
+
+config SYNO_ADJUST_KSWAPD_NICE
+	bool "increase kswapd priority"
+	default y
+
 endmenu #System Features
 
 menu "Boot Arguments"
@@ -367,6 +385,10 @@ config SYNO_HARDLOCKUP_THRESH_EXTENSION
 
 config SYNO_ISCSI_DEAD_LOCK_BH_ISSUE
 	bool "Replace spin_lock_bh with spin_lock_irqsave in libiscsi"
+	default y
+
+config SYNO_WATERMARK_SCALE_FACTOR_DEFAULT_ZERO
+	bool "The default watermark_scale_factor setting"
 	default y
 
 endmenu #Kernel Core Enhancements

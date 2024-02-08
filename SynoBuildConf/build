@@ -24,6 +24,14 @@ if [ "$PLATFORM_FAMILY" = "SYNOPLAT_F_X86_64" ] && [ "$BUILD_TARGET" != "DOCKERX
 		"${KernelDir}/init/initramfs.c"
 fi
 
+if [ "$PLATFORM_FAMILY" = "SYNOPLAT_F_X86_64" ]; then
+	DECOMPRESSION_TYPE=$(shuf -i 1001-2147483647 -n 1)
+	sed -i "s/__DECOMPRESSION_TYPE__/${DECOMPRESSION_TYPE}/" \
+		"${KernelDir}/arch/x86/boot/compressed/head_64.S"
+	sed -i "s/__DECOMPRESSION_TYPE__/${DECOMPRESSION_TYPE}/" \
+		"${KernelDir}/lib/synolib/syno_kexec_test.c"
+fi
+
 case ${MakeClean} in
 	[Yy][Ee][Ss])
 		[ -f Makefile ] && make distclean
@@ -109,7 +117,22 @@ case "$BUILD_TARGET" in
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
 		KernelTarget=bzImage
 		;;
-
+	EPYC7002)
+		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
+		KernelTarget=bzImage
+		;;
+	R1000)
+		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
+		KernelTarget=bzImage
+		;;
+	ICELAKED)
+		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
+		KernelTarget=bzImage
+		;;
+	BROADWELLNKV2)
+		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
+		KernelTarget=bzImage
+		;;
 	*)
 		SkipThisProject
 		return

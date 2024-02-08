@@ -264,6 +264,9 @@ struct btrfs_fs_devices {
 	struct kobject fsid_kobj;
 	struct kobject *device_dir_kobj;
 	struct completion kobj_unregister;
+#ifdef MY_DEF_HERE
+	bool rbd_enabled;
+#endif /* MY_DEF_HERE */
 };
 
 #define BTRFS_BIO_INLINE_CSUM_SIZE	64
@@ -398,6 +401,9 @@ struct btrfs_balance_control {
 	u64 flags;
 
 	struct btrfs_balance_progress stat;
+#ifdef MY_DEF_HERE
+	u64 total_chunk_used;
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 };
 
 int btrfs_account_dev_extents_size(struct btrfs_device *device, u64 start,

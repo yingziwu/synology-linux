@@ -56,6 +56,10 @@ struct btrfs_delayed_ref_node {
 	 */
 	struct list_head add_list;
 
+#ifdef MY_DEF_HERE
+	struct list_head syno_list;
+#endif /* MY_DEF_HERE */
+
 	/* the starting bytenr of the extent */
 	u64 bytenr;
 
@@ -118,6 +122,10 @@ struct btrfs_delayed_ref_head {
 	/* accumulate add BTRFS_ADD_DELAYED_REF nodes to this ref_add_list. */
 	struct list_head ref_add_list;
 
+#ifdef MY_DEF_HERE
+	struct list_head ref_syno_list;
+#endif /* MY_DEF_HERE */
+
 	struct rb_node href_node;
 
 	struct btrfs_delayed_extent_op *extent_op;
@@ -155,6 +163,9 @@ struct btrfs_delayed_ref_head {
 	unsigned int must_insert_reserved:1;
 	unsigned int is_data:1;
 	unsigned int processing:1;
+#ifdef MY_DEF_HERE
+	unsigned int syno_usage;
+#endif /* MY_DEF_HERE */
 };
 
 struct btrfs_delayed_tree_ref {
@@ -177,6 +188,9 @@ struct btrfs_delayed_data_ref {
 	uid_t uid;
 	struct inode *inode;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	unsigned int syno_usage;
+#endif /* MY_DEF_HERE */
 };
 
 struct btrfs_delayed_ref_root {
@@ -197,11 +211,19 @@ struct btrfs_delayed_ref_root {
 	 */
 	atomic_t num_entries;
 
+#ifdef MY_DEF_HERE
+	atomic_t num_syno_usage_entries;
+#endif /* MY_DEF_HERE */
+
 	/* total number of head nodes in tree */
 	unsigned long num_heads;
 
 	/* total number of head nodes ready for processing */
 	unsigned long num_heads_ready;
+
+#ifdef MY_DEF_HERE
+	unsigned long num_syno_usage_heads_ready;
+#endif /* MY_DEF_HERE */
 
 	u64 pending_csums;
 
@@ -299,6 +321,9 @@ int btrfs_add_delayed_data_ref(struct btrfs_fs_info *fs_info,
 #endif /* MY_DEF_HERE */
 #ifdef MY_DEF_HERE
 			       struct inode *inode, uid_t uid,
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+			       int syno_usage,
 #endif /* MY_DEF_HERE */
 			       int action,
 			       struct btrfs_delayed_extent_op *extent_op);

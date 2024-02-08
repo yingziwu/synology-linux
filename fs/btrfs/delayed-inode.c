@@ -388,11 +388,8 @@ static struct btrfs_delayed_item *__btrfs_lookup_delayed_insertion_item(
 					struct btrfs_delayed_node *delayed_node,
 					struct btrfs_key *key)
 {
-	struct btrfs_delayed_item *item;
-
-	item = __btrfs_lookup_delayed_item(&delayed_node->ins_root, key,
+	return __btrfs_lookup_delayed_item(&delayed_node->ins_root, key,
 					   NULL, NULL);
-	return item;
 }
 
 static int __btrfs_add_delayed_item(struct btrfs_delayed_node *delayed_node,
@@ -1062,12 +1059,10 @@ static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
 		mod = 1;
 
 	ret = btrfs_lookup_inode(trans, root, path, &key, mod);
-	if (ret > 0) {
-		btrfs_release_path(path);
-		return -ENOENT;
-	} else if (ret < 0) {
-		return ret;
-	}
+	if (ret > 0)
+		ret = -ENOENT;
+	if (ret < 0)
+		goto out;
 
 	leaf = path->nodes[0];
 	inode_item = btrfs_item_ptr(leaf, path->slots[0],
@@ -1104,6 +1099,14 @@ no_iref:
 err_out:
 	btrfs_delayed_inode_release_metadata(root, node);
 	btrfs_release_delayed_inode(node);
+
+	/*
+	 * If we fail to update the delayed inode we need to abort the
+	 * transaction, because we could leave the inode with the improper
+	 * counts behind.
+	 */
+	if (ret && ret != -ENOENT)
+		btrfs_abort_transaction(trans, root, ret);
 
 	return ret;
 
@@ -1167,7 +1170,12 @@ __btrfs_commit_inode_delayed_items(struct btrfs_trans_handle *trans,
  * outstanding delayed items cleaned up.
  */
 static int __btrfs_run_delayed_items(struct btrfs_trans_handle *trans,
-				     struct btrfs_root *root, int nr)
+				     struct btrfs_root *root, int nr
+#ifdef MY_DEF_HERE
+				     , unsigned long *processed_inodes
+				     , unsigned long *processed_items
+#endif /* MY_DEF_HERE */
+				     )
 {
 	struct btrfs_delayed_root *delayed_root;
 	struct btrfs_delayed_node *curr_node, *prev_node;
@@ -1175,6 +1183,10 @@ static int __btrfs_run_delayed_items(struct btrfs_trans_handle *trans,
 	struct btrfs_block_rsv *block_rsv;
 	int ret = 0;
 	bool count = (nr > 0);
+#ifdef MY_DEF_HERE
+	unsigned long inode_count = 0;
+	unsigned long item_count = 0;
+#endif /* MY_DEF_HERE */
 
 	if (trans->aborted)
 		return -EIO;
@@ -1191,6 +1203,10 @@ static int __btrfs_run_delayed_items(struct btrfs_trans_handle *trans,
 
 	curr_node = btrfs_first_delayed_node(delayed_root);
 	while (curr_node && (!count || (count && nr--))) {
+#ifdef MY_DEF_HERE
+		int orig_count = curr_node->count;
+		int curr_count = 0;
+#endif /* MY_DEF_HERE */
 		ret = __btrfs_commit_inode_delayed_items(trans, path,
 							 curr_node);
 		if (ret) {
@@ -1199,6 +1215,13 @@ static int __btrfs_run_delayed_items(struct btrfs_trans_handle *trans,
 			btrfs_abort_transaction(trans, root, ret);
 			break;
 		}
+#ifdef MY_DEF_HERE
+		inode_count++;
+		curr_count = curr_node->count;
+		// It's just estimate the processed count, so we dont use lock.
+		item_count += (curr_count < orig_count) ?
+				(orig_count - curr_node->count) : 0;
+#endif /* MY_DEF_HERE */
 
 		prev_node = curr_node;
 		curr_node = btrfs_next_delayed_node(curr_node);
@@ -1209,20 +1232,46 @@ static int __btrfs_run_delayed_items(struct btrfs_trans_handle *trans,
 		btrfs_release_delayed_node(curr_node);
 	btrfs_free_path(path);
 	trans->block_rsv = block_rsv;
+#ifdef MY_DEF_HERE
+	if (!ret && processed_inodes && processed_items) {
+		*processed_inodes = inode_count;
+		*processed_items = item_count;
+	}
+#endif /* MY_DEF_HERE */
 
 	return ret;
 }
 
+#ifdef MY_DEF_HERE
+int btrfs_run_delayed_items_and_get_processed(struct btrfs_trans_handle *trans,
+			    struct btrfs_root *root,
+			    unsigned long *processed_inodes,
+			    unsigned long *processed_items)
+{
+	return __btrfs_run_delayed_items(trans, root, -1,
+					 processed_inodes,
+					 processed_items);
+}
+#endif /* MY_DEF_HERE */
+
 int btrfs_run_delayed_items(struct btrfs_trans_handle *trans,
 			    struct btrfs_root *root)
 {
-	return __btrfs_run_delayed_items(trans, root, -1);
+	return __btrfs_run_delayed_items(trans, root, -1
+#ifdef MY_DEF_HERE
+					 , NULL, NULL
+#endif /* MY_DEF_HERE */
+					 );
 }
 
 int btrfs_run_delayed_items_nr(struct btrfs_trans_handle *trans,
 			       struct btrfs_root *root, int nr)
 {
-	return __btrfs_run_delayed_items(trans, root, nr);
+	return __btrfs_run_delayed_items(trans, root, nr
+#ifdef MY_DEF_HERE
+					 , NULL, NULL
+#endif /* MY_DEF_HERE */
+					 );
 }
 
 int btrfs_commit_inode_delayed_items(struct btrfs_trans_handle *trans,

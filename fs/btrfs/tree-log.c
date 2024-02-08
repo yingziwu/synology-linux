@@ -31,6 +31,9 @@
 #include "hash.h"
 #include "compression.h"
 #include "inode-map.h"
+#ifdef MY_DEF_HERE
+#include "qgroup.h"
+#endif /* MY_DEF_HERE */
 
 /* magic values for the inode_only field in btrfs_log_inode:
  *
@@ -588,6 +591,7 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 				      struct extent_buffer *eb, int slot,
 				      struct btrfs_key *key)
 {
+	struct btrfs_drop_extents_args drop_args = { 0 };
 	int found_type;
 	u64 extent_end;
 	u64 start = key->offset;
@@ -599,6 +603,9 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 	struct inode *inode = NULL;
 	unsigned long size;
 	int ret = 0;
+#ifdef MY_DEF_HERE
+	int syno_usage;
+#endif /* MY_DEF_HERE */
 
 	item = btrfs_item_ptr(eb, slot, struct btrfs_file_extent_item);
 	found_type = btrfs_file_extent_type(eb, item);
@@ -669,7 +676,10 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 	btrfs_release_path(path);
 
 	/* drop any overlapping extents */
-	ret = btrfs_drop_extents(trans, root, inode, start, extent_end, 1);
+	drop_args.start = start;
+	drop_args.end = extent_end;
+	drop_args.drop_cache = true;
+	ret = btrfs_drop_extents(trans, root, inode, &drop_args);
 	if (ret)
 		goto out;
 
@@ -710,7 +720,11 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 						0, root->root_key.objectid,
 						key->objectid, offset,
 						0, ram_bytes,
-						inode, i_uid_read(inode));
+						inode, i_uid_read(inode)
+#ifdef MY_DEF_HERE
+						,btrfs_syno_usage_ref_check(root, key->objectid, key->offset)
+#endif /* MY_DEF_HERE */
+						);
 #else
 				ret = btrfs_inc_extent_ref(trans, root,
 						ins.objectid, ins.offset,
@@ -718,6 +732,9 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 						key->objectid, offset
 #ifdef MY_DEF_HERE
 						,0, ram_bytes
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+						,btrfs_syno_usage_ref_check(root, key->objectid, key->offset)
 #endif /* MY_DEF_HERE */
 						);
 #endif /* MY_DEF_HERE */
@@ -734,6 +751,19 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 						key->objectid, offset, &ins, inode, i_uid_read(inode));
 #else
 						key->objectid, offset, &ins);
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+				if (ret)
+					goto out;
+				btrfs_release_path(path);
+				syno_usage = btrfs_syno_usage_ref_check(root, key->objectid, key->offset);
+				if (syno_usage == 1) {
+					ret = btrfs_syno_subvol_usage_add(trans, root->fs_info, root->objectid, ins.objectid, ins.offset, 1);
+					if (ret)
+						goto out;
+				} else if (syno_usage == 2) {
+					ret = btrfs_syno_extent_usage_add(trans, root->fs_info, SYNO_USAGE_TYPE_RO_SNAPSHOT, ins.objectid, ins.offset, 0);
+				}
 #endif /* MY_DEF_HERE */
 			}
 			btrfs_release_path(path);
@@ -831,7 +861,17 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 			goto out;
 	}
 
-	inode_add_bytes(inode, nbytes);
+#ifdef MY_DEF_HERE
+	down_read(&root->rescan_lock);
+	btrfs_update_inode_bytes(BTRFS_I(inode), nbytes, drop_args.bytes_found);
+	btrfs_qgroup_syno_accounting(BTRFS_I(inode),
+			nbytes, drop_args.bytes_found, UPDATE_QUOTA);
+	btrfs_usrquota_syno_accounting(BTRFS_I(inode),
+			nbytes, drop_args.bytes_found, UPDATE_QUOTA);
+	up_read(&root->rescan_lock);
+#else
+	btrfs_update_inode_bytes(BTRFS_I(inode), nbytes, drop_args.bytes_found);
+#endif /* MY_DEF_HERE */
 	ret = btrfs_update_inode(trans, root, inode);
 out:
 	if (inode)
@@ -2891,7 +2931,11 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
 	 * wait for them until later.
 	 */
 	blk_start_plug(&plug);
-	ret = btrfs_write_marked_extents(log, &log->dirty_log_pages, mark);
+	ret = btrfs_write_marked_extents(log, &log->dirty_log_pages, mark
+#ifdef MY_DEF_HERE
+					, NULL, NULL
+#endif /* MY_DEF_HERE */
+					);
 	if (ret) {
 		blk_finish_plug(&plug);
 		btrfs_abort_transaction(trans, root, ret);
@@ -3024,7 +3068,11 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
 
 	ret = btrfs_write_marked_extents(log_root_tree,
 					 &log_root_tree->dirty_log_pages,
-					 EXTENT_DIRTY | EXTENT_NEW);
+					 EXTENT_DIRTY | EXTENT_NEW
+#ifdef MY_DEF_HERE
+					, NULL, NULL
+#endif /* MY_DEF_HERE */
+					);
 	blk_finish_plug(&plug);
 	if (ret) {
 		btrfs_set_log_full_commit(root->fs_info, trans);
@@ -4110,6 +4158,7 @@ static int log_one_extent(struct btrfs_trans_handle *trans,
 			  struct btrfs_path *path,
 			  struct btrfs_log_ctx *ctx)
 {
+	struct btrfs_drop_extents_args drop_args = { 0 };
 	struct btrfs_root *log = root->log_root;
 	struct btrfs_file_extent_item *fi;
 	struct extent_buffer *leaf;
@@ -4118,7 +4167,6 @@ static int log_one_extent(struct btrfs_trans_handle *trans,
 	u64 extent_offset = em->start - em->orig_start;
 	u64 block_len;
 	int ret;
-	int extent_inserted = 0;
 
 	ret = log_extent_csums(trans, BTRFS_I(inode), root, em);
 	if (ret)
@@ -4126,17 +4174,27 @@ static int log_one_extent(struct btrfs_trans_handle *trans,
 
 	btrfs_init_map_token(&token);
 
-	ret = __btrfs_drop_extents(trans, log, inode, path, em->start,
-#ifdef MY_DEF_HERE
-				   em->start + em->len, NULL, NULL, NULL, NULL, 0, 1,
-#else
-				   em->start + em->len, NULL, 0, 1,
-#endif /* MY_DEF_HERE */
-				   sizeof(*fi), &extent_inserted);
+	drop_args.path = path;
+	drop_args.start = em->start;
+	drop_args.end = em->start + em->len;
+	drop_args.replace_extent = true;
+	drop_args.extent_item_size = sizeof(*fi);
+	ret = btrfs_drop_extents(trans, log, inode, &drop_args);
 	if (ret)
 		return ret;
 
-	if (!extent_inserted) {
+#ifdef MY_DEF_HERE
+	down_read(&root->rescan_lock);
+	btrfs_update_inode_bytes(BTRFS_I(inode), 0, drop_args.bytes_found);
+	btrfs_qgroup_syno_accounting(BTRFS_I(inode),
+			0, drop_args.bytes_found, UPDATE_QUOTA);
+	btrfs_usrquota_syno_accounting(BTRFS_I(inode),
+			0, drop_args.bytes_found, UPDATE_QUOTA);
+	up_read(&root->rescan_lock);
+#else
+	btrfs_update_inode_bytes(BTRFS_I(inode), 0, drop_args.bytes_found);
+#endif /* MY_DEF_HERE */
+	if (!drop_args.extent_inserted) {
 		key.objectid = btrfs_ino(inode);
 		key.type = BTRFS_EXTENT_DATA_KEY;
 		key.offset = em->start;
@@ -4187,6 +4245,9 @@ static int log_one_extent(struct btrfs_trans_handle *trans,
 						&token);
 	btrfs_set_token_file_extent_encryption(leaf, fi, 0, &token);
 	btrfs_set_token_file_extent_other_encoding(leaf, fi, 0, &token);
+#ifdef MY_DEF_HERE
+	btrfs_set_token_file_extent_syno_flag(leaf, fi, 0, &token);
+#endif /* MY_DEF_HERE */
 	btrfs_mark_buffer_dirty(leaf);
 
 	btrfs_release_path(path);

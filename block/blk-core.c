@@ -1080,7 +1080,19 @@ static struct io_context *rq_ioc(struct bio *bio)
  * Returns ERR_PTR on failure, with @q->queue_lock held.
  * Returns request pointer on success, with @q->queue_lock *not held*.
  */
-static struct request *__get_request(struct request_list *rl, int rw_flags,
+#ifdef MY_ABC_HERE
+/*
+ * because REQ_IO_STAT == (1ULL << 31),
+ * it will let rw_flags overflow,
+ * so we change rw_flags to u64.
+ */
+#endif /* MY_ABC_HERE */
+static struct request *__get_request(struct request_list *rl,
+#ifdef MY_ABC_HERE
+					 u64 rw_flags,
+#else
+					 int rw_flags,
+#endif /* MY_ABC_HERE */
 				     struct bio *bio, gfp_t gfp_mask)
 {
 	struct request_queue *q = rl->q;
@@ -2100,6 +2112,9 @@ blk_qc_t generic_make_request(struct bio *bio)
 	 */
 	struct bio_list bio_list_on_stack[2];
 	blk_qc_t ret = BLK_QC_T_NONE;
+#ifdef MY_ABC_HERE
+	unsigned int noio_flag;
+#endif /* MY_ABC_HERE */
 
 	if (!generic_make_request_checks(bio))
 		goto out;
@@ -2140,6 +2155,9 @@ blk_qc_t generic_make_request(struct bio *bio)
 	 * bio_list, and call into ->make_request() again.
 	 */
 	BUG_ON(bio->bi_next);
+#ifdef MY_ABC_HERE
+	noio_flag = memalloc_noio_save();
+#endif /* MY_ABC_HERE */
 	bio_list_init(&bio_list_on_stack[0]);
 	current->bio_list = bio_list_on_stack;
 	do {
@@ -2175,6 +2193,9 @@ blk_qc_t generic_make_request(struct bio *bio)
 		bio = bio_list_pop(&bio_list_on_stack[0]);
 	} while (bio);
 	current->bio_list = NULL; /* deactivate */
+#ifdef MY_ABC_HERE
+	memalloc_noio_restore(noio_flag);
+#endif /* MY_ABC_HERE */
 
 out:
 	return ret;
@@ -3754,7 +3775,6 @@ void syno_flashcache_return_error(struct bio *bio)
 {
 	/* defined in blk_types.h */
 	if (bio_flagged(bio, BIO_MD_RETURN_ERROR)) {
-		printk(KERN_DEBUG "Get flashcache access md error, return error code\n");
 		bio->bi_error = -EIO;
 		bio_endio(bio);
 	} else {

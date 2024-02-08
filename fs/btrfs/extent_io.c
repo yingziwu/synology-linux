@@ -136,6 +136,9 @@ struct extent_page_data {
 #ifdef MY_DEF_HERE
 	unsigned int snap:1;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	unsigned int non_blocking:1;
+#endif /* MY_DEF_HERE */
 };
 
 static void add_extent_changeset(struct extent_state *state, unsigned bits,
@@ -1653,9 +1656,22 @@ static noinline void __unlock_for_delalloc(struct inode *inode,
 
 static noinline int lock_delalloc_pages(struct inode *inode,
 					struct page *locked_page,
+#ifdef MY_DEF_HERE
+					u64 *start,
+					u64 *end
+#else
 					u64 delalloc_start,
-					u64 delalloc_end)
+					u64 delalloc_end
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+					, struct extent_page_data *epd
+#endif /* MY_DEF_HERE */
+					)
 {
+#ifdef MY_DEF_HERE
+	u64 delalloc_start = *start;
+	u64 delalloc_end = *end;
+#endif /* MY_DEF_HERE */
 	unsigned long index = delalloc_start >> PAGE_CACHE_SHIFT;
 	unsigned long start_index = index;
 	unsigned long end_index = delalloc_end >> PAGE_CACHE_SHIFT;
@@ -1664,9 +1680,9 @@ static noinline int lock_delalloc_pages(struct inode *inode,
 	unsigned long nrpages;
 	int ret;
 	int i;
-#ifdef MY_DEF_HERE
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 	int j;
-#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE || MY_DEF_HERE */
 
 	/* the caller is responsible for locking the start index */
 	if (index == locked_page->index && index == end_index)
@@ -1689,10 +1705,24 @@ static noinline int lock_delalloc_pages(struct inode *inode,
 			 * locked_page
 			 */
 			if (pages[i] != locked_page) {
+#ifdef MY_DEF_HERE
+				if (epd->non_blocking) {
+					if (!trylock_page(pages[i])) {
+						for (j = i; j < ret; j++)
+							page_cache_release(pages[j]);
+						*end = (((u64)(start_index + pages_locked)) << PAGE_CACHE_SHIFT) - 1;
+						ret = 0;
+						goto done;
+					}
+				} else {
+					lock_page(pages[i]);
+				}
+#else
 				lock_page(pages[i]);
+#endif /* MY_DEF_HERE */
 				if (!PageDirty(pages[i]) ||
 				    pages[i]->mapping != inode->i_mapping) {
-#ifdef MY_DEF_HERE
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 					unlock_page(pages[i]);
 					for (j = i; j < ret; j++)
 						page_cache_release(pages[j]);
@@ -1701,7 +1731,7 @@ static noinline int lock_delalloc_pages(struct inode *inode,
 					ret = -EAGAIN;
 					unlock_page(pages[i]);
 					page_cache_release(pages[i]);
-#endif /* MY_DEF_HERE */
+#endif /* MY_DEF_HERE || MY_DEF_HERE */
 					goto done;
 				}
 			}
@@ -1732,7 +1762,11 @@ done:
 STATIC u64 find_lock_delalloc_range(struct inode *inode,
 				    struct extent_io_tree *tree,
 				    struct page *locked_page, u64 *start,
-				    u64 *end, u64 max_bytes)
+				    u64 *end, u64 max_bytes
+#ifdef MY_DEF_HERE
+				    , struct extent_page_data *epd
+#endif /* MY_DEF_HERE */
+				    )
 
 {
 	u64 delalloc_start;
@@ -1771,7 +1805,15 @@ again:
 
 	/* step two, lock all the pages after the page that has start */
 	ret = lock_delalloc_pages(inode, locked_page,
-				  delalloc_start, delalloc_end);
+#ifdef MY_DEF_HERE
+				  &delalloc_start, &delalloc_end
+#else
+				  delalloc_start, delalloc_end
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+				  , epd
+#endif /* MY_DEF_HERE */
+				  );
 	if (ret == -EAGAIN) {
 		/* some of the pages are gone, lets avoid looping by
 		 * shortening the size of the delalloc range we're searching
@@ -1839,7 +1881,7 @@ void extent_clear_unlock_delalloc(struct inode *inode, u64 start, u64 end,
 			if (page_ops & PAGE_SET_PRIVATE2)
 				SetPagePrivate2(pages[i]);
 
-			if (pages[i] == locked_page) {
+			if (locked_page && pages[i] == locked_page) {
 				page_cache_release(pages[i]);
 				continue;
 			}
@@ -3228,7 +3270,6 @@ static int merge_bio(int rw, struct extent_io_tree *tree, struct page *page,
 	if (tree->ops && tree->ops->merge_bio_hook)
 		ret = tree->ops->merge_bio_hook(rw, page, offset, size, bio,
 						bio_flags);
-	BUG_ON(ret < 0);
 	return ret;
 
 }
@@ -3736,7 +3777,11 @@ static noinline_for_stack int writepage_delalloc(struct inode *inode,
 					       page,
 					       &delalloc_start,
 					       &delalloc_end,
-					       BTRFS_MAX_EXTENT_SIZE);
+					       BTRFS_MAX_EXTENT_SIZE
+#ifdef MY_DEF_HERE
+					       , epd
+#endif /* MY_DEF_HERE */
+					       );
 		if (nr_delalloc == 0) {
 			delalloc_start = delalloc_end + 1;
 			continue;
@@ -4457,6 +4502,9 @@ static int extent_write_cache_pages(struct extent_io_tree *tree,
 	int range_whole = 0;
 	int scanned = 0;
 	int tag;
+#ifdef MY_DEF_HERE
+	struct extent_page_data *epd = (struct extent_page_data *)data;
+#endif /* MY_DEF_HERE */
 
 	/*
 	 * We have to hold onto the inode so that ordered extents can do their
@@ -4526,6 +4574,10 @@ retry:
 			 */
 			if (!trylock_page(page)) {
 				flush_fn(data);
+#ifdef MY_DEF_HERE
+				if (epd->non_blocking)
+					continue;
+#endif /* MY_DEF_HERE */
 				lock_page(page);
 			}
 
@@ -4636,6 +4688,9 @@ int extent_write_full_page(struct extent_io_tree *tree, struct page *page,
 #ifdef MY_DEF_HERE
 		.snap = 0,
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		.non_blocking = 0,
+#endif /* MY_DEF_HERE */
 	};
 
 	ret = __extent_writepage(page, wbc, &epd);
@@ -4663,6 +4718,9 @@ int extent_write_locked_range(struct extent_io_tree *tree, struct inode *inode,
 		.bio_flags = 0,
 #ifdef MY_DEF_HERE
 		.snap = 0,
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		.non_blocking = 0,
 #endif /* MY_DEF_HERE */
 	};
 	struct writeback_control wbc_writepages = {
@@ -4707,6 +4765,9 @@ int extent_writepages(struct extent_io_tree *tree,
 #ifdef MY_DEF_HERE
 		.snap = 0,
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+		.non_blocking = 0,
+#endif /* MY_DEF_HERE */
 	};
 
 	ret = extent_write_cache_pages(tree, mapping, wbc,
@@ -4715,6 +4776,34 @@ int extent_writepages(struct extent_io_tree *tree,
 	flush_epd_write_bio(&epd);
 	return ret;
 }
+
+#ifdef MY_DEF_HERE
+int syno_cache_protection_extent_writepages(struct extent_io_tree *tree,
+		      struct address_space *mapping,
+		      get_extent_t *get_extent,
+		      struct writeback_control *wbc)
+{
+	int ret = 0;
+	struct extent_page_data epd = {
+		.bio = NULL,
+		.tree = tree,
+		.get_extent = get_extent,
+		.extent_locked = 0,
+		.sync_io = wbc->sync_mode == WB_SYNC_ALL,
+		.bio_flags = 0,
+#ifdef MY_DEF_HERE
+		.snap = 0,
+#endif /* MY_DEF_HERE */
+		.non_blocking = 1,
+	};
+
+	ret = extent_write_cache_pages(tree, mapping, wbc,
+				       __extent_writepage, &epd,
+				       flush_write_bio);
+	flush_epd_write_bio(&epd);
+	return ret;
+}
+#endif /* MY_DEF_HERE */
 
 int extent_readpages(struct extent_io_tree *tree,
 		     struct address_space *mapping,
@@ -4810,9 +4899,20 @@ static int try_release_extent_state(struct extent_map_tree *map,
 		 * at this point we can safely clear everything except the
 		 * locked bit and the nodatasum bit
 		 */
+#ifdef MY_DEF_HERE
+		/*
+		 * The qgroup reserved bit should be kept for ordered extent,
+		 * or quota reservation would be leaked.
+		 */
+		ret = __clear_extent_bit(tree, start, end,
+				 ~(EXTENT_LOCKED | EXTENT_NODATASUM |
+					EXTENT_QGROUP_RESERVED),
+			 0, 0, NULL, mask, NULL);
+#else
 		ret = clear_extent_bit(tree, start, end,
 				 ~(EXTENT_LOCKED | EXTENT_NODATASUM),
 				 0, 0, NULL, mask);
+#endif /* MY_DEF_HERE */
 
 		/* if clear_extent_bit failed for enomem reasons,
 		 * we can't allow the release to continue.
@@ -4893,6 +4993,9 @@ static struct extent_map *get_extent_skip_holes(struct inode *inode,
 		len = last - offset;
 		if (len == 0)
 			break;
+#ifdef MY_DEF_HERE
+		len = min_t(u64, len, SZ_256M);
+#endif /* MY_DEF_HERE */
 		len = ALIGN(len, sectorsize);
 		em = get_extent(inode, NULL, 0, offset, len, 0);
 		if (IS_ERR_OR_NULL(em))
@@ -4905,10 +5008,25 @@ static struct extent_map *get_extent_skip_holes(struct inode *inode,
 		}
 
 		/* this is a hole, advance to the next extent */
+#ifdef MY_DEF_HERE
+		/* we only check that delalloc is SZ_256M after offset,
+		 * so when the hole exceeds 256M, we have to limit it
+		 * to only increase 256M at most once.
+		 */
+		if (offset + SZ_256M > offset)
+			offset += SZ_256M;
+		else
+			offset = U64_MAX;
+		offset = min(offset, extent_map_end(em));
+#else /* MY_DEF_HERE */
 		offset = extent_map_end(em);
+#endif /* MY_DEF_HERE */
 		free_extent_map(em);
 		if (offset >= last)
 			break;
+#ifdef MY_DEF_HERE
+		cond_resched();
+#endif /* MY_DEF_HERE */
 	}
 	return NULL;
 }
@@ -5192,6 +5310,9 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 	u64 em_start = 0;
 	u64 em_len = 0;
 	u64 em_end = 0;
+#ifdef MY_DEF_HERE
+	u64 last_for_user_wanted = 0;
+#endif /* MY_DEF_HERE */
 
 	if (len == 0)
 		return -EINVAL;
@@ -5250,10 +5371,19 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 		last_for_get_extent = isize;
 	}
 
+#ifdef MY_DEF_HERE
+	last_for_user_wanted = min(start + len, last_for_get_extent);
+#endif /* MY_DEF_HERE */
+
 	lock_extent_bits(&BTRFS_I(inode)->io_tree, start, start + len - 1,
 			 &cached_state);
 
-	em = get_extent_skip_holes(inode, start, last_for_get_extent,
+	em = get_extent_skip_holes(inode, start,
+#ifdef MY_DEF_HERE
+				   last_for_user_wanted,
+#else /* MY_DEF_HERE */
+				   last_for_get_extent,
+#endif /* MY_DEF_HERE */
 				   get_extent);
 	if (!em)
 		goto out;
@@ -5374,14 +5504,24 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 		}
 
 		/* now scan forward to see if this is really the last extent. */
-		em = get_extent_skip_holes(inode, off, last_for_get_extent,
+		em = get_extent_skip_holes(inode, off,
+#ifdef MY_DEF_HERE
+					   last_for_user_wanted,
+#else /* MY_DEF_HERE */
+					   last_for_get_extent,
+#endif /* MY_DEF_HERE */
 					   get_extent);
 		if (IS_ERR(em)) {
 			ret = PTR_ERR(em);
 			goto out;
 		}
 		if (!em) {
+#ifdef MY_DEF_HERE
+			if (last_for_user_wanted >= last_for_get_extent)
+				flags |= FIEMAP_EXTENT_LAST;
+#else /* MY_DEF_HERE */
 			flags |= FIEMAP_EXTENT_LAST;
+#endif /* MY_DEF_HERE */
 			end = 1;
 		}
 		ret = emit_fiemap_extent(fieinfo, &cache, em_start, disko,

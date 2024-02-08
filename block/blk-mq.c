@@ -186,8 +186,22 @@ bool blk_mq_can_queue(struct blk_mq_hw_ctx *hctx)
 }
 EXPORT_SYMBOL(blk_mq_can_queue);
 
+#ifdef MY_ABC_HERE
+/*
+ * because REQ_IO_STAT == (1ULL << 31),
+ * it will let rw_flags overflow,
+ * so we change rw_flags to u64.
+ */
+#endif /* MY_ABC_HERE */
 static void blk_mq_rq_ctx_init(struct request_queue *q, struct blk_mq_ctx *ctx,
-			       struct request *rq, unsigned int rw_flags)
+			       struct request *rq,
+#ifdef MY_ABC_HERE
+				   u64 rw_flags
+#else
+				   unsigned int rw_flags
+#endif /* MY_ABC_HERE */
+				   )
+
 {
 	if (blk_queue_io_stat(q))
 		rw_flags |= REQ_IO_STAT;

@@ -56,9 +56,7 @@ static int tree_mod_log_free_eb(struct btrfs_fs_info *fs_info,
 
 struct btrfs_path *btrfs_alloc_path(void)
 {
-	struct btrfs_path *path;
-	path = kmem_cache_zalloc(btrfs_path_cachep, GFP_NOFS);
-	return path;
+	return kmem_cache_zalloc(btrfs_path_cachep, GFP_NOFS);
 }
 
 /*
@@ -1431,7 +1429,9 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
 			btrfs_warn(root->fs_info,
 				"failed to read tree block %llu from get_old_root", logical);
 		} else {
+			btrfs_tree_read_lock(old);
 			eb = btrfs_clone_extent_buffer(old);
+			btrfs_tree_read_unlock(old);
 			free_extent_buffer(old);
 		}
 	} else if (old_root) {
@@ -1751,6 +1751,14 @@ static noinline int generic_bin_search(struct extent_buffer *eb,
 	unsigned long map_start = 0;
 	unsigned long map_len = 0;
 	int err;
+
+	if (low > high) {
+		btrfs_err(eb->fs_info,
+		 "%s: low (%d) > high (%d) eb %llu owner %llu level %d",
+			  __func__, low, high, eb->start,
+			  btrfs_header_owner(eb), btrfs_header_level(eb));
+		return -EINVAL;
+	}
 
 	while (low < high) {
 		mid = (low + high) / 2;
@@ -2244,19 +2252,34 @@ static void reada_for_search(struct btrfs_root *root,
 	u64 search;
 	u64 target;
 	u64 nread = 0;
+	u64 nread_max;
 	u64 gen;
 	struct extent_buffer *eb;
 	u32 nr;
 	u32 blocksize;
 	u32 nscan = 0;
 
-	if (level != 1)
+	if (level != 1 && path->reada != READA_FORWARD_ALWAYS)
 		return;
 
 	if (!path->nodes[level])
 		return;
 
 	node = path->nodes[level];
+
+	/*
+	 * Since the time between visiting leaves is much shorter than the time
+	 * between visiting nodes, limit read ahead of nodes to 1, to avoid too
+	 * much IO at once (possibly random).
+	 */
+	if (path->reada == READA_FORWARD_ALWAYS) {
+		if (level > 1)
+			nread_max = root->nodesize;
+		else
+			nread_max = SZ_128K;
+	} else {
+		nread_max = SZ_64K;
+	}
 
 	search = btrfs_node_blockptr(node, slot);
 	blocksize = root->nodesize;
@@ -2280,11 +2303,9 @@ static void reada_for_search(struct btrfs_root *root,
 			if (nr == 0)
 				break;
 			nr--;
-#ifdef MY_DEF_HERE
-		} else if (path->reada == READA_FORWARD || path->reada == READA_FORWARD_FORCE) {
-#else
-		} else if (path->reada == READA_FORWARD) {
-#endif /* MY_DEF_HERE */
+		} else if (path->reada == READA_FORWARD ||
+			   path->reada == READA_FORWARD_ALWAYS
+			   ) {
 			nr++;
 			if (nr >= nritems)
 				break;
@@ -2295,24 +2316,15 @@ static void reada_for_search(struct btrfs_root *root,
 				break;
 		}
 		search = btrfs_node_blockptr(node, nr);
-#ifdef MY_DEF_HERE
-		if ((search <= target && target - search <= 65536) ||
-		    (search > target && search - target <= 65536) ||
-			(path->reada == READA_FORWARD_FORCE)) {
-#else
-		if ((search <= target && target - search <= 65536) ||
+		if (path->reada == READA_FORWARD_ALWAYS ||
+		    (search <= target && target - search <= 65536) ||
 		    (search > target && search - target <= 65536)) {
-#endif /* MY_DEF_HERE */
 			gen = btrfs_node_ptr_generation(node, nr);
 			readahead_tree_block(root, search);
 			nread += blocksize;
 		}
-#ifdef MY_DEF_HERE
-		if (path->reada == READA_FORWARD_FORCE)
-			continue;
-#endif /* MY_DEF_HERE */
 		nscan++;
-		if ((nread > 65536 || nscan > 32))
+		if (nread > nread_max || nscan > 32)
 			break;
 	}
 }
@@ -2487,6 +2499,9 @@ read_block_for_search(struct btrfs_trans_handle *trans,
 	tmp = btrfs_find_tree_block(root->fs_info, blocknr);
 #endif /* MY_DEF_HERE */
 	if (tmp) {
+		if (p->reada == READA_FORWARD_ALWAYS)
+			reada_for_search(root, p, level, slot, key->objectid);
+
 		/* first we do an atomic uptodate check */
 		if (btrfs_buffer_uptodate(tmp, gen, 1) > 0) {
 			/*
@@ -5238,6 +5253,10 @@ int btrfs_search_forward(struct btrfs_root *root, struct btrfs_key *min_key,
 {
 	struct extent_buffer *cur;
 	struct btrfs_key found_key;
+#ifdef MY_DEF_HERE
+	int i, reada_end;
+	struct extent_buffer *eb;
+#endif /* MY_DEF_HERE */
 	int slot;
 	int sret;
 	u32 nritems;
@@ -5312,6 +5331,22 @@ find_next_key:
 			goto out;
 		}
 		btrfs_set_path_blocking(path);
+#ifdef MY_DEF_HERE
+#define MAX_READA_EXTENT_BUFFER 32
+		if (path->reada == READA_FORWARD_ALWAYS && level == 1) {
+			eb = find_extent_buffer(root, btrfs_node_blockptr(cur, slot));
+			if (!eb || (eb && !extent_buffer_uptodate(eb))) {
+				if (slot + MAX_READA_EXTENT_BUFFER < nritems)
+					reada_end = slot + MAX_READA_EXTENT_BUFFER;
+				else
+					reada_end = nritems;
+				for (i = slot;i < reada_end;i++)
+					readahead_tree_block(root, btrfs_node_blockptr(cur, i));
+			}
+			if (eb)
+				free_extent_buffer(eb);
+		}
+#endif /* MY_DEF_HERE */
 		cur = read_node_slot(root, cur, slot);
 		if (IS_ERR(cur)) {
 			ret = PTR_ERR(cur);
@@ -5336,14 +5371,35 @@ out:
 
 static int tree_move_down(struct btrfs_root *root,
 			   struct btrfs_path *path,
-			   int *level, int root_level)
+			   int *level, int root_level,
+			   u64 reada_min_gen)
 {
 	struct extent_buffer *eb;
+	struct extent_buffer *parent = path->nodes[*level];
+	int slot = path->slots[*level];
+	const int nritems = btrfs_header_nritems(parent);
+	u64 reada_max;
+	u64 reada_done = 0;
 
 	BUG_ON(*level == 0);
-	eb = read_node_slot(root, path->nodes[*level], path->slots[*level]);
+	eb = read_node_slot(root, parent, slot);
 	if (IS_ERR(eb))
 		return PTR_ERR(eb);
+
+	/*
+	 * Trigger readahead for the next leaves we will process, so that it is
+	 * very likely that when we need them they are already in memory and we
+	 * will not block on disk IO. For nodes we only do readahead for one,
+	 * since the time window between processing nodes is typically larger.
+	 */
+	reada_max = (*level == 1 ? SZ_128K : root->nodesize);
+
+	for (slot++; slot < nritems && reada_done < reada_max; slot++) {
+		if (btrfs_node_ptr_generation(parent, slot) > reada_min_gen) {
+			readahead_tree_block(root, btrfs_node_blockptr(parent, slot));
+			reada_done += root->nodesize;
+		}
+	}
 
 	path->nodes[*level - 1] = eb;
 	path->slots[*level - 1] = 0;
@@ -5386,14 +5442,18 @@ static int tree_advance(struct btrfs_root *root,
 			struct btrfs_path *path,
 			int *level, int root_level,
 			int allow_down,
-			struct btrfs_key *key)
+			struct btrfs_key *key,
+			u64 reada_min_gen)
 {
 	int ret;
+#ifdef MY_DEF_HERE
+	struct btrfs_key last_key;
+#endif /* MY_DEF_HERE */
 
 	if (*level == 0 || !allow_down) {
 		ret = tree_move_next_or_upnext(root, path, level, root_level);
 	} else {
-		ret = tree_move_down(root, path, level, root_level);
+		ret = tree_move_down(root, path, level, root_level, reada_min_gen);
 	}
 	if (ret >= 0) {
 		if (*level == 0)
@@ -5402,7 +5462,16 @@ static int tree_advance(struct btrfs_root *root,
 		else
 			btrfs_node_key_to_cpu(path->nodes[*level], key,
 					path->slots[*level]);
+
+#ifdef MY_DEF_HERE
+		last_key.objectid = BTRFS_LAST_FREE_OBJECTID + 1;
+		last_key.type = 0;
+		last_key.offset = 0;
+		if (btrfs_comp_cpu_keys(key, &last_key) >= 0)
+			ret = -1;
+#endif /* MY_DEF_HERE */
 	}
+
 	return ret;
 }
 
@@ -5514,6 +5583,7 @@ int btrfs_compare_trees(struct btrfs_root *left_root,
 	u64 right_blockptr;
 	u64 left_gen;
 	u64 right_gen;
+	u64 reada_min_gen;
 
 	left_path = btrfs_alloc_path();
 	if (!left_path) {
@@ -5606,6 +5676,16 @@ int btrfs_compare_trees(struct btrfs_root *left_root,
 	right_path->nodes[right_level] = right_root->commit_root;
 #endif /* MY_DEF_HERE */
 	extent_buffer_get(right_path->nodes[right_level]);
+
+	/*
+	 * Our right root is the parent root, while the left root is the "send"
+	 * root. We know that all new nodes/leaves in the left root must have
+	 * a generation greater than the right root's generation, so we trigger
+	 * readahead for those nodes and leaves of the left root, as we know we
+	 * will need to read them at some point.
+	 */
+	reada_min_gen = btrfs_header_generation(right_root->commit_root);
+
 	up_read(&left_root->fs_info->commit_root_sem);
 
 	if (left_level == 0)
@@ -5629,7 +5709,7 @@ int btrfs_compare_trees(struct btrfs_root *left_root,
 			ret = tree_advance(left_root, left_path, &left_level,
 					left_root_level,
 					advance_left != ADVANCE_ONLY_NEXT,
-					&left_key);
+					&left_key, reada_min_gen);
 			if (ret == -1)
 				left_end_reached = ADVANCE;
 			else if (ret < 0)
@@ -5640,7 +5720,7 @@ int btrfs_compare_trees(struct btrfs_root *left_root,
 			ret = tree_advance(right_root, right_path, &right_level,
 					right_root_level,
 					advance_right != ADVANCE_ONLY_NEXT,
-					&right_key);
+					&right_key, reada_min_gen);
 			if (ret == -1)
 				right_end_reached = ADVANCE;
 			else if (ret < 0)
@@ -5792,13 +5872,16 @@ static int tree_advance_with_mode(struct btrfs_root *root,
 			struct btrfs_key *key)
 {
 	int ret;
+#ifdef MY_DEF_HERE
+	struct btrfs_key last_key;
+#endif /* MY_DEF_HERE */
 
 	if (mode == ADVANCE_ONLY_UPNEXT) {
 		ret = tree_move_upnext(root, path, level, root_level);
 	} else if (*level == 0 || mode == ADVANCE_ONLY_NEXT) {
 		ret = tree_move_next_or_upnext(root, path, level, root_level);
 	} else {
-		tree_move_down(root, path, level, root_level);
+		tree_move_down(root, path, level, root_level, 0);
 		ret = 0;
 	}
 	if (ret >= 0) {
@@ -5808,7 +5891,16 @@ static int tree_advance_with_mode(struct btrfs_root *root,
 		else
 			btrfs_node_key_to_cpu(path->nodes[*level], key,
 					path->slots[*level]);
+
+#ifdef MY_DEF_HERE
+		last_key.objectid = BTRFS_LAST_FREE_OBJECTID + 1;
+		last_key.type = 0;
+		last_key.offset = 0;
+		if (btrfs_comp_cpu_keys(key, &last_key) >= 0)
+			ret = -1;
+#endif /* MY_DEF_HERE */
 	}
+
 	return ret;
 }
 

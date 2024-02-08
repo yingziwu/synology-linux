@@ -36,11 +36,9 @@
  * new data the application may have written before commit.
  */
 #define BTRFS_INODE_ORDERED_DATA_CLOSE		0
-#define BTRFS_INODE_ORPHAN_META_RESERVED	1
 #define BTRFS_INODE_DUMMY			2
 #define BTRFS_INODE_IN_DEFRAG			3
 #define BTRFS_INODE_DELALLOC_META_RESERVED	4
-#define BTRFS_INODE_HAS_ORPHAN_ITEM		5
 #define BTRFS_INODE_HAS_ASYNC_EXTENT		6
 #define BTRFS_INODE_NEEDS_FULL_SYNC		7
 #define BTRFS_INODE_COPY_EVERYTHING		8
@@ -83,7 +81,8 @@ struct btrfs_inode {
 	/*
 	 * Lock for counters and all fields used to determine if the inode is in
 	 * the log or not (last_trans, last_sub_trans, last_log_commit,
-	 * logged_trans).
+	 * logged_trans), to access/update new_delalloc_bytes and to update the
+	 * VFS' inode number of bytes used.
 	 */
 	spinlock_t lock;
 
@@ -112,6 +111,15 @@ struct btrfs_inode {
 	 * to walk them all.
 	 */
 	struct list_head delalloc_inodes;
+
+#ifdef MY_DEF_HERE
+	/*
+	 * likely delalloc_inodes, for async flush
+	 * 1. data reclaim
+	 * 2. avoid deadlock
+	 */
+	struct list_head syno_delalloc_inodes;
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
 	struct list_head syno_dirty_lru_inode;
@@ -235,6 +243,15 @@ struct btrfs_inode {
 	atomic_t syno_uq_refs;
 	u64 syno_uq_rfer_used;
 	u64 syno_uq_reserved;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+	struct list_head syno_rbd_meta_file;
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+	// For chown.
+	u64 uq_reserved;
 #endif /* MY_DEF_HERE */
 };
 
@@ -381,7 +398,7 @@ static inline bool btrfs_usrquota_fast_chown_enable(struct inode *inode)
 	if (btrfs_root_disable_quota(BTRFS_I(inode)->root))
 		return false;
 #endif /* MY_DEF_HERE */
-	if (!BTRFS_I(inode)->root->fs_info->usrquota_enabled)
+	if (!BTRFS_I(inode)->root->fs_info->syno_usrquota_v1_enabled)
 		return false;
 	if (!btrfs_usrquota_compat_inode_quota(BTRFS_I(inode)->root->fs_info))
 		return false;

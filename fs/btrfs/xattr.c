@@ -240,6 +240,12 @@ int __btrfs_setxattr(struct btrfs_trans_handle *trans,
 {
 	struct btrfs_root *root = BTRFS_I(inode)->root;
 	int ret;
+#ifdef MY_DEF_HERE
+	struct syno_cache_protection_parameter_command_xattr syno_cache_protection_parm;
+	struct syno_cache_protection_parameter_command_generic syno_cache_protection_command_generic =
+		{.command = SYNO_CACHE_PROTECTION_BTRFS_COMMAND_SETXATTR, .parm = &syno_cache_protection_parm};
+	int syno_cp_err;
+#endif /* MY_DEF_HERE */
 
 	if (btrfs_root_readonly(root))
 		return -EROFS;
@@ -247,7 +253,16 @@ int __btrfs_setxattr(struct btrfs_trans_handle *trans,
 	if (trans)
 		return do_setxattr(trans, inode, name, value, size, flags);
 
+#ifdef MY_DEF_HERE
+	if (inode->i_nlink > 0) {
+		syno_cache_protection_parm.value_size = size;
+		trans = btrfs_start_transaction_with_cache_protection(root, 2, &syno_cache_protection_command_generic);
+	} else {
+		trans = btrfs_start_transaction(root, 2);
+	}
+#else
 	trans = btrfs_start_transaction(root, 2);
+#endif /* MY_DEF_HERE */
 	if (IS_ERR(trans))
 		return PTR_ERR(trans);
 
@@ -261,6 +276,28 @@ int __btrfs_setxattr(struct btrfs_trans_handle *trans,
 	ret = btrfs_update_inode(trans, root, inode);
 	BUG_ON(ret);
 
+#ifdef MY_DEF_HERE
+	if (!ret && syno_cache_protection_is_enabled(root->fs_info) && trans->syno_cache_protection_req) {
+		memset(&syno_cache_protection_parm, 0, sizeof(syno_cache_protection_parm));
+		syno_cache_protection_parm.command =
+			(value) ? SYNO_CACHE_PROTECTION_BTRFS_COMMAND_SETXATTR :
+			SYNO_CACHE_PROTECTION_BTRFS_COMMAND_REMOVEXATTR;
+		syno_cache_protection_parm.transid = trans->transid;
+		syno_cache_protection_parm.inode = inode;
+		syno_cache_protection_parm.name_size = strlen(name);
+		syno_cache_protection_parm.value_size = size;
+		syno_cache_protection_parm.name = name;
+		syno_cache_protection_parm.value = value;
+		syno_cache_protection_parm.flags = flags;
+		syno_cp_err = btrfs_syno_cache_protection_write_and_send_command(trans->syno_cache_protection_req,
+			&syno_cache_protection_parm);
+		if (syno_cp_err) {
+			btrfs_warn(root->fs_info, "Failed to SYNO Cache Protection send command [%d] err %d",
+			(int)syno_cache_protection_command_generic.command, syno_cp_err);
+		}
+		trans->syno_cache_protection_req = NULL;
+	}
+#endif /* MY_DEF_HERE */
 out:
 	btrfs_end_transaction(trans, root);
 	return ret;

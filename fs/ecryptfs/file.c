@@ -162,6 +162,13 @@ static int read_or_initialize_metadata(struct dentry *dentry)
 		goto out;
 	}
 
+#ifdef MY_ABC_HERE
+	if (rc == -EINVAL && ecryptfs_inode_to_lower(inode)->i_blocks == 0) {
+		i_size_write(inode, 0);
+		do_truncate(ecryptfs_dentry_to_lower(dentry), 0, 0, NULL);
+	}
+#endif /* MY_ABC_HERE */
+
 	if (!(mount_crypt_stat->flags & ECRYPTFS_XATTR_METADATA_ENABLED) &&
 	    !i_size_read(ecryptfs_inode_to_lower(inode))) {
 		rc = ecryptfs_initialize_file(dentry, inode);
