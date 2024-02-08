@@ -190,6 +190,9 @@ struct scsi_device {
 	unsigned no_dif:1;	/* T10 PI (DIF) should be disabled */
 	unsigned broken_fua:1;		/* Don't set FUA bit */
 	unsigned lun_in_cdb:1;		/* Store LUN bits in CDB[1] */
+#ifdef MY_ABC_HERE
+	unsigned default_disable_fua:1;	/* Default disable FUA or not */
+#endif /* MY_ABC_HERE */
 
 	atomic_t disk_events_disable_depth; /* disable depth for disk events */
 

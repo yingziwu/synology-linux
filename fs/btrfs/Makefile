@@ -16,9 +16,17 @@ btrfs-$(CONFIG_SYNO_BTRFS_WINACL) += syno_acl.o
 btrfs-$(CONFIG_SYNO_BTRFS_USRQUOTA) += usrquota.o
 btrfs-$(CONFIG_BTRFS_FS_CHECK_INTEGRITY) += check-integrity.o
 
+btrfs-$(CONFIG_SYNO_BTRFS_FEATURE_SPACE_USAGE) += syno-extent-usage.o
 btrfs-$(CONFIG_SYNO_BTRFS_FREE_SPACE_ANALYZE) += free-space-analyze.o
+btrfs-$(CONFIG_SYNO_BTRFS_CACHE_PROTECTION) += syno_cache_protection/syno-cache-protection-btrfs.o \
+	syno_cache_protection/syno-cache-protection-btrfs-command.o \
+	syno_cache_protection/syno-cache-protection-btrfs-passive-model.o \
+	syno_cache_protection/syno-cache-protection-btrfs-replay.o
 
 btrfs-$(CONFIG_BTRFS_FS_RUN_SANITY_TESTS) += tests/free-space-tests.o \
 	tests/extent-buffer-tests.o tests/btrfs-tests.o \
 	tests/extent-io-tests.o tests/inode-tests.o tests/qgroup-tests.o \
 	tests/free-space-tree-tests.o
+
+btrfs-$(CONFIG_SYNO_BTRFS_FEATURE_TREE) += syno-feat-tree.o
+btrfs-$(CONFIG_SYNO_BTRFS_RBD_META) += syno-rbd-meta.o

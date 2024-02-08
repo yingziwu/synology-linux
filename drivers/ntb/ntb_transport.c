@@ -114,9 +114,11 @@ static unsigned int transport_mtu = 0x10000;
 /*
  * qp : total 16 MB, each 4MB
  *     0 : ntb_netdev (0-4MB)
+ *     1 : syno_cache_protection (4-8MB)
  *     2-3 : reserved (8-16MB)
  * block deive
  *     0 : md bitmap 32 MB (16-48MB)
+ *     1 : syno_cache_protection 16 MB (48-64MB)
  */
 #endif /* MY_ABC_HERE */
 

@@ -1449,7 +1449,11 @@ int bitmap_startwrite(struct bitmap *bitmap, sector_t offset, unsigned long sect
 EXPORT_SYMBOL(bitmap_startwrite);
 
 void bitmap_endwrite(struct bitmap *bitmap, sector_t offset, unsigned long sectors,
+#ifdef MY_ABC_HERE
+		     int success, int behind, int cnt)
+#else /* MY_ABC_HERE */
 		     int success, int behind)
+#endif /* MY_ABC_HERE */
 {
 	if (!bitmap)
 		return;
@@ -1486,7 +1490,12 @@ void bitmap_endwrite(struct bitmap *bitmap, sector_t offset, unsigned long secto
 		if (COUNTER(*bmc) == COUNTER_MAX)
 			wake_up(&bitmap->overflow_wait);
 
+#ifdef MY_ABC_HERE
+		WARN_ON((*bmc) < cnt);
+		(*bmc) = (*bmc) - cnt;
+#else /* MY_ABC_HERE */
 		(*bmc)--;
+#endif /* MY_ABC_HERE */
 		if (*bmc <= 2) {
 			bitmap_set_pending(&bitmap->counts, offset);
 			bitmap->allclean = 0;

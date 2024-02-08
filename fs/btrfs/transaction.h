@@ -150,6 +150,15 @@ struct btrfs_trans_handle {
 	struct btrfs_delayed_ref_throttle_ticket *syno_delayed_ref_throttle_ticket;
 	bool check_throttle;
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	bool syno_usage;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	void *syno_cache_protection_req;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	bool cleaner;
+#endif /* MY_ABC_HERE */
 };
 
 struct btrfs_pending_snapshot {
@@ -211,6 +220,15 @@ int btrfs_end_transaction_nosync_delayed(struct btrfs_trans_handle *trans,
 #endif /* MY_ABC_HERE */
 int btrfs_end_transaction(struct btrfs_trans_handle *trans,
 			  struct btrfs_root *root);
+#ifdef MY_ABC_HERE
+struct btrfs_trans_handle *btrfs_start_transaction_with_cache_protection(struct btrfs_root *root, unsigned int num_items,
+				struct syno_cache_protection_parameter_command_generic *syno_cache_protection_command_generic);
+struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv_with_cache_protection(
+					struct btrfs_root *root,
+					unsigned int num_items,
+					int min_factor,
+					struct syno_cache_protection_parameter_command_generic *syno_cache_protection_command_generic);
+#endif /* MY_ABC_HERE */
 struct btrfs_trans_handle *btrfs_start_transaction(struct btrfs_root *root,
 						   unsigned int num_items);
 struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv(
@@ -220,6 +238,10 @@ struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv(
 struct btrfs_trans_handle *btrfs_start_transaction_lflush(
 					struct btrfs_root *root,
 					unsigned int num_items);
+#ifdef MY_ABC_HERE
+struct btrfs_trans_handle *btrfs_join_transaction_with_cache_protection(struct btrfs_root *root,
+				struct syno_cache_protection_parameter_command_generic *syno_cache_protection_command_generic);
+#endif /* MY_ABC_HERE */
 struct btrfs_trans_handle *btrfs_join_transaction(struct btrfs_root *root);
 struct btrfs_trans_handle *btrfs_join_transaction_nolock(struct btrfs_root *root);
 struct btrfs_trans_handle *btrfs_attach_transaction(struct btrfs_root *root);
@@ -250,7 +272,11 @@ void btrfs_throttle(struct btrfs_root *root);
 int btrfs_record_root_in_trans(struct btrfs_trans_handle *trans,
 				struct btrfs_root *root);
 int btrfs_write_marked_extents(struct btrfs_root *root,
-				struct extent_io_tree *dirty_pages, int mark);
+				struct extent_io_tree *dirty_pages, int mark
+#ifdef MY_ABC_HERE
+				, u64 *total_count, u64 *total_size
+#endif /* MY_ABC_HERE */
+				);
 int btrfs_wait_marked_extents(struct btrfs_root *root,
 				struct extent_io_tree *dirty_pages, int mark);
 int btrfs_transaction_blocked(struct btrfs_fs_info *info);

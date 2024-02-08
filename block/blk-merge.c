@@ -61,12 +61,16 @@ static struct bio *blk_bio_unused_hint_split(struct request_queue *q,
 					    struct bio_set *bs,
 					    unsigned *nsegs)
 {
+	unsigned int max_unused_hint_sectors;
+	sector_t bs_mask = (queue_logical_block_size(q) >> 9) - 1;
 	*nsegs = 1;
 
-	if (bio_sectors(bio) <= UINT_MAX >> 9)
+	max_unused_hint_sectors = (UINT_MAX >> 9) & ~bs_mask;
+
+	if (bio_sectors(bio) <= max_unused_hint_sectors)
 		return NULL;
 
-	return bio_split(bio, UINT_MAX >> 9, GFP_NOIO, bs);
+	return bio_split(bio, max_unused_hint_sectors, GFP_NOIO, bs);
 }
 #endif /* MY_ABC_HERE */
 

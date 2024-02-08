@@ -787,6 +787,99 @@ static int ioctl_fsthaw(struct file *filp)
 	return thaw_super(sb);
 }
 
+#ifdef MY_ABC_HERE
+static int syno_rbd_meta_file_mapping(struct inode *inode, size_t size,
+				      struct syno_rbd_meta_ioctl_args __user *user)
+{
+	int ret;
+	struct syno_rbd_meta_ioctl_args *args;
+
+	if (!inode->i_op->syno_rbd_meta_file_mapping)
+		return -EOPNOTSUPP;
+
+	args = memdup_user(user, size);
+	if (IS_ERR(args))
+		return PTR_ERR(args);
+
+	ret = inode->i_op->syno_rbd_meta_file_mapping(inode, args);
+	if (ret)
+		goto out;
+
+	if (copy_to_user(user, args, size)) {
+		ret = -EFAULT;
+		goto out;
+	}
+	ret = 0;
+out:
+	kfree(args);
+	return ret;
+}
+
+static int ioctl_syno_rbd_meta(struct file *filp, unsigned int __user *argp)
+{
+	struct syno_rbd_meta_ioctl_args stack;
+	struct inode *inode = file_inode(filp);
+	struct super_block *sb = inode->i_sb;
+
+	if (copy_from_user(&stack,
+			(struct syno_rbd_meta_ioctl_args __user *) argp,
+			sizeof(stack)))
+		return -EFAULT;
+
+	switch(stack.act) {
+	case SYNO_RBD_META_ACTIVATE:
+		if (inode->i_op->syno_rbd_meta_file_activate)
+			return inode->i_op->syno_rbd_meta_file_activate(inode);
+		return -EOPNOTSUPP;
+	case SYNO_RBD_META_DEACTIVATE:
+		if (inode->i_op->syno_rbd_meta_file_deactivate)
+			return inode->i_op->syno_rbd_meta_file_deactivate(inode);
+		return -EOPNOTSUPP;
+	case SYNO_RBD_META_SET_FIRST_OFFSET:
+		if (sb->s_op->syno_rbd_set_first_mapping_table_offset)
+			return sb->s_op->syno_rbd_set_first_mapping_table_offset(
+					sb, stack.first_offset);
+		return -EOPNOTSUPP;
+	case SYNO_RBD_META_MAPPING:
+		return syno_rbd_meta_file_mapping(inode, stack.size,
+			(struct syno_rbd_meta_ioctl_args __user *) argp);
+	case SYNO_RBD_META_CLEANUP_ALL:
+		if (sb->s_op->syno_rbd_meta_file_cleanup_all)
+			return sb->s_op->syno_rbd_meta_file_cleanup_all(inode);
+		return -EOPNOTSUPP;
+	default:
+		break;
+	}
+	return -EINVAL;
+}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+static int ioctl_syno_space_usage(struct file *filp, void __user *argp)
+{
+	int ret;
+	struct syno_space_usage_info info;
+
+	if (copy_from_user(&info, argp, sizeof(info))) {
+		ret = -EFAULT;
+		goto out;
+	}
+
+	ret = vfs_syno_space_usage(filp, &info);
+	if (ret)
+		goto out;
+
+	if (copy_to_user(argp, &info, sizeof(info))) {
+		ret = -EFAULT;
+		goto out;
+	}
+
+	ret = 0;
+out:
+	return ret;
+}
+#endif /* MY_ABC_HERE */
+
 /*
  * When you add any new common ioctls to the switches above and below
  * please update compat_sys_ioctl() too.
@@ -892,6 +985,15 @@ int do_vfs_ioctl(struct file *filp, unsigned int fd, unsigned int cmd,
 
 	case FICLONERANGE:
 		return ioctl_file_clone_range(filp, argp);
+#ifdef MY_ABC_HERE
+	case FICTRRBDMETA:
+		return ioctl_syno_rbd_meta(filp, argp);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	case FISPACEUSAGE:
+		return ioctl_syno_space_usage(filp, argp);
+#endif /* MY_ABC_HERE */
 
 	default:
 		if (S_ISREG(inode->i_mode))

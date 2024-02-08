@@ -316,7 +316,7 @@ void * __init extend_brk(size_t size, size_t align)
 	return ret;
 }
 
-#if defined(MY_ABC_HERE) && defined(MY_ABC_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE)
+#if defined(MY_ABC_HERE) && defined(MY_ABC_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE) && !defined(MY_DEF_HERE)
 /*
  * Synology sata power control functions
  */
@@ -352,7 +352,11 @@ static u8 SYNO_GET_HDD_ENABLE_PIN(const int index)
 		goto END;
 	}
 
+#ifdef MY_DEF_HERE
+	if (1 > index || (gSynoHddPowerupSeq && gSynoInternalHddNumber < index)) {
+#else /* MY_DEF_HERE */
 	if (1 > index || (0 < g_syno_hdd_powerup_seq && g_syno_hdd_powerup_seq < index)) {
+#endif /* MY_DEF_HERE */
 		printk("SYNO_GET_HDD_ENABLE_PIN(%d) is illegal", index);
 		WARN_ON(1);
 		goto END;
@@ -466,6 +470,52 @@ END:
 	return iRet;
 }
 
+/* SYNO_CHECK_HDD_ENABLE
+ * Check HDD enable for x86_64, cedarview, Avoton, Braswell, Apollolake
+ * input : index - disk index, 1-based.
+ * output: 0 - HDD not enable, 1 - HDD enable.
+ */
+int SYNO_CHECK_HDD_ENABLE(int index)
+{
+	int iEnVal = 0; /* defult is not enable */
+	u8 iPin = SYNO_GET_HDD_ENABLE_PIN(index);
+
+#ifdef MY_DEF_HERE
+	if (0 < g_smbus_hdd_powerctl) {
+		if (!SynoSmbusHddPowerCtl.bl_init){
+			syno_smbus_hdd_powerctl_init();
+		}
+		if ( NULL != SynoSmbusHddPowerCtl.syno_smbus_hdd_enable_read) {
+			iEnVal = SynoSmbusHddPowerCtl.syno_smbus_hdd_enable_read(gSynoSmbusHddAdapter, gSynoSmbusHddAddress, index);
+		}
+
+		goto END;
+	}
+#endif /* MY_DEF_HERE */
+
+	if(iPin == GPIO_UNDEF) {
+		goto END;
+	}
+
+	/* Check is internal disk */
+#ifdef MY_DEF_HERE
+	if (gSynoHddPowerupSeq && gSynoInternalHddNumber < index) {
+#else /* MY_DEF_HERE */
+	if (0 < g_syno_hdd_powerup_seq && g_syno_hdd_powerup_seq < index) {
+#endif /* MY_DEF_HERE */
+		goto END;
+	}
+
+#if defined(MY_ABC_HERE)
+	syno_pch_lpc_gpio_pin(iPin, &iEnVal, 0);
+#elif defined(MY_DEF_HERE)
+	syno_gpio_value_get(iPin, &iEnVal);
+#endif /* MY_ABC_HERE / MY_DEF_HERE */
+
+END:
+	return iEnVal;
+}
+
 /* SYNO_GET_HDD_PRESENT_PIN
  * Query HDD present  pin for x86_64 and cedarview
  * input: index - disk index, 1-based.
@@ -500,7 +550,11 @@ static u8 SYNO_GET_HDD_PRESENT_PIN(const int index)
 		goto END;
 	}
 
+#ifdef MY_DEF_HERE
+	if (1 > index || (gSynoHddPowerupSeq && gSynoInternalHddNumber < index)) {
+#else /* MY_DEF_HERE */
 	if (1 > index || (0 == g_syno_hdd_powerup_seq) || (0 < g_syno_hdd_powerup_seq && g_syno_hdd_powerup_seq < index)) {
+#endif /* MY_DEF_HERE */
 		goto END;
 	}
 
@@ -668,8 +722,11 @@ int SYNO_SUPPORT_HDD_DYNAMIC_ENABLE_POWER(void)
 	int iRet = 0;
 
 #ifdef MY_DEF_HERE
+	if (!gSynoHddPowerupSeq) {
+		goto END;
+	}
 #else /* MY_DEF_HERE */
-	if (0 > g_syno_hdd_powerup_seq || SYNO_MAX_HDD_PRZ < g_syno_hdd_powerup_seq) {
+	if ((0 == g_syno_hdd_powerup_seq && !syno_is_hw_version(HW_DS1621xsp)) || SYNO_MAX_HDD_PRZ < g_syno_hdd_powerup_seq) {
 		goto END;
 	}
 #endif /* MY_DEF_HERE */
@@ -690,12 +747,12 @@ int SYNO_SUPPORT_HDD_DYNAMIC_ENABLE_POWER(void)
 		goto END;
 	}
 #endif /* MY_ABC_HERE */
-
 END:
 	return iRet;
 }
 
 EXPORT_SYMBOL(SYNO_CTRL_HDD_POWERON);
+EXPORT_SYMBOL(SYNO_CHECK_HDD_ENABLE);
 EXPORT_SYMBOL(SYNO_CHECK_HDD_PRESENT);
 #if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(SYNO_GET_HDD_PRESENT_PIN);

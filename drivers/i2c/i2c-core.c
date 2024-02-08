@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* i2c-core.c - a device driver for the iic-bus interface		     */
 /* ------------------------------------------------------------------------- */
 /*   Copyright (C) 1995-99 Simon G. Vogl
@@ -58,6 +61,13 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/i2c.h>
+
+#ifdef MY_DEF_HERE
+#include <linux/acpi.h>
+#include <linux/synolib.h>
+#include <linux/string.h>
+#include <linux/syno_fdt.h>
+#endif /* MY_DEF_HERE */
 
 #define I2C_ADDR_OFFSET_TEN_BIT	0xa000
 #define I2C_ADDR_OFFSET_SLAVE	0x1000
@@ -514,6 +524,12 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
 	/* Then ACPI style match */
 	if (acpi_driver_match_device(dev, drv))
 		return 1;
+
+#ifdef MY_DEF_HERE
+	if (of_root && syno_of_i2c_driver_match_device(dev, drv)) {
+		return 1;
+	}
+#endif /* MY_DEF_HERE */
 
 	driver = to_i2c_driver(drv);
 	/* match on an id table if there is one */
@@ -1503,6 +1519,41 @@ struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node)
 	return adapter;
 }
 EXPORT_SYMBOL(of_get_i2c_adapter_by_node);
+
+#ifdef MY_DEF_HERE
+static void syno_of_i2c_register_devices(struct i2c_adapter *adap)
+{
+	struct device_node *pI2CNode = NULL;
+	struct device_node *pI2CDevNode = NULL;
+	char *i2c_driver_name = NULL;
+	char *i2c_address = NULL;
+	struct i2c_board_info info = {};
+	unsigned short val = 0;
+
+	if (NULL == of_root || NULL == adap){
+		return;
+	}
+
+	pI2CNode = syno_of_i2c_adapter_match(adap);
+
+	if (NULL != pI2CNode) {
+		for_each_child_of_node(pI2CNode, pI2CDevNode) {
+			i2c_driver_name = (char *)of_get_property(pI2CDevNode, DT_I2C_DEVICE_NAME, NULL);
+			i2c_address = (char *)of_get_property(pI2CDevNode, DT_I2C_ADDRESS, NULL);
+			if ( NULL != i2c_driver_name && NULL != i2c_address) {
+				strlcpy(info.type, i2c_driver_name, sizeof(info.type));
+				if(0 == kstrtoul(i2c_address, 16, (unsigned long*) &val)) {
+					info.addr = val;
+				}
+				if (!i2c_new_device(adap, &info)) {
+					pr_err("fail to add I2C device %s at 0x%d", info.type, info.addr);
+					return;
+				}
+			}
+		}
+	}
+}
+#endif /* MY_DEF_HERE */
 #else
 static void of_i2c_register_devices(struct i2c_adapter *adap) { }
 #endif /* CONFIG_OF */
@@ -1620,6 +1671,9 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
 exit_recovery:
 	/* create pre-declared device nodes */
 	of_i2c_register_devices(adap);
+#ifdef MY_DEF_HERE
+	syno_of_i2c_register_devices(adap);
+#endif /* MY_DEF_HERE */
 	acpi_i2c_register_devices(adap);
 	acpi_i2c_install_space_handler(adap);
 
@@ -1680,6 +1734,11 @@ int i2c_add_adapter(struct i2c_adapter *adapter)
 	struct device *dev = &adapter->dev;
 	int id;
 
+#ifdef MY_DEF_HERE
+	struct device_node *pI2CNode = NULL;
+	int index = 0;
+#endif /* MY_DEF_HERE */
+
 	if (dev->of_node) {
 		id = of_alias_get_id(dev->of_node, "i2c");
 		if (id >= 0) {
@@ -1687,6 +1746,16 @@ int i2c_add_adapter(struct i2c_adapter *adapter)
 			return __i2c_add_numbered_adapter(adapter);
 		}
 	}
+
+#ifdef MY_DEF_HERE
+	if (adapter->nr == -1) {
+		/* -1 means dynamically assign bus id */
+		if (NULL != (pI2CNode = syno_of_i2c_bus_match(dev, &index))) {
+			adapter->nr = index;
+			return __i2c_add_numbered_adapter(adapter);
+		}
+	}
+#endif /* MY_DEF_HERE */
 
 	mutex_lock(&core_lock);
 	id = idr_alloc(&i2c_adapter_idr, adapter,

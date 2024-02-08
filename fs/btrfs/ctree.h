@@ -46,6 +46,10 @@
 #include "extent_io.h"
 #include "extent_map.h"
 #include "async-thread.h"
+#ifdef MY_ABC_HERE
+#include <linux/syno_cache_protection.h>
+#include "syno_cache_protection/syno-cache-protection-btrfs.h"
+#endif /* MY_ABC_HERE */
 
 struct btrfs_trans_handle;
 struct btrfs_transaction;
@@ -264,11 +268,17 @@ struct btrfs_super_block {
 	__le64 reserved[30];
 	u8 sys_chunk_array[BTRFS_SYSTEM_CHUNK_ARRAY_SIZE];
 	struct btrfs_root_backup super_roots[BTRFS_NUM_BACKUP_ROOTS];
-#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
-	u8 syno_reserved[549];
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || \
+    defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	u8 syno_reserved[525];
+	__le64 syno_rbd_first_mapping_table_offset;
+	__le64 syno_capability_flags;
+	__le64 syno_capability_generation;
 	__le64 log_tree_rsv;
 	__le64 syno_generation;
-#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE || MY_ABC_HERE ||
+	  MY_ABC_HERE || MY_ABC_HERE
+	*/
 } __attribute__ ((__packed__));
 
 /*
@@ -310,6 +320,22 @@ struct btrfs_super_block {
 	(BTRFS_FEATURE_INCOMPAT_EXTENDED_IREF)
 #define BTRFS_FEATURE_INCOMPAT_SAFE_CLEAR		0ULL
 
+#ifdef MY_ABC_HERE
+
+#ifdef BTRFS_FEATURE_SYNO_CAPABILITY_RBD_META
+#else
+#define BTRFS_FEATURE_SYNO_CAPABILITY_RBD_META 		0ULL
+#endif /* BTRFS_FEATURE_SYNO_CAPABILITY_RBD_META */
+
+#define BTRFS_FEATURE_SYNO_CAPABILITY_SUPP			\
+	(BTRFS_FEATURE_SYNO_CAPABILITY_RBD_META)
+
+#define BTRFS_FEATURE_SYNO_CAPABILITY_SAFE_SET 		\
+	(BTRFS_FEATURE_SYNO_CAPABILITY_RBD_META)
+#define BTRFS_FEATURE_SYNO_CAPABILITY_SAFE_CLEAR		\
+	(BTRFS_FEATURE_SYNO_CAPABILITY_RBD_META)
+#endif /* MY_ABC_HERE */
+
 /*
  * A leaf is full of items. offset and size tell us where to find
  * the item in the leaf (relative to the start of the data area)
@@ -347,6 +373,74 @@ struct btrfs_node {
 	struct btrfs_key_ptr ptrs[];
 } __attribute__ ((__packed__));
 
+#ifdef MY_ABC_HERE
+/* these are bit numbers for test/set bit */
+#define SYNO_USAGE_ROOT_RUNTIME_FLAG_RESCAN 0
+#define SYNO_USAGE_ROOT_RUNTIME_FLAG_FAST_RESCAN 1
+#define SYNO_USAGE_ROOT_RUNTIME_FLAG_FULL_RESCAN 2
+
+struct btrfs_syno_usage_status {
+	/* on-disk */
+	u64 version;
+	u64 state;
+	u64 flags;
+	struct btrfs_key extent_rescan_progress;
+	u64 cur_full_rescan_size;
+	u64 total_full_rescan_size;
+	u64 extent_tree_cur_rescan_size;
+	u64 extent_tree_total_rescan_size;
+	u64 total_syno_extent_tree_items;
+	u64 total_syno_subvol_usage_items;
+
+	/* in memory */
+	u64 syno_usage_type_num_bytes[SYNO_USAGE_TYPE_MAX];
+	bool syno_usage_type_num_bytes_valid[SYNO_USAGE_TYPE_MAX];
+	s32 error_code;
+} __attribute__ ((__packed__));
+
+struct btrfs_syno_usage_root_status {
+	u8 type;
+	u8 new_type;
+	u64 state;
+	u64 flags;
+	u64 num_bytes;
+	struct btrfs_key drop_progress;
+	struct btrfs_key fast_rescan_progress;
+	struct btrfs_key full_rescan_progress;
+	u64 cur_full_rescan_size;
+	u64 total_full_rescan_size;
+	u64 total_syno_subvol_usage_items;
+} __attribute__ ((__packed__));
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+struct btrfs_syno_feat_tree_status {
+	u64 version;
+	u64 status;
+};
+#endif /* MY_ABC_HERE */
+
+/* Read ahead values for struct btrfs_path.reada */
+enum {
+	READA_NONE,
+	READA_BACK,
+	READA_FORWARD,
+	/*
+	 * Similar to READA_FORWARD but unlike it:
+	 *
+	 * 1) It will trigger readahead even for leaves that are not close to
+	 *    each other on disk;
+	 * 2) It also triggers readahead for nodes;
+	 * 3) During a search, even when a node or leaf is already in memory, it
+	 *    will still trigger readahead for other nodes and leaves that follow
+	 *    it.
+	 *
+	 * This is meant to be used only when we know we are iterating over the
+	 * entire tree or a very large part of it.
+	 */
+	READA_FORWARD_ALWAYS,
+};
+
 /*
  * btrfs_paths remember the path taken from the root down to the leaf.
  * level 0 is always the leaf, and nodes[1...BTRFS_MAX_LEVEL] will point
@@ -355,11 +449,6 @@ struct btrfs_node {
  * The slots array records the index of the item or block pointer
  * used while walking the tree.
  */
-#ifdef MY_ABC_HERE
-enum { READA_NONE = 0, READA_BACK, READA_FORWARD, READA_FORWARD_FORCE };
-#else
-enum { READA_NONE = 0, READA_BACK, READA_FORWARD };
-#endif /* MY_ABC_HERE */
 struct btrfs_path {
 	struct extent_buffer *nodes[BTRFS_MAX_LEVEL];
 	int slots[BTRFS_MAX_LEVEL];
@@ -480,6 +569,28 @@ struct btrfs_space_info {
 
 	struct kobject kobj;
 	struct kobject *block_group_kobjs[BTRFS_NR_RAID_TYPES];
+
+#ifdef MY_ABC_HERE
+	struct {
+		spinlock_t lock;
+		/* for trim/bg_ro */
+		struct rw_semaphore allocation_sem;
+		/* for block group */
+		struct rb_root_cached free_space_bytes;
+		struct rb_root_cached free_space_max_length;
+		struct rb_root_cached free_space_max_length_with_extent;
+		struct rb_root_cached preload; /* for auto scan after mount */
+		struct mutex syno_allocator_mutex;
+		bool force_cluster_disable;
+		struct btrfs_block_group_cache *cache_bg;
+		u64 cache_offset;
+#ifdef MY_ABC_HERE
+		u64 log_bg_offset;
+#endif /* MY_ABC_HERE */
+		atomic64_t fallback_relink_count;
+		atomic64_t fallback_full_scan_count;
+	} syno_allocator;
+#endif /* MY_ABC_HERE */
 };
 
 #define	BTRFS_BLOCK_RSV_GLOBAL		1
@@ -690,6 +801,31 @@ struct btrfs_block_group_cache {
 	 * Protected by free_space_lock.
 	 */
 	int needs_free_space;
+
+#ifdef MY_ABC_HERE
+	/*
+	 * The transid has a value only if the block group has been create
+	 * after this mount, otherwise it is 0.
+	 */
+	u64 transid;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct {
+		struct btrfs_space_info *space_info;
+		/* protect with space_info->syno_allocator.lock */
+		struct rb_node bytes_index;
+		struct rb_node max_length_index;
+		struct rb_node max_length_with_extent_index;
+		u64 last_bytes, last_max_length, last_max_length_with_extent;
+		struct rb_node preload_index;
+		u64 preload_free_space;
+		bool ro;
+		bool cache_error;
+		bool removed;
+		atomic_t refs;
+	} syno_allocator;
+#endif /* MY_ABC_HERE */
 };
 
 /* delayed seq elem */
@@ -737,6 +873,13 @@ struct btrfs_stripe_hash_table {
 #define BTRFS_STRIPE_HASH_TABLE_BITS 11
 
 void btrfs_init_async_reclaim_work(struct work_struct *work);
+#ifdef MY_ABC_HERE
+void btrfs_init_async_data_flush_work(struct work_struct *work);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+void btrfs_init_async_metadata_flush_work(struct work_struct *work);
+void btrfs_syno_btree_balance_dirty(struct btrfs_fs_info *fs_info, bool throttle);
+#endif /* MY_ABC_HERE */
 
 /* fs_info */
 struct reloc_control;
@@ -779,6 +922,10 @@ struct btrfs_delayed_ref_throttle_ticket {
 	u64 count;
 	struct list_head list;
 };
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+struct syno_quota_rescan_ctx;
 #endif /* MY_ABC_HERE */
 
 struct btrfs_fs_info {
@@ -843,6 +990,9 @@ struct btrfs_fs_info {
 	struct btrfs_block_rsv delayed_block_rsv;
 
 	struct btrfs_block_rsv empty_block_rsv;
+#ifdef MY_ABC_HERE
+	struct btrfs_block_rsv cleaner_block_rsv;
+#endif /* MY_ABC_HERE */
 
 	u64 generation;
 	u64 last_trans_committed;
@@ -951,6 +1101,9 @@ struct btrfs_fs_info {
 	struct list_head trans_list;
 	struct list_head dead_roots;
 	struct list_head caching_block_groups;
+#ifdef MY_ABC_HERE
+	spinlock_t caching_block_groups_lock;
+#endif /* MY_ABC_HERE */
 
 	spinlock_t delayed_iput_lock;
 	struct list_head delayed_iputs;
@@ -987,6 +1140,9 @@ struct btrfs_fs_info {
 	spinlock_t delalloc_root_lock;
 	/* all fs/file tree roots that have delalloc inodes. */
 	struct list_head delalloc_roots;
+#ifdef MY_ABC_HERE
+	struct list_head syno_delalloc_roots;
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * there is a pool of worker threads for checksumming during writes
@@ -1001,9 +1157,6 @@ struct btrfs_fs_info {
 	struct btrfs_workqueue *workers;
 	struct btrfs_workqueue *delalloc_workers;
 	struct btrfs_workqueue *flush_workers;
-#ifdef MY_ABC_HERE
-	struct btrfs_workqueue *flush_meta_workers;
-#endif /* MY_ABC_HERE */
 	struct btrfs_workqueue *endio_workers;
 	struct btrfs_workqueue *endio_meta_workers;
 #ifdef MY_ABC_HERE
@@ -1030,6 +1183,9 @@ struct btrfs_fs_info {
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	struct btrfs_workqueue *syno_multiple_writeback_workers;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	struct btrfs_workqueue *syno_cow_async_workers;
 #endif /* MY_ABC_HERE */
 
 	/*
@@ -1065,10 +1221,6 @@ struct btrfs_fs_info {
 	struct percpu_counter delalloc_bytes;
 	s32 dirty_metadata_batch;
 	s32 delalloc_batch;
-
-#ifdef MY_ABC_HERE
-	atomic_t btree_flusher;
-#endif /* MY_ABC_HERE */
 
 	struct list_head dirty_cowonly_roots;
 
@@ -1148,15 +1300,21 @@ struct btrfs_fs_info {
 	/*
 	 * quota information
 	 */
+#ifdef MY_ABC_HERE
+	bool syno_quota_v1_enabled;
+	bool syno_quota_v2_enabled;
+#else
 	unsigned int quota_enabled:1;
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	/*
 	 * usrquota information
 	 */
-	unsigned int usrquota_enabled:1;
+	bool syno_usrquota_v1_enabled;
+	bool syno_usrquota_v2_enabled;
 	/* usrquota_enable only changes state after a commit */
-	unsigned int pending_usrquota_state:1;
+	unsigned int pending_usrquota_state;
 
 	u64 usrquota_flags;
 	u64 usrquota_compat_flags;
@@ -1190,8 +1348,8 @@ struct btrfs_fs_info {
 	wait_queue_head_t syno_async_submit_queue_wait;
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
-	atomic_t syno_ordered_extent_nr;
-	int syno_max_ordered_queue_size;
+	atomic64_t syno_ordered_extent_nr;
+	u64 syno_max_ordered_queue_size;
 	wait_queue_head_t syno_ordered_queue_wait;
 #endif /* MY_ABC_HERE */
 
@@ -1199,7 +1357,11 @@ struct btrfs_fs_info {
 	 * quota_enabled only changes state after a commit. This holds the
 	 * next state.
 	 */
-	unsigned int pending_quota_state:1;
+#ifdef MY_ABC_HERE
+	u8 pending_quota_state;
+#else
+	unsigned int pending_quota_state;
+#endif /* MY_ABC_HERE */
 
 	/* is qgroup tracking in a consistent state? */
 	u64 qgroup_flags;
@@ -1351,6 +1513,13 @@ struct btrfs_fs_info {
 	 * because we not support replace disk.
 	 */
 	int dev_replace_may_start;
+#ifdef MY_ABC_HERE
+	struct work_struct async_data_flush_work;
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	struct work_struct async_metadata_flush_work;
+	atomic_t syno_metadata_throttle_nr;
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -1378,13 +1547,64 @@ struct btrfs_fs_info {
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+	struct work_struct async_metadata_cache_work;
+	atomic_t syno_metadata_block_group_update_count;
+	int metadata_cache_enable;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct btrfs_root *syno_usage_root;
+	struct btrfs_root *syno_extent_usage_root;
+	unsigned int syno_usage_enabled:1;
+	struct work_struct syno_usage_rescan_work;
+	struct work_struct syno_usage_fast_rescan_work;
+	struct work_struct syno_usage_full_rescan_work;
+	struct list_head syno_usage_pending_fast_rescan_roots;
+	struct list_head syno_usage_pending_full_rescan_roots;
+	pid_t syno_usage_fast_rescan_pid;
+	pid_t syno_usage_full_rescan_pid;
+	atomic_t syno_usage_pending_fast_rescan_count;
+	atomic_t syno_usage_pending_full_rescan_count;
+	spinlock_t syno_usage_fast_rescan_lock;
+	spinlock_t syno_usage_full_rescan_lock;
+	struct mutex syno_usage_ioctl_lock;
+	struct btrfs_syno_usage_status syno_usage_status;
+	spinlock_t syno_usage_lock;
+	int syno_usage_rescan_preload;
+	int syno_usage_rescan_check_all;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	/* Syno Feature Tree */
+	struct btrfs_root *syno_feat_root;
+	struct mutex syno_feat_tree_ioctl_lock;
+	struct btrfs_syno_feat_tree_status syno_feat_tree_status;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 	atomic64_t fsync_cnt;
 	atomic64_t fsync_full_commit_cnt;
-	unsigned int commit_time_debug:1;
+	unsigned int commit_time_debug_ms;
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 	struct mutex free_space_analyze_ioctl_lock;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct extent_io_tree cached_extents;
+	struct syno_cache_protection_fs *cache_protection_fs;
+	struct work_struct syno_cache_protection_async_checkpoint_work;
+	struct work_struct syno_cache_protection_async_flush_work;
+	struct work_struct syno_cache_protection_async_data_reclaim_work;
+	struct work_struct syno_cache_protection_auto_disable_work;
+	bool syno_cache_protection_recovering;
+	struct mutex syno_cache_protection_ioctl_lock;
+	spinlock_t syno_cache_protection_lock;
+	u64 syno_cache_protection_nr;
+	wait_queue_head_t syno_cache_protection_wait;
+	u64 syno_cache_protection_status;
+	int syno_cache_protection_error_code;
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
@@ -1393,6 +1613,37 @@ struct btrfs_fs_info {
 
 #ifdef MY_ABC_HERE
 	atomic_t syno_async_delayed_ref_count;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	struct list_head pinned_syno_rbd_meta_files;
+	u64 syno_rbd_first_mapping_table_offset;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	atomic_t syno_metadata_reserve_pending;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct ulist *syno_quota_rescan_subvol_ulist; // Can be NULL.
+	struct syno_quota_rescan_ctx *syno_quota_rescan_ctx; // Can be NULL.
+
+	// So btrfs_quota_enable() knows when to enable quota safely.
+	struct rw_semaphore inflight_reserve_lock;
+	/*
+	 * We have quota reserve needs to be clear
+	 * in __btrfs_qgroup_release_data().
+	 */
+	bool need_clear_reserve;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	struct {
+		atomic_t syno_allocator_refs;
+		wait_queue_head_t syno_allocator_wait;
+		atomic_t legacy_allocator_refs;
+		wait_queue_head_t legacy_allocator_wait;
+		struct btrfs_workqueue *caching_workers;
+		struct work_struct bg_prefetch_work;
+		bool bg_prefetch_running;
+	} syno_allocator;
 #endif /* MY_ABC_HERE */
 };
 
@@ -1503,9 +1754,6 @@ struct btrfs_root {
 	spinlock_t log_extents_lock[2];
 	struct list_head logged_list[2];
 
-	spinlock_t orphan_lock;
-	atomic_t orphan_inodes;
-	struct btrfs_block_rsv *orphan_block_rsv;
 	int orphan_cleanup_state;
 
 	spinlock_t inode_lock;
@@ -1535,6 +1783,10 @@ struct btrfs_root {
 	 */
 	struct list_head delalloc_inodes;
 	struct list_head delalloc_root;
+#ifdef MY_ABC_HERE
+	struct list_head syno_delalloc_inodes;
+	struct list_head syno_delalloc_root;
+#endif /* MY_ABC_HERE */
 	u64 nr_delalloc_inodes;
 
 	struct mutex ordered_extent_mutex;
@@ -1561,6 +1813,14 @@ struct btrfs_root {
 	 * manipulation with the read-only status via SUBVOL_SETFLAGS
 	 */
 	int send_in_progress;
+#ifdef MY_DEF_HERE
+	/*
+	 * Number of currently running deduplication operations that have a
+	 * destination inode belonging to this root. Protected by the lock
+	 * root_item_lock.
+	 */
+	int dedupe_in_progress;
+#endif /* MY_DEF_HERE */
 	struct btrfs_subvolume_writers *subv_writers;
 	atomic_t will_be_snapshoted;
 	atomic_t snapshot_force_cow;
@@ -1587,6 +1847,15 @@ struct btrfs_root {
 	atomic_t nr_swapfiles;
 
 #ifdef MY_ABC_HERE
+	unsigned int syno_usage_enabled:1;
+	struct btrfs_syno_usage_root_status syno_usage_root_status;
+	unsigned long syno_usage_runtime_flags;
+	spinlock_t syno_usage_lock; /* protects the syno_usage_root_status [type,new_type,state,flags,num_bytes,fast_rescan_progress] */
+	rwlock_t syno_usage_rwlock; /* protects the syno_usage_root_status [full_rescan_progress] */
+	struct list_head syno_usage_rescan_list;
+	struct percpu_counter *syno_delalloc_bytes;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	/*
 	 * This refs is to make sure subvolume won't be added to
 	 * dead root until this count reaches zero.
@@ -1595,6 +1864,82 @@ struct btrfs_root {
 	 * content it points to is not guaranteed.
 	 */
 	atomic_t use_refs;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	struct rw_semaphore rescan_lock;
+	u64 rescan_inode; // inode number that we already scanned.
+	u64 rescan_end_inode; // Rescan to this inode.
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	bool invalid_quota; // Don't show quota with bad quota version.
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	bool has_usrquota_limit;
+	bool has_quota_limit;
+#endif /* MY_ABC_HERE */
+};
+
+/* Arguments for btrfs_drop_extents() */
+struct btrfs_drop_extents_args {
+	/* Input parameters */
+
+	/*
+	 * If NULL, btrfs_drop_extents() will allocate and free its own path.
+	 * If 'replace_extent' is true, this must not be NULL. Also the path
+	 * is always released except if 'replace_extent' is true and
+	 * btrfs_drop_extents() sets 'extent_inserted' to true, in which case
+	 * the path is kept locked.
+	 */
+	struct btrfs_path *path;
+	/* Start offset of the range to drop extents from */
+	u64 start;
+	/* End (exclusive, last byte + 1) of the range to drop extents from */
+	u64 end;
+	/* If true drop all the extent maps in the range */
+	bool drop_cache;
+	/*
+	 * If true it means we want to insert a new extent after dropping all
+	 * the extents in the range. If this is true, the 'extent_item_size'
+	 * parameter must be set as well and the 'extent_inserted' field will
+	 * be set to true by btrfs_drop_extents() if it could insert the new
+	 * extent.
+	 * Note: when this is set to true the path must not be NULL.
+	 */
+	bool replace_extent;
+	/*
+	 * Used if 'replace_extent' is true. Size of the file extent item to
+	 * insert after dropping all existing extents in the range
+	 */
+	u32 extent_item_size;
+
+	/* Output parameters */
+
+	/*
+	 * Set to the minimum between the input parameter 'end' and the end
+	 * (exclusive, last byte + 1) of the last dropped extent. This is always
+	 * set even if btrfs_drop_extents() returns an error.
+	 */
+	u64 drop_end;
+	/*
+	 * The number of allocated bytes found in the range. This can be smaller
+	 * than the range's length when there are holes in the range.
+	 */
+	u64 bytes_found;
+	/*
+	 * Only set if 'replace_extent' is true. Set to true if we were able
+	 * to insert a replacement extent after dropping all extents in the
+	 * range, otherwise set to false by btrfs_drop_extents().
+	 * Also, if btrfs_drop_extents() has set this to true it means it
+	 * returned with the path locked, otherwise if it has set this to
+	 * false it has returned with the path released.
+	 */
+	bool extent_inserted;
+
+#ifdef MY_ABC_HERE
+	u64 *first_punch_pos;
+	u64 *last_punch_pos;
+	int *partial_punch;
 #endif /* MY_ABC_HERE */
 };
 
@@ -1624,6 +1969,37 @@ struct btrfs_snapshot_size_ctx {
 	struct btrfs_snapshot_size_entry snaps[0];
 };
 #endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+/* Arguments for btrfs_punch_hole/btrfs_punch_hole_range */
+struct btrfs_punch_hole_args {
+	bool non_blocking; /* in */
+	bool need_restart; /* out */
+	loff_t next_offset; /* out */
+};
+#endif /* MY_ABC_HERE */
+
+struct btrfs_clone_extent_info {
+	u64 disk_offset;
+	u64 disk_len;
+	u64 data_offset;
+	u64 data_len;
+	u64 file_offset;
+	char *extent_buf;
+	u32 item_size;
+
+#ifdef MY_ABC_HERE
+	// Used in syno quota v1.
+	bool quota_enabled;
+	bool same_inode;
+	bool check_backref;
+	bool accounting_reserve;
+	bool set_clone_range_flag;
+	u64 ram_bytes;
+	struct ulist *disko_ulist;
+	bool ulist_overflow;
+#endif /* MY_ABC_HERE */
+};
 
 /*
  * Flags for mount options.
@@ -1704,6 +2080,18 @@ struct btrfs_snapshot_size_ctx {
 #endif /*MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 #define BTRFS_MOUNT_SYNO_ACL        (1ULL << 32)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_MOUNT_SYNO_CACHE_PROTECTION_RECOVER	(1ULL << 33)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_MOUNT_DROP_LOG_TREE	(1ULL << 34)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_MOUNT_SKIP_CLEANER	(1ULL << 35)
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define BTRFS_MOUNT_SYNO_ALLOCATOR	(1ULL << 36)
 #endif /* MY_ABC_HERE */
 
 #define BTRFS_DEFAULT_COMMIT_INTERVAL	(30)
@@ -1803,6 +2191,9 @@ do {                                                                   \
 #define BTRFS_INODE_NOATIME		(1 << 9)
 #define BTRFS_INODE_DIRSYNC		(1 << 10)
 #define BTRFS_INODE_COMPRESS		(1 << 11)
+#ifdef MY_DEF_HERE
+#define BTRFS_INODE_NODEDUPE		(1 << 29)
+#endif
 
 #ifdef MY_ABC_HERE
 #define BTRFS_INODE_UQ_REF_USED		(1 << 30)
@@ -2108,6 +2499,18 @@ BTRFS_SETGET_FUNCS(timespec_sec, struct btrfs_timespec, sec, 64);
 BTRFS_SETGET_FUNCS(timespec_nsec, struct btrfs_timespec, nsec, 32);
 BTRFS_SETGET_STACK_FUNCS(stack_timespec_sec, struct btrfs_timespec, sec, 64);
 BTRFS_SETGET_STACK_FUNCS(stack_timespec_nsec, struct btrfs_timespec, nsec, 32);
+#ifdef MY_ABC_HERE
+BTRFS_SETGET_FUNCS(syno_feat_tree_status_version, struct btrfs_syno_feat_tree_status_item, version, 64);
+BTRFS_SETGET_FUNCS(syno_feat_tree_status_status, struct btrfs_syno_feat_tree_status_item, status, 64);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+BTRFS_SETGET_FUNCS(syno_rbd_meta_file_subvol_record_inode_cnt,
+		   struct btrfs_rbd_meta_file_subvol_record_item,
+		   inode_cnt, 32);
+BTRFS_SETGET_FUNCS(syno_rbd_meta_file_inode_record_generation,
+		   struct btrfs_rbd_meta_file_inode_record_item,
+		   generation, 64);
+#endif /* MY_ABC_HERE */
 
 /* struct btrfs_dev_extent */
 BTRFS_SETGET_FUNCS(dev_extent_chunk_tree, struct btrfs_dev_extent,
@@ -2178,6 +2581,86 @@ static inline u32 btrfs_extent_inline_ref_size(int type)
 		       offsetof(struct btrfs_extent_inline_ref, offset);
 	return 0;
 }
+
+#ifdef MY_ABC_HERE
+BTRFS_SETGET_FUNCS(syno_usage_status_version, struct btrfs_syno_usage_status_item, version, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_state, struct btrfs_syno_usage_status_item, state, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_flags, struct btrfs_syno_usage_status_item, flags, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_generation, struct btrfs_syno_usage_status_item, generation, 64);
+static inline void btrfs_syno_usage_status_extent_rescan_progress_key(struct extent_buffer *eb,
+				      struct btrfs_syno_usage_status_item *item,
+				      struct btrfs_disk_key *key)
+{
+	read_eb_member(eb, item, struct btrfs_syno_usage_status_item, extent_rescan_progress, key);
+}
+
+static inline void btrfs_set_syno_usage_status_extent_rescan_progress_key(struct extent_buffer *eb,
+					  struct btrfs_syno_usage_status_item *item,
+					  struct btrfs_disk_key *key)
+{
+	write_eb_member(eb, item, struct btrfs_syno_usage_status_item, extent_rescan_progress, key);
+}
+BTRFS_SETGET_FUNCS(syno_usage_status_cur_full_rescan_size, struct btrfs_syno_usage_status_item, cur_full_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_total_full_rescan_size, struct btrfs_syno_usage_status_item, total_full_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_extent_tree_cur_rescan_size, struct btrfs_syno_usage_status_item, extent_tree_cur_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_extent_tree_total_rescan_size, struct btrfs_syno_usage_status_item, extent_tree_total_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_total_syno_extent_tree_items, struct btrfs_syno_usage_status_item, total_syno_extent_tree_items, 64);
+BTRFS_SETGET_FUNCS(syno_usage_status_total_syno_subvol_usage_items, struct btrfs_syno_usage_status_item, total_syno_subvol_usage_items, 64);
+
+BTRFS_SETGET_FUNCS(syno_usage_global_type_num_bytes, struct btrfs_syno_usage_global_type_item, num_bytes, 64);
+
+BTRFS_SETGET_FUNCS(syno_usage_root_status_type, struct btrfs_syno_usage_root_status_item, type, 8);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_new_type, struct btrfs_syno_usage_root_status_item, new_type, 8);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_state, struct btrfs_syno_usage_root_status_item, state, 64);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_flags, struct btrfs_syno_usage_root_status_item, flags, 64);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_num_bytes, struct btrfs_syno_usage_root_status_item, num_bytes, 64);
+static inline void btrfs_syno_usage_root_status_drop_progress_key(struct extent_buffer *eb,
+				      struct btrfs_syno_usage_root_status_item *item,
+				      struct btrfs_disk_key *key)
+{
+	read_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, drop_progress, key);
+}
+static inline void btrfs_set_syno_usage_root_status_drop_progress_key(struct extent_buffer *eb,
+					  struct btrfs_syno_usage_root_status_item *item,
+					  struct btrfs_disk_key *key)
+{
+	write_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, drop_progress, key);
+}
+static inline void btrfs_syno_usage_root_status_fast_rescan_progress_key(struct extent_buffer *eb,
+				      struct btrfs_syno_usage_root_status_item *item,
+				      struct btrfs_disk_key *key)
+{
+	read_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, fast_rescan_progress, key);
+}
+static inline void btrfs_set_syno_usage_root_status_fast_rescan_progress_key(struct extent_buffer *eb,
+					  struct btrfs_syno_usage_root_status_item *item,
+					  struct btrfs_disk_key *key)
+{
+	write_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, fast_rescan_progress, key);
+}
+static inline void btrfs_syno_usage_root_status_full_rescan_progress_key(struct extent_buffer *eb,
+				      struct btrfs_syno_usage_root_status_item *item,
+				      struct btrfs_disk_key *key)
+{
+	read_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, full_rescan_progress, key);
+}
+static inline void btrfs_set_syno_usage_root_status_full_rescan_progress_key(struct extent_buffer *eb,
+					  struct btrfs_syno_usage_root_status_item *item,
+					  struct btrfs_disk_key *key)
+{
+	write_eb_member(eb, item, struct btrfs_syno_usage_root_status_item, full_rescan_progress, key);
+}
+BTRFS_SETGET_FUNCS(syno_usage_root_status_cur_full_rescan_size, struct btrfs_syno_usage_root_status_item, cur_full_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_total_full_rescan_size, struct btrfs_syno_usage_root_status_item, total_full_rescan_size, 64);
+BTRFS_SETGET_FUNCS(syno_usage_root_status_total_syno_subvol_usage_items, struct btrfs_syno_usage_root_status_item, total_syno_subvol_usage_items, 64);
+
+BTRFS_SETGET_FUNCS(syno_extent_usage_type, struct btrfs_syno_extent_usage_item, type, 8);
+BTRFS_SETGET_FUNCS(syno_extent_usage_inline_ref_type, struct btrfs_syno_extent_usage_inline_ref, type, 8);
+BTRFS_SETGET_FUNCS(syno_extent_usage_inline_ref_count, struct btrfs_syno_extent_usage_inline_ref, count, 32);
+
+BTRFS_SETGET_FUNCS(syno_subvol_usage_ref_count, struct btrfs_syno_subvol_usage_item, refs, 32);
+BTRFS_SETGET_FUNCS(syno_subvol_usage_num_bytes, struct btrfs_syno_subvol_usage_item, num_bytes, 32);
+#endif /* MY_ABC_HERE */
 
 BTRFS_SETGET_FUNCS(ref_root_v0, struct btrfs_extent_ref_v0, root, 64);
 BTRFS_SETGET_FUNCS(ref_generation_v0, struct btrfs_extent_ref_v0,
@@ -2518,6 +3001,29 @@ static inline bool btrfs_root_disable_quota(const struct btrfs_root *root)
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+static inline bool btrfs_root_has_usrquota_limit(const struct btrfs_root *root)
+{
+	return READ_ONCE(root->has_usrquota_limit);
+}
+
+static inline void btrfs_root_set_has_usrquota_limit(struct btrfs_root *root, bool has_limit)
+{
+	if (btrfs_root_has_usrquota_limit(root) != has_limit)
+		WRITE_ONCE(root->has_usrquota_limit, has_limit);
+}
+static inline bool btrfs_root_has_quota_limit(const struct btrfs_root *root)
+{
+	return READ_ONCE(root->has_quota_limit);
+}
+
+static inline void btrfs_root_set_has_quota_limit(struct btrfs_root *root, bool has_limit)
+{
+	if (btrfs_root_has_quota_limit(root) != has_limit)
+		WRITE_ONCE(root->has_quota_limit, has_limit);
+}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 static inline bool btrfs_root_hide(struct btrfs_root *root)
 {
 	return (root->root_item.flags & cpu_to_le64(BTRFS_ROOT_SUBVOL_HIDE)) != 0;
@@ -2738,6 +3244,16 @@ BTRFS_SETGET_STACK_FUNCS(super_cache_generation, struct btrfs_super_block,
 BTRFS_SETGET_STACK_FUNCS(super_magic, struct btrfs_super_block, magic, 64);
 BTRFS_SETGET_STACK_FUNCS(super_uuid_tree_generation, struct btrfs_super_block,
 			 uuid_tree_generation, 64);
+#ifdef MY_ABC_HERE
+BTRFS_SETGET_STACK_FUNCS(super_syno_capability_flags, struct btrfs_super_block,
+			 syno_capability_flags, 64);
+BTRFS_SETGET_STACK_FUNCS(super_syno_capability_generation, struct btrfs_super_block,
+			 syno_capability_generation, 64);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+BTRFS_SETGET_STACK_FUNCS(super_syno_rbd_first_mapping_table_offset, struct btrfs_super_block,
+			 syno_rbd_first_mapping_table_offset, 64);
+#endif /* MY_ABC_HERE */
 
 static inline int btrfs_super_csum_size(const struct btrfs_super_block *s)
 {
@@ -2806,8 +3322,15 @@ BTRFS_SETGET_FUNCS(file_extent_compression, struct btrfs_file_extent_item,
 		   compression, 8);
 BTRFS_SETGET_FUNCS(file_extent_encryption, struct btrfs_file_extent_item,
 		   encryption, 8);
+#ifdef MY_DEF_HERE
+BTRFS_SETGET_FUNCS(file_extent_other_encoding, struct btrfs_file_extent_item,
+		   other_encoding, 8);
+BTRFS_SETGET_FUNCS(file_extent_syno_flag, struct btrfs_file_extent_item,
+		   syno_flag, 8);
+#else
 BTRFS_SETGET_FUNCS(file_extent_other_encoding, struct btrfs_file_extent_item,
 		   other_encoding, 16);
+#endif /* MY_DEF_HERE */
 
 /*
  * this returns the number of bytes used by the item on disk, minus the
@@ -2913,6 +3436,30 @@ BTRFS_SETGET_FUNCS(qgroup_limit_rsv_rfer, struct btrfs_qgroup_limit_item,
 		   rsv_rfer, 64);
 BTRFS_SETGET_FUNCS(qgroup_limit_rsv_excl, struct btrfs_qgroup_limit_item,
 		   rsv_excl, 64);
+#ifdef MY_ABC_HERE
+BTRFS_SETGET_FUNCS(qgroup_limit_soft_rfer, struct btrfs_qgroup_limit_item,
+		   rsv_rfer, 64);
+BTRFS_SETGET_FUNCS(qgroup_limit_soft_excl, struct btrfs_qgroup_limit_item,
+		   rsv_excl, 64);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+/* btrfs_syno_quota_rescan_item */
+BTRFS_SETGET_FUNCS(syno_quota_rescan_flags, struct btrfs_syno_quota_rescan_item,
+		   flags, 64);
+BTRFS_SETGET_FUNCS(syno_quota_rescan_version, struct btrfs_syno_quota_rescan_item,
+		   version, 64);
+BTRFS_SETGET_FUNCS(syno_quota_rescan_generation, struct btrfs_syno_quota_rescan_item,
+		   generation, 64);
+BTRFS_SETGET_FUNCS(syno_quota_rescan_inode, struct btrfs_syno_quota_rescan_item,
+		   rescan_inode, 64);
+BTRFS_SETGET_FUNCS(syno_quota_rescan_end_inode, struct btrfs_syno_quota_rescan_item,
+		   end_inode, 64);
+BTRFS_SETGET_FUNCS(syno_quota_rescan_tree_size, struct btrfs_syno_quota_rescan_item,
+		   tree_size, 64);
+BTRFS_SETGET_FUNCS(syno_quota_rescan_next_root, struct btrfs_syno_quota_rescan_item,
+		   next_root, 64);
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 /* btrfs_usrquota_status_item */
@@ -3028,7 +3575,11 @@ static inline u64 btrfs_calc_trunc_metadata_size(struct btrfs_root *root,
 int btrfs_should_throttle_delayed_refs(struct btrfs_trans_handle *trans,
 				       struct btrfs_root *root);
 int btrfs_check_space_for_delayed_refs(struct btrfs_trans_handle *trans,
-				       struct btrfs_root *root);
+				       struct btrfs_root *root
+#ifdef MY_ABC_HERE
+				       , bool throttle
+#endif /* MY_ABC_HERE */
+				       );
 void btrfs_dec_block_group_reservations(struct btrfs_fs_info *fs_info,
 					 const u64 start);
 void btrfs_wait_block_group_reservations(struct btrfs_block_group_cache *bg);
@@ -3036,8 +3587,20 @@ bool btrfs_inc_nocow_writers(struct btrfs_fs_info *fs_info, u64 bytenr);
 void btrfs_dec_nocow_writers(struct btrfs_fs_info *fs_info, u64 bytenr);
 void btrfs_wait_nocow_writers(struct btrfs_block_group_cache *bg);
 void btrfs_put_block_group(struct btrfs_block_group_cache *cache);
+#if defined(MY_ABC_HERE) || \
+	defined(MY_ABC_HERE)
+int btrfs_run_delayed_refs_and_get_processed(struct btrfs_trans_handle *trans,
+			   struct btrfs_root *root, unsigned long count,
+			   unsigned long *processed_count);
+static inline int btrfs_run_delayed_refs(struct btrfs_trans_handle *trans,
+			   struct btrfs_root *root, unsigned long count)
+{
+	return btrfs_run_delayed_refs_and_get_processed(trans, root, count, NULL);
+}
+#else /* MY_ABC_HERE || MY_ABC_HERE */
 int btrfs_run_delayed_refs(struct btrfs_trans_handle *trans,
 			   struct btrfs_root *root, unsigned long count);
+#endif /* MY_ABC_HERE || MY_ABC_HERE*/
 int btrfs_async_run_delayed_refs(struct btrfs_root *root,
 				 unsigned long count, u64 transid, int wait);
 int btrfs_lookup_data_extent(struct btrfs_root *root, u64 start, u64 len);
@@ -3051,15 +3614,19 @@ int btrfs_pin_extent_for_log_replay(struct btrfs_root *root,
 int btrfs_exclude_logged_extents(struct btrfs_root *root,
 				 struct extent_buffer *eb);
 #ifdef MY_ABC_HERE
-int btrfs_cross_ref_exist(struct btrfs_root *root,
-			  u64 objectid, u64 offset, u64 bytenr, u64 mode);
-#else
-int btrfs_cross_ref_exist(struct btrfs_root *root,
-			  u64 objectid, u64 offset, u64 bytenr);
+int btrfs_syno_cache_exclude_cached_extent(struct btrfs_fs_info *fs_info, u64 start, u64 num_bytes);
+void btrfs_free_syno_cache_exclude_cached_extent(struct btrfs_fs_info *fs_info, u64 start, u64 num_bytes);
+void btrfs_syno_cache_add_unused_extent(struct btrfs_fs_info *fs_info, u64 start, u64 num_bytes);
 #endif /* MY_ABC_HERE */
+int btrfs_cross_ref_exist(struct btrfs_root *root,
+			  u64 objectid, u64 offset, u64 bytenr, bool strict);
 struct btrfs_block_group_cache *btrfs_lookup_block_group(
 						 struct btrfs_fs_info *info,
 						 u64 bytenr);
+#ifdef MY_ABC_HERE
+struct btrfs_block_group_cache *btrfs_lookup_first_block_group(struct btrfs_fs_info *info, u64 bytenr);
+struct btrfs_block_group_cache *next_block_group(struct btrfs_root *root, struct btrfs_block_group_cache *cache);
+#endif /* MY_ABC_HERE */
 void btrfs_get_block_group(struct btrfs_block_group_cache *cache);
 void btrfs_put_block_group(struct btrfs_block_group_cache *cache);
 int get_block_group_index(struct btrfs_block_group_cache *cache);
@@ -3079,6 +3646,9 @@ int btrfs_alloc_reserved_file_extent(struct btrfs_trans_handle *trans,
 				     struct btrfs_key *ins
 #ifdef MY_ABC_HERE
 				     ,struct inode *inode, uid_t uid
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+				     ,int syno_usage
 #endif /* MY_ABC_HERE */
 				     );
 int btrfs_alloc_logged_file_extent(struct btrfs_trans_handle *trans,
@@ -3107,13 +3677,20 @@ int btrfs_free_extent(struct btrfs_trans_handle *trans,
 #ifdef MY_ABC_HERE
 		      ,int no_quota, u64 ram_bytes
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+		      ,int syno_usage
+#endif /* MY_ABC_HERE */
 		      );
 #ifdef MY_ABC_HERE
 int btrfs_free_extent_uid(struct btrfs_trans_handle *trans,
 		      struct btrfs_root *root,
 		      u64 bytenr, u64 num_bytes, u64 parent, u64 root_objectid,
 		      u64 owner, u64 offset, int no_quota, u64 ram_bytes,
-		      struct inode *inode, uid_t uid);
+		      struct inode *inode, uid_t uid
+#ifdef MY_ABC_HERE
+		      ,int syno_usage
+#endif /* MY_ABC_HERE */
+		      );
 #endif /* MY_ABC_HERE */
 
 int btrfs_free_reserved_extent(struct btrfs_root *root, u64 start, u64 len,
@@ -3131,6 +3708,9 @@ int btrfs_inc_extent_ref(struct btrfs_trans_handle *trans,
 #ifdef MY_ABC_HERE
 			 ,int no_quota, u64 ram_bytes
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+			 ,int syno_usage
+#endif /* MY_ABC_HERE */
 			 );
 #ifdef MY_ABC_HERE
 int btrfs_inc_extent_ref_uid(struct btrfs_trans_handle *trans,
@@ -3138,7 +3718,11 @@ int btrfs_inc_extent_ref_uid(struct btrfs_trans_handle *trans,
 			 u64 bytenr, u64 num_bytes, u64 parent,
 			 u64 root_objectid, u64 owner, u64 offset,
 			 int no_quota, u64 ram_bytes,
-			 struct inode *inode, uid_t uid);
+			 struct inode *inode, uid_t uid
+#ifdef MY_ABC_HERE
+			 ,int syno_usage
+#endif /* MY_ABC_HERE */
+			 );
 #endif /* MY_ABC_HERE */
 
 int btrfs_start_dirty_block_groups(struct btrfs_trans_handle *trans,
@@ -3200,9 +3784,6 @@ void btrfs_free_reserved_data_space_noquota(struct inode *inode, u64 start,
 void btrfs_trans_release_metadata(struct btrfs_trans_handle *trans,
 				struct btrfs_root *root);
 void btrfs_trans_release_chunk_metadata(struct btrfs_trans_handle *trans);
-int btrfs_orphan_reserve_metadata(struct btrfs_trans_handle *trans,
-				  struct inode *inode);
-void btrfs_orphan_release_metadata(struct inode *inode);
 int btrfs_subvolume_reserve_metadata(struct btrfs_root *root,
 				     struct btrfs_block_rsv *rsv,
 				     int nitems,
@@ -3277,6 +3858,9 @@ void check_system_chunk(struct btrfs_trans_handle *trans,
 			const u64 type);
 u64 add_new_free_space(struct btrfs_block_group_cache *block_group,
 		       struct btrfs_fs_info *info, u64 start, u64 end);
+#ifdef MY_ABC_HERE
+void btrfs_init_syno_allocator_bg_prefetch_work(struct work_struct *work);
+#endif /* MY_ABC_HERE */
 
 /* ctree.c */
 int btrfs_bin_search(struct extent_buffer *eb, struct btrfs_key *key,
@@ -3478,6 +4062,13 @@ static inline void free_fs_info(struct btrfs_fs_info *fs_info)
 	kfree(fs_info->block_group_hint_root);
 	kfree(fs_info->block_group_cache_root);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	kfree(fs_info->syno_usage_root);
+	kfree(fs_info->syno_extent_usage_root);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	kfree(fs_info->syno_feat_root);
+#endif /* MY_ABC_HERE */
 	security_free_mnt_opts(&fs_info->security_opts);
 	kfree(fs_info);
 }
@@ -3622,6 +4213,14 @@ int btrfs_lookup_bio_sums(struct btrfs_root *root, struct inode *inode,
 			  struct bio *bio, u32 *dst);
 int btrfs_lookup_bio_sums_dio(struct btrfs_root *root, struct inode *inode,
 			      struct bio *bio, u64 logical_offset);
+#ifdef MY_DEF_HERE
+int btrfs_file_extent_deduped_clear(struct btrfs_trans_handle *trans, struct inode *inode,
+					u64 file_offset);
+int btrfs_file_extent_deduped_set_range(struct inode *inode, u64 offset, u64 len, bool on_off);
+int btrfs_lookup_file_extent_by_file_offset(struct btrfs_trans_handle *trans,
+			     struct btrfs_root *root, struct btrfs_path *path, u64 inode_num,
+			     u64 file_offset, int mod);
+#endif /* MY_DEF_HERE */
 int btrfs_insert_file_extent(struct btrfs_trans_handle *trans,
 			     struct btrfs_root *root,
 			     u64 objectid, u64 pos,
@@ -3667,10 +4266,13 @@ struct extent_map *btrfs_get_extent_fiemap(struct inode *inode, struct page *pag
 
 noinline int can_nocow_extent(struct inode *inode, u64 offset, u64 *len,
 			      u64 *orig_start, u64 *orig_block_len,
-			      u64 *ram_bytes);
+			      u64 *ram_bytes, bool strict);
 
 #ifdef MY_ABC_HERE
 int btrfs_quota_query(struct file *file, u64 *used, u64 *reserved, u64 *limit);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+int btrfs_syno_space_usage(struct file *file, struct syno_space_usage_info *info);
 #endif /* MY_ABC_HERE */
 
 /* RHEL and EL kernels have a patch that renames PG_checked to FsMisc */
@@ -3747,6 +4349,9 @@ int btrfs_iget_uid(struct super_block *s, struct btrfs_key *location,
 #endif /* MY_ABC_HERE */
 struct inode *btrfs_iget(struct super_block *s, struct btrfs_key *location,
 			 struct btrfs_root *root, int *was_new);
+#ifdef MY_ABC_HERE
+bool btrfs_test_inode_nowait(struct super_block *s, u64 ino, struct btrfs_root *root);
+#endif /* MY_ABC_HERE */
 struct extent_map *btrfs_get_extent(struct inode *inode, struct page *page,
 				    size_t pg_offset, u64 start, u64 end,
 				    int create);
@@ -3757,8 +4362,6 @@ int btrfs_update_inode_fallback(struct btrfs_trans_handle *trans,
 				struct btrfs_root *root, struct inode *inode);
 int btrfs_orphan_add(struct btrfs_trans_handle *trans, struct inode *inode);
 int btrfs_orphan_cleanup(struct btrfs_root *root);
-void btrfs_orphan_commit_root(struct btrfs_trans_handle *trans,
-			      struct btrfs_root *root);
 int btrfs_cont_expand(struct inode *inode, loff_t oldsize, loff_t size);
 void btrfs_invalidate_inodes(struct btrfs_root *root);
 void btrfs_add_delayed_iput(struct inode *inode);
@@ -3774,6 +4377,27 @@ extern const struct dentry_operations btrfs_dentry_operations;
 #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
 void btrfs_test_inode_set_ops(struct inode *inode);
 #endif
+#ifdef MY_ABC_HERE
+int insert_reserved_file_extent(struct btrfs_trans_handle *trans,
+				       struct inode *inode, u64 file_pos,
+				       u64 disk_bytenr, u64 disk_num_bytes,
+				       u64 num_bytes, u64 ram_bytes,
+				       u8 compression, u8 encryption,
+				       u16 other_encoding, int extent_type,
+				       const bool update_inode_bytes
+#ifdef MY_ABC_HERE
+				       ,u64 qgroup_reserved
+#endif /* MY_ABC_HERE */
+				       );
+#endif /* MY_ABC_HERE */
+
+void btrfs_update_inode_bytes(struct btrfs_inode *inode,
+			      const u64 add_bytes,
+			      const u64 del_bytes);
+
+#ifdef MY_ABC_HERE
+void block_dump___btrfs_update_inode(struct inode *inode);
+#endif /* MY_ABC_HERE */
 
 /* ioctl.c */
 long btrfs_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
@@ -3809,20 +4433,17 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync);
 void btrfs_drop_extent_cache(struct inode *inode, u64 start, u64 end,
 			     int skip_pinned);
 extern const struct file_operations btrfs_file_operations;
-int __btrfs_drop_extents(struct btrfs_trans_handle *trans,
-			 struct btrfs_root *root, struct inode *inode,
-			 struct btrfs_path *path, u64 start, u64 end,
-#ifdef MY_ABC_HERE
-			 u64 *first_punch_pos, u64 *last_punch_pos,
-			 int *partial_punch,
-#endif /* MY_ABC_HERE */
-			 u64 *drop_end, int drop_cache,
-			 int replace_extent,
-			 u32 extent_item_size,
-			 int *key_inserted);
 int btrfs_drop_extents(struct btrfs_trans_handle *trans,
-		       struct btrfs_root *root, struct inode *inode, u64 start,
-		       u64 end, int drop_cache);
+		       struct btrfs_root *root, struct inode *inode,
+		       struct btrfs_drop_extents_args *args);
+int btrfs_punch_hole_range(struct inode *inode, struct btrfs_path *path,
+			   const u64 start, const u64 end,
+			   struct btrfs_clone_extent_info *clone_info,
+			   struct btrfs_trans_handle **trans_out
+#ifdef MY_ABC_HERE
+			   , struct btrfs_punch_hole_args *args
+#endif /* MY_ABC_HERE */
+			   );
 int btrfs_mark_extent_written(struct btrfs_trans_handle *trans,
 			      struct inode *inode, u64 start, u64 end);
 int btrfs_release_file(struct inode *inode, struct file *file);
@@ -4230,6 +4851,72 @@ static inline int __btrfs_fs_compat(struct btrfs_fs_info *fs_info, u64 flag)
 }
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+#define btrfs_set_fs_syno_capability(__fs_info, opt)		\
+	__btrfs_set_fs_syno_capability((__fs_info),		\
+			BTRFS_FEATURE_SYNO_CAPABILITY_##opt)
+
+static inline void __btrfs_set_fs_syno_capability(
+			struct btrfs_fs_info *fs_info, u64 flag)
+{
+	struct btrfs_super_block *disk_super;
+	u64 features;
+
+	disk_super = fs_info->super_copy;
+	features = btrfs_super_syno_capability_flags(disk_super);
+	if (!(features & flag)) {
+		spin_lock(&fs_info->super_lock);
+		features = btrfs_super_syno_capability_flags(disk_super);
+		if (!(features & flag)) {
+			features |= flag;
+			btrfs_set_super_syno_capability_flags(disk_super,
+							      features);
+			btrfs_info(fs_info,
+			"setting %llu capability flag", flag);
+		}
+		spin_unlock(&fs_info->super_lock);
+	}
+}
+
+#define btrfs_clear_fs_syno_capability(__fs_info, opt)		\
+	__btrfs_clear_fs_syno_capability((__fs_info),		\
+			BTRFS_FEATURE_SYNO_CAPABILITY_##opt)
+
+static inline void __btrfs_clear_fs_syno_capability(
+			struct btrfs_fs_info *fs_info, u64 flag)
+{
+	struct btrfs_super_block *disk_super;
+	u64 features;
+
+	disk_super = fs_info->super_copy;
+	features = btrfs_super_syno_capability_flags(disk_super);
+	if (features & flag) {
+		spin_lock(&fs_info->super_lock);
+		features = btrfs_super_syno_capability_flags(disk_super);
+		if (features & flag) {
+			features &= ~flag;
+			btrfs_set_super_syno_capability_flags(disk_super,
+							      features);
+			btrfs_info(fs_info,
+			"clearing %llu capability flag", flag);
+		}
+		spin_unlock(&fs_info->super_lock);
+	}
+}
+
+#define btrfs_fs_syno_capability(fs_info, opt)			\
+	__btrfs_fs_syno_capability((fs_info),			\
+			BTRFS_FEATURE_SYNO_CAPABILITY_##opt)
+
+static inline int __btrfs_fs_syno_capability(
+			struct btrfs_fs_info *fs_info, u64 flag)
+{
+	struct btrfs_super_block *disk_super;
+	disk_super = fs_info->super_copy;
+	return !!(btrfs_super_syno_capability_flags(disk_super) & flag);
+}
+#endif /* MY_ABC_HERE */
+
 /* acl.c */
 #ifdef CONFIG_BTRFS_FS_POSIX_ACL
 struct posix_acl *btrfs_get_acl(struct inode *inode, int type);
@@ -4327,18 +5014,36 @@ static inline int btrfs_test_is_dummy_root(struct btrfs_root *root)
 #endif
 	return 0;
 }
+
+#ifdef MY_ABC_HERE
+enum syno_quota_account_type {
+	UPDATE_QUOTA,
+	UPDATE_QUOTA_FREE_RESERVED, // Free reserved in the same time.
+	ADD_QUOTA_RESCAN, // Used in rescan.
+};
+#endif /* MY_ABC_HERE */
+
 #ifdef MY_ABC_HERE
 /* usrquota.c */
+#ifdef MY_ABC_HERE
+int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
+                          struct btrfs_fs_info *fs_info, u64 cmd);
+int btrfs_usrquota_remove_v1(struct btrfs_fs_info *fs_info);
+int btrfs_usrquota_unload(struct btrfs_fs_info *fs_info);
+#else
 int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
                           struct btrfs_fs_info *fs_info);
+#endif /* MY_ABC_HERE */
 int btrfs_usrquota_disable(struct btrfs_trans_handle *trans,
                            struct btrfs_fs_info *fs_info);
 int btrfs_usrquota_dumptree(struct btrfs_fs_info *fs_info);
 
 int btrfs_usrquota_rescan(struct btrfs_fs_info *fs_info, u64 rootid);
-void btrfs_usrquota_rescan_resume(struct btrfs_fs_info *fs_info);
 int btrfs_usrquota_wait_for_completion(struct btrfs_fs_info *fs_info);
 int btrfs_read_usrquota_config(struct btrfs_fs_info *fs_info);
+#ifdef MY_ABC_HERE
+bool btrfs_check_usrquota_leak(struct btrfs_fs_info *fs_info);
+#endif /* MY_ABC_HERE */
 void btrfs_free_usrquota_config(struct btrfs_fs_info *fs_info);
 
 int btrfs_usrquota_limit(struct btrfs_trans_handle *trans,
@@ -4346,7 +5051,15 @@ int btrfs_usrquota_limit(struct btrfs_trans_handle *trans,
                          u64 root_id, u64 uid, u64 rfer_soft, u64 rfer_hard);
 int btrfs_usrquota_clean(struct btrfs_trans_handle *trans,
                          struct btrfs_fs_info *fs_info, u64 uid);
-
+#ifdef MY_ABC_HERE
+int btrfs_usrquota_syno_accounting(struct btrfs_inode *b_inode,
+			u64 add_bytes, u64 del_bytes, enum syno_quota_account_type type);
+int btrfs_usrquota_syno_accounting_rescan(struct btrfs_root *root, u64 uid, u64 num_bytes);
+int btrfs_reset_usrquota_status(struct btrfs_trans_handle *trans,
+					struct btrfs_fs_info *fs_info);
+int btrfs_syno_usrquota_transfer_limit(struct btrfs_root *root);
+void btrfs_usrquota_zero_tracking(struct btrfs_fs_info *fs_info, u64 subvol_id);
+#endif /* MY_ABC_HERE */
 int btrfs_run_usrquota(struct btrfs_trans_handle *trans,
                        struct btrfs_fs_info *fs_info);
 
@@ -4361,7 +5074,10 @@ int btrfs_usrquota_account_ref(struct btrfs_trans_handle *trans,
                                struct btrfs_fs_info *fs_info,
                                struct btrfs_quota_account_rec *rec);
 // for chown
-int btrfs_usrquota_transfer(struct inode *inode, uid_t new_uid);
+int btrfs_usrquota_transfer(struct inode *inode, kuid_t new_uid);
+#ifdef MY_ABC_HERE
+int btrfs_usrquota_v2_transfer(struct inode *inode, kuid_t new_uid);
+#endif /* MY_ABC_HERE */
 int btrfs_usrquota_calc_reserve_snap(struct btrfs_root *root,
                                      u64 copy_limit_from, u64 *reserve_items);
 int btrfs_usrquota_mksubvol(struct btrfs_trans_handle *trans,
@@ -4371,12 +5087,56 @@ int btrfs_usrquota_mksnap(struct btrfs_trans_handle *trans,
                           bool readonly, u64 copy_limit_from);
 int btrfs_usrquota_delsnap(struct btrfs_trans_handle *trans,
                            struct btrfs_fs_info *fs_info, u64 root_id);
-void btrfs_usrquota_query(struct btrfs_fs_info *fs_info, u64 rootid,
+int btrfs_usrquota_query(struct btrfs_root *root,
                           struct btrfs_ioctl_usrquota_query_args *uqa);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+void btrfs_check_usrquota_limit(struct btrfs_root *root);
+void btrfs_check_quota_limit(struct btrfs_root *root);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+/* syno-extent-usage.c */
+int btrfs_create_syno_usage_tree(struct btrfs_fs_info *fs_info);
+int btrfs_clear_syno_usage_tree(struct btrfs_fs_info *fs_info);
+int btrfs_syno_usage_root_status_lookup(struct btrfs_fs_info *fs_info, u64 root_objectid, struct btrfs_syno_usage_root_status *ret_item);
+int btrfs_syno_usage_root_status_remove(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info, u64 root_objectid);
+int btrfs_syno_usage_root_status_update(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info, u64 root_objectid, struct btrfs_syno_usage_root_status *syno_usage_root_status);
+int btrfs_syno_usage_global_type_update(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info);
+int btrfs_read_syno_usage_config(struct btrfs_fs_info *fs_info);
+int btrfs_syno_extent_usage_add(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info, int want,
+				u64 bytenr, u64 num_bytes, int refs_to_add);
+int btrfs_syno_extent_usage_free(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info, int want,
+				u64 bytenr, u64 num_bytes, int refs_to_drop, bool remove);
+int btrfs_create_syno_extent_usage_tree(struct btrfs_fs_info *fs_info);
+int btrfs_clear_syno_extent_usage_tree(struct btrfs_fs_info *fs_info);
+int btrfs_syno_usage_ref_check(struct btrfs_root *root, u64 owner, u64 offset);
+int btrfs_syno_subvol_usage_add(struct btrfs_trans_handle *trans, struct btrfs_fs_info *fs_info,
+				u64 root_objectid, u64 bytenr, u64 num_bytes, int refs_to_add);
+int btrfs_syno_subvol_usage_free(struct btrfs_trans_handle *trans, struct btrfs_fs_info *fs_info,
+				u64 root_objectid, u64 bytenr, u64 num_bytes, int refs_to_drop);
+
+int btrfs_syno_clear_subvol_usage_item_prepare(struct btrfs_root *root);
+int btrfs_syno_clear_subvol_usage_item_doing(struct btrfs_root *root);
+void btrfs_init_syno_usage_rescan_work(struct work_struct *work);
+void btrfs_init_syno_usage_fast_rescan_work(struct work_struct *work);
+void btrfs_init_syno_usage_full_rescan_work(struct work_struct *work);
+void btrfs_syno_usage_rescan_resume(struct btrfs_fs_info *fs_info);
+int btrfs_syno_usage_enable(struct btrfs_fs_info *fs_info);
+int btrfs_syno_usage_disable(struct btrfs_fs_info *fs_info);
+void btrfs_syno_usage_root_initialize(struct btrfs_root *subvol_root);
+int btrfs_syno_usage_status_update(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info);
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 void SynoAutoErrorFsBtrfsReport(const u8* fsid);
+void SynoBtrfsMetaCorruptedReport(const u8* fsid, u64 start);
 #endif /* MY_ABC_HERE */
 
 static inline void cond_wake_up(wait_queue_head_t *wq)
@@ -4407,6 +5167,17 @@ int btrfs_free_space_analyze(struct btrfs_fs_info *fs_info,
 		struct btrfs_ioctl_free_space_analyze_args *args);
 int btrfs_free_space_analyze_full(struct btrfs_fs_info *fs_info,
 		struct btrfs_ioctl_free_space_analyze_args *args);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+int btrfs_add_swapfile_pin(struct inode *inode, void *ptr,
+			   bool is_block_group);
+void btrfs_free_swapfile_pins(struct inode *inode);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+int btrfs_syno_quota_status(struct btrfs_root *root,
+			struct btrfs_ioctl_syno_quota_status_args *sa);
 #endif /* MY_ABC_HERE */
 
 #endif
