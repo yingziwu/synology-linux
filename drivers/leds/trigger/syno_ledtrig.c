@@ -8,6 +8,14 @@
 #include <linux/leds.h>
 #include <linux/delay.h>
 #include <linux/timer.h>
+#include <linux/synolib.h>
+#include <linux/device.h>
+#include <linux/slab.h>
+
+#ifdef MY_ABC_HERE
+#include <linux/of.h>
+#include <linux/syno_fdt.h>
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 
@@ -18,8 +26,18 @@ typedef struct _tag_SYNO_LED_TRIGGER_TIMER {
 	int DiskFaulty;
 } SYNO_LED_TRIGGER_TIMER;
 
-static SYNO_LED_TRIGGER_TIMER syno_led_trigger_timer[16];
-static struct led_trigger syno_led_ledtrig[16];
+static SYNO_LED_TRIGGER_TIMER *syno_led_trigger_timer = NULL;
+static struct led_trigger *syno_led_ledtrig = NULL;
+char **syno_led_trigger_name;
+EXPORT_SYMBOL(syno_led_trigger_name);
+
+static int num_of_led_trigger = 0;
+
+#ifdef MY_ABC_HERE
+#define SYNO_MAX_LED 255
+#else /* MY_ABC_HERE */
+#define SYNO_MAX_LED 16
+#endif /* MY_ABC_HERE */
 
 int *gpGreenLedMap, *gpOrangeLedMap = NULL; //mapping disk index to disk led; must be initialized before used
 EXPORT_SYMBOL(gpGreenLedMap);
@@ -27,7 +45,7 @@ EXPORT_SYMBOL(gpOrangeLedMap);
 
 void syno_ledtrig_set(int iLedNum, enum led_brightness brightness)
 {
-	if(0 > iLedNum || 16 <= iLedNum){
+	if(0 > iLedNum || num_of_led_trigger <= iLedNum || NULL == syno_led_ledtrig){
 		return;
 	}
 
@@ -39,7 +57,7 @@ void syno_ledtrig_active_set(int iLedNum)
 {
 	SYNO_LED_TRIGGER_TIMER *pTriggerTimer = NULL;
 
-	if(0 > iLedNum || 16 <= iLedNum) {
+	if(0 > iLedNum || num_of_led_trigger <= iLedNum || NULL == syno_led_ledtrig || NULL == syno_led_trigger_timer) {
 		goto END;
 	}
 
@@ -63,7 +81,7 @@ void syno_ledtrig_faulty_set(int iLedNum, int iFaulty)
 {
 	SYNO_LED_TRIGGER_TIMER *pTriggerTimer = NULL;
 
-	if(0 > iLedNum || 0> iFaulty) {
+	if(0 > iLedNum || num_of_led_trigger <= iLedNum || 0 > iFaulty || NULL == syno_led_trigger_timer) {
 		return;
 	}
 
@@ -74,7 +92,12 @@ EXPORT_SYMBOL(syno_ledtrig_faulty_set);
 
 static void syno_active_ledtrig_timerfunc(unsigned long iLedNum)
 {
-	SYNO_LED_TRIGGER_TIMER *pTriggerTimer = &syno_led_trigger_timer[iLedNum];
+	SYNO_LED_TRIGGER_TIMER *pTriggerTimer = NULL;
+
+	if (0 > iLedNum || num_of_led_trigger <= iLedNum || NULL == syno_led_trigger_timer || NULL == syno_led_ledtrig)
+		return;
+
+	pTriggerTimer = &syno_led_trigger_timer[iLedNum];
 
 	if (pTriggerTimer->DiskLastActivity != pTriggerTimer->DiskActivity) {
 		pTriggerTimer->DiskLastActivity = pTriggerTimer->DiskActivity;
@@ -93,26 +116,36 @@ static int __init syno_ledtrig_init(void)
 	int err = 0;
 	SYNO_LED_TRIGGER_TIMER *pTriggerTimer = NULL;
 
-	/*set trigger names*/
-	syno_led_ledtrig[0].name = "syno_led0_ledtrig";
-	syno_led_ledtrig[1].name = "syno_led1_ledtrig";
-	syno_led_ledtrig[2].name = "syno_led2_ledtrig";
-	syno_led_ledtrig[3].name = "syno_led3_ledtrig";
-	syno_led_ledtrig[4].name = "syno_led4_ledtrig";
-	syno_led_ledtrig[5].name = "syno_led5_ledtrig";
-	syno_led_ledtrig[6].name = "syno_led6_ledtrig";
-	syno_led_ledtrig[7].name = "syno_led7_ledtrig";
-	syno_led_ledtrig[8].name = "syno_led8_ledtrig";
-	syno_led_ledtrig[9].name = "syno_led9_ledtrig";
-	syno_led_ledtrig[10].name = "syno_led10_ledtrig";
-	syno_led_ledtrig[11].name = "syno_led11_ledtrig";
-	syno_led_ledtrig[12].name = "syno_led12_ledtrig";
-	syno_led_ledtrig[13].name = "syno_led13_ledtrig";
-	syno_led_ledtrig[14].name = "syno_led14_ledtrig";
-	syno_led_ledtrig[15].name = "syno_led15_ledtrig";
+#ifdef MY_ABC_HERE
+	if (of_root) {
+		if (of_find_property(of_root, "number_of_led_trigger", NULL)) {
+			of_property_read_u32_index(of_root, "number_of_led_trigger", 0, &num_of_led_trigger);
+		}
+	}
+#endif /* MY_ABC_HERE */
+
+	if (0 == num_of_led_trigger) {
+		num_of_led_trigger = SYNO_MAX_LED;
+	}
+
+	syno_led_trigger_name = (char **)kmalloc(num_of_led_trigger * sizeof (char* ), GFP_KERNEL);
+	syno_led_ledtrig = (struct led_trigger*)kmalloc(num_of_led_trigger * sizeof(struct led_trigger), GFP_KERNEL);
+	syno_led_trigger_timer = (SYNO_LED_TRIGGER_TIMER*)kmalloc(num_of_led_trigger * sizeof(SYNO_LED_TRIGGER_TIMER), GFP_KERNEL);
+
+	if(NULL == syno_led_trigger_name || NULL == syno_led_ledtrig || NULL == syno_led_trigger_timer) {
+		printk("fail to allocate memory for led triggers \n");
+		goto END;
+	}
+	memset(syno_led_trigger_name, 0, num_of_led_trigger * sizeof(char*));
+	memset(syno_led_ledtrig, 0, num_of_led_trigger * sizeof(struct led_trigger));
+	memset(syno_led_trigger_timer, 0, num_of_led_trigger * sizeof(SYNO_LED_TRIGGER_TIMER));
 
 	/*register all triggers used in DSM*/
-	for(iTriggerNum = 0 ; iTriggerNum < 16 ; iTriggerNum++){
+	for(iTriggerNum = 0 ; iTriggerNum < num_of_led_trigger ; iTriggerNum++){
+		syno_led_trigger_name[iTriggerNum] = (char*)kmalloc(64 * sizeof (char), GFP_KERNEL);
+		snprintf(syno_led_trigger_name[iTriggerNum], 64, "syno_led%d_ledtrig", iTriggerNum);
+		syno_led_ledtrig[iTriggerNum].name = syno_led_trigger_name[iTriggerNum];
+
 		err = led_trigger_register(&syno_led_ledtrig[iTriggerNum]);
 		if (0 != err ){
 			printk("fail to regist tirgger Num %d \n", iTriggerNum);
@@ -123,6 +156,7 @@ static int __init syno_ledtrig_init(void)
 		setup_timer(&pTriggerTimer->Timer, syno_active_ledtrig_timerfunc, (unsigned long)iTriggerNum);
 	}
 
+END:
 	return err;
 }
 module_init(syno_ledtrig_init);
@@ -130,8 +164,9 @@ module_init(syno_ledtrig_init);
 static void __exit syno_ledtrig_exit(void)
 {
 	int iTriggerNum = 0;
+
 	/*unregister triggers*/
-	for(iTriggerNum = 0 ; iTriggerNum < 16 ; iTriggerNum++){
+	for(iTriggerNum = 0 ; iTriggerNum < num_of_led_trigger ; iTriggerNum++){
 		led_trigger_unregister_simple(&syno_led_ledtrig[iTriggerNum]);
 	}
 }

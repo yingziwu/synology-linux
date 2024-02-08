@@ -656,6 +656,10 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 {
 	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
 	int ret;
+#if defined(MY_DEF_HERE)
+	int iRunTimes = 0;
+	u8 iomux_val = 0;
+#endif /* MY_DEF_HERE */
 
 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
 
@@ -680,6 +684,9 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 			goto done_nolock;
 		}
 	}
+#if defined(MY_DEF_HERE)
+redo:
+#endif /* MY_DEF_HERE */
 
 	ret = i2c_dw_wait_bus_not_busy(dev);
 	if (ret < 0)
@@ -725,6 +732,39 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 	ret = -EIO;
 
 done:
+#if defined(MY_DEF_HERE)
+	if (syno_is_hw_version(HW_RS422p) && 1 == adap->nr) {
+		if ((-ETIMEDOUT == ret) && !(syno_dw_i2c_get_sda(adap))) {
+			// record iomux value of scl_gpio before setting to gpio 
+			iomux_val = readb(dev->iomux_base + dev->rinfo.scl_gpio);
+			
+			//set scl_gpio to gpio mode
+			writeb(0x2, dev->iomux_base + dev->rinfo.scl_gpio);
+
+			iRunTimes++;
+			delay_try_cnt++;
+			if ((10 >= iRunTimes) && (0 == syno_dw_delay_recovery(adap))) {
+				delay_suc_cnt++;
+				goto redo;
+			}
+			pulse_try_cnt++;
+			if ((20 >= iRunTimes ) && (0 == i2c_recover_bus(adap))) {
+				pulse_suc_cnt++;
+				goto redo;
+			}
+
+			if (20 < iRunTimes) {
+				printk("Fail to recover i2c-designware \n");
+			} else {
+				goto redo;
+			}
+
+			// restore iomux value of scl_gpio
+			writeb(iomux_val, dev->iomux_base + dev->rinfo.scl_gpio);
+		}
+	}
+#endif /* MY_DEF_HERE */
+
 	if (dev->release_lock)
 		dev->release_lock(dev);
 
@@ -913,6 +953,100 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
 	return r;
 }
 EXPORT_SYMBOL_GPL(i2c_dw_probe);
+
+#if defined(MY_DEF_HERE)
+int syno_dw_i2c_get_sda(struct i2c_adapter *adap)
+{
+	int result = -1;
+	u32 gpio_val = 0;
+	struct dw_i2c_dev *dev = NULL;
+
+	if (NULL == adap) {
+		printk("adap should not be null\n");
+		goto out;
+	}
+
+	dev = i2c_get_adapdata(adap);
+
+	if (dev) {
+		gpio_val = readl(dev->gpio_base + 4 * dev->rinfo.sda_gpio);
+			if ((gpio_val >> AMD_PIN_STS_OFFSET) & 1) {
+			result = 1;
+		} else {
+			result = 0;
+		}
+	}
+out:
+	return result;
+}
+EXPORT_SYMBOL_GPL(syno_dw_i2c_get_sda);
+
+int syno_dw_i2c_get_scl(struct i2c_adapter *adap)
+{
+	int result = 0;
+	u32 gpio_val = 0;
+	struct dw_i2c_dev *dev = NULL;
+
+	if (NULL == adap) {
+		printk("adap should not be null\n");
+		goto out;
+	}
+
+	dev = i2c_get_adapdata(adap);
+
+	if (dev) {
+		gpio_val = readl(dev->gpio_base + 4 * dev->rinfo.scl_gpio);
+			if ((gpio_val >> AMD_PIN_STS_OFFSET) & 1) {
+			result = 1;
+		} else {
+			result = 0;
+		}
+	}
+out:
+	return result;
+}
+EXPORT_SYMBOL_GPL(syno_dw_i2c_get_scl);
+
+void syno_dw_i2c_set_scl(struct i2c_adapter *adap, int val)
+{
+	struct dw_i2c_dev *dev = NULL;
+
+	if (NULL == adap) {
+		printk("adap should not be null\n");
+		goto out;
+	}
+
+	dev = i2c_get_adapdata(adap);
+
+	if (dev) {
+		if (val) {
+			writel(0x00150000, dev->gpio_base + (dev->rinfo.scl_gpio << 2));
+		} else {
+			writel(0x00840000, dev->gpio_base + (dev->rinfo.scl_gpio << 2));
+		}
+	}
+out:
+	return;
+}
+EXPORT_SYMBOL_GPL(syno_dw_i2c_set_scl);
+
+int syno_dw_delay_recovery(struct i2c_adapter *adap)
+{
+	int ret = -1;
+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+
+	if (dev) {
+		syno_dw_i2c_set_scl(adap, 0);
+		mdelay(SMB_CLK_DELAY_TIME_MS);
+		syno_dw_i2c_set_scl(adap, 1);
+
+		if (syno_dw_i2c_get_sda(adap))
+			ret = 0;
+	}
+	return ret;
+}
+EXPORT_SYMBOL_GPL(syno_dw_delay_recovery);
+#endif /* MY_DEF_HERE */
 
 MODULE_DESCRIPTION("Synopsys DesignWare I2C bus adapter core");
 MODULE_LICENSE("GPL");

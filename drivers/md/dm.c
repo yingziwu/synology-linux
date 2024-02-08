@@ -100,8 +100,7 @@ struct syno_dm_noclone {
 	bio_end_io_t *orig_bi_end_io;
 	void *orig_bi_private;
 	unsigned long start_time;
-	sector_t orig_bi_sector;
-	sector_t orig_bi_size;
+	struct bvec_iter orig_bi_iter;
 };
 #endif /* MY_ABC_HERE */
 
@@ -283,6 +282,10 @@ struct mapped_device {
 #ifdef MY_DEF_HERE
 	SYNO_MPATH_TARGET_SYSFS *targetSysfs;
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	struct workqueue_struct *coherent_wq;
+	spinlock_t coherent_wq_lock;
+#endif
 };
 
 #ifdef CONFIG_DM_MQ_DEFAULT
@@ -475,6 +478,100 @@ end:
 	return ret;
 }
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+static void SynoMpathCoherentWorkHandlder(struct work_struct *work)
+{
+	struct syno_mulitpath_coherent_work *mpath_coherent_work = NULL;
+	struct mapped_device *md = NULL;
+	struct gendisk *dm_disk = NULL, *initiating_disk = NULL;
+	struct dm_table *map = NULL;
+	struct dm_dev_internal *dd = NULL;
+	SYNO_MPATH_COHERENT_ACTION coherence_action = MPATH_COHERENT_ACTION_MAX;
+	int srcu_idx;
+
+	if (!work) {
+		goto END;
+	}
+	mpath_coherent_work =
+		container_of(work, struct syno_mulitpath_coherent_work, work);
+	if ((NULL == (dm_disk = mpath_coherent_work->dm_disk)) ||
+		(NULL == (initiating_disk = mpath_coherent_work->initiating_disk))) {
+		goto END;
+	}
+	if ((NULL == (md = dm_disk->private_data)) || !SynoIsDmMultipathDevice(md)) {
+		goto END;
+	}
+	coherence_action = mpath_coherent_work->action;
+
+	map = dm_get_live_table(md, &srcu_idx);
+	if (map) {
+		list_for_each_entry (dd, dm_table_get_devices(map), list) {
+			if (dd && dd->dm_dev->bdev) {
+				if (initiating_disk == dd->dm_dev->bdev->bd_disk) {
+					continue;
+				}
+				switch (coherence_action) {
+#ifdef MY_DEF_HERE
+					case MPATH_COHERENT_ACTION_DISK_STANDBY_SET:
+						if (dd->dm_dev->bdev->bd_disk->syno_ops &&
+							dd->dm_dev->bdev->bd_disk->syno_ops->scsi_standby_flag_set) {
+							dd->dm_dev->bdev->bd_disk->syno_ops->scsi_standby_flag_set(dd->dm_dev->bdev->bd_disk);
+						}
+						break;
+					case MPATH_COHERENT_ACTION_DISK_STANDBY_CLEAR:
+						if (dd->dm_dev->bdev->bd_disk->syno_ops &&
+							dd->dm_dev->bdev->bd_disk->syno_ops->scsi_standby_flag_clear) {
+							dd->dm_dev->bdev->bd_disk->syno_ops->scsi_standby_flag_clear(dd->dm_dev->bdev->bd_disk);
+						}
+						break;
+#endif //MY_DEF_HERE
+					default:
+						DMERR("[%s] unexpected coherence action(%d)", md->disk->disk_name, coherence_action);
+						break;
+				}
+			}
+		}
+	}
+	dm_put_live_table(md, srcu_idx);
+
+END:
+	if (mpath_coherent_work) {
+		if (mpath_coherent_work->data) {
+			kfree(mpath_coherent_work->data);
+		}
+		kfree(mpath_coherent_work);
+	}
+}
+static int SynoMpathCoherentWorkSend(struct syno_mulitpath_coherent_work *coherent_work) {
+	int ret = -1;
+	struct mapped_device *md = NULL;
+
+	if (!coherent_work || !coherent_work->dm_disk ||
+		!(md = coherent_work->dm_disk->private_data)) {
+		goto END;
+	}
+	if (test_bit(DMF_FREEING, &md->flags) || dm_deleting_md(md)) {
+		goto END;
+	}
+	dm_get(md);
+	spin_lock(&md->coherent_wq_lock);
+	if (!(md->coherent_wq)) {
+		goto END_UNLOCK;
+	}
+	INIT_WORK(&coherent_work->work, SynoMpathCoherentWorkHandlder);
+	if (!queue_work(md->coherent_wq, &coherent_work->work)) {
+		goto END_UNLOCK;
+	}
+
+	ret = 0;
+END_UNLOCK:
+	spin_unlock(&md->coherent_wq_lock);
+	dm_put(md);
+END:
+	return ret;
+}
+#endif  //MY_DEF_HERE
+
 
 #ifdef MY_ABC_HERE
 static const struct syno_gendisk_operations syno_mpath_gd_ops = {
@@ -486,6 +583,9 @@ static const struct syno_gendisk_operations syno_mpath_gd_ops = {
 #ifdef MY_DEF_HERE
 	.autoremap_stackable_dev_target_set = SynoDmRemapModeSet,
 #endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+	.multipath_dm_coherent_work_send = SynoMpathCoherentWorkSend,
+#endif
 };
 #endif /* MY_ABC_HERE */
 
@@ -1452,6 +1552,7 @@ static int open_table_device(struct table_device *td, dev_t dev,
 
 #ifdef MY_DEF_HERE
 	if (SynoIsDmMultipathDevice(md)) {
+#ifdef MY_DEF_HERE
 		if (bdev->bd_disk->syno_ops && bdev->bd_disk->syno_ops->reg_sysfs_to_multipath_dm) {
 			if (NULL == md->targetSysfs) {
 				md->targetSysfs =
@@ -1470,9 +1571,17 @@ static int open_table_device(struct table_device *td, dev_t dev,
 				}
 			}
 		}
+#endif /* MY_DEF_HERE */
+		if (bdev->bd_disk->mpath_info) {
+			bdev->bd_disk->mpath_info->holder_syno_index = md->syno_disk_id;
+#ifdef MY_DEF_HERE
+			spin_lock(&bdev->bd_disk->mpath_info->mpath_info_lock);
+			bdev->bd_disk->mpath_info->dm_disk = md->disk;
+			spin_unlock(&bdev->bd_disk->mpath_info->mpath_info_lock);
+#endif
+		}
 	}
 #endif /* MY_DEF_HERE */
-
 	r = bd_link_disk_holder(bdev, dm_disk(md));
 	if (r) {
 		blkdev_put(bdev, td->dm_dev.mode | FMODE_EXCL);
@@ -1494,6 +1603,14 @@ static void close_table_device(struct table_device *td, struct mapped_device *md
 #ifdef MY_DEF_HERE
 	if (md && SynoIsDmMultipathDevice(md)) {
 		DMERR("[%s] remove %s from disk", SynoDmGetDiskNameFromMd(md), td->dm_dev.bdev->bd_disk->disk_name);
+		if (td->dm_dev.bdev->bd_disk->mpath_info) {
+			td->dm_dev.bdev->bd_disk->mpath_info->holder_syno_index = -1;
+#ifdef MY_DEF_HERE
+			spin_lock(&td->dm_dev.bdev->bd_disk->mpath_info->mpath_info_lock);
+			td->dm_dev.bdev->bd_disk->mpath_info->dm_disk = NULL;
+			spin_unlock(&td->dm_dev.bdev->bd_disk->mpath_info->mpath_info_lock);
+#endif
+		}
 	}
 #endif
 	bd_unlink_disk_holder(td->dm_dev.bdev, dm_disk(md));
@@ -1516,10 +1633,6 @@ int dm_get_table_device(struct mapped_device *md, dev_t dev, fmode_t mode,
 			struct dm_dev **result) {
 	int r;
 	struct table_device *td;
-#ifdef MY_DEF_HERE
-	struct gendisk *disk = NULL;
-	char *pTargetAddType[2] = {0};
-#endif /* MY_DEF_HERE */
 
 	mutex_lock(&md->table_devices_lock);
 	td = find_table_device(&md->table_devices, dev, mode);
@@ -1540,19 +1653,6 @@ int dm_get_table_device(struct mapped_device *md, dev_t dev, fmode_t mode,
 		}
 
 		format_dev_t(td->dm_dev.name, dev);
-
-#ifdef MY_DEF_HERE
-		if (SynoIsDmMultipathDevice(md)) {
-			disk = dm_disk(md);
-			if (list_empty(&md->table_devices)) {
-				pTargetAddType[0] = SZ_SYNO_MPATH_TARGET_ADD_TYPE_INIT;
-			} else {
-				pTargetAddType[0] = SZ_SYNO_MPATH_TARGET_ADD_TYPE_APPE;
-			}
-			pTargetAddType[1] = NULL;
-			kobject_uevent_env(&disk_to_dev(disk)->kobj, KOBJ_ADD, pTargetAddType);
-		}
-#endif /* MY_DEF_HERE */
 
 		atomic_set(&td->count, 0);
 		list_add(&td->list, &md->table_devices);
@@ -1752,8 +1852,7 @@ static void syno_noclone_endio(struct bio *bio)
 	bio->bi_end_io = noclone->orig_bi_end_io;
 	bio->bi_private = noclone->orig_bi_private;
 	bio->bi_bdev = md->bdev;
-	bio->bi_iter.bi_sector = noclone->orig_bi_sector;
-	bio->bi_iter.bi_size = noclone->orig_bi_size;
+	bio->bi_iter = noclone->orig_bi_iter;
 	free_syno_dm_noclone(md, noclone);
 
 #ifdef MY_ABC_HERE
@@ -2640,8 +2739,7 @@ static blk_qc_t dm_make_request(struct request_queue *q, struct bio *bio)
 	noclone->start_time = jiffies;
 	noclone->orig_bi_end_io = bio->bi_end_io;
 	noclone->orig_bi_private = bio->bi_private;
-	noclone->orig_bi_sector = bio->bi_iter.bi_sector;
-	noclone->orig_bi_size = bio->bi_iter.bi_size;
+	noclone->orig_bi_iter = bio->bi_iter;
 	bio->bi_end_io = syno_noclone_endio;
 	bio->bi_private = noclone;
 	syno_noclone_start_io_acct(md, bio);
@@ -3214,6 +3312,9 @@ static struct mapped_device *alloc_dev(int minor)
 	int r;
 	struct mapped_device *md = kzalloc(sizeof(*md), GFP_KERNEL);
 	void *old_md;
+#ifdef MY_DEF_HERE
+	char coherent_wq_name[64] = {0};
+#endif
 
 	if (!md) {
 		DMWARN("unable to allocate device, out of memory.");
@@ -3280,6 +3381,11 @@ static struct mapped_device *alloc_dev(int minor)
 			md->disk->flags |= GENHD_FL_EXT_DEVT;
 			md->disk->syno_ops = &syno_mpath_gd_ops;
 		}
+#ifdef MY_DEF_HERE
+		snprintf(coherent_wq_name, sizeof(coherent_wq_name), "%s_coherent_wq", md->disk->disk_name);
+		md->coherent_wq = create_singlethread_workqueue(coherent_wq_name);
+		spin_lock_init(&md->coherent_wq_lock);
+#endif
 	} else {
 #endif /* MY_DEF_HERE */
 	sprintf(md->disk->disk_name, "dm-%d", minor);
@@ -3333,6 +3439,20 @@ static void unlock_fs(struct mapped_device *md);
 static void free_dev(struct mapped_device *md)
 {
 	int minor = MINOR(disk_devt(md->disk));
+#ifdef MY_DEF_HERE
+	struct workqueue_struct *wq = NULL;
+#endif
+
+#ifdef MY_DEF_HERE
+	wq = md->coherent_wq;
+	if (wq) {
+		spin_lock(&md->coherent_wq_lock);
+		md->coherent_wq = NULL;
+		spin_unlock(&md->coherent_wq_lock);
+		flush_workqueue(wq);
+		destroy_workqueue(wq);
+	}
+#endif
 
 	unlock_fs(md);
 

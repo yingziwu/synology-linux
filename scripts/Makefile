@@ -10,6 +10,12 @@
 # check-lc_ctype: Used in Documentation/DocBook
 
 HOST_EXTRACFLAGS += -I$(srctree)/tools/include
+ifdef CONFIG_SYNO_RAMDISK_INTEGRITY_CHECK
+HOST_EXTRACFLAGS += -DCONFIG_SYNO_RAMDISK_INTEGRITY_CHECK
+endif
+ifdef CONFIG_SYNO_KEXEC_TEST
+HOST_EXTRACFLAGS += -DCONFIG_SYNO_KEXEC_TEST
+endif
 
 hostprogs-$(CONFIG_KALLSYMS)     += kallsyms
 hostprogs-$(CONFIG_LOGO)         += pnmtologo

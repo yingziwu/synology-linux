@@ -890,9 +890,9 @@ struct rtl8169_private {
 	u32 last_cur_rx;
 	u32 rx_reset_count;
 	u8 checkRDU;
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	u64 rx_buffer_exhausted_count;
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	#endif /* CONFIG_RTL_RX_NO_COPY */
 
 	struct rtl8169_stats rx_stats;
@@ -2276,9 +2276,9 @@ static const char rtl8169_gstrings[][ETH_GSTRING_LEN] = {
 	"multicast",
 	"tx_aborted",
 	"tx_underrun",
-#if defined(MY_ABC_HERE) && defined(CONFIG_RTL_RX_NO_COPY)
+#if defined(MY_DEF_HERE) && defined(CONFIG_RTL_RX_NO_COPY)
 	"rx_buffer_exhausted",
-#endif /* MY_ABC_HERE && CONFIG_RTL_RX_NO_COPY */
+#endif /* MY_DEF_HERE && CONFIG_RTL_RX_NO_COPY */
 };
 
 static int rtl8169_get_sset_count(struct net_device *dev, int sset)
@@ -2364,9 +2364,9 @@ static void rtl8169_get_ethtool_stats(struct net_device *dev,
 	data[10] = le32_to_cpu(tp->counters.rx_multicast);
 	data[11] = le16_to_cpu(tp->counters.tx_aborted);
 	data[12] = le16_to_cpu(tp->counters.tx_underun);
-#if defined(MY_ABC_HERE) && defined(CONFIG_RTL_RX_NO_COPY)
+#if defined(MY_DEF_HERE) && defined(CONFIG_RTL_RX_NO_COPY)
 	data[13] = tp->rx_buffer_exhausted_count;
-#endif /* MY_ABC_HERE && CONFIG_RTL_RX_NO_COPY */
+#endif /* MY_DEF_HERE && CONFIG_RTL_RX_NO_COPY */
 }
 
 static void rtl8169_get_strings(struct net_device *dev, u32 stringset, u8 *data)
@@ -7055,11 +7055,11 @@ process_pkt:
 	tp->dirty_rx += delta;
 
 	if (tp->dirty_rx + NUM_RX_DESC == tp->cur_rx){
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 		tp->rx_buffer_exhausted_count ++;
-#else /* MY_ABC_HERE */
+#else /* MY_DEF_HERE */
 		netif_err(tp, drv, tp->dev, "%s: Rx buffers exhausted\n", dev->name);
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	}
 
 	return count;
@@ -9502,9 +9502,9 @@ rtl_init_one(struct platform_device *pdev)
 	tp->ext_phy = false;
 	tp->sgmii_swing = sgmii_swing;
 	#endif /* CONFIG_ARCH_RTD16xx */
-#if defined(MY_ABC_HERE) && defined(CONFIG_RTL_RX_NO_COPY)
+#if defined(MY_DEF_HERE) && defined(CONFIG_RTL_RX_NO_COPY)
 	tp->rx_buffer_exhausted_count = 0;
-#endif /* MY_ABC_HERE && CONFIG_RTL_RX_NO_COPY */
+#endif /* MY_DEF_HERE && CONFIG_RTL_RX_NO_COPY */
 
 	mii = &tp->mii;
 	mii->dev = ndev;

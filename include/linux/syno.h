@@ -31,10 +31,10 @@
 #define IS_SYNO_USBBOOT_ID_PRODUCT(PRODUCT) (0xF400 == (PRODUCT))
 #endif /* MY_ABC_HERE */
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 #define IS_SYNO_OOBUSB_ID_VENDOR(VENDOR) (0xF400 == (VENDOR))
 #define IS_SYNO_OOBUSB_ID_PRODUCT(PRODUCT) (0xF425 == (PRODUCT))
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 /**
  * Fix: no bug entry

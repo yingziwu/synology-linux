@@ -159,6 +159,7 @@ MODULE_PARM_DESC(ecc_ded_period, " ECC detected error period (in seconds)");
 static int xgbe_one_poll(struct napi_struct *, int);
 static int xgbe_all_poll(struct napi_struct *, int);
 static void xgbe_stop(struct xgbe_prv_data *);
+static int xgbe_tx_poll(struct xgbe_channel *channel);
 
 static void *xgbe_alloc_node(size_t size, int node)
 {
@@ -739,6 +740,7 @@ static void xgbe_stop_timers(struct xgbe_prv_data *pdata)
 			break;
 
 		del_timer_sync(&channel->tx_timer);
+		channel->tx_timer_active = 0;
 	}
 }
 
@@ -1223,6 +1225,10 @@ static void xgbe_stop(struct xgbe_prv_data *pdata)
 
 	xgbe_napi_disable(pdata, 1);
 
+	for (i = 0; i < pdata->tx_q_count; i++) {
+		channel = pdata->channel[i];
+		xgbe_tx_poll(channel);
+	}
 	hw_if->exit(pdata);
 
 	for (i = 0; i < pdata->channel_count; i++) {
@@ -1911,10 +1917,20 @@ static struct rtnl_link_stats64 *xgbe_get_stats64(struct net_device *netdev,
 
 	s->rx_packets = pstats->rxframecount_gb;
 	s->rx_bytes = pstats->rxoctetcount_gb;
+#if defined(MY_ABC_HERE)
+	s->rx_errors = (pstats->rxframecount_gb > (pstats->rxbroadcastframes_g +
+	                                           pstats->rxmulticastframes_g +
+	                                           pstats->rxunicastframes_g))? \
+	                   (pstats->rxframecount_gb -
+	                    pstats->rxbroadcastframes_g -
+	                    pstats->rxmulticastframes_g -
+	                    pstats->rxunicastframes_g) : 0;
+#else /* MY_ABC_HERE */
 	s->rx_errors = pstats->rxframecount_gb -
 		       pstats->rxbroadcastframes_g -
 		       pstats->rxmulticastframes_g -
 		       pstats->rxunicastframes_g;
+#endif /* MY_ABC_HERE */
 	s->multicast = pstats->rxmulticastframes_g;
 	s->rx_length_errors = pstats->rxlengtherror;
 	s->rx_crc_errors = pstats->rxcrcerror;
@@ -1925,7 +1941,12 @@ static struct rtnl_link_stats64 *xgbe_get_stats64(struct net_device *netdev,
 
 	s->tx_packets = pstats->txframecount_gb;
 	s->tx_bytes = pstats->txoctetcount_gb;
+#if defined(MY_ABC_HERE)
+	s->tx_errors = (pstats->txframecount_gb > pstats->txframecount_g)? \
+	               pstats->txframecount_gb - pstats->txframecount_g : 0;
+#else /* MY_ABC_HERE */
 	s->tx_errors = pstats->txframecount_gb - pstats->txframecount_g;
+#endif /* MY_ABC_HERE */
 	s->tx_dropped = netdev->stats.tx_dropped;
 
 	DBGPR("<--%s\n", __func__);
@@ -2335,6 +2356,14 @@ read_again:
 			buf2_len = xgbe_rx_buf2_len(rdata, packet, len);
 			len += buf2_len;
 
+			if (buf2_len > rdata->rx.buf.dma_len) {
+				/* Hardware inconsistency within the descriptors
+				 * that has resulted in a length underflow.
+				 */
+				error = 1;
+				goto skip_data;
+			}
+
 			if (!skb) {
 				skb = xgbe_create_skb(pdata, napi, rdata,
 						      buf1_len);
@@ -2364,8 +2393,10 @@ skip_data:
 		if (!last || context_next)
 			goto read_again;
 
-		if (!skb)
+		if (!skb || error) {
+			dev_kfree_skb(skb);
 			goto next_packet;
+		}
 
 		/* Be sure we don't exceed the configured MTU */
 		max_len = netdev->mtu + ETH_HLEN;

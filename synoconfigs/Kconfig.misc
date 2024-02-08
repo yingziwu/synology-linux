@@ -116,6 +116,14 @@ config SYNO_IE_SOFT_POWER_OFF
 	select ACPI_BUTTON
 	default n
 
+config SYNO_SATA_CHECK
+	tristate "show sata chip amplitude/de-emphasis adjustment."
+	default n
+
+config SYNO_SATA_TEST
+	tristate "sata controller pci register sysfs setting interface for amplitude/de-emphasis adjustment."
+	default n
+
 config SYNO_SPECULATION_DEFAULT_OFF
 	bool "Set speculation mitigation to default off"
 	default n
@@ -147,13 +155,43 @@ config SYNO_KERNEL_MODULE_REMOVAL_LOGGING
 	bool "add logging about kernel module removal"
 	default y
 
+config SYNO_DEVICE_ROM_UPDATE
+	tristate "Kernel module for updating roms of devices"
+	default n
+
 config SYNO_COND_RESCHED
 	bool "Add cond_resched to path that might run long time"
 	default y
 	depends on !PREEMPT
 
+config SYNO_KEXEC_TEST
+	bool "Test whether the kernel is booted with Kexec"
+	default y
+	depends on X86_64
+
 config SYNO_UART_TO_SPI_CONSOLE_LOG
 	tristate "sysfs for trigger uart to spi log out gpio"
+	default n
+
+config SYNO_DEV_ALLOC_PAGES
+	bool "Enable synology dev alloc pages"
+	default y
+
+config SYNO_OUT_OF_RESOURCE_LOG
+	bool "log for out of resource event occurrence"
+	default y
+
+config SYNO_RND_ENTROPY_GEN
+	bool "generate random entropy"
+	default y
+
+config SYNO_ACPI_APEI_AER_DBGMSG
+	bool "Print AER register in APCI APEI log"
+	default y
+	depends on ACPI_APEI_PCIEAER
+
+config SYNO_HDD_POWER_CONTROL_TEST
+	tristate "HDD dynamic power control sysfs for testing/verifying"
 	default n
 
 endmenu #MISC Features

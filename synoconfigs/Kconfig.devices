@@ -90,10 +90,6 @@ config SYNO_BLOCK_FLASHCACHE_SUPPORT
 	bool "Hack dm layer and block layer for flashcache support"
 	default y
 
-config SYNO_MD_FIX_ACCESS_RELEASED_DEVICE
-	bool "Fix an issue that md layer might access the name of unplugged device"
-	default y
-
 config SYNO_MD_FAST_VOLUME_WAKEUP
 	bool "Reduce md sleep wake up time"
 	default y
@@ -125,7 +121,7 @@ config SYNO_MD_FIX_RAID5_RESHAPE_SUSPEND_DEADLOCK
 	default y
 
 config SYNO_MD_ROOT_SWAP_PARALLEL_RESYNC
-	bool "Let md0 and md1 can do resync without waiting for other mds."
+	bool "Let md0, md1 and md500(XA) can do resync without waiting for other mds."
 	default y
 
 config SYNO_MD_RAID5D_PROXY
@@ -140,6 +136,11 @@ config SYNO_MD_DATA_CORRECTION
 	bool "Try to use md redundancy to re-compute data when fs ask to retry"
 	default n
 	depends on SYNO_DATA_CORRECTION
+
+config SYNO_MD_DUMMY_READ
+	bool "Read parity chunk to enhance sequential read performance"
+	default n
+	depends on SYNO_MD_DATA_CORRECTION
 
 config SYNO_MD_LESS_DELAY_RESYNC_MESSAGE
 	bool "Avoid md write same delay resync message too much"
@@ -178,12 +179,30 @@ config SYNO_MD_RAID1_FLUSH_THRESHOLD
 	default y
 	depends on SYNO_MD_RAID1_SYSFS_INTERFACE
 
+config SYNO_MD_RAID5_PERF_ENHANCE_BY_DEFERIO
+	bool "Enhance raid5 series performance by split I/O part from original kernel thread"
+	default y
+
 config SYNO_MD_FORCE_SB_EVENT_INCREASED
 	bool "Forcely increase sb event during starting and stopping array."
 	default y
 
+config SYNO_MD_RAID5_FIX_MAX_LATENCY_HIGH
+	bool "Fix raid5 max latency high issue"
+	default y
+
 config SYNO_MD_UNUSED_HINT
 	bool "Feature: Infrastructure for Fast Rebuild"
+	default y
+
+config SYNO_MD_FAST_REBUILD
+	bool "Enable Fast Rebuild func"
+	depends on SYNO_MD_UNUSED_HINT
+	default y
+
+config SYNO_MD_FAST_SCRUBBING
+	bool "Enable Fast Scrubbing func"
+	depends on SYNO_MD_FAST_REBUILD
 	default y
 
 config SYNO_MD_RAID1_ADD_DISK_CHECK
@@ -215,6 +234,14 @@ config SYNO_MD_DM_DUMMY_CACHE_NOCLONE_BIO
 	bool "Do not clone bio at device mapper layer when bio send to a dummy cache"
 	default y
 
+config SYNO_MD_RAID5_FLUSH_PLUG
+	bool "Flush plug if queued too many stripes in raid5_plug_cb"
+	default y
+
+config SYNO_MD_RAID5_ACTIVE_STRIPE_THRESHOLD
+	bool "Add threshold to get active stripe throttling"
+	default y
+
 config SYNO_MD_RESTORE_RAID0_LAYOUT_FEATURE
 	bool "Restore MD_FEATURE_RAID0_LAYOUT to feature map when update super block"
 	default y
@@ -236,12 +263,41 @@ config SYNO_MD_BITMAP
 	bool "Add BITMAP_ERR_OFFSET to disk sb and fix bitmap resize bug"
 	default y
 
+config SYNO_MD_BITMAP_IMPROVEMENT
+	bool "md bitmap improvement"
+	default y
+
 config SYNO_MD_FIX_STAT_DUPLICATED_COUNT
 	bool "Do not duplicately add count and sector to diskstat"
 	default y
 
+config SYNO_MD_NUMA_SETTING_ENHANCE
+	bool "md numa setting enhance"
+	default y
+	depends on NUMA
+
 config SYNO_MD_UPDATE_SB_AT_RESYNC_START
 	bool "update superblock at resync start"
+	default y
+
+config SYNO_MD_RAID1_FIX_ASSEMBLE_CRASHED_HANG
+	bool "Fix null pointer dereference after assembling crashed raid1"
+	default y
+
+config SYNO_MD_RAID5_FIX_SH_COUNT_RACE_WITH_SH_BATCH
+	bool "fix sh->count race with sh->batch_head"
+	default y
+
+config SYNO_MD_FULL_STRIPE_MERGE
+	bool "full stripe merge"
+	default y
+
+config SYNO_MD_RAID5_FIX_RETRY_ALIGNED_READ
+	bool "avoid retry align read causing soft lockup"
+	default y
+
+config SYNO_MD_RAID_FAIL_FAST_ON_WRITE
+	bool "directly fail device when write error happen"
 	default y
 
 endmenu #MD
@@ -254,6 +310,14 @@ config SYNO_BLOCK_BLKTRACE_FIX
 
 config SYNO_BLOCK_FIX_BIO_SPLIT_ORDER
 	bool "Fix the order when bio split twice without recursive"
+	default y
+
+config SYNO_BLOCK_BLKTRACE_AFFINITY_FIX
+	bool "Lock blktrace to avoid pinning threads on cpu in user space"
+	default y
+
+config SYNO_BLOCK_USE_NOIO_FLAG
+	bool "Use noio flag for make_request_fn / submit_bio hook"
 	default y
 
 endmenu #Block
@@ -290,6 +354,7 @@ menu "SATA"
 config SYNO_FIXED_DISK_NAME
 	bool "Use Fixed Disk Name"
 	default y
+	depends on !SYNO_PORT_MAPPING_V2
 
 config SYNO_FIXED_DISK_NAME_PM_DEVICE_GPIO
 	bool
@@ -308,8 +373,8 @@ config SYNO_BADSECTOR_TEST
 config SYNO_MAX_INTERNAL_DISK
 	int "Maximum Internal Disk Number"
 	depends on SYNO_FIXED_DISK_NAME || SYNO_BADSECTOR_TEST
-	default "19" if SYNO_BROMOLOW || SYNO_GRANTLEY || SYNO_KVMX64 || SYNO_BROADWELL || SYNO_PURLEY || SYNO_BROADWELLNTB || SYNO_NEXTKVMX64 || SYNO_BROADWELLNTBAP || SYNO_KVMCLOUD
-	default "15" if !SYNO_BROMOLOW && !SYNO_GRANTLEY && !SYNO_KVMX64 && !SYNO_BROADWELL && !SYNO_PURLEY &&!SYNO_BROADWELLNTB && !SYNO_NEXTKVMX64 && !SYNO_KVMCLOUD
+	default "19" if SYNO_BROMOLOW || SYNO_GRANTLEY || SYNO_KVMX64 || SYNO_BROADWELL || SYNO_PURLEY || SYNO_BROADWELLNTB || SYNO_NEXTKVMX64 || SYNO_BROADWELLNTBAP || SYNO_KVMCLOUD || SYNO_ICELAKED
+	default "15" if !SYNO_BROMOLOW && !SYNO_GRANTLEY && !SYNO_KVMX64 && !SYNO_BROADWELL && !SYNO_PURLEY &&!SYNO_BROADWELLNTB && !SYNO_NEXTKVMX64 && !SYNO_KVMCLOUD && !SYNO_ICELAKED
 
 config SYNO_SATA_PORT_MAP
 	bool "Modify SATA Hosts Port Number"
@@ -353,6 +418,11 @@ config SYNO_SCSI_GET_ATA_IDENTITY
 config SYNO_SATA_PM_DEVICE_GPIO
 	bool "Synology Specific PM Device Support"
 	depends on SATA_PMP
+	default y
+
+config SYNO_SATA_PM_DEVICE_I2C
+	bool "Synology Specific PM Device Support"
+	depends on SATA_PMP && SYNO_SATA_PM_DEVICE_GPIO 
 	default y
 
 config SYNO_SATA_PM_AMPLITUDE_ADJUSTMENT
@@ -835,6 +905,10 @@ config SYNO_DISK_TLER_RETRY
 	bool "Retry command if error is caused by TLER"
 	default y
 
+config SYNO_JMICRON_AMP_ADJUST
+	bool "adjust amplitude and de-emphasis for JMicron JMB585 sata signal"
+	default n
+
 config SYNO_JMICRON_585_DUBIOUS_IFS_FIX
 	bool "Fix JMicron 585 raise IFS on device error"
 	default y
@@ -847,6 +921,24 @@ config SYNO_SATA_NCQ_EH_ENHANCE
 config SYNO_EXTEND_PROBE_CMD_TIMEOUT
 	bool "Extend timeout of libata probe commands"
 	default y
+
+config SYNO_SATA_SIGNAL_ADJUST_BY_DTS
+	bool "SATA Contorller signal adjust by value in the dts"
+	default n
+	depends on SYNO_PORT_MAPPING_V2
+
+config SYNO_LIBATA_FUA
+	bool "Enable libata fua support"
+	default y
+
+config SYNO_AHCI_MULTIPLE_HARD_IRQ
+	bool "Switch hardirq/threaded irq for ahci multiple irq handler"
+	default n
+	depends on SYNO_JMICRON_585_FIX
+
+config SYNO_AHCI_INTERNAL_SLOT_MODE
+	bool "Internal slot may remove unnecessary reg read"
+	default n
 
 endmenu #SATA
 
@@ -951,10 +1043,6 @@ config SYNO_SAS_ENCOLURE_PWR_CTL
 	bool "Encolure power control"
 	default n
 
-config SYNO_SCSI_MAX_QUEUE_DEPTH_LOCK
-	bool "Enable SCSI queue depth lock"
-	default y
-
 config SYNO_SAS_HBA_IDX
 	bool "Indexing Synology SAS HBA"
 	depends on SYNO_GRANTLEY || SYNO_BROADWELL || SYNO_PURLEY || SYNO_COFFEELAKE || SYNO_BROADWELLNTB || SYNO_BROADWELLNTBAP
@@ -1044,6 +1132,16 @@ config SYNO_SAS_SES_DIAGNOSTIC_PAGE_ENHANCE
 	depends on SYNO_SAS
 	default y
 
+config SYNO_DONT_REPEATEDLY_ASK_SES_WHEN_PROBE
+	bool "scsi: ses: don't ask for diagnostic pages repeatedly during probe"
+	depends on SYNO_SAS
+	default y
+
+config SYNO_FIX_TASK_ABORT_AND_SCSI_DONE_RACE_CONDITION
+	bool "Fix task abort and scsi done race condition"
+	depends on SYNO_SAS
+	default y
+
 endmenu #SAS
 
 endmenu #SCSI
@@ -1084,7 +1182,7 @@ config SYNO_NVME_FIX_REVALIDATE_RACE
 
 config SYNO_NVME_SW_ACTIVITY
 	bool "Trigger activity led by software"
-	depends on  BLK_DEV_NVME
+	depends on  BLK_DEV_NVME && SYNO_PORT_MAPPING_V2
 	default n
 
 config SYNO_NVME_MISSING_DEVICE
@@ -1104,6 +1202,16 @@ config SYNO_NVME_SAMSUNG_QDEPTH
 
 config SYNO_NVME_CRIT_WARN_MEDIA_SET_RO
 	bool "Set NVMe block disk to read-only if the device reports RO"
+	depends on BLK_DEV_NVME
+	default y
+
+config SYNO_NVME_BACKPORT_CHECK_USERCMD
+	bool "Prevent ioctl-related commands being issued during reset"
+	depends on BLK_DEV_NVME
+	default y
+
+config SYNO_NVME_BACKPORT_REFINE
+	bool "Refinements that contain no behavioral change"
 	depends on BLK_DEV_NVME
 	default y
 
@@ -1129,80 +1237,24 @@ config SYNO_ARMADA37XX_WOL
         default y
         depends on SYNO_ARMADA37XX
 
-config SYNO_RTK_NETWORK_LOG_REDUCE
+config SYNO_NET_LINK_DOWN_STATUS
+	bool "Set NIC speed unknown for link down interface"
+	default y
+
+config SYNO_NET_R8169_LOG_REDUCE
 	bool "reduce realtek network driver rx buffer exhausted log"
 	default y
-	depends on R8168 || R8169SOC
+	depends on R8169SOC
 
-config SYNO_ADJUST_R8168_DOWN
-	bool "Fix realtek-r8168-driver reboot timeout bug"
+config SYNO_NET_R8169_RESET_LOG
+	bool "Add reset log to r8169"
 	default y
-	depends on R8168
+	depends on R8169SOC
 
-config SYNO_R8168_TRX_WORKAROUND
-	bool "Fix realtek-r8168-driver tx/rx hang problem"
-	default y
-	depends on R8168
-
-config SYNO_R8168_INIT_WORK
-	bool "Fix realtek-r8168-driver incorrect init work"
-	default y
-	depends on R8168
-
-config SYNO_R8168_RESET_STOP_CHECK_LINK
-	bool "Fix realtek-r8168-driver check link when reset"
-	default y
-	depends on R8168
-
-config SYNO_R8168_RESET_STOP_NAPI
-	bool "Fix realtek-r8168-driver enable napi when reset"
-	default y
-	depends on R8168
-
-config SYNO_R8168_INIT_RING_FIX
-	bool "Fix realtek-r8168-driver init ring fail"
-	default y
-	depends on R8168
-
-config SYNO_R8168_RESET_DELAY
-	bool "Fix realtek-r8168-driver delay func"
-	default y
-	depends on R8168
-
-config SYNO_R8168_TX_ERROR_LOG
-	bool "Enhance R8168 tx error log"
-	default y
-	depends on R8168
-
-config SYNO_R8168_MALLOC_FIX
-	bool "Fix realtek-r8168-driver malloc fail issue"
-	default y
-	depends on R8168
-
-config SYNO_R8168_MAC_RESET_ALDPS
-	bool "Enter ALDPS mode while tx_timeout"
-	default y
-	depends on R8168
-
-config SYNO_R8168_SFF_MODE_SETUP
-	bool "Setup RTL8111HS share FIFO dynamic/fixed mode per MTU"
-	default y
-	depends on R8168
-
-config SYNO_R8168_ASPM_OFF
-	bool "Setup RTL8168 ASPM default OFF"
-	default y
-	depends on R8168
-
-config SYNO_RTK_NETWORK_RESET_LOG
-	bool "Add reset log to r8168 or r8169"
-	default y
-	depends on R8168 || R8169SOC
-
-config SYNO_RTK_NIC_LINK_LOG_ENHANCE
+config SYNO_NET_R8169_LINK_LOG_ENHANCE
 	bool "Enhance realtek nic link status log"
 	default y
-	depends on R8168 || R8169SOC
+	depends on R8169SOC
 
 config SYNO_R8169_NOWARN
 	bool "Add nowarn to r8169(rtd1296) alloc skb"
@@ -1223,16 +1275,6 @@ config SYNO_RTD1619_R8169_HIGH_LATENCY_FIX
 	bool "fix rtd1619 r8169 high latency"
 	default y
 	depends on R8169SOC && SYNO_RTD1619
-
-config SYNO_R8168_KEEPLINK_SUPPORT
-	bool "support keep link feature"
-	default y
-	depends on R8168 && SYNO_OOB_SERIAL_OVER_LAN
-
-config SYNO_RTK_LINK_CHANGE_MSG_NOTICE
-	bool "Escalate the link change messages to notice level"
-	default y
-	depends on R8168 || R8169SOC
 
 endmenu #Network
 
@@ -1311,7 +1353,7 @@ config SYNO_USB_UPS_DISCONNECT_FILTER
 config SYNO_USB_XHCI_RESET_DELAY
 	bool "Add extra delay in xhci_reset"
 	default y
-	depends on SYNO_BRASWELL || SYNO_APOLLOLAKE || SYNO_BROADWELL || SYNO_GRANTLEY || SYNO_PURLEY || SYNO_BROADWELLNTB || SYNO_GEMINILAKE || SYNO_SKYLAKED || SYNO_BROADWELLNTBAP
+	depends on SYNO_BRASWELL || SYNO_APOLLOLAKE || SYNO_BROADWELL || SYNO_GRANTLEY || SYNO_PURLEY || SYNO_BROADWELLNTB || SYNO_GEMINILAKE || SYNO_SKYLAKED || SYNO_BROADWELLNTBAP || SYNO_ICELAKED
 
 config SYNO_USB_CONNECT_DEBOUNCER
 	bool "Add connect-debouncer during USB reset"
@@ -1434,6 +1476,11 @@ config SYNO_USB_POWER_DELAY_ON
 	depends on SYNO_USB_POWER_RESET
 	default n
 
+config SYNO_SKIP_INTEL_EHCI_CONTROLLER
+	bool "Disable 8 series/C220 ehci controller"
+	depends on SYNO_BROADWELL
+	default n
+
 endmenu #USB
 
 menu "Hardware Monitor"
@@ -1461,6 +1508,10 @@ config SYNO_PMBUS_SKIP_CHECK
         bool "Skip PMBUS command to avoid smbus hang"
         depends on SYNO_PMBUS_FEATURES
         default n
+
+config SYNO_HWMON_PMBUS
+	bool "SYNO PMBus Monitor"
+	depends on SYNO_PORT_MAPPING_V2
 
 endmenu #Hardware Monitor
 
@@ -1502,11 +1553,6 @@ config SYNO_FIX_TTYS_FUNCTIONS
 	select CONFIG_EARLY_PRINTK
 	default n
 
-config SYNO_TTYS_FUN_NUM
-	int "Number of syno ttyS functions"
-	depends on SYNO_FIX_TTYS_FUNCTIONS
-	default 2
-
 config SYNO_RTD_UART1
 	bool "Send uP command via UART1"
 	depends on SYNO_RTD129X || SYNO_RTD1619
@@ -1534,6 +1580,11 @@ config SYNO_OOB_LOG_DEVICE_NAME
 	string "OOB Log Device Path"
 	depends on SYNO_OOB_SERIAL_OVER_LAN
 	default "oob_log"
+
+config SYNO_TTY_DTS_INFO
+	bool "Get uart port mapping from device tree"
+	depends on SYNO_FIX_TTYS_FUNCTIONS && SYNO_PORT_MAPPING_V2
+	default y
 
 endmenu #Serial/TTYs
 
@@ -1584,6 +1635,11 @@ config SYNO_I2C_DW_CLK_FREQ_CUSTOM
 	default n
 	depends on I2C_DESIGNWARE_PLATFORM
 
+config SYNO_I2C_ASM2824
+	tristate "support I2C bus on ASM2824"
+	default n
+	depends on I2C && SYNO_PURLEY
+
 endmenu #I2C Hardware Bus support
 
 menu "LEDs"
@@ -1591,6 +1647,11 @@ menu "LEDs"
 config SYNO_LEDS_TRIGGER
 	tristate "Synology LED Triggers"
 	depends on LEDS_TRIGGERS
+
+config SYNO_EUNIT_LEDS_TRIGGER
+	tristate "Synology Eunit LED Triggers"
+	depends on LEDS_TRIGGERS && SYNO_PORT_MAPPING_V2
+	default n
 
 config SYNO_LP3943_FEATURES
 	  bool "Customized features of LP3943 led dirver for Synology Corp. NAS product"
@@ -1611,11 +1672,27 @@ config SYNO_LP3943_PROBE_ACPI
 	bool "Use ACPI devie"
 	depends on SYNO_LP3943_FEATURES && ACPI
 
+config SYNO_LP3943_OF_PROBE
+	bool "Use device tree"
+	depends on SYNO_LP3943_FEATURES && SYNO_I2C_OF_PROBE
+
 endchoice
 
 config SYNO_LP3943_REDUCE_CMD
 	bool "Reduce redundant smbus command to LP3943"
 	depends on SYNO_LP3943_FEATURES
+
+config SYNO_LED_ATMEGA1608
+	tristate "ATMEGA1608 led dirver for Synology"
+	depends on SYNO_LEDS_TRIGGER
+
+config SYNO_ATEMGA1608_FEATURES
+	bool "ATMEGA1608 led dirver for Synology"
+	depends on SYNO_LED_ATMEGA1608
+
+config SYNO_ATMEGA1608_PROBE_FIXED_BUS
+	bool "Use Fixed Bus"
+	depends on SYNO_ATEMGA1608_FEATURES && !SYNO_PORT_MAPPING_V2
 
 endmenu #LEDs
 
@@ -1712,6 +1789,21 @@ config SYNO_PCIE_BUS_SAFE
 
 config SYNO_SUBID_WORKAROUND
 	bool "Workaround for clearing wrong subsystem ID"
+	default n
+
+config SYNO_PCIEHP_FORCE
+	bool "Force PCIe hotplug on customized slot"
+	depends on HOTPLUG_PCI && SYNO_PORT_MAPPING_V2
+	default n
+
+config SYNO_PCIE_I2C
+	bool "pcieport serivce driver for ASM2824 I2C"
+	depends on PCI && PCIEPORTBUS && SYNO_PURLEY
+	default n
+
+config SYNO_PCI_DOMAIN_PATH
+	bool "Gen PCI path with domain for Port mapping v2"
+	depends on PCI && SYNO_PORT_MAPPING_V2
 	default n
 
 endmenu #PCI
@@ -1819,6 +1911,11 @@ config SYNO_MULTIPATH_NEW_TARGET_DEVICE_UEVENT
 	bool "Sending special uevent env when new target device is added"
 	default y
 	depends on SYNO_MULTIPATH_RENAME_DM_AS_DISK
+
+config SYNO_MULTIPATH_SLAVE_DISK_COHERENCE
+	bool "Enable multipath disk coherence"
+	default y
+	depends on SYNO_MULTIPATH_RENAME_DM_AS_DISK && SYNO_BD_GENDISK_OPERATIONS
 
 endmenu #Multipath
 

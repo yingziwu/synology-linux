@@ -49,6 +49,15 @@ struct blk_queue_tags;
 #define DISABLE_CLUSTERING 0
 #define ENABLE_CLUSTERING 1
 
+#ifdef MY_ABC_HERE
+enum {
+	SYNO_PWR_OP_POWER_OFF 	= 0,
+	SYNO_PWR_OP_POWER_ON 	= (1 << 0),
+	SYNO_PWR_OP_DEEPSLEEP 	= (1 << 1),
+	SYNO_PWR_OP_WAKE	 	= (1 << 2),
+};
+#endif /* MY_ABC_HERE */
+
 #if defined(MY_DEF_HERE) || defined(MY_ABC_HERE)
 enum {
 	SYNO_PORT_TYPE_SATA = 1,
@@ -509,7 +518,7 @@ struct scsi_host_template {
 	 * @return : 0 success, otherwise fail
 	 * Status: OPTIONAL
 	 */
-	int  (* syno_host_power_ctl)(struct Scsi_Host *host, u8 blPowerOn);
+	int  (* syno_host_power_ctl)(struct Scsi_Host *host, u8 pwrOp);
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	/*

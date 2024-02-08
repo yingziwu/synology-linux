@@ -1255,6 +1255,13 @@ struct ata_port {
 #ifdef MY_ABC_HERE
 	u64 u64AtaIntrTime;
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	void (*syno_ahci_handle_port_interrupt)(struct ata_port *, void __iomem *, u32);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	SYNO_PM_I2C_SYSFS_OP i2cOp;
+	SYNO_PM_I2C_PKG i2cPkg;
+#endif /* MY_ABC_HERE */
 };
 
 #ifdef MY_ABC_HERE
@@ -1407,6 +1414,9 @@ struct ata_timing {
 /*
  * Core layer - drivers/ata/libata-core.c
  */
+#ifdef MY_ABC_HERE
+extern struct device_attribute dev_attr_syno_pm_i2c;
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 extern struct device_attribute dev_attr_syno_manutil_power_disable;
 extern struct device_attribute dev_attr_syno_pm_gpio;
@@ -1786,13 +1796,19 @@ extern u32 syno_pmp_ports_num(struct ata_port *ap);
 extern void syno_pm_device_info_set(struct ata_port *ap, u8 rw, SYNO_PM_PKG *pm_pkg);
 extern unsigned int syno_pm_gpio_output_disable(struct ata_link *link);
 extern unsigned int syno_pm_gpio_output_enable(struct ata_link *link);
-extern int syno_libata_pm_power_ctl(struct ata_port *ap, u8 blPowerOn, u8 blCustomInfo);
+extern int syno_libata_pm_power_ctl(struct ata_port *ap, u8 pwrOp, u8 blCustomInfo);
 extern unsigned int syno_sata_pmp_is_rp(struct ata_port *ap);
 extern struct ata_port *SynoEunitFindMaster(struct ata_port *ap);
+#ifdef MY_ABC_HERE
+extern struct ata_port* SynoEunitEnumPort(struct ata_port *pAp_master, struct klist_node *pAtaNode);
+#endif /* MY_ABC_HERE */
 extern void SynoEunitFlagSet(struct ata_port *pAp_master, bool blset, unsigned int flag, bool blWithLink);
-int syno_libata_port_power_ctl(struct Scsi_Host *host, u8 blPowerOn);
+int syno_libata_port_power_ctl(struct Scsi_Host *host, u8 pwrOp);
 extern u8 syno_pm_is_synology_3xxx(const struct ata_port *ap);
 extern u8 syno_pm_is_synology_9705(const struct ata_port *ap);
+#ifdef MY_ABC_HERE
+extern int syno_pm_show_sn(struct ata_device *dev);
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 extern int syno_libata_pm_zero_watt_poweron(struct ata_port *pAp);
 #endif /* MY_ABC_HERE */
@@ -1817,6 +1833,10 @@ extern int syno_external_libata_index_get(const struct ata_port *ap);
 #endif /* MY_DEF_HERE || defined(MY_ABC_HERE) */
 
 #ifdef MY_ABC_HERE
+extern int getDiskPortTypeAndIndexByAtaPort(const struct ata_port *ap, DISK_PORT_TYPE *portType, int *portIndex);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 #define IS_SYNO_PMP_GSCR_9705_CONFIG(tf) (SATA_PMP_GSCR_9705_GPO_EN == ((tf->hob_feature << 8) | tf->feature) || \
 										  SATA_PMP_GSCR_9705_GPI_POLARITY == ((tf->hob_feature << 8) | tf->feature) || \
 										  SATA_PMP_GSCR_9705_SATA_0_TO_3_BLINK_RATE == ((tf->hob_feature << 8) | tf->feature) || \
@@ -1832,7 +1852,9 @@ extern int syno_external_libata_index_get(const struct ata_port *ap);
 								  IS_SYNO_PMP_GSCR_9705_CONFIG(tf)))
 #define IS_SYNO_PMP_CMD(tf) (IS_SYNO_PMP_READ_CMD(tf) || IS_SYNO_PMP_WRITE_CMD(tf))
 #endif /* MY_ABC_HERE */
-
+#ifdef MY_ABC_HERE
+#define IS_SYNO_PMP_575_CMD(tf) (ATA_CMD_PMP_SYNO_I2C == tf.command || ATA_CMD_PMP_SYNO_LED_GPIO == tf.command || ATA_CMD_PMP_GET_BOARD_INFO_JMB575 == tf.command)
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 #if defined(MY_ABC_HERE)
 #define IS_SYNO_SPINUP_CMD(qc) (NULL == qc->scsicmd && !ata_tag_internal(qc->tag) && \

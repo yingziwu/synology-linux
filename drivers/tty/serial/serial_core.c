@@ -38,6 +38,11 @@
 #include <linux/delay.h>
 #include <linux/mutex.h>
 
+#ifdef MY_ABC_HERE
+#include <linux/pci.h>
+#include <linux/synolib.h>
+#endif /* MY_ABC_HERE */
+
 #include <asm/irq.h>
 #include <asm/uaccess.h>
 
@@ -2656,7 +2661,7 @@ static ssize_t uart_get_attr_iomem_reg_shift(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d\n", tmp.iomem_reg_shift);
 }
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 #define UART_MSR              0x6
 static ssize_t uart_get_attr_msr_read(struct device *dev,
 	struct device_attribute *attr, char *buf)
@@ -2669,7 +2674,44 @@ static ssize_t uart_get_attr_msr_read(struct device *dev,
 	msr = uport->serial_in(uport, UART_MSR);
 	return snprintf(buf, PAGE_SIZE, "%x\n", msr);
 }
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+extern int syno_pciepath_dts_pattern_get(struct pci_dev *pdev, char *szPciePath, const int size);
+static void syno_pciepath_enum(struct device *dev, char *buf) {
+	struct pci_dev *pdev = NULL;
+	char sztemp[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
+
+	if (NULL == buf || NULL == dev) {
+		return;
+	}
+	pdev = to_pci_dev(dev);
+
+	if (-1 == syno_pciepath_dts_pattern_get(pdev, sztemp, sizeof(sztemp))) {
+		return;
+	}
+
+	if (NULL != sztemp) {
+		snprintf(buf, 512, "%spciepath=%s", buf, sztemp);
+	}
+}
+
+static ssize_t uart_get_attr_syno_pcipath(struct device *dev,
+				    struct device_attribute *attr,
+				    char *buf)
+{
+	struct tty_port *port = dev_get_drvdata(dev);
+	struct uart_state *state = container_of(port, struct uart_state, port);
+	struct uart_port *uport = state->uart_port;
+	char szPciePath[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
+
+	if (dev_is_pci(uport->dev)) {
+		syno_pciepath_enum(uport->dev, szPciePath);
+	}
+
+	return sprintf(buf, "%s\n", szPciePath);
+}
+#endif /* MY_ABC_HERE */
 
 static DEVICE_ATTR(type, S_IRUSR | S_IRGRP, uart_get_attr_type, NULL);
 static DEVICE_ATTR(line, S_IRUSR | S_IRGRP, uart_get_attr_line, NULL);
@@ -2684,9 +2726,12 @@ static DEVICE_ATTR(custom_divisor, S_IRUSR | S_IRGRP, uart_get_attr_custom_divis
 static DEVICE_ATTR(io_type, S_IRUSR | S_IRGRP, uart_get_attr_io_type, NULL);
 static DEVICE_ATTR(iomem_base, S_IRUSR | S_IRGRP, uart_get_attr_iomem_base, NULL);
 static DEVICE_ATTR(iomem_reg_shift, S_IRUSR | S_IRGRP, uart_get_attr_iomem_reg_shift, NULL);
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 static DEVICE_ATTR(msr, S_IRUSR | S_IRGRP, uart_get_attr_msr_read, NULL);
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+static DEVICE_ATTR(syno_pcipath, S_IRUSR | S_IRGRP, uart_get_attr_syno_pcipath, NULL);
+#endif /* MY_ABC_HERE */
 
 static struct attribute *tty_dev_attrs[] = {
 	&dev_attr_type.attr,
@@ -2702,9 +2747,12 @@ static struct attribute *tty_dev_attrs[] = {
 	&dev_attr_io_type.attr,
 	&dev_attr_iomem_base.attr,
 	&dev_attr_iomem_reg_shift.attr,
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	&dev_attr_msr.attr,
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_pcipath.attr,
+#endif /* MY_ABC_HERE */
 	NULL,
 	};
 

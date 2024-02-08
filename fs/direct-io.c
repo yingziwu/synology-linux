@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * fs/direct-io.c
  *
@@ -1203,6 +1206,9 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 	 */
 	if (dio->is_async && iov_iter_rw(iter) == WRITE &&
 	    ((iocb->ki_filp->f_flags & O_DSYNC) ||
+#ifdef MY_DEF_HERE
+	     (dio->flags & DIO_AIO_DEFER_COMPLETION) ||
+#endif /* MY_DEF_HERE */
 	     IS_SYNC(iocb->ki_filp->f_mapping->host))) {
 		retval = dio_set_defer_completion(dio);
 		if (retval) {

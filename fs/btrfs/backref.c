@@ -1806,7 +1806,10 @@ static int find_parent_nodes_shared_root(struct btrfs_fs_info *fs_info,
 				struct extent_buffer *eb;
 				eb = read_tree_block(fs_info->extent_root,
 							   ref->parent, 0, ref->level, NULL);
-				if (!eb || !extent_buffer_uptodate(eb)) {
+				if (IS_ERR(eb)) {
+					ret = PTR_ERR(eb);
+					goto out;
+				} else if (!extent_buffer_uptodate(eb)) {
 					free_extent_buffer(eb);
 					ret = -EIO;
 					goto out;
@@ -2147,7 +2150,10 @@ again:
 				struct extent_buffer *eb;
 				eb = read_tree_block(fs_info->extent_root,
 							    ref->parent, 0, ref->level, NULL);
-				if (!eb || !extent_buffer_uptodate(eb)) {
+				if (IS_ERR(eb)) {
+					ret = PTR_ERR(eb);
+					goto out;
+				} else if (!extent_buffer_uptodate(eb)) {
 					free_extent_buffer(eb);
 					ret = -EIO;
 					goto out;

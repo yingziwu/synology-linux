@@ -85,9 +85,9 @@ typedef enum __syno_disk_type {
 #ifdef MY_DEF_HERE
 	SYNO_DISK_SYSTEM, /* only for system partition */
 #endif /* MY_DEF_HERE */
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	SYNO_DISK_OOB,
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 	SYNO_DISK_END, // end of enum
 } SYNO_DISK_TYPE;
 #endif /* MY_DEF_HERE */
@@ -133,6 +133,9 @@ struct scsi_disk {
 	unsigned	lbpvpd : 1;
 	unsigned	ws10 : 1;
 	unsigned	ws16 : 1;
+#ifdef MY_ABC_HERE
+	unsigned	support_fua : 1;
+#endif /* MY_ABC_HERE */
 };
 #define to_scsi_disk(obj) container_of(obj,struct scsi_disk,dev)
 

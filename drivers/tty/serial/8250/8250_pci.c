@@ -2009,9 +2009,9 @@ pci_wch_ch38x_setup(struct serial_private *priv,
 #define PCI_DEVICE_ID_ACCESIO_PCIE_COM_8SM	0x10E9
 #define PCI_DEVICE_ID_ACCESIO_PCIE_ICM_4SM	0x11D8
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 #define PCI_DEVICE_ID_RTK_R8168EP               0x816A
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 /* Unknown vendors/cards - this should not be in linux/pci_ids.h */
 #define PCI_SUBDEVICE_ID_UNKNOWN_0x1584	0x1584
@@ -4027,6 +4027,7 @@ static const struct pci_device_id blacklist[] = {
 #else
 	{ PCI_VDEVICE(INTEL, 0x19d8), },
 #endif
+	{ PCI_VDEVICE(INTEL, 0x18d8), },
 };
 
 /*
@@ -4123,9 +4124,9 @@ serial_pci_matches(const struct pciserial_board *board,
 	    board->reg_shift == guessed->reg_shift &&
 	    board->first_offset == guessed->first_offset;
 }
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 extern void kt_console_init(void);
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 struct serial_private *
 pciserial_init_ports(struct pci_dev *dev, const struct pciserial_board *board)
 {
@@ -4192,12 +4193,12 @@ pciserial_init_ports(struct pci_dev *dev, const struct pciserial_board *board)
 		}
 	}
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	if (PCI_VENDOR_ID_REALTEK == dev->vendor &&
 			PCI_DEVICE_ID_RTK_R8168EP == dev->device) {
 		kt_console_init();
 	}
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 	priv->nr = i;
 	priv->board = board;
@@ -5952,12 +5953,12 @@ static struct pci_device_id serial_pci_tbl[] = {
 	/* Amazon PCI serial device */
 	{ PCI_DEVICE(0x1d0f, 0x8250), .driver_data = pbn_b0_1_115200 },
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 	{	PCI_VENDOR_ID_REALTEK, PCI_DEVICE_ID_RTK_R8168EP,
 		PCI_ANY_ID,  PCI_ANY_ID,
 		PCI_CLASS_COMMUNICATION_SERIAL << 8, 0xff0000,
 		pbn_b0_1_115200 },
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 	/*
 	 * These entries match devices with class COMMUNICATION_SERIAL,
 	 * COMMUNICATION_MODEM or COMMUNICATION_MULTISERIAL
