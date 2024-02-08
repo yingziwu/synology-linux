@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
@@ -31,6 +34,9 @@
 #include "space-info.h"
 #include "block-group.h"
 #include "discard.h"
+#ifdef MY_ABC_HERE
+#include <linux/genhd.h>
+#endif /* MY_ABC_HERE */
 
 const struct btrfs_raid_attr btrfs_raid_array[BTRFS_NR_RAID_TYPES] = {
 	[BTRFS_RAID_RAID10] = {
@@ -224,7 +230,11 @@ static int __btrfs_map_block(struct btrfs_fs_info *fs_info,
 			     enum btrfs_map_op op,
 			     u64 logical, u64 *length,
 			     struct btrfs_bio **bbio_ret,
-			     int mirror_num, int need_raid_map);
+			     int mirror_num, int need_raid_map
+#ifdef MY_ABC_HERE
+			     , bool false
+#endif /* MY_ABC_HERE */
+			     );
 
 /*
  * Device locking
@@ -1193,6 +1203,9 @@ static int open_fs_devices(struct btrfs_fs_devices *fs_devices,
 	struct btrfs_device *device;
 	struct btrfs_device *latest_dev = NULL;
 	struct btrfs_device *tmp_device;
+#ifdef MY_ABC_HERE
+	bool rbd_enabled = true;
+#endif /* MY_ABC_HERE */
 
 	flags |= FMODE_EXCL;
 
@@ -1209,6 +1222,10 @@ static int open_fs_devices(struct btrfs_fs_devices *fs_devices,
 			list_del(&device->dev_list);
 			btrfs_free_device(device);
 		}
+#ifdef MY_ABC_HERE
+		if (!ret && !IsSynoRbdDeviceEnabled(device->bdev))
+			rbd_enabled = false;
+#endif /* MY_ABC_HERE */
 	}
 	if (fs_devices->open_devices == 0)
 		return -EINVAL;
@@ -1217,6 +1234,9 @@ static int open_fs_devices(struct btrfs_fs_devices *fs_devices,
 	fs_devices->latest_bdev = latest_dev->bdev;
 	fs_devices->total_rw_bytes = 0;
 	fs_devices->chunk_alloc_policy = BTRFS_CHUNK_ALLOC_REGULAR;
+#ifdef MY_ABC_HERE
+	fs_devices->rbd_enabled = rbd_enabled;
+#endif /* MY_ABC_HERE */
 
 	return 0;
 }
@@ -2058,7 +2078,7 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
 
 	if (IS_ERR(device)) {
 		if (PTR_ERR(device) == -ENOENT &&
-		    strcmp(device_path, "missing") == 0)
+		    device_path && strcmp(device_path, "missing") == 0)
 			ret = BTRFS_ERROR_DEV_MISSING_NOT_FOUND;
 		else
 			ret = PTR_ERR(device);
@@ -3599,6 +3619,9 @@ static int should_balance_chunk(struct extent_buffer *leaf,
 static int __btrfs_balance(struct btrfs_fs_info *fs_info)
 {
 	struct btrfs_balance_control *bctl = fs_info->balance_ctl;
+#ifdef MY_ABC_HERE
+	struct btrfs_block_group *cache;
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 	struct btrfs_root *chunk_root = fs_info->chunk_root;
 	u64 chunk_type;
 	struct btrfs_chunk *chunk;
@@ -3711,6 +3734,11 @@ again:
 			else if (chunk_type & BTRFS_BLOCK_GROUP_METADATA)
 				count_meta++;
 
+#ifdef MY_ABC_HERE
+			cache = btrfs_lookup_block_group(fs_info, found_key.offset);
+			bctl->total_chunk_used += cache->used;
+			btrfs_put_block_group(cache);
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 			goto loop;
 		}
 
@@ -3767,7 +3795,11 @@ loop:
 		key.offset = found_key.offset - 1;
 	}
 
+#ifdef MY_ABC_HERE
+	if (counting && !(bctl->flags & BTRFS_BALANCE_DRY_RUN)) {
+#else
 	if (counting) {
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 		btrfs_release_path(path);
 		counting = false;
 		goto again;
@@ -4161,6 +4193,29 @@ int btrfs_balance(struct btrfs_fs_info *fs_info,
 	else
 		btrfs_info(fs_info, "balance: ended with status: %d", ret);
 
+#ifdef MY_ABC_HERE
+	/*
+	 * This is a workaround for xfstest:
+	 * btrfs/156 - Ensure btrfs_trim_fs can trim the whole fs.
+	 *
+	 * In btrfs/156 test, it will do btrfs-balance, then deleting
+	 * files, finally doing fstrim. However, fstrim will not trim
+	 * free space in cluster. Let the ratio of trimmed less than
+	 * 50% threshold.
+	 *
+	 * To solve this issue, we free cluster after btrfs-balance.
+	 *
+	 * Also, we may get a better cluster in relocate block groups
+	 * after btrfs-balance.
+	 */
+	if (!ret) {
+		struct btrfs_free_cluster *cluster = &fs_info->data_alloc_cluster;
+		spin_lock(&cluster->refill_lock);
+		btrfs_return_cluster_to_free_space(NULL, cluster);
+		spin_unlock(&cluster->refill_lock);
+	}
+#endif /* MY_ABC_HERE */
+
 	clear_bit(BTRFS_FS_BALANCE_RUNNING, &fs_info->flags);
 
 	if (bargs) {
@@ -4210,6 +4265,12 @@ int btrfs_resume_balance_async(struct btrfs_fs_info *fs_info)
 		return 0;
 	}
 	mutex_unlock(&fs_info->balance_mutex);
+
+#ifdef MY_ABC_HERE
+	btrfs_cancel_balance(fs_info);
+	btrfs_notice(fs_info, "force cancel balance");
+	return 0;
+#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
 
 	if (btrfs_test_opt(fs_info, SKIP_BALANCE)) {
 		btrfs_info(fs_info, "balance: resume skipped");
@@ -5147,13 +5208,51 @@ error_del_extent:
 	return ret;
 }
 
+#ifdef MY_ABC_HERE
+u64 btrfs_syno_calc_reserve_for_metadata(struct btrfs_fs_info *fs_info)
+{
+	u64 total_reserved_for_metadata = 0;
+	u64 disk_total_bytes;
+
+	if (!fs_info || !fs_info->metadata_ratio)
+		goto out;
+
+	disk_total_bytes = btrfs_super_total_bytes(fs_info->super_copy);
+	total_reserved_for_metadata = div_u64(disk_total_bytes, fs_info->metadata_ratio);
+	if (fs_info->avail_metadata_alloc_bits & BTRFS_BLOCK_GROUP_DUP)
+		total_reserved_for_metadata *= 2;
+	/* round up to 16MB */
+	total_reserved_for_metadata = round_up(total_reserved_for_metadata, SZ_16M);
+	/*
+	 * When chunk_size > max_chunk_size, round_up 16M will be performed
+	 * according to max_chunk_size, so in order to ensure that the
+	 * metadata reserve is reserved to enough space, an additional
+	 * 16M needs to be added.
+	 */
+	total_reserved_for_metadata += SZ_16M;
+
+out:
+	return total_reserved_for_metadata;
+}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+int btrfs_alloc_chunk_with_info(struct btrfs_trans_handle *trans, u64 type,
+				u64 *ret_start, u64 *ret_num_bytes)
+#else /* MY_ABC_HERE */
 int btrfs_alloc_chunk(struct btrfs_trans_handle *trans, u64 type)
+#endif /* MY_ABC_HERE */
 {
 	struct btrfs_fs_info *info = trans->fs_info;
 	struct btrfs_fs_devices *fs_devices = info->fs_devices;
 	struct btrfs_device_info *devices_info = NULL;
 	struct alloc_chunk_ctl ctl;
 	int ret;
+#ifdef MY_ABC_HERE
+	const bool mixed = btrfs_fs_incompat(info, MIXED_GROUPS);
+	struct btrfs_space_info *data_sinfo;
+	u64 disk_total_bytes, total_reserved_for_metadata, data_maximum_size, data_avail_size;
+#endif /* MY_ABC_HERE */
 
 	lockdep_assert_held(&info->chunk_mutex);
 
@@ -5183,6 +5282,30 @@ int btrfs_alloc_chunk(struct btrfs_trans_handle *trans, u64 type)
 	if (!devices_info)
 		return -ENOMEM;
 
+#ifdef MY_ABC_HERE
+	if (!mixed && info->metadata_ratio &&
+		(ctl.type & BTRFS_BLOCK_GROUP_DATA)) {
+		data_sinfo = info->data_sinfo;
+		if (data_sinfo) {
+			disk_total_bytes = btrfs_super_total_bytes(info->super_copy);
+			total_reserved_for_metadata = btrfs_syno_calc_reserve_for_metadata(info);
+			data_maximum_size = disk_total_bytes - total_reserved_for_metadata;
+			if (data_sinfo->disk_total > data_maximum_size) {
+				ret = -ENOSPC;
+				goto out;
+			}
+			data_avail_size = data_maximum_size - data_sinfo->disk_total;
+			/* Align to BTRFS_STRIPE_LEN */
+			data_avail_size = round_down(data_avail_size, BTRFS_STRIPE_LEN);
+			if (data_avail_size < ctl.dev_extent_min) {
+				ret = -ENOSPC;
+				goto out;
+			}
+			ctl.max_chunk_size = min_t(u64, ctl.max_chunk_size, data_avail_size);
+		}
+	}
+#endif /* MY_ABC_HERE */
+
 	ret = gather_device_info(fs_devices, &ctl, devices_info);
 	if (ret < 0)
 		goto out;
@@ -5192,6 +5315,14 @@ int btrfs_alloc_chunk(struct btrfs_trans_handle *trans, u64 type)
 		goto out;
 
 	ret = create_chunk(trans, &ctl, devices_info);
+#ifdef MY_ABC_HERE
+	if (!ret) {
+		if (ret_start)
+			*ret_start = ctl.start;
+		if (ret_num_bytes)
+			*ret_num_bytes = ctl.chunk_size;
+	}
+#endif /* MY_ABC_HERE */
 
 out:
 	kfree(devices_info);
@@ -5751,7 +5882,11 @@ static int get_extra_mirror_from_replace(struct btrfs_fs_info *fs_info,
 	int ret = 0;
 
 	ret = __btrfs_map_block(fs_info, BTRFS_MAP_GET_READ_MIRRORS,
-				logical, &length, &bbio, 0, 0);
+				logical, &length, &bbio, 0, 0
+#ifdef MY_ABC_HERE
+				, false
+#endif /* MY_ABC_HERE */
+				);
 	if (ret) {
 		ASSERT(bbio == NULL);
 		return ret;
@@ -5901,23 +6036,24 @@ static bool need_full_stripe(enum btrfs_map_op op)
 }
 
 /*
- * btrfs_get_io_geometry - calculates the geomery of a particular (address, len)
- *		       tuple. This information is used to calculate how big a
- *		       particular bio can get before it straddles a stripe.
+ * Calculate the geometry of a particular (address, len) tuple. This
+ * information is used to calculate how big a particular bio can get before it
+ * straddles a stripe.
  *
- * @fs_info - the filesystem
- * @logical - address that we want to figure out the geometry of
- * @len	    - the length of IO we are going to perform, starting at @logical
- * @op      - type of operation - write or read
- * @io_geom - pointer used to return values
+ * @fs_info: the filesystem
+ * @em:      mapping containing the logical extent
+ * @op:      type of operation - write or read
+ * @logical: address that we want to figure out the geometry of
+ * @len:     the length of IO we are going to perform, starting at @logical
+ * @io_geom: pointer used to return values
  *
  * Returns < 0 in case a chunk for the given logical address cannot be found,
  * usually shouldn't happen unless @logical is corrupted, 0 otherwise.
  */
-int btrfs_get_io_geometry(struct btrfs_fs_info *fs_info, enum btrfs_map_op op,
-			u64 logical, u64 len, struct btrfs_io_geometry *io_geom)
+int btrfs_get_io_geometry(struct btrfs_fs_info *fs_info, struct extent_map *em,
+			  enum btrfs_map_op op, u64 logical, u64 len,
+			  struct btrfs_io_geometry *io_geom)
 {
-	struct extent_map *em;
 	struct map_lookup *map;
 	u64 offset;
 	u64 stripe_offset;
@@ -5925,13 +6061,8 @@ int btrfs_get_io_geometry(struct btrfs_fs_info *fs_info, enum btrfs_map_op op,
 	u64 stripe_len;
 	u64 raid56_full_stripe_start = (u64)-1;
 	int data_stripes;
-	int ret = 0;
 
 	ASSERT(op != BTRFS_MAP_DISCARD);
-
-	em = btrfs_get_chunk_map(fs_info, logical, len);
-	if (IS_ERR(em))
-		return PTR_ERR(em);
 
 	map = em->map_lookup;
 	/* Offset of this logical address in the chunk */
@@ -5946,8 +6077,7 @@ int btrfs_get_io_geometry(struct btrfs_fs_info *fs_info, enum btrfs_map_op op,
 		btrfs_crit(fs_info,
 "stripe math has gone wrong, stripe_offset=%llu offset=%llu start=%llu logical=%llu stripe_len=%llu",
 			stripe_offset, offset, em->start, logical, stripe_len);
-		ret = -EINVAL;
-		goto out;
+		return -EINVAL;
 	}
 
 	/* stripe_offset is the offset of this block in its stripe */
@@ -5994,17 +6124,18 @@ int btrfs_get_io_geometry(struct btrfs_fs_info *fs_info, enum btrfs_map_op op,
 	io_geom->stripe_offset = stripe_offset;
 	io_geom->raid56_stripe_offset = raid56_full_stripe_start;
 
-out:
-	/* once for us */
-	free_extent_map(em);
-	return ret;
+	return 0;
 }
 
 static int __btrfs_map_block(struct btrfs_fs_info *fs_info,
 			     enum btrfs_map_op op,
 			     u64 logical, u64 *length,
 			     struct btrfs_bio **bbio_ret,
-			     int mirror_num, int need_raid_map)
+			     int mirror_num, int need_raid_map
+#ifdef MY_ABC_HERE
+			     , bool is_tree_log
+#endif /* MY_ABC_HERE */
+			     )
 {
 	struct extent_map *em;
 	struct map_lookup *map;
@@ -6030,12 +6161,13 @@ static int __btrfs_map_block(struct btrfs_fs_info *fs_info,
 	ASSERT(bbio_ret);
 	ASSERT(op != BTRFS_MAP_DISCARD);
 
-	ret = btrfs_get_io_geometry(fs_info, op, logical, *length, &geom);
+	em = btrfs_get_chunk_map(fs_info, logical, *length);
+	ASSERT(!IS_ERR(em));
+
+	ret = btrfs_get_io_geometry(fs_info, em, op, logical, *length, &geom);
 	if (ret < 0)
 		return ret;
 
-	em = btrfs_get_chunk_map(fs_info, logical, *length);
-	ASSERT(!IS_ERR(em));
 	map = em->map_lookup;
 
 	*length = geom.len;
@@ -6089,6 +6221,10 @@ static int __btrfs_map_block(struct btrfs_fs_info *fs_info,
 	} else if (map->type & BTRFS_BLOCK_GROUP_DUP) {
 		if (need_full_stripe(op)) {
 			num_stripes = map->num_stripes;
+#ifdef MY_ABC_HERE
+			if (is_tree_log && op == BTRFS_MAP_WRITE)
+				num_stripes = 1;
+#endif /* MY_ABC_HERE */
 		} else if (mirror_num) {
 			stripe_index = mirror_num - 1;
 		} else {
@@ -6206,8 +6342,14 @@ static int __btrfs_map_block(struct btrfs_fs_info *fs_info,
 		sort_parity_stripes(bbio, num_stripes);
 	}
 
-	if (need_full_stripe(op))
-		max_errors = btrfs_chunk_max_errors(map);
+	if (need_full_stripe(op)) {
+#ifdef MY_ABC_HERE
+		if (is_tree_log && op == BTRFS_MAP_WRITE)
+			max_errors = 0;
+		else
+#endif /* MY_ABC_HERE */
+			max_errors = btrfs_chunk_max_errors(map);
+	}
 
 	if (dev_replace_is_ongoing && dev_replace->tgtdev != NULL &&
 	    need_full_stripe(op)) {
@@ -6251,7 +6393,11 @@ int btrfs_map_block(struct btrfs_fs_info *fs_info, enum btrfs_map_op op,
 						     length, bbio_ret);
 
 	return __btrfs_map_block(fs_info, op, logical, length, bbio_ret,
-				 mirror_num, 0);
+				 mirror_num, 0
+#ifdef MY_ABC_HERE
+				 , false
+#endif /* MY_ABC_HERE */
+				 );
 }
 
 /* For Scrub/replace */
@@ -6259,7 +6405,11 @@ int btrfs_map_sblock(struct btrfs_fs_info *fs_info, enum btrfs_map_op op,
 		     u64 logical, u64 *length,
 		     struct btrfs_bio **bbio_ret)
 {
-	return __btrfs_map_block(fs_info, op, logical, length, bbio_ret, 0, 1);
+	return __btrfs_map_block(fs_info, op, logical, length, bbio_ret, 0, 1
+#ifdef MY_ABC_HERE
+				 , false
+#endif /* MY_ABC_HERE */
+				 );
 }
 
 static inline void btrfs_end_bbio(struct btrfs_bio *bbio, struct bio *bio)
@@ -6364,8 +6514,13 @@ static void bbio_error(struct btrfs_bio *bbio, struct bio *bio, u64 logical)
 	}
 }
 
+#ifdef MY_ABC_HERE
+static blk_status_t __btrfs_map_bio(struct btrfs_fs_info *fs_info, struct bio *bio,
+				    int mirror_num, bool is_tree_log)
+#else /* MY_ABC_HERE */
 blk_status_t btrfs_map_bio(struct btrfs_fs_info *fs_info, struct bio *bio,
 			   int mirror_num)
+#endif /* MY_ABC_HERE */
 {
 	struct btrfs_device *dev;
 	struct bio *first_bio = bio;
@@ -6382,7 +6537,11 @@ blk_status_t btrfs_map_bio(struct btrfs_fs_info *fs_info, struct bio *bio,
 
 	btrfs_bio_counter_inc_blocked(fs_info);
 	ret = __btrfs_map_block(fs_info, btrfs_op(bio), logical,
-				&map_length, &bbio, mirror_num, 1);
+				&map_length, &bbio, mirror_num, 1
+#ifdef MY_ABC_HERE
+				, is_tree_log
+#endif /* MY_ABC_HERE */
+				);
 	if (ret) {
 		btrfs_bio_counter_dec(fs_info);
 		return errno_to_blk_status(ret);
@@ -6438,6 +6597,19 @@ blk_status_t btrfs_map_bio(struct btrfs_fs_info *fs_info, struct bio *bio,
 	btrfs_bio_counter_dec(fs_info);
 	return BLK_STS_OK;
 }
+#ifdef MY_ABC_HERE
+blk_status_t btrfs_map_bio(struct btrfs_fs_info *fs_info, struct bio *bio,
+			   int mirror_num)
+{
+	return __btrfs_map_bio(fs_info, bio, mirror_num, false);
+}
+blk_status_t btrfs_map_bio_log_tree(struct btrfs_fs_info *fs_info,
+				    struct bio *bio,
+				    int mirror_num)
+{
+	return __btrfs_map_bio(fs_info, bio, mirror_num, true);
+}
+#endif /* MY_ABC_HERE */
 
 /*
  * Find a device specified by @devid or @uuid in the list of @fs_devices, or
@@ -7670,6 +7842,9 @@ int btrfs_verify_dev_extents(struct btrfs_fs_info *fs_info)
 		return -ENOMEM;
 
 	path->reada = READA_FORWARD;
+#ifdef MY_ABC_HERE
+	path->reada = READA_FORWARD_ALWAYS;
+#endif /* SYNO_BTRFS_VERIFY_DEV_EXTENTS_WITH_READAHEAD_FORWARD_ALWAYS */
 	ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
 	if (ret < 0)
 		goto out;

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Resizable virtual memory filesystem for Linux.
  *
@@ -2299,6 +2302,9 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 		atomic_set(&info->stop_eviction, 0);
 		info->seals = F_SEAL_SEAL;
 		info->flags = flags & VM_NORESERVE;
+#ifdef MY_ABC_HERE
+		info->crtime = inode->i_mtime;
+#endif /* MY_ABC_HERE */
 		INIT_LIST_HEAD(&info->shrinklist);
 		INIT_LIST_HEAD(&info->swaplist);
 		simple_xattrs_init(&info->xattrs);
@@ -3313,6 +3319,32 @@ static ssize_t shmem_listxattr(struct dentry *dentry, char *buffer, size_t size)
 }
 #endif /* CONFIG_TMPFS_XATTR */
 
+#ifdef MY_ABC_HERE
+static int shmem_syno_getattr(struct dentry *dentry, struct kstat *kst, unsigned int syno_flags)
+{
+	struct inode *inode = dentry->d_inode;
+
+	if (syno_flags & SYNOST_CREATE_TIME)
+		kst->syno_create_time = SHMEM_I(inode)->crtime;
+
+	return 0;
+}
+
+static int shmem_syno_get_crtime(struct inode *inode, struct timespec64 *crtime)
+{
+	*crtime = SHMEM_I(inode)->crtime;
+
+	return 0;
+}
+
+static int shmem_syno_set_crtime(struct inode *inode, struct timespec64 *crtime)
+{
+	SHMEM_I(inode)->crtime = *crtime;
+
+	return 0;
+}
+#endif /* MY_ABC_HERE */
+
 static const struct inode_operations shmem_short_symlink_operations = {
 	.get_link	= simple_get_link,
 #ifdef CONFIG_TMPFS_XATTR
@@ -3895,6 +3927,11 @@ static const struct inode_operations shmem_inode_operations = {
 	.listxattr	= shmem_listxattr,
 	.set_acl	= simple_set_acl,
 #endif
+#ifdef MY_ABC_HERE
+	.syno_getattr	= shmem_syno_getattr,
+	.syno_get_crtime= shmem_syno_get_crtime,
+	.syno_set_crtime= shmem_syno_set_crtime,
+#endif /* MY_ABC_HERE */
 };
 
 static const struct inode_operations shmem_dir_inode_operations = {
@@ -3917,6 +3954,11 @@ static const struct inode_operations shmem_dir_inode_operations = {
 	.setattr	= shmem_setattr,
 	.set_acl	= simple_set_acl,
 #endif
+#ifdef MY_ABC_HERE
+	.syno_getattr	= shmem_syno_getattr,
+	.syno_get_crtime= shmem_syno_get_crtime,
+	.syno_set_crtime= shmem_syno_set_crtime,
+#endif /* MY_ABC_HERE */
 };
 
 static const struct inode_operations shmem_special_inode_operations = {
@@ -3927,6 +3969,11 @@ static const struct inode_operations shmem_special_inode_operations = {
 	.setattr	= shmem_setattr,
 	.set_acl	= simple_set_acl,
 #endif
+#ifdef MY_ABC_HERE
+	.syno_getattr	= shmem_syno_getattr,
+	.syno_get_crtime= shmem_syno_get_crtime,
+	.syno_set_crtime= shmem_syno_set_crtime,
+#endif /* MY_ABC_HERE */
 };
 
 static const struct super_operations shmem_ops = {

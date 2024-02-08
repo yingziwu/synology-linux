@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0
 /*
  *  linux/fs/hfsplus/options.c
@@ -235,5 +238,9 @@ int hfsplus_show_options(struct seq_file *seq, struct dentry *root)
 		seq_puts(seq, ",nodecompose");
 	if (test_bit(HFSPLUS_SB_NOBARRIER, &sbi->flags))
 		seq_puts(seq, ",nobarrier");
+#ifdef MY_ABC_HERE
+	if (test_bit(HFSPLUS_SB_CASEFOLD, &sbi->flags))
+		seq_puts(seq, ",caseless");
+#endif /* MY_ABC_HERE */
 	return 0;
 }

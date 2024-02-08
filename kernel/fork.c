@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  *  linux/kernel/fork.c
@@ -554,7 +557,11 @@ static __latent_entropy int dup_mmap(struct mm_struct *mm,
 			struct inode *inode = file_inode(file);
 			struct address_space *mapping = file->f_mapping;
 
+#ifdef MY_ABC_HERE
+			vma_get_file(tmp);
+#else
 			get_file(file);
+#endif /* MY_ABC_HERE */
 			if (tmp->vm_flags & VM_DENYWRITE)
 				put_write_access(inode);
 			i_mmap_lock_write(mapping);
@@ -2027,6 +2034,10 @@ static __latent_entropy struct task_struct *copy_process(
 	p->psi_flags = 0;
 #endif
 
+#ifdef MY_ABC_HERE
+	p->workacct = NULL;
+#endif
+
 	task_io_accounting_init(&p->ioac);
 	acct_clear_integrals(p);
 
@@ -2959,12 +2970,6 @@ int ksys_unshare(unsigned long unshare_flags)
 					 new_cred, new_fs);
 	if (err)
 		goto bad_unshare_cleanup_cred;
-
-	if (new_cred) {
-		err = set_cred_ucounts(new_cred);
-		if (err)
-			goto bad_unshare_cleanup_cred;
-	}
 
 	if (new_fs || new_fd || do_sysvsem || new_cred || new_nsproxy) {
 		if (do_sysvsem) {

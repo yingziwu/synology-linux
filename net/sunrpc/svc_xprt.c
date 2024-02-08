@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * linux/net/sunrpc/svc_xprt.c
@@ -422,6 +425,9 @@ void svc_xprt_do_enqueue(struct svc_xprt *xprt)
 	if (test_and_set_bit(XPT_BUSY, &xprt->xpt_flags))
 		return;
 
+#ifdef MY_ABC_HERE
+	xprt->xpt_eqtime = ktime_get();
+#endif /* MY_ABC_HERE */
 	cpu = get_cpu();
 	pool = svc_pool_for_cpu(xprt->xpt_server, cpu);
 
@@ -435,6 +441,10 @@ void svc_xprt_do_enqueue(struct svc_xprt *xprt)
 	/* find a thread for this xprt */
 	rcu_read_lock();
 	list_for_each_entry_rcu(rqstp, &pool->sp_all_threads, rq_all) {
+#ifdef MY_ABC_HERE
+		if (test_bit(SP_CONGESTED, &pool->sp_flags))
+			goto out_unlock;
+#endif /* MY_ABC_HERE */
 		if (test_and_set_bit(RQ_BUSY, &rqstp->rq_flags))
 			continue;
 		atomic_long_inc(&pool->sp_stats.threads_woken);
@@ -853,6 +863,9 @@ int svc_recv(struct svc_rqst *rqstp, long timeout)
 		goto out;
 	}
 
+#ifdef MY_ABC_HERE
+	rqstp->rq_xprt_rdtime = xprt->xpt_eqtime;
+#endif /* MY_ABC_HERE */
 	len = svc_handle_xprt(rqstp, xprt);
 
 	/* No data, incomplete (TCP) read, or accept() */
@@ -896,6 +909,9 @@ int svc_send(struct svc_rqst *rqstp)
 	struct svc_xprt	*xprt;
 	int		len = -EFAULT;
 	struct xdr_buf	*xb;
+#ifdef MY_ABC_HERE
+	const struct svc_version *vers;
+#endif /* MY_ABC_HERE */
 
 	xprt = rqstp->rq_xprt;
 	if (!xprt)
@@ -910,6 +926,11 @@ int svc_send(struct svc_rqst *rqstp)
 	trace_svc_stats_latency(rqstp);
 
 	len = xprt->xpt_ops->xpo_sendto(rqstp);
+#ifdef MY_ABC_HERE
+	vers = rqstp->rq_server->sv_program->pg_vers[rqstp->rq_vers];
+	if (vers)
+		svc_update_lat(&vers->vs_latency[rqstp->rq_proc], rqstp->rq_xprt_rdtime);
+#endif /* MY_ABC_HERE */
 
 	trace_svc_send(rqstp, len);
 	svc_xprt_release(rqstp);

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * kernel/workqueue.c - generic async execution with shared worker pool
@@ -2267,7 +2270,12 @@ __acquires(&pool->lock)
 	 */
 	lockdep_invariant_state(true);
 	trace_workqueue_execute_start(work);
+#ifdef MY_ABC_HERE
+	worker_run_work(worker, work);
+#else
 	worker->current_func(work);
+#endif /* MY_ABC_HERE */
+
 	/*
 	 * While we must be careful to not use "work" after this, the trace
 	 * point will only record its address.
