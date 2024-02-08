@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <asm/bitsperlong.h>
 
 /*
@@ -715,9 +718,149 @@ __SYSCALL(__NR_userfaultfd, sys_userfaultfd)
 __SYSCALL(__NR_membarrier, sys_membarrier)
 #define __NR_mlock2 284
 __SYSCALL(__NR_mlock2, sys_mlock2)
+#define __NR_copy_file_range 285
+__SYSCALL(__NR_copy_file_range, sys_copy_file_range)
 
 #undef __NR_syscalls
-#define __NR_syscalls 285
+#define __NR_syscalls 286
+
+/*
+ * start - MY_ABC_HERE
+ * Synology defined system calls are listed here.
+ *
+ */
+#define __NR_SYNOUtime 402
+#define SYNOUtime(arg1, arg2)                     syscall(__NR_SYNOUtime, arg1, arg2)
+__SYSCALL(__NR_SYNOUtime, sys_SYNOUtime)
+#define __NR_SYNOArchiveBit 403
+#define SYNOArchiveBit(arg1, arg2)                syscall(__NR_SYNOArchiveBit, arg1, arg2)
+__SYSCALL(__NR_SYNOArchiveBit, sys_SYNOArchiveBit)
+#define __NR_recvfile 404
+#define recvfile(arg1, arg2, arg3, arg4, arg5)    syscall(__NR_recvfile, arg1, arg2, arg3, arg4, arg5)
+__SYSCALL(__NR_recvfile, sys_recvfile)
+#ifdef MY_DEF_HERE
+#define __NR_SYNOMTDAlloc 405
+#define SYNOMTDAlloc(arg1)                        syscall(__NR_SYNOMTDAlloc, arg1)
+__SYSCALL(__NR_SYNOMTDAlloc, sys_SYNOMTDAlloc)
+#endif /* MY_DEF_HERE */
+#define __NR_SYNOCaselessStat 406
+#define SYNOCaselessStat(arg1, arg2)              syscall(__NR_SYNOCaselessStat, arg1, arg2)
+__SYSCALL(__NR_SYNOCaselessStat, sys_SYNOCaselessStat)
+#define __NR_SYNOCaselessLStat 407
+#define SYNOCaselessLStat(arg1, arg2)             syscall(__NR_SYNOCaselessLStat, arg1, arg2)
+__SYSCALL(__NR_SYNOCaselessLStat, sys_SYNOCaselessLStat)
+//408	x32	SYNOCaselessStat64	sys_SYNOCaselessStat64		# not used
+//409	x32	SYNOCaselessLStat64	sys_SYNOCaselessLStat64		# not used
+#define __NR_SYNOEcryptName 410
+#define SYNOEcryptName(arg1, arg2)                syscall(__NR_SYNOEcryptName, arg1, arg2)
+__SYSCALL(__NR_SYNOEcryptName, sys_SYNOEcryptName)
+#define __NR_SYNODecryptName 411
+#define SYNODecryptName(arg1, arg2, arg3)         syscall(__NR_SYNODecryptName, arg1, arg2, arg3)
+__SYSCALL(__NR_SYNODecryptName, sys_SYNODecryptName)
+#define __NR_SYNOACLCheckPerm 412
+#define SYNOACLSysCheckPerm(arg1, arg2)           syscall(__NR_SYNOACLCheckPerm, arg1, arg2)
+__SYSCALL(__NR_SYNOACLCheckPerm, sys_SYNOACLCheckPerm)
+#define __NR_SYNOACLIsSupport 413
+#define SYNOACLSysIsSupport(arg1, arg2, arg3)     syscall(__NR_SYNOACLIsSupport, arg1, arg2, arg3)
+__SYSCALL(__NR_SYNOACLIsSupport, sys_SYNOACLIsSupport)
+#define __NR_SYNOACLGetPerm 414
+#define SYNOACLSysGetPerm(arg1, arg2)             syscall(__NR_SYNOACLGetPerm, arg1, arg2)
+__SYSCALL(__NR_SYNOACLGetPerm, sys_SYNOACLGetPerm)
+#define __NR_SYNOFlushAggregate 415
+#define SYNOFlushAggregate(arg1)                  syscall(__NR_SYNOFlushAggregate, arg1)
+__SYSCALL(__NR_SYNOFlushAggregate, sys_SYNOFlushAggregate)
+//416	# not used
+//417	# not used
+//418	# not used
+#define __NR_SYNOStat 419
+#define SYNOStat(arg1, arg2, arg3)                syscall(__NR_SYNOStat, arg1, arg2, arg3)
+__SYSCALL(__NR_SYNOStat, sys_SYNOStat)
+#define __NR_SYNOFStat 420
+#define SYNOFStat(arg1, arg2, arg3)               syscall(__NR_SYNOFStat, arg1, arg2, arg3)
+__SYSCALL(__NR_SYNOFStat, sys_SYNOFStat)
+#define __NR_SYNOLStat 421
+#define SYNOLStat(arg1, arg2, arg3)               syscall(__NR_SYNOLStat, arg1, arg2, arg3)
+__SYSCALL(__NR_SYNOLStat, sys_SYNOLStat)
+#define __NR_SYNONotifyInit 422
+#define SYNONotifyInit(arg1)                      syscall(__NR_SYNONotifyInit, arg1)
+__SYSCALL(__NR_SYNONotifyInit, sys_SYNONotifyInit)
+#define __NR_SYNONotifyAddWatch 423
+#define SYNONotifyAddWatch(arg1, arg2, arg3)      syscall(__NR_SYNONotifyAddWatch, arg1, arg2, arg3)
+__SYSCALL(__NR_SYNONotifyAddWatch, sys_SYNONotifyAddWatch)
+#define __NR_SYNONotifyRemoveWatch 424
+#define SYNONotifyRemoveWatch(arg1, arg2, arg3)   syscall(__NR_SYNONotifyRemoveWatch, arg1, arg2, arg3)
+__SYSCALL(__NR_SYNONotifyRemoveWatch, sys_SYNONotifyRemoveWatch)
+//425	x32	SYNONotifyAddWatch	sys_SYNONotifyAddWatch32			# not used
+//426	x32	SYNONotifyRemoveWatch	sys_SYNONotifyRemoveWatch32			# not used
+#define __NR_SYNOArchiveOverwrite 427
+#define SYNOArchiveOverwrite(arg1, arg2)          syscall(__NR_SYNOArchiveOverwrite, arg1, arg2)
+__SYSCALL(__NR_SYNOArchiveOverwrite, sys_SYNOArchiveOverwrite)
+
+#define __NR_syno_utime 802
+#define syno_utime(arg1, arg2)                     syscall(__NR_syno_utime, arg1, arg2)
+__SYSCALL(__NR_syno_utime, sys_syno_utime)
+#define __NR_syno_archive_bit 803
+#define syno_archive_bit(arg1, arg2)                syscall(__NR_syno_archive_bit, arg1, arg2)
+__SYSCALL(__NR_syno_archive_bit, sys_syno_archive_bit)
+#define __NR_syno_recv_file 804
+#define syno_recv_file(arg1, arg2, arg3, arg4, arg5)    syscall(__NR_syno_recv_file, arg1, arg2, arg3, arg4, arg5)
+__SYSCALL(__NR_syno_recv_file, sys_syno_recv_file)
+#ifdef MY_DEF_HERE
+#define __NR_syno_mtd_alloc 805
+#define syno_mtd_alloc(arg1)                        syscall(__NR_syno_mtd_alloc, arg1)
+__SYSCALL(__NR_syno_mtd_alloc, sys_syno_mtd_alloc)
+#endif /* MY_DEF_HERE */
+#define __NR_syno_caseless_stat 806
+#define syno_caseless_stat(arg1, arg2)              syscall(__NR_syno_caseless_stat, arg1, arg2)
+__SYSCALL(__NR_syno_caseless_stat, sys_syno_caseless_stat)
+#define __NR_syno_caseless_lstat 807
+#define syno_caseless_lstat(arg1, arg2)             syscall(__NR_syno_caseless_lstat, arg1, arg2)
+__SYSCALL(__NR_syno_caseless_lstat, sys_syno_caseless_lstat)
+#define __NR_syno_ecrypt_name 810
+#define syno_ecrypt_name(arg1, arg2)                syscall(__NR_syno_ecrypt_name, arg1, arg2)
+__SYSCALL(__NR_syno_ecrypt_name, sys_syno_ecrypt_name)
+#define __NR_syno_decrypt_name 811
+#define syno_decrypt_name(arg1, arg2, arg3)         syscall(__NR_syno_decrypt_name, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_decrypt_name, sys_syno_decrypt_name)
+#define __NR_syno_acl_check_perm 812
+#define syno_acl_check_perm(arg1, arg2)           syscall(__NR_syno_acl_check_perm, arg1, arg2)
+__SYSCALL(__NR_syno_acl_check_perm, sys_syno_acl_check_perm)
+#define __NR_syno_acl_is_support 813
+#define syno_acl_is_support(arg1, arg2, arg3)     syscall(__NR_syno_acl_is_support, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_acl_is_support, sys_syno_acl_is_support)
+#define __NR_syno_acl_get_perm 814
+#define syno_acl_get_perm(arg1, arg2)             syscall(__NR_syno_acl_get_perm, arg1, arg2)
+__SYSCALL(__NR_syno_acl_get_perm, sys_syno_acl_get_perm)
+#define __NR_syno_flush_aggregate 815
+#define syno_flush_aggregate(arg1)                  syscall(__NR_syno_flush_aggregate, arg1)
+__SYSCALL(__NR_syno_flush_aggregate, sys_syno_flush_aggregate)
+#define __NR_syno_stat 819
+#define syno_stat(arg1, arg2, arg3)                syscall(__NR_syno_stat, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_stat, sys_syno_stat)
+#define __NR_syno_fstat 820
+#define syno_fstat(arg1, arg2, arg3)               syscall(__NR_syno_fstat, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_fstat, sys_syno_fstat)
+#define __NR_syno_lstat 821
+#define syno_lstat(arg1, arg2, arg3)               syscall(__NR_syno_lstat, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_lstat, sys_syno_lstat)
+#define __NR_syno_notify_init 822
+#define syno_notify_init(arg1)                      syscall(__NR_syno_notify_init, arg1)
+__SYSCALL(__NR_syno_notify_init, sys_syno_notify_init)
+#define __NR_syno_notify_add_watch 823
+#define syno_notify_add_watch(arg1, arg2, arg3)      syscall(__NR_syno_notify_add_watch, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_notify_add_watch, sys_syno_notify_add_watch)
+#define __NR_syno_notify_remove_watch 824
+#define syno_notify_remove_watch(arg1, arg2, arg3)   syscall(__NR_syno_notify_remove_watch, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_notify_remove_watch, sys_syno_notify_remove_watch)
+#define __NR_syno_archive_overwrite 827
+#define syno_archive_overwrite(arg1, arg2)          syscall(__NR_syno_archive_overwrite, arg1, arg2)
+__SYSCALL(__NR_syno_archive_overwrite, sys_syno_archive_overwrite)
+
+#undef __NR_syscalls
+#define __NR_syscalls 828
+/*
+ * end - MY_ABC_HERE
+ */
 
 /*
  * All syscalls below here should go away really,

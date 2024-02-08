@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Synopsys DesignWare I2C adapter driver (master only).
  *
@@ -36,11 +39,15 @@
 #include <linux/platform_device.h>
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
+#include <linux/property.h>
 #include <linux/io.h>
 #include <linux/slab.h>
 #include <linux/acpi.h>
 #include <linux/platform_data/i2c-designware.h>
 #include "i2c-designware-core.h"
+#ifdef MY_DEF_HERE
+#include <linux/synobios.h>
+#endif /* MY_DEF_HERE */
 
 static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
 {
@@ -122,6 +129,9 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
 	{ "80860F41", 0 },
 	{ "808622C1", 0 },
 	{ "AMD0010", ACCESS_INTR_MASK },
+	{ "AMDI0010", ACCESS_INTR_MASK },
+	{ "AMDI0510", 0 },
+	{ "APMC0D0F", 0 },
 	{ }
 };
 MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
@@ -134,10 +144,10 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
 
 static int dw_i2c_plat_probe(struct platform_device *pdev)
 {
+	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
 	struct dw_i2c_dev *dev;
 	struct i2c_adapter *adap;
 	struct resource *mem;
-	struct dw_i2c_platform_data *pdata;
 	int irq, r;
 	u32 clk_freq, ht = 0;
 
@@ -159,35 +169,38 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, dev);
 
 	/* fast mode by default because of legacy reasons */
-	clk_freq = 400000;
-
-	if (has_acpi_companion(&pdev->dev)) {
-		dw_i2c_acpi_configure(pdev);
-	} else if (pdev->dev.of_node) {
-		of_property_read_u32(pdev->dev.of_node,
-					"i2c-sda-hold-time-ns", &ht);
-
-		of_property_read_u32(pdev->dev.of_node,
-				     "i2c-sda-falling-time-ns",
-				     &dev->sda_falling_time);
-		of_property_read_u32(pdev->dev.of_node,
-				     "i2c-scl-falling-time-ns",
-				     &dev->scl_falling_time);
-
-		of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-				     &clk_freq);
-
-		/* Only standard mode at 100kHz and fast mode at 400kHz
-		 * are supported.
-		 */
-		if (clk_freq != 100000 && clk_freq != 400000) {
-			dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
-			return -EINVAL;
-		}
+#ifdef MY_DEF_HERE
+	if (syno_is_hw_version(HW_DS1621p) || syno_is_hw_version(HW_DS1821p)) {
+		clk_freq = 400000;
 	} else {
-		pdata = dev_get_platdata(&pdev->dev);
-		if (pdata)
-			clk_freq = pdata->i2c_scl_freq;
+		clk_freq = 100000;
+	}
+#else /* MY_DEF_HERE */
+	clk_freq = 400000;
+#endif /* MY_DEF_HERE */
+
+	if (pdata) {
+		clk_freq = pdata->i2c_scl_freq;
+	} else {
+		device_property_read_u32(&pdev->dev, "i2c-sda-hold-time-ns",
+					 &ht);
+		device_property_read_u32(&pdev->dev, "i2c-sda-falling-time-ns",
+					 &dev->sda_falling_time);
+		device_property_read_u32(&pdev->dev, "i2c-scl-falling-time-ns",
+					 &dev->scl_falling_time);
+		device_property_read_u32(&pdev->dev, "clock-frequency",
+					 &clk_freq);
+	}
+
+	if (has_acpi_companion(&pdev->dev))
+		dw_i2c_acpi_configure(pdev);
+
+	/*
+	 * Only standard mode at 100kHz and fast mode at 400kHz are supported.
+	 */
+	if (clk_freq != 100000 && clk_freq != 400000) {
+		dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
+		return -EINVAL;
 	}
 
 	r = i2c_dw_eval_lock_support(dev);
@@ -231,7 +244,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
 
 	adap = &dev->adapter;
 	adap->owner = THIS_MODULE;
+#if defined(MY_DEF_HERE)
+	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+#else /* MY_DEF_HERE */
 	adap->class = I2C_CLASS_DEPRECATED;
+#endif /* MY_DEF_HERE */
 	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
 	adap->dev.of_node = pdev->dev.of_node;
 

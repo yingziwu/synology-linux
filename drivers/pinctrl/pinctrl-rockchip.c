@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Pinctrl driver for Rockchip SoCs
  *
@@ -1754,7 +1757,11 @@ static int rockchip_gpiolib_register(struct platform_device *pdev,
 		gc = &bank->gpio_chip;
 		gc->base = bank->pin_base;
 		gc->ngpio = bank->nr_pins;
+#if defined(MY_DEF_HERE)
+		gc->parent = &pdev->dev;
+#else /* MY_DEF_HERE */
 		gc->dev = &pdev->dev;
+#endif /* MY_DEF_HERE */
 		gc->of_node = bank->of_node;
 		gc->label = bank->name;
 

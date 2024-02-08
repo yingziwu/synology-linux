@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _UAPI_LINUX_FS_H
 #define _UAPI_LINUX_FS_H
 
@@ -38,6 +41,13 @@
 #define RENAME_NOREPLACE	(1 << 0)	/* Don't overwrite target */
 #define RENAME_EXCHANGE		(1 << 1)	/* Exchange source and dest */
 #define RENAME_WHITEOUT		(1 << 2)	/* Whiteout source */
+
+struct file_clone_range {
+	__s64 src_fd;
+	__u64 src_offset;
+	__u64 src_length;
+	__u64 dest_offset;
+};
 
 struct fstrim_range {
 	__u64 start;
@@ -91,6 +101,9 @@ struct inodes_stat_t {
 #define MS_I_VERSION	(1<<23) /* Update inode I_version field */
 #define MS_STRICTATIME	(1<<24) /* Always perform atime updates */
 #define MS_LAZYTIME	(1<<25) /* Update the on-disk [acm]times lazily */
+#ifdef MY_ABC_HERE
+#define MS_SYNOACL	(1<<26)	/* Synology ACL */
+#endif /* MY_ABC_HERE */
 
 /* These sb flags are internal to the kernel */
 #define MS_NOSEC	(1<<28)
@@ -152,6 +165,11 @@ struct inodes_stat_t {
 #define BLKSECDISCARD _IO(0x12,125)
 #define BLKROTATIONAL _IO(0x12,126)
 #define BLKZEROOUT _IO(0x12,127)
+#define BLKDAXSET _IO(0x12,128)
+#define BLKDAXGET _IO(0x12,129)
+#ifdef MY_ABC_HERE
+#define BLKHINTUNUSED _IO(0x12,140)
+#endif /* MY_ABC_HERE */
 
 #define BMAP_IOCTL 1		/* obsolete - kept for compatibility */
 #define FIBMAP	   _IO(0x00,1)	/* bmap access */
@@ -159,6 +177,24 @@ struct inodes_stat_t {
 #define FIFREEZE	_IOWR('X', 119, int)	/* Freeze */
 #define FITHAW		_IOWR('X', 120, int)	/* Thaw */
 #define FITRIM		_IOWR('X', 121, struct fstrim_range)	/* Trim */
+#define FICLONE		_IOW(0x94, 9, int)
+#define FICLONERANGE	_IOW(0x94, 13, struct file_clone_range)
+
+#ifdef MY_ABC_HERE
+#define FIGETVERSION			_IOWR('x', 122, unsigned int)	/* get syno archive version */
+#define FISETVERSION			_IOWR('x', 123, unsigned int)	/* set syno archive version */
+#define FIINCVERSION			_IO('x', 124)	/* increase syno archive version by 1 */
+#define FISETFILEVERSION		_IOWR('x', 125, unsigned int)	/* set file syno archive version */
+#ifdef MY_ABC_HERE
+#define FIGETBADVERSION			_IOWR('x', 126, unsigned int)	/* fix bad archive version */
+#define FICLEARBADVERSION		_IO('x', 127)	/* fix bad archive version */
+#define FISETBADVERSION			_IOWR('x', 128, unsigned int)	/* fix bad archive version */
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define FIHINTUNUSED			_IOWR('x', 129, unsigned int)	/* search unused space as hints */
+#endif /* MY_ABC_HERE */
 
 #define	FS_IOC_GETFLAGS			_IOR('f', 1, long)
 #define	FS_IOC_SETFLAGS			_IOW('f', 2, long)

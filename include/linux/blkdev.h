@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _LINUX_BLKDEV_H
 #define _LINUX_BLKDEV_H
 
@@ -197,6 +200,10 @@ struct request {
 
 	/* for bidi */
 	struct request *next_rq;
+#ifdef MY_ABC_HERE
+	unsigned int syno_seq;
+	u64 u64IssueTime;
+#endif /* MY_ABC_HERE */
 };
 
 static inline unsigned short req_get_ioprio(struct request *req)
@@ -329,7 +336,7 @@ struct request_queue {
 	 */
 	struct delayed_work	delay_work;
 
-	struct backing_dev_info	backing_dev_info;
+	struct backing_dev_info	*backing_dev_info;
 
 	/*
 	 * The queue owner gets to use this for whatever they like.
@@ -408,6 +415,7 @@ struct request_queue {
 
 	unsigned int		rq_timeout;
 	struct timer_list	timeout;
+	struct work_struct	timeout_work;
 	struct list_head	timeout_list;
 
 	struct list_head	icq_list;
@@ -442,7 +450,7 @@ struct request_queue {
 	struct mutex		sysfs_lock;
 
 	int			bypass_depth;
-	atomic_t		mq_freeze_depth;
+	int			mq_freeze_depth;
 
 #if defined(CONFIG_BLK_DEV_BSG)
 	bsg_job_fn		*bsg_job_fn;
@@ -456,6 +464,11 @@ struct request_queue {
 #endif
 	struct rcu_head		rcu_head;
 	wait_queue_head_t	mq_freeze_wq;
+	/*
+	 * Protect concurrent access to q_usage_counter by
+	 * percpu_ref_kill() and percpu_ref_reinit().
+	 */
+	struct mutex		mq_freeze_lock;
 	struct percpu_ref	q_usage_counter;
 	struct list_head	all_q_node;
 
@@ -489,6 +502,9 @@ struct request_queue {
 #define QUEUE_FLAG_INIT_DONE   20	/* queue is initialized */
 #define QUEUE_FLAG_NO_SG_MERGE 21	/* don't attempt to merge SG segments*/
 #define QUEUE_FLAG_POLL	       22	/* IO polling enabled if set */
+#ifdef MY_ABC_HERE
+#define QUEUE_FLAG_UNUSED_HINT 31	/* supports unused hint */
+#endif /* MY_ABC_HERE */
 
 #define QUEUE_FLAG_DEFAULT	((1 << QUEUE_FLAG_IO_STAT) |		\
 				 (1 << QUEUE_FLAG_STACKABLE)	|	\
@@ -577,6 +593,9 @@ static inline void queue_flag_clear(unsigned int flag, struct request_queue *q)
 #define blk_queue_discard(q)	test_bit(QUEUE_FLAG_DISCARD, &(q)->queue_flags)
 #define blk_queue_secdiscard(q)	(blk_queue_discard(q) && \
 	test_bit(QUEUE_FLAG_SECDISCARD, &(q)->queue_flags))
+#ifdef MY_ABC_HERE
+#define blk_queue_unused_hint(q)	test_bit(QUEUE_FLAG_UNUSED_HINT, &(q)->queue_flags)
+#endif /* MY_ABC_HERE */
 
 #define blk_noretry_request(rq) \
 	((rq)->cmd_flags & (REQ_FAILFAST_DEV|REQ_FAILFAST_TRANSPORT| \
@@ -659,6 +678,11 @@ static inline bool blk_check_merge_flags(unsigned int flags1,
 {
 	if ((flags1 & REQ_DISCARD) != (flags2 & REQ_DISCARD))
 		return false;
+
+#ifdef MY_ABC_HERE
+	if ((flags1 & REQ_UNUSED_HINT) != (flags2 & REQ_UNUSED_HINT))
+		return false;
+#endif /* MY_ABC_HERE */
 
 	if ((flags1 & REQ_SECURE) != (flags2 & REQ_SECURE))
 		return false;
@@ -794,7 +818,7 @@ extern int scsi_cmd_ioctl(struct request_queue *, struct gendisk *, fmode_t,
 extern int sg_scsi_ioctl(struct request_queue *, struct gendisk *, fmode_t,
 			 struct scsi_ioctl_command __user *);
 
-extern int blk_queue_enter(struct request_queue *q, gfp_t gfp);
+extern int blk_queue_enter(struct request_queue *q, bool nowait);
 extern void blk_queue_exit(struct request_queue *q);
 extern void blk_start_queue(struct request_queue *q);
 extern void blk_start_queue_async(struct request_queue *q);
@@ -866,6 +890,11 @@ static inline unsigned int blk_queue_get_max_sectors(struct request_queue *q,
 	if (unlikely(cmd_flags & REQ_DISCARD))
 		return min(q->limits.max_discard_sectors, UINT_MAX >> 9);
 
+#ifdef MY_ABC_HERE
+	if (unlikely(cmd_flags & REQ_UNUSED_HINT))
+		return (UINT_MAX >> 9);
+#endif /* MY_ABC_HERE */
+
 	if (unlikely(cmd_flags & REQ_WRITE_SAME))
 		return q->limits.max_write_same_sectors;
 
@@ -895,6 +924,11 @@ static inline unsigned int blk_rq_get_max_sectors(struct request *rq)
 
 	if (!q->limits.chunk_sectors || (rq->cmd_flags & REQ_DISCARD))
 		return blk_queue_get_max_sectors(q, rq->cmd_flags);
+
+#ifdef MY_ABC_HERE
+	if (!q->limits.chunk_sectors || (rq->cmd_flags & REQ_UNUSED_HINT))
+		return blk_queue_get_max_sectors(q, rq->cmd_flags);
+#endif /* MY_ABC_HERE */
 
 	return min(blk_max_size_offset(q, blk_rq_pos(rq)),
 			blk_queue_get_max_sectors(q, rq->cmd_flags));
@@ -967,6 +1001,9 @@ extern void blk_queue_max_segments(struct request_queue *, unsigned short);
 extern void blk_queue_max_segment_size(struct request_queue *, unsigned int);
 extern void blk_queue_max_discard_sectors(struct request_queue *q,
 		unsigned int max_discard_sectors);
+#ifdef MY_ABC_HERE
+extern void syno_limits_logical_block_size(struct queue_limits *limits, unsigned short size);
+#endif /* MY_ABC_HERE */
 extern void blk_queue_max_write_same_sectors(struct request_queue *q,
 		unsigned int max_write_same_sectors);
 extern void blk_queue_logical_block_size(struct request_queue *, unsigned short);
@@ -1003,7 +1040,6 @@ extern void blk_queue_rq_timed_out(struct request_queue *, rq_timed_out_fn *);
 extern void blk_queue_rq_timeout(struct request_queue *, unsigned int);
 extern void blk_queue_flush(struct request_queue *q, unsigned int flush);
 extern void blk_queue_flush_queueable(struct request_queue *q, bool queueable);
-extern struct backing_dev_info *blk_get_backing_dev_info(struct block_device *bdev);
 
 extern int blk_rq_map_sg(struct request_queue *, struct request *, struct scatterlist *);
 extern void blk_dump_rq_flags(struct request *, char *);
@@ -1054,6 +1090,7 @@ struct blk_plug {
 	struct list_head cb_list; /* md requires an unplug callback */
 };
 #define BLK_MAX_REQUEST_COUNT 16
+#define BLK_PLUG_FLUSH_SIZE (128 * 1024)
 
 struct blk_plug_cb;
 typedef void (*blk_plug_cb_fn)(struct blk_plug_cb *, bool);
@@ -1067,6 +1104,9 @@ extern struct blk_plug_cb *blk_check_plugged(blk_plug_cb_fn unplug,
 extern void blk_start_plug(struct blk_plug *);
 extern void blk_finish_plug(struct blk_plug *);
 extern void blk_flush_plug_list(struct blk_plug *, bool);
+#ifdef  MY_ABC_HERE
+extern void syno_flashcache_return_error(struct bio *bio);
+#endif /* MY_ABC_HERE */
 
 static inline void blk_flush_plug(struct task_struct *tsk)
 {
@@ -1124,6 +1164,16 @@ extern int blkdev_issue_write_same(struct block_device *bdev, sector_t sector,
 		sector_t nr_sects, gfp_t gfp_mask, struct page *page);
 extern int blkdev_issue_zeroout(struct block_device *bdev, sector_t sector,
 		sector_t nr_sects, gfp_t gfp_mask, bool discard);
+#ifdef MY_ABC_HERE
+extern int blkdev_hint_unused(struct block_device *bdev, sector_t sector,
+		sector_t nr_sects, gfp_t gfp_mask);
+static inline int sb_hint_unused(struct super_block *sb, sector_t block,
+		sector_t nr_blocks, gfp_t gfp_mask)
+{
+	return blkdev_hint_unused(sb->s_bdev, block << (sb->s_blocksize_bits - 9),
+				    nr_blocks << (sb->s_blocksize_bits - 9), gfp_mask);
+}
+#endif /* MY_ABC_HERE */
 static inline int sb_issue_discard(struct super_block *sb, sector_t block,
 		sector_t nr_blocks, gfp_t gfp_mask, unsigned long flags)
 {

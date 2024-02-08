@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * mm/mmap.c
  *
@@ -42,6 +45,9 @@
 #include <linux/memory.h>
 #include <linux/printk.h>
 #include <linux/userfaultfd_k.h>
+#ifdef MY_ABC_HERE
+#include <linux/fsnotify.h>
+#endif /* MY_ABC_HERE */
 
 #include <asm/uaccess.h>
 #include <asm/cacheflush.h>
@@ -275,7 +281,11 @@ static struct vm_area_struct *remove_vma(struct vm_area_struct *vma)
 	if (vma->vm_ops && vma->vm_ops->close)
 		vma->vm_ops->close(vma);
 	if (vma->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+		vma_fput(vma);
+#else
 		fput(vma->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 	mpol_put(vma_policy(vma));
 	kmem_cache_free(vm_area_cachep, vma);
 	return next;
@@ -905,7 +915,11 @@ again:			remove_next = 1 + (end > next->vm_end);
 	if (remove_next) {
 		if (file) {
 			uprobe_munmap(next, next->vm_start, next->vm_end);
+#ifdef CONFIG_AUFS_FHSM
+			vma_fput(vma);
+#else
 			fput(file);
+#endif /* CONFIG_AUFS_FHSM */
 		}
 		if (next->anon_vma)
 			anon_vma_merge(vma, next);
@@ -1731,8 +1745,13 @@ out:
 	return addr;
 
 unmap_and_free_vma:
+#ifdef CONFIG_AUFS_FHSM
+	vma_fput(vma);
+#endif
 	vma->vm_file = NULL;
+#ifndef CONFIG_AUFS_FHSM
 	fput(file);
+#endif
 
 	/* Undo any partial mapping done by a device driver. */
 	unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
@@ -2550,7 +2569,11 @@ static int __split_vma(struct mm_struct *mm, struct vm_area_struct *vma,
 		goto out_free_mpol;
 
 	if (new->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+		vma_get_file(new);
+#else
 		get_file(new->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 
 	if (new->vm_ops && new->vm_ops->open)
 		new->vm_ops->open(new);
@@ -2569,7 +2592,11 @@ static int __split_vma(struct mm_struct *mm, struct vm_area_struct *vma,
 	if (new->vm_ops && new->vm_ops->close)
 		new->vm_ops->close(new);
 	if (new->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+		vma_fput(new);
+#else
 		fput(new->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 	unlink_anon_vmas(new);
  out_free_mpol:
 	mpol_put(vma_policy(new));
@@ -2667,6 +2694,10 @@ int do_munmap(struct mm_struct *mm, unsigned long start, size_t len)
 		}
 	}
 
+#ifdef MY_ABC_HERE
+	if (vma->vm_file && (vma->vm_flags & VM_WRITE))
+		fsnotify_modify(vma->vm_file);
+#endif /* MY_ABC_HERE */
 	/*
 	 * Remove the vma's, and unmap the actual pages
 	 */
@@ -2711,7 +2742,9 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
 	struct vm_area_struct *vma;
 	unsigned long populate = 0;
 	unsigned long ret = -EINVAL;
+#ifndef	CONFIG_AUFS_FHSM
 	struct file *file;
+#endif /* CONFIG_AUFS_FHSM */
 
 	pr_warn_once("%s (%d) uses deprecated remap_file_pages() syscall. "
 			"See Documentation/vm/remap_file_pages.txt.\n",
@@ -2779,10 +2812,18 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
 		}
 	}
 
+#ifdef CONFIG_AUFS_FHSM
+	vma_get_file(vma);
+#else
 	file = get_file(vma->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 	ret = do_mmap_pgoff(vma->vm_file, start, size,
 			prot, flags, pgoff, &populate);
+#ifdef CONFIG_AUFS_FHSM
+	vma_fput(vma);
+#else
 	fput(file);
+#endif /* CONFIG_AUFS_FHSM */
 out:
 	up_write(&mm->mmap_sem);
 	if (populate)
@@ -3055,7 +3096,11 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
 		if (anon_vma_clone(new_vma, vma))
 			goto out_free_mempol;
 		if (new_vma->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+			vma_get_file(new_vma);
+#else
 			get_file(new_vma->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 		if (new_vma->vm_ops && new_vma->vm_ops->open)
 			new_vma->vm_ops->open(new_vma);
 		vma_link(mm, new_vma, prev, rb_link, rb_parent);

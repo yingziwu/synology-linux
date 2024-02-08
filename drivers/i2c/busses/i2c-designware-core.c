@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Synopsys DesignWare I2C adapter driver (master only).
  *
@@ -31,6 +34,9 @@
 #include <linux/delay.h>
 #include <linux/module.h>
 #include "i2c-designware-core.h"
+#ifdef MY_DEF_HERE
+#include <linux/synobios.h>
+#endif /* MY_DEF_HERE */
 
 /*
  * Registers offset
@@ -325,6 +331,29 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
 		hcnt = dev->ss_hcnt;
 		lcnt = dev->ss_lcnt;
 	} else {
+#ifdef MY_DEF_HERE
+		if (syno_is_hw_version(HW_DS1621p) || syno_is_hw_version(HW_DS1821p)) {
+			hcnt = i2c_dw_scl_hcnt(input_clock_khz,
+						4000,	/* tHD;STA = tHIGH = 4.0 us */
+						sda_falling_time,
+						0,	/* 0: DW default, 1: Ideal */
+						0);	/* No offset */
+			lcnt = i2c_dw_scl_lcnt(input_clock_khz,
+						4700,	/* tLOW = 4.7 us */
+						scl_falling_time,
+						0);	/* No offset */
+		} else {
+			hcnt = i2c_dw_scl_hcnt(input_clock_khz,
+						5000,	/* tHD;STA = tHIGH = 5.0 us */
+						sda_falling_time,
+						0,	/* 0: DW default, 1: Ideal */
+						0);	/* No offset */
+			lcnt = i2c_dw_scl_lcnt(input_clock_khz,
+						5000,	/* tLOW = 5.0 us */
+						scl_falling_time,
+						0);	/* No offset */
+		}
+#else /* MY_DEF_HERE */
 		hcnt = i2c_dw_scl_hcnt(input_clock_khz,
 					4000,	/* tHD;STA = tHIGH = 4.0 us */
 					sda_falling_time,
@@ -334,6 +363,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
 					4700,	/* tLOW = 4.7 us */
 					scl_falling_time,
 					0);	/* No offset */
+#endif /* MY_DEF_HERE */
 	}
 	dw_writel(dev, hcnt, DW_IC_SS_SCL_HCNT);
 	dw_writel(dev, lcnt, DW_IC_SS_SCL_LCNT);
@@ -436,6 +466,9 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
 
 	/* Enable the adapter */
 	__i2c_dw_enable(dev, true);
+
+	/* Dummy read to avoid the register getting stuck on Bay Trail */
+	dw_readl(dev, DW_IC_ENABLE_STATUS);
 
 	/* Clear and enable interrupts */
 	dw_readl(dev, DW_IC_CLR_INTR);

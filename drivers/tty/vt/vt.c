@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Copyright (C) 1991, 1992  Linus Torvalds
  */
@@ -2542,6 +2545,12 @@ int vt_kmsg_redirect(int new)
 		return kmsg_con;
 }
 
+#ifdef MY_ABC_HERE
+/*
+ * virtual terminal is not actvated in our implementation,
+ * so the related functions is not needed.
+ */
+#else /* MY_ABC_HERE */
 /*
  *	Console on virtual terminal
  *
@@ -2654,6 +2663,7 @@ static struct console vt_console_driver = {
 	.flags		= CON_PRINTBUFFER,
 	.index		= -1,
 };
+#endif /* MY_ABC_HERE */
 #endif
 
 /*
@@ -3030,7 +3040,14 @@ static int __init con_init(void)
 	console_unlock();
 
 #ifdef CONFIG_VT_CONSOLE
+#ifdef MY_ABC_HERE
+/*
+ * virtual terminal is not actvated in our implementation,
+ * so the related functions is not needed.
+ */
+#else /* MY_ABC_HERE */
 	register_console(&vt_console_driver);
+#endif /* MY_ABC_HERE */
 #endif
 	return 0;
 }

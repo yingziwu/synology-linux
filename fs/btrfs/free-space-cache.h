@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2009 Oracle.  All rights reserved.
  *
@@ -37,7 +40,7 @@ struct btrfs_free_space_ctl {
 	int total_bitmaps;
 	int unit;
 	u64 start;
-	struct btrfs_free_space_op *op;
+	const struct btrfs_free_space_op *op;
 	void *private;
 	struct mutex cache_writeout_mutex;
 	struct list_head trimming_ranges;
@@ -112,7 +115,11 @@ void btrfs_dump_free_space(struct btrfs_block_group_cache *block_group,
 int btrfs_find_space_cluster(struct btrfs_root *root,
 			     struct btrfs_block_group_cache *block_group,
 			     struct btrfs_free_cluster *cluster,
+#ifdef MY_ABC_HERE
+			     u64 offset, u64 bytes, u64 empty_size, u64 reserve_bytes);
+#else
 			     u64 offset, u64 bytes, u64 empty_size);
+#endif /* MY_ABC_HERE */
 void btrfs_init_free_cluster(struct btrfs_free_cluster *cluster);
 u64 btrfs_alloc_from_cluster(struct btrfs_block_group_cache *block_group,
 			     struct btrfs_free_cluster *cluster, u64 bytes,
@@ -120,10 +127,15 @@ u64 btrfs_alloc_from_cluster(struct btrfs_block_group_cache *block_group,
 int btrfs_return_cluster_to_free_space(
 			       struct btrfs_block_group_cache *block_group,
 			       struct btrfs_free_cluster *cluster);
+#ifdef MY_ABC_HERE
+int btrfs_trim_block_group(struct btrfs_block_group_cache *block_group,
+			   u64 *trimmed, u64 start, u64 end, u64 minlen, enum trim_act act);
+#else /* MY_ABC_HERE */
 int btrfs_trim_block_group(struct btrfs_block_group_cache *block_group,
 			   u64 *trimmed, u64 start, u64 end, u64 minlen);
+#endif /* MY_ABC_HERE */
 
-/* Support functions for runnint our sanity tests */
+/* Support functions for running our sanity tests */
 #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
 int test_add_free_space_entry(struct btrfs_block_group_cache *cache,
 			      u64 offset, u64 bytes, bool bitmap);

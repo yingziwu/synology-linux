@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/kernel/fork.c
  *
@@ -472,7 +475,11 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
 			struct inode *inode = file_inode(file);
 			struct address_space *mapping = file->f_mapping;
 
+#ifdef CONFIG_AUFS_FHSM
+			vma_get_file(tmp);
+#else
 			get_file(file);
+#endif /* CONFIG_AUFS_FHSM */
 			if (tmp->vm_flags & VM_DENYWRITE)
 				atomic_dec(&inode->i_writecount);
 			i_mmap_lock_write(mapping);
@@ -821,6 +828,29 @@ struct mm_struct *get_task_mm(struct task_struct *task)
 	return mm;
 }
 EXPORT_SYMBOL_GPL(get_task_mm);
+
+#ifdef MY_ABC_HERE
+struct mm_struct *syno_get_task_mm(struct task_struct *task)
+{
+	struct mm_struct *mm;
+
+	task_lock(task);
+	mm = task->mm;
+	if (mm) {
+		atomic_inc(&mm->mm_users);
+	} else {
+		mm = task->active_mm;
+		if (mm) {
+			atomic_inc(&mm->mm_users);
+		} else {
+			mm = NULL;
+		}
+	}
+	task_unlock(task);
+	return mm;
+}
+EXPORT_SYMBOL_GPL(syno_get_task_mm);
+#endif /* MY_ABC_HERE */
 
 struct mm_struct *mm_access(struct task_struct *task, unsigned int mode)
 {
@@ -1510,6 +1540,9 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 
 #ifdef CONFIG_BLOCK
 	p->plug = NULL;
+#endif
+#ifdef MY_ABC_HERE
+	p->workacct = NULL;
 #endif
 #ifdef CONFIG_FUTEX
 	p->robust_list = NULL;

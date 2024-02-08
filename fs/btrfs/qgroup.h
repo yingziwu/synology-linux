@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2014 Facebook.  All rights reserved.
  *
@@ -26,6 +29,21 @@
  * Record a dirty extent, and info qgroup to update quota on it
  * TODO: Use kmem cache to alloc it.
  */
+#ifdef MY_ABC_HERE
+struct btrfs_quota_account_rec {
+	struct list_head list;
+	u64 ref_root;
+	u64 bytenr;
+	u64 num_bytes;
+	u64 ram_bytes;
+	unsigned int op_type:1;
+#ifdef MY_ABC_HERE
+	u64 objectid;
+	uid_t uid;
+	struct inode *inode;
+#endif /* MY_ABC_HERE */
+};
+#endif /* MY_ABC_HERE */
 struct btrfs_qgroup_extent_record {
 	struct rb_node node;
 	u64 bytenr;
@@ -62,6 +80,12 @@ int btrfs_limit_qgroup(struct btrfs_trans_handle *trans,
 int btrfs_read_qgroup_config(struct btrfs_fs_info *fs_info);
 void btrfs_free_qgroup_config(struct btrfs_fs_info *fs_info);
 struct btrfs_delayed_extent_op;
+#ifdef MY_ABC_HERE
+int btrfs_insert_quota_record(struct btrfs_trans_handle *trans,
+				  struct btrfs_delayed_ref_node *node);
+int btrfs_quota_accounting(struct btrfs_trans_handle *trans,
+				  struct btrfs_fs_info *fs_info);
+#else
 int btrfs_qgroup_prepare_account_extents(struct btrfs_trans_handle *trans,
 					 struct btrfs_fs_info *fs_info);
 struct btrfs_qgroup_extent_record
@@ -74,6 +98,7 @@ btrfs_qgroup_account_extent(struct btrfs_trans_handle *trans,
 			    struct ulist *old_roots, struct ulist *new_roots);
 int btrfs_qgroup_account_extents(struct btrfs_trans_handle *trans,
 				 struct btrfs_fs_info *fs_info);
+#endif /* MY_ABC_HERE */
 int btrfs_run_qgroups(struct btrfs_trans_handle *trans,
 		      struct btrfs_fs_info *fs_info);
 int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans,
@@ -99,6 +124,12 @@ int btrfs_verify_qgroup_counts(struct btrfs_fs_info *fs_info, u64 qgroupid,
 #endif
 
 /* New io_tree based accurate qgroup reserve API */
+#ifdef MY_ABC_HERE
+int btrfs_quota_reserve(struct btrfs_root *root, struct inode *inode,
+						 u64 num_bytes);
+void btrfs_quota_reserve_free(struct btrfs_root *root,
+						 struct inode *inode, u64 num_bytes);
+#endif /* MY_ABC_HERE */
 int btrfs_qgroup_reserve_data(struct inode *inode, u64 start, u64 len);
 int btrfs_qgroup_release_data(struct inode *inode, u64 start, u64 len);
 int btrfs_qgroup_free_data(struct inode *inode, u64 start, u64 len);
@@ -107,4 +138,10 @@ int btrfs_qgroup_reserve_meta(struct btrfs_root *root, int num_bytes);
 void btrfs_qgroup_free_meta_all(struct btrfs_root *root);
 void btrfs_qgroup_free_meta(struct btrfs_root *root, int num_bytes);
 void btrfs_qgroup_check_reserved_leak(struct inode *inode);
+
+#ifdef MY_ABC_HERE
+void btrfs_qgroup_query(struct btrfs_fs_info *fs_info, u64 qgroupid,
+                        struct btrfs_ioctl_qgroup_query_args *qqa);
+#endif /* MY_ABC_HERE */
+
 #endif /* __BTRFS_QGROUP__ */

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * mm/page-writeback.c
  *
@@ -429,6 +432,9 @@ void global_dirty_limits(unsigned long *pbackground, unsigned long *pdirty)
 	*pbackground = gdtc.bg_thresh;
 	*pdirty = gdtc.thresh;
 }
+#ifdef MY_ABC_HERE
+EXPORT_SYMBOL(global_dirty_limits);
+#endif /* MY_ABC_HERE */
 
 /**
  * zone_dirty_limit - maximum number of dirty pages allowed in a zone
@@ -1978,11 +1984,11 @@ void laptop_mode_timer_fn(unsigned long data)
 	 * We want to write everything out, not just down to the dirty
 	 * threshold
 	 */
-	if (!bdi_has_dirty_io(&q->backing_dev_info))
+	if (!bdi_has_dirty_io(q->backing_dev_info))
 		return;
 
 	rcu_read_lock();
-	list_for_each_entry_rcu(wb, &q->backing_dev_info.wb_list, bdi_node)
+	list_for_each_entry_rcu(wb, &q->backing_dev_info->wb_list, bdi_node)
 		if (wb_has_dirty_io(wb))
 			wb_start_writeback(wb, nr_pages, true,
 					   WB_REASON_LAPTOP_TIMER);
@@ -2824,7 +2830,11 @@ EXPORT_SYMBOL(mapping_tagged);
  */
 void wait_for_stable_page(struct page *page)
 {
+#ifdef MY_ABC_HERE
+	if (bdi_cap_stable_pages_required(&syno_backing_dev_info) || bdi_cap_stable_pages_required(inode_to_bdi(page->mapping->host)))
+#else /* MY_ABC_HERE */
 	if (bdi_cap_stable_pages_required(inode_to_bdi(page->mapping->host)))
+#endif /* MY_ABC_HERE */
 		wait_on_page_writeback(page);
 }
 EXPORT_SYMBOL_GPL(wait_for_stable_page);

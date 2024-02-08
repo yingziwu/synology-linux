@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/drivers/char/serial_core.h
  *
@@ -432,6 +435,15 @@ uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
 {
 	if (port->sysrq) {
 		if (ch && time_before(jiffies, port->sysrq)) {
+#ifdef MY_DEF_HERE
+			/* This is a workaround for skipping extension
+			 * characters larger than 0x7F, which can't be
+			 * entered from keyboard.
+			 */
+			if (0x7F < ch) {
+				return 1;
+			}
+#endif /* MY_DEF_HERE */
 			handle_sysrq(ch);
 			port->sysrq = 0;
 			return 1;
