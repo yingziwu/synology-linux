@@ -83,7 +83,8 @@ struct btrfs_inode {
 	/*
 	 * Lock for counters and all fields used to determine if the inode is in
 	 * the log or not (last_trans, last_sub_trans, last_log_commit,
-	 * logged_trans).
+	 * logged_trans), to access/update new_delalloc_bytes and to update the
+	 * VFS' inode number of bytes used.
 	 */
 	spinlock_t lock;
 
@@ -152,6 +153,13 @@ struct btrfs_inode {
 	 * real block usage of the file
 	 */
 	u64 delalloc_bytes;
+
+	/*
+	 * Total number of bytes pending delalloc that fall within a file
+	 * range that is either a hole or beyond EOF (and no prealloc extent
+	 * exists in the range). This is always <= delalloc_bytes.
+	 */
+	u64 new_delalloc_bytes;
 
 	/*
 	 * total number of bytes pending defrag, used by stat to check whether
@@ -316,6 +324,17 @@ static inline int btrfs_inode_in_log(struct inode *inode, u64 generation)
 	}
 	spin_unlock(&BTRFS_I(inode)->lock);
 	return ret;
+}
+
+/*
+ * Check if the inode has flags compatible with compression
+ */
+static inline bool btrfs_inode_can_compress(const struct btrfs_inode *inode)
+{
+	if (inode->flags & BTRFS_INODE_NODATACOW ||
+	    inode->flags & BTRFS_INODE_NODATASUM)
+		return false;
+	return true;
 }
 
 struct btrfs_dio_private {

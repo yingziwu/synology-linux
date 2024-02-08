@@ -12,6 +12,9 @@
  * Dsc: cedarview will reboot failed if it is not EFI. 
  * revert f70e957cda22d309c769805cbb932407a5232219
  */
+#if defined(MY_DEF_HERE) && defined(MY_DEF_HERE)
+#define SYNO_CEDARVIEW_USE_EFI_REBOOT
+#endif
 
 /**
  * Fix: no bug entry
@@ -33,20 +36,27 @@
  * Fix: no bug entry
  * Dsc: support flash partitioning for Evansport
  */
+#if defined(CONFIG_SYNO_X86) && defined(CONFIG_ARCH_GEN3)
+#define SYNO_EVANSPORT_FLASH_PART
+#endif
 
 /**
  * Fix: no bug entry
  * Dsc: GPIO functions for Evansport
  */
+#if defined(CONFIG_SYNO_X86) && defined(CONFIG_ARCH_GEN3)
+#define SYNO_EVANSPORT_GPIO_CTRL
+#endif
 
 /**
  * Fix: DSM #43450
  * Dsc: Power-Off Sequence For Evansport, sending the command to MicroP
  * IN : arch/x86/kernel/reboot.c
  */
-#if defined(MY_DEF_HERE) && defined(CONFIG_ARCH_GEN3)
+#if defined(CONFIG_SYNO_X86) && defined(CONFIG_ARCH_GEN3)
+#define SYNO_EVANSPORT_POWEROFF
 
-#ifdef MY_DEF_HERE
+#ifdef SYNO_EVANSPORT_POWEROFF
 #define SYNO_EVANSPORT_TTYS1_PORT	0x2F8
 #define SYNO_EVANSPORT_SET8N1		0x3
 #define SYNO_EVANSPORT_SHUTDOWN_CMD	0x31
@@ -60,24 +70,36 @@
  * Dsc: Export the symbol intelce_get_board_type
  * in : arch/x86/pci/intel_media_proc_gen3.c kernel/irq/irqdesc.c
  */
+#if defined(CONFIG_SYNO_X86) && defined(CONFIG_ARCH_GEN3)
+#define SYNO_EVANSPORT_EXPORT_SYMBOL
+#endif
 
 /**
  * Fix: #47018, #47019
  * Dsc: Force the smbd processes to be non-preemptive
  * in : kernel/sched.c
  */
+#if defined(CONFIG_SYNO_X86) && defined(CONFIG_ARCH_GEN3)
+#define SYNO_EVANSPORT_NON_PREEMPT_SMB
+#endif
 
 /**
  * Fix: #47090, #48801
  * Dsc: Workaround for the issue that wol config sometimes is not valid
  * in : drivers/net/ethernet/intel/e1000/e1000_main.c
  */
+#if defined(CONFIG_SYNO_X86) && defined(CONFIG_ARCH_GEN3)
+#define SYNO_EVANSPORT_WOL_WORKAROUND
+#endif
 
 /**
  * Fix: #48803
  * Dsc: Workaround for the issue that route init might fail with iptable enabled
  * in : net/ipv4/route.c
  */
+#if defined(CONFIG_SYNO_X86) && defined(CONFIG_ARCH_GEN3)
+#define SYNO_EVANSPORT_IPV4_ROUTE_WORKAROUND
+#endif
 
 /**
  * See bug #26535, #22204, #21688, this is a workaround for factory mis-use 0xF401 in bromolow & pineview as synoboot device
@@ -107,6 +129,9 @@
 /**
  * Dsc: Let 6281 soc register before 7042.
  */
+#if defined(CONFIG_ARCH_FEROCEON) || defined(CONFIG_ARCH_KIRKWOOD) || defined(CONFIG_ARCH_ARMADA370)
+#define SYNO_ESATA_7042
+#endif
 
 /**
  * Dsc: Supporting EUP standby mode control.
@@ -142,6 +167,9 @@
  * Dsc: Turn on/off the leds of the e1000e NIC
  * Yet: The implementation of this fix has been moved to project intel-e1000e
  */
+#ifdef MY_DEF_HERE
+#define SYNO_E1000E_LED_SWITCH
+#endif /* MY_DEF_HERE */
 
 /**
  * Fix: #49532, #49533 
@@ -456,6 +484,9 @@
  * Dsc: added features to switch the achi led on and off
  * Yet: kernel/sysctl.c include/linux/libata.h drivers/ata/ahci.c drivers/ata/libata-core.c
  */
+#ifdef MY_DEF_HERE
+#define SYNO_ATA_AHCI_LED_SWITCH
+#endif /* CONFIG_SYNO_SATA_AHCI_LED_SWITCH */
 
 /**
  * Fix: #21684
@@ -600,6 +631,9 @@
  * combine ecryptfs and ocf framework.
  * Only open this function when OCF framework is used.
 */
+#if defined(MY_DEF_HERE) && !defined(CONFIG_CRYPTO_HW)
+#define SYNO_ECRYPTFS_OCF
+#endif
 
 /**
  * Dsc: convert blkcipher to ablkcipher , let ecrpytfs can use
@@ -614,6 +648,9 @@
 /**
  * Dsc: Performance tuning for mv628x.
  */
+#if defined(CONFIG_MV_XOR_MEMCOPY) && defined(MY_ABC_HERE)
+#define SYNO_MV_PERF
+#endif /* CONFIG_MV_XOR_MEMCOPY && MY_ABC_HERE */
 
 /******************************* Misc. ********************************************/
 
@@ -684,7 +721,7 @@
  *      disk active, we have to set the offset 0x104F0 bit 0-1
  *      to 0x00 and bit 2-3 to 1. See data sheet page 282 (Table
  *      232: GPIO port control register), this is for MV BSP driver
- *      MY_DEF_HERE is for open source driver
+ *      SYNO_OSS_SATA_LED is for open source driver
  * IN : mvSata.c
  */
 

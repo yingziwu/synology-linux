@@ -1328,7 +1328,14 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 */
 	retval = -EAGAIN;
 	if (nr_threads >= max_threads)
+#ifdef MY_ABC_HERE
+	{
+		pr_err_ratelimited("fork over limit, threads-max = %d", max_threads);
 		goto bad_fork_cleanup_count;
+	}
+#else /* MY_ABC_HERE */
+		goto bad_fork_cleanup_count;
+#endif /* MY_ABC_HERE */
 
 	if (!try_module_get(task_thread_info(p)->exec_domain->module))
 		goto bad_fork_cleanup_count;

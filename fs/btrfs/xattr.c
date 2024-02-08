@@ -436,6 +436,39 @@ ssize_t btrfs_getxattr(struct dentry *dentry, const char *name,
 	return __btrfs_getxattr(dentry->d_inode, name, buffer, size);
 }
 
+/* for btrfs property */
+static int btrfs_xattr_handler_set_prop(struct dentry *dentry,
+					const char *name, const void *value,
+					size_t size, int flags)
+{
+	int ret;
+	struct inode *inode = dentry->d_inode;
+	struct btrfs_trans_handle *trans;
+	struct btrfs_root *root = BTRFS_I(inode)->root;
+
+	ret = btrfs_validate_prop(BTRFS_I(inode), name, value, size);
+	if (ret)
+		return ret;
+
+	trans = btrfs_start_transaction(root, 2);
+	if (IS_ERR(trans))
+		return PTR_ERR(trans);
+
+	ret = btrfs_set_prop(trans, inode, name, value, size, flags);
+	if (!ret) {
+		inode_inc_iversion(inode);
+		inode->i_ctime = current_fs_time(inode->i_sb);
+		set_bit(BTRFS_INODE_COPY_EVERYTHING,
+			&BTRFS_I(inode)->runtime_flags);
+		ret = btrfs_update_inode(trans, root, inode);
+		BUG_ON(ret);
+	}
+
+	btrfs_end_transaction(trans, root);
+
+	return ret;
+}
+
 int btrfs_setxattr(struct dentry *dentry, const char *name, const void *value,
 		   size_t size, int flags)
 {
@@ -465,8 +498,7 @@ int btrfs_setxattr(struct dentry *dentry, const char *name, const void *value,
 		return -EOPNOTSUPP;
 
 	if (!strncmp(name, XATTR_BTRFS_PREFIX, XATTR_BTRFS_PREFIX_LEN))
-		return btrfs_set_prop(dentry->d_inode, name,
-				      value, size, flags);
+		return btrfs_xattr_handler_set_prop(dentry, name, value, size, flags);
 
 	if (size == 0)
 		value = "";  /* empty EA, do not remove */
@@ -498,8 +530,7 @@ int btrfs_removexattr(struct dentry *dentry, const char *name)
 		return -EOPNOTSUPP;
 
 	if (!strncmp(name, XATTR_BTRFS_PREFIX, XATTR_BTRFS_PREFIX_LEN))
-		return btrfs_set_prop(dentry->d_inode, name,
-				      NULL, 0, XATTR_REPLACE);
+		return btrfs_xattr_handler_set_prop(dentry, name, NULL, 0, XATTR_REPLACE);
 
 	return __btrfs_setxattr(NULL, dentry->d_inode, name, NULL, 0,
 				XATTR_REPLACE);

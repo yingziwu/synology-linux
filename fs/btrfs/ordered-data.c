@@ -525,6 +525,7 @@ void btrfs_remove_ordered_extent(struct inode *inode,
 	root->nr_ordered_extents--;
 #ifdef MY_DEF_HERE
 	atomic64_dec(&root->fs_info->syno_ordered_extent_nr);
+	atomic64_inc(&root->fs_info->syno_ordered_extent_processed_nr);
 #endif /* MY_DEF_HERE */
 
 	trace_btrfs_ordered_extent_remove(inode, entry);
