@@ -162,6 +162,7 @@ static const struct irq_source_info_funcs vblank_irq_info_funcs = {
 	BASE(mm ## block ## id ## _ ## reg_name ## _BASE_IDX) + \
 			mm ## block ## id ## _ ## reg_name
 
+
 #define IRQ_REG_ENTRY(block, reg_num, reg1, mask1, reg2, mask2)\
 	.enable_reg = SRI(reg1, block, reg_num),\
 	.enable_mask = \

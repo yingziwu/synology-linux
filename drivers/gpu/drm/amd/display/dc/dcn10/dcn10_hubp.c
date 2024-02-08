@@ -171,6 +171,7 @@ void hubp1_program_size_and_rotation(
 	else
 		mirror = 0;
 
+
 	/* Program rotation angle and horz mirror - no mirror */
 	if (rotation == ROTATION_ANGLE_0)
 		REG_UPDATE_2(DCSURF_SURFACE_CONFIG,
@@ -477,6 +478,7 @@ void hubp1_program_requestor(
 		SWATH_HEIGHT_C, rq_regs->rq_regs_c.swath_height,
 		PTE_ROW_HEIGHT_LINEAR_C, rq_regs->rq_regs_c.pte_row_height_linear);
 }
+
 
 void hubp1_program_deadline(
 		struct hubp *hubp,
@@ -946,3 +948,5 @@ void dcn10_hubp_construct(
 	hubp1->base.opp_id = 0xf;
 	hubp1->base.mpcc_id = 0xf;
 }
+
+

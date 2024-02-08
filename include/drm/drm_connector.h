@@ -126,6 +126,7 @@ struct drm_scdc {
 	struct drm_scrambling scrambling;
 };
 
+
 /**
  * struct drm_hdmi_info - runtime information about the connected HDMI sink
  *

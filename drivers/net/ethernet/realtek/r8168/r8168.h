@@ -1329,6 +1329,7 @@ enum _DescStatusBit {
         TxIPV6F_C   = (1 << 28), /* Indicate it is an IPv6 packet */
         /*@@@@@@ offset 4 of tx descriptor => bits for RTL8168C/CP only     end @@@@@@*/
 
+
         /* Rx private */
         /*------ offset 0 of rx descriptor ------*/
         PID1        = (1 << 18), /* Protocol ID bit 1/2 */

@@ -312,6 +312,7 @@ size_t ion_heap_freelist_shrink(struct ion_heap *heap,
  */
 size_t ion_heap_freelist_size(struct ion_heap *heap);
 
+
 /**
  * functions for creating and destroying the built in ion heaps.
  * architectures can add their own custom architecture specific
@@ -425,6 +426,7 @@ static inline void ion_page_pool_free_set_cache_policy
 				struct page *page){ }
 #endif
 #endif /* MY_DEF_HERE */
+
 
 /** ion_page_pool_shrink - shrinks the size of the memory cached in the pool
  * @pool:		the pool

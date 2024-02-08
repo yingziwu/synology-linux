@@ -9,6 +9,7 @@
  * published by the Free Software Foundation.
  */
 
+
 #include <linux/blkdev.h>
 #include <linux/clk.h>
 #include <linux/debugfs.h>
@@ -422,6 +423,7 @@ static int rtk_sdmmc_pm_suspend(struct device *dev)
 
 	return ret;
 }
+
 
 static int rtk_sdmmc_pm_resume(struct device *dev)
 {

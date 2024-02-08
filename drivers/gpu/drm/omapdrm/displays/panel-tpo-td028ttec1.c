@@ -468,6 +468,7 @@ static const struct spi_device_id td028ttec1_ids[] = {
 
 MODULE_DEVICE_TABLE(spi, td028ttec1_ids);
 
+
 static struct spi_driver td028ttec1_spi_driver = {
 	.probe		= td028ttec1_panel_probe,
 	.remove		= td028ttec1_panel_remove,

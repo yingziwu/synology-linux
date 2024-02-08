@@ -1,6 +1,7 @@
 #ifndef __JPU_MM_H__
 #define __JPU_MM_H__
 
+
 typedef unsigned long long  jmem_key_t;
 
 #define JMEM_PAGE_SIZE           (16*1024)
@@ -15,6 +16,7 @@ typedef struct page_struct {
     int             first_pageno;
 } page_t;
 
+
 typedef struct avl_node_struct {
     jmem_key_t   key;
     int     height;
@@ -22,6 +24,7 @@ typedef struct avl_node_struct {
     struct avl_node_struct* left;
     struct avl_node_struct* right;
 } avl_node_t;
+
 
 typedef struct _jpu_mm_struct {
     avl_node_t*     free_tree;
@@ -34,6 +37,8 @@ typedef struct _jpu_mm_struct {
     int             alloc_page_count;
 } jpu_mm_t;
 
+
+
 #define VMEM_P_ALLOC(_x)         kmalloc(_x, GFP_KERNEL)
 #define VMEM_P_FREE(_x)          kfree(_x)
 
@@ -41,12 +46,15 @@ typedef struct _jpu_mm_struct {
 }
 #define VMEM_HEIGHT(_tree)       (_tree==NULL ? -1 : _tree->height)
 
+
 #define MAX(_a, _b)         (_a >= _b ? _a : _b)
 
 typedef enum {
     LEFT,
     RIGHT
 } rotation_dir_t;
+
+
 
 typedef struct avl_node_data_struct {
     int     key;
@@ -68,6 +76,7 @@ make_avl_node(
 
     return node;
 }
+
 
 static int
 get_balance_factor(
@@ -116,6 +125,7 @@ rotation_left(
 
     return rchild;
 }
+
 
 /*
  * Reft Rotation
@@ -234,6 +244,7 @@ unlink_end_node(
     return do_balance(tree);
 }
 
+
 static avl_node_t*
 avltree_insert(
     avl_node_t* tree,
@@ -335,6 +346,9 @@ jpu_avltree_free(
     tree->right = NULL;
 }
 
+
+
+
 static avl_node_t*
 remove_approx_value(
     avl_node_t* tree,
@@ -432,6 +446,7 @@ set_blocks_alloc(
     mm->alloc_tree = avltree_insert(mm->alloc_tree, MAKE_KEY(page->addr, 0), page);
 }
 
+
 int
 jmem_init(
     jpu_mm_t* mm,
@@ -440,6 +455,7 @@ jmem_init(
 )
 {
     int i;
+
 
     mm->base_addr  = (addr+(JMEM_PAGE_SIZE-1))&~(JMEM_PAGE_SIZE-1);
     mm->mem_size   = size&~JMEM_PAGE_SIZE;
@@ -535,6 +551,7 @@ jmem_alloc(
     mm->alloc_page_count += npages;
     mm->free_page_count  -= npages;
 
+
     return ptr;
 }
 
@@ -551,6 +568,7 @@ jmem_free(
     int pageno, prev_free_pageno, next_free_pageno;
     int prev_size, next_size;
     int merge_page_no, merge_page_size, free_page_size;
+
 
     if (mm == NULL) {
         printk(KERN_INFO "vmem_free: invalid handle\n");
@@ -623,5 +641,7 @@ jmem_free(
 
     return 0;
 }
+
+
 
 #endif /* __JPU_MM_H__ */

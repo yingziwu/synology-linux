@@ -214,6 +214,7 @@ struct dm_bl_data_point {
 /* Total size of the structure should not exceed 256 bytes */
 struct dm_acpi_atif_backlight_caps {
 
+
 	uint16_t size; /* Bytes 0-1 (2 bytes) */
 	uint16_t flags; /* Byted 2-3 (2 bytes) */
 	uint8_t  errorCode; /* Byte 4 */

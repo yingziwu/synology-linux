@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * sensor.c - Realtek generic thermal sensor driver
  *
@@ -41,9 +44,9 @@ static const struct of_device_id thermal_sensor_of_match[];
 static int __thermal_sensor_get_trend(struct thermal_zone_device *tz, int trip,
 				      enum thermal_trend *trend);
 #endif
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 static struct thermal_sensor_device* g_syno_tdev = NULL;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 static struct thermal_sensor_device *tz_to_tdev(struct thermal_zone_device *tz)
 {
@@ -146,9 +149,9 @@ static int thermal_sensor_device_add(struct device *dev,
 	list_add(&tdev->list, &sensor_device_list);
 	tdev->passive_delay = tdev->tz->passive_delay;
 	tdev->polling_delay = tdev->tz->polling_delay;
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	g_syno_tdev = tdev;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 	thermal_sensor_add_eoh(tdev);
 	return 0;
@@ -172,7 +175,7 @@ static int thermal_sensor_get_temp(void *data, int *temp)
 	return ret;
 }
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 int syno_rtd_get_temperature(void)
 {
 	int iRet = -1;
@@ -191,7 +194,8 @@ out:
 	return iRet;
 }
 EXPORT_SYMBOL(syno_rtd_get_temperature);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
+
 
 static int thermal_sensor_get_trend(void *data,
 				    int i,
@@ -306,6 +310,7 @@ static void thermal_sensor_shutdown(struct platform_device *pdev)
 	dev_info(dev, "%s: stop tz_dev\n", __func__);
 	tdev->tz->ops->set_mode(tdev->tz, THERMAL_DEVICE_DISABLED);
 };
+
 
 static const struct of_device_id thermal_sensor_of_match[] = {
 #ifdef CONFIG_RTK_THERMAL_RTD119X

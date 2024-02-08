@@ -41,6 +41,7 @@
 #define CS_COMMON_REG_LIST_DCE_112(id) \
 		SRI(PIXCLK_RESYNC_CNTL, PHYPLL, id)
 
+
 #define CS_SF(reg_name, field_name, post_fix)\
 	.field_name = reg_name ## __ ## field_name ## post_fix
 

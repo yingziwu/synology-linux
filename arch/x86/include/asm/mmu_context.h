@@ -117,7 +117,7 @@ static inline void destroy_context(struct mm_struct *mm)
 }
 
 extern void switch_mm(struct mm_struct *prev, struct mm_struct *next,
-			     struct task_struct *tsk);
+		      struct task_struct *tsk);
 
 extern void switch_mm_irqs_off(struct mm_struct *prev, struct mm_struct *next,
 			       struct task_struct *tsk);

@@ -35,6 +35,7 @@ nvkm_vmm_pt_del(struct nvkm_vmm_pt **ppgt)
 	}
 }
 
+
 static struct nvkm_vmm_pt *
 nvkm_vmm_pt_new(const struct nvkm_vmm_desc *desc, bool sparse,
 		const struct nvkm_vmm_page *page)

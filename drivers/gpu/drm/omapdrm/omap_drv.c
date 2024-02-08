@@ -356,6 +356,7 @@ static void omap_modeset_disable_external_hpd(void)
  * drm ioctl funcs
  */
 
+
 static int ioctl_get_param(struct drm_device *dev, void *data,
 		struct drm_file *file_priv)
 {

@@ -10,6 +10,7 @@
 // Firmware Header Generate Date : 2015/6/28 12:57:20
 ***************************************************************/
 
+
 #ifndef _SC_WRAP_DVFS_REG_H_INCLUDED_
 #define _SC_WRAP_DVFS_REG_H_INCLUDED_
 
@@ -101,6 +102,7 @@
 #define SC_WRAP_DVFS_SC_CRT_CTRL_nCOREPORESET_src(data)                              ((0x0000000F&(data))>>0)
 #define SC_WRAP_DVFS_SC_CRT_CTRL_get_nCOREPORESET(data)                              ((0x0000000F&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_STAT                                                         0x04
 #define SC_WRAP_DVFS_SC_STAT_reg_addr                                                "0x9801D104"
 #define SC_WRAP_DVFS_SC_STAT_reg                                                     0x9801D104
@@ -139,6 +141,7 @@
 #define SC_WRAP_DVFS_SC_STAT_STANDBYWFI_src(data)                                    ((0x0000000F&(data))>>0)
 #define SC_WRAP_DVFS_SC_STAT_get_STANDBYWFI(data)                                    ((0x0000000F&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_INT_STAT                                                     0x08
 #define SC_WRAP_DVFS_SC_INT_STAT_reg_addr                                            "0x9801D108"
 #define SC_WRAP_DVFS_SC_INT_STAT_reg                                                 0x9801D108
@@ -167,6 +170,7 @@
 #define SC_WRAP_DVFS_SC_INT_STAT_nPMUIRQ_src(data)                                   ((0x0000000F&(data))>>0)
 #define SC_WRAP_DVFS_SC_INT_STAT_get_nPMUIRQ(data)                                   ((0x0000000F&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_SEC_CTRL                                                     0x0C
 #define SC_WRAP_DVFS_SC_SEC_CTRL_reg_addr                                            "0x9801D10C"
 #define SC_WRAP_DVFS_SC_SEC_CTRL_reg                                                 0x9801D10C
@@ -185,6 +189,7 @@
 #define SC_WRAP_DVFS_SC_SEC_CTRL_cp15disable_i_src(data)                             ((0x0000000F&(data))>>0)
 #define SC_WRAP_DVFS_SC_SEC_CTRL_get_cp15disable_i(data)                             ((0x0000000F&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_PMUEVENT0                                                    0x10
 #define SC_WRAP_DVFS_SC_PMUEVENT0_reg_addr                                           "0x9801D110"
 #define SC_WRAP_DVFS_SC_PMUEVENT0_reg                                                0x9801D110
@@ -197,6 +202,7 @@
 #define SC_WRAP_DVFS_SC_PMUEVENT0_PMUEVENT0(data)                                    (0x3FFFFFFF&((data)<<0))
 #define SC_WRAP_DVFS_SC_PMUEVENT0_PMUEVENT0_src(data)                                ((0x3FFFFFFF&(data))>>0)
 #define SC_WRAP_DVFS_SC_PMUEVENT0_get_PMUEVENT0(data)                                ((0x3FFFFFFF&(data))>>0)
+
 
 #define SC_WRAP_DVFS_SC_PMUEVENT1                                                    0x14
 #define SC_WRAP_DVFS_SC_PMUEVENT1_reg_addr                                           "0x9801D114"
@@ -211,6 +217,7 @@
 #define SC_WRAP_DVFS_SC_PMUEVENT1_PMUEVENT1_src(data)                                ((0x3FFFFFFF&(data))>>0)
 #define SC_WRAP_DVFS_SC_PMUEVENT1_get_PMUEVENT1(data)                                ((0x3FFFFFFF&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_PMUEVENT2                                                    0x18
 #define SC_WRAP_DVFS_SC_PMUEVENT2_reg_addr                                           "0x9801D118"
 #define SC_WRAP_DVFS_SC_PMUEVENT2_reg                                                0x9801D118
@@ -224,6 +231,7 @@
 #define SC_WRAP_DVFS_SC_PMUEVENT2_PMUEVENT2_src(data)                                ((0x3FFFFFFF&(data))>>0)
 #define SC_WRAP_DVFS_SC_PMUEVENT2_get_PMUEVENT2(data)                                ((0x3FFFFFFF&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_PMUEVENT3                                                    0x1C
 #define SC_WRAP_DVFS_SC_PMUEVENT3_reg_addr                                           "0x9801D11C"
 #define SC_WRAP_DVFS_SC_PMUEVENT3_reg                                                0x9801D11C
@@ -236,6 +244,7 @@
 #define SC_WRAP_DVFS_SC_PMUEVENT3_PMUEVENT3(data)                                    (0x3FFFFFFF&((data)<<0))
 #define SC_WRAP_DVFS_SC_PMUEVENT3_PMUEVENT3_src(data)                                ((0x3FFFFFFF&(data))>>0)
 #define SC_WRAP_DVFS_SC_PMUEVENT3_get_PMUEVENT3(data)                                ((0x3FFFFFFF&(data))>>0)
+
 
 #define SC_WRAP_DVFS_SC_INT_CTRL                                                     0x20
 #define SC_WRAP_DVFS_SC_INT_CTRL_reg_addr                                            "0x9801D120"
@@ -265,6 +274,7 @@
 #define SC_WRAP_DVFS_SC_INT_CTRL_PMUIRQ_EN_src(data)                                 ((0x0000000F&(data))>>0)
 #define SC_WRAP_DVFS_SC_INT_CTRL_get_PMUIRQ_EN(data)                                 ((0x0000000F&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_DSS_0_CTRL                                                   0x28
 #define SC_WRAP_DVFS_SC_DSS_0_CTRL_reg_addr                                          "0x9801D128"
 #define SC_WRAP_DVFS_SC_DSS_0_CTRL_reg                                               0x9801D128
@@ -293,6 +303,7 @@
 #define SC_WRAP_DVFS_SC_DSS_0_CTRL_dss_rst_n_src(data)                               ((0x00000001&(data))>>0)
 #define SC_WRAP_DVFS_SC_DSS_0_CTRL_get_dss_rst_n(data)                               ((0x00000001&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_DSS_0_STATUS                                                 0x30
 #define SC_WRAP_DVFS_SC_DSS_0_STATUS_reg_addr                                        "0x9801D130"
 #define SC_WRAP_DVFS_SC_DSS_0_STATUS_reg                                             0x9801D130
@@ -310,6 +321,7 @@
 #define SC_WRAP_DVFS_SC_DSS_0_STATUS_ready(data)                                     (0x00000001&((data)<<0))
 #define SC_WRAP_DVFS_SC_DSS_0_STATUS_ready_src(data)                                 ((0x00000001&(data))>>0)
 #define SC_WRAP_DVFS_SC_DSS_0_STATUS_get_ready(data)                                 ((0x00000001&(data))>>0)
+
 
 #define SC_WRAP_DVFS_SC_DSS_1_STATUS                                                 0x34
 #define SC_WRAP_DVFS_SC_DSS_1_STATUS_reg_addr                                        "0x9801D134"
@@ -329,6 +341,7 @@
 #define SC_WRAP_DVFS_SC_DSS_1_STATUS_ready_src(data)                                 ((0x00000001&(data))>>0)
 #define SC_WRAP_DVFS_SC_DSS_1_STATUS_get_ready(data)                                 ((0x00000001&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_DSS_2_STATUS                                                 0x38
 #define SC_WRAP_DVFS_SC_DSS_2_STATUS_reg_addr                                        "0x9801D138"
 #define SC_WRAP_DVFS_SC_DSS_2_STATUS_reg                                             0x9801D138
@@ -346,6 +359,7 @@
 #define SC_WRAP_DVFS_SC_DSS_2_STATUS_ready(data)                                     (0x00000001&((data)<<0))
 #define SC_WRAP_DVFS_SC_DSS_2_STATUS_ready_src(data)                                 ((0x00000001&(data))>>0)
 #define SC_WRAP_DVFS_SC_DSS_2_STATUS_get_ready(data)                                 ((0x00000001&(data))>>0)
+
 
 #define SC_WRAP_DVFS_SC_DSS_3_STATUS                                                 0x3C
 #define SC_WRAP_DVFS_SC_DSS_3_STATUS_reg_addr                                        "0x9801D13C"
@@ -365,6 +379,7 @@
 #define SC_WRAP_DVFS_SC_DSS_3_STATUS_ready_src(data)                                 ((0x00000001&(data))>>0)
 #define SC_WRAP_DVFS_SC_DSS_3_STATUS_get_ready(data)                                 ((0x00000001&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_DSS_4_STATUS                                                 0x40
 #define SC_WRAP_DVFS_SC_DSS_4_STATUS_reg_addr                                        "0x9801D140"
 #define SC_WRAP_DVFS_SC_DSS_4_STATUS_reg                                             0x9801D140
@@ -382,6 +397,7 @@
 #define SC_WRAP_DVFS_SC_DSS_4_STATUS_ready(data)                                     (0x00000001&((data)<<0))
 #define SC_WRAP_DVFS_SC_DSS_4_STATUS_ready_src(data)                                 ((0x00000001&(data))>>0)
 #define SC_WRAP_DVFS_SC_DSS_4_STATUS_get_ready(data)                                 ((0x00000001&(data))>>0)
+
 
 #define SC_WRAP_DVFS_SC_DSS_5_STATUS                                                 0x44
 #define SC_WRAP_DVFS_SC_DSS_5_STATUS_reg_addr                                        "0x9801D144"
@@ -401,6 +417,7 @@
 #define SC_WRAP_DVFS_SC_DSS_5_STATUS_ready_src(data)                                 ((0x00000001&(data))>>0)
 #define SC_WRAP_DVFS_SC_DSS_5_STATUS_get_ready(data)                                 ((0x00000001&(data))>>0)
 
+
 #define SC_WRAP_DVFS_SC_DSS_6_STATUS                                                 0x48
 #define SC_WRAP_DVFS_SC_DSS_6_STATUS_reg_addr                                        "0x9801D148"
 #define SC_WRAP_DVFS_SC_DSS_6_STATUS_reg                                             0x9801D148
@@ -418,6 +435,7 @@
 #define SC_WRAP_DVFS_SC_DSS_6_STATUS_ready(data)                                     (0x00000001&((data)<<0))
 #define SC_WRAP_DVFS_SC_DSS_6_STATUS_ready_src(data)                                 ((0x00000001&(data))>>0)
 #define SC_WRAP_DVFS_SC_DSS_6_STATUS_get_ready(data)                                 ((0x00000001&(data))>>0)
+
 
 #define SC_WRAP_DVFS_SC_DSS_7_STATUS                                                 0x4C
 #define SC_WRAP_DVFS_SC_DSS_7_STATUS_reg_addr                                        "0x9801D14C"
@@ -437,6 +455,7 @@
 #define SC_WRAP_DVFS_SC_DSS_7_STATUS_ready_src(data)                                 ((0x00000001&(data))>>0)
 #define SC_WRAP_DVFS_SC_DSS_7_STATUS_get_ready(data)                                 ((0x00000001&(data))>>0)
 
+
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL0                                                 0x50
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL0_reg_addr                                        "0x9801D150"
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL0_reg                                             0x9801D150
@@ -449,6 +468,7 @@
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL0_reg_a(data)                                     (0x1FFFFFFF&((data)<<0))
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL0_reg_a_src(data)                                 ((0x1FFFFFFF&(data))>>0)
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL0_get_reg_a(data)                                 ((0x1FFFFFFF&(data))>>0)
+
 
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL1                                                 0x54
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL1_reg_addr                                        "0x9801D154"
@@ -487,6 +507,7 @@
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL1_reg_b(data)                                     (0x003FFFFF&((data)<<0))
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL1_reg_b_src(data)                                 ((0x003FFFFF&(data))>>0)
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL1_get_reg_b(data)                                 ((0x003FFFFF&(data))>>0)
+
 
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL2                                                 0x58
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL2_reg_addr                                        "0x9801D158"
@@ -571,6 +592,7 @@
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL2_reg_chopfreqsel_src(data)                       ((0x0000000F&(data))>>0)
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL2_get_reg_chopfreqsel(data)                       ((0x0000000F&(data))>>0)
 
+
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL3                                                 0x5C
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL3_reg_addr                                        "0x9801D15C"
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL3_reg                                             0x9801D15C
@@ -583,6 +605,7 @@
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL3_reg_offset(data)                                (0x003FFFFF&((data)<<0))
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL3_reg_offset_src(data)                            ((0x003FFFFF&(data))>>0)
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL3_get_reg_offset(data)                            ((0x003FFFFF&(data))>>0)
+
 
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL4                                                 0x60
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL4_reg_addr                                        "0x9801D160"
@@ -597,6 +620,7 @@
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL4_reg_r_src(data)                                 ((0x00FFFFFF&(data))>>0)
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL4_get_reg_r(data)                                 ((0x00FFFFFF&(data))>>0)
 
+
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL5                                                 0x64
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL5_reg_addr                                        "0x9801D164"
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL5_reg                                             0x9801D164
@@ -610,6 +634,7 @@
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL5_reg_s_src(data)                                 ((0x007FFFFF&(data))>>0)
 #define SC_WRAP_DVFS_TM_SENSOR_CTRL5_get_reg_s(data)                                 ((0x007FFFFF&(data))>>0)
 
+
 #define SC_WRAP_DVFS_TM_SENSOR_STATUS1                                               0x68
 #define SC_WRAP_DVFS_TM_SENSOR_STATUS1_reg_addr                                      "0x9801D168"
 #define SC_WRAP_DVFS_TM_SENSOR_STATUS1_reg                                           0x9801D168
@@ -622,6 +647,7 @@
 #define SC_WRAP_DVFS_TM_SENSOR_STATUS1_ct_out(data)                                  (0x0007FFFF&((data)<<0))
 #define SC_WRAP_DVFS_TM_SENSOR_STATUS1_ct_out_src(data)                              ((0x0007FFFF&(data))>>0)
 #define SC_WRAP_DVFS_TM_SENSOR_STATUS1_get_ct_out(data)                              ((0x0007FFFF&(data))>>0)
+
 
 #define SC_WRAP_DVFS_TM_SENSOR_STATUS2                                               0x6C
 #define SC_WRAP_DVFS_TM_SENSOR_STATUS2_reg_addr                                      "0x9801D16C"

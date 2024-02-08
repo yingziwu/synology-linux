@@ -133,3 +133,4 @@ struct stream_encoder *virtual_stream_encoder_create(
 	kfree(enc);
 	return NULL;
 }
+

@@ -3,6 +3,7 @@
  * Copyright (C) 1996, 2001, 2006 David S. Miller (davem@davemloft.net)
  */
 
+
 	.globl	sparc64_ttable_tl0, sparc64_ttable_tl1
 	.globl	tl0_icpe, tl1_icpe
 	.globl	tl0_dcpe, tl1_dcpe
@@ -49,7 +50,7 @@ tl0_resv03e:	BTRAP(0x3e) BTRAP(0x3f) BTRAP(0x40)
 tl0_irq1:	TRAP_IRQ(smp_call_function_client, 1)
 tl0_irq2:	TRAP_IRQ(smp_receive_signal_client, 2)
 tl0_irq3:	TRAP_IRQ(smp_penguin_jailcell, 3)
-tl0_irq4:	TRAP_IRQ(smp_new_mmu_context_version_client, 4)
+tl0_irq4:       BTRAP(0x44)
 #else
 tl0_irq1:	BTRAP(0x41)
 tl0_irq2:	BTRAP(0x42)

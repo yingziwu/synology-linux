@@ -112,6 +112,9 @@ static void amdgpu_dm_atomic_commit_tail(struct drm_atomic_state *state);
 static int amdgpu_dm_atomic_check(struct drm_device *dev,
 				  struct drm_atomic_state *state);
 
+
+
+
 static const enum drm_plane_type dm_plane_type_default[AMDGPU_MAX_PLANES] = {
 	DRM_PLANE_TYPE_PRIMARY,
 	DRM_PLANE_TYPE_PRIMARY,
@@ -155,6 +158,7 @@ static u32 dm_vblank_get_counter(struct amdgpu_device *adev, int crtc)
 		struct amdgpu_crtc *acrtc = adev->mode_info.crtcs[crtc];
 		struct dm_crtc_state *acrtc_state = to_dm_crtc_state(
 				acrtc->base.state);
+
 
 		if (acrtc_state->stream == NULL) {
 			DRM_ERROR("dc_stream_state is NULL for crtc '%d'!\n",
@@ -279,6 +283,7 @@ static void dm_pflip_high_irq(void *interrupt_params)
 		return;
 	}
 
+
 	/* wakeup usersapce */
 	if (amdgpu_crtc->event) {
 		/* Update to correct count/ts if racing with vblank irq */
@@ -361,6 +366,7 @@ static void amdgpu_dm_initialize_fbc(struct amdgpu_device *adev)
 
 }
 #endif
+
 
 /* Init display KMS
  *
@@ -746,6 +752,7 @@ const struct amdgpu_ip_block_version dm_ip_block =
 	.funcs = &amdgpu_dm_funcs,
 };
 
+
 static struct drm_atomic_state *
 dm_atomic_state_alloc(struct drm_device *dev)
 {
@@ -809,6 +816,7 @@ amdgpu_dm_update_connector_after_detect(struct amdgpu_dm_connector *aconnector)
 	/* MST handled by drm_mst framework */
 	if (aconnector->mst_mgr.mst_state == true)
 		return;
+
 
 	sink = aconnector->dc_link->local_sink;
 
@@ -887,6 +895,7 @@ amdgpu_dm_update_connector_after_detect(struct amdgpu_dm_connector *aconnector)
 			aconnector->edid =
 				(struct edid *) sink->dc_edid.raw_edid;
 
+
 			drm_mode_connector_update_edid_property(connector,
 					aconnector->edid);
 		}
@@ -918,6 +927,7 @@ static void handle_hpd_irq(void *param)
 
 	if (dc_link_detect(aconnector->dc_link, DETECT_REASON_HPD)) {
 		amdgpu_dm_update_connector_after_detect(aconnector);
+
 
 		drm_modeset_lock_all(dev);
 		dm_restore_drm_connector_state(dev, connector);
@@ -1032,6 +1042,7 @@ static void handle_hpd_rx_irq(void *param)
 				aconnector->fake_enable = false;
 
 			amdgpu_dm_update_connector_after_detect(aconnector);
+
 
 			drm_modeset_lock_all(dev);
 			dm_restore_drm_connector_state(dev, connector);
@@ -2439,7 +2450,9 @@ static void dm_crtc_destroy_state(struct drm_crtc *crtc,
 	if (cur->stream)
 		dc_stream_release(cur->stream);
 
+
 	__drm_atomic_helper_crtc_destroy_state(state);
+
 
 	kfree(state);
 }
@@ -2485,6 +2498,7 @@ dm_crtc_duplicate_state(struct drm_crtc *crtc)
 
 	return &state->base;
 }
+
 
 static inline int dm_set_vblank(struct drm_crtc *crtc, bool enable)
 {
@@ -2778,6 +2792,7 @@ static void handle_edid_mgmt(struct amdgpu_dm_connector *aconnector)
 		link->verified_link_cap.link_rate = LINK_RATE_HIGH2;
 	}
 
+
 	aconnector->base.override_edid = true;
 	create_eml_sink(aconnector);
 }
@@ -2990,6 +3005,7 @@ static int dm_plane_helper_prepare_fb(struct drm_plane *plane,
 
 	r = amdgpu_bo_pin(rbo, AMDGPU_GEM_DOMAIN_VRAM, &afb->address);
 
+
 	amdgpu_bo_unreserve(rbo);
 
 	if (unlikely(r != 0)) {
@@ -3155,6 +3171,7 @@ static int amdgpu_dm_plane_init(struct amdgpu_display_manager *dm,
 	if (aplane->base.funcs->reset)
 		aplane->base.funcs->reset(&aplane->base);
 
+
 	return res;
 }
 
@@ -3210,6 +3227,7 @@ fail:
 	kfree(cursor_plane);
 	return res;
 }
+
 
 static int to_drm_connector_type(enum signal_type st)
 {
@@ -3844,6 +3862,7 @@ static void amdgpu_dm_do_flip(struct drm_crtc *crtc,
 	struct dc_surface_update surface_updates[1] = { {0} };
 	struct dm_crtc_state *acrtc_state = to_dm_crtc_state(crtc->state);
 
+
 	/* Prepare wait for target vblank early - before the fence-waits */
 	target_vblank = target - drm_crtc_vblank_count(crtc) +
 			amdgpu_get_vblank_counter_kms(crtc->dev, acrtc->crtc_id);
@@ -3891,11 +3910,13 @@ static void amdgpu_dm_do_flip(struct drm_crtc *crtc,
 	addr.address.grph.addr.high_part = upper_32_bits(afb->address);
 	addr.flip_immediate = async_flip;
 
+
 	if (acrtc->base.state->event)
 		prepare_flip_isr(acrtc);
 
 	surface_updates->surface = dc_stream_get_status(acrtc_state->stream)->plane_states[0];
 	surface_updates->flip_addr = &addr;
+
 
 	dc_commit_updates_for_stream(adev->dm.dc,
 					     surface_updates,
@@ -3909,6 +3930,7 @@ static void amdgpu_dm_do_flip(struct drm_crtc *crtc,
 			 __func__,
 			 addr.address.grph.addr.high_part,
 			 addr.address.grph.addr.low_part);
+
 
 	spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
 }
@@ -4301,6 +4323,7 @@ static void amdgpu_dm_atomic_commit_tail(struct drm_atomic_state *state)
 			amdgpu_dm_commit_planes(state, dev, dm, crtc, &wait_for_vblank);
 	}
 
+
 	/*
 	 * send vblank event on all events not handled in flip and
 	 * mark consumed event for drm_atomic_helper_commit_hw_done
@@ -4323,6 +4346,7 @@ static void amdgpu_dm_atomic_commit_tail(struct drm_atomic_state *state)
 
 	drm_atomic_helper_cleanup_planes(dev, state);
 }
+
 
 static int dm_force_atomic_commit(struct drm_connector *connector)
 {
@@ -4367,6 +4391,7 @@ static int dm_force_atomic_commit(struct drm_connector *connector)
 	ret = PTR_ERR_OR_ZERO(plane_state);
 	if (ret)
 		goto err;
+
 
 	/* Call commit internally with the state we just constructed */
 	ret = drm_atomic_commit(state);
@@ -4633,6 +4658,7 @@ static int dm_update_planes_state(struct dc *dc,
 	bool pflip_needed  = !state->allow_modeset;
 	int ret = 0;
 
+
 	/* Add new planes */
 	for_each_oldnew_plane_in_state(state, plane, old_plane_state, new_plane_state, i) {
 		new_plane_crtc = new_plane_state->crtc;
@@ -4671,6 +4697,7 @@ static int dm_update_planes_state(struct dc *dc,
 				ret = EINVAL;
 				return ret;
 			}
+
 
 			dc_plane_state_release(dm_old_plane_state->dc_state);
 			dm_new_plane_state->dc_state = NULL;
@@ -4744,6 +4771,7 @@ static int dm_update_planes_state(struct dc *dc,
 			*lock_and_validation_needed = true;
 		}
 	}
+
 
 	return ret;
 }

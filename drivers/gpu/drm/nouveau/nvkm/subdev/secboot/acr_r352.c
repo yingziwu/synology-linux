@@ -96,6 +96,7 @@ acr_r352_generate_flcn_bl_desc(const struct nvkm_acr *acr,
 	desc->data_size = pdesc->app_resident_data_size;
 }
 
+
 /**
  * struct hsflcn_acr_desc - data section of the HS firmware
  *
@@ -137,6 +138,7 @@ struct hsflcn_acr_desc {
 		u32 hdcp_policies;
 	} vpr_desc;
 };
+
 
 /*
  * Low-secure blob creation
@@ -570,6 +572,9 @@ cleanup:
 
 	return ret;
 }
+
+
+
 
 void
 acr_r352_fixup_hs_desc(struct acr_r352 *acr, struct nvkm_secboot *sb,
@@ -1053,6 +1058,8 @@ acr_r352_ls_gpccs_func = {
 	/* GPCCS will be loaded using PRI */
 	.lhdr_flags = LSF_FLAG_FORCE_PRIV_LOAD,
 };
+
+
 
 /**
  * struct acr_r352_pmu_bl_desc - PMU DMEM bootloader descriptor

@@ -83,6 +83,7 @@ find_syscall_meta(unsigned long syscall)
 	struct syscall_metadata **stop;
 	char str[KSYM_SYMBOL_LEN];
 
+
 	start = __start_syscalls_metadata;
 	stop = __stop_syscalls_metadata;
 	kallsyms_lookup(syscall, NULL, NULL, NULL, str);
@@ -573,15 +574,16 @@ static void perf_syscall_enter(void *ignore, struct pt_regs *regs, long id)
 	size = ALIGN(size + sizeof(u32), sizeof(u64));
 	size -= sizeof(u32);
 
-	rec = (struct syscall_trace_enter *)perf_trace_buf_prepare(size,
-				sys_data->enter_event->event.type, NULL, &rctx);
+	rec = perf_trace_buf_alloc(size, NULL, &rctx);
 	if (!rec)
 		return;
 
 	rec->nr = syscall_nr;
 	syscall_get_arguments(current, regs, 0, sys_data->nb_args,
 			       (unsigned long *)&rec->args);
-	perf_trace_buf_submit(rec, size, rctx, 0, 1, regs, head, NULL);
+	perf_trace_buf_submit(rec, size, rctx,
+			      sys_data->enter_event->event.type, 1, regs,
+			      head, NULL);
 }
 
 static int perf_sysenter_enable(struct trace_event_call *call)
@@ -646,14 +648,14 @@ static void perf_syscall_exit(void *ignore, struct pt_regs *regs, long ret)
 	size = ALIGN(sizeof(*rec) + sizeof(u32), sizeof(u64));
 	size -= sizeof(u32);
 
-	rec = (struct syscall_trace_exit *)perf_trace_buf_prepare(size,
-				sys_data->exit_event->event.type, NULL, &rctx);
+	rec = perf_trace_buf_alloc(size, NULL, &rctx);
 	if (!rec)
 		return;
 
 	rec->nr = syscall_nr;
 	rec->ret = syscall_get_return_value(current, regs);
-	perf_trace_buf_submit(rec, size, rctx, 0, 1, regs, head, NULL);
+	perf_trace_buf_submit(rec, size, rctx, sys_data->exit_event->event.type,
+			      1, regs, head, NULL);
 }
 
 static int perf_sysexit_enable(struct trace_event_call *call)

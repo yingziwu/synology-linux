@@ -57,6 +57,7 @@ struct ddc *dal_gpio_create_ddc(
 	uint32_t mask,
 	struct gpio_ddc_hw_info *info);
 
+
 void dal_gpio_destroy_ddc(
 	struct ddc **ddc);
 
@@ -80,6 +81,7 @@ struct gpio *dal_gpio_create_irq(
 
 void dal_gpio_destroy_irq(
 	struct gpio **ptr);
+
 
 enum gpio_result dal_ddc_open(
 	struct ddc *ddc,

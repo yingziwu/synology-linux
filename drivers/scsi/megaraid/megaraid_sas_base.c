@@ -769,6 +769,7 @@ static struct megasas_instance_template megasas_instance_template_skinny = {
 	.issue_dcmd = megasas_issue_dcmd,
 };
 
+
 /**
 *	The following functions are defined for gen2 (deviceid : 0x78 0x79)
 *	controllers
@@ -1624,6 +1625,7 @@ out_return_cmd:
 	return 1;
 }
 
+
 /**
  * megasas_queue_command -	Queue entry point
  * @scmd:			SCSI command to be queued
@@ -1822,9 +1824,12 @@ static void megasas_complete_outstanding_ioctls(struct megasas_instance *instanc
 			if (cmd_fusion->sync_cmd_idx != (u32)ULONG_MAX) {
 				cmd_mfi = instance->cmd_list[cmd_fusion->sync_cmd_idx];
 				if (cmd_mfi->sync_cmd &&
-					cmd_mfi->frame->hdr.cmd != MFI_CMD_ABORT)
+				    (cmd_mfi->frame->hdr.cmd != MFI_CMD_ABORT)) {
+					cmd_mfi->frame->hdr.cmd_status =
+							MFI_STAT_WRONG_STATE;
 					megasas_complete_cmd(instance,
 							     cmd_mfi, DID_OK);
+				}
 			}
 		}
 	} else {
@@ -1836,6 +1841,7 @@ static void megasas_complete_outstanding_ioctls(struct megasas_instance *instanc
 		}
 	}
 }
+
 
 void megaraid_sas_kill_hba(struct megasas_instance *instance)
 {
@@ -3263,6 +3269,7 @@ megasas_internal_reset_defer_cmds(struct megasas_instance *instance)
 	spin_unlock_irqrestore(&instance->mfi_pool_lock, flags);
 }
 
+
 static void
 process_fw_state_change_wq(struct work_struct *work)
 {
@@ -3382,6 +3389,7 @@ megasas_deplete_reply_queue(struct megasas_instance *instance,
 				*instance->consumer =
 					cpu_to_le32(MEGASAS_ADPRESET_INPROG_SIGN);
 			}
+
 
 			instance->instancet->disable_intr(instance);
 			instance->adprecovery	= MEGASAS_ADPRESET_SM_INFAULT;
@@ -3839,6 +3847,7 @@ int megasas_alloc_cmds(struct megasas_instance *instance)
 	if (megasas_create_frame_pool(instance)) {
 		dev_printk(KERN_DEBUG, &instance->pdev->dev, "Error creating frame DMA pool\n");
 		megasas_free_cmds(instance);
+		return -ENOMEM;
 	}
 
 	return 0;
@@ -3999,6 +4008,7 @@ megasas_get_ld_list(struct megasas_instance *instance)
 	else
 		ret = megasas_issue_polled(instance, cmd);
 
+
 	ld_count = le32_to_cpu(ci->ldCount);
 
 	/* the following function will get the instance PD LIST */
@@ -4154,6 +4164,7 @@ static void megasas_update_ext_vd_details(struct megasas_instance *instance)
 
 	fusion->max_map_sz = max(old_map_sz, new_map_sz);
 
+
 	if (instance->supportmax256vd)
 		fusion->current_map_sz = new_map_sz;
 	else
@@ -4277,6 +4288,7 @@ int megasas_set_crash_dump_params(struct megasas_instance *instance,
 		dev_err(&instance->pdev->dev, "Failed to get a free cmd\n");
 		return -ENOMEM;
 	}
+
 
 	dcmd = &cmd->frame->dcmd;
 
@@ -4806,6 +4818,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
 	if (instance->instancet->init_adapter(instance))
 		goto fail_init_adapter;
 
+
 	instance->instancet->enable_intr(instance);
 
 	dev_err(&instance->pdev->dev, "INIT adapter done\n");
@@ -4893,6 +4906,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
 		instance->crash_dump_buf = NULL;
 	}
 
+
 	dev_info(&instance->pdev->dev,
 		"pci id\t\t: (0x%04x)/(0x%04x)/(0x%04x)/(0x%04x)\n",
 		le16_to_cpu(ctrl_info->pci.vendor_id),
@@ -4906,6 +4920,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
 	dev_info(&instance->pdev->dev, "jbod sync map		: %s\n",
 		instance->use_seqnum_jbod_fp ? "yes" : "no");
 
+
 	instance->max_sectors_per_req = instance->max_num_sge *
 						SGE_BUFFER_SIZE / 512;
 	if (tmp_sectors && (instance->max_sectors_per_req > tmp_sectors))
@@ -4918,6 +4933,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
 	else
 		instance->throttlequeuedepth =
 				MEGASAS_THROTTLE_QUEUE_DEPTH;
+
 
 	/* Launch SR-IOV heartbeat timer */
 	if (instance->requestorId) {
@@ -5081,6 +5097,14 @@ megasas_register_aen(struct megasas_instance *instance, u32 seq_num,
 
 		prev_aen.word =
 			le32_to_cpu(instance->aen_cmd->frame->dcmd.mbox.w[1]);
+
+		if ((curr_aen.members.class < MFI_EVT_CLASS_DEBUG) ||
+		    (curr_aen.members.class > MFI_EVT_CLASS_DEAD)) {
+			dev_info(&instance->pdev->dev,
+				 "%s %d out of range class %d send by application\n",
+				 __func__, __LINE__, curr_aen.members.class);
+			return 0;
+		}
 
 		/*
 		 * A class whose enum value is smaller is inclusive of all
@@ -5471,6 +5495,7 @@ static int megasas_probe_one(struct pci_dev *pdev,
 	instance->unique_id = pdev->bus->number << 8 | pdev->devfn;
 	instance->init_id = MEGASAS_DEFAULT_INIT_ID;
 	instance->ctrl_info = NULL;
+
 
 	if ((instance->pdev->device == PCI_DEVICE_ID_LSI_SAS0073SKINNY) ||
 		(instance->pdev->device == PCI_DEVICE_ID_LSI_SAS0071SKINNY))
@@ -6485,6 +6510,9 @@ static int megasas_mgmt_compat_ioctl_fw(struct file *file, unsigned long arg)
 		get_user(local_sense_len, &ioc->sense_len) ||
 		get_user(user_sense_off, &cioc->sense_off))
 		return -EFAULT;
+
+	if (local_sense_off != user_sense_off)
+		return -EINVAL;
 
 	if (local_sense_len) {
 		void __user **sense_ioc_ptr =

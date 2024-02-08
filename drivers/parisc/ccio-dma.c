@@ -512,6 +512,7 @@ typedef unsigned long space_t;
 #define HINT_UDPATE_ENB 0x08UL  /* not used/supported by U2 */
 #define HINT_PREFETCH   0x10UL	/* for outbound pages which are not SAFE */
 
+
 /*
 ** Use direction (ie PCI_DMA_TODEVICE) to pick hint.
 ** ccio_alloc_consistent() depends on this to get SAFE_DMA
@@ -599,6 +600,7 @@ ccio_io_pdir_entry(u64 *pdir_ptr, space_t sid, unsigned long vba,
 	asm volatile ("depw  %1,15,12,%0" : "+r" (pa) : "r" (ci));
 
 	((u32 *)pdir_ptr)[0] = (u32) pa;
+
 
 	/* FIXME: PCX_W platforms don't need FDC/SYNC. (eg C360)
 	**        PCX-U/U+ do. (eg C200/C240)
@@ -739,6 +741,8 @@ ccio_map_single(struct device *dev, void *addr, size_t size,
 
 	BUG_ON(!dev);
 	ioc = GET_IOC(dev);
+	if (!ioc)
+		return DMA_ERROR_CODE;
 
 	BUG_ON(size <= 0);
 
@@ -803,6 +807,10 @@ ccio_unmap_single(struct device *dev, dma_addr_t iova, size_t size,
 	
 	BUG_ON(!dev);
 	ioc = GET_IOC(dev);
+	if (!ioc) {
+		WARN_ON(!ioc);
+		return;
+	}
 
 	DBG_RUN("%s() iovp 0x%lx/%x\n",
 		__func__, (long)iova, size);
@@ -906,6 +914,8 @@ ccio_map_sg(struct device *dev, struct scatterlist *sglist, int nents,
 	
 	BUG_ON(!dev);
 	ioc = GET_IOC(dev);
+	if (!ioc)
+		return 0;
 	
 	DBG_RUN_SG("%s() START %d entries\n", __func__, nents);
 
@@ -978,6 +988,10 @@ ccio_unmap_sg(struct device *dev, struct scatterlist *sglist, int nents,
 
 	BUG_ON(!dev);
 	ioc = GET_IOC(dev);
+	if (!ioc) {
+		WARN_ON(!ioc);
+		return;
+	}
 
 	DBG_RUN_SG("%s() START %d entries, %p,%x\n",
 		__func__, nents, sg_virt(sglist), sglist->length);
@@ -1579,3 +1593,4 @@ void __init ccio_init(void)
 {
 	register_parisc_driver(&ccio_driver);
 }
+

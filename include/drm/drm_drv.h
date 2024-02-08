@@ -642,6 +642,8 @@ static inline int drm_dev_is_unplugged(struct drm_device *dev)
 	return ret;
 }
 
+
 int drm_dev_set_unique(struct drm_device *dev, const char *name);
+
 
 #endif

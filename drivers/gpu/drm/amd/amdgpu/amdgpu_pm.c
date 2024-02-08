@@ -32,6 +32,7 @@
 #include <linux/hwmon.h>
 #include <linux/hwmon-sysfs.h>
 
+
 static int amdgpu_debugfs_pm_init(struct amdgpu_device *adev);
 
 static const struct cg_flag_name clocks[] = {
@@ -1341,6 +1342,7 @@ int amdgpu_pm_sysfs_init(struct amdgpu_device *adev)
 		DRM_ERROR("failed to create device file for dpm state\n");
 		return ret;
 	}
+
 
 	ret = device_create_file(adev->dev, &dev_attr_pp_num_states);
 	if (ret) {

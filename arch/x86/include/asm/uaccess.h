@@ -7,6 +7,7 @@
 #include <linux/compiler.h>
 #include <linux/thread_info.h>
 #include <linux/string.h>
+#include <linux/preempt.h>
 #include <asm/asm.h>
 #include <asm/page.h>
 #include <asm/smap.h>
@@ -66,6 +67,12 @@ static inline bool __chk_range_not_ok(unsigned long addr, unsigned long size, un
 	__chk_range_not_ok((unsigned long __force)(addr), size, limit); \
 })
 
+#ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+# define WARN_ON_IN_IRQ()	WARN_ON_ONCE(!in_task())
+#else
+# define WARN_ON_IN_IRQ()
+#endif
+
 /**
  * access_ok: - Checks if a user space pointer is valid
  * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE.  Note that
@@ -86,8 +93,11 @@ static inline bool __chk_range_not_ok(unsigned long addr, unsigned long size, un
  * checks that the pointer is in the user space range - after calling
  * this function, memory access functions may still return -EFAULT.
  */
-#define access_ok(type, addr, size) \
-	likely(!__range_not_ok(addr, size, user_addr_max()))
+#define access_ok(type, addr, size)					\
+({									\
+	WARN_ON_IN_IRQ();						\
+	likely(!__range_not_ok(addr, size, user_addr_max()));		\
+})
 
 /*
  * The exception table consists of pairs of addresses relative to the
@@ -197,6 +207,8 @@ __typeof__(__builtin_choose_expr(sizeof(x) > sizeof(0UL), 0ULL, 0UL))
 	asm volatile("call __put_user_" #size : "=a" (__ret_pu)	\
 		     : "0" ((typeof(*(ptr)))(x)), "c" (ptr) : "ebx")
 
+
+
 #ifdef CONFIG_X86_32
 #define __put_user_asm_u64(x, addr, err, errret)			\
 	asm volatile("\n"						\
@@ -302,8 +314,7 @@ do {									\
 		__put_user_asm(x, ptr, retval, "l", "k", "ir", errret);	\
 		break;							\
 	case 8:								\
-		__put_user_asm_u64((__typeof__(*ptr))(x), ptr, retval,	\
-				   errret);				\
+		__put_user_asm_u64(x, ptr, retval, errret);		\
 		break;							\
 	default:							\
 		__put_user_bad();					\
@@ -414,8 +425,10 @@ do {									\
 #define __put_user_nocheck(x, ptr, size)			\
 ({								\
 	int __pu_err;						\
+	__typeof__(*(ptr)) __pu_val;				\
+	__pu_val = x;						\
 	__uaccess_begin();					\
-	__put_user_size((x), (ptr), (size), __pu_err, -EFAULT);	\
+	__put_user_size(__pu_val, (ptr), (size), __pu_err, -EFAULT);\
 	__uaccess_end();					\
 	__builtin_expect(__pu_err, 0);				\
 })
@@ -795,3 +808,4 @@ do {										\
 } while (0)
 
 #endif /* _ASM_X86_UACCESS_H */
+

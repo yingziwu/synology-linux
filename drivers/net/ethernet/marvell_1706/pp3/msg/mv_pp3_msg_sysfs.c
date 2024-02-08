@@ -105,6 +105,7 @@ static DEVICE_ATTR(send_msg, S_IWUSR, NULL, mv_channel_store);
 static DEVICE_ATTR(rx_msg, S_IWUSR, NULL, mv_channel_store);
 static DEVICE_ATTR(debug, S_IWUSR, NULL, mv_channel_store);
 
+
 static struct attribute *mv_attrs[] = {
 	&dev_attr_help.attr,
 	&dev_attr_create_chan.attr,

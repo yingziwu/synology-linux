@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ disclaimer.
 #include "tm/core/tm_core_types.h"
 #include "tm/core/tm_hw_configuration_interface.h"
 
+
 /**
  */
 int rm_node_status(rmctl_t hndl,
@@ -43,6 +45,7 @@ int rm_node_status(rmctl_t hndl,
 {
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
+
 
 	switch (lvl) {
 	case P_LEVEL:
@@ -77,6 +80,7 @@ int rm_node_status(rmctl_t hndl,
 	return 0;
 }
 
+
 /**
  */
 int rm_wred_queue_curve_status(rmctl_t hndl,
@@ -86,12 +90,14 @@ int rm_wred_queue_curve_status(rmctl_t hndl,
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
 
+
 	if (entry_ind >= TM_NUM_WRED_QUEUE_CURVES)
 		return -EFAULT;
 
 	*status = ctl->rm_wred_queue_curves[entry_ind].used;
 	return 0;
 }
+
 
 /**
  */
@@ -102,12 +108,14 @@ int rm_wred_a_node_curve_status(rmctl_t hndl,
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
 
+
 	if (entry_ind >= TM_NUM_WRED_A_NODE_CURVES)
 		return -EFAULT;
 
 	*status = ctl->rm_wred_a_node_curves[entry_ind].used;
 	return 0;
 }
+
 
 /**
  */
@@ -118,12 +126,14 @@ int rm_wred_b_node_curve_status(rmctl_t hndl,
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
 
+
 	if (entry_ind >= TM_NUM_WRED_B_NODE_CURVES)
 		return -EFAULT;
 
 	*status = ctl->rm_wred_b_node_curves[entry_ind].used;
 	return 0;
 }
+
 
 /**
  */
@@ -135,6 +145,7 @@ int rm_wred_c_node_curve_status(rmctl_t hndl,
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
 
+
 	if (cos >= TM_WRED_COS)
 		return -EFAULT;
 
@@ -145,6 +156,7 @@ int rm_wred_c_node_curve_status(rmctl_t hndl,
 	return 0;
 }
 
+
 /**
  */
 int rm_wred_port_curve_status(rmctl_t hndl,
@@ -154,12 +166,14 @@ int rm_wred_port_curve_status(rmctl_t hndl,
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
 
+
 	if (entry_ind >= TM_NUM_WRED_PORT_CURVES)
 		return -EFAULT;
 
 	*status = ctl->rm_wred_port_curves[entry_ind].used;
 	return 0;
 }
+
 
 /**
  */
@@ -185,6 +199,8 @@ int rm_wred_port_curve_status_cos(rmctl_t hndl,
 	return 0;
 }
 
+
+
 /**
  */
 int rm_queue_drop_profile_status(rmctl_t hndl,
@@ -194,12 +210,14 @@ int rm_queue_drop_profile_status(rmctl_t hndl,
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
 
+
 	if (entry_ind >= TM_NUM_QUEUE_DROP_PROF)
 		return -EFAULT;
 
 	*status = ctl->rm_queue_drop_profiles[entry_ind].used;
 	return 0;
 }
+
 
 /**
  */
@@ -210,12 +228,14 @@ int rm_a_node_drop_profile_status(rmctl_t hndl,
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
 
+
 	if (entry_ind >= TM_NUM_A_NODE_DROP_PROF)
 		return -EFAULT;
 
 	*status = ctl->rm_a_node_drop_profiles[entry_ind].used;
 	return 0;
 }
+
 
 /**
  */
@@ -226,12 +246,14 @@ int rm_b_node_drop_profile_status(rmctl_t hndl,
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
 
+
 	if (entry_ind >= TM_NUM_B_NODE_DROP_PROF)
 		return -EFAULT;
 
 	*status = ctl->rm_b_node_drop_profiles[entry_ind].used;
 	return 0;
 }
+
 
 /**
  */
@@ -243,6 +265,7 @@ int rm_c_node_drop_profile_status(rmctl_t hndl,
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
 
+
 	if (cos >= TM_WRED_COS)
 		return -EFAULT;
 
@@ -252,6 +275,7 @@ int rm_c_node_drop_profile_status(rmctl_t hndl,
 	*status = ctl->rm_c_node_drop_profiles[cos][entry_ind].used;
 	return 0;
 }
+
 
 /**
  */
@@ -268,6 +292,7 @@ int rm_port_drop_profile_status(rmctl_t hndl,
 	*status = ctl->rm_port_drop_profiles[entry_ind].used;
 	return 0;
 }
+
 
 /**
  */

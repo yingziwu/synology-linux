@@ -21,6 +21,7 @@
 #ifndef _nbif_6_1_SH_MASK_HEADER
 #define _nbif_6_1_SH_MASK_HEADER
 
+
 // addressBlock: bif_cfg_dev0_epf0_bifcfgdecp
 //VENDOR_ID
 #define VENDOR_ID__VENDOR_ID__SHIFT                                                                           0x0
@@ -1027,6 +1028,7 @@
 //PCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW7
 #define PCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW7__DW7__SHIFT                                                0x0
 
+
 // addressBlock: bif_cfg_dev0_swds_bifcfgdecp
 //SUB_BUS_NUMBER_LATENCY
 #define SUB_BUS_NUMBER_LATENCY__PRIMARY_BUS__SHIFT                                                            0x0
@@ -1117,6 +1119,7 @@
 #define SSID_CAP__SUBSYSTEM_VENDOR_ID__SHIFT                                                                  0x0
 #define SSID_CAP__SUBSYSTEM_ID__SHIFT                                                                         0x10
 
+
 // addressBlock: rcc_shadow_reg_shadowdec
 //SHADOW_COMMAND
 #define SHADOW_COMMAND__IOEN_UP__SHIFT                                                                        0x0
@@ -1158,11 +1161,13 @@
 //SUC_DATA
 #define SUC_DATA__SUC_DATA__SHIFT                                                                             0x0
 
+
 // addressBlock: bif_bx_pf_SUMDEC
 //SUM_INDEX
 #define SUM_INDEX__SUM_INDEX__SHIFT                                                                           0x0
 //SUM_DATA
 #define SUM_DATA__SUM_DATA__SHIFT                                                                             0x0
+
 
 // addressBlock: gdc_GDCDEC
 //A2S_CNTL_CL0
@@ -1302,6 +1307,7 @@
 #define A2S_CNTL2_SEC_CL3__SECLVL_MAP__SHIFT                                                                  0x0
 //A2S_CNTL2_SEC_CL4
 #define A2S_CNTL2_SEC_CL4__SECLVL_MAP__SHIFT                                                                  0x0
+
 
 // addressBlock: nbif_sion_SIONDEC
 //SION_CL0_RdRsp_BurstTarget_REG0
@@ -1569,6 +1575,7 @@
 #define SION_CNTL_REG1__LIVELOCK_WATCHDOG_THRESHOLD__SHIFT                                                    0x0
 #define SION_CNTL_REG1__CG_OFF_HYSTERESIS__SHIFT                                                              0x8
 
+
 // addressBlock: syshub_mmreg_direct_syshubdirect
 //SYSHUB_DS_CTRL_SOCCLK
 #define SYSHUB_DS_CTRL_SOCCLK__HST_CL0_SOCCLK_DEEPSLEEP_ALLOW_ENABLE__SHIFT                                   0x0
@@ -1799,6 +1806,7 @@
 #define DMA_CLK1_SW1_CL4_CNTL__READ_WRR_WEIGHT__SHIFT                                                         0x10
 #define DMA_CLK1_SW1_CL4_CNTL__WRITE_WRR_WEIGHT__SHIFT                                                        0x18
 
+
 // addressBlock: gdc_ras_gdc_ras_regblk
 //GDC_RAS_LEAF0_CTRL
 #define GDC_RAS_LEAF0_CTRL__POISON_DET_EN__SHIFT                                                              0x0
@@ -1879,6 +1887,7 @@
 #define GDC_RAS_LEAF5_CTRL__ERR_EVENT_SENT__SHIFT                                                             0x14
 #define GDC_RAS_LEAF5_CTRL__EGRESS_STALLED__SHIFT                                                             0x15
 
+
 // addressBlock: gdc_rst_GDCRST_DEC
 //SHUB_PF_FLR_RST
 #define SHUB_PF_FLR_RST__PF0_FLR_RST__SHIFT                                                                   0x0
@@ -1925,6 +1934,7 @@
 #define SHUB_SOFT_RST_CTRL__SDP_PORT_RESET_EN__SHIFT                                                          0x4
 //SHUB_SDP_PORT_RST
 #define SHUB_SDP_PORT_RST__SDP_PORT_RST__SHIFT                                                                0x0
+
 
 // addressBlock: bif_bx_pf_SYSDEC
 //SBIOS_SCRATCH_0
@@ -2023,6 +2033,7 @@
 //GFX_MMIOREG_CAM_PROGRAMMABLE_CPL
 #define GFX_MMIOREG_CAM_PROGRAMMABLE_CPL__CAM_PROGRAMMABLE_CPL__SHIFT                                         0x0
 
+
 // addressBlock: bif_bx_pf_SYSPFVFDEC
 //MM_INDEX
 #define MM_INDEX__MM_OFFSET__SHIFT                                                                            0x0
@@ -2043,6 +2054,7 @@
 #define PCIE_INDEX2__PCIE_INDEX2__SHIFT                                                                       0x0
 //PCIE_DATA2
 #define PCIE_DATA2__PCIE_DATA2__SHIFT                                                                         0x0
+
 
 // addressBlock: rcc_dwn_BIFDEC1
 //DN_PCIE_RESERVED
@@ -2074,6 +2086,7 @@
 //DN_PCIE_STRAP_MISC2
 #define DN_PCIE_STRAP_MISC2__STRAP_MSTCPL_TIMEOUT_EN__SHIFT                                                   0x2
 
+
 // addressBlock: rcc_dwnp_BIFDEC1
 //PCIEP_RESERVED
 #define PCIEP_RESERVED__PCIEP_RESERVED__SHIFT                                                                 0x0
@@ -2099,6 +2112,7 @@
 #define PCIEP_STRAP_MISC__STRAP_MULTI_FUNC_EN__SHIFT                                                          0xa
 //LTR_MSG_INFO_FROM_EP
 #define LTR_MSG_INFO_FROM_EP__LTR_MSG_INFO_FROM_EP__SHIFT                                                     0x0
+
 
 // addressBlock: rcc_ep_BIFDEC1
 //EP_PCIE_SCRATCH
@@ -2222,6 +2236,7 @@
 //EP_PCIE_LC_SPEED_CNTL
 #define EP_PCIE_LC_SPEED_CNTL__LC_GEN2_EN_STRAP__SHIFT                                                        0x0
 #define EP_PCIE_LC_SPEED_CNTL__LC_GEN3_EN_STRAP__SHIFT                                                        0x1
+
 
 // addressBlock: bif_bx_pf_BIFDEC1
 //BIF_MM_INDACCESS_CNTL
@@ -2491,6 +2506,7 @@
 //BIF_CLKREQB_PAD_CNTL
 #define BIF_CLKREQB_PAD_CNTL__CLKREQB_PAD_CNTL__SHIFT                                                         0x0
 
+
 // addressBlock: rcc_pf_0_BIFDEC1
 //RCC_BACO_CNTL_MISC
 #define RCC_BACO_CNTL_MISC__BIF_ROM_REQ_DIS__SHIFT                                                            0x0
@@ -2627,6 +2643,7 @@
 #define RCC_MH_ARB_CNTL__MH_ARB_MODE__SHIFT                                                                   0x0
 #define RCC_MH_ARB_CNTL__MH_ARB_FIX_PRIORITY__SHIFT                                                           0x1
 
+
 // addressBlock: rcc_pf_0_BIFDEC2
 //GFXMSIX_VECT0_ADDR_LO
 #define GFXMSIX_VECT0_ADDR_LO__MSG_ADDR_LO__SHIFT                                                             0x2
@@ -2656,6 +2673,7 @@
 #define GFXMSIX_PBA__MSIX_PENDING_BITS_0__SHIFT                                                               0x0
 #define GFXMSIX_PBA__MSIX_PENDING_BITS_1__SHIFT                                                               0x1
 #define GFXMSIX_PBA__MSIX_PENDING_BITS_2__SHIFT                                                               0x2
+
 
 // addressBlock: rcc_strap_BIFDEC1
 //RCC_DEV0_PORT_STRAP0
@@ -2893,6 +2911,7 @@
 #define RCC_DEV0_EPF1_STRAP7__STRAP_ROM_APER_EN_DEV0_F1__SHIFT                                                0x0
 #define RCC_DEV0_EPF1_STRAP7__STRAP_ROM_APER_SIZE_DEV0_F1__SHIFT                                              0x1
 
+
 // addressBlock: bif_bx_pf_BIFPFVFDEC1
 //BIF_BME_STATUS
 #define BIF_BME_STATUS__DMA_ON_BME_LOW__SHIFT                                                                 0x0
@@ -2976,6 +2995,7 @@
 #define BIF_VMHV_MAILBOX__VMHV_MAILBOX_TRN_MSG_ACK__SHIFT                                                     0x18
 #define BIF_VMHV_MAILBOX__VMHV_MAILBOX_RCV_MSG_ACK__SHIFT                                                     0x19
 
+
 // addressBlock: rcc_pf_0_BIFPFVFDEC1
 //RCC_DOORBELL_APER_EN
 #define RCC_DOORBELL_APER_EN__BIF_DOORBELL_APER_EN__SHIFT                                                     0x0
@@ -2987,11 +3007,13 @@
 #define RCC_IOV_FUNC_IDENTIFIER__FUNC_IDENTIFIER__SHIFT                                                       0x0
 #define RCC_IOV_FUNC_IDENTIFIER__IOV_ENABLE__SHIFT                                                            0x1f
 
+
 // addressBlock: syshub_mmreg_ind_syshubdec
 //SYSHUB_INDEX
 #define SYSHUB_INDEX__INDEX__SHIFT                                                                            0x0
 //SYSHUB_DATA
 #define SYSHUB_DATA__DATA__SHIFT                                                                              0x0
+
 
 // addressBlock: rcc_strap_rcc_strap_internal
 //RCCSTRAPRCCSTRAP_RCC_DEV0_PORT_STRAP0
@@ -3767,6 +3789,7 @@
 #define RCC_DEV1_EPF2_STRAP13__STRAP_CLASS_CODE_SUB_DEV1_F2__SHIFT                                            0x8
 #define RCC_DEV1_EPF2_STRAP13__STRAP_CLASS_CODE_BASE_DEV1_F2__SHIFT                                           0x10
 
+
 // addressBlock: bif_rst_bif_rst_regblk
 //HARD_RST_CTRL
 #define HARD_RST_CTRL__DSPT_CFG_RST_EN__SHIFT                                                                 0x0
@@ -4172,6 +4195,7 @@
 #define BIF_PORT0_DSTATE_VALUE__PORT0_DSTATE_TGT_VALUE__SHIFT                                                 0x0
 #define BIF_PORT0_DSTATE_VALUE__PORT0_DSTATE_ACK_VALUE__SHIFT                                                 0x10
 
+
 // addressBlock: bif_misc_bif_misc_regblk
 //MISC_SCRATCH
 #define MISC_SCRATCH__MISC_SCRATCH0__SHIFT                                                                    0x0
@@ -4512,6 +4536,7 @@
 //BIF_SELFRING_VECTOR_CNTL
 #define BIF_SELFRING_VECTOR_CNTL__MISC_DB_MNTR_INTR_DIS__SHIFT                                                0x0
 
+
 // addressBlock: bif_ras_bif_ras_regblk
 //BIF_RAS_LEAF0_CTRL
 #define BIF_RAS_LEAF0_CTRL__POISON_DET_EN__SHIFT                                                              0x0
@@ -4559,6 +4584,7 @@
 //BIF_RAS_VWR_FROM_IOHUB
 #define BIF_RAS_VWR_FROM_IOHUB__RAS_IH_INTR_TRIG__SHIFT                                                       0x0
 
+
 // addressBlock: rcc_pfc_amdgfx_RCCPFCDEC
 //RCC_PFC_LTR_CNTL
 #define RCC_PFC_LTR_CNTL__SNOOP_LATENCY_VALUE__SHIFT                                                          0x0
@@ -4593,6 +4619,7 @@
 #define RCC_PFC_AUXPWR_CNTL__AUX_CURRENT_OVERRIDE__SHIFT                                                      0x0
 #define RCC_PFC_AUXPWR_CNTL__AUX_POWER_DETECTED_OVERRIDE__SHIFT                                               0x3
 
+
 // addressBlock: rcc_pfc_amdgfxaz_RCCPFCDEC
 //RCCPFCAMDGFXAZ_RCC_PFC_LTR_CNTL
 #define RCCPFCAMDGFXAZ_RCC_PFC_LTR_CNTL__SNOOP_LATENCY_VALUE__SHIFT                                           0x0
@@ -4626,6 +4653,7 @@
 //RCCPFCAMDGFXAZ_RCC_PFC_AUXPWR_CNTL
 #define RCCPFCAMDGFXAZ_RCC_PFC_AUXPWR_CNTL__AUX_CURRENT_OVERRIDE__SHIFT                                       0x0
 #define RCCPFCAMDGFXAZ_RCC_PFC_AUXPWR_CNTL__AUX_POWER_DETECTED_OVERRIDE__SHIFT                                0x3
+
 
 // addressBlock: pciemsix_amdgfx_MSIXTDEC
 //PCIEMSIX_VECT0_ADDR_LO
@@ -4885,9 +4913,11 @@
 //PCIEMSIX_VECT31_CONTROL
 #define PCIEMSIX_VECT31_CONTROL__MASK_BIT__SHIFT                                                              0x0
 
+
 // addressBlock: pciemsix_amdgfx_MSIXPDEC
 //PCIEMSIX_PBA
 #define PCIEMSIX_PBA__MSIX_PENDING_BITS__SHIFT                                                                0x0
+
 
 // addressBlock: syshub_mmreg_ind_syshubind
 //SYSHUBMMREGIND_SYSHUB_DS_CTRL_SOCCLK
@@ -5119,6 +5149,7 @@
 #define SYSHUBMMREGIND_DMA_CLK1_SW1_CL4_CNTL__READ_WRR_WEIGHT__SHIFT                                          0x10
 #define SYSHUBMMREGIND_DMA_CLK1_SW1_CL4_CNTL__WRITE_WRR_WEIGHT__SHIFT                                         0x18
 //MASK
+
 
 // addressBlock: bif_cfg_dev0_epf0_bifcfgdecp
 //VENDOR_ID
@@ -6126,6 +6157,7 @@
 //PCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW7
 #define PCIE_VENDOR_SPECIFIC_HDR_GPUIOV_GFXSCH_DW7__DW7__MASK                                                 0xFFFFFFFFL
 
+
 // addressBlock: bif_cfg_dev0_swds_bifcfgdecp
 //SUB_BUS_NUMBER_LATENCY
 #define SUB_BUS_NUMBER_LATENCY__PRIMARY_BUS__MASK                                                             0x000000FFL
@@ -6216,6 +6248,7 @@
 #define SSID_CAP__SUBSYSTEM_VENDOR_ID__MASK                                                                   0x0000FFFFL
 #define SSID_CAP__SUBSYSTEM_ID__MASK                                                                          0xFFFF0000L
 
+
 // addressBlock: rcc_shadow_reg_shadowdec
 //SHADOW_COMMAND
 #define SHADOW_COMMAND__IOEN_UP__MASK                                                                         0x0001L
@@ -6257,11 +6290,13 @@
 //SUC_DATA
 #define SUC_DATA__SUC_DATA__MASK                                                                              0xFFFFFFFFL
 
+
 // addressBlock: bif_bx_pf_SUMDEC
 //SUM_INDEX
 #define SUM_INDEX__SUM_INDEX__MASK                                                                            0xFFFFFFFFL
 //SUM_DATA
 #define SUM_DATA__SUM_DATA__MASK                                                                              0xFFFFFFFFL
+
 
 // addressBlock: gdc_GDCDEC
 //A2S_CNTL_CL0
@@ -6401,6 +6436,7 @@
 #define A2S_CNTL2_SEC_CL3__SECLVL_MAP__MASK                                                                   0x00000007L
 //A2S_CNTL2_SEC_CL4
 #define A2S_CNTL2_SEC_CL4__SECLVL_MAP__MASK                                                                   0x00000007L
+
 
 // addressBlock: nbif_sion_SIONDEC
 //SION_CL0_RdRsp_BurstTarget_REG0
@@ -6668,6 +6704,7 @@
 #define SION_CNTL_REG1__LIVELOCK_WATCHDOG_THRESHOLD__MASK                                                     0x000000FFL
 #define SION_CNTL_REG1__CG_OFF_HYSTERESIS__MASK                                                               0x0000FF00L
 
+
 // addressBlock: syshub_mmreg_direct_syshubdirect
 //SYSHUB_DS_CTRL_SOCCLK
 #define SYSHUB_DS_CTRL_SOCCLK__HST_CL0_SOCCLK_DEEPSLEEP_ALLOW_ENABLE__MASK                                    0x00000001L
@@ -6898,6 +6935,7 @@
 #define DMA_CLK1_SW1_CL4_CNTL__READ_WRR_WEIGHT__MASK                                                          0x00FF0000L
 #define DMA_CLK1_SW1_CL4_CNTL__WRITE_WRR_WEIGHT__MASK                                                         0xFF000000L
 
+
 // addressBlock: gdc_ras_gdc_ras_regblk
 //GDC_RAS_LEAF0_CTRL
 #define GDC_RAS_LEAF0_CTRL__POISON_DET_EN__MASK                                                               0x00000001L
@@ -6978,6 +7016,7 @@
 #define GDC_RAS_LEAF5_CTRL__ERR_EVENT_SENT__MASK                                                              0x00100000L
 #define GDC_RAS_LEAF5_CTRL__EGRESS_STALLED__MASK                                                              0x00200000L
 
+
 // addressBlock: gdc_rst_GDCRST_DEC
 //SHUB_PF_FLR_RST
 #define SHUB_PF_FLR_RST__PF0_FLR_RST__MASK                                                                    0x00000001L
@@ -7024,6 +7063,7 @@
 #define SHUB_SOFT_RST_CTRL__SDP_PORT_RESET_EN__MASK                                                           0x00000010L
 //SHUB_SDP_PORT_RST
 #define SHUB_SDP_PORT_RST__SDP_PORT_RST__MASK                                                                 0x00000001L
+
 
 // addressBlock: bif_bx_pf_SYSDEC
 //SBIOS_SCRATCH_0
@@ -7122,6 +7162,7 @@
 //GFX_MMIOREG_CAM_PROGRAMMABLE_CPL
 #define GFX_MMIOREG_CAM_PROGRAMMABLE_CPL__CAM_PROGRAMMABLE_CPL__MASK                                          0xFFFFFFFFL
 
+
 // addressBlock: bif_bx_pf_SYSPFVFDEC
 //MM_INDEX
 #define MM_INDEX__MM_OFFSET__MASK                                                                             0x7FFFFFFFL
@@ -7142,6 +7183,7 @@
 #define PCIE_INDEX2__PCIE_INDEX2__MASK                                                                        0xFFFFFFFFL
 //PCIE_DATA2
 #define PCIE_DATA2__PCIE_DATA2__MASK                                                                          0xFFFFFFFFL
+
 
 // addressBlock: rcc_dwn_BIFDEC1
 //DN_PCIE_RESERVED
@@ -7173,6 +7215,7 @@
 //DN_PCIE_STRAP_MISC2
 #define DN_PCIE_STRAP_MISC2__STRAP_MSTCPL_TIMEOUT_EN__MASK                                                    0x00000004L
 
+
 // addressBlock: rcc_dwnp_BIFDEC1
 //PCIEP_RESERVED
 #define PCIEP_RESERVED__PCIEP_RESERVED__MASK                                                                  0xFFFFFFFFL
@@ -7198,6 +7241,7 @@
 #define PCIEP_STRAP_MISC__STRAP_MULTI_FUNC_EN__MASK                                                           0x00000400L
 //LTR_MSG_INFO_FROM_EP
 #define LTR_MSG_INFO_FROM_EP__LTR_MSG_INFO_FROM_EP__MASK                                                      0xFFFFFFFFL
+
 
 // addressBlock: rcc_ep_BIFDEC1
 //EP_PCIE_SCRATCH
@@ -7321,6 +7365,7 @@
 //EP_PCIE_LC_SPEED_CNTL
 #define EP_PCIE_LC_SPEED_CNTL__LC_GEN2_EN_STRAP__MASK                                                         0x00000001L
 #define EP_PCIE_LC_SPEED_CNTL__LC_GEN3_EN_STRAP__MASK                                                         0x00000002L
+
 
 // addressBlock: bif_bx_pf_BIFDEC1
 //BIF_MM_INDACCESS_CNTL
@@ -7590,6 +7635,7 @@
 //BIF_CLKREQB_PAD_CNTL
 #define BIF_CLKREQB_PAD_CNTL__CLKREQB_PAD_CNTL__MASK                                                          0x00FFFFFFL
 
+
 // addressBlock: rcc_pf_0_BIFDEC1
 //RCC_BACO_CNTL_MISC
 #define RCC_BACO_CNTL_MISC__BIF_ROM_REQ_DIS__MASK                                                             0x00000001L
@@ -7726,6 +7772,7 @@
 #define RCC_MH_ARB_CNTL__MH_ARB_MODE__MASK                                                                    0x00000001L
 #define RCC_MH_ARB_CNTL__MH_ARB_FIX_PRIORITY__MASK                                                            0x00007FFEL
 
+
 // addressBlock: rcc_pf_0_BIFDEC2
 //GFXMSIX_VECT0_ADDR_LO
 #define GFXMSIX_VECT0_ADDR_LO__MSG_ADDR_LO__MASK                                                              0xFFFFFFFCL
@@ -7755,6 +7802,7 @@
 #define GFXMSIX_PBA__MSIX_PENDING_BITS_0__MASK                                                                0x00000001L
 #define GFXMSIX_PBA__MSIX_PENDING_BITS_1__MASK                                                                0x00000002L
 #define GFXMSIX_PBA__MSIX_PENDING_BITS_2__MASK                                                                0x00000004L
+
 
 // addressBlock: rcc_strap_BIFDEC1
 //RCC_DEV0_PORT_STRAP0
@@ -7992,6 +8040,7 @@
 #define RCC_DEV0_EPF1_STRAP7__STRAP_ROM_APER_EN_DEV0_F1__MASK                                                 0x00000001L
 #define RCC_DEV0_EPF1_STRAP7__STRAP_ROM_APER_SIZE_DEV0_F1__MASK                                               0x0000001EL
 
+
 // addressBlock: bif_bx_pf_BIFPFVFDEC1
 //BIF_BME_STATUS
 #define BIF_BME_STATUS__DMA_ON_BME_LOW__MASK                                                                  0x00000001L
@@ -8075,6 +8124,7 @@
 #define BIF_VMHV_MAILBOX__VMHV_MAILBOX_TRN_MSG_ACK__MASK                                                      0x01000000L
 #define BIF_VMHV_MAILBOX__VMHV_MAILBOX_RCV_MSG_ACK__MASK                                                      0x02000000L
 
+
 // addressBlock: rcc_pf_0_BIFPFVFDEC1
 //RCC_DOORBELL_APER_EN
 #define RCC_DOORBELL_APER_EN__BIF_DOORBELL_APER_EN__MASK                                                      0x00000001L
@@ -8086,11 +8136,13 @@
 #define RCC_IOV_FUNC_IDENTIFIER__FUNC_IDENTIFIER__MASK                                                        0x00000001L
 #define RCC_IOV_FUNC_IDENTIFIER__IOV_ENABLE__MASK                                                             0x80000000L
 
+
 // addressBlock: syshub_mmreg_ind_syshubdec
 //SYSHUB_INDEX
 #define SYSHUB_INDEX__INDEX__MASK                                                                             0xFFFFFFFFL
 //SYSHUB_DATA
 #define SYSHUB_DATA__DATA__MASK                                                                               0xFFFFFFFFL
+
 
 // addressBlock: rcc_strap_rcc_strap_internal
 //RCCSTRAPRCCSTRAP_RCC_DEV0_PORT_STRAP0
@@ -8866,6 +8918,7 @@
 #define RCC_DEV1_EPF2_STRAP13__STRAP_CLASS_CODE_SUB_DEV1_F2__MASK                                             0x0000FF00L
 #define RCC_DEV1_EPF2_STRAP13__STRAP_CLASS_CODE_BASE_DEV1_F2__MASK                                            0x00FF0000L
 
+
 // addressBlock: bif_rst_bif_rst_regblk
 //HARD_RST_CTRL
 #define HARD_RST_CTRL__DSPT_CFG_RST_EN__MASK                                                                  0x00000001L
@@ -9271,6 +9324,7 @@
 #define BIF_PORT0_DSTATE_VALUE__PORT0_DSTATE_TGT_VALUE__MASK                                                  0x00000003L
 #define BIF_PORT0_DSTATE_VALUE__PORT0_DSTATE_ACK_VALUE__MASK                                                  0x00030000L
 
+
 // addressBlock: bif_misc_bif_misc_regblk
 //MISC_SCRATCH
 #define MISC_SCRATCH__MISC_SCRATCH0__MASK                                                                     0xFFFFFFFFL
@@ -9611,6 +9665,7 @@
 //BIF_SELFRING_VECTOR_CNTL
 #define BIF_SELFRING_VECTOR_CNTL__MISC_DB_MNTR_INTR_DIS__MASK                                                 0x00000001L
 
+
 // addressBlock: bif_ras_bif_ras_regblk
 //BIF_RAS_LEAF0_CTRL
 #define BIF_RAS_LEAF0_CTRL__POISON_DET_EN__MASK                                                               0x00000001L
@@ -9658,6 +9713,7 @@
 //BIF_RAS_VWR_FROM_IOHUB
 #define BIF_RAS_VWR_FROM_IOHUB__RAS_IH_INTR_TRIG__MASK                                                        0x00000001L
 
+
 // addressBlock: rcc_pfc_amdgfx_RCCPFCDEC
 //RCC_PFC_LTR_CNTL
 #define RCC_PFC_LTR_CNTL__SNOOP_LATENCY_VALUE__MASK                                                           0x000003FFL
@@ -9692,6 +9748,7 @@
 #define RCC_PFC_AUXPWR_CNTL__AUX_CURRENT_OVERRIDE__MASK                                                       0x00000007L
 #define RCC_PFC_AUXPWR_CNTL__AUX_POWER_DETECTED_OVERRIDE__MASK                                                0x00000008L
 
+
 // addressBlock: rcc_pfc_amdgfxaz_RCCPFCDEC
 //RCCPFCAMDGFXAZ_RCC_PFC_LTR_CNTL
 #define RCCPFCAMDGFXAZ_RCC_PFC_LTR_CNTL__SNOOP_LATENCY_VALUE__MASK                                            0x000003FFL
@@ -9725,6 +9782,7 @@
 //RCCPFCAMDGFXAZ_RCC_PFC_AUXPWR_CNTL
 #define RCCPFCAMDGFXAZ_RCC_PFC_AUXPWR_CNTL__AUX_CURRENT_OVERRIDE__MASK                                        0x00000007L
 #define RCCPFCAMDGFXAZ_RCC_PFC_AUXPWR_CNTL__AUX_POWER_DETECTED_OVERRIDE__MASK                                 0x00000008L
+
 
 // addressBlock: pciemsix_amdgfx_MSIXTDEC
 //PCIEMSIX_VECT0_ADDR_LO
@@ -9984,9 +10042,11 @@
 //PCIEMSIX_VECT31_CONTROL
 #define PCIEMSIX_VECT31_CONTROL__MASK_BIT__MASK                                                               0x00000001L
 
+
 // addressBlock: pciemsix_amdgfx_MSIXPDEC
 //PCIEMSIX_PBA
 #define PCIEMSIX_PBA__MSIX_PENDING_BITS__MASK                                                                 0xFFFFFFFFL
+
 
 // addressBlock: syshub_mmreg_ind_syshubind
 //SYSHUBMMREGIND_SYSHUB_DS_CTRL_SOCCLK

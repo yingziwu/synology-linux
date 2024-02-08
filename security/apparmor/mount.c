@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * AppArmor security module
  *
@@ -25,6 +28,7 @@
 #include "include/mount.h"
 #include "include/path.h"
 #include "include/policy.h"
+
 
 static void audit_mnt_flags(struct audit_buffer *ab, unsigned long flags)
 {
@@ -232,7 +236,11 @@ static struct file_perms compute_mnt_perms(struct aa_dfa *dfa,
 	return perms;
 }
 
+#ifdef MY_ABC_HERE
+static const char * const mnt_info_table[] = {
+#else /* MY_ABC_HERE */
 static const char const *mnt_info_table[] = {
+#endif /* MY_ABC_HERE */
 	"match succeeded",
 	"failed mntpnt match",
 	"failed srcname match",

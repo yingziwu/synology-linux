@@ -63,6 +63,7 @@ MODULE_FIRMWARE("amdgpu/polaris11_sdma1.bin");
 MODULE_FIRMWARE("amdgpu/polaris12_sdma.bin");
 MODULE_FIRMWARE("amdgpu/polaris12_sdma1.bin");
 
+
 static const u32 sdma_offsets[SDMA_MAX_INSTANCE] =
 {
 	SDMA0_REGISTER_OFFSET,

@@ -346,6 +346,7 @@ static int __init mux_of_init(struct device_node *np,
 			pr_warn("[%s] unable to map IRQ base registers\n",
 				DEV_NAME);
 
+
 		irq = irq_of_parse_and_map(np, i);
 
 		if (!irq)

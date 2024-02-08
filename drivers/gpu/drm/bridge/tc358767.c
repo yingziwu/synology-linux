@@ -677,6 +677,7 @@ static int tc_set_video_mode(struct tc_data *tc, struct drm_display_mode *mode)
 		upper_margin, lower_margin, vsync_len);
 	dev_dbg(tc->dev, "total: %dx%d\n", mode->htotal, mode->vtotal);
 
+
 	/*
 	 * LCD Ctl Frame Size
 	 * datasheet is not clear of vsdelay in case of DPI

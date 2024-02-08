@@ -58,6 +58,7 @@ static const unsigned int rtkgpio_dcdc1_vtbl[] = {
 	850000, 950000, 1050000,
 };
 
+
 static struct regulator_desc rtkgpio_regulator_desc[] = {
 	{
 		.name = "rtkgpio_regulator",
@@ -102,6 +103,7 @@ static int rtkgpio_regulator_probe(struct platform_device *pdev)
 	rdev = devm_regulator_register(dev, &rtkgpio_regulator_desc[0], &cfg);
 	return 0;
 }
+
 
 static struct of_device_id rtkgpio_regulator_id[] = {
 	{ .compatible = "rtkgpio-regulator" },

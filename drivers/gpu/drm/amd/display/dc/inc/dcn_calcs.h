@@ -632,3 +632,4 @@ void dcn_bw_notify_pplib_of_wm_ranges(struct dc *dc);
 void dcn_bw_sync_calcs_and_dml(struct dc *dc);
 
 #endif /* __DCN_CALCS_H__ */
+

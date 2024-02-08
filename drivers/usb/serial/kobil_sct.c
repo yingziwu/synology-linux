@@ -22,6 +22,7 @@
  * (Adapter K), B1 Professional and KAAN Professional (Adapter B)
  */
 
+
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/slab.h>
@@ -47,6 +48,7 @@
 
 #define KOBIL_TIMEOUT		500
 #define KOBIL_BUF_LENGTH	300
+
 
 /* Function prototypes */
 static int kobil_attach(struct usb_serial *serial);
@@ -112,6 +114,7 @@ struct kobil_private {
 	__u16 device_type;
 };
 
+
 static int kobil_attach(struct usb_serial *serial)
 {
 	if (serial->num_interrupt_out < serial->num_ports) {
@@ -153,6 +156,7 @@ static int kobil_port_probe(struct usb_serial_port *port)
 
 	return 0;
 }
+
 
 static int kobil_port_remove(struct usb_serial_port *port)
 {
@@ -260,12 +264,14 @@ static int kobil_open(struct tty_struct *tty, struct usb_serial_port *port)
 	return 0;
 }
 
+
 static void kobil_close(struct usb_serial_port *port)
 {
 	/* FIXME: Add rts/dtr methods */
 	usb_kill_urb(port->interrupt_out_urb);
 	usb_kill_urb(port->interrupt_in_urb);
 }
+
 
 static void kobil_read_int_callback(struct urb *urb)
 {
@@ -290,9 +296,11 @@ static void kobil_read_int_callback(struct urb *urb)
 	dev_dbg(&port->dev, "%s - Send read URB returns: %i\n", __func__, result);
 }
 
+
 static void kobil_write_int_callback(struct urb *urb)
 {
 }
+
 
 static int kobil_write(struct tty_struct *tty, struct usb_serial_port *port,
 			const unsigned char *buf, int count)
@@ -362,11 +370,13 @@ static int kobil_write(struct tty_struct *tty, struct usb_serial_port *port,
 	return count;
 }
 
+
 static int kobil_write_room(struct tty_struct *tty)
 {
 	/* FIXME */
 	return 8;
 }
+
 
 static int kobil_tiocmget(struct tty_struct *tty)
 {
@@ -398,12 +408,20 @@ static int kobil_tiocmget(struct tty_struct *tty)
 			  transfer_buffer_length,
 			  KOBIL_TIMEOUT);
 
-	dev_dbg(&port->dev, "%s - Send get_status_line_state URB returns: %i. Statusline: %02x\n",
-		__func__, result, transfer_buffer[0]);
+	dev_dbg(&port->dev, "Send get_status_line_state URB returns: %i\n",
+			result);
+	if (result < 1) {
+		if (result >= 0)
+			result = -EIO;
+		goto out_free;
+	}
+
+	dev_dbg(&port->dev, "Statusline: %02x\n", transfer_buffer[0]);
 
 	result = 0;
 	if ((transfer_buffer[0] & SUSBCR_GSL_DSR) != 0)
 		result = TIOCM_DSR;
+out_free:
 	kfree(transfer_buffer);
 	return result;
 }

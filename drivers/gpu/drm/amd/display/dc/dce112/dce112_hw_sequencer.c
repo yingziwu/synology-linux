@@ -38,6 +38,7 @@ struct dce112_hw_seq_reg_offsets {
 	uint32_t crtc;
 };
 
+
 static const struct dce112_hw_seq_reg_offsets reg_offsets[] = {
 {
 	.crtc = (mmCRTC0_CRTC_GSL_CONTROL - mmCRTC_GSL_CONTROL),
@@ -159,3 +160,4 @@ void dce112_hw_sequencer_construct(struct dc *dc)
 	dce110_hw_sequencer_construct(dc);
 	dc->hwss.enable_display_power_gating = dce112_enable_display_power_gating;
 }
+

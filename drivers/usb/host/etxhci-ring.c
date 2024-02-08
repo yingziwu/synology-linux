@@ -462,6 +462,7 @@ static struct xhci_segment *find_trb_seg(
 	return cur_seg;
 }
 
+
 static struct xhci_ring *xhci_triad_to_transfer_ring(struct xhci_hcd *xhci,
 		unsigned int slot_id, unsigned int ep_index,
 		unsigned int stream_id)
@@ -755,6 +756,7 @@ static void handle_stopped_endpoint(struct xhci_hcd *xhci,
 	struct xhci_td *last_unlinked_td;
 
 	struct xhci_dequeue_state deq_state;
+
 
 	slot_id = TRB_TO_SLOT_ID(le32_to_cpu(trb->generic.field[3]));
 	virt_dev = xhci->devs[slot_id];
@@ -1187,6 +1189,7 @@ static void xhci_complete_cmd_in_cmd_wait_list(struct xhci_hcd *xhci,
 	else
 		etxhci_free_command(xhci, command);
 }
+
 
 /* Check to see if a command in the device's command queue matches this one.
  * Signal the completion or free the command, and return 1.  Return 0 if the

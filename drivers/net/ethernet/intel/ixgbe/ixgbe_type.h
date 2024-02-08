@@ -554,6 +554,7 @@ struct ixgbe_thermal_sensor_data {
 #define IXGBE_TDPT2TCCR(_i)     (0x0CD20 + ((_i) * 4)) /* 8 of these (0-7) */
 #define IXGBE_TDPT2TCSR(_i)     (0x0CD40 + ((_i) * 4)) /* 8 of these (0-7) */
 
+
 /* Security Control Registers */
 #define IXGBE_SECTXCTRL         0x08800
 #define IXGBE_SECTXSTAT         0x08804
@@ -3468,6 +3469,7 @@ struct ixgbe_info {
 	const u32			*mvals;
 };
 
+
 /* Error Codes */
 #define IXGBE_ERR_EEPROM                        -1
 #define IXGBE_ERR_EEPROM_CHECKSUM               -2
@@ -3506,7 +3508,7 @@ struct ixgbe_info {
 
 #define IXGBE_FUSES0_GROUP(_i)		(0x11158 + ((_i) * 4))
 #define IXGBE_FUSES0_300MHZ		BIT(5)
-#define IXGBE_FUSES0_REV1		BIT(6)
+#define IXGBE_FUSES0_REV_MASK		(3 << 6)
 
 #define IXGBE_KRM_PORT_CAR_GEN_CTRL(P)	((P) ? 0x8010 : 0x4010)
 #define IXGBE_KRM_LINK_CTRL_1(P)	((P) ? 0x820C : 0x420C)

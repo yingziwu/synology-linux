@@ -28,6 +28,7 @@
 
 static void msm_gem_vunmap_locked(struct drm_gem_object *obj);
 
+
 static dma_addr_t physaddr(struct drm_gem_object *obj)
 {
 	struct msm_gem_object *msm_obj = to_msm_bo(obj);

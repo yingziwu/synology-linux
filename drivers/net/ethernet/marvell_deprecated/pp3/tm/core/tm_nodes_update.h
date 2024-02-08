@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -70,6 +71,7 @@ disclaimer.
 int tm_update_queue(tm_handle hndl, uint32_t queue_index,
 					struct tm_queue_params *q_params);
 
+
 /** Update A-node parameters.
  *
  *   @brief when error occurs, the entry is considered inconsistent.
@@ -103,6 +105,7 @@ int tm_update_queue(tm_handle hndl, uint32_t queue_index,
 int tm_update_a_node(tm_handle hndl, uint32_t a_node_index,
 					 struct tm_a_node_params *a_params);
 
+
 /** Update B-node parameters.
  *
  *   @brief when error occurs, the entry is considered inconsistent.
@@ -133,6 +136,7 @@ int tm_update_a_node(tm_handle hndl, uint32_t a_node_index,
  */
 int tm_update_b_node(tm_handle hndl, uint32_t b_node_index,
 					 struct tm_b_node_params *b_params);
+
 
 /** Update C-node parameters.
  *
@@ -167,6 +171,7 @@ int tm_update_b_node(tm_handle hndl, uint32_t b_node_index,
 int tm_update_c_node(tm_handle hndl, uint32_t c_node_index,
 					 struct tm_c_node_params *c_params);
 
+
 /** Update Port Scheduling parameters.
  *
  *   @brief when error occurs, the entry is considered inconsistent.
@@ -199,6 +204,7 @@ int tm_update_port_scheduling(tm_handle hndl, uint8_t port_id,
 							uint16_t *quantum,
 #endif
 							uint8_t *dwrr_priority);
+
 
 /** Update Port Drop parameters.
  *

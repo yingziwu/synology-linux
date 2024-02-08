@@ -698,6 +698,7 @@ static void ioat_restart_channel(struct ioatdma_chan *ioat_chan)
 	__ioat_restart_chan(ioat_chan);
 }
 
+
 static void ioat_abort_descs(struct ioatdma_chan *ioat_chan)
 {
 	struct ioatdma_device *ioat_dma = ioat_chan->ioat_dma;
@@ -1015,6 +1016,7 @@ int ioat_reset_hw(struct ioatdma_chan *ioat_chan)
 		ioat_dma->msixdata0 = readq(ioat_dma->reg_base + 0x1008);
 		ioat_dma->msixpba = readq(ioat_dma->reg_base + 0x1800);
 	}
+
 
 	err = ioat_reset_sync(ioat_chan, msecs_to_jiffies(200));
 	if (!err) {

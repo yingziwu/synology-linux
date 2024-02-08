@@ -429,3 +429,4 @@ failed_find:
 failed_connector:
 	kfree(gma_encoder);
 }
+

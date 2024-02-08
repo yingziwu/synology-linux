@@ -551,6 +551,7 @@ static void alsa_uac2_exit(struct audio_dev *agdev)
 	platform_device_unregister(&uac2->pdev);
 }
 
+
 /* --------- USB Function Interface ------------- */
 
 enum {
@@ -940,14 +941,14 @@ static struct usb_descriptor_header *hs_audio_desc[] = {
 };
 
 struct cntrl_cur_lay3 {
-	__u32	dCUR;
+	__le32	dCUR;
 };
 
 struct cntrl_range_lay3 {
-	__u16	wNumSubRanges;
-	__u32	dMIN;
-	__u32	dMAX;
-	__u32	dRES;
+	__le16	wNumSubRanges;
+	__le32	dMIN;
+	__le32	dMAX;
+	__le32	dRES;
 } __packed;
 
 static inline void
@@ -1028,6 +1029,7 @@ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
 	std_as_in_if0_desc.iInterface = us[STR_AS_IN_ALT0].id;
 	std_as_in_if1_desc.iInterface = us[STR_AS_IN_ALT1].id;
 
+
 	/* Initialize the configurable parameters */
 	usb_out_it_desc.bNrChannels = num_channels(uac2_opts->c_chmask);
 	usb_out_it_desc.bmChannelConfig = cpu_to_le32(uac2_opts->c_chmask);
@@ -1050,6 +1052,8 @@ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
 		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
 		return ret;
 	}
+	iad_desc.bFirstInterface = ret;
+
 	std_ac_if_desc.bInterfaceNumber = ret;
 	agdev->ac_intf = ret;
 	agdev->ac_alt = 0;
@@ -1292,9 +1296,9 @@ in_rq_cur(struct usb_function *fn, const struct usb_ctrlrequest *cr)
 		memset(&c, 0, sizeof(struct cntrl_cur_lay3));
 
 		if (entity_id == USB_IN_CLK_ID)
-			c.dCUR = p_srate;
+			c.dCUR = cpu_to_le32(p_srate);
 		else if (entity_id == USB_OUT_CLK_ID)
-			c.dCUR = c_srate;
+			c.dCUR = cpu_to_le32(c_srate);
 
 		value = min_t(unsigned, w_length, sizeof c);
 		memcpy(req->buf, &c, value);
@@ -1332,15 +1336,15 @@ in_rq_range(struct usb_function *fn, const struct usb_ctrlrequest *cr)
 
 	if (control_selector == UAC2_CS_CONTROL_SAM_FREQ) {
 		if (entity_id == USB_IN_CLK_ID)
-			r.dMIN = p_srate;
+			r.dMIN = cpu_to_le32(p_srate);
 		else if (entity_id == USB_OUT_CLK_ID)
-			r.dMIN = c_srate;
+			r.dMIN = cpu_to_le32(c_srate);
 		else
 			return -EOPNOTSUPP;
 
 		r.dMAX = r.dMIN;
 		r.dRES = 0;
-		r.wNumSubRanges = 1;
+		r.wNumSubRanges = cpu_to_le16(1);
 
 		value = min_t(unsigned, w_length, sizeof r);
 		memcpy(req->buf, &r, value);

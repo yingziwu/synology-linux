@@ -24,6 +24,7 @@ int		sort__has_dso = 0;
 int		sort__has_socket = 0;
 enum sort_mode	sort__mode = SORT_MODE__NORMAL;
 
+
 static int repsep_snprintf(char *bf, size_t size, const char *fmt, ...)
 {
 	int n;
@@ -603,6 +604,9 @@ static int hist_entry__mispredict_snprintf(struct hist_entry *he, char *bf,
 static int64_t
 sort__cycles_cmp(struct hist_entry *left, struct hist_entry *right)
 {
+	if (!left->branch_info || !right->branch_info)
+		return cmp_null(left->branch_info, right->branch_info);
+
 	return left->branch_info->flags.cycles -
 		right->branch_info->flags.cycles;
 }
@@ -610,6 +614,8 @@ sort__cycles_cmp(struct hist_entry *left, struct hist_entry *right)
 static int hist_entry__cycles_snprintf(struct hist_entry *he, char *bf,
 				    size_t size, unsigned int width)
 {
+	if (!he->branch_info)
+		return scnprintf(bf, size, "%-.*s", width, "N/A");
 	if (he->branch_info->flags.cycles == 0)
 		return repsep_snprintf(bf, size, "%-*s", width, "-");
 	return repsep_snprintf(bf, size, "%-*hd", width,

@@ -218,7 +218,8 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
 		goto done_proc;
 	}
 
-	remaining_bytes = do_div(buffer_size, sizeof(__s32));
+	remaining_bytes = buffer_size % sizeof(__s32);
+	buffer_size = buffer_size / sizeof(__s32);
 	if (buffer_size) {
 		for (i = 0; i < buffer_size; ++i) {
 			hid_set_field(report->field[field_index], i,
@@ -277,6 +278,7 @@ done_proc:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(sensor_hub_get_feature);
+
 
 int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
 					u32 usage_id,

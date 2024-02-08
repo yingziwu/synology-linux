@@ -443,6 +443,7 @@ static int __rtk_powerctrl_restore_reference(struct rtk_powerctrl *ctrl,
     return 0;
 }
 
+
 static int rtk_power_on(struct power_control *pctrl)
 {
     struct rtk_powerctrl *ctrl = to_rtk_powerctrl(pctrl);
@@ -1098,3 +1099,4 @@ static int __init rtk_init_powerctrl(void)
     return 0;
 }
 early_initcall(rtk_init_powerctrl);
+

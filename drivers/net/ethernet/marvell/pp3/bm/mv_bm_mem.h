@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -49,6 +50,7 @@ disclaimer.
 		(MV_ALIGN_UP(BM_SRAM_BGP_CACHE_TBL_ENTRY_SIZE, 32) / 32)
 #define BM_SRAM_BGP_CACHE_DATA_OFFS				0
 #define BM_SRAM_BGP_CACHE_DATA_BITS				40
+
 
 /* dpr c mng bank [0-4] stat table */
 #define BM_DPR_C_MNG_BANK_STAT_TBL_ENTRY(bid, i)		(0x4D0000 + (bid*0x400) + i*16)
@@ -97,6 +99,8 @@ disclaimer.
 #define BM_DPR_D_MNG_BALL_STAT_DRAM_START_MSB_BITS		8
 #define BM_DPR_D_MNG_BALL_STAT_DRAM_SIZE_OFFS                  128
 #define BM_DPR_D_MNG_BALL_STAT_DRAM_SIZE_BITS                  18
+
+
 
 /* TPR_DRO_MNG_BALL_DYN Table */
 #define BM_TPR_DRO_MNG_BALL_DYN_TBL_ENTRY(i)			(0x4D4000 + i*8)

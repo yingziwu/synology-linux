@@ -51,6 +51,7 @@ static ssize_t store_bridge_parm(struct device *d,
 	return err ? err : len;
 }
 
+
 static ssize_t forward_delay_show(struct device *d,
 				  struct device_attribute *attr, char *buf)
 {
@@ -130,6 +131,7 @@ static ssize_t stp_state_show(struct device *d,
 	return sprintf(buf, "%d\n", br->stp_enabled);
 }
 
+
 static ssize_t stp_state_store(struct device *d,
 			       struct device_attribute *attr, const char *buf,
 			       size_t len)
@@ -161,6 +163,7 @@ static ssize_t group_fwd_mask_show(struct device *d,
 	struct net_bridge *br = to_bridge(d);
 	return sprintf(buf, "%#x\n", br->group_fwd_mask);
 }
+
 
 static ssize_t group_fwd_mask_store(struct device *d,
 				    struct device_attribute *attr,

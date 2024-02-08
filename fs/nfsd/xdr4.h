@@ -189,6 +189,7 @@ struct nfsd4_lock {
 #define lk_resp_stateid u.ok.stateid
 #define lk_denied       u.denied
 
+
 struct nfsd4_lockt {
 	u32				lt_type;
 	clientid_t			lt_clientid;
@@ -198,6 +199,7 @@ struct nfsd4_lockt {
 	struct nfsd4_lock_denied  	lt_denied;
 };
 
+ 
 struct nfsd4_locku {
 	u32             lu_type;
 	u32             lu_seqid;
@@ -205,6 +207,7 @@ struct nfsd4_locku {
 	u64             lu_offset;
 	u64             lu_length;
 };
+
 
 struct nfsd4_lookup {
 	u32		lo_len;             /* request */
@@ -262,6 +265,7 @@ struct nfsd4_open_downgrade {
 	u32		od_deleg_want;		/* request */
 	u32             od_share_deny;		/* request */
 };
+
 
 struct nfsd4_read {
 	stateid_t	rd_stateid;         /* request */
@@ -615,9 +619,18 @@ static inline bool nfsd4_is_solo_sequence(struct nfsd4_compoundres *resp)
 	return resp->opcnt == 1 && args->ops[0].opnum == OP_SEQUENCE;
 }
 
-static inline bool nfsd4_not_cached(struct nfsd4_compoundres *resp)
+/*
+ * The session reply cache only needs to cache replies that the client
+ * actually asked us to.  But it's almost free for us to cache compounds
+ * consisting of only a SEQUENCE op, so we may as well cache those too.
+ * Also, the protocol doesn't give us a convenient response in the case
+ * of a replay of a solo SEQUENCE op that wasn't cached
+ * (RETRY_UNCACHED_REP can only be returned in the second op of a
+ * compound).
+ */
+static inline bool nfsd4_cache_this(struct nfsd4_compoundres *resp)
 {
-	return !(resp->cstate.slot->sl_flags & NFSD4_SLOT_CACHETHIS)
+	return (resp->cstate.slot->sl_flags & NFSD4_SLOT_CACHETHIS)
 		|| nfsd4_is_solo_sequence(resp);
 }
 

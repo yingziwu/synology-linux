@@ -79,6 +79,7 @@ struct Gc_Cac_Weight_Data
 
 typedef struct Gc_Cac_Weight_Data GcCacWeight_Data;
 
+
 typedef struct {
   uint32_t high;
   uint32_t low;
@@ -184,6 +185,7 @@ typedef struct {
 
 #define SMU73_THERMAL_INPUT_LOOP_COUNT 6
 #define SMU73_THERMAL_CLAMP_MODE_COUNT 8
+
 
 struct SMU7_HystController_Data
 {
@@ -322,6 +324,7 @@ struct SMU7_VoltageScoreboard
 
     uint16_t CurrentVddc;
     uint16_t CurrentVddci;
+
 
     uint8_t  ControllerBusy;
     uint8_t  CurrentVid;
@@ -507,9 +510,14 @@ struct SMU73_Firmware_Header
     uint32_t CacConfigTable;
     uint32_t CacStatusTable;
 
+
     uint32_t mcRegisterTable;
 
+
     uint32_t mcArbDramTimingTable;
+
+
+
 
     uint32_t PmFuseTable;
     uint32_t Globals;
@@ -537,6 +545,7 @@ enum  DisplayConfig {
     DP324x2,
     DP324x1
 };
+
 
 #define MC_BLOCK_COUNT 1
 #define CPL_BLOCK_COUNT 5
@@ -607,6 +616,8 @@ typedef struct SMU7_Local_Cac_Table SMU7_Local_Cac_Table;
 #define CG_RLC_MGCG_MASK              0x00080000
 #define CG_GFX_OTHERS_MGCG_MASK       0x00100000
 
+
+
 // Voltage Regulator Configuration
 // VR Config info is contained in dpmTable.VRConfig
 
@@ -642,6 +653,7 @@ typedef struct SMU7_Local_Cac_Table SMU7_Local_Cac_Table;
 struct SMU_ClockStretcherDataTableEntry {
   uint8_t minVID;
   uint8_t maxVID;
+
 
   uint16_t setting;
 };

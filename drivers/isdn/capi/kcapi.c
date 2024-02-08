@@ -168,6 +168,7 @@ register_appl(struct capi_ctr *ctr, u16 applid, capi_register_params *rparam)
 		       __func__);
 }
 
+
 static void release_appl(struct capi_ctr *ctr, u16 applid)
 {
 	DBG("applid %#x", applid);
@@ -850,7 +851,7 @@ u16 capi20_get_manufacturer(u32 contr, u8 *buf)
 	u16 ret;
 
 	if (contr == 0) {
-		strlcpy(buf, capi_manufakturer, CAPI_MANUFACTURER_LEN);
+		strncpy(buf, capi_manufakturer, CAPI_MANUFACTURER_LEN);
 		return CAPI_NOERROR;
 	}
 
@@ -858,7 +859,7 @@ u16 capi20_get_manufacturer(u32 contr, u8 *buf)
 
 	ctr = get_capi_ctr_by_nr(contr);
 	if (ctr && ctr->state == CAPI_CTR_RUNNING) {
-		strlcpy(buf, ctr->manu, CAPI_MANUFACTURER_LEN);
+		strncpy(buf, ctr->manu, CAPI_MANUFACTURER_LEN);
 		ret = CAPI_NOERROR;
 	} else
 		ret = CAPI_REGNOTINSTALLED;
@@ -1031,6 +1032,7 @@ static int old_capi_manufacturer(unsigned int cmd, void __user *data)
 						     sizeof(avmb1_carddef))))
 				return -EFAULT;
 			cdef.cardtype = AVM_CARDTYPE_B1;
+			cdef.cardnr = 0;
 		} else {
 			if ((retval = copy_from_user(&cdef, data,
 						     sizeof(avmb1_extcarddef))))

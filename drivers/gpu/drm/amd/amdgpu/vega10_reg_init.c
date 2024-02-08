@@ -52,3 +52,5 @@ int vega10_reg_base_init(struct amdgpu_device *adev)
 	}
 	return 0;
 }
+
+

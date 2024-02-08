@@ -208,6 +208,7 @@ static int ql_wait_cfg(struct ql_adapter *qdev, u32 bit)
 	return -ETIMEDOUT;
 }
 
+
 /* Used to issue init control blocks to hw. Maps control block,
  * sets address, triggers download, waits for completion.
  */
@@ -2387,26 +2388,20 @@ static int qlge_update_hw_vlan_features(struct net_device *ndev,
 	return status;
 }
 
-static netdev_features_t qlge_fix_features(struct net_device *ndev,
-	netdev_features_t features)
-{
-	int err;
-
-	/* Update the behavior of vlan accel in the adapter */
-	err = qlge_update_hw_vlan_features(ndev, features);
-	if (err)
-		return err;
-
-	return features;
-}
-
 static int qlge_set_features(struct net_device *ndev,
 	netdev_features_t features)
 {
 	netdev_features_t changed = ndev->features ^ features;
+	int err;
 
-	if (changed & NETIF_F_HW_VLAN_CTAG_RX)
+	if (changed & NETIF_F_HW_VLAN_CTAG_RX) {
+		/* Update the behavior of vlan accel in the adapter */
+		err = qlge_update_hw_vlan_features(ndev, features);
+		if (err)
+			return err;
+
 		qlge_vlan_mode(ndev, features);
+	}
 
 	return 0;
 }
@@ -2721,6 +2716,7 @@ static netdev_tx_t qlge_send(struct sk_buff *skb, struct net_device *ndev)
 	}
 	return NETDEV_TX_OK;
 }
+
 
 static void ql_free_shadow_space(struct ql_adapter *qdev)
 {
@@ -4718,7 +4714,6 @@ static const struct net_device_ops qlge_netdev_ops = {
 	.ndo_set_mac_address	= qlge_set_mac_address,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_tx_timeout		= qlge_tx_timeout,
-	.ndo_fix_features	= qlge_fix_features,
 	.ndo_set_features	= qlge_set_features,
 	.ndo_vlan_rx_add_vid	= qlge_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid	= qlge_vlan_rx_kill_vid,

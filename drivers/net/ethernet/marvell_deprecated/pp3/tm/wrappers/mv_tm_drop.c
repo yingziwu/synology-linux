@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -119,6 +120,8 @@ int mv_tm_create_flat_wred_curve(enum mv_tm_level level, int cos, uint8_t cp, ui
 	TM_WRAPPER_END(qmtm_hndl);
 }
 EXPORT_SYMBOL(mv_tm_create_flat_wred_curve);
+
+
 
 int mv_tm_drop_profile_set(enum mv_tm_level level, uint32_t index, int cos, struct mv_tm_drop_profile *profile)
 {

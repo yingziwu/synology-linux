@@ -441,6 +441,7 @@ static struct drm_encoder *cirrus_encoder_init(struct drm_device *dev)
 	return encoder;
 }
 
+
 static int cirrus_vga_get_modes(struct drm_connector *connector)
 {
 	int count;
@@ -502,6 +503,7 @@ static struct drm_connector *cirrus_vga_init(struct drm_device *dev)
 	drm_connector_register(connector);
 	return connector;
 }
+
 
 int cirrus_modeset_init(struct cirrus_device *cdev)
 {

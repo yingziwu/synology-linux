@@ -234,6 +234,7 @@ static int get_burstcount(struct tpm_chip *chip)
 	return -EBUSY;
 } /* get_burstcount() */
 
+
 /*
  * wait_for_tpm_stat_cond
  * @param: chip, chip description
@@ -484,7 +485,7 @@ static int st33zp24_recv(struct tpm_chip *chip, unsigned char *buf,
 			    size_t count)
 {
 	int size = 0;
-	int expected;
+	u32 expected;
 
 	if (!chip)
 		return -EBUSY;
@@ -501,7 +502,7 @@ static int st33zp24_recv(struct tpm_chip *chip, unsigned char *buf,
 	}
 
 	expected = be32_to_cpu(*(__be32 *)(buf + 2));
-	if (expected > count) {
+	if (expected > count || expected < TPM_HEADER_SIZE) {
 		size = -EIO;
 		goto out;
 	}

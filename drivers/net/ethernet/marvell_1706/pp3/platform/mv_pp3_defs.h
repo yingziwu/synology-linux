@@ -16,6 +16,7 @@
 * ***************************************************************************
 */
 
+
 #ifndef __mv_pp3_defs_h__
 #define __mv_pp3_defs_h__
 
@@ -50,6 +51,7 @@
 #define MV_PP3_CPU_VPORT_ID(_cpu_id_)	(MV_NSS_CPU_PORT_MIN + (_cpu_id_))
 /* translate cpu virtual port it to CPU number */
 #define MV_PP3_CPU_VPORT_TO_CPU(cpu_vp)	((cpu_vp) - MV_NSS_CPU_PORT_MIN)
+
 
 #define MV_PP3_DEV_NUM			(MV_NSS_EXT_PORT_NUM + MV_PP3_EMAC_NUM) /* max number of network devices */
 

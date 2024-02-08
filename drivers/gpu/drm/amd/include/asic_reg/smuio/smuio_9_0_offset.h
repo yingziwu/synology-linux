@@ -21,6 +21,8 @@
 #ifndef _smuio_9_0_OFFSET_HEADER
 #define _smuio_9_0_OFFSET_HEADER
 
+
+
 // addressBlock: smuio_smuio_SmuSmuioDec
 // base address: 0x5a000
 #define mmROM_CNTL                                                                                     0x0024

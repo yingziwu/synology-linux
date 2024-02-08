@@ -121,6 +121,7 @@ err_unreserve:
 	return ret;
 }
 
+
 static void vmw_cursor_update_position(struct vmw_private *dev_priv,
 				       bool show, int x, int y)
 {
@@ -135,6 +136,7 @@ static void vmw_cursor_update_position(struct vmw_private *dev_priv,
 	vmw_mmio_write(++count, fifo_mem + SVGA_FIFO_CURSOR_COUNT);
 	spin_unlock(&dev_priv->cursor_lock);
 }
+
 
 void vmw_kms_cursor_snoop(struct vmw_surface *srf,
 			  struct ttm_object_file *tfile,
@@ -270,6 +272,7 @@ void vmw_kms_cursor_post_execbuf(struct vmw_private *dev_priv)
 	mutex_unlock(&dev->mode_config.mutex);
 }
 
+
 void vmw_du_cursor_plane_destroy(struct drm_plane *plane)
 {
 	vmw_cursor_update_position(plane->dev->dev_private, false, 0, 0);
@@ -277,12 +280,14 @@ void vmw_du_cursor_plane_destroy(struct drm_plane *plane)
 	drm_plane_cleanup(plane);
 }
 
+
 void vmw_du_primary_plane_destroy(struct drm_plane *plane)
 {
 	drm_plane_cleanup(plane);
 
 	/* Planes are static in our case so we don't free it */
 }
+
 
 /**
  * vmw_du_vps_unpin_surf - unpins resource associated with a framebuffer surface
@@ -307,6 +312,7 @@ void vmw_du_plane_unpin_surf(struct vmw_plane_state *vps,
 	}
 }
 
+
 /**
  * vmw_du_plane_cleanup_fb - Unpins the cursor
  *
@@ -326,6 +332,7 @@ vmw_du_plane_cleanup_fb(struct drm_plane *plane,
 	vmw_du_plane_unpin_surf(vps, false);
 }
 
+
 /**
  * vmw_du_cursor_plane_prepare_fb - Readies the cursor by referencing it
  *
@@ -340,6 +347,7 @@ vmw_du_cursor_plane_prepare_fb(struct drm_plane *plane,
 {
 	struct drm_framebuffer *fb = new_state->fb;
 	struct vmw_plane_state *vps = vmw_plane_state_to_vps(new_state);
+
 
 	if (vps->surf)
 		vmw_surface_unreference(&vps->surf);
@@ -360,6 +368,7 @@ vmw_du_cursor_plane_prepare_fb(struct drm_plane *plane,
 	return 0;
 }
 
+
 void
 vmw_du_cursor_plane_atomic_update(struct drm_plane *plane,
 				  struct drm_plane_state *old_state)
@@ -370,6 +379,7 @@ vmw_du_cursor_plane_atomic_update(struct drm_plane *plane,
 	struct vmw_plane_state *vps = vmw_plane_state_to_vps(plane->state);
 	s32 hotspot_x, hotspot_y;
 	int ret = 0;
+
 
 	hotspot_x = du->hotspot_x;
 	hotspot_y = du->hotspot_y;
@@ -413,6 +423,7 @@ vmw_du_cursor_plane_atomic_update(struct drm_plane *plane,
 		DRM_ERROR("Failed to update cursor image\n");
 	}
 }
+
 
 /**
  * vmw_du_primary_plane_atomic_check - check if the new state is okay
@@ -468,8 +479,10 @@ int vmw_du_primary_plane_atomic_check(struct drm_plane *plane,
 		mutex_unlock(&dev_priv->global_kms_state_mutex);
 	}
 
+
 	return ret;
 }
+
 
 /**
  * vmw_du_cursor_plane_atomic_check - check if the new state is okay
@@ -488,6 +501,7 @@ int vmw_du_cursor_plane_atomic_check(struct drm_plane *plane,
 	int ret = 0;
 	struct vmw_surface *surface = NULL;
 	struct drm_framebuffer *fb = new_state->fb;
+
 
 	/* Turning off */
 	if (!fb)
@@ -511,6 +525,7 @@ int vmw_du_cursor_plane_atomic_check(struct drm_plane *plane,
 	return ret;
 }
 
+
 int vmw_du_crtc_atomic_check(struct drm_crtc *crtc,
 			     struct drm_crtc_state *new_state)
 {
@@ -522,6 +537,7 @@ int vmw_du_crtc_atomic_check(struct drm_crtc *crtc,
 	/* We always want to have an active plane with an active CRTC */
 	if (has_primary != new_state->enable)
 		return -EINVAL;
+
 
 	if (new_state->connector_mask != connector_mask &&
 	    new_state->connector_mask != 0) {
@@ -539,10 +555,12 @@ int vmw_du_crtc_atomic_check(struct drm_crtc *crtc,
 	return 0;
 }
 
+
 void vmw_du_crtc_atomic_begin(struct drm_crtc *crtc,
 			      struct drm_crtc_state *old_crtc_state)
 {
 }
+
 
 void vmw_du_crtc_atomic_flush(struct drm_crtc *crtc,
 			      struct drm_crtc_state *old_crtc_state)
@@ -561,6 +579,7 @@ void vmw_du_crtc_atomic_flush(struct drm_crtc *crtc,
 	}
 
 }
+
 
 /**
  * vmw_du_crtc_duplicate_state - duplicate crtc state
@@ -592,6 +611,7 @@ vmw_du_crtc_duplicate_state(struct drm_crtc *crtc)
 	return state;
 }
 
+
 /**
  * vmw_du_crtc_reset - creates a blank vmw crtc state
  * @crtc: DRM crtc
@@ -603,6 +623,7 @@ vmw_du_crtc_duplicate_state(struct drm_crtc *crtc)
 void vmw_du_crtc_reset(struct drm_crtc *crtc)
 {
 	struct vmw_crtc_state *vcs;
+
 
 	if (crtc->state) {
 		__drm_atomic_helper_crtc_destroy_state(crtc->state);
@@ -621,6 +642,7 @@ void vmw_du_crtc_reset(struct drm_crtc *crtc)
 	crtc->state->crtc = crtc;
 }
 
+
 /**
  * vmw_du_crtc_destroy_state - destroy crtc state
  * @crtc: DRM crtc
@@ -635,6 +657,7 @@ vmw_du_crtc_destroy_state(struct drm_crtc *crtc,
 {
 	drm_atomic_helper_crtc_destroy_state(crtc, state);
 }
+
 
 /**
  * vmw_du_plane_duplicate_state - duplicate plane state
@@ -676,6 +699,7 @@ vmw_du_plane_duplicate_state(struct drm_plane *plane)
 	return state;
 }
 
+
 /**
  * vmw_du_plane_reset - creates a blank vmw plane state
  * @plane: drm plane
@@ -686,6 +710,7 @@ vmw_du_plane_duplicate_state(struct drm_plane *plane)
 void vmw_du_plane_reset(struct drm_plane *plane)
 {
 	struct vmw_plane_state *vps;
+
 
 	if (plane->state)
 		vmw_du_plane_destroy_state(plane, plane->state);
@@ -702,6 +727,7 @@ void vmw_du_plane_reset(struct drm_plane *plane)
 	plane->state->rotation = DRM_MODE_ROTATE_0;
 }
 
+
 /**
  * vmw_du_plane_destroy_state - destroy plane state
  * @plane: DRM plane
@@ -715,6 +741,7 @@ vmw_du_plane_destroy_state(struct drm_plane *plane,
 			   struct drm_plane_state *state)
 {
 	struct vmw_plane_state *vps = vmw_plane_state_to_vps(state);
+
 
 	/* Should have been freed by cleanup_fb */
 	if (vps->host_map.virtual) {
@@ -730,6 +757,7 @@ vmw_du_plane_destroy_state(struct drm_plane *plane,
 
 	drm_atomic_helper_plane_destroy_state(plane, state);
 }
+
 
 /**
  * vmw_du_connector_duplicate_state - duplicate connector state
@@ -761,6 +789,7 @@ vmw_du_connector_duplicate_state(struct drm_connector *connector)
 	return state;
 }
 
+
 /**
  * vmw_du_connector_reset - creates a blank vmw connector state
  * @connector: DRM connector
@@ -772,6 +801,7 @@ vmw_du_connector_duplicate_state(struct drm_connector *connector)
 void vmw_du_connector_reset(struct drm_connector *connector)
 {
 	struct vmw_connector_state *vcs;
+
 
 	if (connector->state) {
 		__drm_atomic_helper_connector_destroy_state(connector->state);
@@ -788,6 +818,7 @@ void vmw_du_connector_reset(struct drm_connector *connector)
 
 	__drm_atomic_helper_connector_reset(connector, &vcs->base);
 }
+
 
 /**
  * vmw_du_connector_destroy_state - destroy connector state
@@ -914,6 +945,7 @@ int vmw_kms_readback(struct vmw_private *dev_priv,
 
 	return -ENOSYS;
 }
+
 
 static const struct drm_framebuffer_funcs vmw_framebuffer_surface_funcs = {
 	.destroy = vmw_framebuffer_surface_destroy,
@@ -1227,6 +1259,8 @@ static int vmw_create_dmabuf_proxy(struct drm_device *dev,
 	return 0;
 }
 
+
+
 static int vmw_kms_new_framebuffer_dmabuf(struct vmw_private *dev_priv,
 					  struct vmw_dma_buffer *dmabuf,
 					  struct vmw_framebuffer **out,
@@ -1288,6 +1322,7 @@ out_err2:
 out_err1:
 	return ret;
 }
+
 
 /**
  * vmw_kms_srf_ok - check if a surface can be created
@@ -1430,6 +1465,7 @@ static struct drm_framebuffer *vmw_kms_fb_create(struct drm_device *dev,
 	if (ret)
 		goto err_out;
 
+
 	if (!bo &&
 	    !vmw_kms_srf_ok(dev_priv, mode_cmd->width, mode_cmd->height)) {
 		DRM_ERROR("Surface size cannot exceed %dx%d",
@@ -1437,6 +1473,7 @@ static struct drm_framebuffer *vmw_kms_fb_create(struct drm_device *dev,
 			dev_priv->texture_max_height);
 		goto err_out;
 	}
+
 
 	vfb = vmw_kms_new_framebuffer(dev_priv, bo, surface,
 				      !(dev_priv->capabilities & SVGA_CAP_3D),
@@ -1462,6 +1499,8 @@ err_out:
 
 	return &vfb->base;
 }
+
+
 
 /**
  * vmw_kms_atomic_check_modeset- validate state object for modeset changes
@@ -1505,6 +1544,7 @@ vmw_kms_atomic_check_modeset(struct drm_device *dev,
 	return drm_atomic_helper_check(dev, state);
 }
 
+
 /**
  * vmw_kms_atomic_commit - Perform an atomic state commit
  *
@@ -1528,6 +1568,7 @@ int vmw_kms_atomic_commit(struct drm_device *dev,
 	return drm_atomic_helper_commit(dev, state, false);
 }
 
+
 static const struct drm_mode_config_funcs vmw_kms_funcs = {
 	.fb_create = vmw_kms_fb_create,
 	.atomic_check = vmw_kms_atomic_check_modeset,
@@ -1547,6 +1588,7 @@ static int vmw_kms_generic_present(struct vmw_private *dev_priv,
 					    &surface->res, destX, destY,
 					    num_clips, 1, NULL);
 }
+
 
 int vmw_kms_present(struct vmw_private *dev_priv,
 		    struct drm_file *file_priv,
@@ -1648,6 +1690,7 @@ int vmw_kms_cursor_bypass_ioctl(struct drm_device *dev, void *data,
 	struct vmw_display_unit *du;
 	struct drm_crtc *crtc;
 	int ret = 0;
+
 
 	mutex_lock(&dev->mode_config.mutex);
 	if (arg->flags & DRM_VMW_CURSOR_BYPASS_ALL) {
@@ -1791,6 +1834,7 @@ bool vmw_kms_validate_mode_vram(struct vmw_private *dev_priv,
 		 dev_priv->prim_bb_mem : dev_priv->vram_size);
 }
 
+
 /**
  * Function called by DRM code called with vbl_lock held.
  */
@@ -1813,6 +1857,7 @@ int vmw_enable_vblank(struct drm_device *dev, unsigned int pipe)
 void vmw_disable_vblank(struct drm_device *dev, unsigned int pipe)
 {
 }
+
 
 /*
  * Small shared kms functions.
@@ -2010,6 +2055,7 @@ void vmw_guess_mode_timing(struct drm_display_mode *mode)
 	mode->vrefresh = drm_mode_vrefresh(mode);
 }
 
+
 int vmw_du_connector_fill_modes(struct drm_connector *connector,
 				uint32_t max_width, uint32_t max_height)
 {
@@ -2101,6 +2147,8 @@ int vmw_du_connector_set_property(struct drm_connector *connector,
 	return 0;
 }
 
+
+
 /**
  * vmw_du_connector_atomic_set_property - Atomic version of get property
  *
@@ -2119,6 +2167,7 @@ vmw_du_connector_atomic_set_property(struct drm_connector *connector,
 	struct vmw_connector_state *vcs = vmw_connector_state_to_vcs(state);
 	struct vmw_display_unit *du = vmw_connector_to_du(connector);
 
+
 	if (property == dev_priv->implicit_placement_property) {
 		vcs->is_implicit = val;
 
@@ -2134,6 +2183,7 @@ vmw_du_connector_atomic_set_property(struct drm_connector *connector,
 
 	return 0;
 }
+
 
 /**
  * vmw_du_connector_atomic_get_property - Atomic version of get property
@@ -2161,6 +2211,7 @@ vmw_du_connector_atomic_get_property(struct drm_connector *connector,
 
 	return 0;
 }
+
 
 int vmw_kms_update_layout_ioctl(struct drm_device *dev, void *data,
 				struct drm_file *file_priv)
@@ -2454,6 +2505,7 @@ void vmw_kms_helper_buffer_finish(struct vmw_private *dev_priv,
 
 	vmw_kms_helper_buffer_revert(buf);
 }
+
 
 /**
  * vmw_kms_helper_resource_revert - Undo the actions of
@@ -2789,6 +2841,7 @@ vmw_kms_create_implicit_placement_property(struct vmw_private *dev_priv,
 
 }
 
+
 /**
  * vmw_kms_set_config - Wrapper around drm_atomic_helper_set_config
  *
@@ -2808,6 +2861,7 @@ int vmw_kms_set_config(struct drm_mode_set *set,
 
 	return drm_atomic_helper_set_config(set, ctx);
 }
+
 
 /**
  * vmw_kms_lost_device - Notify kms that modesetting capabilities will be lost

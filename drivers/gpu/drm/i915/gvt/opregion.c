@@ -353,6 +353,7 @@ void intel_vgpu_clean_opregion(struct intel_vgpu *vgpu)
 
 }
 
+
 #define GVT_OPREGION_FUNC(scic)					\
 	({							\
 	 u32 __ret;						\

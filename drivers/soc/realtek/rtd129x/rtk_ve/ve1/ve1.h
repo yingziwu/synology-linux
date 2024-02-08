@@ -50,6 +50,7 @@
 #define VDI_IOCTL_GET_RTK_CLK_PLL			_IO(VDI_IOCTL_MAGIC, 18)
 #define VDI_IOCTL_GET_RTK_SUPPORT_TYPE			_IO(VDI_IOCTL_MAGIC, 19)
 
+
 typedef struct vpudrv_buffer_t {
     unsigned int size;
     unsigned long phys_addr;

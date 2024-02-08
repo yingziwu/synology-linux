@@ -207,3 +207,4 @@ void msm_dsi_phy_set_usecase(struct msm_dsi_phy *phy,
 			     enum msm_dsi_phy_usecase uc);
 
 #endif /* __DSI_CONNECTOR_H__ */
+

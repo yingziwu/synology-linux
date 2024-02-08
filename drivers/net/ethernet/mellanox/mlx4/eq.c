@@ -178,6 +178,7 @@ void mlx4_gen_slave_eqe(struct work_struct *work)
 	}
 }
 
+
 static void slave_event(struct mlx4_dev *dev, u8 slave, struct mlx4_eqe *eqe)
 {
 	struct mlx4_priv *priv = mlx4_priv(dev);
@@ -227,7 +228,8 @@ static void mlx4_set_eq_affinity_hint(struct mlx4_priv *priv, int vec)
 	struct mlx4_dev *dev = &priv->dev;
 	struct mlx4_eq *eq = &priv->eq_table.eq[vec];
 
-	if (!eq->affinity_mask || cpumask_empty(eq->affinity_mask))
+	if (!cpumask_available(eq->affinity_mask) ||
+	    cpumask_empty(eq->affinity_mask))
 		return;
 
 	hint_err = irq_set_affinity_hint(eq->irq, eq->affinity_mask);
@@ -541,8 +543,9 @@ static int mlx4_eq_int(struct mlx4_dev *dev, struct mlx4_eq *eq)
 			break;
 
 		case MLX4_EVENT_TYPE_SRQ_LIMIT:
-			mlx4_dbg(dev, "%s: MLX4_EVENT_TYPE_SRQ_LIMIT\n",
-				 __func__);
+			mlx4_dbg(dev, "%s: MLX4_EVENT_TYPE_SRQ_LIMIT. srq_no=0x%x, eq 0x%x\n",
+				 __func__, be32_to_cpu(eqe->event.srq.srqn),
+				 eq->eqn);
 		case MLX4_EVENT_TYPE_SRQ_CATAS_ERROR:
 			if (mlx4_is_master(dev)) {
 				/* forward only to slave owning the SRQ */
@@ -557,15 +560,19 @@ static int mlx4_eq_int(struct mlx4_dev *dev, struct mlx4_eq *eq)
 						  eq->eqn, eq->cons_index, ret);
 					break;
 				}
-				mlx4_warn(dev, "%s: slave:%d, srq_no:0x%x, event: %02x(%02x)\n",
-					  __func__, slave,
-					  be32_to_cpu(eqe->event.srq.srqn),
-					  eqe->type, eqe->subtype);
+				if (eqe->type ==
+				    MLX4_EVENT_TYPE_SRQ_CATAS_ERROR)
+					mlx4_warn(dev, "%s: slave:%d, srq_no:0x%x, event: %02x(%02x)\n",
+						  __func__, slave,
+						  be32_to_cpu(eqe->event.srq.srqn),
+						  eqe->type, eqe->subtype);
 
 				if (!ret && slave != dev->caps.function) {
-					mlx4_warn(dev, "%s: sending event %02x(%02x) to slave:%d\n",
-						  __func__, eqe->type,
-						  eqe->subtype, slave);
+					if (eqe->type ==
+					    MLX4_EVENT_TYPE_SRQ_CATAS_ERROR)
+						mlx4_warn(dev, "%s: sending event %02x(%02x) to slave:%d\n",
+							  __func__, eqe->type,
+							  eqe->subtype, slave);
 					mlx4_slave_event(dev, slave, eqe);
 					break;
 				}
@@ -1445,6 +1452,7 @@ int mlx4_assign_eq(struct mlx4_dev *dev, u8 port, int *vector)
 	int requested_vector = MLX4_CQ_TO_EQ_VECTOR(*vector);
 	int *prequested_vector = NULL;
 
+
 	mutex_lock(&priv->msix_ctl.pool_lock);
 	if (requested_vector < (dev->caps.num_comp_vectors + 1) &&
 	    (requested_vector >= 0) &&
@@ -1550,3 +1558,4 @@ void mlx4_release_eq(struct mlx4_dev *dev, int vec)
 	mutex_unlock(&priv->msix_ctl.pool_lock);
 }
 EXPORT_SYMBOL(mlx4_release_eq);
+

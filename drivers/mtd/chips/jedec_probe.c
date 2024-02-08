@@ -176,6 +176,7 @@
 /* Winbond */
 #define W49V002A	0x00b0
 
+
 /*
  * Unlock address sets for AMD command sets.
  * Intel command sets use the MTD_UADDR_UNNECESSARY.
@@ -197,10 +198,12 @@ enum uaddr {
 	MTD_UADDR_UNNECESSARY,		/* Does not require any address */
 };
 
+
 struct unlock_addr {
 	uint32_t addr1;
 	uint32_t addr2;
 };
+
 
 /*
  * I don't like the fact that the first entry in unlock_addrs[]
@@ -281,6 +284,7 @@ struct amd_flash_info {
 #define SIZE_2MiB   21
 #define SIZE_4MiB   22
 #define SIZE_8MiB   23
+
 
 /*
  * Please keep this list ordered by manufacturer!
@@ -1885,6 +1889,8 @@ static inline u32 jedec_read_mfr(struct map_info *map, uint32_t base,
 	do {
 		uint32_t ofs = cfi_build_cmd_addr(0 + (bank << 8), map, cfi);
 		mask = (1 << (cfi->device_type * 8)) - 1;
+		if (ofs >= map->size)
+			return 0;
 		result = map_read(map, base + ofs);
 		bank++;
 	} while ((result.x[0] & mask) == CFI_MFR_CONTINUATION);
@@ -1929,6 +1935,7 @@ static void jedec_reset(u32 base, struct map_info *map, struct cfi_private *cfi)
 	cfi_send_gen_cmd(0xFF, 0, base, map, cfi, cfi->device_type, NULL);
 	/* FIXME - should have reset delay before continuing */
 }
+
 
 static int cfi_jedec_setup(struct map_info *map, struct cfi_private *cfi, int index)
 {
@@ -1979,6 +1986,7 @@ static int cfi_jedec_setup(struct map_info *map, struct cfi_private *cfi, int in
 
 	return 1;	/* ok */
 }
+
 
 /*
  * There is a BIG problem properly ID'ing the JEDEC device and guaranteeing
@@ -2104,6 +2112,7 @@ static inline int jedec_match( uint32_t base,
  match_done:
 	return rc;
 }
+
 
 static int jedec_probe_chip(struct map_info *map, __u32 base,
 			    unsigned long *chip_map, struct cfi_private *cfi)

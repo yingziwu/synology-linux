@@ -390,6 +390,7 @@ struct RV770_SMC_MCLK_VALUE
 
 typedef struct RV770_SMC_MCLK_VALUE RV770_SMC_MCLK_VALUE;
 
+
 struct RV730_SMC_MCLK_VALUE
 {
     uint32_t        vMCLK_PWRMGT_CNTL;
@@ -944,6 +945,7 @@ struct si_leakage_voltage
 	u16 count;
 	struct si_leakage_voltage_entry entries[SISLANDS_MAX_LEAKAGE_COUNT];
 };
+
 
 struct si_ulv_param {
 	bool supported;

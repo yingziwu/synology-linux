@@ -167,6 +167,7 @@ Outputs:
 
 int mv_pp3_cfg_dp_rxq_params_get(int cpu, int *frame, int *queue, int *hwq_base, int *hwq_num);
 
+
 /* get free IRQ group number for RX proces
 Inputs:
 	frame   - HMAC frame number
@@ -222,6 +223,7 @@ Outputs:
 	qmq	- EMAC enq queue num
 */
 int mv_pp3_cfg_emac_qm_params_get(int emac, int *qmp, int *qmq);
+
 
 /* get total data path TX queues
 

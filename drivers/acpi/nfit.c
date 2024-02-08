@@ -979,7 +979,11 @@ static int cmp_map(const void *m0, const void *m1)
 	const struct nfit_set_info_map *map0 = m0;
 	const struct nfit_set_info_map *map1 = m1;
 
-	return map0->region_offset - map1->region_offset;
+	if (map0->region_offset < map1->region_offset)
+		return -1;
+	else if (map0->region_offset > map1->region_offset)
+		return 1;
+	return 0;
 }
 
 /* Retrieve the nth entry referencing this spa */
@@ -1279,6 +1283,7 @@ static void __iomem *__nfit_spa_map(struct acpi_nfit_desc *acpi_desc,
 							ARCH_MEMREMAP_PMEM);
 	else
 		spa_map->addr.base = ioremap_nocache(start, n);
+
 
 	if (!spa_map->addr.base)
 		goto err_map;

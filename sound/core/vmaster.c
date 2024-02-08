@@ -68,10 +68,13 @@ static int slave_update(struct link_slave *slave)
 		return -ENOMEM;
 	uctl->id = slave->slave.id;
 	err = slave->slave.get(&slave->slave, uctl);
+	if (err < 0)
+		goto error;
 	for (ch = 0; ch < slave->info.count; ch++)
 		slave->vals[ch] = uctl->value.integer.value[ch];
+ error:
 	kfree(uctl);
-	return 0;
+	return err < 0 ? err : 0;
 }
 
 /* get the slave ctl info and save the initial values */
@@ -370,6 +373,7 @@ static void master_free(struct snd_kcontrol *kcontrol)
 	}
 	kfree(master);
 }
+
 
 /**
  * snd_ctl_make_virtual_master - Create a virtual master control

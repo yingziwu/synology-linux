@@ -25,6 +25,13 @@
 #warning SCSI logging bitmask too large
 #endif
 
+#ifdef MY_DEF_HERE
+#ifdef KERN_INFO
+#undef KERN_INFO
+#define KERN_INFO KERN_NOTICE
+#endif
+#endif /* MY_DEF_HERE */
+
 struct scsi_log_buf {
 	char buffer[SCSI_LOG_SPOOLSIZE];
 	unsigned long map;

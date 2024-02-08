@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -31,6 +32,7 @@ disclaimer.
 #include "rm_chunk.h"
 #include "tm/core/tm_os_interface.h"
 #include "tm/core/tm_hw_configuration_interface.h"
+
 
 /**
  */
@@ -64,6 +66,7 @@ int rm_open(uint8_t total_ports,
 
 	/* Fill in ctl structure */
 	ctl->magic = RM_MAGIC;
+
 
 	/* Allocate arrays */
 	ctl->rm_queue_array = tm_malloc(total_queues * sizeof(struct rm_node));
@@ -122,6 +125,7 @@ int rm_open(uint8_t total_ports,
 		goto out;
 	}
 
+
 	for (i = 0; i < RM_COS; i++) {
 		ctl->rm_wred_c_node_curves[i] =
 			tm_malloc(TM_NUM_WRED_C_NODE_CURVES * sizeof(struct rm_entry));
@@ -130,6 +134,7 @@ int rm_open(uint8_t total_ports,
 			goto out;
 		}
 	}
+
 
 	ctl->rm_wred_port_curves =
 		tm_malloc(TM_NUM_WRED_PORT_CURVES * sizeof(struct rm_entry));
@@ -167,6 +172,7 @@ int rm_open(uint8_t total_ports,
 		rc = -ENOMEM;
 		goto out;
 	}
+
 
 	/* not used in HX/AX  */
 	for (i = 0; i < RM_COS; i++) {
@@ -240,6 +246,7 @@ int rm_open(uint8_t total_ports,
 			(uint16_t)TM_INVAL;
 	}
 
+
 	for (i = 0; i < TM_NUM_QUEUE_DROP_PROF; i++) {
 		ctl->rm_queue_drop_profiles[i].used = RM_FALSE;
 		ctl->rm_queue_drop_profiles[i].next_free_ind = i+1;
@@ -300,6 +307,7 @@ int rm_open(uint8_t total_ports,
 	ctl->rm_total_b_nodes = total_b_nodes;
 	ctl->rm_total_c_nodes = total_c_nodes;
 	ctl->rm_total_ports = total_ports;
+
 
 	/* Initiate free entries arrays */
 	for (i = 0; i < RM_MAX_PROFILES; i++)
@@ -363,6 +371,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int rm_close(rmctl_t hndl)
@@ -400,6 +409,7 @@ int rm_close(rmctl_t hndl)
 	for (i = 0; i < RM_COS; i++)
 		tm_free(ctl->rm_port_drop_profiles_cos[i]);
 
+
 	/* Free list of chunks */
 	clear_chunk_list(ctl->rm_free_nodes[RM_Q_LVL]);
 	clear_chunk_list(ctl->rm_free_nodes[RM_A_LVL]);
@@ -410,3 +420,4 @@ int rm_close(rmctl_t hndl)
 	tm_free(ctl);
 	return 0;
 }
+

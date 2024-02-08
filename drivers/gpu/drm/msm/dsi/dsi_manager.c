@@ -252,6 +252,7 @@ static enum drm_connector_status dsi_mgr_connector_detect(
 			msm_dsi->panel = msm_dsi_host_get_panel(
 					other_dsi->host, NULL);
 
+
 		if (msm_dsi->panel && kms->funcs->set_encoder_mode) {
 			bool cmd_mode = !(msm_dsi->device_flags &
 					  MIPI_DSI_MODE_VIDEO);
@@ -897,3 +898,4 @@ void msm_dsi_manager_unregister(struct msm_dsi *msm_dsi)
 		msm_dsi_host_unregister(msm_dsi->host);
 	msm_dsim->dsi[msm_dsi->id] = NULL;
 }
+

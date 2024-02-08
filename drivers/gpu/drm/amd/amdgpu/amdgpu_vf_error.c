@@ -47,6 +47,7 @@ void amdgpu_vf_error_put(struct amdgpu_device *adev,
 	mutex_unlock(&adev->virt.vf_errors.lock);
 }
 
+
 void amdgpu_vf_error_trans_all(struct amdgpu_device *adev)
 {
 	/* u32 pf2vf_flags = 0; */

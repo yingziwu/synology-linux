@@ -96,6 +96,7 @@
 #define MARS_CRT_BASE			0xB8000000
 #define MARS_CRT_PCICK_SEL		0x0338
 
+
 /*-------------------------------------------------------------
  * Mars MISC
  *-------------------------------------------------------------*/
@@ -112,9 +113,25 @@
 #define MARS_MIS_ISR_I2C4     	(0x00000001 <<15)
 #define MARS_MIS_ISR_I2C5     	(0x00000001 <<14)
 
+
+
 #define MARS_ISO_ISR			VENUS_ISO_ISR
 #define MARS_ISO_ISR_I2C0     	(0x00000001 <<8)
 #define MARS_ISO_ISR_I2C6     	(0x00000001 <<10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #define MARS_0_SYS_MUXPAD0		0xB8000350
 
@@ -147,6 +164,8 @@
 
 #define MARS_0_SYS_MUXPAD6		0xB8000368
 #define MARS_0_SYS_MUXPAD7		0xB800036C
+
+
 
 /*
  * Mars GPIO registers.
@@ -203,6 +222,7 @@
 #define MARS_MIS_CEC_TX_DATA1   0x1B94C
 #define MARS_MIS_CEC_TX_DATA2   0x1B950
 
+
 /*-------------------------------------------------------------
  * Mars MISC I2C register
  *-------------------------------------------------------------*/
@@ -249,6 +269,7 @@
 #define MARS_ISO_IC0_COMP_PARAM_1        0x7df4
 #define MARS_ISO_IC0_COMP_VERSION        0x7df8
 #define MARS_ISO_IC0_COMP_TYPE           0x7dfc
+
 
 #define MARS_MIS_IC1_CON                 0x1b300
 #define MARS_MIS_IC1_TAR                 0x1b304
@@ -502,6 +523,8 @@
 #define MARS_ISO_IC6_COMP_VERSION       	0x7ef8
 #define MARS_ISO_IC6_COMP_TYPE          		0x7efc
 
+
+
 //IC_CON
 #define IC_SLAVE_DISABLE    0x0040
 #define IC_RESTART_EN       0x0020
@@ -538,6 +561,7 @@
 #define ST_TFNF_BIT         0x02
 #define ST_ACTIVITY_BIT     0x01
 
+
 // IC_TX_ABRT_SOURCE
 #define ABRT_SLVRD_INTX             0x8000
 #define ABRT_SLV_ARB_LOST           0x4000
@@ -566,6 +590,7 @@
 #define MARS_PCMCIA_IOMTC		0x1B810
 #define MARS_PCMCIA_MATC		0x1B814
 #define MARS_PCMCIA_ACTRL		0x1B818
+
 
 //-- MARS_PCMCIA_CMDFF
 #define PC_CT(x)			(((x) & 0x01)<< 24)
@@ -629,6 +654,7 @@
 
 //-- MARS_PCMCIA_MATC
 #define PC_OE(x)			(((x) & 0x7FFF))
+
 
 // USB Host Registers
 //#define VENUS_USB_HOST_BASE			(VENUS_USB_BASE+0x800)

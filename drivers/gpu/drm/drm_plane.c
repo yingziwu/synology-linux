@@ -877,6 +877,7 @@ out:
 
 }
 
+
 int drm_mode_cursor_ioctl(struct drm_device *dev,
 			  void *data, struct drm_file *file_priv)
 {

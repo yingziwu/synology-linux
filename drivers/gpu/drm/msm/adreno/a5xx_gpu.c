@@ -432,6 +432,7 @@ static int a5xx_preempt_start(struct msm_gpu *gpu)
 	return a5xx_idle(gpu, ring) ? 0 : -EINVAL;
 }
 
+
 static struct drm_gem_object *a5xx_ucode_load_bo(struct msm_gpu *gpu,
 		const struct firmware *fw, u64 *iova)
 {

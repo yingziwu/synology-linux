@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -28,8 +29,10 @@ disclaimer.
 #ifndef TM_PLATFORM_IMPLEMENTATION_DEFINITIONS_H
 #define TM_PLATFORM_IMPLEMENTATION_DEFINITIONS_H
 
+
 #include "tm.h"
 #include "tm_core_types.h"
+
 
 /**
  * @brief   Declare a QMTM environment and check consitency
@@ -77,6 +80,7 @@ int tm_check_args(struct qmtm *hndl, struct tm_ctl **ctl, struct qmtm **env);
 	} \
 	return rc;
 
+
 #define	TM_REGVAR(_type, _var)  struct _type _var
 #define	TM_REGVAR_ADDR(_var)   (&(_var))
 
@@ -84,3 +88,4 @@ int tm_check_args(struct qmtm *hndl, struct tm_ctl **ctl, struct qmtm **env);
 /* the Linux platform  generates warning for this action */
 
 #endif  /* TM_PLATFORM_IMPLEMENTATION_DEFINITIONS_H */
+

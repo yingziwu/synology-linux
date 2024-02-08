@@ -1622,6 +1622,7 @@ static void uvd_v7_0_set_bypass_mode(struct amdgpu_device *adev, bool enable)
 	WREG32_SMC(ixGCK_DFS_BYPASS_CNTL, tmp);
 }
 
+
 static int uvd_v7_0_set_clockgating_state(void *handle,
 					  enum amd_clockgating_state state)
 {

@@ -521,6 +521,7 @@ gk104_fifo_intr_fault(struct gk104_fifo *fifo, int unit)
 		   (u64)inst << 12,
 		   chan ? chan->object.client->name : "unknown");
 
+
 	/* Kill the channel that caused the fault. */
 	if (chan)
 		gk104_fifo_recover_chan(&fifo->base, chan->chid);

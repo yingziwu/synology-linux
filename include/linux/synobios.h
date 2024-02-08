@@ -218,7 +218,6 @@
 #define HW_DS119j      "DS119j"        //"DS119j"
 #define HW_DS120j      "DS120j"        //"DS120j"
 #define HW_TAIPEI      "TAIPEI"        //"TAIPEI"
-#define HW_SA3200d     "SA3200d"       //"SA3200d"
 #define HW_RS1619xsp   "RS1619xs+"     //"RS1619xs+"
 #define HW_DS2419p     "DS2419+"       //"DS2419+"
 #define HW_DS419p      "DS419+"        //"DS419+"
@@ -232,9 +231,9 @@
 #define HW_SA3600      "SA3600"        //"SA3600"
 #define HW_DS420p      "DS420+"        //DS420+
 #define HW_DS720p      "DS720+"        //DS720+
+#define HW_DS220p      "DS220+"        //DS220+
 #define HW_RS820p      "RS820+"        //"RS820+"
 #define HW_RS820rpp    "RS820rp+"      //"RS820rp+"
-#define HW_DS220p      "DS220+"        //DS220+
 #define HW_FS3400      "FS3400"        //"FS3400"
 #define HW_FS3600      "FS3600"        //"FS3600"
 #define HW_HD3400      "HD3400"        //"HD3400"
@@ -248,24 +247,27 @@
 #define HW_SA6500      "SA6500"        //"SA6500"
 #define HW_DS1621p     "DS1621+"       //"DS1621+"
 #define HW_HD6500      "HD6500"        //"HD6500"
-#define HW_AliDSM      "AliDSM"        //"AliDSM"
+#define HW_SA3200d     "SA3200d"       //"SA3200d"
 #define HW_DVA3221     "DVA3221"       //"DVA3221"
+#define HW_AliDSM      "AliDSM"        //"AliDSM"
 #define HW_RS1221p     "RS1221+"       //"RS1221+"
 #define HW_RS1221rpp   "RS1221rp+"     //"RS1221rp+"
 #define HW_DS1821p     "DS1821+"       //"DS1821+"
-#define HW_DS2421p     "DS2421+"       //"DS2421+
-#define HW_FS6600N     "FS6600N"       //"FS6600N"
+#define HW_DS2422p     "DS2422+"       //"DS2422+
 #define HW_RS2421p     "RS2421+"       //"RS2421+"
 #define HW_RS2421rpp   "RS2421rp+"     //"RS2421rp+"
 #define HW_RS2821rpp   "RS2821rp+"     //"RS2821rp+"
+#define HW_FS6600N     "FS6600N"       //"FS6600N"
 #define HW_RS3621xsp   "RS3621xs+"     //"RS3621xs+"
 #define HW_RS3621rpxs  "RS3621rpxs"    //"RS3621rpxs"
 #define HW_RS4021xsp   "RS4021xs+"     //"RS4021xs+"
 #define HW_FS6500      "FS6500"        //"FS6500"
 #define HW_DS3617xsII  "DS3617xsII"    //"DS3617xsII"
+#define HW_DS3622xsp   "DS3622xs+"     //"DS3622xs+"
 #define HW_DS2419pII   "DS2419+II"     //"DS2419+II"
 #define HW_FS2500      "FS2500"        //"FS2500"
-#define HW_DS3621xsp   "DS3621xs+"     //"DS3621xs+"
+#define HW_FS2500T     "FS2500T"       //"FS2500T"
+#define HW_R1          "r1"            //"r1" for revision
 #define HW_UNKNOWN     "DSUnknown"
 
 #define EBOX_INFO_UNIQUE_RX410  "RX410"
@@ -287,7 +289,7 @@
 #define EBOX_INFO_UNIQUE_DX1215II "DX1215II"
 #define EBOX_INFO_UNIQUE_DX517  "DX517"
 #define EBOX_INFO_UNIQUE_RX418  "RX418"
-#define EBOX_INFO_UNIQUE_DX1221 "DX1221"
+#define EBOX_INFO_UNIQUE_DX1222 "DX1222"
 
 #define SYNO_UNIQUE(x)     (x>>2)
 #define IS_SYNOLOGY_RX4(x) (SYNO_UNIQUE(x) == 0x15 || SYNO_UNIQUE(x) == 0xd) // 0x54 ~ 0x57
@@ -305,7 +307,7 @@
 #define IS_SYNOLOGY_DX1215(x) (x == 0x13)
 #define IS_SYNOLOGY_DX517(x) (x == 0x15)
 #define IS_SYNOLOGY_RX418(x) (x == 0x16)
-#define IS_SYNOLOGY_DX1221(x) (x == 0x17)
+#define IS_SYNOLOGY_DX1222(x) (x == 0x17)
 #define IS_SYNOLOGY_DX1215II(x) (x == 0x1C)
 #ifdef MY_DEF_HERE
 #define IS_SYNOLOGY_M2DXX(x) (0)
@@ -335,6 +337,7 @@
 #define HWMON_HDD_BP_STATUS_NAME "HDD_Backplane_Status"
 #define HWMON_HDD_BP_DETECT "hdd_detect"
 #define HWMON_HDD_BP_ENABLE "hdd_enable"
+#define HWMON_HDD_BP_INTF "hdd_intf"
 #define MAX_SENSOR_NUM 10
 #define MAX_SENSOR_NAME 30
 #define MAX_SENSOR_VALUE 30
@@ -430,6 +433,12 @@ enum {
 };
 
 typedef enum {
+	SYNO_SCSI_UNKNOWN = 0,
+	SYNO_SCSI_ERROR_WITH_SENSE,
+	SYNO_SCSI_ERROR_TIMEOUT,
+} SYNO_SCSI_ERROR_EVENT_TYPE;
+
+typedef enum {
 	SYNO_LED_OFF = 0,
 	SYNO_LED_ON,
 	SYNO_LED_BLINKING,
@@ -461,5 +470,6 @@ typedef enum {
 #define SYNOIO_IS_FULLY_SUPPORT_EUP _IOWR(SYNOBIOS_IOC_MAGIC, 218, SYNO_EUP_SUPPORT)
 
 extern int syno_is_hw_version(const char *hw_version);
+extern int syno_is_hw_revision(const char *hw_revision);
 
 #endif /* __SYNOBIOS_KERNEL_H_ */

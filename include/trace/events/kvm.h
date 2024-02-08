@@ -192,6 +192,8 @@ TRACE_EVENT(kvm_ack_irq,
 
 #endif /* defined(CONFIG_HAVE_KVM_IRQFD) */
 
+
+
 #define KVM_TRACE_MMIO_READ_UNSATISFIED 0
 #define KVM_TRACE_MMIO_READ 1
 #define KVM_TRACE_MMIO_WRITE 2
@@ -202,7 +204,7 @@ TRACE_EVENT(kvm_ack_irq,
 	{ KVM_TRACE_MMIO_WRITE, "write" }
 
 TRACE_EVENT(kvm_mmio,
-	TP_PROTO(int type, int len, u64 gpa, u64 val),
+	TP_PROTO(int type, int len, u64 gpa, void *val),
 	TP_ARGS(type, len, gpa, val),
 
 	TP_STRUCT__entry(
@@ -216,7 +218,10 @@ TRACE_EVENT(kvm_mmio,
 		__entry->type		= type;
 		__entry->len		= len;
 		__entry->gpa		= gpa;
-		__entry->val		= val;
+		__entry->val		= 0;
+		if (val)
+			memcpy(&__entry->val, val,
+			       min_t(u32, sizeof(__entry->val), len));
 	),
 
 	TP_printk("mmio %s len %u gpa 0x%llx val 0x%llx",

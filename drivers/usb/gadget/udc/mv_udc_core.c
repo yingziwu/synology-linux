@@ -2436,6 +2436,7 @@ static int mv_udc_probe(struct platform_device *pdev)
 	udc->dev = pdev;
 #endif /* MY_DEF_HERE */
 
+
 #if defined(MY_DEF_HERE)
 		capregs = platform_get_resource_byname(pdev, IORESOURCE_MEM, "capregs");
 		phyregs = platform_get_resource_byname(pdev, IORESOURCE_MEM, "phyregs");

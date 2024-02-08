@@ -1652,9 +1652,3 @@ config SYNO_RAMDISK_INTEGRITY_CHECK
 	   tristate "Confirm the integrity of ramdisk (rd.gz) is correct and prevent to suffer tampering"
 
 endif	# if CRYPTO
-
-if SYNO_RTD129X
-
-source "crypto/ocf/Kconfig"
-
-endif # if SYNO_RTD129X

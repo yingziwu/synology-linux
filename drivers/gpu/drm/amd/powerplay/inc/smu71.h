@@ -97,6 +97,7 @@ typedef struct {
 #define SCRATCH_B_CURR_SAMU_INDEX_SHIFT 27
 #define SCRATCH_B_CURR_SAMU_INDEX_MASK  (0x7<<SCRATCH_B_CURR_SAMU_INDEX_SHIFT)
 
+
 #if defined SMU__DGPU_ONLY
 #define SMU71_DTE_ITERATIONS 5
 #define SMU71_DTE_SOURCES 3
@@ -506,3 +507,4 @@ typedef struct SMU7_Local_Cac_Table SMU7_Local_Cac_Table;
 #endif
 
 #endif
+

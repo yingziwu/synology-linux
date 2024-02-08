@@ -49,6 +49,7 @@
 
 #define DRIVER_VERSION		"22-Aug-2005"
 
+
 /*-------------------------------------------------------------------------*/
 
 /*
@@ -366,6 +367,7 @@ void usbnet_update_max_qlen(struct usbnet *dev)
 }
 EXPORT_SYMBOL_GPL(usbnet_update_max_qlen);
 
+
 /*-------------------------------------------------------------------------
  *
  * Network Device Driver (peer link to "Host Device", from USB host)
@@ -532,6 +534,7 @@ static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
 	}
 	return retval;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1190,6 +1193,7 @@ skip_reset:
 	if (test_bit (EVENT_SET_RX_MODE, &dev->flags))
 		__handle_set_rx_mode(dev);
 
+
 	if (dev->flags)
 		netdev_dbg(dev->net, "kevent done, flags = 0x%lx\n", dev->flags);
 }
@@ -1518,6 +1522,7 @@ static void usbnet_bh (unsigned long param)
 			netif_wake_queue (dev->net);
 	}
 }
+
 
 /*-------------------------------------------------------------------------
  *
@@ -1984,6 +1989,10 @@ int cdc_parse_cdc_header(struct usb_cdc_parsed_header *hdr,
 			dev_err(&intf->dev, "skipping garbage byte\n");
 			elength = 1;
 			goto next_desc;
+		}
+		if ((buflen < elength) || (elength < 3)) {
+			dev_err(&intf->dev, "invalid descriptor buffer length\n");
+			break;
 		}
 		if (buffer[1] != USB_DT_CS_INTERFACE) {
 			dev_err(&intf->dev, "skipping garbage\n");

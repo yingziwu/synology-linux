@@ -146,6 +146,7 @@ static int mga_g200se_set_plls(struct mga_device *mdev, long clock)
 		}
 	} else {
 
+
 		m = n = p = 0;
 		vcomax        = 1600000;
 		vcomin        = 800000;
@@ -856,6 +857,7 @@ static void mga_set_start_address(struct drm_crtc *crtc, unsigned offset)
 	WREG_ECRT(0x0, ((u8)(addr >> 16) & 0xf) | crtcext0);
 }
 
+
 /* ast is different - we will force move buffers out of VRAM */
 static int mga_crtc_do_set_base(struct drm_crtc *crtc,
 				struct drm_framebuffer *fb,
@@ -1006,6 +1008,7 @@ static int mga_crtc_mode_set(struct drm_crtc *crtc,
 		misc |= 0x40;
 	if (mode->flags & DRM_MODE_FLAG_NVSYNC)
 		misc |= 0x80;
+
 
 	for (i = 0; i < sizeof(dacvalue); i++) {
 		if ((i <= 0x17) ||
@@ -1173,6 +1176,7 @@ static int mga_crtc_mode_set(struct drm_crtc *crtc,
 
 		WREG8(MGAREG_SEQ_DATA, seq1 & ~0x20);
 	}
+
 
 	if (IS_G200_SE(mdev)) {
 		if  (mdev->unique_rev_id >= 0x04) {
@@ -1540,6 +1544,7 @@ static struct drm_encoder *mga_encoder_init(struct drm_device *dev)
 	return encoder;
 }
 
+
 static int mga_vga_get_modes(struct drm_connector *connector)
 {
 	struct mga_connector *mga_connector = to_mga_connector(connector);
@@ -1713,6 +1718,7 @@ static struct drm_connector *mga_vga_init(struct drm_device *dev)
 
 	return connector;
 }
+
 
 int mgag200_modeset_init(struct mga_device *mdev)
 {

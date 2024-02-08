@@ -139,6 +139,7 @@ void dce100_set_bandwidth(
 	dce100_pplib_apply_display_requirements(dc, context);
 }
 
+
 /**************************************************************************/
 
 void dce100_hw_sequencer_construct(struct dc *dc)
@@ -150,3 +151,4 @@ void dce100_hw_sequencer_construct(struct dc *dc)
 	dc->hwss.pplib_apply_display_requirements =
 			dce100_pplib_apply_display_requirements;
 }
+

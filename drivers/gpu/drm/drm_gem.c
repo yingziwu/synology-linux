@@ -449,6 +449,7 @@ int drm_gem_handle_create(struct drm_file *file_priv,
 }
 EXPORT_SYMBOL(drm_gem_handle_create);
 
+
 /**
  * drm_gem_free_mmap_offset - release a fake mmap offset for an object
  * @obj: obj in question

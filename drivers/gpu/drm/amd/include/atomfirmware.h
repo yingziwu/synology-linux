@@ -195,6 +195,7 @@ enum atom_dp_vs_preemph_def{
   DP_VS_LEVEL0_PREEMPH_LEVEL3 = 0x18,
 };
 
+
 /*
 enum atom_string_def{
 asic_bus_type_pcie_string = "PCI_EXPRESS", 
@@ -252,6 +253,7 @@ struct atom_rom_header_v2_2
 };
 
 /*==============================hw function portion======================================================================*/
+
 
 /****************************************************************************   
 * Structures used in Command.mtb, each function name is not given here since those function could change from time to time
@@ -358,6 +360,7 @@ struct atom_function_attribute
   uint16_t  updated_by_util:1;        //[15]=flag to indicate the function is updated by util
 };
 
+
 /**************************************************************************** 
 * Common header for all hw functions.
 * Every function pointed by _master_list_of_hw_function has this common header. 
@@ -368,6 +371,7 @@ struct atom_rom_hw_function_header
   struct atom_common_table_header func_header;
   struct atom_function_attribute func_attrib;  
 };
+
 
 /*==============================sw data table portion======================================================================*/
 /****************************************************************************
@@ -412,11 +416,13 @@ struct atom_master_list_of_data_tables_v2_1{
   uint16_t sw_datatable34;
 };
 
+
 struct atom_master_data_table_v2_1
 { 
   struct atom_common_table_header table_header;
   struct atom_master_list_of_data_tables_v2_1 listOfdatatables;
 };
+
 
 struct atom_dtd_format
 {
@@ -448,10 +454,12 @@ enum atom_dtd_format_modemiscinfo{
   ATOM_COMPOSITESYNC     = 0x0040,
 };
 
+
 /* utilitypipeline
  * when format_revision==1 && content_revision==1, then this an info table for atomworks to use during debug session, no structure is associated with it.
  * the location of it can't change
 */
+
 
 /* 
   ***************************************************************************
@@ -492,6 +500,7 @@ enum atom_cooling_solution_id{
   AIR_COOLING    = 0x00,
   LIQUID_COOLING = 0x01
 };
+
 
 /* 
   ***************************************************************************
@@ -541,6 +550,7 @@ enum atom_lcd_info_dptolvds_rx_id
   eDP_TO_LVDS_REALTEK_ID                 = 0x02,       // Realtek tansaltor which require AMD SW init
 };
 
+    
 /* 
   ***************************************************************************
     Data Table gpio_pin_lut  structure
@@ -579,12 +589,14 @@ enum atom_gpio_pin_assignment_gpio_id {
   THERMAL_INT_OUTPUT_GPIO_PINID =65,
 };
 
+
 struct atom_gpio_pin_lut_v2_1
 {
   struct  atom_common_table_header  table_header;
   /*the real number of this included in the structure is calcualted by using the (whole structure size - the header size)/size of atom_gpio_pin_lut  */
   struct  atom_gpio_pin_assignment  gpio_pin[8];
 };
+
 
 /* 
   ***************************************************************************
@@ -599,6 +611,7 @@ struct vram_usagebyfirmware_v2_1
   uint16_t  used_by_firmware_in_kb;
   uint16_t  used_by_driver_in_kb; 
 };
+
 
 /* 
   ***************************************************************************
@@ -712,6 +725,7 @@ enum atom_glsync_record_gpio_index_def
   ATOM_GPIO_INDEX_GLSYNC_MAX       = 9,
 };
 
+
 struct atom_connector_hpdpin_lut_record     //record for ATOM_CONNECTOR_HPDPIN_LUT_RECORD_TYPE
 {
   struct atom_common_record_header record_header;
@@ -792,6 +806,7 @@ struct display_object_info_table_v1_4
   struct    atom_display_object_path_v2 display_path[8];   //the real number of this included in the structure is calculated by using the (whole structure size - the header size- number_of_path)/size of atom_display_object_path
 };
 
+
 /* 
   ***************************************************************************
     Data Table dce_info  structure
@@ -829,6 +844,7 @@ struct atom_display_controller_info_v4_1
   uint8_t  reserved3[8];
 };
 
+
 struct atom_display_controller_info_v4_2
 {
   struct  atom_common_table_header  table_header;
@@ -862,6 +878,7 @@ struct atom_display_controller_info_v4_2
   uint8_t  remotedisplayconfig;
   uint8_t  reserved3[8];
 };
+
 
 enum dce_info_caps_def
 {
@@ -952,6 +969,7 @@ struct atom_camera_data
   struct atom_camera_dphy_elec_param dphy_param;
   uint32_t crc_val;         // CRC
 };
+
 
 struct atom_14nm_dpphy_dvihdmi_tuningset
 {
@@ -1054,10 +1072,12 @@ struct atom_integrated_system_info_v1_11
   uint32_t  reserved[108];
 };
 
+
 // system_config
 enum atom_system_vbiosmisc_def{
   INTEGRATED_SYSTEM_INFO__GET_EDID_CALLBACK_FUNC_SUPPORT = 0x01,
 };
+
 
 // gpucapinfo
 enum atom_system_gpucapinf_def{
@@ -1080,6 +1100,7 @@ enum atom_sys_info_lvds_misc_def
   SYS_INFO_LVDS_MISC_888_BPC_MODE                  =0x04,
   SYS_INFO_LVDS_MISC_OVERRIDE_EN                   =0x08,
 };
+
 
 //memorytype  DMI Type 17 offset 12h - Memory Type
 enum atom_dmi_t17_mem_type_def{
@@ -1112,12 +1133,14 @@ enum atom_dmi_t17_mem_type_def{
   LpDdr4MemType,                                        ///< Assign 30 to LPDDR4
 };
 
+
 // this Table is used starting from NL/AM, used by SBIOS and pass the IntegratedSystemInfoTable/PowerPlayInfoTable/SystemCameraInfoTable 
 struct atom_fusion_system_info_v4
 {
   struct atom_integrated_system_info_v1_11   sysinfo;           // refer to ATOM_INTEGRATED_SYSTEM_INFO_V1_8 definition
   uint32_t   powerplayinfo[256];                                // Reserve 1024 bytes space for PowerPlayInfoTable
 }; 
+
 
 /* 
   ***************************************************************************
@@ -1146,6 +1169,8 @@ struct  atom_gfx_info_v2_2
   uint32_t rlc_gpu_timer_refclk; 
 };
 
+
+
 /* 
   ***************************************************************************
     Data Table smu_info  structure
@@ -1172,6 +1197,8 @@ struct atom_smu_info_v3_1
   uint8_t  fw_ctf_gpio_bit;         // GPIO bit shift in SMU_GPIOPAD_A configured for CTF, =0xff means invalid
   uint8_t  fw_ctf_polarity;         // GPIO polarity for CTF
 };
+
+
 
 /* 
   ***************************************************************************
@@ -1307,6 +1334,7 @@ struct atom_multimedia_info_v2_1
   uint32_t vce_enc_max_bandwidth;           // 16x16 pixels/sec, codec independent
 };
 
+
 /* 
   ***************************************************************************
     Data Table umc_info  structure
@@ -1328,6 +1356,7 @@ struct atom_umc_info_v3_1
   uint8_t umc_config;
   uint32_t mem_refclk_10khz;
 };
+
 
 /* 
   ***************************************************************************
@@ -1354,6 +1383,7 @@ struct atom_vram_module_v9
   uint16_t  vram_rsd2;                     // reserved
   char    dram_pnstring[20];               // part number end with '0'. 
 };
+
 
 struct atom_vram_info_header_v2_3
 {
@@ -1410,6 +1440,7 @@ struct atom_umc_init_reg_block{
   struct atom_umc_reg_setting_data_block umc_reg_setting_list[1];
 };
 
+
 /* 
   ***************************************************************************
     Data Table voltageobject_info  structure
@@ -1457,6 +1488,7 @@ enum atom_i2c_voltage_control_flag
    VOLTAGE_DATA_ONE_BYTE = 0,
    VOLTAGE_DATA_TWO_BYTE = 1,
 };
+
 
 struct atom_voltage_gpio_map_lut
 {
@@ -1507,6 +1539,7 @@ struct  atom_voltage_objects_info_v4_1
   union atom_voltage_object_v4 voltage_object[1];   //Info for Voltage control
 };
 
+
 /* 
   ***************************************************************************
               All Command Function structure definition 
@@ -1543,6 +1576,7 @@ struct asic_init_ps_allocation_v2_1
   uint32_t reserved[16];
 };
 
+
 enum atom_asic_init_engine_flag
 {
   b3NORMAL_ENGINE_INIT = 0,
@@ -1574,6 +1608,7 @@ struct set_engine_clock_ps_allocation_v2_1
   struct set_engine_clock_parameters_v2_1 clockinfo;
   uint32_t reserved[10];
 };
+
 
 enum atom_set_engine_mem_clock_flag
 {
@@ -1611,6 +1646,7 @@ struct set_memory_clock_ps_allocation_v2_1
   uint32_t reserved[10];
 };
 
+
 /* 
   ***************************************************************************
               Structures used by getmemoryclock
@@ -1621,6 +1657,8 @@ struct get_memory_clock_parameter
   uint32_t mclk_10khz;          // current engine speed in 10KHz unit
   uint32_t reserved;
 };
+
+
 
 /* 
   ***************************************************************************
@@ -1649,6 +1687,7 @@ struct set_voltage_ps_allocation_v1_4
   uint32_t reserved[10];
 };
 
+
 /* 
   ***************************************************************************
               Structures used by computegpuclockparam
@@ -1670,6 +1709,7 @@ struct compute_gpu_clock_input_parameter_v1_8
   uint32_t  reserved[5];
 };
 
+
 struct compute_gpu_clock_output_parameter_v1_8
 {
   uint32_t  gpuclock_10khz:24;              //Input= target clock, output = actual clock 
@@ -1681,6 +1721,8 @@ struct compute_gpu_clock_output_parameter_v1_8
   uint8_t   reserved;
   uint32_t  reserved1[2];
 };
+
+
 
 /* 
   ***************************************************************************
@@ -1701,6 +1743,7 @@ union read_efuse_value_parameters_v3_1
   struct read_efuse_input_parameters_v3_1 efuse_info;
   uint32_t efusevalue;
 };
+
 
 /* 
   ***************************************************************************
@@ -1746,6 +1789,8 @@ struct  atom_get_smu_clock_info_output_parameters_v3_1
   }atom_smu_outputclkfreq;
 };
 
+
+
 /* 
   ***************************************************************************
               Structures used by dynamicmemorysettings
@@ -1782,6 +1827,8 @@ union dynamic_memory_settings_parameters_v2_1
   struct dynamic_sclk_settings_parameters_v2_1 sclk_setting;
 };
 
+
+
 /* 
   ***************************************************************************
               Structures used by memorytraining
@@ -1795,12 +1842,14 @@ enum atom_umc6_0_ucode_function_call_enum_id
   UMC60_UCODE_FUNC_ID_EXIT_SELFREFRESH       = 2,
 };
 
+
 struct memory_training_parameters_v2_1
 {
   uint8_t ucode_func_id;
   uint8_t ucode_reserved[3];
   uint32_t reserved[5];
 };
+
 
 /* 
   ***************************************************************************
@@ -1899,6 +1948,7 @@ struct set_dce_clock_ps_allocation_v2_1
   uint32_t ulReserved[2];
 };
 
+
 /****************************************************************************/   
 // Structures used by BlankCRTC
 /****************************************************************************/   
@@ -1925,6 +1975,7 @@ struct enable_crtc_parameters
   uint8_t enable;                     // ATOM_ENABLE or ATOM_DISABLE 
   uint8_t padding[2];
 };
+
 
 /****************************************************************************/   
 // Structure used by EnableDispPowerGating
@@ -1963,6 +2014,7 @@ struct set_crtc_using_dtd_timing_parameters
   uint8_t   padding[2];
 };
 
+
 /****************************************************************************/   
 // Structures used by processi2cchanneltransaction
 /****************************************************************************/   
@@ -1996,6 +2048,7 @@ enum atom_process_i2c_status
   HW_ASSISTED_I2C_STATUS_SUCCESS     =1,
 };
 
+
 /****************************************************************************/   
 // Structures used by processauxchanneltransaction
 /****************************************************************************/   
@@ -2013,6 +2066,7 @@ struct process_aux_channel_transaction_parameters_v1_2
   uint8_t   hpd_id;                                       //=0: HPD1, =1: HPD2, =2: HPD3, =3: HPD4, =4: HPD5, =5: HPD6
 };
 
+
 /****************************************************************************/   
 // Structures used by selectcrtc_source
 /****************************************************************************/   
@@ -2024,6 +2078,7 @@ struct select_crtc_source_parameters_v2_3
   uint8_t encode_mode;                    // enum atom_encode_mode_def
   uint8_t dst_bpc;                        // enum atom_panel_bit_per_color
 };
+
 
 /****************************************************************************/   
 // Structures used by digxencodercontrol
@@ -2177,6 +2232,7 @@ enum atom_dig_transmitter_control_digfe_sel
   ATOM_TRANMSITTER_V6__DIGG_SEL                   = 0x40,
 };
 
+
 //ucHPDSel
 enum atom_dig_transmitter_control_hpd_sel
 {
@@ -2204,6 +2260,8 @@ enum atom_dig_transmitter_control_dplaneset
   DP_LANE_SET__9_5DB_0_4V                         = 0x18, 
 };
 
+
+
 /****************************************************************************/ 
 // Structures used by ExternalEncoderControl V2.4
 /****************************************************************************/   
@@ -2218,6 +2276,7 @@ struct external_encoder_control_parameters_v2_4
   uint8_t  bitpercolor;       // output bit per color, only valid when ucAction = SETUP/ENABLE_OUTPUT and ucEncodeMode= DP
   uint8_t  hpd_id;        
 };
+
 
 // ucAction
 enum external_encoder_control_action_def
@@ -2251,6 +2310,7 @@ struct external_encoder_control_ps_allocation_v2_4
   struct external_encoder_control_parameters_v2_4 sExtEncoder;
   uint32_t reserved[2];
 };
+
 
 /* 
   ***************************************************************************
@@ -2291,6 +2351,7 @@ struct vfct_image_header{
   uint32_t  imagelength;     //0x64
 };
 
+
 struct gop_vbios_content {
   struct vfct_image_header vbiosheader;
   uint8_t                  vbioscontent[1];
@@ -2300,6 +2361,8 @@ struct gop_lib1_content {
   struct vfct_image_header lib1header;
   uint8_t                  lib1content[1];
 };
+
+
 
 /* 
   ***************************************************************************
@@ -2387,6 +2450,8 @@ enum scratch_pre_os_mode_info_bits_def{
 #endif
 };
 
+
+
 /* 
   ***************************************************************************
                        ATOM firmware ID header file
@@ -2397,3 +2462,4 @@ enum scratch_pre_os_mode_info_bits_def{
 #pragma pack()
 
 #endif
+

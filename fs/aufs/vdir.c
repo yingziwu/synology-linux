@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2005-2016 Junjiro R. Okajima
  *
@@ -837,7 +840,11 @@ static int seek_vdir(struct file *file, struct dir_context *ctx)
 
 out:
 	/* smp_mb(); */
+#ifdef MY_ABC_HERE
+	AuTraceErr(valid - 1);
+#else /* MY_ABC_HERE */
 	AuTraceErr(!valid);
+#endif /* MY_ABC_HERE */
 	return valid;
 }
 

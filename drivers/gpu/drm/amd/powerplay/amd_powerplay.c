@@ -208,6 +208,7 @@ static void pp_late_fini(void *handle)
 	amd_powerplay_destroy(handle);
 }
 
+
 static bool pp_is_idle(void *handle)
 {
 	return false;

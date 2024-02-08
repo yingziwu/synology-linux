@@ -58,6 +58,8 @@ static void isdn_ppp_ccp_reset_trans(struct ippp_struct *is,
 static void isdn_ppp_ccp_reset_ack_rcvd(struct ippp_struct *is,
 					unsigned char id);
 
+
+
 #ifdef CONFIG_ISDN_MPP
 static ippp_bundle *isdn_ppp_bundle_arr = NULL;
 
@@ -826,7 +828,6 @@ isdn_ppp_write(int min, struct file *file, const char __user *buf, int count)
 	isdn_net_local *lp;
 	struct ippp_struct *is;
 	int proto;
-	unsigned char protobuf[4];
 
 	is = file->private_data;
 
@@ -840,24 +841,28 @@ isdn_ppp_write(int min, struct file *file, const char __user *buf, int count)
 	if (!lp)
 		printk(KERN_DEBUG "isdn_ppp_write: lp == NULL\n");
 	else {
-		/*
-		 * Don't reset huptimer for
-		 * LCP packets. (Echo requests).
-		 */
-		if (copy_from_user(protobuf, buf, 4))
-			return -EFAULT;
-		proto = PPP_PROTOCOL(protobuf);
-		if (proto != PPP_LCP)
-			lp->huptimer = 0;
+		if (lp->isdn_device < 0 || lp->isdn_channel < 0) {
+			unsigned char protobuf[4];
+			/*
+			 * Don't reset huptimer for
+			 * LCP packets. (Echo requests).
+			 */
+			if (copy_from_user(protobuf, buf, 4))
+				return -EFAULT;
 
-		if (lp->isdn_device < 0 || lp->isdn_channel < 0)
+			proto = PPP_PROTOCOL(protobuf);
+			if (proto != PPP_LCP)
+				lp->huptimer = 0;
+
 			return 0;
+		}
 
 		if ((dev->drv[lp->isdn_device]->flags & DRV_FLAG_RUNNING) &&
 		    lp->dialstate == 0 &&
 		    (lp->flags & ISDN_NET_CONNECTED)) {
 			unsigned short hl;
 			struct sk_buff *skb;
+			unsigned char *cpy_buf;
 			/*
 			 * we need to reserve enough space in front of
 			 * sk_buff. old call to dev_alloc_skb only reserved
@@ -870,11 +875,21 @@ isdn_ppp_write(int min, struct file *file, const char __user *buf, int count)
 				return count;
 			}
 			skb_reserve(skb, hl);
-			if (copy_from_user(skb_put(skb, count), buf, count))
+			cpy_buf = skb_put(skb, count);
+			if (copy_from_user(cpy_buf, buf, count))
 			{
 				kfree_skb(skb);
 				return -EFAULT;
 			}
+
+			/*
+			 * Don't reset huptimer for
+			 * LCP packets. (Echo requests).
+			 */
+			proto = PPP_PROTOCOL(cpy_buf);
+			if (proto != PPP_LCP)
+				lp->huptimer = 0;
+
 			if (is->debug & 0x40) {
 				printk(KERN_DEBUG "ppp xmit: len %d\n", (int) skb->len);
 				isdn_ppp_frame_log("xmit", skb->data, skb->len, 32, is->unit, lp->ppp_slot);
@@ -988,6 +1003,7 @@ static int isdn_ppp_strip_proto(struct sk_buff *skb)
 	}
 	return proto;
 }
+
 
 /*
  * handler for incoming packets on a syncPPP interface
@@ -1642,6 +1658,7 @@ static void isdn_ppp_mp_receive(isdn_net_dev *net_dev, isdn_net_local *lp,
 	newseq = isdn_ppp_mp_get_seq(is->mpppcfg & SC_IN_SHORT_SEQ,
 				     skb, is->last_link_seqno);
 
+
 	/* if this packet seq # is less than last already processed one,
 	 * toss it right away, but check for sequence start case first
 	 */
@@ -2049,6 +2066,7 @@ isdn_ppp_dev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	int len;
 	isdn_net_local *lp = netdev_priv(dev);
 
+
 	if (lp->p_encap != ISDN_NET_ENCAP_SYNCPPP)
 		return -EINVAL;
 
@@ -2095,6 +2113,7 @@ isdn_ppp_if_get_unit(char *name)
 
 	return unit;
 }
+
 
 int
 isdn_ppp_dial_slave(char *name)
@@ -2168,6 +2187,7 @@ isdn_ppp_hangup_slave(char *name)
 /*
  * PPP compression stuff
  */
+
 
 /* Push an empty CCP Data Frame up to the daemon to wake it up and let it
    generate a CCP Reset-Request or tear down CCP altogether */
@@ -2357,7 +2377,7 @@ static struct ippp_ccp_reset_state *isdn_ppp_ccp_reset_alloc_state(struct ippp_s
 		       id);
 		return NULL;
 	} else {
-		rs = kzalloc(sizeof(struct ippp_ccp_reset_state), GFP_KERNEL);
+		rs = kzalloc(sizeof(struct ippp_ccp_reset_state), GFP_ATOMIC);
 		if (!rs)
 			return NULL;
 		rs->state = CCPResetIdle;
@@ -2370,6 +2390,7 @@ static struct ippp_ccp_reset_state *isdn_ppp_ccp_reset_alloc_state(struct ippp_s
 	}
 	return rs;
 }
+
 
 /* A decompressor wants a reset with a set of parameters - do what is
    necessary to fulfill it */
@@ -2808,6 +2829,7 @@ static void isdn_ppp_receive_ccp(isdn_net_dev *net_dev, isdn_net_local *lp,
 		break;
 	}
 }
+
 
 /*
  * Daemon sends a CCP frame ...

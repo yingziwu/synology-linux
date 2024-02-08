@@ -65,6 +65,7 @@ const char *usbip_speed_string(int num)
 	return "Unknown Speed";
 }
 
+
 #define DBG_UDEV_INTEGER(name)\
 	dbg("%-20s = %x", to_string(name), (int) udev->name)
 
@@ -112,6 +113,7 @@ void dump_usb_device(struct usbip_usb_device *udev)
 	DBG_UDEV_INTEGER(devnum);
 }
 
+
 int read_attr_value(struct udev_device *dev, const char *name,
 		    const char *format)
 {
@@ -149,6 +151,7 @@ err:
 	return num;
 }
 
+
 int read_attr_speed(struct udev_device *dev)
 {
 	const char *speed;
@@ -174,6 +177,7 @@ err:
 		(object)->name = (type) read_attr_value(dev, to_string(name), \
 							format);	      \
 	} while (0)
+
 
 int read_usb_device(struct udev_device *sdev, struct usbip_usb_device *udev)
 {
@@ -211,9 +215,16 @@ int read_usb_interface(struct usbip_usb_device *udev, int i,
 		       struct usbip_usb_interface *uinf)
 {
 	char busid[SYSFS_BUS_ID_SIZE];
+	int size;
 	struct udev_device *sif;
 
-	sprintf(busid, "%s:%d.%d", udev->busid, udev->bConfigurationValue, i);
+	size = snprintf(busid, sizeof(busid), "%s:%d.%d",
+			udev->busid, udev->bConfigurationValue, i);
+	if (size < 0 || (unsigned int)size >= sizeof(busid)) {
+		err("busid length %i >= %lu or < 0", size,
+		    (unsigned long)sizeof(busid));
+		return -1;
+	}
 
 	sif = udev_device_new_from_subsystem_sysname(udev_context, "usb", busid);
 	if (!sif) {
@@ -246,6 +257,7 @@ void usbip_names_get_product(char *buff, size_t size, uint16_t vendor,
 	prod = names_product(vendor, product);
 	if (!prod)
 		prod = "unknown product";
+
 
 	vend = names_vendor(vendor);
 	if (!vend)

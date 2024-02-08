@@ -661,6 +661,7 @@ void dcn10_hubp_construct(
 	const struct dcn_mi_shift *hubp_shift,
 	const struct dcn_mi_mask *hubp_mask);
 
+
 struct dcn_hubp_state {
 	uint32_t pixel_format;
 	uint32_t inuse_addr_hi;

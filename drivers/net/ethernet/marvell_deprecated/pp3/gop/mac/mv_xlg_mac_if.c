@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -32,6 +33,7 @@ disclaimer.
 #include "gop/mv_gop_if.h"
 #include "gop/mac/mv_xlg_mac_if.h"
 #include "gop/mac/mv_xlg_mac_regs.h"
+
 
 /* print value of unit registers */
 void mv_xlg_mac_regs_dump(int port)
@@ -128,6 +130,7 @@ int mv_xlg_mac_mode_cfg(int mac_num, int num_of_act_lanes)
 	val |= 1; /* unmask summary bit */
 	mv_gop_reg_write(MV_XLG_INTERRUPT_MASK_REG(mac_num), val);
 
+
 	return 0;
 }
 
@@ -168,6 +171,7 @@ bool mv_xlg_mac_link_status_get(int mac_num)
 
 	return false;
 }
+
 
 /* Enable port and MIB counters update */
 void mv_xlg_mac_port_enable(int mac_num)

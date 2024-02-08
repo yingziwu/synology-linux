@@ -44,6 +44,7 @@ ex: passing arg 2 of `writeb' makes pointer from integer without a cast
 #define MAX_PARTITIONS	16
 #define BOOTCODE	16*1024*1024	//16MB
 
+
 #define NF_INIT_DEBUG		1
 //#define NF_DEBUG		1
 
@@ -69,6 +70,7 @@ ex: passing arg 2 of `writeb' makes pointer from integer without a cast
  * Searches for a NAND device
  */
 extern int rtk_nand_scan (struct mtd_info *mtd, int maxchips);
+
 
 //========================================================================
 
@@ -172,6 +174,7 @@ struct NAND_Info_st {
 	unsigned int U32PagePerBlkShift;
 };
 
+
 /*
 	macro RTK_FLUSH_CACHE is to flush the cache at address "addr",
 	the length is "len"
@@ -209,6 +212,7 @@ typedef enum {
 } nand_state_t;
 //=============================================================================
 
+
 //=============================================================================
 
 /**
@@ -224,6 +228,7 @@ struct nand_hw_control {
 	wait_queue_head_t wq;
 };
 //=============================================================================
+
 
 /**
  * struct nand_chip - NAND Private Flash Chip Data
@@ -354,6 +359,7 @@ struct nand_chip {
 	unsigned short ecc_select;	//modify unsigned char to unsigned short by alexchang 0319-2010
 };
 //=============================================================================
+
 
 extern int nand_scan_bbt (struct mtd_info *mtd, struct nand_bbt_descr *bd);
 extern int nand_update_bbt (struct mtd_info *mtd, loff_t offs);

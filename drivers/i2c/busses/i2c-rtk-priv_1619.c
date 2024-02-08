@@ -9,6 +9,7 @@
  * option) any later version.
  */
 
+
 #include <linux/kernel.h>
 #include <linux/kernel.h>
 #include <linux/ioport.h>
@@ -242,6 +243,7 @@ int rtk_i2c_set_spd(struct rtk_i2c_handler *handler, int KHz)
 
 	RTK_DEBUG("[I2C%d] KHz = %d, div_h = %d, div_l = %d\n",
 		handler->id, KHz, div_h, div_l);
+
 
 	SET_IC_ENABLE(handler, 0);
 
@@ -624,6 +626,7 @@ unsigned int rtk_i2c_get_tx_abort_reason(struct rtk_i2c_handler *handler)
 	RTK_DEBUG("%s\n", __func__);
 	return handler->xfer.tx_abort_source;
 }
+
 
 /*
  * Func : rtk_i2c_master_write

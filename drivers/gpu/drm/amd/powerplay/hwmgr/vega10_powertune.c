@@ -171,6 +171,7 @@ static const struct vega10_didt_config_reg SEDiDtCtrl1Config_Vega10[] =
 	{   0xFFFFFFFF  }  /* End of list */
 };
 
+
 static const struct vega10_didt_config_reg SEDiDtWeightConfig_Vega10[] =
 {
 /* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -257,6 +258,7 @@ static const struct vega10_didt_config_reg SEDiDtCtrl0Config_Vega10[] =
 
 	{   0xFFFFFFFF  }  /* End of list */
 };
+
 
 static const struct vega10_didt_config_reg SEDiDtStallCtrlConfig_vega10[] =
 {
@@ -397,6 +399,7 @@ static const struct vega10_didt_config_reg SELCacConfig_Vega10[] =
 
 	{   0xFFFFFFFF  }  /* End of list */
 };
+
 
 static const struct vega10_didt_config_reg SEEDCStallPatternConfig_Vega10[] =
 {
@@ -596,6 +599,7 @@ static const struct vega10_didt_config_reg    GCDiDtCtrl0Config_vega10[] =
 	{   mmGC_DIDT_CTRL0,                  GC_DIDT_CTRL0__DIDT_TRIGGER_THROTTLE_LOWBIT_MASK,   GC_DIDT_CTRL0__DIDT_TRIGGER_THROTTLE_LOWBIT__SHIFT,  0x0000 },
 	{   0xFFFFFFFF  }  /* End of list */
 };
+
 
 static const struct vega10_didt_config_reg   PSMSEEDCStallPatternConfig_Vega10[] =
 {

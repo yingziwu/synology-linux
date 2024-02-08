@@ -301,6 +301,7 @@ static void hsw_power_well_pre_disable(struct drm_i915_private *dev_priv,
 		gen8_irq_power_well_pre_disable(dev_priv, irq_pipe_mask);
 }
 
+
 static void hsw_wait_for_power_well_enable(struct drm_i915_private *dev_priv,
 					   struct i915_power_well *power_well)
 {

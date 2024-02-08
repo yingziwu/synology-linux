@@ -10613,6 +10613,7 @@ int rtl8152_get_settings(struct net_device *netdev, struct ethtool_cmd *cmd)
 		cmd->autoneg = AUTONEG_DISABLE;
 	}
 
+
 	if (netif_running(netdev) && netif_carrier_ok(netdev)) {
 		u16 speed = rtl8152_get_speed(tp);
 
@@ -11149,6 +11150,7 @@ static int rtltool_ioctl(struct r8152 *tp, struct ifreq *ifr)
 			break;
 		}
 		break;
+
 
 	case RTLTOOL_USB_OCP_WRITE_DWORD:
 		if (!tp->rtk_enable_diag && net_ratelimit())

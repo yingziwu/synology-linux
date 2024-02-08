@@ -26,6 +26,7 @@
 #define XRES_MAX	8192
 #define YRES_MAX	8192
 
+
 struct arcpgu_drm_connector {
 	struct drm_connector connector;
 	struct drm_encoder_slave *encoder_slave;

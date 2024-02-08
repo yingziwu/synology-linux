@@ -199,6 +199,7 @@ bool dal_irq_service_dummy_ack(
 	return false;
 }
 
+
 bool dce110_vblank_set(
 		struct irq_service *irq_service,
 		const struct irq_source_info *info,

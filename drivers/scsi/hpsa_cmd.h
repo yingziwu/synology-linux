@@ -118,6 +118,8 @@
 #define HPSA_TMF_QUERY_TASK_SET 0x05
 #define HPSA_TMF_QUERY_ASYNCEVENT 0x06
 
+
+
 /* config space register offsets */
 #define CFG_VENDORID            0x00
 #define CFG_DEVICEID            0x02
@@ -153,6 +155,7 @@
 #define CFGTBL_BusType_Fibre2G  0x00000200l
 
 /* VPD Inquiry types */
+#define HPSA_INQUIRY_FAILED		0x02
 #define HPSA_VPD_SUPPORTED_PAGES        0x00
 #define HPSA_VPD_LV_DEVICE_GEOMETRY     0xC1
 #define HPSA_VPD_LV_IOACCEL_STATUS      0xC2
@@ -162,6 +165,7 @@
 /* Logical volume states */
 #define HPSA_VPD_LV_STATUS_UNSUPPORTED			0xff
 #define HPSA_LV_OK                                      0x0
+#define HPSA_LV_FAILED					0x01
 #define HPSA_LV_NOT_AVAILABLE				0x0b
 #define HPSA_LV_UNDERGOING_ERASE			0x0F
 #define HPSA_LV_UNDERGOING_RPI				0x12
@@ -693,6 +697,7 @@ struct bmic_identify_controller {
 	u8	controller_mode;	/* offset 292 */
 	u8	pad3[32];
 };
+
 
 struct bmic_identify_physical_device {
 	u8    scsi_bus;          /* SCSI Bus number on controller */

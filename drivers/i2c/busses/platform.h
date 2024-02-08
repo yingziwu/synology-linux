@@ -8,6 +8,7 @@
  * Copyright (C) 2010 by Chien-An Lin <colin@realtek.com.tw>
  */
 
+
 #ifndef _MACH_PLATFORM_H
 #define _MACH_PLATFORM_H
 
@@ -191,6 +192,7 @@ static inline int is_venus_cpu(void) {
 
 static inline int is_neptune_cpu(void) {
 /*	int cpu_id = platform_info.cpu_id;
+
 
 	#ifdef CONFIG_REALTEK_FORCE_CPUID_AS_CHIP
 		#ifdef CONFIG_REALTEK_NEPTUNE

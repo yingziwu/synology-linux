@@ -129,6 +129,7 @@ struct vmw_resource {
 	void (*hw_destroy) (struct vmw_resource *res);
 };
 
+
 /*
  * Resources that are managed using ioctls.
  */
@@ -286,6 +287,7 @@ enum vmw_display_unit_type {
 	vmw_du_screen_target
 };
 
+
 struct vmw_sw_context{
 	struct drm_open_hash res_ht;
 	bool res_ht_initialized;
@@ -330,6 +332,7 @@ struct vmw_vga_topology_state {
 	uint32_t pos_x;
 	uint32_t pos_y;
 };
+
 
 /*
  * struct vmw_otable - Guest Memory OBject table metadata
@@ -588,6 +591,7 @@ static inline uint32_t vmw_read(struct vmw_private *dev_priv,
 
 extern void vmw_svga_enable(struct vmw_private *dev_priv);
 extern void vmw_svga_disable(struct vmw_private *dev_priv);
+
 
 /**
  * GMR utilities - vmwgfx_gmr.c
@@ -1031,6 +1035,7 @@ extern int vmw_context_bind_dx_query(struct vmw_resource *ctx_res,
 extern struct vmw_dma_buffer *
 vmw_context_get_dx_query_mob(struct vmw_resource *ctx_res);
 
+
 /*
  * Surface management - vmwgfx_surface.c
  */
@@ -1160,6 +1165,7 @@ extern void vmw_cmdbuf_header_free(struct vmw_cmdbuf_header *header);
 extern int vmw_cmdbuf_cur_flush(struct vmw_cmdbuf_man *man,
 				bool interruptible);
 extern void vmw_cmdbuf_irqthread(struct vmw_cmdbuf_man *man);
+
 
 /**
  * Inline helper functions

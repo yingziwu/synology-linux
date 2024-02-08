@@ -344,7 +344,7 @@ static void __init pnv_ioda_parse_m64_window(struct pnv_phb *phb)
 		return;
 	}
 
-	if (!firmware_has_feature(FW_FEATURE_OPALv3)) {
+	if (!firmware_has_feature(FW_FEATURE_OPAL)) {
 		pr_info("  Firmware too old to support M64 window\n");
 		return;
 	}
@@ -1230,6 +1230,7 @@ static int pnv_pci_vf_assign_m64(struct pci_dev *pdev, u16 num_vfs)
 						 0, /* unused */
 						 size);
 
+
 			if (rc != OPAL_SUCCESS) {
 				dev_err(&pdev->dev, "Failed to map M64 window #%d: %lld\n",
 					win, rc);
@@ -1612,6 +1613,7 @@ static u64 pnv_pci_ioda_dma_get_required_mask(struct pci_dev *pdev)
 	pe = &phb->ioda.pe_array[pdn->pe_number];
 	if (!pe->tce_bypass_enabled)
 		return __dma_get_required_mask(&pdev->dev);
+
 
 	end = pe->tce_bypass_base + memblock_end_of_DRAM();
 	mask = 1ULL << (fls64(end) - 1);
@@ -2268,6 +2270,9 @@ static long pnv_pci_ioda2_table_alloc_pages(int nid, __u64 bus_offset,
 	level_shift = entries_shift + 3;
 	level_shift = max_t(unsigned, level_shift, PAGE_SHIFT);
 
+	if ((level_shift - 3) * levels + page_shift >= 55)
+		return -EINVAL;
+
 	/* Allocate TCE table */
 	addr = pnv_pci_ioda2_table_do_alloc_pages(nid, level_shift,
 			levels, tce_table_size, &offset, &total_allocated);
@@ -2459,6 +2464,7 @@ static void pnv_ioda2_msi_eoi(struct irq_data *d)
 
 	icp_native_eoi(d);
 }
+
 
 static void set_msi_irq_chip(struct pnv_phb *phb, unsigned int virq)
 {
@@ -3175,6 +3181,7 @@ static void __init pnv_pci_init_ioda_phb(struct device_node *np,
 	if (phb->ioda.io_size)
 		pr_info("                  IO: 0x%x [segment=0x%x]\n",
 			phb->ioda.io_size, phb->ioda.io_segsize);
+
 
 	phb->hose->ops = &pnv_pci_ops;
 	phb->get_pe_state = pnv_ioda_get_pe_state;

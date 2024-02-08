@@ -28,6 +28,7 @@
 #include <drm/drmP.h>
 #include "ast_drv.h"
 
+
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_crtc_helper.h>
 
@@ -127,6 +128,7 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
 		*need_post = true;
 	} else
 		*need_post = false;
+
 
 	/* Enable extended register access */
 	ast_enable_mmio(dev);
@@ -394,6 +396,7 @@ static const struct drm_framebuffer_funcs ast_fb_funcs = {
 	.destroy = ast_user_framebuffer_destroy,
 };
 
+
 int ast_framebuffer_init(struct drm_device *dev,
 			 struct ast_framebuffer *ast_fb,
 			 const struct drm_mode_fb_cmd2 *mode_cmd,
@@ -652,6 +655,7 @@ void ast_gem_free_object(struct drm_gem_object *obj)
 	ast_bo_unref(&ast_bo);
 }
 
+
 static inline u64 ast_bo_mmap_offset(struct ast_bo *bo)
 {
 	return drm_vma_node_offset_addr(&bo->bo.vma_node);
@@ -677,3 +681,4 @@ ast_dumb_mmap_offset(struct drm_file *file,
 	return 0;
 
 }
+

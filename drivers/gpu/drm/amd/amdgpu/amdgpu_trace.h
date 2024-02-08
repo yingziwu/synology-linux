@@ -111,6 +111,7 @@ TRACE_EVENT(amdgpu_iv,
 		      __entry->src_data[2], __entry->src_data[3])
 );
 
+
 TRACE_EVENT(amdgpu_bo_create,
 	    TP_PROTO(struct amdgpu_bo *bo),
 	    TP_ARGS(bo),
@@ -209,6 +210,7 @@ TRACE_EVENT(amdgpu_sched_run_job,
 		      __entry->sched_job_id, __get_str(timeline), __entry->context,
 		      __entry->seqno, __entry->ring_name, __entry->num_ibs)
 );
+
 
 TRACE_EVENT(amdgpu_vm_grab_id,
 	    TP_PROTO(struct amdgpu_vm *vm, struct amdgpu_ring *ring,

@@ -31,6 +31,7 @@
 #include "dcn10_dpp.h"
 #include "basics/conversion.h"
 
+
 #define NUM_PHASES    64
 #define HORZ_MAX_TAPS 8
 #define VERT_MAX_TAPS 8
@@ -556,6 +557,7 @@ void dpp1_dscl_set_scaler_auto_scale(
 	dpp1_dscl_set_scl_filter(dpp, scl_data, ycbcr);
 }
 
+
 static void dpp1_dscl_set_manual_ratio_init(
 		struct dcn10_dpp *dpp, const struct scaler_data *data)
 {
@@ -613,6 +615,8 @@ static void dpp1_dscl_set_manual_ratio_init(
 		SCL_V_INIT_FRAC_BOT_C, init_frac,
 		SCL_V_INIT_INT_BOT_C, init_int);
 }
+
+
 
 static void dpp1_dscl_set_recout(
 			struct dcn10_dpp *dpp, const struct rect *recout)

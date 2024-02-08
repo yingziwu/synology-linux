@@ -802,6 +802,7 @@ void radeon_dummy_page_fini(struct radeon_device *rdev)
 	rdev->dummy_page.page = NULL;
 }
 
+
 /* ATOM accessor methods */
 /*
  * ATOM is an interpreted byte code stored in tables in the vbios.  The
@@ -1541,6 +1542,7 @@ void radeon_device_fini(struct radeon_device *rdev)
 		radeon_doorbell_fini(rdev);
 }
 
+
 /*
  * Suspend & resume.
  */
@@ -1879,6 +1881,7 @@ int radeon_gpu_reset(struct radeon_device *rdev)
 	up_read(&rdev->exclusive_lock);
 	return r;
 }
+
 
 /*
  * Debugfs

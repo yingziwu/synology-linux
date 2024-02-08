@@ -33,6 +33,7 @@
 #include "hwmgr.h"
 #include "hardwaremanager.h"
 
+
 #define SIZE_OF_ATOM_PPLIB_EXTENDEDHEADER_V2 12
 #define SIZE_OF_ATOM_PPLIB_EXTENDEDHEADER_V3 14
 #define SIZE_OF_ATOM_PPLIB_EXTENDEDHEADER_V4 16
@@ -370,6 +371,7 @@ static uint16_t get_sclk_vdd_gfx_clock_voltage_dependency_table_offset(
 	return 0;
 }
 
+
 static int get_clock_voltage_dependency_table(struct pp_hwmgr *hwmgr,
 		struct phm_clock_voltage_dependency_table **ptable,
 		const ATOM_PPLIB_Clock_Voltage_Dependency_Table *table)
@@ -436,6 +438,7 @@ static int get_clock_voltage_limit(struct pp_hwmgr *hwmgr,
 
 	return 0;
 }
+
 
 static void set_hw_cap(struct pp_hwmgr *hwmgr, bool enable,
 		       enum phm_platform_caps cap)
@@ -640,6 +643,7 @@ static PP_StateClassificationFlags make_classification_flags(
 	if (classification & ATOM_PPLIB_CLASSIFICATION_3DPERFORMANCE)
 		result |= PP_StateClassificationFlag_3DPerformance;
 
+
 	if (classification & ATOM_PPLIB_CLASSIFICATION_OVERDRIVETEMPLATE)
 		result |= PP_StateClassificationFlag_ACOverdriveTemplate;
 
@@ -660,6 +664,7 @@ static PP_StateClassificationFlags make_classification_flags(
 
 	if (classification2 & ATOM_PPLIB_CLASSIFICATION2_LIMITEDPOWERSOURCE_2)
 		result |= PP_StateClassificationFlag_LimitedPowerSource_2;
+
 
 	if (classification2 & ATOM_PPLIB_CLASSIFICATION2_ULV)
 		result |= PP_StateClassificationFlag_ULV;
@@ -973,6 +978,7 @@ static int init_powerplay_tables(
 	return 0;
 }
 
+
 static int init_thermal_controller(
 			struct pp_hwmgr *hwmgr,
 			const ATOM_PPLIB_POWERPLAYTABLE *powerplay_table)
@@ -1024,6 +1030,7 @@ static int init_overdrive_limits_V2_1(struct pp_hwmgr *hwmgr,
 
 	hwmgr->platform_descriptor.overdriveLimit.engineClock = le32_to_cpu(header->ulMaxEngineClock);
 	hwmgr->platform_descriptor.overdriveLimit.memoryClock = le32_to_cpu(header->ulMaxMemoryClock);
+
 
 	hwmgr->platform_descriptor.minOverdriveVDDC = 0;
 	hwmgr->platform_descriptor.maxOverdriveVDDC = 0;
@@ -1515,6 +1522,7 @@ static int init_phase_shedding_table(struct pp_hwmgr *hwmgr,
 			struct phm_phase_shedding_limits_table *table;
 			unsigned long size, i;
 
+
 			size = sizeof(unsigned long) +
 				(sizeof(struct phm_phase_shedding_limits_table) *
 				ptable->ucNumEntries);
@@ -1585,6 +1593,7 @@ static int get_vce_state_table_entry(struct pp_hwmgr *hwmgr,
 
 	return 0;
 }
+
 
 static int pp_tables_initialize(struct pp_hwmgr *hwmgr)
 {
@@ -1702,3 +1711,4 @@ const struct pp_table_func pptable_funcs = {
 	.pptable_get_vce_state_table_entry =
 						get_vce_state_table_entry,
 };
+
