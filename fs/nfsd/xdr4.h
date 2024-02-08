@@ -403,6 +403,9 @@ struct nfsd4_exchange_id {
 	clientid_t	clientid;
 	u32		seqid;
 	int		spa_how;
+	struct xdr_netobj nii_domain;
+	struct xdr_netobj nii_name;
+	struct timespec64 nii_time;
 };
 
 struct nfsd4_sequence {

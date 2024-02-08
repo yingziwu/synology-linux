@@ -254,10 +254,10 @@ static void ntb_brd_event_handler(struct ntb_transport_raw_block *block, int eve
 
 	if (event == NTB_BRD_LINK_DOWN) {
 		brd->unclean = true;
-		if (brd->brd_disk && brd->brd_disk->disk_name)
+		if (brd->brd_disk)
 			printk(KERN_INFO "NTB block device %s receive LINK_DOWN event", brd->brd_disk->disk_name);
 	} else if (event == NTB_BRD_LINK_UP) {
-		if (brd->brd_disk && brd->brd_disk->disk_name)
+		if (brd->brd_disk)
 			printk(KERN_INFO "NTB block device %s receive LINK_UP event", brd->brd_disk->disk_name);
 	}
 }

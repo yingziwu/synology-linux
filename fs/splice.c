@@ -35,6 +35,9 @@
 #include <linux/gfp.h>
 #include <linux/socket.h>
 #include <linux/compat.h>
+#ifdef MY_ABC_HERE
+#include <linux/fsnotify.h>
+#endif /* MY_ABC_HERE */
 #if defined(MY_DEF_HERE)
 #ifdef CONFIG_SPLICE_FROM_SOCKET
 #include <linux/net.h>
@@ -1440,6 +1443,11 @@ static long do_splice(struct file *in, loff_t __user *off_in,
 		ret = do_splice_from(ipipe, out, &offset, len, flags);
 		file_end_write(out);
 
+#ifdef MY_ABC_HERE
+		if (ret > 0)
+			fsnotify_modify(out);
+#endif /* MY_ABC_HERE */
+
 		if (!off_out)
 			out->f_pos = offset;
 		else if (copy_to_user(off_out, &offset, sizeof(loff_t)))
@@ -1461,6 +1469,11 @@ static long do_splice(struct file *in, loff_t __user *off_in,
 		}
 
 		ret = do_splice_to(in, &offset, opipe, len, flags);
+
+#ifdef MY_ABC_HERE
+		if (ret > 0)
+			fsnotify_access(in);
+#endif /* MY_ABC_HERE */
 
 		if (!off_in)
 			in->f_pos = offset;
@@ -2407,7 +2420,11 @@ retry:
 			 * Get a reference to this pipe buffer,
 			 * so we can copy the contents over.
 			 */
-			ibuf->ops->get(ipipe, ibuf);
+			if (!pipe_buf_get(ipipe, ibuf)) {
+				if (ret == 0)
+					ret = -EFAULT;
+				break;
+			}
 			*obuf = *ibuf;
 
 			/*
@@ -2479,7 +2496,11 @@ static int link_pipe(struct pipe_inode_info *ipipe,
 		 * Get a reference to this pipe buffer,
 		 * so we can copy the contents over.
 		 */
-		ibuf->ops->get(ipipe, ibuf);
+		if (!pipe_buf_get(ipipe, ibuf)) {
+			if (ret == 0)
+				ret = -EFAULT;
+			break;
+		}
 
 		obuf = opipe->bufs + nbuf;
 		*obuf = *ibuf;

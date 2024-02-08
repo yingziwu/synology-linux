@@ -435,7 +435,11 @@ static int vpu_free_instances(struct file *filp)
                 if (vdi_mutexes_base) {
                     int i;
                     for (i = 0; i < 4; i++) {
+#ifdef MY_ABC_HERE
+                        memcpy(vdi_mutexes_base, &PTHREAD_MUTEX_T_DESTROY_VALUE, sizeof(PTHREAD_MUTEX_T_DESTROY_VALUE));
+#else
                         memcpy(vdi_mutexes_base, &PTHREAD_MUTEX_T_DESTROY_VALUE, PTHREAD_MUTEX_T_HANDLE_SIZE);
+#endif
                         vdi_mutexes_base += PTHREAD_MUTEX_T_HANDLE_SIZE;
                     }
                 }

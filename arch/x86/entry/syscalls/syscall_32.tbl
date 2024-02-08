@@ -389,25 +389,6 @@
 # start - CONFIG_SYNO_SYSTEM_CALL
 # Synology defined system calls are listed here.
 #
-402	i386	SYNOUtime		sys_SYNOUtime			compat_sys_SYNOUtime
-403	i386	SYNOArchiveBit		sys_SYNOArchiveBit
-404	i386	recvfile		sys_recvfile
-406	i386	SYNOCaselessStat	sys_SYNOCaselessStat64		sys32_SYNOCaselessStat64
-407	i386	SYNOCaselessLStat	sys_SYNOCaselessLStat64		sys32_SYNOCaselessLStat64
-410	i386	SYNOEcryptName		sys_SYNOEcryptName
-411	i386	SYNODecryptName		sys_SYNODecryptName
-412	i386	SYNOACLCheckPerm	sys_SYNOACLCheckPerm
-413	i386	SYNOACLIsSupport	sys_SYNOACLIsSupport
-414	i386	SYNOACLGetPerm		sys_SYNOACLGetPerm
-415	i386	SYNOFlushAggregate	sys_SYNOFlushAggregate
-419	i386	SYNOStat			sys_SYNOStat64			sys32_SYNOStat64
-420	i386	SYNOFStat			sys_SYNOFStat64			sys32_SYNOFStat64
-421	i386	SYNOLStat			sys_SYNOLStat64			sys32_SYNOLStat64
-422	i386	SYNONotifyInit			sys_SYNONotifyInit
-423	i386	SYNONotifyAddWatch		sys_SYNONotifyAddWatch
-424	i386	SYNONotifyRemoveWatch		sys_SYNONotifyRemoveWatch
-427	i386	SYNOArchiveOverwrite		sys_SYNOArchiveOverwrite
-
 802	i386	syno_utime			sys_syno_utime			compat_sys_syno_utime
 803	i386	syno_archive_bit		sys_syno_archive_bit
 804	i386	syno_recv_file			sys_syno_recv_file

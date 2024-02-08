@@ -224,7 +224,11 @@ static int jpu_free_instances(struct file *filp)
 #define PTHREAD_MUTEX_T_HANDLE_SIZE 40
                 jdi_mutex_base = (jip_base + (s_jpu_instance_pool.size - PTHREAD_MUTEX_T_HANDLE_SIZE));
                 if (jdi_mutex_base) {
+#ifdef MY_ABC_HERE
+                    memcpy(jdi_mutex_base, &PTHREAD_MUTEX_T_DESTROY_VALUE, sizeof(PTHREAD_MUTEX_T_DESTROY_VALUE));
+#else
                     memcpy(jdi_mutex_base, &PTHREAD_MUTEX_T_DESTROY_VALUE, PTHREAD_MUTEX_T_HANDLE_SIZE);
+#endif /* MY_ABC_HERE */
                 }
             }
             s_jpu_open_count--;

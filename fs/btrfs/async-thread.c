@@ -37,6 +37,10 @@
 
 struct __btrfs_workqueue {
 	struct workqueue_struct *normal_wq;
+
+	/* File system this workqueue services */
+	struct btrfs_fs_info *fs_info;
+
 	/* List head pointing to ordered work list */
 	struct list_head ordered_list;
 
@@ -71,6 +75,18 @@ void btrfs_##name(struct work_struct *arg)				\
 	struct btrfs_work *work = container_of(arg, struct btrfs_work,	\
 					       normal_work);		\
 	normal_work_helper(work);					\
+}
+
+struct btrfs_fs_info *
+btrfs_workqueue_owner(struct __btrfs_workqueue *wq)
+{
+	return wq->fs_info;
+}
+
+struct btrfs_fs_info *
+btrfs_work_owner(struct btrfs_work *work)
+{
+	return work->wq->fs_info;
 }
 
 bool btrfs_workqueue_normal_congested(struct btrfs_workqueue *wq)
@@ -122,6 +138,7 @@ BTRFS_WORK_HELPER(scrubwrc_helper);
 BTRFS_WORK_HELPER(scrubnc_helper);
 BTRFS_WORK_HELPER(scrubparity_helper);
 #ifdef MY_ABC_HERE
+BTRFS_WORK_HELPER(syno_cow_endio_helper);
 BTRFS_WORK_HELPER(syno_nocow_endio_helper);
 BTRFS_WORK_HELPER(syno_high_priority_endio_helper);
 #endif /* MY_ABC_HERE */
@@ -130,14 +147,15 @@ BTRFS_WORK_HELPER(syno_bg_cache_helper);
 #endif /* MY_ABC_HERE */
 
 static struct __btrfs_workqueue *
-__btrfs_alloc_workqueue(const char *name, unsigned int flags, int limit_active,
-			 int thresh)
+__btrfs_alloc_workqueue(struct btrfs_fs_info *fs_info, const char *name,
+			unsigned int flags, int limit_active, int thresh)
 {
 	struct __btrfs_workqueue *ret = kzalloc(sizeof(*ret), GFP_KERNEL);
 
 	if (!ret)
 		return NULL;
 
+	ret->fs_info = fs_info;
 	ret->limit_active = limit_active;
 	atomic_set(&ret->pending, 0);
 	if (thresh == 0)
@@ -179,7 +197,8 @@ __btrfs_alloc_workqueue(const char *name, unsigned int flags, int limit_active,
 static inline void
 __btrfs_destroy_workqueue(struct __btrfs_workqueue *wq);
 
-struct btrfs_workqueue *btrfs_alloc_workqueue(const char *name,
+struct btrfs_workqueue *btrfs_alloc_workqueue(struct btrfs_fs_info *fs_info,
+					      const char *name,
 					      unsigned int flags,
 					      int limit_active,
 					      int thresh)
@@ -189,7 +208,8 @@ struct btrfs_workqueue *btrfs_alloc_workqueue(const char *name,
 	if (!ret)
 		return NULL;
 
-	ret->normal = __btrfs_alloc_workqueue(name, flags & ~WQ_HIGHPRI,
+	ret->normal = __btrfs_alloc_workqueue(fs_info, name,
+					      flags & ~WQ_HIGHPRI,
 					      limit_active, thresh);
 	if (!ret->normal) {
 		kfree(ret);
@@ -197,8 +217,8 @@ struct btrfs_workqueue *btrfs_alloc_workqueue(const char *name,
 	}
 
 	if (flags & WQ_HIGHPRI) {
-		ret->high = __btrfs_alloc_workqueue(name, flags, limit_active,
-						    thresh);
+		ret->high = __btrfs_alloc_workqueue(fs_info, name, flags,
+						    limit_active, thresh);
 		if (!ret->high) {
 			__btrfs_destroy_workqueue(ret->normal);
 			kfree(ret);
@@ -207,6 +227,25 @@ struct btrfs_workqueue *btrfs_alloc_workqueue(const char *name,
 	}
 	return ret;
 }
+
+#ifdef MY_ABC_HERE
+struct btrfs_workqueue *btrfs_alloc_workqueue_with_sysfs(
+	struct btrfs_fs_info *fs_info,
+	const char *name,
+	unsigned int flags,
+	int limit_active,
+	int thresh)
+{
+	/* 32 for sid, 12 for prefix and postfix in __btrfs_alloc_workqueue */
+	char trimmed_name[21] = {0};
+	char name_sid[WQ_NAME_LEN] = {0};
+	BUILD_BUG_ON((WQ_NAME_LEN - 44) < 20);
+
+	snprintf(trimmed_name, sizeof(trimmed_name), "%s", name);
+	snprintf(name_sid, sizeof(name_sid), "%s-%s", trimmed_name, fs_info->sb->s_id);
+	return btrfs_alloc_workqueue(fs_info, name_sid, flags | WQ_SYSFS, limit_active, thresh);
+}
+#endif /* MY_ABC_HERE */
 
 /*
  * Hook for threshold which will be called in btrfs_queue_work.
@@ -285,6 +324,13 @@ static void run_ordered_work(struct __btrfs_workqueue *wq,
 				  ordered_list);
 		if (!test_bit(WORK_DONE_BIT, &work->flags))
 			break;
+		/*
+		 * Orders all subsequent loads after reading WORK_DONE_BIT,
+		 * paired with the smp_mb__before_atomic in btrfs_work_helper
+		 * this guarantees that the ordered function will see all
+		 * updates from ordinary work function.
+		 */
+		smp_rmb();
 
 		/*
 		 * we are going to call the ordered done function, but
@@ -363,6 +409,13 @@ static void normal_work_helper(struct btrfs_work *work)
 	thresh_exec_hook(wq);
 	work->func(work);
 	if (need_order) {
+		/*
+		 * Ensures all memory accesses done in the work function are
+		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
+		 * which is going to executed the ordered work sees them.
+		 * Pairs with the smp_rmb in run_ordered_work.
+		 */
+		smp_mb__before_atomic();
 		set_bit(WORK_DONE_BIT, &work->flags);
 		run_ordered_work(wq, work);
 	}
@@ -441,4 +494,12 @@ void btrfs_workqueue_set_max(struct btrfs_workqueue *wq, int limit_active)
 void btrfs_set_work_high_priority(struct btrfs_work *work)
 {
 	set_bit(WORK_HIGH_PRIO_BIT, &work->flags);
+}
+
+void btrfs_flush_workqueue(struct btrfs_workqueue *wq)
+{
+	if (wq->high)
+		flush_workqueue(wq->high->normal_wq);
+
+	flush_workqueue(wq->normal->normal_wq);
 }

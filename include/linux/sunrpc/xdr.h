@@ -23,8 +23,7 @@
 #define XDR_QUADLEN(l)		(((l) + 3) >> 2)
 
 /*
- * Generic opaque `network object.' At the kernel level, this type
- * is used only by lockd.
+ * Generic opaque `network object.'
  */
 #define XDR_MAX_NETOBJ		1024
 struct xdr_netobj {
@@ -135,6 +134,13 @@ xdr_decode_opaque_fixed(__be32 *p, void *ptr, unsigned int len)
 {
 	memcpy(ptr, p, len);
 	return p + XDR_QUADLEN(len);
+}
+
+static inline void xdr_netobj_dup(struct xdr_netobj *dst,
+				  struct xdr_netobj *src, gfp_t gfp_mask)
+{
+	dst->data = kmemdup(src->data, src->len, gfp_mask);
+	dst->len = src->len;
 }
 
 /*

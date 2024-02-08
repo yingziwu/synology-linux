@@ -69,12 +69,34 @@ struct inodes_stat_t {
 };
 
 #ifdef MY_ABC_HERE
+enum locker_mode {
+	LM_NONE         = 0,
+	LM_ENTERPRISE   = 1,
+	LM_COMPLIANCE   = 2,
+	LM_INHOUSE      = 3,
+	LM_MAX          = LM_INHOUSE
+};
+
+enum locker_state {
+	LS_OPEN         = 0,
+	LS_IMMUTABLE    = 1,
+	LS_APPENDABLE   = 2,
+	LS_EXPIRED_I    = 3,
+	LS_EXPIRED_A    = 4,
+	LS_W_IMMUTABLE  = 5,
+	LS_W_APPENDABLE = 6,
+	LS_MAX          = LS_W_APPENDABLE
+};
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 enum SYNO_RBD_META_IOCTL_ACT {
 	SYNO_RBD_META_ACTIVATE = 1,
 	SYNO_RBD_META_DEACTIVATE = 2,
 	SYNO_RBD_META_MAPPING = 3,
 	SYNO_RBD_META_SET_FIRST_OFFSET = 4,
 	SYNO_RBD_META_CLEANUP_ALL = 5,
+	SYNO_RBD_META_MAPPING_COUNT = 6,
 };
 
 struct syno_rbd_meta_file_mapping {
@@ -91,7 +113,7 @@ struct syno_rbd_meta_ioctl_args {
 		struct {
 			__u64 start;
 			size_t size;
-			unsigned int cnt;
+			__u64 cnt;
 		};
 	};
 	struct syno_rbd_meta_file_mapping mappings[0];

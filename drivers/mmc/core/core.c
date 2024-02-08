@@ -241,6 +241,9 @@ static void __mmc_start_request(struct mmc_host *host, struct mmc_request *mrq)
 		}
 	}
 
+	if (host->cqe_on)
+		host->cqe_ops->cqe_off(host);
+
 	host->ops->request(host, mrq);
 }
 
@@ -544,6 +547,44 @@ static void mmc_wait_for_req_done(struct mmc_host *host,
 
 	mmc_retune_release(host);
 }
+
+/**
+ *	mmc_cqe_request_done - CQE has finished processing an MMC request
+ *	@host: MMC host which completed request
+ *	@mrq: MMC request which completed
+ *
+ *	CQE drivers should call this function when they have completed
+ *	their processing of a request.
+ */
+void mmc_cqe_request_done(struct mmc_host *host, struct mmc_request *mrq)
+{
+	mmc_should_fail_request(host, mrq);
+
+	/* Flag re-tuning needed on CRC errors */
+	if ((mrq->cmd && mrq->cmd->error == -EILSEQ) ||
+	    (mrq->data && mrq->data->error == -EILSEQ))
+		mmc_retune_needed(host);
+
+	//trace_mmc_request_done(host, mrq);
+
+	if (mrq->cmd) {
+		pr_debug("%s: CQE req done (direct CMD%u): %d\n",
+			 mmc_hostname(host), mrq->cmd->opcode, mrq->cmd->error);
+	} else {
+		pr_debug("%s: CQE transfer done tag %d\n",
+			 mmc_hostname(host), mrq->tag);
+	}
+
+	if (mrq->data) {
+		pr_debug("%s:     %d bytes transferred: %d\n",
+			 mmc_hostname(host),
+			 mrq->data->bytes_xfered, mrq->data->error);
+	}
+
+	mrq->done(mrq);
+}
+EXPORT_SYMBOL(mmc_cqe_request_done);
+
 
 /**
  *	mmc_pre_req - Prepare for a new request
@@ -1097,6 +1138,9 @@ int mmc_execute_tuning(struct mmc_card *card)
 	if (!host->ops->execute_tuning)
 		return 0;
 
+	if (host->cqe_on)
+		host->cqe_ops->cqe_off(host);
+
 	if (mmc_card_mmc(card))
 		opcode = MMC_SEND_TUNING_BLOCK_HS200;
 	else
@@ -1141,6 +1185,9 @@ void mmc_set_bus_width(struct mmc_host *host, unsigned int width)
  */
 void mmc_set_initial_state(struct mmc_host *host)
 {
+	if (host->cqe_on)
+		host->cqe_ops->cqe_off(host);
+
 	mmc_retune_disable(host);
 
 	if (mmc_host_is_spi(host))
@@ -1151,6 +1198,15 @@ void mmc_set_initial_state(struct mmc_host *host)
 	host->ios.bus_width = MMC_BUS_WIDTH_1;
 	host->ios.timing = MMC_TIMING_LEGACY;
 	host->ios.drv_type = 0;
+	host->ios.enhanced_strobe = false;
+
+	/*
+	 * Make sure we are in non-enhanced strobe mode before we
+	 * actually enable it in ext_csd.
+	 */
+	if ((host->caps2 & MMC_CAP2_HS400_ES) &&
+	     host->ops->hs400_enhanced_strobe)
+		host->ops->hs400_enhanced_strobe(host, &host->ios);
 
 	mmc_set_ios(host);
 }
@@ -1619,7 +1675,7 @@ int mmc_set_signal_voltage(struct mmc_host *host, int signal_voltage, u32 ocr)
 
 	err = mmc_wait_for_cmd(host, &cmd, 0);
 	if (err)
-		return err;
+		goto power_cycle;
 
 	if (!mmc_host_is_spi(host) && (cmd.resp[0] & R1_ERROR))
 		return -EIO;
@@ -2611,6 +2667,7 @@ int mmc_detect_card_removed(struct mmc_host *host)
 		return 1;
 
 	ret = mmc_card_removed(card);
+
 	/*
 	 * The card will be considered unchanged unless we have been asked to
 	 * detect a change or host requires polling to provide card detection.
@@ -2621,6 +2678,7 @@ int mmc_detect_card_removed(struct mmc_host *host)
 	host->detect_change = 0;
 	if (!ret) {
 		ret = _mmc_detect_card_removed(host);
+
 		if (ret && (host->caps & MMC_CAP_NEEDS_POLL)) {
 			/*
 			 * Schedule a detect work as soon as possible to let a
@@ -2758,8 +2816,10 @@ void mmc_stop_host(struct mmc_host *host)
 	host->removed = 1;
 	spin_unlock_irqrestore(&host->lock, flags);
 #endif
-	if (host->slot.cd_irq >= 0)
+	if (host->slot.cd_irq >= 0) {
+		mmc_gpio_set_cd_wake(host, false);
 		disable_irq(host->slot.cd_irq);
+	}
 
 	host->rescan_disable = 1;
 	cancel_delayed_work_sync(&host->detect);
