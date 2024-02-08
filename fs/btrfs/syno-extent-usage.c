@@ -1245,9 +1245,11 @@ static int syno_subvol_usage_add_entry(struct btrfs_trans_handle *trans,
 			*type = root->syno_usage_root_status.type;
 		else
 			*type = root->syno_usage_root_status.new_type;
-		if (*type == SYNO_USAGE_TYPE_NONE &&
-			(root->syno_usage_root_status.flags & BTRFS_SYNO_USAGE_ROOT_FLAG_FORCE_EXTENT))
-			*type = SYNO_USAGE_TYPE_RO_SNAPSHOT;
+		if (*type == SYNO_USAGE_TYPE_NONE) {
+			if ((root->syno_usage_root_status.flags & BTRFS_SYNO_USAGE_ROOT_FLAG_FORCE_EXTENT) ||
+				btrfs_root_readonly(root))
+				*type = SYNO_USAGE_TYPE_RO_SNAPSHOT;
+		}
 	}
 	spin_unlock(&root->syno_usage_lock);
 	btrfs_record_root_in_trans(trans, root);
@@ -1621,7 +1623,11 @@ int btrfs_syno_clear_subvol_usage_item_doing(struct btrfs_root *root)
 		spin_unlock(&fs_info->syno_usage_full_rescan_lock);
 	}
 	if (bl_free_fs_root) {
-		WARN_ON_ONCE(1);
+		/*
+		 * we don't use btrfs_release_fs_root,
+		 * avoid root being added to dead roots
+		 */
+		atomic_dec(&root->use_refs);
 	}
 	syno_usage_wait_on_rescan(root);
 
@@ -1754,8 +1760,11 @@ int btrfs_syno_usage_ref_check(struct btrfs_root *root, u64 objectid, u64 offset
 			syno_usage = 0;
 		read_unlock(&root->syno_usage_rwlock);
 
-		if (!syno_usage && (root->syno_usage_root_status.flags & BTRFS_SYNO_USAGE_ROOT_FLAG_FORCE_EXTENT))
-			syno_usage = 2;
+		if (!syno_usage) {
+			if ((root->syno_usage_root_status.flags & BTRFS_SYNO_USAGE_ROOT_FLAG_FORCE_EXTENT) ||
+				btrfs_root_readonly(root))
+				syno_usage = 2;
+		}
 	}
 
 	return syno_usage;
@@ -1784,15 +1793,15 @@ static int syno_usage_full_rescan_root_clear_unused_item(struct btrfs_root *root
 	key.offset = 0;
 
 	while (1) {
+		if (btrfs_root_readonly(root) || btrfs_root_dead(root)) {
+			ret = 1;
+			goto out;
+		}
+
 		trans = btrfs_start_transaction(root, 1);
 		if (IS_ERR(trans)) {
 			ret = PTR_ERR(trans);
 			trans = NULL;
-			goto out;
-		}
-
-		if (btrfs_root_readonly(root)) {
-			ret = 1;
 			goto out;
 		}
 
@@ -1858,7 +1867,7 @@ next_slot:
 next:
 		btrfs_end_transaction_throttle(trans, root);
 		trans = NULL;
-		if (syno_usage_need_stop(fs_info) || !fs_info->syno_usage_enabled || btrfs_root_dead(root) ||
+		if (syno_usage_need_stop(fs_info) || !fs_info->syno_usage_enabled ||
 			fs_info->syno_usage_status.state == SYNO_USAGE_STATE_RESCAN_PAUSE) {
 			btrfs_debug(fs_info, "Full rescan clear unused subvol usage early exit");
 			ret = -EAGAIN;
@@ -1894,12 +1903,15 @@ static int syno_usage_fast_rescan_root(struct btrfs_root *root)
 	struct extent_buffer *leaf;
 	struct btrfs_syno_subvol_usage_item *ei;
 	u64 bytenr, num_bytes;
+	struct btrfs_key first_key;
+
+	first_key.objectid = 0;
+	first_key.type = 0;
+	first_key.offset = 0;
 
 	set_bit(SYNO_USAGE_ROOT_RUNTIME_FLAG_FAST_RESCAN, &root->syno_usage_runtime_flags);
 
-	if (root->syno_usage_root_status.full_rescan_progress.objectid == 0 &&
-		root->syno_usage_root_status.full_rescan_progress.type == 0 &&
-		root->syno_usage_root_status.full_rescan_progress.offset == 0) {
+	if (btrfs_comp_cpu_keys(&first_key, &root->syno_usage_root_status.full_rescan_progress) == 0) {
 		ret = syno_usage_full_rescan_root_clear_unused_item(root);
 		if (ret < 0) {
 			goto out;
@@ -1920,6 +1932,9 @@ static int syno_usage_fast_rescan_root(struct btrfs_root *root)
 	key.offset = root->syno_usage_root_status.fast_rescan_progress.offset;
 
 	while(1) {
+		if (btrfs_root_readonly(root) || btrfs_root_dead(root))
+			goto success;
+
 		trans = btrfs_start_transaction(root, 2);
 		if (IS_ERR(trans)) {
 			ret = PTR_ERR(trans);
@@ -1966,7 +1981,7 @@ static int syno_usage_fast_rescan_root(struct btrfs_root *root)
 		btrfs_end_transaction_throttle(trans, root);
 		trans = NULL;
 
-		if (syno_usage_need_stop(fs_info) || !fs_info->syno_usage_enabled || btrfs_root_dead(root) ||
+		if (syno_usage_need_stop(fs_info) || !fs_info->syno_usage_enabled ||
 			fs_info->syno_usage_status.state == SYNO_USAGE_STATE_RESCAN_PAUSE) {
 			btrfs_debug(fs_info, "Fast rescan subvol usage early exit");
 			ret = -EAGAIN;
@@ -1981,6 +1996,8 @@ static int syno_usage_fast_rescan_root(struct btrfs_root *root)
 	root->syno_usage_root_status.fast_rescan_progress.offset = -1;
 	root->syno_usage_root_status.type = root->syno_usage_root_status.new_type;
 	spin_unlock(&root->syno_usage_lock);
+
+success:
 	ret = 0;
 out:
 	btrfs_free_path(path);
@@ -2009,12 +2026,15 @@ static int syno_usage_full_rescan_root(struct btrfs_root *root)
 	u64 disk_bytenr;
 	u64 disk_num_bytes;
 	int processed_count;
+	struct btrfs_key first_key;
+
+	first_key.objectid = 0;
+	first_key.type = 0;
+	first_key.offset = 0;
 
 	set_bit(SYNO_USAGE_ROOT_RUNTIME_FLAG_FULL_RESCAN, &root->syno_usage_runtime_flags);
 
-	if (root->syno_usage_root_status.full_rescan_progress.objectid == 0 &&
-		root->syno_usage_root_status.full_rescan_progress.type == 0 &&
-		root->syno_usage_root_status.full_rescan_progress.offset == 0) {
+	if (btrfs_comp_cpu_keys(&first_key, &root->syno_usage_root_status.full_rescan_progress) == 0) {
 		ret = syno_usage_full_rescan_root_clear_unused_item(root);
 		if (ret < 0) {
 			goto out;
@@ -2033,6 +2053,9 @@ static int syno_usage_full_rescan_root(struct btrfs_root *root)
 	key = root->syno_usage_root_status.full_rescan_progress;
 
 	while(1) {
+		if (btrfs_root_readonly(root) || btrfs_root_dead(root))
+			goto success;
+
 		trans = btrfs_start_transaction(root, 2);
 		if (IS_ERR(trans)) {
 			ret = PTR_ERR(trans);
@@ -2106,14 +2129,12 @@ next_slot:
 		btrfs_end_transaction_throttle(trans, root);
 		trans = NULL;
 next:
-		if (syno_usage_need_stop(fs_info) || !fs_info->syno_usage_enabled || btrfs_root_dead(root) ||
+		if (syno_usage_need_stop(fs_info) || !fs_info->syno_usage_enabled ||
 			fs_info->syno_usage_status.state == SYNO_USAGE_STATE_RESCAN_PAUSE) {
 			btrfs_debug(fs_info, "Full rescan subvol usage early exit");
 			ret = -EAGAIN;
 			goto out;
 		}
-		if (btrfs_root_readonly(root))
-			goto end;
 		cond_resched();
 	}
 
@@ -2122,7 +2143,8 @@ next:
 	root->syno_usage_root_status.full_rescan_progress.type = -1;
 	root->syno_usage_root_status.full_rescan_progress.offset = -1;
 	write_unlock(&root->syno_usage_rwlock);
-end:
+
+success:
 	ret = 0;
 out:
 	btrfs_free_path(path);
@@ -2173,7 +2195,7 @@ static void __btrfs_syno_usage_fast_rescan(struct work_struct *work)
 		if (ret ||
 			(root->syno_usage_root_status.state != SYNO_USAGE_ROOT_STATE_RESCAN) ||
 			(root->syno_usage_root_status.new_type == SYNO_USAGE_TYPE_NONE || root->syno_usage_root_status.new_type == SYNO_USAGE_TYPE_RO_SNAPSHOT) ||
-			(btrfs_root_readonly(root))) {
+			btrfs_root_readonly(root) || btrfs_root_dead(root)) {
 			spin_unlock(&fs_info->syno_usage_fast_rescan_lock);
 			goto next;
 		}
@@ -2373,7 +2395,7 @@ static void __btrfs_syno_usage_full_rescan(struct work_struct *work)
 		if (ret ||
 			(root->syno_usage_root_status.state != SYNO_USAGE_ROOT_STATE_RESCAN) ||
 			(root->syno_usage_root_status.new_type == SYNO_USAGE_TYPE_NONE || root->syno_usage_root_status.new_type == SYNO_USAGE_TYPE_RO_SNAPSHOT) ||
-			(btrfs_root_readonly(root))) {
+			btrfs_root_readonly(root) || btrfs_root_dead(root)) {
 			spin_unlock(&fs_info->syno_usage_full_rescan_lock);
 			goto next;
 		}
@@ -2430,9 +2452,7 @@ next:
 	spin_unlock(&fs_info->syno_usage_full_rescan_lock);
 
 	if (!ret &&
-		!(fs_info->syno_usage_status.extent_rescan_progress.objectid == -1 &&
-		fs_info->syno_usage_status.extent_rescan_progress.type == -1 &&
-		fs_info->syno_usage_status.extent_rescan_progress.offset == -1))
+		btrfs_comp_cpu_keys(&rescan_finish_key, &fs_info->syno_usage_status.extent_rescan_progress) != 0)
 		ret = syno_usage_extent_rescan(fs_info);
 
 	if (!ret && (fs_info->syno_usage_status.state == SYNO_USAGE_STATE_RESCAN || fs_info->syno_usage_status.state == SYNO_USAGE_STATE_RESCAN_PAUSE) &&
@@ -2747,15 +2767,22 @@ int btrfs_syno_usage_disable_clear_subvol_usage_item(struct btrfs_root *root)
 	key.offset = 0;
 
 	while (1) {
+		if (btrfs_root_readonly(root) || btrfs_root_dead(root)) {
+			trans = btrfs_start_transaction_fallback_global_rsv(fs_info->tree_root, 2, 5);
+			if (IS_ERR(trans)) {
+				ret = PTR_ERR(trans);
+				trans = NULL;
+				goto out;
+			}
+			break;
+		}
+
 		trans = btrfs_start_transaction_fallback_global_rsv(root, 2, 5);
 		if (IS_ERR(trans)) {
 			ret = PTR_ERR(trans);
 			trans = NULL;
 			goto out;
 		}
-
-		if (btrfs_root_readonly(root) || btrfs_root_dead(root))
-			break;
 
 		recow = 0;
 		ret = btrfs_search_slot(trans, root, &key, path, -1, 1);

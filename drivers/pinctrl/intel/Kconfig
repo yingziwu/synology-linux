@@ -76,3 +76,11 @@ config SYNO_PINCTRL_LEWISBURG
 	  LEWISBURG pinctrl driver provides an interface that allows
 	  configuring of SoC pins and using them as GPIOs.
 
+config SYNO_PINCTRL_CEDARFORK
+	tristate "Intel Cedar Fork pinctrl and GPIO driver"
+	depends on ACPI
+	depends on (SYNO_ICELAKED)
+	select PINCTRL_INTEL
+	help
+	  This pinctrl driver provides an interface that allows configuring
+	  of Intel Cedar Fork PCH pins and using them as GPIOs.

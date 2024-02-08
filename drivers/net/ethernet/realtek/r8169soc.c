@@ -823,9 +823,9 @@ struct rtl8169_private {
 	u32 last_cur_rx;
 	u32 rx_reset_count;
 	u8 checkRDU;
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	u64 rx_buffer_exhausted_count;
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	struct rtl8169_stats rx_stats;
 	struct rtl8169_stats tx_stats;
 	struct TxDesc *TxDescArray;	/* 256-aligned Tx descriptor ring */
@@ -935,14 +935,14 @@ MODULE_FIRMWARE(FIRMWARE_8106E_2);
 MODULE_FIRMWARE(FIRMWARE_8168G_2);
 MODULE_FIRMWARE(FIRMWARE_8168G_3);
 
-#if defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
+#if defined(MY_DEF_HERE) || defined(MY_DEF_HERE)
 static DEFINE_RATELIMIT_STATE(syno_log_ratelimit_state, 10 * HZ, 1);
 #define printk_syno_ratelimited(fmt, ...)	\
 ({												\
 	if (__ratelimit(&syno_log_ratelimit_state))	\
 		printk(fmt, ##__VA_ARGS__);				\
 })
-#endif /* MY_ABC_HERE || MY_DEF_HERE */
+#endif /* MY_DEF_HERE || MY_DEF_HERE */
 
 static void rtl8169_down(struct net_device *dev);
 static int rtl8169_init_ring(struct net_device *dev);
@@ -1600,11 +1600,11 @@ static void __rtl8169_check_link_status(struct net_device *dev,
 					void __iomem *ioaddr, bool pm)
 {
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	const char *speed_str;
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	if (RTL_R8(PHYstatus) & _1000bpsF)
 		speed_str = "1 Gbps";
 	else if (RTL_R8(PHYstatus) & _100bps)
@@ -1613,7 +1613,7 @@ static void __rtl8169_check_link_status(struct net_device *dev,
 		speed_str = "10 Mbps";
 	else
 		speed_str = "unknown";
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 
 
 	if (tp->link_ok(ioaddr)) {
@@ -1623,27 +1623,19 @@ static void __rtl8169_check_link_status(struct net_device *dev,
 			pm_request_resume(&tp->pdev->dev);
 		netif_carrier_on(dev);
 		if (net_ratelimit()){
-#ifdef MY_ABC_HERE
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 			netif_notice(tp, ifup, dev, "link up %s\n", speed_str);
-#else /* MY_ABC_HERE */
-			netif_info(tp, ifup, dev, "link up %s\n", speed_str);
-#endif /* MY_ABC_HERE */
-#else /* MY_ABC_HERE */
-#ifdef MY_ABC_HERE
-			netif_notice(tp, ifup, dev, "link up\n");
-#else /* MY_ABC_HERE */
+#else /* MY_DEF_HERE */
 			netif_info(tp, ifup, dev, "link up\n");
-#endif /* MY_ABC_HERE */
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 		}
 	} else {
 		netif_carrier_off(dev);
-#ifdef MY_ABC_HERE
+#ifdef CONFIG_CONFIG_SYNO_NET_R8169_LINK_LOG_ENHANCE
 		netif_notice(tp, ifdown, dev, "link down\n");
-#else /* MY_ABC_HERE */
+#else /* CONFIG_CONFIG_SYNO_NET_R8169_LINK_LOG_ENHANCE */
 		netif_info(tp, ifdown, dev, "link down\n");
-#endif /* MY_ABC_HERE */
+#endif /* CONFIG_CONFIG_SYNO_NET_R8169_LINK_LOG_ENHANCE */
 		if (pm)
 			pm_schedule_suspend(&tp->pdev->dev, 5000);
 	}
@@ -2253,9 +2245,9 @@ static const char rtl8169_gstrings[][ETH_GSTRING_LEN] = {
 	"multicast",
 	"tx_aborted",
 	"tx_underrun",
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	"rx_buffer_exhausted",
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 };
 
 static int rtl8169_get_sset_count(struct net_device *dev, int sset)
@@ -2331,9 +2323,9 @@ static void rtl8169_get_ethtool_stats(struct net_device *dev,
 	data[10] = le32_to_cpu(tp->counters.rx_multicast);
 	data[11] = le16_to_cpu(tp->counters.tx_aborted);
 	data[12] = le16_to_cpu(tp->counters.tx_underun);
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	data[13] = tp->rx_buffer_exhausted_count;
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 }
 
 static void rtl8169_get_strings(struct net_device *dev, u32 stringset, u8 *data)
@@ -4275,9 +4267,9 @@ static void rtl_phy_work(struct rtl8169_private *tp)
         if(tp->cur_tx > tp->dirty_tx)
                 if(tp->last_dirty_tx==tp->dirty_tx){
                         if (tp->tx_reset_count>3){
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
                             printk(KERN_ERR "r8169_reset_task: reset with tx hang\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 				rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 				tp->tx_reset_count=0;
                         }
@@ -4298,9 +4290,9 @@ static void rtl_phy_work(struct rtl8169_private *tp)
 
 		if(tp->last_cur_rx == tp->cur_rx){
 			if(tp->rx_reset_count>3){
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
                             printk(KERN_ERR "r8169_reset_task: reset with rx hang\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 				rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 				tp->rx_reset_count=0;
 			}
@@ -6363,9 +6355,9 @@ static int rtl8169_change_mtu(struct net_device *dev, int new_mtu)
 
 	rx_buf_sz_new = (new_mtu > ETH_DATA_LEN) ? new_mtu + ETH_HLEN + 8 + 1 : RX_BUF_SIZE;
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	printk(KERN_ERR "r8169_reset_task: reset with change mtu\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 
 /*	rtl8169_down(dev);
@@ -6689,9 +6681,9 @@ static void rtl_reset_work(struct rtl8169_private *tp)
 		netif_wake_queue(dev);
 		netif_warn(tp, drv, dev, "No memory. Try to restart......\n");
 		msleep(1000);
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 		printk(KERN_ERR "r8169_reset_task: reset when no memory to reset.\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 		rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 		return;
 	}
@@ -6710,9 +6702,9 @@ static void rtl8169_tx_timeout(struct net_device *dev)
 {
 	struct rtl8169_private *tp = netdev_priv(dev);
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	printk(KERN_ERR "r8169_reset_task: reset with tx watchdog timeout\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 }
 
@@ -6954,9 +6946,9 @@ static void rtl8169_pcierr_interrupt(struct net_device *dev)
 
 	rtl8169_hw_reset(tp);
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	printk(KERN_ERR "r8169_reset_task: reset with pcie err intr\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 #endif
 }
@@ -7087,9 +7079,9 @@ static int rtl_rx(struct net_device *dev, struct rtl8169_private *tp, u32 budget
 			if (status & RxCRC)
 				dev->stats.rx_crc_errors++;
 			if (status & RxFOVF) {
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 				printk_syno_ratelimited(KERN_ERR"r8169_reset_task: reset with fifo errors.\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 				rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 				dev->stats.rx_fifo_errors++;
 			}
@@ -7165,19 +7157,19 @@ process_pkt:
 	if (tp->dirty_rx + NUM_RX_DESC == tp->cur_rx){
 #ifdef MY_DEF_HERE
 #else /* MY_DEF_HERE */
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 		printk_syno_ratelimited(KERN_ERR"r8169_reset_task: reset with rx buffers exhausted.\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 		rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 #endif /* MY_DEF_HERE */
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 #ifdef MY_DEF_HERE
 		printk_syno_ratelimited(KERN_ERR"%s: Rx buffers exhausted\n", dev->name);
 #endif /* MY_DEF_HERE */
 		tp->rx_buffer_exhausted_count ++;
-#else /* MY_ABC_HERE */
+#else /* MY_DEF_HERE */
 		netif_err(tp, drv, tp->dev, "%s: Rx buffers exhausted\n", dev->name);
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	}
 
 	return count;
@@ -7259,9 +7251,9 @@ static void rtl_slow_event_work(struct rtl8169_private *tp)
 				writel(readl(tp->mmio_clkaddr + 0x104) & ~0x00200000, (tp->mmio_clkaddr + 0x104));
 			}
 */
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 			printk(KERN_ERR "r8169_reset_task: reset with slow event.\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 			rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 		}
 		else
@@ -7653,9 +7645,9 @@ static void __rtl8169_resume(struct net_device *dev)
 	set_bit(RTL_FLAG_TASK_ENABLED, tp->wk.flags);
 	rtl_unlock_work(tp);
 
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	printk(KERN_ERR "r8169_reset_task: reset with resume\n");
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 	rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
 }
 
@@ -8543,9 +8535,9 @@ rtl_init_one(struct platform_device *pdev)
 	if(tp->led_cfg)
 		tp->syno_lan_led_status = tp->led_cfg & 0xF;
 #endif /* MY_DEF_HERE */
-#ifdef MY_ABC_HERE
+#ifdef MY_DEF_HERE
 	tp->rx_buffer_exhausted_count = 0;
-#endif /* MY_ABC_HERE */
+#endif /* MY_DEF_HERE */
 
 //	if (!pci_is_pcie(pdev))
 //		netif_info(tp, probe, dev, "not PCI Express\n");

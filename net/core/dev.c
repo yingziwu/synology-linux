@@ -242,20 +242,45 @@ END:
 	return iMatch;
 }
 
+#ifdef MY_ABC_HERE
+static bool syno_internal_eth_check(int ethIndex)
+{
+	extern long g_internal_netif_num;
+	long netif_num = g_internal_netif_num;
+	bool ret = false;
+
+	if (0 > ethIndex) {
+		goto END;
+	}
+
+	if (dev_get_by_name(&init_net, "eth99")) {
+		if (99 == ethIndex) {
+			ret = true;
+			goto END;
+		}
+		netif_num--;
+	}
+	if (netif_num > ethIndex) {
+		ret = true;
+	}
+
+END:
+	return ret;
+}
+#endif
+
 #define SYNO_VENDOR_MAC_SUCCESS     0
 #define SYNO_VENDOR_MAC_EMPTY       1
 #define SYNO_VENDOR_MAC_FAIL        2
-int syno_get_dev_vendor_mac(const char *szDev, char *szMac)
+int syno_get_dev_vendor_mac(const char *szDev, char *szMac, int bufSize)
 {
 	extern unsigned char grgbLanMac[SYNO_MAC_MAX_NUMBER][16];
-#ifdef MY_ABC_HERE
-	extern unsigned long g_internal_netif_num;
-#endif /* MY_ABC_HERE */
 	int err = SYNO_VENDOR_MAC_FAIL;
 	char szIFPrefix[IFNAMSIZ] = "eth";
 	int iMacIndex = 0;
 	const char *pMacIndex = NULL;
 	int iMatch = 0;
+	struct net_device *dev;
 
 	if (!szMac || !szDev)
 		goto ERR;
@@ -266,7 +291,7 @@ int syno_get_dev_vendor_mac(const char *szDev, char *szMac)
 		pMacIndex = szDev + strlen(szIFPrefix);
 		iMacIndex = simple_strtol(pMacIndex, NULL, 10);
 #ifdef MY_ABC_HERE
-		if (0 > iMacIndex || g_internal_netif_num <= iMacIndex) {
+		if (!syno_internal_eth_check(iMacIndex)) {
 			err = SYNO_VENDOR_MAC_FAIL;
 			goto ERR;
 		}
@@ -280,11 +305,20 @@ int syno_get_dev_vendor_mac(const char *szDev, char *szMac)
 			goto ERR;
 		}
 
-		if (!strcmp(grgbLanMac[iMacIndex], "")) {
-			err = SYNO_VENDOR_MAC_EMPTY;
-			goto ERR;
+		if (99 == iMacIndex) {
+			if (NULL == (dev = dev_get_by_name(&init_net, "eth99")) ||
+				bufSize < dev->addr_len) {
+				err = SYNO_VENDOR_MAC_FAIL;
+				goto ERR;
+			}
+			memcpy(szMac, dev->perm_addr, dev->addr_len);
+		} else {
+			if (!strcmp(grgbLanMac[iMacIndex], "")) {
+				err = SYNO_VENDOR_MAC_EMPTY;
+				goto ERR;
+			}
+			convert_str_to_mac(grgbLanMac[iMacIndex], szMac);
 		}
-		convert_str_to_mac(grgbLanMac[iMacIndex], szMac);
 	} else {
 		goto ERR;
 	}
@@ -4689,7 +4723,6 @@ static struct sk_buff *napi_frags_skb(struct napi_struct *napi)
 	skb_reset_mac_header(skb);
 	skb_gro_reset_offset(skb);
 
-	eth = skb_gro_header_fast(skb, 0);
 	if (unlikely(skb_gro_header_hard(skb, hlen))) {
 		eth = skb_gro_header_slow(skb, hlen, 0);
 		if (unlikely(!eth)) {
@@ -4697,6 +4730,7 @@ static struct sk_buff *napi_frags_skb(struct napi_struct *napi)
 			return NULL;
 		}
 	} else {
+		eth = (const struct ethhdr *)skb->data;
 		gro_pull_from_frag0(skb, hlen);
 		NAPI_GRO_CB(skb)->frag0 += hlen;
 		NAPI_GRO_CB(skb)->frag0_len -= hlen;

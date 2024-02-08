@@ -532,7 +532,7 @@ static int list_devices(struct dm_ioctl *param, size_t param_size)
 	 * Grab our output buffer.
 	 */
 	nl = get_result_buffer(param, param_size, &len);
-	if (len < needed) {
+	if (len < needed || len < sizeof(nl->dev)) {
 		param->flags |= DM_BUFFER_FULL_FLAG;
 		goto out;
 	}
@@ -1097,6 +1097,26 @@ static int do_resume(struct dm_ioctl *param)
 
 	if (dm_suspended_md(md)) {
 		r = dm_resume(md);
+#ifdef MY_DEF_HERE
+		if (!r && new_map && SynoIsDmMultipathDevice(md)) {
+			int old_disk_cnt = 0;
+			int new_disk_cnt = 0;
+			struct gendisk *disk = NULL;
+			char *pTargetAddType[2] = {0};
+
+			new_disk_cnt = syno_dm_table_first_target_data_devices_count(new_map);
+			if (old_map)
+				old_disk_cnt = syno_dm_table_first_target_data_devices_count(old_map);
+			if (new_disk_cnt > old_disk_cnt && old_disk_cnt >= 0) {
+				disk = dm_disk(md);
+				pTargetAddType[0] = old_disk_cnt ?
+						    SZ_SYNO_MPATH_TARGET_ADD_TYPE_APPE :
+						    SZ_SYNO_MPATH_TARGET_ADD_TYPE_INIT;
+				pTargetAddType[1] = NULL;
+				kobject_uevent_env(&disk_to_dev(disk)->kobj, KOBJ_ADD, pTargetAddType);
+			}
+		}
+#endif /* MY_DEF_HERE */
 		if (!r && !dm_kobject_uevent(md, KOBJ_CHANGE, param->event_nr))
 			param->flags |= DM_UEVENT_GENERATED_FLAG;
 	}

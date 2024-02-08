@@ -228,7 +228,9 @@
 #define HW_RS419p      "RS419+"        //"RS419+"
 #define HW_DVA3219     "DVA3219"       //"DVA3219"
 #define HW_SA3400      "SA3400"        //"SA3400"
+#define HW_SA3410      "SA3410"        //"SA3410"
 #define HW_SA3600      "SA3600"        //"SA3600"
+#define HW_SA3610      "SA3610"        //"SA3610"
 #define HW_DS420p      "DS420+"        //DS420+
 #define HW_DS720p      "DS720+"        //DS720+
 #define HW_DS220p      "DS220+"        //DS220+
@@ -267,7 +269,24 @@
 #define HW_DS2419pII   "DS2419+II"     //"DS2419+II"
 #define HW_FS2500      "FS2500"        //"FS2500"
 #define HW_FS2500T     "FS2500T"       //"FS2500T"
+#define HW_DS723p      "DS723+"        //"DS723+"
+#define HW_DS923p      "DS923+"        //"DS923+"
+#define HW_DVA1622     "DVA1622"       //"DVA1622"
 #define HW_R1          "r1"            //"r1" for revision
+#define HW_R2          "r2"            //"r2" for revision
+#define HW_FS6400N     "FS6400N"       //"FS6400N"
+#define HW_RS422p      "RS422+"        //"RS422+"
+#define HW_RS4023xsp   "RS4023xs+"     //"RS4023xs+"
+#define HW_DS1522p     "DS1522+"       //"DS1522+"
+#define HW_RS4022xsp   "RS4022xs+"     //"RS4022xs+"
+#define HW_FS3410      "FS3410"        //"FS3410"
+#define HW_RS822p      "RS822+"        //"RS822+"
+#define HW_RS822rpp    "RS822rp+"      //"RS822rp+"
+#define HW_RS2423p     "RS2423+"       //"RS2423+"
+#define HW_RS2423rpp   "RS2423rp+"     //"RS2423rp+"
+#define HW_DS1823xsp   "DS1823xs+"     //"DS1823xs+"
+#define HW_RS1623xsp   "RS1623xs+"     //"RS1623xs+"
+#define HW_DS423p      "DS423+"        //DS423+
 #define HW_UNKNOWN     "DSUnknown"
 
 #define EBOX_INFO_UNIQUE_RX410  "RX410"
@@ -290,6 +309,7 @@
 #define EBOX_INFO_UNIQUE_DX517  "DX517"
 #define EBOX_INFO_UNIQUE_RX418  "RX418"
 #define EBOX_INFO_UNIQUE_DX1222 "DX1222"
+#define EBOX_INFO_UNIQUE_RX1223RP "RX1223rp"
 
 #define SYNO_UNIQUE(x)     (x>>2)
 #define IS_SYNOLOGY_RX4(x) (SYNO_UNIQUE(x) == 0x15 || SYNO_UNIQUE(x) == 0xd) // 0x54 ~ 0x57
@@ -309,6 +329,39 @@
 #define IS_SYNOLOGY_RX418(x) (x == 0x16)
 #define IS_SYNOLOGY_DX1222(x) (x == 0x17)
 #define IS_SYNOLOGY_DX1215II(x) (x == 0x1C)
+#define IS_SYNOLOGY_RX1223RP(x) (x == 0x01)
+
+#define SYNO_EBOX_UNIQUE_MAX_LEN 16
+struct syno_ebox_unique_id {
+	int uniqueId;
+	int mask;
+	char szUnique[SYNO_EBOX_UNIQUE_MAX_LEN];
+	char szUniqueRp[SYNO_EBOX_UNIQUE_MAX_LEN];
+};
+
+static const struct syno_ebox_unique_id syno_ebox_unique_mapping[] = {
+	{0x34, 0x7c, EBOX_INFO_UNIQUE_RX410, EBOX_INFO_UNIQUE_RX410}, 		// RX410, 	0x34 ~ 0x37
+	{0x54, 0x7c, EBOX_INFO_UNIQUE_RX4, EBOX_INFO_UNIQUE_RX4}, 			// RX4, 	0x54 ~ 0x57
+	{0x18, 0x7c, EBOX_INFO_UNIQUE_DX513, EBOX_INFO_UNIQUE_DX513}, 		// DX513, 	0x18 ~ 0x1b
+	{0x68, 0x7c, EBOX_INFO_UNIQUE_DX510, EBOX_INFO_UNIQUE_DX510}, 		// DX510, 	0x68 ~ 0x6b
+	{0x28, 0x7c, EBOX_INFO_UNIQUE_DX5, EBOX_INFO_UNIQUE_DX5}, 			// DX5, 	0x28 ~ 0x2b
+	{0x4c, 0x7c, EBOX_INFO_UNIQUE_DXC, EBOX_INFO_UNIQUE_DXC}, 			// DXC, 	0x4c ~ 0x4f
+	{0x2c, 0x7c, EBOX_INFO_UNIQUE_RXC, EBOX_INFO_UNIQUE_RXCRP}, 		// RXC or RXCRP, 0x2c ~ 0x2f
+	{0x58, 0x7c, EBOX_INFO_UNIQUE_DX213, EBOX_INFO_UNIQUE_DX213}, 		// DX213, 	0x58 ~ 0x5b 
+	{0x11, 0x1f, EBOX_INFO_UNIQUE_RX413, EBOX_INFO_UNIQUE_RX413}, 		// RX413, 	0x11
+	{0x12, 0x1f, EBOX_INFO_UNIQUE_RX1214, EBOX_INFO_UNIQUE_RX1214RP}, 	// RX1214 or RX1214RP, 0x12
+	{0x14, 0x1f, EBOX_INFO_UNIQUE_RX1217, EBOX_INFO_UNIQUE_RX1217RP},	// RX1217 or RX1217RP, 0x14
+	{0x54, 0x7c, EBOX_INFO_UNIQUE_RX415, EBOX_INFO_UNIQUE_RX415},		// RX415, 	0x54 ~ 0x57
+	{0x13, 0x1f, EBOX_INFO_UNIQUE_DX1215, EBOX_INFO_UNIQUE_DX1215},		// DX1215, 	0x13
+	{0x15, 0x1f, EBOX_INFO_UNIQUE_DX517, EBOX_INFO_UNIQUE_DX517},		// DX517, 	0x15
+	{0x16, 0x1f, EBOX_INFO_UNIQUE_RX418, EBOX_INFO_UNIQUE_RX418},		// RX418, 	0x16
+	{0x17, 0x1f, EBOX_INFO_UNIQUE_DX1222, EBOX_INFO_UNIQUE_DX1222},		// DX1222, 	0x17
+	{0x1C, 0x1f, EBOX_INFO_UNIQUE_DX1215II, EBOX_INFO_UNIQUE_DX1215II},	// DX1215II, 0x1C
+	{0x01, 0x1f, EBOX_INFO_UNIQUE_RX1223RP, EBOX_INFO_UNIQUE_RX1223RP},	// RX1223RP, 0x01
+	
+	{ }, /* terminate list */
+};
+
 #ifdef MY_ABC_HERE
 #define IS_SYNOLOGY_M2DXX(x) (0)
 #endif /* MY_ABC_HERE */
@@ -425,6 +478,11 @@ typedef struct _SYNO_HWMON_SENSOR_TYPE {
 	SYNO_HWMON_SENSOR sensor[MAX_SENSOR_NUM];
 } SYNO_HWMON_SENSOR_TYPE;
 
+typedef struct _SYNO_HWMON_FAN_ORDER {
+	int fan_num;
+	int fan_order_list[MAX_SENSOR_NUM];
+} SYNO_HWMON_FAN_ORDER;
+
 enum {
     MD_SECTOR_READ_ERROR = 0,
     MD_SECTOR_WRITE_ERROR = 1,
@@ -460,6 +518,14 @@ typedef enum {
 #define EBOX_INFO_CPLDVER_KEY   "cpld_version"
 #define EBOX_INFO_DEEP_SLEEP    "deepsleep_support"
 #define EBOX_INFO_IRQ_OFF       "irq_off"
+#define EBOX_INFO_PHY_KEY       "phy" /* for mv14xx */
+#define EBOX_I2C_KEY			"i2c"
+#define EBOX_I2C_POLLING_FAN	"fanTach"
+
+#define EBOX_I2C_SYSFS_OP_WRITE "Write"
+#define EBOX_I2C_SYSFS_OP_READ "Read"
+#define EBOX_I2C_SYSFS_OP_POLL  "Poll"
+#define EBOX_I2C_SYSFS_OP_JMB575_LED_CTL "JMB575_LED_Ctrl"
 
 /* Use 'K' as magic number */
 #define SYNOBIOS_IOC_MAGIC  'K'

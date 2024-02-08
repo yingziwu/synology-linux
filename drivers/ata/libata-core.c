@@ -91,11 +91,6 @@
 #include "libata.h"
 #include "libata-transport.h"
 
-#ifdef MY_ABC_HERE
-#include <linux/mutex.h>
-static struct mutex mutex_spin;
-static DEFINE_MUTEX(mutex_spin);
-#endif /* MY_ABC_HERE */
 #if defined(CONFIG_SYNO_LSP_RTD1619)
 #ifdef CONFIG_AHCI_RTK
 extern void rtk_sata_phy_poweron(struct ata_link *link);
@@ -109,8 +104,16 @@ module_param(syno_ata_pattern_check, int, 0644);
 #endif /* MY_ABC_HERE */
 
 /* debounce timing parameters in msecs { interval, duration, timeout } */
+#ifdef MY_ABC_HERE
+const unsigned long sata_deb_timing_normal[]		= {   5,  100, 6000 };
+#else /* MY_ABC_HERE */
 const unsigned long sata_deb_timing_normal[]		= {   5,  100, 2000 };
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+const unsigned long sata_deb_timing_hotplug[]		= {  25,  500, 6000 };
+#else /* MY_ABC_HERE */
 const unsigned long sata_deb_timing_hotplug[]		= {  25,  500, 2000 };
+#endif /* MY_ABC_HERE */
 const unsigned long sata_deb_timing_long[]		= { 100, 2000, 5000 };
 
 const struct ata_port_operations ata_base_port_ops = {
@@ -500,6 +503,44 @@ int SYNO_CHECK_HDD_DETECT(int index)
 	return ret;
 }
 EXPORT_SYMBOL(SYNO_CHECK_HDD_DETECT);
+
+/* SYNO_CHECK_HDD_ENABLE
+ * Query HDD enable check .
+ * output: 1 - enable, 0 - not enable.
+ */
+int SYNO_CHECK_HDD_ENABLE(int index)
+{
+	int ret;
+#ifdef MY_DEF_HERE
+	if (0 < g_smbus_hdd_powerctl) {
+		if (!SynoSmbusHddPowerCtl.bl_init){
+			syno_smbus_hdd_powerctl_init();
+		}
+		if ( NULL != SynoSmbusHddPowerCtl.syno_smbus_hdd_enable_read) {
+			ret = SynoSmbusHddPowerCtl.syno_smbus_hdd_enable_read(gSynoSmbusHddAdapter, gSynoSmbusHddAddress, index);
+			return ret;
+		}
+		return 0;
+	}
+#endif /* MY_DEF_HERE */
+	if (!HAVE_HDD_ENABLE(index)) { // index is 1-based
+		printk("No such hdd enable pin. Index: %d\n", index);
+		WARN_ON(1);
+		return -EINVAL;
+	}
+	ret = SYNO_GPIO_READ(HDD_ENABLE_PIN(index));
+	/* hdd detect pin is low active so the result must be inverted*/
+#ifdef MY_ABC_HERE
+	if (ACTIVE_LOW == HDD_ENABLE_POLARITY(index)) {
+#else
+	if (ACTIVE_LOW == HDD_ENABLE_POLARITY()) {
+#endif /* MY_ABC_HERE */
+		return !ret;
+	}
+	return ret;
+}
+EXPORT_SYMBOL(SYNO_CHECK_HDD_ENABLE);
+
 /* SYNO_SUPPORT_HDD_DYNAMIC_ENABLE_POWER
  * Query support HDD dynamic Power .
  * output: 1 - support, 0 - not support.
@@ -696,7 +737,12 @@ int atapi_passthru16 = 1;
 module_param(atapi_passthru16, int, 0444);
 MODULE_PARM_DESC(atapi_passthru16, "Enable ATA_16 passthru for ATAPI devices (0=off, 1=on [default])");
 
+#ifdef MY_ABC_HERE
+int libata_fua = 1;
+#else /* MY_ABC_HERE */
 int libata_fua = 0;
+#endif /* MY_ABC_HERE */
+
 module_param_named(fua, libata_fua, int, 0444);
 MODULE_PARM_DESC(fua, "FUA support (0=off [default], 1=on)");
 
@@ -7551,6 +7597,7 @@ static void DelayForHWCtl(struct ata_port *pAp)
 #ifdef MY_ABC_HERE
 	int iIsDoLatency = 0;
 #endif
+	int isExternalPort = 0;
 
 	if (!pAp) {
 		goto END;
@@ -7561,7 +7608,8 @@ static void DelayForHWCtl(struct ata_port *pAp)
 	// TODO: currently there is no esata node in kernel dts, so syno_libata_index_get now return iSynoDiskInx = 0
 	if (0 == iSynoDiskIdx) {
 		// for disk that is not internal disk, there is no need to do delay for poweron.
-		goto END;
+		isExternalPort = 1;
+		DBGMESG("ata port %d is external\n", pAp->print_id);
 	}
 #endif /* MY_ABC_HERE */
 	/* we ignored non-internal disks here, but one bay internal hd num is 0, we must check it,
@@ -7571,7 +7619,8 @@ static void DelayForHWCtl(struct ata_port *pAp)
 #else /* MY_ABC_HERE */
 	if (0 < g_syno_hdd_powerup_seq && g_syno_hdd_powerup_seq < iSynoDiskIdx) {
 #endif /* MY_ABC_HERE */
-		goto END;
+		isExternalPort = 1;
+		DBGMESG("ata port %d is external\n", pAp->print_id);
 	}
 
 #ifdef MY_ABC_HERE
@@ -7590,9 +7639,9 @@ static void DelayForHWCtl(struct ata_port *pAp)
 
 	if (!(pAp->host->flags & ATA_HOST_LLD_SPINUP_DELAY)) {
 #ifdef MY_ABC_HERE
-		SleepForHW(iSynoDiskIdx, iIsDoLatency);
+		SleepForHW(iSynoDiskIdx, iIsDoLatency, isExternalPort);
 #else
-		SleepForHW(iSynoDiskIdx, 0);
+		SleepForHW(iSynoDiskIdx, 0, isExternalPort);
 #endif /* MY_ABC_HERE */
 	}
 
@@ -7628,23 +7677,10 @@ int ata_port_probe(struct ata_port *ap)
 #endif /* ONFIG_SYNO_PMP_HOTPLUG_TASK */
 
 #ifdef MY_ABC_HERE
-#ifdef MY_ABC_HERE
-	/* For using spinup groups, threads must wait in line
-	 * The time to unlock is decided in DelayForHWCtl(ap);
-	 * If n disks in the same group then unlock immediately */
-	if (0 < giSynoSpinupGroupNum) {
-		mutex_lock(&mutex_spin);
-	}
-#endif /* MY_ABC_HERE */
 	/* delay Xs to avoid probe disks in the same time(consume too much power)
 	 * If this async_port_probe(..) function is run asynchronously this code is not work,
 	 * so we must disable async_enabled before call async_port_probe(..) */
 	DelayForHWCtl(ap);
-#ifdef MY_ABC_HERE
-	if (0 < giSynoSpinupGroupNum) {
-		mutex_unlock(&mutex_spin);
-	}
-#endif /* MY_ABC_HERE */
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE

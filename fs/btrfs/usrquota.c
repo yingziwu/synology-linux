@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2014 Synology Inc.  All rights reserved.
  */
@@ -34,6 +37,10 @@ struct btrfs_usrquota {
 
 	// tree of userquota
 	struct rb_node uq_node;
+
+#ifdef MY_ABC_HERE
+	bool need_rescan;
+#endif /* MY_ABC_HERE */
 };
 
 struct btrfs_subvol_list  {
@@ -49,10 +56,7 @@ struct btrfs_subvol_list  {
 		fs_info->usrquota_flags |= BTRFS_USRQUOTA_STATUS_FLAG_INCONSISTENT;\
 	} while (0)\
 
-static int usrquota_rescan_init(struct btrfs_fs_info *fs_info, u64 rootid, u64 objectid);
-static int usrquota_rescan_check(struct btrfs_fs_info *fs_info, u64 rootid, u64 objectid);
-
-static int usrquota_subtree_unload(struct btrfs_fs_info *fs_info, u64 rootid);
+static void usrquota_subtree_unload(struct btrfs_fs_info *fs_info, u64 rootid);
 static int usrquota_subtree_unload_nolock(struct btrfs_fs_info *fs_info, u64 rootid);
 static int usrquota_subtree_load(struct btrfs_fs_info *fs_info, u64 rootid);
 
@@ -235,6 +239,11 @@ static int usrquota_subtree_load(struct btrfs_fs_info *fs_info, u64 rootid)
 	struct rb_node *node;
 
 	spin_lock(&fs_info->usrquota_lock);
+	if (!fs_info->usrquota_root) {
+		spin_unlock(&fs_info->usrquota_lock);
+		return -EINVAL;
+	}
+
 	node = find_usrquota_first_rb(fs_info, rootid);
 	if (node) {
 		usrquota = rb_entry(node, struct btrfs_usrquota, uq_node);
@@ -277,13 +286,18 @@ static int usrquota_subtree_load(struct btrfs_fs_info *fs_info, u64 rootid)
 			goto next_item;
 
 		spin_lock(&fs_info->usrquota_lock);
+		if (!fs_info->usrquota_root) {
+			spin_unlock(&fs_info->usrquota_lock);
+			ret = -EINVAL;
+			goto out;
+		}
+
 		usrquota = add_usrquota_rb_nocheck(fs_info, found_key.objectid, (uid_t)found_key.offset);
 		if (IS_ERR(usrquota)) {
 			spin_unlock(&fs_info->usrquota_lock);
 			ret = PTR_ERR(usrquota);
 			goto out;
 		}
-		spin_unlock(&fs_info->usrquota_lock);
 
 		switch (found_key.type) {
 		case BTRFS_USRQUOTA_INFO_KEY:
@@ -299,6 +313,7 @@ static int usrquota_subtree_load(struct btrfs_fs_info *fs_info, u64 rootid)
 			usrquota->uq_rfer_hard = btrfs_usrquota_limit_rfer_hard(leaf, limit_item);
 			break;
 		}
+		spin_unlock(&fs_info->usrquota_lock);
 next_item:
 		ret = btrfs_next_item(usrquota_root, path);
 		if (ret < 0) {
@@ -371,12 +386,12 @@ out:
 	return 0;
 }
 
-static int usrquota_subtree_unload(struct btrfs_fs_info *fs_info, u64 rootid)
+static void usrquota_subtree_unload(struct btrfs_fs_info *fs_info, u64 rootid)
 {
 	spin_lock(&fs_info->usrquota_lock);
-	usrquota_subtree_unload_nolock(fs_info, rootid);
+	if (fs_info->usrquota_root)
+		usrquota_subtree_unload_nolock(fs_info, rootid);
 	spin_unlock(&fs_info->usrquota_lock);
-	return 0;
 }
 
 static int usrquota_subtree_load_one(struct btrfs_fs_info *fs_info, struct btrfs_path *path, struct list_head *subvol_queue, u64 subvol_id)
@@ -506,6 +521,9 @@ int btrfs_read_usrquota_compat_config(struct btrfs_fs_info *fs_info)
 	struct btrfs_usrquota_compat_item *compat_item;
 	int slot;
 
+        if (!fs_info->syno_usrquota_v1_enabled)
+		return 0;
+
 	path = btrfs_alloc_path();
 	if (!path) {
 		ret = -ENOMEM;
@@ -554,11 +572,20 @@ int btrfs_read_usrquota_config(struct btrfs_fs_info *fs_info)
 	struct btrfs_usrquota_status_item *status_item;
 	int slot;
 	int ret = 0;
-	u64 rescan_rootid = 0;
-	u64 rescan_objectid = 0;
 
-	if (!fs_info->usrquota_enabled)
+	if (!fs_info->syno_usrquota_v1_enabled && !fs_info->syno_usrquota_v2_enabled)
 		return 0;
+
+#ifdef MY_ABC_HERE
+	// Enable user quota only if we have enabled qgroup.
+	if (!fs_info->syno_quota_v1_enabled &&
+			!fs_info->syno_quota_v2_enabled) {
+		fs_info->syno_usrquota_v1_enabled = false;
+		fs_info->syno_usrquota_v2_enabled = false;
+		fs_info->pending_usrquota_state = 0;
+		return 0;
+	}
+#endif /* MY_ABC_HERE */
 
 	path = btrfs_alloc_path();
 	if (!path) {
@@ -566,29 +593,33 @@ int btrfs_read_usrquota_config(struct btrfs_fs_info *fs_info)
 		goto out;
 	}
 
+	/* default this to quota off, in case no status key is found */
 	fs_info->usrquota_flags = 0;
 
 	key.objectid = 0;
 	key.type = BTRFS_USRQUOTA_STATUS_KEY;
 	key.offset = 0;
 	ret = btrfs_search_slot_for_read(usrquota_root, &key, path, 1, 0);
-	if (ret)
+	if (ret) {
+		// Disable user quota but don't fail the mount process.
+		ret = 0;
 		goto out;
+	}
 
 	slot = path->slots[0];
 	leaf = path->nodes[0];
 	btrfs_item_key_to_cpu(leaf, &found_key, slot);
 
-	if (found_key.type != BTRFS_USRQUOTA_STATUS_KEY) {
-		ret = -ENOENT;
+	if (found_key.type != BTRFS_USRQUOTA_STATUS_KEY)
 		goto out;
-	}
 
 	status_item = btrfs_item_ptr(leaf, slot,
 			     struct btrfs_usrquota_status_item);
 
-	if (btrfs_usrquota_status_version(leaf, status_item) !=
-	    BTRFS_USRQUOTA_STATUS_VERSION) {
+	if ((fs_info->syno_usrquota_v1_enabled &&
+			btrfs_usrquota_status_version(leaf, status_item) != BTRFS_USRQUOTA_STATUS_VERSION) ||
+		(fs_info->syno_usrquota_v2_enabled &&
+			btrfs_usrquota_status_version(leaf, status_item) != BTRFS_USRQUOTA_V2_STATUS_VERSION)){
 		btrfs_err(fs_info, "old usrquota version, usrquota disabled");
 		goto out;
 	}
@@ -596,8 +627,6 @@ int btrfs_read_usrquota_config(struct btrfs_fs_info *fs_info)
 		set_inconsistent(fs_info);
 
 	fs_info->usrquota_flags |= btrfs_usrquota_status_flags(leaf, status_item);
-	rescan_rootid = btrfs_usrquota_status_rescan_rootid(leaf, status_item);
-	rescan_objectid = btrfs_usrquota_status_rescan_objectid(leaf, status_item);
 	btrfs_release_path(path);
 
 	ret = btrfs_read_usrquota_compat_config(fs_info);
@@ -606,24 +635,52 @@ int btrfs_read_usrquota_config(struct btrfs_fs_info *fs_info)
 
 	ret = usrquota_subtree_load_all(fs_info);
 out:
-	if (ret) {
-		btrfs_err(fs_info, "usrquota disabled due to faield to load tree\n");
+	if (ret)
 		fs_info->usrquota_flags &= ~BTRFS_USRQUOTA_STATUS_FLAG_ON;
-	}
 
 	if (!(fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_ON)) {
-		fs_info->usrquota_enabled = 0;
+		fs_info->syno_usrquota_v1_enabled = false;
+		fs_info->syno_usrquota_v2_enabled = false;
 		fs_info->pending_usrquota_state = 0;
-	} else if (fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_RESCAN && !ret) {
-		ret = usrquota_rescan_init(fs_info, rescan_rootid, rescan_objectid);
+		btrfs_err(fs_info, "usrquota disabled due to faield to load tree\n");
 	}
 
-	if (ret) {
-		fs_info->usrquota_flags &= ~BTRFS_USRQUOTA_STATUS_FLAG_RESCAN;
-	}
 	btrfs_free_path(path);
 	return ret;
 }
+
+#ifdef MY_ABC_HERE
+/*
+ * Called in close_ctree() when user quota is still enabled.  This verifies we don't
+ * leak some reserved space.
+ *
+ * Return false if no reserved space is left.
+ * Return true if some reserved space is leaked.
+ */
+bool btrfs_check_usrquota_leak(struct btrfs_fs_info *fs_info)
+{
+	struct rb_node *node;
+	struct btrfs_usrquota *usrquota;
+	bool ret = false;
+
+	if (!fs_info->syno_usrquota_v2_enabled)
+		return ret;
+	/*
+	 * Since we're unmounting, there is no race and no need to grab usrquota
+	 * lock.  And here we don't go post-order to provide a more user
+	 * friendly sorted result.
+	 */
+	for (node = rb_first(&fs_info->usrquota_tree); node; node = rb_next(node)) {
+		usrquota = rb_entry(node, struct btrfs_usrquota, uq_node);
+		if (usrquota->uq_reserved) {
+			ret = true;
+			btrfs_warn(fs_info, "user quota %llu:%u has unreleased space = %llu",
+				usrquota->uq_objectid, usrquota->uq_uid, usrquota->uq_reserved);
+		}
+	}
+	return ret;
+}
+#endif /* MY_ABC_HERE */
 
 void btrfs_free_usrquota_config(struct btrfs_fs_info *fs_info)
 {
@@ -843,8 +900,6 @@ static int update_usrquota_status_item(struct btrfs_trans_handle *trans,
 	ptr = btrfs_item_ptr(leaf, slot, struct btrfs_usrquota_status_item);
 	btrfs_set_usrquota_status_flags(leaf, ptr, fs_info->usrquota_flags);
 	btrfs_set_usrquota_status_generation(leaf, ptr, trans->transid);
-	btrfs_set_usrquota_status_rescan_rootid(leaf, ptr, fs_info->usrquota_rescan_rootid);
-	btrfs_set_usrquota_status_rescan_objectid(leaf, ptr, fs_info->usrquota_rescan_objectid);
 	btrfs_mark_buffer_dirty(leaf);
 
 out:
@@ -973,7 +1028,7 @@ int btrfs_usrquota_dumptree(struct btrfs_fs_info *fs_info)
 	struct rb_node *node;
 	struct btrfs_usrquota *usrquota;
 
-	if (!fs_info->usrquota_enabled)
+	if (!fs_info->syno_usrquota_v1_enabled)
 		return 0;
 
 	spin_lock(&fs_info->usrquota_lock);
@@ -992,8 +1047,13 @@ int btrfs_usrquota_dumptree(struct btrfs_fs_info *fs_info)
 	return ret;
 }
 
+#ifdef MY_ABC_HERE
+int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
+                          struct btrfs_fs_info *fs_info, u64 cmd)
+#else
 int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
                           struct btrfs_fs_info *fs_info)
+#endif /* MY_ABC_HERE */
 {
 	struct btrfs_root *usrquota_root;
 	struct btrfs_path *path = NULL;
@@ -1002,11 +1062,27 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 	struct btrfs_key key;
 	int ret = 0;
 
-	mutex_lock(&fs_info->usrquota_ioctl_lock);
-	if (fs_info->usrquota_root) {
-		fs_info->pending_usrquota_state = 1;
-		goto out;
+#ifdef MY_ABC_HERE
+	// Default using v2 quota.
+	if (cmd == BTRFS_USRQUOTA_CTL_ENABLE)
+		cmd = BTRFS_USRQUOTA_V2_CTL_ENABLE;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	/*
+	 * Protected by fs_info->subvol_sem, so qgroup will not do disable
+	 * before we finish user quota enable.
+	 */
+	if (!fs_info->syno_quota_v1_enabled && !fs_info->syno_quota_v2_enabled) {
+		btrfs_warn(fs_info,
+			"Should enable qgroup before enable user quota.");
+		return -EINVAL;
 	}
+#endif /* MY_ABC_HERE */
+
+	mutex_lock(&fs_info->usrquota_ioctl_lock);
+	if (fs_info->usrquota_root)
+		goto out;
 
 	path = btrfs_alloc_path();
 	if (!path) {
@@ -1015,6 +1091,12 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 	}
 
 	mutex_lock(&fs_info->usrquota_tree_lock);
+#ifdef MY_ABC_HERE
+	if (cmd == BTRFS_USRQUOTA_V2_CTL_ENABLE)
+		usrquota_root = btrfs_create_tree(trans, fs_info,
+	                                  BTRFS_SYNO_USRQUOTA_V2_TREE_OBJECTID);
+	else
+#endif /* MY_ABC_HERE */
 	usrquota_root = btrfs_create_tree(trans, fs_info,
 	                                  BTRFS_USRQUOTA_TREE_OBJECTID);
 	if (IS_ERR(usrquota_root)) {
@@ -1036,6 +1118,11 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 	ptr = btrfs_item_ptr(leaf, path->slots[0],
 	                     struct btrfs_usrquota_status_item);
 	btrfs_set_usrquota_status_generation(leaf, ptr, trans->transid);
+#ifdef MY_ABC_HERE
+	if (cmd == BTRFS_USRQUOTA_V2_CTL_ENABLE)
+		btrfs_set_usrquota_status_version(leaf, ptr, BTRFS_USRQUOTA_V2_STATUS_VERSION);
+	else
+#endif /* MY_ABC_HERE */
 	btrfs_set_usrquota_status_version(leaf, ptr, BTRFS_USRQUOTA_STATUS_VERSION);
 	fs_info->usrquota_flags = BTRFS_USRQUOTA_STATUS_FLAG_ON;
 	btrfs_set_usrquota_status_flags(leaf, ptr, fs_info->usrquota_flags);
@@ -1044,12 +1131,19 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 	btrfs_mark_buffer_dirty(leaf);
 	btrfs_release_path(path);
 
-	fs_info->usrquota_compat_flags = BTRFS_USRQUOTA_COMPAT_FLAG;
-	ret = insert_usrquota_compat_item(trans, fs_info, usrquota_root);
-	if (ret) {
-		fs_info->usrquota_compat_flags = 0;
-		mutex_unlock(&fs_info->usrquota_tree_lock);
-		goto out_free_root;
+#ifdef MY_ABC_HERE
+	if (cmd == BTRFS_USRQUOTA_V1_CTL_ENABLE)
+#else
+	if (1)
+#endif /* MY_ABC_HERE */
+	{
+		fs_info->usrquota_compat_flags = BTRFS_USRQUOTA_COMPAT_FLAG;
+		ret = insert_usrquota_compat_item(trans, fs_info, usrquota_root);
+		if (ret) {
+			fs_info->usrquota_compat_flags = 0;
+			mutex_unlock(&fs_info->usrquota_tree_lock);
+			goto out_free_root;
+		}
 	}
 	mutex_unlock(&fs_info->usrquota_tree_lock);
 
@@ -1064,7 +1158,12 @@ int btrfs_usrquota_enable(struct btrfs_trans_handle *trans,
 	}
 
 	spin_lock(&fs_info->usrquota_lock);
-	fs_info->pending_usrquota_state = 1;
+#ifdef MY_ABC_HERE
+	if (cmd == BTRFS_USRQUOTA_V2_CTL_ENABLE)
+		fs_info->pending_usrquota_state = PENDING_QUOTA_STATE_V2;
+	else
+#endif /* MY_ABC_HERE */
+	fs_info->pending_usrquota_state = PENDING_QUOTA_STATE_V1;
 	spin_unlock(&fs_info->usrquota_lock);
 
 out_free_root:
@@ -1093,7 +1192,8 @@ int btrfs_usrquota_disable(struct btrfs_trans_handle *trans,
 	if (!fs_info->usrquota_root)
 		goto out;
 	spin_lock(&fs_info->usrquota_lock);
-	fs_info->usrquota_enabled = 0;
+	fs_info->syno_usrquota_v1_enabled = false;
+	fs_info->syno_usrquota_v2_enabled = false;
 	fs_info->pending_usrquota_state = 0;
 	usrquota_root = fs_info->usrquota_root;
 	fs_info->usrquota_root = NULL;
@@ -1125,6 +1225,133 @@ out:
 	return ret;
 }
 
+#ifdef MY_ABC_HERE
+int btrfs_usrquota_unload(struct btrfs_fs_info *fs_info)
+{
+	struct btrfs_trans_handle *trans;
+	struct btrfs_root *usrquota_root;
+
+	mutex_lock(&fs_info->usrquota_ioctl_lock);
+	if (!fs_info->usrquota_root) {
+		mutex_unlock(&fs_info->usrquota_ioctl_lock);
+		return 0;
+	}
+	spin_lock(&fs_info->usrquota_lock);
+	fs_info->syno_usrquota_v1_enabled = false;
+	fs_info->syno_usrquota_v2_enabled = false;
+	fs_info->pending_usrquota_state = 0;
+	usrquota_root = fs_info->usrquota_root;
+	fs_info->usrquota_root = NULL;
+	btrfs_free_usrquota_config(fs_info);
+	spin_unlock(&fs_info->usrquota_lock);
+	mutex_unlock(&fs_info->usrquota_ioctl_lock);
+
+	trans = btrfs_join_transaction(fs_info->tree_root);
+	if (IS_ERR(trans))
+		return PTR_ERR(trans);
+	btrfs_commit_transaction(trans, fs_info->tree_root);
+
+	list_del(&usrquota_root->dirty_list);
+	free_extent_buffer(usrquota_root->node);
+	free_extent_buffer(usrquota_root->commit_root);
+	kfree(usrquota_root);
+	return 0;
+}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+int btrfs_usrquota_remove_v1(struct btrfs_fs_info *fs_info)
+{
+	struct btrfs_root *tree_root = fs_info->tree_root;
+	struct btrfs_root *root;
+	struct btrfs_trans_handle *trans = NULL;
+	struct btrfs_path *path = NULL;
+	struct btrfs_key location;
+	int ret = 0;
+	int nr;
+
+	// Ensure usrquota v1 tree is not in use.
+	if (fs_info->syno_usrquota_v1_enabled ||
+			(fs_info->usrquota_root &&
+			fs_info->usrquota_root->root_key.objectid == BTRFS_USRQUOTA_TREE_OBJECTID))
+		return -EBUSY;
+
+	path = btrfs_alloc_path();
+	if (!path)
+		return -ENOMEM;
+
+	// Read old user quota root.
+	location.objectid = BTRFS_USRQUOTA_TREE_OBJECTID;
+	location.type = BTRFS_ROOT_ITEM_KEY;
+	location.offset = 0;
+
+	root = btrfs_read_tree_root(tree_root, &location);
+	if (IS_ERR(root)) {
+		ret = PTR_ERR(root);
+		goto out;
+	}
+	set_bit(BTRFS_ROOT_TRACK_DIRTY, &root->state);
+
+	location.objectid = 0;
+	location.offset = 0;
+	location.type = 0;
+
+	while (1) {
+		trans = btrfs_start_transaction(tree_root, 1);
+		if (IS_ERR(trans)) {
+			ret = PTR_ERR(trans);
+			trans = NULL;
+			goto free_root;
+		}
+
+		ret = btrfs_search_slot(trans, root, &location, path, -1, 1);
+		if (ret < 0)
+			goto free_root;
+		nr = btrfs_header_nritems(path->nodes[0]);
+		if (!nr)
+			break;
+		path->slots[0] = 0;
+		ret = btrfs_del_items(trans, root, path, 0, nr);
+		if (ret)
+			goto free_root;
+
+		btrfs_release_path(path);
+		btrfs_end_transaction_throttle(trans, tree_root);
+		trans = NULL;
+		cond_resched();
+	}
+	btrfs_release_path(path);
+
+	// Remove root item from root tree.
+	ret = btrfs_del_root(trans, tree_root, &root->root_key);
+
+free_root:
+	btrfs_release_path(path);
+	list_del(&root->dirty_list);
+	btrfs_tree_lock(root->node);
+	clean_tree_block(trans, fs_info, root->node);
+	btrfs_tree_unlock(root->node);
+	btrfs_free_tree_block(trans, root, root->node, 0, 1);
+
+	free_extent_buffer(root->node);
+	free_extent_buffer(root->commit_root);
+#ifdef MY_ABC_HERE
+	btrfs_free_root_eb_monitor(root);
+#endif /* MY_ABC_HERE */
+	kfree(root);
+
+	if (trans) {
+		if (!ret)
+			ret = btrfs_commit_transaction(trans, tree_root);
+		else
+			btrfs_end_transaction(trans, root);
+	}
+out:
+	btrfs_free_path(path);
+	return ret;
+}
+#endif /* MY_ABC_HERE */
+
 /*
  * This function should protected by usrquota_lock
  */
@@ -1141,10 +1368,18 @@ int btrfs_usrquota_limit(struct btrfs_trans_handle *trans,
 {
 	struct btrfs_usrquota *usrquota;
 	int ret = 0;
+#ifdef MY_ABC_HERE
+	struct btrfs_root *root = trans->root;
+	bool need_check = false;
+#endif /* MY_ABC_HERE */
 
 	mutex_lock(&fs_info->usrquota_ioctl_lock);
 	if (!fs_info->usrquota_root) {
+#ifdef MY_ABC_HERE
+		ret = -ESRCH;
+#else
 		ret = -EINVAL;
+#endif /* MY_ABC_HERE */
 		goto out;
 	}
 
@@ -1155,6 +1390,14 @@ int btrfs_usrquota_limit(struct btrfs_trans_handle *trans,
 		ret = PTR_ERR(usrquota);
 		goto out;
 	}
+#ifdef MY_ABC_HERE
+	if ((rfer_soft || rfer_hard) && !btrfs_root_has_usrquota_limit(root))
+		btrfs_root_set_has_usrquota_limit(root, true);
+	// When update limit to zero, we should re-check quota limit.
+	else if (!rfer_soft && !rfer_hard &&
+	    (usrquota->uq_rfer_soft || usrquota->uq_rfer_hard))
+		need_check = true;
+#endif /* MY_ABC_HERE */
 	usrquota->uq_rfer_soft = rfer_soft;
 	usrquota->uq_rfer_hard = rfer_hard;
 	spin_unlock(&fs_info->usrquota_lock);
@@ -1165,6 +1408,11 @@ int btrfs_usrquota_limit(struct btrfs_trans_handle *trans,
 		btrfs_err(fs_info, "failed to update limit item");
 		goto out;
 	}
+
+#ifdef MY_ABC_HERE
+	if (need_check)
+		btrfs_check_usrquota_limit(root);
+#endif /* MY_ABC_HERE */
 out:
 	mutex_unlock(&fs_info->usrquota_ioctl_lock);
 	return ret;
@@ -1175,13 +1423,21 @@ int btrfs_usrquota_clean(struct btrfs_trans_handle *trans,
 {
 	struct btrfs_usrquota *usrquota;
 	int ret = 0;
+	kuid_t tmp_uid;
+	u64 kernel_uid;
 	u64 objectid = 0;
 
-	if (!fs_info->usrquota_enabled)
-		return 0;
+	tmp_uid = make_kuid(current_user_ns(), (uid_t)uid);
+	if (!uid_valid(tmp_uid))
+		return -EINVAL;
+	kernel_uid = __kuid_val(tmp_uid);
+
+	if (!fs_info->syno_usrquota_v1_enabled && !fs_info->syno_usrquota_v2_enabled)
+		return -ESRCH;
+
 	mutex_lock(&fs_info->usrquota_ioctl_lock);
 	if (!fs_info->usrquota_root) {
-		ret = -EINVAL;
+		ret = -ESRCH;
 		goto out;
 	}
 	while (1) {
@@ -1211,6 +1467,371 @@ out:
 	return ret;
 }
 
+static void usrquota_free_reserve(struct btrfs_fs_info *fs_info,
+			struct btrfs_usrquota *usrquota,
+			struct btrfs_inode *b_inode, u64 num_bytes)
+{
+#ifdef USRQUOTA_DEBUG
+	printk(KERN_INFO "usrquota_free_reserve debug: root = %llu, ino = %lu, uid = %llu, "
+		"reserved = %llu, to_free = %llu", usrquota->uq_objectid,
+		b_inode->vfs_inode.i_ino, usrquota->uq_uid, usrquota->uq_reserved, num_bytes);
+#endif /* USRQUOTA_DEBUG */
+
+	if (usrquota->uq_reserved >= num_bytes)
+		usrquota->uq_reserved -= num_bytes;
+	else {
+#ifdef MY_ABC_HERE
+		if (fs_info->syno_usrquota_v2_enabled)
+			WARN_ONCE(1, "user quota root %llu uid %u reserved space underflow, "
+				"have %llu to free %llu",
+				usrquota->uq_objectid, usrquota->uq_uid,
+				usrquota->uq_reserved, num_bytes);
+#endif /* MY_ABC_HERE */
+		usrquota->uq_reserved = 0;
+	}
+
+#ifdef MY_ABC_HERE
+	if (!fs_info->syno_usrquota_v2_enabled)
+		return;
+
+	if (b_inode->uq_reserved >= num_bytes)
+		b_inode->uq_reserved -= num_bytes;
+	else {
+		WARN_ONCE(1, "user quota root %llu inode %llu reserved space underflow, "
+			"have %llu to free %llu",
+			usrquota->uq_objectid, b_inode->location.objectid,
+			b_inode->uq_reserved, num_bytes);
+		b_inode->uq_reserved = 0;
+	}
+#endif /* MY_ABC_HERE */
+}
+
+#ifdef MY_ABC_HERE
+/*
+ * Use after inode_add_bytes() / inode_sub_bytes(), so we are always in a transaction
+ * and our accounting will be committed in btrfs_run_usrquota().
+ */
+int btrfs_usrquota_syno_accounting(struct btrfs_inode *b_inode,
+		u64 add_bytes, u64 del_bytes, enum syno_quota_account_type type)
+{
+	struct btrfs_usrquota *usrquota;
+	struct btrfs_root *root = b_inode->root;
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	struct inode *inode = &b_inode->vfs_inode;
+	u64 uid;
+	u64 ref_root = root->root_key.objectid;
+	u64 ino = b_inode->location.objectid;
+	int ret = 0;
+
+	if (!is_fstree(ref_root))
+		return -EINVAL;
+
+	if (add_bytes == del_bytes && type != UPDATE_QUOTA_FREE_RESERVED)
+		return 0;
+
+	if (!fs_info->syno_usrquota_v2_enabled)
+		return 0;
+
+	usrquota_ro_subvol_check(fs_info, root);
+	spin_lock(&fs_info->usrquota_lock);
+
+	if (!fs_info->usrquota_root)
+		goto out;
+
+	// Get uid after usrquota_lock, so that uid won't changed by btrfs_usrquota_v2_transfer().
+	uid = __kuid_val(inode->i_uid);
+	usrquota = add_usrquota_rb(fs_info, ref_root, uid);
+	if (IS_ERR(usrquota)) {
+		ret = PTR_ERR(usrquota);
+		goto out;
+	}
+
+	add_bytes = round_up(add_bytes, fs_info->sectorsize);
+	del_bytes = round_up(del_bytes, fs_info->sectorsize);
+
+#ifdef USRQUOTA_DEBUG
+	printk(KERN_INFO "btrfs_usrquota_syno_accounting debug: root = %llu, ino = %lu, "
+		"uid = %llu, used = %llu, type = %d, add_bytes = %llu, del_bytes = %llu", ref_root, inode->i_ino,
+		uid, usrquota->uq_rfer_used, type, add_bytes, del_bytes);
+#endif /* USRQUOTA_DEBUG */
+
+	switch (type) {
+	case ADD_QUOTA_RESCAN:
+		usrquota->uq_rfer_used += add_bytes;
+			break;
+	case UPDATE_QUOTA_FREE_RESERVED:
+		usrquota_free_reserve(fs_info, usrquota, b_inode, add_bytes);
+		/* fall through */
+	case UPDATE_QUOTA:
+		if (btrfs_quota_rescan_check(root, ino)) {
+			usrquota->uq_rfer_used += add_bytes;
+
+			if (usrquota->uq_rfer_used < del_bytes) {
+				if (!root->invalid_quota)
+					WARN_ONCE(1, "user quota %llu:%llu ref underflow, "
+						"have %llu to free %llu", ref_root, uid,
+						usrquota->uq_rfer_used, del_bytes);
+				usrquota->uq_rfer_used = 0;
+				usrquota->need_rescan = true;
+			} else
+				usrquota->uq_rfer_used -= del_bytes;
+		}
+		break;
+	}
+
+	usrquota_dirty(fs_info, usrquota);
+
+out:
+	spin_unlock(&fs_info->usrquota_lock);
+	return ret;
+}
+
+/*
+ * Similar to btrfs_usrquota_syno_accounting(), but used only in rescan, where
+ * we don't have in-memory inode.
+ */
+int btrfs_usrquota_syno_accounting_rescan(struct btrfs_root *root, u64 uid, u64 num_bytes)
+{
+	struct btrfs_usrquota *usrquota;
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	u64 subvol_id = root->root_key.objectid;
+	int ret = 0;
+
+	if (num_bytes == 0)
+		return 0;
+
+	if (!fs_info->syno_usrquota_v2_enabled)
+		return 0;
+
+	usrquota_ro_subvol_check(fs_info, root);
+	spin_lock(&fs_info->usrquota_lock);
+
+	if (!fs_info->usrquota_root)
+		goto out;
+
+	num_bytes = round_up(num_bytes, fs_info->sectorsize);
+	usrquota = add_usrquota_rb(fs_info, subvol_id, uid);
+	if (IS_ERR(usrquota)) {
+		ret = PTR_ERR(usrquota);
+		goto out;
+	}
+
+	usrquota->uq_rfer_used += num_bytes;
+	usrquota_dirty(fs_info, usrquota);
+
+out:
+	spin_unlock(&fs_info->usrquota_lock);
+	return ret;
+}
+
+int btrfs_reset_usrquota_status(struct btrfs_trans_handle *trans, struct btrfs_fs_info *fs_info)
+{
+	struct btrfs_root *usrquota_root = fs_info->usrquota_root;
+	struct btrfs_path *path = NULL;
+	struct btrfs_usrquota_status_item *ptr;
+	struct extent_buffer *leaf;
+	struct btrfs_key key;
+	int ret;
+
+	mutex_lock(&fs_info->usrquota_ioctl_lock);
+	if (!fs_info->usrquota_root) {
+		ret = -ENOENT;
+		goto out;
+	}
+
+	path = btrfs_alloc_path();
+	if (!path) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	key.objectid = 0;
+	key.type = BTRFS_USRQUOTA_STATUS_KEY;
+	key.offset = 0;
+
+	ret = btrfs_search_slot(trans, usrquota_root, &key, path, 0, 1);
+	if (ret)
+		goto out;
+
+	leaf = path->nodes[0];
+	ptr = btrfs_item_ptr(leaf, path->slots[0],
+				 struct btrfs_usrquota_status_item);
+	fs_info->usrquota_flags &= ~BTRFS_USRQUOTA_STATUS_FLAG_INCONSISTENT;
+	btrfs_set_usrquota_status_flags(leaf, ptr, fs_info->usrquota_flags);
+	btrfs_set_usrquota_status_generation(leaf, ptr, trans->transid);
+	btrfs_set_usrquota_status_version(leaf, ptr, BTRFS_USRQUOTA_V2_STATUS_VERSION);
+	btrfs_mark_buffer_dirty(leaf);
+
+out:
+	btrfs_free_path(path);
+	mutex_unlock(&fs_info->usrquota_ioctl_lock);
+	return ret;
+}
+
+int btrfs_syno_usrquota_transfer_limit(struct btrfs_root *root)
+{
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	struct btrfs_root *old_root = NULL;
+	struct btrfs_key key;
+	struct btrfs_key found_key;
+	struct btrfs_path *path = NULL;
+	struct extent_buffer *leaf;
+	struct btrfs_usrquota_limit_item *ptr;
+	struct btrfs_usrquota *usrquota;
+	u64 subvol_id = 0;
+	int ret = 0;
+	int slot;
+
+	mutex_lock(&fs_info->usrquota_ioctl_lock);
+	if (!fs_info->usrquota_root) {
+		ret = -ESRCH;
+		goto out;
+	}
+
+	if (!fs_info->syno_quota_v2_enabled) {
+		ret = -ESRCH;
+		goto out;
+	}
+
+	path = btrfs_alloc_path();
+	if (!path) {
+		ret = -ENOMEM;
+		goto out;
+	}
+	path->reada = READA_FORWARD_ALWAYS;
+
+	key.objectid = BTRFS_USRQUOTA_TREE_OBJECTID;
+	key.type = BTRFS_ROOT_ITEM_KEY;
+	key.offset = 0;
+	old_root = btrfs_read_tree_root(fs_info->tree_root, &key);
+	if (IS_ERR(old_root)) {
+		ret = PTR_ERR(old_root);
+		old_root = NULL;
+		goto out;
+	}
+
+	key.objectid = 0;
+	key.type = BTRFS_USRQUOTA_LIMIT_KEY;
+	key.offset = 0;
+again:
+	ret = btrfs_search_slot_for_read(old_root, &key, path, 1, 0);
+	if (ret)
+		goto out;
+
+	while (1) {
+		slot = path->slots[0];
+		leaf = path->nodes[0];
+		btrfs_item_key_to_cpu(leaf, &found_key, slot);
+
+		// We may have many info items before us, jump to the limit item.
+		if (found_key.type < BTRFS_USRQUOTA_LIMIT_KEY) {
+			btrfs_release_path(path);
+			key.objectid = found_key.objectid;
+			key.type = BTRFS_USRQUOTA_LIMIT_KEY;
+			key.offset = 0;
+			goto again;
+		}
+
+		// BTRFS_USRQUOTA_COMPAT_KEY?
+		if (found_key.type > BTRFS_USRQUOTA_LIMIT_KEY) {
+			btrfs_release_path(path);
+			key.objectid = found_key.objectid + 1;
+			key.type = BTRFS_USRQUOTA_LIMIT_KEY;
+			key.offset = 0;
+			goto again;
+		}
+
+		ptr = btrfs_item_ptr(leaf, slot,
+				     struct btrfs_usrquota_limit_item);
+		if (subvol_id != found_key.objectid) {
+			if (subvol_id)
+				usrquota_subtree_unload(fs_info, subvol_id);
+			subvol_id = found_key.objectid;
+			ret = usrquota_subtree_load(fs_info, subvol_id);
+			if (ret) {
+				btrfs_release_path(path);
+				key.objectid = subvol_id + 1;
+				key.type = BTRFS_USRQUOTA_LIMIT_KEY;
+				key.offset = 0;
+				subvol_id = 0;
+				goto again;
+			}
+		}
+
+		spin_lock(&fs_info->usrquota_lock);
+		usrquota = add_usrquota_rb(fs_info,
+				found_key.objectid, found_key.offset);
+		if (!IS_ERR(usrquota) && usrquota->uq_rfer_soft == 0
+				&& usrquota->uq_rfer_hard == 0) {
+			usrquota->uq_rfer_soft = btrfs_usrquota_limit_rfer_soft(leaf, ptr);
+			usrquota->uq_rfer_hard = btrfs_usrquota_limit_rfer_hard(leaf, ptr);
+			usrquota_dirty(fs_info, usrquota);
+		}
+		spin_unlock(&fs_info->usrquota_lock);
+
+		ret = btrfs_next_item(old_root, path);
+		if (ret)
+			break;
+	}
+
+out:
+	if (subvol_id)
+		usrquota_subtree_unload(fs_info, subvol_id);
+	btrfs_free_path(path);
+	if (old_root) {
+		free_extent_buffer(old_root->node);
+		free_extent_buffer(old_root->commit_root);
+#ifdef MY_ABC_HERE
+		btrfs_free_root_eb_monitor(old_root);
+#endif /* MY_ABC_HERE */
+		kfree(old_root);
+	}
+	mutex_unlock(&fs_info->usrquota_ioctl_lock);
+
+	if (ret > 0)
+		ret = 0;
+	return ret;
+}
+
+void btrfs_usrquota_zero_tracking(struct btrfs_fs_info *fs_info, u64 subvol_id)
+{
+	struct btrfs_usrquota *usrquota;
+	struct rb_node *node;
+	int ret;
+
+	if (!fs_info->syno_usrquota_v2_enabled)
+		return;
+
+	/*
+	 * We may have no user quota record in volume migration case.
+	 * No need to print error.
+	 */
+	ret = usrquota_subtree_load(fs_info, subvol_id);
+	if (ret)
+		return;
+
+	spin_lock(&fs_info->usrquota_lock);
+	if (!fs_info->usrquota_root) {
+		spin_unlock(&fs_info->usrquota_lock);
+		return;
+	}
+
+	node = find_usrquota_first_rb(fs_info, subvol_id);
+	while (node) {
+		usrquota = rb_entry(node, struct btrfs_usrquota, uq_node);
+		node = rb_next(node);
+		if (usrquota->uq_objectid > subvol_id)
+			break;
+		usrquota->uq_rfer_used = 0;
+		usrquota->uq_generation = 0;
+		usrquota_dirty(fs_info, usrquota);
+	}
+	spin_unlock(&fs_info->usrquota_lock);
+
+	usrquota_subtree_unload(fs_info, subvol_id);
+}
+#endif /* MY_ABC_HERE */
+
 /*
  * btrfs_usrquota_account_ref is called for every ref that is added to or deleted
  * from the fs.
@@ -1231,10 +1852,10 @@ int btrfs_usrquota_account_ref(struct btrfs_trans_handle *trans,
 	struct btrfs_inode *binode = NULL;
 	struct btrfs_block_rsv *rsv = NULL;
 
-	if (!fs_info->usrquota_enabled)
+	if (!fs_info->syno_usrquota_v1_enabled)
 		return 0;
 
-	BUG_ON(!fs_info->usrquota_root);
+	WARN_ON_ONCE(!fs_info->usrquota_root);
 
 	rootid= oper->ref_root;
 	if (!is_fstree(rootid)) {
@@ -1250,10 +1871,6 @@ int btrfs_usrquota_account_ref(struct btrfs_trans_handle *trans,
 		sgn = 1;
 	else
 		sgn = -1;
-
-	if (usrquota_rescan_check(fs_info, rootid, objectid)) {
-		return 0;
-	}
 
 	key.objectid = rootid;
 	key.type = BTRFS_ROOT_ITEM_KEY;
@@ -1345,34 +1962,64 @@ int btrfs_run_usrquota(struct btrfs_trans_handle *trans,
 
 	if (!usrquota_root)
 		goto out;
-	fs_info->usrquota_enabled = fs_info->pending_usrquota_state;
+
+	if (fs_info->pending_usrquota_state == PENDING_QUOTA_STATE_V2)
+		fs_info->syno_usrquota_v2_enabled = true;
+	else
+		fs_info->syno_usrquota_v2_enabled = false;
+
+	if (fs_info->pending_usrquota_state == PENDING_QUOTA_STATE_V1)
+		fs_info->syno_usrquota_v1_enabled = true;
+	else
+		fs_info->syno_usrquota_v1_enabled = false;
 
 	spin_lock(&fs_info->usrquota_lock);
 	while (!list_empty(&fs_info->usrquota_dirty)) {
+		struct btrfs_usrquota tmp_usrquota;
 		struct btrfs_usrquota *usrquota;
 
 		usrquota = list_first_entry(&fs_info->usrquota_dirty,
 		                            struct btrfs_usrquota, uq_dirty);
 		list_del_init(&usrquota->uq_dirty);
+
+		// Copy things out since we may free usrquota later.
+		memcpy(&tmp_usrquota, usrquota, sizeof(tmp_usrquota));
+		usrquota->need_rescan = false;
+
 		// Remove empty record. To mark tree loaded, we need to keep the last record in the tree.
 		if (!usrquota->uq_rfer_hard && !usrquota->uq_rfer_soft
-		      && !usrquota->uq_rfer_used && usrquota->uq_uid) {
-			u64 objectid = usrquota->uq_objectid;
-			uid_t uid = usrquota->uq_uid;
-
+		      && !usrquota->uq_rfer_used && !usrquota->uq_reserved && usrquota->uq_uid) {
 			del_usrquota_rb(fs_info, usrquota);
+			usrquota = NULL;
 			spin_unlock(&fs_info->usrquota_lock);
-			ret = remove_usrquota_item(trans, fs_info, objectid, uid, BTRFS_USRQUOTA_INFO_KEY);
+			ret = remove_usrquota_item(trans, fs_info, tmp_usrquota.uq_objectid,
+								tmp_usrquota.uq_uid, BTRFS_USRQUOTA_INFO_KEY);
 		} else {
 			spin_unlock(&fs_info->usrquota_lock);
-			ret = update_usrquota_info_item(trans, fs_info, usrquota->uq_objectid,
-			                                usrquota->uq_uid, usrquota->uq_rfer_used);
+			ret = update_usrquota_info_item(trans, fs_info, tmp_usrquota.uq_objectid,
+			                                tmp_usrquota.uq_uid, tmp_usrquota.uq_rfer_used);
+
+#ifdef MY_ABC_HERE
+			if ((ret || tmp_usrquota.need_rescan) &&
+					fs_info->syno_quota_v2_enabled) {
+				struct syno_quota_rescan_item_updater updater;
+
+				syno_quota_rescan_item_init(&updater);
+				updater.flags = SYNO_QUOTA_RESCAN_NEED;
+				btrfs_add_update_syno_quota_rescan_item(trans, fs_info->quota_root,
+					tmp_usrquota.uq_objectid, &updater);
+			}
+#endif /* MY_ABC_HERE */
+
+			ret = update_usrquota_limit_item(trans, fs_info, tmp_usrquota.uq_objectid,
+							tmp_usrquota.uq_uid, tmp_usrquota.uq_rfer_soft,
+							tmp_usrquota.uq_rfer_hard);
+			if (ret)
+				set_inconsistent(fs_info);
 		}
-		if (ret)
-			set_inconsistent(fs_info);
 		spin_lock(&fs_info->usrquota_lock);
 	}
-	if (fs_info->usrquota_enabled)
+	if (fs_info->syno_usrquota_v1_enabled || fs_info->syno_usrquota_v2_enabled)
 		fs_info->usrquota_flags |= BTRFS_USRQUOTA_STATUS_FLAG_ON;
 	else
 		fs_info->usrquota_flags &= ~BTRFS_USRQUOTA_STATUS_FLAG_ON;
@@ -1382,9 +2029,11 @@ int btrfs_run_usrquota(struct btrfs_trans_handle *trans,
 	if (ret)
 		set_inconsistent(fs_info);
 
-	ret = update_usrquota_compat_item(trans, fs_info, usrquota_root);
-	if (ret)
-		set_inconsistent(fs_info);
+	if (fs_info->syno_quota_v1_enabled) {
+		ret = update_usrquota_compat_item(trans, fs_info, usrquota_root);
+		if (ret)
+			set_inconsistent(fs_info);
+	}
 out:
 	mutex_lock(&fs_info->usrquota_ro_roots_lock);
 	spin_lock(&fs_info->usrquota_lock);
@@ -1401,7 +2050,10 @@ out:
 	return ret;
 }
 
-
+/*
+ * Return 1 if we don't reserve user quota, but it's not an EDQUOT error.
+ * Caller is allowed to write.
+ */
 int btrfs_usrquota_reserve(struct btrfs_root *root, struct inode *inode, uid_t uid, u64 num_bytes)
 {
 	struct btrfs_fs_info *fs_info = root->fs_info;
@@ -1411,32 +2063,47 @@ int btrfs_usrquota_reserve(struct btrfs_root *root, struct inode *inode, uid_t u
 	struct btrfs_inode *binode = NULL;
 
 	if (!is_fstree(rootid))
-		return 0;
+		return 1;
 
-	if (!fs_info->usrquota_enabled)
-		return 0;
+	if (!fs_info->syno_usrquota_v1_enabled && !fs_info->syno_usrquota_v2_enabled)
+		return 1;
 
 	usrquota_ro_subvol_check(fs_info, root);
 	spin_lock(&fs_info->usrquota_lock);
+	if (!fs_info->usrquota_root) {
+		ret = 1;
+		goto out;
+	}
 
-	if (btrfs_usrquota_fast_chown_enable(inode)) {
+	// Get uid after usrquota_lock, so that uid won't changed by btrfs_usrquota_v2_transfer().
+	if (fs_info->syno_usrquota_v2_enabled && inode)
+		uid = __kuid_val(inode->i_uid);
+	else if (btrfs_usrquota_fast_chown_enable(inode)) {
 		binode = BTRFS_I(inode);
 		uid = i_uid_read(inode);
 	}
 
 	usrquota = add_usrquota_rb(fs_info, rootid, uid);
 	if (IS_ERR(usrquota)) {
-		ret = PTR_ERR(usrquota);
+		ret = 1;
 		goto out;
 	}
 
-	if (usrquota->uq_rfer_hard && !capable(CAP_SYS_RESOURCE)) {
+	if (usrquota->uq_rfer_hard
+#ifdef MY_ABC_HERE
+			&& !root->invalid_quota
+#endif /* MY_ABC_HERE */
+			) {
 		if (usrquota->uq_rfer_used + usrquota->uq_reserved + num_bytes > usrquota->uq_rfer_hard) {
 			ret = -EDQUOT;
 			goto out;
 		}
 	}
 	usrquota->uq_reserved += num_bytes;
+#ifdef MY_ABC_HERE
+	if (fs_info->syno_usrquota_v2_enabled && inode)
+		BTRFS_I(inode)->uq_reserved += num_bytes;
+#endif /* MY_ABC_HERE */
 	if (binode && (binode->flags & BTRFS_INODE_UQ_REF_USED)) {
 		binode->syno_uq_reserved += num_bytes;
 	}
@@ -1452,14 +2119,19 @@ int btrfs_usrquota_free_rootid(struct btrfs_fs_info *fs_info, u64 rootid, struct
 
 	if (!is_fstree(rootid))
 		return 0;
-	if (!fs_info->usrquota_enabled)
+	if (!fs_info->syno_usrquota_v1_enabled && !fs_info->syno_usrquota_v2_enabled)
 		return 0;
 	if (num_bytes == 0)
 		return 0;
 
 	spin_lock(&fs_info->usrquota_lock);
+	if (!fs_info->usrquota_root)
+		goto out;
 
-	if (btrfs_usrquota_fast_chown_enable(inode)) {
+	// Get uid after usrquota_lock, so that uid won't changed by btrfs_usrquota_v2_transfer().
+	if (fs_info->syno_usrquota_v2_enabled && inode)
+		uid = __kuid_val(inode->i_uid);
+	else if (btrfs_usrquota_fast_chown_enable(inode)) {
 		binode = BTRFS_I(inode);
 		uid = i_uid_read(inode);
 	}
@@ -1468,10 +2140,9 @@ int btrfs_usrquota_free_rootid(struct btrfs_fs_info *fs_info, u64 rootid, struct
 	if (!usrquota) {
 		goto out;
 	}
-	if (usrquota->uq_reserved > num_bytes)
-		usrquota->uq_reserved -= num_bytes;
-	else
-		usrquota->uq_reserved = 0;
+
+	if (inode)
+		usrquota_free_reserve(fs_info, usrquota, BTRFS_I(inode), num_bytes);
 	if (binode && (binode->flags & BTRFS_INODE_UQ_REF_USED)) {
 		if (binode->syno_uq_reserved < num_bytes) {
 			binode->syno_uq_reserved = 0;
@@ -1491,362 +2162,7 @@ int btrfs_usrquota_free(struct btrfs_root *root, struct inode *inode, uid_t uid,
 	return btrfs_usrquota_free_rootid(root->fs_info, rootid, inode, uid, num_bytes);
 }
 
-static int usrquota_rescan_check(struct btrfs_fs_info *fs_info, u64 rootid, u64 objectid)
-{
-	int ret = 0;
-
-	mutex_lock(&fs_info->usrquota_rescan_lock);
-	if (fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_RESCAN) {
-		if (fs_info->usrquota_rescan_rootid == rootid &&
-		    fs_info->usrquota_rescan_objectid <= objectid) {
-			ret = 1;
-		}
-	}
-	mutex_unlock(&fs_info->usrquota_rescan_lock);
-	return ret;
-}
-
-static int
-usrquota_rescan_inode(struct btrfs_fs_info *fs_info, struct btrfs_path *path,
-                      struct btrfs_trans_handle *trans,
-                      struct extent_buffer *scratch_leaf)
-{
-	struct btrfs_key key;
-	struct btrfs_key found;
-	struct btrfs_root *rescan_root = fs_info->usrquota_rescan_root;
-	struct extent_buffer *leaf;
-	struct btrfs_file_extent_item *extent_item;
-	struct btrfs_inode_item *inode_item;
-	struct btrfs_usrquota *usrquota;
-
-	u64 objectid;
-	int slot;
-	int ret = 0;
-
-	u64 num_bytes = 0;
-	uid_t uid;
-	mode_t mode;
-
-	if (fs_info->usrquota_rescan_objectid < BTRFS_FIRST_FREE_OBJECTID)
-		objectid = BTRFS_FIRST_FREE_OBJECTID;
-	else
-		objectid = fs_info->usrquota_rescan_objectid + 1;
-next_inode:
-	key.objectid = objectid;
-	key.type = BTRFS_INODE_ITEM_KEY;
-	key.offset = 0;
-	path->leave_spinning = 1;
-
-	// return 1, when no items
-	ret = btrfs_search_slot_for_read(rescan_root, &key, path, 1, 0);
-	if (ret) {
-		btrfs_release_path(path);
-		goto out;
-	}
-	slot = path->slots[0];
-	leaf = path->nodes[0];
-
-	btrfs_item_key_to_cpu(leaf, &found, slot);
-	if (btrfs_key_type(&found) != BTRFS_INODE_ITEM_KEY) {
-		btrfs_err(fs_info, "failed to find INODE_ITEM");
-		ret = -ENOENT;
-		btrfs_release_path(path);
-		goto out;
-	}
-	objectid = found.objectid;
-	inode_item = btrfs_item_ptr(leaf, slot, struct btrfs_inode_item);
-	mode = btrfs_inode_mode(leaf, inode_item);
-	if (S_ISDIR(mode)) {
-		btrfs_release_path(path);
-		objectid++;
-		goto next_inode;
-	}
-	uid = btrfs_inode_uid(leaf, inode_item);
-
-	btrfs_release_path(path);
-	key.objectid = objectid;
-	key.type = BTRFS_EXTENT_DATA_KEY;
-	key.offset = 0;
-next_extents:
-	btrfs_debug(fs_info, "seartch extent obj %llu offset %llu", key.objectid, key.offset);
-	ret = btrfs_search_slot_for_read(rescan_root, &key, path, 1, 0);
-	if (ret) {
-		btrfs_release_path(path);
-		if (num_bytes) {
-			ret = 0;
-			goto update;
-		}
-		goto out;
-	}
-	slot = path->slots[0];
-	leaf = path->nodes[0];
-	btrfs_item_key_to_cpu(leaf, &found, slot);
-	if (btrfs_key_type(&found) != BTRFS_EXTENT_DATA_KEY) {
-		btrfs_release_path(path);
-		if (num_bytes) {
-			ret = 0;
-			goto update;
-		}
-		objectid++;
-		goto next_inode;
-	}
-
-	memcpy(scratch_leaf, path->nodes[0], sizeof(*scratch_leaf));
-	slot = path->slots[0];
-	btrfs_release_path(path);
-
-	for (; slot < btrfs_header_nritems(scratch_leaf); ++slot) {
-		btrfs_item_key_to_cpu(scratch_leaf, &found, slot);
-
-		if (btrfs_key_type(&found) != BTRFS_EXTENT_DATA_KEY)
-			break;
-
-		extent_item  = btrfs_item_ptr(scratch_leaf, slot, struct btrfs_file_extent_item);
-		if (btrfs_file_extent_type(scratch_leaf, extent_item) != BTRFS_FILE_EXTENT_INLINE) {
-			num_bytes += btrfs_file_extent_disk_num_bytes(scratch_leaf, extent_item);
-		}
-	}
-
-	if (btrfs_key_type(&found) == BTRFS_EXTENT_DATA_KEY) {
-		key.offset = found.offset + 1;
-		goto next_extents;
-	}
-	if (num_bytes == 0) {
-		objectid++;
-		goto next_inode;
-	}
-
-update:
-	btrfs_debug(fs_info, "rescan_inode rootid %llu uid %u objectid %llu num_bytes %llu",
-	            fs_info->usrquota_rescan_rootid, uid, objectid, num_bytes);
-
-	spin_lock(&fs_info->usrquota_lock);
-	usrquota = add_usrquota_rb(fs_info, fs_info->usrquota_rescan_rootid, uid);
-	if (IS_ERR(usrquota)) {
-		spin_unlock(&fs_info->usrquota_lock);
-		ret = PTR_ERR(usrquota);
-		goto out;
-	}
-	usrquota->uq_rfer_used += num_bytes;
-	usrquota_dirty(fs_info, usrquota);
-	spin_unlock(&fs_info->usrquota_lock);
-
-	mutex_lock(&fs_info->usrquota_rescan_lock);
-	fs_info->usrquota_rescan_objectid = objectid;
-	mutex_unlock(&fs_info->usrquota_rescan_lock);
-out:
-	return ret;
-}
-
-static void btrfs_usrquota_rescan_work(struct btrfs_work *work)
-{
-	struct btrfs_fs_info *fs_info = container_of(work, struct btrfs_fs_info,
-	                                             usrquota_rescan_work);
-	struct btrfs_path *path;
-	struct btrfs_trans_handle *trans = NULL;
-	struct extent_buffer *scratch_leaf = NULL;
-	int ret = -ENOMEM;
-
-	path = btrfs_alloc_path();
-	if (!path)
-		goto out;
-	scratch_leaf = kmalloc(sizeof(*scratch_leaf), GFP_NOFS);
-	if (!scratch_leaf)
-		goto out;
-
-	ret = 0;
-	while (!ret) {
-		trans = btrfs_start_transaction(fs_info->fs_root, 1);
-		if (IS_ERR(trans)) {
-			ret = PTR_ERR(trans);
-			break;
-		}
-		if (!fs_info->usrquota_enabled || !fs_info->usrquota_rescan_root) {
-			ret = -EINTR;
-		} else {
-			ret = usrquota_rescan_inode(fs_info, path, trans, scratch_leaf);
-		}
-		if (ret > 0)
-			btrfs_commit_transaction(trans, fs_info->fs_root);
-		else
-			btrfs_end_transaction(trans, fs_info->fs_root);
-	}
-
-out:
-	kfree(scratch_leaf);
-	btrfs_free_path(path);
-
-	usrquota_subtree_unload(fs_info, fs_info->usrquota_rescan_rootid);
-	mutex_lock(&fs_info->usrquota_rescan_lock);
-	fs_info->usrquota_flags &= ~BTRFS_USRQUOTA_STATUS_FLAG_RESCAN;
-	fs_info->usrquota_rescan_objectid = (u64)-1;
-	if (ret < 0)
-		set_inconsistent(fs_info);
-	mutex_unlock(&fs_info->usrquota_rescan_lock);
-
-	if (ret < 0) {
-		btrfs_err(fs_info, "usrquota scan failed with %d", ret);
-	} else {
-		btrfs_info(fs_info, "usrquota scan completed");
-	}
-	complete_all(&fs_info->usrquota_rescan_completion);
-}
-
-static int usrquota_rescan_init(struct btrfs_fs_info *fs_info, u64 rootid, u64 objectid)
-{
-	int ret = 0;
-	struct btrfs_root *root;
-	struct btrfs_key key;
-
-	key.objectid = rootid;
-	key.type = BTRFS_ROOT_ITEM_KEY;
-	key.offset = (u64)-1;
-
-	root = btrfs_read_fs_root_no_name(fs_info, &key);
-	if (IS_ERR(root)) {
-		ret = PTR_ERR(root);
-		goto out;
-	}
-
-	mutex_lock(&fs_info->usrquota_rescan_lock);
-	spin_lock(&fs_info->usrquota_lock);
-
-	if (fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_RESCAN)
-		ret = -EINPROGRESS;
-	else if (!(fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_ON))
-		ret = -EINVAL;
-
-	if (ret) {
-		spin_unlock(&fs_info->usrquota_lock);
-		mutex_unlock(&fs_info->usrquota_rescan_lock);
-		goto out;
-	}
-
-	fs_info->usrquota_flags |= BTRFS_USRQUOTA_STATUS_FLAG_RESCAN;
-	fs_info->usrquota_rescan_rootid = rootid;
-	fs_info->usrquota_rescan_objectid = objectid;
-	fs_info->usrquota_rescan_root = root;
-
-	spin_unlock(&fs_info->usrquota_lock);
-	mutex_unlock(&fs_info->usrquota_rescan_lock);
-
-	init_completion(&fs_info->usrquota_rescan_completion);
-
-	memset(&fs_info->usrquota_rescan_work, 0,
-	       sizeof(fs_info->usrquota_rescan_work));
-	btrfs_init_work(&fs_info->usrquota_rescan_work, btrfs_usrquota_rescan_helper,
-	                btrfs_usrquota_rescan_work, NULL, NULL);
-
-out:
-	if (ret) {
-		btrfs_err(fs_info, "usrquota_rescan_init failed with %d", ret);
-	}
-	return ret;
-}
-
-int btrfs_usrquota_rescan(struct btrfs_fs_info *fs_info, u64 rootid)
-{
-	int ret = 0;
-	int subtree_loaded = 0;
-	struct btrfs_trans_handle *trans;
-	struct btrfs_usrquota *usrquota;
-	struct rb_node *node;
-
-	ret = usrquota_rescan_init(fs_info, rootid, 0);
-	if (ret)
-		return ret;
-
-	// flush existing delayed_ref
-	trans = btrfs_join_transaction(fs_info->fs_root);
-	if (IS_ERR(trans)) {
-		ret = PTR_ERR(trans);
-		goto out;
-	}
-	ret = btrfs_commit_transaction(trans, fs_info->fs_root);
-	if (ret) {
-		goto out;
-	}
-
-	if (!fs_info->usrquota_enabled) {
-		ret = -EINVAL;
-		goto out;
-	}
-	ret = usrquota_subtree_load(fs_info, rootid);
-	if (ret) {
-		btrfs_err(fs_info, "failed to load usrquota subtree %llu", rootid);
-		goto out;
-	}
-	subtree_loaded = 1;
-
-	spin_lock(&fs_info->usrquota_lock);
-	node = find_usrquota_first_rb(fs_info, rootid);
-	while (node) {
-		usrquota = rb_entry(node, struct btrfs_usrquota, uq_node);
-		node = rb_next(node);
-		if (usrquota->uq_objectid > rootid)
-			break;
-		usrquota->uq_rfer_used = 0;
-		usrquota->uq_generation = 0;
-		usrquota_dirty(fs_info, usrquota);
-	}
-	spin_unlock(&fs_info->usrquota_lock);
-
-	// flush usrquota_info items
-	trans = btrfs_start_transaction(fs_info->fs_root, 0);
-	if (IS_ERR(trans)) {
-		ret = PTR_ERR(trans);
-		goto out;
-	}
-	ret = btrfs_commit_transaction(trans, fs_info->fs_root);
-	if (ret)
-		goto out;
-
-	btrfs_queue_work(fs_info->usrquota_rescan_workers,
-	                 &fs_info->usrquota_rescan_work);
-out:
-	if (ret) {
-		if (subtree_loaded)
-			usrquota_subtree_unload(fs_info, rootid);
-		fs_info->usrquota_flags &= ~BTRFS_USRQUOTA_STATUS_FLAG_RESCAN;
-	}
-	return ret;
-}
-
-int btrfs_usrquota_wait_for_completion(struct btrfs_fs_info *fs_info)
-{
-	int running;
-	int ret = 0;
-
-	mutex_lock(&fs_info->usrquota_rescan_lock);
-	spin_lock(&fs_info->usrquota_lock);
-	running = fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_RESCAN;
-	spin_unlock(&fs_info->usrquota_lock);
-	mutex_unlock(&fs_info->usrquota_rescan_lock);
-
-	if (running) {
-		ret = wait_for_completion_interruptible(
-		          &fs_info->usrquota_rescan_completion);
-	}
-	return ret;
-}
-
-void btrfs_usrquota_rescan_resume(struct btrfs_fs_info *fs_info)
-{
-	int ret;
-
-	if (fs_info->usrquota_flags & BTRFS_USRQUOTA_STATUS_FLAG_RESCAN) {
-		ret = usrquota_subtree_load(fs_info, fs_info->usrquota_rescan_rootid);
-		if (ret) {
-			btrfs_err(fs_info, "rescan resume failed due to failed to load usrquota");
-			fs_info->usrquota_flags &= ~BTRFS_USRQUOTA_STATUS_FLAG_RESCAN;
-		} else {
-			btrfs_queue_work(fs_info->usrquota_rescan_workers,
-					 &fs_info->usrquota_rescan_work);
-		}
-	}
-}
-
-int btrfs_usrquota_transfer(struct inode *inode, uid_t new_uid)
+int btrfs_usrquota_transfer(struct inode *inode, kuid_t new_uid)
 {
 	struct btrfs_usrquota *usrquota_orig;
 	struct btrfs_usrquota *usrquota_dest;
@@ -1871,8 +2187,9 @@ int btrfs_usrquota_transfer(struct inode *inode, uid_t new_uid)
 	int research = 0;
 	struct btrfs_inode *binode = NULL;
 	u64 inflight_num_bytes = 0;
+	u64 uid;
 
-	if (!fs_info->usrquota_enabled)
+	if (!fs_info->syno_usrquota_v1_enabled)
 		return 0;
 	BUG_ON(!fs_info->usrquota_root);
 
@@ -1884,9 +2201,6 @@ int btrfs_usrquota_transfer(struct inode *inode, uid_t new_uid)
 		btrfs_free_path(path);
 		return -ENOMEM;
 	}
-
-	if (usrquota_rescan_check(fs_info, rootid, BTRFS_I(inode)->location.objectid))
-		goto out;
 
 	if (btrfs_usrquota_fast_chown_enable(inode)) {
 		binode = BTRFS_I(inode);
@@ -1983,13 +2297,14 @@ search_end:
 		num_bytes = binode->syno_uq_rfer_used;
 		inflight_num_bytes = binode->syno_uq_reserved;
 	}
-	usrquota_orig = add_usrquota_rb(fs_info, rootid, i_uid_read(inode));
+	uid = __kuid_val(inode->i_uid);
+	usrquota_orig = add_usrquota_rb(fs_info, rootid, uid);
 	if (IS_ERR(usrquota_orig)) {
 		ret = PTR_ERR(usrquota_orig);
 		spin_unlock(&fs_info->usrquota_lock);
 		goto out;
 	}
-	usrquota_dest = add_usrquota_rb(fs_info, rootid, new_uid);
+	usrquota_dest = add_usrquota_rb(fs_info, rootid, (u64)__kuid_val(new_uid));
 	if (IS_ERR(usrquota_dest)) {
 		ret = PTR_ERR(usrquota_dest);
 		spin_unlock(&fs_info->usrquota_lock);
@@ -2021,19 +2336,110 @@ search_end:
 		}
 		usrquota_dest->uq_reserved += binode->syno_uq_reserved;
 	}
-	inode->i_uid = make_kuid(current_user_ns(), new_uid);
+	inode->i_uid = new_uid;
 	usrquota_dirty(fs_info, usrquota_orig);
 	usrquota_dirty(fs_info, usrquota_dest);
 	spin_unlock(&fs_info->usrquota_lock);
 
-	btrfs_debug(fs_info, "usrquota_transfer uid_new %u uid_old %u num_bytes %llu",
-	            new_uid, i_uid_read(inode), num_bytes);
+	btrfs_debug(fs_info, "usrquota_transfer uid_new %u uid_old %llu num_bytes %llu",
+					__kuid_val(new_uid), uid, num_bytes);
 
 out:
 	ulist_free(disko_ulist);
 	btrfs_free_path(path);
 	return ret;
 }
+
+#ifdef MY_ABC_HERE
+int btrfs_usrquota_v2_transfer(struct inode *inode, kuid_t new_uid)
+{
+	struct btrfs_usrquota *usrquota_from, *usrquota_to;
+	struct btrfs_inode *b_inode = BTRFS_I(inode);
+	struct btrfs_root *root = b_inode->root;
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	u64 uid;
+	u64 ref_root = root->root_key.objectid;
+	u64 ino = b_inode->location.objectid;
+	loff_t num_bytes;
+	int ret = 0;
+
+	if (!is_fstree(ref_root))
+		return 0;
+
+	if (!fs_info->syno_quota_v2_enabled)
+		return 0;
+
+	usrquota_ro_subvol_check(fs_info, root);
+	down_write(&root->rescan_lock);
+	spin_lock(&fs_info->usrquota_lock);
+
+	if (!fs_info->usrquota_root)
+		goto out;
+
+	uid = __kuid_val(inode->i_uid);
+	usrquota_from = add_usrquota_rb(fs_info, ref_root, uid);
+	if (IS_ERR(usrquota_from)) {
+		ret = PTR_ERR(usrquota_from);
+		goto out;
+	}
+
+	usrquota_to = add_usrquota_rb(fs_info, ref_root, (u64)__kuid_val(new_uid));
+	if (IS_ERR(usrquota_to)) {
+		ret = PTR_ERR(usrquota_to);
+		goto out;
+	}
+	num_bytes = inode_get_bytes(inode);
+	num_bytes = round_up(num_bytes, fs_info->sectorsize);
+
+#ifdef USRQUOTA_DEBUG
+	printk(KERN_INFO "btrfs_usrquota_transfer debug: root = %llu, ino = %lu, "
+		"uid_from = %llu, uid_to = %llu, used = %llu, num_bytes = %llu",
+		ref_root, inode->i_ino, uid, (u64)__kuid_val(new_uid),
+		usrquota_from->uq_rfer_used, num_bytes);
+#endif /* USRQUOTA_DEBUG */
+
+	if (usrquota_to->uq_rfer_hard && !root->invalid_quota &&
+			!capable(CAP_SYS_RESOURCE)) {
+		if (usrquota_to->uq_rfer_used + usrquota_to->uq_reserved +
+					num_bytes + b_inode->uq_reserved >
+					usrquota_to->uq_rfer_hard) {
+			ret = -EDQUOT;
+			goto out;
+		}
+	}
+
+	if (btrfs_quota_rescan_check(root, ino)) {
+		usrquota_to->uq_rfer_used += num_bytes;
+		if (usrquota_from->uq_rfer_used < num_bytes && !root->invalid_quota) {
+			WARN_ONCE(1, "user quota chown %llu:%llu ref underflow, "
+				"have %llu to free %llu", ref_root, uid,
+				usrquota_from->uq_rfer_used, num_bytes);
+			usrquota_from->uq_rfer_used = 0;
+			usrquota_to->need_rescan = true;
+		} else
+			usrquota_from->uq_rfer_used -= num_bytes;
+	}
+
+	usrquota_to->uq_reserved += b_inode->uq_reserved;
+	if (usrquota_from->uq_reserved < b_inode->uq_reserved) {
+		WARN_ONCE(1, "user quota chown %llu/%llu reserved underflow, "
+			"have %llu to free %llu", ref_root, ino,
+			usrquota_from->uq_reserved, b_inode->uq_reserved);
+		usrquota_from->uq_reserved = 0;
+	} else
+		usrquota_from->uq_reserved -= b_inode->uq_reserved;
+
+	usrquota_dirty(fs_info, usrquota_from);
+	usrquota_dirty(fs_info, usrquota_to);
+	inode->i_uid = new_uid; // Do this inside of usrquota_lock.
+
+out:
+	spin_unlock(&fs_info->usrquota_lock);
+	up_write(&root->rescan_lock);
+	return ret;
+}
+
+#endif /* MY_ABC_HERE */
 
 /*
  * Calculate number of usrquota_{info/limit}_item that need to be reserved for space
@@ -2050,7 +2456,7 @@ int btrfs_usrquota_calc_reserve_snap(struct btrfs_root *root,
 	int ret = 0;
 
 	mutex_lock(&fs_info->usrquota_ioctl_lock);
-	if (!fs_info->usrquota_enabled) {
+	if (!fs_info->syno_usrquota_v1_enabled && !fs_info->syno_usrquota_v2_enabled) {
 		goto unlock_ioctl;
 	}
 
@@ -2110,11 +2516,14 @@ int btrfs_usrquota_mksubvol(struct btrfs_trans_handle *trans,
 	int ret = 0;
 	struct btrfs_usrquota *usrquota;
 
-	if (!fs_info->usrquota_enabled) {
+	if (!fs_info->syno_usrquota_v1_enabled && !fs_info->syno_usrquota_v2_enabled)
 		return 0;
-	}
+
 	// insert dummy node
 	spin_lock(&fs_info->usrquota_lock);
+	if (!fs_info->usrquota_root)
+		goto unlock;
+
 	usrquota = add_usrquota_rb_nocheck(fs_info, objectid, 0);
 	if (IS_ERR(usrquota)) {
 		btrfs_err(fs_info, "failed to add_usrquota_rb %ld", PTR_ERR(usrquota));
@@ -2141,7 +2550,7 @@ int btrfs_usrquota_mksnap(struct btrfs_trans_handle *trans,
 	struct btrfs_usrquota *usrquota_orig;
 
 	mutex_lock(&fs_info->usrquota_ioctl_lock);
-	if (!fs_info->usrquota_enabled) {
+	if (!fs_info->syno_usrquota_v1_enabled && !fs_info->syno_usrquota_v2_enabled) {
 		goto out;
 	}
 	BUG_ON(!fs_info->usrquota_root);
@@ -2268,7 +2677,7 @@ int btrfs_usrquota_delsnap(struct btrfs_trans_handle *trans,
 	int pending_del_nr = 0;
 	int pending_del_slot = 0;
 
-	if (!fs_info->usrquota_enabled)
+	if (!fs_info->syno_usrquota_v1_enabled && !fs_info->syno_usrquota_v2_enabled)
 		return 0;
 	if (!usrquota_root)
 		return -EINVAL;
@@ -2359,19 +2768,38 @@ out:
 /*
  * struct btrfs_ioctl_usrquota_query_args should be initialized to zero
  */
-void btrfs_usrquota_query(struct btrfs_fs_info *fs_info, u64 rootid,
+int btrfs_usrquota_query(struct btrfs_root *root,
                           struct btrfs_ioctl_usrquota_query_args *uqa)
 {
+	struct btrfs_fs_info *fs_info = root->fs_info;
 	struct btrfs_usrquota *usrquota;
+	kuid_t tmp_uid;
+	u64 rootid = root->root_key.objectid;
+	u64 kernel_uid;
+	int ret = 0;
+
+#ifdef MY_ABC_HERE
+	if (unlikely(root->invalid_quota))
+		return -ESRCH;
+#endif /* MY_ABC_HERE */
+
+	tmp_uid = make_kuid(current_user_ns(), (uid_t)uqa->uid);
+	if (!uid_valid(tmp_uid))
+		return -EINVAL;
+	kernel_uid = __kuid_val(tmp_uid);
 
 	mutex_lock(&fs_info->usrquota_ioctl_lock);
-	if (!fs_info->usrquota_enabled)
+	if (!fs_info->syno_usrquota_v1_enabled && !fs_info->syno_usrquota_v2_enabled) {
+		ret = -ESRCH;
 		goto unlock;
+	}
 
+	memset(uqa, 0, sizeof(*uqa));
 	if (usrquota_subtree_load(fs_info, rootid))
 		goto unlock;
 
-	usrquota = find_usrquota_rb(fs_info, rootid, uqa->uid);
+	spin_lock(&fs_info->usrquota_lock);
+	usrquota = find_usrquota_rb(fs_info, rootid, kernel_uid);
 	if (!usrquota)
 		goto unload;
 
@@ -2380,7 +2808,115 @@ void btrfs_usrquota_query(struct btrfs_fs_info *fs_info, u64 rootid,
 	uqa->rfer_hard = usrquota->uq_rfer_hard;
 	uqa->reserved = usrquota->uq_reserved;
 unload:
+	spin_unlock(&fs_info->usrquota_lock);
 	usrquota_subtree_unload(fs_info, rootid);
 unlock:
 	mutex_unlock(&fs_info->usrquota_ioctl_lock);
+	return ret;
 }
+
+#ifdef MY_ABC_HERE
+static bool check_usrquota_from_disk(struct btrfs_fs_info *fs_info, u64 rootid)
+{
+	int ret;
+	int slot;
+	struct btrfs_key key;
+	struct btrfs_key found_key;
+	struct btrfs_root *usrquota_root = fs_info->usrquota_root;
+	struct btrfs_path *path;
+	struct extent_buffer *leaf;
+	struct btrfs_usrquota_limit_item *limit_item;
+	bool has_limit = false;
+
+	path = btrfs_alloc_path();
+	if (!path) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	key.objectid = rootid;
+	key.type = BTRFS_USRQUOTA_LIMIT_KEY;
+	key.offset = 0;
+	ret = btrfs_search_slot_for_read(usrquota_root, &key, path, 1, 0);
+	if (ret < 0)
+		goto out;
+	else if (ret) {
+		ret = 0;
+		goto out;
+	}
+	while (1) {
+		slot = path->slots[0];
+		leaf = path->nodes[0];
+		btrfs_item_key_to_cpu(leaf, &found_key, slot);
+		if (found_key.objectid > rootid)
+			break;
+		else if (found_key.type != BTRFS_USRQUOTA_LIMIT_KEY)
+			goto next_item;
+
+		limit_item = btrfs_item_ptr(leaf, slot,
+					    struct btrfs_usrquota_limit_item);
+		if (btrfs_usrquota_limit_rfer_soft(leaf, limit_item) ||
+			btrfs_usrquota_limit_rfer_hard(leaf, limit_item)) {
+			has_limit = true;
+			break;
+		}
+next_item:
+		ret = btrfs_next_item(usrquota_root, path);
+		if (ret < 0)
+			goto out;
+		else if (ret) {
+			ret = 0;
+			break;
+		}
+	}
+	ret = 0;
+out:
+	btrfs_free_path(path);
+	// When an error occurr, we always treat it as having quota_limt.
+	return (ret) ? true : has_limit;
+}
+
+static bool check_usrquota_from_rbtree(struct rb_node *node,
+				u64 rootid)
+{
+	struct btrfs_usrquota *usrquota;
+	bool has_limit = false;
+	while (node) {
+		usrquota = rb_entry(node, struct btrfs_usrquota, uq_node);
+		if (usrquota->uq_objectid > rootid)
+			break;
+		else if (usrquota->uq_rfer_soft || usrquota->uq_rfer_hard) {
+			has_limit = true;
+			break;
+		}
+		node = rb_next(node);
+	}
+	return has_limit;
+}
+
+void btrfs_check_usrquota_limit(struct btrfs_root *root)
+{
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	bool has_limit = false;
+	struct rb_node *node;
+	u64 rootid = root->root_key.objectid;
+
+	spin_lock(&fs_info->usrquota_lock);
+	if (!fs_info->usrquota_root) {
+		spin_unlock(&fs_info->usrquota_lock);
+		return;
+	}
+
+	node = find_usrquota_first_rb(fs_info, rootid);
+	if (!node) {
+		// subtree is unloaded, read from disk.
+		spin_unlock(&fs_info->usrquota_lock);
+		has_limit = check_usrquota_from_disk(fs_info, rootid);
+	} else {
+		has_limit = check_usrquota_from_rbtree(node, rootid);
+		spin_unlock(&fs_info->usrquota_lock);
+	}
+	btrfs_root_set_has_usrquota_limit(root, has_limit);
+}
+#endif /* MY_ABC_HERE */
+

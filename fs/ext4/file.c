@@ -1031,5 +1031,13 @@ const struct inode_operations ext4_file_inode_operations = {
 	.set_acl	= ext4_set_acl,
 #endif /* MY_ABC_HERE */
 	.fiemap		= ext4_fiemap,
+#ifdef MY_ABC_HERE
+	.syno_rbd_meta_file_activate    = ext4_rbd_meta_file_activate,
+	.syno_rbd_meta_file_deactivate  = ext4_rbd_meta_file_deactivate,
+	.syno_rbd_meta_file_mapping 	= ext4_rbd_meta_file_mapping,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.fsdev_mapping = ext4_fsdev_mapping,
+#endif /* MY_ABC_HERE */
 };
 

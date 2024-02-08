@@ -193,6 +193,20 @@ struct blk_integrity {
 #ifdef MY_ABC_HERE
 #ifdef MY_DEF_HERE
 typedef struct _syno_multipath_target_sysfs SYNO_MPATH_TARGET_SYSFS;
+#endif
+#ifdef MY_DEF_HERE
+typedef enum _tag_SYNO_MPATH_COHERENT_ACTION {
+	MPATH_COHERENT_ACTION_DISK_STANDBY_SET,
+	MPATH_COHERENT_ACTION_DISK_STANDBY_CLEAR,
+	MPATH_COHERENT_ACTION_MAX,
+} SYNO_MPATH_COHERENT_ACTION;
+struct syno_mulitpath_coherent_work {
+	struct gendisk *dm_disk;
+	struct gendisk *initiating_disk;
+	SYNO_MPATH_COHERENT_ACTION action;
+	struct work_struct work;
+	void *data;
+};
 #endif /* MY_DEF_HERE */
 
 struct syno_gendisk_operations {
@@ -207,10 +221,30 @@ struct syno_gendisk_operations {
 #ifdef MY_ABC_HERE
 	int (*autoremap_stackable_dev_target_set)(struct block_device*, unsigned char);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	int (*check_device_status)(struct gendisk *, unsigned int flags);
+#endif /* MY_ABC_HERE */
+#ifdef MY_DEF_HERE
+	int (*multipath_dm_coherent_work_send)(struct syno_mulitpath_coherent_work *coherent_work);
+#endif
+#ifdef MY_DEF_HERE
+	void (*scsi_standby_flag_set)(struct gendisk *);
+	void (*scsi_standby_flag_clear)(struct gendisk *);
+#endif
 };
 #endif /* MY_ABC_HERE */
 
-struct gendisk {
+#ifdef MY_DEF_HERE
+struct syno_mulitpath_disk_info {
+	bool multipath_slave;
+	int holder_syno_index;
+	struct gendisk *dm_disk;
+	spinlock_t mpath_info_lock;
+};
+#endif /* MY_DEF_HERE */
+
+struct gendisk
+{
 	/* major, first_minor and minors are input parameters only,
 	 * don't use directly.  Use disk_devt() and disk_max_parts().
 	 */
@@ -265,6 +299,9 @@ struct gendisk {
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	const struct syno_gendisk_operations *syno_ops;
+#endif /* MY_ABC_HERE */
+#ifdef MY_DEF_HERE
+	struct syno_mulitpath_disk_info *mpath_info;
 #endif /* MY_ABC_HERE */
 };
 
@@ -815,5 +852,10 @@ static inline int blk_part_pack_uuid(const u8 *uuid_str, u8 *to)
 	return -EINVAL;
 }
 #endif /* CONFIG_BLOCK */
+#ifdef MY_ABC_HERE
+#define SYNO_DEVICE_STATUS_IS_RBD_ENABLED		((1U << 0))
+
+bool IsSynoRbdDeviceEnabled(struct block_device *bdev);
+#endif /* MY_ABC_HERE */
 
 #endif /* _LINUX_GENHD_H */

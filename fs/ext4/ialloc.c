@@ -33,6 +33,10 @@
 
 #include <trace/events/ext4.h>
 
+#ifdef MY_ABC_HERE
+#define MAX_U32_IN_U64 ((u64)(~0U))
+#endif /* MY_ABC_HERE */
+
 /*
  * ialloc.c contains the inodes allocation and deallocation routines
  */
@@ -725,6 +729,15 @@ next:
 	if (*ino >= EXT4_INODES_PER_GROUP(sb))
 		return 0;
 
+#ifdef MY_ABC_HERE
+	/*
+	 * Since the inode bitmap is zero-based, so the ino should not
+	 * equal to MAX_U32_IN_U64.
+	 */
+	if (MAX_U32_IN_U64 <= (u64) (*ino) + (u64) group * EXT4_INODES_PER_GROUP(sb))
+		return 0;
+#endif /* MY_ABC_HERE */
+
 	if ((EXT4_SB(sb)->s_journal == NULL) &&
 	    recently_deleted(sb, group, *ino)) {
 		*ino = *ino + 1;
@@ -808,6 +821,13 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
 		inode->i_gid = dir->i_gid;
 	} else
 		inode_init_owner(inode, dir, mode);
+
+	if (EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_PROJECT) &&
+	    ext4_test_inode_flag(dir, EXT4_INODE_PROJINHERIT))
+		ei->i_projid = EXT4_I(dir)->i_projid;
+	else
+		ei->i_projid = make_kprojid(&init_user_ns, EXT4_DEF_PROJID);
+
 	err = dquot_initialize(inode);
 	if (err)
 		goto out;
@@ -834,7 +854,6 @@ got_group:
 		goto out;
 
 #ifdef MY_ABC_HERE
-#define MAX_U32_IN_U64 ((u64)(~0U))
 	if (MAX_U32_IN_U64 < (u64)group*EXT4_INODES_PER_GROUP(sb)) {
 		u32 max_group =	(u32)((MAX_U32_IN_U64 + 1) / EXT4_INODES_PER_GROUP(sb));
 		group %= max_group;
@@ -1080,6 +1099,9 @@ got:
 	ei->i_dtime = 0;
 	ei->i_block_group = group;
 	ei->i_last_alloc_group = ~0;
+#ifdef MY_ABC_HERE
+	ei->i_is_swapfile = false;
+#endif /* MY_ABC_HERE */
 
 	ext4_set_inode_flags(inode);
 	if (IS_DIRSYNC(inode))
