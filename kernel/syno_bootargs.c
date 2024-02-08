@@ -137,6 +137,19 @@ extern long gIsMultipathModel;
 #endif /* MY_DEF_HERE */
 
 #ifdef MY_ABC_HERE
+extern int giSynoAtmegaNum;
+extern long gSynoAtmegaAddr[SYNO_ATMEGA_NUM_MAX];
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+extern bool gSynoAtaInternal[MAX_INTERNAL_ATA_PORT];
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+extern bool gSynoAtaAhciHardIrq;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 /**
  * This function will parsing "pwrctl_pin" from uboot to get poweron pin
  * ex. "pwrctl_pin=N0910N1034"
@@ -1045,3 +1058,83 @@ static int __init early_syno_multipath_model(char *p)
 }
 __setup("multipath_model=", early_syno_multipath_model);
 #endif /* MY_DEF_HERE */
+
+#ifdef MY_ABC_HERE
+static int __init early_atmega_addr(char *p)
+{
+	int i = 0;
+	char *pBegin = p;
+	char *pEnd = NULL;
+
+	giSynoAtmegaNum = 0;
+	do {
+		pEnd = strstr(pBegin, ",");
+		if (NULL != pEnd) {
+			*pEnd = '\0';
+		}
+		if (kstrtol(pBegin, 16, &gSynoAtmegaAddr[giSynoAtmegaNum])) {
+			printk("Fail to parse Synology Atmega addr\n");
+			goto END;
+		}
+		pBegin = (NULL == pEnd) ? NULL : pEnd + 1;
+		giSynoAtmegaNum++;
+	} while (NULL != pBegin && giSynoAtmegaNum < SYNO_ATMEGA_NUM_MAX);
+
+	for (i = 0; i < giSynoAtmegaNum; ++i) {
+		printk("Synology Atmega Addr[%d]: 0x%02lx\n", i, gSynoAtmegaAddr[i]);
+	}
+END:
+	return 1;
+}
+__setup("atmega_addr=", early_atmega_addr);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+static int __init early_ahci_hard_irq(char *p)
+{
+	int iVal = 0;
+
+        iVal = simple_strtol(p, NULL, 10);
+	gSynoAtaAhciHardIrq = (1 == iVal)? true : false;
+
+        printk("Ahci hardirq: %d\n", (int)(gSynoAtaAhciHardIrq));
+
+	return 1;
+}
+__setup("ahci_hard_irq=", early_ahci_hard_irq);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+static int __init early_internal_ata(char *p)
+{
+	char *pAtaPort = NULL;
+	char szBuf[512] = {'\0'};
+	char szTmp[32] = {'\0'};
+	int iAtaPort = 0;
+	int i = 0;
+
+	while (true) {
+		pAtaPort = strsep(&p, ",");
+
+		if (!pAtaPort)
+			break;
+
+		iAtaPort = simple_strtol(pAtaPort, NULL, 10);
+		if (0 >= iAtaPort || MAX_INTERNAL_ATA_PORT < iAtaPort) {
+			continue;
+		}
+		gSynoAtaInternal[iAtaPort - 1] = true;
+	}
+
+	for (i = 0; i < MAX_INTERNAL_ATA_PORT; i++) {
+		if (true == gSynoAtaInternal[i]) {
+			snprintf(szTmp, sizeof(szTmp), "%d ", i + 1);
+			strcat(szBuf, szTmp);
+		}
+	}
+	printk("Internal ata port: %s\n", szBuf);
+
+	return 1;
+}
+__setup("internal_ata=", early_internal_ata);
+#endif /* MY_ABC_HERE */

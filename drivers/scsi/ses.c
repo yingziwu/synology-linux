@@ -630,14 +630,24 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
 }
 
 static void ses_match_to_enclosure(struct enclosure_device *edev,
+#ifdef MY_ABC_HERE
+				   struct scsi_device *sdev, int refresh)
+#else
 				   struct scsi_device *sdev)
+#endif
 {
 	unsigned char *desc;
 	struct efd efd = {
 		.addr = 0,
 	};
 
+#ifdef MY_ABC_HERE
+	if (refresh) {
+		ses_enclosure_data_process(edev, to_scsi_device(edev->edev.parent), 0);
+	}
+#else
 	ses_enclosure_data_process(edev, to_scsi_device(edev->edev.parent), 0);
+#endif
 
 	if (!sdev->vpd_pg83_len)
 		return;
@@ -686,7 +696,11 @@ static int ses_intf_add(struct device *cdev,
 		struct enclosure_device *prev = NULL;
 
 		while ((edev = enclosure_find(&sdev->host->shost_gendev, prev)) != NULL) {
+#ifdef MY_ABC_HERE
+			ses_match_to_enclosure(edev, sdev, 1);
+#else
 			ses_match_to_enclosure(edev, sdev);
+#endif
 			prev = edev;
 		}
 		return -ENODEV;
@@ -867,7 +881,11 @@ static int ses_intf_add(struct device *cdev,
 	shost_for_each_device(tmp_sdev, sdev->host) {
 		if (tmp_sdev->lun != 0 || scsi_device_enclosure(tmp_sdev))
 			continue;
+#ifdef MY_ABC_HERE
+		ses_match_to_enclosure(edev, tmp_sdev, 0);
+#else
 		ses_match_to_enclosure(edev, tmp_sdev);
+#endif
 	}
 
 	return 0;

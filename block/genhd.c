@@ -1341,6 +1341,10 @@ static void disk_release(struct device *dev)
 	hd_free_part(&disk->part0);
 	if (disk->queue)
 		blk_put_queue(disk->queue);
+#ifdef MY_DEF_HERE
+	kfree(disk->mpath_info);
+	disk->mpath_info = NULL;
+#endif
 	kfree(disk);
 }
 struct class block_class = {
@@ -2335,4 +2339,29 @@ END:
 }
 
 EXPORT_SYMBOL(SynoDiskGetDeviceIndex);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+bool IsSynoRbdDeviceEnabled(struct block_device *bdev)
+{
+#ifdef MY_ABC_HERE
+	bool ret = false;
+	struct gendisk *disk = NULL;
+
+	if (!bdev) {
+		WARN_ON(1);
+		goto out;
+	}
+
+	disk = bdev->bd_disk;
+	if (disk && disk->syno_ops && disk->syno_ops->check_device_status)
+		ret = (1 == disk->syno_ops->check_device_status(disk,
+					SYNO_DEVICE_STATUS_IS_RBD_ENABLED));
+out:
+	return ret;
+#else /* MY_ABC_HERE */
+	return false;
+#endif /* MY_ABC_HERE */
+}
+EXPORT_SYMBOL(IsSynoRbdDeviceEnabled);
 #endif /* MY_ABC_HERE */

@@ -397,6 +397,22 @@ END:
 }
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+struct scsi_device* SynoSCSIGendiskToScsiDevice(struct gendisk *gdisk);
+extern void SynoScsiSasSataStandbyFlagSet(struct scsi_device *sdev);
+extern void SynoScsiSasSataStandbyFlagClear(struct scsi_device *sdev);
+
+static void SynoScsiStandbyFlagSet(struct gendisk *disk)
+{
+	SynoScsiSasSataStandbyFlagSet(SynoSCSIGendiskToScsiDevice(disk));
+}
+
+static void SynoScsiStandbyFlagClear(struct gendisk *disk)
+{
+	SynoScsiSasSataStandbyFlagClear(SynoSCSIGendiskToScsiDevice(disk));
+}
+#endif
+
 static void sd_set_flush_flag(struct scsi_disk *sdkp)
 {
 	unsigned flush = 0;
@@ -796,6 +812,11 @@ Return:
 }
 
 
+#ifdef MY_DEF_HERE
+extern void SynoScsiSasSataStandbyFlagClear(struct scsi_device *sdev);
+extern void SynoScsiAltSasSataStandbyFlagClear(struct scsi_device *sdev);
+#endif
+
 /**
  * Clean up spinup status.
  *
@@ -843,7 +864,10 @@ void SynoSpinupEnd(struct scsi_device *sdev, struct request *req, int error)
 	 * do the corresponding action, like waking up the disk agagin.
 	 */
 	if (0 > atomic_read(&sdev->spinup_retry_times) || !error_need_retry) {
-		clear_bit(0, &sdev->sas_sata_standby_flag);
+		SynoScsiSasSataStandbyFlagClear(sdev);
+#ifdef MY_DEF_HERE
+		SynoScsiAltSasSataStandbyFlagClear(sdev);
+#endif
 	}
 #endif /* MY_ABC_HERE */
 
@@ -922,7 +946,43 @@ FUA_show(struct device *dev, struct device_attribute *attr, char *buf)
 
 	return snprintf(buf, 20, "%u\n", sdkp->DPOFUA);
 }
+
+#ifdef MY_ABC_HERE
+static ssize_t
+FUA_store(struct device *dev, struct device_attribute *attr,
+	  const char *buf, size_t count)
+{
+	bool v;
+	struct scsi_disk *sdkp = to_scsi_disk(dev);
+	unsigned int flush_flags = sdkp->disk->queue->flush_flags;
+
+	if (!capable(CAP_SYS_ADMIN))
+		return -EACCES;
+
+	if (kstrtobool(buf, &v))
+		return -EINVAL;
+
+	if (v) {
+		if (!sdkp->support_fua || !(flush_flags & REQ_FLUSH)) {
+			return -EOPNOTSUPP;
+		}
+
+		sdkp->DPOFUA = 1;
+		flush_flags |= REQ_FUA;
+	} else {
+		sdkp->DPOFUA = 0;
+		flush_flags &= ~REQ_FUA;
+	}
+
+	blk_queue_flush(sdkp->disk->queue, flush_flags);
+
+	return count;
+}
+
+static DEVICE_ATTR_RW(FUA);
+#else /* MY_ABC_HERE */
 static DEVICE_ATTR_RO(FUA);
+#endif /* MY_ABC_HERE */
 
 static ssize_t
 protection_type_show(struct device *dev, struct device_attribute *attr,
@@ -3267,6 +3327,13 @@ sd_read_cache_type(struct scsi_disk *sdkp, unsigned char *buffer)
 			sdkp->DPOFUA = 0;
 		}
 
+#ifdef MY_ABC_HERE
+		sdkp->support_fua = sdkp->DPOFUA;
+		if (sdp->default_disable_fua && !old_dpofua) {
+			sdkp->DPOFUA = 0;
+		}
+#endif /* MY_ABC_HERE */
+
 		/* No cache flush allowed for write protected devices */
 		if (sdkp->WCE && sdkp->write_prot)
 			sdkp->WCE = 0;
@@ -3277,8 +3344,13 @@ sd_read_cache_type(struct scsi_disk *sdkp, unsigned char *buffer)
 				  "Write cache: %s, read cache: %s, %s\n",
 				  sdkp->WCE ? "enabled" : "disabled",
 				  sdkp->RCD ? "disabled" : "enabled",
+#ifdef MY_ABC_HERE
+				  sdkp->support_fua ? "supports DPO and FUA"
+				  : "doesn't support DPO or FUA");
+#else /* MY_ABC_HERE */
 				  sdkp->DPOFUA ? "supports DPO and FUA"
 				  : "doesn't support DPO or FUA");
+#endif /* MY_ABC_HERE */
 
 		return;
 	}
@@ -3840,6 +3912,10 @@ static const struct syno_gendisk_operations syno_scsi_gd_ops = {
 #ifdef MY_DEF_HERE
 	.reg_sysfs_to_multipath_dm = SynoMultipathSCSISysfsToDMReg,
 #endif /* MY_DEF_HERE */
+#ifdef MY_ABC_HERE
+	.scsi_standby_flag_set = SynoScsiStandbyFlagSet,
+	.scsi_standby_flag_clear = SynoScsiStandbyFlagClear,
+#endif
 };
 #endif /* MY_ABC_HERE */
 
@@ -4066,7 +4142,7 @@ static SYNO_DISK_TYPE syno_disk_type_get(struct device *dev)
 
 #ifdef MY_DEF_HERE
 extern int syno_pciepath_dts_pattern_get(struct pci_dev *pdev, char *szPciePath, const int size);
-static void syno_pciepath_enum(struct device *dev, char *buf) {
+void syno_pciepath_enum(struct device *dev, char *buf) {
 	struct pci_dev *pdev = NULL;
 	char sztemp[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
 
@@ -4084,6 +4160,7 @@ static void syno_pciepath_enum(struct device *dev, char *buf) {
 	}
 }
 
+EXPORT_SYMBOL (syno_pciepath_enum);
 static int get_ata_port_property_string(struct ata_port *ap, const char *prop_name, const char **prop_value)
 {
 	struct device_node *slot_node = NULL;
@@ -4115,6 +4192,51 @@ END:
 	return ret;
 }
 
+void syno_set_block_unique(struct scsi_device *sdev, u8 synoUnique) {
+
+	if (NULL == sdev) {
+		goto END;
+	}
+
+	if (IS_SYNOLOGY_RX4(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX4);
+	} else if (IS_SYNOLOGY_DX5(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX5);
+	} else if (IS_SYNOLOGY_DX513(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX513);
+	} else if (IS_SYNOLOGY_DX213(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX213);
+	} else if (IS_SYNOLOGY_DX517(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX517);
+	} else if (IS_SYNOLOGY_RX413(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX413);
+	} else if (IS_SYNOLOGY_RX415(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX415);
+	} else if (IS_SYNOLOGY_RX418(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX418);
+	} else if (IS_SYNOLOGY_DXC(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DXC);
+	} else if (IS_SYNOLOGY_RXC(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RXC);
+	} else if (IS_SYNOLOGY_RX1214(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX1214);
+	} else if (IS_SYNOLOGY_RX1217(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX1217);
+	} else if (IS_SYNOLOGY_DX1215(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX1215);
+	} else if (IS_SYNOLOGY_DX1222(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX1222);
+	} else if (IS_SYNOLOGY_DX1215II(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX1215II);
+	} else if (IS_SYNOLOGY_RX1223RP(synoUnique)) {
+		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX1223RP);
+	}
+END:
+	return;
+
+}
+EXPORT_SYMBOL (syno_set_block_unique);
+
 static void syno_ata_info_enum(struct ata_port *ap, struct scsi_device *sdev) {
 	struct ata_device *dev = NULL;
 	const char* form_factor = NULL;
@@ -4130,38 +4252,7 @@ static void syno_ata_info_enum(struct ata_port *ap, struct scsi_device *sdev) {
 		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sis_syno_pmp=1\n", sdev->syno_block_info);
 		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%spmp_link=%u\n", sdev->syno_block_info, dev->link->pmp);
 		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sEMID=%u\n", sdev->syno_block_info, ap->PMSynoEMID);
-
-		if (IS_SYNOLOGY_RX4(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX4);
-		} else if (IS_SYNOLOGY_DX5(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX5);
-		} else if (IS_SYNOLOGY_DX513(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX513);
-		} else if (IS_SYNOLOGY_DX213(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX213);
-		} else if (IS_SYNOLOGY_DX517(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX517);
-		} else if (IS_SYNOLOGY_RX413(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX413);
-		} else if (IS_SYNOLOGY_RX415(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX415);
-		} else if (IS_SYNOLOGY_RX418(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX418);
-		} else if (IS_SYNOLOGY_DXC(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DXC);
-		} else if (IS_SYNOLOGY_RXC(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RXC);
-		} else if (IS_SYNOLOGY_RX1214(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX1214);
-		} else if (IS_SYNOLOGY_RX1217(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_RX1217);
-		} else if (IS_SYNOLOGY_DX1215(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX1215);
-		} else if (IS_SYNOLOGY_DX1222(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX1222);
-		} else if (IS_SYNOLOGY_DX1215II(ap->PMSynoUnique)) {
-			snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sunique=%s\n", sdev->syno_block_info, EBOX_INFO_UNIQUE_DX1215II);
-		}
+		syno_set_block_unique(sdev, ap->PMSynoUnique);
 	}
 #endif /* MY_ABC_HERE */
 
@@ -4183,14 +4274,6 @@ static void syno_usb_info_enum(struct scsi_device *sdev) {
 	}
 
 	snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%susb_path=%s\n", sdev->syno_block_info, dev_name(&us->pusb_dev->dev));
-}
-
-static void syno_mv14xx_info_enum(struct scsi_device *sdev) {
-	struct device *pdev = sdev->host->shost_gendev.parent;
-
-	syno_pciepath_enum(pdev, sdev->syno_block_info);
-	snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sphy=%d\n", sdev->syno_block_info, sdev->id);
-	snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sdriver=%s\n", sdev->syno_block_info, DT_MV14XX);
 }
 
 static void syno_libata_info_enum(struct scsi_device *sdev, struct gendisk *gd) {
@@ -4390,6 +4473,16 @@ static int sd_probe(struct device *dev)
 #ifdef MY_DEF_HERE
 					if (1 == gIsMultipathModel && !blSASInternalDevice) {
 						error = syno_ida_get_new(&sas_native_index_ida, 0, &synoidx);
+						gd->mpath_info = kzalloc(
+							sizeof(struct syno_mulitpath_disk_info), GFP_KERNEL);
+						if (gd->mpath_info) {
+							gd->mpath_info->multipath_slave = true;
+							gd->mpath_info->holder_syno_index = -1;
+							spin_lock_init(&gd->mpath_info->mpath_info_lock);
+						} else {
+							sdev_printk(KERN_WARNING, sdp,
+										"Failed to alloc mapth info\n");
+						}
 					} else
 #endif /* MY_DEF_HERE */
 					{
@@ -4436,7 +4529,7 @@ static int sd_probe(struct device *dev)
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 				// There are 16 internal disks in RS4021xs+, usb index should start from 16 + 8
-				if (syno_is_hw_version(HW_RS4021xsp))
+				if (syno_is_hw_version(HW_RS4021xsp) || syno_is_hw_version(HW_RS4023xsp) || syno_is_hw_version(HW_RS4017xsp))
 					want_idx = 24;
 				else
 #endif
@@ -4588,8 +4681,10 @@ SYNO_SKIP_WANT_RETRY:
 		case SYNO_DISK_SATA:
 			if (!strcmp("mv14xx", sdp->host->hostt->proc_name)) {
 				// mv14xx
-				syno_mv14xx_info_enum(sdp);
-				gd->systemDisk = 1;
+				void (*syno_mv14xx_info_enum_func_ptr)(struct scsi_device *, struct gendisk *) = sdp->hostdata;
+				if (syno_mv14xx_info_enum_func_ptr) {
+					syno_mv14xx_info_enum_func_ptr(sdp, gd);
+				}
 			} else {
 				// libata
 				syno_libata_info_enum(sdp, gd);
@@ -5259,6 +5354,13 @@ int SynoScsiDeviceToDiskIndex(const struct scsi_device *psdev)
 	}
 #if defined(MY_ABC_HERE)
 	if (g_is_sas_model) {
+#ifdef MY_DEF_HERE
+		if ((psdisk->disk) &&
+			(psdisk->disk->mpath_info) &&
+			(psdisk->disk->mpath_info->multipath_slave)) {
+			return psdisk->disk->mpath_info->holder_syno_index;
+		}
+#endif
 		return psdisk->synoindex;
 	}
 #endif /* MY_ABC_HERE */
@@ -5269,4 +5371,72 @@ int SynoScsiDeviceToDiskIndex(const struct scsi_device *psdev)
 #endif /* MY_DEF_HERE */
 }
 EXPORT_SYMBOL(SynoScsiDeviceToDiskIndex);
+
+/**
+ * We established disk health prediction rule fot SAS at DSM#137866, DSM#106198
+ * It only considers device types with SAS, SATA and NVC
+ *
+ * @param scsi_device
+ * @return Check if it belongs to physical drive(HDD, SSD..)
+ **/
+bool SynoIsPhysicalDrive(const struct scsi_device *psdev)
+{
+	bool ret = false;
+	struct scsi_disk *psdisk = NULL;
+	if (!psdev || TYPE_DISK != psdev->type) {
+		goto END;
+	}
+
+	psdisk = dev_get_drvdata(&psdev->sdev_gendev);
+	if (NULL == psdisk) {
+		goto END;
+	}
+
+	if(SYNO_DISK_SATA == psdisk->synodisktype
+		|| SYNO_DISK_SAS == psdisk->synodisktype
+#ifdef MY_ABC_HERE
+		|| SYNO_DISK_CACHE == psdisk->synodisktype /* only for nvc */
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+		|| SYNO_DISK_SYSTEM == psdisk->synodisktype /* only for system partition */
+#endif /* MY_ABC_HERE */
+	){
+		ret = true;
+	}
+END:
+	return ret;
+}
+EXPORT_SYMBOL(SynoIsPhysicalDrive);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+struct scsi_device* SynoSCSIGendiskToScsiDevice(struct gendisk *disk)
+{
+	if (!disk) {
+		return NULL;
+	}
+
+	return container_of(disk->private_data, struct scsi_disk, driver)->device;
+}
+EXPORT_SYMBOL(SynoSCSIGendiskToScsiDevice);
+#endif //MY_ABC_HERE
+
+#ifdef MY_DEF_HERE
+struct gendisk* SynoScsiDeviceToGendisk(struct scsi_device *psdev)
+{
+	struct scsi_disk *psdisk = NULL;
+	struct gendisk *ret = NULL;
+
+	if (!psdev || TYPE_DISK != psdev->type) {
+		goto END;
+	}
+	psdisk = dev_get_drvdata(&psdev->sdev_gendev);
+	if (NULL == psdisk) {
+		goto END;
+	}
+	ret = psdisk->disk;
+END:
+	return ret;
+}
+EXPORT_SYMBOL(SynoScsiDeviceToGendisk);
+#endif //MY_DEF_HERE

@@ -47,11 +47,26 @@ static int syno_fetch_mountpoint_fullpath(struct vfsmount *mnt, char *mnt_full_p
 	struct mount *root_mnt = NULL;
 	struct path root_path;
 	struct path mnt_path;
+	struct task_struct *parent;
 
-	if (!nsproxy)
-		return -EINVAL;
+	if (!nsproxy) {
+		/*
+		 * When a process exits, CLOSE events will be sent asynchronously through
+		 * do_exit -> exit_files -> ... -> delayed_fput ->  __fput -> fsnotify_close
+		 *
+		 * At this point it may be troublesome to access current's namespace. To
+		 * work round it, parent's namespace is used instead because most of
+		 * the time processes have the same namespaces as their parents.
+		 */
+		rcu_read_lock();
+		parent = rcu_dereference(current->real_parent);
 
-	mnt_space = nsproxy->mnt_ns;
+		if (parent && parent->nsproxy)
+			mnt_space = parent->nsproxy->mnt_ns;
+		rcu_read_unlock();
+	} else
+		mnt_space = nsproxy->mnt_ns;
+
 	if (!mnt_space || !mnt_space->root)
 		return -EINVAL;
 
@@ -238,6 +253,11 @@ static int synotify_handle_event(struct fsnotify_group *group,
 	event->file_name = file_name;
 	event->data_type = data_type;
 	fsn_event = &event->fse;
+	event->event_version = group->synotify_data.event_version;
+
+	// v2 event
+	event->pid = task_tgid_nr_ns(current, &init_pid_ns);
+	event->uid = from_kuid_munged(&init_user_ns, current_uid());
 
 	ret = fsnotify_add_event(group, fsn_event, synotify_merge);
 	if (ret) {

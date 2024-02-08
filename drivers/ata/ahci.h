@@ -509,4 +509,14 @@ static inline int ahci_nr_ports(u32 cap)
 	return (cap & 0x1f) + 1;
 }
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+/*
+ *	Check PCI vender and device for JMB585, JMB582
+ */
+static inline int syno_jmb58x_check(unsigned short vendor, unsigned short device)
+{
+	return (PCI_VENDOR_ID_JMICRON == vendor && ( 0x0585 == device || 0x0582 == device)) ? 0 : -1;
+}
+#endif /* MY_ABC_HERE || CONFIG_SYNO_JMICRON_585_DUBIOUS_IFS_FIXv|| MY_ABC_HERE */
+
 #endif /* _AHCI_H */

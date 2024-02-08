@@ -134,10 +134,6 @@ ModNFS=" \
 ModCIFS=" \
 	${KernelDir}/fs/cifs/cifs.ko \
 	"
-ModQuota=" \
-	${KernelDir}/fs/quota/quota_tree.ko \
-	${KernelDir}/fs/quota/quota_v2.ko \
-	"
 ModSCSI=" \
 	${KernelDir}/drivers/scsi/sg.ko \
 	"
@@ -218,6 +214,17 @@ ModRaid=" \
 	${KernelDir}/crypto/xor.ko \
 	"
 
+ModHDMIAudio=" \
+	${KernelDir}/sound/soundcore.ko \
+	${KernelDir}/sound/core/snd.ko \
+	${KernelDir}/sound/core/snd-timer.ko \
+	${KernelDir}/sound/core/snd-pcm.ko \
+	${KernelDir}/sound/hda/snd-hda-core.ko \
+	${KernelDir}/sound/pci/hda/snd-hda-codec.ko \
+	${KernelDir}/sound/pci/hda/snd-hda-codec-hdmi.ko \
+	${KernelDir}/sound/pci/hda/snd-hda-intel.ko \
+	"
+
 BasicModuleList=" \
 	${ModCrypto} \
 	${ModFS} \
@@ -235,17 +242,18 @@ BasicModuleList=" \
 	${ModNFSD} \
 	${ModNFS} \
 	${ModCIFS} \
-	${ModQuota} \
 	${ModSCSI} \
 	${ModSnapshot} \
 	${ModSound} \
 	${ModDocker} \
 	${ModRaid} \
+	${ModAlsa} \
 	"
 UsbModuleList=" \
 	${ModUSB} \
 	${ModUSBIP} \
 	${ModUSBWimax} \
+	${ModUSBAlsa} \
 	"
 ########## Advanced Module List ##########
 
@@ -362,11 +370,17 @@ ModUSBserial=" \
 ModLP3943=" \
 	${KernelDir}/drivers/leds/leds-lp3943.ko \
 	"
+ModATMEGA1608=" \
+	${KernelDir}/drivers/leds/leds-atmega1608.ko \
+	"
 ModI2C=" \
 	${KernelDir}/drivers/i2c/algos/i2c-algo-bit.ko \
 	"
 ModXFS=" \
 	${KernelDir}/fs/xfs/xfs.ko \
+	"
+ModSYNOCacheProtection=" \
+	${KernelDir}/fs/syno_cache_protection/syno_cache_protection.ko \
 	"
 ModBTRFS=" \
 	${KernelDir}/fs/btrfs/btrfs.ko \
@@ -609,6 +623,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModNetConsole}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModFC}"
+		ModuleList="${ModuleList} ${ModATMEGA1608}"
 
 		;;
 	BROADWELL)
@@ -635,6 +650,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModNetConsole}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModFC}"
+		ModuleList="${ModuleList} ${ModATMEGA1608}"
 
 		;;
 	BROADWELLNTB)
@@ -666,6 +682,7 @@ case "$BUILD_TARGET" in
 		;;
 
 	BROADWELLNTBAP)
+		ModuleList="${ModuleList} ${ModSYNOCacheProtection}"
 		ModuleList="${ModuleList} ${ModBTRFS}"
 		ModuleList="${ModuleList} ${ModCryptoIntel}"
 		ModuleList="${ModuleList} ${ModI2C}"
@@ -718,6 +735,8 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModFC}"
 		ModuleList="${ModuleList} ${ModLP3943}"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/i2c/busses/i2c-asm2824.ko"
+		ModuleList="${ModuleList} ${ModATMEGA1608}"
 
 		;;
 	MARVELL_ARMADA37XX)
@@ -829,6 +848,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModDiskPwCtl}"
 		ModuleList="${ModuleList} ${ModNetConsole}"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModHDMIAudio}"
 
 		;;
 	REALTEK_RTD1619)
@@ -896,6 +916,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModCryptoIntel}"
 		ModuleList="${ModuleList} ${ModI2C}"
 		ModuleList="${ModuleList} ${ModLP3943}"
+		ModuleList="${ModuleList} ${ModATMEGA1608}"
 		ModuleList="${ModuleList} ${ModCPUFreq}"
 		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
 		ModuleList="${ModuleList} ${ModVlan}"
@@ -907,6 +928,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${ModIPv6Tun}"
 		ModuleList="${ModuleList} ${ModVFIO}"
 		ModuleList="${ModuleList} ${ModOpenvswitch}"
+		ModuleList="${ModuleList} ${ModDiskPwCtl}"
 		ModuleList="${ModuleList} ${ModNFQ}"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/net/mdio.ko"
 		ModuleList="${ModuleList} ${ModNetConsole}"
@@ -921,6 +943,7 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${KernelDir}/drivers/net/phy/marvell10g.ko"
 		ModuleList="${ModuleList} ${KernelDir}/drivers/net/ethernet/amd/xgbe/amd-xgbe.ko"
 		ModuleList="${ModuleList} ${KernelDir}/lib/synolib/syno_uart2spi_logout.ko"
+		ModuleList="${ModuleList} ${ModFC}"
 
 		;;
 	KVMCLOUD)
@@ -943,6 +966,113 @@ case "$BUILD_TARGET" in
 		ModuleList="${ModuleList} ${KernelDir}/lib/zlib_deflate/zlib_deflate.ko"
 		ModuleList="${ModuleList} ${ModDockerIngress}"
 		ModuleList="${ModuleList} ${ModACPI}"
+
+		;;
+	EPYC7002)
+		ModuleList="${ModuleList} ${ModBTRFS}"
+		ModuleList="${ModuleList} ${ModCryptoIntel}"
+		ModuleList="${ModuleList} ${ModI2C}"
+		ModuleList="${ModuleList} ${ModATMEGA1608}"
+		ModuleList="${ModuleList} ${ModCPUFreq}"
+		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
+		ModuleList="${ModuleList} ${ModVlan}"
+		ModuleList="${ModuleList} ${ModUSBserial}"
+		ModuleList="${ModuleList} ${ModIPsec}"
+		ModuleList="${ModuleList} ${ModUSBModem}"
+		ModuleList="${ModuleList} ${ModZram}"
+		ModuleList="${ModuleList} ${ModIPv6Tun}"
+		ModuleList="${ModuleList} ${ModVFIO}"
+		ModuleList="${ModuleList} ${ModOpenvswitch}"
+		ModuleList="${ModuleList} ${ModNFQ}"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/net/mdio.ko"
+		ModuleList="${ModuleList} ${ModNetConsole}"
+		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModADT}"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/hwmon/hwmon-vid.ko"
+		ModuleList="${ModuleList} ${KernelDir}/virt/lib/irqbypass.ko"
+		ModuleList="${ModuleList} ${KernelDir}/arch/x86/kvm/kvm.ko"
+		ModuleList="${ModuleList} ${KernelDir}/arch/x86/kvm/kvm-amd.ko"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/pci/pci-stub.ko"
+
+		;;
+	R1000)
+		ModuleList="${ModuleList} ${ModBTRFS}"
+		ModuleList="${ModuleList} ${ModCryptoIntel}"
+		ModuleList="${ModuleList} ${ModI2C}"
+		ModuleList="${ModuleList} ${ModATMEGA1608}"
+		ModuleList="${ModuleList} ${ModCPUFreq}"
+		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
+		ModuleList="${ModuleList} ${ModVlan}"
+		ModuleList="${ModuleList} ${ModUSBserial}"
+		ModuleList="${ModuleList} ${ModIPsec}"
+		ModuleList="${ModuleList} ${ModUSBModem}"
+		ModuleList="${ModuleList} ${ModEtronUSB}"
+		ModuleList="${ModuleList} ${ModZram}"
+		ModuleList="${ModuleList} ${ModIPv6Tun}"
+		ModuleList="${ModuleList} ${ModVFIO}"
+		ModuleList="${ModuleList} ${ModOpenvswitch}"
+		ModuleList="${ModuleList} ${ModDiskPwCtl}"
+		ModuleList="${ModuleList} ${ModNFQ}"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/net/mdio.ko"
+		ModuleList="${ModuleList} ${ModNetConsole}"
+		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${KernelDir}/virt/lib/irqbypass.ko"
+		ModuleList="${ModuleList} ${KernelDir}/arch/x86/kvm/kvm.ko"
+		ModuleList="${ModuleList} ${KernelDir}/arch/x86/kvm/kvm-amd.ko"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/pci/pci-stub.ko"
+
+		;;
+	ICELAKED)
+		ModuleList="${ModuleList} ${ModBTRFS}"
+		ModuleList="${ModuleList} ${ModCryptoIntel}"
+		ModuleList="${ModuleList} ${ModI2C}"
+		ModuleList="${ModuleList} ${ModLP3943}"
+		ModuleList="${ModuleList} ${ModCPUFreq}"
+		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
+		ModuleList="${ModuleList} ${ModVlan}"
+		ModuleList="${ModuleList} ${ModUSBserial}"
+		ModuleList="${ModuleList} ${ModIPsec}"
+		ModuleList="${ModuleList} ${ModEtronUSB}"
+		ModuleList="${ModuleList} ${ModZram}"
+		ModuleList="${ModuleList} ${ModIPv6Tun}"
+		ModuleList="${ModuleList} ${ModVirtualization}"
+		ModuleList="${ModuleList} ${ModVFIO}"
+		ModuleList="${ModuleList} ${ModOpenvswitch}"
+		ModuleList="${ModuleList} ${ModNFQ}"
+		ModuleList="${ModuleList} ${ModDiskPwCtl}"
+		ModuleList="${ModuleList} ${ModDCA}"
+		ModuleList="${ModuleList} ${ModADT}"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/net/mdio.ko"
+		ModuleList="${ModuleList} ${ModNetConsole}"
+		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModFC}"
+
+		;;
+	BROADWELLNKV2)
+		ModuleList="${ModuleList} ${ModBTRFS}"
+		ModuleList="${ModuleList} ${ModCryptoIntel}"
+		ModuleList="${ModuleList} ${ModI2C}"
+		ModuleList="${ModuleList} ${ModLP3943}"
+		ModuleList="${ModuleList} ${ModCPUFreq}"
+		ModuleList="${ModuleList} ${ModBridge} ${ModTC} ${ModFwSecurity}"
+		ModuleList="${ModuleList} ${ModVlan}"
+		ModuleList="${ModuleList} ${ModUSBserial}"
+		ModuleList="${ModuleList} ${ModIPsec}"
+		ModuleList="${ModuleList} ${ModEtronUSB}"
+		ModuleList="${ModuleList} ${ModZram}"
+		ModuleList="${ModuleList} ${ModIPv6Tun}"
+		ModuleList="${ModuleList} ${ModVirtualization}"
+		ModuleList="${ModuleList} ${ModVFIO}"
+		ModuleList="${ModuleList} ${ModOpenvswitch}"
+		ModuleList="${ModuleList} ${ModNFQ}"
+		ModuleList="${ModuleList} ${ModDiskPwCtl}"
+		ModuleList="${ModuleList} ${ModDCA}"
+		ModuleList="${ModuleList} ${ModADT}"
+		ModuleList="${ModuleList} ${KernelDir}/drivers/net/mdio.ko"
+		ModuleList="${ModuleList} ${ModNetConsole}"
+		ModuleList="${ModuleList} ${ModDockerIngress}"
+		ModuleList="${ModuleList} ${ModFC}"
+		ModuleList="${ModuleList} ${ModATMEGA1608}"
 
 		;;
 	*)

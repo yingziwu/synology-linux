@@ -97,6 +97,18 @@ config SYNO_KVMCLOUD
 	bool "KVM X64 Virtual machine on cloud"
 	depends on X86_64
 
+config SYNO_EPYC7002
+	bool "AMD EPYC Embedded 7002 Rome"
+	depends on X86_64
+
+config SYNO_R1000
+	bool "AMD Ryzen Embedded R1000"
+	depends on X86_64
+
+config SYNO_ICELAKED
+	bool "INTEL ICELAKE-D"
+	depends on X86_64
+
 endchoice
 
 config SYNO_LSP_ARMADA

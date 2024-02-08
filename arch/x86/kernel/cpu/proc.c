@@ -94,7 +94,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 	}
 
 #if defined(MY_ABC_HERE)
-	strncpy(syno_cpu_model_name, c->x86_model_id, sizeof(c->x86_model_id));
+	strncpy(syno_cpu_model_name, c->x86_model_id, sizeof(syno_cpu_model_name));
 #endif /* MY_ABC_HERE */
 
 	/* Cache size */
