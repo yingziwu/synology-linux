@@ -22,7 +22,7 @@
  * Authors: Alex Deucher
  */
 
-#include "drmP.h"
+#include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "rv6xxd.h"
@@ -209,7 +209,7 @@ static struct rv6xx_sclk_stepping rv6xx_next_vco_step(struct radeon_device *rdev
 
 static bool rv6xx_can_step_post_div(struct radeon_device *rdev,
 				    struct rv6xx_sclk_stepping *cur,
-                                    struct rv6xx_sclk_stepping *target)
+				    struct rv6xx_sclk_stepping *target)
 {
 	return (cur->post_divider > target->post_divider) &&
 		((cur->vco_frequency * target->post_divider) <=
@@ -239,7 +239,7 @@ static bool rv6xx_reached_stepping_target(struct radeon_device *rdev,
 
 static void rv6xx_generate_steps(struct radeon_device *rdev,
 				 u32 low, u32 high,
-                                 u32 start_index, u8 *end_index)
+				 u32 start_index, u8 *end_index)
 {
 	struct rv6xx_sclk_stepping cur;
 	struct rv6xx_sclk_stepping target;
@@ -470,7 +470,6 @@ static void rv6xx_calculate_memory_clock_stepping_parameters(struct radeon_devic
 	else
 		pi->hw.medium_mclk_index = R600_POWER_LEVEL_MEDIUM;
 
-
 	if (state->medium.mclk == state->low.mclk)
 		pi->hw.low_mclk_index =
 			pi->hw.medium_mclk_index;
@@ -602,7 +601,6 @@ static int rv6xx_program_mclk_stepping_entry(struct radeon_device *rdev,
 
 	if (radeon_atom_get_clock_dividers(rdev, COMPUTE_MEMORY_PLL_PARAM, clock, false, &dividers))
 	    return -EINVAL;
-
 
 	rv6xx_memory_clock_entry_set_reference_divider(rdev, entry, dividers.ref_div);
 	rv6xx_memory_clock_entry_set_feedback_divider(rdev, entry, dividers.fb_div);
@@ -1356,23 +1354,23 @@ static void rv6xx_set_dpm_event_sources(struct radeon_device *rdev, u32 sources)
 	enum radeon_dpm_event_src dpm_event_src;
 
 	switch (sources) {
-        case 0:
-        default:
+	case 0:
+	default:
 		want_thermal_protection = false;
 		break;
-        case (1 << RADEON_DPM_AUTO_THROTTLE_SRC_THERMAL):
+	case (1 << RADEON_DPM_AUTO_THROTTLE_SRC_THERMAL):
 		want_thermal_protection = true;
 		dpm_event_src = RADEON_DPM_EVENT_SRC_DIGITAL;
 		break;
 
-        case (1 << RADEON_DPM_AUTO_THROTTLE_SRC_EXTERNAL):
+	case (1 << RADEON_DPM_AUTO_THROTTLE_SRC_EXTERNAL):
 		want_thermal_protection = true;
 		dpm_event_src = RADEON_DPM_EVENT_SRC_EXTERNAL;
 		break;
 
-        case ((1 << RADEON_DPM_AUTO_THROTTLE_SRC_EXTERNAL) |
+	case ((1 << RADEON_DPM_AUTO_THROTTLE_SRC_EXTERNAL) |
 	      (1 << RADEON_DPM_AUTO_THROTTLE_SRC_THERMAL)):
-		want_thermal_protection = true;
+			want_thermal_protection = true;
 		dpm_event_src = RADEON_DPM_EVENT_SRC_DIGIAL_OR_EXTERNAL;
 		break;
 	}
@@ -1404,7 +1402,6 @@ static void rv6xx_enable_auto_throttle_source(struct radeon_device *rdev,
 		}
 	}
 }
-
 
 static void rv6xx_enable_thermal_protection(struct radeon_device *rdev,
 					    bool enable)
@@ -1879,7 +1876,7 @@ static int rv6xx_parse_power_table(struct radeon_device *rdev)
 	union pplib_clock_info *clock_info;
 	union power_info *power_info;
 	int index = GetIndexIntoMasterTable(DATA, PowerPlayInfo);
-        u16 data_offset;
+	u16 data_offset;
 	u8 frev, crev;
 	struct rv6xx_ps *ps;
 

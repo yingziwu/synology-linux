@@ -124,7 +124,6 @@ void btrfs_remove_delayed_node(struct inode *inode);
 void btrfs_kill_delayed_inode_items(struct inode *inode);
 int btrfs_commit_inode_delayed_inode(struct inode *inode);
 
-
 int btrfs_delayed_update_inode(struct btrfs_trans_handle *trans,
 			       struct btrfs_root *root, struct inode *inode);
 int btrfs_fill_inode(struct inode *inode, u32 *rdev);
@@ -144,7 +143,7 @@ void btrfs_put_delayed_items(struct list_head *ins_list,
 int btrfs_should_delete_dir_index(struct list_head *del_list,
 				  u64 index);
 int btrfs_readdir_delayed_dir_index(struct dir_context *ctx,
-				    struct list_head *ins_list, bool *emitted);
+				    struct list_head *ins_list);
 
 /* for init */
 int __init btrfs_delayed_inode_init(void);

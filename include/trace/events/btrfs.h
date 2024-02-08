@@ -23,7 +23,7 @@ struct map_lookup;
 struct extent_buffer;
 struct btrfs_work;
 struct __btrfs_workqueue;
-struct btrfs_qgroup_operation;
+struct btrfs_qgroup_extent_record;
 
 #define show_ref_type(type)						\
 	__print_symbolic(type,						\
@@ -45,7 +45,8 @@ struct btrfs_qgroup_operation;
 		{ BTRFS_TREE_LOG_OBJECTID,	"TREE_LOG"	},	\
 		{ BTRFS_QUOTA_TREE_OBJECTID,	"QUOTA_TREE"	},	\
 		{ BTRFS_TREE_RELOC_OBJECTID,	"TREE_RELOC"	},	\
-		{ BTRFS_UUID_TREE_OBJECTID,	"UUID_RELOC"	},	\
+		{ BTRFS_UUID_TREE_OBJECTID,	"UUID_TREE"	},	\
+		{ BTRFS_FREE_SPACE_TREE_OBJECTID, "FREE_SPACE_TREE" },	\
 		{ BTRFS_DATA_RELOC_TREE_OBJECTID, "DATA_RELOC_TREE" })
 
 #define show_root_type(obj)						\
@@ -224,7 +225,6 @@ TRACE_EVENT_CONDITION(btrfs_get_extent,
 		{ (1 << BTRFS_ORDERED_UPDATED_ISIZE), 	"UPDATED_ISIZE"	}, \
 		{ (1 << BTRFS_ORDERED_LOGGED_CSUM), 	"LOGGED_CSUM"	}, \
 		{ (1 << BTRFS_ORDERED_TRUNCATED), 	"TRUNCATED"	})
-
 
 DECLARE_EVENT_CLASS(btrfs__ordered_extent,
 
@@ -446,7 +446,6 @@ TRACE_EVENT(btrfs_sync_fs,
 		{ BTRFS_ADD_DELAYED_EXTENT, "ADD_DELAYED_EXTENT" }, 	\
 		{ BTRFS_UPDATE_DELAYED_HEAD, "UPDATE_DELAYED_HEAD" })
 			
-
 DECLARE_EVENT_CLASS(btrfs_delayed_tree_ref,
 
 	TP_PROTO(struct btrfs_delayed_ref_node *ref,
@@ -1230,6 +1229,93 @@ DEFINE_EVENT(btrfs__qgroup_delayed_ref, btrfs_qgroup_free_delayed_ref,
 
 	TP_ARGS(ref_root, reserved)
 );
+
+DECLARE_EVENT_CLASS(btrfs_qgroup_extent,
+	TP_PROTO(struct btrfs_qgroup_extent_record *rec),
+
+	TP_ARGS(rec),
+
+	TP_STRUCT__entry(
+		__field(	u64,  bytenr		)
+		__field(	u64,  num_bytes		)
+	),
+
+	TP_fast_assign(
+		__entry->bytenr		= rec->bytenr,
+		__entry->num_bytes	= rec->num_bytes;
+	),
+
+	TP_printk("bytenr = %llu, num_bytes = %llu",
+		  (unsigned long long)__entry->bytenr,
+		  (unsigned long long)__entry->num_bytes)
+);
+
+DEFINE_EVENT(btrfs_qgroup_extent, btrfs_qgroup_account_extents,
+
+	TP_PROTO(struct btrfs_qgroup_extent_record *rec),
+
+	TP_ARGS(rec)
+);
+
+DEFINE_EVENT(btrfs_qgroup_extent, btrfs_qgroup_insert_dirty_extent,
+
+	TP_PROTO(struct btrfs_qgroup_extent_record *rec),
+
+	TP_ARGS(rec)
+);
+
+TRACE_EVENT(btrfs_qgroup_account_extent,
+
+	TP_PROTO(u64 bytenr, u64 num_bytes, u64 nr_old_roots, u64 nr_new_roots),
+
+	TP_ARGS(bytenr, num_bytes, nr_old_roots, nr_new_roots),
+
+	TP_STRUCT__entry(
+		__field(	u64,  bytenr			)
+		__field(	u64,  num_bytes			)
+		__field(	u64,  nr_old_roots		)
+		__field(	u64,  nr_new_roots		)
+	),
+
+	TP_fast_assign(
+		__entry->bytenr		= bytenr;
+		__entry->num_bytes	= num_bytes;
+		__entry->nr_old_roots	= nr_old_roots;
+		__entry->nr_new_roots	= nr_new_roots;
+	),
+
+	TP_printk("bytenr = %llu, num_bytes = %llu, nr_old_roots = %llu, "
+		  "nr_new_roots = %llu",
+		  __entry->bytenr,
+		  __entry->num_bytes,
+		  __entry->nr_old_roots,
+		  __entry->nr_new_roots)
+);
+
+TRACE_EVENT(qgroup_update_counters,
+
+	TP_PROTO(u64 qgid, u64 cur_old_count, u64 cur_new_count),
+
+	TP_ARGS(qgid, cur_old_count, cur_new_count),
+
+	TP_STRUCT__entry(
+		__field(	u64,  qgid			)
+		__field(	u64,  cur_old_count		)
+		__field(	u64,  cur_new_count		)
+	),
+
+	TP_fast_assign(
+		__entry->qgid		= qgid;
+		__entry->cur_old_count	= cur_old_count;
+		__entry->cur_new_count	= cur_new_count;
+	),
+
+	TP_printk("qgid = %llu, cur_old_count = %llu, cur_new_count = %llu",
+		  __entry->qgid,
+		  __entry->cur_old_count,
+		  __entry->cur_new_count)
+);
+
 #endif /* _TRACE_BTRFS_H */
 
 /* This part must be outside protection */

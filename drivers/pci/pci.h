@@ -6,6 +6,8 @@
 
 #define PCI_FIND_CAP_TTL	48
 
+#define PCI_VSEC_ID_INTEL_TBT	0x1234	/* Thunderbolt */
+
 extern const unsigned char pcie_link_speed[];
 
 bool pcie_cap_has_lnkctl(const struct pci_dev *dev);
@@ -186,7 +188,6 @@ extern const struct attribute_group *pci_dev_groups[];
 extern const struct attribute_group *pcibus_groups[];
 extern struct device_type pci_dev_type;
 extern const struct attribute_group *pci_bus_groups[];
-
 
 /**
  * pci_match_one_device - Tell if a PCI device structure has a matching

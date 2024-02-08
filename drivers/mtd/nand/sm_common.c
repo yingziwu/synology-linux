@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright © 2009 - Maxim Levitsky
  * Common routines & support for xD format
@@ -37,7 +40,6 @@ static struct nand_ecclayout nand_oob_sm_small = {
 	}
 };
 
-
 static int sm_block_markbad(struct mtd_info *mtd, loff_t ofs)
 {
 	struct mtd_oob_ops ops;
@@ -54,7 +56,6 @@ static int sm_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	ops.ooblen = mtd->oobsize;
 	ops.oobbuf = (void *)&oob;
 	ops.datbuf = NULL;
-
 
 	ret = mtd_write_oob(mtd, ofs, &ops);
 	if (ret < 0 || ops.oobretlen != SM_OOB_SIZE) {
@@ -102,7 +103,11 @@ static struct nand_flash_dev nand_xd_flash_ids[] = {
 
 int sm_register_device(struct mtd_info *mtd, int smartmedia)
 {
+#if defined(MY_DEF_HERE)
+	struct nand_chip *chip = mtd_to_nand(mtd);
+#else /* MY_DEF_HERE */
 	struct nand_chip *chip = mtd->priv;
+#endif /* MY_DEF_HERE */
 	int ret;
 
 	chip->options |= NAND_SKIP_BBTSCAN;

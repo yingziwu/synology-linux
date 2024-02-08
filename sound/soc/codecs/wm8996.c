@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * wm8996.c - WM8996 audio codec interface
  *
@@ -915,7 +918,6 @@ SOC_DAPM_SINGLE("IN1 Switch", WM8996_DSP2_TX_RIGHT_MIXER_ROUTING,
 SOC_DAPM_SINGLE("DAC Switch", WM8996_DSP2_TX_RIGHT_MIXER_ROUTING,
 		0, 1, 0),
 };
-
 
 static const struct snd_soc_dapm_widget wm8996_dapm_widgets[] = {
 SND_SOC_DAPM_INPUT("IN1LN"),
@@ -2204,7 +2206,11 @@ static void wm8996_init_gpio(struct wm8996_priv *wm8996)
 
 	wm8996->gpio_chip = wm8996_template_chip;
 	wm8996->gpio_chip.ngpio = 5;
+#if defined(MY_DEF_HERE)
+	wm8996->gpio_chip.parent = wm8996->dev;
+#else /* MY_DEF_HERE */
 	wm8996->gpio_chip.dev = wm8996->dev;
+#endif /* MY_DEF_HERE */
 
 	if (wm8996->pdata.gpio_base)
 		wm8996->gpio_chip.base = wm8996->pdata.gpio_base;

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * This file is provided under a dual BSD/GPLv2 license.  When using or
  *   redistributing this file, you may do so under either license.
@@ -53,6 +56,10 @@
 #include <linux/pci.h>
 #include <linux/ntb.h>
 #include <linux/ntb_transport.h>
+#ifdef MY_DEF_HERE
+#include <linux/delay.h>
+#include <linux/proc_fs.h>
+#endif /* MY_DEF_HERE */
 
 #define NTB_NETDEV_VER	"0.7"
 
@@ -76,10 +83,30 @@ struct ntb_netdev {
 	struct net_device *ndev;
 	struct ntb_transport_qp *qp;
 	struct timer_list tx_timer;
+#ifdef MY_DEF_HERE /* MY_DEF_HERE */
+	unsigned int count_of_rx_allocate_fail;
+	struct delayed_work ntb_skb_allocate_delay_work;
+#endif /* MY_DEF_HERE */
 };
 
+#ifdef MY_DEF_HERE
+static void SYNONtbSkbAllocateWork(struct work_struct *work);
+#endif /* MY_DEF_HERE */
+
 #define	NTB_TX_TIMEOUT_MS	1000
+#ifdef MY_DEF_HERE /* MY_DEF_HERE */ 
+#define NTB_RXQ_SIZE            10000
+#else
 #define	NTB_RXQ_SIZE		100
+#endif /* MY_DEF_HERE */ 
+
+#ifdef MY_DEF_HERE
+#define NTB_SKB_ALLOCATE_INTERVAL_MS 100
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+static struct ntb_netdev *gbNtbNetDev = NULL;
+#endif /* MY_DEF_HERE */
 
 static LIST_HEAD(dev_list);
 
@@ -105,6 +132,9 @@ static void ntb_netdev_rx_handler(struct ntb_transport_qp *qp, void *qp_data,
 	struct net_device *ndev = qp_data;
 	struct sk_buff *skb;
 	int rc;
+#ifdef MY_DEF_HERE /* MY_DEF_HERE */
+	struct ntb_netdev *dev = netdev_priv(ndev);
+#endif /* MY_DEF_HERE */
 
 	skb = data;
 	if (!skb)
@@ -130,10 +160,22 @@ static void ntb_netdev_rx_handler(struct ntb_transport_qp *qp, void *qp_data,
 		ndev->stats.rx_bytes += len;
 	}
 
+#ifdef MY_DEF_HERE /* MY_DEF_HERE */
+	skb = __netdev_alloc_skb(ndev, ndev->mtu + ETH_HLEN, GFP_ATOMIC | __GFP_HIGH);
+#else
 	skb = netdev_alloc_skb(ndev, ndev->mtu + ETH_HLEN);
+#endif /* MY_DEF_HERE */
 	if (!skb) {
+#ifdef MY_DEF_HERE /* MY_DEF_HERE */
+		dev->count_of_rx_allocate_fail++;
+		if (NTB_RXQ_SIZE == dev->count_of_rx_allocate_fail) {
+			printk("ntb_netdev skb buffer is empty\n");
+			schedule_delayed_work(&dev->ntb_skb_allocate_delay_work, 0);
+		}
+#else
 		ndev->stats.rx_errors++;
 		ndev->stats.rx_frame_errors++;
+#endif /* MY_DEF_HERE */
 		return;
 	}
 
@@ -144,6 +186,22 @@ enqueue_again:
 		ndev->stats.rx_errors++;
 		ndev->stats.rx_fifo_errors++;
 	}
+
+#ifdef MY_DEF_HERE /* MY_DEF_HERE */
+	while(dev->count_of_rx_allocate_fail) {
+                skb = __netdev_alloc_skb(ndev, ndev->mtu + ETH_HLEN, GFP_ATOMIC | __GFP_HIGH);
+                if(!skb) {
+                        break;
+                } else {
+                        rc = ntb_transport_rx_enqueue(qp, skb, skb->data, ndev->mtu + ETH_HLEN);
+                        if (rc) {
+                                dev_kfree_skb(skb);
+                                break;
+                        }
+                        dev->count_of_rx_allocate_fail--;
+                }
+        }
+#endif /* MY_DEF_HERE */
 }
 
 static int __ntb_netdev_maybe_stop_tx(struct net_device *netdev,
@@ -247,6 +305,37 @@ static void ntb_netdev_tx_timer(unsigned long data)
 	}
 }
 
+#ifdef MY_DEF_HERE
+static void SYNONtbSkbAllocateWork(struct work_struct *work)
+{
+	struct ntb_netdev *dev = container_of(work,
+			struct ntb_netdev, ntb_skb_allocate_delay_work.work);
+	struct sk_buff *skb = NULL;
+	struct ntb_transport_qp *qp = dev->qp;
+	struct net_device *ndev = dev->ndev;
+	int iResult = 0;
+	bool blAllocSucc = false;
+
+	skb = __netdev_alloc_skb(ndev, ndev->mtu + ETH_HLEN, GFP_ATOMIC | __GFP_HIGH);
+	if(skb) {
+		iResult = ntb_transport_rx_enqueue(qp, skb, skb->data, ndev->mtu + ETH_HLEN);
+		if (iResult) {
+			dev_kfree_skb(skb);
+		} else {
+			dev->count_of_rx_allocate_fail--;
+			blAllocSucc = true;
+		}
+	}
+
+	if (!blAllocSucc) {
+		schedule_delayed_work(&dev->ntb_skb_allocate_delay_work,
+			       msecs_to_jiffies(NTB_SKB_ALLOCATE_INTERVAL_MS));
+	} else {
+		printk("ntb_netdev workqueue success to allocte a buffer\n");
+	}
+}
+#endif /* MY_DEF_HERE */
+
 static int ntb_netdev_open(struct net_device *ndev)
 {
 	struct ntb_netdev *dev = netdev_priv(ndev);
@@ -274,6 +363,9 @@ static int ntb_netdev_open(struct net_device *ndev)
 	netif_carrier_off(ndev);
 	ntb_transport_link_up(dev->qp);
 	netif_start_queue(ndev);
+#ifdef MY_DEF_HERE
+	INIT_DELAYED_WORK(&dev->ntb_skb_allocate_delay_work, SYNONtbSkbAllocateWork);
+#endif /* MY_DEF_HERE */
 
 	return 0;
 
@@ -412,12 +504,18 @@ static int ntb_netdev_probe(struct device *client_dev)
 	pdev = ntb->pdev;
 	if (!pdev)
 		return -ENODEV;
-
+#ifdef MY_DEF_HERE /* MY_DEF_HERE */
+	ndev = alloc_netdev(sizeof(*dev), "ntb_eth%d", NET_NAME_UNKNOWN, ether_setup);
+#else
 	ndev = alloc_etherdev(sizeof(*dev));
+#endif /* MY_DEF_HERE */
 	if (!ndev)
 		return -ENOMEM;
 
 	dev = netdev_priv(ndev);
+#ifdef MY_DEF_HERE
+	gbNtbNetDev = dev;
+#endif /* MY_DEF_HERE */
 	dev->ndev = ndev;
 	dev->pdev = pdev;
 	ndev->features = NETIF_F_HIGHDMA;
@@ -481,6 +579,9 @@ static void ntb_netdev_remove(struct device *client_dev)
 
 	ndev = dev->ndev;
 
+#ifdef MY_DEF_HERE
+	cancel_delayed_work_sync(&dev->ntb_skb_allocate_delay_work);
+#endif /* MY_DEF_HERE */
 	unregister_netdev(ndev);
 	ntb_transport_free_queue(dev->qp);
 	free_netdev(ndev);
@@ -493,6 +594,44 @@ static struct ntb_transport_client ntb_netdev_client = {
 	.remove = ntb_netdev_remove,
 };
 
+#ifdef MY_DEF_HERE
+static int ntb_skb_num_proc_show(struct seq_file *m, void *v)
+{
+	if(gbNtbNetDev) {
+        	seq_printf(m, "%d\n", gbNtbNetDev->count_of_rx_allocate_fail);
+	} else {
+		seq_printf(m, "ntb eth not exist");
+	}
+        return 0;
+}
+
+static int ntb_skb_num_proc_open(struct inode *inode, struct file *file)
+{
+        return single_open(file, ntb_skb_num_proc_show, NULL);
+}
+
+static const struct file_operations ntb_skb_num_proc_fops = {
+        .open           = ntb_skb_num_proc_open,
+        .read           = seq_read,
+        .llseek         = seq_lseek,
+        .release        = single_release,
+};
+
+static int SynoProcNtbSkbNumInit(void)
+{
+        int iResult = 0;
+        struct proc_dir_entry *p;
+
+        p = proc_create("ntb_skb_num", 0, NULL, &ntb_skb_num_proc_fops);
+        if (NULL == p) {
+                printk("Fail to create ntb skb number proc\n");
+                iResult = -1;
+        }
+
+        return iResult;
+}
+#endif /* MY_DEF_HERE */
+
 static int __init ntb_netdev_init_module(void)
 {
 	int rc;
@@ -500,12 +639,23 @@ static int __init ntb_netdev_init_module(void)
 	rc = ntb_transport_register_client_dev(KBUILD_MODNAME);
 	if (rc)
 		return rc;
+#ifdef MY_DEF_HERE
+	rc = ntb_transport_register_client(&ntb_netdev_client);
+	if (0 == rc) {
+		SynoProcNtbSkbNumInit();
+	}
+	return rc;
+#else
 	return ntb_transport_register_client(&ntb_netdev_client);
+#endif /* MY_DEF_HERE */
 }
 module_init(ntb_netdev_init_module);
 
 static void __exit ntb_netdev_exit_module(void)
 {
+#ifdef MY_DEF_HERE
+	remove_proc_entry("ntb_skb_num", NULL);
+#endif /* MY_DEF_HERE */
 	ntb_transport_unregister_client(&ntb_netdev_client);
 	ntb_transport_unregister_client_dev(KBUILD_MODNAME);
 }

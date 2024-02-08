@@ -1,9 +1,7 @@
-/*
- * Copyright (C) 2008 Red Hat, Inc. All rights reserved.
- *
- * This file is released under the GPL.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/sysfs.h>
 #include <linux/dm-ioctl.h>
 #include "dm.h"
@@ -82,6 +80,21 @@ static ssize_t dm_attr_uuid_show(struct mapped_device *md, char *buf)
 	return strlen(buf);
 }
 
+#ifdef MY_ABC_HERE
+static ssize_t dm_attr_active_show(struct mapped_device *md, char *buf)
+{
+	sprintf(buf, "%d\n", dm_active_get(md));
+
+	return strlen(buf);
+}
+static ssize_t dm_attr_active_store(struct mapped_device *md, const char *buf, size_t count)
+{
+	dm_active_set(md, simple_strtol(buf, NULL, 10));
+	return strlen(buf);
+}
+static DM_ATTR_RW(active);
+#endif  
+
 static ssize_t dm_attr_suspended_show(struct mapped_device *md, char *buf)
 {
 	sprintf(buf, "%d\n", dm_suspended_md(md));
@@ -106,6 +119,9 @@ static struct attribute *dm_attrs[] = {
 	&dm_attr_name.attr,
 	&dm_attr_uuid.attr,
 	&dm_attr_suspended.attr,
+#ifdef MY_ABC_HERE
+	&dm_attr_active.attr,
+#endif  
 	&dm_attr_use_blk_mq.attr,
 	&dm_attr_rq_based_seq_io_merge_deadline.attr,
 	NULL,
@@ -122,10 +138,6 @@ static struct kobj_type dm_ktype = {
 	.release	= dm_kobject_release,
 };
 
-/*
- * Initialize kobj
- * because nobody using md yet, no need to call explicit dm_get/put
- */
 int dm_sysfs_init(struct mapped_device *md)
 {
 	return kobject_init_and_add(dm_kobject(md), &dm_ktype,
@@ -133,9 +145,6 @@ int dm_sysfs_init(struct mapped_device *md)
 				    "%s", "dm");
 }
 
-/*
- * Remove kobj, called after all references removed
- */
 void dm_sysfs_exit(struct mapped_device *md)
 {
 	struct kobject *kobj = dm_kobject(md);

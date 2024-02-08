@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 
 #ifndef XILINX_LL_TEMAC_H
 #define XILINX_LL_TEMAC_H
@@ -337,7 +340,11 @@ struct temac_local {
 
 	/* MDIO bus data */
 	struct mii_bus *mii_bus;	/* MII bus reference */
+#if defined(MY_DEF_HERE)
+//do nothing
+#else /* MY_DEF_HERE */
 	int mdio_irqs[PHY_MAX_ADDR];	/* IRQs table for MDIO bus */
+#endif /* MY_DEF_HERE */
 
 	/* IO registers, dma functions and IRQs */
 	void __iomem *regs;
@@ -376,7 +383,6 @@ void temac_iow(struct temac_local *lp, int offset, u32 value);
 int temac_indirect_busywait(struct temac_local *lp);
 u32 temac_indirect_in32(struct temac_local *lp, int reg);
 void temac_indirect_out32(struct temac_local *lp, int reg, u32 value);
-
 
 /* xilinx_temac_mdio.c */
 int temac_mdio_setup(struct temac_local *lp, struct device_node *np);

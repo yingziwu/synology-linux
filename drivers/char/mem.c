@@ -451,7 +451,6 @@ static ssize_t read_kmem(struct file *file, char __user *buf,
 	return read ? read : err;
 }
 
-
 static ssize_t do_write_kmem(unsigned long p, const char __user *buf,
 				size_t count, loff_t *ppos)
 {
@@ -689,7 +688,7 @@ static loff_t memory_lseek(struct file *file, loff_t offset, int orig)
 {
 	loff_t ret;
 
-	mutex_lock(&file_inode(file)->i_mutex);
+	inode_lock(file_inode(file));
 	switch (orig) {
 	case SEEK_CUR:
 		offset += file->f_pos;
@@ -706,7 +705,7 @@ static loff_t memory_lseek(struct file *file, loff_t offset, int orig)
 	default:
 		ret = -EINVAL;
 	}
-	mutex_unlock(&file_inode(file)->i_mutex);
+	inode_unlock(file_inode(file));
 	return ret;
 }
 

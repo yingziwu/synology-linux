@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright © 2009 - Maxim Levitsky
  * driver for Ricoh xD readers
@@ -20,7 +23,6 @@
 #include <linux/sched.h>
 #include "sm_common.h"
 #include "r852.h"
-
 
 static bool r852_enable_dma = 1;
 module_param(r852_enable_dma, bool, S_IRUGO);
@@ -45,7 +47,6 @@ static inline void r852_write_reg(struct r852_device *dev,
 	mmiowb();
 }
 
-
 /* read dword sized register */
 static inline uint32_t r852_read_reg_dword(struct r852_device *dev, int address)
 {
@@ -64,10 +65,13 @@ static inline void r852_write_reg_dword(struct r852_device *dev,
 /* returns pointer to our private structure */
 static inline struct r852_device *r852_get_dev(struct mtd_info *mtd)
 {
+#if defined(MY_DEF_HERE)
+	struct nand_chip *chip = mtd_to_nand(mtd);
+#else /* MY_DEF_HERE */
 	struct nand_chip *chip = mtd->priv;
+#endif /* MY_DEF_HERE */
 	return chip->priv;
 }
-
 
 /* check if controller supports dma */
 static void r852_dma_test(struct r852_device *dev)
@@ -394,7 +398,6 @@ static int r852_ready(struct mtd_info *mtd)
 	return !(r852_read_reg(dev, R852_CARD_STA) & R852_CARD_STA_BUSY);
 }
 
-
 /*
  * Set ECC engine mode
 */
@@ -544,7 +547,6 @@ static void r852_engine_enable(struct r852_device *dev)
 	r852_write_reg(dev, R852_CTL, 0);
 }
 
-
 /*
  * Stop the nand engine
  */
@@ -600,7 +602,6 @@ static ssize_t r852_media_type_show(struct device *sys_dev,
 }
 
 static DEVICE_ATTR(media_type, S_IRUGO, r852_media_type_show, NULL);
-
 
 /* Detect properties of card in slot */
 static void r852_update_media_status(struct r852_device *dev)
@@ -765,7 +766,6 @@ static irqreturn_t r852_irq(int irq, void *data)
 		goto out;
 	}
 
-
 	/* Handle dma interrupts */
 	dma_status = r852_read_reg_dword(dev, R852_DMA_IRQ_STA);
 	r852_write_reg_dword(dev, R852_DMA_IRQ_STA, dma_status);
@@ -896,7 +896,6 @@ static int  r852_probe(struct pci_dev *pci_dev, const struct pci_device_id *id)
 	if (!dev->bounce_buffer)
 		goto error6;
 
-
 	error = -ENODEV;
 	dev->mmio = pci_ioremap_bar(pci_dev, 0);
 
@@ -939,7 +938,6 @@ static int  r852_probe(struct pci_dev *pci_dev, const struct pci_device_id *id)
 	/* kick initial present test */
 	queue_delayed_work(dev->card_workqueue,
 		&dev->card_detect_work, 0);
-
 
 	printk(KERN_NOTICE DRV_NAME ": driver loaded successfully\n");
 	return 0;
@@ -1036,7 +1034,6 @@ static int r852_resume(struct device *device)
 	r852_disable_irqs(dev);
 	r852_card_update_present(dev);
 	r852_engine_disable(dev);
-
 
 	/* If card status changed, just do the work */
 	if (dev->card_detected != dev->card_registred) {

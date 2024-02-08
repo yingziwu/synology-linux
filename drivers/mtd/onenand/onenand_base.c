@@ -1124,11 +1124,15 @@ static int onenand_mlc_read_ops_nolock(struct mtd_info *mtd, loff_t from,
 	pr_debug("%s: from = 0x%08x, len = %i\n", __func__, (unsigned int)from,
 			(int)len);
 
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+	oobsize = mtd_oobavail(mtd, ops);
+#else /* CONFIG_SYNO_LSP_RTD1619 */
 	if (ops->mode == MTD_OPS_AUTO_OOB)
 		oobsize = this->ecclayout->oobavail;
 	else
 		oobsize = mtd->oobsize;
 
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 	oobcolumn = from & (mtd->oobsize - 1);
 
 	/* Do not allow reads past end of device */
@@ -1229,11 +1233,15 @@ static int onenand_read_ops_nolock(struct mtd_info *mtd, loff_t from,
 	pr_debug("%s: from = 0x%08x, len = %i\n", __func__, (unsigned int)from,
 			(int)len);
 
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+	oobsize = mtd_oobavail(mtd, ops);
+#else /* CONFIG_SYNO_LSP_RTD1619 */
 	if (ops->mode == MTD_OPS_AUTO_OOB)
 		oobsize = this->ecclayout->oobavail;
 	else
 		oobsize = mtd->oobsize;
 
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 	oobcolumn = from & (mtd->oobsize - 1);
 
 	/* Do not allow reads past end of device */
@@ -1885,12 +1893,16 @@ static int onenand_write_ops_nolock(struct mtd_info *mtd, loff_t to,
 	/* Check zero length */
 	if (!len)
 		return 0;
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+	oobsize = mtd_oobavail(mtd, ops);
+#else /* CONFIG_SYNO_LSP_RTD1619 */
 
 	if (ops->mode == MTD_OPS_AUTO_OOB)
 		oobsize = this->ecclayout->oobavail;
 	else
 		oobsize = mtd->oobsize;
 
+#endif /* CONFIG_SYNO_LSP_RTD1619 */
 	oobcolumn = to & (mtd->oobsize - 1);
 
 	column = to & (mtd->writesize - 1);
@@ -2030,7 +2042,6 @@ static int onenand_write_ops_nolock(struct mtd_info *mtd, loff_t to,
 
 	return ret;
 }
-
 
 /**
  * onenand_write_oob_nolock - [INTERN] OneNAND write out-of-band
@@ -2232,7 +2243,6 @@ static int onenand_block_isbad_nolock(struct mtd_info *mtd, loff_t ofs, int allo
 	return bbm->isbad_bbt(mtd, ofs, allowbbt);
 }
 
-
 static int onenand_multiblock_erase_verify(struct mtd_info *mtd,
 					   struct erase_info *instr)
 {
@@ -2372,7 +2382,6 @@ static int onenand_multiblock_erase(struct mtd_info *mtd,
 	}
 	return 0;
 }
-
 
 /**
  * onenand_block_by_block_erase - [INTERN] erase block(s) using regular erase

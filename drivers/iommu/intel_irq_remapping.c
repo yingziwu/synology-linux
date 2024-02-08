@@ -449,7 +449,6 @@ static int iommu_load_old_irte(struct intel_iommu *iommu)
 	return 0;
 }
 
-
 static void iommu_set_irq_remapping(struct intel_iommu *iommu, int mode)
 {
 	unsigned long flags;
@@ -753,7 +752,7 @@ static inline void set_irq_posting_cap(void)
 		 * should have X86_FEATURE_CX16 support, this has been confirmed
 		 * with Intel hardware guys.
 		 */
-		if ( cpu_has_cx16 )
+		if (boot_cpu_has(X86_FEATURE_CX16))
 			intel_irq_remap_ops.capability |= 1 << IRQ_POSTING_CAP;
 
 		for_each_iommu(iommu, drhd)

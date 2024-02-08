@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * (C) Copyright Linus Torvalds 1999
  * (C) Copyright Johannes Erdfelt 1999-2001
@@ -48,7 +51,6 @@
 #include <linux/usb/phy.h>
 
 #include "usb.h"
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -213,7 +215,6 @@ static const u8 usb11_rh_dev_descriptor[18] = {
 	0x01,       /*  __u8  iSerialNumber; */
 	0x01        /*  __u8  bNumConfigurations; */
 };
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -460,7 +461,6 @@ rh_string(int id, struct usb_hcd const *hcd, u8 *data, unsigned len)
 	return ascii2desc(s, data, len);
 }
 
-
 /* Root hub control transfers execute synchronously */
 static int rh_call_control (struct usb_hcd *hcd, struct urb *urb)
 {
@@ -503,7 +503,6 @@ static int rh_call_control (struct usb_hcd *hcd, struct urb *urb)
 		return -ENOMEM;
 
 	bufp = tbuf;
-
 
 	urb->actual_length = 0;
 	switch (typeReq) {
@@ -847,8 +846,6 @@ static int usb_rh_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 	return rc;
 }
 
-
-
 /*
  * Show & store the current value of authorized_default
  */
@@ -944,8 +941,6 @@ static struct attribute_group usb_bus_attr_group = {
 	.attrs = usb_bus_attrs,
 };
 
-
-
 /*-------------------------------------------------------------------------*/
 
 /**
@@ -987,13 +982,63 @@ static int usb_register_bus(struct usb_bus *bus)
 {
 	int result = -E2BIG;
 	int busnum;
+#ifdef MY_DEF_HERE
+	struct usb_hcd *usb_hcd = bus_to_hcd(bus);
+#endif /* MY_DEF_HERE */
 
 	mutex_lock(&usb_bus_list_lock);
+#ifdef MY_DEF_HERE
+	/* This is a workaround for random order of bus number
+	 * assignment happened only on platform RTD1296.
+	 * The primary hcd should be USB2.0 hcd.
+	 */
+
+	switch (usb_hcd->speed) {
+	case HCD_USB2:
+		if (0 == strncmp(bus->bus_name, "98013000.ehci", 13)) {
+			busnum = 1;
+		} else {
+			result = -EINVAL;
+			goto error_find_busnum;
+		}
+		break;
+	case HCD_USB3:
+	case HCD_USB31:
+		if (0 == strncmp(bus->bus_name, "xhci-hcd.2.auto", 15)) {
+			if (usb_hcd_is_primary_hcd(usb_hcd))
+				busnum = 2;
+			else
+				busnum = 3;
+		} else if (0 == strncmp(bus->bus_name, "xhci-hcd.5.auto", 15)) {
+			if (usb_hcd_is_primary_hcd(usb_hcd))
+				busnum = 4;
+			else
+				busnum = 5;
+		} else if (0 == strncmp(bus->bus_name, "xhci-hcd.8.auto", 15)) {
+			if (usb_hcd_is_primary_hcd(usb_hcd))
+				busnum = 6;
+			else
+				busnum = 7;
+		} else {
+			result = -EINVAL;
+			goto error_find_busnum;
+		}
+		break;
+	default:
+		busnum = find_next_zero_bit(busmap, USB_MAXBUS, 1);
+		if (busnum >= USB_MAXBUS) {
+			printk (KERN_ERR "%s: too many buses\n", usbcore_name);
+			goto error_find_busnum;
+		}
+	}
+
+#else /* MY_DEF_HERE */
 	busnum = find_next_zero_bit(busmap, USB_MAXBUS, 1);
 	if (busnum >= USB_MAXBUS) {
 		printk (KERN_ERR "%s: too many buses\n", usbcore_name);
 		goto error_find_busnum;
 	}
+#endif /* MY_DEF_HERE */
 	set_bit(busnum, busmap);
 	bus->busnum = busnum;
 
@@ -1197,7 +1242,6 @@ long usb_calc_bus_time (int speed, int is_input, int isoc, int bytecount)
 	}
 }
 EXPORT_SYMBOL_GPL(usb_calc_bus_time);
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -2675,17 +2719,39 @@ static void usb_put_invalidate_rhdev(struct usb_hcd *hcd)
 }
 
 /**
+#if defined(MY_DEF_HERE)
+ * usb_add_hcd_with_phy_name - finish generic HCD structure initialization
+ * and register with generic phy name
+#else // MY_DEF_HERE
  * usb_add_hcd - finish generic HCD structure initialization and register
+#endif // MY_DEF_HERE
  * @hcd: the usb_hcd structure to initialize
  * @irqnum: Interrupt line to allocate
  * @irqflags: Interrupt type flags
+#if defined(MY_DEF_HERE)
+ * @phy_name: generic phy name
+#endif // MY_DEF_HERE
  *
+#if defined(MY_DEF_HERE)
+ * Finish the remaining parts of generic HCD initialization with generic phy
+ * name: allocate the buffers of consistent memory, register the bus,
+ * request the IRQ line, and call the driver's reset() and start() routines.
+#else // MY_DEF_HERE
  * Finish the remaining parts of generic HCD initialization: allocate the
  * buffers of consistent memory, register the bus, request the IRQ line,
  * and call the driver's reset() and start() routines.
+#endif // MY_DEF_HERE
  */
+#if defined(MY_DEF_HERE)
+int usb_add_hcd_with_phy_name(struct usb_hcd *hcd,
+			      unsigned int irqnum,
+			      unsigned long irqflags,
+			      const char *phy_name)
+
+#else /* MY_DEF_HERE */
 int usb_add_hcd(struct usb_hcd *hcd,
 		unsigned int irqnum, unsigned long irqflags)
+#endif /* MY_DEF_HERE */
 {
 	int retval;
 	struct usb_device *rhdev;
@@ -2709,7 +2775,16 @@ int usb_add_hcd(struct usb_hcd *hcd,
 	}
 
 	if (IS_ENABLED(CONFIG_GENERIC_PHY) && !hcd->phy) {
+#if defined(MY_DEF_HERE)
+		struct phy *phy;
+
+		if (phy_name == NULL)
+			phy = phy_get(hcd->self.controller, "usb");
+		else
+			phy = phy_get(hcd->self.controller, phy_name);
+#else /* MY_DEF_HERE */
 		struct phy *phy = phy_get(hcd->self.controller, "usb");
+#endif /* MY_DEF_HERE */
 
 		if (IS_ERR(phy)) {
 			retval = PTR_ERR(phy);
@@ -2908,6 +2983,25 @@ err_phy:
 	}
 	return retval;
 }
+#if defined(MY_DEF_HERE)
+EXPORT_SYMBOL_GPL(usb_add_hcd_with_phy_name);
+
+/**
+ * usb_add_hcd - finish generic HCD structure initialization and register
+ * @hcd: the usb_hcd structure to initialize
+ * @irqnum: Interrupt line to allocate
+ * @irqflags: Interrupt type flags
+ *
+ * Finish the remaining parts of generic HCD initialization: allocate the
+ * buffers of consistent memory, register the bus, request the IRQ line,
+ * and call the driver's reset() and start() routines.
+ */
+int usb_add_hcd(struct usb_hcd *hcd,
+		unsigned int irqnum, unsigned long irqflags)
+{
+	return usb_add_hcd_with_phy_name(hcd, irqnum, irqflags, NULL);
+}
+#endif /* MY_DEF_HERE */
 EXPORT_SYMBOL_GPL(usb_add_hcd);
 
 /**

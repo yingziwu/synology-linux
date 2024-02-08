@@ -22,7 +22,7 @@
  * Authors: Alex Deucher
  */
 
-#include "drmP.h"
+#include <drm/drmP.h>
 #include "radeon.h"
 #include "rv730d.h"
 #include "r600_dpm.h"
@@ -181,7 +181,6 @@ int rv730_populate_mclk_value(struct radeon_device *rdev,
 			mpll_ss |= CLK_V(clk_v);
 		}
 	}
-
 
 	mclk->mclk730.vMCLK_PWRMGT_CNTL = cpu_to_be32(mclk_pwrmgt_cntl);
 	mclk->mclk730.vDLL_CNTL = cpu_to_be32(dll_cntl);

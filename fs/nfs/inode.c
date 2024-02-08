@@ -654,9 +654,9 @@ int nfs_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
 	trace_nfs_getattr_enter(inode);
 	/* Flush out writes to the server in order to update c/mtime.  */
 	if (S_ISREG(inode->i_mode)) {
-		mutex_lock(&inode->i_mutex);
+		inode_lock(inode);
 		err = nfs_sync_inode(inode);
-		mutex_unlock(&inode->i_mutex);
+		inode_unlock(inode);
 		if (err)
 			goto out;
 	}
@@ -1144,9 +1144,9 @@ static int __nfs_revalidate_mapping(struct inode *inode,
 	spin_unlock(&inode->i_lock);
 	trace_nfs_invalidate_mapping_enter(inode);
 	if (may_lock) {
-		mutex_lock(&inode->i_mutex);
+		inode_lock(inode);
 		ret = nfs_invalidate_mapping(inode, mapping);
-		mutex_unlock(&inode->i_mutex);
+		inode_unlock(inode);
 	} else
 		ret = nfs_invalidate_mapping(inode, mapping);
 	trace_nfs_invalidate_mapping_exit(inode, ret);
@@ -1235,7 +1235,6 @@ static int nfs_check_inode_attributes(struct inode *inode, struct nfs_fattr *fat
 	struct nfs_inode *nfsi = NFS_I(inode);
 	loff_t cur_size, new_isize;
 	unsigned long invalid = 0;
-
 
 	if (nfs_have_delegated_attributes(inode))
 		return 0;
@@ -1608,7 +1607,6 @@ int nfs_post_op_update_inode_force_wcc(struct inode *inode, struct nfs_fattr *fa
 }
 EXPORT_SYMBOL_GPL(nfs_post_op_update_inode_force_wcc);
 
-
 static inline bool nfs_fileid_valid(struct nfs_inode *nfsi,
 				    struct nfs_fattr *fattr)
 {
@@ -1751,7 +1749,6 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
 				| NFS_INO_REVAL_FORCED);
 		cache_revalidated = false;
 	}
-
 
 	if (fattr->valid & NFS_ATTR_FATTR_ATIME)
 		memcpy(&inode->i_atime, &fattr->atime, sizeof(inode->i_atime));

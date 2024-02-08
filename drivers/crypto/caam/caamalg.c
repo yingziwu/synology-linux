@@ -4512,7 +4512,6 @@ static int __init caam_algapi_init(void)
 	if (!priv)
 		return -ENODEV;
 
-
 	INIT_LIST_HEAD(&alg_list);
 
 	/*

@@ -19,7 +19,6 @@
 /* de code autre que le texte V2.6.1 en V2.8.0                               */
 /*****************************************************************************/
 
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/interrupt.h>
@@ -32,19 +31,18 @@
 #include <linux/wait.h>
 #include <linux/init.h>
 #include <linux/fs.h>
+#include <linux/nospec.h>
 
 #include <asm/io.h>
 #include <asm/uaccess.h>
 
 #include "applicom.h"
 
-
 /* NOTE: We use for loops with {write,read}b() instead of 
    memcpy_{from,to}io throughout this driver. This is because
    the board doesn't correctly handle word accesses - only
    bytes. 
 */
-
 
 #undef DEBUG
 
@@ -81,7 +79,6 @@ MODULE_LICENSE("GPL");
 MODULE_ALIAS_MISCDEV(AC_MINOR);
 
 MODULE_SUPPORTED_DEVICE("ac");
-
 
 static struct applicom_board {
 	unsigned long PhysIO;
@@ -316,7 +313,6 @@ static int __init applicom_init(void)
 
 			boardname[serial] = 0;
 
-
 			printk(KERN_INFO "Applicom board %d: %s, PROM V%d.%d",
 			       i+1, boardname,
 			       (int)(readb(apbs[i].RamIO + VERS) >> 4),
@@ -350,7 +346,6 @@ out:
 
 module_init(applicom_init);
 module_exit(applicom_exit);
-
 
 static ssize_t ac_write(struct file *file, const char __user *buf, size_t count, loff_t * ppos)
 {
@@ -386,7 +381,11 @@ static ssize_t ac_write(struct file *file, const char __user *buf, size_t count,
 	TicCard = st_loc.tic_des_from_pc;	/* tic number to send            */
 	IndexCard = NumCard - 1;
 
-	if((NumCard < 1) || (NumCard > MAX_BOARD) || !apbs[IndexCard].RamIO)
+	if (IndexCard >= MAX_BOARD)
+		return -EINVAL;
+	IndexCard = array_index_nospec(IndexCard, MAX_BOARD);
+
+	if (!apbs[IndexCard].RamIO)
 		return -EINVAL;
 
 #ifdef DEBUG
@@ -487,7 +486,6 @@ static int do_ac_read(int IndexCard, char __user *buf,
 
 	st_loc->tic_owner_to_pc = readb(apbs[IndexCard].RamIO + TIC_OWNER_TO_PC);
 	st_loc->numcard_owner_to_pc = readb(apbs[IndexCard].RamIO + NUMCARD_OWNER_TO_PC);
-
 
 	{
 		int c;
@@ -688,8 +686,6 @@ static irqreturn_t ac_interrupt(int vec, void *dev_instance)
 	return IRQ_RETVAL(handled);
 }
 
-
-
 static long ac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
      
 {				/* @ ADG ou ATO selon le cas */
@@ -697,6 +693,7 @@ static long ac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	unsigned char IndexCard;
 	void __iomem *pmem;
 	int ret = 0;
+	static int warncount = 10;
 	volatile unsigned char byte_reset_it;
 	struct st_ram_io *adgl;
 	void __user *argp = (void __user *)arg;
@@ -711,16 +708,12 @@ static long ac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	mutex_lock(&ac_mutex);	
 	IndexCard = adgl->num_card-1;
 	 
-	if(cmd != 6 && ((IndexCard >= MAX_BOARD) || !apbs[IndexCard].RamIO)) {
-		static int warncount = 10;
-		if (warncount) {
-			printk( KERN_WARNING "APPLICOM driver IOCTL, bad board number %d\n",(int)IndexCard+1);
-			warncount--;
-		}
-		kfree(adgl);
-		mutex_unlock(&ac_mutex);
-		return -EINVAL;
-	}
+	if (cmd != 6 && IndexCard >= MAX_BOARD)
+		goto err;
+	IndexCard = array_index_nospec(IndexCard, MAX_BOARD);
+
+	if (cmd != 6 && !apbs[IndexCard].RamIO)
+		goto err;
 
 	switch (cmd) {
 		
@@ -807,7 +800,6 @@ static long ac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			       (int)(readb(apbs[i].RamIO + VERS) & 0xF),
 			       boardname);
 
-
 			serial = (readb(apbs[i].RamIO + SERIAL_NUMBER) << 16) + 
 				(readb(apbs[i].RamIO + SERIAL_NUMBER + 1) << 8) + 
 				(readb(apbs[i].RamIO + SERIAL_NUMBER + 2) );
@@ -838,5 +830,15 @@ static long ac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	kfree(adgl);
 	mutex_unlock(&ac_mutex);
 	return 0;
-}
 
+err:
+	if (warncount) {
+		pr_warn("APPLICOM driver IOCTL, bad board number %d\n",
+			(int)IndexCard + 1);
+		warncount--;
+	}
+	kfree(adgl);
+	mutex_unlock(&ac_mutex);
+	return -EINVAL;
+
+}

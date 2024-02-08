@@ -22,7 +22,7 @@
  * Authors: Alex Deucher
  */
 
-#include "drmP.h"
+#include <drm/drmP.h>
 #include "amdgpu.h"
 #include "cikd.h"
 #include "kv_dpm.h"
@@ -216,4 +216,3 @@ int amdgpu_kv_copy_bytes_to_smc(struct amdgpu_device *adev,
 	}
 	return 0;
 }
-
