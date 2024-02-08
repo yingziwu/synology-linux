@@ -127,6 +127,8 @@ static int qlcnic_sriov_virtid_fn(struct qlcnic_adapter *adapter, int vf_id)
 		return 0;
 
 	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_SRIOV);
+	if (!pos)
+		return 0;
 	pci_read_config_word(dev, pos + PCI_SRIOV_VF_OFFSET, &offset);
 	pci_read_config_word(dev, pos + PCI_SRIOV_VF_STRIDE, &stride);
 
@@ -1447,6 +1449,7 @@ free_cmd:
 	return rsp;
 }
 
+
 static int qlcnic_sriov_issue_cmd(struct qlcnic_adapter *adapter,
 				  struct qlcnic_cmd_args *cmd)
 {
@@ -2091,6 +2094,7 @@ static void qlcnic_sriov_vf_free_mac_list(struct qlcnic_adapter *adapter)
 		kfree(cur);
 	}
 }
+
 
 static int qlcnic_sriov_vf_shutdown(struct pci_dev *pdev)
 {

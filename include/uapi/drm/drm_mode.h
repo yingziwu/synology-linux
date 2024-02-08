@@ -173,6 +173,7 @@ extern "C" {
 		DRM_MODE_REFLECT_X | \
 		DRM_MODE_REFLECT_Y)
 
+
 struct drm_mode_modeinfo {
 	__u32 clock;
 	__u16 hdisplay;

@@ -21,6 +21,9 @@
 /* We calculate number of sg entries based on PAGE_SIZE */
 #define SG_ENTRIES_PER_NODE ((PAGE_SIZE - 16) / sizeof(struct opal_sg_entry))
 
+/* Default time to sleep or delay between OPAL_BUSY/OPAL_BUSY_EVENT loops */
+#define OPAL_BUSY_DELAY_MS	10
+
 /* /sys/firmware/opal */
 extern struct kobject *opal_kobj;
 
@@ -82,6 +85,8 @@ int64_t opal_pci_eeh_freeze_set(uint64_t phb_id, uint64_t pe_number,
 int64_t opal_pci_err_inject(uint64_t phb_id, uint32_t pe_no, uint32_t type,
 			    uint32_t func, uint64_t addr, uint64_t mask);
 int64_t opal_pci_shpc(uint64_t phb_id, uint64_t shpc_action, uint8_t *state);
+
+
 
 int64_t opal_pci_phb_mmio_enable(uint64_t phb_id, uint16_t window_type,
 				 uint16_t window_num, uint16_t enable);

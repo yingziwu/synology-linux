@@ -404,6 +404,7 @@ static inline void mv_pp2x_port_interrupts_disable(struct mv_pp2x_port *port)
 		      MVPP2_ISR_DISABLE_INTERRUPT(sw_thread_mask));
 }
 
+
 static inline void mv_pp2x_qvector_interrupt_enable(struct queue_vector *q_vec)
 {
 	struct mv_pp2x_port *port = q_vec->parent;
@@ -553,6 +554,7 @@ static inline dma_addr_t mv_pp2x_txdesc_phys_addr_get(
 
 	return mv_pp22_txdesc_phys_addr_get(tx_desc);
 }
+
 
 static inline void mv_pp21_txdesc_phys_addr_set(dma_addr_t phys_addr,
 	struct mv_pp2x_tx_desc *tx_desc)

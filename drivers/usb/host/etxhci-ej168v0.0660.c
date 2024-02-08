@@ -132,3 +132,4 @@ void xhci_init_ej168_v00660(struct xhci_hcd *xhci)
 		}
 	}
 }
+

@@ -42,6 +42,7 @@
 #define EMMC_CARD_THR_CTL			         ( CR_BASE_ADDR + 0x100)
 #define EMMC_DDR_REG			     		 ( CR_BASE_ADDR + 0x10c)
 
+
 //1295 emmc wrapper register
 #define EMMC_DESC_CTL0         ( 0x400 )
 #define EMMC_DESC_CTL1         ( 0x404 )
@@ -108,6 +109,8 @@
 #define MISC_DUMMY1 				(0x0e4)
 #define MISC_DUMMY2 				(0x0e8)
 
+
+
 #define ISR_WRITE_DATA	     1 //set bit
 #define ISR_DMA_DONE_INT	(1<<1)
 #define ISR_DMA_INT_MASK	(1<<2)
@@ -164,6 +167,7 @@
 #define EMMC_CLOCK_DIV_8        (0x00000004)
 #define EMMC_CLOCK_DIV_128      (0x00000001<<6)
 #define EMMC_CLOCK_DIV_256      (0x00000001<<7)
+
 
 #define SPEED_MOD_HIGH          (0x00000001<<4)
 #define SPEED_MOD_NORM          (0x00000000)
@@ -234,6 +238,7 @@
 #define INT_STS_ERRORS		(INT_STS_RE|INT_STS_RCRC|INT_STS_DCRC|INT_STS_RTO_BAR|INT_STS_DRTO_BDS|INT_STS_HTO|INT_STS_FRUN|INT_STS_HLE|INT_STS_SBE_BCI|INT_STS_EBE)
 #define INT_STS_ERRORS2		(INT_STS_RE|INT_STS_RCRC|INT_STS_DCRC|INT_STS_DRTO_BDS|INT_STS_HTO|INT_STS_FRUN|INT_STS_HLE|INT_STS_SBE_BCI|INT_STS_EBE)
 
+
 #define INT_EN			(INT_STS_ACD|INT_STS_DTO|INT_STS_CD)
 
 //98012048 : Status Register
@@ -256,6 +261,7 @@
 #define CMD_WAIT_PRV_DATA_COMPLETE	(1<<13)
 #define CMD_USE_HOLD_REG	(1<<29)
 #define CMD_START_CMD		(1<<31)
+
 
 #define MASK_CMD_CODE           (0x0F)
 #define SD_NORMALWRITE          (0x00)
@@ -301,6 +307,7 @@
 #define SD_CLK_TOG_STOP     	(0x00000001<<6)
 #define SD_DAT3_0_LEVEL     	(0x0000000F<<1)
 #define SD_CMD_LEVEL     		(0x00000001<<0)
+
 
 #define WRITE_DATA              (0x1)
 #define CLR_WRITE_DATA          (0x0)

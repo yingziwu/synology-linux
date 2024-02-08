@@ -26,6 +26,7 @@
 #include <linux/pci.h>
 #include <linux/module.h>
 #include <linux/io.h>
+#include <linux/nospec.h>
 
 #include <sound/core.h>
 #include <sound/control.h>
@@ -141,6 +142,7 @@ MODULE_SUPPORTED_DEVICE("{{RME,Hammerfall},"
 #define RME9652_status_register    0
 
 /* --------- Control-Register Bits ---------------- */
+
 
 #define RME9652_start_bit	   (1<<0)	/* start record/play */
                                                 /* bits 1-3 encode buffersize/latency */
@@ -304,6 +306,7 @@ static void snd_hammerfall_free_buffer(struct snd_dma_buffer *dmab, struct pci_d
 	if (dmab->area)
 		snd_dma_free_pages(dmab);
 }
+
 
 static const struct pci_device_id snd_rme9652_ids[] = {
 	{
@@ -684,6 +687,7 @@ static void rme9652_write_spdif_codec (struct snd_rme9652 *rme9652, const int ad
 	rme9652_spdif_write_byte (rme9652, data);
 	rme9652_spdif_set_bit (rme9652, RME9652_SPDIF_SELECT, 0);
 }
+
 
 static int rme9652_spdif_read_codec (struct snd_rme9652 *rme9652, const int address)
 {
@@ -2033,9 +2037,10 @@ static int snd_rme9652_channel_info(struct snd_pcm_substream *substream,
 	if (snd_BUG_ON(info->channel >= RME9652_NCHANNELS))
 		return -EINVAL;
 
-	if ((chn = rme9652->channel_map[info->channel]) < 0) {
+	chn = rme9652->channel_map[array_index_nospec(info->channel,
+						      RME9652_NCHANNELS)];
+	if (chn < 0)
 		return -EINVAL;
-	}
 
 	info->offset = chn * RME9652_CHANNEL_BUFFER_BYTES;
 	info->first = 0;
@@ -2314,6 +2319,7 @@ static int snd_rme9652_playback_release(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+
 static int snd_rme9652_capture_open(struct snd_pcm_substream *substream)
 {
 	struct snd_rme9652 *rme9652 = snd_pcm_substream_chip(substream);
@@ -2588,6 +2594,7 @@ static int snd_rme9652_probe(struct pci_dev *pci,
 	sprintf(card->longname, "%s at 0x%lx, irq %d",
 		card->shortname, rme9652->port, rme9652->irq);
 
+	
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);
 		return err;

@@ -146,6 +146,7 @@ void vmw_resource_unreference(struct vmw_resource **p_res)
 	kref_put(&res->kref, vmw_resource_release);
 }
 
+
 /**
  * vmw_resource_alloc_id - release a resource id to the id manager.
  *
@@ -1100,6 +1101,7 @@ out_no_unbind:
 	return ret;
 }
 
+
 /**
  * vmw_resource_validate - Make a resource up-to-date and visible
  *                         to the device.
@@ -1259,6 +1261,8 @@ void vmw_resource_move_notify(struct ttm_buffer_object *bo,
 	}
 }
 
+
+
 /**
  * vmw_query_readback_all - Read back cached query states
  *
@@ -1275,6 +1279,7 @@ int vmw_query_readback_all(struct vmw_dma_buffer *dx_query_mob)
 		SVGA3dCmdHeader header;
 		SVGA3dCmdDXReadbackAllQuery body;
 	} *cmd;
+
 
 	/* No query bound, so do nothing */
 	if (!dx_query_mob || !dx_query_mob->dx_query_ctx)
@@ -1302,6 +1307,8 @@ int vmw_query_readback_all(struct vmw_dma_buffer *dx_query_mob)
 	return 0;
 }
 
+
+
 /**
  * vmw_query_move_notify - Read back cached query states
  *
@@ -1317,6 +1324,7 @@ void vmw_query_move_notify(struct ttm_buffer_object *bo,
 	struct vmw_dma_buffer *dx_query_mob;
 	struct ttm_bo_device *bdev = bo->bdev;
 	struct vmw_private *dev_priv;
+
 
 	dev_priv = container_of(bdev, struct vmw_private, bdev);
 

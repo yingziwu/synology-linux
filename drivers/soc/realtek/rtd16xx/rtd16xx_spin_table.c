@@ -36,6 +36,7 @@
 #include "rtd16xx_cpu_hotplug.h"
 #include <soc/realtek/rtk_cpu.h>
 
+
 #ifdef CONFIG_SMP
 
 extern void _rtk_cpu_power_up(int cpu);

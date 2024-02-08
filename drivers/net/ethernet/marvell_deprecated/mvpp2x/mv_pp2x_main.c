@@ -341,6 +341,7 @@ char *mv_pp2x_pool_description_get(enum mv_pp2x_bm_pool_log_num  log_id)
 }
 EXPORT_SYMBOL(mv_pp2x_pool_description_get);
 
+
 /* Buffer Manager configuration routines */
 static void *mv_pp2x_frag_alloc(const struct mv_pp2x_bm_pool *pool)
 {
@@ -1956,6 +1957,7 @@ static void mv_pp22_dev_link_event(struct net_device *dev)
 	/* Check Link status on ethernet port */
 	link_is_up = mv_gop110_port_is_link_up(gop, &port->mac_data);
 
+
 	if (link_is_up) {
 		if (netif_carrier_ok(dev))
 			return;
@@ -2316,6 +2318,7 @@ int mv_pp2x_cos_classifier_set(struct mv_pp2x_port *port,
 }
 EXPORT_SYMBOL(mv_pp2x_cos_classifier_set);
 
+
 /* mv_pp2x_cos_pri_map_set
 *  -- Set priority_map per port, nibble for each cos value(0~7).
 */
@@ -2324,11 +2327,13 @@ int mv_pp2x_cos_pri_map_set(struct mv_pp2x_port *port, int cos_pri_map)
 	int ret, prev_pri_map;
 	u8 bound_cpu_first_rxq;
 
+
 	if (port->cos_cfg.pri_map == cos_pri_map)
 		return 0;
 
 	prev_pri_map = port->cos_cfg.pri_map;
 	port->cos_cfg.pri_map = cos_pri_map;
+
 
 	/* Update C2 rules with nre pri_map */
 	bound_cpu_first_rxq  = mv_pp2x_bound_cpu_first_rxq_calc(port);
@@ -2341,6 +2346,8 @@ int mv_pp2x_cos_pri_map_set(struct mv_pp2x_port *port, int cos_pri_map)
 	return 0;
 }
 EXPORT_SYMBOL(mv_pp2x_cos_pri_map_set);
+
+
 
 /* mv_pp2x_cos_default_value_set
 *  -- Set default cos value for untagged or non-IP packets per port.
@@ -2367,6 +2374,7 @@ int mv_pp2x_cos_default_value_set(struct mv_pp2x_port *port, int cos_value)
 	return 0;
 }
 EXPORT_SYMBOL(mv_pp2x_cos_default_value_set);
+
 
 /* RSS API */
 
@@ -3926,6 +3934,7 @@ static void mv_serdes_port_init(struct mv_pp2x_port *port)
 		pr_err("%s: Wrong port mode (%d)", __func__, port->mac_data.phy_mode);
 	}
 }
+
 
 int mvcpn110_mac_hw_init(struct mv_pp2x_port *port)
 {

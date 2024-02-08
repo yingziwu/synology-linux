@@ -46,6 +46,7 @@ struct controller_data {
 	u32 (*eval_mux)(struct controller_data *);
 };
 
+
 #include <dt-bindings/reset/rtk,reset-rtd16xx.h>
 
 #define DEFINE_MUX_ENTRY(_id, _prefix) \
@@ -197,6 +198,7 @@ static int reset_mux_probe(struct platform_device *pdev)
 	dev_info(dev, "initialized\n");
 	return 0;
 }
+
 
 static struct platform_driver reset_mux_driver = {
 	.probe = reset_mux_probe,

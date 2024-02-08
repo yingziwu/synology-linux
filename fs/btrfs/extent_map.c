@@ -9,8 +9,9 @@
 #include "extent_map.h"
 #ifdef MY_DEF_HERE
 #include "btrfs_inode.h"
-#endif  
+#endif /* MY_DEF_HERE */
 #include "compression.h"
+
 
 static struct kmem_cache *extent_map_cache;
 
@@ -29,6 +30,13 @@ void extent_map_exit(void)
 	kmem_cache_destroy(extent_map_cache);
 }
 
+/**
+ * extent_map_tree_init - initialize extent map tree
+ * @tree:		tree to initialize
+ *
+ * Initialize the extent tree @tree.  Should be called for each new inode
+ * or other user of the extent_map interface.
+ */
 void extent_map_tree_init(struct extent_map_tree *tree)
 {
 #ifdef MY_DEF_HERE
@@ -36,12 +44,19 @@ void extent_map_tree_init(struct extent_map_tree *tree)
 	INIT_LIST_HEAD(&tree->not_modified_extents);
 	INIT_LIST_HEAD(&tree->syno_modified_extents);
 	INIT_LIST_HEAD(&tree->pinned_extents);
-#endif  
+#endif /* MY_DEF_HERE */
 	tree->map = RB_ROOT;
 	INIT_LIST_HEAD(&tree->modified_extents);
 	rwlock_init(&tree->lock);
 }
 
+/**
+ * alloc_extent_map - allocate new extent map structure
+ *
+ * Allocate a new extent_map structure.  The new structure is
+ * returned with a reference count of one and needs to be
+ * freed using free_extent_map()
+ */
 struct extent_map *alloc_extent_map(void)
 {
 	struct extent_map *em;
@@ -57,10 +72,17 @@ struct extent_map *alloc_extent_map(void)
 #ifdef MY_DEF_HERE
 	INIT_LIST_HEAD(&em->free_list);
 	em->bl_increase = false;
-#endif  
+#endif /* MY_DEF_HERE */
 	return em;
 }
 
+/**
+ * free_extent_map - drop reference count of an extent_map
+ * @em:		extent map being released
+ *
+ * Drops the reference out on @em by one and free the structure
+ * if the reference count hits zero.
+ */
 void free_extent_map(struct extent_map *em)
 {
 	if (!em)
@@ -71,13 +93,14 @@ void free_extent_map(struct extent_map *em)
 		WARN_ON(!list_empty(&em->list));
 #ifdef MY_DEF_HERE
 		WARN_ON(!list_empty(&em->free_list));
-#endif  
+#endif /* MY_DEF_HERE */
 		if (test_bit(EXTENT_FLAG_FS_MAPPING, &em->flags))
 			kfree(em->map_lookup);
 		kmem_cache_free(extent_map_cache, em);
 	}
 }
 
+/* simple helper to do math around the end of an extent, handling wrap */
 static u64 range_end(u64 start, u64 len)
 {
 	if (start + len < start)
@@ -129,6 +152,10 @@ static int tree_insert(struct rb_root *root, struct extent_map *em)
 	return 0;
 }
 
+/*
+ * search through the tree for an extent_map with a given offset.  If
+ * it can't be found, try to find some neighboring extents
+ */
 static struct rb_node *__tree_search(struct rb_root *root, u64 offset,
 				     struct rb_node **prev_ret,
 				     struct rb_node **next_ret)
@@ -173,11 +200,16 @@ static struct rb_node *__tree_search(struct rb_root *root, u64 offset,
 	return NULL;
 }
 
+/* check to see if two extent_map structs are adjacent and safe to merge */
 static int mergable_maps(struct extent_map *prev, struct extent_map *next)
 {
 	if (test_bit(EXTENT_FLAG_PINNED, &prev->flags))
 		return 0;
 
+	/*
+	 * don't merge compressed extents, we need to know their
+	 * actual size
+	 */
 	if (test_bit(EXTENT_FLAG_COMPRESSED, &prev->flags))
 		return 0;
 
@@ -185,6 +217,11 @@ static int mergable_maps(struct extent_map *prev, struct extent_map *next)
 	    test_bit(EXTENT_FLAG_LOGGING, &next->flags))
 		return 0;
 
+	/*
+	 * We don't want to merge stuff that hasn't been written to the log yet
+	 * since it may not reflect exactly what is on disk, and that would be
+	 * bad.
+	 */
 	if (!list_empty(&prev->list) || !list_empty(&next->list))
 		return 0;
 
@@ -239,6 +276,7 @@ static void check_and_decrease_global_extent(struct extent_map_tree *tree, struc
 {
 	u64 rootid = 0;
 
+	// decreace nr_extent_maps when extent_map dettached from extent_tree
 	WARN_ON(atomic_read(&tree->nr_extent_maps) == 0);
 	atomic_dec(&tree->nr_extent_maps);
 	if (!list_empty(&em->free_list)) {
@@ -263,12 +301,23 @@ static void check_and_decrease_global_extent(struct extent_map_tree *tree, struc
 		}
 	}
 }
-#endif  
+#endif /* MY_DEF_HERE */
 
 static void try_merge_map(struct extent_map_tree *tree, struct extent_map *em)
 {
 	struct extent_map *merge = NULL;
 	struct rb_node *rb;
+
+	/*
+	 * We can't modify an extent map that is in the tree and that is being
+	 * used by another task, as it can cause that other task to see it in
+	 * inconsistent state during the merging. We always have 1 reference for
+	 * the tree and 1 for this task (which is unpinning the extent map or
+	 * clearing the logging flag), so anything > 2 means it's being used by
+	 * other tasks too.
+	 */
+	if (atomic_read(&em->refs) > 2)
+		return;
 
 	if (em->start != 0) {
 		rb = rb_prev(&em->rb_node);
@@ -288,7 +337,7 @@ static void try_merge_map(struct extent_map_tree *tree, struct extent_map *em)
 			RB_CLEAR_NODE(&merge->rb_node);
 #ifdef MY_DEF_HERE
 			check_and_decrease_global_extent(tree, merge);
-#endif  
+#endif /* MY_DEF_HERE */
 			free_extent_map(merge);
 		}
 	}
@@ -305,11 +354,22 @@ static void try_merge_map(struct extent_map_tree *tree, struct extent_map *em)
 		em->generation = max(em->generation, merge->generation);
 #ifdef MY_DEF_HERE
 		check_and_decrease_global_extent(tree, merge);
-#endif  
+#endif /* MY_DEF_HERE */
 		free_extent_map(merge);
 	}
 }
 
+/**
+ * unpin_extent_cache - unpin an extent from the cache
+ * @tree:	tree to unpin the extent in
+ * @start:	logical offset in the file
+ * @len:	length of the extent
+ * @gen:	generation that this extent has been modified in
+ *
+ * Called after an extent has been written to disk properly.  Set the generation
+ * to the generation that actually added the file item to the inode so we know
+ * we need to sync this extent when we call fsync().
+ */
 int unpin_extent_cache(struct extent_map_tree *tree, u64 start, u64 len,
 		       u64 gen)
 {
@@ -333,7 +393,7 @@ int unpin_extent_cache(struct extent_map_tree *tree, u64 start, u64 len,
 		atomic_inc(&tree->inode->root->fs_info->nr_extent_maps);
 		em->bl_increase = true;
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 	em->mod_start = em->start;
 	em->mod_len = em->len;
 
@@ -377,6 +437,16 @@ static inline void setup_extent_mapping(struct extent_map_tree *tree,
 		try_merge_map(tree, em);
 }
 
+/**
+ * add_extent_mapping - add new extent map to the extent tree
+ * @tree:	tree to insert new map in
+ * @em:		map to insert
+ *
+ * Insert @em into @tree or perform a simple forward/backward merge with
+ * existing mappings.  The extent_map struct passed in will be inserted
+ * into the tree directly, with an additional reference taken, or a
+ * reference dropped if the merge attempt was successful.
+ */
 int add_extent_mapping(struct extent_map_tree *tree,
 		       struct extent_map *em, int modified)
 {
@@ -388,7 +458,7 @@ int add_extent_mapping(struct extent_map_tree *tree,
 
 #ifdef MY_DEF_HERE
 	check_and_insert_extent_map_to_global_extent(tree, em, modified);
-#endif  
+#endif /* MY_DEF_HERE */
 	setup_extent_mapping(tree, em, modified);
 out:
 	return ret;
@@ -423,18 +493,48 @@ __lookup_extent_mapping(struct extent_map_tree *tree,
 	return em;
 }
 
+/**
+ * lookup_extent_mapping - lookup extent_map
+ * @tree:	tree to lookup in
+ * @start:	byte offset to start the search
+ * @len:	length of the lookup range
+ *
+ * Find and return the first extent_map struct in @tree that intersects the
+ * [start, len] range.  There may be additional objects in the tree that
+ * intersect, so check the object returned carefully to make sure that no
+ * additional lookups are needed.
+ */
 struct extent_map *lookup_extent_mapping(struct extent_map_tree *tree,
 					 u64 start, u64 len)
 {
 	return __lookup_extent_mapping(tree, start, len, 1);
 }
 
+/**
+ * search_extent_mapping - find a nearby extent map
+ * @tree:	tree to lookup in
+ * @start:	byte offset to start the search
+ * @len:	length of the lookup range
+ *
+ * Find and return the first extent_map struct in @tree that intersects the
+ * [start, len] range.
+ *
+ * If one can't be found, any nearby extent may be returned
+ */
 struct extent_map *search_extent_mapping(struct extent_map_tree *tree,
 					 u64 start, u64 len)
 {
 	return __lookup_extent_mapping(tree, start, len, 0);
 }
 
+/**
+ * remove_extent_mapping - removes an extent_map from the extent tree
+ * @tree:	extent tree to remove from
+ * @em:		extent map being removed
+ *
+ * Removes @em from @tree.  No reference counts are dropped, and no checks
+ * are done to see if the range is in use
+ */
 int remove_extent_mapping(struct extent_map_tree *tree, struct extent_map *em)
 {
 	int ret = 0;
@@ -448,7 +548,7 @@ int remove_extent_mapping(struct extent_map_tree *tree, struct extent_map *em)
 
 #ifdef MY_DEF_HERE
 	check_and_decrease_global_extent(tree, em);
-#endif  
+#endif /* MY_DEF_HERE */
 	return ret;
 }
 
@@ -492,6 +592,11 @@ static struct extent_map *prev_extent_map(struct extent_map *em)
 	return container_of(prev, struct extent_map, rb_node);
 }
 
+/* helper for btfs_get_extent.  Given an existing extent in the tree,
+ * the existing extent is the nearest extent to map_start,
+ * and an extent that you want to insert, deal with overlap and insert
+ * the best fitted new extent into the tree.
+ */
 static noinline int merge_extent_mapping(struct extent_map_tree *em_tree,
 					 struct extent_map *existing,
 					 struct extent_map *em,
@@ -528,6 +633,25 @@ static noinline int merge_extent_mapping(struct extent_map_tree *em_tree,
 	return add_extent_mapping(em_tree, em, 0);
 }
 
+/**
+ * btrfs_add_extent_mapping - add extent mapping into em_tree
+ * @em_tree - the extent tree into which we want to insert the extent mapping
+ * @em_in   - extent we are inserting
+ * @start   - start of the logical range btrfs_get_extent() is requesting
+ * @len     - length of the logical range btrfs_get_extent() is requesting
+ *
+ * Note that @em_in's range may be different from [start, start+len),
+ * but they must be overlapped.
+ *
+ * Insert @em_in into @em_tree. In case there is an overlapping range, handle
+ * the -EEXIST by either:
+ * a) Returning the existing extent in @em_in if @start is within the
+ *    existing em.
+ * b) Merge the existing extent with @em_in passed in.
+ *
+ * Return 0 on success, otherwise -EEXIST.
+ *
+ */
 int btrfs_add_extent_mapping(struct extent_map_tree *em_tree,
 			     struct extent_map **em_in, u64 start, u64 len)
 {
@@ -535,14 +659,20 @@ int btrfs_add_extent_mapping(struct extent_map_tree *em_tree,
 	struct extent_map *em = *em_in;
 
 	ret = add_extent_mapping(em_tree, em, 0);
-	 
+	/* it is possible that someone inserted the extent into the tree
+	 * while we had the lock dropped.  It is also possible that
+	 * an overlapping map exists in the tree
+	 */
 	if (ret == -EEXIST) {
 		struct extent_map *existing;
 
 		ret = 0;
 
 		existing = search_extent_mapping(em_tree, start, len);
-		 
+		/*
+		 * existing will always be non-NULL, since there must be
+		 * extent causing the -EEXIST.
+		 */
 		if (start >= existing->start &&
 		    start < extent_map_end(existing)) {
 			free_extent_map(em);
@@ -552,6 +682,10 @@ int btrfs_add_extent_mapping(struct extent_map_tree *em_tree,
 			u64 orig_start = em->start;
 			u64 orig_len = em->len;
 
+			/*
+			 * The existing extent map is the one nearest to
+			 * the [start, start + len) range which overlaps
+			 */
 			ret = merge_extent_mapping(em_tree, existing,
 						   em, start);
 			if (ret) {

@@ -343,6 +343,7 @@ static bool nouveau_dsm_detect(void)
 		ret = true;
 	}
 
+
 	return ret;
 }
 

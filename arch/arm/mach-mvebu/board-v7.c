@@ -302,6 +302,7 @@ static const char * const msys_dt_compat[] __initconst = {
 	NULL,
 };
 
+
 DT_MACHINE_START(MSYS_DT, "Marvell SYS (Device Tree)")
 	.l2c_aux_val	= 0,
 	.l2c_aux_mask	= ~0,

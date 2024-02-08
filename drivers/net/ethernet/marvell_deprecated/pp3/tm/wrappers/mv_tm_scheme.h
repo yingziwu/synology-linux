@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -72,6 +73,7 @@ int mv_tm_scheme_port_b_nodes_get(int port_id, int *base, int *num);
 /* Return base and number of C nodes that attached to port number port_id.
    Return -1 if port_id is invalid or not in use. */
 int mv_tm_scheme_port_c_nodes_get(int port_id, int *base, int *num);
+
 
 /* Return base and number of B nodes that attached to Cnode number cnode_id.
    Return -1 if port_id is invalid or not in use. */

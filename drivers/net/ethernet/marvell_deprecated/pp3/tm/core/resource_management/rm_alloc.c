@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ disclaimer.
 #include "rm_chunk.h"
 #include "rm_free.h"
 #include "tm/core/tm_defs.h"
+
 
 /**
  */
@@ -67,6 +69,7 @@ int rm_find_free_queue(rmctl_t hndl, uint32_t a_node_ind)
 
 	return free_node;
 }
+
 
 /**
  */
@@ -123,6 +126,7 @@ int rm_find_free_a_node(rmctl_t hndl, uint32_t b_node_ind, uint32_t num_of_child
 	return free_node;
 }
 
+
 /**
  */
 int rm_find_free_b_node(rmctl_t hndl, uint32_t c_node_ind, uint32_t num_of_children)
@@ -177,6 +181,7 @@ int rm_find_free_b_node(rmctl_t hndl, uint32_t c_node_ind, uint32_t num_of_child
 
 	return free_node;
 }
+
 
 /**
  */
@@ -233,6 +238,7 @@ int rm_find_free_c_node(rmctl_t hndl, uint8_t port_ind, uint32_t num_of_children
 	return free_node;
 }
 
+
 /**
  */
 int rm_init_port(rmctl_t hndl, uint8_t port_id, uint32_t num_of_children)
@@ -262,6 +268,7 @@ int rm_init_port(rmctl_t hndl, uint8_t port_id, uint32_t num_of_children)
 	node->parent_ind = 0;
 	node->next_free_ind = 0;
 
+
 	node->first_child = ind;
 	node->last_child = ind + num_of_children - 1;
 
@@ -281,6 +288,7 @@ int rm_init_port(rmctl_t hndl, uint8_t port_id, uint32_t num_of_children)
 
 	return 0;
 }
+
 
 /** For reshuffling purposes.
  */
@@ -355,6 +363,7 @@ int rm_expand_range(rmctl_t hndl, enum tm_level level, uint32_t index, uint32_t 
 	return 0;
 }
 
+
 /**
  */
 int rm_find_free_wred_queue_curve(rmctl_t hndl)
@@ -380,6 +389,7 @@ int rm_find_free_wred_queue_curve(rmctl_t hndl)
 
 	return free_entry;
 }
+
 
 /**
  */
@@ -407,6 +417,7 @@ int rm_find_free_wred_a_node_curve(rmctl_t hndl)
 	return free_entry;
 }
 
+
 /**
  */
 int rm_find_free_wred_b_node_curve(rmctl_t hndl)
@@ -432,6 +443,7 @@ int rm_find_free_wred_b_node_curve(rmctl_t hndl)
 
 	return free_entry;
 }
+
 
 /**
  */
@@ -489,6 +501,7 @@ int rm_find_free_wred_c_node_curve(rmctl_t hndl, uint8_t cos)
 	return free_entry;
 }
 
+
 /**
  */
 int rm_find_free_wred_port_curve(rmctl_t hndl)
@@ -497,6 +510,7 @@ int rm_find_free_wred_port_curve(rmctl_t hndl)
 
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
+
 
 	free_entry = ctl->rm_first_free_entry[RM_WRED_P_CURVE];
 	if (free_entry == (uint16_t)TM_INVAL)
@@ -514,6 +528,7 @@ int rm_find_free_wred_port_curve(rmctl_t hndl)
 
 	return free_entry;
 }
+
 
 /**
  */
@@ -571,6 +586,7 @@ int rm_find_free_wred_port_curve_cos(rmctl_t hndl, uint8_t cos)
 	return free_entry;
 }
 
+
 /**
  */
 int rm_find_free_queue_drop_profile(rmctl_t hndl)
@@ -596,6 +612,7 @@ int rm_find_free_queue_drop_profile(rmctl_t hndl)
 
 	return free_entry;
 }
+
 
 /**
  */
@@ -623,6 +640,7 @@ int rm_find_free_a_node_drop_profile(rmctl_t hndl)
 	return free_entry;
 }
 
+
 /**
  */
 int rm_find_free_b_node_drop_profile(rmctl_t hndl)
@@ -648,6 +666,7 @@ int rm_find_free_b_node_drop_profile(rmctl_t hndl)
 
 	return free_entry;
 }
+
 
 /**
  */
@@ -705,6 +724,7 @@ int rm_find_free_c_node_drop_profile(rmctl_t hndl, uint8_t cos)
 	return free_entry;
 }
 
+
 /**
  */
 int rm_find_free_port_drop_profile(rmctl_t hndl)
@@ -730,6 +750,7 @@ int rm_find_free_port_drop_profile(rmctl_t hndl)
 
 	return free_entry;
 }
+
 
 /* for BC2  only */
 int rm_find_free_port_drop_profile_cos(rmctl_t hndl, uint8_t cos)

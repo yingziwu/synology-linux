@@ -102,6 +102,7 @@ static int lxt970_config_init(struct phy_device *phydev)
 	return err;
 }
 
+
 static int lxt971_ack_interrupt(struct phy_device *phydev)
 {
 	int err = phy_read(phydev, MII_LXT971_ISR);

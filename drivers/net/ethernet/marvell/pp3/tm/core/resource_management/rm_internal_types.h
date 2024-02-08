@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ disclaimer.
 /** Magic number used to determine struct rmctl_t validity.
  */
 #define RM_MAGIC 0x1EDA5D
+
 
 /* following macro declares and checks validity of rmctl */
 #define DECLARE_RM_HANDLE(handle, value)	struct rmctl *handle = (struct rmctl *)value;
@@ -97,6 +99,9 @@ enum rm_prf_level {
 	RM_MAX_PROFILES
 };
 
+
+
+
 /** RM node data structure.
  */
 struct rm_node {
@@ -109,12 +114,14 @@ struct rm_node {
 	uint16_t  last_child;    /* Tail */
 } __ATTRIBUTE_PACKED__;
 
+
 /** RM entry data structure.
  */
 struct rm_entry {
 	uint8_t   used:1;
 	uint32_t  next_free_ind;
 } __ATTRIBUTE_PACKED__;
+
 
 /** RM chunk data structure.
  */
@@ -123,6 +130,7 @@ struct rm_chunk {
 	uint32_t  size;
 	struct rm_chunk *next_free;
 };
+
 
 /** Resource Manger handle struct.
  */
@@ -171,5 +179,6 @@ struct rmctl {
 	/* Internal DB */
 	chunk_ptr rm_free_nodes[4]; /* from RM_Q_LVL to RM_C_LVL, RM_P_LVL not used inside RM */
 };
+
 
 #endif   /* RM_INTERNAL_TYPES_H */

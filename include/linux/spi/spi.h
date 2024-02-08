@@ -1068,6 +1068,7 @@ struct spi_board_info {
 	/* slower signaling on noisy or low voltage boards */
 	u32		max_speed_hz;
 
+
 	/* bus_num is board specific and matches the bus_num of some
 	 * spi_master that will probably be registered later.
 	 *
@@ -1098,6 +1099,7 @@ static inline int
 spi_register_board_info(struct spi_board_info const *info, unsigned n)
 	{ return 0; }
 #endif
+
 
 /* If you're hotplugging an adapter with devices (parport, usb, etc)
  * use spi_new_device() to describe each device.  You can also call

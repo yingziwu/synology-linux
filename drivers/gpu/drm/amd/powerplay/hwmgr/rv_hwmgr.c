@@ -45,8 +45,10 @@
 
 static const unsigned long PhwRaven_Magic = (unsigned long) PHM_Rv_Magic;
 
+
 int rv_display_clock_voltage_request(struct pp_hwmgr *hwmgr,
 		struct pp_display_clock_request *clock_req);
+
 
 static struct rv_power_state *cast_rv_ps(struct pp_hw_power_state *hw_ps)
 {
@@ -213,6 +215,7 @@ static int rv_init_power_gate_state(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 static int rv_setup_asic_task(struct pp_hwmgr *hwmgr)
 {
 	return rv_init_power_gate_state(hwmgr);
@@ -336,6 +339,7 @@ static int rv_get_clock_voltage_dependency_table(struct pp_hwmgr *hwmgr,
 
 	return 0;
 }
+
 
 static int rv_populate_clock_table(struct pp_hwmgr *hwmgr)
 {
@@ -703,6 +707,7 @@ static int rv_set_cpu_power_state(struct pp_hwmgr *hwmgr)
 	return 0;
 }
 
+
 static int rv_store_cc6_data(struct pp_hwmgr *hwmgr, uint32_t separation_time,
 			bool cc6_disable, bool pstate_disable, bool pstate_switch_disable)
 {
@@ -815,6 +820,7 @@ static int rv_get_current_shallow_sleep_clocks(struct pp_hwmgr *hwmgr,
 #define MEM_LATENCY_HIGH            245
 #define MEM_LATENCY_LOW             35
 #define MEM_LATENCY_ERR             0xFFFF
+
 
 static uint32_t rv_get_mem_latency(struct pp_hwmgr *hwmgr,
 		uint32_t clock)

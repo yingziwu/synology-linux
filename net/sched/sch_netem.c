@@ -149,6 +149,7 @@ struct netem_skb_cb {
 	ktime_t		tstamp_save;
 };
 
+
 static struct sk_buff *netem_rb_to_skb(struct rb_node *rb)
 {
 	return container_of(rb, struct sk_buff, rbnode);
@@ -306,6 +307,7 @@ static bool loss_event(struct netem_sched_data *q)
 	return false;	/* not reached */
 }
 
+
 /* tabledist - return a pseudo-randomly distributed value with mean mu and
  * std deviation sigma.  Uses table lookup to approximate the desired
  * distribution, and a uniformly-distributed pseudo-random source.
@@ -429,6 +431,9 @@ static int netem_enqueue(struct sk_buff *skb, struct Qdisc *sch)
 	int nb = 0;
 	int count = 1;
 	int rc = NET_XMIT_SUCCESS;
+
+	/* Do not fool qdisc_drop_all() */
+	skb->prev = NULL;
 
 	/* Random duplication */
 	if (q->duplicate && q->duplicate >= get_crandom(&q->dup_cor))
@@ -941,10 +946,10 @@ static int netem_init(struct Qdisc *sch, struct nlattr *opt)
 	struct netem_sched_data *q = qdisc_priv(sch);
 	int ret;
 
+	qdisc_watchdog_init(&q->watchdog, sch);
+
 	if (!opt)
 		return -EINVAL;
-
-	qdisc_watchdog_init(&q->watchdog, sch);
 
 	q->loss_model = CLG_RANDOM;
 	ret = netem_change(sch, opt);
@@ -1148,6 +1153,7 @@ static struct Qdisc_ops netem_qdisc_ops __read_mostly = {
 	.dump		=	netem_dump,
 	.owner		=	THIS_MODULE,
 };
+
 
 static int __init netem_module_init(void)
 {

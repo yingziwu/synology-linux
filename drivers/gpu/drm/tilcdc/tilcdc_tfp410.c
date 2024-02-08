@@ -32,6 +32,7 @@ struct tfp410_module {
 };
 #define to_tfp410_module(x) container_of(x, struct tfp410_module, base)
 
+
 static const struct tilcdc_panel_info dvi_info = {
 		.ac_bias                = 255,
 		.ac_bias_intrpt         = 0,
@@ -146,6 +147,7 @@ struct tfp410_connector {
 	struct tfp410_module *mod;
 };
 #define to_tfp410_connector(x) container_of(x, struct tfp410_connector, base)
+
 
 static void tfp410_connector_destroy(struct drm_connector *connector)
 {

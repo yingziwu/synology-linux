@@ -528,6 +528,7 @@ static bool radeon_mst_mode_fixup(struct drm_encoder *encoder,
 		      mst_enc->primary->active_device, mst_enc->primary->devices,
 		      mst_enc->connector->devices, mst_enc->primary->base.encoder_type);
 
+
 	drm_mode_set_crtcinfo(adjusted_mode, 0);
 	dig_connector = mst_enc->connector->con_priv;
 	dig_connector->dp_lane_count = drm_dp_max_lane_count(dig_connector->dpcd);
@@ -565,6 +566,7 @@ static void radeon_mst_encoder_prepare(struct drm_encoder *encoder)
 		dig_enc->dig_encoder = radeon_atom_pick_dig_encoder(&primary->base, -1);
 		primary->offset = radeon_atom_set_enc_offset(dig_enc->dig_encoder);
 		atombios_set_mst_encoder_crtc_source(encoder, dig_enc->dig_encoder);
+
 
 	}
 	DRM_DEBUG_KMS("%d %d\n", dig_enc->dig_encoder, primary->offset);

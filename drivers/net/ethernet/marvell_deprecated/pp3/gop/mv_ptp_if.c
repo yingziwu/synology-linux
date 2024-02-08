@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -202,6 +203,7 @@ void mv_pp3_tai_clock_init(struct platform_device *pdev)
 	mv_pp3_tai_clock_cfg_external(ptp_tai_clock_external_cfg); /*hw here*/
 	mv_pp3_tai_clock_external_init2(ptp_tai_clock_external_cfg);
 }
+
 
 /* ------------------------------------------------------------*/
 /* -------   PTP timestamp  (hw-level)   ----------------------*/

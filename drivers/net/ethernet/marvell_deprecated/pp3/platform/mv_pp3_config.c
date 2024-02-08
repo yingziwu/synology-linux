@@ -65,6 +65,8 @@ static void mv_pp3_cfg_subtree_free(struct mv_pp3_tm_node *node);
 static void mv_pp3_port_subtree_print(struct mv_pp3_tm_node *node);
 #endif
 
+
+
 int mv_pp3_cfg_rx_irq_get(int id, int irq_group)
 {
 	int frame = mv_pp3_if_rxq_resources[id].if_frame;
@@ -358,6 +360,7 @@ int mv_pp3_cfg_dp_gen_pool_id(int *pool_id)
 	*pool_id = mv_pp3_cfg_sw_info.buffer_pool_id++;
 	return 0;
 }
+
 
 /* get frame and queue number in order to manage bm pools per cpu
 Inputs:

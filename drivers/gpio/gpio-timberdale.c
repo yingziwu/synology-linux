@@ -348,3 +348,4 @@ MODULE_DESCRIPTION("Timberdale GPIO driver");
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Mocean Laboratories");
 MODULE_ALIAS("platform:"DRIVER_NAME);
+

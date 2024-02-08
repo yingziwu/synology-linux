@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -31,6 +32,7 @@ disclaimer.
 
 #ifndef __mv_emac_reg_h__
 #define __mv_emac_reg_h__
+
 
 /* Emac Control (emac_cr) */
 #define MV_EMAC_CR_REG								(0x0000)
@@ -80,11 +82,13 @@ disclaimer.
 #define MV_EMAC_ENQ_CR_TIMESTAMP_FROM_DESCRIPTOR_MASK    \
 		(0x00000001 << MV_EMAC_ENQ_CR_TIMESTAMP_FROM_DESCRIPTOR_OFFS)
 
+
 /* Emac Enq Cfh Mh (EMAC_ENQ_CFH_MH) */
 #define MV_EMAC_ENQ_CFH_MH_REG							(0x0014)
 #define MV_EMAC_ENQ_CFH_MH_EMAC_ENQ_CFH_MH_OFFS					0
 #define MV_EMAC_ENQ_CFH_MH_EMAC_ENQ_CFH_MH_MASK    \
 		(0x0000ffff << MV_EMAC_ENQ_CFH_MH_EMAC_ENQ_CFH_MH_OFFS)
+
 
 /* Emac Enq Descriptor Word 0 (EMAC_ENQ_DESC_W0) */
 #define MV_EMAC_ENQ_DESC_W0_REG							(0x0018)
@@ -104,6 +108,7 @@ disclaimer.
 #define MV_EMAC_ENQ_DESC_W0_DEQ_MODE_MASK			\
 		(0x00000003 << MV_EMAC_ENQ_DESC_W0_DEQ_MODE_OFFS)
 
+
 /* Emac Enq Descriptor Word 1 (EMAC_ENQ_DESC_W1) */
 #define MV_EMAC_ENQ_DESC_W1_REG							(0x001c)
 #define MV_EMAC_ENQ_DESC_W1_EMAC_ENQ_DESC_W1_OFFS				0
@@ -113,6 +118,8 @@ disclaimer.
 #define MV_EMAC_ENQ_DESC_W1_FW_LOGIC_PORT_OFFS					28
 #define MV_EMAC_ENQ_DESC_W1_FW_LOGIC_PORT_MASK			\
 		(0x0000000F << MV_EMAC_ENQ_DESC_W1_FW_LOGIC_PORT_OFFS)
+
+
 
 /* Emac Axi Configuration (EMAC_AXI_CFG) */
 #define MV_EMAC_AXI_CFG_REG							(0x0030)
@@ -156,11 +163,13 @@ disclaimer.
 #define MV_EMAC_DEQ_CR_TX_SOP_DESC_INGRS_TIME_STMP_FROM_CFH_MASK    \
 		(0x00000001 << MV_EMAC_DEQ_CR_TX_SOP_DESC_INGRS_TIME_STMP_FROM_CFH_OFFS)
 
+
 /* Emac Deq Minimum Packet Length (EMAC_MIN_PKT_LEN) */
 #define MV_EMAC_MIN_PKT_LEN_REG							(0x00d4)
 #define MV_EMAC_MIN_PKT_LEN_DEQ_OFFS						0
 #define MV_EMAC_MIN_PKT_LEN_DEQ_MASK    \
 		(0x0000007f << MV_EMAC_MIN_PKT_LEN_DEQ_OFFS)
+
 
 /* Emac Deq Rtc Value From Descriptor (EMAC_DEQ_RTC_STRM_VAL) */
 #define MV_EMAC_DEQ_RTC_STRM_VAL_REG						(0x00d8)
@@ -206,6 +215,7 @@ disclaimer.
 #define MV_EMAC_DBG_SM_STATUS_APB2MG_STATE_MASK    \
 		(0x0000000f << MV_EMAC_DBG_SM_STATUS_APB2MG_STATE_OFFS)
 
+
 /* Debug Fill Level Status 1 (EMAC_DBG_FIFO_FILL_LVL1) */
 #define MV_EMAC_DBG_FIFO_FILL_LVL1_REG						(0x0104)
 #define MV_EMAC_DBG_FIFO_FILL_LVL1_DBG_FIFO_FILL_LVL_ENQ_PFC_FIFO_OFFS		0
@@ -223,6 +233,7 @@ disclaimer.
 #define MV_EMAC_DBG_FIFO_FILL_LVL1_DBG_FIFO_FILL_LVL_ENQ_EOP_FIFO_OFFS		24
 #define MV_EMAC_DBG_FIFO_FILL_LVL1_DBG_FIFO_FILL_LVL_ENQ_EOP_FIFO_MASK    \
 		(0x000000ff << MV_EMAC_DBG_FIFO_FILL_LVL1_DBG_FIFO_FILL_LVL_ENQ_EOP_FIFO_OFFS)
+
 
 /* Debug Fill Level Status 2 (EMAC_DBG_FIFO_FILL_LVL2) */
 #define MV_EMAC_DBG_FIFO_FILL_LVL2_REG						(0x0108)

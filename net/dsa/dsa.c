@@ -621,6 +621,7 @@ dsa_switch_setup(struct dsa_switch_tree *dst, int index,
 	netdev_info(dst->master_netdev, "[%d]: detected a %s switch\n",
 		    index, name);
 
+
 	/*
 	 * Allocate and initialise switch state.
 	 */
@@ -688,6 +689,7 @@ static void dsa_switch_destroy(struct dsa_switch *ds)
 
 		dsa_slave_destroy(ds->ports[port].netdev);
 	}
+
 
 	/* Disable configuration of the CPU and DSA ports */
 	for (port = 0; port < DSA_MAX_PORTS; port++) {
@@ -802,6 +804,7 @@ static int dsa_switch_resume(struct dsa_switch *ds)
 }
 #endif
 
+
 #if defined(MY_ABC_HERE)
 // do nothing
 #else /* MY_ABC_HERE */
@@ -830,6 +833,7 @@ static void dsa_link_poll_timer(unsigned long _dst)
 	schedule_work(&dst->link_poll_work);
 }
 #endif /* MY_ABC_HERE */
+
 
 /* platform driver init and cleanup *****************************************/
 static int dev_is_class(struct device *dev, void *class)

@@ -45,6 +45,7 @@
 #include "mv_pp3_defs.h"
 #include "mv_pp3_cfh.h"
 
+
 struct mv_pp3 {
 	struct platform_device	*pdev;
 	struct  platform_device	*sysfs_pdev;
@@ -141,6 +142,7 @@ static inline void mv_pp3_timer_add(struct mv_pp3_timer *pp3_timer)
 	}
 }
 
+
 /* Timer initialization */
 int mv_pp3_timer_init(struct mv_pp3_timer *pp3_timer, unsigned int cpu, unsigned int usec,
 			enum mv_pp3_timer_internal_type type, void (*func)(unsigned long), unsigned long cookie);
@@ -212,6 +214,7 @@ int mv_pp3_debug_sysfs_exit(struct kobject *pp3_kobj);
 int mv_pp3_nss_drain(struct mv_pp3 *priv);
 int mv_pp3_dp_q_find(u16 td, u16 red);
 void mv_pp3_dp_q_free(int dp_id);
+
 
 #endif /* __mv_pp3_h__ */
 #endif /* MY_ABC_HERE */

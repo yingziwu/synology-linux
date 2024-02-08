@@ -69,6 +69,7 @@ DECLARE_RD_WR_FUNC(s3_1_c11_c0_3);
 DECLARE_RD_WR_FUNC(s3_1_c15_c2_1);
 DECLARE_RD_WR_FUNC(s3_1_c15_c2_0);
 
+
 #define SYSREG_ENTRY(code, _desc)		\
 	{					\
 		.name = __stringify(code),	\
@@ -87,6 +88,7 @@ static struct sysreg_entry sysregs_list[] = {
 	SYSREG_ENTRY(s3_1_c15_c2_1, "CPU Ext Ctrl"),
 	SYSREG_ENTRY(s3_1_c15_c2_0, "CPU Aux Ctrl"),
 };
+
 
 static int mvebu_ap806_sysregs_debug_show(struct seq_file *seq, void *v)
 {
@@ -164,6 +166,7 @@ static ssize_t mvebu_ap806_sysregs_debug_write(struct file *f, const char __user
 
 	return count;
 }
+
 
 static int mvebu_ap806_sysregs_debug_open(struct inode *inode, struct file *file)
 {

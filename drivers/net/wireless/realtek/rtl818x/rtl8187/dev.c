@@ -1061,6 +1061,7 @@ static u64 rtl8187_get_tsf(struct ieee80211_hw *dev, struct ieee80211_vif *vif)
 	       (u64)(rtl818x_ioread32(priv, &priv->map->TSFT[1])) << 32;
 }
 
+
 static void rtl8187_beacon_work(struct work_struct *work)
 {
 	struct rtl8187_vif *vif_priv =
@@ -1101,6 +1102,7 @@ resched:
 			usecs_to_jiffies(1024 * vif->bss_conf.beacon_int));
 }
 
+
 static int rtl8187_add_interface(struct ieee80211_hw *dev,
 				 struct ieee80211_vif *vif)
 {
@@ -1129,6 +1131,7 @@ static int rtl8187_add_interface(struct ieee80211_hw *dev,
 	vif_priv->dev = dev;
 	INIT_DELAYED_WORK(&vif_priv->beacon_work, rtl8187_beacon_work);
 	vif_priv->enable_beacon = false;
+
 
 	rtl818x_iowrite8(priv, &priv->map->EEPROM_CMD, RTL818X_EEPROM_CMD_CONFIG);
 	for (i = 0; i < ETH_ALEN; i++)
@@ -1374,6 +1377,7 @@ static int rtl8187_conf_tx(struct ieee80211_hw *dev,
 	return 0;
 }
 
+
 static const struct ieee80211_ops rtl8187_ops = {
 	.tx			= rtl8187_tx,
 	.start			= rtl8187_start,
@@ -1450,6 +1454,7 @@ static int rtl8187_probe(struct usb_interface *intf,
 		goto err_free_dev;
 	}
 	mutex_init(&priv->io_mutex);
+	mutex_init(&priv->conf_mutex);
 
 	SET_IEEE80211_DEV(dev, &intf->dev);
 	usb_set_intfdata(intf, dev);
@@ -1472,6 +1477,7 @@ static int rtl8187_probe(struct usb_interface *intf,
 	priv->band.bitrates = priv->rates;
 	priv->band.n_bitrates = ARRAY_SIZE(rtl818x_rates);
 	dev->wiphy->bands[IEEE80211_BAND_2GHZ] = &priv->band;
+
 
 	ieee80211_hw_set(dev, RX_INCLUDES_FCS);
 	ieee80211_hw_set(dev, HOST_BROADCAST_PS_BUFFERING);
@@ -1622,7 +1628,6 @@ static int rtl8187_probe(struct usb_interface *intf,
 		printk(KERN_ERR "rtl8187: Cannot register device\n");
 		goto err_free_dmabuf;
 	}
-	mutex_init(&priv->conf_mutex);
 	skb_queue_head_init(&priv->b_tx_status.queue);
 
 	wiphy_info(dev->wiphy, "hwaddr %pM, %s V%d + %s, rfkill mask %d\n",

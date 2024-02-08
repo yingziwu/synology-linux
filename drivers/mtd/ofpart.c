@@ -29,22 +29,23 @@ static bool node_has_compatible(struct device_node *pp)
 }
 
 static int parse_ofpart_partitions(struct mtd_info *master,
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 				   const struct mtd_partition **pparts,
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 				   struct mtd_partition **pparts,
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 				   struct mtd_part_parser_data *data)
 {
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	struct mtd_partition *parts;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	struct device_node *mtd_node;
 	struct device_node *ofpart_node;
 	const char *partname;
 	struct device_node *pp;
 	int nr_parts, i, ret = 0;
 	bool dedicated = true;
+
 
 #if defined(MY_ABC_HERE)
 	/*
@@ -89,13 +90,13 @@ static int parse_ofpart_partitions(struct mtd_info *master,
 	if (nr_parts == 0)
 		return 0;
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	parts = kzalloc(nr_parts * sizeof(*parts), GFP_KERNEL);
 	if (!parts)
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	*pparts = kzalloc(nr_parts * sizeof(**pparts), GFP_KERNEL);
 	if (!*pparts)
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 		return -ENOMEM;
 
 	i = 0;
@@ -129,36 +130,36 @@ static int parse_ofpart_partitions(struct mtd_info *master,
 			goto ofpart_fail;
 		}
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 		parts[i].offset = of_read_number(reg, a_cells);
 		parts[i].size = of_read_number(reg + a_cells, s_cells);
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 		(*pparts)[i].offset = of_read_number(reg, a_cells);
 		(*pparts)[i].size = of_read_number(reg + a_cells, s_cells);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 		partname = of_get_property(pp, "label", &len);
 		if (!partname)
 			partname = of_get_property(pp, "name", &len);
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 		parts[i].name = partname;
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 		(*pparts)[i].name = partname;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 		if (of_get_property(pp, "read-only", &len))
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 			parts[i].mask_flags |= MTD_WRITEABLE;
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 			(*pparts)[i].mask_flags |= MTD_WRITEABLE;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 		if (of_get_property(pp, "lock", &len))
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 			parts[i].mask_flags |= MTD_POWERUP_LOCK;
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 			(*pparts)[i].mask_flags |= MTD_POWERUP_LOCK;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 		i++;
 	}
@@ -166,9 +167,9 @@ static int parse_ofpart_partitions(struct mtd_info *master,
 	if (!nr_parts)
 		goto ofpart_none;
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	*pparts = parts;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	return nr_parts;
 
 ofpart_fail:
@@ -177,12 +178,12 @@ ofpart_fail:
 	ret = -EINVAL;
 ofpart_none:
 	of_node_put(pp);
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	kfree(parts);
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	kfree(*pparts);
 	*pparts = NULL;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	return ret;
 }
 
@@ -193,16 +194,16 @@ static struct mtd_part_parser ofpart_parser = {
 };
 
 static int parse_ofoldpart_partitions(struct mtd_info *master,
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 				      const struct mtd_partition **pparts,
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 				      struct mtd_partition **pparts,
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 				      struct mtd_part_parser_data *data)
 {
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	struct mtd_partition *parts;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	struct device_node *dp;
 	int i, plen, nr_parts;
 	const struct {
@@ -234,57 +235,57 @@ static int parse_ofoldpart_partitions(struct mtd_info *master,
 
 	nr_parts = plen / sizeof(part[0]);
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	parts = kzalloc(nr_parts * sizeof(*parts), GFP_KERNEL);
 	if (!parts)
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 	*pparts = kzalloc(nr_parts * sizeof(*(*pparts)), GFP_KERNEL);
 	if (!*pparts)
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 		return -ENOMEM;
 
 	names = of_get_property(dp, "partition-names", &plen);
 
 	for (i = 0; i < nr_parts; i++) {
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 		parts[i].offset = be32_to_cpu(part->offset);
 		parts[i].size   = be32_to_cpu(part->len) & ~1;
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 		(*pparts)[i].offset = be32_to_cpu(part->offset);
 		(*pparts)[i].size   = be32_to_cpu(part->len) & ~1;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 		/* bit 0 set signifies read only partition */
 		if (be32_to_cpu(part->len) & 1)
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 			parts[i].mask_flags = MTD_WRITEABLE;
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 			(*pparts)[i].mask_flags = MTD_WRITEABLE;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 		if (names && (plen > 0)) {
 			int len = strlen(names) + 1;
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 			parts[i].name = names;
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 			(*pparts)[i].name = names;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 			plen -= len;
 			names += len;
 		} else {
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 			parts[i].name = "unnamed";
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 			(*pparts)[i].name = "unnamed";
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 		}
 
 		part++;
 	}
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 	*pparts = parts;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 	return nr_parts;
 }
 

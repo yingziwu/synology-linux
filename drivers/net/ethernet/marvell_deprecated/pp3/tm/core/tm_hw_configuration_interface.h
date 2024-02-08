@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -63,6 +64,7 @@ unsigned int	get_port_min_periodic_interval(void);
 
 /* drop threshold definition */
 unsigned int	get_drop_threshold_definition(void);
+
 
 #endif   /* TM_HW_CONFIGURATION_INTERFACE_H */
 #endif /* MY_ABC_HERE */

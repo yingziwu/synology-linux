@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -48,6 +49,7 @@ struct mv_pp3_emac_ctrl {
 
 /* mv_pp3_emac_ctrl flags */
 
+
 #define MV_PP3_EMAC_F_DEBUG_BIT		0
 #define MV_PP3_EMAC_F_ATTACH_BIT	1
 #define MV_PP3_EMAC_F_ROC_CNT_EN_BIT	2
@@ -55,6 +57,7 @@ struct mv_pp3_emac_ctrl {
 #define MV_PP3_EMAC_F_DEBUG		(1 << MV_PP3_EMAC_F_DEBUG_BIT)
 #define MV_PP3_EMAC_F_ATTACH		(1 << MV_PP3_EMAC_F_ATTACH_BIT)
 #define MV_PP3_EMAC_F_ROC_CNT_EN	(1 << MV_PP3_EMAC_F_ROC_CNT_EN_BIT)
+
 
 void mv_pp3_emac_unit_base(int index, void __iomem *base);
 int mv_pp3_emac_global_init(int emacs_num);

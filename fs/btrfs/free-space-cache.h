@@ -127,8 +127,13 @@ u64 btrfs_alloc_from_cluster(struct btrfs_block_group_cache *block_group,
 int btrfs_return_cluster_to_free_space(
 			       struct btrfs_block_group_cache *block_group,
 			       struct btrfs_free_cluster *cluster);
+#ifdef MY_DEF_HERE
+int btrfs_trim_block_group(struct btrfs_block_group_cache *block_group,
+			   u64 *trimmed, u64 start, u64 end, u64 minlen, enum trim_act act);
+#else /* MY_DEF_HERE */
 int btrfs_trim_block_group(struct btrfs_block_group_cache *block_group,
 			   u64 *trimmed, u64 start, u64 end, u64 minlen);
+#endif /* MY_DEF_HERE */
 
 /* Support functions for running our sanity tests */
 #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS

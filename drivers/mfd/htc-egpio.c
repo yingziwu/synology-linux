@@ -177,6 +177,7 @@ static int egpio_direction_input(struct gpio_chip *chip, unsigned offset)
 	return test_bit(offset, &egpio->is_out) ? -EINVAL : 0;
 }
 
+
 /*
  * Output pins
  */
@@ -255,6 +256,7 @@ static void egpio_write_cache(struct egpio_info *ei)
 		}
 	}
 }
+
 
 /*
  * Setup
@@ -416,6 +418,7 @@ static int egpio_resume(struct platform_device *pdev)
 #define egpio_suspend NULL
 #define egpio_resume NULL
 #endif
+
 
 static struct platform_driver egpio_driver = {
 	.driver = {

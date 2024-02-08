@@ -23,6 +23,7 @@
 #ifndef __mv_a2m_h__
 #define __mv_a2m_h__
 
+
 #define MV_PP3_A2M_MAX_MASTER		2
 #define MV_PP3_A2M_MAX_DECODE_WIN	8
 

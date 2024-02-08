@@ -201,6 +201,7 @@ gk104_pcie_set_link(struct nvkm_pci *pci, enum nvkm_pcie_speed speed, u8 width)
 	return 0;
 }
 
+
 static const struct nvkm_pci_func
 gk104_pci_func = {
 	.init = g84_pci_init,

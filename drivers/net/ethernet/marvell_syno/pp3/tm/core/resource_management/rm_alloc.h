@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -31,6 +32,7 @@ disclaimer.
 #include "rm_interface.h"
 #include "tm/core/tm_defs.h"
 
+
 /** Find free Queue.
  *
  *   @param[in]		hndl		     Resource Manager handle.
@@ -43,6 +45,7 @@ disclaimer.
  *   @retval -ENOBUFS when no free queues.
  */
 int rm_find_free_queue(rmctl_t hndl, uint32_t a_node_ind);
+
 
 /** Find free A-node.
  *
@@ -59,6 +62,7 @@ int rm_find_free_queue(rmctl_t hndl, uint32_t a_node_ind);
  */
 int rm_find_free_a_node(rmctl_t hndl, uint32_t b_node_ind, uint32_t num_of_children);
 
+
 /** Find free B-node.
  *
  *   @param[in]		hndl		     Resource Manager handle.
@@ -73,6 +77,7 @@ int rm_find_free_a_node(rmctl_t hndl, uint32_t b_node_ind, uint32_t num_of_child
  *   @retval -ENOMEM when out of memory space.
  */
 int rm_find_free_b_node(rmctl_t hndl, uint32_t c_node_ind, uint32_t num_of_children);
+
 
 /** Find free C-node.
  *
@@ -89,6 +94,7 @@ int rm_find_free_b_node(rmctl_t hndl, uint32_t c_node_ind, uint32_t num_of_child
  */
 int rm_find_free_c_node(rmctl_t hndl, uint8_t port_ind, uint32_t num_of_children);
 
+
 /** Init Port in RM.
  *
  *   @param[in]		hndl			Resource Manager handle.
@@ -103,6 +109,7 @@ int rm_find_free_c_node(rmctl_t hndl, uint8_t port_ind, uint32_t num_of_children
  *   @retval -ENOMEM when out of memory space.
  */
 int rm_init_port(rmctl_t hndl, uint8_t port_id, uint32_t num_of_children);
+
 
 /** Expand range of the parent by adding the node to it's range.
  *
@@ -123,6 +130,7 @@ int rm_init_port(rmctl_t hndl, uint8_t port_id, uint32_t num_of_children);
  */
 int rm_expand_range(rmctl_t hndl, enum tm_level level, uint32_t node, uint32_t parent);
 
+
 /** Find free WRED Queue Curve entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -133,6 +141,7 @@ int rm_expand_range(rmctl_t hndl, enum tm_level level, uint32_t node, uint32_t p
  *   @retval -ENOBUFS when no free entry.
  */
 int rm_find_free_wred_queue_curve(rmctl_t hndl);
+
 
 /** Find free WRED A-node Curve entry.
  *
@@ -145,6 +154,7 @@ int rm_find_free_wred_queue_curve(rmctl_t hndl);
  */
 int rm_find_free_wred_a_node_curve(rmctl_t hndl);
 
+
 /** Find free WRED B-node Curve entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -155,6 +165,7 @@ int rm_find_free_wred_a_node_curve(rmctl_t hndl);
  *   @retval -ENOBUFS when no free entry.
  */
 int rm_find_free_wred_b_node_curve(rmctl_t hndl);
+
 
 /** Find free WRED C-node Curve entry.
  *
@@ -169,6 +180,7 @@ int rm_find_free_wred_b_node_curve(rmctl_t hndl);
  */
 int rm_find_free_wred_c_node_curve(rmctl_t hndl, uint8_t cos);
 
+
 /** Find free WRED Port Curve entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -179,6 +191,7 @@ int rm_find_free_wred_c_node_curve(rmctl_t hndl, uint8_t cos);
  *   @retval -ENOBUFS when no free entry.
  */
 int rm_find_free_wred_port_curve(rmctl_t hndl);
+
 
 /* BC2 only */
 /** Find free WRED Port Curve entry per Cos.
@@ -194,6 +207,7 @@ int rm_find_free_wred_port_curve(rmctl_t hndl);
  */
 int rm_find_free_wred_port_curve_cos(rmctl_t hndl, uint8_t cos);
 
+
 /** Find free Queue Drop Profile entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -204,6 +218,7 @@ int rm_find_free_wred_port_curve_cos(rmctl_t hndl, uint8_t cos);
  *   @retval -ENOBUFS when no free entry.
  */
 int rm_find_free_queue_drop_profile(rmctl_t hndl);
+
 
 /** Find free A-node Drop Profile entry.
  *
@@ -216,6 +231,7 @@ int rm_find_free_queue_drop_profile(rmctl_t hndl);
  */
 int rm_find_free_a_node_drop_profile(rmctl_t hndl);
 
+
 /** Find free B-node Drop Profile entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -226,6 +242,7 @@ int rm_find_free_a_node_drop_profile(rmctl_t hndl);
  *   @retval -ENOBUFS when no free entry.
  */
 int rm_find_free_b_node_drop_profile(rmctl_t hndl);
+
 
 /** Find free C-node Drop Profile entry.
  *
@@ -240,6 +257,7 @@ int rm_find_free_b_node_drop_profile(rmctl_t hndl);
  */
 int rm_find_free_c_node_drop_profile(rmctl_t hndl, uint8_t cos);
 
+
 /** Find free Port Drop Profile entry.
  *
  *   @param[in]		hndl		Resource Manager handle.
@@ -250,6 +268,7 @@ int rm_find_free_c_node_drop_profile(rmctl_t hndl, uint8_t cos);
  *   @retval -ENOBUFS when no free entry.
  */
 int rm_find_free_port_drop_profile(rmctl_t hndl);
+
 
 /* BC2 only */
 /** Find free Port Drop Profile entry per Cos.
@@ -264,5 +283,6 @@ int rm_find_free_port_drop_profile(rmctl_t hndl);
  *   @retval -ENOBUFS when no free entry.
  */
 int rm_find_free_port_drop_profile_cos(rmctl_t hndl, uint8_t cos);
+
 
 #endif   /* RM_ALLOC_H */

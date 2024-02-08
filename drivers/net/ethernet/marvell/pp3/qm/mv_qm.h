@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -102,6 +103,7 @@ enum mv_qm_ql_bp_status {
 /* Default pools thresholds */
 #define QM_POOL_THR_LOW				0x0000000C
 #define QM_POOL_THR_HIGH			0x00000018
+
 
 /* read/write attributes defenitions */
 #define QM_SWF_AWQOS_DEF			0x00000001
@@ -280,6 +282,7 @@ void qm_global_dump(void);
 */
 void qm_queue_dump(int queue);
 
+
 /*
  * Print for the queues that are not empty the following.
  * Run on all queues from 0 to 511.
@@ -293,6 +296,7 @@ void qm_nempty_queue_len_dump(void);
  *		0 - success
 */
 void qm_dqf_port_dump(int port);
+
 
 /* Set emac ingress queue for secret machine
  * inputs

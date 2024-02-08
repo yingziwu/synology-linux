@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -53,6 +54,7 @@ int tm_sysfs_wred_thr_set(int color, uint32_t min, uint32_t max);
 int tm_sysfs_wred_curve_set(int color, uint32_t curve_ind, uint32_t curve_scale);
 
 int tm_sysfs_drop_profile_set(int level, uint16_t index, int cos);
+
 
 #endif /* TM_SYSFS_DROP__H */
 #endif /* MY_ABC_HERE */

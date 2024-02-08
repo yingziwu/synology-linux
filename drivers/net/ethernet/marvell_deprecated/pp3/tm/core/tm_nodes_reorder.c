@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -68,6 +69,7 @@ static int tm_reorder_check_node(tm_handle hndl, enum tm_level level, uint16_t n
 	return 0;
 }
 
+
 /**
  */
 static int tm_reorder_get_node_children(tm_handle hndl,
@@ -101,6 +103,7 @@ static int tm_reorder_get_node_children(tm_handle hndl,
 	}
 	return 0;
 }
+
 
 /**
  */
@@ -204,6 +207,7 @@ static int tm_reorder_nodes_on_off(tm_handle hndl,
 	return 0;
 }
 
+
 /**
  */
 int tm_nodes_move(tm_handle hndl,
@@ -291,6 +295,7 @@ int tm_nodes_move(tm_handle hndl,
 		first_child_node_from_node = first_child_to_move + number_of_children;
 		last_child_node_to_node = first_child_node_from_node - 1;
 	}
+
 
 	/* Disable dequeing on all child and parent node */
 	rc = tm_reorder_nodes_on_off(hndl, level, from_node, first_child_to_move,
@@ -429,6 +434,7 @@ err_out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */

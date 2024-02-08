@@ -22,10 +22,12 @@
 #ifndef __mv_pp3_vq_h__
 #define __mv_pp3_vq_h__
 
+
 #include "common/mv_sw_if.h"
 #include "platform/mv_pp3.h"
 #include "mv_pp3_vport.h"
 #include "mv_pp3_swq.h"
+
 
 struct pp3_vport;
 
@@ -41,6 +43,7 @@ struct pp3_vq {
 	struct mv_nss_drop  *drop;   /* drop parameters for virtual queue */
 	struct mv_nss_meter *meter;  /* shaper for TX or policer for RX parameters for virtual queue */
 };
+
 
 /* "alloc" functions do the following actions:
  * - Allocate zeroed memory for struct pp3_rx_vq/struct pp3_tx_vq  structure

@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -42,11 +43,13 @@ struct pp3_gmac_ctrl {
 
 /* mv_pp3_gmac_ctrl flags */
 
+
 #define MV_PP3_GMAC_F_DEBUG_BIT		0
 #define MV_PP3_GMAC_F_ATTACH_BIT	1
 
 #define MV_PP3_GMAC_F_DEBUG		(1 << MV_PP3_GMAC_F_DEBUG_BIT)
 #define MV_PP3_GMAC_F_ATTACH		(1 << MV_PP3_GMAC_F_ATTACH_BIT)
+
 
 /***************************************************************************/
 /*                          regs access functions                          */
@@ -56,6 +59,7 @@ u32  pp3_gmac_reg_read(int port, u32 reg);
 void pp3_gmac_reg_write(int port, u32 reg, u32 data);
 void pp3_gmac_base_addr_set(unsigned int addr);
 u32  pp3_gmac_base_addr_get(void);
+
 
 /***************************************************************************/
 /*                          inline functions                               */

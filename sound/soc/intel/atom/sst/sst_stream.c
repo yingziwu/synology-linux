@@ -221,7 +221,7 @@ int sst_send_byte_stream_mrfld(struct intel_sst_drv *sst_drv_ctx,
 		sst_free_block(sst_drv_ctx, block);
 out:
 	test_and_clear_bit(pvt_id, &sst_drv_ctx->pvt_id);
-	return 0;
+	return ret;
 }
 
 /*
@@ -311,6 +311,7 @@ int sst_resume_stream(struct intel_sst_drv *sst_drv_ctx, int str_id)
 
 	return retval;
 }
+
 
 /**
  * sst_drop_stream - Send msg for stopping stream

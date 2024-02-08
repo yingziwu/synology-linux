@@ -30,6 +30,7 @@
 #include "fw/mv_fw.h"
 #include "mv_pp3.h"
 
+
 static ssize_t pp3_init_help(char *b)
 {
 	int o = 0;
@@ -118,11 +119,13 @@ int mv_pp3_init_sysfs_init(struct kobject *pp3_kobj)
 	return err;
 }
 
+
 int mv_pp3_init_sysfs_exit(struct kobject *pp3_kobj)
 {
 	sysfs_remove_group(pp3_kobj, &pp3_init_group);
 
 	return 0;
 }
+
 
 #endif /* MY_ABC_HERE */

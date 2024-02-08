@@ -48,6 +48,7 @@
 
 #define DEV_NAME "RTD16xx_gpio-suspend"
 
+
 char wu_en[SUSPEND_ISO_GPIO_SIZE];
 char wu_act[SUSPEND_ISO_GPIO_SIZE];
 
@@ -90,6 +91,8 @@ void rtk_suspend_gpio_output_change_resume(void)
 		gpio_direction_output(i + SUSPEND_ISO_GPIO_BASE, tmp);
 	}
 }
+
+
 
 static void rtk_gpio_init_wu(struct device_node *nd)
 {
@@ -249,6 +252,7 @@ static ssize_t rtk_suspend_gpio_wakeup_en_show(struct kobject *kobj,
 {
 	int i;
 	int n = 0;
+
 
 	n += sprintf(buf + n, " En | GPIO(ISO)\n");
 	n += sprintf(buf + n, " ---+----------\n");

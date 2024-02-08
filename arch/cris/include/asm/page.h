@@ -59,6 +59,7 @@ typedef struct page *pgtable_t;
 
 #define page_to_phys(page)     __pa((((page) - mem_map) << PAGE_SHIFT) + PAGE_OFFSET)
 
+
 #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 
@@ -66,3 +67,4 @@ typedef struct page *pgtable_t;
 #include <asm-generic/getorder.h>
 
 #endif /* _CRIS_PAGE_H */
+

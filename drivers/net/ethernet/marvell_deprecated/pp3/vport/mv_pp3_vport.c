@@ -730,6 +730,7 @@ void mv_pp3_vports_dump(void)
 }
 /*---------------------------------------------------------------------------*/
 
+
 /* Print statistics for all sw queues belong the CPU internal virtual port */
 void mv_pp3_cpu_vport_vqs_stats_dump(int vport)
 {

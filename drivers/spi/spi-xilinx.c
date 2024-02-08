@@ -271,6 +271,7 @@ static int xilinx_spi_txrx_bufs(struct spi_device *spi, struct spi_transfer *t)
 	while (remaining_words) {
 		int n_words, tx_words, rx_words;
 		u32 sr;
+		int stalled;
 
 		n_words = min(remaining_words, xspi->buffer_size);
 
@@ -299,7 +300,17 @@ static int xilinx_spi_txrx_bufs(struct spi_device *spi, struct spi_transfer *t)
 
 		/* Read out all the data from the Rx FIFO */
 		rx_words = n_words;
+		stalled = 10;
 		while (rx_words) {
+			if (rx_words == n_words && !(stalled--) &&
+			    !(sr & XSPI_SR_TX_EMPTY_MASK) &&
+			    (sr & XSPI_SR_RX_EMPTY_MASK)) {
+				dev_err(&spi->dev,
+					"Detected stall. Check C_SPI_MODE and C_SPI_MEMORY\n");
+				xspi_init_hw(xspi);
+				return -EIO;
+			}
+
 			if ((sr & XSPI_SR_TX_EMPTY_MASK) && (rx_words > 1)) {
 				xilinx_spi_rx(xspi);
 				rx_words--;
@@ -323,6 +334,7 @@ static int xilinx_spi_txrx_bufs(struct spi_device *spi, struct spi_transfer *t)
 
 	return t->len;
 }
+
 
 /* This driver supports single master mode only. Hence Tx FIFO Empty
  * is the only interrupt we care about.

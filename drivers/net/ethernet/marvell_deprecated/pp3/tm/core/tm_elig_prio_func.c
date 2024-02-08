@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -35,6 +36,7 @@ disclaimer.
 #include "tm_set_local_db_defaults.h"
 #include "tm_locking_interface.h"
 #include "rm_status.h"
+
 
 /* Auxiliary function */
 static uint16_t convert_elig_func_to_value(struct tm_elig_prio_func_out *elig_func)
@@ -458,6 +460,7 @@ out:
 	return rc;
 }
 
+
 int tm_get_node_elig_prio_fun_info(tm_handle hndl, enum tm_level level, uint32_t index, uint8_t *prio, uint8_t *pmask)
 {
 	int rc = -EFAULT;
@@ -532,6 +535,8 @@ int tm_get_node_elig_prio_fun_info(tm_handle hndl, enum tm_level level, uint32_t
 	return rc;
 }
 
+
+
 int is_queue_elig_fun_uses_shaper(struct tm_elig_prio_func_queue *queue_func_table, uint8_t func_index)
 {
 	int mask;
@@ -562,6 +567,7 @@ int is_node_elig_fun_uses_shaper(struct tm_elig_prio_func_node *node_func_table,
 	}
 	return mask;
 }
+
 
 /**
  */

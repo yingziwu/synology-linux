@@ -41,4 +41,5 @@ struct gpio_registers {
 	uint32_t Y_shift;
 };
 
+
 #endif /* DRIVERS_GPU_DRM_AMD_DC_DEV_DC_GPIO_GPIO_REGS_H_ */

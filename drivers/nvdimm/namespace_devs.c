@@ -337,6 +337,7 @@ resource_size_t nd_namespace_blk_validate(struct nd_namespace_blk *nsblk)
 }
 EXPORT_SYMBOL(nd_namespace_blk_validate);
 
+
 static int nd_namespace_label_update(struct nd_region *nd_region,
 		struct device *dev)
 {
@@ -1304,7 +1305,7 @@ static umode_t namespace_visible(struct kobject *kobj,
 	if (a == &dev_attr_resource.attr) {
 		if (is_namespace_blk(dev))
 			return 0;
-		return a->mode;
+		return 0400;
 	}
 
 	if (is_namespace_pmem(dev) || is_namespace_blk(dev)) {

@@ -949,6 +949,7 @@ static void mv_xor_v2_tasklet(unsigned long data)
 		else
 			list_move_tail(&next_pending_sw_desc->node, &xor_dev->free_sw_desc);
 
+
 		/* Release the channel */
 		spin_unlock_bh(&xor_dev->sw_ll_lock);
 

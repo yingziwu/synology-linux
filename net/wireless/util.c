@@ -16,6 +16,7 @@
 #include "core.h"
 #include "rdev-ops.h"
 
+
 struct ieee80211_rate *
 ieee80211_get_response_rate(struct ieee80211_supported_band *sband,
 			    u32 basic_rates, int bitrate)
@@ -643,6 +644,7 @@ int ieee80211_data_from_8023(struct sk_buff *skb, const u8 *addr,
 }
 EXPORT_SYMBOL(ieee80211_data_from_8023);
 
+
 void ieee80211_amsdu_to_8023s(struct sk_buff *skb, struct sk_buff_head *list,
 			      const u8 *addr, enum nl80211_iftype iftype,
 			      const unsigned int extra_headroom,
@@ -1235,6 +1237,7 @@ int cfg80211_get_p2p_attr(const u8 *ies, unsigned int len,
 				bufsize -= min(bufsize, copy);
 			}
 
+
 			if (copy == attr_remaining)
 				return desired_len;
 		}
@@ -1357,7 +1360,7 @@ bool ieee80211_chandef_to_operating_class(struct cfg80211_chan_def *chandef,
 					  u8 *op_class)
 {
 	u8 vht_opclass;
-	u16 freq = chandef->center_freq1;
+	u32 freq = chandef->center_freq1;
 
 	if (freq >= 2412 && freq <= 2472) {
 		if (chandef->width > NL80211_CHAN_WIDTH_40)

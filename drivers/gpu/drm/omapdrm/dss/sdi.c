@@ -165,6 +165,7 @@ static int sdi_display_enable(struct omap_dss_device *dssdev)
 		vm->pixelclock = pck;
 	}
 
+
 	dss_mgr_set_timings(channel, vm);
 
 	r = dss_set_fck_rate(fck);

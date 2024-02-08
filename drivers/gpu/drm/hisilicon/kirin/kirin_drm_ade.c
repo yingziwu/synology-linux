@@ -190,6 +190,7 @@ static bool ade_crtc_mode_fixup(struct drm_crtc *crtc,
 	return true;
 }
 
+
 static void ade_set_pix_clk(struct ade_hw_ctx *ctx,
 			    struct drm_display_mode *mode,
 			    struct drm_display_mode *adj_mode)

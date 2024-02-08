@@ -1324,6 +1324,7 @@ static int dsi_set_lp_clk_divisor(struct platform_device *dsidev)
 	unsigned long lp_clk;
 	unsigned lpdiv_max = dsi->data->max_pll_lpdiv;
 
+
 	lp_clk_div = dsi->user_lp_cinfo.lp_clk_div;
 
 	if (lp_clk_div == 0 || lp_clk_div > lpdiv_max)
@@ -1396,6 +1397,7 @@ static int dsi_pll_power(struct platform_device *dsidev,
 
 	return 0;
 }
+
 
 static void dsi_pll_calc_dsi_fck(struct dsi_data *dsi,
 				 struct dss_pll_clock_info *cinfo)
@@ -4803,6 +4805,7 @@ static bool dsi_vm_calc_blanking(struct dsi_clk_calc_ctx *ctx)
 	return true;
 }
 
+
 static bool dsi_vm_calc_dispc_cb(int lckd, int pckd, unsigned long lck,
 		unsigned long pck, void *data)
 {
@@ -5051,6 +5054,7 @@ static void dsi_release_vc(struct omap_dss_device *dssdev, int channel)
 		dsi->vc[channel].vc_id = 0;
 	}
 }
+
 
 static int dsi_get_clocks(struct platform_device *dsidev)
 {

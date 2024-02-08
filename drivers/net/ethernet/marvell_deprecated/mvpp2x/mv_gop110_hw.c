@@ -1268,6 +1268,7 @@ void mv_gop110_gmac_set_autoneg(struct gop_hw *gop, struct mv_mac_data *mac, boo
 				MV_GMAC_PORT_AUTO_NEG_CFG_REG, reg_val);
 }
 
+
 int mv_gop110_port_regs(struct gop_hw *gop, struct mv_mac_data *mac)
 {
 	int port_num = mac->gop_index;
@@ -2425,6 +2426,7 @@ void mv_gop110_mpcs_clock_reset(struct gop_hw *gop, enum mv_reset reset)
 	mv_gop110_mpcs_global_write(gop, reg_addr, val);
 }
 
+
 u64 mv_gop110_mib_read64(struct gop_hw *gop, int port, unsigned int offset)
 {
 	u64 val, val2;
@@ -2736,6 +2738,8 @@ static void mv_gop110_netc_rxaui1_enable(struct gop_hw *gop, u32 port, u32 val)
 	mv_gop110_rfu1_write(gop, SD1_CONTROL_1_REG, reg);
 }
 
+
+
 static void mv_gop110_netc_mii_mode(struct gop_hw *gop, u32 port, u32 val)
 {
 	u32 reg;
@@ -2750,6 +2754,8 @@ static void mv_gop110_netc_mii_mode(struct gop_hw *gop, u32 port, u32 val)
 
 	mv_gop110_rfu1_write(gop, MV_NETCOMP_CONTROL_0, reg);
 }
+
+
 
 static void mv_gop110_netc_gop_reset(struct gop_hw *gop, u32 val)
 {
@@ -3068,6 +3074,7 @@ void mv_gop110_fca_tx_enable(struct gop_hw *gop, int mac_num, bool en)
 			      en << FCA_BYPASS_OFFSET);
 	mv_gop110_fca_write(gop, mac_num, FCA_CONTROL_REG, val);
 }
+
 
 bool mv_gop110_check_fca_tx_state(struct gop_hw *gop, int mac_num)
 {

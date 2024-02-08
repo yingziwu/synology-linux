@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -32,6 +33,7 @@ disclaimer.
 #define __mv_smi_regs_h__
 
 /* includes */
+
 
 /* SMI_MANAGEMENT Register */
 #define MV_SMI_MANAGEMENT_REG					(0x5000000)

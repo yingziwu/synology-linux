@@ -372,6 +372,7 @@ struct dma_fence *amdgpu_ctx_get_fence(struct amdgpu_ctx *ctx,
 		return ERR_PTR(-EINVAL);
 	}
 
+
 	if (seq + amdgpu_sched_jobs < cring->sequence) {
 		spin_unlock(&ctx->ring_lock);
 		return NULL;

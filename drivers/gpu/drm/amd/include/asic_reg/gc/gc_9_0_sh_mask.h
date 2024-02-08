@@ -21,6 +21,7 @@
 #ifndef _gc_9_0_SH_MASK_HEADER
 #define _gc_9_0_SH_MASK_HEADER
 
+
 // addressBlock: gc_grbmdec
 //GRBM_CNTL
 #define GRBM_CNTL__READ_TIMEOUT__SHIFT                                                                        0x0
@@ -470,6 +471,7 @@
 //GRBM_SCRATCH_REG7
 #define GRBM_SCRATCH_REG7__SCRATCH_REG7__SHIFT                                                                0x0
 #define GRBM_SCRATCH_REG7__SCRATCH_REG7_MASK                                                                  0xFFFFFFFFL
+
 
 // addressBlock: gc_cpdec
 //CP_CPC_STATUS
@@ -1259,6 +1261,7 @@
 #define CP_INT_STAT_DEBUG__GENERIC1_INT_ASSERTED_MASK                                                         0x40000000L
 #define CP_INT_STAT_DEBUG__GENERIC0_INT_ASSERTED_MASK                                                         0x80000000L
 
+
 // addressBlock: gc_padec
 //VGT_VTX_VECT_EJECT_REG
 #define VGT_VTX_VECT_EJECT_REG__PRIM_COUNT__SHIFT                                                             0x0
@@ -1954,6 +1957,7 @@
 #define PA_SC_TILE_STEERING_CREST_OVERRIDE__ONE_RB_MODE_ENABLE_MASK                                           0x00000001L
 #define PA_SC_TILE_STEERING_CREST_OVERRIDE__SE_SELECT_MASK                                                    0x00000006L
 #define PA_SC_TILE_STEERING_CREST_OVERRIDE__RB_SELECT_MASK                                                    0x00000060L
+
 
 // addressBlock: gc_sqdec
 //SQ_CONFIG
@@ -3715,6 +3719,7 @@
 #define SQC_DCACHE_UTCL1_STATUS__RETRY_DETECTED_MASK                                                          0x00000002L
 #define SQC_DCACHE_UTCL1_STATUS__PRT_DETECTED_MASK                                                            0x00000004L
 
+
 // addressBlock: gc_shsdec
 //SX_DEBUG_BUSY
 #define SX_DEBUG_BUSY__POS_FREE_OR_VALIDS__SHIFT                                                              0x0
@@ -4441,6 +4446,7 @@
 #define SPI_P1_TRAP_SCREEN_GPR_MIN__VGPR_MIN_MASK                                                             0x003FL
 #define SPI_P1_TRAP_SCREEN_GPR_MIN__SGPR_MIN_MASK                                                             0x03C0L
 
+
 // addressBlock: gc_tpdec
 //TD_CNTL
 #define TD_CNTL__SYNC_PHASE_SH__SHIFT                                                                         0x0
@@ -4608,6 +4614,7 @@
 //TA_SCRATCH
 #define TA_SCRATCH__SCRATCH__SHIFT                                                                            0x0
 #define TA_SCRATCH__SCRATCH_MASK                                                                              0xFFFFFFFFL
+
 
 // addressBlock: gc_gdsdec
 //GDS_CONFIG
@@ -4827,6 +4834,7 @@
 #define GDS_WD_GDS_CSB__UNUSED__SHIFT                                                                         0xd
 #define GDS_WD_GDS_CSB__COUNTER_MASK                                                                          0x00001FFFL
 #define GDS_WD_GDS_CSB__UNUSED_MASK                                                                           0xFFFFE000L
+
 
 // addressBlock: gc_rbdec
 //DB_DEBUG
@@ -5981,6 +5989,7 @@
 #define GC_USER_RB_BACKEND_DISABLE__BACKEND_DISABLE__SHIFT                                                    0x10
 #define GC_USER_RB_BACKEND_DISABLE__BACKEND_DISABLE_MASK                                                      0x00FF0000L
 
+
 // addressBlock: gc_rmi_rmidec
 //RMI_GENERAL_CNTL
 #define RMI_GENERAL_CNTL__BURST_DISABLE__SHIFT                                                                0x0
@@ -6471,6 +6480,7 @@
 #define RMI_SPARE_2__SPARE_BIT_8_2_MASK                                                                       0x00FF0000L
 #define RMI_SPARE_2__SPARE_BIT_8_3_MASK                                                                       0xFF000000L
 
+
 // addressBlock: gc_utcl2_atcl2dec
 //ATC_L2_CNTL
 #define ATC_L2_CNTL__NUMBER_OF_TRANSLATION_READ_REQUESTS__SHIFT                                               0x0
@@ -6551,6 +6561,7 @@
 #define ATC_L2_CGTT_CLK_CTRL__MGLS_OVERRIDE_MASK                                                              0x00008000L
 #define ATC_L2_CGTT_CLK_CTRL__SOFT_STALL_OVERRIDE_MASK                                                        0x00FF0000L
 #define ATC_L2_CGTT_CLK_CTRL__SOFT_OVERRIDE_MASK                                                              0xFF000000L
+
 
 // addressBlock: gc_utcl2_vml2pfdec
 //VM_L2_CNTL
@@ -6881,6 +6892,7 @@
 #define VM_L2_CGTT_CLK_CTRL__MGLS_OVERRIDE_MASK                                                               0x00008000L
 #define VM_L2_CGTT_CLK_CTRL__SOFT_STALL_OVERRIDE_MASK                                                         0x00FF0000L
 #define VM_L2_CGTT_CLK_CTRL__SOFT_OVERRIDE_MASK                                                               0xFF000000L
+
 
 // addressBlock: gc_utcl2_vml2vcdec
 //VM_CONTEXT0_CNTL
@@ -8423,6 +8435,7 @@
 #define VM_CONTEXT15_PAGE_TABLE_END_ADDR_HI32__LOGICAL_PAGE_NUMBER_HI4__SHIFT                                 0x0
 #define VM_CONTEXT15_PAGE_TABLE_END_ADDR_HI32__LOGICAL_PAGE_NUMBER_HI4_MASK                                   0x0000000FL
 
+
 // addressBlock: gc_utcl2_vmsharedpfdec
 //MC_VM_NB_MMIOBASE
 #define MC_VM_NB_MMIOBASE__MMIOBASE__SHIFT                                                                    0x0
@@ -8490,6 +8503,7 @@
 #define MC_VM_LOCAL_HBM_ADDRESS_LOCK_CNTL__LOCK__SHIFT                                                        0x0
 #define MC_VM_LOCAL_HBM_ADDRESS_LOCK_CNTL__LOCK_MASK                                                          0x00000001L
 
+
 // addressBlock: gc_utcl2_vmsharedvcdec
 //MC_VM_FB_LOCATION_BASE
 #define MC_VM_FB_LOCATION_BASE__FB_BASE__SHIFT                                                                0x0
@@ -8527,6 +8541,7 @@
 #define MC_VM_MX_L1_TLB_CNTL__ECO_BITS_MASK                                                                   0x00000780L
 #define MC_VM_MX_L1_TLB_CNTL__MTYPE_MASK                                                                      0x00001800L
 #define MC_VM_MX_L1_TLB_CNTL__ATC_EN_MASK                                                                     0x00002000L
+
 
 // addressBlock: gc_tcdec
 //TCP_INVALIDATE
@@ -9270,6 +9285,7 @@
 #define TCA_EDC_CNT__REQ_FIFO_SED_COUNT__SHIFT                                                                0x2
 #define TCA_EDC_CNT__HOLE_FIFO_SED_COUNT_MASK                                                                 0x00000003L
 #define TCA_EDC_CNT__REQ_FIFO_SED_COUNT_MASK                                                                  0x0000000CL
+
 
 // addressBlock: gc_shdec
 //SPI_SHADER_PGM_RSRC3_PS
@@ -10310,6 +10326,7 @@
 //COMPUTE_NOWHERE
 #define COMPUTE_NOWHERE__DATA__SHIFT                                                                          0x0
 #define COMPUTE_NOWHERE__DATA_MASK                                                                            0xFFFFFFFFL
+
 
 // addressBlock: gc_cppdec
 //CP_DFY_CNTL
@@ -11880,6 +11897,7 @@
 #define CP_VMID_STATUS__PREEMPT_DE_STATUS_MASK                                                                0x0000FFFFL
 #define CP_VMID_STATUS__PREEMPT_CE_STATUS_MASK                                                                0xFFFF0000L
 
+
 // addressBlock: gc_cppdec2
 //CP_RB_DOORBELL_CONTROL_SCH_0
 #define CP_RB_DOORBELL_CONTROL_SCH_0__DOORBELL_OFFSET__SHIFT                                                  0x2
@@ -12054,6 +12072,7 @@
 #define CP_CPC_GFX_CNTL__PIPEID_MASK                                                                          0x00000018L
 #define CP_CPC_GFX_CNTL__MEID_MASK                                                                            0x00000060L
 #define CP_CPC_GFX_CNTL__VALID_MASK                                                                           0x00000080L
+
 
 // addressBlock: gc_spipdec
 //SPI_ARB_PRIORITY
@@ -12593,6 +12612,7 @@
 #define SPI_ARB_CNTL_0__EXP_ARB_POS_WT_MASK                                                                   0x000000F0L
 #define SPI_ARB_CNTL_0__EXP_ARB_GDS_WT_MASK                                                                   0x00000F00L
 
+
 // addressBlock: gc_cpphqddec
 //CP_HQD_GFX_CONTROL
 #define CP_HQD_GFX_CONTROL__MESSAGE__SHIFT                                                                    0x0
@@ -13054,6 +13074,7 @@
 #define CP_HQD_PQ_WPTR_HI__DATA__SHIFT                                                                        0x0
 #define CP_HQD_PQ_WPTR_HI__DATA_MASK                                                                          0xFFFFFFFFL
 
+
 // addressBlock: gc_didtdec
 //DIDT_IND_INDEX
 #define DIDT_IND_INDEX__DIDT_IND_INDEX__SHIFT                                                                 0x0
@@ -13061,6 +13082,7 @@
 //DIDT_IND_DATA
 #define DIDT_IND_DATA__DIDT_IND_DATA__SHIFT                                                                   0x0
 #define DIDT_IND_DATA__DIDT_IND_DATA_MASK                                                                     0xFFFFFFFFL
+
 
 // addressBlock: gc_gccacdec
 //GC_CAC_CTRL_1
@@ -13214,6 +13236,7 @@
 //SE_CAC_IND_DATA
 #define SE_CAC_IND_DATA__SE_CAC_IND_DATA__SHIFT                                                               0x0
 #define SE_CAC_IND_DATA__SE_CAC_IND_DATA_MASK                                                                 0xFFFFFFFFL
+
 
 // addressBlock: gc_tcpdec
 //TCP_WATCH0_ADDR_H
@@ -13407,6 +13430,7 @@
 #define TCP_PERFCOUNTER_FILTER_EN__SLC_MASK                                                                   0x00000200L
 #define TCP_PERFCOUNTER_FILTER_EN__COMPRESSION_ENABLE_MASK                                                    0x00000400L
 #define TCP_PERFCOUNTER_FILTER_EN__ADDR_MODE_MASK                                                             0x00000800L
+
 
 // addressBlock: gc_gdspdec
 //GDS_VMID0_BASE
@@ -14098,6 +14122,7 @@
 #define GDS_GS_CTXSW_CNT3__UPDN_MASK                                                                          0x0000FFFFL
 #define GDS_GS_CTXSW_CNT3__PTR_MASK                                                                           0xFFFF0000L
 
+
 // addressBlock: gc_rasdec
 //RAS_SIGNATURE_CONTROL
 #define RAS_SIGNATURE_CONTROL__ENABLE__SHIFT                                                                  0x0
@@ -14183,6 +14208,7 @@
 //RAS_TA_SIGNATURE1
 #define RAS_TA_SIGNATURE1__SIGNATURE__SHIFT                                                                   0x0
 #define RAS_TA_SIGNATURE1__SIGNATURE_MASK                                                                     0xFFFFFFFFL
+
 
 // addressBlock: gc_gfxdec0
 //DB_RENDER_CONTROL
@@ -18920,6 +18946,7 @@
 #define CB_COLOR7_DCC_BASE_EXT__BASE_256B__SHIFT                                                              0x0
 #define CB_COLOR7_DCC_BASE_EXT__BASE_256B_MASK                                                                0x000000FFL
 
+
 // addressBlock: gc_gfxudec
 //CP_EOP_DONE_ADDR_LO
 #define CP_EOP_DONE_ADDR_LO__ADDR_LO__SHIFT                                                                   0x2
@@ -20238,6 +20265,7 @@
 #define SPI_CONFIG_CNTL_2__CONTEXT_SAVE_WAIT_GDS_REQUEST_CYCLE_OVHD_MASK                                      0x0000000FL
 #define SPI_CONFIG_CNTL_2__CONTEXT_SAVE_WAIT_GDS_GRANT_CYCLE_OVHD_MASK                                        0x000000F0L
 
+
 // addressBlock: gc_perfddec
 //CPG_PERFCOUNTER1_LO
 #define CPG_PERFCOUNTER1_LO__PERFCOUNTER_LO__SHIFT                                                            0x0
@@ -20825,6 +20853,7 @@
 #define RMI_PERFCOUNTER3_HI__PERFCOUNTER_HI__SHIFT                                                            0x0
 #define RMI_PERFCOUNTER3_HI__PERFCOUNTER_HI_MASK                                                              0xFFFFFFFFL
 
+
 // addressBlock: gc_utcl2_atcl2pfcntrdec
 //ATC_L2_PERFCOUNTER_LO
 #define ATC_L2_PERFCOUNTER_LO__COUNTER_LO__SHIFT                                                              0x0
@@ -20835,6 +20864,7 @@
 #define ATC_L2_PERFCOUNTER_HI__COUNTER_HI_MASK                                                                0x0000FFFFL
 #define ATC_L2_PERFCOUNTER_HI__COMPARE_VALUE_MASK                                                             0xFFFF0000L
 
+
 // addressBlock: gc_utcl2_vml2prdec
 //MC_VM_L2_PERFCOUNTER_LO
 #define MC_VM_L2_PERFCOUNTER_LO__COUNTER_LO__SHIFT                                                            0x0
@@ -20844,6 +20874,7 @@
 #define MC_VM_L2_PERFCOUNTER_HI__COMPARE_VALUE__SHIFT                                                         0x10
 #define MC_VM_L2_PERFCOUNTER_HI__COUNTER_HI_MASK                                                              0x0000FFFFL
 #define MC_VM_L2_PERFCOUNTER_HI__COMPARE_VALUE_MASK                                                           0xFFFF0000L
+
 
 // addressBlock: gc_perfsdec
 //CPG_PERFCOUNTER1_SELECT
@@ -22420,6 +22451,7 @@
 #define RMI_PERF_COUNTER_CNTL__PERF_SOFT_RESET_MASK                                                           0x02000000L
 #define RMI_PERF_COUNTER_CNTL__PERF_CNTR_SPM_SEL_MASK                                                         0x04000000L
 
+
 // addressBlock: gc_utcl2_atcl2pfcntldec
 //ATC_L2_PERFCOUNTER0_CFG
 #define ATC_L2_PERFCOUNTER0_CFG__PERF_SEL__SHIFT                                                              0x0
@@ -22456,6 +22488,7 @@
 #define ATC_L2_PERFCOUNTER_RSLT_CNTL__ENABLE_ANY_MASK                                                         0x01000000L
 #define ATC_L2_PERFCOUNTER_RSLT_CNTL__CLEAR_ALL_MASK                                                          0x02000000L
 #define ATC_L2_PERFCOUNTER_RSLT_CNTL__STOP_ALL_ON_SATURATE_MASK                                               0x04000000L
+
 
 // addressBlock: gc_utcl2_vml2pldec
 //MC_VM_L2_PERFCOUNTER0_CFG
@@ -22559,6 +22592,7 @@
 #define MC_VM_L2_PERFCOUNTER_RSLT_CNTL__ENABLE_ANY_MASK                                                       0x01000000L
 #define MC_VM_L2_PERFCOUNTER_RSLT_CNTL__CLEAR_ALL_MASK                                                        0x02000000L
 #define MC_VM_L2_PERFCOUNTER_RSLT_CNTL__STOP_ALL_ON_SATURATE_MASK                                             0x04000000L
+
 
 // addressBlock: gc_rlcpdec
 //RLC_CNTL
@@ -23739,6 +23773,7 @@
 #define RLC_RLCV_SPARE_INT__RESERVED__SHIFT                                                                   0x1
 #define RLC_RLCV_SPARE_INT__INTERRUPT_MASK                                                                    0x00000001L
 #define RLC_RLCV_SPARE_INT__RESERVED_MASK                                                                     0xFFFFFFFEL
+
 
 // addressBlock: gc_pwrdec
 //CGTS_SM_CTRL_REG
@@ -26674,6 +26709,7 @@
 #define CGTT_TCPF_CLK_CTRL__SOFT_OVERRIDE1_MASK                                                               0x40000000L
 #define CGTT_TCPF_CLK_CTRL__SOFT_OVERRIDE0_MASK                                                               0x80000000L
 
+
 // addressBlock: gc_ea_pwrdec
 //GCEA_CGTT_CLK_CTRL
 #define GCEA_CGTT_CLK_CTRL__ON_DELAY__SHIFT                                                                   0x0
@@ -26686,6 +26722,7 @@
 #define GCEA_CGTT_CLK_CTRL__SOFT_STALL_OVERRIDE_MASK                                                          0x00400000L
 #define GCEA_CGTT_CLK_CTRL__SOFT_OVERRIDE_RETURN_MASK                                                         0x40000000L
 #define GCEA_CGTT_CLK_CTRL__SOFT_OVERRIDE_REGISTER_MASK                                                       0x80000000L
+
 
 // addressBlock: gc_utcl2_vmsharedhvdec
 //MC_VM_FB_SIZE_OFFSET_VF0
@@ -26931,6 +26968,7 @@
 #define UTCL2_CGTT_CLK_CTRL__MGLS_OVERRIDE_MASK                                                               0x00008000L
 #define UTCL2_CGTT_CLK_CTRL__SOFT_STALL_OVERRIDE_MASK                                                         0x00FF0000L
 #define UTCL2_CGTT_CLK_CTRL__SOFT_OVERRIDE_MASK                                                               0xFF000000L
+
 
 // addressBlock: gc_hypdec
 //CP_HYP_PFP_UCODE_ADDR
@@ -27251,6 +27289,7 @@
 //RLC_GPU_IOV_SDMA1_BUSY_STATUS
 #define RLC_GPU_IOV_SDMA1_BUSY_STATUS__VM_BUSY_STATUS__SHIFT                                                  0x0
 #define RLC_GPU_IOV_SDMA1_BUSY_STATUS__VM_BUSY_STATUS_MASK                                                    0xFFFFFFFFL
+
 
 // addressBlock: gccacind
 //GC_CAC_CNTL
@@ -28164,6 +28203,7 @@
 #define GC_CAC_OVRD_UTCL2_WALKER__OVRRD_SELECT_MASK                                                           0x0000001FL
 #define GC_CAC_OVRD_UTCL2_WALKER__OVRRD_VALUE_MASK                                                            0x000003E0L
 
+
 // addressBlock: secacind
 //SE_CAC_CNTL
 #define SE_CAC_CNTL__CAC_ENABLE__SHIFT                                                                        0x0
@@ -28182,6 +28222,7 @@
 //SE_CAC_OVR_VAL
 #define SE_CAC_OVR_VAL__CAC_OVR_VAL__SHIFT                                                                    0x0
 #define SE_CAC_OVR_VAL__CAC_OVR_VAL_MASK                                                                      0xFFFFFFFFL
+
 
 // addressBlock: sqind
 //SQ_WAVE_MODE
@@ -28535,6 +28576,7 @@
 #define SQ_INTERRUPT_WORD_WAVE_LO__PRIV_MASK                                                                  0x02000000L
 #define SQ_INTERRUPT_WORD_WAVE_LO__WAVE_ID_MASK                                                               0x3C000000L
 #define SQ_INTERRUPT_WORD_WAVE_LO__SIMD_ID_MASK                                                               0xC0000000L
+
 
 // addressBlock: didtind
 //DIDT_SQ_CTRL0
@@ -29775,5 +29817,7 @@
 //DIDT_DBR_STALL_EVENT_COUNTER
 #define DIDT_DBR_STALL_EVENT_COUNTER__DIDT_STALL_EVENT_COUNTER__SHIFT                                         0x0
 #define DIDT_DBR_STALL_EVENT_COUNTER__DIDT_STALL_EVENT_COUNTER_MASK                                           0xFFFFFFFFL
+
+
 
 #endif

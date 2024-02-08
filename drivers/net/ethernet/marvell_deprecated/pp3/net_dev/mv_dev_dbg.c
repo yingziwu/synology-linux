@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -54,6 +55,7 @@ disclaimer.
 
 #define PP3_DBG_POOLS_STATS_DUMP(pools, num, cpus, name)\
 	pp3_dbg_pools_stats_dump(pools, num, cpus, offsetof(struct pp3_pool_stats, name)/4, #name)
+
 
 void pp3_dbg_separate_line_print(int length)
 {
@@ -168,6 +170,7 @@ void pp3_dbg_ingress_vqs_print(struct net_device *dev)
 	pr_info("\n");
 }
 /*---------------------------------------------------------------------------*/
+
 
 void pp3_dbg_egress_vqs_show(struct net_device *dev)
 {

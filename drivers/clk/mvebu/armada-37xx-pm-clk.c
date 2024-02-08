@@ -215,6 +215,7 @@ static void armada3700_clk_pm_disable_dvfs(struct armada_3700_clk_pm *clk_pm_dat
 	writel(reg, clk_pm_data->reg + A3700_PM_NB_CPU_LOAD_REG);
 }
 
+
 static bool armada3700_clk_pm_dvfs_is_enabled(struct armada_3700_clk_pm *clk_pm_data)
 {
 	bool is_enabled = false;

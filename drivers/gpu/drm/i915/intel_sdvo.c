@@ -52,6 +52,7 @@
 #define IS_TV_OR_LVDS(c) (c->output_flag & (SDVO_TV_MASK | SDVO_LVDS_MASK))
 #define IS_DIGITAL(c) (c->output_flag & (SDVO_TMDS_MASK | SDVO_LVDS_MASK))
 
+
 static const char * const tv_format_names[] = {
 	"NTSC_M"   , "NTSC_J"  , "NTSC_443",
 	"PAL_B"    , "PAL_D"   , "PAL_G"   ,
@@ -414,6 +415,7 @@ static void intel_sdvo_debug_write(struct intel_sdvo *intel_sdvo, u8 cmd,
 #define BUF_PRINT(args...) \
 	pos += snprintf(buffer + pos, max_t(int, BUF_LEN - pos, 0), args)
 
+
 	for (i = 0; i < args_len; i++) {
 		BUF_PRINT("%02X ", ((u8 *)args)[i]);
 	}
@@ -529,6 +531,7 @@ static bool intel_sdvo_read_response(struct intel_sdvo *intel_sdvo,
 	int i, pos = 0;
 #define BUF_LEN 256
 	char buffer[BUF_LEN];
+
 
 	/*
 	 * The documentation states that all commands will be
@@ -2739,6 +2742,7 @@ static bool intel_sdvo_tv_create_property(struct intel_sdvo *intel_sdvo,
 	for (i = 0 ; i < TV_FORMAT_NUM; i++)
 		if (format_map & (1 << i))
 			intel_sdvo_connector->tv_format_supported[intel_sdvo_connector->format_supported_num++] = i;
+
 
 	intel_sdvo_connector->tv_format =
 			drm_property_create(dev, DRM_MODE_PROP_ENUM,

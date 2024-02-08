@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ disclaimer.
 
 /* includes */
 #include <linux/kernel.h>
+
 
 /* LIFO Stack implementation */
 /* Data structure describes general purpose Stack */

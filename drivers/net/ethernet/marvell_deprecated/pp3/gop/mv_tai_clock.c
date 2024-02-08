@@ -96,6 +96,7 @@ struct mv_ptp_event {
 
 struct mv_ptp_event mv_ptp_event;
 
+
 /***************************************************************************/
 int mv_pp3_ptp_event_led_sysfs(unsigned led_gpio)
 {
@@ -439,6 +440,7 @@ static void ptp_event_monitor_stop(void) /* == deinit */
 	}
 }
 
+
 void mv_pp3_tai_clock_from_external_sync(int start, u32 sec, int d_sec)
 {
 	struct mv_ptp_event *ev = &mv_ptp_event;
@@ -503,6 +505,7 @@ bool mv_pp3_tai_clock_external_init(struct platform_device *pdev)
 	return is_external;
 }
 
+
 void mv_pp3_tai_clock_external_init2(bool from_external)
 {
 	/* Start TAI-ToD with it Linux ToD */
@@ -520,6 +523,7 @@ void mv_pp3_tai_clock_external_init2(bool from_external)
 	if (from_external)
 		mv_pp3_tai_clock_from_external_sync(2, 1, 1);
 }
+
 
 ssize_t mv_pp3_tai_clock_status_get_sysfs(char *buf)
 {
@@ -622,6 +626,7 @@ err:
 	ev->pinctrl = NULL;
 	return 0; /* This service is optional => say OK */
 }
+
 
 static const struct of_device_id ptp_event_dev_match[] = {
 	{ .compatible = "marvell," MV_PTP_EVENT_DEV_DTB_STRING },

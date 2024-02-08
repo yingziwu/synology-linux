@@ -159,6 +159,7 @@ enum {
 	__IFLA_MAX
 };
 
+
 #define IFLA_MAX (__IFLA_MAX - 1)
 
 /* backwards compatibility for userspace */
@@ -699,6 +700,7 @@ struct ifla_port_vsi {
 	__u8 pad[3];
 };
 
+
 /* IPoIB section */
 
 enum {
@@ -715,6 +717,7 @@ enum {
 };
 
 #define IFLA_IPOIB_MAX (__IFLA_IPOIB_MAX - 1)
+
 
 /* HSR section */
 

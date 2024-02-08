@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -40,6 +41,7 @@ disclaimer.
 #include "set_hw_registers.h"
 #include "tm_hw_configuration_interface.h"
 #include "tm_elig_prio_func.h"
+
 
 /***************************************************************************
  * Parameters Update
@@ -149,6 +151,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */
@@ -282,6 +285,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_update_b_node(tm_handle hndl, uint32_t index,
@@ -342,6 +346,7 @@ int tm_update_b_node(tm_handle hndl, uint32_t index,
 		node->elig_prio_func_ptr = params->elig_prio_func_ptr;
 		/*fl_change = TM_ENABLE;*/
 	}
+
 
 	/* DWRR for B-node */
 	if (params->quantum != (uint16_t)TM_INVAL) {
@@ -424,6 +429,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_update_c_node(tm_handle hndl, uint32_t index,
@@ -486,6 +492,7 @@ int tm_update_c_node(tm_handle hndl, uint32_t index,
 		node->elig_prio_func_ptr = params->elig_prio_func_ptr;
 		/*fl_change = TM_ENABLE;*/
 	}
+
 
 	/* DWRR for C-node */
 	if (params->quantum != (uint16_t)TM_INVAL) {
@@ -597,6 +604,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */
@@ -829,6 +837,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */

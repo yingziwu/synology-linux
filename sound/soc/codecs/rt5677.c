@@ -1578,6 +1578,7 @@ static const struct snd_kcontrol_new rt5677_ob_7_mix[] = {
 			RT5677_DSP_IB_9_L_SFT, 1, 1),
 };
 
+
 /* Mux */
 /* DAC1 L/R Source */ /* MX-29 [10:8] */
 static const char * const rt5677_dac1_src[] = {
@@ -1603,6 +1604,7 @@ static SOC_ENUM_SINGLE_DECL(
 
 static const struct snd_kcontrol_new rt5677_adda1_mux =
 	SOC_DAPM_ENUM("ADDA1 Source", rt5677_adda1_enum);
+
 
 /*DAC2 L/R Source*/ /* MX-1B [6:4] [2:0] */
 static const char * const rt5677_dac2l_src[] = {
@@ -1889,6 +1891,7 @@ static SOC_ENUM_SINGLE_DECL(
 
 static const struct snd_kcontrol_new rt5677_sto4_adc2_mux =
 	SOC_DAPM_ENUM("Stereo4 ADC2 Source", rt5677_stereo4_adc2_enum);
+
 
 /* Stereo4 ADC Source 1 */ /* MX-24 [13:12] */
 static const char * const rt5677_stereo4_adc1_src[] = {
@@ -4265,6 +4268,7 @@ static int rt5677_set_dai_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 	default:
 		break;
 	}
+
 
 	return 0;
 }

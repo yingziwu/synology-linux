@@ -29,7 +29,9 @@ struct pp_hw_power_state {
 
 struct pp_power_state;
 
+
 #define PP_INVALID_POWER_STATE_ID (0)
+
 
 /*
  * An item of a list containing Power States.
@@ -39,6 +41,7 @@ struct PP_StateLinkedList {
 	struct pp_power_state *next;
 	struct pp_power_state *prev;
 };
+
 
 enum PP_StateUILabel {
 	PP_StateUILabel_None,

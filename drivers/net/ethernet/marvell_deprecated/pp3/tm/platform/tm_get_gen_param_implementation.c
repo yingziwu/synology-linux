@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ disclaimer.
 #include "tm_errcodes.h"
 #include "set_hw_registers.h"
 #include "tm_hw_configuration_interface.h"
+
 
 int tm_get_gen_params(tm_handle hndl)
 {

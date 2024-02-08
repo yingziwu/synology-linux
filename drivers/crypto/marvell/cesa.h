@@ -752,6 +752,7 @@ mv_cesa_engine_dequeue_complete_request(struct mv_cesa_engine *engine)
 	return req;
 }
 
+
 static inline enum mv_cesa_req_type
 mv_cesa_req_get_type(struct mv_cesa_req *req)
 {

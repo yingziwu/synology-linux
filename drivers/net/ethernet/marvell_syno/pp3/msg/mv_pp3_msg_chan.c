@@ -70,6 +70,7 @@ struct mv_pp3_channel *mv_pp3_chan_get(int ch_num)
 	return &mv_pp3_chan_ctrl[ch_num];
 }
 
+
 /* Init messenger facility - call ones */
 int mv_pp3_messenger_init(struct mv_pp3 *priv)
 {
@@ -118,6 +119,7 @@ void mv_pp3_msg_tasklet(unsigned long data)
 	if (chan_ctrl->status & MV_PP3_F_CHANNEL_CREATED)
 		mv_pp3_chan_rx_event(chan_ctrl);
 }
+
 
 /* Create communication channel (bi-directional)
 Inputs:
@@ -376,6 +378,7 @@ int mv_pp3_msg_send(int chan, void *msg, int size, int flags, u16 msg_opcode, in
 	return 0;
 }
 EXPORT_SYMBOL(mv_pp3_msg_send);
+
 
 static void mv_pp3_send_pend_msg(int bitmap)
 {
@@ -695,3 +698,4 @@ void mv_pp3_messenger_close(void)
 	/* number of active channels */
 	mv_pp3_active_chan_num = 0;
 }
+

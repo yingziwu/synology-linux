@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2007 Oracle.  All rights reserved.
  *
@@ -23,6 +26,8 @@
 #include <linux/sort.h>
 #include <linux/btrfs.h>
 #include "async-thread.h"
+
+#define BTRFS_MAX_DATA_CHUNK_SIZE	(10ULL * SZ_1G)
 
 extern struct mutex uuid_mutex;
 
@@ -263,6 +268,20 @@ struct btrfs_fs_devices {
 
 #define BTRFS_BIO_INLINE_CSUM_SIZE	64
 
+#define BTRFS_MAX_DEVS(r) ((BTRFS_LEAF_DATA_SIZE(r)		\
+			- sizeof(struct btrfs_chunk))		\
+			/ sizeof(struct btrfs_stripe) + 1)
+
+#define BTRFS_MAX_DEVS_SYS_CHUNK ((BTRFS_SYSTEM_CHUNK_ARRAY_SIZE	\
+				- 2 * sizeof(struct btrfs_disk_key)	\
+				- 2 * sizeof(struct btrfs_chunk))	\
+				/ sizeof(struct btrfs_stripe) + 1)
+
+#ifdef MY_DEF_HERE
+#define BTRFS_BIO_SHOULD_ABORT_RETRY ((u8)-2)
+#define BTRFS_BIO_RETRY_ABORTED ((u8)-1)
+#endif /* MY_DEF_HERE */
+
 /*
  * we need the mirror number and stripe index to be passed around
  * the call chain while we are processing end_io (especially errors).
@@ -278,10 +297,19 @@ struct btrfs_io_bio {
 	unsigned int stripe_index;
 	u64 logical;
 	u8 *csum;
-
+#ifdef MY_DEF_HERE
+	/*
+	 * In retry mode, the first 32 bits is the correct csum, and
+	 * the second 32 bits is bad csum from previous retry.
+	 */
+#endif /* MY_DEF_HERE */
 	u8 csum_inline[BTRFS_BIO_INLINE_CSUM_SIZE];
 	u8 *csum_allocated;
 	btrfs_io_bio_end_io_t *end_io;
+#ifdef MY_DEF_HERE
+	// Must be placed before bio since bio has inline data.
+	u8 nr_retry;
+#endif /* MY_DEF_HERE */
 	struct bio bio;
 };
 
@@ -383,15 +411,24 @@ int btrfs_map_sblock(struct btrfs_fs_info *fs_info, int rw,
 		     u64 logical, u64 *length,
 		     struct btrfs_bio **bbio_ret, int mirror_num,
 		     int need_raid_map);
-int btrfs_rmap_block(struct btrfs_mapping_tree *map_tree,
+int btrfs_rmap_block(struct btrfs_fs_info *fs_info,
 		     u64 chunk_start, u64 physical, u64 devid,
 		     u64 **logical, int *naddrs, int *stripe_len);
 int btrfs_read_sys_array(struct btrfs_root *root);
 int btrfs_read_chunk_tree(struct btrfs_root *root);
 int btrfs_alloc_chunk(struct btrfs_trans_handle *trans,
 		      struct btrfs_root *extent_root, u64 type);
+#ifdef MY_DEF_HERE
+int btrfs_alloc_chunk_with_info(struct btrfs_trans_handle *trans,
+		      struct btrfs_root *extent_root, u64 type,
+		      u64 *ret_start, u64 *ret_num_bytes);
+#endif /* MY_DEF_HERE */
 void btrfs_mapping_init(struct btrfs_mapping_tree *tree);
 void btrfs_mapping_tree_free(struct btrfs_mapping_tree *tree);
+#ifdef MY_DEF_HERE
+int btrfs_map_bio_log_tree(struct btrfs_root *root, int rw, struct bio *bio,
+		  int mirror_num, int async_submit);
+#endif /* MY_DEF_HERE */
 int btrfs_map_bio(struct btrfs_root *root, int rw, struct bio *bio,
 		  int mirror_num, int async_submit);
 int btrfs_open_devices(struct btrfs_fs_devices *fs_devices,
@@ -449,7 +486,7 @@ void btrfs_destroy_dev_replace_tgtdev(struct btrfs_fs_info *fs_info,
 void btrfs_init_dev_replace_tgtdev_for_resume(struct btrfs_fs_info *fs_info,
 					      struct btrfs_device *tgtdev);
 void btrfs_scratch_superblocks(struct block_device *bdev, char *device_path);
-int btrfs_is_parity_mirror(struct btrfs_mapping_tree *map_tree,
+int btrfs_is_parity_mirror(struct btrfs_fs_info *fs_info,
 			   u64 logical, u64 len, int mirror_num);
 unsigned long btrfs_full_stripe_len(struct btrfs_root *root,
 				    struct btrfs_mapping_tree *map_tree,
@@ -464,6 +501,8 @@ static inline int btrfs_dev_stats_dirty(struct btrfs_device *dev)
 {
 	return atomic_read(&dev->dev_stats_ccnt);
 }
+struct extent_map *btrfs_get_chunk_map(struct btrfs_fs_info *fs_info,
+				       u64 logical, u64 length);
 
 static inline void btrfs_dev_stat_inc(struct btrfs_device *dev,
 				      int index)

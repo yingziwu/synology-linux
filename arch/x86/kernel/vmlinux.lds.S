@@ -154,6 +154,7 @@ SECTIONS
 		_edata = .;
 	} :data
 
+
 	. = ALIGN(PAGE_SIZE);
 	__vvar_page = .;
 
@@ -352,6 +353,7 @@ SECTIONS
 	/DISCARD/ : { *(.eh_frame) }
 }
 
+
 #ifdef CONFIG_X86_32
 /*
  * The ASSERT() sink to . is intentional, for binutils 2.14 compatibility:
@@ -363,7 +365,7 @@ SECTIONS
  * Per-cpu symbols which need to be offset from __per_cpu_load
  * for the boot processor.
  */
-#define INIT_PER_CPU(x) init_per_cpu__##x = x + __per_cpu_load
+#define INIT_PER_CPU(x) init_per_cpu__##x = ABSOLUTE(x) + __per_cpu_load
 INIT_PER_CPU(gdt_page);
 INIT_PER_CPU(irq_stack_union);
 
@@ -386,3 +388,4 @@ INIT_PER_CPU(irq_stack_union);
 . = ASSERT(kexec_control_code_size <= KEXEC_CONTROL_CODE_MAX_SIZE,
            "kexec control code size is too big");
 #endif
+

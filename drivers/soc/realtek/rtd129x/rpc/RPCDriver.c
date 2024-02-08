@@ -199,6 +199,7 @@ void rpc_set_flag(uint32_t flag)
 //  *((int *)phys_to_virt(0x0000b0d8)) = flag;
 }
 
+
 void rpc_set_ir_wakeup_key(uint32_t uScancode, uint32_t uScancode_msk)
 {
     struct RTK119X_ipc_shm __iomem *ipc = (void __iomem *)IPC_SHM_VIRT;
@@ -228,6 +229,7 @@ void rpc_send_interrupt(void)
 #endif
 }
 EXPORT_SYMBOL(rpc_send_interrupt);
+
 
 static int rpc_event_notify(struct notifier_block *self, unsigned long action, void *data)
 {
@@ -319,38 +321,31 @@ int my_copy_to_user(int *des, int *src, int size)
 
 int my_copy_from_user(volatile void __iomem *des, const void *src, int size)
 {
-    /*
-        char buf[256];
-        int count = size;
-        void *pSrc = (void *)src;
-        int ret = 0;
-        int i = 0;
 
-        if (size > 256)
-        {
-            BUG();
-        }
+	char buf[256];
+	int ret = 0;
+	int i = 0;
+	char *cdes;
 
-        ret = copy_from_user((int *)buf, (int *)src, size);
+	if (size > 256) {
+		BUG();
+	}
 
-        while (size >= 4)
-        {
-            __raw_writel((volatile u32 *)&buf[i], des);
-            i+=4;
-            des += 4;
-            size -= 4;
-        }
-        while (size > 0)
-        {
-            __raw_writeb((volatile u8 *)&buf[i], des);
-            i++;
-            des++;
-            size--;
-        }
-        return ret;
-    */
-    return 0;
+	ret = copy_from_user((int *)buf, (int *)src, size);
+
+	if(ret!=0){
+		printk("[%s][%s]copy_from_user error: %d bytes\n", "RTK_RPC", __func__, ret);
+		return ret;
+	}
+
+	cdes = (char *)des;
+	for (i = 0 ; i < size ; i++) {
+		cdes[i] = buf[i];
+	}
+
+	return 0;
 }
+
 
 int my_copy_user(int *des, int *src, int size)
 {
@@ -365,7 +360,7 @@ int my_copy_user(int *des, int *src, int size)
         BUG();
     if((unsigned long)src < 0xc0000000 && access_ok(VERIFY_READ, src, size) == 0)
         BUG();
-    if (((long)src & 0x3) || ((long)des & 0x3))
+    if (((unsigned long)src & 0x3) || ((unsigned long)des & 0x3))
         pr_warn("my_copy_user: unaligned happen...\n");
 
     while (size >= 4) {
@@ -443,6 +438,7 @@ static char *rpc_devnode(struct device *dev, umode_t *mode)
     *mode = 0666;
     return NULL;
 }
+
 
 __maybe_unused static int rtk_rpc_probe(struct platform_device *pdev)
 {

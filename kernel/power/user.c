@@ -29,6 +29,7 @@
 
 #include "power.h"
 
+
 #define SNAPSHOT_MINOR	231
 
 static struct snapshot_data {
@@ -181,6 +182,11 @@ static ssize_t snapshot_write(struct file *filp, const char __user *buf,
 			goto unlock;
 	} else {
 		res = PAGE_SIZE - pg_offp;
+	}
+
+	if (!data_of(data->handle)) {
+		res = -EINVAL;
+		goto unlock;
 	}
 
 	res = simple_write_to_buffer(data_of(data->handle), res, &pg_offp,

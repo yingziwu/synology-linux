@@ -21,6 +21,7 @@
 #ifndef _vce_4_0_SH_MASK_HEADER
 #define _vce_4_0_SH_MASK_HEADER
 
+
 // addressBlock: vce0_vce_dec
 //VCE_STATUS
 #define VCE_STATUS__JOB_BUSY__SHIFT                                                                           0x0
@@ -249,6 +250,7 @@
 #define VCE_SYS_INT_STATUS__VCE_SYS_INT_SEMA_WAIT_FAIL_TIMEOUT_INT_MASK                                       0x00000001L
 #define VCE_SYS_INT_STATUS__VCE_SYS_INT_TRAP_INTERRUPT_INT_MASK                                               0x00000008L
 
+
 // addressBlock: vce0_ctl_dec
 //VCE_UENC_CLOCK_GATING
 #define VCE_UENC_CLOCK_GATING__CLOCK_ON_DELAY__SHIFT                                                          0x0
@@ -323,6 +325,7 @@
 #define VCE_UENC_CLOCK_GATING_2__DBF2CLK_FORCE_OFF__SHIFT                                                     0x10
 #define VCE_UENC_CLOCK_GATING_2__DBF2CLK_FORCE_ON_MASK                                                        0x00000002L
 #define VCE_UENC_CLOCK_GATING_2__DBF2CLK_FORCE_OFF_MASK                                                       0x00010000L
+
 
 // addressBlock: vce0_vce_sclk_dec
 //VCE_LMI_VCPU_CACHE_40BIT_BAR
@@ -438,6 +441,7 @@
 #define VCE_LMI_VCPU_CACHE_40BIT_BAR7__BAR__SHIFT                                                             0x0
 #define VCE_LMI_VCPU_CACHE_40BIT_BAR7__BAR_MASK                                                               0xFFFFFFFFL
 
+
 // addressBlock: vce0_mmsch_dec
 //VCE_MMSCH_VF_VMID
 #define VCE_MMSCH_VF_VMID__VF_CTX_VMID__SHIFT                                                                 0x0
@@ -469,6 +473,7 @@
 #define VCE_MMSCH_VF_MAILBOX_RESP__RESP__SHIFT                                                                0x0
 #define VCE_MMSCH_VF_MAILBOX_RESP__RESP_MASK                                                                  0xFFFFFFFFL
 
+
 // addressBlock: vce0_vce_rb_pg_dec
 //VCE_HW_VERSION
 #define VCE_HW_VERSION__VCE_VERSION__SHIFT                                                                    0x0
@@ -477,5 +482,7 @@
 #define VCE_HW_VERSION__VCE_VERSION_MASK                                                                      0x000000FFL
 #define VCE_HW_VERSION__VCE_CONFIGURATION_MASK                                                                0x00000300L
 #define VCE_HW_VERSION__VCE_INSTANCE_ID_MASK                                                                  0x00000C00L
+
+
 
 #endif

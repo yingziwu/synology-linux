@@ -82,6 +82,7 @@ enum AUDIO_IO_PIN {
 };
 typedef enum AUDIO_IO_PIN AUDIO_IO_PIN;
 
+
 #endif
 #endif /* MY_DEF_HERE */
 
@@ -209,6 +210,7 @@ enum AUDIO_IO_PIN {
 	RAWOUT_INFOIN_QUEUE = 203,
 };
 typedef enum AUDIO_IO_PIN AUDIO_IO_PIN;
+
 
 #endif
 #endif /* CONFIG_SYNO_LSP_RTD1619 */

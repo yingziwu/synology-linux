@@ -34,7 +34,6 @@ struct btrfs_log_ctx {
 #else
 	int log_transid;
 #endif /* MY_DEF_HERE */
-	int io_err;
 	bool log_new_dentries;
 	struct list_head list;
 };
@@ -46,7 +45,6 @@ static inline void btrfs_init_log_ctx(struct btrfs_log_ctx *ctx)
 #else
 	ctx->log_transid = 0;
 #endif /* MY_DEF_HERE */
-	ctx->io_err = 0;
 	ctx->log_new_dentries = false;
 	INIT_LIST_HEAD(&ctx->list);
 }

@@ -223,6 +223,7 @@ void down_speed_handling(struct rtkemmc_host *emmc_port);
 DECLARE_COMPLETION(rtk_emmc_wait);
 typedef void (*set_gpio_func_t)(u32 gpio_num,u8 dir,u8 level);
 
+
 int suspend = 0;
 int suspend_VP0=0xff, suspend_VP1=0xff;
 int HS200_RX=0xff, HS200_TX=0xff;
@@ -256,6 +257,7 @@ static struct rtk_host_ops emmc_ops = {
 	.backup_regs    = rtkemmc_backup_registers,
 	.restore_regs   = rtkemmc_restore_registers,
 };
+
 
 //---------------------------------------------------------------------------------------------------------------------------
 #ifdef CONFIG_RTK_ACPU_RELOAD
@@ -2923,6 +2925,7 @@ static void rtkemmc_chk_card_insert(struct rtkemmc_host *emmc_port)
 	if(MASK_DRTO)	//enable/disable timeout mechanism
 		writel(readl(emmc_port->emmc_membase + EMMC_DUMMY_SYS) | 0x1, emmc_port->emmc_membase + EMMC_DUMMY_SYS);
 #endif
+
 
 	//rtk_lockapi_unlock2(flags2, _at_("rtkemmc_chk_card_insert"));
 #ifdef EMMC_LA_DEBUG_GPIO

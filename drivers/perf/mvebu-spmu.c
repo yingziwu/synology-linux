@@ -58,6 +58,7 @@
  */
 #define	SPMU_EVTYPE_EVENT	0x3ff		/* Mask for EVENT bits */
 
+
 #define MVEBU_SPMU_COUNTER_MASK		0xffffffffULL
 #define MVEBU_SPMU_COUNTER_MAX		0x7fffffff
 
@@ -168,6 +169,7 @@ static struct attribute_group mvebu_spmu_cpumask_attr_group = {
 	.attrs = mvebu_spmu_cpumask_attrs,
 };
 
+
 PMU_FORMAT_ATTR(event,		"config:0-49");
 
 static struct attribute *mvebu_spmu_format_attr[] = {
@@ -214,6 +216,7 @@ static const struct attribute_group *mvebu_spmu_attr_groups[] = {
 	&mvebu_spmu_cpumask_attr_group,
 	NULL
 };
+
 
 #define C(_x) PERF_COUNT_HW_CACHE_##_x
 
@@ -346,6 +349,7 @@ static void mvebu_spmu_disable(struct pmu *pmu)
 	writel(reg, spmu->base + SPMU_CR_REG);
 }
 
+
 static int mvebu_spmu_event_init(struct perf_event *event)
 {
 	int ret;
@@ -368,6 +372,7 @@ static int mvebu_spmu_event_init(struct perf_event *event)
 		return -ENOENT;
 	}
 }
+
 
 /*
  * Starts/Stops a counter present on the PMU. The PMI handler
@@ -409,6 +414,7 @@ static void mvebu_spmu_stop(struct perf_event *event, int flags)
 		event->hw.state |= PERF_HES_UPTODATE;
 	}
 }
+
 
 /*
  * Adds/Removes a counter to/from the PMU, can be done inside
@@ -502,6 +508,7 @@ irqreturn_t mvebu_spmu_irq_handler(int irq, void *dev_id)
 	return rc;
 }
 
+
 static int mvebu_spmu_cpu_notifier(struct notifier_block *nb,
 		unsigned long action, void *hcpu)
 {
@@ -527,6 +534,7 @@ static int mvebu_spmu_cpu_notifier(struct notifier_block *nb,
 
 	return NOTIFY_OK;
 }
+
 
 static int mvebu_spmu_pmu_init(struct mvebu_spmu *spmu)
 {
@@ -578,6 +586,7 @@ error_set_affinity:
 error_cpu_notifier:
 	return err;
 }
+
 
 static int mvebu_spmu_probe(struct platform_device *pdev)
 {

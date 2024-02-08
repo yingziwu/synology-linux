@@ -47,6 +47,11 @@
 #include <linux/tty.h>
 #include <linux/tty_flip.h>
 
+#ifdef MY_ABC_HERE
+extern int (*syno_test_list)(unsigned char, struct tty_struct *);
+extern int (*funcSYNOMicropGetEvent)(struct tty_struct *);
+#endif /* MY_ABC_HERE */
+
 #if defined(MY_ABC_HERE)
 #ifdef MY_ABC_HERE
 void __iomem *syno_uart1_base;
@@ -260,6 +265,7 @@ struct mvebu_uart_data {
 #define REG_BRDV(uart_data)	((uart_data)->regs->uart_brdv)
 #define REG_STAT(uart_data)	((uart_data)->regs->uart_stat)
 #define REG_OSAMP(uart_data)	((uart_data)->regs->uart_over_sample)
+
 
 /* helper functions for 1-byte transfer */
 static inline unsigned int get_ctrl_rx_1byte_rdy_int(struct mvebu_uart_data *data)
@@ -558,10 +564,21 @@ static void mvebu_uart_rx_chars(struct uart_port *port, unsigned int status)
 
 #if defined(MY_ABC_HERE)
 		if (status & stat_bit_rx_rdy)
+#ifdef MY_ABC_HERE
+		{
+			if (NULL != syno_test_list && syno_test_list(ch & 0xff, port->state->port.tty)) {
+				goto ignore_char;
+			} else if (NULL != funcSYNOMicropGetEvent) {
+				funcSYNOMicropGetEvent(port->state->port.tty);
+			}
+#endif /* MY_ABC_HERE */
 #else /* MY_ABC_HERE */
 		if (status & STAT_RX_RDY)
 #endif /* MY_ABC_HERE */
 			tty_insert_flip_char(tport, ch, flag);
+#ifdef MY_ABC_HERE
+		}
+#endif /* MY_ABC_HERE */
 
 		if (status & STAT_BRK_DET)
 			tty_insert_flip_char(tport, 0, TTY_BREAK);
@@ -1181,6 +1198,7 @@ static int __init mvebu_uart_console_init(void)
 }
 
 console_initcall(mvebu_uart_console_init);
+
 
 #endif /* CONFIG_SERIAL_MVEBU_CONSOLE */
 

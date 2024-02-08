@@ -31,6 +31,7 @@
  * and are not exported to drivers.
  */
 
+
 /* drm_crtc.c */
 int drm_mode_crtc_set_obj_prop(struct drm_mode_object *obj,
 			       struct drm_property *property,
@@ -50,6 +51,7 @@ int drm_mode_getcrtc(struct drm_device *dev,
 int drm_mode_setcrtc(struct drm_device *dev,
 		     void *data, struct drm_file *file_priv);
 
+
 /* drm_mode_config.c */
 int drm_modeset_register_all(struct drm_device *dev);
 void drm_modeset_unregister_all(struct drm_device *dev);
@@ -57,6 +59,7 @@ void drm_modeset_unregister_all(struct drm_device *dev);
 /* IOCTLs */
 int drm_mode_getresources(struct drm_device *dev,
 			  void *data, struct drm_file *file_priv);
+
 
 /* drm_dumb_buffers.c */
 /* IOCTLs */
@@ -158,6 +161,7 @@ int drm_framebuffer_check_src_coords(uint32_t src_x, uint32_t src_y,
 				     const struct drm_framebuffer *fb);
 void drm_fb_release(struct drm_file *file_priv);
 
+
 /* IOCTL */
 int drm_mode_addfb(struct drm_device *dev,
 		   void *data, struct drm_file *file_priv);
@@ -187,6 +191,7 @@ int drm_atomic_get_property(struct drm_mode_object *obj,
 			    struct drm_property *property, uint64_t *val);
 int drm_mode_atomic_ioctl(struct drm_device *dev,
 			  void *data, struct drm_file *file_priv);
+
 
 /* drm_plane.c */
 int drm_plane_register_all(struct drm_device *dev);

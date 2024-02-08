@@ -68,6 +68,7 @@ void print_microsec(struct dc_context *dc_ctx, uint32_t ref_cycle)
 			us_x10 % frac);
 }
 
+
 static void log_mpc_crc(struct dc *dc)
 {
 	struct dc_context *dc_ctx = dc->ctx;
@@ -912,6 +913,8 @@ static bool patch_address_for_sbs_tb_stereo(
 	return false;
 }
 
+
+
 static void dcn10_update_plane_addr(const struct dc *dc, struct pipe_ctx *pipe_ctx)
 {
 	bool addr_patched = false;
@@ -973,6 +976,10 @@ static bool dcn10_set_input_transfer_func(struct pipe_ctx *pipe_ctx,
 
 	return result;
 }
+
+
+
+
 
 static bool
 dcn10_set_output_transfer_func(struct pipe_ctx *pipe_ctx,
@@ -1312,6 +1319,7 @@ static void mmhub_read_vm_context0_settings(struct dcn10_hubp *hubp1,
 	vm0->pte_base.quad_part -= fb_offset.quad_part;
 }
 
+
 static void dcn10_program_pte_vm(struct dce_hwseq *hws, struct hubp *hubp)
 {
 	struct dcn10_hubp *hubp1 = TO_DCN10_HUBP(hubp);
@@ -1400,6 +1408,7 @@ static void program_gamut_remap(struct pipe_ctx *pipe_ctx)
 	memset(&adjust, 0, sizeof(adjust));
 	adjust.gamut_adjust_type = GRAPHICS_GAMUT_ADJUST_TYPE_BYPASS;
 
+
 	if (pipe_ctx->stream->gamut_remap_matrix.enable_remap == true) {
 		adjust.gamut_adjust_type = GRAPHICS_GAMUT_ADJUST_TYPE_SW;
 		adjust.temperature_matrix[0] =
@@ -1433,6 +1442,7 @@ static void program_gamut_remap(struct pipe_ctx *pipe_ctx)
 
 	pipe_ctx->plane_res.dpp->funcs->dpp_set_gamut_remap(pipe_ctx->plane_res.dpp, &adjust);
 }
+
 
 static void program_csc_matrix(struct pipe_ctx *pipe_ctx,
 		enum dc_color_space colorspace,
@@ -1815,6 +1825,7 @@ static void update_dchubp_dpp(
 	if (is_pipe_tree_visible(pipe_ctx))
 		hubp->funcs->set_blank(hubp, false);
 }
+
 
 static void program_all_pipe_in_tree(
 		struct dc *dc,
@@ -2418,7 +2429,9 @@ static const struct hw_sequencer_funcs dcn10_funcs = {
 	.set_cursor_attribute = dcn10_set_cursor_attribute
 };
 
+
 void dcn10_hw_sequencer_construct(struct dc *dc)
 {
 	dc->hwss = dcn10_funcs;
 }
+

@@ -240,6 +240,7 @@ static bool is_hw_busy(struct engine *engine)
 	return i2c_sw_status != DC_I2C_STATUS__DC_I2C_STATUS_IDLE;
 }
 
+
 #define STOP_TRANS_PREDICAT \
 		((hw_engine->transaction_count == 3) ||	\
 				(request->action == I2CAUX_TRANSACTION_ACTION_I2C_WRITE) ||	\
@@ -257,6 +258,7 @@ static bool is_hw_busy(struct engine *engine)
 					last_transaction = true;	\
 		} while (false)
 
+
 static bool process_transaction(
 	struct i2c_hw_engine_dce110 *hw_engine,
 	struct i2c_request_transaction_data *request)
@@ -270,6 +272,8 @@ static bool process_transaction(
 	struct dc_context *ctx = NULL;
 
 	ctx = hw_engine->base.base.base.ctx;
+
+
 
 	switch (hw_engine->transaction_count) {
 	case 0:
@@ -288,6 +292,7 @@ static bool process_transaction(
 		/* TODO Warning ? */
 		break;
 	}
+
 
 	/* Write the I2C address and I2C data
 	 * into the hardware circular buffer, one byte per entry.
@@ -335,6 +340,7 @@ static void execute_transaction(
 		FN(DC_I2C_DDC1_SETUP, DC_I2C_DDC1_INTRA_TRANSACTION_DELAY), 0,
 		FN(DC_I2C_DDC1_SETUP, DC_I2C_DDC1_INTRA_BYTE_DELAY), 0);
 
+
 	REG_UPDATE_5(DC_I2C_CONTROL,
 		DC_I2C_SOFT_RESET, 0,
 		DC_I2C_SW_STATUS_RESET, 0,
@@ -377,6 +383,7 @@ static void process_channel_reply(
 
 	struct i2c_hw_engine_dce110 *hw_engine =
 		FROM_I2C_ENGINE(engine);
+
 
 	REG_SET_3(DC_I2C_DATA, 0,
 			DC_I2C_INDEX, hw_engine->buffer_used_write,
@@ -513,6 +520,7 @@ static void construct(
 	hw_engine->buffer_used_bytes = 0;
 	hw_engine->transaction_count = 0;
 	hw_engine->engine_keep_power_up_count = 1;
+
 
 	REG_GET(MICROSECOND_TIME_BASE_DIV, XTAL_REF_DIV, &xtal_ref_div);
 

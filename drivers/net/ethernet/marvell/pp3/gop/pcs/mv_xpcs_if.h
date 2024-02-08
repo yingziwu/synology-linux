@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -38,5 +39,6 @@ void mv_xpcs_lane_regs_dump(int lane);
 int mv_xpcs_reset(enum mv_reset reset);
 /* Set the internal mux's to the required PCS in the PI */
 int mv_xpcs_mode(int num_of_lanes);
+
 
 #endif /* __mv_xpcs_if_h__ */

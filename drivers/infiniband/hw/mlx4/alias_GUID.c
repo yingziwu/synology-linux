@@ -117,6 +117,7 @@ static __be64 get_cached_alias_guid(struct mlx4_ib_dev *dev, int port, int index
 	return *(__be64 *)&dev->sriov.demux[port - 1].guid_cache[index];
 }
 
+
 ib_sa_comp_mask mlx4_ib_get_aguid_comp_mask_from_ix(int index)
 {
 	return IB_SA_COMP_MASK(4 + index);
@@ -771,6 +772,7 @@ out:
 	kfree(rec);
 }
 
+
 void mlx4_ib_init_alias_guid_work(struct mlx4_ib_dev *dev, int port)
 {
 	unsigned long flags, flags1;
@@ -803,8 +805,8 @@ void mlx4_ib_destroy_alias_guid_service(struct mlx4_ib_dev *dev)
 	unsigned long flags;
 
 	for (i = 0 ; i < dev->num_ports; i++) {
-		cancel_delayed_work(&dev->sriov.alias_guid.ports_guid[i].alias_guid_work);
 		det = &sriov->alias_guid.ports_guid[i];
+		cancel_delayed_work_sync(&det->alias_guid_work);
 		spin_lock_irqsave(&sriov->alias_guid.ag_work_lock, flags);
 		while (!list_empty(&det->cb_list)) {
 			cb_ctx = list_entry(det->cb_list.next,

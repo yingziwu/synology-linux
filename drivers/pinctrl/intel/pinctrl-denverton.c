@@ -218,6 +218,8 @@ static const struct intel_pinctrl_soc_data dnv_south_soc_data = {
 	.ncommunities = ARRAY_SIZE(dnv_south_communities),
 };
 
+
+
 static const struct intel_pinctrl_soc_data *dnv_pinctrl_soc_data[] = {
 	&dnv_north_soc_data,
 	&dnv_south_soc_data,

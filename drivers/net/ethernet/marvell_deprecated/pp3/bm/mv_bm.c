@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -42,9 +43,11 @@ static void __iomem *mv_hw_silicon;
 
 static int bm_regs_debug_flags;
 
+
 /*------------------------------------------------------------------------------*/
 /*			BM internal functions					*/
 /*------------------------------------------------------------------------------*/
+
 
 int bm_gp_pid_validation(int pid)
 {
@@ -109,6 +112,7 @@ static int bm_local_to_pid(int local_pid, int bid)
 	else
 		return bid - 1 + 8 + (local_pid << 2);
 }
+
 
 static int bm_pid_to_global(int pid)
 {
@@ -229,6 +233,7 @@ static int bm_entry_print(char *name, int offs, int words)
 /*		BM User Application Interface					*/
 /*------------------------------------------------------------------------------*/
 
+
 /* Set default BM attributes for read/write in DRAM */
 void bm_attr_all_pools_def_set(void)
 {
@@ -318,6 +323,7 @@ void bm_disable(void)
 
 	bm_gl_reg_write(BM_COMMON_GENERAL_CFG_REG, reg_val);
 }
+
 
 void bm_vmid_set(unsigned int bm_vmid)
 {
@@ -441,6 +447,7 @@ static int bm_pool_quick_disable(int pool)
 	/* set dram fill level to 0 */
 	bm_pool_fill_level_set(pool, 0, MV_32_BITS);
 
+
 	bid = bm_pid_to_bid(pool);
 	pid_local = bm_pid_to_local(pool);
 
@@ -485,6 +492,7 @@ static int bm_qm_pool_quick_enable(int pool, int buf_num, struct mv_a40 *base_ad
 
 	return 0;
 }
+
 
 int bm_qm_pool_total_thresholds(int pool, unsigned int a_empty, unsigned int aa_empty)
 {
@@ -984,6 +992,7 @@ void bm_bank_registers_dump(int bank)
 					BM_BGP_PAST_ALC_FIFOS_FILL_STATUS_REG);
 }
 
+
 void bm_pool_status_dump(int pool)
 {
 	int bid, pid_local, pid_global, pes_in_cache_line, pe_bytes, cache_line_bytes;
@@ -1058,6 +1067,7 @@ void bm_pool_status_dump(int pool)
 					BM_DPR_C_MNG_BANK_STAT_CACHE_SO_THR_BITS, dpr_c_mng_entry);
 
 	cache_size = (cache_end - cache_start + 1) * 64 / BM_CACHE_PE_BYTES(pool);
+
 
 	pr_info("cache state         : %s, vmid = 0x%x\n",
 		reg_val & BM_BGP_POOL_STATUS_NEMPTY_MASK ? "not empty" : "empty", cache_vmid);
@@ -1145,6 +1155,7 @@ void bm_pool_status_dump(int pool)
 	pr_info("allocated      [PEs]: 0x%08X\n", alloce);
 	pr_info("\n");
 }
+
 
 void bm_pool_registers_parse(int pool)
 {
@@ -1312,6 +1323,7 @@ void bm_pool_registers_parse(int pool)
 				BM_TPR_CTRS_BANK_ALLOCATED_PES_CTR_BITS, tpr_ctrs_entry));
 }
 
+
 static void bm_bank0_cache_memory_dump(void)
 {
 	unsigned int sram_cache_entry[BM_SRAM_B0_CACHE_TBL_ENTRY_WORDS];
@@ -1343,6 +1355,7 @@ static void bm_bgp_cache_memory_dump(int bank)
 		pr_info("%4d: 0x%08x    0x%08x\n", line, sram_cache_entry[0], sram_cache_entry[1]);
 	}
 }
+
 
 void bm_bank_cache_dump(int bank)
 {
@@ -1381,6 +1394,7 @@ void bm_error_dump(void)
 {
 	int bid;
 	char reg_name[50];
+
 
 	for (bid = 0; bid < BM_BANK_NUM; bid++) {
 		pr_info("bank %d interrupt regs:\n", bid);

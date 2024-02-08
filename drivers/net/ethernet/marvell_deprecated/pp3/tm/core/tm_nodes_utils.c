@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -37,6 +38,7 @@ disclaimer.
 #include "set_hw_registers.h"
 #include "tm_set_local_db_defaults.h"
 #include "tm_hw_configuration_interface.h"
+
 
 /** Configure the default Eligible Priority Functions
 *   to the Queue and Nodes (A...Port) Elig. Prio. Tables

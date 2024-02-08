@@ -30,6 +30,7 @@
 #define MVEBU_MPP_MASK		0xf
 #endif /* MY_ABC_HERE */
 
+
 static void __iomem *mpp_base;
 
 static int kirkwood_mpp_ctrl_get(unsigned pid, unsigned long *config)

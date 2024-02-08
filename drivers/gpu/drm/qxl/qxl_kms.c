@@ -239,6 +239,7 @@ int qxl_device_init(struct qxl_device *qdev,
 		 (unsigned long)qdev->surfaceram_base,
 		 (unsigned long)qdev->surfaceram_size);
 
+
 	INIT_WORK(&qdev->gc_work, qxl_gc_work);
 
 	return 0;

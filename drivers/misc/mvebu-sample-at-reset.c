@@ -533,3 +533,4 @@ module_platform_driver(mv_sar_driver);
 MODULE_DESCRIPTION("Marvell Armada 80x0 Sample at Reset info driver");
 MODULE_AUTHOR("Evan Wang(xswang@marvell.com)");
 MODULE_LICENSE("GPL");
+

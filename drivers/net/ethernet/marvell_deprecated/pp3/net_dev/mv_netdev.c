@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -184,8 +185,10 @@ static int mv_pp3_rx(struct net_device *dev, struct pp3_vport *cpu_vp, struct pp
 static int mv_pp3_affinity_notifier_release(int irq_num);
 #endif /* !CONFIG_MV_PP3_FPGA */
 
+
 #ifdef CONFIG_MV_PP3_SKB_RECYCLE
 static bool mv_pp3_skb_recycle = CONFIG_MV_PP3_SKB_RECYCLE_DEF;
+
 
 int mv_pp3_ctrl_nic_skb_recycle(int en)
 {
@@ -242,6 +245,7 @@ int mv_pp3_dev_rxvq_num_get(struct net_device *dev, int cpu)
 
 	if (!dev_priv->cpu_vp[cpu])
 		goto err;
+
 
 	return dev_priv->cpu_vp[cpu]->rx_vqs_num;
 err:
@@ -922,6 +926,7 @@ static void mv_pp3_dev_rx_irqs_free(struct pp3_dev_priv *dev_priv)
 	}
 }
 
+
 /*---------------------------------------------------------------------------*/
 /*  free net_device RX and link IRQs					     */
 /*---------------------------------------------------------------------------*/
@@ -1017,6 +1022,7 @@ static int mv_pp3_affinity_notifier(int irq_num)
 
 	return rc;
 }
+
 
 /**
  * mv_pp3_affinity_notifier_init - function to un-register the affinity notifier
@@ -1128,6 +1134,7 @@ err:
 
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
+
 
 /* Copy metadata from CFH to skb by words */
 static inline int mv_pp3_mdata_copy_to_skb(struct net_device *dev, struct sk_buff *skb, struct mv_cfh_common *cfh)
@@ -1500,6 +1507,7 @@ static inline void mv_pp3_tx_frags(struct sk_buff *skb,
 	int i;
 	unsigned int l3_l4_info;
 
+
 	/*STAT_DBG(group->stats.tx_sg_fsize[skb_shinfo(skb)->nr_frags]++);*/
 
 	p_cfh->ctrl = MV_CFH_RD_SET(0) | MV_CFH_LEN_SET(MV_PP3_CFH_PKT_SIZE) |
@@ -1518,6 +1526,7 @@ static inline void mv_pp3_tx_frags(struct sk_buff *skb,
 		p_cfh->l3_l4_info = l3_l4_info;
 		p_cfh->ctrl |= MV_CFH_QC_BIT_SET;
 	}
+
 
 #ifdef CONFIG_MV_PP3_DEBUG_CODE
 	if (dev_priv->flags & MV_PP3_F_DBG_SG) {
@@ -1592,6 +1601,7 @@ static inline void mv_pp3_tx_frags(struct sk_buff *skb,
 }
 
 #endif /* if 0 */
+
 
 /*---------------------------------------------------------------------------*/
 /* PP3 Driver NIC mode get skb function only for case of CFH mode */
@@ -2010,6 +2020,7 @@ struct net_device_stats *mv_pp3_get_stats(struct net_device *dev)
 	int cpu;
 
 	u32 tx_pkts, rx_pkts, tx_bytes, rx_bytes, tx_drp, rx_drp, rx_err;
+
 
 	tx_pkts = rx_pkts = tx_bytes = rx_bytes = tx_drp = rx_drp = rx_err = 0;
 
@@ -2541,6 +2552,7 @@ static int mv_pp3_dev_pools_fill(struct pp3_dev_priv *dev_priv)
 
 	size = mv_pp3_dev_rx_pool_size_calc(dev_priv);
 
+
 	ppool = dev_priv->cpu_shared->long_pool;
 	if (ppool)
 		mv_pp3_dev_pool_update(dev_priv->dev, ppool, size);
@@ -2628,6 +2640,7 @@ static int mv_pp3_dev_queues_proc_done(struct pp3_dev_priv *dev_priv)
 {
 	struct pp3_vport *cpu_vp;
 	int vq, cpu;
+
 
 	for_each_possible_cpu(cpu) {
 
@@ -2833,6 +2846,7 @@ static int mv_pp3_dev_priv_sw_init(struct pp3_dev_priv *dev_priv)
 	else
 		dev_priv->rx_time_prof = 1;
 
+
 	return 0;
 err:
 	pr_err("%s: function failed\n", __func__);
@@ -2990,6 +3004,7 @@ int mv_pp3_dev_stop(struct net_device *dev)
 	return 0;
 }
 
+
 /* return positive if MTU is valid */
 static int mv_pp3_check_mtu_valid(int mtu)
 {
@@ -3141,6 +3156,7 @@ static void mv_pp3_pci_remove(struct pci_dev *pdev)
 {
 	pr_err("%s:: called", __func__);
 }
+
 
 /*---------------------------------------------------------------------------*/
 static const struct pci_device_id fpga_id_table[] = {
@@ -3473,6 +3489,7 @@ void mv_pp3_dev_rx_resume(struct net_device *dev, int cos)
 	return;
 }
 /*---------------------------------------------------------------------------*/
+
 
 static const struct net_device_ops mv_pp3_netdev_ops = {
 	.ndo_open            = mv_pp3_dev_open,

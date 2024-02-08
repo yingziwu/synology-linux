@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -41,6 +42,7 @@ disclaimer.
 #include "tm_set_local_db_defaults.h"
 #include "set_hw_registers.h"
 #include "tm_os_interface.h"
+
 
 /**
  */
@@ -71,6 +73,7 @@ static int tm_delete_port(tm_handle hndl, uint8_t index)
 		use_counter--;
 	ctl->tm_p_lvl_drop_prof_ptr[index] = 0;
 
+
 	for (i = 0; i < TM_WRED_COS; i++) {
 		if (port->wred_cos & (1<<i)) {
 			profile = &(ctl->tm_p_lvl_drop_profiles_cos[i][port->wred_profile_ref_cos[i]]);
@@ -82,6 +85,7 @@ static int tm_delete_port(tm_handle hndl, uint8_t index)
 			use_counter--;
 		ctl->tm_p_lvl_drop_prof_ptr_cos[i][index] = 0;
 	}
+
 
 	set_sw_port_default(ctl->tm_port_array, index, ctl->rm);
 
@@ -99,6 +103,7 @@ static int tm_delete_port(tm_handle hndl, uint8_t index)
 
 	return 0;
 }
+
 
 /**
  */
@@ -146,6 +151,7 @@ static int tm_delete_c_node(tm_handle hndl, uint32_t index)
 	return rc;
 }
 
+
 /**
  */
 static int tm_delete_b_node(tm_handle hndl, uint32_t index)
@@ -187,6 +193,7 @@ static int tm_delete_b_node(tm_handle hndl, uint32_t index)
 	return rc;
 }
 
+
 /**
  */
 static int tm_delete_a_node(tm_handle hndl, uint32_t index)
@@ -226,6 +233,7 @@ static int tm_delete_a_node(tm_handle hndl, uint32_t index)
 	return rc;
 }
 
+
 /**
  */
 static int tm_delete_queue(tm_handle hndl, uint32_t index)
@@ -264,6 +272,7 @@ static int tm_delete_queue(tm_handle hndl, uint32_t index)
 
 	return rc;
 }
+
 
 /**
  */
@@ -320,6 +329,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_delete_trans_port(tm_handle hndl, uint8_t index)
@@ -334,6 +344,7 @@ int tm_delete_trans_port(tm_handle hndl, uint8_t index)
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
 
+
 	rc = tm_nodes_lock(TM_ENV(ctl));
 	if (rc)
 		return rc;
@@ -343,6 +354,7 @@ int tm_delete_trans_port(tm_handle hndl, uint8_t index)
 		rc = -ENOMSG;
 		goto out;
 	}
+
 
 	for (i = ctl->tm_port_array[index].first_child_c_node;
 		 i <= ctl->tm_port_array[index].last_child_c_node; i++)
@@ -398,6 +410,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_nodes_read_next_change(tm_handle hndl, struct tm_tree_change *change)
@@ -429,6 +442,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */

@@ -64,4 +64,5 @@ static inline void rpm_debug_sysfs_remove(struct device *dev)
 
 #endif /* CONFIG_RTK_PM_RUNTIME_DEBUG */
 
+
 #endif /* __SOC_REALTEK_DEBUG_H */

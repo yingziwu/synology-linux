@@ -92,6 +92,7 @@
 #define DPRINTK(stuff...)
 #endif
 
+
 #define NR_SUPERIOS 3
 static struct superio_struct {	/* For Super-IO chips autodetection */
 	int io;
@@ -894,6 +895,7 @@ static size_t parport_pc_ecp_write_block_pio(struct parport *port,
 #endif /* IEEE 1284 support */
 #endif /* Allowed to use FIFO/DMA */
 
+
 /*
  *	******************************************
  *	INITIALISATION AND MODULE STUFF BELOW HERE
@@ -948,6 +950,7 @@ static struct superio_struct *find_free_superio(void)
 			return &superios[i];
 	return NULL;
 }
+
 
 /* Super-IO chipset detection, Winbond, SMSC */
 static void show_parconfig_smsc37c669(int io, int key)
@@ -1033,6 +1036,7 @@ static void show_parconfig_smsc37c669(int io, int key)
 		}
 	}
 }
+
 
 static void show_parconfig_winbond(int io, int key)
 {
@@ -1187,6 +1191,7 @@ static void decode_smsc(int efer, int key, int devid, int devrev)
 		func(efer, key);
 }
 
+
 static void winbond_check(int io, int key)
 {
 	int origval, devid, devrev, oldid, x_devid, x_devrev, x_oldid;
@@ -1309,6 +1314,7 @@ out:
 	release_region(io, 3);
 }
 
+
 static void detect_and_report_winbond(void)
 {
 	if (verbose_probing)
@@ -1371,7 +1377,7 @@ static struct superio_struct *find_superio(struct parport *p)
 {
 	int i;
 	for (i = 0; i < NR_SUPERIOS; i++)
-		if (superios[i].io != p->base)
+		if (superios[i].io == p->base)
 			return &superios[i];
 	return NULL;
 }
@@ -1391,6 +1397,7 @@ static int get_superio_irq(struct parport *p)
 		return s->irq;
 	return PARPORT_IRQ_NONE;
 }
+
 
 /* --- Mode detection ------------------------------------- */
 
@@ -2586,6 +2593,7 @@ static int sio_via_probe(struct pci_dev *pdev, int autoirq, int autodma,
 	return 0;
 }
 
+
 enum parport_pc_sio_types {
 	sio_via_686a = 0,   /* Via VT82C686A motherboard Super I/O */
 	sio_via_8231,	    /* Via VT8231 south bridge integrated Super IO */
@@ -2638,7 +2646,9 @@ enum parport_pc_pci_cards {
 	netmos_9901,
 	netmos_9865,
 	quatech_sppxp100,
+	wch_ch382l,
 };
+
 
 /* each element directly indexed from enum list, above
  * (but offset by last_sio) */
@@ -2699,6 +2709,7 @@ static struct parport_pc_pci {
 	/* netmos_9901 */               { 1, { { 0, -1 }, } },
 	/* netmos_9865 */               { 1, { { 0, -1 }, } },
 	/* quatech_sppxp100 */		{ 1, { { 0, 1 }, } },
+	/* wch_ch382l */		{ 1, { { 2, -1 }, } },
 };
 
 static const struct pci_device_id parport_pc_pci_tbl[] = {
@@ -2788,6 +2799,8 @@ static const struct pci_device_id parport_pc_pci_tbl[] = {
 	/* Quatech SPPXP-100 Parallel port PCI ExpressCard */
 	{ PCI_VENDOR_ID_QUATECH, PCI_DEVICE_ID_QUATECH_SPPXP_100,
 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, quatech_sppxp100 },
+	/* WCH CH382L PCI-E single parallel port card */
+	{ 0x1c00, 0x3050, 0x1c00, 0x3050, 0, 0, wch_ch382l },
 	{ 0, } /* terminate list */
 };
 MODULE_DEVICE_TABLE(pci, parport_pc_pci_tbl);

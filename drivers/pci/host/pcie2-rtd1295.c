@@ -752,6 +752,7 @@ irqreturn_t rtk_handle_msi_irq(int _irq, void *_data)
 	return ret;
 }
 
+
 static struct irq_chip rtk_msi_irq_chip = {
 	.name = "RTK-PCIE2-MSI",
 	.irq_enable = pci_msi_unmask_irq,
@@ -766,6 +767,8 @@ void rtk_pcie_msi_init(void)
 	rtk_pci_ctrl_write(0xCD0, virt_to_phys((void *)pcie2_msi_data));
 	*(volatile unsigned int *)pcie2_msi_data = 0;
 }
+
+
 
 static void rtk_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
 {
@@ -785,6 +788,7 @@ static struct irq_chip rtk_msi_bottom_irq_chip = {
 	.irq_compose_msi_msg	= rtk_compose_msi_msg,
 	.irq_set_affinity	= rtk_msi_set_affinity,
 };
+
 
 static int rtk_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 				   unsigned int nr_irqs, void *args)
@@ -824,6 +828,7 @@ static void rtk_irq_domain_free(struct irq_domain *domain,
 	mutex_unlock(&msi_lock);
 }
 
+
 static const struct irq_domain_ops rtk_msi_domain_ops = {
 	.alloc = rtk_irq_domain_alloc,
 	.free = rtk_irq_domain_free,
@@ -835,6 +840,7 @@ static struct msi_domain_info rtk_msi_domain_info = {
 };
 
 #endif /* CONFIG_PCI_MSI */
+
 
 static int rtk_pcie2_probe(struct platform_device *pdev)
 {
@@ -1011,6 +1017,7 @@ static int rtk_pcie2_probe(struct platform_device *pdev)
 no_msi:
 #endif /* CONFIG_PCI_MSI */
 
+	
 	/*-------------------------------------------
 	 * Register PCI-E host
 	 *-------------------------------------------*/

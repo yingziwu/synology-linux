@@ -157,6 +157,7 @@
 #define MVPP22_AXI_ATTR_SW_COH_READ	((0x0<<MVPP22_AXI_ATTR_DOMAIN_OFFS) + \
 					 (0xB<<MVPP22_AXI_ATTR_CACHE_OFFS))
 
+
 #define MVPP22_AXI_ATTR_HW_COH_WRITE	((0x2<<MVPP22_AXI_ATTR_DOMAIN_OFFS) + \
 					 (0x7<<MVPP22_AXI_ATTR_CACHE_OFFS))
 
@@ -262,6 +263,7 @@
 #define MVPP2_CLS_FLOW_TBL0_REG			0x1824
 #define MVPP2_CLS_FLOW_TBL1_REG			0x1828
 #define MVPP2_CLS_FLOW_TBL2_REG			0x182c
+
 
 #define MVPP2_CLS_PORT_SPID_REG			0x1830
 
@@ -1092,6 +1094,7 @@
 #define MVPP2_BM_QSET_MAX_GRNTD_MASK		(0xffff << \
 					MVPP2_BM_QSET_MAX_GRNTD_OFFS)
 
+
 #define MVPP2_BM_QSET_SET_CNTRS_REG		0x6824
 
 /* TX Scheduler registers */
@@ -1162,6 +1165,7 @@
 #define MVPP2_TX_BAD_FCS_CNTR_REG(eth_tx_port)	(0x8940 + ((eth_tx_port) << 2))
 						/* Same for PPv21/PPv22 */
 #define MVPP2_TX_DROP_CNTR_REG(eth_tx_port)	(0x8980 + ((eth_tx_port) << 2))
+
 
 #define MVPP2_TX_ETH_DSEC_THRESH_REG(eth_tx_port)(0x8a40 + \
 					((eth_tx_port) << 2))
@@ -2461,6 +2465,7 @@ struct mv_pp2x_buff_hdr {
 #define MVPP2_B_HDR_INFO_LAST_MASK	BIT(12)
 #define MVPP2_B_HDR_INFO_IS_LAST(info) \
 	   ((info & MVPP2_B_HDR_INFO_LAST_MASK) >> MVPP2_B_HDR_INFO_LAST_OFFS)
+
 
 /* Macroes */
 #define MVPP2_RX_DESC_POOL(rx_desc)	((rx_desc->status & \

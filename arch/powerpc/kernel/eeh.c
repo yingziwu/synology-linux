@@ -46,6 +46,7 @@
 #include <asm/ppc-pci.h>
 #include <asm/rtas.h>
 
+
 /** Overview:
  *  EEH, or "Extended Error Handling" is a PCI bridge technology for
  *  dealing with PCI bus errors that can't be dealt with within the
@@ -303,9 +304,17 @@ void eeh_slot_error_detail(struct eeh_pe *pe, int severity)
 	 *
 	 * For pHyp, we have to enable IO for log retrieval. Otherwise,
 	 * 0xFF's is always returned from PCI config space.
+	 *
+	 * When the @severity is EEH_LOG_PERM, the PE is going to be
+	 * removed. Prior to that, the drivers for devices included in
+	 * the PE will be closed. The drivers rely on working IO path
+	 * to bring the devices to quiet state. Otherwise, PCI traffic
+	 * from those devices after they are removed is like to cause
+	 * another unexpected EEH error.
 	 */
 	if (!(pe->type & EEH_PE_PHB)) {
-		if (eeh_has_flag(EEH_ENABLE_IO_FOR_LOG))
+		if (eeh_has_flag(EEH_ENABLE_IO_FOR_LOG) ||
+		    severity == EEH_LOG_PERM)
 			eeh_pci_enable(pe, EEH_OPT_THAW_MMIO);
 
 		/*
@@ -610,6 +619,7 @@ int eeh_check_failure(const volatile void __iomem *token)
 }
 EXPORT_SYMBOL(eeh_check_failure);
 
+
 /**
  * eeh_pci_enable - Enable MMIO or DMA transfers for this slot
  * @pe: EEH PE
@@ -662,6 +672,7 @@ int eeh_pci_enable(struct eeh_pe *pe, int function)
 		if (rc & active_flag)
 			return 0;
 	}
+
 
 	/* Issue the request */
 	rc = eeh_ops->set_option(pe, function);
@@ -1283,6 +1294,7 @@ int eeh_unfreeze_pe(struct eeh_pe *pe, bool sw_state)
 
 	return ret;
 }
+
 
 static struct pci_device_id eeh_reset_ids[] = {
 	{ PCI_DEVICE(0x19a2, 0x0710) },	/* Emulex, BE     */

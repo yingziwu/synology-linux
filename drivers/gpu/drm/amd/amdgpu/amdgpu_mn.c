@@ -108,6 +108,7 @@ static void amdgpu_mn_release(struct mmu_notifier *mn,
 	schedule_work(&rmn->work);
 }
 
+
 /**
  * amdgpu_mn_lock - take the write side lock for this mn
  */
@@ -398,3 +399,4 @@ void amdgpu_mn_unregister(struct amdgpu_bo *bo)
 	up_write(&rmn->lock);
 	mutex_unlock(&adev->mn_lock);
 }
+

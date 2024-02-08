@@ -39,6 +39,7 @@
 #include "gop/mv_gop_if.h"
 #endif /* !CONFIG_MV_PP3_FPGA */
 
+
 static void pp3_fw_struct_size_checker(void)
 {
 	BUILD_BUG_ON(sizeof(struct mv_pp3_fw_msg_chan_cfg) % 4);
@@ -168,6 +169,7 @@ int pp3_fw_version_get(struct mv_pp3_version *fw_ver)
 {
 	return pp3_fw_set_wait_req(MV_FW_VERSION_GET, NULL, 0, fw_ver, sizeof(struct mv_pp3_version));
 }
+
 
 /* Set RX packet mode for Vport */
 int pp3_fw_vport_rx_pkt_mode_set(int vport, enum mv_pp3_pkt_mode mode)

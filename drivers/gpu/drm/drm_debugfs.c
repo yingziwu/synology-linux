@@ -49,12 +49,14 @@ static const struct drm_info_list drm_debugfs_list[] = {
 };
 #define DRM_DEBUGFS_ENTRIES ARRAY_SIZE(drm_debugfs_list)
 
+
 static int drm_debugfs_open(struct inode *inode, struct file *file)
 {
 	struct drm_info_node *node = inode->i_private;
 
 	return single_open(file, node->info_ent->show, node);
 }
+
 
 static const struct file_operations drm_debugfs_fops = {
 	.owner = THIS_MODULE,
@@ -63,6 +65,7 @@ static const struct file_operations drm_debugfs_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+
 
 /**
  * drm_debugfs_create_files - Initialize a given set of debugfs files for DRM
@@ -173,6 +176,7 @@ int drm_debugfs_init(struct drm_minor *minor, int minor_id,
 	}
 	return 0;
 }
+
 
 int drm_debugfs_remove_files(const struct drm_info_list *files, int count,
 			     struct drm_minor *minor)
@@ -327,6 +331,7 @@ static const struct file_operations drm_edid_fops = {
 	.release = single_release,
 	.write = edid_write
 };
+
 
 static const struct file_operations drm_connector_fops = {
 	.owner = THIS_MODULE,

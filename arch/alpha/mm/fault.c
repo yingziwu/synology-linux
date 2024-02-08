@@ -27,6 +27,7 @@
 
 extern void die_if_kernel(char *,struct pt_regs *,long, unsigned long *);
 
+
 /*
  * Force a new ASN for a task.
  */
@@ -50,6 +51,7 @@ __load_new_mm_context(struct mm_struct *next_mm)
 
 	__reload_thread(pcb);
 }
+
 
 /*
  * This routine handles page faults.  It determines the address,
@@ -75,7 +77,7 @@ __load_new_mm_context(struct mm_struct *next_mm)
 /* Macro for exception fixup code to access integer registers.  */
 #define dpf_reg(r)							\
 	(((unsigned long *)regs)[(r) <= 8 ? (r) : (r) <= 15 ? (r)-16 :	\
-				 (r) <= 18 ? (r)+8 : (r)-10])
+				 (r) <= 18 ? (r)+10 : (r)-10])
 
 asmlinkage void
 do_page_fault(unsigned long address, unsigned long mmcsr,

@@ -15,6 +15,7 @@
  * (at your option) any later version.
  */
 
+
 /*
  * The Mass Storage Gadget acts as a USB Mass Storage device,
  * appearing to the host as a disk drive or as a CD-ROM drive.  In
@@ -28,6 +29,7 @@
  * business logic is implemented in f_mass_storage.* file.  Read
  * comments in this file for more detailed description.
  */
+
 
 #include <linux/kernel.h>
 #include <linux/usb/ch9.h>
@@ -154,13 +156,11 @@ static struct usb_configuration msg_config_driver = {
 	.bmAttributes		= USB_CONFIG_ATT_SELFPOWER,
 };
 
+
 /****************************** Gadget Bind ******************************/
 
 static int msg_bind(struct usb_composite_dev *cdev)
 {
-	static const struct fsg_operations ops = {
-		.thread_exits = msg_thread_exits,
-	};
 	struct fsg_opts *opts;
 	struct fsg_config config;
 	int status;
@@ -176,8 +176,6 @@ static int msg_bind(struct usb_composite_dev *cdev)
 	status = fsg_common_set_num_buffers(opts->common, fsg_num_buffers);
 	if (status)
 		goto fail;
-
-	fsg_common_set_ops(opts->common, &ops);
 
 	status = fsg_common_set_cdev(opts->common, cdev, config.can_stall);
 	if (status)
@@ -214,7 +212,6 @@ static int msg_bind(struct usb_composite_dev *cdev)
 	usb_composite_overwrite_options(cdev, &coverwrite);
 	dev_info(&cdev->gadget->dev,
 		 DRIVER_DESC ", version: " DRIVER_VERSION "\n");
-	set_bit(0, &msg_registered);
 	return 0;
 
 fail_otg_desc:
@@ -265,9 +262,8 @@ static int __init msg_init(void)
 }
 module_init(msg_init);
 
-static void msg_cleanup(void)
+static void __exit msg_cleanup(void)
 {
-	if (test_and_clear_bit(0, &msg_registered))
-		usb_composite_unregister(&msg_driver);
+	usb_composite_unregister(&msg_driver);
 }
 module_exit(msg_cleanup);

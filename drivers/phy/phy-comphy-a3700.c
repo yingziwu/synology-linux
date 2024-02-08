@@ -25,12 +25,14 @@
 #include "phy-comphy-mvebu.h"
 #include "phy-comphy-a3700.h"
 
+
 /* PHY selector configures with corresponding modes */
 static void mvebu_a3700_comphy_set_phy_selector(struct mvebu_comphy_priv *priv,
 						struct mvebu_comphy *comphy)
 {
 	u32 reg;
 	int mode = COMPHY_GET_MODE(priv->lanes[comphy->index].mode);
+
 
 	reg = readl(priv->comphy_regs + COMPHY_SELECTOR_PHY_REG_OFFSET);
 	switch (mode) {
@@ -478,6 +480,7 @@ static int mvebu_a3700_comphy_sgmii_power_on(struct mvebu_comphy_priv *priv,
 				  REG_32BIT);
 	if (ret)
 		dev_err(priv->dev, "Failed to lock PLL for SGMII PHY %d\n", comphy->index);
+
 
 	ret = polling_with_timeout(priv->comphy_regs + COMPHY_PHY_STATUS_OFFSET(comphy->index),
 				   PHY_RX_INIT_DONE_BIT,

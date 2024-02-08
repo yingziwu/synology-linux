@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -32,6 +33,7 @@ disclaimer.
 #include "gop/mv_gop_if.h"
 #include "gop/serdes/mv_serdes_if.h"
 #include "gop/serdes/mv_serdes_regs.h"
+
 
 /* print value of unit registers */
 void mv_serdes_lane_regs_dump(int lane)

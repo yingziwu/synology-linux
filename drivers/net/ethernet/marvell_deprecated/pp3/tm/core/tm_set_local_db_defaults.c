@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,12 +35,14 @@ disclaimer.
 #include "rm_list.h"
 #include "rm_internal_types.h"
 
+
 /**
  */
 int set_sw_sched_conf_default(void * hndl)
 {
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
+
 
 	/* HW defaults configuration */
 	ctl->periodic_scheme_state = TM_DISABLE; /* periodic scheme
@@ -54,6 +57,7 @@ int set_sw_sched_conf_default(void * hndl)
 	return 0;
 }
 
+
 /**
  */
 int set_sw_gen_conf_default(void * hndl)
@@ -66,6 +70,7 @@ int set_sw_gen_conf_default(void * hndl)
 #endif
 	return 0;
 }
+
 
 /**
  */
@@ -122,6 +127,7 @@ int set_sw_queue_default(struct tm_queue *array,
 	return 0;
 }
 
+
 /**
  */
 int set_sw_a_node_default(struct tm_a_node *array,
@@ -137,6 +143,7 @@ int set_sw_a_node_default(struct tm_a_node *array,
 	return 0;
 }
 
+
 /**
  */
 int set_sw_b_node_default(struct tm_b_node *array,
@@ -151,6 +158,7 @@ int set_sw_b_node_default(struct tm_b_node *array,
 	array[node_ind].elig_prio_func_ptr = 0;
 	return 0;
 }
+
 
 /**
  */
@@ -174,6 +182,7 @@ int set_sw_c_node_default(struct tm_c_node *array,
 	array[node_ind].elig_prio_func_ptr = 0;
 	return 0;
 }
+
 
 /**
  */
@@ -205,6 +214,7 @@ int set_sw_port_default(struct tm_port *array,
 	return 0;
 }
 
+
 #define	SP_0		0
 #define	SP_1		1
 #define	SP_2		2
@@ -223,6 +233,7 @@ int set_sw_port_default(struct tm_port *array,
 #define	PP_6		6
 #define	PP_7		7
 
+
 #define	FIX_PRIO_0		0
 #define	FIX_PRIO_1		1
 #define	FIX_PRIO_2		2
@@ -231,6 +242,7 @@ int set_sw_port_default(struct tm_port *array,
 #define	FIX_PRIO_5		5
 #define	FIX_PRIO_6		6
 #define	FIX_PRIO_7		7
+
 
 #define	USE_MIN_TB		1
 #define	USE_MAX_TB		1
@@ -242,6 +254,7 @@ int set_sw_port_default(struct tm_port *array,
 #define	NEG_MIN_TB		1
 #define	NEG_MAX_TB		1
 
+
 #define	ELIGIBLE(scheduled_priority, propagated_priority, use_minTB, useMaxTB) \
 		((1 << 8) | (scheduled_priority << 5) | (propagated_priority << 2) | (use_minTB << 1) | useMaxTB)
 #define	NOT_ELIGIBLE	0
@@ -250,6 +263,7 @@ int set_sw_port_default(struct tm_port *array,
 	ELIGIBLE(scheduled_priority, propagated_priority, NOT_USE_MIN_TB, NOT_USE_MAX_TB)
 
 #define	FIX_PRIORITY(priority)  ELIGIBLE(priority, priority, NOT_USE_MIN_TB, NOT_USE_MAX_TB)
+
 
 #define Q_ENTRY(min_flag, max_flag)	tbl_entry.func_out[2*min_flag+max_flag]
 /*	assert((int)function_ID < (int)TM_ELIG_FUNC_TABLE_SIZE); \*/
@@ -526,11 +540,13 @@ void set_default_queue_elig_prio_func_table(struct tm_elig_prio_func_queue *func
 			Q_ENTRY(NEG_MIN_TB, POS_MAX_TB) = ELIGIBLE(SP_0, PP_0 , NOT_USE_MIN_TB, USE_MAX_TB),
 			Q_ENTRY(NEG_MIN_TB, NEG_MAX_TB) = NOT_ELIGIBLE);
 
+
 	/* reserved   DeqDisable function - don't change*/
 	QUEUE_DEQ_DISABLE(TM_ELIG_DEQ_DISABLE);
 	/* reduced macro example - with assert : function Id < TM_ELIG_FUNC_TABLE_SIZE  failed */
 	/* QUEUE_ELIG_FUN_FIXED_PRIORITY(65 ,FIX_PRIORITY(FIX_PRIO_7));	*/
 }
+
 
 /* nodes default EligibleFunction  table*/
 /**
@@ -1643,6 +1659,12 @@ void set_default_node_elig_prio_func_table(struct tm_elig_prio_func_node *func_t
 			N_ENTRY(NEG_MIN_TB, NEG_MAX_TB, PP_6) = NOT_ELIGIBLE,
 			N_ENTRY(NEG_MIN_TB, NEG_MAX_TB, PP_7) = NOT_ELIGIBLE);
 
+
+
+
+
+
+
 	NODE_ELIG_FUNCTION(TM_ELIG_N_PRIO1,
 			N_ENTRY(POS_MIN_TB, POS_MAX_TB, PP_0) = FIX_PRIORITY(FIX_PRIO_1),
 			N_ENTRY(POS_MIN_TB, POS_MAX_TB, PP_1) = FIX_PRIORITY(FIX_PRIO_1),
@@ -2012,6 +2034,8 @@ void set_default_node_elig_prio_func_table(struct tm_elig_prio_func_node *func_t
 			N_ENTRY(NEG_MIN_TB, NEG_MAX_TB, PP_5) = NOT_ELIGIBLE,
 			N_ENTRY(NEG_MIN_TB, NEG_MAX_TB, PP_6) = NOT_ELIGIBLE,
 			N_ENTRY(NEG_MIN_TB, NEG_MAX_TB, PP_7) = NOT_ELIGIBLE);
+
+
 
 	NODE_ELIG_FUNCTION(TM_ELIG_N_SHP_4P_MIN_4P_MAX,
 			N_ENTRY(POS_MIN_TB, POS_MAX_TB, PP_0) = ELIGIBLE(SP_4, PP_4 ,     USE_MIN_TB, NOT_USE_MAX_TB),

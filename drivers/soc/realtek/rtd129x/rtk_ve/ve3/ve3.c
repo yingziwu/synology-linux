@@ -42,6 +42,7 @@
 #include <linux/power-control.h>
 #endif
 
+
 #define HANTRO_DEC_REGS                 265
 
 #define HANTRO_DEC_FIRST_REG            0
@@ -118,6 +119,7 @@ static irqreturn_t hantrodec_isr(int irq, void *dev_id, struct pt_regs *regs);
 #else
 static irqreturn_t hantrodec_isr(int irq, void *dev_id);
 #endif
+
 
 static u32 dec_regs[HXDEC_MAX_CORES][DEC_IO_SIZE/4];
 struct semaphore dec_core_sem;
@@ -956,6 +958,7 @@ static int ve3_probe(struct platform_device *pdev)
         goto ERROR_PROVE_DEVICE;
     }
 
+
     irq = irq_of_parse_and_map(node, 0);
     if (irq <= 0)
         panic("Can't parse IRQ");
@@ -1075,6 +1078,7 @@ static int ve3_probe(struct platform_device *pdev)
     ve3_pctrl_off(s_pctrl_ve3);
 #endif
     return 0;
+
 
 ERROR_PROVE_DEVICE:
 
@@ -1416,6 +1420,7 @@ static struct platform_driver rtk_ve3_driver = {
 };
 
 module_platform_driver(rtk_ve3_driver);
+
 
 module_init( hantrodec_init);
 module_exit( hantrodec_cleanup);

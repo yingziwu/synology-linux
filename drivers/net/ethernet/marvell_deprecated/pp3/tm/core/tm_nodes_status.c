@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -36,6 +37,7 @@ disclaimer.
 #include "tm_nodes_utils.h"
 #include "tm_locking_interface.h"
 #include "set_hw_registers.h"
+
 
 /**
  */
@@ -74,6 +76,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_read_c_node_status(tm_handle hndl,
@@ -111,6 +114,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */
@@ -151,6 +155,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_read_a_node_status(tm_handle hndl,
@@ -181,6 +186,7 @@ int tm_read_a_node_status(tm_handle hndl,
 		goto out;
 	}
 
+
 	rc = get_hw_a_node_status(ctl, index, tm_status);
 	if (rc)
 		rc = TM_HW_READ_A_NODE_STATUS_FAIL;
@@ -189,6 +195,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */
@@ -226,6 +233,7 @@ out:
 	tm_nodes_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */

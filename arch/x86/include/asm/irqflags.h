@@ -11,7 +11,9 @@
  * Interrupt control:
  */
 
-static inline unsigned long native_save_fl(void)
+/* Declaration required for gcc < 4.9 to prevent -Werror=missing-prototypes */
+extern inline unsigned long native_save_fl(void);
+extern inline unsigned long native_save_fl(void)
 {
 	unsigned long flags;
 
@@ -29,7 +31,8 @@ static inline unsigned long native_save_fl(void)
 	return flags;
 }
 
-static inline void native_restore_fl(unsigned long flags)
+extern inline void native_restore_fl(unsigned long flags);
+extern inline void native_restore_fl(unsigned long flags)
 {
 	asm volatile("push %0 ; popf"
 		     : /* no output */
@@ -147,6 +150,7 @@ static inline notrace unsigned long arch_local_irq_save(void)
 #define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
 #define GET_CR0_INTO_EAX		movl %cr0, %eax
 #endif
+
 
 #endif /* __ASSEMBLY__ */
 #endif /* CONFIG_PARAVIRT */

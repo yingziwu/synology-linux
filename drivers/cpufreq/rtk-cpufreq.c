@@ -482,6 +482,7 @@ static const struct of_device_id rtk_dvfs_ids[] = {
     { /* Sentinel */ },
 };
 
+
 static struct platform_driver realtek_cpufreq_platdrv = {
     .driver = {
         .name   = "rtk129x-cpufreq",

@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -44,6 +45,7 @@ disclaimer.
  * @retval -EBADF if hndl is an invalid handle
 */
 int tm_get_node_min_quantum(tm_handle hndl, uint16_t *min_quantum);
+
 
 /** Set Maximal Transmission Unit size
  * @param[in]	hndl			TM lib handle
@@ -89,6 +91,7 @@ int tm_elig_to_prio(tm_handle hndl, enum tm_level level, uint8_t elig);
 int tm_sched_general_config(tm_handle hndl, uint8_t port_ext_bp);
 #endif
 
+
 /** Configure Periodic Scheme for level for fixed shaper of 2.5Giga
  * @param[in]	hndl			TM lib handle
  * @param[in]	level			Scheduling level: Queue/A/B/C/Port.
@@ -101,6 +104,7 @@ int tm_sched_general_config(tm_handle hndl, uint8_t port_ext_bp);
  * @retval  TM_HW_CONF_PER_SCHEME_FAILED if download to HW fails
 */
 int tm_configure_fixed_periodic_scheme_2_5G(tm_handle hndl, enum tm_level level);
+
 
 #ifdef MV_QMTM_NSS_A0
 /** Set the number of DWRR bytes per busrt limit for all ports.

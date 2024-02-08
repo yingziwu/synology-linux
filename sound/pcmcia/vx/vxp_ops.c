@@ -27,6 +27,7 @@
 #include <sound/core.h>
 #include "vxpocket.h"
 
+
 static int vxp_reg_offset[VX_REG_MAX] = {
 	[VX_ICR]	= 0x00,		// ICR
 	[VX_CVR]	= 0x01,		// CVR
@@ -45,6 +46,7 @@ static int vxp_reg_offset[VX_REG_MAX] = {
 	[VX_CSUER]	= 0x0e,		// CSUER
 	[VX_RUER]	= 0x0f,		// RUER
 };
+
 
 static inline unsigned long vxp_reg_addr(struct vx_core *_chip, int reg)
 {
@@ -79,6 +81,7 @@ static void vxp_outb(struct vx_core *chip, int offset, unsigned char val)
 #undef vx_outb
 #define vx_outb(chip,reg,val)	vxp_outb((struct vx_core *)(chip), VX_##reg,val)
 
+
 /*
  * vx_check_magic - check the magic word on xilinx
  *
@@ -97,6 +100,7 @@ static int vx_check_magic(struct vx_core *chip)
 	snd_printk(KERN_ERR "cannot find xilinx magic word (%x)\n", c);
 	return -EIO;
 }
+
 
 /*
  * vx_reset_dsp - reset the DSP
@@ -235,6 +239,7 @@ static int vxp_load_xilinx_binary(struct vx_core *_chip, const struct firmware *
 	return -EIO;
 }
 
+
 /*
  * vxp_load_dsp - load_dsp callback
  */
@@ -265,6 +270,7 @@ static int vxp_load_dsp(struct vx_core *vx, int index, const struct firmware *fw
 	}
 }
 		
+
 /*
  * vx_test_and_ack - test and acknowledge interrupt
  *
@@ -294,6 +300,7 @@ static int vxp_test_and_ack(struct vx_core *_chip)
 
 	return 0;
 }
+
 
 /*
  * vx_validate_irq - enable/disable IRQ
@@ -362,13 +369,13 @@ static void vxp_dma_write(struct vx_core *chip, struct snd_pcm_runtime *runtime,
 	unsigned short *addr = (unsigned short *)(runtime->dma_area + offset);
 
 	vx_setup_pseudo_dma(chip, 1);
-	if (offset + count > pipe->buffer_bytes) {
+	if (offset + count >= pipe->buffer_bytes) {
 		int length = pipe->buffer_bytes - offset;
 		count -= length;
 		length >>= 1; /* in 16bit words */
 		/* Transfer using pseudo-dma. */
-		while (length-- > 0) {
-			outw(cpu_to_le16(*addr), port);
+		for (; length > 0; length--) {
+			outw(*addr, port);
 			addr++;
 		}
 		addr = (unsigned short *)runtime->dma_area;
@@ -377,12 +384,13 @@ static void vxp_dma_write(struct vx_core *chip, struct snd_pcm_runtime *runtime,
 	pipe->hw_ptr += count;
 	count >>= 1; /* in 16bit words */
 	/* Transfer using pseudo-dma. */
-	while (count-- > 0) {
-		outw(cpu_to_le16(*addr), port);
+	for (; count > 0; count--) {
+		outw(*addr, port);
 		addr++;
 	}
 	vx_release_pseudo_dma(chip);
 }
+
 
 /*
  * vx_pseudo_dma_read - read bulk data on pseudo DMA mode
@@ -403,32 +411,33 @@ static void vxp_dma_read(struct vx_core *chip, struct snd_pcm_runtime *runtime,
 	if (snd_BUG_ON(count % 2))
 		return;
 	vx_setup_pseudo_dma(chip, 0);
-	if (offset + count > pipe->buffer_bytes) {
+	if (offset + count >= pipe->buffer_bytes) {
 		int length = pipe->buffer_bytes - offset;
 		count -= length;
 		length >>= 1; /* in 16bit words */
 		/* Transfer using pseudo-dma. */
-		while (length-- > 0)
-			*addr++ = le16_to_cpu(inw(port));
+		for (; length > 0; length--)
+			*addr++ = inw(port);
 		addr = (unsigned short *)runtime->dma_area;
 		pipe->hw_ptr = 0;
 	}
 	pipe->hw_ptr += count;
 	count >>= 1; /* in 16bit words */
 	/* Transfer using pseudo-dma. */
-	while (count-- > 1)
-		*addr++ = le16_to_cpu(inw(port));
+	for (; count > 1; count--)
+		*addr++ = inw(port);
 	/* Disable DMA */
 	pchip->regDIALOG &= ~VXP_DLG_DMAREAD_SEL_MASK;
 	vx_outb(chip, DIALOG, pchip->regDIALOG);
 	/* Read the last word (16 bits) */
-	*addr = le16_to_cpu(inw(port));
+	*addr = inw(port);
 	/* Disable 16-bit accesses */
 	pchip->regDIALOG &= ~VXP_DLG_DMA16_SEL_MASK;
 	vx_outb(chip, DIALOG, pchip->regDIALOG);
 	/* HREQ pin disabled. */
 	vx_outb(chip, ICR, 0);
 }
+
 
 /*
  * write a codec data (24bit)
@@ -450,6 +459,7 @@ static void vxp_write_codec_reg(struct vx_core *chip, int codec, unsigned int da
 	/* Terminate access to codec registers */
 	vx_inb(chip, HIFREQ);
 }
+
 
 /*
  * vx_set_mic_boost - set mic boost level (on vxp440 only)
@@ -512,6 +522,7 @@ void vx_set_mic_level(struct vx_core *chip, int level)
 	mutex_unlock(&chip->lock);
 }
 
+
 /*
  * change the input audio source
  */
@@ -566,6 +577,7 @@ static void vxp_set_clock_source(struct vx_core *_chip, int source)
 	vx_outb(chip, CDSP, chip->regCDSP);
 }
 
+
 /*
  * reset the board
  */
@@ -576,6 +588,7 @@ static void vxp_reset_board(struct vx_core *_chip, int cold_reset)
 	chip->regCDSP = 0;
 	chip->regDIALOG = 0;
 }
+
 
 /*
  * callbacks

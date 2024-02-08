@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -42,6 +43,7 @@ disclaimer.
 #include <linux/if_vlan.h>
 #include <linux/platform_device.h>
 
+
 #define __ATTRIBUTE_PACKED__	__packed
 #define MV_MALLOC	kmalloc
 
@@ -62,10 +64,12 @@ disclaimer.
 #define MV_MAC_IS_EQUAL(_mac1, _mac2)			\
 	(!memcmp((_mac1), (_mac2), MV_MAC_ADDR_SIZE))
 
+
 /* MTU + EtherType + Double VLAN + MAC_SA + MAC_DA + Marvell header */
 #define MV_MAX_PKT_SIZE(mtu)	((mtu) + MV_L2_HLEN)
 
 #define MV_RX_PKT_SIZE(mtu)	SKB_DATA_ALIGN(MV_MAX_PKT_SIZE(mtu) + ETH_FCS_LEN)
+
 
 #ifdef CONFIG_MV_PP3_STAT_ERR
 #define STAT_ERR(c) c
@@ -181,6 +185,7 @@ do {						\
 #define MV_OK			0
 #define MV_ON			1
 #define MV_OFF			0
+
 
 /******************************************************
  * validation macros                                  *
@@ -330,6 +335,7 @@ enum mv_nss_port_type {
 /* Invalid virtual port definition */
 #define MV_PP3_NSS_PORT_INV	MV_PP3_NSS_PORT_LAST
 
+
 /* CFH common fields definitions */
 /* CFH word 0 */
 #define MV_HOST_MSG_PACKET_LENGTH(l)	((l) & 0xFFFF)
@@ -340,6 +346,7 @@ enum mv_nss_port_type {
 #define MV_HOST_MSG_CHAN_ID(l)		(((l) & 0xFF) << 16)
 /* CFH word 5 */
 #define MV_HOST_MSG_BPID(l)		(((l) & 0xFF) << 24)
+
 
 /* convert one char symbol to 8 bit interger hex format */
 static inline unsigned char char_to_hex(char msg)
@@ -445,6 +452,7 @@ int mv_memory_buffer_alloc(unsigned int req_size, int max_bufs_num, unsigned int
 const char *mv_pp3_pkt_mode_str(enum mv_pp3_pkt_mode mode);
 int mv_pp3_max_check(int value, int limit, char *name);
 void mv_link_to_str(struct mv_port_link_status status, char *str);
+
 
 #endif /* __mv_sw_if_h__ */
 #endif /* MY_ABC_HERE */

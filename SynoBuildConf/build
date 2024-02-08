@@ -7,23 +7,14 @@
 # please edit the section [platform kernel] in config/project.depends
 # ========================================================================
 
-# Copy key file
-cp -sv /lnxscripts/config/{signing_key,trusted_certificates,untrusted_certificates} certs/
+export ARCH="$ARCH"
+export CROSS_COMPILE="$ToolChainPrefix"
+export EXTRA_CFLAGS="-fdiagnostics-color=always"
 
-export ARCH=${ARCH}
 source "$ConfDir/_debug"
 
-case "$BUILD_TARGET" in
-	APOLLOLAKE|DENVERTON|KVMX64|REALTEK_RTD1296|BROADWELLNK|MARVELL_ARMADA37XX|PURLEY|COFFEELAKE|BROADWELLNTB|NEXTKVMX64|GEMINILAKE|REALTEK_RTD1619|V1000|BROADWELLNTBAP|KVMCLOUD)
-		export CROSS_COMPILE=${ToolChainPrefix64} CC=${CC64}
-		KERNEL_CC=${CC64}
-		;;
-	*)
-		CC=`echo ${CC} | awk -F" " '{print $1}'`
-		export CROSS_COMPILE=${ToolChainPrefix} CC="${CC}"
-		KERNEL_CC="${CC}"
-		;;
-esac
+# Copy key file
+cp -sv /lnxscripts/config/{signing_key,trusted_certificates,untrusted_certificates} certs/
 
 if [ "$PLATFORM_FAMILY" = "SYNOPLAT_F_X86_64" ] && [ "$BUILD_TARGET" != "DOCKERX64" ]; then
 	ln -s "${SysRootInclude}/hydrogen/hydrogen.h" "${KernelDir}/include/crypto/hydrogen.h"
@@ -48,83 +39,77 @@ esac
 case "$BUILD_TARGET" in
 	APOLLOLAKE)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/apollolake
 		KernelTarget=bzImage
 		;;
 	DENVERTON)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/denverton
 		KernelTarget=bzImage
 		;;
 	KVMX64)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/kvmx64
 		KernelTarget=bzImage
 		;;
 	REALTEK_RTD1296)
 		KernelImage=${KernelDir}/arch/arm64/boot/Image
-		KernelConfig=synoconfigs/rtd1296
 		KernelTarget=Image.gz
 		MAKE_DTBS="yes"
 		MAKE_DTC_FLAGS="-p 8192"
 		;;
 	BROADWELLNK)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/broadwellnk
+		KernelTarget=bzImage
+		;;
+	BROADWELL)
+		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
 		KernelTarget=bzImage
 		;;
 	MARVELL_ARMADA37XX)
 		KernelImage=${KernelDir}/arch/arm64/boot/Image
-		KernelConfig=synoconfigs/armada37xx
 		KernelTarget=Image.gz
 		;;
 	PURLEY)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/purley
 		KernelTarget=bzImage
 		;;
 	COFFEELAKE)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/coffeelake
 		KernelTarget=bzImage
 		;;
 	BROADWELLNTB)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/broadwellntb
-		KernelTarget=bzImage
-		;;
-	BROADWELLNTBAP)
-		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/broadwellntbap
 		KernelTarget=bzImage
 		;;
 	NEXTKVMX64)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/nextkvmx64
 		KernelTarget=bzImage
 		;;
 	GEMINILAKE)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/geminilake
 		KernelTarget=bzImage
 		;;
 	REALTEK_RTD1619)
 		KernelImage=${KernelDir}/arch/arm64/boot/Image
-		KernelConfig=synoconfigs/rtd1619
 		KernelTarget=Image.gz
 		MAKE_DTBS="yes"
 		MAKE_DTC_FLAGS="-p 8192"
 		;;
+	SKYLAKED)
+		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
+		KernelTarget=bzImage
+		;;
 	V1000)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/v1000
+		KernelTarget=bzImage
+		;;
+	BROADWELLNTBAP)
+		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
 		KernelTarget=bzImage
 		;;
 	KVMCLOUD)
 		KernelImage=${KernelDir}/arch/x86_64/boot/bzImage
-		KernelConfig=synoconfigs/kvmcloud
 		KernelTarget=bzImage
 		;;
+
 	*)
 		SkipThisProject
 		return
@@ -140,7 +125,7 @@ make_version()
 
     [ -f ".debug" ] || return
 
-    local _protect_ver="$(dpkg -l | grep -w synoprotection | awk '{print $3}' | cut -d'-' -f2 | head -n1)"
+    local _protect_ver="$(dpkg -l | grep synoprotection-$PLATFORM_ABBR- | awk '{print $3}' | cut -d'-' -f2 | head -n1)"
     local _dsm_ver="$(GetDSMBuildNumber)"
     if [ -z "$_protect_ver" ]; then
         WARNING "Unable to detect dpkg 'synoprotection'"
@@ -159,7 +144,7 @@ build_kernel()
     rm -f "$KernelImage"
     rm -f "$ImageDir/modules/"*
 
-    cp -f "$KernelConfig" .config
+    cp -f "synoconfigs/$PLATFORM_ABBR" .config
     if [ -f ".debug" ]; then
         INFO ".debug detected. Configured as debug mode."
         config_debug_mode
@@ -169,7 +154,7 @@ build_kernel()
     fi
 
     INFO "Build Synology Linux kernel 4.4.x"
-    make $MAKE_FLAGS $KernelTarget modules CC=$KERNEL_CC
+    make $MAKE_FLAGS $KernelTarget modules
 
     # Check if kernel is built correctly
     if [ ! -f "$KernelImage" ]; then
@@ -186,43 +171,20 @@ build_device_tree()
     fi
 }
 
-build_usb_modem_table()
-{
-    INFO "Build USB modem table"
-    ./scripts/syno_gen_usbmodem_table.sh create-table
-}
-
-build_dvb_drivers()
-{
-    INFO "Build DVB drivers"
-
-    DVB_MODULES_DIR="scripts/DVB/4.4.x"
-    if [ -d "$DVB_MODULES_DIR" ]; then
-        rm -rf "$DVB_MODULES_DIR"
-    fi
-
-    mkdir -p "$DVB_MODULES_DIR"
-    find drivers/media -name '*.ko' -exec cp {} "$DVB_MODULES_DIR/" \;
-    cp drivers/base/regmap/regmap-i2c.ko "$DVB_MODULES_DIR";
-    cd ./scripts/DVB/
-    ./generate_dependency_table.py 2>&1
-    ./generate_VIDPID_table.py 2>&1
-    ./generate_cleanuped_dependency_table.py 2>&1
-    cd -
-}
-
 check_config()
 {
+    local _plat_config="synoconfigs/$PLATFORM_ABBR"
+
     INFO "Compare kernel config with re-generated one"
 
-    ConfigDiff=`diff -bu $KernelConfig .config`
+    ConfigDiff=`diff -bu $_plat_config .config`
     if [ -z "$ConfigDiff" ]; then
         INFO "Kernel config matches generated .config"
     else
-        WARNING "========== diff -bu $KernelConfig .config"
+        WARNING "========== diff -bu $_plat_config .config"
         WARNING "$ConfigDiff"
         WARNING "========== END of diff"
-        WARNING "There's difference between $KernelConfig & .config"
+        WARNING "There's difference between $_plat_config & .config"
         WARNING "Please reconfirm your modifications before committing."
 
         # Build failed if not debug mode
@@ -233,7 +195,8 @@ check_config()
 make_version
 build_kernel
 build_device_tree
-build_usb_modem_table
-build_dvb_drivers
 check_config
+
+source "$ConfDir/_check_macros"
+check_define_macro
 

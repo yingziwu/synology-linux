@@ -69,6 +69,7 @@ void thermal_sensor_eoh_handle_overheat(struct thermal_sensor_device *tdev,
 	}
 }
 
+
 static int thermal_sensor_eoh_cpufreq_cb(struct notifier_block *nb,
 					 unsigned long event, void *data)
 {

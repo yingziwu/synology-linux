@@ -45,6 +45,7 @@ struct gpiomtd {
 
 #define gpio_nand_getpriv(x) container_of(x, struct gpiomtd, mtd_info)
 
+
 #ifdef CONFIG_ARM
 /* gpio_nand_dosync()
  *

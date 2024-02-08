@@ -261,6 +261,7 @@ snic_cleanup(struct snic *snic)
 	return 0;
 } /* end of snic_cleanup */
 
+
 static void
 snic_iounmap(struct snic *snic)
 {
@@ -457,6 +458,7 @@ snic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		}
 	}
 
+
 	/* Map vNIC resources from BAR0 */
 	if (!(pci_resource_flags(pdev, 0) & IORESOURCE_MEM)) {
 		SNIC_HOST_ERR(shost, "BAR0 not memory mappable aborting.\n");
@@ -582,6 +584,7 @@ snic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!pool) {
 		SNIC_HOST_ERR(shost, "dflt sgl pool creation failed\n");
 
+		ret = -ENOMEM;
 		goto err_free_res;
 	}
 
@@ -592,6 +595,7 @@ snic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!pool) {
 		SNIC_HOST_ERR(shost, "max sgl pool creation failed\n");
 
+		ret = -ENOMEM;
 		goto err_free_dflt_sgl_pool;
 	}
 
@@ -602,6 +606,7 @@ snic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!pool) {
 		SNIC_HOST_ERR(shost, "snic tmreq info pool creation failed.\n");
 
+		ret = -ENOMEM;
 		goto err_free_max_sgl_pool;
 	}
 
@@ -764,6 +769,7 @@ prob_end:
 	return ret;
 } /* end of snic_probe */
 
+
 /*
  * snic_remove : invoked on unbinding the interface to cleanup the
  * resources allocated in snic_probe on initialization.
@@ -831,6 +837,7 @@ snic_remove(struct pci_dev *pdev)
 	/* this frees Scsi_Host and snic memory (continuous chunk) */
 	scsi_host_put(snic->shost);
 } /* end of snic_remove */
+
 
 struct snic_global *snic_glob;
 

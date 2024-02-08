@@ -103,6 +103,7 @@ notrace unsigned long __init early_init(unsigned long dt_ptr)
 	return KERNELBASE + offset;
 }
 
+
 /*
  * Find out what kind of machine we're on and save any data we need
  * from the early boot process (devtree is copied on pmac by prom_init()).
@@ -320,6 +321,9 @@ void __init setup_arch(char **cmdline_p)
 	if (ppc_md.setup_arch)
 		ppc_md.setup_arch();
 	if ( ppc_md.progress ) ppc_md.progress("arch: exit", 0x3eab);
+
+	setup_barrier_nospec();
+	setup_spectre_v2();
 
 	paging_init();
 

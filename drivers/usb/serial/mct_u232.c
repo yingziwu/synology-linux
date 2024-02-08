@@ -57,6 +57,7 @@ static int  mct_u232_tiocmset(struct tty_struct *tty,
 static void mct_u232_throttle(struct tty_struct *tty);
 static void mct_u232_unthrottle(struct tty_struct *tty);
 
+
 /*
  * All of the device info needed for the MCT USB-RS232 converter.
  */
@@ -188,7 +189,7 @@ static int mct_u232_set_baud_rate(struct tty_struct *tty,
 		return -ENOMEM;
 
 	divisor = mct_u232_calculate_baud_rate(serial, value, &speed);
-	put_unaligned_le32(cpu_to_le32(divisor), buf);
+	put_unaligned_le32(divisor, buf);
 	rc = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
 				MCT_U232_SET_BAUD_RATE_REQUEST,
 				MCT_U232_SET_REQUEST_TYPE,
@@ -321,8 +322,12 @@ static int mct_u232_get_modem_stat(struct usb_serial_port *port,
 			MCT_U232_GET_REQUEST_TYPE,
 			0, 0, buf, MCT_U232_GET_MODEM_STAT_SIZE,
 			WDR_TIMEOUT);
-	if (rc < 0) {
+	if (rc < MCT_U232_GET_MODEM_STAT_SIZE) {
 		dev_err(&port->dev, "Get MODEM STATus failed (error = %d)\n", rc);
+
+		if (rc >= 0)
+			rc = -EIO;
+
 		*msr = 0;
 	} else {
 		*msr = buf[0];
@@ -502,6 +507,7 @@ static void mct_u232_close(struct usb_serial_port *port)
 
 	usb_serial_generic_close(port);
 } /* mct_u232_close */
+
 
 static void mct_u232_read_int_callback(struct urb *urb)
 {
@@ -692,6 +698,7 @@ static void mct_u232_break_ctl(struct tty_struct *tty, int break_state)
 
 	mct_u232_set_line_ctrl(port, lcr);
 } /* mct_u232_break_ctl */
+
 
 static int mct_u232_tiocmget(struct tty_struct *tty)
 {

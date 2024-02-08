@@ -1985,6 +1985,7 @@ static int skx_init_ntb(struct intel_ntb_dev *ndev)
 {
 	int rc;
 
+
 	ndev->mw_count = XEON_MW_COUNT;
 	ndev->spad_count = SKX_SPAD_COUNT;
 	ndev->db_count = SKX_DB_COUNT;
@@ -2330,6 +2331,7 @@ static int xeon_setup_msix_bar(struct intel_ntb_dev *ndev)
 		dev_dbg(&ndev->ntb.pdev->dev, "BAR %d", bar);
 		if (bar < 0)
 			return -EIO;
+
 
 		bar_addr = pci_resource_start(ndev->ntb.pdev, bar);
 		bar_size = pci_resource_len(ndev->ntb.pdev, bar);

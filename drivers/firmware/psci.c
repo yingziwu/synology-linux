@@ -16,9 +16,9 @@
 
 #define pr_fmt(fmt) "psci: " fmt
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 #include <linux/arm-smccc.h>
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 #include <linux/errno.h>
 #include <linux/linkage.h>
 #include <linux/of.h>
@@ -77,12 +77,12 @@ struct psci_operations psci_ops;
 
 typedef unsigned long (psci_fn)(unsigned long, unsigned long,
 				unsigned long, unsigned long);
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 //do nothing
-#else /* CONFIG_SYNO_RTD1619 */
+#else /* MY_DEF_HERE */
 asmlinkage psci_fn __invoke_psci_fn_hvc;
 asmlinkage psci_fn __invoke_psci_fn_smc;
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 static psci_fn *invoke_psci_fn;
 
 enum psci_function {
@@ -130,7 +130,7 @@ bool psci_power_state_is_valid(u32 state)
 	return !(state & ~valid_mask);
 }
 
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
 			unsigned long arg0, unsigned long arg1,
 			unsigned long arg2)
@@ -151,7 +151,7 @@ static unsigned long __invoke_psci_fn_smc(unsigned long function_id,
 	return res.a0;
 }
 
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 static int psci_to_linux_errno(int errno)
 {
 	switch (errno) {
@@ -419,6 +419,7 @@ static void __init psci_init_migrate(void)
 	pr_info("Trusted OS resident on physical CPU 0x%lx\n", cpuid);
 }
 
+
 static void __init psci_0_2_set_functions(void)
 {
 	pr_info("Using standard PSCI v0.2 function IDs\n");
@@ -546,7 +547,7 @@ out_put_node:
 	return err;
 }
 
-static const struct of_device_id const psci_of_match[] __initconst = {
+static const struct of_device_id psci_of_match[] __initconst = {
 	{ .compatible = "arm,psci",	.data = psci_0_1_init},
 	{ .compatible = "arm,psci-0.2",	.data = psci_0_2_init},
 	{ .compatible = "arm,psci-1.0",	.data = psci_0_2_init},

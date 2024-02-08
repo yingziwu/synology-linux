@@ -865,3 +865,4 @@ int  mv_pp3_gnss_state_get(bool *state)
 	return 0;
 }
 EXPORT_SYMBOL(mv_pp3_gnss_state_get);
+

@@ -316,6 +316,7 @@ void __init armada3700_coreclk_setup(struct device_node *np,
 	of_clk_add_provider(np, of_clk_src_onecell_get, clk_data);
 }
 
+
 static void __init armada_3700_coreclk_init(struct device_node *np)
 {
 	armada3700_coreclk_setup(np, &armada_3700_coreclks);

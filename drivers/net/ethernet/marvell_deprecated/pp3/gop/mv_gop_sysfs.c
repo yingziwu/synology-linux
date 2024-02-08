@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -385,6 +386,7 @@ static struct attribute_group mv_gop_ptp_group = {
 	.name = "ptp",
 	.attrs = mv_gop_ptp_attrs,
 };
+
 
 int mv_pp3_gop_sysfs_init(struct kobject *pp3_kobj)
 {

@@ -249,6 +249,7 @@ err:
 	return -1;
 }
 
+
 /*---------------------------------------------------------------------------*/
 struct pp3_swq_stats *mv_pp3_ingress_vq_sw_stats(struct pp3_vport *vport, int vq)
 {
@@ -449,6 +450,7 @@ int mv_pp3_ingress_cos_to_vq_get(struct pp3_vport *vport, int cos, int *vq)
 
 	if (mv_pp3_max_check(cos, MV_PP3_PRIO_NUM, "cos"))
 		goto err;
+
 
 	/* TBD - send message to FW to get cos to vq mapping */
 	*vq = vport->rx_cos_to_vq[cos];
@@ -857,6 +859,7 @@ err:
 	return -1;
 }
 /*---------------------------------------------------------------------------*/
+
 
 /*---------------------------------------------------------------------------
 mv_pp3_vqueue_cnt_dump

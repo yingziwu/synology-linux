@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -53,6 +54,7 @@ disclaimer.
 #define BM_B0_POOL_CFG_AAE_THR_MASK    \
 		(0x00001fff << BM_B0_POOL_CFG_AAE_THR_OFFS)
 
+
 /* Bank 0 Pool status */
 #define BM_B0_POOL_STATUS_REG(_pid_)						(0x8004 + 0x8 * (_pid_))
 
@@ -77,6 +79,7 @@ disclaimer.
 #define BM_BGP_POOL_STATUS_FILL_BGT_SI_THR_MASK    \
 		(0x00000001 << BM_BGP_POOL_STATUS_FILL_BGT_SI_THR_OFFS)
 
+
 /* Bank X [1-4] Pool Configuration */
 #define BM_BGP_POOL_CFG_REG(_bid_, _pid_)	\
 							(0x8040 + 0x200*((_bid_) - 1) + 0x8 * (_pid_))
@@ -99,6 +102,7 @@ disclaimer.
 #define BM_BGP_POOL_CFG_AE_THR_OFFS						4
 #define BM_BGP_POOL_CFG_AE_THR_MASK    \
 		(0x00001fff << BM_BGP_POOL_CFG_AE_THR_OFFS)
+
 
 /* Bank X [0-4] System Recoverable interrupt mask reg */
 #define BM_BANK_SYS_REC_INTERRUPT_MASK_REG(_bid_)				(0x90a4 + 0x30 * (_bid_))
@@ -172,6 +176,7 @@ disclaimer.
 #define BM_COMMON_GENERAL_CFG_BM_AWBURST_FROM_MAC_AS_IS_MASK    \
 		(0x00000001 << BM_COMMON_GENERAL_CFG_BM_AWBURST_FROM_MAC_AS_IS_OFFS)
 
+
 /* Dram Domain Configuration */
 #define BM_DRAM_DOMAIN_CFG_REG							(0x9304)
 #define BM_DRAM_DOMAIN_CFG_WR_B0_OFFS						0
@@ -189,6 +194,7 @@ disclaimer.
 #define BM_DRAM_DOMAIN_CFG_RD_BGP_OFFS						6
 #define BM_DRAM_DOMAIN_CFG_RD_BGP_MASK    \
 		(0x00000003 << BM_DRAM_DOMAIN_CFG_RD_BGP_OFFS)
+
 
 /* Dram Cache Configuration */
 /* TODO - remove fildes offstes if not in use*/
@@ -209,6 +215,7 @@ disclaimer.
 #define BM_DRAM_CACHE_CFG_RD_BGP_MASK    \
 		(0x0000000f << BM_DRAM_CACHE_CFG_RD_BGP_OFFS)
 
+
 /* Dram Qos Configuration */
 #define BM_DRAM_QOS_CFG_REG							(0x930c)
 #define BM_DRAM_QOS_CFG_WR_B0_OFFS						0
@@ -227,6 +234,7 @@ disclaimer.
 #define BM_DRAM_QOS_CFG_RD_BGP_MASK    \
 		(0x00000003 << BM_DRAM_QOS_CFG_RD_BGP_OFFS)
 
+
 /* Bank X [0-4] Bank Request Fifos Status */
 #define BM_BANK_REQUEST_FIFOS_STATUS_REG(_bid_)					(0xa200 + 4 * (_bid_))
 
@@ -242,14 +250,17 @@ disclaimer.
 /* Dm Axi Fifos Status */
 #define BM_DM_AXI_FIFOS_STATUS_REG						(0xa240)
 
+
 /* Drm Pending Fifo Status */
 #define BM_DRM_PENDING_FIFO_STATUS_REG						(0xa244)
 #define BM_DRM_PENDING_FIFO_STATUS_FILL_OFFS					0
 #define BM_DRM_PENDING_FIFO_STATUS_FILL_MASK    \
 		(0x000000ff << BM_DRM_PENDING_FIFO_STATUS_FILL_OFFS)
 
+
 /* Dm Axi Write Pending Fifo Status */
 #define BM_DM_AXI_WRITE_PENDING_FIFO_STATUS_REG					(0xa248)
+
 
 /* Bm Idle Status */
 #define BM_IDLE_STATUS_REG							(0xa250)

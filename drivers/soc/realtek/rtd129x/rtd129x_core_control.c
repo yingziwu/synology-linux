@@ -585,6 +585,7 @@ static ssize_t enable_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 static struct kobj_attribute enable_attr =  __ATTR_RW(enable);
 
+
 static ssize_t available_cpus_show(struct kobject *kobj, struct kobj_attribute *attr,
     char *buf)
 {

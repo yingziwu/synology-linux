@@ -805,6 +805,7 @@ static const struct armada_thermal_data armada_cp110_data = {
 };
 #endif /* MY_ABC_HERE */
 
+
 static const struct of_device_id armada_thermal_id_table[] = {
 	{
 		.compatible = "marvell,armadaxp-thermal",

@@ -44,6 +44,7 @@
 #include <asm/tlbflush.h>
 #include "common.h"
 
+
 #define PMSU_BASE_OFFSET    0x100
 #define PMSU_REG_SIZE	    0x1000
 
@@ -177,8 +178,8 @@ void mvebu_pmsu_set_cpu_boot_addr(int hw_cpu, void *boot_addr)
 		PMSU_BOOT_ADDR_REDIRECT_OFFSET(hw_cpu));
 }
 
-extern unsigned char mvebu_boot_wa_start;
-extern unsigned char mvebu_boot_wa_end;
+extern unsigned char mvebu_boot_wa_start[];
+extern unsigned char mvebu_boot_wa_end[];
 
 /*
  * This function sets up the boot address workaround needed for SMP
@@ -191,7 +192,7 @@ int mvebu_setup_boot_addr_wa(unsigned int crypto_eng_target,
 			     phys_addr_t resume_addr_reg)
 {
 	void __iomem *sram_virt_base;
-	u32 code_len = &mvebu_boot_wa_end - &mvebu_boot_wa_start;
+	u32 code_len = mvebu_boot_wa_end - mvebu_boot_wa_start;
 
 	mvebu_mbus_del_window(BOOTROM_BASE, BOOTROM_SIZE);
 	mvebu_mbus_add_window_by_id(crypto_eng_target, crypto_eng_attribute,
@@ -248,6 +249,7 @@ static int msys_ba_redirect_quirk(struct device_node *np)
 	return 0;
 }
 #endif /* MY_ABC_HERE */
+
 
 static int __init mvebu_v7_pmsu_init(void)
 {

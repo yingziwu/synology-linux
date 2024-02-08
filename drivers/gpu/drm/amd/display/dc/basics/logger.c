@@ -26,6 +26,7 @@
 #include "include/logger_interface.h"
 #include "logger.h"
 
+
 #define NUM_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
 
 static const struct dc_log_type_info log_type_info_tbl[] = {
@@ -61,6 +62,7 @@ static const struct dc_log_type_info log_type_info_tbl[] = {
 		{LOG_IF_TRACE,              "InterfaceTrace"},
 		{LOG_DTN,                   "DTN"}
 };
+
 
 /* ----------- Object init and destruction ----------- */
 static bool construct(struct dc_context *ctx, struct dal_logger *logger,
@@ -125,6 +127,7 @@ uint32_t dal_logger_destroy(struct dal_logger **logger)
 }
 
 /* ------------------------------------------------------------------------ */
+
 
 static bool dal_logger_should_log(
 	struct dal_logger *logger,

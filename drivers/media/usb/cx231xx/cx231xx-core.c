@@ -216,6 +216,7 @@ int cx231xx_send_usb_command(struct cx231xx_i2c *i2c_bus,
 	/* set the buffer for read / write */
 	ven_req.pBuff = req_data->p_buffer;
 
+
 	/* call common vendor command request */
 	status = cx231xx_send_vendor_cmd(dev, &ven_req);
 	if (status < 0 && !dev->i2c_scan_running) {
@@ -286,6 +287,7 @@ static int __usb_control_msg(struct cx231xx *dev, unsigned int pipe,
 	return rc;
 }
 
+
 /*
  * cx231xx_read_ctrl_reg()
  * reads data from the usb device specifying bRequest and wValue
@@ -354,9 +356,15 @@ int cx231xx_send_vendor_cmd(struct cx231xx *dev,
 	 */
 	if ((ven_req->wLength > 4) && ((ven_req->bRequest == 0x4) ||
 					(ven_req->bRequest == 0x5) ||
-					(ven_req->bRequest == 0x6))) {
+					(ven_req->bRequest == 0x6) ||
+
+					/* Internal Master 3 Bus can send
+					 * and receive only 4 bytes per time
+					 */
+					(ven_req->bRequest == 0x2))) {
 		unsend_size = 0;
 		pdata = ven_req->pBuff;
+
 
 		unsend_size = ven_req->wLength;
 
@@ -903,6 +911,7 @@ void cx231xx_uninit_isoc(struct cx231xx *dev)
 	else
 		cx231xx_capture_start(dev, 0, TS1_serial_mode);
 
+
 }
 EXPORT_SYMBOL_GPL(cx231xx_uninit_isoc);
 
@@ -949,6 +958,7 @@ void cx231xx_uninit_bulk(struct cx231xx *dev)
 		cx231xx_capture_start(dev, 0, Raw_Video);
 	else
 		cx231xx_capture_start(dev, 0, TS1_serial_mode);
+
 
 }
 EXPORT_SYMBOL_GPL(cx231xx_uninit_bulk);
@@ -1021,6 +1031,7 @@ int cx231xx_init_isoc(struct cx231xx *dev, int max_packets,
 		dev->video_mode.end_point_addr = 0x81;
 	else
 		dev->video_mode.end_point_addr = 0x84;
+
 
 	/* allocate urbs and transfer buffers */
 	for (i = 0; i < dev->video_mode.isoc_ctl.num_bufs; i++) {
@@ -1157,6 +1168,7 @@ int cx231xx_init_bulk(struct cx231xx *dev, int max_packets,
 		dev->video_mode.end_point_addr = 0x81;
 	else
 		dev->video_mode.end_point_addr = 0x84;
+
 
 	/* allocate urbs and transfer buffers */
 	for (i = 0; i < dev->video_mode.bulk_ctl.num_bufs; i++) {
@@ -1458,6 +1470,7 @@ int cx231xx_send_gpio_cmd(struct cx231xx *dev, u32 gpio_bit, u8 *gpio_val,
 		memset(ven_req.pBuff, 0x00, ven_req.wLength);
 	} else
 		ven_req.direction = USB_DIR_OUT;
+
 
 	/* call common vendor command request */
 	status = cx231xx_send_vendor_cmd(dev, &ven_req);

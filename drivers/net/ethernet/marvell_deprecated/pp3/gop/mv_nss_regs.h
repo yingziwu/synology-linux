@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -37,6 +38,7 @@ disclaimer.
 
 /* unit offset */
 #define MV_PP3_NSS_UNIT_OFFSET		0x00010000
+
 
 /* Power Management Clock Gating Control 1 */
 #define MV_NSS_POWER_MNG_CLOCK_GATING_CTRL_1_REG				0x8a00
@@ -111,6 +113,7 @@ disclaimer.
 #define MV_NSS_POWER_MNG_CLOCK_GATING_CTRL_1_NSS_QM1_PWR_UP_OFFS		17
 #define MV_NSS_POWER_MNG_CLOCK_GATING_CTRL_1_NSS_QM1_PWR_UP_MASK    \
 		(0x00000001 << MV_NSS_POWER_MNG_CLOCK_GATING_CTRL_1_NSS_QM1_PWR_UP_OFFS)
+
 
 /* System Soft Reset 1 */
 #define MV_NSS_SYSTEM_SOFT_RESET_1_REG						0x8a08
@@ -202,6 +205,7 @@ disclaimer.
 #define MV_NSS_SYSTEM_SOFT_RESET_1_MG_SW_LOAD_CONFIG__MASK    \
 		(0x00000001 << MV_NSS_SYSTEM_SOFT_RESET_1_MG_SW_LOAD_CONFIG__OFFS)
 
+
 /* Ports Control 0 */
 #define MV_NSS_PORTS_CTRL_0_REG						0x8a10
 #define MV_NSS_PORTS_CTRL_0_CONF_GOP_EN_DEVICE_OFFS		0
@@ -276,6 +280,7 @@ disclaimer.
 #define MV_NSS_PORTS_CTRL_0_CONF_GOP_CLK_DIV_PHASE_SET__MASK    \
 		(0x00000001 << MV_NSS_PORTS_CTRL_0_CONF_GOP_CLK_DIV_PHASE_SET__OFFS)
 
+
 /* Ports Control 1 */
 #define MV_NSS_PORTS_CTRL_1_REG								0x8a14
 #define MV_NSS_PORTS_CTRL_1_CONF_GOP_P0_PORT_ACTIVE_OFFS		0
@@ -326,6 +331,7 @@ disclaimer.
 #define MV_NSS_PORTS_CTRL_1_CONF_P3_SD_GIG_RF_RESET__MASK    \
 		(0x00000001 << MV_NSS_PORTS_CTRL_1_CONF_P3_SD_GIG_RF_RESET__OFFS)
 
+
 /* Ports Control 2 */
 #define MV_NSS_PORTS_CTRL_2_REG								0x8a18
 #define MV_NSS_PORTS_CTRL_2_CONF_SD0_IN_HF_CC_DELAY_OFFS		0
@@ -344,6 +350,7 @@ disclaimer.
 #define MV_NSS_PORTS_CTRL_2_CONF_SD3_IN_HF_CC_DELAY_MASK    \
 		(0x0000000f << MV_NSS_PORTS_CTRL_2_CONF_SD3_IN_HF_CC_DELAY_OFFS)
 
+
 /* Ports Status 0 */
 #define MV_NSS_PORTS_STATUS_0_REG							0x8a1c
 #define MV_NSS_PORTS_STATUS_0_GOP_P0_LINK_ENABLE_OFFS		0
@@ -361,6 +368,7 @@ disclaimer.
 #define MV_NSS_PORTS_STATUS_0_GOP_P3_LINK_ENABLE_OFFS		3
 #define MV_NSS_PORTS_STATUS_0_GOP_P3_LINK_ENABLE_MASK    \
 		(0x00000001 << MV_NSS_PORTS_STATUS_0_GOP_P3_LINK_ENABLE_OFFS)
+
 
 /* Networking Complex Control 0 */
 #define MV_NSS_NETWORKING_COMPLEX_CTRL_0_REG						0x8a20
@@ -436,6 +444,7 @@ disclaimer.
 #define MV_NSS_NETWORKING_COMPLEX_CTRL_0_CONF_FORCE_GOP1_TXCLK__MASK    \
 		(0x00000001 << MV_NSS_NETWORKING_COMPLEX_CTRL_0_CONF_FORCE_GOP1_TXCLK__OFFS)
 
+
 /* Jtag Control */
 #define MV_NSS_JTAG_CTRL_REG								0x8a50
 #define MV_NSS_JTAG_CTRL_JCON_JT_RST_OFFS		1
@@ -462,6 +471,7 @@ disclaimer.
 #define MV_NSS_JTAG_CTRL_CONF_JCON_JT_TDO_MASK    \
 		(0x00000001 << MV_NSS_JTAG_CTRL_CONF_JCON_JT_TDO_OFFS)
 
+
 /* Jtag Chains Configuration */
 #define MV_NSS_JTAG_CHAINS_CFG_REG							0x8a54
 #define MV_NSS_JTAG_CHAINS_CFG_CONF_JCON_BYPASS_NSS_JTAG_OFFS		0
@@ -479,6 +489,7 @@ disclaimer.
 #define MV_NSS_JTAG_CHAINS_CFG_CONF_NSS_DEBUG_CONFIG_ONGOING_OFFS		8
 #define MV_NSS_JTAG_CHAINS_CFG_CONF_NSS_DEBUG_CONFIG_ONGOING_MASK    \
 		(0x00000001 << MV_NSS_JTAG_CHAINS_CFG_CONF_NSS_DEBUG_CONFIG_ONGOING_OFFS)
+
 
 /* Nss Master  Amb Access Control 0 */
 #define MV_NSS_MASTER_AMB_ACC_CTRL_0_REG(n)						(0x8ac0 + 0x20*n)

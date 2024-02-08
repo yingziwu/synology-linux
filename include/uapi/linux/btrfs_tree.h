@@ -4,6 +4,9 @@
 #ifndef _BTRFS_CTREE_H_
 #define _BTRFS_CTREE_H_
 
+#include <linux/btrfs.h>
+#include <linux/types.h>
+
 /*
  * This header contains the structure definitions and constants used
  * by file system objects that can be retrieved using
@@ -39,13 +42,22 @@
 #define BTRFS_CSUM_TREE_OBJECTID 7ULL
 
 /* holds quota configuration and tracking */
+#ifdef MY_DEF_HERE
+#define BTRFS_QUOTA_TREE_OBJECTID 201ULL
+#else
 #define BTRFS_QUOTA_TREE_OBJECTID 8ULL
+#endif /* MY_DEF_HERE */
 
 /* for storing items that use the BTRFS_UUID_KEY* types */
 #define BTRFS_UUID_TREE_OBJECTID 9ULL
 
 /* tracks free space in block groups. */
 #define BTRFS_FREE_SPACE_TREE_OBJECTID 10ULL
+
+#ifdef MY_DEF_HERE
+/* holds subvolume usr quota configuration and tracking */
+#define BTRFS_USRQUOTA_TREE_OBJECTID 200ULL
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
 #define BTRFS_BLOCK_GROUP_HINT_TREE_OBJECTID 202ULL
@@ -95,6 +107,7 @@
 #define BTRFS_LAST_FREE_OBJECTID -256ULL
 #define BTRFS_FIRST_CHUNK_TREE_OBJECTID 256ULL
 
+
 /*
  * the device items go into the chunk tree.  The key is in the form
  * [ 1 BTRFS_DEV_ITEM_KEY device_id ]
@@ -126,6 +139,9 @@
 #define BTRFS_DIR_LOG_ITEM_KEY  60
 #define BTRFS_DIR_LOG_INDEX_KEY 72
 #define BTRFS_DIR_ITEM_KEY	84
+#ifdef MY_DEF_HERE
+#define BTRFS_DIR_ITEM_CASELESS_KEY 91
+#endif /* MY_DEF_HERE */
 #define BTRFS_DIR_INDEX_KEY	96
 /*
  * extent data is for file data
@@ -234,6 +250,32 @@
  */
 #define BTRFS_QGROUP_RELATION_KEY       246
 
+#ifdef MY_DEF_HERE
+/*
+ * Records the overall state of the usrquota.
+ * There's only one instance of this key present,
+ * (0, BTRFS_USRQUOTA_STATUS_KEY, 0)
+ */
+#define BTRFS_USRQUOTA_STATUS_KEY       240
+/*
+ * Records the per root (subvolume) usrquota infomation.
+ * One key per root, (root_id, BTRFS_USRQUOTA_ROOT_KEY, 0).
+ */
+#define BTRFS_USRQUOTA_ROOT_KEY         241
+/*
+ * Records the currently used space of the usrquota.
+ * One key per usrquota, (root_id, BTRFS_USRQUOTA_INFO_KEY, uid).
+ */
+#define BTRFS_USRQUOTA_INFO_KEY         242
+/*
+ * Contains the user configured limits for the usrquota.
+ * One key per usrquota, (root_id, BTRFS_USRGROUP_LIMIT_KEY, uid).
+ */
+#define BTRFS_USRQUOTA_LIMIT_KEY        244
+
+#define BTRFS_USRQUOTA_COMPAT_KEY       245
+#endif /* MY_DEF_HERE */
+
 #define BTRFS_BALANCE_ITEM_KEY	248
 
 #define BTRFS_DEV_STATS_KEY		249
@@ -262,6 +304,8 @@
  * data in the FS
  */
 #define BTRFS_STRING_ITEM_KEY	253
+
+
 
 /* 32 bytes in various csum fields */
 #define BTRFS_CSUM_SIZE 32
@@ -305,14 +349,14 @@
  */
 struct btrfs_disk_key {
 	__le64 objectid;
-	u8 type;
+	__u8 type;
 	__le64 offset;
 } __attribute__ ((__packed__));
 
 struct btrfs_key {
-	u64 objectid;
-	u8 type;
-	u64 offset;
+	__u64 objectid;
+	__u8 type;
+	__u64 offset;
 } __attribute__ ((__packed__));
 
 struct btrfs_dev_item {
@@ -350,22 +394,22 @@ struct btrfs_dev_item {
 	__le32 dev_group;
 
 	/* seek speed 0-100 where 100 is fastest */
-	u8 seek_speed;
+	__u8 seek_speed;
 
 	/* bandwidth 0-100 where 100 is fastest */
-	u8 bandwidth;
+	__u8 bandwidth;
 
 	/* btrfs generated uuid for this device */
-	u8 uuid[BTRFS_UUID_SIZE];
+	__u8 uuid[BTRFS_UUID_SIZE];
 
 	/* uuid of FS who owns this device */
-	u8 fsid[BTRFS_UUID_SIZE];
+	__u8 fsid[BTRFS_UUID_SIZE];
 } __attribute__ ((__packed__));
 
 struct btrfs_stripe {
 	__le64 devid;
 	__le64 offset;
-	u8 dev_uuid[BTRFS_UUID_SIZE];
+	__u8 dev_uuid[BTRFS_UUID_SIZE];
 } __attribute__ ((__packed__));
 
 struct btrfs_chunk {
@@ -404,7 +448,7 @@ struct btrfs_chunk {
 struct btrfs_free_space_entry {
 	__le64 offset;
 	__le64 bytes;
-	u8 type;
+	__u8 type;
 } __attribute__ ((__packed__));
 
 struct btrfs_free_space_header {
@@ -439,6 +483,7 @@ struct btrfs_extent_item_v0 {
 	__le32 refs;
 } __attribute__ ((__packed__));
 
+
 #define BTRFS_EXTENT_FLAG_DATA		(1ULL << 0)
 #define BTRFS_EXTENT_FLAG_TREE_BLOCK	(1ULL << 1)
 
@@ -453,9 +498,24 @@ struct btrfs_extent_item_v0 {
  */
 #define BTRFS_EXTENT_FLAG_SUPER		(1ULL << 48)
 
+#ifdef MY_DEF_HERE
+/*
+ * This flag is used to indicate that the extent item has more than
+ * one backrefs for a particular file. This could be done by calling
+ * BTRFS_IOC_CLONE_RANGE or dedup. Since our quota reference needs to
+ * drop only if we find out that this is the file's last reference
+ * to this extent item. After enabling dedup and iocl, things become
+ * much more complicated because the variable "last_ref" in
+ * __btrfs_free_extent doesn't serve our purpose for indicating we
+ * need to drop quota due to dropping of file's last reference to
+ * this file.
+ */
+#define BTRFS_EXTENT_FLAG_HAS_CLONE_RANGE	(1ULL << 59)
+#endif /* MY_DEF_HERE */
+
 struct btrfs_tree_block_info {
 	struct btrfs_disk_key key;
-	u8 level;
+	__u8 level;
 } __attribute__ ((__packed__));
 
 struct btrfs_extent_data_ref {
@@ -470,7 +530,7 @@ struct btrfs_shared_data_ref {
 } __attribute__ ((__packed__));
 
 struct btrfs_extent_inline_ref {
-	u8 type;
+	__u8 type;
 	__le64 offset;
 } __attribute__ ((__packed__));
 
@@ -482,6 +542,7 @@ struct btrfs_extent_ref_v0 {
 	__le32 count;
 } __attribute__ ((__packed__));
 
+
 /* dev extents record free space on individual devices.  The owner
  * field points back to the chunk allocation mapping tree that allocated
  * the extent.  The chunk tree uuid field is a way to double check the owner
@@ -491,7 +552,7 @@ struct btrfs_dev_extent {
 	__le64 chunk_objectid;
 	__le64 chunk_offset;
 	__le64 length;
-	u8 chunk_tree_uuid[BTRFS_UUID_SIZE];
+	__u8 chunk_tree_uuid[BTRFS_UUID_SIZE];
 } __attribute__ ((__packed__));
 
 struct btrfs_inode_ref {
@@ -535,7 +596,12 @@ struct btrfs_inode_item {
 	 * a little future expansion, for more than this we can
 	 * just grow the inode item and version it
 	 */
+#ifdef MY_DEF_HERE
+	__le64 reserved[3];
+	__le64 syno_uq_rfer_used;
+#else
 	__le64 reserved[4];
+#endif /* MY_DEF_HERE */
 	struct btrfs_timespec atime;
 	struct btrfs_timespec ctime;
 	struct btrfs_timespec mtime;
@@ -551,12 +617,22 @@ struct btrfs_dir_item {
 	__le64 transid;
 	__le16 data_len;
 	__le16 name_len;
-	u8 type;
+	__u8 type;
 } __attribute__ ((__packed__));
 
 #define BTRFS_ROOT_SUBVOL_RDONLY	(1ULL << 0)
 #ifdef MY_DEF_HERE
 #define BTRFS_ROOT_SUBVOL_HIDE		(1ULL << 32)
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#define BTRFS_ROOT_SUBVOL_NOLOAD_USRQUOTA (1ULL << 33)
+#endif /* MY_DEF_HERE */
+#ifdef MY_DEF_HERE
+#define BTRFS_ROOT_SUBVOL_CMPR_RATIO (1ULL << 34)
+#endif /* MY_DEF_HERE */
+
+#ifdef MY_DEF_HERE
+#define BTRFS_ROOT_SUBVOL_DISABLE_QUOTA (1ULL << 35)
 #endif /* MY_DEF_HERE */
 
 /*
@@ -576,8 +652,8 @@ struct btrfs_root_item {
 	__le64 flags;
 	__le32 refs;
 	struct btrfs_disk_key drop_progress;
-	u8 drop_level;
-	u8 level;
+	__u8 drop_level;
+	__u8 level;
 
 	/*
 	 * The following fields appear after subvol_uuids+subvol_times
@@ -596,9 +672,9 @@ struct btrfs_root_item {
 	 * when invalidating the fields.
 	 */
 	__le64 generation_v2;
-	u8 uuid[BTRFS_UUID_SIZE];
-	u8 parent_uuid[BTRFS_UUID_SIZE];
-	u8 received_uuid[BTRFS_UUID_SIZE];
+	__u8 uuid[BTRFS_UUID_SIZE];
+	__u8 parent_uuid[BTRFS_UUID_SIZE];
+	__u8 received_uuid[BTRFS_UUID_SIZE];
 	__le64 ctransid; /* updated when an inode changes */
 	__le64 otransid; /* trans when created */
 	__le64 stransid; /* trans when sent. non-zero for received subvol */
@@ -697,9 +773,12 @@ struct btrfs_balance_item {
 	__le64 unused[4];
 } __attribute__ ((__packed__));
 
-#define BTRFS_FILE_EXTENT_INLINE 0
-#define BTRFS_FILE_EXTENT_REG 1
-#define BTRFS_FILE_EXTENT_PREALLOC 2
+enum {
+	BTRFS_FILE_EXTENT_INLINE   = 0,
+	BTRFS_FILE_EXTENT_REG      = 1,
+	BTRFS_FILE_EXTENT_PREALLOC = 2,
+	BTRFS_NR_FILE_EXTENT_TYPES = 3,
+};
 
 struct btrfs_file_extent_item {
 	/*
@@ -722,12 +801,12 @@ struct btrfs_file_extent_item {
 	 * it is treated like an incompat flag for reading and writing,
 	 * but not for stat.
 	 */
-	u8 compression;
-	u8 encryption;
+	__u8 compression;
+	__u8 encryption;
 	__le16 other_encoding; /* spare for later use */
 
 	/* are we inline data or a real extent? */
-	u8 type;
+	__u8 type;
 
 	/*
 	 * disk space consumed by the extent, checksum blocks are included
@@ -754,7 +833,7 @@ struct btrfs_file_extent_item {
 } __attribute__ ((__packed__));
 
 struct btrfs_csum_item {
-	u8 csum;
+	__u8 csum;
 } __attribute__ ((__packed__));
 
 struct btrfs_dev_stats_item {
@@ -845,14 +924,14 @@ enum btrfs_raid_types {
 #define BTRFS_EXTENDED_PROFILE_MASK	(BTRFS_BLOCK_GROUP_PROFILE_MASK | \
 					 BTRFS_AVAIL_ALLOC_BIT_SINGLE)
 
-static inline u64 chunk_to_extended(u64 flags)
+static inline __u64 chunk_to_extended(__u64 flags)
 {
 	if ((flags & BTRFS_BLOCK_GROUP_PROFILE_MASK) == 0)
 		flags |= BTRFS_AVAIL_ALLOC_BIT_SINGLE;
 
 	return flags;
 }
-static inline u64 extended_to_chunk(u64 flags)
+static inline __u64 extended_to_chunk(__u64 flags)
 {
 	return flags & ~BTRFS_AVAIL_ALLOC_BIT_SINGLE;
 }
@@ -863,6 +942,61 @@ struct btrfs_block_group_item {
 	__le64 flags;
 } __attribute__ ((__packed__));
 
+#ifdef MY_DEF_HERE
+
+#define BTRFS_USRQUOTA_STATUS_FLAG_ON            (1ULL << 0)
+#define BTRFS_USRQUOTA_STATUS_FLAG_RESCAN        (1ULL << 1)
+#define BTRFS_USRQUOTA_STATUS_FLAG_INCONSISTENT  (1ULL << 2)
+#define BTRFS_USRQUOTA_STATUS_V1                 1
+#define BTRFS_USRQUOTA_STATUS_VERSION            BTRFS_USRQUOTA_STATUS_V1
+
+#define BTRFS_USRQUOTA_COMPAT_FLAG_INODE_QUOTA   (1ULL << 0)
+#define BTRFS_USRQUOTA_COMPAT_FLAG	\
+	(BTRFS_USRQUOTA_COMPAT_FLAG_INODE_QUOTA)
+
+struct btrfs_usrquota_status_item {
+	__le64 version;
+	__le64 generation;
+	__le64 flags;
+	__le64 rescan_rootid;
+	__le64 rescan_objectid;
+	__le64 reserved[3];
+} __attribute__ ((__packed__));
+
+struct btrfs_usrquota_compat_item {
+	__le64 generation;
+	__le64 flags;
+	__le64 reserved[4];
+} __attribute__ ((__packed__));
+
+struct btrfs_usrquota_root_item {
+	__le64 info_item_cnt;
+	__le64 limit_item_cnt;
+} __attribute__ ((__packed__));
+
+struct btrfs_usrquota_info_item {
+	__le64 generation;
+	__le64 rfer_used;
+} __attribute__ ((__packed__));
+
+struct btrfs_usrquota_limit_item {
+	__le64 rfer_soft;
+	__le64 rfer_hard;
+} __attribute__ ((__packed__));
+
+union btrfs_usrquota_item_union {
+	struct btrfs_usrquota_info_item info_item;
+	struct btrfs_usrquota_limit_item limit_item;
+};
+
+#define BTRFS_USRQUOTA_MAX_ITEMS_LEAF(r) (BTRFS_LEAF_DATA_SIZE(r) / \
+							(sizeof(union btrfs_usrquota_item_union) + \
+							 sizeof(struct btrfs_item)))
+
+#define BTRFS_ANY_QUOTA_ENABLED(fs_info) (fs_info->quota_enabled || fs_info->usrquota_enabled)
+#define BTRFS_USRQUOTA_DELAYED_REF_SCAN ((unsigned long)-2)
+#endif /* MY_DEF_HERE */
+
 struct btrfs_free_space_info {
 	__le32 extent_count;
 	__le32 flags;
@@ -871,7 +1005,7 @@ struct btrfs_free_space_info {
 #define BTRFS_FREE_SPACE_USING_BITMAPS (1ULL << 0)
 
 #define BTRFS_QGROUP_LEVEL_SHIFT		48
-static inline u64 btrfs_qgroup_level(u64 qgroupid)
+static inline __u64 btrfs_qgroup_level(__u64 qgroupid)
 {
 	return qgroupid >> BTRFS_QGROUP_LEVEL_SHIFT;
 }

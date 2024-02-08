@@ -72,6 +72,7 @@ struct ttm_bus_placement {
 	uint64_t        io_reserved_count;
 };
 
+
 /**
  * struct ttm_mem_reg
  *

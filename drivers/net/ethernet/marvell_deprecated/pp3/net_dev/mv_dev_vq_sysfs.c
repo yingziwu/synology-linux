@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -30,6 +31,7 @@ disclaimer.
 *******************************************************************************/
 #include "mv_netdev.h"
 #include "mv_dev_vq.h"
+
 
 static ssize_t pp3_dev_vq_help(char *b)
 {
@@ -83,6 +85,7 @@ static ssize_t pp3_dev_vq_show(struct device *dev,
 
 	return off;
 }
+
 
 static ssize_t pp3_dev_vq_store(struct device *dev,
 				   struct device_attribute *attr, const char *buf, size_t len)
@@ -200,6 +203,7 @@ static DEVICE_ATTR(tx_vq_length,	S_IWUSR, NULL, pp3_dev_vq_store);
 static DEVICE_ATTR(tx_vq_limit,		S_IWUSR, NULL, pp3_dev_vq_store);
 static DEVICE_ATTR(tx_cos_vq,		S_IWUSR, NULL, pp3_dev_vq_store);
 
+
 static struct attribute *pp3_dev_vq_attrs[] = {
 	&dev_attr_help.attr,
 	&dev_attr_rx_cos_show.attr,
@@ -221,6 +225,7 @@ static struct attribute *pp3_dev_vq_attrs[] = {
 	&dev_attr_tx_cos_vq.attr,
 	NULL
 };
+
 
 static struct attribute_group pp3_dev_vq_group = {
 	.name = "vq",

@@ -49,11 +49,13 @@
 #define HW_GPIO_SLOT_LED	(1<<5)
 #define HW_GPIO_SENSOR_BAR	(1<<8)
 
+
 static void __iomem *hw_ctrl;
 static void __iomem *hw_gpio;
 
 unsigned long wii_hole_start;
 unsigned long wii_hole_size;
+
 
 static int __init page_aligned(unsigned long x)
 {
@@ -102,6 +104,10 @@ unsigned long __init wii_mmu_mapin_mem2(unsigned long top)
 	/* MEM2 64MB@0x10000000 */
 	delta = wii_hole_start + wii_hole_size;
 	size = top - delta;
+
+	if (__map_without_bats)
+		return delta;
+
 	for (bl = 128<<10; bl < max_size; bl <<= 1) {
 		if (bl * 2 > size)
 			break;
@@ -248,3 +254,4 @@ static int __init wii_device_probe(void)
 	return 0;
 }
 device_initcall(wii_device_probe);
+

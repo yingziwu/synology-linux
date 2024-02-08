@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ disclaimer.
 
 #include "tm_core_types.h"
 
+
 /***************************************************************************
  * Read Configuration
  ***************************************************************************/
@@ -54,6 +56,7 @@ disclaimer.
 int tm_read_queue_configuration(tm_handle hndl, uint32_t queue_index,
 								struct tm_queue_params *q_params);
 
+
 /** Read A-node software configuration.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -71,6 +74,7 @@ int tm_read_a_node_configuration(tm_handle hndl, uint32_t a_node_index,
 								struct tm_a_node_params *a_params,
 								uint32_t *p_first_child,
 								uint32_t *p_last_child);
+
 
 /** Read B-node software configuration.
  *
@@ -90,6 +94,7 @@ int tm_read_b_node_configuration(tm_handle hndl, uint32_t b_node_index,
 								uint32_t *p_first_child,
 								uint32_t *p_last_child);
 
+
 /** Read C-node software configuration.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -107,6 +112,7 @@ int tm_read_c_node_configuration(tm_handle hndl, uint32_t c_node_index,
 								struct tm_c_node_params *c_params,
 								uint32_t *p_first_child,
 								uint32_t *p_last_child);
+
 
 /** Read Port software configuration.
  *
@@ -131,6 +137,7 @@ int tm_read_port_configuration(tm_handle hndl, uint32_t port_index,
 							uint32_t *p_first_child,
 							uint32_t *p_last_child);
 
+
 /** Read queue hardware configuration.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -145,6 +152,7 @@ int tm_read_port_configuration(tm_handle hndl, uint32_t port_index,
  */
 int tm_read_queue_configuration_hw(tm_handle hndl, uint32_t queue_index,
 								struct tm_queue_params *params);
+
 
 /** Read A-node hardware configuration.
  *
@@ -163,6 +171,7 @@ int tm_read_a_node_configuration_hw(tm_handle hndl, uint32_t a_node_index,
 								uint32_t *p_first_child,
 								uint32_t *p_last_child);
 
+
 /** Read B-node hardware configuration.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -180,6 +189,7 @@ int tm_read_b_node_configuration_hw(tm_handle hndl, uint32_t b_node_index,
 								uint32_t *p_first_child,
 								uint32_t *p_last_child);
 
+
 /** Read C-node hardware configuration.
  *
  *   @param[in]     hndl            TM lib handle.
@@ -196,6 +206,7 @@ int tm_read_c_node_configuration_hw(tm_handle hndl, uint32_t c_node_index,
 								struct tm_c_node_params *c_params,
 								uint32_t *p_first_child,
 								uint32_t *p_last_child);
+
 
 /** Read Port hardware configuration.
  *

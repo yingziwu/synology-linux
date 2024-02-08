@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -79,6 +80,7 @@ static ssize_t mv_tm_help(char *b)
 	return o;
 }
 
+
 static ssize_t mv_tm_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -101,6 +103,7 @@ static ssize_t mv_tm_show(struct device *dev,
 
 	return off;
 }
+
 
 static ssize_t mv_tm_config(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
@@ -264,6 +267,7 @@ static struct attribute_group mv_tm_group = {
 	.attrs = mv_tm_attrs,
 };
 
+
 /*********/
 /* Debug */
 /*********/
@@ -306,6 +310,7 @@ static ssize_t mv_tm_debug_help(char *b)
 
 	return o;
 }
+
 
 static ssize_t mv_tm_debug_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
@@ -357,6 +362,7 @@ static ssize_t mv_tm_debug_show(struct device *dev,
 
 	return off;
 }
+
 
 static ssize_t mv_tm_debug_config(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
@@ -523,6 +529,7 @@ static struct attribute_group mv_tm_debug_group = {
 	.attrs = mv_tm_debug_attrs,
 };
 
+
 /********/
 /* Drop */
 /********/
@@ -582,6 +589,7 @@ static ssize_t mv_tm_drop_help(char *b)
 	return o;
 }
 
+
 static ssize_t mv_tm_drop_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -617,6 +625,7 @@ static ssize_t mv_tm_drop_show(struct device *dev,
 
 	return off;
 }
+
 
 static ssize_t mv_tm_drop_config(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
@@ -887,6 +896,7 @@ static struct attribute_group mv_tm_drop_group = {
 	.attrs = mv_tm_drop_attrs,
 };
 
+
 /***********/
 /* Shaping */
 /***********/
@@ -918,6 +928,7 @@ static ssize_t mv_tm_shaping_help(char *b)
 	return o;
 }
 
+
 static ssize_t mv_tm_shaping_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -943,6 +954,7 @@ static ssize_t mv_tm_shaping_show(struct device *dev,
 
 	return off;
 }
+
 
 static ssize_t mv_tm_shaping_config(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
@@ -1060,6 +1072,7 @@ static ssize_t mv_tm_shaping_config(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static DEVICE_ATTR(help_shaping,			S_IRUSR, mv_tm_shaping_show, NULL);
 static DEVICE_ATTR(shaping,					S_IRUSR, mv_tm_shaping_show, NULL);
 static DEVICE_ATTR(set_shaping,				S_IWUSR, NULL, mv_tm_shaping_config);
@@ -1085,6 +1098,7 @@ static struct attribute_group mv_tm_shaping_group = {
 	.name = "shaping",
 	.attrs = mv_tm_shaping_attrs,
 };
+
 
 /*******************************/
 /* SysFS Init & Exit functions */
@@ -1126,6 +1140,7 @@ int mv_pp3_tm_sysfs_init(struct kobject *pp3_kobj)
 
 	return err;
 }
+
 
 int mv_pp3_tm_sysfs_exit(struct kobject *tm_kobj)
 {

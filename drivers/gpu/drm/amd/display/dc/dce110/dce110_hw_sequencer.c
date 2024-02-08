@@ -688,6 +688,7 @@ void dce110_enable_stream(struct pipe_ctx *pipe_ctx)
 	struct dc_crtc_timing *timing = &pipe_ctx->stream->timing;
 	struct dc_link *link = pipe_ctx->stream->sink->link;
 
+
 	uint32_t active_total_with_borders;
 	uint32_t early_control = 0;
 	struct timing_generator *tg = pipe_ctx->stream_res.tg;
@@ -722,6 +723,9 @@ void dce110_enable_stream(struct pipe_ctx *pipe_ctx)
 		if (dc_is_dp_signal(pipe_ctx->stream->signal))
 			pipe_ctx->stream_res.stream_enc->funcs->dp_audio_enable(pipe_ctx->stream_res.stream_enc);
 	}
+
+
+
 
 }
 
@@ -834,6 +838,7 @@ void hwss_edp_power_control(
 	struct dce_hwseq *hwseq = ctx->dc->hwseq;
 	struct bp_transmitter_control cntl = { 0 };
 	enum bp_result bp_result;
+
 
 	if (dal_graphics_object_id_get_connector_id(link->link_enc->connector)
 			!= CONNECTOR_ID_EDP) {
@@ -989,6 +994,7 @@ void dce110_unblank_stream(struct pipe_ctx *pipe_ctx,
 	params.link_settings.link_rate = link_settings->link_rate;
 	pipe_ctx->stream_res.stream_enc->funcs->dp_unblank(pipe_ctx->stream_res.stream_enc, &params);
 }
+
 
 void dce110_set_avmute(struct pipe_ctx *pipe_ctx, bool enable)
 {
@@ -1215,6 +1221,8 @@ static enum dc_status dce110_prog_pixclk_crtc_otg(
 		}
 	}
 
+
+
 	return DC_OK;
 }
 
@@ -1266,6 +1274,7 @@ static enum dc_status apply_single_controller_ctx_to_hw(
 		pipe_ctx->stream_res.stream_enc,
 		pipe_ctx->stream_res.tg->inst,
 		stream->timing.timing_3d_format != TIMING_3D_FORMAT_NONE);
+
 
 	pipe_ctx->stream_res.opp->funcs->opp_program_fmt(
 		pipe_ctx->stream_res.opp,
@@ -1691,6 +1700,7 @@ static bool should_enable_fbc(struct dc *dc,
 	struct pipe_ctx *pipe_ctx = NULL;
 	struct resource_context *res_ctx = &context->res_ctx;
 
+
 	ASSERT(dc->fbc_compressor);
 
 	/* FBC memory should be allocated */
@@ -1741,6 +1751,7 @@ static void enable_fbc(struct dc *dc,
 		struct compr_addr_and_pitch_params params = {0, 0, 0};
 		struct compressor *compr = dc->fbc_compressor;
 		struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[pipe_idx];
+
 
 		params.source_view_width = pipe_ctx->stream->timing.h_addressable;
 		params.source_view_height = pipe_ctx->stream->timing.v_addressable;
@@ -1835,6 +1846,7 @@ static void dce110_reset_hw_ctx_wrap(
 		}
 	}
 }
+
 
 enum dc_status dce110_apply_ctx_to_hw(
 		struct dc *dc,
@@ -2097,6 +2109,7 @@ static void set_default_colors(struct pipe_ctx *pipe_ctx)
 					pipe_ctx->plane_res.xfm, &default_adjust);
 }
 
+
 /*******************************************************************************
  * In order to turn on/off specific surface we will program
  * Blender + CRTC
@@ -2149,6 +2162,7 @@ static void program_gamut_remap(struct pipe_ctx *pipe_ctx)
 	struct xfm_grph_csc_adjustment adjust;
 	memset(&adjust, 0, sizeof(adjust));
 	adjust.gamut_adjust_type = GRAPHICS_GAMUT_ADJUST_TYPE_BYPASS;
+
 
 	if (pipe_ctx->stream->gamut_remap_matrix.enable_remap == true) {
 		adjust.gamut_adjust_type = GRAPHICS_GAMUT_ADJUST_TYPE_SW;
@@ -3012,3 +3026,4 @@ void dce110_hw_sequencer_construct(struct dc *dc)
 {
 	dc->hwss = dce110_funcs;
 }
+

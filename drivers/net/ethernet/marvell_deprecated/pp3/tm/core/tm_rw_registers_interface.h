@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -44,6 +45,7 @@ int tm_register_write(void *environment_handle, void *vpAddress, void *vpData);
 
 int tm_table_entry_read(void *environment_handle, void *vpAddress, long int index, void *vpData);
 int tm_table_entry_write(void *environment_handle, void *vpAddress, long int index, void *vpData);
+
 
 #endif   /* TM_RW_REGISTERS_INTERFACE_H */
 #endif /* MY_ABC_HERE */

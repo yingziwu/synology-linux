@@ -25,6 +25,7 @@
 #include "vport/mv_pp3_cpu.h"
 #include "mv_netdev_structs.h"
 
+
 /*---------------------------------------------------------------------------*/
 static inline struct mv_nss_ops *mv_pp3_gnss_ops_get(struct net_device *dev)
 {

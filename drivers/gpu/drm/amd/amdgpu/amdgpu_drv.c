@@ -569,6 +569,7 @@ static int amdgpu_kick_out_firmware_fb(struct pci_dev *pdev)
 	return 0;
 }
 
+
 static int amdgpu_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *ent)
 {
@@ -897,6 +898,8 @@ static struct pci_driver amdgpu_kms_pci_driver = {
 	.shutdown = amdgpu_pci_shutdown,
 	.driver.pm = &amdgpu_pm_ops,
 };
+
+
 
 static int __init amdgpu_init(void)
 {

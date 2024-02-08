@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -54,6 +55,7 @@ disclaimer.
 */
 
 int tm_config_elig_prio_func_table(tm_handle hndl, int updateHW);
+
 
 #endif   /* TM_NODES_H */
 

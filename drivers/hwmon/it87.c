@@ -560,6 +560,7 @@ static int pwm_from_reg(const struct it87_data *data, u8 reg)
 		return (reg & 0x7f) << 1;
 }
 
+
 static int DIV_TO_REG(int val)
 {
 	int answer = 0;
@@ -598,6 +599,7 @@ static void it87_write_value(struct it87_data *data, u8 reg, u8 value);
 static struct it87_data *it87_update_device(struct device *dev);
 static int it87_check_pwm(struct device *dev);
 static void it87_init_device(struct platform_device *pdev);
+
 
 static struct platform_driver it87_driver = {
 	.driver = {
@@ -2989,6 +2991,7 @@ u32 syno_superio_gpio_pin(int pin, int *pValue, int isWrite)
 }
 EXPORT_SYMBOL(syno_superio_gpio_pin);
 #endif /* MY_DEF_HERE */
+
 
 MODULE_AUTHOR("Chris Gauthron, Jean Delvare <jdelvare@suse.de>");
 MODULE_DESCRIPTION("IT8705F/IT871xF/IT872xF hardware monitoring driver");

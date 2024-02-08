@@ -92,6 +92,7 @@ not_allocated:
 	return meta;
 }
 
+
 /*
  * Find and initialise an empty cache slot for index offset.
  */
@@ -155,6 +156,7 @@ failed:
 	return meta;
 }
 
+
 static void release_meta_index(struct inode *inode, struct meta_index *meta)
 {
 	struct squashfs_sb_info *msblk = inode->i_sb->s_fs_info;
@@ -162,6 +164,7 @@ static void release_meta_index(struct inode *inode, struct meta_index *meta)
 	meta->locked = 0;
 	mutex_unlock(&msblk->meta_index_mutex);
 }
+
 
 /*
  * Read the next n blocks from the block list, starting from
@@ -191,7 +194,11 @@ static long long read_indexes(struct super_block *sb, int n,
 		}
 
 		for (i = 0; i < blocks; i++) {
-			int size = le32_to_cpu(blist[i]);
+			int size = squashfs_block_size(blist[i]);
+			if (size < 0) {
+				err = size;
+				goto failure;
+			}
 			block += SQUASHFS_COMPRESSED_SIZE_BLOCK(size);
 		}
 		n -= blocks;
@@ -204,6 +211,7 @@ failure:
 	kfree(blist);
 	return err;
 }
+
 
 /*
  * Each cache index slot has SQUASHFS_META_ENTRIES, each of which
@@ -222,6 +230,7 @@ static inline int calculate_skip(int blocks)
 		 * SQUASHFS_META_INDEXES);
 	return min(SQUASHFS_CACHED_BLKS - 1, skip + 1);
 }
+
 
 /*
  * Search and grow the index cache for the specified inode, returning the
@@ -322,6 +331,7 @@ failed:
 	return err;
 }
 
+
 /*
  * Get the on-disk location and compressed size of the datablock
  * specified by index.  Fill_meta_index() does most of the work.
@@ -361,7 +371,7 @@ static int read_blocklist(struct inode *inode, int index, u64 *block)
 			sizeof(size));
 	if (res < 0)
 		return res;
-	return le32_to_cpu(size);
+	return squashfs_block_size(size);
 }
 
 /* Copy data into page cache  */
@@ -490,6 +500,7 @@ out:
 
 	return 0;
 }
+
 
 const struct address_space_operations squashfs_aops = {
 	.readpage = squashfs_readpage

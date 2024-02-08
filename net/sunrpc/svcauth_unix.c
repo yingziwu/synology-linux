@@ -18,6 +18,7 @@
 #include <linux/user_namespace.h>
 #define RPCDBG_FACILITY	RPCDBG_AUTH
 
+
 #include "netns.h"
 
 /*
@@ -26,6 +27,7 @@
  * are always nobody (-2).  i.e. we do the same IP address checks for
  * AUTHNULL as for AUTHUNIX, and that is done here.
  */
+
 
 struct unix_domain {
 	struct auth_domain	h;
@@ -75,6 +77,7 @@ struct auth_domain *unix_domain_find(char *name)
 	}
 }
 EXPORT_SYMBOL_GPL(unix_domain_find);
+
 
 /**************************************************
  * cache for IP address to unix_domain
@@ -267,6 +270,7 @@ static int ip_map_show(struct seq_file *m,
 	}
 	return 0;
 }
+
 
 static struct ip_map *__ip_map_lookup(struct cache_detail *cd, char *class,
 		struct in6_addr *addr)
@@ -516,6 +520,7 @@ static int unix_gid_parse(struct cache_detail *cd,
 		GROUP_AT(ug.gi, i) = kgid;
 	}
 
+	groups_sort(ug.gi);
 	ugp = unix_gid_lookup(cd, uid);
 	if (ugp) {
 		struct cache_head *ch;
@@ -770,6 +775,7 @@ svcauth_null_release(struct svc_rqst *rqstp)
 	return 0; /* don't drop */
 }
 
+
 struct auth_ops svcauth_null = {
 	.name		= "null",
 	.owner		= THIS_MODULE,
@@ -778,6 +784,7 @@ struct auth_ops svcauth_null = {
 	.release	= svcauth_null_release,
 	.set_client	= svcauth_unix_set_client,
 };
+
 
 static int
 svcauth_unix_accept(struct svc_rqst *rqstp, __be32 *authp)
@@ -821,6 +828,7 @@ svcauth_unix_accept(struct svc_rqst *rqstp, __be32 *authp)
 		kgid_t kgid = make_kgid(&init_user_ns, svc_getnl(argv));
 		GROUP_AT(cred->cr_group_info, i) = kgid;
 	}
+	groups_sort(cred->cr_group_info);
 	if (svc_getu32(argv) != htonl(RPC_AUTH_NULL) || svc_getu32(argv) != 0) {
 		*authp = rpc_autherr_badverf;
 		return SVC_DENIED;
@@ -852,6 +860,7 @@ svcauth_unix_release(struct svc_rqst *rqstp)
 
 	return 0;
 }
+
 
 struct auth_ops svcauth_unix = {
 	.name		= "unix",

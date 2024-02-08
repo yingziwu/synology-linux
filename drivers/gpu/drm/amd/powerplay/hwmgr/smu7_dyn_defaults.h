@@ -24,7 +24,9 @@
 #ifndef _SMU7_DYN_DEFAULTS_H
 #define _SMU7_DYN_DEFAULTS_H
 
+
 /*  We need to fill in the default values */
+
 
 #define SMU7_VOTINGRIGHTSCLIENTS_DFLT0              0x3FFFC102
 #define SMU7_VOTINGRIGHTSCLIENTS_DFLT1              0x000400
@@ -34,6 +36,7 @@
 #define SMU7_VOTINGRIGHTSCLIENTS_DFLT5              0xC00033
 #define SMU7_VOTINGRIGHTSCLIENTS_DFLT6              0xC00033
 #define SMU7_VOTINGRIGHTSCLIENTS_DFLT7              0x3FFFC000
+
 
 #define SMU7_THERMALPROTECTCOUNTER_DFLT            0x200
 #define SMU7_STATICSCREENTHRESHOLDUNIT_DFLT        0
@@ -49,3 +52,4 @@
 #define SMU7_MCLK_TARGETACTIVITY_DFLT                10
 
 #endif
+

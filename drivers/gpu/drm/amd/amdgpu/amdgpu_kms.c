@@ -775,6 +775,7 @@ static int amdgpu_info_ioctl(struct drm_device *dev, void *data, struct drm_file
 	return 0;
 }
 
+
 /*
  * Outdated mess for old drm with Xorg being in charge (void function now).
  */
@@ -1130,6 +1131,7 @@ static int amdgpu_debugfs_firmware_info(struct seq_file *m, void *data)
 		return ret;
 	seq_printf(m, "SOS feature version: %u, firmware version: 0x%08x\n",
 		   fw_info.feature, fw_info.ver);
+
 
 	/* PSP ASD */
 	query_fw.fw_type = AMDGPU_INFO_FW_ASD;

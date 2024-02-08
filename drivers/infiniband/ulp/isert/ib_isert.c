@@ -75,6 +75,7 @@ isert_prot_cmd(struct isert_conn *conn, struct se_cmd *cmd)
 		cmd->prot_op != TARGET_PROT_NORMAL);
 }
 
+
 static void
 isert_qp_event_callback(struct ib_event *e, void *context)
 {
@@ -1580,7 +1581,7 @@ isert_rcv_completion(struct iser_rx_desc *desc,
 		     struct isert_conn *isert_conn,
 		     u32 xfer_len)
 {
-	struct ib_device *ib_dev = isert_conn->cm_id->device;
+	struct ib_device *ib_dev = isert_conn->device->ib_device;
 	struct iscsi_hdr *hdr;
 	u64 rx_dma;
 	int rx_buflen;
@@ -1665,6 +1666,8 @@ isert_unmap_data_buf(struct isert_conn *isert_conn, struct isert_data_buf *data)
 	ib_dma_unmap_sg(ib_dev, data->sg, data->nents, data->dma_dir);
 	memset(data, 0, sizeof(*data));
 }
+
+
 
 static void
 isert_unmap_cmd(struct isert_cmd *isert_cmd, struct isert_conn *isert_conn)

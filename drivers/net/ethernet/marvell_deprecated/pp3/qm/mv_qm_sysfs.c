@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -31,6 +32,7 @@ disclaimer.
 #include "common/mv_sw_if.h"
 #include "qm/mv_qm.h"
 #include "qm/mv_qm_regs.h"
+
 
 #define PR_ERR_CODE(_rc)	\
 {							\
@@ -69,6 +71,7 @@ static ssize_t mv_qm_help(char *b)
 	o += scnprintf(b+o, s-o, "            [gr]    internal back pressure group\n");
 	o += scnprintf(b+o, s-o, "            [node]  1: A node, 2: B node, 3: C node\n");
 	o += scnprintf(b+o, s-o, "            [id]    node id\n");
+
 
 	o += scnprintf(b+o, s-o, "\n");
 

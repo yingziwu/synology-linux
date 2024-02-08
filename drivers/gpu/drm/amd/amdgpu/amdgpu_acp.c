@@ -305,6 +305,7 @@ static int acp_hw_init(void *handle)
 		adev->acp.acp_genpd->gpd.power_off = acp_poweroff;
 		adev->acp.acp_genpd->gpd.power_on = acp_poweron;
 
+
 		adev->acp.acp_genpd->cgs_dev = adev->acp.cgs_device;
 
 		pm_genpd_init(&adev->acp.acp_genpd->gpd, NULL, false);

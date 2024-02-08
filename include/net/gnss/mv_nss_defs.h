@@ -67,6 +67,7 @@ enum mv_nss_l2_option {
 #define MV_NSS_ALL_MCAST_MODE   (MV_NSS_NON_PROMISC_MODE | (1 << MV_NSS_L2_MCAST_PROMISC))
 #define MV_NSS_PROMISC_MODE     (MV_NSS_ALL_MCAST_MODE | (1 << MV_NSS_L2_UCAST_PROMISC))
 
+
 struct mv_nss_meter {
 	bool         enable;
 	unsigned int cir;
@@ -86,6 +87,7 @@ struct mv_nss_sched {
 	unsigned short weight;         /* weight */
 	bool           wrr_enable;
 };
+
 
 struct mv_nss_vq_stats {
 	uint64_t pkts;    /* Number of processed packets */

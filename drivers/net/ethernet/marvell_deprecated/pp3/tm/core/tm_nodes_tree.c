@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -36,6 +37,7 @@ disclaimer.
 
 #include "set_hw_registers.h"
 
+
 /**
  */
 int tm_tree_change_status(tm_handle hndl, uint8_t status)
@@ -44,6 +46,7 @@ int tm_tree_change_status(tm_handle hndl, uint8_t status)
 
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
+
 
 	rc = tm_nodes_lock(TM_ENV(ctl));
 	if (rc)
@@ -65,6 +68,7 @@ out:
 	return rc;
 }
 
+
 #ifdef MV_QMTM_NSS_A0
 /**
  */
@@ -75,6 +79,7 @@ int tm_tree_set_dwrr_prio(tm_handle hndl, uint8_t * prios)
 
 	DECLARE_TM_CTL_PTR(ctl, hndl)
 	CHECK_TM_CTL_PTR(ctl)
+
 
 	rc = tm_nodes_lock(TM_ENV(ctl));
 	if (rc)

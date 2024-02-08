@@ -22,5 +22,6 @@
 
 int mv_soc_info_get_revision(void);
 
+
 #endif /* MV_SOC_INFO_H */
 #endif /* MY_ABC_HERE */

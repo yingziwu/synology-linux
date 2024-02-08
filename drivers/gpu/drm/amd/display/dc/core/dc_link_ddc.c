@@ -772,3 +772,4 @@ void dal_ddc_service_read_scdc_data(struct ddc_service *ddc_service)
 				sizeof(status_data.byte));
 	}
 }
+

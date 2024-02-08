@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -44,10 +45,12 @@ disclaimer.
 #include "tm_locking_interface.h"
 #include "tm_hw_configuration_interface.h"
 
+
 static int tm_round_int(uint32_t val, uint32_t divider)
 {
 	return (val * 100 + 50) / (divider * 100);
 }
+
 
 /**
  */
@@ -186,6 +189,7 @@ int update_curves_at_level(tm_handle hndl,
 	return rc;
 }
 
+
 /**
  */
 int tm_create_wred_curve(tm_handle hndl,
@@ -229,6 +233,7 @@ int tm_create_wred_curve(tm_handle hndl,
 			max_prob = prob[i];
 	}
 
+
 	/* find free curve */
 	switch (level) {
 	case Q_LEVEL:
@@ -267,6 +272,7 @@ int tm_create_wred_curve(tm_handle hndl,
 		goto out;
 	} else
 		*curve_index = (uint8_t)curve_ind;
+
 
 	/* Check that max_p doesn't exceed dp_max mode. If - yes, update
 	 * all existing curves at this level and for this color according to the new mode. */
@@ -457,6 +463,7 @@ out:
 	return rc;
 }
 
+
 /**
 */
 int tm_create_wred_traditional_curve(tm_handle hndl,
@@ -612,6 +619,7 @@ int tm_create_wred_traditional_curve(tm_handle hndl,
 		goto out;
 	}
 
+
 	if (flag_mode_change == TM_ENABLE) {
 		/* Update all the rest of curves at this level */
 		rc = update_curves_at_level(ctl, level, (uint8_t)curve_ind, max_prob, old_mode);
@@ -620,6 +628,7 @@ int tm_create_wred_traditional_curve(tm_handle hndl,
 			goto out;
 		}
 	}
+
 
 	/* update SW image */
 	switch (level) {
@@ -648,6 +657,7 @@ int tm_create_wred_traditional_curve(tm_handle hndl,
 	/* Calculate drop probability for each of 32 points */
 	for (i = 0; i < TM_WRED_CURVE_POINTS; i++)
 		curve->prob[i] = (uint8_t)tm_round_int((uint8_t)mp_scaled * (i+1), (uint8_t)TM_WRED_CURVE_POINTS);
+
 
 	/* update HW */
 	switch (level) {
@@ -738,6 +748,7 @@ int tm_create_wred_flat_curve(tm_handle hndl,
 		prob[i] = cp;
 	return tm_create_wred_curve(hndl, level, cos, prob, curve_index);
 }
+
 
 /**
 */
@@ -1101,6 +1112,7 @@ out:
 	tm_glob_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
 */
@@ -1471,6 +1483,7 @@ out:
 	return rc;
 }
 
+
 /**
 */
 int tm_drop_profile_hw_set(tm_handle hndl,
@@ -1564,6 +1577,7 @@ out:
 	return rc;
 }
 
+
 /**
 */
 int tm_create_drop_profile_1G(tm_handle hndl,
@@ -1621,6 +1635,7 @@ int tm_create_drop_profile_1G(tm_handle hndl,
 		goto out;
 	} else
 		*prof_index = prof_ind;
+
 
 	switch (level) {
 	case Q_LEVEL:
@@ -1756,6 +1771,7 @@ out:
 	return rc;
 }
 
+
 /**
 */
 int tm_create_drop_profile_2_5G(tm_handle hndl,
@@ -1813,6 +1829,7 @@ int tm_create_drop_profile_2_5G(tm_handle hndl,
 		goto out;
 	} else
 		*prof_index = prof_ind;
+
 
 	switch (level) {
 	case Q_LEVEL:
@@ -1947,6 +1964,7 @@ out:
 	tm_glob_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
 */
@@ -2147,6 +2165,7 @@ out:
 	return rc;
 }
 
+
 /**
 */
 int tm_read_drop_profile(tm_handle hndl,
@@ -2324,6 +2343,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_set_drop_color_num(tm_handle hndl,
@@ -2373,6 +2393,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_dp_source_set(tm_handle hndl,
@@ -2418,6 +2439,7 @@ out:
 	return rc;
 }
 
+
 /**
  */
 int tm_set_drop_query_responce(tm_handle hndl,
@@ -2451,6 +2473,7 @@ out:
 	tm_glob_unlock(TM_ENV(ctl));
 	return rc;
 }
+
 
 /**
  */
@@ -2489,11 +2512,13 @@ out:
 	return rc;
 }
 
+
 #define SET_CURVE_DEFAULT       \
 	do {                        \
 		for (j = 0; j < TM_WRED_CURVE_POINTS; j++)\
 			curve->prob[j] = (uint8_t)tm_round_int((uint8_t)63 * (j+1), (uint8_t)TM_WRED_CURVE_POINTS); \
 	} while (0);
+
 
 int _tm_config_default_curves_sw(tm_handle hndl)
 {
@@ -2547,6 +2572,7 @@ int _tm_config_default_curves_sw(tm_handle hndl)
 	return 0;
 }
 
+
 int _tm_config_default_curves_hw(tm_handle hndl)
 {
 	struct tm_wred_curve curve;
@@ -2584,6 +2610,7 @@ int _tm_config_default_curves_hw(tm_handle hndl)
 	return 0;
 }
 
+
 int _tm_config_default_dp_mode(tm_handle hndl, int write_to_hw)
 {
 	int i;
@@ -2611,6 +2638,7 @@ int _tm_config_default_dp_mode(tm_handle hndl, int write_to_hw)
 	return rc;
 }
 
+
 void __set_default_profile(struct tm_drop_profile *profile)
 {
 	int j;
@@ -2629,6 +2657,7 @@ void __set_default_profile(struct tm_drop_profile *profile)
 		profile->dp_ratio[j].ratio = 0;
 	}
 }
+
 
 int _tm_config_default_profiles_sw(tm_handle hndl)
 {
@@ -2686,6 +2715,7 @@ int _tm_config_default_profiles_sw(tm_handle hndl)
 	return 0;
 }
 
+
 int _tm_config_default_profiles_hw(tm_handle hndl)
 {
 	struct tm_drop_profile profile;
@@ -2718,6 +2748,7 @@ int _tm_config_default_profiles_hw(tm_handle hndl)
 	return 0;
 }
 
+
 int _tm_config_default_drop_sw(tm_handle hndl)
 {
 	int rc;
@@ -2746,6 +2777,7 @@ out:
 	return rc;
 }
 
+
 int _tm_config_default_drop_hw(tm_handle hndl)
 {
 	int rc;
@@ -2764,6 +2796,7 @@ int _tm_config_default_drop_hw(tm_handle hndl)
 	/* successful */
 	return 0;
 }
+
 
 /* Predefined Drop profiles */
 int tm_create_drop_profile_cbtd_100Mb(tm_handle hndl,
@@ -2796,6 +2829,7 @@ int tm_create_drop_profile_cbtd_100Mb(tm_handle hndl,
 	rc = tm_create_drop_profile(ctl, level, cos, &profile, prof_index);
 	return rc;
 }
+
 
 int tm_create_drop_profile_wred_10Mb(tm_handle hndl,
 						enum tm_level level,
@@ -2832,6 +2866,7 @@ int tm_create_drop_profile_wred_10Mb(tm_handle hndl,
 	rc = tm_create_drop_profile(ctl, level, cos, &profile, prof_index);
 	return rc;
 }
+
 
 int tm_create_drop_profile_mixed_cbtd_100Mb_wred_10Mb(tm_handle hndl,
 						enum tm_level level,

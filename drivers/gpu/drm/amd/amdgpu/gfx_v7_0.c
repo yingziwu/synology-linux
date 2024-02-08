@@ -2147,6 +2147,7 @@ static void gfx_v7_0_ring_emit_vgt_flush(struct amdgpu_ring *ring)
 		EVENT_INDEX(0));
 }
 
+
 /**
  * gfx_v7_0_ring_emit_hdp_invalidate - emit an hdp invalidate on the cp
  *
@@ -4505,6 +4506,7 @@ static int gfx_v7_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
 	if (r)
 		return r;
 
+
 	return 0;
 }
 
@@ -5200,6 +5202,7 @@ static void gfx_v7_0_set_gds_init(struct amdgpu_device *adev)
 		adev->gds.oa.cs_partition_size = 4;
 	}
 }
+
 
 static void gfx_v7_0_get_cu_info(struct amdgpu_device *adev)
 {

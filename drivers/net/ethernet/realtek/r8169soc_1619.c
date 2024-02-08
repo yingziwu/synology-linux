@@ -2180,6 +2180,7 @@ static int rtl8169_set_features(struct net_device *dev,
 	return 0;
 }
 
+
 static inline u32 rtl8169_tx_vlan_tag(struct sk_buff *skb)
 {
 	return (skb_vlan_tag_present(skb)) ?
@@ -3711,6 +3712,7 @@ static void rtl8411_hw_phy_config(struct rtl8169_private *tp)
 		{ 0x1f, 0x0000 }
 	};
 
+
 	rtl_apply_firmware(tp);
 
 	rtl8168f_hw_phy_config(tp);
@@ -4107,6 +4109,7 @@ static void rtl_phy_work(struct rtl8169_private *tp)
 	gphy_status = gphy_status & 0x0F00;
 	gphy_status = gphy_status >>8;
 
+
 	if((gphy_status>=3)&&(gphy_code==0x6329))
 	{
 		goto out_mod_timer;
@@ -4124,6 +4127,7 @@ static void rtl_phy_work(struct rtl8169_private *tp)
 	j=readl(IOMEM(0xFE007088));
 	j = j & 0xfffff9ff;
 	writel(j,IOMEM(0xFE007088));
+
 
 	i=readl(IOMEM(0xFE000000));
 	i = i | 0x00004000;
@@ -4160,6 +4164,7 @@ out_mod_timer:
 	mod_timer(timer, jiffies + timeout);
 */
 }
+
 
 static void rtl8169_phy_timer(unsigned long __opaque)
 {
@@ -4237,6 +4242,7 @@ static void rtl8169_init_phy(struct net_device *dev, struct rtl8169_private *tp)
 	if (rtl_tbi_enabled(tp))
 		netif_info(tp, link, dev, "TBI auto-negotiating\n");
 }
+
 
 static int rtl_set_mac_address(struct net_device *dev, void *p)
 {
@@ -7043,6 +7049,7 @@ process_pkt:
 	count = cur_rx - tp->cur_rx;
 	tp->cur_rx = cur_rx;
 
+
 	delta = rtl8168_rx_fill(tp, dev, tp->dirty_rx, tp->cur_rx);
 	//netif_err(tp, drv, tp->dev, "delta =%x \n",delta);
 	tp->dirty_rx += delta;
@@ -7521,6 +7528,7 @@ rtl8169_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 		stats->rx_bytes	= tp->rx_stats.bytes;
 	} while (u64_stats_fetch_retry_irq(&tp->rx_stats.syncp, start));
 
+
 	do {
 		start = u64_stats_fetch_begin_irq(&tp->tx_stats.syncp);
 		stats->tx_packets = tp->tx_stats.packets;
@@ -7600,6 +7608,7 @@ static int rtl8169_suspend(struct device *dev)
 		printk(KERN_ERR "[RTK_ETN] %s Suspend mode\n", __func__);
 	}
 
+
 	printk(KERN_ERR "[RTK_ETN] Exit %s\n", __func__);
 
 	return 0;
@@ -7622,6 +7631,7 @@ static void __rtl8169_resume(struct net_device *dev)
 	j=readl(IOMEM(0xFE007088));
 	j = j & 0xfffff9ff;
 	writel(j,IOMEM(0xFE007088));
+
 
 	i=readl(IOMEM(0xFE000000));
 	i = i | 0x00004000;
@@ -7816,6 +7826,7 @@ static int rtl_remove_one(struct platform_device *pdev)
 		tp->mac_version == RTL_GIGA_MAC_VER_31) {
 		rtl8168_driver_stop(tp);
 	}
+
 
 #ifdef RTL_PROC
 	do{
@@ -8046,6 +8057,7 @@ static const struct file_operations wol_proc_fops = {
 	.llseek         = seq_lseek,
 	.release        = single_release,
 };
+
 
 static int eee_read_proc(struct seq_file *m, void *v)
 {
@@ -8294,6 +8306,7 @@ static const struct file_operations driver_var_proc_fops = {
 	.release        = single_release,
 };
 
+
 static int tally_read_proc(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -8337,6 +8350,7 @@ static const struct file_operations tally_proc_fops = {
 	.release        = single_release,
 };
 
+
 static int registers_read_proc(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -8375,6 +8389,7 @@ static const struct file_operations registers_proc_fops = {
 	.llseek         = seq_lseek,
 	.release        = single_release,
 };
+
 
 static int eth_phy_read_proc(struct seq_file *m, void *v)
 {
@@ -8418,6 +8433,7 @@ static const struct file_operations eth_phy_proc_fops = {
 	.release        = single_release,
 };
 
+
 static int ext_regs_read_proc(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
@@ -8456,6 +8472,7 @@ static const struct file_operations ext_regs_proc_fops = {
 	.release        = single_release,
 };
 
+
 #endif
 
 #if defined(CONFIG_ARCH_RTD16xx)
@@ -8488,6 +8505,7 @@ static void r8169soc_reset_phy_gmac(struct rtl8169_private *tp)
 		rstc_pcie0_sgmii_mdio = reset_control_get(&tp->pdev->dev, "pcie0_sgmii_mdio");
 		rstc_pcie0_phy_mdio = reset_control_get(&tp->pdev->dev, "pcie0_phy_mdio");
 	}
+
 
 	/* reg_0x9800708c[12:11] = 00 */
 	/* ISO spec, clock enable bit for etn clock & etn 250MHz */
@@ -8532,6 +8550,7 @@ static void r8169soc_reset_phy_gmac(struct rtl8169_private *tp)
 		reset_control_assert(rstc_pcie0_power);
 		reset_control_assert(rstc_pcie0_phy);
 	}
+
 
 	mdelay(1);
 
@@ -8644,6 +8663,7 @@ static void r8169soc_acp_init(struct rtl8169_private *tp)
 		tmp = readl(tp->mmio_sbxaddr + SBX_ACP_CHANNEL_REQ_MASK);
 		tmp &= ~BIT(1);
 		writel(tmp, tp->mmio_sbxaddr + SBX_ACP_CHANNEL_REQ_MASK);
+
 
 		pr_info("ARM ACP on\n.");
 	} else {
@@ -9449,6 +9469,7 @@ rtl_init_one(struct platform_device *pdev)
 
 	ioaddr = of_iomap(pdev->dev.of_node, 0);
 
+
 	clkaddr = of_iomap(pdev->dev.of_node, 1);
 
 	ndev = alloc_etherdev(sizeof (*tp));
@@ -9627,6 +9648,7 @@ rtl_init_one(struct platform_device *pdev)
 			break;
 		}
 
+
 		entry = proc_create_data("wol_enable", S_IFREG | S_IRUGO,
 				   dir_dev, &wol_proc_fops, NULL);
 		if (!entry) {
@@ -9775,6 +9797,7 @@ rtl_init_one(struct platform_device *pdev)
 	if (retry == RETRY_MAX)
 		printk(KERN_ERR "%s get invalid MAC address %pM, give up!\n",
 			rtl_chip_infos[chipset].name, ndev->dev_addr);
+
 
 	ndev->ethtool_ops = &rtl8169_ethtool_ops;
 	ndev->watchdog_timeo = RTL8169_TX_TIMEOUT;

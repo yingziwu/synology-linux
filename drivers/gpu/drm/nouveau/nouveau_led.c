@@ -73,6 +73,7 @@ nouveau_led_set_brightness(struct led_classdev *led, enum led_brightness value)
 	nvif_wr32(device, 0x61c884, 0xc0000000 | duty);
 }
 
+
 int
 nouveau_led_init(struct drm_device *dev)
 {

@@ -4,6 +4,7 @@
 #ifndef _LINUX_STAT_H
 #define _LINUX_STAT_H
 
+
 #include <asm/stat.h>
 #include <uapi/linux/stat.h>
 
@@ -26,10 +27,10 @@ struct kstat {
 	umode_t		mode;
 #ifdef MY_ABC_HERE
 	__u32		syno_archive_bit;
-#endif  
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	__u32		syno_archive_version;
-#endif  
+#endif /* MY_ABC_HERE */
 	unsigned int	nlink;
 	kuid_t		uid;
 	kgid_t		gid;
@@ -40,9 +41,18 @@ struct kstat {
 	struct timespec	ctime;
 #ifdef MY_ABC_HERE
 	struct timespec syno_create_time;
-#endif  
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	unsigned long syno_compressed;
+#endif
 	unsigned long	blksize;
 	unsigned long long	blocks;
+#ifdef MY_DEF_HERE
+	bool		is_inline;
+#endif /* MY_DEF_HERE */
+#ifdef MY_ABC_HERE
+	unsigned int	syno_flags;
+#endif
 };
 
 #ifdef MY_ABC_HERE
@@ -50,6 +60,9 @@ struct SYNOSTAT_EXTRA {
 	struct timespec create_time;
 	unsigned int archive_version;
 	unsigned int archive_bit;
+	unsigned int compressed;
+	unsigned int flags;
+	unsigned int reserved[7];
 };
 struct SYNOSTAT {
 	struct stat st;
@@ -57,16 +70,24 @@ struct SYNOSTAT {
 };
 
 #ifdef MY_ABC_HERE
- 
-#define SYNOST_STAT         0x00000001   
-#define SYNOST_ARCHIVE_BIT  0x00000002   
-#define SYNOST_ARCHIVE_VER  0x00000004   
-#define SYNOST_CREATE_TIME  0x00000008   
+/*
+ * flags: decide which information to get.
+ */
+#define SYNOST_STAT         0x00000001  /* stat */
+#define SYNOST_ARCHIVE_BIT  0x00000002  /* Archive Bit */
+#define SYNOST_ARCHIVE_VER  0x00000004  /* Archive Version (aka Backup Version) */
+#define SYNOST_CREATE_TIME  0x00000008  /* Create Time */
+#define SYNOST_COMPRESSION  0x00000010  /* Compression Type */
+#define SYNOST_IS_INLINE    0x00000020  /* Is inline file? */
+#define SYNOST_OFFLINE      0x00000040  /* currently, only c2fs support offline */
 
-#define SYNOST_ALL          SYNOST_STAT|SYNOST_ARCHIVE_BIT|SYNOST_ARCHIVE_VER|SYNOST_CREATE_TIME
-#define SYNOST_IS_CASELESS      0x10000000       
+#define SYNOST_ALL          (SYNOST_STAT|SYNOST_ARCHIVE_BIT|SYNOST_ARCHIVE_VER|SYNOST_CREATE_TIME|SYNOST_COMPRESSION|SYNOST_OFFLINE)
+#define SYNOST_IS_CASELESS      0x10000000      /* Is Caseless */
 
-#endif  
-#endif  
+#define SYNOST_FLAG_OFFLINE     0x00000001
+
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
 
 #endif

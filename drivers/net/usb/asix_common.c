@@ -269,6 +269,7 @@ int asix_get_phy_addr(struct usbnet *dev)
 	return asix_read_phy_addr(dev, 1);
 }
 
+
 int asix_sw_reset(struct usbnet *dev, u8 flags)
 {
 	int ret;
@@ -447,6 +448,9 @@ int asix_set_wol(struct net_device *net, struct ethtool_wolinfo *wolinfo)
 {
 	struct usbnet *dev = netdev_priv(net);
 	u8 opt = 0;
+
+	if (wolinfo->wolopts & ~(WAKE_PHY | WAKE_MAGIC))
+		return -EINVAL;
 
 	if (wolinfo->wolopts & WAKE_PHY)
 		opt |= AX_MONITOR_LINK;
